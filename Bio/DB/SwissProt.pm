@@ -170,6 +170,8 @@ sub new {
 
 =head2 Routines from Bio::DB::RandomAccessI
 
+=cut 
+
 =head2 get_Seq_by_id
 
  Title   : get_Seq_by_id
@@ -236,6 +238,8 @@ sub get_Stream_by_batch {
 }
 
 =head2 Implemented Routines from Bio::DB::WebDBSeqI interface
+
+=cut
 
 =head2 get_request
 
@@ -315,6 +319,8 @@ sub default_format {
 
 =head2 Bio::DB::SwissProt specific routines
  
+=cut 
+
 =head2 servertype
 
  Title   : servertype

@@ -26,13 +26,12 @@ Bio::AnnotationCollectionI - Interface for annotation collections
        foreach $value ( @values ) {
           # value is an Bio::AnnotationI, and defines a "as_text" method
           print "Annotation ",$key," stringified value ",$value->as_text,"\n";
-          
+
           # also defined hash_tree method, which allows data orientated
           # access into this object
           $hash = $value->hash_tree();
        }
    } 
-          
 
 =head1 DESCRIPTION
 

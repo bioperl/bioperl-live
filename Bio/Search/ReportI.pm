@@ -20,7 +20,7 @@ Bio::Search::ReportI - Interface for a Search Report (BLAST, FASTA, HMMER)
     # like from a SearchIO
     my $searchio = new Bio::SearchIO(-format => 'blastxml', -file => 'report.xml');
     my $report = $searchio->next_report;
-     
+
     my @searchparams = $report->available_parameters;
     print "program was ", $report->program_name, " ", $report->program_version,
     "\n";
@@ -36,7 +36,7 @@ Bio::Search::ReportI - Interface for a Search Report (BLAST, FASTA, HMMER)
     while( my $subject = $report->next_subject ) {
 	# process a Bio::Search::SubjectI object
     }
-    
+
 =head1 DESCRIPTION
 
 This is an interface describing the minimal information for a

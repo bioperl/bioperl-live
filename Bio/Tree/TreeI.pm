@@ -12,16 +12,17 @@
 
 =head1 NAME
 
-Bio::Tree::TreeI - A Tree object suitable for lots of things, designed originally for Phylogenetic Trees.
+Bio::Tree::TreeI - A Tree object suitable for lots of things, designed
+  originally for Phylogenetic Trees.
 
 =head1 SYNOPSIS
 
-# get a Bio::Tree::TreeI somehow
-# like from a TreeIO
-    my $treeio = new Bio::TreeIO(-format => 'newick', -file => 'treefile.dnd');
-    my $tree = $treeio->next_tree;
-    my @nodes = $tree->get_nodes;
-    my $root = $tree->get_root_node;
+  # get a Bio::Tree::TreeI somehow
+  # like from a TreeIO
+  my $treeio = new Bio::TreeIO(-format => 'newick', -file => 'treefile.dnd');
+  my $tree = $treeio->next_tree;
+  my @nodes = $tree->get_nodes;
+  my $root = $tree->get_root_node;
 
 =head1 DESCRIPTION
 

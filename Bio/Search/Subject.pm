@@ -108,7 +108,8 @@ sub new {
   $self->{'_hspindex'} = 0;
   $self->{'_hsps'} = [];
   if( defined $hsps  ) {
-      $self->throw("Must define arrayref of HSPIs when initializing a $class\n") unless ref($hsps) =~ /array/i;
+      $self->throw("Must define arrayref of HSPIs when initializing a $class\n") 
+	  unless ref($hsps) =~ /array/i;
       
       foreach my $h ( @$hsps ) {
 	  $self->add_hsp($h);
@@ -118,6 +119,8 @@ sub new {
 }
 
 =head2 Bio::Search::SubjectI methods
+
+=cut
 
 =head2 name
 
@@ -235,6 +238,8 @@ sub next_hsp {
 }
 
 =head2 Bio::Search::Subject methods
+
+=cut
 
 =head2 add_hsp
 

@@ -119,6 +119,8 @@ sub trunc {
 
 =head2 Bio::Seq::LargePrimarySeq methods
 
+=cut
+
 =head2 add_sequence_as_string
 
  Title   : add_sequence_as_string

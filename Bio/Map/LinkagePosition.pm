@@ -18,12 +18,15 @@ Bio::Map::LinkagePosition - Create a Position for a Marker that will be placed
     use Bio::Map::Position;
     my $position = new Bio::Map::LinkagePosition(-positions => 1,
 						 -distance => 22.1 );
-    
+
 	    # can get listing of positions
     my @positions = $position->each_position;
 
 
 =head1 DESCRIPTION
+
+Position for a L<Bio::Map::MarkerI> compliant object that will be
+placed on a L<Bio::Map::LinkageMap>.
 
 =head1 FEEDBACK
 
@@ -80,7 +83,7 @@ use Bio::Map::OrderedPosition;
  Title   : new
  Usage   : my $obj = new Bio::Map::LinkagePosition(-positions => $position,
 				-distance => $distance );
- Function: Builds a new Bio::Map::LinkagePosition object 
+ Function: Builds a new Bio::Map::LinkagePosition object
  Returns : Bio::Map::LinkagePosition
  Args    : -order => the relative order of this marker on a linkage map
  	   -positions => positions on a map
@@ -88,19 +91,23 @@ use Bio::Map::OrderedPosition;
 
 =head2 Bio::Map::OrderedPosition methods
 
+=cut
+
 =head2 order
 
  Title   : order
  Usage   : $o_position->order($new_position) _or_
            $o_position->order()
  Function: get/set the order position of this position in a map
- Returns : 
+ Returns :
  Args    : If $new_position is provided, the current position of this Position
            will be set to $new_position.
 
 =cut
 
 =head2 Bio::Map::Position functions
+
+=cut
 
 =head2 known_maps
 
@@ -122,7 +129,7 @@ use Bio::Map::OrderedPosition;
 
  Title   : positions
  Usage   : my @positions = $position->each_position_value($map);
- Function: Retrieve a list of positions coded as strings or ints 
+ Function: Retrieve a list of positions coded as strings or ints
  Returns : Array of position values for a Map
  Args    : Bio::Map::MapI object to get positions for
 
@@ -131,7 +138,7 @@ use Bio::Map::OrderedPosition;
 sub each_position_value {
     my ($self, @args) = @_;
     my @v = $self->SUPER::each_position_value(@args);
-    if ( ! @v ) { 
+    if ( ! @v ) {
 	return ('0.0');
     }
     return @v;
@@ -141,7 +148,7 @@ sub each_position_value {
 
  Title   : add_position_value
  Usage   : $position->add_position_value($map,'100');
- Function: Add a numeric or string position to the PositionI container 
+ Function: Add a numeric or string position to the PositionI container
            and assoiciate it with a Bio::Map::MapI
  Returns : none
  Args    : $map - Bio::Map::MapI
@@ -167,7 +174,7 @@ sub each_position_value {
 =cut
 
 # admittedly these are really the best comparisons in the world
-# but it is a first pass we'll need to refine the algorithm or not 
+# but it is a first pass we'll need to refine the algorithm or not
 # provide general comparisions and require these to be implemented
 # by objects closer to the specific type of data
 

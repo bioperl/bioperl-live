@@ -17,7 +17,7 @@ Bio::DB::GFF::Featname -- The name of a feature
 Bio::DB::GFF::Featname is the name of a feature.  It contains two
 fields: name and class.  It is typically used by the Bio::DB::GFF
 module to denote a group, and is accepted by
-Bio::DB::Relsegment->new() and Bio::DB::GFF->segment() as a
+Bio::DB::Relsegment-E<gt>new() and Bio::DB::GFF-E<gt>segment() as a
 replacement for the -name and -class arguments.
 
 =head1 METHODS

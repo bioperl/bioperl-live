@@ -41,7 +41,7 @@ use constant MAX_SEGMENT => 100_000_000;  # the largest a segment can get
  Status  : Public
 
 This is the constructor for the adaptor.  It is called automatically
-by Bio::DB::GFF->new.  In addition to arguments that are common among
+by Bio::DB::GFF-E<gt>new.  In addition to arguments that are common among
 all adaptors, the following class-specific arguments are recgonized:
 
   Argument       Description
@@ -250,7 +250,7 @@ coordinates of the match in the target sequence.
 
 The feature ID, if provided, is a unique identifier of the feature
 line.  The module does not depend on this ID in any way, but it is
-available via Bio::DB::GFF->id() if wanted.  In the dbi::mysql and
+available via Bio::DB::GFF-E<gt>id() if wanted.  In the dbi::mysql and
 dbi::mysqlopt adaptor, the ID is a unique row ID.  In the acedb
 adaptor it is not used.
 
@@ -337,7 +337,7 @@ slow operation in some implementations).
 
 If the $count flag is false, the method returns a simple list of
 vBio::DB::GFF::Typename objects.  If $count is true, the method returns
-a list of $name=>$count pairs, where $count indicates the number of
+a list of $name=E<gt>$count pairs, where $count indicates the number of
 times this feature occurs in the range.
 
 Internally, this method calls upon the following functions to generate
@@ -993,6 +993,7 @@ The argument is an array reference containing zero or more
 [$method,$source] pairs.
 
 =cut
+
 #'
 
 # generate the fragment of SQL responsible for searching for

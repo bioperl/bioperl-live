@@ -14,7 +14,7 @@ allow for isa() queries and for compatibility with
 Ace::Sequence::Homol.  
 
 A Homol object is typically returned as the method result of the
-Bio::DB::GFF::Feature->target() method.
+Bio::DB::GFF::Feature-E<gt>target() method.
 
 =head1 METHODS
 

@@ -15,18 +15,18 @@
 Bio::Tree::Node - A Simple Tree Node
 
 =head1 SYNOPSIS
-    
+
     use Bio::Tree::Node;
     my $nodeA = new Bio::Tree::Node();
     my $nodeL = new Bio::Tree::Node();
     my $nodeR = new Bio::Tree::Node();
-    
+
     my $node = new Bio::Tree::Node();
     $node->add_Descendents($nodeL);
     $node->add_Descendents($nodeR);
 
     print "node is not a leaf \n" if( $node->is_leaf);
-   
+
 =head1 DESCRIPTION
 
 Makes a Tree Node suitable for building a Tree.
@@ -84,7 +84,7 @@ use Bio::Tree::NodeI;
 
  Title   : new
  Usage   : my $obj = new Bio::Tree::Node();
- Function: Builds a new Bio::Tree::Node object 
+ Function: Builds a new Bio::Tree::Node object
  Returns : Bio::Tree::Node
  Args    : -left   => pointer to Left descendent (optional)
            -right  => pointer to Right descenent (optional)
@@ -107,16 +107,16 @@ sub new {
 						 )],
 					     @args);
   $self->{'_desc'} = {};
-  defined $desc && $self->description($desc);  
+  defined $desc && $self->description($desc);
   defined $bootstrap && $self->bootstrap($bootstrap);
   defined $id && $self->id($id);
   defined $branchlen && $self->branch_length($branchlen);
-  
-  if( defined $children ) { 
-      if( ref($children) !~ /ARRAY/i ) { 
+
+  if( defined $children ) {
+      if( ref($children) !~ /ARRAY/i ) {
 	  $self->warn("Must specify a valid ARRAY reference to initialize a Node's Descendents");
       }
-      foreach my $c ( @$children ) { 	  
+      foreach my $c ( @$children ) { 	
 	  $self->add_Descendent($c);
       }
   }
@@ -151,7 +151,7 @@ sub add_Descendent{
 
  Title   : each_Descendent
  Usage   : my @nodes = $node->each_Descendent;
- Function: all the descendents for this Node (but not their descendents 
+ Function: all the descendents for this Node (but not their descendents
 					      i.e. not a recursive fetchall)
  Returns : Array of Bio::Tree::NodeI objects
  Args    : none
@@ -160,8 +160,8 @@ sub add_Descendent{
 
 sub each_Descendent{
    my ($self) = @_;
-   # order can be based on branch length (and sub branchlength)    
-   
+   # order can be based on branch length (and sub branchlength)
+
    return sort { $a->height <=> $b->height } values %{$self->{'_desc'}};
 }
 
@@ -189,20 +189,20 @@ sub each_Descendent{
 sub ancestor{
    my ($self,$value) = @_;
    if( defined $value) {
-       if(! $value->isa('Bio::Tree::NodeI') ) { 
+       if(! $value->isa('Bio::Tree::NodeI') ) {
 	   $self->throw("Must specify a valid Bio::Tree::NodeI when setting the ancestor");
-       }      
+       }
        $self->{'_ancestor'} = $value;
    }
    return $self->{'_ancestor'};
 }
 
 =head2 branch_length
-    
+
  Title   : branch_length
  Usage   : $obj->branch_length($newval)
- Function: 
- Example : 
+ Function:
+ Example :
  Returns : value of branch_length
  Args    : newvalue (optional)
 
@@ -221,8 +221,8 @@ sub branch_length{
 
  Title   : bootstrap
  Usage   : $obj->bootstrap($newval)
- Function: 
- Example : 
+ Function:
+ Example :
  Returns : value of bootstrap
  Args    : newvalue (optional)
 
@@ -232,7 +232,7 @@ sub branch_length{
 sub bootstrap{
     my ($self,$value) = @_;
     if( defined $value ) {
-       $self->{'_bootstrap'} = $value;       
+       $self->{'_bootstrap'} = $value;
     }
     return $self->{'_bootstrap'};
 }
@@ -241,8 +241,8 @@ sub bootstrap{
 
  Title   : description
  Usage   : $obj->description($newval)
- Function: 
- Example : 
+ Function:
+ Example :
  Returns : value of description
  Args    : newvalue (optional)
 
@@ -261,8 +261,8 @@ sub description{
 
  Title   : id
  Usage   : $obj->id($newval)
- Function: 
- Example : 
+ Function:
+ Example :
  Returns : value of id
  Args    : newvalue (optional)
 
@@ -281,7 +281,7 @@ sub DESTROY {
     my ($self) = @_;
     # try to insure that everything is cleaned up
     $self->SUPER::DESTROY();
-    if( defined $self->{'_desc'} && 
+    if( defined $self->{'_desc'} &&
 	ref($self->{'_desc'}) =~ /ARRAY/i ) {
 	foreach my $n ( @{$self->{'_desc'}} ) {
 	    $n->DESTROY();
@@ -295,7 +295,7 @@ sub DESTROY {
 =head2 is_Leaf
 
  Title   : is_Leaf
- Usage   : if( $node->is_Leaf ) 
+ Usage   : if( $node->is_Leaf )
  Function: Get Leaf status
  Returns : boolean
  Args    : none

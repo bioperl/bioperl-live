@@ -73,6 +73,8 @@ use Bio::Event::EventGeneratorI;
 
 =head2 SAX methods
 
+=cut
+
 =head2 start_document
 
  Title   : start_document

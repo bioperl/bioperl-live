@@ -16,18 +16,18 @@ Bio::Structure::SecStr::DSSP::Res - Module for parsing/accessing dssp output
 
 =head1 SYNOPSIS
 
-my $dssp_obj = new Bio::Structure::SecStr::DSSP::Res( '-file' => 'filename.dssp' );
+  my $dssp_obj = new Bio::Structure::SecStr::DSSP::Res( '-file' => 'filename.dssp' );
 
-# or
+  # or
 
-my $dssp-obj = new Bio::Structure::SecStr::DSSP::Res( '-fh'   => \*STDOUT );
+  my $dssp-obj = new Bio::Structure::SecStr::DSSP::Res( '-fh'   => \*STDOUT );
 
-# get DSSP defined Secondary Structure for residue 20
-$sec_str = $dssp_obj->resSecStr( 20 ); 
+  # get DSSP defined Secondary Structure for residue 20
+  $sec_str = $dssp_obj->resSecStr( 20 );
 
-# get dssp defined sec. structure summary for PDB residue  # 10 of chain A
+  # get dssp defined sec. structure summary for PDB residue  # 10 of chain A
 
-$sec_str = $dssp_obj->resSecStrSum( '10:A' ); 
+  $sec_str = $dssp_obj->resSecStrSum( '10:A' );
 
 =head1 DESCRIPTION
 
@@ -35,7 +35,7 @@ DSSP::Res is a module for objectifying DSSP output.  Methods are then
 available for extracting all the information within the output file
 and convenient subsets of it.
 The principal purpose of DSSP is to determine secondary structural
-elements of a given structure.  
+elements of a given structure.
 
     ( Dictionary of protein secondary structure: pattern recognition
       of hydrogen-bonded and geometrical features.
@@ -70,7 +70,7 @@ Its output is one of the following:
 
 The methods are roughly divided into 3 sections:
 1.  Global features of this structure (PDB ID, total surface area,
-    etc.).  These methods do not require an argument. 
+    etc.).  These methods do not require an argument.
 2.  Residue specific features ( amino acid, secondary structure,
     solvent exposed surface area, etc. ).  These methods do require an
     arguement.  The argument is supposed to uniquely identify a
@@ -102,7 +102,7 @@ The methods are roughly divided into 3 sections:
   are not supported by these modules.
 
 3.  Value-added methods.  Return values are not verbatem strings
-    parsed from DSSP or STRIDE output.  
+    parsed from DSSP or STRIDE output.
 
 
 =head1 FEEDBACK
@@ -132,7 +132,7 @@ Email ed@compbio.berkeley.edu
 
 =head1 APPENDIX
 
-The rest of the documentation details each method.  
+The rest of the documentation details each method.
 Internal methods are preceded with a _
 
 =cut
@@ -188,12 +188,12 @@ our %lookUp = ( 'pdb_resnum'     => [  5,           5 ],
 		'kappa'          => [  91,          6 ],
 		
 		'alpha'          => [  97,          6 ],
-	       
+	
 		'phi'            => [ 103,          6 ],
 
 		'psi'            => [ 109,          6 ],
 		
-		'x_ca'           => [ 115,          7 ], 
+		'x_ca'           => [ 115,          7 ],
 		
 		'y_ca'           => [ 122,          7 ],
 		
@@ -214,9 +214,9 @@ our %lookUp = ( 'pdb_resnum'     => [  5,           5 ],
  Example       : $dssp_obj = Bio::DSSP:Res->new( filename or FILEHANDLE )
  Returns       : object (ref)
  Args          : filename ( must be proper DSSP output file )
-    
-    
+
 =cut
+
 sub new {
     my ( $class, @args ) = @_;
     my $self = $class->SUPER::new( @args );
@@ -236,14 +236,14 @@ sub new {
 =head2 totSurfArea
 
  Title         : totSurfArea
- Usage         : returns total accessible surface area in square Ang. 
+ Usage         : returns total accessible surface area in square Ang.
  Function      :
  Example       : $surArea = $dssp_obj->totSurfArea();
  Returns       : scalar
  Args          : none
 
-
 =cut
+
 sub totSurfArea {
     my $self = shift;
     return $self->{ 'Head' }->{ 'ProAccSurf' };
@@ -261,6 +261,7 @@ sub totSurfArea {
 
 
 =cut
+
 sub numResidues {
     my $self = shift;
     my $chain = shift;
@@ -292,13 +293,14 @@ sub numResidues {
 
  Title         : pdbID
  Usage         : returns pdb identifier ( 1FJM, e.g.)
- Function      : 
+ Function      :
  Example       : $pdb_id = $dssp_obj->pdbID();
  Returns       : scalar string
  Args          : none
 
 
 =cut
+
 sub pdbID {
     my $self = shift;
     return $self->{'Head'}->{'PDB'};
@@ -308,13 +310,14 @@ sub pdbID {
 
  Title         : pdbAuthor
  Usage         : returns author field
- Function      :  
+ Function      :
  Example       : $auth = $dssp_obj->pdbAuthor()
  Returns       : scalar string
  Args          : none
 
 
 =cut
+
 sub pdbAuthor {
     my $self = shift;
     return $self->{'Head'}->{'AUTHOR'};
@@ -323,14 +326,15 @@ sub pdbAuthor {
 =head2 pdbCompound
 
  Title         : pdbCompound
- Usage         : returns pdbCompound given in PDB file 
- Function      : 
+ Usage         : returns pdbCompound given in PDB file
+ Function      :
  Example       : $cmpd = $dssp_obj->pdbCompound();
  Returns       : scalar string
  Args          : none
 
 
 =cut
+
 sub pdbCompound {
     my $self = shift;
     return $self->{'Head'}->{'COMPND'};
@@ -340,13 +344,14 @@ sub pdbCompound {
 
  Title         : pdbDate
  Usage         : returns date given in PDB file
- Function      : 
+ Function      :
  Example       : $pdb_date = $dssp_obj->pdbDate();
  Returns       : scalar
  Args          : none
 
 
 =cut
+
 sub pdbDate {
     my $self = shift;
     return $self->{'Head'}->{'DATE'};
@@ -356,13 +361,14 @@ sub pdbDate {
 
  Title         : pdbHeader
  Usage         : returns header info from PDB file
- Function      : 
+ Function      :
  Example       : $header = $dssp_obj->pdbHeader();
  Returns       : scalar
  Args          : none
 
 
 =cut
+
 sub pdbHeader {
     my $self = shift;
     return $self->{'Head'}->{'HEADER'};
@@ -379,6 +385,7 @@ sub pdbHeader {
 
 
 =cut
+
 sub pdbSource {
     my $self = shift;
     return $self->{'Head'}->{'SOURCE'};
@@ -398,6 +405,7 @@ sub pdbSource {
 
 
 =cut
+
 sub resAA {
     my $self = shift;
     my @args = @_;
@@ -416,6 +424,7 @@ sub resAA {
 
 
 =cut
+
 sub resPhi {
     my $self = shift;
     my @args = @_;
@@ -434,6 +443,7 @@ sub resPhi {
 
 
 =cut
+
 sub resPsi {
     my $self = shift;
     my @args = @_;
@@ -445,7 +455,7 @@ sub resPsi {
 
  Title         : resSolvAcc
  Usage         : returns solvent exposed area of this residue in
-                 square Angstroms 
+                 square Angstroms
  Function      :
  Example       : $solv_acc = $dssp_obj->resSolvAcc( RESIDUE_ID );
  Returns       : scalar
@@ -453,6 +463,7 @@ sub resPsi {
 
 
 =cut
+
 sub resSolvAcc {
     my $self = shift;
     my @args = @_;
@@ -464,7 +475,7 @@ sub resSolvAcc {
 
  Title         : resSurfArea
  Usage         : returns solvent exposed area of this residue in
-                 square Angstroms 
+                 square Angstroms
  Function      :
  Example       : $solv_acc = $dssp_obj->resSurfArea( RESIDUE_ID );
  Returns       : scalar
@@ -472,6 +483,7 @@ sub resSolvAcc {
 
 
 =cut
+
 sub resSurfArea {
     my $self = shift;
     my @args = @_;
@@ -493,6 +505,7 @@ sub resSurfArea {
     method exists to map these different ranges onto an identical range.
 
 =cut
+
 sub resSecStr {
     my $self = shift;
     my @args = @_;
@@ -500,7 +513,7 @@ sub resSecStr {
     my $ss_char = $self->{ 'Res' }->[ $dssp_key ]->{ 'ss_summary' };
     return $ss_char if $ss_char;
     return ' ';
-}    
+}
 
 
 =head2 resSecStrSum
@@ -520,6 +533,7 @@ sub resSecStr {
 
 
 =cut
+
 sub resSecStrSum {
     my $self = shift;
     my @args = @_;
@@ -537,7 +551,7 @@ sub resSecStrSum {
     else {
 	return 'T';
     }
-}    
+}
 
 # DSSP SPECIFIC
 
@@ -545,7 +559,7 @@ sub resSecStrSum {
 
  Title         : hBonds
  Usage         : returns number of 14 different types of H Bonds
- Function      : 
+ Function      :
  Example       : $hb = $dssp_obj->hBonds
  Returns       : pointer to 14 element array of ints
  Args          : none
@@ -566,6 +580,7 @@ sub resSecStrSum {
     TYPE O(I)-->H-N(I+5)
 
 =cut
+
 sub hBonds {
     my $self = shift;
     return $self->{ 'HBond'};
@@ -575,37 +590,39 @@ sub hBonds {
 
  Title         : numSSBr
  Usage         : returns info about number of SS-bridges
- Function      : 
+ Function      :
  Example       : @SS_br = $dssp_obj->numSSbr();
  Returns       : 3 element scalar int array
  Args          : none
 
 
 =cut
+
 sub numSSBr {
     my $self = shift;
-    return ( $self->{'Head'}->{'TotSSBr'}, 
+    return ( $self->{'Head'}->{'TotSSBr'},
 	     $self->{'Head'}->{'TotIaSSBr'},
 	     $self->{'Head'}->{'TotIeSSBr'} );
 }
 
-=head2 resHB_O_HN 
+=head2 resHB_O_HN
 
  Title         : resHB_O_HN
- Usage         : returns pointer to a 4 element array 
+ Usage         : returns pointer to a 4 element array
                  consisting of: relative position of binding
-                 partner #1, energy of that bond (kcal/mol), 
-                 relative positionof binding partner #2, 
+                 partner #1, energy of that bond (kcal/mol),
+                 relative positionof binding partner #2,
                  energy of that bond (kcal/mol).  If the bond
                  is not bifurcated, the second bond is reported
                  as 0, 0.0
  Function      : accessor
  Example       : $oBonds_ptr = $dssp_obj->resHB_O_HN( RESIDUE_ID )
  Returns       : pointer to 4 element array
- Args          : RESIDUE_ID 
+ Args          : RESIDUE_ID
 
 
 =cut
+
 sub resHB_O_HN {
     my $self = shift;
     my @args = @_;
@@ -620,10 +637,10 @@ sub resHB_O_HN {
 =head2 resHB_NH_O
 
  Title         : resHB_NH_O
- Usage         : returns pointer to a 4 element array 
+ Usage         : returns pointer to a 4 element array
                  consisting of: relative position of binding
-                 partner #1, energy of that bond (kcal/mol), 
-                 relative positionof binding partner #2, 
+                 partner #1, energy of that bond (kcal/mol),
+                 relative positionof binding partner #2,
                  energy of that bond (kcal/mol).  If the bond
                  is not bifurcated, the second bond is reported
                  as 0, 0.0
@@ -634,6 +651,7 @@ sub resHB_O_HN {
 
 
 =cut
+
 sub resHB_NH_O {
     my $self = shift;
     my @args = @_;
@@ -656,6 +674,7 @@ sub resHB_NH_O {
 
 
 =cut
+
 sub resTco {
     my $self = shift;
     my @args = @_;
@@ -675,6 +694,7 @@ sub resTco {
 
 
 =cut
+
 sub resKappa {
     my $self = shift;
     my @args = @_;
@@ -694,6 +714,7 @@ sub resKappa {
 
 
 =cut
+
 sub resAlpha {
     my $self = shift;
     my @args = @_;
@@ -706,20 +727,21 @@ sub resAlpha {
 =head2 secBounds
 
  Title         : secBounds
- Usage         : gets residue ids of boundary residues in each 
+ Usage         : gets residue ids of boundary residues in each
                  contiguous secondary structural element of specified
                  chain
  Function      : returns pointer to array of 3 element arrays.  First
-                 two elements are the PDB IDs of the start and end points, 
-                 respectively and inclusively.  The last element is the 
-                 DSSP secondary structural assignment code, 
+                 two elements are the PDB IDs of the start and end points,
+                 respectively and inclusively.  The last element is the
+                 DSSP secondary structural assignment code,
                  i.e. one of : ('B', 'E', 'G', 'H', 'I', 'S', 'T', or ' ')
  Example       : $ss_elements_pts = $dssp_obj->secBounds( 'A' );
  Returns       : pointer to array of arrays
- Args          : chain id ( 'A', for example ).  No arg => no chain id  
+ Args          : chain id ( 'A', for example ).  No arg => no chain id
 
 
 =cut
+
 sub secBounds {
     my $self = shift;
     my $chain = shift;
@@ -735,9 +757,9 @@ sub secBounds {
 	}
 	return $self->{ 'SecBounds' }->{ $chain };
     }
-    
+
     my ( $cur_element, $i, $cur_chain, $beg, );
-    
+
     #initialize
     $cur_element = $self->{ 'Res' }->[ 1 ]->{ 'ss_summary' };
     $beg = 1;
@@ -745,11 +767,11 @@ sub secBounds {
     for ( $i = 2; $i <= $self->_numResLines() - 1; $i++ ) {
 	if ( $self->{ 'Res' }->[ $i ]->{ 'amino_acid' } eq '!' ) {
 	    # element is terminated by a chain discontinuity
-	    push( @{ $sec_bounds{ $self->_pdbChain( $beg ) } }, 
-		  [ $self->_toPdbId( $beg ), 
-		    $self->_toPdbId( $i - 1 ), 
+	    push( @{ $sec_bounds{ $self->_pdbChain( $beg ) } },
+		  [ $self->_toPdbId( $beg ),
+		    $self->_toPdbId( $i - 1 ),
 		    $cur_element ] );
-	    $i++; 
+	    $i++;
 	    $beg = $i;
 	    $cur_element = $self->{ 'Res' }->[ $i ]->{ 'ss_summary' };
 	}
@@ -757,32 +779,32 @@ sub secBounds {
 	elsif ( $self->{ 'Res' }->[ $i ]->{ 'ss_summary' } ne $cur_element ) {
 	    # element is terminated by beginning of a new element
 	    push( @{ $sec_bounds{ $self->_pdbChain( $beg ) } },
-		  [ $self->_toPdbId( $beg ), 
-		    $self->_toPdbId( $i - 1 ), 
+		  [ $self->_toPdbId( $beg ),
+		    $self->_toPdbId( $i - 1 ),
 		    $cur_element ] );
-	    $beg = $i; 
+	    $beg = $i;
 	    $cur_element = $self->{ 'Res' }->[ $i ]->{ 'ss_summary' };
 	}
     }
     #last residue
     if ( $self->{ 'Res' }->[ $i ]->{ 'ss_summary' } eq $cur_element ) {
 	push( @{ $sec_bounds{ $self->_pdbChain( $beg ) } },
-	      [ $self->_toPdbId( $beg ), 
-		$self->_toPdbId( $i ), 
+	      [ $self->_toPdbId( $beg ),
+		$self->_toPdbId( $i ),
 		$cur_element ] );
     }
-    
+
     else {
 	push( @{ $sec_bounds{ $self->_pdbChain( $beg ) } },
-	      [ $self->_toPdbId( $beg ), 
-		$self->_toPdbId( $i - 1 ), 
+	      [ $self->_toPdbId( $beg ),
+		$self->_toPdbId( $i - 1 ),
 		$cur_element ] );
 	push( @{ $sec_bounds{ $self->_pdbChain( $i ) } },
-	      [ $self->_toPdbId( $i ), 
-		$self->_toPdbId( $i ), 
+	      [ $self->_toPdbId( $i ),
+		$self->_toPdbId( $i ),
 		$self->{ 'Res' }->[ $i ]->{ 'ss_summary' } ] );
     }
-    
+
     $self->{ 'SecBounds' } = \%sec_bounds;
 
     # check to make sure chain is valid
@@ -798,14 +820,15 @@ sub secBounds {
 =head2 chains
 
  Title         : chains
- Usage         : returns pointer to array of chain I.D.s (characters) 
- Function      : 
+ Usage         : returns pointer to array of chain I.D.s (characters)
+ Function      :
  Example       : $chains_pnt = $dssp_obj->chains();
  Returns       : array of characters, one of which may be ' '
  Args          : none
 
 
 =cut
+
 sub chains {
     my $self = shift;
     my $cont_segs = $self->_contSegs();
@@ -825,7 +848,7 @@ sub chains {
  Usage         : returns a Bio::PrimarySeq object which represents a good
                  guess at the sequence of the given chain
  Function      : For most chains of most entries, the sequence returned by
-                 this method will be very good.  However, it is inherently 
+                 this method will be very good.  However, it is inherently
                  unsafe to rely on DSSP to extract sequence information about
                  a PDB entry.  More reliable information can be obtained from
                  the PDB entry itself.
@@ -836,10 +859,11 @@ sub chains {
 
 
 =cut
+
 sub getSeq {
     my $self  = shift;
     my $chain = shift;
-    
+
     my ( $pot_chain,
 	 $seq,
 	 $frag_num,
@@ -851,7 +875,7 @@ sub getSeq {
 	 $id,
 	 );
     my @frags;
-    
+
     if ( !( $chain ) ) {
 	$chain = ' ';
     }
@@ -890,7 +914,7 @@ sub getSeq {
 	    if ( $gap_len > 0 ) {
 		$seq .= 'u' x $gap_len;
 	    }
-	    else { 
+	    else {
 		$seq .= 'u';
 	    }
 	}
@@ -899,7 +923,7 @@ sub getSeq {
 	}
 	$lastPdbNum = $self->_pdbNum( $i - 1 );
     }
-    
+
 
 
     $id = $self->pdbID();
@@ -916,6 +940,7 @@ sub getSeq {
 
 
 =cut
+
 =head2 _pdbChain
 
  Title         : _pdbChain
@@ -927,6 +952,7 @@ sub getSeq {
 
 
 =cut
+
 sub _pdbChain {
     my $self = shift;
     my $dssp_key = shift;
@@ -938,12 +964,13 @@ sub _pdbChain {
  Title         : _resAA
  Usage         : fetches the 1 char amino acid code, given a dssp id
  Function      :
- Example       : $aa = $dssp_obj->_resAA( dssp_id ); 
+ Example       : $aa = $dssp_obj->_resAA( dssp_id );
  Returns       : 1 character scalar string
  Args          : dssp_id
 
 
 =cut
+
 sub _resAA {
     my $self = shift;
     my $dssp_key = shift;
@@ -958,13 +985,14 @@ sub _resAA {
                 residue as reported by the pdb entry.  Note, this DOES NOT
                 uniquely specify a residue.  There may be an insertion code
                 and/or chain identifier differences.
- Function     : 
+ Function     :
  Example      : $pdbNum = $self->_pdbNum( DSSP_ID );
  Returns      : a scalar
  Args         : DSSP_ID
 
 
 =cut
+
 sub _pdbNum {
     my $self = shift;
     my $dssp_key = shift;
@@ -975,13 +1003,14 @@ sub _pdbNum {
 
  Title        : _pdbInsCo
  Usage        : fetches the Insertion Code for this residue, if it has one.
- Function     : 
+ Function     :
  Example      : $pdbNum = $self->_pdbInsCo( DSSP_ID );
  Returns      : a scalar
  Args         : DSSP_ID
 
 
 =cut
+
 sub _pdbInsCo {
     my $self = shift;
     my $dssp_key = shift;
@@ -991,14 +1020,15 @@ sub _pdbInsCo {
 =head2 _toPdbId
 
  Title        : _toPdbId
- Usage        : Takes a dssp key and builds the corresponding 
+ Usage        : Takes a dssp key and builds the corresponding
                 PDB identifier string
- Function     : 
+ Function     :
  Example      : $pdbId = $self->_toPdbId( DSSP_ID );
  Returns      : scalar
  Args         : DSSP_ID
 
 =cut
+
 sub _toPdbId {
     my $self = shift;
     my $dssp_key = shift;
@@ -1014,11 +1044,11 @@ sub _toPdbId {
  Title         : _contSegs
  Usage         : find the endpoints of continuous regions of this structure
  Function      : returns pointer to array of 3 element array.
-                 Elements are the dssp keys of the start and end points of each 
-                 continuous element and its PDB chain id (may be blank).  
+                 Elements are the dssp keys of the start and end points of each
+                 continuous element and its PDB chain id (may be blank).
                  Note that it is common to have several
                  continuous elements with the same chain id.  This occurs
-                 when an internal region is disordered and no structural 
+                 when an internal region is disordered and no structural
                  information is available.
  Example       : $cont_seg_ptr = $dssp_obj->_contSegs();
  Returns       : pointer to array of arrays
@@ -1027,14 +1057,13 @@ sub _toPdbId {
 
 =cut
 
-
 sub _contSegs {
     my $self = shift;
     if ( $self->{ 'contSegs' } ) {
 	return $self->{ 'contSegs' };
     }
     else {
-	# first time, so make contSegs 
+	# first time, so make contSegs
 	my ( $cur_chain, $i, $beg );
 	my @contSegs;
 	#initialize
@@ -1071,6 +1100,7 @@ sub _contSegs {
 
 
 =cut
+
 sub _numResLines {
     my $self = shift;
     return ( $#{$self->{ 'Res' }} );
@@ -1095,6 +1125,7 @@ sub _numResLines {
 
 
 =cut
+
 sub _toDsspKey {
     # Consider adding lookup table for 'common' name (like 20:A) for
     # fast access.  Could be built during parse of input.
@@ -1129,8 +1160,8 @@ sub _toDsspKey {
 	}
 	#now, get the number bit-> everything still around
 	$key_num = $arg_str;
-    }     
-    
+    }
+
     # Now find the residue which fits this description.  Linear search is
     # probably not the best way to do this, but oh well...
     for ( my $i = 1; $i <= $self->_numResLines(); $i++ ) {
@@ -1161,13 +1192,14 @@ sub _toDsspKey {
 
  Title         : _parse
  Usage         : parses dssp output
- Function      : 
+ Function      :
  Example       : used by the constructor
- Returns       : 
+ Returns       :
  Args          : input source ( handled by Bio::Root:IO )
 
 
 =cut
+
 sub _parse {
     my $self = shift;
     my $file = shift;
@@ -1183,7 +1215,7 @@ sub _parse {
 	$self->throw( "Not dssp output" );
 	return;
     }
-    
+
     $cur = <$file>;
     ( $element ) = ( $cur =~ /^REFERENCE\s+(.+?)\s+\./ );
     $head{ 'REFERENCE' } = $element;
@@ -1236,14 +1268,14 @@ sub _parse {
 #	$hbond{ $hBondType } = $element;
     }
     $self->{ 'HBond' } = \@hbond;
-    
+
     my $histogram_finished = 0;
     while ( !($histogram_finished) && chomp( $cur = <$file> ) ) {
 	if ( $cur =~ /RESIDUE AA STRUCTURE/ ) {
 	    $histogram_finished = 1;
 	}
     }
-    
+
     while ( chomp( $cur = <$file> ) ) {
 	$res_num = substr( $cur, 0, 5 );
 	$res_num =~ s/\s//g;
@@ -1258,23 +1290,24 @@ sub _parse {
  Usage         : parses a single residue line
  Function      :
  Example       : used internally
- Returns       : 
+ Returns       :
  Args          : residue line ( string )
 
 
 =cut
+
 sub _parseResLine() {
     my $cur = shift;
     my ( $feat, $value );
     my %elements;
-    
+
     foreach $feat ( keys %lookUp ) {
-	$value = substr( $cur, $lookUp{ $feat }->[0], 
+	$value = substr( $cur, $lookUp{ $feat }->[0],
 			 $lookUp{ $feat }->[1] );
 	$value =~ s/\s//g;
 	$elements{$feat} = $value ;
     }
-    
+
     # if no chain id, make it '-' (like STRIDE...very convenient)
     if ( !( $elements{ 'pdb_chain' } ) || $elements{ 'pdb_chain'} eq ' ' ) {
 	$elements{ 'pdb_chain' } = '-';

@@ -87,6 +87,8 @@ sub _abstractDeath {
 
 =head2 AlphabetI Interface methods
 
+=cut
+
 =head2 symbols
 
  Title   : symbols

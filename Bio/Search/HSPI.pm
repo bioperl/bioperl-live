@@ -18,7 +18,6 @@ Bio::Search::HSPI - A High Scoring Pair found when doing a sequence alignment.
 
     # get a Bio::Search::HSPI object somehow - perhaps from a SubjectI object
     my $hsp = $subject->next_hsp;
-    
 
 =head1 DESCRIPTION
 
@@ -124,8 +123,8 @@ sub evalue {
 
  Title   : percent_identical
  Usage   : my $perc_id = $hsp->percent_identical();
- Function: Returns the Percent Identity (num positive / total HSP len) 
-           for this HSP 
+ Function: Returns the Percent Identity (num positive / total HSP len)
+           for this HSP
  Returns : Float in range 0 -> 100
  Args    : none
 
@@ -218,7 +217,7 @@ sub homology_seq{
 
  Title   : hsp_length
  Usage   : my $len = $hsp->hsp_length
- Function: Returns the aggregate length of the HSP 
+ Function: Returns the aggregate length of the HSP
            (which may be greater than either subject or query )
  Returns : integer
  Args    : none
@@ -232,17 +231,19 @@ sub hsp_length{
 
 =head2 Bio::SeqFeature::SimilarityPair methods
 
+=cut
+
 =head2 significance
- 
+
  Title   : significance
  Usage   : $evalue = $obj->significance();
            $obj->significance($evalue);
  Function:
  Returns :
  Args    :
- 
+
 =head2 bits
- 
+
  Title   : bits
  Usage   : $bits = $obj->bits();
            $obj->bits($value);
@@ -251,7 +252,7 @@ sub hsp_length{
  Args    :
 
 =head2 score
- 
+
  Title   : score
  Usage   : $score = $obj->score();
            $obj->score($value);
@@ -260,11 +261,13 @@ sub hsp_length{
 
 =head2 Bio::SeqFeature::FeaturePair methods
 
+=cut
+
 =head2 query
 
- Title   : query 
+ Title   : query
  Usage   : my $query = $hsp->query;
- Function: Access to the SeqFeature::Similarity 
+ Function: Access to the SeqFeature::Similarity
            for the query sequence that makes up this HSP
  Returns : Bio::SeqFeature::Similarity
  Args    : none
@@ -273,15 +276,17 @@ sub hsp_length{
 
  Title   : subject
  Usage   : my $subject = $hsp->subject
- Function: Access to the SeqFeature::Similarity 
+ Function: Access to the SeqFeature::Similarity
            for the subject (hit) sequence that makes up this HSP
  Returns : Bio::SeqFeature::Similarity
  Args    : none
 
 =head2 Bio::SeqFeature::FeaturePair methods
 
+=cut
+
 =head2 score
- 
+
  Title   : score
  Usage   : $score = $obj->score();
            $obj->score($value);
@@ -289,7 +294,7 @@ sub hsp_length{
  Returns :
 
 =head2 feature1
- 
+
  Title   : feature1
  Usage   : $f = $featpair->feature1
            $featpair->feature1($feature)
@@ -298,7 +303,7 @@ sub hsp_length{
  Args    : Bio::SeqFeatureI
 
 =head2 feature2
- 
+
  Title   : feature2
  Usage   : $f = $featpair->feature2
            $featpair->feature2($feature)
@@ -307,7 +312,7 @@ sub hsp_length{
  Args    : Bio::SeqFeatureI
 
 =head2 hseqname
- 
+
  Title   : hseqname
  Usage   : $featpair->hseqname($newval)
  Function: Get/set method for the name of
@@ -316,7 +321,7 @@ sub hsp_length{
  Args    : newvalue (optional)
 
 =head2 hstart
- 
+
  Title   : hstart
  Usage   : $start = $featpair->hstart
            $featpair->hstart(20)
@@ -325,7 +330,7 @@ sub hsp_length{
  Args    : none
 
 =head2 hend
- 
+
  Title   : hend
  Usage   : $end = $featpair->hend
            $featpair->hend($end)
@@ -334,7 +339,7 @@ sub hsp_length{
  Args    : none
 
 =head2 hstrand
- 
+
  Title   : hstrand
  Usage   : $strand = $feat->strand()
            $feat->strand($strand)
@@ -343,26 +348,26 @@ sub hsp_length{
  Args    : none
 
 =head2 hscore
- 
+
  Title   : hscore
  Usage   : $score = $feat->score()
            $feat->score($score)
  Function: get/set on score information
  Returns : float
- Args    : none if get, the new value if set 
- 
+ Args    : none if get, the new value if set
+
 =head2 hframe
- 
+
  Title   : hframe
  Usage   : $frame = $feat->frame()
            $feat->frame($frame)
  Function: get/set on frame information
  Returns : 0,1,2
  Args    : none if get, the new value if set
- 
+
 
 =head2 hprimary_tag
- 
+
  Title   : hprimary_tag
  Usage   : $ptag = $featpair->hprimary_tag
  Function: Get/set on the primary_tag of feature2
@@ -370,7 +375,7 @@ sub hsp_length{
  Args    : none if get, the new value if set
 
 =head2 hsource_tag
- 
+
  Title   : hsource_tag
  Usage   : $tag = $feat->hsource_tag()
            $feat->source_tag('genscan');
@@ -380,17 +385,19 @@ sub hsp_length{
  Args    : none
 
 =head2 invert
- 
+
  Title   : invert
  Usage   : $tag = $feat->invert
  Function: Swaps feature1 and feature2 around
  Returns : Nothing
  Args    : none
 
-=head Bio::SeqFeatureI methods
+=head2 Bio::SeqFeatureI methods
+
+=cut
 
 =head2 start
- 
+
  Title   : start
  Usage   : $start = $featpair->start
            $featpair->start(20)
@@ -399,7 +406,7 @@ sub hsp_length{
  Args    : [optional] beginning of feature
 
 =head2 end
- 
+
  Title   : end
  Usage   : $end = $featpair->end
            $featpair->end($end)
@@ -408,7 +415,7 @@ sub hsp_length{
  Args    : [optional] ending point of feature
 
 =head2 strand
- 
+
  Title   : strand
  Usage   : $strand = $feat->strand()
            $feat->strand($strand)
@@ -417,7 +424,7 @@ sub hsp_length{
  Args    : [optional] strand information to set
 
 =head2 location
- 
+
  Title   : location
  Usage   : $location = $featpair->location
            $featpair->location($location)
@@ -426,7 +433,7 @@ sub hsp_length{
  Args    : [optional] LocationI to store
 
 =head2 primary_tag
- 
+
  Title   : primary_tag
  Usage   : $ptag = $featpair->primary_tag
  Function: get/set on the primary_tag of feature1
@@ -434,7 +441,7 @@ sub hsp_length{
  Args    : none if get, the new value if set
 
 =head2 source_tag
- 
+
  Title   : source_tag
  Usage   : $tag = $feat->source_tag()
            $feat->source_tag('genscan');
@@ -444,14 +451,14 @@ sub hsp_length{
  Args    : none
 
 =head2 seqname
- 
+
  Title   : seqname
  Usage   : $obj->seqname($newval)
  Function: There are many cases when you make a feature that you
            do know the sequence name, but do not know its actual
            sequence. This is an attribute such that you can store
            the seqname.
- 
+
            This attribute should *not* be used in GFF dumping, as
            that should come from the collection in which the seq
            feature was found.

@@ -31,7 +31,7 @@ supported.
 
 The base Bio::DB::GFF::Aggregator class is generic, and can be used to
 create specific instances to be passed to the -aggregator argument of
-Bio::DB::GFF->new() call.  The various subclasses of
+Bio::DB::GFF-E<gt>new() call.  The various subclasses of
 Bio::DB::GFF::Aggregator are tuned for specific common feature types
 such as clones, gapped alignments and transcripts.
 
@@ -102,7 +102,7 @@ Return a list of subpart method names.
 
 Provided that method() and part_names() are overridden (and optionally
 main_name() as well), then the bare name of the aggregator subclass
-can be passed to the -aggregator of Bio::DB::GFF->new().  For example,
+can be passed to the -aggregator of Bio::DB::GFF-E<gt>new().  For example,
 this is a small subclass that will aggregate features of type "allele"
 and "polymorphism" into an aggregate named "mutant":
 
@@ -122,7 +122,7 @@ and "polymorphism" into an aggregate named "mutant":
 
   1;
 
-Once installed, this aggregator can be passed to Bio::DB::GFF->new()
+Once installed, this aggregator can be passed to Bio::DB::GFF-E<gt>new()
 by name like so:
 
  my $db      = Bio::DB::GFF->new( -adaptor    => 'dbi:mysql',

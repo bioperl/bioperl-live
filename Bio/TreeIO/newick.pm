@@ -17,10 +17,10 @@ Bio::TreeIO::newick - TreeIO implementation for parsing
 
 =head1 SYNOPSIS
 
-# do not use this module directly
-use Bio::TreeIO;
-my $treeio = new Bio::TreeIO(-format => 'newick', -file => 'tree.dnd');
-my $tree = $treeio->next_tree;
+  # do not use this module directly
+  use Bio::TreeIO;
+  my $treeio = new Bio::TreeIO(-format => 'newick', -file => 'tree.dnd');
+  my $tree = $treeio->next_tree;
 
 =head1 DESCRIPTION
 

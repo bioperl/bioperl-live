@@ -318,9 +318,9 @@ are encouraged to override these methods
 	The id is the same id as the orginal sequence, and the accession number
 	is also indentical. If someone wants to track that this sequence has
 	been reversed, it needs to define its own extensions
-           
+
 	To do an inplace edit of an object you can go:
-           
+
 	$qual = $qual->revcom();
 
 	This of course, causes Perl to handle the garbage collection of the old
@@ -450,7 +450,7 @@ sub  id {
  Args    : None.
 
 =cut
- 
+
 sub length {
    my ($self)= @_;
    if( $self->can('throw') ) {

@@ -14,6 +14,8 @@ Bio::Mapmaker - Parser for Mapmaker Linkage Map output files
 
 =head1 SYNOPSIS
 
+  # add synopsis here
+
 =head1 DESCRIPTION
 
 Parse Mapmaker files.
@@ -42,8 +44,6 @@ email or the web:
 
 Email bioinformatics1@dieselwurks.com
 
-=head1 CONTRIBUTORS
-
 =head1 APPENDIX
 
 The rest of the documentation details each of the object methods.
@@ -68,7 +68,7 @@ use Bio::Map::OrderedPositionWithDistance;
 
 @ISA = qw(Bio::Root::Root Bio::Root::IO);
 
-=head2 new(-file => $filename)
+=head2 new()
 
  Title   : new(-file => $filename)
  Usage   : my $obj = new Bio::Map::Mapmaker(-file => $filename);
@@ -91,10 +91,10 @@ sub new {
 =head2 next_marker()
 
  Title   : next_marker()
- Usage   : 
+ Usage   :
  Function:
  Example :
- Returns : 
+ Returns :
  Args    :
 
 
@@ -110,7 +110,7 @@ sub next_marker {
     }
     $line = $self->_readline();
     chomp $line;
-    if ($line =~ /-{5,}/) { # terminator is ------- 
+    if ($line =~ /-{5,}/) { # terminator is -------
 	$self->{'done_markers'} = 1;
 	return undef;
     }

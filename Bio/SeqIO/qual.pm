@@ -21,7 +21,7 @@ Do not use this module directly.  Use it via the L<Bio::SeqIO> class.
 =head1 DESCRIPTION
 
 This object can transform .qual (similar to fasta) objects to and from
-?objects? <fix this>
+L<Bio::Seq::SeqWithQuality> objects.
 
 =head1 FEEDBACK
 

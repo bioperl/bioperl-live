@@ -34,8 +34,8 @@ creating new database handles as needed.
 =head1 USAGE
 
 The object constructor is
-Bio::DB::GFF::Adaptor::dbi::caching_handle->new().  This is called
-like DBI->connect() and takes the same arguments.  The returned object
+Bio::DB::GFF::Adaptor::dbi::caching_handle-E<gt>new().  This is called
+like DBI-E<gt>connect() and takes the same arguments.  The returned object
 looks and acts like a conventional database handle.
 
 In addition to all the standard DBI handle methods, this package adds

@@ -141,7 +141,7 @@ sub length {
 	   map. Using some other Bio::Map::Position might work but might
 	   be unpredictable.
            N.B. I\'ve added Bio::Map::OrderedPosition which should achieve
-                similar things from LinkagePosition and will work for 
+                similar things from LinkagePosition and will work for
                 RH markers too.
 =cut
 
@@ -149,14 +149,14 @@ sub add_element {
     my ($self,$marker) = @_;
 
     my $o_position = $marker->position();
-    
+
     $self->debug( "marker position is ". $marker->position());
 #     print("add_element: \$o_position is $o_position\n");
 #     print("add_element: \$marker is $marker\n");
-    
+
     my $position;
     unless ( $o_position->isa('Bio::Map::LinkagePosition') ||
-	     $o_position->isa('Bio::Map::OrderedPosition') 
+	     $o_position->isa('Bio::Map::OrderedPosition')
 	     ) {
 	$self->warn("You really should use a Linkage Position for this object. This insures that there is only one position. Trying anyway...");	
 	my @p = ( $o_position->each_position_value($self));
@@ -164,7 +164,7 @@ sub add_element {
 	if( ! defined $position ) {
 	    $self->throw("This marker ($marker) does not have a position in this map ($self)");
 	}
-    } else { 
+    } else {
 	$position = $o_position->order;
     }
 
@@ -193,6 +193,8 @@ sub each_element {
 }
 
 =head2 implemented by Bio::Map::SimpleMap
+
+=cut
 
 =head2 name($new_name)
 
@@ -235,7 +237,7 @@ sub each_element {
  Usage   : my $id = $map->unique_id;
  Function: Get/Set the unique ID for this map
  Returns : a unique identifier
- Args    : [optional] new identifier to set 
+ Args    : [optional] new identifier to set
 
 =cut
 

@@ -16,6 +16,8 @@ Bio::Structure::Atom - Bioperl structure Object, describes an Atom
 
 =head1 SYNOPSIS
 
+  #add synopsis here
+
 =head1 DESCRIPTION
 
 This object stores a Bio::Structure::Atom

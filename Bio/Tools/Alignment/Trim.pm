@@ -15,16 +15,11 @@ Bio::Tools::Alignment::Trim - A kludge to do specialized trimming of
 
 =head1 SYNOPSIS
 
-	use Bio::Tools::Alignment::Trim;
-	$o_trim = new Bio::Tools::Alignment::Trim;
-	$o_trim->set_reverse_designator("R");
-	$o_trim->set_forward_designator("F");
+  use Bio::Tools::Alignment::Trim;
+  $o_trim = new Bio::Tools::Alignment::Trim;
+  $o_trim->set_reverse_designator("R");
+  $o_trim->set_forward_designator("F");
 
-
-#
-#
-#
-# put lots more usage information here!
 
 =head1 DESCRIPTION
 
@@ -47,21 +42,18 @@ designed.
 =head2 Mailing Lists
 
 User feedback is an integral part of the evolution of this and other
-Bioperl modules. Send your comments and suggestions preferably to
-one
-of the Bioperl mailing lists.  Your participation is much
-appreciated.
+Bioperl modules. Send your comments and suggestions preferably to one
+of the Bioperl mailing lists.  Your participation is much appreciated.
 
-  bioperl-l@bioperl.org          - General discussion
-  http://bio.perl.org/MailList.html             - About the mailing
+  bioperl-l@bioperl.org                 - General discussion
+  http://bio.perl.org/MailList.html     - About the mailing
 lists
 
 =head2 Reporting Bugs
 
 Report bugs to the Bioperl bug tracking system to help us keep track
 the bugs and their resolution.  Bug reports can be submitted via
-email
-or the web:
+email or the web:
 
   bioperl-bugs@bio.perl.org
   http://bio.perl.org/bioperl-bugs/
@@ -456,6 +448,7 @@ sub chop_sequence {
 		look-ahead average was calculated.
 	$phreds : <fill in what this does here>
 	$offset : <fill in what this does here>
+
 =cut 
 
 sub _get_start {

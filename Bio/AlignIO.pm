@@ -173,7 +173,7 @@ Specify the format of the file.  Supported formats include:
    nexus       Swofford et al NEXUS format
    pfam        Pfam sequence alignment format
    phylip      Felsenstein\'s PHYLIP format
-    
+
 Currently only those formats which were implemented in SimpleAlign.pm
 have been incorporated in AlignIO.pm.  Specifically, mase, stockholm
 and prodom have only been implemented for input.

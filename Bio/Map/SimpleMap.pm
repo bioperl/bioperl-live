@@ -24,7 +24,7 @@ Bio::Map::SimpleMap - A MapI implementation handling the basics of a Map
     foreach my $marker ( @markers ) { # get a list of markers somewhere
 	$map->add_element($marker);
     }
-	
+
 =head1 DESCRIPTION
 
 This is the basic implementation of a Bio::Map::MapI.  It handles the
@@ -87,7 +87,7 @@ BEGIN { $MAPCOUNT = 1; }
 
  Title   : new
  Usage   : my $obj = new Bio::Map::SimpleMap();
- Function: Builds a new Bio::Map::SimpleMap object 
+ Function: Builds a new Bio::Map::SimpleMap object
  Returns : Bio::Map::SimpleMap
  Args    : -name    => name of map (string)
            -species => species for this map (Bio::Species) [optional]
@@ -99,10 +99,10 @@ BEGIN { $MAPCOUNT = 1; }
 =cut
 
 sub new {
-  my($class,@args) = @_;  
-  
+  my($class,@args) = @_;
+
   my $self = $class->SUPER::new(@args);
-  
+
   $self->{'_elements'} = [];
   $self->{'_name'}     = '';
   $self->{'_species'}  = '';
@@ -110,8 +110,8 @@ sub new {
   $self->{'_type'}    = '';
   $self->{'_uid'} = $MAPCOUNT++;
   my ($name, $type,$species, $units,
-      $elements,$uid) = $self->_rearrange([qw(NAME TYPE 
-					      SPECIES UNITS 
+      $elements,$uid) = $self->_rearrange([qw(NAME TYPE
+					      SPECIES UNITS
 					      ELEMENTS UID)], @args);
   defined $name     && $self->name($name);
   defined $species  && $self->species($species);
@@ -123,7 +123,7 @@ sub new {
       foreach my $item ( @$elements ) {
 	  $self->add_element($item);
       }
-  } 
+  }
   return $self;
 }
 
@@ -206,7 +206,7 @@ sub name {
 
  Title   : length
  Usage   : my $length = $map->length();
- Function: Retrieves the length of the map, 
+ Function: Retrieves the length of the map,
            It is possible for the length to be unknown
            for maps such as Restriction Enzyme, will return undef
            in that case
@@ -222,7 +222,7 @@ sub length{
        my @p = $self->{'_lastlement'}->position->each_position;
        return pop @p; # let's just get the last position for the last element
                       # for now
-   } else { return 0; } 
+   } else { return 0; }
 }
 
 
@@ -232,7 +232,7 @@ sub length{
  Usage   : my $id = $map->unique_id;
  Function: Get/Set the unique ID for this map
  Returns : a unique identifier
- Args    : [optional] new identifier to set 
+ Args    : [optional] new identifier to set
 
 =cut
 
@@ -259,9 +259,9 @@ sub add_element{
     return unless ( defined $mapelement);
 
     push @{$self->{'_elements'}}, $mapelement;
-    if( !defined $self->{'_lastelement'} || 
+    if( !defined $self->{'_lastelement'} ||
 	$mapelement->greater_than($self->{'_lastelement'}) ) {
-	$self->{'_lastelement'} = $mapelement;    
+	$self->{'_lastelement'} = $mapelement;
     }
 }
 

@@ -89,6 +89,8 @@ use Carp;
 
 =head2 Bio::RangeI methods
 
+List of interfaces inherited from  L<Bio::RangeI>.
+
 =head2 start
 
  Title   : start
@@ -118,6 +120,8 @@ use Carp;
 =cut
 
 =head2 SeqFeatureI specific methods
+
+New method interfaces.
 
 =head2 sub_SeqFeature
 

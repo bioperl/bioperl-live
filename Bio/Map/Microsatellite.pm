@@ -14,25 +14,24 @@ Bio::Map::Microsatellite - An object representing a Microsatellite marker.
 
 =head1 SYNOPSIS
 
-$o_usat = new Bio::Map::Microsatellite
-    (-name=>'Chad Super Marker 2',
-     -sequence => 'gctgactgatcatatatatatatatatatatatatatatatcgcgatcgtga',
-     -motif => 'at',
-     -repeats => 15,
-     -repeat_start_position => 11
-     );
+  $o_usat = new Bio::Map::Microsatellite
+      (-name=>'Chad Super Marker 2',
+       -sequence => 'gctgactgatcatatatatatatatatatatatatatatatcgcgatcgtga',
+       -motif => 'at',
+       -repeats => 15,
+       -repeat_start_position => 11
+       );
 
-$sequence_before_usat = $o_usat->get_leading_flank();
-$sequence_after_usat = $o_usat->get_trailing_flank();
-
+  $sequence_before_usat = $o_usat->get_leading_flank();
+  $sequence_after_usat = $o_usat->get_trailing_flank();
 
 
 =head1 DESCRIPTION
 
 This object handles the notion of an Microsatellite. This microsatellite can
 be placed on a (linear) Map or used on its own.  If this Microsatellites
-will be used in a mapping context (it doesn\'t have to, you know) it can have
-multiple positions in a map. For information about a Microsatellite\'s position
+will be used in a mapping context (it doesn't have to, you know) it can have
+multiple positions in a map. For information about a Microsatellite's position
 in a map one must query the associate PositionI object which is accessible
 through the position() method.
 
@@ -106,8 +105,6 @@ use Bio::Map::Marker;
 		microsatellite in this sequence. The first base of the
 		sequence is position "1". (optional, scalar, no default)
 
-	
-
  Note    : Creating a Bio::Map::Microsatellite object with no position
 	might be useful for microsatellite people wanting to embrace
 	and extend this module. <raising hand> Me! Me! Me!
@@ -137,6 +134,8 @@ sub new {
 }
 
 =head2 Bio::Map::Marker methods
+
+=cut
 
 =head2 position
 

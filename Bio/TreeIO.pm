@@ -16,14 +16,15 @@ Bio::TreeIO - Parser for Tree files
 
 =head1 SYNOPSIS
 
-{
-    use Bio::TreeIO;
-    my $treeio = new Bio::TreeIO('-format' => 'newick',
-				 '-file'   => 'globin.dnd');
-    while( my $tree = $treeio->next_tree ) {
-	print "Tree is ", $tree->size, "\n";
-    }
-}
+  {
+      use Bio::TreeIO;
+      my $treeio = new Bio::TreeIO('-format' => 'newick',
+  				   '-file'   => 'globin.dnd');
+      while( my $tree = $treeio->next_tree ) {
+  	  print "Tree is ", $tree->size, "\n";
+      }
+  }
+
 =head1 DESCRIPTION
 
 This is the driver module for Tree reading from data streams and

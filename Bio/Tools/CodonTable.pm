@@ -701,7 +701,7 @@ sub _unambiquous_codons{
  Args    : [optional] $code => [0 -> return list of 1 letter aa codes,
 				1 -> return list of 3 letter aa codes,
 				2 -> return associative array of both ]
-				
+
 =cut
 
 sub valid_aa{

@@ -19,10 +19,10 @@ Bio::Map::Position - Abstracts the notion of multiple positions
 
     use Bio::Map::Position;
     my $position = new Bio::Map::Position(-positions => [ 100 ] );
-    
+
     # or can add items to 
     $position->add_position(105);
-    
+
     # can get listing of positions
     my @positions = $position->each_position;
 
@@ -103,7 +103,7 @@ use Bio::Map::PositionI;
  Args    : -positions  ArrayRef of tuples, 
                        each tuple contains a Bio::Map::MapI reference
                        and a position value to associate with this map.
-                    
+
 =cut
 
 sub new {
@@ -129,6 +129,8 @@ sub new {
 }
 
 =head2 Bio::Map::PositionI methods
+
+=cut
 
 =head2 known_maps
 

@@ -27,7 +27,7 @@ Bio::Map::OrderedPositionWithDistance - Abstracts the notion of a member
 	# marker
     my $position3 = new Bio::Map::OrderedPositionWithDistance(-positions => 3,
 			-distance => 0 );
-    
+
 
 =head1 DESCRIPTION
 

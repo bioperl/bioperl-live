@@ -314,7 +314,7 @@ sub validate_seq {
 
 sub subseq {
    my ($self,$start,$end) = @_;
-  
+
    if( ref($start) && $start->isa('Bio::LocationI') ) {
        my $loc = $start;
        if( $loc->length == 0 ) { 
@@ -346,15 +346,13 @@ sub subseq {
        if( $start > $end ){
 	   $self->throw("in subseq, start [$start] has to be greater than end [$end]");
        }
-       
        if( $start <= 0 || $end > $self->length ) {
 	   $self->throw("You have to have start positive and length less than the total length of sequence [$start:$end] Total ".$self->length."");
        }
-       
-   # remove one from start, and then length is end-start
-       
+
+       # remove one from start, and then length is end-start
        $start--;
-       
+
        return substr $self->seq(), $start, ($end-$start);
    }
 }

@@ -16,14 +16,14 @@ Bio::Tree::RandomFactory - TreeFactory for generating Random Trees
 
 =head1 SYNOPSIS
 
-use Bio::Tree::RandomFactory
-my $factory = new Bio::Tree::RandomFactory( -samples => \@taxonnames,
-					    -maxcount => 10);
-					     
-# or for anonymous samples
-    
-my $factory = new Bio::Tree::RandomFactory( -sample_size => 6, 
-					    -maxcount = 50);
+  use Bio::Tree::RandomFactory
+  my $factory = new Bio::Tree::RandomFactory( -samples => \@taxonnames,
+  					      -maxcount => 10);
+
+  # or for anonymous samples
+
+  my $factory = new Bio::Tree::RandomFactory( -sample_size => 6, 
+					      -maxcount = 50);
 
 =head1 DESCRIPTION
 
@@ -63,7 +63,7 @@ Email jason@bioperl.org
 
 =head1 CONTRIBUTORS
 
-Matthew Hahn, <matthew.hahn@duke.edu>
+Matthew Hahn, E<lt>matthew.hahn@duke.eduE<gt>
 
 =head1 APPENDIX
 
@@ -144,7 +144,7 @@ sub new{
            NOTE: if maxcount is not specified on initialization or
                  set to a valid integer, subsequent calls to next_tree will 
                  continue to return random trees and never return undef
-           
+
  Returns : Bio::Tree::TreeI object
  Args    : none
 

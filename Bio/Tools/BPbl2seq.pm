@@ -113,7 +113,7 @@ Ian Korf (ikorf@sapiens.wustl.edu, http://sapiens.wustl.edu/~ikorf),
 Lorenz Pollak (lorenz@ist.org, bioperl port)
 
 =head1 CONTRIBUTORS
- 
+
 Jason Stajich, jason@cgt.mc.duke.edu
 
 =cut

@@ -54,7 +54,7 @@ Email jason@bioperl.org
 
 =head1 CONTRIBUTORS
 
-Matt Hahn <matthew.hahn@duke.duke>
+Matt Hahn E<lt>matthew.hahn@duke.dukeE<gt>
 
 =head1 APPENDIX
 

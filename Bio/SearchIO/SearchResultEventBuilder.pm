@@ -114,6 +114,8 @@ sub will_handle{
 
 =head2 SAX methods
 
+=cut
+
 =head2 start_report
 
  Title   : start_report

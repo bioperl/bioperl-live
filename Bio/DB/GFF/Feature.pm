@@ -30,7 +30,7 @@ Bioperl modules.
 
 Generally, you will not create or manipulate Bio::DB::GFF::Feature
 objects directly, but use those that are returned by the
-Bio::DB::GFF::RelSegment->features() method.
+Bio::DB::GFF::RelSegment-E<gt>features() method.
 
 =head2 Important note about start() vs stop()
 
@@ -38,7 +38,7 @@ If features are derived from segments that use relative addressing
 (which is the default), then start() will be less than stop() if the
 feature is on the opposite strand from the reference sequence.
 
-To avoid this behavior, call $segment->absolute(1) before fetching
+To avoid this behavior, call $segment-E<gt>absolute(1) before fetching
 features from it.  This will force everything into absolute
 coordinates.
 

@@ -23,10 +23,11 @@ Bio::Tree::PhyloNode - A Phlyogenetic Tree Node
 					     -id     => 'ACT2_LYTPI',
 					     -desc   => 'L.pictus Actin cytoskeleton 2');
 
-    
+
 =head1 DESCRIPTION
 
-This object is a Phylogenetic Node suitable for building Phylogenetic trees.
+This object is a Phylogenetic Node suitable for building Phylogenetic
+trees.
 
 =head1 FEEDBACK
 
@@ -201,13 +202,15 @@ sub branch_length{
 
 =head2 Bio::Tree::Node methods
 
+=cut
+
 =head2 is_leaf
 
  Title   : is_leaf
  Usage   : if( $node->is_leaf ) 
  Function: Get/Set Leaf status
-           In Phylogenetic trees, leaf nodes are the only real nodes, the rest
-           are inferred ancestors.
+           In Phylogenetic trees, leaf nodes are the only real nodes,
+           the rest are inferred ancestors.
  Returns : boolean
  Args    : (optional) boolean
 

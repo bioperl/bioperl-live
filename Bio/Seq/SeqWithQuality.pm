@@ -57,6 +57,8 @@ Bio::Seq::SeqWithQuality - Bioperl object packaging a sequence with its quality
 
 =head1 DESCRIPTION
 
+This class stores base quality values together with the sequence string.
+
 =head1 FEEDBACK
 
 =head2 Mailing Lists
@@ -556,6 +558,7 @@ sub id {
 	length. Even then, how can you make sure that this sequence belongs
 	with that quality? I provided this to give you rope to hang yourself
 	with. Tie it to a strong device and use a good knot.
+
 =cut
 
 sub seq {

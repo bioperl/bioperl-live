@@ -23,21 +23,21 @@ Do not use this module directly.  Use it via the Bio::SeqIO class.
 This object can transform Bio::Seq and Bio::Seq::SeqWithQuality
 objects to and from fastq flat file databases.
 
-Fastq is a file format used frequently at the Sanger Centre to bundle a
-fasta sequence and its quality data. A typical fastaq entry takes the from:
+Fastq is a file format used frequently at the Sanger Centre to bundle
+a fasta sequence and its quality data. A typical fastaq entry takes
+the from:
 
+  @HCDPQ1D0501
+  GATTTGGGGTTCAAAGCAGTATCGATCAAATAGTAAATCCATTTGTTCAACTCACAGTTT.....
+  +HCDPQ1D0501
+  !''*((((***+))%%%++)(%%%%).1***-+*''))**55CCF>>>>>>CCCCCCC65.....
 
-@HCDPQ1D0501
-GATTTGGGGTTCAAAGCAGTATCGATCAAATAGTAAATCCATTTGTTCAACTCACAGTTT.....
-+HCDPQ1D0501
-!''*((((***+))%%%++)(%%%%).1***-+*''))**55CCF>>>>>>CCCCCCC65.....
-
-Fastq files have sequence and quality data on a single line and the 
+Fastq files have sequence and quality data on a single line and the
 quality values are single-byte encoded. To retrieve the decimal values
-for qualities you need to subtract 33 (or Octal 41) from each byte and 
-then convert to a '2 digit + 1 space' integer. You can check if 33 is 
-the right number because the first byte which is always '!' corresponds
- to a quality value of 0
+for qualities you need to subtract 33 (or Octal 41) from each byte and
+then convert to a '2 digit + 1 space' integer. You can check if 33 is
+the right number because the first byte which is always '!'
+corresponds to a quality value of 0.
 
 =head1 FEEDBACK
 

@@ -763,6 +763,7 @@ sub uppercase {
  Args     : (optional) Match line characters ('*' by default)
             (optional) Strong match char (':' by default)
             (optional) Weak match char ('.' by default)
+
 =cut
 
 sub match_line {
@@ -771,7 +772,7 @@ sub match_line {
 		       'weak'   => $weak          || '.',
 		       'strong' => $strong        || ':',
 		       );    
-    
+
     my @seqchars;
     my $seqcount = 0;
     my $alphabet;

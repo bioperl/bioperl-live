@@ -16,6 +16,8 @@ Bio::Structure::Chain - Bioperl structure Object, describes a chain
 
 =head1 SYNOPSIS
 
+  #add synopsis here
+
 =head1 DESCRIPTION
 
 This object stores a Bio::Structure::Chain

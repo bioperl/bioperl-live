@@ -16,6 +16,8 @@ Bio::Structure::Entry - Bioperl structure Object, describes the whole entry
 
 =head1 SYNOPSIS
 
+  #add synopsis here
+
 =head1 DESCRIPTION
 
 This object stores a whole Bio::Structure entry. It can consist of one or

@@ -16,7 +16,11 @@ Bio::Seq::PrimaryQual - Bioperl lightweight Quality Object
 
 =head1 SYNOPSIS
 
+  # add synopsis here
+
 =head1 DESCRIPTION
+
+  # add  description here
 
 =head1 FEEDBACK
 

@@ -257,7 +257,7 @@ sub class     { shift->{class}     }
  Status  : Public
 
 This method generates a new segment from the start and end positions
-given in the arguments.  If stop < start, then the strand is reversed.
+given in the arguments.  If stop E<lt> start, then the strand is reversed.
 
 =cut
 

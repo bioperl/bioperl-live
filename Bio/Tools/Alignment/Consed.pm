@@ -36,29 +36,26 @@ with the output from the Consed package of programs. Specifically,
 Bio::Tools::Alignment::Consed takes in the name of in .ace file and
 provides objects for the results.
 
-
-A word about doublets:
-This module was written to accomodate a large EST sequencing operation. In
-this case, EST\'s were sequenced from the 3\' and from the 5\' end of the
-EST. The objective was to find a consensus sequence for these two reads.
-Thus, a contig of two is what we wanted, and this contig should consist of
-the forward and reverse reads of a getn clone. For example, for a forward
-designator of "F" and a reverse designator of "R", if the two reads chad1F
-and chad1R were in a single contig (for example Contig 5) it will be
-determined that the consensus sequence for Contig 5 will be the sequence
-for clone chad1.
+A word about doublets: This module was written to accomodate a large
+EST sequencing operation. In this case, EST\'s were sequenced from the
+3\' and from the 5\' end of the EST. The objective was to find a
+consensus sequence for these two reads.  Thus, a contig of two is what
+we wanted, and this contig should consist of the forward and reverse
+reads of a getn clone. For example, for a forward designator of "F"
+and a reverse designator of "R", if the two reads chad1F and chad1R
+were in a single contig (for example Contig 5) it will be determined
+that the consensus sequence for Contig 5 will be the sequence for
+clone chad1.
 
 Doublets are good!
 
-=head1 DESCRIPTION
+This module parses .ace and related files. A detailed list of methods
+can be found at the end of this document.
 
-This module parses .ace and related files. A detailed list of methods can be
-found at the end of this document.
-
-I wrote a detailed rationale for design that may explain the reasons why
-some things were done the way they were done. That document is beyond the
-scope of this pod and can probably be found in the directory from which
-this module was 'made' or at
+I wrote a detailed rationale for design that may explain the reasons
+why some things were done the way they were done. That document is
+beyond the scope of this pod and can probably be found in the
+directory from which this module was 'made' or at
 http://www.dieselwurks.com/bioinformatics/consedpm_documentation.pdf
 
 Note that the pod in that document might be old but the original
@@ -72,7 +69,7 @@ User feedback is an integral part of the evolution of this and other
 Bioperl modules. Send your comments and suggestions preferably to one
 of the Bioperl mailing lists.  Your participation is much appreciated.
 
-  bioperl-l@bioperl.org          - General discussion
+  bioperl-l@bioperl.org                         - General discussion
   http://bio.perl.org/MailList.html             - About the mailing lists
 
 =head2 Reporting Bugs
@@ -91,7 +88,8 @@ chad@dieselwurks.com
 
 =head1 APPENDIX
 
-The rest of the documentation details each of the object methods. Internal methods are usually preceded with a _
+The rest of the documentation details each of the object
+methods. Internal methods are usually preceded with a _
 
 =cut
 
@@ -113,7 +111,8 @@ $VERSION = '0.60';
 =head2 new()
 
  Title   : new(-acefile => $path_to_some_acefile, -verbose => "1")
- Usage   : $o_consed = Bio::Tools::Alignment::Consed->new(-acefile => $path_to_some_acefile, -verbose => "1");
+ Usage   : $o_consed = Bio::Tools::Alignment::Consed->
+              new(-acefile => $path_to_some_acefile, -verbose => "1");
  Function: Construct the Bio::Tools::Alignment::Consed object. Sets
 	   verbosity for the following procedures, if necessary:
 	   1. Construct a new Bio::Tools::Alignment::Trim object, to
@@ -228,6 +227,7 @@ sub get_filename {
 
 =cut
 
+#'
 sub count_sequences_with_grep {
     my $self = shift;
     my ($working_dir,$grep_cli,@total_grep_sequences);
@@ -334,7 +334,7 @@ sub get_quality_scalar {
 
  Title   : freeze_hash()
  Usage   : $o_consed->freeze_hash();
- 
+
  Function: Use Ilya\'s FreezeThaw module to create a persistent data
 	   object for this Bio::Tools::Alignment::Consed data
 	   structure. In the case of AAFC, we use
@@ -964,6 +964,7 @@ sub set_singlets {
            Bio::Tools::Alignment::Consed sequences in the class "singlet".
  Args    : None.
  Notes   :         
+
 =cut
 
 sub get_singlets {
@@ -1131,7 +1132,7 @@ sub set_contig_quality {
  Notes   : 
 
 =cut
-    
+
 sub get_multiplets {
 	    # returns an array of multiplet names
 	    # multiplets have # members > 2
@@ -1234,7 +1235,8 @@ sub sum_lets {
 	if ($total_only) {
 		return $count;
 	}
-	$return_string = "Singt/singn/doub/pair/mult/total : $singlets,$singletons,$doublets(".($doublets*2)."),$pairs(".($pairs*2)."),$count_multiplets($multiplet_count),$count";
+	$return_string = "Singt/singn/doub/pair/mult/total : $singlets,$singletons,$doublets(".
+            ($doublets*2)."),$pairs(".($pairs*2)."),$count_multiplets($multiplet_count),$count";
 	return $return_string;
 }
 
@@ -1254,6 +1256,7 @@ sub sum_lets {
 
 =cut
 
+#'
 sub write_stats {
 		# worry about platform dependence here?
 		# oh shucksdarn.
@@ -1321,7 +1324,8 @@ sub get_pairs {
 	my (@pairs,@array);
 	foreach my $key (sort keys %{$self->{contigs}}) {
 		if ($self->{contigs}{$key}{member_array}) {
-			if (@{$self->{contigs}{$key}{member_array}} == 2 && $self->{contigs}{$key}{class} eq "pair") {
+			if (@{$self->{contigs}{$key}{member_array}} == 2 && 
+			    $self->{contigs}{$key}{class} eq "pair") {
 				push @pairs,$key;
 			}
 		}
@@ -1424,16 +1428,16 @@ sub get_doublets {
 	}
 	my @doublets;
 	foreach (sort keys %{$self->{contigs}}) {
-				# print("Bio::Tools::Alignment::Consed::get_doublets: Examining contig $_ for a name. class: $self->{contigs}{$_}{class}\n");
-		if ($self->{contigs}{$_}{name} && $self->{contigs}{$_}{class} eq "doublet") {
-				# print("Bio::Tools::Alignment::Consed::get_doublets: Contig $_ has a name: #$self->{contigs}{$_}{name}# \n");
-				# print("Bio::Tools::Alignment::Consed::get_doublets: $self->{contigs}{$_}{name}\n");
-			push @doublets,$self->{contigs}{$_}{name};
-		}
+	    # print("Bio::Tools::Alignment::Consed::get_doublets: Examining contig $_ for a name. class: $self->{contigs}{$_}{class}\n");
+	    if ($self->{contigs}{$_}{name} && $self->{contigs}{$_}{class} eq "doublet") {
+		# print("Bio::Tools::Alignment::Consed::get_doublets: Contig $_ has a name: #$self->{contigs}{$_}{name}# \n");
+		# print("Bio::Tools::Alignment::Consed::get_doublets: $self->{contigs}{$_}{name}\n");
+		push @doublets,$self->{contigs}{$_}{name};
+	    }
 	}
-		# my $dumper = new Dumpvalue;
-		# $dumper->dumpValue(\%Consed::contigs); 
-		# print("Bio::Tools::Alignment::Consed::get_doublets: There are ".scalar(@doublets)." doublets here.\n");
+	# my $dumper = new Dumpvalue;
+	# $dumper->dumpValue(\%Consed::contigs); 
+	# print("Bio::Tools::Alignment::Consed::get_doublets: There are ".scalar(@doublets)." doublets here.\n");
 	return @doublets;
 } # end get_doublets
 
@@ -1451,7 +1455,8 @@ sub get_doublets {
 sub dump_hash {
 	my $self = shift;
 	my $dumper = new Dumpvalue;
-	print("Bio::Tools::Alignment::Consed::dump_hash - The following is the contents of the contig hash...\n");
+	print "Bio::Tools::Alignment::Consed::dump_hash - ",
+	      "The following is the contents of the contig hash...\n";
 	$dumper->dumpValue($self->{contigs});
 }
 
@@ -1504,7 +1509,7 @@ sub dump_hash_compact {
 		my $contig_number = &get_contig_number_by_name($self,$_);
 		if ($self->{contigs}{$contig_number}{quality}) { print("qualities found here\n"); }
 		else { print("no qualities found here\n"); }
-			# print($_."\tdoublets\t".(join',',@members)."\n");
+		# print($_."\tdoublets\t".(join',',@members)."\n");
 	}
 	foreach (@multiplets) {
 		my @members = $self->get_members($_);
@@ -1533,8 +1538,8 @@ sub dump_hash_compact {
 =cut
 
 sub get_phreds {
-		# this subroutine is the target of a rewrite to use the Bio::Tools::Alignment::Phred object.
-	my $self = shift;
+    # this subroutine is the target of a rewrite to use the Bio::Tools::Alignment::Phred object.
+    my $self = shift;
 		# print("Getting phreds...\n");
 	my $current_contig;
 	foreach $current_contig (sort keys %{$self->{contigs}}) {
@@ -1578,7 +1583,8 @@ sub parse_phd {
         my $base_number = 0;
         my (@bases,@current_line);
                 # print("parse_phd: $sequence_name\n");
-        open(PHD,"<$self->{path}/../phd_dir/$sequence_name.phd.1") or die "Couldn't open the phred for $sequence_name\n";
+        open(PHD,"<$self->{path}/../phd_dir/$sequence_name.phd.1") or
+	    die "Couldn't open the phred for $sequence_name\n";
         while (<PHD>) {
                 chomp;
                 if (/^BEGIN_DNA/) { $in_dna = 1; next}

@@ -17,7 +17,7 @@ Bio::Symbol::SymbolI - Interface for a Symbol
 =head1 SYNOPSIS
 
     # get a Bio::Symbol::SymbolI object somehow
-    
+
     my ($name,$token) = ($symbol->name, $symbol->token);
     my @symbols       = $symbol->symbols;
     my $matches       = $symbol->matches;
@@ -89,6 +89,8 @@ sub _abstractDeath {
 }
 
 =head2 Bio::Symbol::SymbolI interface methods
+
+=cut
 
 =head2 name
 

@@ -16,13 +16,13 @@ Bio::SearchIO::fasta - A SearchIO parser for FASTA results
 
 =head1 SYNOPSIS
 
-# Do not use this object directly, use it through the SearchIO system
-    use Bio::SearchIO;
-    my $searchio = new Bio::SearchIO(-format => 'fasta',
-				     -file   => 'report.FASTA');
-    while( my $report = $searchio->next_report ) {
+  # Do not use this object directly, use it through the SearchIO system
+   use Bio::SearchIO;
+   my $searchio = new Bio::SearchIO(-format => 'fasta',
+				    -file   => 'report.FASTA');
+   while( my $report = $searchio->next_report ) {
 	# ....
-    }
+   }
 
 =head1 DESCRIPTION
 

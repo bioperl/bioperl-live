@@ -189,6 +189,8 @@ sub next_report{
 
 =head2 SAX methods
 
+=cut
+
 =head2 start_document
 
  Title   : start_document

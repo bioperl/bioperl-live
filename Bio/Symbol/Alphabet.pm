@@ -15,16 +15,17 @@
 Bio::Symbol::Alphabet - DESCRIPTION of Object
 
 =head1 SYNOPSIS
-{
-    my $alphabet = new Bio::Symbols::Alphabet(-symbols => [ @s ],
-					      -subalphabets => [ @alphas ] );
-    
-    my @symbols = $alphabet->symbols;
-    my @subalphas = $alphabet->alphabets;
-    if( $alphabet->contains($symbol) ) {
-	# do something
-    }
-}
+
+  {
+      my $alphabet = new Bio::Symbols::Alphabet(-symbols => [ @s ],
+  						-subalphabets => [ @alphas ] );
+
+      my @symbols = $alphabet->symbols;
+      my @subalphas = $alphabet->alphabets;
+      if( $alphabet->contains($symbol) ) {
+  	  # do something
+      }
+  }
 
 =head1 DESCRIPTION
 
@@ -85,8 +86,7 @@ use strict;
 use Bio::Root::Root;
 use Bio::Symbol::AlphabetI;
 
-@ISA = qw(Bio::Root::Root 
-	Bio::Symbol::AlphabetI );
+@ISA = qw(Bio::Root::Root Bio::Symbol::AlphabetI );
 
 =head2 new
 
@@ -113,6 +113,8 @@ sub new {
 }
 
 =head2 AlphabetI Interface methods
+
+=cut
 
 =head2 symbols
 

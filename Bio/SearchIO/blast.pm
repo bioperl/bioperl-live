@@ -16,18 +16,20 @@ Bio::SearchIO::blast - Event generator for event based parsing of blast reports
 
 =head1 SYNOPSIS
 
-#Do not use this object directly - it is used as part of the Bio::SearchIO system.
+   # Do not use this object directly - it is used as part of the
+   # Bio::SearchIO system.
 
     use Bio::SearchIO;
     my $searchio = new Bio::SearchIO(-format => 'blast',
 				     -file   => 'file1.bls');
     while( my $report = $searchio->next_report ) {
-    
+
     }
 
 =head1 DESCRIPTION
 
-This object encapsulated the necessary methods for generating events suitable for building Bio::Search objects from a BLAST report file. 
+This object encapsulated the necessary methods for generating events
+suitable for building Bio::Search objects from a BLAST report file.
 
 =head1 FEEDBACK
 

@@ -16,10 +16,10 @@ Bio::Search::Report - A sequence database search report
 
 =head1 SYNOPSIS
 
-my $searchio = new Bio::SearchIO(-format => 'blastxml',
-				 -file   => 'blsreport.xml');
+  my $searchio = new Bio::SearchIO(-format => 'blastxml',
+				   -file   => 'blsreport.xml');
 
-my $report = $searchio->next_report;
+  my $report = $searchio->next_report;
 
 =head1 DESCRIPTION
 
@@ -263,6 +263,8 @@ sub program_version{
 
 =head2 Bio::Search::Report specific methods
 
+=cut
+
 =head2 add_subject
 
  Title   : add_subject
@@ -278,7 +280,8 @@ sub add_subject {
     if( $s->isa('Bio::Search::SubjectI') ) { 
 	push @{$self->{'_subjects'}}, $s;
     } else { 
-	$self->warn("Passed in " .ref($s). " as a Subject which is not a Bio::Search::SubjectI... skipping");
+	$self->warn("Passed in " .ref($s). 
+		    " as a Subject which is not a Bio::Search::SubjectI... skipping");
     }
     return scalar @{$self->{'_subjects'}};
 }

@@ -15,17 +15,17 @@ Bio::Structure::SecStr::STRIDE::Res - Module for parsing/accessing stride output
 
 =head1 SYNOPSIS
 
-my $stride_obj = new Bio::Structure::SecStr::STRIDE::Res( '-file' => 'filename.stride' );
+ my $stride_obj = new Bio::Structure::SecStr::STRIDE::Res( '-file' => 'filename.stride' );
 
-# or
+ # or
 
-my $stride_obj = new Bio::Structure::SecStr::STRIDE::Res( '-fh' => \*STDOUT );
+ my $stride_obj = new Bio::Structure::SecStr::STRIDE::Res( '-fh' => \*STDOUT );
 
-# Get secondary structure assignment for PDB residue 20 of chain A
-$sec_str = $stride_obj->resSecStr( '20:A' );
+ # Get secondary structure assignment for PDB residue 20 of chain A
+ $sec_str = $stride_obj->resSecStr( '20:A' );
 
-# same
-$sec_str = $stride_obj->resSecStr( 20, 'A' )
+ # same
+ $sec_str = $stride_obj->resSecStr( 20, 'A' )
 
 =head1 DESCRIPTION
 
@@ -52,41 +52,41 @@ range of values for STRIDE is ( H, G, I, E, B, b, T, and C ).  See
 individual methods for details.
 
 The methods are roughly divided into 3 sections:
-1.  Global features of this structure (PDB ID, total surface area,
-    etc.).  These methods do not require an argument. 
-2.  Residue specific features ( amino acid, secondary structure,
-    solvent exposed surface area, etc. ).  These methods do require an
-    arguement.  The argument is supposed to uniquely identify a
-    residue described within the structure.  It can be of any of the
-    following forms:
-    ('#A:B') or ( #, 'A', 'B' )
-      || |
-      || - Chain ID (blank for single chain)
-      |--- Insertion code for this residue.  Blank for most residues.
-      |--- Numeric portion of residue ID.
 
-    (#)
-     |
-     --- Numeric portion of residue ID.  If there is only one chain and
-         it has no ID AND there is no residue with an insertion code at this
-         number, then this can uniquely specify a residue.
+  1.  Global features of this structure (PDB ID, total surface area,
+      etc.).  These methods do not require an argument. 
+  2.  Residue specific features ( amino acid, secondary structure,
+      solvent exposed surface area, etc. ).  These methods do require an
+      arguement.  The argument is supposed to uniquely identify a
+      residue described within the structure.  It can be of any of the
+      following forms:
+      ('#A:B') or ( #, 'A', 'B' )
+  	|| |
+  	|| - Chain ID (blank for single chain)
+  	|--- Insertion code for this residue.  Blank for most residues.
+  	|--- Numeric portion of residue ID.
 
-    ('#:C') or ( #, 'C' )
-      | |
-      | -Chain ID
-      ---Numeric portion of residue ID.
+      (#)
+       |
+       --- Numeric portion of residue ID.  If there is only one chain and
+  	   it has no ID AND there is no residue with an insertion code at this
+  	   number, then this can uniquely specify a residue.
 
-  If a residue is incompletely specified then the first residue that
-  fits the arguments is returned.  For example, if 19 is the argument
-  and there are three chains, A, B, and C with a residue whose number
-  is 19, then 19:A will be returned (assuming its listed first).
+      ('#:C') or ( #, 'C' )
+  	| |
+  	| -Chain ID
+  	---Numeric portion of residue ID.
 
-  Since neither DSSP nor STRIDE correctly handle alt-loc codes, they
-  are not supported by these modules.
+     If a residue is incompletely specified then the first residue that
+     fits the arguments is returned.  For example, if 19 is the argument
+     and there are three chains, A, B, and C with a residue whose number
+     is 19, then 19:A will be returned (assuming its listed first).
 
-3.  Value-added methods.  Return values are not verbatem strings
-    parsed from DSSP or STRIDE output.  
+     Since neither DSSP nor STRIDE correctly handle alt-loc codes, they
+     are not supported by these modules.
 
+ 3.  Value-added methods.  Return values are not verbatem strings
+     parsed from DSSP or STRIDE output.  
 
 =head1 FEEDBACK
 
@@ -120,7 +120,7 @@ Internal methods are preceded with a _.
 
 
 =cut
-    
+
 package Bio::Structure::SecStr::STRIDE::Res;
 use strict;
 use vars qw(@ISA);
@@ -156,9 +156,9 @@ our %AATable = ( 'ALA' => 'A', 'ARG' => 'R', 'ASN' => 'N',
 						     '-fh'   => FILEHANDLE )
  Returns       : object (ref)
  Args          : filename or filehandle( must be proper STRIDE output )
-    
-    
+
 =cut
+
 sub new {
     my ( $class, @args ) = @_;
     my $self = $class->SUPER::new( @args );
@@ -170,7 +170,7 @@ sub new {
 
 # GLOBAL FEATURES / INFO / STATS
 
-=head2
+=head2 totSurfArea
 
  Title         : totSurfArea
  Usage         : returns sum of surface areas of all residues of all
@@ -182,6 +182,7 @@ sub new {
 
 
 =cut
+
 sub totSurfArea {
     my $self = shift;
     my $total = 0;
@@ -216,6 +217,7 @@ sub totSurfArea {
 
 
 =cut
+
 sub numResidues {
     my $self = shift;
     my $chain = shift;
@@ -247,6 +249,7 @@ sub numResidues {
 
 
 =cut
+
 sub pdbID {
     my $self = shift;
     return $self->{ 'PDB' };
@@ -262,6 +265,7 @@ sub pdbID {
 
 
 =cut
+
 sub pdbAuthor {
     my $self = shift;
     return join( ' ', @{ $self->{ 'HEAD' }->{ 'AUT' } } );
@@ -279,6 +283,7 @@ sub pdbAuthor {
 
 
 =cut
+
 sub pdbCompound {
     my $self = shift;
     return join( ' ', @{ $self->{ 'HEAD' }->{ 'CMP' } } );
@@ -295,6 +300,7 @@ sub pdbCompound {
 
 
 =cut
+
 sub pdbDate {
     my $self = shift;
     return $self->{ 'DATE' };
@@ -311,6 +317,7 @@ sub pdbDate {
 
 
 =cut
+
 sub pdbHeader {
     my $self = shift;
     return $self->{ 'HEAD' }->{ 'HEADER' };
@@ -327,6 +334,7 @@ sub pdbHeader {
 
 
 =cut
+
 sub pdbSource {
     my $self = shift;
     return join( ' ', @{ $self->{ 'HEAD' }->{ 'SRC' } } );
@@ -346,6 +354,7 @@ sub pdbSource {
 
 
 =cut
+
 sub resAA {
     my $self = shift;
     my @args = @_;
@@ -364,6 +373,7 @@ sub resAA {
 
 
 =cut
+
 sub resPhi {
     my $self = shift;
     my @args = @_;
@@ -382,6 +392,7 @@ sub resPhi {
 
 
 =cut
+
 sub resPsi {
     my $self = shift;
     my @args = @_;
@@ -400,6 +411,7 @@ sub resPsi {
 
 
 =cut
+
 sub resSolvAcc {
     my $self = shift;
     my @args = @_;
@@ -418,6 +430,7 @@ sub resSolvAcc {
 
 
 =cut
+
 sub resSurfArea {
     my $self = shift;
     my @args = @_;
@@ -446,6 +459,7 @@ sub resSurfArea {
 
 
 =cut
+
 sub resSecStr {
     my $self = shift;
     my @args = @_;
@@ -465,6 +479,7 @@ sub resSecStr {
 
 
 =cut
+
 sub resSecStrSum {
     my $self = shift;
     my @args = @_;
@@ -498,6 +513,7 @@ sub resSecStrSum {
 
 
 =cut
+
 sub resSecStrName {
     my $self = shift;
     my @args = @_;
@@ -523,6 +539,7 @@ sub resSecStrName {
 
 
 =cut
+
 sub strideLocs {
     my $self = shift;
     return $self->{ 'LOC' };
@@ -530,7 +547,7 @@ sub strideLocs {
 
 # VALUE ADDED METHODS (NOT JUST PARSE/REPORT)
 
-=head2
+=head2 secBounds
 
  Title         : secBounds
  Usage         : gets residue ids of boundary residues in each
@@ -546,6 +563,7 @@ sub strideLocs {
 
 
 =cut
+
 sub secBounds {
     # Requires a chain name.  If left blank, we assume ' ' which equals '-'
     my $self  = shift;
@@ -604,6 +622,7 @@ sub secBounds {
 
 
 =cut
+
 sub chains {
     my $self = shift;
     my @chains = keys ( %{ $self->{ 'ASG' } } );
@@ -626,6 +645,7 @@ sub chains {
 
 
 =cut
+
 sub getSeq {
     my $self  = shift;
     my $chain = shift;
@@ -687,6 +707,7 @@ sub getSeq {
 
 
 =cut
+
 sub _pdbNum {
     my $self  = shift;
     my $ord   = shift;
@@ -712,6 +733,7 @@ sub _pdbNum {
 
 
 =cut
+
 sub _resAA {
     my $self  = shift;
     my $ord   = shift;
@@ -733,6 +755,7 @@ sub _resAA {
 
 
 =cut
+
 sub _pdbInsCo {
     my $self  = shift;
     my $ord   = shift;
@@ -747,7 +770,7 @@ sub _pdbInsCo {
     return $letter_part;
 }
 
-=head2
+=head2 _toOrdChain
 
  Title         : _toOrdChain
  Usage         : takes any set of residue identifying parameters and
@@ -766,15 +789,16 @@ sub _pdbInsCo {
    it has no ID AND there is no residue with an insertion code at this
    number, then this can uniquely specify a residue.
 
-#  ('#:C) or ( #, 'C' )
-     | |
-     | -Chain ID
-     ---Numeric portion of residue ID.
+  #  ('#:C) or ( #, 'C' )
+       | |
+       | -Chain ID
+       ---Numeric portion of residue ID.
 
   If a residue is incompletely specified then the first residue that 
   fits the arguments is returned.  For example, if 19 is the argument 
   and there are three chains, A, B, and C with a residue whose number 
   is 19, then 19:A will be returned (assuming its listed first).
+
  Function      :
  Example       : my ( $ord, $chain ) = $self->_toOrdChain( @args );
  Returns       : two element array
@@ -782,6 +806,7 @@ sub _pdbInsCo {
 
 
 =cut
+
 sub _toOrdChain {
     my $self = shift;
     my $arg_str;
@@ -835,7 +860,7 @@ sub _toOrdChain {
 
 }
 
-=head2
+=head2 _parse
 
  Title         : _parse
  Usage         : as name suggests, parses stride output, creating object
@@ -846,6 +871,7 @@ sub _toOrdChain {
 
 
 =cut
+
 sub _parse {
     my $self = shift;
     my $io = shift;
@@ -866,7 +892,7 @@ sub _parse {
     $self->_parseASG( $io );
 }
 
-=head2
+=head2 _parseTop
 
  Title         : _parseTop
  Usage         : makes sure this looks like stride output
@@ -877,6 +903,7 @@ sub _parse {
 
 
 =cut
+
 sub _parseTop {
     my $self = shift;
     my $io = shift;
@@ -888,7 +915,7 @@ sub _parseTop {
     return 1;
 }
 
-=head2
+=head2 _parseHead
 
  Title         : _parseHead
  Usage         : parses
@@ -899,6 +926,7 @@ sub _parseTop {
 
 
 =cut
+
 sub _parseHead {
     my $self = shift;
     my $io = shift;
@@ -951,7 +979,7 @@ sub _parseHead {
     $self->{ 'HEAD' } = \%head;
 }
 
-=head2
+=head2 _parseSummary
 
  Title         : _parseSummary
  Usage         : parses LOC lines
@@ -962,6 +990,7 @@ sub _parseHead {
 
 
 =cut
+
 sub _parseSummary {
     my $self = shift;
     my $io = shift;
@@ -997,7 +1026,7 @@ sub _parseSummary {
 
 }
 
-=head2
+=head2 _parseASG
 
  Title         : _parseASG
  Usage         : parses ASG lines
@@ -1008,6 +1037,7 @@ sub _parseSummary {
 
 
 =cut
+
 sub _parseASG {
     my $self = shift;
     my $io = shift;

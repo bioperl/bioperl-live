@@ -122,6 +122,8 @@ sub new {
 
 =head2 Bio::Factory::MapFactoryI methods
 
+=cut
+
 =head2 next_map
 
  Title   : next_tree

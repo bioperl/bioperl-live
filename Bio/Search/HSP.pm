@@ -12,9 +12,10 @@
 
 =head1 NAME
 
-Bio::Search::HSP - Implementation of Bio::Search::HSPI to handle High Scoring Pairs in memory 
+Bio::Search::HSP - Implementation of Bio::Search::HSPI to handle High Scoring Pairs in memory
 
 =head1 SYNOPSIS
+
     # typically one gets a HSP From a SearchIO report or Subject Object
     use Bio::Search::HSP;
     my $hsp = new Bio::Search::HSP
@@ -45,21 +46,21 @@ Bio::Search::HSP - Implementation of Bio::Search::HSPI to handle High Scoring Pa
     print (join(',',( $hsp->report_type,
 		      $hsp->score,
 		      $hsp->bits,
-		      
+
 		      $hsp->P,
 		      $hsp->evalue,
 		      $hsp->percent_identity,
 		      $hsp->gaps,
 		      $hsp->positive,
 
-		      $hsp->hsp_length, 
+		      $hsp->hsp_length,
 		      $hsp->query->start,
 		      $hsp->query->end,
 		      $hsp->query->strand,
 		      $hsp->query->strand,
 		      $hsp->query->frame,
 		      $hsp->query->length,
-		      $hsp->subject->start,		      
+		      $hsp->subject->start,
 		      $hsp->subject->end,
 		      $hsp->subject->strand,
 		      $hsp->subject->frame,
@@ -68,7 +69,7 @@ Bio::Search::HSP - Implementation of Bio::Search::HSPI to handle High Scoring Pa
 		      $hsp->subject_seq,
 		      $hsp->homology_seq,
 		      ))), "\n";
-    
+
 =head1 DESCRIPTION
 
 This object provides an in-memory copy of a High Scoring Pair
@@ -77,7 +78,7 @@ percent_identity from the values in identity and hsp_length.
 
 An HSP is-a FeaturePair so it has methods query() and subject() which
 provides access to the paired features that make up a HSP().
- 
+
 =head1 FEEDBACK
 
 =head2 Mailing Lists
@@ -135,9 +136,9 @@ use Bio::SeqFeature::Similarity;
 
  Title   : new
  Usage   : my $obj = new Bio::Search::HSP();
- Function: Builds a new Bio::Search::HSP object 
+ Function: Builds a new Bio::Search::HSP object
  Returns : Bio::Search::HSP
- Args    : 
+ Args    :
            -query_seq   => query sequence
            -subject_seq => subject sequence
            -homology_seq=> homology sequence
@@ -146,10 +147,10 @@ use Bio::SeqFeature::Similarity;
            -bits        => HSP bit score
            -P           => P value
            -match       => # of bases that matched exactly
-           -positive    => # of positive matches 
+           -positive    => # of positive matches
            -gaps        => # of gaps
            -query_begin   => start of HSP in query coordinates
-           -query_end     => end of HSP in query coordinates 
+           -query_end     => end of HSP in query coordinates
            -subject_begin => start of HSP in subject coordinates
            -subject_end   => end of HSP in subject coordinates
            -query_length  => total length of query sequence
@@ -157,7 +158,7 @@ use Bio::SeqFeature::Similarity;
            -query_frame   => query frame (if any)
            -subject_frame => subject frame (if any)
            -report_type   => Type of report ([t]blast[pnx] or hmmer, etc)
-    
+
 =cut
 
 sub new {
@@ -165,13 +166,13 @@ sub new {
 
     my $self = $class->SUPER::new(@args);
     my ($score,$bits,$match,$hsplength,$positive,$gaps,$e,$qb,$qe,$sb,$se,$qs,
-	$ss,$hs,$qname,$sname,$qlength,$slength,$qframe,$sframe,$reporttype) = 
+	$ss,$hs,$qname,$sname,$qlength,$slength,$qframe,$sframe,$reporttype) =
 	    $self->_rearrange([qw(SCORE
 				  BITS
 				  MATCH
 				  HSP_LENGTH
 				  POSITIVE
-				  GAPS				  
+				  GAPS
 				  EVALUE
 				  QUERY_BEGIN
 				  QUERY_END
@@ -193,19 +194,19 @@ sub new {
     $self->{'_reporttype'} = $reporttype;
     # Determine strand meanings
     my ($queryfactor, $sbjctfactor) = (1,0); # default
-    if ($reporttype eq 'BLASTP' || $reporttype eq 'TBLASTN' 
+    if ($reporttype eq 'BLASTP' || $reporttype eq 'TBLASTN'
 	|| $reporttype eq 'FASTX' || $reporttype eq 'FASTY') {
 	$queryfactor = 0;
     }
-    if ($reporttype eq 'TBLASTN' || $reporttype eq 'TBLASTX' || 
-	$reporttype eq 'BLASTN' || $reporttype eq 'TFASTX' || 
+    if ($reporttype eq 'TBLASTN' || $reporttype eq 'TBLASTX' ||
+	$reporttype eq 'BLASTN' || $reporttype eq 'TFASTX' ||
 	$reporttype eq 'FASTA' )  {
 	$sbjctfactor = 1;
     }
     if( $reporttype eq 'RPSBLAST' ) {
 	$queryfactor = $sbjctfactor = 0;
 	$qframe = $sframe = 0;
-	
+
     }
 
     # Store the aligned query as sequence feature
@@ -214,32 +215,32 @@ sub new {
     if ($qe > $qb) {		# normal query: start < end
 	if ($queryfactor) { $strand = 1; } else { $strand = undef; }
 	$self->query( Bio::SeqFeature::Similarity->new
-		      ('-start' => $qb, 
-		       '-end'   => $qe, 
-		       '-strand'=> $strand, 
+		      ('-start' => $qb,
+		       '-end'   => $qe,
+		       '-strand'=> $strand,
 		       '-source'=> $reporttype ) ) }
-    else {			# reverse query (i dont know if this is possible, but feel free to correct)	
+    else {			# reverse query (i dont know if this is possible, but feel free to correct)
 	if ($queryfactor) { $strand = -1; } else { $strand = undef; }
 	$self->query( Bio::SeqFeature::Similarity->new
-		      ('-start' => $qe, 
-		       '-end'   => $qb, 
+		      ('-start' => $qe,
+		       '-end'   => $qb,
 		       '-strand'=> $strand,
-		       '-source'=> $reporttype ) ); 
+		       '-source'=> $reporttype ) );
     }
     $qframe = 0 unless defined $strand;
     # store the aligned subject as sequence feature
     if ($se > $sb) {		# normal subject
 	if ($sbjctfactor) { $strand = 1; } else { $strand = undef; }
 	$self->subject( Bio::SeqFeature::Similarity->new
-			('-start' => $sb, 
-			 '-end'   => $se, 
+			('-start' => $sb,
+			 '-end'   => $se,
 			 '-strand'=> $strand,
 			 '-source'=> $reporttype ) ) }
     else { # reverse subject: start bigger than end
 	if ($sbjctfactor) { $strand = -1; } else { $strand = undef; }
 	$self->subject( Bio::SeqFeature::Similarity->new
-			('-start' => $se, 
-			 '-end'   => $sb, 
+			('-start' => $se,
+			 '-end'   => $sb,
 			 '-strand'=> $strand,
 			 '-source'=> $reporttype ) );
     }
@@ -262,7 +263,7 @@ sub new {
     $self->{'_hsp_length'} = $hsplength;
     if( $hsplength ) {
 	$self->{'_percent_id'} = int((1000 * $match)/$hsplength)/10;
-    } else { 
+    } else {
 	$self->{'_percent_id'} = 0;
     }
     $self->{'_positive'} = $positive;
@@ -334,12 +335,12 @@ sub evalue {
  Title   : percent_identity (alias for percent_identical)
 
  Usage   : my $perc_id = $hsp->percent_identity();
- Function: Returns the Percent Identity (num positive / total HSP len) 
-           for this HSP 
+ Function: Returns the Percent Identity (num positive / total HSP len)
+           for this HSP
  Returns : Float in range 0 -> 100
  Args    : none
 
-=cut 
+=cut
 
 sub percent_identity { $_[0]->percent_identical }
 
@@ -347,8 +348,8 @@ sub percent_identity { $_[0]->percent_identical }
 
  Title   : percent_identical
  Usage   : my $perc_id = $hsp->percent_identical();
- Function: Returns the Percent Identity (num positive / total HSP len) 
-           for this HSP 
+ Function: Returns the Percent Identity (num positive / total HSP len)
+           for this HSP
  Returns : Float in range 0 -> 100
  Args    : none
 
@@ -442,7 +443,7 @@ sub homology_seq{
 
  Title   : hsp_length
  Usage   : my $len = $hsp->hsp_length
- Function: Returns the aggregate length of the HSP 
+ Function: Returns the aggregate length of the HSP
            (which may be greater than either subject or query )
  Returns : integer
  Args    : none
@@ -460,30 +461,30 @@ sub hsp_length{
  Usage   : $hsp->frame($queryframe,$subjectframe)
  Function: Set the Frame for both query and subject and insure that
            they agree.
-           This overrides the frame() method implementation in 
-           FeaturePair.    
+           This overrides the frame() method implementation in
+           FeaturePair.
  Returns : array of query and subjects if return type wants an array
            or query frame if defined or subject frame
  Args    : none
- Note    : Frames are stored in the GFF way (0-2 +/-) not 1-3 
+ Note    : Frames are stored in the GFF way (0-2 +/-) not 1-3
            as they are in BLAST
-=cut
 
+=cut
 
 sub frame {
     my ($self, $qframe, $sframe) = @_;
     if( defined $qframe ) {
 	if( $qframe == 0 ) {
 	    $qframe = 0;
-	} elsif( $qframe !~ /^([+-])?([1-3])/ ) {	    
+	} elsif( $qframe !~ /^([+-])?([1-3])/ ) {
 	    $self->warn("Specifying an invalid query frame ($qframe)");
 	    $qframe = undef;
-	} else { 
-	    if( ($1 eq '-' && $self->query->strand >= 0) || 
+	} else {
+	    if( ($1 eq '-' && $self->query->strand >= 0) ||
 		($1 eq '+' && $self->query->strand <= 0) ) {
 		$self->warn("Query frame ($qframe) did not match strand of query (". $self->query->strand() . ")");
 	    }
-	    # Set frame to GFF [0-2] - 
+	    # Set frame to GFF [0-2] -
 	    # what if someone tries to put in a GFF frame!
 	    $qframe = $2 - 1;
 	}
@@ -492,52 +493,54 @@ sub frame {
     if( defined $sframe ) {
 	  if( $sframe == 0 ) {
 	    $sframe = 0;
-	  } elsif( $sframe !~ /^([+-])?([1-3])/ ) {	    
+	  } elsif( $sframe !~ /^([+-])?([1-3])/ ) {
 	    $self->warn("Specifying an invalid subject frame ($sframe)");
 	    $sframe = undef;
-	  } else { 
-	      if( ($1 eq '-' && $self->subject->strand >= 0) || 
-		  ($1 eq '+' && $self->subject->strand <= 0) ) 
+	  } else {
+	      if( ($1 eq '-' && $self->subject->strand >= 0) ||
+		  ($1 eq '+' && $self->subject->strand <= 0) )
 	      {
 		  $self->warn("Subject frame ($sframe) did not match strand of subject (". $self->subject->strand() . ")");
 	      }
-	      
+
 	      # Set frame to GFF [0-2]
 	      $sframe = $2 - 1;
 	  }
 	  $self->subject->frame($sframe);
       }
-    
-    if (wantarray() && 
-	$self->report_type eq 'TBLASTX') 
-    { 
-	return ($self->query->frame(), $self->subject->frame()); 
-    } elsif (wantarray())  { 
-	($self->query->frame() && 
-	 return ($self->query->frame(), undef)) || 
-	     ($self->subject->frame() && 
-	      return (undef, $self->subject->frame())); 
-    } else { 
-	($self->query->frame() && 
-	 return $self->query->frame()) || 
-	($self->subject->frame() && 
-	 return $self->subject->frame()); 
+
+    if (wantarray() &&
+	$self->report_type eq 'TBLASTX')
+    {
+	return ($self->query->frame(), $self->subject->frame());
+    } elsif (wantarray())  {
+	($self->query->frame() &&
+	 return ($self->query->frame(), undef)) ||
+	     ($self->subject->frame() &&
+	      return (undef, $self->subject->frame()));
+    } else {
+	($self->query->frame() &&
+	 return $self->query->frame()) ||
+	($self->subject->frame() &&
+	 return $self->subject->frame());
     }
 }
 
 =head2 Bio::SeqFeature::SimilarityPair methods
 
+=cut
+
 =head2 significance
- 
+
  Title   : significance
  Usage   : $evalue = $obj->significance();
            $obj->significance($evalue);
  Function:
  Returns :
  Args    :
- 
+
 =head2 bits
- 
+
  Title   : bits
  Usage   : $bits = $obj->bits();
            $obj->bits($value);
@@ -546,7 +549,7 @@ sub frame {
  Args    :
 
 =head2 score
- 
+
  Title   : score
  Usage   : $score = $obj->score();
            $obj->score($value);
@@ -555,11 +558,13 @@ sub frame {
 
 =head2 Bio::SeqFeature::FeaturePair methods
 
+=cut
+
 =head2 query
 
- Title   : query 
+ Title   : query
  Usage   : my $query = $hsp->query;
- Function: Access to the SeqFeature::Similarity 
+ Function: Access to the SeqFeature::Similarity
            for the query sequence that makes up this HSP
  Returns : Bio::SeqFeature::Similarity
  Args    : none
@@ -568,15 +573,17 @@ sub frame {
 
  Title   : subject
  Usage   : my $subject = $hsp->subject
- Function: Access to the SeqFeature::Similarity 
+ Function: Access to the SeqFeature::Similarity
            for the subject (hit) sequence that makes up this HSP
  Returns : Bio::SeqFeature::Similarity
  Args    : none
 
 =head2 Bio::SeqFeature::FeaturePair methods
 
+=cut
+
 =head2 feature1
- 
+
  Title   : feature1
  Usage   : $f = $featpair->feature1
            $featpair->feature1($feature)
@@ -585,7 +592,7 @@ sub frame {
  Args    : Bio::SeqFeatureI
 
 =head2 feature2
- 
+
  Title   : feature2
  Usage   : $f = $featpair->feature2
            $featpair->feature2($feature)
@@ -594,7 +601,7 @@ sub frame {
  Args    : Bio::SeqFeatureI
 
 =head2 hseqname
- 
+
  Title   : hseqname
  Usage   : $featpair->hseqname($newval)
  Function: Get/set method for the name of
@@ -603,7 +610,7 @@ sub frame {
  Args    : newvalue (optional)
 
 =head2 hstart
- 
+
  Title   : hstart
  Usage   : $start = $featpair->hstart
            $featpair->hstart(20)
@@ -612,7 +619,7 @@ sub frame {
  Args    : none
 
 =head2 hend
- 
+
  Title   : hend
  Usage   : $end = $featpair->hend
            $featpair->hend($end)
@@ -621,7 +628,7 @@ sub frame {
  Args    : none
 
 =head2 hstrand
- 
+
  Title   : hstrand
  Usage   : $strand = $feat->strand()
            $feat->strand($strand)
@@ -630,26 +637,26 @@ sub frame {
  Args    : none
 
 =head2 hscore
- 
+
  Title   : hscore
  Usage   : $score = $feat->score()
            $feat->score($score)
  Function: get/set on score information
  Returns : float
- Args    : none if get, the new value if set 
- 
+ Args    : none if get, the new value if set
+
 =head2 hframe
- 
+
  Title   : hframe
  Usage   : $frame = $feat->frame()
            $feat->frame($frame)
  Function: get/set on frame information
  Returns : 0,1,2
  Args    : none if get, the new value if set
- 
+
 
 =head2 hprimary_tag
- 
+
  Title   : hprimary_tag
  Usage   : $ptag = $featpair->hprimary_tag
  Function: Get/set on the primary_tag of feature2
@@ -657,7 +664,7 @@ sub frame {
  Args    : none if get, the new value if set
 
 =head2 hsource_tag
- 
+
  Title   : hsource_tag
  Usage   : $tag = $feat->hsource_tag()
            $feat->source_tag('genscan');
@@ -667,17 +674,19 @@ sub frame {
  Args    : none
 
 =head2 invert
- 
+
  Title   : invert
  Usage   : $tag = $feat->invert
  Function: Swaps feature1 and feature2 around
  Returns : Nothing
  Args    : none
 
-=head Bio::SeqFeatureI methods
+=head2 Bio::SeqFeatureI methods
+
+=cut
 
 =head2 start
- 
+
  Title   : start
  Usage   : $start = $featpair->start
            $featpair->start(20)
@@ -686,7 +695,7 @@ sub frame {
  Args    : [optional] beginning of feature
 
 =head2 end
- 
+
  Title   : end
  Usage   : $end = $featpair->end
            $featpair->end($end)
@@ -695,7 +704,7 @@ sub frame {
  Args    : [optional] ending point of feature
 
 =head2 strand
- 
+
  Title   : strand
  Usage   : $strand = $feat->strand()
            $feat->strand($strand)
@@ -704,7 +713,7 @@ sub frame {
  Args    : [optional] strand information to set
 
 =head2 location
- 
+
  Title   : location
  Usage   : $location = $featpair->location
            $featpair->location($location)
@@ -713,7 +722,7 @@ sub frame {
  Args    : [optional] LocationI to store
 
 =head2 primary_tag
- 
+
  Title   : primary_tag
  Usage   : $ptag = $featpair->primary_tag
  Function: get/set on the primary_tag of feature1
@@ -721,7 +730,7 @@ sub frame {
  Args    : none if get, the new value if set
 
 =head2 source_tag
- 
+
  Title   : source_tag
  Usage   : $tag = $feat->source_tag()
            $feat->source_tag('genscan');
@@ -731,14 +740,14 @@ sub frame {
  Args    : none
 
 =head2 seqname
- 
+
  Title   : seqname
  Usage   : $obj->seqname($newval)
  Function: There are many cases when you make a feature that you
            do know the sequence name, but do not know its actual
            sequence. This is an attribute such that you can store
            the seqname.
- 
+
            This attribute should *not* be used in GFF dumping, as
            that should come from the collection in which the seq
            feature was found.

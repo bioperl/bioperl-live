@@ -16,6 +16,8 @@ Bio::Structure::Residue - Bioperl structure Object, describes a Residue
 
 =head1 SYNOPSIS
 
+  #add synopsis here
+
 =head1 DESCRIPTION
 
 This object stores a Bio::Structure::Residue

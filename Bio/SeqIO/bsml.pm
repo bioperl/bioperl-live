@@ -434,9 +434,6 @@ sub STRIP {
     return $string;
 }
 
-=head1
-#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
-
 =head2 to_bsml
 
  Title   : to_bsml
@@ -757,9 +754,6 @@ sub to_bsml {
     }
 }
 
-=head1
-#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
-
 =head2 write_seq
 
  Title   : write_seq
@@ -870,9 +864,6 @@ sub _parse_location {
     return \@added;
 }
 
-=head1
-#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
-
 =head2 _parse_bsml_feature
 
  Title   : _parse_bsml_feature
@@ -957,9 +948,6 @@ sub _parse_bsml_feature {
     return $basegsf;
 }
 
-=head1
-#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
-
 =head2 _parse_bsml_location
 
  Title   : _parse_bsml_location
@@ -1005,9 +993,6 @@ sub _parse_bsml_location {
     
     return $gsf;
 }
-
-=head1
-#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 
 =head2 _parse_annotation
 
@@ -1096,9 +1081,6 @@ sub _parse_annotation {
     }
 }
 
-=head1
-#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
-
 =head2 _add_page
 
  Title   : _add_page
@@ -1134,8 +1116,6 @@ sub _add_page {
     return $page;
 }
 
-=head1
-#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 
 =head2 _addel
 
@@ -1165,9 +1145,6 @@ sub _addel {
     return $elem;
 }
 
-=head1
-#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
-
 =head2 _show_dna
 
  Title   : _show_dna
@@ -1186,9 +1163,6 @@ sub _show_dna {
     }
     return $obj->{'_show_dna'};
 }
-
-=head1
-#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 
 =head2 _initialize
 
@@ -1219,9 +1193,6 @@ sub _initialize {
       $self->{'current_node'} = 0;
   }
 }
-
-=head1
-#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 
 =head2 _parse_xml
 
@@ -1254,8 +1225,6 @@ sub DESTROY {
     $self->{'domtree'}->dispose;
 }
 
-=head1
-#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 
 =head1 TESTING SCRIPT
 
@@ -1278,7 +1247,7 @@ sub DESTROY {
  # Make Seq object from the $readfile
  my $biostream = Bio::SeqIO->new( -file => "$readfile" );
  my $seq = $biostream->next_seq();
- 
+
  # Write BSML from SeqObject
  my $bsmlout = Bio::SeqIO->new( -format => 'bsml',
 				   -file => ">$tempspot/out.bsml");
@@ -1297,7 +1266,7 @@ sub DESTROY {
 				   -file => ">$tempspot/out.$readformat");
  $genout->write_seq($seq2);
  warn "$readformat  written to $tempspot/out.$readformat\n";
- 
+
  # BEING LOST:
  # Join information (not possible in BSML 2.2)
  # Sequence type (??)

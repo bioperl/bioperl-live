@@ -204,6 +204,7 @@ automatically if it is not there already.
   -pass          the password for authentication
 
 =cut
+
 #'
 
 sub new {
@@ -404,7 +405,7 @@ sub refseq_query {
  Args    : feature ID
  Status  : protected
 
-This method is called by Bio::DB::GFF->notes() to retrieve the notes
+This method is called by Bio::DB::GFF-E<gt>notes() to retrieve the notes
 corresponding to the internal feature ID.
 
 =cut
@@ -966,13 +967,13 @@ of the table, and two string identifiers.  For feature types, the
 identifiers are the method and source.  For groups, the identifiers
 are group name and class.
 
-This method requires that a statement handler named i<lookup_$table>,
+This method requires that a statement handler named I<lookup_$table>,
 have been created previously by setup_load().  It is here to overcome
 deficiencies in mysql's INSERT syntax.
 
 =cut
-#'
 
+#'
 # get the object ID from a named table
 sub get_table_id {
   my $self  = shift;
@@ -1016,6 +1017,7 @@ ID of an existing feature.  It is ony needed when replacing a feature
 with new information.
 
 =cut
+
 # this method is called when needed to look up a feature's ID
 sub get_feature_id {
   my $self = shift;

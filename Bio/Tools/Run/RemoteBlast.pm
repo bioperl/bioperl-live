@@ -144,7 +144,7 @@ sub new {
  Function: Get/Set HTTP header for blast query
  Returns : string
  Args    : none
- 
+
 =cut
 
 sub header {
@@ -306,7 +306,7 @@ sub each_rid {
            * sequence object
            * array ref of sequence objects
            * filename of file containing fasta formatted sequences
-           
+
 =cut
 
 sub submit_blast {

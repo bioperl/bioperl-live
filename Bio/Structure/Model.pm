@@ -16,6 +16,8 @@ Bio::Structure::Model - Bioperl structure Object, describes a Model
 
 =head1 SYNOPSIS
 
+  #add synopsis here
+
 =head1 DESCRIPTION
 
 This object stores a Bio::Structure::Chain
@@ -222,7 +224,6 @@ sub DESTROY {
  	don't belong to this Model any more
  Returns : 
  Args    : 
- 
 
 =cut
 

@@ -248,7 +248,7 @@ annotation indicates an alignment.  The second case is a map assembly,
 in which the annotation indicates that a portion of a larger sequence
 is built up from one or more smaller ones.
 
-Both cases are indicated by using the b<Target> tag in the group
+Both cases are indicated by using the B<Target> tag in the group
 field.  For example, a typical similarity hit will look like this:
 
  Chr1 BLASTX similarity 76953 77108 132 + 0 Target Protein:SW:ABL_DROME 493 544
@@ -785,6 +785,7 @@ the segments spanned by a named feature, regardless of whether it is
 on a contiguous physical segment.
 
 =cut
+
 #'
 
 sub segment {
@@ -833,10 +834,10 @@ sub abs_segment {
  Args    : new setting for absolute mode boolean
  Status  : public
 
-$db->absolute(1) will turn on absolute mode for the entire database.
+$db-E<gt>absolute(1) will turn on absolute mode for the entire database.
 All segments retrieved will use absolute coordinates by default,
 rather than relative coordinates.  You can still set them to use
-relative coordinates by calling $segment->absolute(0).
+relative coordinates by calling $segment-E<gt>absolute(0).
 
 Note that this is not the same as calling abs_segment(); it continues
 to allow you to look up groups that are not used directly as reference
@@ -967,7 +968,7 @@ sub features_in_range {
  Args    : see below
  Status  : public
 
-This method is invoked by Bio::DB::GFF::Segment->features() to find
+This method is invoked by Bio::DB::GFF::Segment-E<gt>features() to find
 the list of features that overlap a given range.  It is generally
 preferable to create the Segment first, and then fetch the features.
 
@@ -1189,7 +1190,7 @@ sub get_Stream_by_id {
  Args    : See below
  Status  : public
 
-This is equivalent to calling $db->features() without any types, and
+This is equivalent to calling $db-E<gt>features() without any types, and
 will return all the features in the database.  The -merge and
 -iterator arguments are recognized, and behave the same as described
 for features().
@@ -1393,7 +1394,7 @@ sub default_aggregators {
  Status  : protected
 
 This method is called to load a GFF data stream.  The method will read
-GFF features from <> and load them into the database.  On exit the
+GFF features from E<lt>E<gt> and load them into the database.  On exit the
 method must return the number of features loaded.
 
 Note that the method is responsible for parsing the GFF lines.  This
@@ -1586,7 +1587,7 @@ sub do_initialize {
  Args    : sequence ID, start, stop and class
  Status  : protected
 
-If start > stop and the sequence is nucleotide, then this method
+If start E<gt> stop and the sequence is nucleotide, then this method
 should return the reverse complement.  The sequence class may be
 ignored by those databases that do not recognize different object
 types.

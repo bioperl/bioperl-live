@@ -14,8 +14,8 @@ Bio::Map::Marker - An object representing a generic marker.
 
 =head1 SYNOPSIS
 
-$o_usat = new Bio::Map::Marker(-name=>'Chad Super Marker 2',
-			       -position => [ [$map, $position] ] );
+  $o_usat = new Bio::Map::Marker(-name=>'Chad Super Marker 2',
+				 -position => [ [$map, $position] ] );
 
 =head1 DESCRIPTION
 
@@ -83,7 +83,7 @@ use Bio::Map::MarkerI;
  Args    :
            -name    => name of this microsatellite 
                        [optional], string,default 'Unknown'
-          
+
            -positions => map position for this marker, [optional]
                 Bio::Map::PositionI-inherited obj, no default)
 

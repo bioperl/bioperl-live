@@ -27,16 +27,15 @@ Bio::Map::OrderedPosition - Abstracts the notion of a member
 	# marker
     my $position3 = new Bio::Map::OrderedPosition(-order => 3,
                         -posititions => [ [ $map, 37.9]] );
-    
 
 =head1 DESCRIPTION
 
 This object is an implementation of the PositionI interface and the
 Position object handles the specific values of a position.
-OrderedPosition is intended to be slightly more specific
-then Position but only specific enough for a parser from the MarkerIO
-subsystem to create and then pass to a client application to bless into
-the proper type. For an example of how this is intended to work, see the
+OrderedPosition is intended to be slightly more specific then Position
+but only specific enough for a parser from the MarkerIO subsystem to
+create and then pass to a client application to bless into the proper
+type. For an example of how this is intended to work, see the
 Mapmaker.pm.
 
 No units are assumed here - units are handled by context of which Map
@@ -137,6 +136,8 @@ sub order {
 }
 
 =head2 Bio::Map::Position functions
+
+=cut
 
 =head2 known_maps
 

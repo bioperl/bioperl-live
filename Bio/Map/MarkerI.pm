@@ -92,6 +92,8 @@ sub name {
 
 =head2 Bio::Map::MappableI methods
 
+=cut
+
 =head2 map_position
 
  Title   : position

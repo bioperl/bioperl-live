@@ -108,6 +108,7 @@ use Bio::Root::Root;
            -symbols => Symbols that make up this symbol (array) [e.g. AUG]
            -matches => Alphabet in the event symbol is an ambiguity
                        code.
+
 =cut
 
 sub new {

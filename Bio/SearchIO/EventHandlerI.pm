@@ -175,6 +175,8 @@ sub end_subject{
 
 =head2 Bio::Event::EventHandlerI methods
 
+=cut
+
 =head2 will_handle
 
  Title   : will_handle
@@ -187,6 +189,8 @@ sub end_subject{
 =cut
 
 =head2 SAX methods
+
+=cut
 
 =head2 start_document
 

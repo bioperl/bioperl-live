@@ -16,14 +16,13 @@ Bio::Tree::NodeI - Interface describing a Tree Node
 
 =head1 SYNOPSIS
 
-# get a Tree::NodeI somehow
-# like from a TreeIO
-{
+    # get a Tree::NodeI somehow
+    # like from a TreeIO
     use Bio::TreeIO;
     # read in a clustalw NJ in phylip/newick format
     my $treeio = new Bio::TreeIO(-format => 'newick', -file => 'file.dnd');
     my $tree = $treeio->next_tree; # we'll assume it worked for demo purposes
-    
+
     my $rootnode = $tree->get_root_node;
 
     # process just the next generation
@@ -126,6 +125,8 @@ sub each_Descendent{
 }
 
 =head2 Decorated Interface methods
+
+=cut
 
 =head2 get_Descendents
 
@@ -231,6 +232,8 @@ sub height{
 }
 
 =head2 Get/Set methods
+
+=cut
 
 =head2 branch_length
 

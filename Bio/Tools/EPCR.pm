@@ -19,13 +19,13 @@ Bio::Tools::EPCR - Parse ePCR output and make features
     # A simple annotation pipeline wrapper for ePCR data
     # assuming ePCR data is already generated in file seq1.epcr
     # and sequence data is in fasta format in file called seq1.fa
-    
+
     use Bio::Tools::EPCR;
     use Bio::SeqIO;
     my $parser = new Bio::Tools::EPCR(-file => 'seq1.epcr');
     my $seqio = new Bio::SeqIO(-format => 'fasta', -file => 'seq1.fa');
     my $seq = $seqio->next_seq || die("cannot get a seq object from SeqIO");
-    
+
     while( my $feat = $parser->next_feature ) {
 	# add EPCR annotation to a sequence
 	$seq->add_SeqFeature($feat);

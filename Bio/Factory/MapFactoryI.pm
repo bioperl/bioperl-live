@@ -16,11 +16,11 @@ Bio::Factory::MapFactoryI - A Factory for getting markers
 
 =head1 SYNOPSIS
 
-# get a Map Factory somehow likely from Bio::MapIO system
+    # get a Map Factory somehow likely from Bio::MapIO system
 
-    
     while( my $map = $mapin->next_map ) {
-	print "map name is ", $map->name, " length is ", $map->length, " ", $map->units, "\n";
+	print "map name is ", $map->name, " length is ", 
+	    $map->length, " ", $map->units, "\n";
 	$mapout->write_map($map);
     }
 

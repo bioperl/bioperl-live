@@ -13,20 +13,20 @@
 =head1 NAME
 
 Bio::Factory::TreeFactoryI - Factory Interface for getting and writing trees
-from/to a data stream
+  from/to a data stream
 
 =head1 SYNOPSIS
 
-# get a $factory from somewhere Bio::TreeIO likely
-my $treeio = new Bio::TreeIO(-format => 'newick', #this is phylip/newick format
-			     -file   => 'file.tre');
-my $treeout = new Bio::TreeIO(-format => 'nexus',
-			      -file   => ">file.nexus");
+  # get a $factory from somewhere Bio::TreeIO likely
+  my $treeio = new Bio::TreeIO(-format => 'newick', #this is phylip/newick format
+  			       -file   => 'file.tre');
+  my $treeout = new Bio::TreeIO(-format => 'nexus',
+  				-file   => ">file.nexus");
 
-# convert tree formats from newick/phylip to nexus
-while(my $tree = $treeio->next_tree) {
-    $treeout->write_tree($treeout);
-}
+  # convert tree formats from newick/phylip to nexus
+  while(my $tree = $treeio->next_tree) {
+      $treeout->write_tree($treeout);
+  }
 
 =head1 DESCRIPTION
 

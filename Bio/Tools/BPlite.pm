@@ -17,7 +17,7 @@ Bio::Tools::BPlite - Lightweight BLAST parser
  use Bio::Tools::BPlite;
  my $report = new Bio::Tools::BPlite(-fh=>\*STDIN);
 
-{
+  {
     $report->query;
     $report->database;
     while(my $sbjct = $report->nextSbjct) {
@@ -49,7 +49,7 @@ Bio::Tools::BPlite - Lightweight BLAST parser
 
     last if ($report->_parseHeader == -1);
     redo;
- }
+  }
 
 
 =head1 DESCRIPTION
@@ -156,7 +156,7 @@ This software was developed at the Genome Sequencing Center at Washington
 Univeristy, St. Louis, MO.
 
 =head1 CONTRIBUTORS
- 
+
 Jason Stajich, jason@cgt.mc.duke.edu
 
 =head1 COPYRIGHT
