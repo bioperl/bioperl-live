@@ -1,3 +1,4 @@
+# $Id$
 # BioPerl module for Bio::Tools::Gel
 # Copyright Allen Day <allenday@ucla.edu>
 # You may distribute this module under the same terms as perl itself
@@ -86,7 +87,7 @@ use vars qw(@ISA);
 use strict;
 
 use Bio::Root::Root;
-use Bio::Seq;
+use Bio::PrimarySeq;
 
 @ISA = qw(Bio::Root::Root);
 
@@ -106,29 +107,19 @@ sub new {
   my($class,@args) = @_;
 
   my $self = $class->SUPER::new(@args);
-  $self->_init(@args);
+  my ($seqs,$dilate) = $self->_rearrange([qw(SEQ DILATE)],
+					  @args);
+  if( ! ref($seqs)  ) {
+      $self->add_band([$seqs]);
+  } elsif( ref($seqs) =~ /array/i ||
+	   $seqs->isa('Bio::PrimarySeqI') ) {
+      $self->add_band($seqs);
+  } 
+  $self->dilate($dilate || 1);
   
   return $self;
 }
 
-=head2 _init
-
- Title   : _init
- Usage   : _init(@args);
- Function: Handles arguments to new()
- Returns : 
- Args    : @args from new()
-
-=cut
-
-sub _init {
-  my($self,%args) = @_;
-
-  my @seqs = ref $args{-seq} eq 'ARRAY' ? @{$args{-seq}}
-                                        :   $args{-seq}; 
-  $self->add_band(\@seqs);
-  $self->dilate($args{-dilate} || 1);
-}
 
 =head2 add_band
 
@@ -144,11 +135,18 @@ sub add_band {
   my($self,$args) = @_;
 
   foreach my $arg (@$args){
+      my $seq;
+      if( ! ref($arg) ) {
+	  if( $arg =~ /^\d+/ ) {
+	      $seq= Bio::PrimarySeq->new(-seq=>"N"x$arg, -id => $arg);
+	  } else {
+	      $seq= Bio::PrimarySeq->new(-seq=>$arg,-id=>length($arg));
+	  }
+      } elsif( $arg->isa('Bio::PrimarySeqI') ) {
+	  $seq = $arg;
+      } 
 
-    my $seq = ref $arg eq 'Bio::Seq' ? $arg
-            : Bio::Seq->new(-seq=>$arg,-id=>length($arg));
-
-    $seq->validate_seq or $seq->throw("invalid symbol in sequence");
+    $seq->validate_seq or $seq->throw("invalid symbol in sequence".$seq->seq()."\n");
     $self->_add_band($seq);
   }
 }
@@ -164,8 +162,10 @@ sub add_band {
 =cut
 
 sub _add_band {
-  my($self,$arg) = @_;
-  push @{$self->{bands}},$arg;
+  my($self,$arg) = @_;  
+  if( defined $arg) {
+      push (@{$self->{'bands'}},$arg);
+  }
 }
 
 =head2 dilate
@@ -187,10 +187,11 @@ sub dilate {
 }
 
 sub migrate {
-  my $self = shift;
-  my $arg  = shift;
-
-  return 4 - log10($arg);
+  my ($self,$arg) = @_;
+  $arg = $self unless $arg;
+  if ( $arg ) {
+      return 4 - log10($arg);
+  } else { return 0; }
 }
 
 =head2 bands
@@ -208,10 +209,10 @@ sub bands {
   $self->throw("bands() is read-only") if @_;
 
   my %bands = ();
-
+  
   foreach my $band (@{$self->{bands}}){
-    my $distance = $self->dilate * migrate($band->length);
-    $bands{$band->id} = $distance;
+      my $distance = $self->dilate * migrate($band->length);
+      $bands{$band->id} = $distance;
   }
 
   return %bands;
@@ -229,8 +230,8 @@ sub bands {
 
 #from programming perl
 sub log10 {
-  my $n = shift;
-  return log($n)/log(10);
+    my $n = shift;
+    return log($n)/log(10);
 }
 
 1;
