@@ -332,10 +332,13 @@ sub write_seq {
         $self->throw("Attempting to write with no seq!");
     }
 
-    if( ! ref $seq || ! $seq->isa('Bio::SeqI') ) {
-        $self->warn(" $seq is not a SeqI compliant module. Attempting to dump, but may fail!");
+    unless ( ref $seq && $seq->isa('Bio::SeqI' ) ) {
+        $self->warn("$seq is not a SeqI compliant sequence object!") 
+	    if $self->verbose >= 0;
+	unless ( ref $seq && $seq->isa('Bio::PrimarySeqI' ) ) {
+	    $self->throw("$seq is not a PrimarySeqI compliant sequence object!");
+	}
     }
-
     my $str = $seq->seq;
 
     my $mol;
@@ -351,7 +354,7 @@ sub write_seq {
         $mol = $seq->molecule();
 	$mol = 'RNA' if $mol =~ /RNA/; # no 'mRNA' 
     }
-    elsif (defined $seq->primary_seq->alphabet) {
+    elsif ($seq->can('primary_seq') && defined $seq->primary_seq->alphabet) {
 	my $alphabet =$seq->primary_seq->alphabet;
 	if ($alphabet eq 'dna') {
 	    $mol ='DNA';
@@ -459,7 +462,7 @@ sub write_seq {
    
     # Reference lines
     my $t = 1;
-    if ( defined $seq->annotation ) {
+    if ( $seq->can('annotation') && defined $seq->annotation ) {
 	foreach my $ref ( $seq->annotation->get_Annotations('reference') ) {
 	    $self->_print( "RN   [$t]\n");
 	    
@@ -539,7 +542,7 @@ sub write_seq {
         foreach my $fth ( @fth ) {
 	    $self->_print_EMBL_FTHelper($fth);
         }
-    } else {
+    } elsif ($seq->can('top_SeqFeatures')) {
         # not post sorted. And so we can print as we get them.
         # lower memory load...
 
