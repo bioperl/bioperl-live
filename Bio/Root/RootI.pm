@@ -51,9 +51,7 @@ methods. Internal methods are usually preceded with a _
 
 =cut
 
-
 # Let the code begin...
-
 
 package Bio::Root::RootI;
 use vars qw(@ISA);
@@ -116,7 +114,6 @@ sub throw {
 	$verbosity = 0;
     }
 
-    $verbosity = 0 if( !defined $verbosity);
     if($verbosity < 0) {
 	# Low verbosity: no stack trace.
 	die $self->_set_err(@param)->string(-SHOW=>'msgnotechcontext', -CURRENT=>1);
@@ -191,7 +188,6 @@ sub warn {
     0;
 }
 
-
 =head2 _set_warning
 
  Purpose   : To record data regarding recoverable error conditions.
@@ -217,8 +213,6 @@ sub _set_warning {
     $err->last->set('type','WARNING');
     $self->_set_err_state($err);
 }
-
-
 
 =head2 _set_err
 
@@ -377,8 +371,6 @@ sub _set_err {
     return $err;
 }
 
-
-
 =head2 _set_err_state
 
  Usage     : n/a; called automatically by _set_err()
@@ -424,8 +416,6 @@ sub _set_err_state {
 #    $self->{'_err'}->last;
     return $err;
 }
-
-
 
 =head2 stack_trace
 
@@ -491,8 +481,6 @@ sub stack_trace {
     wantarray ? @data : \@data;
 }
 
-
-
 =head2 _rearrange
 
  Usage     : $object->_rearrange( array_ref, list_of_arguments)
@@ -555,9 +543,17 @@ sub _rearrange {
 #----------------
     my($self,$order,@param) = @_;
     
-    # If there are no parameters, we simply wish to return
-    # an empty array which is the size of the @{$order} array.
-    return ('') x $#{$order} unless @param;
+    # JGRG -- This is wrong, because we don't want
+    # to assign empty string to anything, and this
+    # code is actually returning an array 1 less
+    # than the length of @param:
+
+    ## If there are no parameters, we simply wish to return
+    ## an empty array which is the size of the @{$order} array.
+    #return ('') x $#{$order} unless @param;
+    
+    # ...all we need to do is return an empty array:
+    return unless @param;
     
     # If we've got parameters, we need to check to see whether
     # they are named or simply listed. If they are listed, we
@@ -602,8 +598,4 @@ sub _rearrange {
 }
 
 1;
-
-
-
-
 
