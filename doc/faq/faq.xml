@@ -517,5 +517,25 @@ href="http://bioperl.org/pipermail/bioperl-l/2003-December/014406.html">http://b
 	<p>Yes, this file is missing in version 1.2. Two possible solutions: install version 1.2.1 or greater or retrieve and copy WrapperBase.pm to the proper location. You can get it at <a href="http://bio.perl.org/Bugs">http://bio.perl.org/Bugs</a>.</p></answer>
     </q>   
   </section>
+  <section id="7">
+    <section_name>Other Bioperl packages</section_name>
+    <q id="1">
+     <question>What is bioperl-ext?</question>
+     <answer>
+     <p> bioperl-ext is a package of code for C-extensions (hence the 'ext') to Bioperl.  These include interfacing to the staden IO library (the io_lib library) for reading in chromatogram files and Bio::Ext::Align which is a smith waterman implementation.
+    </p>
+    </answer>
+   </q>
+   <q id="2">
+     <question>I can't seem to get bioperl-ext to compile the staden IO lib part, what do I do?</question>
+     <answer>
+     <p>Make sure you read the README about copying files over. Some more items to check off before asking.</p>
+<p>1. Are you *sure* io_lib is installed where you think it is, and that the install path is seen by Perl (did you answer the questions during perl Makefile.PL?)</p>
+<p>2. Did you copy the various missing .h files (os.h config.h if I remember right) from your io_lib source directory into the install include directory when installing io_lib?</p>
+<p>3. When you ran make for io_lib did you see any errors or messages about how you should probably run "ranlib" on the library object?</p>
+<p>4. Did you run "ranlib" on the installed libread file(s)?</p>
+</answer>
+    </q>
+  </section>
   <copyright>Copyright (c)2002-2004 Open Bioinformatics Foundation. You may distribute this FAQ under the same terms as perl itself.</copyright>
 </faq>
