@@ -81,11 +81,7 @@ while( $seq = $str->next_seq()) {
     ok($seq->length > 1);
     $out->write_seq($seq) if $verbosity > 0;
 }
-
-
-
-
-
+$out = undef;
 $ast = Bio::SeqIO->new( '-format' => 'GenBank' ,
 			'-file' => Bio::Root::IO->catfile("t","data","roa1.genbank"));
 $ast->verbose($verbosity);
@@ -112,7 +108,6 @@ ok(scalar $as->all_SeqFeatures(), 4);
 ok($as->length, 1198);
 ok($as->species->binomial(), 'Homo sapiens');
 
-
 $ent = Bio::SeqIO->new( '-file' => Bio::Root::IO->catfile("t","data","test.embl"),
 			'-format' => 'embl');
 
@@ -121,20 +116,19 @@ $seq = $ent->next_seq();
 ok(defined $seq->seq(), 1,
    'failure to read Embl with ^ location and badly split double quotes');
 ok(scalar $seq->annotation->get_Annotations('reference'), 3);
-$out = Bio::SeqIO->new('-file'=> ">". Bio::Root::IO->catfile("t","data","embl.out"),
+
+$out = Bio::SeqIO->new('-file'=> ">embl.out",
 		       '-format' => 'embl');
 
 ok($out->write_seq($seq),1,
    'failure to write Embl format with ^ < and > locations');
-
-unlink(Bio::Root::IO->catfile("t","data","embl.out"));
-
+unlink("embl.out");
 
 # multifile
 $mf = Bio::SeqIO::MultiFile->new( '-format' => 'Fasta' ,
 				  '-files' =>
 				  [ Bio::Root::IO->catfile("t","data","multi_1.fa"),
-				  Bio::Root::IO->catfile("t","data","multi_2.fa")]);
+				    Bio::Root::IO->catfile("t","data","multi_2.fa")]);
 
 ok defined $mf;
 my $count = 0;
