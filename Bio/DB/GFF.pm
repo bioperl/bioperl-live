@@ -600,13 +600,14 @@ The argument -end is a synonum for -stop, and -count is a synonym for
 
 sub types {
   my $self = shift;
-  my ($refseq,$start,$stop,$enumerate) = rearrange ([
-						     [qw(REF REFSEQ)],
-						     qw(START),
-						     [qw(STOP END)],
-						     [qw(ENUMERATE COUNT)],
-						     ],@_);
-  $self->get_types($refseq,$start,$stop,$enumerate);
+  my ($refseq,$refclass,$start,$stop,$enumerate) = rearrange ([
+							       [qw(REF REFSEQ)],
+							       qw(START),
+							       [qw(STOP END)],
+							       [qw(ENUMERATE COUNT)],
+							       [qw(CLASS SEQCLASS)],
+							      ],@_);
+  $self->get_types($refseq,$refclass,$start,$stop,$enumerate);
 }
 
 =head2 dna
@@ -1139,7 +1140,7 @@ sub get_abscoords {
 =head2 get_types
 
  Title   : get_types
- Usage   : $db->get_types($absref,$start,$stop,$count)
+ Usage   : $db->get_types($absref,$class,$start,$stop,$count)
  Function: get list of all feature types on the indicated segment
  Returns : list or hash of Bio::DB::GFF::Typename objects
  Args    : see below

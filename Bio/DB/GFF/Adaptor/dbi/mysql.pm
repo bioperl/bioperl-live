@@ -33,8 +33,7 @@ sub make_dna_query {
 sub make_abscoord_query {
   my $self = shift;
   my ($name,$class) = @_;
-  return wantarray ? (GETSEQCOORDS,$name,$class) 
-                   : $self->dbi_quote(GETSEQCOORDS,$name,$class);
+  $self->do_query(GETSEQCOORDS,$name,$class);
 }
 
 sub make_features_select_part {
@@ -57,7 +56,7 @@ END
 }
 
 # IMPORTANT NOTE: THE MYSQL SCHEMA IGNORES THE SEQUENCE CLASS
-sub srcseq_query {
+sub refseq_query {
   my $self = shift;
   my ($srcseq,$refclass) = @_;
   my $query = "fdata.fref = ?\n";

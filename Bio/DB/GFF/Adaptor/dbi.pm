@@ -106,9 +106,9 @@ sub features_db { shift->{features_db} }
  Status  : Public
 
 This method performs a DBI prepare() and execute(), returning a
-statement handler.  You will typically call fetch() of
-fetchrow_array() on the statement handle.  The parsed statement handle
-is cached for later use.
+statement handle.  You will typically call fetch() of fetchrow_array()
+on the statement handle.  The parsed statement handle is cached for
+later use.
 
 =cut
 
@@ -133,7 +133,9 @@ sub do_query {
  Status  : Public
 
 This method performs the low-level fetch of a DNA substring given its
-name, class and the desired range.
+name, class and the desired range.  It is actually a front end to the
+abstract method make_dna_query(), which it calls after some argument
+consistency checking.
 
 =cut
 
@@ -183,8 +185,7 @@ sub get_abscoords {
   my $self = shift;
   my ($name,$class)  = @_;
 
-  my ($query,@args)  = $self->make_abscoord_query($name,$class);
-  my $sth            = $self->do_query($query,@args);
+  my $sth = $self->make_abscoord_query($name,$class);
 
   my @result;
   while ( my @row = $sth->fetchrow_array) {
@@ -207,7 +208,7 @@ sub get_abscoords {
 
  Title   : get_features
  Usage   : $db->get_features(@args)
- Function: fetrieve features from the database
+ Function: retrieve features from the database
  Returns : number of features retrieved
  Args    : see below
  Status  : Public
@@ -259,15 +260,25 @@ The callback expects thirteen arguments, which can be parsed directly out of GFF
   $feature_id   Unique feature ID (may be undef)
 
 The group class, group name, target start, and target stop are all
-variants of the GFF "group" field.  The feature ID, if provided, is
-something that uniquely identifies this feature line, such as a unique
-table ID or a line number.  The group name and all arguments to the
-right of it are optional.
+variants of the GFF "group" field, and are optional. The target start
+and stop fields are used by similarity match lines, and indicate the
+coordinates of the match in the target sequence.
+
+The feature ID, if provided, is a unique identifier of the feature
+line.  The module does not depend on this ID in any way, but it is
+available via Bio::DB::GFF->id() if wanted.  In the dbi::mysql and
+dbi::mysqlopt adaptor, the ID is a unique row ID.  In the acedb
+adaptor it is not used.
+
+Internally, get_features() is a front end for range_or_overlap().  The
+latter method constructs the query and executes it.  get_features()
+calls fetchrow_array() to recover the fields and passes them to the
+callback.
 
 =cut
 
-# Given sequence name, range, and optional filter, retrieve list of all
-# features.  Passes features through callback.
+# Given sequence name, range, and optional filter, retrieve list of
+# all features.  Passes features through callback.
 sub get_features {
   my $self = shift;
   my ($isrange,$srcseq,$class,$start,$stop,$types,$callback) = @_;
@@ -284,6 +295,26 @@ sub get_features {
   return $count;
 }
 
+=head2 get_features_iterator
+
+ Title   : get_features_iterator
+ Usage   : $db->get_features_iterator(@args)
+ Function: get an iterator on a features query
+ Returns : a Bio::SeqIO object
+ Args    : as per get_features()
+ Status  : Public
+
+This method takes the same arguments as get_features(), but returns an
+iterator that can be used to fetch features sequentially, as per
+Bio::SeqIO.
+
+Internally, this method is simply a front end to range_or_overlap().
+The latter method constructs and executes the query, returning a
+statement handle. This routine passes the statement handle to the
+constructor for the iterator, along with the callback.
+
+=cut
+
 sub get_features_iterator {
   my $self = shift;
   my ($isrange,$srcseq,$class,$start,$stop,$types,$callback) = @_;
@@ -294,9 +325,32 @@ sub get_features_iterator {
   return Bio::DB::GFF::Adaptor::dbi::iterator->new($sth,$callback);
 }
 
+=head2 get_types
+
+ Title   : get_types
+ Usage   : $db->get_types($refseq,$refclass,$start,$stop,$count)
+ Function: get list of types
+ Returns : a list of Bio::DB::GFF::Typename objects
+ Args    : see below
+ Status  : Public
+
+This method is responsible for fetching the list of feature type names
+from the database.  The query may be limited to a particular range, in
+which case the range is indicated by a landmark sequence name and
+class and its subrange, if any.  These arguments may be undef if it is
+desired to retrieve all feature types in the database (which may be a
+slow operation in some implementations).
+
+If the $count flag is false, the method returns a simple list of
+vBio::DB::GFF::Typename objects.  If $count is true, the method returns
+a list of $name=>$count pairs, where $count indicates the number of
+times this feature occurs in the range.
+
+=cut
+
 sub get_types {
   my $self = shift;
-  my ($srcseq,$start,$stop,$want_count) = @_;
+  my ($srcseq,$class,$start,$stop,$want_count) = @_;
   my $straight      = $self->do_straight_join($srcseq,$start,$stop,[]) ? 'straight_join' : '';
   my ($select,@args1) = $self->make_types_select_part($srcseq,$start,$stop,$want_count);
   my ($from,@args2)   = $self->make_types_from_part($srcseq,$start,$stop,$want_count);
@@ -318,8 +372,63 @@ sub get_types {
   return $want_count ? %result : values %obj;
 }
 
-# THE FOLLOWING ROUTINES ALL PERTAIN TO RANGE AND TYPE QUERIES
-# this is what will need to change if the structure of the GFF table is altered
+=head2 range_or_overlap
+
+ Title   : range_or_overlap
+ Usage   : $db->range_or_overlap($isrange,$refseq,$refclass,$start,$stop,$types)
+ Function: create statement handle for range/overlap queries
+ Returns : a DBI statement handle
+ Args    : see below
+ Status  : Protected
+
+This method constructs the statement handle for this module's central
+query: given a range and/or a list of feature types, fetch their GFF
+records.
+
+The six positional arguments are as follows:
+
+  Argument               Description
+
+  $isrange               A flag indicating that this is a range.
+			 query.  Otherwise an overlap query is
+			 assumed.
+
+  $refseq		 The reference sequence name (undef if no range).
+
+  $refclass		 The reference sequence class (undef if no range).
+
+  $start		 The start of the range (undef if none).
+
+  $stop                  The stop of the range (undef if none).
+
+  $types                 Array ref containing zero or feature types in the
+			 format [method,source].
+
+If successful, this method returns a statement handle.  The handle is
+expected to return the fields described for get_features().
+
+Internally, range_or_overlap() makes calls to the following methods,
+each of which is expected to be overridden in subclasses:
+
+  $select        = $self->make_features_select_part;
+  $from          = $self->make_features_from_part;
+  $join          = $self->make_features_join_part;
+  ($where,@args) = $self->make_features_where_part($isrange,$srcseq,$class,
+						   $start,$stop,$types,$class);
+
+The query that is constructed looks like this:
+
+  SELECT $select FROM $from WHERE $join AND $where
+
+The arguments that are returned from make_features_where_part() are
+passed to the statement handler's execute() method.
+
+range_or_overlap() also calls a do_straight_join() method, described
+below.  If this method returns true, then the keyword "straight_join"
+is inserted right after SELECT.
+
+=cut
+
 sub range_or_overlap {
   my $self = shift;
   my($isrange,$srcseq,$class,$start,$stop,$types) = @_;
@@ -339,15 +448,115 @@ sub range_or_overlap {
   $sth;
 }
 
+=head2 make_features_select_part
+
+ Title   : make_features_select_part
+ Usage   : $string = $db->make_features_select_part()
+ Function: make select part of the features query
+ Returns : a string
+ Args    : none
+ Status  : Abstract
+
+This abstract method creates the part of the features query that
+immediately follows the SELECT keyword.  See
+Bio::DB::Adaptor::dbi::mysql for an example.
+
+=cut
+
+sub make_features_select_part {
+  shift->throw("make_features_select_part(): must be implemented by subclass");
+}
+
+=head2 make_features_from_part
+
+ Title   : make_features_from_part
+ Usage   : $string = $db->make_features_from_part()
+ Function: make from part of the features query
+ Returns : a string
+ Args    : none
+ Status  : Abstract
+
+This abstract method creates the part of the features query that
+immediately follows the FROM keyword.  See
+Bio::DB::Adaptor::dbi::mysql for an example.
+
+=cut
+
+sub make_features_from_part {
+  shift->throw("make_features_from_part(): must be implemented by subclass");
+}
+
+=head2 make_features_join_part
+
+ Title   : make_features_join_part
+ Usage   : $string = $db->make_features_join_part()
+ Function: make join part of the features query
+ Returns : a string
+ Args    : none
+ Status  : Abstract
+
+This abstract method creates the part of the features query that
+immediately follows the WHERE keyword.  It is combined with the output
+of make_feautres_where_part() to form the full WHERE clause.  If you
+do not need to join, return "1".  See Bio::DB::Adaptor::dbi::mysql for
+an example.
+
+=cut
+
+sub make_features_join_part {
+  shift->throw("make_features_join_part(): must be implemented by subclass");
+}
+
+=head2 make_features_where_part
+
+ Title   : make_features_where_part
+ Usage   : ($string,@args) =
+     $db->make_features_select_part($isrange,$refseq,$class,$start,$stop,$types)
+ Function: make where part of the features query
+ Returns : the list ($query,@bind_args)
+ Args    : see below
+ Status  : Protected
+
+This method creates the part of the features query that immediately
+follows the WHERE keyword and is ANDed with the string returned by
+make_features_join_part().
+
+The six positional arguments are a flag indicating whether to perform
+a range search or an overlap search, the reference sequence, class,
+start and stop, all of which define an optional range to search in,
+and an array reference containing a list [$method,$souce] pairs.
+
+The method result is a multi-element list containing the query string
+and the list of runtime arguments to bind to it with the execute()
+method.
+
+This method's job is to clean up arguments and perform consistency
+checking.  The real work is done by the following abstract methods:
+
+  Method             Description
+
+  refseq_query()     Return the query string needed to match the reference
+		     sequence.
+
+  range_query()	     Return the query string needed to find all features contained
+		     within a range.
+
+  overlap_query()    Return the query string needed to find all features that overlap
+		     a range.
+
+See Bio::DB::Adaptor::dbi::mysql for an example of how this works.
+
+=cut
+
 sub make_features_where_part {
   my $self = shift;
-  my($isrange,$srcseq,$class,$start,$stop,$types) = @_;
+  my($isrange,$refseq,$class,$start,$stop,$types) = @_;
   my @query;
   my @args;
 
 
-  if ($srcseq) {
-    my ($q,@a) = $self->srcseq_query($srcseq,$class);
+  if ($refseq) {
+    my ($q,@a) = $self->refseq_query($refseq,$class);
     push @query,$q;
     push @args,@a;
   }
@@ -372,23 +581,69 @@ sub make_features_where_part {
   return wantarray ? ($query,@args) : $self->dbi_quote($query,@args);
 }
 
+=head2 do_straight_join
+
+ Title   : do_straight_join
+ Usage   : $boolean = $db->do_straight_join($refseq,$start,$stop,$types)
+ Function: optimization flag
+ Returns : a flag
+ Args    : see range_or_overlap()
+ Status  : Protected
+
+This subroutine, called by range_or_overlap() returns a boolean flag.
+If true, range_or_overlap() will perform a straight join, which can be
+used to optimize certain SQL queries.  The four arguments correspond
+to similarly-named arguments passed to range_or_overlap().
+
+=cut
+
 sub do_straight_join { 0 }  # false by default
+
+=head1 QUERIES TO IMPLEMENT
+
+The following astract methods either return DBI statement handles or
+fragments of SQL.  They must be implemented by subclasses of this
+module.  See Bio::DB::GFF::Adaptor::dbi::mysql for examples.
+
+=head2 make_dna_query
+
+ Title   : make_dna_query
+ Usage   : $sth = $db->make_dna_query($name,$class,$start,$stop);
+ Function: create query that returns raw DNA sequence from database
+ Returns : a DBI statement handle
+ Args    : reference sequence name and class, and a range
+ Status  : Abstract
+
+The statement handler should return rows containing just one field,
+the extracted DNA string.
+
+=cut
 
 sub make_dna_query {
   shift->throw("make_dna_query(): must be implemented by a subclass");
 }
 
-sub make_features_select_part {
-  shift->throw("make_features_select_part(): must be implemented by subclass");
-}
+=head2 make_abscoord_query
 
-sub make_features_from_part {
-  shift->throw("make_features_from_part(): must be implemented by subclass");
-}
+ Title   : make_abscoord_query
+ Usage   : $sth = $db->make_abscoord_query($name,$class);
+ Function: create query that finds the reference sequence coordinates given a landmark & classa
+ Returns : a DBI statement handle
+ Args    : name and class of landmark
+ Status  : Abstract
 
-sub make_features_join_part {
-  shift->throw("make_features_join_part(): must be implemented by subclass");
-}
+The statement handler should return rows containing five fields:
+
+  1. reference sequence name
+  2. reference sequence class
+  3. start position
+  4. stop position
+  5. strand ("+" or "-")
+
+If the database does not recognize different classes of reference
+sequence, return "Sequence" as the class.
+
+=cut
 
 # generate the fragment of SQL responsible for returning the
 # reference sequence, start, stop and strand given a sequence class
@@ -401,13 +656,60 @@ sub make_abscoord_query {
   # in array context, return a query string and bind arguments
 }
 
-sub srcseq_query {
+=head2 refseq_query
+
+ Title   : refseq_query
+ Usage   : ($query,@args) = $db->refseq_query($name,$class)
+ Function: create SQL fragment that selects the desired reference sequence
+ Returns : a list containing the query and bind arguments
+ Args    : reference sequence name and class
+ Status  : Abstract
+
+This method is called by make_features_where_part() to construct the
+part of the select WHERE section that selects a particular reference
+sequence.  It returns a mult-element list in which the first element
+is the SQL fragment and subsequent elements are bind values.  For
+example:
+
+  sub refseq_query {
+     my ($name,$class) = @_;
+     return ('gff.refseq=? AND gff.refclass=?',
+	     $name,$class);
+  }
+
+=cut
+
+sub refseq_query {
   my $self = shift;
-  my ($srcseq,$refclass) = @_;
-  $self->throw("srcseq_query(): must be implemented by subclass");
+  my ($refseq,$refclass) = @_;
+  $self->throw("refseq_query(): must be implemented by subclass");
   # in scalar context, return a query string.
   # in array context, return a query string and bind arguments
 }
+
+
+=head2 overlap_query
+
+ Title   : overlap_query
+ Usage   : ($query,@args) = $db->overlap_query($start,$stop)
+ Function: create SQL fragment that selects the desired features by range
+ Returns : a list containing the query and bind arguments
+ Args    : the start and stop of a range, inclusive
+ Status  : Abstract
+
+This method is called by make_features_where_part() to construct the
+part of the select WHERE section that selects a set of features that
+overlap a range. It returns a multi-element list in which the first
+element is the SQL fragment and subsequent elements are bind values.
+For example:
+
+  sub overlap_query {
+     my ($start,$stop) = @_;
+     return ('gff.stop>=? AND gff.start<=?',
+	     $start,$stop);
+  }
+
+=cut
 
 # generate the fragment of SQL responsible for searching for
 # features that overlap a given range
@@ -419,6 +721,29 @@ sub overlap_query {
   # in array context, return a query string and bind arguments
 }
 
+=head2 range_query
+
+ Title   : range_query
+ Usage   : ($query,@args) = $db->range_query($start,$stop)
+ Function: create SQL fragment that selects the desired features by range
+ Returns : a list containing the query and bind arguments
+ Args    : the start and stop of a range, inclusive
+ Status  : Abstract
+
+This method is called by make_features_where_part() to construct the
+part of the select WHERE section that selects a set of features
+entirely enclosed by a range. It returns a multi-element list in which
+the first element is the SQL fragment and subsequent elements are bind
+values.  For example:
+
+  sub range_query {
+     my ($start,$stop) = @_;
+     return ('gff.start>=? AND gff.stop<=?',
+	     $start,$stop);
+  }
+
+=cut
+
 # generate the fragment of SQL responsible for searching for
 # features that are completely contained within a range
 sub range_query {
@@ -428,6 +753,25 @@ sub range_query {
   # in scalar context, return a query string.
   # in array context, return a query string and bind arguments
 }
+
+=head2 types_query
+
+ Title   : types_query
+ Usage   : ($query,@args) = $db->types_query($types)
+ Function: create SQL fragment that selects the desired features by type
+ Returns : a list containing the query and bind arguments
+ Args    : an array reference containing the types
+ Status  : Abstract
+
+This method is called by make_features_where_part() to construct the
+part of the select WHERE section that selects a set of features based
+on their type. It returns a multi-element list in which the first
+element is the SQL fragment and subsequent elements are bind values.
+The argument is an array reference containing zero or more
+[$method,$source] pairs.  See Bio::DB::GFF::Adaptor::dbi::mysql for
+examples.
+
+=cut
 
 # generate the fragment of SQL responsible for searching for
 # features with particular types and methods
