@@ -20,8 +20,8 @@ Bio::Coordinate::MapperI - Interface describing coordinate mappers
 
 =head1 DESCRIPTION
 
-MapperI defined methods for classes capable for mapping locations
-between coordinate changes.
+MapperI defines methods for classes capable for mapping locations
+between coordinate systems.
 
 =head1 FEEDBACK
 
@@ -76,64 +76,11 @@ use Bio::Root::RootI;
 @ISA = qw(Bio::Root::RootI);
 
 
-sub new {
-    my($class,@args) = @_;
-    my $self = $class->SUPER::new(@args);
-
-    my($in, $out) =
-	$self->_rearrange([qw(IN
-                              OUT
-			     )],
-			 @args);
-
-    $in  && $self->in($in);
-    $out  && $self->out($out);
-    return $self; # success - we hope!
-}
-
-=head2 in
-
- Title   : in
- Usage   : $obj->in('peptide');
- Function: Set and read the input coordinate system.
- Example :
- Returns : value of input system
- Args    : new value (optional), Bio::LocationI
-
-=cut
-
-sub in {
-   my ($self,$value) = @_;
-
-   $self->throw_not_implemented();
-
-}
-
-
-=head2 out
-
- Title   : out
- Usage   : $obj->out('peptide');
- Function: Set and read the output coordinate system.
- Example :
- Returns : value of output system
- Args    : new value (optional), Bio::LocationI
-
-=cut
-
-sub out {
-   my ($self,$value) = @_;
-
-   $self->throw_not_implemented();
-}
-
-
 =head2 swap
 
  Title   : swap
  Usage   : $obj->swap;
- Function: Swap the direction of mapping
-           ()input <-> output)
+ Function: Swap the direction of mapping: input <-> output)
  Example :
  Returns : 1
  Args    : 
@@ -168,8 +115,8 @@ sub test {
 =head2 map
 
  Title   : map
- Usage   : $newpos = $obj->map(5);
- Function: Map the location from the input coordinate system 
+ Usage   : $newpos = $obj->map($loc);
+ Function: Map the location from the input coordinate system
            to a new value in the output coordinate system.
  Example :
  Returns : new value in the output coordiante system
