@@ -200,6 +200,15 @@ sub _write_feature_3 {
 
 sub next_feature {
   my $self = shift;
+  
+  my $feat = $self->_next_feature_or_directive();
+  $feat = $self->next_feature() if ($feat eq 'directive'); # we repeat as long as we processed directives
+
+  return $feat;
+}
+
+sub _next_feature_or_directive {
+  my $self = shift;
   my $gff_string;
 
   # be graceful about empty lines or comments, and make sure we return undef
@@ -211,13 +220,75 @@ sub next_feature {
   }
 
   return undef unless $gff_string;
-
+    
   if($gff_string =~ /^##/ or $gff_string =~ /^>/){
     $self->_handle_directive($gff_string);
-    return $self->next_feature();
+    return 'directive';   # we have to be able to detect when we processed a directive
   } else {
     return $self->_handle_feature($gff_string);
   }
+}
+
+=head2 next_feature_group
+
+ Title   : next_feature_group
+ Usage   : @feature_group = $stream->next_feature_group
+ Function: Reads the next feature_group from $stream and returns it.
+
+           Feature groups in GFF3 files are separated by '###' directives. The
+           features in a group might form a hierarchical structure. The
+           complete hierarchy of features is returned, i.e. the returned array
+           represents only the top-level features.  Lower-level features can
+           be accessed using the 'get_SeqFeatures' method recursively.
+
+ Example : # getting the complete hierarchy of features in a GFF3 file
+           my @toplevel_features;
+           while (my @fg = $stream->next_feature_group) {
+               push(@toplevel_features, @fg);
+           }
+ Returns : an array of Bio::SeqFeature::Annotated objects
+ Args    : none
+
+=cut
+
+sub next_feature_group {
+    my $self = shift;
+
+    my $feat;
+    my %seen_ids;
+    my @all_feats;
+    my @toplevel_feats;
+
+    $self->{group_not_done} = 1;
+
+    while ($self->{group_not_done} && ($feat = $self->_next_feature_or_directive()) && defined($feat)) {
+	next if ($feat eq 'directive');
+	# we start by collecting all features in the group and 
+	# memorizing those which have an ID attribute
+	if(my $anno_ID = $feat->get_Annotations('ID')) {
+	    my $attr_ID = $anno_ID->value;
+	    $self->throw("Oops! ID $attr_ID exists more than once in your file!")
+		if (exists($seen_ids{$attr_ID}));
+	    $seen_ids{$attr_ID} = $feat;
+	}
+	push(@all_feats, $feat);
+    }
+    
+    # assemble the top-level features
+    foreach $feat (@all_feats) {
+	my @parents = $feat->get_Annotations('Parent');
+	if (@parents) {
+	    foreach my $parent (@parents) {
+		my $parent_id = $parent->value;
+		$self->throw("Parent with ID $parent_id not found!") unless (exists($seen_ids{$parent_id}));
+		$seen_ids{$parent_id}->add_SeqFeature($feat);
+	    }
+	} else {
+	    push(@toplevel_feats, $feat);
+	}
+    }
+
+    return @toplevel_feats;
 }
 
 sub _handle_directive {
@@ -269,6 +340,7 @@ sub _handle_directive {
 
   elsif($directive eq '#'){
     #all forward references resolved
+    $self->{group_not_done} = 0;  
     $self->warn("'##$directive' directive handling not yet implemented");
   }
 
