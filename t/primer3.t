@@ -1,64 +1,33 @@
-# -*-Perl-*-
-## Bioperl Test Harness Script for Modules
 ## $Id$
-#
-# modeled after the t/Allele.t test script
+
+# test for Bio::Tools::Primer3.pm
+# written by Rob Edwards
 
 use strict;
-use Dumpvalue qw(dumpValue);
-use vars qw($DEBUG);
-
+use constant NUMTESTS => 10;
 
 BEGIN {
-    # to handle systems with no installed Test module
-    # we include the t dir (where a copy of Test.pm is located)
-    # as a fallback
     eval { require Test; };
     if( $@ ) {
-        use lib 't';
+        use lib 't','..';
     }
     use Test;
-    plan tests => 4;
+
+    plan tests => NUMTESTS;
 }
-$DEBUG = $ENV{'BIOPERLDEBUG'};
 
-
-#my $dumper = new Dumpvalue();
-
-print("Checking to see if Bio::Tools::Primer3 is available.\n") if $DEBUG;
 use Bio::Tools::Primer3;
 ok(1);
 
-print("Checking to see if Bio::SeqFeature::Primer is available.\n") if $DEBUG;
-use Bio::SeqFeature::Primer;
-ok(1);
+my ($p3, $num, $primer);
 
-print("Checking to see if a primer outfile can be read...\n") if $DEBUG;
-     # ph = "primer handle"
-my $ph = Bio::Tools::Primer3->new('-file' => Bio::Root::IO->catfile("t","data",
-          "primer3_outfile.txt"));
-ok(ref($ph) eq "Bio::Tools::Primer3");
-print("Getting an object from the primer file...\n") if $DEBUG;
+ok $p3=Bio::Tools::Primer3->new(-file=>"t/data/primer3_output.txt");
+ok $num=$p3->number_of_results;
+ok $num, 4, "Got $num";
+ok $num=$p3->all_results;
+ok defined $num, 1, "Can't get all results";
+ok $num=$p3->primer_results(1);
+ok defined $num, 1, "Can't get results for 1";
+ok $primer=$p3->next_primer;
+ok ref($primer) eq "Bio::Seq::PrimedSeq", 1, "reference for primer stream is not right";
 
-     # now get a primer!
-my $thingy = $ph->next_primer();
-print("That thingy isa $thingy\n") if $DEBUG;
-ok (ref($thingy) eq "Bio::Seq::PrimedSeq");
-# print("Here is the primer object that I got back:\n");
-# $dumper->dumpValue($thingy);
-# 
-# sub feature_things {
-#         my @features = $thingy->all_SeqFeatures();
-#         print("These are the seqfeatures: @features\n");
-#         print("Dumping out those features names...\n");
-#         foreach (@features) {
-#              print("Name: ".$_->seqname()."\n");
-#              print("\tSequence ".$_->entire_seq()->seq()."\n");
-#         }
-# }
-# 
-
-
-
-sub the_old_module {
-}
