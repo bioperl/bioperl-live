@@ -176,7 +176,7 @@ sub next_annseq{
     if( !defined $line ) {
 	return undef; # end of file
     }
-    $line =~ /^LOCUS\s+\S+/ || $self->throw("GenBank stream with no LOCUS. Not GenBank in my book. ");
+    $line =~ /^LOCUS\s+\S+/; #|| $self->throw("GenBank stream with no LOCUS. Not GenBank in my book. ");
     $line =~ /^LOCUS\s+(\S+)\s+\S+\s+bp\s+(\S+)\s+(\S+)\s+(\S+)/;
 
     $name = $1;
@@ -405,13 +405,13 @@ sub write_annseq {
     }
     
     # Reference lines
-    my $t = 1;
+    my $count = 1;
     foreach my $ref ( $annseq->annotation->each_Reference() ) {
-	print $fh "REFERENCE   $t\n";
+	print $fh "REFERENCE   $count\n";
 	&_write_line_GenBank_regex($fh,"  AUTHORS   ","            ",$ref->authors,"\\s\+\|\$",80);
 	&_write_line_GenBank_regex($fh,"  TITLE     ","            ",$ref->title,"\\s\+\|\$",80);
 	&_write_line_GenBank_regex($fh,"  JOURNAL   ","            ",$ref->location,"\\s\+\|\$",80);
-	$t++;
+	$count++;
     }
     # Comment lines
     
