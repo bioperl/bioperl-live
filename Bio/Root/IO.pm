@@ -349,7 +349,7 @@ sub close {
 }
 
 sub _io_cleanup {
-    my ($self,@args) = @_;
+    my ($self) = @_;
 
     $self->close();
 
@@ -376,7 +376,7 @@ sub _io_cleanup {
 }
 
 
-=head2  tempfile
+=head2 tempfile
 
  Title   : tempfile
  Usage   : my ($handle,$tempfile) = $io->tempfile(); 
