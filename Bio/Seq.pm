@@ -25,7 +25,7 @@ Bio::Seq - Sequence object, with features
     @features = $seqobj->all_SeqFeatures(); # descend into sub features
 
     $seq      = $seqobj->seq(); # actual sequence as a string
-    $seqstr   = $seqobj->subseq(10,50);    
+    $seqstr   = $seqobj->subseq(10,50);
     $ann      = $seqobj->annotation(); # annotation object
 
 =head1 DESCRIPTION
@@ -42,8 +42,8 @@ In bioperl we have 3 main players that people are going to use
   Bio::Seq        - A sequence and a collection of seqfeatures (an aggregate) with
                     its own annotation.
 
-Although bioperl is not tied to file formats heavily, these distinctions do 
-map to file formats sensibly and for some bioinformaticians this might help 
+Although bioperl is not tied to file formats heavily, these distinctions do
+map to file formats sensibly and for some bioinformaticians this might help
 you:
 
   Bio::PrimarySeq - Fasta file of a sequence
@@ -216,7 +216,7 @@ sub subseq {
 
  Title   : display_id
  Usage   : $id_string = $obj->display_id($newid);
- Function: returns or sets the display id, aka the common name of the 
+ Function: returns or sets the display id, aka the common name of the
            Sequence object.
 
            The semantics of this is that it is the most likely string
@@ -230,7 +230,7 @@ sub subseq {
            encouraged to use other mechanisms (accession field for
            example, or extending the sequence object) to solve this.
 
-           Notice that $seq->id() maps to this function, mainly for 
+           Notice that $seq->id() maps to this function, mainly for
            legacy/convience issues
  Returns : A string
  Args    : newid (optional)
@@ -282,7 +282,7 @@ sub accession_number {
  Usage   : $seqobj->desc()
  Function: Sets/Gets the description of the sequnce
  Example :
- Returns : 
+ Returns :
  Args    :
 
 
@@ -366,12 +366,12 @@ sub can_call_new {
 
  Title   : moltype
  Usage   : if( $obj->moltype eq 'dna' ) { /Do Something/ }
- Function: Returns the type of sequence being one of 
+ Function: Returns the type of sequence being one of
            'dna', 'rna' or 'protein'. This is case sensitive.
 
            This is not called <type> because this would cause
            upgrade problems from the 0.5 and earlier Seq objects.
-           
+
  Returns : a string either 'dna','rna','protein'. NB - the object must
            make a call of the type - if there is no type specified it
            has to guess.
@@ -391,7 +391,7 @@ sub moltype {
 =head1 Methods provided in the Bio::PrimarySeqI interface
 
 These methods are inherited from the PrimarySeq interface
-and work as one expects, building new Bio::Seq objects 
+and work as one expects, building new Bio::Seq objects
 or other information as expected.
 
 Sequence Features are B<not> transfered to the new objects.
@@ -411,7 +411,7 @@ dealing with this is welcome to give it a go.
            reversed, it needs to define its own extensions
 
            To do an inplace edit of an object you can go:
-   
+
            $seq = $seq->revcom();
 
            This of course, causes Perl to handle the garbage collection of the old
@@ -428,7 +428,7 @@ dealing with this is welcome to give it a go.
  Title   : trunc
  Usage   : $subseq = $myseq->trunc(10,100);
  Function: Provides a truncation of a sequence,
-           
+
  Example :
  Returns : a fresh Bio::Seq object
  Args    :
@@ -442,7 +442,7 @@ dealing with this is welcome to give it a go.
  Usage   : $id = $seq->id()
  Function: This is mapped on display_id
  Example :
- Returns : 
+ Returns :
  Args    :
 
 
@@ -467,8 +467,8 @@ found on the Bio::PrimarySeq object
 
  Title   : primary_seq
  Usage   : $obj->primary_seq($newval)
- Function: 
- Example : 
+ Function:
+ Example :
  Returns : value of primary_seq
  Args    : newvalue (optional)
 
@@ -504,8 +504,8 @@ sub primary_seq {
 
  Title   : annotation
  Usage   : $obj->annotation($seq_obj)
- Function: 
- Example : 
+ Function:
+ Example :
  Returns : value of annotation
  Args    : newvalue (optional)
 
@@ -546,11 +546,11 @@ sub add_SeqFeature {
        if( !$feat->isa("Bio::SeqFeatureI") ) {
 	   $self->throw("$feat is not a SeqFeatureI and that's what we expect...");
        }
-       
+
        if( $feat->can("entire_seq") ) {
 	   $fseq = $feat->entire_seq;
 	   $aseq = $self->primary_seq;
-	   
+	
 	   if( defined $aseq ) {
 	       if( defined $fseq ) {
 		   unless ($aseq == $fseq) {
@@ -558,13 +558,13 @@ sub add_SeqFeature {
 		   }
 	       } else {
 		   if( $feat->can("attach_seq") ) {
-		       # attach it 
+		       # attach it
 		       $feat->attach_seq($aseq);
 		   }
 	       }
 	   } # end of if aseq
        } # end of if the feat can entire_seq
-       
+
        push(@{$self->{'_as_feat'}},$feat);
    }
    return 1;
@@ -630,7 +630,7 @@ sub all_SeqFeatures {
  Title   : feature_count
  Usage   : $seq->feature_count()
  Function: Return the number of SeqFeatures attached to a sequence
- Example : 
+ Example :
  Returns : number of SeqFeatures
  Args    : none
 
@@ -661,7 +661,7 @@ sub _retrieve_subSeqFeature {
 =head2 species
 
  Title   : species
- Usage   : 
+ Usage   :
  Function: Gets or sets the species
  Example : $species = $self->species();
  Returns : Bio::Species object
@@ -681,6 +681,7 @@ sub species {
 
 # keep AUTOLOAD happy
 sub DESTROY {
-    my ($self) = @_;   
+    my ($self) = @_;
 }
+
 1;

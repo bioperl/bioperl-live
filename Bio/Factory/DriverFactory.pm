@@ -17,6 +17,7 @@ Bio::Factory::DriverFactory - Base class for factory classes loading drivers
 
 =head1 SYNOPSIS
 
+ #this class is not instantiable
 
 =head1 DESCRIPTION
 
@@ -46,7 +47,7 @@ or the web:
 
 =head1 AUTHOR - Jason Stajich
 
-Email Jason Stajich <jason@chg.mc.duke.edu>
+Email Jason Stajich E<lt>jason@chg.mc.duke.eduE<gt>
 
 =head1 APPENDIX
 

@@ -21,7 +21,7 @@ This provides a pure perl implementation of the BioPerl range
 interface.
 
 Ranges are modeled as having (start, end, length, strand). They use
-Bio-coordinates - all points >= start and <= end are within the
+Bio-coordinates - all points E<gt>= start and E<lt>= end are within the
 range. End is always greater-than or equal-to start, and length is
 greather than or equal to 1. The behaviour of a range is undefined if
 ranges with negative numbers or zero are used.
@@ -252,7 +252,7 @@ These methods return true or false.
   Returns  : true if the argument is totaly contained within this range
   Inherited: Bio::RangeI
 
-=head2
+=head2 equals
 
   Title    : equals
   Usage    : if($r1->equals($r2))
@@ -266,30 +266,18 @@ These methods return true or false.
 These methods do things to the geometry of ranges, and return
 triplets (start, end, strand) from which new ranges could be built.
 
-=head2
+=head2 intersection
 
   Title    : intersection
   Usage    : ($start, $stop, $strand) = $r1->intersection($r2)
   Function : gives the range that is contained by both ranges
   Args     : a range to compare this one to
-  Returns  : nothing if they don't overlap, or the range that they do overlap
+  Returns  : nothing if they do not overlap, or the range that they do overlap
   Inherited: Bio::RangeI::intersection
 
 =cut
 
-#
-#sub intersection { 
-#  my ($self, $other, $so) = @_;
-#  my ($r) = undef;
-#  my ($start, $end, $union_strand) = Bio::RangeI::intersection($self, $other, $so);
-#  return $r unless $start;
-#  return $r = new Bio::Range('-start' => $start,
-#			      '-end' => $end,
-#			      '-strand' => $union_strand
-#			      );
-#}
-#
-=head2
+=head2 union
 
   Title    : union
   Usage    : ($start, $stop, $strand) = $r1->union($r2);
@@ -301,16 +289,4 @@ triplets (start, end, strand) from which new ranges could be built.
 
 =cut
 
-#sub union {
-#  my $self = shift;
-#  my @ranges = @_;
-#  my ($r) = undef;
-#  my ($start, $end, $union_strand) = Bio::RangeI::union($self, @ranges);
-#  return $r unless $start;
-#  return $r = new Bio::Range('-start' => $start,
-#			      '-end' => $end,
-#			      '-strand' => $union_strand
-#			      );
-#}
-#
 1;

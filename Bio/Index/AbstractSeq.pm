@@ -22,7 +22,7 @@ Bio::Index::AbstractSeq - Base class for AbstractSeq s
   use Bio::Index::AbstractSeq;
 
   @ISA = ('Bio::Index::AbstractSeq');
-  
+
   # Now provide the necessary methods...
 
 =head1 DESCRIPTION

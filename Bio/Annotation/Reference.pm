@@ -32,7 +32,7 @@ authors line.
 There is no attempt to do anything more than store these things as
 strings for processing elsewhere. This is mainly because parsing these
 things suck and generally are specific to the specific format one is
-using. To provide an easy route to go format --> object --> format
+using. To provide an easy route to go format --E<gt> object --E<gt> format
 without losing data, we keep them as strings. Feel free to post the
 list for a better solution, but in general this gets very messy very
 fast...

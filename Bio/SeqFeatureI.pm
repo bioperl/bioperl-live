@@ -66,9 +66,11 @@ or the web:
 
 =head1 APPENDIX
 
-The rest of the documentation details each of the object methods. Internal methods are usually preceded with a _
+The rest of the documentation details each of the object
+methods. Internal methods are usually preceded with a _
 
 =cut
+
 #'
 
 # Let the code begin...
@@ -355,13 +357,13 @@ can use a feature ($r in the below documentation).
 These methods do things to the geometry of ranges, and return
 triplets (start, stop, strand) from which new ranges could be built.
 
-=head2
+=head2 intersection
 
   Title   : intersection
   Usage   : ($start, $stop, $strand) = $feat->intersection($r)
   Function: gives the range that is contained by both ranges
   Args    : a RangeI to compare this one to
-  Returns : nothing if they don't overlap, or the range that they do overlap
+  Returns : nothing if they do not overlap, or the range that they do overlap
 
 =head2 union
 
@@ -373,7 +375,6 @@ triplets (start, stop, strand) from which new ranges could be built.
   Returns : the range containing all of the ranges
 
 =cut
-#'
 
 =head2 location
 
@@ -395,4 +396,3 @@ sub location {
 
 
 1;
-

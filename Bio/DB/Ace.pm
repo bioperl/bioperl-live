@@ -189,7 +189,7 @@ sub get_Seq_by_acc {
   Args    : New value of the ace object
 
 =cut
-  
+
 sub _aceobj {
   my ($self,$arg) = @_;
 

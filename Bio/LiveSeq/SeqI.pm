@@ -12,10 +12,11 @@
 
 =head1 NAME
 
-  Bio::LiveSeq::SeqI - Abstract sequence interface class for LiveSeq
+Bio::LiveSeq::SeqI - Abstract sequence interface class for LiveSeq
 
 =head1 SYNOPSIS
 
+  # documentation needed
 
 =head1 DESCRIPTION
 
@@ -78,8 +79,8 @@ Some note on the terminology/notation of method names:
          (see documentation on the Chain datastructure if interested)
 
 =cut
-#'
 
+#'
 # Let the code begin...
 
 package Bio::LiveSeq::SeqI;
@@ -968,8 +969,8 @@ sub position {
              of a parent object containing the subseq method
 
 =cut
-#'
 
+#'
 # wraparound to is_downstream and is_upstream that chooses the correct one
 # depending on the strand
 sub follows {

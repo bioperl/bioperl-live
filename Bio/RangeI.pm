@@ -26,7 +26,7 @@ serves purely as an abstract base class for implementers and can not
 be instantiated.
 
 Ranges are modeled as having (start, end, length, strand). They use
-Bio-coordinates - all points >= start and <= end are within the
+Bio-coordinates - all points E<gt>= start and E<lt>= end are within the
 range. End is always greater-than or equal-to start, and length is
 greather than or equal to 1. The behaviour of a range is undefined if
 ranges with negative numbers or zero are used.
@@ -133,7 +133,7 @@ sub _testStrand() {
 
 These methods must be implemented in all subclasses.
 
-=head2
+=head2 new
 
   Title   : new
   Function: confesses if you try to instantiate a RangeI
@@ -147,7 +147,7 @@ sub new {
   shift->_abstractDeath();
 }
 
-=head2
+=head2 start
 
   Title   : start
   Usage   : $start = $range->start();
@@ -162,7 +162,7 @@ sub start {
   shift->_abstractDeath();
 }
 
-=head2
+=head2 end
 
   Title   : end
   Usage   : $end = $range->end();
@@ -177,7 +177,7 @@ sub end {
   shift->_abstractDeath();
 }
 
-=head2
+=head2 length
 
   Title   : length
   Usage   : $length = $range->length();
@@ -192,7 +192,7 @@ sub length {
   shift->_abstractDeath();
 }
 
-=head2
+=head2 strand
 
   Title   : strand
   Usage   : $strand = $range->strand();
@@ -273,7 +273,7 @@ sub contains {
   }
 }
 
-=head2
+=head2 equals
 
   Title   : equals
   Usage   : if($r1->equals($r2))
@@ -304,7 +304,7 @@ Bio::RangeI compliant objects or triplets (start, stop, strand) from
 which new ranges could be built.
 
 
-=head2
+=head2 intersection
 
   Title   : intersection
   Usage   : ($start, $stop, $strand) = $r1->intersection($r2)
@@ -353,7 +353,7 @@ sub intersection {
   }
 }
 
-=head2
+=head2 union
 
   Title   : union
   Usage   : ($start, $stop, $strand) = $r1->union($r2);

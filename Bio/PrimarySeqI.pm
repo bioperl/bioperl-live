@@ -28,11 +28,11 @@ Bio::PrimarySeqI - Interface definition for a Bio::PrimarySeq
     $substring = $obj->subseq(12,50);
     $display   = $obj->display_id(); # for human display
     $id        = $obj->primary_id(); # unique id for this object, implementation defined
-    $unique_key= $obj->accession_number(); 
+    $unique_key= $obj->accession_number();
                        # unique biological id
-    
+
     # object manipulation
-   
+
     eval {
 	$rev    = $obj->revcom();
     };
@@ -41,7 +41,7 @@ Bio::PrimarySeqI - Interface definition for a Bio::PrimarySeq
     }
 
     $trunc = $obj->trunc(12,50);
-    
+
     # $rev and $trunc are Bio::PrimarySeqI compliant objects
 
 
@@ -187,7 +187,7 @@ sub subseq{
            encouraged to use other mechanisms (accession field for
            example, or extending the sequence object) to solve this.
 
-           Notice that $seq->id() maps to this function, mainly for 
+           Notice that $seq->id() maps to this function, mainly for
            legacy/convience issues
  Returns : A string
  Args    : None
@@ -307,12 +307,12 @@ sub can_call_new{
 
  Title   : moltype
  Usage   : if( $obj->moltype eq 'dna' ) { /Do Something/ }
- Function: Returns the type of sequence being one of 
+ Function: Returns the type of sequence being one of
            'dna', 'rna' or 'protein'. This is case sensitive.
 
            This is not called <type> because this would cause
            upgrade problems from the 0.5 and earlier Seq objects.
-           
+
  Returns : a string either 'dna','rna','protein'. NB - the object must
            make a call of the type - if there is no type specified it
            has to guess.
@@ -361,7 +361,7 @@ are encouraged to override these methods
            reversed, it needs to define its own extensions
 
            To do an inplace edit of an object you can go:
-   
+
            $seq = $seq->revcom();
 
            This of course, causes Perl to handle the garbage collection of the old
@@ -375,7 +375,7 @@ are encouraged to override these methods
 
 sub revcom{
    my ($self) = @_;
-   
+
 
    # check the type is good first.
    my $t = $self->moltype;
@@ -397,7 +397,7 @@ sub revcom{
    }
 
    # yank out the sequence string
-   
+
    my $str = $self->seq();
 
    # if is RNA - map to DNA then map back
@@ -437,7 +437,7 @@ sub revcom{
  Title   : trunc
  Usage   : $subseq = $myseq->trunc(10,100);
  Function: Provides a truncation of a sequence,
-           
+
  Example :
  Returns : a fresh Bio::PrimarySeqI implementing object
  Args    : Two integers denoting first and last base of the sub-sequence.
@@ -463,7 +463,7 @@ sub trunc{
 	   confess("[$self] $end is smaller than $start. If you want to truncated and reverse complement, you must call trunc followed by revcom. Sorry.");
        }
    }
-       
+
    my $str = $self->subseq($start,$end);
 
    my $seqclass;
@@ -489,7 +489,7 @@ sub trunc{
  Usage   : $protein_seq_obj = $dna_seq_obj->translate
            #if full CDS expected:
            $protein_seq_obj = $cds_seq_obj->translate(undef,undef,undef,undef,1);
- Function: 
+ Function:
 
            Provides the translation of the DNA sequence using full
            IUPAC ambiguities in DNA/RNA and amino acid codes.
@@ -509,7 +509,7 @@ sub trunc{
            frame (optional) valid values 0, 1, 2, defaults to 0
            codon table id (optional) defaults to 1
            complete coding sequence expected, defaults to 0 (false)
-           boolean, throw exception if not complete CDS (true) or defaults to warning (false) 
+           boolean, throw exception if not complete CDS (true) or defaults to warning (false)
 
 =cut
 
@@ -527,7 +527,7 @@ sub translate {
   unless(defined($unknown) and $unknown ne '') { $unknown = "X"; }
   unless(defined($frame) and $frame ne '') { $frame = 0; }
 
-  ## the codon table ID 
+  ## the codon table ID
   unless(defined($tableid) and $tableid ne '')    { $tableid = 1; }
 
   ##Error if monomer is "Amino"
@@ -538,7 +538,7 @@ sub translate {
   $self->throw("Valid values for frame are 0, 1, 2, not [$frame].") unless
       ($frame == 0 or $frame == 1 or $frame == 2);
 
-  #thows a warning if ID is invalid 
+  #thows a warning if ID is invalid
   my $codonTable = Bio::Tools::CodonTable->new( -id => $tableid);
 
   my ($seq) = $self->seq();
@@ -558,9 +558,9 @@ sub translate {
       elsif ($aa eq 'X') {
    	   $output .= $unknown;
       }
-      else { 
+      else {
 	  $output .= $aa ;
-      }   
+      }
   }
   # only if we are expecting to translate a complete coding region
   if ($fullCDS) {
@@ -576,12 +576,12 @@ sub translate {
       if ($output =~ /\*/) {
 	  $throw && $self->throw("Seq [$id]: Terminator codon inside CDS!");
 	  $self->warn("Seq [$id]: Terminator codon inside CDS!");
-      }  
+      }
       # if the initiator codon is not ATG, the amino acid needs to changed into M
       if ( substr($output,0,1) ne 'M' ) {
 	  if ($codonTable->is_start_codon(substr($seq, 0, 3)) ) {
 	      $output = 'M'. substr($output,1);
-	  } 
+	  }
 	  elsif ($throw) {
 	      $self->warn("Seq [$id]: Not using a valid initiator codon!");
 	  } else {
@@ -604,7 +604,7 @@ sub translate {
 			    # description?
 			    '-desc' => $self->desc(),
 			    '-moltype' => 'protein'
-			    );   
+			    );
   return $out;
 
 }
@@ -658,7 +658,7 @@ sub  length {
  Usage   : $seq->desc($newval);
            $description = $seq->desc();
  Function: Get/set description text for a seq object
- Example : 
+ Example :
  Returns : value of desc
  Args    : newvalue (optional)
 
@@ -676,7 +676,7 @@ sub desc {
 }
 
 #  These methods are here for backward compatibility with the old, 0.5
-#  Seq objects. They all throw warnings that someone is using a 
+#  Seq objects. They all throw warnings that someone is using a
 #  deprecated method, and may eventually be removed completely from
 #  this object. However, they are important to ease the transition from
 #  the old system.
@@ -778,7 +778,7 @@ need to implement these functions
  Usage   :
  Function:
  Example :
- Returns : 
+ Returns :
  Args    :
 
 
@@ -803,7 +803,7 @@ sub _attempt_to_load_Seq{
        }
        return 1;
    }
-   
+
 }
 
 

@@ -84,7 +84,7 @@ sub new {
     return $self;
 }
 
-=head2
+=head2 start
 
   Title   : start
   Usage   : $start = $loc->start();
@@ -102,7 +102,7 @@ sub start {
   return $self->SUPER::start();
 }
 
-=head2
+=head2 end
 
   Title   : end
   Usage   : $end = $loc->end();
@@ -120,7 +120,7 @@ sub end {
   return $self->SUPER::end();
 }
 
-=head2
+=head2 strand
 
   Title   : strand
   Usage   : $strand = $loc->strand();

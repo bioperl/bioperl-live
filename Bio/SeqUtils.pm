@@ -2,9 +2,9 @@
 #
 # BioPerl module for Bio::SeqUtils
 #
-# Cared for by Ewan Birney <birney@sanger.ac.uk>
+# Cared for by Heikki Lehvaslaiho <heikki@ebi.ac.uk>
 #
-# Copyright Ewan Birney
+# Copyright Heikki Lehvaslaiho
 #
 # You may distribute this module under the same terms as perl itself
 
@@ -64,15 +64,16 @@ or the web:
 =head1 AUTHOR - Heikki Lehvaslaiho
 
 Email:  heikki@ebi.ac.uk
-Address: 
+Address:
 
      EMBL Outstation, European Bioinformatics Institute
      Wellcome Trust Genome Campus, Hinxton
-     Cambs. CB10 1SD, United Kingdom 
+     Cambs. CB10 1SD, United Kingdom
 
 =head1 APPENDIX
 
-The rest of the documentation details each of the object methods. Internal methods are usually preceded with a _
+The rest of the documentation details each of the object
+methods. Internal methods are usually preceded with a _
 
 =cut
 
@@ -90,20 +91,6 @@ use Bio::Tools::CodonTable;
 # new inherited from RootI
 
 {
-=head2 seq3
- 
- Title   : seq3
- Usage   : $string = $obj->seq3()
- Function: Read only method that returns the amino acid sequence
-           as a string of three letter codes. moltype has to be
-           'protein'. Output follows the IUPAC standard plus
-           'Ter' for terminator. A noncoded aminoacid selenocystein 
-           is recognized (Sel, U).
- Returns : A scalar
- Args    : character used for stop, optional, defaults to '*'
-           character used for unknown, optional, defaults to 'X'
-
-=cut
 
 my  %onecode =
     ('Ala' => 'A', 'Asx' => 'B', 'Cys' => 'C', 'Asp' => 'D',
@@ -115,21 +102,21 @@ my  %onecode =
      'Sel' => 'U'
      );
 
-my  %threecode = 
+my  %threecode =
     ('A' => 'Ala', 'B' => 'Asx', 'C' => 'Cys', 'D' => 'Asp',
-     'E' => 'Glu', 'F' => 'Phe', 'G' => 'Gly', 'H' => 'His', 
-     'I' => 'Ile', 'K' => 'Lys', 'L' => 'Leu', 'M' => 'Met', 
-     'N' => 'Asn', 'P' => 'Pro', 'Q' => 'Gln', 'R' => 'Arg', 
-     'S' => 'Ser', 'T' => 'Thr', 'V' => 'Val', 'W' => 'Trp', 
+     'E' => 'Glu', 'F' => 'Phe', 'G' => 'Gly', 'H' => 'His',
+     'I' => 'Ile', 'K' => 'Lys', 'L' => 'Leu', 'M' => 'Met',
+     'N' => 'Asn', 'P' => 'Pro', 'Q' => 'Gln', 'R' => 'Arg',
+     'S' => 'Ser', 'T' => 'Thr', 'V' => 'Val', 'W' => 'Trp',
      'Y' => 'Tyr', 'Z' => 'Glx', 'X' => 'Xaa', '*' => 'Ter',
      'U' => 'Sel'
-     );       
+     );
 
 =head2 seq3
- 
+
  Title   : seq3
  Usage   : $string = Bio::SeqUtils->seq3($seq)
- Function: 
+ Function:
 
            Read only method that returns the amino acid sequence as a
            string of three letter codes. moltype has to be
@@ -139,17 +126,18 @@ my  %threecode =
            aminoacid selenocystein is recognized (Sel, U).
 
  Returns : A scalar
- Args    : character used for stop in the protein seqence optional, defaults to '*'
-           string used to separate the output amino acid codes, optional, defaults to ''
+ Args    : character used for stop in the protein seqence optional,
+           defaults to '*' string used to separate the output amino
+           acid codes, optional, defaults to ''
 
-=cut 
+=cut
 
 sub seq3 {
    my ($self, $seq, $stop, $sep ) = @_;
 
-   $seq->isa('Bio::PrimarySeqI') || 
+   $seq->isa('Bio::PrimarySeqI') ||
        $self->throw('Not a Bio::PrimarySeqI object but [$self]');
-   $seq->moltype eq 'protein' || 
+   $seq->moltype eq 'protein' ||
        $self->throw('Not a protein sequence');
 
    if (defined $stop) {
@@ -167,11 +155,11 @@ sub seq3 {
    return $aa3s;
 }
 
-=head2 seq3
- 
+=head2 seq3in
+
  Title   : seq3in
  Usage   : $string = Bio::SeqUtils->seq3in($seq, 'MetGlyTer')
- Function: 
+ Function:
 
            Read only method that returns the amino acid sequence as a
            string of three letter codes. moltype has to be
@@ -180,21 +168,21 @@ sub seq3 {
            unknown character 'X', is changed into 'Xaa'
 
  Returns : Bio::PrimarySeq object;
- Args    : character to be used for stop in the protein seqence, 
+ Args    : character to be used for stop in the protein seqence,
               optional, defaults to '*'
-           character to be used for unknown in the protein seqence, 
+           character to be used for unknown in the protein seqence,
               optional, defaults to 'X'
-           string used to separate the output amino acid codes, 
+           string used to separate the output amino acid codes,
               optional, defaults to ''
 
-=cut 
+=cut
 
 sub seq3in {
    my ($self, $seq, $string, $stop, $unknown) = @_;
 
-   $seq->isa('Bio::PrimarySeqI') || 
+   $seq->isa('Bio::PrimarySeqI') ||
        $self->throw('Not a Bio::PrimarySeqI object but [$self]');
-   $seq->moltype eq 'protein' || 
+   $seq->moltype eq 'protein' ||
        $self->throw('Not a protein sequence');
 
    if (defined $stop) {

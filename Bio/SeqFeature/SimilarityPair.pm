@@ -17,18 +17,18 @@ Bio::SeqFeature::SimilarityPair - Sequence feature based on the similarity
 
 =head1 SYNOPSIS
 
-$sim_pair = Bio::SeqFeature::SimilarityPair->from_searchResult($blastHit);
+  $sim_pair = Bio::SeqFeature::SimilarityPair->from_searchResult($blastHit);
 
-$sim = $sim_pair->query(); # a Bio::SeqFeature::Similarity object
-$sim = $sim_pair->subject(); # dto.
+  $sim = $sim_pair->query(); # a Bio::SeqFeature::Similarity object
+  $sim = $sim_pair->subject(); # dto.
 
-# some properties for the similarity pair
-$expect = $sim_pair->significance();
-$score = $sim_pair->score();
-$bitscore = $sim_pair->bits();
+  # some properties for the similarity pair
+  $expect = $sim_pair->significance();
+  $score = $sim_pair->score();
+  $bitscore = $sim_pair->bits();
 
-# this will not write the description for the sequence (only its name)
-print $sim_pair->query()->gff_string(), "\n";
+  # this will not write the description for the sequence (only its name)
+  print $sim_pair->query()->gff_string(), "\n";
 
 =head1 DESCRIPTION
 

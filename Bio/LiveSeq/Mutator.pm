@@ -12,7 +12,7 @@
 
 =head1 NAME
 
-  Bio::LiveSeq::Mutator - Package mutating LiveSequences
+Bio::LiveSeq::Mutator - Package mutating LiveSequences
 
 =head1 SYNOPSIS
 
@@ -120,14 +120,14 @@ sub new {
  Title   : gene
  Usage   : $mutobj = $obj->gene;
          : $mutobj = $obj->gene($objref);
- Function: 
+ Function:
 
            Returns or sets the link-reference to a
            L<Bio::LiveSeq::Gene> object. If no value has ben set, it
            will return undef
 
  Returns : an object reference  or undef
- Args    : a L<Bio::LiveSeq::Gene> 
+ Args    : a L<Bio::LiveSeq::Gene>
 
 =cut
 
@@ -234,7 +234,7 @@ sub each_Mutation{
  Title   : mutation
  Usage   : $mutobj = $obj->mutation;
          : $mutobj = $obj->mutation($objref);
- Function: 
+ Function:
 
            Returns or sets the link-reference to the current mutation
            object.  If the value is not set, it will return undef.
@@ -303,7 +303,7 @@ sub DNA {
  Title   : RNA
  Usage   : $mutobj = $obj->RNA;
          : $mutobj = $obj->RNA($objref);
- Function: 
+ Function:
 
            Returns or sets the reference to the LiveSeq object holding
            the reference sequence. If the value is not set, it will return
@@ -339,7 +339,7 @@ sub RNA {
  Title   : dnamut
  Usage   : $mutobj = $obj->dnamut;
          : $mutobj = $obj->dnamut($objref);
- Function: 
+ Function:
 
            Returns or sets the reference to the current DNAMutation object.
            If the value is not set, it will return undef.
@@ -374,7 +374,7 @@ sub dnamut {
  Title   : rnachange
  Usage   : $mutobj = $obj->rnachange;
          : $mutobj = $obj->rnachange($objref);
- Function: 
+ Function:
 
            Returns or sets the reference to the current RNAChange object.
            If the value is not set, it will return undef.
@@ -409,7 +409,7 @@ sub rnachange {
  Title   : aachange
  Usage   : $mutobj = $obj->aachange;
          : $mutobj = $obj->aachange($objref);
- Function: 
+ Function:
 
            Returns or sets the reference to the current AAChange object.
            If the value is not set, it will return undef.
@@ -444,7 +444,7 @@ sub aachange {
  Title   : exons
  Usage   : $mutobj = $obj->exons;
          : $mutobj = $obj->exons($objref);
- Function: 
+ Function:
 
            Returns or sets the reference to a current array of Exons.
            If the value is not set, it will return undef.
@@ -861,6 +861,7 @@ sub _rnaAffected {
  Returns :
  Args    : L<Bio::Variation::SeqDiff> object
            L<Bio::Variation::DNAMutation> object
+
 =cut
 
 sub _set_effects {

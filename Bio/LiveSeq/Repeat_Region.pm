@@ -12,10 +12,11 @@
 
 =head1 NAME
 
-  Bio::LiveSeq::Repeat_Region - Repeat_Region class for LiveSeq
+Bio::LiveSeq::Repeat_Region - Repeat_Region class for LiveSeq
 
 =head1 SYNOPSIS
 
+  # documentation needed
 
 =head1 DESCRIPTION
 

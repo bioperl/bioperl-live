@@ -12,7 +12,7 @@
 
 =head1 NAME
 
-  Bio::Tools::CodonTable - Bioperl codon table object
+Bio::Tools::CodonTable - Bioperl codon table object
 
 =head1 SYNOPSIS
 

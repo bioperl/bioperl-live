@@ -27,7 +27,7 @@ asked for it.
 
 This class will compute the coordinates such that always the narrowest possible
 range is returned, but by using some common sense. This means that e.g.
-locations like ">5..100" (start before position 5) will return 5 as start
+locations like "E<gt>5..100" (start before position 5) will return 5 as start
 (returned values have to be positive integers).
 
 =head1 FEEDBACK

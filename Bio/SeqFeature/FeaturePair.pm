@@ -73,9 +73,7 @@ feature1, and feature2.
 
 =head1 CONTACT
 
-Ewan Birney <birney@sanger.ac.uk>
-
-=head1 DEVELOPERS
+Ewan Birney E<lt>birney@sanger.ac.ukE<gt>
 
 =head1 APPENDIX
 

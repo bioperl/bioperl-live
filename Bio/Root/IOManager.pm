@@ -4,14 +4,14 @@
 # CREATED : 26 Mar 1997
 # REVISION: $Id$
 # STATUS  : Alpha
-#            
-# For documentation, run this module through pod2html 
+#
+# For documentation, run this module through pod2html
 # (preferably from Perl v5.004 or better).
 #
 # MODIFICATION NOTES: See bottom of file.
 #
 # Copyright (c) 1997-2000 Steve A. Chervitz. All Rights Reserved.
-#           This module is free software; you can redistribute it and/or 
+#           This module is free software; you can redistribute it and/or
 #           modify it under the same terms as Perl itself.
 #-----------------------------------------------------------------------------
 
@@ -19,7 +19,7 @@ package Bio::Root::IOManager;
 
 use Bio::Root::Global     qw(:devel $CGI $TIMEOUT_SECS);
 use Bio::Root::Object     ();
-use Bio::Root::Utilities  qw(:obj); 
+use Bio::Root::Utilities  qw(:obj);
 use FileHandle            ();
 
 @ISA   = qw(Bio::Root::Object);
@@ -43,8 +43,8 @@ The creation of Bio::Root::IOManager.pm objects is handled by Bio::Root::Object.
 which delegates various I/O tasks to this module.
 
     use Bio::Root::IOManager;
- 
-    $myIO = new Bio::Root::IOManager(-WHERE   =>'/usr/tmp/data.out', 
+
+    $myIO = new Bio::Root::IOManager(-WHERE   =>'/usr/tmp/data.out',
    				     -PARENT =>$self);
 
 
@@ -60,8 +60,8 @@ Follow the installation instructions included in the README file.
 
 =head1 DESCRIPTION
 
-This module encapsulates the data and methods necessary for regulating 
-input/output (I/O) of data from Perl objects. 
+This module encapsulates the data and methods necessary for regulating
+input/output (I/O) of data from Perl objects.
 It is concerned with "where" to get input or send output as opposed to "what" to get.
 IOManager.pm is intended to consolidate various I/O issues for
 Perl objects and provide an object-oriented way to do I/O things such as:
@@ -76,14 +76,14 @@ Perl objects and provide an object-oriented way to do I/O things such as:
 
 =back
 
-Subclasses of B<Bio::Root::Object.pm> have access to all methods defined in 
-IOManager.pm since B<Bio::Root::Object.pm> employs Bio::Root::IOManager.pm 
+Subclasses of B<Bio::Root::Object.pm> have access to all methods defined in
+IOManager.pm since B<Bio::Root::Object.pm> employs Bio::Root::IOManager.pm
 by a delegation mechanism.
 
 It is not clear yet how much objects really need to do the fancy I/O gymnastics as
 supported by IOManager. Most of the time, objects simply send output to STDOUT
 which is managed at the script/program level. The fancy I/O manipulations are
-considered experimental and have not been adequately tested or utilized. 
+considered experimental and have not been adequately tested or utilized.
 I'm not really satisfied with the current L<display>()/L<set_display>() strategy.
 The additional functionality is not often utilized in typical
 applications. Is the extra complexity worth it?
@@ -110,7 +110,7 @@ The L<read>() method provided permits the following:
 =head1 DEPENDENCIES
 
 Bio::Root::IOManager.pm inherits from B<Bio::Root::Object.pm> and uses B<FileHandle.pm>.
-B<Bio::Root::Utilities.pm> is also used for routine file manipulations 
+B<Bio::Root::Utilities.pm> is also used for routine file manipulations
 compression/uncompression/deletion.
 
 =head1 SEE ALSO
@@ -120,8 +120,8 @@ compression/uncompression/deletion.
   Bio::Root::Global.pm       - Manages global variables/constants
 
   http://bio.perl.org/Projects/modules.html  - Online module documentation
-  http://bio.perl.org/                       - Bioperl Project Homepage 
- 
+  http://bio.perl.org/                       - Bioperl Project Homepage
+
  FileHandle.pm (included in the Perl distribution or CPAN).
 
 =head1 TODO
@@ -131,7 +131,7 @@ instead of FileHandle.pm.
 
 =head1 FEEDBACK
 
-=head2 Mailing Lists 
+=head2 Mailing Lists
 
 User feedback is an integral part of the evolution of this and other Bioperl modules.
 Send your comments and suggestions preferably to one of the Bioperl mailing lists.
@@ -142,11 +142,11 @@ Your participation is much appreciated.
 
 =head2 Reporting Bugs
 
-Report bugs to the Bioperl bug tracking system to help us keep track the bugs and 
+Report bugs to the Bioperl bug tracking system to help us keep track the bugs and
 their resolution. Bug reports can be submitted via email or the web:
 
-    bioperl-bugs@bio.perl.org                   
-    http://bio.perl.org/bioperl-bugs/           
+    bioperl-bugs@bio.perl.org
+    http://bio.perl.org/bioperl-bugs/
 
 =head1 AUTHOR
 
@@ -167,7 +167,7 @@ Database:
 =head1 COPYRIGHT
 
 Copyright (c) 1997-98 Steve A. Chervitz. All Rights Reserved.
-This module is free software; you can redistribute it and/or 
+This module is free software; you can redistribute it and/or
 modify it under the same terms as Perl itself.
 
 =cut
@@ -205,7 +205,7 @@ for documentation purposes only.
 #####################################################################################
 ##                                 ACCESSORS                                       ##
 #####################################################################################
- 
+
 
 =head2 file
 
@@ -223,14 +223,14 @@ See Also   : L<compress_file>(), L<uncompress_file>(), L<delete_file>()
 =cut
 
 #--------
-sub file { 
+sub file {
 #--------
-    my $self = shift; 
-    if($_[0]) { 
+    my $self = shift;
+    if($_[0]) {
 	my $file = $_[0];
 	if(not ref $file and not -s $file) {
 	    $self->throw("File is empty or non-existent: $file");
-	}	    
+	}	
 	$self->{'_file'} = $file;
     }
     $self->{'_file'};
@@ -253,10 +253,10 @@ sub file {
  Throws    : Exception propagated from _open_fh()
  Examples  : $self->set_fh();                   # Create anonymous FileHandle object
            : $self->set_fh(-PATH =>'fileName',  # Open for writing
-	   :		   -PRE =>'>');         
+	   :		   -PRE =>'>');
            : $self->set_fh(-PATH =>'fileName',  # Open error log file in append mode.
 	   :		   -PRE  =>'>>',
-	   :		   -WHICH =>'err');  
+	   :		   -WHICH =>'err');
            : $self->set_fh(-PATH =>$obj->fh()); # Copy a file handle from another object.
            :
  Comments  : set_read() and set_display() provide
@@ -268,13 +268,13 @@ See also   : L<_open_fh>(), L<set_read>(), L<set_display>().
 =cut
 
 #-----------
-sub set_fh { 
+sub set_fh {
 #-----------
-    my( $self, %param) = @_;  
+    my( $self, %param) = @_;
 
     no strict 'subs';
-    my( $path, $prefix, $postfix, $which) = 
-	$self->_rearrange([PATH,PRE,POST,WHICH],%param);  
+    my( $path, $prefix, $postfix, $which) =
+	$self->_rearrange([PATH,PRE,POST,WHICH],%param);
     use strict 'subs';
     $prefix  ||= '';
     $postfix ||= '';
@@ -296,7 +296,7 @@ sub set_fh {
 			    "Set to file errors.$$");
 	    }
 	}
-	$self->{'_fherr_name'} = $fullpath; 
+	$self->{'_fherr_name'} = $fullpath;
 	$self->{'_fherr'} = $fh;
 
     } else {
@@ -311,7 +311,7 @@ sub set_fh {
 			    "Set to file out.$$");
 	    }
 	}
-	$self->{'_fh_name'} = $fullpath; 
+	$self->{'_fh_name'} = $fullpath;
 	$self->{'_fh'} = $fh;
 	$DEBUG && print STDERR "$ID: set fh to: $fh";
     }
@@ -321,7 +321,7 @@ sub set_fh {
 
 =head2 _open_fh
 
- Purpose   : Creates a new FileHandle object and returns it. 
+ Purpose   : Creates a new FileHandle object and returns it.
            : This method can be used when you need to
            : pass FileHandles between objects.
  Returns   : The new FileHandle object.
@@ -370,18 +370,18 @@ See also   : L<_open_fh>(), L<set_fh>()
 =cut
 
 #--------------
-sub _close_fh { 
+sub _close_fh {
 #--------------
-    my( $self, $arg) = @_; 
+    my( $self, $arg) = @_;
     $arg ||= '';
-    if($arg eq 'err') { 
+    if($arg eq 'err') {
 	close $self->{'_fherr'};
-	undef $self->{'_fherr'}; 
+	undef $self->{'_fherr'};
     } else {
 	close $self->{'_fh'};
-	undef $self->{'_fh'}; 
+	undef $self->{'_fh'};
     }
-}	       
+}	
 
 
 =head2 set_display
@@ -394,7 +394,7 @@ sub _close_fh {
            : - Is a wrapper for setting an object's STDOUT filehandle:
            :   Checks the -WHERE parameter and the status of the object's current
            :   filehandle {'_fh'} and does one of three things:
-           :    1. If $param{-WHERE} is defined and is not 'STDOUT', it is sent to 
+           :    1. If $param{-WHERE} is defined and is not 'STDOUT', it is sent to
            :       set_fh() to open a new fh,
            :    2. else, if 'fh' has already been defined, it is returned,
            :    3. else, if where equals 'STDOUT', \*STDOUT is returned.
@@ -433,16 +433,16 @@ sub set_display {
     ## Default mode: overwrite any existing file.
     $mode  ||= '>';
     $where ||= 'STDOUT';
-    
+
     $self->{'_show'} = ($show || 'default');
 
     $DEBUG and print STDERR "$ID set_display() show: $self->{'_show'}\twhere: -->$where<--\n";
 
     if( defined $where and $where !~ /STDOUT/) {
 #	print "setting file handle object\n";
-	$self->set_fh(-PATH =>$where, 
+	$self->set_fh(-PATH =>$where,
 		      -PRE  =>$mode);
-    } elsif( not defined $self->{'_fh'} or $where =~ /STDOUT/)  {	    
+    } elsif( not defined $self->{'_fh'} or $where =~ /STDOUT/)  {	
 	return \*STDOUT;
     } else  {
 #	print STDERR "filehandle already set for this object: ${\$self->fh('name')}\n";
@@ -484,12 +484,12 @@ sub set_read {
     ## Default mode: read only.
     $mode  ||= '<';
     $where ||= 'STDIN';
-    
+
     if( ref($where) and $where !~ /STDIN/) {
 #	print "setting file handle object\n";
-	$self->set_fh(-PATH =>$where, 
+	$self->set_fh(-PATH =>$where,
 		      -PRE  =>$mode);
-    } elsif( not defined $self->{'_fh'} or $where =~ /STDIN/)  {	    
+    } elsif( not defined $self->{'_fh'} or $where =~ /STDIN/)  {	
 	return \*STDIN;
     } else  {
 #	print STDERR "filehandle already set for this object: ${\$self->fh('name')}\n";
@@ -503,7 +503,7 @@ sub set_read {
 =head2 set_display_err
 
  Purpose   : Sets a new FileHandle object for outputing error information.
-           : Same logic as set_display() but creates a filehandle in 
+           : Same logic as set_display() but creates a filehandle in
            : append mode.
  Returns   : The output FileHandle object for saving errors or \*STDERR.
  Status    : Experimental
@@ -522,14 +522,14 @@ sub set_display_err {
     ## Default mode: read only.
     $mode  ||= '>>';
     $where ||= 'STDERR';
-    
+
     $DEBUG and print STDERR "set_display_err() object: ${\$self->name()}\n";
 
     if( ref($where) and $where !~ /STDERR/) {
 #	print "setting file handle object\n";
-	$self->set_fh(-PATH =>$where, 
+	$self->set_fh(-PATH =>$where,
 		      -PRE  =>$mode);
-    } elsif( not defined $self->{'_fherr'} or $where =~ /STDERR/)  {	    
+    } elsif( not defined $self->{'_fherr'} or $where =~ /STDERR/)  {	
 	return \*STDERR;
     } else  {
 #	print STDERR "filehandle already set for this object: ${\$self->fh('name')}\n";
@@ -582,7 +582,7 @@ See also   : L<set_display>(), L<set_read>(), L<set_fh>(), L<set_display_err>()
 =cut
 
 #--------'
-sub fh { 
+sub fh {
 #--------
     my( $self, $type, $stream) = @_;
     $stream ||= 'out';
@@ -594,13 +594,13 @@ sub fh {
     ## fh_out(), fh_in(), fh_err().
     $type or return ($self->{'_fh'} || $stream);
 
-    if( $type =~ /name/){ 
-	if($type =~ /err/ ) { return $self->{'_fherr_name'}; } 
+    if( $type =~ /name/){
+	if($type =~ /err/ ) { return $self->{'_fherr_name'}; }
 	else                { return $self->{'_fh_name'}; }
 
     } else {
-	if($type =~ /err/ ) { return ($self->{'_fherr'} || \*STDERR); } 
-	else                { return ($self->{'_fh'}    || $stream); } 
+	if($type =~ /err/ ) { return ($self->{'_fherr'} || \*STDERR); }
+	else                { return ($self->{'_fh'}    || $stream); }
     }
 }
 
@@ -644,7 +644,7 @@ sub fh {
            :                if false, the reading is terminated.
            :                Typically -FUNC supplies a closure.
            :    -HANDLE  => reference to a FileHandle object or a
-           :                typeglob to be use for reading input. 
+           :                typeglob to be use for reading input.
            :                The FileHandle object should be configured to
            :                read from a desired file before calling this
            :                method. If both -handle and -file are defined,
@@ -659,7 +659,7 @@ sub fh {
            : called using the contents of each record as it is read in.
            : If no function reference is supplied, the data are returned as a
            : string in scalar context or as a list in array context.
-           : The data are not altered; blank lines are not removed. 
+           : The data are not altered; blank lines are not removed.
            :
  Throws    : Exception if no input is read from source.
            : Exception if no input is read within WAIT seconds.
@@ -671,7 +671,7 @@ sub fh {
            : read from STDIN.
            :
            : COMPRESSED FILES:
-           :    read() will attempt to use gzip -cd to read the file 
+           :    read() will attempt to use gzip -cd to read the file
            : if it appears to be compressed (binary file test).
            :
            : If the raw data is to be returned, wantarray is used to
@@ -711,13 +711,13 @@ sub read {
 
     # Verify that we have a proper reference to a function.
     if($func_ref) {
-	if(not ref($func_ref) =~ /CODE/) { 
+	if(not ref($func_ref) =~ /CODE/) {
 	    $self->throw("Not a function reference: $func_ref, ${\ref $func_ref}");
 	}
     }
 
     $DEBUG && printf STDERR "$ID: read(): rec_sep = %s; func = %s\n",$/, ($func_ref?'defined':'none');
-    
+
     my($data, $lines, $alarm_available);
 
     $alarm_available = 1;
@@ -732,17 +732,17 @@ sub read {
     }
 
     $SIG{ALRM} = sub { die "Timed out!"; };
- 
+
     eval {
         $alarm_available and alarm($wait);
-        
+
       READ_LOOP:
 	while(<$FH>) {
 	    # Default behavior: read all lines.
 	    # If &$func_ref returns false, exit this while loop.
 	    # Uncomment to skip lines with only white space or record separators
-#	    next if m@^(\s*|$/*)$@; 
-	    
+#	    next if m@^(\s*|$/*)$@;
+	
 	    $lines++;
             $alarm_available and alarm(0);  # Deactivate the alarm as soon as we start reading.
 	    my($result);
@@ -764,9 +764,9 @@ sub read {
     }
 
     close ($FH) unless $self->{'_input_type'} eq 'STDIN';
-    
+
     if($data) {
-	$DEBUG && do{ 
+	$DEBUG && do{
 	    print STDERR "$ID: $lines records read.\nReturning $fmt.\n" };
 
 	return ($fmt eq 'list') ? split("$/", $data) : $data;
@@ -803,20 +803,20 @@ See also   : L<set_display>(), L<_print_stats_header>()
 sub display {
 #-------------
     my( $self, %param ) = @_;
-    
+
     $DEBUG && print STDERR "$ID display for ${\ref($self)}\n";
 
     my $OUT = $self->set_display(%param);
 #    my $OUT = $self->set_display( %param );
 #    print "$ID: OUT = $OUT";<STDIN>;
-    
+
     $DEBUG && do{ print STDERR "display(): WHERE = $OUT;\nSHOW = $self->{'_show'}";<STDIN>;};
 
     if($self->{'_show'} =~ /stats|default/i) {
 	if($param{-HEADER}) {
-	    $self->_print_stats_header($OUT); 
+	    $self->_print_stats_header($OUT);
 	}
-	$self->parent->_display_stats($OUT); 
+	$self->parent->_display_stats($OUT);
     }
     1;
 }
@@ -827,8 +827,8 @@ sub display {
 
  Usage     : n/a; internal method.
            : $obj->_print_stats_header(filehandle);
- Purpose   : Prints a header containing basic info about the object 
-           : such as the class and name of the object followed by a 
+ Purpose   : Prints a header containing basic info about the object
+           : such as the class and name of the object followed by a
            : line of hyphens.
  Status    : Experimental
 
@@ -874,16 +874,16 @@ See Also   : L<file>(), B<Bio::Root::Utilities::file_date()>
 =cut
 
 #---------------
-sub file_date { 
+sub file_date {
 #---------------
     my ($self, @param) = @_;
     my ($file, $fmt) = $self->_rearrange([qw(FILE FMT)], @param);
-    
+
     if(not $file ||= $self->{'_file'}) {
 	$self->throw("Can't get file date: no file specified");
     }
     $fmt ||= '';
-    $Util->file_date($file, $fmt);  
+    $Util->file_date($file, $fmt);
 }
 
 
@@ -894,7 +894,7 @@ sub file_date {
  Purpose   : Compresses a file if not already compressed.
            : Compresses to a temorary file if user is not owner of supplied file.
  Example   : $object->file('/usr/home/me/data.txt');
-           : $object->compress_file();   
+           : $object->compress_file();
  Argument  : String (full path name) (optional).
            : If no argument is provided, the file data member is used.
  Returns   : String (compressed file name, full path).
@@ -905,7 +905,7 @@ sub file_date {
  Throws    : Exception if no file is specified.
            : Propagates any exception thrown by Bio::Root::Utilities::compress()
            : if the file cannot be compressed().
-           : Tests if file is already compressed to avoid trivial error due to 
+           : Tests if file is already compressed to avoid trivial error due to
            : the file already being compressed.
            :
  Comments  : Relies on the compress() method of Bio::Root::Utilities.pm
@@ -920,11 +920,11 @@ sub file_date {
            : dependency between IOManager.pm module and Utilities.pm
            : which helps maintainability.
            :
- Bugs      : Only compresses text files. This obviates a dependency on 
+ Bugs      : Only compresses text files. This obviates a dependency on
            : particular file suffixes but is not good if you
            : want to compress a binary file.
            :
-           : May not be taint-safe.   
+           : May not be taint-safe.
 
 See Also   : L<uncompress_file>(), L<file>(), B<Bio::Root::Utilities::compress()>
 
@@ -940,11 +940,11 @@ sub compress_file {
 	$file = $self->{'_file'};
 	$myfile = 1;
     }
-    
+
     $file or $self->throw("Can't compress data file: no file specified");
 
     #printf STDERR "$ID: Compressing data file for %s\n  $file\n",$self->name();
-    
+
     my ($newfile);
     if (-T $file) {
 	$newfile = -o $file ? $Util->compress($file) : $Util->compress($file, 1);
@@ -962,7 +962,7 @@ sub compress_file {
  Purpose   : Uncompresses the file containing the raw report.
            : Uncompresses to a temorary file if user is not owner of supplied file.
  Example   : $object->file('/usr/home/me/data.txt.gz');
-           : $object->uncompress_file();   
+           : $object->uncompress_file();
  Argument  : String (full path name) (optional).
            : If no argument is provided, the file data member is used.
  Returns   : String (uncompressed file name, full path).
@@ -973,11 +973,11 @@ sub compress_file {
  Throws    : Exception if no file is specified.
            : Propagates any exception thrown by Bio::Root::Utilities::compress()
            : if the file cannot be uncompressed().
-           : Tests if file is already uncompressed to avoid trivial error due to 
+           : Tests if file is already uncompressed to avoid trivial error due to
            : the file already being uncompressed.
  Comments  : See comments for compress_file(). They apply here as well.
-           : 
- Bugs      : Considers all binary files to be compressed. This obviates 
+           :
+ Bugs      : Considers all binary files to be compressed. This obviates
            : a dependency on particular file suffixes.
            : May not be taint safe.
 
@@ -995,7 +995,7 @@ sub uncompress_file {
 	$file = $self->{'_file'};
 	$myfile = 1;
     }
-    
+
     $file or $self->throw("Can't compress file: no file specified");
 
     #printf STDERR "$ID: Uncompressing data file for %s\n  $file",$self->name();
@@ -1004,7 +1004,7 @@ sub uncompress_file {
     if (-B $file) {
 	$newfile = -o $file ? $Util->uncompress($file) : $Util->uncompress($file, 1);
 	# set the current file to the new name & return it.
-	$self->file($newfile) if $myfile; 
+	$self->file($newfile) if $myfile;
     }
     $newfile;
 }
@@ -1017,7 +1017,7 @@ sub uncompress_file {
  Example   : $object->delete_file('/usr/people/me/data.txt');
  Returns   : String (name of file which was deleted) if successful,
            : undef if file does not exist.
-           : Sets the file data member to undef 
+           : Sets the file data member to undef
            : when not operating on a file supplied as an argument.
  Argument  : String (full path name) (optional).
            : If no argument is provided, the file data member is used.
@@ -1027,8 +1027,8 @@ sub uncompress_file {
  Comments  : Be careful with this method: there is no undelete().
            : Relies on the delete() method provided by Bio::Root::Utilities.pm
            : to implement the file deletion functionality.
-           : This method is not taint-safe.   
-           : It is intended for off-line maintenance use only. 
+           : This method is not taint-safe.
+           : It is intended for off-line maintenance use only.
 
 See Also   : L<file>(), B<Bio::Root::Utilities::delete()>
 
@@ -1047,10 +1047,10 @@ sub delete_file {
     return undef unless -e $file;
 
     -o $file or
-	$self->throw("Can't delete file $file: Not owner."); 
+	$self->throw("Can't delete file $file: Not owner.");
 
 #    $DEBUG and print STDERR "$ID: Deleting data file for ",$self->name();
-    
+
     eval{ $Util->delete($file); };
 
     if(!$@ and $myfile) {
@@ -1072,20 +1072,20 @@ __END__
 
 =head2 Data Members
 
-Information about the various data members of this module is provided for those 
-wishing to modify or understand the code. Two things to bear in mind: 
+Information about the various data members of this module is provided for those
+wishing to modify or understand the code. Two things to bear in mind:
 
 =over 4
 
-=item 1 Do NOT rely on these in any code outside of this module. 
+=item 1 Do NOT rely on these in any code outside of this module.
 
 All data members are prefixed with an underscore to signify that they are private.
-Always use accessor methods. If the accessor doesn't exist or is inadequate, 
-create or modify an accessor (and let me know, too!). 
+Always use accessor methods. If the accessor doesn't exist or is inadequate,
+create or modify an accessor (and let me know, too!).
 
 =item 2 This documentation may be incomplete and out of date.
 
-It is easy for this documentation to become obsolete as this module is still evolving. 
+It is easy for this documentation to become obsolete as this module is still evolving.
 Always double check this info and search for members not described here.
 
 =back
@@ -1104,11 +1104,11 @@ all or some of the following fields:
   _fh_name      The arguments used to create fh.
 
   _fherr_name   The arguments used to create fherr.
-  
+
   INHERITED DATA MEMBERS
-  
+
   _parent       (From Bio::Root::Object.pm> Object reference for the owner of this IOManager.
- 
+
 =cut
 
 
@@ -1117,10 +1117,10 @@ MODIFICATION NOTES:
 
 17 Feb 1999, sac:
    * Using $Global::TIMEOUT_SECS
- 
+
 3 Feb 1999, sac:
    * Added timeout support to read().
-   * Moved the FileHandle creation code out of read() and into 
+   * Moved the FileHandle creation code out of read() and into
      Bio::Root::Utilties since it's of more general use.
 
  24 Nov 1998, sac:
@@ -1140,7 +1140,7 @@ MODIFICATION NOTES:
 
  0.021, May 1998, sac:
    * Refined documentation to use 5.004 pod2html.
-   * Properly using typglob refs as necessary 
+   * Properly using typglob refs as necessary
      (e.g., set_display(), set_fh()).
 
 0.031, 2 Sep 1998, sac:

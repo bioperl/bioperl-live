@@ -4,12 +4,12 @@
 # CREATED : 22 July 1996
 # REVISION: $Id$
 # STATUS  : Alpha
-# 
-# For documentation, run this module through pod2html 
+#
+# For documentation, run this module through pod2html
 # (preferably from Perl v5.004 or better).
 #
 # Copyright (c) 1996-8 Steve A. Chervitz. All Rights Reserved.
-#           This module is free software; you can redistribute it and/or 
+#           This module is free software; you can redistribute it and/or
 #           modify it under the same terms as Perl itself.
 #           Retain this notice and note any modifications made.
 #-----------------------------------------------------------------------------
@@ -26,7 +26,7 @@ use vars qw(@ISA @EXPORT @EXPORT_OK %EXPORT_TAGS);
 @ISA         = qw( Bio::Root::Object Bio::Root::Vector Exporter );
 @EXPORT      = qw();
 @EXPORT_OK   = qw( %ERR_FIELDS @ERR_TYPES &format_stack_entry &throw &warning);
-%EXPORT_TAGS = ( 
+%EXPORT_TAGS = (
 		 data => [qw(%ERR_FIELDS @ERR_TYPES)],
 		 std  => [qw(&throw &warning)]
 		);
@@ -51,18 +51,18 @@ Bio::Root::Err.pm -  Exception class for Perl 5 objects
 
 =head2 Object Creation
 
-B<Bio::Root::Object.pm> is a wrapper for Bio::Root::Err.pm objects so clients 
-do not have to create these objects directly. Please see 
+B<Bio::Root::Object.pm> is a wrapper for Bio::Root::Err.pm objects so clients
+do not have to create these objects directly. Please see
 B<Bio::Root::Object::throw()> as well as L<_initialize>()
-for a more complete treatment 
+for a more complete treatment
 of how to create Bio::Root::Err.pm objects.
 
   use Bio::Root::Err;
- 
-  $err = Bio::Root::Err->new(-MSG     =>"Bad data: $data", 
+
+  $err = Bio::Root::Err->new(-MSG     =>"Bad data: $data",
 			     -STACK   =>[\caller(0), \caller(1), ...],
 			     );
-  
+
 
 To use the L<throw>() method directly:
 
@@ -85,25 +85,25 @@ Follow the installation instructions included in the README file.
 
 =head1 DESCRIPTION
 
-A Bio::Root::Err.pm object encapsulates data and methods that facilitate 
+A Bio::Root::Err.pm object encapsulates data and methods that facilitate
 working with errors and exceptional conditions that arise in Perl objects.
 There are no biological semantics in this module, as one may suspect from its
 location in the Bio:: hierarchy. The location of this module serves to
 separate it from the namespaces of other Perl Error modules. It also makes it convenient
 for use by Bio:: objects.
 
-The motivation for having an error object is to allow 
+The motivation for having an error object is to allow
 Perl 5 objects to deal with errors or exceptional conditions that
 can arise during their construction or manipulation. For example:
 
  (1) A complex object can break in many ways.
- (2) Tracking errors within a set of nested objects can be difficult. 
+ (2) Tracking errors within a set of nested objects can be difficult.
  (3) The way an error is reported should be context-sensitive:
      a web-user needs different information than does the
-     software engineer. 
+     software engineer.
 
-Bio::Root::Err.pm, along with B<Bio::Root::Object.pm>, attempt to make such problems 
-tractable. Please see the B<Bio::Root::Object.pm> documentation for more about 
+Bio::Root::Err.pm, along with B<Bio::Root::Object.pm>, attempt to make such problems
+tractable. Please see the B<Bio::Root::Object.pm> documentation for more about
 my error handling philosophy.
 
 A B<Bio::Root::Err.pm> object is an example of a Vector-Object: This module inherits
@@ -117,21 +117,21 @@ B<The API for this module is not complete since the module is under development.
 
 Exception handling with Perl 5 objects is currently not as evolved as one
 would like. The error handling used by B<Bio::Root::Object.pm> and Bio::Root::Err.pm
-relies on Perl's built-in error/exception handling with eval/die, 
+relies on Perl's built-in error/exception handling with eval/die,
 which is not very object-aware. What I've attempted to do with these
-modules is to make eval/die more object-savvy, as well as make Perl 5 
+modules is to make eval/die more object-savvy, as well as make Perl 5
 objects more eval/die-savvy (but the current strategy is basically a hack).
 
 It would be great if Perl could throw an object reference with die().
-This would permit more intelligent and easy to write exception handlers. 
+This would permit more intelligent and easy to write exception handlers.
 For now the Err.pm object is reconstructed from the output of L<string>().
 
-There are some other third-party Exception classes such as 
+There are some other third-party Exception classes such as
 Torsten Ekedahl's B<Experimental::Exception.pm> or
 Ken Steven's Throwable.pm or
-Graham Barr's Error.pm (see L<Other Exception Modules>). These modules 
-attempt to introduce a traditional "try-catch-throw" 
-exception handling mechanism into Perl. Future version of my modules  
+Graham Barr's Error.pm (see L<Other Exception Modules>). These modules
+attempt to introduce a traditional "try-catch-throw"
+exception handling mechanism into Perl. Future version of my modules
 (and perhaps erl itself) may utilize one of these.
 
 =head1 USAGE
@@ -148,7 +148,7 @@ Bio::Root::Err.pm inherits from B<Bio::Root::Object.pm> and B<Bio::Root::Vector.
 
 =head1 FEEDBACK
 
-=head2 Mailing Lists 
+=head2 Mailing Lists
 
 User feedback is an integral part of the evolution of this and other Bioperl modules.
 Send your comments and suggestions preferably to one of the Bioperl mailing lists.
@@ -159,11 +159,11 @@ Your participation is much appreciated.
 
 =head2 Reporting Bugs
 
-Report bugs to the Bioperl bug tracking system to help us keep track the bugs and 
+Report bugs to the Bioperl bug tracking system to help us keep track the bugs and
 their resolution. Bug reports can be submitted via email or the web:
 
-    bioperl-bugs@bio.perl.org                   
-    http://bio.perl.org/bioperl-bugs/           
+    bioperl-bugs@bio.perl.org
+    http://bio.perl.org/bioperl-bugs/
 
 =head1 AUTHOR
 
@@ -183,15 +183,15 @@ Bio::Root::Err.pm, 0.041
   Bio::Root::Global.pm    - Manages global variables/constants
 
   http://bio.perl.org/Projects/modules.html  - Online module documentation
-  http://bio.perl.org/                       - Bioperl Project Homepage 
- 
+  http://bio.perl.org/                       - Bioperl Project Homepage
+
 =head2 Other Exception Modules
 
   Experimental::Exception.pm   - ftp://ftp.matematik.su.se/pub/teke/
   Error.pm                     - http://www.cpan.org/authors/id/GBARR/
   Throwable.pm                 - mailto:kstevens@globeandmail.ca
 
-  http://genome-www.stanford.edu/perlOOP/exceptions.html 
+  http://genome-www.stanford.edu/perlOOP/exceptions.html
 
 =head1 ACKNOWLEDGEMENTS
 
@@ -205,7 +205,7 @@ Chris Dagdigian, Georg Fuellen, and Steven Brenner.
 =head1 COPYRIGHT
 
 Copyright (c) 1996-8 Steve A. Chervitz. All Rights Reserved.
-This module is free software; you can redistribute it and/or 
+This module is free software; you can redistribute it and/or
 modify it under the same terms as Perl itself.
 
 =head1 TODO
@@ -263,31 +263,31 @@ See Also   : B<Bio::Root::Object::_set_err()>
 sub _initialize {
 #----------------
     my( $self, @param ) = @_;
-    
+
     my $make = $self->Bio::Root::Object::_initialize( @param );
-    
-    my( $msg, $note, $tech, $stack, $type, $context, $obj) = 
+
+    my( $msg, $note, $tech, $stack, $type, $context, $obj) =
 	$self->_rearrange([qw(MSG NOTE TECH STACK TYPE CONTEXT OBJ)], @param);
 
     ## NOTE: Don't eval {} the construction process for Err objects.
 
-    if($make =~ /clone/i) { 
+    if($make =~ /clone/i) {
 	$self->_set_clone($obj);
     } else {
 	if(!$self->_build_from_string($msg, $note, $tech)) {
 #	    print "Failed to rebuild: msg = $msg";<STDIN>;
 	    $self->set('msg', $msg );
-	    $self->_set_type( $type ); 
+	    $self->_set_type( $type );
 	    $self->_set_context($context);
 	    $self->_set_list_data('note', $note );
 	    $self->_set_list_data('tech', $tech );
 	    $self->_set_list_data('stack', $stack );
 	}
-	$self->set_display();  
+	$self->set_display();
     }
 
     $DEBUG and do{ print STDERR "---> Initialized Err (${\ref($self)}).\n\n";
-		   # $self->print(); 
+		   # $self->print();
 	       };
     $make;
 }
@@ -355,11 +355,11 @@ sub _build_from_string {
     foreach $line (@list) {
 	if($line =~ /^-+$/) { last MEMBER; }
 	if($line =~ /^-+ (\w+) -+$/) { $self->{'_type'} = $1; $rebuilt = 1; next MEMBER; }
-	if($line =~ /^MSG: *(\w.*)/) { my $msg = $1; 
+	if($line =~ /^MSG: *(\w.*)/) { my $msg = $1;
 				       if($self->_has_err($msg)) {
 					   die "Duplicate error.";
 				       }
-				       $self->{'_msg'} = $msg; 
+				       $self->{'_msg'} = $msg;
 				       $mode = 'msg';
 				       next MEMBER; }
 	if($line =~ /^CONTEXT: *(\w.*)/) { push @{$self->{'_context'}}, $1; $mode = 'context'; next MEMBER; }
@@ -407,7 +407,7 @@ sub _has_err {
 
     my $err = $self->first;
     my ($existing_msg);
-    do { 
+    do {
 #	print "checking err object $self\n";
 	$existing_msg = $err->msg;
 	$existing_msg =~ s/^\s+//;
@@ -416,7 +416,7 @@ sub _has_err {
 	return 1 if $existing_msg eq $msg;
 
     } while($err = $err->next);
-    
+
     0;
 }
 
@@ -435,7 +435,7 @@ sub _set_type {
 #----------------
     my( $self, $data ) = @_;
     $data ||= 'EXCEPTION';
-    
+
 #    printf "\n$ID: Setting type (%s) for err = %s\n", $data, $self->msg;<STDIN>;
 
     my (@type);
@@ -458,15 +458,15 @@ sub _set_type {
            : adds the given data to the list.
  Arguments : $member = any of qw(note tech stack)
            : $data   = string
- Comments  : Splits $data on tab. Each item 
+ Comments  : Splits $data on tab. Each item
            : of the split is a new entry.
-           : To clobber the current data (unusual situation), you must first 
+           : To clobber the current data (unusual situation), you must first
            : call set() with no data then call again with desired data.
 
 =cut
 
 #-------------------
-sub _set_list_data { 
+sub _set_list_data {
 #-------------------
     my( $self, $member, $data ) = @_;
 	
@@ -480,7 +480,7 @@ sub _set_list_data {
     if( $data ) {
 	$self->{$member} = [];
 	if( $member =~ /stack/) {
-	    foreach (@$data) { 
+	    foreach (@$data) {
 		push @{ $self->{$member}}, format_stack_entry(@$_);
 	    }
 	} else {
@@ -501,7 +501,7 @@ sub _set_list_data {
 
  Usage     : n/a; internal method used by set().
  Purpose   : Sets the object containment context for the exception.
-           : (this is the hierarchy of objects in which the 
+           : (this is the hierarchy of objects in which the
            :  exception occurred.)
 
 =cut
@@ -512,8 +512,8 @@ sub _set_context {
     my($self, $aref) = @_;
 
     eval {
-	if (!ref $aref) { 
-#	    push @{$aref}, sprintf "object %s \"%s\"",ref($self->parent), $self->parent->name; 
+	if (!ref $aref) {
+#	    push @{$aref}, sprintf "object %s \"%s\"",ref($self->parent), $self->parent->name;
 	    push @{$aref}, "UNKNOWN CONTEXT";
 	}
     };
@@ -540,7 +540,7 @@ sub _set_context {
 =head2 set
 
  Usage     : $err->set( $member, $data );
- Purpose   : General accessor for setting any Err.pm data member. 
+ Purpose   : General accessor for setting any Err.pm data member.
  Example   : $err->set('note', 'this is an additional note.');
  Returns   : n/a
  Argument  : $member = string, any of qw(msg type note tech stack)
@@ -556,7 +556,7 @@ sub _set_context {
 sub set {
 #---------
     my( $self, $member, $data ) = @_;
-    
+
     local $_ = "\u$member";
     SWITCH: {
 	/msg/i && do{ $self->{'_msg'} = (defined $data ? $data : 'Unknown error'); last SWITCH; };
@@ -639,7 +639,7 @@ sub tech  { my($self,$delimiter) = @_; $self->get('tech',$delimiter); }
 
  Usage     : $stack = $err->stack;
            : $stack = $err->stack('<P>');
- Purpose   : Get the call stack for the exception. 
+ Purpose   : Get the call stack for the exception.
  Returns   : String
  Argument  : optional string to be used as a delimiter.
 
@@ -678,7 +678,7 @@ sub context { my($self,$delimiter) = @_; $self->get('context',$delimiter); }
  Returns   : String in scalar context.
            : Array in list context.
  Argument  : $member = any of qw(msg type note tech stack context) or combination.
-           : $delimiter = optional string to be used as a delimiter 
+           : $delimiter = optional string to be used as a delimiter
            : between member data.
 
 See Also   : L<string>(), L<msg>(), L<note>(), L<tech>(), L<type>(), L<context>(), L<stack>()
@@ -689,9 +689,9 @@ See Also   : L<string>(), L<msg>(), L<note>(), L<tech>(), L<type>(), L<context>(
 sub get {
 #---------
     my( $self, $member, $delimiter ) = @_;
-    
+
     my $outer_delim = $delimiter || "\n";
-#   my $outer_delim = ($CGI ? "\n<P>" : $delimiter);  ## Subtle bug here. 
+#   my $outer_delim = ($CGI ? "\n<P>" : $delimiter);  ## Subtle bug here.
 
     my (@out);
     local $_ = $member;
@@ -756,7 +756,7 @@ See Also   : L<get>()
 sub get_all {
 #------------
     my( $self, $member, $delimiter ) = @_;
-    
+
     if( $self->size() == 1) {
 	return $self->get( $member, $delimiter);
     } else {
@@ -781,9 +781,9 @@ sub get_all {
 		    $out .= $delimiter.$delimiter;
 		} while($err = $err->prev());
 	    }
-	    return $out; 
+	    return $out;
 	}
-    }  
+    }
 }
 
 #####################################################################################
@@ -804,7 +804,7 @@ See Also   : L<_add_list_data>()
 sub _add_note {
 #---------------
     my( $self, $data ) = @_;
-    
+
     if( defined $self->{'_note'} ) {
 	push @{ $self->{'_note'}}, $data;
     } else {
@@ -826,7 +826,7 @@ See Also   : L<_add_list_data>()
 sub _add_tech {
 #-------------
     my( $self, $data ) = @_;
-    
+
     if( defined $self->{'_tech'} ) {
 	push @{ $self->{'_tech'}}, $data;
     } else {
@@ -848,7 +848,7 @@ See Also   : L<_set_list_data>()
 sub _add_list_data {
 #--------------------
     my( $self, $member, $data ) = @_;
-    
+
     local $_ = $member;
     SWITCH: {
 	/note/i  && do{ $self->_add_note( $data ); };
@@ -871,12 +871,12 @@ See Also   : L<string>()
 =cut
 
 #-----------
-sub print { 
+sub print {
 #-----------
-    my( $self, %param ) = @_;  
-#    my $OUT = $self->parent->fh(); 
-#    print $OUT $self->string(%param); 
-    print $self->string(%param); 
+    my( $self, %param ) = @_;
+#    my $OUT = $self->parent->fh();
+#    print $OUT $self->string(%param);
+    print $self->string(%param);
 }
 
 
@@ -930,11 +930,11 @@ sub string {
 	} else {
 	    $out .= sprintf "\n%s %s %s\n", '-'x20, $title,'-'x20;
 	}
-	$show =~ /msg|default/i   and $out .= "MSG: " . $err->msg("\n"); 
-	$show =~ /note|default/i  and $hasnote and $out .= "NOTE: ".$err->note("\n"); 
-	$show =~ /tech|default/i  and $hastech and $out .= "TECH: ".$err->tech("\n"); 
+	$show =~ /msg|default/i   and $out .= "MSG: " . $err->msg("\n");
+	$show =~ /note|default/i  and $hasnote and $out .= "NOTE: ".$err->note("\n");
+	$show =~ /tech|default/i  and $hastech and $out .= "TECH: ".$err->tech("\n");
 	$show =~ /context|default/i  and $out .= "CONTEXT: ".$err->context("\n");
-	$show =~ /stack|default/i and $out .= "STACK: \n".$err->stack("\n"); 
+	$show =~ /stack|default/i and $out .= "STACK: \n".$err->stack("\n");
 	$out .= sprintf "%s%s%s\n",'-'x 20, '-'x (length($title)+2), '-'x 20;
 
 #	print "$ID: string: cumulative err:\n$out\n";<STDIN>;
@@ -971,7 +971,7 @@ sub is_fatal { my $self = shift; $self->{'_type'} eq 'FATAL'; }
            : This method is exported.
  Purpose   : Class method version of Bio::Root::Object::throw().
  Returns   : die()s with the contents of the Err object in a string.
-           : If the global strictness is less than -1, die is not called and 
+           : If the global strictness is less than -1, die is not called and
            : the error is printed to STDERR.
  Argument  : [0] = object throwing the error.
            : [1] = optional message about the error.
@@ -994,9 +994,9 @@ sub throw {
 
 #    print "Throwing exception for object ${\ref $self} \"${\$self->name}\"\n";
     my $err = new Bio::Root::Err(
-			   -MSG     =>$param[0], 
-			   -NOTE    =>$param[1],  
-			   -TECH    =>$param[2], 
+			   -MSG     =>$param[0],
+			   -NOTE    =>$param[1],
+			   -TECH    =>$param[2],
 			   -STACK   =>scalar(Bio::Root::Object::stack_trace($obj,2)),
 			   -CONTEXT =>Bio::Root::Object::containment($obj),
 			   -TYPE    =>'EXCEPTION',
@@ -1019,7 +1019,7 @@ sub throw {
            : This method is exported.
  Purpose   : Class method version of Bio::Root::Object::warn().
  Returns   : Prints the contents of the error to STDERR and returns false (0).
-           : If the global strictness() is > 1, warn() calls are converted 
+           : If the global strictness() is > 1, warn() calls are converted
            : into throw() calls.
  Argument  : [0] = object producing the warning.
            : [1] = optional message about the error.
@@ -1043,9 +1043,9 @@ sub warning {
 
 #    print "Throwing exception for object ${\ref $self} \"${\$self->name}\"\n";
     my $err = new Bio::Root::Err(
-			   -MSG     =>$param[0], 
-			   -NOTE    =>$param[1],  
-			   -TECH    =>$param[2], 
+			   -MSG     =>$param[0],
+			   -NOTE    =>$param[1],
+			   -TECH    =>$param[2],
 			   -STACK   =>scalar(Bio::Root::Object::stack_trace($obj,2)),
 			   -CONTEXT =>Bio::Root::Object::containment($obj),
 			   -TYPE    =>'WARNING',
@@ -1075,7 +1075,7 @@ sub warning {
 =cut
 
 #------------------------
-sub format_stack_entry {  
+sub format_stack_entry {
 #------------------------
     my( $class, $file, $line, $classmethod, $hasargs, $wantarray) = @_;
 
@@ -1100,20 +1100,20 @@ __END__
 
 =head2 Data Members
 
-Information about the various data members of this module is provided for those 
-wishing to modify or understand the code. Two things to bear in mind: 
+Information about the various data members of this module is provided for those
+wishing to modify or understand the code. Two things to bear in mind:
 
 =over 4
 
-=item 1 Do NOT rely on these in any code outside of this module. 
+=item 1 Do NOT rely on these in any code outside of this module.
 
 All data members are prefixed with an underscore to signify that they are private.
-Always use accessor methods. If the accessor doesn't exist or is inadequate, 
-create or modify an accessor (and let me know, too!). 
+Always use accessor methods. If the accessor doesn't exist or is inadequate,
+create or modify an accessor (and let me know, too!).
 
 =item 2 This documentation may be incomplete and out of date.
 
-It is easy for this documentation to become obsolete as this module is still evolving. 
+It is easy for this documentation to become obsolete as this module is still evolving.
 Always double check this info and search for members not described here.
 
 =back
@@ -1124,15 +1124,15 @@ all or some of the following fields:
  FIELD     VALUE
  ------------------------------------------------------------------------
  _type     fatal | warning | exception (one of @Bio::Root::Err::ERR_TYPES).
-        
- _msg      Terse description: Main cause of error. 
-        
+
+ _msg      Terse description: Main cause of error.
+
  _note     List reference. Verbose description: probable cause & troubleshooting for user.
-        
+
  _tech     List reference. Technical notes of interest to programmer.
-        
+
  _stack    List reference. Stack trace: list of "class::method(line number)" strings.
-        
+
 
 
 =cut

@@ -211,7 +211,7 @@ sub RNAChange {
             instantiable subclass of L<Bio::Variation::VariantI> needs
             to implement this method. Valid values are listed in
             'Mutation event controlled vocabulary' in
-            <http://www.ebi.ac.uk/mutations/recommendations/mutevent.html.
+            http://www.ebi.ac.uk/mutations/recommendations/mutevent.html.
 
  Example : 
  Returns : string

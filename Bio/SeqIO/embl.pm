@@ -38,18 +38,18 @@ with swissprot). Too much of the magic is identical.
 
 =head2 Optional functions
 
-=over
+=over 3
 
 =item _show_dna()
 
 (output only) shows the dna or not
 
-=item _post_sort
+=item _post_sort()
 
 (output only) provides a sorting func which is applied to the FTHelpers
 before printing
 
-=item _id_generation_func
+=item _id_generation_func()
 
 This is function which is called as 
 

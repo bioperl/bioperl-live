@@ -38,9 +38,9 @@ histogram object. The histogram object can bascially take in a number
 of scores which are sensibly distributed somewhere around 0 that come
 from a supposed Extreme Value Distribution. Having add all the scores
 from a database search via the add_score method you can then fit a
-extreme value distribution using ->fit_evd(). Once fitted you can then
+extreme value distribution using fit_evd(). Once fitted you can then
 get out the evalue for each score (or a new score) using
-->evalue($score).
+evalue($score).
 
 The fitting procedure is better described in Sean Eddy's own code
 (available from http://hmmer.wustl.edu, or in the histogram.h header

@@ -756,7 +756,7 @@ sub delete {
            : this method should probably have a -mode parameter to
            : specify ascii or binary.
 
-See Also :  L<get_newline>(), L<Bio::Root:IOManager::read>(),
+See Also :  L<get_newline>(), L<Bio::Root::IOManager::read>(),
 
 =cut
 

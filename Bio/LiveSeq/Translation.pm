@@ -12,10 +12,11 @@
 
 =head1 NAME
 
-  Bio::LiveSeq::Translation - Translation class for LiveSeq
+Bio::LiveSeq::Translation - Translation class for LiveSeq
 
 =head1 SYNOPSIS
 
+  #documentation needed
 
 =head1 DESCRIPTION
 

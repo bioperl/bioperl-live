@@ -27,7 +27,7 @@ Bio::DB::GenBank - Database object interface to GenBank
     # or ...
 
     $seq = $gb->get_Seq_by_acc('J00522'); # Accession Number
-   
+
     # or ... best when downloading very large files, prevents
     # keeping all of the file in memory
 
@@ -128,7 +128,7 @@ sub get_params {
 
 # from Bio::DB::WebDBSeqI from Bio::DB::RandomAccessI
 
-=head2 Routines Bio::DB::WebDBSeqI from Bio::DB::RandomAccessI
+=head1 Routines Bio::DB::WebDBSeqI from Bio::DB::RandomAccessI
 
 =head2 get_Seq_by_id
 
@@ -149,7 +149,7 @@ sub get_params {
   Note    : For GenBank, this just calls the same code for get_Seq_by_id()
   Throws  : "id does not exist" exception
 
-=head2 Routines implemented by Bio::DB::NCBIHelper
+=head1 Routines implemented by Bio::DB::NCBIHelper
 
 =head2 get_request
 

@@ -11,9 +11,9 @@ $VERSION    = 1.010; # bio.perl.org Version;
 $Revision   = '$Id$';
 
 # Disclaimer from Georg Fuellen:
-# UnivAln is now under the CVS system. Georg Fuellen is currently 
-# not working on it, nor is he responsible for the version 
-# distributed via bio.perl.org. This version is nearly identical 
+# UnivAln is now under the CVS system. Georg Fuellen is currently
+# not working on it, nor is he responsible for the version
+# distributed via bio.perl.org. This version is nearly identical
 # to Georg's latest version 1.009.
 
 # Revision History: see the end of the POD, under the header `REVISION HISTORY'
@@ -22,17 +22,17 @@ $Revision   = '$Id$';
 # as ``raw'' before; now ``raw'' format is recognized using the
 # expression /^[A-Z_0-9$_GAP_SYMBOL$_UNKN_SYMBOL\s]+$/im,
 # i.e. the file may only have alphanumerical characters,
-# gap and unknown-symbol, and whitespace. If commata, etc, 
-# are detected, readseq is used for parsing. Readseq itself 
+# gap and unknown-symbol, and whitespace. If commata, etc,
+# are detected, readseq is used for parsing. Readseq itself
 # seems to be unable to detect ``raw'' format in some cases.
 
 # Copyright (c) 1996, 1997, 1998 Georg Fuellen.
-# Some pieces of the code were contributed by Steven E. Brenner, 
+# Some pieces of the code were contributed by Steven E. Brenner,
 # Richard Resnick and Chris Dagdigian. Thanks !!!!
-# This module is free software; you can redistribute it and/or modify 
+# This module is free software; you can redistribute it and/or modify
 # it under the same terms as Perl itself.
 
-=head1 NAME 
+=head1 NAME
 
 Bio::UnivAln - Bioperl alignment object
 
@@ -56,12 +56,12 @@ See the L<REVISION HISTORY> for recent bugfixes and enhancements.
                       );
   $aln = Bio::UnivAln->new(-seqs=>"TCCCGCGTCAACTG\nTGGTGCTTCAACCG\nACTTG--TCAACTG");
   $aln = Bio::UnivAln->new(-seqs=>[$sequence_strg,\@character_list,$bioSeqObject]);
-  $aln = Bio::UnivAln->new(-seqs=> ['ACCCGCGTCAACTG', 
-           ['A','G','G','G','G','C','T','T','C','A','A','C','C','G'], 
+  $aln = Bio::UnivAln->new(-seqs=> ['ACCCGCGTCAACTG',
+           ['A','G','G','G','G','C','T','T','C','A','A','C','C','G'],
            Bio::Seq->new(-seq=>'ACTTG--TCAACTG')
          ]);
   $aln = Bio::UnivAln->new($file,$seqs,$id,$desc,$names,$row_ids,$col_ids,
-           $row_descs,$col_descs,$numbering,$type,$ffmt,$descffmt,$inplace);  
+           $row_descs,$col_descs,$numbering,$type,$ffmt,$descffmt,$inplace);
 
 =head2 Object Manipulation in a Nutshell
 
@@ -77,7 +77,7 @@ See the L<REVISION HISTORY> for recent bugfixes and enhancements.
 
   my $alnSlice = $aln->seqs(1,3,1,2); # multiline string of rows 1-3, columns 1-2
       print $alnSlice, "\n";
-  my @alnSlice = $aln->seqs([1..3], [1,4]); # multidimensional array 
+  my @alnSlice = $aln->seqs([1..3], [1,4]); # multidimensional array
                                             # of rows 1-3, columns 1+4
       for $aref ( @alnSlice ) { print @$aref, "\n"; }
   $alnSlice = $aln->seqs([3,2,3,1], [1,3..5]); # rows 3,2,3,1, cols 1,3..5
@@ -109,7 +109,7 @@ See the L<REVISION HISTORY> for recent bugfixes and enhancements.
   $indices = $aln->invar_inds();   # (..inds() is available for most utilities)
   $resSlice = $aln->var_sites(0.6); # no columns with >= 60% maj. of 1 letter
   $resSlice = $aln->invar_sites(0.6); # only columns with >= 60% majority
-  $resSlice = $aln->gap_free_sites(); 
+  $resSlice = $aln->gap_free_sites();
   $resSlice = $aln->no_allgap_sites(); # exclude sites that only have gaps
   $resSlice = $aln->reverse([1,3]); # reverse of rows 1+3 only
   $resSlice = $aln->complement([1,3]); # dna/rna complement of rows 1+3 only
@@ -128,19 +128,19 @@ Follow the installation instructions included in the README file.
 The following are the installation instructions from the original UnivAlign
 distribution for installing UnivAlign.pm by itself. These are not necessary if
 installing from the central Bioperl distribution. Note that the central
-distribution does not currently run the more extensive univaln.t2 
+distribution does not currently run the more extensive univaln.t2
 test harness.
 
 The original installation package is available from:
 
- http://www.techfak.uni-bielefeld.de/bcd/Perl/Bio/#univaln 
+ http://www.techfak.uni-bielefeld.de/bcd/Perl/Bio/#univaln
 
 To install, untar it and run the following commands in the module directory
 created by tar:
 
         % perl Makefile.PL
         % make
-        % make test 
+        % make test
         % make install
 
 For intensive testing, see t/univaln.t2. Run that script via
@@ -150,27 +150,27 @@ For intensive testing, see t/univaln.t2. Run that script via
 and compare the output with the file t/univaln.o .
 Expected error messages can be found in t/univaln2_expected_errors .
 
-If you do not have superuser installation privileges, or to install 
+If you do not have superuser installation privileges, or to install
 in a different directory, you can do one of two things:
 
 1) Either copy the UnivAln.pm module into the ``Bio'' subdirectory of
-an accessible Perl module directory (e.g. /my/perl/lib/Bio/). 
-(One possible ``accessible Perl module directory'' is your current working 
-directory; there you can create a subdirectory named ``Bio'' and place 
+an accessible Perl module directory (e.g. /my/perl/lib/Bio/).
+(One possible ``accessible Perl module directory'' is your current working
+directory; there you can create a subdirectory named ``Bio'' and place
 UnivAln.pm in that subdirectory. Then, you can start scripts using
 Bio::UnivAln from your current working directory.)
 
-2) Or, run the above commands but specify an alternate location for 
+2) Or, run the above commands but specify an alternate location for
 the module by supplying a PREFIX argument to the first command:
 
         % perl Makefile.PL PREFIX=/my/perl/stuff
 
 This will place the module into '/my/perl/stuff/lib/site_lib/'. To
-specify a directory for the module file, set the $INSTALLSITELIB 
+specify a directory for the module file, set the $INSTALLSITELIB
 variable in Makefile.PL (e.g., $INSTALLSITELIB = '/my/perl/lib');
 
 The make install command may report problems with creating documentation
-files (pod2man/perllocal.pod); please find the documentation in 
+files (pod2man/perllocal.pod); please find the documentation in
 UnivAln.pm.html instead.
 
 If you have Bio::Seq installed and want to test Bio::Seq usage by
@@ -181,14 +181,14 @@ Note that the test script will also test error handling; you can expect the
 error messages included in the file univaln.t2_expected_errors -- these are OK.
 
 If you wish that the module uses Don Gilbert's readseq package for sequence
-format conversion (Version 1 Feb 1993), you can set the environment variable 
-`READSEQ_DIR'" appropriately. (Currently, only ``fasta'' and ``raw'' format 
-are supported directly by UnivAln.pm.) 
+format conversion (Version 1 Feb 1993), you can set the environment variable
+`READSEQ_DIR'" appropriately. (Currently, only ``fasta'' and ``raw'' format
+are supported directly by UnivAln.pm.)
 Then, the program detects and uses `readseq' automatically, if it is in the
 specified directory (the default directory is ``./''). Modifying the
 environment variable `READSEQ' changes the expected name of the executable.
-For example, $ENV{READSEQ_DIR} may be ``/vol/biotools/bin/'' and $ENV{READSEQ} 
-``readseq2.0''. Readseq will give you support for PIR/CODATA, MSF/GCG and 
+For example, $ENV{READSEQ_DIR} may be ``/vol/biotools/bin/'' and $ENV{READSEQ}
+``readseq2.0''. Readseq will give you support for PIR/CODATA, MSF/GCG and
 PAUP/NEXUS formats; ASN.1 does not seem to work reliably.
 (URLs: http://iubio.bio.indiana.edu/IUBio-Software+Data/molbio/readseq/
 http://dot.imgen.bcm.tmc.edu:9331/seq-util/Help/readseq.html
@@ -203,17 +203,17 @@ The relevant environment variables are `CLUSTAL_DIR' and `CLUSTAL'.
 
 =head1 DESCRIPTION
 
-This module is the Bio::UnivAln alignment object which is part of 
+This module is the Bio::UnivAln alignment object which is part of
 the Bioperl project. Currently it has some nice methods for accessing
 an alignment after reading it in from certain formats, incl. utilities
-like consensus and reverse complement. Bio::Seq (single sequences) 
+like consensus and reverse complement. Bio::Seq (single sequences)
 is only needed if you explicitly want to use these.
 
 (Most examples below are taken from the test script(s) that can
 be found in directory ``t'' of the Bio::UnivAln distribution.
-There you will also find a CGI script producing some graphics, 
+There you will also find a CGI script producing some graphics,
 which is currently in alpha status: I suspect it needs some
-refitting to run on a different server. If you'd like to know more about 
+refitting to run on a different server. If you'd like to know more about
 multiple alignments, in theory and practice, check out the tutorial at
 http://www.techfak.uni-bielefeld.de/bcd/Curric/MulAli/mulali.html )
 
@@ -221,7 +221,7 @@ http://www.techfak.uni-bielefeld.de/bcd/Curric/MulAli/mulali.html )
 
 Alignments can be constructed from files, (multi-line) strings,
 arrays and Bio::Seq objects. Files need to be in a standard format,
-as described below, under the header L<Alignment Formats>.
+as described below, under the header L<ALIGNMENT FORMATS>.
 
   my $aln = Bio::UnivAln->new('t/alnfile.fasta');
 
@@ -231,7 +231,7 @@ from the file. You can use named parameters; take a look at
 the documentation on the new() method in the appendix for a list of all
 parameters, and their names. In the following example, description,
 sequence type, and file format are provided. The file format will
-relieve Bio::UnivAln from guessing it; however, there are no guarantees if 
+relieve Bio::UnivAln from guessing it; however, there are no guarantees if
 you bypass Bio::UnivAln's guessing _and_ provide an incorrect file format.
 
   $aln = Bio::UnivAln->new(-file=>'t/alnfile.aa',
@@ -240,12 +240,12 @@ you bypass Bio::UnivAln's guessing _and_ provide an incorrect file format.
                        -ffmt=>'raw'      # 1 line in file -> 1 sequence
                       );
 
-If no description (``-desc'') is given, a default one will be based on the 
-file name.  The format type is also the default format for output; if both 
-differ, you need to specify the input format when you construct the $aln 
+If no description (``-desc'') is given, a default one will be based on the
+file name.  The format type is also the default format for output; if both
+differ, you need to specify the input format when you construct the $aln
 object, and then use the accessor ffmt() to set the default output format.
 Bio::UnivAln can be passed the aligned sequences directly, using the
-named parameter ``-seqs''. It takes a multi-line string, or any mix of 
+named parameter ``-seqs''. It takes a multi-line string, or any mix of
 strings, array references, and Bio::Seq objects:
 
   $aln = Bio::UnivAln->new(-seqs=>"TCCCGCGTCAACTG\nTGGTGCTTCAACCG\nACTTG--TCAACTG");
@@ -258,7 +258,7 @@ strings, array references, and Bio::Seq objects:
 =head2 ACCESS TO THE DATA, AND MANIPULATION
 
 The layout() method returns the sequence in a specified format;
-supported formats are listed under the header L<Alignment Formats>.
+supported formats are listed under the header L<ALIGNMENT FORMATS>.
 
   $aln->ffmt('fasta');   # set default output format
   print "\n aln in default format:\n", $aln->layout();
@@ -269,7 +269,7 @@ supported formats are listed under the header L<Alignment Formats>.
 =head2 Access by Specifying Boundaries
 
 You can calculate slices of alignments in a very flexible way;
-interval slices like the intersection of rows 1-3 and columns 1-2 are 
+interval slices like the intersection of rows 1-3 and columns 1-2 are
 calculated using seqs(). Here, intersection means that those
 elements are returned that are both in rows 1-3 and in columns 1-2.
 
@@ -292,12 +292,12 @@ $y_lo to $y_hi, and columns $x_lo to $x_hi.
 
 Maximal intervals will be assumed if no parameters are provided.
 Per default, the first row (sequence) has index 1 (not 0), and the first
-column has index 1 (not 0). The latter can be modified using numbering(). 
+column has index 1 (not 0). The latter can be modified using numbering().
 
 =head2 Access by Index Lists
 
 If you desire non-consecutive row / column elements,
-you can specify the indices as lists, one list of desired row indices 
+you can specify the indices as lists, one list of desired row indices
 and one list of desired column indices.
 
   $alnSlice = $aln->seqs([1..3], [1,4]);  # rows 1-3, columns 1+4
@@ -323,7 +323,7 @@ is [$r1,$r2,$r3,$r4], and the list of column indices is [$c1,$c2,$c3].
                 $c1  $c2        $c3           Fig.2
 
 Again, an element is selected for the slice if and only if it lies
-in the intersection of a row and a column which are both desired 
+in the intersection of a row and a column which are both desired
 according to the index lists.
 
 =head2 Return Values
@@ -331,22 +331,22 @@ according to the index lists.
 In the examples above, a string (scalar) is returned; the standard
 sequence accessor seqs() always returns a (multi-line)
 string in a scalar context. In a list context, it returns an array;
-each element of such an array is a reference to another array holding 
+each element of such an array is a reference to another array holding
 the letters of one sequence, i.e. one single row.
 
   @alnSlice = $aln->seqs([1..3], [1,4]);  # rows 1-3, columns 1+4
       for $aref ( @alnSlice ) { print @$aref, "\n"; }
 
 If you use the result of an accessor or a utility function in the ``-seqs''
-slot of new(), you may need to force that result into a scalar 
+slot of new(), you may need to force that result into a scalar
 context, because the accessor, etc, returns a list in a list context,
 and the constructor naturally provides such a list context since it expects a
-list of parameters. 
+list of parameters.
 
   $aln = new Bio::UnivAln(-seqs=>scalar($aln2->seqs()));
 
 In the example above, the list-context return value of
-C<$aln2->seqs()>, i.e. the list of rows of $aln2,
+C<$aln2-E<gt>seqs()>, i.e. the list of rows of $aln2,
 would be fed one by one as additional parameters into the constructor,
 if you didn't ``protect'' it by scalar(). You will be warned about the problem
 because Bio::UnivAln detects any named parameters that it can't use.
@@ -356,26 +356,26 @@ because Bio::UnivAln detects any named parameters that it can't use.
 (The following access method is currently in alpha status, it may need
 some revision until the code is fully released.)
 
-Any list of desired row/column indices can be replaced by a hash of desired 
-ids, which are recognized if they are in the object's own list of row or column 
+Any list of desired row/column indices can be replaced by a hash of desired
+ids, which are recognized if they are in the object's own list of row or column
 ids. You need to pass a reference to a hash that has one key, ``ids'',
 and one value, which is a string containing the ids seperated by `` ''(blank) :
 
   $alnSlice = $aln->seqs({ids=>'SeqA SeqB'},{ids=>'ColA ColB ColC'});
 
-Row (sequence) ids are automatically extracted when reading fasta files and 
+Row (sequence) ids are automatically extracted when reading fasta files and
 Bio::Seq objects. Otherwise, they are set to the default numerical index list,
 like (1..20) if the alignment has 20 rows. Since there's currently no way
 to extract column (site) ids (none of the supported formats has this feature),
 these always hold the default numerical indices. However, both lists
-may be set using the accessors row_ids() and col_ids(). Note that arbitrary 
+may be set using the accessors row_ids() and col_ids(). Note that arbitrary
 numbering schemes can be supported this way.
 
 =head2 Access by Selector Function
 
-Finally, you can specify a function such that seqs() returns exactly 
-those letters which lie in a row (or column) for which your function returns 
-true. E.g. has_purine() returns true if the row/column contains A, a, T, t, R, 
+Finally, you can specify a function such that seqs() returns exactly
+those letters which lie in a row (or column) for which your function returns
+true. E.g. has_purine() returns true if the row/column contains A, a, T, t, R,
 or r; the following $alnSlice will contain only columns that have
 one of these letters in them.
 
@@ -392,9 +392,9 @@ same role that the expression EXPR has in the Perl code template
 B<grep EXPR, LIST>, see the perlfunc manpage. Bio::UnivAln also provides
 the equivalent to B<map EXPR, LIST>; this ``Mapping'' will be discussed soon.)
 
-In other words, any list of indices can be replaced by the reference to a 
-function r or c. The function then selects those elements (*) that lie in 
-a row or column which meets a criterion, returning true if the criterion 
+In other words, any list of indices can be replaced by the reference to a
+function r or c. The function then selects those elements (*) that lie in
+a row or column which meets a criterion, returning true if the criterion
 is met, and false otherwise.
 If both lists of indices are replaced by functions, the picture is like this:
 
@@ -411,7 +411,7 @@ If both lists of indices are replaced by functions, the picture is like this:
            c(column) c(column)  c(column)
             = true    = true     = true       Fig.3
 
-The function out_fasta observes all types of selectors that seqs() does, 
+The function out_fasta observes all types of selectors that seqs() does,
 and returns the result in fasta format :
 
   print "\n aln in fasta format:\n", $aln->out_fasta([1..3],\&has_purine), "\n";
@@ -424,13 +424,13 @@ results as a list:
   @resSlice = $aln->map_r(\&has_purine, [1..3]); # 1,0,1 if row 1+3 has purine
   @resSlice = $aln->map_c(\&has_purine, [1,4]); # 1,0 if column 1 has purine
 
-As you may expect, maximal index lists (i.e, all rows / all columns) will be 
+As you may expect, maximal index lists (i.e, all rows / all columns) will be
 assumed if no second parameter is provided. In the same way as before,
 any one if the index lists may be replaced by a hash of ids, or a selector
-function. In the section on L<User-defined Utility Functions>, map_r() and 
-map_c() are used to implement user-defined consensus, reverse, complement, etc. 
+function. In the section on L<User-defined Utility Functions>, map_r() and
+map_c() are used to implement user-defined consensus, reverse, complement, etc.
 
-By the way, the following map is the same as @alnSlice = $aln->seqs([1..3]) 
+By the way, the following map is the same as @alnSlice = $aln-E<gt>seqs([1..3])
 since mapping the identity function ``sub id { return @_ }''
 to desired row/column subsets and collecting the result is just like slicing.
 
@@ -448,10 +448,10 @@ can be huge, and for a lot of applications a deep copy is unnecessary.
 =head2 Inplace Manipulation
 
 Slices can be applied to the object itself, replacing the old alignment
-by a new one that is sliced from the old ('inplace' manipulation).  
+by a new one that is sliced from the old ('inplace' manipulation).
 This is particularly useful is the alignment is large. The row (sequence)
 and column (site) ids are taken over from the old alignment. They are
-used as the lookup tables for L<Access by Id>, and available via row_ids() 
+used as the lookup tables for L<Access by Id>, and available via row_ids()
 and col_ids().
 
 The following code sets the ``inplace'' flag, and overwrites the current
@@ -461,14 +461,14 @@ alignment with the rows named A and B, and columns 1-6:
   $aln->seqs({ids=>'A B'},[1..6]);
   $aln->inplace(0);
 
-'inplace' manipulation is also available for most utility functions below, 
-with the notable exception of consensus(). A full list is given in the 
+'inplace' manipulation is also available for most utility functions below,
+with the notable exception of consensus(). A full list is given in the
 description of inplace(), see the Appendix.
 
 =head2 UTILITY FUNCTIONS LIKE CONSENSUS, AND REVERSE COMPLEMENT
 
 In the following paragraph, Bio::UnivAln's direct support for utility
-functions like consensus, (in)variable sites, gap-free sites, reverse, 
+functions like consensus, (in)variable sites, gap-free sites, reverse,
 complement, and reverse complement is explained.
 
   $resSlice = $aln->consensus();
@@ -482,27 +482,27 @@ To bypass the default threshold, write
 
 Note that for values smaller or equal to 0.5, two letters may have an equal
 (relative) majority, and the tie is currently broken arbitrarily.
-Thresholds larger than or equal to 1 imply that the site that has a 
-consensus letter must be invariant. 
+Thresholds larger than or equal to 1 imply that the site that has a
+consensus letter must be invariant.
 
   $resSlice = $aln->consensus(1, [1..10]);
 
-Just like seqs() and map_c()/map_r(), consensus() can be passed a reference 
+Just like seqs() and map_c()/map_r(), consensus() can be passed a reference
 to a hash of desired column ids, a function that selects the columns,
 or the desired column indices themselves. (Here, it's columns 1 to 10.
 Internally, map_c() is used to implement consensus().)
 
-The methods var_sites() and invar_sites() are using consensus(), 
-just checking whether there is a consensus letter ('invariable'), 
-or not ('variable'). Naturally, the default threshold is 1, i.e. 
-sites must be truly invariable (100% majority of 1 letter), 
+The methods var_sites() and invar_sites() are using consensus(),
+just checking whether there is a consensus letter ('invariable'),
+or not ('variable'). Naturally, the default threshold is 1, i.e.
+sites must be truly invariable (100% majority of 1 letter),
 or truly variable (strictly less than 100% majority). Per default,
 var_sites() and invar_sites() return a B<multiline string of rows> (sequences),
 with elements from the desired columns (sites) only. They do B<not>
 return the alignment in a column-by-column fashion ! Also, don't be confused
 by the possibilty to specify a list of desired row indices / ids, or
 a selector function: It just constrains the output further, without
-influencing which columns are selected. (Internally, seqs() is used to 
+influencing which columns are selected. (Internally, seqs() is used to
 implement these functions; it is passed a row selector, and a function
 that returns true if there is a consensus letter.)
 
@@ -514,7 +514,7 @@ that returns true if there is a consensus letter.)
   $resSlice = $aln->no_allgap_sites([1,3]); # exclude sites that only have gaps
   $resSlice = $aln->gap_free_sites([1,3]); # exclude sites that have >= 1 gaps
 
-In a similar fashion, the last example selects gap-free columns, and from 
+In a similar fashion, the last example selects gap-free columns, and from
 those only prints the elements that happen to be in rows 1+3.
 All these utilities support L<Inplace Manipulation>:
 
@@ -524,21 +524,21 @@ All these utilities support L<Inplace Manipulation>:
 
 The utilities reverse(), complement(), and revcom() also allow
 for L<Inplace Manipulation>, and again you can
-specify the rows which shall form the new alignment by overwriting the 
+specify the rows which shall form the new alignment by overwriting the
 old, or be returned as reverse'd, complement'ed, or reverse complement'ed :
 
   $resSlice = $aln->reverse([1,3]);
   $resSlice = $aln->complement([1,3]);
   $resSlice = $aln->revcom([1,3]);
 
-If an inplace manipulation reverses column order, e.g. in the case of 
+If an inplace manipulation reverses column order, e.g. in the case of
 reverse(), this will be reflected in the column ids available via col_ids().
 Note that complement is defined according to the IUPAC code,
 using the same substitutions that Bio::Seq uses, such that results
 obtained for e.g. Amino Acid sequences are probably nonsensical.
 
 For all functions that have ``sites'' in their name, a corresponding
-``inds'' function is available that returns the relevant array of indices 
+``inds'' function is available that returns the relevant array of indices
 instead of the sites themselves:
 
   $indices = $aln->var_inds(); # array of indices of the variable sites
@@ -548,15 +548,15 @@ Finally, the original sequences (without gaps) are available via remove_gaps().
 
   $some_original_sequences = $aln->remove_gaps([1,3]);
 
-In a list context, all these utility functions return an array of array 
-references, just like seqs(); the exception is consensus(), which then returns 
+In a list context, all these utility functions return an array of array
+references, just like seqs(); the exception is consensus(), which then returns
 a simple array of consensus letters.
 
 =head2 ALIGNMENT FORMATS
 
-The directly supported formats are fasta and raw (1 line in file -> 1 sequence,
+The directly supported formats are fasta and raw (1 line in file -E<gt> 1 sequence,
 where "\n" (newline) is the delimiter.) If available (see L<INSTALLATION>),
-readseq is used to parse and write PIR/CODATA, MSF/GCG and PAUP/NEXUS 
+readseq is used to parse and write PIR/CODATA, MSF/GCG and PAUP/NEXUS
 formats; ASN.1 does not seem to work reliably. Clustal is used to parse
 in clustal format, if available.
 
@@ -568,14 +568,14 @@ gaps with equal_nogaps().
 
 Bio::UnivAln doesn't really care whether the sequences passed in are indeed
 from an alignment (i.e. have the same length); sequence bags (i.e. multisets
-of sequences where the same element may occur more than once) are 
+of sequences where the same element may occur more than once) are
 therefore handled, too. However, you need to be careful with some
 methods (e.g. the accessor seqs(), and width()) because their default
 behavior may depend on inspecting the first sequence only (or the first
 requested sequence, if this information is available -- new feature in 1.006) :
 If you use seqs() on a sequence bag, and don't provide the number of columns
 explicitly, you may be surprised to find out that the length of
-the first sequence is used as the default length, and not the length 
+the first sequence is used as the default length, and not the length
 of the longest sequence. width() uses the same heuristic.
 
 You can add gap symbols to the elements of a multiset so that
@@ -590,20 +590,20 @@ it on "\n". For example, to just extract a single column, you can do
 
   @col = split "\n", $aln->seqs([],[$colindex]);
 
-Checking an alignment for characters that should not be there according 
+Checking an alignment for characters that should not be there according
 to the Alignment Type is currently not well-supported; see alphabet_check()
 for a _preliminary_ way of doing manual checkup, though.
 
-The hash referenced by $names stores {loc,name} 
-pairs of other database locations and corresponding names where 
-the alignment is located. 
+The hash referenced by $names stores {loc,name}
+pairs of other database locations and corresponding names where
+the alignment is located.
 Currently, loc and name must both be set as text, and must consist
-entirely of a string matching the regexp /^[A-Za-z]\w*$/.  That is, they must 
+entirely of a string matching the regexp /^[A-Za-z]\w*$/.  That is, they must
 be a single "word" of at least one character, without a leading underscore.
 This restriction is not enforced, but code which deviates is subject to
 break in future releases.  Note also that the object may place any other
 sort of items in the name string, so users of this hash should not rely on
-accessing entries conforming the requirements above.  
+accessing entries conforming the requirements above.
 
 =head2 Alignment Types
 
@@ -613,9 +613,9 @@ and ``amino''. They are carried along without much checking, etc.
 
 =head2 User-defined Utility Functions
 
-Here are some user-defined auxiliary functions which can be applied to 
-rows and columns of an alignment; this technique can be used if 
-no appropriate built-in functions are available, or if you don't want 
+Here are some user-defined auxiliary functions which can be applied to
+rows and columns of an alignment; this technique can be used if
+no appropriate built-in functions are available, or if you don't want
 to use them.
 
 maj_dominance returns false if all letters in a column/row are the same.
@@ -635,13 +635,13 @@ is hard-wired.)
         my @chars = @{ $_[0] };
         my %temp = ();
         my $threshold = 0.34;  # more than 1/3
-        my @list = sort { $temp{$a}<=>$temp{$b} } 
+        my @list = sort { $temp{$a}<=>$temp{$b} }
                         grep ++$temp{$_} >= $threshold * ($#chars+1), @chars;
           # In case of a tie, it's not specified which residue is in $list[-1]
         return (defined($list[-1]) ? $list[-1] : '!');
       }
 
-reverse_ and complement implement reversing a sequence (note the 
+reverse_ and complement implement reversing a sequence (note the
 underscore; I'm looking for better ways to implement function passing),
 and complementing it according to IUPAC conventions.
 
@@ -717,10 +717,10 @@ more efficiently in a PDL (Perl Data Language) array.
                     descriptions
   $self->{'col_descs'}: Same as $self->{'row_descs'}, for the columns (sites)
   $self->{'numbering'}: The offset of the first column, an integer
-  $self->{'type'}   : The type of the alignment, concatenated from the molecule 
-                    type (see L<Alignment Types>) and a flag that is not 
+  $self->{'type'}   : The type of the alignment, concatenated from the molecule
+                    type (see L<Alignment Types>) and a flag that is not
                     currently used, but intended to flag sequence bags
-  $self->{'ffmt'}   : alignment format, see L<Alignment Formats>.
+  $self->{'ffmt'}   : alignment format, see L<ALIGNMENT FORMATS>.
   $self->{'descffmt'}: format of $desc; right now this should be ``raw''
                     or ``fasta'' which just implies that no specific
                     format is being followed, any text is allowed
@@ -738,21 +738,21 @@ map and grep...
 
 =head1 TO-DO
 
-Soon: 
+Soon:
 
-Better handling of access, copying and slicing of C<$self->{'row_ids'}>, etc.
+Better handling of access, copying and slicing of C<$self-E<gt>{'row_ids'}>, etc.
 Add pointer to a UnivAln demo page based on the draft at
 http://www.techfak.uni-bielefeld.de/bcd/Perl/Bio/Docs/phylosnapshot.html.
 Fix alphabet_check() (current workaround cannot be generalized),
 Fix UnivAlnAlph{UnivAlnType{"unknown"}} (current setting is not so nice;
 what's the easiest way to set it to all word characters ?),
 Support more formats, especially Nexus,
-Improved sequence alphabet support; not just providing a function 
+Improved sequence alphabet support; not just providing a function
 alphabet_check() for manual checking.
 Then, maybe use strings to represent alphabets.
 Test and document aln() for returning a slice as an alignment.
 
-Later: 
+Later:
 
 Validity marker for correctly initialized/manipulated objects.
 Assign _unique_ IDs if none are provided.
@@ -762,14 +762,14 @@ Use Perl Data Language ?!
 
 =head1 DISCLAIMER
 
-How is this for a maximum of disclaiming warranty ? In short, I'm developing 
+How is this for a maximum of disclaiming warranty ? In short, I'm developing
 this module in my spare time and it's for free, don't sue me :-)
 
  IN NO EVENT SHALL THE GLOBEWIDE NETWORK ACADEMY, THE VIRTUAL SCHOOL OF NATURAL
  SCIENCES, THE AUTHOR OR THE UNIVERSITY OF BIELEFELD BE LIABLE TO ANY PARTY
  FOR DIRECT, INDIRECT, SPECIAL, INCIDENTAL, OR CONSEQUENTIAL DAMAGES ARISING
  OUT OF THE USE OF THIS CODE, EVEN IF THE GLOBEWIDE NETWORK ACADEMY,
- THE VIRTUAL SCHOOL OF NATURAL SCIENCES, THE AUTHOR OR THE UNIVERSITY OF 
+ THE VIRTUAL SCHOOL OF NATURAL SCIENCES, THE AUTHOR OR THE UNIVERSITY OF
  BIELEFELD HAVE BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
  THE GLOBEWIDE NETWORK ACADEMY, THE VIRTUAL SCHOOL OF NATURAL SCIENCES, THE
@@ -785,13 +785,13 @@ This module is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.
 
 Copyright (c) 1996, 1997, 1998 Georg Fuellen. All Rights Reserved.
-Some pieces of the code were contributed by Steven E. Brenner, 
+Some pieces of the code were contributed by Steven E. Brenner,
 Richard Resnick and Chris Dagdigian. Thanks !!!!
 
 
 =head1 FEEDBACK
 
-=head2 Mailing Lists 
+=head2 Mailing Lists
 
 User feedback is an integral part of the evolution of this and other Bioperl modules.
 Send your comments and suggestions preferably to one of the Bioperl mailing lists.
@@ -802,11 +802,11 @@ Your participation is much appreciated.
 
 =head2 Reporting Bugs
 
-Report bugs to the Bioperl bug tracking system to help us keep track the bugs and 
+Report bugs to the Bioperl bug tracking system to help us keep track the bugs and
 their resolution. Bug reports can be submitted via email or the web:
 
-    bioperl-bugs@bio.perl.org                   
-    http://bio.perl.org/bioperl-bugs/           
+    bioperl-bugs@bio.perl.org
+    http://bio.perl.org/bioperl-bugs/
 
 =head1 AUTHOR
 
@@ -822,7 +822,7 @@ http://www.techfak.uni-bielefeld.de/~fuellen/
 
 =head1 ACKNOWLEDGEMENTS
 
-Steven E. Brenner, Steve A. Chervitz, Michael Constant, Richard Resnick, 
+Steven E. Brenner, Steve A. Chervitz, Michael Constant, Richard Resnick,
 Chris Dagdigian, Lew Gramer [more to follow]
 
 =head1 SEE ALSO
@@ -835,7 +835,7 @@ Chris Dagdigian, Lew Gramer [more to follow]
 
 =head1 REFERENCES
 
-If you'd like to acknowledge use of Bio::UnivAln in your work, please cite 
+If you'd like to acknowledge use of Bio::UnivAln in your work, please cite
 
 Fuellen, G. (1997). Bio::UnivAln - bioperl alignment object [WWW-Document].
 URL http://www.techfak.uni-bielefeld.de/bcd/Perl/Bio/welcome.html
@@ -848,9 +848,9 @@ http://www.biotech.ist.unige.it/bcd/Perl/Bio/welcome.html
 
 =head1 REVISION HISTORY
 
-Version 1.000 on 12 Feb 1997.  
+Version 1.000 on 12 Feb 1997.
 
-Version 1.001 on 19 Feb 1997. Fixed a bug that 
+Version 1.001 on 19 Feb 1997. Fixed a bug that
 triggered _rowbounds() and _colbounds() to use maximal index lists
 whenever the first index in an index list was 0. New example in POD:
 
@@ -861,25 +861,25 @@ for the utility functions.
 
 Version 1.002 on 21 Feb 1997. Renamed the module to UnivAln, see the
 discussion (Feb 1997) in the vsns-bcd-perl mailing list archive.
-Fixed hopefully all problems in out_graph(), all of them triggered by 
+Fixed hopefully all problems in out_graph(), all of them triggered by
 bugs/features of PGPLOT.
 
-Version 1.003 on 25 Feb 1997. Added POD on using closures. 
+Version 1.003 on 25 Feb 1997. Added POD on using closures.
 Moved out_graph() into the cgi-script t/univaln.cgi (this is alpha-code !)
 so that ``use PGPLOT'' is no longer required.
 
 Version 1.004 on 13 Mar 1997. Fixed bug with reading fasta files.
 Changed file format identifiers ``Fasta'' and ``Raw'' to ``fasta'' and ``raw''.
-Added support for arbitrary numeration schemes by providing access by name/id 
+Added support for arbitrary numeration schemes by providing access by name/id
 for rows (sequences) and columns (sites).
 Made _arys() and _strs() accept same row/column designations like seqs().
 Added 'inplace' manipulation for slicing and most utilities.
-Improved speed a little. Deriving default description string from file name, 
+Improved speed a little. Deriving default description string from file name,
 if available.
 
-Version 1.005 on 18 Jun 1997. Using simple filename (``basename'') as default 
-decription. Changed type identifiers ``Unknown'', ``Dna'', ``Rna'', ``Amino'' 
-to ``unknown'', ``dna'', ``rna'', ``amino''. The old acronyms should still 
+Version 1.005 on 18 Jun 1997. Using simple filename (``basename'') as default
+decription. Changed type identifiers ``Unknown'', ``Dna'', ``Rna'', ``Amino''
+to ``unknown'', ``dna'', ``rna'', ``amino''. The old acronyms should still
 be supported for the forseeable future.
 
 Version 1.006 on 15 Dec 1997. Added function no_allgap_sites(); out_fasta()
@@ -887,30 +887,30 @@ now accepts same row/column designations like seqs(). For advanced users:
 the width() of sequence bags can now be controlled by supplying the index of
 the row whose width is taken -- by default the width of the first row is used.
 
-Version 1.007 on 15 Mar 1998.                                                 
+Version 1.007 on 15 Mar 1998.
 * Added functions that return indices instead of actual sequence data:
 var_inds(), invar_inds(), gap_free_inds(), unknown_free_inds(),
 special_free_inds() and no_allgap_inds() return the indices of
-(in)variable, gap-free, unknown-free, gap+unknown-free and non-gap-only 
+(in)variable, gap-free, unknown-free, gap+unknown-free and non-gap-only
 columns; they are the counterparts of var_sites(), etc.
 * Added remove_gaps() to return ungapped (original) sequence data
 * Added equal_no_gaps() to check for equality ignoring gaps
 * Added equalize_lengths() for padding a sequence bag with gaps
 such that all rows have equal length (current procedure is slow)
 * The default id is now ``_'' (was: ``No_Id_Given'')
-* Internal functions _rowbounds() and _colbounds() now return indices 
-from the user's perspective, but WITHOUT substracting offset.  Instead, 
+* Internal functions _rowbounds() and _colbounds() now return indices
+from the user's perspective, but WITHOUT substracting offset.  Instead,
 all functions subtract offset after applying _rowbounds()/_colbounds()
 
-Version 1.008 on 13 May 1998. 
+Version 1.008 on 13 May 1998.
 * Added readseq conversion support, making it possible to read and write
 the following formats: MSF, Paup, PIR/Codata, ASN.1. (ASN.1 was not
-parsed successfully: readseq seems to be unable to read in its own ASN.1 
-output). Technically, readseq is now used to parse files that have been 
+parsed successfully: readseq seems to be unable to read in its own ASN.1
+output). Technically, readseq is now used to parse files that have been
 processed as ``raw'' before; now ``raw'' format is recognized using the
-expression /^[A-Z_0-9$_GAP_SYMBOL$_UNKN_SYMBOL\s]+$/im, i.e. the file 
-may only have alphanumerical characters, gap and unknown-symbol, and 
-whitespace. If commata, etc, are detected, readseq is used for parsing. 
+expression /^[A-Z_0-9$_GAP_SYMBOL$_UNKN_SYMBOL\s]+$/im, i.e. the file
+may only have alphanumerical characters, gap and unknown-symbol, and
+whitespace. If commata, etc, are detected, readseq is used for parsing.
 Readseq itself seems to be unable to detect ``raw'' format in some cases,
 causing weird results.
 * Added Clustal support for parsing; still to be tested and documented.
@@ -921,17 +921,18 @@ Version 1.009 on 25 May 1998.
 =head1 APPENDIX
 
 Please note that functions starting with an underscore (``_'') are
-intended for internal use only: Use them only if you know what you're 
+intended for internal use only: Use them only if you know what you're
 doing :-)
 
 =cut
+
 #"
-    
+
 use Exporter;
 use vars qw( @ISA  @EXPORT @EXPORT_OK );
 @ISA         = qw(Exporter);
 @EXPORT      = qw();
-@EXPORT_OK   = qw($VERSION %UnivAlnType @UnivAlnType 
+@EXPORT_OK   = qw($VERSION %UnivAlnType @UnivAlnType
                   %UnivAlnForm @UnivAlnForm %UnivAlnAlphs @UnivAlnAlphs);
 require 5.002;
 use Carp;
@@ -950,11 +951,11 @@ $_NaN = POSIX::INT_MAX;   #anything better ?
 $_MAX_SIZE_TAXANAME=20;
 $_READSEQ = "";
 $_CLUSTAL = "";
-$ENV{READSEQ} = "readseq"; 
- # name of the readseq executable to be found in 
+$ENV{READSEQ} = "readseq";
+ # name of the readseq executable to be found in
  # $ENV{READSEQ_DIR} or "\.". Set this to "" if readseq is
  # installed, but shall be ignored
-$ENV{CLUSTAL} = "clustal";                                         
+$ENV{CLUSTAL} = "clustal";
  # name of the clustal executable to be found in
  # $ENV{CLUSTAL_DIR} or "\.". Set this to "" if clustal is
  # installed, but shall be ignored
@@ -966,7 +967,7 @@ $UnivAlnType{unknown}  = 0;
 $UnivAlnType{dna}      = 1;
 $UnivAlnType{rna}      = 2;
 $UnivAlnType{amino}    = 3;
-$UnivAlnType{otherseq} = 4;  # type is explicitly NOT dna/rna/amino/etc, but 
+$UnivAlnType{otherseq} = 4;  # type is explicitly NOT dna/rna/amino/etc, but
                              # nothing more is known
      # Future support for the following 4 acronyms is doubtful:
 $UnivAlnType{Unknown}  = 0;
@@ -977,7 +978,7 @@ $UnivAlnType{Amino}    = 3;
                              # i.e. keys and values are exchanged
 @TypeUnivAln = ('unknown','dna','rna','amino','otherseq');
 
-# List of recognized file formats 
+# List of recognized file formats
 $UnivAlnForm{unknown}  = 0;
 $UnivAlnForm{raw}      = 13;
 $UnivAlnForm{raw2}     = 14;
@@ -1006,8 +1007,8 @@ my %FuncParse =
    $UnivAlnForm{'fasta'}   => \&_parse_fasta,
    $UnivAlnForm{'raw'}     => \&_parse_raw,
    );
-# Set all other formats to call &_parse_bad, so that currently unsupported 
-# formats don't crash the software. 
+# Set all other formats to call &_parse_bad, so that currently unsupported
+# formats don't crash the software.
 grep {$FuncParse{$_} ||= \&_parse_bad} values %UnivAlnForm;
 
 # array of implemented outputting routines, built in analogy to "%FuncParse"
@@ -1027,12 +1028,12 @@ grep {$FuncOut{$_} ||= \&out_bad} values %UnivAlnForm;
                           'P','S','T','W','Y','V',$_GAP_SYMBOL ],
   $UnivAlnType{otherseq} => [ ], #better alternative ???
    );
-#create alphabets like ``1Mg''= $UnivAlnType{dna}Mg 
+#create alphabets like ``1Mg''= $UnivAlnType{dna}Mg
 #                             = [ 'A','C','G','T',$_GAP_SYMBOL,$_UNKN_SYMBOL ],
 #where $_GAP_SYMBOL denotes the character for missing nucleotide data.
 grep {$UnivAlnAlphs{$_.'Mg'} ||= [ @{ $UnivAlnAlphs{$_} },$_UNKN_SYMBOL ] } keys %UnivAlnAlphs;
 
-# the following PODs should always have a blank at the beginning (i.e. 
+# the following PODs should always have a blank at the beginning (i.e.
 # `` Usage'', not ``Usage'' !!) so that pod2html works fine !
 =head2 new()
 
@@ -1057,16 +1058,16 @@ grep {$UnivAlnAlphs{$_.'Mg'} ||= [ @{ $UnivAlnAlphs{$_} },$_UNKN_SYMBOL ] } keys
  Function : The constructor for this class, returns a new object.
  Returns  : Bio::UnivAln object
  Argument : $file: file from which the alignment data can be read; all
-                   the other arguments will overwrite the data read in. 
+                   the other arguments will overwrite the data read in.
                    (see ``Alignment Formats'')
             $seqs: EITHER a reference to a list of either Bio::Seq objects, or
                    arrays of letters, or strings, or any mix of these,
                    OR a single (multi-line) string
             $id: String specifying the ID.
-            $desc: String giving a description, (later) to be formatted 
+            $desc: String giving a description, (later) to be formatted
                    according to $descffmt
-            $names:A reference to a hash which stores {loc,name} pairs of 
-                   other database locations and corresponding names where 
+            $names:A reference to a hash which stores {loc,name} pairs of
+                   other database locations and corresponding names where
                    the alignment is located. (See L<ADVANCED STUFF>).
             $row_ids  :A reference to an array which stores row (sequence) ids.
             $row_descs:A reference to an array which stores row (sequence)
@@ -1116,22 +1117,22 @@ sub _initialize {
     $_READSEQ = $readseq;
     # carp "Using Don Gilbert's readseq program to convert sequence formats";
   } else {
-    # carp "readseq not defined-- if installed, you can use its conversion 
+    # carp "readseq not defined-- if installed, you can use its conversion
     #     abilities by either providing an executable `readseq' in the script's
     #     homedirectory, or by setting the environment variable `READSEQ_DIR'";
   }
-    
+
   my $clustal = $ENV{CLUSTAL_DIR} || "./";
   $clustal .= ($clustal =~ /\/$/) ? "$ENV{CLUSTAL}" : "/$ENV{CLUSTAL}";
   if ((-x $clustal) && !(-d $clustal)) {
     $_CLUSTAL = $clustal;
     # carp "Using clustal to convert clustal sequence formats";
   } else {
-    # carp "clustal not defined-- if installed, you can use its conversion 
+    # carp "clustal not defined-- if installed, you can use its conversion
     #     abilities by either providing an executable `clustal' in the script's
     #     homedirectory, or by setting the environment variable `CLUSTAL_DIR'";
   }
-    
+
     # Set default values that need not be inferred later
   $self->{'seqs'} = ( );
   $self->{'id'} = "_";
@@ -1165,7 +1166,7 @@ sub _initialize {
                        'INPLACE'],
                        @p);
 
-  $self->{'desc'} = defined($file) ? basename($file) 
+  $self->{'desc'} = defined($file) ? basename($file)
                   : "No Description Given"; #cf File::Basename
 
     # Overwrite with values from file
@@ -1174,7 +1175,7 @@ sub _initialize {
   }
 
     # Overwrite with values from @_
-  $self->_seqs($seqs); 
+  $self->_seqs($seqs);
   $self->id($id);
   $self->desc($desc);
   $self->names($names);
@@ -1238,12 +1239,12 @@ sub _rearrange {
 	$param[$i]=~s/^\-//;
 	$param[$i]=~tr/a-z/A-Z/;
   }
-  
+
   # Now we'll convert the @params variable into an associative array.
   my(%param) = @param;
 
   my(@return_array);
-  
+
   # What we intend to do is loop through the @{$order} variable,
   # and for each value, we use that as a key into our associative
   # array, pushing the value at that key onto our return array.
@@ -1254,7 +1255,7 @@ sub _rearrange {
 	delete $param{$key};
 	push(@return_array,$value);
   }
-  
+
   # catch user misspellings resulting in unrecognized names
   my(@restkeys) = keys %param;
   if (scalar(@restkeys) > 0) {
@@ -1270,10 +1271,10 @@ sub _rearrange {
 =head2 _rowbounds()
 
  Usage    : $corrected_bounds = $aln->_rowbounds($uncorrected_bounds);
- Function : create default row index list if necessary, 
-            create row index list if specified by a hash of ids or 
+ Function : create default row index list if necessary,
+            create row index list if specified by a hash of ids or
             by a selector function that acts on rows and returns true/false,
-            check row index list for bounds errors, 
+            check row index list for bounds errors,
             NO LONGER DONE IN VERSION 1.007 AND HIGHER: substract offset of 1.
  Returns  : reference to corrected row index list
  Argument : reference to uncorrected row index list
@@ -1293,7 +1294,7 @@ sub _rowbounds {
     $rowindices2 = [$firstindx .. $self->height() - 1 + $firstindx];
     # cleaner??!! $rowindices2 = [];
   }
-  
+
   if (ref($rowindices) eq 'ARRAY') {
     if (scalar(@$rowindices) == 0) {
       $rowindices2 = [$firstindx .. $self->height() - 1 + $firstindx];
@@ -1301,7 +1302,7 @@ sub _rowbounds {
       $rowindices2 = [@$rowindices];
     }
   }
- 
+
   if (ref($rowindices) eq 'HASH') {
     my @row_ids = split /\s/, $rowindices->{'ids'};
     my($ii,@rows,$row_id);
@@ -1322,20 +1323,20 @@ sub _rowbounds {
     my $ctr = $firstindx - 1;
     $rowindices2 = [ grep {$_ != $_NaN}
                       # filter out $_NaN-value indexes, see next comment
-                    map {($ctr++,$_) ? $ctr : $_NaN} 
+                    map {($ctr++,$_) ? $ctr : $_NaN}
                       # convert list of function values into list of indices
                       # in canonical order, except that false values trigger an
-                      # index of $_NaN, e.g. (1,$_NaN,3,$_NaN,5) is the result 
+                      # index of $_NaN, e.g. (1,$_NaN,3,$_NaN,5) is the result
                       # of map {($ctr++,$_) ? $ctr : $_NaN} ("A","","B",0,"C")
                       # note that the comma operator evaluates the first
-                      # argument and throws the result away, and then 
+                      # argument and throws the result away, and then
                       # evaluates the second argument; the side effect
                       # of the first evaluation is the increment of $ctr.
                     $self->map_r($rowindices) ];
   }
 
   my($ii);
-  for $ii (0 .. $#{$rowindices2}) { 
+  for $ii (0 .. $#{$rowindices2}) {
     if ($rowindices2->[$ii] < $firstindx) {
       carp "Requested row $rowindices2->[$ii] of an alignment where $firstindx is the first row";
     }
@@ -1352,14 +1353,14 @@ sub _rowbounds {
 
  Usage    : $corrected_bounds = $aln->_colbounds($uncorrected_bounds);
  Function : create default column index list if necessary,
-            create column index list if specified by a hash of ids or 
+            create column index list if specified by a hash of ids or
             by a selector function that acts on columns and returns true/false,
-            check column index list for bounds errors, 
+            check column index list for bounds errors,
             NOT IN 1.007 and higher: substract offset (according to numbering scheme).
  Returns  : reference to corrected column index list
  Argument : reference to uncorrected column index list
-            reference to row index list: its first row is used to 
-            provide the width of the alignment considered, which matters 
+            reference to row index list: its first row is used to
+            provide the width of the alignment considered, which matters
             if the alignment is really a sequence bag
 
 =cut
@@ -1385,7 +1386,7 @@ sub _colbounds {
       if (defined($width) && $width > 0);
     #??!! $colindices2 = [];
   }
-  
+
   if (ref($colindices) eq 'ARRAY') {
     if (scalar(@$colindices) == 0) {
       $colindices2 = [$firstindx .. $width - 1 + $firstindx]
@@ -1394,7 +1395,7 @@ sub _colbounds {
       $colindices2 = [@$colindices];
     }
   }
- 
+
   if (ref($colindices) eq 'HASH') {
     my @col_ids = split /\s/, $colindices->{'ids'};
     my($ii,@cols);
@@ -1402,7 +1403,7 @@ sub _colbounds {
     foreach $ii (0..$#{$self->{'col_ids'}}) {
       my $col_id = $self->{'col_ids'}[$ii];
       if (exists $col_ids_hash{$col_id}) {
-        push @cols, $ii+$firstindx; 
+        push @cols, $ii+$firstindx;
         delete $col_ids_hash{$col_id};
       }
     }
@@ -1412,12 +1413,12 @@ sub _colbounds {
     }
     $colindices2 = \@cols;
   }
-  
+
   if (ref($colindices) eq 'CODE') {
     my $ctr = $firstindx - 1;
-    $colindices2 = [ grep {$_ != $_NaN}                    
+    $colindices2 = [ grep {$_ != $_NaN}
                       # see _rowbounds()
-                    map {($ctr++,$_) ? $ctr : $_NaN} 
+                    map {($ctr++,$_) ? $ctr : $_NaN}
                     $self->map_c($colindices) ];
   }
 
@@ -1458,20 +1459,20 @@ sub _colnorm {
 
 =head2 _fixbounds()
 
- Usage    : ($corrected_rowbounds,$corrected_colbounds) = 
+ Usage    : ($corrected_rowbounds,$corrected_colbounds) =
                $aln->_fixbounds($uncorrected_rowbounds,$uncorrected_colbounds);
                     OR
-            ($corrected_rowbounds,$corrected_colbounds) = 
+            ($corrected_rowbounds,$corrected_colbounds) =
                $aln->_fixbounds($firstpos1,$lastpos1,$firstpos2,$lastpos2)
  Function : Convert unfixed index list information into the standard internal
-            one, allowing as input either max. 2 references or max. 4 boundary 
+            one, allowing as input either max. 2 references or max. 4 boundary
             coordinates (2 coord. for row indices and 2 for column indices).
-            Call functions to create maximal default index lists if needed, 
+            Call functions to create maximal default index lists if needed,
             to create index lists if specified by a hash of ids or by a selector
             function that acts on rows/columns and returns true/false,
             to check index lists for bounds errors, and to substract offsets.
  Returns  : 2 references to corrected index lists
- Argument : EITHER max. 2 references to uncorrected index lists, 
+ Argument : EITHER max. 2 references to uncorrected index lists,
             OR max. 4 boundary coordinates (integers)
 
 =cut
@@ -1486,12 +1487,12 @@ sub _fixbounds {
     $rrowsel2 = $self->_rownorm($self->_rowbounds($rrowsel));
     $rcolsel2 = $self->_colnorm($self->_colbounds($rcolsel,$rrowsel2));
   } else {
-      # unfortunately, @{[undef..undef]} is ``0'', and not ``undef'', so we 
+      # unfortunately, @{[undef..undef]} is ``0'', and not ``undef'', so we
       # need to create valid bounds right here
     my($firstpos1,$lastpos1,$firstpos2,$lastpos2) = @_;
     my $firstindx1 = 1;
     my $firstindx2 = $self->numbering;
-  
+
     if (!defined($firstpos1)) {
       $firstpos1 = $firstindx1;
     }
@@ -1514,7 +1515,7 @@ sub _fixbounds {
 =head2 _select()
 
  Usage    : @alnSlice = $aln->_select($rrowsel2,$rcolsel2);
- Function : select elements from the 2-dimensional array $self->{'seqs'} 
+ Function : select elements from the 2-dimensional array $self->{'seqs'}
             using index lists
  Returns  : array of references to array of characters
  Argument : 2 index lists, one for the rows and one for the columns,
@@ -1522,15 +1523,15 @@ sub _fixbounds {
 
                        seqs()
                       /    |
-                    |/_   \|/                                     
-                _arys() <-- _strs() 
+                    |/_   \|/
+                _arys() <-- _strs()
                   |
                  \|/
                _select()
 
 =cut
-#'
 
+#'
 sub _select {
   my $self = shift;
   my $array = $self->{'seqs'};
@@ -1538,10 +1539,10 @@ sub _select {
   my $rcolsel = shift; # right column selector; function or index array
   my @slice = map [ @$_[ @$rcolsel ] ], map $array->[$_], @$rrowsel ;
   if ($self->{'inplace'}) {
-    $self->{'seqs'}    = [@slice]; 
+    $self->{'seqs'}    = [@slice];
     $self->{'id'}      = $self->{'id'}.'_';
     $self->{'desc'}    = "from ".$self->{'id'}.",".$self->{'desc'};
-  
+
     $self->{'row_ids'} = [ @{ $self->{'row_ids'} }[@$rrowsel] ]
       unless ($#{$self->{'row_ids'}}+1 == 0);
     $self->{'row_descs'} = [ @{ $self->{'row_descs'} }[@$rrowsel] ]
@@ -1597,7 +1598,7 @@ sub _stringify {
   $seqs="";
 
   foreach $seqref (@_) {
-    if (!($seqref && (ref($seqref) eq 'ARRAY'))) {     
+    if (!($seqref && (ref($seqref) eq 'ARRAY'))) {
       carp "Cannot _stringify $seqref";
       next;
     }
@@ -1639,8 +1640,8 @@ sub _strs {
             `alignment' determines the default length in case the alignment is
             really a sequence bag. ((*) is a new feature in 1.006.)
             (2) Returns part of an alignment, i.e. those elements that lie
-            in a row designated by an index from the first list       
-            ([$row1,$row2,$rowx]), and at the same time lie in a column 
+            in a row designated by an index from the first list
+            ([$row1,$row2,$rowx]), and at the same time lie in a column
             designated in the second list ([col1,$col2,$colx]).
             The empty list (``[]'') is replaced by default (maximal possible)
             values, where the length of the first row of the _returned_
@@ -1658,12 +1659,12 @@ sub _strs {
             manipulated using row_ids(). col_ids() sets the the latter list.
  Returns  : in a scalar context: multiline string (including newline characters)
             in an array context: array of references to arrays of characters
- Argument : (1) $firstpos1,$lastpos1,$firstpos2,$lastpos2 (all integers; note 
+ Argument : (1) $firstpos1,$lastpos1,$firstpos2,$lastpos2 (all integers; note
             that the first element of rows/columns has index 1 per default.)
             (2-4) 2 selectors, one for the rows and one for the columns,
             each of which may be a reference to a list of indices, or a
             reference to a hash that has the format ``{ids=>'id1 id2 idx'}''
-            where ids is the mandatory key, and the value is a string 
+            where ids is the mandatory key, and the value is a string
             containing the desired ids, seperated by `` '' (space), or a
             function that acts on a list and returns true/false.
 
@@ -1675,7 +1676,7 @@ sub seqs {
   if ($self->{'inplace'}) {
     return $self->_arys(@_);
   } else {
-    return wantarray ? $self->_arys(@_) : $self->_strs(@_);   
+    return wantarray ? $self->_arys(@_) : $self->_strs(@_);
   }
 }
 
@@ -1684,7 +1685,7 @@ sub aln {
   my(%copy);
 
   my($rrowsel,$rcolsel) = $self->_fixbounds(@_);
-  $copy{'seqs'}    = [$self->_select($rrowsel,$rcolsel)]; 
+  $copy{'seqs'}    = [$self->_select($rrowsel,$rcolsel)];
   $copy{'id'}      = $self->{'id'}.'_';
   #$copy{'id'}      = $self->{'id'}.'_'.join('_',split(/\s/,_stringify(\@_)));
   $copy{'desc'}    = "sliced copy of ".$self->{'id'}.",".$self->{'desc'};
@@ -1725,12 +1726,12 @@ sub aln {
 =head2 _map_r()
 
  Usage    : n/a (internal function)
- Function : apply a row function to selected rows, 
+ Function : apply a row function to selected rows,
             then return the list of all return values
  Returns  : list of all return values
- Argument : $rowf: Reference to the function that is applied to selected rows, 
+ Argument : $rowf: Reference to the function that is applied to selected rows,
             its results are put into a list and returned.
-            $rrowsel: Reference to the selector designating the rows 
+            $rrowsel: Reference to the selector designating the rows
             to which rowf is applied, as in cases (2)-(4) in seqs().
 
 =cut
@@ -1742,13 +1743,13 @@ sub _map_r {
   my $array = $self->{'seqs'};
   my (@results);
   if (defined($rrowsel)) {
-    push @results, map { 
-      &$rowf($_)   
+    push @results, map {
+      &$rowf($_)
     } ref($rrowsel) eq 'CODE'
            ? grep &$rrowsel($_), @{$array}
            : map $array->[$_], @$rrowsel
       ;
-  } 
+  }
   return @results;
 }
 
@@ -1771,9 +1772,9 @@ sub _map_c {
   my $array = $self->{'seqs'};
   my (@results);
   if (defined($rcolsel)) {
-    push @results, map { 
+    push @results, map {
       $colnr=$_;
-      &$colf([ map { ${$_}[$colnr] } @{ $self->{'seqs'} } ])  
+      &$colf([ map { ${$_}[$colnr] } @{ $self->{'seqs'} } ])
         # Basically, &$colf([ map { ... } ]) is calculated; [ ] creates
         # the reference so that call-by-reference can be done.
         # In the outer map, $colnr=$_ loops thru all indices in @$rcolsel
@@ -1788,17 +1789,17 @@ sub _map_c {
                              &$rcolsel( [ map ${$_}[$colnum], @{$array} ] )
                             } 0..$#{$array->[0]}
         : @$rcolsel;
-      # The outmost map processes each desired column, one at time, selected 
+      # The outmost map processes each desired column, one at time, selected
       # by either the last grep, or the list of indices, $rcolsel.
       # For each column, if ref($rcolsel) eq 'CODE' DOES hold,
       # desired column numbers are those for which &$rcolsel
       # returns true; @colnums is used as a cache so that they are only
-      # calculated once. If the cache is empty, all column indices 
+      # calculated once. If the cache is empty, all column indices
       # (that is, 0..$#{$array[0]}) are processed by a grep which first
       # notes the column index ($colnum memorizes the running variable $_)
       # and then calls $rcolsel with an argument that evaluates to a reference
-      # (note the ``[..]'') to the current column. This current column is 
-      # obtained by presenting each array row to the innermost map, and 
+      # (note the ``[..]'') to the current column. This current column is
+      # obtained by presenting each array row to the innermost map, and
       # extracting just one element: ${$_}[$colnum], where $_ is the array row,
       # and ${$_}[$colnum] is the row's element belonging to the current column.
       # The single elements are then put into an array, and passed to $rcolsel
@@ -1810,12 +1811,12 @@ sub _map_c {
 =head2 map_r()
 
  Usage    : @resSlice = $aln->map_r($rowf,$rrowsel);
- Function : apply a function to selected rows, 
+ Function : apply a function to selected rows,
             then return the list of all return values
  Returns  : list of all return values
- Argument : $rowf: Reference to the function that is applied to selected rows, 
+ Argument : $rowf: Reference to the function that is applied to selected rows,
             its results are put into a list and returned.
-            $rrowsel: Reference to the selector designating the rows 
+            $rrowsel: Reference to the selector designating the rows
             to which rowf is applied, as in cases (2)-(4) in seqs().
 
 =cut
@@ -1839,13 +1840,13 @@ sub map_r {
  Function : apply a function to selected columns,
             then return the list of all return values
  Returns  : list of all return values
- Argument : $colf: Reference to the function that is applied to selected 
+ Argument : $colf: Reference to the function that is applied to selected
             columns, its results are put into a list and returned.
             $rcolsel: Reference to the selector designating the columns
             to which colf is applied, as in cases (2)-(4) in seqs().
-            $rrowsel: NOT used as a selector, but as a hint for 
+            $rrowsel: NOT used as a selector, but as a hint for
             determining the width of a sequence bag if $rcolsel is undef:
-            The last index of the first row specified by $rrowsel is 
+            The last index of the first row specified by $rrowsel is
             taken as the maximum column index.
 
 =cut
@@ -1873,10 +1874,10 @@ sub _c_consensus_of_array {
     my @chars = @{ $_[0] };
     my @list = sort { $temp{$a}<=>$temp{$b} }
                #sort { $a cmp $b } #!!!??? Not OK, since next sort scrambles it
-               grep ++$temp{$_} >= $threshold * ($#chars+1), 
+               grep ++$temp{$_} >= $threshold * ($#chars+1),
                @chars;
       # In case of a tie, it's not specified which residue is in $list[-1]
-    
+
     return (defined($list[-1]) ? $list[-1] : $_NO_CONSENSUS_SYMBOL);
   };
 }
@@ -1906,7 +1907,7 @@ sub _c_consensus_exists {
             in an array context: array of consensus letters
  Argument : $threshold: A letter is considered consensus of a column
             if the fraction of the letters in the column that form a
-            (relative) majority is >= $threshold. Ties between 2 letters with 
+            (relative) majority is >= $threshold. Ties between 2 letters with
             an equal relative majority are broken arbitrarily.
             The default value is 0.75.
             $rcolsel: Reference to the selector designating the columns
@@ -1929,10 +1930,10 @@ sub consensus {
  Function : return the variable sites of an alignment
  Returns  : in a scalar context: multiline string (including newline characters)
             in an array context: array of references to arrays of characters
- Argument : $threshold: A column is considered variable 
+ Argument : $threshold: A column is considered variable
             if the fraction of the letters in the column that form a
-            (relative) majority is NOT >= $threshold. 
-            The default $threshold is 1, i.e. only constant, INvariable columns 
+            (relative) majority is NOT >= $threshold.
+            The default $threshold is 1, i.e. only constant, INvariable columns
             are excluded.
             $rrowsel: Reference to the selector designating the rows
             of which in turn the letters in the variable columns are printed,
@@ -1967,14 +1968,14 @@ sub var_sites {
 
 =cut
 
-sub var_inds {    
+sub var_inds {
   my $self = shift;
   my($threshold,$rrowsel) = @_;
   $threshold = 1 unless defined($threshold);
   my $_consensus_doesnt_exist = _c_consensus_doesnt_exist($threshold);
     # here, rrowsel is just used as a hint to compute sequence bag width !!
-    #       The last index of the first row specified by $rrowsel is         
-    #       taken as the maximum column index.  
+    #       The last index of the first row specified by $rrowsel is
+    #       taken as the maximum column index.
   $rrowsel = $self->_rowbounds($rrowsel);
   my $res = $self->_colbounds(\&$_consensus_doesnt_exist,$rrowsel);
   return $res;  #causes weird errors: wantarray ? @$res : join("$,",@$res);
@@ -1986,9 +1987,9 @@ sub var_inds {
  Function : return the INvariable columns of an alignment
  Returns  : in a scalar context: multiline string (including newline characters)
             in an array context: array of references to arrays of characters
- Argument : $threshold: A column is considered INvariable 
+ Argument : $threshold: A column is considered INvariable
             if the fraction of the letters in the column that form a
-            (relative) majority is >= $threshold. 
+            (relative) majority is >= $threshold.
             The default $threshold is 1, i.e. no variability is allowed.
             $rrowsel: see var_sites()
 
@@ -2010,17 +2011,17 @@ sub invar_sites {
 =cut
 
 sub invar_inds {
-  my $self = shift; 
+  my $self = shift;
   my($threshold,$rrowsel) = @_;
   $threshold = 1 unless defined($threshold);
   my $_consensus_exists = _c_consensus_exists($threshold);
     # here, rrowsel is just used as a hint to compute sequence bag width !!
-    #       The last index of the first row specified by $rrowsel is         
-    #       taken as the maximum column index.  
+    #       The last index of the first row specified by $rrowsel is
+    #       taken as the maximum column index.
   $rrowsel = $self->_rowbounds($rrowsel);
   my $res = $self->_colbounds(\&$_consensus_exists,$rrowsel);
   return $res;  #causes weird errors: wantarray ? @$res : join("$,",@$res);
-} 
+}
 
 sub _gap_free {
   my $str = join "", @{ $_[0] };
@@ -2050,7 +2051,7 @@ sub gap_free_cols {
 
 =head2 gap_free_inds()
 
- Comment  : This is the indices-returning version of gap_free_sites(), 
+ Comment  : This is the indices-returning version of gap_free_sites(),
             cf. var_sites() and var_inds().
 
 =cut
@@ -2059,8 +2060,8 @@ sub gap_free_inds {
   my $self = shift;
   my($rrowsel) = shift;
     # here, rrowsel is just used as a hint to compute sequence bag width !!
-    #       The last index of the first row specified by $rrowsel is         
-    #       taken as the maximum column index.  
+    #       The last index of the first row specified by $rrowsel is
+    #       taken as the maximum column index.
   $rrowsel = $self->_rowbounds($rrowsel);
   my $res = $self->_colbounds(\&_gap_free,$rrowsel);
   return $res;  #causes weird errors: wantarray ? @$res : join("$,",@$res);
@@ -2083,9 +2084,9 @@ sub _unknown_free {
 =cut
 
 sub unknown_free_sites {
-  my $self = shift;    
-  my($rrowsel) = shift;                                                    
-  return $self->seqs($rrowsel,\&_unknown_free);       
+  my $self = shift;
+  my($rrowsel) = shift;
+  return $self->seqs($rrowsel,\&_unknown_free);
 }
 
 =head2 unknown_free_inds()
@@ -2096,11 +2097,11 @@ sub unknown_free_sites {
 =cut
 
 sub unknown_free_inds {
-  my $self = shift; 
+  my $self = shift;
   my($rrowsel) = shift;
     # here, rrowsel is just used as a hint to compute sequence bag width !!
-    #       The last index of the first row specified by $rrowsel is         
-    #       taken as the maximum column index.  
+    #       The last index of the first row specified by $rrowsel is
+    #       taken as the maximum column index.
   $rrowsel = $self->_rowbounds($rrowsel);
   my $res = $self->_colbounds(\&_unknown_free,$rrowsel);
   return $res;  #causes weird errors: wantarray ? @$res : join("$,",@$res);
@@ -2138,8 +2139,8 @@ sub no_allgap_inds {
   my $self = shift;
   my($rrowsel) = shift;
     # here, rrowsel is just used as a hint to compute sequence bag width !!
-    #       The last index of the first row specified by $rrowsel is         
-    #       taken as the maximum column index.  
+    #       The last index of the first row specified by $rrowsel is
+    #       taken as the maximum column index.
   $rrowsel = $self->_rowbounds($rrowsel);
   my $res = $self->_colbounds(\&_no_allgap,$rrowsel);
   return $res;  #causes weird errors: wantarray ? @$res : join("$,",@$res);
@@ -2165,7 +2166,7 @@ sub _special_free {
 =head2 special_free_sites()
 
  Usage    : $resSlice = $aln->special_free_sites($rrowsel);
- Function : return the special-free (neither gap nor unknown-symbols) columns 
+ Function : return the special-free (neither gap nor unknown-symbols) columns
             of an alignment.
  Returns  : in a scalar context: multiline string (including newline characters)
             in an array context: array of references to arrays of characters
@@ -2190,8 +2191,8 @@ sub special_free_inds {
   my $self = shift;
   my($rrowsel) = shift;
     # here, rrowsel is just used as a hint to compute sequence bag width !!
-    #       The last index of the first row specified by $rrowsel is         
-    #       taken as the maximum column index.  
+    #       The last index of the first row specified by $rrowsel is
+    #       taken as the maximum column index.
   $rrowsel = $self->_rowbounds($rrowsel);
   my $res = $self->_colbounds(\&_special_free,$rrowsel);
   return $res;  #causes weird errors: wantarray ? @$res : join("$,",@$res);
@@ -2204,7 +2205,7 @@ sub _reverse {
 =head2 reverse()
 
  Usage    : $resSlice = $aln->reverse($rrowsel);
- Function : return the rows of an alignment, in reversed form (right->left) 
+ Function : return the rows of an alignment, in reversed form (right->left)
  Returns  : in a scalar context: multiline string (including newline characters)
             in an array context: array of references to arrays of characters
  Argument : $rrowsel: Reference to the selector designating the rows
@@ -2238,7 +2239,7 @@ sub _remove_gaps {
 =head2 remove_gaps()
 
  Usage    : $resSlice = $aln->remove_gaps($rrowsel);
- Function : return the rows of an alignment, gaps removed (i.e. the original 
+ Function : return the rows of an alignment, gaps removed (i.e. the original
             sequences)
  Returns  : in a scalar context: multiline string (including newline characters)
             in an array context: array of references to arrays of characters
@@ -2294,8 +2295,8 @@ sub _rev_complement_of_array {
 =head2 complement()
 
  Usage    : $resSlice = $aln->complement($rrowsel);
- Function : return the rows of an alignment, in complemented form 
-            In the case of dna/rna, the complement is given according to the 
+ Function : return the rows of an alignment, in complemented form
+            In the case of dna/rna, the complement is given according to the
             IUPAC code; in other cases the result is currently calculated in the
             same way and probably meaningless
  Returns  : in a scalar context: multiline string (including newline characters)
@@ -2327,8 +2328,8 @@ sub complement {
 =head2 revcom()
 
  Usage    : $aln->revcom($rrowsel);
- Function : return the rows of an alignment, in reversed complement form 
-            In the case of dna/rna, the complement is given according to the 
+ Function : return the rows of an alignment, in reversed complement form
+            In the case of dna/rna, the complement is given according to the
             IUPAC code; otherwise the result is currently calculated in the
             same way and probably nonsensical.
  Returns  : in a scalar context: multiline string (including newline characters)
@@ -2365,7 +2366,7 @@ sub revcom {
  Function : checks whether two alignments have the same original sequences
             (i.e. gaps are removed and the rows are compared for equality)
  Returns  : 1 if alignments are equal modulo gaps, 0 otherwise
- Argument : $other_aln: the other alignment 
+ Argument : $other_aln: the other alignment
 
 =cut
 
@@ -2397,12 +2398,12 @@ sub equal_nogaps {
             is a primitive way to obtain a true alignment with
             rows of equal length
             * The current procedure is straightforward but slow *
- Returns  : 1 if alignments are equal modulo gaps, 0 otherwise                  
+ Returns  : 1 if alignments are equal modulo gaps, 0 otherwise
  Argument : $width: the length until which sequences should be padded;
             per default the length of the longest row is taken
 
-=cut                                                
-                        
+=cut
+
 sub equalize_lengths {
   my $self = shift;
   my $width = shift;
@@ -2441,19 +2442,19 @@ sub _seqs {
   my $rrowsel2 = [];
   if (defined($rrowsel)) {
     $rrowsel2 = $self->_rownorm($self->_rowbounds($rrowsel));
-  } 
+  }
 
   my $oseqs = $self->{'seqs'};
   if (defined $nseqs) {
-    my ($seq, @seq, $counter); 
+    my ($seq, @seq, $counter);
     $counter = 0; my $index;
     if (ref($nseqs) eq 'ARRAY') {
       foreach $seq (@$nseqs) {
-        $index = defined($rrowsel2->[$counter]) ? 
+        $index = defined($rrowsel2->[$counter]) ?
                           $rrowsel2->[$counter] : $counter;
         if (ref($seq) eq 'ARRAY') {
                    ##print "\nWriting array[$rrowsel2->[$counter] || $counter] ", @$seq;
-           $self->{'seqs'}[$index] = $seq; 
+           $self->{'seqs'}[$index] = $seq;
         } elsif (ref($seq) eq "") {  #a string???
                    ##print "\nWriting string[$rrowsel2->[$counter] || $counter] $seq";
            @seq = split("", $seq);
@@ -2461,7 +2462,7 @@ sub _seqs {
         } elsif (ref($seq) =~ /Seq/) {
                # Currently, there doesn't seem to be another way to find out
                # whether we've been passed a usable object.
-               # However, with Perl 5.004, we'll use can() provided 
+               # However, with Perl 5.004, we'll use can() provided
                # by class ``UNIVERSAL'' to test whether
                # the object passed to us is usable, i.e. has methods ary(), etc
                    ##print "\nWriting sequence[$rrowsel2->[$counter] || $counter] ",$seq->ary;
@@ -2480,7 +2481,7 @@ sub _seqs {
         @seq = split("", $seq);
         $self->{'seqs'}[$index] = [ @seq ];
         $counter++;
-      } 
+      }
     } else {
       $index = defined($rrowsel2->[$counter]) ?
                         $rrowsel2->[$counter] : $counter;
@@ -2499,7 +2500,7 @@ sub _seqs {
 
  Usage    : $aln_id = $aln->id();
             $aln->id($id_string);
- Function : Accessor, also sets field if an ID is passed in. 
+ Function : Accessor, also sets field if an ID is passed in.
  Returns  : (original) ID value
  Argument : sequence string with no whitespace
 
@@ -2527,8 +2528,8 @@ sub id {
 
  Usage    : $aln_desc = $aln->desc();
             $aln->desc($desc_string);
- Function : Accessor, also sets field if a description string is passed in. 
- Returns  : (original) description value 
+ Function : Accessor, also sets field if a description string is passed in.
+ Returns  : (original) description value
  Argument : sequence string
 
 =cut
@@ -2551,11 +2552,11 @@ sub desc {
  Usage    : %names = $aln->names;
             $aln->names($hash_ref)
  Function : Accessor, also sets field if names hash is passed in.
-            The names hash is 'human-readable' data; each key is a 
-            location (whether it be URL, database, database query, etc.) 
+            The names hash is 'human-readable' data; each key is a
+            location (whether it be URL, database, database query, etc.)
             and each value is the id at that location.
- Returns  : (original) names hash value 
- Argument : reference to a hash 
+ Returns  : (original) names hash value
+ Argument : reference to a hash
 
 =cut
 
@@ -2664,7 +2665,7 @@ sub col_descs {
  Usage    : $num_start = $aln->numbering;
             $aln->numbering($value);
  Function : Accessor, also sets field if a new numbering scheme is passed in.
- Returns  : (original) numbering value 
+ Returns  : (original) numbering value
  Argument : number that is used as the offset of the first column
 
 =cut
@@ -2676,7 +2677,7 @@ sub numbering {
   my $onumbering = $self->{'numbering'};
   $self->{'numbering'} = $nnumbering if defined($nnumbering);
 
-  # $self->{'col_ids'} ||= 
+  # $self->{'col_ids'} ||=
   # [$self->numbering()..$self->width()+$self->numbering()-1];
 
   return $onumbering;
@@ -2794,7 +2795,7 @@ sub descffmt {
             $aln->inplace($value);
  Function : Accessor, also sets field if a value is passed in.
             'inplace' is a flag which is set to true if accessors and
-            functions should make the modification to the object itself, 
+            functions should make the modification to the object itself,
             and just return true on success. Currently, inplace manipulation
             is supported for seqs(), _arys(), _strs(), remove_gaps(),
             var_sites(), invar_sites(), gap_free_sites(), no_allgap_sites(),
@@ -2820,7 +2821,7 @@ sub inplace {
  Usage    : $width = $aln->width();
  Function : number of columns (of the first row per default)
  Returns  : number of columns (of the first row per default)
- Argument : row 
+ Argument : row
 
 =cut
 
@@ -2874,7 +2875,7 @@ sub _alphabet_check_array {
       $chars =~ s/\{$letter}//gi;
     }
   }
-  return $chars;                
+  return $chars;
 }
 
 =head2 alphabet_check()
@@ -2882,7 +2883,7 @@ sub _alphabet_check_array {
  Usage    : @offendig_characters = $aln->alphabet_check($rowsel);
  Function : Check rows of the alignment for ``offending characters'', i.e.
             characters that are not (currently) expected to be found in the
-            aligned sequences, because they're not in the default alphabet 
+            aligned sequences, because they're not in the default alphabet
             that belongs to the specified L<Alignment Type>.
             Currently, the Alignment Type can only be set explicitly
             via the constructor, or accessor. Since the default alphabet
@@ -2893,14 +2894,14 @@ sub _alphabet_check_array {
             to which the check is applied, as in cases (2)-(4) in seqs().
 
 =cut
-#'
 
+#'
 sub alphabet_check {
   my $self = shift;
   my $rrowsel = shift;
-  
+
   @Bio::UnivAln::alph = @{$UnivAlnAlphs{$UnivAlnType{$self->type()}."Mg"}};
-  return $self->map_r(\&_alphabet_check_array,$rrowsel);  
+  return $self->map_r(\&_alphabet_check_array,$rrowsel);
 }
 
 
@@ -2979,23 +2980,22 @@ sub parse_bad {
  Function : Parses $ent into the object fields, according to
             $ffmt or $self->{'ffmt'}.
  Returns  : 1 on success
- Argument : the prospective alignment to be parsed, 
+ Argument : the prospective alignment to be parsed,
             and optionally its format so that it doesn't need to be estimated
             Note that ``raw'' is not estimated in a reliable way by readseq
             if readseq is installed; I presume it is then estimated only if
             the sequence(s) are longer than 111 basepairs
 
-
 =cut
-#'
 
+#'
 sub _parse {
   my($self, $ent, $ffmt) = @_;
 
   if (defined($ffmt) && defined($UnivAlnForm{$ffmt})) {
     $ffmt=$UnivAlnForm{$ffmt};
     } else {
-      #warn("Unrecognized or undefined alignment format, using built-in "); 
+      #warn("Unrecognized or undefined alignment format, using built-in ");
       # no carp->focussed debugging
       # We later assume that self->{'ffmt'} in a key in $UnivAlnForm if it is defined
     $ffmt=$self->{'ffmt'};
@@ -3031,22 +3031,22 @@ sub _parse_unknown {
 
   if ($ent =~ /^>[ \t]*\S*[ \t]*.*?\n(?:\n|.)*?(?=\n>|\Z)/mg) {
       # >[ \t]*\S*  : The ``>''-sign, space or tab, and the id;
-      # [ \t]*.*?\n : space or tab again, the description (arbitrary 
+      # [ \t]*.*?\n : space or tab again, the description (arbitrary
       #               letters until the next newline, so use non-greedy
       #               regexp (``.*?''), ``.*'' would gobble up everthing);
       # (?:\n|.)*?  : now arbitrary text including newlines, non-greedy,
       #               ``(?:...)'' just groups ``...'' together;
       # (?=\n>|\Z)  : up until either a newline followed by the ``>''-sign,
-      #               or the end of the multiline string (so-called positive 
+      #               or the end of the multiline string (so-called positive
       #               lookahead)
     $self->_parse_fasta($ent);
   } elsif ($ent =~ /^[A-Z_0-9$_GAP_SYMBOL$_UNKN_SYMBOL\s]+$/ig) {
-      # currently in raw format, all letters+numbers+gap+missing 
+      # currently in raw format, all letters+numbers+gap+missing
       # symbol is accepted...
     $self->_parse_raw($ent);
   } elsif (($ent =~ /\s*^CLUSTAL/g) && ($_CLUSTAL ne "")) {
     $self->_parse_clustal($ent);
-  } elsif ($_READSEQ ne "") { 
+  } elsif ($_READSEQ ne "") {
     $self->_parse_readseq($ent);
   } else {
       # some other weird format, so we call _parse_bad.
@@ -3076,22 +3076,22 @@ sub _parse_bad {
 
 =head2 _parse_readseq()
 
-                             
- Usage    : $aln->_parse_readseq;                          
+
+ Usage    : $aln->_parse_readseq;
  Function : Try readseq to parse data.
  Returns  : 1 on success
  Argument : $ent : the rough multi-line string to be parsed
-    
+
 
 =cut
 
-sub _parse_readseq {      
+sub _parse_readseq {
   my($self,$ent) = @_;
-                                                     
-  my $tmp1 = POSIX::tmpnam;                                                 
+
+  my $tmp1 = POSIX::tmpnam;
   open(TMP1,">$tmp1") or carp "Unable to sucessfully open file for readseq";
-  print TMP1 $ent;                                                  
-  close TMP1;                                                       
+  print TMP1 $ent;
+  close TMP1;
   open(READSEQ,"$_READSEQ $tmp1 -pipe -format=Fasta |") or
     carp "Unable to sucessfully open pipe to readseq due to $!";
   $ent = join("\n",<READSEQ>);
@@ -3233,10 +3233,10 @@ sub copy {
 
  Usage    : $aln->layout($format);
  Function : Returns the alignment in whichever format the user specifies,
-            or according to the "ffmt" field if the user does not specify 
+            or according to the "ffmt" field if the user does not specify
             a format.
  Returns  : varies; "" if unsuccessful
- Argument : $format (one of the formats as defined in $UnivAlnForm). 
+ Argument : $format (one of the formats as defined in $UnivAlnForm).
 
 =cut
 
@@ -3248,7 +3248,7 @@ sub layout {
   # replace internally handled formats by number code
   if (defined($ffmt) && defined($UnivAlnForm{$ffmt})) {
     $ffmt = $UnivAlnForm{$ffmt};
-  } 
+  }
 
   if (defined($ffmt) && (exists $FuncOut{$ffmt})) {
     return &{$FuncOut{$ffmt}}($self);
@@ -3270,8 +3270,8 @@ sub layout {
  Argument : n/a
 
 =cut
-#'
 
+#'
 sub out_bad {
   my($self) = shift;
 
@@ -3303,7 +3303,7 @@ sub out_readseq {
     # Segmentation fault
     # % /vol/biotools/bin/readseq fastafile -pipe -format=PAUP > AAA
     # open(READSEQ,"echo \"$seqs\" | $_READSEQ -pipe -format=$ffmt |") ||
-    #   carp "Unable to sucessfully open pipe to readseq due to $!"; 
+    #   carp "Unable to sucessfully open pipe to readseq due to $!";
 
     # Therefore, better use tmp files:
   my $tmp1 = POSIX::tmpnam;
@@ -3312,14 +3312,14 @@ sub out_readseq {
   close TMP1;
   open(READSEQ,"$_READSEQ $tmp1 -pipe -format=$ffmt |") ||
     carp "Unable to sucessfully open pipe to readseq due to $!";
-  $seqs = join("",<READSEQ>);                        
-  close(READSEQ);            
+  $seqs = join("",<READSEQ>);
+  close(READSEQ);
   return $seqs;
 }
 
 sub out_raw {
   my($self) = shift;
-  # The raw format is just a multiline string 
+  # The raw format is just a multiline string
   return $self->_strs();
 }
 
@@ -3444,7 +3444,7 @@ cleanup directories
 Check pod2html UnivAln.pm > UnivAln.pm.html
 rm -fr Makefile blib
 perl Makefile.PL
-make 
+make
 make test
 Test w/ t/univaln.t2
 rm Makefile t/my_univaln blib
@@ -3459,14 +3459,14 @@ cd ~/Bcd/Perl/Bio
 tar xvf UnivAln-1.009.tar
 cp UnivAln-1.009.tar UnivAln.tarUnivAln-1.009.tar
 gzip UnivAln-1.009.tar
-mv UnivAln.tarUnivAln-1.009.tar UnivAln-1.009.tar 
+mv UnivAln.tarUnivAln-1.009.tar UnivAln-1.009.tar
 Test at luft
 update welcome.html
 update publications
 
 possibly into sub _c_consensus_of_array {
-    return (defined($list[-1]) 
-      ? (($list[-1] =~ /$_GAP_SYMBOL/)&&(_no_allgap(\@chars)==0)) 
-        ? $_NO_CONSENSUS_SYMBOL 
+    return (defined($list[-1])
+      ? (($list[-1] =~ /$_GAP_SYMBOL/)&&(_no_allgap(\@chars)==0))
+        ? $_NO_CONSENSUS_SYMBOL
         : $list[-1])
       : $_NO_CONSENSUS_SYMBOL);

@@ -35,7 +35,7 @@ B<WARNING: This module is still in the experimental phase and has not been teste
 =head1 SYNOPSIS
 
 =head2 Object Creation
-  
+
  use Bio::Root::Object;
 
  $myObj->xref($object_ref);

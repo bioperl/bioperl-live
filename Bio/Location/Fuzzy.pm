@@ -27,7 +27,7 @@ This module contains the necessary methods for representing a
 Fuzzy Location, one that does not have clear start and/or end points.
 This will initially serve to handle features from Genbank/EMBL feature
 tables that are written as 1^100 meaning between bases 1 and 100 or
-<100..300 meaning it starts somewhere before 100.  Advanced
+E<lt>100..300 meaning it starts somewhere before 100.  Advanced
 implementations of this interface may be able to handle the necessary
 logic of overlaps/intersection/contains/union.  It was constructed to
 handle fuzzy locations that can be represented in Genbank/EMBL.
@@ -144,7 +144,7 @@ sub loc_type {
     return $self->{'_location_type'};
 }
 
-=head2 LocationI methods
+=head1 LocationI methods
 
 =head2 length
 
@@ -357,7 +357,7 @@ sub end_pos_type {
             method as a class method with an appropriate argument. Note that
             in this case only subsequently created Location objects will be
             affected.
-            
+
   Returns : A Bio::Location::CoordinatePolicyI implementing object.
   Args    : On set, a Bio::Location::CoordinatePolicyI implementing object.
 

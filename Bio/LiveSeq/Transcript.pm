@@ -12,10 +12,11 @@
 
 =head1 NAME
 
-  Bio::LiveSeq::Transcript - Transcript class for LiveSeq
+Bio::LiveSeq::Transcript - Transcript class for LiveSeq
 
 =head1 SYNOPSIS
 
+  # documentation needed
 
 =head1 DESCRIPTION
 
@@ -829,7 +830,7 @@ sub translation_table {
  Errorcode -1
 
 =cut
-  
+
 # args: label
 # returns: frame of nucleotide (0 1 2)
 # errorcode: -1

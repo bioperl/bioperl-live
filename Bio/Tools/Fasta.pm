@@ -422,8 +422,8 @@ sub _parse_seq_stream {
            : If sequence objects are generated and an -EXEC_FUNC is supplied,
            : each object will be destroyed after calling this function.
            : This prevents memory usage problems for large runs.
-   
-See Also   : L<parse>(), L<_parse_seq_stream>(), B<Bio::Root::Object::_rearrange()>
+
+See Also   : L<parse>(), L<_parse_seq_stream>(), B<Bio::Root::Object::_rearrange>()
 
 =cut
 
