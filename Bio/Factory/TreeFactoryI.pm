@@ -12,15 +12,26 @@
 
 =head1 NAME
 
-Bio::Factory::TreeFactoryI - DESCRIPTION of Interface
+Bio::Factory::TreeFactoryI - Factory Interface for getting and writing trees
+from/to a data stream
 
 =head1 SYNOPSIS
 
-Give standard usage here
+# get a $factory from somewhere Bio::TreeIO likely
+my $treeio = new Bio::TreeIO(-format => 'newick', #this is phylip/newick format
+			     -file   => 'file.tre');
+my $treeout = new Bio::TreeIO(-format => 'nexus',
+			      -file   => ">file.nexus");
+
+# convert tree formats from newick/phylip to nexus
+while(my $tree = $treeio->next_tree) {
+    $treeout->write_tree($treeout);
+}
 
 =head1 DESCRIPTION
 
-Describe the interface here
+This interface describes the minimal functions needed to get and write
+trees from a data stream.  It is implemented by the Bio::TreeIO factory.
 
 =head1 FEEDBACK
 
@@ -66,7 +77,6 @@ Internal methods are usually preceded with a _
 package Bio::Factory::TreeFactoryI;
 use vars qw(@ISA);
 use strict;
-use Carp;
 use Bio::Root::RootI;
 
 @ISA = qw(Bio::Root::RootI);
@@ -84,6 +94,22 @@ use Bio::Root::RootI;
 sub next_tree{
    my ($self,@args) = @_;
    $self->_abstractDeath('next_tree');
+}
+
+=head2 write_tree
+
+ Title   : write_tree
+ Usage   : $treeio->write_tree($tree);
+ Function: Writes a tree onto the stream
+ Returns : none
+ Args    : Bio::Tree::TreeI
+
+
+=cut
+
+sub write_tree{
+   my ($self,@args) = @_;
+   $self->_abstractDeath('write_tree');
 }
 
 1;
