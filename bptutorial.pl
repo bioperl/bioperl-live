@@ -75,7 +75,7 @@ BioPerlTutorial - a tutorial for bioperl
   III.6 Searching for genes and other structures on genomic DNA
                         (Genscan, Sim4, ESTScan, MZEF, Grail, Genemark, EPCR)
   III.7 Developing machine readable sequence annotations
-     III.7.1 Representing sequence annotations (Annotation, SeqFeature, RichSeq)
+     III.7.1 Representing sequence annotations (Annotation::Collection, SeqFeature, RichSeq)
      III.7.2 Representing and large and/or changing sequences (LiveSeq,LargeSeq)
      III.7.3 Representing related sequences - mutations, polymorphisms etc (Allele,
              SeqDiff)
@@ -1508,7 +1508,7 @@ several of which are described in the following sub-sections.
 
 =for html <A NAME ="iii.7.1"></A>
 
-=head2 III.7.1 Representing sequence annotations (Annotation,SeqFeature)
+=head2 III.7.1 Representing sequence annotations (Annotation::Collection,SeqFeature)
 
 In Bioperl, most sequence annotations are stored in sequence-feature
 (SeqFeature) objects.  A SeqFeature onject generally has (at least) a
@@ -1526,15 +1526,15 @@ like:
   				       '-primary' => 'exon',
   				       '-source'  => 'internal' );
   $seqobj->add_SeqFeature($feat); # Add the SeqFeature to the parent
-  $seqobj->annotation(new Bio::Annotation
-      ('-description' => 'desc-here'));
+  $annotations = $seqobj->annotation(new Bio::Annotation::Collection);
+  $annotations->add_Annotation('disease', $object);
 
 Once the features and annotations have been associated with the Seq,
 they can be with retrieved, eg:
 
   @topfeatures = $seqobj->top_SeqFeatures(); # just top level, or
   @allfeatures = $seqobj->all_SeqFeatures(); # descend into sub features
-  $ann = $seqobj->annotation(); # annotation object
+  $disease_annotation = $annotations->get_Annotations('disease'); 
 
 The individual components of a SeqFeature can also be set or retrieved
 with methods including:
@@ -1560,7 +1560,7 @@ with methods including:
   $feat->equals($other)   # do $feat and $other completely agree?
   $feat->sub_SeqFeatures  # create/access an array of subsequence features
 
-See L<Bio::Annotation> and L<Bio::SeqFeature::Generic> as starting
+See L<Bio::Annotation::Collection> and L<Bio::SeqFeature::Generic> as starting
 points for further exploration, and see the scripts/tools/gff2ps.pl
 and scripts/tools/gb_to_gff.pl scripts.
 
@@ -1849,7 +1849,6 @@ wealth of methods, here are just a few:
 
   $structio = Bio::Structure::IO->new( -file => "1XYZ.pdb");
   $struc = $structio->next_structure; # returns an Entry object
-  $ann = $struc->annotation; # returns a Bio::Annotation object
   $pseq = $struc->seqres;    # returns a PrimarySeq object, thus
   $pseq->subseq(1,20);              # returns a sequence string
   @atoms = $struc->get_atoms($res); # Atom objects, given a Residue
