@@ -1,0 +1,150 @@
+MEGABLAST 1.4.13-Paracel [2002-12-12]
+
+
+Reference: Zheng Zhang, Scott Schwartz, Lukas Wagner, and Webb Miller (2000), 
+"A greedy algorithm for aligning DNA sequences", 
+J Comput Biol 2000; 7(1-2):203-14.
+
+Database: bwb/tmp/vISbyVPvvB 
+           2 sequences; 80 total letters
+
+Searching. done
+Query= DNA sequence #1
+         (40 letters)
+
+
+
+                                                                 Score    E
+Sequences producing significant alignments:                      (bits) Value
+
+reverse-complement of sequence #1                                      74   1e-19
+DNA sequence #1                                                        74   1e-19
+
+>reverse-complement of sequence #1
+          Length = 40
+
+ Score = 73.8 bits (37), Expect = 1e-19
+ Identities = 37/37 (100%)
+ Strand = Plus / Minus
+
+                                               
+Query: 2  ccccccccccccccccccccccccccccccccccccc 38
+          |||||||||||||||||||||||||||||||||||||
+Sbjct: 40 ccccccccccccccccccccccccccccccccccccc 4
+
+
+
+ Score = 67.9 bits (34), Expect = 8e-18
+ Identities = 34/34 (100%)
+ Strand = Plus / Minus
+
+                                            
+Query: 1  cccccccccccccccccccccccccccccccccc 34
+          ||||||||||||||||||||||||||||||||||
+Sbjct: 36 cccccccccccccccccccccccccccccccccc 3
+
+
+>DNA sequence #1
+          Length = 40
+
+ Score = 73.8 bits (37), Expect = 1e-19
+ Identities = 37/37 (100%)
+ Strand = Plus / Plus
+
+                                               
+Query: 2  ccccccccccccccccccccccccccccccccccccc 38
+          |||||||||||||||||||||||||||||||||||||
+Sbjct: 1  ccccccccccccccccccccccccccccccccccccc 37
+
+
+
+ Score = 71.9 bits (36), Expect = 5e-19
+ Identities = 36/36 (100%)
+ Strand = Plus / Plus
+
+                                              
+Query: 1  cccccccccccccccccccccccccccccccccccc 36
+          ||||||||||||||||||||||||||||||||||||
+Sbjct: 3  cccccccccccccccccccccccccccccccccccc 38
+
+
+Searching. done
+Query= reverse-complement of sequence #1
+         (40 letters)
+
+
+
+                                                                 Score    E
+Sequences producing significant alignments:                      (bits) Value
+
+reverse-complement of sequence #1                                      74   1e-19
+DNA sequence #1                                                        74   1e-19
+
+>reverse-complement of sequence #1
+          Length = 40
+
+ Score = 73.8 bits (37), Expect = 1e-19
+ Identities = 37/37 (100%)
+ Strand = Plus / Plus
+
+                                               
+Query: 3  ggggggggggggggggggggggggggggggggggggg 39
+          |||||||||||||||||||||||||||||||||||||
+Sbjct: 4  ggggggggggggggggggggggggggggggggggggg 40
+
+
+
+ Score = 67.9 bits (34), Expect = 8e-18
+ Identities = 34/34 (100%)
+ Strand = Plus / Plus
+
+                                            
+Query: 7  gggggggggggggggggggggggggggggggggg 40
+          ||||||||||||||||||||||||||||||||||
+Sbjct: 3  gggggggggggggggggggggggggggggggggg 36
+
+
+>DNA sequence #1
+          Length = 40
+
+ Score = 73.8 bits (37), Expect = 1e-19
+ Identities = 37/37 (100%)
+ Strand = Plus / Minus
+
+                                               
+Query: 3  ggggggggggggggggggggggggggggggggggggg 39
+          |||||||||||||||||||||||||||||||||||||
+Sbjct: 37 ggggggggggggggggggggggggggggggggggggg 1
+
+
+
+ Score = 71.9 bits (36), Expect = 5e-19
+ Identities = 36/36 (100%)
+ Strand = Plus / Minus
+
+                                              
+Query: 5  gggggggggggggggggggggggggggggggggggg 40
+          ||||||||||||||||||||||||||||||||||||
+Sbjct: 38 gggggggggggggggggggggggggggggggggggg 3
+
+
+  Database: bwb/tmp/vISbyVPvvB
+    Posted date:  Jan 23, 2003  9:25 AM
+  Number of letters in database: 80
+  Number of sequences in database:  2
+  
+Lambda     K      H
+    1.37    0.711     1.31 
+
+Gapped
+Lambda     K      H
+    1.37    0.711     1.31 
+
+
+Matrix: blastn matrix:1 -3
+Gap Penalties: Existence: 0, Extension: 0
+Number of Hits to DB: 0
+Number of Sequences: 2
+length of database: 80
+effective search space used:        0
+S2: 4 ( 8.4 bits)

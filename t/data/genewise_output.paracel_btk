@@ -1,0 +1,206 @@
+GeneWise BTK 5.1.3-88/88 2002-08-09 (Fdf Client 1.500)
+
+Copyright 2001 Paracel, Inc
+
+
+Query=   protein sequence #1
+        (10 letters)
+
+Database:  /fdf/gm2build24/gm0/0//bwb/tmp/XrhARf0Sal.codon
+           2 sequences; 64 total letters.
+Searching.......................................................done.
+
+WARNING:  No calibration or zscore calculation was done.
+          Statistical information may not be valid.
+                                                                        E
+Sequences producing significant alignments:                    Score  Value
+
+DNA sequence #1                                                   26  0.0
+reverse-complement of DNA sequence #1                             26  0.0
+
+>DNA sequence #1
+          Length = 30
+          
+ Score = 26.4 bits (26), Expect = 0.0
+ Identities = 10/10 (100%), Positives = 10/10 (100%)
+
+Query: 1  SWPLSEALMR 10
+          SWPLSEALMR
+Sbjct: 1  SWPLSEALMR 28
+
+
+
+>reverse-complement of DNA sequence #1
+          Length = 30
+          
+ Score = 26.4 bits (26), Expect = 0.0
+ Identities = 10/10 (100%), Positives = 10/10 (100%)
+
+Query: 1  SWPLSEALMR 10
+          SWPLSEALMR
+Sbjct: 30 SWPLSEALMR 3
+
+
+
+
+
+Histogram of all scores:
+  score    obs    exp  (one '=' represents 1 hits)
+  -----    ---    ---
+<     6      2      - |==
+      6      0      - |
+      7      0      - |
+      8      0      - |
+      9      0      - |
+     10      0      - |
+     11      0      - |
+     12      0      - |
+     13      0      - |
+     14      0      - |
+     15      0      - |
+     16      0      - |
+     17      0      - |
+     18      0      - |
+     19      0      - |
+     20      0      - |
+     21      0      - |
+     22      0      - |
+     23      0      - |
+     24      0      - |
+     25      0      - |
+>=   26      2      - |==
+unknown(8) BTK 5.1.3-88/88 2002-08-09 (Fdf Client 1.500)
+
+Copyright 2001 Paracel, Inc
+
+
+Query=   protein sequence #2
+        (9 letters)
+
+Database:  /fdf/gm2build24/gm0/0//bwb/tmp/XrhARf0Sal.codon
+           2 sequences; 64 total letters.
+Searching.......................................................done.
+
+WARNING:  No calibration or zscore calculation was done.
+          Statistical information may not be valid.
+                                                                        E
+Sequences producing significant alignments:                    Score  Value
+
+DNA sequence #1                                                   24  0.0
+reverse-complement of DNA sequence #1                             24  0.0
+
+>DNA sequence #1
+          Length = 30
+          
+ Score = 23.8 bits (24), Expect = 0.0
+ Identities = 9/9 (100%), Positives = 9/9 (100%)
+
+Query: 1  SWPLSEALM 9
+          SWPLSEALM
+Sbjct: 1  SWPLSEALM 25
+
+
+
+>reverse-complement of DNA sequence #1
+          Length = 30
+          
+ Score = 23.8 bits (24), Expect = 0.0
+ Identities = 9/9 (100%), Positives = 9/9 (100%)
+
+Query: 1  SWPLSEALM 9
+          SWPLSEALM
+Sbjct: 30 SWPLSEALM 6
+
+
+
+
+
+Histogram of all scores:
+  score    obs    exp  (one '=' represents 1 hits)
+  -----    ---    ---
+<     5      2      - |==
+      5      0      - |
+      6      0      - |
+      7      0      - |
+      8      0      - |
+      9      0      - |
+     10      0      - |
+     11      0      - |
+     12      0      - |
+     13      0      - |
+     14      0      - |
+     15      0      - |
+     16      0      - |
+     17      0      - |
+     18      0      - |
+     19      0      - |
+     20      0      - |
+     21      0      - |
+     22      0      - |
+>=   23      2      - |==
+unknown(8) BTK 5.1.3-88/88 2002-08-09 (Fdf Client 1.500)
+
+Copyright 2001 Paracel, Inc
+
+
+Query=   protein sequence #3
+        (8 letters)
+
+Database:  /fdf/gm2build24/gm0/0//bwb/tmp/XrhARf0Sal.codon
+           2 sequences; 64 total letters.
+Searching.......................................................done.
+
+WARNING:  No calibration or zscore calculation was done.
+          Statistical information may not be valid.
+                                                                        E
+Sequences producing significant alignments:                    Score  Value
+
+DNA sequence #1                                                   21  0.0
+reverse-complement of DNA sequence #1                             21  0.0
+
+>DNA sequence #1
+          Length = 30
+          
+ Score = 21.1 bits (21), Expect = 0.0
+ Identities = 8/8 (100%), Positives = 8/8 (100%)
+
+Query: 1  SWPLSEAL 8
+          SWPLSEAL
+Sbjct: 1  SWPLSEAL 22
+
+
+
+>reverse-complement of DNA sequence #1
+          Length = 30
+          
+ Score = 21.1 bits (21), Expect = 0.0
+ Identities = 8/8 (100%), Positives = 8/8 (100%)
+
+Query: 1  SWPLSEAL 8
+          SWPLSEAL
+Sbjct: 30 SWPLSEAL 9
+
+
+
+
+
+Histogram of all scores:
+  score    obs    exp  (one '=' represents 1 hits)
+  -----    ---    ---
+<     5      2      - |==
+      5      0      - |
+      6      0      - |
+      7      0      - |
+      8      0      - |
+      9      0      - |
+     10      0      - |
+     11      0      - |
+     12      0      - |
+     13      0      - |
+     14      0      - |
+     15      0      - |
+     16      0      - |
+     17      0      - |
+     18      0      - |
+     19      0      - |
+>=   20      2      - |==
