@@ -161,12 +161,12 @@ use strict;
 use Bio::Root::Root;
 use Bio::AnalysisParserI;
 use Bio::Root::IO;
+
 @ISA = qw(Bio::Root::Root Bio::Root::IO Bio::AnalysisParserI);
 
 # other objects used:
-
-use Bio::TreeIO;
 use IO::String;
+use Bio::TreeIO;
 use Bio::Tools::Phylo::PAML::Result;
 use Bio::PrimarySeq;
 
@@ -461,8 +461,8 @@ sub _parse_seqs {
     my ($self) = @_;
     my (@firstseq,@seqs);
     while( defined ($_ = $self->_readline) ) {
-
-	last if( m/^\s+$/);
+	last if( /^\s+$/ && @seqs > 0 );
+	next if ( /^\s+$/ );
 	next if( /^\d+\s+$/ );
 
 	my ($name,$seqstr) = split(/\s+/,$_,2);
@@ -504,14 +504,18 @@ sub _parse_distmat {
     $self->_readline;
     my $seqct = 0;
     while( defined ($_ = $self->_readline ) ) {
-	last if( /^\s+$/);
+	
+	last if( /^\s+$/ && exists $self->{'_summary'}->{'ngmatrix'} );
+	next if( /^\s+$/ );
 	chomp;
 	my ($seq,$rest) = split(/\s+/,$_,2);
 	my $j = 0;
-	while( /(\-?\d+(\.\d+)?)\s+\((\d+(\.\d+)?)\s+(\d+(\.\d+))\)/og ) {
-	    $self->{'_summary'}->{'ngmatrix'}->[$j++]->[$seqct] = { 'omega' => $1,
-								    'dN'    => $3,
-								    'dS'    => $5 };
+	while( $rest =~ 
+	       /(\-?\d+(\.\d+)?)\s+\(\-?(\d+(\.\d+)?)\s+(\-?\d+(\.\d+))\)/g ) {
+	    $self->{'_summary'}->{'ngmatrix'}->[$j++]->[$seqct] = 
+	    { 'omega' => $1,
+	      'dN'    => $3,
+	      'dS'    => $5 };
 	}
 	$seqct++;
     }
