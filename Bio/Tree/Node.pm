@@ -198,10 +198,10 @@ sub each_Descendent{
 			 $a->[2] <=> $b->[2] } 
 	       map { [$_, $_->height, $_->internal_id ] } 
 	   values %{$self->{'_desc'}};
-       } else {
+       } else { # creation
 	   return map { $_->[0] }
 	          sort { $a->[1] <=> $b->[1] } 
-	          map { [$_, $_->height ] }
+	          map { [$_, $_->internal_id ] }
 	          values %{$self->{'_desc'}};	   
        }
    }
