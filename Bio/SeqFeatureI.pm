@@ -416,8 +416,6 @@ but can be validly overwritten by subclasses
   Args    : [optional] A Bio::DB::RandomAccessI compliant object
   Returns : A Bio::Seq
 
-   This method is implemented in the interface.
-
 =cut
 
 sub spliced_seq {
@@ -442,8 +440,9 @@ sub spliced_seq {
     # (can I mention how much fun this is NOT! --jason)
     
     my ($mixed,$fstrand) = (0);
-    if( !$self->absolute() ) { 
-	$self->warn( "Calling spliced_seq with a Bio::SeqFeatureI which does not have absolute set to true -- be warned you may not be getting things on the correct strand" );
+    if( $self->isa('Bio::Das::SegmentI') &&
+	! $self->absolute ) { 
+	$self->warn("Calling spliced_seq with a Bio::Das::SegmentI which does have absolute set to 1 -- be warned you may not be getting things on the correct strand");
     }
     
     my @locs = map { $_->[0] }
@@ -495,8 +494,17 @@ sub spliced_seq {
 	    $called_seq = $self->entire_seq;
 	}
 	
-        my ($s,$e) = ($loc->start,$loc->end);	    
-        $seqstr .= $called_seq->subseq($s,$e)->seq();
+	if( $self->isa('Bio::Das::SegmentI') ) {
+	    my ($s,$e) = ($loc->start,$loc->end);	    
+	    $seqstr .= $called_seq->subseq($s,$e)->seq();
+	} else { 
+	    # This is dumb subseq should work on locations...
+	    if( $loc->strand == 1 ) {
+		$seqstr .= $called_seq->subseq($loc->start,$loc->end);
+	    } else {
+		$seqstr .= $called_seq->trunc($loc->start,$loc->end)->revcom->seq();
+	    }
+	}
     }
     my $out = Bio::Seq->new( -id => $self->entire_seq->display_id . "_spliced_feat",
 				      -seq => $seqstr);
