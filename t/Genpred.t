@@ -15,11 +15,12 @@ BEGIN {
 	use lib 't';
     }
     use Test;
-    plan tests => 35;
+    plan tests => 56;
 }
 
 use Bio::Tools::Genscan;
 use Bio::Tools::Genemark;
+use Bio::Tools::Glimmer;
 use Bio::Tools::MZEF;  
 use Bio::SeqIO;
 use Bio::Root::IO;
@@ -95,7 +96,7 @@ my $gene = $mzef->next_prediction();
 ok($gene->exons, 23);
 
 # Genemark testing:
-my $genemark = Bio::Tools::Genemark->new('-file' => Bio::Root::IO->catfile("t", "data", "genemark.out"));
+my $genemark = Bio::Tools::Genemark->new('-file' => Bio::Root::IO->catfile(qw(t data genemark.out)));
 
 my $gmgene = $genemark->next_prediction();
 ok $gmgene->seq_id(), "Hvrn.contig8";
@@ -114,6 +115,35 @@ while($gmgene = $genemark->next_prediction()) {
 
 	my $gmend = $gmexons[0]->end();
 	ok $gmend, 23061;
+    }
+}
+
+my $glimmer = new Bio::Tools::Glimmer('-file' => Bio::Root::IO->catfile(qw(t data glimmer.out)));
+my $glimmergene = $glimmer->next_prediction;
+
+ok($glimmergene);
+ok($glimmergene->seq_id, 'BAC1Contig11');
+ok($glimmergene->source_tag, 'GlimmerM_3.0');
+ok($glimmergene->primary_tag, 'transcript');
+ok(($glimmergene->get_tag_values('Group'))[0], 'GenePrediction1');
+my @glim_exons = $glimmergene->exons;
+ok(scalar (@glim_exons), 5);
+ok($glim_exons[0]->start, 13907);
+ok($glim_exons[0]->end, 13985);
+ok($glim_exons[0]->strand, 1);
+ok(($glim_exons[0]->get_tag_values('Group'))[0], 'GenePrediction1');
+
+@num_exons = (0,5,3, 1, 6, 3);
+$i = 1;
+while($glimmergene = $glimmer->next_prediction()) {
+    $i++;
+    ok(($glimmergene->get_tag_values('Group'))[0],"GenePrediction$i");
+    @glim_exons = $glimmergene->exons();    
+    ok scalar(@glim_exons), $num_exons[$i];
+    if($i == 5) {
+	ok $glim_exons[1]->start, 30152;
+	ok $glim_exons[1]->end, 30235;
+	ok $glim_exons[1]->strand, -1;
     }
 }
 

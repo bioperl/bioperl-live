@@ -1,0 +1,32 @@
+GlimmerM (Version 3.0)
+Sequence name: BAC1Contig11
+Sequence length: 31797 bp
+
+Predicted genes/exons
+
+Gene Exon Strand  Exon            Exon Range      Exon
+   #    #         Type                           Length
+
+   1    1  +  Initial       13907      13985       79
+   1    2  +  Internal      14117      14594      478
+   1    3  +  Internal      14635      14665       31
+   1    4  +  Internal      14746      15463      718
+   1    5  +  Terminal      15497      15606      110
+
+   2    1  +  Initial       20662      21143      482
+   2    2  +  Internal      21190      21618      429
+   2    3  +  Terminal      21624      21990      367
+
+   3    1  -  Single        25351      25485      135
+
+   4    1  +  Initial       27744      27804       61
+   4    2  +  Internal      27858      27952       95
+   4    3  +  Internal      28091      28576      486
+   4    4  +  Internal      28636      28647       12
+   4    5  +  Internal      28746      28792       47
+   4    6  +  Terminal      28852      28954      103
+
+   5    3  -  Terminal      29953      30037       85
+   5    2  -  Internal      30152      30235       84
+   5    1  -  Initial       30302      30318       17
+
