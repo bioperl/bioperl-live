@@ -235,7 +235,7 @@ sub next_seq {
        #date (NOTE: takes last date line)
        if( /^DT\s+(.+)$/ ) {
 	   my $date = $1;
-	   $params{'-dates'} = [ $date];
+	   push @{$params{'-dates'}},$date;
        }
        
        #keywords
