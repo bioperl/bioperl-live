@@ -881,52 +881,40 @@ sub _process_alignment {
 		     );
 
     my $hit; 
-    # TODO: Switch to a try{} block if we can rely on Error.pm being there.
-    eval {
-      $hit = $self->hit_factory->create_hit( %hit_params );
+    $hit = $self->hit_factory->create_hit( %hit_params );
 
-      #printf STDERR "NEW HIT: %s, SIGNIFICANCE = %g\n", $hit->name, $hit->expect;  <STDIN>;
-    };
+    #printf STDERR "NEW HIT: %s, SIGNIFICANCE = %g\n", $hit->name, $hit->expect;  <STDIN>;
+    # The BLAST report may have not had a description section.
+    if(not $self->{'_has_descriptions'}) {
+      $self->_process_significance($hit->signif, $my_signif);
+    }
+    
+    # Collect overall signif data if we don't already have it,
+    # (as occurs if no -signif parameter is supplied).
+    my $hit_signif = $hit->signif;
+    
+    if (not $self->{'_confirm_significance'} ) {
+      $self->{'_highestSignif'} = ($hit_signif > $self->{'_highestSignif'})
+	? $hit_signif : $self->{'_highestSignif'};
+      
+      $self->{'_lowestSignif'} = ($hit_signif < $self->{'_lowestSignif'})
+	? $hit_signif : $self->{'_lowestSignif'};
+    }
 
-    if($@) {
-      # Throwing lots of errors can slow down the code substantially.
-      # Error handling code is not that efficient.
-      #print STDERR "\nERROR _process_alignment: $@\n";
-        my $err = $@;
-        $self->_add_error($err);
-    } else {
-      # The BLAST report may have not had a description section.
-      if(not $self->{'_has_descriptions'}) {
-	  $self->_process_significance($hit->signif, $my_signif);
+    # Test significance using custom function (if supplied)
+    my $add_hit = 0;
+
+    my $hit_filter  = $self->{'_hit_filter'} || 0;
+
+    if($hit_filter) {
+      if(&$hit_filter($hit)) {
+	$add_hit = 1;
       }
+    } elsif($hit_signif <= $my_signif) {
+      $add_hit = 1;
+    }
 
-      # Collect overall signif data if we don't already have it,
-      # (as occurs if no -signif parameter is supplied).
-      my $hit_signif = $hit->signif;
-
-      if (not $self->{'_confirm_significance'} ) {
-	$self->{'_highestSignif'} = ($hit_signif > $self->{'_highestSignif'})
-                                    ? $hit_signif : $self->{'_highestSignif'};
-
-	$self->{'_lowestSignif'} = ($hit_signif < $self->{'_lowestSignif'})
-                                    ? $hit_signif : $self->{'_lowestSignif'};
-      }
-
-      # Test significance using custom function (if supplied)
-      my $add_hit = 0;
-
-      my $hit_filter  = $self->{'_hit_filter'} || 0;
-
-      if($hit_filter) {
-          if(&$hit_filter($hit)) {
-              $add_hit = 1;
-          }
-      } elsif($hit_signif <= $my_signif) {
-          $add_hit = 1;
-      }
-
-      $add_hit && $self->{'_current_blast'}->add_hit( $hit );
-  }
+    $add_hit && $self->{'_current_blast'}->add_hit( $hit );
 }
 
 

@@ -195,7 +195,7 @@ sub _add_hsps {
 		$self->verbose and do{ print STDERR +( $hspCount % 10 ? "+" : "+\n" ); };
 
 #		print STDERR "\nBlastHit: setting HSP #$hspCount \n@hspData\n";
-		my $hspObj = eval { Bio::Search::HSP::BlastHSP->new
+		my $hspObj =  Bio::Search::HSP::BlastHSP->new
 				      (-RAW_DATA => \@hspData, 
 				       -RANK     => $hspCount,
 				       -PROGRAM  => $prog,
@@ -204,14 +204,7 @@ sub _add_hsps {
 				       -QLENGTH  => $qlen,
 				       -HLENGTH  => $hlen,
 				      ); 
-				};
-		if($@) {
-#		   print STDERR "BlastHit: ERROR:\n$@";
-		  push @errs, $@;
-		  push @bad_names, "#$hspCount";
-		} else {
-		    push @hspList, $hspObj;
-		}
+		push @hspList, $hspObj;
 		@hspData = ();
 		push @hspData, $line;
 		next;
@@ -226,7 +219,7 @@ sub _add_hsps {
 
 #	       print STDERR "\nBlastHit: setting HSP #$hspCount \n@hspData"; 
 
-	       my $hspObj = eval { Bio::Search::HSP::BlastHSP->new
+	       my $hspObj = Bio::Search::HSP::BlastHSP->new
 				     (-RAW_DATA => \@hspData, 
 				      -RANK     => $hspCount,
 				      -PROGRAM  => $prog,
@@ -235,14 +228,7 @@ sub _add_hsps {
 				      -QLENGTH  => $qlen,
 				      -HLENGTH  => $hlen,
 				     );
-			       };
-	       if($@) {
-#		   print STDERR "BlastHit: ERROR:\n$@";
-		  push @errs, $@;
-		  push @bad_names, "#$hspCount";
-	       } else {
-		   push @hspList, $hspObj;
-	       }
+	       push @hspList, $hspObj;
 	   } else {
 	       push @hspData, $line;
 	   }
@@ -256,32 +242,7 @@ sub _add_hsps {
 	$hit->{'_logical_length'} = $hit->{'_length'} / 3;
     }
 
-
-    # Handling errors as done for BlastHits.
-    if(@errs) {
-	my ($str);
-	# When there are many errors, in most of the cases, they are
-	# caused by the same problem. Only need to see full data for
-	# the first one.
-	if(@errs > 2) {
-	    $str = "SHOWING FIRST EXCEPTION ONLY:\n$errs[0]";
-	} else {
-	    $str = join("\n",@errs);
-	}
-
-    if( not scalar @hspList) {
-      $self->throw("Failed to create any HSP objects for $hspCount potential HSP(s)." .
-		   "\n\nTRAPPED EXCEPTION(S):\n$str\nEND TRAPPED EXCEPTION(S)\n"
-			 );
-      } else {
-	    $self->warn(sprintf("Could not create HSP objects for %d HSP(s): %s", scalar(@errs), join(', ',@bad_names)), 
-			"\n\nTRAPPED EXCEPTION(S):\n$str\nEND TRAPPED EXCEPTION(S)\n"
-		       );
-	  }
-
-    } else {
-	$hit->{'_hsps'} = [ @hspList ];
-    }
+    $hit->{'_hsps'} = [ @hspList ];
 
 #    print STDERR "\n--------> Done building HSPs for $hit (total HSPS: ${\$hit->num_hsps})\n";
 
