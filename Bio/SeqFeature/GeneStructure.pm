@@ -12,7 +12,8 @@
 
 =head1 NAME
 
-Bio::SeqFeature::GeneStructure
+Bio::SeqFeature::GeneStructure - A feature representing an arbitrarily complex
+           structure of a gene
 
 =head1 SYNOPSIS
 

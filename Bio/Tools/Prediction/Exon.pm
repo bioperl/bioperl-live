@@ -12,7 +12,7 @@
 
 =head1 NAME
 
-Bio::Tools::Prediction::Exon
+Bio::Tools::Prediction::Exon - A predicted exon feature
 
 =head1 SYNOPSIS
 

@@ -12,7 +12,8 @@
 
 =head1 NAME
 
-Bio::SeqFeature::SimilarityPair
+Bio::SeqFeature::SimilarityPair - Sequence feature based on the similarity
+                  of two sequences.
 
 =head1 SYNOPSIS
 
