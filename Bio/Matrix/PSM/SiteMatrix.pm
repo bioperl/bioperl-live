@@ -913,7 +913,8 @@ sub get_compressed_logs {
 sub sequence_match_weight {
 my ($self,$seq)=@_;
 return undef unless ($self->{logA});
-$self->throw ("I can calculate the score only for sequence which are exactly my size\n") unless (length($seq)==@{$self->{logA}});
+my $width=$self->width;
+$self->throw ("I can calculate the score only for sequence which are exactly my size for $seq, my width is $width\n") unless (length($seq)==@{$self->{logA}});
 my @seq=split(//,$seq);
 my $score;
 my $i=0;
