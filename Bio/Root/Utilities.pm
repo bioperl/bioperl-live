@@ -914,6 +914,7 @@ sub taste_file {
   my ($buffer, $octal, $str, $irs, $i);
   my $wait = $TIMEOUT_SECS;
   
+  $buffer = '';
   $SIG{ALRM} = sub { die "Timed out!"; };
   eval {
     alarm( $wait );
