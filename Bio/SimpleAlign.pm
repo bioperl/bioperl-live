@@ -117,6 +117,8 @@ Ewan Birney, birney@sanger.ac.uk
 =head1 CONTRIBUTORS
 
 David J. Evans, David.Evans@vir.gla.ac.uk
+Heikki Lehvaslaiho, heikki@ebi.ac.uk
+Jason Stajich, jason@bioperl.org
 
 =head1 SEE ALSO
 
@@ -132,12 +134,43 @@ methods. Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::SimpleAlign;
-use vars qw(@ISA);
+use vars qw(@ISA %CONSERVATION_GROUPS);
 use strict;
 
 use Bio::Root::RootI;
 use Bio::LocatableSeq;         # uses Seq's as list
 
+BEGIN { 
+    # This data should probably be in a more centralized module...
+    # it is taken from Clustalw documentation
+    # These are all the positively scoring groups that occur in the 
+    # Gonnet Pam250 matrix. The strong and weak groups are 
+    # defined as strong score >0.5 and weak score =<0.5 respectively.
+    
+    %CONSERVATION_GROUPS = ( 'strong' => [ qw(STA
+						 NEQK
+						 NHQK
+						 NDEQ
+						 QHRK
+						 MILV
+						 MILF
+						 HY
+						 FYW)
+					      ],
+				'weak' => [ qw(CSA
+					       ATV
+					       SAG
+					       STNK
+					       STPA
+					       SGND
+					       SNDEQK
+					       NDEQHK
+					       NEQHRK
+					       FVLIM
+					       HFY) ],
+				);
+    
+}
 @ISA = qw(Bio::Root::RootI);
 
 sub new {
@@ -722,19 +755,23 @@ sub uppercase {
  Function : Generates a match line - much like consensus string
             except that a line indicating the '*' for a match.
  Args     : (optional) Match line characters ('*' by default)
+            (optional) Strong match char (':' by default)
+            (optional) Weak match char ('.' by default)
 =cut
 
 sub match_line {
-    my ($self,$matchlinechar, $hydro, $charge) = @_;
-
-    $matchlinechar ||= '*';
-    $hydro  ||= '.';
-    $charge ||= ':';
+    my ($self,$matchlinechar, $strong, $weak) = @_;
+    my %matchchars = ( 'match'  => $matchlinechar || '*',
+		       'weak'   => $weak          || '.',
+		       'strong' => $strong        || ':',
+		       );    
     
     my @seqchars;
     my $seqcount = 0;
+    my $moltype;
     foreach my $seq ( $self->each_seq ) {
 	push @seqchars, [ split(//, uc ($seq->seq)) ];
+	$moltype = $seq->moltype unless defined $moltype;
     }
     my $refseq = shift @seqchars;
     # let's just march down the columns
@@ -742,13 +779,47 @@ sub match_line {
     POS: foreach my $pos ( 0..$self->length ) {
 	my $refchar = $refseq->[$pos];
 	next unless $refchar; # skip '' 
-      SEQ: foreach my $seq ( @seqchars ) {
-	    if( $seq->[$pos] ne $refchar ) {
-		$matchline .= ' ';
-		next POS;
-	    }
+	my %col = ($refchar => 1);
+	my $dash = 0;
+	foreach my $seq ( @seqchars ) {
+	    $dash = 1 if( $seq->[$pos] eq '-');
+	    $col{$seq->[$pos]}++;
 	}
-	$matchline .= $matchlinechar;
+	my @colresidues = sort keys %col;
+	my $char = ' ';
+	# if all the values are the same
+	if( $dash ) { $char = ' ' }
+	elsif( @colresidues == 1 ) { $char = $matchchars{'match'} }
+	elsif( $moltype eq 'protein' ) { # only try to do weak/strong
+	                                      # matches for protein seqs
+	    TYPE: foreach my $type ( qw(strong weak) ) { 
+                # iterate through categories
+		my %groups;
+		# iterate through each of the aa in the col
+		# look to see which groups it is in
+		foreach my $c ( @colresidues ) {
+		    foreach my $f ( grep /$c/, @{$CONSERVATION_GROUPS{$type}} ) {
+			print STDERR "$f for $c\n";
+			push @{$groups{$f}},$c; 
+		    }
+		}
+		GRP: foreach my $cols ( values %groups ) {
+		    @$cols = sort @$cols;
+		    # now we are just testing to see if two arrays 
+		    # are identical w/o changing either one
+
+		    # have to be same len
+		    next if( scalar @$cols != scalar @colresidues ); 
+		    # walk down the length and check each slot
+		    for($_=0;$_ < (scalar @$cols);$_++ ) {
+			next GRP if( $cols->[$_] ne $colresidues[$_] );
+		    }
+		    $char = $matchchars{$type};
+		    last TYPE;
+		}
+	    }
+	  }
+	$matchline .= $char;
     }
     return $matchline;
 }
