@@ -432,7 +432,7 @@ sub _print {
 sub _readline {
     my $self = shift;
     my %param =@_;
-    my $fh = $self->_fh || \*ARGV;
+    my $fh = $self->_fh or return;
     my $line;
 
     # if the buffer been filled by _pushback then return the buffer

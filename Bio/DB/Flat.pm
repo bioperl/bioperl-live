@@ -250,10 +250,11 @@ sub new_from_registry {
    #my $index    = $self->new(-directory => $location,
    #			      -dbname    => $dbname,
    #			     );
-   my $index = $config{'protocol'} or $self->throw('index or protocol tag must be specified.');
+   # my $index = $config{'protocol'} or $self->throw('index or protocol tag must be specified.');
    my $db = $self->new(-directory => $location,
 			-dbname    => $dbname,
-			-index     => $index );
+		       # -index     => $index   LS: PROTOCOL DOES NOT SPECIFY INDEXING SCHEME
+		      );
     $db;
 }
 
