@@ -234,6 +234,10 @@ sub add_seq {
            outside the length of the aligment
            (e.g. column_from_residue_number( "Seq2", 22 )
 
+	  Note: If the the parent sequence is represented by more than
+	  one alignment sequence and the residue number is present in
+	  them, this method finds only the first one.
+
  Returns : A column number for the position in the alignment of the
            given residue in the given sequence (1 = first column)
  Args    : A sequence id/name (not a name/start-end)
@@ -249,21 +253,12 @@ sub column_from_residue_number {
     $self->throw("Second argument residue number missing") unless $resnumber;
 
     foreach my $seq ($self->each_seq_with_id($name)) {
-	if ($resnumber >= $seq->start() and $resnumber <= $seq->end()) {
-	    # we have found the correct sequence
-	    my @residues = split / */, $seq->seq;
-	    my $count = $seq->start();
-	    my $i;
-	    for ($i=0; $i < @residues; $i++) {
-		if ($residues[$i] ne '.' and $residues[$i] ne '-') {
-		    $count == $resnumber and last;
-		    $count++;
-		}		    
-	    }
-	    # $i now holds the index of the column. The actual column number is this index + 1
-		
-	    return $i+1;
-	}
+	my $col;
+	eval {
+	    $col = $seq->column_from_residue_number($resnumber);
+	};
+	next if $@;		
+	return $col;
     }
 
     $self->throw("Could not find a sequence segment in $name containing residue number $resnumber");
@@ -697,7 +692,7 @@ sub percentage_identity{
    }
 
    foreach my $seq (@seqs)  {
-       my @seqChars = split / */, $seq->seq(); 
+       my @seqChars = split //, $seq->seq(); 
 
        for( my $column=0; $column < @seqChars; $column++ ) {
 	   my $char = uc($seqChars[$column]);
@@ -779,13 +774,14 @@ sub purge{
 	  }
 	  if( $res == 0 ) {
 	      $ratio = 0;
+
 	  } else {
 	      $ratio = $count/$res;
 	  }
 
 	  if( $ratio > $perc ) {
 	      $removed{$seq2->get_nse()} = 1;
-	      $self->removeSeq($seq2);
+	      $self->remove_seq($seq2);
 	      push(@ret,$seq2);
 	  } else {
 	      # could put a comment here!
@@ -1057,7 +1053,7 @@ sub uppercase {
  Returns   : a Bio::SimpleAlign object
  Args      : positive integer for start column 
              positive integer for end column 
-             
+
 =cut
 
 sub slice {
@@ -1065,9 +1061,9 @@ sub slice {
     my ($start, $end) = @_;
 
     $self->throw("Slice start has to be a positive integer, not [$start]") 
-	unless $start =~ /^\d+$/;
+	unless $start =~ /^\d+$/ and $start > 0;
     $self->throw("Slice end has to be a positive integer, not [$end]") 
-	unless $start =~ /^\d+$/;
+	unless $end =~ /^\d+$/ and $end > 0;
     $self->throw("Slice $start [$start] has to be smaller than or equal to end [$end]") 
 	unless $start <= $end;
     my $aln_length = $self->length;
@@ -1076,7 +1072,7 @@ sub slice {
 	 if $start > $self->length;
 
     my $aln = new $self;
-
+    $aln->id($self->id);
     foreach my $seq ( $self->each_seq() ) {
 
 	my $new_seq = new Bio::LocatableSeq (-id => $seq->id);
@@ -1112,4 +1108,109 @@ sub slice {
     return $aln;
 }
 
+
+=head2 select
+
+ Title     : select
+ Usage     : $aln2 = $aln->select(1, 3) # three first sequences
+ Function  : 
+
+             Creates a new alignment from a continuous subset of
+             sequences.  Numbering starts from 1.  Sequence positions
+             larger than no_sequences() will thow an error.
+
+ Returns   : a Bio::SimpleAlign object
+ Args      : positive integer for the first sequence
+             positive integer for the last sequence to include (optional)
+
+=cut
+
+sub select {
+    my $self = shift;
+    my ($start, $end) = @_;
+
+    $self->throw("Slice start has to be a positive integer, not [$start]") 
+	unless $start =~ /^\d+$/ and $start > 0;
+    $self->throw("Slice end has to be a positive integer, not [$end]") 
+	unless $end  =~ /^\d+$/ and $end > 0;
+    $self->throw("Slice $start [$start] has to be smaller than or equal to end [$end]") 
+	unless $start <= $end;
+    
+    my $aln = new $self;
+    foreach my $pos ($start .. $end) {
+	$aln->add_seq($self->get_seq_by_pos($pos));
+    }
+    $aln->id($self->id);	
+    return $aln;
+}
+
+=head2 get_seq_by_pos
+
+ Title     : get_seq_by_pos
+ Usage     : $seq = $aln->get_seq_by_pos(3) # third sequence from the alignment
+ Function  : 
+
+             Gets a sequence based on its position in the alignment.
+             Numbering starts from 1.  Sequence positions larger than
+             no_sequences() will thow an error.
+
+ Returns   : a Bio::LocatableSeq object
+ Args      : positive integer for the sequence osition
+
+=cut
+
+sub get_seq_by_pos {
+    my $self = shift;
+    my ($pos) = @_;
+
+    $self->throw("Sequence position has to be a positive integer, not [$pos]") 
+	unless $pos =~ /^\d+$/ and $pos > 0;
+    $self->throw("No sequence at position [$pos]") 
+	unless $pos <= $self->no_sequences ;
+
+    my $nse = $self->{'order'}->{--$pos};
+    return $self->{'seq'}->{$nse};
+}
+
+=head2 dot
+
+ Title     : dot()
+ Usage     : $ali->dot()
+ Function  : 
+
+             Goes through all columns and changes residues that are
+             identical to residue in first sequence to dot '.'
+             character.
+
+             USE WITH CARE: Most MSE formats do not support dotted
+             sequences, so this is for output only.
+
+ Returns   : 
+ Argument  : 
+
+=cut
+
+sub dot {
+    my $self = shift;
+
+    $self->map_chars('\.','-');
+
+    my @seqs = $self->each_seq();
+    return 1 unless scalar @seqs > 1;
+
+    my $refseq = shift @seqs ;
+    my @refseq = split //, $refseq->seq;
+    foreach my $seq ( @seqs ) {
+	my $i;
+	my @varseq = split //, $seq->seq();
+	for ( $i=0; $i < scalar @varseq; $i++) {
+	    $varseq[$i] = '.' if defined $refseq[$i] and 
+		$refseq[$i] =~ /[A-Za-z\*]/ and $refseq[$i] eq $varseq[$i];
+	}
+	$seq->seq(join '', @varseq);
+    }
+    return 1;
+}
+
 1;
+
