@@ -2,23 +2,128 @@ $Id$
   
 Revision history for Bioperl core modules
 
-Main trunk changes (not necessarily part of 1.4 branch)
+1.5 branch
 
-  o Bio::PopGen
-   - Populations can be now made artificially haploid so that various
-     stats like Tajima's D can operate, See Bio::PopGen::Population haploid_population
-     function
-   - Bio::PopGen::Utilities added for support of misc functionality.  Noteworthy
-     is the aln_to_population which will allow creation of Populations from sequence 
-     alignments by making each column a site (Marker), options to include/exclude
-     monomorphic sites.  Future work will include subselecting sites by categories like
-     silent/non-synonymous, etc.
+1.5 Developer release
 
-  o Bio::Align::DNAStatistics  - fixed so that most distance calcs are correct now
+    o Bio::Align::DNAStatistics and Bio::Align::ProteinStatistics
+      provide Jukes-Cantor and Kimura pairwise distance methods,
+      respectively.
 
-  o Bio::Tree::DistanceFactory - added support for Neighbor-Joining and UPGMA distance
-    based tree building methods.
+    o Bio::AlignIO support for "po" format of POA, and "maf";
+      Bio::AlignIO::largemultifasta is a new alternative to
+      Bio::AlignIO::fasta for temporary file-based manipulation of
+      particularly large multiple sequence alignments.
 
+    o Bio::Assembly::Singlet allows orphan, unassembled sequences to
+      be treated similarly as an assembled contig.
+
+    o Bio::CodonUsage provides new rare_codon() and probable_codons()
+      methods for identifying particular codons that encode a given
+      amino acid.
+
+    o Bio::Coordinate::Utils provides new from_align() method to build
+      a Bio::Coordinate pair directly from a
+      Bio::Align::AlignI-conforming object.
+
+    o Bio::DB::Biblio::eutils is a class for querying NCBI's Eutils.
+      Send a Pubmed, Pubmed Central, Entrez, or other query to NCBI's
+      web service using standard Pubmed query syntax, and retrieve
+      results as XML.
+
+    o Bio::DB::GFF has various sundry bug fixes.
+
+    o Bio::FeatureIO is a new SeqIO-style subsystem for
+      writing/reading genomic features to/from files.  I/O classes
+      exist for BED, GTF (aka GFF v2.5), and GFF v3.  Bio::FeatureIO
+      classes only read/write Bio::SeqFeature::Annotated objects.
+      Notably, the GFF v3 class requires features to be typed into the
+      Sequence Ontology.
+
+    o Bio::Graph namespace contains new modules for manipulation and
+      analysis of protein interaction graphs.
+
+    o Bio::Graphics has many bug fixes and shiny new glyphs.
+
+    o Bio::Index::Hmmer and Bio::Index::Qual provide multiple-file
+      indexing for HMMER reports and FASTA qual files, respectively.
+
+    o Bio::Map::Clone, Bio::Map::Contig, and Bio::Map::FPCMarker are
+      new objects that can be placed within a Bio::Map::MapI-compliant
+      genetic/physical map; Bio::Map::Physical provides a new physical
+      map type; Bio::MapIO::fpc provides finger-printed clone mapping
+      import.
+
+    o Bio::Matrix::PSM provide new support for postion-specific
+      (scoring) matrices (e.g. profiles, or "possums").
+
+    o Bio::Ontology::Ontology and Bio::Ontology::Term objects can now
+      be instantiated without explicitly using Bio::OntologyIO.  This
+      is possible through changes to Bio::Ontology::OntologyStore to
+      download ontology files from the web as necessary.  Locations of
+      ontology files are hard-coded into
+      Bio::Ontology::DocumentRegistry.
+
+    o Bio::PopGen includes many new methods and data types for
+      population genetics analyses.
+
+    o New constructor to Bio::Range, unions().  Given a list of
+      ranges, returns another list of "flattened" ranges --
+      overlapping ranges are merged into a single range with the
+      mininum and maximum coordinates of the entire overlapping group.
+
+    o Bio::Root::IO now supports -url, in addition to -file and -fh.
+      The new -url argument allows one to specify the network address
+      of a file for input.  -url currently only works for GET
+      requests, and thus is read-only.
+
+    o Bio::Search::Result::ResultI-compliant report objects now
+      implement the "get_statistics" method to access
+      Bio::Search::StatisticsI objects that encapsulate any
+      statistical parameters associated with the search (e.g. Karlin's
+      lambda for BLAST/FASTA).
+ 
+    o Bio::Seq::LargeLocatableSeq combines the functionality already
+      found in Bio::Seq::LargeSeq and Bio::LocatableSeq.
+
+    o Bio::SeqFeature::Annotated is a replacement for
+      Bio::SeqFeature::Generic.  It breaks compliance with the
+      Bio::SeqFeatureI interface because the author was sick of
+      dealing with untyped annotation tags.  All
+      Bio::SeqFeature::Annotated annotations are Bio::AnnotationI
+      compliant, and accessible through Bio::Annotation::Collection.
+
+    o Bio::SeqFeature::Primer implements a Tm() method for primer
+      melting point predictions.
+
+    o Bio::SeqIO now supports AGAVE, BSML (via SAX), CHAOS-XML,
+      InterProScan-XML, TIGR-XML, and NCBI TinySeq formats.
+
+    o Bio::Taxonomy::Node now implements the methods necessary for
+      Bio::Species interoperability.
+
+    o Bio::Tools::CodonTable has new reverse_translate_all() and
+      make_iupac_string() methods.
+
+    o Bio::Tools::dpAlign now provides sequence profile alignments.
+
+    o Bio::Tools::GFF now parses GFF version 2.5 (a.k.a. GTF).
+
+    o Bio::Tools::Fgenesh, Bio::Tools::tRNAscanSE are new report
+      parsers.
+
+    o Bio::Tools::SiRNA includes two new rulesets (Saigo and Tuschl)
+      for designing small inhibitory RNA.
+
+    o Bio::Tree::DistanceFactory provides NJ and UPGMA tree-building
+      methods based on a distance matrix.
+
+    o Bio::Tree::Statistics provides an assess_bootstrap() method to
+      calculate bootstrap support values on a guide tree topology,
+      based on provided bootstrap tree topologies.
+  
+    o Bio::TreeIO now supports the Pagel (PAG) tree format.
+  
 1.4 branch
 
 1.4.1 
