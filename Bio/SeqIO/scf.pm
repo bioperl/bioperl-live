@@ -16,7 +16,8 @@ Bio::SeqIO::scf - .scf file input/output stream
 
 =head1 SYNOPSIS
 
-Do not use this module directly.  Use it via the L<Bio::SeqIO> class.
+Do not use this module directly. Use it via the Bio::SeqIO class, see
+L<Bio::SeqIO> for more information.
 
 =head1 DESCRIPTION
 
