@@ -134,8 +134,9 @@ use Bio::Search::Result::ResultI;
            -parameters        => hash ref of search parameters (key => value)
            -statistics        => hash ref of search statistics (key => value)
            -algorithm         => program name (blastx)
-           -algorithm_version => version of the algorithm (2.1.2)
-           -program_reference => literature reference string for this algorithm
+           -algorithm_version   => version of the algorithm (2.1.2)
+           -algorithm_reference => literature reference string for this algorithm
+
 =cut
 
 sub new {
@@ -151,23 +152,26 @@ sub new {
   my ($qname,$qacc,$qdesc,$qlen,
       $dbname,$dblet,$dbent,$params,   
       $stats, $hits, $algo, $algo_v,
-      $prog_ref) = $self->_rearrange([qw(QUERY_NAME
-					 QUERY_ACCESSION
-					 QUERY_DESCRIPTION
-					 QUERY_LENGTH
-					 DATABASE_NAME
-					 DATABASE_LETTERS
-					 DATABASE_ENTRIES
-					 PARAMETERS
-					 STATISTICS
-					 HITS
-					 ALGORITHM
-					 ALGORITHM_VERSION
-					 PROGRAM_REFERENCE
-					 )],@args);
+      $prog_ref, $algo_r) = $self->_rearrange([qw(QUERY_NAME
+                                                  QUERY_ACCESSION
+                                                  QUERY_DESCRIPTION
+                                                  QUERY_LENGTH
+                                                  DATABASE_NAME
+                                                  DATABASE_LETTERS
+                                                  DATABASE_ENTRIES
+                                                  PARAMETERS
+                                                  STATISTICS
+                                                  HITS
+                                                  ALGORITHM
+                                                  ALGORITHM_VERSION
+                                                  PROGRAM_REFERENCE
+                                                  ALGORITHM_REFERENCE
+                                                 )],@args);
 
+  $algo_r ||= $prog_ref;         
   defined $algo   && $self->algorithm($algo);
   defined $algo_v && $self->algorithm_version($algo_v);
+  defined $algo_r && $self->algorithm_reference($algo_r);
 
   defined $qname && $self->query_name($qname);
   defined $qacc  && $self->query_accession($qacc);
@@ -176,7 +180,6 @@ sub new {
   defined $dbname && $self->database_name($dbname);
   defined $dblet  && $self->database_letters($dblet);
   defined $dbent  && $self->database_entries($dbent);
-  defined $prog_ref && $self->program_reference($prog_ref);
 
   if( defined $params ) {
       if( ref($params) !~ /hash/i ) {
@@ -619,10 +622,11 @@ sub hits{
  Title   : algorithm_reference
  Usage   : $obj->algorithm_reference($newval)
  Function: 
- Returns : value of the literature reference for the algorithm
- Args    : newvalue (optional)
-
-
+ Returns : string containing literature reference for the algorithm
+ Args    : newvalue string (optional)
+ Comments: Formerly named program_reference(), which is still supported
+           for backwards compatibility.
+ 
 =cut
 
 sub algorithm_reference{
@@ -632,5 +636,10 @@ sub algorithm_reference{
     }
     return $self->{'algorithm_reference'};
 }
+
+
+sub program_reference { shift->algorithm_reference(@_); }
+
+
 
 1;
