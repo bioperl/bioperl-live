@@ -197,7 +197,7 @@ Retrieve the NCBI Tada ID for a given species.
 Builds a phylogenetic tree based on a sequence search (Fasta,
 BLAST, HMMER).
 
-=head2 scripts/tree/nexus2nh.pl
+=head2 scripts/tree/nexus2nh.PLS
 
 Convert Nexus trees to New Hampshire format, but maintain long taxon 
 names.
