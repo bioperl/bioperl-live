@@ -357,8 +357,14 @@ sub write_seq {
 
     my $temp_line;
     if( $self->_id_generation_func ) {
+
 	$temp_line = &{$self->_id_generation_func}($seq,'genbank');
-    } else {
+  
+	$temp_line=~s/\;//g;
+	$temp_line=~s/\.//g;
+
+  } else {
+	
 	
 	$temp_line = sprintf ("%-12s%-10s%10s bp%8s%5s %3s ",$seq->id(),$len,$mol,$div,$date);
     } 
