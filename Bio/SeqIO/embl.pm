@@ -960,7 +960,8 @@ sub _read_FTHelper_EMBL {
     $$buffer = $_;
 
     # Make the new FTHelper object
-    my $out = new Bio::SeqIO::FTHelper(-verbose => $self->verbose());
+    my $out = new Bio::SeqIO::FTHelper();
+    $out->verbose($self->verbose());
     $out->key($key);
     $out->loc($loc);
 

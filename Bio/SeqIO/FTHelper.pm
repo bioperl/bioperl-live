@@ -52,6 +52,10 @@ Email birney@ebi.ac.uk
 
 Describe contact details here
 
+=head1 CONTRIBUTORS
+
+Jason Stajich jason@bioperl.org
+
 =head1 APPENDIX
 
 The rest of the documentation details each of the object
@@ -83,7 +87,6 @@ sub new {
     # no chained new because we make lots and lots of these. 
     my $self = {};
     bless $self,$class;
-
     $self->{'_field'} = {};
     return $self; 
 }
