@@ -20,7 +20,7 @@ BEGIN {
 	use lib 't';
     }
     use vars qw($NTESTS);
-    $NTESTS = 1154;
+    $NTESTS = 1157;
     $LASTXMLTEST = 63;
     $error = 0;
 
@@ -387,7 +387,7 @@ while( my $hit = $result->next_hit ) {
     ok($hit->accession, shift @$d);
     ok($hit->significance, shift @$d );
     ok($hit->raw_score, shift @$d );
-    
+    ok($hit->rank, $count+1);
     if( $count == 0 ) {
 	while( my $hsp = $hit->next_hsp ) {
 	    ok($hsp->query->start, 31);
