@@ -40,8 +40,14 @@ sub new {
   $self->{flip}++  if $flip;
   $self->{top} = 0;
 
+  my @subfeatures;
   my @subglyphs;
-  my @subfeatures = $self->subseq($feature);
+
+  if(defined($self->factory->get_option('maxdepth')) && $self->factory->get_option('maxdepth') > 0){
+    @subfeatures = $self->subseq($feature) if $level <= $self->factory->get_option('maxdepth');
+  } else {
+    @subfeatures = $self->subseq($feature);
+  }
 
   if (@subfeatures) {
 
