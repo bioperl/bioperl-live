@@ -12,15 +12,24 @@
 
 =head1 NAME
 
-Bio::SeqIO::Handler - DESCRIPTION of Object
+Bio::SeqIO::Handler - Handler of the SeqIO classes for tieing to filehandles
 
 =head1 SYNOPSIS
 
-Give standard usage here
+    $stream = Bio::SeqIO->new(-file => "filename", -format => 'Fasta');
+
+    tie *SEQ, 'Bio::SeqIO::Handler', $stream;
+
+    while $seq ( <SEQ> ) {
+	# $seq is Bio::Seq object
+    }
 
 =head1 DESCRIPTION
 
-Describe the object here
+This object wraps over the Bio::SeqIO:: format classes, providing
+the correct glue for the tie mechanism in to filehandles. This 
+allows normal looking perl filehandles can be used to provide a 
+streams for converting sequences to and from ascii formats
 
 =head1 FEEDBACK
 
@@ -101,6 +110,55 @@ sub READLINE {
     return $obj->next_seq();
 }
 
+sub WRITE {
+    my ($self,@args) = shift;
+    my $obj = $self->_streamobj;
+    my ($seq,$count);
+    
+    foreach $seq ( @args ) {
+	if( ! $seq->isa("Bio::Seq") ) {
+	    $self->warn("$seq does not seem to be a sequence object. No passing it onto the Bio::SeqIO stream");
+	} else {
+	    $obj->write_seq($seq);
+	    $count++;
+	}
+    }
+
+    return $count;
+}
+
+sub PRINT {
+    my ($self,@args) = @_;
+    
+    $self->warn("Using a print mechanism on Bio::SeqIO::Handler. Should use write HANDLE $seq, not print. Forwarding onto write now");
+    $self->WRITE(@args);
+}
+
+sub PRINTF {
+    my $self = shift;
+
+    $self->throw("Attempting to use a Bio::SeqIO::Handler in an inappropiate context !");
+}
+
+sub READ {
+    my $self = shift;
+
+    $self->throw("Attempting to use a Bio::SeqIO::Handler in an inappropiate context !");
+}
+
+sub GETC {
+    my $self = shift;
+
+    $self->throw("Attempting to use a Bio::SeqIO::Handler in an inappropiate context !");
+}
+
+sub CLOSE {
+    my $self = shift;
+
+    $self->warn("Attempting to close a Bio::SeqIO::Handler. No need - just reassign it to a different file or use untie");
+}
+
+
 =head2 _streamobj
 
  Title   : _streamobj
@@ -121,3 +179,14 @@ sub _streamobj{
     return $obj->{'_streamobj'};
 
 }
+
+sub DESTROY {
+    my $self=shift;
+
+    $self->{'_streamobj'} = '';
+}
+
+
+
+
+

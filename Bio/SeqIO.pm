@@ -142,10 +142,7 @@ The rest of the documentation details each of the object methods. Internal metho
 
 package Bio::SeqIO;
 use vars qw($AUTOLOAD @ISA);
-use FileHandle;
 use strict;
-
-# Object preamble - inheriets from Bio::Root::Object
 
 @ISA = qw(Exporter);
 
@@ -175,9 +172,57 @@ sub new {
 
    $format = $param{'-format'} || $param{'-FORMAT'};
 
+   if( &_load_format_module($format) == 0 ) {
+       return undef;
+   }
+
    $stream = "Bio::SeqIO::$format"->new(%param);
    return $stream;
 }
+
+
+=head2 _load_format_module
+
+ Title   : _load_format_module
+ Usage   : *INTERNAL SeqIO stuff*
+ Function: Loads up (like use) a module at run time on demand
+ Example :
+ Returns : 
+ Args    :
+
+
+=cut
+
+sub _load_format_module{
+   my ($format) = @_;
+   my ($module,$load,$m);
+
+   $module = "_<Bio/SeqIO/$format.pm";
+   $load = "Bio/SeqIO/$format.pm";
+
+#   foreach $m ( keys %main:: ) {
+#       print "Got [$m] vs [$module]\n";
+#       if( $m eq $module ) {
+#	   print STDERR "Found it!\n";
+#       }
+#   }
+
+   if( $main::{$module} ) {
+     #  print STDERR "$module Module loaded already..\n";
+       return 1;
+   } else {
+       eval {
+	   require $load;
+       };
+       if( $@ ) {
+	   print STDERR "$load: $format cannot be found\nException $@\nFor more information about the SeqIO system please see the SeqIO docs.\nThis includes ways of checking for formats at compile time, not run time\n";
+	   return 0;
+       }
+       return 1;
+   }
+
+}
+
 
 1;
 

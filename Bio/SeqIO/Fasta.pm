@@ -159,6 +159,31 @@ sub next_seq{
 
 }
 
+=head2 write_seq
+
+ Title   : write_seq
+ Usage   : $stream->write_seq($seq)
+ Function: writes the $seq object into the stream
+ Returns : 1 for success and 0 for error
+ Args    : Bio::Seq object
+
+
+=cut
+
+sub write_seq {
+   my ($self,$seq) = @_;
+   my $fh = $self->_filehandle();
+
+   my $str = $seq->seq;
+   for ($i = 60; $i < length($str); $i += 60+1) {
+       # this is not ideal.
+       substr($str,$i,0) = "\n";
+   }
+   
+   print $fh ">", $seq->id(), " ", $seq->desc(), "\n", $str, "\n";
+   return 1;
+}
+
 =head2 _filehandle
 
  Title   : _filehandle
