@@ -1,5 +1,7 @@
 
 #
+# $Id$
+#
 # BioPerl module for Bio::DB::SeqI.pm
 #
 # Cared for by Ewan Birney <birney@ebi.ac.uk>
@@ -40,6 +42,7 @@ User feedback is an integral part of the evolution of this
 and other Bioperl modules. Send your comments and suggestions preferably
  to one of the Bioperl mailing lists.
 Your participation is much appreciated.
+
 
   vsns-bcd-perl@lists.uni-bielefeld.de          - General discussion
   vsns-bcd-perl-guts@lists.uni-bielefeld.de     - Technically-oriented discussion

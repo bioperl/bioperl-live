@@ -1,4 +1,6 @@
 #
+# $Id$
+#
 # BioPerl module for Bio::DB::UpdateableSeqI
 #
 # Cared for by Jason Stajich <jason@chg.mc.duke.edu>
