@@ -1,4 +1,4 @@
-## $Id: bioperl.pod,v 1.28 2002-06-13 20:23:19 bosborne Exp $
+## $Id: bioperl.pod,v 1.29 2002-06-25 13:09:38 bosborne Exp $
 
 ## Should contain general info about the distribution including
 ## links to many modules.
@@ -230,6 +230,9 @@ validation, relevance network of gene expression
 I<scripts/das/das_server> - sets up a minimal DAS annotation server, requires
 Apache::DBI and Bio::DB::GFF. See L<Bio::DB::GFF> for details
 
+I<scripts/dbsnp.pl> - how to parse a dbsnp XML file. See L<Bio::ClusterIO> 
+for details
+
 I<scripts/DB/dbfetch> - creates a Web page to query a local SRS server and
 fetch sequences
 
@@ -238,6 +241,10 @@ Genbank filtered by tissue using Bio::DB* or Bio::Index*
 
 I<scripts/DB/flanks.pl> - fetch a sequence, find the sequences flanking
 a variant or SNP in the sequence given its position
+
+I<scripts/feature_draw.pl> - script that accepts files in GFF or
+tab-delimited format and creates corresponding PNG image files. See
+L<Bio::Graphics> and L<Bio::Graphics::FeatureFile> for more information
 
 I<scripts/gb_to_gff.pl> - extracts top-level sequence features from Genbank-
 formatted sequence files using Tools::GFF. See L<Bio::Tools::GFF>
