@@ -43,17 +43,17 @@ This module is included with the central Bioperl distribution:
    http://bio.perl.org/Core/Latest
    ftp://bio.perl.org/pub/DIST
 
-Follow the installation instructions included in the README file.
+Follow the installation instructions included in the INSTALL file.
 
 =head1 DESCRIPTION
 
-pSW is an Alignment Factory. It builds pairwise alignments using the
-smith waterman algorithm. The alignment algorithm is implemented in C
-and added in using an XS extension. The XS extension basically comes
-from the Wise2 package, but has been slimmed down to only be the
+pSW is an Alignment Factory for protein sequences. It builds pairwise
+alignments using the Smith-Waterman algorithm. The alignment algorithm is
+implemented in C and added in using an XS extension. The XS extension basically
+comes from the Wise2 package, but has been slimmed down to only be the
 alignment part of that (this is a good thing!). The XS extension comes
 from the bioperl-ext package which is distributed along with bioperl.
-I<Warning> This package will not work if you have not compiled the
+I<Warning:> This package will not work if you have not compiled the
 bioperl-ext package.
 
 The mixture of C and Perl is ideal for this sort of 
@@ -71,20 +71,11 @@ assigns memory for the calculation.
 =item Algorithm efficiency
 
 The algorithm was written using Dynamite, and so contains an automatic
-switch to the linear space divide and conquor method. This means you
+switch to the linear space divide-and-conquer method. This means you
 could effectively align very large sequences without killing your machine
 (it could take a while though!).
 
 =back
-
-=head1 IN_DEVELOPMENT
-
-warning - this module is under active development. Eventually it should
-contain the ability to make alignment objects such as Bio::SimpleAlign
-or Bio::UnivAlign 
-
-(Which has been done as of bioperl 0.7 series)
-
 
 =head1 FEEDBACK
 
