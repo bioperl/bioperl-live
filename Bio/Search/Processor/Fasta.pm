@@ -38,15 +38,14 @@ and other Bioperl modules. Send your comments and suggestions preferably
  to one of the Bioperl mailing lists.
 Your participation is much appreciated.
 
-  vsns-bcd-perl@lists.uni-bielefeld.de          - General discussion
-  vsns-bcd-perl-guts@lists.uni-bielefeld.de     - Technically-oriented discussion
-  http://bio.perl.org/MailList.html             - About the mailing lists
+  bioperl-l@bioperl.org              - General discussion
+  http://bio.perl.org/MailList.html  - About the mailing lists
 
 =head2 Reporting Bugs
 
 Report bugs to the Bioperl bug tracking system to help us keep track
- the bugs and their resolution.
- Bug reports can be submitted via email or the web:
+the bugs and their resolution.  Bug reports can be submitted via email
+or the web:
 
   bioperl-bugs@bio.perl.org
   http://bio.perl.org/bioperl-bugs/
@@ -59,7 +58,8 @@ Describe contact details here
 
 =head1 APPENDIX
 
-The rest of the documentation details each of the object methods. Internal methods are usually preceded with a _
+The rest of the documentation details each of the object
+methods. Internal methods are usually preceded with a _
 
 =cut
 
@@ -94,15 +94,10 @@ my %AUTOLOAD_OK;
 
 @AUTOLOAD_OK{@AUTOLOAD_OK} = (1) x @AUTOLOAD_OK;
 
-# new() is inherited from Bio::Root::Object
 
-# _initialize is where the heavy stuff will happen when new is called
-
-sub _initialize {
-    my($self,@args) = @_;
-
-    my $make = $self->SUPER::_initialize();
-
+sub new {
+    my($class,@args) = @_;
+    my $self = bless {}, $class;
     my ($fh, $file, $algorithm, $sfsep) =
 	$self->_rearrange([qw(FH FILE ALGORITHM SFSEP)], @args);
 
@@ -112,7 +107,7 @@ sub _initialize {
     $self->_ALGORITHM($algorithm);
     $self->_SFSEP($sfsep || '|');
 
-    return $make; # success - we hope!
+    return $self; # success - we hope!
 }
 
 =head2 next_result
@@ -273,7 +268,7 @@ sub next_result{
 	    $line = <$fh>;
 	    last SWITCH;
 	};
-
+#'
 # Ln statistics: mu= 41.7673  var=222.6012
 # <blank line>
 	$line =~ m/Ln statistics/ and do {
@@ -402,6 +397,7 @@ sub next_result{
     }
 
     $line = <$fh>;
+#'
 #FASTA (3.2 December, 1998) function [optimized, BL50 matrix (15:-5)] ktup: 2
     my ($optimized,
 	$matrix_name,
@@ -438,7 +434,7 @@ sub next_result{
 #PRP4_HUMAN SALIVARY PROLINE-RICH PROTEIN  ( 247)  173   94  205  157.3   0.014
 
     my @hits = ();
-    while ( ($line = <$fh>) && ($line !~ m/^\s*$/) ) {
+    while ( defined ($line = <$fh>) && ($line !~ m/^\s*$/) ) {
 	my ($desc, $size, $initn, $init1, $opt, $zsc, $e_val) =
 	    $line =~ m/^(.{40})\s*
                        \(\s*(\d+)\s*\)\s*

@@ -36,15 +36,14 @@ and other Bioperl modules. Send your comments and suggestions preferably
  to one of the Bioperl mailing lists.
 Your participation is much appreciated.
 
-  vsns-bcd-perl@lists.uni-bielefeld.de          - General discussion
-  vsns-bcd-perl-guts@lists.uni-bielefeld.de     - Technically-oriented discussion
-  http://bio.perl.org/MailList.html             - About the mailing lists
+  bioperl-l@bioperl.org             - General discussion
+  http://bio.perl.org/MailList.html - About the mailing lists
 
 =head2 Reporting Bugs
 
 Report bugs to the Bioperl bug tracking system to help us keep track
- the bugs and their resolution.
- Bug reports can be submitted via email or the web:
+the bugs and their resolution.  Bug reports can be submitted via email
+or the web:
 
   bioperl-bugs@bio.perl.org
   http://bio.perl.org/bioperl-bugs/
@@ -59,7 +58,7 @@ The rest of the documentation details each of the object methods. Internal metho
 
 =cut
 
-
+#'
 # Let the code begin...
 
 
@@ -116,21 +115,16 @@ my @AUTOLOAD_OK = qw(
 my %AUTOLOAD_OK = ();
 @AUTOLOAD_OK{@AUTOLOAD_OK} = (1) x @AUTOLOAD_OK;
 
-# new() is inherited from Bio::Root::Object
+sub new {
+    my($class, %args) = @_;
 
-# _initialize is where the heavy stuff will happen when new is called
-
-sub _initialize {
-    my($self, %args) = @_;
-
-    my $make = $self->SUPER::_initialize(%args);
-
+    my $self = bless {}, $class;
     while (my ($key, $val) = each %args) {
 	$key = '_' . uc($key);
 	$self->$key($val);
     }
 
-    return $make; # success - we hope!
+    return $self; # success - we hope!
 }
 
 sub AUTOLOAD {
