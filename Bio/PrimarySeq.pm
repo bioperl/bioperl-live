@@ -225,7 +225,6 @@ sub seq {
        $obj->{'seq'} = $value;
        $obj->_guess_type();
     }
-   my $v = $obj->{'seq'};
    return $obj->{'seq'};
 }
 
@@ -257,8 +256,25 @@ sub subseq {
 
    $start--;
 
-   return substr $self->seq, $start, ($end-$start);
+   return substr $self->{'seq'}, $start, ($end-$start);
 
+}
+
+=head2 length
+
+ Title   : length
+ Usage   : $len = $seq->length()
+ Function:
+ Example :
+ Returns : integer representing the length of the sequence.
+ Args    :
+
+=cut
+
+sub length {
+   my ($self)= @_;
+
+   return CORE::length($self->{'seq'});
 }
 
 =head2 display_id
@@ -494,7 +510,7 @@ sub _guess_type {
    my ($self) = @_;
    my ($str,$str2,$total,$atgc,$u,$type);
 
-   $str = $self->seq();
+   $str = $self->{'seq'};
    $str =~ s/\-\.//g;
 
    $total = CORE::length($str);
