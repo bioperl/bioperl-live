@@ -313,6 +313,7 @@ use Bio::Root::Root;
 use Bio::Root::IO;
 use Bio::Factory::SequenceStreamI;
 use Bio::Factory::FTLocationFactory;
+use Bio::Seq::SeqBuilder;
 use Symbol();
 
 @ISA = qw(Bio::Root::Root Bio::Root::IO Bio::Factory::SequenceStreamI);
@@ -329,9 +330,17 @@ my %valid_alphabet_cache;
  Usage   : $stream = Bio::SeqIO->new(-file => $filename, -format => 'Format')
  Function: Returns a new seqstream
  Returns : A Bio::SeqIO stream initialised with the appropriate format
- Args    : -file => $filename
-           -format => format
-           -fh => filehandle to attach to
+ Args    : Named parameters:
+             -file => $filename
+             -fh => filehandle to attach to
+             -format => format
+
+           Additional arguments may be used to set factories and
+           builders involved in the sequence object creation. None of
+           these must be provided, they all have reasonable defaults.
+             -seqfactory   the L<Bio::Factory::SequenceFactoryI> object
+             -locfactory   the L<Bio::Factory::LocationFactoryI> object
+             -objbuilder   the L<Bio::Factory::ObjectBuilderI> object
 
 See L<Bio::SeqIO::Handler>
 
@@ -414,13 +423,19 @@ sub _initialize {
 
     # flush is initialized by the Root::IO init
 
-    my ($seqfact, $locfact) = $self->_rearrange([qw(SEQFACTORY
-						    LOCFACTORY)],
-						@args);
+    my ($seqfact,$locfact,$objbuilder) =
+	$self->_rearrange([qw(SEQFACTORY
+			      LOCFACTORY
+			      OBJBUILDER)
+			   ], @args);
 
-    $seqfact && $self->sequence_factory($seqfact);
     $locfact = Bio::Factory::FTLocationFactory->new() if ! $locfact;
+    $objbuilder = Bio::Seq::SeqBuilder->new() unless $objbuilder;
+    $self->sequence_builder($objbuilder);
     $self->location_factory($locfact);
+    # note that this should come last because it propagates the sequence
+    # factory to the sequence builder
+    $seqfact && $self->sequence_factory($seqfact);
 
     # initialize the IO part
     $self->_initialize_io(@args);
@@ -651,11 +666,44 @@ sub sequence_factory{
    my ($self,$obj) = @_;   
    if( defined $obj ) {
        if( ! ref($obj) || ! $obj->isa('Bio::Factory::SequenceFactoryI') ) {
-	   $self->throw("Must provide a valid Bio::Factory::SequenceFactoryI object to ".ref($self)." sequence_factory()");
+	   $self->throw("Must provide a valid Bio::Factory::SequenceFactoryI object to ".ref($self)."::sequence_factory()");
        }
        $self->{'_seqio_seqfactory'} = $obj;
+       my $builder = $self->sequence_builder();
+       if($builder && $builder->can('sequence_factory') &&
+	  (! $builder->sequence_factory())) {
+	   $builder->sequence_factory($obj);
+       }
    }
    $self->{'_seqio_seqfactory'};
+}
+
+=head2 sequence_builder
+
+ Title   : sequence_builder
+ Usage   : $seqio->sequence_builder($seqfactory)
+ Function: Get/Set the L<Bio::Factory::ObjectBuilderI> used to build sequence
+           objects.
+
+           If you do not set the sequence object builder yourself, it
+           will in fact be an instance of L<Bio::Seq::SeqBuilder>, and
+           you may use all methods documented there to configure it.
+
+ Returns : a L<Bio::Factory::ObjectBuilderI> compliant object
+ Args    : [optional] a L<Bio::Factory::ObjectBuilderI> compliant object
+
+
+=cut
+
+sub sequence_builder{
+    my ($self,$obj) = @_;
+    if( defined $obj ) {
+	if( ! ref($obj) || ! $obj->isa('Bio::Factory::ObjectBuilderI') ) {
+	    $self->throw("Must provide a valid Bio::Factory::ObjectBuilderI object to ".ref($self)."::sequence_builder()");
+	}
+	$self->{'_object_builder'} = $obj;
+    }
+    $self->{'_object_builder'};
 }
 
 =head2 location_factory
@@ -664,8 +712,8 @@ sub sequence_factory{
  Usage   : $seqio->location_factory($locfactory)
  Function: Get/Set the Bio::Factory::LocationFactoryI object to be used for
            location string parsing
- Returns : a Bio::Factory::LocationFactoryI implementing object
- Args    : [optional] on set, a Bio::Factory::LocationFactoryI implementing
+ Returns : a L<Bio::Factory::LocationFactoryI> implementing object
+ Args    : [optional] on set, a L<Bio::Factory::LocationFactoryI> implementing
            object.
 
 

@@ -142,204 +142,259 @@ sub _initialize {
 
 sub next_seq {
     my ($self,@args) = @_;
-    my ($pseq,$c,$name,@desc,$seqc,$mol,$div,$date);
-    my $line;
-    my @acc = ();
-    my ($annotation,%params,@features) = (new Bio::Annotation::Collection);
+    my $builder = $self->sequence_builder();
+    my $seq;
+    my %params;
 
-    while(defined($line = $self->_readline())) {
-	$line =~ /^LOCUS\s+\S+/ && last;
-    }
-    return undef if( !defined $line ); # end of file
+  RECORDSTART: while (1) {
+      my $buffer;
+      my (@acc, @features);
+      my ($display_id, $annotation);
+
+      # initialize; we may come here because of starting over
+      @features = ();
+      $annotation = undef;
+      @acc = ();
+      %params = (-verbose => $self->verbose); # reset hash
     
-    $line =~ /^LOCUS\s+\S+/ ||
-	$self->throw("GenBank stream with no LOCUS. Not GenBank in my book. Got $line");
-    
-    if( $line =~ /^LOCUS\s+(\S+)\s+\S+\s+(bp|aa)\s+(\S+)\s+(\S+)\s+(\S+)?/i) {
-	$name = $1;
-    } 
-    else {
-	$line =~ /^LOCUS\s+(\S+)/ ||
-	    $self->throw("GenBank stream with no LOCUS. Not GenBank in my book. Got $line");
-	# fall back to at least an ID
-	$name = $1;
-	$self->warn("GenBank record with LOCUS line in unexpected format. ".
-		    "Attributes from this line other than ID will be missing.");
-    }
+      while(defined($buffer = $self->_readline())) {
+	  last if index($buffer,'LOCUS       ') == 0;
+      }
+      return undef if( !defined $buffer ); # end of file
 
-    # this is important to have the id for display in e.g. FTHelper, otherwise
-    # you won't know which entry caused an error
-    $params{'-display_id'} = $name;
-    # the alphabet of the entry
-    $params{'-alphabet'} = ($2 eq 'bp') ? 'dna' : 'protein';
+      $buffer =~ /^LOCUS\s+(\S.*)$/ ||
+	  $self->throw("GenBank stream with bad LOCUS line. Not GenBank in my book. Got $buffer");
 
-    # for aa there is usually no 'molecule' (mRNA etc)
-    if (($2 eq 'bp') || defined($5)) {	
-	if ($4 eq 'circular') {
-	    $params{'-molecule'} = $3; 
-	    $params{'-is_circular'} = 1;
-	    $params{'-division'} = $5;
-	} else {
-	    $params{'-division'} = (CORE::length($4) == 3 ) ? $4 : $5;
-	    $params{'-molecule'} = $3;
-      	}
-    } else {
-	$params{'-molecule'} = 'PRT' if($2 eq 'aa');
-	$params{'-division'} = $3;
-	$date = $4;
-    }
-    ($date) = ($line =~ /.*(\d\d-\w\w\w-\d\d\d\d)/);
-    if ($date) {
-	push @{$params{'-date'}}, $date;
-    }
-    my $buffer = $self->_readline();
-        
-    until( !defined ($buffer) ) {
-	$_ = $buffer;
-	
-	# Description line(s)
-	if (/^DEFINITION\s+(\S.*\S)/) {
-	    push (@desc, $1);
-	    while ( defined($_ = $self->_readline) ) { 
-		/^\s+(.*)/ && do { push (@desc, $1); next;};
-		last;
-	    }
-	}		 
-	# accession number (there can be multiple accessions)
-	if( /^ACCESSION\s+(\S.*\S)/ ) {
-	    push(@acc, split(' ',$1));
-	}
-	
-	# PID
-	if( /^PID\s+(\S+)/ ) {
-	    $params{'-pid'} = $1;
-	}
-	
-        #Version number
-	if( /^VERSION\s+(\S+)\.?(\d+)?\s*(GI:\d+)?/ ) {
-            $params{'-seq_version'} = $2 if ($2);
-	    #$params{'-primary_id'} = substr($3, 3) if( $3);
-}
-	#Keywords
-	if( /^KEYWORDS\s+(.*)/ ) {
-	    my $keywords = $1;
-	    $keywords =~ s/\;//g;
-	    $params{'-keywords'} = $keywords;
-	}
-	
-	# Organism name and phylogenetic information
-	if (/^SOURCE/) {
-	    my $species = $self->_read_GenBank_Species(\$buffer);
-	    $params{'-species'} = $species;
-	    next;
-	}
-	
-	#References
-	if (/^REFERENCE/) {
-	    my @refs = $self->_read_GenBank_References(\$buffer);
-	    foreach my $ref ( @refs ) {
-		$annotation->add_Annotation('reference',$ref);
-	    }
-	    next;
-	}
-	
-	#Comments
-	if (/^COMMENT\s+(.*)/) {
-	    my $comment = $1;
-	    while (defined($_ = $self->_readline)) {
-		if (/^\S/) {
-		    $comment =~ s/\n/ /g;
-		    $comment =~ s/  +/ /g;
-		    my $commobj = Bio::Annotation::Comment->new();
-		    $commobj->text($comment);
-		    $annotation->add_Annotation('comment',$commobj);
-		    last;
-		}
-		$comment .= $_; 
-	    }
-	    $buffer = $_;
-	    next;
-	}
-	# Exit at start of Feature table, or start of sequence
-	last if( /^(FEATURES)|(ORIGIN)/ );
-	# Get next line and loop again
-	$buffer = $self->_readline;
-    }
-    return undef if(! defined($buffer));
-    $params{'-desc'} = join(' ', @desc); # don't forget!
-    $params{'-accession_number'} = shift(@acc);
-    $params{'-secondary_accessions'} = \@acc;
-    
-    # some "minimal" formats may not necessarily have a feature table
-    if(defined($_) && /^FEATURES/) {
-	# need to read the first line of the feature table
-	$buffer = $self->_readline;
+      my @tokens = split(' ', $1);
 
-	# DO NOT read lines in the while condition -- this is done as a side
-	# effect in _read_FTHelper_GenBank!
-	while( defined($buffer) ) {
-	    # check immediately -- not at the end of the loop
-	    # note: GenPept entries obviously do not have a BASE line
-	    last if(($buffer =~ /^BASE/) || ($buffer =~ /^ORIGIN/) ||
-		    ($buffer =~ /^CONTIG/) );
+      # this is important to have the id for display in e.g. FTHelper,
+      # otherwise you won't know which entry caused an error
+      $display_id = shift(@tokens);
+      $params{'-display_id'} = $display_id;
+      # may still be useful if we don't want the seq
+      $params{'-length'} = shift(@tokens);
+      # the alphabet of the entry
+      $params{'-alphabet'} = (shift(@tokens) eq 'bp') ? 'dna' : 'protein';
+      
+      # for aa there is usually no 'molecule' (mRNA etc)
+      if (($params{'-alphabet'} eq 'dna') || (@tokens > 2)) {	
+	  $params{'-molecule'} = shift(@tokens);
+	  my $circ = shift(@tokens);
+	  if ($circ eq 'circular') {
+	      $params{'-is_circular'} = 1;
+	      $params{'-division'} = shift(@tokens);
+	  } else {
+	      # 'linear' or 'circular' may actually be omitted altogether
+	      $params{'-division'} =
+		  (CORE::length($circ) == 3 ) ? $circ : shift(@tokens);
+	  }
+      } else {
+	  $params{'-molecule'} = 'PRT' if($params{'-alphabet'} eq 'aa');
+	  $params{'-division'} = shift(@tokens);
+      }
+      my $date = join(' ', @tokens); # we lump together the rest
+      if($date =~ s/.*(\d\d-\w\w\w-\d\d\d\d).*/$1/) {
+	  $params{'-date'} = [$date];
+      }
+      # set them all at once
+      $builder->add_slot_value(%params);
+      %params = ();
 
-	    # slurp in one feature at a time -- at return, the start of
-	    # the next feature will have been read already, so we need
-	    # to pass a reference, and the called method must set this
-	    # to the last line read before returning 
+      # parse the rest if desired, otherwise start over
+      if(! $builder->want_object()) {
+	  $builder->make_object();
+	  next RECORDSTART;
+      }
+      
+      # set up annotation depending on what the builder wants
+      if($builder->want_slot('annotation')) {
+	  $annotation = new Bio::Annotation::Collection;
+      }
+      $buffer = $self->_readline();
 
-	    my $ftunit = $self->_read_FTHelper_GenBank(\$buffer);
-	    
-	    # fix suggested by James Diggans
+      until( !defined ($buffer) ) {
+	  $_ = $buffer;
+	  
+	  # Description line(s)
+	  if (/^DEFINITION\s+(\S.*\S)/) {
+	      my @desc = ($1);
+	      while ( defined($_ = $self->_readline) ) { 
+		  /^\s+(.*)/ && do { push (@desc, $1); next;};
+		  last;
+	      }
+	      $builder->add_slot_value(-desc => join(' ', @desc));
+	      # we'll continue right here because DEFINITION always comes
+	      # at the top of the entry
+	  }
+	  # accession number (there can be multiple accessions)
+	  if( /^ACCESSION\s+(\S.*\S)/ ) {
+	      push(@acc, split(' ',$1));
+	  }
+	  # PID
+	  elsif( /^PID\s+(\S+)/ ) {
+	      $params{'-pid'} = $1;
+	  }
+	  #Version number
+	  elsif( /^VERSION\s+(\S+)\.?(\d+)?\s*(GI:\d+)?/ ) {
+	      $params{'-seq_version'} = $2 if ($2);
+	      #$params{'-primary_id'} = substr($3, 3) if( $3);
+	  }
+	  #Keywords
+	  elsif( /^KEYWORDS\s+(.*)/ ) {
+	      my $keywords = $1;
+	      $keywords =~ s/\;//g;
+	      $params{'-keywords'} = $keywords;
+	  }
+	  # Organism name and phylogenetic information
+	  elsif (/^SOURCE/) {
+	      if($builder->want_slot('species')) {
+		  my $species = $self->_read_GenBank_Species(\$buffer);
+		  $builder->add_slot_value(-species => $species);
+	      } else {
+		  while(defined($buffer = $self->_readline())) {
+		      last if substr($buffer,0,1) ne ' ';
+		  }
+	      }
+	      next;
+	  }
+	  #References
+	  elsif (/^REFERENCE/) {
+	      if($annotation) {
+		  my @refs = $self->_read_GenBank_References(\$buffer);
+		  foreach my $ref ( @refs ) {
+		      $annotation->add_Annotation('reference',$ref);
+		  }
+	      } else {
+		  while(defined($buffer = $self->_readline())) {
+		      last if substr($buffer,0,1) ne ' ';
+		  }
+	      }
+	      next;
+	  }
+	  #Comments
+	  elsif (/^COMMENT\s+(.*)/) {
+	      if($annotation) {
+		  my $comment = $1;
+		  while (defined($_ = $self->_readline)) {
+		      last if (/^\S/);
+		      $comment .= $_; 
+		  }
+		  $comment =~ s/\n/ /g;
+		  $comment =~ s/  +/ /g;
+		  $annotation->add_Annotation(
+			    'comment',
+			    Bio::Annotation::Comment->new(-text => $comment));
+		  $buffer = $_;
+	      } else {
+		  while(defined($buffer = $self->_readline())) {
+		      last if substr($buffer,0,1) ne ' ';
+		  }
+	      }
+	      next;
+	  }
+	  # Exit at start of Feature table, or start of sequence
+	  last if( /^(FEATURES)|(ORIGIN)/ );
+	  # Get next line and loop again
+	  $buffer = $self->_readline;
+      }
+      return undef if(! defined($buffer));
 
-	    if( !defined $ftunit ) {
-		# GRRRR. We have fallen over. Try to recover
-		$self->warn("Unexpected error in feature table for ".$params{'-display_id'}." Skipping feature, attempting to recover");
-		unless( ($buffer =~ /^\s{5,5}\S+/) or ($buffer =~ /^\S+/)) {
-		    $buffer = $self->_readline();
-		}
-		next; # back to reading FTHelpers
-	    }
+      # add them all at once for efficiency
+      $builder->add_slot_value(-accession_number => shift(@acc),
+			       -secondary_accessions => \@acc,
+			       %params);
+      $builder->add_slot_value(-annotation => $annotation) if $annotation;
+      %params = (); # reset before possible re-use to avoid setting twice
+
+      # start over if we don't want to continue with this entry
+      if(! $builder->want_object()) {
+	  $builder->make_object();
+	  next RECORDSTART;
+      }      
+      
+      # some "minimal" formats may not necessarily have a feature table
+      if($builder->want_slot('features') && defined($_) && /^FEATURES/) {
+	  # need to read the first line of the feature table
+	  $buffer = $self->_readline;
+	  
+	  # DO NOT read lines in the while condition -- this is done as a side
+	  # effect in _read_FTHelper_GenBank!
+	  while( defined($buffer) ) {
+	      # check immediately -- not at the end of the loop
+	      # note: GenPept entries obviously do not have a BASE line
+	      last if(($buffer =~ /^BASE/) || ($buffer =~ /^ORIGIN/) ||
+		      ($buffer =~ /^CONTIG/) );
+
+	      # slurp in one feature at a time -- at return, the start of
+	      # the next feature will have been read already, so we need
+	      # to pass a reference, and the called method must set this
+	      # to the last line read before returning 
+	      
+	      my $ftunit = $self->_read_FTHelper_GenBank(\$buffer);
+	      
+	      # fix suggested by James Diggans
+
+	      if( !defined $ftunit ) {
+		  # GRRRR. We have fallen over. Try to recover
+		  $self->warn("Unexpected error in feature table for ".$params{'-display_id'}." Skipping feature, attempting to recover");
+		  unless( ($buffer =~ /^\s{5,5}\S+/) or ($buffer =~ /^\S+/)) {
+		      $buffer = $self->_readline();
+		  }
+		  next; # back to reading FTHelpers
+	      }
 		
-	    # process ftunit
-	    push(@features,
-		 $ftunit->_generic_seqfeature($self->location_factory(),
-					      $params{'-display_id'}));
-	}
-	$_ = $buffer;
-    }
-    if( defined ($_) ) {
-	if( /^CONTIG/ ) {
-	    $b = "     $_"; # need 5 spaces to treat it like a feature
-	    my $ftunit = $self->_read_FTHelper_GenBank(\$b);
-	    if( ! defined $ftunit ) {
-		$self->warn("unable to parse the CONTIG feature\n");
-	    } else { 
-		push(@features,
-		     $ftunit->_generic_seqfeature($self->location_factory(),
-						  $params{'-display_id'}));
-	    }	
-	} elsif(! /^ORIGIN/) {     # advance to the section with the sequence
-	    $seqc = "";	
-	    while (defined( $_ = $self->_readline) ) {
-		last if /^ORIGIN/;
-	    }
-	}
-    }
-    while( defined($_ = $self->_readline) ) {
-	/^\/\// && last;
-	$_ = uc($_);
-	s/[^A-Za-z]//g;
-	$seqc .= $_;
-    }
-    $self->debug("sequence length is ". length($seqc) ."\n");
-    $self->debug("params are " . join(',',keys( %params)) . "\n");
-    my $seq = $self->sequence_factory->create
-	('-verbose' =>$self->verbose(), 
-	 %params,
-	 -seq => $seqc,
-	 -annotation => $annotation,
-	 -features => \@features);
+	      # process ftunit
+	      push(@features,
+		   $ftunit->_generic_seqfeature($self->location_factory(),
+						$display_id));
+	  }
+	  $builder->add_slot_value(-features => \@features);
+	  $_ = $buffer;
+      }
+      if( defined ($_) ) {
+	  if( /^CONTIG/ && $builder->want_slot('features')) {
+	      $b = "     $_"; # need 5 spaces to treat it like a feature
+	      my $ftunit = $self->_read_FTHelper_GenBank(\$b);
+	      if( ! defined $ftunit ) {
+		  $self->warn("unable to parse the CONTIG feature\n");
+	      } else { 
+		  push(@features,
+		       $ftunit->_generic_seqfeature($self->location_factory(),
+						    $display_id));
+	      }	
+	  } elsif(! /^ORIGIN/) {     # advance to the section with the sequence
+	      while (defined( $_ = $self->_readline) ) {
+		  last if /^ORIGIN/;
+	      }
+	  }
+      }
+      if(! $builder->want_object()) {
+	  $builder->make_object(); # implicit end-of-object
+	  next RECORDTSTART;
+      }
+      if($builder->want_slot('seq')) {
+	  my $seqc = '';
+	  while( defined($_ = $self->_readline) ) {
+	      /^\/\// && last;
+	      $_ = uc($_);
+	      s/[^A-Za-z]//g;
+	      $seqc .= $_;
+	  }
+	  $self->debug("sequence length is ". length($seqc) ."\n");
+	  $builder->add_slot_value(-seq => $seqc);
+      } else {
+	  while( defined($_ = $self->_readline) ) {
+	      last if substr($_,0,2) eq '//';
+	  }
+      }
+      # Unlikely, but maybe the sequence is so weird that we don't want it
+      # anymore. We don't want to return undef if the stream's not exhausted
+      # yet.
+      $seq = $builder->make_object();
+      next RECORDTSTART unless $seq;
+      last RECORDSTART;
+  } # end while RECORDSTART
+
     return $seq;
 }
 

@@ -88,6 +88,11 @@ use Bio::Factory::ObjectBuilderI;
 
 @ISA = qw(Bio::Root::Root Bio::Factory::ObjectBuilderI);
 
+my %slot_param_map = ("add_SeqFeature" => "features",
+		      );
+my %param_slot_map = ("features"       => "add_SeqFeature",
+		      );
+
 =head2 new
 
  Title   : new
@@ -100,14 +105,17 @@ use Bio::Factory::ObjectBuilderI;
 =cut
 
 sub new {
-  my($class,@args) = @_;
+    my($class,@args) = @_;
+    
+    my $self = $class->SUPER::new(@args);
+    
+    $self->{'wanted_slots'} = [];
+    $self->{'unwanted_slots'} = [];
+    $self->{'object_conds'} = [];
+    $self->{'_objhash'} = {};
+    $self->want_all(1);
 
-  my $self = $class->SUPER::new(@args);
-
-  $self->{'wanted_slots'} = [];
-  $self->want_all(1);
-
-  return $self;
+    return $self;
 }
 
 =head1 Methods for implementing L<Bio::Factory::ObjectBuilderI>
@@ -135,9 +143,34 @@ sub new {
 =cut
 
 sub want_slot{
-    my ($self,@args) = @_;
+    my ($self,$slot) = @_;
+    my $ok = 0;
 
-
+    $slot = substr($slot,1) if substr($slot,0,1) eq '-';
+    if($self->want_all()) {
+	foreach ($self->get_unwanted_slots()) {
+	    # this always overrides in want-all mode
+	    return 0 if($slot eq $_);
+	}
+	if(! exists($self->{'_objskel'})) {
+	    $self->{'_objskel'} = $self->sequence_factory->create_object();
+	}
+	if(exists($param_slot_map{$slot})) {
+	    $ok = $self->{'_objskel'}->can($param_slot_map{$slot});
+	} else {
+	    $ok = $self->{'_objskel'}->can($slot);
+	}
+	return $ok if $ok;
+	# even if the object 'cannot' do this slot, it might have been
+	# added to the list of wanted slot, so carry on
+    }
+    foreach ($self->get_wanted_slots()) {
+	if($slot eq $_) {
+	    $ok = 1;
+	    last;
+	}
+    }
+    return $ok;
 }
 
 =head2 add_slot_value
@@ -157,18 +190,49 @@ sub want_slot{
            find it appropriate to abandon the object being built
            altogether.
 
+           This implementation will allow the caller to overwrite the
+           return value from want_slot(), because the slot is not
+           checked against want_slot().
+
  Example :
  Returns : TRUE on success, and FALSE otherwise
  Args    : the name of the slot (a string)
            parameters determining the value to be set
 
+                 OR
+
+           alternatively, a list of slotname/value pairs in the style
+           of named parameters as they would be passed to new(), where
+           each element at an even index is the parameter (slot) name
+           starting with a dash, and each element at an odd index is
+           the value of the preceding name.
+
 
 =cut
 
 sub add_slot_value{
-   my ($self,@args) = @_;
+    my ($self,$slot,@args) = @_;
 
-
+    my $h = $self->{'_objhash'};
+    return unless $h;
+    # multiple named parameter variant of calling?
+    if((@args > 1) && (@args % 2) && (substr($slot,0,1) eq '-')) {
+	unshift(@args, $slot);
+	while(@args) {
+	    my $key = shift(@args);
+	    $h->{$key} = shift(@args);
+	}
+    } else {
+	if($slot eq 'add_SeqFeature') {
+	    $slot = '-'.$slot_param_map{$slot};
+	    $h->{$slot} = [] unless $h->{$slot};
+	    push(@{$h->{$slot}}, @args);
+	} else {
+	    $slot = '-'.$slot unless substr($slot,0,1) eq '-';
+	    $h->{$slot} = $args[0];
+	}
+    }
+    return 1;
 }
 
 =head2 want_object
@@ -192,9 +256,15 @@ sub add_slot_value{
 =cut
 
 sub want_object{
-   my ($self,@args) = @_;
+    my $self = shift;
 
-
+    my $ok = 1;
+    foreach my $cond ($self->get_object_conditions()) {
+	$ok = &$cond($self->{'_objhash'});
+	last unless $ok;
+    }
+    delete $self->{'_objhash'} unless $ok;
+    return $ok;
 }
 
 =head2 make_object
@@ -221,12 +291,41 @@ sub want_object{
 =cut
 
 sub make_object{
-   my ($self,@args) = @_;
+    my $self = shift;
 
-
+    my $obj;
+    if(exists($self->{'_objhash'}) && %{$self->{'_objhash'}}) {
+	$obj = $self->sequence_factory->create_object(%{$self->{'_objhash'}});
+    }
+    $self->{'_objhash'} = {}; # reset
+    return $obj;
 }
 
 =head1 Implementation specific methods
+
+These methods allow to conveniently configure this sequence object
+builder as to which slots are desired, and under which circumstances a
+sequence object should be abandoned altogether. The default mode is
+want_all(1), which means the builder will report all slots as wanted
+that the object created by the sequence factory supports.
+
+You can add specific slots you want through add_wanted_slots(). In
+most cases, you will want to call want_none() before in order to relax
+zero acceptance through a list of wanted slots.
+
+Alternatively, you can add specific unwanted slots through
+add_unwanted_slots(). In this case, you will usually want to call
+want_all(1) before (which is the default if you never touched the
+builder) to restrict unrestricted acceptance.
+
+I.e., want_all(1) means want all slots except for the unwanted, and
+want_none() means only those explicitly wanted.
+
+If a slot is in both the unwanted and the wanted list, the following
+rules hold. In want-all mode, the unwanted list overrules. In
+want-none mode, the wanted list overrides the unwanted list. If this
+is confusing to you, just try to avoid having slots at the same time
+in the wanted and the unwanted lists.
 
 =cut
 
@@ -234,10 +333,10 @@ sub make_object{
 
  Title   : get_wanted_slots
  Usage   : $obj->get_wanted_slots($newval)
- Function: 
+ Function: Get the list of wanted slots
  Example : 
- Returns : value of wanted_slots (a scalar)
- Args    : on set, new value (a scalar or undef, optional)
+ Returns : a list of strings
+ Args    : 
 
 
 =cut
@@ -248,9 +347,9 @@ sub get_wanted_slots{
     return @{$self->{'wanted_slots'}};
 }
 
-=head2 add_wanted_slots
+=head2 add_wanted_slot
 
- Title   : add_wanted_slots
+ Title   : add_wanted_slot
  Usage   :
  Function: Adds the specified slots to the list of wanted slots.
  Example :
@@ -260,7 +359,7 @@ sub get_wanted_slots{
 
 =cut
 
-sub add_wanted_slots{
+sub add_wanted_slot{
     my ($self,@slots) = @_;
 
     my $myslots = $self->{'wanted_slots'};
@@ -292,12 +391,80 @@ sub remove_wanted_slots{
     return @slots;
 }
 
+=head2 get_unwanted_slots
+
+ Title   : get_unwanted_slots
+ Usage   : $obj->get_unwanted_slots($newval)
+ Function: Get the list of unwanted slots.
+ Example : 
+ Returns : a list of strings
+ Args    : none
+
+
+=cut
+
+sub get_unwanted_slots{
+    my $self = shift;
+
+    return @{$self->{'unwanted_slots'}};
+}
+
+=head2 add_unwanted_slot
+
+ Title   : add_unwanted_slot
+ Usage   :
+ Function: Adds the specified slots to the list of unwanted slots.
+ Example :
+ Returns : TRUE
+ Args    : an array of slot names (strings)
+
+
+=cut
+
+sub add_unwanted_slot{
+    my ($self,@slots) = @_;
+
+    my $myslots = $self->{'unwanted_slots'};
+    foreach my $slot (@slots) {
+	if(! grep { $slot eq $_; } @$myslots) {
+	    push(@$myslots, $slot);
+	}
+    }
+    return 1;
+}
+
+=head2 remove_unwanted_slots
+
+ Title   : remove_unwanted_slots
+ Usage   :
+ Function: Removes the list of unwanted slots added previously through
+           add_unwanted_slots().
+ Example :
+ Returns : the previous list of unwanted slot names
+ Args    : none
+
+
+=cut
+
+sub remove_unwanted_slots{
+    my $self = shift;
+    my @slots = $self->get_unwanted_slots();
+    $self->{'unwanted_slots'} = [];
+    return @slots;
+}
+
 =head2 want_none
 
  Title   : want_none
  Usage   :
  Function: Disables all slots. After calling this method, want_slot()
            will return FALSE regardless of slot name.
+
+           This is different from removed_wanted_slots() in that it
+           also sets want_all() to FALSE. Note that it also resets the
+           list of unwanted slots in order to avoid slots being in
+           both lists.
+
  Example :
  Returns : TRUE
  Args    : none
@@ -310,6 +477,7 @@ sub want_none{
 
     $self->want_all(0);
     $self->remove_wanted_slots();
+    $self->remove_unwanted_slots();
     return 1;
 }
 
@@ -318,7 +486,10 @@ sub want_none{
  Title   : want_all
  Usage   : $obj->want_all($newval)
  Function: Whether or not this sequence object builder wants to
-           populate all slots that the object has.
+           populate all slots that the object has. Whether an object
+           supports a slot is generally determined by what can()
+           returns. You can add additional 'virtual' slots by calling
+           add_wanted_slot.
 
            This will be ON by default. Call $obj->want_none() to
            disable all slots.
@@ -338,6 +509,92 @@ sub want_all{
     return $self->{'want_all'};
 }
 
+=head2 get_object_conditions
+
+ Title   : get_object_conditions
+ Usage   :
+ Function: Get the list of conditions an object must meet in order to
+           be 'wanted.' See want_object() for where this is used.
+
+           Conditions in this implementation are closures (anonymous
+           functions) which are passed one parameter, a hash reference
+           the keys of which are equal to initialization
+           paramaters. The closure must return TRUE to make the object
+           'wanted.'
+
+           Conditions will be implicitly ANDed.
+
+ Example :
+ Returns : a list of closures
+ Args    : none
+
+
+=cut
+
+sub get_object_conditions{
+    my $self = shift;
+
+    return @{$self->{'object_conds'}};
+}
+
+=head2 add_object_condition
+
+ Title   : add_object_condition
+ Usage   :
+ Function: Adds a condition an object must meet in order to be 'wanted.'
+           See want_object() for where this is used.
+
+           Conditions in this implementation must be closures
+           (anonymous functions). These will be passed one parameter,
+           which is a hash reference with the sequence object
+           initialization paramters being the keys.
+
+           Conditions are implicitly ANDed. If you want other
+           operators, perform those tests inside of one closure
+           instead of multiple.  This will also be more efficient.
+
+ Example :
+ Returns : TRUE
+ Args    : the list of conditions
+
+
+=cut
+
+sub add_object_condition{
+    my ($self,@conds) = @_;
+
+    if(grep { ref($_) ne 'CODE'; } @conds) {
+	$self->throw("conditions against which to validate an object ".
+		     "must be anonymous code blocks");
+    }
+    push(@{$self->{'object_conds'}}, @conds);
+    return 1;
+}
+
+=head2 remove_object_conditions
+
+ Title   : remove_object_conditions
+ Usage   :
+ Function: Removes the conditions an object must meet in order to be
+           'wanted.'
+ Example :
+ Returns : The list of previously set conditions (an array of closures)
+ Args    : none
+
+
+=cut
+
+sub remove_object_conditions{
+    my $self = shift;
+    my @conds = $self->get_object_conditions();
+    $self->{'object_conds'} = [];
+    return @conds;
+}
+
+=head1 Methods to control what type of object is built
+
+=cut
+
 =head2 sequence_factory
 
  Title   : sequence_factory
@@ -355,7 +612,10 @@ sub want_all{
 sub sequence_factory{
     my $self = shift;
 
-    return $self->{'sequence_factory'} = shift if @_;
+    if(@_) {
+	delete $self->{'_objskel'};
+	return $self->{'sequence_factory'} = shift;
+    }
     return $self->{'sequence_factory'};
 }
 
