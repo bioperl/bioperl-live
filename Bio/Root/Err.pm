@@ -31,7 +31,7 @@ use Exporter           ();
 
 use vars qw($ID $VERSION);
 $ID = 'Bio::Root::Err';
-$VERSION = 0.04;
+$VERSION = 0.041;
 
 use strict;
 
@@ -174,7 +174,7 @@ See the L<FEEDBACK> section for where to send bug reports and comments.
 
 =head1 VERSION
 
-Bio::Root::Err.pm, 0.04
+Bio::Root::Err.pm, 0.041
 
 
 =head1 SEE ALSO

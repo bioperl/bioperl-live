@@ -74,7 +74,7 @@ use vars qw($ID $VERSION %Objects_created $Revision);
 # See _initialize() for details.
 
 $ID       = 'Bio::Root::Object';
-$VERSION  = 0.04;
+$VERSION  = 0.041;
 $Revision = '$Id$';  #'
 
 ### POD Documentation:
@@ -361,7 +361,7 @@ See the L<FEEDBACK> section for where to send bug reports and comments.
 
 =head1 VERSION
 
-Bio::Root::Object.pm, 0.04
+Bio::Root::Object.pm, 0.041
 
 
 =head1 TODO
