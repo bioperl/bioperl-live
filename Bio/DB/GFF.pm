@@ -1016,8 +1016,7 @@ sub get_feature_by_name {
  Status  : public
 
 This method can be used to fetch a named feature from the database
-based on its similarity hit.  In this implementation it is identical
-to get_feature_by_target().
+based on its similarity hit.
 
 =cut
 

@@ -358,8 +358,6 @@ sub strand {
     return Bio::DB::GFF::RelSegment::_to_strand($self->{fstrand});
   }
   return $self->SUPER::strand;
-#  return 0 unless defined $self->{start};
-#  return $self->{start} < $self->{stop} ? '+1' : '-1';
 }
 
 =head2 group

@@ -100,7 +100,7 @@ sub draw_component {
 sub draw_frame {
   my $self = shift;
   my ($feature,$strand,$base_offset,$phase,$gd,$x1,$y1,$x2,$y2) = @_;
-  my ($seq,$pos) = $strand < 0 ? ($feature->revcom,$feature->end) 
+  my ($seq,$pos) = $strand < 0 ? ($feature->revcom,$feature->end)
                                : ($feature,$feature->start);
   my ($frame,$offset) = frame_and_offset($pos,$strand,$phase);
   ($strand >= 0 ? $x1 : $x2) += $self->pixels_per_base * $offset;
@@ -136,6 +136,8 @@ sub draw_protein {
     my $x = $strand > 0 
       ? $x1 + 3 * $i * $pixels_per_base
       : $x2 - 3 * $i * $pixels_per_base;
+    next if $x+1 < $x1;
+    last if $x > $x2;
     $gd->char($font,$x,$y1,$residues[$i],$color);
   }
 }
@@ -156,6 +158,8 @@ sub draw_orfs {
       my $pos = $strand > 0 
 	? $x1 + $stop * $pixels_per_base
         : $x2 - $stop * $pixels_per_base;
+      next if $pos+1 < $x1;
+      last if $pos   > $x2;
       $gd->line($pos,$y1-2,$pos,$y1+2,$color);
     }
   }
@@ -169,6 +173,9 @@ sub draw_orfs {
       my $pos = $strand > 0 
 	? $x1 + $start * $pixels_per_base
         : $x2 - $start * $pixels_per_base;
+      next if $pos+1 < $x1;
+      last if $pos   > $x2;
+
       # little arrowheads at the start codons
       $strand > 0 ? $self->arrowhead($gd,$pos-$arrowhead_height,$y1,
 				     $arrowhead_height,+1)
@@ -199,12 +206,12 @@ sub make_key_feature {
   my $scale = 1/$self->scale;  # base pairs/pixel
   my $start = $offset;
   my $stop  = $offset + 100 * $scale;
+  my $seq   = join('',map{qw(g a t c)[rand 4]} (1..500));
   my $feature =
     Bio::Graphics::Feature->new(-start=> $start,
-				-stop => $stop,
-				-seq  => join('',map{qw(g a t c)[rand 4]} ($start..$stop)),
-				-name => $self->option('key'),
-				-strand => '+1',
+				-end  => $stop,
+				-seq  => $seq,
+				-name => $self->option('key')
 			       );
   $feature;
 }

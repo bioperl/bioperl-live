@@ -507,6 +507,19 @@ sub _load_format_module {
   my ($format) = @_;
   my ($module, $load, $m);
 
+  # untaint operation for safe web-based running
+  if ($format =~ /^([\w:]+)$/) {
+    $format = $1;
+  } else {
+    print STDERR <<END;
+_load_format_module: $format is an illegal perl package name
+For more information about the SeqIO system please see the SeqIO docs.
+This includes ways of checking for formats at compile time, not run time
+END
+  ;
+    return;
+  }
+
   $module = "_<Bio/SeqIO/$format.pm";
   $load = "Bio/SeqIO/$format.pm";
 

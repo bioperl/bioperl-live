@@ -2,8 +2,13 @@ package Bio::Graphics::Glyph::dna;
 
 use strict;
 use Bio::Graphics::Glyph::generic;
-use vars '@ISA';
+use vars '@ISA','$VERSION';
 @ISA = qw(Bio::Graphics::Glyph::generic);
+$VERSION = '1.00';
+
+my %complement = (g=>'c',a=>'t',t=>'a',c=>'g',
+		  G=>'C',A=>'T',T=>'A',C=>'G');
+
 
 # turn off description
 sub description { 0 }
@@ -21,11 +26,12 @@ sub height {
 
 sub pixels_per_base {
   my $self = shift;
+  return $self->scale;
 
-  my $width           = $self->width;
-  my $length          = $self->feature->length;
+#  my $width           = $self->width;
+#  my $length          = $self->feature->length;
 
-  return $width/($self->feature->length-1);
+#  return $width/($self->feature->length-1);
 }
 
 sub dna_fits {
@@ -66,19 +72,41 @@ sub draw_dna {
   my ($gd,$dna,$x1,$y1,$x2,$y2) = @_;
   my $pixels_per_base = $self->pixels_per_base;
 
-  my @bases = split '',$dna;
+  my $feature = $self->feature;
+  my @bases = split '',$feature->strand >= 0 ? $dna : reversec($dna);
   my $color = $self->fgcolor;
   my $font  = $self->font;
   my $lineheight = $font->height;
+  my $strands = $self->option('strand') || 'auto';
 
-  my %complement = (g=>'c',a=>'t',t=>'a',c=>'g',
-		    G=>'C',A=>'T',T=>'A',C=>'G');
-  for (my $i=0;$i<@bases;$i++) {
-    my $x = $x1 + $i * $pixels_per_base;
-    $gd->char($font,$x,$y1,$bases[$i],$color);
-    $gd->char($font,$x,$y1+$lineheight,$complement{$bases[$i]}||$bases[$i],$color);
+  my ($forward,$reverse);
+  if ($strands eq 'auto') {
+    $forward = $feature->strand >= 0;
+    $reverse = $feature->strand <= 0;
+  } elsif ($strands eq 'both') {
+    $forward = $reverse = 1;
+  } elsif ($strands eq 'reverse') {
+    $reverse = 1;
+  } else {
+    $forward = 1;
   }
 
+  my $start  = $self->map_no_trunc($feature->start);
+  my $offset = ($x1-$start-1)/$pixels_per_base;
+
+  for (my $i=$offset;$i<@bases;$i++) {
+    my $x = $start + $i * $pixels_per_base;
+    next if $x+1 < $x1;
+    last if $x > $x2;
+    $gd->char($font,$x,$y1,$bases[$i],$color)                                      if $forward;
+    $gd->char($font,$x,$y1+$lineheight,$complement{$bases[$i]}||$bases[$i],$color) if $reverse;
+  }
+
+}
+
+sub reversec {
+  $_[0]=~tr/gatcGATC/ctagCTAG/;
+  return scalar reverse $_[0];
 }
 
 sub draw_gc_content {
@@ -105,17 +133,17 @@ sub draw_gc_content {
   my $axiscolor  = $self->color('axis_color') || $fgcolor;
 
   $gd->line($x1,  $y1,        $x1,  $y2,        $axiscolor);
-  $gd->line($x2-1,$y1,        $x2-1,$y2,        $axiscolor);
+  $gd->line($x2-2,$y1,        $x2-2,$y2,        $axiscolor);
   $gd->line($x1,  $y1,        $x1+3,$y1,        $axiscolor);
   $gd->line($x1,  $y2,        $x1+3,$y2,        $axiscolor);
   $gd->line($x1,  ($y2+$y1)/2,$x1+3,($y2+$y1)/2,$axiscolor);
-  $gd->line($x2-3,$y1,        $x2-1, $y1,       $axiscolor);
-  $gd->line($x2-3,$y2,        $x2-1, $y2,       $axiscolor);
-  $gd->line($x2-3,($y2+$y1)/2,$x2-1,($y2+$y1)/2,$axiscolor);
+  $gd->line($x2-4,$y1,        $x2-1, $y1,       $axiscolor);
+  $gd->line($x2-4,$y2,        $x2-1, $y2,       $axiscolor);
+  $gd->line($x2-4,($y2+$y1)/2,$x2-1,($y2+$y1)/2,$axiscolor);
   $gd->line($x1+5,$y2,        $x2-5,$y2,        $bgcolor);
   $gd->line($x1+5,($y2+$y1)/2,$x2-5,($y2+$y1)/2,$bgcolor);
   $gd->line($x1+5,$y1,        $x2-5,$y1,        $bgcolor);
-  $gd->string($self->font,$x1+5,$y1,'% gc',$axiscolor);
+  $gd->string($self->font,$x1+5,$y1,'% gc',$axiscolor) if $bin_height > $self->font->height*2;
 
   for (my $i = 0; $i < @bins; $i++) {
     my $bin_start  = $x1+$i*$bin_width;
@@ -130,10 +158,15 @@ sub draw_gc_content {
 sub make_key_feature {
   my $self = shift;
   my $offset = $self->panel->offset;
+  my $scale = 1/$self->scale;  # base pairs/pixel
+
+  my $start = $offset+1;
+  my $stop  = $offset+100*$scale;
   my $feature =
-    Bio::Graphics::Feature->new(-start=> $offset,
-				-stop => $offset + 10,
-				-name => 'DNA/GC content',
+    Bio::Graphics::Feature->new(-start=> $start,
+				-stop => $stop,
+				-seq  => join('',map{qw(g a t c)[rand 4]} (1..500)),
+				-name => $self->option('key'),
 				-strand => '+1',
 			       );
   $feature;
@@ -206,6 +239,18 @@ options are recognized:
 
   -axis_color Color of the vertical axes  fgcolor
               in the GC content graph
+
+  -strand      Show both forward and      auto
+              reverse strand, one of
+              "forward", "reverse",
+              "both" or "auto".
+              In "auto" mode,
+              +1 strand features will
+              show the plus strand
+              -1 strand features will
+              show the reverse complement
+              and strandless features will
+              show both
 
 =head1 BUGS
 

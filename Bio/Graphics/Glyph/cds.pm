@@ -51,7 +51,7 @@ sub draw {
     my $part    = $parts[$i];
     my $feature = $part->feature;
     my $pos     = $strand > 0 ? $feature->start : $feature->end;
-    my $phase           = eval {$feature->phase} || 0;
+    my $phase   = eval {$feature->phase} || 0;
     my ($frame,$offset) = frame_and_offset($pos,
 					   $feature->strand,
 					   -$phase);
@@ -128,8 +128,42 @@ sub draw_component {
   for (my $i=0;$i<@residues;$i++) {
     my $x = $strand > 0 ? $start + $i * $pixels_per_residue
                         : $stop  - $i * $pixels_per_residue;
-    $gd->char($font,$x,$y1,$residues[$i],$color) if $x >= $x1 && $x <= $x2;
+    next if $x+1 < $x1;
+    last if $x   > $x2;
+    $gd->char($font,$x,$y1,$residues[$i],$color);
   }
+}
+
+sub make_key_feature {
+  my $self = shift;
+  my $offset = $self->panel->offset;
+  my $scale = 1/$self->scale;  # base pairs/pixel
+  my $start = $offset;
+  my $stop  = $offset + 100 * $scale;
+  my $seq   = join('',map{qw(g a t c)[rand 4]} (1..1500));
+  my $feature =
+    Bio::Graphics::Feature->new(-start=> $start,
+				-end  => $stop,
+				-seq  => $seq,
+				-name => $self->option('key'),
+				-strand=> +1,
+			       );
+  $feature->add_segment(Bio::Graphics::Feature->new(
+						    -start=> $start,
+						    -end => $start + ($stop - $start)/2,
+						    -seq  => $seq,
+						    -name => $self->option('key'),
+						    -strand=> +1,
+						   ),
+			Bio::Graphics::Feature->new(
+						    -start=> $start + ($stop - $start)/2+1,
+						    -end => $stop,
+						    -seq  => $seq,
+						    -name => $self->option('key'),
+						    -phase=> 1,
+						    -strand=> +1,
+						   ));
+  $feature;
 }
 
 1;

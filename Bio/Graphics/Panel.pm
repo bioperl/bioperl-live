@@ -7,7 +7,7 @@ use Carp 'cluck';
 use GD;
 use vars '$VERSION';
 
-$VERSION = 1.03;
+$VERSION = 1.04;
 
 use constant KEYLABELFONT => gdMediumBoldFont;
 use constant KEYSPACING   => 5; # extra space between key columns
@@ -300,10 +300,14 @@ sub height {
   my $self = shift;
   my $spacing    = $self->spacing;
   my $key_height = $self->format_key;
+  my $draw_empty = $self->show_empty =~ /^(line|dash)/;
   my $height = 0;
   foreach (@{$self->{tracks}}) {
-    next unless $_->parts;
-    $height += $_->layout_height + $spacing;
+    if  (!$_->parts) {
+      $height += 2*$spacing if $draw_empty;
+    } else {
+      $height += $_->layout_height + $spacing;
+    }
   }
   return $height + $key_height + $self->pad_top + $self->pad_bottom;
 }
@@ -345,7 +349,7 @@ sub gd {
 			 $offset,
 			 $width-$self->pad_right,
 			 $offset+$track->layout_height
-			 + ($self->{key_style} eq 'between' ? $self->{key_font}->height : 0),
+			 + ($between_key ? $self->{key_font}->height : 0),
 			 $track->tkcolor)
       if defined $track->tkcolor;
     $offset += $keyheight if $between_key && $track->option('key');
@@ -360,11 +364,15 @@ sub gd {
     if (!$track->parts) { # an empty track
       next if $empty_track_style eq 'suppress';
       next if $empty_track_style eq 'key' && !$draw_between;
+      $offset += $self->draw_between_key($gd,$track,$offset) if $draw_between;
       $self->draw_empty($gd,$offset,$empty_track_style) if $empty_track_style=~/^(line|dashed)$/;
     }
-    if ($self->{key_style} eq 'between') {
+
+    elsif ($draw_between) {
       $offset += $self->draw_between_key($gd,$track,$offset);
-    } elsif ($self->{key_style} =~ /^(left|right)$/) {
+    }
+
+    elsif ($self->{key_style} =~ /^(left|right)$/) {
       $self->draw_side_key($gd,$track,$offset,$self->{key_style});
     }
 
@@ -453,7 +461,9 @@ sub format_key {
   return $self->{key_height} if defined $self->{key_height};
 
   if ($self->{key_style} eq 'between') {
-    my @key_tracks = grep {$_->option('key')} @{$self->{tracks}};
+    my @key_tracks = $self->{show_empty} eq 'suppress'
+      ? grep {$_->option('key') && $_->parts} @{$self->{tracks}}
+      : grep {$_->option('key')} @{$self->{tracks}};
     return $self->{key_height} = @key_tracks * $self->{key_font}->height;
   } elsif ($self->{key_style} eq 'bottom') {
 
@@ -532,7 +542,7 @@ sub format_key {
 sub draw_empty {
   my $self  = shift;
   my ($gd,$offset,$style) = @_;
-  $offset += $self->spacing;
+  $offset  += $self->spacing;
   my $left  = $self->pad_left;
   my $right = $self->width-$self->pad_right;
   my $color = $self->translate_color(MISSING_TRACK_COLOR);
@@ -542,6 +552,7 @@ sub draw_empty {
   } else {
     $gd->line($left,$offset,$right,$offset,$color);
   }
+  $offset;
 }
 
 # draw a grid
@@ -1014,7 +1025,7 @@ a set of tag/value pairs as follows:
 
   -empty_tracks What to do when a track is empty.    suppress
               Options are to suppress the track
-              completely ("empty"), to show just
+              completely ("suppress"), to show just
               the key in "between" mode ("key"),
               to draw a thin grey line ("line"),
               or to draw a dashed line ("dashed").

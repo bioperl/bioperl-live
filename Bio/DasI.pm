@@ -44,10 +44,10 @@ Bio::DasI - DAS-style access to a feature database
   # count types
   %types   = $db->types(-enumerate=>1);
 
-  @feature = $db->get_feature_by_name($name);
-  @feature = $db->get_feature_by_id($id);
+  @feature = $db->get_feature_by_name($class=>$name);
   @feature = $db->get_feature_by_target($target_name);
   @feature = $db->get_feature_by_attribute($att1=>$value1,$att2=>$value2);
+  $feature = $db->get_feature_by_id($id);
 
   $error = $db->error;
 
@@ -256,6 +256,96 @@ interrupted.  When a callback is provided, the method returns undef.
 =cut
 
 sub features { shift->throw_not_implemented }
+
+=head2 get_feature_by_name
+
+ Title   : get_feature_by_name
+ Usage   : $db->get_feature_by_name(-class=>$class,-name=>$name)
+ Function: fetch features by their name
+ Returns : a list of Bio::SeqFeatureI objects
+ Args    : the class and name of the desired feature
+ Status  : public
+
+This method can be used to fetch named feature(s) from the database.
+The -class and -name arguments have the same meaning as in segment(),
+and the method also accepts the following short-cut forms:
+
+  1) one argument: the argument is treated as the feature name
+  2) two arguments: the arguments are treated as the class and name
+     (note: this uses _rearrange() so the first argument must not
+     begin with a hyphen or it will be interpreted as a named
+     argument).
+
+This method may return zero, one, or several Bio::SeqFeatureI objects.
+The implementor may allow the name to contain wildcards, in which case
+standard C-shell glob semantics are expected.
+
+=cut
+
+sub get_feature_by_name {
+  shift->throw_not_implemented();
+}
+
+=head2 get_feature_by_target
+
+ Title   : get_feature_by_target
+ Usage   : $db->get_feature_by_target($class => $name)
+ Function: fetch features by their similarity target
+ Returns : a list of Bio::SeqFeatureI objects
+ Args    : the class and name of the desired feature
+ Status  : public
+
+This method can be used to fetch a named feature from the database
+based on its similarity hit.  The arguments are the same as
+get_feature_by_name().  If this is not implemented, the interface
+defaults to using get_feature_by_name().
+
+=cut
+
+sub get_feature_by_target {
+  shift->get_feature_by_name(@_);
+}
+
+=head2 get_feature_by_id
+
+ Title   : get_feature_by_id
+ Usage   : $db->get_feature_by_target($id)
+ Function: fetch a feature by its ID
+ Returns : a Bio::SeqFeatureI objects
+ Args    : the ID of the feature
+ Status  : public
+
+If the database provides unique feature IDs, this can be used to
+retrieve a single feature from the database.  If not overridden, this
+interface calls get_feature_by_name() and returns the first element.
+
+=cut
+
+sub get_feature_by_id {
+  (shift->get_feature_by_id(@_))[0];
+}
+
+=head2 get_feature_by_attribute
+
+ Title   : get_feature_by_attribute
+ Usage   : $db->get_feature_by_attribute(attribute1=>value1,attribute2=>value2)
+ Function: fetch segments by combinations of attribute values
+ Returns : a list of Bio::SeqFeatureI objects
+ Args    : the class and name of the desired feature
+ Status  : public
+
+This method can be used to fetch a set of features from the database.
+Attributes are a list of name=E<gt>value pairs.  They will be
+logically ANDed together.  If an attribute value is an array
+reference, the list of values in the array is treated as an
+alternative set of values to be ORed together.
+
+=cut
+
+sub get_feature_by_attribute {
+  shift->throw_not_implemented();
+}
+
 
 =head2 search_notes
 

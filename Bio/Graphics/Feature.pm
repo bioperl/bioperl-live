@@ -46,6 +46,7 @@ sub new {
   $self->{class}   = $arg{-class} if exists $arg{-class};
   $self->{url}     = $arg{-url}   if exists $arg{-url};
   $self->{seq}     = $arg{-seq}   if exists $arg{-seq};
+  $self->{phase}   = $arg{-phase} if exists $arg{-phase};
 
   # fix start, stop
   if (defined $self->{stop} && defined $self->{start}
@@ -146,7 +147,7 @@ sub length {
 sub seq {
   my $self = shift;
   my $dna =  exists $self->{seq} ? $self->{seq} : '';
-  $dna .= 'n' x ($self->length - CORE::length($dna));
+  # $dna .= 'n' x ($self->length - CORE::length($dna));
   return $dna;
 }
 *dna = \&seq;
@@ -294,7 +295,7 @@ sub to_FTstring {
   my $high = $self->max_end;
   return "$low..$high";
 }
-sub phase { undef }
+sub phase { shift->{phase} }
 sub class {
   my $self = shift;
   my $d = $self->{class};

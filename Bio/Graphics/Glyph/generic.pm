@@ -64,9 +64,9 @@ sub _label {
 
   # figure it out ourselves
   my $f = $self->feature;
-  my $info = eval {$f->display_id};
-  return $info if $info;
-  return eval {$f->display_id} || eval {$f->seqname} || eval{$f->primary_tag};
+  return $f->info       if $f->can('info');
+  return $f->display_id if $f->can('display_id');
+  return eval {$f->seqname} || eval{$f->primary_tag};
 }
 sub _description {
   my $self = shift;
@@ -84,9 +84,11 @@ sub _description {
 sub get_description {
   my $self = shift;
   my $feature = shift;
-  if (my @notes = eval { $feature->notes }) {
-    return join '; ',@notes;
-  }
+
+  # common places where we can get descriptions
+  return join '; ',$feature->notes if $feature->can('notes');
+  return $feature->desc            if $feature->can('desc');
+
   my $tag = $feature->source_tag;
   return undef if $tag eq '';
   $tag;

@@ -151,13 +151,14 @@ my $nvtoken = ": ";  # The token used if a name/value pair has to be stuffed
 
 =cut
 
-sub _initialize {
-  my($self,@args) = @_;
-  $self->SUPER::_initialize(@args);  
-  if( ! defined $self->sequence_factory ) {
-      $self->sequence_factory(new Bio::Seq::SeqFactory(-verbose => $self->verbose(), -type => 'Bio::Seq::RichSeq'));
-  }
-}
+# LS: this seems to get overwritten on line 1317, generating a redefinition error.  Dead code?
+# sub _initialize {
+#   my($self,@args) = @_;
+#   $self->SUPER::_initialize(@args);  
+#   if( ! defined $self->sequence_factory ) {
+#       $self->sequence_factory(new Bio::Seq::SeqFactory(-verbose => $self->verbose(), -type => 'Bio::Seq::RichSeq'));
+#   }
+# }
 
 =head2 next_seq
 
@@ -583,17 +584,17 @@ sub to_bsml {
 	# Array references to hold <Attribute> values (not objects):
 	my $seqDesc = [];
 	push @{$seqDesc}, ["comment" , "This file generated to BSML 2.2 standards - joins will be collapsed to a single feature enclosing all members of the join"];
-	push @{$seqDesc}, ["description" , $bioSeq->desc];
-	push @{$seqDesc}, ["keyword" , $bioSeq->keywords];
-	push @{$seqDesc}, ["version" , $bioSeq->seq_version];
-	push @{$seqDesc}, ["division" , $bioSeq->division];
-	push @{$seqDesc}, ["pid" , $bioSeq->pid];
+	push @{$seqDesc}, ["description" , eval{$bioSeq->desc}];
+	push @{$seqDesc}, ["keyword" , eval{$bioSeq->keywords}];
+	push @{$seqDesc}, ["version" , eval{$bioSeq->seq_version}];
+	push @{$seqDesc}, ["division" , eval{$bioSeq->division}];
+	push @{$seqDesc}, ["pid" , eval{$bioSeq->pid}];
 #	push @{$seqDesc}, ["bio_object" , ref($bioSeq)];
-	push @{$seqDesc}, ["primary_id" , $bioSeq->primary_id];
-	foreach my $dt ($bioSeq->get_dates() ) {
+	push @{$seqDesc}, ["primary_id" , eval{$bioSeq->primary_id}];
+	foreach my $dt (eval{$bioSeq->get_dates()} ) {
 	    push @{$seqDesc}, ["date" , $dt];
 	}
-	foreach my $ac ($bioSeq->get_secondary_accessions() ) {
+	foreach my $ac (eval{$bioSeq->get_secondary_accessions()} ) {
 	    push @{$seqDesc}, ["secondary_accession" , $ac];
 	}
 	
@@ -616,11 +617,12 @@ sub to_bsml {
 	# Map over <Sequence> attributes
 	my %attr = ( 'title'         => $bioSeq->display_id,
 		     'length'        => $bioSeq->length,
-		     'molecule'      => $mol{ lc($bioSeq->molecule) },
 		     'ic-acckey'     => $acc,
 		     'id'            => $id,
 		     'representation' => 'raw',
 		     );
+	$attr{molecule} = $mol{ lc($bioSeq->molecule) } if $bioSeq->can('molecule');
+
 
 	foreach my $a (keys %attr) {
 	    $xmlSeq->setAttribute($a, $attr{$a}) if ($attr{$a} ne "");
@@ -702,8 +704,8 @@ sub to_bsml {
 		    'class' => $class , 
 		    'value-type' => $bioFeat->source_tag });
 		# Check for Bio::Annotations on the * <Feature> *.
-		$self->_parse_annotation( -xml => $xml, -obj => $bioFeat, 
-					  -desc => $featDesc, -id => $id
+		$self->_parse_annotation( -xml => $xml, -obj => $bioFeat,
+					  -desc => $featDesc, -id => $id,
 					  -refs =>$featRefs, );
 		# Add the description stuff for the <Feature>
 		foreach my $de (@{$featDesc}) {
@@ -1359,6 +1361,7 @@ sub _parseparams {
         $param[$i]=~s/^\-//;
         $param[$i]=~tr/a-z/A-Z/;
     }
+    pop @param if @param %2;  # not an even multiple
     %hash = @param;
     return \%hash;
 }
