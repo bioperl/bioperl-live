@@ -272,7 +272,7 @@ sub next_result{
 			       $self->end_element({'Name' => 'Hit'});
 			   }
 			   $self->start_element({'Name' => 'Hit'});
-			   my $info = $hitinfo[$hitinfo{$name}];
+			   my $info = [@{$hitinfo[$hitinfo{$name}]}];
 			   if( $info->[0] ne $name ) { 
 			       $self->throw("Somehow the Model table order does not match the order in the domains (got ".$info->[0].", expected $name)"); 
 			   }
@@ -295,7 +295,7 @@ sub next_result{
 		       if( $id ne $name ) { 
 			   $self->throw("Somehow the domain list details do not match the table (got $id, expected $name)");
 		       }
-		       if( $domaincounter{$name} == $domainct) {
+		       if( $domaincounter{$name} == $domaintotal) {
 			   $hitinfo[$hitinfo{$name}] = undef;
 		       }
 
