@@ -649,6 +649,27 @@ sub all_SeqFeatures {
    return @array;
 }
 
+=head2 feature_count
+
+ Title   : feature_count
+ Usage   : $seq->feature_count()
+ Function: Return the number of SeqFeatures attached to a sequence
+ Example : 
+ Returns : number of SeqFeatures
+ Args    : none
+
+
+=cut
+
+sub feature_count {
+    my $($self) = @_;
+
+    if (defined($self->{'_as_feat'})) {
+	return ($#{$self->{'_as_feat'}} + 1);
+    } else {
+	return 0;
+    }
+}
 
 sub _retrieve_subSeqFeature {
     my ($arrayref,$feat) = @_;
