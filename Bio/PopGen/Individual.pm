@@ -16,11 +16,14 @@ Bio::PopGen::Individual - An implementation of an Individual who has Genotype or
 
 =head1 SYNOPSIS
 
-Give standard usage here
+use Bio::PopGen::Individual;
+
+my $ind = new Bio::PopGen::Individual(-unqiue_id => $id,
+                                      -genotypes => \@genotypes);
 
 =head1 DESCRIPTION
 
-This object is a container for genotypes
+This object is a container for genotypes.
 
 =head1 FEEDBACK
 
@@ -77,7 +80,8 @@ use Bio::PopGen::IndividualI;
  Usage   : my $obj = new Bio::PopGen::Individual();
  Function: Builds a new Bio::PopGen::Individual object 
  Returns : an instance of Bio::PopGen::Individual
- Args    :
+ Args    : -unique_id => $id,
+           -genotypes => \@genotypes
 
 
 =cut
