@@ -359,6 +359,10 @@ Translate a cDNA or ORF to protein using Bio::Seq's translate() method.
 Design PCR primers given a sequence and the positions of the start and
 stop codons in the sequence's ORF.
 
+=head2 examples/popgen/parse_calc_stats.pl
+
+Shows how to read data from a Bio::PopGen::IO object.
+
 =head2 examples/rev_and_trans.pl
 
 Examples using Bio::Seq.pm for reversing and translating
