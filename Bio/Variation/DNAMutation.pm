@@ -201,7 +201,7 @@ sub CpG {
 
 sub _CpG_value {
     my ($self) = @_;
-    if ($self->allele_ori eq $self-allele_mut and length ($self->allele_ori) == 1 ) {
+    if ($self->allele_ori eq $self->allele_mut and length ($self->allele_ori) == 1 ) {
     
 	# valid only for point mutations
 	# CpG methylation-mediated deamination:
