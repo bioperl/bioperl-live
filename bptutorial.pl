@@ -306,7 +306,8 @@ compiled bioinformatics programs.
 B<Perl - extensions>
 
 For a complete listing of external Perl modules required by bioperl
-please see the INSTALL file in the Bioperl package.
+please see the INSTALL file in the Bioperl package (or
+http://bioperl.org/Core/Latest/INSTALL ).
 
 B<Bioperl auxiliary repositories>
 
@@ -387,7 +388,8 @@ above may not apply. A disadvantage of the "bundle" approach is that
 if there's a problem installing any individual module it may be a bit
 more difficult to isolate.
 
-See bioperl's INSTALL file for more details.
+See bioperl's INSTALL file for more details (or 
+http://bioperl.org/Core/Latest/INSTALL ).
 
 =back
 
@@ -411,10 +413,9 @@ L<Bio::Tools::Run::StandAloneBlast>.
 The only likely complication (at least on unix systems) that may occur
 is if you are unable to obtain system level writing privileges.  For
 instructions on modifying the installation in this case and for more
-details on the overall installation procedure, see the INSTALL file in
-the bioperl distribution as well as the README files in the external
-programs you want to use (e.g. bioperl-ext, clustalw, TCoffee,
-NCBI-blast).
+details on the overall installation procedure, see the INSTALL file 
+(or http://bioperl.org/Core/Latest/INSTALL ) in the bioperl distribution 
+as well as the README files for the external programs you want to use.
 
 =head2 I.5 Additional comments for non-unix users
 
@@ -422,18 +423,12 @@ Bioperl has mainly been developed and tested under various unix
 environments, including Linux and MacOS X.  In addition, this tutorial
 has been written largely from a Unix perspective.
 
-Mac users may find Steve Cannon's installation notes and suggestions
-for Bioperl on OS X at
-http://www.tc.umn.edu/~cann0010/Bioperl_OSX_install.html helpful. Also
-Todd Richmond has written of his experiences with BioPerl on MacOS 9
-(http://bioperl.org/Core/mac-bioperl.html).
-
 The bioperl core has also been tested and should work under most
 versions of Microsoft Windows.  For many windows users the perl and
 bioperl distributions from Active State, at http://www.activestate.com
 has been quite helpful.  Other windows users have had success running
-bioperl under Cygwin (http://www.cygwin.com). See the package's
-INSTALL.WIN file for more details.
+bioperl under Cygwin (http://www.cygwin.com). See the package's INSTALL.WIN 
+file for more details (or http://bioperl.org/Core/Latest/INSTALL.WIN ).
 
 Many bioperl features require the use of CPAN modules, compiled
 extensions or external programs.  These features probably will
@@ -454,9 +449,9 @@ documentation can be found at http://doc.bioperl.org/bioperl-live/.
 This interface lists all bioperl modules and descriptions of all
 of their methods. In addition, beginner questions can often be
 answered by looking at the FAQ, INSTALL and README files 
-(http://bioperl.org/Core/Latest/faq.html,
-http://bioperl.org/Core/Latest/INSTALL,
-http://bioperl.org/Core/Latest/README )in the top-level directory of 
+(http://bioperl.org/Core/Latest/faq.html and 
+http://bioperl.org/Core/Latest/INSTALL and 
+http://bioperl.org/Core/Latest/README ) in the top-level directory of 
 the bioperl distribution.
 
 One potential problem in locating the correct documentation is that
@@ -479,7 +474,8 @@ these scripts, or http://bioperl.org/Core/Latest/bioscripts.html).
 
 Another source of focussed documentation is the HOWTO files, found
 either in the bioperl doc/howto directory or at http://bioperl.org/HOWTOs/.
-Current topics include OBDA Access, SeqIO, SearchIO, and BioGraphics.
+Current topics include OBDA Access, SeqIO, SearchIO, BioGraphics,
+Features and Annotations, Trees, PAML, and Biopipe.
 
 
 =head1 II. Brief introduction to bioperl's objects
@@ -547,8 +543,8 @@ created automatically when Genbank, EMBL, or Swissprot format files
 are read by SeqIO.
 
 SeqWithQuality objects areu sed to manipulate sequences with quality data, 
-like those produced by phred.  These objects are described in section L<"III.7.6">,
-L<Bio::Seq::RichSeqI>, and in L<Bio::Seq::SeqWithQuality>.
+like those produced by phred.  These objects are described in section 
+L<"III.7.6">, L<Bio::Seq::RichSeqI>, and in L<Bio::Seq::SeqWithQuality>.
 
 What is called a LocatableSeq object for historical reasons
 might be more appropriately called an "AlignedSeq" object.  It is a Seq
