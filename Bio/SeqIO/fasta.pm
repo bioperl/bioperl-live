@@ -112,11 +112,11 @@ sub next_primary_seq {
   }
 
   my $next_rec = $entry;
-  while($next_rec =~ /.>/) {
+  while($next_rec =~ /(^|.)>$/) {
       # HL 05/25/2000
       # a greater sign not preceded by a newline indicates that there is a
-      # newline within the description, so we need more to complete the record
-      return unless $next_rec = $self->_readline();
+      # '>' within the description, so we need more to complete the record
+      return unless defined($next_rec = $self->_readline());
       $entry .= $next_rec;
   }
 
