@@ -120,6 +120,7 @@ use Bio::Seq::QualI;
 sub new {
     my ($class, @args) = @_;
     my $self = $class->SUPER::new(@args);
+     print("Here are the args: @args \n");
         # default: turn ON the warnings (duh)
 	$self->{supress_warnings} = 1;
 	my $quiet = 1;

@@ -1278,7 +1278,7 @@ sub get_singletons {
 			@array = @{$self->{'contigs'}->{$key}->{'member_array'}};
 		}
 		my $num_array_elem = @array;
-		if (@array == 1 && $self->{'contigs'}->{$key}->{'class'} eq "singleton") { push @singletons,$key; }
+		if ($num_array_elem == 1 && $self->{'contigs'}->{$key}->{'class'} && $self->{'contigs'}->{$key}->{'class'} eq "singleton") { push @singletons,$key; }
 	}
 	return @singletons;
 }
@@ -1405,7 +1405,7 @@ sub get_doublets {
 	my @doublets;
 	foreach (sort keys %{$self->{'contigs'}}) {
 	    if ($self->{'contigs'}->{$_}->{name} && $self->{'contigs'}->{$_}->{'class'} eq "doublet") {
-		push @doublets,$self->{'contigs'}->{$_}->{'name'};
+		push @doublets,$_;
 	    }
 	}
 	return @doublets;
