@@ -1,7 +1,7 @@
 
 
 #
-# BioPerl module for Bio::SeqIO::swissprot
+# BioPerl module for Bio::SeqIO::swiss
 #
 # Cared for by Elia Stupka <elia@ebi.ac.uk>
 #
@@ -13,7 +13,7 @@
 
 =head1 NAME
 
-Bio::SeqIO::swissprot - Swissprot sequence input/output stream
+Bio::SeqIO::swiss - Swissprot sequence input/output stream
 
 =head1 SYNOPSIS
 
@@ -129,7 +129,7 @@ sub _initialize {
 				     @args,
 				     );
   if( $file && $fh ) {
-      $self->throw("Providing both a file and a filehandle for reading from - oly one please!");
+      $self->throw("Providing both a file and a filehandle for reading from - only one please!");
   }
 
   if( !$file && !$fh ) {
@@ -164,7 +164,8 @@ sub _initialize {
 
 sub next_seq {
    my ($self,@args) = @_;
-   my ($pseq,$c,$line,$name,$desc,$acc,$seqc,$mol,$div, $date, $comment, @date_arr);
+   my ($pseq,$c,$line,$name,$desc,$acc,$seqc,$mol,$div,$date,$comment,@date_arr);
+   my ($keywords,$acc_string);
    my $seq = Bio::Seq->new();
    $line = $self->_readline;
 
@@ -181,8 +182,12 @@ sub next_seq {
        return undef; # end of file
    }
 
-   $line =~ /^ID\s+(\S+)/ || $self->throw("swissprot stream with no ID. Not swissprot in my book");
-   $name = $1;
+   $line =~ /^ID\s+([^\s_]+)_([^\s_]+)\s+([^\s;]+);\s+([^\s;]+);/ 
+     || $self->throw("swissprot stream with no ID. Not swissprot in my book");
+   $name = $1."_".$2;
+   $seq->primary_id($1);
+   $seq->division($2);
+   $seq->molecule($4);
     # this is important to have the id for display in e.g. FTHelper, otherwise
     # you won't know which entry caused an error
    $seq->display_id($name);
@@ -206,13 +211,9 @@ sub next_seq {
        elsif (/^GN\s+(\S+)/) {
 	   $seq->annotation->gene_name($1);
        }  
-       #accession number
+       #accession number(s)
        elsif( /^AC\s+(.+)/) {
-	   my( $acc, @sec ) = split /[\s;]+/, $1;
-	   $seq->accession_number($acc);
-           foreach my $s (@sec) {
-	      $seq->add_secondary_accession($s);
-           }
+           $acc_string .= $acc_string ? " $1" : $1;
        }
        #version number
        elsif( /^SV\s+(\S+);?/ ) {
@@ -227,7 +228,7 @@ sub next_seq {
 	   $seq->add_date($date);
        }
        # Organism name and phylogenetic information
-       elsif (/^O[SC]/) {
+       elsif (/^O[SCG]/) {
            my $species = $self->_read_swissprot_Species(\$buffer);
            $seq->species( $species );
 	   # now we are one line ahead -- so continue without reading the next
@@ -247,21 +248,23 @@ sub next_seq {
 	   next;
        }
        #Comments
-       elsif (/^CC\s+(.*)/) {
+       elsif (/^CC\s{3}(.*)/) {
 	   $comment .= $1;
-	   $comment .= " ";
+	   $comment .= "\n";
 	   while (defined ($buffer = $self->_readline)) {
-	       if ($buffer =~ /^CC\s+(.*)/) {
+	       if ($buffer =~ /^CC\s{3}(.*)/) {
 		   $comment .= $1;
-		   $comment .= " ";
+		   $comment .= "\n";
 	       }
 	       else { 
 		   last;
 	       }
 	   }
 	   my $commobj = Bio::Annotation::Comment->new();
-	   $comment =~ s/-\!- //g;
-	   $comment =~ s/    //g;
+	   # i think we shouldn't replace the following because it marks 
+	   # special comments. LP 07/30/2000
+	   #$comment =~ s/-\!- //g;
+	   #$comment =~ s/    //g;
 	   $commobj->text($comment);
 	   $seq->annotation->add_Comment($commobj);
 	   $comment = "";
@@ -270,7 +273,7 @@ sub next_seq {
 	   next;
        }
        #DBLinks
-       elsif (/^DR\s+(\S+)\; (\S+)\; (\S+)\; (\S+)/) {
+       elsif (/^DR\s+(\S+)\; (\S+)\; (\S+)[\;\.] (\S+)\./) {
 	   my $dblinkobj =  Bio::Annotation::DBLink->new();
 	   $dblinkobj->database($1);
 	   $dblinkobj->primary_id($2);
@@ -278,16 +281,16 @@ sub next_seq {
 	   $dblinkobj->comment($4);
 	   $seq->annotation->add_DBLink($dblinkobj);
        }
-       elsif (/^DR\s+(\S+)\; (\S+)\;/) {
+       elsif (/^DR\s+(\S+)\; (\S+)\; (\S+)\./) {
 	   my $dblinkobj =  Bio::Annotation::DBLink->new();
 	   $dblinkobj->database($1);
 	   $dblinkobj->primary_id($2);
+	   $dblinkobj->optional_id($3);
 	   $seq->annotation->add_DBLink($dblinkobj);
        }
        #keywords
-       elsif( /^KW   (.*)\S*$/ ) {
-	   my $keywords = $1;
-	   $seq->keywords($keywords);
+       elsif( /^KW\s+(.*)$/ ) {
+           $keywords .= $keywords ? " $1" : $1;
        }
 
        # Get next line. Getting here assumes that we indeed need to read the
@@ -324,10 +327,18 @@ sub next_seq {
        s/[^A-Za-z]//g;
        $seqc .= $_;
    }
-   $pseq = Bio::PrimarySeq->new(-seq => $seqc , -id => $name, -desc => $desc);
+   $pseq = Bio::PrimarySeq->new(-seq => $seqc , -id => $name, -desc => $desc, 
+				-accession_number => $seq->accession_number);
    $seq->primary_seq($pseq);
-   return $seq;
+   $seq->keywords($keywords);
+   $acc_string =~ s/\;\s*/ /g;
+   my( $acc, @sec ) = split " ",$acc_string;
+   $seq->accession_number($acc);
+   foreach my $s (@sec) {
+     $seq->add_secondary_accession($s);
+   }
 
+   return $seq;
 }
 
 =head2 write_seq
@@ -378,7 +389,8 @@ sub write_seq {
    if( $self->_id_generation_func ) {
        $temp_line = &{$self->_id_generation_func}($seq);
    } else {
-       $temp_line = sprintf ("%s_$div    STANDARD;       $mol;   %d AA.",$seq->id(),$len);
+       $temp_line = sprintf ("%s_%s     STANDARD;      $mol;   %d AA.",
+			     $seq->primary_id(),$div,$len);
    } 
 
    $self->_print( "ID   $temp_line\n");   
@@ -393,7 +405,10 @@ sub write_seq {
        if ($seq->can('accession_number') ) {
 	   $self->_print("AC   ",$seq->accession_number,";");
 	   if ($seq->can('each_secondary_accession') ) {
-	       $self->_print(" ",$seq->each_secondary_accession,";\n");
+	     foreach my $sacc ($seq->each_secondary_accession) {
+	       $self->_print(" ",$sacc,";");
+	     }
+	     $self->_print("\n");
 	   }
 	   else {
 	       $self->_print("\n");
@@ -424,7 +439,7 @@ sub write_seq {
             $OS .= " $ssp";
         }
         if (my $common = $spec->common_name) {
-            $OS .= " ($common)";
+            $OS .= " ($common).";
         }
         $self->_print( "OS   $OS\n");
         my $OC = join('; ', reverse(@class)) .'.';
@@ -463,11 +478,23 @@ sub write_seq {
    # Comment lines
 
    foreach my $comment ( $seq->annotation->each_Comment() ) {
-       $self->_write_line_swissprot_regex("CC   ","CC   ",$comment->text,"\\s\+\|\$",80);
+       foreach my $cline (split ("\n", $comment->text)) {
+	 while (length $cline > 74) {
+	   $self->_print("CC   ",(substr $cline,0,74),"\n");
+	   $cline = substr $cline,74;
+	 }
+	 $self->_print("CC   ",$cline,"\n");
+       }
    }
 
    foreach my $dblink ( $seq->annotation->each_DBLink() ) {
-       $self->_print("DR   ",$dblink->database,"; ",$dblink->primary_id,"; ",$dblink->optional_id,"; ",$dblink->comment,"\n");
+     if (defined($dblink->comment)&&($dblink->comment)) {
+       $self->_print("DR   ",$dblink->database,"; ",$dblink->primary_id,"; ",
+		     $dblink->optional_id,"; ",$dblink->comment,".\n");
+     } else {
+       $self->_print("DR   ",$dblink->database,"; ",$dblink->primary_id,"; ",
+		     $dblink->optional_id,".\n");
+     }
    }
    
 
@@ -478,7 +505,8 @@ sub write_seq {
        $self->_print( "KW   $temp_line\n");   
    } else {
        if( $seq->can('keywords') ) {
-	   $self->_print( "KW   ",$seq->keywords,"\n");
+	 $self->_write_line_swissprot_regex("KW   ","KW   ",
+					    $seq->keywords,"\\s\+\|\$",80);       
        }
    } 
    if( defined $self->_post_sort ) {
@@ -546,10 +574,25 @@ sub write_seq {
 
 sub _print_swissprot_FTHelper {
    my ($self,$fth,$always_quote) = @_;
+   $always_quote ||= 0;
+   my ($start,$end);
    
-    ### FIXME - not implemented
-    warn "_print_swissprot_FTHelper NOT IMPLEMENTED";
+   if( ! ref $fth || ! $fth->isa('Bio::SeqIO::FTHelper') ) {
+       $fth->warn("$fth is not a FTHelper class. ".
+		  "Attempting to print, but there could be tears!");
+   }
 
+   $fth->loc =~ /(\d+)\.\.(\d+)/;
+   $start = $1;
+   $end = $2;
+   my $desc = "";
+   $desc = @{$fth->field->{"description"}}[0]."." 
+     if exists $fth->field->{"description"};
+   
+   $self->_write_line_swissprot_regex(sprintf("FT   %-8s %6s %6s       ",
+					      $fth->key,$start,$end),
+				      "FT                                ",
+				      $desc,'\s+|$',80);
 }
 
 
@@ -590,10 +633,10 @@ sub _read_swissprot_References{
        #/^SQ/ && last; # there may be sequences without CC lines! HL 05/11/2000
        /^[^R]/ && last; # may be the safest exit point HL 05/11/2000
        /^RX   MEDLINE;\s+(\d+)/ && do {$med=$1};
-       /^RA   (.*)/ && do { $au .= $1;   next;};
-       /^RT   (.*)/ && do { $title .= $1; next;};
-       /^RL   (.*)/ && do { $loc .= $1; next;};
-       /^RC   (.*)/ && do { $com .= $1; next;};
+       /^RA   (.*)/ && do { $au .= $au ? " $1" : $1;   next;};
+       /^RT   (.*)/ && do { $title .= $title ? " $1" : $1; next;};
+       /^RL   (.*)/ && do { $loc .= $loc ? " $1" : $1; next;};
+       /^RC   (.*)/ && do { $com .= $com ? " $1" : $1; next;};
    }
    
    my $ref = new Bio::Annotation::Reference;
@@ -641,7 +684,8 @@ sub _read_swissprot_Species {
 	    if ($2) {
 		$species = $2;
 		# remove trailing dot -- TrEMBL has that. HL 05/11/2000
-		$species =~ s/.$//;
+		# forgot to escape the dot. LP 07/30/2000
+		$species =~ s/\.$//;
 	    } else {
 		$species = "sp.";
 	    }
