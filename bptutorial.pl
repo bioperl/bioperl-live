@@ -1740,10 +1740,10 @@ parsing BLAST reports.
 
 Once one has identified a set of similar sequences, one often needs to
 create an alignment of those sequences. Bioperl offers several perl
-objects to facilitate sequence alignment: pSW, Clustalw.pm, TCoffee.pm
-and the bl2seq option of StandAloneBlast. As of release 1.2 of
+objects to facilitate sequence alignment: pSW, Clustalw.pm, TCoffee.pm,
+dpAlign.pm and the bl2seq option of StandAloneBlast. As of release 1.2 of
 bioperl, using these modules (except bl2seq) requires a bioperl
-auxiliary library (bioperl-ext for pSW, bioperl-run for the others)
+auxiliary library (bioperl-ext for pSW and dpAlign, bioperl-run for the others)
 and are therefore described in section IV. Here we describe only the
 module within the bioperl core package for manipulating previously
 created alignments, namely the SimpleAlign module.
@@ -1753,8 +1753,8 @@ another good source of information of ways to create and manipulate
 sequence alignments within bioperl.
 
 SimpleAlign objects are produced by bioperl-run alignment creation objects
-(e.g. Clustalw.pm, BLAST's bl2seq, TCoffee.pm, Lagan.pm, or pSW from 
-the bioperl-ext package) or they can be read in from files of 
+(e.g. Clustalw.pm, BLAST's bl2seq, TCoffee.pm, Lagan.pm, or pSW and 
+dpAlign from the bioperl-ext package) or they can be read in from files of 
 multiple-sequence alignments in various formats using AlignIO.
 
 Some of the manipulations possible with SimpleAlign include:
@@ -2646,7 +2646,8 @@ The Smith-Waterman (SW) algorithm is the standard method for producing
 an optimal local alignment of two sequences.  Bioperl supports the
 computation of SW alignments via the pSW object with the auxiliary
 bioperl-ext library. Note that pSW only supports the alignment of
-protein sequences, not nucleotide.
+protein sequences, not nucleotide (use dpAlign from bioperl-ext
+to do protein alignments).
 
 The SW algorithm itself is implemented in C and incorporated into
 bioperl using an XS extension. This has significant efficiency
