@@ -9,7 +9,7 @@ BEGIN {
 	use lib 't';
     }
     use Test;
-    $TESTCOUNT = 150;
+    $TESTCOUNT = 161;
     plan tests => $TESTCOUNT;
 }
 
@@ -133,6 +133,7 @@ $ast = Bio::SeqIO->new( '-verbosity' => $verbosity,
 			'-format' => 'swiss' , 
 			'-file' => Bio::Root::IO->catfile("t","data","roa1.swiss"));
 $as = $ast->next_seq();
+
 ok defined $as->seq;
 ok($as->id, 'ROA1_HUMAN', "id is ".$as->id);
 #ok($as->primary_id, 'ROA1');
@@ -143,7 +144,8 @@ ok($as->division, 'HUMAN');
 ok(scalar $as->all_SeqFeatures(), 16);
 
 ok(scalar $as->annotation->get_Annotations('reference'), 11);
-($ent, $seq, $out) = undef;
+
+($ent, $seq, $out,$as) = undef;
 
 $ent = Bio::SeqIO->new( '-file' => Bio::Root::IO->catfile("t","data","test.embl"),
 			'-format' => 'embl');
@@ -247,6 +249,8 @@ $seqnum = 0;
 while($seq = $stream->next_seq()) {
     if($seqnum < 3) {
         ok $seq->display_id(), $ids[$seqnum];
+    } elsif( $seq->display_id eq 'M37762') {
+	ok( ($seq->get_keywords())[0], 'neurotrophic factor');
     }
     $seqnum++;
 }
@@ -298,7 +302,6 @@ $seq->verbose($verbosity);
 ok($seq->write_seq($as));
 unlink(Bio::Root::IO->catfile("t","data","genbank.fuzzyout"));
 
-
 my $seqio = Bio::SeqIO->new( '-format' => 'swiss' ,
 			  -file => Bio::Root::IO->catfile("t","data","swiss.dat"));
 
@@ -335,6 +338,15 @@ foreach my $gn ( $seq->annotation->get_Annotations('gene_name') ) {
 
 # test species in swissprot -- this can be a n:n nightmare
 ok ($seq = $seqio->next_seq());
+my @sec_acc = $seq->get_secondary_accessions();
+ok ($sec_acc[0], 'P29360');
+ok ($sec_acc[1], 'Q63631');
+ok ($seq->accession_number, 'P42655');
+my @kw = $seq->get_keywords;
+ok( $kw[0], 'Brain');
+ok( $kw[1], 'Neurone');
+ok ($kw[3], 'Multigene family');
+ok ($seq->display_id, '143E_HUMAN');
 ok ($seq->species->binomial, "Homo sapiens");
 ok ($seq->species->common_name, "Human");
 ok ($seq->species->ncbi_taxid, 9606);
@@ -346,6 +358,7 @@ ok ($seq->species->ncbi_taxid, 9913);
 
 # multiple genes in swissprot
 ok ($seq = $seqio->next_seq());
+
 ($ann) = $seq->annotation->get_Annotations("gene_name");
 @genenames = qw(CALM1 CAM1 CALM CAM CALM2 CAM2 CAMB CALM3 CAM3 CAMC);
 foreach my $gn ( $ann->get_all_values() ) {
@@ -447,3 +460,15 @@ ok($seq->seq_version, 2);
 my @accs = $seq->get_secondary_accessions();
 ok($accs[0], 'J01597');
 ok($accs[-1], 'X56742');
+
+$seqio = new Bio::SeqIO(-format => 'genbank',
+			-file   => Bio::Root::IO->catfile(qw(t data 
+							     D10483.gbk)));
+
+$seq = $seqio->next_seq;
+my @kw =  $seq->get_keywords;
+ok(scalar @kw, 118);
+ok($kw[-1], 'yabO');
+my @sec_acc = $seq->get_secondary_accessions();
+ok(scalar @sec_acc,23);
+ok($sec_acc[-1], 'X56742');
