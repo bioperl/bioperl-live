@@ -116,14 +116,11 @@ sub new {
 
     my $self = bless({}, $class);
     my %param = @args;
-    my($verbose) = 
-	( 
-	  ($param{'-VERBOSE'}||$param{'-verbose'}),
-	  );
+    my($verbose) =  ( $param{'-VERBOSE'} || $param{'-verbose'} );
 
     ## See "Comments" above regarding use of _rearrange().
 
-    $self->verbose($verbose || 0);
+    $self->verbose($verbose);
 
     return $self;
 }
@@ -180,34 +177,23 @@ sub warn{
 
     my $verbose = $self->verbose;
 
-    if( defined $verbose ) {
-
-	if( $verbose == 2 ) {
-	    $self->throw($string);
-	}
-
-	if( $verbose == -1 ) {
-	    return;
-	}
-
-	if( $verbose == 1 ) {
-	    my $out = "-------------------- WARNING ---------------------\n".
+    if( $verbose == 2 ) {
+	$self->throw($string);
+    } elsif( $verbose == -1 ) {
+	return;
+    } elsif( $verbose == 1 ) {
+	my $out = "-------------------- WARNING ---------------------\n".
 		"MSG: ".$string."\n";
-	    $out .= $self->stack_trace_dump;
+	$out .= $self->stack_trace_dump;
+	
+	print STDERR $out;
+	return;
+    }    
 
-	    print STDERR $out;
-	    return;
-	}
-    }
-
-
-
-   my $out = "-------------------- WARNING ---------------------\n".
+    my $out = "-------------------- WARNING ---------------------\n".
        "MSG: ".$string."\n".
 	   "---------------------------------------------------\n";
-   print STDERR $out;
-   
-
+    print STDERR $out;
 }
 
 
@@ -230,10 +216,10 @@ sub warn{
 sub verbose{
    my ($self,$value) = @_;
 
-   if( defined $value ) {
+   if( defined $value || ! defined $self->{'_rootI_verbose'} ) {
+       $value = 0 unless defined $value;
        $self->{'_rootI_verbose'} = $value;
    } 
-
    return $self->{'_rootI_verbose'};
 }
 
@@ -440,10 +426,17 @@ sub tempfile {
     my %hash = @args;
     my $dir;
     $dir = ( $hash{DIR} ) ? $hash{DIR} : $dir = $TEMPDIR;
+    my $tfilename;
 
-    my $tfilename = File::Spec->catfile($dir, sprintf( "%s-%s-%s",  
-					$ENV{USER} || 'unknown', $$), 
-					$TEMPCOUNTER++);
+    if( $FILESPECLOADED ) {
+	$tfilename = File::Spec->catfile($dir, sprintf( "%s-%s-%s",  
+					$ENV{USER} || 'unknown', $$, 
+							$TEMPCOUNTER++));
+    } else {
+	$tfilename = join("/", ($dir, sprintf( "%s-%s-%s",  
+					       $ENV{USER} || 'unknown', $$, 
+					       $TEMPCOUNTER++)));
+    }
     push @{$self->{'_rooti_tempfiles'}}, $tfilename;
 
     # taken from File::Temp;
@@ -496,11 +489,20 @@ sub tempdir {
     }
     # we are planning to cleanup temp files no matter what
     $self->{'_cleanuptempdir'} = $args{CLEANUP} == 1;
-    
-    my $tdir = File::Spec->catdir($TEMPDIR,
-				  sprintf("dir_%s-%s-%s", 
-					  $ENV{USER} || 'unknown', $$), 
-				  $TEMPCOUNTER++);
+
+    my $tdir;
+    if( $FILESPECLOADED ) {
+	$tdir = File::Spec->catdir($TEMPDIR,
+				   sprintf("dir_%s-%s-%s", 
+					   $ENV{USER} || 'unknown', $$, 
+					   $TEMPCOUNTER++));
+    } else { 
+	$tdir = join('/', ($TEMPDIR,
+			   sprintf("dir_%s-%s-%s", 
+				   $ENV{USER} || 'unknown', $$, 
+				   $TEMPCOUNTER++)
+			   ));
+    }
     mkdir($tdir, 0755);
     push @{$self->{'_rooti_tempdirs'}}, $tdir; 
     return $tdir;

@@ -339,8 +339,6 @@ sub fh {
 sub _initialize {
   my($self,@args) = @_;
 
-#  my $make = $self->SUPER::_initialize(@args);  # exception handling code
-
   my ($file,$fh) = $self->_rearrange([qw(FILE
 					 FH
 					 )],
@@ -351,10 +349,10 @@ sub _initialize {
   }
 
   if( defined $file and $file ne '' ) {
-    $fh = Symbol::gensym();
-    open ($fh,$file) || $self->throw("Could not open $file for Fasta stream reading $!");
+      $fh = Symbol::gensym();
+      open ($fh,$file) || $self->throw("Could not open $file for Fasta stream reading $!");
   }
-  $self->_filehandle($fh) if defined $fh;
+  $self->_filehandle($fh) if( defined $fh);
   1;
 }
 
@@ -491,9 +489,9 @@ sub _readline {
 sub _filehandle {
    my ($obj,$value) = @_;
    if( defined $value) {
-      $obj->{'_filehandle'} = $value;
-    }
-    return $obj->{'_filehandle'};
+       $obj->{'_filehandle'} = $value;
+   }
+   return $obj->{'_filehandle'};
 }
 
 =head2 _guess_format

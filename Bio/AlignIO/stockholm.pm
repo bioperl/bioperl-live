@@ -83,12 +83,9 @@ sub next_aln {
     # Of particular interest are the '#=GF <name/st-ed> AC <accession>'
     # lines, which give accession numbers for each segment
 
-
-
     my $aln =  Bio::SimpleAlign->new();
 
-
-    while( $entry = $self->_readline) {
+    while( defined($entry = $self->_readline) ) {
         $entry !~ /\w+/ && next;
 
 	if ($entry =~ /^\#\s*STOCKHOLM\s+/) {
@@ -101,11 +98,11 @@ sub next_aln {
 #
 #    Next section is same as for selex format
 #
-    while( $entry = $self->_readline) {
+    while( defined($entry = $self->_readline) ) {
         $entry =~ /^\#=GS\s+(\S+)\s+AC\s+(\S+)/ && do {
-	    				$accession{ $1 } = $2;
-	    				next;
-					};
+	    $accession{ $1 } = $2;
+	    next;
+	};
 	$entry !~ /^([^\#]\S+)\s+([A-Za-z\.\-]+)\s*/ && next;
 	
 	$name = $1;

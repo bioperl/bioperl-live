@@ -117,10 +117,8 @@ sub next_aln {
     my ($start,$end,$name,$seqname,$seq,$seqchar);
     my $aln =  Bio::SimpleAlign->new();
     my $bl2seqobj = Bio::Tools::BPbl2seq->new($self->_filehandle);
-					     
-	
 
-    $seqchar = $bl2seqobj->querySeq ;
+    $seqchar = $bl2seqobj->querySeq;
     $start = $bl2seqobj->query->start;
     $end = $bl2seqobj->query->end;
     $seqname = $bl2seqobj->query->seqname;
