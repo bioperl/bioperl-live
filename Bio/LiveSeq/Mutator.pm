@@ -466,7 +466,150 @@ sub exons {
   }
 }
 
+=head2 change_gene_with_alignment
 
+ Title   : change_gene_with_alignment
+ Usage   : $results=$mutate->change_gene_with_alignment($aln);
+
+ Function:
+
+           Returns a Bio::Variation::SeqDiff object containing the
+           results of the changes in the alignment. The alignment has
+           to be pairwise and have one sequence named 'QUERY', the
+           other one is assumed to be a part of the sequence from
+           $gene.
+
+           This method offers a shortcut to L<change_gene> and
+           automates the creation of L<Bio::LiveSeq::Mutation> objects.
+           Use it with almost identical sequnces, e.g. to locate a SNP.
+
+ Args    : Bio::SimpleAlign object representing a short local alignment
+ Returns : Bio::Variation::SeqDiff object or 0 on error
+
+=cut
+
+sub change_gene_with_alignment {
+    my ($self, $aln) = @_;
+
+    #
+    # Sanity checks
+    #
+
+    $self->throw("Argument is not a Bio::SimpleAlign object but a [$aln]")
+	unless $aln->isa('Bio::SimpleAlign');
+    $self->throw("'Pairwise alignments only, please") 
+	if $aln->no_sequences != 2;
+
+    # find out the order the two sequences are given
+    my $queryseq_pos = 1; #default
+    my $refseq_pos = 2;
+    unless ($aln->get_seq_by_pos(1)->id eq 'QUERY') {
+	carp('Query sequence has to be named QUERY') 
+	    if $aln->get_seq_by_pos(2)->id ne 'QUERY';
+	$queryseq_pos = 2; # alternative
+	$refseq_pos = 1;
+    }
+
+    # trim the alignment
+    my $start =  $aln->column_from_residue_number('QUERY', 1);
+    my $end =  $aln->column_from_residue_number('QUERY', 
+						$aln->get_seq_by_pos($queryseq_pos)->end );
+    
+    my $aln2 = $aln->slice($start, $end);
+
+    #
+    # extracting mutations
+    #
+
+    my $cs = $aln2->consensus_string(51);
+    my $queryseq = $aln2->get_seq_by_pos($queryseq_pos);
+    my $refseq = $aln2->get_seq_by_pos($refseq_pos);
+
+    while ( $cs =~ /(\?+)/g) {
+	# pos in local coordinates
+	my $pos = pos($cs) - length($1) + 1;
+	my $mutation = create_mutation($self, 
+				       $refseq, 
+				       $queryseq, 
+				       $pos, 
+				       CORE::length($1)
+				       );
+	# reset pos to refseq coordinates
+	$pos +=  $refseq->start - 1;
+	$mutation->pos($pos);
+
+        $self->add_Mutation($mutation);
+    }
+    return $self->change_gene();
+}
+
+=head2 create_mutation
+
+ Title   : create_mutation
+ Usage   : 
+ Function:
+
+           Formats sequence differences from two sequences into
+           Bio::LiveSeq::Mutation objects which can be applied to a
+           gene.
+
+           To keep it generic, sequence arguments need not to be
+           Bio::LocatableSeq. Coordinate change to parent sequence
+           numbering needs to be done by the calling code.
+
+           Called from L<change_gene_with_alignment>
+
+ Args    : Bio::PrimarySeqI inheriting object for the reference sequence
+           Bio::PrimarySeqI inheriting object for the query sequence
+           integer for the start position of the local sequence difference
+           integer for the length of the sequence difference
+ Returns : Bio::LiveSeq::Mutation object 
+
+=cut
+
+sub create_mutation {
+    my ($self, $refseq, $queryseq, $pos, $len) = @_;
+    
+    $self->throw("Is not a Bio::PrimarySeqI object but a [$refseq]") 
+	unless $refseq->isa('Bio::PrimarySeqI');
+    $self->throw("Is not a Bio::PrimarySeqI object but a [$queryseq]") 
+	unless $queryseq->isa('Bio::PrimarySeqI');
+    $self->throw("Position is not a positive integer but [$pos]") 
+	unless $pos =~ /^+?\d+$/;
+    $self->throw("Length is not a positive integer but [$len]") 
+	unless $pos =~ /^+?\d+$/;
+
+    my $mutation;
+    my $refstring = $refseq->subseq($pos, $pos + $len - 1);
+    my $varstring = $queryseq->subseq($pos, $pos + $len - 1);
+    
+    if ($len == 1 and $refstring =~ /[^\.\-\*\?]/ and 
+	$varstring  =~ /[^\.\-\*\?]/ ) { #point
+	$mutation = new Bio::LiveSeq::Mutation (-seq => $varstring,
+						-pos => $pos,
+						);
+    }
+    elsif ( $refstring =~ /^[^\.\-\*\?]+$/ and 
+	    $varstring  !~ /^[^\.\-\*\?]+$/ ) { # deletion
+	$mutation = new Bio::LiveSeq::Mutation (-pos => $pos,
+						-len => $len
+						);
+    }
+    elsif ( $refstring !~ /^[^\.\-\*\?]+$/ and 
+	    $varstring  =~ /^[^\.\-\*\?]+$/ ) { # insertion
+	$mutation = new Bio::LiveSeq::Mutation (-seq => $varstring,
+						-pos => $pos,
+						-len => 0
+						);
+    } else { # complex
+	$mutation = new Bio::LiveSeq::Mutation (-seq => $varstring,
+						-pos => $pos,
+						-len => $len
+						);
+    }
+    
+    return $mutation;
+}
 
 =head2 change_gene
 
