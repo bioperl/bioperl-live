@@ -127,6 +127,7 @@ use Bio::Seq::SeqFactory;
 use Bio::Annotation::Collection;
 use Bio::Annotation::Comment;
 use Bio::Annotation::DBLink;
+use Bio::Annotation::SimpleValue;
 
 @ISA = qw(Bio::SeqIO);
  
@@ -209,8 +210,14 @@ sub next_seq {
 							 );
 
   $FIELDS{CLASS} =~ s/^CLASS\s+//;
-  while($FIELDS{CLASS} =~ /.+?\[(\S+):(\S+)\]/gs){
-	$annotation->add_Annotation('dblink',Bio::Annotation::DBLink->new(-database => $1, -primary_id => $2));
+  $FIELDS{'CLASS'} =~ s/\n//g;
+  while($FIELDS{CLASS} =~ /(.*?)\[(\S+):(\S+)\]/g){
+      my ($pathway,$db,$id) = ($1,$2,$3);
+      $pathway =~ s/\s+/ /g;
+      $pathway =~ s/\s$//g;
+      $pathway =~ s/^\s+//;
+      $annotation->add_Annotation('pathway', Bio::Annotation::SimpleValue->new(-value => $pathway));
+      $annotation->add_Annotation('dblink',Bio::Annotation::DBLink->new(-database => $db, -primary_id => $id));
   }
 
   $FIELDS{DBLINKS} =~ s/^DBLINKS/       /;

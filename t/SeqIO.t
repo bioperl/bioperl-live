@@ -11,7 +11,7 @@ BEGIN {
 use lib 't';
     }
     use Test;
-    $TESTCOUNT = 235;
+    $TESTCOUNT = 239;
     plan tests => $TESTCOUNT;
 }
 
@@ -142,6 +142,15 @@ ok($out->write_seq($seq),1,
    'failure to write Embl format with ^ < and > locations');
 unlink("embl.out");
 
+# embl with no FT
+$ent = Bio::SeqIO->new( '-file' => Bio::Root::IO->catfile("t","data","test.embl"),
+'-format' => 'embl');
+
+$seq = $ent->next_seq();
+ok($seq);
+ok(lc($seq->subseq(1,10)),'gatcagtaga');
+ok($seq->length);
+
 # kegg
 my $kegg = Bio::SeqIO->new( '-format' => 'kegg' ,
     '-file' => Bio::Root::IO->catfile("t","data","AHCYL1.kegg"));
@@ -156,9 +165,13 @@ ok($kegg->seq);
 ok($kegg->translate->seq);
 ok(($kegg->annotation->get_Annotations('description'))[0]->text,
    'S-adenosylhomocysteine hydrolase-like 1 [EC:3.3.1.1]');
+ok(($kegg->annotation->get_Annotations('pathway'))[0]->value,
+   'Metabolism; Amino Acid Metabolism; Methionine metabolism');
+
 ok( (grep {$_->database eq 'KO'} 
      $kegg->annotation->get_Annotations('dblink'))[0]->comment, 
     'adenosylhomocysteinase' );
+
 ok( (grep {$_->database eq 'PATH'} 
      $kegg->annotation->get_Annotations('dblink'))[0]->primary_id,
     'hsa00271' );
