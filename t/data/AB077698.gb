@@ -1,0 +1,132 @@
+LOCUS       AB077698                2701 bp    mRNA    linear   PRI 01-MAR-2002
+DEFINITION  Homo sapiens mRNA for hCHCR-G, complete cds.
+ACCESSION   AB077698
+VERSION     AB077698.1  GI:19032344
+KEYWORDS    .
+SOURCE      Homo sapiens cDNA to mRNA.
+  ORGANISM  Homo sapiens
+            Eukaryota; Metazoa; Chordata; Craniata; Vertebrata; Euteleostomi;
+            Mammalia; Eutheria; Primates; Catarrhini; Hominidae; Homo.
+REFERENCE   1
+  AUTHORS   Squillace,R.M., Chenault,D.M. and Wang,E.H.
+  TITLE     Inhibition of myogenesis by the novel Muscleblind-related protein
+            CHCR
+  JOURNAL   Unpublished
+REFERENCE   2
+  AUTHORS   Squillace,R.M. and Wang,E.H.
+  TITLE     Genomic structure, chromosomal localization, and splicing variation
+            of the human CHCR gene, cloning and characterization of mouse CHCR
+  JOURNAL   Unpublished
+REFERENCE   3  (bases 1 to 2701)
+  AUTHORS   Squillace,R.M., Chenault,D.M. and Wang,E.H.
+  TITLE     Direct Submission
+  JOURNAL   Submitted (10-JAN-2002) Edith H. Wang, University of Washington,
+            Pharmacology; 1959 NE Pacific Ave., Box 357280, Seattle, Washington
+            98195, USA (E-mail:ehwang@u.washington.edu, Tel:206-616-5376,
+            Fax:206-685-3822)
+FEATURES             Location/Qualifiers
+     source          1..2701
+                     /organism="Homo sapiens"
+                     /db_xref="taxon:9606"
+                     /chromosome="X"
+                     /map="Xq26.1"
+     gene            1..2701
+                     /gene="CHCR"
+     5'UTR           <1..79
+                     /gene="CHCR"
+     CDS             80..1144
+                     /gene="CHCR"
+                     /note="Cys3His CCG1-Required
+                     Encoded on BAC clone RP5-842K24 (AL050310)
+                     The human CHCR (Cys3His CCG1-Required) protein is highly
+                     related to EXP/MBNL (Y13829, NM_021038, AF401998) and MBLL
+                     (NM_005757,AF061261), which together comprise the human
+                     Muscleblind family"
+                     /codon_start=1
+                     /product="hCHCR-G"
+                     /protein_id="BAB85648.1"
+                     /db_xref="GI:19032345"
+                     /translation="MTAVNVALIRDTKWLTLEVCREFQRGTCSRADADCKFAHPPRVC
+                     HVENGRVVACFDSLKGRCTRENCKYLHPPPHLKTQLEINGRNNLIQQKTAAAMFAQQM
+                     QLMLQNAQMSSLGSFPMTPSIPANPPMAFNPYIPHPGMGLVPAELVPNTPVLIPGNPP
+                     LAMPGAVGPKLMRSDKLEVCREFQRGNCTRGENDCRYAHPTDASMIEASDNTVTICMD
+                     YIKGRCSREKCKYFHPPAHLQARLKAAHHQMNHSAASAMALQPGTLQLIPKRSALEKP
+                     NGATPVFNPTVFHCQQALTNLQLPQPAFIPAGPILCMAPASNIVPMMHGATPTTVSAA
+                     TTPATSVPFAAPTTGNQLKF"
+     misc_feature    137..196
+                     /gene="CHCR"
+                     /note="Cys3His, zinc finger
+                     Encoded on BAC clone RP5-842K24 (AL050310)"
+     misc_feature    239..292
+                     /gene="CHCR"
+                     /note="Cys3His, zinc finger
+                     Encoded on BAC clone RP5-842K24 (AL050310)"
+     misc_feature    617..676
+                     /gene="CHCR"
+                     /note="Cys3His, zinc finger
+                     Encoded on BAC clone RP5-842K24 (AL050310)"
+     misc_feature    725..778
+                     /gene="CHCR"
+                     /note="Cys3His, zinc finger
+                     Encoded on BAC clone RP5-842K24 (AL050310)"
+     3'UTR           1145..2659
+                     /gene="CHCR"
+     polyA_site      1606
+                     /gene="CHCR"
+                     /note="Encoded on BAC clone RP5-842K24 (AL050310);
+                     PolyA_site#1 used by CHCR EST clone PLACE1010202
+                     (AK002178)"
+     polyA_site      2660
+                     /gene="CHCR"
+                     /note="Encoded on BAC clone RP5-842K24 (AL050310);
+                     PolyA_site#2 used by CHCR EST clone DKFZp434G2222
+                     (AL133625)"
+BASE COUNT      817 a    570 c    525 g    789 t
+ORIGIN      
+        1 aattcatttt taatccttta atagtccaca gtaatattgt cctaaagagg gtacattgga
+       61 ttttaatttt gctttcaata tgacggctgt caatgttgcc ctgattcgtg ataccaagtg
+      121 gctgacttta gaagtctgta gagaatttca gagaggaact tgctctcgag ctgatgcaga
+      181 ttgcaagttt gcccatccac caagagtttg ccatgtggaa aatggtcgtg tggtggcctg
+      241 ttttgattct ctaaagggtc ggtgtacccg agagaactgc aagtaccttc accctcctcc
+      301 acacttaaaa acgcagctgg agattaatgg gcggaacaat ctgattcaac agaagactgc
+      361 cgcagccatg ttcgcccagc agatgcagct tatgctccaa aacgctcaaa tgtcatcact
+      421 tggttctttt cctatgactc catcaattcc agctaatcct cccatggctt tcaatcctta
+      481 cataccacat cctgggatgg gcctcgttcc tgcagaactt gtaccaaata cacctgttct
+      541 gattcctgga aacccacctc ttgcaatgcc aggagctgtt ggcccaaaac tgatgcgttc
+      601 agataaactg gaggtttgcc gagaatttca gcgtggaaat tgtacccgtg gggagaatga
+      661 ttgccgctat gctcacccta ctgatgcttc catgattgaa gcgagtgata atactgtgac
+      721 aatctgcatg gattacatca aaggtcgatg ctcgcgggag aaatgcaagt actttcatcc
+      781 tcctgcacac ttgcaagcca gactcaaggc agctcatcat cagatgaacc attcagctgc
+      841 ctctgccatg gccctgcagc ctggtacact gcaactgata ccaaagagat cagcactgga
+      901 aaagcccaat ggtgccaccc cggtctttaa tcccactgtt ttccactgcc aacaggctct
+      961 gactaacctg cagctcccac agccggcatt tatccctgca gggccaatac tgtgcatggc
+     1021 acccgcttca aatattgtgc ccatgatgca cggtgctaca cctaccactg tgtctgcagc
+     1081 aacaacacct gccaccagcg ttccgttcgc tgcaccaact acaggcaatc agctgaaatt
+     1141 ctgaacagca gagttatgga gtatcagaat ctttccatgg aaacctccat atggcctttc
+     1201 tatatatatt ctcgtatgtc ttattctacc aacacaacaa taagcgtgtt gcagtcaatg
+     1261 tattaagcaa agcaaacctg ccagccagca aattcaaata aaaaataaag cattaaaaat
+     1321 caatggagat gttaaaacaa cacaaataga aaactagtaa ctaccatcca tcctatttga
+     1381 attatcaagc agaacatgac cataaaattt ggtaacttgt tacattactc tttgtgattt
+     1441 tctaataacc atgctaagtg tatttccaca gtgagctttt ggcttactat atacattctt
+     1501 ggtggataaa ttgttcatct gtttttgaag tgttacctta ctattttgtt tacaagatag
+     1561 tctattgggt tgattcagga tgtaacaaat atattcagta ccatttcttg tgttgtattg
+     1621 tgttgtgctg tgttaggttt ttacatactg tagtgttttg ctgtatatgt gtggtgtttg
+     1681 atttcaacta aagtgttatt agtggggaac agaagtatat gtgcttaaga acatgacagg
+     1741 ttcatgcaaa tatgctctct ttctttagaa tatttctgta ggtttcttgg gactgacatt
+     1801 taaaacgcct cacttttgaa tgtgcacaaa acctgctcat taacatgcat gtgtataatt
+     1861 tgtacctgca gatctgatgt tgcataatac aatcaaatta ctagattttt taaagagaga
+     1921 aataattacc tgcacaaagc agagaacttc ataaaacatt aacccctaat tcactcttct
+     1981 taaatagctt ggcaaataag actttacctt taaatgaatt tctcagcatt tatactaaaa
+     2041 attatgtaac gtgctcatta gattttttgt gtgtgtggct tgagaatccc atctcctaaa
+     2101 ttgagtgtct aaaactgagc catttgtcat cttcagctga gaaactggta cttgggagct
+     2161 taaaaatatg ctaattacaa gttataaatc aaacggagag atgggggcat ggagatagtt
+     2221 tttacgtact ggaggaaagt gtgtaaaacc atggcaatgt caccttttac acaaatgcca
+     2281 ttttccaaat gcaaatggct catgctcttt agactactct ttgaataaca agtaagatgc
+     2341 aatctagcaa aagtcagtca gggtgaaaga gaattggttg caaatgagga cttccctccc
+     2401 caaatggaca gtcttctctg ttgatcacag agggagcctg agtacaggct tggagaaatg
+     2461 gctaggacag ggaacaggga agcacttaca attattcctt gatttattca aaagaactgg
+     2521 gaaagatggt tgtagttgtc tttagcttcg gttcaactga gtttcgtttt gttaaacagt
+     2581 tcagtgaagg agaaagcacc tgtgatatat ggcaagtgtc cccctgccca aactttaaca
+     2641 tcagaccctc tcacatcata aaaaaaaaaa aaaaaaaaaa aaaaaaaaaa aaaaaaaaaa
+     2701 a
+//
