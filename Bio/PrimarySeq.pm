@@ -833,7 +833,7 @@ sub _guess_alphabet {
    my ($str,$str2,$total,$atgc,$u,$type);
 
    $str = $self->seq();
-   $str =~ s/\-\.\?//g;
+   $str =~ s/[-.?]//g;
 
    $total = CORE::length($str);
    if( $total == 0 ) {
