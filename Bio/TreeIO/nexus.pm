@@ -134,7 +134,12 @@ sub _parse {
 	       $state = 1;
 	   }
        } elsif( /^\s*tree\s+(\S+)\s+\=\s+(?:\[\S+\])?\s*([^\;]+;)\s*$/ ) {
-	   my $buf = new IO::String($2);
+	   my ($tree_name,$tree_str) = ($1,$2);
+
+	   # MrBayes does not print colons before branch
+	   # lengths that occur after brackets...
+	   $tree_str =~ s/\)(\d*\.\d+)\)/:$1/g;
+	   my $buf = new IO::String($tree_str);	   
 	   my $treeio = new Bio::TreeIO(-format => 'newick',
 					-fh     => $buf);
 	   my $tree = $treeio->next_tree;
@@ -143,6 +148,7 @@ sub _parse {
 	       my $lookup = $translate{$id};
 	       $node->id($lookup || $id);
 	   }
+	   $tree->id($tree_name) if defined $tree_name;
 	   push @{$self->{'_trees'}},$tree;
        } elsif( /^\s*Begin(\s+trees)?;/io ) {
 	   $state = 1;
