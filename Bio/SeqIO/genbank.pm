@@ -295,7 +295,9 @@ sub next_seq {
 	    }
 		
 	    # process ftunit
-	    push @features, $ftunit->_generic_seqfeature($params{'-display_id'});
+	    push(@features,
+		 $ftunit->_generic_seqfeature($self->location_factory(),
+					      $params{'-display_id'}));
 	}
 	$_ = $buffer;
     }
@@ -306,7 +308,9 @@ sub next_seq {
 	    if( ! defined $ftunit ) {
 		$self->warn("unable to parse the CONTIG feature\n");
 	    } else { 
-		push @features, $ftunit->_generic_seqfeature($params{'-display_id'});
+		push(@features,
+		     $ftunit->_generic_seqfeature($self->location_factory(),
+						  $params{'-display_id'}));
 	    }	
 	} elsif(! /^ORIGIN/) {     # advance to the section with the sequence
 	    $seqc = "";	

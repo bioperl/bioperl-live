@@ -470,8 +470,25 @@ sub end_pos_type {
   Title   : seq_id
   Usage   : my $seqid = $location->seq_id();
   Function: Get/Set seq_id that location refers to
+
+            We override this here in order to propagate to all sublocations
+            which are not remote (provided this root is not remote either)
   Returns : seq_id
   Args    : [optional] seq_id value to set
+
+
+=cut
+
+sub seq_id {
+    my ($self, $seqid) = @_;
+
+    if(! $self->is_remote()) {
+	foreach my $subloc ($self->sub_Location(0)) {
+	    $subloc->seq_id($seqid) if ! $subloc->is_remote();
+	}
+    }
+    return $self->SUPER::seq_id($seqid);
+}
 
 =head2 coordinate_policy
 

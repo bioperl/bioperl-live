@@ -97,243 +97,54 @@ sub new {
  Usage   : $fthelper->_generic_seqfeature($annseq, "GenBank")
  Function: processes fthelper into a generic seqfeature
  Returns : TRUE on success and otherwise FALSE
- Args    : Bio::Seq, string indicating the source (GenBank/EMBL/SwissProt)
+ Args    : The Bio::Factory::LocationFactoryI object to use for parsing
+           location strings. The ID (e.g., display_id) of the sequence on which
+           this feature is located, optionally a string indicating the source
+           (GenBank/EMBL/SwissProt)
 
 
 =cut
 
 sub _generic_seqfeature {
-    my ($fth, $seqid, $source) = @_;
+    my ($fth, $locfac, $seqid, $source) = @_;
     my ($sf);
-
-
-    # print "Converting from", $fth->key, "\n";
 
     # set a default if not specified
     if(! defined($source)) {
 	$source = "EMBL/GenBank/SwissProt";
     }
 
+    # initialize feature object
     $sf = Bio::SeqFeature::Generic->direct_new();
 
-    my $strand = ( $fth->loc =~ /complement/ ) ? -1 : 1;    
-    $sf->strand($strand);
-
-    # Parse compound features
-    if ( $fth->loc =~ /(join)/i || $fth->loc =~ /(order)/i  || 
-	 $fth->loc =~ /(bond)/i ) {
-
-	my $combotype=$1;
-	$sf->primary_tag($fth->key);
-	$sf->source_tag($source);
-	my $splitlocation = new Bio::Location::Split(-strand=>$strand, 
-						     -seq_id => $seqid,
-						     -splittype => $combotype);
-	# we need to make sub features
-	my $loc = $fth->loc;
-	$loc =~ s/^.*$combotype\((\S+)\)/$1/;
-	foreach my $next_loc ( split(/\s*,\s*/, $loc) ) {
-	    my $remote=0;
-	    if ( $next_loc =~ s/\(?\s*([A-Za-z\d\_]+(\.\d+)?):// ) {
-		$seqid = $1;
-		$remote=1;
-	    }
-	    if( my $location = $fth->_parse_loc($sf,$next_loc)) {
-		$fth->debug( "I got remote: ". 
-			      join(",", ($location->start(), 
-					 $location->end(), 
-					 $location->strand()))
-			      . " for $next_loc\n");
-		$location->seq_id($seqid);
-		if ($remote) {
-		    $location->is_remote(1);
-		}
-		$splitlocation->add_sub_Location($location);
-	    } else {
-		$fth->warn("unable to parse location successfully out of " .
-			   $next_loc . ", ignoring feature (seqid=" .
-			   $seqid . ")");		
-                $sf = undef;
-		last;
-	    }
-	}
-	# see bug #930
-        # we'll skip this SeqFeature if we can't parse the location 
-	$sf->location($splitlocation) if( defined $sf);
-
-
-    }     
-    # Parse simple locations and fuzzy locations
-    else {
-
-      $sf->source_tag($source);
-      $sf->primary_tag($fth->key);	
-      my $loc = $fth->loc();
-      my $seqid;
-      if( $loc =~ /^(\d+)\.\.(\d+)$/ ) {
-	my $start = $1;
-	my $end   = $2;
-
-	# hard core object building to accelerate time
-	my $location = {};
-	bless $location,'Bio::Location::Simple';
-	$location->{'_start'}  = $start;
-	$location->{'_end'}    = $end;
-	$location->{'_strand'} = 1;
-
-	$sf->location($location);
-      } elsif ( $loc =~ /^complement\((\d+)\.\.(\d+)\)$/ ) {
-	my $start = $1;
-	my $end   = $2;
-
-	# hard core object building to accelerate time
-	my $location = {};
-	bless $location,'Bio::Location::Simple';
-	$location->{'_start'}  = $start;
-	$location->{'_end'}    = $end;
-	$location->{'_strand'} = -1;
-	$sf->location($location);
-
-      } else {
-	
-	if ( $loc =~ s/\(?\s*([A-Za-z\d\_]+(\.\d+)?):// ) {
-	  ($seqid) = $1;
-	}
-	
-	
-	if( my $location = $fth->_parse_loc($sf,$loc) ) {
-	  $location->seq_id($seqid) if ( $seqid);
-	  $sf->location($location);
-	} else {
-	  $fth->warn("unexpected location line [" . $loc .
+    # parse location; this may cause an exception, in which case we gently
+    # recover and ignore this feature
+    my $loc;
+    eval {
+	$loc = $locfac->from_string($fth->loc);
+    };
+    if(! $loc) {
+	  $fth->warn("exception while parsing location line [" . $fth->loc .
 		      "] in reading $source, ignoring feature " .
-		      $fth->key() . " (seqid=" . $seqid . ")");
-	  $sf = undef;
-	}
-
-      }
-
-    }
-    #print "Adding B4 ", $sf->primary_tag , "\n";
-
-    if(defined($sf)) {
-
-	#print "dogfood location is ", $sf->location->to_FTstring(), "\n";
-	foreach my $key ( keys %{$fth->field} ){
-	    foreach my $value ( @{$fth->field->{$key}} ) {
-		$sf->add_tag_value($key,$value);
-	    }
-	}
-	return $sf;
-    } else {
-	$fth->warn("unable to parse feature " . $fth->key() .
-		   " in $source sequence entry (id=" .
-		   $seqid . "), ignoring");
-	return ();
-    }
-}
-
-=head2 _parse_loc
-
- Title   : _parse_loc
- Usage   : $fthelper->_parse_loc( $loc_string)
-
- Function: Parses the given location string and returns a location object 
-           with start() and end() and strand() set appropriately.
-           Note that this method is private.
- Returns : location object or 0 on fail
- Args    : location string
-
-=cut
-
-sub _parse_loc {
-    my ($self, $sf,$locstr) = @_;
-#my ($start,$end,$fea_type,$tagval)
-#    my %compl_of = ("5" => "3", "3" => "5");
-    my ($fea_type, $tagval) = ('','');
-    my ($strand,$start,$end) = (1);
-
-
-    $self->debug( "Location parse, processing $locstr\n");
-
-    # Two numbers separated by anything of '.', '^', and spaces (SRS puts a
-    # space between the two dots), optionally surrounded by parentheses and a
-    # qualifier.  (Qualifiers in locations are theoretically illegal in the
-    # EMBL/GenBank feature table, but have been observed in a file from
-    # GenBank.)
-    # The numbers may optionally be preceded by '<' (first) or '>' second), or
-    # replaced by '?' (sometimes in SwissProt), in which case you'll find a
-    # tag called '_part_feature' with the value of which end is missing.
-    # After the numbers there may be text, separated from the numbers by any
-    # of [,;" ], which will be recorded as the value of the tag with the same
-    # as the qualifier, or "note" if there is no qualifier.
-    # Examples: 10..70
-    #           10^11     # you'll find a '_zero_width_feature' tag
-    #           <10..>70
-    #           ?..70
-    #           10. .70   # I've seen SRS doing such a thing
-    #           replace(10..12, "ACT")
-    #           ^^^^^^^ ^^  ^^   ^^^
-    #         qualifier from/to  note (Example from the evil GenBank file)
-    #
-    # Fuzzy locations like 200.202 or (200.202)..220 are neither covered
-    # correctly by this method nor by the Feature object itself. So, it should
-    # *not* be passed to this method.
-    #
-    # HL 05/16/2000
-    #
-    # FuzzyLocation management works now, 
-    # however the location strings
-    # (5.12)..17 
-    # (5.18)..(300.305)
-    # will not be parsed by the regex below.  Something to work on
-    if( $locstr =~ /complement\((.+)/ ) {
-	$locstr = $1;
-	$strand = -1;
-    }
-    my ($delim) = '';
-    if($locstr =~ /^\s*(\w+[A-Za-z])?\({0,2}([\<\>\?]?\d*[\<\>\?]?([\.\^]\d+)?)\)?([\.\^\s]{1,3})\(?([\<\>\?]?\d*[\<\>\?]?([\.\^]\d+)?)\){0,2}[,;\" ]*([A-Za-z]\w*)?\"?\)?\s*$/) {
-#	print "1 = \"$1\", 2 = \"$2\", 3 = \"$3\", 4 = \"$4\", 5 = \"$5\", 6 = \"$6\", 7 = \"$7\"\n";
-	$fea_type = $1 if $1;
-	$start = $2;
-	$delim = $4;
-	$end   = $5;
-	$tagval = $7 if $7;
-    } 
-    # like before, but only one number
-    elsif($locstr =~ /^\s*(\w+[A-Za-z])?\(?([\<\>\?]?\d*[\<\>\?]?([\.\^]\d+)?)\)?[,;\" ]*([A-Za-z]\w*)?\"?\)?\s*$/) {
-#	print "1 = \"$1\", 2 = \"$2\", 3 = \"$3\"\n";	
-	$fea_type = $1 if $1;
-	$start = $end = $2;
-	$tagval = $4 if $4;
-    } else  {
-	$self->warn( "$locstr didn't match\n") if( $self->verbose > 0);
-	return 0;
+		      $fth->key() . " (seqid=" . $seqid . "): " . $@);
+	  return;
     }
     
-    my $type = 'Bio::Location::Simple';
-    my @args = ('-start'=> $start, '-end' => $end,
-		'-strand' => $strand);
-    if ( $start =~ /[\>\<\?]/ || 
-	 $end    =~ /[\>\<\?]/ || 
-	 $delim =~ /^[\.^]$/ )
-    {
-	unless ($start =~ /^\d+$/  && $end =~ /^\d+$/  && --$end == $start) {
-	    $type = 'Bio::Location::Fuzzy';
+    # set additional location attributes
+    $loc->seq_id($seqid) if $seqid && (! $loc->is_remote());
+
+    # set attributes of feature
+    $sf->location($loc);
+    $sf->primary_tag($fth->key);
+    $sf->source_tag($source);
+    foreach my $key ( keys %{$fth->field} ){
+	foreach my $value ( @{$fth->field->{$key}} ) {
+	    $sf->add_tag_value($key,$value);
 	}
-	push @args, ('-location_type' => $delim); 
-    } 
-    my $location = $type->new(@args);
-    if(defined($tagval) && $tagval ne '') {
-	if(! $fea_type) {
-	    $fea_type = "note";
-	}
-	$sf->add_tag_value($fea_type, $tagval);
     }
-
-
-    return $location;
+    return $sf;
 }
+
 
 =head2 from_SeqFeature
 

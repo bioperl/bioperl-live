@@ -221,8 +221,8 @@ sub _parse_location {
 			  -location_type => $loctype);
     # set remote ID if remote location
     if($seqid) {
-	$loc->seq_id($seqid);
 	$loc->is_remote(1);
+	$loc->seq_id($seqid);
     }
 
     # done (hopefully)

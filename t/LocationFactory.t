@@ -24,13 +24,14 @@ use Bio::Location::Simple;
 use Bio::Location::Split;
 use Bio::Location::Fuzzy;
 
-# Holds strings and results. The latter is an array of expected class name,
-# min/max start position and position type, min/max end position and position
-# type, location type, and the number of locations.
 my $simple_impl = "Bio::Location::Simple";
 my $fuzzy_impl = "Bio::Location::Fuzzy";
 my $split_impl = "Bio::Location::Split";
 
+# Holds strings and results. The latter is an array of expected class name,
+# min/max start position and position type, min/max end position and position
+# type, location type, and the number of locations.
+#
 # note: the following are directly taken from 
 # http://www.ncbi.nlm.nih.gov/collab/FT/#location
 my %testcases = ("467" => [$simple_impl,

@@ -250,10 +250,12 @@ my @features = $as->all_SeqFeatures();
 ok(@features,21);
 my $lastfeature = pop @features;
 
-ok($lastfeature->strand, -1);
+# this is a split location; the root doesn't have strand
+ok($lastfeature->strand, undef);
 my $location = $lastfeature->location;
 $location->verbose(-1); # silence the warning of undef seq_id()
-ok($location->strand, -1);
+# see above; splitlocs roots do not have a strand really
+ok($location->strand, undef);
 ok($location->start, 83202);
 ok($location->end, 84996);
 

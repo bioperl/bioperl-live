@@ -297,8 +297,9 @@ sub next_seq {
        # process ftunit
        # when parsing of the line fails we get undef returned
        if($ftunit) {
-	   push @features, $ftunit->_generic_seqfeature($params{'-seqid'}, 
-							"SwissProt");
+	   push(@features,
+		$ftunit->_generic_seqfeature($self->location_factory(),
+					     $params{'-seqid'}, "SwissProt"));
        } else {
 	   $self->warn("failed to parse feature table line for seq " .
 		       $params{'-display_id'});

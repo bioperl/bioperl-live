@@ -284,7 +284,8 @@ sub next_seq {
 	 my $ftunit = $self->_read_FTHelper_EMBL(\$buffer);
 	 # process ftunit
 
-	 push @features, $ftunit->_generic_seqfeature($name);
+	 push(@features,
+	      $ftunit->_generic_seqfeature($self->location_factory(), $name));
 
 	 if( $buffer !~ /^FT/ ) {
 	     last;
@@ -302,7 +303,9 @@ sub next_seq {
        until( !defined ($buffer) ) {
 	   my $ftunit = $self->_read_FTHelper_EMBL(\$buffer);
 	   # process ftunit
-	   push @features, $ftunit->_generic_seqfeature($name);
+	   push(@features,
+		$ftunit->_generic_seqfeature($self->location_factory(),
+					     $name));
 	   
 	   if( $buffer !~ /^CO/ ) {
 	       last;

@@ -312,6 +312,7 @@ use vars qw(@ISA);
 use Bio::Root::Root;
 use Bio::Root::IO;
 use Bio::Factory::SequenceStreamI;
+use Bio::Factory::FTLocationFactory;
 use Symbol();
 
 @ISA = qw(Bio::Root::Root Bio::Root::IO Bio::Factory::SequenceStreamI);
@@ -411,9 +412,13 @@ sub _initialize {
 
     # flush is initialized by the Root::IO init
 
-    my ($seqfact) = $self->_rearrange([qw(SEQFACTORY )], @args);
+    my ($seqfact, $locfact) = $self->_rearrange([qw(SEQFACTORY
+						    LOCFACTORY)],
+						@args);
 
     $seqfact && $self->sequence_factory($seqfact);
+    $locfact = Bio::Factory::FTLocationFactory->new() if ! $locfact;
+    $self->location_factory($locfact);
 
     # initialize the IO part
     $self->_initialize_io(@args);
@@ -644,6 +649,31 @@ sub sequence_factory{
        $self->{'_seqio_seqfactory'} = $obj;
    }
    $self->{'_seqio_seqfactory'};
+}
+
+=head2 location_factory
+
+ Title   : location_factory
+ Usage   : $seqio->location_factory($locfactory)
+ Function: Get/Set the Bio::Factory::LocationFactoryI object to be used for
+           location string parsing
+ Returns : a Bio::Factory::LocationFactoryI implementing object
+ Args    : [optional] on set, a Bio::Factory::LocationFactoryI implementing
+           object.
+
+
+=cut
+
+sub location_factory{
+    my ($self,$obj) = @_;   
+    if( defined $obj ) {
+	if( ! ref($obj) || ! $obj->isa('Bio::Factory::LocationFactoryI') ) {
+	    $self->throw("Must provide a valid Bio::Factory::LocationFactoryI".
+			 " object to ".ref($self)."->location_factory()");
+	}
+	$self->{'_seqio_locfactory'} = $obj;
+    }
+    $self->{'_seqio_locfactory'};
 }
 
 1;
