@@ -26,7 +26,7 @@ Bio::DB::BioFetch - Database object interface to BioFetch retrieval
 
  $bf = new Bio::DB::BioFetch;
 
- $seq = $sp->get_Seq_by_id('BUM');  # EMBL or SWALL ID
+ $seq = $bf->get_Seq_by_id('BUM');  # EMBL or SWALL ID
 
  # change formats, storage procedures
  $bf = new Bio::DB::BioFetch(-format        => 'fasta',
