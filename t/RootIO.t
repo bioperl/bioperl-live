@@ -16,7 +16,7 @@ BEGIN {
 	use lib 't', '.';
     }
     use Test;    
-    plan tests => 24;
+    plan tests => 25;
 
 }
 
@@ -88,9 +88,11 @@ ok $rio->_pushback($line2);
 
 my $line3 = $rio->_readline;
 my $line4 = $rio->_readline;
+my $line5 = $rio->_readline;
 
 ok $line1 eq $line3;
 ok $line2 eq $line4;
+ok $line5 ne $line4;
 
 ##############################################
 # </tests _pushback for multi-line buffering>
