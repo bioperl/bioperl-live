@@ -172,10 +172,12 @@ sub new {
     
     my ($queryfactor, $hitfactor) = (1,0); # default
     if ($algo eq 'BLASTP' || $algo eq 'TBLASTN'
-	|| $algo eq 'FASTX' || $algo eq 'FASTY') {
+	|| $algo eq 'FASTX' || $algo eq 'FASTY' ||
+	$algo eq 'FASTXY' ) {
 	$queryfactor = 0;
     } elsif ($algo eq 'TBLASTN' || $algo eq 'TBLASTX' ||
 	     $algo eq 'BLASTN' || $algo eq 'TFASTX' ||
+	     $algo eq 'TFASTXY' || $algo eq 'TFASTY' ||
 	     $algo eq 'FASTA' )  {
 	$hitfactor = 1;
     } elsif( $algo eq 'RPSBLAST' ) {
@@ -236,7 +238,7 @@ sub new {
     $self->length('total', $hsp_len);
     $self->length('hit', $hit_len);
     $self->length('query', $query_len);
-    
+
     if( ! defined $identical ) { 
 	$self->warn("Did not defined the number of identical matches in the HSP assuming 0");
 	$identical = 0;
@@ -549,7 +551,7 @@ sub length{
 			$type !~ /query|hit|total/);
     my $previous = $self->{'_length'}->{$type};
     if( defined $value || ! defined $previous ) { 
-	$value = $previous = '' unless defined $value;
+	$value = $previous = 0 unless defined $value;
 	$self->{'_length'}->{$type} = $value;
     } 
     return $previous;
