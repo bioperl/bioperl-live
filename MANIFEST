@@ -1,4 +1,4 @@
-## $Id: MANIFEST,v 1.54 2001-12-20 20:49:58 jason Exp $
+## $Id: MANIFEST,v 1.55 2002-01-08 10:02:39 birney Exp $
 ##
 ## This is the file listing for everything that
 ## comes with the bioperl distribution. The perl
@@ -161,14 +161,8 @@ Bio/Root/Utilities.pm
 Bio/Root/Vector.pm
 Bio/Root/Xref.pm
 Bio/Search/Processor.pm
-Bio/Search/HSP.pm
-Bio/Search/HSPI.pm
 Bio/Search/Hit/Fasta.pm
 Bio/Search/Hit/HitI.pm
-Bio/Search/Report.pm
-Bio/Search/ReportI.pm
-Bio/Search/Subject.pm
-Bio/Search/SubjectI.pm
 Bio/Search/Processor/Fasta.pm
 Bio/Search/Processor/ProcessorI.pm
 Bio/Search/Result/Fasta.pm
@@ -652,14 +646,11 @@ scripts/blast_fetch.pl
 scripts/blast_fetch_local.pl
 scripts/bpfetch.pl
 scripts/bpindex.pl
-scripts/bulk_load_gff.pl
 scripts/est_tissue_query.pl
-scripts/gadfly_to_gff.pl
 scripts/gb_to_gff.pl
 scripts/generate_random_seq.pl
 scripts/get_seqs.pl
 scripts/gff2ps.pl
-scripts/load_gff.pl
 scripts/make_mrna_protein.pl
 scripts/make_primers.pl
 scripts/prosite2perl.pl

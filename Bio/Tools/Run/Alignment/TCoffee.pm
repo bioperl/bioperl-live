@@ -697,7 +697,7 @@ sub _run {
     }
 
     my $status = system($commandstring);
-    $self->throw( "TCoffee call crashed: $? \n") if( -z $TMPOUTFILE );
+    $self->throw( "TCoffee call crashed: $? [command $commandstring]\n") if( -z $TMPOUTFILE );
 
     my $outfile = $self->outfile() || $TMPOUTFILE;
 

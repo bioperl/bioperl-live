@@ -47,8 +47,10 @@ my $program = 'blastn';
 
 
 my $blast_present = Bio::Tools::Run::StandAloneBlast->exists_blast();
-unless ($blast_present) {
-    warn "blast program not found. Skipping tests $Test::ntest to $NUMTESTS\n";
+my $file_present = -e $nt_database;
+
+unless ($blast_present && $file_present) {
+    warn "blast program or database [$nt_database] not found. Skipping tests $Test::ntest to $NUMTESTS\n";
     foreach ($Test::ntest..$NUMTESTS) {
 	skip('blast program not found',1);
     }
