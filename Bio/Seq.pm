@@ -608,8 +608,8 @@ sub add_SeqFeature {
 sub feature_count {
     my ($self) = @_;
     
-    if (defined($self-{'_as_feat'})) {
-	return ($#{$self-{'_as_feat'}} + 1);
+    if (defined($self->{'_as_feat'})) {
+	return ($#{$self->{'_as_feat'}} + 1);
     } else {
 	return 0;
     }
