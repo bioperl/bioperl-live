@@ -2406,6 +2406,17 @@ sub feature_from_splitloc{
          map {
              my $subsf = Bio::SeqFeature::Generic->new(-location=>$_,
                                                        -primary_tag=>'exon');
+             ## Provide seq_id to new feature:
+             $subsf->seq_id($sf->seq_id) if $sf->seq_id;
+             ## Transfer /locus_tag and /gene tag values to inferred
+             ## features.  TODO: Perhaps? this should not be done
+             ## indiscriminantly but rather by virtue of the setting
+             ## of group_tag.
+             foreach my $tag (grep /gene|locus_tag/, $sf->get_all_tags) {
+                 my @vals = $sf->get_tag_values($tag);
+                 $subsf->add_tag_value($tag, @vals);
+             }
+
 	     my $locstr = 'exon::'.$self->_locstr($subsf);
 
 	     # re-use feature if type and location the same
