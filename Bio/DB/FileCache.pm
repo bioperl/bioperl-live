@@ -211,7 +211,6 @@ sub file_name {
   $d;
 }
 
-
 =head2 keep
 
  Title   : keep
@@ -242,11 +241,27 @@ sub keep {
  Function: returns tied hash to index database
  Returns : a Berkeley DB tied hashref
  Args    : none
- Throws  : nothin
+ Throws  : nothing
 
 =cut
 
 sub db { shift->{db} }
+
+=head2 flush
+
+ Title   : flush
+ Usage   : $db->flush
+ Function: flushes the cache
+ Returns : nothing
+ Args    : none
+ Throws  : nothing
+
+=cut
+
+sub flush {
+  my $db = shift->db or return;
+  %{$db} = ();
+}
 
 sub _get {
   my $self = shift;
