@@ -355,9 +355,9 @@ Contents
 	 sore spot for some, and the lack of using AUTOLOAD.  By being
 	 consistent we hope that someone can grok the gist of a module from
 	 the basic documentation, see example code, and get a set of
-	 methods from the API documentation.  We aim to make the core object
-	 design easy to understand.  This has not been realized by any
-	 stretch of the imagination as the toolkit has well over 1000
+	 methods from the API documentation.  We aim to make the core
+	 object design easy to understand.  This has not been realized by
+	 any stretch of the imagination as the toolkit has well over 1000
 	 modules in bioperl-live and bioperl-run alone.
 
 	 
@@ -842,7 +842,7 @@ Contents
 
       A:  Use the module Bio::Tools::Run::StandAloneBlast.  It will give
 	 you access to many of the search tools in the NCBI blast suite
-	 including blastall, bl2seq, blastpgp.  The basic structure is like
+	 including blastall, bl2seq, blastpgp.	The basic structure is like
 	 this.
 		 
 		 use Bio::Tools::Run::StandAloneBlast;
