@@ -1,10 +1,3 @@
-## $Id: MANIFEST,v 1.64 2002-03-07 17:40:40 jason Exp $
-##
-## This is the file listing for everything that
-## comes with the bioperl distribution. The perl
-## install procedure uses this file to confirm that
-## all necessary files are present.
-##
 AUTHORS
 BUGS
 Bio/Align/AlignI.pm
@@ -42,6 +35,7 @@ Bio/Biblio/BookArticle.pm
 Bio/Biblio/IO.pm
 Bio/Biblio/IO/medline2ref.pm
 Bio/Biblio/IO/medlinexml.pm
+Bio/Biblio/IO/pubmedxml.pm
 Bio/Biblio/Journal.pm
 Bio/Biblio/JournalArticle.pm
 Bio/Biblio/MedlineArticle.pm
@@ -54,9 +48,8 @@ Bio/Biblio/Patent.pm
 Bio/Biblio/Person.pm
 Bio/Biblio/Proceeding.pm
 Bio/Biblio/Provider.pm
-Bio/Biblio/ProviderI.pm
+Bio/Biblio/PubmedJournalArticle.pm
 Bio/Biblio/Ref.pm
-Bio/Biblio/RefI.pm
 Bio/Biblio/Service.pm
 Bio/Biblio/TechReport.pm
 Bio/Biblio/Thesis.pm
@@ -231,7 +224,6 @@ Bio/Root/Global.pm
 Bio/Root/HTTPget.pm
 Bio/Root/IO.pm
 Bio/Root/IOManager.pm
-Bio/Root/Interface.pm
 Bio/Root/Object.pm
 Bio/Root/Root.pm
 Bio/Root/RootI.pm
@@ -252,7 +244,6 @@ Bio/Search/Processor.pm
 Bio/Search/Processor/Fasta.pm
 Bio/Search/Processor/ProcessorI.pm
 Bio/Search/Result/BlastResult.pm
-Bio/Search/Result/Fasta.pm
 Bio/Search/Result/GenericResult.pm
 Bio/Search/Result/ResultI.pm
 Bio/SearchDist.pm
@@ -359,7 +350,6 @@ Bio/Tools/CodonTable.pm
 Bio/Tools/EPCR.pm
 Bio/Tools/ESTScan.pm
 Bio/Tools/FASTAParser.pm
-Bio/Tools/Fasta.pm
 Bio/Tools/GFF.pm
 Bio/Tools/Gel.pm
 Bio/Tools/Genemark.pm
@@ -372,9 +362,6 @@ Bio/Tools/IUPAC.pm
 Bio/Tools/Lucy.pm
 Bio/Tools/MZEF.pm
 Bio/Tools/OddCodes.pm
-Bio/Tools/PPSEARCH/Parse.pm
-Bio/Tools/PRFSCAN/Parse.pm
-Bio/Tools/PRINTS/Parse.pm
 Bio/Tools/Prediction/Exon.pm
 Bio/Tools/Prediction/Gene.pm
 Bio/Tools/RestrictionEnzyme.pm
@@ -431,6 +418,7 @@ bioperl.pod
 bptutorial.pl
 examples/aligntutorial.pl
 examples/biblio.pl
+examples/biblio_soap.pl
 examples/blast/blast_config.pl
 examples/blast/blast_seq.pl
 examples/blast/example.table1
@@ -614,12 +602,10 @@ t/BPbl2seq.t
 t/BPlite.t
 t/BPpsilite.t
 t/Biblio.t
-t/BiblioProviders.t
 t/BiblioReferences.t
 t/Biblio_biofetch.t
 t/BioDBGFF.t
 t/BioFetch_DB.t
-t/Blast.t
 t/BlastIndex.t
 t/Chain.t
 t/Clustalw.t
@@ -633,7 +619,6 @@ t/EMBOSS.t
 t/GDB.t
 t/GFF.t
 t/Genpred.t
-t/HSP.t
 t/HTML.t
 t/Index.t
 t/LinkageMap.t
@@ -657,7 +642,6 @@ t/RefSeq.t
 t/RemoteBlast.t
 t/RestrictionEnzyme.t
 t/RootI.t
-t/Sbjct.t
 t/SearchDist.t
 t/SearchIO.t
 t/Seq.t
@@ -688,7 +672,6 @@ t/Tools.t
 t/TreeIO.t
 t/UnivAln.t
 t/Variation_IO.t
-t/WWW.t
 t/XEMBL_DB.t
 t/consed.t
 t/data/5X_1895.FASTXY
