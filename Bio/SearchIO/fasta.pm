@@ -216,6 +216,7 @@ sub next_result{
 			       $self->{'_reporttype'} = 'FASTP' ;
 			   }
 		       }
+		       
 		       $self->element({'Name' => 'FastaOutput_query-def',
 				       'Data' => $querydef || $1});
 		       $self->element({'Name' => 'FastaOutput_query-len',
@@ -269,7 +270,7 @@ sub next_result{
 			   'Data' => $2});
 	   $self->element({'Name' => 'Parameters_ktup',
 			   'Data' => $3});
-	   $self->{'_reporttype'} = $1;
+	   $self->{'_reporttype'} = $1 if( $self->{'_reporttype'} !~ /FAST[PN]/i ) ;
 
 	   $self->element({ 'Name' => 'FastaOutput_program',
 			    'Data' => $self->{'_reporttype'}});
@@ -281,7 +282,7 @@ sub next_result{
 			   'Data' => $2});
 	   $self->element({'Name' => 'Parameters_word-size',
 			   'Data' => $3});
-       } elsif( />>(.+) \((\d+)\s*(aa|nt)\)$/ ) {
+       } elsif( /^>>(.+) \((\d+)\s*(aa|nt)\)$/ ) {
 	   if( $self->in_element('hsp') ) {
 	       $self->end_element({ 'Name' => 'Hsp'});
 	   }
