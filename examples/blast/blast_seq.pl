@@ -114,6 +114,8 @@ sub blast_seq {
     my $seq = shift;
 
     print STDERR "\nBLASTing sequence ${\$seq->id}\n";
+    print STDERR "REC_SEP = --->$/<---\n";
+    exit 1;
 
     $runParam{-seqs} = [ $seq ];
     $blastParam{-run} = \%runParam;
