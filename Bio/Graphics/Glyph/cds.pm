@@ -29,21 +29,18 @@ sub draw {
   my ($gd,$left,$top) = @_;
 
   my @parts = $self->parts;
-  @parts    = $self if !@parts && $self->level == 0;
-  return $self->SUPER::draw(@_) unless @parts;
+  @parts    = $self if !@parts && $self->level == 0 && !$self->option('require_subparts');
 
   my $fits = $self->protein_fits;
 
-  if (!$fits) {
-    # draw the staff (musically speaking)
-    my ($x1,$y1,$x2,$y2) = $self->bounds($left,$top);
-    my $line_count = $self->sixframe ? 6 : 3;
-    my $height = ($y2-$y1)/$line_count;
-    my $grid  = $self->gridcolor;
-    for (0..$line_count-1) {
-      my $offset = $y1+$height*$_+1;
-      $gd->line($x1,$offset,$x2,$offset,$grid);
-    }
+  # draw the staff (musically speaking)
+  my ($x1,$y1,$x2,$y2) = $self->bounds($left,$top);
+  my $line_count = $self->sixframe ? 6 : 3;
+  my $height = ($y2-$y1)/$line_count;
+  my $grid  = $self->gridcolor;
+  for (0..$line_count-1) {
+    my $offset = $y1+$height*$_+1;
+    $gd->line($x1,$offset,$x2,$offset,$grid);
   }
 
   $self->{cds_part2color} ||= {};
@@ -71,8 +68,6 @@ sub draw {
     $part->{cds_partcolor} = $self->{cds_frame2color}{$key};
     $part->{cds_frame}     = $frame;
     $part->{cds_offset}    = $offset;
-
-    next unless $fits;
 
     # do in silico splicing in order to find the codon that
     # arises from the splice
@@ -110,7 +105,7 @@ sub draw_component {
   my $gd = shift;
   my ($x1,$y1,$x2,$y2) = $self->bounds(@_);
 
-  my $color = $self->{cds_partcolor};
+  my $color = $self->{cds_partcolor} or return;
   my $feature   = $self->feature;
   my $frame     = $self->{cds_frame};
   my $linecount = $self->sixframe ? 6 : 3;
@@ -127,12 +122,16 @@ sub draw_component {
   my $font  = $self->font;
   my $pixels_per_residue = $self->pixels_per_residue;
   my $strand = $feature->strand;
+  my $y      = $y1-1;
+
+  $strand *= -1 if $self->{flip};
 
   # have to remap feature start and end into pixel coords in order to:
   # 1) correctly align the amino acids with the nucleotide seq
   # 2) correct for the phase offset
   my $start = $self->map_no_trunc($feature->start + $self->{cds_offset});
   my $stop  = $self->map_no_trunc($feature->end   + $self->{cds_offset});
+  ($start,$stop) = ($stop,$start) if $self->{flip};
 
   my @residues = split '',$self->{cds_translation};
 
@@ -141,7 +140,7 @@ sub draw_component {
     my $x = $strand > 0 ? $start + $i * $pixels_per_residue
                         : $stop  - $i * $pixels_per_residue;
     next unless ($x >= $x1 && $x <= $x2);
-    $gd->char($font,$x+1,$y1,$residues[$i],$color);
+    $gd->char($font,$x+1,$y,$residues[$i],$color);
   }
 }
 
@@ -260,7 +259,16 @@ glyph-specific options:
 
   -gridcolor  Color for the "staff"        lightslategray
 
-  -sixframe   Draw a six-frame staff       false (usually draws 3 frame)
+  -sixframe   Draw a six-frame staff       0 (false; usually draws 3 frame)
+
+  -require_subparts
+              Don't draw the reading frame 0 (false)
+              unless it is a feature
+              subpart
+
+The -require_subparts option is suggested when rendering spliced
+transcripts which contain multiple CDS subparts.  Otherwise, the glyph
+will hickup when zoomed way down onto an intron between two CDSs.
 
 =head1 SUGGESTED STANZA FOR GENOME BROWSER
 
