@@ -9,7 +9,7 @@
 
 =head1 NAME
 
-Bio::Biblio::edlineArticle - Representation of a MEDLINE article
+Bio::Biblio::MedlineArticle - Representation of a MEDLINE article
 
 =head1 SYNOPSIS
 

@@ -15,7 +15,7 @@
 
 =head1 NAME
 
-SimpleAlign - Multiple alignments held as a set of sequences
+Bio::SimpleAlign - Multiple alignments held as a set of sequences
 
 =head1 SYNOPSIS
 
@@ -1422,7 +1422,7 @@ sub length {
 
 sub maxname_length {
     my $self = shift;
-    $self->warn(ref($self). "::maxname_length - deprecated method. Use maxname_length() instead.");
+    $self->warn(ref($self). "::maxname_length - deprecated method. Use maxdisplayname_length() instead.");
     $self->maxdisplayname_length();
 }
 
