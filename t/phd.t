@@ -48,7 +48,7 @@ print($phd->qualat($position)."\n");
 
 
 print("OK. Now testing write_phd...\n");
-my $out_phd = Bio::SeqIO->new(-file => ">t/write_phd.phd" , '-format' => 'phd');
+my $out_phd = Bio::SeqIO->new(-file => ">t/data/write_phd.phd" , '-format' => 'phd');
 print("Did it return the right reference?\n");
 ok(ref($out_phd) eq "Bio::SeqIO::phd");
 

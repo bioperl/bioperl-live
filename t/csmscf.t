@@ -62,7 +62,7 @@ ok (length($t_channel) > 10);
 	# 1. try to create an empty file
 print("Trying to create a new scf file from the existing object (from above)...\n");
 
-my $out_scf = Bio::SeqIO->new(-file => ">t/data/csmscf.scf" , '-format' => 'csmscf');
+my $out_scf = Bio::SeqIO->new(-file => ">t/data/write_scf.scf" , '-format' => 'csmscf');
 $out_scf->write_scf(	-SeqWithQuality	=>	$swq,
 			-MACH		=>	'CSM sequence-o-matic 5000',
 			-TPSW		=>	'trace processing software',
