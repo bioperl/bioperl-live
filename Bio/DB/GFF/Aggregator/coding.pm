@@ -41,7 +41,7 @@ use vars qw(@ISA);
  Title   : method
  Usage   : $aggregator->method
  Function: return the method for the composite object
- Returns : the string "processed_transcript"
+ Returns : the string "coding"
  Args    : none
  Status  : Public
 

@@ -1185,21 +1185,21 @@ sub link_pattern {
   my $n;
   $linkrule =~ s/\$(\w+)/
     CGI::escape(
-		$1 eq 'ref'              ? ($n = $feature->location->seq_id) && "$n"
-		: $1 eq 'name'         ? ($n = $feature->display_name) && "$n"  # workaround broken CGI.pm
-		: $1 eq 'class'        ? eval {$feature->class}  || ''
-		: $1 eq 'type'         ? eval {$feature->method} || $feature->primary_tag || ''
-		: $1 eq 'method'       ? eval {$feature->method} || $feature->primary_tag || ''
-		: $1 eq 'source'       ? eval {$feature->source} || $feature->source_tag   || ''
-		: $1 eq 'start'        ? $feature->start || ''
-		: $1 eq 'end'          ? $feature->end   || ''
-		: $1 eq 'stop'         ? $feature->end   || ''
-		: $1 eq 'segstart'     ? $panel->start   || ''
-		: $1 eq 'segend'       ? $panel->end     || ''
-		: $1 eq 'description'  ? eval {join '',$feature->notes} || ''
-		: $1 eq 'id'           ? $feature->feature_id || ''
-		: $1
-	       )
+    $1 eq 'ref'              ? (($n = $feature->location->seq_id) && "$n") || ''
+      : $1 eq 'name'         ? (($n = $feature->display_name) && "$n")     || ''
+      : $1 eq 'class'        ? eval {$feature->class}  || ''
+      : $1 eq 'type'         ? eval {$feature->method} || $feature->primary_tag || ''
+      : $1 eq 'method'       ? eval {$feature->method} || $feature->primary_tag || ''
+      : $1 eq 'source'       ? eval {$feature->source} || $feature->source_tag  || ''
+      : $1 eq 'start'        ? $feature->start || ''
+      : $1 eq 'end'          ? $feature->end   || ''
+      : $1 eq 'stop'         ? $feature->end   || ''
+      : $1 eq 'segstart'     ? $panel->start   || ''
+      : $1 eq 'segend'       ? $panel->end     || ''
+      : $1 eq 'description'  ? eval {join '',$feature->notes} || ''
+      : $1 eq 'id'           ? $feature->feature_id || ''
+      : $1
+       )
 	/exg;
   return $linkrule;
 }
