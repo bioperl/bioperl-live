@@ -20,8 +20,8 @@ BEGIN {
 	use lib 't';
     }
     use vars qw($NTESTS);
-    $NTESTS = 11;
-    $LASTXMLTEST = 11;
+    $NTESTS = 10;
+    $LASTXMLTEST = 10;
     $error = 0;
 
     use Test;
@@ -31,7 +31,7 @@ BEGIN {
     if( $@ ) {
 	$SKIPXML = 1;
 	print STDERR "XML::Parser::PerlSAX not loaded. This means ClusterIO::dbsnp test cannot be executed. Skipping\n";
-	foreach ( 1..$LASTXMLTEST ) {
+	foreach ( $Test::ntest..$LASTXMLTEST ) {
 	    skip('No XML::Parser::PerlSAX loaded',1);
 	}
     }
@@ -44,7 +44,6 @@ if( $error == 1 ) {
 use Bio::ClusterIO;
 use Bio::Root::IO;
 
-ok(1);
 my ($clusterio, $result,$hit,$hsp);
 if( ! $SKIPXML ) {
 	$clusterio = new Bio::ClusterIO ('-tempfile' => 0,
@@ -63,5 +62,4 @@ if( ! $SKIPXML ) {
 	ok($ss[1]->handle eq 'ALLENDAY');
 	ok($result->heterozygous == 0.208738461136818);
 	ok($result->heterozygous_SE == 0.0260274689436777);
-
 }
