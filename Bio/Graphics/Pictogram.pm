@@ -131,7 +131,7 @@ use constant MAXBITS => 2;
 sub new {
   my ($caller,@args) = @_;
   my $self = $caller->SUPER::new(@args);
-  my ($width,$height,$fontsize,$color,$background,$bit) = $self->_rearrange([qw(WIDTH HEIGHT FONTSIZE COLOR BACKGROUND PLOT_BITS)],@args);
+  my ($width,$height,$fontsize,$color,$background,$bit,$normalize) = $self->_rearrange([qw(WIDTH HEIGHT FONTSIZE COLOR BACKGROUND PLOT_BITS NORMALIZE)],@args);
   $width||=800;
   $height||=600;
   my $svg = SVG->new(width=>$width,height=>$height);
@@ -143,6 +143,7 @@ sub new {
   $background = $background || {'T'=>0.25,'C'=>0.25,'G'=>0.25,'A'=>0.25};
   $self->background($background);
   $self->plot_bits($bit) if $bit;
+  $self->normalize($normalize) if $normalize;
   
   return $self;
 }
