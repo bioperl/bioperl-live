@@ -2,9 +2,9 @@
 #
 # BioPerl module for Bio::PopGen::IO::phase
 #
-# Cared for by Rich <dobbo@thevillas.eclipse.co.uk>
+# Cared for by Rich <dobbo-at-qmul.ac.uk>
 #
-# Copyright Rich
+# Copyright Rich Dobson
 #
 # You may distribute this module under the same terms as perl itself
 
@@ -32,7 +32,7 @@ Bio::PopGen::IO::phase - A parser for Phase format data
 
 =head1 DESCRIPTION
 
-Describe the object here
+A driver module for Bio::PopGen::IO for parsing hapmap data.
 
 =head1 FEEDBACK
 
@@ -53,9 +53,9 @@ the web:
 
   http://bugzilla.bioperl.org/
 
-=head1 AUTHOR - Rich
+=head1 AUTHOR - Rich Dobson
 
-Email dobbo@thevillas.eclipse.co.uk
+Email r.j.dobson-at-qmul.ac.uk
 
 =head1 CONTRIBUTORS
 
