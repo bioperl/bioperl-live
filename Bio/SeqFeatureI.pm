@@ -477,14 +477,14 @@ sub spliced_seq {
 	if( $loc->strand == 1 ) {
 	    $seqstr .= $called_seq->subseq($loc->start,$loc->end);
 	} else {
-	    $seqstr .= $called_seq->trunc($loc->start,$loc->end)->revcom;
+	    $seqstr .= $called_seq->trunc($loc->start,$loc->end)->revcom->seq();
 	}
 
     }
-
-   my $out = Bio::Seq->new( -id => $self->entire_seq->id . "_spliced_feat",
+    
+    my $out = Bio::Seq->new( -id => $self->entire_seq->id . "_spliced_feat",
 			     -seq => $seqstr);
-
+    
     return $out;
 }
 
