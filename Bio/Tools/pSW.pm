@@ -88,7 +88,7 @@ Send your comments and suggestions preferably to one of the Bioperl mailing list
 Your participation is much appreciated.
 
     bioperl-l@bioperl.org              - General discussion
-    http://bioperl.org/MailList.html  - About the mailing lists
+    http://bioperl.org/MailList.shtml  - About the mailing lists
 
 =head2 Reporting Bugs
 
