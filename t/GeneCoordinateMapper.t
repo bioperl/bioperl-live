@@ -16,7 +16,7 @@ BEGIN {
     }
     use Test;
 
-    plan tests => 97;
+    plan tests => 101;
 }
 
 use Bio::Location::Simple;
@@ -254,7 +254,7 @@ ok $res->end, 3;
 #
 #  cds    1   5     6   10    11  15
 #  exon   1   5     1   5     1   5
-#  gene   0   4    10   14   20   24
+#  gene   1   5    11   15   21   25
 #         |---|     |---|     |---|
 #-----|-----------------------|---|--
 # chr 1   5   9    15   19   25   29
@@ -294,7 +294,7 @@ $res = $m->map($pos);
 #skip 'negative_intron', $res->start, -3;
 #skip 'negative_intron', $res->end, -1;
 #skip $res->seq_id, 'intron1';
-#exit;
+
 
 # cds
 $m->out('cds');
@@ -305,10 +305,11 @@ ok $res->start, 1;
 ok $res->end, 5;
 
 $pos = Bio::Location::Simple->new
-    (-start => 15, -end => 19, -strand=> 1 );
+    (-start => 15, -end => 25, -strand=> 1 );
 $res = $m->map($pos);
 ok $res->start, 6;
-ok $res->end, 10;
+ok $res->end, 11;
+#print Dumper $res;
 
 $pos = Bio::Location::Simple->new
     (-start => 5, -end => 19, -strand=> 1 );
@@ -316,10 +317,38 @@ $res = $m->map($pos);
 ok $res->start, 1;
 ok $res->end, 10;
 #$m->to_string;
+#ok $m->cds(5); # recalculating exons
 
 
-ok $m->cds(3); # recalculating exons
-#$m->to_string;
+
+#
+# chr to cds ; ranges into one
+#
+
+my $exons = new Bio::Location::Split;
+$exons->add_sub_Location($e1);
+$exons->add_sub_Location($e2);
+$exons->add_sub_Location($e3);
+
+$res = $m->map($exons);
+ok $res->isa('Bio::Location::Simple');
+ok $res->start, 1;
+ok $res->end, 15;
+
+#
+# cds to chr; single range into two
+#
+#$m->verbose(2);
+$m->in('cds');
+$m->out('gene');
+
+$pos = Bio::Location::Simple->new
+    (-start => 4, -end => 7, -strand=> 1 );
+$res = $m->map($pos);
+ok $res->start, 4;
+ok $res->end, 12;
+
+
 
 #
 # Problem with negative numbers
@@ -492,22 +521,29 @@ $e2 = Bio::Location::Simple->new
     (-seq_id => 'gene', -start => 15, -end => 19, -strand=>-1 );
 @cexons = ($e1, $e2);
 my $cds= Bio::Location::Simple->new
-    (-seq_id => 'gene', -start => 13, -end => 17, -strand=>-1 );
+    (-seq_id => 'gene', -start => 5, -end => 17, -strand=>-1 );
 
 $m = new Bio::Coordinate::GeneMapper(-in=>'cds', -out=>'chr');
 
 $m->cds($cds); # this has to be set first!?
 ok $m->exons(@cexons), 2;
+#$m->verbose(2);
 
-#print Dumper $m;
+
+my $cds_f= Bio::Location::Simple->new
+    (-start => 2, -end => 7, );
+
+#print Dumper $cds_f;
+$res = $m->map($cds_f);
+#print Dumper $res;
 #exit;
-$res = $m->map($res);
+
 ok @sublocs = $res->each_Location(1);
 ok @sublocs, 2;
 
 #print Dumper \@sublocs;
 ok $sublocs[0]->start, 6;
-ok $sublocs[0]->end, 8;
+ok $sublocs[0]->end, 9;
 ok $sublocs[1]->start, 15;
 ok $sublocs[1]->end, 16;
 

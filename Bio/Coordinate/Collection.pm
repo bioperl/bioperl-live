@@ -48,7 +48,7 @@ reads and assembly. The submaps are automatically sorted, so they can
 be added in any order.
 
 To map coordinates to other direction, you have to swap() the
-collection. Keeping track of teh direction and when to id restricitons
+collection. Keeping track of the direction and when to id restrictions
 are left to the calling code.
 
 =head1 FEEDBACK
@@ -213,10 +213,15 @@ sub each_mapper{
 
 sub swap {
    my ($self) = @_;
+   use Data::Dumper;
 
-   #@{$self->{'mappers'}} = 
-   map {$_->swap} @{$self->{'_mappers'}};
-   $self->sort;
+   $self->sort unless $self->_is_sorted;
+#   print Dumper $self;
+#   print STDERR "swaping..........................\n";
+#   @{$self->{'mappers'}} = 
+   map {$_->swap;} @{$self->{'_mappers'}};
+   ($self->{'_in_ids'}, $self->{'_out_ids'}) = ($self->{'_out_ids'}, $self->{'_in_ids'});
+   1;
 }
 
 =head2 test
@@ -273,8 +278,7 @@ sub map {
 
    if ($value->isa("Bio::Location::SplitLocationI")) {
 
-       my $result = new Bio::Coordinate::Result; #use Data::Dumper; print Dumper $self;
-#       my $split = new Bio::Location::Split(-seq_id=>$self->out->seq_id);
+       my $result = new Bio::Coordinate::Result;
        foreach my $loc ( $value->sub_Location(1) ) {
 
            my $res = $self->_map($loc);

@@ -84,8 +84,8 @@ use Bio::Location::Split;
 
 =head2 add_location
 
- Title   : add_location
- Usage   : $obj->add_location($variant)
+ Title   : add_sub_Location
+ Usage   : $obj->add_sub_Location($variant)
  Function: 
 
            Pushes one Bio::LocationI into the list of variants.
@@ -260,5 +260,35 @@ sub gap {
    }
    return $self->{'_gap'};
 }
+
+
+=head2 purge_gaps
+
+ Title   : purge_gaps
+ Usage   : $gap_count = $obj->purge_gaps;
+ Function: remove all gaps from the Result
+ Returns : count of removed gaps
+ Args    : 
+
+=cut
+
+sub purge_gaps {
+    my ($self) = @_;
+    my @matches;
+    my $count = 0;
+
+    foreach my $loc ($self->each_Location) {
+        if ($loc->isa('Bio::Coordinate::Result::Match')) {
+            push @matches, $loc;
+        } else {
+            $count++
+        }
+    }
+    @{$self->{'_sublocations'}} = ();
+    delete $self->{'_gap'} ;
+    push @{$self->{'_sublocations'}}, @matches;
+    return $count;
+}
+
 
 1;

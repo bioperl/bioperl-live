@@ -143,7 +143,7 @@ sub map {
 
    if ($value->isa("Bio::Location::SplitLocationI")) {
 
-       my $split = new Bio::Location::Split(-seq_id=>$self->out->seq_id);
+       my $split = Bio::Coordinate::Result->new(-seq_id=>$self->out->seq_id);
        foreach my $loc ( sort { $a->start <=> $b->start }
                          $value->sub_Location ) {
 

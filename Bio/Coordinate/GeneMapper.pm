@@ -175,7 +175,7 @@ $DAG = {
 	5  => [6],
 	4  => [7],
 	3  => [],
-	2  => [4, 5],
+	2  => [4, 5, 7],
 	1  => [2]
        };
 
@@ -577,10 +577,11 @@ sub exons {
 		-end => $tr_end + $exon->end - $exon->start +1,
 		-strand=>$exon->strand );
 
-	   my $pair = Bio::Coordinate::Pair->new(-in => $match1,
-						 -out => $match2,
-						);
-	   $cds_map->add_mapper($pair);
+	   $cds_map->add_mapper(Bio::Coordinate::Pair->new
+                                (-in => $match1,
+                                 -out => $match2,
+                                )
+                               );
 
 	   if ($exon->start <= 1 and $exon->end >= 1) {
 	       $coffset = $tr_end - $exon->start + 1;
@@ -604,22 +605,26 @@ sub exons {
 		    -strand=>$exon->strand );
 
 	       # negative intron coordinates
-	       my $match6 = Bio::Location::Simple->new
+	       my $match5 = Bio::Location::Simple->new
 		   (-seq_id => 'intron'. ($exon_counter -1),
 		    -start => -1 * ($exon->start - 2 - $prev_exon_end),
 		    -end => 0,
 		    -strand=>$exon->strand );
 
-	       my $pair = Bio::Coordinate::Pair->new(-in => $match3,
-						     -out => $match4
-						    );
-	       my $neg_pair = Bio::Coordinate::Pair->new(-in => $match4,
-							 -out => $match6
-							);
-
-	       $inex_map->add_mapper($pair);
-	       $intron_map->add_mapper($pair);
-	       $negative_intron_map->add_mapper($neg_pair);
+	       $inex_map->add_mapper(Bio::Coordinate::Pair->new
+                                     (-in => $match3,
+                                      -out => $match4
+                                     )
+                                    );
+	       $intron_map->add_mapper(Bio::Coordinate::Pair->new
+                                       (-in => $self->_clone_loc($match3),
+                                        -out => $self->_clone_loc($match4)
+                                       )
+                                      );
+	       $negative_intron_map->add_mapper(Bio::Coordinate::Pair->new
+                                                (-in => $self->_clone_loc($match4),
+                                                 -out => $match5
+                                                ));
 
 	   }
 
@@ -629,21 +634,33 @@ sub exons {
 	   #
 	   # gene -> exon
 	   #
-	   my $match5 = Bio::Location::Simple->new
+	   my $match6 = Bio::Location::Simple->new
 	       (-seq_id => 'exon'. $exon_counter,
 		-start => 1,
 		-end => $exon->end - $exon->start +1,
 		-strand=> $exon->strand );
 
-	   my $pair2 = Bio::Coordinate::Pair->new(-in => $match1,
-						  -out => $match5
+	   my $pair2 = Bio::Coordinate::Pair->new(-in => $self->_clone_loc($match1),
+						  -out => $match6
 						 );
-	   my $pair3 = Bio::Coordinate::Pair->new(-in => $match5,
-						  -out => $match2
+	   my $pair3 = Bio::Coordinate::Pair->new(-in => $self->_clone_loc($match6),
+						  -out => $self->_clone_loc($match2)
 						 );
-	   $inex_map->add_mapper($pair2);
-	   $exon_map->add_mapper($pair2);
-	   $exon_cds_map->add_mapper($pair3);
+	   $inex_map->add_mapper(Bio::Coordinate::Pair->new
+                                 (-in => $self->_clone_loc($match1),
+                                  -out => $match6
+                                 )
+                                );
+	   $exon_map->add_mapper(Bio::Coordinate::Pair->new
+                                 (-in => $self->_clone_loc($match1),
+                                  -out => $self->_clone_loc($match6)
+                                 )
+                                );
+           $exon_cds_map->add_mapper(Bio::Coordinate::Pair->new
+                                     (-in => $self->_clone_loc($match6),
+                                      -out => $self->_clone_loc($match2)
+                                     )
+                                    );
 
        }
 
@@ -666,6 +683,32 @@ sub exons {
    return  @{$self->{'_chr_exons'}}  || 0;
 }
 
+=head2 _clone_loc
+
+ Title   : _clone_loc
+ Usage   : $copy_of_loc = $obj->_clone_loc($loc);
+ Function: Make a deep copy of a simple location
+ Returns : a Bio::Location::Simple object
+ Args    : a Bio::Location::Simple object to be cloned
+
+=cut
+
+
+sub _clone_loc { # clone a simple location
+   my ($self,$loc) = @_;
+
+   $self->throw("I need a Bio::Location::Simple , not [". ref $loc. "]")
+       unless $loc->isa('Bio::Location::Simple');
+
+   return  Bio::Location::Simple->new
+       (-seq_id => $loc->seq_id,
+        -start => $loc->start,
+        -end => $loc->end,
+        -strand=> $loc->strand,
+        -location_type => $loc->location_type
+       );
+}
+
 
 =head2 cds
 
@@ -675,8 +718,7 @@ sub exons {
 
            Simple input can be an integer which gives the start of the
            coding region in genomic coordinate. If you want to provide
-           the end of the coding r
-egion or indicate the use of the
+           the end of the coding region or indicate the use of the
            opposite strand, you have to pass a Bio::Location::Simple
            object to this method.
 
@@ -795,33 +837,15 @@ sub map {
            #
 	   # the DEFAULT : generic mapping
            #
-
 	   $value = $self->{'_mappers'}->{$mapper}->map($value);
-	   print STDERR "+  $mapper (", $self->direction, ")\n"
-	       if $self->verbose > 0;
-#	   my @matches = $res->each_match;
-#	   if (@matches > 1) {
-#	       $self->throw('Multiple matches in different coordinate systems not handled')
-#		   if $matches[0]->seq_id ne $matches[-1]->seq_id;
-#	       $value = $res->match;
-#	       $value->start($matches[0]->start);
-#
-#	   } else {
-#	       $value = $res->match if defined $res;
-#	   }
+           $value->purge_gaps
+              if ($value && $value->isa('Bio::Location::SplitLocationI') && $value->can('gap'));
+	   print STDERR "+  $mapper (", $self->direction, "):  start ",
+               $value->start, " end ", $value->end, "\n"
+	       if $value && $self->verbose > 0;
        }
-#       if ( $value->isa('Bio::Location::SplitLocationI')) {
-#	   return undef unless $value->match;
-#	   if ( $value->each_match > 1 ) {
-#	       my @matches = $value->each_match;
-#	       $value = Bio::Location::Simple->new
-#		   (-seq_id => $matches[0]->seq_id,
-#		    -start => $matches[0]->start,
-#		    -end => $matches[-1]->end,
-#		    -strand=>$matches[0]->strand );
-#	   }
-#       }
    }
+
    # if nozero coordinate system is asked to be used in the output values
    if ( defined $value && defined $self->{'_nozero'} &&
 	( $self->{'_nozero'} == 2 || $self->{'_nozero'} == 3 ) ) {
@@ -832,14 +856,39 @@ sub map {
 	   if defined $value->end && $value->end < 1;
    }
 
-   # handle merging adjacent split locations!
+   # handle merging of adjacent split locations!
 
-   if ($value->isa("Bio::Location::SplitLocationI")) {
+   if (ref $value eq "Bio::Coordinate::Result" && $value->each_match > 1 ) {
        my $prevloc;
+       my $merging = 0;
+       my $newvalue;
+       my @matches;
        foreach my $loc ( $value->each_Location(1) ) {
-           next unless $prevloc;
-           if ($prevloc->end == ($loc->start - 1) ) {};
-           $prevloc = $loc;
+           unless ($prevloc) {
+               $prevloc = $loc;
+               push @matches, $prevloc;
+               next;
+           }
+           if ($prevloc->end == ($loc->start - 1) && $prevloc->seq_id eq $loc->seq_id) {
+               $prevloc->end($loc->end);
+               $merging = 1;
+           } else {
+               push @matches, $loc;
+               $prevloc = $loc;
+           }
+       }
+       if ($merging) {
+           if (@matches > 1 ) {
+               $newvalue = Bio::Coordinate::Result->new;
+               map {$newvalue->add_sub_Location} @matches;
+           } else {
+               $newvalue = Bio::Coordinate::Result::Match->new
+                   (-seq_id => $matches[0]->seq_id,
+                    -start => $matches[0]->start,
+                    -end => $matches[0]->end,
+                    -strand=> $matches[0]->strand );
+           }
+           $value = $newvalue;
        }
    }
 
