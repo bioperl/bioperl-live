@@ -36,6 +36,7 @@ sub draw_component {
   my ($x1,$y1,$x2,$y2) = $self->bounds(@_);
 
   my $dna        = eval { $self->feature->seq };
+  $dna           = $dna->seq if ref($dna) and $dna->can('seq'); # to catch Bio::PrimarySeqI objects
   $dna or return;
 
   if ($self->dna_fits) {
