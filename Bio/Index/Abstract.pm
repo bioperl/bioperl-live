@@ -561,13 +561,13 @@ sub make_index {
 	} else { 
 	    if(  $^O =~ /MSWin/i ) {
 		($files[$i] =~ m|^[A-Za-z]:/|) || 
-		    $self->throw("File name not fully qualified : $files[$i]");
+		    $self->throw("Not an absolute file path '$files[$i]'");
 	    } else {
 		($files[$i] =~ m|^/|) || 
-		    $self->throw("File name not fully qualified : $files[$i]"); 
+		    $self->throw("Not an absolute file path '$files[$i]'"); 
 	    }
 	}
-        $self->throw("File does not exist: $files[$i]")   unless -e $files[$i];
+        $self->throw("File does not exist '$files[$i]'")   unless -e $files[$i];
     }
 
     # Add each file to the index

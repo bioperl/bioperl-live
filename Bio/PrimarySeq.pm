@@ -330,7 +330,7 @@ sub subseq {
 	       my $piece = substr( $self->seq(), $subloc->start - 1, 
 				   $subloc->length);
 	       if( $subloc->strand < 0 ) { 
-		   $piece = Bio::PrimarySeq->new(-seq => $piece)->revcom()->seq();
+		   $piece = Bio::PrimarySeq->new('-seq' => $piece)->revcom()->seq();
 	       }
 	       $seq .= $piece;
 	   }
@@ -338,7 +338,7 @@ sub subseq {
 	   $seq = substr( $self->seq(), $loc->start - 1, $loc->length);
        }
        if( $loc->strand < 0 ) { 
-	   $seq = Bio::PrimarySeq->new(-seq => $seq)->revcom()->seq();
+	   $seq = Bio::PrimarySeq->new('-seq' => $seq)->revcom()->seq();
        }
        return $seq;
    } 

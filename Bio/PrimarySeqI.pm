@@ -322,13 +322,15 @@ sub can_call_new{
 =cut
 
 sub alphabet{
-   my ($self,@args) = @_;
+    my ( $self ) = @_;
 
-   if( $self->can('throw') ) {
-       $self->throw("Bio::PrimarySeqI definition of seq - implementing class did not provide this method");
-   } else {
-       confess("Bio::PrimarySeqI definition of seq - implementing class did not provide this method");
-   }
+    my $class = ref($self);
+    my $msg = "Class '$class' does not implement method 'alphabet'";
+    if( $self->can('throw') ) {
+        $self->throw($msg);
+    } else {
+        confess($msg);
+    }
 }
 
 sub moltype{
@@ -462,10 +464,11 @@ sub trunc{
    }
 
    if( $end < $start ) {
+        my $msg = "start $start is greater than end $end. if you want to truncated and reverse complement, you must call trunc followed by revcom. Sorry.";
        if( $self->can('throw')  ) {
-	   $self->throw("$end is smaller than $start. if you want to truncated and reverse complement, you must call trunc followed by revcom. Sorry.");
+	   $self->throw($msg);
        } else {
-	   confess("[$self] $end is smaller than $start. If you want to truncated and reverse complement, you must call trunc followed by revcom. Sorry.");
+	   confess($msg);
        }
    }
 
