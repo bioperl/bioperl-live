@@ -1571,8 +1571,8 @@ sub _features {
 					$refseq,$class,
 					$start,$stop,
 					\@aggregated_types,
-					$automerge,
-					$callback) ;
+					$callback,
+					$automerge);
   }
 
   my %groups;         # cache the groups we create to avoid consuming too much unecessary memory

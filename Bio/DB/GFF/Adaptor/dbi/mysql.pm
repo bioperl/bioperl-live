@@ -146,9 +146,11 @@ package Bio::DB::GFF::Adaptor::dbi::mysql;
 # a simple mysql adaptor
 use strict;
 use Bio::DB::GFF::Adaptor::dbi;
-use vars qw($VERSION @ISA);
+use vars qw($VERSION @ISA $IN_ITERATOR);
 @ISA = qw(Bio::DB::GFF::Adaptor::dbi);
-$VERSION = '0.20';
+$VERSION = '0.25';
+
+$IN_ITERATOR = 0;
 
 use constant MAX_SEGMENT => 100_000_000;  # the largest a segment can get
 
@@ -335,32 +337,36 @@ sub make_types_group_part {
 
 sub fast_queries {
   my $self = shift;
-  my $d = $self->{fast_queries} || 0;
+  my $d = $self->{fast_queries};
   $self->{fast_queries} = shift if @_;
   $d;
 }
 
 # override this method in order to set the mysql_use_result attribute, which is an obscure
 # but extremely powerful optimization for both performance and memory.
+sub get_features_iterator {
+  my $self = shift;
+  local $IN_ITERATOR = 1;
+  $self->SUPER::get_features_iterator(@_);
+}
+
 sub do_query {
   my $self = shift;
   my ($query,@args) = @_;
   warn $self->dbi_quote($query,@args),"\n" if $self->debug;
+
+  my $fast_queries = $self->fast_queries;
+  if (!defined $fast_queries) {  # user hasn't specified
+    $fast_queries = $IN_ITERATOR ? 0 : 1;
+  }
+  warn "fast queries turned ",($fast_queries ? 'on' : 'off'),"\n" if $self->debug;
+
   my $sth = $self->{sth}{$query} ||= $self->features_db->prepare($query,
-								 {mysql_use_result=>1})
+								 {mysql_use_result=>$fast_queries})
     || $self->throw("Couldn't prepare query $query:\n ".DBI->errstr."\n");
   $sth->execute(@args)
     || $self->throw("Couldn't execute query $query:\n ".DBI->errstr."\n");
   $sth;
-}
-
-sub get_features_iterator {
-  my $self = shift;
-  my ($rangetype,$srcseq,$class,$start,$stop,$types,$callback,$order_by_group) = @_;
-  $callback || $self->throw('must provide a callback argument');
-  my $sth = $self->range_query($rangetype,$srcseq,$class,$start,$stop,$types,$order_by_group) or return;
-  $sth->{mysql_use_result} = $self->fast_queries;
-  return Bio::DB::GFF::Adaptor::dbi::iterator->new($sth,$callback);
 }
 
 ################################ loading and initialization ##################################

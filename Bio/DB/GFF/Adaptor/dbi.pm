@@ -629,9 +629,9 @@ L<Bio::DB::GFF::Adaptor::dbi::iterator>.
 
 sub get_features_iterator {
   my $self = shift;
-  my ($rangetype,$srcseq,$class,$start,$stop,$types,$callback,$order_by_group) = @_;
+  my ($rangetype,$srcseq,$class,$start,$stop,$types,$callback) = @_;
   $callback || $self->throw('must provide a callback argument');
-  my $sth = $self->range_query($rangetype,$srcseq,$class,$start,$stop,$types,$order_by_group) or return;
+  my $sth = $self->range_query($rangetype,$srcseq,$class,$start,$stop,$types,$self->automerge) or return;
   return Bio::DB::GFF::Adaptor::dbi::iterator->new($sth,$callback);
 }
 
