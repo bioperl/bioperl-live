@@ -9,3 +9,4 @@
 Makefile$
 bioperl.lisp
 bioperl.conf
+Bio/Tools/WebBlat.pm
