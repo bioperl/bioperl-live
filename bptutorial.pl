@@ -994,6 +994,7 @@ current set of suffixes:
    nexus       nexus|nex
    pfam        pfam|pfm
    phylip      phylip|phlp|phyl|phy|phy|ph  interleaved
+   po                                       POA
    prodom
    psi         psi                          PSI-BLAST
    selex       selex|slx|selx|slex|sx       HMMER
@@ -1003,8 +1004,8 @@ current set of suffixes:
 See L<"IV.2.1"> on EMBOSS for more information
 
 Unlike SeqIO AlignIO cannot create output files in every format. AlignIO
-currently supports output in these 6 formats: fasta, mase, selex, clustalw,
-msf/gcg, and phylip (interleaved).
+currently supports output in these 7 formats: fasta, mase, selex, clustalw,
+msf/gcg, phylip (interleaved), and po.
 
 Another significant difference between AlignIO and SeqIO is that AlignIO 
 handles IO for only a single alignment at a time but SeqIO.pm handles IO 
