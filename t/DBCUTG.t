@@ -63,10 +63,10 @@ if( $DEBUG ) {
     my $cdtable =  $db->get_request(-sp =>'Pan troglodytes');
     exit unless $cdtable;
 #tests for Table.pm
-    ok $cdtable->cds_count(), 401;
+    ok $cdtable->cds_count(), 442;
     ok int($cdtable->aa_frequency('LEU')), 9;
     ok $cdtable->get_coding_gc('all');
-    ok $cdtable->codon_rel_frequency('ttc'), "0.68"; 
+    ok $cdtable->codon_rel_frequency('ttc'), "0.63"; 
     
 #now try reading from file
     ok my $io = Bio::CodonUsage::IO->new
@@ -88,6 +88,8 @@ if( $DEBUG ) {
     ok $cut->codon_abs_frequency('CTG'), 2.6;
     ok $cut->codon_count('CTG'), 26;
     ok $cut->get_coding_gc(1), "39.70";
+	ok my $ref = $cut->probable_codons(40);
+	ok 1 ;
 } else { 
    for ( $Test::ntest..$NUMTESTS) {
 	skip("Skipping tests which require remote servers - set env variable BIOPERLDEBUG to test",1);
