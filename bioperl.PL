@@ -126,7 +126,7 @@ We are very interested to hear how you experienced using Bioperl. Did
 it install cleanly? Did you understand the documentation? Could you
 get the objects to do what you wanted them to do? If Bioperl was useless
 we want to know why, and if it was great - that too. Post a message to
-bioperl-l\@bioperl.org, the Bioperl mailing list, where all the developers
+B<bioperl-l\@bioperl.org>, the Bioperl mailing list, where all the developers
 are.
 
 Only by getting people's feedback do we know whether we are providing
@@ -159,7 +159,7 @@ except for Seq.pm). Talk to him or her and suggest changes.
 If you can make a useful object we will happily include it into the
 core. Probably you will want to read a lot of the documentation 
 in the L<Bio::Root>, talk to people on the Bioperl mailing list,
-bioperl-l\@bioperl.org, and read biodesign.pod. biodesign.pod provides
+B<bioperl-l\@bioperl.org>, and read biodesign.pod. biodesign.pod provides
 documentation on the conventions and ideas used in Bioperl, it's definitely
 worth a read if you would like to be a Bioperl developer.
 
