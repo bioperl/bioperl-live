@@ -66,11 +66,11 @@ if( $t eq 'ACTGTGGCGTCAACT' ) {
   print "ok 6\n";
 }
 
-my $seq = Bio::Seq->new(-seq=>'actgtggcgtcaact',
-                        -desc=>'Sample Bio::Seq object',
-			-display_id => 'something',
-			-accession_number => 'accnum',
-			-moltype => 'dna' );
+$seq = Bio::Seq->new(-seq=>'actgtggcgtcaact',
+		     -desc=>'Sample Bio::Seq object',
+		     -display_id => 'something',
+		     -accession_number => 'accnum',
+		     -moltype => 'dna' );
 print "ok 7\n"; 
 
 
