@@ -195,23 +195,6 @@ sub gnm_terminus {
 }
 
 
-=head2 chromosome
-
- Title   : chromosome
- Usage   : chromosome();
- Function: Returns the chromosome associated with the object.
- Example : $chromosome = $unigene->chromosome or $unigene->chromosome($chromosome)
- Returns : A string
- Args    : None or a chromosome
-
-=cut
-
-sub chromosome {
-	my ($self) = @_;
-	$self->throw_not_implemented;
-}
-
-
 =head2 scount
 
  Title   : scount
@@ -261,6 +244,42 @@ sub express {
 =cut
 
 sub next_express {
+	my ($self) = @_;
+	$self->throw_not_implemented;
+}
+
+
+=head2 chromosome
+
+ Title   : chromosome
+ Usage   : chromosome();
+ Function: Returns or stores a reference to an array containing chromosome lines
+ 		   This should really only be used by ClusterIO, not directly
+ Returns : An array reference
+ Args    : None or an array reference
+
+=cut
+
+sub chromosome {
+	my ($self) = @_;
+	$self->throw_not_implemented;
+}
+
+
+=head2 next_chromosome
+
+ Title   : next_chromosome
+ Usage   : next_chromosome();
+ Function: Returns the next chromosome line from an array referred to using $obj->{'chromosome'}
+ Example : 	while ( my $chromosome = $in->next_chromosome() ) {
+				print "$chromosome\n";
+			}
+ Returns : String
+ Args    : None
+
+=cut
+
+sub next_chromosome {
 	my ($self) = @_;
 	$self->throw_not_implemented;
 }

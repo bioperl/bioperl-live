@@ -56,13 +56,15 @@ locuslink() - set/get locuslink
 
 gnm_terminus() - set/get gnm_terminus
 
-chromosome() - set/get chromosome
-
 scount() - set/get scount
 
 express() - set/get express, currently takes/returns a reference to an array of expressed tissues
 
 next_express() - returns the next tissue expression from the expressed tissue array
+
+chromosome() - set/get chromosome, currently takes/returns a reference to an array of chromosome lines
+
+next_chromosome() - returns the next chromosome line from the array of chromosome lines
 
 sts() - set/get sts, currently takes/returns a reference to an array of sts lines
 
@@ -395,6 +397,50 @@ sub next_express {
 	my ($obj) = @_;
 	shift @{$obj->{'express'}};
 }
+
+
+=head2 chromosome
+
+ Title   : chromosome
+ Usage   : chromosome();
+ Function: Returns or stores a reference to an array containing chromosome lines
+ 		   This should really only be used by ClusterIO, not directly
+ Returns : An array reference
+ Args    : None or an array reference
+
+=cut
+
+sub chromosome {
+   my ($obj,$value) = @_;
+
+   if( defined $value) {
+      $obj->{'chromosome'} = $value;
+    }
+   if( ! exists $obj->{'chromosome'} ) {
+       return "$obj";
+   }
+   return $obj->{'chromosome'};
+}
+
+
+=head2 next_chromosome
+
+ Title   : next_chromosome
+ Usage   : next_chromosome();
+ Function: Returns the next chromosome line from an array referred to using $obj->{'chromosome'}
+ Example : 	while ( my $chromosome = $in->next_chromosome() ) {
+				print "$chromosome\n";
+			}
+ Returns : String
+ Args    : None
+
+=cut
+
+sub next_chromosome {
+	my ($obj) = @_;
+	shift @{$obj->{'chromosome'}};
+}
+
 
 
 =head2 sts

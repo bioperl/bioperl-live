@@ -83,6 +83,7 @@ my $grammar = <<'EOGRAMMAR';
 {
 my $unigene_id;
 my @sequence;
+my @chromosome;
 my @sts;
 my @txmap;
 my @protsim;
@@ -98,7 +99,7 @@ record			:	id
 					locuslink(?)
 					express(?)
 					gnm_terminus(?)
-					chromosome(?)
+					chromosome(s?)
 					sts(s?)
 					txmap(s?)
 					protsim(s?)
@@ -113,8 +114,8 @@ record			:	id
 															if (defined $item{cytoband}->[0]) { $UGobj->cytoband($item{cytoband}->[0]) };
 															if (defined $item{locuslink}->[0]) { $UGobj->locuslink($item{locuslink}->[0]) };
 															if (defined $item{gnm_terminus}->[0]) { $UGobj->gnm_terminus($item{gnm_terminus}->[0]) };
-															if (defined $item{chromosome}->[0]) { $UGobj->chromosome($item{chromosome}->[0]) };
 															$UGobj->scount($item{scount});
+															$UGobj->chromosome(\@chromosome);
 															$UGobj->sts(\@sts);
 															$UGobj->txmap(\@txmap);
 															$UGobj->protsim(\@protsim);
@@ -148,7 +149,7 @@ gnm_terminus	:	'GNM_TERMINUS' /.+/
 
 locuslink		:	'LOCUSLINK' /[0-9]+/
 
-chromosome		:	'CHROMOSOME' /[0-9XY|Un]+/
+chromosome		:	'CHROMOSOME' /[0-9XY|Un]+/			{ push @chromosome, $item[2]; }
 
 sts				:	'STS' /.+/							{ push @sts, $item[2]; }
 
