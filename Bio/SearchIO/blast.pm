@@ -221,6 +221,7 @@ sub next_result{
 	   my $size = 0;      
 	   $_ = $self->_readline;
 	   while( defined ($_) && $_ !~ /^\s+$/ ) {	
+	       chomp;
 	       if( /\(([\d,]+)\s+letters\)/ ) {		   
 		   $size = $1;
 		   $size =~ s/,//g;
