@@ -16,16 +16,16 @@ Bio::Species - Generic species object
 
     $species = Bio::Species->new(); # Can also pass classification
                                     # array to new as below
-                                    
+
     $species->classification(qw( sapiens Homo Hominidae
                                  Catarrhini Primates Eutheria
                                  Mammalia Vertebrata Chordata
                                  Metazoa Eukaryota ));
-    
+
     $genus = $species->genus();
-    
+
     $bi = $species->binomial();     # $bi is now "Homo sapiens"
-    
+
     # For storing common name
     $species->common_name("human");
 
@@ -35,7 +35,7 @@ Provides a very simple object for storing phylogenetic
 information.  The classification is stored in an array,
 which is a list of nodes in a phylogenetic tree.  Access to
 getting and setting species and genus is provided, but not
-to any of the other node types (eg: "phlum", "class",
+to any of the other node types (eg: "phylum", "class",
 "order", "family").  There's plenty of scope for making the
 model more sophisticated, if this is ever needed.
 
@@ -54,7 +54,7 @@ methods. Internal methods are usually preceded with a _
 =cut
 
 
-#' Let the code begin...
+# Let the code begin...
 
 
 package Bio::Species;
@@ -72,7 +72,7 @@ use Bio::Root::Object;
 # _initialize is where the heavy stuff will happen when new is called
 
 sub _initialize {
-  my($self,@args) = @_;
+  my ($self, @args) = @_;
 
   my $make = $self->SUPER::_initialize;
 
@@ -109,7 +109,7 @@ sub classification {
     my $self = shift;
     if (@_) {
         my @classification = @_;
-        
+
         # Check the names supplied in the classification string
         {
             # Species should be in lower case
@@ -121,7 +121,7 @@ sub classification {
                 $self->validate_name( $classification[$i] );
             }
         }
-        
+
         # Store classification
         $self->{'classification'} = [ @classification ];
     } else {
@@ -129,7 +129,7 @@ sub classification {
     }
 }
 
-=head2 
+=head2
 
  Title   : common_name
  Usage   : $self->common_name( $common_name );
@@ -142,15 +142,16 @@ sub classification {
 =cut
 
 sub common_name {
-    my($self, $name) = @_;
-    
+    my ($self, $name) = @_;
+
     if ($name) {
         $self->{'common_name'} = $name;
     } else {
-        return $self->{'common_name'} 
+        return $self->{'common_name'}
     }
 }
-=head2 
+
+=head2
 
  Title   : organelle
  Usage   : $self->organelle( $organelle );
@@ -163,12 +164,12 @@ sub common_name {
 =cut
 
 sub organelle {
-    my($self, $name) = @_;
-    
+    my ($self, $name) = @_;
+
     if ($name) {
         $self->{'organelle'} = $name;
     } else {
-        return $self->{'organelle'} 
+        return $self->{'organelle'}
     }
 }
 
@@ -187,8 +188,8 @@ sub organelle {
 
 
 sub species {
-    my($self, $species) = @_;
-    
+    my ($self, $species) = @_;
+
     if ($species) {
         $self->validate_species_name( $species );
         $self->{'classification'}[0] = $species;
@@ -201,7 +202,7 @@ sub species {
 
  Title   : sub_species
  Usage   : $obj->sub_species($newval)
- Function: 
+ Function:
  Returns : value of sub_species
  Args    : newvalue (optional)
 
@@ -210,7 +211,7 @@ sub species {
 
 sub sub_species{
    my $obj = shift;
-   if( @_ ) {
+   if ( @_ ) {
       my $value = shift;
       $obj->{'sub_species'} = $value;
     }
@@ -233,8 +234,8 @@ sub sub_species{
 
 
 sub genus {
-    my($self, $genus) = @_;
-    
+    my ($self, $genus) = @_;
+
     if ($genus) {
         $self->validate_name( $genus );
         $self->{'classification'}[1] = $genus;
@@ -255,26 +256,25 @@ sub genus {
 
 
 sub binomial {
-    my( $self ) = @_;
-    
-    my( $species, $genus ) = $self->classification();
+    my ($self) = @_;
+
+    my ($species, $genus) = $self->classification();
     return "$genus $species";
 }
 
 sub validate_species_name {
-    my( $self, $string ) = @_;
-    
+    my ($self, $string) = @_;
+
     $string =~ /^[\S\d\.]+$||""/ or
         $self->throw("Invalid species name '$string'");
 }
 
 sub validate_name {
-    my( $self, $string ) = @_;
-    
+    my ($self, $string) = @_;
+
     return $string =~ /^[A-Z][a-z]+$/ or
         $self->throw("Invalid name '$string' (Wrong case?)");
 }
-
 
 1;
 

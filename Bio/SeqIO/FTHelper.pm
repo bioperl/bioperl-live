@@ -1,4 +1,3 @@
-
 #
 # BioPerl module for Bio::SeqIO::FTHelper
 #
@@ -79,7 +78,7 @@ use Bio::Root::Object;
 # _initialize is where the heavy stuff will happen when new is called
 
 sub _initialize {
-  my($self,@args) = @_;
+  my ($self, @args) = @_;
 
   my $make = $self->SUPER::_initialize;
   $self->{'_field'} = {};
@@ -114,78 +113,117 @@ sub _initialize {
 =cut
 
 sub _generic_seqfeature {
-   my ($fth,$annseq) = @_;
-   my ($sf);
+    my ($fth, $annseq) = @_;
+    my ($sf);
 
-  # print "Converting from", $fth->key, "\n";
+    # print "Converting from", $fth->key, "\n";
 
-   $sf = new Bio::SeqFeature::Generic;
-   if( $fth->loc =~ /join/ ) {
-       my $strand;
-       if ( $fth->loc =~ /complement/ ) {
-	   $strand = -1;
-       } else {
-	   $strand = 1;
-       }
+    $sf = new Bio::SeqFeature::Generic;
+    if( $fth->loc =~ /join/ ) {
+	my $strand;
+	if ( $fth->loc =~ /complement/ ) {
+	    $strand = -1;
+	} else {
+	    $strand = 1;
+	}
 
-       $sf->strand($strand);
-       $sf->primary_tag($fth->key . "_span");
-       $sf->source_tag('EMBL_GenBank');
-       $sf->has_tag("parent",1);
-       $sf->_parse->{'parent_homogenous'} = 1;
+	$sf->strand($strand);
+	$sf->primary_tag($fth->key . "_span");
+	$sf->source_tag('EMBL_GenBank');
+	$sf->has_tag("parent", 1);
+	$sf->_parse->{'parent_homogenous'} = 1;
 
-       # we need to make sub features
-       my $loc = $fth->loc;
-       while( $loc =~ /\<?(\d+)\.\.\>?(\d+)/g ) {
-	   my $start = $1;
-	   my $end   = $2;
-	   #print "Processing $start-$end\n";
-	   my $sub = new Bio::SeqFeature::Generic;
-	   $sub->primary_tag($fth->key);
-	   $sub->start($start);
-	   $sub->end($end);
-	   $sub->strand($strand);
-	   $sub->source_tag('EMBL_GenBank');
-	   $sf->add_sub_SeqFeature($sub,'EXPAND');
-       }
+	# we need to make sub features
+	my $loc = $fth->loc;
+	while ( $loc =~ /\<?(\d+)[\.\^]+\>?(\d+)/g ) {
+	    my $start = $1;
+	    my $end   = $2;
+	    #print "Processing $start-$end\n";
+	    my $sub = new Bio::SeqFeature::Generic;
+	    $sub->primary_tag($fth->key);
+	    $sub->start($start);
+	    $sub->end($end);
+	    $sub->strand($strand);
 
-   } else {
-       my $lst;
-       my $len;
+	    if ( $loc =~ /\<\d+/ ) {
+		$sub->add_tag_value('_part_feature', '3_prime') if $sub->strand == 1;
+		$sub->add_tag_value('_part_feature', '5_prime') if $sub->strand == -1;
+	    }
+	    if ( $loc =~ /\>\d+/ ) {
+		$sub->add_tag_value('_part_feature', '5_prime') if $sub->strand == 1;
+		$sub->add_tag_value('_part_feature', '3_prime') if $sub->strand == -1;
+	    }
+	    if ( $loc =~ /\d+\^\d+/ ) {
+		if ( $sub->start + 1 == $sub->end ) {
+		    $sub->add_tag_value('_zero_width_feature', 1);
+		    $sub->strand(0);
+		} else {
+		    $annseq->throw("Zero width feature at [" . $loc . "] has location with width in reading EMBL");
+		}
+	    }
 
-       if( $fth->loc =~ /^(\d+)$/ ) {
-	   $lst = $len = $1;
-       } else {
-	   $fth->loc =~ /\<?(\d+)\.\.\>?(\d+)/ || do {
-	       $annseq->throw("Weird location line [" . $fth->loc . "] in reading GenBank");
-	       last;
-	   };
-	   $lst = $1;
-	   $len = $2;
-       }
+	    $sub->source_tag('EMBL_GenBank');
+	    $sf->add_sub_SeqFeature($sub,'EXPAND');
+	}
 
-       $sf->start($lst);
-       $sf->end($len);
-       $sf->source_tag('EMBL_GenBank');
-       $sf->primary_tag($fth->key);
-       if( $fth->loc =~ /complement/ ) {
-	   $sf->strand(-1);
-       } else {
-	   $sf->strand(1);
-       }
-   }
+    } else {
+	my $lst;
+	my $len;
 
-   #print "Adding B4 ", $sf->primary_tag , "\n";
+	if ( $fth->loc =~ /^(\d+)$/ ) {
+	    $lst = $len = $1;
+	} else {
+	    $fth->loc =~ /\<?(\d+)[\.\^]+\>?(\d+)/ || do {
+		$annseq->throw("Weird location line [" . $fth->loc . "] in reading EMBL");
+		last;
+	    };
+	    $lst = $1;
+	    $len = $2;
+	}
 
-   foreach my $key ( keys %{$fth->field} ){
-       foreach my $value ( @{$fth->field->{$key}} ) {
-	   $sf->add_tag_value($key,$value);
-       }
-   }
+	$sf->start($lst);
+	$sf->end($len);
+	$sf->source_tag('EMBL_GenBank');
+	$sf->primary_tag($fth->key);
+	if ( $fth->loc =~ /complement/ ) {
+	    $sf->strand(-1);
+	} else {
+	    $sf->strand(1);
+	}
 
+	# test for features which run off the ends of the sequence and store the
+	# information in a _part_feature tag
 
+	if ( $fth->loc =~ /\<\d+/ ) {
+	    $sf->add_tag_value('_part_feature', '5_prime_missing') if $sf->strand == 1;
+	    $sf->add_tag_value('_part_feature', '3_prime_missing') if $sf->strand == -1;
+	}
+	if ( $fth->loc =~ /\>\d+/ ) {
+	    $sf->add_tag_value('_part_feature', '3_prime_missing') if $sf->strand == 1;
+	    $sf->add_tag_value('_part_feature', '5_prime_missing') if $sf->strand == -1;
+	}
 
-   $annseq->add_SeqFeature($sf);
+	# test for zero width features and store the information in a _zero_width_feature tag
+
+	if ( $fth->loc =~ /\d+\^\d+/ ) {
+	    if ( $sf->start + 1 == $sf->end ) {
+		$sf->add_tag_value('_zero_width_feature', 1);
+		$sf->strand(0);
+	    } else {
+		$annseq->throw("Zero width feature at [" . $fth->loc . "] has location with width in reading EMBL");
+	    }
+	}
+    }
+
+    #print "Adding B4 ", $sf->primary_tag , "\n";
+
+    foreach my $key ( keys %{$fth->field} ){
+	foreach my $value ( @{$fth->field->{$key}} ) {
+	    $sf->add_tag_value($key,$value);
+	}
+    }
+
+    $annseq->add_SeqFeature($sf);
 }
 
 sub from_SeqFeature {
@@ -199,7 +237,7 @@ sub from_SeqFeature {
     # themselves to the EMBL/GenBank...
     #
 
-    if ($sf->can("to_FTHelper")) {
+    if ( $sf->can("to_FTHelper") ) {
 	return $sf->to_FTHelper($context_annseq);
     }
 
@@ -207,42 +245,117 @@ sub from_SeqFeature {
     # if the parent homogenous flag is set, build things from the
     # sub level
     my $loc;
+    my ($start_mod, $end_mod, $delim) = ( "", "", ".." );
     my $ph_flag;
-    if( $sf->can('_parse') ) {
+
+    if ( $sf->can('_parse') ) {
 	$ph_flag = $sf->_parse->{'parent_homogenous'} || 0;
     } else {
 	$ph_flag = 0;
     }
 
-    if( $ph_flag == 1 ) {
+    if ( $ph_flag == 1 ) {
 	$key = $sf->primary_tag();
 	$key =~ s/_span//g;
-	$loc = "join("; 
+	$loc = "join(";
 	my $touch = 0;
 	foreach my $sub ( $sf->sub_SeqFeature() ) {
-	    if( $touch == 1 ) {
+	    if ( $touch == 1 ) {
 		$loc .= ",";
 	    } else {
 		$touch = 1;
 	    }
 
-	    $loc .= $sub->start() . ".." . $sub->end();
+	    # decide which symbols to use to describe locations
+	    #     Supported: .. ^ < >
+	    # Not supported: . (fuzzy ranges)
+
+	    if ( $sf->has_tag('_part_feature') ) {
+
+		if ( grep /5_prime_missing/, $sub->each_tag_value('_part_feature') ) {
+
+		    if ( $sub->strand() == 1 ) {
+			$start_mod = '<';
+		    } elsif ( $sub->strand() == -1 ) {
+			$end_mod = '>';
+		    }
+		}
+
+		if ( grep /3_prime_missing/, $sub->each_tag_value('_part_feature') ) {
+
+		    if ( $sub->strand() == 1 ) {
+			$end_mod = '>';
+		    } elsif ( $sub->strand() == -1 ) {
+			$start_mod = '<';
+		    }
+		}
+		# now that we've returned the extra location information to the outbound file
+		# remove the extra tags
+
+		$sub->remove_tag('_part_feature');
+	    }
+
+	    if ( $sub->has_tag('_zero_width_feature')) {
+		$delim = "^";
+		$sub->remove_tag('_zero_width_feature');
+	    }
+
+	    $loc .= $start_mod . $sub->start() . $delim . $end_mod . $sub->end();
 	}
+
 	$loc .= ")";
-	if( $sf->strand == -1 ) {
+	if ( $sf->strand() == -1 ) {
 	    $loc = "complement($loc)";
-	} 
+	}
     } else {
-	$loc = $sf->start() . ".." . $sf->end();
+
+	# decide which symbols to use to describe locations
+	#     Supported: .. ^ < >
+	# Not supported: . (fuzzy ranges)
+
+	if ( $sf->has_tag('_part_feature')) {
+
+	    if ( grep /5_prime_missing/, $sf->each_tag_value('_part_feature') ) {
+
+		if ( $sf->strand() == 1 ) {
+		    $start_mod = '<';
+		}
+		elsif ( $sf->strand() == -1 ) {
+		    $end_mod = '>';
+		}
+	    }
+
+	    if ( grep /3_prime_missing/, $sf->each_tag_value('_part_feature') ) {
+
+		if ( $sf->strand() == 1 ) {
+		    $end_mod = '>';
+		}
+		elsif ( $sf->strand() == -1 ) {
+		    $start_mod = '<';
+		}
+	    }
+	    # now that we've returned the extra location information to the outbound file
+	    # remove the extra tags
+
+	    $sf->remove_tag('_part_feature');
+	}
+
+	if ( $sf->has_tag('_zero_width_feature')) {
+	    $delim = "^";
+	    $sf->remove_tag('_zero_width_feature');
+	}
+
+	$loc = $start_mod . $sf->start() . $delim . $end_mod . $sf->end();
+
 	$key = $sf->primary_tag();
-        
-	if( $sf->strand == -1 ) {
+
+	if ( $sf->strand() == -1 ) {
 	    $loc = "complement($loc)";
 	}
 	# going into sub features
 	foreach my $sub ( $sf->sub_SeqFeature() ) {
 	    my @subfth = &Bio::SeqIO::FTHelper::from_SeqFeature($sub);
-	    push(@ret,@subfth);
+	    push(@ret, @subfth);
 	}
     }
 
@@ -257,7 +370,7 @@ sub from_SeqFeature {
     #$sf->strand && do { push(@{$fth->field->{'note'}},"strand=" . $sf->strand ); };
 
     foreach my $tag ( $sf->all_tags ) {
-	if( !defined $fth->field->{$tag} ) {
+	if ( !defined $fth->field->{$tag} ) {
 	    $fth->field->{$tag} = [];
 	}
 	foreach my $val ( $sf->each_tag_value($tag) ) {
@@ -265,13 +378,13 @@ sub from_SeqFeature {
 	}
     }
 
-    push(@ret,$fth);
+    push(@ret, $fth);
 
     unless (@ret) {
 	$context_annseq->throw("Problem in processing seqfeature $sf - no fthelpers. Error!");
     }
-    foreach my $ft ( @ret ) {
-	if( !$ft->isa('Bio::SeqIO::FTHelper') ) {
+    foreach my $ft (@ret) {
+	if ( !$ft->isa('Bio::SeqIO::FTHelper') ) {
 	    $sf->throw("Problem in processing seqfeature $sf - made a $fth!");
 	}
     }
@@ -284,17 +397,17 @@ sub from_SeqFeature {
 
  Title   : key
  Usage   : $obj->key($newval)
- Function: 
- Example : 
+ Function:
+ Example :
  Returns : value of key
  Args    : newvalue (optional)
 
 
 =cut
 
-sub key{
-   my ($obj,$value) = @_;
-   if( defined $value) {
+sub key {
+   my ($obj, $value) = @_;
+   if ( defined $value ) {
       $obj->{'key'} = $value;
     }
     return $obj->{'key'};
@@ -305,17 +418,17 @@ sub key{
 
  Title   : loc
  Usage   : $obj->loc($newval)
- Function: 
- Example : 
+ Function:
+ Example :
  Returns : value of loc
  Args    : newvalue (optional)
 
 
 =cut
 
-sub loc{
-   my ($obj,$value) = @_;
-   if( defined $value) {
+sub loc {
+   my ($obj, $value) = @_;
+   if ( defined $value ) {
       $obj->{'loc'} = $value;
     }
     return $obj->{'loc'};
@@ -329,13 +442,13 @@ sub loc{
  Usage   :
  Function:
  Example :
- Returns : 
+ Returns :
  Args    :
 
 
 =cut
 
-sub field{
+sub field {
    my ($self) = @_;
 
    return $self->{'_field'};
@@ -347,20 +460,20 @@ sub field{
  Usage   :
  Function:
  Example :
- Returns : 
+ Returns :
  Args    :
 
 
 =cut
 
-sub add_field{
-   my ($self,$key,$val) = @_;
+sub add_field {
+   my ($self, $key, $val) = @_;
 
-   if( !exists $self->field->{$key} ) {
+   if ( !exists $self->field->{$key} ) {
        $self->field->{$key} = [];
-   } 
+   }
    push( @{$self->field->{$key}} , $val);
-   
+
 }
 
 

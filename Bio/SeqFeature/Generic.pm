@@ -20,7 +20,7 @@ Bio::SeqFeature::Generic - Generic SeqFeature
 				-strand => -1, -primary => 'repeat',
 				-source => 'repeatmasker',
 				-score  => 1000,
-				-tag    => { 
+				-tag    => {
 				    new => 1,
 				    author => 'someone',
 				    sillytag => 'this is silly!' } );
@@ -103,14 +103,14 @@ use Bio::SeqFeatureI;
 # _initialize is where the heavy stuff will happen when new is called
 
 sub _initialize {
-  my($self,@args) = @_;
+  my ($self, @args) = @_;
   my $make = $self->SUPER::_initialize;
 
   $self->{'_gsf_tag_hash'} = {};
   $self->{'_gsf_sub_array'} = [];
   $self->{'_parse_h'} = {};
 
-  my($start,$end,$strand,$primary,$source,$frame,$score,$tag,$gff_string) = 
+  my ($start, $end, $strand, $primary, $source, $frame, $score, $tag, $gff_string) =
       $self->_rearrange([qw(START
 			    END
 			    STRAND
@@ -153,16 +153,16 @@ sub _initialize {
 
 =cut
 
-sub start{
+sub start {
    my $self = shift;
 
-   if( @_ ) {
+   if ( @_ ) {
        my $value = shift;
-       if( $value !~ /^\-?\d+/ ) {
+       if ( $value !~ /^\-?\d+/ ) {
 	   $self->throw("$value is not a valid start");
        }
        $self->{'_gsf_start'} = $value
-   } 
+   }
 
    return $self->{'_gsf_start'};
 }
@@ -179,16 +179,16 @@ sub start{
 
 =cut
 
-sub end{
+sub end {
    my $self = shift;
 
-   if( @_ ) {
+   if ( @_ ) {
        my $value = shift;
-       if( $value !~ /^\-?\d+/ ) {
+       if ( $value !~ /^\-?\d+/ ) {
 	   $self->throw("$value is not a valid end");
        }
        $self->{'_gsf_end'} = $value
-   } 
+   }
 
    return $self->{'_gsf_end'};
 }
@@ -199,13 +199,13 @@ sub end{
  Usage   :
  Function:
  Example :
- Returns : 
+ Returns :
  Args    :
 
 
 =cut
 
-sub length{
+sub length {
    my ($self) = @_;
 
    return $self->end - $self->start +1;
@@ -224,20 +224,20 @@ sub length{
 
 =cut
 
-sub strand{
+sub strand {
    my $self = shift;
 
-   if( @_ ) {
+   if ( @_ ) {
        my $value = shift;
-       if( $value eq '+' ) { $value = 1; }
-       if( $value eq '-' ) { $value = -1; }
-       if( $value eq '.' ) { $value = 0; }
-       
-       if( $value != -1 && $value != 1 && $value != 0 ) {
+       if ( $value eq '+' ) { $value = 1; }
+       if ( $value eq '-' ) { $value = -1; }
+       if ( $value eq '.' ) { $value = 0; }
+
+       if ( $value != -1 && $value != 1 && $value != 0 ) {
 	   $self->throw("$value is not a valid strand info");
        }
        $self->{'_gsf_strand'} = $value
-   } 
+   }
 
    return $self->{'_gsf_strand'};
 }
@@ -256,15 +256,15 @@ sub strand{
 
 sub score {
   my $self = shift;
-  
-  if(@_) {
+
+  if ( @_ ) {
        my $value = shift;
-       if( $value !~ /^[+-]?\d+\.?\d*(e-\d+)?/ ) {
+       if ( $value !~ /^[+-]?\d+\.?\d*(e-\d+)?/ ) {
 	   $self->throw("'$value' is not a valid score");
        }
        $self->{'_gsf_score'} = $value;
   }
-  
+
   return $self->{'_gsf_score'};
 }
 
@@ -282,15 +282,15 @@ sub score {
 
 sub frame {
   my $self = shift;
-  
-  if(@_) {
+
+  if ( @_ ) {
        my $value = shift;
-       if( $value != 1 && $value != 2 && $value != 3 ) {
+       if ( $value != 1 && $value != 2 && $value != 3 ) {
 	   $self->throw("'$value' is not a valid frame");
        }
        $self->{'_gsf_frame'} = $value;
   }
-  
+
   return $self->{'_gsf_frame'};
 }
 
@@ -305,7 +305,7 @@ sub frame {
 
 =cut
 
-sub sub_SeqFeature{
+sub sub_SeqFeature {
    my ($self) = @_;
 
    return @{$self->{'_gsf_sub_array'}};
@@ -333,30 +333,30 @@ sub sub_SeqFeature{
 sub add_sub_SeqFeature{
    my ($self,$feat,$expand) = @_;
 
-   if( !$feat->isa('Bio::SeqFeatureI') ) {
+   if ( !$feat->isa('Bio::SeqFeatureI') ) {
        $self->warn("$feat does not implement Bio::SeqFeatureI. Will add it anyway, but beware...");
    }
 
    if( $expand eq 'EXPAND' ) {
        # if this doesn't have start/end set - forget it!
-       if( !defined $self->start && !defined $self->end ) {
+       if ( !defined $self->start && !defined $self->end ) {
 	   $self->start($feat->start());
 	   $self->end($feat->end());
 	   $self->strand($feat->strand);
        } else {
-	   my ($start,$end,$strand) = $self->union($feat);
+	   my ($start, $end, $strand) = $self->union($feat);
 	   $self->start($start);
 	   $self->end($end);
 	   $self->strand($strand);
        }
    } else {
-       if( !$self->contains($feat) ) {
+       if ( !$self->contains($feat) ) {
 	   $self->throw("$feat is not contained within parent feature, and expansion is not valid");
        }
    }
-   
+
    push(@{$self->{'_gsf_sub_array'}},$feat);
-   
+
 }
 
 =head2 flush_sub_SeqFeature
@@ -388,15 +388,15 @@ sub flush_sub_SeqFeature {
            $feat->primary_tag('exon')
  Function: get/set on the primary tag for a feature,
            eg 'exon'
- Returns : a string 
+ Returns : a string
  Args    : none
 
 
 =cut
 
-sub primary_tag{
+sub primary_tag {
    my $self = shift;
-   if( @_ ) {
+   if ( @_ ) {
        $self->{'_primary_tag'} = shift;
    }
    return $self->{'_primary_tag'};
@@ -408,14 +408,14 @@ sub primary_tag{
  Usage   : $tag = $feat->source_tag()
            $feat->source_tag('genscan');
  Function: Returns the source tag for a feature,
-           eg, 'genscan' 
- Returns : a string 
+           eg, 'genscan'
+ Returns : a string
  Args    : none
 
 
 =cut
 
-sub source_tag{
+sub source_tag {
    my $self = shift;
 
    if( @_ ) {
@@ -428,16 +428,16 @@ sub source_tag{
 
  Title   : has_tag
  Usage   : $value = $self->has_tag('some_tag')
- Function: Returns the value of the tag (undef if 
+ Function: Returns the value of the tag (undef if
            none)
- Returns : 
+ Returns :
  Args    :
 
 
 =cut
 
-sub has_tag{
-   my ($self,$tag) = (shift, shift);
+sub has_tag {
+   my ($self, $tag) = (shift, shift);
 
    return exists $self->{'_gsf_tag_hash'}->{$tag};
 }
@@ -452,15 +452,16 @@ sub has_tag{
 
 =cut
 
-sub add_tag_value{
-   my ($self,$tag,$value) = @_;
+sub add_tag_value {
+   my ($self, $tag, $value) = @_;
 
-   if( !defined $self->{'_gsf_tag_hash'}->{$tag} ) {
+   if ( !defined $self->{'_gsf_tag_hash'}->{$tag} ) {
        $self->{'_gsf_tag_hash'}->{$tag} = [];
    }
 
    push(@{$self->{'_gsf_tag_hash'}->{$tag}},$value);
 }
+
 
 =head2 each_tag_value
 
@@ -468,15 +469,15 @@ sub add_tag_value{
  Usage   :
  Function:
  Example :
- Returns : 
+ Returns :
  Args    :
 
 
 =cut
 
 sub each_tag_value {
-   my ($self,$tag) = @_;
-   if( ! exists $self->{'_gsf_tag_hash'}->{$tag} ) {
+   my ($self, $tag) = @_;
+   if ( ! exists $self->{'_gsf_tag_hash'}->{$tag} ) {
        $self->throw("asking for tag value that does not exist $tag");
    }
 
@@ -495,10 +496,32 @@ sub each_tag_value {
 
 =cut
 
-sub all_tags{
-   my ($self,@args) = @_;
+sub all_tags {
+   my ($self, @args) = @_;
 
    return keys %{$self->{'_gsf_tag_hash'}};
+}
+
+
+=head2 remove_tag
+
+ Title   : remove_tag
+ Usage   : $feat->remove_tag('some_tag')
+ Function: removes a tag from this feature
+ Returns : nothing
+ Args    : tag (string)
+
+
+=cut
+
+sub remove_tag {
+   my ($self, $tag) = @_;
+
+   if ( ! exists $self->{'_gsf_tag_hash'}->{$tag} ) {
+       $self->throw("trying to remove a tag that does not exist: $tag");
+   }
+
+   delete $self->{'_gsf_tag_hash'}->{$tag};
 }
 
 =head2 attach_seq
@@ -509,16 +532,16 @@ sub all_tags{
            Bio::Seq object is for the *entire* sequence: ie
            from 1 to 10000
  Example :
- Returns : 
+ Returns :
  Args    :
 
 
 =cut
 
-sub attach_seq{
-   my ($self,$seq) = @_;
+sub attach_seq {
+   my ($self, $seq) = @_;
 
-   if( !defined $seq  || !ref $seq || ! $seq->isa("Bio::PrimarySeqI") ) {
+   if ( !defined $seq || !ref $seq || ! $seq->isa("Bio::PrimarySeqI") ) {
        $self->throw("Must attach Bio::PrimarySeqI objects to SeqFeatures");
    }
 
@@ -527,7 +550,7 @@ sub attach_seq{
    # attach to sub features if they want it
 
    foreach my $sf ( $self->sub_SeqFeature() ) {
-       if( $sf->can("attach_seq") ) {
+       if ( $sf->can("attach_seq") ) {
 	   $sf->attach_seq($seq);
        }
    }
@@ -539,30 +562,30 @@ sub attach_seq{
  Usage   : $tseq = $sf->seq()
  Function: returns the truncated sequence (if there) for this
  Example :
- Returns : 
+ Returns :
  Args    :
 
 
 =cut
 
-sub seq{
-   my ($self,$arg) = @_;
+sub seq {
+   my ($self, $arg) = @_;
 
-   if( defined $arg ) {
+   if ( defined $arg ) {
        $self->throw("Calling SeqFeature::Generic->seq with an argument. You probably want attach_seq");
    }
 
-   if( ! exists $self->{'_gsf_seq'} ) {
+   if ( ! exists $self->{'_gsf_seq'} ) {
        return undef;
    }
 
    # assumming our seq object is sensible, it should not have to yank
    # the entire sequence out here.
 
-   my $seq = $self->{'_gsf_seq'}->trunc($self->start(),$self->end());
+   my $seq = $self->{'_gsf_seq'}->trunc($self->start(), $self->end());
 
 
-   if( $self->strand == -1 ) {
+   if ( $self->strand == -1 ) {
 
        # ok. this does not work well (?)
        #print STDERR "Before revcom", $seq->str, "\n";
@@ -579,13 +602,13 @@ sub seq{
  Usage   : $whole_seq = $sf->entire_seq()
  Function: gives the entire sequence that this seqfeature is attached to
  Example :
- Returns : 
+ Returns :
  Args    :
 
 
 =cut
 
-sub entire_seq{
+sub entire_seq {
    my ($self) = @_;
 
    return $self->{'_gsf_seq'};
@@ -598,7 +621,7 @@ sub entire_seq{
  Usage   : $obj->seqname($newval)
  Function: There are many cases when you make a feature that you
            do know the sequence name, but do not know its actual
-           sequence. This is an attribute such that you can store 
+           sequence. This is an attribute such that you can store
            the seqname.
 
            This attribute should *not* be used in GFF dumping, as
@@ -610,9 +633,9 @@ sub entire_seq{
 
 =cut
 
-sub seqname{
+sub seqname {
    my $obj = shift;
-   if( @_ ) {
+   if ( @_ ) {
       my $value = shift;
       $obj->{'_gsf_seqname'} = $value;
     }
@@ -627,23 +650,23 @@ sub seqname{
  Function: Sneaky function to load an entire file as in memory objects.
            Beware big files
  Example :
- Returns : 
+ Returns :
  Args    :
 
 
 =cut
 
-sub slurp_gff_file{
+sub slurp_gff_file {
    my ($f) = @_;
    my @out;
-   if( !defined $f ) {
+   if ( !defined $f ) {
        die "Must has a filehandle";
    }
 
    while(<$f>) {
- 
-       my $sf = Bio::SeqFeature::Generic->new( -gff_string => $_ );
-       push(@out,$sf);
+
+       my $sf = Bio::SeqFeature::Generic->new(-gff_string => $_);
+       push(@out, $sf);
    }
 
    return @out;
@@ -656,19 +679,18 @@ sub slurp_gff_file{
  Usage   :
  Function:
  Example :
- Returns : 
+ Returns :
  Args    :
 
 
 =cut
 
-sub _from_gff_string{
-   my ($self,$string) = @_;
+sub _from_gff_string {
+   my ($self, $string) = @_;
 
- 
-   my($seqname,$source,$primary,$start,$end,$score,$strand,$frame,@group) = split(/\s+/,$string);
- 
-   if( !defined $frame ) {
+   my ($seqname, $source, $primary, $start, $end, $score, $strand, $frame, @group) = split(/\s+/, $string);
+
+   if ( !defined $frame ) {
        $self->throw("[$string] does not look like GFF to me");
    }
    $self->seqname($seqname);
@@ -676,21 +698,21 @@ sub _from_gff_string{
    $self->primary_tag($primary);
    $self->start($start);
    $self->end($end);
-   if( $score eq '.' ) {
+   if ( $score eq '.' ) {
        #$self->score(undef);
    } else {
        $self->score($score);
    }
-   if( $strand eq '-' ) { $self->strand(-1); }
-   if( $strand eq '+' ) { $self->strand(1); }   
-   if( $strand eq '.' ) { $self->strand(0); }
-   foreach my $g ( @group ){
-       if( $g =~ /(\S+)=(\S+)/ ) {
+   if ( $strand eq '-' ) { $self->strand(-1); }
+   if ( $strand eq '+' ) { $self->strand(1); }
+   if ( $strand eq '.' ) { $self->strand(0); }
+   foreach my $g ( @group ) {
+       if ( $g =~ /(\S+)=(\S+)/ ) {
 	   my $tag = $1;
 	   my $value = $2;
-	   $self->add_tag_value($1,$2);
+	   $self->add_tag_value($1, $2);
        } else {
-	   $self->add_tag_value('group',$g);
+	   $self->add_tag_value('group', $g);
        }
    }
 }
@@ -701,13 +723,13 @@ sub _from_gff_string{
  Usage   :
  Function: Parsing hints
  Example :
- Returns : 
+ Returns :
  Args    :
 
 
 =cut
 
-sub _parse{
+sub _parse {
    my ($self) = @_;
 
    return $self->{'_parse_h'};
