@@ -810,7 +810,7 @@ sub _read_GenBank_References{
 
    my (@title,@loc,@authors,@com,@medline,@pubmed);
 
-   while( defined($_) || defined($_ = $self->_readline) ) {
+   REFLOOP: while( defined($_) || defined($_ = $self->_readline) ) {
        if (/^  AUTHORS\s+(.*)/) { 
 	   push (@authors, $1);   
 	   while ( defined($_ = $self->_readline) ) {
@@ -838,6 +838,7 @@ sub _read_GenBank_References{
 	       last;
 	   }
 	   $ref->location(join(' ', @loc));
+	   redo REFLOOP;
        }
        if (/^  REMARK\s+(.*)/) { 
 	   push (@com, $1);
@@ -848,6 +849,7 @@ sub _read_GenBank_References{
 	       last;
 	   }
 	   $ref->comment(join(' ', @com));
+	   redo REFLOOP;
        }
        if( /^  MEDLINE\s+(.*)/ ) {
 	   push(@medline,$1);
@@ -858,7 +860,8 @@ sub _read_GenBank_References{
 	       last;
 	   }
 	   $ref->medline(join(' ', @medline));
-       }       
+	   redo REFLOOP;
+       }
        if( /^   PUBMED\s+(.*)/ ) {
 	   push(@pubmed,$1);
 	   while ( defined($_ = $self->_readline) ) {	       
@@ -868,6 +871,7 @@ sub _read_GenBank_References{
 	       last;
 	   }
 	   $ref->pubmed(join(' ', @pubmed));
+	   redo REFLOOP;
        }
        
        /^REFERENCE/ && do {
