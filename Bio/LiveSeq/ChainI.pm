@@ -99,6 +99,7 @@ use Bio::LiveSeq::Chain 2.6; # package where all the subroutines are defined
          OR arrayreference
         AND optional offset to create element labels
 =cut
+
 sub new {
   my ($thing, %args) = @_;
   my $class = ref($thing) || $thing;

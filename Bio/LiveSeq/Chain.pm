@@ -33,8 +33,11 @@ package Bio::LiveSeq::Chain;
 # Mon Mar 20 18:33:10 GMT 2000 v.2.52 label_exists(), start(), end()
 # Mon Mar 20 23:10:28 GMT 2000 v.2.6 labels() created
 # Wed Mar 22 18:35:17 GMT 2000 v.2.61 chain2string() rewritten
+# Tue Dec 12 14:47:58 GMT 2000 v 2.66 optimized with /use integer/
+# Tue Dec 12 16:28:45 GMT 2000 v 2.7 rewritten comments to methods in pod style
+
 #
-$VERSION=2.61;
+$VERSION=2.7;
 #
 # TODO_list:
 # **** cleanup code
@@ -55,6 +58,37 @@ $VERSION=2.61;
 
 use Carp qw(croak cluck carp); # as of 2.3
 use strict; # as of 2.27
+use strict; 
+use integer; # WARNING: this is to increase performance
+             # a little bit of attention has to be given if float need to
+             # be stored as elements of the array
+             # the use of this "integer" affects all operations but not
+             # assignments. So float CAN be assigned as elements of the chain
+             # BUT, if you assign $z=-1.8;, $z will be equal to -1 because
+             # "-" counts as a unary operation!
+
+=head2 _updown_chain2string
+    
+  Title   : chain2string
+  Usage   : $string = Bio::LiveSeq::Chain::chain2string("down",$chain,6,9)
+  Function: reads the contents of the chain, outputting a string
+  Returns : a string
+  Examples:
+          : down_chain2string($chain) -> all the chain from begin to end
+          : down_chain2string($chain,6) -> from 6 to the end
+          : down_chain2string($chain,6,4) -> from 6, going on 4 elements
+          : down_chain2string($chain,6,"",10) -> from 6 to 10
+          : up_chain2string($chain,10,"",6) -> from 10 to 6 upstream
+  Defaults: start=first element; if len undef, goes to last
+            if last undef, goes to end
+            if last defined, it overrides len (undefining it)
+  Error code: -1
+  Args    : "up"||"down" as first argument to specify the reading direction 
+            reference (to the chain)
+            [first] [len] [last] optional integer arguments to specify how
+            much and from (and to) where to read
+
+=cut
 
 # methods rewritten 2.61
 sub up_chain2string {
@@ -63,18 +97,7 @@ sub up_chain2string {
 sub down_chain2string {
   _updown_chain2string("down",@_);
 }
-# common to up_chain2string and down_chain2string
-# arguments: "up"||"down" chain_ref [first] [len] [last]
-# error: return -1
-# defaults: start = first element; if len undef, goes to last
-#           if last undef, goes to end
-#           if last def it overrides len (that gets undef)
-# returns: a string
-# example usage: down_chain2string($chain) -> all the chain from begin to end
-# example usage: down_chain2string($chain,6) -> from 6 to the end
-# example usage: down_chain2string($chain,6,4) -> from 6, going on 4 elements
-# example usage: down_chain2string($chain,6,"",10) -> from 6 to 10
-# example usage: up_chain2string($chain,10,"",6) -> from 10 to 6 upstream
+
 sub _updown_chain2string {
   my ($direction,$chain,$first,$len,$last)=@_;
   unless($chain) { cluck "no chain input"; return (-1); }
@@ -123,6 +146,20 @@ sub _updown_chain2string {
   return ($string); # if chain is interrupted $string won't be complete
 }
 
+=head2 _updown_labels
+
+ Title   : labels
+ Usage   : @labels = Bio::LiveSeq::Chain::_updown_labels("down",$chain,4,16)
+ Function: returns all the labels in a chain or those between two
+           specified ones (termed "first" and "last")
+ Returns : a reference to an array containing the labels
+ Args    : "up"||"down" as first argument to specify the reading direction 
+           reference (to the chain)
+           [first] [last] (integer for the starting and eneding labels)
+
+=cut
+
+
 # arguments: CHAIN_REF [FIRSTLABEL] [LASTLABEL]
 # returns: reference to array containing the labels
 sub down_labels {
@@ -163,24 +200,50 @@ sub _updown_labels {
 }
 
 
-# arguments: none
-# returns: the begin of the chain
+=head2 start
+
+ Title   : start
+ Usage   : $start = Bio::LiveSeq::Chain::start()
+ Returns : the label marking the start of the chain
+ Errorcode: -1
+ Args    : none
+
+=cut
+
 sub start {
   my $chain=$_[0];
   unless($chain) { cluck "no chain input"; return (-1); }
   return ($chain->{begin});
 }
-# arguments: none
-# returns: the end of the chain
+
+=head2 end
+
+ Title   : end
+ Usage   : $end = Bio::LiveSeq::Chain::end()
+ Returns : the label marking the end of the chain
+ Errorcode: -1
+ Args    : none
+
+=cut
+
 sub end {
   my $chain=$_[0];
   unless($chain) { cluck "no chain input"; return (-1); }
   return ($chain->{end});
 }
 
-# arguments: CHAIN_REF LABEL
-# checks if a label is defined, if an element is there anymore
-# returns: 1: label exists, 0: label is not there, -1: error occurred
+=head2 label_exists
+
+ Title   : label_exists
+ Usage   : $check = Bio::LiveSeq::Chain::label_exists($chain,$label)
+ Function: It checks if a label is defined, i.e. if an element is there or
+           is not there anymore
+ Returns : 1 if the label exists, 0 if it's not there, -1 error
+ Errorcode: -1
+ Args    : reference to the chain, integer
+
+=cut
+
 sub label_exists {
   my ($chain,$label)=@_;
   unless($chain) { cluck "no chain input"; return (-1); }
@@ -188,11 +251,22 @@ sub label_exists {
 }
 
 
-# arguments: CHAIN_REF LABEL [FIRST]
-# returns: the position of LABEL counting from FIRST or from START
-#i         if FIRST is undef
-# i.e. returns the position of LABEL taking FIRST as 1 of coordinate system
-# errorcode 0
+=head2 down_get_pos_of_label
+
+ Title   : down_get_pos_of_label
+ Usage   : $position = Bio::LiveSeq::Chain::down_get_pos_of_label($chain,$label,$first)
+ Function: returns the position of $label counting from $first, i.e. taking
+           $first as 1 of coordinate system. If $first is not specified it will
+           count from the start of the chain.
+ Returns : 
+ Errorcode: 0
+ Args    : reference to the chain, integer (the label of interest)
+           optional: integer (a different label that will be taken as the
+           first one, i.e. the one to count from)
+ Note:     It counts "downstream". To proceed backward use up_get_pos_of_label
+
+=cut
+
 sub down_get_pos_of_label {
   #down_chain2string($_[0],$_[2],undef,$_[1],"counting");
   my ($chain,$label,$first)=@_;
@@ -203,6 +277,18 @@ sub up_get_pos_of_label {
   my ($chain,$label,$first)=@_;
   _updown_count("up",$chain,$first,$label);
 }
+
+=head2 down_subchain_length
+
+ Title   : down_subchain_length
+ Usage   : $length = Bio::LiveSeq::Chain::down_subchain_length($chain,$first,$last)
+ Function: returns the length of the chain between the labels "first" and "last", included
+ Returns : integer
+ Errorcode: 0
+ Args    : reference to the chain, integer, integer
+ Note:     It counts "downstream". To proceed backward use up_subchain_length
+
+=cut
 
 # arguments: chain_ref [first] [last]
 # returns the length of the chain between first and last (included)
@@ -246,10 +332,17 @@ sub _updown_count {
   return ($count); # if chain is interrupted, $i will be up to the breaking point
 }
 
-# completely inverts the order of the chain elements
-# begin is swapped with end and all links updated (PREV&NEXT fields swapped)
-# argument: CHAIN_REF
-# returns: 1 all OK, 0 errors
+=head2 invert_chain
+
+ Title   : invert_chain
+ Usage   : $errorcode=Bio::LiveSeq::Chain::invert_chain($chain)
+ Function: completely inverts the order of the chain elements; begin is swapped with end and all links updated (PREV&NEXT fields swapped)
+ Returns : 1 if all OK, 0 if errors
+ Errorcode: 0
+ Args    : reference to the chain
+
+=cut
+
 sub invert_chain {
   my $chain=$_[0];
   unless($chain) { cluck "no chain input"; return (0); }
@@ -268,19 +361,27 @@ sub invert_chain {
 }
 
 # warning that method has changed name
-sub mutate_element {
-  croak "Warning: old method name. Please update code to 'set_value_at_label'\n";
+#sub mutate_element {
+  #croak "Warning: old method name. Please update code to 'set_value_at_label'\n";
   # &set_value_at_label;
-}
+#}
 
-# get_value_at_pos CHAIN_REF POSITION [FIRST]
-# note: if NEW_VALUE is undef, deletes the contents of that element but not
-# the element itself
-# returns 1 all OK, 0 errors
-sub get_value_at_pos {
-  croak "Please use instead: down_get_value_at_pos";
-  #&down_get_value_at_pos;
-}
+=head2 down_get_value_at_pos
+
+ Title   : down_get_value_at_pos
+ Usage   : $value = Bio::LiveSeq::Chain::down_get_value_at_pos($chain,$position,$first)
+ Function: used to access the value of the chain at a particular position instead than directly with a label pointer. It will count the position from the start of the chain or from the label $first, if $first is specified
+ Returns : whatever is stored in the element of the chain
+ Errorcode: 0
+ Args    : reference to the chain, integer, [integer]
+ Note:     It works "downstream". To proceed backward use up_get_value_at_pos
+
+=cut
+
+#sub get_value_at_pos {
+  #croak "Please use instead: down_get_value_at_pos";
+  ##&down_get_value_at_pos;
+#}
 sub down_get_value_at_pos {
   my ($chain,$position,$first)=@_;
   my $label=down_get_label_at_pos($chain,$position,$first);
@@ -298,14 +399,25 @@ sub up_get_value_at_pos {
   return _get_value($chain,$label);
 }
 
-# set_value_at_pos CHAIN_REF [NEW_VALUE] POSITION [FIRST]
-# note: if NEW_VALUE is undef, deletes the contents of that element but not
-# the element itself
-# returns 1 all OK, 0 errors
-sub set_value_at_pos {
-  croak "Please use instead: down_set_value_at_pos";
-  #&down_set_value_at_pos;
-}
+=head2 down_set_value_at_pos
+
+ Title   : down_set_value_at_pos
+ Usage   : $errorcode = Bio::LiveSeq::Chain::down_set_value_at_pos($chain,$newvalue,$position,$first)
+ Function: used to store a new value inside an element of the chain at a particular position instead than directly with a label pointer. It will count the position from the start of the chain or from the label $first, if $first is specified
+ Returns : 1
+ Errorcode: 0
+ Args    : reference to the chain, newvalue, integer, [integer]
+           (newvalue can be: integer, string, object reference, hash ref)
+ Note:     It works "downstream". To proceed backward use up_set_value_at_pos
+ Note2:    If the $newvalue is undef, it will delete the contents of the
+           element but it won't remove the element from the chain.
+
+=cut
+
+#sub set_value_at_pos {
+  #croak "Please use instead: down_set_value_at_pos";
+  ##&down_set_value_at_pos;
+#}
 sub down_set_value_at_pos {
   my ($chain,$value,$position,$first)=@_;
   my $label=down_get_label_at_pos($chain,$position,$first);
@@ -326,10 +438,21 @@ sub up_set_value_at_pos {
 }
 
 
-# set_value_at_label CHAIN_REF [NEW_VALUE] LABEL
-# note: if NEW_VALUE is undef, deletes the contents of that element but not
-# the element itself
-# returns 1 all OK, 0 errors
+=head2 down_set_value_at_label
+
+ Title   : down_set_value_at_label
+ Usage   : $errorcode = Bio::LiveSeq::Chain::down_set_value_at_label($chain,$newvalue,$label)
+ Function: used to store a new value inside an element of the chain defined by its label.
+ Returns : 1
+ Errorcode: 0
+ Args    : reference to the chain, newvalue, integer
+           (newvalue can be: integer, string, object reference, hash ref)
+ Note:     It works "downstream". To proceed backward use up_set_value_at_label
+ Note2:    If the $newvalue is undef, it will delete the contents of the
+           element but it won't remove the element from the chain.
+
+=cut
+
 sub set_value_at_label {
   my ($chain,$value,$label)=@_;
   unless($chain) { cluck "no chain input"; return (0); }
@@ -341,8 +464,18 @@ sub set_value_at_label {
   return (1);
 }
 
-# get_value_at_label CHAIN_REF LABEL
-# returns VALUE contained in CHAIN element labelled LABEL
+=head2 down_get_value_at_label
+
+ Title   : down_get_value_at_label
+ Usage   : $value = Bio::LiveSeq::Chain::down_get_value_at_label($chain,$label)
+ Function: used to access the value of the chain from one element defined by its label.
+ Returns : whatever is stored in the element of the chain
+ Errorcode: 0
+ Args    : reference to the chain, integer
+ Note:     It works "downstream". To proceed backward use up_get_value_at_label
+
+=cut
+
 sub get_value_at_label {
   my $chain=$_[0];
   unless($chain) { cluck "no chain input"; return (0); }
@@ -365,6 +498,18 @@ sub _get_value {
   return $chain->{$label}[0];
 }
 
+=head2 down_get_label_at_pos
+
+ Title   : down_get_label_at_pos
+ Usage   : $label = Bio::LiveSeq::Chain::down_get_label_at_pos($chain,$position,$first)
+ Function: used to retrieve the label of an an element of the chain at a particular position. It will count the position from the start of the chain or from the label $first, if $first is specified
+ Returns : integer
+ Errorcode: 0
+ Args    : reference to the chain, integer, [integer]
+ Note:     It works "downstream". To proceed backward use up_get_label_at_pos
+
+=cut
+
 # arguments: CHAIN_REF POSITION [FIRST]
 # returns: LABEL of element found counting from FIRST
 sub down_get_label_at_pos {
@@ -373,11 +518,11 @@ sub down_get_label_at_pos {
 sub up_get_label_at_pos {
   _updown_get_label_at_pos("up",@_);
 }
+
 # arguments: [DIRECTION] CHAIN_REF POSITION [FIRST]
-# returns: LABEL of element found counting from FIRST
 # Default DIRECTION="down"
 # if FIRST is undefined, FIRST=START (if DIRECTION=down) or FIRST=END (up)
-# Returns: LABEL or -1 (error) or 0 (chain ended before reaching position)
+
 sub _updown_get_label_at_pos {
   my ($direction,$chain,$position,$first)=@_;
   unless($chain) { cluck "no chain input"; return (0); }
@@ -439,8 +584,19 @@ sub postinsert_array {
 }
 
 
-# _praepostinsert_array CHAIN_REF "prae"||"post" ARRAY_REF [POSITION]
-# the elements of ARRAY are inserted in CHAIN_REF, before||after POSITION
+=head2 _praepostinsert_array
+
+ Title   : _praepostinsert_array
+ Usage   : ($insbegin,$insend) = Bio::LiveSeq::Chain::_praepostinsert_array($chainref,"post",$arrayref,$position)
+ Function: the elements of the array specified by $arrayref are inserted (creating a new subchain) in the chain specified by $chainref, before or after (depending on the "prae"||"post" keyword passed as second argument) the specified position.
+ Returns : two labels: the first and the last of the inserted subchain
+ Defaults: if no position is specified, the new chain will be inserted after
+ (post) the first element of the chain
+ Errorcode: 0
+ Args    : chainref, "prae"||"post", arrayref, integer (position)
+
+=cut
+
 # returns: 0 if errors, otherwise returns references of begin and end of
 # the insertion
 sub _praepostinsert_array {
@@ -608,27 +764,56 @@ sub _is_updownstream {
   return $found;
 }
 
-# checks if second element can be found downstream of first element
-# arguments: CHAIN_REF FIRST SECOND
-# It runs downstream the elements of the chain from FIRST searching for SECOND.
-# returns 1 if SECOND found /after/ FIRST, 0 otherwise, -1 for errors
+=head1 is_downstream
+
+  Title   : is_downstream
+  Usage   : Bio::LiveSeq::Chain::is_downstream($chainref,$firstlabel,$secondlabel)
+  Function: checks if SECONDlabel follows FIRSTlabel
+            It runs downstream the elements of the chain from FIRST searching
+            for SECOND.
+  Returns : 1 if SECOND is found /after/ FIRST; 0 otherwise (i.e. if it
+            reaches the end of the chain without having found it)
+  Errorcode -1
+  Args    : two labels (integer)
+
+=cut
+
 sub is_downstream {
   _is_updownstream("down",@_);
 }
 
-# checks if second element can be found upstream of first element
-# arguments: CHAIN_REF FIRST SECOND
-# It runs upstream the elements of the chain from FIRST searching for SECOND.
-# returns 1 if SECOND found /after/ FIRST, 0 otherwise, -1 for errors
+=head1 is_upstream
+
+  Title   : is_upstream
+  Usage   : Bio::LiveSeq::Chain::is_upstream($chainref,$firstlabel,$secondlabel)
+  Function: checks if SECONDlabel follows FIRSTlabel
+            It runs upstream the elements of the chain from FIRST searching
+            for SECOND.
+  Returns : 1 if SECOND is found /after/ FIRST; 0 otherwise (i.e. if it
+            reaches the end of the chain without having found it)
+  Errorcode -1
+  Args    : two labels (integer)
+
+=cut
+
 sub is_upstream {
   _is_updownstream("up",@_);
 }
 
-# wraparound to all check functions for chain
-# argument: chain reference
-# returns: array of warn codes
-# (boundaries,size,backlinking,forlinking)
-# every element can be 1 (all ok), 0 (something wrong)
+=head2 check_chain
+
+ Title   : check_chain
+ Usage   : @errorcodes = Bio::LiveSeq::Chain::check_chain()
+ Function: a wraparound to a series of check for consistency of the chain
+           It will check for boundaries, size, backlinking and forwardlinking
+ Returns : array of 4 warn codes, each can be 1 (all ok) or 0 (something wrong)
+ Errorcode: 0
+ Args    : none
+ Note    : this is slow and through. It is not really needed. It's mostly
+           a code-developer tool.
+
+=cut
+
 sub check_chain {
   my $chain=$_[0];
   unless($chain) {
@@ -796,16 +981,21 @@ sub _join_chain_elements {
   }
 }
 
-# splice_chain CHAIN_REF,FIRST,[LENGHT],[LAST]
-#
-# Removes the elements designated by FIRST and LENGTH from a chain.
-# The chain shrinks as necessary. If LENGTH is omitted,
-# removes everything from FIRST onward.
-# If END is specified, LENGTH is ignored and instead the removal occurs from
-# FIRST to LAST.
-#
-# Returns: the elements removed as a string (that can be then string2chained
-# if desired)
+=head2 splice_chain
+
+ Title   : splice_chain
+ Usage   : @errorcodes = Bio::LiveSeq::Chain::splice_chain($chainref,$first,$length,$last)
+ Function: removes the elements designated by FIRST and LENGTH from a chain.
+           The chain shrinks accordingly. If LENGTH is omitted, removes
+           everything from FIRST onward.
+           If END is specified, LENGTH is ignored and instead the removal
+           occurs from FIRST to LAST.
+ Returns : the elements removed as a string
+ Errorcode: -1
+ Args    : chainref, integer, integer, integer
+
+=cut
+
 sub splice_chain {
   my $chain=$_[0];
   unless($chain) {
@@ -881,65 +1071,65 @@ sub splice_chain {
 # arguments: CHAIN_REF POSITION [FIRST]
 # returns: element counting POSITION from FIRST or from START if FIRST undef
 # i.e. returns the element at POSITION counting from FIRST
-sub element_at_pos {
-  croak "Warning: old method name. Please update code to 'down_get_label_at_position'\n";
-  #&down_element_at_pos;
-}
-sub up_element_at_pos {
-  # old wraparound
-  #my @array=up_chain2string($_[0],$_[2],$_[1],undef,"elements");
-  #return $array[-1];
-  croak "old method name. Update code to: up_get_label_at_position";
-  #&up_get_label_at_pos;
-}
-sub down_element_at_pos {
-  # old wraparound
-  #my @array=down_chain2string($_[0],$_[2],$_[1],undef,"elements");
-  #return $array[-1];
-  croak "old method name. Update code to: down_get_label_at_position";
-  #&down_get_label_at_pos;
-}
+#sub element_at_pos {
+  #croak "Warning: old method name. Please update code to 'down_get_label_at_position'\n";
+  ##&down_element_at_pos;
+#}
+#sub up_element_at_pos {
+  ## old wraparound
+  ##my @array=up_chain2string($_[0],$_[2],$_[1],undef,"elements");
+  ##return $array[-1];
+  #croak "old method name. Update code to: up_get_label_at_position";
+  ##&up_get_label_at_pos;
+#}
+#sub down_element_at_pos {
+  ## old wraparound
+  ##my @array=down_chain2string($_[0],$_[2],$_[1],undef,"elements");
+  ##return $array[-1];
+  #croak "old method name. Update code to: down_get_label_at_position";
+  ##&down_get_label_at_pos;
+#}
 
 # arguments: CHAIN_REF ELEMENT [FIRST]
 # returns: the position of ELEMENT counting from FIRST or from START
 #i         if FIRST is undef
 # i.e. returns the Number of elements between FIRST and ELEMENT
 # i.e. returns the position of element taking FIRST as 1 of coordinate system
-sub pos_of_element {
-  croak ("Warning: old and ambiguous method name. Please update code to 'down_get_pos_of_label'\n");
-  #&down_pos_of_element;
-}
-sub up_pos_of_element {
-  croak ("Warning: old method name. Please update code to 'up_get_pos_of_label'\n");
-  #up_chain2string($_[0],$_[2],undef,$_[1],"counting");
-}
-sub down_pos_of_element {
-  croak ("Warning: old method name. Please update code to 'down_get_pos_of_label'\n");
-  #down_chain2string($_[0],$_[2],undef,$_[1],"counting");
-}
+#sub pos_of_element {
+  #croak ("Warning: old and ambiguous method name. Please update code to 'down_get_pos_of_label'\n");
+  ##&down_pos_of_element;
+#}
+#sub up_pos_of_element {
+  #croak ("Warning: old method name. Please update code to 'up_get_pos_of_label'\n");
+  ##up_chain2string($_[0],$_[2],undef,$_[1],"counting");
+#}
+#sub down_pos_of_element {
+  #croak ("Warning: old method name. Please update code to 'down_get_pos_of_label'\n");
+  ##down_chain2string($_[0],$_[2],undef,$_[1],"counting");
+#}
 
 # wraparounds to calculate length of subchain from first to last
 # arguments: chain_ref [first] [last]
-sub subchain_length {
-  croak "Warning: old method name. Please update code to 'down_subchain_length'\n";
-  #&down_subchain_length;
-}
+#sub subchain_length {
+  #croak "Warning: old method name. Please update code to 'down_subchain_length'\n";
+  ##&down_subchain_length;
+#}
 
 # wraparounds to have elements output
 # same arguments as chain2string
 # returns label|name of every element
-sub elements {
-  croak ("Warning: method no more supported. Please update code to 'down_labels' (NB: now it returns ref to array and doesn't allow length argument!)\n");
-  #&down_elements;
-}
-sub up_elements {
-  croak ("Warning: method no more supported. Please update code to 'up_labels' (NB: now it returns ref to array and doesn't allow length argument!)\n");
-  #up_chain2string($_[0],$_[1],$_[2],$_[3],"elements");
-}
-sub down_elements {
-  croak ("Warning: method no more supported. Please update code to 'down_labels' (NB: now it returns ref to array and doesn't allow length argument!)\n");
-  #down_chain2string($_[0],$_[1],$_[2],$_[3],"elements");
-}
+#sub elements {
+  #croak ("Warning: method no more supported. Please update code to 'down_labels' (NB: now it returns ref to array and doesn't allow length argument!)\n");
+  ##&down_elements;
+#}
+#sub up_elements {
+  #croak ("Warning: method no more supported. Please update code to 'up_labels' (NB: now it returns ref to array and doesn't allow length argument!)\n");
+  ##up_chain2string($_[0],$_[1],$_[2],$_[3],"elements");
+#}
+#sub down_elements {
+  #croak ("Warning: method no more supported. Please update code to 'down_labels' (NB: now it returns ref to array and doesn't allow length argument!)\n");
+  ##down_chain2string($_[0],$_[1],$_[2],$_[3],"elements");
+#}
 
 # wraparounds to have verbose output
 # same arguments as chain2string
@@ -957,10 +1147,10 @@ sub down_chain2string_verbose {
   old_down_chain2string($_[0],$_[1],$_[2],$_[3],"verbose");
 }
 
-sub chain2string {
-  croak ("Warning: old method name. Please update code to 'down_chain2string'\n");
-  #&down_chain2string;
-}
+#sub chain2string {
+  #croak ("Warning: old method name. Please update code to 'down_chain2string'\n");
+  ##&down_chain2string;
+#}
 sub old_up_chain2string {
   old_updown_chain2string("up",@_);
 }
@@ -1076,12 +1266,20 @@ sub string2chain {
   array2chain(\@string,$_[1]);
 }
 
-# creation of a double linked list/chain from an array
-# returns reference to a hash containing the chain
-# returns 0 if errors
-# arguments: ARRAY_REF [OFFSET]
-# defaults: OFFSET defaults to 1 if undef
-# the chain will contain as elements the elements from the ARRAY
+=head2 array2chain
+
+  Title   : array2chain
+  Usage   : $chainref = Bio::LiveSeq::Chain::array2chain($arrayref,$offset)
+  Function: creation of a double linked chain from an array
+  Returns : reference to a hash containing the chain
+  Defaults: OFFSET defaults to 1 if undef
+  Error code: 0
+  Args    : a reference to an array containing the elements to be chainlinked
+            an optional integer > 0 (this will be the starting count for
+            the chain labels instead than having them begin from "1")
+
+=cut
+
 sub array2chain {
   my $arrayref=$_[0];
   my $array_count=scalar(@{$arrayref});
