@@ -822,11 +822,11 @@ sequence, "test.fa":
   MHRHHRTGYSAAYGPLKJHGYVHFIMCVVVSWWASDVVTYIPLLLNNSSAGWKRWWWIIFGGE
   GHGHHRTYSALWWPPLKJHGSKHFILCVKVSWLAKKERTYIPKKILLMMGGWWAAWWWI
 
-By default Bio::Index::Fasta and Bio::DB::Fasta will use the first "word" they 
-encounter in the fasta header as the retrieval key, in this case 
-"gi|523232|emb|AAC12345|sp|D12567". What would be more useful as a key would be a 
-single id.  The code below will index the "test.fa" file and create an index file 
-called "test.fa.idx".
+By default Bio::Index::Fasta and Bio::DB::Fasta will use the first "word" 
+they encounter in the fasta header as the retrieval key, in this case 
+"gi|523232|emb|AAC12345|sp|D12567". What would be more useful as a key 
+would be a single id.  The code below will index the "test.fa" file and 
+create an index file called "test.fa.idx".
 
   $ENV{BIOPERL_INDEX_TYPE} = "SDBM_File";
   # look for the index in the current directory
@@ -1392,13 +1392,13 @@ developed and tested for applications where all the sequence features are
 stored in a Bioperl-db relational database. However, if one wants to use 
 the Bio:DB::GFF machinery (including its coordinate transformation 
 capabilities) without building a local relational database, this is 
-possible by defining the 'database' as having an adaptor called 'memory'; 
+possible by defining the 'database' as having an adaptor called 'memory',
 e.g. 
 
   $db = Bio::DB::GFF->new( '-adaptor' => 'memory' );
 
 For more details on coordinate transformations and other GFF-related 
-capabilities in Bioperl see  Bio::DB::GFF::RelSegment.pm, Bio::DB::GFF.pm 
+capabilities in Bioperl see L<Bio::DB::GFF::RelSegment>, L<Bio::DB::GFF>,
 and the test file t/BioDBGFF.t.
 
 =head2 III.4 Searching for similar sequences
@@ -1447,7 +1447,7 @@ Bio::SearchIO, others won't be supported in later versions.
 Note that to make this script actually useful, one should add details
 such as checking return codes from the Blast to see if it succeeded and
 a "sleep" loop to wait between consecutive requests to the NCBI server.
-See example 25 in the demonstration script in the appendix to see some
+See example 22 in the demonstration script in the appendix to see some
 working code you could use, or L<Bio::Tools::Run::RemoteBlast> for
 details.
 
@@ -1837,7 +1837,8 @@ annotate a genomic sequence might look like this:
   $seq = $seqio->next_seq;
   while( $feat = $parser->next_feature ) {
         # add EPCR annotation to a sequence
-        $seq->add_SeqFeature($feat);}
+        $seq->add_SeqFeature($feat);
+  }
 
 =for html <A NAME ="iii.7"></A>
 
@@ -1950,8 +1951,8 @@ See L<Bio::Seq::RichSeqI> for more details.
 Much of the interesting desciption of a sequence can be associated with
 sequence features but in Seq objects derived from Genbank or EMBL entries
 there can be useful information in other "annotation" sections, such as the 
-COMMENTS section of a Genbank entry. In order to access this information you'll 
-need to create an Annotation::Collection object. For example:
+COMMENTS section of a Genbank entry. In order to access this information 
+you'll need to create an Annotation::Collection object. For example:
 
   $db = new Bio::DB::GenBank;
   $seqobj = $db->get_Seq_by_acc("NM_125788");
@@ -2164,7 +2165,7 @@ Typical syntax looks like:
 
   $gffio = Bio::Tools::GFF->new(-fh => \*STDIN, -gff_version => 2);
     # loop over the input stream
-  while($feature = $gffio->next_feature()) {
+  while ($feature = $gffio->next_feature()) {
     # do something with feature
   }
   $gffio->close();
@@ -2275,8 +2276,8 @@ See L<Bio::MapIO> and L<Bio::Map::SimpleMap> for more information.
 
 Bio::Biblio objects are used to query bibliographic databases, such as MEDLINE.
 The associated modules are built to work with OpenBQS-compatible databases
-(see http://industry.ebi.ac.uk/openBQS). A Bio::Biblio object can execute a query
-like:
+(see http://industry.ebi.ac.uk/openBQS). A Bio::Biblio object can execute 
+a query like:
 
   my $collection = $biblio->find ('brazma', 'authors');
   while ( $collection->has_next ) {
@@ -2531,7 +2532,8 @@ to an extraordinary variety of programs, including EMBOSS. However Pise has
 the disadvantages of lower performance and decreased security
 since the data is transmitted over the net. Consider this example:
 
-  my $genscan = Pise::genscan->new("http://bioweb.pasteur.fr/cgi-bin/seqanal/genscan.pl",'letondal@pasteur.fr',
+  my $genscan = Pise::genscan->new(
+  "http://bioweb.pasteur.fr/cgi-bin/seqanal/genscan.pl",'letondal@pasteur.fr',
                                   seq => $seq,
                                   parameter_file => "Arabidopsis.smat");
   my $job = $genscan->run;
@@ -2687,7 +2689,7 @@ bioperl-db.
 =head2 IV.4 Other Bioperl auxilliary libraries
 
 There a several other auxilliary libraries in the bioperl CVS
-repository including bioperl-microarray, bioperl-gui,
+repository including bioperl-microarray, bioperl-pedigree, bioperl-gui,
 bioperl-pipeline, bioperl-das-client and bioperl-corba-client. They
 are typically for specialized uses and/or require multiple external
 programs to run and/or are still pretty new and undeveloped. But if
@@ -4195,7 +4197,9 @@ $bpinspect1 = sub {
 #    ($object_class = $object) =~ s/::/\//g;  # replace "::" with "/"
 #    $object_class = $object_class . ".pm";
     $object_class = $object . ".pm";
-    eval "require $object_class"; # eval causes replacement of "::" with "/" or "\"
+    eval { require $object_class;};
+    # eval causes replacement of "::" with "/" or "\"
+    
     my $method_hash = $object->methods('all');
 
     print $outputfh " \n ***Methods for Object $object ********  \n";
