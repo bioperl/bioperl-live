@@ -104,7 +104,7 @@ o INSTALLING BIOPERL THE EASY WAY USING CPAN
    bug in Bioperl, flawed test script, problems with CGI script
    using for sequence retrieval at public database, and so on.
    Remember that there are over 700 modules in Bioperl and the
-   test suite is running more than 7000 individual tests, a few
+   test suite is running almost 9000 individual tests, a few
    failed tests may not affect your usage of Bioperl.
 
    If you decide that the failed tests will not affect how you
@@ -142,7 +142,7 @@ o INSTALLING BIOPERL THE EASY WAY USING 'make'
    bug in Bioperl, flawed test script, problems with CGI script
    using for sequence retrieval at public database, and so on.
    Remember that there are over 700 modules in Bioperl and the
-   test suite is running more than 7000 individual tests, a few
+   test suite is running almost 9000 individual tests, a few
    failed tests may not affect your usage of Bioperl.
 
    If you decide that the failed tests will not affect how you
@@ -290,7 +290,7 @@ o INSTALLING BIOPERL MODULES THE HARD WAY
    You will need to set "use lib '/path/to/my/bioperl/modules';" 
    in your perl scripts so that you can access these modules if
    they are not installed in the standard site_perl/ location.
-   See below for an example.
+   See above for an example.
 
    To get manpage documentation to work correctly you will have 
    to configure man so that it looks in the proper directory. 
