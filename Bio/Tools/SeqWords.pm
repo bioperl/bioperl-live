@@ -98,9 +98,8 @@ Your participation is much appreciated.
 
 Report bugs to the Bioperl bug tracking system to help us keep track
 the bugs and their resolution.
-Bug reports can be submitted via email or the web:
+Bug reports can be submitted via the web:
 
-  bioperl-bugs@bio.perl.org
   http://bugzilla.bioperl.org/
 
 =head1 AUTHOR
@@ -112,6 +111,10 @@ adapted from original code provided by Dave Shivak, in response to a
 query on the bioperl mailing list.  At least 2 other people provided
 alternative means (equally good but not used in the end) of performing
 the same calculation.  Thanks to all for your assistance.
+
+=head1 CONTRUBITORS
+
+Jason Stajich, jason-at-bioperl.org
 
 =head1 APPENDIX
 
@@ -127,7 +130,6 @@ use strict;
 use Bio::Root::Root;
 
 @ISA = qw(Bio::Root::Root);
-
 
 sub new {
     my($class,@args) = @_;
@@ -172,51 +174,50 @@ sub new {
 
 sub count_words
 {
-	my ($self,$seqobj,$word_length) = @_;
+    my ($self,$seqobj,$word_length) = @_;
 
-	# check how we were called, and if necessary rearrange arguments
-	if(ref($seqobj)) {
-	    # call as SeqWords->count_words($seq, $wordlen)
-	    if(! $seqobj->isa("Bio::PrimarySeqI")) { 
-		$self->throw("SeqWords works only on PrimarySeqI objects\n");
-	    }
-	} else {
-	    # call as $obj->count_words($wordlen)
-	    $word_length = $seqobj;
-	    $seqobj = undef;
+    # check how we were called, and if necessary rearrange arguments
+    if(ref($seqobj)) {
+	# call as SeqWords->count_words($seq, $wordlen)
+	if(! $seqobj->isa("Bio::PrimarySeqI")) { 
+	    $self->throw("SeqWords works only on PrimarySeqI objects\n");
 	}
+    } else {
+	# call as $obj->count_words($wordlen)
+	$word_length = $seqobj;
+	$seqobj = undef;
+    }
 
-	if($word_length eq "" || $word_length =~ /[a-z]/i)
-	{
-	    $self->throw("SeqWords cannot accept non-numeric characters".
-                         " or a null value in the \$word_length variable\n");
-	}
-	elsif ($word_length <1 || ($word_length - int($word_length)) >0)
-	{
-	    $self->throw("SeqWords requires the word length to be a ".
-                         "positive integer\n");
-    	}
-	
-	if(! defined($seqobj)) {
-	    $seqobj =  $self->{'_seqref'};
-	}
-	my $seqstring = uc $seqobj->seq();
+    if($word_length eq "" || $word_length =~ /[a-z]/i)
+    {
+	$self->throw("SeqWords cannot accept non-numeric characters".
+		     " or a null value in the \$word_length variable\n");
+    }
+    elsif ($word_length <1 || ($word_length - int($word_length)) >0)
+    {
+	$self->throw("SeqWords requires the word length to be a ".
+		     "positive integer\n");
+    }
 
-	if($word_length > length($seqstring))
-	{
-	    $self->throw("die in count words, \$word_length is bigger ".
-                         "than sequence length\n");
-	}
-	
-	my %codon = ();
+    if(! defined($seqobj)) {
+	$seqobj =  $self->{'_seqref'};
+    }
+    my $seqstring = uc $seqobj->seq();
 
-# now the real business
+    if($word_length > length($seqstring))
+    {
+	$self->throw("die in count words, \$word_length is bigger ".
+		     "than sequence length\n");
+    }
 
-	while($seqstring =~ /(([ACGT]){$word_length})/gim)
-	{
-		$codon{uc($1)}++;
-	}
-	return \%codon;
+    my %codon = ();
+
+    # now the real business
+    # JS - remove DNA assumption
+    while($seqstring =~ /((\w){$word_length})/gim) {
+	$codon{uc($1)}++;
+    }
+    return \%codon;
 
 # and that's it
 }
