@@ -34,12 +34,42 @@ Revision history for Bioperl core modules
 
 0.7.2 Bug fix release
 
-    o documentation fix 
+    o documentation fixes in many modules - SYNOPSIS code verified 
+      to be runnable in many (but not all modules)
 
     o corrected MANIFEST file from 0.7.1 release
    
     o Bug fix in Bio::SeqIO::FTHelper to properly handle
       split locations
+
+    o Bio::SeqIO::genbank 
+	* Correct parsing and writing of genbank format with protein data
+	* moltype and molecule separation	                   
+
+    o Bio::SeqIO::largefasta fix to avoid inifinite loops
+	
+    o Bio::SimpleAlign fixed to correctly handle consensus 
+      sequence calculation
+
+    o Bio::Tools::HMMER supports hmmer 2.2g
+
+    o Bio::Tools::BPlite to support report type specific parsing.  Most 
+      major changes are not on the 0.7 branch.
+   
+    o Bio::Tools::Run::StandAloneBlast exists_blast() fixed and works 
+      with File::Spec 
+
+    o Bio::Variation::AAChange/RNAChange corrected labels and mutated alleles 
+	in several types of mutations:
+        1.) AA level: deletion, complex
+        2.) AA level: complex, inframe
+        3.) RNA level: silent
+
+    o  BPbl2seq parsing of empty reports will not die, but will return
+       a valid, empty, Bio::SeqFeature::SimilarityFeature for
+       $report->query() and $report->subject() methods.  So an easy
+       way to test if report was empty is to see if
+       $report->query->seqname is undefined.
 
 0.7.1 Bug fix release 
 
