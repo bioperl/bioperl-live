@@ -532,7 +532,7 @@ sub primary_id {
 
  Title   : alphabet
  Usage   : if( $obj->alphabet eq 'dna' ) { /Do Something/ }
- Function: Returns the alphabet of sequence, one of
+ Function: Get/Set the alphabet of sequence, one of
            'dna', 'rna' or 'protein'. This is case sensitive.
 
            This is not called <type> because this would cause
@@ -541,7 +541,7 @@ sub primary_id {
  Returns : a string either 'dna','rna','protein'. NB - the object must
            make a call of the type - if there is no alphabet specified it
            has to guess.
- Args    : none
+ Args    : optional string to set : 'dna' | 'rna' | 'protein'
 
 
 =cut

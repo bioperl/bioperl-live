@@ -780,7 +780,7 @@ sub can_call_new {
 
  Title   : alphabet
  Usage   : if ( $obj->alphabet eq 'dna' ) { /Do Something/ }
- Function: Returns the type of sequence being one of
+ Function: Get/Set the type of sequence being one of
            'dna', 'rna' or 'protein'. This is case sensitive.
 
            This is not called <type> because this would cause
@@ -789,7 +789,7 @@ sub can_call_new {
  Returns : A string either 'dna','rna','protein'. NB - the object must
            make a call of the type - if there is no type specified it
            has to guess.
- Args    : None
+ Args    : optional string to set : 'dna' | 'rna' | 'protein'
 
 
 =cut
