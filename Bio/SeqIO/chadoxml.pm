@@ -294,8 +294,8 @@ EOUSAGE
 		$self->throw("Attempting to write with no seq!");
 	}
 
-	if( ! ref $seq || ! $seq->isa('Bio::SeqI') ) {
-		$self->warn(" $seq is not a SeqI compliant module. Attempting to dump, but may fail!");
+	if( ! ref $seq || ! $seq->isa('Bio::Seq::RichSeqI') ) {
+		$self->warn(" $seq is not a RichSeqI compliant module. Attempting to dump, but may fail!");
 	}
 
 	#$srcfeature, when provided, should contain at least one alphabetical letter
