@@ -16,10 +16,24 @@ production quality scripts that have POD documentation and accept
 command-line arguments, the scripts in examples/ are useful
 examples of Bioperl code.
 
+You can install the scripts in the scripts/ directory if you'd like,
+simply follow the instructions on 'make install'. The installation
+directory is specified by the INSTALLSCRIPT variable in the Makefile.
+Installation will copy the scripts to the specified directory and
+change the 'PLS' suffix to 'pl'.
+
 Please contact bioperl-l at bioperl.org if you are interested in 
 contributing your own script.
 
 =head1 PRODUCTION SCRIPTS
+
+=head2 scripts/install_bioperl_scripts.PLS
+
+This script installs scripts from the scripts/ directory on
+'make install'.
+
+A fully-featured script that uses Bio::Biblio, a module for 
+accessing and querying bibliographic repositories like Medline.
 
 =head2 scripts/biblio/biblio.PLS
 
