@@ -33,9 +33,9 @@ BEGIN {
     }
 }
 
-END {     
+END {
     for ( $Test::ntest..$NUMTESTS ) {
-	skip("Unable to RefSeq test - probably no network connection.",1);
+        skip("Skipping tests which require remote servers - set env variable BIOPERLDEBUG to test",1);
     }
 }
 
@@ -74,6 +74,7 @@ eval {
 };
 ok $@;
 
+exit unless $DEBUG;
 eval {
     ok($seq = $db->get_Seq_by_acc('NM_006732'));
     ok($seq && $seq->length eq 3775);
