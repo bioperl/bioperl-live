@@ -114,6 +114,10 @@ sub get_Seq_by_id {
   my $entrez = ($type =~ m/^p/i ? 'db=p&' : 'db=n&') .
     "form=6&dopt=f&html=no&title=no&uid=$uid" ;
 
+# most of this socket stuff is borrowed heavily from LWP::Simple, by
+# Gisle Aas and Martijn Koster.  They copyleft'ed it, but we should give
+# them full credit for this little diddy.
+
   my $sock = IO::Socket::INET->new(PeerAddr => 'www3.ncbi.nlm.nih.gov',
 				   PeerPort => 80,
 				   Proto    => 'tcp',
@@ -127,20 +131,59 @@ sub get_Seq_by_id {
   $sock->autoflush(); # just for safety's sake
 
   print $sock join("\015\012" =>
-		   "GET /htbin-post/Entrez/query?$entrez HTTP/1.0\r\n",
+		   "GET /htbin-post/Entrez/query?$entrez HTTP/1.0",
 		   "Host: www3.ncbi.nlm.nih.gov",
 		   "User-Agent: $0::Bio::DB::GenBank",
 		   "", "");
 
-  while( <$sock> ) {
-    last if /----------/; # this is kludgy
+  while(<$sock>) {
+    if ( m,^HTTP/\d+\.\d+\s+(\d+)[^\012]\012, ) {
+      my $code = $1;
+      return undef unless $code =~ /^2/;
+    }
+    return undef if /^ERROR/;
+    last if m/^------/; # Kludgy, but it's how L. Stein does Boulder too
   }
 
   return Bio::SeqIO->new(-fh => $sock, -format => 'Fasta')->next_seq()
 }
 
+=head2 get_Seq_by_acc
+
+  Title   : get_Seq_by_acc
+  Usage   : $seq = $db->get_Seq_by_acc($uid, $type);
+           $seq = $db->get_Seq_by_acc(-acc  => $acc,
+                                      -type => $type );
+  Function: Gets a Bio::Seq object by its accession number
+  Returns : a Bio::Seq object
+  Args    : $acc : the accession number of the desired sequence entry
+            $type : 'nucleotide' or 'protein' - specifies whether to
+                    search GenBank or GenPept for the sequence
+                    (defaults to 'nucleotide').  Optional.
+  Note    : For GenBank, this just calls the same code for get_Seq_by_id()
+
+=cut
+
+sub get_Seq_by_acc {
+
+  my($self, @params) = @_;
+  my($acc, $type) = $self->_rearrange( [qw(ACC TYPE)], @params);
+
+  $type ||= 'n';
+
+  return $self->get_Seq_by_id(-uid => $acc, -type => $type);
+}
+
 1;
 __END__
+
+
+
+
+
+
+
+
 
 
 
