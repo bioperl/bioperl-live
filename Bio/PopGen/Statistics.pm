@@ -51,12 +51,21 @@ Currently implemented:
  theta          (theta)
  pi             (pi) - number of pairwise differences
 
-References forthcoming.
-
 
 In all cases where a the method expects an arrayref of
 L<Bio::PopGen::IndividualI> objects and L<Bio::PopGen::PopulationI>
 object will also work.
+
+=head2 REFERENCES
+
+Fu Y.X and Li W.H. (1993) "Statistical Tests of Neutrality of
+Mutations." Genetics 133:693-709.
+
+Fu Y.X. (1996) "New Statistical Tests of Neutrality for DNA samples
+from a Population." Genetics 143:557-570.
+
+Tajima F. (1989) "Statistical method for testing the neutral mutation
+hypothesis by DNA polymorphism." Genetics 123:585-595.
 
 
 =head1 FEEDBACK
@@ -159,13 +168,11 @@ sub fu_and_li_D {
     if( ! defined $outgroup ) {
 	$self->warn("Need to provide either an array ref to the outgroup individuals or the number of external mutations");
 	return 0;
-    } elsif( ref($outgroup) =~ /ARRAY/i ) {
-	$self->warn("Currently cannot calculate fu_and_li_F with a set of outgroup individuals");
-        return 0;
+    } elsif( ref($outgroup) ) {
+	$ext_mutations = $self->external_mutations($ingroup,$outgroup);
     } else { 
 	$ext_mutations = $outgroup;
     }
-
     my $a = 0;
     for(my $k= 1; $k < $sample_size; $k++ ) {
         $a += ( 1 / $k );
@@ -295,13 +302,12 @@ sub fu_and_li_F {
 	$self->throw("expected an array reference of a list of Bio::PopGen::IndividualI OR a Bio::PopGen::PopulationI object to tajima_D");
 	return 0;
     }
-
+    
     if( ! defined $outgroup ) {
 	$self->warn("Need to provide either an array ref to the outgroup individuals or the number of external mutations");
 	return 0;
-    } elsif( ref($outgroup) =~ /ARRAY/i ) {
-	$self->warn("Currently cannot calculate fu_and_li_F with a set of outgroup individuals");
-        return 0;
+    } elsif( ref($outgroup) ) {
+	$ext_mutations = $self->external_mutations($ingroup,$outgroup);
     } else { 
 	$ext_mutations = $outgroup;
     }
@@ -331,13 +337,88 @@ sub fu_and_li_F {
     my $u_F = ( 1 + ( ($sample_size+1)/(3*($sample_size-1)) )-
 		( 4*( ($sample_size+1)/(($sample_size-1)**2) ))*
 		($a1 - ((2*$sample_size)/($sample_size+1))) ) /
-		($sample_size - $v_F);
+		($a - $v_F);
 
     my $F = ($pi - $ext_mutations) / ( sqrt( ($u_F*$seg_sites) +
 					     ($v_F*($seg_sites**2)) ) );
 
     return $F;
 }
+
+=head2 fu_and_li_F_star
+
+ Title   : fu_and_li_F_star
+ Usage   : my $D = Bio::PopGen::Statistics->fu_and_li_F_star(\@ingroup);
+ Function: Calculate Fu and Li's F* on an ingroup without an outgroup
+           It uses count of singleton alleles instead 
+ Returns : decimal number
+ Args    : array ref of L<Bio::PopGen::IndividualI> objects for the ingroup
+           OR
+           L<Bio::PopGen::PopulationI> object
+=cut
+#' keep my emacs happy
+
+sub fu_and_li_F_star {
+    my ($self,$individuals) = @_;
+
+    my ($seg_sites,$pi,$sample_size,$singletons);
+    if( ref($individuals) =~ /ARRAY/i ) {
+	$sample_size = scalar @$individuals;
+	# pi - all pairwise differences 
+	$pi          = $self->pi($individuals);  
+	$seg_sites   = $self->segregating_sites_count($individuals);
+	$singletons  = $self->singleton_count($individuals);
+    } elsif( ref($individuals) && 
+	     $individuals->isa('Bio::PopGen::PopulationI')) {
+	my $pop = $individuals;
+	$sample_size = $pop->get_number_individuals;
+	$pi          = $self->pi($pop);
+	$seg_sites   = $self->segregating_sites_count($pop);
+	$singletons  = $self->singleton_count($pop);
+    } else { 
+	$self->throw("expected an array reference of a list of Bio::PopGen::IndividualI OR a Bio::PopGen::PopulationI object to tajima_D");
+	return 0;
+    }
+    my $a = 0;
+    for(my $k= 1; $k < $sample_size; $k++ ) {
+	$a += ( 1 / $k );
+    }
+    
+    my $a1 = 0;
+    for(my $k= 1; $k <= $sample_size; $k++ ) {
+	$a1 += ( 1 / $k );
+    }
+
+    my $b = 0;
+    for(my $k= 1; $k < $sample_size; $k++ ) {
+	$b += ( 1 / $k**2 );
+    }
+    # eq (14) 
+    my $c = 2 * ( (($sample_size * $a) - (2 * ( $sample_size -1 ))) / 
+		  (( $sample_size - 1) * ($sample_size - 2)) );
+    # eq (46) 
+    my $d = $c + ( ($sample_size -2)/ (($sample_size - 1)**2)) +
+	     ((2/($sample_size -1))*
+	      ((3/2) - ((2*$a1 - 3)/($sample_size -2)) - 
+	       (1/$sample_size)));
+    
+    my $v_F_star = ( $d + ( 2*($sample_size**2+$sample_size+3) /
+			    (9*$sample_size*($sample_size-1))) -
+		     ( (2/($sample_size-1))*
+		       (4*$b - 6 + (8/$sample_size))) )/
+		       ($a**2 + $b);
+    
+    my $u_F_star = ( ($sample_size / ($sample_size-1)) + 
+		     (($sample_size+1)/(3*($sample_size-1))) -
+		     ( 2 * (2 / ($sample_size * ($sample_size-1)))) +
+		     (2*( ($sample_size+1)/($sample_size-1)**2)*
+		      ($a1 - ((2*$sample_size)/($sample_size+1))) )) /
+		      ($a - $v_F_star);
+    
+    my $F_star = ( $pi - (( ($sample_size-1)/ $sample_size)*$singletons)) /
+	sqrt ( ($u_F_star*$seg_sites) + ($v_F_star*($seg_sites**2)));
+    return $F_star;
+} 
 
 =head2 tajima_D
 
@@ -438,9 +519,9 @@ sub pi {
 		return 0;
 	    }
 	    foreach my $m ( @marker_names ) {
-		foreach my $a (map { $_->get_Alleles} 
+		foreach my $allele (map { $_->get_Alleles} 
 			       $ind->get_Genotypes($m) ) {
-		    $data{$m}->{$a}++;
+		    $data{$m}->{$allele}++;
 		    $marker_total{$m}++;
 		}
 	    }
@@ -677,6 +758,108 @@ sub heterozygosity {
     my $sum = ($freq1**2) + (($freq2)**2);
     my $h = ( $samp_size*(1- $sum) ) / ($samp_size - 1) ;
     return $h;
+}
+
+=head2 external_mutations
+
+ Title   : external_mutations
+ Usage   : my $ext = Bio::PopGen::Statistics->external_mutations($ingroup,$outgroup);
+ Function: Calculate the number of alleles or (mutations) which are ancestral
+ Returns : integer of number of mutations which are ancestral or 'external'
+           based on the outgroup
+ Args    : ingroup - L<Bio::PopGen::IndividualI>s arrayref OR 
+                     L<Bio::PopGen::PopulationI>
+           outgroup- L<Bio::PopGen::IndividualI>s arrayref OR 
+                     L<Bio::PopGen::PopulationI> OR
+                     a single L<Bio::PopGen::IndividualI>
+
+=cut
+
+sub external_mutations{
+   my ($self,$ingroup,$outgroup) = @_;
+   my (%indata,%outdata,@marker_names);
+   # basically we have to do some type checking
+   # if that perl were typed...
+   my ($itype,$otype) = (ref($ingroup),ref($outgroup));
+
+   return $outgroup unless( $otype ); # we expect arrayrefs or objects, nums
+                                      # are already the value we 
+                                      # are searching for
+   # pick apart the ingroup
+   # get the data
+   if( ref($ingroup) =~ /ARRAY/i ) {
+       if( ! ref($ingroup->[0]) ||
+	   ! $ingroup->[0]->isa('Bio::PopGen::IndividualI') ) {
+	   $self->warn("Expected an arrayref of Bio::PopGen::IndividualI objects or a Population for ingroup in external_mutations");
+	   return 0;
+       }
+       # we assume that all individuals have the same markers 
+       # i.e. that they are aligned
+       @marker_names = $ingroup->[0]->get_marker_names;
+       for my $ind ( @$ingroup ) {
+	   for my $m ( @marker_names ) {
+	       for my $allele ( map { $_->get_Alleles }
+				    $ind->get_Genotypes($m) ) {
+		   $indata{$m}->{$allele}++;
+	       }
+	   }
+       }	   
+   } elsif( ref($ingroup) && $ingroup->isa('Bio::PopGen::PopulationI') ) {
+       @marker_names = $ingroup->get_marker_names;
+       for my $ind ( $ingroup->get_Individuals() ) {
+	   for my $m ( @marker_names ) {
+	       for my $allele ( map { $_->get_Alleles} 
+				    $ind->get_Genotypes($m) ) {
+		   $indata{$m}->{$allele}++;
+	       }
+	   }
+       }
+   } else { 
+       $self->warn("Need an arrayref of Bio::PopGen::IndividualI objs or a Bio::PopGen::Population for ingroup in external_mutations");
+       return 0;
+   }
+    
+   if( $otype =~ /ARRAY/i ) {
+       if( ! ref($outgroup->[0]) ||
+	   ! $outgroup->[0]->isa('Bio::PopGen::IndividualI') ) {
+	   $self->warn("Expected an arrayref of Bio::PopGen::IndividualI objects or a Population for outgroup in external_mutations");
+	   return 0;
+       }
+       for my $ind ( @$outgroup ) {
+	   for my $m ( @marker_names ) {
+	       for my $allele ( map { $_->get_Alleles }
+				$ind->get_Genotypes($m) ) {
+		   $outdata{$m}->{$allele}++;
+	       }
+	   }
+       }
+   
+   } elsif( $otype->isa('Bio::PopGen::PopulationI') ) {
+       for my $ind ( $outgroup->get_Individuals() ) {
+	   for my $m ( @marker_names ) {
+	       for my $allele ( map { $_->get_Alleles} 
+				    $ind->get_Genotypes($m) ) {
+		   $outdata{$m}->{$allele}++;
+	       }
+	   }
+       }
+   } elsif( $otype->isa('Bio::PopGen::PopulationI') ) { 
+       $self->warn("Need an arrayref of Bio::PopGen::IndividualI objs or a Bio::PopGen::Population for outgroup in external_mutations");
+       return 0;
+   }
+   my $external_alleles;
+   foreach my $marker ( @marker_names ) {
+       next if( keys %{$outdata{$marker}} > 1);
+       my @in_alleles = keys %{$indata{$marker}};
+       
+       for my $allele ( @in_alleles ) {
+	   if( $indata{$marker}->{$allele} == 1 &&
+	       exists $outdata{$marker}->{$allele}  ) {
+	       $external_alleles++;
+	   }
+       }
+   }
+   return $external_alleles;
 }
 
 1;

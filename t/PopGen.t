@@ -315,12 +315,32 @@ ok(sprintf("%.5f",Bio::PopGen::Statistics->fu_and_li_D_star(\@ingroup)),
 ok(sprintf("%.5f",Bio::PopGen::Statistics->fu_and_li_D_star($ingroup)),
    0.27345);
 
-#ok(Bio::PopGen::Statistics->fu_and_li_D(\@ingroup,\@outgroup),0.75563);
-#ok(Bio::PopGen::Statistics->fu_and_li_D(\@ingroup,1),0.75563);
-#ok(Bio::PopGen::Statistics->fu_and_li_D($ingroup,1),0.75563);
-#ok(Bio::PopGen::Statistics->fu_and_li_D($ingroup,\@outgroup),0.75563);
-#ok(Bio::PopGen::Statistics->fu_and_li_D($ingroup,$outgroup),0.75563);
-#ok(Bio::PopGen::Statistics->fu_and_li_F(\@ingroup,1),0.77499);
-#ok(Bio::PopGen::Statistics->fu_and_li_F($ingroup,1),0.77499);
-#ok(Bio::PopGen::Statistics->fu_and_li_F($ingroup,\@outgroup),0.77499);
-#ok(Bio::PopGen::Statistics->fu_and_li_F($ingroup,$outgroup),0.77499);
+skip(sprintf("%.5f",Bio::PopGen::Statistics->fu_and_li_F_star(\@ingroup)),
+   0.27834);
+skip(sprintf("%.5f",Bio::PopGen::Statistics->fu_and_li_F_star($ingroup)),
+   0.27834);
+
+ok(Bio::PopGen::Statistics->external_mutations(\@ingroup,\@outgroup), 1);
+ok(Bio::PopGen::Statistics->external_mutations($ingroup,\@outgroup), 1);
+ok(Bio::PopGen::Statistics->external_mutations(\@ingroup,$outgroup), 1);
+ok(Bio::PopGen::Statistics->external_mutations($ingroup,$outgroup), 1);
+
+# expect to have 1 external mutation
+ok(sprintf("%.5f",Bio::PopGen::Statistics->fu_and_li_D(\@ingroup,1)),0.75653);
+ok(sprintf("%.5f",Bio::PopGen::Statistics->fu_and_li_D($ingroup,1)),0.75653);
+
+ok(sprintf("%.5f",Bio::PopGen::Statistics->fu_and_li_D(\@ingroup,
+						       \@outgroup)),0.75653);
+ok(sprintf("%.5f",Bio::PopGen::Statistics->fu_and_li_D($ingroup,
+						       \@outgroup)),0.75653);
+ok(sprintf("%.5f",Bio::PopGen::Statistics->fu_and_li_D($ingroup,
+						       $outgroup)),0.75653);
+ok(sprintf("%.5f",Bio::PopGen::Statistics->fu_and_li_D(\@ingroup,
+						       $outgroup)),0.75653);
+
+skip(sprintf("%.5f",Bio::PopGen::Statistics->fu_and_li_F(\@ingroup,1)),0.77499);
+skip(sprintf("%.5f",Bio::PopGen::Statistics->fu_and_li_F($ingroup,1)),0.77499);
+skip(sprintf("%.5f",Bio::PopGen::Statistics->fu_and_li_F($ingroup,
+						       \@outgroup)),0.77499);
+skip(sprintf("%.5f",Bio::PopGen::Statistics->fu_and_li_F($ingroup,
+						       $outgroup)),0.77499);
