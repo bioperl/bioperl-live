@@ -1,9 +1,12 @@
 package Bio::DB::GFF::Aggregator::transcript;
 
 use strict;
-use Carp 'croak';
-use base 'Bio::DB::GFF::Aggregator';
-our $VERSION = '0.10';
+use Bio::DB::GFF::Aggregator;
+
+use vars qw($VERSION @ISA);
+@ISA = qw(Bio::DB::GFF::Aggregator);
+
+$VERSION = '0.10';
 
 # we look for features of type Sequence and add them to a pseudotype transcript
 sub aggregate {

@@ -6,13 +6,15 @@ package Bio::DB::GFF::Adaptor::dbi::mysqlopt;
 # 2) uses a binning scheme to make short range queries very much faster
 # 3) optionally returns Acedb objects, for compatibility with WormBase
 
-require 5.6.0;
 use strict;
-use Carp 'croak';
-use base 'Bio::DB::GFF::Adaptor::dbi::mysql';
+use Bio::DB::GFF::Adaptor::dbi::mysql;
 use Bio::DB::Fasta;
 use Bio::DB::GFF::Util::Binning;
 use Bio::DB::GFF::Util::Rearrange;
+
+use vars qw($VERSION @ISA);
+@ISA = qw(Bio::DB::GFF::Adaptor::dbi::mysql);
+$VERSION = 0.30;
 
 # this is the largest that any reference sequence can be (100 megabases)
 use constant MAX_BIN    => 100_000_000;
@@ -40,15 +42,15 @@ sub new {
     if (!ref($dna_db)) {
       my $fasta_dir = $dna_db;
       $dna_db = Bio::DB::Fasta->new($fasta_dir);
-      $dna_db or croak __PACKAGE__."->new(): Failed to create new Bio::DB::Fasta from files in $fasta_dir";
+      $dna_db or $class->throw("new(): Failed to create new Bio::DB::Fasta from files in $fasta_dir");
     } else {
-      $dna_db->isa('Bio::DB::Fasta') or croak __PACKAGE__."->new(): $dna_db is not a Bio::DB::Fasta object";
+      $dna_db->isa('Bio::DB::Fasta') or $class->throw("new(): $dna_db is not a Bio::DB::Fasta object");
     }
     $self->{dna_db} = $dna_db;
   }
 
   if ($acedb) {
-    $acedb->isa('Ace') or croak "$acedb is not an acedb accessor object";
+    $acedb->isa('Ace') or $class->throw("$acedb is not an acedb accessor object");
     $self->{acedb} = $acedb;
   }
 

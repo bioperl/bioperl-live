@@ -1,13 +1,14 @@
 package Bio::DB::GFF::RelSegment;
 
 use strict;
-use warnings;
-use Carp qw(croak carp cluck);
-use Bio::DB::GFF::Feature;
-use Bio::DB::GFF::Util::Rearrange;  # for rearrange()
-use base 'Bio::DB::GFF::Segment';
 
-our $VERSION = '0.10';
+use Bio::DB::GFF::Feature;
+use Bio::DB::GFF::Util::Rearrange;
+use Bio::DB::GFF::Segment;
+
+use vars qw($VERSION @ISA);
+@ISA = qw(Bio::DB::GFF::Segment);
+$VERSION = '0.20';
 
 use overload '""' => 'asString',
              'bool' => sub { overload::StrVal(shift) } ;
@@ -23,22 +24,22 @@ use overload '""' => 'asString',
 #      -length     => length of segment
 sub new {
   my $package = shift;
-  my ($factory,$name,$start,$stop,$refseq,$offset,$length,$class,$refclass) =
+  my ($factory,$name,$start,$stop,$refseq,$class,$refclass,$offset,$length) =
     rearrange([
 	       'FACTORY',
 	       [qw(NAME SEQ SEQUENCE SOURCESEQ)],
 	       [qw(START BEGIN)],
 	       [qw(STOP END)],
 	       [qw(REFSEQ REF REFNAME)],
+	       [qw(CLASS SEQCLASS)],
+	       qw(REFCLASS),
 	       [qw(OFFSET OFF)],
 	       [qw(LENGTH LEN)],
-	       [qw(CLASS SEQCLASS)],
-	       'REFCLASS',
 	     ],@_);
 
   $package = ref $package if ref $package;
 
-  $factory or croak __PACKAGE__."->new(): provide a -factory argument";
+  $factory or $package->throw("new(): provide a -factory argument");
 
   # partially fill in object
   my $self = bless { factory => $factory },$package;
@@ -47,7 +48,8 @@ sub new {
   $class ||= 'Sequence';
 
   # confirm that indicated sequence is actually in the database!
-  my($absref,$absstart,$absstop,$absstrand) = $factory->abscoords($class,$name) or return;
+  my($absref,$absstart,$absstop,$absstrand) = $factory->abscoords($name,$class)
+    or return;
 
   # an explicit length overrides start and stop
   if (defined $offset) {
@@ -73,12 +75,13 @@ sub new {
     $start =  $absstop - ($start - 1);
     $stop  =  $absstop - ($stop - 1);
   }
-  @{$self}{qw(sourceseq start stop strand class)} = ($absref,$start,$stop,$absstrand,$class);
+  @{$self}{qw(sourceseq start stop strand class)}
+    = ($absref,$start,$stop,$absstrand,$class);
 
   # but what about the reference sequence?
   if (defined $refseq) {
     $refclass ||= 'Sequence';
-    my ($refref,$refstart,$refstop,$refstrand) = $factory->abscoords($refclass,$refseq);
+    my ($refref,$refstart,$refstop,$refstrand) = $factory->abscoords($refseq,$refclass);
     unless ($refref eq $absref) {
       $self->error("reference sequence is on $refref but source sequence is on $absref");
       return;
@@ -120,8 +123,9 @@ sub refseq {
   if (@_) {
     my $newref = shift;
     my $newclass = shift || 'Sequence';
-    my ($refref,$refstart,$refstop,$refstrand) = $self->factory->abscoords($newclass,$newref);
-    croak "illogical: $newref is on $refref, but $self is on $self->{sourceseq}" 
+    my ($refref,$refstart,$refstop,$refstrand) 
+      = $self->factory->abscoords($newref,$newclass);
+    $self->throw("can't set reference sequence: $newref and $self are on different sequence segments")
       unless $refref eq $self->{sourceseq};
     @{$self}{qw(ref refstart refstrand)} = ($newref,$refstart,$refstrand);
   }
@@ -145,9 +149,10 @@ sub absolute {
 
 sub dna {
   my $self = shift;
-  my ($ref,$start,$stop,$strand,$class) = @{$self}{qw(sourceseq start stop strand class)};
+  my ($ref,$class,$start,$stop,$strand,$class) 
+    = @{$self}{qw(sourceseq class start stop strand class)};
   ($start,$stop) = ($stop,$start) if $strand eq '-';
-  $self->factory->dna($ref,$start,$stop,$class);
+  $self->factory->dna($ref,$class,$start,$stop);
 }
 
 # return all features that overlap with this segment;
@@ -167,7 +172,8 @@ sub contained_features {
 
 sub _process_feature_args {
   my $self = shift;
-  my ($ref,$start,$stop,$strand,$class) = @{$self}{qw(sourceseq start stop strand class)};
+  my ($ref,$start,$stop,$strand,$class) 
+    = @{$self}{qw(sourceseq start stop strand class)};
   ($start,$stop) = ($stop,$start) if $strand eq '-';
   my @args = (-ref=>$ref,-start=>$start,-stop=>$stop,-class=>$class);
   if (@_) {

@@ -1,9 +1,11 @@
 package Bio::DB::GFF::Aggregator::none;
 
 use strict;
-use carp 'croak';
-use base 'Bio::DB::GFF::AggregatorI';
-our $VERSION = '0.10';
+use Bio::DB::GFF::Aggregator;
+use vars qw($VERSION @ISA);
+
+@ISA = qw(Bio::DB::GFF::Aggregator);
+$VERSION = '0.10';
 
 sub disaggregate {
   my $self  = shift;

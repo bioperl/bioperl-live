@@ -1,11 +1,12 @@
 package Bio::DB::GFF::Aggregator;
 
 use strict;
-use Carp 'croak';
 use Bio::DB::GFF::Util::Rearrange;  # for rearrange()
 use Bio::DB::GFF::Feature;
+use vars qw($VERSION @ISA);
 
-our $VERSION = '0.10';
+$VERSION = '0.10';
+@ISA = qw(Bio::Root::RootI);
 
 sub new {
   my $class = shift;
@@ -62,11 +63,11 @@ sub aggregate {
   my $features = shift;
   my $factory  = shift;
 
-  croak "aggregate() method must be overridden";
+  $self->throw("aggregate() method must be overridden by a subclass");
 }
 
 sub method {
-  croak "method() method must be overriden"; 
+  shift->throw("method() method must be overriden by a subclass");
 }
 
 sub get_part_names {

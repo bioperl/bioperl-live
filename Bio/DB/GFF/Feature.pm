@@ -1,17 +1,18 @@
 package Bio::DB::GFF::Feature;
 
 use strict;
-use warnings;
 
-use Carp qw(croak carp cluck);
-use base 'Bio::DB::GFF::RelSegment';
-use Bio::DB::GFF::Util::Rearrange;  # for rearrange()
+use Bio::DB::GFF::Util::Rearrange;
+use Bio::DB::GFF::RelSegment;
 use Bio::DB::GFF::Featname;
 use Bio::DB::GFF::Typename;
 use Bio::DB::GFF::Homol;
+use Bio::Root::RootI;
 
-our $VERSION = '0.10';
-our $AUTOLOAD;
+use vars qw($VERSION @ISA $AUTOLOAD);
+@ISA = qw(Bio::DB::GFF::RelSegment Bio::Root::RootI);
+
+$VERSION = '0.20';
 
 *segments = \&sub_SeqFeature;
 *name     = \&group;
@@ -73,14 +74,17 @@ sub target { shift->group(@_) }
 sub clone {
   my $self = shift;
   my $clone = $self->SUPER::clone;
+
   if (ref(my $t = $clone->type)) {
     my $type = $t->can('clone') ? $t->clone : bless {%$t},ref $t;
     $clone->type($type);
   }
+
   if (ref(my $g = $clone->group)) {
     my $group = $g->can('clone') ? $g->clone : bless {%$g},ref $g;
     $clone->group($group);
   }
+
   $clone;
 }
 
@@ -226,7 +230,7 @@ sub AUTOLOAD {
   return $self->sub_SeqFeature($func_name) if $func_name =~ /^[A-Z]/;
 
   # error message of last resort
-  croak qq(Can\'t locate object method "$func_name" via package "$pack");
+  $self->throw(qq(Can\'t locate object method "$func_name" via package "$pack"));
 }
 
 1;

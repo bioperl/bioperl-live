@@ -1,22 +1,38 @@
 package Bio::DB::GFF::Typename;
 
-use overload '""' => 'asString';
+use strict;
+use overload 
+  '""'     => 'asString',
+  fallback => 1;
 
-sub new    { bless {method=>$_[1],source=>$_[2]},$_[0] }
+# cut down on the number of equivalent objects we have to create
+my %OBJECT_CACHE;
+
+sub new    {
+  my $package = shift;
+  my ($method,$source) = @_;
+  return $OBJECT_CACHE{"$method:$source"} ||= bless { method => $method,
+						      source => $source
+						    },$package;
+}
+
 sub method {
   my $self = shift;
   my $d = $self->{method};
   $self->{method} = shift if @_;
   $d;
 }
+
 sub source {
   my $self = shift;
   my $d = $self->{source};
   $self->{source} = shift if @_;
   $d;
 }
-sub asString { "$_[0]->{method}:$_[0]->{source}" }
-sub clone { 
+
+sub asString { join ':',@{$_[0]}{qw(method source)} }
+
+sub clone {
   my $self = shift;
   return bless {%$self},ref $self;
 }

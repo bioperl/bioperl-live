@@ -1,10 +1,11 @@
 package Bio::DB::GFF::Segment;
 
 use strict;
-use warnings;
-use Carp qw(croak carp cluck);
+use Bio::Root::RootI;
 
-our $VERSION = '0.10';
+use vars qw($VERSION @ISA);
+@ISA = qw(Bio::Root::RootI);
+$VERSION = '0.20';
 
 use overload '""' => 'asString';
 
@@ -13,9 +14,9 @@ use overload '""' => 'asString';
 
 sub new {
   my $class = shift;
-  my ($factory,$segname,$segclass,$start,$stop) = @_;
+  my ($factory,$segname,$start,$stop,$segclass) = @_;
 
-  $factory or croak __PACKAGE__."->new(): provide a factory argument";
+  $factory or $class->throw("->new(): provide a factory argument");
   $class = ref $class if ref $class;
   return bless { factory   => $factory,
 		 sourceseq => $segname,
@@ -51,7 +52,9 @@ sub clone {
 sub subseq {
   my $self = shift;
   my ($newstart,$newstop) = @_;
-  my ($refseq,$start,$stop) = ($self->refseq,$self->start,$self->stop);
+  my ($refseq,$start,$stop,$class) = ($self->refseq,
+				      $self->start,$self->stop,
+				      $self->class);
 
   # We deliberately force subseq to return objects of type DNA.
   # Otherwise, when we get a subsequence from a Feature object,
@@ -59,12 +62,16 @@ sub subseq {
   return $start <= $stop ? $self->new($self->factory,
 				      $refseq,
 				      $start + $newstart - 1,
-				      $start + $newstop  - 1
+				      $start + $newstop  - 1,
+				      undef,
+				      $class,
 				     )
                          : $self->new($self->factory,
 				      $refseq,
 				      $start - ($newstart - 1),
 				      $start - ($newstop  - 1),
+				      undef,
+				      $class,
 				     );
 }
 
@@ -80,9 +87,10 @@ sub id { shift->asString }
 
 sub dna {
   my $self = shift;
-  my ($ref,$start,$stop,$strand) = @{$self}{qw(sourceseq start stop strand)};
+  my ($ref,$class,$start,$stop,$strand) 
+    = @{$self}{qw(sourceseq class start stop strand)};
   ($start,$stop) = ($stop,$start) if $strand eq '-';
-  $self->factory->dna($ref,$start,$stop);
+  $self->factory->dna($ref,$class,$start,$stop);
 }
 
 

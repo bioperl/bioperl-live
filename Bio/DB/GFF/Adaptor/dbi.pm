@@ -1,15 +1,15 @@
 package Bio::DB::GFF::Adaptor::dbi;
 
 # base class for dbi-based implementations
-require 5.6.0;
 use strict;
-use base 'Bio::DB::GFF';
-use Carp 'croak','carp','cluck';
 
-require DBI;
+use DBI;
+use Bio::DB::GFF;
 use Bio::DB::GFF::Util::Rearrange; # for rearrange()
+use vars qw($VERSION @ISA);
 
-our $VERSION = '0.10';
+@ISA =  qw(Bio::DB::GFF);
+$VERSION = '0.20';
 
 use constant MAX_SEGMENT => 100_000_000;  # the largest a segment can get
 
@@ -22,7 +22,7 @@ sub new {
 						 [qw(PASSWORD PASS)]
 						],@_);
 
-  $features_db  || croak __PACKAGE__."->new(): Provide a data source or DBI database";
+  $features_db  || $class->throw("new(): Provide a data source or DBI database");
 
   if (!ref($features_db)) {
     my $dsn = $features_db;
@@ -30,9 +30,10 @@ sub new {
     push @args,$username if defined $username;
     push @args,$auth     if defined $username && defined $auth;
     $features_db = DBI->connect($dsn,@args)
-      || croak __PACKAGE__."->new(): Failed to connect to $dsn: ",DBI->errstr;
+      || $class->throw("new(): Failed to connect to $dsn: ".DBI->errstr);
   } else {
-    $features_db->isa('DBI::db') or croak __PACKAGE__."->new(): $features_db is not a DBI handle";
+    $features_db->isa('DBI::db') 
+      || $class->throw("new(): $features_db is not a DBI handle");
   }
 
   # fill in object
@@ -48,9 +49,9 @@ sub do_query {
   my ($query,@args) = @_;
   warn $self->dbi_quote($query,@args),"\n" if $self->debug;
   my $sth = $self->{sth}{$query} ||= $self->features_db->prepare($query)
-    || croak __PACKAGE__."Couldn't prepare query $query:\n ",DBI->errstr;
+    || $self->throw("Couldn't prepare query $query:\n ".DBI->errstr."\n");
   $sth->execute(@args)
-    || croak __PACKAGE__."Couldn't execute query $query:\n ",DBI->errstr;
+    || $self->throw("Couldn't execute query $query:\n ".DBI->errstr."\n");
   $sth;
 }
 
@@ -82,15 +83,15 @@ sub get_dna {
 }
 
 sub dna_query {
-  croak "make_dna_query(): must be implemented by a subclass";
+  shift->throw("make_dna_query(): must be implemented by a subclass");
 }
 
 # given sequence name, return (reference,start,stop,strand)
 sub get_abscoords {
   my $self = shift;
-  my ($class,$name)  = @_;
+  my ($name,$class)  = @_;
 
-  my ($query,@args)  = $self->make_abscoord_query($class,$name);
+  my ($query,@args)  = $self->make_abscoord_query($name,$class);
   my $sth            = $self->do_query($query,@args);
 
   my @result;
@@ -114,9 +115,9 @@ sub get_abscoords {
 # features.  Passes features through callback if provided to construct object.
 sub get_features {
   my $self = shift;
-  my ($isrange,$refseq,$start,$stop,$types,$callback,$class) = @_;
+  my ($isrange,$refseq,$class,$start,$stop,$types,$callback,$class) = @_;
 
-  my $sth = $self->range_or_overlap($isrange,$refseq,$start,$stop,$types,$class) or return;
+  my $sth = $self->range_or_overlap($isrange,$refseq,$class,$start,$stop,$types,$class) or return;
 
   my @result;
   while (my @row = $sth->fetchrow_array) {
@@ -158,8 +159,8 @@ sub get_types {
 # this is what will need to change if the structure of the GFF table is altered
 sub range_or_overlap {
   my $self = shift;
-  my($isrange,$refseq,$start,$stop,$types,$class) = @_;
-  croak "range_or_overlap(): Must provide refseq" unless $refseq;
+  my($isrange,$refseq,$class,$start,$stop,$types,$class) = @_;
+  $self->throw("range_or_overlap(): Must provide refseq") unless $refseq;
 
   my $dbh = $self->features_db;
 
@@ -168,7 +169,8 @@ sub range_or_overlap {
   my $select        = $self->make_features_select_part;
   my $from          = $self->make_features_from_part;
   my $join          = $self->make_features_join_part;
-  my ($where,@args) = $self->make_features_where_part($isrange,$refseq,$start,$stop,$types,$class);
+  my ($where,@args) = $self->make_features_where_part($isrange,$refseq,$class,
+						      $start,$stop,$types,$class);
   my $query         = "SELECT $straight $select FROM $from WHERE $join AND $where";
 
   my $sth = $self->do_query($query,@args);
@@ -178,20 +180,20 @@ sub range_or_overlap {
 sub do_straight_join { 0 }  # false by default
 
 sub make_features_select_part {
-  croak "make_features_select_part(): must be implemented by subclass";
+  shift->throw("make_features_select_part(): must be implemented by subclass");
 }
 
 sub make_features_from_part {
-  croak "make_features_from_part(): must be implemented by subclass";
+  shift->throw("make_features_from_part(): must be implemented by subclass");
 }
 
 sub make_features_join_part {
-  croak "make_features_join_part(): must be implemented by subclass";
+  shift->throw("make_features_join_part(): must be implemented by subclass");
 }
 
 sub make_features_where_part {
   my $self = shift;
-  my($isrange,$refseq,$start,$stop,$types,$class) = @_;
+  my($isrange,$refseq,$class,$start,$stop,$types) = @_;
   my $query = "";
   my @args;
 
@@ -226,8 +228,8 @@ sub make_features_where_part {
 # and name.
 sub make_abscoord_query {
   my $self = shift;
-  my ($seq_class,$seq_name) = @_;
-  croak "make_abscoord_query(): must be implemented by subclass";
+  my ($seq_name,$seq_class) = @_;
+  $self->throw("make_abscoord_query(): must be implemented by subclass");
   # in scalar context, return a query string.
   # in array context, return a query string and bind arguments
 }
@@ -236,7 +238,7 @@ sub make_abscoord_query {
 sub refseq_query {
   my $self = shift;
   my ($refseq,$refclass) = @_;
-  croak "refseq_query(): must be implemented by subclass";
+  $self->throw("refseq_query(): must be implemented by subclass");
   # in scalar context, return a query string.
   # in array context, return a query string and bind arguments
 }
@@ -246,7 +248,7 @@ sub refseq_query {
 sub overlap_query {
   my $self = shift;
   my ($start,$stop) = @_;
-  croak "overlap_query(): must be implemented by subclass";
+  $self->throw("overlap_query(): must be implemented by subclass");
   # in scalar context, return a query string.
   # in array context, return a query string and bind arguments
 }
@@ -256,7 +258,7 @@ sub overlap_query {
 sub range_query {
   my $self = shift;
   my ($start,$stop) = @_;
-  croak "range_query(): must be implemented by subclass";
+  $self->throw("range_query(): must be implemented by subclass");
   # in scalar context, return a query string.
   # in array context, return a query string and bind arguments
 }
@@ -266,7 +268,7 @@ sub range_query {
 sub types_query {
   my $self  = shift;
   my $types = shift;  # array ref
-  croak "types_query(): must be implemented by subclass";
+  $self->throw("types_query(): must be implemented by subclass");
   # in scalar context, return a query string.
   # in array context, return a query string and bind arguments
 }
@@ -274,31 +276,31 @@ sub types_query {
 sub make_types_select_part {
   my $self = shift;
   my ($refseq,$start,$stop,$want_count) = @_;
-  croak "make_types_select_part(): must be implemented by subclass";
+  $self->throw("make_types_select_part(): must be implemented by subclass");
 }
 
 sub make_types_from_part {
   my $self = shift;
   my ($refseq,$start,$stop,$want_count) = @_;
-  croak "make_types_from_part(): must be implemented by subclass";
+  $self->throw("make_types_from_part(): must be implemented by subclass");
 }
 
 sub make_types_join_part {
   my $self = shift;
   my ($refseq,$start,$stop,$want_count) = @_;
-  croak "make_types_join_part(): must be implemented by subclass";
+  $self->throw("make_types_join_part(): must be implemented by subclass");
 }
 
 sub make_types_where_part {
   my $self = shift;
   my ($refseq,$start,$stop,$want_count) = @_;
-  croak "make_types_where_part(): must be implemented by subclass";
+  $self->throw("make_types_where_part(): must be implemented by subclass");
 }
 
 sub make_types_group_part {
   my $self = shift;
   my ($refseq,$start,$stop,$want_count) = @_;
-  croak "make_types_group_part(): must be implemented by subclass";
+  $self->throw("make_types_group_part(): must be implemented by subclass");
 }
 
 sub string_match {
@@ -346,7 +348,7 @@ sub drop_all {
 
 # return list of tables that "belong" to us.
 sub tables {
-  croak "tables(): must be implemented by subclass";
+  shift->throw("tables(): must be implemented by subclass");
 }
 
 sub DESTROY {

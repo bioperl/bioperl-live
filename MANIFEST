@@ -1,4 +1,4 @@
-## $Id: MANIFEST,v 1.41 2001-07-10 21:12:25 lstein Exp $
+## $Id: MANIFEST,v 1.42 2001-07-11 03:34:17 lstein Exp $
 ##
 ## This is the file listing for everything that
 ## comes with the bioperl distribution. The perl
@@ -53,7 +53,6 @@ Bio/DB/GFF/Feature.pm
 Bio/DB/GFF/Adaptor/dbi/mysqlopt.pm
 Bio/DB/GFF/Adaptor/dbi/mysql.pm
 Bio/DB/GFF/Adaptor/dbi.pm
-Bio/DB/GFF/Type.pm
 Bio/DB/EMBL.pm
 Bio/DB/Fasta.pm
 Bio/DB/GDB.pm

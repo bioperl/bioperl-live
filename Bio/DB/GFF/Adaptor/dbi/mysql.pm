@@ -1,9 +1,11 @@
 package Bio::DB::GFF::Adaptor::dbi::mysql;
 
 # a simple mysql adaptor
-require 5.6.0;
 use strict;
-use base 'Bio::DB::GFF::Adaptor::dbi';
+use Bio::DB::GFF::Adaptor::dbi;
+use vars qw($VERSION @ISA);
+@ISA = qw(Bio::DB::GFF::Adaptor::dbi);
+$VERSION = '0.20';
 
 use constant MAX_SEGMENT => 100_000_000;  # the largest a segment can get
 
@@ -13,8 +15,8 @@ SELECT fref,
        max(fstop),
        fstrand
   FROM fdata,fgroup
-  WHERE fgroup.gclass=?
-    AND fgroup.gname=?
+  WHERE fgroup.gname=?
+    AND fgroup.gclass=?
     AND fgroup.gid=fdata.gid
     GROUP BY fref,fstrand
 END
@@ -27,9 +29,9 @@ sub make_dna_query {
 # given sequence name, return (reference,start,stop,strand)
 sub make_abscoord_query {
   my $self = shift;
-  my ($class,$name) = @_;
-  return wantarray ? (GETSEQCOORDS,$class,$name) 
-                   : $self->dbi_quote(GETSEQCOORDS,$class,$name);
+  my ($name,$class) = @_;
+  return wantarray ? (GETSEQCOORDS,$name,$class) 
+                   : $self->dbi_quote(GETSEQCOORDS,$name,$class);
 }
 
 sub make_features_select_part {

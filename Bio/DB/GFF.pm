@@ -574,7 +574,7 @@ sub do_initialize {
 =head2 get_dna
 
  Title   : get_dna
- Usage   : $db->get_dna($id,$start,$stop,$class)
+ Usage   : $db->get_dna($id,$class,$start,$stop)
  Function: get DNA for indicated segment
  Returns : the dna string
  Args    : sequence ID, start, stop and class
@@ -589,14 +589,14 @@ types.
 
 sub get_dna {
   my $self = shift;
-  my ($id,$start,$stop,$class) = @_;
+  my ($id,$class,$start,$stop) = @_;
   $self->throw("get_dna() must be implemented by an adaptor");
 }
 
 =head2 get_features
 
  Title   : get_features
- Usage   : $db->get_features($isrange,$refseq,$start,$stop,$types,$callback,$class)
+ Usage   : $db->get_features($isrange,$refseq,$class,$start,$stop,$types,$callback)
  Function: get list of features for a region
  Returns : list of Bio::DB::GFF::Feature objects
  Args    : see below
@@ -612,27 +612,31 @@ Arguments are as follows:
    $refseq    ID of the landmark that establishes the absolute 
               coordinate system.
 
+   $class     Class of this landmark.  Ignored by implementations
+              that don't recognize such distinctions.
+
    $start,$stop  Start and stop of the range, inclusive.
 
    $types     Array reference containing the list of annotation types
               to fetch from the database.  Each annotation type is an
               array reference consisting of [source,method].
 
-   $callback  A code reference.  As features are retrieved they are
-              passed to this
+   $callback  A code reference.  The pased features are retrieved from the
+              database they are passed to this callback routine for processing.
+              
 
 =cut
 
 sub get_features{
   my $self = shift;
-  my ($isrange,$refseq,$start,$stop,$types,$callback,$class) = @_;
+  my ($isrange,$refseq,$class,$start,$stop,$types,$callback) = @_;
   $self->throw("get_features() must be implemented by an adaptor");
 }
 
 
 sub get_abscoords {
   my $self = shift;
-  my ($class,$name) = @_;
+  my ($name,$class) = @_;
   $self->throw("get_abscoords() must be implemented by an adaptor");
 }
 
@@ -674,32 +678,34 @@ sub make_feature {
 # real work is done by get_dna()
 sub dna {
   my $self = shift;
-  my ($id,$start,$stop,$class) = rearrange([
+  my ($id,$class,$start,$stop) = rearrange([
 					    [qw(NAME ID REF REFSEQ)],
+					    'CLASS',
 					    qw(START),
 					    [qw(STOP END)],
-					    'CLASS',
 					   ],@_);
   return unless defined $start && defined $stop;
-  $self->get_dna($id,$start,$stop,$class);
+  $self->get_dna($id,$class,$start,$stop);
 }
 
 # call to return the features that overlap the named region
 # real work is done by get_features
 sub overlapping_features {
   my $self = shift;
-  my ($refseq,$start,$stop,$types,$parent,$automerge,$class) = rearrange([
-									  [qw(REF REFSEQ)],
-									  qw(START),
-									  [qw(STOP END)],
-									  [qw(TYPE TYPES)],
-									  qw(PARENT),
-									  [qw(MERGE AUTOMERGE)],
-									  qw(CLASS),
-								  ],@_);
+  my ($refseq,$class,$start,$stop,$types,$parent,$automerge) =
+    rearrange([
+	       [qw(REF REFSEQ)],
+	       qw(CLASS),
+	       qw(START),
+	       [qw(STOP END)],
+	       [qw(TYPE TYPES)],
+	       qw(PARENT),
+	       [qw(MERGE AUTOMERGE)],
+	      ],@_);
+
   return unless defined $start && defined $stop;
   $automerge = 1 unless defined $automerge;
-  $self->_features(0,$refseq,$start,$stop,$types,$parent,$automerge,$class);
+  $self->_features(0,$refseq,$class,$start,$stop,$types,$parent,$automerge,$class);
 }
 
 
@@ -707,18 +713,20 @@ sub overlapping_features {
 # range (much faster usually)
 sub contained_features {
   my $self = shift;
-  my ($refseq,$start,$stop,$types,$parent,$automerge,$class) = rearrange([
-									  [qw(REF REFSEQ)],
-									  qw(START),
-									  [qw(STOP END)],
-									  [qw(TYPE TYPES)],
-									  qw(PARENT),
-									  [qw(MERGE AUTOMERGE)],
-									  qw(CLASS),
-								  ],@_);
+  my ($refseq,$class,$start,$stop,$types,$parent,$automerge) = 
+    rearrange([
+	       [qw(REF REFSEQ)],
+	       qw(CLASS),
+	       qw(START),
+	       [qw(STOP END)],
+	       [qw(TYPE TYPES)],
+	       qw(PARENT),
+	       [qw(MERGE AUTOMERGE)],
+	      ],@_);
+
   return unless defined $start && defined $stop;
   $automerge = 1 unless defined $automerge;
-  $self->_features(1,$refseq,$start,$stop,$types,$parent,$automerge,$class);
+  $self->_features(1,$refseq,$class,$start,$stop,$types,$parent,$automerge);
 }
 
 sub types {
@@ -734,7 +742,7 @@ sub types {
 
 sub _features {
   my $self = shift;
-  my ($range_query,$refseq,$start,$stop,$types,$parent,$automerge,$class) = @_;
+  my ($range_query,$refseq,$class,$start,$stop,$types,$parent,$automerge) = @_;
 
 
   $types = $self->parse_types($types);  # parse out list of types
@@ -751,8 +759,10 @@ sub _features {
   my (%groups);  # cache groups so that we don't create them unecessarily
   my $features = [];
 
-  my $callback = sub { push @$features,$self->make_feature($parent,\%groups,@_) } if $parent;
-  $self->get_features($range_query,$refseq,$start,$stop,$aggregated_types,$callback,$class) ;
+  my $callback = sub { push @$features,$self->make_feature($parent,\%groups,@_) } 
+    if $parent;
+  $self->get_features($range_query,$refseq,$class,
+		      $start,$stop,$aggregated_types,$callback) ;
 
   if ($automerge) {
     warn "aggregating...\n" if $self->debug;
@@ -818,11 +828,9 @@ sub make_object {
 # given a sequence class and name, return its coordinates in format (reference,start,stop,strand)
 sub abscoords {
   my $self = shift;
-  my ($class,$name) = @_;
-  if (!defined($name)) {
-    ($name,$class) = ($class,'Sequence');
-  }
-  $self->get_abscoords($class,$name);
+  my ($name,$class) = @_;
+  $class ||= 'Sequence';
+  $self->get_abscoords($name,$class);
 }
 
 1;
