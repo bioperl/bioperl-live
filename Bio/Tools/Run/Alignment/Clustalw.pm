@@ -356,14 +356,13 @@ BEGIN {
     # Authorize attribute fields
     foreach my $attr ( @CLUSTALW_PARAMS, @CLUSTALW_SWITCHES,
 		       @OTHER_SWITCHES ) { $OK_FIELD{$attr}++; }
-
-
 }
 
 sub new {
     my ($class,@args) = @_;
     my $self = $class->SUPER::new(@args);
-
+    # to facilitiate tempfile cleanup
+    $self->_initialize_io();
     unless (&exists_clustal()) {
 	warn "Clustalw program not found as $PROGRAM or not executable. \n  Clustalw can be obtained from eg- http://corba.ebi.ac.uk/Biocatalog/Alignment_Search_software.html/ \n";
     }

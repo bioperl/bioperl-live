@@ -540,6 +540,8 @@ BEGIN {
 sub new {
     my ($class,@args) = @_;
     my $self = $class->SUPER::new(@args);
+    # to facilitiate tempfile cleanup
+    $self->_initialize_io();
     my ($attr, $value);
     (undef,$TMPOUTFILE) = $self->tempfile();
     while (@args)  {
