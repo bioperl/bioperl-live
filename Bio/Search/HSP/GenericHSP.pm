@@ -251,7 +251,7 @@ sub new {
     $self->frame($qframe,$hframe);
 
     if( ! defined $query_len || ! defined $hit_len ) { 
-	$self->throw("Must defined hit and query length");
+	$self->throw("Must have defined hit and query length");
     }
 
     $self->hit->seqname($hit_name);
