@@ -184,7 +184,7 @@ sub hash_tree{
    $h->{'name'} = $self->name();
    $h->{'identifier'} = $self->identifier();
    $h->{'definition'} = $self->definition();
-   $h->{'synonyms'} = [$self->each_synonym()];
+   $h->{'synonyms'} = [$self->term()->each_synonym()];
 }
 
 
