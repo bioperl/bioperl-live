@@ -94,18 +94,23 @@ use Bio::Tools::Blast::Sbjct;
 sub _initialize {
     my($self,@args) = @_;
     
-    my $make = $self->SUPER::_initialize(@args);
-
-    my ($sbjct, $query, $source) =
+    my ($sbjct, $query, $fea1, $source) =
 	$self->_rearrange([qw(SUBJECT
 			      QUERY
+			      FEATURE1
                               SOURCE
 			      )],@args);
 
-    $sbjct && $self->subject($sbjct);
-    $query && $self->query($query);
     # make sure at least the query feature exists -- this refers to feature1
-    $self->query();
+    if($query && (! $fea1)) {
+	$self->query($query);
+    } else {
+	$self->query();
+    }
+    # now call inherited initialization
+    my $make = $self->SUPER::_initialize(@args);
+
+    $sbjct && $self->subject($sbjct);
     # the following refer to feature1, which has been ensured to exist
     $self->primary_tag('similarity') if(! defined($self->primary_tag()));
     $source && $self->source_tag($source);
