@@ -133,6 +133,7 @@ use Bio::Search::HSP::HSPI;
            -homology_seq=> homology sequence for the HSP
            -hit_frame   => hit frame (only if hit is translated protein)
            -query_frame => query frame (only if query is translated protein)
+
 =cut
 
 sub new {
