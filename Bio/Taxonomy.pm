@@ -175,34 +175,15 @@ sub new {
       # I don't expect that these will actually be used except as a way
       # to find what ranks there are in taxonomic use 
       $self->ranks(('root',
-                    'superkingdom',
-                    'kingdom',
-                    'superphylum',
-                    'phylum',
-                    'subphylum',
-                    'superclass',
-                    'class',
-                    'subclass',
-                    'infraclass',
-                    'superorder',
-                    'order',
-                    'suborder',
-                    'parvorder',
-                    'infraorder',
-                    'superfamily',
-                    'family',
-                    'subfamily',
-                    'tribe',
-                    'subtribe',
-                    'genus',
-                    'subgenus',
-                    'species group',
-                    'species subgroup',
-                    'species',
-                    'subspecies',
-                    'varietas',
-                    'forma',
-                    'no rank'));
+        'superkingdom', 'kingdom',
+        'superphylum', 'phylum', 'subphylum',
+        'superclass', 'class', 'subclass', 'infraclass',
+        'superorder', 'order', 'suborder', 'parvorder', 'infraorder',
+        'superfamily', 'family', 'subfamily',
+        'tribe', 'subtribe',
+        'genus', 'subgenus',
+        'species group', 'species subgroup', 'species', 'subspecies',
+        'varietas', 'forma', 'no rank'));
    }
 
    return $self;
@@ -385,10 +366,40 @@ sub add_node {
 
 sub binomial {
     my $self = shift;
+    return $self->get_node('species')->scientific_name;
     my $genus = $self->get_node('genus');
     my $species = $self->get_node('species');
     return ($species && $genus) ? "$species $genus" : undef;
 }
+
+=head2 get_node 
+
+  Title   : get_node
+  Usage   : $node = $taxonomy->get_node('species');
+  Function: get a Bio::Taxonomy::Node object according to rank name
+  Returns : a Bio::Taxonomy::Node object or undef if null
+  Args    : a vaild rank name
+
+=cut 
+
+sub get_node {
+    my ($self, $rank) = @_;
+    unless(grep /$rank/, keys %{$self->{_hierarchy}}){
+        $self->throw("'$rank' is not in the rank list");
+    }
+    return (exists $self->{_hierarchy}->{$rank})?
+        $self->{_hierarchy}->{$rank} : undef;
+}
+
+=head2 classification
+
+  Title   : classification
+  Usage   : @names = $taxonomy->classification;
+  Function: get the classification names of one taxonomy
+  Returns : array of names
+  Args    : [No arguments]
+
+=cut
 
 sub classification {
     my $self = shift;
@@ -397,9 +408,7 @@ sub classification {
     my @ordered_nodes = sort {
         ($rank_hash{$a} <=> $rank_hash{$b})
     } keys %hierarchy;
-    my @out;
-    @out = map {$hierarchy{$_}->scientific_name} @ordered_nodes ;
-    return @out;
+    return map {$hierarchy{$_}->scientific_name} @ordered_nodes;
 }
 
 1;
