@@ -556,9 +556,11 @@ because they are loaded at run time.
 The aggregator array may contain a list of aggregator names, a list of
 initialized aggregator objects, or a string in the form
 "aggregator_name{subpart1,subpart2,subpart3/main_method}" (the
-/main_method part is optional).  For example, if you wish to change
-the components aggregated by the transcript aggregator, you could pass
-it to the GFF constructor this way:
+"/main_method" part is optional, but if present a feature with the
+main_method must be present in order for aggregation to occur).  For
+example, if you wish to change the components aggregated by the
+transcript aggregator, you could pass it to the GFF constructor this
+way:
 
   my $transcript = 
      Bio::DB::Aggregator::transcript->new(-sub_parts=>[qw(exon intron utr
@@ -2069,7 +2071,10 @@ sub add_aggregator {
     my @subparts = split /,\s*/,$subparts;
     my @args = (-method      => $agg_name,
 		-sub_parts   => \@subparts);
-    push @args,(-main_method => $mainpart) if $mainpart;
+    if ($mainpart) {
+      push @args,(-main_method => $mainpart,
+		  -whole_object => 1);
+    }
     warn "making an aggregator with (@args), subparts = @subparts" if $self->debug;
     push @$list,Bio::DB::GFF::Aggregator->new(@args);
   }

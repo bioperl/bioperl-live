@@ -171,14 +171,16 @@ are as follows:
 
 sub new {
   my $class = shift;
-  my ($method,$main,$sub_parts) = rearrange(['METHOD',
-					     ['MAIN_PART','MAIN_METHOD'],
-					     ['SUB_METHODS','SUB_PARTS']
-					    ],@_);
+  my ($method,$main,$sub_parts,$whole_object) = rearrange(['METHOD',
+							   ['MAIN_PART','MAIN_METHOD'],
+							   ['SUB_METHODS','SUB_PARTS'],
+							   'WHOLE_OBJECT'
+							  ],@_);
   return bless {
 		method      => $method,
 		main_method => $main,
 		sub_parts   => $sub_parts,
+		require_whole_object => $whole_object,
 	       },$class;
 }
 
@@ -420,7 +422,12 @@ an object unless both its main part and its subparts are present.
 
 =cut
 
-sub require_whole_object {  0; }
+sub require_whole_object {
+  my $self = shift;
+  my $d    = $self->{require_whole_object};
+  $self->{require_whole_object} = shift if @_;
+  $d;
+}
 
 =head2 match_sub
 
