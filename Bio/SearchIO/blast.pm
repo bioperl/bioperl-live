@@ -347,10 +347,7 @@ sub next_result{
 		   $l =~ s/\,//g;
 		   $self->element({ 'Name' => 'Hit_len',
 				    'Data' => $l });
-		   last;
-	       }  elsif ( /Score/ ) {
-		   $self->_pushback($_);
-		   last;
+		   last;	       
 	       } else { 
 		   $restofline .= $_;
 	       }
