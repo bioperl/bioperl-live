@@ -89,7 +89,7 @@ sub draw {
     return $self->SUPER::draw(@_) unless eval {$self->feature->hit->seq};
     return $self->draw_multiple_alignment(@_);
   }
-      
+
   if ($self->option('draw_dna')) {
     return $self->SUPER::draw(@_) unless eval {$self->feature->seq};
     return $self->draw_dna(@_);
@@ -209,6 +209,7 @@ sub draw_multiple_alignment {
   my $strand               = $feature->strand;
   my $panel_left           = $self->panel->left;
   my $panel_right          = $self->panel->right;
+
 
   my ($bl,$bt,$br,$bb)     = $self->bounds($left,$top);
   $top = $bt;
