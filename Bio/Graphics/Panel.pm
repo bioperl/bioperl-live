@@ -824,6 +824,12 @@ sub color_names {
     return wantarray ? keys %COLORS : [keys %COLORS];
 }
 
+sub finished {
+  for my $track (@{shift->{tracks}}) {
+    $track->finished();
+  }
+}
+
 1;
 
 __DATA__
@@ -1084,6 +1090,8 @@ Bio::Graphics::Panel - Generate GD images of Bio::Seq objects
  }
 
  print $panel->png;
+ $panel->finished;
+
  exit 0;
 
 =head1 DESCRIPTION
@@ -1503,6 +1511,13 @@ the intermediate step of returning a GD::Image object.
 =item $svg = $panel-E<gt>svg
 
 The svg() method returns the image in an XML-ified SVG format.
+
+=item $panel-E<gt>finished
+
+Bio::Graphics creates memory cycles.  When you are finished with the
+panel, you should call its finished() method.  Otherwise you will have
+memory leaks.  This is only an issue if you're going to create several
+panels in a single program.
 
 =item $image_class = $panel-E<gt>image_class
 

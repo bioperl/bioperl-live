@@ -673,12 +673,12 @@ sub set {
 }
 
 # break circular references
-sub destroy {
+sub finished {
   my $self = shift;
   delete $self->{features};
 }
 
-sub DESTROY { shift->destroy(@_) }
+sub DESTROY { shift->finished(@_) }
 
 =over 4
 
