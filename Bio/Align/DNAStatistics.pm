@@ -1052,7 +1052,7 @@ sub _get_av_ds_dn {
 					z_score => $z,
 					};
 				$self->warn (" number of mutations too small to justify normal test for  $seqarray[$i]{'id'} and $seqarray[$j]{'id'}\n- use Fisher's exact, or bootstrap a MSA")
-					if $syn_count < 10 || $non_syn_count < 10;
+					if ($syn_count < 10 || $non_syn_count < 10 ) && $self->verbose > -1 ;
 				}#endif
 			}
 	}
