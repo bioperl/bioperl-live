@@ -206,6 +206,7 @@ sub get_Stream_by_batch {
        for ( @{$ref} ) {
 	   print $fh $_ . "\n";
        }
+       seek $fh, 0, 0;
        $filename = "tempfile.txt";
    } elsif ( $which eq '') { # $ref is a filename
        $fh = new IO::File $ref, "r";
@@ -228,7 +229,7 @@ sub get_Stream_by_batch {
    print "Content-length: " . length($wwwbuf) . "\015\012";
    print "\015\012";
    print $wwwbuf;
-   
+
    while (<$sock>) {
        if ( m,^HTTP/\d+\.\d+\s+(\d+)[^\012]\012, ) {
 	   my $code = $1;
