@@ -174,13 +174,15 @@ sub new {
   }
   $DB_BTREE->{'flags'} = R_DUP ;
   $DB_BTREE->{'compare'} = \&_compare;
+#  $DB_BTREE->{'compare'} = \&_comparepack;
+
   $self->{'_btreehash'} = {};
   $self->{'_btree'} = tie %{$self->{'_btreehash'}}, 
       'DB_File', $tmpname, O_RDWR|O_CREAT, 0640, $DB_BTREE;
 
 #  possibly storing/retrieving as floats for speed improvement?
-#  $self->{'_btree'}->filter_store_key  ( sub { $_ = pack ("f", $_) } );
-#  $self->{'_btree'}->filter_fetch_key  ( sub { $_ = unpack("f", $_) } );
+#  $self->{'_btree'}->filter_store_key  ( sub { $_ = pack ("d", $_) } );
+#  $self->{'_btree'}->filter_fetch_key  ( sub { $_ = unpack("d", $_) } );
 
   $self->{'_features'} = [];
   return $self;
@@ -211,9 +213,10 @@ sub add_features{
 	   next;
        }
        my $bin = bin($f->start,$f->end,$self->min_bin);       
-       $self->debug( "$bin for ". $f->location->to_FTstring(). "\n");
+
        push @{$self->{'_features'}}, $f;
        $self->{'_btreehash'}->{$bin} = $#{$self->{'_features'}};
+       $self->debug( "$bin for ". $f->location->to_FTstring(). " matches ".$#{$self->{'_features'}}. "\n");
        $count++;
    }
    return $count;
@@ -280,18 +283,19 @@ sub features_in_range{
    my $tier = $maxbin;
    my ($k,$v,@bins) = ("",undef);
    while ($tier >= $minbin) {
-       my ($tier_start,$tier_stop) = (bin_bot($tier,$start),
-				      bin_top($tier,$end));       
-       if( $tier_start == $tier_stop ) {	   
+	my ($tier_start,$tier_stop) = (bin_bot($tier,$start),
+				       bin_top($tier,$end));       
+       if( $tier_start == $tier_stop ) {
 	   my @vals = $self->{'_btree'}->get_dup($tier_start);
-	   if( @vals ) {
+	   if( scalar @vals > 0 ) {
 	       push @bins, map { $self->{'_features'}->[$_] } @vals;
 	   } 
        } else {	   
 	   $k = $tier_start;
-	   $self->{'_btree'}->seq($k,$v, R_CURSOR);	   
 	   my @vals;
-	   while( $self->{'_btree'}->seq($k,$v, R_NEXT) == 0 ) {
+	   for( my $rc = $self->{'_btree'}->seq($k,$v,R_CURSOR);
+	        $rc == 0;
+	        $rc = $self->{'_btree'}->seq($k,$v, R_NEXT) ) {
 	       last if( $k > $tier_stop || $k < $tier_start);
 	       push @vals, $v;
 	   }
@@ -299,7 +303,7 @@ sub features_in_range{
        }
        $tier /= 10;
    }   
-   
+   	       
    $strandmatch = 'ignore' unless defined $strandmatch;
    return ( $contain ) ? grep { $r->contains($_,$strandmatch) } @bins : 
        grep { $r->overlaps($_,$strandmatch)} @bins;
@@ -344,7 +348,7 @@ sub max_bin {
 }
 sub _compare{ $_[0] <=> $_[1]}
 
-sub _comparepack { unpack("f", $_[0]) <=> unpack("f", $_[1]) ;}
+sub _comparepack { unpack("d", $_[0]) <=> unpack("d", $_[1]) ;}
 
 sub DESTROY { 
     my $self = shift;
