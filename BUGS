@@ -5,6 +5,7 @@ Bioperl 0.7.1
 =============
  * Bio::Tools::BPlite does not parse and set frame properly for
    tblastx reports (Jitterbug bug # 978).
+ * If File::Temp is not installed, tempdirs are not cleaned up properly.
 
 Bioperl 0.7
 ===========
