@@ -348,7 +348,7 @@ sub parse_next_alignment {
 	   # store
 	   $exon->est_hit($fea2);
 	   # general properties
-	   $exon->source($self->analysis_method());
+	   $exon->source_tag($self->analysis_method());
 	   $exon->percentage_id($pctid);
 	   $exon->score($exon->percentage_id());
 	   # push onto array
