@@ -189,14 +189,14 @@ sub set_attributes {
     my ($self,@args) = @_;
     my ($start, $end, $strand, $primary_tag, $source_tag, $primary, $source, $frame, 
 	$score, $tag, $gff_string, $gff1_string,
-	$seqname, $seqid, $annot, $location) =
+	$seqname, $seqid, $annot, $location,$display_name) =
 	    $self->_rearrange([qw(START
 				  END
 				  STRAND
 				  PRIMARY_TAG
 				  SOURCE_TAG
-              PRIMARY
-              SOURCE
+				  PRIMARY
+				  SOURCE
 				  FRAME
 				  SCORE
 				  TAG
@@ -206,6 +206,7 @@ sub set_attributes {
 				  SEQ_ID
 				  ANNOTATION
 				  LOCATION
+				  DISPLAY_NAME
 				  )], @args);
     $location    && $self->location($location);
     $gff_string  && $self->_from_gff_string($gff_string);
@@ -213,16 +214,17 @@ sub set_attributes {
 	$self->gff_format(Bio::Tools::GFF->new('-gff_version' => 1));
 	$self->_from_gff_stream($gff1_string);
     };
-    $primary_tag    && $self->primary_tag($primary_tag);
-    $source_tag     && $self->source_tag($source_tag);
-    $primary        && $self->primary_tag($primary);
-    $source         && $self->source_tag($source);
-    defined $start  && $self->start($start);
-    defined $end    && $self->end($end);
-    defined $strand && $self->strand($strand);
-    defined $frame  && $self->frame($frame);
-    $score          && $self->score($score);
-    $annot          && $self->annotation($annot);
+    $primary_tag           && $self->primary_tag($primary_tag);
+    $source_tag            && $self->source_tag($source_tag);
+    $primary               && $self->primary_tag($primary);
+    $source                && $self->source_tag($source);
+    defined $start         && $self->start($start);
+    defined $end           && $self->end($end);
+    defined $strand        && $self->strand($strand);
+    defined $frame         && $self->frame($frame);
+    $score                 && $self->score($score);
+    $annot                 && $self->annotation($annot);
+    defined $display_name  && $self->display_name($display_name);
     if($seqname) {
 	$self->warn("-seqname is deprecated. Please use -seq_id instead.");
 	$seqid = $seqname unless $seqid;
