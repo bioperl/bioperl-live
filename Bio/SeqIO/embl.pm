@@ -226,13 +226,11 @@ sub next_seq {
    BEFORE_FEATURE_TABLE :
    until( !defined $buffer ) {
        $_ = $buffer;
-       # exit if we hit Sequence and there is no feature table
-       if( /^SQ/ ) {
-	   $self->_pushback($_);
+       # Exit at start of Feature table 
+       if( /^(F[HT]|SQ)/ ) {
+	   $self->_pushback($_) if( $1 eq 'SQ' );
 	   last;
        }
-       # Exit at start of Feature table 
-       last if /^F[HT]/;
 
        # Description line(s)
        if (/^DE\s+(\S.*\S)/) {
