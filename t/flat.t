@@ -22,7 +22,7 @@ BEGIN {
     }
     use Test;
 
-    $NUMTESTS = 7;
+    $NUMTESTS = 13;
     plan tests => $NUMTESTS;
     eval { 
 	require DB_File; 
@@ -56,7 +56,7 @@ my $verbose = 0;
 use Bio::Root::IO;
 use Cwd;
 my $cd = cwd();
-my $tmpdir = $cd."/t/tmp";
+my $tmpdir = Bio::Root::IO->catfile($cd,qw(t tmp));
 &maketmpdir();
 my $db = Bio::DB::Flat->new(-directory  => $tmpdir,
                             -index => 'bdb',
@@ -65,7 +65,7 @@ my $db = Bio::DB::Flat->new(-directory  => $tmpdir,
                  	    -write_flag => 1
                             );
 ok($db);
-my $dir = $cd."/t/data/AAC12660.fa";
+my $dir = Bio::Root::IO->catfile($cd,qw(t data AAC12660.fa));
 my $result = $db->build_index(glob($dir));
 ok($result);
 
@@ -83,29 +83,60 @@ $db = Bio::DB::Flat->new(-directory  => $tmpdir,
                          -write_flag => 1
 			 );
 
-$dir= $cd."/t/data/factor7.embl";
+$dir= Bio::Root::IO->catfile($cd,qw(t data factor7.embl));
 $result = $db->build_index(glob($dir));
 ok($result);
 $seq = $db->get_Seq_by_id('HSCFVII');
 ok($seq);
 ok($seq->length,12850);
 undef $db;
+&cleanup();
+&maketmpdir();
 
-#&maketmpdir();
-#my $db = Bio::DB::Flat->new(-directory  => $tmpdir,
-#                            -index => 'flat',
-#                            -format => 'fasta',
-#                            -verbose => 1,
-#                            -write_flag => 1
-#                            );
+$db = Bio::DB::Flat->new(-directory  => $tmpdir,
+			 -index => 'binarysearch',
+			 -format => 'swiss',
+			 -verbose => 1,
+			 -write_flag => 1
+			 );
+$dir= Bio::Root::IO->catfile($cd,qw(t data swiss.dat));
+$result = $db->build_index($dir);
+ok($result);
+$seq = $db->get_Seq_by_id('ACON_CAEEL');
 
+ok($seq);
+
+ok($seq->length,788);
+undef $db;
+
+&cleanup();
+&maketmpdir();
+
+
+$db = Bio::DB::Flat->new(-directory  => $tmpdir,
+			 -index => 'binarysearch',
+			 -format => 'fasta',
+			 -verbose => 1,
+			 -write_flag => 1
+			 );
+
+$dir= Bio::Root::IO->catfile($cd,qw(t data dbfa 1.fa));
+$result = $db->build_index($dir);
+ok($result);
+$seq = $db->get_Seq_by_id('AW057119');
+ok($seq);
+ok($seq->length,808);
+undef $db;
+
+&cleanup();
 
 sub maketmpdir {
     mkdir ($tmpdir,0777);
 }
-sub cleanup {    
+
+sub cleanup {
     eval { 
-      Bio::Root::IO->rmtree($tmpdir) if( defined $tmpdir && -d $tmpdir);
+	 Bio::Root::IO->rmtree($tmpdir) if( defined $tmpdir && -d $tmpdir);
     };
 } 
 
