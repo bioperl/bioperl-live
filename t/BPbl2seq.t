@@ -12,7 +12,7 @@ BEGIN {
 	use lib 't';
     }
     use Test;
-    plan tests => 20; 
+    plan tests => 57; 
 }
 
 use Bio::Tools::BPbl2seq;
@@ -42,3 +42,47 @@ ok $hsp->query->end, 343, "wrong query end";
 ok $hsp->subject->start, 60, "wrong hit start ";
 ok $hsp->subject->end, 360, "wrong hit end";
 ok $report->sbjctName =~ /ALEU_HORVU/;# "wrong hit name";
+
+$report = new Bio::Tools::BPbl2seq(-file => Bio::Root::IO->catfile("t","data","bl2seq.bug940.out"));
+
+$report->verbose(2);
+ok $report->isa('Bio::Tools::BPbl2seq');# " no report";
+ok defined($report->sbjctName),1, " no query";
+$hsp = $report->next_feature;
+ok $hsp->score, 1626, "wrong score";
+ok $hsp->bits, 637, "wrong score in bits ";
+ok $hsp->percent, 89.1, "wrong match percent";
+ok $hsp->P == 0.0;# "wrong expectation value ";
+ok $hsp->match, 311, "wrong number of matches ";
+ok $hsp->positive, 330, "wrong number of positives";
+ok $hsp->start, 121, 'wrong starting position';
+ok $hsp->end, 469, 'wrong ending position';
+ok $hsp->length, 349, "wrong length";
+ok $hsp->querySeq =~ /^MGN/; #"bad query sequence";
+ok $hsp->sbjctSeq =~ /^MGN/;#"bad hit sequence";
+ok $hsp->homologySeq =~ /^MGN/;# , "bad homology sequence";
+ok $hsp->query->start, 121, "wrong query start";
+ok $hsp->query->end, 469, "wrong query end";
+ok $hsp->subject->start, 1, "wrong hit start ";
+ok $hsp->subject->end, 469, "wrong hit end";
+ok $hsp->subject->seqname =~ /gi|4507985/;# "wrong hit name";
+
+$hsp = $report->next_feature;
+ok($hsp);
+ok $hsp->score, 1524, "wrong score";
+ok $hsp->bits, 598, "wrong score in bits ";
+ok $hsp->percent, 66.2, "wrong match percent";
+ok $hsp->P, 'e-175';# "wrong expectation value ";
+ok $hsp->match, 275, "wrong number of matches ";
+ok $hsp->positive, 324, "wrong number of positives";
+ok $hsp->start, 6, 'wrong starting position';
+ok $hsp->end, 420, 'wrong ending position';
+ok $hsp->length, 415, "wrong length";
+ok $hsp->querySeq =~ /^EKPY/; #"bad query sequence";
+ok $hsp->sbjctSeq =~ /^EKPY/;#"bad hit sequence";
+ok $hsp->homologySeq =~ /^EKPY/;# , "bad homology sequence";
+ok $hsp->query->start, 6, "wrong query start";
+ok $hsp->query->end, 420, "wrong query end";
+ok $hsp->subject->start, 22, "wrong hit start ";
+ok $hsp->subject->end, 464, "wrong hit end";
+ok $hsp->subject->seqname =~ /gi|4507985/;# "wrong hit name";
