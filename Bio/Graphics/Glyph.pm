@@ -4,6 +4,8 @@ use GD;
 use strict;
 use Carp 'croak';
 use constant BUMP_SPACING => 2; # vertical distance between bumped glyphs
+use vars '$VERSION';
+$VERSION = '1.00';
 
 my %LAYOUT_COUNT;
 
@@ -481,7 +483,7 @@ sub draw_connectors {
   }
 
   # extra connectors going off ends
-  if (@parts>1) {
+  if (@parts) {
     my($x1,$y1,$x2,$y2) = $self->bounds(0,0);
     my($xl,$xt,$xr,$xb) = $parts[0]->bounds;
     $self->_connector($gd,$dx,$dy,$x1,$xt,$x1,$xb,$xl,$xt,$xr,$xb);
