@@ -1,7 +1,7 @@
 #
 # $Id$
 #
-# BioPerl module for Bio::DB::EMBL
+# BioPerl module for Bio::DB::DBFetch
 #
 # Cared for by Heikki Lehvaslaiho <Heikki@ebi.ac.uk>
 #
