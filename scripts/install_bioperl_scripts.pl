@@ -13,10 +13,23 @@ use constant MODE    => 0555;         # -r-xr-xr-x
 my $install_dir = shift || $Config{installscript};
 my $prompt_mode = shift || 'n';
 
+my $usage = "
+
+usage:
+
+  perl install_bioperl_scripts.pl  install_dir  prompt_mode
+
+prompt_mode = 'a' (all) | 'i' (interactive) | 'n' (none)
+
+";
+
+die $usage unless $install_dir;
+
+
 $prompt_mode = 'all'  if $prompt_mode =~ /^a/i;
 $prompt_mode = 'none' if $prompt_mode =~ /^n/i;
 $prompt_mode = 'some' if $prompt_mode =~ /^i/i;
-exit 0 if $prompt_mode eq 'none';
+die $usage if $prompt_mode eq 'none';
 
 print "\n** BioPerl Scripts Install** \n\n";
 
