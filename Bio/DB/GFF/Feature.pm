@@ -1083,12 +1083,10 @@ sub name {
 sub gff_string {
   my $self = shift;
   my $version = $self->version;
-print STDERR "version $self $version\n";
   
   # gff3_string and gff_string are synonymous if the version is set to 3
   return $self->gff3_string(@_) if $version == 3;
-print STDERR "version not 3\n";
-
+  
   my ($start,$stop) = ($self->start,$self->stop);
 
   # the defined() tests prevent uninitialized variable warnings, when dealing with clone objects
@@ -1097,14 +1095,11 @@ print STDERR "version not 3\n";
 
   my ($class,$name) = ('','');
   my $strand = ('-','.','+')[$self->strand+1];
-print STDERR "strand ".($self->strand)." $strand\n";
 
   my @group;
-print STDERR "testing target".($self->target)."\n";
 
   if (my $t = $self->target) {
 #    $strand = '-' if $t->stop < $t->start;
-print STDERR "FLATTENING $t\n";
     push @group, $version == 2.5 ? $self->flatten_target($t,2.5) 
                                  : $self->flatten_target($t);
   }
