@@ -26,7 +26,9 @@ Bio::TreeIO - Parser for Tree files
 }
 =head1 DESCRIPTION
 
-Describe the object here
+This is the driver module for Tree reading from data streams and
+flatfiles.  This is intended to be able to create Bio::Tree::TreeI
+objects.
 
 =head1 FEEDBACK
 
