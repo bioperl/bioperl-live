@@ -88,7 +88,7 @@ classes based on name only.
 
 sub count {
     printf "Instance : %3d\n", scalar (grep /instance/ , values %MODULES);
-    printf "Inteface : %3d\n", scalar (grep /interface/ , values %MODULES);
+    printf "Interface: %3d\n", scalar (grep /interface/ , values %MODULES);
     printf "Component: %3d\n", scalar (grep /component/ , values %MODULES);
     print  "--------------\n";
     printf "Total    : %3d\n", scalar (keys %MODULES);
