@@ -141,6 +141,7 @@ use Symbol;
  Args    : -file     input file (alternative to -fh)
            -fh       input stream (alternative to -file)
            -queryname    name of query sequence
+           -report_type What type of BLAST was run (blastn,blastp,tblastn...)
 
 =cut
 
@@ -150,11 +151,18 @@ sub new {
     # initialize IO
     $self->_initialize_io(@args);
 
+    my ($queryname,$rt) = $self->_rearrange([qw(QUERYNAME 
+						REPORT_TYPE)], @args);
+    $queryname = 'unknown' if( ! defined $queryname );
+    if( $rt && $rt =~ /BLAST/i ) {
+	$self->{'BLAST_TYPE'} = uc($rt);
+    } else { 
+	$self->warn("Must provide which type of BLAST was run (blastp,blastn, tblastn, tblastx, blastx) if you want strand information to get set properly for DNA query or subjects");
+    }
+
     my $sbjct = $self->getSbjct();
     $self->{'_current_sbjct'} = $sbjct;
 
-    my ($queryname) = $self->_rearrange([qw(QUERYNAME)], @args);
-    $queryname = 'unknown' if( ! defined $queryname );
     $self->{'_query'}->{'NAME'} = $queryname;
     return $self;
 }
