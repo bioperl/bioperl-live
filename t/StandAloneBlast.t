@@ -62,12 +62,20 @@ my $nt_database_file = Bio::Root::IO->catfile($Bio::Tools::Run::StandAloneBlast:
 ok($nt_database_file, qr/$nt_database/);
 my $amino_database_file = Bio::Root::IO->catfile($Bio::Tools::Run::StandAloneBlast::DATADIR, $amino_database);
 my $file_present = -e $nt_database_file;
-my $file_present2 = -e $amino_database_file;
-unless ($blast_present && $file_present && $file_present2) {
-    warn "blast program or databases [$nt_database,$amino_database] not found. Skipping rest of tests\n";
-    exit 0;
+my $exit;
+unless ($file_present) {
+   warn "Blast Database $nt_database not found";
+   $exit=1;
 }
-
+my $file_present2 = -e $amino_database_file;
+unless ($file_present2) {
+    warn "Blast Database $amino_database not found";
+    $exit=1;
+}
+if ($exit) {
+   warn"Blast databases(s) not found, skipping remaining  tests";
+   exit(0);
+}
 if ($nt_database eq 'ecoli.nt') {	
 	$testresults[3] = '$blast_report->num_hits == 1' ;
 	$testresults[4] = '$hsp->score == 182';
