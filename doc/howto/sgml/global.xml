@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+
+<!-- e-novative DocBook environment -->
+<!-- global entities                -->
+<!-- (c) 2002 e-novative GmbH       -->
+<!-- http://www.e-novative.de       -->
+
+<!ENTITY global_entity "global entity (can be included in every document)">

@@ -1,13 +1,11 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
 <!DOCTYPE article
   PUBLIC "-//OASIS//DTD DocBook XML V4.2//EN" "./docbookx.dtd"
-  [
-    <!ENTITY % global.entities SYSTEM "./global.xml">
+  [ <!ENTITY % global.entities SYSTEM "./global.xml">
     %global.entities;
 
-    <!ENTITY % entities SYSTEM "entities.xml">
-    %entities;
-  ]
+    <!ENTITY % entities SYSTEM "./entities.xml">
+    %entities; ]
 >
 
 <article lang="en">
@@ -381,10 +379,11 @@ Internet, point your browser at http://www.perl.com/, the Perl Home Page.
 		  $seq_obj = Bio::Seq->new(-seq => "aaaatgggggggggggccccgtt");
 		</programlisting>
     </para>
-	 <para>
-		When you assign a value to an object it's said that you that 
-		you have <emphasis>set</emphasis> a value.
-	 </para>
+		<para>
+		  When you assign a value to an object it's said that you that 
+		  you have <emphasis>set</emphasis> a value. When you ask an object for
+		  a value it's said that you <emphasis>get</emphasis> a value.
+		</para>
 	 <para>
       <note>
 		  <para>
@@ -403,7 +402,7 @@ Internet, point your browser at http://www.perl.com/, the Perl Home Page.
 		of the object or variable, the module name, the
 		string <emphasis>new</emphasis>, some argument name like
 		<emphasis>-seq</emphasis>, the <emphasis>=></emphasis>, and then
-		the argument itself, like
+		the argument or value itself, like
 		<emphasis>aaaatgggggggggggccccgtt</emphasis>.
 	 </para>
 	 <para>
@@ -471,10 +470,12 @@ Internet, point your browser at http://www.perl.com/, the Perl Home Page.
 		to files. This object is the <classname>Bio::SeqIO</classname> object, 
 		where IO stands for <emphasis>I</emphasis>nput-<emphasis>O</emphasis>utput.
 		By using Bio::SeqIO in this manner you will be able to get input
-		and output from all of the sequence file formats supported by Bioperl.
+		and output from all of the sequence file formats supported by Bioperl
+		(the <ulink url="http://bioperl.org/HOWTOs/SeqIO/index.html">
+		  SeqIO HOWTO</ulink> has a complete list of supported formats).
 		The way you create <classname>Bio::SeqIO</classname> objects is 
 		very similar to the way we used <function>new()</function> to
-		create a <classname>Bio::Seq</classname> object:
+		create a <classname>Bio::Seq</classname>, or sequence, object:
 	 </para>    
 	 <para>
 		<programlisting>
@@ -485,6 +486,11 @@ Internet, point your browser at http://www.perl.com/, the Perl Home Page.
 		</programlisting> 
 	 </para> 
 	 <para>
+		Note that <emphasis>&gt;<emphasis> character in the -file argument.
+			 This indicates that we're going to
+			 <emphasis>write</emphasis> to the file named
+			 "sequence.fasta", the same character we'd use if we were using Perl's
+			 <function>open()</function> function to write to a file.
     </para>
     <para>
     </para>
@@ -494,8 +500,9 @@ Internet, point your browser at http://www.perl.com/, the Perl Home Page.
 	 <title>Retrieving a sequence from a file</title>
 		
 	 <para>
-		A common beginner's mistake is to choose to not use
-		<classname>Bio::SeqIO</classname>. This is understandable, as you
+		A common beginner's mistake is to not use
+		<classname>Bio::SeqIO</classname> when working with sequence
+		files. This is understandable in some respects, you
 		may have read about Perl's <function>open</function>
 		function, and Bioperl's way of retrieving sequences looks odd
 		and overly complicated, at first. But don't use
@@ -519,32 +526,6 @@ Internet, point your browser at http://www.perl.com/, the Perl Home Page.
 		</programlisting>
 	 </para>
 		  
-	 <para>
-		This line does several things:
-		<simplelist type="horiz" columns="1">
-		  <member>
-			 The word "my" tells the Perl interpreter that this is the
-			 first time that the variable $seqio has been used, and it
-			 also defines the scope of $seqio. Writing "my" before the
-			 first use of a variable is a requirement when "using strict."
-		  </member>
-		  <member>
-			 The new method of the Bio::SeqIO module is called. This method
-			 is used to construct and return a new Bio::SeqIO object.
-		  </member>
-		  <member>
-			 This method is passed two arguments: a file value "seq.fasta" and
-			 a format value of "fasta". These arguments tell Bio::SeqIO that
-			 $seqio will read sequence information from a file named seq.fasta
-			 that is stored in the FASTA sequence file format.
-		  </member>
-		  <member>
-			 The object returned by the "new" method is assigned to the scalar
-			 variable $seqio. 
-		  </member>
-		</simplelist>
-	 </para>
-	 
   </section>
 
   <section id="retrieving_gb">
@@ -850,4 +831,35 @@ while( my $seq = $seq_in->next_seq() ) {
 			 </tbody>
 		  </tgroup>
       </table>
+-->
+
+<!--
+
+
+	 <para>
+		This line does several things:
+		<simplelist type="horiz" columns="1">
+		  <member>
+			 The word "my" tells the Perl interpreter that this is the
+			 first time that the variable $seqio has been used, and it
+			 also defines the scope of $seqio. Writing "my" before the
+			 first use of a variable is a requirement when "using strict."
+		  </member>
+		  <member>
+			 The new method of the Bio::SeqIO module is called. This method
+			 is used to construct and return a new Bio::SeqIO object.
+		  </member>
+		  <member>
+			 This method is passed two arguments: a file value "seq.fasta" and
+			 a format value of "fasta". These arguments tell Bio::SeqIO that
+			 $seqio will read sequence information from a file named seq.fasta
+			 that is stored in the FASTA sequence file format.
+		  </member>
+		  <member>
+			 The object returned by the "new" method is assigned to the scalar
+			 variable $seqio. 
+		  </member>
+		</simplelist>
+	 </para>
+	 
 -->
