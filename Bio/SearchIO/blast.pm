@@ -210,7 +210,8 @@ sub next_result{
    
    my $data = '';
    my $seentop = 0;
-   my $reporttype;
+   my ($reporttype,$seenquery,$reportline);
+   
    $self->start_document();
    my @hit_signifs;
    while( defined ($_ = $self->_readline )) {       
@@ -218,7 +219,8 @@ sub next_result{
        next if( /CPU time:/);
        next if( /^>\s*$/);
        
-       if( /^([T]?BLAST[NPX])\s*(.+)$/i ) {
+       if( /^([T]?BLAST[NPX])\s*(.+)$/i ||
+	   /^(RPS-BLAST)\s*(.+)$/i ) {
 	   if( $seentop ) {
 	       $self->_pushback($_);
 	       $self->end_element({ 'Name' => 'BlastOutput'});
@@ -227,14 +229,26 @@ sub next_result{
 	   $self->start_element({ 'Name' => 'BlastOutput' } );
 	   $seentop = 1;
 	   $reporttype = $1;
+	   $reportline = $_; # to fix the fact that RPS-BLAST output is wrong
 	   $self->element({ 'Name' => 'BlastOutput_program',
 			    'Data' => $reporttype});
 	   
 	   $self->element({ 'Name' => 'BlastOutput_version',
 			    'Data' => $2});
-       } elsif ( /^Query=\s*(.+)$/ ) {
+       } elsif ( /^Query=\s*(.+)$/ ) {	   
 	   my $q = $1;
-	   my $size = 0;      
+	   my $size = 0;
+
+	   if( defined $seenquery ) {
+	       $self->_pushback($reportline.$_);
+	       $self->end_element({'Name' => 'BlastOutput'});
+	       return $self->end_document();
+	   } else { 
+	       if( ! defined $reporttype ) {
+		   $self->start_element({'Name' => 'BlastOutput'});
+	       }
+	   }
+	   $seenquery = $q;
 	   $_ = $self->_readline;
 	   while( defined ($_) && $_ !~ /^\s+$/ ) {	
 	       chomp;
@@ -414,7 +428,7 @@ sub next_result{
 	   $self->element({'Name' => 'Hsp_hit-frame',
 			   'Data' => $hitframe});
        } elsif(  /^Parameters:/ || /^\s+Database:\s+?/ || 
-		 ( $self->in_element('hsp') && (/WARNING/ || /NOTE/)) ) {
+		 ( $self->in_element('hsp') && (/WARNING/ || /NOTE/ )) ) {
 	   $self->in_element('hsp') && $self->end_element({'Name' => 'Hsp'});
 	   $self->in_element('hit') && $self->end_element({'Name' => 'Hit'});
 	   my $blast = ( /Parameters\:/ ) ? 'wublast' : 'ncbi'; 
@@ -448,7 +462,7 @@ sub next_result{
 		   } elsif( /nogaps/ ) {
 		       $self->element({'Name' => 'Parameters_allowgaps',
 				       'Data' => 'no'});
-		   } elsif( $last =~ /(Frame|Strand)\s+MatID\s+Matrix name/i ) {
+		   } elsif( $last =~ /(Frame|Strand)\s+MatID\s+Matrix name/i ){
 		       s/^\s+//;
                        #throw away first two slots
 		       my @vals = split;
@@ -552,7 +566,12 @@ sub next_result{
 	   for( my $i = 0; 
 		defined($_) && $i < 3; 
 		$i++ ){	       
-	       chomp;		       
+	       chomp;
+	       if( ($i == 0 &&  /^\s+$/) ||  /^\s*Lambda/i ) { 
+		   $self->_pushback($_) if defined $_;
+		   $self->end_element({'Name' => 'Hsp'});
+		   last; 
+	       }
 	       if( /^((Query|Sbjct):\s+(\d+)\s*)(\S+)\s+(\d+)/ ) {
 		   $data{$2} = $4;
 		   $len = length($1);
