@@ -384,6 +384,8 @@ sub _load_module {
     # a fix by Lincoln) HL
     if ($name !~ /^([\w:]+)$/) {
 	$self->throw("$name is an illegal perl package name");
+    } else { 
+	$name = $1;
     }
 
     $load = "$name.pm";
