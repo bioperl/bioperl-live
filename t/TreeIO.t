@@ -121,11 +121,14 @@ $tree = $treeio->next_tree();
 ok(@nodes, 4);
 # no relable order for the bottom nodes because they have no branchlen
 my @vals = qw(SINFRUP0000006110);
+my $saw = 0;
 foreach my $node ( $tree->get_root_node()->each_Descendent() ) {
-    ok($node->id, shift @vals);
-    last;
+	foreach my $v ( @vals ) {
+	   if( $node->id eq $v ){ $saw = 1; last; }
+	}
+	last if $saw;
 }
-
+ok($saw, 1, "Did not see $vals[0] as expected\n");
 if( $verbose ) {
     foreach my $node ( @nodes ) {
 	print "\t", $node->id, "\n";
