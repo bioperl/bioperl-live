@@ -152,8 +152,7 @@ sub map_no_trunc {
 
 sub scale {
   my $self = shift;
-#  $self->{scale} ||= ($self->{width}-$self->pad_left-$self->pad_right-1)/($self->length-1);  # wrong!
-  $self->{scale} ||= ($self->{width}-$self->pad_left-$self->pad_right)/($self->length);   # right, but I don't want to fix regression tests!
+  $self->{scale} ||= ($self->{width}-$self->pad_left-$self->pad_right)/($self->length);
 }
 
 sub start { shift->{offset}+1}
@@ -257,6 +256,8 @@ sub _do_add_track {
 
   $glyph_name = $map if defined $map;
   $glyph_name ||= 'generic';
+
+  local $^W = 0;  # uninitialized variable warnings under 5.00503
 
   my $panel_map =
     ref($map) eq 'CODE' ?  sub {
