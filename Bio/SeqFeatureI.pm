@@ -382,7 +382,7 @@ sub spliced_seq {
 	if( $loc->strand == 1 ) {
 	    $seqstr .= $called_seq->subseq($loc->start,$loc->end);
 	} else {
-	    $seqstr .= $called_seq->trunc($loc->start,$loc->end)->complement;
+	    $seqstr .= $called_seq->trunc($loc->start,$loc->end)->revcom;
 	}
 
     }
