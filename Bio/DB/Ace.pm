@@ -156,7 +156,7 @@ sub get_Seq_by_id {
   $dna =~ s/^>.*\n//;
   $dna =~ s/\n//g;
 
-  $out = Bio::Seq->new( -id => $id, -type => 'Dna', -seq => $dna, -name => "Sequence from Bio::DB::Ace $id");
+  $out = Bio::Seq->new( -id => $id, -alphabet => 'Dna', -seq => $dna, -name => "Sequence from Bio::DB::Ace $id");
   return $out;
 
 }
