@@ -151,8 +151,6 @@ sub next_aln {
 }
 
 
-
-
 =head2 write_aln
 
  Title   : write_aln
@@ -187,14 +185,10 @@ sub write_aln {
 	    $name = "Align";
 	}
 
-
 	$self->_print (sprintf("\n%s   MSF: %d  Type: %s  %s  Check: 00 ..\n\n", 
 			       $name,  $aln->no_sequences, $type, $date));
 
-
 	foreach $seq ( $aln->each_seq() ) {
-
-
 	    $name = $aln->displayname($seq->get_nse());
 	    $miss = $maxname - length ($name);
 	    $miss += 2;
@@ -211,6 +205,7 @@ sub write_aln {
 
     	while( $count < $length ) {	
 	    # there is another block to go!
+	    $self->_print (sprintf("%22s%-27d%27d\n",' ',$count+1,$count+50));
 	    foreach $name  ( @arr ) {
 	    	$self->_print (sprintf("%-20s  ",$name));
 

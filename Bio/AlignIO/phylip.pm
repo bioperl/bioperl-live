@@ -300,6 +300,7 @@ sub write_aln {
 		    $self->_print (sprintf("%".($idlength+3)."s",$dispname));
 		    $tempcount = $count;
 		    $index = 0;
+                    $self->debug("residue count: $count\n") if ($count%100000 == 0);
 		    while( ($tempcount + $idlength < $length) && ($index < 5)  ) {
 			$self->_print (sprintf("%s ",substr($hash{$name},
 							    $tempcount,

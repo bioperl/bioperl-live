@@ -29,7 +29,9 @@ Do not use this module directly.  Use it via the L<Bio::AlignIO> class, as in:
 
     use Bio::AlignIO;
 
-    $in  = Bio::AlignIO->new(-file => "inputfilename" , '-format' => 'bl2seq');
+    $in  = Bio::AlignIO->new(-file   => "inputfilename" , 
+                             -format => "bl2seq",
+			     -report_type => "blastn");
     $aln = $in->next_aln();
 
 
@@ -52,6 +54,7 @@ manipulated using any SimpleAlign.pm methods, eg:
    $factory = Bio::Tools::StandAloneBlast->new('program' => 'blastp', 
 					       'outfile' => 'bl2seq.out');
    my $bl2seq_report = $factory->bl2seq($seq3, $seq4);
+   # Note that report is a Bio::SearchIO object
 
    # Use AlignIO.pm to create a SimpleAlign object from the bl2seq report
    $str = Bio::AlignIO->new(-file=> 'bl2seq.out','-format' => 'bl2seq');
@@ -101,14 +104,26 @@ use Bio::SearchIO;
 
 @ISA = qw(Bio::AlignIO);
 
+=head2 new
+
+ Title   : new
+ Usage   : my $alignio = Bio::SimpleAlign->new(-format => 'bl2seq',
+                                               -file   => 'filename',
+                                               -report_type => 'blastx');
+ Function: Get a L<Bio::SimpleAlign> 
+ Returns : L<Bio::SimpleAlign> object
+ Args    : -report_type => report type (blastn,blastx,tblastx,tblastn,blastp)
+
+
+=cut
+
 
 sub new { 
     my ($class) = shift;
     my $self = $class->SUPER::new(@_);
     my ($rt) = $self->_rearrange([qw(REPORT_TYPE)],@_);
-    $self->report_type($rt);
-    $self;
-    
+    defined $rt && $self->report_type($rt);
+    return $self;
 }
 
 =head2 next_aln

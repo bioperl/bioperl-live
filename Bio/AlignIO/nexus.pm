@@ -61,6 +61,43 @@ BEGIN {
     %valid_type = map {$_, 1} qw( dna rna protein standard);
 }
 
+=head2 new
+
+ Title   : new
+ Usage   : $alignio = new Bio::AlignIO(-format => 'nexus', 
+				       -file => 'filename');
+ Function: returns a new Bio::AlignIO object to handle clustalw files
+ Returns : Bio::AlignIO::clustalw object
+ Args    : -verbose => verbosity setting (-1,0,1,2)
+           -file    => name of file to read in or with ">" - writeout
+           -fh      => alternative to -file param - provide a filehandle 
+                       to read from/write to 
+           -format  => type of Alignment Format to process or produce
+
+           Customization of nexus flavor output
+
+           -show_symbols => print the symbols="ATGC" in the data definition
+                            (MrBayes does not like this)
+                            boolean [default is 1] 
+           -show_endblock => print an 'endblock;' at the end of the data
+                            (MyBayes does not like this)
+                            boolean [default is 1] 
+=cut
+
+sub _initialize {
+    my ($self, @args) = @_;
+    $self->SUPER::_initialize(@args);
+    my ($show_symbols, $endblock) = 
+	$self->_rearrange([qw(SHOW_SYMBOLS SHOW_ENDBLOCK)], @args);
+    my @names = qw(symbols endblock);
+    for my $v ( $show_symbols, $endblock ) {
+	$v = 1 unless defined $v; # default value is 1
+	my $n = shift @names;
+	$self->flag($n, $v);
+    }
+}
+
+
 =head2 next_aln
 
  Title   : next_aln
@@ -82,7 +119,9 @@ BEGIN {
  Returns : L<Bio::Align::AlignI> object
  Args    :
 
+
 =cut
+
 
 sub next_aln {
     my $self = shift;
@@ -112,26 +151,38 @@ sub next_aln {
 
     # data and taxa blocks
     my $taxlabels;
+    my $incomment;
     while ($entry = $self->_readline) {
 	local ($_) =  $entry;
-
+	next if s/\[[^\]]+\]//g; # remove comments
+	if( s/\[[^\]]+$// ) {
+	    $incomment = 1;
+	    next unless length($_); # skip the line if it is now empty
+	} elsif($incomment) {
+	    if( s/^[^\]]*\]// ) {
+		$incomment = 0;
+	    } else { 
+		next;
+	    }
+	}
 	# read in seq names if in taxa block
 	$taxlabels = 1 if /taxlabels/i;
+
 	if ($taxlabels) {
 	    @names = $self->_read_taxlabels;
 	    $taxlabels = 0;
 	}
 
-	/ntax ?= ?(\d+)/i and $seqcount = $1;
-	/nchar ?= ?(\d+)/i and $residuecount = $1;
-	/matchchar ?= ?(.)/i and $match = $1;
-	/gap ?= ?(.)/i and $gap = $1;
-	/missing ?= ?(.)/i and $missing = $1;
-	/equate ?= ?"([^\"]+)/i and $equate = $1;  # "e.g. equate="T=C G=A";
-	/datatype ?= ?(\w+)/i and $alphabet = lc $1;
-	/interleave/i and $interleave = 1 ;
+	/ntax\s*=\s*(\d+)/i        and $seqcount = $1;
+	/nchar\s*=\s*(\d+)/i       and $residuecount = $1;
+	/matchchar\s*=\s*(.)/i     and $match = $1;
+	/gap\s*=\s*(.)/i           and $gap = $1;
+	/missing\s*=\s*(.)/i       and $missing = $1;
+	/equate\s*=\s*\"([^\"]+)/i and $equate = $1;  # "e.g. equate="T=C G=A";
+	/datatype\s*=\s*(\w+)/i    and $alphabet = lc $1;
+	/interleave/i              and $interleave = 1 ;
 
-	last if /matrix/i;
+	last if /matrix/io;
     }
     $self->throw("Not a valid NEXUS sequence file. Datatype not specified")
 	unless $alphabet;
@@ -156,11 +207,13 @@ sub next_aln {
     # matrix command
     #
     # first alignment section
-    if (@names == 0) {  # taxa block did not exist
+    if (@names == 0) {		# taxa block did not exist
 	while ($entry = $self->_readline) {
 	    local ($_) =  $entry;
+	    if( s/\[[^\]]+\]//g ) { #]  remove comments
+		next unless length($_);
+            }
 
-	    s/\[[^[]+\]//g; #] remove comments
 	    if ($interleave) {
 		/^\s+$/ and last;
 	    } else {
@@ -168,27 +221,28 @@ sub next_aln {
 	    }
 	    /^\s*;\s*$/ and last;
 	    if (/^\s*('([^']*?)'|([^']\S*))\s+(.*)\s$/) { #'
-		 $name = ($2 || $3);
-		 $str = $4;
-		 $name =~ s/ /_/g;
-		 push @names, $name;
+		$name = ($2 || $3);
+		$str = $4;
+		$name =~ s/ /_/g;
+		push @names, $name;
 
-		 $str =~ s/\s//g;
-		 $count =  @names;
-		 $hash{$count} = $str;
-	     };
+		$str =~ s/\s//g;
+		$count =  @names;
+		$hash{$count} = $str;
+							};
 	    $self->throw("Not a valid interleaved NEXUS file!
 seqcount [$count] > predeclared [$seqcount] in the first section") if $count > $seqcount;
 	}
-    }
+		     }
 
     # interleaved sections
     $count = 0;
     while( $entry = $self->_readline) {
 	local ($_) =  $entry;
-	s/\[[^[]+\]//g; #] remove comments
+	if( s/\[[^\]]+\]//g ) { #]  remove comments	    
+	    next unless length($_);
+	}
 	last if /^\s*;/;
-
 	$count = 0, next if $entry =~ /^\s*$/;
         if (/^\s*('([^']*?)'|([^']\S*))\s+(.*)\s$/) { #'
 	    $str = $4;
@@ -240,7 +294,8 @@ seqcount [$count] > predeclared [$seqcount] ") if $count > $seqcount;
 	$aln->map_chars($1, $2) while $equate =~ /(\S)=(\S)/g;
     }
 
-    while  ($entry !~ /endblock/i) {
+    while  (defined $entry &&
+	    $entry !~ /endblock/i) {
         $entry = $self->_readline;
     }
 
@@ -296,7 +351,9 @@ sub write_aln {
 	$match = "match=". $aln->match_char if $aln->match_char;
 	$missing = "missing=". $aln->missing_char if $aln->missing_char;
 	$gap = "gap=". $aln->gap_char if $aln->gap_char;
-	$symbols = 'symbols="'.join('',$aln->symbol_chars). '"' if( $aln->symbol_chars);
+
+	$symbols = 'symbols="'.join('',$aln->symbol_chars). '"' 
+	    if( $self->flag('symbols') && $aln->symbol_chars);
 	$self->_print (sprintf("format interleave datatype=%s %s %s %s %s;\n\nmatrix\n",
 			       $aln->get_seq_by_pos(1)->alphabet, $match, $missing, $gap, $symbols));
 
@@ -334,10 +391,31 @@ sub write_aln {
 	    $count = $tempcount;
 	    $wrapped = 1;
 	}
-	$self->_print (";\n\nendblock;\n");
+	if( $self->flag('endblock') ) {
+	    $self->_print (";\n\nendblock;\n");
+	} else { 
+	    $self->_print (";\n\nend;\n");
+	}
     }
     $self->flush if $self->_flush_on_write && defined $self->_fh;
     return 1;
+}
+
+=head2 flag
+
+ Title   : flag
+ Usage   : $obj->flag($name,$value)
+ Function: Get/Set a flag value
+ Returns : value of flag (a scalar)
+ Args    : on set, new value (a scalar or undef, optional)
+
+
+=cut
+
+sub flag{
+    my ($self,$name,$val) = @_;
+    return $self->{'flag'}->{$name} = $val if defined $val;
+    return $self->{'flag'}->{$name};
 }
 
 1;

@@ -119,6 +119,10 @@ sub next_aln {
     my ($self) = @_;
 
     my $first_line;
+    while($first_line = $self->_readline){
+      last if $first_line!~/^$/;
+    }
+    $self->_pushback($first_line);
     if( defined ($first_line  = $self->_readline ) 
 	&& $first_line !~ /CLUSTAL/ ) {	
 	$self->warn("trying to parse a file which does not start with a CLUSTAL header");
@@ -131,6 +135,13 @@ sub next_aln {
     $self->{_lastline} = '';
     while( defined ($_ = $self->_readline) ) {
 	next if ( /^\s+$/ );	
+
+    #break the loop if we come to the end of the current alignment
+    #and push back the CLUSTAL header
+    if(/CLUSTAL/){
+      $self->_pushback($_);
+      last;
+    }
 
 	my ($seqname, $aln_line) = ('', '');	
 	if( /^\s*(\S+)\s*\/\s*(\d+)-(\d+)\s+(\S+)\s*$/ ) {
