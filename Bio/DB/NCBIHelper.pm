@@ -303,7 +303,7 @@ sub postprocess_data {
 		    $data .= "$contig\n//";
 		}
 	else {
-	    $data =~ s/<a href=.+>(\S+)<\/a\>/$1/ig;
+	    $data =~ s/<a\s+href\s*=.+>\s*(\S+)\s*<\s*\/a\s*\>/$1/ig;
 	}
 
 	# fix gt and lt
