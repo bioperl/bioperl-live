@@ -2,8 +2,8 @@ package Bio::Graphics::Glyph::ellipse;
 
 use strict;
 use vars '@ISA';
-use Bio::Graphics::Glyph;
-@ISA = 'Bio::Graphics::Glyph';
+use Bio::Graphics::Glyph::generic;
+@ISA = 'Bio::Graphics::Glyph::generic';
 
 # override draw_component to draw an oval rather than a rectangle (weird)
 sub draw_component {
@@ -14,6 +14,8 @@ sub draw_component {
   $self->filled_oval($gd,
 		     $x1, $y1,
 		     $x2, $y2);
+
+  $self->draw_label($gd,@_) if $self->option('label');
 }
 
 1;
