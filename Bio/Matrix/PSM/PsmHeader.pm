@@ -59,6 +59,7 @@ use vars qw(@ISA);
 					    length instances unstructured);
 @Bio::Matrix::PSM::PsmHeader::MEMEHEADER=qw(html version release hid weight length unstructured);
 @Bio::Matrix::PSM::PsmHeader::TRANSFACHEADER=qw(unstructured version release);
+@Bio::Matrix::PSM::PsmHeader::PSIBLASTHEADER=qw(seq width);
 @Bio::Matrix::PSM::PsmHeader::ALLHEADER=qw(header release type version html 
 					   release weight length id 
 					   seq instances unstructured);
@@ -288,6 +289,7 @@ sub _check {
       if ($type eq 'meme') { return undef unless (grep(/$method/,@Bio::Matrix::PSM::PsmHeader::MEMEHEADER)); last TYPE; }
       if ($type eq 'mast') { return undef unless (grep(/$method/,@Bio::Matrix::PSM::PsmHeader::MASTHEADER)); last TYPE; }
       if ($type eq 'transfac') { return undef unless (grep(/$method/,@Bio::Matrix::PSM::PsmHeader::TRANSFACHEADER)); last TYPE; }
+      if ($type eq 'psiblast') { return undef unless (grep(/$method/,@Bio::Matrix::PSM::PsmHeader::PSIBLASTHEADER)); last TYPE; }
   }
     return 1;
 }
