@@ -1164,26 +1164,26 @@ sub _post_mutation {
 	#$seqDiff->add_Variant($self->rnachange);
 
 	my $aachange=$self->aachange;
-	 my ($AAobj,$aa_start_prelabel,$aa_start,$mut_translation);
-	 $AAobj=$self->RNA->get_Translation;
-	 $aa_start_prelabel=$aachange->start;
-	 $aa_start=$AAobj->position($self->RNA->label(2,$aa_start_prelabel));
-	 $aachange->start($aa_start);
-	 $mut_translation=$AAobj->seq;
+	my ($AAobj,$aa_start_prelabel,$aa_start,$mut_translation);
+	$AAobj=$self->RNA->get_Translation;
+	$aa_start_prelabel=$aachange->start;
+	$aa_start=$AAobj->position($self->RNA->label(2,$aa_start_prelabel));
+	$aachange->start($aa_start);
+	$mut_translation=$AAobj->seq;
+	
+	# this now takes in account possible preinsertions
+	my $aa_m = Bio::Variation::Allele->new;
+	$aa_m->seq(substr($mut_translation,$aa_start-1)) if substr($mut_translation,$aa_start-1);
+	$aachange->allele_mut($aa_m);
+	$aachange->add_Allele($aa_m);
+	#$aachange->allele_mut(substr($mut_translation,$aa_start-1));
+	#$aachange->allele_mut($mut_translation);
+	my ($rlenori, $rlenmut);
+	$rlenori = CORE::length($aachange->RNAChange->allele_ori->seq);
+	$rlenmut = CORE::length($aachange->RNAChange->allele_mut->seq);
+	#point mutation
 
-	 # this now takes in account possible preinsertions
-	 my $aa_m = Bio::Variation::Allele->new;
-	 $aa_m->seq(substr($mut_translation,$aa_start-1)) if substr($mut_translation,$aa_start-1);
-	 $aachange->allele_mut($aa_m);
-	 $aachange->add_Allele($aa_m);
-	 #$aachange->allele_mut(substr($mut_translation,$aa_start-1));
-	 #$aachange->allele_mut($mut_translation);
-	 my ($rlenori, $rlenmut);
-	 $rlenori = CORE::length($aachange->RNAChange->allele_ori->seq);
-	 $rlenmut = CORE::length($aachange->RNAChange->allele_mut->seq);
-	 #point mutation
-
-	 if ($rlenori == 1 and $rlenmut == 1 and $aachange->allele_ori->seq ne '*') {
+	if ($rlenori == 1 and $rlenmut == 1 and $aachange->allele_ori->seq ne '*') {
 	     my $alleleseq;
 	     if ($aachange->allele_mut->seq) {
 		 $alleleseq = substr($aachange->allele_mut->seq, 0, 1);
@@ -1192,7 +1192,7 @@ sub _post_mutation {
 	     $aachange->end($aachange->start);
 	     $aachange->length(1);
 	 }
-	elsif ( length($rlenori) == length($rlenmut) and 
+	elsif ( $rlenori == $rlenmut and 
 		$aachange->allele_ori->seq ne '*' ) { #complex inframe mutation
 	    $aachange->allele_mut->seq(substr $aachange->allele_mut->seq, 
 				       0, 

@@ -1,5 +1,5 @@
 #!/usr/local/bin/perl -- # -*-Perl-*-
-# $Id: dbfetch,v 1.1 2001-04-12 15:58:01 heikki Exp $
+# $Id: dbfetch,v 1.2 2001-04-15 12:15:47 heikki Exp $
 #
 # Cared for by Heikki Lehvaslaiho <heikki@ebi.ac.uk>
 #
@@ -218,11 +218,7 @@ if ( $q->param('id') or $q->param('keywords')  ) {
 	last if $counter > MAXIDS;
         &$style($db, $id, $format);
     }
-#    if ($style eq 'html') {
-#	 my $pos = tell TMP;
-#	 print tell(TMP);
-     no_entries($q) if $style eq 'html' and tell(TMP) == 0;
-#    }
+    no_entries($q) if $style eq 'html' and tell(TMP) == 0;
     seek TMP, 0, 0;
     print '<pre>' if $style eq 'html';
     print $_ while <TMP>;
@@ -244,6 +240,7 @@ if ( $q->param('id') or $q->param('keywords')  ) {
 =cut
 
 sub print_prompt {
+    my ($q) = @_;
     print $q->header(),
          $q->start_html(-title => 'DB Entry Retrieval',
                         -bgcolor => 'white',
