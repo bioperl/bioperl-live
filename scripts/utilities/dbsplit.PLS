@@ -94,6 +94,7 @@ while( my $seq = $in->next_seq ) {
 	$count++;
 	$out = new Bio::SeqIO(-format => $outformat,
 			      -file   => ">$prefix.$count");
+	$scount = 0;
     }
     $out->write_seq($seq);
 }
