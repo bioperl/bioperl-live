@@ -186,8 +186,10 @@ sub subsnp {
 
  Title   : add_subsnp
  Usage   : $subsnp = $snp->add_subsnp()
- Function: pushes the previous value returned by subsnp() onto a stack, accessible with each_subsnp().
-           sets return value of subsnp() to a new Bio::Variation::SNP object, and returns that object.
+ Function: pushes the previous value returned by subsnp() onto a stack,
+           accessible with each_subsnp().
+           Sets return value of subsnp() to a new Bio::Variation::SNP
+           object, and returns that object.
  Returns : Bio::Varitiation::SNP
  Args    : NONE
 
@@ -195,7 +197,8 @@ sub subsnp {
 
 sub add_subsnp {
 	my $self = shift;
-	$self->throw("add_subsnp(): cannot add sunSNP to subSNP, only refSNP") if $self->is_subsnp;
+	$self->throw("add_subsnp(): cannot add subSNP to subSNP, only to refSNP")
+            if $self->is_subsnp;
 
 	my $subsnp = Bio::Variation::SNP->new;
 	push @{$self->{subsnps}}, $subsnp;
@@ -215,7 +218,8 @@ sub add_subsnp {
 
 sub each_subsnp {
 	my $self = shift;
-	$self->throw("each_subsnp(): cannot be called on a subSNP") if $self->is_subsnp;
+	$self->throw("each_subsnp(): cannot be called on a subSNP")
+            if $self->is_subsnp;
 	return @{$self->{subsnps}};
 }
 
