@@ -126,20 +126,20 @@ count_codons()
 
 =back
 
-For dna (and rna) sequences, single-stranded weights are returned. The
-molecular weights are calculated for neutral - ie not ionized -
+For DNA and RNA sequences single-stranded weights are returned. The
+molecular weights are calculated for neutral, or not ionized,
 nucleic acids. The returned weight is the sum of the
 base-sugar-phosphate residues of the chain plus one weight of water to
 to account for the additional OH on the phosphate of the 5' residue
 and the additional H on the sugar ring of the 3' residue.  Note that
 this leads to a difference of 18 in calculated molecular weights
-compared to some other available programs (eg Informax VectorNTI).
+compared to some other available programs (e.g. Informax VectorNTI).
 
-Note that since sequences may contain ambiguous monomers (eg "M"
+Note that since sequences may contain ambiguous monomers (e.g. "M",
 meaning "A" or "C" in a nucleic acid sequence), the method get_mol_wt
 returns a two-element array containing the greatest lower bound and
-least upper bound of the molecule. (For a sequence with no ambiguous
-monomers, the two elements of the returned array will be equal.) The
+least upper bound of the molecule. For a sequence with no ambiguous
+monomers, the two elements of the returned array will be equal. The
 method count_codons() handles ambiguous bases by simply counting all
 ambiguous codons together and issuing a warning to that effect.
 
@@ -241,30 +241,30 @@ BEGIN {
 
 
     $amino_weights = {
-	'A'     => [$amino_A_wt, $amino_A_wt], #    Alanine
-	'B'      => [$amino_N_wt, $amino_D_wt],	#   Aspartic Acid, Asparagine
-	'C'      => [$amino_C_wt, $amino_C_wt],	#   Cysteine
-	'D'         => [$amino_D_wt, $amino_D_wt], # Aspartic Acid
-	'E'        => [$amino_E_wt, $amino_E_wt], # Glutamic Acid
-	'F'        => [$amino_F_wt, $amino_F_wt], # Phenylalanine
-	'G'        => [$amino_G_wt, $amino_G_wt], # Glycine
-	'H'        => [$amino_H_wt, $amino_H_wt], # Histidine
-	'I'        => [$amino_I_wt, $amino_I_wt], # Isoleucine
-	'K'        => [$amino_K_wt, $amino_K_wt], # Lysine
-	'L'        => [$amino_L_wt, $amino_L_wt], # Leucine
-	'M'        => [$amino_M_wt, $amino_M_wt], # Methionine
-	'N'        => [$amino_N_wt, $amino_N_wt], # Asparagine
-	'P'        => [$amino_P_wt, $amino_P_wt], # Proline
-	'Q'        => [$amino_Q_wt, $amino_Q_wt], # Glutamine
-	'R'        => [$amino_R_wt, $amino_R_wt], # Arginine
-	'S'        => [$amino_S_wt, $amino_S_wt], # Serine
-	'T'        => [$amino_T_wt, $amino_T_wt], # Threonine
-	'U'        => [$amino_U_wt, $amino_U_wt], # SelenoCysteine
-	'V'        => [$amino_V_wt, $amino_V_wt], # Valine
-	'W'        => [$amino_W_wt, $amino_W_wt], # Tryptophan
-	'X'        => [$amino_G_wt, $amino_W_wt], # Unknown
-	'Y'        => [$amino_Y_wt, $amino_Y_wt], # Tyrosine
-	'Z'        => [$amino_Q_wt, $amino_E_wt], # Glutamic Acid, Glutamine
+	'A'     => [$amino_A_wt, $amino_A_wt], # Alanine
+	'B'     => [$amino_N_wt, $amino_D_wt], # Aspartic Acid, Asparagine
+	'C'     => [$amino_C_wt, $amino_C_wt], # Cysteine
+	'D'     => [$amino_D_wt, $amino_D_wt], # Aspartic Acid
+	'E'     => [$amino_E_wt, $amino_E_wt], # Glutamic Acid
+	'F'     => [$amino_F_wt, $amino_F_wt], # Phenylalanine
+	'G'     => [$amino_G_wt, $amino_G_wt], # Glycine
+	'H'     => [$amino_H_wt, $amino_H_wt], # Histidine
+	'I'     => [$amino_I_wt, $amino_I_wt], # Isoleucine
+	'K'     => [$amino_K_wt, $amino_K_wt], # Lysine
+	'L'     => [$amino_L_wt, $amino_L_wt], # Leucine
+	'M'     => [$amino_M_wt, $amino_M_wt], # Methionine
+	'N'     => [$amino_N_wt, $amino_N_wt], # Asparagine
+	'P'     => [$amino_P_wt, $amino_P_wt], # Proline
+	'Q'     => [$amino_Q_wt, $amino_Q_wt], # Glutamine
+	'R'     => [$amino_R_wt, $amino_R_wt], # Arginine
+	'S'     => [$amino_S_wt, $amino_S_wt], # Serine
+	'T'     => [$amino_T_wt, $amino_T_wt], # Threonine
+	'U'     => [$amino_U_wt, $amino_U_wt], # SelenoCysteine
+	'V'     => [$amino_V_wt, $amino_V_wt], # Valine
+	'W'     => [$amino_W_wt, $amino_W_wt], # Tryptophan
+	'X'     => [$amino_G_wt, $amino_W_wt], # Unknown
+	'Y'     => [$amino_Y_wt, $amino_Y_wt], # Tyrosine
+	'Z'     => [$amino_Q_wt, $amino_E_wt], # Glutamic Acid, Glutamine
     };
 
     # Extended Dna / Rna alphabet
@@ -410,7 +410,7 @@ sub count_monomers{
     } else {
          #  otherwise...
 	$seqobj =  $object_argument;
-	
+
     #  Following two lines lead to error in "throw" routine
 	$seqobj->isa("Bio::PrimarySeqI") ||
 	    $self->throw(" SeqStats works only on PrimarySeqI objects  \n");
@@ -420,7 +420,7 @@ sub count_monomers{
 
     my $alphabet =  $_is_strict ? $Alphabets_strict{$seqobj->alphabet} :
 	$Alphabets{$seqobj->alphabet}  ; # get array of allowed letters
-	
+
     # convert everything to upper case to be safe
     my $seqstring = uc $seqobj->seq();
 
@@ -453,8 +453,8 @@ sub count_monomers{
  Example :
 
  Returns : Reference to two element array containing lower and upper
-           bounds of molecule molecular weight. (For dna (and rna)
-           sequences, single-stranded weights are returned.)  If
+           bounds of molecule molecular weight. For DNA and RNA
+           sequences single-stranded weights are returned. If
            sequence contains no ambiguous elements, both entries in
            array are equal to molecular weight of molecule.
  Args    : None or reference to sequence object
@@ -478,10 +478,10 @@ sub get_mol_wt {
 	$_is_instance = 0;
     }
 
-    if ($_is_instance) {	
+    if ($_is_instance) {
 	if ($weight_array = $self->{'_mol_wt'}) {
             # return mol. weight if previously calculated
-	    return $weight_array;	
+	    return $weight_array;
 	}
         $seqobj =  $self->{'_seqref'};
         $rcount = $self->count_monomers();
@@ -501,15 +501,14 @@ sub get_mol_wt {
     # occurrences of the symbol in the sequence. A similar upper bound on
     # the weight is also calculated.
 
-    # Note that for "strict" (ie unambiguous) sequences there is an
-    # inefficiency since the upper bound = the lower bound (and is
-    # calculated twice).  However, this decrease in performance will be
-    # minor and leads to (IMO) significantly more readable code.
+    # Note that for "strict" (i.e. unambiguous) sequences there is an
+    # inefficiency since the upper bound = the lower bound and there are
+    # two calculations.  However, this decrease in performance will be
+    # minor and leads to significantly more readable code.
 
     my $weight_lower_bound = 0;
     my $weight_upper_bound = 0;
     my $weight_table =  $Weights{$moltype};
-
 
     # compute weight of all the residues
     foreach $element (keys %$rcount) {
@@ -517,7 +516,7 @@ sub get_mol_wt {
 	$weight_upper_bound += $$rcount{$element} * $$weight_table{$element}->[1];
     }
     if ($moltype =~ /protein/) {
-    	# remove of H2O during peptide bond formation.
+    	# remove H2O during peptide bond formation.
     	$weight_lower_bound -= $water * ($seqobj->length - 1);
     	$weight_upper_bound -= $water * ($seqobj->length - 1);
     } else {
@@ -527,8 +526,8 @@ sub get_mol_wt {
     	$weight_upper_bound += $water;
     }
 
-    $weight_lower_bound = sprintf("%.0f", $weight_lower_bound);
-    $weight_upper_bound = sprintf("%.0f", $weight_upper_bound);
+    $weight_lower_bound = sprintf("%.1f", $weight_lower_bound);
+    $weight_upper_bound = sprintf("%.1f", $weight_upper_bound);
 
     $weight_array = [$weight_lower_bound, $weight_upper_bound];
 
