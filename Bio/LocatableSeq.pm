@@ -343,7 +343,7 @@ sub location_from_column {
 
     $self->throw("Column number has to be a positive integer, not [$column]")
 	unless $column =~ /^\d+$/ and $column > 0;
-    $self->throw("Column number [column] is larger than".
+    $self->throw("Column number [$column] is larger than".
 		 " sequence length [". $self->length. "]")
 	unless $column <= $self->length;
 
