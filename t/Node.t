@@ -24,8 +24,8 @@ ok(1);
 
 my $node1 = new Bio::Tree::Node();
 my $node2 = new Bio::Tree::Node();
-ok(! $node1->is_leaf);
-ok($node1->get_Ancestor, undef);
+ok(! $node1->is_Leaf);
+ok($node1->ancestor, undef);
 
 my $pnode = new Bio::Tree::Node();
 $pnode->add_Descendent($node1);
@@ -33,13 +33,13 @@ ok($node1->ancestor, $pnode);
 $pnode->add_Descendent($node2);
 ok($node2->ancestor, $pnode);
 
-ok(! $pnode->is_leaf);
+ok(! $pnode->is_Leaf);
 
 my $phylo_node = new Bio::Tree::Node(-bootstrap => 0.25,
 				     -id => 'ADH_BOV',
 				     -desc => 'Taxon 1');
 $node1->add_Descendent($phylo_node);
-ok(! $node1->is_leaf);
+ok(! $node1->is_Leaf);
 ok($phylo_node->ancestor, $node1);
 ok($phylo_node->id, 'ADH_BOV');
 ok($phylo_node->bootstrap, 0.25);
