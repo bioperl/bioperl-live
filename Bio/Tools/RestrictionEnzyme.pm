@@ -348,14 +348,14 @@ sub new {
     my($class, @args) = @_;
     
     my $self = $class->SUPER::new(@args);
-
-    my $name = $self->name;
-
-#    if($make eq 'custom') {
-#	%data = $self->_make_custom($name); 
-#    } else {
-    my %data = $self->_make_standard($name);
-#    }
+    my ($name,$make) = $self->_rearrange([qw(NAME MAKE)],@args);
+    $name && $self->name($name);
+    my %data;
+    if(defined $make && $make eq 'custom') {
+	%data = $self->_make_custom($name); 
+    } else {
+	%data = $self->_make_standard($name);
+    }
     $self->{'_seq'} = new Bio::Seq(%data, 
 				   -STRICT  =>$self->strict, 
 				   -VERBOSE =>$self->verbose,
@@ -416,6 +416,7 @@ sub _make_standard {
 See Also   : L<_initialize>()
 
 =cut
+#'
 
 #-----------------
 sub _make_custom {
@@ -461,6 +462,7 @@ sub _make_custom {
 See Also   : L<_make_standard>(), L<_make_custom>()
 
 =cut
+#'
 
 #---------------
 sub cuts_after { 
@@ -581,6 +583,7 @@ sub revcom {  my $self = shift; $self->{'_seq'}->revcom->seq(); }
            : There is currently no support for partial digestions.
 
 =cut
+#'
 
 #-------------
 sub cut_seq {
@@ -643,6 +646,41 @@ sub cut_seq {
     @re_frags;
 }
 
+=head1 cut_locations
+
+ Title     : cut_locations
+ Usage     : my $locations = $re->cut_locations(<sequence_object>);
+ Purpose   : Report the location of the recognition site(s) within
+           : an input sequence. 
+ Example   : my $locations = $re->annotate_seq($seqObj);
+ Returns   : Arrayref of starting locations where enzyme would cut 
+ Argument  : Reference to a Bio::SeqI-derived sequence object.
+ Throws    : n/a
+ Comments  : 
+
+=cut
+
+#-----------------
+sub cut_locations {
+#-----------------
+    my($self, $seqobj) = @_;
+
+    my $site = $self->string;
+    my $seq = $seqobj->seq;
+    study($seq);
+    $site =~ s/N|X/\./g;
+    $site =~ s/R/\[AG\]/g;
+    $site =~ s/Y/\[CT\]/g;
+    $site =~ s/S/\[GC\]/g;
+    $site =~ s/W/\[AT\]/g;
+    my @locations;
+    while( $seq =~ /($site)/g ) {
+        # $` is preceding string before pattern so length returns position
+	push @locations, length($`); 	
+    }
+    return \@locations;
+}    
+
 
 =head1 annotate_seq
 
@@ -665,7 +703,7 @@ sub annotate_seq {
     my($self, $seqObj) = @_;
 
     my $site = $self->string;
-    my $seq = $seqObj->str;
+    my $seq = $seqObj->seq;
 
     $site =~ s/N|X/\./g;
     $site =~ s/R/\[AG\]/g;
