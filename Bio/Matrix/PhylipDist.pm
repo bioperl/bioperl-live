@@ -165,8 +165,8 @@ sub get_row {
     my %matrix = %{$self->_matrix};
     my @values = @{$self->_values};
     my @names = @{$self->names};
-    %matrix->{$row} || return;
-    my @row = %{%matrix->{$row}};
+    $matrix{$row} || return;
+    my @row = $matrix{$row};
     my $row_pointer = $row[1]->[0];
     my $index = scalar(@names)-1;
     return @{$values[$row_pointer]}[0..$index];
@@ -189,8 +189,8 @@ sub get_column {
     my %matrix = %{$self->_matrix};
     my @values = @{$self->_values};
     my @names = @{$self->names}; 
-    %matrix->{$column} || return;
-    my @column = %{%matrix->{$column}};
+    $matrix{$column} || return;
+    my @column = $matrix{$column};
     my $row_pointer = $column[1]->[0];
     my @return;
     for(my $i=0; $i < scalar(@names); $i++){
@@ -245,10 +245,10 @@ sub print_matrix {
     foreach my $n (@names){
       my ($i,$j) = @{$matrix{$name}{$n}};
       if($count < $#names){
-        $str.= @values->[$i][$j]. "  ";
+        $str.= $values[$i][$j]. "  ";
       }
       else {
-        $str.= @values->[$i][$j];
+        $str.= $values[$i][$j];
       }
       $count++;
     }
