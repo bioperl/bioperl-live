@@ -721,11 +721,12 @@ sub generate_unique_persistent_id{
    my ($self,@args) = @_;
 
    my $seq_id = $self->seq_id || $self->throw("seq_id must be set");
+   my $source = $self->source_tag || $self->throw("source tag must be set");
    my $start = $self->start || $self->throw("start must be set");
    my $end = $self->end || $self->throw("end must be set");
    my $type = $self->primary_tag || $self->throw("primary_tag must be set");
 
-   my $id = "$type:$seq_id:$start:$end";
+   my $id = "$type:$source:$seq_id:$start:$end";
    $self->primary_id($id);
    return $id;
 }
