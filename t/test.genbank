@@ -1,0 +1,74 @@
+LOCUS       DDU63596      310 bp    DNA             INV       14-MAY-1999
+DEFINITION  Dictyostelium discoideum Tdd-4 transposable element flanking
+            sequence, clone p427/428 right end.
+ACCESSION   U63596
+NID         g2393749
+KEYWORDS    .
+SOURCE      Dictyostelium discoideum.
+  ORGANISM  Dictyostelium discoideum
+            Eukaryota; Dictyosteliida; Dictyostelium.
+REFERENCE   1  (bases 1 to 310)
+  AUTHORS   Wells,D.J.
+  TITLE     Tdd-4, a DNA transposon of Dictyostelium that encodes proteins
+            similar to LTR retroelement integrases
+  JOURNAL   Nucleic Acids Res. 27 (11), 2408-2415 (1999)
+REFERENCE   2  (bases 1 to 310)
+  AUTHORS   Wells,D.J. and Welker,D.L.
+  TITLE     Dictyostelium discoideum Tdd-4 transposable element, right end
+            flanking sequence from clone p427/428
+  JOURNAL   Unpublished
+REFERENCE   3  (bases 1 to 310)
+  AUTHORS   Wells,D.J. and Welker,D.L.
+  TITLE     Direct Submission
+  JOURNAL   Submitted (11-JUL-1996) Biology, Utah State Univ., Logan, UT
+            84322-5305, USA
+FEATURES             Location/Qualifiers
+     source          1..310
+                     /organism="Dictyostelium discoideum"
+                     /strain="AX4"
+                     /db_xref="taxon:44689"
+                     /clone="p427/428"
+BASE COUNT      118 a     46 c     67 g     79 t
+ORIGIN      
+        1 gtgacagttg gctgtcagac atacaatgat tgtttagaag aggagaagat tgatccggag
+       61 taccgtgata gtattttaaa aactatgaaa gcgggaatac ttaatggtaa actagttaga
+      121 ttatgtgacg tgccaagggg tgtagatgta gaaattgaaa caactggtct aaccgattca
+      181 gaaggagaaa gtgaatcaaa agaagaagag tgatgatgaa tagccaccat tactgcatac
+      241 tgtagccctt acccttgtcg caccattagc cattaataaa aataaaaaat tatataaaaa
+      301 ttacacccat 
+//
+LOCUS       DDU63595       83 bp    DNA             INV       14-MAY-1999
+DEFINITION  Dictyostelium discoideum Tdd-4 transposable element flanking
+            sequence, clone p427/428 left end.
+ACCESSION   U63595
+NID         g2393748
+KEYWORDS    .
+SOURCE      Dictyostelium discoideum.
+  ORGANISM  Dictyostelium discoideum
+            Eukaryota; Dictyosteliida; Dictyostelium.
+REFERENCE   1  (bases 1 to 83)
+  AUTHORS   Wells,D.J.
+  TITLE     Tdd-4, a DNA transposon of Dictyostelium that encodes proteins
+            similar to LTR retroelement integrases
+  JOURNAL   Nucleic Acids Res. 27 (11), 2408-2415 (1999)
+REFERENCE   2  (bases 1 to 83)
+  AUTHORS   Wells,D.J. and Welker,D.L.
+  TITLE     Dictyostelium discoideum Tdd-4 transposable element, left end
+            flanking sequence from clone p427/428
+  JOURNAL   Unpublished
+REFERENCE   3  (bases 1 to 83)
+  AUTHORS   Wells,D.J. and Welker,D.L.
+  TITLE     Direct Submission
+  JOURNAL   Submitted (11-JUL-1996) Biology, Utah State Univ., Logan, UT
+            84322-5305, USA
+FEATURES             Location/Qualifiers
+     source          1..83
+                     /organism="Dictyostelium discoideum"
+                     /strain="AX4"
+                     /db_xref="taxon:44689"
+                     /clone="p427/428"
+BASE COUNT       31 a     16 c     12 g     24 t
+ORIGIN      
+        1 ttcgaaggat atctcaaggc agttaataat tactatgatg attgtaaaat attccaaagt
+       61 ttcccagacc caccaataat gac
+//
