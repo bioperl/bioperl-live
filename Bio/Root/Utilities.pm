@@ -31,10 +31,17 @@
 package	Bio::Root::Utilities;
 use strict;
 
+BEGIN {
+    use vars qw($Loaded_POSIX $Loaded_IOScalar);
+    $Loaded_POSIX = 1;
+    unless( eval "require POSIX" ) {
+	$Loaded_POSIX = 0;
+    }
+}
+
 use Bio::Root::Global  qw(:data :std $TIMEOUT_SECS);
 use Bio::Root::Object  ();
 use Exporter           ();
-use POSIX;
 #use AutoLoader;
 #*AUTOLOAD = \&AutoLoader::AUTOLOAD;
 
@@ -408,7 +415,11 @@ sub compress {
     my ($compressed, @args);
 
     if($tmp or not -o $fileName) {
-	$compressed = POSIX::tmpnam;
+	if($Loaded_POSIX) {
+	    $compressed = POSIX::tmpnam;
+	} else {
+	    $compressed = _get_pseudo_tmpnam();
+	}
 	$compressed .= ".tmp.bioperl";
 	$compressed .= '.gz';
 	@args = ($GNU_PATH."gzip -f < $fileName > $compressed");
@@ -481,7 +492,11 @@ sub uncompress {
     my($uncompressed, @args);
 
     if($tmp or not -o $fileName) {
-	$uncompressed = POSIX::tmpnam;
+	if($Loaded_POSIX) {
+	    $uncompressed = POSIX::tmpnam;
+	} else {
+	    $uncompressed = _get_pseudo_tmpnam();
+	}
 	$uncompressed .= ".tmp.bioperl";
 	@args = ($GNU_PATH."gunzip -f < $fileName > $uncompressed");
 	not $tmp and $self->verbose > 0 and
@@ -769,7 +784,9 @@ sub create_filehandle {
 
     if(not ref $client) {  $client = $self; }
     $file ||= $handle;
-    $file = $client->file($file);
+    if( $client->can('file')) {
+	$file = $client->file($file);
+    }
 
     my $FH; # = new FileHandle;
 
@@ -1129,6 +1146,23 @@ sub verify_version {
 	printf STDERR ( "%s %0.3f %s\n\n", "You are running Perl version", $], "Please update your Perl!\n\n" );
 	exit(1);
     }
+}
+
+# Purpose : Returns a string that can be used as a temporary file name.
+#           Based on localtime.
+#           This is used if POSIX is not available.
+
+sub _get_pseudo_tmpnam {
+
+    my $date = localtime(time());
+    
+    my $tmpnam = 'tmpnam'; 
+
+    if( $date =~ /([\d:]+)\s+(\d+)\s*$/ ) {
+    	$tmpnam = $2. '_' . $1;
+    	$tmpnam =~ s/:/_/g;
+    }
+    return $tmpnam;
 }
 
 
