@@ -15,7 +15,7 @@ BEGIN {
 	use lib 't';
     }
     use Test;
-    plan tests => 32; 
+    plan tests => 33; 
 }
 
 use Bio::Location::Simple;
