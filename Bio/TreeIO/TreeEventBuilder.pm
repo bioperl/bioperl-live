@@ -128,18 +128,13 @@ sub start_document {
 sub end_document {
     my ($self) = @_;    
     
+     my $root = new Bio::Tree::Node();
+    
     # aggregate the nodes into trees basically ad-hoc.
-    while ( scalar @{$self->{'_currentnodes'}} > 1 ) { 
-	my ($right,$left) = ( pop @{$self->{'_currentnodes'}},
-			      pop @{$self->{'_currentnodes'}});
-	
-	my $root = new Bio::Tree::Node();
-	$root->add_Descendent($left);
-	$root->add_Descendent($right);
-	push @{$self->{'_currentnodes'}}, $root;
+    while ( @{$self->{'_currentnodes'}} ) {	
+	my ($node) = ( shift @{$self->{'_currentnodes'}});
+	$root->add_Descendent($node);
     }
-
-    my $root = pop @{$self->{'_currentnodes'}};
 
     $self->debug("Root node is " . $root->to_string()."\n");
     if( $self->verbose > 0 ) { 
