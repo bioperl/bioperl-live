@@ -414,8 +414,13 @@ sub _guess_format {
    my $class = shift;
    return unless $_ = shift;
    return 'blast'   if (/\.(blast|t?bl\w)$/i );
-   return 'fasta' if (/\.fas(ta)?$/i or /\.m9/i or /\.ssearch$/i);
-   return 'blastxml' if ( /\.xml$/i);
+   return 'fasta' if (/\.
+		      (?: t? fas (?:ta)? |
+		       m\d+ |
+		       (?: t? (?: fa |  fx |  fy |  ff |  fs ) ) |
+		       (?: (?:ss | os | ps) (?:earch)? ))
+		      $/ix || /\.m9$/ );
+   return 'blastxml' if ( /\.(blast)?xml$/i);
    return 'exonerate' if ( /\.exon(erate)?/i );
 }
 
