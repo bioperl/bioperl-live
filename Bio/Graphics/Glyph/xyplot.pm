@@ -28,6 +28,7 @@ sub draw {
   my ($left,$top,$right,$bottom) = $self->calculate_boundaries($dx,$dy);
 
   my @parts = $self->parts;
+
   return $self->SUPER::draw(@_) unless @parts > 0;
 
   my ($min_score,$max_score) = $self->minmax(\@parts);
@@ -53,7 +54,7 @@ sub draw {
     $_->{_y_position} = $bottom - $position;
   }
 
-  my $type = $self->option('graph_type');
+  my $type = $self->option('graph_type') || 'boxes';
   $self->_draw_histogram($gd,$x,$y)  if $type eq 'histogram';
   $self->_draw_boxes($gd,$x,$y)      if $type eq 'boxes';
   $self->_draw_line ($gd,$x,$y)      if $type eq 'line'
@@ -61,7 +62,7 @@ sub draw {
   $self->_draw_points($gd,$x,$y)     if $type eq 'points'
                                        or $type eq 'linepoints';
 
-  $self->_draw_scale($gd,$scale,$min_score,$max_score,$dx,$dy)      if $self->option('scale');
+  $self->_draw_scale($gd,$scale,$min_score,$max_score,$dx,$dy);
 }
 
 sub log10 { log(shift)/log(10) }
