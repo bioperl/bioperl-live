@@ -20,7 +20,7 @@ BEGIN {
 	use lib 't';
     }
     use vars qw($NTESTS);
-    $NTESTS = 1032;
+    $NTESTS = 1036;
     $LASTXMLTEST = 54;
     $error = 0;
 
@@ -1486,6 +1486,21 @@ my %pair = ( 'filename.blast'  => 'blast',
 while( my ($file,$expformat) = each %pair ) {
     ok(Bio::SearchIO->_guess_format($file),$expformat, "$expformat for $file");
 }
+
+
+# Test Wes Barris's reported bug when parsing blastcl3 output which
+# has integer overflow
+
+$searchio = new Bio::SearchIO(-file => Bio::Root::IO->catfile
+			      (qw(t data hsinsulin.blastcl3.blastn)),
+			      -format => 'blast');
+$result = $searchio->next_result;
+ok($result->query_name, 'human');
+ok($result->database_letters(), '-24016349'); 
+# this is of course not the right length, but is the what blastcl3 
+# reports, the correct value is
+ok($result->get_statistic('dbletters'),'192913178');
+ok($result->get_statistic('dbentries'),'1867771');
 
 __END__
 
