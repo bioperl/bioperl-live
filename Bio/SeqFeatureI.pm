@@ -19,7 +19,8 @@ Bio::SeqFeatureI - Abstract interface of a Sequence Feature
     # get a seqfeature somehow, eg,
 
     foreach $feat ( $annseq->all_seqfeatures() ) {
-            print "Feature from ", $feat->start, "to ", $feat->end, " Primary tag  " $feat->primary_tag, 
+            print "Feature from ", $feat->start, "to ", 
+	    $feat->end, " Primary tag  ", $feat->primary_tag, 
 	    " From", $feat->source_tag() "\n";
 
             if( $feat->strand == 0 ) {
@@ -29,7 +30,7 @@ Bio::SeqFeatureI - Abstract interface of a Sequence Feature
             }
 
             foreach $tag ( $feat->all_tags() ) {
-		print "Feature has tag ",$tag,"with value," $feat->has_tag($tag), "\n";
+		print "Feature has tag ",$tag,"with value,", $feat->has_tag($tag), "\n";
             }
 	}
 
