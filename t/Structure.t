@@ -16,7 +16,7 @@ BEGIN {
 	use lib 't';
     }
     use Test;
-    plan tests => 69;
+    plan tests => 55;
 }
 use Bio::Structure::Entry;
 use Bio::Structure::Model;
@@ -25,6 +25,7 @@ use Bio::Structure::Residue;
 use Bio::Structure::Atom;
 
 ok(1);
+
 
 my $entry = Bio::Structure::Entry->new;
 ok(1);
@@ -51,100 +52,69 @@ ok(1);
 ok defined $atom;
 ok ref($atom), 'Bio::Structure::Atom';
 
-# does entry has a Model and a Chain
-ok $entry->model, 1;
-my ($m) = $entry->model; 
-ok $m->chain, 1;
-
-# does model has a Chain
-ok $model->chain, 1;
-
 # adding/removing to Entry
-$entry->model($model);
+my $m1 = Bio::Structure::Model->new;
+$entry->model($m1);
 ok $entry->model,1;
 my $m2 = Bio::Structure::Model->new;
 $entry->add_model($m2);
-ok $entry->model, 2;
+ok $entry->get_models, 2;
 
 $entry->model($m2);
 ok $entry->model, 1;
-my @m = ($model, $m2);
+my @m = ($m1, $m2);
 $entry->model(\@m);
 ok $entry->model, 2;
 
-ok ref($model->entry), 'Bio::Structure::Entry';
-ok ref($m2->entry), 'Bio::Structure::Entry';
-ok $model->entry, $m2->entry;
+ok ref($entry->parent($m1)), 'Bio::Structure::Entry';
+ok ref($entry->parent($m2)), 'Bio::Structure::Entry';
+ok $entry->parent($m1), $entry->parent($m2);
 
 # does $m2 gest orphaned
-$entry->model($model);
-ok $m2->entry, undef;
+$entry->model($m1);
+ok $entry->parent($m2), undef;
 
 
 # adding/removing to Model 
-$model->chain($chain);
-ok $model->chain,1;
+my $c1 = Bio::Structure::Chain->new;
+$entry->add_chain($model,$c1);
+ok $entry->get_chains($model),1;
 my $c2 = Bio::Structure::Chain->new;
-$model->add_chain($c2);
-ok $model->chain, 2;
-
-$model->chain($c2);
-ok $model->chain, 1;
-my @c = ($chain, $c2);
-$model->chain(\@c);
-ok $model->chain, 2;
-
-ok ref($chain->model), 'Bio::Structure::Model';
-ok ref($c2->model), 'Bio::Structure::Model';
-ok $chain->model, $c2->model;
-
-# does $c2 gest orphaned
-$model->chain($chain);
-ok $c2->model, undef;
+$entry->add_chain($model,$c2);
+ok $entry->get_chains($model), 2;
+ok ref($entry->parent($c1)), 'Bio::Structure::Model';
+ok $entry->parent($c1), $entry->parent($c2);
 
 
 # adding/removing to Chain 
-$chain->residue($residue);
-ok $chain->residue,1;
+my $r1 = Bio::Structure::Residue->new;
+$entry->add_residue($chain,$r1);
+ok $entry->get_residues($chain),1;
 my $r2 = Bio::Structure::Residue->new;
-$chain->add_residue($r2);
-ok $chain->residue, 2;
+$entry->add_residue($chain,$r2);
+ok $entry->get_residues($chain), 2;
 
-$chain->residue($r2);
-ok $chain->residue, 1;
-my @r = ($residue, $r2);
-$chain->residue(\@r);
-ok $chain->residue, 2;
-
-ok ref($residue->chain), 'Bio::Structure::Chain';
-ok ref($r2->chain), 'Bio::Structure::Chain';
-ok $residue->chain, $r2->chain;
-
-# does $r2 gest orphaned
-$chain->residue($residue);
-ok $r2->chain, undef;
-
+ok ref($entry->parent($r2)), 'Bio::Structure::Chain';
+ok $entry->parent($r1), $entry->parent($r2);
 
 # adding/removing to Residue 
-$residue->atom($atom);
-ok $residue->atom,1;
+$entry->add_atom($residue,$atom);
+ok $entry->get_atoms($residue),1;
 my $a2 = Bio::Structure::Atom->new;
-$residue->add_atom($a2);
-ok $residue->atom, 2;
+my $a3 = Bio::Structure::Atom->new;
+my $a4 = Bio::Structure::Atom->new;
+my $a5 = Bio::Structure::Atom->new;
+my $a6 = Bio::Structure::Atom->new;
+$entry->add_atom($residue,$a2);
+ok $entry->get_atoms($residue), 2;
 
-$residue->atom($a2);
-ok $residue->atom, 1;
-my @a = ($atom, $a2);
-$residue->atom(\@a);
-ok $residue->atom, 2;
+my @a = ($a3, $a4, $a5);
+$entry->add_atom($r2,\@a);
+ok $entry->get_atoms($r2), 3;
 
-ok ref($atom->residue), 'Bio::Structure::Residue';
-ok ref($a2->residue), 'Bio::Structure::Residue';
-ok $atom->residue, $a2->residue;
+ok ref($entry->parent($a2)), 'Bio::Structure::Residue';
+ok $entry->parent($a3), $entry->parent($a5);
 
-# does $a2 gest orphaned
-$residue->atom($atom);
-ok $a2->residue, undef;
 
 
 $atom->x(10.234);
@@ -177,9 +147,6 @@ my $a2 = Bio::Structure::Atom->new(-id => "Atom 2");
 ok (1);
 ok $a2->id, "Atom 2";
 
-
-
-$r3->add_atom($atom);
-$r3->add_atom($a2);
-$c3->add_residue($r3);
-ok $atom->residue->chain->id, "Chain 2";
+$entry->add_atom($r3,$a6);
+$entry->add_residue($c3,$r3);
+ok $entry->parent( $entry->parent($a6) )->id , "Chain 2";
