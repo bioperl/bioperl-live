@@ -556,7 +556,7 @@ sub write {
 
     $w->end;
     $self->_print($str);
-    $output->close;
+    $output = undef;
     return 1;
 }
 
