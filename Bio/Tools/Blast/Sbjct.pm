@@ -26,7 +26,7 @@ use Bio::Root::Object  ();
 use strict;
 use vars qw($ID $VERSION %SUMMARY_OFFSET $Revision);
 $ID = 'Bio::Tools::Blast::Sbjct';
-$VERSION = 0.091;
+$VERSION = 0.09;
 $Revision = '$Id$';  #'
 
 my $_prog       = '';
@@ -218,7 +218,7 @@ See the L<FEEDBACK> section for where to send bug reports and comments.
 
 =head1 VERSION
 
-Bio::Tools::Blast::Sbjct.pm, 0.091
+Bio::Tools::Blast::Sbjct.pm, 0.09
 
 =head1 COPYRIGHT
 
@@ -546,7 +546,7 @@ sub _set_hsps {
 	       } else {
 		   push @hspList, $hspObj;
                    if (!defined($self->{'_expect'}) || $hspObj->expect() < $self->{'_expect'}) {
-                       $self->{'_expect'} = $hspObj->expect();
+                       $self->{_expect} = $hspObj->expect();
                    }
                    if (!defined($self->{'_p'}) || $hspObj->p() < $self->{'_p'}) {
                        $self->{'_p'} = $hspObj->p();
