@@ -68,13 +68,16 @@ sub next_feature {
                                                       -start  => $lNode->getAttribute('start'),
                                                       -end    => $lNode->getAttribute('end'),
                                                       -score  => $lNode->getAttribute('score'),
-                                                      -seq_id => $pNode->getAttribute('id'),
+#                                                      -seq_id => $pNode->getAttribute('id'),
                                                      );
+        $feature->seq_id->value($pNode->getAttribute('id'));
+
+#warn $pNode->getAttribute('id');
 
         $feature->source( $lNode->getAttribute('evidence') );
 
-        my $t = Bio::Annotation::OntologyTerm->new(-identifier => 'SO:0000001', -name => 'region');
-        $feature->add_Annotation('feature_type',$t);
+        my $t = Bio::Annotation::OntologyTerm->new(-identifier => 'SO:0000417', -name => 'polypeptide_domain');
+        $feature->add_Annotation('type',$t);
 
         my $c = Bio::Annotation::Comment->new(-tagname => 'comment', -text => $iNode->getAttribute('name'));
         $feature->add_Annotation($c);

@@ -210,7 +210,7 @@ sub _write_feature_3 {
     push @attr, "Parent=$vstring";
   }
   if(my @v = ($feature->get_Annotations('dblink'))){
-    my $vstring = join ',', map {uri_escape($_->primary_id)} @v;
+    my $vstring = join ',', map {uri_escape($_->database .':'. $_->primary_id)} @v;
     push @attr, "Dbxref=$vstring";
   }
   if(my @v = ($feature->get_Annotations('ontology_term'))){
@@ -220,6 +220,10 @@ sub _write_feature_3 {
   if(my @v = ($feature->get_Annotations('comment'))){
     my $vstring = join ',', map {uri_escape($_->text)} @v;
     push @attr, "Note=$vstring";
+  }
+  if(my @v = ($feature->get_Annotations('Target'))){
+    my $vstring = join ',', map {uri_escape($_->target_id).' '.$_->start.' '.$_->end.($_->strand =~ /^[\+\-]$/ ? ' '.$_->strand : '')} @v;
+    push @attr, "Target=$vstring";
   }
 
   my $attr = join ';', @attr;
