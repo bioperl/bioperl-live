@@ -347,7 +347,9 @@ sub stack_trace{
 =cut
 
 sub _rearrange {
-    my (undef,$order) = (shift,shift);
+    my $dummy = shift;
+    my $order = shift;
+
     return @_ unless (substr($_[0]||'',0,1) eq '-');
     push @_,undef unless $#_ %2;
     my %param;
