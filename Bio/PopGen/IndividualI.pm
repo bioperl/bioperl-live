@@ -26,7 +26,6 @@ Bio::PopGen::IndividualI - An individual who has Genotype or Sequence Results
   # get the number of results (genotypes)
   print $ind->num_results;
 
-  
 =head1 DESCRIPTION
 
 Describe the interface here

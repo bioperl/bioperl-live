@@ -68,9 +68,14 @@ contain errors at this point.  Work is underway to correct them, but
 do not expect this code to give you the right answer currently!  Use
 dnadist/distmat in the PHLYIP or EMBOSS packages to calculate the
 distances.
-There are also three methods to calculate the  ratio of synonymous to non-synonymous mutations.
-All are implementations of the Nei-Gojobori evolutionary pathway method and use the Jukes-Cantor method of nucleotide substitution. This method works well so long as  the nucleotide frequencies are roughly equal and there is no significant transition/transversion bias.
-In order to use these methods there are several pre-requisites for the alignment.
+
+There are also three methods to calculate the ratio of synonymous to
+non-synonymous mutations.  All are implementations of the Nei-Gojobori
+evolutionary pathway method and use the Jukes-Cantor method of
+nucleotide substitution. This method works well so long as the
+nucleotide frequencies are roughly equal and there is no significant
+transition/transversion bias.  In order to use these methods there are
+several pre-requisites for the alignment.
 
 =over 3
 
@@ -103,7 +108,7 @@ Only the standard codon alphabet is supported at present.
 calc_KaKs_pair() calculates a number of statistics for a named pair of sequences in the alignment.
 calc_all_KaKs_pairs() calculates these statistics for all  pairwise comparisons in an MSA.
 The statistics returned are:
-		
+
 =over 3
 
 =item S_d
@@ -148,7 +153,7 @@ estimation of variance of S_n.
 
 =item z_value
 
-calculation of z value.Positive value indicates D_n > D_s, negative value indicates D_s > D_n.
+calculation of z value.Positive value indicates D_n E<gt> D_s, negative value indicates D_s E<gt> D_n.
 
 =back
 

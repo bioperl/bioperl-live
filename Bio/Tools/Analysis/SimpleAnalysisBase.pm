@@ -92,7 +92,7 @@ my %STATUS =  map { $_ => 1 } qw(CREATED COMPLETED TERMINATED_BY_ERROR);
            program. Each key value of must have a method implemented
            for it in a subclass. A seq () method is provided here as
            this will probably be needed by all sequence analysis programs
-           
+
 =cut
 
 sub new {
@@ -113,7 +113,7 @@ sub new {
  Usage   : $job->seq()
  Returns : a Bio::PrimarySeqI implementing sequence object, or void
  Args    : None, or a Bio::PrimarySeqI implementing object 
-        
+
 =cut
 
 sub seq {
@@ -136,7 +136,7 @@ sub seq {
     Useage   :  $analysis->analysis_name();
     Returns  :  The analysis name
     Arguments:  none
-    
+
 =cut
 
 sub analysis_name {
@@ -150,7 +150,7 @@ sub analysis_name {
     Returns  :  a hash reference to  a hash of analysis parameters. See
                 Bio::SimpleAnalysisI for a list of recommended key values.
     Arguments:  none
-    
+
 =cut
 
 sub analysis_spec {
@@ -165,7 +165,7 @@ sub analysis_spec {
     Returns  :  a  reference to  an array of  hashes of analysis parameters. See
                 Bio::SimpleAnalysisI for a list of recommended key values.
     Arguments:  none
-    
+
 =cut
 
 sub input_spec {
@@ -180,9 +180,8 @@ sub input_spec {
                 Bio::SimpleAnalysisI for a list of recommended key values. The key
                 values can be used as parameters to the result() method, the values
                 provide descriptions.
-                
     Arguments:  none
-    
+
 =cut
 
 sub result_spec {

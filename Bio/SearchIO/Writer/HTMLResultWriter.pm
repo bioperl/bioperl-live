@@ -48,8 +48,7 @@ Bio::SearchIO::Writer::HTMLResultWriter - Object to implement writing a Bio::Sea
 
   # can also set the filter via the writer object
   $writer->filter('RESULT', \&result_filter);
-  
-   
+
 =head1 DESCRIPTION
 
 This object implements the SearchWriterI interface which will produce
@@ -490,7 +489,7 @@ sub hit_link_desc{
  Args    : First argument is a Bio::Search::Hit::HitI
            Second argument is a Bio::Search::Result::ResultI
 
-See Also: L<hit_link_align()>, L<remote_database()>, L<id_parser()>
+See Also: L<hit_link_align>, L<remote_database>, L<id_parser>
 
 =cut
 
@@ -525,7 +524,7 @@ sub default_hit_link_desc {
  Args    : First argument is a Bio::Search::Hit::HitI
            Second argument is a Bio::Search::Result::ResultI
 
-See Also: L<hit_link_desc()>, L<remote_database()>, L<id_parser()>
+See Also: L<hit_link_desc>, L<remote_database>, L<id_parser>
 
 =cut
 

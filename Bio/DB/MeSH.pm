@@ -256,7 +256,7 @@ sub result {
 
     # create a MeSH::Term object
     $_ = $self->{'_content'};
-    print substr $_, 0, 100 if $self->verbose > 0;
+    print substr ($_, 0, 100), "\n" if $self->verbose > 0;
     my ($id) = m|Unique ID</TH><TD>(.*?)</TD>|i;
     my ($name) = m|MeSH Heading</TH><TD>([^<]+)|i;
     my ($desc) = m|Scope Note</TH><TD>(.*?)</TD>|i;
@@ -267,6 +267,11 @@ sub result {
                                                -description => $desc
                                               );
     my ($trees) = $self->{'_content'} =~ /MeSH Tree Structures(.*)/s;
+
+    while (m|Entry Term</TH><TD>([^<]+)|ig) {
+        $term->add_synonym($1);
+        print "Synonym: |$1|\n" if $self->verbose > 0;
+    }
 
     foreach (split /<HR>/i, $trees ) {
         next unless /$name/;

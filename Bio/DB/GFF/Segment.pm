@@ -333,6 +333,7 @@ This is for compatibility with BioPerl's separation of SeqI
 from PrimarySeqI.  It just returns itself.
 
 =cut
+
 #'
 
 sub primary_seq { shift }

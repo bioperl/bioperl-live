@@ -9,7 +9,9 @@
 # POD documentation - main docs before the code
 
 
-=head1 NAME Bio::Tools::Analysis::Protein::Sopma - a wrapper around
+=head1 NAME
+
+Bio::Tools::Analysis::Protein::Sopma - a wrapper around
 Sopma protein secondary structure prediction server
 
 =head1  SYNOPSIS
@@ -95,6 +97,8 @@ Sopma_coil, Sopma_struc, representing the scores for each residue.
 
 Many methods common to all analyses are inherited from
 Bio::Tools::Analysis::SimpleAnalysisBase.
+
+=back
 
 =head1 SEE ALSO
 
@@ -281,8 +285,8 @@ coil, or turn if 4 state prediction requested) "method" (Sopma)
 
 =item 'parsed'
 
-Array of hash references of scores/structure assignations { helix =>,
-sheet => , coil => , struc=>}.
+Array of hash references of scores/structure assignations { helix =E<gt>,
+sheet =E<gt> , coil =E<gt> , struc=E<gt>}.
 
 =item 'all'
 

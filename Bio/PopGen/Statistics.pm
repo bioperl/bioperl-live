@@ -20,12 +20,11 @@ Bio::PopGen::Statistics - Population Genetics statistical tests
   use Bio::AlignIO;
   use Bio::PopGen::IO;
   use Bio::PopGen::Simulation::Coalescent;
- 
+
   my $sim = new Bio::PopGen::Simulation::Coalescent( -sample_size => 12);
 
   my $tree = $sim->next_tree;
-   
- 
+
   $factory->add_Mutations($tree,20);
 
   my $stats = new Bio::PopGen::Statistics();
@@ -43,14 +42,14 @@ Bio::PopGen::Statistics - Population Genetics statistical tests
   # to set the verbosity for debugging
   $pi     = Bio::PopGen::Statistics->pi($pop);   
   $theta  = Bio::PopGen::Statistics->theta($pop);
- 
+
   # Pi and Theta also take additional arguments,
   # see the documentation for more information  
 
 
   # To come -- examples for creating pops/individuals from
   # Aligned sequence data
-  
+
 =head1 DESCRIPTION
 
 This object is intended to provide implementations some standard
@@ -159,6 +158,7 @@ use Bio::Root::Root;
            (L<Bio::PopGen::Individual> or derived classes)
            $extmutations - number of external mutations OR
            arrayref of outgroup individuals
+
 =cut
 
 sub fu_and_li_D { 
@@ -226,6 +226,7 @@ sub fu_and_li_D {
  Args    : array ref of L<Bio::PopGen::IndividualI> objects
            OR
            L<Bio::PopGen::PopulationI> object
+
 =cut
 
 #'
@@ -299,10 +300,10 @@ sub fu_and_li_D_star {
  Returns : decimal number
  Args    : array ref of L<Bio::PopGen::IndividualI> objects for the ingroup
            OR a L<Bio::PopGen::PopulationI> object
-            
            number of external mutations OR list of individuals for the outgroup
 
 =cut
+
 #'
 
 sub fu_and_li_F {
@@ -375,7 +376,9 @@ sub fu_and_li_F {
  Args    : array ref of L<Bio::PopGen::IndividualI> objects for the ingroup
            OR
            L<Bio::PopGen::PopulationI> object
+
 =cut
+
 #' keep my emacs happy
 
 sub fu_and_li_F_star {
@@ -606,6 +609,7 @@ sub pi {
            OR
            provide an L<Bio::PopGen::PopulationI> object
            total sites (integer)[optional]
+
 =cut
 
 sub theta {
@@ -648,7 +652,6 @@ sub theta {
  Args    : arrayref of L<Bio::PopGen::IndividualI> objects
            OR
            L<Bio::PopGen::PopulationI> object
-
 
 =cut
 
@@ -764,6 +767,7 @@ sub segregating_sites_count{
            frequency of one allele (fraction - must be less than 1)
            [optional] frequency of another allele - this is only needed
                       in a non-binary allele system
+
 Note     : p^2 + 2pq + q^2
 
 =cut
@@ -910,7 +914,7 @@ sub derived_mutations{
  Function: Calculate the Linkage Disequilibrium 
            This is for calculating LD for unphased data. 
            Other methods will be appropriate for phased haplotype data.
-          
+
  Returns : Hash of Hashes - first key is site 1,second key is site 2
            and value is LD for those two sites.
            my $LD_site1_site2 = $matrix{$site1}->{$site2};
@@ -918,7 +922,7 @@ sub derived_mutations{
            L<Bio::PopGen::IndividualI>s 
  Reference: Weir B.S. (1996) "Genetic Data Analysis II", 
                       Sinauer, Sunderlanm MA.
- 
+
 =cut
 
 sub composite_LD {

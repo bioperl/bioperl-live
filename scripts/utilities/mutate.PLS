@@ -5,11 +5,11 @@ mutate.pl
 
 =head1 SYNOPSIS
 
-./mutate.pl -p 25 -i test.fa -n 5 -f swiss -o muts.swiss
+  ./mutate.pl -p 25 -i test.fa -n 5 -f swiss -o muts.swiss
 
-or
+  #or
 
-./mutate.pl --percent=25 --input=test.fa --number=5 -output=x.fa
+  ./mutate.pl --percent=25 --input=test.fa --number=5 -output=x.fa
 
 =head1 DESCRIPTION
 
@@ -46,6 +46,7 @@ the web:
 Brian Osborne, brian_osborne at cognia.com
 
 =cut
+
 use strict;
 use Getopt::Long;
 use Bio::SeqIO;

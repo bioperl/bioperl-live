@@ -118,7 +118,7 @@ feature:
 
   sub traverse {
     $sf = shift;   #  $sf isa Bio::SeqfeatureI
-    
+
     # ...do something with $sf!
 
     # depth first traversal of containment tree
@@ -336,7 +336,7 @@ probably identical to the seconds CDS, other than identifiers.
 
 The default behaviour of this module is to make an arbitrary call
 where it is ambiguous (the mapping will always be bijective; i.e. one
-mRNA -> one CDS).
+mRNA -E<gt> one CDS).
 
 [TODO: NOTE: not tested on EMBL data, which may not be bijective; ie two
 mRNAs can share the same CDS??]
@@ -930,7 +930,7 @@ sub ignore_problems{
  Args    : on set, new value (an integer)
 
 Sets the threshold above which errors cause this module to throw an
-exception. The default is 0; all problems with a severity > 0 will
+exception. The default is 0; all problems with a severity E<gt> 0 will
 cause an exception.
 
 If you raise the threshold to 1, then the unflattening process will be

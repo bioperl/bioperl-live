@@ -14,14 +14,15 @@ Bio::Taxonomy::FactoryI - interface to define how to access NCBI Taxonoy
 
 =head1 DESCRIPTION
 
-$factory->fetch is a general method to fetch Taxonomy by either NCBI taxid or 
-any types of names.
+$factory-E<gt>fetch is a general method to fetch Taxonomy by either NCBI
+taxid or any types of names.
 
-$factory->fetch_parent($taxonomy), returns a Taxonomy that is one-step higher
-rank of the taxonomy specified as argument.
+$factory-E<gt>fetch_parent($taxonomy), returns a Taxonomy that is
+one-step higher rank of the taxonomy specified as argument.
 
-$factory->fetch_children($taxonomy), reports an array of Taxonomy those are 
-one-step lower rank of the taxonomy specified as the argument.
+$factory-E<gt>fetch_children($taxonomy), reports an array of Taxonomy
+those are one-step lower rank of the taxonomy specified as the
+argument.
 
 =head1 AUTHOR - Juguang Xiao
 

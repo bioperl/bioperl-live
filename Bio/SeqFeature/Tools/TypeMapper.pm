@@ -12,7 +12,7 @@
 
 =head1 NAME
 
-Bio::SeqFeature::Tools::TypeMapper - maps $seq_feature->primary_tag
+Bio::SeqFeature::Tools::TypeMapper - maps $seq_feature-E<gt>primary_tag
 
 =head1 SYNOPSIS
 
@@ -24,7 +24,7 @@ Bio::SeqFeature::Tools::TypeMapper - maps $seq_feature->primary_tag
     Bio::SeqIO->new(-file=>'AE003644.gbk',
                     -format=>'GenBank');
   $seq = $seqio->next_seq();
-  
+
   $tm = Bio::SeqFeature::Tools::TypeMapper->new;
 
   # map all the types in the sequence

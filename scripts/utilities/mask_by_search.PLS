@@ -1,5 +1,5 @@
 #!/usr/bin/perl -w
-# $Id: mask_by_search.PLS,v 1.2 2003-07-25 14:48:54 jason Exp $
+# $Id: mask_by_search.PLS,v 1.3 2003-09-08 12:17:15 heikki Exp $
 
 =head1 NAME
 
@@ -7,7 +7,7 @@ mask_by_search - mask sequence(s) based on its alignment results
 
 =head1 SYNOPSIS 
 
-mask_by_search.pl -f blast genomefile blastfile.bls > maskedgenome.fa
+  mask_by_search.pl -f blast genomefile blastfile.bls > maskedgenome.fa
 
 =head1 DESCRIPTION
 

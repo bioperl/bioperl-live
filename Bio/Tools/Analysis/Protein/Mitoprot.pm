@@ -80,6 +80,8 @@ This the second implentation of Bio::SimpleAnalysisI which hopefully
 will make it easier to write wrappers on various services. This class
 uses a web resource and therefore inherits from Bio::WebAgent.
 
+=back
+
 =head1 SEE ALSO
 
 L<Bio::SimpleAnalysisI>,
@@ -201,8 +203,8 @@ acidic_aas, export_prob, charge, cleavage_site, method.
 
 =item 'parsed'
 
-hash references of parsed results { input_length =>, basic_aas=>,
-acidic_aas=>, export_prob=>, charge=>, cleavage_site=>}.
+hash references of parsed results { input_length =E<gt>, basic_aas=E<gt>,
+acidic_aas=E<gt>, export_prob=E<gt>, charge=E<gt>, cleavage_site=E<gt>}.
 
 =back
 

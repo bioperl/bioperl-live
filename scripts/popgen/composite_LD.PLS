@@ -1,14 +1,14 @@
 #!/usr/bin/perl -w
 # -*-Perl-*- 
-# $Id: composite_LD.PLS,v 1.5 2003-08-18 15:52:37 jason Exp $
+# $Id: composite_LD.PLS,v 1.6 2003-09-08 12:17:15 heikki Exp $
 
 =head1 NAME 
 
-composite_LD -i filename.prettybase.txt --sortbyld > outfile
+composite_LD -i filename.prettybase.txt --sortbyld E<gt> outfile
 
 =head1 SYNOPSIS
 
-composite_LD -i filename.prettybase [-o out.LD] [-f prettybase/csv] [--sortbyld] [--noconvertindels]
+  composite_LD -i filename.prettybase [-o out.LD] [-f prettybase/csv] [--sortbyld] [--noconvertindels]
 
 =head2 DESCRIPTION
 

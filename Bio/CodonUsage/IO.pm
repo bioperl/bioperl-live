@@ -16,7 +16,7 @@ Bio::CodonUsage::IO - for reading and writing codon usage tables to file
 =head1 SYNOPSIS
 
         use Bio::CodonUsage::IO;
-		
+
         ##read in a codon usage file
         my $io = Bio::CodonUsage::IO->new(-file => "in");
         my $cut = $io->next_data();
@@ -121,7 +121,6 @@ sub next_data {
  Args   : a Bio::CodonUsage::Table object reference 
 
 =cut
-	
 
 
 sub write_data {

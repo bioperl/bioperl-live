@@ -326,7 +326,6 @@ options are recognized:
 
   -show_sequence Show the amino acid sequence 1 (true)
                 if there's room.
-                
 
 =head1 SUGGESTED STANZA FOR GENOME BROWSER
 

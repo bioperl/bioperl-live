@@ -20,7 +20,7 @@ Bio::Matrix::GenericMatrix - A generic matrix implementation
   my $matrix = new Bio::Matrix::GenericMatrix();
   $matrix->add_column_num(1,$column1);
   $matrix->add_column_num(2,$column2);
-  
+
   my $element = $matrix->element(1,2);
   $matrix->element(1,2,$newval);
 
@@ -228,6 +228,7 @@ sub get_entry{ $_[0]->entry($_[1],$_[2]) }
  Args    : $row - row number
            $col - column number
            [optional] $newvalue to store at this cell
+
 =cut
 
 sub entry_by_num {

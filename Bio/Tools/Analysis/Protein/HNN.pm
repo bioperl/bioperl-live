@@ -9,8 +9,10 @@
 # POD documentation - main docs before the code
 
 
-=head1 NAME Bio::Tools::Analysis::Protein::HNN - a wrapper around HNN
-protein secondary structure prediction server
+=head1 NAME
+
+Bio::Tools::Analysis::Protein::HNN - a wrapper around HNN protein
+secondary structure prediction server
 
 =head1  SYNOPSIS
 
@@ -91,6 +93,7 @@ representing the scores for each residue.
 Many methods common to all analyses are inherited from
 Bio::Tools::Analysis::SimpleAnalysisBase.
 
+=back
 
 =head1 SEE ALSO
 
@@ -233,8 +236,8 @@ coil) "method" (HNN)
 
 =item 'parsed'
 
-Array of hash references of scores/structure assignations { helix =>,
-sheet => , coil => , struc=>}.
+Array of hash references of scores/structure assignations { helix =E<gt>,
+sheet =E<gt> , coil =E<gt> , struc=E<gt>}.
 
 =item 'all'
 

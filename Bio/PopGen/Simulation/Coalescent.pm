@@ -25,7 +25,6 @@ Bio::PopGen::Simulation::Coalescent - A Coalescent simulation factory
   my $factory = new Bio::PopGen::Simluation::Coalescent( -sample_size => 6,
                                                          -maxcount => 50);
 
-  
   my $tree = $factory->next_tree;
 
   # add 20 mutations randomly to the tree

@@ -27,31 +27,30 @@ at http://www.kazusa.or.jp/codon.
 =head1 DESCRIPTION
 
 
-This class retrieves and objectifies codon usage tables either from
-a web database . The idea is that you can 
-initially retrieve a CUT from the web database, and write it to file
-in a way that can be read in later, using the Bio::CodonUsage::IO module.
+This class retrieves and objectifies codon usage tables either from a
+web database . The idea is that you can initially retrieve a CUT from
+the web database, and write it to file in a way that can be read in
+later, using the Bio::CodonUsage::IO module.
 
-
-For  a web query, two parameters need to be specified: species(sp) and 
-genetic code id (gc). The database is searched 
-using regular expressions, therefore the full latin name 
-must be given to specify the organism. If the species name
-is ambiguous the first CUT in the list is retrieved. 
-Defaults are Homo sapiens and 1(standard genetic code).
-If you are retrieving CUTs from organisms using other genetic codes this needs
-to be  put in as a parameter. Parameters can be entered in the constructor
-or in the get_web_request ()method. Allowable parameters are listed in the
-$QUERY_KEYS hash reference variable.
+For a web query, two parameters need to be specified: species(sp) and
+genetic code id (gc). The database is searched using regular
+expressions, therefore the full latin name must be given to specify
+the organism. If the species name is ambiguous the first CUT in the
+list is retrieved.  Defaults are Homo sapiens and 1(standard genetic
+code).  If you are retrieving CUTs from organisms using other genetic
+codes this needs to be put in as a parameter. Parameters can be
+entered in the constructor or in the get_web_request
+()method. Allowable parameters are listed in the $QUERY_KEYS hash
+reference variable.
 
 I intend at a later date to allow retrieval of multiple codon tables
-e.g., from a wildcard search. 
- 
+e.g., from a wildcard search.
+
 =head1 SEE ALSO
 
 L<Bio::Tools::CodonTable>, 
-L<Bio::WebAgent>,
-L<Bio::CodonUsage::Table>,
+L<Bio::WebAgent>, 
+L<Bio::CodonUsage::Table>, 
 L<Bio::CodonUsage::IO>
 
 =head1 FEEDBACK
@@ -203,7 +202,6 @@ sub gc {
  Args   : species  name(mandatory), genetic code id(optional)
 
 =cut
-	
 
 sub get_request {
 	my ($self, @args) = @_;

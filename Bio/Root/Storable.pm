@@ -73,7 +73,7 @@ or the web:
 
 =head1 AUTHOR - Will Spooner
 
-Email Will Spooner <whs@sanger.ac.uk>
+Email whs@sanger.ac.uk
 
 
 =head1 APPENDIX

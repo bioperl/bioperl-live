@@ -60,24 +60,24 @@ The results can be retrieved in 4 ways.
 
 =item 1.
 
-C<$ese_finder->result('')> retrieves the raw text output of the
+C<$ese_finder-E<gt>result('')> retrieves the raw text output of the
 program
 
 =item 2.
 
-C<$ese_finder->result('all')> returns a Bio::Seq::Meta::Array object
+C<$ese_finder-E<gt>result('all')> returns a Bio::Seq::Meta::Array object
 with prediction scores for all residues in the sequence
 
 
 =item 3.
 
-C<$ese_finder->result('Bio::SeqFeatureI')> returns an array of
+C<$ese_finder-E<gt>result('Bio::SeqFeatureI')> returns an array of
 Bio::SeqFeature objects for sequences with significant scores. Feature
 tags are score, motif,SR_protein and method
 
 =item 4.
 
-C<$ese_finder->result('raw')> returns an array of significant matches
+C<$ese_finder-E<gt>result('raw')> returns an array of significant matches
 with each element being a refernce to [Sprotein, position, motif,
 score]
 

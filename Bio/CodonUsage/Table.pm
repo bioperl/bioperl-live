@@ -17,41 +17,40 @@ at http://www.kazusa.or.jp/codon.
 
 =head1 SYNOPSIS
 
-	use Bio::CodonUsage::Table;
-	use Bio::DB::CUTG;
+  use Bio::CodonUsage::Table;
+  use Bio::DB::CUTG;
 
-	## get  a codon usage table from web database ##
-	my $cdtable = Bio::DB::CUTG->new(-sp => 'Mus musculus'
-                                               -gc => 1);
+  ## get  a codon usage table from web database ##
+  my $cdtable = Bio::DB::CUTG->new(-sp => 'Mus musculus'
+                                         -gc => 1);
 
-	## or from local file
-	
-    my $io = Bio::CodonUsage::IO->new(-file=>"file");
-	my $cdtable= $io->next_data(); 
-	
-	print "leu frequency is ", $cdtable->aa_frequency('LEU'), "\n";
-	print "freqof ATG is ", $cdtable->codon_rel_frequency('ttc'), "\n";
-	print "abs freq of ATG is ", $cdtable->codon_abs_frequency('ATG'), "\n";
-	print "number of ATG codons is ", $cdtable->codon_count('ATG'), "\n";
-	print "gc content at position 1 is ", $cdtable->get_coding_gc('1'), "\n";
-	print "total CDSs for Mus musculus  is ", $cdtable->cds_count(), "\n";
+  ## or from local file
+
+  my $io = Bio::CodonUsage::IO->new(-file=>"file");
+  my $cdtable= $io->next_data(); 
+
+  print "leu frequency is ", $cdtable->aa_frequency('LEU'), "\n";
+  print "freqof ATG is ", $cdtable->codon_rel_frequency('ttc'), "\n";
+  print "abs freq of ATG is ", $cdtable->codon_abs_frequency('ATG'), "\n";
+  print "number of ATG codons is ", $cdtable->codon_count('ATG'), "\n";
+  print "gc content at position 1 is ", $cdtable->get_coding_gc('1'), "\n";
+  print "total CDSs for Mus musculus  is ", $cdtable->cds_count(), "\n";
 
 =head1 DESCRIPTION
 
 
-This class provides methods for accessing codon usage table data. 
+This class provides methods for accessing codon usage table data.
 
-All of the methods at present are simple look-ups of the
- table or are derived from simple calculations from the
- table. Future methods could include measuring the codon
-usage of a sequence , for example, or provide methods
- for examining codon usage in alignments.
+All of the methods at present are simple look-ups of the table or are
+derived from simple calculations from the table. Future methods could
+include measuring the codon usage of a sequence , for example, or
+provide methods for examining codon usage in alignments.
 
 =head1 SEE ALSO
 
 L<Bio::Tools::CodonTable>, 
-L<Bio::WebAgent>,
-L<Bio::CodonUsage::IO>,
+L<Bio::WebAgent>, 
+L<Bio::CodonUsage::IO>, 
 L<Bio::DB::CUTG>
 
 =head1 FEEDBACK

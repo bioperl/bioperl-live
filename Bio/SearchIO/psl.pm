@@ -29,8 +29,8 @@ PSL format is documented here:
 http://genome.ucsc.edu/goldenPath/help/customTrack.html#PSL
 
 By default it assumes PSL output came from BLAT you can override that
-by specifying -program_name => 'BLASTZ' when initializing the SearchIO
-object.
+by specifying -program_name =E<gt> 'BLASTZ' when initializing the
+SearchIO object.
 
 =head1 FEEDBACK
 

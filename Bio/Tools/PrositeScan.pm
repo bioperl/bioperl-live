@@ -5,26 +5,26 @@ Bio::Tools::PrositeScan - Parser for ps_scan result
 
 =head1 SYNOPSIS
 
-use Bio::Tools::PrositeScan;
+  use Bio::Tools::PrositeScan;
 
-my $factory = Bio::Tools::PrositeScan->new(
-    -file => 'out.PrositeScan'
-);
+  my $factory = Bio::Tools::PrositeScan->new(
+      -file => 'out.PrositeScan'
+  );
 
-while(my $match = $factory->next_prediction){
-    #  $match is of Bio::SeqFeature::FeaturePair
-    my $q_id = $fatch->feature1->seq_id;
-    my $h_id = $fatch->feature2->seq_id;
-}
+  while(my $match = $factory->next_prediction){
+      #  $match is of Bio::SeqFeature::FeaturePair
+      my $q_id = $fatch->feature1->seq_id;
+      my $h_id = $fatch->feature2->seq_id;
+  }
 
 =head1 DESCRIPTION
 
-This is the parser of the output of ps_scan program. It takes either a file 
+This is the parser of the output of ps_scan program. It takes either a file
 handler or a file name, and returns a Bio::SeqFeature::FeaturePair object.
 
 =head1 AUTHOR
 
-Juguang Xiao <juguang@tll.org.sg>
+Juguang Xiao, juguang@tll.org.sg
 
 =cut
 
@@ -44,10 +44,10 @@ use Bio::SeqFeature::FeaturePair;
 
 =head2 new
 
-Title   : new
-Usage   : Bio::Tools::PrositeScan->new(-file => 'out.PrositeScan');
-          Bio::Tools::PrositeScan->new(-fh => \*FH);
-Returns : L<Bio::Tools::PrositeScan>
+  Title   : new
+  Usage   : Bio::Tools::PrositeScan->new(-file => 'out.PrositeScan');
+            Bio::Tools::PrositeScan->new(-fh => \*FH);
+  Returns : L<Bio::Tools::PrositeScan>
 
 =cut
 
@@ -73,13 +73,13 @@ sub format {
 
 =head2 next_prediction
 
-Title   : new
-Usage   : 
-    while($result = $factory->next_prediction){
-        ;
-    }
+  Title   : new
+  Usage   : 
+      while($result = $factory->next_prediction){
+          ;
+      }
 
-Returns : a Bio::SeqFeature::FeaturePair object
+  Returns : a Bio::SeqFeature::FeaturePair object
 
 =cut
 

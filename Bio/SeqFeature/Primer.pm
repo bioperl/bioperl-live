@@ -25,7 +25,7 @@
 
 =head1 NAME
 
- Bio::SeqFeature::Primer - Primer Generic SeqFeature
+Bio::SeqFeature::Primer - Primer Generic SeqFeature
 
 =head1 SYNOPSIS
 
@@ -71,47 +71,47 @@
 
 =head1 DESCRIPTION
 
- Handle primer sequences. This will allow you to generate a primer
- object required for a Bio::Seq::PrimedSeq object. This module is 
- designed to integrate with Bio::Tools::Primer3 and Bio::Seq::PrimedSeq.
+Handle primer sequences. This will allow you to generate a primer
+object required for a Bio::Seq::PrimedSeq object. This module is
+designed to integrate with Bio::Tools::Primer3 and
+Bio::Seq::PrimedSeq.
 
- In addition, you can calculate the melting temperature of the primer.
+In addition, you can calculate the melting temperature of the primer.
 
- This module is supposed to implement  location and range, presumably through 
- generic.pm, but does not do so yet. However, it does allow you to set primers, 
- and use those   objects as the basis for Bio::Seq::PrimedSeq objects.
+This module is supposed to implement location and range, presumably
+through generic.pm, but does not do so yet. However, it does allow you
+to set primers, and use those objects as the basis for
+Bio::Seq::PrimedSeq objects.
 
- See also the POD for Bio::Seq::PrimedSeq and Bio::Tools::Nucleotide::Analysis::Primer3
+See also the POD for Bio::Seq::PrimedSeq and
+Bio::Tools::Nucleotide::Analysis::Primer3
 
 =head1 FEEDBACK
 
 =head2 Mailing Lists
 
- User feedback is an integral part of the evolution of this and other
- Bioperl modules. Send your comments and suggestions preferably to one
- of the Bioperl mailing lists.  Your participation is much appreciated.
+User feedback is an integral part of the evolution of this and other
+Bioperl modules. Send your comments and suggestions preferably to one
+of the Bioperl mailing lists.  Your participation is much appreciated.
 
  bioperl-l@bioperl.org          - General discussion
  http://bio.perl.org/MailList.html             - About the mailing lists
 
 =head2 Reporting Bugs
 
- Report bugs to the Bioperl bug tracking system to help us keep track
- the bugs and their resolution.  Bug reports can be submitted via email
- or the web:
+Report bugs to the Bioperl bug tracking system to help us keep track
+the bugs and their resolution.  Bug reports can be submitted via email
+or the web:
 
     bioperl-bugs@bio.perl.org
     http://bugzilla.bioperl.org/
 
 =head1 AUTHOR 
 
- Rob Edwards <redwards@utmem.edu>
+Rob Edwards, redwards@utmem.edu
 
- The original concept and much of the code was written by
-
- Chad Matsalla
-
- Chad Matsalla <bioinformatics1@dieselwurks.com>
+The original concept and much of the code was written by
+Chad Matsalla, bioinformatics1@dieselwurks.com
 
 =head1 APPENDIX
 

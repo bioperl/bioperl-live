@@ -89,6 +89,7 @@ single array of Domcut prediction scores.  e.g.,
 Many methods common to all analyses are inherited from
 Bio::Tools::Analysis::SimpleAnalysisBase.
 
+=back
 
 =head1 SEE ALSO
 

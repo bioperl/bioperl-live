@@ -62,8 +62,8 @@ post for each model.
 
 The start and end of the alignment for both the query and hit sequence
 are available through the L<Bio::SeqFeature::FeaturePair> interface,
-specifically L<Bio::SeqFeature::FeaturePair::feature1()> and
-L<Bio::SeqFeature::FeaturePair::feature2()>.  Additionally if you have
+specifically L<Bio::SeqFeature::FeaturePair::feature1> and
+L<Bio::SeqFeature::FeaturePair::feature2>.  Additionally if you have
 run QRNA with an input file which has the location of the alignment
 stored in the FASTA filename as in (ID/START-END) which is the default
 output format from L<Bio::AlignIO::fasta> produced alignment output,

@@ -29,7 +29,7 @@ implementation.
 This is implemented via containment to avoid multiple inheritance
 problems.  Their is a L<Bio::PopGen::Individual> object which handles
 the L<Bio::PopGen::IndividualI> interface, and is accessible via the
-L<Bio::Tree::AlleleNode::individual()> method.
+L<Bio::Tree::AlleleNode::individual> method.
 
 =head1 FEEDBACK
 

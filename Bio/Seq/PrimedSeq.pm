@@ -23,17 +23,18 @@
 # POD documentation - main docs before the code
 
 
-=head1 Bio::Seq::PrimedSeq
+=head1 NAME
 
-  Bio::Seq::PrimedSeq - A representation of a sequence and two primers flanking a
+Bio::Seq::PrimedSeq - A representation of a sequence and two primers flanking a
   target region for amplification
 
 =head1 SYNOPSIS
 
-  The easiest way to use this is probably as one of the following:
-   (i) to get the output from Bio::Tools::Run::Primer3, Bio::Tools::Primer3, or Bio::Tools::PCRSimulation
+  # The easiest way to use this is probably as one of the following:
+  # (i) to get the output from Bio::Tools::Run::Primer3, Bio::Tools::Primer3,
+  # or Bio::Tools::PCRSimulation
 
-      For example, start with a fasta file
+  #    For example, start with a fasta file
 
       use Bio::SeqIO;
       use Bio::Tools::Run::Primer3;
@@ -53,38 +54,45 @@
        $seqout->write_seq($results->annotated_seq);
       }
 
-   (ii) to create a genbank file for a sequence and its cognate primers
+   #(ii) to create a genbank file for a sequence and its cognate primers
 
      For example:
 
      use Bio::SeqIO;
      use Bio::Seq::PrimedSeq;
 
-     # have a sequence file ($file) with the template, and two primers that match it, in fasta format
+     # have a sequence file ($file) with the template, and two primers
+     # that match it, in fasta format
+
      my $file=shift || die "$0 <file>"
      my $seqin=new Bio::SeqIO(-file=>$file);
+
      # read three sequences
-     my ($template, $leftprimer, $rightprimer) = ($seqin->next_seq, $seqin->next_seq, , $seqin->next_seq);
+     my ($template, $leftprimer, $rightprimer) =
+           ($seqin->next_seq, $seqin->next_seq, , $seqin->next_seq);
      # set up the primed sequence object
-     my $primedseq = Bio::Seq::PrimedSeq->new(-seq=>$template, -left_primer=>$leftprimer, -right_primer=>$rightprimer);
+     my $primedseq = Bio::Seq::PrimedSeq->new(-seq=>$template, 
+                                              -left_primer=>$leftprimer,
+                                              -right_primer=>$rightprimer);
      # open a file for output
-     my $seqout=Bio::SeqIO->new(-file=>">primed_sequence.gbk", -format=>'genbank');
+     my $seqout=Bio::SeqIO->new(-file=>">primed_sequence.gbk",
+                                -format=>'genbank');
      # print the sequence out
      $seqout->write_seq($primedseq->annotated_sequence);
 
-  This should outut a genbank file with the two primers labeled.
+  # This should output a genbank file with the two primers labeled.
 
 =head1 DESCRIPTION
 
-  This module is a slightly glorified capsule containg a primed sequence. It was
-  created to address the fact that a primer is more the a seqfeature and there
-  need to be ways to represent the primer-sequence complex and the behaviors and
-  attributes that are associated with the complex.
-  
-  The primers are represented as Bio::SeqFeature::Primer objects, and should
-  be instatiated first.
+This module is a slightly glorified capsule containg a primed sequence. It was
+created to address the fact that a primer is more the a seqfeature and there
+need to be ways to represent the primer-sequence complex and the behaviors and
+attributes that are associated with the complex.
 
-  The simplest way to initiate a PrimedSeq object is as follows:
+The primers are represented as Bio::SeqFeature::Primer objects, and should
+be instatiated first.
+
+The simplest way to initiate a PrimedSeq object is as follows:
 
   my $primedseq=Bio::Seq::PrimedSeq->new(
   -seq=>Bio::Seq object,
@@ -92,45 +100,41 @@
   -right_primer=>Bio::SeqFeature::Primer object,
   );
 
-  From the PrimedSeq object you should be able to retrieve
-  information about Tm's and what not of each of the primers 
-  and the amplicon.
+From the PrimedSeq object you should be able to retrieve
+information about Tm's and what not of each of the primers 
+and the amplicon.
 
-  This is based on the PrimedSeq.pm module started by Chad Matsalla, with 
-  additions/improvements by Rob Edwards.
+This is based on the PrimedSeq.pm module started by Chad Matsalla, with 
+additions/improvements by Rob Edwards.
 
 =head1 FEEDBACK
 
-  User feedback is an integral part of the evolution of this and other
-  Bioperl modules. Send your comments and suggestions preferably to one
-  of the Bioperl mailing lists.  Your participation is much appreciated.
+User feedback is an integral part of the evolution of this and other
+Bioperl modules. Send your comments and suggestions preferably to one
+of the Bioperl mailing lists.  Your participation is much appreciated.
 
     bioperl-l@bioperl.org          - General discussion
     http://bio.perl.org/MailList.html             - About the mailing lists
 
 =head2 Reporting Bugs
 
-  Report bugs to the Bioperl bug tracking system to help us keep track
-  the bugs and their resolution.  Bug reports can be submitted via email
-  or the web:
+Report bugs to the Bioperl bug tracking system to help us keep track
+the bugs and their resolution.  Bug reports can be submitted via email
+or the web:
 
     bioperl-bugs@bio.perl.org
     http://bugzilla.bioperl.org/
 
 =head1 AUTHOR
 
-  Rob Edwards <redwards@utmem.edu>
+Rob Edwards, redwards@utmem.edu
 
-  Based on a module written by 
-
-  Chad Matsalla
-
-  Chad Matsalla <bioinformatics1@dieselwurks.com>
+Based on a module written by Chad Matsalla, bioinformatics1@dieselwurks.com
 
 =head1 APPENDIX
 
-  The rest of the documentation details each of the object
-  methods. Internal methods are usually preceded with a _
+The rest of the documentation details each of the object
+methods. Internal methods are usually preceded with a _
 
 =cut
 

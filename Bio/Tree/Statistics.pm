@@ -52,6 +52,8 @@ Email jason@bioperl.org
 
 =head1 CONTRIBUTORS
 
+none so far
+
 =head1 APPENDIX
 
 The rest of the documentation details each of the object methods.

@@ -109,7 +109,6 @@ use Bio::Root::Root;
                                    which each point to an array, each
                                    slot is for a different site class.
                                    'w' is for dN/dS and 'p' is probability
-                                   
 
 =cut
 

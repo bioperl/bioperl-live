@@ -112,32 +112,6 @@ use Data::Dumper;
 
 @ISA = qw( Bio::LocatableSeq Bio::Seq Bio::Seq::MetaI );
 
-
-BEGIN {
-
-    $DEFAULT_NAME = 'DEFAULT';
-    $GAP = '-';
-    $META_GAP = 0;
-}
-
-=head2 new
-
- Title   : new
- Usage   : $metaseq = Bio::Seq::Meta->new
-	        ( -meta => 'aaaaaaaabbbbbbbb',
-                  -seq =>  'TKLMILVSHIVILSRM'
-	          -id  => 'human_id',
-	          -accession_number => 'S000012',
-	        );
- Function: Constructor for Bio::Seq::Meta class, meta data being in a
-           string. Note that you can provide an empty quality string.
- Returns : a new Bio::Seq::Meta object
-
-=cut
-
-
-
-
 BEGIN {
 
     $DEFAULT_NAME = 'DEFAULT';

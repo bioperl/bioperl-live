@@ -1,17 +1,17 @@
 #!/usr/bin/perl -w
-# $Id: search2alnblocks.PLS,v 1.1 2003-07-25 14:50:05 jason Exp $
+# $Id: search2alnblocks.PLS,v 1.2 2003-09-08 12:17:15 heikki Exp $
 # Author:      Jason Stajich <jason@bioperl.org>
 # Description: Turn SearchIO parseable report(s) into a set of Aligned blocks
 #
 
-=head1 NAME 
+=head1 NAME
 
 search2alnblocks - Turn SearchIO parseable reports(s) into a set of aligned blocks
 
 =head1 SYNOPSIS
 
-search2alnblocks --minid PERCENTID --minlen LEN --minevalue EVALUE file1.
- blast file2.blast ...> out.fas
+  search2alnblocks --minid PERCENTID --minlen LEN --minevalue EVALUE file1.
+  blast file2.blast ...> out.fas
 
 =head1 DESCRIPTION
 

@@ -87,6 +87,7 @@ use Bio::Root::IO
 
 
 =cut
+
 sub new { 
   my($caller,@args) = @_;
   my $class = ref($caller) || $caller;

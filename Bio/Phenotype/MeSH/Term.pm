@@ -167,6 +167,55 @@ sub description {
 }
 
 
+=head2 add_synonym
+
+ Title   : add_synonym
+ Usage   : $obj->add_synonym( @synonyms );
+           or
+           $obj->add_synonym( $synonym );
+ Function: Pushes one or more synonyms for the term  term
+           into the list of synonyms.
+ Returns : 
+ Args    : scalar(s).
+
+=cut
+
+sub add_synonym {
+    my ( $self, @values ) = @_;
+    push( @{ $self->{ "_synonyms" } }, @values );
+}
+
+=head2 each_synonym
+
+ Title   : each_synonym()
+ Usage   : @gs = $obj->each_synonym();
+ Function: Returns a list of gene symbols [scalars, most likely Strings]
+           associated with this phenotype.
+ Returns : A list of scalars.
+ Args    :
+
+=cut
+
+sub each_synonym {
+    my ( $self ) = shift;
+    return @{ $self->{ "_synonyms" } };
+}
+
+=head2 purge_synonyms
+
+ Usage   : $obj->purge_synonym();
+ Function: Deletes  the list of synonyms to this term.
+ Returns : A list of scalars.
+ Args    :
+
+=cut
+
+sub purge_synonyms {
+    my ( $self ) = @_;
+    $self->{ "_synonyms" } = [];
+}
+
+
 =head2 Twig management
 
 Each MeSH term belongs to a complex tree like hierachy of terms where

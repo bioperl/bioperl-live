@@ -92,12 +92,13 @@ GOR4_struc, representing the scores for each residue.
 Many methods common to all analyses are inherited from
 Bio::Tools::Analysis::SimpleAnalysisBase.
 
+=back
 
 =head1 SEE ALSO
 
-L<Bio::SimpleAnalysisI>,
+L<Bio::SimpleAnalysisI>, 
 L<Bio::Tools::Analysis::SimpleAnalysisBase>, 
-L<Bio::Seq::Meta::Array>,
+L<Bio::Seq::Meta::Array>, 
 L<Bio::WebAgent>
 
 =head1 FEEDBACK
@@ -194,7 +195,7 @@ coil) "method" (GOR4)
 
 =item 'parsed'
 
-Array of hash references of { helix =>, sheet => , coil => , struc=>}.
+Array of hash references of { helix =E<gt>, sheet =E<gt> , coil =E<gt> , struc=E<gt>}.
 
 =item 'all'
 
