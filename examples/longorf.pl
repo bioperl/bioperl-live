@@ -145,6 +145,6 @@ printed by choosing the graph option.
 This script is not supported by anyone, but requests can be made to the
 author.
 
-=head1 AUTHOR - Dan Kortschak <kortschak@rsbs.anu.edu.au>
+=head1 AUTHOR - Dan Kortschak
 
 =cut
