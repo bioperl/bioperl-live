@@ -314,20 +314,24 @@ sub new {
     $self->num_identical($identical);
     $self->num_conserved($conserved);
     
+    my $logical;
     if( $hsp_len ) {
         $self->length('total', $hsp_len);
-        $self->frac_identical( 'total', $identical / $self->length('total'));
-        $self->frac_conserved( 'total', $conserved / $self->length('total'));
+        $logical = $self->_logical_length('total');
+        $self->frac_identical( 'total', $identical / $hsp_len);
+        $self->frac_conserved( 'total', $conserved / $hsp_len);
     }
     if( $hit_len ) {
 #        $self->length('hit', $self->hit->length);
-        $self->frac_identical( 'hit', $identical / $self->length('hit'));
-        $self->frac_conserved( 'hit', $conserved / $self->length('hit'));
+        $logical = $self->_logical_length('hit');
+        $self->frac_identical( 'hit', $identical / $logical);
+        $self->frac_conserved( 'hit', $conserved / $logical);
     }
     if( $query_len ) {
 #        $self->length('query', $self->query->length);        
-        $self->frac_identical( 'query', $identical / $self->length('query')) ;
-        $self->frac_conserved( 'query', $conserved / $self->length('query'));
+        $logical = $self->_logical_length('query');
+        $self->frac_identical( 'query', $identical / $logical) ;
+        $self->frac_conserved( 'query', $conserved / $logical);
     }
     $self->query_string($query_seq);
     $self->hit_string($hit_seq);
@@ -347,8 +351,9 @@ sub new {
         $gaps = $self->gaps("query") + $self->gaps("hit");
     }
     $self->gaps('total', $gaps);
-    $self->percent_identity($percent_id || 
-			    $identical / $hsp_len ) if( $hsp_len > 0 );
+
+    $self->percent_identity($percent_id ||
+			    $self->frac_identical('total')*100) if( $hsp_len > 0 );
 
     defined $rank && $self->rank($rank);
     defined $links && $self->links($links);
@@ -356,6 +361,20 @@ sub new {
 }
 
 
+sub _logical_length {
+    my ($self, $type) = @_;
+    my $algo = $self->algorithm;
+    my $len = $self->length($type);
+    my $logical = $len;
+    if($algo =~ /^(PSI)?T(BLAST|FAST)[NY]/oi ) {
+        $logical = $len/3 if $type =~ /sbjct|hit|tot/i;
+    } elsif($algo =~ /^(BLAST|FAST)(X|Y|XY)/oi ) {
+        $logical = $len/3 if $type =~ /query|tot/i;
+    } elsif($algo =~ /^T(BLAST|FAST)(X|Y|XY)/oi ) {
+        $logical = $len/3;
+    }
+    return $logical;
+}
 
 =head2 L<Bio::Search::HSP::HSPI> methods
 
