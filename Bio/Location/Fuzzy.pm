@@ -83,12 +83,17 @@ BEGIN {
 		    # >10
 		    'AFTER'   => '>');   
    
+    # The following regular expressions map to fuzzy location types. Every
+    # expression must match the complete encoded point string, and must
+    # contain two groups identifying min and max. Empty matches are automatic.
+    # converted to undef, except for 'EXACT', for which max is set to equal
+    # min.
     %FUZZYPOINTENCODE = ( 
-			  '\>(\d+)' => 'AFTER',
-			  '\<(\d+)' => 'BEFORE',
-			  qr/^(\d+)$/  => 'EXACT',
-			  '(\d+)\>' => 'AFTER',
-			  '(\d+)\<' => 'BEFORE',
+			  '\>(\d+)(.{0})' => 'AFTER',
+			  '\<(.{0})(\d+)' => 'BEFORE',
+			  '(\d+)'  => 'EXACT',
+			  '(\d+)(.{0})\>' => 'AFTER',
+			  '(.{0})(\d+)\<' => 'BEFORE',
 			  '(\d+)\.(\d+)' => 'WITHIN',
 			  '(\d+)\^(\d+)' => 'BETWEEN',
 		     );
@@ -112,55 +117,44 @@ sub new {
 =head2 length
 
   Title   : length
-  Usage   : $length = $fuzzy->length();
-  Function: get/set the length of this range
-  Returns : the length of this range
+  Usage   : $length = $fuzzy_loc->length();
+  Function: Get the length of this location.
+
+            Note that the length of a fuzzy location will always depend
+            on the currently active interpretation of start and end. The
+            result will therefore vary for different CoordinatePolicy objects.
+
+  Returns : an integer
   Args    : none
 
 =cut
 
-sub length {
-    my($self) = @_;
-    return $self->SUPER::length() if( !$self->start || !$self->end);
-    $self->warn('Length is not valid for a FuzzyLocation'); 
-    return 0;
-}
+#sub length {
+#    my($self) = @_;
+#    return $self->SUPER::length() if( !$self->start || !$self->end);
+#    $self->warn('Length is not valid for a FuzzyLocation'); 
+#    return 0;
+#}
 
 =head2 start
 
   Title   : start
   Usage   : $start = $fuzzy->start();
   Function: get/set start of this range, handling fuzzy_starts
-  Returns : an integer representing the start of the range or undef if
-            location is fuzzy
-  Args    : start location (can be fuzzy string)
+  Returns : a positive integer representing the start of the location
+  Args    : start location on set (can be fuzzy point string)
 
 =cut
 
 sub start {
     my($self,$value) = @_;
     if( defined $value ) {
-	my ($encode, $min,$max) = $self->_fuzzypointencode($value);	
-	$self->{'_start_pos_type'} = $encode;
-	$self->{'_max_start'} = $self->{'_min_start'} = undef;
-	$self->{'_start'} = 0;
-	
-	if( $encode eq 'EXACT' ) {
-	    # max and min should be equal to the start value 
-	    # if we have an exact point
-	    $self->{'_start'} = $value;
-	    $self->{'_max_start'} = $value;
-	    $self->{'_min_start'} = $value;
-	} else { 
-	    # so only if we are talking about a WITHIN or BETWEEN 
-	    # for both max and min get set to values
-
-	    $self->{'_max_start'} = $max if( $encode ne 'BEFORE' );
-	    $self->{'_min_start'} = $min if( $encode ne 'AFTER' );
-	}
+	my ($encode,$min,$max) = $self->_fuzzypointdecode($value);	
+	$self->start_pos_type($encode);
+	$self->min_start($min);
+	$self->max_start($max);
     }
-    # start is 0 if we don't know where it is exactly    
-    return $self->{'_start'};
+    return $self->SUPER::start();
 }
 
 =head2 end
@@ -168,36 +162,20 @@ sub start {
   Title   : end
   Usage   : $end = $fuzzy->end();
   Function: get/set end of this range, handling fuzzy_ends
-  Returns : and integer representing the end of the range
-  Args    : end location (can be fuzzy string)
+  Returns : a positive integer representing the end of the range
+  Args    : end location on set (can be fuzzy string)
 
 =cut
 
 sub end {
     my($self,$value) = @_;
     if( defined $value ) {
-	my ($encode, $min,$max) = $self->_fuzzypointencode($value);
-	$self->{'_end_pos_type'} = $encode;
-	# reset all the store values
-	$self->{'_max_end'} = $self->{'_min_end'}  = undef;
-	$self->{'_end'} = 0;
-	if( $encode eq 'EXACT' ) {
-	    # max and min should be equal to the end value 
-	    # if we have an exact point
-
-	    $self->{'_end'} = $value;
-	    $self->{'_max_end'} = $value;
-	    $self->{'_min_end'} = $value;
-	} else { 
-	    # so only if we are talking about a WITHIN or BETWEEN 
-	    # for both max and min get set to values
-	    $self->{'_max_end'} = $max if( $encode ne 'BEFORE');
-	    $self->{'_min_end'} = $min if( $encode ne 'AFTER' );
-	}
+	my ($encode,$min,$max) = $self->_fuzzypointdecode($value);
+	$self->end_pos_type($encode);
+	$self->min_end($min);
+	$self->max_end($max);
     }
-    # end is undef if we don't know where it is exactly
-
-    return $self->{'_end'};
+    return $self->SUPER::end();
 }
 
 =head2 LocationI methods
@@ -206,14 +184,18 @@ sub end {
 
   Title   : min_start
   Usage   : $min_start = $fuzzy->min_start();
-  Function: get the minimum starting point
+  Function: get/set the minimum starting point
   Returns : the minimum starting point from the contained sublocations
-  Args    : none
+  Args    : integer or undef on set
 
 =cut
 
 sub min_start {
-    my ($self) = @_;    
+    my ($self,@args) = @_;
+
+    if(@args) {
+	$self->{'_min_start'} = $args[0]; # the value may be undef!
+    }
     return $self->{'_min_start'};
 }
 
@@ -221,14 +203,18 @@ sub min_start {
 
   Title   : max_start
   Usage   : my $maxstart = $location->max_start();
-  Function: Get maximum starting location of feature startpoint  
+  Function: Get/set maximum starting location of feature startpoint  
   Returns : integer or undef if no maximum starting point.
-  Args    : none
+  Args    : integer or undef on set
 
 =cut
 
 sub max_start {
-    my ($self) = @_;
+    my ($self,@args) = @_;
+
+    if(@args) {
+	$self->{'_max_start'} = $args[0]; # the value may be undef!
+    }
     return $self->{'_max_start'};
 }
 
@@ -236,15 +222,19 @@ sub max_start {
 
   Title   : start_pos_type
   Usage   : my $start_pos_type = $location->start_pos_type();
-  Function: Get start position type (ie <,>, ^) 
+  Function: Get/set start position type.
   Returns : type of position coded as text 
             ('BEFORE', 'AFTER', 'EXACT','WITHIN', 'BETWEEN')
-  Args    : none
+  Args    : a string on set
 
 =cut
 
 sub start_pos_type {
-    my ($self) = @_;
+    my ($self,$value) = @_;
+
+    if(defined($value)) {
+	$self->{'_start_pos_type'} = $value;
+    }
     return $self->{'_start_pos_type'};
 }
 
@@ -252,14 +242,18 @@ sub start_pos_type {
 
   Title   : min_end
   Usage   : my $minend = $location->min_end();
-  Function: Get minimum ending location of feature endpoint 
+  Function: Get/set minimum ending location of feature endpoint 
   Returns : integer or undef if no minimum ending point.
-  Args    : none
+  Args    : integer or undef on set
 
 =cut
 
 sub min_end {
-    my ($self) = @_;
+    my ($self,@args) = @_;
+
+    if(@args) {
+	$self->{'_min_end'} = $args[0]; # the value may be undef!
+    }
     return $self->{'_min_end'};
 }
 
@@ -267,14 +261,18 @@ sub min_end {
 
   Title   : max_end
   Usage   : my $maxend = $location->max_end();
-  Function: Get maximum ending location of feature endpoint 
+  Function: Get/set maximum ending location of feature endpoint 
   Returns : integer or undef if no maximum ending point.
-  Args    : none
+  Args    : integer or undef on set
 
 =cut
 
 sub max_end {
-    my ($self) = @_;
+    my ($self,@args) = @_;
+
+    if(@args) {
+	$self->{'_max_end'} = $args[0]; # the value may be undef!
+    }
     return $self->{'_max_end'};
 }
 
@@ -282,15 +280,19 @@ sub max_end {
 
   Title   : end_pos_type
   Usage   : my $end_pos_type = $location->end_pos_type();
-  Function: Get end position type (ie <,>, ^) 
+  Function: Get/set end position type.
   Returns : type of position coded as text 
             ('BEFORE', 'AFTER', 'EXACT','WITHIN', 'BETWEEN')
-  Args    : none
+  Args    : a string on set
 
 =cut
 
 sub end_pos_type {
-    my ($self) = @_;
+    my ($self,$value) = @_;
+
+    if(defined($value)) {
+	$self->{'_end_pos_type'} = $value;
+    }
     return $self->{'_end_pos_type'};
 }
 
@@ -397,43 +399,38 @@ sub _create_point_location {
     return $str;
 }
 
-=head2 seq_id
+=head2 _fuzzypointdecode
 
-  Title   : seq_id
-  Usage   : my $seqid = $location->seq_id();
-  Function: Get/Set seq_id that location refers to
-  Returns : seq_id
-  Args    : [optional] seq_id value to set
-
-=cut
-
-=head2 _fuzzypointencode
-
-  Title   : _fuzzypointencode
-  Usage   : $fuzzy->_fuzzypointencode('5>');
-  Function: Decode a fuzzy string
-  Returns : A two-element array consisting of a integer code of the fuzzy 
-            encoding being used, and the integer value of the point.
-            A fuzzy code of 0 means 'non-fuzzy', any other code indicates a
-            fuzzy location.
+  Title   : _fuzzypointdecode
+  Usage   : ($type,$min,$max) = $self->_fuzzypointdecode('<5');
+  Function: Decode a fuzzy string.
+  Returns : A 3-element array consisting of the type of location, the
+            minimum integer, and the maximum integer describing the range
+            of coordinates this start or endpoint refers to. Minimum or
+            maximum coordinate may be undefined.
           : Returns empty array on fail.
   Args    : fuzzypoint string
 
 =cut
 
-sub _fuzzypointencode {
+sub _fuzzypointdecode {
     my ($self, $string) = @_;
     return () if( !defined $string);
+    # strip off leading and trailing space
+    $string =~ s/^\s*(\S+)\s*/$1/;
     foreach my $pattern ( keys %FUZZYPOINTENCODE ) {
-	if( $string =~ /^\s*$pattern\s*$/ ) {
+	if( $string =~ /^$pattern$/ ) {
 	    my ($min,$max) = ($1,$2);
-	    if( ! defined $max ) {
+	    if($FUZZYPOINTENCODE{$pattern} eq 'EXACT') {
 		$max = $min;
+	    } else {
+		$max = undef if(length($max) == 0);
+		$min = undef if(length($min) == 0);
 	    }
-	    return ($FUZZYPOINTENCODE{$pattern}, $min,$max);
+	    return ($FUZZYPOINTENCODE{$pattern},$min,$max);
 	}
     }
-    if( $self->verbose > 1 ) {
+    if( $self->verbose >= 1 ) {
 	$self->warn("could not find a valid fuzzy encoding for $string");
     }
     return ();
