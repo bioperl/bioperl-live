@@ -151,6 +151,7 @@ sub write_seq {
      my $str = $seq->seq;
      my $top = $seq->id();
      if (my $desc = $seq->desc()) {
+	 $desc =~ s/\n//g;
         $top .= " $desc";
      }
      $str=~ s/(.{1,60})/$1\n/g;
