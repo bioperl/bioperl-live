@@ -350,5 +350,21 @@ sub close{
 
 =cut
 
+=head2 get_all_terms
+
+ Title   : get_all_terms
+ Usage   : get_all_terms: TermI[]
+ Function: Retrieves all terms from the ontology.
+
+           We do not mandate an order here in which the terms are
+           returned. In fact, the default implementation will return
+           them in unpredictable order.
+
+ Example : @terms = $obj->get_all_terms()
+ Returns : Array of TermI objects.
+ Args    :
+
+
+=cut
 
 1;

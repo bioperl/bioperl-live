@@ -360,11 +360,17 @@ sub add_relationship{
     my $self = shift;
     my $rel = shift;
 
-    # set ontology if not set already, and if it's a RelationshipI object
-    $rel->ontology($self)
-	if( $rel && ref($rel) &&
-	    $rel->isa("Bio::Ontology::RelationshipI") && (! $rel->ontology()));
-    return $self->engine->add_relationship($rel,@_);
+    if($rel && $rel->isa("Bio::Ontology::TermI")) {
+	# we need to construct the relationship object on the fly
+	my ($child,$type) = @_;
+	$rel = Bio::Ontology::Relationship->new(-parent_term => $rel,
+						-child_term  => $child,
+						-relationship_type => $type,
+						-ontology    => $self);
+    }
+    # set ontology if not set already
+    $rel->ontology($self) unless $rel->ontology();
+    return $self->engine->add_relationship($rel);
 }
 
 =head2 get_relationships
@@ -380,23 +386,26 @@ sub add_relationship{
 =cut
 
 sub get_relationships{
-    return shift->engine->get_relationships(@_);
+    my $self = shift;
+    return grep { $_->ontology == $self;} $self->engine->get_relationships(@_);
 }
 
 =head2 get_relationship_types
 
  Title   : get_relationship_types
  Usage   : get_relationship_types(): TermI[]
- Function:
+ Function: Retrieves all relationship types.
  Example :
- Returns :
+ Returns : Array of TermI objects
  Args    :
 
 
 =cut
 
 sub get_relationship_types{
-    return shift->engine->get_relationship_types(@_);
+    my $self = shift;
+    return grep { $_->ontology == $self; }
+                $self->engine->get_relationship_types(@_);
 }
 
 =head2 get_child_terms
@@ -408,6 +417,12 @@ sub get_relationship_types{
            argument or undef otherwise. get_child_terms is a special
            case of get_descendant_terms, limiting the search to the
            direct descendants.
+
+           Note that a returned term may possibly be in another
+           ontology than this one, because the underlying engine may
+           manage multiple ontologies and the relationships of terms
+           between them. If you only want descendants within this
+           ontology, you need to filter the returned array.
 
  Example :
  Returns : Array of TermI objects.
@@ -428,6 +443,13 @@ sub get_child_terms{
  Function: Retrieves all descendant terms of a given term, that
            satisfy a relationship among those that are specified in
            the second argument or undef otherwise. 
+
+           Note that a returned term may possibly be in another
+           ontology than this one, because the underlying engine may
+           manage multiple ontologies and the relationships of terms
+           between them. If you only want descendants within this
+           ontology, you need to filter the returned array.
+
  Example :
  Returns : Array of TermI objects.
  Args    : First argument is the term of interest, second is the list
@@ -450,6 +472,12 @@ sub get_descendant_terms{
            case of get_ancestor_terms, limiting the search to the
            direct ancestors.
 
+           Note that a returned term may possibly be in another
+           ontology than this one, because the underlying engine may
+           manage multiple ontologies and the relationships of terms
+           between them. If you only want descendants within this
+           ontology, you need to filter the returned array.
+
  Example :
  Returns : Array of TermI objects.
  Args    : First argument is the term of interest, second is the list
@@ -469,6 +497,12 @@ sub get_parent_terms{
  Function: Retrieves all ancestor terms of a given term, that satisfy
            a relationship among those that are specified in the second
            argument or undef otherwise. 
+
+           Note that a returned term may possibly be in another
+           ontology than this one, because the underlying engine may
+           manage multiple ontologies and the relationships of terms
+           between them. If you only want descendants within this
+           ontology, you need to filter the returned array.
 
  Example :
  Returns : Array of TermI objects.
@@ -497,7 +531,8 @@ sub get_ancestor_terms{
 =cut
 
 sub get_leaf_terms{
-    return shift->engine->get_leaf_terms(@_);
+    my $self = shift;
+    return grep { $_->ontology == $self; } $self->engine->get_leaf_terms(@_);
 }
 
 =head2 get_root_terms()
@@ -515,7 +550,30 @@ sub get_leaf_terms{
 =cut
 
 sub get_root_terms{
-    return shift->engine->get_root_terms(@_);
+    my $self = shift;
+    return grep { $_->ontology == $self; } $self->engine->get_root_terms(@_);
+}
+
+=head2 get_all_terms
+
+ Title   : get_all_terms
+ Usage   : get_all_terms: TermI[]
+ Function: Retrieves all terms from the ontology.
+
+           We do not mandate an order here in which the terms are
+           returned. In fact, the default implementation will return
+           them in unpredictable order.
+
+ Example : @terms = $obj->get_all_terms()
+ Returns : Array of TermI objects.
+ Args    :
+
+
+=cut
+
+sub get_all_terms{
+    my $self = shift;
+    return grep { $_->ontology == $self; } $self->engine->get_all_terms(@_);
 }
 
 1;

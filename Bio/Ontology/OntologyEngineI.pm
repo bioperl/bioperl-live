@@ -262,12 +262,12 @@ sub get_leaf_terms{
     shift->throw_not_implemented();
 }
 
-=head2 get_root_terms()
+=head2 get_root_terms
 
  Title   : get_root_terms
  Usage   : get_root_terms(): TermI[]
  Function: Retrieves all root terms from the ontology. Root term is a
-           term w/o descendants.
+           term w/o ancestors.
 
  Example : @root_terms = $obj->get_root_terms()
  Returns : Array of TermI objects.
@@ -278,6 +278,46 @@ sub get_leaf_terms{
 
 sub get_root_terms{
     shift->throw_not_implemented();
+}
+
+=head2 get_all_terms
+
+ Title   : get_all_terms
+ Usage   : get_all_terms: TermI[]
+ Function: Retrieves all terms from the ontology.
+
+           This is more a decorator method. We provide a default
+           implementation here that loops over all root terms and gets
+           all descendants for each root term. The overall union of
+           terms is then made unique by name and ontology.
+
+           We do not mandate an order here in which the terms are
+           returned. In fact, the default implementation will return
+           them in unpredictable order.
+
+           Engine implementations that can provide a more efficient
+           method for obtaining all terms should definitely override
+           this.
+
+ Example : @terms = $obj->get_all_terms()
+ Returns : Array of TermI objects.
+ Args    :
+
+
+=cut
+
+sub get_all_terms{
+    my $self = shift;
+    # get all root nodes
+    my @roots = $self->get_root_terms();
+    # accumulate all descendants for each root term
+    my @terms = map { $self->get_descendant_terms($_); } @roots;
+    # add on the root terms themselves
+    push(@terms, @roots);
+    # make unique by name
+    my %name_map = map { ($_->name."@".$_->ontology->name, $_); } @terms;
+    # done 
+    return values %name_map;
 }
 
 1;

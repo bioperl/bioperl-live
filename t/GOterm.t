@@ -53,15 +53,15 @@ ok( $obj->remove_dblinks(), 0 );
 
 ok( $obj->get_secondary_GO_ids(), 0 );
 
-ok( $obj->add_secondary_GO_id( ( "GO:-------", "1234567" ) ) );
+ok( $obj->add_secondary_GO_id( ( "GO:0000000", "1234567" ) ) );
 ok( $obj->get_secondary_GO_ids(), 2 );
 my @si1 = $obj->get_secondary_GO_ids();
-ok( $si1[ 0 ], "GO:-------" );
+ok( $si1[ 0 ], "GO:0000000" );
 ok( $si1[ 1 ], "GO:1234567" );
 ok( $obj->get_secondary_GO_ids(), 2 );
 
 my @si2 = $obj->remove_secondary_GO_ids();
-ok( $si2[ 0 ], "GO:-------" );
+ok( $si2[ 0 ], "GO:0000000" );
 ok( $si2[ 1 ], "GO:1234567" );
 
 ok( $obj->get_secondary_GO_ids(), 0 );
@@ -118,9 +118,8 @@ ok( $obj->add_synonym( ( "AA", "AB" ) ) );
 ok( $obj->add_dblink( ( "dAA", "dAB" ) ) );
 ok( $obj->add_secondary_GO_id( ( "GO:1234567", "GO:1234567" ) ) );
 
-
 $obj->init();
-ok( $obj->identifier(), "GO:-------" );
+ok( $obj->identifier(), "GO:0000000" );
 ok( $obj->name(), undef );
 ok( $obj->definition(), undef );
 ok( $obj->is_obsolete(), 0 );

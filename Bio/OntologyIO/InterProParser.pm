@@ -179,7 +179,13 @@ sub next_ontology{
   my $self = shift;
 
   $self->parse() unless $self->_is_parsed();
-  return $self->{_ontology_engine};
+  # there is only one ontology in an InterPro source file
+  if(exists($self->{'_ontology_engine'})) {
+      my $ont = $self->{_interpro_handler}->ontology();
+      delete $self->{_ontology_engine};
+      return $ont;
+  }
+  return undef;
 }
 
 =head2 _is_parsed

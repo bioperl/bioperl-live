@@ -379,7 +379,7 @@ sub start_element {
     $ont->add_term( Bio::Ontology::Term->new( -identifier => "Repeat",
 					      -name => "Repeat") );
     $ont->add_term( Bio::Ontology::Term->new( -identifier => "PTM",
-					      -name => "PTM") );
+					      -name => "post-translational modification") );
   } elsif ($element->{Name} eq 'interpro') {
     my %record_args = %{$element->{Attributes}};
     my $id = $record_args{"id"};
@@ -391,7 +391,7 @@ sub start_element {
 		 : $term_temp
 		);
 
-    $self->_term->ontology( $record_args{"type"} );
+    $self->_term->ontology( $ont );
     $self->_term->short_name( $record_args{"short_name"} );
     $self->_term->protein_count( $record_args{"protein_count"} );
     $self->_increment_record_count();

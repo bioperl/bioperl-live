@@ -15,7 +15,7 @@ BEGIN {
         use lib 't';
     }
     use Test;
-    plan tests => 18;
+    plan tests => 39;
 }
 
 use Bio::OntologyIO;
@@ -31,13 +31,25 @@ my $ipp = Bio::OntologyIO->new( -format => 'interpro',
 				-ontology_engine => 'simple' );
 ok ($ipp);
 
-my $ip = $ipp->next_ontology();
+my $ip;
+while(my $ont = $ipp->next_ontology()) {
+    # there should be only one ontology
+    ok ($ip, undef);
+    $ip = $ont;
+}
 #print $ip->to_string."\n";
 my @rt = sort { $a->name cmp $b->name; } $ip->get_root_terms();
 
 # there should be 4 root terms: InterPro Domain, InterPro Family,
-# InterPro Repeat, and InterPro PTM(Post Translational Modification)
+# InterPro Repeat, and InterPro PTM (Post Translational Modification)
 ok (scalar(@rt), 4);
+
+# every InterPro term should have an ontology,
+foreach ($ip->get_leaf_terms, @rt) {
+    ok ($_->ontology);
+    ok ($_->ontology->name, "InterPro",
+	"term ".$_->name." not in ontology InterPro");
+}
 
 # there are 6 fully instantiated InterPro terms in total, which should be returned as the leafs
 ok (scalar($ip->get_leaf_terms()), 6);

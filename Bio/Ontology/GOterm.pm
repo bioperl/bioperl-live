@@ -98,7 +98,7 @@ use vars qw( @ISA );
 use strict;
 use Bio::Ontology::Term;
 
-use constant GOID_DEFAULT => "GO:-------";
+use constant GOID_DEFAULT => "GO:0000000";
 use constant TRUE         => 1;
 use constant FALSE        => 0;
 
@@ -117,15 +117,15 @@ use constant FALSE        => 0;
                                                -comment     => "" );                   
  Function: Creates a new Bio::Ontology::GOterm.
  Returns : A new Bio::Ontology::GOterm object.
- Args    : -go_id                 => the goid of this GO term [GO:nnnnnnn] 
-                                     or [nnnnnnn] (nnnnnnn is a zero-padded
-                                     integer of seven digits)
-           -name                  => the name of this GO term [scalar]
-           -definition            => the definition of this GO term [scalar]  
-           -category              => a relationship between this Term and another Term [TermI or scalar]
-           -version               => version information [scalar]
-           -is_obsolete           => the obsoleteness of this GO term [0 or 1]   
-           -comment               => a comment [scalar]
+ Args    : -go_id         => the goid of this GO term [GO:nnnnnnn] 
+                             or [nnnnnnn] (nnnnnnn is a zero-padded
+                             integer of seven digits)
+           -name          => the name of this GO term [scalar]
+           -definition    => the definition of this GO term [scalar]  
+           -ontology      => a relationship between this Term and another Term [TermI or scalar]
+           -version       => version information [scalar]
+           -is_obsolete   => the obsoleteness of this GO term [0 or 1]   
+           -comment       => a comment [scalar]
 
 =cut
 

@@ -94,97 +94,87 @@ use vars qw( @ISA );
 use strict;
 
 use Bio::Root::IO;
-use Bio::Root::Root;
 use Bio::Ontology::GOterm;
 use Bio::Ontology::SimpleGOEngine;
+use Bio::OntologyIO;
 
 use constant TRUE         => 1;
 use constant FALSE        => 0;
 
 
-@ISA = qw( Bio::Root::Root );
+@ISA = qw( Bio::OntologyIO );
 
-#
-# The map from the GO branch to the name of the respective sub-ontology.
-# The name of the GO branch should translate into the name of a method
-# returning the respective file name, by just appending "file_name".
-#
-my %go_file_ont_map = (
-		       "components" => "GO Components Ontology",
-		       "functions"  => "GO Functions Ontology",
-		       "processes"  => "GO Processes Ontology"
-		       );
 
 =head2 new
 
  Title   : new
- Usage   : $parser = Bio::OntologyIO::simpleGOparser->new( -go_defs_file_name    => "/path/to/GO.defs",
-                                                         -components_file_name => "/path/to/component.ontology"
-                                                         -functions_file_name  => "/path/to/function.ontology"
-                                                         -processes_file_name  => "/path/to/process.ontology" );                      
+ Usage   : $parser = Bio::OntologyIO->new(
+                             -format => "go",
+                             -defs_file => "/path/to/GO.defs",
+                             -files => ["/path/to/component.ontology",
+                                        "/path/to/function.ontology",
+                                        "/path/to/process.ontology"] );
  Function: Creates a new simpleGOparser.
- Returns : A new simpleGOparser object.
- Args    : -go_defs_file_name    => the GO defs-file name
-           -components_file_name => the component.ontology-file name
-           -functions_file_name  => the function.ontology-file name
-           -processes_file_name  => the process.ontology-file name
+ Returns : A new simpleGOparser object, implementing L<Bio::OntologyIO>.
+ Args    : -defs_file    => the name of the file holding the
+                            term definitions
+           -files        => a single ontology flat file holding the
+                            term relationships, or an array ref holding
+                            the file names (for GO, there will usually be
+                            3 files: component.ontology, function.ontology,
+                            process.ontology)
+           -file         => if there is only a single flat file, it may
+                            also be specified via the -file parameter
+           -name         => the name of the ontology, defaults to
+                            "Gene Ontology"
 
 =cut
 
-sub new {
-    my( $class, @args ) = @_;
+# in reality, we let OntologyIO::new do the instantiation, and override
+# _initialize for all initialization work
+sub _initialize {
+    my ($self, @args) = @_;
     
-    my $self = $class->SUPER::new( @args );
+    $self->SUPER::_initialize( @args );
 
-    my ( $go_defs_file_name,
-         $components,
-         $functions,
-         $processes ) 
-	= $self->_rearrange( [ qw( GO_DEFS_FILE_NAME
-                                   COMPONENTS_FILE_NAME
-                                   FUNCTIONS_FILE_NAME
-                                   PROCESSES_FILE_NAME ) ],
-			     @args );
-
-    $self->init(); 
+    my ( $defs_file_name, $files, $name ) =
+	$self->_rearrange([qw( DEFS_FILE
+			       FILES
+			       NAME)
+			   ],
+			  @args );
     
-    $go_defs_file_name && $self->go_defs_file_name( $go_defs_file_name );
-    $components        && $self->components_file_name( $components );
-    $functions         && $self->functions_file_name( $functions );
-    $processes         && $self->processes_file_name( $processes );
-    
-    
-                         
-    return $self;
-} # new
-
-
-
-=head2 init
-
- Title   : init()
- Usage   : $parser->init();   
- Function: Initializes this object.
- Returns : 
- Args    :
-
-=cut
-
-sub init {
-    my ( $self ) = @_;
-    
-    $self->{ "_go_defs_file_name" }    = undef;
-    $self->{ "_components_file_name" } = undef;
-    $self->{ "_functions_file_name" }  = undef;
-    $self->{ "_processes_file_name" }  = undef;
     $self->_done( FALSE );
     $self->_not_first_record( FALSE );
     $self->_term( "" );
-    
+    delete $self->{'_ontologies'};
+
     $self->_go_engine( Bio::Ontology::SimpleGOEngine->new() );
+    
+    $self->defs_file( $defs_file_name );
+    $self->{_flat_files} = $files ? ref($files) ? $files : [$files] : [];
+    $self->ontology_name("Gene Ontology");
 
-} # init
+} # _initialize
 
+=head2 ontology_name
+
+ Title   : ontology_name
+ Usage   : $obj->ontology_name($newval)
+ Function: Get/set the name of the ontology parsed by this module. 
+ Example : 
+ Returns : value of ontology_name (a scalar)
+ Args    : on set, new value (a scalar or undef, optional)
+
+
+=cut
+
+sub ontology_name{
+    my $self = shift;
+
+    return $self->{'ontology_name'} = shift if @_;
+    return $self->{'ontology_name'};
+}
 
 
 =head2 parse
@@ -192,8 +182,12 @@ sub init {
  Title   : parse()
  Usage   : $parser->parse();   
  Function: Parses the files set with "new" or with methods
-           go_defs_file_name, components_file_name, functions_file_name,
-           processes_file_name.
+           defs_file and _flat_files.
+
+           Normally you should not need to call this method as it will
+           be called automatically upon the first call to
+           next_ontology().
+
  Returns : [Bio::Ontology::SimpleGOEngine]
  Args    :
 
@@ -202,19 +196,38 @@ sub init {
 sub parse {
     my $self = shift;
     
+    # create the ontology object itself
+    my $ont = Bio::Ontology::Ontology->new(-name => $self->ontology_name(),
+					   -engine => $self->_go_engine());
+
+    # parse definitions
     while( my $goterm = $self->_next_term() ) {
-        $self->_add_term( $goterm );
+        $self->_add_term( $goterm, $ont );
     }
 
-    foreach my $subont (keys %go_file_ont_map) {
-	my $filename = $subont."_file_name";
-	if ( $self->$filename() ) {
-	    my $ont = $self->_parse_relationships_file($self->$filename(),
-						    $go_file_ont_map{$subont});
-	    $self->_add_ontology($ont) if $ont;
+    # set up the ontology of the relationship types
+    foreach ($self->_part_of_relationship(), $self->_is_a_relationship()) {
+	$_->ontology($ont);
+    }
+
+    # pre-seed the IO system with the first flat file if -file wasn't provided
+    if(! $self->_fh) {
+	$self->_initialize_io(-file => shift(@{$self->_flat_files()}));
+    }
+
+    while($self->_fh) {
+	$self->_parse_flat_file($ont);
+	# advance to next flat file if more are available
+	if(@{$self->_flat_files()}) {
+	    $self->close();
+	    $self->_initialize_io(-file => shift(@{$self->_flat_files()}));
+	} else {
+	    last; # nothing else to parse so terminate the loop
 	}
     }
+    $self->_add_ontology($ont);
     
+    # not needed anywhere, only because of backward compatibility
     return $self->_go_engine();
     
 } # parse
@@ -244,106 +257,78 @@ sub next_ontology{
 }
 
 
-=head2 go_defs_file_name
+=head2 defs_file
 
- Title   : go_defs_file_name
- Usage   : $parser->go_defs_file_name( "GO.defs" );
+ Title   : defs_file
+ Usage   : $parser->defs_file( "GO.defs" );
  Function: Set/get for the GO defs-file_name.
- Returns : The GO defs-file_name [string].
- Args    : The GO defs-file_name [string] (optional).
+ Returns : The GO defs-file name [string].
+ Args    : The GO defs-file name [string] (optional).
 
 =cut
 
-sub go_defs_file_name {
-    my ( $self, $value ) = @_;
+sub defs_file {
+    my $self = shift;
 
-    if ( defined $value ) {
-        $self->{ "_go_defs_file_name" } = $value;
-        if ( $value =~ /\W/ ) {
-            $self->_go_defs_file( new Bio::Root::IO->new( -file => $value ) );
-        } 
+    if ( @_ ) {
+	my $f = shift;
+        $self->{ "_defs_file_name" } = $f;
+	$self->_defs_io->close() if $self->_defs_io();
+	if(defined($f)) {
+	    $self->_defs_io->close() if $self->_defs_io();
+            $self->_defs_io( new Bio::Root::IO->new( -input => $f ) );
+        }
     }
-    
-    return $self->{ "_go_defs_file_name" };
-} # go_defs_file_name
+    return $self->{ "_defs_file_name" };
+} # defs_file
 
 
+=head2 _flat_files
 
-=head2 components_file_name
+ Title   : _flat_files
+ Usage   : $files_to_parse = $parser->_flat_files();
+ Function: Get the array of ontology flat files that need to be parsed.
 
- Title   : components_file_name
- Usage   : $parser-> components_file_name( "function.ontology" );
- Function: Set/get for the function ontology file name.
- Returns : The function ontology file name [string].
- Args    : The function ontology file name [string] (optional).
+           Note that this array will decrease in elements over the
+           parsing process. Therefore, it's value outside of this
+           module will be limited. Also, be careful not to alter the
+           array unless you know what you are doing.
+
+ Returns : a reference to an array of zero or more strings
+ Args    : none
 
 =cut
 
-sub components_file_name {
-    my ( $self, $value ) = @_;
+sub _flat_files {
+    my $self = shift;
 
-    if ( defined $value ) {
-        $self->{ "_components_file_name" } = $value;
-    }
-    
-    return $self->{ "_components_file_name" };
-} # components_file_name
-
-
-
-=head2 functions_file_name
-
- Title   : functions_file_name
- Usage   : $parser->functions_file_name( "function.ontology" );
- Function: Set/get for functions file name.
- Returns : The functions file name [string].
- Args    : The functions file name [string] (optional).
-
-=cut
-
-sub functions_file_name {
-    my ( $self, $value ) = @_;
-
-    if ( defined $value ) {
-        $self->{ "_functions_file_name" } = $value;
-    }
-    
-    return $self->{ "_functions_file_name" };
-} # functions_file_name
-
-
-
-=head2 processes_file_name
-
- Title   : processes_file_name
- Usage   : $parser->processes_file_name( "GO.defs" );
- Function: Set/get for the processes file name.
- Returns : The processes file name [string].
- Args    : The processes file name [string] (optional).
-
-=cut
-
-sub processes_file_name {
-    my ( $self, $value ) = @_;
-
-    if ( defined $value ) {
-        $self->{ "_processes_file_name" } = $value;
-    }
-    
-    return $self->{ "_processes_file_name" };
-} # processes_file_name
-
-
-
-
-
-
-
-
+    $self->{_flat_files} = [] unless exists($self->{_flat_files});
+    return $self->{_flat_files};
+}
 
 
 # INTERNAL METHODS
 # ----------------
+
+=head2 _defs_io
+
+ Title   : _defs_io
+ Usage   : $obj->_defs_io($newval)
+ Function: Get/set the Bio::Root::IO instance representing the
+           definition file, if provided (see defs_file()).
+ Example : 
+ Returns : value of _defs_io (a Bio::Root::IO object)
+ Args    : on set, new value (a Bio::Root::IO object or undef, optional)
+
+
+=cut
+
+sub _defs_io{
+    my $self = shift;
+
+    return $self->{'_defs_io'} = shift if @_;
+    return $self->{'_defs_io'};
+}
 
 sub _add_ontology {
     my $self = shift;
@@ -357,8 +342,9 @@ sub _add_ontology {
 
 # This simply delegates. See SimpleGOEngine.
 sub _add_term {
-    my ( $self, $term ) = @_;
+    my ( $self, $term, $ont ) = @_;
 
+    $term->ontology($ont) if $ont && (! $term->ontology);
     $self->_go_engine()->add_term( $term );
 
 
@@ -412,20 +398,15 @@ sub _has_term {
 
 
 # This parses the relationships files
-# Arguments: filename, category-name (ie: function ontology)
-sub _parse_relationships_file {
-    my ( $self, $file_name, $category ) = @_;
-    
-    my $file = new Bio::Root::IO->new( -file => $file_name );
-    my $ont = Bio::Ontology::Ontology->new( -name => $category,
-					    -engine => $self->_go_engine());
+sub _parse_flat_file {
+    my $self = shift;
+    my $ont  = shift;
     
     my @stack       = ();
     my $prev_spaces = -1;
     my $prev_term   = "";
     
-    
-    while( my $line = $file->_readline() ) {
+    while( my $line = $self->_readline() ) {
         
         if ( $line =~ /^!/ ) {
             next;
@@ -441,7 +422,7 @@ sub _parse_relationships_file {
         
         if ( ! $self->_has_term( $current_term ) ) {
             my $goterm = $self->_create_GOentry( $self->_get_name( $line, $current_term ), $current_term );
-            $self->_add_term( $goterm );
+            $self->_add_term( $goterm, $ont );
         }
         
         my $current_term_object = $self->_go_engine()->get_term( $current_term );
@@ -455,7 +436,7 @@ sub _parse_relationships_file {
         foreach my $parent ( @isa_parents ) {
             if ( ! $self->_has_term( $parent ) ) {
                 my $goterm = $self->_create_GOentry( $self->_get_name( $line, $parent ), $parent );
-                $self->_add_term( $goterm );
+                $self->_add_term( $goterm, $ont );
             }
             
             $self->_add_relationship( $parent,
@@ -467,7 +448,7 @@ sub _parse_relationships_file {
         foreach my $parent ( @partof_parents ) {
             if ( ! $self->_has_term( $parent ) ) {
                 my $goterm = $self->_create_GOentry( $self->_get_name( $line, $parent ), $parent );
-                $self->_add_term( $goterm );
+                $self->_add_term( $goterm, $ont );
             }
            
             $self->_add_relationship( $parent,
@@ -490,7 +471,7 @@ sub _parse_relationships_file {
                 }
             }
             else {
-		$self->throw( "format error (file $file_name, $category)" );
+		$self->throw( "format error (file ".$self->file.")" );
             } 
         }
         
@@ -512,7 +493,7 @@ sub _parse_relationships_file {
 				      $ont);
         }
         else {
-            $self->throw( "format error (file $file_name, $category)" );
+	    $self->throw( "format error (file ".$self->file.")" );
         }
         
         
@@ -664,7 +645,7 @@ sub _count_spaces {
 sub _next_term {
     my ( $self ) = @_;
 
-    if ( $self->_done() == TRUE ) {
+    if ( ($self->_done() == TRUE) || (! $self->_defs_io())) {
         return undef;
     }
     
@@ -675,7 +656,7 @@ sub _next_term {
     my $comment   = "";
     my @def_refs  = ();
     
-    while( $line = ( $self->_go_defs_file )->_readline() ) {
+    while( $line = ( $self->_defs_io->_readline() ) ) {
     
         if ( $line !~ /\S/ 
         ||   $line =~ /^\s*!/ ) {

@@ -118,18 +118,22 @@ sub new {
     my ( $identifier,
          $parent_term,
          $child_term,
-         $relationship_type )
-    = $self->_rearrange( [ qw( IDENTIFIER
-                               PARENT_TERM
-                               CHILD_TERM
-                               RELATIONSHIP_TYPE ) ], @args );
+         $relationship_type,
+	 $ont)
+	= $self->_rearrange( [qw( IDENTIFIER
+				  PARENT_TERM
+				  CHILD_TERM
+				  RELATIONSHIP_TYPE
+				  ONTOLOGY)
+			      ], @args );
    
     $self->init(); 
     
     $identifier        && $self->identifier( $identifier );
     $parent_term       && $self->parent_term( $parent_term );
     $child_term        && $self->child_term( $child_term );
-    $relationship_type && $self->relationship_type( $relationship_type );   
+    $relationship_type && $self->relationship_type( $relationship_type );
+    $ont               && $self->ontology($ont);
                                                     
     return $self;
     
@@ -148,13 +152,14 @@ sub new {
 =cut
 
 sub init {
-   my( $self ) = @_;
-
+    my( $self ) = @_;
+    
     $self->{ "_identifier" }        = undef;
     $self->{ "_parent_term" }       = undef;
     $self->{ "_child_term" }        = undef;
     $self->{ "_relationship_type" } = undef;
-  
+    $self->ontology(undef);
+   
 } # init
 
 
@@ -276,31 +281,18 @@ sub ontology{
     my $self = shift;
     my $ont;
 
-    my $store = Bio::Ontology::OntologyStore->get_instance();
     if(@_) {
 	$ont = shift;
 	if($ont) {
-	    # first we need to find out whether it's already in the store
-	    my $name = ref($ont) ? $ont->name() : $ont;
-	    my $o = $store->get_ontology(-name => $name);
-	    # was it found in the store?
-	    if(defined($o)) {
-		# yes; use the found version (it may be richer)
-		$ont = $o;
-	    } else {
-		# no; if we were passed a scalar we need to instantiate one
-		$ont = Bio::Ontology::Ontology->new(-name => $ont)
-		    unless ref($ont);
-		# register it
-		$store->register_ontology($ont);
+	    $ont = Bio::Ontology::Ontology->new(-name => $ont) if ! ref($ont);
+	    if(! $ont->isa("Bio::Ontology::OntologyI")) {
+		$self->throw(ref($ont)." does not implement ".
+			     "Bio::Ontology::OntologyI. Bummer.");
 	    }
 	} 
-	# store the name as a 'weak' reference to the ontology
-	$self->{"_ontology"} = $ont ? $ont->name() : $ont;
-    } elsif(exists($self->{"_ontology"})) {
-	$ont = $store->get_ontology(-name => $self->{"_ontology"});
-    }
-    return $ont;
+	return $self->{"_ontology"} = $ont;
+    } 
+    return $self->{"_ontology"};
 }
 
 =head2 to_string

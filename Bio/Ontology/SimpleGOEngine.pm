@@ -289,13 +289,14 @@ sub add_relationship {
 
     if ( scalar( @_ ) == 2 ) {
         $self->_check_class( $parent, "Bio::Ontology::RelationshipI" );
-        $child = $parent->child_term();
-        $type = $parent->relationship_type();
+        $child  = $parent->child_term();
+        $type   = $parent->relationship_type();
         $parent = $parent->parent_term();
+	$ont    = $parent->ontology();
     }
 
 
-    $self->_check_class( $type, "Bio::Ontology::RelationshipType" );
+    $self->_check_class( $type, "Bio::Ontology::TermI" );
 
     $parent = $self->_get_id( $parent );
     $child = $self->_get_id( $child );
@@ -316,8 +317,7 @@ sub add_relationship {
 
     $g->add_edge( $parent, $child );
     $g->set_attribute( TYPE, $parent, $child, $type );
-    $g->set_attribute( ONTOLOGY, $parent, $child,
-		       ref($ont) ? $ont->name() : $ont );
+    $g->set_attribute( ONTOLOGY, $parent, $child, $ont );
 
     return TRUE;
 
@@ -634,22 +634,22 @@ sub get_terms {
 
 
 
-=head2 each_term
+=head2 get_all_terms
 
- Title   : each_term
- Usage   : $engine->each_term();
+ Title   : get_all_terms
+ Usage   : $engine->get_all_terms();
  Function: Returns all terms in this engine
  Returns : Bio::Ontology::GOterm[]
  Args    :
 
 =cut
 
-sub each_term {
+sub get_all_terms {
     my ( $self ) = @_;
 
     return( $self->get_terms( $self->graph()->vertices() ) );
 
-} # each_term
+} # get_all_terms
 
 
 
@@ -808,6 +808,7 @@ sub _check_class {
     }
 
 } # _check_class
+
 
 
 1;

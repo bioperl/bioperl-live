@@ -28,15 +28,17 @@ BEGIN {
 }
 
 
-use Bio::OntologyIO::simpleGOparser;
+use Bio::OntologyIO;
 use Bio::Root::IO;
 
 my $io = new Bio::Root::IO; # less typing from now on ...
-my $parser = Bio::OntologyIO::simpleGOparser->new(
-		      -go_defs_file_name => $io->catfile( "t","data",
+my $parser = Bio::OntologyIO->new(
+                      -format    => "go",
+		      -defs_file => $io->catfile( "t","data",
                                                   "GO.defs.test" ),
-		      -components_file_name => $io->catfile( "t","data",
-                                                     "component.ontology.test" ) );
+                      # test using -file
+		      -file      => $io->catfile( "t","data",
+						  "component.ontology.test" ));
 
 
 my $IS_A    = Bio::Ontology::RelationshipType->get_instance( "IS_A" );
@@ -50,7 +52,7 @@ while(my $ont = $parser->next_ontology()) {
 ok (scalar(@onts), 1);
 my $ont = $onts[0];
 ok ($ont->isa("Bio::Ontology::OntologyI"));
-ok ($ont->name(), "GO Components Ontology");
+ok ($ont->name(), "Gene Ontology");
 
 my $engine = $ont->engine();
 ok ($engine->isa("Bio::Ontology::OntologyEngineI"));
@@ -64,7 +66,7 @@ ok( $dblinks[ 0 ], "MetaCyc:PWY-681" );
 ok( $dblinks[ 1 ], "UM-BBD_pathwayID:dbt" );
 ok( $synos[ 0 ], "murein sacculus" );
 ok( $synos[ 1 ], "peptidoglycan" );
-ok( $term->ontology()->name(), "GO Components Ontology" );
+ok( $term->ontology()->name(), "Gene Ontology" );
 ok( $term->name(), "dibenzothiophene desulfurization" );
 
 
@@ -81,7 +83,7 @@ my @sec = sort ( $term->get_secondary_GO_ids() );
 ok( $dblinks[ 0 ], "EC:5.3.99.5" );
 ok( $synos[ 0 ], "cytochrome P450 CYP5" );
 ok( $sec[ 0 ], "GO:0008400" );
-ok( $term->ontology()->name(), "GO Components Ontology" );
+ok( $term->ontology()->name(), "Gene Ontology" );
 ok( $term->name(), "thromboxane-A synthase" );
 
 
@@ -188,7 +190,7 @@ ok( $childs[ 0 ]->GO_id(), "GO:0000666" );
 ok( $childs[ 0 ]->name(), "polarisomeX" );
 ok( $childs[ 1 ]->GO_id(), "GO:0000667" );
 ok( $childs[ 1 ]->name(), "polarisomeY" );
-ok( $childs[ 1 ]->ontology()->name(), "GO Components Ontology" );
+ok( $childs[ 1 ]->ontology()->name(), "Gene Ontology" );
 
 
 
@@ -220,12 +222,10 @@ ok( $childs[ 5 ]->name(), "smooth microsome" );
 
 
 @childs = sort goid ( $ont->get_descendant_terms( "GO:0005625", $IS_A ) );
-
 ok( @childs == 0 );
 
 
 @childs = sort goid ( $ont->get_descendant_terms( "GO:0005625", $PART_OF ) );
-
 ok( @childs == 2 );
 
 
@@ -256,9 +256,8 @@ ok( $ont->add_term( Bio::Ontology::GOterm->new() ) );
 ok( $engine->has_term( "GO:0000300" ) );
 
 
-ok( scalar $engine->each_term(), "44" );
-
-ok( scalar $ont->get_relationship_types(), "2" );
+ok( scalar $ont->get_all_terms(), 44 );
+ok( scalar $ont->get_relationship_types(), 2 );
 
 ok( ! $ont->add_relationship( $rels[ 2 ] ) ); # this edge already exists, cannot add
 
@@ -268,27 +267,29 @@ ok( $ont->add_relationship( $rels[ 2 ] ) ); # now it's changed, can add
 
 
 my @roots = $ont->get_root_terms();
-ok( @roots == 10 );
+ok( scalar(@roots), 10 );
 
 my @leafs = $ont->get_leaf_terms();
-ok( @leafs == 19 );
+ok( scalar(@leafs), 19 );
 
 
 
-$parser = Bio::OntologyIO::simpleGOparser->new(
-		      -go_defs_file_name => $io->catfile( "t", "data",
-                                                  "GO.defs.test2" ),
-		      -components_file_name => $io->catfile( "t", "data",
-                                                     "component.ontology.test2" ) );
+$parser = Bio::OntologyIO->new(
+                      -format    => "go",
+		      -defs_file => $io->catfile("t", "data",
+						 "GO.defs.test2"),
+		      # test using -files
+		      -files     => $io->catfile("t", "data",
+						 "component.ontology.test2"));
 
 $ont = $parser->next_ontology();
 ok ($ont);
 
 my @roots2 = $ont->get_root_terms();
-ok( @roots2 == 1 );
+ok( scalar(@roots2), 1 );
 
 my @leafs2 = $ont->get_leaf_terms();
-ok( @leafs2 == 4 );
+ok( scalar(@leafs2), 4 );
 
 
 

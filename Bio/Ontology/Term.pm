@@ -42,7 +42,11 @@ Term - interface for ontology terms
 =head1 DESCRIPTION
 
 This is "dumb" interface for ontology terms providing basic methods
-(it provides no functionality related to graphs).
+(it provides no functionality related to graphs). It implements the
+L<Bio::Ontology::TermI> interface.
+
+This class also implements L<Bio::IdentifiableI> and
+L<Bio::DescribableI>.
 
 =head1 FEEDBACK
 
@@ -160,8 +164,8 @@ sub new {
     $definition            && $self->definition( $definition );
     $category              && $self->category( $category );
     $ont                   && $self->ontology( $ont );
-    $version               && $self->version( $version );   
-    $is_obsolete           && $self->is_obsolete( $is_obsolete );      
+    defined($version)      && $self->version( $version );   
+    defined($is_obsolete)  && $self->is_obsolete( $is_obsolete );      
     $comment               && $self->comment( $comment  ); 
                                                     
     return $self;
@@ -172,14 +176,14 @@ sub new {
 
 sub init {
 
-    my( $self ) = @_;
+    my $self = shift;
 
-    $self->identifier( "" );
-    $self->name( "" );
-    $self->definition( "" );
-    $self->version( "" );
-    $self->is_obsolete( FALSE );
-    $self->comment( "" );
+    $self->identifier(undef);
+    $self->name(undef);
+    $self->comment(undef);
+    $self->definition(undef);
+    $self->ontology(undef);
+    $self->is_obsolete(0);
     $self->remove_synonyms();
   
 } # init
@@ -199,14 +203,10 @@ sub init {
 =cut
 
 sub identifier {
-    my ( $self, $value ) = @_;
+    my $self = shift;
 
-    if ( defined $value ) {
-        $self->{ "_identifier" } = $value ? $value : undef; # no empty string
-    }
-
-    return $self->{ "_identifier" };
-
+    return $self->{'identifier'} = shift if @_;
+    return $self->{'identifier'};
 } # identifier
 
 
@@ -225,14 +225,10 @@ sub identifier {
 =cut
 
 sub name {
-    my ( $self, $value ) = @_;
+    my $self = shift;
 
-    if ( defined $value ) {
-        $self->{ "_name" } = $value ? $value : undef; # no empty string
-    }
-
-    return $self->{ "_name" };
-
+    return $self->{'name'} = shift if @_;
+    return $self->{'name'};
 } # name
 
 
@@ -252,14 +248,10 @@ sub name {
 =cut
 
 sub definition {
-    my ( $self, $value ) = @_;
+    my $self = shift;
 
-    if ( defined $value ) {
-        $self->{ "_definition" } = $value ? $value : undef; # no empty string
-    }
-
-    return $self->{ "_definition" };
-
+    return $self->{'definition'} = shift if @_;
+    return $self->{'definition'};
 } # definition
 
 
@@ -285,31 +277,18 @@ sub ontology {
     my $self = shift;
     my $ont;
 
-    my $store = Bio::Ontology::OntologyStore->get_instance();
     if(@_) {
 	$ont = shift;
 	if($ont) {
-	    # first we need to find out whether it's already in the store
-	    my $name = ref($ont) ? $ont->name() : $ont;
-	    my $o = $store->get_ontology(-name => $name);
-	    # was it found in the store?
-	    if(defined($o)) {
-		# yes; use the found version (it may be richer)
-		$ont = $o;
-	    } else {
-		# no; if we were passed a scalar we need to instantiate one
-		$ont = Bio::Ontology::Ontology->new(-name => $ont)
-		    unless ref($ont);
-		# register it
-		$store->register_ontology($ont);
+	    $ont = Bio::Ontology::Ontology->new(-name => $ont) if ! ref($ont);
+	    if(! $ont->isa("Bio::Ontology::OntologyI")) {
+		$self->throw(ref($ont)." does not implement ".
+			     "Bio::Ontology::OntologyI. Bummer.");
 	    }
 	} 
-	# store the name as a 'weak' reference to the ontology
-	$self->{"_ontology"} = $ont ? $ont->name() : $ont;
-    } elsif(exists($self->{"_ontology"})) {
-	$ont = $store->get_ontology(-name => $self->{"_ontology"});
-    }
-    return $ont;
+	return $self->{"_ontology"} = $ont;
+    } 
+    return $self->{"_ontology"};
 } # ontology
 
 
@@ -326,14 +305,10 @@ sub ontology {
 =cut
 
 sub version {
-    my ( $self, $value ) = @_;
+    my $self = shift;
 
-    if ( defined $value ) {
-        $self->{ "_version" } = $value ? $value : undef; # no empty string
-    }
-
-    return $self->{ "_version" };
-    
+    return $self->{'version'} = shift if @_;
+    return $self->{'version'};
 } # version
 
 
@@ -350,16 +325,11 @@ sub version {
 
 =cut
 
-sub is_obsolete {
-    my ( $self, $value ) = @_;
+sub is_obsolete{
+    my $self = shift;
 
-    if ( defined $value ) {
-        $self->_is_true_or_false( $value );
-        $self->{ "_is_obsolete" } = $value;
-    }
-
-    return $self->{ "_is_obsolete" };
-
+    return $self->{'is_obsolete'} = shift if @_;
+    return $self->{'is_obsolete'};
 } # is_obsolete
 
 
@@ -378,15 +348,11 @@ sub is_obsolete {
 
 =cut
 
-sub comment {
-    my ( $self, $value ) = @_;
+sub comment{
+    my $self = shift;
 
-    if ( defined $value ) {
-        $self->{ "_comment" } = $value ? $value : undef; # no empty string
-    }
-   
-    return $self->{ "_comment" };
-    
+    return $self->{'comment'} = shift if @_;
+    return $self->{'comment'};
 } # comment
 
 
