@@ -115,7 +115,7 @@ $DEFAULTFORMAT = 'swissprot';
 # you can add your own here theoretically.
 %HOSTS = ( 
 	   'expasy' => { 
-	       'default' => 'switzerland',
+	       'default' => 'us',
 	       'baseurl' => 'http://%s/cgi-bin/sprot-retrieve-list.pl',
 	       'hosts'   => 	       
 	       { 
