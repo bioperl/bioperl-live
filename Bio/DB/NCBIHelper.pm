@@ -335,7 +335,7 @@ sub postprocess_data {
     } elsif ( $type eq 'STRING' ) {
 		${$args{'location'}} = $data;
     }
-    print STDERR "format is ", $self->request_format(), "data is $data\n" if( $self->verbose > 1 );
+    $self->debug("format is ". $self->request_format(). "data is $data\n");
 }
 
 
