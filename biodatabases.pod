@@ -34,7 +34,7 @@ by bp_fetch.PLS. These scripts are discussed in more detail below.
 
 The core of the backend system is found in following modules
 
-=over 2
+=over 3
 
 =item Bio::DB::*
 
@@ -72,6 +72,10 @@ streams. The movement of things into SeqIO prevents the Bio::Seq object
 bloating up with format code, and the SeqIO system has the benefit
 of being very easy to extend to new formats. Please see L<Bio::SeqIO>
 for more information, or the SeqIO HOWTO (http://bioperl.org/HOWTOs).
+
+=back
+
+=over 2
 
 =item bioperl-db
 
