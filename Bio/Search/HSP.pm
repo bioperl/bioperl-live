@@ -178,7 +178,7 @@ sub new {
 			 '-end'   => $se, 
 			 '-strand'=> $strand,
 			 '-source'=> $reporttype ) ) }
-    else {			# reverse subject: start bigger than end
+    else { # reverse subject: start bigger than end
 	if ($sbjctfactor) { $strand = -1; } else { $strand = undef; }
 	$self->subject( Bio::SeqFeature::Similarity->new
 			('-start' => $se, 
@@ -203,7 +203,11 @@ sub new {
     $self->query->frac_identical($match);
     $self->subject->frac_identical($match);
     $self->{'_hsp_length'} = $hsplength;
-    $self->{'_percent_id'} = int((1000 * $match)/$hsplength)/10;
+    if( $hsplength ) {
+	$self->{'_percent_id'} = int((1000 * $match)/$hsplength)/10;
+    } else { 
+	$self->{'_percent_id'} = 0;
+    }
     $self->{'_positive'} = $positive;
     $self->{'_gaps'} = $gaps;
     $self->{'_query_seq'} = $qs;
