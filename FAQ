@@ -201,7 +201,7 @@ Contents
 	 the bioperl website that may provide some additional help.
 
 	 There are also many scripts in the examples/ and scripts/
-	 directories that could be useful - see bioperl.pod for a brief
+	 directories that could be useful - see bioscripts.pod for a brief
 	 description of all of them.
 
 	 Additionally we have written many tests for our modules, you can
@@ -648,18 +648,17 @@ Contents
 	       # example: 'coded_by="U05729.1:1..122"'
 	       my @coded_by = $feat->each_tag_value('coded_by');
 	       my ($nuc_acc,$loc_str) = split /\:/, $coded_by[0];
-	       # remove the version number
-	       $nuc_acc =~ s/\.\d+$//;
 	       my $nuc_obj = $gb->get_Seq_by_acc($nuc_acc);
 	       # create Bio::Location object from a string
 	       my $loc_object = $loc_factory->from_string($loc_str);
 	       # create a Feature object by using a Location
 	       my $feat_obj = new Bio::SeqFeature::Generic(-location
 	 =>$loc_object);
-	       # associate the Feature object to the nucleotide Seq object
+	       # associate the Feature object with the nucleotide Seq
+	 object
 	       $nuc_obj->add_SeqFeature($feat_obj);
-	       my $cds_seq = $feat_obj->spliced_seq;
-	       print "CDS sequence is ",$cds_seq->seq,"\n";
+	       my $cds_obj = $feat_obj->spliced_seq;
+	       print "CDS sequence is ",$cds_obj->seq,"\n";
 	    }
 	 }
 

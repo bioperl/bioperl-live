@@ -59,7 +59,7 @@
             </code>
             <p>Careful - spelling and case counts!</p>
             <p>The bioperl tutorial - bptutorial.pl - provided in the root directory of the bioperl release will also provide a good introduction.  You may also find useful documentation in the form of a HOWTO in the bioperl package or at <a href="http://www.bioperl.org/HOWTOs">http://www.bioperl.org/HOWTOs</a>. There are links to tutorials off the bioperl website that may provide some additional help.</p>
-            <p>There are also many scripts in the examples/ and scripts/ directories that could be useful - see bioperl.pod for a brief description of all of them.</p>
+            <p>There are also many scripts in the examples/ and scripts/ directories that could be useful - see bioscripts.pod for a brief description of all of them.</p>
             <p>Additionally we have written many tests for our modules, you can see test data and example usage of the modules in these tests - look in the test dir (called 't').</p>
          </answer>
       </q>
