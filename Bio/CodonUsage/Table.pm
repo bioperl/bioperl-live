@@ -17,40 +17,51 @@ at http://www.kazusa.or.jp/codon.
 
 =head1 SYNOPSIS
 
-  use Bio::CodonUsage::Table;
-  use Bio::DB::CUTG;
+	use Bio::CodonUsage::Table;
+	use Bio::DB::CUTG;
 
-  ## get  a codon usage table from web database ##
-  my $cdtable = Bio::DB::CUTG->new(-sp => 'Mus musculus'
-                                         -gc => 1);
+	## get  a codon usage table from web database ##
+	my $cdtable = Bio::DB::CUTG->new(-sp => 'Mus musculus'
+                                               -gc => 1);
 
-  ## or from local file
+	## or from local file
+	
+    my $io = Bio::CodonUsage::IO->new(-file=>"file");
+	my $cdtable= $io->next_data();
 
-  my $io = Bio::CodonUsage::IO->new(-file=>"file");
-  my $cdtable= $io->next_data(); 
 
-  print "leu frequency is ", $cdtable->aa_frequency('LEU'), "\n";
-  print "freqof ATG is ", $cdtable->codon_rel_frequency('ttc'), "\n";
-  print "abs freq of ATG is ", $cdtable->codon_abs_frequency('ATG'), "\n";
-  print "number of ATG codons is ", $cdtable->codon_count('ATG'), "\n";
-  print "gc content at position 1 is ", $cdtable->get_coding_gc('1'), "\n";
-  print "total CDSs for Mus musculus  is ", $cdtable->cds_count(), "\n";
+	## or create your own from your own sequences 
+ 
+	## get a Bio::PrimarySeq compliant object ##
+	# $codonstats is a ref to a hash of codon name /count key /values.
+
+	my $codonstats = Bio::Tools::SeqUtils->codon_count($my_1ary_Seq_objct);
+	my $CUT = Bio::CodonUsage::Table->new(data =>$codonstats,
+										  species => 'Hsapiens_kinase'); 
+	
+	print "leu frequency is ", $cdtable->aa_frequency('LEU'), "\n";
+	print "freqof ATG is ", $cdtable->codon_rel_frequency('ttc'), "\n";
+	print "abs freq of ATG is ", $cdtable->codon_abs_frequency('ATG'), "\n";
+	print "number of ATG codons is ", $cdtable->codon_count('ATG'), "\n";
+	print "gc content at position 1 is ", $cdtable->get_coding_gc('1'), "\n";
+	print "total CDSs for Mus musculus  is ", $cdtable->cds_count(), "\n";
 
 =head1 DESCRIPTION
 
 
-This class provides methods for accessing codon usage table data.
+This class provides methods for accessing codon usage table data. 
 
-All of the methods at present are simple look-ups of the table or are
-derived from simple calculations from the table. Future methods could
-include measuring the codon usage of a sequence , for example, or
-provide methods for examining codon usage in alignments.
+All of the methods at present are simple look-ups of the
+ table or are derived from simple calculations from the
+ table. Future methods could include measuring the codon
+usage of a sequence , for example, or provide methods
+ for examining codon usage in alignments.
 
 =head1 SEE ALSO
 
 L<Bio::Tools::CodonTable>, 
-L<Bio::WebAgent>, 
-L<Bio::CodonUsage::IO>, 
+L<Bio::WebAgent>,
+L<Bio::CodonUsage::IO>,
 L<Bio::DB::CUTG>
 
 =head1 FEEDBACK
@@ -88,15 +99,10 @@ methods. Internal methods are usually preceded with a _
 
 # Let the code begin...
 
-
-
-
-
 package Bio::CodonUsage::Table;
 use strict;
 use vars qw(@ISA %STRICTAA @AA);
-use Bio::DB::CUTG;
-use Bio::Root::IO;
+use lib '../../';
 use Bio::SeqUtils;
 use Bio::Tools::CodonTable;
 
@@ -110,16 +116,56 @@ BEGIN{
 =head2 new
 
  Title   : new
- Usage   : not instantiated directly, made by Bio::DB::CUTG.pm 
-           or by Bio::CodonUsage::IO.pm
+ Usage   : my $cut = Bio::CodonUsage::Table->new(-data => $cut_hash_ref,
+                                                 -species => 'H.sapiens_kinase'
+                                                 _genetic_code =>1);
  Returns : a reference to a new  Bio::CodonUsage::Table object
- Args    : none
+ Args    : none or a reference to a hash of codon counts. This constructor is
+           designed to be compatible with the output of
+           Bio::Tools::SeqUtils::count_codons()
+           Species and genetic code parameters can be entered here or via the 
+           species() and genetic_code() methods separately.
 
 =cut
 
 sub new {
 	my ($class, @args) = @_;
 	my $self= $class->SUPER::new(@args);
+	if (@args) {
+		$self->_rearrange([qw(DATA)], @args);
+		shift @args; # get rid of key
+		my $arg = shift @args;
+		$self->throw("need a hash reference, not a [" . ref($arg). "] reference") if ref($arg) ne 'HASH';
+		### flags to detect argument type, can be either to start with  ##
+		my $is_codon_hash = 1;
+		my $is_Aa_hash = 1;
+		for my $k (keys %$arg) {
+			## cpnvert to UC
+			$k =~ s/(\w+)/\U$1/;
+			if (!exists($STRICTAA{$k}) ){
+				$is_Aa_hash = 0;
+				}
+			elsif ($k =~ /[^ATCGatcg]/) {
+				$is_codon_hash = 0;
+				}
+		}
+		if (!$is_codon_hash && !$is_Aa_hash) {
+			$self->throw(" invalid key values in CUT hash -must be unique aa or nulceotide identifiers");
+			}
+		elsif ($is_Aa_hash) {
+			$self->_init_from_aa($arg);
+			}
+		elsif($is_codon_hash) {
+			$self->_init_from_cod($arg);
+			}
+		while (@args) {
+			my $key = shift @args;
+			$key =~ s/\-(\w+)/\L($1)/;
+			
+			$self->$key(shift @args);
+			}
+	}
+		
 	return $self;
 }
 
@@ -160,7 +206,7 @@ sub codon_abs_frequency {
 	my $cod = uc $a;
 	if ($self->_check_codon($cod))  {
 		my $ctable =  Bio::Tools::CodonTable->new;
-		$ctable->id($self->{'_gen_code'});
+		$ctable->id($self->genetic_code() );
 		my $aa =$Bio::SeqUtils::THREECODE {$ctable->translate($cod)};
 
 		return $self->{'_table'}{$aa}{$cod}{'per1000'}/10 ;
@@ -186,7 +232,7 @@ sub codon_rel_frequency {
 	my $cod = uc $a;
 	if ($self->_check_codon($cod)) {
 		my $ctable =  Bio::Tools::CodonTable->new;
-		$ctable->id($self->{'_gen_code'});
+		$ctable->id($self->genetic_code () );
 		my $aa =$Bio::SeqUtils::THREECODE {$ctable->translate($cod)};
 		return $self->{'_table'}{$aa}{$cod}{'rel_freq'};
 	}
@@ -207,16 +253,23 @@ sub codon_rel_frequency {
 =cut
 
 sub codon_count {
-	my ($self, $a) = @_;
-	my $cod = uc $a;
-	if ($self->_check_codon($cod)) {
-		my $ctable =  Bio::Tools::CodonTable->new;
-		$ctable->id($self->{'_gen_code'});
-
-		my $aa =$Bio::SeqUtils::THREECODE {$ctable->translate($cod)};
-		return $self->{'_table'}{$aa}{$cod}{'abs_count'};
+	my $self = shift;
+	if (@_) {
+		my $a = shift;
+		my $cod = uc $a;
+		if ($self->_check_codon($cod)) {
+			my $ctable =  Bio::Tools::CodonTable->new;
+			$ctable->id($self->genetic_code());
+			my $aa =$Bio::SeqUtils::THREECODE {$ctable->translate($cod)};
+			return $self->{'_table'}{$aa}{$cod}{'abs_count'};
+			}
+		else {return 0;}
+	}
+	else {
+		$self->warn(" need to give a codon sequence as a parameter ");
+		return 0;
 		}
-	else { return 0;}
+	
 }
 
 =head2 get_coding_gc
@@ -241,12 +294,12 @@ sub get_coding_gc {
 		my $n = shift;
 		##return request if valid ##
 		if ( exists($self->{'_coding_gc'}{$n} ) ) {
-			return $self->{'_coding_gc'}{$n};
+			return sprintf("%.2f", $self->{'_coding_gc'}{$n});
 			}
 		##else return 'all' value if exists
 		elsif (exists($self->{'_coding_gc'}{'all'} )) {
 			$self->warn("coding gc doesn't have value for [$n], returning gc content for all CDSs");
-			return $self->{'_coding_gc'}{'all'};
+			return sprintf("%.2f", $self->{'_coding_gc'}{'all'});
 			}
 		### else return 0, 
 		else {
@@ -299,7 +352,7 @@ sub species {
 	if (@_ ){
 		$self->{'_species'} = shift;
 		}
-	return $self->{'_species'};
+	return $self->{'_species'} || "unknown";
 }
 
 =head2 genetic_code
@@ -345,7 +398,7 @@ sub cds_count {
 		my $val = shift;
 		if ($val < 0) {
 			$self->warn("can't have negative count initializing to 1");
-			$self->{'_cds_count'} = 0;
+			$self->{'_cds_count'} = 0.00;
 			}
 		else{
 			$self->{'_cds_count'} = $val;
@@ -354,7 +407,7 @@ sub cds_count {
 	$self->warn("cds_count value is undefined, returning 0") 
 		if !exists($self->{'_cds_count'});
 
-	return $self->{'_cds_count'} || 0;
+	return $self->{'_cds_count'} || 0.00;
 	}
 
 =head2 aa_frequency
@@ -388,7 +441,7 @@ sub aa_frequency {
 	## return % of all amino acids in organism ## 
 	my $freq = 0;
 	map {$freq += $self->{'_table'}{$aa3}{$_}{'per1000'} } keys %{$self->{'_table'}{$aa3}};
-	return $freq/10;
+	return sprintf("%.2f", $freq/10);
 }
 
 ## internal sub that checks a codon is correct format
@@ -399,5 +452,76 @@ sub _check_codon {
 		return 0;
 	}
 	else {return 1;}
+}
+sub _init_from_cod {
+
+	## make hash based on aa and then send to _init_from_aa
+	my ($self, $ref) = @_;
+	my $ct = Bio::Tools::CodonTable->new();
+	my %aa_hash;
+	for my $codon(keys %$ref ) {
+		my $aa = $ct->translate($codon);
+		$aa_hash{$aa}{$codon}{'abs_count'} = $ref->{$codon};
+		}
+	$self->_init_from_aa(\%aa_hash);
+}
+
+
+sub _init_from_aa {
+	my ($self, $ref) = @_;
+		## abs counts  and count codons
+	my $total_codons = 0;
+	my %threeletter;
+	map{$threeletter{$Bio::SeqUtils::THREECODE{$_}} = $ref->{$_} } keys %$ref;
+	$ref = \%threeletter;
+	for my $aa (keys %$ref) {
+		for my $cod(keys %{$ref->{$aa}} ) {
+			$self->{'_table'}{$aa}{$cod}{'abs_count'}  = $ref->{$aa}{$cod};	
+			$total_codons += $ref->{$aa}{$cod};
+		}
+	}
+	
+	## now calculate abs codon frequencies
+	for my $aa (keys %$ref) {
+		for my $cod(keys %{$ref->{$aa}} ) {
+			$self->{'_table'}{$aa}{$cod}{'per1000'}  = 
+				sprintf("%.2f",$ref->{$aa}{$cod} /$total_codons * 1000) ;
+		}
+	}
+	## now calculate rel codon_frequencies
+	for my $aa (keys %$ref) {
+		my $aa_freq = 0;
+		map{$aa_freq += $ref->{$aa}{$_} }
+						keys %{$ref->{$aa}};
+		for my $cod(keys %{$ref->{$aa}} ) {
+			$self->{'_table'}{$aa}{$cod}{'rel_freq'}=
+				sprintf("%.2f",$ref->{$aa}{$cod}/ $aa_freq );
+		}
+		
+	}	
+
+	## now calculate gc fields
+	my %GC;
+	for my $aa (keys %$ref) {
+		for my $cod(keys %{$ref->{$aa}} ) {
+			for my $index (qw(1 2 3) ) {
+				if (substr ($cod, $index -1, 1) =~ /g|c/oi) {
+					$GC{$index} += $ref->{$aa}{$cod};
+				}			
+			}
+		}
+	}
+	my $tot = 0;
+	map{$tot += $GC{$_}} qw(1 2 3);
+	$self->set_coding_gc('all',  $tot/(3 *$total_codons) * 100);
+	map{$self->set_coding_gc($_,$GC{$_}/$total_codons * 100)} qw(1 2 3);
+	
+	##
+	return $self;
+}
+
+sub _gb_db {
+	my $self = shift;
+	return $self->{'_gd_db'} || "unknown";
 }
 return 1;
