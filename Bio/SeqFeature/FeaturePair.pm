@@ -139,10 +139,10 @@ sub feature1 {
 
     if (defined($arg)) {
 	$self->throw("Argument [$arg] must be a Bio::SeqFeatureI") unless (ref($arg) ne "" && $arg->isa("Bio::SeqFeatureI"));
-	$self->{feature1} = $arg;
+	$self->{'feature1'} = $arg;
     } 
 
-    return $self->{feature1};
+    return $self->{'feature1'};
 }
 
 =head2 feature2
@@ -162,9 +162,9 @@ sub feature2 {
 
     if (defined($arg)) {
 	$self->throw("Argument [$arg] must be a Bio::SeqFeatureI") unless (ref($arg) ne "" && $arg->isa("Bio::SeqFeatureI"));
-	$self->{feature2} = $arg;
+	$self->{'feature2'} = $arg;
     } 
-    return $self->{feature2};
+    return $self->{'feature2'};
 }
 
 =head2 start
