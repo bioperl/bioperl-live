@@ -471,7 +471,6 @@ sub gff_string {
   my $class = $self->class;
   my $group = "$class $name" if $name;
   my $strand = ('-','.','+')[$self->strand+1];
-print STDERR "My Sranddy is $strand from ".($self->strand)."  ".($self->strand+1)."\n";
   my $string;
   $string .= join("\t",$self->ref||'.',$self->source||'.',$self->method||'.',
                        $self->start||'.',$self->stop||'.',
