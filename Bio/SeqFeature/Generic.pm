@@ -329,6 +329,7 @@ sub sub_SeqFeature {
 
 
 =cut
+#'
 
 sub add_sub_SeqFeature{
    my ($self,$feat,$expand) = @_;
@@ -337,7 +338,7 @@ sub add_sub_SeqFeature{
        $self->warn("$feat does not implement Bio::SeqFeatureI. Will add it anyway, but beware...");
    }
 
-   if($expand eq 'EXPAND') {
+   if($expand && ($expand eq 'EXPAND')) {
        $self->_expand_region($feat);
    } else {
        if ( !$self->contains($feat) ) {
