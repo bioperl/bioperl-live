@@ -126,7 +126,7 @@ use Text::Shellwords;
 my @COLORS = qw(cyan blue red yellow green wheat turquoise orange);
 
 use constant WIDTH => 600;
-use constant MAX_REMAP => 100;
+use constant MAX_REMAP => 30;
 
 =head2 METHODS
 
@@ -286,6 +286,7 @@ sub render {
   for my $type (@configured_types,@unconfigured_types) {
     my $f = $self->features($type);
     my @features = grep {$self->{visible}{$_}} @$f;
+    next unless @features;  # suppress tracks for features that don't appear
     my $features = \@features;
 
     my @auto_bump;
@@ -442,7 +443,8 @@ sub parse_line {
   }
 
   # parse data lines
-  my @tokens = eval { shellwords($_||'') };
+  my @tokens = shellwords($_);
+  # my @tokens = split "\t",$_;  # faster?
   unshift @tokens,'' if /^\s+/;
 
   # close any open group
@@ -463,11 +465,14 @@ sub parse_line {
 
   my($ref,$type,$name,$strand,$bounds,$description,$url,$score,%attributes);
 
+  my @parts;
+
   if (@tokens >= 8) { # conventional GFF file
     my ($r,$source,$method,$start,$stop,$scor,$s,$phase,@rest) = @tokens;
     my $group = join ' ',@rest;
     $type   = defined $source && $source ne '.' ? join(':',$method,$source) : $method;
-    $bounds = join '..',$start,$stop;
+    #$bounds = join '..',$start,$stop;
+    @parts   = ([$start,$stop]);
     $strand = $s;
     if ($group) {
       my ($notes,@notes);
@@ -506,7 +511,8 @@ sub parse_line {
   }
   $self->{refs}{$ref}++ if defined $ref;
 
-  my @parts = map { [/(-?\d+)(?:-|\.\.)(-?\d+)/]} split /(?:,| )\s*/,$bounds;
+  @parts = map { [/(-?\d+)(?:-|\.\.)(-?\d+)/]} split /(?:,| )\s*/,$bounds
+    if $bounds && !@parts;
 
   foreach (@parts) { # max and min calculation, sigh...
     $self->{min} = $_->[0] if !defined $self->{min} || $_->[0] < $self->{min};

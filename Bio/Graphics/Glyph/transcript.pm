@@ -34,6 +34,7 @@ sub draw_connectors {
   my $self = shift;
   my $gd = shift;
   my ($left,$top) = @_;
+
   $self->SUPER::draw_connectors($gd,$left,$top);
   my @parts = $self->parts;
 

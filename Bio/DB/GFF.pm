@@ -2125,9 +2125,21 @@ sub preferred_groups {
   if (@_) {
     my @v = map {ref($_) eq 'ARRAY' ? @$_ : $_} @_;
     $self->{preferred_groups} = \@v;
+    delete $self->{preferred_groups_hash};
   }
   return unless $d;
   return @$d;
+}
+
+sub _preferred_groups_hash {
+  my $self = shift;
+  return $self->{preferred_groups_hash} if exists $self->{preferred_groups_hash};
+  my $count = 0;
+
+  # hard-coded (Sequence,Transcript) here for backward compatibility with Sanger GFF (hack)
+  my @preferred = (qw/Sequence Transcript/,$self->preferred_groups);
+  my %preferred = map {lc($_) => @preferred-$count++} @preferred;
+  return $self->{preferred_groups_hash} = \%preferred;
 }
 
 =head1 Methods for use by Subclasses
@@ -3342,25 +3354,17 @@ sub _split_gff2_group {
   # group assignment
   if (@attributes && !($gclass && $gname) ) {
 
-    my @preferred = $self->preferred_groups if ref($self);
-    unshift @preferred,qw/Sequence Transcript/;
+    my $preferred = ref($self) ? $self->_preferred_groups_hash : {};
 
-    # Look for a preferred group (in order)
-    for my $pgrp (@preferred ) {
-      my ($grp) = grep { lc($_->[0]) eq lc($pgrp) } @attributes;
-      if ($grp) {
-	($gclass, $gname) = @$grp;
-	@attributes = grep { lc($_->[0]) ne lc($grp) } @attributes;
-	last;
-      }
-
+    for my $pair (@attributes) {
+      my ($c,$n) = @$pair;
+      ($gclass,$gname) = ($c,$n) 
+	if !$gclass # pick up first one
+	  ||
+	    ($preferred->{lc $gclass}||0) < ($preferred->{lc $c}||0); # pick up higher priority one
     }
 
-    # Otherwise, use the first attribute
-    unless ( $gclass && $gname ) {
-      my $grp = shift @attributes;
-      ($gclass, $gname) = @$grp;
-    }
+    @attributes = grep {$gclass ne $_->[0]} @attributes;
   }
 
   push @attributes, @notes;
