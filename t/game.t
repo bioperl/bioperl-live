@@ -56,7 +56,7 @@ sub test ($$;$) {
     print($true ? "ok $num\n" : "not ok $num $msg\n");
 }
 
-$str = Bio::SeqIO->new(-file=> 't/test.game', '-format' => 'game');
+$str = Bio::SeqIO->new('-file'=> 't/test.game', '-format' => 'game');
 test 2, ($str);
 
 test 3, ($seq = $str->next_primary_seq()), 'failed to read game primary_seq from stream'; 
@@ -70,9 +70,9 @@ test 6, ($seq = $str2->next_seq()), 'failed to read game seq from stream';
 
 $str2->write_seq($seq) if( $DEBUG);
 
-test 7, ( $seq->id eq 'AE003417' );
+test 7, ( $seq->id eq 'AE003417' ), 'id was not AE003417 it was ' .$seq->id;
 
 @feats = $seq->all_SeqFeatures();
 
-test 8, ( @feats[0]->primary_tag eq 'exon' );
+test 8, ( $feats[0]->primary_tag eq 'exon' ), 'primary tag was not exon it was ' . $feats[0]->primary_tag;
 
