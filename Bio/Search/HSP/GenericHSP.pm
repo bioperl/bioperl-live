@@ -91,7 +91,7 @@ Internal methods are usually preceded with a _
 
 
 package Bio::Search::HSP::GenericHSP;
-use vars qw(@ISA);
+use vars qw(@ISA $GAP_SYMBOL);
 use strict;
 
 use Bio::Root::Root;
@@ -100,6 +100,9 @@ use Bio::Search::HSP::HSPI;
 
 @ISA = qw(Bio::Root::Root Bio::Search::HSP::HSPI);
 
+BEGIN {
+    $GAP_SYMBOL = '-';
+}
 =head2 new
 
  Title   : new
@@ -270,7 +273,10 @@ sub new {
     } 
     # protect for divide by zero if user does not specify 
     # hsp_len, query_len, or hit_len
-
+    
+    $self->num_identical($identical);
+    $self->num_conserved($conserved);
+    
     if( $hsp_len ) {
 	$self->length('total', $hsp_len);
 	$self->frac_identical( 'total', $identical / $self->length('total'));
@@ -289,7 +295,7 @@ sub new {
     $self->query_string($query_seq);
     $self->hit_string($hit_seq);
     $self->homology_string($homology_seq);
-
+    
     if( defined $query_gaps ) {
 	$self->gaps('query', $query_gaps);
     } else {
@@ -482,6 +488,9 @@ sub query_string{
     if( defined $value || ! defined $previous ) { 
 	$value = $previous = '' unless defined $value;
 	$self->{'_query_string'} = $value;
+	# do some housekeeping so we know when to 
+	# re-run _calculate_seq_positions
+	$self->{'_sequenceschanged'} = 1;
     } 
     return $previous;   
 }
@@ -503,6 +512,9 @@ sub hit_string{
     if( defined $value || ! defined $previous ) { 
 	$value = $previous = '' unless defined $value;
 	$self->{'_hit_string'} = $value;
+	# do some housekeeping so we know when to 
+	# re-run _calculate_seq_positions
+	$self->{'_sequenceschanged'} = 1;
     } 
     return $previous;   
 }
@@ -526,6 +538,9 @@ sub homology_string{
     if( defined $value || ! defined $previous ) { 
 	$value = $previous = '' unless defined $value;
 	$self->{'_homology_string'} = $value;
+	# do some housekeeping so we know when to 
+	# re-run _calculate_seq_positions
+	$self->{'_sequenceschanged'} = 1;
     } 
     return $previous;   
 }
@@ -689,6 +704,131 @@ sub get_aln {
     return $aln;
 }
 
+=head2 num_conserved
+
+ Title   : num_conserved
+ Usage   : $obj->num_conserved($newval)
+ Function: returns the number of conserved residues in the alignment
+ Returns : inetger
+ Args    : integer (optional)
+
+
+=cut
+
+sub num_conserved{
+   my ($self,$value) = @_;
+   if( defined $value) {
+       $self->{'num_conserved'} = $value;
+   }
+   return $self->{'num_conserved'};
+}
+
+=head2 num_identical
+
+ Title   : num_identical
+ Usage   : $obj->num_identical($newval)
+ Function: returns the number of identical residues in the alignment
+ Returns : integer
+ Args    : integer (optional)
+
+
+=cut
+    
+sub num_identical{
+   my ($self,$value) = @_;
+   if( defined $value) {
+       $self->{'_num_identical'} = $value;
+   }
+   return $self->{'_num_identical'};
+}
+
+
+=head2 seq_inds
+
+ Title   : seq_inds
+ Purpose   : Get a list of residue positions (indices) for all identical 
+           : or conserved residues in the query or sbjct sequence.
+ Example   : @s_ind = $hsp->seq_inds('query', 'identical');
+           : @h_ind = $hsp->seq_inds('hit', 'conserved');
+           : @h_ind = $hsp->seq_inds('hit', 'conserved', 1);
+ Returns   : List of integers 
+           : May include ranges if collapse is true.
+ Argument  : seq_type  = 'query' or 'hit' or 'sbjct'  (default = query)
+           :  ('sbjct' is synonymous with 'hit') 
+           : class     = 'identical' or 'conserved' or 'nomatch' or 'gap'
+           :              (default = identical)
+           :              (can be shortened to 'id' or 'cons')
+           :              
+           : collapse  = boolean, if true, consecutive positions are merged
+           :             using a range notation, e.g., "1 2 3 4 5 7 9 10 11" 
+           :             collapses to "1-5 7 9-11". This is useful for 
+           :             consolidating long lists. Default = no collapse.
+ Throws    : n/a.
+ Comments  : 
+
+See Also   : L<Bio::Search::BlastUtils::collapse_nums()|Bio::Search::BlastUtils>, L<Bio::Search::Hit::HitI::seq_inds()|Bio::Search::Hit::HitI>
+
+=cut
+
+sub seq_inds{
+   my ($self, $seqType, $class, $collapse) = @_;
+
+   # prepare the internal structures - this is cached so
+   # if the strings have not changed we're okay
+   $self->_calculate_seq_positions();
+
+   $seqType  ||= 'query';
+   $class ||= 'identical';
+   $collapse ||= 0;
+   $seqType = 'sbjct' if $seqType eq 'hit';
+   my $t = lc(substr($seqType,0,1));
+   if( $t eq 'q' ) {
+       $seqType = 'query';
+   } elsif ( $t eq 's' || $t eq 'h' ) {
+       $seqType = 'sbjct';
+   } else { 
+       $self->warn("unknown seqtype $seqType using 'query'");
+       $seqType = 'query';
+   }
+
+   $t = lc(substr($class,0,1));
+   if( $t eq 'c' ) {
+     $class = 'conserved';  
+   } elsif( $t eq 'i' ) {
+       $class = 'identical';
+   } elsif( $t eq 'n' ) {
+       $class = 'nomatch';
+   } elsif( $t eq 'g' ) {
+       $class = 'gap';
+   } else { 
+       $self->warn("unknown sequence class $class using 'identical'");
+       $class = 'identical';
+   }
+   
+   ## Sensitive to member name changes.
+   $seqType  = "_\L$seqType\E";
+   $class = "_\L$class\E";
+   my @ary;
+   if( $class eq '_gap' ) {
+       # this means that we are remapping the gap length that is stored
+       # in the hash (for example $self->{'_gapRes_query'} ) 
+       # so we'll return an array which has the values of the position of the 
+       # of the gap (the key in the hash) + the gap length (value in the
+       # hash for this key - 1.
+
+       @ary = map { $_ > 1 ?
+			$_..($_ + $self->{"${class}Res$seqType"}->{$_} - 1) : 
+			$_ }
+              sort { $a <=> $b } keys %{ $self->{"${class}Res$seqType"}};
+   } else {
+       @ary = sort { $a <=> $b } keys %{ $self->{"${class}Res$seqType"}};
+   }   
+   require Bio::Search::BlastUtils if $collapse;
+   
+   return $collapse ? &Bio::Search::BlastUtils::collapse_nums(@ary) : @ary;
+}
+
+
 =head2 Inherited from Bio::SeqFeature::SimilarityPair
 
 These methods come from Bio::SeqFeature::SimilarityPair
@@ -762,5 +902,117 @@ sub bits {
     } 
     return $previous;
 }
+
+
+=head1 Private methods
+
+=cut
+
+=head2 _calculate_seq_positions
+
+ Title   : _calculate_seq_positions
+ Usage   : $self->_calculate_seq_positions
+ Function:
+ Returns : 
+ Args    :
+
+
+=cut
+
+sub _calculate_seq_positions {
+    my ($self,@args) = @_;
+    return unless ( $self->{'_sequenceschanged'} );
+    $self->{'_sequenceschanged'} = 0;
+    my ($mchar, $schar, $qchar);
+    my ($seqString, $qseq,$sseq) = ( $self->homology_string(),
+				     $self->query_string(),
+				     $self->hit_string() );
+
+    # Using hashes to avoid saving duplicate residue numbers.
+    my %identicalList_query = ();
+    my %identicalList_sbjct = ();
+    my %conservedList_query = ();
+    my %conservedList_sbjct = ();
+    
+    my %gapList_query = ();
+    my %gapList_sbjct = ();
+    my %nomatchList_query = ();
+    my %nomatchList_sbjct = ();
+
+    my $qdir = $self->query->strand || 1;
+    my $sdir = $self->hit->strand || 1;
+    my $resCount_query = ($qdir >=0) ? $self->query->end : $self->query->start;
+    my $resCount_sbjct = ($sdir >=0) ? $self->hit->end : $self->hit->start;
+    
+    my $prog = $self->algorithm;
+    if( $prog  =~ /FAST/i ) {
+	# fasta reports some extra 'regional' sequence information
+	# we need to clear out first
+	# this seemed a bit insane to me at first, but it appears to 
+	# work --jason
+	
+	# we infer the end of the regional sequence where the first
+	# non space is in the homology string
+	# then we use the HSP->length to tell us how far to read
+	# to cut off the end of the sequence
+
+	# one possible problem is the sequence which 
+	
+	my ($start);
+	if( $seqString =~ /^(\s+)/ ) {
+	    $start = CORE::length($1);
+	}
+	$seqString = substr($seqString, $start,$self->length('total'));
+	$qseq = substr($qseq, $start,$self->length('total'));
+	$sseq = substr($sseq, $start,$self->length('total'));
+    }
+    if($prog !~ /^BLASTP|^BLASTN/) {
+	if($prog eq 'TBLASTN' || $prog eq 'TFASTN' ) {
+	    $resCount_sbjct /= 3;
+	} elsif($prog eq 'BLASTX' || $prog eq 'FASTX' || $prog eq 'FASTY' || 
+		$prog eq 'FASTXY' ) {
+	    $resCount_query /= 3;
+	} elsif($prog eq 'TBLASTX' ||
+		$prog eq 'TFASTXY' || $prog eq 'TFASTY' || 
+		$prog eq 'TFASTX' ) {
+	    $resCount_query /= 3;
+	    $resCount_sbjct /= 3;
+	}
+    }    
+    while( $mchar = chop($seqString) ) {
+	($qchar, $schar) = (chop($qseq), chop($sseq));
+	if( $mchar eq '+' || $mchar eq '.' || $mchar eq ':' ) { 
+	    $conservedList_query{ $resCount_query } = 1; 
+	    $conservedList_sbjct{ $resCount_sbjct } = 1; 
+	} elsif( $mchar ne ' ' ) { 
+	    $identicalList_query{ $resCount_query } = 1; 
+	    $identicalList_sbjct{ $resCount_sbjct } = 1;
+	} elsif( $mchar eq ' ') { 
+	    $nomatchList_query{ $resCount_query } = 1;
+	    $nomatchList_sbjct{ $resCount_sbjct } = 1;
+	}
+	if( $qchar eq $GAP_SYMBOL ) {
+	    $gapList_query{ $resCount_query } ++;
+	} else { 	    
+	    $resCount_query -= $qdir;
+	}
+	if( $schar eq $GAP_SYMBOL ) {
+	    $gapList_sbjct{ $resCount_query } ++;
+	} else {
+	    $resCount_sbjct -=$sdir;
+	}
+    }
+    $self->{'_identicalRes_query'} = \%identicalList_query;
+    $self->{'_conservedRes_query'} = \%conservedList_query;
+    $self->{'_nomatchRes_query'} = \%nomatchList_query;
+    $self->{'_gapRes_query'} = \%gapList_query;
+
+    $self->{'_identicalRes_sbjct'} = \%identicalList_sbjct;
+    $self->{'_conservedRes_sbjct'} = \%conservedList_sbjct;
+    $self->{'_nomatchRes_sbjct'} = \%nomatchList_sbjct;
+    $self->{'_gapRes_sbjct'} = \%gapList_sbjct;
+    return 1;
+}
+
 
 1;
