@@ -204,7 +204,7 @@ The same issue arises when you use Bio::DB::Fasta, but in that case the code mig
       </q>
 <q id="6">   
 <question>
-<p>I'm using Bio::DB::GenBank to query Genbank and I'm certain that the id is there but I'm seeing the error "WebDBSeqI Error - check query sequences".</p>
+<p>I'm using Bio::DB::GenBank to query Genbank and I'm certain that the id is there but I'm seeing the error "MSG: acc does not exist".</p>
 </question>
 <answer>
 <p>This bug in versions 1.2 and 1.2.1, but it is fixed in 1.2.2. Either upgrade to 1.2.2 or edit Bio/DB/GenBank.pm and change 'protein' to 'nucleotide' in the BEGIN block.</p>
