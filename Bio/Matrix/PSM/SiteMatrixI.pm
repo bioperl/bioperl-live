@@ -1,41 +1,38 @@
 
 =head1 NAME
 
-Bio::Matrix::PSM::SiteMatrixI - SiteMatrix interface, holds a position
-scoring matrix (or position weight matrix)
+Bio::Matrix::PSM::SiteMatrix - SiteMatrixI implementation, holds a
+position scoring matrix (or position weight matrix) and log-odds
 
 =head1 SYNOPSIS
 
   use Bio::Matrix::PSM::SiteMatrix;
-
   # Create from memory by supplying probability matrix hash
   # both as strings or arrays
-
+  # where the frequencies  $a,$c,$g and $t are supplied either as
+  # arrayref or string. Accordingly, lA, lC, lG and lT are the log
+  # odds (only as arrays, no checks done right now)
   my ($a,$c,$g,$t,$score,$ic, $mid)=@_;
-  # where $a,$c,$g and $t are either arrayref or string
-  # or
-  my ($a,$c,$g,$t,$score,$ic,$mid)=
-     ('05a011','110550','400001','100104',0.001,19.2,'CRE1');
-  # Where a stands for all (this frequency=1), see explanation bellow
-
-  my %param=(-pA=>$a,-pC=>$c,-pG=>$g,-pT=>$t,-IC=>$ic,
-             -e_val=>$score, -id=>$mid);
+  #or
+  my ($a,$c,$g,$t,$score,$ic,$mid)=('05a011','110550','400001',
+                                    '100104',0.001,19.2,'CRE1');
+  #Where a stands for all (this frequency=1), see explanation bellow
+  my %param=(-pA=>$a,-pC=>$c,-pG=>$g,-pT=>$t,
+             -lA=>$la, -lC=>$lc,-lG=>$lg,-lT=>$l,
+             -IC=>$ic,-e_val=>$score, -id=>$mid);
   my $site=new Bio::Matrix::PSM::SiteMatrix(%param);
-
-  # Or get it from a file:
-
+  #Or get it from a file:
   use Bio::Matrix::PSM::IO;
   my $psmIO= new Bio::Matrix::PSM::IO(-file=>$file, -format=>'transfac');
   while (my $psm=$psmIO->next_psm) {
-    # Now we have a Bio::Matrix::PSM::Psm object, see
-    # Bio::Matrix::PSM::PsmI for details
+    #Now we have a Bio::Matrix::PSM::Psm object,
+    # see Bio::Matrix::PSM::PsmI for details
+    #This is a Bio::Matrix::PSM::SiteMatrix object now
     my $matrix=$psm->matrix;
-    # This is a Bio::Matrix::PSM::SiteMatrix object now
   }
 
-  # Get a simple consensus, where alphabet is {A,C,G,T,N}, choosing
-  # the highest probability or N if prob is too low
-
+  # Get a simple consensus, where alphabet is {A,C,G,T,N},
+  # choosing the highest probability or N if prob is too low
   my $consensus=$site->consensus;
 
   #Getting/using regular expression
@@ -76,14 +73,29 @@ Summary of the methods I use most frequently (details bellow):
   IC - information content. Returns a real number
   id - identifier. Returns a string
   accession - accession number. Returns a string
-  next_pos - return the sequence probably for each letter, IUPAC symbol,
-      IUPAC probability and simple sequence consenus letter for this
-      position. Rewind at the end. Returns a hash.
+  next_pos - return the sequence probably for each letter, IUPAC
+      symbol, IUPAC probability and simple sequence
+  consenus letter for this position. Rewind at the end. Returns a hash.
   pos - current position get/set. Returns an integer.
-  regexp- construct a regular expression based on IUPAC consensus.
-      For example AGWV will be [Aa][Gg][AaTt][AaCcGg] width- site width
-      get_string- gets the probability vector for a single base as a
-       string.
+  regexp - construct a regular expression based on IUPAC consensus.
+      For example AGWV will be [Aa][Gg][AaTt][AaCcGg]
+  width - site width
+  get_string - gets the probability vector for a single base as a string.
+  get_array - gets the probability vector for a single base as an array.
+  get_logs_array - gets the log-odds vector for a single base as an array.
+
+New methods, which might be of interest to anyone who wants to store PSM in a relational
+database without creating an entry for each position is the ability to compress the
+PSM vector into a string with losing usually less than 1% of the data.
+this can be done with:
+my $str=$matrix->get_compressed_freq('A');
+or
+my $str=$matrix->get_compressed_logs('A');
+Loading from a database should be done with new, but is not yest implemented.
+However you can still uncompress such string with:
+my @arr=Bio::Matrix::PSM::_uncompress_string ($str,1,1); for PSM
+or
+my @arr=Bio::Matrix::PSM::_uncompress_string ($str,1000,2); for log odds
 
 =head1 FEEDBACK
 
@@ -141,6 +153,28 @@ use vars qw(@ISA);
 =cut
 
 sub new {
+  my $self = shift;
+  $self->throw_not_implemented();
+}
+
+=head2 _initialize
+
+ Title   : _initialize
+ Usage   : my $site=$matrix->_initialize
+              (-pA=>$a,-pC=>$c,-pG=>$g,-pT=>$t,
+               -lA=>$la,-lC=>$lc,-lG=>$lg,-lT=>$lt,
+               -IC=>$ic,-e_val=>$score, -id=>$mid);
+ Function: Initialize an empty Bio::Matrix::PSM::SiteMatrix object
+ Throws  : If inconsistent data for all vectors (A,C,G and T) is provided,
+           if you mix input types (string vs array) or if a position freq is 0.
+ Example :
+ Returns : Bio::Matrix::PSM::SiteMatrix object
+ Args    : hash
+
+
+=cut
+
+sub _initialize {
   my $self = shift;
   $self->throw_not_implemented();
 }
@@ -436,4 +470,81 @@ sub _calculate_consensus {
     my $self = shift;
     $self->throw_not_implemented();
 }
+
+=head2 _compress_array
+
+ Title   : _compress_array
+ Usage   :
+ Function:  Will compress an array of real signed numbers to a string (ie vector of bytes)
+ 			-127 to +127 for bi-directional(signed) and 0..255 for unsigned ;
+ Throws  :
+ Example :  Internal stuff
+ Returns :  String
+ Args    :  array reference, followed by an max value and
+ 			direction (optional, default 1-unsigned),1 unsigned, any other is signed.
+
+=cut
+
+sub _compress_array {
+    my $self = shift;
+    $self->throw_not_implemented();
+}
+
+=head2 _uncompress_string
+
+ Title   : _uncompress_string
+ Usage   :
+ Function:  Will uncompress a string (vector of bytes) to create an array of real
+            signed numbers (opposite to_compress_array)
+ Throws  :
+ Example :  Internal stuff
+ Returns :  string, followed by an max value and
+ 			direction (optional, default 1-unsigned), 1 unsigned, any other is signed.
+ Args    :  array
+
+=cut
+
+sub _uncompress_string {
+    my $self = shift;
+    $self->throw_not_implemented();
+}
+
+=head2 get_compressed_freq
+
+ Title   : get_compressed_freq
+ Usage   :
+ Function:  A method to provide a compressed frequency vector. It uses one byte to
+ 			code the frequence for one of the probability vectors for one position.
+			Useful for relational database. Improvment of the previous 0..a coding.
+ Throws  :
+ Example :  my $strA=$self->get_compressed_freq('A');
+ Returns :  String
+ Args    :  char
+
+=cut
+
+sub get_compressed_freq {
+    my $self = shift;
+    $self->throw_not_implemented();
+}
+
+=head2 get_compressed_logs
+
+ Title   : get_compressed_logs
+ Usage   :
+ Function:  A method to provide a compressed log-odd vector. It uses one byte to
+ 			code the log value for one of the log-odds vectors for one position.
+ Throws  :
+ Example :  my $strA=$self->get_compressed_logs('A');
+ Returns :  String
+ Args    :  char
+
+=cut
+
+sub get_compressed_logs {
+    my $self = shift;
+    $self->throw_not_implemented();
+}
+
+
 1;

@@ -4,20 +4,23 @@
 =head1 NAME
 
 Bio::Matrix::PSM::SiteMatrix - SiteMatrixI implementation, holds a
-position scoring matrix (or position weight matrix)
+position scoring matrix (or position weight matrix) and log-odds
 
 =head1 SYNOPSIS
 
   use Bio::Matrix::PSM::SiteMatrix;
   # Create from memory by supplying probability matrix hash
   # both as strings or arrays
-  # where $a,$c,$g and $t are either arrayref or string
+  # where the frequencies  $a,$c,$g and $t are supplied either as
+  # arrayref or string. Accordingly, lA, lC, lG and lT are the log
+  # odds (only as arrays, no checks done right now)
   my ($a,$c,$g,$t,$score,$ic, $mid)=@_; 
   #or
   my ($a,$c,$g,$t,$score,$ic,$mid)=('05a011','110550','400001',
                                     '100104',0.001,19.2,'CRE1');
   #Where a stands for all (this frequency=1), see explanation bellow
   my %param=(-pA=>$a,-pC=>$c,-pG=>$g,-pT=>$t,
+             -lA=>$la, -lC=>$lc,-lG=>$lg,-lT=>$l,
              -IC=>$ic,-e_val=>$score, -id=>$mid);
   my $site=new Bio::Matrix::PSM::SiteMatrix(%param);
   #Or get it from a file:
@@ -80,6 +83,21 @@ Summary of the methods I use most frequently (details bellow):
       For example AGWV will be [Aa][Gg][AaTt][AaCcGg]
   width - site width
   get_string - gets the probability vector for a single base as a string.
+  get_array - gets the probability vector for a single base as an array.
+  get_logs_array - gets the log-odds vector for a single base as an array.
+
+New methods, which might be of interest to anyone who wants to store PSM in a relational
+database without creating an entry for each position is the ability to compress the
+PSM vector into a string with losing usually less than 1% of the data.
+this can be done with:
+my $str=$matrix->get_compressed_freq('A');
+or
+my $str=$matrix->get_compressed_logs('A');
+Loading from a database should be done with new, but is not yest implemented.
+However you can still uncompress such string with:
+my @arr=Bio::Matrix::PSM::_uncompress_string ($str,1,1); for PSM
+or
+my @arr=Bio::Matrix::PSM::_uncompress_string ($str,1000,2); for log odds
 
 =head1 FEEDBACK
 
@@ -165,6 +183,7 @@ sub new {
 	$self->{logT}   = $input{lT};
     $self->{id}= defined($input{id}) ? $input{id} : 'null'; 
 	return $self unless (defined($input{pA}) && defined($input{pC}) && defined($input{pG}) && defined($input{pT}));
+#This should go to _initialize?
 #Check for input type- no mixing alllowed, throw ex
     if (ref($input{pA}) =~ /ARRAY/i ) {
 	$self->throw("Mixing matrix data types not allowed: C is not reference") unless(ref($input{pC}));
@@ -580,11 +599,12 @@ sub get_array {
 sub get_logs_array {
 	my $self=shift;
 	my $base=uc(shift);
-	return  @{$self->{logA}} if ($base eq 'A');
-	return  @{$self->{logC}} if ($base eq 'C');
-	return  @{$self->{logG}} if ($base eq 'G');
-	return  @{$self->{logT}} if ($base eq 'T');
-	$self->throw ("No such base: $base!\n");
+	return  @{$self->{logA}} if (($base eq 'A')  && ({$self->{logA}}));
+	return  @{$self->{logC}} if (($base eq 'C')  && ({$self->{logC}}));
+	return  @{$self->{logG}} if (($base eq 'G')  && ({$self->{logG}}));
+	return  @{$self->{logT}} if (($base eq 'T')  && ({$self->{logT}}));
+	$self->throw ("No such base: $base!\n") if (!grep(/$base/,qw(A C G T)));
+  return ();
 }
 
 =head2 id
@@ -772,10 +792,22 @@ sub get_compressed_freq {
 	my $string='';
 	my @prob;
 	BASE: {
-		if ($base eq 'A') {@prob= @{$self->{probA}}; last BASE; }
-		if ($base eq 'C') {@prob= @{$self->{probC}}; last BASE; }
-		if ($base eq 'G') {@prob= @{$self->{probG}}; last BASE; }
-		if ($base eq 'T') {@prob= @{$self->{probT}}; last BASE; }
+		if ($base eq 'A') {
+      @prob= @{$self->{probA}} unless (!defined($self->{probA}));
+      last BASE;
+    }
+  		if ($base eq 'G') {
+      @prob= @{$self->{probG}} unless (!defined($self->{probG}));
+      last BASE;
+    }
+  		if ($base eq 'C') {
+      @prob= @{$self->{probC}} unless (!defined($self->{probC}));
+      last BASE;
+    }
+  		if ($base eq 'T') {
+      @prob= @{$self->{probT}} unless (!defined($self->{probT}));
+      last BASE;
+    }
 		$self->throw ("No such base: $base!\n");
 	}
 	my $str= _compress_array(\@prob,1,1);
@@ -801,12 +833,14 @@ sub get_compressed_logs {
 	my $string='';
 	my @prob;
 	BASE: {
-		if ($base eq 'A') {@prob= @{$self->{logA}}; last BASE; }
-		if ($base eq 'C') {@prob= @{$self->{logC}}; last BASE; }
-		if ($base eq 'G') {@prob= @{$self->{logG}}; last BASE; }
-		if ($base eq 'T') {@prob= @{$self->{logT}}; last BASE; }
+		if ($base eq 'A') {@prob= @{$self->{logA}} unless (!defined($self->{logA})); last BASE; }
+		if ($base eq 'C') {@prob= @{$self->{logC}} unless (!defined($self->{logC})); last BASE; }
+		if ($base eq 'G') {@prob= @{$self->{logG}} unless (!defined($self->{logG})); last BASE; }
+		if ($base eq 'T') {@prob= @{$self->{logT}} unless (!defined($self->{logT})); last BASE; }
 		$self->throw ("No such base: $base!\n");
 	}
 	return _compress_array(\@prob,1000,2);
 }
+
+
 1;
