@@ -15,6 +15,16 @@
 
 Bio::Range - Pure perl RangeI implementation
 
+=head1 SYNOPSIS
+
+  $range = new Bio::Range(-start=>10, -end=>30, -strand=>+1);
+  $r2 = new Bio::Range(-start=>15, -end=>200, -strand=>+1);
+
+  print join(', ', $range->union($r2), "\n";
+  print join(', ', $range->intersection($r2), "\n";
+  print $range->overlaps($r2), "\n";
+  print $range->contains($r2), "\n";
+
 =head1 DESCRIPTION
 
 This provides a pure perl implementation of the BioPerl range
@@ -31,16 +41,6 @@ So, in summary:
   length = end - start + 1
   end >= start
   strand = (-1 | 0 | +1)
-
-=head1 SYNOPSIS
-
-  $range = new Bio::Range(-start=>10, -end=>30, -strand=>+1);
-  $r2 = new Bio::Range(-start=>15, -end=>200, -strand=>+1);
-
-  print join(', ', $range->union($r2), "\n";
-  print join(', ', $range->intersection($r2), "\n";
-  print $range->overlaps($r2), "\n";
-  print $range->contains($r2), "\n";
 
 =head1 FEEDBACK
 
