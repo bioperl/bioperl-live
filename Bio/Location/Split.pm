@@ -73,7 +73,7 @@ methods. Internal methods are usually preceded with a _
 
 
 package Bio::Location::Split;
-use vars qw(@ISA);
+use vars qw(@ISA @CORBALOCATIONOPERATOR);
 use strict;
 
 use Bio::Root::RootI;
@@ -81,6 +81,11 @@ use Bio::Location::SplitLocationI;
 use Bio::Location::Simple;
 
 @ISA = qw(Bio::Location::Simple Bio::Location::SplitLocationI );
+
+BEGIN { 
+    # as defined by BSANE 0.03
+    @CORBALOCATIONOPERATOR= ('NONE','JOIN', undef, 'ORDER');  
+}
 
 sub new {
     my ($class, @args) = @_;
@@ -90,10 +95,10 @@ sub new {
     my ( $type, $locations ) = $self->_rearrange([qw(SPLITTYPE 
 						     LOCATIONS)], @args);
     if( defined $locations && ref($locations) =~ /array/i ) {
-	$self->add_subLocation(@$locations);
+	$self->add_sub_Location(@$locations);
     }
     $type = lc ($type);    
-    $self->splittype($type || 'join');
+    $self->splittype($type || 'JOIN');
     return $self;
 }
 
@@ -197,8 +202,8 @@ sub add_sub_Location {
 sub splittype {
     my ($self, $value) = @_;
     if( defined $value || ! defined $self->{'_splittype'} ) {
-	$value = 'join' unless( defined $value );
-	$self->{'_splittype'} = lc ($value);
+	$value = 'JOIN' unless( defined $value );
+	$self->{'_splittype'} = uc ($value);
     }
     return $self->{'_splittype'};
 }
@@ -458,7 +463,7 @@ sub to_FTstring {
 	push @strs, $str;
     }    
        
-    my $str = sprintf("%s(%s)",$self->splittype, join(",", @strs));
+    my $str = sprintf("%s(%s)",lc $self->splittype, join(",", @strs));
     if( $self->strand == -1 ) {
 	$str = sprintf("complement(%s)",$str);
     }

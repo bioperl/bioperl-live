@@ -66,7 +66,7 @@ methods. Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::Location::Fuzzy;
-use vars qw(@ISA %FUZZYCODES  %FUZZYPOINTENCODE %FUZZYRANGEENCODE);
+use vars qw(@ISA );
 use strict;
 
 use Bio::Location::FuzzyLocationI;
@@ -75,6 +75,12 @@ use Bio::Location::Simple;
 @ISA = qw(Bio::Location::Simple Bio::Location::FuzzyLocationI );
 
 BEGIN {
+    use vars qw( %FUZZYCODES %FUZZYPOINTENCODE %FUZZYRANGEENCODE 
+		 @LOCATIONCODESBSANE );
+
+    @LOCATIONCODESBSANE = (undef, 'EXACT', 'WITHIN', 'BETWEEN',
+			'BEFORE', 'AFTER');
+
     %FUZZYCODES = ( 'EXACT' => '..', # Position is 'exact
    # Exact position is unknown, but is within the range specified, ((1.2)..100)
 		    'WITHIN' => '.', 
@@ -106,13 +112,42 @@ BEGIN {
 
 }
 
+=head2 new
+
+ Title   : new
+ Usage   : my $fuzzyloc = new Bio::Location::Fuzzy( @args);
+ Function:
+ Returns : 
+ Args    : -start    => value for start  (initialize by superclass)
+           -end      => value for end    (initialize by superclass)
+           -strand   => value for strand (initialize by superclass)
+           -loc_type => either ('EXACT', 'WITHIN', 'BETWEEN') OR
+                               ( 1,2,3)
+           -start_ext=> extension for start - defaults to 0, 
+           -start_fuz=  fuzzy code for start can be 
+                      ( 'EXACT', 'WITHIN', 'BETWEEN', 'BEFORE', 'AFTER') OR
+                      a value 1 - 5 corresponding to index+1 above
+           -end_ext=> extension for end - defaults to 0, 
+           -end_fuz=  fuzzy code for end can be 
+                      ( 'EXACT', 'WITHIN', 'BETWEEN', 'BEFORE', 'AFTER') OR
+                      a value 1 - 5 corresponding to index+1 above
+
+=cut
+
 sub new {
     my ($class, @args) = @_;
     my $self = $class->SUPER::new(@args);
-    my ($loc_type) = $self->_rearrange([qw(LOC_TYPE)], @args);
+    my ($loc_type, $start_ext, $start_fuz, $end_ext, $end_fuz) = 
+	$self->_rearrange([ qw(LOC_TYPE START_EXT START_FUZ 
+			       END_EXT END_FUZ )
+			    ], @args);
 
-    $loc_type && $self->loc_type($loc_type);
-
+    $loc_type  && $self->loc_type($loc_type);
+    $start_ext && $self->max_start($self->min_start + $start_ext);
+    $end_ext   && $self->max_end($self->min_end + $end_ext);
+    $start_fuz && $self->start_pos_type($start_fuz);
+    $end_fuz   && $self->end_pos_type($end_fuz);
+    
     return $self;
 }
 
@@ -130,16 +165,18 @@ sub loc_type {
     my ($self,$value) = @_;
     if( defined $value || ! defined $self->{'_location_type'} ) {
 	$value = 'EXACT' unless defined $value;
-	$value = uc($value);
-	if( $value =~ /\.\./ ) {
-	    $value = 'EXACT';
-	} elsif( $value =~ /^\.$/ ) {
-	    $value = 'WITHIN';
-	} elsif( $value =~ /\^/ ) {
-	    $value = 'BETWEEN';
-	} elsif( $value ne 'EXACT' && $value ne 'WITHIN' && 
-		 $value ne 'BETWEEN' ) {
-	    $self->throw("Did not specify a valid location type");
+	if(! defined $FUZZYCODES{$value})  {
+	    $value = uc($value);
+	    if( $value =~ /\.\./ ) {
+		$value = 'EXACT';
+	    } elsif( $value =~ /^\.$/ ) {
+		$value = 'WITHIN';
+	    } elsif( $value =~ /\^/ ) {
+		$value = 'BETWEEN';
+	    } elsif( $value ne 'EXACT' && $value ne 'WITHIN' && 
+		     $value ne 'BETWEEN' ) {
+		$self->throw("Did not specify a valid location type");
+	    }
 	}
 	$self->{'_location_type'} = $value;
     }
@@ -263,7 +300,17 @@ sub max_start {
 
 sub start_pos_type {
     my ($self,$value) = @_;
-
+    if(defined $value &&  $value =~ /^\d+$/ ) {
+	if( $value == 0 ) { $value = 'EXACT'; }
+	else { 
+	    my $v = $LOCATIONCODESBSANE[$value];
+	    if( ! defined $v ) {
+		$self->warn("Provided value $value which I don't understand, reverting to 'EXACT'");
+		$v = 'EXACT';
+	    }
+	    $value = $v;
+	}
+    }
     if(defined($value)) {
 	$self->{'_start_pos_type'} = $value;
     }
@@ -321,6 +368,17 @@ sub max_end {
 
 sub end_pos_type {
     my ($self,$value) = @_;
+    if( defined $value && $value =~ /^\d+$/ ) {
+	if( $value == 0 ) { $value = 'EXACT'; }
+	else { 
+	    my $v = $LOCATIONCODESBSANE[$value];
+	    if( ! defined $v ) {
+		$self->warn("Provided value $value which I don't understand, reverting to 'EXACT'");
+		$v = 'EXACT';
+	    }
+	    $value = $v;
+	}
+    }
 
     if(defined($value)) {
 	$self->{'_end_pos_type'} = $value;
