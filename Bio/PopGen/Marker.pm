@@ -216,8 +216,16 @@ sub unique_id{
 =cut
 
 sub get_Alleles{
-    my ($self) = @_;
-    return sort { $b <=> $a || $b cmp $a } keys %{$self->{'_allele_freqs'}};
+    my $self = shift;
+    my (@numeric,@alpha);
+    
+    for ( keys %{$self->{'_allele_freqs'}} ) {
+	if( /[^\d\.\-e]/ ) { push @alpha, $_ }
+	else { push @numeric, $_ }
+    }
+    @numeric = sort { $b <=> $a } @numeric;
+    @alpha   = sort { $b cmp $a } @alpha;
+    return @numeric,@alpha;
 }
 
 
