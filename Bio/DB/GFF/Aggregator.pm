@@ -172,7 +172,10 @@ are as follows:
 
 sub new {
   my $class = shift;
-  my ($method,$main,$sub_parts) = rearrange([qw(METHOD MAIN_PART SUB_PARTS)],@_);
+  my ($method,$main,$sub_parts) = rearrange(['METHOD',
+					     ['MAIN_PART','MAIN_METHOD'],
+					     ['SUB_METHODS','SUB_PARTS']
+					    ],@_);
   return bless {
 		method      => $method,
 		main_method => $main,
@@ -185,7 +188,7 @@ sub new {
  Title   : disaggregate
  Usage   : $a->disaggregate($types,$factory)
  Function: disaggregate type list into components
- Returns : nothing
+ Returns : a true value if this aggregator should be called to reaggregate
  Args    : see below
  Status  : Public
 
@@ -232,7 +235,9 @@ sub disaggregate {
 
   # remember what we're searching for
   $self->components(\@synthetic_types);
+  $self->passthru(\@unchanged);
   @$types = (@unchanged,@synthetic_types);
+  return @synthetic_types > 0;
 }
 
 
@@ -277,24 +282,27 @@ sub aggregate {
 
   my $main_method = $self->get_main_name;
   my $matchsub    = $self->match_sub($factory) or return;
+  my $passthru    = $self->passthru_sub($factory);
 
-  my %aggregates;
+  my (%aggregates,@result);
   for my $feature (@$features) {
-    next unless $feature->group;
-    next unless $matchsub->($feature);
-    if ($main_method && lc $feature->method eq lc $main_method) {
-      $aggregates{$feature->group}{base} ||= $feature->clone;
+    if ($feature->group && $matchsub->($feature)) {
+      if ($main_method && lc $feature->method eq lc $main_method) {
+	$aggregates{$feature->group}{base} ||= $feature->clone;
+      } else {
+	push @{$aggregates{$feature->group}{subparts}},$feature;
+      }
+      push @result,$feature if $passthru && $passthru->($feature);
     } else {
-      push @{$aggregates{$feature->group}{subparts}},$feature;
+      push @result,$feature;
     }
   }
 
   # aggregate components
-  my @result;
   my $pseudo_method = $self->get_method;
   foreach (keys %aggregates) {
-    next if $main_method and !exists($aggregates{$_}{base});
-    next unless exists $aggregates{$_}{subparts};
+#    next if $main_method and !exists($aggregates{$_}{base});
+#    next unless exists $aggregates{$_}{subparts};
     my $base = $aggregates{$_}{base};
     unless ($base) { # no base, so create one
       my $first = $aggregates{$_}{subparts}[0];
@@ -307,8 +315,7 @@ sub aggregate {
     $base->adjust_bounds;
     push @result,$base;
   }
-
-  \@result;
+  @$features = @result;
 }
 
 
@@ -406,6 +413,14 @@ sub match_sub {
   return $factory->make_match_sub($types_to_aggregate);
 }
 
+sub passthru_sub {
+  my $self    = shift;
+  my $factory = shift;
+  my $passthru = $self->passthru() or return;  # saved from disaggregate call
+  return unless @$passthru;
+  return $factory->make_match_sub($passthru);
+}
+
 =head2 components
 
  Title   : components
@@ -429,6 +444,14 @@ sub components {
   my $self = shift;
   my $d = $self->{components};
   $self->{components} = shift if @_;
+  return unless ref $d;
+  return wantarray ? @$d : $d;
+}
+
+sub passthru {
+  my $self = shift;
+  my $d = $self->{passthru};
+  $self->{passthru} = shift if @_;
   return unless ref $d;
   return wantarray ? @$d : $d;
 }

@@ -3,33 +3,36 @@ use strict;
 
 use constant STH         => 0;
 use constant CALLBACK    => 1;
+use constant CACHE       => 2;
 
 *next_seq = \&next_feature;
 
 sub new {
   my $class = shift;
   my ($sth,$callback) = @_;
-  return bless [$sth,$callback],$class;
+  return bless [$sth,$callback,[]],$class;
 }
 
 sub next_feature {
   my $self = shift;
+  return shift @{$self->[CACHE]} if @{$self->[CACHE]};
   my $sth = $self->[STH] or return;
   my $callback = $self->[CALLBACK];
 
-  my $feature;
+  my $features;
   while (1) {
     if (my @row = $sth->fetchrow_array) {
-      $feature = $callback->(@row);
-      last if $feature;
+      $features = $callback->(@row);
+      last if $features;
     } else {
       $sth->finish;
       undef $self->[STH];
-      $feature = $callback->();
+      $features = $callback->();
       last;
     }
   }
-  return $feature;
+  $self->[CACHE] = $features or return;
+  shift @{$self->[CACHE]};
 }
 
 1;

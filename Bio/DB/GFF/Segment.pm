@@ -166,17 +166,55 @@ sub length { abs($_[0]->{start} - $_[0]->{stop})+1 }
  Title   : strand
  Usage   : $s->strand
  Function: strand of segment
- Returns : +1,-1
+ Returns : +1,0,-1
  Args    : none
  Status  : Public
 
-Returns the strand on which the segment resides, either +1 or -1.
+Returns the strand on which the segment resides, either +1, 0 or -1.
 
 =cut
 
 sub strand {
-  my $self = shift; 
-  return $self->{stop} >= $self->{start} ? +1 : -1;
+  my $self = shift;
+  return $self->stop <=> $self->start;
+}
+
+=head2 low
+
+ Title   : low
+ Usage   : $s->low
+ Function: return lower coordinate
+ Returns : lower coordinate
+ Args    : none
+ Status  : Public
+
+Returns the lower coordinate, either start or end.
+
+=cut
+
+sub low {
+  my $self = shift;
+  my ($start,$stop) = ($self->start,$self->stop);
+  return $start < $stop ? $start : $stop;
+}
+
+=head2 high
+
+ Title   : high
+ Usage   : $s->high
+ Function: return higher coordinate
+ Returns : higher coordinate
+ Args    : none
+ Status  : Public
+
+Returns the higher coordinate, either start or end.
+
+=cut
+
+sub high {
+  my $self = shift;
+  my ($start,$stop) = ($self->start,$self->stop);
+  return $start > $stop ? $start : $stop;
 }
 
 =head2 sourceseq
@@ -262,7 +300,7 @@ sub dna {
   my $self = shift;
   my ($ref,$class,$start,$stop,$strand) 
     = @{$self}{qw(sourceseq class start stop strand)};
-  ($start,$stop) = ($stop,$start) if $strand eq '-';
+#  ($start,$stop) = ($stop,$start) if $strand eq '-';
   $self->factory->dna($ref,$start,$stop,$class);
 }
 
@@ -283,7 +321,7 @@ sub equals {
   my $self = shift;
   my $peer = shift;
   return unless defined $peer;
-  return "$self" eq "$peer" unless $peer->isa('Bio::DB::GFF::Segment');
+  return $self->asString eq $peer unless ref($peer) && $peer->isa('Bio::DB::GFF::Segment');
   return $self->{start} eq $peer->{start}
          && $self->{stop}  eq $peer->{stop}
          && $self->{sourceseq} eq $peer->{sourceseq};
@@ -300,7 +338,7 @@ sub equals {
 
 Returns a human-readable string representing this sequence.  Format
 is:
-    
+
    sourceseq/start,stop
 
 =cut
@@ -376,7 +414,6 @@ Bio::DB::GFF::RelSegment.
 
 *abs_start  = \&start;
 
-
 =head2 abs_stop
 
  Title   : abs_stop
@@ -392,14 +429,14 @@ Bio::DB::GFF::RelSegment.
 =cut
 
 *abs_stop   = \&stop;
-
+*abs_end    = \&stop;
 
 =head2 abs_strand
 
  Title   : abs_strand
  Usage   : $s->abs_strand
  Function: the absolute strand of the segment
- Returns : +1,-1
+ Returns : +1,0,-1
  Args    : none
  Status  : Public
 
@@ -408,8 +445,10 @@ Bio::DB::GFF::RelSegment.
 
 =cut
 
-*abs_strand = \&strand;
-
+sub abs_strand {
+  my $self = shift;
+  return $self->abs_stop <=> $self->abs_start;
+}
 
 =head2 abs_ref
 

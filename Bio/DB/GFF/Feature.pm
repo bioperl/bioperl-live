@@ -32,6 +32,22 @@ Generally, you will not create or manipulate Bio::DB::GFF::Feature
 objects directly, but use those that are returned by the
 Bio::DB::GFF::RelSegment->features() method.
 
+=head2 Important note about start() vs stop()
+
+If features are derived from segments that use relative addressing
+(which is the default), then start() will be less than stop() if the
+feature is on the opposite strand from the reference sequence.
+
+To avoid this behavior, call $segment->absolute(1) before fetching
+features from it.  This will force everything into absolute
+coordinates.
+
+For example:
+
+ my $segment = $db->segment('CHROMOSOME_I');
+ $segment->absolute(1);
+ my @features = $segment->features('transcript');
+
 =head1 API
 
 The remainder of this document describes the public and private
@@ -54,7 +70,7 @@ use Bio::Root::RootI;
 use vars qw($VERSION @ISA $AUTOLOAD);
 @ISA = qw(Bio::DB::GFF::RelSegment Bio::SeqFeatureI Bio::Root::RootI);
 
-$VERSION = '0.25';
+$VERSION = '0.30';
 #' 
 
 *segments = \&sub_SeqFeature;
@@ -167,7 +183,7 @@ sub new {
      ) = @_;
 
   my $self = bless { },$package;
-  # ($start,$stop) = ($stop,$start) if defined($fstrand) and $fstrand eq '-';
+  ($start,$stop) = ($stop,$start) if defined($fstrand) and $fstrand eq '-';
 
   my $class =  $group ? $group->class : 'Sequence';
 
@@ -320,8 +336,9 @@ considerations).
 sub strand {
   my $self = shift;
   return 0 unless $self->{fstrand};
-  return 0 unless defined $self->{start};
-  return $self->{start} < $self->{stop} ? '+1' : '-1';
+  return $self->SUPER::strand;
+#  return 0 unless defined $self->{start};
+#  return $self->{start} < $self->{stop} ? '+1' : '-1';
 }
 
 =head2 group
@@ -641,6 +658,7 @@ sub AUTOLOAD {
   return if $func_name eq 'DESTROY';
 
   # fetch subfeatures if func_name has an initial cap
+#  return sort {$a->start <=> $b->start} $self->sub_SeqFeature($func_name) if $func_name =~ /^[A-Z]/;
   return $self->sub_SeqFeature($func_name) if $func_name =~ /^[A-Z]/;
 
   # error message of last resort
@@ -675,7 +693,7 @@ sub adjust_bounds {
 	# fix up our bounds to hold largest subfeature
 	my($start,$stop,$strand) = $feat->adjust_bounds;
 	$self->{fstrand} = $strand unless defined $self->{fstrand};
-	if ($self->strand >= 0) {
+	if ($start < $stop) {
 	  $self->{start} = $start if !defined($self->{start}) || $start < $self->{start};
 	  $self->{stop}  = $stop  if !defined($self->{stop})  || $stop  > $self->{stop};
 	} else {
@@ -700,6 +718,13 @@ sub adjust_bounds {
   }
 
   ($self->{start},$self->{stop},$self->strand);
+}
+
+sub aggregated {
+  my $self = shift;
+  my $d = $self->{aggregated};
+  $self->{aggregated} = shift if @_;
+  $d;
 }
 
 =head2 sort_features
@@ -755,6 +780,18 @@ sub asString {
 #  my $type = $self->method;
 #  my $id   = $self->group || 'unidentified';
 #  return join '/',$id,$type,$self->SUPER::asString;
+}
+
+sub gff_string {
+  my $self = shift;
+  my ($start,$stop) = ($self->start,$self->stop);
+  ($start,$stop) = ($stop,$start) if $start > $stop;
+  my ($class,$name) = ('','');
+  if (my $g = $self->group) {
+    $class = $g->class;
+    $name  = $g->name;
+  }
+  return join("\t",$self->ref,$self->source,$self->method,$start,$stop,$self->score||'.',$self->strand||'.',$self->phase||'.',"$class $name");
 }
 
 =head1 A Note About Similarities

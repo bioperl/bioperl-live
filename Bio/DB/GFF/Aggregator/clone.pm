@@ -58,21 +58,26 @@ sub aggregate {
   my $factory  = shift;
 
   my $matchsub    = $self->match_sub($factory) or return;
+  my $passthru    = $self->passthru_sub($factory);
 
-  my %clones;
+  my (%clones,@result);
   for my $feature (@$features) {
-    next unless $matchsub->($feature);
 
-    if ($feature->method eq 'Sequence' && $feature->source eq 'Genomic_canonical') {
-      $clones{$feature->group}{canonical} = $feature;
-    } elsif ($feature->method eq 'Clone_left_end') {
-      $clones{$feature->group}{left} = $feature;
-    } elsif ($feature->method eq 'Clone_right_end') {
-      $clones{$feature->group}{right} = $feature;
+    if ($matchsub->($feature)) {
+
+      if ($feature->method eq 'Sequence' && $feature->source eq 'Genomic_canonical') {
+	$clones{$feature->group}{canonical} = $feature;
+      } elsif ($feature->method eq 'Clone_left_end') {
+	$clones{$feature->group}{left} = $feature;
+      } elsif ($feature->method eq 'Clone_right_end') {
+	$clones{$feature->group}{right} = $feature;
+      }
+      push @result,$feature if $passthru && $passthru->($feature);
+    } else {
+      push @result,$feature;
     }
   }
 
-  my @result;
   for my $clone (keys %clones) {
     my $canonical = $clones{$clone}{canonical} or next;
 
@@ -88,7 +93,7 @@ sub aggregate {
     push @result,$duplicate;
   }
 
-  \@result;
+  @$features = @result;
 }
 
 =head2 method

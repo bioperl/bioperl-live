@@ -23,6 +23,7 @@
 	     'XML::Twig'         	=> '0.0/Available on CPAN/parsing of XML documents/Module Bio::Variation::IO::xml.pm',
 	     'File::Temp'               => '0.0/Temporary File creation/Bio::DB::WebDBSeqI, Bio::Seq::LargePrimarySeq',
 	     'HTML::Parser'             => '0.0/HTML parsing of GDB page/Bio::DB::GDB',
+	     'DBD::mysql'               => '0.0/Mysql driver/loading and querying of Mysql-based GFF feature databases/Bio::DB::GFF',
 	     );
 
 sub check_package {

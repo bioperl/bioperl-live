@@ -270,7 +270,7 @@ sub new {
   @{$self}{qw(sourceseq start stop strand class)}
     = ($absref,$start,$stop,$absstrand,$absclass);
 
-  # but what about the reference sequence?
+  # handle reference sequence
   if (defined $refseq) {
     $refclass = $refseq->class if $refseq->can('class');
     $refclass ||= 'Sequence';
@@ -293,10 +293,12 @@ sub new {
 # start, stop, length
 sub start {
   my $self = shift;
+  return $self->strand < 0 ? $self->{stop} : $self->{start} if $self->absolute;
   $self->abs2rel($self->{start});
 }
 sub stop {
   my $self = shift;
+  return $self->strand < 0 ? $self->{start} : $self->{stop} if $self->absolute;
   $self->abs2rel($self->{stop});
 }
 
@@ -331,14 +333,19 @@ sub refseq {
   my $self = shift;
   my $g    = $self->{ref};
   if (@_) {
-    my $newref   = shift;
+    my ($newref,$newclass);
+    if (@_ == 2) {
+      $newclass = shift;
+      $newref   = shift;
+    } else {
+      $newref   = shift;
+      $newclass = 'Sequence';
+    }
 
     defined $newref or $self->throw('refseq() called with an undef reference sequence');
 
     # support for Featname objects
-    my $newclass = shift;
     $newclass = $newref->class if ref($newref) && $newref->can('class');
-    $newclass ||= 'Sequence';
 
     $self->throw("Cannot define a segment's reference sequence in terms of itself!")
       if ref($newref) and overload::StrVal($newref) eq overload::StrVal($self);
@@ -355,6 +362,7 @@ sub refseq {
       unless $refsource eq $self->{sourceseq};
 
     @{$self}{qw(ref refstart refstrand)} = ($newref,$refstart,$refstrand);
+    $self->absolute(0);
   }
   return $self->absolute ? $self->sourceseq : $g;
 }
@@ -379,9 +387,15 @@ Currently the format is:
 
 sub asString {
   my $self = shift;
-  my $label = $self->{absolute} ? $self->{sourceseq} : $self->{ref};
+  return $self->SUPER::asString if $self->absolute;
+  my $label = $self->{ref};
   my $start = $self->start || '';
   my $stop  = $self->stop  || '';
+  if (ref($label) && overload::StrVal($self) eq overload::StrVal($label->ref)) {
+    $label = $self->abs_ref;
+    $start = $self->abs_start;
+    $stop  = $self->abs_stop;
+  }
   return "$label:$start,$stop";
 }
 
@@ -658,11 +672,11 @@ sub new_from_segment {
  Function: convert absolute coordinates into relative coordinates
  Returns : a list of relative coordinates
  Args    : a list of absolute coordinates
- Status  : Inernal
+ Status  : Internal
 
 This is used internally to map from absolute to relative coordinates.
 
-=cut 
+=cut
 
 sub abs2rel {
   my $self = shift;
@@ -718,14 +732,26 @@ sub subseq {
   bless $obj,__PACKAGE__;    # always bless into the generic RelSegment package
 }
 
+sub strand {
+  my $self = shift;
+  if ($self->absolute) {
+    return _to_strand($self->{strand});
+  }
+  return $self->stop <=> $self->start;
+}
+
+sub _to_strand {
+  my $s = shift;
+  return -1 if $s eq '-';
+  return +1 if $s eq '+';
+  return 0;
+}
 
 1;
 
 __END__
 
 =head1 BUGS
-
-Not completely Bio::SeqFeatureI compliant yet.
 
 Schemas need some work.
 

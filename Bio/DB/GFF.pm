@@ -1207,8 +1207,6 @@ sub fast_queries {
   $d;
 }
 
-
-
 =head2 add_aggregator
 
  Title   : add_aggregator
@@ -1228,6 +1226,7 @@ sub add_aggregator {
   my $aggregator = shift;
   my $list = $self->{aggregators} ||= [];
   if (ref $aggregator) { # an object
+    @$list = grep {$_->get_method ne $aggregator->get_method} @$list;
     push @$list,$aggregator;
   } else {
     my $class = "Bio::DB::GFF::Aggregator::\L${aggregator}\E";
@@ -1335,8 +1334,31 @@ sub load_gff {
   $self->setup_load();
 
   while (<>) {
-    my ($ref,$source,$method,$start,$stop,$score,$strand,$phase,$group) = split "\t";
+    if (/^\#\#\s*sequence-region\s+(\S+)\s+(\d+)\s+(\d+)/i) { # header line
+      $self->load_gff_line(
+			   {
+			    ref    => $1,
+			    class  => 'Sequence',
+			    source => 'reference',
+			    method => 'Component',
+			    start  => $2,
+			    stop   => $3,
+			    score  => undef,
+			    strand => '.',
+			    phase  => '.',
+			    gclass => 'Sequence',
+			    gname  => $1,
+			    tstart => undef,
+			    tstop  => undef,
+			    notes  => undef
+			   }
+			  );
+      next;
+    }
+
     next if /^\#/;
+    my ($ref,$source,$method,$start,$stop,$score,$strand,$phase,$group) = split "\t";
+    next unless defined($ref) && defined($method) && defined($start) && defined($stop);
 
     # handle group parsing
     $group =~ s/(\"[^\"]*);([^\"]*\")/$1$;$2/g;  # protect embedded semicolons in the group
@@ -1350,6 +1372,14 @@ sub load_gff {
     my $class = $self->refclass($ref);
 
     # call subclass to do the dirty work
+    if ($start > $stop) {
+      ($start,$stop) = ($stop,$start);
+      if ($strand eq '+') {
+	$strand = '-';
+      } elsif ($strand eq '-') {
+	$strand = '+';
+      }
+    }
     $self->load_gff_line({ref    => $ref,
 			  class  => $class,
 			  source => $source,
@@ -1744,23 +1774,15 @@ sub make_aggregated_feature {
   local $^W = 0;  # irritating uninitialized value warning in next statement
   if (@$accumulated_features &&
       (!defined($feature) || ($accumulated_features->[-1]->group ne $feature->group))) {
-    my @aggregated;
-    foreach my $a (reverse @$aggregators) {  # last aggregator gets first shot
-      my $agg = $a->aggregate($accumulated_features,$self) or next;
-      push @aggregated,@$agg;
+    foreach my $a (@$aggregators) {  # last aggregator gets first shot
+      $a->aggregate($accumulated_features,$self) or next;
     }
-    $self->warn("bad aggregator: turned one group into ",scalar(@aggregated)," features") if @aggregated > 1;
-    @$accumulated_features = $feature ? ($feature) : ();  # remember this feature
-    return $aggregated[0] if $aggregated[0];
-    return $feature if $matchsub->($feature);
-    return;
-
-  } else {
-    return unless defined($feature);
-    push @$accumulated_features,$feature if defined $feature->group;
-    return unless $matchsub->($feature);
-    return $feature;
+    my @result = @$accumulated_features;
+    @$accumulated_features = $feature ? ($feature) : ();
+    return \@result;
   }
+  push @$accumulated_features,$feature;
+  return;
 }
 
 =head2 parse_types
@@ -1827,7 +1849,7 @@ sub make_match_sub {
   my $sub =<<END;
 sub {
   my \$feature = shift or return;
-  return \$feature->type =~ /^$expr\$/i;
+  return \$feature->type =~ /^$expr\$/;
 }
 END
   my $compiled_sub = eval $sub;
@@ -1914,15 +1936,15 @@ sub _features {
     $match = $self->make_match_sub($types);
     for my $a ($self->aggregators) {
       $a = $a->clone if $iterator;
-      $a->disaggregate(\@aggregated_types,$self);
-      push @aggregators,$a;
+      unshift @aggregators,$a
+	if $a->disaggregate(\@aggregated_types,$self);
     }
   }
 
   if ($iterator) {
     my @accumulated_features;
     my $callback = $automerge ? sub { $self->make_aggregated_feature($match,\@accumulated_features,$parent,\@aggregators,@_) }
-                              : sub { $self->make_feature($parent,undef,@_) };
+                              : sub { [$self->make_feature($parent,undef,@_)] };
     return $self->get_features_iterator($range_type,
 					$refseq,$class,
 					$start,$stop,
@@ -1940,14 +1962,13 @@ sub _features {
 
   if ($automerge) {
     warn "aggregating...\n" if $self->debug;
-    foreach my $a (reverse $self->aggregators) {  # last aggregator gets first shot
-      my $agg = $a->aggregate($features,$self) or next;
-      push @$features,@$agg;
+    foreach my $a (@aggregators) {  # last aggregator gets first shot
+      $a->aggregate($features,$self) or next;
     }
 
-    warn "filtering...\n" if $self->debug;
+    # warn "filtering...\n" if $self->debug;
     # remove anything from the features list that was not specifically requested.
-    return grep { $match->($_) } @$features;
+    # return grep { $match->($_) } @$features;
   }
 
   @$features;
@@ -2070,6 +2091,10 @@ __END__
 
 Features can only belong to a single group at a time.  This must be
 addressed soon.
+
+Start coordinate can be greater than stop coordinate for relative
+addressing.  This breaks strict BioPerl compatibility and must be
+fixed.
 
 =head1 SEE ALSO
 

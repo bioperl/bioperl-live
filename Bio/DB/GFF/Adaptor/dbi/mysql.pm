@@ -16,7 +16,7 @@ use Bio::DB::GFF::Adaptor::dbi;
 use Bio::DB::GFF::Util::Rearrange; # for rearrange()
 use vars qw($VERSION @ISA $IN_ITERATOR);
 @ISA = qw(Bio::DB::GFF::Adaptor::dbi);
-$VERSION = '0.26';
+$VERSION = '0.30';
 
 $IN_ITERATOR = 0;
 
@@ -172,27 +172,6 @@ The fdata.fid column joins with fnote.fid.
 
 =back
 
-=head2 The fast_queries() Method
-
-The Perl mysql driver offers a statement handler attribute called
-i<mysql_use_result>.  If this is set to true, then the server will
-keep the result of the query in memory rather than downloading it to
-the client in one go.  This is a big win if you are iterating through
-a very large result set.
-
-The drawback is that while you are iterating through the set, then you
-cannot trigger any other SQL queries.  Doing so will result in a
-"command out of synch" error from the mysql server. For this reason,
-fast queries are turned off by default.
-
-=over 4
-
-=item $flag = $db->fast_queries([$flag])
-
-Get or set the fast_queries flag.
-
-=back
-
 =head2 Data Loading Methods
 
 In addition to implementing the abstract SQL-generating methods of
@@ -232,7 +211,7 @@ sub new {
   my ($dsn,$other) = rearrange([
                                   [qw(FEATUREDB DB DSN)],
 				],@_);
-  if (!ref($dsn) && $dsn !~ /^dbi:mysql/) {
+  if (!ref($dsn) && $dsn !~ /^(?:dbi|DBI):mysql/) {
       $dsn = "dbi:mysql:$dsn";
   }
   $class->SUPER::new(-dsn=>$dsn,%$other);
@@ -256,7 +235,7 @@ sub make_dna_query {
   my $self = shift;
   my ($name,$start,$stop,$class) = @_;
   # simply ignore class for now
-  $self->do_query('SELECT substring(fdna.fdna,?,?) FROM fdna WHERE fref=?',$name,$start,$stop);
+  $self->dbh->do_query('SELECT substring(fdna.fdna,?,?) FROM fdna WHERE fref=?',$name,$start,$stop);
 }
 
 =head2 make_abscoord_query
@@ -285,8 +264,8 @@ sequence.
 sub make_abscoord_query {
   my $self = shift;
   my ($name,$class,$refseq) = @_;
-  defined $refseq ? $self->do_query(GETFORCEDSEQCOORDS,$name,$class,$refseq) 
-    : $self->do_query(GETSEQCOORDS,$name,$class);
+  defined $refseq ? $self->dbh->do_query(GETFORCEDSEQCOORDS,$name,$class,$refseq) 
+    : $self->dbh->do_query(GETSEQCOORDS,$name,$class);
 }
 
 =head2 make_features_byname_where_part
@@ -413,7 +392,7 @@ sub refseq_query {
   my $self = shift;
   my ($refseq,$refclass) = @_;
   my $query = "fdata.fref=?";
-  return wantarray ? ($query,$refseq) : $self->dbi_quote($query,$refseq);
+  return wantarray ? ($query,$refseq) : $self->dbh->dbi_quote($query,$refseq);
 }
 
 =head2 notes
@@ -433,14 +412,14 @@ corresponding to the internal feature ID.
 sub notes {
   my $self = shift;
   my $id = shift;
-  my $sth = $self->do_query('SELECT fnote FROM fnote WHERE fid=?',$id) or return;
+  my $sth = $self->dbh->do_query('SELECT fnote FROM fnote WHERE fid=?',$id) or return;
 
   my @result;
   while (my($note) = $sth->fetchrow_array) {
     push @result,$note;
   }
-  return @result;
   $sth->finish;
+  return @result;
 }
 
 =head2 overlap_query
@@ -465,7 +444,7 @@ sub overlap_query {
   my ($start,$stop) = @_;
 
   my $query    = qq(fdata.fstop>=? AND fdata.fstart<=?);
-  return wantarray ? ($query,$start,$stop) : $self->dbi_quote($query,$start,$stop);
+  return wantarray ? ($query,$start,$stop) : $self->dbh->dbi_quote($query,$start,$stop);
 }
 
 =head2 contains_query
@@ -490,7 +469,7 @@ sub contains_query {
   my $self = shift;
   my ($start,$stop) = @_;
   my $query    = qq(fdata.fstart>=? AND fdata.fstop<=?);
-  return wantarray ? ($query,$start,$stop) : $self->dbi_quote($query,$start,$stop);
+  return wantarray ? ($query,$start,$stop) : $self->dbh->dbi_quote($query,$start,$stop);
 }
 
 =head2 contained_in_query
@@ -515,7 +494,7 @@ sub contained_in_query {
   my $self = shift;
   my ($start,$stop) = @_;
   my $query    = qq(fdata.fstart<=? AND fdata.fstop>=?);
-  return wantarray ? ($query,$start,$stop) : $self->dbi_quote($query,$start,$stop);
+  return wantarray ? ($query,$start,$stop) : $self->dbh->dbi_quote($query,$start,$stop);
 }
 
 =head2 types_query
@@ -560,7 +539,7 @@ sub types_query {
     push @method_queries,"(" . join(' AND ',@pair) .")" if @pair;
   }
   my $query = " (".join(' OR ',@method_queries).")\n" if @method_queries;
-  return wantarray ? ($query,@args) : $self->dbi_quote($query,@args);
+  return wantarray ? ($query,@args) : $self->dbh->dbi_quote($query,@args);
 }
 
 =head2 make_types_select_part
@@ -700,7 +679,7 @@ sub make_types_where_part {
     push @args,@a;
   }
   my $query = @query ? join(' AND ',@query) : '1';
-  return wantarray ? ($query,@args) : $self->dbi_quote($query,@args);
+  return wantarray ? ($query,@args) : $self->dbh->dbi_quote($query,@args);
 }
 
 =head2 make_types_group_part
@@ -730,44 +709,6 @@ sub make_types_group_part {
   return 'ftype.ftypeid';
 }
 
-=head2 do_query
-
- Title   : do_query
- Usage   : $sth = $db->do_query($query,@args)
- Function: perform a DBI query
- Returns : a statement handler
- Args    : query string and list of bind arguments
- Status  : Public
-
-This method performs a DBI prepare() and execute(), returning a
-statement handle.  You will typically call fetch() of fetchrow_array()
-on the statement handle.  The parsed statement handle is cached for
-later use.
-
-This method differs from that used by the Bio::DB::GFF::Adaptor::dbi
-parent in that it sets the dbi::mysql b<mysql_use_result> attribute,
-which is much more memory efficient.
-
-=cut
-
-sub do_query {
-  my $self = shift;
-  my ($query,@args) = @_;
-  warn $self->dbi_quote($query,@args),"\n" if $self->debug;
-
-  my $fast_queries = $self->fast_queries;
-  if (!defined $fast_queries) {  # user hasn't specified
-    $fast_queries = $IN_ITERATOR ? 0 : 1;
-  }
-  warn "fast queries turned ",($fast_queries ? 'on' : 'off'),"\n" if $self->debug;
-
-  my $sth = $self->{sth}{$query} ||= $self->features_db->prepare($query,
-								 {mysql_use_result=>$fast_queries})
-    || $self->throw("Couldn't prepare query $query:\n ".DBI->errstr."\n");
-  $sth->execute(@args)
-    || $self->throw("Couldn't execute query $query:\n ".DBI->errstr."\n");
-  $sth;
-}
 
 sub get_features_iterator {
   my $self = shift;
@@ -891,14 +832,14 @@ sub setup_load {
     $dbh->do("LOCK TABLES $tables");
   }
 
-  my $lookup_type = $dbh->prepare('SELECT ftypeid FROM ftype WHERE fmethod=? AND fsource=?');
-  my $insert_type = $dbh->prepare('INSERT INTO ftype (fmethod,fsource) VALUES (?,?)');
+  my $lookup_type = $dbh->prepare_delayed('SELECT ftypeid FROM ftype WHERE fmethod=? AND fsource=?');
+  my $insert_type = $dbh->prepare_delayed('INSERT INTO ftype (fmethod,fsource) VALUES (?,?)');
 
-  my $lookup_group = $dbh->prepare('SELECT gid FROM fgroup WHERE gname=? AND gclass=?');
-  my $insert_group = $dbh->prepare('INSERT INTO fgroup (gname,gclass) VALUES (?,?)');
+  my $lookup_group = $dbh->prepare_delayed('SELECT gid FROM fgroup WHERE gname=? AND gclass=?');
+  my $insert_group = $dbh->prepare_delayed('INSERT INTO fgroup (gname,gclass) VALUES (?,?)');
 
-  my $insert_note  = $dbh->prepare('INSERT INTO fnote (fid,fnote) VALUES (?,?)');
-  my $insert_data  = $dbh->prepare(<<END);
+  my $insert_note  = $dbh->prepare_delayed('INSERT INTO fnote (fid,fnote) VALUES (?,?)');
+  my $insert_data  = $dbh->prepare_delayed(<<END);
 INSERT INTO fdata (fref,fstart,fstop,ftypeid,fscore,
 		   fstrand,fphase,gid,ftarget_start,ftarget_stop)
        VALUES(?,?,?,?,?,?,?,?,?,?)
@@ -1045,7 +986,7 @@ sub get_table_id {
       $s->{$table}{$id1,$id2} = ($s->{"lookup_$table"}->fetchrow_array)[0];
     } else {
       $s->{"insert_$table"}->execute($id1,$id2)
-	&& ($s->{$table}{$id1,$id2} = $dbh->{mysql_insertid});
+	&& ($s->{$table}{$id1,$id2} = $s->{"insert_$table"}->insertid);
     }
   }
 

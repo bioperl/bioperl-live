@@ -1,6 +1,6 @@
 =head1 NAME
 
-Bio::DB::GFF::Aggregator::transcript -- Transcript aggregator
+Bio::DB::GFF::Aggregator::wormbase_gene -- Wormbase gene aggregator
 
 =head1 SYNOPSIS
 
@@ -9,33 +9,23 @@ Bio::DB::GFF::Aggregator::transcript -- Transcript aggregator
   # Open the sequence database
   my $db      = Bio::DB::GFF->new( -adaptor => 'dbi:mysql',
                                    -dsn     => 'dbi:mysql:elegans42',
-				   -aggregator => ['transcript','clone'],
+				   -aggregator => ['wormbase_gene','clone'],
 				 );
 
 
 =head1 DESCRIPTION
 
-Bio::DB::GFF::Aggregator::transcript is one of the default
+Bio::DB::GFF::Aggregator::wormbase_gene is one of the default
 aggregators, and was written to be compatible with the C elegans GFF
 files.  It aggregates raw ""exon", "CDS", "5'UTR", "3'UTR", "polyA"
 and "TSS" features into "transcript" features.  For compatibility with
 the idiosyncrasies of the Sanger GFF format, it expects that the full
 range of the transcript is contained in a main feature of type
-"Transcript" (notice the capital "T").
-
-Internally this module is very simple.  To override it with one that
-recognizes a main feature named "gene", simply follow this
-template:
-
- my $db = Bio::DB::GFF->new(...etc...)
- my $aggregator = Bio::DB::GFF::Aggregator->new(-method => 'transcript',
- 					        -main_method => 'gene',
-					        -sub_parts => ['exon','CDS']);
- $db->add_aggregator($aggregator);
+"Sequence".
 
 =cut
 
-package Bio::DB::GFF::Aggregator::transcript;
+package Bio::DB::GFF::Aggregator::wormbase_gene;
 
 use strict;
 use Bio::DB::GFF::Aggregator;
@@ -85,7 +75,7 @@ sub part_names {
 =cut
 
 sub main_name {
-  return 'transcript';
+  return 'Sequence';
 }
 
 1;

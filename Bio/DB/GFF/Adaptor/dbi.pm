@@ -23,10 +23,11 @@ use DBI;
 use Bio::DB::GFF;
 use Bio::DB::GFF::Util::Rearrange; # for rearrange()
 use Bio::DB::GFF::Adaptor::dbi::iterator;
+use Bio::DB::GFF::Adaptor::dbi::caching_handle;
 use vars qw($VERSION @ISA);
 
 @ISA =  qw(Bio::DB::GFF);
-$VERSION = '0.21';
+$VERSION = '0.30';
 
 use constant MAX_SEGMENT => 100_000_000;  # the largest a segment can get
 
@@ -70,8 +71,9 @@ sub new {
     my @args;
     push @args,$username if defined $username;
     push @args,$auth     if defined $username && defined $auth;
-    $features_db = DBI->connect($dsn,@args)
-      || $class->throw("new(): Failed to connect to $dsn: ".DBI->errstr);
+    $features_db = Bio::DB::GFF::Adaptor::dbi::caching_handle->new($dsn,@args)
+      || $class->throw("new(): Failed to connect to $dsn: "
+		       . Bio::DB::GFF::Adaptor::dbi::caching_handle->errstr);
   } else {
     $features_db->isa('DBI::db') 
       || $class->throw("new(): $features_db is not a DBI handle");
@@ -81,6 +83,12 @@ sub new {
   return bless {
 		features_db => $features_db
 	       },$class;
+}
+
+sub debug {
+  my $self = shift;
+  $self->features_db->debug(@_);
+  $self->SUPER::debug(@_);
 }
 
 =head2 features_db
@@ -95,34 +103,7 @@ sub new {
 =cut
 
 sub features_db { shift->{features_db} }
-
-
-=head2 do_query
-
- Title   : do_query
- Usage   : $sth = $db->do_query($query,@args)
- Function: perform a DBI query
- Returns : a statement handler
- Args    : query string and list of bind arguments
- Status  : Public
-
-This method performs a DBI prepare() and execute(), returning a
-statement handle.  You will typically call fetch() of fetchrow_array()
-on the statement handle.  The parsed statement handle is cached for
-later use.
-
-=cut
-
-sub do_query {
-  my $self = shift;
-  my ($query,@args) = @_;
-  warn $self->dbi_quote($query,@args),"\n" if $self->debug;
-  my $sth = $self->{sth}{$query} ||= $self->features_db->prepare($query)
-    || $self->throw("Couldn't prepare query $query:\n ".DBI->errstr."\n");
-  $sth->execute(@args)
-    || $self->throw("Couldn't execute query $query:\n ".DBI->errstr."\n");
-  $sth;
-}
+sub dbh         { shift->{features_db} }
 
 =head2 get_dna
 
@@ -327,7 +308,7 @@ sub get_feature_by_name {
   my ($where,@args)  = $self->make_features_byname_where_part($class,$name);
   my $join           = $self->make_features_join_part;
   my $query  = "SELECT $select FROM $from WHERE $where AND $join";
-  my $sth    = $self->do_query($query,@args);
+  my $sth    = $self->dbh->do_query($query,@args);
 
   my $count = 0;
   while (my @row = $sth->fetchrow_array) {
@@ -391,7 +372,7 @@ sub get_types {
   my $query = "SELECT $straight $select FROM $from WHERE $join AND $where";
   $query   .= " GROUP BY $group" if $group;
   my @args  = (@args1,@args2,@args3,@args4,@args5);
-  my $sth = $self->do_query($query,@args) or return;
+  my $sth = $self->dbh->do_query($query,@args) or return;
 
   my (%result,%obj);
   while (my ($method,$source,$count) = $sth->fetchrow_array) {
@@ -481,7 +462,7 @@ sub range_query {
   $query           .= " AND $where" if $where;
   $query           .= " ORDER BY $order_by" if $order_by_group;
 
-  my $sth = $self->do_query($query,@args);
+  my $sth = $self->dbh->do_query($query,@args);
   $sth;
 }
 
@@ -562,7 +543,7 @@ sub make_features_byrange_where_part {
   }
 
   my $query = join "\n\tAND ",@query;
-  return wantarray ? ($query,@args) : $self->dbi_quote($query,@args);
+  return wantarray ? ($query,@args) : $self->dbh->dbi_quote($query,@args);
 }
 
 =head2 do_straight_join
@@ -626,31 +607,6 @@ sub exact_match {
   my $self           = shift;
   my ($field,$value) = @_;
   return qq($field = ?);
-}
-
-=head2 dbi_quote
-
- Title   : dbi_quote
- Usage   : $string = $db->dbi_quote($sql,@args)
- Function: perform bind variable substitution
- Returns : query string
- Args    : the query string and bind arguments
- Status  : public
-
-This method replaces the bind variable "?" in a SQL statement with
-appropriately quoted bind arguments.  It is used internally to handle
-drivers that don't support argument binding.
-
-=cut
-
-#'
-
-sub dbi_quote {
-  my $self = shift;
-  my ($query,@args) = @_;
-  my $dbi = $self->features_db;
-  $query =~ s/\?/$dbi->quote(shift @args)/eg;
-  $query;
 }
 
 =head2 get_features_iterator
@@ -1279,15 +1235,16 @@ sub DESTROY {
   $self->features_db->disconnect if defined $self->features_db;
 }
 
+################## query cache ##################
+
+
 1;
 
 __END__
 
 =head1 BUGS
 
-Not really Bio::SeqFeatureI compliant yet.
-
-Schemas need some work.
+Schemas need work to support multiple hierarchical groups.
 
 =head1 SEE ALSO
 

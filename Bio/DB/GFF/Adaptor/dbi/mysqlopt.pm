@@ -203,7 +203,7 @@ sub overlap_query {
   my $query = "($bq)\n\tAND $iq";
   my @args  = (@bargs,@iargs);
 
-  return wantarray ? ($query,@args) : $self->dbi_quote($query,@args);
+  return wantarray ? ($query,@args) : $self->dbh->dbi_quote($query,@args);
 }
 
 # find features that are completely contained within a range
@@ -214,7 +214,7 @@ sub contains_query {
   my ($iq,@iargs)   = $self->SUPER::contains_query($start,$stop);
   my $query = "($bq)\n\tAND $iq";
   my @args  = (@bargs,@iargs);
-  return wantarray ? ($query,@args) : $self->dbi_quote($query,@args);
+  return wantarray ? ($query,@args) : $self->dbh->dbi_quote($query,@args);
 }
 
 # find features that are completely contained within a range
@@ -225,7 +225,7 @@ sub contained_in_query {
   my ($iq,@iargs)   = $self->SUPER::contained_in_query($start,$stop);
   my $query = "($bq)\n\tAND $iq";
   my @args  = (@bargs,@iargs);
-  return wantarray ? ($query,@args) : $self->dbi_quote($query,@args);
+  return wantarray ? ($query,@args) : $self->dbh->dbi_quote($query,@args);
 }
 
 sub make_object {
@@ -275,7 +275,7 @@ sub bin_query {
   }
   $query = join("\n\t OR ",@bins);
   return wantarray ? ($query,@args)
-                   : $self->dbi_quote($query,@args);
+                   : $self->dbh->dbi_quote($query,@args);
 }
 
 ########################## loading and initialization  #####################

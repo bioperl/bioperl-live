@@ -1,4 +1,4 @@
-## $Id: MANIFEST,v 1.49 2001-10-15 19:10:40 dag Exp $
+## $Id: MANIFEST,v 1.50 2001-11-05 13:19:02 lstein Exp $
 ##
 ## This is the file listing for everything that
 ## comes with the bioperl distribution. The perl
@@ -39,6 +39,7 @@ Bio/DB/Ace.pm
 Bio/DB/EMBL.pm
 Bio/DB/Fasta.pm
 Bio/DB/GDB.pm
+Bio/DB/GFF/Adaptor/dbi/caching_handle.pm
 Bio/DB/GFF/Adaptor/dbi/mysql.pm
 Bio/DB/GFF/Adaptor/dbi/mysqlopt.pm
 Bio/DB/GFF/Adaptor/dbi.pm
@@ -46,6 +47,7 @@ Bio/DB/GFF/Aggregator/alignment.pm
 Bio/DB/GFF/Aggregator/clone.pm
 Bio/DB/GFF/Aggregator/none.pm
 Bio/DB/GFF/Aggregator/transcript.pm
+Bio/DB/GFF/Aggregator/wormbase_gene.pm
 Bio/DB/GFF/Aggregator.pm
 Bio/DB/GFF/Featname.pm
 Bio/DB/GFF/Feature.pm
@@ -317,6 +319,7 @@ t/AAReverseMutate.t
 t/AlignIO.t
 t/Allele.t
 t/Annotation.t
+t/BioDBGFF.t
 t/BPbl2seq.t
 t/BPlite.t
 t/BPpsilite.t
@@ -383,6 +386,7 @@ t/data/HUMBETGLOA.tblastx
 t/data/alnfile.fasta
 t/data/amino.fa
 t/data/ar.embl
+t/data/biodbgff/test.gff
 t/data/bl2seq.bug940.out
 t/data/bl2seq.out
 t/data/blast.report
@@ -400,6 +404,7 @@ t/data/dbfa/3.fa
 t/data/dbfa/4.fa
 t/data/dbfa/5.fa
 t/data/dbfa/6.fa
+t/data/dbfa/7.fa
 t/data/dna1.fa
 t/data/dna2.fa
 t/data/ecolitst.fa
