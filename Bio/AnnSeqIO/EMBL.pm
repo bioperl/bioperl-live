@@ -432,7 +432,8 @@ sub write_annseq {
    
     # Organism lines
     if (my $spec = $annseq->species) {
-        my($sub_species, $species, $genus, @class) = $spec->classification();
+        my($species, $genus, @class) = $spec->classification();
+	my $sub_species = $spec->sub_species;
         my $OS = "$genus $species $sub_species";
         if (my $common = $spec->common_name) {
             $OS .= " ($common)";

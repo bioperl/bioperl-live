@@ -197,6 +197,27 @@ sub species {
     }
 }
 
+=head2 sub_species
+
+ Title   : sub_species
+ Usage   : $obj->sub_species($newval)
+ Function: 
+ Returns : value of sub_species
+ Args    : newvalue (optional)
+
+
+=cut
+
+sub sub_species{
+   my $obj = shift;
+   if( @_ ) {
+      my $value = shift;
+      $obj->{'sub_species'} = $value;
+    }
+    return $obj->{'sub_species'};
+
+}
+
 =head2 genus
 
  Title   : genus

@@ -334,14 +334,13 @@ sub write_annseq {
     my ($div, $mol);
     my $len = $seq->seq_len();
     
-    if ( !$annseq->can('division') || ($div = $annseq->division()) == undef ) {
-        $div = 'UNK';
-    }
-    else {
-	$div=$annseq->division;
-    }
 
-    if( !$annseq->can('molecule') || ($div = $annseq->division()) == undef ) {
+    if ( $annseq->can('division') ) {
+	$div=$annseq->division;
+    } 
+    if( !defined $div || ! $div ) { $div = 'UNK'; }
+
+    if( !$annseq->can('molecule') || ($mol = $annseq->molecule()) == undef ) {
 	$mol = 'DNA';
     }
     else {
@@ -353,7 +352,9 @@ sub write_annseq {
     if( $self->_id_generation_func ) {
 	$temp_line = &{$self->_id_generation_func}($annseq);
     } else {
-	$temp_line = sprintf ("%-12s%-10s%10s bp%8s%15s%20s", 'LOCUS',$seq->id(),$len,$mol,$div, $annseq->each_date());
+	my @dates = $annseq->each_date();
+	my $date = shift @dates;
+	$temp_line = sprintf ("%-12s%-10s%10s bp%8s%5s %3s ", 'LOCUS',$seq->id(),$len,$mol,$div,$date);
     } 
     
     print $fh "$temp_line\n";   
@@ -398,7 +399,8 @@ sub write_annseq {
     
     # Organism lines
     if (my $spec = $annseq->species) {
-        my($sub_species, $species, $genus, @class) = $spec->classification();
+        my($species, $genus, @class) = $spec->classification();
+	my $sub_species = $spec->sub_species();
         my $OS = "$genus $species $sub_species";
         if (my $common = $spec->common_name) {
 	    print $fh "SOURCE      $common\n";
@@ -408,9 +410,9 @@ sub write_annseq {
 	}
 	print $fh "  ORGANISM  $OS\n";
         my $OC = join (';', reverse(@class));
-	$OC =~ s/\;//;
 	$OC =~ s/\n//g;
-	$OC =~ s/\;\;/\; /g;
+	$OC =~ s/\;/\; /g;
+	$OC = "$OC; $genus.";
         _write_line_GenBank_regex($fh,"            ","            ",$OC,"\\s\+\|\$",80);
     }
     
