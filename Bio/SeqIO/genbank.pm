@@ -155,13 +155,14 @@ Email elia@tll.org.sg
 
 =head1 CONTRIBUTORS
 
-Ewan Birney birney@ebi.ac.uk
-Jason Stajich jason@bioperl.org
-Chris Mungall cjm@fruitfly.bdgp.berkeley.edu
-Lincoln Stein lstein@cshl.org
-Heikki Lehvaslaiho, heikki@ebi.ac.uk
-Hilmar Lapp, hlapp@gmx.net
-Donald G. Jackson, donald.jackson@bms.com
+Ewan Birney birney at ebi.ac.uk
+Jason Stajich jason at bioperl.org
+Chris Mungall cjm at fruitfly.bdgp.berkeley.edu
+Lincoln Stein lstein at cshl.org
+Heikki Lehvaslaiho, heikki at ebi.ac.uk
+Hilmar Lapp, hlapp at gmx.net
+Donald G. Jackson, donald.jackson at bms.com
+James Wasmuth, james.wasmuth at ed.ac.uk
 
 =head1 APPENDIX
 
