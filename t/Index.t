@@ -21,7 +21,7 @@
 
 
 ## We start with some black magic to print on failure.
-BEGIN { $| = 1; print "1..3\n"; 
+BEGIN { $| = 1; print "1..5\n"; 
 	use vars qw($loaded); }
 
 END {print "not ok 1\n" unless $loaded;}
@@ -36,14 +36,32 @@ print "ok 1\n";    # 1st test passes.
 chomp( $dir = `pwd` );
 $ind = Bio::Index::Fasta->new('Wibbl', 'WRITE');
 $ind->make_index("$dir/t/seqs.fas");
+$ind->make_index("$dir/t/multi_1.fa");
 
 print "ok 2\n";
+
+$seq = $ind->fetch('gi|238775|bbs|65126');
+if( !defined $seq || ! $seq->isa('Bio::SeqI') ) {
+	print "not ok 2\n";
+} else {
+	print "ok 3\n";
+}
+
+$stream = $ind->get_PrimarySeq_stream();
+while( $seq2 = $stream->next_primary_seq ) {
+	if( !$seq2->isa('Bio::PrimarySeqI') ) {
+		print "not ok 4\n";
+	}
+}
+
+print "ok 4\n";
+
 $ind = 0;
 
 $ind = Bio::Index::SwissPfam->new('Wibbl2', 'WRITE');
 $ind->make_index("$dir/t/swisspfam.data");
 
-print "ok 3\n";
+print "ok 5\n";
 $ind = 0;
 
 # don't test EMBL yet. Bad...

@@ -88,9 +88,10 @@ use vars qw($VERSION @ISA @EXPORT_OK);
 use strict;
 
 use Bio::Index::Abstract;
+use Bio::Index::MultiFileSeq;
 use Bio::Seq;
 
-@ISA = qw(Bio::Index::Abstract Bio::DB::BioSeqI Exporter);
+@ISA = qw(Bio::Index::MultiFileSeq);
 @EXPORT_OK = qw();
 
 sub _type_stamp {
@@ -108,10 +109,6 @@ BEGIN {
 
 sub _version {
     return $VERSION;
-}
-
-sub _seqio_format {
-    return "EMBL";
 }
 
 
@@ -204,105 +201,34 @@ sub _index_file {
     return 1;
 }
 
+=head2 _file_format
 
-=head2 fetch
-
-  Title   : fetch
-  Usage   : $index->fetch( $id )
-  Function: Returns a Bio::Seq object from the index
-  Example : $seq = $index->fetch( 'dJ67B12' )
-  Returns : Bio::Seq object
-  Args    : ID
-
-=cut
-
-sub fetch {
-    my( $self, $id ) = @_;
-    my ($desc,$acc,$out);
-    my $db = $self->db();
-
-    if (my $rec = $db->{ $id }) {
-        my( @record );
-        
-        my ($file, $begin, $end) = $self->unpack_record( $rec );
-        
-        # Get the (possibly cached) filehandle
-        my $fh = $self->_file_handle( $file );
-
-        # move to start
-        seek($fh, $begin, 0);
-
-
-	#get id from file, and then loop to SQ line
-        while (<$fh>) {
-	    #print STDERR "Got $_";
-	    /^SQ\s/ && last;
-	    /^ID\s+(\S+)/ && do { $id = $1; };
-	    /^DE\s+(.*?)\s+$/ && do { $desc .= $1; }; 
-	    /^AC\s+(\S+?);/ && do { $acc .= $1; }; 
-	    # accession numbers???
-        }
-
-        while (<$fh>) {
-	    /^\/\// && last;
-	    #print STDERR "Got $_";
-	    s/[\W0-9]//g;
-            push(@record, $_);
-            last if tell($fh) > $end;
-	}
-
-        $self->throw("Can't fetch sequence for record : $id")
-            unless @record;
-        
-        # Return a shiny Bio::Seq object
-        $out = Bio::Seq->new( -ID   => $id,
-                              -DESC => $desc,
-			      -SEQ  => uc(join('', @record)) );
-	$out->names()->{'acc'} = $acc if $acc;
-	return $out;
-    } else {
-	$self->throw("Unable to find a record for $id in EMBL flat file index");
-    }
-}
-
-=head2 get_Seq_by_id
-
- Title   : get_Seq_by_id
- Usage   : $seq = $db->get_Seq_by_id()
- Function: retrieves a sequence object, identically to
-           ->fetch, but here behaving as a Bio::DB::BioSeqI
- Returns : new Bio::Seq object
- Args    : string represents the id
+ Title   : _file_format
+ Usage   : Internal function for indexing system
+ Function: Provides file format for this database
+ Example :
+ Returns : 
+ Args    :
 
 
 =cut
 
-sub get_Seq_by_id{
-   my ($self,$id) = @_;
+sub _file_format{
+   my ($self,@args) = @_;
 
-   return $self->fetch($id);
+   return 'EMBL';
 }
 
-=head2 get_Seq_by_acc
-
- Title   : get_Seq_by_acc
- Usage   : $seq = $db->get_Seq_by_acc()
- Function: retrieves a sequence object, identically to
-           ->fetch, but here behaving as a Bio::DB::BioSeqI
- Returns : new Bio::Seq object
- Args    : string represents the accession number
-
-
-=cut
-
-sub get_Seq_by_acc {
-   my ($self,$id) = @_;
-
-   return $self->fetch($id);
-}
 
 
 1;
+
+
+
+
+
+
+
 
 
 

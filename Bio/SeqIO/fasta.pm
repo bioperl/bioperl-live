@@ -110,6 +110,7 @@ sub next_seq{
   $sequence =~ tr/a-z/A-Z/;
   return Bio::Seq->new(-seq => $sequence,
 		       -id => $id,
+		       -primary_id => $id,
 		       -desc => $fulldesc,
 		      );
 }

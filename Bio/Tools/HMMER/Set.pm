@@ -14,7 +14,9 @@
 
 Bio::Tools::HMMER::Set - Set of identical domains from HMMER matches
 
+
 =head1 SYNOPSIS
+
    
     # get a Set object probably from the results object
     print "Bits score over set ",$set->bits," evalue ",$set->evalue,"\n";

@@ -461,6 +461,24 @@ sub moltype {
     return $self->{'moltype'};
 }
 
+=head2 close
+
+ Title   : close
+ Usage   : $seqio->close()
+ Function: Closes the file handle associated with this seqio system
+ Example :
+ Returns : 
+ Args    :
+
+
+=cut
+
+sub close{
+   my ($self,@args) = @_;
+
+   $self->{'_filehandle'} = undef;
+}
+
 =head2 _print
 
  Title   : _print

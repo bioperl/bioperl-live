@@ -87,10 +87,10 @@ package Bio::Index::Fasta;
 use vars qw($VERSION @ISA @EXPORT_OK);
 use strict;
 
-use Bio::Index::Abstract;
+use Bio::Index::MultiFileSeq;
 use Bio::Seq;
 
-@ISA = qw(Bio::Index::Abstract Bio::DB::BioSeqI Exporter);
+@ISA = qw(Bio::Index::MultiFileSeq);
 @EXPORT_OK = qw();
 
 sub _type_stamp {
@@ -253,71 +253,22 @@ sub default_id_parser {
     return $1;
 }
 
+=head2 _file_format
 
-=head2 fetch
-
-  Title   : fetch
-  Usage   : $index->fetch( $id )
-  Function: Returns a Bio::Seq object from the index
-  Example : $seq = $index->fetch( 'dJ67B12' )
-  Returns : Bio::Seq object
-  Args    : ID
-
-=cut
-
-sub fetch {
-    my( $self, $id ) = @_;
-    
-    my $db = $self->db();
-    if (my $rec = $db->{ $id }) {
-        my( @record );
-        
-        my ($file, $begin, $end) = $self->unpack_record( $rec );
-        
-        # Get the (possibly cached) filehandle
-        my $fh = $self->_file_handle( $file );
-
-        # Accumulate lines in @record until beyond end
-        seek($fh, $begin, 0);
-        while (defined(my $line = <$fh>)) {
-            push(@record, $line);
-            last if tell($fh) > $end;
-        }
-        
-        $self->throw("Can't fetch sequence for record : $id")
-            unless @record;
-        
-        # Parse record
-        my $firstLine = shift @record;
-        my ($name, $desc) = $firstLine =~ /^>\s*(\S+)\s*(.*?)\s*$/;
-        chomp( @record );
-        
-        # Return a shiny Bio::Seq object
-        return Bio::Seq->new( -ID   => $name,
-                              -DESC => $desc,
-                              -SEQ  => uc(join('', @record)) );
-    } else {
-	$self->throw("Unable to find a record for $id in Fasta index");
-	return;
-    }
-}
-
-=head2 get_Seq_by_id
-
- Title   : get_Seq_by_id
- Usage   : $seq = $db->get_Seq_by_id()
- Function: retrieves a sequence object, identically to
-           ->fetch, but here behaving as a Bio::DB::BioSeqI
- Returns : new Bio::Seq object
- Args    : string represents the id
+ Title   : _file_format
+ Usage   :
+ Function:
+ Example :
+ Returns : 
+ Args    :
 
 
 =cut
 
-sub get_Seq_by_id{
-   my ($self,$id) = @_;
-
-   return $self->fetch($id);
+sub _file_format{
+   my ($self,@args) = @_;
+   
+   return 'Fasta';
 }
 
 

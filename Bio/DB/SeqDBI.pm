@@ -12,7 +12,7 @@
 
 =head1 NAME
 
-Bio::DB::SeqDBI.pm - Abstract Interface for Sequence databases
+Bio::DB::SeqDBI - Abstract Interface for Sequence databases
 
 =head1 SYNOPSIS
 
@@ -70,7 +70,7 @@ The rest of the documentation details each of the object methods. Internal metho
 # Let the code begin...
 
 
-package Bio::DB::SeqDBI.pm;
+package Bio::DB::SeqDBI;
 use vars qw(@ISA);
 use strict;
 
@@ -125,12 +125,16 @@ sub get_PrimarySeq_stream{
    $self->throw("Object did not provide a PrimarySeq stream object");
 }
 
-=head2 get_all_ids
+=head2 get_all_primary_ids
 
  Title   : get_all_ids
- Usage   : @ids = $seqdb->get_all_ids()
+ Usage   : @ids = $seqdb->get_all_primary_ids()
  Function: gives an array of all the primary_ids of the 
-           sequence objects in the database
+           sequence objects in the database. These
+           maybe ids (display style) or accession numbers
+           or something else completely different - they
+           *are not* meaningful outside of this database
+           implementation.
  Example :
  Returns : an array of strings
  Args    : none
@@ -138,12 +142,39 @@ sub get_PrimarySeq_stream{
 
 =cut
 
-sub get_all_ids{
+sub get_all_primary_ids{
+   my ($self,@args) = @_;
+   $self->throw("Object did not provide a get_all_ids method");
+}
+
+
+=head2 get_Seq_by_primary_id
+
+ Title   : get_Seq_by_primary_id
+ Usage   : $seq = $db->get_Seq_by_primary_id($primary_id_string);
+ Function: Gets a Bio::Seq object by the primary id. The primary
+           id in these cases has to come from $db->get_all_primary_ids.
+           There is no other way to get (or guess) the primary_ids
+           in a database.
+
+           The other possibility is to get Bio::PrimarySeqI objects
+           via the get_PrimarySeq_stream and the primary_id field
+           on these objects are specified as the ids to use here.
+ Returns : A Bio::Seq object
+ Args    : accession number (as a string)
+ Throws  : "acc does not exist" exception
+
+
+=cut
+
+sub get_Seq_by_primary_id {
    my ($self,@args) = @_;
 
-   $self->throw("Object did not provide a get_all_ids method");
+   $self->throw("Abstract database call of get_Seq_by_primary_id. Your database has not implemented this method!");
 
 }
+
+1;
 
 
 
