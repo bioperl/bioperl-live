@@ -2605,8 +2605,8 @@ $index_local_db = sub {
     my ( $Index_File_Name, $inx1, $inx2, $id, $dir, $key,
          $keyfound, $seq, $indexhash);
     print "\nBeginning indexing local_db example... \n";
+    print "This subroutine unlikely to run unless OS = unix\n";
 
-    # This subroutine unlikely to run if unless OS  = unix
 
     # III.2.2 Indexing and accessing local databases
     # (Bio::Index::*,  bpindex.pl,  bpfetch.pl)
@@ -2656,7 +2656,7 @@ $fetch_local_db = sub {
 
     $inx2 = Bio::Index::Abstract->new
         ('-FILENAME'  => Bio::Root::IO->catfile("$dir","$Index_File_Name") );
-#        ('-FILENAME'  => "$dir/$Index_File_Name");
+    #   ('-FILENAME'  => "$dir/$Index_File_Name");
 
     $indexhash = $inx2->db();
     $keyfound = "";
@@ -2719,8 +2719,8 @@ $sequence_manipulations = sub {
     $seqobj->accession_number(), " \n"; # when there, the accession number
     print "Moltype is ",
     $seqobj->alphabet(), " \n";    # one of 'dna','rna','protein'
-    print "Primary id is ", $seqobj->primary_seq->primary_id(),
-    " \n"; # a unique id for this sequence irregardless
+    print "Primary id is ", $seqobj->primary_seq->primary_id()," \n";
+    # a unique id for this sequence irregardless
     #print "Primary id is ", $seqobj->primary_id(), " \n";
     # a unique id for this sequence irregardless
     # of its display_id or accession number
@@ -2835,8 +2835,7 @@ $restriction_and_sigcleave = sub {
 
     # III.4.4 Identifying restriction enzyme sites (RestrictionEnzyme)
 
-    $dna = 'CCTCCGGGGACTGCCGTGCCGGGCGGGAATTCGCCATGGCGACC'.
-        'CTGGAAAAGCTGATATCGAAGGCCTTCGA';
+    $dna = 'CCTCCGGGGACTGCCGTGCCGGGCGGGAATTCGCCATGGCGACCCTGGAAAAGCTGATATCGAAGGCCTTCGA';
 
     # Build sequence and restriction enzyme objects.
     $seqobj = new Bio::Seq('-ID'  => 'test_seq',
@@ -2846,25 +2845,26 @@ $restriction_and_sigcleave = sub {
     $re  = new Bio::Tools::RestrictionEnzyme('-name'=>'EcoRI');
     @sixcutters = $re->available_list(6);
 
-    print "The following 6-cutters are available",
-    @sixcutters," \n";
+    print "The following 6-cutters are available\n";
+    print (join " ",@sixcutters),"\n";
 
     $re1  = new Bio::Tools::RestrictionEnzyme('-name'=>'EcoRI');
     @fragments1 =  $re1->cut_seq($seqobj);
     #$seqobj is the Seq object for the dna to be cut
 
-    print "When cutting ", $seqobj->display_id(),
-    " with ", $re1->seq->id ," \n";
-    print "the initial fragment is ", $fragments1[0]," \n";
+    print "\nThe sequence of " . $seqobj->display_id . " is " .
+    $seqobj->seq . "\n";
+    print "When cutting " . $seqobj->display_id() . " with " .
+    $re1->seq->id . " the initial fragment is\n" . $fragments1[0];
 
     $re2 = new Bio::Tools::RestrictionEnzyme
         ('-NAME' =>'EcoRV--GAT^ATC',
          '-MAKE' =>'custom');
     @fragments2 =  $re2->cut_seq($seqobj);
 
-    print "When cutting ", $seqobj->display_id(),
-    " with ", $re2->seq->id ,", \n";
-    print "the second fragment is ", $fragments2[1], " \n";
+    print "\nWhen cutting ", $seqobj->display_id(),
+    " with ", $re2->seq->id;
+    print " the second fragment is\n", $fragments2[1], " \n";
 
     # III.4.7 Identifying amino acid cleavage sites (Sigcleave)
 
@@ -2873,18 +2873,13 @@ $restriction_and_sigcleave = sub {
     my ( $sigcleave_object, %raw_results , $location,
          $formatted_output, $protein, $in, $seqobj2);
 
-#    $in  = Bio::SeqIO->new('-file' => 't/data/cysprot1.fa' ,
-    $in  = Bio::SeqIO->new('-file' => Bio::Root::IO->catfile("t","data","cysprot1.fa") ,
-                           '-format' => 'Fasta' );
-    $seqobj2 = $in->next_seq();
-
-    $protein = $seqobj2->seq;
+    $protein = 
+"MKVILLFVLAVFTVFVSSRGIPPEEQSQFLEFQDKFNKKYSHEEYLERFEIFKSNLGKIEELNLIAINHKADTKFGVNKFADLSSDEFKNYYLNNKEAIFTDDLPVADYLDDEFINSIPTAFDWRTRGAVTPVKNQGQCGSCWSFSTTGNVEGQHFISQNKLVSLSEQNLVDCDHECMEYEGEEACDEGCNGGLQPNAYNYIIKNGGIQTESSYPYTAETGTQCNFNSANIGAKISNFTMIPKNETVMAGYIVSTGPLAIAADAVEWQFYIGGVFDIPCNPNSLDHGILIVGYSAKNTIFRKNMPYWIVKNSWGADWGEQGYIYLRRGKNTCGVSNFVSTSII";
     $formatted_output = "";
 
     # Build object
     # Note that Sigcleave is passed a raw sequence
-    # (or file containing a sequence)  rather than a
-    # sequence object when it is created.
+    # rather than a sequence object when it is created.
     $sigcleave_object = new Bio::Tools::Sigcleave
         ('-id' =>'test_sigcleave_seq',
          '-type' =>'amino',
