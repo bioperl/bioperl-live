@@ -54,11 +54,11 @@ formatting is as follows.
 
   (1) For each key in the hash, if the value is a reference'd array -
 
-      (2) For each element of the array if the value is a object - 
-          Assumme the object has the method "hash_tree";
+      (2) For each element of the array if the value is a object -
+          Assume the object has the method "hash_tree";
       (3) else if the value is a referene to a hash
           Recurse again from point (1)
-      (4) else 
+      (4) else
           Assumme the value is a scalar, and handle it directly as text
 
    (5) else (if not an array) apply rules 2,3 and 4 to value

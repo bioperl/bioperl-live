@@ -76,6 +76,8 @@ use strict;
 # Object preamble - inherits from Bio::Root::Root
 
 use Bio::Root::Root;
+use Bio::Ontology::DocumentRegistry;
+use Bio::OntologyIO;
 
 
 @ISA = qw(Bio::Root::Root );
@@ -170,23 +172,38 @@ sub get_instance{
 =cut
 
 sub get_ontology{
-    my ($self,@args) = @_;
-    my $ont;
+  my ($self,@args) = @_;
+  my $ont;
 
-    my ($name,$id) = $self->_rearrange([qw(NAME ID)], @args);
-    if($id) {
-	$ont = $ont_store_by_id{$id};
-	return unless $ont; # no AND can be satisfied in this case
+  my ($name,$id) = $self->_rearrange([qw(NAME ID)], @args);
+  if($id) {
+    $ont = $ont_store_by_id{$id};
+    return unless $ont; # no AND can be satisfied in this case
+  }
+  if($name) {
+    my $o = $ont_store_by_name{$name};
+
+
+    if(!$o){
+      my $doc_registry = Bio::Ontology::DocumentRegistry->get_instance();
+      my($url,$def,$fmt) = $doc_registry->documents($name);
+
+      if($url){
+        my $io = Bio::OntologyIO->new(-url      => $url,
+                                      -defs_url => $def,
+                                      -format   => $fmt,
+                                     );
+        $o = $io->next_ontology;
+      }
     }
-    if($name) {
-	my $o = $ont_store_by_name{$name};
-	if((! $ont) || ($ont->identifier() eq $o->identifier())) {
-	    $ont = $o;
-	} else {
-	    $ont = undef;
-	}
+
+    if((! $ont) || ($ont->identifier() eq $o->identifier())) {
+      $ont = $o;
+    } else {
+      $ont = undef;
     }
-    return $ont;
+  }
+  return $ont;
 }
 
 =head2 register_ontology
