@@ -20,6 +20,7 @@ BioPerlTutorial - a tutorial for bioperl
   Hilmar Lapp
   Chris Dagdigian
   Elia Stupka
+  Ewan Birney
 
 =head1 DESCRIPTION
 
@@ -55,15 +56,15 @@ BioPerlTutorial - a tutorial for bioperl
   III. Using bioperl
   III.1 Accessing sequence data from local and remote databases
      III.1.1 Accessing remote databases (Bio::DB::GenBank, etc)
-     III.1.2 Indexing and accessing local databases (Bio::Index::*,  bpindex.pl,
-             bpfetch.pl)
+     III.1.2 Indexing and accessing local databases 
+             (Bio::Index::*,  bpindex.pl, bpfetch.pl)
   III.2 Transforming formats of database/ file records
      III.2.1 Transforming sequence files (SeqIO)
      III.2.2 Transforming alignment files (AlignIO)
   III.3 Manipulating sequences
     III.3.1 Manipulating sequence data with Seq methods (Seq)
-    III.3.2 Obtaining basic sequence statistics- MW, residue &codon frequencies
-            (SeqStats)
+    III.3.2 Obtaining basic sequence statistics- MW, residue & 
+            codon frequencies (SeqStats)
     III.3.3 Identifying restriction enzyme sites (RestrictionEnzyme)
     III.3.4 Identifying amino acid cleavage sites (Sigcleave)
     III.3.5 Miscellaneous sequence utilities: OddCodes, SeqPattern
@@ -73,26 +74,30 @@ BioPerlTutorial - a tutorial for bioperl
      III.4.2 Parsing BLAST and FASTA reports with Search and SearchIO
      III.4.3 Parsing BLAST reports with BPlite, BPpsilite, and BPbl2seq
      III.4.4 Parsing HMM reports (HMMER::Results, SearchIO)
+     III.4.5 Running BLAST locally  (StandAloneBlast)
   III.5 Manipulating sequence alignments (SimpleAlign)
   III.6 Searching for genes and other structures on genomic DNA
-                        (Genscan, Sim4, ESTScan, MZEF, Grail, Genemark, EPCR)
+           (Genscan, Sim4, ESTScan, MZEF, Grail, Genemark, EPCR)
   III.7 Developing machine readable sequence annotations
-     III.7.1 Representing sequence annotations (Annotation::Collection, SeqFeature, RichSeq)
-     III.7.2 Representing and large and/or changing sequences (LiveSeq,LargeSeq)
-     III.7.3 Representing related sequences - mutations, polymorphisms etc (Allele,
-             SeqDiff)
+     III.7.1 Representing sequence annotations 
+           (Annotation::Collection, SeqFeature, RichSeq)
+     III.7.2 Representing and large and/or changing sequences 
+           (LiveSeq,LargeSeq)
+     III.7.3 Representing related sequences - mutations, polymorphisms etc 
+           (Allele, SeqDiff)
      III.7.4 Incorpotating quality data in sequence annotation (SeqWithQuality)
      III.7.5 Sequence XML representations - generation and parsing (SeqIO::game)
      III.7.6 Representing Sequence Features using GFF (Bio:Tools:GFF )
   III.8 Manipulating clusters of sequences (Cluster, ClusterIO)
-  III.9 Representing non-sequence data in Bioperl: structures, trees, maps, graphics
-        and bibliographic text
+  III.9 Representing non-sequence data in Bioperl: structures, trees, 
+             maps, graphics and bibliographic text
      III.9.1 Using 3D structure objects and reading PDB files (StructureI,
              Structure::IO)
      III.9.2 Tree objects and phylogenetic trees (Tree::Tree, TreeIO, PAML.pm )
      III.9.3 Map objects for manipulating genetic maps (Map::MapI, MapIO)
      III.9.4 Bibliographic objects for querying bibliographic databases (Biblio)
-     III.9.5 Graphics objects for representing sequence objects as images (Graphics)
+     III.9.5 Graphics objects for representing sequence objects as 
+             images (Graphics)
   III.10 Bioperl alphabets
      III.10.1 Extended DNA / RNA alphabet
      III.10.2 Amino Acid alphabet
@@ -100,11 +105,10 @@ BioPerlTutorial - a tutorial for bioperl
 IV.  Auxilliary Bioperl Libraries (Bioperl-run, Bioperl-db, etc.)
   IV.1 Using the Bioperl Auxilliary Libraries
   IV.2 Running programs (Bioperl-run and Bioperl-ext)
-     IV.2.1 Running BLAST locally  (StandAloneBlast)
+     IV.2.1 Sequence manipulation using the Bioperl EMBOSS and PISE interfaces
      IV.2.2 Aligning 2 sequences with Blast using  bl2seq and AlignIO
      IV.2.3 Aligning multiple sequences (Clustalw.pm, TCoffee.pm)
      IV.2.4 Aligning 2 sequences with Smith-Waterman (pSW)
-     IV.2.5 Sequence manipulation using the Bioperl EMBOSS and PISE interfaces
    IV.3 Bioperl-db
    IV.4 Other Bioperl auxilliary libraries
 
@@ -243,18 +247,17 @@ Bio::Perl has a number of other "easy to use" functions, including
                         NCBI
   write_blast         - writes a blast report out to a file
 
-Look at the documentation for Bio::Perl by going perldoc Bio::Perl to learn
-more about these functions. In all these cases, Bio::Perl is access the 
-underlying Bioperl functions (for example, translation in Bioperl can handle
-many different translation tables and provides different options for 
-stop codon processing) - in most cases, most users will migrate to using the
-underlying bioperl objects as their sophistication level increases, but 
-Bio::Perl provides an easy on-ramp for newcomers and lazy programmers.
+Look at the documentation for Bio::Perl by going perldoc Bio::Perl to
+learn more about these functions. In all these cases, Bio::Perl
+accesses a subset of the underlying Bioperl functions (for example,
+translation in Bioperl can handle many different translation tables
+and provides different options for stop codon processing) - in most
+cases, most users will migrate to using the underlying bioperl objects
+as their sophistication level increases, but Bio::Perl provides an
+easy on-ramp for newcomers and lazy programmers.
 
 
 =head2 I.3 Software requirements
-
-=cut
 
 =head2   I.3.1 Minimal bioperl installation (Bioperl "core" installation)
 
@@ -776,8 +779,6 @@ more information.
 
 =head2 III.2 Transforming formats of database/ file records
 
-=cut
-
 =for html <A NAME ="iii.2.1"></A>
 
 =head2   III.2.1 Transforming sequence files (SeqIO)
@@ -848,7 +849,7 @@ following formats:
    bl2seq
    clustalw (.aln)
    msf (GCG)
-   water (used by EMBOSS, see L<"IV.2.5">)
+   water (used by EMBOSS, see L<"IV.2.1">)
    phylip (interleaved)
    stockholm
    nexus
@@ -881,9 +882,7 @@ information.
 Bioperl contains many modules with functions for sequence analysis. And
 if you cannot find the function you want in bioperl you may be able to
 find it in EMBOSS or PISE , which are accessible through the bioperl-run
-auxilliary library (see L<"IV.2.5">). 
-
-=cut
+auxilliary library (see L<"IV.2.1">). 
 
 =for html <A NAME ="iii.3.1"></A>
 
@@ -1250,11 +1249,6 @@ and T-Coffee factories.  Specifically RemoteBlast requires parameters to
 be passed with a leading hyphen, as in '-prog' =E<gt> 'blastp', while the
 other programs do not pass parameters with a leading hyphen.
 
-As of release 1.2, the bioperl "core" package no longer supports
-running local Blasts.  The StandAloneBlast module has been moved to
-the auxilliary library bioperl-run.  See section L<"IV.2.1"> for more
-information.
-
 =for html <A NAME ="iii.4.2"></A>
 
 =head2    III.4.2 Parsing BLAST and FASTA reports with Search and SearchIO
@@ -1406,6 +1400,7 @@ section L<"III.4.3">) or the Search/SearchIO parsers (section L<"III.4.2">)
 should be used for BLAST parsing within bioperl (SearchIO is the preferred
 approach and will be formally supported in subsequent releases).
 
+=for html <A NAME ="iii.4.4"></A>
 
 =head2 III.4.4 Parsing HMM reports (HMMER::Results, SearchIO)
 
@@ -1443,7 +1438,68 @@ L<Bio::Search::Result::HMMERResult> for more information.
 
 For documentation on the older HMMER parser, look at L<Bio::Tools::HMMER::Results>.
 
-for html <A NAME ="iii.5"></A>
+=for html <A NAME ="iii.4.5"></A>
+
+=head2 III.4.5 Running BLAST locally  (StandAloneBlast)
+
+There are several reasons why one might want to run the Blast programs
+locally - speed, data security, immunity to network problems, being
+able to run large batch runs, wanting to use custom or proprietary
+databases, etc.  The NCBI provides a downloadable version of blast in
+a stand-alone format, and running blast locally without any use of
+perl or bioperl is completely straightforward.  However, there are
+situations where having a perl interface for running the blast
+programs locally is convenient.
+
+The module Bio::Tools::Run::StandAloneBlast offers the ability to wrap
+local calls to blast from within perl.  All of the currently available
+options of NCBI Blast (eg PSIBLAST, PHIBLAST, bl2seq) are available
+from within the bioperl StandAloneBlast interface.  Of course, to use
+StandAloneBlast, one needs to have installed locally ncbi-blast as
+well as one or more blast-readable databases.
+
+Basic usage of the StandAloneBlast.pm module is simple.  Initially, a
+local blast "factory object" is created.
+
+  @params = ('program'  => 'blastn',
+             'database' => 'ecoli.nt');
+  $factory = Bio::Tools::Run::StandAloneBlast->new(@params);
+
+Any parameters not explicitly set will remain as the BLAST defaults.
+Once the factory has been created and the appropriate parameters set,
+one can call one of the supported blast executables.  The input
+sequence(s) to these executables may be fasta file(s), a Seq
+object or an array of Seq objects, eg
+
+  $input = Bio::Seq->new(-id  =>"test query",
+  			 -seq =>"ACTAAGTGGGGG");
+  $blast_report = $factory->blastall($input);
+
+The returned blast report will be in the form of a bioperl
+parsed-blast object.  The report object may be either a BPlite,
+BPpsilite, BPbl2seq or Blast object depending on the type of blast
+search.  The "raw" blast report is also available.
+
+The syntax for running PHIBLAST, PSIBLAST and bl2seq searches via
+StandAloneBlast is also straightforward.  See
+L<Bio::Tools::Run::StandAloneBlast> documentation for details. In
+addition, the script standaloneblast.pl in the scripts/tools directory
+contains descriptions of various possible applications of the
+StandAloneBlast object. This script shows how the blast report object
+can access a blast parser directly, eg
+
+  while (my $sbjct = $blast_report->next_hit){
+     while (my $hsp = $sbjct->next_hsp){
+        print $hsp->score . " " . $hsp->subject->seqname . "\n";
+     }
+  }
+
+See the sections L<"III.4.2"> and L<"III.4.3"> on for more details on
+parsing BLAST reports. Also see the script standaloneblast.pl in the
+scripts/tools/ subdirectory for more detailed working examples of code
+using this module.
+
+=for html <A NAME ="iii.5"></A>
 
 =head2 III.5 Manipulating sequence alignments
 
@@ -1451,11 +1507,11 @@ Once one has identified a set of similar sequences, one often needs to
 create an alignment of those sequences. Bioperl offers several perl
 objects to facilitate sequence alignment: pSW, Clustalw.pm, TCoffee.pm
 and the bl2seq option of StandAloneBlast. As of release 1.2 of
-bioperl, using these modules requires a bioperl auxilliary library
-(bioperl-ext for pSW, bioperl-run for the others) and are therefore
-described in section IV. Here we describe only the module within the
-bioperl core package for manipulating previously created alignments,
-namely the SimpleAlign module.
+bioperl, using these modules (except bl2seq) requires a bioperl
+auxilliary library (bioperl-ext for pSW, bioperl-run for the others)
+and are therefore described in section IV. Here we describe only the
+module within the bioperl core package for manipulating previously
+created alignments, namely the SimpleAlign module.
 
 The script aligntutorial.pl in the scripts/align/ subdirectory is
 another good source of information of ways to create and manipulate
@@ -2163,170 +2219,9 @@ release.  However currently some of the required modules have been
 transferred out of the core library. Some of the more commonly used of
 these modules are described in this section.
 
-=head2 IV.2.1 Running BLAST locally  (StandAloneBlast)
-
-There are several reasons why one might want to run the Blast programs
-locally - speed, data security, immunity to network problems, being
-able to run large batch runs, wanting to use custom or proprietary
-databases, etc.  The NCBI provides a downloadable version of blast in
-a stand-alone format, and running blast locally without any use of
-perl or bioperl is completely straightforward.  However, there are
-situations where having a perl interface for running the blast
-programs locally is convenient.
-
-The module Bio::Tools::Run::StandAloneBlast offers the ability to wrap
-local calls to blast from within perl.  All of the currently available
-options of NCBI Blast (eg PSIBLAST, PHIBLAST, bl2seq) are available
-from within the bioperl StandAloneBlast interface.  Of course, to use
-StandAloneBlast, one needs to have installed locally ncbi-blast as
-well as one or more blast-readable databases.
-
-Basic usage of the StandAloneBlast.pm module is simple.  Initially, a
-local blast "factory object" is created.
-
-  @params = ('program'  => 'blastn',
-             'database' => 'ecoli.nt');
-  $factory = Bio::Tools::Run::StandAloneBlast->new(@params);
-
-Any parameters not explicitly set will remain as the BLAST defaults.
-Once the factory has been created and the appropriate parameters set,
-one can call one of the supported blast executables.  The input
-sequence(s) to these executables may be fasta file(s), a Seq
-object or an array of Seq objects, eg
-
-  $input = Bio::Seq->new(-id  =>"test query",
-  			 -seq =>"ACTAAGTGGGGG");
-  $blast_report = $factory->blastall($input);
-
-The returned blast report will be in the form of a bioperl
-parsed-blast object.  The report object may be either a BPlite,
-BPpsilite, BPbl2seq or Blast object depending on the type of blast
-search.  The "raw" blast report is also available.
-
-The syntax for running PHIBLAST, PSIBLAST and bl2seq searches via
-StandAloneBlast is also straightforward.  See
-L<Bio::Tools::Run::StandAloneBlast> documentation for details. In
-addition, the script standaloneblast.pl in the scripts/tools directory
-contains descriptions of various possible applications of the
-StandAloneBlast object. This script shows how the blast report object
-can access a blast parser directly, eg
-
-  while (my $sbjct = $blast_report->next_hit){
-     while (my $hsp = $sbjct->next_hsp){
-        print $hsp->score . " " . $hsp->subject->seqname . "\n";
-     }
-  }
-
-See the section L<"III.4.3"> on parsing BLAST reports with
-Bio::Tools::BPlite or L<Bio::Tools::BPlite> for details.
-
 =for html <A NAME ="iv.2.2"></A>
 
-=head2 IV.2.2 Aligning 2 sequences with Blast using  bl2seq and AlignIO
-
-As an alternative to Smith-Waterman, two sequences can also be aligned
-in Bioperl using the bl2seq option of Blast within the StandAloneBlast
-object.  To get an alignment - in the form of a SimpleAlign object -
-using bl2seq, you need to parse the bl2seq report with the Bio::AlignIO
-file format reader as follows:
-
-  $factory = Bio::Tools::Run::StandAloneBlast->new('outfile' => 'bl2seq.out');
-  $bl2seq_report = $factory->bl2seq($seq1, $seq2);
-  # Use AlignIO.pm to create a SimpleAlign object from the bl2seq report
-  $str = Bio::AlignIO->new('-file '=>'bl2seq.out',
-                           '-format' => 'bl2seq');
-  $aln = $str->next_aln();
-
-=head2 IV.2.3 Aligning multiple sequences (Clustalw.pm, TCoffee.pm)
-
-For aligning multiple sequences (ie two or more), bioperl offers a
-perl interface to the bioinformatics-standard clustalw and tcoffee
-programs.  Clustalw has been a leading program in global multiple
-sequence alignment (MSA) for several years.  TCoffee is a relatively
-recent program - derived from clustalw - which has been shown to
-produce better results for local MSA.
-
-To use these capabilities, the clustalw and/or tcoffee programs
-themselves need to be installed on the host system.  In addition, the
-environmental variables CLUSTALDIR and TCOFFEEDIR need to be set to
-the directories containg the executables.  See section L<"I.3"> and the
-L<Bio::Tools::Run::Alignment::Clustalw> and
-L<Bio::Tools::Run::Alignment::TCoffee> for information on downloading
-and installing these programs.
-
-From the user's perspective, the bioperl syntax for calling
-Clustalw.pm or TCoffee.pm is almost identical.  The only differences
-are the names of the modules themselves appearing in the initial "use"
-and constructor statements and the names of the some of the individual
-program options and parameters.
-
-In either case, initially, a "factory object" must be created. The
-factory may be passed most of the parameters or switches of the
-relevant program.  In addition, alignment parameters can be changed
-and/or examined after the factory has been created.  Any parameters
-not explicitly set will remain as the underlying program's
-defaults. Clustalw.pm/TCoffee.pm output is returned in the form of a
-SimpleAlign object.  It should be noted that some Clustalw and TCoffee
-parameters and features (such as those corresponding to tree
-production) have not been implemented yet in the Perl interface.
-
-Once the factory has been created and the appropriate parameters set,
-one can call the method align() to align a set of unaligned sequences,
-or profile_align() to add one or more sequences or a second alignment
-to an initial alignment.  Input to align() consists of a set of
-unaligned sequences in the form of the name of file containing the
-sequences or a reference to an array of Seq objects. Typical
-syntax is shown below. (We illustrate with Clustalw.pm, but the same
-syntax - except for the module name - would work for TCoffee.pm)
-
-  use Bio::Tools::Run::Alignment::Clustalw;
-  @params = ('ktuple' => 2, 'matrix' => 'BLOSUM');
-  $factory = Bio::Tools::Run::Alignment::Clustalw->new(@params);
-  $ktuple = 3;
-  $factory->ktuple($ktuple);  # change the parameter before executing
-  $seq_array_ref = \@seq_array;
-      # where @seq_array is an array of Bio::Seq objects
-  $aln = $factory->align($seq_array_ref);
-
-Clustalw.pm/TCoffee.pm can also align two (sub)alignments to each
-other or add a sequence to a previously created alignment by using the
-profile_align method. For further details on the required syntax and
-options for the profile_align method, the user is referred to
-L<Bio::Tools::Run::Alignment::Clustalw> and
-L<Bio::Tools::Run::Alignment::TCoffee>. The user is also
-encouraged to examine the script clustalw.pl in the scripts/align directory.
-
-=head2    IV.2.4 Aligning 2 sequences with Smith-Waterman (pSW)
-
-The Smith-Waterman (SW) algorithm is the standard method for producing
-an optimal local alignment of two sequences.  Bioperl supports the
-computation of SW alignments via the pSW object with the auxilliary
-bioperl-ext library. Note that pSW only supports the alignment of
-protein sequences, not nucleotide.
-
-The SW algorithm itself is implemented in C and incorporated into
-bioperl using an XS extension. This has significant efficiency
-advantages but means that pSW will B<not> work unless you have
-compiled the bioperl-ext auxilliary library.  If you have compiled the
-bioperl-ext package, usage is simple, where the method align_and_show
-displays the alignment while pairwise_alignment produces a (reference
-to) a SimpleAlign object.
-
-  use Bio::Tools::pSW;
-  $factory = new Bio::Tools::pSW( '-matrix' => 'blosum62.bla',
-  				  '-gap' => 12,
-                                  '-ext' => 2, );
-  $factory->align_and_show($seq1, $seq2, STDOUT);
-  $aln = $factory->pairwise_alignment($seq1, $seq2);
-
-SW matrix, gap and extension parameters can be adjusted as shown.
-Bioperl comes standard with blosum62 and gonnet250 matrices.  Others
-can be added by the user.  For additional information on accessing the
-SW algorithm via pSW see the script psw.pl in the scripts/tools
-directory and the documentation in L<Bio::Tools::pSW>.
-
-
-=head2 IV.2.5 Sequence manipulation using the Bioperl EMBOSS and PISE interfaces
+=head2 IV.2.1 Sequence manipulation using the Bioperl EMBOSS and PISE interfaces
 
 EMBOSS (European Molecular Biology Open Source Software) is an extensive
 collection of sequence analysis programs written in the C
@@ -2390,6 +2285,115 @@ well.) Howerver Pise has the disadvantages of needing an internet
 connection, lower performance, decreased security, etc. stemming form
 running programs over the net.  For more information on the Bioperl
 Pise interface see:  http://www-alt.pasteur.fr/~letondal/Pise/.
+
+=for html <A NAME ="iv.2.2"></A>
+
+=head2 IV.2.2 Aligning 2 sequences with Blast using  bl2seq and AlignIO
+
+As an alternative to Smith-Waterman, two sequences can also be aligned
+in Bioperl using the bl2seq option of Blast within the StandAloneBlast
+object.  To get an alignment - in the form of a SimpleAlign object -
+using bl2seq, you need to parse the bl2seq report with the Bio::AlignIO
+file format reader as follows:
+
+  $factory = Bio::Tools::Run::StandAloneBlast->new('outfile' => 'bl2seq.out');
+  $bl2seq_report = $factory->bl2seq($seq1, $seq2);
+  # Use AlignIO.pm to create a SimpleAlign object from the bl2seq report
+  $str = Bio::AlignIO->new('-file '=>'bl2seq.out',
+                           '-format' => 'bl2seq');
+  $aln = $str->next_aln();
+
+=for html <A NAME ="iv.2.3"></A>
+
+=head2 IV.2.3 Aligning multiple sequences (Clustalw.pm, TCoffee.pm)
+
+For aligning multiple sequences (ie two or more), bioperl offers a
+perl interface to the bioinformatics-standard clustalw and tcoffee
+programs.  Clustalw has been a leading program in global multiple
+sequence alignment (MSA) for several years.  TCoffee is a relatively
+recent program - derived from clustalw - which has been shown to
+produce better results for local MSA.
+
+To use these capabilities, the clustalw and/or tcoffee programs
+themselves need to be installed on the host system.  In addition, the
+environmental variables CLUSTALDIR and TCOFFEEDIR need to be set to
+the directories containg the executables.  See section L<"I.3"> and the
+L<Bio::Tools::Run::Alignment::Clustalw> and
+L<Bio::Tools::Run::Alignment::TCoffee> for information on downloading
+and installing these programs.
+
+From the user's perspective, the bioperl syntax for calling
+Clustalw.pm or TCoffee.pm is almost identical.  The only differences
+are the names of the modules themselves appearing in the initial "use"
+and constructor statements and the names of the some of the individual
+program options and parameters.
+
+In either case, initially, a "factory object" must be created. The
+factory may be passed most of the parameters or switches of the
+relevant program.  In addition, alignment parameters can be changed
+and/or examined after the factory has been created.  Any parameters
+not explicitly set will remain as the underlying program's
+defaults. Clustalw.pm/TCoffee.pm output is returned in the form of a
+SimpleAlign object.  It should be noted that some Clustalw and TCoffee
+parameters and features (such as those corresponding to tree
+production) have not been implemented yet in the Perl interface.
+
+Once the factory has been created and the appropriate parameters set,
+one can call the method align() to align a set of unaligned sequences,
+or profile_align() to add one or more sequences or a second alignment
+to an initial alignment.  Input to align() consists of a set of
+unaligned sequences in the form of the name of file containing the
+sequences or a reference to an array of Seq objects. Typical
+syntax is shown below. (We illustrate with Clustalw.pm, but the same
+syntax - except for the module name - would work for TCoffee.pm)
+
+  use Bio::Tools::Run::Alignment::Clustalw;
+  @params = ('ktuple' => 2, 'matrix' => 'BLOSUM');
+  $factory = Bio::Tools::Run::Alignment::Clustalw->new(@params);
+  $ktuple = 3;
+  $factory->ktuple($ktuple);  # change the parameter before executing
+  $seq_array_ref = \@seq_array;
+      # where @seq_array is an array of Bio::Seq objects
+  $aln = $factory->align($seq_array_ref);
+
+Clustalw.pm/TCoffee.pm can also align two (sub)alignments to each
+other or add a sequence to a previously created alignment by using the
+profile_align method. For further details on the required syntax and
+options for the profile_align method, the user is referred to
+L<Bio::Tools::Run::Alignment::Clustalw> and
+L<Bio::Tools::Run::Alignment::TCoffee>. The user is also
+encouraged to examine the script clustalw.pl in the scripts/align directory.
+
+=for html <A NAME ="iv.2.4"></A>
+
+=head2    IV.2.4 Aligning 2 sequences with Smith-Waterman (pSW)
+
+The Smith-Waterman (SW) algorithm is the standard method for producing
+an optimal local alignment of two sequences.  Bioperl supports the
+computation of SW alignments via the pSW object with the auxilliary
+bioperl-ext library. Note that pSW only supports the alignment of
+protein sequences, not nucleotide.
+
+The SW algorithm itself is implemented in C and incorporated into
+bioperl using an XS extension. This has significant efficiency
+advantages but means that pSW will B<not> work unless you have
+compiled the bioperl-ext auxilliary library.  If you have compiled the
+bioperl-ext package, usage is simple, where the method align_and_show
+displays the alignment while pairwise_alignment produces a (reference
+to) a SimpleAlign object.
+
+  use Bio::Tools::pSW;
+  $factory = new Bio::Tools::pSW( '-matrix' => 'blosum62.bla',
+  				  '-gap' => 12,
+                                  '-ext' => 2, );
+  $factory->align_and_show($seq1, $seq2, STDOUT);
+  $aln = $factory->pairwise_alignment($seq1, $seq2);
+
+SW matrix, gap and extension parameters can be adjusted as shown.
+Bioperl comes standard with blosum62 and gonnet250 matrices.  Others
+can be added by the user.  For additional information on accessing the
+SW algorithm via pSW see the script psw.pl in the scripts/tools
+directory and the documentation in L<Bio::Tools::pSW>.
 
 =for html <A NAME ="iv.3"></A>
 
@@ -2482,7 +2486,7 @@ in any bioperl object.
 =head2 V.2 Appendix: Tutorial demo scripts
 
 The following scripts demonstrate many of the features of bioperl. To
-run all the demos run:
+run all the core demos, run:
 
  > perl -w  bptutorial.pl 0
 
@@ -2562,41 +2566,42 @@ $display_help = sub {
     print STDERR <<"QQ_PARAMS_QQ";
 
 The following numeric arguments can be passed to run the corresponding demo-script.
-1  => sequence_manipulations ,
-2  => seqstats_and_seqwords ,
-3  => restriction_and_sigcleave ,
-4  => other_seq_utilities ,
-5  => run_perl,
-6  => searchio_parsing ,
-7  => bplite_parsing ,
-8  => hmmer_parsing ,
-9  => simplealign ,
-10 => gene_prediction_parsing ,
-11 => access_remote_db ,
-12 => index_local_db ,
-13 => fetch_local_db ,   (NOTE: needs to be run with demo 12)
-14 => sequence_annotation ,
-15 => largeseqs ,
-16 => liveseqs ,
-17 => run_struct,
-18 => demo_variations ,
-19 => demo_xml ,
-20 => run_tree ,
-21 => run_map,
-22 => run_remoteblast ,
-23 => run_standaloneblast ,
-24 => run_clustalw_tcoffee ,
-25 => run_psw_bl2seq ,
+1  => sequence_manipulations 
+2  => seqstats_and_seqwords 
+3  => restriction_and_sigcleave 
+4  => other_seq_utilities 
+5  => run_perl
+6  => searchio_parsing 
+7  => bplite_parsing 
+8  => hmmer_parsing 
+9  => simplealign 
+10 => gene_prediction_parsing 
+11 => access_remote_db 
+12 => index_local_db 
+13 => fetch_local_db    (NOTE: needs to be run with demo 12)
+14 => sequence_annotation 
+15 => largeseqs 
+16 => liveseqs 
+17 => run_struct
+18 => demo_variations 
+19 => demo_xml 
+20 => run_tree 
+21 => run_map
+22 => run_remoteblast 
+23 => run_standaloneblast 
+24 => run_clustalw_tcoffee 
+25 => run_psw_bl2seq 
 
 In addition the argument "100" followed by the name of a single
 bioperl object will display a list of all the public methods
 available from that object and from what object they are inherited.
 
-Using the parameter "0" will run all tests.
+Using the parameter "0" will run all the tests that do not require 
+external programs (i.e. tests 1 to 22). 
 Using any other argument (or no argument) will run this display.
 
 So typical command lines might be:
-To run all demo scripts:
+To run all core demo scripts:
  > perl -w  bptutorial.pl 0
 or to just run the local indexing demos:
  > perl -w  bptutorial.pl 12 13
@@ -2976,8 +2981,8 @@ $run_standaloneblast = sub {
     my (@params, $factory, $input, $blast_report, $blast_present,
         $database, $sbjct, $str, $seq1);
 
-    $database = $_[0] || 'ecoli.nt'; # user can select local nt database
-
+#    $database = $_[0] || 'ecoli.nt'; # user can select local nt database
+    $database = $_[0] || "$ENV{BLASTDIR}data/ecoli.nt"; # user can select local nt database
     #@params = ('program' => 'blastn', 'database' => 'ecoli.nt');
     @params = ('program' => 'blastn', 'database' => $database);
     $factory = Bio::Tools::Run::StandAloneBlast->new(@params);
@@ -3024,20 +3029,26 @@ $run_remoteblast = sub {
 
       $remote_blast_object = Bio::Tools::Run::RemoteBlast->new(@params);
       $blast_file = Bio::Root::IO->catfile("t","data","ecolitst.fa");
-      $r = $remote_blast_object->submit_blast( $blast_file);
+      eval {
+	  $r = $remote_blast_object->submit_blast( $blast_file);
+      };
+      if (($r < 0) || $@)  {
+	  warn "\n\n**Warning**: Couldn't connect to NCBI with Bio::Tools::Run::StandAloneBlast.pm!\nProbably no network access.\n Skipping Test\n";
+	  return 0;
+      }
       print "submitted Blast job\n";
       while ( my @rids = $remote_blast_object->each_rid ) {
-        foreach my $rid ( @rids ) {
-          $rc = $remote_blast_object->retrieve_blast($rid);
-          print "retrieving results...\n";
-          if( !ref($rc) ) {   # $rc not a reference => either error 
-                              # or job not yet finished
-            if( $rc < 0 ) {
-              $remote_blast_object->remove_rid($rid);
-              print "Error return code for BlastID code $rid ... \n";
-            }
-            sleep 5;
-          } else {
+	  foreach my $rid ( @rids ) {
+	      $rc = $remote_blast_object->retrieve_blast($rid);
+	      print "retrieving results...\n";
+	      if( !ref($rc) ) {   # $rc not a reference => either error 
+		  # or job not yet finished
+		  if( $rc < 0 ) {
+		      $remote_blast_object->remove_rid($rid);
+		      print "Error return code for BlastID code $rid ... \n";
+		  }
+		  sleep 5;
+	      } else {
             $remote_blast_object->remove_rid($rid);
             while ( my $sbjct = $rc->nextSbjct ) {
               print "sbjct name is ", $sbjct->name, "\n";
@@ -3151,7 +3162,8 @@ $bplite_parsing = sub {
 
 $hmmer_parsing = sub {
 
-    print "\nBeginning hmmer_parsing example... \n";
+    print "\nBeginning hmmer_parsing example \n" .
+          " (note: this test may be a little slow, please be patient...) \n";
 
     # Parsing HMM reports
     use Bio::SearchIO;
@@ -3915,7 +3927,7 @@ $bpinspect1 = sub {
 
     @runlist = @ARGV;
     if (scalar(@runlist)==0) {&$display_help;}; # display help if no option
-    if ($runlist[0] == 0) {@runlist = (1..25); }; # argument = 0 means run all tests
+    if ($runlist[0] == 0) {@runlist = (1..22); }; # argument = 0 means run tests 1 thru 22
     foreach $n  (@runlist) {
         if ($n ==100) {my $object = $runlist[1]; &$bpinspect1($object); last;}
         if ($n ==1) {&$sequence_manipulations; next;}
