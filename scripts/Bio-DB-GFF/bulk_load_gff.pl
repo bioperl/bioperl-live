@@ -189,7 +189,7 @@ END
 ;
   $command =~ s/\n/ /g;
   $success &&= system($command) == 0;
-  unlink "$tmpdir/$_.$$";
+  unlink "$tmpdir/$_.$$";
 }
 warn "done...\n";
 
