@@ -49,15 +49,14 @@ the Bioperl mailing list.  Your participation is much appreciated.
 =head2 Reporting Bugs
 
 Report bugs to the Bioperl bug tracking system to help us keep track
-of the bugs and their resolution. Bug reports can be submitted via
-email or the web:
+of the bugs and their resolution. Bug reports can be submitted via the
+web:
 
-  bioperl-bugs@bioperl.org
   http://bugzilla.bioperl.org/
 
 =head1 AUTHOR - Jason Stajich
 
-Email jason@bioperl.org
+Email jason-at-bioperl.org
 
 Describe contact details here
 
@@ -302,61 +301,59 @@ sub next_result{
                    }
                    chomp;
                    
-                   if( /^\s*(.+):\s+domain\s+(\d+)\s+of\s+(\d+)\,\s+from\s+(\d+)\s+to\s+(\d+)/o ) {
+                   if( m/^\s*(.+):\s+domain\s+(\d+)\s+of\s+(\d+)\,\s+
+                        from\s+(\d+)\s+to\s+(\d+)/x ) {
                        my ($name,$domainct,$domaintotal,
                            $from,$to) = ($1,$2,$3,$4,$5);
                        $domaincounter{$name}++;                       
-                       if( ! defined $lastdomain || $lastdomain ne $name ) {
-                           if( $self->within_element('hit') ) {
-                               if( $self->within_element('hsp') ) {
-                                   $self->end_element({'Name' => 'Hsp'});
-                               }
-                               $self->end_element({'Name' => 'Hit'});
-                           }
-                           $self->start_element({'Name' => 'Hit'});
-                           my $info = [@{$hitinfo[$hitinfo{$name}] || $self->throw("Could not find hit info for $name: Insure that your database contains only unique sequence names")}];
-                           if( $info->[0] ne $name ) { 
-                               $self->throw("Somehow the Model table order does not match the order in the domains (got ".$info->[0].", expected $name)"); 
-                           }
-                           $self->element({'Name' => 'Hit_id',
-                                           'Data' => shift @{$info}});
-                           $self->element({'Name' => 'Hit_desc',
-                                           'Data' => shift @{$info}});
-                           $self->element({'Name' => 'Hit_signif',
-                                           'Data' => shift @{$info}});
-                           $self->element({'Name' => 'Hit_score',
-                                           'Data' => shift @{$info}});
-                       } 
-                       $self->end_element({'Name' => 'Hsp'})
-                           if $self->in_element('hsp');
-                       
-                       $self->start_element({'Name' => 'Hsp'});
-                       $self->element({'Name' => 'Hsp_identity',
-                                       'Data' => 0});
-                       $self->element({'Name' => 'Hsp_positive',
-                                       'Data' => 0});
-                       my $HSPinfo = shift @hspinfo;
-                       my $id = shift @$HSPinfo;
-                       if( $id ne $name ) { 
-                           $self->throw("Somehow the domain list details do not match the table (got $id, expected $name)");
-                       }
-                       if( $domaincounter{$name} == $domaintotal) {
-                           $hitinfo[$hitinfo{$name}] = undef;
-                       }
-                       $self->element({'Name' => 'Hsp_hit-from',
-                                       'Data' => shift @$HSPinfo});
-                       $self->element({'Name' => 'Hsp_hit-to',
-                                       'Data' => shift @$HSPinfo});
-                       $self->element({'Name' => 'Hsp_query-from',
-                                       'Data' => shift @$HSPinfo});
-                       $self->element({'Name' => 'Hsp_query-to',
-                                       'Data' => shift @$HSPinfo});
-                       $self->element({'Name' => 'Hsp_score',
-                                       'Data' => shift @$HSPinfo});
-                       $self->element({'Name' => 'Hsp_evalue',
-                                       'Data' => shift @$HSPinfo});
-                       $lastdomain = $name;
-                   } else { 
+                       if( $self->within_element('hit') ) {
+			   if( $self->within_element('hsp') ) {
+			       $self->end_element({'Name' => 'Hsp'});
+			   }
+			   $self->end_element({'Name' => 'Hit'});
+		       }
+
+		       $self->start_element({'Name' => 'Hit'});
+		       my $info = [@{$hitinfo[$hitinfo{$name}] || $self->throw("Could not find hit info for $name: Insure that your database contains only unique sequence names")}];
+		       if( $info->[0] ne $name ) { 
+			   $self->throw("Somehow the Model table order does not match the order in the domains (got ".$info->[0].", expected $name)"); 
+		       }
+		       $self->element({'Name' => 'Hit_id',
+				       'Data' => shift @{$info}});
+		       $self->element({'Name' => 'Hit_desc',
+				       'Data' => shift @{$info}});
+		       $self->element({'Name' => 'Hit_signif',
+				       'Data' => shift @{$info}});
+		       $self->element({'Name' => 'Hit_score',
+				       'Data' => shift @{$info}});
+
+		       $self->start_element({'Name' => 'Hsp'});
+		       $self->element({'Name' => 'Hsp_identity',
+				       'Data' => 0});
+		       $self->element({'Name' => 'Hsp_positive',
+				       'Data' => 0});
+		       my $HSPinfo = shift @hspinfo;
+		       my $id = shift @$HSPinfo;
+		       if( $id ne $name ) { 
+			   $self->throw("Somehow the domain list details do not match the table (got $id, expected $name)");
+		       }
+		       if( $domaincounter{$name} == $domaintotal) {
+			   $hitinfo[$hitinfo{$name}] = undef;
+		       }
+		       $self->element({'Name' => 'Hsp_hit-from',
+				       'Data' => shift @$HSPinfo});
+		       $self->element({'Name' => 'Hsp_hit-to',
+				       'Data' => shift @$HSPinfo});
+		       $self->element({'Name' => 'Hsp_query-from',
+				       'Data' => shift @$HSPinfo});
+		       $self->element({'Name' => 'Hsp_query-to',
+				       'Data' => shift @$HSPinfo});
+		       $self->element({'Name' => 'Hsp_score',
+				       'Data' => shift @$HSPinfo});
+		       $self->element({'Name' => 'Hsp_evalue',
+				       'Data' => shift @$HSPinfo});
+		       $lastdomain = $name;
+		   } else { 
                        # Might want to change this so that it
                        # accumulates all the of the alignment lines into 
                        # three array slots and then tests for the 
@@ -413,7 +410,6 @@ sub next_result{
                    }
                }
            } elsif(  /^Histogram/o || m!^//!o ) { 
-
                while( my $HSPinfo = shift @hspinfo ) {                  
                    my $id = shift @$HSPinfo;
                    my $info = [@{$hitinfo[$hitinfo{$id}]}];
@@ -523,120 +519,116 @@ sub next_result{
                    chomp;
                    if( m/(\S+):.*from\s+(\d+)\s+to\s+(\d+)/o ) {
                        my ($name,$from,$to) = ($1,$2,$3);
-		       
-                       if( ! defined $lastdomain || $lastdomain ne $name ) {
-                           if( $self->within_element('hit') ) {
-                               if( $self->in_element('hsp') ) {
-                                   $self->end_element({'Name' => 'Hsp'});
-                               }
-                               $self->end_element({'Name' => 'Hit'});
-                           }
-                           my $info = [@{$hitinfo[$hitinfo{$name}]}];
-                           if( ! defined $info || 
-			       $info->[0] ne $name ) { 
-                               $self->warn("Somehow the Model table order does not match the order in the domains (got ".$info->[0].", expected $name). We're back loading this from the alignment information instead"); 
-			       $info = [$name, '', 
-			       	      /score\s+([^,\s]+),\s+E\s+=\s+(\S+)/ox];
-			       push @hitinfo, $info;
-			       $hitinfo{$name} = $#hitinfo;
-                           }
-                           $self->start_element({'Name' => 'Hit'});
 
-                           $self->element({'Name' => 'Hit_id',
-                                           'Data' => shift @{$info}});
-                           $self->element({'Name' => 'Hit_desc',
-                                           'Data' => shift @{$info}});
-                           $self->element({'Name' => 'Hit_score',
-                                           'Data' => shift @{$info}});
-                           $self->element({'Name' => 'Hit_signif',
-                                           'Data' => shift @{$info}});
-                       }
-                       if( $self->within_element('hsp') ) {
-                           #if( defined $lastdomain ) {
-                           $self->end_element({'Name' => 'Hsp'});
-                       } 
-                       $self->start_element({'Name' => 'Hsp'});
-                       $self->element({'Name' => 'Hsp_identity',
-                                       'Data' => 0});
-                       $self->element({'Name' => 'Hsp_positive',
-                                       'Data' => 0});
-                       my $HSPinfo = shift @hspinfo;
-                       my $id = shift @$HSPinfo;
+                       if( $self->within_element('hit') ) {
+			   if( $self->in_element('hsp') ) {
+			       $self->end_element({'Name' => 'Hsp'});
+			   }
+			   $self->end_element({'Name' => 'Hit'});
+		       }
+		       my $info = [@{$hitinfo[$hitinfo{$name}]}];
+		       if( ! defined $info || 
+			   $info->[0] ne $name ) { 
+			   $self->warn("Somehow the Model table order does not match the order in the domains (got ".$info->[0].", expected $name). We're back loading this from the alignment information instead"); 
+			   $info = [$name, '', 
+				    /score\s+([^,\s]+),\s+E\s+=\s+(\S+)/ox];
+			   push @hitinfo, $info;
+			   $hitinfo{$name} = $#hitinfo;
+		       }
+		       $self->start_element({'Name' => 'Hit'});
 
-                       if( $id ne $name ) { 
-                           $self->throw("Somehow the domain list details do not match the table (got $id, expected $name)");
-                       }
-                       $self->element({'Name' => 'Hsp_query-from',
-                                       'Data' => shift @$HSPinfo});
-                       $self->element({'Name' => 'Hsp_query-to',
-                                       'Data' => shift @$HSPinfo});
-                       $self->element({'Name' => 'Hsp_hit-from',
-                                       'Data' => shift @$HSPinfo});
-                       $self->element({'Name' => 'Hsp_hit-to',
-                                       'Data' => shift @$HSPinfo});
-                       $self->element({'Name' => 'Hsp_score',
-                                       'Data' => shift @$HSPinfo});
-                       $self->element({'Name' => 'Hsp_evalue',
-                                       'Data' => shift @$HSPinfo});
+		       $self->element({'Name' => 'Hit_id',
+				       'Data' => shift @{$info}});
+		       $self->element({'Name' => 'Hit_desc',
+				       'Data' => shift @{$info}});
+		       $self->element({'Name' => 'Hit_score',
+				       'Data' => shift @{$info}});
+		       $self->element({'Name' => 'Hit_signif',
+				       'Data' => shift @{$info}});
 
-                       $lastdomain = $name;               
-                   } else { 
-		       if( /^(\s+\*\-\>)(\S+)/o  ) { # start of domain
-                           $prelength = CORE::length($1);
-                           $width = 0;
-                           # $width = CORE::length($2);
-                           $self->element({'Name' =>'Hsp_hseq',
-                                           'Data' => $2});
-                           $count = 0;
-                           $second_tier = 0;
-                       } elsif ( /^(\s+)(\S+)\<\-?\*?\s*$/o ) { #end of domain
-                           $prelength -= 3 unless ($second_tier++);
-                           $self->element({'Name' =>'Hsp_hseq',
-                                           'Data' => $2});
-                           $width = CORE::length($2);
-                           $count = 0;
-                       } elsif( CORE::length($_) == 0 || 
-                                ($count != 1 && /^\s+$/o) ||
-                                /^\s+\-?\*\s*$/ ) { 
+		       $self->start_element({'Name' => 'Hsp'});
+		       $self->element({'Name' => 'Hsp_identity',
+				       'Data' => 0});
+		       $self->element({'Name' => 'Hsp_positive',
+				       'Data' => 0});
+		       my $HSPinfo = shift @hspinfo;
+		       my $id = shift @$HSPinfo;
+
+		       if( $id ne $name ) { 
+			   $self->throw("Somehow the domain list details do not match the table (got $id, expected $name)");
+		       }
+		       $self->element({'Name' => 'Hsp_query-from',
+				       'Data' => shift @$HSPinfo});
+		       $self->element({'Name' => 'Hsp_query-to',
+				       'Data' => shift @$HSPinfo});
+		       $self->element({'Name' => 'Hsp_hit-from',
+				       'Data' => shift @$HSPinfo});
+		       $self->element({'Name' => 'Hsp_hit-to',
+				       'Data' => shift @$HSPinfo});
+		       $self->element({'Name' => 'Hsp_score',
+				       'Data' => shift @$HSPinfo});
+		       $self->element({'Name' => 'Hsp_evalue',
+				       'Data' => shift @$HSPinfo});
+		       $lastdomain = $name;               
+		   } else { 
+		       if( /^(\s+\*\-\>)(\S+)/o  ) { 
+			   # start of domain
+			   $prelength = CORE::length($1);
+			   $width = 0;
+			   # $width = CORE::length($2);
+			   $self->element({'Name' =>'Hsp_hseq',
+					   'Data' => $2});
+			   $count = 0;
+			   $second_tier = 0;
+
+		       } elsif ( /^(\s+)(\S+)\<\-?\*?\s*$/o ) { 
+			   #end of domain
+			   $prelength -= 3 unless ($second_tier++);
+			   $self->element({'Name' =>'Hsp_hseq',
+					   'Data' => $2});
+			   $width = CORE::length($2);
+			   $count = 0;
+		       } elsif( CORE::length($_) == 0 || 
+				($count != 1 && /^\s+$/o) ||
+				/^\s+\-?\*\s*$/ ) { 
 			   next;
-                       } elsif( $count == 0 ) {
-                           $prelength -= 3 unless ($second_tier++);
-                           unless( defined $prelength) { 
-                               # $self->warn("prelength not set"); 
-                               next;
-                           }
-                           $self->element({'Name' => 'Hsp_hseq',
-                                           'Data' => substr($_,$prelength)});
-                       } elsif( $count == 1 ) { 
-                           if( ! defined $prelength ) { 
-                               $self->warn("prelength not set"); 
-                           }                               
-                           if( $width ) {
-                               $self->element({'Name' => 'Hsp_midline',
-                                               'Data' => substr($_,$prelength,$width)});
-                           } else { 
-                               $self->element({'Name' => 'Hsp_midline',
-                                               'Data' => substr($_,$prelength)});
-                           }
-                       } elsif( $count == 2 ) {
+		       } elsif( $count == 0 ) {
+			   $prelength -= 3 unless ($second_tier++);
+			   unless( defined $prelength) { 
+			       # $self->warn("prelength not set"); 
+			       next;
+			   }
+			   $self->element({'Name' => 'Hsp_hseq',
+					   'Data' => substr($_,$prelength)});
+		       } elsif( $count == 1 ) { 
+			   if( ! defined $prelength ) { 
+			       $self->warn("prelength not set"); 
+			   }                               
+			   if( $width ) {
+			       $self->element({'Name' => 'Hsp_midline',
+					       'Data' => substr($_,$prelength,$width)});
+			   } else { 
+			       $self->element({'Name' => 'Hsp_midline',
+					       'Data' => substr($_,$prelength)});
+			   }
+		       } elsif( $count == 2 ) {
 			   if( /^\s+(\S+)\s+(\d+)\s+(\S+)\s+(\d+)/o ||
-                               /^\s+(\S+)\s+(\-)\s+(\S*)\s+(\-)/o ) {
-                               $self->element({'Name' => 'Hsp_qseq',
-                                               'Data'  => $3});
-                           } else {
-                               $self->throw("unrecognized line ($count): $_\n");
-                           }
-                       }
-                       $count = 0 if $count++ >= 2;
-                   }
-               }           
-           } else {
-               $self->debug($_) if $verbose > 0;
-           }           
+			       /^\s+(\S+)\s+(\-)\s+(\S*)\s+(\-)/o ) {
+			       $self->element({'Name' => 'Hsp_qseq',
+					       'Data'  => $3});
+			   } else {
+			       $self->throw("unrecognized line ($count): $_\n");
+			   }
+		       }
+		       $count = 0 if $count++ >= 2;
+		   }
+	       }           
+	   } else {
+	       $self->debug($_) if $verbose > 0;
+	   }
        }
        $last = $_;
    }
-
    $self->end_element({'Name' => 'HMMER_Output'}) unless ! $seentop;
    return $self->end_document();
 }

@@ -38,15 +38,16 @@ while( my $result = $searchio->next_result ) {
     ok($result->sequence_file, '/home/birney/src/wise2/example/road.pep');
     ok($result->query_name, 'roa1_drome');
     ok($result->query_description, '');
-    ok($result->num_hits(), 1);
-    while( my $hit = $result->next_model ) {
+    ok($result->num_hits(), 2);
+    my ($hsp,$hit);
+    if( $hit = $result->next_model ) {
 	ok($hit->name, 'SEED');
 	ok($hit->raw_score, '146.1');
 	ok($hit->significance, '6.3e-40');
 	ok(ref($hit), 'Bio::Search::Hit::HMMERHit');
-	ok($hit->num_hsps, 2);
-	my $hsp = $hit->next_domain;
-	if( defined $hsp ) {
+	ok($hit->num_hsps, 1);
+
+	if( defined( $hsp = $hit->next_domain ) ) {
 	    ok($hsp->hit->start, 1);
 	    ok($hsp->hit->end, 77);
 	    ok($hsp->query->start, 33);
@@ -60,8 +61,9 @@ while( my $result = $searchio->next_result ) {
 	    ok(	length($hsp->homology_string), length($hsp->hit_string));
 	    ok( length($hsp->query_string), length($hsp->homology_string));
 	}
-	$hsp = $hit->next_domain;
-	if( defined $hsp ) {
+    }
+    if( defined ($hit = $result->next_model) ) {
+	if( defined($hsp = $hit->next_domain) ) {
 	    ok($hsp->hit->start, 1);
 	    ok($hsp->hit->end, 77);
 	    ok($hsp->query->start, 124);
@@ -75,6 +77,7 @@ while( my $result = $searchio->next_result ) {
 	    ok(	length($hsp->homology_string), length($hsp->hit_string));
 	    ok( length($hsp->query_string), length($hsp->homology_string));
 	}
+	last;
     }
 }
 $searchio = new Bio::SearchIO(-format => 'hmmer',
