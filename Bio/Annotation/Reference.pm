@@ -57,7 +57,7 @@ use strict;
 use Bio::Annotation::DBLink;
 use Bio::AnnotationI;
 
-@ISA = qw(Bio::AnnotationI Bio::Annotation::DBLink);
+@ISA = qw(Bio::Annotation::DBLink);
 
 =head2 new
 

@@ -48,7 +48,7 @@ use strict;
 use Bio::Root::Root;
 use Bio::AnnotationI;
 
-@ISA = qw(Bio::AnnotationI Bio::Root::Root);
+@ISA = qw(Bio::Root::Root Bio::AnnotationI);
 
 =head2 new
 
