@@ -113,7 +113,7 @@ BEGIN {
     # you can add your own here theoretically.
     %HOSTS = (
 	       'ebi' => {
-		   baseurl => 'http://%s/cgi-bin/emblfetch?',
+		   baseurl => 'http://%s/cgi-bin/dbfetch?db=embl&style=raw&format=',
 		   hosts   => {
 		       'ebi'  => 'www.ebi.ac.uk'
 		       }
@@ -163,7 +163,7 @@ sub get_request {
 	$uid = $uids;
     }
 
-    return GET $url . 'style=raw&format='. $format. '&id='. $uid;
+    return GET $url. $format. '&id='. $uid;
 }
 
 
