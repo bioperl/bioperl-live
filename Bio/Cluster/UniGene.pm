@@ -44,7 +44,7 @@ the data associated with one UniGene record.
 This class implements several interfaces and hence can be used
 wherever instances of such interfaces are expected. In particular, the
 interfaces are L<Bio::ClusterI> as the base interface for all cluster
-representations, and in addition L<Bio::IdentifiableI> and
+representations, and in addition L<Bio::GloballyIdentifiableI> and
 L<Bio::DescribableI>.
 
 The following lists the UniGene specific methods that are available
@@ -119,7 +119,7 @@ This class implementes the following interfaces.
 
 This includes implementing Bio::ClusterI.
 
-=item Bio::IdentifiableI
+=item Bio::GloballyIdentifiableI
 
 =item Bio::DescribableI
 
@@ -175,7 +175,7 @@ use strict;
 
 
 use Bio::Root::Root;
-use Bio::IdentifiableI;
+use Bio::GloballyIdentifiableI;
 use Bio::DescribableI;
 use Bio::AnnotatableI;
 use Bio::Annotation::Collection;
@@ -188,7 +188,7 @@ use Bio::Cluster::UniGeneI;
 
 $VERSION = '1.1';
 @ISA = qw(Bio::Root::Root Bio::Cluster::UniGeneI
-	  Bio::IdentifiableI Bio::DescribableI Bio::AnnotatableI
+	  Bio::GloballyIdentifiableI Bio::DescribableI Bio::AnnotatableI
 	  Bio::Factory::SequenceStreamI);
 
 my %species_map = (
@@ -997,7 +997,7 @@ sub _next_element{
     return shift(@$queue);
 }
 
-=head1 L<Bio::IdentifiableI> methods
+=head1 L<Bio::GloballyIdentifiableI> methods
 
 =cut
 
