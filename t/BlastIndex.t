@@ -6,21 +6,37 @@
 # `make test'. After `make install' it should work as `perl test.t'
 
 use strict;
+use vars qw($NUMTESTS);
+my $error;
 BEGIN {
     # to handle systems with no installed Test module
     # we include the t dir (where a copy of Test.pm is located)
     # as a fallback
     eval { require Test; };
+    $error = 0;
     if( $@ ) { 
 	use lib 't';
     }
     use Test;
-    plan tests => 13;
+    $NUMTESTS = 13;
+    plan tests => $NUMTESTS;
+    eval { require 'IO/String.pm' };
+    if( $@ ) {
+        print STDERR "IO::String not installed. This means the Bio::Index::Blast modules are not usable. Skipping tests.\n";
+        for( 1..$NUMTESTS ) {
+            skip(1,"IO::String not installed. This means the Bio::Index::Blast modules are not usable. Skipping tests");
+        }
+       $error = 1;
+    }
+}
+if( $error ==  1 ) {
+    exit(0);
 }
 
-use Bio::Tools::BPlite;
-use Bio::Index::Blast;
-use Bio::Root::IO;
+require Bio::Tools::BPlite;
+require Bio::Index::Blast;
+require Bio::Root::IO;
+
 
 END {  unlink qw( Wibbl ); }
 
