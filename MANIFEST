@@ -1,4 +1,4 @@
-## $Id: MANIFEST,v 1.33 2001-04-08 01:11:41 lapp Exp $
+## $Id: MANIFEST,v 1.34 2001-04-08 01:16:20 lapp Exp $
 ##
 ## This is the file listing for everything that
 ## comes with the bioperl distribution. The perl
@@ -177,6 +177,7 @@ Bio/Tools/Prediction/Gene.pm
 Bio/Tools/RestrictionEnzyme.pm
 Bio/Tools/Run/Alignment/Clustalw.pm
 Bio/Tools/Run/Alignment/TCoffee.pm
+Bio/Tools/Run/RemoteBlast.pm
 Bio/Tools/Run/StandAloneBlast.pm
 Bio/Tools/SeqAnal.pm
 Bio/Tools/SeqPattern.pm
