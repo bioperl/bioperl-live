@@ -549,7 +549,7 @@ sub _finer_parse_symptoms {
 	    if($line =~ /^([\w\s]+)\:\s*$/){
 		$part = $1;
 	    } elsif( $line =~ /^\s+$/ ) {
-	    } elsif($line =~ /^(\s+)([^;]+)\s*$/){
+	    } elsif($line =~ /^(\s+)([^;]+)\;?\s*$/){
 		my $symptom = $2;
 		if( ! $part ) { 
 		    # $self->warn("$text\nline='$line'\n");
