@@ -134,8 +134,10 @@ use constant FALSE        => 0;
                           process.ontology)
            -file       => if there is only a single flat file, it may
                           also be specified via the -file parameter
-           -ontology_name => the name of the ontology, defaults to
-                          "Gene Ontology"
+           -ontology_name => the name of the ontology; if not specified the
+                          parser will auto-discover it by using the term
+                          that starts with a '$', and converting underscores
+                          to spaces
            -engine     => the L<Bio::Ontology::OntologyEngineI> object
                           to be reused (will be created otherwise); note
                           that every L<Bio::Ontology::OntologyI> will
@@ -177,7 +179,7 @@ sub _initialize {
     $self->{_flat_files} = $files ? ref($files) ? $files : [$files] : [];
 
     # ontology name (overrides implicit one through OntologyI engine)
-    $self->ontology_name($name);
+    $self->ontology_name($name) if $name;
 
 } # _initialize
 
@@ -299,8 +301,7 @@ sub defs_file {
         $self->{ "_defs_file_name" } = $f;
 	$self->_defs_io->close() if $self->_defs_io();
 	if(defined($f)) {
-	    $self->_defs_io->close() if $self->_defs_io();
-            $self->_defs_io( new Bio::Root::IO->new( -input => $f ) );
+            $self->_defs_io( Bio::Root::IO->new( -input => $f ) );
         }
     }
     return $self->{ "_defs_file_name" };
@@ -360,6 +361,9 @@ sub _add_ontology {
     foreach my $ont (@_) {
 	$self->throw(ref($ont)." does not implement Bio::Ontology::OntologyI")
 	    unless ref($ont) && $ont->isa("Bio::Ontology::OntologyI");
+	# the ontology name may have been auto-discovered while parsing
+	# the file
+	$ont->name($self->ontology_name) unless $ont->name();
 	push(@{$self->{'_ontologies'}}, $ont);
     }
 }
@@ -562,8 +566,14 @@ sub _get_name {
 	# remove trailing and leading whitespace
         $name =~ s/\s+$//;
         $name =~ s/^\s+//;
-	# remove leading dollar character
-	$name = substr($name,1) if index($name,'$') == 0;
+	# remove leading dollar character; also we default the name of the
+	# ontology to this name if preset to something else
+	if(index($name,'$') == 0) {
+	    $name = substr($name,1);
+	    # replace underscores by spaces for setting the ontology name
+	    $self->ontology_name(join(" ",split(/_/,$name))) 
+		unless $self->ontology_name();
+	}
         return $name;
     }
     else {

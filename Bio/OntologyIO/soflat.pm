@@ -128,8 +128,10 @@ use constant FALSE        => 0;
                           the file names
            -file       => if there is only a single flat file, it may
                           also be specified via the -file parameter
-           -ontology_name => the name of the ontology, defaults to
-                          "Gene Ontology"
+           -ontology_name => the name of the ontology; if not specified the
+                          parser will auto-discover it by using the term
+                          that starts with a '$', and converting underscores
+                          to spaces
            -engine     => the L<Bio::Ontology::OntologyEngineI> object
                           to be reused (will be created otherwise); note
                           that every L<Bio::Ontology::OntologyI> will
@@ -144,9 +146,6 @@ sub _initialize {
     my ($self, @args) = @_;
     
     $self->SUPER::_initialize( @args );
-
-    # provide a meaningful default for ontology name
-    $self->ontology_name("Sequence Ontology") unless $self->ontology_name();
 
     # default term object factory
     $self->term_factory(Bio::Ontology::TermFactory->new(
