@@ -76,11 +76,13 @@ USAGE
 $DSN ||= 'test';
 
 unless ($FORCE) {
-  #open (TTY,"/dev/tty") or die "/dev/tty: $!\n";  #TTY use removed for win compatability
+  die "This will delete all existing data in database $DSN.  If you want to do this, rerun with the --create option.\n"
+    if $bWINDOWS;
+  open (TTY,"/dev/tty") or die "/dev/tty: $!\n";  #TTY use removed for win compatability
   print STDERR "This operation will delete all existing data in database $DSN.  Continue? ";
-  my $f = <STDIN>;
+  my $f = <TTY>;
   die "Aborted\n" unless $f =~ /^[yY]/;
-  #close TTY;
+  close TTY;
 }
 
 my (@auth,$AUTH);
