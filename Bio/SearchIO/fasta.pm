@@ -265,7 +265,7 @@ sub next_result{
 	       }
 	   }
 	   
-	   my ($name, $descr) = $querydef =~ m/^(\S+)\s*(.*)$/o;
+	   my ($name, $descr) = $querydef =~ m/^(\S+)\s*(.*?)\s*$/o;
 	   $self->element({'Name' => 'FastaOutput_query-def',
 			   'Data' => $name});
 	   $self->element({'Name' => 'FastaOutput_querydesc',
@@ -689,7 +689,7 @@ sub next_result{
 		   }
 	       }
 		   	
-	       my ($name, $descr) = $querydef =~ m/^(\S+)\s+(.*)$/o;
+	       my ($name, $descr) = $querydef =~ m/^(\S+)\s+(.*?)\s*$/o;
 	       $self->element({'Name' => 'FastaOutput_query-def',
 			       'Data' => $name});
 	       $self->element({'Name' => 'FastaOutput_querydesc',

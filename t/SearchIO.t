@@ -20,7 +20,7 @@ BEGIN {
 	use lib 't';
     }
     use vars qw($NTESTS);
-    $NTESTS = 658;
+    $NTESTS = 659;
     $LASTXMLTEST = 54;
     $error = 0;
 
@@ -312,7 +312,8 @@ ok($result->database_letters, 112936249);
 ok($result->database_entries, 657);
 ok($result->algorithm, 'FASTN');
 ok($result->algorithm_version, '3.3t08');
-ok($result->query_name, qr/HUMBETGLOA Human haplotype C4 beta-globin gene, complete cds./);
+ok($result->query_name, "HUMBETGLOA");
+ok($result->query_description, "Human haplotype C4 beta-globin gene, complete cds.");
 ok($result->query_length, 3002);
 ok($result->get_parameter('gapopen'), -16);
 ok($result->get_parameter('gapext'), -4);
