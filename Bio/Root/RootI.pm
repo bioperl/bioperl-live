@@ -374,7 +374,36 @@ sub _rearrange {
     return (@return_array);
 }
 
+=head2 _register_for_cleanup
+
+ Title   : _register_for_cleanup
+ Usage   : -- internal --
+ Function: Register a method to be called at DESTROY time. This is useful
+           and sometimes essential in the case of multiple inheritance for
+           classes coming second in the sequence of inheritance.
+ Returns : 
+ Args    : a reference to a method
+
+
+=cut
+
+sub _register_for_cleanup {
+    my ($self,$method) = @_;
+    if($method) {
+	if(! exists($self->{'_cleanup_methods'})) {
+	    $self->{'_cleanup_methods'} = [];
+	}
+	push(@{$self->{'_cleanup_methods'}},$method);
+    }
+}
+
+sub DESTROY {
+    my ($self) = shift;
+    if(exists($self->{'_cleanup_methods'})) {
+	foreach my $method (@{$self->{'_cleanup_methods'}}) {
+	    &$method($self);
+	}
+    }
+}
+
 1;
-
-
-
