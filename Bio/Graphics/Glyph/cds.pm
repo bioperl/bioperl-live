@@ -27,6 +27,7 @@ sub sixframe {
 sub draw {
   my $self = shift;
   my ($gd,$left,$top) = @_;
+  warn "new version of cds glyph";
 
   my @parts = $self->parts;
   @parts    = $self if !@parts && $self->level == 0;
