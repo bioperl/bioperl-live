@@ -18,16 +18,33 @@ sub get_Seq_by_id {
 
   $alpha ||= 'n'; # default of nucleotide
   my $entrez = ($alpha =~ m/^p/i ? 'db=p&' : 'db=n&') .
-    "form=6&dopt=g&html=no&title=no&uid=$uid" ;
+    "form=6&dopt=f&html=no&title=no&uid=$uid" ;
 
+  my $hostname = `hostname`;
+  chop $hostname;
   my $sock = IO::Socket::INET->new(PeerAddr => 'www3.ncbi.nlm.nih.gov',
-				   PeerPort => 'http(80)',
-				   Proto    => 'tcp' );
-  select $sock;
-  $sock->autoflush(1);
-  print 'GET ' . "htbin-post/Entrez/query?$entrez";
+				   PeerPort => 80,
+				   Proto    => 'tcp',
+				   Timeout  => 60
+				  );
+  unless ($sock) {
+    $@ =~ s/^.*?: //;
+    $self->throw("Can't connect to GenBank ($@)");
+  }
 
-  return Bio::SeqIO->new(-file => $sock, -format => 'EMBL')->next_seq()
+  $sock->autoflush(); # just for safety's sake
+
+  print $sock join("\015\012" =>
+		   "GET /htbin-post/Entrez/query?$entrez HTTP/1.0\r\n",
+		   "Host: www3.ncbi.nlm.nih.gov",
+		   "User-Agent: $0::Bio::DB::GenBank",
+		   "", "");
+
+  while( <$sock> ) {
+    print STDOUT;
+  }
+
+#  return Bio::SeqIO->new(-fh => $sock, -format => 'Fasta')->next_seq()
 }
 
 1;
