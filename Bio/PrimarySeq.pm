@@ -277,8 +277,9 @@ sub seq {
 =cut
 
 sub validate_seq {
-   my ($self,$seqstr) = @_;
-
+    my ($self,$seqstr) = @_;
+    if( ! defined $seqstr ){ $seqstr = $self->seq(); }
+    return 0 unless( defined $seqstr); 
    if((CORE::length($seqstr) > 0) && ($seqstr !~ /^[A-Za-z\-\.\*\?]+$/)) {
        return 0;
    }
