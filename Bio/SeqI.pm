@@ -47,7 +47,6 @@ object in your analysis, if you can do it just using these methods,
 then you know you will be future proof and compatible with other
 implementations of Seq.
 
-
 =head1 FEEDBACK
 
 =head2 Mailing Lists
@@ -56,15 +55,14 @@ User feedback is an integral part of the evolution of this and other
 Bioperl modules. Send your comments and suggestions preferably to one
 of the Bioperl mailing lists.  Your participation is much appreciated.
 
-  vsns-bcd-perl@lists.uni-bielefeld.de          - General discussion
-  vsns-bcd-perl-guts@lists.uni-bielefeld.de     - Technically-oriented discussion
+  bioperl-l@bioperl.org          - General discussion
   http://bio.perl.org/MailList.html             - About the mailing lists
 
 =head2 Reporting Bugs
 
 Report bugs to the Bioperl bug tracking system to help us keep track
- the bugs and their resolution.  Bug reports can be submitted via
- email or the web:
+the bugs and their resolution.  Bug reports can be submitted via email
+or the web:
 
   bioperl-bugs@bio.perl.org
   http://bio.perl.org/bioperl-bugs/
@@ -80,7 +78,7 @@ The rest of the documentation details each of the object methods. Internal metho
 
 =cut
 
-
+#'
 # Let the code begin...
 
 

@@ -68,16 +68,25 @@ Its use in Bioperl is via the Compiled XS extension which is cared for
 by Ewan Birney (birney@sanger.ac.uk). Please contact Ewan first about
 the use of this module
 
+=head1 FEEDBACK
+
+=head2 Mailing Lists
+
+User feedback is an integral part of the evolution of this and other
+Bioperl modules. Send your comments and suggestions preferably to one
+of the Bioperl mailing lists.  Your participation is much appreciated.
+
+  bioperl-l@bioperl.org          - General discussion
+  http://bio.perl.org/MailList.html             - About the mailing lists
 
 =head2 Reporting Bugs
 
 Report bugs to the Bioperl bug tracking system to help us keep track
-the bugs and their resolution. Bug reports can be submitted via email
+the bugs and their resolution.  Bug reports can be submitted via email
 or the web:
 
-    bioperl-bugs@bio.perl.org                   
-    http://bio.perl.org/bioperl-bugs/           
-
+  bioperl-bugs@bio.perl.org
+  http://bio.perl.org/bioperl-bugs/
 
 =head1 APPENDIX
 
