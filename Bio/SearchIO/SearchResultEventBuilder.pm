@@ -269,7 +269,7 @@ sub end_hsp {
     # copy this over from result
     $args{'-query_name'} = $data->{'RESULT-query_name'};
     $args{'-hit_name'} = $data->{'HIT-name'};
-    my ($rank) = scalar @{$self->{'_hsps'}} + 1;
+    my ($rank) = scalar @{$self->{'_hsps'} || []} + 1;
     $args{'-rank'} = $rank;
 
     my $hsp = $self->factory('hsp')->create_object(%args);

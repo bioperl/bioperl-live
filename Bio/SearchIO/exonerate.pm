@@ -34,6 +34,7 @@ Slater) output.  You can get Exonerate at
 http://cvsweb.sanger.ac.uk/cgi-bin/cvsweb.cgi/exonerate/?cvsroot=Ensembl
 [until Guy puts up a Web reference,publication for it.]).
 
+
 An optional parameter -min_intron is supported by the L<new>
 initialization method.  This is if you run Exonerate with a different
 minimum intron length (default is 30) the parser will be able to
@@ -202,7 +203,16 @@ sub next_result{
 		 (\d+)\s+(\d+)\s+([\-\+])\s+   # target start-end-strand
 		 (\d+)\s+                      # score
 		 //ox ) {
-	
+	   if( ! $self->in_element('ExonerateOutput') ) {
+	       $self->start_element({'Name' => 'ExonerateOutput'});
+	       $self->element({'Name' => 'ExonerateOutput_query-def',
+			       'Data' => $1 });
+	   }
+	   if( ! $self->in_element('Hit') ) {
+	       $self->start_element({'Name' => 'Hit'});
+	       $self->element({'Name' => 'Hit_id',
+			       'Data' => $5});
+	   }
 	   ## gc note:
 	   ## $qe and $he are no longer used for calculating the ends,
 	   ## just the $qs and $hs values and the alignment and insert lenghts
@@ -243,7 +253,7 @@ sub next_result{
 	       } elsif( $state eq 'D' ) {
 		   if( $len >= $MIN_INTRON ) {
 		       $self->start_element({'Name' => 'Hsp'});
-
+		       
 		       $self->element({'Name' => 'Hsp_score',
 				       'Data' => $score});
 		       $self->element({'Name' => 'Hsp_align-len',
