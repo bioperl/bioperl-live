@@ -455,7 +455,7 @@ sub set_blast_params {
 		-strict     => $opt_strict,
 		-stats      => $opt_stats,
 		-best       => $opt_best,
-		-stream     => $opt_stream,
+#		-stream     => $opt_stream,   # No longer used.
 		-share      => $opt_share,
 		-signif_fmt => $opt_exponent,
 		-exec_func  => '',
@@ -505,8 +505,8 @@ sub create_blast {
       print STDERR "\nBlast program and/or database not defined.\n";
       my $msg = '';
       if(not $opt_prog)  {
-	$msg = sprintf "Please defined a -prog parameter ".
-	   "of blastp|blastn|tblastn|blastx|tblastx\n\n";
+	$msg = sprintf "Please defined a -prog parameter of\n".
+	   "  blastp | blastn | tblastn | blastx | tblastx\n\n";
       }
       if(not $opt_db) {
 	$msg .= &_list_dbs();
