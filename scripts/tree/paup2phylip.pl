@@ -11,7 +11,7 @@ while(<>) {
 while(<>) { 
     last if (/;/);
     my ($num, $taxon) = (/\s+(\d+)\s([A-Za-z\.\_]+),/);
-    $data[$num] = $taxon;
+    $data[$num] = substr($taxon,0,10);
 }
 while(<>) {    
     next unless (s/^\s*tree (\S+) = \[\S+\] //i);
