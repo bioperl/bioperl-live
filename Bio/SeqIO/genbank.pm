@@ -482,7 +482,6 @@ sub write_seq {
 	    $self->warn(" $seq is not a SeqI compliant module. Attempting to dump, but may fail!");
 	}
 
-	my $i;
 	my $str = $seq->seq;
 
 	my ($div, $mol);
@@ -703,8 +702,8 @@ sub write_seq {
 	my $whole = int($length / $nuc) * $nuc;
 
 	# Print the whole lines
-	my( $i );
-	for ($i = 0; $i < $whole; $i += $nuc) {
+	my $i;
+	for (my $i = 0; $i < $whole; $i += $nuc) {
 	    my $blocks = pack $out_pat,
 	    unpack $whole_pat,
 	    substr($str, $i, $nuc);
