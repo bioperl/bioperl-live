@@ -132,7 +132,7 @@ sub start_element {
 	push @{$self->{'_seendata'}->{'_seqs'}},
 	$self->sequence_factory->create
 	    (
-	     -display_id => $attr->{'ASMBL_ID'},
+	     -display_id => $attr->{'{}ASMBL_ID'}->{'Value'},
 	     -length     => $len,
 	     );
     } elsif( $name eq 'HEADER' ) { 
@@ -333,7 +333,7 @@ sub start_element {
 	
     } elsif( $name eq 'GB_COMMENT' ) {
     } elsif( $name eq 'LINEAGE' ) {
-
+	
     } else { 
 	$self->warn("Unknown element $name, ignored\n");
     }
