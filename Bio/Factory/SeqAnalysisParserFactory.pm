@@ -89,16 +89,19 @@ use vars qw(@ISA);
 @ISA = qw(Bio::Factory::DriverFactory Bio::Factory::SeqAnalysisParserFactoryI);
 
 BEGIN {
-    Bio::Factory::DriverFactory->register_driver(
-			 "genscan" => "Bio::Tools::Genscan",
-			 "mzef" => "Bio::Tools::MZEF",
-			 "estscan" => "Bio::Tools::ESTScan",
-			 "bplite" => "Bio::Tools::BPlite",
-			 "blast" => "Bio::Tools::BPlite",
-                         "hmmer" => "Bio::Tools::HMMER::Result",
-			 "gff" => "Bio::Tools::GFF",
-			 "sim4" => "Bio::Tools::Sim4::Results",
-						 );
+    Bio::Factory::DriverFactory->register_driver
+	(
+	 "genscan"   => "Bio::Tools::Genscan",
+	 "mzef"      => "Bio::Tools::MZEF",
+	 "estscan"   => "Bio::Tools::ESTScan",
+	 "bplite"    => "Bio::Tools::BPlite",
+	 "blast"     => "Bio::Tools::BPlite",
+	 "hmmer"     => "Bio::Tools::HMMER::Result",
+	 "gff"       => "Bio::Tools::GFF",
+	 "sim4"      => "Bio::Tools::Sim4::Results",
+	 "epcr"      => "Bio::Tools::EPCR", 
+	 "exonerate" => "Bio::Tools::Exonerate",
+	 );
 }
 
 sub new {
