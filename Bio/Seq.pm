@@ -727,28 +727,6 @@ sub species {
     }
 }
 
-=head2 sub_species
-
- Title   : sub_species
- Usage   : 
- Function: Gets or sets the sub_species
- Example : $sub_species = $self->sub_species();
- Returns : Bio::Species object
- Args    : Bio::Species object or none;
-
-
-=cut
-
-sub sub_species {
-    my ($self, $sub_species) = @_;
-
-    if ($sub_species) {
-        $self->{'sub_species'} = $sub_species;
-    } else {
-        return $self->{'sub_species'}
-    }
-}
-
 =head1 EMBL/GenBank/DDBJ methods
 
 These methods are here to support the EMBL/GenBank/DDBJ format.
