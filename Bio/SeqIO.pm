@@ -356,7 +356,7 @@ sub new {
 	$format = "\L$format";	# normalize capitalization to lower case
 
 	# normalize capitalization
-	return undef unless( &_load_format_module($format) );
+	return undef unless( $class->_load_format_module($format) );
 	return "Bio::SeqIO::$format"->new(@args);
     }
 }
@@ -504,40 +504,23 @@ sub alphabet {
 =cut
 
 sub _load_format_module {
-  my ($format) = @_;
-  my ($module, $load, $m);
+    my ($self, $format) = @_;
+    my $module = "Bio::SeqIO::" . $format;
+    my $ok;
 
-  # untaint operation for safe web-based running
-  if ($format =~ /^([\w:]+)$/) {
-    $format = $1;
-  } else {
+    eval {
+	$ok = $self->_load_module($module);
+    };
+    if ( $@ ) {
     print STDERR <<END;
-_load_format_module: $format is an illegal perl package name
-For more information about the SeqIO system please see the SeqIO docs.
-This includes ways of checking for formats at compile time, not run time
-END
-  ;
-    return;
-  }
-
-  $module = "_<Bio/SeqIO/$format.pm";
-  $load = "Bio/SeqIO/$format.pm";
-
-  return 1 if $main::{$module};
-  eval {
-    require $load;
-  };
-  if ( $@ ) {
-    print STDERR <<END;
-$load: $format cannot be found
+$self: $format cannot be found
 Exception $@
 For more information about the SeqIO system please see the SeqIO docs.
 This includes ways of checking for formats at compile time, not run time
 END
   ;
-    return;
   }
-  return 1;
+  return $ok;
 }
 
 =head2 _concatenate_lines
