@@ -637,14 +637,14 @@ dna() method.
 # real work is done by get_dna()
 sub dna {
   my $self = shift;
-  my ($id,$class,$start,$stop) = rearrange([
-					    [qw(NAME ID REF REFSEQ)],
-					    'CLASS',
-					    qw(START),
-					    [qw(STOP END)],
+  my ($id,$start,$stop,$class)  = rearrange([
+					     [qw(NAME ID REF REFSEQ)],
+					     qw(START),
+					     [qw(STOP END)],
+    					    'CLASS',
 					   ],@_);
   return unless defined $start && defined $stop;
-  $self->get_dna($id,$class,$start,$stop);
+  $self->get_dna($id,$start,$stop,$class);
 }
 
 sub features_in_range {
@@ -1036,7 +1036,7 @@ sub do_initialize {
 =head2 get_dna
 
  Title   : get_dna
- Usage   : $db->get_dna($id,$class,$start,$stop)
+ Usage   : $db->get_dna($id,$start,$stop,$class)
  Function: get DNA for indicated segment
  Returns : the dna string
  Args    : sequence ID, start, stop and class
@@ -1051,7 +1051,7 @@ types.
 
 sub get_dna {
   my $self = shift;
-  my ($id,$class,$start,$stop) = @_;
+  my ($id,$start,$stop,$class,) = @_;
   $self->throw("get_dna() must be implemented by an adaptor");
 }
 

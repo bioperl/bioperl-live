@@ -220,6 +220,8 @@ sub new {
   my($absref,$absclass,$absstart,$absstop,$absstrand) = $factory->abscoords($name,$class)
     or return;
 
+  $absstrand ||= '+';
+
   # an explicit length overrides start and stop
   if (defined $offset) {
     warn "new(): bad idea to call new() with both a start and an offset"

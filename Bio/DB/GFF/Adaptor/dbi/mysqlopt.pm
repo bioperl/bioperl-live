@@ -14,7 +14,7 @@ use Bio::DB::GFF::Util::Rearrange;
 
 use vars qw($VERSION @ISA);
 @ISA = qw(Bio::DB::GFF::Adaptor::dbi::mysql);
-$VERSION = 0.30;
+$VERSION = 0.31;
 
 # this is the largest that any reference sequence can be (100 megabases)
 use constant MAX_BIN    => 100_000_000;
@@ -68,7 +68,7 @@ sub acedb       { shift->{acedb}       }
 # given sequence name, and optional (start,stop) give raw dna
 sub get_dna {
   my $self = shift;
-  my ($name,$class,$start,$stop) = @_;
+  my ($name,$start,$stop,$class) = @_;
   my $dna_db = $self->dna_db or return $self->SUPER::get_dna(@_);
   # in actuality, the class is simply ignored by Bio::DB::Fasta
   $dna_db->seq($name,$start,$stop,$class);

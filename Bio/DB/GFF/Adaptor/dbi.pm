@@ -126,7 +126,7 @@ sub do_query {
 =head2 get_dna
 
  Title   : get_dna
- Usage   : $string = $db->get_dna($name,$class,$start,$stop)
+ Usage   : $string = $db->get_dna($name,$start,$stop,$class)
  Function: get DNA string
  Returns : a string
  Args    : name, class, start and stop of desired segment
@@ -142,7 +142,7 @@ consistency checking.
 # given sequence name, and optional (start,stop) give raw dna
 sub get_dna {
   my $self = shift;
-  my ($name,$class,$start,$stop) = @_;
+  my ($name,$start,$stop,$class) = @_;
   my ($offset,$length);
   if ($stop > $start) {
     $offset = $stop - 1;

@@ -26,7 +26,7 @@ use Bio::Root::RootI;
 
 use vars qw($VERSION @ISA);
 @ISA = qw(Bio::Root::RootI);
-$VERSION = '0.25';
+$VERSION = '0.26';
 
 use overload 
   '""'     => 'asString',
@@ -262,7 +262,7 @@ sub dna {
   my ($ref,$class,$start,$stop,$strand) 
     = @{$self}{qw(sourceseq class start stop strand)};
   ($start,$stop) = ($stop,$start) if $strand eq '-';
-  $self->factory->dna($ref,$class,$start,$stop);
+  $self->factory->dna($ref,$start,$stop,$class);
 }
 
 =head2 equals
