@@ -1,0 +1,170 @@
+# $Id: FAQ,v 1.1 2002-02-14 17:39:57 jason Exp $
+
+Bioperl FAQ
+-----------
+
+I. Bioperl in general
+
+  1.  What is Bioperl?
+  2.  Where do I go to get the latest release?
+  3.  What is the difference between 0.9.x and 0.7.x? What do you mean
+      developer release?
+  4.  Is it BioPerl, bioperl, bio.perl.org, Bioperl?  What's the deal?
+  5.  How do I figure out how to use a module?
+  6.  I'm interested in the bleeding edge version of the code, where
+      can I get it?
+  7.  Who uses this toolkit?
+  8.  How should I cite Bioperl?
+  9.  What are the License terms for Bioperl?
+
+II. Sequences
+
+  1. How do I parse a file?  
+  2. I can't get sequences with Bio::DB::GenBank any more, why not?
+
+III. Report parsing
+
+  1. I want to parse Blast, how do I do this?  
+  2. What's wrong with Bio::Tools::Blast?
+
+------------------------------------------------------------------------
+This FAQ maintained by those listed below:
+Jason Stajich <jason@bioperl.org>
+
+
+------------------------------------------------------------------------
+I. Bioperl in general
+------------------------------------------------------------------------
+
+  1. What is Bioperl?
+
+     Bioperl is a tookit of perl modules useful in building
+     bioinformatics solutions in perl.  It is built in an
+     object-oriented manner so that many modules depend on each other
+     to achieve a task.  The collection of modules in the bioperl-live
+     repository consist of the core of the functionality of bioperl.
+     Additionally auxiallary modules for creating graphical interfaces
+     (bioperl-gui), persistent storage in RDMBS (bioperl-db), and
+     CORBA bridges to the BioCORBA (www.biocorba.org) specification
+     (bioperl-corba-server and bioperl-corba-client) are all available
+     as CVS modules in our repository.      
+
+  2. Where do I go to get the latest release?
+ 
+     You can always get our releases from ftp://bioperl.org/pub/DIST.
+     Official releases will be noted on the website http://bioperl.org
+  
+  3. What is the difference between 0.9.x and 0.7.x? What do you mean
+     developer release?
+
+     0.7.X series (0.7.0, 0.7.2) were all released in 2001 and were
+     stable releases on 0.7 branch.  This means they had a set of
+     functionality that is maintained throughout (no experimental
+     modules) and were guaranteed to have all tests and subsequent bug
+     fix releases with the 0.7 designation would not have any API
+     changes.
+
+     The 0.9.X series was our first attempt at releasing so called
+     developer releases.  These are snapshots of the actively
+     developed code that at a minimum pass all our tests 
+
+  4.  Is it BioPerl, bioperl, bio.perl.org, Bioperl?  What's the deal?
+
+      Well, the perl.org guys granted us use of bio.perl.org.  We
+      prefer to be called Bioperl or BioPerl (unlike our Biopython
+      friends).  We're part of the Open Bioinformatics Foundation
+      (OBF) and so as part of the Bio{*} toolkits we prefer the
+      Bioperl spelling.  But we're not really all that picky so no worries. 
+   
+  5.  How do I figure out how to use a module?
+
+      Read the embedded perl documentation (Plain Old Documentation -
+      POD) that is part of every modules.  Do
+      % perldoc MODULES 
+      (careful - spelling and case counts!).
+
+      The bioperl tutorial - bptutorial.pl - provided in the root
+      directory of the bioperl release will also provide a good
+      introduction.  There are links to tutorials off the bioperl
+      website that may provide some additional help.
+ 
+      Additionally we have written many tests for our modules, you
+      can see test data and example usage of the modules in these
+      tests - look in the test dir (called 't').
+
+  6.  I'm interested in the bleeding edge version of the code, where
+      can I get it?
+      
+      Go to http://cvs.bioperl.org and you'll see instructions on how
+      to get the CVS code.
+
+      Basically:
+      % cvs -d :pserver:cvs@cvs.bioperl.org:/home/repository/bioperl login
+      enter 'cvs' for the password
+      % cvs -d :pserver:cvs@cvs.bioperl.org:/home/repository/bioperl
+            co bioperl_all
+
+  7.  Who uses this toolkit?
+
+      Lots of people.  Sanger Centre, EBI, many large and small
+      academic laboratories, large and small pharmacutical companies.
+      All the developers on the bioperl list use the toolkit in some
+      capacity on a regular basis.
+      
+      The Genquire annotation system
+      (www.bioinformatics.org/Genquire/) and Ensembl (www.ensembl.org)
+      use bioperl as the basis for their implementation. 
+        
+  8.  How should I cite Bioperl?
+
+      For now cite it as "The Bioperl Project, http://www.bioperl.org".      
+      
+  9.  What are the License terms for Bioperl?
+
+      Bioperl is licensed under the same terms as Perl itself which is
+      the Perl Artistic License.  You can see more information on that
+      license at http://www.perl.com/pub/a/language/misc/Artistic.html
+      and  http://www.opensource.org/licenses/artistic-license.html
+            
+
+------------------------------------------------------------------------
+II. Sequences
+------------------------------------------------------------------------
+
+  1. How do I parse a file?
+
+     Use the Bio::SeqIO system.  This will create Bio::Seq objects for
+     you.  See the tutorial bptutorial.pl for more information or the
+     documentation for Bio::SeqIO.
+
+
+  2. I can't get sequences with Bio::DB::GenBank any more, why not?
+
+     NCBI changed the web CGI script that provided this access.  You
+     must be using bioperl <= 0.7.2.  The developer release 0.9.3
+     contains this fix as does the 1.0 release.
+
+
+------------------------------------------------------------------------
+III. Report parsing
+------------------------------------------------------------------------
+   
+  1. I want to parse Blast, how do I do this?  
+
+     Well you might notice that there are a lot of choices.  Sorry
+     about that.  We've been evolving towards a single solution.
+
+     Currently the best way to parse a report is to use the SearchIO
+     system.  This supports blast and fasta report parsing.  The
+     bptutorial provides an example of how to use this system as well
+     as the documentation in the Bio::SearchIO system.
+
+  2. What's wrong with Bio::Tools::Blast?
+
+     Nothing is really wrong with it, it has just been outgrown by a
+     more generic approach to reports.  This generic approach allows
+     us to just write pluggable modules for fasta and blast parsing
+     while using the same framework.  This is completely analogous to
+     the Bio::SeqIO system of parsing sequence files.  However, the
+     objects produced are of the Bio::Search rather than Bio::Seq
+     variety.
