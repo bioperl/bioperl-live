@@ -565,7 +565,7 @@ sub write_seq {
 	    $self->_print("KEYWORDS    $temp_line\n");   
 	} else {
 	    if( $seq->can('keywords') ) {
-		$self->_print("KEYWORDS    ",$seq->keywords,"\n");
+		$self->_print("KEYWORDS    ",$seq->keywords,".\n");
 	    }
 	} 
 
