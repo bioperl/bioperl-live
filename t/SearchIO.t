@@ -20,7 +20,7 @@ BEGIN {
 	use lib 't';
     }
     use vars qw($NTESTS);
-    $NTESTS = 298;
+    $NTESTS = 348;
     $LASTXMLTEST = 49;
     $error = 0;
 
@@ -85,13 +85,13 @@ if( ! $SKIPXML ) {
     ok($hsp->query->frame,0);
     ok($hsp->hit->frame,0);
     ok(sprintf("%.2f", $hsp->percent_identity), 37.73);
-    ok(sprintf("%.4f", $hsp->frac_identical('hit')), 0.3968);
-    ok($hsp->frac_identical('query'), 0.15);
-    ok($hsp->query->frac_identical, 0.15);
+    ok(sprintf("%.4f", $hsp->frac_identical('hit')), 0.3994);
+    ok(sprintf("%.4f", $hsp->frac_identical('query')), 0.3868);
+    ok(sprintf("%.4f",$hsp->query->frac_identical), 0.3868);
 
     ok(sprintf("%.4f",$hsp->frac_conserved('total')),0.5245);
-    ok(sprintf("%.4f",$hsp->frac_conserved('hit')),0.5516);
-    ok(sprintf("%.4f",$hsp->frac_conserved('query')),0.2085);
+    ok(sprintf("%.4f",$hsp->frac_conserved('hit')),0.5552);
+    ok(sprintf("%.4f",$hsp->frac_conserved('query')),0.5377);
     ok($hsp->gaps('total'), 26);
     ok($hsp->length('hsp'), 326);
     ok($hsp->query_string, 'LRVCGVANSKALLTNVHGLNLENWQEELAQAKEPF-NLGRLIRLVKEYHLLN----PVIVDCTSSQAVAD-QYADFLREGFHVVTPNKKANTSSMDYYHQLRYAAEKSRRKFLYDTNVGAGLPVIENLQNLLNAGDELMKFSGILSGSLSYIFGKLDE-GMSFSEATTLAREMGYTEPDPRDDLSGMDVARKLLILARET-GRELELADIEIEPVLPAEFNAEGDVAAFMANLSQLDDLFAARVAKARDEGKVLRYVGNIDEDGVCRVKIAEVDGNDPLFKVKNGENALAFYSHYYQPLPLVLRGYGAGNDVTAAGVFADLLRTLS');
@@ -268,8 +268,8 @@ while( $hit = $result->next_hit ) {
 	    ok($hsp->score, 67);
 	    ok($hsp->bits,33.6);
 	    ok(sprintf("%.2f",$hsp->percent_identity), 42.31);
-	    ok(sprintf("%.4f",$hsp->frac_identical('query')), 0.0037);
-	    ok(sprintf("%.4f",$hsp->frac_identical('hit')), '0.0010');
+	    ok(sprintf("%.4f",$hsp->frac_identical('query')), '0.1410');
+	    ok(sprintf("%.4f",$hsp->frac_identical('hit')), '0.1410');
 	    ok($hsp->query->frame(), 0);
 	    ok($hsp->hit->frame(), 1);
 	    ok($hsp->gaps, 0);	    
@@ -296,8 +296,8 @@ ok($result->get_parameter('gapext'), -4);
 ok($result->get_parameter('ktup'), 6);
 
 ok($result->get_statistic('lambda'), 0.0823);
-ok($result->get_statistic('dblength'), 112936249);
-ok($result->get_statistic('dbnum'), 657);
+ok($result->get_statistic('dbletters'), 112936249);
+ok($result->get_statistic('dbentries'), 657);
 
 @valid = ( [ 'BACR21I23', 73982, 'BACR21I23', '0.017'],
 	   [ 'BACR40P19', 73982, 'BACR40P19', '0.017'],
@@ -324,8 +324,8 @@ while( my $hit = $result->next_hit ) {
 	    ok($hsp->score, 134.5);
 	    ok($hsp->bits,44.2);
 	    ok(sprintf("%.2f",$hsp->percent_identity), '57.30');
-	    ok(sprintf("%.4f",$hsp->frac_identical('query')), '0.0510'); 
-	    ok(sprintf("%.4f",$hsp->frac_identical('hit')), 0.0021); 
+	    ok(sprintf("%.4f",$hsp->frac_identical('query')), 0.5907); 
+	    ok(sprintf("%.4f",$hsp->frac_identical('hit')), 0.5752); 
 	    ok($hsp->query->frame(), 0);
 	    ok($hsp->hit->frame(), 0);
 	    ok($hsp->gaps, 159);
@@ -354,8 +354,8 @@ ok($result->get_parameter('gapext'), -2);
 ok($result->get_parameter('ktup'), 2);
 
 ok($result->get_statistic('lambda'), 0.1456);
-ok($result->get_statistic('dblength'), 1358987);
-ok($result->get_statistic('dbnum'), 4289);
+ok($result->get_statistic('dbletters'), 1358987);
+ok($result->get_statistic('dbentries'), 4289);
 
 
 @valid = ( [ 'gi|1787478|gb|AAC74309.1|', 512, 'AAC74309'],
@@ -381,8 +381,8 @@ while( my $hit = $result->next_hit ) {
 	    ok($hsp->score, 109.2);
 	    ok($hsp->bits,29.2);
 	    ok(sprintf("%.2f",$hsp->percent_identity), 23.94);
-	    ok(sprintf("%.4f",$hsp->frac_identical('query')), 0.1312);
-	    ok(sprintf("%.4f",$hsp->frac_identical('hit')), 0.0879);
+	    ok(sprintf("%.4f",$hsp->frac_identical('query')), 0.2486);
+	    ok(sprintf("%.4f",$hsp->frac_identical('hit')), '0.2500');
 	    ok($hsp->query->frame(), 0);
 	    ok($hsp->hit->frame(), 0);
 	    ok($hsp->gaps('query'), 7);
@@ -412,8 +412,8 @@ ok($result->get_parameter('ktup'), 2);
 ok($result->get_parameter('matrix'), 'BL50');
 
 ok($result->get_statistic('lambda'), 0.1711);
-ok($result->get_statistic('dblength'), 4215311);
-ok($result->get_statistic('dbnum'), 9190);
+ok($result->get_statistic('dbletters'), 4215311);
+ok($result->get_statistic('dbentries'), 9190);
 
 
 @valid = ( [ 'NR_SC:SW-YNN2_YEAST', 1056, 'NR_SC:SW-YNN2_YEAST','1.6e-154'],
@@ -440,8 +440,8 @@ while( my $hit = $result->next_hit ) {
 	    ok($hsp->score, 2877.6);
 	    ok($hsp->bits,'547.0');
 	    ok(sprintf("%.2f",$hsp->percent_identity), 51.67);
-	    ok(sprintf("%.4f",$hsp->frac_identical('query')), 0.0755);
-	    ok(sprintf("%.4f",$hsp->frac_identical('hit')), 0.5701);
+	    ok(sprintf("%.4f",$hsp->frac_identical('query')), 0.1748);
+	    ok(sprintf("%.4f",$hsp->frac_identical('hit')), 0.5728);
 	    ok($hsp->query->frame(), 0);
 	    ok($hsp->hit->frame(), 0);
 	    ok($hsp->gaps, 678);	    
@@ -453,11 +453,80 @@ while( my $hit = $result->next_hit ) {
     last if( $count++ > @valid );
 } 
 
+# test for MarkW bug in blastN
+
+$searchio = new Bio::SearchIO('-format' => 'blast',
+			      '-file'   => Bio::Root::IO->catfile('t','data','a_thaliana.blastn'));
+
+
+$result = $searchio->next_result;
+ok($result->database_name, 'All GenBank+EMBL+DDBJ+PDB sequences (but no EST, STS, GSS,or phase 0, 1 or 2 HTGS sequences) ');
+ok($result->database_letters, 4677375331);
+ok($result->database_entries, 1083200);
+ok($result->algorithm, 'BLASTN');
+ok($result->algorithm_version, '2.2.1');
+ok($result->query_name, '');
+ok($result->query_length, 60);
+ok($result->get_parameter('gapopen'), 5);
+ok($result->get_parameter('gapext'), 2);
+ok($result->get_parameter('ktup'), undef);
+
+ok($result->get_statistic('lambda'), 1.37);
+ok($result->get_statistic('kappa'), 0.711);
+ok($result->get_statistic('entropy'),1.31 );
+ok($result->get_statistic('T'), 0);
+ok($result->get_statistic('A'), 30);
+ok($result->get_statistic('X1'), 6);
+ok($result->get_statistic('X2'), 15);
+ok($result->get_statistic('S1'), 12);
+ok($result->get_statistic('S2'), 17);
+
+ok($result->get_statistic('dbentries'), 1083200);
+
+@valid = ( [ 'gb|AY052359.1|', 2826, 'AY052359.1'],
+	   [ 'gb|AC002329.2|AC002329', 76170, 'AC002329'],
+	   [ 'gb|AF132318.1|AF132318', 5383, 'AF132318']);
+$count = 0;
+
+while( my $hit = $result->next_hit ) {
+    my $d = shift @valid;
+    ok($hit->name, $d->[0]);
+    ok($hit->length, $d->[1]);
+    ok($hit->accession, $d->[2]);
+    if( $count == 0 ) {
+	while( my $hsp = $hit->next_hsp ) {
+	    ok($hsp->query->start, 1);
+	    ok($hsp->query->end, 60);
+	    ok($hsp->query->strand, 1);
+	    ok($hsp->hit->start, 154);
+	    ok($hsp->hit->end, 212);
+	    ok($hsp->hit->strand, 1);
+	    ok($hsp->length('hsp'), 60);	    
+	    ok($hsp->evalue == '3e-18');
+	    ok($hsp->score, 48);
+	    ok($hsp->bits,95.6);
+	    ok(sprintf("%.2f",$hsp->percent_identity), 96.67);
+	    ok(sprintf("%.4f",$hsp->frac_identical('query')), 0.9667);
+	    ok(sprintf("%.4f",$hsp->frac_identical('hit')), 0.9831);
+	    ok($hsp->query->frame(), 0);
+	    ok($hsp->hit->frame(), 0);
+	    ok($hsp->gaps('query'), 0);
+	    ok($hsp->gaps('hit'), 1);
+	    ok($hsp->gaps, 1);	    
+	    ok($hsp->query_string, 'aggaatgctgtttaattggaatcgtacaatggagaatttgacggaaatagaatcaacgat');
+	    ok($hsp->hit_string, 'aggaatgctgtttaattggaatca-acaatggagaatttgacggaaatagaatcaacgat');
+	    ok($hsp->homology_string, '|||||||||||||||||||||||  |||||||||||||||||||||||||||||||||||');
+	}
+    }
+    last if( $count++ > @valid );
+} 
+
 # TODO: Flesh this test out!
 $searchio = new Bio::SearchIO ('-format' => 'psiblast',
 			       '-file'   => Bio::Root::IO->catfile('t','data','HUMBETGLOA.tblastx'));
 
- $result = $searchio->next_result;
+$result = $searchio->next_result;
 
- ok($result);
+ok($result);
+
 
