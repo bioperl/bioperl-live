@@ -158,6 +158,10 @@ all supported.
    $fh = Bio::Variation::IO->newFh(-format => $format);
    # etc.
 
+   #e.g.
+   $out = Bio::Variation::IO->newFh( '-FORMAT' => 'flat');
+   print $out $seqDiff;
+
 This constructor behaves like new(), but returns a tied filehandle
 rather than a Bio::Variation::IO object.  You can read sequences from this
 object using the familiar <> operator, and write to it using print().
@@ -272,6 +276,7 @@ sub new {
    return $stream;
 }
 
+
 sub _load_format_module {
   my ($format) = @_;
   my ($module, $load, $m);
@@ -353,6 +358,11 @@ sub _guess_format {
    return unless $_ = shift;
    return 'flat'     if /\.dat$/i;
    return 'xml'     if /\.xml$/i;
+}
+
+sub PRINT {
+  my $self = shift;
+  $self->{'seqio'}->write(@_);
 }
 
 1;
