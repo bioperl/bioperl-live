@@ -15,7 +15,7 @@ BEGIN {
 	use lib 't';
     }
     use Test;
-    plan tests => 14;
+    plan tests => 17;
 }
 
 use Bio::Tools::Genscan;
@@ -46,7 +46,7 @@ while(my $gene = $genscan->next_prediction()) {
 	$fea = ($gene->exons())[0];
 	ok $fea->strand(), -1, 
 	     "strand mismatch (".$fea->strand()." instead of -1)";
-	$fea = ($gene->poly_A_sites())[0];
+	$fea = $gene->poly_A_site();
 	ok $fea->score(), 1.05, 
              "score mismatch (".$fea->score()." instead of 1.05)";
     }
@@ -67,8 +67,8 @@ while(my $gene = $genscan->next_prediction()) {
     }
     if($seq) {
 	$prtseq = $gene->predicted_protein()->seq();
-        $cds = Bio::PrimarySeq->new('-seq' => $gene->cds(1),
-                                    '-id' => "cds_" . $gene->primary_tag());
+        $cds = $gene->cds();
+	ok($cds) || print STDERR "# no CDS for prediction $pred_num; protein: $prtseq\n";
 	$tr_cds = $cds->translate()->seq();
 	$tr_cds =~ s/\*$//;
 	ok( lc($prtseq), lc($tr_cds),
