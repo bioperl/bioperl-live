@@ -156,7 +156,7 @@ sub add_Descendent{
        return -1;
    }
    # do we care about order?
-   $node->{'_ancestor'} = $self;
+   $node->ancestor($self);
    if( $self->{'_desc'}->{$node->internal_id} && ! $ignoreoverwrite ) {
        $self->throw("Going to overwrite a node which is $node that is already stored here, set the ignore overwrite flag (parameter 2) to true to ignore this in the future");
    }
@@ -221,13 +221,14 @@ sub remove_Descendent{
    my ($self,@nodes) = @_;
    foreach my $n ( @nodes ) { 
        if( $self->{'_desc'}->{$n->internal_id} ) {
-	   $n->{'_ancestor'} = undef;
-	   $self->{'_desc'}->{$n->internal_id}->{'_ancestor'} = undef;
-	   delete $self->{'_desc'}->{$n->internal_id};
-	   
+	   $n->ancestor(undef);
+	   $self->{'_desc'}->{$n->internal_id}->ancestor(undef);
+	   delete $self->{'_desc'}->{$n->internal_id};	   
        } else { 
-	   $self->debug(sprintf("no node %s (%s) listed as a descendent in this node %s (%s)\n",$n->id, $n,$self->id,$self));
-	   $self->debug("Descendents are " . join(',', keys %{$self->{'_desc'}})."\n");
+	   if( $self->verbose ) {
+	       $self->debug(sprintf("no node %s (%s) listed as a descendent in this node %s (%s)\n",$n->id, $n,$self->id,$self));
+	       $self->debug("Descendents are " . join(',', keys %{$self->{'_desc'}})."\n");
+	   }
        }
    }
    1;
@@ -253,16 +254,16 @@ sub remove_all_Descendents{
    # this won't cleanup the nodes themselves if you also have
    # a copy/pointer of them (I think)...
    while( my ($node,$val) = each %{ $self->{'_desc'} } ) {
-       $val->{'_ancestor'} = undef;
+       $val->ancestor(undef);
    }
    $self->{'_desc'} = {};
    1;
 }
 
-=head2 get_Descendents
+=head2 get_all_Descendents
 
- Title   : get_Descendents
- Usage   : my @nodes = $node->get_Descendents;
+ Title   : get_all_Descendents
+ Usage   : my @nodes = $node->get_all_Descendents;
  Function: Recursively fetch all the nodes and their descendents
            *NOTE* This is different from each_Descendent
  Returns : Array or Bio::Tree::NodeI objects
@@ -367,7 +368,7 @@ sub DESTROY {
     if( defined $self->{'_desc'} &&
 	ref($self->{'_desc'}) =~ /ARRAY/i ) {
 	while( my ($nodeid,$node) = each %{ $self->{'_desc'} } ) {
-	    $node->{'_ancestor'} = undef; # insure no circular references
+	    $node->ancestor(undef); # insure no circular references
 	    $node->DESTROY();
 	    $node = undef;
 	}
