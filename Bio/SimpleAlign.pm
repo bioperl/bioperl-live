@@ -28,6 +28,7 @@ Bio::SimpleAlign - Multiple alignments held as a set of sequences
   print $aln->no_residues, "\n";
   print $aln->is_flush, "\n";
   print $aln->no_sequences, "\n";
+  print $aln->score, "\n";
   print $aln->percentage_identity, "\n";
   print $aln->consensus_string(50), "\n";
 
@@ -659,12 +660,23 @@ sub seq_with_features{
    push @es, length($consensus_string) if $consensus_string =~ /[^?]$/;
 
    my $seq = Bio::Seq->new();
+
+#   my $rootfeature = Bio::SeqFeature::Generic->new(
+#                                                   -source_tag => 'location',
+#                                                   -start      => $self->get_seq_by_pos($arg{-pos})->start,
+#                                                   -end        => $self->get_seq_by_pos($arg{-pos})->end,
+#                                                  );
+
+#   $seq->add_SeqFeature($rootfeature);
+
    while(my $b = shift @bs){
 	 my $e = shift @es;
 	 $seq->add_SeqFeature(
        Bio::SeqFeature::Generic->new(
-         -start => $b - 1,
-         -end   => $e - 1,
+#         -start => $b - 1,
+#         -end   => $e - 1,
+         -start => $b - 1 + $self->get_seq_by_pos($arg{-pos})->start,
+         -end   => $e - 1 + $self->get_seq_by_pos($arg{-pos})->start,
          -source_tag => $self->source || 'MSA',
        )
      );
@@ -1437,6 +1449,22 @@ sub symbol_chars{
 
 These read only methods describe the MSE in various ways.
 
+
+=head2 score
+
+ Title     : score
+ Usage     : $str = $ali->score()
+ Function  : get/set a score of the alignment
+ Returns   : a score for the alignment
+ Argument  : an optional score to set
+
+=cut
+
+sub score {
+  my $self = shift;
+  $self->{score} = shift if @_;
+  return $self->{score};
+}
 
 =head2 consensus_string
 
