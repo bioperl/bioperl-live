@@ -45,6 +45,12 @@ Bio::Tools::CodonTable - Bioperl codon table object
   @codons = $myCodonTable->revtranslate('Glx');
   @codons = $myCodonTable->revtranslate('cYS', 'rna');
 
+  # reverse translate an entire amino acid sequence into a IUPAC
+  # nucleotide string
+
+  my $seqobj    = Bio::PrimarySeq->new(-seq => 'FHGERHEL');
+  my $iupac_str = $myCodonTable->reverse_translate_all($seqobj);
+
   #boolean tests
   print "Is a start\n"       if $myCodonTable->is_start_codon('ATG');
   print "Is a termianator\n" if $myCodonTable->is_ter_codon('tar');
@@ -545,15 +551,20 @@ sub revtranslate {
            sequence. An 'X' in the protein sequence is converted to 'NNN'
            in the nucleotide sequence.
  Returns : a string
- Args    : a Bio::PrimarySeqI compatible object, ie. any type of Bioperl
-           sequence object
+ Args    : a Bio::PrimarySeqI compatible object (mandatory)
+           a Bio::CodonUsage::Table object and a threshold if only
+             codons with a relative frequency above the threshold are
+             to be considered. 
 
 
 =cut
 
 sub reverse_translate_all {
 	
-	my ($self, $obj) = @_;
+	my ($self, $obj, $cut, $threshold) = @_;
+
+    ## check args are OK
+
 	if (!$obj || !$obj->isa('Bio::PrimarySeqI')){
 		$self->throw(" I need a Bio::PrimarySeqI object, not a [".
 						ref($obj) . "]");
@@ -562,34 +573,38 @@ sub reverse_translate_all {
 		$self->throw("Cannot reverse translate, need an amino acid sequence .".
                      "This sequence is of type [" . $obj->alphabet ."]");
 		}
-    my %iupac_hash = Bio::Tools::IUPAC->iupac_rev_iub();
 	my @data;
 	my @seq = split '', $obj->seq;
-	## get lists of possible codons for each aa. 
-	for my $aa (@seq) {
-		if ($aa =~ /x/i) {
-			push @data, (['NNN']);
-		}else {
-			my @cods = $self->revtranslate($aa);
-			push @data, \@cods;
+
+	## if we're not supplying a codon usage table...
+	if( !$cut && !$threshold) {
+		## get lists of possible codons for each aa. 
+		for my $aa (@seq) {
+			if ($aa =~ /x/i) {
+				push @data, (['NNN']);
+			}else {
+				my @cods = $self->revtranslate($aa);
+				push @data, \@cods;
+			}
+		}
+	}else{
+	#else we are supplying a codon usage table, we just want common codons
+	#check args first. 
+		if(!$cut->isa('Bio::CodonUsage::Table'))	{
+			$self->throw("I need a Bio::CodonUsage::Table object, not a [".
+                     ref($cut). "].");
+			}
+		my $cod_ref = $cut->probable_codons($threshold);
+		for my $aa (@seq) {
+			if ($aa =~ /x/i) {
+				push @data, (['NNN']);
+				next;
+				}
+			push @data, $cod_ref->{$aa};
 		}
 	}
 
-	my $iupac_string = ''; ## the string to be returned
-	for my $aa (@data) {
-		## scan through codon positions, record the differing values,	
-		# then look up in the iub hash
-		for my $index(0..2) {
-			my %h;
-			map { my $k = substr($_,$index,1);
-		 		$h{$k}  = undef;} @$aa;
-			my $lookup_key = join '', sort{$a cmp $b}keys %h;
-
-            ## extend string 
-			$iupac_string .= $iupac_hash{uc$lookup_key};
-		}
-	}
-    return $iupac_string;
+	return $self->_make_iupac_string(\@data);
 
 }
 
@@ -746,6 +761,32 @@ sub add_table {
     push @STARTS, $starts;
 
     return scalar @NAMES;
+
+}
+
+sub _make_iupac_string {
+
+	my ($self, $cod_ref) = @_;
+	if(ref($cod_ref) ne 'ARRAY') {
+		$self->throw(" I need a reference to a list of references to codons, ".
+					 " not a [". ref($cod_ref) . "].");
+		}
+    my %iupac_hash = Bio::Tools::IUPAC->iupac_rev_iub();
+	my $iupac_string = ''; ## the string to be returned
+	for my $aa (@$cod_ref) {
+		## scan through codon positions, record the differing values,	
+		# then look up in the iub hash
+		for my $index(0..2) {
+			my %h;
+			map { my $k = substr($_,$index,1);
+		 		$h{$k}  = undef;} @$aa;
+			my $lookup_key = join '', sort{$a cmp $b}keys %h;
+
+            ## extend string 
+			$iupac_string .= $iupac_hash{uc$lookup_key};
+		}
+	}
+    return $iupac_string;
 
 }
 
