@@ -141,6 +141,10 @@ An easy way to calculate composite linkage disequilibrium (LD).
 A test for distinguishing between selection and population
 expansion.
 
+=head2 scripts/searchio/filter_search.PLS
+
+Simple script to filter by SearchIO criteria and print.
+
 =head2 scripts/seq/seqconvert.PLS
 
 Bioperl sequence format converter.
