@@ -1,5 +1,5 @@
 #!/usr/bin/perl -w
-# $Id: search2gff.PLS,v 1.8 2004-06-25 15:55:52 jason Exp $
+# $Id: search2gff.PLS,v 1.9 2004-07-02 15:29:38 jason Exp $
 
 # Author:      Jason Stajich <jason@bioperl.org>
 # Description: Turn SearchIO parseable report(s) into a GFF report
@@ -130,18 +130,23 @@ while( my $result = $parser->next_result ) {
 		($proxyfor,$other) = ($hsp->query,
 				      $hsp->hit);
 		$name  ||= $hit->name;
+		if( $match && $gffver == 3) {
+		    $feature->add_tag_value('Parent', $name);
+		}
 		$feature->add_tag_value('Target', 'Sequence:'.$name);
 		$feature->add_tag_value('Target', $hsp->hit->start);
 		$feature->add_tag_value('Target', $hsp->hit->end);
-		
 	    } else {
 		($other,$proxyfor) = ($hsp->query,
 				      $hsp->hit);
 		$name ||= $acc;
+		$proxyfor->score($hit->bits) unless( $proxyfor->score );
+		if( $match && $gffver == 3 ) { 
+		    $feature->add_tag_value('Parent', $acc);
+		}
+		
 		$feature->add_tag_value('Target', 'Sequence:'.
 					$acc);
-		$proxyfor->score($hit->bits) unless( $proxyfor->score );
-		
 		$feature->add_tag_value('Target', $hsp->query->start);
 		$feature->add_tag_value('Target', $hsp->query->end);
 	    }
@@ -164,20 +169,18 @@ while( my $result = $parser->next_result ) {
 	    $st ||= $sourcetag || $proxyfor->source_tag;
 	}
 	if( $match ) { 
-
+	    
 	    my $matchf = Bio::SeqFeature::Generic->new
 		(-start => $hit->start($type),
 		 -end   => $hit->end($type),
 		 -strand=> $hit->strand($type)*$hit->strand($other),
 		 -primary_tag => 'match',
 		 -source_tag  => $st,
-		 -seq_id => $seqid,
-		 -tag   => { 
-		     'Target' => 'Sequence:'.$name 
-		     });
-	    $matchf->add_tag_value('Target', $hit->start($other));
-	    $matchf->add_tag_value('Target', $hit->end($other));
-
+		 -seq_id => $seqid);
+	    if( $gffver == 3 ) { 
+		$matchf->add_tag_value('ID', $name);
+	    }
+	    $matchf->add_tag_value('Target', "Sequence:$name");
 	    $out->write_feature($matchf);
 	}
     }
