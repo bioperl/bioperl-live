@@ -176,7 +176,7 @@ sub get_Taxonomy_Node{
    my (@fields,$node,$taxonnode);
    my $first = 1;
    my @classification;
-   while( defined ($node = $self->{'_nodes'}->[$taxonid]) ) {
+   while( defined ($node = $self->{'_nodes'}->[$taxonid]) && length($node) ) {
        my ($taxid,$parent,$rank,$code,$divid) = split(SEPARATOR,$node);
        my ($taxon_name) = $self->{'_id2name'}->[$taxid];
        if( $first ) {
@@ -193,13 +193,14 @@ sub get_Taxonomy_Node{
 	   (undef,$taxon_name) = split(/\s+/,$taxon_name,2);
        }
        push @fields, $taxon_name if ($rank && $rank ne 'no rank');
-       last if $parent == 1 || ! $parent || ! $taxid;
+       last if ! defined $parent || $parent == 1 || ! $taxid;
        $taxonid = $parent;
    }
    while( @fields < 8 ) {
        unshift @fields, '';
    }
-   $taxonnode->classification(@fields);
+   $taxonnode->classification(@fields) if defined $taxonnode;
+   
    return $taxonnode;
 }
 
