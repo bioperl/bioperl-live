@@ -20,7 +20,7 @@ BEGIN {
     }
     use Test;
 
-    plan tests => 62;
+    plan tests => 66;
 }
 
 use Bio::Seq;
@@ -283,3 +283,23 @@ my ($t) = $gene->transcripts(); # get 1st transcript
 ok(defined $t); 
 ok($t->mrna->length, 1595);
 ok($gene->utrs, 2);
+
+
+
+# Test for bug when Locations are not created explicitly
+
+my $feat1 = new Bio::SeqFeature::Generic(-start => 1,
+					 -end   => 15,
+					 -strand=> 1);
+
+my $feat2 = new Bio::SeqFeature::Generic(-start => 10,
+					 -end   => 25,
+					 -strand=> 1);
+
+my $overlap = $feat1->location->union($feat2->location);
+ok($overlap->start, 1);
+ok($overlap->end,   25);
+
+my $intersect = $feat1->location->intersection($feat2->location);
+ok($intersect->start, 10);
+ok($intersect->end,   15);
