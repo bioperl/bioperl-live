@@ -145,9 +145,9 @@ sub set_memory_and_report{
    &Bio::Ext::Align::change_max_BaseMatrix_kbytes($self->{'kbyte'});
 
    if( $self->{'report'} == 0 ) {
-       &bp_sw::error_off(16);
+       &Bio::Ext::Align::error_off(16);
    } else {
-       &bp_sw::error_on(16);
+       &Bio::Ext::Align::error_on(16);
    }
 }
 

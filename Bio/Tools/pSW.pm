@@ -292,15 +292,15 @@ sub align_and_show {
 
     $self->set_memory_and_report();
 
-    $t1  = &bp_sw::new_Sequence_from_strings($seq1->id(),$seq1->str());
+    $t1  = &Bio::Ext::Align::new_Sequence_from_strings($seq1->id(),$seq1->str());
 
-    $t2  = &bp_sw::new_Sequence_from_strings($seq2->id(),$seq2->str());
-    $aln = &bp_sw::Align_Sequences_ProteinSmithWaterman($t1,$t2,$self->{'matrix'},-$self->gap,-$self->ext);
+    $t2  = &Bio::Ext::Align::new_Sequence_from_strings($seq2->id(),$seq2->str());
+    $aln = &Bio::Ext::Align::Align_Sequences_ProteinSmithWaterman($t1,$t2,$self->{'matrix'},-$self->gap,-$self->ext);
     if( ! defined $aln || $aln == 0 ) {
 	$self->throw("Unable to build an alignment");
     }
 
-    &bp_sw::write_pretty_seq_align($aln,$t1,$t2,12,50,$fh);
+    &Bio::Ext::Align::write_pretty_seq_align($aln,$t1,$t2,12,50,$fh);
 
 }
 
@@ -325,7 +325,7 @@ sub matrix {
 
     # talking to the engine here...
 
-    $temp = &bp_sw::CompMat::read_Blast_file_CompMat($comp);
+    $temp = &Bio::Ext::Align::CompMat::read_Blast_file_CompMat($comp);
 
     if( !(defined $temp) || $temp == 0 ) {
 	$self->throw("$comp cannot be read as a BLAST comparison matrix file");
