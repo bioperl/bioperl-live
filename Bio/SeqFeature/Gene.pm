@@ -162,6 +162,13 @@ Alot of effort has been put in to make the system have no circular references.
 This means that clients need to access certain information through the Gene
 object whereas it might have been more natural to access through the Transcript/Translation
 object.
+
+=head1 STILL TO WRITE
+
+Automatic phase detection on making translations
+
+Documentation about non-phase compliant transcripts
+
        
 =head1 FEEDBACK
 
