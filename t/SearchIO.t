@@ -20,7 +20,7 @@ BEGIN {
 	use lib 't';
     }
     use vars qw($NTESTS);
-    $NTESTS = 248;
+    $NTESTS = 290;
     $LASTXMLTEST = 49;
     $error = 0;
 
@@ -156,7 +156,7 @@ while( $hit = $result->next_hit ) {
 	    ok($hsp->hit->start, 1);
 	    ok($hsp->hit->end, 820);
 	    ok($hsp->length('hsp'), 820);
-	    ok($hsp->p == 0.0);
+	    
 	    ok($hsp->evalue == 0.0);
 	    ok($hsp->score, 4058);
 	    ok($hsp->bits,1567);	    	    
@@ -203,7 +203,7 @@ while( $hit = $result->next_hit ) {
 	    ok($hsp->hit->start, 1);
 	    ok($hsp->hit->end, 820);
 	    ok($hsp->length('hsp'), 820);
-	    ok($hsp->p == 0.0);
+	    
 	    ok($hsp->evalue == 0.0);
 	    ok($hsp->score, 4141);
 	    ok($hsp->bits,1462.8);	    	    
@@ -253,13 +253,13 @@ while( $hit = $result->next_hit ) {
 	    ok($hsp->hit->start, 5816);
 	    ok($hsp->hit->strand, -1);
 	    ok($hsp->length('hsp'), 26);
-	    ok($hsp->p == 0.13);
+	    
 	    ok($hsp->evalue == 0.13);
 	    ok($hsp->score, 67);
 	    ok($hsp->bits,33.6);
 	    ok(sprintf("%.2f",$hsp->percent_identity), 42.31);
 	    ok(sprintf("%.4f",$hsp->frac_identical('query')), 0.0037);
-	    ok(sprintf("%.3f",$hsp->frac_identical('hit')), 0.001);
+	    ok(sprintf("%.4f",$hsp->frac_identical('hit')), '0.0010');
 	    ok($hsp->query->frame(), 0);
 	    ok($hsp->hit->frame(), 1);
 	    ok($hsp->gaps, 0);	    
@@ -275,7 +275,8 @@ $searchio = new Bio::SearchIO(-format => 'fasta',
 				 -file   => 't/data/HUMBETGLOA.FASTA');
 $result = $searchio->next_result;
 ok($result->database_name, qr/dros_clones.2.5/);
-ok($result->database_entries, 112936249);
+ok($result->database_letters, 112936249);
+ok($result->database_entries, 657);
 ok($result->algorithm, 'FASTA');
 ok($result->algorithm_version, '3.3t08');
 ok($result->query_name, qr/HUMBETGLOA Human haplotype C4 beta-globin gene, complete cds./);
@@ -288,9 +289,9 @@ ok($result->get_statistic('lambda'), 0.0823);
 ok($result->get_statistic('dblength'), 112936249);
 ok($result->get_statistic('dbnum'), 657);
 
-@valid = ( [ 'BACR21I23', 73982, 'BACR21I23'],
-	   [ 'BACR40P19', 73982, 'BACR40P19'],
-	   [ 'BACR30L17', 32481, 'BACR30L17']);
+@valid = ( [ 'BACR21I23', 73982, 'BACR21I23', '0.017'],
+	   [ 'BACR40P19', 73982, 'BACR40P19', '0.017'],
+	   [ 'BACR30L17', 32481, 'BACR30L17', '0.018']);
 $count = 0;
 
 while( my $hit = $result->next_hit ) {
@@ -298,6 +299,8 @@ while( my $hit = $result->next_hit ) {
     ok($hit->name, $d->[0]);
     ok($hit->length, $d->[1]);
     ok($hit->accession, $d->[2]);
+    ok($hit->significance, $d->[3]);
+    
     if( $count == 0 ) {
 	while( my $hsp = $hit->next_hsp ) {
 	    ok($hsp->query->start, 31);
@@ -306,13 +309,12 @@ while( my $hit = $result->next_hit ) {
 	    ok($hsp->hit->end, 65167);
 	    ok($hsp->hit->start, 64902);
 	    ok($hsp->hit->strand, 1);
-	    ok($hsp->length('hsp'), 267);
-	    ok($hsp->p == 0.017);
+	    ok($hsp->length('hsp'), 267);	    
 	    ok($hsp->evalue == 0.017);
 	    ok($hsp->score, 134.5);
 	    ok($hsp->bits,44.2);
-	    ok(sprintf("%.1f",$hsp->percent_identity), 57.3);
-	    ok(sprintf("%.3f",$hsp->frac_identical('query')), 0.051); 
+	    ok(sprintf("%.2f",$hsp->percent_identity), '57.30');
+	    ok(sprintf("%.4f",$hsp->frac_identical('query')), '0.0510'); 
 	    ok(sprintf("%.4f",$hsp->frac_identical('hit')), 0.0021); 
 	    ok($hsp->query->frame(), 0);
 	    ok($hsp->hit->frame(), 0);
@@ -331,7 +333,8 @@ $searchio = new Bio::SearchIO(-format => 'fasta',
 				 -file   => 't/data/cysprot1.FASTA');
 $result = $searchio->next_result;
 ok($result->database_name, qr/ecoli.aa/);
-ok($result->database_entries, 1358987);
+ok($result->database_letters, 1358987);
+ok($result->database_entries, 4289);
 ok($result->algorithm, 'FASTA');
 ok($result->algorithm_version, '3.3t08');
 ok($result->query_name, 'CYS1_DICDI');
@@ -363,8 +366,7 @@ while( my $hit = $result->next_hit ) {
 	    ok($hsp->hit->start, 2);
 	    ok($hsp->hit->end, 181);
 	    ok($hsp->hit->strand, 1);
-	    ok($hsp->length('hsp'), 188);
-	    ok($hsp->p == 1.2);
+	    ok($hsp->length('hsp'), 188);	    
 	    ok($hsp->evalue == 1.2);
 	    ok($hsp->score, 109.2);
 	    ok($hsp->bits,29.2);
@@ -382,6 +384,63 @@ while( my $hit = $result->next_hit ) {
     last if( $count++ > @valid );
 } 
 
+# test on TFASTXY
+$searchio = new Bio::SearchIO(-format => 'fasta',
+			      -file   => 't/data/5X_1895.FASTXY');
+$result = $searchio->next_result;
+ok($result->database_name, qr/yeast_nrpep.fasta/);
+ok($result->database_letters, 4215311);
+ok($result->database_entries, 9190);
+ok($result->algorithm, 'FASTY');
+ok($result->algorithm_version, '3.4t07');
+ok($result->query_name, '5X_1895.fa');
+ok($result->query_length, 7972);
+ok($result->get_parameter('gapopen'), -14);
+ok($result->get_parameter('gapext'), -2);
+ok($result->get_parameter('ktup'), 2);
+ok($result->get_parameter('matrix'), 'BL50');
+
+ok($result->get_statistic('lambda'), 0.1711);
+ok($result->get_statistic('dblength'), 4215311);
+ok($result->get_statistic('dbnum'), 9190);
+
+
+@valid = ( [ 'NR_SC:SW-YNN2_YEAST', 1056, 'NR_SC:SW-YNN2_YEAST','1.6e-154'],
+	   [ 'NR_SC:SW-MPCP_YEAST', 311, 'NR_SC:SW-MPCP_YEAST', '1.3e-25'],
+	   [ 'NR_SC:SW-YEO3_YEAST', 300, 'NR_SC:SW-YEO3_YEAST', '5.7e-05']);
+$count = 0;
+
+while( my $hit = $result->next_hit ) {
+    my $d = shift @valid;
+    ok($hit->name, $d->[0]);
+    ok($hit->length, $d->[1]);
+    ok($hit->accession, $d->[2]);
+    if( $count == 0 ) {
+	while( my $hsp = $hit->next_hsp ) {
+	    ok($hsp->query->start, 2180);
+	    ok($hsp->query->end, 5623);
+	    ok($hsp->query->strand, 0);
+	    ok($hsp->hit->start, 3);
+	    ok($hsp->hit->end, 1053);
+	    ok($hsp->hit->strand, 0);
+	    ok($hsp->length('hsp'), 1165);
+
+	    ok($hsp->evalue == 1.6e-154);
+	    ok($hsp->score, 2877.6);
+	    ok($hsp->bits,'547.0');
+	    ok(sprintf("%.2f",$hsp->percent_identity), 51.67);
+	    ok(sprintf("%.4f",$hsp->frac_identical('query')), 0.0755);
+	    ok(sprintf("%.4f",$hsp->frac_identical('hit')), 0.5701);
+	    ok($hsp->query->frame(), 0);
+	    ok($hsp->hit->frame(), 0);
+	    ok($hsp->gaps, 678);	    
+	    ok($hsp->query_string, 'RKQLDPRIPALINNGVKANHRSFFVMVGDKGRDQVCPGMQAAMRFD*HRCR/LVNLHFLLSQARVSSRPSVLWCYKKD-LGFTT*VAASENLQQTIYFRPIATSHRKKREAKIKRDVKRGIRDANEQDPFELFVTVTDIRYTYYKDSAKILGQTFGMLVLQDYEAITPNLLARTIETVEGGGIVVLLLKTMSSLKQLYAMAM/DKL*CRDGVE*SDFS*LLI*DVHSRYRTDAHQFVQPRFNERFILSLGSNPDCLVLDDELNVLPLSKGKDIQIGKAGEEDDRGRKRKAEELKEMKENLEGVDIVGSLAKLAKTVDQAKAILTFVEAISEKNLSSTVALTAGRGRGKSAALGLAIGAALAHDYSNIFVTSPDPENLKTLFEFVFKALDALGYEEHIDYDVVQSTNPDFKKAIVRVNIFRGHRQTIQYISPEDSHVLGQAELVIIDEAAAIPLPLVRKLIGPYLVFMASTINGYEGTGRSLSIKLIQQLREQTRPSITKDSENAAASSAGSSSKAAAAGRSGAGLVRSLREIKLDEPIRYSPGDNVEKWLNNLLCLDATIVSK---SIQGCPHPSKCELYYVNRDTLFSYHPASEVFLQRMMALYVASHYKNSPNDLQMLSDAPAHHLFVLLPPIDEND-NTLPDPLVVLQVALEGNISREAILKEMAQSGMRSSGDMIPWIISTQFQDNDFATLSGARVVRIATHPDYARMGYGSRAMEALESFYNGTSYNFDDVPVDMGESFAD\VPRSDL*VTSFIPFPQNRTSTECVSQNANLQNDTIAIRDPSRMPPLLQRLSERKPETLDYLGVSFGLTRDLLRFWKKGGFTPLYASQKENALTGEYTFVMLKVLASAGGGGEWLGAFAQGMSCLLLQDEVHMGND*RL*TDFRQRFMNLLSYEAFKKFDASIALSILESTVPRNSPSPAP----KLLTNTELSSLLTPFDIKRLESYADSMLDYHVVLDLVPTIASLFFGKRLETS--LPPAQQAILLALGLQRKNVEALENELGITSTQTLALFGKVLRKMTKSLEDIRKASIASELP-----AEPTLAGRSANGSNKFVALQQTIEQDLADSAVQLNGEDDDASKKEQRELLNTLNMEEFAI-DQGGDWTEAEKQVERLASGKGGTRLSSTVSVKVDKLDD\AKRRRRRARMRVPRMRRR');
+	    ok($hsp->hit_string, 'KKAIDSRIPSLIRNGVQTKQRSIFVIVGDRARNQ------------------LPNLHYLMMSADLKMNKSVLWAYKKKLLGFT--------------------SHRKKRENKIKKEIKRGTREVNEMDPFESFISNQNIRYVYYKESEKILGNTYGMCILQDFEALTPNLLARTIETVEGGGIVVILLKSMSSLKQLYTMTM-D--------------------VHARYRTEAHGDVVARFNERFILSLGSNPNCLVVDDELNVLPLSGAKNVKPLPPKEDDELPPKQL--ELQELKESLEDVQPAGSLVSLSKTVNQAHAILSFIDAISEKTLNFTVALTAGRGRGKSAALGISIAAAVSHGYSNIFVTSPSPENLKTLFEFIFKGFDALGYQEHIDYDIIQSTNPDFNKAIVRVDIKRDHRQTIQYIVPQDHQVLGQAELVVIDEAAAIPLPIVKNLLGPYLVFMASTINGYEGTGRSLSLKLIQQLRNQNNTSGRESTQTAVVSRDNKEKDSHLHSQS-----RQLREISLDEPIRYAPGDPIEKWLNKLLCLDVTLIKNPRFATRGTPHPSQCNLFVVNRDTLFSYHPVSENFLEKMMALYVSSHYKNSPNDLQLMSDAPAHKLFVLLPPIDPKDGGRIPDPLCVIQIALEGEISKESVRNSLSR-GQRAGGDLIPWLISQQFQDEEFASLSGARIVRIATNPEYASMGYGSRAIELLRDYFEGKF-------TDMSE---D-VRPKDYSI--------KRVSDKELAKT-NLLKDDVKLRDAKTLPPLLLKLSEQPPHYLHYLGVSYGLTQSLHKFWKNNSFVPVYLRQTANDLTGEHTCVMLNVLE--GRESNWLVEFAK---------------------DFRKRFLSLLSYD-FHKFTAVQALSVIESSKKAQDLSDDEKHDNKELTRTHLDDIFSPFDLKRLDSYSNNLLDYHVIGDMIPMLALLYFGDKMGDSVKLSSVQSAILLAIGLQRKNIDTIAKELNLPSNQTIAMFAKIMRKMSQYFRQLLSQSIEETLPNIKDDAIAEMDGEEIKNYNAAEALDQ-MEEDLEEAG----SEAVQAMREKQKELINSLNLDKYAINDNSEEWAESQKSLEIAAKAKGVVSLKTGKKRTTEKAED-IYRQEMKA-MKKPRKSKK');
+	    ok($hsp->homology_string, '.: .: :::.:: :::....::.::.:::..:.:                  : :::.:. .: ..   :::: :::  ::::                    ::::::: :::...::: :..::.:::: :..  .:::.:::.: ::::.:.:: .:::.::.:::::::::::::::::::.:::.::::::::.:.: :                    ::.::::.::  :  ::::::::::::::.:::.:::::::::: .:...     :.:.   :.   ::.:.::.:: :. .:::..:.:::.::.:::.:..:::::.:. :::::::::::::::::..:.::..: :::::::::.::::::::::.::..:::::.::::::..:::::::.::::::.: : :::::::: :.: .::::::::.::::::::::.:..:.::::::::::::::::::::::.:::::::.:.  :  .....:..:  .. . .   ..:     :.::::.:::::::.::: .:::::.:::::.:....   . .: ::::.:.:. :::::::::::.:: ::..::::::.:::::::::::..::::::.::::::::: .: . .:::: :.:.::::.::.:.. . ... :.:..::.:::.:: ::::..::.:::::.:::::.:.:: :::::::.: :.....:         .::.:   : :  .:  .        .:.: . .... :: .: . .:: . .:::: .:::. :. : :::::.:::..: .:::...:.:.:  :  : ::::.: :::.::   :  ..::  ::.                     :::.::..::::. :.:: :  :::..::.   .. :       : :: :.:.....:::.:::.::....:::::. :..: .: :.:: ..  :  :  .:.:::::.::::::.... .::.. :.::.:.:.:..:::.. .... . ::   ::     :   . :.  .. :   ::.: .:.:: ...    .:  .: ...:.::.:.::....:: :.. .:.:..:..:  :..:: . :..  .  ..: .:   :.. .: :. ::  ..');
+	}
+    }
+    last if( $count++ > @valid );
+} 
 
 # TODO: Flesh this test out!
 $searchio = new Bio::SearchIO ('-format' => 'psiblast',
