@@ -135,6 +135,36 @@ sub find_node {
    }
 }
 
+=head2 remove_Node
+
+ Title   : remove_Node
+ Usage   : $tree->remove_Node($node)
+ Function: Removes a node from the tree
+ Returns : boolean represent status of success
+ Args    : either Bio::Tree::NodeI or string of the node id
+
+
+=cut
+
+sub remove_Node {
+   my ($self,$input) = @_;
+   my $node = undef;
+   unless( ref($input) ) {
+       $node = $self->find_node($input);
+   }  elsif( ! $input->isa('Bio::Tree::NodeI') ) {
+       $self->warn("Did not provide either a valid Bio::Tree::NodeI object to remove_node or the node name");
+       return 0;
+   } else { 
+       $node = $input;
+   }
+   if( ! $node->ancestor && $self->get_root_node->internal_id != $node->internal_id) {
+       $self->warn("Node (".$node->to_string . ") has no ancestor, can't remove!");
+   } else { 
+       $node->ancestor->remove_Descendent($node);
+   }
+}
+
+
 # Added for Justin Reese by Jason
 
 =head2 get_lca
