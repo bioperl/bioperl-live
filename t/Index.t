@@ -8,7 +8,7 @@ $DEBUG = $ENV{"BIOPERLDEBUG"} || 0;
 BEGIN {
    eval { require Test; };
    use vars qw($NUMTESTS);
-   $NUMTESTS = 43;
+   $NUMTESTS = 47;
    if ( $@ ) {
       use lib 't';
    }
@@ -48,7 +48,6 @@ chomp( $dir );
 my $ind = Bio::Index::Fasta->new(-filename => 'Wibbl',
 											-write_flag => 1,
 											-verbose => 0);
-
 $ind->make_index(Bio::Root::IO->catfile($dir,"t","data","multifa.seq"));
 $ind->make_index(Bio::Root::IO->catfile($dir,"t","data","seqs.fas"));
 
@@ -109,6 +108,16 @@ ok ($seq->display_id(), 'ROA1_HUMAN');
 $seq = $ind->fetch('P09651');
 ok ($seq->display_id(), 'ROA1_HUMAN');
 
+# test id_parser
+$ind = Bio::Index::Swissprot->new(-filename   => 'Wibbl4',
+											 -write_flag => 1);
+$ind->id_parser(\&get_id);
+$ind->make_index(Bio::Root::IO->catfile($dir,"t","data","roa1.swiss"));
+ok ( -e "Wibbl4" || -e "Wibbl4.pag" );
+$seq = $ind->fetch('X12671');
+ok ($seq->length,371);
+
+
 my $gb_ind = Bio::Index::GenBank->new(-filename => 'Wibbl5',
 												  -write_flag =>1,
 												  -verbose    => 0);
@@ -163,6 +172,22 @@ if (Bio::DB::FileCache->can('new')) {
    ok ($species->common_name(), 'human');
 } else {
    skip('Bio::DB::FileCache not loaded because one or more of Storable, Fcntl, DB_File or File::Temp not installed',1);
+}
+
+# test id_parser
+$gb_ind = Bio::Index::GenBank->new(-filename => 'Wibbl5',
+											  -write_flag =>1,
+											  -verbose    => 0);
+$gb_ind->id_parser(\&get_id);
+$gb_ind->make_index(Bio::Root::IO->catfile($dir,"t","data","roa1.genbank"));
+ok ( -e "Wibbl5" || -e "Wibbl5.pag" );
+$seq = $gb_ind->fetch('alpha D-globin');
+ok ($seq->length,141);
+
+sub get_id {
+	my $line = shift;
+	return $1 if ($line =~ /product="([^"]+)"/);
+	return $1 if ($line =~ /^DR\s+EMBL;\s+([^;]+)/);
 }
 
 END {
