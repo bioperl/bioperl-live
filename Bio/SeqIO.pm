@@ -90,7 +90,8 @@ to read and write sequence objects:
 
     use Bio::SeqIO;
 
-    $stream = Bio::SeqIO->newFh(-format => 'Fasta'); # read from standard input
+    $stream = Bio::SeqIO->newFh(-format => 'Fasta',
+                                -fh     => \*ARGV); # read from standard input or the input filenames
 
     while ( $seq = <$stream> ) {
 	# do something with $seq
