@@ -492,6 +492,7 @@ sub next_seq {
 		  foreach my $tagval ($feat->get_tag_values('db_xref')) {
 		      if(index($tagval,"taxon:") == 0) {
 			  $species->ncbi_taxid(substr($tagval,6));
+                          last;
 		      }
 		  }
 	      }

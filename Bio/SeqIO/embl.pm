@@ -322,10 +322,25 @@ sub next_seq {
    if (defined($buffer) && $buffer =~ /^FT /) {
      until( !defined ($buffer) ) {
 	 my $ftunit = $self->_read_FTHelper_EMBL(\$buffer);
-	 # process ftunit
 
-	 push(@features,
-	      $ftunit->_generic_seqfeature($self->location_factory(), $name));
+	 # process ftunit
+         my $feat = 
+             $ftunit->_generic_seqfeature($self->location_factory(), $name);
+
+         # add taxon_id from source if available
+         if($params{'-species'} && ($feat->primary_tag eq 'source')
+            && $feat->has_tag('db_xref') 
+            && (! $params{'-species'}->ncbi_taxid())) {
+             foreach my $tagval ($feat->get_tag_values('db_xref')) {
+                 if(index($tagval,"taxon:") == 0) {
+                     $params{'-species'}->ncbi_taxid(substr($tagval,6));
+                     last;
+                 }
+             }
+         }
+         
+         # add feature to list of features
+	 push(@features, $feat);
 
 	 if( $buffer !~ /^FT/ ) {
 	     last;
