@@ -23,7 +23,7 @@ BEGIN {
     }
     use Test;
 
-    $NUMTESTS = 63;
+    $NUMTESTS = 65;
     plan tests => $NUMTESTS;
 
 }
@@ -54,6 +54,7 @@ ok($unigene->gene, 'NAT2');
 ok($unigene->cytoband,'8p22');
 ok($unigene->gnm_terminus,'S');
 ok($unigene->homol,'YES');
+ok($unigene->restr_expr,'liver');
 ok($unigene->scount,26);
 ok(scalar @{ $unigene->locuslink }, 1);
 ok(scalar @{ $unigene->chromosome }, 1);
@@ -110,6 +111,9 @@ ok($unigene->gnm_terminus, 'gnm_terminus_test', 'gnm_terminus was ' . $unigene->
 
 $unigene->homol('homol_test');
 ok($unigene->homol, 'homol_test', 'homol was ' . $unigene->homol);
+
+$unigene->restr_expr('restr_expr_test');
+ok($unigene->restr_expr, 'restr_expr_test', 'restr_expr was ' . $unigene->restr_expr);
 
 $unigene->scount('scount_test');
 ok($unigene->scount, 'scount_test', 'scount was ' . $unigene->scount);
