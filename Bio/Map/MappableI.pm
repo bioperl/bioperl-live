@@ -77,7 +77,7 @@ Internal methods are usually preceded with a _
 package Bio::Map::MappableI;
 use vars qw(@ISA);
 use strict;
-use Bio::Root::RootI
+use Bio::Root::RootI;
 use Carp;
 
 @ISA = qw(Bio::Root::RootI);

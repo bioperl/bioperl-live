@@ -70,6 +70,7 @@ Describe contact details here
 
 Lincoln Stein, lstein@cshl.org
 Heikki Lehvaslaiho, heikki@ebi.ac.uk
+Chad Matsalla, bioinformatics1@dieselwurks.com
 
 =head1 APPENDIX
 
@@ -133,7 +134,7 @@ sub new {
 
 =cut
 
-sub each_position{
+sub each_position {
    my ($self) = @_;
    return @{$self->{'_positions'}};
 }
@@ -168,9 +169,31 @@ sub add_position{
 
 =cut
 
-sub purge_positions{
+sub purge_positions {
    my ($self) = @_;
    $self->{'_positions'} = [];
+}
+
+=head2 position($new_postion)
+
+ Title   : Get/set the positions for this Position
+ Usage   : $o_position->position($new_position) _or_
+        $o_position->position()
+ Function: get/set the position of this LinkagePosiAtion
+ Returns : An array representing the current position.
+ Args    : If $new_position is provided, the current position of this Position
+        will be set to $new_position.
+
+=cut
+
+sub position {
+        my ($self,$position) = @_;
+        if ($position) {
+	                # no point in keeing the old ones
+                $self->purge_positions();
+                $self->add_position($position);
+        }
+        return $self->{'_positions'};
 }
 
 1;

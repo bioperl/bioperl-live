@@ -246,11 +246,15 @@ sub name {
 
 sub add_element {
 	my ($self,$marker) = @_;
-	my $o_position = $marker->position();
+	my $o_position = $marker->position()->position();
+	my @position = @$o_position;
+	my @positions_copy = @position;
+	
 	if (ref($o_position) != /Linkage/) {
 		$self->warn("You really should use a Linkage Position for this object. This insures that there is only one position. Trying anyway...");
 	}
-	my $position = $o_position->position();
+		# my $position = pop(@{$o_position->position()});
+	my $position = pop(@positions_copy);
 	if ($self->{'_elements'}[$position]) {
 		$self->warn("Replacing the marker in position $position because in a linkage map the position is a key.");
 	}	
