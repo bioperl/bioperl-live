@@ -10,7 +10,7 @@ BEGIN {
     }
     use Test;
     use vars qw($NTESTS);
-    $NTESTS = 6;
+    $NTESTS = 20;
     plan tests => $NTESTS;
 }
 use Bio::Tools::FootPrinter;
