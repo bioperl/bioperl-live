@@ -43,11 +43,11 @@ or the web:
   bioperl-bugs@bio.perl.org
   http://bio.perl.org/bioperl-bugs/
 
-=head1 AUTHOR Steve Chervitz
+=head1 AUTHOR 
 
-Email sac@bioperl.org
+Steve Chervitz <sac@bioperl.org>
 
-See the L<FEEDBACK> section for where to send bug reports and comments.
+See L<the FEEDBACK section | FEEDBACK> for where to send bug reports and comments.
 
 =head1 COPYRIGHT
 

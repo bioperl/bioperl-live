@@ -66,11 +66,11 @@ or the web:
     bioperl-bugs@bio.perl.org                   
     http://bio.perl.org/bioperl-bugs/           
 
-=head1 AUTHOR - Steve Chervitz
+=head1 AUTHOR 
 
-sac@bioperl.org
+Steve Chervitz <sac@bioperl.org>
 
-See the L<FEEDBACK> section for where to send bug reports and comments.
+See L<the FEEDBACK section | FEEDBACK> for where to send bug reports and comments.
 
 =head1 ACKNOWLEDGEMENTS
 
@@ -133,7 +133,7 @@ sub DESTROY {
 
 =head2 next_hit
 
-See L<Bio::Search::Result::ResultI::next_hit>() for documentation
+See L<Bio::Search::Result::ResultI::next_hit()|Bio::Search::Result::ResultI> for documentation
 
 =cut
 
@@ -152,7 +152,7 @@ sub next_hit {
 
 =head2 query_name
 
-See L<Bio::Search::Result::ResultI::query_name>() for documentation
+See L<Bio::Search::Result::ResultI::query_name()|Bio::Search::Result::ResultI> for documentation
 
 =cut
 
@@ -170,7 +170,7 @@ sub query_name {
 
 =head2 query_length
 
-See L<Bio::Search::Result::ResultI::query_length>() for documentation
+See L<Bio::Search::Result::ResultI::query_length()|Bio::Search::Result::ResultI> for documentation
 
 =cut
 
@@ -184,7 +184,7 @@ sub query_length {
 
 =head2 query_description
 
-See L<Bio::Search::Result::ResultI::query_description>() for documentation
+See L<Bio::Search::Result::ResultI::query_description()|Bio::Search::Result::ResultI> for documentation
 
 =cut
 
@@ -205,7 +205,7 @@ sub query_description {
 
 =head2 analysis_method
 
-See L<Bio::AnalysisResultI::analysis_method>() for documentation
+See L<Bio::AnalysisResultI::analysis_method()|Bio::AnalysisResultI> for documentation
 
 This implementation ensures that the name matches /blast/i.
 
@@ -227,7 +227,7 @@ sub analysis_method {
 
 =head2 analysis_method_version
 
-See L<Bio::AnalysisResultI::analysis_method_version>() for documentation
+See L<Bio::AnalysisResultI::analysis_method_version()|Bio::AnalysisResultI> for documentation
 
 =cut
 
@@ -244,7 +244,7 @@ sub analysis_method_version {
 
 =head2 analysis_query
 
-See L<Bio::AnalysisResultI::analysis_query>() for documentation
+See L<Bio::AnalysisResultI::analysis_query()|Bio::AnalysisResultI> for documentation
 
 =cut
 
@@ -423,8 +423,6 @@ sub add_hit {
            : significance criteria will throw exceptions during construction.
            : This obviates the need to check significant() for
            : such objects.
-
-See Also   : L<_set_signif>()
 
 =cut
 

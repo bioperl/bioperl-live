@@ -180,10 +180,10 @@ sub column_map { return %column_map }
 
 =head2 to_string()
 
-Note: this method is not intended for direct use. 
-The SearchIO::write_result() method calls it
-automatically if the writer is hooked up to a SearchIO object as illustrated in 
-the L<SYNOPSIS> section.
+Note: this method is not intended for direct use. The
+SearchIO::write_result() method calls it automatically if the writer
+is hooked up to a SearchIO object as illustrated in 
+L<the SYNOPSIS section | SYNOPSIS>.
 
  Title     : to_string()
            :

@@ -16,7 +16,13 @@ Bio::Search::Hit::BlastHit. A goal for the future is to generalize it
 to work based on the Bio::Search interfaces, then it can work with any
 objects that implements them.
 
+=head1 AUTHOR 
+
+Steve Chervitz <sac@bioperl.org>
+
 =cut
+
+#'
 
 package Bio::Search::BlastUtils;
 
@@ -93,7 +99,7 @@ use Carp;
            : below 5 (DEFAULT IS 2). For more about this, see the "HSP Tiling and
            : Ambiguous Alignments" section in L<Bio::Search::Hit::BlastHit>.
 
-See Also   : L<_adjust_contigs>(), L<ambiguous_aln>(), L<overlap>(), L<frac_identical>(), L<frac_conserved>(), L<frac_aligned_query>(), L<frac_aligned_hit>(), L<num_unaligned_query>(), L<num_unaligned_hit>(), HSP Tiling and Ambiguous Alignments
+See Also   : L<_adjust_contigs>(), L<Bio::Search::Hit::BlastHit|Bio::Search::Hit::BlastHit>
 
 =cut
 
@@ -234,7 +240,7 @@ sub tile_hsps {
            : This will lead to significant tracking errors for large
            : overlap values.
 
-See Also   : L<overlap>(), L<_tile_hsps>(), B<Bio::Search::Hit::BlastHSP.pm>::matches
+See Also   : L<tile_hsps>(), L<Bio::Search::Hit::BlastHSP::matches|Bio::Search::Hit::BlastHSP>
 
 =cut
 
@@ -373,7 +379,7 @@ sub get_exponent {
  Returns   : List of numbers mixed with ranges of numbers (see above).
  Throws    : n/a
 
-See Also   : L<seq_inds>()
+See Also   : L<Bio::Search::Hit::BlastHit::seq_inds()|Bio::Search::Hit::BlastHit>
 
 =cut
 

@@ -14,7 +14,7 @@
 
 =head1 NAME
 
-Bio::Search::Result::ResultI- Abstract interface to Search Result objects
+Bio::Search::Result::ResultI - Abstract interface to Search Result objects
 
 =head1 SYNOPSIS
 
@@ -73,10 +73,13 @@ Report bugs to the Bioperl bug tracking system to help us keep track
   bioperl-bugs@bio.perl.org
   http://bio.perl.org/bioperl-bugs/
 
-=head1 AUTHOR - Aaron Mackey, Steve Chervitz
+=head1 AUTHOR 
 
-Email amackey@virginia.edu  (original author)
-Email sac@bioperl.org
+Aaron Mackey <amackey@virginia.edu>  (original author)
+
+Steve Chervitz <sac@bioperl.org>
+
+See L<the FEEDBACK section | FEEDBACK> for where to send bug reports and comments.
 
 =head1 COPYRIGHT
 

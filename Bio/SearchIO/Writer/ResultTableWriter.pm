@@ -1,8 +1,6 @@
 =head1 NAME
 
-Bio::SearchIO::Writer::ResultTableWriter 
-
-Outputs tab-delimited data for each Bio::Search::Result::ResultI object.
+Bio::SearchIO::Writer::ResultTableWriter - Outputs tab-delimited data for each Bio::Search::Result::ResultI object.
 
 =head1 SYNOPSIS
 
@@ -288,8 +286,7 @@ sub row_data_func { shift->{'_row_data_func'} }
 
 Note: this method is not intended for direct use. The
 SearchIO::write_result() method calls it automatically if the writer
-is hooked up to a SearchIO object as illustrated in the L<SYNOPSIS>
-section.
+is hooked up to a SearchIO object as illustrated in L<the SYNOPSIS section | SYNOPSIS>.
 
  Title     : to_string()
            :

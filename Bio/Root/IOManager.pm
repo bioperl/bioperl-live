@@ -84,7 +84,7 @@ It is not clear yet how much objects really need to do the fancy I/O gymnastics 
 supported by IOManager. Most of the time, objects simply send output to STDOUT
 which is managed at the script/program level. The fancy I/O manipulations are
 considered experimental and have not been adequately tested or utilized.
-I'm not really satisfied with the current L<display>()/L<set_display>() strategy.
+I'm not really satisfied with the current L<display()|display>/L<set_display()|set_display> strategy.
 The additional functionality is not often utilized in typical
 applications. Is the extra complexity worth it?
 
@@ -93,7 +93,7 @@ B<The API for this module is under development.>
 
 =head2 Generic Data Access & Manipulation
 
-The L<read>() method provided permits the following:
+The L<read()|read> method provided permits the following:
 
 =over 4
 
@@ -148,11 +148,11 @@ their resolution. Bug reports can be submitted via email or the web:
     bioperl-bugs@bio.perl.org
     http://bio.perl.org/bioperl-bugs/
 
-=head1 AUTHOR
+=head1 AUTHOR 
 
-Steve Chervitz, sac@bioperl.org
+Steve Chervitz <sac@bioperl.org>
 
-See the L<FEEDBACK> section for where to send bug reports and comments.
+See L<the FEEDBACK section | FEEDBACK> for where to send bug reports and comments.
 
 =head1 VERSION
 
@@ -218,7 +218,7 @@ for documentation purposes only.
  Throws    : Exception if the file appears to be empty or non-existent
  Comments  : File can be text or binary.
 
-See Also   : L<compress_file>(), L<uncompress_file>(), L<delete_file>()
+See Also   : L<compress_file()|compress_file>, L<uncompress_file()|uncompress_file>, L<delete_file()|delete_file>
 
 =cut
 
@@ -263,7 +263,7 @@ sub file {
            : interfaces for set_fh().
  Status    : Experimental
 
-See also   : L<_open_fh>(), L<set_read>(), L<set_display>().
+See also   : L<set_read()|set_read>, L<set_display()|set_display>.
 
 =cut
 
@@ -319,21 +319,21 @@ sub set_fh {
 
 
 
-=head2 _open_fh
-
- Purpose   : Creates a new FileHandle object and returns it.
-           : This method can be used when you need to
-           : pass FileHandles between objects.
- Returns   : The new FileHandle object.
- Throws    : Exception: if the call to new FileHandle fails.
- Examples  : $self->_open_fh();            # Create anonymous FileHandle object
-           : $self->_open_fh('fileName');  # Open for reading
-           : $self->_open_fh('>fileName'); # Open for writing
- Status    : Experimental
-
-See also   : L<set_fh>(), L<fh>(), L<set_read>(), L<set_display>()
-
-=cut
+#=head2 _open_fh
+#
+# Purpose   : Creates a new FileHandle object and returns it.
+#           : This method can be used when you need to
+#           : pass FileHandles between objects.
+# Returns   : The new FileHandle object.
+# Throws    : Exception: if the call to new FileHandle fails.
+# Examples  : $self->_open_fh();            # Create anonymous FileHandle object
+#           : $self->_open_fh('fileName');  # Open for reading
+#           : $self->_open_fh('>fileName'); # Open for writing
+# Status    : Experimental
+#
+#See also   : L<set_fh()|set_fh>, L<fh()|fh>, L<set_read()|set_read>, L<set_display()|set_display>
+#
+#=cut
 
 #-------------
 sub _open_fh {
@@ -359,15 +359,15 @@ sub _open_fh {
 
 
 
-=head2 _close_fh
-
- Purpose   : Destroy a FileHandle object.
- Returns   : n/a
- Status    : Experimental
-
-See also   : L<_open_fh>(), L<set_fh>()
-
-=cut
+#=head2 _close_fh
+#
+# Purpose   : Destroy a FileHandle object.
+# Returns   : n/a
+# Status    : Experimental
+#
+#See also   : L<_open_fh()|_open_fh>, L<set_fh()|set_fh>
+#
+#=cut
 
 #--------------
 sub _close_fh {
@@ -420,7 +420,7 @@ sub _close_fh {
  Status    : Experimental
  Comments  : I'm not satisfied with the current display()/set_display() strategy.
 
-See also   : L<display>(), L<set_fh>()
+See also   : L<display()|display>, L<set_fh()|set_fh>
 
 =cut
 
@@ -471,7 +471,7 @@ sub set_display {
            : different displaying and reading filehandles. This degree of
            : I/O control has not been necessary.
 
-See also   : L<read>(), L<set_display>()
+See also   : L<read()|read>, L<set_display()|set_display>
 
 =cut
 
@@ -509,7 +509,7 @@ sub set_read {
  Status    : Experimental
  WARNING   : NOT TESTED
 
-See also   : L<set_display>(), L<set_read>()
+See also   : L<set_display()|set_display>, L<set_read()|set_read>
 
 =cut
 
@@ -552,7 +552,7 @@ sub set_display_err {
  Returns   : String or undef if no show data member is defined.
  Arguments : n/a
 
-See also   : L<set_display>()
+See also   : L<set_display()|set_display>
 
 =cut
 
@@ -577,7 +577,7 @@ sub show { my $self= shift; $self->{'_show'}; }
            : $self->fh('errname'); # returns fh creation arguments for the err file.
  Status    : Experimental
 
-See also   : L<set_display>(), L<set_read>(), L<set_fh>(), L<set_display_err>()
+See also   : L<set_display()|set_display>, L<set_read()|set_read>, L<set_fh()|set_fh>, L<set_display_err()|set_display_err>
 
 =cut
 
@@ -688,7 +688,7 @@ sub fh {
            : when using the -w switch. It can be ignored for now:
   "Close on unopened file <GEN0> at /tools/perl/5.003/lib/FileHandle.pm line 255."
 
-See Also   : L<file>(), L<create_filehandle>()
+See Also   : L<file()|file>, L<Bio::Root::Utilities::create_filehandle()|Bio::Root::Utilities>
 
 =cut
 
@@ -795,7 +795,7 @@ sub read {
  Arguments : Named parameters for set_display().
  Comments  : I'm not satisfied with the current display()/set_display() strategy.
 
-See also   : L<set_display>(), L<_print_stats_header>()
+See also   : L<set_display()|set_display>
 
 =cut
 
@@ -869,7 +869,7 @@ sub _print_stats_header {
            : (Propagated from Utilities::file_date())
  Comments  : File can be text or binary.
 
-See Also   : L<file>(), B<Bio::Root::Utilities::file_date()>
+See Also   : L<file()|file>, L<Bio::Root::Utilities::file_date()|Bio::Root::Utilities>
 
 =cut
 
@@ -926,7 +926,7 @@ sub file_date {
            :
            : May not be taint-safe.
 
-See Also   : L<uncompress_file>(), L<file>(), B<Bio::Root::Utilities::compress()>
+See Also   : L<uncompress_file()|uncompress_file>, L<file()|file>, L<Bio::Root::Utilities::compress()|Bio::Root::Utilities>
 
 =cut
 
@@ -981,7 +981,7 @@ sub compress_file {
            : a dependency on particular file suffixes.
            : May not be taint safe.
 
-See Also   : L<compress_file>(), L<file>(), B<Bio::Root::Utilities::uncompress()>
+See Also   : L<compress_file()|compress_file>, L<file()|file>, L<Bio::Root::Utilities::uncompress()|Bio::Root::Utilities>
 
 =cut
 
@@ -1030,7 +1030,7 @@ sub uncompress_file {
            : This method is not taint-safe.
            : It is intended for off-line maintenance use only.
 
-See Also   : L<file>(), B<Bio::Root::Utilities::delete()>
+See Also   : L<file()|file>, L<Bio::Root::Utilities::delete()|Bio::Root::Utilities>
 
 =cut
 

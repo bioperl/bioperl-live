@@ -358,8 +358,6 @@ sub stack_trace{
            : Regardless of the style, it greatly helps to line
 	   : the parameters up vertically for long/complex lists.
 
-See Also   : L<_initialize>() 
-
 =cut
 
 #----------------'

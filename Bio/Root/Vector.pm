@@ -51,7 +51,7 @@ that provides a constructor (e.g., B<Bio::Root::Object.pm>).
 The Vector provides a set of methods that can then be used for managing
 sets of objects.
 
-See L<USAGE>.
+See L<the USAGE section | USAGE>.
 
 =head1 INSTALLATION
 
@@ -128,11 +128,11 @@ their resolution. Bug reports can be submitted via email or the web:
     bioperl-bugs@bio.perl.org
     http://bio.perl.org/bioperl-bugs/
 
-=head1 AUTHOR
+=head1 AUTHOR 
 
-Steve Chervitz, sac@bioperl.org
+Steve Chervitz <sac@bioperl.org>
 
-See the L<FEEDBACK> section for where to send bug reports and comments.
+See L<the FEEDBACK section | FEEDBACK> for where to send bug reports and comments.
 
 =head1 VERSION
 

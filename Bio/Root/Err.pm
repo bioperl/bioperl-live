@@ -72,7 +72,7 @@ To use the L<throw>() method directly:
 
 The C<$object_ref> argument should be a reference to a Bio::Root::Object.pm.
 
-See also L<USAGE>.
+See also L<the USAGE section | USAGE>.
 
 =head1 INSTALLATION
 
@@ -165,11 +165,11 @@ their resolution. Bug reports can be submitted via email or the web:
     bioperl-bugs@bio.perl.org
     http://bio.perl.org/bioperl-bugs/
 
-=head1 AUTHOR
+=head1 AUTHOR Steve Chervitz
 
-Steve Chervitz, sac@bioperl.org
+Email sac@bioperl.org
 
-See the L<FEEDBACK> section for where to send bug reports and comments.
+See L<the FEEDBACK section | FEEDBACK> section for where to send bug reports and comments.
 
 =head1 VERSION
 
