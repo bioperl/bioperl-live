@@ -16,7 +16,7 @@ BEGIN {
     }
     use Test;
 
-    plan tests => 30;
+    plan tests => 36;
 }
 use Bio::Tools::CodonTable;
 use vars qw($DEBUG);
@@ -149,3 +149,17 @@ ok $myCodonTable->is_unknown_codon('UAG'), 0;
 
 
 ok $myCodonTable->translate_strict('ATG'), 'M';
+
+# test for valid AA return
+my @valid_aa = sort $myCodonTable->valid_aa;
+ok(@valid_aa, 23);
+ok ($valid_aa[1], 'B');
+@valid_aa = sort $myCodonTable->valid_aa(1);
+
+ok(@valid_aa, 23);
+ok ($valid_aa[1], 'Ala');
+
+my %valid_aa = $myCodonTable->valid_aa(2);
+
+ok($valid_aa{'C'}, 'Cys');
+ok( $valid_aa{'Cys'}, 'C');

@@ -692,4 +692,48 @@ sub _unambiquous_codons{
 }
 
 
+=head2 valid_aa
+
+ Title   : valid_aa
+ Usage   : my @aa = $table->valid_aa
+ Function: Retrieves a list of the valid amino acid codes
+ Returns : array of all the valid amino acid codes
+ Args    : [optional] $code => [0 -> return list of 1 letter aa codes,
+				1 -> return list of 3 letter aa codes,
+				2 -> return associative array of both ]
+				
+=cut
+
+sub valid_aa{
+   my ($self,$code) = @_;
+   if( ! $code ) { 
+       my @codes;
+       foreach my $c ( sort values %onecode ) {
+	   push @codes, $c unless ( $c =~ /[BZX\*]/ );
+       }
+       push @codes, qw(B Z X);
+       return @codes;
+  } 
+   elsif( $code == 1 ) { 
+       my @codes;
+       foreach my $c ( sort keys %onecode ) {
+	   push @codes, $c unless ( $c =~ /(Asx|Glx|Xaa|Ter)/ );
+       }
+       push @codes, ('Asx', 'Glx', '?');
+       return @codes;
+   }
+   elsif( $code == 2 ) { 
+       my %codes = %onecode;
+       foreach my $c ( keys %onecode ) {
+	   my $aa = $onecode{$c};
+	   $codes{$aa} = $c;
+       }
+       return %codes;
+   } else {
+       $self->warn("unrecognized code in ".ref($self)." method valid_aa()");
+       return ();
+   }
+}
+
+
 1;
