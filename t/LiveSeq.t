@@ -86,7 +86,7 @@ test 34, $transcript->labelsubseq(8447,2) eq "gt";
 test 35, $gene->get_DNA->labelsubseq(8447,2) eq "gg";
 test 36, substr($gene->get_DNA->labelsubseq(8447,undef,9419),0,16) eq "ggtgaccaggcttcat";
 test 37, $gene->get_DNA eq $transcript->{seq};
-my (undef,$whichexon)=$transcript->in_which_Exon(9419);
+my ($nothing,$whichexon)=$transcript->in_which_Exon(9419);
 test 38, $whichexon == 7;
 test 39, $transcript->frame(9419) == 1;
 test 40, $transcript->frame(9420) == 2;

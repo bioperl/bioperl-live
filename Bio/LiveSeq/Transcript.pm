@@ -699,7 +699,7 @@ sub _checkexons {
       return (0);
     }
     $thisstart = $exon->start;
-    unless ($exon->{seq}->follows($prevend,$thisstart,$strand)) {
+    unless ($exon->{'seq'}->follows($prevend,$thisstart,$strand)) {
       carp "Exons not in correct order when trying to create Transcript";
       return (0);
     }
@@ -759,25 +759,25 @@ sub _deletecheck {
       }
       $self->{exons}=\@newexons;
     } elsif ($startexon->start eq $startlabel) { # special cases
-      $startexon->{start}=$nextend; # set a new start of exon
+      $startexon->{'start'}=$nextend; # set a new start of exon
     } elsif ($startexon->end eq $endlabel) {
-      $startexon->{end}=$prevstart; # set a new end of exon
+      $startexon->{'end'}=$prevstart; # set a new end of exon
     } else {
       return; # no problem
     }
   } else { # two new exons to be created, inter-exons deletion
     my @newexons;
     my $exonobj;
-    my $dna=$self->{seq};
+    my $dna=$self->{'seq'};
     my $strand=$self->strand;
     my $notmiddle=1; # flag for skipping exons in the middle of deletion
     foreach $exon (@exons) {
       if ($exon eq $startexon) {
-	$exonobj=Bio::LiveSeq::Exon->new(-seq=>$dna,-start=>$exon->start,-end=>$prevstart,-strand=>$strand); # new partial exon
+	$exonobj=Bio::LiveSeq::Exon->new('-seq'=>$dna,'-start'=>$exon->start,'-end'=>$prevstart,'-strand'=>$strand); # new partial exon
 	push(@newexons,$exonobj);
 	$notmiddle=0; # now we enter totally deleted exons
       } elsif ($exon eq $endexon) {
-	$exonobj=Bio::LiveSeq::Exon->new(-seq=>$dna,-start=>$nextend,-end=>$exon->end,-strand=>$strand); # new partial exon
+	$exonobj=Bio::LiveSeq::Exon->new('-seq'=>$dna,'-start'=>$nextend,'-end'=>$exon->end,'-strand'=>$strand); # new partial exon
 	push(@newexons,$exonobj);
 	$notmiddle=1; # exiting totally deleted exons
       } else {

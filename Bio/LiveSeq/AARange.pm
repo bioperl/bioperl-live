@@ -56,7 +56,7 @@ sequences:
 
    $startlabel=$AARange->start;
    $endtripletlabel=$AARange->end;
-   $endlabel=$AARange->{seq}->label(3,$endtripletlabel,$AARange->strand);
+   $endlabel=$AARange->{'seq'}->label(3,$endtripletlabel,$AARange->strand);
 
    $dnaseq=$AARange->labelsubseq($startlabel,undef,$endlabel));
 
@@ -142,7 +142,7 @@ sub new {
   unless ($translength) { # if it's not given, fetch it
     $translength=$translation->length;
   }
-  my $seq=$translation->{seq};
+  my $seq=$translation->{'seq'};
 
   if (($start < 1)&&($start > $translength)) {
     carp "$class not initialised because start aminoacid position not valid";
@@ -364,7 +364,7 @@ sub dna_seq {
   my $self=shift;
   my $startlabel=$self->start;
   my $endtripletlabel=$self->end;
-  my $endlabel=$self->{seq}->label(3,$endtripletlabel,$self->strand);
+  my $endlabel=$self->{'seq'}->label(3,$endtripletlabel,$self->strand);
   return ($self->labelsubseq($startlabel,undef,$endlabel));
 }
 
@@ -383,7 +383,7 @@ sub cdna_seq {
   my $self=shift;
   my $startlabel=$self->start;
   my $endtripletlabel=$self->end;
-  my $endlabel=$self->{seq}->label(3,$endtripletlabel,$self->strand);
+  my $endlabel=$self->{'seq'}->label(3,$endtripletlabel,$self->strand);
   return ($self->get_Transcript->labelsubseq($startlabel,undef,$endlabel));
 }
 

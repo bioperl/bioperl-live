@@ -163,7 +163,7 @@ sub down_chain2string {
 sub _updown_chain2string {
   my ($direction,$chain,$first,$len,$last)=@_;
   unless($chain) { cluck "no chain input"; return (-1); }
-  my $begin=$chain->{begin}; # the label of the BEGIN element
+  my $begin=$chain->{'begin'}; # the label of the BEGIN element
   my $end=$chain->{end}; # the label of the END element
   my $flow;
 
@@ -237,7 +237,7 @@ sub up_labels {
 sub _updown_labels {
   my ($direction,$chain,$first,$last)=@_;
   unless($chain) { cluck "no chain input"; return (0); }
-  my $begin=$chain->{begin}; # the label of the BEGIN element
+  my $begin=$chain->{'begin'}; # the label of the BEGIN element
   my $end=$chain->{end}; # the label of the END element
   my $flow;
   if ($direction eq "up") { $flow=2;
@@ -275,7 +275,7 @@ sub _updown_labels {
 sub start {
   my $chain=$_[0];
   unless($chain) { cluck "no chain input"; return (-1); }
-  return ($chain->{begin});
+  return ($chain->{'begin'});
 }
 
 =head2 end
@@ -370,8 +370,8 @@ sub up_subchain_length {
 sub _updown_count {
   my ($direction,$chain,$first,$last)=@_;
   unless($chain) { cluck "no chain input"; return (0); }
-  my $begin=$chain->{begin}; # the label of the BEGIN element
-  my $end=$chain->{end}; # the label of the END element
+  my $begin=$chain->{'begin'}; # the label of the BEGIN element
+  my $end=$chain->{'end'}; # the label of the END element
   my $flow;
   if ($direction eq "up") { $flow=2;
     unless ($first) { $first=$end; }
@@ -408,8 +408,8 @@ sub _updown_count {
 sub invert_chain {
   my $chain=$_[0];
   unless($chain) { cluck "no chain input"; return (0); }
-  my $begin=$chain->{begin}; # the name of the first element
-  my $end=$chain->{end}; # the name of the last element
+  my $begin=$chain->{'begin'}; # the name of the first element
+  my $end=$chain->{'end'}; # the name of the last element
   my ($label,@array);
   $label=$begin; # starts from the beginning
   while ($label) { # proceed with linked elements, swapping PREV and NEXT
@@ -418,7 +418,7 @@ sub invert_chain {
     $label = $array[1]; # go to the next one
   }
   # now swap begin and end fields
-  ($chain->{begin},$chain->{end})=($end,$begin);
+  ($chain->{'begin'},$chain->{'end'})=($end,$begin);
   return (1); # that's it
 }
 
@@ -588,8 +588,8 @@ sub up_get_label_at_pos {
 sub _updown_get_label_at_pos {
   my ($direction,$chain,$position,$first)=@_;
   unless($chain) { cluck "no chain input"; return (0); }
-  my $begin=$chain->{begin}; # the label of the BEGIN element
-  my $end=$chain->{end}; # the label of the END element
+  my $begin=$chain->{'begin'}; # the label of the BEGIN element
+  my $end=$chain->{'end'}; # the label of the END element
   my $flow;
   if ($direction eq "up") { $flow=2; unless ($first) { $first=$end; }
   } else { $flow=1; unless ($first) { $first=$begin; } }
@@ -667,8 +667,8 @@ sub _praepostinsert_array {
   my $praepost=$_[1] || "post"; # defaults to post
   my ($prae,$post);
   my $position=$_[3];
-  my $begin=$chain->{begin}; # the name of the first element of the chain
-  my $end=$chain->{end}; # the name of the the last element of the chain
+  my $begin=$chain->{'begin'}; # the name of the first element of the chain
+  my $end=$chain->{'end'}; # the name of the the last element of the chain
   # check if prae or post insertion and prepare accordingly
   if ($praepost eq "prae") {
     $prae=1;
@@ -703,7 +703,7 @@ sub _praepostinsert_array {
   if ($prae) {
     if ($position==$begin) { # 1st case: prae@begin
       $noerror=_join_chain_elements($chain,$insertend,$begin);
-      $chain->{begin}=$insertbegin;
+      $chain->{'begin'}=$insertbegin;
     } else { # 2nd case: prae@middle
       $noerror=_join_chain_elements($chain,up_element($chain,$position),$insertbegin);
       $noerror=_join_chain_elements($chain,$insertend,$position);
@@ -711,7 +711,7 @@ sub _praepostinsert_array {
   } elsif ($post) {
     if ($position==$end) { # 4th case: post@end
       $noerror=_join_chain_elements($chain,$end,$insertbegin);
-      $chain->{end}=$insertend;
+      $chain->{'end'}=$insertend;
     } else { # 3rd case: post@middle # note the order of joins (important)
       $noerror=_join_chain_elements($chain,$insertend,down_element($chain,$position));
       $noerror=_join_chain_elements($chain,$position,$insertbegin);
@@ -911,8 +911,8 @@ sub _updownlinkcheck {
   my $chain=$_[1];
   unless($chain) {
     warn ("Warning _${direction}linkcheck: no chain input"); return (0); }
-  my $begin=$chain->{begin}; # the name of the first element
-  my $end=$chain->{end}; # the name of the last element
+  my $begin=$chain->{'begin'}; # the name of the first element
+  my $end=$chain->{'end'}; # the name of the last element
   my ($label,@array,$me,$it,$itpoints);
   if ($direction eq "up") {
     $flow=2; # used to determine the direction of chain navigation
@@ -949,7 +949,7 @@ sub _sizecheck {
   my $chain=$_[0];
   unless($chain) {
     warn ("Warning _sizecheck: no chain input"); return (0); }
-  my $begin=$chain->{begin}; # the name of the first element
+  my $begin=$chain->{'begin'}; # the name of the first element
   my $warncode=1;
   my ($label,@array);
   my $size=$chain->{size};
@@ -975,8 +975,8 @@ sub _boundcheck {
   my $chain=$_[0];
   unless($chain) {
     warn ("Warning _boundcheck: no chain input"); return (0); }
-  my $begin=$chain->{begin}; # the name of the first element
-  my $end=$chain->{end}; # the name of the (supposedly) last element
+  my $begin=$chain->{'begin'}; # the name of the first element
+  my $end=$chain->{'end'}; # the name of the (supposedly) last element
   my $warncode=1;
 
   # check SYNC of beginning
@@ -1062,8 +1062,8 @@ sub splice_chain {
   my $chain=$_[0];
   unless($chain) {
     warn ("Warning splice_chain: no chain input"); return (-1); }
-  my $begin=$chain->{begin}; # the name of the first element
-  my $end=$chain->{end}; # the name of the (supposedly) last element
+  my $begin=$chain->{'begin'}; # the name of the first element
+  my $end=$chain->{'end'}; # the name of the (supposedly) last element
   my $first=$_[1];
   unless (($first eq 0)||($first)) { $first=$begin; } # if undef, use $begin
   my $len=$_[2];
@@ -1112,16 +1112,16 @@ sub splice_chain {
     if ($aftercut) { # 1st case, middle cut
       _join_chain_elements($chain,$beforecut,$aftercut);
     } else { # 3rd case, end cut
-      $chain->{end}=$beforecut; # update the END field
+      $chain->{'end'}=$beforecut; # update the END field
       $chain->{$beforecut}[1]=undef; # since we cut till the end
     }
   } else {
     if ($aftercut) { # 2nd case, begin cut
-      $chain->{begin}=$aftercut; # update the BEGIN field
+      $chain->{'begin'}=$aftercut; # update the BEGIN field
       $chain->{$aftercut}[2]=undef; # since we cut from beginning
     } else { # 4th case, all has been cut
-      $chain->{begin}=undef;
-      $chain->{end}=undef;
+      $chain->{'begin'}=undef;
+      $chain->{'end'}=undef;
     }
   }
   $chain->{size}=($chain->{size}) - $i + 1; # update the SIZE field
@@ -1237,8 +1237,8 @@ sub old_updown_chain2string {
   my ($direction,$chain,$first,$len,$last,$option)=@_;
   unless($chain) {
     warn ("Warning chain2string: no chain input"); return (-1); }
-  my $begin=$chain->{begin}; # the name of the BEGIN element
-  my $end=$chain->{end}; # the name of the END element
+  my $begin=$chain->{'begin'}; # the name of the BEGIN element
+  my $end=$chain->{'end'}; # the name of the END element
   my $flow;
   if ($direction eq "up") {
     $flow=2; # used to determine the direction of chain navigation
@@ -1355,7 +1355,7 @@ sub array2chain {
     $begin=1;
   }
   my ($element,%hash);
-  $hash{begin}=$begin;
+  $hash{'begin'}=$begin;
   my $i=$begin-1;
   foreach $element (@{$arrayref}) {
     $i++;
@@ -1363,7 +1363,7 @@ sub array2chain {
     $hash{$i}=[$element,$i+1,$i-1];
   }
   my $end=$i;
-  $hash{end}=$end;
+  $hash{'end'}=$end;
   $hash{firstfree}=$i+1; # what a new added element should be called
   $hash{size}=$end-$begin+1; # how many elements in the chain
 

@@ -165,9 +165,9 @@ sub all_labels {
   my ($start,$end) = ($self->start(),$self->end());
   my $labels;
   if ($self->strand() == 1) {
-    $labels=$self->{seq}->down_labels($start,$end);
+    $labels=$self->{'seq'}->down_labels($start,$end);
   } else {
-    $labels=$self->{seq}->up_labels($start,$end);
+    $labels=$self->{'seq'}->up_labels($start,$end);
   }
   return (@{$labels});
 }
@@ -222,7 +222,7 @@ sub labelsubseq {
     }
   } else {
     if ($start) {
-      unless ($self->{seq}->valid($start)) {
+      unless ($self->{'seq'}->valid($start)) {
 	carp "Start label not valid"; return (-1);
       }
     }
@@ -231,7 +231,7 @@ sub labelsubseq {
 	$length=1;
 	undef $end;
       } else {
-	unless ($self->{seq}->valid($end)) {
+	unless ($self->{'seq'}->valid($end)) {
 	  carp "End label not valid"; return (-1);
 	}
 	unless ($self->follows($start,$end) == 1) {
@@ -242,9 +242,9 @@ sub labelsubseq {
     }
   }
   if ($self->strand() == 1) {
-    return $self->{seq}->down_chain2string($start,$length,$end);
+    return $self->{'seq'}->down_chain2string($start,$length,$end);
   } else { # reverse strand
-    my $str = $self->{seq}->up_chain2string($start,$length,$end);
+    my $str = $self->{'seq'}->up_chain2string($start,$length,$end);
     $str =~ tr/acgtrymkswhbvdnxACGTRYMKSWHBVDNX/tgcayrkmswdvbhnxTGCAYRKMSWDVBHNX/;
     return $str;
   }
@@ -353,9 +353,9 @@ sub subseq {
   #print "\n    ####DEBUG: start $startlabel end $endlabel length $length strand $strand\n";
 
   if ($strand == 1) {
-    $str = $self->{seq}->down_chain2string($startlabel,$length,$endlabel);
+    $str = $self->{'seq'}->down_chain2string($startlabel,$length,$endlabel);
   } else { # reverse strand
-    $str = $self->{seq}->up_chain2string($startlabel,$length,$endlabel);
+    $str = $self->{'seq'}->up_chain2string($startlabel,$length,$endlabel);
     $str =~ tr/acgtrymkswhbvdnxACGTRYMKSWHBVDNX/tgcayrkmswdvbhnxTGCAYRKMSWDVBHNX/;
   }
   return $str;
@@ -377,9 +377,9 @@ sub length {
   my $self=shift;
   my ($start,$end,$strand)=($self->start(),$self->end(),$self->strand());
   if ($strand == 1) {
-    return $self->{seq}->down_subchain_length($start,$end);
+    return $self->{'seq'}->down_subchain_length($start,$end);
   } else {
-    return $self->{seq}->up_subchain_length($start,$end);
+    return $self->{'seq'}->up_subchain_length($start,$end);
   }
 }
 
@@ -538,10 +538,10 @@ sub positionchange {
 sub labelchange {
   my ($self,$newseq,$label,$length)=@_;
   unless ($self->valid($label)) {
-    if ($self->{seq}->valid($label)) {
+    if ($self->{'seq'}->valid($label)) {
       carp "Label \'$label\' not valid for executing a LiveSeq change for the object asked but it's ok for DNAlevel change, reverting to that";
       shift @_;
-      return($self->{seq}->labelchange(@_));
+      return($self->{'seq'}->labelchange(@_));
     } else {
       carp "Label \'$label\' not valid for executing a LiveSeq change";
       return (-1);
@@ -609,11 +609,11 @@ sub _praeinsert {
   my ($insertbegin,$insertend);
   my $strand=$self->strand();
   if ($strand == 1) {
-    ($insertbegin,$insertend)=($self->{seq}->praeinsert_string($newseq,$label));
+    ($insertbegin,$insertend)=($self->{'seq'}->praeinsert_string($newseq,$label));
   } else { # since it's reverse strand and we insert in forward direction....
     $newseq=reverse($newseq);
     $newseq =~ tr/acgtrymkswhbvdnxACGTRYMKSWHBVDNX/tgcayrkmswdvbhnxTGCAYRKMSWDVBHNX/; # since it's reverse strand we get the complementary bases
-    ($insertend,$insertbegin)=($self->{seq}->postinsert_string($newseq,$label));
+    ($insertend,$insertbegin)=($self->{'seq'}->postinsert_string($newseq,$label));
   }
   if (($insertbegin==0)||($insertend==0)) {
     carp "Some error occurred while inserting!";
@@ -638,9 +638,9 @@ sub _delete {
   $self->_deletecheck($label,$endlabel);
   my $deletedseq;
   if ($strand == 1) {
-    $deletedseq=$self->{seq}->splice_chain($label,undef,$endlabel);
+    $deletedseq=$self->{'seq'}->splice_chain($label,undef,$endlabel);
   } else {
-    $deletedseq=$self->{seq}->splice_chain($endlabel,undef,$label);
+    $deletedseq=$self->{'seq'}->splice_chain($endlabel,undef,$label);
     $deletedseq=reverse($deletedseq); # because we are on reverse strand and we cut anyway
                          # in forward direction
     $deletedseq =~ tr/acgtrymkswhbvdnxACGTRYMKSWHBVDNX/tgcayrkmswdvbhnxTGCAYRKMSWDVBHNX/; # since it's reverse strand we get the complementary bases
@@ -674,9 +674,9 @@ sub _mutate {
       # this wouldn't work for Transcript
       #my $labelsarrayref;
       #if ($strand == 1) {
-	#$labelsarrayref=$self->{seq}->down_labels($label,$endlabel);
+	#$labelsarrayref=$self->{'seq'}->down_labels($label,$endlabel);
       #} else {
-	#$labelsarrayref=$self->{seq}->up_labels($label,$endlabel);
+	#$labelsarrayref=$self->{'seq'}->up_labels($label,$endlabel);
       #}
       #@labels=@{$labelsarrayref};
       #if ($length != scalar(@labels)) { # not enough labels returned
@@ -699,7 +699,7 @@ sub _mutate {
   my $errorcheck; # if not equal to $length after summing for all changes, error did occurr
   $i = 0;
   foreach $base (split(//,$newseq)) {
-    $errorcheck += $self->{seq}->set_value_at_label($base,$labels[$i]);
+    $errorcheck += $self->{'seq'}->set_value_at_label($base,$labels[$i]);
     $i++;
   }
   if ($errorcheck != $length) {
@@ -886,15 +886,15 @@ sub label {
   }
   if ($strand == 1) {
     if ($position > 0) {
-      $label=$self->{seq}->down_get_label_at_pos($position,$firstlabel)
+      $label=$self->{'seq'}->down_get_label_at_pos($position,$firstlabel)
     } else { # if < 0
-      $label=$self->{seq}->up_get_label_at_pos(1 - $position,$firstlabel)
+      $label=$self->{'seq'}->up_get_label_at_pos(1 - $position,$firstlabel)
     }
   } else {
     if ($position > 0) {
-      $label=$self->{seq}->up_get_label_at_pos($position,$firstlabel)
+      $label=$self->{'seq'}->up_get_label_at_pos($position,$firstlabel)
     } else { # if < 0
-      $label=$self->{seq}->down_get_label_at_pos(1 - $position,$firstlabel)
+      $label=$self->{'seq'}->down_get_label_at_pos(1 - $position,$firstlabel)
     }
   }
   return $label;
@@ -935,8 +935,8 @@ sub position {
     return (1);
   }
   my ($coordpos,$position0,$position);
-  $position0=$self->{seq}->down_get_pos_of_label($label);
-  $coordpos=$self->{seq}->down_get_pos_of_label($firstlabel);
+  $position0=$self->{'seq'}->down_get_pos_of_label($label);
+  $coordpos=$self->{'seq'}->down_get_pos_of_label($firstlabel);
   $position=$position0-$coordpos+1;
   if ($position <= 0) {
     $position--;
@@ -977,9 +977,9 @@ sub follows {
     $strand=$self->strand;
   }
   if ($strand == 1) {
-    return ($self->{seq}->is_downstream($firstlabel,$secondlabel));
+    return ($self->{'seq'}->is_downstream($firstlabel,$secondlabel));
   } else {
-    return ($self->{seq}->is_upstream($firstlabel,$secondlabel));
+    return ($self->{'seq'}->is_upstream($firstlabel,$secondlabel));
   }
 }
 
@@ -1111,7 +1111,7 @@ sub gene {
 
 sub obj_valid {
   my $self=shift;
-  unless (($self->{seq}->valid($self->start()))&&($self->{seq}->valid($self->end()))) {
+  unless (($self->{'seq'}->valid($self->start()))&&($self->{'seq'}->valid($self->end()))) {
     return (0);
   }
   return (1);
@@ -1206,9 +1206,9 @@ sub source {
 #    }
 #  }
 #  if ($self->strand() == 1) {
-#    return $self->{seq}->down_chain2string($start,$length,$end);
+#    return $self->{'seq'}->down_chain2string($start,$length,$end);
 #  } else { # reverse strand
-#    my $str = $self->{seq}->up_chain2string($start,$length,$end);
+#    my $str = $self->{'seq'}->up_chain2string($start,$length,$end);
 #    $str =~ tr/acgtrymkswhbvdnxACGTRYMKSWHBVDNX/tgcayrkmswdvbhnxTGCAYRKMSWDVBHNX/;
 #    return $str;
 #  }

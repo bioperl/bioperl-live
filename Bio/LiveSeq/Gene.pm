@@ -307,39 +307,39 @@ sub name {
 # gets the features hash
 sub features {
   my $self=shift;
-  return ($self->{features});
+  return ($self->{'features'});
 }
 sub get_DNA {
   my $self=shift;
-  return ($self->{features}->{DNA});
+  return ($self->{'features'}->{DNA});
 }
 sub get_Transcripts {
   my $self=shift;
-  return ($self->{features}->{Transcripts});
+  return ($self->{'features'}->{Transcripts});
 }
 sub get_Translations {
   my $self=shift;
-  return ($self->{features}->{Translations});
+  return ($self->{'features'}->{Translations});
 }
 sub get_Prim_Transcripts {
   my $self=shift;
-  return ($self->{features}->{Prim_Transcripts});
+  return ($self->{'features'}->{Prim_Transcripts});
 }
 sub get_Repeat_Units {
   my $self=shift;
-  return ($self->{features}->{Repeat_Units});
+  return ($self->{'features'}->{Repeat_Units});
 }
 sub get_Repeat_Regions {
   my $self=shift;
-  return ($self->{features}->{Repeat_Regions});
+  return ($self->{'features'}->{Repeat_Regions});
 }
 sub get_Introns {
   my $self=shift;
-  return ($self->{features}->{Introns});
+  return ($self->{'features'}->{Introns});
 }
 sub get_Exons {
   my $self=shift;
-  return ($self->{features}->{Exons});
+  return ($self->{'features'}->{Exons});
 }
 sub featuresnum {
   my $self=shift;

@@ -174,7 +174,7 @@ sub embl2hash {
     %valid_names = map {$_, 1} @{$_[2]}; # to skip qualifiers
   }
 
-  my $stream = Bio::SeqIO->new(-file => $filename, -format => 'EMBL');
+  my $stream = Bio::SeqIO->new('-file' => $filename, '-format' => 'EMBL');
  
   my $seqobj = $stream->next_seq();
   my $annobj = $seqobj->annotation(); # what's this?
