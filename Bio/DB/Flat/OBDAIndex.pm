@@ -2,7 +2,7 @@
 #
 # BioPerl module for Bio::DB::Flat::OBDAIndex
 #
-# Cared for by Michele Clamp <michele@sanger.ac.uk>>
+# Cared for by Michele Clamp <michele@sanger.ac.uk>
 #
 # You may distribute this module under the same terms as perl itself
 
