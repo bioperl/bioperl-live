@@ -1,0 +1,115 @@
+!!SEQUENCE_LIST 1.0
+BLASTP 2.2.1 [Apr-13-2001]
+
+
+Reference: Altschul, Stephen F., Thomas L. Madden, Alejandro A. Schaffer, 
+Jinghui Zhang, Zheng Zhang, Webb Miller, and David J. Lipman (1997), 
+"Gapped BLAST and PSI-BLAST: a new generation of protein database search
+programs",  Nucleic Acids Res. 25:3389-3402.
+
+Query= /v0/people/staji002/test.gcg
+         (146 letters)
+
+Database: pir
+           274,514 sequences; 93,460,074 total letters
+
+Searching. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .done
+
+                                                         Score    E
+ Sequences producing significant alignments:             (bits)  Value ..
+
+PIR2:S44629  Begin: 342 End: 470 
+!F22B7.10 protein - Caenorhabditis elegans                   57  2e-08
+PIR2:T21398  Begin: 40 End: 108 
+!hypothetical protein F26D2.1 - Caenorhabditis elegans       33  0.40
+PIR1:WMBELM  Begin: 307 End: 385 
+!membrane protein LMP-2A - human herpesvirus 4               32  0.53
+\\End of List
+
+>PIR2:S44629 F22B7.10 protein - Caenorhabditis elegans
+          Length = 628
+
+ Score = 57.0 bits (136), Expect = 2e-08
+ Identities = 38/135 (28%), Positives = 69/135 (50%), Gaps = 8/135 (5%)
+
+Query: 3   CAAEFDFMEKETPLRYTKTXXXXXXXXXXXXXXRKIISDMWGVLAKQQTHVRKHQFDHGE 62
+           C+AEFDF++  T  +   T                 + +   +L +    +     ++GE
+Sbjct: 342 CSAEFDFIQYSTIEKLCGTLLIPLALISLVTFVFNFVKNT-NLLWRNSEEIG----ENGE 396
+
+Query: 63  LVYHALQLLAYTALGILIMRLKLFLTPYMCVMASLICSRQLFGW--LFCKVHPGAIVFVI 120
+           ++Y+ +QL   T +  LIMRLKLF+TP++C++A+L  + +L G   +   +   A+V VI
+Sbjct: 397 ILYNVVQLCCSTVMAFLIMRLKLFMTPHLCIVAALFANSKLLGGDRISKTIRVSALVGVI 456
+
+Query: 121 LAAMSIQGSANLQTQ 135
+            A +  +G  N++ Q
+Sbjct: 457 -AILFYRGIPNIRQQ 470
+
+
+>PIR2:T21398 hypothetical protein F26D2.1 - Caenorhabditis elegans
+          Length = 346
+
+ Score = 32.7 bits (73), Expect = 0.40
+ Identities = 20/71 (28%), Positives = 41/71 (57%), Gaps = 11/71 (15%)
+
+Query: 66  HALQLLAYTALGILIMRLKLFLTPYMCV---------MASLICSRQLFGWLFCKVHPGAI 116
+           + + ++A+ +LGI+   L++F+ PY+ V         +++ I ++ L  WLF  +  G +
+Sbjct: 40  YRIMIVAFASLGIIYSGLEVFIKPYLHVYNNCILYFSLSTWISAKPLLPWLFA-IWSG-M 97
+
+Query: 117 VFVILAAMSIQ 127
+             V++A +SIQ
+Sbjct: 98  YLVVIAFISIQ 108
+
+
+>PIR1:WMBELM membrane protein LMP-2A - human herpesvirus 4
+          Length = 497
+
+ Score = 32.3 bits (72), Expect = 0.53
+ Identities = 26/79 (32%), Positives = 38/79 (47%), Gaps = 4/79 (5%)
+
+Query: 67  ALQLLAYTALGILIMRLKLFLTPYMCVMASLICSR----QLFGWLFCKVHPGAIVFVILA 122
+           AL LLA   LG L +     L     ++  LICS      L   L  ++   A+  ++LA
+Sbjct: 307 ALALLASLILGTLNLTTMFLLMLLWTLVVLLICSSCSSCPLSKILLARLFLYALALLLLA 366
+
+Query: 123 AMSIQGSANLQTQWKSTAS 141
+           +  I G + LQT +KS +S
+Sbjct: 367 SALIAGGSILQTNFKSLSS 385
+
+
+  Database: pir
+    Posted date:  Jan 3, 2002  1:13 PM
+  Number of letters in database: 93,460,074
+  Number of sequences in database:  274,514
+  
+Lambda     K      H
+   0.329    0.137    0.426 
+
+Gapped
+Lambda     K      H
+   0.267   0.0410    0.140 
+
+
+Matrix: BLOSUM62
+Gap Penalties: Existence: 11, Extension: 1
+Number of Hits to DB: 21,034,208
+Number of Sequences: 274514
+Number of extensions: 620007
+Number of successful extensions: 1381
+Number of sequences better than  1.0: 3
+Number of HSP's better than  1.0 without gapping: 1
+Number of HSP's successfully gapped in prelim test: 2
+Number of HSP's that attempted gapping in prelim test: 1379
+Number of HSP's gapped (non-prelim): 3
+length of query: 146
+length of database: 93,460,074
+effective HSP length: 102
+effective length of query: 44
+effective length of database: 65,459,646
+effective search space: 2880224424
+effective search space used: 2880224424
+T: 11
+A: 40
+X1: 15 ( 7.1 bits)
+X2: 38 (14.6 bits)
+X3: 64 (24.7 bits)
+S1: 40 (21.9 bits)
+S2: 70 (31.6 bits)

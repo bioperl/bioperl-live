@@ -20,7 +20,7 @@ BEGIN {
 	use lib 't';
     }
     use vars qw($NTESTS);
-    $NTESTS = 621;
+    $NTESTS = 649;
     $LASTXMLTEST = 54;
     $error = 0;
 
@@ -871,6 +871,48 @@ while( my $result = $searchio->next_result ) {
     ok($result->query_name, shift @expected, "Multiblast query test");
 }
 
+
+# Test GCGBlast parsing
+
+$searchio = new Bio::SearchIO('-format' => 'blast',
+			      '-file'   => Bio::Root::IO->catfile('t','data', 'test.gcgblast'));
+$result = $searchio->next_result();
+
+ok($result->query_name, '/v0/people/staji002/test.gcg');
+ok($result->algorithm, 'BLASTP');
+ok($result->algorithm_version, '2.2.1 [Apr-13-2001]');
+ok($result->database_name, 'pir');
+ok($result->database_entries, 274514);
+ok($result->database_letters, 93460074);
+ok($result->database_letters, 93460074);
+$hit = $result->next_hit;
+ok($hit->name, 'PIR2:S44629');
+ok($hit->length, 628);
+ok($hit->accession, 'PIR2:S44629');
+skip('Significance parsing broken for GCG-BLAST Hits -- see HSP',$hit->significance, '2e-08' );
+skip('Raw score parsing broken for GCG-BLAST Hits -- see HSP',$hit->raw_score, 57 );
+
+$hsp = $hit->next_hsp;
+ok($hsp->evalue, '2e-08');
+ok($hsp->bits, '57.0');
+ok($hsp->score, 136);
+ok(int($hsp->percent_identity), 28);
+ok(sprintf("%.2f",$hsp->frac_identical('query')), 0.29);
+ok($hsp->frac_conserved('total'), 69/135);
+ok($hsp->gaps('total'), 8);
+ok($hsp->gaps('hit'), 6);
+ok($hsp->gaps('query'), 2);
+
+ok($hsp->hit->start, 342);
+ok($hsp->hit->end, 470);
+ok($hsp->query->start, 3);
+ok($hsp->query->end, 135);
+
+ok($hsp->query_string, 'CAAEFDFMEKETPLRYTKTXXXXXXXXXXXXXXRKIISDMWGVLAKQQTHVRKHQFDHGELVYHALQLLAYTALGILIMRLKLFLTPYMCVMASLICSRQLFGW--LFCKVHPGAIVFVILAAMSIQGSANLQTQ');
+ok($hsp->hit_string, 'CSAEFDFIQYSTIEKLCGTLLIPLALISLVTFVFNFVKNT-NLLWRNSEEIG----ENGEILYNVVQLCCSTVMAFLIMRLKLFMTPHLCIVAALFANSKLLGGDRISKTIRVSALVGVI-AILFYRGIPNIRQQ');
+ok($hsp->homology_string, 'C+AEFDF++  T  +   T                 + +   +L +    +     ++GE++Y+ +QL   T +  LIMRLKLF+TP++C++A+L  + +L G   +   +   A+V VI A +  +G  N++ Q');
+
+
 # TODO: Flesh this test out!
 $searchio = new Bio::SearchIO ('-format' => 'psiblast',
 			       '-file'   => Bio::Root::IO->catfile('t','data','HUMBETGLOA.tblastx'));
@@ -905,5 +947,4 @@ ok(-e "searchio.html");
 END { 
     unlink 'searchio.out';
     unlink 'searchio.html';
-
 }
