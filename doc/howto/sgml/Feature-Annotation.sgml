@@ -33,7 +33,7 @@
       </para>      
     </legalnotice>
 
-    <abstract>
+    <abstract>      
       <para>
 	This is a HOWTO written in DocBook format that explains how to
 	use the SeqFeature and Annotation objects of Bioperl. 
@@ -162,7 +162,10 @@
   <section id="feat_from_genbank">
     <title>Features from Genbank</title>
     <para>
-      When the file comes from Genbank it's easy to see where most of the
+      I'll be focusing on the Genbank format but bear in my mind
+      that all of the code shown here will also work on other formats,
+      like EMBL or Swissprot. When the file comes from Genbank it's 
+      easy to see where most of the
       features are, they're in the Feature table section, something
       like this:
       <programlisting>
@@ -194,8 +197,10 @@ FEATURES             Location/Qualifiers
     <para>
       Features in Bioperl are accessed using their tags, either a
       "primary tag" or a plain "tag". Examples of primary tags in this 
-      text are "source", "gene", and "CDS". Plain tags include
-      "organism", "note", "db_xref", and "translation".
+      text are "source", "gene", and "CDS". Plain tags in this table include
+      "organism" (/organism="Homo sapiens"), "note" (/note="ND"), 
+      "db_xref" (/db_xref="taxon:9606"), and "translation"
+      (/translation="MRKHVL...HCEECNS").
     </para>
     <para>
       When a Genbank file like this is parsed the
@@ -345,8 +350,8 @@ FEATURES             Location/Qualifiers
     </table>
     <para>
       It's not unusual for a Genbank file to have multiple CDS or gene
-      features (and recall that 'CDS' or 'gene' could be primary tags
-      in Bioperl), each with a number of tags, like 'note', 'protein_id',
+      features (and recall that 'CDS' or 'gene' are common primary tags
+      in Genbank format), each with a number of tags, like 'note', 'protein_id',
       or 'product'. How can we get, say, the nucleotide sequences and gene
       names from all these CDS features? By putting all of this together we
       arrive at something like:
@@ -391,7 +396,7 @@ FEATURES             Location/Qualifiers
     </para>
     <para>
       Because you're asking for a specific primary tag and tag, 'CDS'
-      and 'gene' respectively, this would only work when there are 
+      and 'gene' respectively, this code would only work when there are 
       features that looked something like this:
       <programlisting>
      CDS             735..1829
@@ -435,6 +440,53 @@ FEATURES             Location/Qualifiers
     </para>  
   </section>
  
+  <section id="location">
+    <title>Location Objects</title>
+    <para>
+<!-- link to modules -->
+      There's quite a bit to this idea of location, so much that it
+      probably deserves its own HOWTO. This is my way of saying that
+      if this topic interests you should take a closer look at the modules that
+      are concerned with both Location and Range. The Range modules
+      offer the user a number of useful methods to handle "fuzzy"
+      locations, where the "start" and "end" of a particular
+      sub-sequence themselves have start and end positions, or are
+      only partially defined.
+    </para>
+    <para>
+      In their simplest form the Location objects are used to get or
+      set these start and end positions, getting the positions could
+      look like this:
+      <programlisting>
+	# polyA_signal    1811..1815
+         #                 /gene="NDP"
+	my $start = $feat_object->location->start;
+	my $end = $feat_object->location->end;
+         </programlisting>
+      By now you know that the <function>location()</function> method returns
+      an object, in this case a Location object, with an <function>
+	end()</function> method.
+    </para>
+    <para>
+      Another way of describing a feature in Genbank involves
+      multiple start and end positions. These could be called "split"
+      locations, and a very common example is the join statement in the
+      CDS feature found in Genbank entries
+      (e.g. "join(45..122,233..267)"). This calls for a specialized
+      object, SplitLocation, which is a container for Location objects:
+      <programlisting>
+       foreach my $feature ($seqobj->top_SeqFeatures){
+         if ( $feature->location->isa('Bio::Location::SplitLocationI')
+                        &amp;&amp; $feature->primary_tag eq 'CDS' )  {
+           foreach my $location ( $feature->location->sub_Location ) {
+             print $location->start . ".." . $location->end . "\n";
+           }
+         }
+       }
+      </programlisting>
+    </para>
+  </section>
+
   <section id="other_objects">
     <title>Other objects</title>
     <para>
@@ -588,7 +640,7 @@ start: 1
     populated with data and <function>as_text()</function> will suffice.
     </para>
     <para>
-      The simplest bits of text, like KEYWORDS, end up in these
+      The simplest bits of Genbank text, like KEYWORDS, end up in these
       Annotation::SimpleValue objects, the COMMENT ends up in a
       <classname>Bio::Annotation::Comment</classname> object, and 
       references are tranformed into
@@ -603,11 +655,6 @@ start: 1
       There's also title(), publisher(), medline(), editors(),
       database(), pubmed() and a number of other methods.
     </para>
-  </section>
-
-  <section id="swissprot">
-    <title>Swissprot Note</title>
-    There are other formats t
   </section>
 
   <section id="direct">
@@ -636,38 +683,7 @@ start: 1
     automatically when you use SeqIO to read from EMBL, GenBank, and 
     SwissProt files. However, it's not guaranteed that each of these
     formats will supply data for all of the methods above.
-  </section>
-  
-  <section id="location">
-    <title>Location Objects</title>
-    <para>
-<!-- link to modules -->
-      There's quite a bit to this idea of location, so much that it
-      probably deserves its own HOWTO. This is my way of saying that
-      if this topic interests you should take a closer look at the modules that
-      are concerned with both Location and Range. The Range modules
-      offer the user a number of useful methods to handle "fuzzy"
-      locations, where the "start" and "end" of a particular
-      sub-sequence themselves have start and end positions, or are
-      only partially defined.
-    </para>
-    <para>
-      In their simplest form the Location objects are used to get or
-      set these start and end positions, or the multiple start and end
-      positions of "split" locations, like the join statements in the
-      CDS feature found in Genbank entries (e.g. "join(45..122,233..267)"):
-      <programlisting>
-       foreach my $feature ($seqobj->top_SeqFeatures){
-         if ( $feature->location->isa('Bio::Location::SplitLocationI')
-                        &amp;&amp; $feature->primary_tag eq 'CDS' )  {
-           foreach my $location ( $feature->location->sub_Location ) {
-             print $location->start . ".." . $location->end . "\n";
-           }
-         }
-       }
-      </programlisting>
-    </para>
-  </section>
+  </section>  
 
   <section id="annotation">
     <!-- 
@@ -709,9 +725,11 @@ start: 1
 	foreach my $tag (@arr) {
 	  print $tag,":",$feat->get_tag_values($tag),"  ";
 	}
-        # prints out:
+         # prints out:
 	# author:john  match1:PF000123 e-7.2  match2:PF002534 e-3.1  note:TATA box
       </programlisting>
+    </para>
+    <para>
     </para>
     <para>
       Since the value passed to "-tag" could be any kind of scalar,
@@ -721,44 +739,57 @@ start: 1
     <para>
       Once the feature is created it can be associated with a sequence:
       <programlisting>
-	# first we want a Sequence object
+	# we want a Sequence object
 	my $seq_obj = Bio::Seq->new(-seq => "attcccccttataaaattttttttttgaggggtggg");
 	# associate the sequence and the feature
 	$feat->attach_seq($seq_obj);
       </programlisting>
     </para>
     <para>
+    </para>
+    <para>
+      But we can also do it the other way!
+      <programlisting>
+	# we want a Sequence object
+	my $seq_obj = Bio::Seq->new(-seq => "attcccccttataaaattttttttttgaggggtggg");
+	# then add the feature to the sequence
+	$seq_obj->add_SeqFeature($feat_object);
+      </programlisting>
+    The <function>add_SeqFeature()</function> method will also accept an array
+    of SeqFeature objects.
+    </para>
+    <para>
       Once you have a feature you can add annotations to it using an
       AnnotationCollection object:
-      <programlisting>
+	<programlisting>
 	$db_link = new Bio::Annotation::DBLink();
 	$db_link->database('dbSNP');
 	$db_link->primary_id('2367');
 	$feat->annotation->add_Annotation('dblink',$db_link);
-    </programlisting>
+	</programlisting>
       Note that the first argument to <function>add_Annotation()</function>
       is the tag name, 'dblink', this is the general idiom for adding
       Annotations.
-    </para>
-  </section>
-<para>
-    What if you wanted to add an Annotation directly to a sequence?
-    This is an operation similar to the one above. Assume you already have
-    a sequence object, you'll create the Annotation object and simply
-    add the object to the sequence object: 
-    <programlisting>
+      </para>
+      <para>
+	What if you wanted to add an Annotation directly to a sequence?
+	This is an operation similar to the one above. Assume you already have
+	a sequence object, you'll create the Annotation object and simply
+	add the object to the sequence object: 
+	<programlisting>
       # first create an Ontology annotation
       my $annterm = new Bio::Annotation::OntologyTerm(-label => 'ABC1',
                                                       -tagname => 'Gene Name');
       $seq_object->annotation->add_Annotation($annterm);
-    </programlisting>
-  </para>
-  <para>
+	</programlisting>
+      </para>
+      <para>
     This is a slightly different example because the OntologyTerm object was
-    created <emphasis>with</emphasis> a tag name, so you don't need to
+    created with a tag name, so you don't need to
     specify it when you use the 
     <function>add_Annotation()</function> method.
-  </para>
+      </para>
+  </section>
 
 <!--
   <section id="feature_variations">
@@ -819,8 +850,8 @@ start: 1
       url="http://bioperl.org/HOWTOs/html/Graphics-HOWTO.html">Graphics
       HOWTO</ulink>. The documentation for each of the individual
       SeqFeature, Range, Location and 
-      Annotation modules is also very useful, there's a list of them
-      below. If you have questions 
+      Annotation modules is also very useful, here's a list of them. 
+      If you have questions 
       or comments that aren't addressed herein then write the 
       Bioperl community at bioperl-l@bioperl.org.
     </para>
