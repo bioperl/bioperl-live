@@ -28,7 +28,7 @@ Bio::Search::Result::ResultI - Abstract interface to Search Result objects
     my $io = new Bio::SearchIO(-format => 'blast',
  			       -file   => 't/data/HUMBETGLOA.tblastx');
     my $result = $io->next_result;
-    while( $hit = $result->next_hits()) { # enter code here for hit processing
+    while( $hit = $result->next_hit()) { # enter code here for hit processing
     }
 
     my $id = $result->query_name();

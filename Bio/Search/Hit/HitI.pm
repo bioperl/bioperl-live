@@ -229,6 +229,23 @@ sub next_hsp {
     $self->throw_not_implemented;
 }
 
+=head2 hits
+
+ Title   : hits
+ Usage   :
+ Function:
+ Returns : 
+ Args    :
+
+
+=cut
+
+sub hits{
+   my ($self,@args) = @_;
+
+
+}
+
 
 1;
 

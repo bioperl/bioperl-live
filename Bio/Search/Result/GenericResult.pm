@@ -569,10 +569,18 @@ sub add_statistic {
    return;
 }
 
+=head2 hits
 
-#---------------
+ Title   : hits
+ Usage   : my @hits = $result->hits
+ Function: Returns the available hits for this Result
+ Returns : Array of L<Bio::Search::Hit::HitI> objects
+ Args    : none
+
+
+=cut
+
 sub hits {
-#---------------
     my $self = shift;
     my @hits = ();
     if( ref $self->{'_hits'}) {
