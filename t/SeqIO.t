@@ -8,7 +8,7 @@ BEGIN {
 	use lib 't';
     }
     use Test;
-    plan tests => 89;
+    plan tests => 90;
 }
 
 use Bio::Seq;
