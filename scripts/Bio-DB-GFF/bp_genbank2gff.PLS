@@ -2,7 +2,7 @@
 
 use lib '.';
 
-# $Id: bp_genbank2gff.PLS,v 1.10 2003-11-14 19:25:44 scain Exp $
+# $Id: bp_genbank2gff.PLS,v 1.11 2003-12-17 13:49:52 lstein Exp $
 use strict;
 use Bio::DB::GFF;
 use Getopt::Long;
@@ -14,7 +14,8 @@ bp_genbank2gff.pl - Load a Bio::DB::GFF database from GENBANK files.
 =head1 SYNOPSIS
 
   % bp_genbank2gff.pl -d genbank -f localfile.gb
-  % bp_genbank2gff.pl -d genbank -a AP003256
+  % bp_genbank2gff.pl -d genbank --accession AP003256
+  % bp_genbank2gff.pl --accession AP003256 --stdout
 
 =head1 DESCRIPTION
 
@@ -186,7 +187,7 @@ die $USAGE unless ($DSN || $STDOUT);  # at a minimum we need to have a place to 
 
 # some local defaults
 $DSN     ||= 'dbi:mysql:test';
-$ADAPTOR ||= 'dbi::mysql';
+$ADAPTOR ||= $STDOUT ? 'memory' : 'dbi::mysql';
 
 # Ensure that biofetch inherits from the "right" adaptor.
 # This is a horrible hack and should be fixed.
@@ -194,6 +195,7 @@ eval "use Bio::DB::GFF::Adaptor::${ADAPTOR}";
 local @Bio::DB::GFF::Adaptor::biofetch::ISA = "Bio::DB::GFF::Adaptor::${ADAPTOR}";
 
 my $biofetch = $STDOUT ? 'biofetch_to_stdout' : 'biofetch';
+my @dsn      = $STDOUT ? () : (-dsn => $DSN);
 
 my @auth;
 push @auth,(-user=>$USER)     if defined $USER;
@@ -213,7 +215,7 @@ $preferred_tags{'product'} = 90 if $VIRAL; # added this to the default list for 
        # since most functions come from post-translational processing, so the default labels are c**p!
 
 my $db = Bio::DB::GFF->new(-adaptor=>$biofetch,
-			   -dsn => $DSN,
+			   @dsn,
 			   @auth,
 			   -preferred_tags => \%preferred_tags,
 			   -source=> $SOURCE || 'Genbank')
