@@ -19,7 +19,8 @@ Bio::DB::Flat - Interface for indexed flat files
 			   -dbname     => 'mydb',
                            -format     => 'embl',
                            -write_flag => 1);
-  $db->build_index('/usr/share/embl/primate.embl','/usr/share/embl/protists.embl');
+  $db->build_index('/usr/share/embl/primate.embl',
+                   '/usr/share/embl/protists.embl');
   $seq       = $db->get_Seq_by_id('BUM');
   @sequences = $db->get_Seq_by_acc('DIV' => 'primate');
   $raw       = $db->fetch_raw('BUM');
@@ -81,11 +82,11 @@ use constant CONFIG_FILE_NAME => 'config.dat';
 =head2 new
 
  Title   : new
- Usage   : my $db = new Bio::Flat->new(
+ Usage   : my $db = Bio::DB::Flat->new(
                      -directory  => $root_directory,
 		     -dbname     => 'mydb',
-		     -write_flag => 0,
-                     -index      => 'bdb'|'binarysearch',
+		     -write_flag => 1,
+                     -index      => 'bdb',
                      -verbose    => 0,
 		     -out        => 'outputfile',
                      -format     => 'genbank');
@@ -95,6 +96,7 @@ use constant CONFIG_FILE_NAME => 'config.dat';
            -write_flag   If true, allows creation/updating.
            -verbose      Verbose messages
            -out          File to write to when write_seq invoked
+           -index        'bdb' or 'binarysearch'
  Status  : Public
 
 The required -directory argument indicates where the flat file indexes
@@ -119,6 +121,10 @@ corresponds to the OBDA "flat" indexed file.
 
 The -out argument specifies the output file for writing objects created
 with write_seq().
+
+The -format argument specifies the format of the input file or files. If
+the file suffix is one that Bioperl can already associate with a format
+then this is optional.
 
 =cut
 
