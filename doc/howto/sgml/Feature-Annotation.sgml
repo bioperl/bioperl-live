@@ -393,19 +393,20 @@ FEATURES             Location/Qualifiers
         use Bio::SeqIO;
 
 	my $seqio_object = Bio::SeqIO->new(-file => $gb_file);
-         my $seq_object = $seqio_object->next_seq;
+        my $seq_object = $seqio_object->next_seq;
 
 	foreach my $feat_object ($seq_object->get_SeqFeatures) {
 	  if ($feat_object->primary_tag eq "CDS") {
 	    print $feat_object->spliced_seq->seq,"\n";
-	    # e.g. 'ATTATTTTCGCTCGCTTCTCGCGCTTTTTGAGATAAGGTCGCGT...'
-	    foreach my $val ($feat->get_tag_values('gene')
-                             if ($feat->has_tag('gene')) {
+	# e.g. 'ATTATTTTCGCTCGCTTCTCGCGCTTTTTGAGATAAGGTCGCGT...'
+	    foreach my $val ($feat->get_tag_values('gene')) {
+	      if ($feat->has_tag('gene')) {
 	      print "gene: ",$val,"\n";
-	      # e.g. 'NDP', from a line like '/gene="NDP"'
+	# e.g. 'NDP', from a line like '/gene="NDP"'
+	      }
             }
-	  }
-        }
+          }
+        }	
       </programlisting> 
     </para>
     <para>
