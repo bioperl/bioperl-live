@@ -362,10 +362,10 @@ while( my $hit = $result->next_hit ) {
 	while( my $hsp = $hit->next_hsp ) {
 	    ok($hsp->query->start, 125);
 	    ok($hsp->query->end, 305);
-	    ok($hsp->query->strand, 1);
+	    ok($hsp->query->strand, 0);
 	    ok($hsp->hit->start, 2);
 	    ok($hsp->hit->end, 181);
-	    ok($hsp->hit->strand, 1);
+	    ok($hsp->hit->strand, 0);
 	    ok($hsp->length('hsp'), 188);	    
 	    ok($hsp->evalue == 1.2);
 	    ok($hsp->score, 109.2);
@@ -419,7 +419,7 @@ while( my $hit = $result->next_hit ) {
 	while( my $hsp = $hit->next_hsp ) {
 	    ok($hsp->query->start, 2180);
 	    ok($hsp->query->end, 5623);
-	    ok($hsp->query->strand, 0);
+	    ok($hsp->query->strand, 1);
 	    ok($hsp->hit->start, 3);
 	    ok($hsp->hit->end, 1053);
 	    ok($hsp->hit->strand, 0);
