@@ -3,6 +3,10 @@ Revision history for Bioperl core modules
 
 1.2.3 Stable release update
 
+    o Bio::Tree::Tree memory leak (bug #1480) fixed
+      Added a new initialization option -nodelete which
+      won't try and cleanup the containing nodes if this
+      is true.
     o Bio::SearchIO
       - Fixed bugs in BLAST parsing which couldn't parse NCBI
         gapped blast properly (was losing hit significance values due to
