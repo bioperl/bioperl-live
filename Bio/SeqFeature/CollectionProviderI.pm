@@ -12,23 +12,31 @@
 
 =head1 NAME
 
-Bio::SeqFeature::CollectionProviderI - Interface for describing
-CollectionProvider objects in bioperl
+Bio::SeqFeature::CollectionProviderI - A provider of SeqFeatureI
+objects as Bio::SeqFeature::CollectionIs that can update/add/remove
+SeqFeatureIs passed in CollectionIs.
 
 =head1 SYNOPSIS
 
     # get a CollectionProviderI somehow, perhaps a SimpleCollectionProvider
-    my $collectionprovider = new Bio::SeqFeature::SimpleCollectionProvider();
-    my $fg_color = $collectionprovider->get('fgcolor');
+    my $provider = new Bio::SeqFeature::SimpleCollectionProvider();
+    my $fg_color = $provider->get('fgcolor');
 
 =head1 DESCRIPTION
 
-This object contains the various configuration parameters.  It
-is devided up into sections and tags.  There is also the concept
-of a default section which is referenced when no section is
-passed to the object's methods. '
+A CollectionProviderI is an object that can return Bio::SeqFeature::CollectionIs of Bio::SeqFeatureIs, and can optionally update/add/remove SeqFeatures.
 
-=head1 FEESeqFeatureACK
+Features can be filtered by the following attributes:
+
+  1) their location, perhaps relative to a range (with a choice
+     between overlapping, contained within, or completely containing a
+     range)
+
+  2) their type
+
+  3) other attributes using tag/value semantics
+
+=head1 FEEDBACK
 
 =head2 Mailing Lists
 
@@ -128,10 +136,6 @@ pairs.
   -attributes    A hashref containing a set of attributes to match.  See
                  below.
 
-  -category      A type category string (as those used in Bio::SeqFeature::TypeI
-)
-  -categories    An array reference to type category strings
-
   -location      A Bio::LocationI object defining the range to search and
                  the rangetype.  Use -range (and -baselocation,
                  perhaps; see below) as an alternative to -location.
@@ -227,7 +231,7 @@ sub update_collection {
 =head2 remove_collection
 
  Title   : remove_collection
- Usage   : $features->remove_collection($collection);
+ Usage   : $collectionprovider->remove_collection($collection);
  Function: Removes all the features in a collection.  If any features 
            do not exists throw an exception.
  Returns : None
