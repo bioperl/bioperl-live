@@ -136,22 +136,22 @@ sub nhx_tag {
     my ($self, $tags) = @_;
 
     if (defined $self->bootstrap) {
-	$self->{_nhx_tag}->{B} = $self->bootstrap;
+	$self->{'_nhx_tag'}->{'B'} = $self->bootstrap;
     }
 
     if (defined $tags && (ref $tags eq 'HASH')) {
-	$self->{_nhx_tag} = $tags;
-	if (exists $self->{_nhx_tag}->{B}) {
+	$self->{'_nhx_tag'} = $tags;
+	if (exists $self->{'_nhx_tag'}->{'B'}) {
 	    if (defined $self->bootstrap &&
-		($self->bootstrap != $self->{_nhx_tag}) ) {
-		$self->warn("bootstrap value (" . $self->bootstrap . ") being overwritten by NHX B: value ($self->{_nhx_tag}->{B})!");
+		($self->bootstrap != $self->{'_nhx_tag'}) ) {
+		$self->warn("bootstrap value (" . $self->bootstrap . ") being overwritten by NHX B: value ($self->{'_nhx_tag'}->{'B'})!");
 	    }
-	    $self->bootstrap($self->{_nhx_tag}->{B});
+	    $self->bootstrap($self->{'_nhx_tag'}->{'B'});
 	}
     } elsif (defined $tags and ! ref $tags) {
-	return $self->{_nhx_tag}->{$tags};
+	return $self->{'_nhx_tag'}->{$tags};
     }
-        return $self->{_nhx_tag};
+        return $self->{'_nhx_tag'};
 }
 
 1;
