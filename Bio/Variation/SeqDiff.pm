@@ -20,7 +20,7 @@
 
   $seqDiff = Bio::Variation::SeqDiff->new (
                                            -id => $M20132,
-					   -moltype => 'RNA',
+					   -moltype => 'rna',
                                            -gene_symbol => 'AR'
                                            -chromosome => 'X',
                                            -numbering => 'coding'
