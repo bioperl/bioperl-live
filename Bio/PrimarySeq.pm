@@ -495,7 +495,7 @@ sub _guess_type {
 
    $str2 = $str;
 
-   $str2 =~ s/ATGCNatgcn//g;
+   $str2 =~ s/[ATGCNatgcn]//g;
    $atgc = $total - CORE::length $str2;
    $str = $str2;
    $str2 =~ s/Uu//g;

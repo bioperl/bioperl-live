@@ -73,13 +73,12 @@ use strict;
 
 # Object preamble - inherits from Bio::DB::BioSeqI
 
-use Bio::DB::BioSeqI;
+use Bio::DB::RandomAccessDBI;
 
 use Bio::SeqIO;
 use IO::Socket;
 
-@ISA = qw(Bio::DB::BioSeqI Exporter);
-@EXPORT_OK = qw();
+@ISA = qw(Bio::DB::RandomAccessDBI);
 
 # new() is inherited from Bio::DB::BioSeqI
 

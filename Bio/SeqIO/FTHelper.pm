@@ -130,7 +130,7 @@ sub _generic_seqfeature {
 
        $sf->strand($strand);
        $sf->primary_tag($fth->key . "_span");
-       $sf->source_tag('GenBank');
+       $sf->source_tag('EMBL_GenBank');
        $sf->has_tag("parent",1);
        $sf->_parse->{'parent_homogenous'} = 1;
 
@@ -145,7 +145,7 @@ sub _generic_seqfeature {
 	   $sub->start($start);
 	   $sub->end($end);
 	   $sub->strand($strand);
-	   $sub->source_tag('GenBank');
+	   $sub->source_tag('EMBL_GenBank');
 	   $sf->add_sub_SeqFeature($sub,'EXPAND');
        }
 
@@ -166,7 +166,7 @@ sub _generic_seqfeature {
 
        $sf->start($lst);
        $sf->end($len);
-       $sf->source_tag('GenBank');
+       $sf->source_tag('EMBL_GenBank');
        $sf->primary_tag($fth->key);
        if( $fth->loc =~ /complement/ ) {
 	   $sf->strand(-1);

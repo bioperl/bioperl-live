@@ -1,0 +1,149 @@
+
+#
+# BioPerl module for Bio::DB::SeqDBI.pm
+#
+# Cared for by Ewan Birney <birney@ebi.ac.uk>
+#
+# Copyright Ewan Birney
+#
+# You may distribute this module under the same terms as perl itself
+
+# POD documentation - main docs before the code
+
+=head1 NAME
+
+Bio::DB::SeqDBI.pm - Abstract Interface for Sequence databases
+
+=head1 SYNOPSIS
+
+   # get a Bio::DB::SeqDBI somehow
+
+   $seq = $seqdb->get_Seq_by_id('some-id');
+   $seq = $seqdb->get_Seq_by_acc('some-accession-number');
+
+   @ids = $seqdb->get_all_ids();
+   $stream = $seqdb->get_PrimarySeq_stream();
+   while((my $seq = $stream->next_seq()) {
+      # $seq is a PrimarySeqI compliant object
+   }
+
+
+=head1 DESCRIPTION
+
+Abstract interface for a sequence database
+
+=head1 FEEDBACK
+
+=head2 Mailing Lists
+
+User feedback is an integral part of the evolution of this
+and other Bioperl modules. Send your comments and suggestions preferably
+ to one of the Bioperl mailing lists.
+Your participation is much appreciated.
+
+  vsns-bcd-perl@lists.uni-bielefeld.de          - General discussion
+  vsns-bcd-perl-guts@lists.uni-bielefeld.de     - Technically-oriented discussion
+  http://bio.perl.org/MailList.html             - About the mailing lists
+
+=head2 Reporting Bugs
+
+Report bugs to the Bioperl bug tracking system to help us keep track
+ the bugs and their resolution.
+ Bug reports can be submitted via email or the web:
+
+  bioperl-bugs@bio.perl.org
+  http://bio.perl.org/bioperl-bugs/
+
+=head1 AUTHOR - Ewan Birney
+
+Email birney@ebi.ac.uk
+
+Describe contact details here
+
+=head1 APPENDIX
+
+The rest of the documentation details each of the object methods. Internal methods are usually preceded with a _
+
+=cut
+
+
+# Let the code begin...
+
+
+package Bio::DB::SeqDBI.pm;
+use vars qw(@ISA);
+use strict;
+
+# Object preamble - inherits from Bio::Root::Object
+
+use Bio::DB::RandomAccessDBI;
+@ISA = qw(Bio::DB::RandomAccessDBI);
+
+=head1 Methods inherieted from Bio::DB::RandomAccessDBI
+
+=head2 get_Seq_by_id
+
+ Title   : get_Seq_by_id
+ Usage   : $seq = $db->get_Seq_by_id('ROA1_HUMAN')
+ Function: Gets a Bio::Seq object by its name
+ Returns : a Bio::Seq object
+ Args    : the id (as a string) of a sequence
+ Throws  : "id does not exist" exception
+
+
+=cut
+
+=head2 get_Seq_by_acc
+
+ Title   : get_Seq_by_acc
+ Usage   : $seq = $db->get_Seq_by_acc('X77802');
+ Function: Gets a Bio::Seq object by accession number
+ Returns : A Bio::Seq object
+ Args    : accession number (as a string)
+ Throws  : "acc does not exist" exception
+
+
+=cut
+
+=head1 Methods specific for Bio::DB::SeqDBI
+
+=head2 get_PrimarySeq_stream
+
+ Title   : get_PrimarySeq_stream
+ Usage   : $stream = get_PrimarySeq_stream
+ Function: Makes a Bio::DB::SeqStreamI compliant object
+           which provides a single method, next_primary_seq
+ Returns : Bio::DB::SeqStreamI
+ Args    : none
+
+
+=cut
+
+sub get_PrimarySeq_stream{
+   my ($self,@args) = @_;
+
+   $self->throw("Object did not provide a PrimarySeq stream object");
+}
+
+=head2 get_all_ids
+
+ Title   : get_all_ids
+ Usage   : @ids = $seqdb->get_all_ids()
+ Function: gives an array of all the primary_ids of the 
+           sequence objects in the database
+ Example :
+ Returns : an array of strings
+ Args    : none
+
+
+=cut
+
+sub get_all_ids{
+   my ($self,@args) = @_;
+
+   $self->throw("Object did not provide a get_all_ids method");
+
+}
+
+
+

@@ -27,7 +27,6 @@ Bio/Tools/Blast/Run/Makefile.PL
 Bio/Tools/Blast/Run/Webblast.pm
 Bio/Tools/Blast/Run/postclient.pl
 Bio/Tools/Blast/Sbjct.pm
-Bio/Tools/Fasta.pm
 Bio/Tools/SeqAnal.pm
 Bio/Tools/WWW.pm
 Bio/Tools/pSW.pm
@@ -51,7 +50,6 @@ t/Blast.t
 t/HTML.t               
 t/Seq.t                
 t/WWW.t
-t/Fasta.t              
 t/RestrictionEnzyme.t
 t/Sigcleave.t  
 t/SeqAnal.t

@@ -110,6 +110,10 @@ sub _version {
     return $VERSION;
 }
 
+sub _seqio_format {
+    return "EMBL";
+}
+
 
 =head2 _initialize
 

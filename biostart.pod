@@ -1,0 +1,234 @@
+
+=head1 NAME
+
+Bioperl - Getting Started
+
+=head1 SYNOPSIS
+
+  #!/usr/local/bin/perl
+
+  use Bio::Seq;
+  use Bio::SeqIO;
+
+  $seqin = Bio::SeqIO->new( '-format' => 'EMBL' , -file => 'myfile.dat');
+  $seqout= Bio::SeqIO->new( '-format' => 'Fasta', -file => '>output.fa');
+
+  while((my $seqobj = $seqin->next_seq())) {
+	print "Seen sequence ",$seqobj->display_id,", start of seq ",
+               substr($seqobj->seq,1,10),"\n";
+        if( $seqobj->moltype eq 'dna') {
+	    $rev = $seqobj->revcom;
+	    $id  = $seqobj->display_id();
+            $id  = "$id.rev";
+            $rev->display_id($id);
+            $seqout->write_seq($rev);
+         }
+
+        foreach $feat ( $seqobj->top_SeqFeatures() ) {
+           if( $feat->primary_tag eq 'exon' ) {
+              print STDOUT "Location ",$feat->start,":",
+                    $feat->end," GFF[",$feat->gff_string,"]\n";
+	   }
+        }
+   }
+
+=head1 DESCRIPTION
+
+Bioperl is a set of Perl modules that represent useful biological
+objects. Some of the key objects include: Sequences, features on
+sequences, databases of sequences, flat file representations of
+sequences and similarity search results. 
+
+Because bioperl is formed from Perl modules, there are no actual
+useable programs in the distribution (this is not actually true.
+In the scripts directory there are a few useful programs. But not
+a great deal...). B<You> have to write the programs which use bioperl.
+
+It is very easy to write programs using the bioperl modules, as alot
+of the complex processing happens in the modules and not in the part
+of the program which you have to write. The idea is that you can
+connet up a number of the modules to do useful things. The synopsis
+above gives a simple script which uses bioperl. Stepping through this
+script, the lines mean the following things:
+
+The first line indicates that in a UNIX manner, the /usr/local/bin/perl
+executable is used to execute this script. Bioperl is not a new version
+of perl, it just extends the standard perl for biological objects
+
+  #!/usr/local/bin/perl
+
+These use lines actually import the bioperl modules. Bio::Seq is the
+bioperl main sequence object; Bio::SeqIO is the bioperl support for
+sequence input/output into files
+
+  use Bio::Seq;
+  use Bio::SeqIO;
+
+These two lines create two SeqIO streams: one for reading in sequences
+and one for outputting sequences. Using the 
+ 
+  '-argument' => value
+
+syntax is common in bioperl. The file argument is like an argument
+to open() (notice that in the seqout case there is a greater-than
+sign, indicating opening the file for writing). You can also pass in
+filehandles or FileHandle objects by using the -fh argument, see SeqIO
+documentation for details. Many formarts in bioperl are handled,
+including Fasta, EMBL. GenBank, Swissprot (swiss), PIR and GCG.
+
+  $seqin = Bio::SeqIO->new( '-format' => 'EMBL' , -file => 'myfile.dat');
+  $seqout= Bio::SeqIO->new( '-format' => 'Fasta', -file => '>output.fa');
+
+This is the main loop which will loop progressively through sequences
+in a file. Each call to seqio->next_seq() provides a new sequence
+object from the file, reading successively.
+
+  while((my $seqobj = $seqio->next_seq())) {
+
+This print line access fields in the sequence object directly. The
+seqobj->display_id is the way to access the display_id attribute
+of the sequence object. The seqobj->seq method gets the actual
+sequence out as string. Then you can do manipulation of this if
+you want to (there are however easy ways of doing truncation,
+reverse-complement and translation).
+
+	print "Seen sequence ",$seqobj->display_id,", start of seq ",
+               substr($seqobj->seq,1,10),"\n";
+
+Bioperl has to guess the type of the sequence, being either dna,
+rna or protein. The moltype attribute gives one of these three
+possibilities
+
+        if( $seqobj->moltype eq 'dna') {
+
+The seqobj->revcom method provides the reverse complement of the seqobj
+object as another sequence object. The $rev variable therefore is another
+sequence object. For example, one could repeat the above print line
+for this sequence object (putting rev in place of seqobj). In this case
+we are going to output the object into the file stream we built
+earlier on. 
+
+	    $rev = $seqobj->revcom;
+
+When we output it, we want the id of the outputted object
+to be changed to "$id.rev", ie, with .rev on the end of the name. The
+following lines retrieve the id of the sequence object, add .rev
+to this and then set the display_id of the rev sequence object to
+this. Notice that to set the display_id attribute you just need 
+call the same method (display_id) with the new value as an argument.
+
+	    $id  = $seqobj->display_id();
+            $id  = "$id.rev";
+            $rev->display_id($id);
+
+The write_seq method on the seqout output object writes the 
+$rev object to the filestream we built at the top of the script.
+The filestream knows that it is outputting in fasta format, and
+so it provides fasta output
+
+            $seqout->write_seq($rev);
+         }
+
+This final loop loops over sequence features in the sequence
+object, trying to find ones who have been tagged as 'exon'.
+Features have start and end attributes and can be outputted
+in GFF format, a standarised format for sequence features
+
+        foreach $feat ( $seqobj->top_SeqFeatures() ) {
+           if( $feat->primary_tag eq 'exon' ) {
+              print STDOUT "Location ",$feat->start,":",
+                    $feat->end," GFF[",$feat->gff_string,"]\n";
+	   }
+        }
+   }
+
+=head1 Short Description of Objects.
+
+Here is a very quick overview of the objects in bioperl
+
+Bio::Seq - sequence object
+
+
+   # the following methods return strings
+
+   $seqobj->display_id(); # the human read-able id of the sequence
+   $seqobj->seq();        # string of sequence
+   $seqobj->subseq(5,10); # part of the sequence as a string
+   $seqobj->accession_number(); # when there, the accession number
+   $seqobj->moltype();    # one of 'dna','rna','protein'
+   $seqobj->primary_id(); # a unique id for this sequence irregardless
+                          # of its display_id or accession number
+
+   # the following methods return an array of 
+   # Bio::SeqFeature objects
+
+   $seqobj->top_SeqFeatures # The 'top level' sequence features
+   $seqobj->all_SeqFeatures # All sequence features, including sub
+                            # seq features
+
+   # the following methods returns new sequence objects, but
+   # do not transfer features across
+
+   $seqobj->trunc(5,10)  # truncation from 5 to 10 as new object
+   $seqobj->revcom       # reverse complements sequence
+   $seqobj->translate    # translation of the sequence
+
+Bio::SeqFeature objects:
+
+   # attributes which return numbers
+
+   $feat->start          # start position (1 is the first base)
+   $feat->end            # end position (2 is the second base)
+   $feat->strand         # 1 means forward, -1 reverse, 0 not relevant
+
+   # attributes which return strings
+  
+   $feat->primary_tag    # the main 'name' of the sequence feature,
+                         # eg, 'exon'
+   $feat->source_tag     # where the feature comes from, eg, 'EMBL_GenBank',
+                         # or 'BLAST'
+
+   # attributes which return sequences (these are the more restrictive
+   # Bio::PrimarySeq objects, not Bio::Seq objects. The main difference
+   # is that these objects do not themselves contain sequence features)
+
+   $feat->seq            # the sequence between start,end on the
+                         # correct strand of the sequence
+   $feat->entire_seq     # the entire sequence, not necessarily on the 
+                         # correct strand
+
+   # useful methods for feature comparisons, for start/end points
+
+   $feat->overlap($other)  # does feat and other overlap?
+   $feat->contains($other) # is other completely within feat?
+   $feat->equals($other)   # does feat and other completely agree?
+
+   # sub features. For complex join() statements, the features
+   # is one sequence feature with many sub SeqFeatures
+
+   $feat->sub_SeqFeatures  # array of sub seq features
+
+=head1 BLAST
+
+...stuff on running BLAST and parsing results...
+
+=head1 Database Access
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

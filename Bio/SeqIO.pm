@@ -98,14 +98,6 @@ This makes the simplest ever reformatter
     print $out $_ while <$in>;
 
 
-Notice that the reformatter will only convert information that is held in
-the Seq object, which at the  moment is only the sequence and the id. More
-information will be converted through the expanded or larger object which
-the bioperl developers are talking about.
-
-It is not good for reformatting genbank to embl therefore, but was never
-designed for this task anyway.
-
 =head1 CONSTRUCTORS
 
 =head2 Bio::SeqIO->new()
@@ -151,6 +143,8 @@ Specify the format of the file.  Supported formats include:
 
    Fasta       FASTA format
    EMBL        EMBL format
+   GenBank     GenBank format
+   swiss       Swissprot format
    SCF         SCF tracefile format
    PIR         Protein Information Resource format
    GCG         GCG format
@@ -220,7 +214,7 @@ Report bugs to the Bioperl bug tracking system to help us keep track
   bioperl-bugs@bio.perl.org
   http://bio.perl.org/bioperl-bugs/
 
-=head1 AUTHOR - Ewan Birney
+=head1 AUTHOR - Ewan Birney, Lincoln Stein
 
 Email birney@sanger.ac.uk
 
@@ -264,6 +258,10 @@ sub new {
    my ($class,%param) = @_;
    my ($format);
    my ($handler,$stream);
+
+   if( $class eq 'Bio::SeqIO::MultiFile' ) {
+       return Bio::Root::Object::new($class,%param);
+   }
 
    @param{ map { lc $_ } keys %param } = values %param;  # lowercase keys
    $format = $param{'-format'} 
@@ -400,6 +398,28 @@ sub next_seq {
    $self->throw("Sorry, you cannot read from a generic Bio::SeqIO object.");
 }
 
+=head2 next_primary_seq
+
+ Title   : next_primary_seq
+ Usage   : $seq = $stream->next_primary_seq
+ Function: Provides a primaryseq type of sequence object
+ Returns : A Bio::PrimarySeqI object
+ Args    : none
+
+
+=cut
+
+sub next_primary_seq{
+   my ($self) = @_;
+
+   # in this case, we default to next_seq. This is because 
+   # Bio::Seq's are Bio::PrimarySeqI objects. However we
+   # expect certain sub classes to override this method to provide
+   # less parsing heavy methods to retrieving the objects
+ 
+   return $self->next_seq();
+}
+
 =head2 write_seq
 
  Title   : write_seq
@@ -487,6 +507,7 @@ sub _guess_format {
    return 'scf'     if /\.scf$/i;
    return 'pir'     if /\.pir$/i;
    return 'embl'    if /\.(embl|ebl|emb)$/i;
+   return 'embl'    if /\.dat$/i;
    return 'raw'     if /\.(txt)$/i;
    return 'gcg'     if /\.gcg$/i;
 }

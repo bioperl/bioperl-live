@@ -1,4 +1,4 @@
-## $Id: bioperl.pod,v 1.5 1999-09-09 19:59:11 birney Exp $
+## $Id: bioperl.pod,v 1.6 2000-02-23 08:22:32 birney Exp $
 
 ## Should contain general info about the distribution including
 ## links to all the various modules.
@@ -25,6 +25,10 @@ to do in the documentation, but they also interact - Alignment
 objects are made from the Sequence objects and so on. This means that
 the objects provide a coordinated framework to do computational
 biology.
+
+If you are new to bioperl, reading biostart.pod will get you aquainted
+with writing scripts and the main players for the objects.
+
 
 Bioperl development is focused on the objects themselves, and less on the 
 scripts (programs) that put these objects together. There are some example

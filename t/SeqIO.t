@@ -19,12 +19,13 @@
 
 
 ## We start with some black magic to print on failure.
-BEGIN { $| = 1; print "1..14\n"; 
+BEGIN { $| = 1; print "1..16\n"; 
 	use vars qw($loaded); }
 
 END {print "not ok 1\n" unless $loaded;}
 
 use Bio::SeqIO;
+use Bio::SeqIO::MultiFile;
 
 $loaded = 1;
 print "ok 1\n";    # 1st test passes.
@@ -126,7 +127,6 @@ if($seq = $str->next_seq()) { print "ok 11\n";
  } else { print "not ok 11 , failed to read GenBank sequence from stream,\n"; }
 print "Sequence 1 of 1 from GenBank stream:\n", $seq->seq, "\n";
 
-## Now we test Bio::SeqIO::GCG output writing
 
 $str = Bio::SeqIO->new(-file=> '>t/genbank.out', '-format' => 'GenBank');
 
@@ -162,4 +162,15 @@ while( my $as = $ast->next_seq() ) {
 
 print "ok 14\n";
 
+$mf = Bio::SeqIO::MultiFile->new( -format => 'Fasta' , -files => ['t/multi_1.fa','t/multi_2.fa']);
+
+print "ok 15\n";
+
+# read completely to the end
+
+while( $seq = $mf->next_seq() ) {
+	$temp = $seq->display_id;
+}
+$temp = undef;
+print "ok 16\n";
 

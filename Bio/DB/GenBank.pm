@@ -73,16 +73,15 @@ use strict;
 
 # Object preamble - inherits from Bio::DB::Abstract
 
-use Bio::DB::BioSeqI;
+use Bio::DB::RandomAccessDBI;
 
 use Bio::SeqIO;
 use IO::Socket;
 use IO::File;
 
-@ISA = qw(Bio::DB::BioSeqI Exporter);
-@EXPORT_OK = qw();
+@ISA = qw(Bio::DB::RandomAccessDBI);
 
-# new() is inherited from Bio::DB::Abstract
+
 
 # _initialize is where the heavy stuff will happen when new is called
 

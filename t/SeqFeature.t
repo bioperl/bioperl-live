@@ -21,12 +21,13 @@
 
 
 ## We start with some black magic to print on failure.
-BEGIN { $| = 1; print "1..3\n"; 
+BEGIN { $| = 1; print "1..16\n"; 
 	use vars qw($loaded); }
 
 END {print "not ok 1\n" unless $loaded;}
 
 use Bio::SeqFeature::Generic;
+use Bio::SeqFeature::FeaturePair;
 
 $loaded = 1;
 print "ok 1\n";    # 1st test passes.
@@ -42,7 +43,35 @@ $feat = new Bio::SeqFeature::Generic ( -start => 40,
 					   }
 				       );
 
-$feat && print "ok 2\n";
+if( $feat->start == 40 ) { 
+    print "ok 2\n";
+} else {
+    print "not ok 2\n";
+}
+
+
+if( $feat->end == 80 ) { 
+    print "ok 3\n";
+} else {
+    print "not ok 3\n";
+}
+
+
+if( $feat->primary_tag eq 'exon' ) { 
+    print "ok 4\n";
+} else {
+    print "not ok 4\n";
+}
+
+
+if( $feat->source_tag eq 'internal' ) { 
+    print "ok 5\n";
+} else {
+    print "not ok 5\n";
+}
+
+
+
 
 $str = $feat->gff_string();
 $str = ""; # shut up -w
@@ -56,9 +85,91 @@ $str = ""; # shut up -w
 #    print "ok 3\n";
 #}
 
-print "ok 3\n";
+print "ok 6\n";
+
+$pair = new Bio::SeqFeature::FeaturePair();
+
+print "ok 7\n";
+
+$feat2 = new Bio::SeqFeature::Generic ( -start => 400,
+				       -end => 440,
+				       -strand => 1,
+				       -primary => 'other',
+				       -source  => 'program_a',
+				       -tag => {
+					   silly => 20,
+					   new => 1
+					   }
+				       );
+
+$pair->feature1($feat);
+$pair->feature2($feat2);
+
+print "ok 8\n";
+
+if( $pair->start == 40 ) { 
+    print "ok 9\n";
+} else {
+    print "not ok 9\n";
+}
 
 
+if( $pair->end == 80 ) { 
+    print "ok 10\n";
+} else {
+    print "not ok 10\n";
+}
+
+
+if( $pair->primary_tag eq 'exon' ) { 
+    print "ok 11\n";
+} else {
+    print "not ok 11\n";
+}
+
+
+if( $pair->source_tag eq 'internal' ) { 
+    print "ok 12\n";
+} else {
+    print "not ok 12\n";
+}
+
+
+
+if( $pair->hstart == 400 ) { 
+    print "ok 13\n";
+} else {
+    print "not ok 13\n";
+}
+
+
+if( $pair->hend == 440 ) { 
+    print "ok 14\n";
+} else {
+    print "not ok 14\n";
+}
+
+
+if( $pair->hprimary_tag eq 'other' ) { 
+    print "ok 15\n";
+} else {
+    print "not ok 15\n";
+}
+
+
+if( $pair->hsource_tag eq 'program_a' ) { 
+    print "ok 16\n";
+} else {
+    print "not ok 16\n";
+}
+
+$pair->invert;
+
+if( $pair->start == 440 ) {
+    print "ok 17\n";
+} else {
+    print "not ok 17\n";
+}
 
 
 
