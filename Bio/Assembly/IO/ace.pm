@@ -385,14 +385,14 @@ sub next_assembly {
           if ($seq->desc() =~ /PHD_FILE: (\S+)/) {
               $phdfilename = $1;
           }
-          if ($seq->desc() =~ /CHROMAT_FILE: (\S+)/) {
+          if ($seq->desc() =~ /CHROMAT_FILE: (\S+)/)  {
                $chromatfilename = $1;
           }
           (my $phdfile = $singletsfilename) =~ s/edit_dir.*//;
           $phdfile .= "phd_dir/$phdfilename";
           my $singlet = new Bio::Assembly::Singlet();
           if (-f $phdfile) {
-               # print("Reading singlet data from this phdfile ($phdfilename)\n");
+               # print STDERR ("Reading singlet data from this phdfile ($phdfile)\n");
                my $phd_fh = new Bio::SeqIO( -file =>   "<$phdfile", -format     =>   'phd');
                my $swq = $phd_fh->next_seq();
                $adder = $swq;

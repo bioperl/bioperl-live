@@ -113,10 +113,13 @@ sub seq_to_singlet {
                -id  =>   $seq->display_id());
      $lseq->{chromatfilename} = $seq->{'chromatfilename'};
      $lseq->{phdfilename} = $seq->{'phdfilename'};
-    $self->set_consensus_sequence($lseq);
-    if (UNIVERSAL::isa($seq,"Bio::Seq::SeqWithQuality")) {
+     $self->set_consensus_sequence($lseq);
+     if (UNIVERSAL::isa($seq,"Bio::Seq::SeqWithQuality")) {
           $self->set_consensus_quality($seq->qual_obj())
-    }
+     }
+     else {
+          # print("seq_to_singlet: the sequence (".$seq->desc().") is not a seqwithquality. it is this ($seq)\n");
+     }
      $self->add_seq($lseq);
 }
 

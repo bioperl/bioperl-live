@@ -696,7 +696,7 @@ sub get_seq_coord {
 	return undef;
     }
     unless (exists( $self->{'_elem'}{$seqID}{'_feat'}{"_aligned_coord:$seqID"} )) {
-	$self->warn("Location not set for sequence ($seqID) in contig ".$self->id);
+	# $self->warn("Chad. Location not set for sequence ($seqID) in contig ".$self->id);
 	return undef;
     }
 

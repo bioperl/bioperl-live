@@ -206,7 +206,7 @@ sub new {
 	     -alphabet          =>  $alphabet
 	     );
     }
-    elsif (ref($seq) eq "Bio::PrimarySeq" ) {
+    elsif (UNIVERSAL::isa($seq,"Bio::PrimarySeq")) {
 	$self->{seq_ref} = $seq;
     }
 
