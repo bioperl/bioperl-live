@@ -156,9 +156,13 @@ sub Fst {
    my ($TS_sub1,$TS_sub2);
    
    foreach my $marker ( @$markernames ) {
-       my $marker1 =  $populations->[0]->get_Marker($marker);
-       my %af =  $marker1->get_Allele_Frequencies();
-       my @alleles = keys %af;
+       # Get all the alleles from all the genotypes in all subpopulations
+       my %allAlleles;
+       foreach my $allele ( map { $_->get_Alleles() } 
+			    map { $_->get_Genotypes($marker) } @$populations ){
+	   $allAlleles{$allele}++;
+       }
+       my @alleles = keys %allAlleles;
 
        foreach my $allele_name ( @alleles ) {
 	   my $avg_samp_size         = 0; # n-bar
@@ -172,7 +176,8 @@ sub Fst {
 	   # Walk through each population, get the calculated allele frequencies
 	   # for the marker, do some bookkeeping
 	   foreach my $pop ( @$populations ) {
-	       my $s = $pop->get_number_individuals;
+	       my $s = $pop->get_number_individuals($marker);
+	       
 	       $avg_samp_size += $s;
 	       $total_samples_squared += $s**2;
 
@@ -213,8 +218,7 @@ sub Fst {
 	   $variance = ( 1 / (( $num_sub_pops-1)*$avg_samp_size))*$sum_variance;
 
 	   # H-tilda-A-dot
-	   my $freq_heterozygote = (1 / $total_samples)*$sum_heterozygote; 
-
+	   my $freq_heterozygote = ($sum_heterozygote / $total_samples);
 
 	   if( $self->haploid_status ) {
 	       # Haploid calculations

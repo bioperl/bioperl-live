@@ -208,12 +208,11 @@ sub unique_id{
  Function: Get the available marker alleles
  Returns : Array of strings
  Args    : none
-
-
 =cut
 
 sub get_Alleles{
-   return keys %{$_[0]->{'_allele_freqs'}};
+    my ($self) = @_;
+    return keys %{$self->{'_allele_freqs'}};
 }
 
 

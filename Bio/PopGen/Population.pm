@@ -274,10 +274,10 @@ sub get_Marker{
 }
 
 
-=head2 number_individuals
+=head2 get_number_individuals
 
- Title   : number_individuals
- Usage   : my $count = $pop->number_individuals;
+ Title   : get_number_individuals
+ Usage   : my $count = $pop->get_number_individuals;
  Function: Get the count of the number of individuals
  Returns : integer >= 0
  Args    : none
@@ -286,8 +286,16 @@ sub get_Marker{
 =cut
 
 sub get_number_individuals{
-   my ($self) = @_;
-   return scalar @{$self->{'_individuals'}};
+   my ($self,$markername) = @_;
+   unless( defined $markername ) {
+       return scalar @{$self->{'_individuals'}};
+   } else { 
+       my $number =0;
+       foreach my $individual ( @{$self->{'_individuals'}} ) {
+	   $number++ if( $individual->has_Marker($markername));
+       }
+       return $number;
+   }
 }
 
 
@@ -304,13 +312,13 @@ sub get_number_individuals{
 
 sub get_Frequency_Homozygotes{
    my ($self,$marker,$allelename) = @_;
-   my ($homozygote_count,$total);
+   my ($homozygote_count);
+   my $total = $self->get_number_individuals($marker);
    foreach my $genotype ( $self->get_Genotypes($marker) ) {
        my %alleles = map { $_ => 1} $genotype->get_Alleles();
        # what to do for non-diploid situations?
        if( $alleles{$allelename} ) {
 	   $homozygote_count++ if( keys %alleles == 1);
-	   $total++;
        }
    }
    return $total ? $homozygote_count / $total : 0;
@@ -329,13 +337,13 @@ sub get_Frequency_Homozygotes{
 
 sub get_Frequency_Heterozygotes{
    my ($self,$marker,$allelename) = @_;
-   my ($heterozygote_count,$total);
+   my ($heterozygote_count);
+   my $total = $self->get_number_individuals($marker);
    foreach my $genotype ( $self->get_Genotypes($marker) ) {
        my %alleles = map { $_ => 1} $genotype->get_Alleles();
        # what to do for non-diploid situations?
        if( $alleles{$allelename} ) {
 	   $heterozygote_count++ if( keys %alleles == 2);
-	   $total++;
        }
    }
    return $total ? $heterozygote_count / $total : 0;

@@ -65,8 +65,12 @@ Internal methods are usually preceded with a _
 
 
 package Bio::PopGen::Genotype;
-use vars qw(@ISA);
+use vars qw(@ISA @BlankAlleles);
 use strict;
+
+@BlankAlleles = (' ', '-', 'N', '?');
+
+
 # Object preamble - inherits from Bio::Root::Root
 
 use Bio::PopGen::GenotypeI;
@@ -150,13 +154,28 @@ sub individual_id {
  Usage   : my @alleles = $genotype->get_Alleles();
  Function: Get the alleles for a given marker and individual
  Returns : array of alleles (strings in this implementation)
- Args    : none
+ Args    : $showblank - boolean flag to indicate return ALL alleles not 
+                        skipping the coded EMPTY alleles
+
 
 
 =cut
 
 sub get_Alleles{
-   return @{$_[0]->{'_alleles'} || []};
+    my ($self,$showblank) = @_;
+    if( $showblank ) {
+	return @{$self->{'_alleles'} || []};
+    } else { 
+	my @alleles;
+	foreach my $allele ( @{$self->{'_alleles'} || []} ) {
+	    my $keep = 1;
+	    foreach my $pattern ( @BlankAlleles ) {
+		$keep = 0 if( $allele =~ /\Q$pattern/i );
+	    }
+	    push @alleles, $allele if $keep;
+	}
+	return @alleles;
+    }
 }
 
 =head2 add_Allele
