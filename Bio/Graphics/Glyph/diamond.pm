@@ -32,19 +32,18 @@ sub draw_component {
   }
 
   # Fetch out the image_class
-  my $img_class = $self->_image_class;
-  my $pkg       = $img_class . '::Polygon';
-  my $polygon   = $pkg->new();
+  my $poly_pkg = $self->_image_class . '::Polygon';
+  my $polygon   = $poly_pkg->new();
   $polygon->addPt($x1,$ymid);
   $polygon->addPt($xmid,$y1);
   $polygon->addPt($x2,$ymid);
   $polygon->addPt($xmid,$y2);
 
-  # Have to draw TWO polygons for fills in order
-  # to get an outline because filledPolygon croaks with extra
-  # parameters (and doesn't support drawing of stroke anyways).
+  # Have to draw TWO polygons for fills in order to get an outline
+  # because filledPolygon in GD croaks with extra parameters (and
+  # doesn't support drawing of stroke anyways).
   if (my $c = $self->bgcolor) {
-    if ($img_class =~ /SVG/) {
+    if ($poly_pkg =~ /SVG/) {
       $gd->filledPolygon($polygon,$c,$fg);
     } else {
       $gd->filledPolygon($polygon,$c);
