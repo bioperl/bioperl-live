@@ -188,9 +188,11 @@ sub next_result{
 	   $self->start_element({'Name' => 'HMMER_Output'});
 	   $self->{'_result_count'}++;
 	   $seentop = 1;
-	   ($reporttype) = split(/\s+/,$last);
-	   $self->element({'Name' => 'HMMER_program',
-			   'Data' => uc ($reporttype)});
+	   if( defined $last ) { 
+	       ($reporttype) = split(/\s+/,$last);
+	       $self->element({'Name' => 'HMMER_program',
+			       'Data' => uc ($reporttype)});
+	   }
 	   $self->element({'Name' => 'HMMER_version',
 			   'Data' => $version});
        } elsif( s/^HMM file:\s+//o ) {
@@ -450,15 +452,16 @@ sub next_result{
 	       my $second_tier=0;
 	       while( defined($_ = $self->_readline) ) {		   
 		   next if( /^Align/o || /^\s+RF\s+[x\s]+$/o);
-		   if( /^Histogram/o || m!^//!o ) { 		       
+		   
+		   if( /^Histogram/o || m!^//!o || /^Query sequence/o ) {
 		       if( $self->in_element('hsp')) {
 			   $self->end_element({'Name' => 'Hsp'});
 		       }
 		       if( $self->in_element('hit') ) {
 			   $self->end_element({'Name' => 'Hit'});
-		       }
-		       
+		       }		       
 		       $self->end_element({'Name' => 'HMMER_Output'});
+		       if( /^Query sequence/o ) { $self->_pushback($_); }
 		       return $self->end_document();		       
 		       last;
 		   }
