@@ -384,7 +384,8 @@ Bio/Tools/IUPAC.pm
 Bio/Tools/Lucy.pm
 Bio/Tools/MZEF.pm
 Bio/Tools/OddCodes.pm
-Bio/Tools/Phylo/PAML/Codeml.pm
+Bio/Tools/Phylo/PAML.pm
+Bio/Tools/Phylo/PAML/Result.pm
 Bio/Tools/Prediction/Exon.pm
 Bio/Tools/Prediction/Gene.pm
 Bio/Tools/RestrictionEnzyme.pm
