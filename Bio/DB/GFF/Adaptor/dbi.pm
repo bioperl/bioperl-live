@@ -238,9 +238,9 @@ sub get_features {
   return $count;
 }
 
-=head2 get_feature_by_name
+=head2 _feature_by_name
 
- Title   : get_feature_by_name
+ Title   : _feature_by_name
  Usage   : $db->get_features_by_name($name,$class,$callback)
  Function: get a list of features by name and class
  Returns : count of number of features retrieved
@@ -257,7 +257,7 @@ by make_feature().  Internally, it invokes the following abstract procedures:
 
 =cut
 
-sub get_feature_by_name {
+sub _feature_by_name {
   my $self = shift;
   my ($class,$name,$callback) = @_;
   $callback || $self->throw('must provide a callback argument');
@@ -278,10 +278,10 @@ sub get_feature_by_name {
   return $count;
 }
 
-=head2 get_feature_by_id
+=head2 _feature_by_id
 
- Title   : get_feature_by_id
- Usage   : $db->get_feature_by_id($ids,$type,$callback)
+ Title   : _feature_by_id
+ Usage   : $db->_feature_by_id($ids,$type,$callback)
  Function: get a list of features by ID
  Returns : count of number of features retrieved
  Args    : arrayref containing list of IDs to fetch and a callback
@@ -299,7 +299,7 @@ procedures:
 
 =cut
 
-sub get_feature_by_id {
+sub _feature_by_id {
   my $self = shift;
   my ($ids,$type,$callback) = @_;
   $callback || $self->throw('must provide a callback argument');
@@ -321,7 +321,7 @@ sub get_feature_by_id {
   return $count;
 }
 
-sub get_feature_by_attribute {
+sub _feature_by_attribute {
   my $self = shift;
   my ($attributes,$callback) = @_;
   $callback || $self->throw('must provide a callback argument');

@@ -54,9 +54,9 @@ Bio::DB::GFF -- Storage and retrieval of sequence annotation data
   }
 
   # find all transcripts annotated as having function 'kinase'
-  my $iterator = $db->get_feature_stream(-type=>'transcript',
-			                 -attributes=>{Function=>'kinase'});
-  while (my $s = $iterator->next_feature) {
+  my $iterator = $db->get_seq_stream(-type=>'transcript',
+			             -attributes=>{Function=>'kinase'});
+  while (my $s = $iterator->next_seq) {
       print $s,"\n";
   }
 
@@ -649,7 +649,7 @@ on the landmark.
 
 Arguments:
 
- -seq          ID of the landmark sequence.
+ -name         ID of the landmark sequence.
 
  -class        Database object class for the landmark sequence.
                "Sequence" assumed if not specified.  This is
@@ -660,8 +660,10 @@ Arguments:
                follow standard 1-based sequence rules.  If not specified,
                defaults to the beginning of the landmark.
 
- -stop         Stop of the segment relative to the landmark.  If not specified,
+ -end          Stop of the segment relative to the landmark.  If not specified,
                defaults to the end of the landmark.
+
+ -stop         Same as -end.
 
  -offset       For those who prefer 0-based indexing, the offset specifies the
                position of the new segment relative to the start of the landmark.
@@ -679,7 +681,7 @@ Arguments:
                Return features in absolute coordinates rather than relative to the
                parent segment.
 
- -name,-sequence,-sourceseq   Aliases for -seq.
+ -seq,-sequence,-sourceseq   Aliases for -name.
 
  -begin,-end   Aliases for -start and -stop
 
@@ -730,18 +732,8 @@ multiple locations, then, provided that all locations reside on the
 same physical segment, the method will return a segment that spans the
 minimum and maximum positions.  If the reference sequence occupies
 ranges on different physical segments, then it returns them all in an
-array context, and raises an exception in a scalar context.
-
-Note that if the given landmark is in the database more than once
-under different references sequences, segment() will return several
-segment objects, one for each reference sequence.  The span will begin
-at the lowest coordinate on the sequence, and extend to the highest.
-In this case, segment() will return a list.  To avoid possible
-confusion, if you call segment() in a scalar context and the landmark
-is present on multiple references, segment() will return undef and
-generate an error message (retrievable with the error() method).
-segment() will only return a list if you deliberately call it in a
-list context.  For this reason, segments() is an alias for segment().
+array context, and raises a "multiple segment exception" exception in
+a scalar context.
 
 =cut
 
@@ -764,6 +756,7 @@ sub segment {
     return @segments;
   } else {
     $self->error($segments[0]->name," has more than one reference sequence in database.  Please call in a list context to retrieve them all.");
+    croak('multiple segment exception');
     return;
   }
 }
@@ -892,11 +885,11 @@ sub get_seq_stream {
 
 *get_feature_stream = \&get_seq_stream;
 
-=head2 fetch_feature_by_name
+=head2 get_feature_by_name
 
- Title   : fetch_feature_by_name
- Usage   : $db->fetch_feature_by_name($class => $name)
- Function: fetch segments by feature (group) name
+ Title   : get_feature_by_name
+ Usage   : $db->get_feature_by_name($class => $name)
+ Function: fetch features by their name
  Returns : a list of Bio::DB::GFF::Feature objects
  Args    : the class and name of the desired feature
  Status  : public
@@ -913,12 +906,12 @@ objects.
 Aggregation is performed on features as usual.
 
 NOTE: At various times, this function was called fetch_group(),
-fetch_feature(), and segments.  These names are preserved for backward
-compatibility.
+fetch_feature(), fetch_feature_by_name() and segments().  These names
+are preserved for backward compatibility.
 
 =cut
 
-sub fetch_feature_by_name {
+sub get_feature_by_name {
   my $self = shift;
   my ($gclass,$gname,$automerge);
   if (@_ == 1) {
@@ -941,7 +934,7 @@ sub fetch_feature_by_name {
   my %groups;         # cache the groups we create to avoid consuming too much unecessary memory
   my $features = [];
   my $callback = sub { push @$features,$self->make_feature(undef,\%groups,@_) };
-  $self->get_feature_by_name($gclass,$gname,$callback);
+  $self->_feature_by_name($gclass,$gname,$callback);
 
   warn "aggregating...\n" if $self->debug;
   foreach my $a (@aggregators) {  # last aggregator gets first shot
@@ -952,13 +945,32 @@ sub fetch_feature_by_name {
 }
 
 # horrible indecision regarding proper names!
-*fetch_group   = *fetch_feature = \&fetch_feature_by_name;
+*fetch_group   = *fetch_feature = *fetch_feature_by_name = \&get_feature_by_name;
 *segments      = \&segment;
 
-=head2 fetch_feature_by_attribute
+=head2 get_feature_by_target
 
- Title   : fetch_feature_by_attribute
- Usage   : $db->fetch_feature_by_attribute(attribute1=>value1,attribute2=>value2)
+ Title   : get_feature_by_target
+ Usage   : $db->get_feature_by_target($class => $name)
+ Function: fetch features by their similarity target
+ Returns : a list of Bio::DB::GFF::Feature objects
+ Args    : the class and name of the desired feature
+ Status  : public
+
+This method can be used to fetch a named feature from the database
+based on its similarity hit.  In this implementation it is identical
+to get_feature_by_target().
+
+=cut
+
+sub get_feature_by_target {
+  shift->get_feature_by_name(@_);
+}
+
+=head2 get_feature_by_attribute
+
+ Title   : get_feature_by_attribute
+ Usage   : $db->get_feature_by_attribute(attribute1=>value1,attribute2=>value2)
  Function: fetch segments by combinations of attribute values
  Returns : a list of Bio::DB::GFF::Feature objects
  Args    : the class and name of the desired feature
@@ -970,7 +982,7 @@ ANDED together.
 
 =cut
 
-sub fetch_feature_by_attribute {
+sub get_feature_by_attribute {
   my $self = shift;
   my %attributes = ref($_[0]) ? %{$_[0]} : @_;
 
@@ -985,7 +997,7 @@ sub fetch_feature_by_attribute {
   my %groups;         # cache the groups we create to avoid consuming too much unecessary memory
   my $features = [];
   my $callback = sub { push @$features,$self->make_feature(undef,\%groups,@_) };
-  $self->get_feature_by_attribute(\%attributes,$callback);
+  $self->_feature_by_attribute(\%attributes,$callback);
 
   warn "aggregating...\n" if $self->debug;
   foreach my $a (@aggregators) {  # last aggregator gets first shot
@@ -995,10 +1007,13 @@ sub fetch_feature_by_attribute {
   @$features;
 }
 
-=head2 fetch_feature_by_id
+# more indecision...
+*fetch_feature_by_attribute = \&get_feature_by_attribute;
 
- Title   : fetch_feature_by_id
- Usage   : $db->fetch_feature_by_id($id)
+=head2 get_feature_by_id
+
+ Title   : get_feature_by_id
+ Usage   : $db->get_feature_by_id($id)
  Function: fetch segments by feature ID
  Returns : a Bio::DB::GFF::Feature object
  Args    : the feature ID
@@ -1009,20 +1024,21 @@ ID.  Not all GFF databases support IDs, so be careful with this.
 
 =cut
 
-sub fetch_feature_by_id {
+sub get_feature_by_id {
   my $self = shift;
   my $id   = ref($_[0]) eq 'ARRAY' ? $_[0] : \@_;
   my %groups;         # cache the groups we create to avoid consuming too much unecessary memory
   my $features = [];
   my $callback = sub { push @$features,$self->make_feature(undef,\%groups,@_) };
-  $self->get_feature_by_id($id,'feature',$callback);
+  $self->_feature_by_id($id,'feature',$callback);
   return wantarray ? @$features : $features->[0];
 }
+*fetch_feature_by_id = \&get_feature_by_id;
 
-=head2 fetch_feature_by_gid
+=head2 get_feature_by_gid
 
- Title   : fetch_feature_by_gid
- Usage   : $db->fetch_feature_by_gid($id)
+ Title   : get_feature_by_gid
+ Usage   : $db->get_feature_by_gid($id)
  Function: fetch segments by feature ID
  Returns : a Bio::DB::GFF::Feature object
  Args    : the feature ID
@@ -1036,15 +1052,16 @@ groups can be complex objects containing subobjects.
 
 =cut
 
-sub fetch_feature_by_gid {
+sub get_feature_by_gid {
   my $self = shift;
   my $id   = ref($_[0]) eq 'ARRAY' ? $_[0] : \@_;
   my %groups;         # cache the groups we create to avoid consuming too much unecessary memory
   my $features = [];
   my $callback = sub { push @$features,$self->make_feature(undef,\%groups,@_) };
-  $self->get_feature_by_id($id,'group',$callback);
+  $self->_feature_by_id($id,'group',$callback);
   return wantarray ? @$features : $features->[0];
 }
+*fetch_feature_by_gid = \&get_feature_by_gid;
 
 =head2 absolute
 
@@ -2189,10 +2206,10 @@ sub get_features{
 }
 
 
-=head2 get_feature_by_name
+=head2 _feature_by_name
 
- Title   : get_feature_by_name
- Usage   : $db->get_feature_by_name($name,$class,$callback)
+ Title   : _feature_by_name
+ Usage   : $db->_feature_by_name($name,$class,$callback)
  Function: get a list of features by name and class
  Returns : count of number of features retrieved
  Args    : name of feature, class of feature, and a callback
@@ -2204,22 +2221,22 @@ subclasses.
 
 =cut
 
-sub get_feature_by_name {
+sub _feature_by_name {
   my $self = shift;
   my ($class,$name,$callback) = @_;
-  $self->throw("get_feature_by_name() must be implemented by an adaptor");
+  $self->throw("_feature_by_name() must be implemented by an adaptor");
 }
 
-sub get_feature_by_attribute {
+sub _feature_by_attribute {
   my $self = shift;
   my ($attributes,$callback) = @_;
-  $self->throw("get_feature_by_name() must be implemented by an adaptor");
+  $self->throw("_feature_by_name() must be implemented by an adaptor");
 }
 
-=head2 get_feature_by_id
+=head2 _feature_by_id
 
- Title   : get_feature_by_id
- Usage   : $db->get_feature_by_id($ids,$type,$callback)
+ Title   : _feature_by_id
+ Usage   : $db->_feature_by_id($ids,$type,$callback)
  Function: get a feature based
  Returns : count of number of features retrieved
  Args    : arrayref to feature IDs to fetch
@@ -2233,10 +2250,10 @@ method must be overidden by subclasses.
 
 =cut
 
-sub get_feature_by_id {
+sub _feature_by_id {
   my $self = shift;
   my ($ids,$type,$callback) = @_;
-  $self->throw("get_feature_by_id() must be implemented by an adaptor");
+  $self->throw("_feature_by_id() must be implemented by an adaptor");
 }
 
 =head2 overlapping_features
@@ -2833,6 +2850,7 @@ sub _split_group {
 
 package Bio::DB::GFF::ID_Iterator;
 use strict;
+use Carp 'croak';
 use Bio::Root::Root;
 use vars '@ISA';
 @ISA = 'Bio::Root::Root';

@@ -11,13 +11,15 @@ See L<Bio::DB::GFF>.
 Bio::DB::GFF::Feature is a stretch of sequence that corresponding to a
 single annotation in a GFF database.  It inherits from
 Bio::DB::GFF::RelSegment, and so has all the support for relative
-addressing of this class and its ancestors.
+addressing of this class and its ancestors.  It also inherits from
+Bio::SeqFeatureI, and so has the familiar start(), stop(),
+and primary_tag() methods.
 
 Bio::DB::GFF::Feature adds new methods to retrieve the annotation's
 type, group, and other GFF attributes.  Annotation types are
 represented by Bio::DB::GFF::Typename objects, a simple class that has 
 two methods called method() and source().  These correspond to the
-method and source fields of a GFF file.  
+method and source fields of a GFF file.
 
 Annotation groups serve the dual purpose of giving the annotation a
 human-readable name, and providing higher-order groupings of
@@ -32,11 +34,14 @@ Generally, you will not create or manipulate Bio::DB::GFF::Feature
 objects directly, but use those that are returned by the
 Bio::DB::GFF::RelSegment-E<gt>features() method.
 
-=head2 Important note about start() vs stop()
+=head2 Important note about start() vs end()
 
 If features are derived from segments that use relative addressing
-(which is the default), then start() will be less than stop() if the
-feature is on the opposite strand from the reference sequence.
+(which is the default), then start() will be less than end() if the
+feature is on the opposite strand from the reference sequence.  This
+breaks Bio::SeqI compliance, but is necessary to avoid having the real
+genomic locations designated by start() and end() swap places when
+changing reference points.
 
 To avoid this behavior, call $segment-E<gt>absolute(1) before fetching
 features from it.  This will force everything into absolute
