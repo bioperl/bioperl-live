@@ -36,7 +36,7 @@ use Bio::Tools::Run::Eponine;
 
 =head1 DESCRIPTION
 
-
+Parser for Eponine
 This module inherits off L<Bio::Tools::AnalysisResult> and therefore
 implements L<Bio::SeqAnalysisParserI>.
 
