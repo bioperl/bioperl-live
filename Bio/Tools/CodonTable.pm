@@ -471,52 +471,6 @@ sub _translate_ambiguous_codon {
     return $aa;
 }
 
-sub translate_old{
-   my ($self, $value) = @_;
-   my ($id) = $self->{'id'};
-   my ($partial) = 0;
-   my $result;
-
-   $value  = lc $value;
-   $value  =~ tr/u/t/;
-
-   if (length $value != 3 and length $value != 2) {
-       return '';
-   }
-   elsif ($value =~ /[^atgc]/i or length $value == 2 ) {
-       if (length $value == 2 ) {
-	   $value = $value. 'n';
-	   $partial = 1;
-       }
-       my @codons = _unambiquous_codons($value);
-
-       my %aas =();
-       foreach my $codon (@codons) {
-	   $aas{substr($tables[$id-1],$codons->{$codon},1)} = 1;	
-       }
-       #foreach my $x (keys %aas) {print "$x\n";} ###
-
-       my $count = scalar keys %aas;
-       if ( $count == 1 ) {
-	   return (keys %aas)[0];
-       }
-       elsif ( $count == 2 ) {
-	   if ($aas{'D'} and $aas{'N'}) {
-	       return 'B';
-	   }
-	   elsif ($aas{'E'} and $aas{'Q'}) {
-	       return 'Z';
-	   } else {
-	       $partial ? return '' :  return 'X';
-	   }
-       } else {
-	   $partial ? return '' :  return 'X';
-       }
-   } else {
-       return translate_strict (@_);
-   }
-}
-
 =head2 translate_strict
 
  Title   : translate_strict
