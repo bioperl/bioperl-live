@@ -1,5 +1,7 @@
 
 #
+# $Id$
+#
 # BioPerl module for Bio::Annotation
 #
 # Cared for by Ewan Birney <birney@sanger.ac.uk>
