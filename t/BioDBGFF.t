@@ -110,7 +110,7 @@ ok($t->attributes('Note'),'function unknown');
 ok(join(' ',sort $t->attributes('Gene')),'abc-1 xyz-2');
 my $att = $t->attributes;
 ok(scalar @{$att->{Gene}},2);
-@t = sort $db->fetch_feature_by_attribute('Gene'=>'abc-1');
+@t = sort {$a->display_name cmp $b->display_name} $db->fetch_feature_by_attribute('Gene'=>'abc-1');
 ok(@t>0);
 ok($t[0] eq $t);
 my $seg = $db->segment('Contig1');

@@ -15,18 +15,18 @@ Bio::DB::GFF::Aggregator::processed_transcript -- Sequence Ontology Transcript
  ------------------------------------------------------------------------
  Aggregator method: processed_transcript
  Main method:       mRNA
- Sub methods:       CDS 5'-UTR 3'-UTR transcription_start_site polyA_site
+ Sub methods:       CDS exon five_prime_UTR three_prime_UTR transcription_start_site polyA_site 5'-UTR 3'-UTR
  ------------------------------------------------------------------------
 
 =head1 DESCRIPTION
 
 Bio::DB::GFF::Aggregator::processed_transcript is one of the default
 aggregators, and was written to be compatible with the Sequence
-Ontology canonical gene.  It aggregates raw "CDS", "5'-UTR", "3'-UTR",
-"transcription_start_site" and "polyA_site" features into "gene"
-features.  The UTRs may also be named "untranslated_region,"
-"five_prime_untranslated_region," or
-"three_prime_untranslated_region."
+Ontology canonical gene.  It aggregates raw "exon," "CDS",
+"five_prime_UTR", "three_prime_UTR", "transcription_start_site" and
+"polyA_site" features into "mRNA" features.  The UTRs may also be
+named "untranslated_region," "five_prime_untranslated_region,"
+"three_prime_untranslated_region,", "5'-UTR," and other synonyms.
 
 =cut
 
@@ -65,7 +65,8 @@ sub method { 'processed_transcript' }
 sub part_names {
   return qw(CDS 5'-UTR 3'-UTR transcription_start_site
 	    polyA_site UTR five_prime_untranslated_region
-	    three_prime_untranslated_region);
+	    three_prime_untranslated_region
+	   five_prime_UTR three_prime_UTR exon);
 }
 
 =head2 main_name

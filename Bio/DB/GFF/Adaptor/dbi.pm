@@ -1276,9 +1276,9 @@ sub make_features_by_alias_where_part {
   my ($class,$name) = @_;
   if ($name =~ /\*/) {
     $name =~ tr/*/%/;
-    return ("fgroup.gclass=? AND fattribute_to_feature.fattribute_value LIKE ? AND fgroup.gid=fdata.gid AND fattribute.fattribute_name='Alias' AND fattribute_to_feature.fattribute_id=fattribute.fattribute_id AND fattribute_to_feature.fid=fdata.fid AND ftype.ftypeid=fdata.ftypeid",$class,$name)
+    return ("fgroup.gclass=? AND fattribute_to_feature.fattribute_value LIKE ? AND fgroup.gid=fdata.gid AND fattribute.fattribute_name in ('Alias','Name') AND fattribute_to_feature.fattribute_id=fattribute.fattribute_id AND fattribute_to_feature.fid=fdata.fid AND ftype.ftypeid=fdata.ftypeid",$class,$name)
   } else {
-    return ("fgroup.gclass=? AND fattribute_to_feature.fattribute_value=? AND fgroup.gid=fdata.gid AND fattribute.fattribute_name='Alias' AND fattribute_to_feature.fattribute_id=fattribute.fattribute_id AND fattribute_to_feature.fid=fdata.fid AND ftype.ftypeid=fdata.ftypeid",$class,$name);
+    return ("fgroup.gclass=? AND fattribute_to_feature.fattribute_value=? AND fgroup.gid=fdata.gid AND fattribute.fattribute_name in ('Alias','Name') AND fattribute_to_feature.fattribute_id=fattribute.fattribute_id AND fattribute_to_feature.fid=fdata.fid AND ftype.ftypeid=fdata.ftypeid",$class,$name);
   }
 
 }

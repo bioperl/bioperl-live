@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-# $Id: fast_load_gff.PLS,v 1.19 2005-03-21 16:25:32 lstein Exp $
+# $Id: fast_load_gff.PLS,v 1.20 2005-04-05 22:16:56 lstein Exp $
 
 use strict;
 # use lib './blib/lib';
@@ -379,6 +379,10 @@ printf STDERR "Fasta load time %5.2fs\n",(Time::HiRes::time() - $start) if $time
 $start = time();
 
 my $success = 1;
+if ($DO_FAST) {
+  warn "Indexing.  This may take some time....\n";
+}
+
 $_->close foreach values %FH;
 
 if (!$DO_FAST) {

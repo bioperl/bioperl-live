@@ -8,39 +8,121 @@ use vars '@ISA';
 @ISA = 'Bio::Graphics::Glyph::transcript2';
 use constant DEFAULT_UTR_COLOR => '#D0D0D0';
 
-# This hack preprocesses the glyph to remove overlaps between UTRs and
-# exons.  The exons are clipped so that UTRs have precedence
 sub new {
   my $class = shift;
-  my $self  = $class->SUPER::new(@_);
+  my $self = $class->SUPER::new(@_);
+  $self->guess_options if !defined $self->option('implied_utrs') && !defined $self->option('adjust_exons');
+  $self;
+}
 
-  if ($self->option('adjust_exons')) {
-    # find the utrs
-    my @utrs  = grep {$_->feature->type =~ /utr/i} $self->parts;
-    my %seen  = map {$_=>1} @utrs;
-    my @other = grep {!$seen{$_}} $self->parts;
-    my @clipped_parts;
+sub guess_options {
+  my $self = shift;
+  my ($exons,$utrs,$cds);
+  foreach ($self->parts) {
+    $exons++ if $_->feature->type =~ /exon/i;
+    $utrs++  if $_->feature->type =~ /utr/i;
+    $cds++   if $_->feature->type =~ /cds/i;
+    $self->configure(implied_utrs=>1) if $exons && $cds && !$utrs;
+    $self->configure(adjust_exons=>1) if $exons && $utrs;
+  }
+}
 
-    for my $p (@other) {
-      my $p_right = $p->{left}+$p->{width};
-      for my $u (@utrs) {
-	my $u_right = $u->{left}+$u->{width};
-	if ($u_right > $p->{left} && $u->{left} < $p_right) { # overlaps - clip
-	  if ($p->{left} >= $u->{left}) {
-	    $p->{left}    = $u_right;
-	    $p->{width}   = $p_right - $p->{left};
-	  }
-	  if ($p_right <= $u_right) {
-	    my $new_right = $u->{left};
-	    $p->{width}   = $u->{left} - $p->{left};
-	  }
+# this option will generate implied UTRs by subtracting the
+# CDS features from the exons.
+sub create_implied_utrs {
+  my $self = shift;
+  return if $self->{'.implied_utrs'}++;
+
+  # parts should be ordered from left to right
+  my @features = sort {$a->start <=> $b->start} map {$_->feature} $self->parts;
+  my @exons   = grep {$_->type eq 'exon'} @features;
+  my @cds     = grep {$_->type eq 'CDS'}  @features;
+  my @old_utr = grep {$_->type =~ /UTR/}  @features;
+
+  # if there are already UTRs then we don't modify anything
+  return if @old_utr;
+
+  # if exons or CDS features are missing, then we abandon ship
+  return unless @exons && @cds;
+
+  my $first_cds = $cds[0];
+  my $last_cds  = $cds[-1];
+  my $strand = $self->feature->strand;
+
+  my @utrs;
+
+  # make the left-hand UTRs
+  for (my $i=0;$i<@exons;$i++) {
+    my $start = $exons[$i]->start;
+    last if $start <= $first_cds->start;
+    my $end  = $first_cds->start > $exons[$i]->end ? $exons[$i]->end : $first_cds->start-1;
+    push @utrs,Bio::Graphics::Feature->new(-start=>$start,
+					   -end=>$end,
+					   -type=>$strand >= 0 ? 'five_prime_UTR' : 'three_prime_UTR');
+  }
+
+  # make the right-hand UTRs
+  for (my $i=$#exons;$i>=0;$i--) {
+    my $end = $exons[$i]->end;
+    last if $end <= $last_cds->end;
+    my $start = $last_cds->end < $exons[$i]->start ? $exons[$i]->start : $last_cds->end+1;
+    push @utrs,Bio::Graphics::Feature->new(-start=>$start,
+					   -end=>$end,
+					   -type=>$strand >= 0 ? 'three_prime_UTR' : 'five_prime_UTR');
+  }
+
+  $self->add_feature->(\@utrs) if @utrs;
+  $self->adjust_exons();
+}
+
+# Preprocess the glyph to remove overlaps between UTRs and
+# exons.  The exons are clipped so that UTRs have precedence
+sub adjust_exons {
+  my $self = shift;
+
+  return if $self->{'.adjust_exons'}++;
+
+  # find everything that is not an exon (utrs and cds's)
+  my @exon  = grep {$_->feature->type =~ /exon/i} $self->parts;
+  my %seen   = map {$_=>1} @exon;
+  my @other  = grep {!$seen{$_}} $self->parts;
+  my @clipped_parts;
+
+  for my $p (@exon) {
+    my $p_right = $p->{left}+$p->{width};
+    for my $u (@other) {
+      my $u_right = $u->{left}+$u->{width};
+      if ($u_right > $p->{left} && $u->{left} < $p_right) { # overlaps - clip
+	if ($p->{left} >= $u->{left}) {
+	  $p->{left}    = $u_right-1;
+	  $p->{width}   = $p_right - $p->{left};
+	}
+	if ($p_right <= $u_right) {
+	  my $new_right = $u->{left};
+	  $p->{width}   = $u->{left} - $p->{left};
 	}
       }
     }
-    $self->{parts} = [grep {$_->{width}>1} sort {$a->{left}<=>$b->{left}} $self->parts];
   }
+  $self->{parts} = [grep {$_->{width}>=1} sort {$a->{left}<=>$b->{left}} $self->parts];
+}
 
-  $self;
+sub fixup_glyph {
+  my $self = shift;
+  $self->create_implied_utrs if $self->option('implied_utrs');
+  $self->adjust_exons        if $self->option('adjust_exons');
+}
+
+sub draw {
+  my $self = shift;
+  $self->fixup_glyph();
+  $self->SUPER::draw(@_);
+}
+
+sub boxes {
+  my $self = shift;
+  $self->fixup_glyph();
+  $self->SUPER::draw(@_);
 }
 
 sub is_utr {
@@ -169,10 +251,18 @@ glyph-specific options:
   -adjust_exons  Fix exons so that they don't   undef (false)
                  overlap UTRs
 
+  -implied_utrs  Whether UTRs should be implied undef (false)
+                 from exons and CDS features
+
 The B<-adjust_exons> option is needed to handle features in which the
 exons (SO type "exon") overlaps with the UTRs (SO types
-"five_prime_utr" and "three_prime_utr").  The exon parts of the glyph
+"five_prime_UTR" and "three_prime_UTR").  The exon parts of the glyph
 will be clipped so that it doesn't overlap with the UTR parts.
+
+The B<-implied_utrs> option is needed if there are no explicit UTR
+features.  In this case, UTRs are derived by subtracting the positions
+of "CDS" subfeatures from the positions of "exon" subfeatures.
+B<-implied_utrs> implies the B<-adjust_exons> option.
 
 =head1 BUGS
 

@@ -490,6 +490,52 @@ etc.
 
 =back
 
+=head2 Loading GFF3 Files
+
+This module will accept GFF3 files, as described at
+http://song.sourceforge.net/gff3.shtml. However, the implementation
+has some limitations.
+
+=over 4
+
+=item 1. GFF version string is required
+
+The GFF file b<must> contain the version comment:
+
+ ##gff-version 3
+
+Unless this version string is present at the top of the GFF file, the
+loader will attempt to parse the file in GFF2 format, with
+less-than-desirable results.
+
+=item 2. Only one level of nesting allowed
+
+A major restriction is that Bio::DB::GFF only allows one level of
+nesting of features.  For nesting, the Target tag will be used
+preferentially followed by the ID tag, followed by the Parent tag.
+This means that if genes are represented like this:
+
+  XXXX XXXX gene XXXX XXXX XXXX ID=myGene
+  XXXX XXXX mRNA XXXX XXXX XXXX ID=myTranscript;Parent=myGene
+  XXXX XXXX exon XXXX XXXX XXXX Parent=myTranscript
+  XXXX XXXX exon XXXX XXXX XXXX Parent=myTranscript
+
+Then there will be one group called myGene containing the "gene"
+feature and one group called myTranscript containing the mRNA, and two
+exons.
+
+You can work around this restriction to some extent by using the Alias
+attribute literally:
+
+  XXXX XXXX gene XXXX XXXX XXXX ID=myGene
+  XXXX XXXX mRNA XXXX XXXX XXXX ID=myTranscript;Parent=myGene;Alias=myGene
+  XXXX XXXX exon XXXX XXXX XXXX Parent=myTranscript;Alias=myGene
+  XXXX XXXX exon XXXX XXXX XXXX Parent=myTranscript;Alias=myGene
+
+This limitation will be corrected in the next version of Bio::DB::GFF.
+
+=back
+
 =head1 API
 
 The following is the API for Bio::DB::GFF.
@@ -515,8 +561,9 @@ my %valid_range_types = (overlaps     => 1,
 			 contained_in => 1);
 
 my %gff3_ids = (Target => 1,
-		Parent => 2,
-		ID     => 3);
+		ID     => 2,
+		Parent => 3,
+	       );
 
 =head1 Querying GFF Databases
 
@@ -3408,26 +3455,27 @@ sub _split_gff3_group {
       my ($gname,$tstart,$tstop) = split /\s+/,shift @values;
       $id{$tag} = [_gff3_name_munging($gname,$dc),$tstart,$tstop];
     }
-    elsif ($tag eq 'Name') {
-      push @attributes,[Alias=>$_] foreach @values;
-    }
+#    elsif ($tag eq 'Name') {
+#      push @attributes,[Alias=>$_] foreach @values;
+#    }
     elsif ($tag =~ /synonym/i) {
       $tag = 'Alias';
     }
     push @attributes,[$tag=>$_] foreach @values;
   }
-
+  
   my ($gclass,$gname,$tstart,$tstop);
   for my $preferred (sort {$gff3_ids{$a}<=>$gff3_ids{$b}}
 		     keys %id) {
     unless (defined $gname) {
       ($gname,$gclass,$tstart,$tstop) = @{$id{$preferred}};
-    } else {
-      push @attributes,[$preferred=>$id{$preferred}[1]
-			? join(':',@{$id{$preferred}}[1,0])
-			: $id{$preferred}[0]];
-      push @attributes,[Alias=>$id{$preferred}[0]];
     }
+#    else {
+#      push @attributes,[$preferred=>$id{$preferred}[1]
+#			? join(':',@{$id{$preferred}}[1,0])
+#			: $id{$preferred}[0]];
+#      push @attributes,[Alias=>$id{$preferred}[0]];
+#    }
   }
 
   # set null gclass to empty string to preserve compatibility with
