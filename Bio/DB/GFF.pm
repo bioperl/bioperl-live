@@ -827,7 +827,7 @@ sub abs_segment {
 
 sub setup_segment_args {
   my $self = shift;
-  return @_ if $_[0] =~ /^-/;
+  return @_ if defined $_[0] && $_[0] =~ /^-/;
   return (-name=>$_[0],-start=>$_[1],-stop=>$_[2]) if @_ == 3;
   return (-class=>$_[0],-name=>$_[1])              if @_ == 2;
   return (-name=>$_[0])                            if @_ == 1;
@@ -896,7 +896,8 @@ are ANDed together.
 sub features {
   my $self = shift;
   my ($types,$automerge,$sparse,$iterator,$other);
-  if ($_[0] =~ /^-/) {
+  if (defined $_[0] && 
+      $_[0] =~ /^-/) {
     ($types,$automerge,$sparse,$iterator,$other) = rearrange([
 							      [qw(TYPE TYPES)],
 							      [qw(MERGE AUTOMERGE)],
@@ -1264,6 +1265,7 @@ sub delete {
   my ($name,$class,$start,$end,$offset,$length,$type,$force) =
     rearrange([['NAME','REF'],'CLASS','START',[qw(END STOP)],'OFFSET',
 	       'LENGTH',[qw(TYPE TYPES)],'FORCE'],@args);
+  $offset = 0 unless defined $offset;
   $start = $offset+1 unless defined $start;
   $end   = $start+$length-1 if !defined $end and $length;
   $class ||= $self->default_class;
@@ -1271,7 +1273,7 @@ sub delete {
   my $types = $self->parse_types($type);  # parse out list of types
 
   my @segments;
-  if ($name ne '') {
+  if (defined $name && $name ne '') {
     my @args = (-name=>$name,-class=>$class);
     push @args,(-start=>$start) if defined $start;
     push @args,(-end  =>$end)   if defined $end;
