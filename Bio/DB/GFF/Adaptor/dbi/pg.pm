@@ -10,10 +10,10 @@ SQL commands that need to be executed before this adaptor will work:
 
   CREATE DATABASE <dbname>;
 
-If the bulk loader is not used, then select permission needs to be 
-granted for each table in the database to the owner of the httpd
-process (usually 'nobody', but for some RedHat systems it is 
-'apache'):
+Also, select permission needs to be granted for each table in the
+database to the owner of the httpd process (usually 'nobody', but
+for some RedHat systems it is 'apache') if this adaptor is to be used
+with the Generic Genome Browser (gbrowse):
 
   CREATE USER nobody;
   GRANT SELECT ON TABLE fmeta                 TO nobody;
