@@ -147,24 +147,31 @@ sub num_of_results {
  Usage   : $individual->add_Genotype
  Function: add a genotype value
  Returns : count of the number of genotypes associated with this individual
- Args    : $genotype - Bio::PopGen::GenotypeI object containing the alleles for
-                       a marker
-           -marker_name => $name
-           -alleles     => $alleles,
+ Args    : @genotypes - Bio::PopGen::GenotypeI object(s) containing 
+                        alleles plus a marker name
 
 =cut
 
 sub add_Genotype {
    my ($self,@genotypes) = @_;
+   
    foreach my $g ( @genotypes ) {
-       if( ! defined $g || ! ref($g) || 
-	   ! $g->isa('Bio::PopGen::GenotypeI') ) {
-	   $self->throw("cannot add genotype, it is not a Bio::PopGen::GenotypeI object");
+       if( !ref($g) || ! $g->isa('Bio::PopGen::GenotypeI') ) {
+	   $self->warn("cannot add $g as a genotype skipping");
 	   next;
-       } elsif( ! length($g->marker_name) ) {
-	   $self->warn("cannot add genotype, it must have a valid marker_name associated with it");
        }
-       $self->{'_genotypes'}->{$g->marker_name} = $g;
+       my $mname = $g->marker_name;
+       if( ! defined $mname || ! length($mname) ) { 
+         # can't just say ! name b/c '0' wouldn't be valid 
+	   $self->warn("cannot add genotype because marker name is not defined or is an empty string");
+	   next;
+       }
+       if( $self->verbose > 0 && 
+	   defined $self->{'_genotypes'}->{$mname} ) {
+	   # a warning when we have verbosity cranked up 
+	   $self->debug("Overwriting the previous value for $mname for this individual");
+       }
+       $self->{'_genotypes'}->{$mname} = $g;
    }
    return scalar keys %{$self->{'_genotypes'}};
 }
