@@ -386,7 +386,7 @@ ok($db->delete(-type=>'UTR',-ref=>'Contig29'),undef);
 ok($db->delete(-type=>'CDS',-ref=>'AL12345.2',-class=>'Clone'),3);
 ok($db->delete_features(1,2,3),3);
 
-my $result = eval {
+$result = eval {
   ok($db->delete_groups(1,2,3,4,5),5);
   my @features = $db->get_feature_by_name(Sequence => 'Contig2');
   ok($db->delete_groups(@features),1);
