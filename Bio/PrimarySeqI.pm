@@ -582,14 +582,15 @@ sub translate {
       #remove the stop character
       if( substr($output,-1,1) eq $stop ) {
 	  chop $output;
-      }
-      elsif ($throw) {
-	  $self->warn("Seq [$id]: Not using a valid terminator codon!");
       } else {
-	  $self->throw("Seq [$id]: Not using a valid terminator codon!");
+	  $throw && $self->throw("Seq [$id]: Not using a valid terminator codon!");
+	  $self->warn("Seq [$id]: Not using a valid terminator codon!");
       }
       # test if there are terminator characters inside the protein sequence!
-      #
+      if ($output =~ /\*/) {
+	  $throw && $self->throw("Seq [$id]: Terminator codon inside CDS!");
+	  $self->warn("Seq [$id]: Terminator codon inside CDS!");
+      }  
       # if the initiator codon is not ATG, the amino acid needs to changed into M
       if ( substr($output,0,1) ne 'M' ) {
 	  if ($codonTable->is_start_codon(substr($seq, 0, 3)) ) {
