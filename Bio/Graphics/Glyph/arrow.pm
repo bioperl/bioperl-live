@@ -92,7 +92,7 @@ sub draw_parallel {
     my $stop     = $start + $self->feature->length - 1;
 
     my $offset   = $relative ? $self->feature->start-1 : 0;
-    my $reversed = $self->feature->strand < 0 && $relative;
+    my $reversed = $relative && $self->feature->strand;
 
     my $units    = $self->option('units') || $self->calculate_units($start,$self->feature->length);
     my $divisor  = $UNITS{$units} || 1;
