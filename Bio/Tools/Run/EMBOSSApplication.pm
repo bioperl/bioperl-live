@@ -160,14 +160,19 @@ sub run {
 	    } else {
 		@pieces = ($input->{$attr});
 	    }
-	    if( $pieces[0]->isa('Bio::PrimarySeqI') ) {
+	    if( ! defined $pieces[0] ) {
+		# we ignore for now
+		$self->warn("specified a parameter $attr with no value");
+		$input->{$attr} = undef;
+		return;
+	    } elsif( $pieces[0]->isa('Bio::PrimarySeqI') ) {
 		require Bio::SeqIO;
 		my ($tfh,$tempfile) = $self->{'_io'}->tempfile();
 		my $out = new Bio::SeqIO(-format => 'fasta',
 					 -fh     => $tfh);
 		foreach my $seq ( @pieces ) {
-			$out->write_seq($seq);
-		    }
+		    $out->write_seq($seq);
+		}
 		$out->close();
 		$input->{$attr} = $tempfile;
 	    } elsif( $pieces[0]->isa('Bio::Align::AlignI') ) {
