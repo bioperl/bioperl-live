@@ -74,10 +74,14 @@ package Bio::DB::Taxonomy::flatfile;
 use vars qw(@ISA $DEFAULT_INDEX_DIR $DEFAULT_NODE_INDEX 
 	    $DEFAULT_NAME2ID_INDEX $DEFAULT_ID2NAME_INDEX
 	    $NCBI_TAXONOMY_HOSTNAME
-	    $NCBI_TAXONOMY_FILE);
+	    $NCBI_TAXONOMY_FILE @DIVISIONS);
 use strict;
 use Bio::DB::Taxonomy;
+use Bio::Taxonomy::Node;
+use Bio::Species;
 use DB_File;
+
+use constant SEPARATOR => ':';
 
 $DEFAULT_INDEX_DIR = '/tmp';
 $DEFAULT_NODE_INDEX = 'nodes';
@@ -85,6 +89,19 @@ $DEFAULT_NAME2ID_INDEX = 'names2id';
 $DEFAULT_ID2NAME_INDEX = 'id2names';
 $NCBI_TAXONOMY_HOSTNAME = 'ftp.ncbi.nih.gov';
 $NCBI_TAXONOMY_FILE = '/pub/taxonomy/taxdump.tar.gz';
+
+@DIVISIONS = ([qw(BCT Bacteria)],
+	      [qw(INV Invertebrates)],
+	      [qw(MAM Mammals)],
+	      [qw(PHG Phages)],
+	      [qw(PLN Plants)], # (and fungi)
+	      [qw(PRI Primates)],
+	      [qw(ROD Rodents)],
+	      [qw(SYN Synthetic)],
+	      [qw(UNA Unassigned)],
+	      [qw(VRL Viruses)],
+	      [qw(VRT Vertebrates)]
+	      );
 
 @ISA = qw(Bio::DB::Taxonomy );
 
@@ -138,22 +155,45 @@ sub new {
 =cut
 
 sub get_Taxonomy_Node{
-   my ($self) = @_;
-   my %item;
+   my ($self) = shift;
+   my (%item,$taxonid,$name);
 
-# In progress here...   
-#   if( $item{'RANK'} eq 'species') {
-#       my $node = new Bio::Species(-ncbi_taxid     => $id,
-#				   -common_name    => $item{'CommonName'},
-#				   -division       => $item{'Division'});
-#       my ($genus,$species,$subspecies) = split(' ',$item{'ScientificName'},3);
-#       $node->genus($species);
-#       $node->species($species);
-#       return $node;
-#   } else {
-#       $self->warn(sprintf("can't create a species object for %s (%s) because it isn't a species but is a '%s' instead",$item{'ScientificName'},$item{'CommonName'}, $item{'RANK'}));
-#   }
-   \%item;
+   if( @_ > 1 ) {
+       ($taxonid,$name) = $self->_rearrange([qw(TAXONID
+						NAME)],@_);
+       if( $name ) {
+	   ($taxonid) = $self->get_taxonid($name);
+       }
+   } else {  
+       $taxonid = shift;
+   }
+   my $orig_taxonid = $taxonid;
+   my (@fields,$node,$taxonnode);
+   my $first = 1;
+   while( defined ($node = $self->{'_nodes'}->[$taxonid]) ) {
+       my ($taxid,$parent,$rank,$code,$divid) = split(SEPARATOR,$node);
+       my ($taxon_name) = $self->{'_id2name'}->[$taxid];
+       push @fields, $taxon_name if ($rank && $rank ne 'no rank') ;
+       if( $first ) {	   
+	   $taxonnode = new Bio::Taxonomy::Node(-dbh       => $self,
+						-name      => $taxon_name,
+						-object_id => $taxid,
+						-parent_id => $parent,
+						-rank      => $rank,
+						-division  => $DIVISIONS[$divid]->[0]);
+	   $first = 0;
+       }
+
+       last if $parent == 1 || ! $parent || ! $taxid;
+       $taxonid = $parent;
+   }
+
+   my $speciesnode = new Bio::Species(-ncbi_taxid     => $orig_taxonid,
+#				      -common_name    => $item{'CommonName'},
+#				      -division       => $item{'Division'});
+				      -classification => [@fields],
+				      );
+   return $taxonnode;
 }
 
 =head2 get_taxonid
@@ -207,8 +247,9 @@ sub _build_index {
 	    chomp;
 	    my ($taxid,$parent,$rank,$code,$divid) = split(/\t\|\t/,$_);
 	    # keep this stringified
-	    $self->{'_nodes'}->[$taxid] = join(":", ($taxid,$parent,$rank,
-						     $code,$divid));
+	    $self->{'_nodes'}->[$taxid] = join(SEPARATOR, 
+					       ($taxid,$parent,$rank,
+						$code,$divid));
 	}
 	close(NODES);
 	undef $self->{'_nodes'};
@@ -235,10 +276,12 @@ sub _build_index {
 	    $class =~ s/\s+\|\s*$//;
 	    $uniquename = $name unless $uniquename;
 	    my $idx = lc($name);
-	    $self->{'_name2id'}->{$idx} = join(":",($taxid, $name,$uniquename));
+	    $self->{'_name2id'}->{$idx} = join(SEPARATOR,
+					       ($taxid, $name,$uniquename,
+						$class));
 	    if( $class && $class eq 'scientific name' ) {
 		# only store the id2name lookup when it is the "proper" name
-		$self->{'_id2name'}->[$taxid] = $name;
+		$self->{'_id2name'}->[$taxid] = $uniquename;
 	    }
 	}
 	close(NAMES);
