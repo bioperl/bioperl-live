@@ -1,5 +1,18 @@
 Revision history for Perl extension Bio::Tools::Blast.pm and related modules.
 
+0.085  Tue Jun 29 05:15:40 1999 (bioperl 0.05.1)
+       - Fixed bugs reported in PR#s: 30, 31, 41, 44, 45, 47, 48
+       - Blast.pm no longer throws exceptions for hitless reports,
+         even if a -signif criterion is specified.
+       - Better support for PSI Blasts (running and parsing) based on 
+         comments/suggestions from Ross Crowhurst and Lu Sun. 
+       - Bug fixes in Webblast.pm regarding blastServerURL and filenames
+         with special characters (bug reports from James Diggans and 
+         Bradford Powell, respectively).  
+       - Removed =head3 tags that were causing pod2man warnings.
+       - Fixed -best parsing switch.
+       - Added better POD to Webblast.pm
+
 0.080  Sat Apr 24 19:39:37 1999  (bioperl 0.05)
        - Complete re-implementation of the Blast report parsing strategy.
          The parser now always streamifies all Blast report(s) and
