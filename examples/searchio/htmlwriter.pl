@@ -34,7 +34,7 @@ use Bio::SearchIO::Writer::HTMLResultWriter;
 
 print "\nUsing SearchIO->new()\n";
 
-my $in = Bio::SearchIO->new( -format => 'psiblast', 
+my $in = Bio::SearchIO->new( -format => 'blast', 
                              -signif => 0.1, 
                              -verbose => 0 );
 
