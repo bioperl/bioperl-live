@@ -31,10 +31,12 @@ sub draw {
   my $height = $self->height;
 
   my $half = $self->insertion_width/2;
-
   my $fill = $self->bgcolor;
+  my $border = $self->fgcolor;
 
-  my $poly = GD::Polygon->new;
+  # Fetch out the image_class
+  my $poly_pkg = $self->_image_class . '::Polygon';
+  my $poly     = $poly_pkg->new();
 
   if ($self->feature->strand > 0) { #plus strand
       $poly->addPt($x1 - $half, $y1);
@@ -45,8 +47,8 @@ sub draw {
       $poly->addPt($x1 - $half, $y2);
       $poly->addPt($x1 + ($half), $y2);
   }
-  $gd->filledPolygon($poly, $fill);
-  $gd->polygon($poly, $fill);
+  $gd->filledPolygon($poly,$fill);
+  $gd->polygon($poly,$border);
 
   # add a label if requested
   $self->draw_label($gd,$left,$top)       if $self->option('label');
