@@ -87,9 +87,10 @@ use strict;
 use Bio::Root::RootI;
 use Bio::Tools::HMMER::Domain;
 use Bio::Tools::HMMER::Set;
+use Bio::SeqAnalysisParserI;
 use Symbol;
 
-@ISA = qw(Bio::Root::RootI);
+@ISA = qw(Bio::Root::RootI Bio::SeqAnalysisParserI);
 
 sub new {
   my($class,@args) = @_;
@@ -130,6 +131,43 @@ sub new {
   
   return $self; # success - we hope!
 }
+
+
+=head2 next_feature
+
+ Title   : next_feature
+ Usage   : while( my $feat = $res->next_feature ) { # do something }
+ Function: SeqAnalysisParserI implementing function
+ Example :
+ Returns : A Bio::SeqFeatureI compliant object, in this case, 
+           each DomainUnit object, ie, flattening the Sequence
+           aspect of this.
+ Args    : None
+
+
+=cut
+
+sub next_feature{
+   my ($self) = @_;
+
+   if( $self->{'_started_next_feature'} == 1 ) {
+       return shift @{$self->{'_next_feature_array'}};
+   } else {
+       $self->{'_started_next_feature'} = 1;
+       my @array;
+       foreach my $seq ( $self->each_Set() ) {
+	   foreach my $unit ( $seq->each_Domain() ) {
+	       push(@array,$unit);
+	   }
+       }
+       my $res = shift @array;
+       $self->{'_next_feature_array'} = \@array;
+       return $res;
+   }
+   
+   $self->throw("Should not reach here! Error!");
+}
+
 
 =head2 number
 
