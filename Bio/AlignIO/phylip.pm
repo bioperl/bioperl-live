@@ -82,10 +82,13 @@ use Bio::AlignIO;
 
 sub _initialize {
   my($self,@args) = @_;
+  $self->SUPER::_initialize(@args);
 
   my ($interleave) = $self->_rearrange([qw(INTERLEAVED)],@args);
   if( ! defined $interleave ) { $interleave = 1 }  # this is the default
   $self->interleaved(1) if( $interleave);
+
+  1;
 }
 
 =head2 next_aln
@@ -191,9 +194,8 @@ sub write_aln {
     my $wrapped = 0;
     my $maxname;
     my ($length,$date,$name,$seq,$miss,$pad,%hash,@arr,$tempcount,$index);
-
+    
     foreach my $aln (@aln) {
-
 	$self->throw("All sequences in the alignment must be the same length") 
 	    unless $aln->is_flush ;
 
@@ -207,8 +209,9 @@ sub write_aln {
 	    push(@arr,$name);
 	}
 
-	if( $self->interleaved ) {
+	if( $self->interleaved() ) {
 	    while( $count < $length ) {	
+		
 		# there is another block to go!
 		foreach $name ( @arr ) {
 		    my $dispname = $name;
