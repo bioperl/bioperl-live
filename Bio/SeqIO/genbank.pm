@@ -69,6 +69,7 @@ L<Bio::Annotation::Collection> object.
 
  segment         - Should contain a Bio::Annotation::SimpleValue object
  origin          - Should contain a Bio::Annotation::SimpleValue object
+ wgs             - Should contain a Bio::Annotation::SimpleValue object
 
 =back
 
@@ -462,8 +463,7 @@ sub next_seq {
 	  while( defined($buffer) ) {
 	      # check immediately -- not at the end of the loop
 	      # note: GenPept entries obviously do not have a BASE line
-	      last if(($buffer =~ /^BASE/o) || ($buffer =~ /^ORIGIN/o) ||
-		      ($buffer =~ /^CONTIG/o) );
+	      last if( $buffer =~ /^BASE|ORIGIN|CONTIG|WGS/o);
 
 	      # slurp in one feature at a time -- at return, the start of
 	      # the next feature will have been read already, so we need
@@ -515,6 +515,11 @@ sub next_seq {
 		       $ftunit->_generic_seqfeature($self->location_factory(),
 						    $display_id));
 	      }	
+	  } elsif( s/^WGS\s+// ) {
+	      chomp;
+	      $annotation->add_Annotation(
+		  'wgs',
+		  Bio::Annotation::SimpleValue->new(-value => $_));
 	  } elsif(! /^(ORIGIN|\/\/)/ ) {    # advance to the sequence, if any
 	      while (defined( $_ = $self->_readline) ) {
 		  last if /^(ORIGIN|\/\/)/;
@@ -773,6 +778,13 @@ sub write_seq {
 		}
 	    }
 	}
+	# deal with WGS
+	foreach my $wgs ( $seq->annotation->get_Annotations('wgs') ) {
+	    $self->_print(sprintf ("%-11s %s\n",'WGS',
+				   $wgs->value));
+	    $self->_show_dna(0);
+	}
+
 	if( $seq->length == 0 ) { $self->_show_dna(0) }
 
 	if( $self->_show_dna() == 0 ) {
