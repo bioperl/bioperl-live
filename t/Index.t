@@ -47,7 +47,6 @@ my $ind = Bio::Index::Fasta->new(-filename => 'Wibbl',
 
 $ind->make_index(Bio::Root::IO->catfile($dir,"t","data","multifa.seq"));
 $ind->make_index(Bio::Root::IO->catfile($dir,"t","data","seqs.fas"));
-$ind->make_index(Bio::Root::IO->catfile($dir,"t","data","multi_1.fa"));
 
 ok ( -e "Wibbl" || -e "Wibbl.pag" );
 my $seq = $ind->fetch('HSEARLOBE');
