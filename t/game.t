@@ -5,6 +5,7 @@
 # Before `make install' is performed this script should be runnable with
 # `make test'. After `make install' it should work as `perl test.t'
 
+my $error;
 use strict;
 BEGIN { 
     # to handle systems with no installed Test module
@@ -17,20 +18,25 @@ BEGIN {
     use Test;
     plan tests => 9;
     
+    $error  = 0;
     eval { require XML::Parser::PerlSAX; };
     if( $@ ) {
 	print STDERR "XML::Parser::PerlSAX not loaded. This means game test cannot be executed. Skipping\n";
 	foreach ( 1..9 ) {
 	    skip(1,1);
 	}
-	exit(0);
+       $error = 1;
     } 
+}
+
+if( $error == 1 ) {
+    exit(0);
 }
 
 use Bio::Seq;
 use Bio::SeqIO;
 use Bio::SeqIO::MultiFile;
-use XML::Parser::PerlSAX;
+require XML::Parser::PerlSAX;
 use vars qw($DEBUG);
 use Bio::Root::IO;
 

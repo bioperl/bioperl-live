@@ -2,11 +2,13 @@
 ## Bioperl Test Harness Script for Modules
 ##
 
+my $error;
 use strict;
 BEGIN { 
     # to handle systems with no installed Test module
     # we include the t dir (where a copy of Test.pm is located)
     # as a fallback
+    $error = 0; 
     eval { require Test; };
     if( $@ ) {
 	use lib 't';
@@ -19,10 +21,15 @@ BEGIN {
 	foreach ( 1..3) {
 	    skip(1,'Bio::Ext::Align not loaded');
 	}
-	exit(0);
+        $error = 1;
     }
 }
-use Bio::SearchDist;
+
+if( $error == 1 ) { 
+    exit(0);
+}
+
+require "Bio::SearchDist";
 ok(1);
 
 my $dist = new Bio::SearchDist;
