@@ -27,16 +27,16 @@ use Bio::Root::Global     qw(:std);
 use Bio::Root::Utilities  qw(:obj); 
 
 use vars qw(@ISA @EXPORT @EXPORT_OK %EXPORT_TAGS
-            $ID $VERSION $Fasta $RawData $Newline);
+            $ID $version $Fasta $RawData $Newline);
 
 @ISA        = qw( Bio::Tools::SeqAnal Exporter);
 @EXPORT     = qw();
-@EXPORT_OK  = qw($VERSION $Fasta);
+@EXPORT_OK  = qw($version $Fasta);
 %EXPORT_TAGS = ( obj => [qw($Fasta)],
 		 std => [qw($Fasta)]);
 
 $ID = 'Bio::Tools::Fasta';
-$VERSION  = 0.014; 
+$version  = 0.014; 
 
 
 ## Static FASTA object. 

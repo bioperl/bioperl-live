@@ -31,9 +31,9 @@ use vars qw(@ISA @EXPORT @EXPORT_OK %EXPORT_TAGS);
 		 std  => [qw(&throw &warning)]
 		);
 
-use vars qw($ID $VERSION);
+use vars qw($ID $version);
 $ID = 'Bio::Root::Err';
-$VERSION = 0.041;
+$version = 0.041;
 
 %Bio::Root::Err::ERR_FIELDS = (TYPE=>1, MSG=>1, NOTE=>1, CONTEXT=>1,
 			       TECH=>1, STACK=>1 );

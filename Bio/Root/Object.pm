@@ -29,10 +29,10 @@ use Exporter ();
 #*AUTOLOAD = \&AutoLoader::AUTOLOAD;
 
 use vars qw(@EXPORT_OK %EXPORT_TAGS);
-@EXPORT_OK = qw($VERSION &find_object &stack_trace &containment &_rearrange);  
+@EXPORT_OK = qw($version &find_object &stack_trace &containment &_rearrange);  
 %EXPORT_TAGS = ( std => [qw(&stack_trace &containment)] );
 
-use vars qw($ID $VERSION %Objects_created $Revision @ISA);
+use vars qw($ID $version %Objects_created $Revision @ISA);
 
 @ISA = qw(Bio::Root::RootI);
 
@@ -41,7 +41,7 @@ use vars qw($ID $VERSION %Objects_created $Revision @ISA);
 # See _initialize() for details.
 
 $ID       = 'Bio::Root::Object';
-$VERSION  = 0.041;
+$version  = 0.041;
 $Revision = '$Id$';  #'
 
 ### POD Documentation:

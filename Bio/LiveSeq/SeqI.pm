@@ -83,7 +83,7 @@ Some note on the terminology/notation of method names:
 # Let the code begin...
 
 package Bio::LiveSeq::SeqI;
-$VERSION=3.3;
+$version=3.3;
 # Version history:
 # Thu Mar 16 18:11:18 GMT 2000 v.1.0 Started implementation, interface/inheritance from ChainI.pm
 # Thu Mar 16 20:05:51 GMT 2000 v 1.2 implemented up to splice_out
@@ -122,7 +122,7 @@ $VERSION=3.3;
 # Wed Apr  4 13:34:29 BST 2001 v 3.3 moved from carp to warn
 
 use strict;
-use vars qw($VERSION @ISA);
+use vars qw($version @ISA);
 use Bio::LiveSeq::ChainI 1.9; # to inherit from it
 use Bio::Tools::CodonTable; # for the translate() function
 

@@ -59,13 +59,13 @@ methods. Internal methods are usually preceded with a _
 
 package Bio::Root::RootI;
 
-use vars qw(@ISA $DEBUG $ID $Revision $VERSION $VERBOSITY);
+use vars qw(@ISA $DEBUG $ID $Revision $version $VERBOSITY);
 use strict;
 #use Bio::Root::Err; # we don't use that any longer, right?
 
 BEGIN { 
     $ID        = 'Bio::Root::RootI';
-    $VERSION   = 0.7;
+    $version   = 0.7;
     $Revision  = '$Id$ ';
     $DEBUG     = 0;
     $VERBOSITY = 0;

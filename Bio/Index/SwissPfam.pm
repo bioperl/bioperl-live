@@ -86,7 +86,7 @@ The rest of the documentation details each of the object methods. Internal metho
 
 package Bio::Index::SwissPfam;
 
-use vars qw($VERSION @ISA);
+use vars qw($version @ISA);
 use strict;
 
 use Bio::Index::Abstract;
@@ -100,11 +100,11 @@ use Bio::Seq;
 #
 
 BEGIN {
-    $VERSION = 0.1;
+    $version = 0.1;
 }
 
 sub _version {
-    return $VERSION;
+    return $version;
 }
 
 =head2 _index_file

@@ -90,7 +90,7 @@ methods. Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::LiveSeq::AARange;
-$VERSION=1.8;
+$version=1.8;
 
 # Version history:
 # Wed Apr 19 15:10:29 BST 2000 v 1.0 begun
@@ -100,7 +100,7 @@ $VERSION=1.8;
 # Wed Mar 28 16:58:02 BST 2001 v 1.8 carp -> warn,throw (coded methods in SeqI)
 
 use strict;
-use vars qw($VERSION @ISA);
+use vars qw($version @ISA);
 use Bio::LiveSeq::SeqI 3.2; # uses SeqI, inherits from it
 @ISA=qw(Bio::LiveSeq::SeqI);
 

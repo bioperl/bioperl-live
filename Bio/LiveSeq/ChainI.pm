@@ -67,7 +67,7 @@ methods. Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::LiveSeq::ChainI;
-$VERSION=1.9;
+$version=1.9;
 # Version history:
 # Thu Mar 16 01:38:25 GMT 2000 v.1.4 1st wraparound of methods complete
 #                                    tested with chainseq_asobj_test.pl

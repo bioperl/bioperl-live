@@ -20,9 +20,9 @@ use Bio::Root::Vector ();
 
 @Bio::Root::Xref::ISA = qw( Bio::Root::Vector Bio::Root::Object );
 
-use vars qw($ID $VERSION);
+use vars qw($ID $version);
 $ID = 'Bio::Root::Xref';
-$VERSION = 0.01;
+$version = 0.01;
 
 ## POD Documentation:
 

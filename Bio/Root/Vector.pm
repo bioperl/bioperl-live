@@ -28,9 +28,9 @@ use Bio::Root::Object ();
 
 # @ISA = qw(Bio::Root::Object);  # Eventually perhaps...
 
-use vars qw($ID $VERSION);
+use vars qw($ID $version);
 $ID = 'Bio::Root::Vector';
-$VERSION = 0.04;
+$version = 0.04;
 
 use strict;
 my @SORT_BY = ('rank','name');

@@ -35,10 +35,10 @@ use vars qw( @ISA @EXPORT @EXPORT_OK %EXPORT_TAGS );
 		 @Blast_matrix_local)] );
 
 use strict;
-use vars qw( $ID $VERSION);
+use vars qw( $ID $version);
 
 $ID      = 'Bio::Tools::Blast::Run::LocalBlast';
-$VERSION = '0.01';
+$version = '0.01';
 
 
 ## POD Documentation

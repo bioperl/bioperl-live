@@ -101,7 +101,7 @@ package Bio::LiveSeq::Chain;
 # Tue Dec 12 16:28:45 GMT 2000 v 2.7 rewritten comments to methods in pod style
 
 #
-$VERSION=2.7;
+$version=2.7;
 #
 # TODO_list:
 # **** cleanup code

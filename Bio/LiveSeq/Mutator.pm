@@ -78,7 +78,7 @@ package Bio::LiveSeq::Mutator;
 use vars qw(@ISA);
 use strict;
 
-use vars qw($VERSION @ISA);
+use vars qw($version @ISA);
 use Bio::Variation::SeqDiff;
 use Bio::Variation::DNAMutation;
 use Bio::Variation::RNAChange;

@@ -63,7 +63,7 @@ methods. Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::LiveSeq::IO::SRS;
-$VERSION=2.4;
+$version=2.4;
 
 # Version history:
 # Wed Apr  5 13:06:43 BST 2000 v 1.0 restarted as a child of Loader.pm
@@ -81,7 +81,7 @@ $VERSION=2.4;
 
 use strict;
 use Carp qw(cluck croak carp);
-use vars qw($VERSION @ISA);
+use vars qw($version @ISA);
 use lib $ENV{SRSEXE};
 use srsperl;
 use Bio::Tools::CodonTable; # for novelaasequence2gene

@@ -77,10 +77,10 @@ use vars qw(@ISA @EXPORT @EXPORT_OK %EXPORT_TAGS);
 			    @Blast_matrix_remote)] );
 
 use strict;
-use vars qw( $ID $VERSION $revision);
+use vars qw( $ID $version $revision);
 
 $ID       = 'Bio::Tools::Blast::Run::Webblast';
-$VERSION  = 1.24; 
+$version  = 1.24; 
 
 # SAC: grouped database names.
 # May want to put these sorts of things in a

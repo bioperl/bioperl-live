@@ -5,9 +5,9 @@
 package Bio::UnivAln;
 use strict;
 
-use vars qw ($VERSION $Revision);
+use vars qw ($version $Revision);
 
-$VERSION    = 1.010; # bio.perl.org Version;
+$version    = 1.010; # bio.perl.org Version;
 $Revision   = '$Id$';
 
 # Disclaimer from Georg Fuellen:
@@ -932,7 +932,7 @@ use Exporter;
 use vars qw( @ISA  @EXPORT @EXPORT_OK );
 @ISA         = qw(Exporter);
 @EXPORT      = qw();
-@EXPORT_OK   = qw($VERSION %UnivAlnType @UnivAlnType
+@EXPORT_OK   = qw($version %UnivAlnType @UnivAlnType
                   %UnivAlnForm @UnivAlnForm %UnivAlnAlphs @UnivAlnAlphs);
 require 5.002;
 use Carp;

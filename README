@@ -6,31 +6,31 @@ version 0.7.1
 
 o About Bioperl
 
- Thanks for downloading this distribution!
+  Thanks for downloading this distribution!
 
- Bioperl is an association of developers of public
- domain Perl tools for computational molecular
- biology. 
+  Bioperl is an association of developers of public
+  domain Perl tools for computational molecular
+  biology. 
 
- Our website http://bioperl.org provides an online 
- resource for modules, scripts, and web links for 
- developers of Perl-based software for life 
- science research. 
+  Our website http://bioperl.org provides an online 
+  resource for modules, scripts, and web links for 
+  developers of Perl-based software for life 
+  science research. 
 
 
 o Contact info
 
- Bioperl developers: bioperl-l@bioperl.org
+  Bioperl developers: bioperl-l@bioperl.org
 
- Project website   : http://bioperl.org
- Project FTP server: bioperl.org (anonymous FTP ok)
+  Project website   : http://bioperl.org
+  Project FTP server: bioperl.org (anonymous FTP ok)
 
- Bug reports       : http://bioperl.org/bioperl-bugs/
-                     bioperl-bugs@bioperl.org
+  Bug reports       : http://bioperl.org/bioperl-bugs/
+                      bioperl-bugs@bioperl.org
 
- Please send us bugs, in particular about documentation which you 
- think is unclear or problems in installation. We are also very
- interested in functions which don't work the way you think they do!
+  Please send us bugs, in particular about documentation which you 
+  think is unclear or problems in installation. We are also very
+  interested in functions which don't work the way you think they do!
 
 o System requirements
 

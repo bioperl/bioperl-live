@@ -44,14 +44,14 @@ methods. Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::LiveSeq::Exon;
-$VERSION=1.1;
+$version=1.1;
 
 # Version history:
 # Mon Mar 20 22:26:13 GMT 2000 v 1.0 begun
 # Wed Apr 12 12:42:56 BST 2000 v 1.1 get_Transcript added
 
 use strict;
-use vars qw($VERSION @ISA);
+use vars qw($version @ISA);
 use Bio::LiveSeq::Range 1.2; # uses Range, inherits from it
 @ISA=qw(Bio::LiveSeq::Range);
 

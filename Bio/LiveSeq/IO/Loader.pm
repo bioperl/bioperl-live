@@ -44,7 +44,7 @@ methods. Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::LiveSeq::IO::Loader;
-$VERSION=4.44;
+$version=4.44;
 
 # Version history:
 # Wed Feb 16 17:55:01 GMT 2000 0.1a was a general EMBL entry printer with SRS
@@ -94,7 +94,7 @@ $VERSION=4.44;
 
 use strict;
 use Carp qw(cluck croak carp);
-use vars qw($VERSION @ISA);
+use vars qw($version @ISA);
 use Bio::LiveSeq::DNA 1.2;
 use Bio::LiveSeq::Exon 1.0;
 use Bio::LiveSeq::Transcript 2.4;

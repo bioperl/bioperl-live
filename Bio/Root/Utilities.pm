@@ -44,10 +44,10 @@ use vars qw( @ISA @EXPORT_OK %EXPORT_TAGS );
 %EXPORT_TAGS = ( obj => [qw($Util)],
 		 std => [qw($Util)],);
 
-use vars qw($ID $VERSION $Util $GNU_PATH $DEFAULT_NEWLINE);
+use vars qw($ID $version $Util $GNU_PATH $DEFAULT_NEWLINE);
 
 $ID        = 'Bio::Root::Utilities';
-$VERSION   = 0.05;
+$version   = 0.05;
 
 # $GNU_PATH points to the directory containing the gzip and gunzip 
 # executables. It may be required for executing gzip/gunzip 

@@ -20,7 +20,7 @@ package	 Bio::Tools::WWW;
 use strict;  
 use Bio::Root::RootI;
 use Exporter      ();
-use vars qw(@ISA @EXPORT_OK %EXPORT_TAGS $ID $VERSION $BioWWW $Revision 
+use vars qw(@ISA @EXPORT_OK %EXPORT_TAGS $ID $version $BioWWW $Revision 
 	    $AUTHORITY);
 $AUTHORITY = 'nobody@localhost';
 @ISA         = qw( Bio::Root::RootI Exporter);
@@ -29,7 +29,7 @@ $AUTHORITY = 'nobody@localhost';
 		 std => [qw($BioWWW)]);
 
 $ID = 'Bio::Tools::WWW';
-$VERSION = 0.014;
+$version = 0.014;
 $Revision = '$Id$'; #'
 
 ## Static object.

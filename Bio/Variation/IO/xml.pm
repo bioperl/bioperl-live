@@ -72,7 +72,7 @@ methods. Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::Variation::IO::xml;
-my $VERSION=1.0;
+my $version=1.0;
 use vars qw(@ISA  $h $id $moltype $offset $dna $start $end $len $ismut $number
 	    $allele_ori $allele_mut $upFlank $dnFlank $proof $region $region_value $region_dist
 	    $rna $codon_ori $codon_mut $codon_pos $codon_table $aa $upflank $dnflank

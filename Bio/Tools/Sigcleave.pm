@@ -30,9 +30,9 @@ use Bio::Seq ();
 
 @ISA = qw(Bio::Seq);
 use strict;
-use vars qw ($ID $VERSION %WeightTable);
+use vars qw ($ID $version %WeightTable);
 $ID  = 'Bio::Tools::Sigcleave';
-$VERSION = 0.01;
+$version = 0.01;
 
 =head1 NAME
 

@@ -14,9 +14,9 @@ package Bio::Tools::SeqPattern;
 use Bio::Root::RootI;
 @ISA = qw(Bio::Root::RootI);
 use strict;
-use vars qw ($ID $VERSION);
+use vars qw ($ID $version);
 $ID  = 'Bio::Tools::SeqPattern';
-$VERSION = 0.011;
+$version = 0.011;
 
 ## These constants may be more appropriate in a Bio::Dictionary.pm 
 ## type of class.
