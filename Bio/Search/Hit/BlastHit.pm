@@ -273,6 +273,7 @@ sub new {
 			      SCORE
 			      FOUND_AGAIN )], @args );
 
+    # TODO: Handle this in parser. Just pass in name parameter.
     $self->_set_id( $raw_data->[0] );
 
     if($is_pval) {
@@ -323,12 +324,14 @@ sub algorithm {
 
  Usage     : $hit->name([string]);
  Purpose   : Set/Get a string to identify the hit.
-             This is parsed out of the "Query=" line as the first chunk of 
-             non-whitespace text. If you want the rest of the line, use
-             $hit->description().
  Example   : $name = $hit->name;
            : $hit->name('M81707');
  Returns   : String consisting of the hit's name or undef if not set.
+ Comments  : The name is parsed out of the "Query=" line as the first chunk of 
+             non-whitespace text. If you want the rest of the line, use
+             $hit->description().
+
+See Also: L<accession()|accession>
 
 =cut
 
@@ -369,6 +372,29 @@ sub description {
     my( $self, $len ) = @_; 
     $len = (defined $len) ? $len : (CORE::length $self->{'_description'});
     return substr( $self->{'_description'}, 0 ,$len ); 
+}
+
+=head2 accession
+
+ Title   : accession
+ Usage   : $acc = $hit->accession();
+ Function: Retrieve the accession (if available) for the hit
+ Returns : a scalar string (empty string if not set)
+ Args    : none
+ Comments: Accession numbers are extracted based on the assumption that they
+           are delimited by | characters (NCBI-style). If this is not the case,
+           use the name() method and parse it as necessary.
+
+See Also: L<name()|name>
+
+=cut
+
+#--------------------
+sub accession {
+#--------------------
+    my $self = shift;
+    if(@_) { $self->{'_accession'} = shift; }
+    $self->{'_accession'} || '';
 }
 
 =head2 raw_score
@@ -684,7 +710,7 @@ sub to_string {
 #           : or first line of an alignment section (with or without the leading '>').
 # Throws    : Warning if cannot locate sequence ID.
 #
-#See Also   : L<new()|new>
+#See Also   : L<new()|new>, L<accession()|accession>
 #
 #=cut
 
@@ -694,15 +720,21 @@ sub _set_id {
     my( $self, $desc ) = @_;
 
     # New strategy: Assume only that the ID is the first white space
-    # delimited chunk. Not attempting to extract database name.
+    # delimited chunk. Not attempting to extract accession & database name.
     # Clients will have to interpret it as necessary.
     if($desc =~ /^>?(\S+)\s*(.*)/) {
-        $self->name($1);
-        $self->{'_description'} = $2;
+        my ($name, $desc) = ($1, $2);
+        $self->name($name);
+        $self->{'_description'} = $desc;
 	# Note that this description comes from the summary section of the
 	# BLAST report and so may be truncated. The full description will be
 	# set from the alignment section. We're setting description here in case
 	# the alignment section isn't being parsed.
+
+        # Assuming accession is delimited with | symbols (NCBI-style)
+        my @pieces = split(/\|/,$name);
+        my $acc = pop @pieces;
+        $self->accession( $acc );
     }
     else {
         $self->warn("Can't locate sequence identifier in summary line.", "Line = $desc");
