@@ -94,7 +94,7 @@ The rest of the documentation details each of the object methods. Internal metho
 
 
 package Bio::Seq;
-use vars qw(@ISA);
+use vars qw(@ISA $VERSION);
 use strict;
 use Bio::SeqI;
 
@@ -103,6 +103,8 @@ use Bio::SeqI;
 use Bio::Root::Object;
 use Bio::Annotation;
 use Bio::PrimarySeq;
+
+$VERSION = '0.6.2';
 
 @ISA = qw(Bio::Root::Object Bio::SeqI);
 # new() is inherited from Bio::Root::Object
