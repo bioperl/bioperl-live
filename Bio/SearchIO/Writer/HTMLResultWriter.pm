@@ -161,6 +161,8 @@ sub to_string {
     my ($self,$result) = @_; 
     return unless defined $result;
     my $type = ( $result->algorithm =~ /(P|X|Y)$/i ) ? 'PROTEIN' : 'NUCLEOTIDE';
+    my $reference = $result->program_reference || $self->algorithm_reference($result);
+    $reference =~ s/\~/\n/g;
     my $str = sprintf(
 qq{<HTML>
     <HEAD><CENTER><TITLE>Bioperl Reformatted HTML of %s Search output with Bioperl Bio::SearchIO system</TITLE></CENTER></HEAD>
@@ -178,14 +180,14 @@ qq{<HTML>
   }, 
 		      $result->algorithm, $result->algorithm,		      
 		      $result->query_name(), 
-		      $result->program_reference || $self->algorithm_reference($result),
+		      $reference,
 		      $result->query_name, 
 		      $result->query_description, $result->query_length, 
 		      $result->database_name(),
 		      $result->database_entries(),$result->database_letters(),
 		      );
     my $hspstr = '<p><p>';
-    $result->rewind();
+    $result->rewind(); # support stream based parsing routines
     while( my $hit = $result->next_hit ) {
 	my $nm = $hit->name();
 	my $id_parser = $self->id_parser;
@@ -199,22 +201,32 @@ qq{<HTML>
 	} else { 
 	    $descsub = sprintf($p,$hit->description);
 	}
-	my $url = length($self->remote_database_url($type)) > 0 ? 
-	    sprintf('<a href="%s">%s</a>',$gi || $acc, $hit->name()) : 
-		$hit->name();
 	
-	$str .= sprintf('<tr><td>%s %s</td><td>%s</td><td><a href="#%s">%s</a></td></tr>'."\n",
+	my $url = length($self->remote_database_url($type)) > 0 ? 
+	    sprintf('<a href="%s">%s</a>',
+		    sprintf($self->remote_database_url($type),$gi || $acc), 
+		    $hit->name()) :  $hit->name();
+
+	my @hsps = $hit->hsps;
+	
+	# failover to first HSP if the data does not contain a 
+	# bitscore/significance value for the Hit (NCBI XML data for one)
+	
+	$str .= sprintf('<tr><td>%s %s</td><td>%s</td><td><a href="#%s">%.2g</a></td></tr>'."\n",
 			$url, $descsub, 
-			defined $hit->raw_score ? $hit->raw_score : ' ',
+			($hit->raw_score ? $hit->raw_score : 
+			(defined $hsps[0] ? $hsps[0]->score : ' ')),
 			$acc,
-			defined $hit->significance ? $hit->significance : ' ');
+			( $hit->significance ? $hit->significance :
+			 (defined $hsps[0] ? $hsps[0]->evalue : ' ')) 
+			);
 
 	$hspstr .= "<a name=\"$acc\"><pre>\n".
 	    sprintf("><b>%s</b> %s\n<dd>Length = %d</dd><p>\n\n", $hit->name, 
 			defined $hit->description ? $hit->description : '', 
 		    $hit->length);
-	$hit->rewind();
-	while( my $hsp = $hit->next_hsp ) {
+	
+	foreach my $hsp (@hsps ) {
 	    $hspstr .= sprintf(" Score = %s bits (%s), Expect = %s",
 			       $hsp->bits, $hsp->score, $hsp->evalue);
 	    if( $hsp->pvalue ) {
@@ -432,19 +444,18 @@ sub algorithm_reference{
    if( $result->algorithm =~ /BLAST/i ) {
        my $res = $result->algorithm . ' '. $result->algorithm_version. "\n";
        if( $result->algorithm_version =~ /WashU/i ) {
-	   return $res .qq{
-Copyright (C) 1996-2000 Washington University, Saint Louis, Missouri USA.
-All Rights Reserved.
- 
-Reference:  Gish, W. (1996-2000) http://blast.wustl.edu
-};	   
+	   return $res .
+"Copyright (C) 1996-2000 Washington University, Saint Louis, Missouri USA.\n
+All Rights Reserved.\n
+\n 
+Reference:  Gish, W. (1996-2000) <a href=\"http://blast.wustl.edu\">http://blast.wustl.edu</a>\n";	   
        } else {
-	   return $res . qq{
-Reference: Altschul, Stephen F., Thomas L. Madden, Alejandro A. Schaffer,
-Jinghui Zhang, Zheng Zhang, Webb Miller, and David J. Lipman (1997),
-"Gapped BLAST and PSI-BLAST: a new generation of protein database search
-programs",  Nucleic Acids Res. 25:3389-3402.
-};
+	   return $res . 
+"Reference: Altschul, Stephen F., Thomas L. Madden, Alejandro A. Schaffer,\n
+Jinghui Zhang, Zheng Zhang, Webb Miller, and David J. Lipman (1997),\n
+\"Gapped BLAST and PSI-BLAST: a new generation of protein database search\n
+programs\",  Nucleic Acids Res. 25:3389-3402.\n";
+
        }       
    } elsif( $result->algorithm =~ /FAST/i ) {
        return $result->algorithm. " ". $result->algorithm_version . "\n".
