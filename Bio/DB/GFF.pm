@@ -1003,12 +1003,12 @@ sub get_collection {
   if( wantarray ) {
     my @r = $self->segment( %args );
     ## TODO: REMOVE
-    #warn "Got ( ".join( ', ', @r )." )\n";
+    #warn "Got ( ".join( ', ', @r )." )";
     return @r;
   } else {
     my $r = $self->segment( %args );
     ## TODO: REMOVE
-    #warn "Got $r\n";
+    #warn "Got $r";
     return $r;
   }
 } # get_collection(..)
@@ -3327,6 +3327,8 @@ sub make_feature {
       $group = $self->make_object($group_class,$group_name,$tstart,$tstop);
     }
   }
+
+  $phase ||= 1;
 
   my $feature;
   if (ref $parent) { # note that the src sequence is ignored

@@ -302,7 +302,6 @@ sub get_collection {
       if( exists $seq_ids{ $segment->abs_seq_id() } ) {
         ## TODO: REMOVE
         #warn "Yes, we already know about ".$segment->abs_seq_id().".";
-        #next unless( $segment->feature_count() );
         unless( $segment->feature_count() ) {
           ## TODO: REMOVE
           #warn "..but there's no features on this one.";
