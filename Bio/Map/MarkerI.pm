@@ -92,10 +92,10 @@ sub name {
 
 =head2 Bio::Map::MappableI methods
 
-=head2 position
+=head2 map_position
 
  Title   : position
- Usage   : my $position = $mappable->position(); 
+ Usage   : my $position = $mappable->map_position(); 
  Function: Get/Set the Bio::Map::PositionI for a mappable element
  Returns : Bio::Map::PositionI
  Args    : (optional) Bio::Map::PositionI

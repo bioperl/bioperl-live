@@ -64,9 +64,7 @@ Internal methods are usually preceded with a _
 
 =cut
 
-
 # Let the code begin...
-
 
 package Bio::Map::MapI;
 use vars qw(@ISA);
@@ -153,6 +151,21 @@ sub name {
 sub length{
    my ($self) = @_;
    $self->_abstractDeath('length');
+}
+
+=head2 unique_id
+
+ Title   : unique_id
+ Usage   : my $id = $map->unique_id;
+ Function: Get/Set the unique ID for this map
+ Returns : a unique identifier
+ Args    : [optional] new identifier to set 
+
+=cut
+
+sub unique_id{
+   my ($self,$id) = @_;
+   $self->_abstractDeath('unique_id');
 }
 
 =head2 add_element

@@ -19,7 +19,7 @@ Bio::Map::PositionI - Abstracts the notion of an element having
 
     # get a Bio::Map::PositionI object somehow
     print "The marker maps to the following positions: ", 
-           join(",", $position->each_position), "\n";
+    join(",", $position->each_position_value), "\n";
 
 =head1 DESCRIPTION
 
@@ -76,59 +76,91 @@ use Carp;
 
 @ISA = qw(Bio::Root::RootI);
 
-=head2 each_position
+=head2 each_position_value
 
  Title   : positions
- Usage   : my @positions = $position->positions();
+ Usage   : my @positions = $position->each_position_value('mapname');
  Function: Retrieve a list of positions coded as strings or ints 
  Returns : Array of position values 
  Args    : none
 
 =cut
 
-sub each_position{
-   my ($self) = @_;
-   $self->_abstractDeath('each_position');
+sub each_position_value{
+   my ($self,$mapname) = @_;
+   $self->_abstractDeath('each_position_value');
 }
 
-=head2 add_position
+=head2 add_position_value
 
- Title   : add_position
- Usage   : $position->add_position('100')
+ Title   : add_position_value
+ Usage   : $position->add_position_value($map,'100')
  Function: Add a numeric or string position to the PositionI container
  Returns : none
- Args    : String or Numeric coding for a position on a map
+ Args    : Map - Reference to Bio::Map::MapI 
+           String or Numeric coding for a position on a map
 
 =cut
 
-sub add_position{
-   my ($self) = @_;
-   $self->_abstractDeath('add_position');
+sub add_position_value{
+   my ($self,$map,$value) = @_;
+   $self->_abstractDeath('add_position_value');
 }
 
-=head2 purge
+=head2 purge_position_values
 
- Title   : purge
- Usage   : $position->purge
+ Title   : purge_position_values
+ Usage   : $position->purge_position_values
  Function: Remove all the position values stored for a position
  Returns : none
+ Args    : [optional] only purge values for a given map
+
+=cut
+
+sub purge_position_values{
+   my ($self) = @_;
+   $self->_abstractDeath('purge_position_values');
+}
+
+=head2 known_maps
+
+ Title   : known_maps
+ Usage   : my @maps = $position->known_maps
+ Function: Returns the list of maps that this position has values for
+ Returns : list of Bio::Map::MapI unique ids
  Args    : none
 
 =cut
 
-sub purge_positions{
+sub known_maps{
    my ($self) = @_;
-   $self->_abstractDeath('purge_positions');
+   $self->_abstractDeath('known_maps');
 }
 
+=head2 in_map
+
+ Title   : in_map
+ Usage   : if ( $position->in_map($map) ) {}
+ Function: Tests if a position has values in a specific map
+ Returns : boolean
+ Args    : a map unique id OR Bio::Map::MapI
+
+
+=cut
+
+sub in_map{
+   my ($self,@args) = @_;
+   $self->_abstractDeath('in_map');
+}
 
 =head2 equals
 
  Title   : equals
  Usage   : if( $mappable->equals($mapable2)) ...
- Function: Test if a position is equal to another position
+ Function: Test if a position is equal to another position.
+           It is assumed that 2 positions are in the same map.
  Returns : boolean
- Args    : Bio::Map::MappableI or Bio::Map::PositionI
+ Args    : Bio::Map::PositionI
 
 =cut
 
@@ -142,8 +174,9 @@ sub equals{
  Title   : less_than
  Usage   : if( $mappable->less_than($m2) ) ...
  Function: Tests if a position is less than another position
+           It is assumed that 2 positions are in the same map.
  Returns : boolean
- Args    : Bio::Map::MappableI or Bio::Map::PositionI
+ Args    : Bio::Map::PositionI
 
 =cut
 
@@ -156,9 +189,10 @@ sub less_than{
 
  Title   : greater_than
  Usage   : if( $mappable->greater_than($m2) ) ...
- Function: Tests if position is greater than another position
+ Function: Tests if position is greater than another position.
+           It is assumed that 2 positions are in the same map.
  Returns : boolean
- Args    : Bio::Map::PositionI or Bio::Map::PositionI
+ Args    : Bio::Map::PositionI
 
 =cut
 

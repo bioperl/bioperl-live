@@ -80,7 +80,7 @@ use strict;
 
 use Bio::MapIO;
 use Bio::Map::SimpleMap;
-use Bio::Map::OrderedPositionWithDistance;
+use Bio::Map::OrderedPosition;
 use Bio::Map::Marker;
 
 @ISA = qw(Bio::MapIO );
@@ -101,6 +101,7 @@ sub next_map{
 						 '-units' => 'cM',
 						 '-type'  => 'Genetic'));
    my @markers;
+   my $runningDistance = 0;
    while( defined($_ = $self->_readline()) ) {
        if ( $ready || /^\s+Markers\s+Distance/ ) { 
 	   unless ( $ready ) { $ready = 1; next }
@@ -109,12 +110,14 @@ sub next_map{
        last if ( /-{5,}/); # map terminator is ------- 
        s/^\s+//;
        my ($number,$name,$distance) = split;
-       my $pos = new Bio::Map::OrderedPositionWithDistance
-	   (-positions => $number,
-	    -distance => $distance
+       $runningDistance += $distance;
+       my $pos = new Bio::Map::OrderedPosition
+	   (-order => $number,
+	    -positions => [ [ $map, $runningDistance] ]
 	    );
        $map->add_element(new Bio::Map::Marker('-name'=> $name,
-					      '-position' => $pos));       
+					      '-position' => $pos,
+					      ));   
    }
    return undef if( ! $ready );
    return $map;

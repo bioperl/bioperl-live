@@ -71,12 +71,9 @@ use vars qw(@ISA);
 use strict;
 require 'dumpvar.pl';
 
-# Object preamble - inherits from Bio::Root::Root
+use Bio::Map::OrderedPosition;
 
-use Bio::Root::Root;
-use Bio::Map::PositionI;
-
-@ISA = qw(Bio::Root::Root Bio::Map::PositionI);
+@ISA = qw(Bio::Map::OrderedPosition);
 
 =head2 new
 
@@ -85,147 +82,115 @@ use Bio::Map::PositionI;
 				-distance => $distance );
  Function: Builds a new Bio::Map::LinkagePosition object 
  Returns : Bio::Map::LinkagePosition
- Args    : -positions => the relative order of this marker on a linkage map
- 	   -distance => the centimorgam distance of this marker from the 
-                        previous marker. Can be 0!
- Notes : In this case, if -position is a list the first element will
-	 be used as the position for this marker. It is much better to
-	 simply provide a scalar for this value in the context of a
-	 LinkagePosition object.  ( position_s_ is used simply because
-	 this object inherits from PositionI ) If -distance = 0 or is
-	 omitted it is assumed that the marker here is linked to the
-	 marker before it.
-
+ Args    : -order => the relative order of this marker on a linkage map
+ 	   -positions => positions on a map
 =cut
 
-sub new {
-    my($class,@args) = @_;
-    my $self = $class->SUPER::new(@args);
-    my %param = @args;
-    my ($positions,$distance) = $self->_rearrange([qw(POSITIONS 
-						      DISTANCE)], @args);
-    if( ref($positions) =~ /array/i ) {
-	while( @$positions ) {
-	    $self->add_position(pop(@$positions));
-	}
-    } else {
-	$self->add_position($positions);
-    }
+=head2 Bio::Map::OrderedPosition methods
 
-    if ($distance) {
-	$self->distance($distance);
-    }
-    else {
-	$self->distance('0.0');
-    }
-    return bless $self;
-}
+=head2 order
 
-
-=head2 Bio::Map::PositionI methods
-
-=head2 each_position
-
- Title   : each_position
- Usage   : my @positions = $position->each_position();
- Function: Retrieve a list of positions
- Returns : An array of position values containing a single element.
- Args    : 
- Notes   : I would like this to return a scalar but that would
-	break the interface.
-
-=cut
-
-sub each_position {
-   my ($self) = @_;
-   return @{$self->{'_positions'}};
-}
-
-=head2 add_position($position)
-
- Title   : add_position($position)
- Usage   : $position->add_position('100')
- Function: Add a position to the LinkagePosition container
- Returns : Nothing.
- Args    : String or Numeric coding for a position on a map
- Notes   : In the context of a LinkagePosition this is somewhat
-	moot but is included for compatibility and fascist interface
-	conformation. What should be done if you use this method
-	when there already is an element in the _positions array?
-	As it is, the element you pass in as an argument will
-	_replace_ the current one. _check the source_, Luke.
-
-=cut
-
-sub add_position {
-   my ($self,$value) = @_;
-   if( ! $value ) { 
-       $self->warn("Attempting to add a position with a null value");
-       return;
-   }
-   push @{$self->{'_positions'}}, $value;
-   return;
-}
-
-=head2 purge()
-
- Title   : purge()
- Usage   : $position->purge()
- Function: Remove all the position values stored for a position
- Returns : Nothing
- Args    : None
-
-=cut
-
-sub purge_positions {
-   my ($self) = @_;
-   $self->{'_positions'} = [];
-}
-
-=head2 distance($new_distance)
-
- Title   : distance($new_distance)
- Usage   : $position->distance(new_distance) _or_
-	$position->distance()
- Function: get/set the distance of this position from the previous marker
- Returns : A scalar representing the current distance for this position.
- Args    : If $new_distance is provided the distance of this Position will
-	be set to $new_distance
-
-=cut
-
-sub distance {
-    my ($self,$distance) = @_;
-    if ($distance) {
-	$self->{'_distance'} = $distance;
-    }
-    return $self->{'_distance'};	
-}
-
-=head2 position($new_postion)
-
- Title   : Get/set the position for this LinkagePosition
- Usage   : $o_position->position($new_position) _or_
-	$o_position->position()
- Function: get/set the position of this LinkagePosition
- Returns : A scalar representing the current position.
+ Title   : order
+ Usage   : $o_position->order($new_position) _or_
+           $o_position->order()
+ Function: get/set the order position of this position in a map
+ Returns : 
  Args    : If $new_position is provided, the current position of this Position
-	will be set to $new_position.
- Notes   : Ha! This is _mine_ so it returns a scalar. Bwahaha.
+           will be set to $new_position.
 
 =cut
 
-sub position {
-    my ($self,$position) = @_;
-    if ($position) {
-	# no point in keeing the old ones
-	$self->purge_positions();
-	$self->add_position($position);
+=head2 Bio::Map::Position functions
+
+=head2 known_maps
+
+ Title   : known_maps
+ Usage   : my @maps = $position->known_maps
+ Function: Returns the list of maps that this position has values for
+ Returns : list of Bio::Map::MapI unique ids
+ Args    : none
+
+=head2 in_map
+
+ Title   : in_map
+ Usage   : if ( $position->in_map($map) ) {}
+ Function: Tests if a position has values in a specific map
+ Returns : boolean
+ Args    : a map unique id OR Bio::Map::MapI
+
+=head2 each_position_value
+
+ Title   : positions
+ Usage   : my @positions = $position->each_position_value($map);
+ Function: Retrieve a list of positions coded as strings or ints 
+ Returns : Array of position values for a Map
+ Args    : Bio::Map::MapI object to get positions for
+
+=cut
+
+sub each_position_value {
+    my ($self, @args) = @_;
+    my @v = $self->SUPER::each_position_value(@args);
+    if ( ! @v ) { 
+	return ('0.0');
     }
-    # ::dumpValue($self);
-    return $self->{'_positions'};	
+    return @v;
 }
 
+=head2 add_position_value
+
+ Title   : add_position_value
+ Usage   : $position->add_position_value($map,'100');
+ Function: Add a numeric or string position to the PositionI container 
+           and assoiciate it with a Bio::Map::MapI
+ Returns : none
+ Args    : $map - Bio::Map::MapI
+           String or Numeric coding for a position on a map
+
+=head2 purge_position_values
+
+
+ Title   : purge_position_values
+ Usage   : $position->purge_position_values
+ Function: Remove all the position values stored for a position
+ Returns : none
+ Args    : [optional] only purge values for a given map
+
+=head2 equals
+
+ Title   : equals
+ Usage   : if( $mappable->equals($mapable2)) ...
+ Function: Test if a position is equal to another position.
+ Returns : boolean
+ Args    : Bio::Map::PositionI
+
+=cut
+
+# admittedly these are really the best comparisons in the world
+# but it is a first pass we'll need to refine the algorithm or not 
+# provide general comparisions and require these to be implemented
+# by objects closer to the specific type of data
+
+=head2 less_than
+
+ Title   : less_than
+ Usage   : if( $mappable->less_than($m2) ) ...
+ Function: Tests if a position is less than another position
+           It is assumed that 2 positions are in the same map.
+ Returns : boolean
+ Args    : Bio::Map::PositionI
+
+
+=head2 greater_than
+
+ Title   : greater_than
+ Usage   : if( $mappable->greater_than($m2) ) ...
+ Function: Tests if position is greater than another position.
+           It is assumed that 2 positions are in the same map.
+ Returns : boolean
+ Args    : Bio::Map::PositionI
+
+=cut
 
 
 1;

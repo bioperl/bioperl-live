@@ -62,5 +62,5 @@ ok($map->name('test map'), 'test map'); # map name is unset for this data type
 
 my $count = 1;
 foreach my $marker ( $map->each_element ) {
-    ok(($marker->position->each_position)[0],$count++);
+    ok($marker->position->order,$count++);
 }

@@ -79,9 +79,9 @@ package Bio::Map::Microsatellite;
 use vars qw(@ISA);
 use strict;
 use Bio::Root::Root;
-use Bio::Map::MarkerI;
+use Bio::Map::Marker;
 
-@ISA = qw(Bio::Root::Root Bio::Map::MarkerI);
+@ISA = qw(Bio::Map::Marker);
 
 =head2 new
 
@@ -92,8 +92,10 @@ use Bio::Map::MarkerI;
  Args    :
 	-name    => name of this microsatellite (optional, string,
 		default 'Unknown microsatellite')
-	-position => position of this microsatellite (optional,
-		Bio::Map::PositionI-inherited object, no default)
+        -positions => position(s) for this marker in maps[optional],
+                An array reference of tuples (array refs themselves)
+                Each tuple conatins a Bio::Map::MapI-inherited object and a 
+		Bio::Map::PositionI-inherited obj, no default)
 	-sequence => the sequence of this microsatellite (optional,
 		 scalar, no default)
 	-motif => the repeat motif of this microsatellite (optional,
@@ -116,65 +118,47 @@ use Bio::Map::MarkerI;
 =cut
 
 sub new {
-	my ($class,@args) = @_;
-        my $self = $class->SUPER::new(@args);
-	my ($name, $position, $sequence, 
-	    $motif,$repeats,
-	    $start) = $self->_rearrange([qw(NAME 
-					    POSITION 
-					    SEQUENCE 
-					    MOTIF 
-					    REPEATS 
-					    REPEAT_START_POSITION)], @args);
-	if ($name) { $self->name($name); } 
-	else {$self->name('Unnamed microsatellite'); }
-	$position && $self->position($position);
-	$sequence && $self->sequence($sequence);
-	if ($motif) { $self->motif($motif); } else {$self->motif('Unknown motif'); }
-	$repeats && $self->repeats($repeats);
-	$start && $self->repeat_start_position($start);
-	return bless $self;
+    my ($class,@args) = @_;
+    my $self = $class->SUPER::new(@args);
+    my ($sequence, 
+	$motif,$repeats,
+	$start) = $self->_rearrange([qw(SEQUENCE 
+					MOTIF 
+					REPEATS 
+					REPEAT_START_POSITION)], @args);
+    if( ! $self->name ) { 
+	$self->name('Unnamed microsatellite');
+    }
+    $sequence && $self->sequence($sequence);
+    $self->motif(defined $motif ? $motif : 'Unknown motif'); 
+    $repeats && $self->repeats($repeats);
+    $start && $self->repeat_start_position($start);
+    return $self;
 }
 
-
+=head2 Bio::Map::Marker methods
 
 =head2 position
 
  Title   : position
- Usage   : my $position = $mappable->position(); 
+ Usage   : my $position = $mappable->position($map); OR
+           $mappable->position($map,$position); OR
  Function: Get/Set the Bio::Map::PositionI for a mappable element
+           in a specific Map
  Returns : Bio::Map::PositionI
- Args    : Bio::Map::PositionI
+ Args    : $map =Bio::Map::MapI # Map we are talking about
+           $position = Bio::Map::PositionI # Position we want to set
 
-=cut
-
-sub position {
-	my ($self,$o_position) = @_;
-	if ($o_position) {
-		$self->{'_position'} = $o_position;
-	}
-	return $self->{'_position'};	
-}
 
 =head2 name($new_name)
 
  Title   : name($new_name)
- Usage   : my $name = $o_usat->name($new_name) _or_
-	my $name = $o_usat->name()
+ Usage   : $o_usat->name($new_name) _or_
+	   my $name = $o_usat->name()
  Function: Get/Set the name for this Microsatellite
  Returns : A scalar representing the current name of this Microsatellite
  Args    : If provided, the current name of this Microsatellite
-	will be set to $new_name.
-
-=cut
-
-sub name {
-	my ($self,$name) = @_;
-	if ($name) {
-		$self->{'_name'} = $name;
-	}
-	return $self->{'_name'};	
-}
+	   will be set to $new_name.
 
 =head2 motif($new_motif)
 

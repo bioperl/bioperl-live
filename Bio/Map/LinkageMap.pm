@@ -80,10 +80,9 @@ Internal methods are usually preceded with a _
 package Bio::Map::LinkageMap;
 use vars qw(@ISA);
 use strict;
-use Bio::Root::Root;
-use Bio::Map::MapI;
+use Bio::Map::SimpleMap;
 
-@ISA = qw(Bio::Root::Root Bio::Map::MapI);
+@ISA = qw(Bio::Map::SimpleMap);
 
 =head2 new
 
@@ -98,97 +97,12 @@ use Bio::Map::MapI;
            -elements=> elements to initialize with
                        (arrayref of Bio::Map::MappableI objects) [optional]
 
+          -uid      => Unique ID of this map
 =cut
 
-sub new {
-  my ($class,@args) = @_;
-  
-  my $self = $class->SUPER::new(@args);
-
-  $self->{'_elements'} = [];
-  $self->{'_name'}     = '';
-  $self->{'_species'}  = '';
-  $self->{'_units'}    = '';
-
-  my ($name, $species, $units,
-      $elements, $type) = $self->_rearrange([qw(NAME 
-						SPECIES 
-						UNITS 
-						ELEMENTS 
-						TYPE)], @args);
-  $name     && $self->name($name);
-  $species  && $self->species($species);
-  $self->units(defined $units ? $units : 'cM');
-  $self->type(defined $type ? $type : 'Linkage');
-  
-  if( $elements && ref($elements) =~ /array/i ) {
-      foreach my $item ( @$elements ) {
-          $self->add_element($item);
-      }
-  }
-  return $self;
-}
+# new provided by SimpleMap
 
 
-=head2 species($new_species)
-
- Title   : species($new_species)
- Usage   : my $species = $map->species($new_species) _or_
- 	   my $species = $map->species()
- Function: Get/Set Species for a map
- Returns : A Bio::Species object representing the current species of this
-	   LinkageMap.
- Args    : If provided, the species of this LinkageMap will be set to
-	   $new_species.
-
-=cut
-
-sub species {
-    my ($self,$species) = @_;
-    if ($species) {
-	$self->{'_species'} = $species;
-    }
-    return $self->{'_species'};
-}
-
-=head2 units($new_units)
-
- Title   : units($new_units)
- Usage   : $map->units($new_units) _or_
-	   $map->units()
- Function: Get/Set units for a map
- Returns : A scalar representing the units for this LinkageMap
- Args    : If provided, the units for this LinkageMap will be set to
-	   $new_units.
-
-=cut
-
-sub units {
-    my ($self,$units) = @_;
-    if (defined $units) {
-	$self->{'_units'} = $units;
-    }
-    return $self->{'_units'};
-}
-
-=head2 type($new_type)
-
- Title   : type($new_type)
- Usage   : my $type = $map->type($new_type) _or_
-	   my $type = $map->type()
- Function: Get/Set Map type
- Returns : A scalar representing the current map type.
- Args    : If provided, the current map type will be set to $new_type.
-
-=cut
-
-sub type {
-    my ($self,$type) = @_;
-    if (defined $type) {
-	$self->{'_type'} = $type;
-    }
-    return $self->{'_type'};
-}
 
 =head2 length()
 
@@ -208,29 +122,10 @@ sub length {
     my $total_distance;
     foreach (@{$self->{'_elements'}}) {
 	if ($_) {
-	    $total_distance += $_->position()->distance();
+	    $total_distance += ($_->position()->each_position_value($self))[0];
 	}
     }
     return $total_distance;
-}
-
-=head2 name($new_name)
-
- Title   : name($new_name)
- Usage   : my $name = $map->name($new_name) _or_
-	   my $length = $map->name()
- Function: Get/set the name of the map.
- Returns : The current name of the map.
- Args    : If provided, the name of the map is set to $new_name.
-
-=cut
-
-sub name {
-    my ($self,$name) = @_;
-    if ($name) {
-	$self->{'_name'} = $name;
-    }
-    return $self->{'_name'};
 }
 
 =head2 add_element($marker)
@@ -240,35 +135,39 @@ sub name {
  Function: Add a Bio::Map::MappableI object to the Map
  Returns : none
  Args    : Bio::Map::MappableI object
- Notes : It is strongly recommended that you use a
-	 Bio::Map::LinkagePosition as the position in any
-	 Bio::Map::Mappable that you create to place on this
-	 map. Using some other Bio::Map::Position might work but might
-	 be unpredictable.
-
+ Notes   : It is strongly recommended that you use a
+	   Bio::Map::LinkagePosition as the position in any
+	   Bio::Map::Mappable that you create to place on this
+	   map. Using some other Bio::Map::Position might work but might
+	   be unpredictable.
+           N.B. I\'ve added Bio::Map::OrderedPosition which should achieve
+                similar things from LinkagePosition and will work for 
+                RH markers too.
 =cut
 
 sub add_element {
     my ($self,$marker) = @_;
 
-    my $o_position = $marker->position()->position();
+    my $o_position = $marker->position();
+    
     $self->debug( "marker position is ". $marker->position());
 #     print("add_element: \$o_position is $o_position\n");
 #     print("add_element: \$marker is $marker\n");
-    my @position = @$o_position;
-    my @positions_copy = @position;
-
-    # This is not so good here - need to think about it some more but
-    # I expected markers to support having multiple positions, I guess
-    # in a LinkageMap you have to constrain things to a single position
-    # on the map.
     
-    if ( ref($o_position) =~ /array/i ||
-	 $o_position->isa('Bio::Map::LinkagePosition') ) {
+    my $position;
+    unless ( $o_position->isa('Bio::Map::LinkagePosition') ||
+	     $o_position->isa('Bio::Map::OrderedPosition') 
+	     ) {
 	$self->warn("You really should use a Linkage Position for this object. This insures that there is only one position. Trying anyway...");	
+	my @p = ( $o_position->each_position_value($self));
+	$position = shift @p;
+	if( ! defined $position ) {
+	    $self->throw("This marker ($marker) does not have a position in this map ($self)");
+	}
+    } else { 
+	$position = $o_position->order;
     }
-    # my $position = pop(@{$o_position->position()});
-    my $position = pop(@positions_copy);
+
     if ($self->{'_elements'}[$position]) {
 	$self->warn("Replacing the marker in position $position because in a linkage map the position is a key.");
     }	
@@ -292,5 +191,52 @@ sub each_element {
     my ($self) = @_;
     return @{$self->{'_elements'}};
 }
+
+=head2 implemented by Bio::Map::SimpleMap
+
+=head2 name($new_name)
+
+ Title   : name($new_name)
+ Usage   : my $name = $map->name($new_name) _or_
+	   my $length = $map->name()
+ Function: Get/set the name of the map.
+ Returns : The current name of the map.
+ Args    : If provided, the name of the map is set to $new_name.
+
+=head2 species
+
+ Title   : species
+ Usage   : my $species = $map->species;
+ Function: Get/Set Species for a map
+ Returns : Bio::Species object
+ Args    : (optional) Bio::Species
+
+
+=head2 units
+
+ Title   : units
+ Usage   : $map->units('cM');
+ Function: Get/Set units for a map
+ Returns : units for a map
+ Args    : units for a map (string)
+
+
+=head2 type
+
+ Title   : type
+ Usage   : my $type = $map->type
+ Function: Get/Set Map type
+ Returns : String coding map type
+ Args    : (optional) string
+
+=head2 unique_id
+
+ Title   : unique_id
+ Usage   : my $id = $map->unique_id;
+ Function: Get/Set the unique ID for this map
+ Returns : a unique identifier
+ Args    : [optional] new identifier to set 
+
+=cut
 
 1;

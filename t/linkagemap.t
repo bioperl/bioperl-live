@@ -25,10 +25,10 @@ require 'dumpvar.pl';
 
 use Bio::Map::LinkagePosition;
 use Bio::Map::Microsatellite;
-
 use Bio::Map::LinkageMap;
+
 ok(1);
-my $verbose = -1;
+my $verbose = 0;
 my $map = new Bio::Map::LinkageMap('-verbose' => $verbose,
 				   '-name'    => 'Leviathon',
 				   '-type'    => 'Genetic',
@@ -40,11 +40,11 @@ ok($map->type, 'Genetic');
 ok($map->units, 'cM');
 ok($map->species, 'Brassica');
 
-my $position = new Bio::Map::LinkagePosition(
-					     '-positions' => 2,
-					     '-distance'  => 22.3);
-ok(($position->each_position)[0], 2);
-ok($position->distance, 22.3);
+my $position = new Bio::Map::LinkagePosition('-order' => 2,
+					     '-positions' => [ [ $map, 22.3]]);
+
+ok($position->order, 2);
+ok(($position->each_position_value($map))[0], 22.3);
 	# what should be printed if this was ok?
 	# ok(1);
 

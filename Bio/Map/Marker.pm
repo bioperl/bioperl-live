@@ -15,7 +15,7 @@ Bio::Map::Marker - An object representing a generic marker.
 =head1 SYNOPSIS
 
 $o_usat = new Bio::Map::Marker(-name=>'Chad Super Marker 2',
-	-position => Bio::Map::PositionI-child);
+			       -position => [ [$map, $position] ] );
 
 =head1 DESCRIPTION
 
@@ -81,10 +81,11 @@ use Bio::Map::MarkerI;
  Function: Builds a new Bio::Map::Marker object
  Returns : Bio::Map::Marker
  Args    :
-	-name    => name of this microsatellite (optional, string,
-		default 'Unknown microsatellite')
-	-position => position of this marker (optional,
-		Bio::Map::PositionI-inherited object, no default)
+           -name    => name of this microsatellite 
+                       [optional], string,default 'Unknown'
+          
+           -positions => map position for this marker, [optional]
+                Bio::Map::PositionI-inherited obj, no default)
 
 =cut
 
@@ -93,47 +94,56 @@ sub new {
     my $self = $class->SUPER::new(@args);
     my ($name, $position) = $self->_rearrange([qw(NAME POSITION)], @args);
     if ($name) { $self->name($name); } else {$self->name('Unnamed marker'); }
-    $position && $self->position($position);
-    return bless $self;
+    $position && $self->position($position); 
+    return $self;
 }
-
 
 =head2 position
 
  Title   : position
- Usage   : my $position = $mappable->position(); 
+ Usage   : my $position = $mappable->position($map); OR
+           $mappable->position($map,$position); OR
  Function: Get/Set the Bio::Map::PositionI for a mappable element
+           in a specific Map
  Returns : Bio::Map::PositionI
- Args    : Bio::Map::PositionI
+ Args    : $map  - Bio::Map::MapI # Map we are talking about
+           $position - Bio::Map::PositionI # Position we want to set
 
 =cut
 
 sub position {
     my ($self,$o_position) = @_;
+    
     if ($o_position) {
+	if( !ref($o_position) ||
+	    ! $o_position->isa('Bio::Map::PositionI') ) {
+	    $self->warn("Must specify a Bio::Map::PositionI when trying to set the position not ". ref($o_position));
+	    return;
+	}
 	$self->{'_position'} = $o_position;
     }
-    return $self->{'_position'};	
+    return $self->{'_position'};
 }
 
 =head2 name($new_name)
 
  Title   : name($new_name)
- Usage   : my $name = $o_usat->name($new_name) _or_
-	my $name = $o_usat->name()
+ Usage   : $o_usat->name($new_name) _or_
+	   my $name = $o_usat->name()
  Function: Get/Set the name for this Microsatellite
  Returns : A scalar representing the current name of this Microsatellite
  Args    : If provided, the current name of this Microsatellite
-	will be set to $new_name.
+	   will be set to $new_name.
 
 =cut
 
 sub name {
     my ($self,$name) = @_;
+    my $last = $self->{'_name'};
     if ($name) {
 	$self->{'_name'} = $name;
     }
-    return $self->{'_name'};	
+    return $last;	
 }
 
 =head2 equals
@@ -146,17 +156,17 @@ sub name {
 
 =cut
 
-sub equals{
-   my ($self,$compare) = @_;
-   return 0 unless defined $compare;
-   if( $compare->isa('Bio::Map::MappableI') ){
-       return ($self->position->equals($compare->position));
-   } elsif( $compare->isa('Bio::Map::PositionI') ) {
-       return ($self->position->equals($compare));
-   } else { 
-       $self->warn("Can only run equals with Bio::Map::MappableI or Bio::Map::PositionI"); 
-   }
-   return 0;
+sub equals {
+    my ($self,$compare) = @_;
+    return 0 unless defined $compare;
+    if( $compare->isa('Bio::Map::MappableI') ){
+	return ($self->position->equals($compare->position));
+    } elsif( $compare->isa('Bio::Map::PositionI') ) {
+	return ($self->position->equals($compare));
+    } else { 
+	$self->warn("Can only run equals with Bio::Map::MappableI or Bio::Map::PositionI"); 
+    }
+    return 0;
 }
 
 =head2 less_than
@@ -169,17 +179,17 @@ sub equals{
 
 =cut
 
-sub less_than{
-   my ($self,$compare) = @_;
-   return 0 unless defined $compare;
-   if( $compare->isa('Bio::Map::MappableI') ){
-       return ($self->position->less_than($compare->position));
-   } elsif( $compare->isa('Bio::Map::PositionI') ) {
-       return ($self->position->less_than($compare));
-   } else { 
-       $self->warn("Can only run less_than with Bio::Map::MappableI or Bio::Map::PositionI"); 
-   }
-   return 0;
+sub less_than {
+    my ($self,$compare) = @_;
+    return 0 unless defined $compare;
+    if( $compare->isa('Bio::Map::MappableI') ){
+	return ($self->position->less_than($compare->position));
+    } elsif( $compare->isa('Bio::Map::PositionI') ) {
+	return ($self->position->less_than($compare));
+    } else { 
+	$self->warn("Can only run less_than with Bio::Map::MappableI or Bio::Map::PositionI"); 
+    }
+    return 0;
 }
 
 =head2 greater_than
@@ -192,17 +202,17 @@ sub less_than{
 
 =cut
 
-sub greater_than{
-   my ($self,$compare) = @_;
-   return 0 unless defined $compare;
-   if( $compare->isa('Bio::Map::MappableI') ){
-       return ($self->position->greater_than($compare->position));
-   } elsif( $compare->isa('Bio::Map::PositionI') ) {
-       return ($self->position->greater_than($compare));
-   } else { 
-       $self->warn("Can only run greater_than with Bio::Map::MappableI or Bio::Map::PositionI"); 
-   }
-   return 0;
+sub greater_than {
+    my ($self,$compare) = @_;
+    return 0 unless defined $compare;
+    if( $compare->isa('Bio::Map::MappableI') ){
+	return ($self->position->greater_than($compare->position));
+    } elsif( $compare->isa('Bio::Map::PositionI') ) {
+	return ($self->position->greater_than($compare));
+    } else { 
+	$self->warn("Can only run greater_than with Bio::Map::MappableI or Bio::Map::PositionI"); 
+    }
+    return 0;
 }
 
 1;

@@ -17,7 +17,7 @@ Bio::Map::MappableI - An object that can be placed in a map
 =head1 SYNOPSIS
 
     # get a Bio::Map::MappableI somehow
-    my $position = $element->position();
+    my $position = $element->map_position();
     # these methods will be important for building sorted lists
     if( $position->equals($p2) ) {
 	# do something

@@ -72,7 +72,7 @@ Internal methods are usually preceded with a _
 
 
 package Bio::Map::SimpleMap;
-use vars qw(@ISA);
+use vars qw(@ISA $MAPCOUNT);
 use strict;
 
 # Object preamble - inherits from Bio::Root::Root
@@ -81,6 +81,7 @@ use Bio::Root::Root;
 use Bio::Map::MapI;
 
 @ISA = qw(Bio::Root::Root Bio::Map::MapI);
+BEGIN { $MAPCOUNT = 1; }
 
 =head2 new
 
@@ -94,6 +95,7 @@ use Bio::Map::MapI;
            -elements=> elements to initialize with
                        (arrayref of Bio::Map::MappableI objects) [optional]
 
+           -uid     => Unique Id
 =cut
 
 sub new {
@@ -106,15 +108,17 @@ sub new {
   $self->{'_species'}  = '';
   $self->{'_units'}    = '';
   $self->{'_type'}    = '';
-
+  $self->{'_uid'} = $MAPCOUNT++;
   my ($name, $type,$species, $units,
-      $elements) = $self->_rearrange([qw(NAME TYPE 
-					 SPECIES UNITS 
-					 ELEMENTS)], @args);
+      $elements,$uid) = $self->_rearrange([qw(NAME TYPE 
+					      SPECIES UNITS 
+					      ELEMENTS UID)], @args);
   defined $name     && $self->name($name);
   defined $species  && $self->species($species);
   defined $units    && $self->units($units);
   defined $type     && $self->type($type);
+  defined $uid      && $self->unique_id($uid);
+
   if( $elements && ref($elements) =~ /array/ ) {
       foreach my $item ( @$elements ) {
 	  $self->add_element($item);
@@ -128,19 +132,15 @@ sub new {
  Title   : species
  Usage   : my $species = $map->species;
  Function: Get/Set Species for a map
- Returns : Bio::Species object
- Args    : (optional) Bio::Species
+ Returns : Bio::Species object or string
+ Args    : (optional) Bio::Species or string
 
 =cut
 
 sub species{
    my ($self,$value) = @_;
    if( defined $value ) {
-       if( ! $value->isa('Bio::Species') ) {
-	   $self->warn("Trying to set species to invalid type. $value is not a Bio::Species ");
-       } else { 
-	   $self->{'_species'} = $value;
-       }
+       $self->{'_species'} = $value;
    }
    return $self->{'_species'};
 }
@@ -225,6 +225,24 @@ sub length{
    } else { return 0; } 
 }
 
+
+=head2 unique_id
+
+ Title   : unique_id
+ Usage   : my $id = $map->unique_id;
+ Function: Get/Set the unique ID for this map
+ Returns : a unique identifier
+ Args    : [optional] new identifier to set 
+
+=cut
+
+sub unique_id {
+   my ($self,$id) = @_;
+   if( defined $id ) {
+       $self->{'_uid'} = $id;
+   }
+   return $self->{'_uid'};
+}
 
 =head2 add_element
 
