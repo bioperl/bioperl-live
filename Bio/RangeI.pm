@@ -129,6 +129,33 @@ sub _testStrand() {
 
 These methods must be implemented in all subclasses.
 
+=head2 seq_id
+
+  Title   : seq_id
+  Usage   : my $seq_id = $range->seq_id( [new_seq_id] );
+  Function: Get/Set a unique_id or primary_id of a L<Bio::PrimarySeqI>
+            or another L<Bio::RangeI> that this RangeI is defined
+            over or relative to.
+  Returns : The current (or former, if used as a set method) value of
+            the seq_id.
+  Args    : [optional] A new (string or L<Bio::RangeI> seq_id value
+
+  Ranges may have no defined seq_id, but this should be considered
+  deprecated.  The concept of a 'range' requires that it is a range
+  over some sequence; this method returns (and optionally sets) that
+  sequence.  It is also possible to specify another range, to support
+  relative ranges.  If the value of seq_id is another L<Bio::RangeI>,
+  then this RangeI's positions are relative to that RangeI's
+  positions.  If seq_id is the id of a sequence then it should provide
+  enough information for a user of a RangeI to retrieve that sequence;
+  ideally it should be a L<Bio::GloballyIdentifiableI> unique_id.
+
+=cut
+
+sub seq_id {
+    shift->throw_not_implemented();
+}
+
 =head2 start
 
   Title   : start
@@ -136,7 +163,7 @@ These methods must be implemented in all subclasses.
   Function: get/set the start of this range
   Returns : the start of this range
   Args    : optionaly allows the start to be set
-           using $range->start($start)
+            using $range->start($start)
 
 =cut
 
@@ -259,10 +286,13 @@ sub contains {
 =head2 equals
 
   Title   : equals
-  Usage   : if($r1->equals($r2))
-  Function: test whether $r1 has the same start, end, length as $r2
+  Usage   : if( $r1->equals( $r2 ) ) { do something }
+  Function: Test whether $r1 has the same start, end, length, and seq_id as $r2
   Args    : a range to test for equality
   Returns : true if they are describing the same range
+
+  If either range has no defined seq_id then seq_id will be ignored in
+  the test.
 
 =cut
 
@@ -276,8 +306,10 @@ sub equals {
     $other->throw("end is undefined") unless defined $other->end;
 
     return ($self->_testStrand($other, $so)   and
+            ( ( defined( $self->seq_id() ) && defined( $other->seq_id() ) ) ?
+              ( $self->seq_id() eq $other->seq_id() ) : 1 ) and
 	    $self->start() == $other->start() and
-	    $self->end()   == $other->end()       );
+	    $self->end()   == $other->end() );
 }
 
 =head1 Geometrical methods
@@ -290,13 +322,16 @@ which new ranges could be built.
 =head2 intersection
 
   Title   : intersection
-  Usage   : ($start, $stop, $strand) = $r1->intersection($r2)
+  Usage   : my $intersection_range = $r1->intersection( $r2 ) (scalar context)
+            OR
+            my ( $start, $end, $strand ) = $r1->intersection( $r2 )
+             (list context)
   Function: gives the range that is contained by both ranges
   Args    : arg #1 = a range to compare this one to (mandatory)
             arg #2 = strand option ('strong', 'weak', 'ignore') (optional)
-  Returns : undef if they do not overlap, 
-            or the range that they do overlap 
-            (in an objectlike the calling one)
+  Returns : undef if they do not overlap,
+            or new range object containing the overlap
+            or (in list context) the start, end, and strand of that range.
 
 =cut
 
@@ -329,23 +364,33 @@ sub intersection {
     if($start > $end) {
 	return undef;
     } else {
-	return $self->new('-start' => $start,
-			  '-end' => $end,
-			  '-strand' => $union_strand
-			  );
-	#return ($start, $end, $union_strand);
+      if( wantarray ) {
+        return ($start, $end, $union_strand);
+      }
+      return $self->new('-start' => $start,
+                        '-end' => $end,
+                        '-strand' => $union_strand
+                       );
     }
 }
 
 =head2 union
 
-    Title   : union
-    Usage   : ($start, $stop, $strand) = $r1->union($r2);
-            : ($start, $stop, $strand) = Bio::RangeI->union(@ranges);
-              my $newrange = Bio::RangeI->union(@ranges);
-    Function: finds the minimal range that contains all of the ranges
-    Args    : a range or list of ranges to find the union of
-    Returns : the range object containing all of the ranges
+  Title   : union
+  Usage   : my $union_range = $r1->union( @other_ranges ); (scalar context)
+            OR
+            my ( $start, $end, $strand ) = $r1->union( @other_ranges );
+              (list context)
+            OR
+            my $union_range = Bio::RangeI->union( @ranges );
+              (scalar context)
+            OR
+            my ( $start, $end, $strand ) = Bio::RangeI->union( @ranges );
+              (list context)
+  Function: finds the minimal range that contains all of the ranges
+  Args    : a range or list of ranges to find the union of
+  Returns : a new range object that contains all of the given ranges, or
+            (in list context) the start, end, and strand of that range object.
 
 =cut
 
@@ -441,3 +486,5 @@ sub overlap_extent{
 }
 
 1;
+
+__END__

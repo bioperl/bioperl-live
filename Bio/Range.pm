@@ -17,8 +17,10 @@ Bio::Range - Pure perl RangeI implementation
 
 =head1 SYNOPSIS
 
-  $range = new Bio::Range(-start=>10, -end=>30, -strand=>+1);
-  $r2 = new Bio::Range(-start=>15, -end=>200, -strand=>+1);
+  my $range =
+    new Bio::Range(-seq_id => 'hg12', -start=>10, -end=>30, -strand=>+1);
+  my $r2 =
+    new Bio::Range(-seq_id => 'hg12', -start=>15, -end=>200, -strand=>+1);
 
   print join(', ', $range->union($r2), "\n";
   print join(', ', $range->intersection($r2), "\n";
@@ -31,7 +33,7 @@ Bio::Range - Pure perl RangeI implementation
 This provides a pure perl implementation of the BioPerl range
 interface.
 
-Ranges are modeled as having (start, end, length, strand). They use
+Ranges are modeled as having (seq_id, start, end, length, strand). They use
 Bio-coordinates - all points E<gt>= start and E<lt>= end are within the
 range. End is always greater-than or equal-to start, and length is
 greather than or equal to 1. The behaviour of a range is undefined if
@@ -91,23 +93,27 @@ use vars qw(@ISA);
 =head2 new
 
   Title   : new
-  Usage   : $range = Bio::Range->new(-start => 100, -end=> 200, -strand = +1);
+  Usage   : $range = Bio::Range->new(-seq_id => 'hg12', -start => 100, -end=> 200, -strand = +1);
   Function: generates a new Bio::Range
   Returns : a new range
-  Args    : two of (-start, -end, '-length') - the third is calculated
+  Args    : two of (-start, -end, -length) - the third is calculated
           : -strand (defaults to 0)
+          : -seq_id (not required but highly recommended)
 
 =cut
 
 sub new {
   my ($caller, @args) = @_;
   my $self = $caller->SUPER::new(@args);
-  my ($strand, $start, $end, $length) = 
-      $self->_rearrange([qw(STRAND 
+  my ($seq_id, $strand, $start, $end, $length) = 
+      $self->_rearrange([qw(SEQ_ID
+                            STRAND 
 			    START
 			    END 
 			    LENGTH
 			    )],@args);
+  $self->seq_id( $seq_id );
+
   $self->strand($strand || 0);
 
   if(defined $start ) {
@@ -122,11 +128,49 @@ sub new {
       $self->start($self->end() - $length + 1);
   }
   return $self;
-}
+} # new(..)
 
 =head1 Member variable access
 
 These methods let you get at and set the member variables
+
+=head2 seq_id
+
+  Title   : seq_id
+  Usage   : my $seq_id = $range->seq_id( [new_seq_id] );
+  Function: Get/Set a unique_id or primary_id of a L<Bio::PrimarySeqI>
+            or another L<Bio::RangeI> that this RangeI is defined
+            over or relative to.
+  Returns : The current (or former, if used as a set method) value of
+            the seq_id.
+  Args    : [optional] A new (string or L<Bio::RangeI> seq_id value
+
+  Ranges may have no defined seq_id, but this should be considered
+  deprecated.  The concept of a 'range' requires that it is a range
+  over some sequence; this method returns (and optionally sets) that
+  sequence.  It is also possible to specify another range, to support
+  relative ranges.  If the value of seq_id is another L<Bio::RangeI>,
+  then this RangeI's positions are relative to that RangeI's
+  positions.  If seq_id is the id of a sequence then it should provide
+  enough information for a user of a RangeI to retrieve that sequence;
+  ideally it should be a L<Bio::GloballyIdentifiableI> unique_id.
+
+=cut
+
+sub seq_id {
+  my $self = shift;
+  my ( $new_val ) = @_;
+
+  my $previous_val = $self->{ 'seq_id' };
+  if( defined $new_val ) {
+    if( ( ( ref $new_val ) && !$new_val->isa( 'Bio::RangeI' ) ) ||
+        ( ref \$new_val ne 'STRING' ) ) {
+      $self->throw( "The given value is neither a string nor a Bio::RangeI object." );
+    }
+    $self->{ 'seq_id' } = $new_val;
+  }
+  return $previous_val;
+} # seq_id(..)
 
 =head2 start
 
