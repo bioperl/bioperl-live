@@ -672,15 +672,16 @@ sub calculate_offsets {
 
   my $fh = IO::File->new($file) or $self->throw( "Can't open $file: $!");
   warn "indexing $file\n" if $self->{debug};
-  my ($offset,$id,$linelength,$type,$firstline,$count,%offsets);
+  my ($offset,$id,$linelength,$type,$firstline,$count,$termination_length,%offsets);
   while (<$fh>) {		# don't try this at home
+    $termination_length ||= /\r\n$/ ? 2 : 1;  # account for crlf-terminated Windows files
     if (/^>(\S+)/) {
       print STDERR "indexed $count sequences...\n" 
 	if $self->{debug} && (++$count%1000) == 0;
       my $pos = tell($fh);
       if ($id) {
 	my $seqlength    = $pos - $offset - length($_) - 1;
-	$seqlength      -= int($seqlength/$linelength);
+	$seqlength      -= $termination_length * int($seqlength/$linelength);
 	$offsets->{$id}  = $self->_pack($offset,$seqlength,
 					$linelength,$firstline,
 					$type,$base);
@@ -695,20 +696,18 @@ sub calculate_offsets {
   # deal with last entry
   if ($id) {
     my $pos = tell($fh);
-
-#    my $seqlength   = $pos - $offset - length($_) - 1;
-    # $_ is always null should not be part of this calculation
     my $seqlength   = $pos - $offset  - 1;
 
     if ($linelength == 0) { # yet another pesky empty chr_random.fa file
       $seqlength = 0;
     } else {
-      $seqlength -= int($seqlength/$linelength);
+      $seqlength -= $termination_length * int($seqlength/$linelength);
     };
     $offsets->{$id} = $self->_pack($offset,$seqlength,
 				   $linelength,$firstline,
 				   $type,$base);
   }
+  $offsets->{__termination_length} = $termination_length;
   return \%offsets;
 }
 
@@ -830,6 +829,7 @@ sub subseq {
   seek($fh,$filestart,0);
   read($fh,$data,$filestop-$filestart+1);
   $data =~ s/\n//g;
+  $data =~ s/\r//g;
   if ($reversed) {
     $data = reverse $data;
     $data =~ tr/gatcGATC/ctagCTAG/;
@@ -866,7 +866,8 @@ sub caloffset {
   my ($offset,$seqlength,$linelength,$firstline,$type,$file) = $self->_unpack($self->{offsets}{$id});
   $a = 0            if $a < 0;
   $a = $seqlength-1 if $a >= $seqlength;
-  $offset + $linelength * int($a/($linelength-1)) + $a % ($linelength-1);
+  my $tl = $self->{offsets}{__termination_length};
+  $offset + $linelength * int($a/($linelength-$tl)) + $a % ($linelength-$tl);
 }
 
 sub fhcache {
@@ -1062,6 +1063,10 @@ sub new {
 sub next_seq {
   my $self = shift;
   my ($key,$db) = @{$self}{'key','db'};
+  while ($key =~ /^__/) {
+    $key = $db->NEXTKEY($key);
+    return unless defined $key;
+  }
   my $value = $db->get_Seq_by_id($key);
   $self->{key} = $db->NEXTKEY($key);
   $value;
