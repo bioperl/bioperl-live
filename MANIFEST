@@ -81,6 +81,7 @@ Bio/DB/GFF/Adaptor/dbi/iterator.pm
 Bio/DB/GFF/Adaptor/dbi/mysql.pm
 Bio/DB/GFF/Adaptor/dbi/mysqlopt.pm
 Bio/DB/GFF/Adaptor/memory.pm
+Bio/DB/GFF/Adaptor/memory_iterator.pm
 Bio/DB/GFF/Aggregator.pm
 Bio/DB/GFF/Aggregator/alignment.pm
 Bio/DB/GFF/Aggregator/clone.pm

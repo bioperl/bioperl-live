@@ -41,6 +41,7 @@ my $bf = eval {require Bio::DB::FileCache}
 			    -keep =>1)
   : Bio::DB::BioFetch->new(-db=>$db);
 
+warn "fetching...\n";
 my $seq = $bf->get_Seq_by_id($accession);
 
 my @features = $seq->all_SeqFeatures;

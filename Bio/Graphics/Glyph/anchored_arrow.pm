@@ -50,10 +50,10 @@ sub arrowheads {
   my $pstart  = $self->panel->left;
   my $pend    = $self->panel->right-1;
 
-  if ($gstart < $pstart) {  # off left end
+  if ($gstart <= $pstart) {  # off left end
     $sw = 1;
   }
-  if ($gend > $pend) { # off right end
+  if ($gend >= $pend) { # off right end
     $ne = 1;
   }
   return ($sw,$ne,!$sw,!$ne);

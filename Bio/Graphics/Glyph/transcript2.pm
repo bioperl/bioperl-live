@@ -1,9 +1,11 @@
 package Bio::Graphics::Glyph::transcript2;
+# $Id$
 
 use strict;
 use Bio::Graphics::Glyph::transcript;
-use vars '@ISA';
+use vars '@ISA','$VERSION';
 @ISA = 'Bio::Graphics::Glyph::transcript';
+$VERSION = '1.2';
 
 use constant MIN_WIDTH_FOR_ARROW => 8;
 
@@ -11,21 +13,22 @@ sub pad_left  {
   my $self = shift;
   my $pad = $self->Bio::Graphics::Glyph::generic::pad_left;
   return $pad unless $self->feature->strand < 0;
-  my $first = ($self->parts)[0] or return $pad;
+  my $first = ($self->parts)[0] || $self;
   my @rect  = $first->bounds();
   my $width = abs($rect[2] - $rect[0]);
   return $self->SUPER::pad_left if $width < MIN_WIDTH_FOR_ARROW;
-  return 0;
+  return $pad;
 }
 
 sub pad_right  {
   my $self = shift;
   my $pad = $self->Bio::Graphics::Glyph::generic::pad_right;
-  my $last = ($self->parts)[-1] or return $pad;
+  return $pad if $self->{level} > 0;
+  my $last = ($self->parts)[-1] || $self;
   my @rect  = $last->bounds();
   my $width = abs($rect[2] - $rect[0]);
   return $self->SUPER::pad_right if $width < MIN_WIDTH_FOR_ARROW;
-  return $pad;
+  return $pad
 }
 
 sub draw_component {
@@ -40,14 +43,14 @@ sub draw_component {
   if ($filled) {
     my $f = $self->feature;
 
-    if ($f->strand < 0 
-	&& (!$self->is_recursive
-	 || $self->{partno} == 0)) { # first exon, minus strand transcript
+    if ($f->strand < 0
+	&& 
+	$self->{partno} == 0) { # first exon, minus strand transcript
       $self->filled_arrow($gd,-1,@rect);
       $self->{filled}++;
-    } elsif ($f->strand >= 0 
-	     && (!$self->is_recursive
-		 || $self->{partno} == $self->{total_parts}-1)) { # last exon, plus strand
+    } elsif ($f->strand >= 0
+	     &&
+	     $self->{partno} == $self->{total_parts}-1) { # last exon, plus strand
       $self->filled_arrow($gd,+1,@rect);
       $self->{filled}++;
     } else {

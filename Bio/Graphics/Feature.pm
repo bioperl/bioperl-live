@@ -1,8 +1,10 @@
 package Bio::Graphics::Feature;
 use strict;
+use Bio::SeqFeatureI;
 
-use vars '$VERSION';
-$VERSION = 1.2;
+use vars '$VERSION','@ISA';
+$VERSION = '1.31';
+@ISA  = 'Bio::SeqFeatureI';
 
 *stop        = \&end;
 *info        = \&name;
@@ -154,7 +156,19 @@ sub seq {
 }
 *dna = \&seq;
 
-sub source_tag { 
+sub low {
+  my $self = shift;
+  return $self->start < $self->end ? $self->start : $self->end;
+}
+
+sub high {
+  my $self = shift;
+  return $self->start > $self->end ? $self->start : $self->end;
+}
+
+sub db { return }
+
+sub source_tag {
   my $self = shift;
   my $d = $self->{source};
   $self->{source} = shift if @_;
@@ -167,6 +181,8 @@ sub introns {
   my $self = shift;
   return;
 }
+
+sub has_tag { }
 
 # get/set the configurator (Bio::Graphics::FeatureFile) for this feature
 sub configurator {
@@ -200,6 +216,7 @@ sub make_link {
   }
 }
 
+sub DESTROY { }
 
 1;
 

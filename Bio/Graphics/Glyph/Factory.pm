@@ -61,7 +61,8 @@ sub translate_color {
 
 # create a glyph
 sub make_glyph {
-  my $self = shift;
+  my $self  = shift;
+  my $level = shift;
   my @result;
   my $panel = $self->panel;
   my ($leftmost,$rightmost) = ($panel->left,$panel->right);
@@ -78,7 +79,8 @@ sub make_glyph {
 	unless (eval "require $glyphclass");
     }
     my $glyph = $glyphclass->new(-feature  => $f,
-				 -factory  => $self);
+				 -factory  => $self,
+				 -level    => $level);
 
     # this is removing glyphs that are not onscreen at all.
     # But never remove tracks!

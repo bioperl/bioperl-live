@@ -7,7 +7,7 @@ use Carp 'cluck';
 use GD;
 use vars '$VERSION';
 
-$VERSION = '0.99';
+$VERSION = '1.00';
 
 use constant KEYLABELFONT => gdMediumBoldFont;
 use constant KEYSPACING   => 5; # extra space between key columns
@@ -261,7 +261,7 @@ sub _add_track {
 					   );
 
   my $factory = Bio::Graphics::Glyph::Factory->new($self,@options);
-  my $track   = $factory->make_glyph($feature);
+  my $track   = $factory->make_glyph(-1,$feature);
 
   splice(@{$self->{tracks}},$position,0,$track);
   return $track;
@@ -404,7 +404,7 @@ sub format_key {
 	my $t = Bio::Graphics::Feature->new(-segments=>
 					    [Bio::Graphics::Feature->new(-start => $self->offset,
 									 -stop  => $self->offset+$self->length)]);
-	my $g = $track->factory->make_glyph($t);
+	my $g = $track->factory->make_glyph(0,$t);
 	$glyph = $g->keyglyph;
       }
       next unless $glyph;
@@ -729,35 +729,88 @@ Bio::Graphics::Panel - Generate GD images of Bio::Seq objects
 
 =head1 SYNOPSIS
 
-  use Ace::Sequence;  # or any Bio::Seq factory
-  use Bio::Graphics::Panel;
+=head1 NAME
 
-  my $db     = Ace->connect(-host=>'brie2.cshl.org',-port=>2005) or die;
-  my $cosmid = Ace::Sequence->new(-seq=>'Y16B4A',
-				  -db=>$db,-start=>-15000,-end=>15000) or die;
+Bio::Graphics - Generate GD images of Bio::Seq objects
 
-  my @transcripts = $cosmid->transcripts;
+=head1 SYNOPSIS
 
+  use Bio::Graphics;
+  use Bio::DB::BioFetch;  # or some other Bio::SeqI generator
+
+  # get a Bio::SeqI object somehow
+  my $bf     = Bio::DB::BioFetch->new;
+  my $cosmid = $bf->getSeq_by_id('CEF58D5');
+
+  my @features = $seq->all_SeqFeatures;
+  my @CDS      = grep {$_->primary_tag eq 'CDS'}  @features;
+  my @gene     = grep {$_->primary_tag eq 'gene'} @features;
+  my @tRNAs    = grep {$_->primary_tag eq 'tRNA'} @features;
+
+  # let the drawing begin...
   my $panel = Bio::Graphics::Panel->new(
 				      -segment => $cosmid,
 				      -width  => 800
 				     );
 
-
   $panel->add_track(arrow => $cosmid,
- 		  -bump => 0,
- 		  -tick=>2);
+	  	   -bump => 0,
+		   -double=>1,
+		   -tick => 2);
 
-  $panel->add_track(transcript => \@transcripts,
- 		    -bgcolor   =>  'wheat',
- 		    -fgcolor   =>  'black',
-                    -key       => 'Curated Genes',
- 		    -bump      =>  +1,
- 		    -height    =>  10,
- 		    -label     =>  1);
+  $panel->add_track(transcript  => \@gene,
+		   -bgcolor    =>  'blue',
+		   -fgcolor    =>  'black',
+		   -key        => 'Genes',
+		   -bump       =>  +1,
+		   -height     =>  10,
+		   -label      => 1,
+		   -description=> 1
+		 ) ;
 
-  my $boxes = $panel->boxes;
-  print $panel->png;
+  $panel->add_track(transcript2  => \@CDS,
+		    -bgcolor    =>  'cyan',
+		    -fgcolor    =>  'black',
+		    -key        => 'CDS',
+		    -bump       =>  +1,
+		    -height     =>  10,
+		    -label      => \&cds_label,
+		    -description=> \&cds_description,
+		 );
+
+  $panel->add_track(generic    => \@tRNAs,
+		    -bgcolor   =>  'red',
+		    -fgcolor   =>  'black',
+		    -key       => 'tRNAs',
+		    -bump      =>  +1,
+		    -height    =>  8,
+		    -label      => 1,
+		   );
+
+  my $gd = $panel->gd;
+  print $gd->can('png') ? $gd->png : $gd->gif;
+
+  # these are callbacks used to generate nice labels and descriptions for
+  # the features...
+  sub cds_label {
+    my $feature = shift;
+    my @notes;
+    foreach (qw(product gene)) {
+      next unless $feature->has_tag($_);
+      @notes = $feature->each_tag_value($_);
+      last;
+    }
+    $notes[0];
+  }
+
+  sub cds_description {
+    my $feature = shift;
+    my @notes = $feature->each_tag_value('notes')
+                if $feature->has_tag('notes');
+    return unless @notes;
+    substr($notes[0],30) = '...' if length $notes[0] > 30;
+    $notes[0];
+  }
 
 =head1 DESCRIPTION
 
