@@ -36,9 +36,9 @@ you can do the following things with it:
 
     $significance = $hit->significance();
 
-    while( $hsp = $obj->next_hsp()) { ... }
+    while( $hsp = $obj->next_hsp()) { ... } # process in iterator fashion
 
-    while( $hsp = $obj->next_hsp()) { ... }
+    for my $hsp ( $obj->hsps()()) { ... } # process in list fashion
 
 =head1 DESCRIPTION
 

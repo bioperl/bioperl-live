@@ -33,7 +33,7 @@ Bio::Search::HSP::HSPI - Interface for a High Scoring Pair in a similarity searc
 
     $hseq = $hsp->hit_string;
 
-    $homo_string = $hsp->homology_string;
+    $homology_string = $hsp->homology_string;
 
     $len = $hsp->length( ['query'|'hit'|'total'] );
 
@@ -327,15 +327,15 @@ sub get_aln {
  Returns   : List of integers 
            : May include ranges if collapse is true.
  Argument  : seq_type  = 'query' or 'hit' or 'sbjct'  (default = query)
-           :  ('sbjct' is synonymous with 'hit') 
-           : class     = 'identical' or 'conserved' or 'nomatch' or 'gap'
-           :              (default = identical)
-           :              (can be shortened to 'id' or 'cons')
-           :              
-           : collapse  = boolean, if true, consecutive positions are merged
-           :             using a range notation, e.g., "1 2 3 4 5 7 9 10 11" 
-           :             collapses to "1-5 7 9-11". This is useful for 
-           :             consolidating long lists. Default = no collapse.
+              ('sbjct' is synonymous with 'hit') 
+             class     = 'identical' or 'conserved' or 'nomatch' or 'gap'
+                          (default = identical)
+                          (can be shortened to 'id' or 'cons')
+                          
+             collapse  = boolean, if true, consecutive positions are merged
+                         using a range notation, e.g., "1 2 3 4 5 7 9 10 11" 
+                         collapses to "1-5 7 9-11". This is useful for 
+                         consolidating long lists. Default = no collapse.
  Throws    : n/a.
  Comments  : 
 
@@ -419,7 +419,7 @@ sub strand {
 
     if( $val =~ /^q/i ) { 
 	return $self->query->strand(shift);
-    } elsif( $val =~ /^(h|s)/i ) {
+    } elsif( $val =~ /^(hi|s)/i ) {
 	return $self->hit->strand(shift);
     } else { 
 	$self->warn("unrecognized component $val requested\n");
@@ -447,7 +447,7 @@ sub start {
 
     if( $val =~ /^q/i ) { 
 	return $self->query->start(shift);
-    } elsif( $val =~ /^(h|s)/i ) {
+    } elsif( $val =~ /^(hi|s)/i ) {
 	return $self->hit->start(shift);
     } else { 
 	$self->warn("unrecognized component $val requested\n");
@@ -475,7 +475,7 @@ sub end {
 
     if( $val =~ /^q/i ) { 
 	return $self->query->end(shift);
-    } elsif( $val =~ /^(h|s)/i ) {
+    } elsif( $val =~ /^(hi|s)/i ) {
 	return $self->hit->end(shift);
     } else { 
 	$self->warn("unrecognized component $val requested\n");
@@ -483,4 +483,14 @@ sub end {
     return 0;
 }
 
+sub seq_str {  
+    my ($self,$type) = @_;
+    if( $type =~ /^q/i ) { return $self->query_string(shift) }
+    elsif( $type =~ /^s/i || $type =~ /^hi/i ) { return $self->hit_string(shift)}
+    elsif ( $type =~ /^ho/i ) { return $self->hit_string(shift) }
+    else { 
+	$self->warn("unknown sequence type $type");
+    }
+    return '';
+}
 1;

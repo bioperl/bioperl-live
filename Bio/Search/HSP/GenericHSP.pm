@@ -196,7 +196,7 @@ sub new {
     } elsif ($algo eq 'TBLASTX' ||$algo eq 'TFASTX' ||
 	     $algo eq 'TFASTXY' || $algo eq 'TFASTY' || 
 	     $algo eq 'BLASTN' || 
-	     $algo eq 'FASTN' )  {
+	     $algo eq 'FASTN' || 'WABA')  {
 	$hitfactor = 1;
 	$queryfactor = 1;
     } elsif( $algo eq 'RPSBLAST' ) {
@@ -586,6 +586,16 @@ sub length {
    }
     return 0; # should never get here
 }
+
+=head2 hsp_length
+
+ Title   : hsp_length
+ Usage   : my $len = $hsp->hsp_length()
+ Function: shortcut  length('hsp')
+ Returns : floating point between 0 and 100 
+ Args    : none
+
+sub hsp_length { return shift->length('hsp', shift); }
 
 =head2 percent_identity
 
