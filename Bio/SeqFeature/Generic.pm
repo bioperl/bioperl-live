@@ -62,7 +62,28 @@ to easily store and then retrieve information.
 The tag system can be written in/out of GFF format, and also into EMBL
 format via AnnSeqIO::EMBL.
 
-=head1 CONTACT
+=head1 FEEDBACK
+
+=head2 Mailing Lists
+
+User feedback is an integral part of the evolution of this
+and other Bioperl modules. Send your comments and suggestions preferably
+ to one of the Bioperl mailing lists.
+Your participation is much appreciated.
+
+  bioperl-l@bioperl.org          - General discussion
+  http://bio.perl.org/MailList.html             - About the mailing lists
+
+=head2 Reporting Bugs
+
+Report bugs to the Bioperl bug tracking system to help us keep track
+ the bugs and their resolution.
+ Bug reports can be submitted via email or the web:
+
+  bioperl-bugs@bio.perl.org
+  http://bio.perl.org/bioperl-bugs/
+
+=head1 AUTHOR - Ewan Birney
 
 Ewan Birney <birney@sanger.ac.uk>
 
