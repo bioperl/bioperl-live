@@ -400,7 +400,11 @@ sub get_stream_by_id {
 sub get_Seq_by_acc {
     my ($self,$acc) = @_;
 
-    return $self->get_Seq_by_secondary("ACC",$acc);
+    if ($self->primary_namespace eq "ACC") {
+       return $self->get_Seq_by_id($acc);
+    } else {
+      return $self->get_Seq_by_secondary("ACC",$acc);
+    }
 }
 
 =head2 get_Seq_by_secondary
