@@ -187,10 +187,17 @@ The consed module cannot be run under Windows.
 
 Cygwin is a Unix emulator and shell environment available free at
 www.cygwin.com. BioPerl v. 1.* runs perfectly well within Cygwin. The
-only known problem is that DBD::mysql can be difficult to install in
-Cygwin and this module is required for the bioperl-db and bioperl-pipeline
-external packages. First install Cygwin and Cygwin's PERL, then follow 
-the BioPerl installation instructions for Unix in BioPerl's INSTALL file.
+only known problem is that DBD::mysql can be tricky to install in
+Cygwin and this module is required for the bioperl-db, biosql, and 
+bioperl-pipeline external packages. Fortunately there's some good 
+instructions online:
+http://search.cpan.org/src/JWIED/DBD-mysql-2.1025/INSTALL.html#windows/cygwin.
+
+To get Bioperl running first install the basic Cygwin package as well
+as the Cygwin Perl, make, and gcc packages. Clicking the "View" button
+in the upper left of the installer enables you to see details on the
+various packages. Then follow the BioPerl installation instructions
+for Unix in BioPerl's INSTALL file.
 
 =========================================================================
 
