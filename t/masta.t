@@ -56,3 +56,4 @@ ok $site->id,'m1freq';
 ok $site->consensus,'CAGAAAAATAGAATCCCCACCCCCC';  
 $site=$chio->next_matrix;
 ok $site->id,'m1seq';
+ok $site->consensus,'CAGAAAAATAGAATCCCCACCCCCC';
