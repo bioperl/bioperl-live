@@ -403,11 +403,15 @@ sub write_annseq {
    } 
 
    #Date lines
+   my $switch=0;
    foreach my $dt ( $annseq->each_date() ) {
        _write_line_EMBL_regex($fh,"DT   ","DT   ",$dt,"\\s\+\|\$",80);
+       $switch=1;
    }
-   print $fh "XX   \n";
-
+   if ($switch == 1) {
+       print $fh "XX   \n";
+   }
+   
    #Definition lines
    _write_line_EMBL_regex($fh,"DE   ","DE   ",$seq->desc(),"\\s\+\|\$",80);
    print $fh "XX   \n";
@@ -771,7 +775,6 @@ sub _read_FTHelper_EMBL {
        # Get location line
        /^FT\s+(\S+)/ or $out->throw("Weird location line in EMBL feature table: '$_'");
        $loc .= $1;
-       print STDERR "\n$loc\n";XS
    }
 
    $loc =~ s/<//;
