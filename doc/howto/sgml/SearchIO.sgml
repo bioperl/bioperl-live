@@ -237,76 +237,76 @@
       and what they return let's use a report as input, a simple BLASTX result: 
     </para>
     <programlisting>      
- BLASTX 2.2.4 [Aug-26-2002]
+BLASTX 2.2.4 [Aug-26-2002]
 
 
- Reference: Altschul, Stephen F., Thomas L. Madden, Alejandro A. Schaffer, 
- Jinghui Zhang, Zheng Zhang, Webb Miller, and David J. Lipman (1997), 
- "Gapped BLAST and PSI-BLAST: a new generation of protein database search
- programs",  Nucleic Acids Res. 25:3389-3402.
+Reference: Altschul, Stephen F., Thomas L. Madden, Alejandro A. Schaffer, 
+Jinghui Zhang, Zheng Zhang, Webb Miller, and David J. Lipman (1997), 
+"Gapped BLAST and PSI-BLAST: a new generation of protein database search
+programs",  Nucleic Acids Res. 25:3389-3402.
 
- Query= gi|20521485|dbj|AP004641.2 Oryza sativa (japonica
- cultivar-group) genomic DNA, chromosome 1, BAC clone:B1147B04, 3785
- bases, 977CE9AF checksum.
-          (3059 letters)
+Query= gi|20521485|dbj|AP004641.2 Oryza sativa (japonica
+cultivar-group) genomic DNA, chromosome 1, BAC clone:B1147B04, 3785
+bases, 977CE9AF checksum.
+         (3059 letters)
 
- Database: test.fa 
-            5 sequences; 1291 total letters
-
-
-
-                                                                 Score    E
- Sequences producing significant alignments:                      (bits) Value
-
- gb|443893|124775 LaForas sequence                                 92   2e-022
-
- >gb|443893|124775 LaForas sequence
-           Length = 331
-
-  Score = 92.0 bits (227), Expect = 2e-022
-  Identities = 46/52 (88%), Positives = 48/52 (91%)
-  Frame = +1
-
- Query: 2896 DMGRCSSGCNRYPEPMTPDTMIKLYREKEGLGAYIWMPTPDMSTEGRVQMLP 3051
-             D+ + SSGCNRYPEPMTPDTMIKLYRE EGL AYIWMPTPDMSTEGRVQMLP
- Sbjct: 197  DIVQNSSGCNRYPEPMTPDTMIKLYRE-EGL-AYIWMPTPDMSTEGRVQMLP 246
+Database: test.fa 
+           5 sequences; 1291 total letters
 
 
-   Database: test.fa
-     Posted date:  Feb 12, 2003  9:51 AM
-   Number of letters in database: 1291
-   Number of sequences in database:  5
+
+                                                                Score    E
+Sequences producing significant alignments:                     (bits) Value
+
+gb|443893|124775 LaForas sequence                                 92   2e-022
+
+>gb|443893|124775 LaForas sequence
+          Length = 331
+
+ Score = 92.0 bits (227), Expect = 2e-022
+ Identities = 46/52 (88%), Positives = 48/52 (91%)
+ Frame = +1
+
+Query: 2896 DMGRCSSGCNRYPEPMTPDTMIKLYREKEGLGAYIWMPTPDMSTEGRVQMLP 3051
+            D+ + SSGCNRYPEPMTPDTMIKLYRE EGL AYIWMPTPDMSTEGRVQMLP
+Sbjct: 197  DIVQNSSGCNRYPEPMTPDTMIKLYRE-EGL-AYIWMPTPDMSTEGRVQMLP 246
+
+
+  Database: test.fa
+    Posted date:  Feb 12, 2003  9:51 AM
+  Number of letters in database: 1291
+  Number of sequences in database:  5
   
- Lambda     K      H
-    0.318    0.135    0.401 
+Lambda     K      H
+   0.318    0.135    0.401 
 
- Gapped
- Lambda     K      H
-    0.267   0.0410    0.140 
+Gapped
+Lambda     K      H
+   0.267   0.0410    0.140 
 
 
- Matrix: BLOSUM62
- Gap Penalties: Existence: 11, Extension: 1
- Number of Hits to DB: 7140
- Number of Sequences: 5
- Number of extensions: 180
- Number of successful extensions: 2
- Number of sequences better than 10.0: 2
- Number of HSP's better than 10.0 without gapping: 1
- Number of HSP's successfully gapped in prelim test: 0
- Number of HSP's that attempted gapping in prelim test: 0
- Number of HSP's gapped (non-prelim): 1
- length of database: 1291
- effective HSP length: 46
- effective length of database: 1061
- effective search space used:  1032353
- frameshift window, decay const: 50,  0.1
- T: 12
- A: 40
- X1: 16 ( 7.3 bits)
- X2: 38 (14.6 bits)
- X3: 64 (24.7 bits)
- S1: 32 (17.6 bits)
+Matrix: BLOSUM62
+Gap Penalties: Existence: 11, Extension: 1
+Number of Hits to DB: 7140
+Number of Sequences: 5
+Number of extensions: 180
+Number of successful extensions: 2
+Number of sequences better than 10.0: 2
+Number of HSP's better than 10.0 without gapping: 1
+Number of HSP's successfully gapped in prelim test: 0
+Number of HSP's that attempted gapping in prelim test: 0
+Number of HSP's gapped (non-prelim): 1
+length of database: 1291
+effective HSP length: 46
+effective length of database: 1061
+effective search space used:  1032353
+frameshift window, decay const: 50,  0.1
+T: 12
+A: 40
+X1: 16 ( 7.3 bits)
+X2: 38 (14.6 bits)
+X3: 64 (24.7 bits)
+S1: 32 (17.6 bits)
     </programlisting>
     <para>
       Table 1 shows all the data returned by methods used by the
@@ -904,16 +904,25 @@
       this can be set.
     </para>
   </section>
+
   <section id="outputting">
     <title>Writing and formatting output</title>
     <para>
       Often people want to write back out a BLAST report for users who are
       most comfortable with that output or if you want to visualize the
       context of a weakly aligned region to use human intuition to score
-      the confidence of a putative homologue.  Bio::SearchIO is for parsing
-      in the data but Bio::SearchIO::Writer is for outputting the
-      information. The simplest way to output data as a pseudo-BLAST
-      HTML format is as follows.
+      the confidence of a putative homologue. The
+      Bio::SearchIO::Writer modules are for outputting the
+      information.
+    </para>
+    <para>
+      Bio::SearchIO::Writer currently creates output in 4 formats:
+      text (recreating something like the BLAST report itself, in part or
+      entirely), HTML, BSML, and "ResultTable", which is a
+      tab-delimited format.
+    </para>
+    <para>
+      The simplest way to output data in HTML format is as follows.
     </para>
     <para>
       <programlisting>
@@ -947,11 +956,10 @@
     <para>
       If your data is instead stored in a database you could build the
       Bio::Search objects up in memory directly from your database and
-      then use the Writer object to output the data.  Currently there is
-      also a Bio::SearchIO::Writer::TextResultWriter which supports
-      writing BLAST text file output.
+      then use the Writer object to output the data.
     </para>
   </section>
+
   <section id="extending">
     <title>Extending SearchIO</title>
     <para>
