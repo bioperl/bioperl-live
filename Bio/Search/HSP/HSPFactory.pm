@@ -137,10 +137,10 @@ sub create{
 sub type{
     my ($self,$type) = @_;
    if( defined $type ) { 
-       eval { require $type };
+       eval "require $type";
        if( $@ ){ $self->warn("Cannot find module $type, unable to set type"); } 
        else { $self->{'_type'} = $type; }
-   } 
+   }
     return $self->{'_type'} || $DEFAULT_TYPE;
 }
 
