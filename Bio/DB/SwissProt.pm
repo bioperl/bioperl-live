@@ -85,6 +85,9 @@ Thanks go to Alexandre Gattiker E<lt>gattiker@isb-sib.chE<gt> of Swiss
 Institute of Bioinformatics for helping point us in the direction of
 the correct expasy scripts and for swissknife references.
 
+Also thanks to Heikki Lehvaslaiho <heikki@ebi.ac.uk> for help with
+adding EBI swall server.x
+
 =head1 APPENDIX
 
 The rest of the documentation details each of the object
@@ -96,8 +99,7 @@ methods. Internal methods are usually preceded with a _
 
 package Bio::DB::SwissProt;
 use strict;
-use vars qw(@ISA $MODVERSION %HOSTS $DEFAULTFORMAT $DEFAULTLOCATION 
-	    $DEFAULTSERVERTYPE);
+use vars qw(@ISA $MODVERSION %HOSTS $DEFAULTFORMAT $DEFAULTSERVERTYPE);
 
 $MODVERSION = '0.8.1';
 use HTTP::Request::Common;
@@ -106,23 +108,40 @@ use Bio::DB::WebDBSeqI;
 @ISA = qw(Bio::DB::WebDBSeqI);
 
 # global vars
-$DEFAULTSERVERTYPE = 'expasy';
-$DEFAULTFORMAT = 'sprot';
-$DEFAULTLOCATION = 'switzerland';
+$DEFAULTSERVERTYPE = 'ebi';
+$DEFAULTFORMAT = 'swissprot';
+
 # you can add your own here theoretically.
 %HOSTS = ( 
 	   'expasy' => { 
-	       baseurl => 'http://%s/cgi-bin/sprot-retrieve-list.pl',
-	       hosts   => 
-	       { 'switzerland'  => 'ch.expasy.org',
-		 'canada' => 'ca.expasy.org',
-		 'china'  => 'cn.expasy.org',
-		 'taiwan' => 'tw.expasy.org',
-		 'australia' => 'au.expasy.org',
-		 'korea'  => 'kr.expasy.org'
-	     }
-	   });
-
+	       'default' => 'switzerland',
+	       'baseurl' => 'http://%s/cgi-bin/sprot-retrieve-list.pl',
+	       'hosts'   => 	       
+	       { 
+		   'switzerland'  => 'ch.expasy.org',
+		   'canada' => 'ca.expasy.org',
+		   'china'  => 'cn.expasy.org',
+		   'taiwan' => 'tw.expasy.org',
+		   'australia' => 'au.expasy.org',
+		   'korea'  => 'kr.expasy.org',
+	       },
+	       # ick, CGI variables
+	       'jointype' => ' ',
+	       'idvar'    => 'list',
+	       'basevars' => [ ],	       
+	   },
+	   'ebi'    => {
+	       'default' => 'uk',
+	       'baseurl' => 'http://%s/cgi-bin/dbfetch',
+	       'hosts' => { 
+		   'uk'   => 'www.ebi.ac.uk',
+	       },
+	       'jointype' => ',',
+	       'idvar'    => 'id',
+	       'basevars' => [ 'db'    => 'swall',
+			       'style' => 'raw' ],
+	   }
+	   );
 
 # new modules should be a little more lightweight and
 # should use Bio::Root::RootI
@@ -139,14 +158,13 @@ sub new {
 	$format = $self->default_format;
     } 
     $servertype = $DEFAULTSERVERTYPE unless $servertype;
-    $hostlocation = $DEFAULTLOCATION unless( $hostlocation );    
-
-    $self->request_format($format); # let's always override the format, as it must be swiss from this location
-
-    $hostlocation = lc $hostlocation;
     $servertype = lc $servertype;
     $self->servertype($servertype);
-    $self->hostlocation($hostlocation);
+    if (  $hostlocation ) {
+	$self->hostlocation(lc $hostlocation);
+    }
+
+    $self->request_format($format); # let's always override the format, as it must be swiss or fasta
     return $self;
 }
 
@@ -237,18 +255,27 @@ sub get_request {
     if( !defined $uids ) {
 	$self->throw("Must specify a value for uids to query");
     }
-    $self->request_format($format) if( defined $format );
+    my ($f,undef) = $self->request_format($format);
     
-    my %vars = ( 'format' => $format );
+    my %vars = ( 
+		 @{$HOSTS{$self->servertype}->{'basevars'}}, 
+		 ( 'format' => $f )
+		 );
+    
     my $url = $self->location_url;
+    
     my $uid;
+    my $jointype = $HOSTS{$self->servertype}->{'jointype'} || ' ';
+    my $idvar = $HOSTS{$self->servertype}->{'idvar'} || 'id';
+    
     if( ref($uids) =~ /ARRAY/i ) {	
 	# HTTP::Request automagically converts the ' ' to %20
-	$uid = join(' ', @$uids);
+	$uid = join($jointype, @$uids);	
     } else {
 	$uid = $uids;
     }
-    $vars{'list'} = $uid;
+    $vars{$idvar} = $uid;
+
     return POST $url, \%vars;
 }
 
@@ -306,8 +333,14 @@ sub servertype {
 			 " - available types are ".  
 			 keys %HOSTS) unless( $HOSTS{$servertype} );
 	$self->{'_servertype'} = $servertype;
+	$self->{'_hostlocation'} = $HOSTS{$servertype}->{'default'};
+	
+	# make sure format is reset properly in that different
+	# servers have different syntaxes
+	my ($existingformat,$seqioformat) = $self->request_format;
+	$self->request_format($existingformat);		
     }
-    return $self->{'_servertype'};
+    return $self->{'_servertype'} || $DEFAULTSERVERTYPE;
 }
 
 
@@ -379,10 +412,24 @@ sub location_url {
 sub request_format {
     my ($self, $value) = @_;
     if( defined $value ) {
-	if( $value =~ /sprot/ || $value =~ /swiss/ ) {
-	    $self->{'_format'} = [ 'sprot', 'swiss'];	    
-	} else {
-	    $self->{'_format'} = [ $value, $value];
+	if( $self->servertype =~ /expasy/ ) {
+	    if( $value =~ /sprot/ || $value =~ /swiss/ ) {
+		$self->{'_format'} = [ 'sprot', 'swiss'];	    
+	    } elsif( $value =~ /^fa/ ) {
+		$self->{'_format'} = [ 'fasta', 'fasta'];
+	    } else {
+		$self->warn("Unrecognized format $value requested");
+		$self->{'_format'} = [ 'fasta', 'fasta'];
+	    }
+	} elsif( $self->servertype =~ /ebi/ ) {
+	    if( $value =~ /sprot/ || $value =~ /swiss/ ) {		
+		$self->{'_format'} = [ 'swissprot', 'swiss' ];
+	    } elsif( $value =~ /^fa/ ) {
+		$self->{'_format'} = [ 'fasta', 'fasta'];
+	    } else { 
+		$self->warn("Unrecognized format $value requested");
+		$self->{'_format'} = [ 'swissprot', 'swiss'];
+	    }
 	}
     }
     return @{$self->{'_format'}};
@@ -390,19 +437,3 @@ sub request_format {
 
 1;
 __END__
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
