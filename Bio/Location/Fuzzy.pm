@@ -18,7 +18,7 @@ which has unclear start and/or end locations
     use Bio::Location::Fuzzy;
     my $fuzzylocation = new Bio::Location::Fuzzy(-start => '<30',
 						 -end   => 90,
-						 -loc_type => '.');
+						 -location_type => '.');
 
     print "location string is ", $fuzzylocation->to_FTstring(), "\n";
     print "location is of the type ", $fuzzylocation->location_type, "\n";
@@ -121,7 +121,7 @@ BEGIN {
  Args    : -start    => value for start  (initialize by superclass)
            -end      => value for end    (initialize by superclass)
            -strand   => value for strand (initialize by superclass)
-           -loc_type => either ('EXACT', 'WITHIN', 'BETWEEN') OR
+           -location_type => either ('EXACT', 'WITHIN', 'BETWEEN') OR
                                ( 1,2,3)
            -start_ext=> extension for start - defaults to 0, 
            -start_fuz=  fuzzy code for start can be 
@@ -137,12 +137,12 @@ BEGIN {
 sub new {
     my ($class, @args) = @_;
     my $self = $class->SUPER::new(@args);
-    my ($loc_type, $start_ext, $start_fuz, $end_ext, $end_fuz) = 
-	$self->_rearrange([ qw(LOC_TYPE START_EXT START_FUZ 
+    my ($location_type, $start_ext, $start_fuz, $end_ext, $end_fuz) = 
+	$self->_rearrange([ qw(LOCATION_TYPE START_EXT START_FUZ 
 			       END_EXT END_FUZ )
 			    ], @args);
 
-    $loc_type  && $self->location_type($loc_type);
+    $location_type  && $self->location_type($location_type);
     $start_ext && $self->max_start($self->min_start + $start_ext);
     $end_ext   && $self->max_end($self->min_end + $end_ext);
     $start_fuz && $self->start_pos_type($start_fuz);
