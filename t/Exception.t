@@ -9,7 +9,7 @@ my $error;
 
 use strict;
 use lib '.';
-use lib './scripts/exceptions';
+use lib './examples/root/lib';
 
 BEGIN {     
     # to handle systems with no installed Test module
