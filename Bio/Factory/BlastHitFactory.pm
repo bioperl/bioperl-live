@@ -78,7 +78,7 @@ package Bio::Factory::BlastHitFactory;
 use strict;
 use Bio::Root::Root;
 use Bio::Factory::HitFactoryI;
-use Bio::Search::Hit::BlastHit;
+use Bio::Search::Hit::PsiBlastHit;
 
 use vars qw(@ISA);
 
@@ -94,12 +94,12 @@ sub new {
 
  Title   : create_hit
  Usage   : $hit = $factory->create_hit( %params );
- Function: Creates a new Bio::Search::Hit::BlastHit object given 
+ Function: Creates a new Bio::Search::Hit::PsiBlastHit object given 
            raw BLAST report data, formatted in traditional BLAST report format.
  Returns : A single Bio::Search::Hit::BlastHit object
  Args    : Named parameters to be passed to the BlastHit object.
            Parameter keys are case-insensitive.
-           See Bio::Search::Hit::BlastHit::new() documentation for 
+           See Bio::Search::Hit::PsiBlastHit::new() documentation for 
            details about these parameters.
            The only additional parameter required is:
               -RESULT    => a Bio::Search::Result::BlastResult object.
@@ -113,22 +113,22 @@ sub create_hit {
 
     my ($blast, $raw_data, $shallow_parse) =
       $self->_rearrange( [qw(RESULT
-			     RAW_DATA
-			     SHALLOW_PARSE)], @args);
+                             RAW_DATA
+                             SHALLOW_PARSE)], @args);
 
     my %args = @args;
     $args{'-PROGRAM'}   = $blast->analysis_method;
     $args{'-QUERY_LEN'} = $blast->query_length;
     $args{'-ITERATION'} = $blast->iterations;
 
-    my $hit = Bio::Search::Hit::BlastHit->new( %args );
+    my $hit = Bio::Search::Hit::PsiBlastHit->new( %args );
     
     unless( $shallow_parse ) {
       $self->_add_hsps( $hit, 
-			$args{'-PROGRAM'}, 
-			$args{'-QUERY_LEN'}, 
-			$blast->query_name, 
-			@{$raw_data} );
+                        $args{'-PROGRAM'}, 
+                        $args{'-QUERY_LEN'}, 
+                        $blast->query_name, 
+                        @{$raw_data} );
     }
 
     return $hit;
@@ -159,7 +159,7 @@ sub _add_hsps {
     my $start     = 0;
     my $hspCount  = 0;
 
-    require Bio::Search::HSP::BlastHSP;
+    require Bio::Search::HSP::PsiBlastHSP;
 
 #    printf STDERR "\nBlastHit \"$hit\" _process_hsps(). \nDATA (%d lines) =\n@data\n", scalar(@data);
 
@@ -173,69 +173,69 @@ sub _add_hsps {
    foreach $line( @data ) {
 
        if( $line =~ /^\s*Length = ([\d,]+)/ ) {
-	   $hit->_set_description(@desc);
-	   $set_desc = 1;
-	   $hit->_set_length($1);
+           $hit->_set_description(@desc);
+           $set_desc = 1;
+           $hit->_set_length($1);
            $hlen = $hit->length;
-	   next hit_loop;
+           next hit_loop;
        } elsif( !$set_desc) {
-	   $line =~ s/^\s+|\s+$//g;
-	   push @desc, $line;
-	   next hit_loop;
+           $line =~ s/^\s+|\s+$//g;
+           push @desc, $line;
+           next hit_loop;
        } elsif( $line =~ /^\s*Score/ ) {
-	   ## This block is for setting multiple HSPs.
+           ## This block is for setting multiple HSPs.
 
-	   if( not scalar @hspData ) {
-	       $start = 1; 
-	       push @hspData, $line; 
-	       next hit_loop;
+           if( not scalar @hspData ) {
+               $start = 1; 
+               push @hspData, $line; 
+               next hit_loop;
 
-	    } elsif( scalar @hspData) {  
-		$hspCount++;
-		$self->verbose and do{ print STDERR +( $hspCount % 10 ? "+" : "+\n" ); };
+            } elsif( scalar @hspData) {  
+                $hspCount++;
+                $self->verbose and do{ print STDERR +( $hspCount % 10 ? "+" : "+\n" ); };
 
-#		print STDERR "\nBlastHit: setting HSP #$hspCount \n@hspData\n";
-		my $hspObj =  Bio::Search::HSP::BlastHSP->new
-				      (-RAW_DATA   => \@hspData, 
-				       -RANK       => $hspCount,
-				       -PROGRAM    => $prog,
-				       -QUERY_NAME => $qname,
-				       -HIT_NAME   => $hname,
-				      ); 
-		push @hspList, $hspObj;
-		@hspData = ();
-		push @hspData, $line;
-		next;
-	   } else {
-	       push @hspData, $line;
-	   }
+#                print STDERR "\nBlastHit: setting HSP #$hspCount \n@hspData\n";
+                my $hspObj =  Bio::Search::HSP::PsiBlastHSP->new
+                                      (-RAW_DATA   => \@hspData, 
+                                       -RANK       => $hspCount,
+                                       -PROGRAM    => $prog,
+                                       -QUERY_NAME => $qname,
+                                       -HIT_NAME   => $hname,
+                                      ); 
+                push @hspList, $hspObj;
+                @hspData = ();
+                push @hspData, $line;
+                next;
+           } else {
+               push @hspData, $line;
+           }
        } elsif( $start ) {
-	   ## This block is for setting the last HSP (which may be the first as well!).
-	   if( $line =~ /^(end|>|Parameters|CPU|Database:)/ ) {
-	       $hspCount++;
-	       $self->verbose and do{ print STDERR +( $hspCount % 10 ? "+" : "+\n" ); };
+           ## This block is for setting the last HSP (which may be the first as well!).
+           if( $line =~ /^(end|>|Parameters|CPU|Database:)/ ) {
+               $hspCount++;
+               $self->verbose and do{ print STDERR +( $hspCount % 10 ? "+" : "+\n" ); };
 
-#	       print STDERR "\nBlastHit: setting HSP #$hspCount \n@hspData"; 
+#               print STDERR "\nBlastHit: setting HSP #$hspCount \n@hspData"; 
 
-	       my $hspObj = Bio::Search::HSP::BlastHSP->new
-				     (-RAW_DATA   => \@hspData, 
-				      -RANK       => $hspCount,
-				      -PROGRAM    => $prog,
-				      -QUERY_NAME => $qname,
-				      -HIT_NAME   => $hname,
-				     );
-	       push @hspList, $hspObj;
-	   } else {
-	       push @hspData, $line;
-	   }
+               my $hspObj = Bio::Search::HSP::PsiBlastHSP->new
+                                     (-RAW_DATA   => \@hspData, 
+                                      -RANK       => $hspCount,
+                                      -PROGRAM    => $prog,
+                                      -QUERY_NAME => $qname,
+                                      -HIT_NAME   => $hname,
+                                     );
+               push @hspList, $hspObj;
+           } else {
+               push @hspData, $line;
+           }
        }
-   }		
+   }                
 
     $hit->{'_length'} or $self->throw( "Can't determine hit sequence length.");
 
     # Adjust logical length based on BLAST flavor.
     if($prog =~ /TBLAST[NX]/) {
-	$hit->{'_logical_length'} = $hit->{'_length'} / 3;
+        $hit->{'_logical_length'} = $hit->{'_length'} / 3;
     }
 
     $hit->{'_hsps'} = [ @hspList ];
