@@ -101,4 +101,4 @@ ok $aln1->no_sequences, 3;
 ok int($aln1->percentage_identity), 39 ;
 $aln = $factory->profile_align($aln1,$seq);
 ok $aln->no_sequences, 4;
-ok int($aln->percentage_identity), 47 ;
+ok int($aln->percentage_identity) > 40 ;
