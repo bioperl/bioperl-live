@@ -10,7 +10,7 @@ BEGIN {
 	use lib 't';
     }
     use Test;
-    $TESTCOUNT = 183;
+    $TESTCOUNT = 184;
     plan tests => $TESTCOUNT;
 }
 
@@ -25,7 +25,7 @@ ok(1);
 # Set to -1 for release version, so warnings aren't printed
 my $verbosity = $DEBUG ? 0 : -1; 
 
-my ($str, $seq,$ast,$temp,$mf,$ent,$out); # predeclare variables for strict
+my ($str, $seq,$ast,$temp,$mf,$ent,$out,$id_type); # predeclare variables for strict
 $str = Bio::SeqIO->new('-file' => Bio::Root::IO->catfile("t","data","test.fasta"), 
 		       '-format' => 'Fasta');
 ok $str;
@@ -36,7 +36,7 @@ print "Sequence 1 of 2 from fasta stream:\n", $seq->seq, "\n" if ( $DEBUG);
 
 ok($seq->id, 'roa1_drome');
 ok $seq->length, 358;
-
+ok($id_type = $str->preferred_id_type('accession.version'), 'accession.version');
 
 $str = Bio::SeqIO->new(-file=> Bio::Root::IO->catfile("t","data","test.raw"), '-format' => 'Raw');
 
