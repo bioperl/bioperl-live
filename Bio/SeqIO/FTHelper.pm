@@ -122,8 +122,18 @@ sub _generic_seqfeature {
     if(! defined($source)) {
 	$source = "EMBL/GenBank/SwissProt";
     }
+    
     $sf = new Bio::SeqFeature::Generic;
-    if( $fth->loc =~ /join/ ) {
+    
+    # Trap 23.46 type fuzzy locations
+    if ($fth->loc =~ /\d+\.\d+/) {
+        $fth->warn("unable to parse fuzzy location ('" .
+		   $fth->loc . "') ignoring feature (seqid=" .
+		   $annseq->id() . ")");
+        $sf = undef;
+    }
+    # Parse compound features
+    elsif ( $fth->loc =~ /join/ ) {
 	my $strand;
 	if ( $fth->loc =~ /complement/ ) {
 	    $strand = -1;
@@ -149,12 +159,15 @@ sub _generic_seqfeature {
 		$sf->add_sub_SeqFeature($sub,'EXPAND');
 	    } else {
 		$fth->warn("unable to parse location successfully out of " .
-			   $next_loc . ", ignoring this subfeature (seqid=" .
+			   $next_loc . ", ignoring feature (seqid=" .
 			   $annseq->id() . ")");
+                $sf = undef;
 	    }
 	}
 
-    } else {
+    }
+    # Parse simple locations
+    else {
 	$sf->source_tag($source);
 	$sf->primary_tag($fth->key);
 	if ( $fth->loc =~ /complement/ ) {

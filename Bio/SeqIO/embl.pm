@@ -639,7 +639,7 @@ sub _print_EMBL_FTHelper {
    }
 
 }
-#'
+
 =head2 _read_EMBL_References
 
  Title   : _read_EMBL_References
@@ -720,7 +720,7 @@ sub _read_EMBL_Species {
         
         if (/^OS\s+(\S+)(?:\s+([^\(]\S*))?(?:\s+([^\(]\S*))?(?:\s+\((.*)\))?/) {
             $genus   = $1;
-	    $species = $2; # this is always defined if the pattern matches
+	    $species = $2 || 'sp.';
 	    $sub_species = $3 if $3;
             $common      = $4 if $4;
         }

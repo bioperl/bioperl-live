@@ -123,7 +123,7 @@ print "ok 10\n";
 
 ## Now we test Bio::SeqIO::GenBank
 $str = Bio::SeqIO->new(-file=> 't/test.genbank', '-format' => 'GenBank');
-
+$str->verbose(0);    # Set to -1 for release version, so warnings aren't printed
 
 if ( $str ) {
     print "ok 11\n";
@@ -300,6 +300,7 @@ if ( $out->write_seq($seq) ) {
 #
 my $stream = Bio::SeqIO->new('-file' => 't/test.genbank',
 			     '-format' => 'GenBank');
+$stream->verbose(0);    # Set to -1 for release version, so warnings aren't printed
 my $seqnum = 0;
 my $species;
 my @cl;
