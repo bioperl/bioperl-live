@@ -261,7 +261,7 @@ sub seq {
        if( $self->length() == 0) {
 	   $self->add_sequence_as_string($data);
        } else { 
-	   $self->warn("Trying to reset the seq string, cannot do this with a LargePrimarySeq - must allocate a new object");
+	   $self->warn("Trying to reset the seq string, cannot do this with a La_fhrgePrimarySeq - must allocate a new object");
        }
    } 
    return $self->subseq(1,$self->length);
@@ -426,8 +426,9 @@ sub _filename{
 sub DESTROY {
     my $self = shift;
     if( defined  $self->_fh ) {
-	$self->_fh->close();
+	$self->_fh->close();		
     }
+    unlink $self->_filename;
     $self->SUPER::DESTROY();
 }
 
