@@ -57,7 +57,7 @@ warn $@ if $@;
 ok($db);
 fail(TEST_COUNT - 1) unless $db;
 
-$db->debug(0);
+$db->debug(1);
 
 # exercise the loader
 ok($db->initialize(1));

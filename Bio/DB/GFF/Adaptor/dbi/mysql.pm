@@ -569,7 +569,7 @@ sub make_features_group_by_part {
   return unless $key_count > 1;
   return ("fdata.fid,fref,fstart,fstop,fsource,
            fmethod,fscore,fstrand,fphase,gclass,gname,ftarget_start,
-           ftarget_stop,fdata.fid,fdata.gid 
+           ftarget_stop,fdata.gid 
      HAVING count(fdata.fid) > ?",$key_count-1);
 }
 
