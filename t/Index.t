@@ -20,8 +20,6 @@ use Bio::Index::EMBL;
 use Bio::Index::GenBank;
 use Bio::Index::Swissprot;
 use Bio::DB::InMemoryCache;
-use Bio::DB::GenPept;
-use Bio::DB::GenBank;
 
 eval { require Bio::DB::FileCache };
 
