@@ -393,7 +393,7 @@ sub font {
   my $self = shift;
   my $font = $self->option('font');
 
-  my $img_class = $self->_image_class;
+  my $img_class = $self->image_class;
   # Bring in the appropriate image package...yuck...
   eval "use $img_class; 1" or die $@;
 
@@ -433,7 +433,8 @@ sub connector_color {
   $self->color('connector_color') || $self->fgcolor;
 }
 
-sub _image_class { shift->{factory}->{panel}->{image_class}; }
+sub image_class { shift->{factory}->{panel}->{image_class}; }
+sub polygon_package { shift->{factory}->{panel}->{polygon_package}; }
 
 sub layout_sort {
     my $self = shift;
@@ -790,8 +791,6 @@ sub draw_dashed_connector {
 
   my $center1  = ($top1 + $bottom1)/2;
   my $center2  = ($top2 + $bottom2)/2;
-
-  my $img_class = $self->_image_class;
   $gd->setStyle($color,$color,gdTransparent(),gdTransparent());
   $gd->line($left,$center1,$right,$center2,gdStyled());
 }
@@ -905,9 +904,8 @@ sub filled_arrow {
 	  or ($indent <= 0)
 	    or ($x2 - $x1 < 3);
 
-  my $fg = $self->fgcolor;
-  my $img_class = $self->_image_class;
-  my $pkg       = $img_class . '::Polygon';
+  my $fg   = $self->fgcolor;
+  my $pkg  = $self->polygon_package;
   my $poly = $pkg->new();
   if ($orientation >= 0) {
     $poly->addPt($x1,$y1);

@@ -34,10 +34,8 @@ sub draw {
   my $fill = $self->bgcolor;
   my $border = $self->fgcolor;
 
-  # Fetch out the image_class
-  my $poly_pkg = $self->_image_class . '::Polygon';
+  my $poly_pkg = $self->polygon_package;
   my $poly     = $poly_pkg->new();
-
   if ($self->feature->strand > 0) { #plus strand
       $poly->addPt($x1 - $half, $y1);
       $poly->addPt($x1 + ($half), $y1);

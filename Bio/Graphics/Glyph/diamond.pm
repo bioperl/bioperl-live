@@ -31,8 +31,7 @@ sub draw_component {
     return $self->SUPER::draw_component($gd,@_);
   }
 
-  # Fetch out the image_class
-  my $poly_pkg = $self->_image_class . '::Polygon';
+  my $poly_pkg = $self->polygon_package;
   my $polygon   = $poly_pkg->new();
   $polygon->addPt($x1,$ymid);
   $polygon->addPt($xmid,$y1);

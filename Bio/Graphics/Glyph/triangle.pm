@@ -49,7 +49,7 @@ sub draw_component {
   elsif($orient eq 'E'){$vx1=$x1;$vy1=$y1;$vx2=$x1;$vy2=$y2;$vx3=$x1+$p;$vy3=$ymid;}
 
   # now draw the triangle
-  my $poly_pkg = $self->_image_class . '::Polygon';
+  my $poly_pkg = $self->polygon_package;
   my $poly     = $poly_pkg->new();
   $poly->addPt($vx1,$vy1);
   $poly->addPt($vx2,$vy2);

@@ -74,7 +74,9 @@ sub new {
 		truecolor     => $truecolor,
 		flip          => $flip,
 		empty_track_style  => $empty_track_style,
-		image_class   => $image_class,
+		image_class  => $image_class,
+		image_package => $image_class . '::Image',     # Accessors
+		polygon_package => $image_class . '::Polygon',
 	       },$class;
 }
 
@@ -368,7 +370,7 @@ sub setup_fonts {
   my $self = shift;
   return if ref $self->{key_font};
 
-  my $image_class = $self->_image_class;
+  my $image_class = $self->image_class;
   eval "use $image_class; 1" or die $@;
 
   my $keyfont = $self->{key_font};
@@ -391,18 +393,19 @@ sub gd {
     # adds nothing since $image_class is undefined at compile time.
     # gd exported functions should all use ();
     # BEGIN {
-    my $image_class = $self->_image_class;
+    my $image_class = $self->image_class;
     eval "use $image_class; 1" or die $@;
     # }
   }
 
   my $width  = $self->width;
   my $height = $self->height;
-  my $pkg = $self->_image_package;
+
+  my $pkg = $self->image_package;
   my $gd  = $existing_gd || $pkg->new($width,$height,
 				      ($self->{truecolor} && $pkg->can('isTrueColor') ? 1 : ())
 				     );
-  
+
   my %translation_table;
   for my $name ('white','black',keys %COLORS) {
     my $idx = $gd->colorAllocate(@{$COLORS{$name}});
@@ -475,12 +478,12 @@ sub gd {
   return $self->{gd} = $gd;
 }
 
-sub _image_class   { return shift->{image_class}; }
+
+# Package accessors
 # GD (and GD::SVG)'s new() resides in GD::Image
-sub _image_package {
-  my $self = shift;
-  return ($self->{image_class} . '::Image');
-}
+sub image_class     { return shift->{image_class}; }
+sub image_package   { return shift->{image_package}; }
+sub polygon_package { return shift->{polygon_package}; }
 
 sub boxes {
   my $self = shift;
@@ -662,7 +665,6 @@ sub draw_empty {
   my $right = $self->width-$self->pad_right;
   my $color = $self->translate_color(MISSING_TRACK_COLOR);
   if ($style eq 'dashed') {
-    my $img_class = $self->_image_package;
     $gd->setStyle($color,$color,gdTransparent(),gdTransparent());
     $gd->line($left,$offset,$right,$offset,gdStyled());
   } else {
@@ -702,7 +704,7 @@ sub ticks {
   my $self = shift;
   my ($length,$minwidth) = @_;
 
-  my $img = $self->_image_class;
+  my $img = $self->image_class;
   $length   = $self->{length}       unless defined $length;
   $minwidth = $img->gdSmallFont->width*7  unless defined $minwidth;
 
@@ -780,7 +782,8 @@ sub set_pen {
   my ($linewidth,$color) = @_;
   return $self->{pens}{$linewidth,$color} if $self->{pens}{$linewidth,$color};
   my $gd = $self->{gd};
-  my $pkg = $self->_image_package;
+#  my $pkg = $self->_image_package;
+  my $pkg = $self->image_package;
   my $pen = $self->{pens}{$linewidth} = $pkg->new($linewidth,$linewidth);
   my @rgb = $self->rgb($color);
   my $bg = $pen->colorAllocate(255,255,255);
@@ -1230,7 +1233,8 @@ a set of tag/value pairs as follows:
   -image_class To create output in scalable vector
                graphics (SVG), optionally pass the image
                class parameter 'GD::SVG'. Defaults to
-               using vanilla GD.
+               using vanilla GD. See the corresponding
+               image_class() method below for details.
 
 Typically you will pass new() an object that implements the
 Bio::RangeI interface, providing a length() method, from which the
@@ -1492,6 +1496,28 @@ the intermediate step of returning a GD::Image object.
 =item $svg = $panel-E<gt>svg
 
 The svg() method returns the image in an XML-ified SVG format.
+
+=item $image_class = $panel-E<gt>image_class
+
+The image_class() method returns the current drawing package being
+used, currently one of GD or GD::SVG.  This is primarily used
+internally to ensure that calls to GD's exported methods are called in
+an object-oriented manner to avoid compile time undefined string
+errors.  This is usually not needed for external use.
+
+=item $image_package = $panel-E<gt>image_package
+
+This accessor method, like image_class() above is provided as a
+convenience.  It returns the current image package in use, currently
+one of GD::Image or GD::SVG::Image.  This is not normally used
+externally.
+
+=item $polygon_package = $panel-E<gt>polygon_package
+
+This accessor method, like image_package() above is provided as a
+convenience.  It returns the current polygon package in use, currently
+one of GD::Polygon or GD::SVG::Polygon.  This is not normally used
+externally except in the design of glyphs.
 
 =item $boxes = $panel-E<gt>boxes
 

@@ -152,8 +152,8 @@ sub arrowhead {
 
   my $fg = $self->set_pen;
   my $style = $self->option('arrowstyle') || 'regular';
-  
-  my $poly_pkg = $self->_image_class . '::Polygon';
+
+  my $poly_pkg = $self->polygon_package;
   my $poly = $poly_pkg->new();
   if ($orientation >= 0) {
     $poly->addPt($x-$height,$y-$height);
