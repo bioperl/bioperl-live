@@ -89,6 +89,7 @@ use strict;
 
 use Bio::Root::IO;
 use Bio::SeqAnalysisParserI;
+use Bio::LocatableSeq;
 use Bio::SeqFeature::Generic;
 
 @ISA = qw(Bio::Root::Root Bio::SeqAnalysisParserI Bio::Root::IO);
@@ -125,6 +126,27 @@ sub new {
   return $self;
 }
 
+=head2 next_segment
+
+ Title   : next_segment
+ Usage   : my $seq = $gffio->next_segment;
+ Function: Returns a Bio::LocatableSeq object corresponding to a 
+           GFF "##sequence-region" header line.
+ Example :
+ Returns : A Bio::LocatableSeq object, or undef if
+           there are no more sequences.
+ Args    : none
+
+
+=cut
+
+sub next_segment{
+   my ($self,@args) = @_;
+
+   return shift @{ $self->{'segments'} } if defined $self->{'segments'};
+   return undef;
+}
+
 =head2 next_feature
 
  Title   : next_feature
@@ -146,9 +168,20 @@ sub next_feature {
     # be graceful about empty lines or comments, and make sure we return undef
     # if the input's consumed
     while(($gff_string = $self->_readline()) && defined($gff_string)) {	
-	next if($gff_string =~ /^\#/ || $gff_string =~ /^\s*$/ ||
-		$gff_string =~ /^\/\//);
-	last;
+
+	  if($gff_string =~ /^##sequence-region\s+(\S+)\s+(\S+)\s+(\S+)\s*/){
+		my($seqid,$start,$end) = ($1,$2,$3);
+		push @{ $self->{'segments'} }, Bio::LocatableSeq->new(
+													 -id    => unescape($seqid),
+													 -start => $start,
+													 -end   => $end,
+													);
+		next;
+	  }
+
+	  next if($gff_string =~ /^\#/ || $gff_string =~ /^\s*$/ ||
+			  $gff_string =~ /^\/\//);
+	  last;
     }
     return undef unless $gff_string;
 

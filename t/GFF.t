@@ -15,7 +15,7 @@ BEGIN {
         use lib 't';
     }
     use Test;
-    plan test => 28;
+    plan test => 32;
 }
 
 use Bio::Seq;
@@ -61,6 +61,14 @@ ok($feat2->end, $feat->end);
 ok($feat2->primary_tag, $feat->primary_tag);
 ok($feat2->score, $feat->score);
 ok(($feat2->each_tag_value('sillytag'))[0], 'this is silly!;breakfast');
+
+#test sequence-region parsing
+$gff2in = Bio::Tools::GFF->new(-gff_version => 2, -file => Bio::Root::IO->catfile("t","data","hg16_chroms.gff"));
+ok($gff2in->next_feature(),undef);
+my $seq = $gff2in->next_segment;
+ok($seq->display_id, 'chr1');
+ok($seq->end, 246127941);
+ok($seq->start, 1);
 
 
 # GFF3
