@@ -131,8 +131,9 @@ sub next_aln {
 	}
     }
     my $aln =  Bio::SimpleAlign->new();
-
+    
     foreach my $seqname ( qw(seq1 seq2) ) { 
+	return undef unless ( defined $data{$seqname} );
 	my $seq = new Bio::LocatableSeq('-seq' => $data{$seqname}->{'data'},
 					'-id'  => $data{$seqname}->{'name'},
 					'-start'=> $data{$seqname}->{'start'},
