@@ -12,8 +12,8 @@ Proof of principle.  Not for production use.
 
 This adaptor is a proof-of-principle.  It is used to fetch BioFetch
 sequences into a Bio::DB::GFF database (currently uses a hard-coded
-mysqlopt database) as needed.  This allows the Generic Genome Browser
-to be used as a Genbank/EMBL browser.
+EMBL database) as needed.  This allows the Generic Genome Browser to
+be used as a Genbank/EMBL browser.
 
 =head1 AUTHOR
 
@@ -27,12 +27,56 @@ it under the same terms as Perl itself.
 =cut
 
 use strict;
-use Bio::DB::GFF::Adaptor::dbi::mysqlopt;
+use Bio::DB::GFF::Util::Rearrange; # for rearrange()
+use Bio::DB::GFF::Adaptor::dbi::mysql;
 use Bio::DB::BioFetch;
 
 use vars qw($VERSION @ISA);
-@ISA = qw(Bio::DB::GFF::Adaptor::dbi::mysqlopt);
-$VERSION = 0.10;
+@ISA = qw(Bio::DB::GFF::Adaptor::dbi::mysql);
+$VERSION = 0.50;
+
+=head2 new
+
+ Title   : new
+ Usage   : $db = Bio::DB::GFF->new(-adaptor=>'biofetch',@args)
+ Function: create a new adaptor
+ Returns : a Bio::DB::GFF object
+ Args    : see below
+ Status  : Public
+
+This is the constructor for the adaptor.  It is called automatically
+by Bio::DB::GFF-E<gt>new.  In addition to arguments that are common among
+all adaptors, the following class-specific arguments are recgonized:
+
+  Argument       Description
+  --------       -----------
+
+  -dsn           the DBI data source, e.g. 'dbi:mysql:ens0040'
+
+  -user          username for authentication
+
+  -pass          the password for authentication
+
+  -proxy         [['http','ftp'],'http://proxy:8080']
+
+-dsn,-user and -pass indicate the local database to cache results in,
+and as are per Bio::DB::GFF::Adaptor::dbi.  The -proxy argument allows
+you to set the biofetch web proxy, and uses the same syntax described
+for the proxy() method of L<Bio::DB::WebDBSeqI>, except that the
+argument must be passed as an array reference.
+
+=cut
+
+sub new {
+  my $class = shift;
+  my $self  = $class->SUPER::new(@_);
+  my ($proxy) = rearrange(['PROXY'],@_);
+  if ($proxy) {
+    my @args = ref($proxy) ? @$proxy : eval $proxy;
+    $self->{_proxy} = \@args if @args;
+  }
+  $self;
+}
 
 sub segment {
   my $self = shift;
@@ -66,7 +110,14 @@ sub load_from_embl {
   my $self = shift;
   my $db   = shift;
   my $acc  = shift or $self->throw('Must provide an accession ID');
-  my $biofetch = $self->{_biofetch}{$db} ||= Bio::DB::BioFetch->new(-db=>$db);
+  my $biofetch;
+  if ($self->{_biofetch}{$db}) {
+    $biofetch = $self->{_biofetch}{$db};
+  } else {
+    $biofetch = $self->{_biofetch}{$db} = Bio::DB::BioFetch->new(-db=>$db);
+    $biofetch->retrieval_type('tempfile');
+    $biofetch->proxy(@{$self->{_proxy}}) if $self->{_proxy};
+  }
   my $seq  = eval {$biofetch->get_Seq_by_id($acc)} or return;
   my $refclass = $self->refclass;
 
