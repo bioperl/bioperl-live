@@ -134,11 +134,7 @@ BEGIN {
 	require Bio::Index::EMBL;
 	require Bio::Index::GenBank;
 	require Bio::Index::Swissprot;
-        require Bio::DB::GenBank;
-        require Bio::DB::GenPept;
-        require Bio::DB::EMBL;
         require Bio::SeqIO;
-
     };
     if ( $@ ) {
 	# one up from here is Bio directory - we hope!
@@ -147,9 +143,6 @@ BEGIN {
 	    require Bio::Index::Fasta;
 	    require Bio::Index::EMBL;
 	    require Bio::Index::Swissprot;
-            require Bio::DB::GenBank;
-            require Bio::DB::GenPept;
-            require Bio::DB::EMBL;
             require Bio::SeqIO;
 	};
 	if ( $@ ) {
@@ -157,6 +150,18 @@ BEGIN {
 	    exit(1);
 	} else {
 	    print STDERR ("\nYou are running bpindex.pl without installing bioperl.\nYou have done it from bioperl/scripts, and so we can find the necessary information\nbut it is much better to install bioperl\n\nPlease read the README in the bioperl distribution\n\n");
+	}
+    }
+
+    eval {
+	require Bio::DB::GenBank;
+	require Bio::DB::GenPept;
+	require Bio::DB::EMBL;
+    };
+
+    if( $@ ) {
+	if( !exists $ENV{'BIOPERL_SAVVY'} ) {
+	    print STDERR ("\nbpfetch cannot find Bio::DB::GenBank and Bio::DB::EMBL modules\nThis is most likely because LWP has not been installed\nThis does not effect local indexing\nset environment variable BIOPERL_SAVVY to supress this message\n\n");
 	}
     }
 }
@@ -300,7 +305,7 @@ foreach my $arg ( @ARGV ) {
 	next;
     }
     if( !defined $seq ) {
-	warn("Sequence %id in Database $db is not present\n");
+	warn("Sequence $id in Database $db is not present\n");
 	next;
     }
 
