@@ -69,40 +69,40 @@ BEGIN {
 
            Supports the following NEXUS format features:
            - The file has to start with '#NEXUS'
-           - Reads in the name of the alignment from a comment 
-             (anything after 'TITLE: ') .  
+           - Reads in the name of the alignment from a comment
+             (anything after 'TITLE: ') .
            - Sequence names can be given in a taxa block, too.
            - If matchchar notation is used, converts
-             them back to sequence characters.  
-           - Does character conversions specified in the 
-             NEXUS equate command. 
-           - Sequence names of type 'Homo sapiens' and 
+             them back to sequence characters.
+           - Does character conversions specified in the
+             NEXUS equate command.
+           - Sequence names of type 'Homo sapiens' and
              Homo_sapiens are treated identically.
 
  Returns : L<Bio::Align::AlignI> object
- Args    : 
+ Args    :
 
 =cut
 
 sub next_aln {
     my $self = shift;
     my $entry;
-    my ($aln_name, $seqcount, $residuecount, %hash, $alphabet, 
+    my ($aln_name, $seqcount, $residuecount, %hash, $alphabet,
 	$match, $gap, $missing, $equate, $interleave,
 	$name,$str,@names,$seqname,$start,$end,$count,$seq);
-    
+
     my $aln =  Bio::SimpleAlign->new(-source => 'nexus');
 
     # file starts with #NEXUS
-    $entry = $self->_readline; 
-    $self->throw("Not a valid interleaved NEXUS file! [#NEXUS] not starting the file") 
+    $entry = $self->_readline;
+    $self->throw("Not a valid interleaved NEXUS file! [#NEXUS] not starting the file\n$entry")
 	unless $entry =~ /^#NEXUS/i;
 
-    # skip anything before either the taxa or data block 
+    # skip anything before either the taxa or data block
     # but read in the optional title in a comment
     while (defined($entry = $self->_readline)) {
 	local ($_) = $entry;
-	/\[TITLE. *([^\]]+)]\s+/i and $aln_name = $1; 
+	/\[TITLE. *([^\]]+)]\s+/i and $aln_name = $1;
 	last if /^begin +data/i || /^begin +taxa/i;
     }
     $aln_name =~ s/\s/_/g and $aln->id($aln_name) if $aln_name;
@@ -111,7 +111,7 @@ sub next_aln {
     my $taxlabels;
     while ($entry = $self->_readline) {
 	local ($_) =  $entry;
-	
+
 	# read in seq names if in taxa block
 	$taxlabels = 1 if /taxlabels/i;
 	if ($taxlabels) {
@@ -124,28 +124,39 @@ sub next_aln {
 	/matchchar ?= ?(.)/i and $match = $1;
 	/gap ?= ?(.)/i and $gap = $1;
 	/missing ?= ?(.)/i and $missing = $1;
-	/equate ?= ?"([^\"]+)/i and $equate = $1;  # "e.g. equate="T=C G=A"; 
+	/equate ?= ?"([^\"]+)/i and $equate = $1;  # "e.g. equate="T=C G=A";
 	/datatype ?= ?(\w+)/i and $alphabet = lc $1;
 	/interleave/i and $interleave = 1 ;
 
 	last if /matrix/i;
     }
-    $self->throw("Not a valid NEXUS sequence file. Datatype not specified") 
+    $self->throw("Not a valid NEXUS sequence file. Datatype not specified")
 	unless $alphabet;
-    $self->throw("Not a valid NEXUS sequence file. Datatype should not be [$alphabet]") 
+    $self->throw("Not a valid NEXUS sequence file. Datatype should not be [$alphabet]")
 	unless $valid_type{$alphabet};
 
     $aln->gap_char($gap);
     $aln->missing_char($missing);
 
     #
+    # if data is not right after the matrix line
+    #  read the empty lines out
+    #
+    while ($entry = $self->_readline) {
+	unless ($entry =~ /^\s+$/) {
+	    $self->_pushback($entry);
+	    last;
+	}
+    }
+
+    #
     # matrix command
     #
     # first alignment section
-    if (@names == 0) {  # taxa block did not exist 
+    if (@names == 0) {  # taxa block did not exist
 	while ($entry = $self->_readline) {
 	    local ($_) =  $entry;
-	    
+
 	    s/\[[^[]+\]//g; #] remove comments
 	    if ($interleave) {
 		/^\s+$/ and last;
@@ -154,17 +165,17 @@ sub next_aln {
 	    }
 	    /^\s*;\s*$/ and last;
 	    if (/^\s*('([^']*?)'|([^']\S*))\s+(.*)\s$/) { #'
-		 $name = ($2 || $3); 
+		 $name = ($2 || $3);
 		 $str = $4;
 		 $name =~ s/ /_/g;
 		 push @names, $name;
-		 
+
 		 $str =~ s/\s//g;
 		 $count =  @names;
 		 $hash{$count} = $str;
 	     };
-	    $self->throw("Not a valid interleaved NEXUS file! 
-seqcount [$count] > predeclared [$seqcount] in the first section") if $count > $seqcount; 
+	    $self->throw("Not a valid interleaved NEXUS file!
+seqcount [$count] > predeclared [$seqcount] in the first section") if $count > $seqcount;
 	}
     }
 
@@ -182,13 +193,13 @@ seqcount [$count] > predeclared [$seqcount] in the first section") if $count > $
 	    $count++;
 	    $hash{$count} .= $str;
 	};
-	$self->throw("Not a valid interleaved NEXUS file! 
-seqcount [$count] > predeclared [$seqcount] ") if $count > $seqcount; 
+	$self->throw("Not a valid interleaved NEXUS file!
+seqcount [$count] > predeclared [$seqcount] ") if $count > $seqcount;
 
     }
-    
+
     return 0 if @names < 1;
-    
+
     # sequence creation
     $count = 0;
     foreach $name ( @names ) {
@@ -206,9 +217,9 @@ seqcount [$count] > predeclared [$seqcount] ") if $count > $seqcount;
 	}
 
 	# consistency test
-	$self->throw("Length of sequence [$seqname] is not [$residuecount]! ") 
-	    unless CORE::length($hash{$count}) == $residuecount; 
-	
+	$self->throw("Length of sequence [$seqname] is not [$residuecount]! ")
+	    unless CORE::length($hash{$count}) == $residuecount;
+
 	$seq = new Bio::LocatableSeq('-seq'=>$hash{$count},
 				     '-id'=>$seqname,
 				     '-start'=>$start,
@@ -217,9 +228,9 @@ seqcount [$count] > predeclared [$seqcount] ") if $count > $seqcount;
 				     );
 	$aln->add_seq($seq);
     }
-      
-    # if matchchar is used 
-    $aln->unmatch($match) if $match;	
+
+    # if matchchar is used
+    $aln->unmatch($match) if $match;
 
     # if equate ( e.g. equate="T=C G=A") is used
     if ($equate) {
@@ -237,7 +248,7 @@ sub _read_taxlabels {
 	$name =~ s/\[[^\[]+\]//g;
 	$name =~ s/\W/_/g;
 	push @names, $name;
-	last if /^\s*;/; 
+	last if /^\s*;/;
     }
     return @names;
 }
@@ -246,9 +257,9 @@ sub _read_taxlabels {
 
  Title   : write_aln
  Usage   : $stream->write_aln(@aln)
- Function: Writes the $aln object into the stream in interleaved NEXUS 
+ Function: Writes the $aln object into the stream in interleaved NEXUS
            format. Everything is written into a data block.
-           SimpleAlign methods match_char, missing_char and gap_char must be set 
+           SimpleAlign methods match_char, missing_char and gap_char must be set
            if you want to see them in the output.
  Returns : 1 for success and 0 for error
  Args    : L<Bio::Align::AlignI> object
@@ -264,16 +275,16 @@ sub write_aln {
     my ($match, $missing, $gap,$symbols) = ('', '', '','');
 
     foreach my $aln (@aln) {
-	if( ! $aln || ! $aln->isa('Bio::Align::AlignI')  ) { 
+	if( ! $aln || ! $aln->isa('Bio::Align::AlignI')  ) {
 	    $self->warn("Must provide a Bio::Align::AlignI object when calling write_aln");
 	    next;
 	}
-	$self->throw("All sequences in the alignment must be the same length") 
+	$self->throw("All sequences in the alignment must be the same length")
 	    unless $aln->is_flush($self->verbose);
 
 	$length  = $aln->length();
 
-	$self->_print (sprintf("#NEXUS\n[TITLE: %s]\n\nbegin data;\ndimensions ntax=%s nchar=%s;\n", 
+	$self->_print (sprintf("#NEXUS\n[TITLE: %s]\n\nbegin data;\ndimensions ntax=%s nchar=%s;\n",
 			       $aln->id, $aln->no_sequences, $length));
 	$match = "match=". $aln->match_char if $aln->match_char;
 	$missing = "missing=". $aln->missing_char if $aln->missing_char;
@@ -285,13 +296,13 @@ sub write_aln {
 	my $indent = $aln->maxdisplayname_length;
 	$aln->set_displayname_flat();
 	foreach $seq ( $aln->each_seq() ) {
-	    $name = $aln->displayname($seq->get_nse());	     
-	    $name = sprintf("%-${indent}s", $name); 
+	    $name = $aln->displayname($seq->get_nse());
+	    $name = sprintf("%-${indent}s", $name);
 	    $hash{$name} = $seq->seq();
 	    push(@arr,$name);
 	}
 
-	while( $count < $length ) {	
+	while( $count < $length ) {
 	    # there is another block to go!
 	    foreach $name ( @arr ) {
 		my $dispname = $name;
