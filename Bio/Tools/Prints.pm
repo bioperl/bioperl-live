@@ -47,7 +47,8 @@ Bio::Tools::Prints - Parser for FingerPRINTScanII program
 
 =head1 AUTHOR - Balamurugan Kumarasamy
 
- Email: fugui@worf.fugu-sg.org
+ bala@tll.org.sg
+ juguang@tll.org.sg
 
 =head1 APPENDIX
 
@@ -101,14 +102,13 @@ sub new {
 =cut
 
 sub next_result {
-      my ($self) = @_;
-     my %printsac;
-     my @features;
-     my $line;
-     my $sequenceId;
+    my ($self) = @_;
+    my %printsac;
+    my @features;
+    my $line;
+    my $sequenceId;
      
-     while ($_=$self->_readline()) {
-      
+    while ($_=$self->_readline()) {
       
            $line = $_;
            chomp $line;
@@ -119,7 +119,6 @@ sub next_result {
               $self->seqname($sequenceId);
               next;
            }
-         
               
            if ($line =~ s/^1TBH//) {
                my  ($id) = $line =~ /^\s*(\w+)/;
@@ -129,11 +128,7 @@ sub next_result {
                next;
            }
              
-             
            if ($line =~ s/^3TB//) {
-              
-                  
-              
               
               if ($line =~ s/^[HN]//) {
                    my($num)="";
@@ -157,13 +152,12 @@ sub next_result {
                if ($line =~ s/^F//) {
                    return;  
                }
-                   next;                                                                                                                               }
+                   next;                                                       
+               }
             next;         
  
       }
 
-
-        
 }
 
 =head2 create_feature
@@ -171,32 +165,39 @@ sub next_result {
  Title   : create_feature
  Usage   : my $feat=$prints_parser->create_feature($feature,$seqname)
  Function: creates a SeqFeature Generic object
- Returns : L<Bio::SeqFeature::Generic>
+ Returns : L<Bio::SeqFeature::Feature>
  Args    :
 
 
 =cut
 
 sub create_feature {
-       my ($self, $feat,$sequenceId) = @_;
+    my ($self, $feat,$sequenceId) = @_;
 
-       my @f = split (/,/,$feat);
-       # create feature object
-        my $feature= Bio::SeqFeature::Generic->new(-seq_id    =>$sequenceId,
-                                                   -start=>$f[1],
-                                                   -end  => $f[2],
-                                                   -score      => $f[4],
-                                                   -source     => "PRINTS",
-                                                   -primary    =>$f[0],
-                                                   -logic_name => "PRINTS",
-                                                   );
-        $feature->add_tag_value('evalue',$f[5]);
-        $feature->add_tag_value('percent_id',$f[3]);
+    my @f = split (/,/,$feat);
+    # create feature object
+    my $feature= Bio::SeqFeature::Generic->new(
+        -seq_id    =>$sequenceId,
+        -start=>$f[1],
+        -end  => $f[2],
+        -score      => $f[4],
+        -source     => "PRINTS",
+        -primary    =>$f[0],
+        -logic_name => "PRINTS",
+    );
+    $feature->add_tag_value('evalue',$f[5]);
+    $feature->add_tag_value('percent_id',$f[3]);
         
-
-     
-    return  $feature; 
-        
+    my $feature2 = Bio::SeqFeature::Generic->new(
+        -seq_id => $f[0],
+        -start => 0,
+        -end => 0,
+    );
+    my $fp = Bio::SeqFeature::FeaturePair->new(
+        -feature1 => $feature,
+        -feature2 => $feature2
+    );
+    return  $fp; 
 }
 
 =head2 print_sac
@@ -211,14 +212,9 @@ sub create_feature {
 =cut
 
 sub print_sac{
-    my($self,$printsac)=@_;
- 
-   if(defined($printsac))
-   {
-       $self->{'print_sac'}=$printsac;
-   }
+    my $self = shift;
+    return $self->{'print_sac'} = shift if @_;
     return $self->{'print_sac'};
-
 }
 
 =head2 seqname 
@@ -234,12 +230,7 @@ sub print_sac{
 
 sub seqname{
     my($self,$seqname)=@_;
-
-    if(defined($seqname))
-    {
-        $self->{'seqname'}=$seqname;
-    }
-
+    return $self->{'seqname'}=$seqname if(defined($seqname));
     return $self->{'seqname'};
 
 }
