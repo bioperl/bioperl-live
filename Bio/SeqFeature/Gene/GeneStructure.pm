@@ -121,7 +121,7 @@ sub transcripts {
 sub add_transcript {
     my ($self, $fea) = @_;
 
-    if(! $fea->isa('Bio::SeqFeature::Gene::TranscriptI') ) {
+    if(!$fea || ! $fea->isa('Bio::SeqFeature::Gene::TranscriptI') ) {
 	$self->throw("$fea does not implement Bio::SeqFeature::Gene::TranscriptI");
     }
     if(! exists($self->{'_transcripts'})) {
