@@ -33,7 +33,12 @@ Bio::Align::DNAStatistics - Calculate some statistics for a DNA alignment
 
 =head1 DESCRIPTION
 
-Describe the object here
+This object contains routines for calculating various statistics and
+distances for DNA alignments.  The routines are not well tested and do
+contain errors at this point.  Work is underway to correct them, but
+do not expect this code to give you the right answer currently!  Use
+dnadist/distmat in the PHLYIP or EMBOSS packages to calculate the
+distances.
 
 =head1 FEEDBACK
 
