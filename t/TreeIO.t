@@ -51,7 +51,7 @@ ok(1);
 my $treeio = new Bio::TreeIO(-verbose => $verbose,
 			     -format => 'newick',
 			     -file   => Bio::Root::IO->catfile('t','data', 
-							       'cysprot1b.dnd'));
+							       'cysprot1b.newick'));
 
 ok($treeio);
 my $tree = $treeio->next_tree;
