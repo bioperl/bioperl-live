@@ -100,21 +100,31 @@ Internal methods are usually preceded with a _
 
 
 package Bio::Perl;
-use vars qw(@ISA @EXPORT_OK);
+use vars qw(@ISA @EXPORT_OK $DBOKAY);
 use strict;
 use Carp;
 use Exporter;
 
 use Bio::SeqIO;
 use Bio::Seq;
-use Bio::DB::EMBL;
-use Bio::DB::GenBank;
-use Bio::DB::SwissProt;
-use Bio::DB::RefSeq;
+BEGIN { 
+    eval { 
+	require Bio::DB::EMBL;
+	require Bio::DB::GenBank;
+	require Bio::DB::SwissProt;
+	require Bio::DB::RefSeq;
+    };
+    if( $@ ) {
+	$DBOKAY = 0;
+    } else {
+	$DBOKAY = 1;
+    }
+}
 
 @ISA = qw(Exporter);
 
-@EXPORT_OK = qw(read_sequence read_all_sequences write_sequence new_sequence get_sequence);
+@EXPORT_OK = qw(read_sequence read_all_sequences write_sequence 
+		new_sequence get_sequence);
 
 
 =head2 read_sequence
@@ -327,7 +337,10 @@ my $refseq_db = undef;
 
 sub get_sequence{
    my ($db_type,$identifier) = @_;
-
+   if( ! $DBOKAY ) {
+       confess("Your system does not have IO::String installed so the DB retrieval method is not available");
+       return;
+   }
    $db_type = lc($db_type);
 
    my $db;
