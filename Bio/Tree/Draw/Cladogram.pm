@@ -262,11 +262,10 @@ sub new {
   $width = $left + $stems * $xstep + $tip + $labels + $right;
   if ($t2) { $width += $tip + $column + $tip + $tip; }
   $height = $aspect * $width;
-  $ystep = $height / scalar(@taxa1);
+  my $ystep1 = $height / scalar(@taxa1);
+  my $ystep2;
   if ($t2) {
-    if (scalar(@taxa2) > scalar(@taxa1)) {
-      $ystep = $height / scalar(@taxa2);
-    }
+    $ystep2 = $height / scalar(@taxa2);
   }
   ###########################################################################
 
@@ -276,7 +275,7 @@ sub new {
   for my $taxon (reverse @taxa1) {
     $xx{$taxon} = $x - $tip;
     $yy{$taxon} = $y;
-    $y += $ystep;
+    $y += $ystep1;
   }
   $x -= $xstep;
 
@@ -316,7 +315,7 @@ sub new {
     for my $taxon (reverse @taxa2) {
       $xx{$taxon} = $x + $tipwidth2 + $tip;
       $yy{$taxon} = $y;
-      $y += $ystep;
+      $y += $ystep2;
     }
     $x += $xstep;
 
