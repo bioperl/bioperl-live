@@ -633,6 +633,82 @@ sub unconnected_nodes {
 		
 }
 
+=head2   articulation_points
+
+ name      : articulation_points
+ purpose   : to find edges in a graph that if broken will fragment
+               the graph into islands.
+ usage     : my $edgeref = $gr->articulation_points();
+             for my $e (keys %$edgeref) {
+				print $e->[0]->accession_number. "-".
+                   $e->[1]->accession_number ."\n";
+             }
+ arguments : none
+ returns  : a Hash reference where values are edge array refernces.
+ description : This is a "slow but sure" method that works with graphs
+               up to a few hundred nodes reasonably fast. 
+
+=cut
+
+sub articulation_points {
+
+ my $self = shift;
+ my $nodes = $self->_nodes;
+ my $nbors = $self->_neighbors;
+ my $i = 0;
+
+ ## get list of nodes with only 1 interactor, these can't be part of an ap,
+ ## they're external nodes.
+ map{$self->{'_single'}{$_} = undef}
+       grep{scalar @{$nbors->{$_}} == 1 }keys %$nbors;
+
+ ##create DS to cahe found APs
+ $self->{'_aps'}   = {} unless exists ($self->{'_aps'});
+ $self->{'_verts'} = {} unless exists ($self->{'_verts'});
+ my $aps = $self->{'_aps'};
+
+ for my $node (keys %$nodes) {
+	if ($i++ % 10 == 0) {print STDERR ".";}
+	 ## skip if only has 1 neighbor
+	 next if exists($self->{'_single'}{$node});
+
+     my %unique;
+     my %node_sets;
+	my @neighbors = @{$nbors->{$node}};
+	for my $nbor(@neighbors) {
+
+        ## skip if neighbor is an external node
+	    next if exists($self->{'_single'}{$nbor});
+
+
+		my $t   = $self->traversal($nbor);
+		my @all = $t->get_all($node);
+		map {$unique{$_}++}@all;
+		$node_sets{$nbor} =   \@all;
+		}
+	for my $nset (keys %node_sets) {
+		next unless defined( $node_sets{$nset}->[0]) ;
+		my $isapt = 1;
+		for my $test (@{$node_sets{$nset}}) {
+			if($unique{$test} >1) {
+				$isapt = 0;
+				last;
+			}
+		}
+		if ($isapt) {
+			  my ($m,$n)  = ($node, $nset);
+			 ($m, $n)     = ($n, $m) if $n lt $m;
+		  	if (!exists  ($aps->{$m,$n})) {
+				$aps->{$m,$n} = [$nodes->{$node}, $nodes->{$nset}] ;
+				map{$self->{'_verts'}{$_} = undef}($m,$n);
+				}
+		}
+	}	
+ }
+	return $aps;
+}
+
+
 
 sub _ids {
 	my $self = shift;
