@@ -28,9 +28,9 @@ BEGIN {
 
     unless( eval "require Parse::RecDescent; 1;" ) {
       #warn $@;
-      print STDERR "Parse::RecDescent not installed. This means that Bio::Cluster::UniGene module is not usable. Skipping tests.\n";
+      #print STDERR "Parse::RecDescent not installed. This means that Bio::Cluster::UniGene module is not usable. Skipping tests.\n";
       for( 1..$NUMTESTS ) {
-	skip(1,"Parse::RecDescent not installed. This means that Bio::Cluster::UniGene module is not usable. Skipping tests.\n");
+	skip("Parse::RecDescent not installed.",1);
       }
       $error = 1;
     }
