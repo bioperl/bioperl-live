@@ -2370,7 +2370,7 @@ sub revcom {
   # CD: GCG/IUB than this will certainly break.
 
   $seq =~ tr/acgtrymkswhbvdnxACGTRYMKSWHBVDNX/tgcayrkmswdvbhnxTGCAYRKMSWDVBHNX/;
-  $revseq = reverse $seq;
+  $revseq = CORE::reverse $seq;
 
   my ($out,$id);
   $id = $self->id();
@@ -2488,7 +2488,7 @@ sub reverse {
   my($seq);
 
   $seq = $self->{"seq"};
-  scalar reverse $seq;
+  scalar CORE::reverse $seq;
 }
 
 #_______________________________________________________________________
