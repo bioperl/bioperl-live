@@ -1,5 +1,5 @@
 #!/usr/bin/perl -w
-# $Id: search2gff.PLS,v 1.11 2004-07-19 01:11:02 jason Exp $
+# $Id: search2gff.PLS,v 1.12 2005-03-02 01:38:37 allenday Exp $
 
 # Author:      Jason Stajich <jason@bioperl.org>
 # Description: Turn SearchIO parseable report(s) into a GFF report
@@ -133,7 +133,7 @@ while( my $result = $parser->next_result ) {
 				      $hsp->hit);
 		$name  ||= $hit->name;
 	    } else {
-		($other,$proxyfor) = ($hsp->query,
+		($otherf,$proxyfor) = ($hsp->query,
 				      $hsp->hit);
 		$name ||= $acc;
 	    }
