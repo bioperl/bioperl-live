@@ -154,10 +154,14 @@ ok($kegg->display_id, 'AHCYL1');
 ok($kegg->alphabet, 'dna');
 ok($kegg->seq);
 ok($kegg->translate->seq);
-ok(($kegg->annotation->get_Annotations('description'))[0]->text, 'S-adenosylhomocysteine hydrolase-like 1 
-[EC:3.3.1.1]');
-ok( (grep {$_->database eq 'KO'} $kegg->annotation->get_Annotations('dblink'))[0]->comment, 'adenosylhomocysteinase' );
-ok( (grep {$_->database eq 'PATH'} $kegg->annotation->get_Annotations('dblink'))[0]->primary_id, 'hsa00271' );
+ok(($kegg->annotation->get_Annotations('description'))[0]->text,
+   'S-adenosylhomocysteine hydrolase-like 1 [EC:3.3.1.1]');
+ok( (grep {$_->database eq 'KO'} 
+     $kegg->annotation->get_Annotations('dblink'))[0]->comment, 
+    'adenosylhomocysteinase' );
+ok( (grep {$_->database eq 'PATH'} 
+     $kegg->annotation->get_Annotations('dblink'))[0]->primary_id,
+    'hsa00271' );
 
 # multifile
 $mf = Bio::SeqIO::MultiFile->new( '-format' => 'Fasta' ,
@@ -405,8 +409,8 @@ ok ($seq = $seqio->next_seq());
 foreach my $gn ( $ann->get_all_values() ) {
     ok ($gn, shift(@genenames));
 }
-ok $ann->value(-joins => [" AND "," OR "]), "(CALM1 OR CAM1 OR CALM OR CAM) AND (CALM2 OR CAM2 OR CAMB) AND (CALM3 OR 
-CAM3 OR CAMC)";
+ok $ann->value(-joins => [" AND "," OR "]),
+    "(CALM1 OR CAM1 OR CALM OR CAM) AND (CALM2 OR CAM2 OR CAMB) AND (CALM3 OR CAM3 OR CAMC)";
 
 # test dos Linefeeds in gcg parser
 $str = Bio::SeqIO->new('-file' => Bio::Root::IO->catfile("t","data","test_badlf.gcg"),
@@ -532,12 +536,10 @@ ok ($spec_obj->binomial, 'Anopheles gambiae');
 
 my $ac = $seq->annotation;
 my $reference =  ($ac->get_Annotations('reference') )[1];
-ok ($reference->title,'"A novel acetylcholinesterase gene in mosquitoes codes for the insecticide target and is 
-non-homologous to the ace gene in Drosophila"');
+ok ($reference->title,'"A novel acetylcholinesterase gene in mosquitoes codes for the insecticide target and is non-homologous to the ace gene in Drosophila"');
 ok ($reference->authors,'Weill M., Fort P., Berthomi eu A., Dubois M.P., Pasteur N., Raymond M.');
 my $cmmnt =  ($ac->get_Annotations('comment') )[0];
-ok($cmmnt->text, 'see also AJ488492 for achE-1 from Kisumu strain Third Party Annotation Database: This TPA record uses 
-Anopheles gambiae trace archive data (http://trace.ensembl.org) ');
+ok($cmmnt->text, 'see also AJ488492 for achE-1 from Kisumu strain Third Party Annotation Database: This TPA record uses Anopheles gambiae trace archive data (http://trace.ensembl.org) ');
 
 ## now genbank ##
 
