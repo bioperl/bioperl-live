@@ -351,11 +351,14 @@ sub stack_trace{
  Usage     : $object->_rearrange( array_ref, list_of_arguments)
  Purpose   : Rearranges named parameters to requested order.
  Example   : $self->_rearrange([qw(SEQUENCE ID DESC)],@param);
-           : Where @param = (-sequence => $s, 
-	   :                 -id       => $i, 
-	   :	             -desc     => $d);
+           : Where @param = (-sequence => $s,
+	   :	                -desc     => $d,
+	   :                    -id       => $i);
  Returns   : @params - an array of parameters in the requested order.
-           : The above example would return ($s, $i, $d)
+           : The above example would return ($s, $i, $d).
+           : Unspecified parameters will return undef. For example, if
+           :        @param = (-sequence => $s);
+           : the above _rearrange call would return ($s, undef, undef)
  Argument  : $order : a reference to an array which describes the desired
            :          order of the named parameters.
            : @param : an array of parameters, either as a list (in
@@ -368,7 +371,8 @@ sub stack_trace{
            :          first one should be hyphenated.)
  Source    : This function was taken from CGI.pm, written by Dr. Lincoln
            : Stein, and adapted for use in Bio::Seq by Richard Resnick and
-           : then adapted for use in Bio::Root::Object.pm by Steve Chervitz.
+           : then adapted for use in Bio::Root::Object.pm by Steve Chervitz,
+           : then migrated into Bio::Root::RootI.pm by Ewan Birney.
  Comments  : (SAC)
            : This method may not be appropriate for method calls that are
            : within in an inner loop if efficiency is a concern.
@@ -395,7 +399,10 @@ sub stack_trace{
 	   :
            : Personal note (SAC): I have found all uppercase tags to
            : be more managable: it involves less single-quoting,
-           : the code is more readable, and there are no method naming conlicts.
+           : the key names stand out better, and there are no method naming conlicts.
+           : The drawbacks are that it's not as easy to type as lowercase,
+           : and lots of uppercase can be hard to read.
+           :
            : Regardless of the style, it greatly helps to line
 	   : the parameters up vertically for long/complex lists.
 
