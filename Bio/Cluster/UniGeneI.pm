@@ -164,6 +164,24 @@ sub cytoband {
 }
 
 
+=head2 mgi
+
+ Title   : mgi
+ Usage   : mgi();
+ Function: Returns the mgi associated with the object.
+ Example : $mgi = $unigene->mgi or $unigene->mgi($mgi)
+ Returns : A string
+ Args    : None or a mgi
+
+
+=cut
+
+sub mgi {
+	my ($self) = @_;
+	$self->throw_not_implemented;
+}
+
+
 =head2 locuslink
 
  Title   : locuslink

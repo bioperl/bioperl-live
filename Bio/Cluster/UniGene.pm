@@ -50,6 +50,8 @@ gene() - set/get gene
 
 cytoband() - set/get cytoband
 
+mgi() - set/get mgi
+
 locuslink() - set/get locuslink
 
 gnm_terminus() - set/get gnm_terminus
@@ -250,6 +252,31 @@ sub cytoband {
 	}
 	return $obj->{'cytoband'};
 }
+
+
+
+
+=head2 mgi
+
+ Title   : mgi
+ Usage   : mgi();
+ Function: Returns the mgi associated with the object.
+ Example : $mgi = $unigene->mgi or $unigene->mgi($mgi)
+ Returns : A string
+ Args    : None or a mgi
+
+
+=cut
+
+sub mgi {
+	my ($obj,$value) = @_;
+	if( defined $value) {
+		$obj->{'mgi'} = $value;
+	}
+	return $obj->{'mgi'};
+}
+
+
 
 
 =head2 locuslink
