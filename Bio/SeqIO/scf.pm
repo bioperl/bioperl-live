@@ -608,7 +608,7 @@ sub write_seq {
     $writer_fodder->{comments}->{'CONV'} = "Bioperl-Chads Mighty SCF writer." unless defined $comments{'CONV'};
           # now deal with the version of scf they want to write
     if ($writer_fodder->{comments}->{version}) {
-	     if ($writer_fodder->{comments}->{version} != 2 && $comments{version} != 3) {
+	     if ($writer_fodder->{comments}->{version} != 2 && $writer_fodder->{comments}->{version} != 3) {
 	          $self->warn("This module can only write version 2.0 or 3.0 scf's. Writing a version 2.0 scf by default.");
 	          $writer_fodder->{header}->{version} = "2.00";
 	     }
