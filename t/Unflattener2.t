@@ -9,7 +9,7 @@ BEGIN {
 	use lib 't';
     }
     use Test;
-    $TESTCOUNT = 5;
+    $TESTCOUNT = 8;
     plan tests => $TESTCOUNT;
 }
 
@@ -60,6 +60,33 @@ if (1) {
     ok(@mrnas == @cdss);
 }
 
+if (1) {
+    
+    # this is a record from FlyBase
+    # it has mRNA features, and explicit exon/intron records
+
+    my @path = ("t","data","AnnIX-v003.gbk");
+    $seq = getseq(@path);
+    
+    my @topsfs = $seq->get_SeqFeatures;
+    printf "TOP:%d\n", scalar(@topsfs);
+#    write_hier(@topsfs);
+    
+    # UNFLATTEN
+    @sfs = $unflattener->unflatten_seq(-seq=>$seq,
+				       -use_magic=>1,
+				      );
+    print "\n\nPOST PROCESSING:\n";
+    @sfs = $seq->get_SeqFeatures;
+    write_hier(@sfs);
+    printf "PROCESSED/TOP:%d\n", scalar(@sfs);
+    ok(@sfs == 1);
+    my @exons = grep {$_->primary_tag eq 'exon'} $seq->get_all_SeqFeatures;
+    ok(@exons == 10);
+    my @numbers = map {$_->get_tag_values("number")} @exons;
+    ok(@numbers == 10);
+}
+
 
 sub write_hier {
     my @sfs = @_;
@@ -70,11 +97,11 @@ sub _write_hier {
     my @sfs = @_;
     foreach my $sf (@sfs) {
         my $label;
-        if ($sf->has_tag('product')) {
-            ($label) = $sf->get_tag_values('product');
-        }
         if ($sf->has_tag('gene')) {
             ($label) = $sf->get_tag_values('gene');
+        }
+        if ($sf->has_tag('product')) {
+            ($label) = $sf->get_tag_values('product');
         }
         printf "%s%s $label\n", '  ' x $indent, $sf->primary_tag;
         my @sub_sfs = $sf->sub_SeqFeature;

@@ -56,20 +56,21 @@ For example, if you were to look at a typical GenBank DNA entry, say,
 B<AE003644>, you would see a flat list of features:
 
   source
-  gene
+
+  gene CG4491
   mRNA CG4491-RA
   CDS CG4491-PA
-  gene
+
+  gene tRNA-Pro
   tRNA tRNA-Pro
-  gene
+
+  gene CG32954
   mRNA CG32954-RA
   mRNA CG32954-RC
   mRNA CG32954-RB
   CDS CG32954-PA
   CDS CG32954-PB
   CDS CG32954-PC
-
-(shown as [type, product-name] pairs)
 
 We would like to convert the above list into the B<containment
 hierarchy>, shown below:
@@ -78,15 +79,27 @@ hierarchy>, shown below:
   gene
     mRNA CG4491-RA
       CDS CG4491-PA
+      exon
+      exon
   gene
     tRNA tRNA-Pro
+      exon
   gene
     mRNA CG32954-RA
       CDS CG32954-PA
+      exon
+      exon
     mRNA CG32954-RC
       CDS CG32954-PC
+      exon
+      exon
     mRNA CG32954-RB
       CDS CG32954-PB
+      exon
+      exon
+
+Where each feature is nested underneath its container; exons have been
+automatically inferred (even for tRNA genes).
 
 We do this using a call on a Bio::SeqFeature::Tools::Unflattener object
 
@@ -160,21 +173,22 @@ The core of the algorithm is in two parts
 
 =over
 
-=item Partitioning into groups
+=item Partitioning the flat feature list into groups
 
-=item Resolving the containment hierarchy
+=item Resolving the feature containment hierarchy for each group
 
 =back
 
 There are other optional steps after the completion of these two
-steps; we now describe in more detail what is going on.
+steps, such as B<inferring exons>; we now describe in more detail what
+is going on.
 
 =head2 Partitioning into groups
 
 First of all the flat feature list is partitioned into B<group>s.
 
 The default way of doing this is to use the B<gene> attribute; if we
-look at two features from GenBank accession AE003644:
+look at two features from GenBank accession AE003644.3:
 
      gene            20111..23268
                      /gene="noc"
@@ -193,29 +207,46 @@ correspond to the same gene model (the CDS feature is not shown, but
 this also has a tag-value /gene="noc").
 
 Not all groups need to correspond to gene models, but this is the most
-common use case; later on we shall describe how to customise this.
+common use case; later on we shall describe how to customise the
+grouping.
 
 Sometimes other tags have to be used; for instance, if you look at the
-entire record for AE003644 you will see you actually need the use the
-/locus_tag attribute. This attribute is actually not present in most
-records!
+entire record for AE003644.3 you will see you actually need the use the
+/locus_tag attribute. This attribute is actually B<not present> in
+most records!
 
-You can override this like this:
+You can override this:
 
-  $collection->unflatten_seq(-seq=>$seq, group_tag=>'locus_tag');
+  $collection->unflatten_seq(-seq=>$seq, -group_tag=>'locus_tag');
 
 Alternatively, if you B<-use_magic>, the object will try and make a
 guess as to what the correct group_tag should be.
 
-=head2 Resolving the containment mapping
+At the end of this step, we should have a list of groups - there is no
+structure within a group; the group just serves to partition the flat
+features. For the example data above, we would have the following groups.
+
+  [ source ]
+  [ gene mRNA CDS ]
+  [ gene mRNA CDS ]
+  [ gene mRNA CDS ]
+  [ gene mRNA mRNA mRNA CDS CDS CDS ]
+
+The next step is to add some structure to each group, by making
+B<containment hierarchies>, trees that represent how the features
+interrelate
+
+=head2 Resolving the containment hierarchy
 
 After the grouping is done, we end up with a list of groups which
-probably contain features of type 'gene', 'mRNA', 'CDS'.
+probably contain features of type 'gene', 'mRNA', 'CDS' and so on.
+
+Singleton groups (eg the 'source' feature) are ignored at this stage.
 
 Each group is itself flat; we need to add an extra level of
 organisation. Usually this is because different spliceforms
 (represented by the 'mRNA' feature) can give rise to different
-translations (represented by the 'CDS' feature). We want to correctly
+protein products (indicated by the 'CDS' feature). We want to correctly
 associate mRNAs to CDSs.
 
 We want to go from a group like this:
@@ -232,28 +263,42 @@ to a containment hierarchy like this:
     mRNA
       CDS
 
-In which each CDS corresponds to its containing mRNA.
+In which each CDS is nested underneath the correct corresponding mRNA.
 
-How can we do this? The bad news is that there is no guaranteed way of
-doing this correctly for all of GenBank. Occasionally the submission
-will have been done in such a way as to reconstruct the containment
-hierarchy. However, this is not consistent across databank entries, so
-no generic solution can be provided witin bioperl. This module does
-provide the framework within which you can customise a solution for
-the particular dataset you are interested in - see later.
+For entries that contain no alternate splicing, this is simple; we
+know that the group
+
+  [ gene mRNA CDS ]
+
+Must resolve to the tree
+
+  gene
+    mRNA
+      CDS
+
+How can we do this in entries with alternate splicing? The bad
+news is that there is no guaranteed way of doing this correctly for
+any GenBank entry. Occasionally the submission will have been done in
+such a way as to reconstruct the containment hierarchy. However, this
+is not consistent across databank entries, so no generic solution can
+be provided by this object. This module does provide the framework
+within which you can customise a solution for the particular dataset
+you are interested in - see later.
 
 The good news is that there is an inference we can do that should
-produce pretty good results most of the time. It uses splice
-coordinate data - this is the default behaviour of this module.
+produce pretty good results the vast majority of the time. It uses
+splice coordinate data - this is the default behaviour of this module,
+and is described in detail below.
 
 =head2 Using splice site coordinates to infer containment
 
 If an mRNA is to be the container for a CDS, then the splice site
-coordinates of the CDS must fit inside the splice site coordinates of
-the mRNA.
+coordinates (or intron coordinates, depending on how you look at it)
+of the CDS must fit inside the splice site coordinates of the mRNA.
 
 Ambiguities can still arise, but the results produced should still be
-reasonable and consistent at the sequence level. For example
+reasonable and consistent at the sequence level. Look at this fake
+example:
 
   mRNA    XXX---XX--XXXXXX--XXXX         join(1..3,7..8,11..16,19..23)
   mRNA    XXX-------XXXXXX--XXXX         join(1..3,11..16,19..23)
@@ -265,22 +310,83 @@ reasonable and consistent at the sequence level. For example
 We cannot unambiguously match mRNA with CDS based on splice sites,
 since both CDS share the splice site locations 16^17 and
 18^19. However, the consequences of making a wrong match are probably
-not that severe. Any annotation data attached to the first CDS is
+not very severe. Any annotation data attached to the first CDS is
 probably identical to the seconds CDS, other than identifiers.
 
 The default behaviour of this module is to make an arbitrary call
-where it is ambiguous (the mapping will always be bijective).
+where it is ambiguous (the mapping will always be bijective; i.e. one
+mRNA -> one CDS).
 
-[NOTE: not tested on EMBL data, which may not be bijective; ie two
+[TODO: NOTE: not tested on EMBL data, which may not be bijective; ie two
 mRNAs can share the same CDS??]
 
-Of course, if you are dealing with an organism with no alternate
-splicing, you have nothing to worry about here! There is no ambiguity
-possible, so you will always get a tree that looks like this:
+This completes the building of the containment hierarchy; other
+optional step follow
+
+=head1 POST-GROUPING STEPS
+
+=head2 Inferring exons from mRNAs
+
+This step always occurs if B<-use_magic> is invoked.
+
+In a typical GenBank entry, the exons are B<implicit>. That is they
+can be inferred from the mRNA location.
+
+For example:
+
+     mRNA            join(20111..20584,20887..23268)
+
+This tells us that this particular transcript has two exons. In
+bioperl, the mRNA feature will have a 'split location'.
+
+If we call
+
+  $unflattener->feature_from_splitloc(-seq=>$seq);
+
+This will generate the necessary exon features, and nest them under
+the appropriate mRNAs. Note that the mRNAs will no longer have split
+locations - they will have simple locations spanning the extent of the
+exons. This is intentional, to avoid redundancy.
+
+Occasionally a GenBank entry will have both implicit exons (from the
+mRNA location) B<and> explicit exon features.
+
+In this case, exons will still be transferred. Tag-value data from the
+explicit exon will be transfered to the implicit exon. If exons are
+shared between mRNAs these will be represented by different
+objects. Any inconsistencies between implicit and explicit will be
+reported.
+
+=head3 tRNAs and other noncoding RNAs
+
+exons will also be generated from these features
+
+=head2 Inferring mRNAs from CDS
+
+Some GenBank entries represent gene models using features of type
+gene, mRNA and CDS; some entries just use gene and CDS.
+
+If we only have gene and CDS, then the containment hierarchies will
+look like this:
+
+  gene
+    CDS
+
+If we want the containment hierarchies to be uniform, like this
 
   gene
     mRNA
       CDS
+
+Then we must create an mRNA feature. This will have identical
+coordinates to the CDS. The assumption is that there is either no
+untranslated region, or it is unknown.
+
+To do this, we can call
+
+   $unflattener->infer_mRNA_from_CDS(-seq=>$seq);
+
+This is taken care of automatically, if B<-use_magic> is invoked.
 
 =head1 ADVANCED
 
@@ -298,12 +404,12 @@ gene model, it may be desirable to group SNPs that overlap or are
 nearby gene models.
 
 It should certainly be possible to extend this module to do
-this. However, I have yet to do this!
+this. However, I have yet to code this part!!! If anyone would find
+this useful let me know.
 
 In the meantime, you could write your own grouping subroutine, and
 feed the results into unflatten_groups() [see the method documentation
 below]
-
 
 =head2 Customising the resolution of the containment hierarchy
 
@@ -404,8 +510,7 @@ Open question - what would these look like?
 
 Feature table description
 
-  http://www.ebi.ac.uk/embl/Documentation/FT_definitions/feature_table.htm
-
+  http://www.ebi.ac.uk/embl/Documentation/FT_definitions/feature_table.html
 
 =head1 FEEDBACK
 
@@ -447,6 +552,9 @@ use strict;
 
 # Object preamble - inherits from Bio::Root::Root
 use Bio::Root::Root;
+use Bio::Location::Simple;
+use Bio::SeqFeature::Generic;
+
 
 @ISA = qw(Bio::Root::Root);
 
@@ -454,11 +562,20 @@ use Bio::Root::Root;
 
  Title   : new
  Usage   : $unflattener = Bio::SeqFeature::Tools::Unflattener->new();
+           $unflattener->unflatten_seq(-seq=>$seq);
  Function: constructor
  Example : 
  Returns : a new Bio::SeqFeature::Tools::Unflattener
  Args    : see below
 
+Arguments
+
+  -seq       : A L<Bio::SeqI> object (optional)
+               the sequence to unflatten; this can also be passed in
+               when we call unflatten_seq()
+
+  -group_tag : a string representing the /tag used to partition flat features
+               (see discussion above)
 
 =cut
 
@@ -479,11 +596,10 @@ sub new {
 }
 
 
-
 =head2 seq
 
  Title   : seq
- Usage   : $obj->seq($newval)
+ Usage   : $unflattener->seq($newval)
  Function: 
  Example : 
  Returns : value of seq (a Bio::SeqI)
@@ -491,6 +607,8 @@ sub new {
 
 The Bio::SeqI object should hold a flat list of Bio::SeqFeatureI
 objects; this is the list that will be unflattened.
+
+The sequence object can also be set when we call unflatten_seq()
 
 =cut
 
@@ -504,7 +622,7 @@ sub seq{
 =head2 group_tag
 
  Title   : group_tag
- Usage   : $obj->group_tag($newval)
+ Usage   : $unflattener->group_tag($newval)
  Function: 
  Example : 
  Returns : value of group_tag (a scalar)
@@ -541,13 +659,13 @@ sub group_tag{
     return $self->{'group_tag'};
 }
 
-=head2 containment_hierarchy
+=head2 partonomy
 
- Title   : containment_hierarchy
- Usage   : $obj->containment_hierarchy({mRNA=>'gene', CDS=>'mRNA')
+ Title   : partonomy
+ Usage   : $unflattener->partonomy({mRNA=>'gene', CDS=>'mRNA')
  Function: 
  Example : 
- Returns : value of containment_hierarchy (a scalar)
+ Returns : value of partonomy (a scalar)
  Args    : on set, new value (a scalar or undef, optional)
 
 A hash representing the containment structure that the seq_feature
@@ -556,17 +674,22 @@ type; each value represents the container (parent) type.
 
 =cut
 
-sub containment_hierarchy{
+sub partonomy{
     my $self = shift;
 
-    return $self->{'containment_hierarchy'} = shift if @_;
-    return $self->{'containment_hierarchy'} || $self->_default_containment_hierarchy;
+    return $self->{'partonomy'} = shift if @_;
+    return $self->{'partonomy'} || $self->_default_partonomy;
 }
 
-sub _default_containment_hierarchy{
+sub _default_partonomy{
     return {
             mRNA => 'gene',
             tRNA => 'gene',
+            rRNA => 'gene',
+            scRNA => 'gene',
+            snRNA => 'gene',
+            snoRNA => 'gene',
+            misc_RNA => 'gene',
             CDS => 'mRNA',
 	    exon => 'mRNA',
 	    intron => 'mRNA',
@@ -576,11 +699,22 @@ sub _default_containment_hierarchy{
 =head2 structure_type
 
  Title   : structure_type
- Usage   : $obj->structure_type($newval)
+ Usage   : $unflattener->structure_type($newval)
  Function: 
  Example : 
  Returns : value of structure_type (a scalar)
- Args    : on set, new value (a scalar or undef, optional)
+ Args    : on set, new value (an int or undef, optional)
+
+GenBank entries conform to different flavours, or B<structure
+types>. Some have mRNAs, some do not.
+
+Right now there are only two base structure types defined. If you set
+the structure type, then appropriate unflattening action will be
+taken.  The presence or absence of explicit exons does not affect the
+structure type.
+
+If you invoke B<-use_magic> then this will be set automatically, based
+on the content of the record.
 
 =over
 
@@ -628,8 +762,6 @@ with this structure type, we want the seq_features to be nested like this
 exon and intron may or may not be present; they may be implicit from
 the mRNA 'join' location
 
-
-
 =back
 
 =cut
@@ -642,26 +774,17 @@ sub structure_type{
 }
 
 
-=head2 get_container_type
-
- Title   : get_container_type
- Usage   :
- Function:
- Example :
- Returns : 
- Args    :
-
-
-=cut
-
+# PRIVATE
+#
+# given a type (eg mRNA), will return the container type (eg gene)
 sub get_container_type{
    my ($self,$type) = @_;
-   my @roots = $self->_get_containment_hierarchy_roots;
+   my @roots = $self->_get_partonomy_roots;
    if (grep {$_ eq $type} @roots) {
        # it is a root - no parents/containers
        return;
    }
-   my $ch = $self->containment_hierarchy;
+   my $ch = $self->partonomy;
    my $ctype = $ch->{$type};
    if (!$ctype) {
        # asterix acts as a wild card
@@ -670,9 +793,10 @@ sub get_container_type{
    return $ctype;
 }
 
-sub _get_containment_hierarchy_roots {
+# get root node of partonomy hierarchy (usually gene)
+sub _get_partonomy_roots {
     my $self = shift;
-    my $ch = $self->containment_hierarchy;
+    my $ch = $self->partonomy;
     my @parents = values %$ch;
     # find parents that do not have parents themselves
     return grep {!$ch->{$_}} @parents;
@@ -690,11 +814,15 @@ sub _get_containment_hierarchy_roots {
 partitions a list of features then arranges them in a nested tree; see
 above for full explanation.
 
-note - the original Bio::SeqI object passed in will be modified
+note - the Bio::SeqI object passed in will be modified
 
 Arguments
 
   -seq   :          a Bio::SeqI object; must contain Bio::SeqFeatureI objects
+                    (this is optional if seq has already been set)
+
+  -use_magic:       if TRUE (ie non-zero) then magic will be invoked;
+                    see discussion above.
 
   -resolver_method: a CODE reference
                     see the documentation above for an example of
@@ -708,17 +836,19 @@ Arguments
                     [ see the group_tag() method ]
                     this overrides the default group_tag which is 'gene'
 
+
+
 =cut
 
 sub unflatten_seq{
    my ($self,@args) = @_;
 
-    my($seq, $resolver_method, $group_tag, $containment_hierarchy, 
+    my($seq, $resolver_method, $group_tag, $partonomy, 
        $structure_type, $use_magic) =
 	$self->_rearrange([qw(SEQ
                               RESOLVER_METHOD
                               GROUP_TAG
-                              CONTAINMENT_HIERARCHY
+                              PARTONOMY
 			      STRUCTURE_TYPE
 			      USE_MAGIC
 			     )],
@@ -729,15 +859,15 @@ sub unflatten_seq{
 
 
    # prevent bad argument combinations
-   if ($containment_hierarchy &&
+   if ($partonomy &&
        defined($structure_type)) {
-       $self->throw("You cannot set both -containment_hierarchy and -structure_type\n".
+       $self->throw("You cannot set both -partonomy and -structure_type\n".
 		    "(the former is implied by the latter)");
    }
 
-   # remember the current value of containment_hierarchy, to reset later
-   my $old_containment_hierarchy = $self->containment_hierarchy;
-   $self->containment_hierarchy($containment_hierarchy) if defined $containment_hierarchy;
+   # remember the current value of partonomy, to reset later
+   my $old_partonomy = $self->partonomy;
+   $self->partonomy($partonomy) if defined $partonomy;
 
    # remember old structure_type
    my $old_structure_type = $self->structure_type;
@@ -857,18 +987,12 @@ sub unflatten_seq{
        $self->_remove_duplicates_from_group($group);
    }
 
-   # LOGGING
-   if ($self->verbose) {
-       print "GROUPS:\n";
-       foreach my $group (@groups) {
-	   $self->_write_group($group, $group_tag);
-       }
-   }
    # -
 
    # --- MAGIC ---
    my $need_to_infer_exons = 0;
    my $need_to_infer_mRNAs = 0;
+   my @removed_exons = ();
    if ($use_magic) {
        if (defined($structure_type)) {
 	   $self->throw("Can't combine use_magic AND setting structure_type");
@@ -893,8 +1017,42 @@ sub unflatten_seq{
 	       # this doesn't seem to be any kind of protein coding gene model
 	   }
        }
+
+       if ($need_to_infer_exons) {
+	   # remove exons and introns from group -
+	   # we will infer exons later, and we
+	   # can always infer introns from exons
+	   foreach my $group (@groups) {
+	       @$group = 
+		 grep {
+		     my $type = $_->primary_tag();
+		     if ($type eq 'exon') {
+			 # keep track of all removed exons,
+			 # so we can do a sanity check later
+			 push(@removed_exons, $_);
+		     }
+		     $type ne 'exon' && $type ne 'intron'
+		 } @$group;
+	   }
+	   # get rid of any groups that have zero members
+	   @groups = grep {scalar(@$_)} @groups;
+       }
    }
    # --- END OF MAGIC ---
+   
+   # LOGICAL ASSERTION
+   if (grep {!scalar(@$_)} @groups) {
+       $self->throw("ASSERTION ERROR: empty group");
+   }
+
+   # LOGGING
+   if ($self->verbose) {
+       print "GROUPS:\n";
+       foreach my $group (@groups) {
+	   $self->_write_group($group, $group_tag);
+       }
+   }
+   # -
 
    # >>>>>>>>>                   <<<<<<<<<<<<<
    # --------- FINISHED GROUPING -------------
@@ -904,7 +1062,7 @@ sub unflatten_seq{
    # see docs for structure_type() method
    if ($structure_type) {
        if ($structure_type == 1) {
-	   $self->containment_hierarchy(
+	   $self->partonomy(
 					{CDS => 'gene',
 					 exon => 'CDS',
 					 intron => 'CDS',
@@ -912,7 +1070,7 @@ sub unflatten_seq{
 				       );
        }
        else {
-	   $self->throw("structure_type == $structure_type is currently unknown");
+	   $self->throw("structure_type $structure_type is currently unknown");
        }
    }
 
@@ -933,7 +1091,7 @@ sub unflatten_seq{
                                          -resolver_method=>$resolver_method);
    
    # restore settings
-   $self->containment_hierarchy($old_containment_hierarchy);
+   $self->partonomy($old_partonomy);
 
    # restore settings
    $self->structure_type($old_structure_type);
@@ -943,23 +1101,98 @@ sub unflatten_seq{
    $seq->remove_SeqFeatures;
    $seq->add_SeqFeature(@top_sfs);
 
-   # extra stuff
+   # >>>>>>>>>                       <<<<<<<<<<<<<
+   # --------- FINISHED UNFLATTENING -------------
+   # >>>>>>>>>                       <<<<<<<<<<<<<
+
+   # lets see if there are any post-unflattening tasks we need to do
+
+   # INFERRING mRNAs
    if ($need_to_infer_mRNAs) {
        $self->infer_mRNA_from_CDS(-seq=>$seq);
    }
+
+   # INFERRING exons
    if ($need_to_infer_exons) {
-       # get rid of existing exons and introns - they
-       # are redundant
-       $self->remove_exons_and_introns(-seq=>$seq);
-       
        # infer exons
        $self->feature_from_splitloc(-seq=>$seq);
-   }
+
+       # if there were exons explicitly stated in the entry, we need to
+       # do two things:
+       #
+       # make sure these exons are consistent with the inferred exons
+       #  (you never know)
+       #
+       # transfer annotation (tag-vals) from the explicit exon to the
+       # new inferred exon
+       if (@removed_exons) {
+	   my @allfeats = $seq->get_all_SeqFeatures;
+
+	   # find all the inferred exons that are children of mRNA
+	   my @mrnas =  grep {$_->primary_tag eq 'mRNA'} @allfeats;
+	   my @exons =  
+	     grep {$_->primary_tag eq 'exon'}
+	       map {$_->get_SeqFeatures} @mrnas;
+
+	   my %exon_h = (); 	   # index of exons by location;
+
+	   # there can be >1 exon at a location; we represent these redundantly
+	   # (ie as a tree, not a graph)
+	   push(@{$exon_h{$self->_locstr($_)}}, $_) foreach @exons;
+	   my $problem = '';
+	   my ($n_exons, $n_removed_exons) =
+	     (scalar(keys %exon_h), scalar(@removed_exons));
+	   foreach my $removed_exon (@removed_exons) {
+	       my $locstr = $self->_locstr($removed_exon);
+	       my $inferred_exons = $exon_h{$locstr};
+	       delete $exon_h{$locstr};
+	       if ($inferred_exons) {
+		   foreach my $exon (@$inferred_exons) {
+		       # we need to tranfer any tag-values from the explicit
+		       # exon to the implicit exon
+		       foreach my $tag ($removed_exon->get_all_tags) {
+			   my @vals = $removed_exon->get_tag_values($tag);
+			   if (!$exon->can("add_tag_value")) {
+			       # I'm puzzled as to what should be done here;
+			       # SeqFeatureIs are not necessarily mutable,
+			       # but we know that in practice the implementing
+			       # class is mutable
+			       $self->throw("The SeqFeature object does not ".
+					    "implement add_tag_value()");
+			   }
+			   $exon->add_tag_value($tag, @vals);
+		       }
+		   }
+	       } else {
+		   $problem .= 
+		     "there is a conflict with exons; there was an explicitly ".
+		       "stated exon with location $locstr, yet I cannot generate ".
+			 "this exon from the supplied mRNA locations\n";
+	       }
+	   }
+	   # do we have any inferred exons left over, that were not
+	   # covered in the explicit exons?
+	   if (keys %exon_h) {
+	       $problem .=
+		 sprintf("There are some inferred exons that are not in the ".
+			 "explicit exon list; they are the exons at locations:\n".
+			 join("\n", keys %exon_h)."\n");
+	   }
+
+	   # report any problems
+	   if ($problem) {
+	       # TODO - allow more fine grained control over this
+	       $self->throw($problem);
+	   }
+       }
+   }    
+   # --- end of inferring exons --
 
    # return new top level features; this can also 
    # be retrieved via
    #   $seq->get_SeqFeatures();
-   return @top_sfs;
+#   return @top_sfs;
+   return $seq->get_SeqFeatures;
 }
 
 sub _remove_duplicates_from_group {
@@ -1030,7 +1263,7 @@ sub _remove_duplicates_from_group {
 
  Title   : unflatten_groups
  Usage   :
- Function: nests groups of features in containment hierarchies
+ Function: iterates over groups, calling unflatten_group() [see below]
  Example :
  Returns : list of Bio::SeqFeatureI objects that are holders
  Args    : see below
@@ -1049,7 +1282,7 @@ Arguments
 
 
 NOTE: You should not need to call this method, unless you want fine
-grained control over how the unflattening has been performed
+grained control over how the unflattening process.
 
 =cut
 
@@ -1073,7 +1306,7 @@ sub unflatten_groups{
 
  Title   : unflatten_group
  Usage   :
- Function: nests a group of features
+ Function: nests a group of features into a feature containment hierarchy
  Example :
  Returns : Bio::SeqFeatureI objects that holds other features
  Args    : see below
@@ -1090,8 +1323,8 @@ Arguments
                     this is optional - a default subroutine will be used
 
 
-You should not need to call this method, unless you want fine grained
-control over how the unflattening has been performed
+NOTE: You should not need to call this method, unless you want fine
+grained control over how the unflattening process.
 
 =cut
 
@@ -1105,7 +1338,11 @@ sub unflatten_group{
                           @args);
 
    my @sfs = @$group;
-   my $containment_hierarchy = $self->containment_hierarchy;
+
+   # we can safely ignore singletons (e.g. [source])
+   return $sfs[0] if @sfs == 1;
+
+   my $partonomy = $self->partonomy;
 
    # use default function for resolving, unless one passed in
    $resolver_method = $resolver_method || \&_resolve_container_for_sf;
@@ -1258,9 +1495,6 @@ sub _get_splice_coords_for_sf {
     return @coords;
 }
 
-use Bio::Location::Simple;
-use Bio::SeqFeature::Generic;
-
 =head2 feature_from_splitloc
 
  Title   : feature_from_splitloc
@@ -1270,7 +1504,7 @@ use Bio::SeqFeature::Generic;
  Returns : 
  Args    : see below
 
-At this time all this method does is generate exons for mRNA ot tRNA features
+At this time all this method does is generate exons for mRNA or other RNA features
 
 Arguments:
 
@@ -1293,13 +1527,17 @@ sub feature_from_splitloc{
        $seq->isa("Bio::SeqI") || $self->throw("$seq NOT A SeqI");
        @sfs = $seq->get_all_SeqFeatures;
    }
+   my @exons = grep {$_->primary_tag eq 'exon'} @sfs;
+   if (@exons) {
+       $self->throw("There are already exons");
+   }
    foreach my $sf (@sfs) {
 
        $sf->isa("Bio::SeqFeatureI") || $self->throw("$sf NOT A SeqFeatureI");
        $sf->isa("Bio::FeatureHolderI") || $self->throw("$sf NOT A FeatureHolderI");
 
        my $type = $sf->primary_tag;
-       next unless $type eq 'mRNA' or $type eq 'tRNA';
+       next unless $type eq 'mRNA' or $type =~ /RNA/;
 
        my @locs = $sf->location;
        if ($sf->location->isa("Bio::Location::SplitLocationI")) {
@@ -1364,6 +1602,7 @@ sub infer_mRNA_from_CDS{
        $seq->isa("Bio::SeqI") || $self->throw("$seq NOT A SeqI");
        @sfs = $seq->get_all_SeqFeatures;
    }
+
    foreach my $sf (@sfs) {
 
        $sf->isa("Bio::SeqFeatureI") || $self->throw("$sf NOT A SeqFeatureI");
@@ -1410,39 +1649,24 @@ sub infer_mRNA_from_CDS{
 
 }
 
-sub remove_exons_and_introns {
-   my ($self,@args) = @_;
-
-   my($sf, $seq) =
-     $self->_rearrange([qw(FEATURE
-                           SEQ
-                          )],
-                          @args);
-   my @sfs = ($sf);
-   if ($seq) {
-       $seq->isa("Bio::SeqI") || $self->throw("$seq NOT A SeqI");
-       @sfs = $seq->get_all_SeqFeatures;
-   }
-   foreach my $sf (@sfs) {
-
-       $sf->isa("Bio::SeqFeatureI") || $self->throw("$sf NOT A SeqFeatureI");
-       $sf->isa("Bio::FeatureHolderI") || $self->throw("$sf NOT A FeatureHolderI");
-
-       my %bad = (exon=>1, intron=>1);
-       my @togo = grep {$bad{$_->primary_tag}} $sf->get_SeqFeatures;
-
-       if (@togo) {
-	   my @tostay = grep {!$bad{$_->primary_tag}} $sf->get_SeqFeatures;
-
-	   $sf->remove_SeqFeatures;
-	   $sf->add_SeqFeature($_) foreach (@tostay);
-       }
-   }
-   return;
-   
-
+# PRIVATE METHOD: _locstr($sf)
+#
+# returns a location string for a feature; just the outer boundaries
+sub _locstr {
+    my $self = shift;
+    my $sf = shift;
+    return
+      sprintf("%d..%d", $sf->start, $sf->end);
 }
 
+sub iterate_containment_tree {
+    my $self = shift;
+    my $feature_holder = shift;
+    my $sub = shift;
+    $sub->($feature_holder);
+    my @sfs = $feature_holder->get_SeqFeatures;
+    $self->iterate_containment_tree($_) foreach @sfs;
+}
 
 
 1;
