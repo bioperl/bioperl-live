@@ -157,27 +157,8 @@ use Bio::Coordinate::Graph;
 		    1 => 'chr'
 		   );
 
-#%COORDINATE_SYSTEMS = (
-#		       peptide          => 7,
-#		       propeptide       => 6,
-#		       cds              => 5,
-#		       negative_introns => 4,
-#		       inex             => 3,
-#		       gene             => 2,
-#		       chr              => 1
-#		      );
-#
-#%COORDINATE_INTS = (
-#		    7 => 'peptide',
-#		    6 => 'propeptide',
-#		    5 => 'cds',
-#		    4 => 'negative_introns',
-#		    3 => 'inex',
-#		    2 => 'gene',
-#		    1 => 'chr'
-#		   );
-
-$TRANSLATION =  $COORDINATE_SYSTEMS{'cds'}. $COORDINATE_SYSTEMS{'propeptide'};
+$TRANSLATION =  $COORDINATE_SYSTEMS{'cds'}. "-".
+    $COORDINATE_SYSTEMS{'propeptide'};
 
 $DAG = {
 	9  => [],
@@ -348,7 +329,7 @@ sub peptide {
        my $a = $self->_create_pair
 	   ('propeptide', 'peptide', $self->strict, 
 	    $self->{'_peptide_offset'}, $self->{'_peptide_length'} );
-       my $mapper =  $COORDINATE_SYSTEMS{'propeptide'}. + $COORDINATE_SYSTEMS{'peptide'};
+       my $mapper =  $COORDINATE_SYSTEMS{'propeptide'}. "-".  $COORDINATE_SYSTEMS{'peptide'};
        $self->{'_mappers'}->{$mapper} = $a;
    }
    return  Bio::Location::Simple->new
@@ -384,7 +365,7 @@ sub peptide_offset {
 
        my $a = $self->_create_pair
 	   ('propeptide', 'peptide', $self->strict, $offset, $self->{'_peptide_length'} );
-       my $mapper =  $COORDINATE_SYSTEMS{'propeptide'}. + $COORDINATE_SYSTEMS{'peptide'};
+       my $mapper =  $COORDINATE_SYSTEMS{'propeptide'}. "-". $COORDINATE_SYSTEMS{'peptide'};
        $self->{'_mappers'}->{$mapper} = $a;
    }
    return $self->{'_peptide_offset'} || 0;
@@ -432,7 +413,7 @@ sub transcript {
        $self->{'_transcript'} = $value;
 
        my $a = $self->_create_pair('cds', 'cds', 0, $value );
-       my $mapper =  $COORDINATE_SYSTEMS{'cds'}. + $COORDINATE_SYSTEMS{'cds'};
+       my $mapper =  $COORDINATE_SYSTEMS{'cds'}. "-". $COORDINATE_SYSTEMS{'cds'};
        $self->{'_mappers'}->{$mapper} = $a;
    }
    return $self->{'_transcript'} || 0;
@@ -453,11 +434,11 @@ sub transcript {
 
 sub exons {
    my ($self,@value) = @_;
-   my $mapper =  $COORDINATE_SYSTEMS{'gene'}. + $COORDINATE_SYSTEMS{'cds'};
+   my $mapper =  $COORDINATE_SYSTEMS{'gene'}. "-". $COORDINATE_SYSTEMS{'cds'};
    my $intron_exon_mapper =
-       $COORDINATE_SYSTEMS{'gene'}. + $COORDINATE_SYSTEMS{'exon'};
+       $COORDINATE_SYSTEMS{'gene'}. "-". $COORDINATE_SYSTEMS{'exon'};
    my $negative_intron_mapper =
-       $COORDINATE_SYSTEMS{'gene'}. + $COORDINATE_SYSTEMS{'negative_introns'};
+       $COORDINATE_SYSTEMS{'gene'}. "-". $COORDINATE_SYSTEMS{'negative_introns'};
 
    if(@value) {
        $self->throw("I need an array , not [@value]")
@@ -654,7 +635,7 @@ sub cds {
 	    $self->{'_cds'}->start-1,
 	    $len,
 	    $self->{'_cds'}->strand);
-       my $mapper =  $COORDINATE_SYSTEMS{'chr'}. + $COORDINATE_SYSTEMS{'gene'};
+       my $mapper =  $COORDINATE_SYSTEMS{'chr'}. "-". $COORDINATE_SYSTEMS{'gene'};
        $self->{'_mappers'}->{$mapper} = $a;
 
        # recalculate exon-based mappers
@@ -702,20 +683,19 @@ sub map {
        $value->end. " (". $value->strand. ")\n" if $self->verbose > 0;
 
 
-   my @aa = $self->_get_path();
+   my @steps = $self->_get_path();
    print "mapping ", $self->{'_in'}, "->", $self->{'_out'},
-       "  Mappers: ", join(", ", @aa), "\n"  if $self->verbose > 0;
+       "  Mappers: ", join(", ", @steps), "\n"  if $self->verbose > 0;
 
-   foreach my $mapper (@aa) {
-#       print STDERR "---------------------$mapper\n";
-       if ($mapper == $TRANSLATION) {
+   foreach my $mapper (@steps) {
+       if ($mapper eq $TRANSLATION) {
 	   if ($self->direction == 1) {
 	       $value = $self->_translate($value);
-	       print STDERR "+   cds -> propeptide (translate) \n"
+	       print STDERR "+   $TRANSLATION cds -> propeptide (translate) \n"
 		   if $self->verbose > 0;
 	   } else {
 	       $value = $self->_reverse_translate($value);
-	       print STDERR "+   propeptide -> cds (reverse translate) \n"
+	       print STDERR "+   $TRANSLATION propeptide -> cds (reverse translate) \n"
 		   if $self->verbose > 0;
 	   }
        }
@@ -723,13 +703,11 @@ sub map {
        #  if this mapper is not set
        elsif ( ! defined $self->{'_mappers'}->{$mapper} ) {
 	   # update mapper name
-	   $mapper =~ /.(.)/;   my ($counter) = $1;
+	   $mapper =~ /\d+-(\d+)/;   my ($counter) = $1;
 	   $value->seq_id($COORDINATE_INTS{$counter});
-	   print STDERR "-   ". $COORDINATE_INTS{$counter}. " -> ".
-	       $COORDINATE_INTS{$counter+ $self->direction}. " " if $self->verbose > 0;
+	   print STDERR "-   $mapper\n" if $self->verbose > 0;
        } else {
 	   # generic mapping
-	   #       print "counter = $counter|$mapper\n";
 	   my $res = $self->{'_mappers'}->{$mapper}->map($value);
 	   print STDERR "+  $mapper (", $self->direction, ")\n"
 	       if $self->verbose > 0;
@@ -781,14 +759,9 @@ sub direction {
 
 sub swap {
    my ($self,$value) = @_;
-   my ($tmp);
 
-   $tmp = $self->{'_out'};;
-   $self->{'_out'} = $self->{'_in'};
-   $self->{'_in'} = $tmp;
-   foreach my $map (keys %{$self->{'_mappers'}}){
-       $self->{'_mappers'}->{$map}->swap;
-   }
+   ($self->{'_in'}, $self->{'_out'}) = ($self->{'_out'}, $self->{'_in'});
+   map { $self->{'_mappers'}->{$_}->swap } keys %{$self->{'_mappers'}};
 
    # record the changed direction;
    $self->{_direction} *= -1;
@@ -816,20 +789,20 @@ sub to_string {
    while (defined $COORDINATE_INTS{$counter} && $COORDINATE_INTS{$counter+1}) {
        my $in = $COORDINATE_INTS{$counter};
        my $out = $COORDINATE_INTS{$counter+1};
-       my $mapper = $counter. ($counter+1);
+       my $mapper = "$counter-". ($counter+1);
 
 
        printf "\n%12s -> %-12s (%s)\n", $in, $out, $mapper
-	   unless $mapper eq '34' or $mapper eq '45';
+	   unless $mapper eq '3-4' or $mapper eq '4-5';
 
 
        if ($mapper eq $TRANSLATION) {
 	   printf "%9s%-12s\n", "", '"translate"';
        }
-       elsif ($mapper eq '34' or $mapper eq '45') {
+       elsif ($mapper eq '3-4' or $mapper eq '4-5') {
 	   next;
        }
-       elsif ($mapper eq '23') {
+       elsif ($mapper eq '2-3') {
 		   next unless $self->{'_mappers'}->{$mapper};
 	   	   printf "%10s%-12s\n", "", '"splice"';
 
@@ -859,17 +832,17 @@ sub to_string {
        elsif (not defined $self->{'_mappers'}->{$mapper}) {
 	   printf "%12s%-12s\n", "", 'undef';
        } else {
-	   if ($mapper eq '12') {
+	   if ($mapper eq '1-2') {
 	       my $end= 'undef';
 	       $end = $self->cds->end -1 if defined $self->cds->end;
 	       printf "%16s%s: %s (%s)\n", ' ', 'gene offset', $self->cds->start-1 , $end;
 	       printf "%16s%s: %s\n", ' ', 'gene strand', $self->cds->strand;
 
 	   }
-	   elsif ($mapper eq '34') {
+	   elsif ($mapper eq '3-4') {
 	       printf "%16s%s: %s\n", ' ', "transcript (transcipt offset)", $self->transcript;
 	   }
-	   elsif ($mapper eq '56') {
+	   elsif ($mapper eq '5-6') {
 	       printf "%16s%s: %s\n", ' ', "peptide offset", $self->peptide_offset;
 	   }
 
@@ -1028,9 +1001,7 @@ sub _check_direction {
    $new_direction = -1 if $self->{'_in'} > $self->{'_out'};
 
    unless ($new_direction == $self->{_direction} ) {
-       foreach my $map (keys %{$self->{'_mappers'}}){
-	   $self->{'_mappers'}->{$map}->swap;
-       }
+       map { $self->{'_mappers'}->{$_}->swap } keys %{$self->{'_mappers'}};
        # record the changed direction;
        $self->{_direction} *= -1;
    }
@@ -1075,7 +1046,7 @@ sub _get_path {
        my $mapper;
        my $prev_node = '';
        @mappers =
-	   map { $mapper = "$prev_node$_"; $prev_node = $_; $mapper; }
+	   map { $mapper = "$prev_node-$_"; $prev_node = $_; $mapper; }
 	       $self->{'_graph'}->shortest_path($start, $end);
        shift @mappers;
 

@@ -176,10 +176,7 @@ sub out {
 
 sub swap {
    my ($self) = @_;
-
-   my $tmp = $self->out;
-   $self->out($self->in);
-   $self->in($tmp);
+   ($self->{'_in'}, $self->{'_out'}) = ($self->{'_out'}, $self->{'_in'});
    return 1;
 }
 
