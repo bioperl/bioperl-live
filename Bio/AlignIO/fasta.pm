@@ -81,7 +81,7 @@ sub next_aln {
     my $entry;
     my ($start,$end,$name,$seqname,$seq,$seqchar,$tempname,%align);
     my $aln =  Bio::SimpleAlign->new();
-
+    my $maxlen;
     while(defined ($entry = $self->_readline)) {
 	if($entry =~ /^>(\S+)/ ) {
 	    $tempname = $1;
@@ -99,11 +99,10 @@ sub next_aln {
 		}
 #		print STDERR  "Going to add with $seqchar $seqname\n";
 		$seq = new Bio::LocatableSeq('-seq'=>$seqchar,
-				    '-id'=>$seqname,
-				    '-start'=>$start,
-				    '-end'=>$end,
-				    );
-
+					     '-id'=>$seqname,
+					     '-start'=>$start,
+					     '-end'=>$end,
+					     );
 		$aln->add_seq($seq);
 	     }
 	     $name = $tempname;
@@ -111,8 +110,7 @@ sub next_aln {
 	     next;
 	}
 	$entry =~ s/[^A-Za-z\.\-]//g;
-	$seqchar .= $entry;
-
+	$seqchar .= $entry;	
     }
 #
 #  Next two lines are to silence warnings that
@@ -146,12 +144,19 @@ sub next_aln {
     } else {
 #	print STDERR "end to add with $seqchar $seqname\n";
 	$seq = new Bio::LocatableSeq('-seq'=>$seqchar,
-			'-id'=>$seqname,
-			'-start'=>$start,
-			'-end'=>$end,
-			);
-
+				     '-id'=>$seqname,
+				     '-start'=>$start,
+				     '-end'=>$end,
+				     );
+	
 	$aln->add_seq($seq);
+    }
+    my $alnlen = $aln->length;
+    foreach my $seq ( $aln->each_seq ) {
+	if( $seq->length < $alnlen ) {
+	    my ($diff) = ($alnlen - $seq->length);
+	    $seq->seq( $seq->seq() . "-" x $diff);
+	}
     }
 
     return $aln;
