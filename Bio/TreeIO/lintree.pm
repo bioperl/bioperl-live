@@ -186,27 +186,31 @@ sub next_tree {
 	    $data{'outgroup'} = [$1,$2];
 	}
     }
-    my @treenodes;
-    foreach my $n ( @nodes ) { 	
-	push @treenodes, $nodetype->new(%{$n});
-    }
-    
-    foreach my $tn ( @treenodes ) {
-	my $n = shift @nodes;
-	for my $ptr ( @{ $n->{'-d'} || [] } ) {
-	    $tn->add_Descendent($treenodes[$ptr]);
+    if( @nodes ) {
+	my @treenodes;
+	foreach my $n ( @nodes ) { 	
+	    push @treenodes, $nodetype->new(%{$n});
 	}
-    }
-    my $T = Bio::Tree::Tree->new(-root => (pop @treenodes) );
-    if( $data{'outgroup'} ) {
-	my ($outgroup) = $treenodes[$data{'outgroup'}->[0]];
-	if( ! defined $outgroup) {
-	    $self->warn("cannot find '". $data{'outgroup'}->[1]. "'\n");
-	} else { 
-	    $T->reroot($outgroup->ancestor);
+	
+	foreach my $tn ( @treenodes ) {
+	    my $n = shift @nodes;
+	    for my $ptr ( @{ $n->{'-d'} || [] } ) {
+		$tn->add_Descendent($treenodes[$ptr]);
+	    }
 	}
+	my $T = Bio::Tree::Tree->new(-root => (pop @treenodes) );
+	if( $data{'outgroup'} ) {
+	    my ($outgroup) = $treenodes[$data{'outgroup'}->[0]];
+	    if( ! defined $outgroup) {
+		$self->warn("cannot find '". $data{'outgroup'}->[1]. "'\n");
+	    } else { 
+		$T->reroot($outgroup->ancestor);
+	    }
+	}
+	return $T;
     }
-    return $T;
+    return undef; # if there are no more trees, return undef
+	
 }
 
 =head2 nodetype
