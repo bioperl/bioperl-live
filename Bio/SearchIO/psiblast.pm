@@ -781,17 +781,22 @@ sub _set_query_length {
 sub _process_significance {
     my($self, $sig, $score) = @_;
 
-    $self->{'_highestSignif'} = ($sig > $self->{'_highestSignif'})
-   	                        ? $sig : $self->{'_highestSignif'};
+    my $hiSig = $self->{'_highestSignif'} || 0;
+    my $lowSig = $self->{'_lowestSignif'} || 0;
+    my $hiScore = $self->{'_highestScore'} || 0;
+    my $lowScore = $self->{'_lowestScore'} || 0;
 
-    $self->{'_lowestSignif'} = ($sig < $self->{'_lowestSignif'})
-                                 ? $sig : $self->{'_lowestSignif'};
+    $self->{'_highestSignif'} = ($sig > $hiSig)
+   	                        ? $sig : $hiSig;
 
-    $self->{'_highestScore'} = ($score > $self->{'_highestScore'})
-   	                        ? $score : $self->{'_highestScore'};
+    $self->{'_lowestSignif'} = ($sig < $lowSig)
+                                 ? $sig : $lowSig;
 
-    $self->{'_lowestScore'} = ($score < $self->{'_lowestScore'})
-                                 ? $score : $self->{'_lowestScore'};
+    $self->{'_highestScore'} = ($score > $hiScore)
+   	                        ? $score : $hiScore;
+
+    $self->{'_lowestScore'} = ($score < $lowScore)
+                                 ? $score : $lowScore;
 
     # Significance value assessment.
     if($sig <= $self->{'_max_significance'} and $score >= $self->{'_min_score'}) {
