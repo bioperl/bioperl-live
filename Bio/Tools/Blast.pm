@@ -347,10 +347,11 @@ Blast objects can be generated either by direct instantiation as in:
 
  use Bio::Tools::Blast qw(:obj);		 
 
-This exports the static $Blast object into your namespace. "Static" refers to the
-fact that it has class scope and there is one of these created when you 
-use this module. The static $Blast object is basically an empty object that is
-provided for convenience and is also used for various internal chores. 
+This exports the static $Blast object into your namespace. "Static"
+refers to the fact that it has class scope and there is one of these
+created when you use this module. The static $Blast object is
+basically an empty object that is provided for convenience and is also
+used for various internal chores.
 
 It is exported by this module and can be used for
 parsing and running reports as well as HTML-formatting without having
