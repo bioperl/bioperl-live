@@ -442,6 +442,7 @@ sub exists_blast {
 
 sub blastall {
     my ($self,$input1) = @_;
+    $self->_io_cleanup();
     my $executable = 'blastall';
     my $input2;
 # Create input file pointer
