@@ -19,7 +19,7 @@
 
 
 ## We start with some black magic to print on failure.
-BEGIN { $| = 1; print "1..19\n";
+BEGIN { $| = 1; print "1..24\n";
 	use vars qw($loaded); }
 
 END {print "not ok 1\n" unless $loaded;}
@@ -199,7 +199,7 @@ while ( my $as = $ast->next_seq() ) {
 
 ($ent, $seq, $out) = undef;
 
-$ent = Bio::SeqIO->new( -file => 't/test.embl', -format => 'embl');
+$ent = Bio::SeqIO->new( -FILE => 't/test.embl', -FORMAT => 'embl');
 $seq = $ent->next_seq();
 
 # test reading file
@@ -217,4 +217,82 @@ if ( $out->write_seq($seq) ) {
 } else {
     print "not ok 19 , failure to write Embl format with ^ < and > locations\n";
 }
+
+
+# ACeDB flatfile (ace) sequence format tests
+{
+    my $t_file = 't/test.ace';
+    my( $before );
+    {
+        local $/ = undef;
+        local *BEFORE;
+        open BEFORE, $t_file;
+        $before = <BEFORE>;
+        close BEFORE;
+    }
+
+    # Test reading
+    my $a_in = Bio::SeqIO->new( -FILE => $t_file, -FORMAT => 'ace');
+    my( @a_seq );
+    while (my $a = $a_in->next_seq) {
+        push(@a_seq, $a);
+    }
+
+    if (@a_seq == 3) {
+        print "ok 20\n";
+    } else {
+        print "not ok 20 , wrong number of sequence objects\n";
+    }
+
+    my $esc_name = $a_seq[1]->display_id;
+    if ($esc_name eq 'Name; 4% strewn with \ various / escaped characters') {
+        print "ok 21\n";
+    } else {
+        warn "$esc_name";
+        print "not ok 21 , bad unescaping of characters\n";
+    }
+    
+    if ($a_seq[0]->moltype eq 'protein' and $a_seq[1]->moltype eq 'dna') {
+        print "ok 22\n";
+    } else {
+        print "not ok 22 , moltypes incorrectly detected\n";
+    }
+    
+    # Test writing
+    my $o_file = 't/test.out.ace';
+    my $a_out = Bio::SeqIO->new( -FILE => "> $o_file", -FORMAT => 'ace');
+    my $a_out_ok = 1;
+    foreach my $a (@a_seq) {
+        $a_out->write_seq($a) or $a_out_ok = 0;
+    }
+    undef($a_out);  # Flush to disk
+    if ($a_out_ok) {
+        print "ok 23\n";
+    } else {
+        print "not ok 23 , error writing sequence\n";
+    }
+    
+    my( $after );
+    {
+        local $/ = undef;
+        local *AFTER;
+        open AFTER, $o_file;
+        $after = <AFTER>;
+        close AFTER;
+    }
+    unlink($o_file);
+    
+    # Test that input and output files are identical
+    if ($before and $after and ($before eq $after)) {
+        print "ok 24\n";
+    } else {
+        print "not ok 24 , test output file differs from input";
+    }
+}
+
+
+
+
+
+
 

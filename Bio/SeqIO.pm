@@ -150,6 +150,7 @@ Specify the format of the file.  Supported formats include:
    PIR         Protein Information Resource format
    GCG         GCG format
    raw         Raw format (one sequence per line, no ID)
+   ace         ACeDB sequence format
 
 If no format is specified and a filename is given, then the module
 will attempt to deduce it from the filename.  If this is unsuccessful,
@@ -588,6 +589,7 @@ sub _guess_format {
    return 'embl'    if /\.dat$/i;
    return 'raw'     if /\.(txt)$/i;
    return 'gcg'     if /\.gcg$/i;
+   return 'ace'     if /\.ace$/i;
 }
 
 sub DESTROY {
