@@ -122,7 +122,7 @@ sub next_tree{
        if( $ch eq ';' ) { 	   
 	   return $self->_eventHandler->end_document;
        } elsif ($ch eq '[') {
-	   if ( $chars ) {
+	   if ( length $chars ) {
 	       if ( $lastevent eq ':' ) {
 		   $self->_eventHandler->start_element( { Name => 'branch_length' } );
 		   $self->_eventHandler->characters($chars);
@@ -145,7 +145,7 @@ sub next_tree{
 	   $self->_eventHandler->start_element( {'Name' => 'tree'} );
 	   $lastevent = $ch;
        } elsif($ch eq ')' ) {
-	   if( $chars ) {
+	   if( length $chars ) {
 	       if( $lastevent eq ':') {
 		   unless ($self->_eventHandler->within_element('nhx_tag')) {
 		       $self->_eventHandler->start_element( { 'Name' => 'branch_length'});
@@ -170,7 +170,7 @@ sub next_tree{
 	   $chars = '';
 	   $lastevent = $ch;
        } elsif ( $ch eq ',' ) {
-	   if( $chars ) {
+	   if( length $chars ) {
 	       if( $lastevent eq ':' ) {
 		   $self->_eventHandler->start_element( { 'Name' => 'branch_length'});
 		   $self->_eventHandler->characters($chars);
