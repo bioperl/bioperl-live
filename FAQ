@@ -1,4 +1,4 @@
-# $Id: FAQ,v 1.5 2002-03-01 20:27:51 bosborne Exp $
+# $Id: FAQ,v 1.6 2002-03-08 20:36:25 jason Exp $
 
 Bioperl FAQ
 -----------
@@ -21,11 +21,15 @@ II. Sequences
 
   1. How do I parse a sequence file?  
   2. I can't get sequences with Bio::DB::GenBank any more, why not?
+  3. How can I get NT_ or NM_ accessions from NCBI (Reference Sequences)?
 
 III. Report parsing
 
-  1. I want to parse Blast, how do I do this?  
+  1. I want to parse BLAST, how do I do this?  
   2. What's wrong with Bio::Tools::Blast?
+  3. I want to parse FastA, how do I do this?
+  4. Let's say I want to do pairwise alignments of 2 sequences how can
+     I do this?
 
 IV. Utilities
 
@@ -156,12 +160,22 @@ II. Sequences
      must be using bioperl <= 0.7.2.  The developer release 0.9.3
      contains this fix as does the 1.0 release.
 
+  3. How can I get NT_ or NM_ accessions from NCBI (Reference
+     Sequences)?
+
+     Use Bio::DB::RefSeq not Bio::DB::GenBank when you are retrieving
+     the NM_ accessions. This is still an area of active development
+     because the data providers have not provided the best interface
+     for us to query.  EBI has provided a mirror with their dbfetch
+     system which is accessible through the Bio::DB::RefSeq object
+     however, there are cases where NT_ accessions will not be
+     retrievable.  
 
 ------------------------------------------------------------------------
 III. Report parsing
 ------------------------------------------------------------------------
    
-  1. I want to parse Blast, how do I do this?  
+  1. I want to parse BLAST, how do I do this?  
 
      Well you might notice that there are a lot of choices.  Sorry
      about that.  We've been evolving towards a single solution.
@@ -181,6 +195,26 @@ III. Report parsing
      objects produced are of the Bio::Search rather than Bio::Seq
      variety.
 
+  3. I want to parse FastA or NCBI -m7 (XML) format, how do I do this?
+
+     It is as simple as parsing text BLAST results - you simply need
+     to specify the format as "fasta" or "blastxml" and the parser
+     will load the appropriate module for you.  You can use the exact
+     logic and code for all of these formats as we have generalized
+     the modules for sequence database searching.
+
+  4. Let's say I want to do pairwise alignments of 2 sequences how can
+     I do this?
+
+     See the Bio::Factory::EMBOSS to see how to use the 'water' and
+     'needle' alignment programs that are part of the EMBOSS suite.
+     
+     Additionally you can use the pSW module that is part of the
+     bioperl-ext package (distributed separated at
+     ftp://bioperl.org/pub/DIST).  However note this only does protein
+     alignments and is no longer a supported module.  Instead the
+     EMBOSS implementation is the the best path ahead unless someone
+     else wants to provide an Inline::C implementation.
 
 ------------------------------------------------------------------------
 IV. Utilities
