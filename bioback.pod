@@ -1,0 +1,60 @@
+## $Id: bioback.pod,v 1.1 1999-03-07 18:07:26 birney Exp $
+
+#
+# Documentation about the backend of bioperl
+# 
+# This is for sysadmin/db admin on a new site to get a quick
+# overview about how to build things on their system for bioperl
+#
+
+=head1 NAME
+
+bioperl backend - how to customise bioperl for your site
+
+=head1 SYNOPSIS
+
+Not really appropiate for a synopsis. Read on
+
+=head1 DESCRIPTION
+
+This document is designed to let you customise bioperl on
+your site. Bioperl can work with a number of database formats
+(at the moment, simple fasta flat file formats and EMBL/Swissprot
+.dat format), allowing users to retrieve sequences from these
+databases. In addition another layer, above flat file indexing
+is provided, allowing sites to retrieve sequences from GenBank via
+the web or via flat file indexing, or - if you have the time to 
+do so, you can write your own interface to an in-house RDB. Using
+DBI this should be quite simple.
+
+The core of the backend system is found in following modules
+
+=over
+
+=item Bio::DB::*
+
+generic access to databases, whether flat file, web or rdb. At the moment,
+this provides random access retrieval, on the basis of ids or accession
+numbers, but does not provide the ability to loop over the entire database,
+nor does it provide any complex querying ability.
+ 
+=item Bio::Index::*
+
+flat file indexing system, for read-only, flat file distributions. These
+provide for specific instances generic type access, but the underlying
+machinery can be customised for any number of different flat file systems.
+
+=item Bio::SeqIO::*
+
+conversion systems for Bio::Seq objects, either to or from sequence
+streams. The move of things into SeqIO prevents the Bio::Seq object
+bloating up with format code.
+
+=end
+
+Stuff about customisation on a new system to be written here.
+
+this documentation is not complete. For more help at the moment, please
+email Ewan Birney <birney@sanger.ac.uk>
+
+
