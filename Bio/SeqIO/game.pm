@@ -108,10 +108,10 @@ sub _initialize {
   my $xmlfile ="";
   
   $self->{counter} = 0;
-  $self->{id_counter} = 1;
+  $self->{id_counter} = 1;  
   
-  $self->{file}=@args[1];
-  
+  ($self->{file} ) = $self->_rearrange( [ qw(FILE) ], @args);
+  $self->throw("did not specify a file to read, Filehandle suport is not implemented currently") if( !defined $self->{file});
   return unless my $make = $self->SUPER::_initialize(@args);
 }
 
@@ -137,8 +137,7 @@ sub next_seq {
 	$self->{seqs} = $parser->parse(Source => { SystemId => $self->{file} });
       };
       if ($@) {
-	$self->warn("There was an error parsing the xml document $self->{file}.  It may not be well-formed or
-	empty.");
+	$self->warn("There was an error parsing the xml document.  It may not be well-formed or empty.\n$@");
 	return 0;
       }
   }
@@ -185,8 +184,7 @@ sub next_primary_seq {
       $self->{seqs} = $parser->parse(Source => { SystemId => $self->{file} });
     };
     if ($@) {
-      $self->warn("There was an error parsing the xml document $self->{file}.  It may not be well-formed or
-	empty.");
+      $self->warn("There was an error parsing the xml document.  It may not be well-formed or empty.");
       return 0;
     }
   }
