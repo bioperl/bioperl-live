@@ -84,7 +84,7 @@ use Bio::LiveSeq::SeqI 2.11; # uses SeqI, inherits from it
 use Bio::LiveSeq::Exon 1.0; # uses Exon to create new exon in case of deletion
 @ISA=qw(Bio::LiveSeq::SeqI);
 
-=head1 new
+=head2 new
 
   Title   : new
   Usage   : $transcript = Bio::LiveSeq::Transcript->new(-exons => \@obj_refs);
@@ -141,7 +141,7 @@ sub new {
  Returns : array of object references
  Args    : none
  
-=cut           
+=cut
 
 sub all_Exons {
   my $self=shift;
@@ -178,8 +178,8 @@ sub all_Exons {
  Returns : string
  Args    : an optional integer number of nucleotides to be returned instead of
            the default if no gene attached
- 
-=cut           
+
+=cut
 
 sub downstream_seq {
   my ($self,$howmany)=@_;

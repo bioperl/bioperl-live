@@ -27,7 +27,7 @@ Bio::SeqFeature::Computation - Computation SeqFeature
 				-computation_id => 2231,
 				-score    => { no_score => 334 } );
 
- 
+
 =head1 DESCRIPTION
 
 Bio::SeqFeature::Computation extends the Generic seqfeature object with
