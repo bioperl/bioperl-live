@@ -121,7 +121,7 @@ sub from_align {
    my $seq1 = $aln->get_seq_by_pos(1);
    my $seq2 = $aln->get_seq_by_pos(2);   
    
-   while ( $cs =~ /([^\-\.]+)/g) {
+   while ( $cs =~ /([^\-]+)/g) {
        # alignment coordinates
        my $lenmatch = length($1);
        my $start = pos($cs) - $lenmatch +1;
