@@ -19,4 +19,4 @@ o How do I open these files?
 Most files in this directory are XML files for a program dia (with
 extension .dia) which is a free GTK-library based diagram editor. It
 is part of the GNOME desktop and is included in most GNU/LINUX
-distributions.
+distributions (or see http://www.lysator.liu.se/~alla/dia).
