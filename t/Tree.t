@@ -4,6 +4,8 @@
 
 my $error;
 use strict;
+use vars qw($DEBUG);
+$DEBUG = $ENV{'BIOPERLDEBUG'} || 0;
 BEGIN { 
     # to handle systems with no installed Test module
     # we include the t dir (where a copy of Test.pm is located)
@@ -110,6 +112,7 @@ ok(  $tree->is_paraphyletic(-nodes => [$a,$f,$e],
 # test for rerooting the tree
 
 $tree = $in->next_tree;
+$tree->verbose(-1) unless $DEBUG;
 # reroot on an internal node: should work fine
 $a = $tree->find_node('A');
 my $node_cnt_orig = scalar($tree->get_nodes);
