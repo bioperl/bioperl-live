@@ -57,7 +57,7 @@ There are a number of ways to deal with this -
 
 If you call
 
-  $gffio->ignore_sequence_data_toggle(1)
+  $gffio->ignore_sequence(1)
 
 prior to parsing the sequence data is ignored; this is useful if you
 just want the features. It avoids the memory overhead in building and
@@ -65,7 +65,7 @@ caching sequences
 
 Alternatively, you can call either
 
-  $gffio->get_all_seqs()
+  $gffio->get_seqs()
 
 Or
 
@@ -77,7 +77,7 @@ objects (see the documentation for each of these methods)
 Note that these objects will not have the features attached - you have
 to do this yourself, OR call
 
-  $gffio->features_attached_to_seqs_toggle(1)
+  $gffio->features_attached_to_seqs(1)
 
 PRIOR to parsing; this will ensure that the Seqs have the features
 attached; ie you will then be able to call
@@ -250,7 +250,7 @@ sub _parse_header{
              # seq data can be at header or footer
              my $seq = $self->_parse_sequence($line);
              if ($seq) {
-                 $self->seq_by_id_h->{$seq->primary_id} = $seq;
+                 $self->_seq_by_id_h->{$seq->primary_id} = $seq;
              }
          }
              
@@ -293,14 +293,14 @@ sub _parse_sequence {
             $line =~ s/\s//g;
             $res .= $line;
         }
-        return if $self->ignore_sequence_data_toggle;
+        return if $self->ignore_sequence;
 
         my $seqfactory = Bio::Seq::SeqFactory->new('Bio::Seq');
         my $seq = $seqfactory->create(-seq=>$res, 
                                       -id=>$seqid,
                                       -desc=>$desc);
         $seq->accession_number($seqid);
-        if ($self->features_attached_to_seqs_toggle) {
+        if ($self->features_attached_to_seqs) {
             my @feats = 
               @{$self->_feature_idx_by_seq_id->{$seqid}};
             $seq->add_SeqFeature($_) foreach @feats;
@@ -365,7 +365,7 @@ sub next_feature {
             # fasta can be in header or footer
             my $seq = $self->_parse_sequence($gff_string);
             if ($seq) {
-                $self->seq_by_id_h->{$seq->primary_id} = $seq;
+                $self->_seq_by_id_h->{$seq->primary_id} = $seq;
                 $gff_string = $self->_readline;
                 last unless $gff_string;
             }
@@ -377,7 +377,7 @@ sub next_feature {
     my $feat = Bio::SeqFeature::Generic->new();
     $self->from_gff_string($feat, $gff_string);
 
-    if ($self->features_attached_to_seqs_toggle) {
+    if ($self->features_attached_to_seqs) {
         push(@{$self->_feature_idx_by_seq_id->{$feat->seq_id}},
              $feat);
     }
@@ -1143,36 +1143,24 @@ sub fh {
   return $s;
 }
 
-=head2 seq_by_id_h
+#This accessor is used for accessing the Bio::Seq objects from a GFF3
+#file; if the file you are using has no sequence data you can ignore
+#this accessor
 
- Title   : seq_by_id_h
- Usage   : $obj->seq_by_id_h($newval)
- Function: 
- Example : 
- Returns : value of seq_by_id_h (a hashref)
- Args    : on set, new value (a hashref or undef, optional)
-
-This accessor is used for accessing the Bio::Seq objects from a GFF3
-file; if the file you are using has no sequence data you can ignore
-this accessor
-
-This accessor returns a hash reference containing Bio::Seq objects,
-indexed by Bio::Seq->primary_id
-
-=cut
-
-sub seq_by_id_h{
+#This accessor returns a hash reference containing Bio::Seq objects,
+#indexed by Bio::Seq->primary_id
+sub _seq_by_id_h{
     my $self = shift;
 
-    return $self->{'seq_by_id_h'} = shift if @_;
-    $self->{'seq_by_id_h'} = {}
-      unless $self->{'seq_by_id_h'};
-    return $self->{'seq_by_id_h'};
+    return $self->{'_seq_by_id_h'} = shift if @_;
+    $self->{'_seq_by_id_h'} = {}
+      unless $self->{'_seq_by_id_h'};
+    return $self->{'_seq_by_id_h'};
 }
 
-=head2 get_all_seqs
+=head2 get_seqs
 
- Title   : get_all_seqs
+ Title   : get_seqs
  Usage   :
  Function:
  Example :
@@ -1183,18 +1171,18 @@ returns all Bio::Seq objects populated by GFF3 file
 
 =cut
 
-sub get_all_seqs{
+sub get_seqs{
    my ($self,@args) = @_;
-   return values %{$self->seq_by_id_h};
+   return values %{$self->_seq_by_id_h};
 }
 
-=head2 features_attached_to_seqs_toggle
+=head2 features_attached_to_seqs
 
- Title   : features_attached_to_seqs_toggle
- Usage   : $obj->features_attached_to_seqs_toggle(1);
+ Title   : features_attached_to_seqs
+ Usage   : $obj->features_attached_to_seqs(1);
  Function: 
  Example : 
- Returns : value of features_attached_to_seqs_toggle (a boolen)
+ Returns : value of features_attached_to_seqs (a boolen)
  Args    : on set, new value (a boolen, optional)
 
 For use with GFF3 containg sequence only
@@ -1209,20 +1197,20 @@ will have to be cached until the relevant feature comes along
 
 =cut
 
-sub features_attached_to_seqs_toggle{
+sub features_attached_to_seqs{
     my $self = shift;
 
-    return $self->{'features_attached_to_seqs_toggle'} = shift if @_;
-    return $self->{'features_attached_to_seqs_toggle'};
+    return $self->{'_features_attached_to_seqs'} = shift if @_;
+    return $self->{'_features_attached_to_seqs'};
 }
 
-=head2 ignore_sequence_data_toggle
+=head2 ignore_sequence
 
- Title   : ignore_sequence_data_toggle
- Usage   : $obj->ignore_sequence_data_toggle(1);
+ Title   : ignore_sequence
+ Usage   : $obj->ignore_sequence(1);
  Function: 
  Example : 
- Returns : value of ignore_sequence_data_toggle (a boolen)
+ Returns : value of ignore_sequence (a boolen)
  Args    : on set, new value (a boolen, optional)
 
 For use with GFF3 containg sequence only
@@ -1232,11 +1220,11 @@ ignored
 
 =cut
 
-sub ignore_sequence_data_toggle{
+sub ignore_sequence{
     my $self = shift;
 
-    return $self->{'ignore_sequence_data_toggle'} = shift if @_;
-    return $self->{'ignore_sequence_data_toggle'};
+    return $self->{'_ignore_sequence'} = shift if @_;
+    return $self->{'_ignore_sequence'};
 }
 
 
