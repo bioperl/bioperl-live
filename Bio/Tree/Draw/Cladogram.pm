@@ -29,7 +29,7 @@ Encapsulated PostScript (EPS) format.
 
   if ($t2) {
     my $obj2 = new Bio::Tree::Draw::Cladogram(-tree => $t1, -second => $t2);
-    $obj2->print(-file => 'comparative.eps');
+    $obj2->print(-file => 'tanglegram.eps');
   }
 
 =head1 DESCRIPTION
@@ -56,11 +56,10 @@ first tree can be connected to more than one taxon of the second tree,
 and vice versa.
 
 This is a preliminary release of Bio::Tree::Draw::Cladogram. Future
-improvements include a better placement of taxa names, an option to
-choose a font and size other than Courier at 10 pt, and an option to
-output phylograms instead of cladograms. Beware that cladograms are
-automatically scaled according to branch lengths, but the current
-release has only been tested with trees having unit branch lengths.
+improvements include an option to output phylograms instead of
+cladograms. Beware that cladograms are automatically scaled according
+to branch lengths, but the current release has only been tested with
+trees having unit branch lengths.
 
 The print method could be extended to output graphic formats other
 than EPS, although there are many graphics conversion programs around
@@ -105,6 +104,7 @@ use strict;
 # Object preamble - inherits from Bio::Root::Root
 
 use Bio::Root::Root;
+use PostScript::TextBlock;
 
 @ISA = qw(Bio::Root::Root);
 
@@ -115,13 +115,14 @@ my %xx;        # horizontal coordinate for each node
 my %yy;        # vertical coordinate for each node
 my $t1;        # first Bio::Tree::Tree object
 my $t2;        # second Bio::Tree::Tree object
+my $font;      # font name
+my $size;      # font size
 my $width;     # total drawing width
 my $height;    # total drawing height
 my $xstep;     # branch length in drawing
 my $tip;       # extra space between tip and label
 my $tipwidth1; # width of longest label among $t1 taxa
 my $tipwidth2; # width of longest label among $t2 taxa
-my $tiplen2;   # number of characters of longest label among $t2 taxa
 
 =head2 new
 
@@ -131,7 +132,8 @@ my $tiplen2;   # number of characters of longest label among $t2 taxa
  Returns : Bio::Tree::Draw::Cladogram
  Args    : -tree => Bio::Tree::Tree object
            -second => Bio::Tree::Tree object (optional)
-           -aspect => width to height ratio [real] (optional)
+           -font => font name [string] (optional)
+           -size => font size [integer] (optional)
            -top => top margin [integer] (optional)
            -bottom => bottom margin [integer] (optional)
            -left => left margin [integer] (optional)
@@ -145,10 +147,11 @@ sub new {
   my($class,@args) = @_;
 
   my $self = $class->SUPER::new(@args);
-  ($t1, $t2, my $aspect, my $top, my $bottom, my $left, my $right,
-    $tip, my $column) = $self->_rearrange([qw(TREE SECOND ASPECT
+  ($t1, $t2, $font, $size, my $top, my $bottom, my $left, my $right,
+    $tip, my $column) = $self->_rearrange([qw(TREE SECOND FONT SIZE
     TOP BOTTOM LEFT RIGHT TIP COLUMN)], @args);
-  $aspect ||= 2/(sqrt 5+1); # golden ratio
+  $font ||= "Helvetica-Narrow";
+  $size ||= 12;
   $top ||= 10;
   $bottom ||= 10;
   $left ||= 10;
@@ -166,11 +169,11 @@ sub new {
   #   +----+                  #   #   $tip (X, extra tip space)
   #        |    +----+ XXXX   #   #   $width (total drawing width)
   #        |    |             #   #   $height (total drawing height)
-  #        +----+             # Y #   $aspect ($width / $height)
-  #             |             #   #   $xstep (S, stem length)
-  #             +----+ XX     #   #   $ystep (Y, space between taxa)
-  #                           # B #   $tiplen (string length of longest name)
-  #################################   $tipwidth (N, size of longest name)
+  #        +----+             # Y #   $xstep (S, stem length)
+  #             |             #   #   $ystep (Y, space between taxa)
+  #             +----+ XX     #   #   $tiplen (string length of longest name)
+  #                           # B #   $tipwidth (N, size of longest name)
+  #################################
   # L         S       X  N  R #
   #############################
 
@@ -203,57 +206,27 @@ sub new {
   my @taxa1 = $t1->get_leaf_nodes;
   my $root1 = $t1->get_root_node;
 
-  my $tiplen1 = 0;
+  $tipwidth1 = 0;
   foreach my $taxon (@taxa1) {
-    if (length $taxon->id > $tiplen1) { $tiplen1 = length $taxon->id; }
+    my $w = PostScript::Metrics::stringwidth($taxon->id,$font,$size);
+    if ($w > $tipwidth1) { $tipwidth1 = $w; }
   }
 
   my @taxa2;
   my $root2;
 
-  my $ystep = 10;
-  $tipwidth1 = 6 * $tiplen1; # assuming a char is 6 points wide
+  my $ystep = 20;
 
   if ($t2) {
     @taxa2 = $t2->get_leaf_nodes;
     $root2 = $t2->get_root_node;
-    $tiplen2 = 0;
+    $tipwidth2 = 0;
     foreach my $taxon (@taxa2) {
-      $tiplen2 = length $taxon->id if (length $taxon->id > $tiplen2);
-    }
-    $tipwidth2 = 6 * $tiplen2; # assuming a char is 6 points wide
-  }
-
-  my $depth = $root1->height + 1;
-  $height = $bottom + $ystep * (@taxa1 - 1) + $top;
-
-  $width = $aspect * $height + 200;
-  $width -= ($left + $tip + $tipwidth1 + $right);
-
-  if ($t2) {
-    $width -= ($tip + $column + $tip + $tipwidth2 + $tip);
-    $depth += $root2->height + 1;
-  }
-
-  $xstep = $width / $depth;
-
-  $width = $left + $tipwidth1 + $tip + $xstep * $depth + $right;
-  $height = $bottom + $ystep * (@taxa1 - 1) + $top;
-  if ($t2) {
-    $width += $tip + $column + $tip + $tipwidth2 + $tip;
-    if ( scalar(@taxa2) > scalar(@taxa1) ) {
-      $height = $bottom + $ystep * (@taxa2 - 1) + $top;
+      my $w = PostScript::Metrics::stringwidth($taxon->id,$font,$size);
+      if ($w > $tipwidth2) { $tipwidth2 = $w; }
     }
   }
 
-  ###########################################################################
-  # A problem with this approach is that for long taxa names, stems
-  # can be much too short (even of negative length) in order to
-  # achieve the desired aspect ratio. The following solution consists
-  # of setting $xstep (the stem length) to an absolute length and
-  # rescaling $ystep (the vertical space between taxa names) to achive
-  # the desired aspect ratio.
-  ###########################################################################
   my $stems = $root1->height + 1;
   if ($t2) { $stems += $root2->height + 1; }
   my $labels = $tipwidth1;
@@ -261,13 +234,17 @@ sub new {
   $xstep = 20;
   $width = $left + $stems * $xstep + $tip + $labels + $right;
   if ($t2) { $width += $tip + $column + $tip + $tip; }
-  $height = $aspect * $width;
+  $height = $bottom + $ystep * (@taxa1 - 1) + $top;
+  if ($t2) {
+    if ( scalar(@taxa2) > scalar(@taxa1) ) {
+      $height = $bottom + $ystep * (@taxa2 - 1) + $top;
+    }
+  }
   my $ystep1 = $height / scalar(@taxa1);
   my $ystep2;
   if ($t2) {
     $ystep2 = $height / scalar(@taxa2);
   }
-  ###########################################################################
 
   my $x = $left + $xstep * ($root1->height + 1) + $tip;
   my $y = $bottom;
@@ -371,14 +348,14 @@ sub print {
   print INFO "%!PS-Adobe-\n";
   print INFO "%%BoundingBox: 0 0 ", $width, " ", $height, "\n";
   print INFO "1 setlinewidth\n";
-  print INFO "/Courier findfont\n";
-  print INFO "10 scalefont\n";
+  print INFO "/$font findfont\n";
+  print INFO "$size scalefont\n";
   print INFO "setfont\n";
 
-  # taxa labels are centered assuming text is 8 points tall
+  # taxa labels are centered to 1/3 the font size
 
   for my $taxon (reverse $t1->get_leaf_nodes) {
-    print INFO $xx{$taxon} + $tip, " ", $yy{$taxon} - 3, " moveto\n";
+    print INFO $xx{$taxon} + $tip, " ", $yy{$taxon} - $size / 3, " moveto\n";
     print INFO "(", $taxon->id, ") show\n";
   }
 
@@ -405,10 +382,10 @@ sub print {
   if ($t2) {
 
     for my $taxon (reverse $t2->get_leaf_nodes) {
-      print INFO $xx{$taxon} - $tipwidth2 - $tip, " ",
-        $yy{$taxon} - 3, " moveto\n";
-      my $format = "(%" . $tiplen2 . "s) show\n";
-      printf INFO $format, $taxon->id;
+      my $tiplen2 = PostScript::Metrics::stringwidth($taxon->id,$font,$size);
+      print INFO $xx{$taxon} - $tiplen2 - $tip, " ",
+        $yy{$taxon} - $size / 3, " moveto\n";
+      printf INFO "(%s) show\n", $taxon->id;
     }
 
     for my $node ($t2->get_nodes) {
@@ -454,12 +431,18 @@ sub print {
     foreach my $taxon1 (@taxa1) {
       my @match = $taxon1->get_tag_values('connection');
       foreach my $taxon2 (@match) {
+	my $x0 = $xx{$taxon1} + $tip
+	  + PostScript::Metrics::stringwidth($taxon1->id,$font,$size) + $tip;
 	my $x1 = $xx{$taxon1} + $tip + $tipwidth1 + $tip;
         my $y1 = $yy{$taxon1};
         my $x2 = $xx{$taxon2} - $tip - $tipwidth2 - $tip;
+        my $x3 = $xx{$taxon2} - $tip
+	  - PostScript::Metrics::stringwidth($taxon2->id,$font,$size) - $tip;
         my $y2 = $yy{$taxon2};
-        print INFO $x1, " ", $y1, " moveto\n";
+        print INFO $x0, " ", $y1, " moveto\n";
+        print INFO $x1, " ", $y1, " lineto\n";
         print INFO $x2, " ", $y2, " lineto\n";
+        print INFO $x3, " ", $y2, " lineto\n";
       }
     }
 
