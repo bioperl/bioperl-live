@@ -52,8 +52,16 @@ sub gridcolor {
   $self->factory->translate_color($color);
 }
 
+sub show_sequence {
+  my $self = shift;
+  my $show_sequence = $self->option('show_sequence');
+  return 1 unless defined $show_sequence;  # default to true
+  return $show_sequence;
+}
+
 sub protein_fits {
   my $self = shift;
+  return unless $self->show_sequence;
 
   my $pixels_per_base = $self->pixels_per_residue;
   my $font            = $self->font;
@@ -315,6 +323,10 @@ options are recognized:
 
   -arrow_height Height of the start codon    1
                 arrowheads
+
+  -show_sequence Show the amino acid sequence 1 (true)
+                if there's room.
+                
 
 =head1 SUGGESTED STANZA FOR GENOME BROWSER
 
