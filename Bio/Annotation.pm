@@ -1,4 +1,6 @@
 #
+# $Id$
+#
 # BioPerl module for Bio::Annotation
 #
 # Cared for by Ewan Birney <birney@sanger.ac.uk>
@@ -20,15 +22,15 @@ Bio::Annotation - A generic object for annotations
     # description is a simple, one line description 
     print "Description is ",$ann->description "\n";
 
+
     foreach $comment ( $ann->each_Comment ) {
        # $comment is a Bio::Annotation::Comment object
-          print "Comment: ", $comment->text(), "\n"
-       }
+       print "Comment: ", $comment->text(), "\n";
     }
 
     foreach $link ( $ann->each_DBLink ) {
        # link is a Bio::Annotation::DBLink object
-       print "Link to ",$link->primary_id, " in database", $link->db "\n";
+       print "Link to ",$link->primary_id, " in database", $link->database "\n";
     }
 
     foreach $ref ( $ann->each_Reference ) {
@@ -68,9 +70,30 @@ It does not have the following abilities
        This should be a property of whatever database this
        object comes from
 
-=head1 CONTACT
+=head1 FEEDBACK
 
-Mail birney@sanger.ac.uk with any queries
+=head2 Mailing Lists
+
+User feedback is an integral part of the evolution of this and other
+Bioperl modules. Send your comments and suggestions preferably to one
+of the Bioperl mailing lists.  Your participation is much appreciated.
+
+  bioperl-l@bioperl.org          - General discussion
+  http://bio.perl.org/MailList.html             - About the mailing lists
+
+=head2 Reporting Bugs
+
+Report bugs to the Bioperl bug tracking system to help us keep track
+the bugs and their resolution.  Bug reports can be submitted via email
+or the web:
+
+  bioperl-bugs@bio.perl.org
+  http://bio.perl.org/bioperl-bugs/
+
+
+=head1 AUTHOR - Ewan Birney 
+
+Email birney@ebi.ac.uk
 
 =head1 APPENDIX
 
@@ -78,7 +101,9 @@ The rest of the documentation details each of the object methods. Internal metho
 
 =cut
 
+
 # Let the code begin...
+
 
 package Bio::Annotation;
 use vars qw(@ISA);
@@ -114,6 +139,7 @@ sub _initialize {
   return $make; # success - we hope!
 }
 
+
 =head2 description
 
  Title   : description
@@ -122,6 +148,7 @@ sub _initialize {
  Example : 
  Returns : value of description
  Args    : newvalue (optional)
+
 
 =cut
 
@@ -143,6 +170,7 @@ sub description{
  Returns : value of gene name
  Args    : newvalue (optional)
 
+
 =cut
 
 sub gene_name{
@@ -154,14 +182,16 @@ sub gene_name{
 
 }
 
+
 =head2 add_Reference
 
  Title   : add_Reference
- Usage   : $self->add_Reference($ref)
+ Usage   : $self->add_Reference($ref1[,$ref2,...])
  Function: adds a reference object
  Example :
  Returns : 
  Args    :
+
 
 =cut
 
@@ -181,6 +211,7 @@ sub add_Reference{
  Returns : 
  Args    :
 
+
 =cut
 
 sub each_Reference{
@@ -188,6 +219,8 @@ sub each_Reference{
    
    return @{$self->{'refs'}}; 
 }
+
+
 
 =head2 add_Comment
 
@@ -197,6 +230,7 @@ sub each_Reference{
  Example :
  Returns : 
  Args    :
+
 
 =cut
 
@@ -220,6 +254,7 @@ sub add_Comment{
  Returns : 
  Args    :
 
+
 =cut
 
 sub each_Comment{
@@ -227,6 +262,7 @@ sub each_Comment{
    
    return @{$self->{'comment'}}; 
 }
+
 
 =head2 add_DBLink
 
@@ -237,10 +273,14 @@ sub each_Comment{
  Returns : 
  Args    :
 
+
 =cut
 
 sub add_DBLink{
    my ($self,$com) = @_;
+   if( ! $com->isa('Bio::Annotation::DBLink') ) {
+       $self->throw("Is not a link object but a  [$com]");
+   }
    push(@{$self->{'link'}},$com);
 }
 
@@ -253,6 +293,7 @@ sub add_DBLink{
  Returns : 
  Args    :
 
+
 =cut
 
 sub each_DBLink{
@@ -261,5 +302,10 @@ sub each_DBLink{
    return @{$self->{'link'}}; 
 }
 
+
 1;
+
+
+
+
 
