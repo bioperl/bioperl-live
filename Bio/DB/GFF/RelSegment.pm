@@ -592,6 +592,8 @@ The named parameter form gives you control over a few options:
 
   -attributes a hashref containing a set of attributes to match
 
+  -range_type One of 'overlapping', 'contains', or 'contained_in'
+
   -iterator  Whether to return an iterator across the features.
 
   -binsize   A true value will create a set of artificial features whose
