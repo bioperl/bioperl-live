@@ -185,11 +185,11 @@ sub nextSbjct {
   ####################
   # the Sbjct object #
   ####################
-  my $sbjct = new Bio::Tools::BPlite::Sbjct(-name=>$def,
-					    -length=>$length,
-                                            -fh=>$self->{FH}, 
-					    -lastline=>$self->{LASTLINE}, 
-					    -parent=>$self);
+  my $sbjct = new Bio::Tools::BPlite::Sbjct('-name'=>$def,
+					    '-length'=>$length,
+                                            '-fh'=>$self->{FH}, 
+					    '-lastline'=>$self->{LASTLINE}, 
+					    '-parent'=>$self);
   return $sbjct;
 }
 

@@ -168,22 +168,22 @@ sub nextHSP {
   $ql = join("", @QL);
   $sl = join("", @SL);
   $as = join("", @AS);
-  my $hsp = new Bio::Tools::BPlite::HSP(-score=>$score, 
-					-bits=>$bits, 
-					-match=>$match,
-					-positive=>$positive, 
-					-p=>$p,
-					-queryBegin=>$qb, 
-					-queryEnd=>$qe, 
-					-sbjctBegin=>$sb,
-					-sbjctEnd=>$se, 
-					-querySeq=>$ql, 
-					-sbjctSeq=>$sl,
-					-homologySeq=>$as, 
-					-queryName=>$self->{PARENT}->query,
-					-sbjctName=>$self->{NAME},
-					-queryLength=>$self->{PARENT}->qlength,
-					-sbjctLength=>$self->{LENGTH});
+  my $hsp = new Bio::Tools::BPlite::HSP('-score'=>$score, 
+					'-bits'=>$bits, 
+					'-match'=>$match,
+					'-positive'=>$positive, 
+					'-p'=>$p,
+					'-queryBegin'=>$qb, 
+					'-queryEnd'=>$qe, 
+					'-sbjctBegin'=>$sb,
+					'-sbjctEnd'=>$se, 
+					'-querySeq'=>$ql, 
+					'-sbjctSeq'=>$sl,
+					'-homologySeq'=>$as, 
+					'-queryName'=>$self->{PARENT}->query,
+					'-sbjctName'=>$self->{NAME},
+					'-queryLength'=>$self->{PARENT}->qlength,
+					'-sbjctLength'=>$self->{LENGTH});
   return $hsp;
 }
 
