@@ -153,7 +153,7 @@ software objects.  Stepping through a script with an interactive
 debugger is a very helpful way of seeing what is happening in such a
 complex software system - especially when the software is not behaving
 in the way that you expect.  The free graphical debugger ptkdb
-(available as DEVEL::ptkdb from CPAN) is highly recommended.  Active
+(available as Devel::ptkdb from CPAN) is highly recommended.  Active
 State offers a commercial graphical debugger for windows systems.  The
 standard perl distribution also contains a powerful interactive
 debugger - though with a more cumbersome (command line) interface.
@@ -274,7 +274,7 @@ capability is not available.  However, since the testing of bioperl in
 these environments has been limited, the script may well crash in a
 less "graceful" manner.
 
-	
+
 II. Brief introduction to bioperl's objects
 
 The purpose of this tutorial is to get you using bioperl to solve
@@ -582,11 +582,11 @@ well the number of occurrences of each of the component residues
 acids, SeqStats also returns counts of the number of codons used.  For
 example:
 
-	use SeqStats
-	$seq_stats  =  Bio::SeqStats->new($seqobj);
-	$weight = $seq_stats->get_mol_wt();
-	$monomer_ref = $seq_stats->count_monomers();
-	$codon_ref = $seq_stats-> count_codons();  # for nucleic acid sequence
+use SeqStats
+$seq_stats  =  Bio::SeqStats->new($seqobj);
+$weight = $seq_stats->get_mol_wt();
+$monomer_ref = $seq_stats->count_monomers();
+$codon_ref = $seq_stats->count_codons();  # for nucleic acid sequence
 
 Note: sometimes sequences will contain "ambiguous" codes.  For this
 reason, get_mol_wt() returns (a reference to) a two element array
@@ -638,15 +638,19 @@ threshold is passed in by the user, the code defaults to a reporting
 value of 3.5.  SigCleave will only return score/position pairs which
 meet the threshold limit.
 
-There are 2 accessor methods for this object. "signals" will return a perl hash containing the sigcleave scores keyed by amino acid position. "pretty_print" returns a formatted string similar to the output of the original sigcleave utility.
+There are 2 accessor methods for this object. "signals" will return a
+perl hash containing the sigcleave scores keyed by amino acid
+position. "pretty_print" returns a formatted string similar to the
+output of the original sigcleave utility.
 
 Syntax for using the modules is as follows:
 
 use Bio::Tools::Sigcleave;
-$sigcleave_object = new Bio::Tools::Sigcleave(-file=>'sigtest.aa', 
-                                              -threshold=>'3.5'
-                                              -desc=>'test sigcleave protein seq', 
-                                              -type=>'AMINO');
+$sigcleave_object = new Bio::Tools::Sigcleave
+   (-file=>'sigtest.aa', 
+    -threshold=>'3.5'
+    -desc=>'test sigcleave protein seq', 
+    -type=>'AMINO');
 %raw_results      = $sigcleave_object->signals;
 $formatted_output = $sigcleave_object->pretty_print;
 
@@ -742,7 +746,7 @@ There are several reasons why one might want to run the Blast programs
 locally - speed, data security, immunity to network problems, being
 able to run large batch runs etc.  The NCBI provides a downloadable
 version of blast in a stand-alone format, and running blast locally
-– without any use of perl or bioperl - is completely
+ without any use of perl or bioperl - is completely
 straightforward.  However, there are situations where having a perl
 interface for running the blast programs locally is convenient.
 
@@ -1208,12 +1212,13 @@ format used in the SeqIO calls.  Another difference is that the user
 must remember to only read in small chunks of the sequence at one
 time.  These differences are illustrated in the following code:
 
-$seqio = new Bio::SeqIO('-format'=>'largefasta', '-file'  =>'t/genomic-seq.fasta');
+$seqio = new Bio::SeqIO('-format'=>'largefasta', 
+                        '-file'  =>'t/genomic-seq.fasta');
 $pseq = $seqio->next_seq();
 $plength = $pseq->length();
 $last_4 = $pseq->subseq($plength-3,$plength);  # this is OK
 
-# On the other hand, the next statement would 
+#On the other hand, the next statement would 
 #probably cause the machine to run out of memory
 #$lots_of_data = $pseq->seq();  #NOT OK for a large LargeSeq object
 
@@ -1249,7 +1254,10 @@ $maxstart = $gene->maxtranscript->start;
 Even mutation and polymorphism objects (see the next subsection) can
 be represented with the LiveSeq data structure:
 
-$b = Bio::LiveSeq::Mutation->new(-seq=>'AC', -seqori => 'GG', -pos => 5, -len => 2, );
+$b = Bio::LiveSeq::Mutation->new(-seq=>'AC', 
+                                 -seqori => 'GG', 
+                                 -pos => 5, 
+                                 -len => 2, );
 
 For more details on using the LiveSeq data representation see the
 documentation for the objects in the Bio::LiveSeq directory.
@@ -1318,7 +1326,8 @@ using bioxml in this manner - since in its current implementation,
 bioxml does not support all the annotation information available in
 Seq objects.
 
-$str = Bio::SeqIO->new('-file'=> 't/test.game', '-format' => 'game');
+$str = Bio::SeqIO->new('-file'=> 't/test.game', 
+                       '-format' => 'game');
 $seq = $str->next_primary_seq();
 $id = $seq->id;
 @feats = $seq->all_SeqFeatures();
@@ -1338,7 +1347,16 @@ bioperl user.
 
  IV.1 Biocorba
 
-	Interface objects have facilitated interoperability between bioperl and other perl packages such as Ensembl and the Annotation Workbench.  However, interoperability between bioperl and packages written in other languages requires additional support software.  CORBA is one such framework for interlanguage support, and the biocorba project is currently implementing a CORBA interface for bioperl.  With biocorba, objects written within bioperl will be able to communicate with objects written in biopython and biojava (see the next subsection).  For more information, se the biocorba project website at http://biocorba.org/.
+Interface objects have facilitated interoperability between bioperl
+and other perl packages such as Ensembl and the Annotation Workbench.
+However, interoperability between bioperl and packages written in
+other languages requires additional support software.  CORBA is one
+such framework for interlanguage support, and the biocorba project is
+currently implementing a CORBA interface for bioperl.  With biocorba,
+objects written within bioperl will be able to communicate with
+objects written in biopython and biojava (see the next subsection).
+For more information, se the biocorba project website at
+http://biocorba.org/.
 
 IV.2 Biopython and biojava
 
@@ -1346,7 +1364,7 @@ Biopython and biojava are open source projects with very similar goals
 to bioperl.  However their code is implemented in python and java,
 respectively.  With the development of interface objects and biocorba,
 it is possible to write java or python objects which can be accessed
-by a bioperl script..  Or to call bioperl objects from java or python
+by a bioperl script.  Or to call bioperl objects from java or python
 code.  Since biopython and biojava are more recent projects than
 bioperl, most effort to date has been to port bioperl functionality to
 biopython and biojava rather than the other way around.  However, in
@@ -2054,10 +2072,16 @@ return 1;
 
 $run_psw_bl2seq = sub {
 
-use Bio::Tools::pSW;
-use Bio::Tools::Run::StandAloneBlast;
-
 print "\nBeginning run_psw_bl2seq example... \n";
+
+    eval { require Bio::Tools::pSW; };
+    if( $@ ) {
+	print STDERR ("\nThe C-compiled engine for Smith Waterman alignments (Bio::Ext::Align) has not been installed.\n Please read the install the bioperl-ext package\n\n");
+	return 0;
+    }
+
+#use Bio::Tools::pSW;
+use Bio::Tools::Run::StandAloneBlast;
 
 #   III.6.1 Aligning 2 sequences with Smith-Waterman (pSW)
 
