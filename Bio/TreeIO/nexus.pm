@@ -119,20 +119,22 @@ sub _parse {
    my $state = 0;
    my %translate;
    while( defined ( $_ = $self->_readline ) ) {
+       next if ( /^\[/);
        if( $state > 0 ) {	   
 	   if( /^\[/ ) {
 	       $state++;
 	   } elsif( /^\]/ ) {
 	       $state--;
-	   } elsif( /^\s*Translate/ ) { 
+	   } elsif( /^\s*Translate/i ) { 
 	       $state = 3;
 	   } elsif( $state == 3) {
-	       if( /^\s+(\S+)\s+(\S+)\,\s*$/ ) {
+	       if( /^\s+(\S+)\s+(\S+)\s*([\,\;])\s*$/ ) {
 		   $translate{$1} = $2;
+		   $state = 1 if( $3 eq ';' );
 	       } elsif( /^\s+;/) {
 		   $state = 1;
 	       }
-	   } elsif( /^tree\s+(\S+)\s+\=\s+(?:\[\S+\])?\s+(.+\;)\s*$/ ) {
+	   } elsif( /^\s*tree\s+(\S+)\s+\=\s+(?:\[\S+\])?\s*([^\;]+;)\s*$/ ) {
 	       my $buf = new IO::String($2);
 	       my $treeio = new Bio::TreeIO(-format => 'newick',
 					    -fh     => $buf);
