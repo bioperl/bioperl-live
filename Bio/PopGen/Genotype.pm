@@ -26,6 +26,13 @@ my $genotype = new Bio::PopGen::Genotype(-marker_name   => $name,
 This object will contain alleles for a given marker for a given
 individual.
 
+The class variable BlankAlleles (accessible through
+$Bio::PopGen::Genotype::BlankAlleles = 'somepattern') can be set to a
+regexp pattern for identifying blank alleles which should no be
+counted (they are effectively missing data).  By default it set to
+match white space, '-', 'N' or 'n', and '?' as blank alleles which are
+skipped.
+
 =head1 FEEDBACK
 
 =head2 Mailing Lists
@@ -65,10 +72,10 @@ Internal methods are usually preceded with a _
 
 
 package Bio::PopGen::Genotype;
-use vars qw(@ISA @BlankAlleles);
+use vars qw(@ISA $BlankAlleles);
 use strict;
 
-@BlankAlleles = (' ', '-', 'N', '?');
+$BlankAlleles = '\s|\-|N|\?';
 
 
 # Object preamble - inherits from Bio::Root::Root
@@ -157,7 +164,8 @@ sub individual_id {
  Args    : $showblank - boolean flag to indicate return ALL alleles not 
                         skipping the coded EMPTY alleles
 
-
+ Note    : Uses the class variable $BlankAlleles to test if alleles
+           should be skipped or not.
 
 =cut
 
@@ -165,16 +173,9 @@ sub get_Alleles{
     my ($self,$showblank) = @_;
     if( $showblank ) {
 	return @{$self->{'_alleles'} || []};
-    } else { 
-	my @alleles;
-	foreach my $allele ( @{$self->{'_alleles'} || []} ) {
-	    my $keep = 1;
-	    foreach my $pattern ( @BlankAlleles ) {
-		$keep = 0 if( $allele =~ /\Q$pattern/i );
-	    }
-	    push @alleles, $allele if $keep;
-	}
-	return @alleles;
+    } else {
+	# one liners - woo hoo.
+	return grep { ! /^\s*$BlankAlleles\s*$/oi } @{$self->{'_alleles'} || []};
     }
 }
 
