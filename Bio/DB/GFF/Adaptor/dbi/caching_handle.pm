@@ -150,6 +150,35 @@ sub dbh {
   $wrapper;
 }
 
+=head2 attribute
+
+ Title   : attribute
+ Usage   : $value = $db->attribute(AttributeName , [$newvalue])
+ Function: get/set DBI::db handle attribute
+ Returns : current state of the attribute
+ Args    : name of the attribute and optional new setting of attribute
+ Status  : public
+
+  Under Bio::DB::GFF::Adaptor::dbi::caching_handle the DBI::db
+  attributes that are usually set using hashref calls are unavailable.
+  Use attribute() instead.  For example, instead of:
+
+    $dbh->{AutoCommit} = 0;
+
+  use
+
+    $dbh->attribute(AutoCommit=>0);
+
+=cut
+
+sub attribute {
+  my $self = shift;
+  my $dbh = $self->dbh->{dbh};
+  return $dbh->{$_[0]} = $_[1] if @_ == 2;
+  return $dbh->{$_[0]}         if @_ == 1;
+  return;
+}
+
 sub disconnect {
   my $self = shift;
   $_ && $_->disconnect foreach @{$self->{dbh}};

@@ -120,6 +120,14 @@ sub debug {
  Args    : none
  Status  : Public
 
+ Note: what is returned is not really a DBI::db handle, but a
+ subclass of one.  This means that you cannot manipulate the
+ handle's attributes directly.  Instead call the attribute
+ method:
+
+ my $dbh = $db->features_db;
+ $dbh->attribute(AutoCommit=>0);
+
 =cut
 
 sub features_db { shift->{features_db} }
