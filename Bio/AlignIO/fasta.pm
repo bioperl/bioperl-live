@@ -193,6 +193,9 @@ sub write_aln {
 	    $self->warn("Must provide a Bio::Align::AlignI object when calling write_aln");
 	    next;
 	}
+	if( $self->force_displayname_flat ) {
+	    $aln->set_displayname_flat(1);
+	}
 	foreach $rseq ( $aln->each_seq() ) {
 	    $name = $aln->displayname($rseq->get_nse());
 	    $seq  = $rseq->seq();
