@@ -35,10 +35,12 @@ $loaded = 1;
 print "ok 1\n";    # 1st test passes.
 
 chomp( my $dir = `pwd` );
-my $ind = Bio::Index::Fasta->new(-filename => 'Wibbl', -write_flag => 1, -verbose => 0);
-$ind->make_index("$dir/t/multifa.seq");
-$ind->make_index("$dir/t/seqs.fas");
-$ind->make_index("$dir/t/multi_1.fa");
+{
+    my $ind = Bio::Index::Fasta->new(-filename => 'Wibbl', -write_flag => 1, -verbose => 0);
+    $ind->make_index("$dir/t/multifa.seq");
+    $ind->make_index("$dir/t/seqs.fas");
+    $ind->make_index("$dir/t/multi_1.fa");
+}
 
 print "ok 2\n";
 
@@ -51,6 +53,9 @@ print "ok 2\n";
         MMWHISK                 => 62,
         'gi|238775|bbs|65126'   => 70,
     );
+
+    # Tests opening index of unknown type
+    my $ind = Bio::Index::Abstract->new(-FILENAME => 'Wibbl');
 
     my $ok_3 = 1;
     while (my($name, $length) = each %t_seq) {
@@ -67,24 +72,23 @@ print "ok 2\n";
         }
     }
     print $ok_3 ? "ok 3\n" : "not ok 3\n";
-}
 
-my $stream = $ind->get_PrimarySeq_stream();
-while( my $seq2 = $stream->next_primary_seq ) {
-	if( !$seq2->isa('Bio::PrimarySeqI') ) {
-		print "not ok 4\n";
+    my $stream = $ind->get_PrimarySeq_stream();
+    my $ok_4 = 1;
+    while( my $seq2 = $stream->next_primary_seq ) {
+	unless ($seq2->isa('Bio::PrimarySeqI')) {
+	    $ok_4 = 0;
 	}
+    }
+    print $ok_4 ? "ok 4\n" : "not ok 4\n";
 }
 
-print "ok 4\n";
 
-$ind = 0;
-
-$ind = Bio::Index::SwissPfam->new('Wibbl2', 'WRITE');
-$ind->make_index("$dir/t/swisspfam.data");
-
-print "ok 5\n";
-$ind = 0;
+{
+    my $ind = Bio::Index::SwissPfam->new('Wibbl2', 'WRITE');
+    $ind->make_index("$dir/t/swisspfam.data");
+    print "ok 5\n";
+}
 
 # don't test EMBL yet. Bad...
 
