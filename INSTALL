@@ -185,3 +185,76 @@ The Test System
  fail, any tests that require a network connection.
 
 
+DEPENDANCIES
+
+The following packages are used by Bioperl.  Not all are required for
+Bioperl to operate properly, however, some functionality will be
+missing without them.  You can easily install all of these via the
+Bundle::BioPerl CPAN bundle.
+
+Module			 Where it is Used
+------------------------------------------------------------------
+HTTP::Request::Common    GenBank+GenPept sequence retrieval, 
+			 remote http Blast jobs.
+			 Bio::DB::*,Bio::Tools::Run::RemoteBlast
+
+LWP::UserAgent           GenBank+GenPept sequence retrieval, 
+			 remote http Blast jobs
+			 Bio::DB::*,Bio::Tools::Run::RemoteBlast
+
+Ace come from AcePerl    Access to ACeDB databases
+			 Bio::DB::Ace
+
+IO::Scalar		 IO handle to read or write to a scalar/remote 
+			 http Blast jobs
+			 Bio::Tools::Blast::Run::Remote,
+
+IO::String               IO handle to read or write to a string.
+			 GenBank+GenPept sequence retrieval, 
+			 Variation code,
+			 Bio::DB::*,Bio::Variation::*,
+			 Bio::Index::Blast
+
+XML::Parser              Parsing of XML documents
+			 Bio::Variation code, GAME parser, SearchIO
+			 Bio::SeqIO::game,Bio::Variation::*, 
+			 Bio::SearchIO::blastxml
+			 Bio::Biblio::IO::medlinexml
+
+XML::Writer              Parsing + writing of XML documents
+			 Bio::Variation code, GAME parser
+			 Bio::SeqIO::game,Bio::Variation::*
+
+XML::Parser::PerlSAX     Parsing of XML documents
+			 Bio::Variation code, GAME parser, SearchIO
+			 Bio::SeqIO::game,Bio::Variation::*,
+			 Bio::SearchIO::blastxml
+			 Bio::Biblio::IO::medlinexml
+
+XML::Twig        	 Pxarsing of XML documents
+			 Module Bio::Variation::IO::xml.pm
+
+File::Temp               Temporary File creation
+			 Bio::DB::WebDBSeqI, Bio::Seq::LargePrimarySeq
+			 All analysis running
+
+SOAP::Lite               SOAP protocol
+			 XEMBL Services, 
+			 Bibliographic queries in Biblio::
+			 Bio::DB::XEMBLService
+
+HTML::Parser             HTML parsing of GDB page
+			 Bio::DB::GDB
+
+DBD::mysql               Mysql driver
+			 loading and querying of Mysql-based 
+			 GFF feature databases
+			 Bio::DB::GFF
+
+GD			 GD graphical drawing library
+			 Bio::Graphics
+
+srsperl.pm		 Sequence Retrieval System (SRS) 
+			 perl API/alternative way of retrieving 
+			 sequences/Bio::LiveSeq::IO::SRS.pm
+			 See README in Bio/LiveSeq/IO

@@ -51,6 +51,8 @@ o Contact info
  Please see the AUTHORS file for the complete list of bioperl
  developers and contributors.
 
+ Please see the INSTALL document for installation instructions.
+
 o System requirements
 
  - Tested on all common forms of Unix, Win9X/NT/2000, Mac OS X 
@@ -64,7 +66,8 @@ o System requirements
    (available from CPAN http://www.perl.com/CPAN/).
 
  - Additional perl module and application dependencies listed at
-   http://bioperl.org/Core/external.shtml and in bptutorial.pl
+   http://bioperl.org/Core/external.shtml, and in the INSTALL document,
+   and in bptutorial.pl
 
  - Additional information using Bioperl with MacOS can be 
    found at http://bioperl.org/Core/mac-bioperl.html
