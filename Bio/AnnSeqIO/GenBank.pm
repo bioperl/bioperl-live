@@ -176,25 +176,25 @@ sub next_annseq{
     if( !defined $line ) {
 	return undef; # end of file
     }
-    
-    $line =~ /^LOCUS\s+(\S+)\s+\S+\s+\S+\s+(\S+)\s+(\S+)\s+(\S+)/ || $self->throw("GenBank stream with no LOCUS. Not GenBank in my book. ");
+    $line =~ /^LOCUS\s+\S+/ || $self->throw("GenBank stream with no LOCUS. Not GenBank in my book. ");
+    $line =~ /^LOCUS\s+(\S+)\s+\S+\s+bp\s+(\S+)\s+(\S+)\s+(\S+)/;
+
     $name = $1;
+
     $mol=$2; 
     if ($mol) {
 	$annseq->molecule($mol);
     }
     
-    print STDERR "MOLECULE: $mol\n"; 
     $div=$3;
-    print STDERR "DIVISION: $div\n";
     if ($div) {
 	$annseq->division($div);
     }
-
-#    $date=$4;
-#    if ($date) {
-#	$annseq->date($date);
-#    }
+    
+    $date=$4;
+    if ($date) {
+	$annseq->date($date);
+    }
 
     my $buffer = $line;
     
@@ -321,19 +321,29 @@ sub write_annseq {
     my $i;
     my $str = $seq->seq;
     
-    my $div;
+    my ($div, $mol);
     my $len = $seq->seq_len();
     
-    if( !$annseq->can('division') || ($div = $annseq->division()) == undef ) {
+    if( !$annseq->can('division')) { #|| ($div = $annseq->division()) == undef ) {
 	$div = 'UNK';
     }
+    else {
+	$div=$annseq->division;
+    }
+
+    if( !$annseq->can('molecule')) {
+	$mol = 'DNA';
+    }
+    else {
+	$mol = $annseq->molecule;
+    }
+
     
     my $temp_line;
     if( $self->_id_generation_func ) {
 	$temp_line = &{$self->_id_generation_func}($annseq);
     } else {
-	#Note: no date field at the end of header
-	$temp_line = sprintf ("%-12s%-10s%10s%8s%15s\n", 'LOCUS',$seq->id(),$len,'DNA',$div);
+	$temp_line = sprintf ("%-12s%-10s%10s bp%8s%15s%20s", 'LOCUS',$seq->id(),$len,$mol,$div, $annseq->date);
     } 
     
     print $fh "$temp_line\n";   
@@ -343,9 +353,12 @@ sub write_annseq {
     
     if( $self->_ac_generation_func ) {
 	$temp_line = &{$self->_ac_generation_func}($annseq);
-	print $fh "ACCESSION    $temp_line\n";   
+	print $fh "ACCESSION   $temp_line\n";   
     } else {
-	# nothing at the moment
+	if( $annseq->can('accession') ) {
+	    print "ACCESSION   ",$annseq->accession,"\n";
+	}
+	# otherwise - cannot print <sigh>
     } 
     
     # if there, write the version line
@@ -356,7 +369,9 @@ sub write_annseq {
 	    print $fh "VERSION     $temp_line\n";   
 	}
     } else {
-	# nothing at the moment
+	if( $annseq->can('sv') ) {
+	    print $fh "VERSION     ",$annseq->sv,"\n";
+       }
     } 
     
     # if there, write the keywords line
@@ -365,7 +380,9 @@ sub write_annseq {
 	$temp_line = &{$self->_kw_generation_func}($annseq);
 	print $fh "KEYWORDS    $temp_line\n";   
     } else {
-	# nothing at the moment
+	if( $annseq->can('keywords') ) {
+	    print $fh "KEYWORDS    ",$annseq->keywords,"\n";
+	}
     } 
     
     
@@ -480,7 +497,7 @@ sub write_annseq {
     }
     
     
-    print $fh "//\n";
+    print $fh "\n//\n";
     return 1;
 }
 

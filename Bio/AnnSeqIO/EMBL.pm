@@ -164,7 +164,8 @@ sub _initialize {
 
 sub next_annseq{
    my ($self,@args) = @_;
-   my ($seq,$fh,$c,$line,$name,$desc,$acc,$seqc);
+   my ($seq,$fh,$c,$line,$name,$desc,$acc,$seqc,$mol,$div, $date);
+   my $annseq = Bio::AnnSeq->new();
 
    $fh = $self->_filehandle();
 
@@ -173,14 +174,26 @@ sub next_annseq{
    }
 
    $line = <$fh>;
-   $line =~ /^ID\s+(\S+)/ || $self->throw("EMBL stream with no ID. Not embl in my book");
+   $line =~ /^ID\s+(\S+)\s+\S+\; (\S+)\; (\S+)/ || $self->throw("EMBL stream with no ID. Not embl in my book");
    $name = $1;
+   
+   $mol= $2;
+   $mol =~ s/\;//;
+   if ($mol) {
+       $annseq->molecule($mol);
+   }
+   
+   $div = $3;
+   $div =~ s/\;//;
+   if ($div) {
+       $annseq->division($div);
+   }
 
 #   $self->warn("not parsing upper annotation in EMBL file yet!");
 
    my $buffer = $line;
 
-   my $annseq = Bio::AnnSeq->new();
+ 
    
    BEFORE_FEATURE_TABLE :
    until( eof($fh) ) {
@@ -194,23 +207,34 @@ sub next_annseq{
        if (/^DE\s+(\S.*\S)/) {
            $desc .= $desc ? " $1" : $1;
        }
+
+       #accession number
        if( /^AC\s+(\S+);?/ ) {
 	   $acc = $1;
+	   $acc =~ s/\;//;
 	   $annseq->accession($acc);
        }
-
+       
+       #version number
        if( /^SV\s+(\S+);?/ ) {
 	   my $sv = $1;
+	   $sv =~ s/\;//;
 	   $annseq->sv($sv);
        }
 
+       #date (NOTE: takes last date line, to be refined!)
+       if( /^DT\s+(\S+)/ ) {
+	   my $date = $1;
+	   $date =~ s/\;//;
+	   $annseq->date($date);
+       }
+
+       #keywords
        if( /^KW   (.*)\S*$/ ) {
 	   my $keywords = $1;
 	   $annseq->keywords($keywords);
        }
 
-       # accession numbers...
-       
        # References
        elsif (/^R/) {
 	   my @refs = &_read_EMBL_References(\$buffer,$fh);
@@ -348,9 +372,12 @@ sub write_annseq {
 	   print $fh "XX   \n";
        }
    } 
+   
+   if( $annseq->can('date') ) {
+       print $fh "DT   ",$annseq->date,"\n";
+       print $fh "XX   \n";
+   }
 
-
-   # this next line screws up perl mode parsing. Sorry. It is a pain!
    _write_line_EMBL_regex($fh,"DE   ","DE   ",$seq->desc(),"\\s\+\|\$",80);
    print $fh "XX   \n";
 
@@ -670,7 +697,8 @@ sub _read_FTHelper_EMBL {
        /^FT\s+(\S+)/ or $out->throw("Weird location line in EMBL feature table: '$_'");
        $loc .= $1;
    }
-
+   $loc =~ s/<//;
+   $loc =~ s/>//;
    $out->key($key);
    $out->loc($loc);
 

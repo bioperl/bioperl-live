@@ -361,6 +361,26 @@ sub molecule{
 
 }
 
+=head2 date
+
+ Title   : date
+ Usage   : $obj->date($newval)
+ Function: 
+ Returns : date of entry
+ Args    : newvalue (optional)
+
+
+=cut
+
+sub date{
+   my $obj = shift;
+   if( @_ ) {
+      my $value = shift;
+      $obj->{'date'} = $value;
+    }
+    return $obj->{'date'};
+
+}
 
 =head2 accession
 
