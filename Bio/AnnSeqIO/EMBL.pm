@@ -293,14 +293,19 @@ sub write_annseq {
        }
    }
 
+   $str =~ tr/A-Z/a-z/;
    print $fh "SQ   \n";
    print $fh "    ";
-   for ($i = 10; $i < length($str); $i += 10) {
+   for ($i = 0; $i < length($str); $i += 10) {
        print $fh substr($str,$i,10), " ";
-       if( $i%50 == 0 ) {
-	   print $fh "\n    ";
+       if( ($i+10)%60 == 0 ) {
+	   my $end = $i+10;
+	   print $fh sprintf("%-5d\n    ",$end);
        }
    }
+
+   # FIXME : we are not printing the last number! Doh!
+
    print $fh "\n//\n";
    return 1;
 }
