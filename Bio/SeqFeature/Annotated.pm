@@ -603,25 +603,39 @@ sub get_SeqFeatures {
 
 =head2 add_SeqFeature()
 
- Usage   : $obj->add_SeqFeature($feat);
- Function: Returns : nothing
- Args    : A Bio::SeqFeatureI object.  Objects not implementing Bio::SeqFeatureI
-           and those whose bounds are not within those of the called object are
-           ignored with a warning.
+ Usage   : $feat->add_SeqFeature($subfeat);
+           $feat->add_SeqFeature($subfeat,'EXPAND')
+ Function: adds a SeqFeature into the subSeqFeature array.
+           with no 'EXPAND' qualifer, subfeat will be tested
+           as to whether it lies inside the parent, and throw
+           an exception if not.
+
+           If EXPAND is used, the parent''s start/end/strand will
+           be adjusted so that it grows to accommodate the new
+           subFeature
+ Example :
+ Returns : nothing
+ Args    : a Bio::SeqFeatureI object
 
 =cut
 
 sub add_SeqFeature {
-  my ($self,$val) = @_;
+  my ($self,$val, $expand) = @_;
 
   return undef unless $val;
 
   if ( !$val->isa('Bio::SeqFeatureI') ) {
     $self->warn("$val does not implement Bio::SeqFeatureI, ignoring.");
+    return undef;
   }
 
-  if ( !$self->contains($val) ) {
-    $self->warn("$val is not contained within parent feature, ignoring.");
+  if($expand && ($expand eq 'EXPAND')) {
+      $self->_expand_region($val);
+  } else {
+      if ( !$self->contains($val) ) {
+	  $self->warn("$val is not contained within parent feature, and expansion is not valid, ignoring.");
+	  return undef;
+      }
   }
 
   push(@{$self->{'sub_array'}},$val);
@@ -733,6 +747,40 @@ sub add_target {
 sub each_target {
   my ($self) = @_;
   return $self->{'targets'} ? @{ $self->{'targets'} } : ();
+}
+
+=head2 _expand_region
+
+ Title   : _expand_region
+ Usage   : $self->_expand_region($feature);
+ Function: Expand the total region covered by this feature to
+           accomodate for the given feature.
+
+           May be called whenever any kind of subfeature is added to this
+           feature. add_SeqFeature() already does this.
+ Returns : 
+ Args    : A Bio::SeqFeatureI implementing object.
+
+
+=cut
+
+sub _expand_region {
+    my ($self, $feat) = @_;
+    if(! $feat->isa('Bio::SeqFeatureI')) {
+        $self->warn("$feat does not implement Bio::SeqFeatureI");
+    }
+    # if this doesn't have start/end set - forget it!
+    if((! defined($self->start())) && (! defined $self->end())) {
+        $self->start($feat->start());
+        $self->end($feat->end());
+        $self->strand($feat->strand) unless defined($self->strand());
+#        $self->strand($feat->strand) unless $self->strand();
+    } else {
+        my $range = $self->union($feat);
+        $self->start($range->start);
+        $self->end($range->end);
+        $self->strand($range->strand);
+    }
 }
 
 1;
