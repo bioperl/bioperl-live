@@ -165,7 +165,7 @@ BEGIN {
 			'FORMAT_TYPE'    => 'Text',
 			);
 
-    $RIDLINE = 'RID\s+=\s+(\d+-\d+-\d+)';
+    $RIDLINE = 'RID\s+=\s+(\S+)';
 
     %BLAST_PARAMS = ( 'prog' => 'blastp',
 		       'data' => 'nr',
