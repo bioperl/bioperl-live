@@ -111,11 +111,13 @@ sub new {
   my($class,@args) = @_;
   my $self = $class->SUPER::new(@args);
   my ($name,$uniqueid,$parentid,
-      $rank,$div,$dbh, $factory,
+      $rank,$div,$dbh, 
+      $factory,
       $classification, $ncbitaxid, $commonname,
       $organelle, $sub_species,$variant) = 
 	  $self->_rearrange([ qw ( NAME OBJECT_ID PARENT_ID RANK DIVISION
-                                   DBH FACTORY
+                                   DBH 
+				   FACTORY
                                    CLASSIFICATION
                                    NCBI_TAXID
 			           COMMON_NAME
@@ -142,11 +144,12 @@ $uniqueid && $self->object_id($uniqueid);
   defined $div  && $self->division($div);
 
   
-  unless(defined $factory ){
-      $self->db_handle($dbh || Bio::DB::Taxonomy->new(-source => 'entrez'));
-  } else { 
-      $self->factory($factory);
-  }
+#unless(defined $factory ){
+   $self->db_handle($dbh || Bio::DB::Taxonomy->new(-source => 'entrez'));
+#  } else { 
+#      $self->factory($factory);
+#  }
+
   defined $parentid && $self->parent_id($parentid);
   if( defined $classification ) {
       if( ref($classification) !~ /ARRAY/ ) {
@@ -242,8 +245,8 @@ sub rank{
 sub object_id {
     my $self = shift;
 
-    return $self->{'object_id'} = shift if @_;
-    return $self->{'object_id'};
+    return $self->{'_object_id'} = shift if @_;
+    return $self->{'_object_id'};
 }
 
 *ncbi_taxid = \&object_id;
@@ -338,18 +341,55 @@ sub parent_id{
 
 sub get_Parent_Node {
    my ($self) = @_;
+
    if( ! $self->db_handle ||
        ! defined $self->parent_id ) {
-       $self->warn("Cannot get the parent node for ",$self->name('common'), 
+       $self->warn("Cannot get the parent node for ".$self->node_name.
 		   " because parent_id or db handle is not defined\n");
        return undef;
    }
+
+
    my $node = $self->db_handle->get_Taxonomy_Node(-taxonid => $self->parent_id);
-   unless ( $node ) {
+   unless ( defined $node ) {
        $self->warn("Could not find node for parent id ". $self->parent_id);
        return undef;
    }
    return $node;
+}
+
+
+=head2 get_Children_Nodes
+
+ Title   : get_Children_Nodes
+ Usage   : my @nodes = $node->get_Children_Nodes();
+ Function: Get the children of a node as L<Bio::Taxonomy::Node> objects
+ Returns : Array of L<Bio::Taxonomy::Node> objects
+ Args    : none
+
+
+=cut
+
+sub get_Children_Nodes{
+   my ($self) = @_;
+   if( ! $self->db_handle ||
+       ! defined $self->parent_id ) {
+       $self->warn("Cannot get the children nodes for ".$self->name('common').
+		   " because the db handle is not defined\n");
+       return undef;
+   }
+   my @nodes = $self->db_handle->get_Children_Taxids($self->object_id);
+   my @children;
+   for my $n ( @nodes ) {
+       my $node = $self->db_handle->get_Taxonomy_Node(-taxonid => $n);
+       unless( defined $node ) {
+	   $self->warn("Could not find node for id $n child  of ".
+		       $self->object_id);
+       } else {
+	   push @children, $node;
+       }
+   }
+   return @children;
 }
 
 =head2 node_name
