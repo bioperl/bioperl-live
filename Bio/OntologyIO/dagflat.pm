@@ -578,7 +578,7 @@ warn $line;
 sub _get_first_termid {
     my ( $self, $line ) = @_;
     
-    if ( $line =~ /;\s*([A-Z]{1,8}:\d{3,})/ ) {
+    if ( $line =~ /;\s*([A-Z_]{1,8}:\d{3,})/ ) {
         return $1;
     }
     else {
