@@ -938,11 +938,11 @@ sub match_line {
 
              Goes through all columns and changes residues that are
              identical to residue in first sequence to match '.'
-             character. Sets L<match_char>.
+             character. Sets match_char.
 
              USE WITH CARE: Most MSE formats do not support match
              characters in sequences, so this is mostly for output
-             only. NEXUS format (L<Bio::AlignIO::nexus>) can handle
+             only. NEXUS format (Bio::AlignIO::nexus) can handle
              it.
 
  Returns   : 1
@@ -984,12 +984,12 @@ sub match {
 
  Title     : unmatch()
  Usage     : $ali->unmatch()
- Function  : 
-
-             Undoes the effect of method L<match>. Unsets L<match_char>.
+ Function  : Undoes the effect of method match. Unsets match_char.
 
  Returns   : 1
  Argument  : a match character, optional, defaults to '.'
+
+See L<match> and L<match_char>
 
 =cut
 
@@ -1213,7 +1213,7 @@ sub _consensus_aa {
 
              Note that if your alignment sequences contain a lot of
              IUPAC ambiquity codes you often have to manually set
-             alphabet.  L<Bio::PrimarySeq::_guess_type> thinks they
+             alphabet.  Bio::PrimarySeq::_guess_type thinks they
              indicate a protein sequence.
 
  Returns   : consensus string
