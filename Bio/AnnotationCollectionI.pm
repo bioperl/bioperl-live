@@ -1,4 +1,4 @@
-
+# $Id$
 
 #
 # BioPerl module for Bio::AnnotationCollectionI
@@ -141,8 +141,7 @@ use Bio::Root::RootI;
 =cut
 
 sub get_all_annotation_keys{
-    my ($self) = @_;
-    $self->throw("Abstract method get_all_annotation_keys implementing class did not provide method");
+    shift->throw_not_implemented();
 }
 
 
@@ -157,10 +156,7 @@ sub get_all_annotation_keys{
 =cut
 
 sub get_Annotations{
-    my ($self) = @_;
-
-    $self->throw("Abstract method get_Annotations implementing class did not provide method");
-    
+    shift->throw_not_implemented();    
 }
 
 =head2 get_num_of_annotations
@@ -175,8 +171,7 @@ sub get_Annotations{
 =cut
 
 sub get_num_of_annotations{
-   my ($self) = @_;
-       $self->throw("Abstract method get_num_of_annotations implementing class did not provide method");
+    shift->throw_not_implemented();
 }
 
 1;

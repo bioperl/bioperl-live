@@ -743,7 +743,9 @@ sub display_id {shift->seqname}
 
  Title   : annotation
  Usage   : $obj->annotation($annot_obj)
- Function: 
+ Function: Get/set the annotation collection object for annotating this
+           feature.
+
  Example : 
  Returns : A Bio::AnnotationCollectionI object
  Args    : newvalue (optional)
@@ -757,11 +759,10 @@ sub annotation {
     # we are smart if someone references the object and there hasn't been
     # one set yet
     if(defined $value || ! defined $obj->{'annotation'} ) {
-	$value = new Bio::Annotation::Collection unless ( defined $value );
-	$obj->{'annotation'} = $value;
+        $value = new Bio::Annotation::Collection unless ( defined $value );
+        $obj->{'annotation'} = $value;
     }
     return $obj->{'annotation'};
-
 }
 
 =head2 gff_format

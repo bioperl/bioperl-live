@@ -110,7 +110,7 @@ sub new{
 }
 
 
-=head2 Bio::Annotation::CollectionI implementing methods
+=head1 Bio::AnnotationCollectionI implementing methods
 
 =cut
 
@@ -183,7 +183,7 @@ sub get_num_of_annotations{
    return $count;
 }
 
-=head2 Implementation specific functions - mainly for adding
+=head1 Implementation specific functions - mainly for adding
 
 =cut
 
@@ -192,6 +192,7 @@ sub get_num_of_annotations{
  Title   : add_Annotation
  Usage   : $self->add_Annotation('reference',$object);
            $self->add_Annotation($object,'Bio::MyInterface::DiseaseI');
+           $self->add_Annotation($object);
            $self->add_Annotation('disease',$object,'Bio::MyInterface::DiseaseI');
  Function: Adds an annotation for a specific key.
 
@@ -199,23 +200,24 @@ sub get_num_of_annotations{
            via its tagname().
 
            If the archetype is provided, this and future objects added under
-           that tag have to comply with the archetype and rejected otherwise.
+           that tag have to comply with the archetype and will be rejected
+           otherwise.
 
  Returns : none
  Args    : annotation key ('disease', 'dblink', ...)
            object to store (must be Bio::AnnotationI compliant)
-           [optional] object archytype to map future storage of object 
+           [optional] object archetype to map future storage of object 
                       of these types to
 
 =cut
 
 sub add_Annotation{
-   my ($self,$key,$object,$archytype) = @_;
+   my ($self,$key,$object,$archetype) = @_;
    
    # if there's no key we use the tagname() as key
    if(ref($key) && $key->isa("Bio::AnnotationI") &&
       (! ($object && ref($object)))) {
-       $archytype = $object if $object;
+       $archetype = $object if $object;
        $object = $key;
        $key = $object->tagname();
        $key = $key->name() if $key && ref($key); # OntologyTermI
@@ -235,25 +237,25 @@ sub add_Annotation{
        $self->throw("object must be AnnotationI compliant, otherwise we wont add it!");
    }
 
-   # ok, now we are ready! If we don't have an archytype, set it
+   # ok, now we are ready! If we don't have an archetype, set it
    # from the type of the object
 
-   if( !defined $archytype ) {
-       $archytype = ref $object;
+   if( !defined $archetype ) {
+       $archetype = ref $object;
    }
 
    # check typemap, storing if needed.
    my $stored_map = $self->_typemap->type_for_key($key);
 
    if( defined $stored_map ) {
-       # check validity, irregardless of archytype. A little cheeky
+       # check validity, irregardless of archetype. A little cheeky
        # this means isa stuff is executed correctly
 
        if( !$self->_typemap()->is_valid($key,$object) ) {
-	   $self->throw("Object $object was not valid with key $key. If you were adding new keys in, perhaps you want to make use of the archytype method to allow registration to a more basic type");
+	   $self->throw("Object $object was not valid with key $key. If you were adding new keys in, perhaps you want to make use of the archetype method to allow registration to a more basic type");
        }
    } else {
-       $self->_typemap->_add_type_map($key,$archytype);
+       $self->_typemap->_add_type_map($key,$archetype);
    }
 
    # we are ok to store

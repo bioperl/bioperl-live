@@ -16,7 +16,7 @@ BEGIN {
     }
     use Test;
 
-    plan tests => 42;
+    plan tests => 43;
 }
 
 use Bio::Location::Simple;
