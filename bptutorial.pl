@@ -322,8 +322,8 @@ blast searching. To use these features of bioperl you will need an
 ANSI C or Gnu C compiler as well as the actual program available from
 sources such as:
 
-for Smith-Waterman alignments- bioperl-ext-0.6 from
-http://bioperl.org/Core/external.shtml
+for Smith-Waterman alignments- 
+the bioperl-ext package
 
 for clustalw alignments-
 ftp://ftp.ebi.ac.uk/pub/software/unix/clustalw/
