@@ -18,14 +18,12 @@ o About Bioperl
 
  Thanks for downloading this distribution!
 
- Bioperl is an association of developers of public
- domain Perl tools for computational molecular
- biology. 
+ Bioperl is an association of developers of public domain Perl tools
+ for computational molecular biology.
 
- Our website http://bioperl.org provides an online 
- resource for modules, scripts, and web links for 
- developers of Perl-based software for life 
- science research. 
+ Our website http://bioperl.org provides an online resource for
+ modules, scripts, and web links for developers of Perl-based software
+ for life science research.
 
 o Contact info
 
@@ -37,9 +35,12 @@ o Contact info
  Bug reports       : http://bioperl.org/bioperl-bugs/
                      bioperl-bugs@bioperl.org
 
- Please send us bugs, in particular about documentation which you 
+ Please send us bugs, in particular about documentation which you
  think is unclear or problems in installation. We are also very
  interested in functions which don't work the way you think they do!
+
+ Please see the AUTHORS file for the complete list of bioperl
+ developers and contributors.
 
 o System requirements
 
@@ -102,7 +103,8 @@ is tested with the test suite and cross-tested on a number of
 different platforms.  See the PLATFORMS file for more information on a
 specific platform.  All efforts are made to release a bug free
 package, however any known bugs in a release will be documented in the
-BUGS file.
+BUGS file.  See the Changes file for a listing of what features have
+been added or what APIs have changed between releases.
 
   The 0.9.x developer series releases are intended to be quick
 releases off the main trunk to provided FTPable code that has been
@@ -172,11 +174,14 @@ the correct -fPIC/-fpic flags for the c compiler that is used. This
 requires manual editing of the generated makefile to switch case. Try
 it out once, and if you get errors, try editing the -fpic line
 
-BUILDING THE COMPILED EXTENSIONS
+BUILDING THE COMPILED EXTENSIONS (OPTIONAL, ONLY FOR RUNNING LOCAL
+PROTEIN SMITH-WATERMAN ANALYSES FROM PERL)
 
-Move to the directory Compile/SW. This is where the C code and XS
-extension for the bp_sw module is held and execute these commands:
-(possibly after making the change for *BSD and Solaris, as detailed above)
+Move to the directory bioperl-ext.  This is available as a separate
+package released from ftp://bioperl.org/pub/DIST.  This is where the C
+code and XS extension for the bp_sw module is held and execute these
+commands: (possibly after making the change for *BSD and Solaris, as
+detailed above)
 
   perl Makefile.PL   # makes the system specific makefile 
                      # Solaris/BSD users might need to edit the Makefile here
