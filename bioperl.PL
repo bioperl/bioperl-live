@@ -22,6 +22,8 @@ been split up into the following sections:
 =head2 Overview
 
 	bioperl		Bioperl overview (this document)
+	biodatabases	How to use databases with Bioperl
+	biodesign	A guide for authoring a Bioperl module
 
 =head2 Tutorials
 
