@@ -105,7 +105,7 @@
 		learning the jargon, and programming certainly has its share of
 		interesting terms and concepts. Be patient - remember that the
 		programmers learning biology have had just as tough a task
-		(if not worse, if you ask them!).
+		(if not worse - just ask them!).
 	 </para>
     <note>
       <para>
@@ -113,7 +113,7 @@
 		  beginners, 
 		  <ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Perl.html">Bio::Perl</ulink>. The reason is that though this is an
 			 excellent introductory tool, it can't be extended. What we're
-		  attempting here is to introduce Bioperl and suggest
+		  attempting here is to introduce Bioperl and show you
 		  ways to expand your new-found skills.
       </para>
     </note>
@@ -357,7 +357,7 @@ Internet, point your browser at http://www.perl.com/, the Perl Home Page.
 	 </para>
 	 <para>
 		The "-w" flag tells Perl to warn you if and when various common errors
-		are encountered.
+		are encountered, it's useful.
 	 </para>
   </section>
 
@@ -638,7 +638,8 @@ ORIGIN
 
 		  use Bio::SeqIO;
 
-		  $seqio = Bio::SeqIO->new(-file => "sequence.fasta");
+		  $seqio_obj = Bio::SeqIO->new(-file => "sequence.fa",
+                                     -format => "fasta" );
 		</programlisting>
 	 </para>
 	 <para>
@@ -654,7 +655,7 @@ ORIGIN
 
 		  use Bio::SeqIO;
 
-		  $seqio_obj = Bio::SeqIO->new(-file => "sequence.fasta",
+		  $seqio_obj = Bio::SeqIO->new(-file => "sequence.fa",
                                      -format => "fasta" );
 		  
 		  $seq_obj = $seqio->next_seq;
@@ -686,12 +687,14 @@ ORIGIN
 	 </para>
 	 <para>
 		Do you have to supply a "-format" argument when you are reading 
-		from a file? Not necessarily, but it's generally the safe thing
+		from a file, as we did? Not necessarily, but it's generally the safe thing
 		to do. If you don't give a format then the SeqIO object will 
 		try to determine the format from the file suffix or extension 
 		(and a list of the file extensions is in the  
 		<ulink url="http://bioperl.org/HOWTOs/SeqIO/index.html">
-		  SeqIO HOWTO</ulink>). If that doesn't work then SeqIO will 
+		  SeqIO HOWTO</ulink>). In fact, the suffix "fa" is one that
+		SeqIO understands, "-format" is unnecessary. Without a known
+		suffix SeqIO will 
 		attempt to guess the format based on the file's contents.
 	 </para>
   </section>
@@ -750,7 +753,8 @@ ORIGIN
 		this. This next example attempts to do something "biological",
 		using the module 
 <ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/DB/Query/Genbank.html">Bio::DB::Query::GenBank</ulink>. Want all Arabidopsis
-		topoisomerases from Genbank Nucleotide?
+		topoisomerases from Genbank Nucleotide? This would be a 
+		reasonable first attempt:
 	 </para>
 	  <para>
 		<programlisting>
@@ -781,12 +785,23 @@ ORIGIN
 		  
 		  while ($seq_obj = $stream_obj->next_seq) {
 	        # do something with the sequence object
-     		  print $seq_obj->display_id,"\t",$seq_obj->length,"\n";
+     		  print $seq_obj->display_id, "\t", $seq_obj->length, "\n";
 		  }
 		</programlisting>
 	 </para>
 	 <para>
-		
+		That <classname>get_Stream_by_query</classname> method and its
+		<varname>$stream_obj</varname> may not look familiar. The idea
+		is that you will use a stream whenever you expect to retrieve 
+		a stream or series of sequence objects. Much like <classname>
+		  get_Seq_by_id</classname>, but built to retrieve one or
+		more objects, not just one.
+	 </para>
+	 <para>
+		Notice how carefully separated the responsibilities of each
+		object are in the code above: an object just to describe the query,
+		an object to access Genbank using the query, an object to 
+		retrieve, and finally the sequence object.
 	 </para>
 	 <warning>
 		<para>
@@ -833,11 +848,11 @@ while( my $seq = $seq_in->next_seq() ) {
     </para>
     <para>
       <programlisting>
-		  $seq_obj->seq;
+		  print $seq_obj->seq;
       </programlisting>
 	 </para>
 	 <para>
-		Or <emphasis>set</emphasis> or be used to assign a value, like
+		Or be used to <emphasis>set</emphasis> or assign a value, like
 		so:
 	 </para>
 	 <para>
@@ -860,46 +875,46 @@ while( my $seq = $seq_in->next_seq() ) {
 				<row>
 				  <entry>new</entry>
 				  <entry>Sequence object</entry>
-				  <entry></entry>
+				  <entry>create a new one</entry>
 				</row>
 				  <entry>seq</entry>
 				  <entry>sequence string</entry>
-				  <entry>get or set</entry>
+				  <entry>get or set the sequence</entry>
 				</row>
 				<row>
 				  <entry>display_id</entry>
-				  <entry></entry>
-				  <entry></entry>
+				  <entry>identifier</entry>
+				  <entry>get or set an identifier</entry>
 				</row>
 				<row>
 				  <entry>display_name</entry>
-				  <entry></entry>
-				  <entry></entry>
+				  <entry>name</entry>
+				  <entry>get or set an identifier</entry>
 				</row>
 				<row>
 				  <entry>primary_id</entry>
-				  <entry></entry>
-				  <entry></entry>
+				  <entry>identifier</entry>
+				  <entry>get or set an identifier</entry>
 				</row>
 				<row>
 				  <entry>desc</entry>
-				  <entry></entry>
-				  <entry></entry>
+				  <entry>description</entry>
+				  <entry>get or set a description</entry>
 				</row>
 				<row>
 				  <entry>accession</entry>
-				  <entry></entry>
-				  <entry></entry>
+				  <entry>identifier</entry>
+				  <entry>get or set an identifier</entry>
 				</row>
 				<row>
 				  <entry>length</entry>
-				  <entry></entry>
+				  <entry>length</entry>
 				  <entry></entry>
 				</row>
 				<row>
 				  <entry>alphabet</entry>
-				  <entry></entry>
-				  <entry></entry>
+				  <entry>alphabet</entry>
+				  <entry>get or set the alphabet ('dna','rna','protein')</entry>
 				</row>
 				<row>
 				  <entry>subseq</entry>
@@ -1017,6 +1032,38 @@ while( my $seq = $seq_in->next_seq() ) {
       </table>
     </para>
 
+  </section>
+
+<!-- secondary ids? -->
+
+  <section id="examples">
+    <title>Example Files</title>
+    <para>
+		Let's use some of the methods above and see what they return
+		when the sequence object is derived from different types of 
+		sequnce files.
+    </para>
+    <para>
+    </para>
+    <para>
+		<emphasis>Fasta file</emphasis>
+      <programlisting>
+      </programlisting>
+    </para>
+    <para>
+    </para>
+    <para>
+		<emphasis>Genbank file</emphasis>
+      <programlisting>
+      </programlisting>
+    </para>
+    <para>
+    </para>
+    <para>
+		<emphasis>Swissprot file</emphasis>
+      <programlisting>
+      </programlisting>
+    </para>
   </section>
 
   <section id="regexp">
