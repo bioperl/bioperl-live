@@ -117,7 +117,7 @@ sub new {
      my $newkey;
      foreach my $key (sort keys %arguments) {
           ($newkey = $key) =~ s/-//;
-          $self->{$newkey} = %arguments->{$key};
+          $self->{$newkey} = $arguments{$key};
           push @{$self->{arguments}},$newkey;
      }
           # and now the insurance- make sure that things are ok

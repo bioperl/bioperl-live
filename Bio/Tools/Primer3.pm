@@ -159,31 +159,31 @@ sub next_primer {
           chomp ($line);
           last if ($line =~ /^=/);
           $line =~ m/(^.*)\=(.*$)/;
-          %primer->{$1} = $2; 
+          $primer{$1} = $2; 
      }
                # then, get the primers as SeqFeature::Primer objects
      
      my ($left,$right) = &_create_primer_features(\%primer);
                # then, create the sequence to place them on
-     my $sequence = Bio::Seq->new(-seq => %primer->{SEQUENCE},
-                                         -id => %primer->{PRIMER_SEQUENCE_ID});
-     # print("Sequence is ".%primer->{SEQUENCE}." and id is ".%primer->{PRIMER_SEQUENCE_ID}."\n");
+     my $sequence = Bio::Seq->new(-seq => $primer{SEQUENCE},
+                                         -id => $primer{PRIMER_SEQUENCE_ID});
+     # print("Sequence is ".$primer{SEQUENCE}." and id is ".$primer{PRIMER_SEQUENCE_ID}."\n");
      my $primedseq = new Bio::Seq::PrimedSeq(
                                            -target_sequence => $sequence,
                                            -left_primer => $left,
                                            -right_primer => $right,
-                                           -primer_sequence_id => %primer->{PRIMER_SEQUENCE_ID},
-                                           -primer_comment => %primer->{PRIMER_COMMENT},
-                                           -target => %primer->{TARGET},
-                                           -primer_product_size_range => %primer->{PRIMER_PRODUCT_SIZE_RANGE},
-                                           -primer_file_flag => %primer->{PRIMER_FILE_FLAG},
-                                           -primer_liberal_base => %primer->{PRIMER_LIBERAL_BASE},
-                                           -primer_num_return => %primer->{PRIMER_NUM_RETURN},
-                                           -primer_first_base_index => %primer->{PRIMER_FIRST_BASE_INDEX},
-                                           -primer_explain_flag => %primer->{PRIMER_EXPLAIN_FLAG},
-                                           -primer_pair_compl_any => %primer->{PRIMER_PAIR_COMPL_ANY},
-                                           -primer_pair_compl_end => %primer->{PRIMER_PAIR_COMPL_END},
-                                           -primer_product_size => %primer->{PRIMER_PRODUCT_SIZE}
+                                           -primer_sequence_id => $primer{PRIMER_SEQUENCE_ID},
+                                           -primer_comment => $primer{PRIMER_COMMENT},
+                                           -target => $primer{TARGET},
+                                           -primer_product_size_range => $primer{PRIMER_PRODUCT_SIZE_RANGE},
+                                           -primer_file_flag => $primer{PRIMER_FILE_FLAG},
+                                           -primer_liberal_base => $primer{PRIMER_LIBERAL_BASE},
+                                           -primer_num_return => $primer{PRIMER_NUM_RETURN},
+                                           -primer_first_base_index => $primer{PRIMER_FIRST_BASE_INDEX},
+                                           -primer_explain_flag => $primer{PRIMER_EXPLAIN_FLAG},
+                                           -primer_pair_compl_any => $primer{PRIMER_PAIR_COMPL_ANY},
+                                           -primer_pair_compl_end => $primer{PRIMER_PAIR_COMPL_END},
+                                           -primer_product_size => $primer{PRIMER_PRODUCT_SIZE}
                                         );
      return $primedseq;
 }
@@ -237,15 +237,15 @@ sub _create_primer_features {
 				else {
 				     ($trunc = $_) =~ s/PRIMER_DIRECTION_//;
 				}
-               %dat->{"-$trunc"} = $rdat->{$var};
+               $dat{"-$trunc"} = $rdat->{$var};
              }
                if ($updir eq "LEFT") {
                     %left = %dat;
-                    %left->{-id} = $rdat->{PRIMER_SEQUENCE_ID}."-left";
+                    $left{-id} = $rdat->{PRIMER_SEQUENCE_ID}."-left";
                }
                else {
                     %right = %dat;
-                    %right->{-id} = $rdat->{PRIMER_SEQUENCE_ID}."-right";
+                    $right{-id} = $rdat->{PRIMER_SEQUENCE_ID}."-right";
                }
      }
      my $primer_left = new Bio::SeqFeature::Primer(%left);

@@ -1635,7 +1635,7 @@ sub reverse_and_complement {
 =cut
 
 my $current_base;
-sub reverse_recurse($source,$destination) {
+sub reverse_recurse($$) {
 	(my $r_source,my $r_destination) = @_;
 	if (!@$r_source) { return $r_destination; }
 	$_=pop(@$r_source);

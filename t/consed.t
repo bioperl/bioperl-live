@@ -9,8 +9,6 @@
 #
 #####
 
-
-use ExtUtils::testlib;
 use strict;
 use vars qw($TESTCOUNT);
 BEGIN {
@@ -22,7 +20,7 @@ BEGIN {
         use lib 't';
     }
     use Test;
-    $TESTCOUNT = 15;
+    $TESTCOUNT = 16;
     plan tests => $TESTCOUNT;
 }
 
@@ -51,7 +49,7 @@ print("Checking if a new CSM::Consed object was created...\n") if( $DEBUG > 0);
 ok defined $o_consed;
 
 	# set the verbosity to a valid value (1)
-my $verbosity = $o_consed->verbose(1);
+ok my $verbosity = $o_consed->verbose(1);
 
 # set the verbosity to "none"
 $o_consed->verbose(0);

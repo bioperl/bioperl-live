@@ -101,18 +101,18 @@ sub new {
           # things later
      foreach my $argument (sort keys %arguments) {
           if ($argument eq "-SEQUENCE" || $argument eq "-sequence") {
-               if (ref(%arguments->{$argument}) eq "Bio::Seq") {
-                    $self->{seq} = %arguments->{$argument};
+               if (ref($arguments{$argument}) eq "Bio::Seq") {
+                    $self->{seq} = $arguments{$argument};
                }
                else {
-                    $self->{seq} = new Bio::Seq( -seq => %arguments->{$argument},
-                                                  -id => %arguments->{-id});
+                    $self->{seq} = new Bio::Seq( -seq => $arguments{$argument},
+                                                  -id => $arguments{-id});
                }
                $self->{tags}->{$argument} = "A Bio::Seq. Use seq() to get this 'tag'";
           }
           else {
                (my $fixed = $argument) =~ s/-//;
-               $self->{tags}->{$fixed} = %arguments->{$argument};
+               $self->{tags}->{$fixed} = $arguments{$argument};
           }
      }
      if (!$self->{seq}) {

@@ -75,8 +75,8 @@ my $v3 = $in_scf_v3->next_seq();
 ok (scalar(@indices) == 1106);
 
 my %header = %{$in_scf_v3->get_header()};
-ok (%header->{bases} == 1106);
-ok (%header->{samples} == 14107);
+ok $header{bases}, 1106;
+ok $header{samples},  14107;
 
 
 my $out_scf = Bio::SeqIO->new('-file' => ">write_scf.scf",

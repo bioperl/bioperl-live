@@ -114,9 +114,9 @@ sub new {
                     PHREDS
                               )],
                           @args);
-          $self->{windowsize} = $windowsize || $DEFAULTS{'windowsize'};
-          $self->{phreds} = $phreds || $DEFAULTS{'phreds'};
-          print("Constructor set phreds to ".$self->{phreds}."\n");
+    $self->{windowsize} = $windowsize || $DEFAULTS{'windowsize'};
+    $self->{phreds} = $phreds || $DEFAULTS{'phreds'};
+    print("Constructor set phreds to ".$self->{phreds}."\n") if $self->verbose > 0;
     $self->set_designators($DEFAULTS{'f_designator'},
 			   $DEFAULTS{'r_designator'});
     return $self;
@@ -255,7 +255,7 @@ sub trim_singlet {
           # smooth out the qualities
     my $r_windows = &_sliding_window(\@qual,$self->{windowsize});
           # find out the leading and trailing trimpoints
-    my $start_base = &_get_start($r_windows,$self->{windowsize},$self->{phreds});
+    my $start_base = $self->_get_start($r_windows,$self->{windowsize},$self->{phreds});
      my (@new_points,$trimmed_sequence);
           # do you think that any sequence shorter then 100 should be
           # discarded? I don't think that this should be the decision of this
@@ -335,7 +335,7 @@ sub trim_doublet {
 	}
     }
     # start_base required: r_quality,$windowsize,$phredvalue
-    my $start_base = &_get_start($r_windows,5,20,$offset);
+    my $start_base = $self->_get_start($r_windows,5,20,$offset);
     if ($start_base > ($sequence_length - 100)) {
 	$points[0] = ("FAILED");
 	$points[1] = ("FAILED");
@@ -435,7 +435,7 @@ sub chop_sequence {
 =head2 _get_start($r_quals,$windowsize,$phreds,$offset)
 
  Title   : _get_start($r_quals,$windowsize,$phreds,$offset)
- Usage   : $start_base = &_get_start($r_windows,5,20);
+ Usage   : $start_base = $self->_get_start($r_windows,5,20);
  Function: Provide the start trim point for this sequence.
  Returns : a scalar representing the start of the sequence
  Args    : 
@@ -450,8 +450,8 @@ sub chop_sequence {
 =cut 
 
 sub _get_start {
-    my ($r_quals,$windowsize,$phreds,$offset) = @_;
-     print("Using $phreds phreds\n");
+    my ($self,$r_quals,$windowsize,$phreds,$offset) = @_;
+     print("Using $phreds phreds\n")  if $self->verbose > 0;
           # this is to help determine whether the sequence is good at all
     my @quals = @$r_quals;
     my ($count,$count2,$qualsum);

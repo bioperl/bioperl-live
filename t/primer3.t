@@ -4,9 +4,9 @@
 #
 # modeled after the t/Allele.t test script
 
-use ExtUtils::testlib;
 use strict;
 use Dumpvalue qw(dumpValue);
+use vars qw($DEBUG);
 
 
 BEGIN {
@@ -20,27 +20,29 @@ BEGIN {
     use Test;
     plan tests => 4;
 }
+$DEBUG = $ENV{'BIOPERLDEBUG'};
 
-my $dumper = new Dumpvalue();
 
-print("Checking to see if Bio::Tools::Primer3 is available.\n");
+#my $dumper = new Dumpvalue();
+
+print("Checking to see if Bio::Tools::Primer3 is available.\n") if $DEBUG;
 use Bio::Tools::Primer3;
 ok(1);
 
-print("Checking to see if Bio::SeqFeature::Primer is available.\n");
+print("Checking to see if Bio::SeqFeature::Primer is available.\n") if $DEBUG;
 use Bio::SeqFeature::Primer;
 ok(1);
 
-print("Checking to see if a primer outfile can be read...\n");
+print("Checking to see if a primer outfile can be read...\n") if $DEBUG;
      # ph = "primer handle"
 my $ph = Bio::Tools::Primer3->new('-file' => Bio::Root::IO->catfile("t","data",
           "primer3_outfile.txt"));
 ok(ref($ph) eq "Bio::Tools::Primer3");
-print("Getting an object from the primer file...\n");
+print("Getting an object from the primer file...\n") if $DEBUG;
 
      # now get a primer!
 my $thingy = $ph->next_primer();
-print("That thingy isa $thingy\n");
+print("That thingy isa $thingy\n") if $DEBUG;
 ok (ref($thingy) eq "Bio::Seq::PrimedSeq");
 # print("Here is the primer object that I got back:\n");
 # $dumper->dumpValue($thingy);

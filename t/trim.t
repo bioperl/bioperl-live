@@ -11,9 +11,8 @@
 #####
 
 
-use ExtUtils::testlib;
 use strict;
-require 'dumpvar.pl';
+#require 'dumpvar.pl';
 
 BEGIN {
     # to handle systems with no installed Test module
@@ -26,7 +25,8 @@ BEGIN {
     use Test;
     plan tests => 7;
 }
-my $DEBUG = 0;
+my $DEBUG = $ENV{'BIOPERLDEBUG'};
+
 print("Checking if the Bio::Tools::Alignment::Consed module could be used...\n") if($DEBUG);
 use Bio::Tools::Alignment::Consed;
 use Bio::Root::IO;
