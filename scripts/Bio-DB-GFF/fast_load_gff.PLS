@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-# $Id: fast_load_gff.PLS,v 1.7 2003-09-12 02:36:40 lstein Exp $
+# $Id: fast_load_gff.PLS,v 1.8 2003-09-27 20:41:41 lstein Exp $
 
 use strict;
 # use lib './blib/lib';
@@ -233,7 +233,7 @@ while (<>) {
 
   elsif (/^\#\#\s*sequence-region\s+(\S+)\s+(\d+)\s+(\d+)/i) { # header line
     ($ref,$source,$method,$start,$stop,$score,$strand,$phase,$group) = 
-      ($1,'reference','Component',$2,$3,'.','.','.',qq(Sequence "$1"));
+      ($1,'reference','Component',$2,$3,'.','.','.',$gff3 ? "ID=Sequence:$1": qq(Sequence "$1"));
   }
 
   elsif (/^\#/) {

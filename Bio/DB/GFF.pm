@@ -578,7 +578,7 @@ sub new {
   $package->throw("Unable to load $adaptor adaptor: $@") if $@;
 
   my $self = $class->new($args);
-  $self->default_class($refclass) if defined $refclass;
+  $self->default_class($refclass || 'Sequence');
 
   # handle the aggregators.
   # aggregators are responsible for creating complex multi-part features
@@ -2275,7 +2275,8 @@ sub insert_sequence {
 # This is the default class for reference points.  Defaults to Sequence.
 sub default_class {
    my $self = shift;
-   my $d = exists($self->{default_class}) ? $self->{default_class} : 'Sequence';
+   return 'Sequence' unless ref $self;
+   my $d = $self->{default_class};
    $self->{default_class} = shift if @_;
    $d;
 }
@@ -3195,9 +3196,13 @@ This is an internal method called by split_group().
 
 =cut
 
+# this has gotten quite nasty due to transition from GFF2 to GFF2.5
+# (artemis) to GFF3.
+
 sub _split_gff2_group {
   my $self = shift;
   my @groups = @_;
+  my $target_found;
 
   my ($gclass,$gname,$tstart,$tstop,@attributes);
 
@@ -3215,13 +3220,20 @@ sub _split_gff2_group {
     # For historical reasons, the tag "Note" is treated as an
     # attribute, even if it is the only group.
     $tag ||= '';
-    if ($tag eq 'Note' or ($gclass && $gname)) {
+    if ($tag eq 'tstart' && $target_found) {
+      $tstart = $value;
+    }
+
+    elsif ($tag eq 'tend' && $target_found) {
+      $tstop = $value;
+    }
+
+    elsif ($tag eq 'Note' or ($gclass && $gname)) {
       push @attributes,[$tag => $value];
     }
 
-    # if the tag eq 'Target' then the class name is embedded in the ID
-    # (the GFF format is obviously screwed up here)
-    elsif ($tag eq 'Target' && /([^:\"\s]+):([^\"\s]+)/) {
+    elsif ($tag eq 'Target' && /([^:\"\s]+):([^\"\s]+)/) { # major disagreement in implementors of GFF2 here
+      $target_found++;
       ($gclass,$gname) = ($1,$2);
       ($tstart,$tstop) = / (\d+) (\d+)/;
     }
@@ -3249,27 +3261,37 @@ This is called internally from split_group().
 sub _split_gff3_group {
   my $self   = shift;
   my @groups = @_;
+  my $dc     = $self->default_class;
   my ($gclass,$gname,$tstart,$tstop,@attributes);
 
   for my $group (@groups) {
     my ($tag,$value) = split /=/,$group;
     $tag             = unescape($tag);
     my @values       = map {unescape($_)} split /,/,$value;
-    if ($tag eq 'Parent') {
-      $gclass = 'Sequence';
-      $gname  = shift @values;
-    }
-    elsif ($tag eq 'ID') {
-      $gclass = 'Sequence';
-      $gname  = shift @values;
+
+    # GFF2 traditionally did not distinguish between a feature's name
+    # and the group it belonged to.  This code is a transition between
+    # gff2 and the new parent/ID dichotomy in gff3.
+    if ($tag eq 'Parent' or $tag eq 'ID') {
+      ($gname,$gclass) = _gff3_name_munging(shift(@values),$dc);
     }
     elsif ($tag eq 'Target') {
-      $gclass = 'Sequence';
       ($gname,$tstart,$tstop) = split /\s+/,shift @values;
+      ($gname,$gclass) = _gff3_name_munging($gname,$dc);
     }
     push @attributes,[$tag=>$_] foreach @values;
   }
   return ($gclass,$gname,$tstart,$tstop,\@attributes);
+}
+
+# accomodation for wormbase style of class:name naming
+sub _gff3_name_munging {
+  my ($name,$default_class) = @_;
+  if ($name =~ /^(\w+):(.+)/) {
+    return ($2,$1);
+  } else {
+    return ($name,$default_class);
+  }
 }
 
 =head2 _delete_features(), _delete_groups(),_delete()

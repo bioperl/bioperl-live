@@ -204,7 +204,7 @@ while (<>) {
 
   elsif (/^\#\#\s*sequence-region\s+(\S+)\s+(\d+)\s+(\d+)/i) { # header line
     ($ref,$source,$method,$start,$stop,$score,$strand,$phase,$group) = 
-      ($1,'reference','Component',$2,$3,'.','.','.',qq(Sequence "$1"));
+      ($1,'reference','Component',$2,$3,'.','.','.',$gff3 ? "ID=Sequence:$1": qq(Sequence "$1"));
   }
 
   elsif (/^\#/) {

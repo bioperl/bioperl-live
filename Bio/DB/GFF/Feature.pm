@@ -1103,7 +1103,11 @@ sub gff3_string {
     my $name  = $t->name;
     my $start = $t->start;
     my $stop  = $t->stop;
-    push @group,[Target=>"$name+$start+$stop"];
+    if ($start > $stop) {  # oy vey
+      ($start,$stop) = ($stop,$start);
+      $strand = '-';       # no matter what
+    }
+    push @group,[Target=>"$name $start $stop"];
   }
 
   elsif (my $g = $self->group) {
@@ -1113,7 +1117,7 @@ sub gff3_string {
     push @group,[ID =>  $name] if !defined($parent) || $name ne $parent;
   }
 
-  push @group,[Parent => $parent] if defined $parent;
+  push @group,[Parent => $parent] if defined $parent && $parent ne '';
 
   my @attributes = $self->attributes;
   while (@attributes) {
