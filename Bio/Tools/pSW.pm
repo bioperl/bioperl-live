@@ -195,8 +195,8 @@ sub pairwise_alignment{
     $self->set_memory_and_report();
     # create engine objects 
 
-    $t1  = &Bio::Ext::Align::new_Sequence_from_strings($seq1->id(),$seq1->str());
-    $t2  = &Bio::Ext::Align::new_Sequence_from_strings($seq2->id(),$seq2->str());
+    $t1  = &Bio::Ext::Align::new_Sequence_from_strings($seq1->id(),$seq1->seq());
+    $t2  = &Bio::Ext::Align::new_Sequence_from_strings($seq2->id(),$seq2->seq());
     $aln = &Bio::Ext::Align::Align_Sequences_ProteinSmithWaterman($t1,$t2,$self->{'matrix'},-$self->gap,-$self->ext);
     if( ! defined $aln || $aln == 0 ) {
 	$self->throw("Unable to build an alignment");
@@ -292,9 +292,9 @@ sub align_and_show {
 
     $self->set_memory_and_report();
 
-    $t1  = &Bio::Ext::Align::new_Sequence_from_strings($seq1->id(),$seq1->str());
+    $t1  = &Bio::Ext::Align::new_Sequence_from_strings($seq1->id(),$seq1->seq());
 
-    $t2  = &Bio::Ext::Align::new_Sequence_from_strings($seq2->id(),$seq2->str());
+    $t2  = &Bio::Ext::Align::new_Sequence_from_strings($seq2->id(),$seq2->seq());
     $aln = &Bio::Ext::Align::Align_Sequences_ProteinSmithWaterman($t1,$t2,$self->{'matrix'},-$self->gap,-$self->ext);
     if( ! defined $aln || $aln == 0 ) {
 	$self->throw("Unable to build an alignment");
