@@ -138,7 +138,7 @@ These methods must be implemented in all subclasses.
   Function: confesses if you try to instantiate a RangeI
           : RangeI is an interface, so RangeI->new should never be called
 	  : To make a range, instantiate one of the implementing classes. e.g.
-	  : $range = Bio::Range->new(-start=>20, -stop=>2000, -strand=>1)
+	  : $range = Bio::Range->new(-start=>20, -end=>2000, -strand=>1)
 
 =cut
 
