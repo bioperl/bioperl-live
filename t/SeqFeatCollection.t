@@ -107,7 +107,8 @@ while(my $feature = $gffio->next_feature()) {
 $gffio->close();
 
 ok(scalar @features, 412);
-$col = new Bio::SeqFeature::Collection(-verbose => $verbose);
+$col = new Bio::SeqFeature::Collection(-verbose => $verbose,
+				       -usefile => 1);
 
 ok($col);
 
