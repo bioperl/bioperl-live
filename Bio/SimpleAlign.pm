@@ -118,6 +118,7 @@ Ewan Birney, birney@sanger.ac.uk
 David J. Evans, David.Evans@vir.gla.ac.uk
 Heikki Lehvaslaiho, heikki@ebi.ac.uk
 Jason Stajich, jason@bioperl.org
+Xintao Wei & Giri Narasimhan, giri@cs.fiu.edu
 
 =head1 SEE ALSO
 
