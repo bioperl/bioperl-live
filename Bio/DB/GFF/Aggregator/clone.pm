@@ -71,7 +71,7 @@ sub aggregate {
 
     if ($feature->group && $matchsub->($feature)) {
 
-      if ($feature->method eq 'region' && $feature->source eq 'Genomic_canonical') {
+      if ($feature->method =~ /^region|Sequence$/ && $feature->source eq 'Genomic_canonical') {
 	$clones{$feature->group}{canonical} = $feature;
       } elsif ($feature->method eq 'Clone_left_end') {
 	$clones{$feature->group}{left} = $feature;
@@ -133,7 +133,7 @@ sub method { 'clone' }
 
 sub part_names {
   my $self = shift;
-  return qw(Clone_left_end Clone_right_end region:Genomic_canonical);
+  return qw(Clone_left_end Clone_right_end region:Genomic_canonical Sequence:Genomic_canonical);
 }
 
 1;

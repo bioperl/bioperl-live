@@ -42,19 +42,19 @@ sub draw_label {
 sub arrowheads {
   my $self = shift;
   my ($ne,$sw,$base_e,$base_w);
-  my ($x1,$y1,$x2,$y2) = $self->calculate_boundaries(@_);
+  my $feature = $self->feature;
+  my $gstart  = $feature->start;
+  my $gend    = $feature->end;
+  my $pstart  = $self->panel->start;
+  my $pend    = $self->panel->end;
 
-  my $gstart  = $x1;
-  my $gend    = $x2;
-  my $pstart  = $self->panel->left;
-  my $pend    = $self->panel->right-1;
-
-  if ($gstart <= $pstart) {  # off left end
+  if (!defined $gstart && $gstart <= $pstart) {  # off left end
     $sw = 1;
   }
-  if ($gend >= $pend) { # off right end
+  if (!defined $gend || $gend >= $pend) { # off right end
     $ne = 1;
   }
+  ($sw,$ne) = ($ne,$sw) if $self->panel->{flip};
   return ($sw,$ne,!$sw,!$ne);
 }
 

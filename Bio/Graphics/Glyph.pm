@@ -268,8 +268,8 @@ sub boxes {
     } else {
       my ($x1,$y1,$x2,$y2) = $part->box;
       push @result,[$part->feature,
-		    $x1,$top+$self->top+$self->pad_top+$y1,
-		    $x2,$top+$self->top+$self->pad_top+$y2,
+		    $left + $x1,$top+$self->top+$self->pad_top+$y1,
+		    $left + $x2,$top+$self->top+$self->pad_top+$y2,
 		    $self];
     }
   }

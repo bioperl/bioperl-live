@@ -266,7 +266,7 @@ sub add_segment {
   if (@segments) {
     local $^W = 0;  # some warning of an uninitialized variable...
     $self->{segments} = [ sort {$a->start <=> $b->start } @segments ];
-    $self->{ref}    ||= $self->{segments}[0]->ref;
+    $self->{ref}    ||= $self->{segments}[0]->seq_id;
     $self->{start}    = $self->{segments}[0]->start;
     ($self->{stop})   = sort { $b <=> $a } map { $_->end } @segments;
   }

@@ -39,6 +39,7 @@ sub new {
   my $grid         = $options{-grid}       || 0;
   my $flip         = $options{-flip}       || 0;
   my $empty_track_style   = $options{-empty_tracks} || 'key';
+  my $autopad      = defined $options{-auto_pad} ? $options{-auto_pad} : 1;
   my $truecolor    = $options{-truecolor}  || 0;
   my $image_class  = $options{-image_class} || 'GD';
   my $linkrule     = $options{-link};
@@ -74,6 +75,7 @@ sub new {
 		key_spacing => $keyspacing,
 		key_style => $keystyle,
 		key_align => $keyalign,
+		autopad   => $autopad,
 		all_callbacks => $allcallbacks,
 		truecolor     => $truecolor,
 		flip          => $flip,
@@ -138,6 +140,13 @@ sub key_style {
   $g;
 }
 
+sub auto_pad {
+  my $self = shift;
+  my $g = $self->{autopad};
+  $self->{autopad} = shift if @_;
+  $g;
+}
+
 # public routine for mapping from a base pair
 # location to pixel coordinates
 sub location2pixel {
@@ -153,13 +162,15 @@ sub map_pt {
   my $offset = $self->{offset};
   my $scale  = $self->{scale} || $self->scale;
   my $pl     = $self->{pad_left};
-  my $pr     = $self->{width} - $self->{pad_right};
+  my $pr     = $pl + $self->{width};# - $self->{pad_right};
   my $flip   = $self->{flip};
   my $length = $self->{length};
   my @result;
   foreach (@_) {
-    my $val = $flip ? int (0.5 + $pr - ($length - ($_- 1)) * $scale) : int (0.5 + $pl + ($_-$offset-1) * $scale);
-    $val = $pl-1 if $val < $pl;
+    my $val = $flip 
+      ? int (0.5 + $self->{width} - ($length - ($_- 1)) * $scale) 
+      : int (0.5 + ($_-$offset-1) * $scale);
+    $val = -1 if $val < 0;
     $val = $pr+1 if $val > $pr;
     push @result,$val;
   }
@@ -171,7 +182,7 @@ sub map_no_trunc {
   my $offset = $self->{offset};
   my $scale  = $self->scale;
   my $pl     = $self->{pad_left};
-  my $pr     = $self->{width} - $self->{pad_right};
+  my $pr     = $pl + $self->{width}; # - $self->{pad_right};
   my $flip   = $self->{flip};
   my $length = $self->{length};
   my $end    = $offset+$length;
@@ -185,7 +196,8 @@ sub map_no_trunc {
 
 sub scale {
   my $self = shift;
-  $self->{scale} ||= ($self->{width}-$self->pad_left-$self->pad_right)/($self->length);
+  # $self->{scale} ||= ($self->{width}-$self->pad_left-$self->pad_right)/($self->length);
+  $self->{scale} ||= $self->width/($self->length);
 }
 
 sub start { shift->{offset}+1}
@@ -206,7 +218,7 @@ sub left {
 }
 sub right {
   my $self = shift;
-  $self->width - $self->pad_right;
+  $self->pad_left + $self->width; # - $self->pad_right;
 }
 
 sub spacing {
@@ -346,10 +358,43 @@ sub _add_track {
   return $track;
 }
 
+sub _expand_padding {
+  my $self   = shift;
+  my $track  = shift;
+
+  my $keystyle          = $self->key_style;
+  my $empty_track_style = $self->empty_track_style;
+
+  return unless $keystyle eq 'left' or $keystyle eq 'right';
+  return unless $self->auto_pad;
+
+  $self->setup_fonts();
+  my $width    = $self->{key_font}->width;
+
+  my $key       = $track->option('key');
+  return unless defined $key;
+
+  my $has_parts = $track->parts;
+  next if !$has_parts && $empty_track_style eq 'suppress';
+
+  my $width_needed = $self->{key_font}->width * CORE::length($key)+3;
+  if ($keystyle eq 'left') {
+    my $width_i_have = $self->pad_left;
+    $self->pad_left($width_needed)  if $width_needed > $width_i_have;
+  } elsif ($keystyle eq 'right') {
+    my $width_i_have = $self->pad_right;
+    $self->pad_right($width_needed) if $width_needed > $width_i_have;
+  }
+}
 
 sub height {
   my $self = shift;
   $self->setup_fonts;
+
+  for my $track (@{$self->{tracks}}) {
+    $self->_expand_padding($track);
+  }
+
   my $spacing           = $self->spacing;
   my $key_height        = $self->format_key;
   my $empty_track_style = $self->empty_track_style;
@@ -406,8 +451,8 @@ sub gd {
     # }
   }
 
-  my $width  = $self->width;
   my $height = $self->height;
+  my $width  = $self->width + $self->pad_left + $self->pad_right;
 
   my $pkg = $self->image_package;
   my $gd  = $existing_gd || $pkg->new($width,$height,
@@ -469,14 +514,16 @@ sub gd {
       $offset += $self->draw_between_key($gd,$track,$offset);
     }
 
-    elsif ($self->{key_style} =~ /^(left|right)$/) {
-      $self->draw_side_key($gd,$track,$offset,$self->{key_style});
-    }
 
     $self->draw_empty($gd,$offset,$empty_track_style)
       if !$has_parts && $empty_track_style=~/^(line|dashed)$/;
 
-    $track->draw($gd,0,$offset,0,1);
+    $track->draw($gd,$pl,$offset,0,1);
+
+    if ($self->{key_style} =~ /^(left|right)$/) {
+      $self->draw_side_key($gd,$track,$offset,$self->{key_style});
+    }
+
     $self->track_position($track,$offset);
     $offset += $track->layout_height + $spacing;
   }
@@ -513,7 +560,7 @@ sub boxes {
     next if !$track->parts && ($empty_track_style eq 'suppress'
 			    or  $empty_track_style eq 'key' && $bottom_key);
     $offset += $keyheight if $draw_between;
-    my $boxes = $track->boxes(0,$offset+$pt);
+    my $boxes = $track->boxes($pl,$offset+$pt);
     $self->track_position($track,$offset);
     push @boxes,@$boxes;
     $offset += $track->layout_height + $self->spacing;
@@ -550,12 +597,15 @@ sub draw_side_key {
   my ($gd,$track,$offset,$side) = @_;
   my $key = $track->option('key') or return;
   my $pos = $side eq 'left' ? $self->pad_left - $self->{key_font}->width * CORE::length($key)-3
-                            : $self->width - $self->pad_right+3;
+                            : $self->pad_left + $self->width + 3;
   my $color = $self->translate_color('black');
   # help me not go off the bottom!
   if ((my $deficit = ($offset + $self->{key_font}->height) - ($gd->getBounds)[1])>0) {
     $offset -= $deficit;
   }
+  $gd->filledRectangle($pos,$offset,
+		 $pos+$self->{key_font}->width*CORE::length($key),$offset+$self->{key_font}->height,
+		 $self->bgcolor);
   $gd->string($self->{key_font},$pos,$offset,$key,$color);
 }
 
@@ -696,18 +746,20 @@ sub draw_grid {
     @positions = @{$self->{grid}};
   } else {
     my ($major,$minor) = $self->ticks;
-    my $first_tick = $minor * int(0.5 + $self->start/$minor);
+    my $first_tick = $minor * int($self->start/$minor);
     for (my $i = $first_tick; $i < $self->end; $i += $minor) {
       push @positions,$i;
     }
   }
   my $pl = $self->pad_left;
   my $pt = $self->pad_top;
+  my $pr = $self->right;
   my $pb = $self->height - $self->pad_bottom;
   local $self->{flip} = 0;
   for my $tick (@positions) {
     my ($pos) = $self->map_pt($tick);
-    $gd->line($pos,$pt,$pos,$pb,$gridcolor);
+
+    $gd->line($pl+$pos,$pt,$pl+$pos,$pb,$gridcolor);
   }
 }
 
@@ -1340,6 +1392,12 @@ a set of tag/value pairs as follows:
                each track ("left"), to the right
                of each track ("right") or
                not at all ("none").
+
+  -auto_pad    If "left" or "right" keys are in use  true
+               then setting auto_pad to a true value
+               will allow the panel to adjust its
+               width in order to accomodate the
+               length of the longest key.
 
   -empty_tracks What to do when a track is empty.    suppress
               Options are to suppress the track
