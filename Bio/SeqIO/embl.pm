@@ -186,6 +186,7 @@ sub next_seq {
    if( !defined $line ) {
        return undef; # end of file
    }
+   last unless $line =~ /^ID\s/;
    $line =~ /^ID\s+\S+/ || $self->throw("EMBL stream with no ID. Not embl in my book");
    $line =~ /^ID\s+(\S+)\s+\S+\;\s+([^;]+)\;\s+(\S+)\;/;
    $name = $1;
