@@ -987,17 +987,19 @@ sub _write_line_EMBL_regex {
 
 
     my( @lines );
-    while($line =~ m/(.{1,$subl})($regex)/g) {
-        push(@lines, $1.$2);
+    while(defined $line && 
+	  $line =~ m/(.{1,$subl})($regex)/g) {
+	push(@lines, $1.$2);
     }
     foreach (@lines) { s/\s+$//; }
     
     # Print first line
-    my $s = shift(@lines);
+    my $s = shift(@lines) || '';    
     $self->_print( "$pre1$s\n");
     
     # Print the rest
     foreach my $s ( @lines ) {
+	$s = '' if( !defined $s );
         $self->_print( "$pre2$s\n");
     }
 }
