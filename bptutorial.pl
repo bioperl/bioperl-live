@@ -200,29 +200,32 @@ programs are not found.
 For newcomers and people who want to quickly evaluate whether this package
 is worth using in the first place, we have a very simple module which allows
 easy access to a small number of Bioperl's functionality in an easy to use 
-manner. The Bio::Perl module provides some simple access functions,
-for example, this script will retrieve a swissprot sequence and write
+manner. The Bio::Perl module provides some simple access functions.
+For example, this script will retrieve a swissprot sequence and write
 it out in fasta format
 
   use Bio::Perl;
 
-  # this script will only work with an internet connection
-  # on the computer it is run on
-  $seq_object = get_sequence('swissprot',"ROA1_HUMAN");
+  # this script will only work if you have an internet connection on the
+  # computer you're using, the databases you can get sequences from 
+  # are 'swiss', 'genbank', 'genpept', 'embl', and 'refseq'
+
+  $seq_object = get_sequence('swiss',"ROA1_HUMAN");
 
   write_sequence(">roa1.fasta",'fasta',$seq_object);
 
+That second argument, 'fasta', is the sequence format. You can choose
+among all the formats supported by SeqIO (L<"III.2.1">).
+
 Another example is the ability to blast a sequence using the facilities
-as NCBI. Please be careful not to abuse the compute that NCBI provides
-and so use this only for individual searches. If you want to do a large
-number of BLAST searches, please download the blast package locally.
+as NCBI. Please be careful not to abuse the resources that NCBI provides
+and use this only for individual searches. If you want to do a large
+number of BLAST searches, please download the blast package and install
+it locally.
 
   use Bio::Perl;
 
-  # this script will only work with an internet connection
-  # on the computer it is run on
-
-  $seq = get_sequence('swissprot',"ROA1_HUMAN");
+  $seq = get_sequence('swiss',"ROA1_HUMAN");
 
   # uses the default database - nr in this case
   $blast_result = blast_sequence($seq);
@@ -245,7 +248,7 @@ Bio::Perl has a number of other easy-to-use functions, including
   write_blast         - writes a blast report out to a file
 
 Using the Bio::Perl.pm module, it is possible to manipulate sequence
-data in Bioperl without explicitly creating Seq or SeqIO objects 
+data in Bioperl without explicitly creating the Seq or SeqIO objects 
 described later in this tutorial. However, only limited
 data manipulation is supported in this mode.
 
@@ -256,8 +259,8 @@ translation in Bioperl can handle many different translation tables
 and provides different options for stop codon processing) - in most
 cases, most users will migrate to using the underlying bioperl objects
 as their sophistication level increases, but Bio::Perl provides an
-easy on-ramp for newcomers and lazy programmers. Also see examples/bioperl.pl
-for more examples of usage of this module.
+easy on-ramp for newcomers and lazy experts alike. Also see 
+examples/bioperl.pl for more examples of usage of this module.
 
 =head2 I.3 Software requirements
 
