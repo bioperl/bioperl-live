@@ -153,11 +153,18 @@ sub new {
       if( ref($hsps) !~ /array/i ) {
           $self->warn("Did not specify a valid array ref for the param HSPS ($hsps)");
       } else {
-          while( @$hsps ) { 
-              $self->add_hsp(shift @$hsps );
+          my $hspcount=0;
+          while( @{$hsps} ) { 
+              $hspcount++;
+              $self->add_hsp(shift @{$hsps} );
           }
+          $self->{'_hsps'} = undef if $hspcount == 0;
       }
   } 
+  else {
+      $self->{'_hsps'} = undef;
+  }
+
   return $self;
 }
 
@@ -454,9 +461,14 @@ See Also   : L<hsps()|hsps>
 sub num_hsps {
     my $self = shift;
     
-    if (not defined $self->{'_hsps'}) {
-        $self->throw("Can't get HSPs: data not collected.");
+    unless ($self->{'_hsps'}) {
+        #return wantarray ? ('-','-') : '-';
+        return '-';
     }
+
+#    if (not defined $self->{'_hsps'}) {
+#        $self->throw("Can't get HSPs: data not collected.");
+#    }
 
     return scalar(@{$self->{'_hsps'}});
 }
@@ -733,15 +745,22 @@ See Also   : L<length()|length>, L<frac_aligned_query()|frac_aligned_query>, L<f
 sub length_aln {
 #---------------
     my( $self, $seqType, $num ) = @_;
-    
+
     $seqType ||= 'query';
     $seqType = 'sbjct' if $seqType eq 'hit';
 
-    Bio::Search::SearchUtils::tile_hsps($self) unless $self->tiled_hsps;
-
+    # Setter:
     if( defined $num) {
         return $self->{'_length_aln_'.$seqType} = $num;
     }
+
+    unless ($self->{'_hsps'}) {
+        #return wantarray ? ('-','-') : '-';
+        $self->_warn_about_no_hsps;
+        return '-';
+    }
+
+    Bio::Search::SearchUtils::tile_hsps($self) unless $self->tiled_hsps;
 
     my $data = $self->{'_length_aln_'.$seqType};
     
@@ -795,6 +814,12 @@ sub gaps {
     $seqType ||= (wantarray ? 'list' : 'total');
     $seqType = 'sbjct' if $seqType eq 'hit';
 
+    unless ($self->{'_hsps'}) {
+        $self->_warn_about_no_hsps;
+        return wantarray ? ('-','-') : '-';
+        #return '-';
+    }
+
     Bio::Search::SearchUtils::tile_hsps($self) unless $self->tiled_hsps;
 
     $seqType = lc($seqType);
@@ -827,12 +852,17 @@ sub matches {
     my( $self, $arg1, $arg2) = @_;
     my(@data,$data);
 
+    unless ($self->{'_hsps'}) {
+        $self->_warn_about_no_hsps;
+        return wantarray ? ('-','-') : '-';
+    }
+
     Bio::Search::SearchUtils::tile_hsps($self) unless $self->tiled_hsps;
 
     unless( $arg1 ) {
         @data = ($self->{'_totalIdentical'}, $self->{'_totalConserved'});
 
-        return @data if @data;
+        return @data;
     } else {
 
         if( defined $arg2 ) {
@@ -845,11 +875,16 @@ sub matches {
         } else {
             $data = $self->{'_totalConserved'};
         }
-        return $data if $data;
+        #print STDERR "\nmatches(): id=$self->{'_totalIdentical'}, cons=$self->{'_totalConserved'}\n\n";
+        return $data;
     }
     
-    ## Something went wrong if we make it to here.
-    $self->throw("Can't get identical or conserved data: no data.");
+    ## If we make it to here, it is likely the case that
+    ## the parser constructed a minimal hit object from the summary line only.
+    ## It either delibrately skipped parsing the alignment section,
+    ## or was not able to because it was absent (due to blast executable parameter
+    ## setting such as -b 0 (B=0 for WU-BLAST) )
+    #$self->throw("Can't get identical or conserved data: no data.");
 }
 
 
@@ -883,6 +918,11 @@ See Also   : L<end()|end>, L<range()|range>, L<strand()|strand>,
 sub start {
 #----------
     my ($self, $seqType, $num) = @_;
+
+    unless ($self->{'_hsps'}) {
+        $self->_warn_about_no_hsps;
+        return wantarray ? ('-','-') : '-';
+    }
 
     $seqType ||= (wantarray ? 'list' : 'query');
     $seqType = 'sbjct' if $seqType eq 'hit';
@@ -941,6 +981,10 @@ See Also   : L<start()|start>, L<range()|range>, L<strand()|strand>
 sub end {
 #----------
     my ($self, $seqType, $num) = @_;
+
+    unless ($self->{'_hsps'}) {
+        return wantarray ? ('-','-') : '-';
+    }
 
     $seqType ||= (wantarray ? 'list' : 'query');
     $seqType = 'sbjct' if $seqType eq 'hit';
@@ -1003,7 +1047,18 @@ sub range {
            : default = 'query' (but see comments below).
            : ('sbjct' is synonymous with 'hit')
  Throws    : n/a
- Comments  : Different versions of Blast report different values for the total
+ Comments  :
+           : To compute the fraction identical, the logical length of the 
+           : aligned portion of the sequence is used, meaning that for 
+           : TBLASTN reports, the length of the aligned portion of the 
+           : nucleotide hit sequence is divided by 3; for BLASTX reports, 
+           : the length of the aligned portion of the nucleotide query 
+           : sequence is divided by 3. For TBLASTX reports, the length of 
+           : both hit and query sequence are converted.
+           : This is necessary since the number of identical residues is
+           : in terms of peptide sequence space.
+           :
+           : Different versions of Blast report different values for the total
            : length of the alignment. This is the number reported in the
            : denominators in the stats section:
            : "Identical = 34/120 Positives = 67/120".
@@ -1038,6 +1093,12 @@ sub frac_identical {
     ## Sensitive to member name format.
     $seqType = lc($seqType);
 
+    unless ($self->{'_hsps'}) {
+        $self->_warn_about_no_hsps;
+        #return wantarray ? ('-','-') : '-';
+        return '-';
+    }
+
     Bio::Search::SearchUtils::tile_hsps($self) unless $self->tiled_hsps;
 
     my $ident = $self->matches('id');
@@ -1063,7 +1124,18 @@ sub frac_identical {
            : default = 'query' (but see comments below).
            : ('sbjct' is synonymous with 'hit')
  Throws    : n/a
- Comments  : Different versions of Blast report different values for the total
+ Comments  :
+           : To compute the fraction conserved, the logical length of the 
+           : aligned portion of the sequence is used, meaning that for 
+           : TBLASTN reports, the length of the aligned portion of the 
+           : nucleotide hit sequence is divided by 3; for BLASTX reports, 
+           : the length of the aligned portion of the nucleotide query 
+           : sequence is divided by 3. For TBLASTX reports, the length of 
+           : both hit and query sequence are converted.
+           : This is necessary since the number of conserved residues is
+           : in terms of peptide sequence space.
+           :
+           : Different versions of Blast report different values for the total
            : length of the alignment. This is the number reported in the
            : denominators in the stats section:
            : "Positives = 34/120 Positives = 67/120".
@@ -1098,6 +1170,12 @@ sub frac_conserved {
     ## Sensitive to member name format.
     $seqType = lc($seqType);
 
+    unless ($self->{'_hsps'}) {
+        $self->_warn_about_no_hsps;
+        #return wantarray ? ('-','-') : '-';
+        return '-';
+    }
+
     Bio::Search::SearchUtils::tile_hsps($self) unless $self->tiled_hsps;
 
     my $consv = $self->matches('cons');
@@ -1125,11 +1203,6 @@ sub frac_conserved {
  Throws    : n/a
  Comments  : If you need data for each HSP, use hsps() and then interate
            : through the HSP objects.
-           : To compute the fraction aligned, the logical length of the query
-           : sequence is used, meaning that for [T]BLASTX reports, the 
-           : full length of the query sequence is converted into amino acids
-           : by dividing by 3. This is necessary because of the way 
-           : the lengths of aligned sequences are computed.
            : This method requires that all HSPs be tiled. If they have not
            : already been tiled, they will be tiled first automatically.
 
@@ -1142,8 +1215,15 @@ sub frac_aligned_query {
 #----------------------
     my $self = shift;
 
+    unless ($self->{'_hsps'}) {
+        $self->_warn_about_no_hsps;
+        #return wantarray ? ('-','-') : '-';
+        return '-';
+    }
+
     Bio::Search::SearchUtils::tile_hsps($self) unless $self->tiled_hsps;
-    sprintf( "%.2f", $self->length_aln('query') / 
+
+    sprintf( "%.2f", $self->length_aln('query') /
              $self->logical_length('query'));
 }
 
@@ -1161,11 +1241,6 @@ sub frac_aligned_query {
  Throws    : n/a
  Comments  : If you need data for each HSP, use hsps() and then interate
            : through the HSP objects.
-           : To compute the fraction aligned, the logical length of the sbjct
-           : sequence is used, meaning that for TBLAST[NX] reports, the 
-           : full length of the sbjct sequence is converted into amino acids
-           : by dividing by 3. This is necessary because of the way 
-           : the lengths of aligned sequences are computed.
            : This method requires that all HSPs be tiled. If they have not
            : already been tiled, they will be tiled first automatically.
 
@@ -1178,7 +1253,14 @@ sub frac_aligned_hit {
 #--------------------
     my $self = shift;
 
+    unless ($self->{'_hsps'}) {
+        $self->_warn_about_no_hsps;
+        #return wantarray ? ('-','-') : '-';
+        return '-';
+    }
+
     Bio::Search::SearchUtils::tile_hsps($self) unless $self->tiled_hsps;
+
     sprintf( "%.2f", $self->length_aln('sbjct') / $self->logical_length('sbjct'));
 }
 
@@ -1227,6 +1309,12 @@ sub num_unaligned_hit {
 #---------------------
     my $self = shift;
 
+    unless ($self->{'_hsps'}) {
+        $self->_warn_about_no_hsps;
+        #return wantarray ? ('-','-') : '-';
+        return '-';
+    }
+
     Bio::Search::SearchUtils::tile_hsps($self) unless $self->tiled_hsps;
 
     my $num = $self->logical_length('sbjct') - $self->length_aln('sbjct');
@@ -1258,6 +1346,12 @@ See Also   : L<num_unaligned_hit()|num_unaligned_hit>, L<frac_aligned_query()|fr
 sub num_unaligned_query {
 #-----------------------
     my $self = shift;
+
+    unless ($self->{'_hsps'}) {
+        $self->_warn_about_no_hsps;
+        #return wantarray ? ('-','-') : '-';
+        return '-';
+    }
 
     Bio::Search::SearchUtils::tile_hsps($self) unless $self->tiled_hsps;
 
@@ -1330,6 +1424,12 @@ sub strand {
 #----------
     my ($self, $seqType, $strnd) = @_;
 
+    unless ($self->{'_hsps'}) {
+        $self->_warn_about_no_hsps;
+        return wantarray ? ('-','-') : '-';
+        #return '-';
+    }
+
     Bio::Search::SearchUtils::tile_hsps($self) unless $self->tiled_hsps;
 
     $seqType ||= (wantarray ? 'list' : 'query');
@@ -1387,6 +1487,12 @@ See documentation in L<Bio::Search::Hit::HitI::frame()|Bio::Search::Hit::HitI>
 sub frame { 
 #----------
     my( $self, $frm ) = @_;
+
+    unless ($self->{'_hsps'}) {
+        $self->_warn_about_no_hsps;
+        #return wantarray ? ('-','-') : '-';
+        return '-';
+    }
 
     Bio::Search::SearchUtils::tile_hsps($self) unless $self->tiled_hsps;
 
@@ -1534,5 +1640,14 @@ sub query_length{
     return $self->{'_query_length'};
 }
 
+
+sub _warn_about_no_hsps {
+    my $self = shift;
+    my $prev_func=(caller(1))[3];
+    $self->warn("There is no HSP data for hit '".$self->name."'.\n".
+                 "You have called a method ($prev_func)\n".
+                 "that requires HSP data. HSP data was not collected for this\n".
+                 "hit, most likely because it was absent from the BLAST report.\n");
+}
 
 1;
