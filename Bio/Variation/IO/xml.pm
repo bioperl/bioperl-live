@@ -437,9 +437,19 @@ sub write {
 			    $w->endTag;
 			}	
 			if ($mut->region) {
-			    if($mut->region_value or $mut->region_dist) {
+			    if($mut->region_value and $mut->region_dist) {
 				$w->startTag("region",
 					     "value" => $mut->region_value,
+					     "dist" => $mut->region_dist
+					     );
+			    }
+			    elsif($mut->region_value) {
+				$w->startTag("region",
+					     "value" => $mut->region_value
+					     );
+			    }
+			    elsif($mut->region_dist) {
+				$w->startTag("region",
 					     "dist" => $mut->region_dist
 					     );
 			    } else {
@@ -534,9 +544,19 @@ sub write {
 			    $w->endTag;
 			}	
 			if ($mut->region) {
-			    if($mut->region_value or $mut->region_dist) {
+			    if($mut->region_value and $mut->region_dist) {
 				$w->startTag("region",
 					     "value" => $mut->region_value,
+					     "dist" => $mut->region_dist
+					     );
+			    }
+			    elsif($mut->region_value) {
+				$w->startTag("region",
+					     "value" => $mut->region_value
+					     );
+			    }
+			    elsif($mut->region_dist) {
+				$w->startTag("region",
 					     "dist" => $mut->region_dist
 					     );
 			    } else {
@@ -595,9 +615,19 @@ sub write {
 			}	
 			#}
 			if ($mut->region) {
-			    if($mut->region_value or $mut->region_dist) {
+			    if($mut->region_value and $mut->region_dist) {
 				$w->startTag("region",
 					     "value" => $mut->region_value,
+					     "dist" => $mut->region_dist
+					     );
+			    }
+			    elsif($mut->region_value) {
+				$w->startTag("region",
+					     "value" => $mut->region_value
+					     );
+			    }
+			    elsif($mut->region_dist) {
+				$w->startTag("region",
 					     "dist" => $mut->region_dist
 					     );
 			    } else {
