@@ -1175,17 +1175,42 @@ sub strict {
 #------------
     my $self = shift;
 
-    # Using global strictness
-    return &strictness(@_);
-
-    # Object-specific strictness (not used unless above code is commented out)
-    if (@_) { $self->{'_strict'} = shift; }
-    defined($self->{'_strict'}) 
-	? return $self->{'_strict'}
-	: (ref $self->{'_parent'} ? $self->{'_parent'}->strict : 0);
+    # Use global strictness?
+    if( $self->{'_use_global_strictness'}) {
+	return &strictness(@_);
+    }
+    else {
+        # Object-specific strictness 
+        if (@_) { $self->{'_strict'} = shift; }
+        defined($self->{'_strict'}) 
+            ? return $self->{'_strict'}
+            : (ref $self->{'_parent'} ? $self->{'_parent'}->strict : 0);
+    }
 }
 
+=head2 use_global_strictness 
 
+ Usage     : $object->use_global_strictnness( [1|0] );
+ Purpose   : Set/Get accessor for a flag indicating whether or not
+           : to use the global strictness setting or to instead use
+           : object-specific strictness.
+ Returns   : Boolean
+ Comments  : 
+ Status    : Experimental
+
+See also   : L<strict>(), L<STRICTNESS & VERBOSITY>, B<Bio::Root::Global::strictness()>
+
+=cut
+
+sub use_global_strictness {
+    my ($self, $value) = @_;
+
+    if( defined $value ) {
+	$self->{'_use_global_strictness'} = $value;
+    }
+
+    return $self->{'_use_global_strictness'};
+}
 
 
 =head2 clone
