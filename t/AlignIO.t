@@ -9,7 +9,7 @@ BEGIN {
 	use lib 't';
     }
     use Test;
-    plan tests => 80;
+    plan tests => 75;
 }
 
 use Bio::SimpleAlign;
@@ -29,9 +29,6 @@ END {
  	   Bio::Root::IO->catfile("t","data","testout.phylip"),
  	   Bio::Root::IO->catfile("t","data","testout.nexus"),
  	   Bio::Root::IO->catfile("t","data","testout.mega"));
-    unlink(
-           Bio::Root::IO->catfile("t","data","littleout.largemultifasta")
-          );
 }
 
 my ($str,$aln,$strout,$status);
@@ -278,24 +275,3 @@ $aln = $strout->next_aln($aln);
 ok($aln);
 ok($aln->get_seq_by_pos(2)->seq(), 'CCTCAGATCACTCTTTGGCAACGACCCCTCGTCACAATAAAGGTAGGGGGGCAACTAAAGGAAGCTCTATTAGATACAGGAGCAGATGATACAGTATTAGAAGACATGAATTTGCCAGGAAGATGGAAACCAAAAATGATAGGGGGAATTGGAGGGTTTATCAAAGTAAGACAGTATGATCAGATACCCATAGAGATCTGTGGACATAAAGCTATAGGTACAGTATTAGTAGGACCCACACCTGTCAATATAATTGGAAGAAATCTGTTGACTCAGATTGGTTGCACTTTAAATTTT' );
 
-#LARGEMULTIFASTA
-
-$str = Bio::AlignIO->new('-file' => Bio::Root::IO->catfile("t", "data","little.largemultifasta"),
-                         '-format' => 'largemultifasta');
-$aln = $str->next_aln();
-ok $aln->get_seq_by_pos(1)->get_nse, 'Human:/1-81', " failed fasta input test ";
-ok ($aln->get_seq_by_pos(1)->description,
-    '72.0:1018606-3386002; 73.0:0-14850845; 74.0:0-83355922; SPECIAL_hsApr2003_3.0:0-414023;',
-    " failed fasta input test for description");
-ok ($aln->get_seq_by_pos(3)->display_id, 'Rat:',
-    " failed fasta input test for id");
-
-ok ($aln->get_seq_by_pos(3)->description,
-    '72.0:1018606-3386002; 73.0:0-14850845; 74.0:0-83355922; SPECIAL_hsApr2003_3.0:0-414023;',
-    " failed fasta input test for description");
-
-$strout = Bio::AlignIO->new('-file' => ">".Bio::Root::IO->catfile("t", "data",
-                                                                  "littleout.largemultifasta"),
-                            '-format' => 'largemultifasta');
-$status = $strout->write_aln($aln);
-ok $status, 1,"  failed fasta output test";
