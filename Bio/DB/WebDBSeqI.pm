@@ -24,9 +24,6 @@ Bio::DB::WebDBSeqI - Object Interface to generalize Web Databases
 
 =head1 DESCRIPTION
 
-
-
-
 Provides core set of functionality for connecting to a web based
 database for retriving sequences.
 
@@ -35,8 +32,6 @@ extend this class (see Bio::DB::SwissProt or Bio::DB::NCBIHelper for
 examples) and implement the get_request method which returns a
 HTTP::Request for the specified uids (accessions, ids, etc depending
 on what query types the database accepts).
-
-
 
 =head1 FEEDBACK
 
@@ -104,33 +99,35 @@ BEGIN {
 }
 
 sub new {
-    my ($class, @args) = @_;
-    my $self = $class->SUPER::new(@args);
-    my ($baseaddress, $params, $ret_type, $format,$delay,$db) =
+	my ($class, @args) = @_;
+	my $self = $class->SUPER::new(@args);
+	my ($baseaddress, $params, $ret_type, $format,$delay,$db) =
 	$self->_rearrange([qw(BASEADDRESS PARAMS RETRIEVALTYPE FORMAT DELAY DB)],
-			  @args);
+							  @args);
 
-    $ret_type = $DEFAULT_RETRIEVAL_TYPE unless ( $ret_type);
-    $baseaddress   && $self->url_base_address($baseaddress);
-    $params        && $self->url_params($params);
-    $db            && $self->db($db);
-    $ret_type      && $self->retrieval_type($ret_type);
-    $delay          = $self->delay_policy unless defined $delay;
-    $self->delay($delay);
+	$ret_type = $DEFAULT_RETRIEVAL_TYPE unless ( $ret_type);
+	$baseaddress   && $self->url_base_address($baseaddress);
+	$params        && $self->url_params($params);
+	$db            && $self->db($db);
+	$ret_type      && $self->retrieval_type($ret_type);
+	$self->retrieval_type('io_string') if $self->retrieval_type =~ /pipeline/
+	  && $^O =~ /^MSWin/;	# MSWin can't do pipes
+	$delay          = $self->delay_policy unless defined $delay;
+	$self->delay($delay);
 
-    # insure we always have a default format set for retrieval
-    # even though this will be immedietly overwritten by most sub classes
-    $format = $self->default_format unless ( defined $format && 
-					     $format ne '' );
-    
-    $self->request_format($format);
-    my $ua = new LWP::UserAgent(env_proxy => 1);
-    my $nm = ref($self);
-    $nm =~ s/::/_/g;
-    $ua->agent("bioperl-$nm/$MODVERSION");
-    $self->ua($ua);  
-    $self->{'_authentication'} = [];
-    return $self;
+	# insure we always have a default format set for retrieval
+	# even though this will be immedietly overwritten by most sub classes
+	$format = $self->default_format unless ( defined $format && 
+														  $format ne '' );
+
+	$self->request_format($format);
+	my $ua = new LWP::UserAgent(env_proxy => 1);
+	my $nm = ref($self);
+	$nm =~ s/::/_/g;
+	$ua->agent("bioperl-$nm/$MODVERSION");
+	$self->ua($ua);
+	$self->{'_authentication'} = [];
+	return $self;
 }
 
 # from Bio::DB::RandomAccessI
