@@ -2,7 +2,7 @@
 #
 # BioPerl module for Relationship
 #
-# Cared for by Christian M. Zmasek <czmasek@gnf.org> or <cmzmasek@hotmail.com>
+# Cared for by Christian M. Zmasek <czmasek@gnf.org> or <cmzmasek@yahoo.com>
 #
 # (c) Christian M. Zmasek, czmasek@gnf.org, 2002.
 # (c) GNF, Genomics Institute of the Novartis Research Foundation, 2002.
@@ -59,7 +59,7 @@ report bugs to the Bioperl bug tracking system to help us keep track
 
 Christian M. Zmasek
 
-Email: czmasek@gnf.org  or  cmzmasek@hotmail.com
+Email: czmasek@gnf.org  or  cmzmasek@yahoo.com
 
 WWW:   http://www.genetics.wustl.edu/eddy/people/zmasek/
 

@@ -2,7 +2,7 @@
 #
 # BioPerl module for Bio::Ontology::GOterm
 #
-# Cared for by Christian M. Zmasek <czmasek@gnf.org> or <zmasek@yahoo.com>
+# Cared for by Christian M. Zmasek <czmasek@gnf.org> or <cmzmasek@yahoo.com>
 #
 # (c) Christian M. Zmasek, czmasek@gnf.org, 2002.
 # (c) GNF, Genomics Institute of the Novartis Research Foundation, 2002.
@@ -73,7 +73,7 @@ or the web:
 
 Christian M. Zmasek
 
-Email: czmasek@gnf.org  or  zmasek@yahoo.com
+Email: czmasek@gnf.org  or  cmzmasek@yahoo.com
 
 WWW:   http://www.genetics.wustl.edu/eddy/people/zmasek/
 
