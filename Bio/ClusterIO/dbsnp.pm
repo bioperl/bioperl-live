@@ -16,7 +16,7 @@ Do not use this module directly.  Use it via the Bio::ClusterIO class.
 
 =head1 DESCRIPTION
 
-Parse dbSNP files, one refSNP at a time.
+Parse dbSNP XML files, one refSNP entry at a time.
 
 =head1 FEEDBACK
 
@@ -157,7 +157,8 @@ sub _initialize{
  Title   : next_cluster
  Usage   : $dbsnp = $stream->next_cluster()
  Function: returns the next refSNP in the stream
- Returns : Bio::Variation::SNP object
+ Returns : Bio::Variation::SNP object representing composite refSNP
+           and its component subSNP(s).
  Args    : NONE
 
 =cut
@@ -235,7 +236,8 @@ sub next_cluster {
 
  Title   : start_document
  Usage   : $parser->start_document;
- Function: SAX method to indicate starting to parse a new document
+ Function: SAX method to indicate starting to parse a new document.
+           Creates a Bio::Variation::SNP
  Returns : none
  Args    : none
 
@@ -262,7 +264,6 @@ sub refsnp {
 
 sub end_document{
   my ($self,@args) = @_;
-#  return $self->{'_result'};
 }
 
 =head2 start_element
@@ -305,7 +306,7 @@ sub start_element{
  Title   : end_element
  Usage   : $parser->end_element($data)
  Function: Signals finishing an element
- Returns : Bio::Search object dpending on what type of element
+ Returns : none
  Args    : hash ref for data
 
 =cut

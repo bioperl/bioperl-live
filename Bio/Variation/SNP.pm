@@ -11,13 +11,12 @@ Bio::Variation::SNP - submitted SNP
 =head1 SYNOPSIS
 
   $SNP = Bio::Variation::SNP->new ();
-  # get an Allele object somehow
-  $SNP->add_Variant($dnamut);
 
 =head1 DESCRIPTION
 
-Derived from Bio::Variation::SeqDiff, with additional methods that are
-SNP specific (ie, refSNP/subSNP IDs, batch IDs, validation methods).
+Inherits from Bio::Variation::SeqDiff and Bio::Variation::Allele, with 
+additional methods that are (db)SNP specific (ie, refSNP/subSNP IDs, batch
+IDs, validation methods).
 
 =head1 FEEDBACK
 
@@ -109,14 +108,46 @@ sub AUTOLOAD {
 #	};
 #}
 
+
+=head2 is_subsnp
+
+ Title   : is_subsnp
+ Usage   : $is = $snp->is_subsnp()
+ Function: returns 1 if $snp is a subSNP
+ Returns : 1 or undef
+ Args    : NONE
+
+=cut
+
 sub is_subsnp {
 	return shift->{is_subsnp};
 }
+
+=head2 subsnp
+
+ Title   : subsnp
+ Usage   : $subsnp = $snp->subsnp()
+ Function: returns the currently active subSNP of $snp
+ Returns : Bio::Variation::SNP
+ Args    : NONE
+
+=cut
 
 sub subsnp {
 	my $self = shift;
 	return $self->{subsnps}->[ scalar($self->each_subsnp) - 1 ];
 }
+
+=head2 add_subsnp
+
+ Title   : add_subsnp
+ Usage   : $subsnp = $snp->add_subsnp()
+ Function: pushes the previous value returned by subsnp() onto a stack, accessible with each_subsnp().
+           sets return value of subsnp() to a new Bio::Variation::SNP object, and returns that object.
+ Returns : Bio::Varitiation::SNP
+ Args    : NONE
+
+=cut
 
 sub add_subsnp {
 	my $self = shift;
@@ -127,6 +158,16 @@ sub add_subsnp {
 	$self->subsnp->{is_subsnp} = 1;
 	return $self->subsnp;
 }
+
+=head2 each_subsnp
+
+ Title   : each_subsnp
+ Usage   : @subsnps = $snp->each_subsnp()
+ Function: returns a list of the subSNPs of a refSNP
+ Returns : list
+ Args    : NONE
+
+=cut
 
 sub each_subsnp {
 	my $self = shift;
