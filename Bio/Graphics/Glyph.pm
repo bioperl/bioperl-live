@@ -1,5 +1,5 @@
 package Bio::Graphics::Glyph;
-use GD;
+#use GD;
 
 use strict;
 use Carp 'croak';
@@ -388,22 +388,31 @@ sub bgcolor {
   $index = 'white' unless defined $index;
   $self->factory->translate_color($index);
 }
+
 sub font {
   my $self = shift;
   my $font = $self->option('font');
-  unless (UNIVERSAL::isa($font,'GD::Font')) {
+
+  my $img_class = $self->_image_class;
+  # Bring in the appropriate image package...yuck...
+  eval "use $img_class";
+
+  unless (UNIVERSAL::isa($font,$img_class . '::Font')) {
     my $ref    = {
-		  gdTinyFont  => gdTinyFont,
-		  gdSmallFont => gdSmallFont,
-		  gdMediumBoldFont => gdMediumBoldFont,
-		  gdLargeFont => gdLargeFont,
-		  gdGiantFont => gdGiantFont};
+		  gdTinyFont       => gdTinyFont(),
+		  gdSmallFont      => gdSmallFont(),
+		  gdMediumBoldFont => gdMediumBoldFont(),
+    		  gdLargeFont      => gdLargeFont(),
+    		  gdGiantFont      => gdGiantFont(),
+    		 };
+
     my $gdfont = $ref->{$font} || $font;
     $self->configure(font=>$gdfont);
     return $gdfont;
   }
   return $font;
 }
+
 sub fontcolor {
   my $self = shift;
   my $fontcolor = $self->color('fontcolor');
@@ -423,6 +432,8 @@ sub connector_color {
   my $self = shift;
   $self->color('connector_color') || $self->fgcolor;
 }
+
+sub _image_class { shift->{factory}->{panel}->{image_class}; }
 
 sub layout_sort {
     my $self = shift;
@@ -776,8 +787,9 @@ sub draw_dashed_connector {
   my $center1  = ($top1 + $bottom1)/2;
   my $center2  = ($top2 + $bottom2)/2;
 
-  $gd->setStyle($color,$color,gdTransparent,gdTransparent,);
-  $gd->line($left,$center1,$right,$center2,gdStyled);
+  my $img_class = $self->_image_class;
+  $gd->setStyle($color,$color,gdTransparent(),gdTransparent());
+  $gd->line($left,$center1,$right,$center2,gdStyled());
 }
 
 sub draw_quill_connector {
