@@ -75,8 +75,6 @@ use strict;
 
 ($FieldDelim,$Header) =( '\t', '\s+',0);
 
-# Object preamble - inherits from Bio::Root::Root
-
 use Bio::PopGen::IO;
 
 use Bio::PopGen::Individual;
@@ -202,6 +200,71 @@ sub _parse_prettybase {
     $self->{'_parsed_individiuals'} = [ values %inds ];
     $self->{'_parsed'} = 1;
     return undef;
+}
+
+
+=head2 write_individual
+
+ Title   : write_individual
+ Usage   : $popgenio->write_individual($ind);
+ Function: Write an individual out in the file format
+ Returns : none
+ Args    : L<Bio::PopGen::PopulationI> object(s)
+
+=cut
+
+sub write_individual{
+    my ($self,@inds) = @_;
+    foreach my $ind ( @inds ) {
+	if (! ref($ind) || ! $ind->isa('Bio::PopGen::IndividualI') ) {
+	    $self->warn("Cannot write an object that is not a Bio::PopGen::IndividualI object");
+	    next;
+	}
+	foreach my $marker ( $ind->get_marker_names ) { 
+	    my $g = $ind->get_Genotypes(-marker=> $marker);
+	    next unless defined $g;
+	    $self->_print( join("\t", $marker, $ind->unique_id, 
+				$g->get_Alleles), "\n");	    
+	}
+    }
+    
+}
+
+
+
+=head2 write_population
+
+ Title   : write_population
+ Usage   : $popgenio->write_population($pop);
+ Function: Write a population out in the file format
+ Returns : none
+ Args    : L<Bio::PopGen::PopulationI> object(s)
+ Note    : Many implementation will not implement this
+
+=cut
+
+sub write_population{
+    my ($self,@pops) = @_;
+    foreach my $pop ( @pops ) {
+	if (! ref($pop) || ! $pop->isa('Bio::PopGen::PopulationI') ) {
+	    $self->warn("Cannot write an object that is not a Bio::PopGen::PopulationI object");
+	    next;
+	}
+	my @mnames = $pop->get_marker_names;
+	foreach my $ind ( $pop->get_Individuals ) {
+	    if (! ref($ind) || ! $ind->isa('Bio::PopGen::IndividualI') ) {
+		$self->warn("Cannot write an object that is not a Bio::PopGen::IndividualI object");
+		next;
+	    }
+	    foreach my $marker ( @mnames ) { 
+		my $g = $ind->get_Genotypes(-marker=> $marker);
+		next unless defined $g;
+		$self->_print( join("\t", $marker, $ind->unique_id, 
+				    $g->get_Alleles), "\n");
+			   
+	    }
+	}
+    }
 }
 
 1;

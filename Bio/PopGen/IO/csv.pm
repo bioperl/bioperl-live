@@ -214,4 +214,102 @@ sub next_population{
 
 
 
+
+=head2 write_individual
+
+ Title   : write_individual
+ Usage   : $popgenio->write_individual($ind);
+ Function: Write an individual out in the file format
+ Returns : none
+ Args    : L<Bio::PopGen::PopulationI> object(s)
+
+=cut
+
+sub write_individual{
+    my ($self,@inds) = @_;
+    my $fielddelim  = $self->flag('field_delimiter');
+    my $alleledelim= $self->flag('allele_delimiter');
+    
+    foreach my $ind ( @inds ) {
+	if (! ref($ind) || ! $ind->isa('Bio::PopGen::IndividualI') ) {
+	    $self->warn("Cannot write an object that is not a Bio::PopGen::IndividualI object ($ind)");
+	    next;
+	}
+	# we'll go ahead and sort these until
+	# we have a better way to insure a consistent order
+	my @marker_names = sort $ind->get_marker_names;
+	if( ! $self->flag('no_header') && 
+	    ! $self->flag('header_written') ) {
+	    $self->_print(join($fielddelim, ('SAMPLE', @marker_names)), "\n");
+	    $self->flag('header_written',1);
+	}
+	$self->_print( join($fielddelim, $ind->unique_id, 
+			    # we're chaining map here, pay attention and read
+			    # starting with the last map
+			    
+			    # we'll turn genotypes into allele pairs
+			    # which will be separated by the allele delimiter
+			    map { join($alleledelim,$_->get_Alleles) } 
+			    # marker names will be sorted so we don't
+			    # have to worry about this between individuals
+			    # unless the individual set you pass in has 
+			    # a mixed set of markers...
+			    # this will turn marker names into Genotypes
+			    map {$ind->get_Genotypes(-marker => $_)} 
+			    @marker_names), "\n")
+    }    
+}
+
+
+
+=head2 write_population
+
+ Title   : write_population
+ Usage   : $popgenio->write_population($pop);
+ Function: Write a population out in the file format
+ Returns : none
+ Args    : L<Bio::PopGen::PopulationI> object(s)
+ Note    : Many implementation will not implement this
+
+=cut
+
+sub write_population{
+    my ($self,@pops) = @_;
+    my $fielddelim  = $self->flag('field_delimiter');
+    my $alleledelim= $self->flag('allele_delimiter');
+    
+    foreach my $pop ( @pops ) {
+	if (! ref($pop) || ! $pop->isa('Bio::PopGen::PopulationI') ) {
+	    $self->warn("Cannot write an object that is not a Bio::PopGen::PopulationI object");
+	    next;
+	}
+	# we'll go ahead and sort these until
+	# we have a better way to insure a consistent order
+	my @marker_names = sort $pop->get_marker_names;
+	if( ! $self->flag('no_header') && 
+	    ! $self->flag('header_written') ) {
+	    $self->_print( join($fielddelim, ('SAMPLE', @marker_names)), 
+			   "\n");
+	    $self->flag('header_written',1);
+	}
+	foreach my $ind ( $pop->get_Individuals ) {
+	   $self->_print( join($fielddelim, $ind->unique_id, 
+			       # we're chaining map here, pay attention 
+			       # and read starting with the last map
+			       
+			       # we'll turn genotypes into allele pairs
+			       # which will be separated by the allele 
+			       # delimiter
+			       map { join($alleledelim,$_->get_Alleles) } 
+			       # marker names will be sorted so we don't
+			       # have to worry about this between individuals
+			       # unless the individual set you pass in has 
+			       # a mixed set of markers...
+			       # this will turn marker names into Genotypes
+			       map {$ind->get_Genotypes(-marker => $_)} 
+			       @marker_names), "\n");
+       }    
+    }
+}
+
 1;

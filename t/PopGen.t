@@ -19,7 +19,7 @@ BEGIN {
 	use lib 't';
     }
     use vars qw($NTESTS);
-    $NTESTS = 41;
+    $NTESTS = 45;
     $error = 0;
 
     use Test;
@@ -40,6 +40,11 @@ use Bio::PopGen::PopStats;
 
 use Bio::PopGen::Statistics;
 
+my ($FILE1) = qw(popgentst1.out);
+
+END { 
+    # unlink($FILE1);
+}
 my @individuals = ( new Bio::PopGen::Individual(-unique_id => '10a'));
 ok($individuals[0]);
 
@@ -200,8 +205,6 @@ ok(sprintf("%.3f",$fst),0.076, 'env,mssa,mrsa mkr2'); # We're going to check the
 $fst = $stats->Fst([$mrsapop,$envpop],[@all_bands ]);
 ok(sprintf("%.3f",$fst),0.241,'mrsa,nc all_bands'); # We're going to check the values against other programs first
 
-
-
 # test overall allele freq setting for a population
 
 my $poptst1 = new Bio::PopGen::Population(-name => 'tst1');
@@ -234,6 +237,38 @@ $poptst2->set_Allele_Frequency(-name      => 'marker1',
 skip('Fst not calculated yet',1,'marker1 test'); # 
 
 
+$io = new Bio::PopGen::IO(-format => 'csv',
+			  -file   => ">$FILE1");
+
+$io->write_individual(@inds);
+$io->close();
+ok( -e $FILE1);
+unlink($FILE1);
+$io = new Bio::PopGen::IO(-format => 'csv',
+			  -file   => ">$FILE1");
+
+$io->write_population(($mssapop,$mrsapop));
+$io->close();
+ok( -e $FILE1);
+unlink($FILE1);
+
+$io = new Bio::PopGen::IO(-format => 'prettybase',
+			  -file   => ">$FILE1");
+
+$io->write_individual(@inds);
+$io->close();
+ok( -e $FILE1);
+unlink($FILE1);
+
+$io = new Bio::PopGen::IO(-format => 'prettybase',
+			  -file   => ">$FILE1");
+
+$io->write_population(($mssapop,$mrsapop));
+$io->close();
+ok( -e $FILE1);
+unlink($FILE1);
+
+
 # Let's do PopGen::Statistics tests here
 
 $io = new Bio::PopGen::IO(-format          => 'prettybase',
@@ -251,7 +286,7 @@ while( my $ind = $io->next_individual ) {
 	$sitecount = scalar $ind->get_marker_names() unless defined $sitecount;
     }
 }
-my $stats = new Bio::PopGen::Statistics();
+$stats = new Bio::PopGen::Statistics();
 
 # Real data and values courtesy M.Hahn and DNASP
 
