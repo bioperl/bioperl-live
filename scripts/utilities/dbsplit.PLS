@@ -88,7 +88,7 @@ my $out = new Bio::SeqIO(-format => $outformat,
 			 -file   => ">$prefix.$count");
 my $scount = 0;
 while( my $seq = $in->next_seq ) {    
-    if( $scount++ >= $dbsize ) { 
+    if( ++$scount >= $dbsize && $count ) { 
 	$out->close();
 	undef($out);
 	$count++;
