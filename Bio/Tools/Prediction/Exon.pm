@@ -92,29 +92,64 @@ sub _initialize {
     return $make; # success - we hope!
 }
 
-#
-# Everything else is just inherited from SeqFeature::Generic.
-#
 
-=head2 _tag_value
+=head2 predicted_cds
 
- Title   : _tag_value
- Usage   : 
- Function: 
- Returns : 
- Args    : 
+ Title   : predicted_cds
+ Usage   : $predicted_cds_dna = $exon->predicted_cds();
+           $exon->predicted_cds($predicted_cds_dna);
+ Function: Get/Set the CDS (coding sequence) as predicted by a program.
 
+           This method is independent of an attached_seq. There is no
+           guarantee whatsoever that the returned CDS has anything to do
+           (e.g., matches) with the sequence covered by the exons as annotated
+           through this object.
+
+ Example :
+ Returns : A Bio::PrimarySeqI implementing object holding the DNA sequence
+           defined as coding by a prediction of a program.
+ Args    : On set, a Bio::PrimarySeqI implementing object holding the DNA 
+           sequence defined as coding by a prediction of a program.
 
 =cut
 
-sub _tag_value {
-    my ($self, $tag, $value) = @_;
+sub predicted_cds {
+    my ($self, $cds) = @_;
 
-    if(defined($value) || (! $self->has_tag($tag))) {
-	$self->remove_tag($tag) if($self->has_tag($tag));
-	$self->add_tag_value($tag, $value);
+    if(defined($cds)) {
+	$self->{'_predicted_cds'} = $cds;
     }
-    return ($self->each_tag_value($tag))[0];
+    return $self->{'_predicted_cds'};
+}
+
+=head2 predicted_protein
+
+ Title   : predicted_protein
+ Usage   : $predicted_protein_seq = $exon->predicted_protein();
+           $exon->predicted_protein($predicted_protein_seq);
+ Function: Get/Set the protein translation as predicted by a program.
+
+           This method is independent of an attached_seq. There is no
+           guarantee whatsoever that the returned translation has anything to
+           do with the sequence covered by the exons as annotated
+           through this object, or the sequence returned by predicted_cds(),
+           although it should usually be just the standard translation.
+
+ Example :
+ Returns : A Bio::PrimarySeqI implementing object holding the protein 
+           translation as predicted by a program.
+ Args    : On set, a Bio::PrimarySeqI implementing object holding the protein 
+           translation as predicted by a program.
+
+=cut
+
+sub predicted_protein {
+    my ($self, $aa) = @_;
+
+    if(defined($aa)) {
+	$self->{'_predicted_aa'} = $aa;
+    }
+    return $self->{'_predicted_aa'};
 }
 
 =head2 significance
@@ -190,6 +225,10 @@ sub coding_signal_score {
 
     return $self->_tag_value('CodScore', $value);
 }
+
+#
+# Everything else is just inherited from SeqFeature::Generic.
+#
 
 1;
 
