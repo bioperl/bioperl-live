@@ -446,8 +446,6 @@ sub get_predicate_terms {
               $self->part_of_relationship() );
 
 	foreach my $termname (keys %{$self->{ "_extra_relationship_types" }}){
-warn $termname;
-warn $self->{ "_extra_relationship_types" }{ $termname };
 	  push @a, $self->{ "_extra_relationship_types" }{ $termname };
 	}
 
