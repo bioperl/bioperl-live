@@ -92,8 +92,8 @@ This makes the simplest ever reformatter
 
     use Bio::SeqIO;
 
-    $in  = Bio::SeqIO->new(-file => "inputfilename" , -format => $format1 );
-    $out = Bio::SeqIO->new(-file => ">outputfilename" , -format => $format2 );
+    $in  = Bio::SeqIO->new(-fh => \*STDIN , -format => $format1 );
+    $out = Bio::SeqIO->new(-fh => \*STDOUT , -format => $format2 );
 
     tie INPUT, 'Bio::SeqIO::Handler', $in;
     tie OUTPUT, 'Bio::SeqIO::Handler', $out;
@@ -101,6 +101,15 @@ This makes the simplest ever reformatter
     while $seq ( <INPUT> ) {
 	print OUTPUT $seq;
     }
+
+Notice that the reformatter will only convert information that is held in
+the Seq object, which at the  moment is only the sequence and the id. More
+information will be converted through the expanded or larger object which 
+the bioperl developers are talking about. 
+
+It is not good for reformatting genbank to embl therefore, but was never
+designed for this task anyway.
+
 
 =head1 FEEDBACK
 
@@ -142,6 +151,7 @@ The rest of the documentation details each of the object methods. Internal metho
 
 package Bio::SeqIO;
 use Exporter;
+use Bio::SeqIO::Handler; # load the handler up for people using SeqIO
 use vars qw($AUTOLOAD @ISA);
 use strict;
 

@@ -99,11 +99,18 @@ sub _initialize {
       $self->throw("Providing both a file and a filehandle for reading from - oly one please!");
   }
 
+  if( !$file && !$fh ) {
+      $self->throw("Neither a file (-file) nor a filehandle (-fh) provided to Fasta opening");
+  }
+
+
   if( $file ) {
+      
       $fh = new FileHandle;
       $fh->open($file) || $self->throw("Could not open $file for Fasta stream reading $!");
    }
 
+  print "Setting filehandle to $fh\n";
    $self->_filehandle($fh);
       
 

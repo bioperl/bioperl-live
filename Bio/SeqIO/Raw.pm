@@ -107,6 +107,10 @@ sub _initialize {
       $self->throw("Providing both a file and a filehandle for reading from - only one please!");
   }
 
+  if( !$file && !$fh ) {
+      $self->throw("Neither a file (-file) nor a filehandle (-fh) provided to Raw opening");
+  }
+
   if( $file ) {
       $fh = new FileHandle;
       $fh->open($file) || $self->throw("Could not open $file for Raw stream reading $!");

@@ -22,7 +22,7 @@ Bio::DB::GenBank - Database object interface to GenBank
 
     # or ...
 
-    $seq = $db->get_Seq_by_acc('X77802'); # Accession Number
+    $seq = $gb->get_Seq_by_acc('X77802'); # Accession Number
 
 =head1 DESCRIPTION
 
