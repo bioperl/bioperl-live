@@ -316,7 +316,7 @@ use Symbol();
 @ISA = qw(Bio::Root::Root Bio::Root::IO Bio::Factory::SequenceStreamI);
 
 sub BEGIN {
-    eval { require Bio::SeqIO::staden::read; };
+#    eval { require Bio::SeqIO::staden::read; };
 }
 
 my %valid_alphabet_cache;
