@@ -96,7 +96,7 @@ sub next_tree{
    my ($self) = @_;
    local $/ = ";\n";
    return unless $_ = $self->_readline;
-   #s/\s+//gs;
+   s/[\r\n]//gs;
    my $despace = sub {my $dirty = shift; $dirty =~ s/\s+//gs; return $dirty};
    my $dequote = sub {my $dirty = shift; $dirty =~ s/^"?\s*(.+?)\s*"?$/$1/; return $dirty};
    s/([^"]*)(".+?")([^"]*)/$despace->($1) . $dequote->($2) . $despace->($3)/egsx;
