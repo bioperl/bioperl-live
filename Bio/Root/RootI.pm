@@ -58,20 +58,19 @@ use vars qw(@ISA $DEBUG $ID $Revision $VERSION $VERBOSITY
 	    $TEMPMODLOADED $TEMPDIR $TEMPCOUNTER $OPENFLAGS);
 use strict;
 use Bio::Root::Err;
-use Fcntl;
-use Symbol;
 # determine tempfile
 $TEMPCOUNTER = 0;
-eval {  use File::Temp; $TEMPMODLOADED = 1};
+eval { require 'File/Temp.pm'; $TEMPMODLOADED = 1; };
 if( $@ ) { 
-$OPENFLAGS = O_CREAT | O_EXCL | O_RDWR;
-
-for my $oflag (qw/FOLLOW BINARY LARGEFILE EXLOCK NOINHERIT TEMPORARY/) {
-    my ($bit, $func) = (0, "Fcntl::O_" . $oflag);
-    no strict 'refs';
-    $OPENFLAGS |= $bit if eval { $bit = &$func(); 1 };
-}
-    eval { use File::Spec; $TEMPDIR = File::Spec->tmpdir(); };
+    use Fcntl;
+    use Symbol;
+    $OPENFLAGS = O_CREAT | O_EXCL | O_RDWR;
+    for my $oflag (qw/FOLLOW BINARY LARGEFILE EXLOCK NOINHERIT TEMPORARY/) {
+	my ($bit, $func) = (0, "Fcntl::O_" . $oflag);
+	no strict 'refs';
+	$OPENFLAGS |= $bit if eval { $bit = &$func(); 1 };
+    }
+    eval { require 'File/Spec.pm'; $TEMPDIR = File::Spec->tmpdir(); };
     if( $@ ) {
 	if (defined $ENV{'TEMPDIR'} && -d $ENV{'TEMPDIR'} ) {
 	    $TEMPDIR = $ENV{'TEMPDIR'};
@@ -939,14 +938,13 @@ sub tempdir {
 	return $dir;
     }
     # we are planning to cleanup temp files no matter what
-    if( $hash{CLEANUP} == 1 ) {
-	$self->{_cleanuptempdir} = 1;
+    if( $hash{CLEANUP} == 1 ) {	$self->{_cleanuptempdir} = 1;
     }
     
     my $tdir = sprintf("%s/%s-%s-%s", $TEMPDIR, 
 		    "dir_". $ENV{USER} || 'unknown', $$, 
 		    $TEMPCOUNTER++);
-    mkdir($tdir);
+    mkdir($tdir, 0755);
     push @{$self->{_rooti_tempdirs}}, $tdir; 
     return $tdir;
 }
@@ -959,7 +957,7 @@ sub DESTROY {
     if( defined $self->{_rooti_tempfiles} 
 	&& ref($self->{_rooti_tempfiles}) =~ /array/i );
     foreach ( @{$self->{_rooti_tempdirs}} ) {
-	rmdir($_);
+#	rmdir($_);
     }
 }
 1;
