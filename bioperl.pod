@@ -1,4 +1,4 @@
-## $Id: bioperl.pod,v 1.20 2002-02-20 21:28:12 bosborne Exp $
+## $Id: bioperl.pod,v 1.21 2002-02-22 15:14:59 bosborne Exp $
 
 ## Should contain general info about the distribution including
 ## links to many modules.
@@ -93,6 +93,10 @@ Here are brief descriptions of the scripts in the I<examples/> directory:
 
 I<examples/aligntutorial.pl> - examples using EMBOSS, pSW, Clustalw,
 TCoffee, and Blast to align sequences
+
+I<examples/biblio.pl> - a script that shows how to query bibliographic
+databases, such as Medline, using ids, keywords, and other fields. See
+L<Bio::Biblio> for details 
 
 I<examples/blast/*pl> - a set of scripts showing how to use Blast.pm.
 Please see L<Bio::Tools::Blast> for more information
