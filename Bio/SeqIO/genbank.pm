@@ -287,7 +287,7 @@ sub next_seq {
 		  last;
 	      }
 	      
-	      $kw[-1] =~ s/\.$//;
+	      @kw && $kw[-1] =~ s/\.$//;
 	      $params{'-keywords'} = \@kw;
 	      $buffer = $_;
 	      next;

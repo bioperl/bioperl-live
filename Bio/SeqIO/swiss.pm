@@ -154,8 +154,8 @@ sub _initialize {
 sub next_seq {
    my ($self,@args) = @_;
    my ($pseq,$c,$line,$name,$desc,$acc,$seqc,$mol,$div,
-       $date,$comment,@date_arr, @sec);
-   my (@keywords,$acc_string);
+       $date,$comment,@date_arr);
+   
    my $genename = "";
    my ($annotation, %params, @features) = ( new Bio::Annotation::Collection);
 
@@ -225,7 +225,10 @@ sub next_seq {
        }
        #accession number(s)
        elsif( /^AC\s+(.+)/) {
-           $acc_string .= $acc_string ? " $1" : $1;
+	   my @accs = split(/[; ]+/, $1); # allow space in addition
+	   $params{'-accession_number'} = shift @accs 
+	       unless defined $params{'-accession_number'};
+	   push @{$params{'-secondary_accessions'}}, @accs;
        }
        #version number
        elsif( /^SV\s+(\S+);?/ ) {
@@ -301,10 +304,11 @@ sub next_seq {
        }
        #keywords
        elsif( /^KW\s+(.*)$/ ) {
-	   my ($kw) = $1;
-	   $kw =~ s/\.$//;
-           push @keywords, split(/\s*\;\s*/, $kw);
+	   my @kw = split(/\s*\;\s+/,$1);
+	   defined $kw[-1] && $kw[-1] =~ s/\.$//;
+	   push @{$params{'-keywords'}}, @kw;
        }
+
 
        # Get next line. Getting here assumes that we indeed need to read the
        # line.
@@ -342,17 +346,12 @@ sub next_seq {
        s/[^A-Za-z]//g;
        $seqc .= $_;
    }
-   $acc_string =~ s/\;\s*/ /g;
-   ( $acc, @sec ) = split " ",$acc_string;
 
    my $seq=  $self->sequence_factory->create
        (-verbose  => $self->verbose,
 	%params,
 	-seq      => $seqc,
 	-desc     => $desc,
-	-keywords => \@keywords,
-	-accession_number => $acc,
-	-secondary_accessions => \@sec,
 	-features => \@features,
 	-annotation => $annotation,
 	);

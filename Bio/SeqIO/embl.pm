@@ -203,7 +203,6 @@ sub next_seq {
 
    local $_;
  
-   
    BEFORE_FEATURE_TABLE :
    until( !defined $buffer ) {
        $_ = $buffer;
@@ -219,7 +218,8 @@ sub next_seq {
        #accession number
        if( /^AC\s+(.*)?/ ) {
 	   my @accs = split(/[; ]+/, $1); # allow space in addition
-	   $params{'-accession_number'} = shift @accs unless defined $params{'-accession_number'};
+	   $params{'-accession_number'} = shift @accs 
+	       unless defined $params{'-accession_number'};
 	   push @{$params{'-secondary_accessions'}}, @accs;
        }
        
@@ -239,8 +239,8 @@ sub next_seq {
        
        #keywords
        if( /^KW   (.*)\S*$/ ) {
-	   my $keywords = $1;
-	   $params{'-keywords'} = $keywords;
+	   my @kw = split(/\s*\;\s+/,$1);
+	   push @{$params{'-keywords'}}, @kw;
        }
 
        # Organism name and phylogenetic information
