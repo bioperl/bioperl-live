@@ -564,12 +564,14 @@ sub add_edge {
   my $dup_edges = $self->_dup_edges;
 	my $edge;
   while (@_) {
-    if ( $_[0]->isa('Bio::Graph::Edge') ) {	# it's already an edge
-       $edge = shift;
-    } 
-	elsif(ref($_[0]) eq 'ARRAY' || !ref($_[0])) {
-      $self->SUPER::add_edges(@_);
+    if ( ref($_[0]) eq 'ARRAY' || !ref($_[0])) {
+      	$self->SUPER::add_edges(@_);
 		return;
+
+    } 
+	elsif ( $_[0]->isa('Bio::Graph::Edge') ) {	# it's already an edge
+       $edge = shift;
+
     }
 	else {
 		$self->throw(" Invalid edge! - must be an array of nodes, or an edge object");
@@ -604,6 +606,51 @@ sub add_edge {
   $self->_is_connected(undef);	# clear cached value
 
 }
+=head2       subgraph
+
+ Name      :  subgraph
+ Purpose   : To construct  a  subgraph of  nodes from the main network.This 
+              method overrides that of Bio::Graph::SimpleGraph in its dealings with Edge 
+              objects. 
+ Usage     : my $sg = $gr->subgraph(@nodes).
+ Returns   : A subgraph of the same class as the original graph. Edge objects are cloned from 
+               the original graph but node objects are shared, so beware if you start deleting
+             nodes from the parent graph whilst operating on subgraph nodes. 
+ Arguments : A list of node objects.
+
+
+
+
+=cut
+sub subgraph {
+ my $self=shift;
+
+  ## make new graph of same type as parent
+  my $class    = ref($self);
+  my $subgraph = new $class;
+  $subgraph->add_node(@_);
+  # add all edges amongst the nodes
+  my @nodes=$subgraph->nodes;
+  my $i = 1;
+  while(@nodes) {
+    if ($i++ % 100 == 0) { print STDERR ".";}
+    my $m=shift @nodes;
+    my $edges = $self->_edges;
+    for my $n (@nodes) { 
+       if ($self->has_edge([$m,$n])) {
+          my ($edge) = $self->edges([$m,$n]); ## returns list of edges
+          my $id = $edge->object_id;
+          $subgraph->add_edge(Bio::Graph::Edge->new(-nodes=>[$m,$n],
+                                                    -id   => $id));
+        }
+    }
+  }#next node
+  return $subgraph;
+}
+
+
+
+
 
 =head2 add_dup_edge
 
@@ -939,12 +986,14 @@ sub articulation_points {
  return $self->{'_artic_points'} if $self->{'_artic_points'};
 
 ## else calculate...
+ print STDERR "doing subgraphs\n";
  my @subgraphs = $self->components();
  
  my %rts;
 
  for my $sg (@subgraphs) {
      my $all_nodes = $sg->_nodes;
+     print STDERR "in subgraph - size", scalar keys %$all_nodes, "\n";
 
 
      ##ignore isolated vertices
