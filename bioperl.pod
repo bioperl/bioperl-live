@@ -1,4 +1,4 @@
-## $Id: bioperl.pod,v 1.15 2002-01-16 17:19:52 bosborne Exp $
+## $Id: bioperl.pod,v 1.16 2002-02-05 20:27:05 bosborne Exp $
 
 ## Should contain general info about the distribution including
 ## links to all the various modules.
@@ -27,23 +27,24 @@ the objects provide a coordinated framework to do computational
 biology.
 
 Bioperl development is focused on the objects themselves, and less on the 
-scripts (programs) that put these objects together. There are some example
-scripts provided in the distribution, but it is not the focus of the
-objects that are distributed. Of course, as the objects do most of the
+scripts or programs that put these objects together. There are some scripts
+provided in the scripts/ and examples/ directories, but it is not the focus
+of the objects that are distributed. Of course, as the objects do most of the
 hard work for you, all you have to do is combine a number of objects
-together sensibly.
+together sensibly to make useful scripts.
 
-The intent of the bioperl development effort is to make reusable tools
-that aid people in creating their own site or job-specific applications.
+The intent of the Bioperl development effort is to make reusable tools
+that aid people in creating their own sites or job-specific applications.
 
-The bioperl.org (http://bioperl.org) website also attempts to maintain 
+The bioperl.org website at http://bioperl.org also attempts to maintain 
 links and archives of standalone bio-related perl tools that are not
-affiliated or related to the core bioperl effort. Check the site for
+affiliated or related to the core Bioperl effort. Check the site for
 useful code ideas and contribute your own if possible.
 
 We now also have a cookbook tutorial in bptutorial.pl which has
 embedded documentation. Start there if learning-by-example suits you
-most, or examine the Bioperl online course at http://www.pasteur.fr/recherche/unites/sis/formation/bioperl.
+most, or examine the Bioperl online course at
+http://www.pasteur.fr/recherche/unites/sis/formation/bioperl.
 
 =head1 INSTALLATION
 
@@ -59,20 +60,20 @@ go perldoc bioback.pod directly).
 =head1 GETTING STARTED
 
 The best place to start is by reading and running the cookbook script,
-bptutorial.pl
+bptutorial.pl.
 
-The directory scripts/ have fully working, industrial strength scripts
-for use with bioperl. These are documented ('perldoc scriptname' will
-work). This area only started in the 0.05 distribution, and so not
-that many scripts have been written (you are more than welcome to
-contribute!)
+The distribution I<scripts/> directory has fully working, industrial
+strength scripts for use with Bioperl. These are documented, and the
+command 'perldoc I<scriptname>' will work. This area only started in the
+0.05 distribution, and so not that many scripts have been written - you
+are more than welcome to contribute!
 
 The example scripts in the distribution I<examples/> directory and sub
 directories therein give you an idea of how to use some of the modules
 and driver code.
 
-If you have installed bioperl in the standard way, as said in the
-README in the distribution these examples should work by just running
+If you have installed Bioperl in the standard way, as detailed in the
+README in the distribution, these examples should work by just running
 them. If you have a not installed it in a standard way you will
 have to change the 'use lib' to point to your installation.
 
@@ -96,132 +97,56 @@ I<examples/root_object/> - example code for using Bio::Root::Object.pm.
 
 Bioperl is a completely open community of developers. We are not
 funded and we don't have a mission statement. We encourage
-collaborative code, in particular in perl. You can help us in many
+collaborative code, in particular in Perl. You can help us in many
 different ways, from just a simple statement about how you have used
-bioperl to do something interesting to contributing a whole new object
+Bioperl to doing something interesting to contributing a whole new object
 hierarchy. See http://bioperl.org for more information. Here are
-some ways of helping us
+some ways of helping us:
 
-=head2 Telling us you used it
+=head2 Asking questions and telling us you used it
 
-We are very interested to hear how you experienced using bioperl. Did
+We are very interested to hear how you experienced using Bioperl. Did
 it install cleanly? Did you understand the documentation? Could you
-get the objects to do what you wanted it to do? If bioperl was useless
+get the objects to do what you wanted it to do? If Bioperl was useless
 we want to know why, and if it was great - that too. Post a message to
-bioperl-l@bioperl.org (the bioperl mailing list, where all the developers
-are).
+bioperl-l@bioperl.org, the Bioperl mailing list, where all the developers
+are.
 
 Only by getting people's feedback do we know whether we are providing
 anything useful.
 
 =head2 Writing a script that uses it
 
-By writing a good script that uses bioperl you both show that bioperl
+By writing a good script that uses Bioperl you both show that Bioperl
 is useful and probably save someone elsewhere writing it. If you
 contribute it to the 'script central' at http://bioperl.org then other
-people can view and use it
+people can view and use it. Don't be nervous if you've never done this
+sort of work, advice is freely given and all are welcome!
 
 =head2 Find bugs!
 
 We know that there are bugs in there. If you find something which you are
 pretty sure is a problem, post a note to bioperl-bugs@bioperl.org and
-we will get on it as soon as possible. (you can also access the bug
-system through the web pages).
+we will get on it as soon as possible. You can also access the bug
+system through the web pages.
 
 =head2 Suggest new functionality
 
 You can suggest areas where the objects are not ideally written and
 could be done better. The best way is to find the main developer
-of the module (each module was written principly by one person
+of the module (each module was written principly by one person,
 except for Seq.pm). Talk to him or her and suggest changes.
 
 =head2 Make your own objects
 
 If you can make a useful object we will happily include it into the
 core. Probably you will want to read a lot of the documentation 
-in the L<Bio::Root> section and also talk to people on the bioperl
+in the L<Bio::Root> section and also talk to people on the Bioperl
 mailing list bioperl-l@bioperl.org
 
 biodesign.pod provides documentation on the conventions and ideas
-used in bioperl. It is definitely worth a read if you are interested
+used in Bioperl. It is definitely worth a read if you are interested
 in contributing.
-
-=head1 CONVENTIONS
-
-=head2 Alphabets
-
-Bioperl modules use the standard extended single-letter genetic
-alphabets to represent nucleotide and amino acid sequences.
-
-In addition to the standard alphabet, the following symbols
-are also acceptable in a biosequence:
-
- ?  (a missing nucleotide or amino acid)
- -  (gap in sequence)
-
-=head2 Extended Dna / Rna alphabet
-
- (includes symbols for nucleotide ambiguity)
- ------------------------------------------
- Symbol       Meaning      Nucleic Acid
- ------------------------------------------
-  A            A           Adenine
-  C            C           Cytosine
-  G            G           Guanine
-  T            T           Thymine
-  U            U           Uracil
-  M          A or C  
-  R          A or G   
-  W          A or T    
-  S          C or G     
-  Y          C or T     
-  K          G or T     
-  V        A or C or G  
-  H        A or C or T  
-  D        A or G or T  
-  B        C or G or T   
-  X      G or A or T or C 
-  N      G or A or T or C 
-
-
- IUPAC-IUB SYMBOLS FOR NUCLEOTIDE NOMENCLATURE:
-   Cornish-Bowden (1985) Nucl. Acids Res. 13: 3021-3030.
-
-
-=head2  Amino Acid alphabet
-
- ------------------------------------------
- Symbol           Meaning   
- ------------------------------------------
- A        Alanine
- B        Aspartic Acid, Asparagine
- C        Cystine
- D        Aspartic Acid
- E        Glutamic Acid
- F        Phenylalanine
- G        Glycine
- H        Histidine
- I        Isoleucine
- K        Lysine
- L        Leucine
- M        Methionine
- N        Asparagine
- P        Proline
- Q        Glutamine
- R        Arginine
- S        Serine
- T        Threonine
- V        Valine
- W        Tryptophan
- X        Unknown
- Y        Tyrosine
- Z        Glutamic Acid, Glutamine
- *        Terminator
-
-
- IUPAC-IUP AMINO ACID SYMBOLS:
-   Biochem J. 1984 Apr 15; 219(2): 345-373
-   Eur J Biochem. 1993 Apr 1; 213(1): 2
 
 
 =head1 ACKNOWLEDGEMENTS
@@ -231,27 +156,27 @@ the award-winning VSNS-BCD BioComputing Courses; some students of the
 1996 course (Chris Dagdigian, Richard Resnick, Lew Gramer, Alessandro
 Guffanti, and others) have contributed code and commentary. Georg
 Fuellen, the VSNS-BCD chief organizer was one of the early driving forces
-behind bioperl. Steven Brenner, who was an early adopter of Perl for
-bioinformatics provided some of the early work on bioperl. Lincoln Stein
+behind Bioperl. Steven Brenner, who was an early adopter of Perl for
+bioinformatics provided some of the early work on Bioperl. Lincoln Stein
 has long provided guidance and code.
 
 Bioperl was then taken up by people developing code at the large
 genome centres. In particular at Stanford, Steve Chervitz at the
-Genome Sequencing Centre (St Louis) Ian Korf and at the Sanger Centre
+Genome Sequencing Centre (St. Louis) Ian Korf and at the Sanger Centre
 (Cambridge UK) Ewan Birney.  All of the C code XS extensions were
 provided by Ewan Birney. Bioperl is used in anger at these sites,
 indicating that is both useful and that it works.
 
-Jason Staijch and Hilmar Lapp joined bioperl for the drive towards a
+Jason Stajich and Hilmar Lapp joined Bioperl for the drive towards a
 0.7 release over 2000 and the first part of 2001, which includes a
 revised feature location model, richer feature objects (in particular
 genes) and more and better tools. Peter Schattner and Lorenz Pollak
 contributed serious chunks of code, being the AlignIO and bptutorial
-scripts and the BPLite port to bioperl respectively. At this time
+scripts and the BPLite port to Bioperl respectively. At this time
 Bioperl was being used in absolute earnest by the Ensembl group which
 shook out a number of problems in the code base. Additional
-compatibility with the Sequence Workbench (bioperl-gui) (Mark
-Wilkinson and David Block) and Biocorba (Jason Staijch, Brad Chapman
+compatibility with the Sequence Workbench (Bioperl-gui, Mark
+Wilkinson and David Block) and Biocorba (Jason Stajich, Brad Chapman
 and Alan Robinson) and finally Game-XML (Brad Marshall) provided more
 interoperability.
 
@@ -260,8 +185,8 @@ projects) was provided by Compaq Computer Corporation.  The donation
 was facilitated by both the Pharmaceutical Sales and High Performance 
 Technical Computing (HPTC) groups.
 
-The bioperl servers reside in Cambridge, Massachusetts USA with
-colocation facilities and internet bandwidth donated by Genetics
+The Bioperl servers reside in Cambridge, Massachusetts USA with
+colocation facilities and Internet bandwidth donated by Genetics
 Institute. In particular Dr. Steven Howes, Kenny Grant & 
 Rich DiNunno have made significant efforts on our behalf.
 
