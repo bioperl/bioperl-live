@@ -66,6 +66,11 @@ between them:
                            chr (or entry)
 
 
+This structure is kept in global variable $DAG which is a
+representation of a Diracted Acyclic Graph. The path calculations
+traversing this graph are done in a helper class. See
+L<Bio::Coordinate::Graph>.
+
 Of these, two operations are special cases, translate and splice.
 Translating and reverse translating are implemented as internal
 methods that do the simple 1E<lt>-E<gt>3 conversion. Splicing needs
@@ -115,44 +120,86 @@ methods. Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::Coordinate::GeneMapper;
-use vars qw(@ISA %COORDINATE_SYSTEMS  %COORDINATE_INTS $TRANSLATION);
+use vars qw(@ISA %COORDINATE_SYSTEMS  %COORDINATE_INTS $TRANSLATION $DAG);
 use strict;
 
 # Object preamble - inherits from Bio::Root::Root
 use Bio::Root::Root;
 use Bio::Coordinate::Result;
 use Bio::Location::Simple;
+use Bio::Coordinate::Graph;
 
 @ISA = qw(Bio::Root::Root);
 
 # first set internal values for all translation tables
 
 %COORDINATE_SYSTEMS = (
-		       peptide          => 7,
-		       propeptide       => 6,
-		       cds              => 5,
-		       negative_introns => 4, #
-		       inex             => 3, #
+		       peptide          => 9,
+		       propeptide       => 8,
+		       frame            => 7,
+		       cds              => 6,
+		       negative_introns => 5,
+		       intron           => 4,
+		       exon             => 3,
 		       gene             => 2,
 		       chr              => 1
 		      );
 
 %COORDINATE_INTS = (
-		    7 => 'peptide',
-		    6 => 'propeptide',
-		    5 => 'cds',
-		    4 => 'negative_introns',
-		    3 => 'inex',
+		    9 => 'peptide',
+		    8 => 'propeptide',
+		    7 => 'frame',
+		    6 => 'cds',
+		    5 => 'negative_introns',
+		    4 => 'intron',
+		    3 => 'exon',
 		    2 => 'gene',
 		    1 => 'chr'
 		   );
 
+#%COORDINATE_SYSTEMS = (
+#		       peptide          => 7,
+#		       propeptide       => 6,
+#		       cds              => 5,
+#		       negative_introns => 4,
+#		       inex             => 3,
+#		       gene             => 2,
+#		       chr              => 1
+#		      );
+#
+#%COORDINATE_INTS = (
+#		    7 => 'peptide',
+#		    6 => 'propeptide',
+#		    5 => 'cds',
+#		    4 => 'negative_introns',
+#		    3 => 'inex',
+#		    2 => 'gene',
+#		    1 => 'chr'
+#		   );
+
 $TRANSLATION =  $COORDINATE_SYSTEMS{'cds'}. $COORDINATE_SYSTEMS{'propeptide'};
+
+$DAG = {
+	9  => [],
+	8  => [9],
+	7  => [],
+	6  => [7, 8],
+	5  => [],
+	4  => [5],
+	3  => [6],
+	2  => [3, 4, 6],
+	1  => [2]
+       };
 
 
 sub new {
     my($class,@args) = @_;
     my $self = $class->SUPER::new(@args);
+
+    # prime the graph
+    my $graph = new Bio::Coordinate::Graph;
+    $graph->hash_of_arrays($DAG);
+    $self->graph($graph);
 
     my($in, $out, $peptide_offset, $transcript, $exons, $cds, $strict) =
 	$self->_rearrange([qw(IN
@@ -178,6 +225,27 @@ sub new {
     $strict && $self->strict($strict);
 
     return $self; # success - we hope!
+}
+
+=head2 graph
+
+ Title   : graph
+ Usage   : $obj->graph('peptide');
+ Function: Set and read the input coordinate system.
+ Example :
+ Returns : value of input system
+ Args    : new value (optional)
+
+=cut
+
+sub graph {
+   my ($self,$value) = @_;
+   if( defined $value) {
+       $self->throw("Not a valid graph [$value]\n")
+	   unless $value->isa('Bio::Coordinate::Graph');
+       $self->{'_graph'} = $value;
+   }
+   return $self->{'_graph'};
 }
 
 =head2 in
@@ -387,7 +455,7 @@ sub exons {
    my ($self,@value) = @_;
    my $mapper =  $COORDINATE_SYSTEMS{'gene'}. + $COORDINATE_SYSTEMS{'cds'};
    my $intron_exon_mapper =
-       $COORDINATE_SYSTEMS{'gene'}. + $COORDINATE_SYSTEMS{'inex'};
+       $COORDINATE_SYSTEMS{'gene'}. + $COORDINATE_SYSTEMS{'exon'};
    my $negative_intron_mapper =
        $COORDINATE_SYSTEMS{'gene'}. + $COORDINATE_SYSTEMS{'negative_introns'};
 
@@ -633,102 +701,52 @@ sub map {
    print STDERR "=== Start location: ". $value->start. ",".
        $value->end. " (". $value->strand. ")\n" if $self->verbose > 0;
 
-   my $counter = $self->{'_in'};
-   while ($counter != $self->{'_out'}) {
 
-       my $mapper;
-       if ($self->direction == 1 ) {
-	   if ($COORDINATE_INTS{$counter} eq 'gene') {
-	       if ( $self->{'_out'} > ($counter+2) ) {
-		   $mapper = "$counter". ($counter+3);
-	       }
-	       elsif ( $self->{'_out'} == ($counter+2) ) {
-		   $mapper = "$counter". ($counter+2);
-	       } else {
-		   $mapper = "$counter". ($counter+1);
-	       }
-	   } else { #default
-	       $mapper = "$counter". ($counter+1);
-	   }
-       } else { # direction = -1
-	   if ($COORDINATE_INTS{$counter} eq 'cds') {
-	       if ( $self->{'_out'} < ($counter-2) ) {
-		   $mapper = ($counter-3). "$counter";
-	       }
-	       elsif ( $self->{'_out'} == ($counter-2) ) {
-		   $mapper = ($counter-2). "$counter";
-	       } else { # cds -> negetive_intron
-		   $self->throw(" 'cds' -> 'negative_intron' is not possible mapping!");
-	       }
-	   } else {
-	       $mapper = ($counter-1). "$counter";
-	   }
-       }
-       print "=================================>$counter:$mapper(", $self->{'_out'},")\n" if $self->verbose > 0;
-       # handle exception : translation
-       #  cds -> propeptide
+   my @aa = $self->_get_path();
+   print "mapping ", $self->{'_in'}, "->", $self->{'_out'},
+       "  Mappers: ", join(", ", @aa), "\n"  if $self->verbose > 0;
+
+   foreach my $mapper (@aa) {
+#       print STDERR "---------------------$mapper\n";
        if ($mapper == $TRANSLATION) {
 	   if ($self->direction == 1) {
 	       $value = $self->_translate($value);
-	       print STDERR "+   cds -> propeptide (translate) "
+	       print STDERR "+   cds -> propeptide (translate) \n"
 		   if $self->verbose > 0;
 	   } else {
 	       $value = $self->_reverse_translate($value);
-	       print STDERR "+   propeptide -> cds (reverse translate) "
+	       print STDERR "+   propeptide -> cds (reverse translate) \n"
 		   if $self->verbose > 0;
 	   }
-	   next;
        }
-
        # keep the start and end values, and go on to next iteration
        #  if this mapper is not set
-       unless ( defined $self->{'_mappers'}->{$mapper} ) {
+       elsif ( ! defined $self->{'_mappers'}->{$mapper} ) {
 	   # update mapper name
+	   $mapper =~ /.(.)/;   my ($counter) = $1;
 	   $value->seq_id($COORDINATE_INTS{$counter});
 	   print STDERR "-   ". $COORDINATE_INTS{$counter}. " -> ".
 	       $COORDINATE_INTS{$counter+ $self->direction}. " " if $self->verbose > 0;
-	   next;
-       }
-
-       # generic mapping
-       #       print "counter = $counter|$mapper\n";
-       my $res = $self->{'_mappers'}->{$mapper}->map($value);
-
-       my @matches = $res->each_match;
-       if (@matches > 1) {
-	   $self->throw('Multiple matches in different coordinate systems not handled')
-	       if $matches[0]->seq_id ne $matches[-1]->seq_id;
-	   $value = $res->match;
-	   $value->start($matches[0]->start);
-
        } else {
-	   $value = $res->match;
+	   # generic mapping
+	   #       print "counter = $counter|$mapper\n";
+	   my $res = $self->{'_mappers'}->{$mapper}->map($value);
+	   print STDERR "+  $mapper (", $self->direction, ")\n"
+	       if $self->verbose > 0;
+
+	   my @matches = $res->each_match;
+	   if (@matches > 1) {
+	       $self->throw('Multiple matches in different coordinate systems not handled')
+		   if $matches[0]->seq_id ne $matches[-1]->seq_id;
+	       $value = $res->match;
+	       $value->start($matches[0]->start);
+
+	   } else {
+	       $value = $res->match;
+	   }
        }
-
-#       use Data::Dumper;
-#       print Dumper $res;
-       return undef  unless  $value;
-       print STDERR "+   ". $COORDINATE_INTS{$counter}. " -> ".
-	   $COORDINATE_INTS{$counter+ $self->direction}. " " if $self->verbose > 0;
-
-
-   } continue {
-       # move counter
-       print STDERR "    ". $value->start. ",".
-	   $value->end. " (". $value->strand. ")\n" if $self->verbose > 0;
-
-
-       $counter = $counter + 2 
-	   if $COORDINATE_INTS{$counter} eq 'gene'
-	      and $self->direction == 1
-	      and $self->{'_out'} > ($counter+2);
-
-       $self->direction == 1 ? $counter++ : $counter-- ;
-
    }
-
    return $value;
-
 }
 
 =head2 direction
@@ -1020,4 +1038,54 @@ sub _check_direction {
 }
 
 
+=head2 _get_path
+
+ Title   : _get_path
+ Usage   : $obj->_get_path('peptide');
+ Function: internal method for finding that shortest path between
+           input and output coordinate systems.
+           Calcultaions and caching are handled by the graph class.
+           See L<Bio::Coordinate::Graph>.
+ Example :
+ Returns : array of the mappers
+ Args    : none
+
+=cut
+
+sub _get_path {
+   my ($self) = @_;
+
+   my $start = $self->{'_in'} || 0;
+   my $end = $self->{'_out'} || 0;
+
+   # note the order
+   # always go from smaller to bigger: it  makes caching more efficient
+   my $reverse;
+   if ($start > $end) {
+       ($start, $end) = ($end, $start );
+       $reverse++;
+   }
+
+   my @mappers;
+   if (exists $self->{'_previous_path'} and
+       $self->{'_previous_path'} eq "$start$end" ) {
+       # use cache
+       @mappers = @{$self->{'_mapper_path'}};
+   } else {
+       my $mapper;
+       my $prev_node = '';
+       @mappers =
+	   map { $mapper = "$prev_node$_"; $prev_node = $_; $mapper; }
+	       $self->{'_graph'}->shortest_path($start, $end);
+       shift @mappers;
+
+       $self->{'_previous_path'} = "$start$end";
+       $self->{'_mapper_path'} = \@mappers;
+   }
+
+   $reverse ? return reverse @mappers : return @mappers;
+}
+
+
 1;
+

@@ -16,7 +16,7 @@ BEGIN {
     }
     use Test;
 
-    plan tests => 69;
+    plan tests => 72;
 }
 
 use Bio::Location::Simple;
@@ -158,14 +158,19 @@ use Bio::Coordinate::GeneMapper;
 
 ok my $m = new Bio::Coordinate::GeneMapper(-in => 'propeptide',
 					   -out => 'peptide');
+#$m->verbose(2);
 
 ok $m->peptide_offset(5), 5;
+#print Dumper $m;
+#exit;
 
 
 # match within
 $pos = Bio::Location::Simple->new 
     (-start => 25, -end => 25, -strand=> 1 );
 $res = $m->map($pos);
+#print Dumper $res;
+
 ok $res->start, 20;
 ok $res->end, 20;
 ok $res->strand, 1;
@@ -184,16 +189,18 @@ ok $m->out('propeptide'), 'propeptide';
 $res = $m->map($pos);
 ok $res->start, 2;
 ok $res = $m->_translate($pos);
+ok $res->start, 2;
 ok $res = $m->_reverse_translate($pos);
-
-
+ok $res->start, 13;
+ok $res->end, 15;
+#$m->verbose(2);
 $pos = Bio::Location::Simple->new 
     (-start => 26, -end => 26, -strand=> 1 );
-#$m->in('transcript');
-#ok $m->utr(7), 7;
 $m->out('peptide');
+#print Dumper $m;
 $res = $m->map($pos);
 ok $res->start, 4;
+
 
 #
 # frame
@@ -241,7 +248,7 @@ ok $m->exons(@cexons), 3;
 #print Dumper $m;
 #$m->verbose(2);
 
-$m->out('inex');
+$m->out('exon');
 $pos = Bio::Location::Simple->new
     (-start => 6, -end => 7, -strand=> 1 );
 $res = $m->map($pos);
@@ -296,6 +303,7 @@ ok $m->cds(3); # recalculating exons
 #         pair1     pair2     pair3
 
 $m= new Bio::Coordinate::GeneMapper;
+
 $m->in('chr');
 $m->out('gene');
 $off = $m->cds(17);
