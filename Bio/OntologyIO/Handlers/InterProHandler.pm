@@ -85,8 +85,7 @@ use Data::Dumper;
 
 @ISA = qw(Bio::Root::Root);
 
-my ($record_count, $processed_count, $is_a_rel, $contains_rel, $found_in_rel,
-    $family_term, $domain_term, $repeat_term, $ptm_term);
+my ($record_count, $processed_count, $is_a_rel, $contains_rel, $found_in_rel);
 
 =head2 new
 
@@ -339,18 +338,14 @@ sub start_element {
   my $ont_eng = $self->ontology_engine;
 
   if ($element->{Name} eq 'interprodb') {
-    $family_term = Bio::Ontology::Term->new( -identifier => "Family",
-					     -name => "Family");
-    $ont_eng->add_term($family_term);
-    $domain_term = Bio::Ontology::Term->new( -identifier => "Domain",
-					     -name => "Domain");
-    $ont_eng->add_term($domain_term);
-    $repeat_term = Bio::Ontology::Term->new( -identifier => "Repeat",
-					     -name => "Repeat");
-    $ont_eng->add_term($repeat_term);
-    $ptm_term = Bio::Ontology::Term->new( -identifier => "PTM",
-					  -name => "PTM");
-    $ont_eng->add_term($ptm_term);
+    $ont_eng->add_term( Bio::Ontology::Term->new( -identifier => "Family",
+						 -name => "Family") );
+    $ont_eng->add_term( Bio::Ontology::Term->new( -identifier => "Domain",
+						  -name => "Domain") );
+    $ont_eng->add_term( Bio::Ontology::Term->new( -identifier => "Repeat",
+						  -name => "Repeat") );
+    $ont_eng->add_term( Bio::Ontology::Term->new( -identifier => "PTM",
+						  -name => "PTM") );
   } elsif ($element->{Name} eq 'interpro') {
     my %record_args = %{$element->{Attributes}};
     my $id = $record_args{"id"};
