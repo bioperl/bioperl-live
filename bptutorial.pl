@@ -837,7 +837,7 @@ The following methods return strings
   $seqobj->alphabet();   # one of 'dna','rna','protein'
   $seqobj->primary_id(); # a unique id for this sequence irregardless
                          # of its display_id or accession number
-  $seqobj->desc()        # a description of the sequence
+  $seqobj->desc();        # a description of the sequence
 
 It is worth mentioning that some of these values correspond to specific
 fields of given formats. For example, the display_id method returns
@@ -849,14 +849,19 @@ file.
 
 The following methods return an array of Bio::SeqFeature objects
 
-   $seqobj->top_SeqFeatures # The 'top level' sequence features
-   $seqobj->all_SeqFeatures # All sequence features, including sub
+   $seqobj->top_SeqFeatures; # The 'top level' sequence features
+   $seqobj->all_SeqFeatures; # All sequence features, including sub
                             # seq features
+
+For a comment annotation, you can use:
+  use Bio::Annotation::Comment;
+  $seq->annotation->add_Annotation('comment',
+      Bio::Annotation::Comment->new(-text => 'some description');
 
 Sequence features will be discussed further in section L<"III.7"> on
 machine-readable sequence annotation. A general description of the
 object can be found in L<Bio::SeqFeature::Generic>, and a description
-of related, top-level "annotation" is found in L<Bio::Annotation>.
+of related, top-level "annotation" is found in L<Bio::Annotation::Comment>.
 
 Additional sample code for obtaining sequence features can be found in
 the script gb2features.pl in the subdirectory scripts/DB/.
@@ -864,9 +869,9 @@ the script gb2features.pl in the subdirectory scripts/DB/.
 The following methods returns new sequence objects, but do not transfer
 features across:
 
-  $seqobj->trunc(5,10)  # truncation from 5 to 10 as new object
-  $seqobj->revcom       # reverse complements sequence
-  $seqobj->translate    # translation of the sequence
+  $seqobj->trunc(5,10);  # truncation from 5 to 10 as new object
+  $seqobj->revcom;       # reverse complements sequence
+  $seqobj->translate;    # translation of the sequence
 
 Note that some methods return strings, some return arrays and some
 return references to objects.  See L<Bio::Seq> for more information.
@@ -1231,11 +1236,14 @@ Sample code to read a BLAST report might look like this:
   $hsp = $hit->next_hsp;
   $hsp_start = $hsp->query->start;
 
-For more details on parsing with Search/SearchIO see the Search and SearchIO
-documentation: L<Bio::SearchIO::blast>, L<Bio::SearchIO::psiblast>,
-L<Bio::SearchIO::blastxml>, L<Bio::SearchIO::fasta>, and L<Bio::SearchIO>.
-There is also sample code in the Bio/scripts/searchio directory which
-illustrates how to use SearchIO.
+For more details there is an excellent description of how to use
+SearchIO in the bioperl "HOWTOs" directory at www.bioperl.org/HOWTOs/
+or in the docs/ subdirectory of the distribution. Additional
+documentation can be found in: L<Bio::SearchIO::blast>,
+L<Bio::SearchIO::psiblast>, L<Bio::SearchIO::blastxml>,
+L<Bio::SearchIO::fasta>, and L<Bio::SearchIO>.  There is also sample
+code in the Bio/scripts/searchio directory which illustrates how to
+use SearchIO.
 
 =for html <A NAME ="iii.4.3"></A>
 
@@ -1924,9 +1932,12 @@ A user may want to represent Seq objects and their SeqFeatures graphically. The
 Bio::Graphics::* modules use Perl's GD.pm module to create a PNG or GIF image
 given the SeqFeatures (Section L<"III.7.1">) contained within a Seq object.
 
-These modules contain numerous methods to dictate the sizes, colors, labels,
-and line formats within the image. See L<Bio::Graphics>, L<Bio::Graphics::Panel>,
-or the scripts/render_sequence.pl script for more information.
+These modules contain numerous methods to dictate the sizes, colors,
+labels, and line formats within the image. For information see the
+detailed Bio::Graphics "HOWTO" documentation at
+www.bioperl.org/HOWTOs/ or in the docs/ subdirectory. Additional
+documentation can be found at L<Bio::Graphics>,
+L<Bio::Graphics::Panel>, and in the scripts/render_sequence.pl script.
 
 =head2 III.10 Bioperl alphabets
 
@@ -2036,10 +2047,10 @@ However there are exceptions and it is not always obvious whether a
 given module will be found in the "core" or in an auxiliary package.
 
 At present, modules in the auxilliary packages can be obtained only by
-means of the CVS system.  The required command (e.g. for the
-bioperl-run package) is:
+means of the CVS system. To browse through the auxilliary packages and
+to obtain the download files, go to:
 
-cvs -d:pserver:cvs@cvs.open-bio-org:/home/repository/bioperl checkout bioperl-run
+http://cvs.bioperl.org/cgi-bin/viewcvs/viewcvs.cgi/?cvsroot=bioperl
 
 Generally CVS packages are not as well tested as the released core
 package.  Consequently after downloading and running:
@@ -2135,8 +2146,6 @@ can access a blast parser directly, eg
 See the section L<"III.4.3"> on parsing BLAST reports with
 Bio::Tools::BPlite or L<Bio::Tools::BPlite> for details.
 
-
-
 =for html <A NAME ="iv.2.2"></A>
 
 =head2 IV.2.2 Aligning 2 sequences with Blast using  bl2seq and AlignIO
@@ -2150,7 +2159,7 @@ file format reader as follows:
   $factory = Bio::Tools::Run::StandAloneBlast->new('outfile' => 'bl2seq.out');
   $bl2seq_report = $factory->bl2seq($seq1, $seq2);
   # Use AlignIO.pm to create a SimpleAlign object from the bl2seq report
-  $str = Bio::AlignIO->new('-file '=>' bl2seq.out',
+  $str = Bio::AlignIO->new('-file '=>'bl2seq.out',
                            '-format' => 'bl2seq');
   $aln = $str->next_aln();
 
