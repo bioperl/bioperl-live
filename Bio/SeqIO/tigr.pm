@@ -44,7 +44,7 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 
 =head1 AUTHORS - Josh Lauricha
 
-Email: laurichj@cs.ucr.edu
+Email: laurichj@bioinfo.ucr.edu
 
 
 =head1 APPENDIX
