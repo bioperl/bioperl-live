@@ -91,3 +91,11 @@ if( $seq->id() ne 'something' || $seq->accession_number ne 'accnum' ) {
   print "ok 9\n";
 }
 
+my $subseq = $seq->subseq(5, 9);
+
+if( $seq->subseq(5, 9) ne 'tggcg') {
+    print "not ok 10\n";
+    print "subseq(5,9) was ",$seq->subseq(5,9), " when I expected tggcg\n";
+} else {
+  print "ok 10\n";
+}
