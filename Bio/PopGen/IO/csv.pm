@@ -205,8 +205,11 @@ sub next_individual{
 
 sub next_population{
     my ($self) = @_;
-    $self->warn("Sorry current this implementation doesn't know how to extract populations from CSV data");
-    return undef;
+    my @inds;
+    while( my $ind = $self->next_individual ) {
+	push @inds, $ind;
+    }
+    Bio::PopGen::Population->new(-individuals => \@inds);
 }
 
 
