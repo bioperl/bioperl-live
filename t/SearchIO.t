@@ -5,6 +5,8 @@
 # Before `make install' is performed this script should be runnable with
 # `make test'. After `make install' it should work as `perl test.t'
 
+my $error;
+
 use strict;
 BEGIN {     
     # to handle systems with no installed Test module
@@ -14,8 +16,24 @@ BEGIN {
     if( $@ ) {
 	use lib 't';
     }
+
     use Test;
     plan tests => 43; 
+
+    eval { require XML::Parser::PerlSAX; };
+    if( $@ ) {
+	print STDERR "XML::Parser::PerlSAX not loaded. This means game test cannot be executed. Skipping\n";
+	foreach ( 1..43 ) {
+	    skip(1,1);
+	}
+       $error = 1;
+	
+    } 
+
+}
+
+if( $error == 1 ) {
+    exit(0);
 }
 
 use Bio::SearchIO;
