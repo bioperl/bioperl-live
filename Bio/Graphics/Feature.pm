@@ -177,7 +177,7 @@ sub new {
   $self->{start}   = $arg{-start};
   $self->{stop}    = $arg{-end} || $arg{-stop};
   $self->{ref}     = $arg{-ref};
-  for my $option (qw(class url seq phase desc attrib factory configurator)) {
+  for my $option (qw(class url seq phase desc attributes factory configurator)) {
     $self->{$option} = $arg{"-$option"} if exists $arg{"-$option"};
   }
 
@@ -199,6 +199,7 @@ sub add_segment {
   my $self        = shift;
   my $type = $self->{subtype} || $self->{type};
   $self->{segments} ||= [];
+  my $ref  = $self->seq_id;
 
   my @segments = @{$self->{segments}};
 
@@ -216,6 +217,7 @@ sub add_segment {
       push @segments,$self->new(-start  => $start,
 				-stop   => $stop,
 				-strand => $strand,
+				-ref    => $ref,
 				-type   => $type);
     } else {
       push @segments,$seg;
@@ -466,7 +468,9 @@ sub class {
 }
 
 sub gff_string {
-  my $self = shift;
+  my $self    = shift;
+  my $recurse = shift;
+
   my $name  = $self->name;
   my $class = $self->class;
   my $group = "$class $name" if $name;
@@ -477,12 +481,32 @@ sub gff_string {
                        $self->score||'.',$strand||'.',$self->phase||'.',
                        $group||'');
   $string .= "\n";
-  foreach ($self->sub_SeqFeature) {
-    # add missing data if we need it
-    $_->ref($self->ref)     unless defined $_->ref;
-    $_->name($self->name);
-    $_->class($self->class);
-    $string .= $_->gff_string;
+  if ($recurse) {
+    foreach ($self->sub_SeqFeature) {
+      $string .= $_->gff_string($recurse);
+    }
+  }
+  $string;
+}
+
+sub gff3_string {
+  my $self              = shift;
+  my ($recurse,$parent) = @_;
+
+  my $name  = $self->name;
+  my $class = $self->class;
+  my $group = $self->format_attributes($parent);
+  my $strand = ('-','.','+')[$self->strand+1];
+  my $string;
+  $string .= join("\t",$self->ref||'.',$self->source||'.',$self->method||'.',
+                       $self->start||'.',$self->stop||'.',
+                       $self->score||'.',$strand||'.',$self->phase||'.',
+                       $group||'');
+  $string .= "\n";
+  if ($recurse) {
+    foreach ($self->sub_SeqFeature) {
+      $string .= $_->gff3_string(1,$self->name);
+    }
   }
   $string;
 }
@@ -539,16 +563,37 @@ sub make_link {
   }
 }
 
+sub escape {
+  my $toencode = shift;
+  $toencode    =~ s/([^a-zA-Z0-9_. :?^*\(\)\[\]@!-])/uc sprintf("%%%02x",ord($1))/eg;
+  $toencode    =~ tr/ /+/;
+  $toencode;
+}
+
 sub all_tags {
   my $self = shift;
-  return keys %{$self->{attrib}};
+  return keys %{$self->{attributes}};
 }
 sub each_tag_value {
   my $self = shift;
   my $tag  = shift;
-  my $value = $self->{attrib}{$tag} or return;
-  return CORE::ref $value ? @{$self->{attrib}{$tag}}
-                          : $self->{attrib}{$tag};
+  my $value = $self->{attributes}{$tag} or return;
+  return CORE::ref $value ? @{$self->{attributes}{$tag}}
+                          : $self->{attributes}{$tag};
+}
+
+sub format_attributes {
+  my $self   = shift;
+  my $parent = shift;
+  my @tags = $self->all_tags;
+  my @result;
+  for my $t (@tags) {
+    my @values = $self->each_tag_value($t);
+    push @result,join '=',escape($t),escape($_) foreach @values;
+  }
+  push @result,"ID=".escape($self->name) if defined $self->name;
+  push @result,"Parent=".escape($parent) if defined $parent;
+  return join ';',@result;
 }
 
 sub DESTROY { }

@@ -578,6 +578,7 @@ sub _make_feature {
   my @coordinates = @$parts > 1 ? (-segments => $parts) : (-start=>$parts->[0][0],-end=>$parts->[0][1]);
   Bio::Graphics::Feature->new(-name       => $name,
 			      -type       => $type,
+			      -subtype    => "${type}_part",
 			      $strand ? (-strand   => make_strand($strand)) : (),
 			      -desc       => $description,
 			      -ref        => $ref,
