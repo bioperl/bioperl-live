@@ -66,8 +66,8 @@ that objects can be created.
 
 This module is included with the central Bioperl distribution:
 
-   http://bio.perl.org/Core/Latest
-   ftp://bio.perl.org/pub/DIST
+   http://bioperl.org/Core/Latest
+   ftp://bioperl.org/pub/DIST
 
 Follow the installation instructions included in the README file.
 
@@ -89,8 +89,6 @@ Wellcome Trust Genome Campus, Hinxton, Cambs, CB10 1SA, UK).
 Since EGCG is no longer distributed for the latest versions of GCG, this code
 was developed to emulate the output of the original program as much as possible for
 those who lost access to sigcleave when upgrading to newer versions of GCG.
-
-The EGCG website can be found at: http://www.sanger.ac.uk/Software/EGCG/
 
 There are 2 accessor methods for this object. "signals" will return a perl
 associative array containing the sigcleave scores keyed by amino acid position.
@@ -156,7 +154,7 @@ Report bugs to the Bioperl bug tracking system to help us keep track the bugs an
 their resolution. Bug reports can be submitted via email or the web:
 
     bioperl-bugs@bio.perl.org                   
-    http://bio.perl.org/bioperl-bugs/           
+    http://bioperl.org/bioperl-bugs/           
 
 =head1 AUTHOR
 
@@ -180,7 +178,6 @@ Nucleic Acids Res. 14, 4683-4690.
 von Heijne G. (1987) in "Sequence Analysis in Molecular Biology: Treasure Trove or Trivial Pursuit" 
 (Acad. Press, (1987), 113-117). 
 
-EGCG website: http://www.sanger.ac.uk/Software/EGCG/
 
 =head1 APPENDIX
 
@@ -508,6 +505,7 @@ __END__
 #########################################################################
 #  End of class 
 #########################################################################
+
 
 
 
