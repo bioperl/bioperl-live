@@ -226,7 +226,7 @@ sub next_report{
 	       $self->end_element({ 'Name' => 'Hit'});
 	   }
 	   $self->start_element({ 'Name' => 'Hit'});
-	   my $id = $1;
+	   my $id = $1;	  
 	   $self->element({ 'Name' => 'Hit_id',
 			    'Data' => $id});
 	   my @pieces = split(/\|/,$id);
@@ -250,7 +250,7 @@ sub next_report{
 			     'Data' => $2});
 	   $self->element( { 'Name' => 'Hsp_evalue',
 			     'Data' => $3});
-       } elsif( /Score = (\S+) bits \((\d+)\), Expect = (\S+)/	) {
+       } elsif( /Score\s+=\s+(\S+)\s+bits\s+\((\d+)\),\s+Expect(\(\d+\))?\s+=\s+(\S+)/) {
 	   if( $self->in_element('hsp') ) {
 	       $self->end_element({ 'Name' => 'Hsp'});
 	   }
@@ -260,7 +260,7 @@ sub next_report{
 	   $self->element( { 'Name' => 'Hsp_bit-score',
 			     'Data' => $1});
 	   $self->element( { 'Name' => 'Hsp_evalue',
-			     'Data' => $3});
+			     'Data' => $4});
        } elsif( $self->in_element('hsp') &&
 		/Identities = (\d+)\/(\d+).+, Positives = (\d+)\/(\d+).+(\, Gaps = (\d+)\/(\d+))?/ ) {
 	   
@@ -277,7 +277,7 @@ sub next_report{
 	   $self->{'_Query'} = {'begin' => 0, 'end' => 0};
 	   $self->{'_Sbjct'} = { 'begin' => 0, 'end' => 0};
        } elsif( $self->in_element('hsp') &&
-		/Frame = ([\+\-][1-3])\s*(\/\s*([\+\-][1-3]))/ ){
+		/Frame = ([\+\-][1-3])\s*(\/\s*([\+\-][1-3]))?/ ){
 	   
 	   my ($queryframe,$hitframe);
 	   if( $reporttype eq 'TBLASTX' ) {
@@ -361,7 +361,6 @@ sub next_report{
 	       $last = $_;
 	   }
        } elsif( $self->in_element('hsp') ) {
-	   
            # let's read 3 lines at a time;
 	   my %data = ( 'Query' => '',
 			'Mid' => '',
@@ -371,12 +370,13 @@ sub next_report{
 		defined($_) && $i < 3; 
 		$i++ ){
 	       chomp;
-	       if( /((Query|Sbjct):\s+(\d+)\s+)(\S+)\s+(\d+)/ ) {
+	       if( /^((Query|Sbjct):\s+(\d+)\s+)(\S+)\s+(\d+)/ ) {
 		   $data{$2} = $4;
 		   $len = length($1);
 		   $self->{"\_$2"}->{'begin'} = $3 unless $self->{"_$2"}->{'begin'};
 		   $self->{"\_$2"}->{'end'} = $5;
 	       } else { 
+		   $self->throw("no data for midline $_") unless defined $_ && defined $len;
 		   $data{'Mid'} = substr($_,$len);
 	       }
 	       $_ = $self->_readline();	       
@@ -569,6 +569,7 @@ sub _mode{
 
 sub in_element{
    my ($self,$name) = @_;  
+   return 0 if ! defined $self->{'_elements'}->[0];
    return ( $self->{'_elements'}->[0] eq $name)
 }
 
