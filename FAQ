@@ -1,4 +1,4 @@
-# $Id: FAQ,v 1.3 2002-02-16 21:17:12 bosborne Exp $
+# $Id: FAQ,v 1.4 2002-02-22 15:25:52 bosborne Exp $
 
 Bioperl FAQ
 -----------
@@ -19,7 +19,7 @@ I. Bioperl in general
 
 II. Sequences
 
-  1. How do I parse a file?  
+  1. How do I parse a sequence file?  
   2. I can't get sequences with Bio::DB::GenBank any more, why not?
 
 III. Report parsing
@@ -31,6 +31,9 @@ IV. Sequence utilities
 
   1. How do I find all the ORFs in a nucleotide sequence? Antigenic sites
      in a protein? Calculate nucleotide melting temperature? Find repeats?
+  2. How do I do motif searches with Bioperl? Can I do "find all sequences
+     that are 75% identical" to a given motif?
+
 
 ------------------------------------------------------------------------
 This FAQ maintained by those listed below:
@@ -120,9 +123,9 @@ I. Bioperl in general
       All the developers on the bioperl list use the toolkit in some
       capacity on a regular basis.
       
-      The Genquire annotation system
-      (www.bioinformatics.org/Genquire/) and Ensembl (www.ensembl.org)
-      use bioperl as the basis for their implementation. 
+      The Genquire annotation system (www.bioinformatics.org/Genquire/)
+      and Ensembl (www.ensembl.org) use bioperl as the basis for their
+      implementation. 
         
   8.  How should I cite Bioperl?
 
@@ -140,7 +143,7 @@ I. Bioperl in general
 II. Sequences
 ------------------------------------------------------------------------
 
-  1. How do I parse a file?
+  1. How do I parse a sequence file?
 
      Use the Bio::SeqIO system.  This will create Bio::Seq objects for
      you.  See the tutorial bptutorial.pl for more information or the
@@ -172,7 +175,7 @@ III. Report parsing
 
      Nothing is really wrong with it, it has just been outgrown by a
      more generic approach to reports.  This generic approach allows
-     us to just write pluggable modules for fasta and blast parsing
+     us to just write pluggable modules for fasta and Blast parsing
      while using the same framework.  This is completely analogous to
      the Bio::SeqIO system of parsing sequence files.  However, the
      objects produced are of the Bio::Search rather than Bio::Seq
@@ -193,5 +196,18 @@ IV. Sequence utilities
      from within Bioperl. See Bio::Factory::EMBOSS for more information.
 
      If you can't find the functionality you want in Bioperl then make sure
-     to look for it in EMBOSS, these packages integrate quite gracefully.
+     to look for it in EMBOSS, these packages integrate quite gracefully
+     with Bioperl. Of course, you will have to install EMBOSS to get this
+     access.
      
+  2. How do I do motif searches with Bioperl? Can I do "find all sequences
+     that are 75% identical" to a given motif?
+
+     There are a number of approaches inside and outside of Bioperl. Within
+     Bioperl take a look at Bio::Tools::SeqPattern, but it's also conceivable
+     that the combination of Bioperl and Perl's regular expressions could do
+     the trick. You should also consider the CPAN module String::Approx (this
+     module addresses the percent match query). Or, take a look at the TFBS
+     package, at http://forkhead.cgb.ki.se/TFBS (Transcription Factor Binding
+     Site). This Bioperl-compliant package specializes in pattern searching
+     of nucleotide sequence using matrices.
