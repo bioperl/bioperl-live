@@ -47,9 +47,12 @@ not only might it answer your question, but more importantly it will
 give you idea why the person who wrote the module wrote it - and this
 will be the frame work in which you can understand his or her answer.
 
-You might also want to examine the models, or class diagrams, in the models/
+You might also want to examine the models, or class diagrams, in the models
 directory. These diagrams are not guaranteed to include every single class
 but may help you understand the overall layout of Bioperl's modules.
+
+Documentation on Bio::Root can also be found in the form of scripts - check
+the examples/root_object directory for a start.
 
 =head2 Respect people's code (in particular if it works)
 
@@ -114,27 +117,27 @@ have making new releases.
 
 =head1 Bioperl Bio::Root::Root Object
 
-All objects in Bioperl (but for interfaces - see L<Bioperl Interface design>)
-inherit from the Bio::Root::Root. The Bioperl root object allows a number of
-very useful concepts to be provided. In particular.
+All objects in Bioperl (but for interfaces) inherit from the Bio::Root::Root.
+The Bioperl root object allows a number of very useful concepts to be provided.
+In particular.
 
 =over 3
 
 =item exceptions, warning, and debugging
 
-  The Bioperl Root object allows exceptions to be throw on the object
+The Bioperl Root object allows exceptions to be throw on the object
 with very nice debugging output.  These are throw by calling the
 method throw() and passing in the message string.  This will cause the
 execution of the script to die with a stack trace.
-  
-   Similarly the warn() method can be called which will produce a
+
+Similarly the warn() method can be called which will produce a
 warning message - use this instead of print for warning messages to
 the user because if the verbose flag is set to -1 warnings will be
 skipped.  Additionally setting the verbose flag to 1 will print a
 stack trace for every warning in addition to the message and setting
 verbose to 2 will convert warnings into thrown exceptions.
 
-   Finally, the the debug() method prints messages to STDERR when the
+Finally, the the debug() method prints messages to STDERR when the
 verbose flag is set to 1.
 
 =item rearrange
@@ -165,16 +168,15 @@ to behave in an Object Oriented manner.
 
 The full code is given below for a basic skeleton object that uses bioperl.
 
-   # convention is that if you are using the Bio::Root object you
-   # should put it inside the Bio namespace
+  # convention is that if you are using the Bio::Root object you
+  # should put it inside the Bio namespace
 
-   package Bio::MyNewObject;
-   use vars qw(@ISA);
-   use strict;
+  package Bio::MyNewObject;
+  use vars qw(@ISA);
+  use strict;
 
-   use Bio::Root::Root;
-   @ISA = qw(Bio::Root::Root);
-
+  use Bio::Root::Root;
+  @ISA = qw(Bio::Root::Root);
 
   sub new {
      my($class,@args) = @_;
@@ -184,7 +186,7 @@ The full code is given below for a basic skeleton object that uses bioperl.
      # do your own argument processing here
 
      my ($arg1) = $self->_rearrange([qw(NAMEDARGUMENT1)], @args);
-     
+
      # set default attributes etc...
 	
      return $self;
@@ -402,7 +404,8 @@ cases - reading in a large number of sequences with features requires
 the creation of many objects and can perform poorly.  One can work
 around this by creating the hashes directly and NOT chaining the new
 calls.  An example of this is implemented in the Bio::SeqIO::FTHelper
-objects in the treatment of Location objects for features.
+objects in the treatment of Location objects for features. Please see
+L<Bio::SeqIO::FTHelper> for details.
 
 =head1 Getting Started
 

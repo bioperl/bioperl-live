@@ -1,4 +1,4 @@
-## $Id: bioperl.pod,v 1.23.2.1 2002-03-15 23:03:23 bosborne Exp $
+## $Id: bioperl.pod,v 1.23.2.2 2002-04-21 14:32:03 jason Exp $
 
 ## Should contain general info about the distribution including
 ## links to many modules.
@@ -14,7 +14,6 @@ Bioperl - Coordinated OOP-Perl Modules for Biology
 =head1 SYNOPSIS
 
 Read on...
-
 
 =head1 DESCRIPTION
 
@@ -116,7 +115,7 @@ L<Bio::LiveSeq::Mutation> for more information
 I<examples/clustalw.pl> - a demonstration of the various uses of
 Alignment::Clustalw. See L<Bio::Tools::Run::Alignment::Clustalw> for more
 
-I<examples/getGenbank.pl> - retrieving Genbank entries over the Web using
+I<examples/getGenBank.pl> - retrieving Genbank entries over the Web using
 DB::GenBank. See L<Bio::DB::GenBank> for more information
 
 I<examples/gsequence> - create a Protein Sequence Control Panel GUI with Gtk
@@ -168,6 +167,18 @@ I<examples/structure/struct_example*> - scripts that show how to examine
 details of the 3D structure of a protein by parsing a PDB file. See
 L<Bio::Structure::IO> for more information.
 
+I<examples/test-genscan.pl> - script for testing and demonstrating Genscan.pm
+
+I<examples/exceptions/test*pl> - scripts that demonstrate how to throw and
+catch Error.pm objects.
+
+I<examples/root_object/vector/vector.pl> - script to test Bio::Root::Vector.pm
+
+I<examples/root_object/*> - scripts that demonstrate uses of Bio::Root modules.
+
+I<examples/use_registry.pl> - script that shows how to use Bio::DB::Registry,
+part of Bioperl's integration with OBDA, the Open Bio Database Access registry
+scheme. See L<Bio::DB::Registry> for more information.
 
 =head1 Scripts/ Directory
 
@@ -196,6 +207,14 @@ the network and reformat using Bio::Index* and Bio::DB*
 
 I<scripts/bpindex.pl> - indexes local databases, partners with bpfetch.pl
 
+I<scripts/contributed/revcom_dir.pl> - return reverse complement sequences of
+all sequences in the current directory and save them in the same directory,
+using the same names with extension changed from "seq" to "rev"
+
+I<scripts/contributed/expression_analyis/*> - a set of scripts for analysis
+of expression data : discriminative gene selection, leave-out-one cross
+validation, relevance network of gene expression
+
 I<scripts/das/das_server> - sets up a minimal DAS annotation server, requires
 Apache::DBI and Bio::DB::GFF. See L<Bio::DB::GFF> for details
 
@@ -204,6 +223,9 @@ fetch sequences
 
 I<scripts/est_tissue_query.pl> - fetch EST sequences from local files or
 Genbank filtered by tissue using Bio::DB* or Bio::Index*
+
+I<scripts/DB/flanks.pl> - fetch a sequence, find the sequences flanking
+a variant or SNP in the sequence given its position
 
 I<scripts/gb_to_gff.pl> - extracts top-level sequence features from Genbank-
 formatted sequence files using Tools::GFF. See L<Bio::Tools::GFF>

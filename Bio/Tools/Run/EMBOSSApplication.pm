@@ -137,7 +137,7 @@ sub new {
 
 sub run {
     my ($self, $input) = @_;
-
+    $self->{'_io'}->_io_cleanup();
     # test input
     print Dumper($input) if $self->verbose > 0;
     $self->_acd2input($input);

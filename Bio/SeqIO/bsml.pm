@@ -561,8 +561,6 @@ sub to_bsml {
     # <Sequences> #
     ###############
 
-   $seqsElem = $xml->getElementsByTagName("Sequences")->item(0);
-        
     # Map over Bio::Seq to BSML
     my %mol = ('dna' => 'DNA', 'rna' => 'RNA', 'protein' => 'AA');
     my @xmlSequences;
@@ -1382,7 +1380,9 @@ sub DESTROY {
     # Reports off the net imply that DOM::Parser will memory leak if you
     # do not explicitly dispose of it:
     # http://aspn.activestate.com/ASPN/Mail/Message/perl-xml/788458
-    $self->{'domtree'}->dispose;
+    my $dom = $self->{'domtree'};
+    # For some reason the domtree can get undef-ed somewhere...
+    $dom->dispose if ($dom);
 }
 
 

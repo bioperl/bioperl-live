@@ -1,4 +1,4 @@
-# $Id: FAQ,v 1.6 2002-03-08 20:36:25 jason Exp $
+# $Id: FAQ,v 1.6.2.1 2002-04-21 14:32:03 jason Exp $
 
 Bioperl FAQ
 -----------
@@ -42,7 +42,7 @@ IV. Utilities
 ------------------------------------------------------------------------
 This FAQ maintained by those listed below:
 Jason Stajich <jason@bioperl.org>
-Brian Osborne <b_i_osborne@hotmail.com>
+Brian Osborne <brian_osborne@cognia.com>
 
 ------------------------------------------------------------------------
 I. Bioperl in general
@@ -80,41 +80,44 @@ I. Bioperl in general
      developer releases.  These are snapshots of the actively
      developed code that at a minimum pass all our tests 
 
+     But really, you should be using version 1.*!
+
   4.  Is it BioPerl, bioperl, bio.perl.org, Bioperl?  What's the deal?
 
-      Well, the perl.org guys granted us use of bio.perl.org.  We
-      prefer to be called Bioperl or BioPerl (unlike our Biopython
-      friends).  We're part of the Open Bioinformatics Foundation
-      (OBF) and so as part of the Bio{*} toolkits we prefer the
-      Bioperl spelling.  But we're not really all that picky so no worries. 
+     Well, the perl.org guys granted us use of bio.perl.org.  We
+     prefer to be called Bioperl or BioPerl (unlike our Biopython
+     friends).  We're part of the Open Bioinformatics Foundation
+     (OBF) and so as part of the Bio{*} toolkits we prefer the
+     Bioperl spelling.  But we're not really all that picky so no worries. 
    
   5.  How do I figure out how to use a module?
 
-      Read the embedded perl documentation (Plain Old Documentation -
-      POD) that is part of every modules.  Do
-      % perldoc MODULE 
-      (careful - spelling and case counts!).
+     Read the embedded perl documentation (Plain Old Documentation -
+     POD) that is part of every modules.  Do
+     % perldoc MODULE 
+     (careful - spelling and case counts!).
 
-      The bioperl tutorial - bptutorial.pl - provided in the root
-      directory of the bioperl release will also provide a good
-      introduction.  There are links to tutorials off the bioperl
-      website that may provide some additional help.
+     The bioperl tutorial - bptutorial.pl - provided in the root
+     directory of the bioperl release will also provide a good
+     introduction.  There are links to tutorials off the bioperl
+     website that may provide some additional help.
  
-      There are also many scripts in the examples/ and scripts/
-      directories that could be useful - see bioperl.pod for a brief
-      description of all of them.
+     There are also many scripts in the examples/ and scripts/
+     directories that could be useful - see bioperl.pod for a brief
+     description of all of them.
 
-      Additionally we have written many tests for our modules, you
-      can see test data and example usage of the modules in these
-      tests - look in the test dir (called 't').
+     Additionally we have written many tests for our modules, you
+     can see test data and example usage of the modules in these
+     tests - look in the test dir (called 't').
 
   6.  I'm interested in the bleeding edge version of the code, where
       can I get it?
       
-      Go to http://cvs.bioperl.org and you'll see instructions on how
-      to get the CVS code.
+     Go to http://cvs.bioperl.org and you'll see instructions on how
+     to get the CVS code.
 
-      Basically:
+     Basically:
+
       % cvs -d :pserver:cvs@cvs.bioperl.org:/home/repository/bioperl login
       enter 'cvs' for the password
       % cvs -d :pserver:cvs@cvs.bioperl.org:/home/repository/bioperl
@@ -122,25 +125,25 @@ I. Bioperl in general
 
   7.  Who uses this toolkit?
 
-      Lots of people.  Sanger Centre, EBI, many large and small
-      academic laboratories, large and small pharmaceutical companies.
-      All the developers on the bioperl list use the toolkit in some
-      capacity on a regular basis.
+     Lots of people.  Sanger Centre, EBI, many large and small
+     academic laboratories, large and small pharmaceutical companies.
+     All the developers on the bioperl list use the toolkit in some
+     capacity on a regular basis.
       
-      The Genquire annotation system (www.bioinformatics.org/Genquire/)
-      and Ensembl (www.ensembl.org) use bioperl as the basis for their
-      implementation. 
+     The Genquire annotation system (www.bioinformatics.org/Genquire/)
+     and Ensembl (www.ensembl.org) use bioperl as the basis for their
+     implementation. 
         
   8.  How should I cite Bioperl?
 
-      For now cite it as "The Bioperl Project, http://www.bioperl.org".      
+     For now cite it as "The Bioperl Project, http://www.bioperl.org".      
       
   9.  What are the License terms for Bioperl?
 
-      Bioperl is licensed under the same terms as Perl itself which is
-      the Perl Artistic License.  You can see more information on that
-      license at http://www.perl.com/pub/a/language/misc/Artistic.html
-      and http://www.opensource.org/licenses/artistic-license.html
+     Bioperl is licensed under the same terms as Perl itself which is
+     the Perl Artistic License.  You can see more information on that
+     license at http://www.perl.com/pub/a/language/misc/Artistic.html
+     and http://www.opensource.org/licenses/artistic-license.html
             
 
 ------------------------------------------------------------------------
@@ -152,7 +155,6 @@ II. Sequences
      Use the Bio::SeqIO system.  This will create Bio::Seq objects for
      you.  See the tutorial bptutorial.pl for more information or the
      documentation for Bio::SeqIO (e.g. 'perldoc SeqIO.pm').
-
 
   2. I can't get sequences with Bio::DB::GenBank any more, why not?
 
