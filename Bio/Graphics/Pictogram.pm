@@ -284,6 +284,7 @@ sub _make_pwm {
   #sum up the frequencies at each base pair
   foreach my $seq(@$input){
     my $string = $seq->seq;
+    $string =  uc $string;
     my @motif = split('',$string);
     my $pos = 1;
     foreach my $t(@motif){
