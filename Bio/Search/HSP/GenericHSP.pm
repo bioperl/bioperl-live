@@ -142,6 +142,7 @@ BEGIN {
            -query_frame => query frame (only if query is translated protein)
            -rank        => HSP rank
 
+
 =cut
 
 sub new {
@@ -179,7 +180,8 @@ sub new {
 				       QUERY_END
 				       QUERY_FRAME
 				       HIT_FRAME
-				       RANK )], @args);
+				       RANK
+				       )], @args);
 
     $algo = 'GENERIC' unless defined $algo;
     $self->algorithm($algo);
@@ -192,8 +194,8 @@ sub new {
     defined $pvalue    && $self->pvalue($pvalue);
     defined $bits      && $self->bits($bits);
     defined $score     && $self->score($score);
-
     my ($queryfactor, $hitfactor) = (0,0);
+
     if( $algo eq 'TFASTN' || $algo eq 'TFASTY' || $algo eq 'TFASTXY' ||
 	$algo eq 'TBLASTN' ) {
 	$hitfactor = 1;	
@@ -204,10 +206,11 @@ sub new {
 	     $algo eq 'TFASTXY' || $algo eq 'TFASTY' || 
 	     $algo eq 'BLASTN' || 
 	     $algo eq 'FASTN' || $algo eq 'WABA' || 
-	     $algo eq 'EXONERATE' || $algo eq 'MEGABLAST')  {	
+	     $algo eq 'EXONERATE' || $algo eq 'MEGABLAST' ||
+	     $algo eq 'SMITH-WATERMAN' ){
 	$hitfactor = 1;
 	$queryfactor = 1;
-    } elsif( $algo eq 'RPSBLAST' ) {
+    } elsif( $algo eq 'RPSBLAST' ) {	
 	$queryfactor = $hitfactor = 0;
 	$qframe = $hframe = 0;
     }
@@ -704,37 +707,7 @@ sub get_aln {
     my $aln = new Bio::SimpleAlign;
     my $hs = $self->hit_string();
     my $qs = $self->query_string();
-    if( $self->algorithm  =~ /FAST/i ) {
-	# fasta reports some extra 'regional' sequence information
-	# we need to clear out first
-	# this seemed a bit insane to me at first, but it appears to 
-	# work --jason
-	
-	# we infer the end of the regional sequence where the first
-	# non space is in the homology string
-	# then we use the HSP->length to tell us how far to read
-	# to cut off the end of the sequence
-
-	# one possible problem is the sequence which 
-	
-	my ($start) = 0;
-	if( $self->homology_string() =~ /^(\s+)/ ) {
-	    $start = CORE::length($1);
-	}
-	$hs = substr($hs, $start,$self->length('total'));
-	$qs = substr($qs, $start,$self->length('total'));
-	foreach my $seq ( $qs,$hs)  {
-	    foreach my $f ( '\\', '/', ' ') {
-		my $index =  index($seq,$f);
-		while( $index >=0 ) {
-		    substr($hs,$index,1) = '';
-		    substr($qs,$index,1) = '';
-		    $index = index($seq,$f,$index+1);
-		}
-	    }
-	}
-    }
-
+    # FASTA specific stuff moved to the FastaHSP object
     my $seqonly = $qs;
     $seqonly =~ s/[\-\s]//g;
     my ($q_nm,$s_nm) = ($self->query->seq_id(),

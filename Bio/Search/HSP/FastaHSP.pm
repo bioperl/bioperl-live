@@ -77,8 +77,6 @@ package Bio::Search::HSP::FastaHSP;
 use vars qw(@ISA);
 use strict;
 
-# Object preamble - inherits from Bio::Root::Root
-
 use Bio::Search::HSP::GenericHSP;
 
 @ISA = qw(Bio::Search::HSP::GenericHSP );
@@ -89,8 +87,7 @@ use Bio::Search::HSP::GenericHSP;
  Usage   : my $obj = new Bio::Search::HSP::FastaHSP();
  Function: Builds a new Bio::Search::HSP::FastaHSP object 
  Returns : Bio::Search::HSP::FastaHSP
- Args    :
-
+ Args    : -swscore => smith-waterman score
 
 =cut
 
@@ -125,6 +122,74 @@ sub sw_score{
 	$self->{'_sw_score'} = $value;
     }
     return $self->{'_sw_score'};
+}
+
+
+sub get_aln {
+    my ($self) = @_;
+    require Bio::LocatableSeq;
+    require Bio::SimpleAlign;
+    my $aln = new Bio::SimpleAlign;
+    my $hs = $self->hit_string();
+    my $qs = $self->query_string();
+
+    # fasta reports some extra 'regional' sequence information
+    # we need to clear out first
+    # this seemed a bit insane to me at first, but it appears to 
+    # work --jason
+    
+    # we infer the end of the regional sequence where the first
+    # non space is in the homology string
+    # then we use the HSP->length to tell us how far to read
+    # to cut off the end of the sequence
+        
+    my ($start) = 0;
+    if( $self->homology_string() =~ /^(\s+)/ ) {
+	$start = CORE::length($1);
+    }
+    $self->debug("hs seq is '$hs'\n");
+    $self->debug("qs seq is '$qs'\n");
+	
+
+    $hs = substr($hs, $start,$self->length('total'));
+    $qs = substr($qs, $start,$self->length('total'));
+    foreach my $seq ( $qs,$hs)  {
+	foreach my $f ( '\\', '/', ' ') {
+	    my $index =  index($seq,$f);
+	    while( $index >=0 && length($seq) > 0 ) {
+		substr($hs,$index,1) = '';
+		substr($qs,$index,1) = '';
+		$self->debug( "$f, $index+1, for ".length($seq). " ($seq)\n");
+		$index = index($seq,$f,$index+1);
+	    }
+	}
+    }
+
+    my $seqonly = $qs;
+    $seqonly =~ s/[\-\s]//g;
+    my ($q_nm,$s_nm) = ($self->query->seq_id(),
+			$self->hit->seq_id());
+    unless( defined $q_nm && CORE::length ($q_nm) ) {
+	$q_nm = 'query';
+    }
+    unless( defined $s_nm && CORE::length ($s_nm) ) {
+	$s_nm = 'hit';
+    }
+    my $query = new Bio::LocatableSeq('-seq'   => $qs,
+				      '-id'    => $q_nm,
+				      '-start' => 1,
+				      '-end' => CORE::length($seqonly),
+				      );
+    $seqonly = $hs;
+    $seqonly =~ s/[\-\s]//g;
+    my $hit =  new Bio::LocatableSeq('-seq'   => $hs,
+				      '-id'    => $s_nm,
+				      '-start' => 1,
+				      '-end' => CORE::length($seqonly),
+				      );
+    $aln->add_seq($query);
+    $aln->add_seq($hit);
+    return $aln;
 }
 
 

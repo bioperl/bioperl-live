@@ -515,11 +515,68 @@ sub end {
     return 0;
 }
 
+=head2 seq
+
+ Usage     : $hsp->seq( [seq_type] );
+ Purpose   : Get the query or sbjct sequence as a Bio::Seq.pm object.
+ Example   : $seqObj = $hsp->seq('query');
+ Returns   : Object reference for a Bio::Seq.pm object.
+ Argument  : seq_type = 'query' or 'hit' or 'sbjct' (default = 'query').
+           :  ('sbjct' is synonymous with 'hit') 
+           : default is 'query'
+ Throws    : Propagates any exception that occurs during construction
+           : of the Bio::Seq.pm object.
+ Comments  : The sequence is returned in an array of strings corresponding
+           : to the strings in the original format of the Blast alignment.
+           : (i.e., same spacing).
+
+See Also   : L<seq_str()|seq_str>, L<seq_inds()|seq_inds>, B<Bio::Seq>
+
+=cut
+
+#-------
+sub seq {
+#-------
+    my($self,$seqType) = @_; 
+    $seqType ||= 'query';
+    $seqType = 'sbjct' if $seqType eq 'hit';
+    my $str = $self->seq_str($seqType);
+    require Bio::LocatableSeq;
+
+    new Bio::LocatableSeq (-ID   => $self->to_string,
+			   -SEQ  => $str,
+			   -start => $self->start($seqType),
+			   -end   => $self->end($seqType),
+			   -strand=> $self->strand($seqType),
+			   -DESC => "$seqType sequence ",
+			   );
+}
+
+=head2 seq_str
+
+ Usage     : $hsp->seq_str( seq_type );
+ Purpose   : Get the full query, sbjct, or 'match' sequence as a string.
+           : The 'match' sequence is the string of symbols in between the 
+           : query and sbjct sequences.
+ Example   : $str = $hsp->seq_str('query');
+ Returns   : String
+ Argument  : seq_Type = 'query' or 'hit' or 'sbjct' or 'match'
+           :  ('sbjct' is synonymous with 'hit')
+           : default is 'query'
+ Throws    : Exception if the argument does not match an accepted seq_type.
+ Comments  : 
+
+See Also   : L<seq()|seq>, L<seq_inds()|seq_inds>, B<_set_match_seq()>
+
+=cut
+
 sub seq_str {  
-    my ($self,$type) = @_;
+    my $self = shift;
+    my $type = shift || 'query';
+
     if( $type =~ /^q/i ) { return $self->query_string(shift) }
     elsif( $type =~ /^s/i || $type =~ /^hi/i ) { return $self->hit_string(shift)}
-    elsif ( $type =~ /^ho/i ) { return $self->hit_string(shift) }
+    elsif ( $type =~ /^ho/i  || $type =~ /match/i ) { return $self->homology_string(shift) }
     else { 
 	$self->warn("unknown sequence type $type");
     }
