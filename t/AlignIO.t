@@ -12,12 +12,12 @@ BEGIN {
 use Bio::SimpleAlign;
 use Bio::AlignIO;
 use Bio::Root::IO;
-use Data::Dumper;
+
 my ($str,$aln,$strout,$status);
 $str = Bio::AlignIO->new(-file=> Bio::Root::IO->catfile("t","testaln.stockholm"),
 			 '-format' => 'stockholm');
 ok defined($str) && ref($str) && $str->isa('Bio::AlignIO');
-$aln = $str->next_aln(); #print Dumper($aln); exit;
+$aln = $str->next_aln();
 ok $aln->{_order}->{'0'}, '1433_LYCES-9-246';
 
 
