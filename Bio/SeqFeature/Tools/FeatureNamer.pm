@@ -26,9 +26,35 @@ Bio::SeqFeature::Tools::FeatureNamer - generates unique persistent names for fea
   $seq = $seqio->next_seq();
 
   $namer = Bio::SeqFeature::Tools::FeatureNamer->new;
-
+  my @features = $seq->get_SeqFeatures;
+  foreach my $feature (@features) {
+    $namer->name_feature($feature) unless $feature->display_name;
+  }  
 
 =head1 DESCRIPTION
+
+This is a helper class for providing names for SeqFeatures
+
+The L<Bio::SeqFeatureI> class provides a display_name
+method. Typically the display_name is not set when parsing formats
+such as genbank - instead properties such as B<label>, B<product> or
+B<gene> are set in a somewhat inconsistent manner.
+
+In addition, when generating subfeatures (for example, exons that are
+subfeatures of a transcript feature), it is often desirable to name
+these subfeatures before either exporting to another format or
+reporting to the user.
+
+This module is intended to help given uniform display_names to
+features and their subfeatures.
+
+=head1 TODO
+
+Currently the naming policy is hardcoded. It may be desirable to allow
+plugging in variations on naming policies; this could be done either
+by subclassing, anonymous subroutines (closures) or
+parameterization. Contact the author if you feel you have need for a
+different naming policy
 
 
 =head1 FEEDBACK
@@ -53,7 +79,7 @@ report bugs to the Bioperl bug tracking system to help us keep track
 
 =head1 AUTHOR - Chris Mungall
 
-Email:  cjm@fruitfly.org
+Email:  cjm AT fruitfly DOT org
 
 =head1 APPENDIX
 
@@ -106,8 +132,10 @@ sub new {
  Function: sets display_name
  Example :
  Returns : 
- Args    :
+ Args    : L<Bio::SeqFeatureI>
 
+This method calls generate_feature_name() and uses the returned value
+to set the display_name of the feature
 
 =cut
 
@@ -124,8 +152,18 @@ sub name_feature {
  Function: sets display_name for all features contained by sf
  Example :
  Returns : 
- Args    :
+ Args    : L<Bio::SeqFeatureI>
 
+iterates through all subfeatures of a certain feature (using
+get_all_SeqFeatures) and names each subfeatures, based on the
+generated name for the holder feature
+
+A subfeature is named by concatenating the generated name of the
+container feature with the type and a number.
+
+For example, if the containing feature is a gene with display name
+B<dpp>, subfeatures will be named dpp-mRNA-1 dpp-mRNA2 dpp-exon1
+dpp-exon2 etc
 
 =cut
 
@@ -151,8 +189,27 @@ sub name_contained_features{
  Function: derives a sensible human readable name for a $sf
  Example :
  Returns : str
- Args    : SeqFeatureI
+ Args    : L<Bio::SeqFeatureI>
 
+returns a generated name (but does not actually set display_name).
+
+If display_name is already set, the method will return this
+
+Otherwise, the name will depend on the property:
+
+=over
+
+=item label
+
+=item product
+
+=item gene
+
+=item locus_tag
+
+=back
+
+(in order of priority)
 
 =cut
 
