@@ -1,5 +1,5 @@
 #!/usr/bin/perl -w
-# $Id: search2gff.PLS,v 1.10 2004-07-04 17:49:48 jason Exp $
+# $Id: search2gff.PLS,v 1.11 2004-07-19 01:11:02 jason Exp $
 
 # Author:      Jason Stajich <jason@bioperl.org>
 # Description: Turn SearchIO parseable report(s) into a GFF report
@@ -52,7 +52,7 @@ use Getopt::Long;
 use Bio::SearchIO;
 
 my ($output,$input,$format,$type,$help,$cutoff,$sourcetag,$comp,
-    $gffver,$match);
+    $gffver,$match,$quiet);
 $format = 'blast'; # by default
 $type   = 'query';
 $gffver = 2;
@@ -66,6 +66,7 @@ GetOptions(
 	   't|type:s'   => \$type,
 	   'c|cutoff:s' => \$cutoff,
 	   'v|version:i'=> \$gffver,
+           'q|quiet'    => \$quiet,
 	   'h|help'     => sub{ exec('perldoc',$0);
 				exit(0)
 				},
@@ -76,7 +77,8 @@ elsif( $type ne 'query' && $type ne 'hit' ) {
     die("seqtype must be either 'query' or 'hit'");
 } 
 # if no input is provided STDIN will be used
-my $parser = new Bio::SearchIO(-format => $format, 
+my $parser = new Bio::SearchIO(-format => $format,
+			       -verbose => $quiet ? -1 : 0,
 			       -file   => $input);
 
 my $out;
