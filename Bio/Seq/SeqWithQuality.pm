@@ -166,7 +166,7 @@ sub new {
 			      DESC
 			      ID
 			      ALPHABET
-				QUIET
+			      QUIET
 			      )],
 			  @args);
     # first, deal with the sequence and quality information
@@ -189,12 +189,12 @@ sub new {
 	}
 	$self->{seq_ref} = Bio::PrimarySeq->new
 	    (
-	     -seq		=>	"",
-	     -accession_number	=>	$acc,
-	     -primary_id	=>	$pid,
-	     -desc		=>	$desc,
-	     -display_id	=>	$id,
-	     -alphabet	=>	$alphabet
+	     -seq		=>  "",
+	     -accession_number	=>  $acc,
+	     -primary_id	=>  $pid,
+	     -desc		=>  $desc,
+	     -display_id	=>  $id,
+	     -alphabet          =>  $alphabet
 	     );
     }
     elsif (ref($seq) eq "Bio::PrimarySeq" ) {
