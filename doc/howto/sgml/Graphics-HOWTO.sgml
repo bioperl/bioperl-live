@@ -110,8 +110,8 @@ Bio::Graphics in a cookbook fashion.
 Bio::Graphics is dependent on GD, a Perl module for generating
 bitmapped graphics written by the author.  GD in turn is dependent on
 libgd, a C library written by Thomas Boutell, formerly also of Cold
-Spring Harbor Laboratory.  To use Bio::Graphics, you must have both
-these software libraries installed.
+Spring Harbor Laboratory (www.boutell.com/gd). To use Bio::Graphics, 
+you must have both these software libraries installed.
 </para>
 
 <para>
@@ -290,7 +290,7 @@ with a patched (and possibly broken) version of Perl.
 
 <mediaobject>
 <imageobject>
-<imagedata fileref="../figs/graphics/fig1.png" format="PNG">
+<imagedata fileref="../figs/graphics/fig1.png" format="PNG"></imagedata>
 </imageobject>
 </mediaobject>
 </figure>
@@ -420,7 +420,7 @@ When we run the modified script, we get this image.
 <title>The improved image</title>
 <mediaobject>
 <imageobject>
-<imagedata fileref="../figs/graphics/fig2.png" format="PNG">
+<imagedata fileref="../figs/graphics/fig2.png" format="PNG"></imagedata>
 </imageobject>
 </mediaobject>
 </figure>
@@ -543,7 +543,7 @@ effect of these changes.
 <title>The image with descriptions and sorted hits</title>
 <mediaobject>
 <imageobject>
-<imagedata fileref="../figs/graphics/fig3.png" format="PNG">
+<imagedata fileref="../figs/graphics/fig3.png" format="PNG"></imagedata>
 </imageobject>
 </mediaobject>
 </figure>
@@ -697,7 +697,7 @@ Figure 4 shows the output from a sample BLAST hit file.
 <title>Output from the BLAST parsing and rendering script</title>
 <mediaobject>
 <imageobject>
-<imagedata fileref="../figs/graphics/fig4.png" format="PNG">
+<imagedata fileref="../figs/graphics/fig4.png" format="PNG"></imagedata>
 </imageobject>
 </mediaobject>
 </figure>
@@ -880,7 +880,7 @@ Figure 5 shows an example of the output of this script.
 <title>The embl2picture.pl script</title>
 <mediaobject>
 <imageobject>
-<imagedata fileref="../figs/graphics/fig5.png" format="PNG">
+<imagedata fileref="../figs/graphics/fig5.png" format="PNG"></imagedata>
 </imageobject>
 </mediaobject>
 </figure>
@@ -1136,7 +1136,7 @@ Figure 6 shows an example of the output of this script.
 <title>The embl2picture.pl script</title>
 <mediaobject>
 <imageobject>
-<imagedata fileref="../figs/graphics/fig6.png" format="PNG">
+<imagedata fileref="../figs/graphics/fig6.png" format="PNG"></imagedata>
 </imageobject>
 </mediaobject>
 </figure>

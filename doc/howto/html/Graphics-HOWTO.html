@@ -46,8 +46,8 @@ Bio::Graphics in a cookbook fashion.
 Bio::Graphics is dependent on GD, a Perl module for generating
 bitmapped graphics written by the author.  GD in turn is dependent on
 libgd, a C library written by Thomas Boutell, formerly also of Cold
-Spring Harbor Laboratory.  To use Bio::Graphics, you must have both
-these software libraries installed.
+Spring Harbor Laboratory (www.boutell.com/gd). To use Bio::Graphics, 
+you must have both these software libraries installed.
 </p><p>
 If you are on a Linux system, you might already have GD installed.  To
 verify, run the following command:
@@ -80,7 +80,7 @@ version 1.8.4 is the stable version, and corresponds to GD version
 1.43.  libgd version 2.0.1 is the beta version; although it has many
 cool features, it also has a few known bugs (which Bio::Graphics works
 around).  If you use libgd 2.0.1 or higher, be sure it matches GD
-version 2.0.1 or higher. Both are available at www.boutell.com/gd.
+version 2.0.1 or higher.
 </p><p>
 You will also need to install the Text::Shellwords module, which is
 available from CPAN.
@@ -167,9 +167,12 @@ result by piping it to our favorite image display program.
 IMPORTANT NOTE: If you are on a Windows platform, you need to put
 STDOUT into binary mode so that the PNG file does not go through
 Window's carriage return/linefeed transformations.  Before the
-final print statement, write binmode(STDOUT).
+final print statement, put the statement "binmode(STDOUT)".
 </p><p>
-<div class="figure"><a id="d3e66"/><pre class="programlisting">
+This advice also applies to certain versions of RedHat, which ship
+with a patched (and possibly broken) version of Perl.
+</p><p>
+<div class="figure"><a id="d3e67"/><pre class="programlisting">
 % render1.pl data1.txt | display -
 </pre><div class="mediaobject"><img src="../figs/graphics/fig1.png"/></div><p class="title"><b>Figure 2. Rendering BLAST hits</b></p></div>
 </p><p>
@@ -244,7 +247,7 @@ contain tick marks, and that both major and minor ticks should be
 shown (tick type of "2").  We set the foreground color to black, and
 request that arrows should be placed at both ends (-double =&gt;1).
 </p><p>
-<sup>[<a id="d3e91" href="#ftn.d3e91">1</a>]</sup>
+<sup>[<a id="d3e92" href="#ftn.d3e92">1</a>]</sup>
 </p><p>
 In lines 18-22, we get a bit fancier with the blast hit track.  Now,
 instead of creating a generic glyph, we use the "graded_segments"
@@ -258,7 +261,7 @@ program is the same.
 </p><p>
 When we run the modified script, we get this image.
 </p><p>
-<div class="figure"><a id="d3e96"/><div class="mediaobject"><img src="../figs/graphics/fig2.png"/></div><p class="title"><b>Figure 3. The improved image</b></p></div>
+<div class="figure"><a id="d3e97"/><div class="mediaobject"><img src="../figs/graphics/fig2.png"/></div><p class="title"><b>Figure 3. The improved image</b></p></div>
 </p><p>
 IMPORTANT NOTE: Remember that if you are on a Windows platform, you need to put
 STDOUT into binary mode so that the PNG file does not go through
@@ -349,7 +352,7 @@ Another minor change is the use of
 sets the color used for the description strings.  Figure 3 shows the
 effect of these changes.
 </p><p>
-<div class="figure"><a id="d3e125"/><div class="mediaobject"><img src="../figs/graphics/fig3.png"/></div><p class="title"><b>Figure 4. The image with descriptions and sorted hits</b></p></div>
+<div class="figure"><a id="d3e126"/><div class="mediaobject"><img src="../figs/graphics/fig3.png"/></div><p class="title"><b>Figure 4. The image with descriptions and sorted hits</b></p></div>
 </p></div><div class="section"><div class="titlepage"><div><h2 class="title" style="clear: both"><a id="parsing-blast"/>6. Parsing Real BLAST Output</h2></div></div><p>
 From here it's just a small step to writing a general purpose utility
 that will read a BLAST file, parse its output, and output a picture.
@@ -469,7 +472,7 @@ the track as before using the track's
 </p><p>
 Figure 4 shows the output from a sample BLAST hit file.
 </p><p>
-<div class="figure"><a id="d3e157"/><div class="mediaobject"><img src="../figs/graphics/fig4.png"/></div><p class="title"><b>Figure 5. Output from the BLAST parsing and rendering script</b></p></div>
+<div class="figure"><a id="d3e158"/><div class="mediaobject"><img src="../figs/graphics/fig4.png"/></div><p class="title"><b>Figure 5. Output from the BLAST parsing and rendering script</b></p></div>
 </p><p>
 The next section will demonstrate how to parse and display feature
 tables from GenBank and EMBL.
@@ -606,7 +609,7 @@ avoid Windows textmode carriage return/linefeed transformations.
 </p><p>
 Figure 5 shows an example of the output of this script.
 </p><p>
-<div class="figure"><a id="d3e196"/><div class="mediaobject"><img src="../figs/graphics/fig5.png"/></div><p class="title"><b>Figure 6. The embl2picture.pl script</b></p></div>
+<div class="figure"><a id="d3e197"/><div class="mediaobject"><img src="../figs/graphics/fig5.png"/></div><p class="title"><b>Figure 6. The embl2picture.pl script</b></p></div>
 </p></div><div class="section"><div class="titlepage"><div><h2 class="title" style="clear: both"><a id="rendering-features-better"/>8. A Better Version of the Feature Renderer</h2></div></div><p>
 The previous example's rendering has numerous deficiencies.  For one
 thing, there are no lines connecting the various CDS rectangles in the
@@ -823,7 +826,7 @@ print to STDOUT.
 </p><p>
 Figure 6 shows an example of the output of this script.
 </p><p>
-<div class="figure"><a id="d3e230"/><div class="mediaobject"><img src="../figs/graphics/fig6.png"/></div><p class="title"><b>Figure 7. The embl2picture.pl script</b></p></div>
+<div class="figure"><a id="d3e231"/><div class="mediaobject"><img src="../figs/graphics/fig6.png"/></div><p class="title"><b>Figure 7. The embl2picture.pl script</b></p></div>
 </p></div><div class="section"><div class="titlepage"><div><h2 class="title" style="clear: both"><a id="summary"/>9. Summary</h2></div></div><p>
 In summary, we have seen how to use the
 <tt>Bio::Graphics</tt> module to generate
@@ -855,7 +858,7 @@ you might be interested in
 for interpreting and rendering a simple tab-delimited format for
 sequence features.  feature_draw.pl is a Perl script built on top of
 this module, which you can find in the Bioperl distribution.
-</p></div><div class="footnotes"><br/><hr width="100" align="left"/><div class="footnote"><p><sup>[<a id="ftn.d3e91" href="#d3e91">1</a>] </sup>Obtain the list of glyphs by running perldoc on
+</p></div><div class="footnotes"><br/><hr width="100" align="left"/><div class="footnote"><p><sup>[<a id="ftn.d3e92" href="#d3e92">1</a>] </sup>Obtain the list of glyphs by running perldoc on
 Bio::Graphics::Glyph.  Obtain a description of the glyph options by
 running perldoc on individual glyphs, for example "perldoc Bio::Graphics::Glyph::arrow."
 </p></div></div></div></body></html>
