@@ -101,6 +101,11 @@ according to the BioFetch protocol. Requires Cache::FileCache.
 
 Sequence retrieval using the OBDA registry.
 
+=head2 scripts/graphics/contig_draw.PLS
+
+Takes any Bio::SearchIO parseable report and turns it into a 
+simple overview graphic of the report.
+
 =head2 scripts/graphics/feature_draw.PLS
 
 Script that accepts files in GFF or tab-delimited format and creates
