@@ -829,7 +829,8 @@ sub _seq_relationship {
     $writer->startTag(
 		      'seq_relationship',
 		      type => $type,
-		      seq  => ($self->{seq}->accession || $self->{seq}->display_id)
+		      seq  => ($self->{seq}->accession || 
+			       $self->{seq}->display_id)
 		     );
     $self->_span($loc);
     $writer->endTag('seq_relationship');
@@ -839,13 +840,8 @@ sub _seq_relationship {
 
  Title   : _element
  Usage   : $self->_element($name, $chars, $atts)
- Function: an internal method to generate 'generic' XML elements
- Example : 
- my $name = 'foo';
- my $content = 'bar';
- my $attributes = { baz => 1 }; 
- # print the element
- $self->_element($name, $content, $attributes);
+ Function: An internal method to generate 'generic' XML elements
+ Example : $self->_element('foo', 'bar', { 'baz' => 1 });
  Returns : nothing 
  Args    : the element name and content plus a ref to an attribute hash
 

@@ -92,6 +92,7 @@ sub _initialize {
  Returns : a Bio::Seq::RichSeq object
  Args    : none
 
+
 =cut
 
 sub next_seq {

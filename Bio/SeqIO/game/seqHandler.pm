@@ -74,14 +74,17 @@ use vars qw { @ISA };
 =head2 new
 
  Title   : new
- Usage   : my $seqHandler = Bio::SeqIO::game::seqHandler->new($seq, $ann, $comp, $map, $src )
+ Usage   : my $seqHandler = Bio::SeqIO::game::seqHandler->new
+             ($seq, $ann, $comp, $map, $src )
  Function: constructor method to create a sequence handler
  Returns : a sequence handler object
  Args    : $seq  -- an XML sequence element
            $ann  -- a ref. to a list of <annotation> elements
-           $comp -- a ref. to a list of <computational_analysis> elements (not used yet)
+           $comp -- a ref. to a list of <computational_analysis> 
+                    elements (not used yet)
            $map  -- a <map_position> element
-           $src  -- a flag to indicate that the sequence already has a source feature
+           $src  -- a flag to indicate that the sequence 
+                    already has a source feature
 
 =cut
 
@@ -107,11 +110,13 @@ sub new {
 
  Title   : convert
  Usage   : @seqs = $seqHandler->convert
- Function: converts the main XML sequence element and associated annotations to Bio::
- Returns : a ref. to a an array containing the sequence object and a ref. to a list of  features
+ Function: converts the main XML sequence element and associated 
+           annotations to Bio::
+ Returns : a ref. to a an array containing the sequence object 
+           and a ref. to a list of features
  Args    : none
-
- Note    : The features and sequence are kept apart to facilitate downstream filtering of features 
+ Note    : The features and sequence are kept apart to facilitate 
+           downstream filtering of features 
 
 =cut
 
@@ -144,7 +149,8 @@ sub convert {
  Title   : _order_feats
  Usage   : $self->_order_feats( $self->{seq_h} )
  Function: an internal method to ensure the source feature comes first 
- Returns : a ref. to a an array containing the sequence object and a ref. to a list of  features 
+ Returns : a ref. to a an array containing the sequence object and 
+           a ref. to a list of  features 
  Args    : a ref. to a hash of sequences
 
 =cut

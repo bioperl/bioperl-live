@@ -73,7 +73,8 @@ use vars qw { @ISA };
 =head2 new
 
  Title   : new
- Usage   : my $featHandler = Bio::SeqIO::game::featHandler->new($seq, $seq_h, $ann_l)
+ Usage   : my $featHandler = Bio::SeqIO::game::featHandler->new
+    ($seq, $seq_h, $ann_l)
  Function: creates an object to deal with sequence features 
  Returns : a handler object
  Args    : $seq   -- a Bio::SeqI compliant object
@@ -87,8 +88,8 @@ sub new {
     my ($caller, $seq, $seq_h, $ann_l  ) = @_;
     my $class = ref($caller) || $caller;
 
-    my $self = bless ({                                                                             
-        seq           => $seq,                                                                           
+    my $self = bless ({
+        seq           => $seq,
         curr_feats    => [],
 	curr_coords   => [],
 	seq_h         => $seq_h,
@@ -221,7 +222,8 @@ sub _has_CDS {
 
  Title   : add_annotation
  Usage   : $featHandler->add_annotation($seq, $type, $id, $tags, $feats)
- Function: converts a containment hierarchy into an ordered list of flat features
+ Function: converts a containment hierarchy into an ordered list 
+           of flat features
  Returns : nothing
  Args    : $seq   -- a Bio::SeqI compliant object
            $type  -- the annotation type
@@ -331,6 +333,7 @@ sub add_annotation {
            $id    -- the anotation ID
            $tags  -- ref. to a hash of tag/value attributes
            $feats -- ref to an array of Bio::SeqFeature::Generic objects
+
 
 =cut
 
@@ -442,7 +445,8 @@ sub feature_set {
 	    }
 
 	    # make sure other subfeats are tied to the transcript
-            # via a 'standard_name' qualifier and the gene via a 'gene' qualifier
+            # via a 'standard_name' qualifier and the gene via a 
+	    # 'gene' qualifier
 	    my @subfeats = @{$self->{curr_subfeats}};
             for my $sf ( @ subfeats ) {
                 $sf->add_tag_value( standard_name => $sname );
@@ -504,12 +508,15 @@ sub feature_set {
 =head2 _build_feature_set
 
  Title   : _build_feature_set
- Usage   : $self->_build_feature_set($set, 1) # 1 flag means retain the exon as a subfeat
- Function: an internal method to process attributes and subfeats of a feature set
+ Usage   : $self->_build_feature_set($set, 1)
+ Function: an internal method to process attributes and subfeats 
+           of a feature set
  Returns : nothing
  Args    : $set -- a <feature_set> element
-           1    -- optional flag to retain exons as subfeats.  Otherwise, they will
-                   be converted to sublocations of a parent CDS feature
+           1    -- optional flag to retain exons as subfeats.  
+                   Otherwise, they will be converted to sublocations 
+                   of a parent CDS feature
+
 
 =cut
 
