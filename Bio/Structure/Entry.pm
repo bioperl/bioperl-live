@@ -686,7 +686,7 @@ sub seqres {
 $self->debug("seqres : $seqres_string\n");
 	$seqres_string =~ s/^Value: //;
 	$seqres_string =~ s/\d+//g;		# no numbers needed
-	$seqres_string =~ s/ \s //g;		# single character is Chain identifier
+	$seqres_string =~ s/ \S //g;		# single character is Chain identifier
 	$seqres_string =~ s/(\w+)/\u\L$1/g;	# ALA -> Ala  (for SeqUtils)
 	$seqres_string =~ s/\s//g; 		# strip all spaces
 $self->debug("seqres : $seqres_string\n");
