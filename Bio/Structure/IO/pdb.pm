@@ -87,6 +87,15 @@ sub _initialize {
   my($self,@args) = @_;
 
   $self->SUPER::_initialize(@args);  
+
+  my ($noheader, $noatom) =
+  	$self->_rearrange([qw(
+			NOHEADER
+			NOATOM
+		)],
+		@args);
+  $noheader && $self->_noheader($noheader);
+  $noatom   && $self->_noatom($noatom);
 }
 
 
@@ -110,7 +119,7 @@ sub next_structure {
 	$sheet, $turn, $ssbond, $link, $hydbnd, $sltbrg, $cispep,
 	$site, $cryst1, $tvect,);
    my $struc = Bio::Structure::Entry->new(-id => 'created from pdb.pm');
-   my $all_headers = 1;  # we'll parse all headers and store as annotation
+   my $all_headers = ( !$self->_noheader );  # we'll parse all headers and store as annotation
    my %header;  # stores all header RECORDs an is stored as annotations when ATOM is reached
 
 
@@ -166,6 +175,7 @@ $self->debug("PBD c $class d $depdate id $idcode\n"); # XXX KB
        if (/^COMPND / && $all_headers) {
 		$compnd = $self->_read_PDB_singlecontline("COMPND","11-70",\$buffer);
 		$header{'compnd'} = $compnd;
+$self->debug("get COMPND $compnd\n");
        }
 
 	# SOURCE line(s)
@@ -198,7 +208,7 @@ $self->debug("PBD c $class d $depdate id $idcode\n"); # XXX KB
 		##my($modnum,$rol) = unpack "x7 A3 x3 A53", $_;
 		##$modnum =~ s/\s+//; # remove  spaces
 		##$revdat{$modnum} .= $rol;
-		my ($rol) = unpack "x7 A59", $_;
+		my ($rol) = unpack "x7 a59", $_;
 		$revdat .= $rol;
 		$header{'revdat'} = $revdat;
 	}
@@ -227,7 +237,7 @@ $self->debug("PBD c $class d $depdate id $idcode\n"); # XXX KB
 				$struc->annotation->add_Annotation('reference', $ref);
 			}
 		} else { # other remarks, we store literlly at the moment
-			my ($rol) = unpack "x11 A59", $_;
+			my ($rol) = unpack "x11 a59", $_;
 			$remark{$remark_num} .= $rol;
 		}
 	} # REMARK
@@ -236,9 +246,9 @@ $self->debug("PBD c $class d $depdate id $idcode\n"); # XXX KB
 	#  references to sequences in other databases
 	#  we store as 'dblink' annotations and whole line as simple annotation (round-trip)
 	if (/^DBREF / && $all_headers) {
-		my ($rol) = unpack "x7 A61", $_;
+		my ($rol) = unpack "x7 a61", $_;
 		$dbref .= $rol;
-		my ($db, $acc) = unpack "x26 A6 x1 A8", $_;
+		my ($db, $acc) = unpack "x26 a6 x1 a8", $_;
 		$db =~ s/\s*$//;
 		$acc =~ s/\s*$//;
 		my $link = Bio::Annotation::DBLink->new;
@@ -249,7 +259,7 @@ $self->debug("PBD c $class d $depdate id $idcode\n"); # XXX KB
 
 	# SEQADV line(s)
 	if (/^SEQADV / && $all_headers) {
-		my ($rol) = unpack "x7 A63", $_;
+		my ($rol) = unpack "x7 a63", $_;
 		$self->_concatenate_lines($seqadv, $rol);
 		$header{'seqadv'} = $seqadv;
 	} # SEQADV
@@ -258,42 +268,42 @@ $self->debug("PBD c $class d $depdate id $idcode\n"); # XXX KB
 	#  this is (I think) the sequence of macromolecule that was analysed
 	#  this will be returned when doing $struc->seq
 	if (/^SEQRES / && $all_headers) {
-		my ($rol) = unpack "x7 A63", $_;
+		my ($rol) = unpack "x7 a63", $_;
 		$seqres .= $rol;
 		$header{'seqres'} = $seqres;
 	} # SEQRES
 	
 	# MODRES line(s)
 	if (/^MODRES / && $all_headers) {
-		my ($rol) = unpack "x7 A63", $_;
+		my ($rol) = unpack "x7 a63", $_;
 		$modres .= $rol;
 		$header{'modres'} = $modres;
 	} # MODRES
 
 	# HET line(s)
 	if (/^HET / && $all_headers) {
-		my ($rol) = unpack "x7 A63", $_;
+		my ($rol) = unpack "x7 a63", $_;
 		$het .= $rol;
 		$header{'het'} = $het;
 	} # HET
 
 	# HETNAM line(s)
 	if (/^HETNAM / && $all_headers) {
-		my ($rol) = unpack "x8 A62", $_;
+		my ($rol) = unpack "x8 a62", $_;
 		$hetnam .= $rol;
 		$header{'hetnam'} = $hetnam;
 	} # HETNAM
 
 	# HETSYN line(s)
 	if (/^HETSYN / && $all_headers) {
-		my ($rol) = unpack "x8 A62", $_;
+		my ($rol) = unpack "x8 a62", $_;
 		$hetsyn .= $rol;
 		$header{'hetsyn'} = $hetsyn;
 	} # HETSYN
 
 	# FORMUL line(s)
 	if (/^FORMUL / && $all_headers) {
-		my ($rol) = unpack "x8 A62", $_;
+		my ($rol) = unpack "x8 a62", $_;
 		$formul .= $rol;
 		$header{'formul'} = $formul;
 	} # FORMUL
@@ -301,7 +311,7 @@ $self->debug("PBD c $class d $depdate id $idcode\n"); # XXX KB
 	# HELIX line(s)
 	#  store as specific object ??
 	if (/^HELIX / && $all_headers) {
-		my ($rol) = unpack "x7 A69", $_;
+		my ($rol) = unpack "x7 a69", $_;
 		$helix .= $rol;
 		$header{'helix'} = $helix;
 	} # HELIX
@@ -309,7 +319,7 @@ $self->debug("PBD c $class d $depdate id $idcode\n"); # XXX KB
 	# SHEET line(s)
 	#  store as specific object ??
 	if (/^SHEET / && $all_headers) {
-		my ($rol) = unpack "x7 A63", $_;
+		my ($rol) = unpack "x7 a63", $_;
 		$sheet .= $rol;
 		$header{'sheet'} = $sheet;
 	} # SHEET
@@ -317,7 +327,7 @@ $self->debug("PBD c $class d $depdate id $idcode\n"); # XXX KB
 	# TURN line(s)
 	#  store as specific object ??
 	if (/^TURN / && $all_headers) {
-		my ($rol) = unpack "x7 A63", $_;
+		my ($rol) = unpack "x7 a63", $_;
 		$turn .= $rol;
 		$header{'turn'} = $turn;
 	} # TURN
@@ -325,7 +335,7 @@ $self->debug("PBD c $class d $depdate id $idcode\n"); # XXX KB
 	# SSBOND line(s)
 	#  store in connection-like object (see parsing of CONECT record)
 	if (/^SSBOND / && $all_headers) {
-		my ($rol) = unpack "x7 A65", $_;
+		my ($rol) = unpack "x7 a65", $_;
 		$ssbond .= $rol;
 		$header{'ssbond'} = $ssbond;
 	} # SSBOND
@@ -333,7 +343,7 @@ $self->debug("PBD c $class d $depdate id $idcode\n"); # XXX KB
 	# LINK
 	#  store like SSBOND ?
 	if (/^LINK / && $all_headers) {
-		my ($rol) = unpack "x12 A60", $_;
+		my ($rol) = unpack "x12 a60", $_;
 		$link .= $rol;
 		$header{'link'} = $link;
 	} # LINK
@@ -341,7 +351,7 @@ $self->debug("PBD c $class d $depdate id $idcode\n"); # XXX KB
 	# HYDBND
 	#  store like SSBOND
 	if (/^HYDBND / && $all_headers) {
-		my ($rol) = unpack "x12 A60", $_;
+		my ($rol) = unpack "x12 a60", $_;
 		$hydbnd .= $rol;
 		$header{'hydbnd'} = $hydbnd;
 	} # HYDBND
@@ -349,7 +359,7 @@ $self->debug("PBD c $class d $depdate id $idcode\n"); # XXX KB
 	# SLTBRG
 	#  store like SSBOND ?
 	if (/^SLTBRG / && $all_headers) {
-		my ($rol) = unpack "x12 A60",$_;
+		my ($rol) = unpack "x12 a60",$_;
 		$sltbrg .= $rol;
 		$header{'sltbrg'} = $sltbrg;
 	} # SLTBRG
@@ -357,14 +367,14 @@ $self->debug("PBD c $class d $depdate id $idcode\n"); # XXX KB
 	# CISPEP
 	#   store like SSBOND ?
 	if (/^CISPEP / && $all_headers) {
-		my ($rol) = unpack "x7 A52", $_;
+		my ($rol) = unpack "x7 a52", $_;
 		$cispep .= $rol;
 		$header{'cispep'} = $cispep;
 	}
 
 	# SITE line(s)
 	if (/^SITE / && $all_headers) {
-		my ($rol) = unpack "x7 A54", $_;
+		my ($rol) = unpack "x7 a54", $_;
 		$site .= $rol;
 		$header{'site'} = $site;
 	} # SITE
@@ -372,7 +382,7 @@ $self->debug("PBD c $class d $depdate id $idcode\n"); # XXX KB
 	# CRYST1 line
 	#  store in some crystallographic subobject ?
 	if (/^CRYST1/ && $all_headers) {
-		my ($rol) = unpack "x6 A64", $_;
+		my ($rol) = unpack "x6 a64", $_;
 		$cryst1 .= $rol;
 		$header{'cryst1'} = $cryst1;
 	} # CRYST1
@@ -380,27 +390,27 @@ $self->debug("PBD c $class d $depdate id $idcode\n"); # XXX KB
 	# ORIGXn line(s) (n=1,2,3)
 	if (/^(ORIGX\d) / && $all_headers) {
 		my $origxn = lc($1);
-		my ($rol) = unpack "x10 A45", $_;
+		my ($rol) = unpack "x10 a45", $_;
 		$header{$origxn} .= $rol;
 	} # ORIGXn
 
 	# SCALEn line(s) (n=1,2,3)
 	if (/^(SCALE\d) / && $all_headers) {
 		my $scalen = lc($1);
-		my ($rol) = unpack "x10 A45", $_;
+		my ($rol) = unpack "x10 a45", $_;
 		$header{$scalen} .= $rol;
 	} # SCALEn
 	
 	# MTRIXn line(s) (n=1,2,3)
 	if (/^(MTRIX\d) / && $all_headers) {
 		my $mtrixn = lc($1);
-		my ($rol) = unpack "x7 A53", $_;
+		my ($rol) = unpack "x7 a53", $_;
 		$header{$mtrixn} .= $rol;
 	} # MTRIXn
 
 	# TVECT line(s)
 	if (/^TVECT / && $all_headers) {
-		my ($rol) = unpack "x7 A63", $_;
+		my ($rol) = unpack "x7 a63", $_;
 		$tvect .= $rol;
 		$header{'tvect'} = $tvect;
 	}
@@ -415,7 +425,6 @@ $self->debug("PBD c $class d $depdate id $idcode\n"); # XXX KB
 		my $sim = Bio::Annotation::SimpleValue->new();
 		$sim->value($header{$record});
 		$struc->annotation->add_Annotation($record, $sim);
-$self->debug("PDB header $record \n");  # XXX KB
 	}
    }
    # store %remark entries as annotations
@@ -424,7 +433,6 @@ $self->debug("PDB header $record \n");  # XXX KB
 	for my $remark_num (keys %remark) {
 		$sim->value($remark{$remark_num});
 		$struc->annotation->add_Annotation("remark_$remark_num", $sim);
-$self->debug("PDB header remark  $remark_num\n"); # XXX KB
 	}
    }
 	
@@ -438,14 +446,11 @@ $self->debug("PDB header remark  $remark_num\n"); # XXX KB
    if (defined($buffer) && $buffer =~ /^(ATOM |MODEL |HETATM)/ ) {  # can you have an entry without ATOM ?
 	until( !defined ($buffer) ) {				 #  (yes : 1a7z )
 		   # read in one model at a time
-$self->debug("calling _read_PDB_coordinate_section\n");
 		   my $model = $self->_read_PDB_coordinate_section(\$buffer, $struc);
 		   # add this to $struc
 		   $struc->add_model($struc, $model);
-$self->debug("added model to Entry\n");
 
 		   if ($buffer !~ /^MODEL /) { # if we get here we have multiple MODELs
-$self->debug("getting out of coord section $buffer"); # XXX KB
 			   last;
 		   }
 	}	
@@ -461,7 +466,7 @@ $self->debug("getting out of coord section $buffer"); # XXX KB
    	# CONNECT records
 	if (/^CONECT/) {
 		# do not differentiate between different type of connect (column dependant)
-		my $conect_unpack = "x6 A5 A5 A5 A5 A5 A5 A5 A5 A5 A5 A5";
+		my $conect_unpack = "x6 a5 a5 a5 a5 a5 a5 a5 a5 a5 a5 a5";
 		my (@conect) = unpack $conect_unpack, $_;
 		for my $k (0 .. $#conect) {
 			$conect[$k] =~ s/\s//g;
@@ -470,14 +475,13 @@ $self->debug("getting out of coord section $buffer"); # XXX KB
 		for my $conect (@conect) {
 			next unless ($conect =~ /^\d+$/);
 			$struc->conect($source, $conect);
-$self->debug("conect: $source $conect\n");
 		}
 	}
 
 	# MASTER record
 	if (/^MASTER /) {
 		# the numbers in here a checksums, we should use them :)
-		my ($rol) = unpack "x10 A60", $_;
+		my ($rol) = unpack "x10 a60", $_;
 		$struc->master($rol);
 	}
 
@@ -531,6 +535,47 @@ sub _filehandle{
 
 }
 
+=head2 _noatom
+
+ Title   : _noatom
+ Usage   : $obj->_noatom($newval)
+ Function: 
+ Example : 
+ Returns : value of _noatom 
+ Args    : newvalue (optional)
+
+
+=cut
+
+sub _noatom{
+   my ($obj,$value) = @_;
+   if( defined $value) {
+      $obj->{'_noatom'} = $value;
+    }
+    return $obj->{'_noatom'};
+
+}
+
+=head2 _noheader
+
+ Title   : _noheader
+ Usage   : $obj->_noheader($newval)
+ Function: 
+ Example : 
+ Returns : value of _noheader 
+ Args    : newvalue (optional)
+
+
+=cut
+
+sub _noheader{
+   my ($obj,$value) = @_;
+   if( defined $value) {
+      $obj->{'_noheader'} = $value;
+    }
+    return $obj->{'_noheader'};
+
+}
 
 =head2 _read_PDB_singlecontline
 
@@ -547,11 +592,11 @@ sub _read_PDB_singlecontline {
 	my $concat_line;
 
 	my ($begin, $end) = (split (/-/, $fromto));
-	my $unpack_string = "x8 A2 ";
+	my $unpack_string = "x8 a2 ";
 	if($begin == 12) { # one additional space
-		$unpack_string .= "x1 A59";
+		$unpack_string .= "x1 a59";
 	} else {
-		$unpack_string .= "A60";
+		$unpack_string .= "a60";
 	}
 	$_ = $$buffer;
 	while (defined( $_ ||= $self->_readline ) ) {
@@ -595,7 +640,7 @@ sub _read_PDB_jrnl {
 		if (/^JRNL /) {
 			# this code belgons in a seperate method (shared with
 			# remark 1 parsing)
-			my ($rec, $subr, $cont, $rol) = unpack "A6 x6 A4 A2 x1 A51", $_;
+			my ($rec, $subr, $cont, $rol) = unpack "a6 x6 a4 a2 x1 a51", $_;
 			$auth = $self->_concatenate_lines($auth,$rol) if ($subr eq "AUTH");
 			$titl = $self->_concatenate_lines($titl,$rol) if ($subr eq "TITL");
 			$edit = $self->_concatenate_lines($edit,$rol) if ($subr eq "EDIT");
@@ -650,7 +695,9 @@ sub _read_PDB_remark_1 {
 					$rref->authors($auth);
 					$rref->title($titl);
 					$rref->location($ref);
-					# XXX KB waht to do with $publ (publisher), $edit (editor) and $refn (ASTM code) ?
+					$rref->publisher($publ);
+					$rref->editors($edit);
+					$rref->encoded_ref($refn);
 					push @refs, $rref;
 				}
 			} else {
@@ -665,6 +712,15 @@ sub _read_PDB_remark_1 {
 				$refn = $self->_concatenate_lines($refn,$rol) if ($subr eq "REFN");
 			}
 		} else {
+			# create last reference
+                        my $rref = Bio::Annotation::Reference->new;
+		        $rref->authors($auth);
+		        $rref->title($titl);
+		        $rref->location($ref);
+			$rref->publisher($publ);
+			$rref->editors($edit);
+			$rref->encoded_ref($refn);
+			push @refs, $rref;
 			last;
 		}
 
@@ -695,13 +751,13 @@ sub _read_PDB_coordinate_section {
 	$residue_name = "";
 	$atom_name = "";
 
-	my $atom_unpack =   "x6 A5 x1 A4 A1 A3 x1 A1 A4 A1 x3 A8 A8 A8 A6 A6 x6 A4 A2 A2";
-	my $anisou_unpack = "x6 A5 x1 A4 A1 A3 x1 A1 A4 A1 x1 A7 A7 A7 A7 A7 A7 A4 A2 A2";
+	my $atom_unpack =   "x6 a5 x1 a4 a1 a3 x1 a1 a4 a1 x3 a8 a8 a8 a6 a6 x6 a4 a2 a2";
+	my $anisou_unpack = "x6 a5 x1 a4 a1 a3 x1 a1 a4 a1 x1 a7 a7 a7 a7 a7 a7 a4 a2 a2";
 
 	my $model = Bio::Structure::Model->new;
 	$model->id('default');
-	my ($chain, $residue, $atom);
-	my ($old);
+	my $noatom = $self->_noatom;
+	my ($chain, $residue, $atom, $old);
 
 	$_ = $$buffer;
 	while (defined( $_ ||= $self->_readline )) {
@@ -725,7 +781,6 @@ $self->debug("_read_PDB_coor: parsing model $model_num\n");
 			}
 			my ($serial, $atomname, $altloc, $resname, $chainID, $resseq, $icode, $x, $y, $z, 
 				$occupancy, $tempfactor, $segID, $element, $charge) = @line_elements;
-$self->debug("_read_PDB_coor: parsing atom $serial $atomname\n");
 			$chainID = 'default' if ( !defined $chainID ); 
 			if ($chainID ne $chain_name) { # new chain
 				$chain = Bio::Structure::Chain->new;
@@ -740,6 +795,11 @@ $self->debug("_read_PDB_coor: parsing atom $serial $atomname\n");
 				$residue->id($res_name_num);
 				$residue_name = $res_name_num;
 				$atom_name = ""; # only needed inside a residue 
+			}
+			# get out of here if we don't want the atom objects
+			if ($noatom) {
+				$_ = undef;
+				next;
 			}
 			# alternative location: only take first one
 			if ( $altloc && ($altloc =~ /\S+/) && ($atomname eq $atom_name) ) {
@@ -770,9 +830,8 @@ $self->debug("_read_PDB_coor: parsing atom $serial $atomname\n");
 				my $sigz = $z;
 				my $sigocc = $occupancy;
 				my $sigtemp = $tempfactor;
-				if ($atom_name != $atomname) {  # something wrong with PDB file
-					$self->throw("A SIGATM record should have the same $atomname as the previous ",
-						"record $atom_name\n");
+				if ($atom_name ne $atomname) {  # something wrong with PDB file
+					$self->throw("A SIGATM record should have the same $atomname as the previous record $atom_name\n");
 				}
 				$atom->sigx($sigx);
 				$atom->sigy($sigy);
@@ -785,6 +844,10 @@ $self->debug("_read_PDB_coor: parsing atom $serial $atomname\n");
 
 		# ANISOU | SIGUIJ  lines
 		if (/^(ANISOU|SIGUIJ)/) {
+			if ($noatom) {
+				$_ = undef;
+				next;
+			}
 			my @line_elements = unpack $anisou_unpack, $_;
 			for my $k (0 .. $#line_elements) {
 				$line_elements[$k] =~ s/^\s+//; # remove leading space
@@ -800,8 +863,7 @@ $self->debug("read_PDB_coor: parsing ANISOU record: $serial $atomname\n");
 			}
 			if (/^ANISOU/) {
 				if ($atom_name ne $atomname) {  # something wrong with PDB file
-					$self->throw("A ANISOU record should have the same $atomname as the previous ",
-						"record $atom_name\n");
+					$self->throw("A ANISOU record should have the same $atomname as the previous record $atom_name\n");
 				}
 				$atom->aniso("u11",$u11);
 				$atom->aniso("u22",$u22);
@@ -812,8 +874,7 @@ $self->debug("read_PDB_coor: parsing ANISOU record: $serial $atomname\n");
 			} 
 			else { # SIGUIJ
 				if ($atom_name ne $atomname) {  # something wrong with PDB file
-					$self->throw("A SIGUIJ record should have the same $atomname as the previous ",
-						"record $atom_name\n");
+					$self->throw("A SIGUIJ record should have the same $atomname as the previous record $atom_name\n");
 				}
 				# could use different variable names, but hey ...
 				$atom->aniso("sigu11",$u11);
