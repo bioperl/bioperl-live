@@ -181,6 +181,7 @@ some HTML tags:
 
 Specify the format of the file.  Supported formats include:
 
+   AB1         ABI tracefile format
    ABI         ABI tracefile format
    ALF         ALF tracefile format
    CTF         CTF tracefile format
@@ -611,7 +612,7 @@ sub _guess_format {
    return 'genbank' if /\.(gb|gbank|genbank|gbk|gbs)$/i;
    return 'scf'     if /\.scf$/i;
    return 'scf'     if /\.scf$/i;
-   return 'abi'     if /\.abi$/i;
+   return 'abi'     if /\.ab[i1]$/i;
    return 'alf'     if /\.alf$/i;
    return 'ctf'     if /\.ctf$/i;
    return 'ztr'     if /\.ztr$/i;
