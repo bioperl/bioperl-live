@@ -70,7 +70,7 @@ use Bio::Root::Root;
 use vars qw($VERSION @ISA $AUTOLOAD);
 @ISA = qw(Bio::DB::GFF::RelSegment Bio::SeqFeatureI Bio::Root::Root);
 
-$VERSION = '0.30';
+$VERSION = '0.40';
 #' 
 
 *segments = \&sub_SeqFeature;
@@ -132,7 +132,8 @@ sub new_from_parent {
 		     db_id  => $db_id,
 		     class  => $class,
 		    },$package;
-  delete $self->{whole};  # a feature is never whole (sorry)
+  delete $self->{merged_segs};  # do not inherit merged segments from parent!
+  delete $self->{whole};        # a feature is never whole (sorry)
   $self;
 }
 
@@ -447,6 +448,10 @@ sub clone {
     $clone->group($group);
   }
 
+  if (my $merged = $self->{merged_segs}) {
+    $clone->{merged_segs} = { %$merged };
+  }
+
   $clone;
 }
 
@@ -530,14 +535,16 @@ sub merged_segments {
   my $type = shift;
   $type ||= '';    # prevent uninitialized variable warnings
 
-  return @{$self->{merged_segs}{$type}} if exists $self->{merged_segs}{$type};
+  my $truename = overload::StrVal($self);
 
+  return @{$self->{merged_segs}{$type}} if exists $self->{merged_segs}{$type};
   my @segs = sort {$a->start <=> $b->start} $self->sub_SeqFeature($type);
+
   # attempt to merge overlapping segments
-  my @merged;
+  my @merged = ();
   for my $s (@segs) {
-    my $previous = $merged[-1];
-    if ($previous && $previous->stop+1 >= $s->start) {
+    my $previous = $merged[-1] if @merged;
+    if (defined($previous) && $previous->stop+1 >= $s->start) {
       $previous->{stop} = $s->{stop};
       # fix up the target too
       my $g = $previous->{group};
@@ -551,7 +558,7 @@ sub merged_segments {
     }
   }
   $self->{merged_segs}{$type} = \@merged;
-  return @merged;
+  @merged;
 }
 
 =head2 sub_types
