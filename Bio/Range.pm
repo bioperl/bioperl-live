@@ -48,7 +48,7 @@ So, in summary:
   print join(', ', $range->intersection($r2), "\n";
   print $range->overlaps($r2), "\n";
   print $range->contains($r2), "
-  
+
 =head1 FEEDBACK
 
 =head2 Mailing Lists
@@ -160,7 +160,7 @@ sub start {
 
 =head2 end
 
-  Title    : start
+  Title    : end
   Function : return or set the end co-ordinate
   Example  : $e = $range->end(); $range->end(2000);
   Returns  : the value of the end co-ordinate
