@@ -37,9 +37,9 @@ use Bio::PopGen::Genotype;
 use Bio::PopGen::Population;
 use Bio::PopGen::IO;
 use Bio::PopGen::PopStats;
-
+use Bio::AlignIO;
 use Bio::PopGen::Statistics;
-
+use Bio::PopGen::Utilities;
 
 
 # test Fu and Li's D using data from the paper
@@ -398,3 +398,17 @@ ok(sprintf("%.4f",$LD{'ProC9198EA'}->{'ProcR2973EA'}->[0]), -0.0375);
 ok(sprintf("%.2f",$LD{'ProC9198EA'}->{'ProcR2973EA'}->[1]), 2.56);
 
 
+
+# build a population from an alignment
+
+my $alnin = Bio::AlignIO->new(-format => 'clustalw',
+			      -file   => Bio::Root::IO->catfile(qw(t data T7.aln)));
+my $aln = $alnin->next_aln;
+$population = Bio::PopGen::Utilities->aln_to_population(-alignment => $aln);
+ok($population->get_number_individuals,9);
+#warn($aln->match_line,"\n");
+ok( $population->get_marker_names, $aln->match_line =~ tr/ //);
+for my $name ( $population->get_marker_names ) {
+    my $marker = $population->get_Marker($name); 
+#    warn("$name ",join(" ",$marker->get_Alleles()),"\n");
+}
