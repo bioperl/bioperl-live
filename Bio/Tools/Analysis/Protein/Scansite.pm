@@ -364,11 +364,16 @@ sub _run {
     $self->{'_result'} = $out_Str;
 	$self->{'_parsed'} = \@parsed_Results;
 	
-	## is successssful if there are results or if there are no results and
+	## is successsful if there are results or if there are no results and
 	## this beacuse there are no matches, not because of parsing errors etc.
     $self->status('COMPLETED') if $text ne ''       &&
 	(scalar @results > 0 ||	
 	(scalar @results == 0 && $text =~/No sites found/));
+    if ($text =~ /server\s+error/i) {
+    	$self->warn("There was an internal server error !- text below") ;
+		$self->warn($text);
+        return; 
+    }
 }
 
 sub _process_arguments {
