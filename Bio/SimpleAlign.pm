@@ -242,8 +242,8 @@ sub add_seq {
     my $order = shift;
     my ($name,$id,$start,$end);
 
-    if( !ref $seq || ! $seq->isa('Bio::LocatableSeq') ) {
-	$self->throw("Unable to process non locatable sequences [", ref($seq), "]");
+    if( ! ref $seq || ! $seq->isa('Bio::LocatableSeq') ) {
+	$self->throw("Unable to process non locatable sequences [". ref($seq). "]");
     }
 
     $id = $seq->id() ||$seq->display_id || $seq->primary_id;
@@ -262,10 +262,10 @@ sub add_seq {
     $name = sprintf("%s/%d-%d",$id,$start,$end);
 
     if( $self->{'_seq'}->{$name} ) {
-	$self->warn("Replacing one sequence [$name]\n");
+	$self->warn("Replacing one sequence [$name]\n") unless $self->verbose < 0;
     }
     else {
-	#print STDERR "Assigning $name to $order\n";
+	$self->debug( "Assigning $name to $order\n");
 
 	$self->{'_order'}->{$order} = $name;
 
