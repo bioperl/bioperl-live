@@ -126,7 +126,7 @@ ok($fuzzy->to_FTstring(), 'complement(<10..20)');
 ok($simple->to_FTstring(), '10..20');
 $simple->strand(-1);
 ok($simple->to_FTstring(), 'complement(10..20)');
-ok( $splitlocation->to_FTstring(), 'join(13..30,18..22,19..20,30..90,<50..61)');
+ok( $splitlocation->to_FTstring(), 'join(13..30,30..90,18..22,19..20,<50..61)');
 $f = new Bio::Location::Fuzzy(-start => '45.60',
 			      -end   => '75^80');
 
