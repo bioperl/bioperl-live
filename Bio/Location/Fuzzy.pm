@@ -390,12 +390,12 @@ sub to_FTstring {
     # I'm lazy, lets do this in a loop since behaviour will be the same for 
     # start and end
     foreach my $point ( qw(start end) ) {
-	if( $vals{"$point\_code"} ne 'EXACT' ) {
+	if( $vals{$point."_code"} ne 'EXACT' ) {
 	    
 	    if( (!defined $vals{"min_$point"} ||
 		 !defined $vals{"max_$point"})
-		&& ( $vals{"$point\_code"} eq 'WITHIN' || 
-		     $vals{"$point\_code"} eq 'BETWEEN')
+		&& ( $vals{$point."_code"} eq 'WITHIN' || 
+		     $vals{$point."_code"} eq 'BETWEEN')
 		     ) {
 		$vals{"min_$point"} = '' unless defined $vals{"min_$point"};
 		$vals{"max_$point"} = '' unless defined $vals{"max_$point"};
@@ -403,23 +403,23 @@ sub to_FTstring {
 		$self->warn("Fuzzy codes for start are in a strange state, (".
 			    join(",", ($vals{"min_$point"}, 
 				       $vals{"max_$point"},
-				       $vals{"$point\_code"})). ")");
+				       $vals{$point."_code"})). ")");
 		return '';
 	    }
-	    if( defined $vals{"$point\_code"} && 
-		($vals{"$point\_code"} eq 'BEFORE' ||
-		 $vals{"$point\_code"} eq 'AFTER')
+	    if( defined $vals{$point."_code"} && 
+		($vals{$point."_code"} eq 'BEFORE' ||
+		 $vals{$point."_code"} eq 'AFTER')
 		) {
-		$strs{$point} .= $FUZZYCODES{$vals{"$point\_code"}};
+		$strs{$point} .= $FUZZYCODES{$vals{$point."_code"}};
 	    } 
 	    if( defined $vals{"min_$point"} ) {
 		$strs{$point} .= $vals{"min_$point"};
 	    }
-	    if( defined $vals{"$point\_code"} && 
-		($vals{"$point\_code"} eq 'WITHIN' ||
-		 $vals{"$point\_code"} eq 'BETWEEN')
+	    if( defined $vals{$point."_code"} && 
+		($vals{$point."_code"} eq 'WITHIN' ||
+		 $vals{$point."_code"} eq 'BETWEEN')
 		) {
-		$strs{$point} .= $FUZZYCODES{$vals{"$point\_code"}};
+		$strs{$point} .= $FUZZYCODES{$vals{$point."_code"}};
 	    }
 	    if( defined $vals{"max_$point"} ) {
 		$strs{$point} .= $vals{"max_$point"};
