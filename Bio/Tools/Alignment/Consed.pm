@@ -102,7 +102,7 @@ use strict;
 use vars qw($VERSION @ISA $Contigs %DEFAULTS);
 use Carp;
 use FileHandle;
-use Dumpvalue;
+use Dumpvalue qw(dumpValue);
 use Bio::Tools::Alignment::Trim;
 use Bio::Root::Root;
 use Bio::Root::IO;
@@ -233,9 +233,7 @@ sub count_sequences_with_grep {
     opendir(SINGLETS,$self->{'path'});
     foreach my $f ( readdir(SINGLETS) ) {
 	next unless ($f =~ /\.singlets$/); 
-	open(FILE, $self->catfile($self->{'path'},$f)) or 
-	    do{ $self->warn("cannot open file ".
-			    $self->catfile($self->{'path'},$f)); next };
+	open(FILE, $self->catfile($self->{'path'},$f)) or do{ $self->warn("cannot open file ".$self->catfile($self->{'path'},$f)); next };
 	while(<FILE>) { $counter++ if(/^>/) }
 	close FILE;
     }
@@ -742,9 +740,6 @@ sub set_trim_points_singlets_and_singletons {
 	    $name = $self->{'contigs'}->{$_}->{'name'};
 	    $class = $self->{'contigs'}->{$_}->{'class'};	    
 	    (@points) = $self->{'o_trim'}->trim_singlet($sequence,$quality,$name,$class);
-	    if( $self->verbose > 0 ) {
-		$self->debug("\tConsed::set_trim_points...: Start and end points for $_ is $points[0] and $points[1]\n");
-	    }
 	    $self->{'contigs'}->{$_}->{'start_point'} = $points[0];
 	    $self->{'contigs'}->{$_}->{'end_point'} = $points[1];
 	    $self->{'contigs'}->{$_}->{'sequence_trimmed'} = $points[2];
