@@ -749,6 +749,8 @@ sub slice {
 
 sub remove_columns{
     my ($self,$type) = @_;
+    $type || return $self;
+    my $gap = $self->gap_char if (grep /gaps/, @{$type});
     my %matchchars = ( 'match'  => '\*',
                        'weak'   => '\.',
                        'strong' => ':',
@@ -767,6 +769,7 @@ sub remove_columns{
    my $length = 0;
 
    #do the matching to get the segments to remove
+  if($del_char){
    while($match_line=~m/[$del_char]/g){
     my $start = pos($match_line)-1;
     $match_line=~/\G[$del_char]+/gc;
@@ -778,21 +781,65 @@ sub remove_columns{
     $length += ($end-$start+1);
     push @remove, [$start,$end];
    }
+}
 
   #remove the segments
-  $aln = $self->_remove_col($aln,\@remove);
+  $aln = $#remove >= 0 ? $self->_remove_col($aln,\@remove) : $self;
+
+  $aln = $aln->remove_gaps() if $gap;
 
   return $aln;
 }
 
+
+=head2 remove_gaps
+
+ Title     : remove_column
+ Usage     : $aln2 = $aln->remove_gaps('-')
+ Function  :
+             Creates an aligment with gaps removed 
+ Returns   : a L<Bio::SimpleAlign> object
+ Args      : a gap character(optional) if no specified, 
+             taken from $self->gap_char
+
+=cut
+
+sub remove_gaps {
+  my ($self,$gapchar) = @_;
+  my $gap_line = $self->gap_line;
+  my $aln = new $self;
+    
+   my @remove;
+   my $length = 0;
+   my $del_char = $gapchar || $self->gap_char;
+   #do the matching to get the segments to remove
+   while($gap_line=~m/[$del_char]/g){
+    my $start = pos($gap_line)-1;
+    $gap_line=~/\G[$del_char]+/gc;
+    my $end = pos($gap_line)-1;
+
+    #have to offset the start and end for subsequent removes  
+    $start-=$length;
+    $end  -=$length;                                          
+    $length += ($end-$start+1);                               
+    push @remove, [$start,$end];                              
+   }
+
+  #remove the segments                                        
+  $aln = $#remove >= 0 ? $self->_remove_col($aln,\@remove) : $self;
+
+  return $aln;                                                
+}
+
 sub _remove_col {
+
     my ($self,$aln,$remove) = @_;
     my @new;
 
     #splice out the segments and create new seq
     foreach my $seq($self->each_seq){
         my $new_seq = new Bio::LocatableSeq(-id=>$seq->id);
-        my $sequence;
+        my $sequence = $seq->seq;
         foreach my $pair(@{$remove}){
             my $start = $pair->[0];
             my $end   = $pair->[1];
@@ -1019,6 +1066,44 @@ sub match_line {
 	    }
 	  }
 	$matchline .= $char;
+    }
+    return $matchline;
+}
+
+=head2 gap_line
+
+ Title    : gap_line()
+ Usage    : $align->gap_line()
+ Function : Generates a gap line - much like consensus string
+            except that a line where '-' represents gap  
+ Args     : (optional) gap line characters ('-' by default)
+
+=cut
+
+sub gap_line {
+    my ($self,$gapchar) = @_;
+    $gapchar = $gapchar || $self->gap_char;
+    my @seqchars;
+    my $seqcount = 0;
+    foreach my $seq ( $self->each_seq ) {
+    	push @seqchars, [ split(//, uc ($seq->seq)) ];
+    }
+    my $refseq = shift @seqchars;
+    # let's just march down the columns
+    my $matchline;
+    POS: foreach my $pos ( 0..$self->length ) {
+    	my $refchar = $refseq->[$pos];
+    	next unless $refchar; # skip '' 
+    	my %col = ($refchar => 1);
+    	my $gap= ($refchar eq '-');
+    	foreach my $seq ( @seqchars ) {
+	      $gap= 1 if( $seq->[$pos] eq '-');
+	      $col{$seq->[$pos]}++;
+    	}
+      my @colresidues = sort keys %col;
+      my $char= ".";
+    	if( $gap) { $char =  $gapchar}
+      $matchline .= $char;
     }
     return $matchline;
 }
