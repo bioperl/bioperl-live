@@ -1,7 +1,7 @@
 #
 # BioPerl module for Bio::AlignIO::largemultifasta
 
-#	based on the Bio::SeqIO::largemultifasta module
+#	based on the Bio::SeqIO::largefasta module
 #       by Ewan Birney <birney@sanger.ac.uk>
 #       and Lincoln Stein  <lstein@cshl.org>
 #
