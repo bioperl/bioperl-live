@@ -13,11 +13,46 @@ Bio::Biblio::Person - Representation of a person
 
 =head1 SYNOPSIS
 
-#
+    $obj = new Bio::Biblio::Person (-lastname => 'Capek',
+				    -firstname => 'Karel');
+ --- OR ---
+
+    $obj = new Bio::Biblio::Person;
+    $obj->firstname ('Karel');
+    $obj->lastname ('Capek');
 
 =head1 DESCRIPTION
 
-#
+A storage object for a person related to a bibliographic resource.
+
+=head2 Attributes
+
+The following attributes are specific to this class
+(however, you can also set and get all attributes defined in the parent classes):
+
+  affiliation
+  email
+  firstname
+  forename
+  initials
+  lastname
+  middlename
+  postal_address
+  suffix
+
+=head1 SEE ALSO
+
+=over
+
+=item *
+
+OpenBQS home page: http://industry.ebi.ac.uk/openBQS
+
+=item *
+
+Comments to the Perl client: http://industry.ebi.ac.uk/openBQS/Client_perl.html
+
+=back
 
 =head1 FEEDBACK
 
@@ -78,7 +113,7 @@ use Bio::Biblio::Provider;
 {
     my %_allowed =
 	(
-	 _affiliation => undef,
+ 	 _affiliation => undef,
 	 _email => undef,
 	 _firstname => undef,
 	 _forename => undef,

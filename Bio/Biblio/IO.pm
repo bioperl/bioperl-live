@@ -15,28 +15,152 @@ Bio::Biblio::IO - Handling the bibliographic references
 
     use Bio::Biblio::IO;
 
+    # getting citations from a file
+    $in = Bio::Biblio::IO->new ('-file' => 'myfile.xml' ,
+				'-format' => 'medlinexml');
+ --- OR ---
+
+    # getting citations from a string
+    $in = Bio::Biblio::IO->new ('-data' => '<MedlineCitation>...</MedlineCitation>' ,
+				'-format' => 'medlinexml');
+ --- OR ---
+
+    # getting citations from a string if IO::String is installed
+    use IO::String;
+    $in = Bio::Biblio::IO->new ('-fh' => IO::String->new ($citation),
+				'-format' => 'medlinexml');
+
     $in = Bio::Biblio::IO->new(-fh => $io_handle , '-format' => 'medlinexml');
 
+ --- OR ---
+
+    # getting citations from any IO handler
+    $in = Bio::Biblio::IO->new('-fh' => $io_handle ,
+			       '-format' => 'medlinexml');
+
+
+    # now, having $in, we can read all citations
     while ( my $citation = $in->next_bibref() ) {
-	print $citation;
+	&do_something_with_citation ($citation);
     }
 
-Now, to actually get an I<$io_handle> representing a citation in an XML format,
-use I<Bio::Biblio> module which returns an XML string and convert this string
-into an IO handle:
+ --- OR ---
+
+    # again reading all citation but now a callback defined in your
+    # code is used (note that the reading starts already when new()
+    # is called)
+    $io = new Bio::Biblio::IO ('-format'   => 'medlinexml',
+			       '-file'     => $testfile,
+			       '-callback' => \&callback);
+    sub callback {
+        my $citation = shift;
+	print $citation->{'_identifier'} . "\n";
+    }
+    
+
+Now, to actually get a citation in an XML format,
+use I<Bio::Biblio> module which returns an XML string:
 
     use Bio::Biblio;
     my $xml = new Bio::Biblio->get_by_id ('94033980');
-    my $reader = Bio::Biblio::IO->new ('-fh' => IO::String->new ($xml),
-				       '-format' => 'medlinexml',
-				       '-result' => 'bibref');
+    my $reader = Bio::Biblio::IO->new ('-data' => $xml,
+				       '-format' => 'medlinexml');
+
     while (my $citation = $reader->next_bibref()) {
        ... do something here with $citation
        }
 
+And, finally, the resulting citation can be received in different
+output formats:
+
+    $io = new Bio::Biblio::IO ('-format' => 'medlinexml',
+			       '-result' => 'raw');
+ --- OR ---
+
+    $io = new Bio::Biblio::IO ('-format' => 'medlinexml',
+			       '-result' => 'medline2ref');
+
+ --- OR ---
+
+    $io = new Bio::Biblio::IO ('-format' => 'pubmedxml',
+			       '-result' => 'pubmed2ref');
+
 =head1 DESCRIPTION
 
- # to be written
+Bio::Biblio::IO is a handler module for accessing bibliographic
+citations. The citations can be in different formats - assuming that
+there is a corresponding module knowing that format in Bio::Biblio::IO
+directory (e.g. Bio::Biblio:IO::medlinexml). The format (and the
+module name) is given by the argument I<-format>.
+
+Once an instance of C<Bio::Biblio::IO> class is available, the
+citations can be read by calling repeatedly method I<next_bibref>:
+
+    while (my $citation = $reader->next_bibref()) {
+       ... do something here with $citation
+       }
+
+However, this may imply that all citations were already read into the
+memory. If you expect a huge amount of citations to be read, you may
+choose a I<callback> option. Your subroutine is specified in the
+C<new()> method and is called everytime a new citation is available
+(see an example above in SYNOPSIS).
+
+The citations returned by I<next_bibref> or given to your callback
+routine can be of different formats depending on the argument
+I<-result>. One result type is I<raw> and it is represented by a
+simple, not blessed hash table:
+
+    $io = new Bio::Biblio::IO ('-result' => 'raw');
+
+What other result formats are available depends on the module who
+reads the citations in the first place. At the moment, the following
+ones are available:
+
+    $io = new Bio::Biblio::IO ('-result' => 'medline2ref');
+
+This is a default result format for reading citations by the
+I<medlinexml> module. The C<medlinexml> module is again the default
+one. Which means that you can almost omit arguments (you still need to
+say where the citations come from):
+
+    $io = new Bio::Biblio::IO ('-file' => 'data/medline_data.xml');
+
+Another result format available is for PUBMED citations (which is a
+super-set of the MEDLINE citations having few more tags):
+
+    $io = new Bio::Biblio::IO ('-format' => 'pubmedxml',
+			       '-result' => 'pubmed2ref',
+			       '-data'   => $citation);
+
+Or, because C<pubmed2ref> is a default one for PUBMED citations, you can say just:
+
+    $io = new Bio::Biblio::IO ('-format' => 'pubmedxml',
+			       '-data'   => $citation);
+
+Both C<medline2ref> and C<pubmed2ref> results are objects defined in
+the directory C<Bio::Biblio>.
+
+=head1 SEE ALSO
+
+=over
+
+=item *
+
+An example script I<examples/biblio.pl>. It has many options and its
+own help.  The relevant options to this IO module are I<-f>
+(specifying what file to read) and I<-O> (specifying what result
+format to achieve).
+
+=item *
+
+OpenBQS home page: http://industry.ebi.ac.uk/openBQS
+
+=item *
+
+Comments to the Perl client: http://industry.ebi.ac.uk/openBQS/Client_perl.html
+
+=back
 
 =head1 FEEDBACK
 
@@ -157,8 +281,9 @@ sub _initialize {
 
  Usage   : $citation = stream->next_bibref
  Function: Reads the next citation object from the stream and returns it.
-
- Returns : a Bio::Biblio::IO sequence object
+ Returns : a Bio::Biblio::Ref citation object, or something else
+           (depending on the '-result' argument given in the 'new()'
+	    method).
  Args    : none
 
 =cut
@@ -181,7 +306,7 @@ It does (in run-time) a similar thing as
 
    require Bio::Biblio::IO::$format
 
-It prints an error on STDERR if it fails to find and load the module
+It throws an exception if it fails to find and load the module
 (for example, because of the compilation errors in the module).
 
 =cut

@@ -13,12 +13,35 @@ Bio::Biblio::BiblioBase - An abstract base for other biblio classes
 
 =head1 SYNOPSIS
 
- # to be written
+ # do not instantiate this class directly
 
 =head1 DESCRIPTION
 
- # to be written
+It is a base class where all other biblio data storage classes inherit
+from. It does not reflect any real-world object, it exists only for
+convenience, in order to have a place for shared code.
 
+=head2 new()
+
+The I<new()> class method constructs a new biblio storage object.  It
+accepts list of named arguments - the same names as attribute names
+prefixed with a minus sign. Available attribute names are listed in
+the documentation of the individual biblio storage objects.
+
+=head2 Accessors
+
+All attribute names can be used as method names. When used without any
+parameter the method returns current value of the attribute (or
+undef), when used with a value the method sets the attribute to this
+value and also returns it back. The set method also checks if the type
+of the new value is correct.
+
+=head2 Custom classes
+
+If there is a need for new attributes, create your own class which
+usually inherits from I<Bio::Biblio::Ref>. For new types of providers
+and journals, let your class inherit directly from this
+I<Bio::Biblio::BiblioBase> class.
 
 =head1 FEEDBACK
 
@@ -40,9 +63,8 @@ email or the web:
   bioperl-bugs@bioperl.org
   http://bioperl.org/bioperl-bugs/
 
-=head1 AUTHORS
+=head1 AUTHOR
 
-Heikki Lehvaslaiho (heikki@ebi.ac.uk)
 Martin Senger (senger@ebi.ac.uk)
 
 =head1 COPYRIGHT

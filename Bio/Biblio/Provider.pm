@@ -13,11 +13,39 @@ Bio::Biblio::Provider - Representation of a general provider
 
 =head1 SYNOPSIS
 
-#
+    # usually this class is not instantiated but can be...
+    $obj = new Bio::Biblio::Provider (-type => 'Department');
+
+ --- OR ---
+
+    $obj = new Bio::Biblio::Provider;
+    $obj->type ('Department');
 
 =head1 DESCRIPTION
 
-#
+A storage object for a general bibliographic resource provider
+(a rpovider can be a person, a organisation, or even a program).
+
+=head2 Attributes
+
+The following attributes are specific to this class, 
+and they are inherited by all provider types.
+
+  type
+
+=head1 SEE ALSO
+
+=over
+
+=item *
+
+OpenBQS home page: http://industry.ebi.ac.uk/openBQS
+
+=item *
+
+Comments to the Perl client: http://industry.ebi.ac.uk/openBQS/Client_perl.html
+
+=back
 
 =head1 FEEDBACK
 
@@ -41,7 +69,7 @@ email or the web:
 
 =head1 AUTHORS
 
-Heikki Lehvaslaiho (heikki@ebi.ac.uk)
+Heikki Lehvaslaiho (heikki@ebi.ac.uk),
 Martin Senger (senger@ebi.ac.uk)
 
 =head1 COPYRIGHT
