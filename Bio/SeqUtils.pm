@@ -236,7 +236,7 @@ sub seq3in {
 
 sub translate_3frames {
     my ($self, $seq, @args ) = @_;
-    
+
     $self->throw('Object [$seq] '. 'of class ['. ref($seq).  ']  can not be translated.')
 	unless $seq->can('translate');
 
@@ -268,10 +268,9 @@ sub translate_3frames {
 
 sub translate_6frames {
     my ($self, $seq, @args ) = @_;
-    
+
     my @seqs = $self->translate_3frames($seq, @args);
-    $seq->seq($seq->revcom->seq);
-    my @seqs2 = $self->translate_3frames($seq, @args);
+    my @seqs2 = $self->translate_3frames($seq->revcom, @args);
     foreach my $seq2 (@seqs2) {
 	my ($tmp) = $seq2->id;
 	$tmp =~ s/F$/R/g;
