@@ -199,10 +199,11 @@ of analysis in BioPerl other methods for estimating Ds and Dn can be
 provided later.
 
 
-Much of the code is based on implementations in EMBOSS (Rice et al,
-www.emboss.org) distmat.c and PHYLIP (J. Felsenstein et al) dnadist.c
+Much of the DNA distance code is based on implementations in EMBOSS
+(Rice et al, www.emboss.org) [distmat.c] and PHYLIP (J. Felsenstein et
+al) [dnadist.c].  Insight also gained from Eddy, Durbin, 
 
-References for DNA Distance methods
+=head1 REFERENCES
 
 D_JukesCantor - "Phylogenetic Inference", Swoffrod, Olsen, Waddell and Hillis,
                 in Mol. Systematics, 2nd ed, 1996, Ch 11. 
@@ -264,6 +265,7 @@ use strict;
 use Bio::Align::PairwiseStatistics;
 use Bio::Root::Root;
 use Bio::Matrix::PhylipDist;
+use Bio::Tools::IUPAC;
 
 BEGIN {
     $GapChars = '[\.\-]';
@@ -271,6 +273,7 @@ BEGIN {
     @Nucleotides = qw(A G T C);
     $SeqCount = 2;
     $Precision = 5;
+    
     # these values come from EMBOSS distmat implementation
     %NucleotideIndexes = ( 'A' => 0,
 			   'T' => 1,
@@ -428,8 +431,8 @@ sub D_JukesCantor{
    my (@seqs,@names,@values,%dist);
    my $seqct = 0;
    foreach my $seq ( $aln->each_seq) {
-       push @names, $seq->display_id;;
-       push @seqs, [ split(//,uc $seq->seq())];
+       push @names, $seq->display_id;
+       push @seqs, uc $seq->seq();
        $seqct++;
    }
    my $precisionstr = "%.$Precision"."f";
@@ -451,8 +454,8 @@ sub D_JukesCantor{
 	   $dist{$names[$j]}->{$names[$i]} = [$i,$j];	   
 	   $values[$j][$i] = $values[$i][$j] = sprintf($precisionstr,$d);
            # (diagonals) distance is 0 for same sequence
-	   $dist{$names[$j]}->{$names[$j]} = [$j,$j];	   
-	   $values[$j][$j] = sprintf($precisionstr,0); 
+	   $dist{$names[$j]}->{$names[$j]} = [$j,$j];   
+	   $values[$j][$j] = sprintf($precisionstr,0);
        }
    }
    return Bio::Matrix::PhylipDist->new(-program => 'bioperl_DNAstats',
@@ -467,6 +470,8 @@ sub D_JukesCantor{
  Usage   : my $d = $stat->D_F81($aln)
  Function: Calculates D (pairwise distance) between 2 sequences in an 
            alignment using the Felsenstein 1981 distance model. 
+           Relaxes the assumption of equal base frequencies that is
+           in JC.
  Returns : L<Bio::Matrix::PhylipDist>
  Args    : L<Bio::Align::AlignI> of DNA sequences
 
@@ -474,9 +479,45 @@ sub D_JukesCantor{
 =cut
 
 sub D_F81{
-   my ($self,$aln) = @_;
+   my ($self,$aln,$gappenalty) = @_;
    return 0 unless $self->_check_arg($aln);
-   $self->throw("This isn't implemented yet - sorry");
+   $gappenalty = $DefaultGapPenalty unless defined $gappenalty;
+   # ambiguities ignored at this point
+   my (@seqs,@names,@values,%dist);
+   my $seqct = 0;
+   foreach my $seq ( $aln->each_seq) {
+       push @names, $seq->display_id;;
+       push @seqs, uc $seq->seq();
+       $seqct++;
+   }
+   my $precisionstr = "%.$Precision"."f";
+   for(my $i = 0; $i < $seqct-1; $i++ ) {
+       # (diagonals) distance is 0 for same sequence
+       $dist{$names[$i]}->{$names[$i]} = [$i,$i];
+       $values[$i][$i] = sprintf($precisionstr,0);        
+
+       for( my $j = $i+1; $j < $seqct; $j++ ) {
+	   
+	   my ($matrix,$pfreq,$gaps) = $self->_build_nt_matrix($seqs[$i],
+							       $seqs[$j]);
+	   # just want diagonals
+	   my $m = ( $matrix->[0]->[0] + $matrix->[1]->[1] + 
+		     $matrix->[2]->[2] + $matrix->[3]->[3] );
+	   my $D = 1 - ( $m / ($aln->length - $gaps + ( $gaps * $gappenalty)));
+	   my $d = (- 3 / 4) * log ( 1 - (4 * $D/ 3));
+	   # fwd and rev lookup
+	   $dist{$names[$i]}->{$names[$j]} = [$i,$j];
+	   $dist{$names[$j]}->{$names[$i]} = [$i,$j];	   
+	   $values[$j][$i] = $values[$i][$j] = sprintf($precisionstr,$d);
+           # (diagonals) distance is 0 for same sequence
+	   $dist{$names[$j]}->{$names[$j]} = [$j,$j];	   
+	   $values[$j][$j] = sprintf($precisionstr,0); 
+       }
+   }
+   return Bio::Matrix::PhylipDist->new(-program => 'bioperl_DNAstats',
+				       -matrix  => \%dist,
+				       -names   => \@names,
+				       -values  => \@values);   
 }
 
 =head2 D_Uncorrected
@@ -500,7 +541,7 @@ sub D_Uncorrected {
    my $seqct = 0;
    foreach my $seq ( $aln->each_seq) {
        push @names, $seq->display_id;
-       push @seqs, [ split(//,uc $seq->seq())];
+       push @seqs, uc $seq->seq();
        $seqct++;
    }
 
@@ -549,15 +590,14 @@ sub D_Uncorrected {
 
 =cut
 
-sub D_Kimura{
+sub D_Kimura {
    my ($self,$aln) = @_;
    return 0 unless $self->_check_arg($aln);
    # ambiguities ignored at this point
-   my (@seqs,@names,@values,%dist);
+   my (@names,@values,%dist);
    my $seqct = 0;
    foreach my $seq ( $aln->each_seq) {
        push @names, $seq->display_id;
-       push @seqs, [ split(//,uc $seq->seq())];
        $seqct++;
    }
 
@@ -606,30 +646,32 @@ sub D_Kimura{
 
 =cut
 
-sub D_Tamura{
+sub D_Tamura {
    my ($self,$aln) = @_;
    return 0 unless $self->_check_arg($aln);
    # ambiguities ignored at this point
-   my (@seqs,@names,@values,%dist);
+   my (@seqs,@names,@values,%dist,$i,$j);
    my $seqct = 0;
    my $length = $aln->length;
    foreach my $seq ( $aln->each_seq) {
        push @names, $seq->display_id;;
-       push @seqs, [ split(//,uc $seq->seq())];
+       push @seqs, uc $seq->seq();
        $seqct++;
    }
 
    my $precisionstr = "%.$Precision"."f";
    my (@gap,@gc,@trans,@tranv,@score);
-   my $i = 0;
+   $i = 0;
    for my $t1 ( @seqs ) {
-       my $j = 0;
+       $j = 0;
        for my $t2 ( @seqs ) {
 	   for( my $k = 0; $k < $length; $k++ ) {
-	       if( $seqs[$i][$k] =~ /^$GapChars$/ ||
-		   $seqs[$j][$k] =~ /^$GapChars$/ ) {
+	       my ($c1,$c2) = ( substr($seqs[$i],$k,1),
+				substr($seqs[$j],$k,1) );
+	       if( $c1 =~ /^$GapChars$/ ||
+		   $c2 =~ /^$GapChars$/ ) {
 		   $gap[$i][$j]++;	
-	       } elsif( $seqs[$j][$k] =~ /^$GCChhars$/i ) {
+	       } elsif( $c2 =~ /^$GCChhars$/i ) {
 		   $gc[$i][$j]++;
 	       } 
 	   }
@@ -640,12 +682,12 @@ sub D_Tamura{
        $i++;
    }
    
-   for( my $i = 0; $i < $seqct-1; $i++ ) {
+   for( $i = 0; $i < $seqct-1; $i++ ) {
        # (diagonals) distance is 0 for same sequence
        $dist{$names[$i]}->{$names[$i]} = [$i,$i];
        $values[$i][$i] = sprintf($precisionstr,0);
        
-       for( my $j = $i+1; $j < $seqct; $j++ ) {
+       for( $j = $i+1; $j < $seqct; $j++ ) {
 	   
 	   my $pairwise = $aln->select_noncont($i+1,$j+1);
 	   my $L = $self->pairwise_stats->number_of_comparable_bases($pairwise);
@@ -685,9 +727,10 @@ sub D_Tamura{
 
 =cut
 
-sub D_F84{
+sub D_F84 {
    my ($self,$aln,$gappenalty) = @_;
    return 0 unless $self->_check_arg($aln);
+   $self->throw("not implemented\n");
    # ambiguities ignored at this point
    my (@seqs,@names,@values,%dist);
    my $seqct = 0;
@@ -699,7 +742,7 @@ sub D_F84{
 	   $id = $seqct+1;
        }
        push @names, $id;
-       push @seqs, [ split(//,uc $seq->seq())];
+       push @seqs, uc $seq->seq();
        $seqct++;
    }
 
@@ -745,23 +788,23 @@ sub D_TajimaNei{
    foreach my $seq ( $aln->each_seq) {
        # if there is no name, 
        push @names, $seq->display_id;
-       push @seqs, [ split(//,uc $seq->seq())];
+       push @seqs, uc $seq->seq();
        $seqct++;
    }
    my $precisionstr = "%.$Precision"."f";
-   
+   my ($i,$j,$bs);
    # pairwise
-   for( my $i =0; $i < $seqct -1; $i++ ) {
+   for( $i =0; $i < $seqct -1; $i++ ) {
        $dist{$names[$i]}->{$names[$i]} = [$i,$i];
        $values[$i][$i] = sprintf($precisionstr,0);
 
-       for ( my $j = $i+1; $j <$seqct;$j++ ) {
+       for ( $j = $i+1; $j <$seqct;$j++ ) {
 	   my ($matrix,$pfreq,$gaps) = $self->_build_nt_matrix($seqs[$i],
 							       $seqs[$j]);
 	   my $pairwise = $aln->select_noncont($i+1,$j+1);
 	   my $slen = $self->pairwise_stats->number_of_comparable_bases($pairwise);	    
 	   my $fij2 = 0;
-	   for( my $bs = 0; $bs < 4; $bs++ ) {
+	   for( $bs = 0; $bs < 4; $bs++ ) {
 	       my $fi = 0;
 	       map {$fi += $matrix->[$bs]->[$_] } 0..3;
 	       my $fj = 0;
@@ -772,8 +815,8 @@ sub D_TajimaNei{
 	   }
 	   
 	   my ($pair,$h) = (0,0);
-	   for( my $bs = 0; $bs < 3; $bs++ ) {
-	       for( my $bs1 = $bs+1; $bs1 <= 3; $bs1++ ) {
+	   for( $bs = 0; $bs < 3; $bs++ ) {
+	       for(my $bs1 = $bs+1; $bs1 <= 3; $bs1++ ) {
 		   my $fij = $pfreq->[$pair++] / $slen;
 		   if( $fij ) {
 		       
@@ -843,120 +886,6 @@ sub D_JinNei{
 
 }
 
-
-# HKY -- HASEGAWA, M., H. KISHINO, and T. YANO. 1985
-# Tamura and Nei 1993?
-# GTR? 
-
-=head2 K - sequence substitution methods
-
-
-=cut
-
-
-=head2 K_JukesCantor
-
- Title   : K_JukesCantor
- Usage   : my $k = $stats->K_JukesCantor($aln)
- Function: Calculates K - the number of nucleotide substitutions between 
-           2 seqs - according to the Jukes-Cantor 1 parameter model
-           This only involves the number of changes between two sequences.
- Returns : double
- Args    : Bio::Align::AlignI
-
-
-=cut
-
-sub K_JukesCantor{
-   my ($self,$aln) = @_;
-   return 0 unless $self->_check_arg($aln);
-   my $seqct = $aln->no_sequences;
-   my @KVals;
-   for( my $i = 1; $i <= $seqct; $i++ ) {
-       for( my $j = $i+1; $j <= $seqct; $j++ ) {
-	   my $pairwise = $aln->select_noncont($i,$j);
-	   my $L = $self->pairwise_stats->number_of_comparable_bases($pairwise);
-	   my $N = $self->pairwise_stats->number_of_differences($pairwise);
-	   my $p = $N / $L;   
-	   my $K = - ( 3 / 4) * log ( 1 - (( 4 * $p) / 3 ));
-	   $KVals[$i]->[$j] = $KVals[$j]->[$i] = $K;
-       }
-   }
-   return \@KVals;
-}
-
-=head2 K_TajimaNei
-
- Title   : K_TajimaNei
- Usage   : my $k = $stats->K_TajimaNei($aln)
- Function: Calculates K - the number of nucleotide substitutions between 
-           2 seqs - according to the Kimura 2 parameter model.
-           This does not assume equal frequencies among all the nucleotides.
- Returns : ArrayRef of 2d matrix which contains pairwise K values for 
-           all sequences in the alignment
- Args    : Bio::Align::AlignI
-
-=cut
-
-sub K_TajimaNei {
-    my ($self,$aln) = @_;
-    return 0 unless $self->_check_arg($aln);
-
-    my @seqs;
-    foreach my $seq ( $aln->each_seq) {
-	push @seqs, [ split(//,uc $seq->seq())];
-    }
-    my @KVals;
-    my $L = $self->pairwise_stats->number_of_comparable_bases($aln);	    
-    my $seqct = scalar @seqs;
-    for( my $i = 1; $i <= $seqct; $i++ ) {
-	for( my $j = $i+1; $j <= $seqct; $j++ ) {
-	    my (%q,%y);
-	    my ($first,$second) = ($seqs[$i-1],$seqs[$j-1]);
-	    
-	    for (my $k = 0;$k<$aln->length; $k++ ) {	
-		next if( $first->[$k] =~ /^$GapChars$/ ||
-			 $second->[$k]  =~ /^$GapChars$/);
-		
-		$q{$second->[$k]}++;
-		$q{$first->[$k]}++;
-		if( $first->[$k] ne $second->[$k] ) {		
-		    $y{$first->[$k]}->{$second->[$k]}++;
-		}
-	    }
-	    
-	    my $q_sum = 0;
-	    foreach my $let ( @Nucleotides ) {              
-		# ct is the number of sequences compared (2)
-		# L is the length of the alignment without gaps
-		# $ct * $L = total number of nt compared
-		my $avg = $q{$let} / ( $SeqCount * $L );
-		$q_sum += $avg**2;
-	    }
-	    my $b1 = 1 - $q_sum;
-	    my $h = 0;
-	    for( my $i = 0; $i <= 2; $i++ ) {
-		for( my $j = $i+1; $j <= 3; $j++) {	    
-		    $y{$Nucleotides[$i]}->{$Nucleotides[$j]} ||= 0;
-		    $y{$Nucleotides[$j]}->{$Nucleotides[$i]} ||= 0;
-		    my $x = ($y{$Nucleotides[$i]}->{$Nucleotides[$j]} + 
-			     $y{$Nucleotides[$j]}->{$Nucleotides[$i]}) / $L;
-		    $h += ($x ** 2) / ( 2 * $q{$Nucleotides[$i]} * 
-					$q{$Nucleotides[$j]} );
-		}
-	    }
-	    my $N = $self->pairwise_stats->number_of_differences($aln);
-	    my $p = $N / $L;
-	    my $b = ( $b1 + $p ** 2 / $h ) / 2;	    
-	    my $K = - $b * log ( 1 - $p / $b );
-	    $KVals[$i]->[$j] = $KVals[$j]->[$i] = $K;
-	}
-    }
-    return \@KVals;
-}
-
-
-
 =head2 transversions
 
  Title   : transversions
@@ -995,20 +924,18 @@ sub _trans_count_helper {
     my ($self,$aln,$type) = @_;
     return 0 unless( $self->_check_arg($aln) );
     if( ! $aln->is_flush ) { $self->throw("must be flush") }
-    my (@seqs,@tcount);
-    foreach my $seq ( $aln->get_seq_by_pos(1), $aln->get_seq_by_pos(2) ) {
-	push @seqs, [ split(//,$seq->seq())];
-    }
-    my ($first,$second) = @seqs;
-
-    for (my $i = 0;$i<$aln->length; $i++ ) { 
-	next if( $first->[$i]  =~ /^$GapChars$/ ||
-		 $second->[$i]  =~ /^$GapChars$/);	
-	if( $first->[$i] ne $second->[$i] ) {
-	    foreach my $nt ( @{$type->{$first->[$i]}} ) {
-		if( $nt eq $second->[$i]) {
-		    $tcount[$i]++;
-		}
+    my (@tcount);
+    my ($first,$second) = ( $aln->get_seq_by_pos(1)->seq(),
+			    $aln->get_seq_by_pos(2)->seq() );
+    my $alen = $aln->length; 
+    for (my $i = 0;$i<$alen; $i++ ) { 
+	my ($c1,$c2) = ( substr($first,$i,1),
+			 substr($second,$i,1) );
+	if( $c1 ne $c2 ) { 
+	    foreach my $nt ( @{$type->{$c1}} ) {
+		if( $nt eq $c2) {
+		   $tcount[$i]++;
+	       }
 	    }
 	}
     }
@@ -1030,10 +957,9 @@ sub _build_nt_matrix {
 			  [ qw(0 0 0 0) ] ];
     my $gaps = 0;                           # number of gaps
     my $pfreq = [ qw( 0 0 0 0 0 0)];        # matrix for pair frequency
-    
-    for( my $i = 0; $i < scalar @$seqa; $i++) {
-	
-	my ($ti,$tj) = ($seqa->[$i],$seqb->[$i]);
+    my $len_a = length($seqa);
+    for( my $i = 0; $i < $len_a; $i++) {
+	my ($ti,$tj) = (substr($seqa,$i,1),substr($seqb,$i,1));
 	$ti =~ tr/U/T/;
 	$tj =~ tr/U/T/;
 
@@ -1056,6 +982,26 @@ sub _build_nt_matrix {
     }
     return ($basect_matrix,$pfreq,$gaps);
 }
+
+sub _check_ambiguity_nucleotide {
+    my ($base1,$base2) = @_;
+    my %iub = Bio::Tools::IUPAC->iupac_iub();
+    my @amb1 = @{ $iub{uc($base1)} };
+    my @amb2 = @{ $iub{uc($base2)} };    
+    my ($pmatch) = (0);
+    for my $amb ( @amb1 ) {
+	if( grep { $amb eq $_ } @amb2 ) {
+	    $pmatch = 1;
+	    last;
+	}
+    }
+    if( $pmatch ) { 
+	return (1 / scalar @amb1) * (1 / scalar @amb2);
+    } else { 
+	return 0;
+    }
+}
+
 
 sub _check_arg {
     my($self,$aln ) = @_;
@@ -1221,22 +1167,22 @@ sub _run_bootstrap {
 }
 
 sub _resample {
-	my $ref = shift;
-	my $codon_num = scalar (@{$ref->[0]});
-	my @altered;
-	for (0..$codon_num -1) { #for each codon
-		my $rand = int (rand ($codon_num));
-		for (0..$#$ref) {
-			push @{$altered[$_]}, $ref->[$_][$rand];
-			}
-		}
-	my @stringed = map {join '', @$_}@altered;
-	my @return;
-	#now out in random name to keep other subs happy
-	for (@stringed) {
-		push @return, {id=>'1', seq=> $_};
-		}
-	return \@return;
+    my $ref = shift;
+    my $codon_num = scalar (@{$ref->[0]});
+    my @altered;
+    for (0..$codon_num -1) {	#for each codon
+	my $rand = int (rand ($codon_num));
+	for (0..$#$ref) {
+	    push @{$altered[$_]}, $ref->[$_][$rand];
+	}
+    }
+    my @stringed = map {join '', @$_}@altered;
+    my @return;
+    #now out in random name to keep other subs happy
+    for (@stringed) {
+	push @return, {id=>'1', seq=> $_};
+    }
+    return \@return;
 }
 
 sub _get_av_ds_dn {
@@ -1318,151 +1264,149 @@ sub _get_av_ds_dn {
 
 
 sub jk {
-	my ($self, $p) = @_;
-	if ($p > 0.75) {
-		$self->warn( " Jukes Cantor won't  work -too divergent!");
-		return -1;
-		}
-	return -1 * (3/4) * (log(1 - (4/3) * $p));
+    my ($self, $p) = @_;
+    if ($p > 0.75) {
+	$self->warn( " Jukes Cantor won't  work -too divergent!");
+	return -1;
+    }
+    return -1 * (3/4) * (log(1 - (4/3) * $p));
 }
 
 #works for large value of n (50?100?)
 sub jk_var {
-	my ($p, $n) = @_;
-	return (9 * $p * (1 -$p))/(((3 - 4 *$p) **2) * $n);
+    my ($p, $n) = @_;
+    return (9 * $p * (1 -$p))/(((3 - 4 *$p) **2) * $n);
 }
 
 
+# compares 2 sequences to find the number of synonymous/non
+# synonymous mutations between them
+
 sub analyse_mutations {
-#compares 2 sequences to find the number of synonymous/non synonymous
-# mutations between them
-	my ($seq1, $seq2) = @_;
-my %mutator = (2=> {0=>[[1,2], #codon positions to be altered depend on which is the same
-						[2,1]],
-					1=>[[0,2],
-						[2,0]],
-					2=>[[0,1],
-					 	[1,0]],	},
-				3=> [		#all need to be altered 
-						[0,1,2],
-						[1,0,2],
-						[0,2,1],
-						[1,2,0],
-						[2,0,1],
-						[2,1,0] ],
-						);
-my $TOTAL = 0; #total synonymous changes
-my $TOTAL_n = 0	; #total non-synonymous changes
-my $gap_cnt = 0;
-				
-	my %input;
-	my $seqlen = length($seq1);
-for (my $j=0; $j< $seqlen; $j+=3) {
-	 $input{'cod1'} = substr($seq1, $j,3);
-	 $input{'cod2'} = substr($seq2, $j,3);
-	
+    my ($seq1, $seq2) = @_;
+    my %mutator = ( 2=> {0=>[[1,2],  # codon positions to be altered 
+			     [2,1]], # depend on which is the same
+			 1=>[[0,2],
+			     [2,0]],
+			 2=>[[0,1],
+			     [1,0]],	
+		     },
+		    3=> [ [0,1,2],  # all need to be altered 
+			  [1,0,2],
+			  [0,2,1],
+			  [1,2,0],
+			  [2,0,1],
+			  [2,1,0] ],
+		    );
+    my $TOTAL   = 0;    # total synonymous changes
+    my $TOTAL_n = 0;	# total non-synonymous changes
+    my $gap_cnt = 0;
+
+    my %input;
+    my $seqlen = length($seq1);
+    for (my $j=0; $j< $seqlen; $j+=3) {
+	$input{'cod1'} = substr($seq1, $j,3);
+	$input{'cod2'} = substr($seq2, $j,3);
+
 	#ignore codon if beeing compared with gaps! 
 	if ($input{'cod1'} =~ /\-/ || $input{'cod2'} =~ /\-/){
-		$gap_cnt += 3; #just increments once if there is a apair of gaps
-		next;
+	    $gap_cnt += 3; #just increments once if there is a apair of gaps
+	    next;
 	}
 
 	my ($diff_cnt, $same) = count_diffs(\%input);
-	
+
 	#ignore if codons are identical
 	next if $diff_cnt == 0 ;
 	if ($diff_cnt == 1) {
-		$TOTAL += $synchanges{$input{'cod1'}}{$input{'cod2'}};
-		 $TOTAL_n += 1 - $synchanges{$input{'cod1'}}{$input{'cod2'}};
-		 #print " \nfordiff is 1 , total now $TOTAL, total n now $TOTAL_n\n\n"
-		}
+	    $TOTAL += $synchanges{$input{'cod1'}}{$input{'cod2'}};
+	    $TOTAL_n += 1 - $synchanges{$input{'cod1'}}{$input{'cod2'}};
+	    #print " \nfordiff is 1 , total now $TOTAL, total n now $TOTAL_n\n\n"
+	}
 	elsif ($diff_cnt ==2) {
-		my $s_cnt = 0;
-		my $n_cnt = 0;
-		my $tot_muts = 4;
-		#will stay 4 unless there are stop codons at intervening point
-		OUTER:for my $perm (@{$mutator{'2'}{$same}}) {
-				my $altered = $input{'cod1'};
-				my $prev= $altered;
-		#		print "$prev -> (", $t[$CODONS->{$altered}], ")";
-				for 	my $mut_i (@$perm) {   #index of codon mutated
-					substr($altered, $mut_i,1) = substr($input{'cod2'}, $mut_i, 1);
-						if ($t[$CODONS->{$altered}] eq '*') {
-							$tot_muts -=2;
-							#print "changes to stop codon!!\n";
-							next OUTER;
-							}
-						else {
-							$s_cnt += $synchanges{$prev}{$altered};
-		#					print "$altered ->(", $t[$CODONS->{$altered}], ") ";
-								}
-					$prev = $altered;
-					}
-		#		print "\n";
-				}
-				if ($tot_muts != 0) {
-					$TOTAL += ($s_cnt/($tot_muts/2));
-					$TOTAL_n += ($tot_muts - $s_cnt)/ ($tot_muts / 2);
-				}
- 
-		}
+	    my $s_cnt = 0;
+	    my $n_cnt = 0;
+	    my $tot_muts = 4;
+	    #will stay 4 unless there are stop codons at intervening point
+	  OUTER:for my $perm (@{$mutator{'2'}{$same}}) {
+	      my $altered = $input{'cod1'};
+	      my $prev= $altered;
+	      #		print "$prev -> (", $t[$CODONS->{$altered}], ")";
+	      for 	my $mut_i (@$perm) { #index of codon mutated
+		  substr($altered, $mut_i,1) = substr($input{'cod2'}, $mut_i, 1);
+		  if ($t[$CODONS->{$altered}] eq '*') {
+		      $tot_muts -=2;
+		      #print "changes to stop codon!!\n";
+		      next OUTER;
+		  }
+		  else {
+		      $s_cnt += $synchanges{$prev}{$altered};
+		      #					print "$altered ->(", $t[$CODONS->{$altered}], ") ";
+		  }
+		  $prev = $altered;
+	      }
+	      #		print "\n";
+	  }
+	    if ($tot_muts != 0) {
+		$TOTAL += ($s_cnt/($tot_muts/2));
+		$TOTAL_n += ($tot_muts - $s_cnt)/ ($tot_muts / 2);
+	    }
+
+	}
 	elsif ($diff_cnt ==3 ) {
-		my $s_cnt = 0;
-		my $n_cnt = 0;
-		my $tot_muts = 18; #potential number  of mutations
-		OUTER: for my $perm (@{$mutator{'3'}}) {
-		my $altered = $input{'cod1'};
-			my $prev= $altered;
-		#	print "$prev -> (", $t[$CODONS->{$altered}], ")";
-			for my $mut_i (@$perm) {   #index of codon mutated
-				substr($altered, $mut_i,1) = substr($input{'cod2'}, $mut_i, 1);
-				if ($t[$CODONS->{$altered}] eq '*') {
-						$tot_muts -=3;
-					#	print "changes to stop codon!!\n";
-						next OUTER;
-						
-						}
-				else {
-					$s_cnt += $synchanges{$prev}{$altered};
-		#			print "$altered ->(", $t[$CODONS->{$altered}], ") ";
-					}
-				$prev = $altered;
-			}
-		#	print "\n";
-			 
-		}#end OUTER loop
-		#calculate number of synonymous/non synonymous mutations for that codon
-		# and add to total
-		if ($tot_muts != 0) {
-			$TOTAL += ($s_cnt / ($tot_muts /3));
-			$TOTAL_n += 3 - ($s_cnt / ($tot_muts /3));
-			}
-	}#endif $diffcnt = 3
-}#end of sequencetraversal
-#print " there are $TOTAL syn mutations and $TOTAL_n non -syn  mutations\n";
-return ($TOTAL, $TOTAL_n, $gap_cnt);
+	    my $s_cnt = 0;
+	    my $n_cnt = 0;
+	    my $tot_muts = 18;	#potential number  of mutations
+	  OUTER: for my $perm (@{$mutator{'3'}}) {
+	      my $altered = $input{'cod1'};
+	      my $prev= $altered;
+	      #	print "$prev -> (", $t[$CODONS->{$altered}], ")";
+	      for my $mut_i (@$perm) { #index of codon mutated
+		  substr($altered, $mut_i,1) = substr($input{'cod2'}, $mut_i, 1);
+		  if ($t[$CODONS->{$altered}] eq '*') {
+		      $tot_muts -=3;
+		      #	print "changes to stop codon!!\n";
+		      next OUTER;
+
+		  }
+		  else {
+		      $s_cnt += $synchanges{$prev}{$altered};
+		      #			print "$altered ->(", $t[$CODONS->{$altered}], ") ";
+		  }
+		  $prev = $altered;
+	      }
+	      #	print "\n";
+
+	  }#end OUTER loop
+	      #calculate number of synonymous/non synonymous mutations for that codon
+	      # and add to total
+	      if ($tot_muts != 0) {
+		  $TOTAL += ($s_cnt / ($tot_muts /3));
+		  $TOTAL_n += 3 - ($s_cnt / ($tot_muts /3));
+	      }
+	}			#endif $diffcnt = 3
+    }				#end of sequencetraversal
+    return ($TOTAL, $TOTAL_n, $gap_cnt);
 }
 
 
 sub count_diffs {
-	#counts the number of nucleotide differences between 2 codons
-	# returns this value plus the codon index of which nucleotide is the same when 2
-	#nucleotides are different. This is so analyse_mutations() knows which nucleotides
-	# to change.
-	my $ref = shift;
-	my $cnt = 0;
-	my $same= undef;
- #just for 2 differences
-	for (0..2) {
-		if (substr($ref->{'cod1'}, $_,1) ne substr($ref->{'cod2'}, $_, 1)){
-			$cnt++;
-			}
-		else {
-			$same = $_;
-			}
-		
+    #counts the number of nucleotide differences between 2 codons
+    # returns this value plus the codon index of which nucleotide is the same when 2
+    #nucleotides are different. This is so analyse_mutations() knows which nucleotides
+    # to change.
+    my $ref = shift;
+    my $cnt = 0;
+    my $same= undef;
+    #just for 2 differences
+    for (0..2) {
+	if (substr($ref->{'cod1'}, $_,1) ne substr($ref->{'cod2'}, $_, 1)){
+	    $cnt++;
+	} else {
+	    $same = $_;
 	}
-	return ($cnt, $same);
+    }
+    return ($cnt, $same);
 }
 
 =head2 get_syn_changes
@@ -1578,18 +1522,17 @@ sub get_syn_sites {
 }
 
 sub _make_codons {
-
 #makes all codon combinations, returns array of them
-my @nucs = qw(T C A G);
-my @codons;
+    my @nucs = qw(T C A G);
+    my @codons;
     for my $i (@nucs) {
         for my $j (@nucs) {
             for my $k (@nucs) {
             	push @codons, "$i$j$k";
-            	}
-           }
-}
-return @codons;
+	    }
+	}
+    }    
+    return @codons;
 }
 
 sub get_codons {
@@ -1597,30 +1540,32 @@ sub get_codons {
  my $x = 0;
  my  $CODONS = {};
  for my $codon (_make_codons) {
-    $CODONS->{$codon} = $x;
-    $x++;
-     } 
-  return $CODONS;
+     $CODONS->{$codon} = $x;
+     $x++;
+ } 
+ return $CODONS;
 }
+
 #########stats subs, can go in another module? Here for speed. ###
 sub mean {
-	my $ref = shift;
-	my $el_num = scalar @$ref;
-	my $tot = 0;
-	map{$tot += $_}@$ref;
-	return ($tot/$el_num);
+    my $ref = shift;
+    my $el_num = scalar @$ref;
+    my $tot = 0;
+    map{$tot += $_}@$ref;
+    return ($tot/$el_num);
 }
 
 sub variance {
-	my $ref = shift;
-	my $mean = mean($ref);
-	my $sum_of_squares = 0;
-	map{$sum_of_squares += ($_ - $mean) **2}@$ref;
-	return $sum_of_squares;
-	}
-
-sub sampling_variance{
-	my $ref = shift;
-	return variance($ref) / (scalar @$ref -1);
+    my $ref = shift;
+    my $mean = mean($ref);
+    my $sum_of_squares = 0;
+    map{$sum_of_squares += ($_ - $mean) **2}@$ref;
+    return $sum_of_squares;
 }
+
+sub sampling_variance {
+    my $ref = shift;
+    return variance($ref) / (scalar @$ref -1);
+}
+
 1;
