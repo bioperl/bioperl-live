@@ -182,12 +182,12 @@ sub _initialize {
 			@args);
 
   my $make = $self->SUPER::_initialize(@args);
-  $self->seq($seq);
-  $self->display_id($id);
-  $self->accession_number($acc);
-  $self->primary_id($pid);
-  $self->desc($desc);
-  $self->moltype($moltype);
+  $seq && $self->seq($seq);
+  $id  && $self->display_id($id);
+  $acc && $self->accession_number($acc);
+  $pid && $self->primary_id($pid);
+  $desc && $self->desc($desc);
+  $moltype && $self->moltype($moltype);
 
 # set stuff in self from @args
   return $make; # success - we hope!
@@ -207,12 +207,16 @@ sub _initialize {
 
 sub seq{
    my ($obj,$value) = @_;
+   print STDERR "Got value $value\n";
    if( defined $value) {
        if( $value !~ /^[A-Za-z\-\.]+$/ ) {
 	   $obj->throw("Attempting to set the sequence to [$value] which does not look healthy");
        }
        $obj->{'seq'} = $value;
     }
+   my $v = $obj->{'seq'};
+   print STDERR "Going to return $v\n";
+
     return $obj->{'seq'};
 
 }
