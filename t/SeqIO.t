@@ -16,7 +16,7 @@ use Bio::Seq;
 use Bio::SeqIO;
 use Bio::SeqIO::MultiFile;
 use Bio::Root::IO;
-use Bio::Annotation;
+use Bio::Annotation::Collection;
 
 ok(1);
 
