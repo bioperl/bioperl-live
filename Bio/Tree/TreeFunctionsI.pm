@@ -538,6 +538,19 @@ sub delete_edge {
     1;
 }
 
+=head2 findnode_by_id
+
+ Title   : findnode_by_id
+ Usage   : my $node = $tree->find_node_by_id($id);
+ Function: Get a node by its internal id (which should be 
+           unique for the tree)
+ Returns : L<Bio::Tree::NodeI>
+ Args    : node id
+
+
+=cut
+
+
 sub findnode_by_id {
     my $tree = shift;
     my $id = shift;
