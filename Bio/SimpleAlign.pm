@@ -743,7 +743,7 @@ sub slice {
              Creates an aligment with columns removed corresponding to
              the specified criteria.
  Returns   : a L<Bio::SimpleAlign> object
- Args      : array ref of types, 'match'|'weak'|'strong'|'mismatch'
+ Args      : array ref of types, 'match'|'weak'|'strong'|'mismatch'|'gaps'
 
 =cut
 
@@ -770,16 +770,16 @@ sub remove_columns{
 
    #do the matching to get the segments to remove
   if($del_char){
-   while($match_line=~m/[$del_char]/g){
-    my $start = pos($match_line)-1;
-    $match_line=~/\G[$del_char]+/gc;
-    my $end = pos($match_line)-1;
-
-    #have to offset the start and end for subsequent removes
-    $start-=$length;
-    $end  -=$length;
-    $length += ($end-$start+1);
-    push @remove, [$start,$end];
+   while($match_line =~ m/[$del_char]/g ){
+       my $start = pos($match_line)-1;
+       $match_line=~/\G[$del_char]+/gc;
+       my $end = pos($match_line)-1;
+       
+       #have to offset the start and end for subsequent removes
+       $start-=$length;
+       $end  -=$length;
+       $length += ($end-$start+1);
+       push @remove, [$start,$end];
    }
 }
 
@@ -794,7 +794,7 @@ sub remove_columns{
 
 =head2 remove_gaps
 
- Title     : remove_column
+ Title     : remove_gaps
  Usage     : $aln2 = $aln->remove_gaps('-')
  Function  :
              Creates an aligment with gaps removed 
@@ -812,24 +812,24 @@ sub remove_gaps {
    my @remove;
    my $length = 0;
    my $del_char = $gapchar || $self->gap_char;
-   #do the matching to get the segments to remove
-   while($gap_line=~m/[$del_char]/g){
-    my $start = pos($gap_line)-1;
-    $gap_line=~/\G[$del_char]+/gc;
-    my $end = pos($gap_line)-1;
-
-    #have to offset the start and end for subsequent removes  
-    $start-=$length;
-    $end  -=$length;                                          
-    $length += ($end-$start+1);                               
-    push @remove, [$start,$end];                              
+   # Do the matching to get the segments to remove
+   while($gap_line =~ m/[$del_char]/g){
+       my $start = pos($gap_line)-1;
+       $gap_line=~/\G[$del_char]+/gc;
+       my $end = pos($gap_line)-1;
+       
+       #have to offset the start and end for subsequent removes  
+       $start-=$length;
+       $end  -=$length;                                          
+       $length += ($end-$start+1);                               
+       push @remove, [$start,$end];                              
    }
 
   #remove the segments                                        
   $aln = $#remove >= 0 ? $self->_remove_col($aln,\@remove) : $self;
-
   return $aln;                                                
 }
+
 
 sub _remove_col {
 
