@@ -14,7 +14,6 @@ BEGIN {
     plan tests => 6;
     eval { require 'IO/String.pm' };
     if( $@ ) {
-	print STDERR "IO::String not installed. This means the Bio::DB::* modules are not usable. Skipping tests.\n";
 	for( 1..$NUMTESTS ) {
 	    skip("IO::String not installed. This means the Bio::DB::* modules are not usable. Skipping tests",1);
 	}
@@ -52,7 +51,7 @@ ok( -e $inputfilename);
 if( $actually_submit == 0 ) {
     print STDERR "Skipping submitting remote BLAST to avoid Time-out\n";
     foreach( $Test::ntest..$NUMTESTS) { 
-       skip('Skip to avoid timeout',1);
+       skip('Skipping to avoid timeout',1);
     }
 } else {
 

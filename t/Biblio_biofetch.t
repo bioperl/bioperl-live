@@ -26,9 +26,8 @@ BEGIN {
     plan tests => $NUMTESTS;
     eval { require 'IO/String.pm' };
     if( $@ ) {
-	print STDERR "IO::String not installed. This means the Bio::DB::* modules are not usable. Skipping tests.\n";
-	for( 1..$NUMTESTS ) {
-	    skip(1,"IO::String not installed. This means the Bio::DB::* modules are not usable. Skipping tests");
+	for( $Test::ntest..$NUMTESTS ) {
+	    skip("IO::String not installed. This means the Bio::DB::* modules are not usable. Skipping tests",1);
 	}
        $error = 1; 
     }
@@ -71,7 +70,7 @@ if ($@) {
 	print STDERR $@ if( $DEBUG );
 
     foreach ( $Test::ntest..$NUMTESTS) { 
-	skip(1,'could not connect to Medline');}
+	skip('could not connect to Medline',1);}
 }
 
 $ref = $refio = undef;

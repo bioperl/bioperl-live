@@ -29,6 +29,7 @@ sub user_prompt ($;$);
 sub fail ($);
 use lib './blib/lib';
 use Bio::DB::GFF;
+use Bio::SeqIO;
 
 my $adaptor = -e 't/do_biodbgff.tests' ? 'dbi::mysqlopt' : 'memory';
 my @args;
