@@ -161,7 +161,7 @@ sub _load_registry {
 		my ($tag,$value) = split('=',$_);
 		$value =~ s/\s//g;
 		$tag =~ s/\s//g;
-		$hash->{$tag} = $value;
+		$hash->{"\L$tag"} = lc $value;
 	    }
 
 	    if( !exists $self->{'_dbs'}->{$db} ) {
@@ -210,6 +210,7 @@ sub _load_registry {
 sub get_database {
     my ($self,$dbname) = @_;
 
+    $dbname = lc $dbname;
     if( !defined $dbname ) {
 	$self->warn("must get_database with a database name");
 	return undef;
