@@ -90,12 +90,15 @@ package Bio::LiveSeq::IO::BioPerl;
 
 use strict;
 use Carp qw(cluck croak carp);
-use vars qw(@ISA);
+use vars qw(@ISA $DBEMBLLOADED);
 use Bio::SeqIO; # for -file entry loading
 
 # Note, the following requires HTTP::Request. If the modules are not installed
 # uncomment the following and use only -filename and don't request swissprotinfo
-use Bio::DB::EMBL; # for -id entry loading
+eval { 
+    require Bio::DB::EMBL; # for -id entry loading
+    $DBEMBLLOADED = 1;
+};
 
 use Bio::LiveSeq::IO::Loader;
 
@@ -165,8 +168,15 @@ sub load {
       my $stream = Bio::SeqIO->new('-file' => $filename, '-format' => 'EMBL');
       $seqobj = $stream->next_seq();
     } else { # i.e. if -id
-      my $embl = new Bio::DB::EMBL;
-      $seqobj = $embl->get_Seq_by_id($id); # EMBL ID or ACC
+	
+	if( $DBEMBLLOADED ) {
+	    my $embl = new Bio::DB::EMBL;
+	    $seqobj = $embl->get_Seq_by_id($id); # EMBL ID or ACC
+	} else { 
+	    my $root = new Bio::Root::Root();
+	    $root->warn("Must have HTTP::Request::Common installed, cannot run load without the -filename option specified, see docs for Bio::LiveSeq::IO::BioPerl");
+	    return undef;
+	}
     }
 
     $hashref=&embl2hash($seqobj,\@embl_valid_feature_names,\@embl_valid_qual_names);
