@@ -8,7 +8,7 @@
 my $error = 0;
 
 use strict;
-BEGIN {     
+BEGIN {
     # to handle systems with no installed Test module
     # we include the t dir (where a copy of Test.pm is located)
     # as a fallback
@@ -25,6 +25,8 @@ if( $error == 1 ) {
     exit(0);
 }
 
+my $debug = -1;
+
 use Bio::Align::DNAStatistics;
 use Bio::AlignIO;
 use Bio::Root::IO;
@@ -40,7 +42,7 @@ my $in = new Bio::AlignIO(-format => 'emboss',
 							    'insulin.water'));
 my $aln = $in->next_aln();
 ok($aln);
-my $stats = new Bio::Align::DNAStatistics();
+my $stats = new Bio::Align::DNAStatistics(-verbose => $debug);
 ok( $stats->transversions($aln),4);
 ok( $stats->transitions($aln),9);
 ok( $stats->pairwise_stats->number_of_gaps($aln),21);
