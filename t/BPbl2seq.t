@@ -18,8 +18,7 @@ BEGIN {
 use Bio::Tools::BPbl2seq;
 ok(1);
 
-open FH, "t/bl2seq.out";
-my $report = new Bio::Tools::BPbl2seq(\*FH);
+my $report = new Bio::Tools::BPbl2seq(-file => 't/bl2seq.out');
 $report->verbose(2);
 ok $report->isa('Bio::Tools::BPbl2seq');# " no report";
 ok defined($report->query),1, " no query";
@@ -40,4 +39,3 @@ ok $report->query->end, 343, "wrong query end";
 ok $report->subject->start, 60, "wrong hit start ";
 ok $report->subject->end, 360, "wrong hit end";
 ok $report->subject->seqname =~ /ALEU_HORVU/;# "wrong hit name";
-close FH;

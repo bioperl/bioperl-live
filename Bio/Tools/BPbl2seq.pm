@@ -20,8 +20,7 @@ psiblast reports
 =head1 SYNOPSIS
 
 use Bio::Tools::BPbl2seq;
-open FH, "t/bl2seq.out";
-my $report = Bio::Tools::BPbl2seq->new(\*FH);
+my $report = Bio::Tools::BPbl2seq->new(-file => 't/bl2seq.out');
  $report->query;
  $report->score;
  $report->bits;
@@ -117,18 +116,33 @@ use Bio::SeqFeature::Similarity;
 
 @ISA = qw(Bio::SeqFeature::SimilarityPair);
 
+=head2 new
+
+ Title   : new
+ Function: Create a new Bio::Tools::BPbl2seq object
+ Returns : Bio::Tools::BPbl2seq
+ Args    : -file     input file (alternative to -fh)
+           -fh       input stream (alternative to -file)
+           -query    name of query sequence
+=cut
 
 sub new {
-    my ($class, $fh,$query,@args) = @_;
+    my ($class, @args) = @_;
     my $self = $class->SUPER::new(@args);
+    my ($file, $fh, $query) = $self->_rearrange([qw(FILE FH QUERY)], @args);
     $query = 'unknown' if( ! defined $query );
-    
-    if (!defined $fh || ref($fh) !~ /GLOB/) {
-	$self->throw("Expecting a GLOB reference, not $fh!");
-    } else { 
-	$self->_filehandle($fh);
-    }
 
+    if( defined $file && defined $fh ) {
+	$self->throw("Cannot define both a file and fh for input");
+    }
+    if( defined $file ) {
+	$fh = Symbol::gensym();
+	open ($fh,$file) || $self->throw("Could not open file [$file] $!");
+    } elsif( defined $fh ) {
+	if (ref $fh !~ /GLOB/)
+	{ $self->throw("Expecting a GLOB reference, not $fh!"); }
+    }
+    $self->fh($fh);
     my ($score,$bits,$match,$positive,$p,$qb,$qe,$sb,$se,$qs,
 	$ss,$hs,$qname,$sname,$qlength,$slength) = $self->_parsebl2seq($query);
     unless ( $positive ) {
@@ -320,7 +334,7 @@ sub _parsebl2seq {
   ############################
   # get seq2 (the "hit") name & lrngth  
   ############################
-  my $FH = $self->_filehandle;
+  my $FH = $self->fh;
   while(<$FH>) {
     if    ($_ !~ /\w/)            {next}
     elsif ($_ =~ /^\s*Length/) {$def .= $_; last}
@@ -427,17 +441,17 @@ sub _parsebl2seq {
   return @returnarray;
 }
 
-=head2 _filehandle
+=head2 fh
 
- Title    : _filehandle
+ Title    : fh
  Usage    : do not use
  Function : Get/Set method for filehandle
- Example  : my $fh = $self->_filehandle();
+ Example  : my $fh = $self->fh
  Returns  : filehandle reference
  Args     : filehandle reference [optional]
 
 =cut
-sub _filehandle {
+sub fh {
     my ($self, $value) = @_;    
     if( defined $value && ref($value) =~ /GLOB/i ) {
 	$self->{'FH'} = $value;

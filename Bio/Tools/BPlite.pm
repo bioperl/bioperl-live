@@ -168,20 +168,39 @@ use vars qw(@ISA);
 
 use Bio::Root::RootI;
 use Bio::Tools::BPlite::Sbjct; # we want to use Sbjct
+use Bio::SeqAnalysisParserI;
+use Symbol;
 
-@ISA = qw(Bio::Root::RootI);
+@ISA = qw(Bio::Root::RootI Bio::SeqAnalysisParserI);
 
 # new comes from a RootI now
+
+=head2 new
+
+ Title   : new
+ Function: Create a new Bio::Tools::BPlite object
+ Returns : Bio::Tools::BPlite
+ Args    : -file     input file (alternative to -fh)
+           -fh       input stream (alternative to -file)
+
+=cut
 
 sub new {
   my ($class, @args) = @_; 
   my $self = $class->SUPER::new(@args);
 
-  my ($fh) = $self->_rearrange([qw(FH)],@args);
+  my ($file, $fh) = $self->_rearrange([qw(FILE FH)],@args);
 
-  if (ref $fh !~ /GLOB/)
-    { $self->throw("Expecting a GLOB reference, not $fh!"); }
-
+  if( defined $file && defined $fh ) {
+      $self->throw("Cannot define both a file and fh for input");
+  }
+  if( defined $file ) {
+      $fh = Symbol::gensym();
+      open ($fh,$file) || $self->throw("Could not open file [$file] $!");
+  } elsif( defined $fh ) {
+      if (ref $fh !~ /GLOB/)
+      { $self->throw("Expecting a GLOB reference, not $fh!"); }
+  }
   $self->fh($fh);
   $self->{'LASTLINE'} = "";
   $self->{'QPATLOCATION'} = [];  # Anonymous array of query pattern locations for PHIBLAST
@@ -190,6 +209,37 @@ sub new {
   else                     {$self->{'REPORT_DONE'} = 1} # empty report
   
   return $self; # success - we hope!
+}
+
+# for SeqAnalysisParserI compliance
+
+=head2 next_feature
+
+ Title   : next_feature
+ Usage   : while( my $feat = $res->next_feature ) { # do something }
+ Function: SeqAnalysisParserI implementing function
+ Example :
+ Returns : A Bio::SeqFeatureI compliant object, in this case, 
+           each DomainUnit object, ie, flattening the Sequence
+           aspect of this.
+ Args    : None
+
+=cut
+
+sub next_feature{
+   my ($self) = @_;
+   my ($sbjct, $hsp);
+   $sbjct = $self->{'_current_sbjct'};
+   unless( defined $sbjct ) {
+       $sbjct = $self->{'_current_sbjct'} = $self->nextSbjct;
+       return undef unless defined $sbjct;
+   }   
+   $hsp = $sbjct->nextHSP;
+   unless( defined $hsp ) {
+       $self->{'_current_sbjct'} = undef;
+       return $self->next_feature;
+   }
+   return $hsp || undef;
 }
 
 =head2 query
@@ -266,7 +316,7 @@ sub database {shift->{'DATABASE'}}
 
 sub nextSbjct {
   my ($self) = @_;
-  $self->_fastForward or return 0;
+  $self->_fastForward or return undef;
   
   #######################
   # get all sbjct lines #
@@ -283,7 +333,7 @@ sub nextSbjct {
   $def =~ s/\s+$//g;
   $def =~ s/Length = ([\d,]+)$//g;
   my $length = $1;
-  return 0 unless $def =~ /^>/;
+  return undef unless $def =~ /^>/;
   $def =~ s/^>//;
 
   ####################

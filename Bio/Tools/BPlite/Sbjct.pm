@@ -14,7 +14,6 @@ use strict;
 
 use Bio::Root::RootI;        # root object to inherit from
 use Bio::Tools::BPlite::HSP; # we want to use HSP
-
 #use overload '""' => 'name';
 use vars qw(@ISA);
 
@@ -77,11 +76,12 @@ sub nextFeaturePair {shift->nextHSP}; # just another name
 
 sub nextHSP {
   my ($self) = @_;
-  return 0 if $self->{'HSP_ALL_PARSED'};
+  return undef if $self->{'HSP_ALL_PARSED'};
   
   ############################
   # get and parse scorelines #
   ############################
+
   my $scoreline = $self->{'LASTLINE'};
   my $FH = $self->{'FH'};
   my $nextline = <$FH>;

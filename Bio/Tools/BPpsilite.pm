@@ -150,10 +150,18 @@ sub new {
   my ($class, @args) = @_; 
   my $self = $class->SUPER::new(@args);
 
-  my ($fh) = $self->_rearrange([qw(FH)],@args);
+  my ($fh, $file) = $self->_rearrange([qw(FH FILE)],@args);
 
-  if (!defined $fh || ref $fh !~ /GLOB/)
-    { $self->throw("Expecting a GLOB reference, not $fh!"); }
+  if( defined $file && defined $fh ) {
+      $self->throw("Cannot define both a file and fh for input");
+  }
+  if( defined $file ) {
+      $fh = Symbol::gensym();
+      open ($fh,$file) || $self->throw("Could not open file [$file] $!");
+  } elsif( defined $fh ) {
+      if (ref $fh !~ /GLOB/)
+      { $self->throw("Expecting a GLOB reference, not $fh!"); }
+  }
 
   $self->fh($fh);
   $self->{'LASTLINE'} = "";

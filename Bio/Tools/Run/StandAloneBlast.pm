@@ -582,13 +582,11 @@ sub _runblast {
 # parsers can be selected.
 
     if ($executable eq 'bl2seq')  {
-	open(FH, $outfile) ;
-	$blast_obj = Bio::Tools::BPbl2seq->new(\*FH);
+	$blast_obj = Bio::Tools::BPbl2seq->new(-file => $outfile);
     }
     elsif ($executable eq 'blastpgp' && defined $self->j() && 
 	   $self->j() > 1)  {
-	open(FH, $outfile);
-	$blast_obj = Bio::Tools::BPpsilite->new(-fh=>\*FH);
+	$blast_obj = Bio::Tools::BPpsilite->new(-file => $outfile);
     }
     elsif ($self->_READMETHOD eq 'Blast')  {
 	$blast_obj = Bio::Tools::Blast->new(-file=>$outfile,
@@ -598,8 +596,7 @@ sub _runblast {
 					    -check_all_hits => 1,   )  ;
     }
     elsif ($self->_READMETHOD eq 'BPlite')  {
-	open(FH, $outfile);
-	$blast_obj = Bio::Tools::BPlite->new(-fh=>\*FH);
+	$blast_obj = Bio::Tools::BPlite->new(-file=>$outfile);
     }
 
     return $blast_obj;

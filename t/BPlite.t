@@ -15,7 +15,7 @@ BEGIN {
 	use lib 't';
     }
     use Test;
-    plan tests => 28;
+    plan tests => 38;
 }
 
 use Bio::Tools::BPlite;
@@ -64,8 +64,7 @@ close FH;
 
 # Verify that BPlite is properly parsing PHIBLAST reports as well
 
-open FH, "t/phi.out";
-my $report2 = Bio::Tools::BPlite->new(-fh=>\*FH);
+my $report2 = Bio::Tools::BPlite->new(-file=>'t/phi.out');
 
 ok $report2->pattern, "P-E-E-Q";
 ok $report2->query_pattern_location->[0], 23;
@@ -78,6 +77,13 @@ ok $hsp2->subject->end, 343;
 close FH;
 
 
+# test SeqAnalysisParserI
 
+# tests 29-38 are just counting to see that we get the expected number 
+# of features
+my $parser = new Bio::Tools::BPlite(-file => "t/blast.report");
+while( $parser->next_feature ) {
+    ok(1);
+}
 
 
