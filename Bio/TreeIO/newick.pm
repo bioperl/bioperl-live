@@ -249,7 +249,7 @@ sub _write_tree_Helper {
     foreach my $n ( $node->each_Descendent() ) {
 	push @data, _write_tree_Helper($n);
     }
-
+    
     if( @data > 1 ) {
 	$data[0] = "(" . $data[0];
 	$data[-1] .= ")";
@@ -260,8 +260,13 @@ sub _write_tree_Helper {
 	} elsif( defined ($b = $node->id) ) {
 	    $data[-1] .= $b;
 	}
-	$data[-1] .= ":". $node->branch_length if( defined $node->branch_length);
-	
+	my $bl = $node->branch_length;
+	if( ! defined $bl ) {
+	} elsif($bl =~ /\#/ ) { 
+	 $data[-1] .= $bl;
+	} else { 
+	 $data[-1] .= ":$bl";
+	}	
     } else {
 	if( defined $node->id || defined $node->branch_length ) { 
 	    push @data, sprintf("%s%s",
