@@ -91,7 +91,7 @@ sub new {
   my($class,@args) = @_;
 
   my $self = $class->SUPER::new(@args);
-  my ($treetype, $nodetype) = $self->_rearrange([qw(TREETYPE
+  my ($treetype, $nodetype) = $self->_rearrange([qw(TREETYPE 
 						    NODETYPE)], @args);
   $treetype ||= 'Bio::Tree::Tree';
   $nodetype ||= 'Bio::Tree::Node';
@@ -107,7 +107,6 @@ sub new {
   $self->treetype($treetype);
   $self->nodetype($nodetype);
   $self->{'_treelevel'} = 0;
-
   return $self;
 }
 
@@ -184,8 +183,7 @@ sub start_document {
 
 sub end_document {
     my ($self) = @_; 
-    my $vb = $self->verbose;
-    my $root = $self->nodetype->new(-verbose => $vb);
+    my $root = $self->nodetype->new(-verbose => $self->verbose);
     # aggregate the nodes into trees basically ad-hoc.
     while ( @{$self->{'_currentnodes'}} ) {	
 	my ($node) = ( shift @{$self->{'_currentnodes'}});
@@ -198,8 +196,8 @@ sub end_document {
 	    $self->debug("node is ". $node->to_string(). "\n");
 	}
     }
-    my $tree = $self->treetype->new(-root    => $root,
-				    -verbose => $vb);
+    my $tree = $self->treetype->new(-verbose => $self->verbose,
+				    -root => $root);
     return $tree;       
 }
 
@@ -218,10 +216,9 @@ sub start_element{
    my ($self,$data) =@_;
    $self->{'_lastitem'}->{$data->{'Name'}}++;   
 
-   $self->debug("starting element: $data->{Name}\n");
-
+   $self->debug("starting element: $data->{Name}\n");   
    push @{$self->{'_lastitem'}->{'current'}},$data->{'Name'};
-
+   
    my %data;
    
    if( $data->{'Name'} eq 'node' ) {
@@ -245,29 +242,41 @@ sub end_element{
    my ($self,$data) = @_;   
 
    $self->debug("end of element: $data->{Name}\n");
+   # this is the stack where we push/pop items from it
+   my $curcount = scalar @{$self->{'_currentnodes'}};
+   my $level   = $self->{'_treelevel'};
+   my $levelct = $self->{'_nodect'}->[$self->{'_treelevel'}+1] || 0;
 
    if( $data->{'Name'} eq 'node' ) {
        my $tnode;
        my $node = pop @{$self->{'_currentitems'}};	   
 
-       $tnode = $self->nodetype->new(-verbose => $self->verbose,
-				     %{$node});
-       unless ( $node->{'-leaf'} ) { 
-	   for ( splice( @{$self->{'_currentnodes'}}, 
- 			 - $self->{'_nodect'}->[$self->{'_treelevel'}+1])) {
-	       
+       $tnode = $self->nodetype->new( -verbose => $self->verbose,
+				      %{$node});       
+       $self->debug( "new node will be ".$tnode->to_string."\n");
+       if ( !$node->{'-leaf'} && $levelct > 0) {
+	   $self->debug(join(',', map { $_->to_string } 
+			     @{$self->{'_currentnodes'}}). "\n");
+	   $self->throw("something wrong with event construction treelevel ".
+			"$level is recorded as having $levelct nodes  ".
+			"but current nodes at this level is $curcount\n")
+	       if( $levelct > $curcount);	
+	   for ( splice( @{$self->{'_currentnodes'}}, - $levelct)) {
 	       $self->debug("adding desc: " . $_->to_string . "\n");
 	       $tnode->add_Descendent($_);
 	   }
-	   $self->{_nodect}->[$self->{_treelevel}+1] = 0;
+	   $self->{'_nodect'}->[$self->{'_treelevel'}+1] = 0;
        }
        push @{$self->{'_currentnodes'}}, $tnode;
-       $self->{_nodect}->[$self->{'_treelevel'}]++;
-       $self->debug ("added node: nodes in stack is ". scalar @{$self->{'_currentnodes'}} . ", treelevel: $self->{_treelevel}, nodect: $self->{_nodect}->[$self->{_treelevel}]\n");
+       $self->{'_nodect'}->[$self->{'_treelevel'}]++;
+       
+       $self->debug ("added node: nodes in stack is $curcount, treelevel: $level, nodect: $levelct\n");
+       
    } elsif(  $data->{'Name'} eq 'tree' ) { 
-       $self->debug("end of tree: nodes in stack is ". scalar @{$self->{'_currentnodes'}}. "\n");
+       $self->debug("end of tree: nodes in stack is $curcount\n");
        $self->{'_treelevel'}--;
    }
+
    $self->{'_lastitem'}->{ $data->{'Name'} }--; 
    
    pop @{$self->{'_lastitem'}->{'current'}};
