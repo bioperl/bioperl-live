@@ -268,7 +268,7 @@ sub subseq {
   unless (defined ($pos1)) {
     $pos1=1;
   } elsif ($pos1 < 1) { # if position out of boundaries
-    carp "Starting position for AARange cannot be < 1!"; return (-1);
+    $self->warn("Starting position for AARange cannot be < 1!"); return (-1);
     if ((defined ($pos2))&&($pos1>$pos2)) {
       $self->warn("1st position($pos1) cannot be > 2nd position($pos2)!"); return (-1);
     }
