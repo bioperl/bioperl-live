@@ -1,3 +1,4 @@
+# $Id$
 #
 # BioPerl module for Bio::RangeI
 #
@@ -62,8 +63,8 @@ Email mrp@sanger.ac.uk
 
 =head1 APPENDIX
 
-The rest of the documentation details each of the object methods. Internal metho
-ds are usually preceded with a _
+The rest of the documentation details each of the object
+methods. Internal metho ds are usually preceded with a _
 
 =cut
 

@@ -156,7 +156,7 @@ sub _initialize {
            : 
            :
  Function  : Adds another sequence to the alignment
-           : *doesn't* align it - just adds it to the
+           : *does not* align it - just adds it to the
            : hashes
            :
  Returns   : nothing

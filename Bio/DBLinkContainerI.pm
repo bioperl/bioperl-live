@@ -1,4 +1,3 @@
-
 # $Id$
 #
 # BioPerl module for Bio::DBLinkContainerI
@@ -30,10 +29,10 @@ Bio::DBLinkContainerI - Abstract interface for any object wanting to use
 
 =head1 DESCRIPTION
 
-This interface defines the functions one can expect for any object wanting
-to use database cross-references. This class doesn't actually provide
-any implemention, it just provides the definitions of what methods one
-can call.
+This interface defines the functions one can expect for any object
+wanting to use database cross-references. This class does not actually
+provide any implemention, it just provides the definitions of what
+methods one can call.
 
 The database cross-references are implemented as L<Bio::Annotation::DBLink>
 objects.
@@ -52,9 +51,9 @@ of the Bioperl mailing lists.  Your participation is much appreciated.
 
 =head2 Reporting Bugs
 
-report bugs to the Bioperl bug tracking system to help us keep track
- the bugs and their resolution.  Bug reports can be submitted via
- email or the web:
+Report bugs to the Bioperl bug tracking system to help us keep track
+the bugs and their resolution.  Bug reports can be submitted via email
+or the web:
 
   bioperl-bugs@bio.perl.org
   http://bio.perl.org/bioperl-bugs/
@@ -75,9 +74,7 @@ methods. Internal methods are usually preceded with a _
 
 =cut
 
-
 # Let the code begin...
-
 
 package Bio::DBLinkContainerI;
 use vars qw(@ISA);

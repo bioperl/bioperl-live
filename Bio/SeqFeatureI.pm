@@ -1,4 +1,4 @@
-
+# $Id$
 #
 # BioPerl module for Bio::SeqFeatureI
 #
@@ -85,10 +85,10 @@ use Carp;
 
 @ISA = qw(Bio::RangeI);
 
-# utility method
-#
-# Prints out a method like:
-# Abstract method stop defined in interface Bio::SeqFeatureI not implemented by package You::BadFeature
+# utility method Prints out a method like: 
+# Abstract method stop defined in interface Bio::SeqFeatureI not
+# implemented by package You::BadFeature
+
 sub _abstractDeath {
   my $self = shift;
   my $package = ref $self;
@@ -452,7 +452,6 @@ triplets (start, stop, strand) from which new ranges could be built.
   Args    : a RangeI to compare this one to
   Returns : nothing if they don't overlap, or the range that they do overlap
 
-
 =head2 union
 
   Title   : union
@@ -463,6 +462,7 @@ triplets (start, stop, strand) from which new ranges could be built.
   Returns : the range containing all of the ranges
 
 =cut
+#'
 
 1;
 

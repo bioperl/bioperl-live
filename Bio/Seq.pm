@@ -1,4 +1,4 @@
-
+# $Id$
 #
 # BioPerl module for Bio::Seq
 #
@@ -101,36 +101,34 @@ use Bio::SeqI;
 
 # Object preamble - inheriets from Bio::Root::Object
 
-use Bio::Root::Object;
+use Bio::Root::RootI;
 use Bio::Annotation;
 use Bio::PrimarySeq;
 
-@ISA = qw(Bio::Root::Object Bio::SeqI);
-# new() is inherited from Bio::Root::Object
+@ISA = qw(Bio::Root::RootI Bio::SeqI);
+# new() is inherited from Bio::Root::RootI
 
 # _initialize is where the heavy stuff will happen when new is called
-
 sub _initialize {
-  my($self,@args) = @_;
-  my($ann);
-  my $make = $self->SUPER::_initialize(@args);
+    my($self,@args) = @_;
+    my($ann);
+    my $make = $self->SUPER::_initialize(@args);
 
+    # this is way too sneaky probably. We delegate the construction of
+    # the Seq object onto PrimarySeq and then pop primary_seq into
+    # our primary_seq slot
 
-  # this is way too sneaky probably. We delegate the construction of
-  # the Seq object onto PrimarySeq and then pop primary_seq into
-  # our primary_seq slot
+    my $pseq = Bio::PrimarySeq->new(@args);
+    $self->{'_as_feat'} = [];
+    $self->{'date'} = [];
+    $self->{'secondary_accession'} = [];
 
-  my $pseq = Bio::PrimarySeq->new(@args);
-  $self->{'_as_feat'} = [];
-  $self->{'date'} = [];
-  $self->{'secondary_accession'} = [];
-  
-  $ann = new Bio::Annotation;
-  $self->annotation($ann);
-  $self->primary_seq($pseq);
+    $ann = new Bio::Annotation;
+    $self->annotation($ann);
+    $self->primary_seq($pseq);
 
 # set stuff in self from @args
- return $make; # success - we hope!
+    return $make;		# success - we hope!
 }
 
 =head1 PrimarySeq interface
@@ -330,7 +328,7 @@ sub primary_id {
  Title   : can_call_new
  Usage   : if( $obj->can_call_new ) {
              $newobj = $obj->new( %param );
-	 }
+	   }
  Function: can_call_new returns 1 or 0 depending
            on whether an implementation allows new
            constructor to be called. If a new constructor

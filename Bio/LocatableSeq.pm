@@ -1,3 +1,4 @@
+# $Id$
 #
 # BioPerl module for Bio::LocatableSeq
 #
@@ -73,6 +74,7 @@ The rest of the documentation details each of the object methods. Internal metho
 
 =cut
 
+#'
 # Let the code begin...
 
 package Bio::LocatableSeq;
@@ -82,13 +84,9 @@ use strict;
 use Bio::Seq;
 use Bio::RangeI;
 
-# Object preamble - inheriets from Bio::Root::Object
-
-use Bio::Root::Object;
-
 @ISA = qw(Bio::Seq Bio::RangeI);
 
-# new() is inherited from Bio::Root::Object
+# new() is inherited from Bio::Root::RootI
 
 # _initialize is where the heavy stuff will happen when new is called
 
@@ -187,3 +185,4 @@ sub get_nse{
 
 }
 
+1;

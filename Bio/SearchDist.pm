@@ -1,4 +1,4 @@
-
+# $Id$
 
 #
 # BioPerl module for Bio::SearchDist
@@ -103,9 +103,7 @@ package Bio::SearchDist;
 use vars qw(@ISA);
 use strict;
 
-# Object preamble - inheriets from Bio::Root::Object
-
-use Bio::Root::Object;
+use Bio::Root::RootI;
 
 BEGIN {
     eval {
@@ -118,8 +116,8 @@ BEGIN {
 }
 
 
-@ISA = qw(Bio::Root::Object);
-# new() is inherited from Bio::Root::Object
+@ISA = qw(Bio::Root::RootI);
+# new() is inherited from Bio::Root::RootI
 
 # _initialize is where the heavy stuff will happen when new is called
 

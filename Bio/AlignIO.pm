@@ -1,4 +1,4 @@
-
+# $Id$
 #
 # BioPerl module for Bio::AlignIO
 #
@@ -97,17 +97,18 @@ This makes the simplest ever reformatter
 
     print $out $_ while <$in>;
 
-AlignIO.pm is patterned on the module SeqIO.pm and shares most of SeqIO.pm's features.
-One significant difference currently is that AlignIO.pm only handles IO for a
-single alignment at a time (SeqIO.pm handles IO for multiple sequences in a single
-stream.)  The principal reason for this is that whereas simultaneously
-handling multiple sequences is a common requirement, simultaneous handling
-of multiple alignments is not. Capability for IO for more than one
-multiple alignment (which may be of use for certain applications such as IO for
-Pfam libraries) may be included in the future.  For this reason we keep the
-name "next_aln()" for the alignment input routine, even though currently only
-one alignment is read (or written) at a time and the name "read_aln()" might be more
-appropriate.
+AlignIO.pm is patterned on the module SeqIO.pm and shares most the
+SeqIO.pm features.  One significant difference currently is that
+AlignIO.pm only handles IO for a single alignment at a time (SeqIO.pm
+handles IO for multiple sequences in a single stream.)  The principal
+reason for this is that whereas simultaneously handling multiple
+sequences is a common requirement, simultaneous handling of multiple
+alignments is not. Capability for IO for more than one multiple
+alignment (which may be of use for certain applications such as IO for
+Pfam libraries) may be included in the future.  For this reason we
+keep the name "next_aln()" for the alignment input routine, even
+though currently only one alignment is read (or written) at a time and
+the name "read_aln()" might be more appropriate.
 
 =head1 CONSTRUCTORS
 
@@ -244,15 +245,15 @@ methods. Internal methods are usually preceded with a _
 package Bio::AlignIO;
 
 use strict;
-use vars '@ISA';
+use vars qw(@ISA);
 
-use Bio::Root::Object;
+use Bio::Root::RootI;
 use Bio::Seq;
 use Bio::LocatableSeq;
 use Bio::SimpleAlign;
 use Symbol();
 
-@ISA = 'Bio::Root::Object';
+@ISA = qw(Bio::Root::RootI);
 
 =head2 new
 
@@ -546,4 +547,3 @@ sub PRINT {
 }
 
 1;
-
