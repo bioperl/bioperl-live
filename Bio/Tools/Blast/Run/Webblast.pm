@@ -668,6 +668,7 @@ sub _blast {
 	    
 	    # get temp filename and final filename
 	    $id = $seq->id;
+	    $id =~ s/[|:\/\\<>]/_/g;  # remove special chars that could confuse shell
 	    $id =~ s/\.\w+?$//;  # trim off the extension if id is a filename.
 	    $baseFileName = $_out_dir. $id . "." . $extension . "$version.$database"; # SAC: new var.
 	    $outputFileNameTemp = $baseFileName. ".temp.html";
@@ -1843,6 +1844,10 @@ __END__
 ############################################################################
 
 # MODIFICATION HISTORY :
+#
+#  1.2.1, 25 Jun 1999, sac:
+#      -- Bug fix in _blast(): Removing characters from temp file name 
+#         that could confuse shell.
 #
 #  1.2, 20 Apr 1999, sac:
 #      -- Added support for new options introduced by RNC's modifications
