@@ -182,7 +182,7 @@ error messages included in the file univaln.t2_expected_errors -- these are OK.
 
 If you wish that the module uses Don Gilbert's readseq package for sequence
 format conversion (Version 1 Feb 1993), you can set the environment variable 
-`READSEQ_DIR'" appropriately. (Currently, only ``fasta'' and ``raw'' format 
+`READSEQ_DIR'  appropriately. (Currently, only ``fasta'' and ``raw'' format 
 are supported directly by UnivAln.pm.) 
 Then, the program detects and uses `readseq' automatically, if it is in the
 specified directory (the default directory is ``./''). Modifying the
@@ -926,6 +926,7 @@ intended for internal use only: Use them only if you know what you're
 doing :-)
 
 =cut
+#'
 
 use Exporter;
 use vars qw( @ISA  @EXPORT @EXPORT_OK );
@@ -1142,7 +1143,7 @@ sub _initialize {
   $self->{descffmt} = $UnivAlnForm{"unknown"};
   $self->{inplace} = 0;
 
-  if (!defined(@p) || scalar(@p) == 0) {
+  if (!@p ) {
     return undef;
   }
     # some operations will not work on ``empty'' placeholder objects
