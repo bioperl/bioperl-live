@@ -121,133 +121,48 @@ use strict;
 
 # Object preamble - inherits from Bio::Root::Object
 
+use File::Basename;
 use Bio::Root::Object;
-#use Bio::Tools::Sim4::ExonSet;
+use Bio::Tools::AnalysisResult;
 use Bio::Tools::Sim4::Exon;
 
-@ISA = qw(Bio::Root::Object);
-# new() is inherited from Bio::Root::Object
+@ISA = qw(Bio::Tools::AnalysisResult);
+
+# new() is inherited
 
 # _initialize is where the heavy stuff will happen when new is called
 
-sub _initialize {
-  my($self,@args) = @_;
+sub _initialize_state {
+    my($self,@args) = @_;
 
-  my $make = $self->SUPER::_initialize(@args);
+    # call the inherited method first
+    my $make = $self->SUPER::_initialize_state(@args);
 
-  my($fh,$file,$est_is_first) =
-      $self->_rearrange([qw(FH
-			    FILE
-			    ESTFIRST
-			    )],
-			@args);
+    my ($est_is_first) = $self->_rearrange([qw(ESTFIRST)], @args);
 
-  $self->{'readbuffer'} = "";
-  $self->{'_est_is_first'} = $est_is_first if(defined($est_is_first));
-
-  if( defined $fh && defined $file ) {
-      $self->throw("You have defined both a filehandle and file to read from. Not good news!");
-  }
-  if((defined $file) && ($file ne '')) {
-      $fh = Symbol::gensym();
-      open ($fh,$file)
-	  || $self->throw("Could not open $file for Fasta stream reading $!");
-  }
-  if((! defined($fh)) && ($file eq "")) {
-      $fh = \*STDIN;
-  }
-  $self->_filehandle($fh) if defined $fh;
-
-  # set stuff in self from @args
-  return $make; # success - we hope!
+    delete($self->{'_est_is_first'});
+    $self->{'_est_is_first'} = $est_is_first if(defined($est_is_first));
+    $self->analysis_method("Sim4");
 }
 
+=head2 analysis_method
 
-=head2 close
-
- Title   : close
- Usage   : $sim4_result->close()
- Function: Closes the file handle associated with this result file
- Example :
- Returns :
- Args    :
+ Usage     : $sim4->analysis_method();
+ Purpose   : Inherited method. Overridden to ensure that the name matches
+             /sim4/i.
+ Returns   : String
+ Argument  : n/a
 
 =cut
 
-sub close {
-   my ($self, @args) = @_;
-
-   $self->{'_filehandle'} = undef;
-}
-
-=head2 _pushback
-
- Title   : _pushback
- Usage   : $obj->_pushback($newvalue)
- Function: puts a line previously read with _readline back into a buffer
- Example :
- Returns :
- Args    : newvalue
-
-=cut
-
-sub _pushback {
-  my ($obj, $value) = @_;
-  $obj->{'readbuffer'} .= $value;
-}
-
-
-=head2 _filehandle
-
- Title   : _filehandle
- Usage   : $obj->_filehandle($newval)
- Function:
- Example :
- Returns : value of _filehandle
- Args    : newvalue (optional)
-
-
-=cut
-
-sub _filehandle {
-    my ($obj, $value) = @_;
-    if(defined $value) {
-	$obj->{'_filehandle'} = $value;
+#-------------
+sub analysis_method { 
+#-------------
+    my ($self, $method) = @_;  
+    if($method && ($method !~ /sim4/i)) {
+	$self->throw("method $method not supported in " . ref($self));
     }
-    return $obj->{'_filehandle'};
-}
-
-
-=head2 _readline
-
- Title   : _readline
- Usage   : $obj->_readline
- Function:
- Example :
- Returns : reads a line of input
-
-=cut
-
-sub _readline {
-  my $self = shift;
-  my $fh = $self->_filehandle();
-  my $line;
-
-  # if the buffer been filled by _pushback then return the buffer
-  # contents, rather than read from the filehandle
-  if ( defined $self->{'readbuffer'} ) {
-      $line = $self->{'readbuffer'};
-      undef $self->{'readbuffer'};
-  } else {
-      $line = defined($fh) ? <$fh> : <>;
-  }
-  return $line;
-}
-
-sub DESTROY {
-    my $self = shift;
-
-    $self->close();
+    return $self->SUPER::analysis_method($method);
 }
 
 =head2 parse_next_alignment
@@ -262,11 +177,15 @@ sub DESTROY {
            this method repeatedly until an empty array is returned to get the
            results for all alignments.
 
-           The $exon->seqname() attribute will be set for both sequences
-           if A=4 was used in the sim4 run, and otherwise for the second
-           sequence only. In addition, filename and length will be recorded
-           for both features ($exon inherits off Bio::SeqFeature::FeaturePair)
-           as tags 'filename' and 'seqlength'.
+           The $exon->seqname() attribute will be set to the identifier of the
+           respective sequence for both sequences if A=4 was used in the sim4
+           run, and otherwise for the second sequence only. If the output does
+           not contain the identifier, the filename stripped of path and 
+           extension is used instead. In addition, the full filename 
+           will be recorded for both features ($exon inherits off 
+           Bio::SeqFeature::SimilarityPair) as tag 'filename'. The length
+           is accessible via the seqlength() attribute of $exon->query() and
+           $exon->est_hit().
 
            Note that this method is capable of dealing with outputs generated
            with format 0,1,3, and 4 (via the A=n option to sim4). It
@@ -274,7 +193,7 @@ sub DESTROY {
            reversed, and adjusts the coordinates for that sequence. It will
            also detect whether the EST sequence(s) were given as first or as
            second file to sim4, unless this has been specified at creation
-           of the object.
+           time of the object.
 
  Example :
  Returns : An array of Bio::Tools::Sim4::Exon objects
@@ -394,26 +313,45 @@ sub parse_next_alignment {
 					    '-strand' => $hit_direction);
 	   if(exists($genomseq->{'seqname'})) {
 	       $exon->seqname($genomseq->{'seqname'});
+	   } else {
+	       # take filename stripped of path as fall back
+	       my ($basename, undef, undef) =
+		   fileparse($genomseq->{'filename'}, '\..*');
+	       $exon->seqname($basename);
 	   }
 	   $exon->feature1()->add_tag_value('filename',
 					    $genomseq->{'filename'});
-	   $exon->feature1()->add_tag_value('seqlength',
-					    $genomseq->{'length'});
-	   $exon->percentage_id($pctid);
+	   # feature1 is supposed to be initialized to a Similarity object,
+           # but we provide a safety net
+	   if($exon->feature1()->can('seqlength')) {
+	       $exon->feature1()->seqlength($genomseq->{'length'});
+	   } else {
+	       $exon->feature1()->add_tag_value('SeqLength',
+						$genomseq->{'length'});
+	   }
 	   # create and initialize the feature wrapping the 'hit' (the EST)
-	   my $fea2 = Bio::SeqFeature::Generic->new(
+	   my $fea2 = Bio::SeqFeature::Similarity->new(
                                             '-start' => $estseq->{'start'},
 					    '-end'   => $estseq->{'end'},
 					    '-strand' => 0,
-					    '-source' => "Sim4",
-					    '-primary' => "aligning_EST",
-					    '-score' => $pctid);
+					    '-primary' => "aligning_EST");
 	   if(exists($estseq->{'seqname'})) {
 	       $fea2->seqname($estseq->{'seqname'});
+	   } else {
+	       # take filename stripped of path as fall back
+	       my ($basename, undef, undef) =
+		   fileparse($estseq->{'filename'}, '\..*');
+	       $exon->seqname($basename);
 	   }
 	   $fea2->add_tag_value('filename', $estseq->{'filename'});
-	   $fea2->add_tag_value('seqlength', $estseq->{'length'});
-	   $exon->feature2($fea2);
+	   $fea2->seqlength($estseq->{'length'});
+	   # store
+	   $exon->est_hit($fea2);
+	   # general properties
+	   $exon->source($self->analysis_method());
+	   $exon->percentage_id($pctid);
+	   $exon->score($exon->percentage_id());
+	   # push onto array
 	   push(@exons, $exon);
 	   next; # back to while loop
        }
@@ -458,8 +396,8 @@ sub next_exonset {
     $exonset = Bio::SeqFeature::Generic->new('-start' => $exons[0]->start(),
 					     '-end' => $exons[0]->end(),
 					     '-strand' => $exons[0]->strand(),
-					     '-primary' => "ExonSet",
-					     '-source' => "Sim4");
+					     '-primary' => "ExonSet");
+    $exonset->source_tag($exons[0]->source_tag());
     $exonset->seqname($exons[0]->seqname());
     # now add all exons as sub features, with enabling EXPANsion of the region
     # covered in total
@@ -467,6 +405,35 @@ sub next_exonset {
 	$exonset->add_sub_SeqFeature($exon, 'EXPAND');
     }
     return $exonset;
+}
+
+=head2 next_feature
+
+ Title   : next_feature
+ Usage   : while($exonset = $sim4->next_feature()) {
+                  # do something
+           }
+ Function: Does the same as L<next_exonset()>. See there for documentation of
+           the functionality. Call this method repeatedly until FALSE is
+           returned.
+
+           The returned object is actually a SeqFeatureI implementing object.
+           This method is required for classes implementing the
+           SeqAnalysisParserI interface, and is merely an alias for 
+           next_exonset() at present.
+
+ Example :
+ Returns : A Bio::SeqFeature::Generic object.
+ Args    :
+
+=cut
+
+sub next_feature {
+    my ($self,@args) = @_;
+    # even though next_exonset doesn't expect any args (and this method
+    # does neither), we pass on args in order to be prepared if this changes
+    # ever
+    return $self->next_exonset(@args);
 }
 
 1;
