@@ -1,3 +1,4 @@
+# This is -*-Perl-*- code
 ## Bioperl Test Harness Script for Modules
 ##
 
@@ -19,13 +20,14 @@
 
 
 ## We start with some black magic to print on failure.
-BEGIN { $| = 1; print "1..3\n"; 
+BEGIN { $| = 1; print "1..5\n"; 
 	use vars qw($loaded); }
 
 END {print "not ok 1\n" unless $loaded;}
 
 use Bio::DB::GenBank;
 use Bio::DB::GenPept;
+use Bio::DB::SwissProt;
 
 $loaded = 1;
 print "ok 1\n";    # 1st test passes.
@@ -37,36 +39,62 @@ print "ok 1\n";    # 1st test passes.
 ## the print "1..x\n" in the BEGIN block to reflect the
 ## total number of tests that will be run. 
 
+my $seq;
 
-eval { my $gb = new Bio::DB::GenBank; $gb->get_Seq_by_id('MUSIGHBA1'); };
+eval { 
+    my $gb = new Bio::DB::GenBank; 
+    $seq = $gb->get_Seq_by_id('MUSIGHBA1'); 
+};
 
 if ($@) {
-	warn "Warning: Couldn't connect to Genbank with Bio::DB::GenBank.pm!\n{Probably no network access.\n Skipping Test\n";
+    warn "Warning: Couldn't connect to Genbank with Bio::DB::GenBank.pm!\n{Probably no network access.\n Skipping Test\n";
+    warn $@;
+    print "ok 2\n";
+} else {
+    if( $seq->length == 408 ) {
 	print "ok 2\n";
-} else {
-	my $gb = new Bio::DB::GenBank;
-	my $seq = $gb->get_Seq_by_id('MUSIGHBA1');
- 	if( length($seq->seq()) == 408 ) {
-		print "ok 2\n";
-	} else {
-		print "not ok 2\n";
-	}
+    } else {
+	print "not ok 2\n";
+    }
 }
+$seq = undef;
 
-eval { my $gb = new Bio::DB::GenPept; $gb->get_Seq_by_id('195055'); };
+eval { 
+    my $gb = new Bio::DB::GenPept; 
+    $seq = $gb->get_Seq_by_id('195055'); 
+};
 
 if ($@) {
-	warn "Warning: Couldn't connect to Genbank with Bio::DB::GenPept.pm!\nProbably no network access\n";
-	print "ok 3\n";
+    warn "Warning: Couldn't connect to Genbank with Bio::DB::GenPept.pm!\nProbably no network access\n";
+    print "ok 3\n";
 } else {
-	my $gb = new Bio::DB::GenPept;
-	my $seq = $gb->get_Seq_by_id('195055');
- 	if( length($seq->seq()) == 136 ) {
-		print "ok 3\n";
-	} else {
-		print "not ok 3\n";
-	}
+    if( $seq->length == 136 ) {
+	print "ok 3\n";
+    } else {
+	print "not ok 3\n";
+    }
 }
+
+$seq = undef;
+
+eval { 
+    my $gb = new Bio::DB::SwissProt; 
+    $seq = $gb->get_Seq_by_acc('P43780'); 
+};
+
+if ($@) {
+    warn ($@);
+    warn "Warning: Couldn't connect to Genbank with Bio::DB::Swiss.pm!\nProbably no network access\n";
+    print "ok 4\n";
+} else {
+    if( $seq->length == 103 ) {
+	print "ok 4\n";
+    } else {
+	print "not ok 4\n";
+    }
+}
+
+print "ok 5\n";
 
 
 
