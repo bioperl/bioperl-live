@@ -92,30 +92,21 @@ sub _attr_type { shift->_abstractDeath; }
 sub AUTOLOAD {
     my ($self, $newval) = @_;
 
-    if ($AUTOLOAD =~ /.*::get(_\w+)/ && $self->_accessible ($1)) {
-	my $attr_name = $1;
-
-	# remember this method in a system table so it is not
-	# autoloaded costly next time
-        no strict 'refs'; 
-	*{$AUTOLOAD} = sub { return $_[0]->{$attr_name} };
-
-	# do what a 'get_' method is supposed to do
-	return $self->{$attr_name}
-    }
-
-    if ($AUTOLOAD =~ /.*::set(_\w+)/ && $self->_accessible ($1)) {
-	my $attr_name = $1;
+    if ($AUTOLOAD =~ /.*::(\w+)/ && $self->_accessible ("_$1")) {
+	my $attr_name = "_$1";
 	my $attr_type = $self->_attr_type ($attr_name);
 	my $ref_sub =
 	    sub {
 		my ($this, $new_value) = @_;
+		return $self->{$attr_name} unless defined $new_value;
+
+		# here we continue with 'set' method
 		my ($newval_type) = ref ($new_value) || 'string';
 		my ($expected_type) = $attr_type || 'string';
 		$self->throw ("In method $AUTOLOAD, trying to set a value of type '$newval_type' but '$expected_type' is expected.")
 		    if $newval_type ne $expected_type;
 		$this->{$attr_name} = $new_value;
-		return;
+		return $new_value;
 	    };
 
         no strict 'refs'; 
@@ -145,7 +136,7 @@ sub new {
     my $new_key;
     foreach my $key (keys %param) {
 	($new_key = $key) =~ s/-/_/og;   # change it everywhere, why not
-        my $method = 'set' . lc ($new_key);
+        my $method = lc (substr ($new_key, 1));   # omitting the first '_'
         no strict 'refs'; 
         $method->($self, $param { $key });
     }

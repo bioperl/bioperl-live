@@ -54,7 +54,7 @@ called on instances of this (Bio::Biblio) module.
 
 The module complies (with some simplifications) with the specification
 described in the B<OpenBQS> project. Its home page is at
-L<http://industry.ebi.ac.uk/openBQS>. There are also links to
+I<http://industry.ebi.ac.uk/openBQS>. There are also links to
 available servers providing access to the bibliographic repositories
 (namely to I<MEDLINE>).
 

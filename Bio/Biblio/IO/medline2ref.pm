@@ -127,14 +127,14 @@ sub convert {
    if (defined $article) {
        if (defined $$article{'journal'}) {
 	   $result = $self->_new_instance ('Bio::Biblio::JournalArticle');
-	   $result->set_type ('JournalArticle');
+	   $result->type ('JournalArticle');
 	   &_convert_journal_article ($result, $source);
        } elsif (defined $$article{'book'}) {
 	   $result = $self->_new_instance ('Bio::Biblio::BookArticle');
-	   $result->set_type ('BookArticle');
+	   $result->type ('BookArticle');
 	   &_convert_journal_article ($result, $source);
        } else {
-	   $result->set_type ('Article');
+	   $result->type ('Article');
 	   &_convert_article ($self->_new_instance ('Bio::Biblio::Article'), $source);
        }
 
@@ -149,37 +149,37 @@ sub convert {
    # it by PMID (I have heard) theefore we keep both also separately
    # from the 'identifier'
    if (defined $$source{'medlineID'}) {
-       $result->set_identifier ($$source{'medlineID'});
+       $result->identifier ($$source{'medlineID'});
    } else {
-       $result->set_identifier ($$source{'PMID'});
+       $result->identifier ($$source{'PMID'});
    }
-   $result->set_pmid ($$source{'PMID'}) if defined $$source{'PMID'};
-   $result->set_medline_id ($$source{'medlineID'}) if defined $$source{'medlineID'};
+   $result->pmid ($$source{'PMID'}) if defined $$source{'PMID'};
+   $result->medline_id ($$source{'medlineID'}) if defined $$source{'medlineID'};
 
    # ...few others
-   $result->set_citation_owner ($$source{'owner'}) if defined $$source{'owner'};
-   $result->set_status ($$source{'status'}) if defined $$source{'status'};
-   $result->set_number_of_references ($$source{'numberOfReferences'}) if defined $$source{'numberOfReferences'};
+   $result->citation_owner ($$source{'owner'}) if defined $$source{'owner'};
+   $result->status ($$source{'status'}) if defined $$source{'status'};
+   $result->number_of_references ($$source{'numberOfReferences'}) if defined $$source{'numberOfReferences'};
 
    # ...entry status of the citation in the repository
    my $date;
    if (defined $$source{'dateRevised'}) {
-       $result->set_last_modified_date (&_convert_date ($$source{'dateRevised'}));
+       $result->last_modified_date (&_convert_date ($$source{'dateRevised'}));
        $date = &_convert_date ($$source{'dateCreated'});
-       $result->set_date_created ($date) if defined $date;
+       $result->date_created ($date) if defined $date;
        $date = &_convert_date ($$source{'dateCompleted'});
-       $result->set_date_completed ($date) if defined $date;
+       $result->date_completed ($date) if defined $date;
    } elsif (defined $$source{'dateCompleted'}) {
-       $result->set_last_modified_date (&_convert_date ($$source{'dateCompleted'}));
+       $result->last_modified_date (&_convert_date ($$source{'dateCompleted'}));
        $date = &_convert_date ($$source{'dateCreated'});
-       $result->set_date_created ($date) if defined $date;
+       $result->date_created ($date) if defined $date;
    } elsif (defined $$source{'dateCreated'}) {
-       $result->set_last_modified_date (&_convert_date ($$source{'dateCreated'}));
+       $result->last_modified_date (&_convert_date ($$source{'dateCreated'}));
    }
 
    # ...put citation subsets in a comma-separated string
    if (defined $$source{'citationSubsets'}) {
-       $result->set_repository_subset (join (',', @{ $$source{'citationSubsets'} }));
+       $result->repository_subset (join (',', @{ $$source{'citationSubsets'} }));
    }
 
    # ...subject (keywords, subheadings,...)
@@ -188,28 +188,28 @@ sub convert {
    # ...MEDLINE's Comments & Corrections will be arrays of hashes
    if (defined $$source{'commentsCorrections'}) {
        my $corr = $$source{'commentsCorrections'};
-       $result->set_comment_ons ($$corr{'commentOns'}) if defined $$corr{'commentOns'};
-       $result->set_comment_ins ($$corr{'commentIns'}) if defined $$corr{'commentIns'};
-       $result->set_erratum_ins ($$corr{'erratumIns'}) if defined $$corr{'erratumIns'};
-       $result->set_erratum_fors ($$corr{'erratumFors'}) if defined $$corr{'erratumFors'};
-       $result->set_original_report_ins ($$corr{'originalReportIns'}) if defined $$corr{'originalReportIns'};
-       $result->set_republished_froms ($$corr{'republishedFroms'}) if defined $$corr{'republishedFroms'};
-       $result->set_republished_ins ($$corr{'republishedIns'}) if defined $$corr{'republishedIns'};
-       $result->set_retraction_ofs ($$corr{'retractionOfs'}) if defined $$corr{'retractionOfs'};
-       $result->set_retraction_ins ($$corr{'retractionIns'}) if defined $$corr{'retractionIns'};
-       $result->set_summary_for_patients_ins ($$corr{'summaryForPatientsIns'}) if defined $$corr{'summaryForPatientsIns'};
-       $result->set_update_ins ($$corr{'updateIns'}) if defined $$corr{'updateIns'};
-       $result->set_update_ofs ($$corr{'updateOfs'}) if defined $$corr{'updateOfs'};
+       $result->comment_ons ($$corr{'commentOns'}) if defined $$corr{'commentOns'};
+       $result->comment_ins ($$corr{'commentIns'}) if defined $$corr{'commentIns'};
+       $result->erratum_ins ($$corr{'erratumIns'}) if defined $$corr{'erratumIns'};
+       $result->erratum_fors ($$corr{'erratumFors'}) if defined $$corr{'erratumFors'};
+       $result->original_report_ins ($$corr{'originalReportIns'}) if defined $$corr{'originalReportIns'};
+       $result->republished_froms ($$corr{'republishedFroms'}) if defined $$corr{'republishedFroms'};
+       $result->republished_ins ($$corr{'republishedIns'}) if defined $$corr{'republishedIns'};
+       $result->retraction_ofs ($$corr{'retractionOfs'}) if defined $$corr{'retractionOfs'};
+       $result->retraction_ins ($$corr{'retractionIns'}) if defined $$corr{'retractionIns'};
+       $result->summary_for_patients_ins ($$corr{'summaryForPatientsIns'}) if defined $$corr{'summaryForPatientsIns'};
+       $result->update_ins ($$corr{'updateIns'}) if defined $$corr{'updateIns'};
+       $result->update_ofs ($$corr{'updateOfs'}) if defined $$corr{'updateOfs'};
    }
 
    # ...MEDLINE's GeneSymbols are put in a comma-separated string
    if (defined $$source{'geneSymbols'}) {
-       $result->set_gene_symbols (join (',', @{ $$source{'geneSymbols'} }));
+       $result->gene_symbols (join (',', @{ $$source{'geneSymbols'} }));
    }
 
    # ...MEDLINE's GeneralNotes into an array of hashtables, each one
    # having keys for the 'owner' and the 'note'
-   $result->set_general_notes ($$source{'generalNotes'}) if defined $$source{'generalNotes'};
+   $result->general_notes ($$source{'generalNotes'}) if defined $$source{'generalNotes'};
 
    # ...MEDLINE's PersonalNameSubjects into contributors (TBD: is that correct?)
    if (defined $$source{'personalNameSubjects'}) {
@@ -217,30 +217,30 @@ sub convert {
        foreach my $person ( @{ $$source{'personalNameSubjects'} } ) {
 	   push (@contributors, &_convert_personal_name ($person));
        }
-       $result->set_contributors (\@contributors);
+       $result->contributors (\@contributors);
    }
 
    # ...MEDLINE's OtherIDs into an array of hashtables, each one
    # having keys for the 'id', and 'source'
-   $result->set_other_ids ($$source{'otherIDs'}) if defined $$source{'otherIDs'};
+   $result->other_ids ($$source{'otherIDs'}) if defined $$source{'otherIDs'};
 
    # ...MEDLINE's Chemicals - store them as an array of hashtables
    # (each one for each Chemical)
-   $result->set_chemicals ($$source{'chemicals'}) if defined $$source{'chemicals'};
+   $result->chemicals ($$source{'chemicals'}) if defined $$source{'chemicals'};
 
    # MeshHeadings are put on two places:
    # - a complete information in a property called "MeshHeadings", and
    # - only descriptors in the hashtable "subject_headings", together
    #   with the word "MeSH" in "subject_headings_source"
    if (defined $$source{'meshHeadings'}) {
-       $result->set_mesh_headings ($$source{'meshHeadings'});
+       $result->mesh_headings ($$source{'meshHeadings'});
        my %subject_headings;
        foreach my $mesh ( @{ $$source{'meshHeadings'} } ) {
 	   $subject_headings{ $$mesh{'descriptorName'} } = 1 if defined $$mesh{'descriptorName'};
        }
        if (%subject_headings) {
-	   $result->set_subject_headings (\%subject_headings);
-	   $result->set_subject_headings_source ('Mesh');
+	   $result->subject_headings (\%subject_headings);
+	   $result->subject_headings_source ('Mesh');
        }
    }
 
@@ -256,7 +256,7 @@ sub convert {
 	       }
 	   }
        }
-       $result->set_keywords (\%keywords) if %keywords;
+       $result->keywords (\%keywords) if %keywords;
    }
 
    # Done!
@@ -338,37 +338,37 @@ sub _convert_journal_article {
     # create and populate a Journal object (where this article belongs to)
     my $from_journal = $$article{'journal'};
     my $journal = new Bio::Biblio::JournalI;
-    $journal->set_name ($$from_journal{'title'}) if defined $$from_journal{'title'};
-    $journal->set_issn ($$from_journal{'iSSN'}) if defined $$from_journal{'iSSN'};
-    $journal->set_abbreviation ($$from_journal{'iSOAbbreviation'}) if defined $$from_journal{'iSOAbbreviation'};
-    $journal->set_coden ($$from_journal{'coden'}) if defined $$from_journal{'coden'};
+    $journal->name ($$from_journal{'title'}) if defined $$from_journal{'title'};
+    $journal->issn ($$from_journal{'iSSN'}) if defined $$from_journal{'iSSN'};
+    $journal->abbreviation ($$from_journal{'iSOAbbreviation'}) if defined $$from_journal{'iSOAbbreviation'};
+    $journal->coden ($$from_journal{'coden'}) if defined $$from_journal{'coden'};
     if (defined $$from_journal{'journalIssue'}) {
 	my $issue = $$from_journal{'journalIssue'};
-	$journal->set_volume ($$issue{'volume'}) if defined $$issue{'volume'};
-	$journal->set_issue ($$issue{'issue'}) if defined $$issue{'issue'};
+	$journal->volume ($$issue{'volume'}) if defined $$issue{'volume'};
+	$journal->issue ($$issue{'issue'}) if defined $$issue{'issue'};
 
 	if (defined $$issue{'pubDate'}) {
 	    my $pub_date = $$issue{'pubDate'};
 	    my $converted = &_convert_date ($pub_date);
-	    $journal->set_pub_date ($converted) if defined $converted;
+	    $journal->pub_date ($converted) if defined $converted;
 
 	    # Some parts of a MEDLINE date are stored just as properties
 	    # because they have almost non-parseable format :-).
-	    $journal->set_medline_date ($$pub_date{'medlineDate'}) if defined $$pub_date{'medlineDate'};
-	    $journal->set_season ($$pub_date{'season'}) if defined $$pub_date{'season'};
+	    $journal->medline_date ($$pub_date{'medlineDate'}) if defined $$pub_date{'medlineDate'};
+	    $journal->season ($$pub_date{'season'}) if defined $$pub_date{'season'};
 	}
     }
 
     # ...some attributes are in journalInfo (which is outside of the article)
     my $journal_info = $$source{'journalInfo'};
     if (defined $journal_info) {
-	$journal->set_country ($$journal_info{'country'}) if defined $$journal_info{'country'};
-	$journal->set_medline_ta ($$journal_info{'medlineTA'}) if defined $$journal_info{'medlineTA'};
-	$journal->set_medline_code ($$journal_info{'medlineCode'}) if defined $$journal_info{'medlineCode'};
-	$journal->set_nlm_unique_id ($$journal_info{'nlmUniqueID'}) if defined $$journal_info{'nlmUniqueID'};
+	$journal->country ($$journal_info{'country'}) if defined $$journal_info{'country'};
+	$journal->medline_ta ($$journal_info{'medlineTA'}) if defined $$journal_info{'medlineTA'};
+	$journal->medline_code ($$journal_info{'medlineCode'}) if defined $$journal_info{'medlineCode'};
+	$journal->nlm_unique_id ($$journal_info{'nlmUniqueID'}) if defined $$journal_info{'nlmUniqueID'};
     }
 
-    $result->set_journal ($journal);
+    $result->journal ($journal);
     &_convert_article ($result, $source);
 }
 
@@ -384,30 +384,30 @@ sub _convert_book_article {
     # create and populate a book object (where this article belongs to)
     my $from_book = $$article{'book'};
     my $book = new Bio::Biblio::Book;
-    $book->set_title ($$from_book{'title'}) if defined $$from_book{'title'};
-    $book->set_volume ($$from_book{'volume'}) if defined $$from_book{'volume'};
-    $book->set_series ($$from_book{'collectionTitle'}) if defined $$from_book{'collectionTitle'};
+    $book->title ($$from_book{'title'}) if defined $$from_book{'title'};
+    $book->volume ($$from_book{'volume'}) if defined $$from_book{'volume'};
+    $book->series ($$from_book{'collectionTitle'}) if defined $$from_book{'collectionTitle'};
 
     if (defined $$from_book{'pubDate'}) {
 	my $pub_date = $$from_book{'pubDate'};
 	my $converted = &_convert_date ($pub_date);
-	$book->set_pub_date ($converted) if defined $converted;
+	$book->pub_date ($converted) if defined $converted;
 
 	# Some parts of a MEDLINE date are stored just as properties
 	# because they have almost non-parseable format :-).
-	$book->set_medline_date ($$pub_date{'medlineDate'}) if defined $$pub_date{'medlineDate'};
-	$book->set_season ($$pub_date{'season'}) if defined $$pub_date{'season'};
+	$book->medline_date ($$pub_date{'medlineDate'}) if defined $$pub_date{'medlineDate'};
+	$book->season ($$pub_date{'season'}) if defined $$pub_date{'season'};
     }
 
     if (defined $$from_book{'publisher'}) {
 	my $publisher = new Bio::Biblio::Organisation;
-	$publisher->set_name ($$from_book{'publisher'});
+	$publisher->name ($$from_book{'publisher'});
     }
 
     my @authors = &_convert_providers ($$from_book{'authors'});
-    $book->set_authors (\@authors) if @authors;
+    $book->authors (\@authors) if @authors;
 
-    $result->set_book ($book);
+    $result->book ($book);
     &_convert_article ($result, $source);
 }
 
@@ -420,24 +420,24 @@ sub _convert_article {
     my ($article, $source) = @_;
     my $from_article = $$source{'article'};
 
-    $article->set_title ($$from_article{'articleTitle'}) if defined $$from_article{'articleTitle'};
-    $article->set_affiliation ($$from_article{'affiliation'}) if defined $$from_article{'affiliation'};
-    $article->set_vernacular_title ($$from_article{'vernacularTitle'}) if defined $$from_article{'vernacularTitle'};
-    $article->set_date_of_electronic_publication
+    $article->title ($$from_article{'articleTitle'}) if defined $$from_article{'articleTitle'};
+    $article->affiliation ($$from_article{'affiliation'}) if defined $$from_article{'affiliation'};
+    $article->vernacular_title ($$from_article{'vernacularTitle'}) if defined $$from_article{'vernacularTitle'};
+    $article->date_of_electronic_publication
 	($$from_article{'dateOfElectronicPublication'}) if defined $$from_article{'dateOfElectronicPublication'};
 
     if (defined $$from_article{'pagination'}) {
 	my $pagination = $$from_article{'pagination'};
-	$article->set_first_page ($$pagination{'startPage'}) if defined $$pagination{'startPage'};
-	$article->set_last_page ($$pagination{'endPage'}) if defined $$pagination{'endPage'};
-	$article->set_medline_page ($$pagination{'medlinePgn'}) if defined $$pagination{'medlinePgn'};
+	$article->first_page ($$pagination{'startPage'}) if defined $$pagination{'startPage'};
+	$article->last_page ($$pagination{'endPage'}) if defined $$pagination{'endPage'};
+	$article->medline_page ($$pagination{'medlinePgn'}) if defined $$pagination{'medlinePgn'};
     }
 
     if (defined $$from_article{'abstract'}) {
 	my $abstract = $$from_article{'abstract'};
-	$article->set_abstract ($$abstract{'abstractText'}) if defined $$abstract{'abstractText'};
-	$article->set_abstract_type ('text/plain');
-	$article->set_rights ($$abstract{'copyrightInformation'}) if defined $$abstract{'copyrightInformation'};
+	$article->abstract ($$abstract{'abstractText'}) if defined $$abstract{'abstractText'};
+	$article->abstract_type ('text/plain');
+	$article->rights ($$abstract{'copyrightInformation'}) if defined $$abstract{'copyrightInformation'};
     }
 
     # ...MEDLINE's OtherAbstract into an array of hashtables, each one
@@ -457,23 +457,23 @@ sub _convert_article {
 	       push (@other_abstracts, $oa);
 	   }
        }
-       $article->set_other_abstracts (\@other_abstracts);
+       $article->other_abstracts (\@other_abstracts);
    }
 
     if (defined $$from_article{'languages'}) {
 	my $languages = $$from_article{'languages'};  # ref-array
 	if ( @{ $languages } > 0) {
-	    $article->set_language ( $$languages[0] );
+	    $article->language ( $$languages[0] );
 	}
 	if ( @{ $languages } > 1) {
-	    $article->set_other_languages (join (',', @{ $languages }));
+	    $article->other_languages (join (',', @{ $languages }));
 	}
     }
 
     my @authors = &_convert_providers ($$from_article{'authors'});
     if (@authors) {
-	$article->set_authors (\@authors);
-	$article->set_author_list_complete
+	$article->authors (\@authors);
+	$article->author_list_complete
 	    ($$from_article{'authorListComplete'}) if defined $$from_article{'authorListComplete'};
     }
 
@@ -491,16 +491,16 @@ sub _convert_article {
 	    }
 	}
 	if (@references) {
-	    $article->set_cross_references (\@references);
-	    $article->set_cross_references_list_complete
+	    $article->cross_references (\@references);
+	    $article->cross_references_list_complete
 		($$from_article{'dataBankListComplete'}) if defined $$from_article{'dataBankListComplete'};
 	}
     }
 
     # grants are stored in an array of hashtables (each of the
     # hashtables has keys agency, grantID and acronym)
-    $article->set_grants ($$from_article{'grants'}) if defined $$from_article{'grants'};
-    $article->set_grant_list_complete
+    $article->grants ($$from_article{'grants'}) if defined $$from_article{'grants'};
+    $article->grant_list_complete
 	    ($$from_article{'grantListComplete'}) if defined $$from_article{'grandListComplete'};
 
 }
