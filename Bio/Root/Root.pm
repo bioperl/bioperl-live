@@ -43,7 +43,7 @@ Bio::Root::Root - Hash-based implementation of Bio::Root::RootI
     }
     catch Bio::Root::FileOpenException with {
         my $err = shift;
-	print "Handling exception $err\n";
+        print "Handling exception $err\n";
    };
 
 =head1 DESCRIPTION
@@ -167,15 +167,15 @@ BEGIN {
     # when you don't want to use the Error module, even if it is installed.
     # Just put a BEGIN { $DONT_USE_ERROR = 1; } at the top of your script.
     if( not $main::DONT_USE_ERROR ) {
-	if ( eval "require Error"  ) {
-	    import Error qw(:try);
-	    require Bio::Root::Exception;
-	    $ERRORLOADED = 1;
-	    $Error::Debug = 1; # enable verbose stack trace 
-	}
+        if ( eval "require Error"  ) {
+            import Error qw(:try);
+            require Bio::Root::Exception;
+            $ERRORLOADED = 1;
+            $Error::Debug = 1; # enable verbose stack trace 
+        }
     } 
     if( !$ERRORLOADED ) {
-	require Carp; import Carp qw( confess );
+        require Carp; import Carp qw( confess );
     }
     $main::DONT_USE_ERROR;  # so that perl -w won't warn "used only once"
 
@@ -278,30 +278,36 @@ sub _cleanup_methods {
 sub throw{
    my ($self,@args) = @_;
    
-   my %params;
-   if( @args % 2 == 0 ) {
-       %params = @args;
-   }
-
-   if( $ERRORLOADED and exists $params{'-text'} || $params{'-TEXT'}) {
+   if( $ERRORLOADED ) {
 #       print STDERR "  Calling Error::throw\n\n";
 
-       my ( $text, $class ) = $self->_rearrange( [qw(TEXT CLASS)], @args);
-       if( defined($class)) {
-           if( not $class->isa('Error')) {
-               $text .= "\nWARNING: $class is not an Error.pm object\n";
+       # Enable re-throwing of Error objects.
+       # If the error is not derived from Bio::Root::Exception, 
+       # we can't guarantee that the Error's value was set properly
+       # and, ipso facto, that it will be catchable from an eval{}.
+       # But chances are, if you're re-throwing non-Bio::Root::Exceptions,
+       # you're probably using Error::try(), not eval{}.
+       # TODO: Fix the MSG: line of the re-thrown error. Has an extra line
+       # containing the '----- EXCEPTION -----' banner.
+       if( ref($args[0])) {
+           if( $args[0]->isa('Error')) {
+               my $class = ref $args[0];
+               throw $class ( @args );
+           } else {
+               my $text .= "\nWARNING: Attempt to throw a non-Error.pm object: " . ref$args[0];
+               my $class = "Bio::Root::Exception";
+               throw $class ( '-text' => $text, '-value' => $args[0] ); 
            }
+       } else {
+           my ( $text, $class ) = $self->_rearrange( [qw(TEXT CLASS)], @args);
+           $class ||= "Bio::Root::Exception";
+   
+           my %args = @args;
+           $args{-text} = $text;
+           $args{-object} = $self;
+ 
+           throw $class ( %args );
        }
-       else {
-           $class = "Bio::Root::Exception";
-       }
-       
-       my %args = @args;
-       $args{-text} = $text;
-       $args{-object} = $self;
-       
-       #unshift (@args, '-object', $self);
-       throw $class ( %args );
    }
    else {
 #       print STDERR "  Not calling Error::throw\n\n";
