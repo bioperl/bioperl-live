@@ -102,3 +102,16 @@ while( $parser->next_feature ) {
 }
 
 
+$parser = new Bio::Tools::BPlite(-verbose => 1,
+				 -file => Bio::Root::IO->catfile("t",
+								 "data",
+								 "multiseq.bls"));
+ok($parser);
+my $count = 0;
+
+while( my $sbjct = $parser->nextSbjct ) {
+    print "here I am\n";
+    while( my $hsp = $sbjct->nextHsp ) {
+	print "start is ", $hsp->start, "\n";
+    }
+}
