@@ -36,18 +36,18 @@ to document fully.
 
 =head2 Optional functions
 
-=over
+=over 3
 
 =item _show_dna()
 
 (output only) shows the dna or not
 
-=item _post_sort
+=item _post_sort()
 
 (output only) provides a sorting func which is applied to the FTHelpers
 before printing
 
-=item _id_generation_func
+=item _id_generation_func()
 
 This is function which is called as 
 
@@ -56,7 +56,7 @@ This is function which is called as
 To generate the ID line. If it is not there, it generates a sensible ID
 line using a number of tools.
 
- 
+
 =back
 
 =head1 FEEDBACK
@@ -114,7 +114,7 @@ sub _initialize {
   $self->SUPER::_initialize(@args);
    
   # hash for functions for decoding keys.
-  $self->{'_func_ftunit_hash'} = {}; 
+  $self->{'_func_ftunit_hash'} = {};
   $self->_show_dna(1); # sets this to one by default. People can change it
 }
 
@@ -145,12 +145,12 @@ sub next_seq {
        while( defined ($line = $self->_readline) ) {
    	   $line =~ /\S/ && last;
        }
-   }   
+   }
    if( !defined $line ) {
        return undef; # end of file
    }
 
-   $line =~ /^ID\s+([^\s_]+)_([^\s_]+)\s+([^\s;]+);\s+([^\s;]+);/ 
+   $line =~ /^ID\s+([^\s_]+)_([^\s_]+)\s+([^\s;]+);\s+([^\s;]+);/
      || $self->throw("swissprot stream with no ID. Not swissprot in my book");
    $name = $1."_".$2;
    $seq->primary_id($1);
@@ -227,7 +227,7 @@ sub next_seq {
 		   $comment .= $1;
 		   $comment .= "\n";
 	       }
-	       else { 
+	       else {
 		   last;
 	       }
 	   }
@@ -287,7 +287,7 @@ sub next_seq {
 	   /^SQ/ && last;
        }
    }
-   $seqc = "";	       
+   $seqc = "";	
    while( defined ($_ = $self->_readline) ) {
        /^\/\// && last;
        $_ = uc($_);
@@ -365,16 +365,16 @@ sub write_seq {
        # this. HL 2000/09/03
        $temp_line = sprintf ("%10s     STANDARD;      %3s;   %d AA.",
 			     $seq->display_id(), $mol, $len);
-   } 
+   }
 
-   $self->_print( "ID   $temp_line\n");   
+   $self->_print( "ID   $temp_line\n");
 
    # if there, write the accession line
    local($^W) = 0;   # supressing warnings about uninitialized fields
 
    if( $self->_ac_generation_func ) {
        $temp_line = &{$self->_ac_generation_func}($seq);
-       $self->_print( "AC   $temp_line\n");   
+       $self->_print( "AC   $temp_line\n");
    } else {
        if ($seq->can('accession_number') ) {
 	   $self->_print("AC   ",$seq->accession_number,";");
@@ -389,13 +389,13 @@ sub write_seq {
 	   }
        }
        # otherwise - cannot print <sigh>
-   } 
+   }
 
    #Date lines
    foreach my $dt ( $seq->get_dates() ) {
        $self->_write_line_swissprot_regex("DT   ","DT   ",$dt,"\\s\+\|\$",80);
    }
-   
+
    #Definition lines
    $self->_write_line_swissprot_regex("DE   ","DE   ",$seq->desc(),"\\s\+\|\$",80);
 
@@ -447,11 +447,11 @@ sub write_seq {
        # more like a comment than a parseable value, so print it as is
        if ($ref->rp) {
 	 $self->_write_line_swissprot_regex("RP   ","RP   ",$ref->rp,
-					    "\\s\+\|\$",80); 
-       } 
+					    "\\s\+\|\$",80);
+       }
        if ($ref->comment) {
 	 $self->_write_line_swissprot_regex("RC   ","RC   ",$ref->comment,
-					    "\\s\+\|\$",80); 
+					    "\\s\+\|\$",80);
        }
        if ($ref->medline) {
 	 # new RX format in swissprot LP 09/17/00
@@ -465,8 +465,8 @@ sub write_seq {
 					    $ref->medline.".","\\s\+\|\$",80);
 	 }
        }
-       $self->_write_line_swissprot_regex("RA   ","RA   ",$ref->authors,"\\s\+\|\$",80);       
-       $self->_write_line_swissprot_regex("RT   ","RT   ",$ref->title,"\\s\+\|\$",80);       
+       $self->_write_line_swissprot_regex("RA   ","RA   ",$ref->authors,"\\s\+\|\$",80);
+       $self->_write_line_swissprot_regex("RT   ","RT   ",$ref->title,"\\s\+\|\$",80);
        $self->_write_line_swissprot_regex("RL   ","RL   ",$ref->location,"\\s\+\|\$",80);
        $t++;
    }
@@ -494,7 +494,7 @@ sub write_seq {
      else {
 	$self->_print("DR   ",$dblink->database,"; ",$dblink->primary_id,"; ",
 		     "-.\n");
-    } 
+    }
  }
    
 
@@ -502,11 +502,11 @@ sub write_seq {
    
    if( $self->_kw_generation_func ) {
        $temp_line = &{$self->_kw_generation_func}($seq);
-       $self->_print( "KW   $temp_line\n");   
+       $self->_print( "KW   $temp_line\n");
    } else {
        if( $seq->can('keywords') ) {
 	 $self->_write_line_swissprot_regex("KW   ","KW   ",
-					    $seq->keywords,"\\s\+\|\$",80);       
+					    $seq->keywords,"\\s\+\|\$",80);
        }
    }
 
@@ -555,8 +555,8 @@ sub write_seq {
    # molecular weight
    my $mw = ${Bio::Tools::SeqStats->get_mol_wt($seq->primary_seq)}[0];
    # checksum
-   # was crc32 checksum, changed it to crc64 
-   my $crc64 = $self->_crc64(\$str); 
+   # was crc32 checksum, changed it to crc64
+   my $crc64 = $self->_crc64(\$str);
    $self->_print( sprintf("SQ   SEQUENCE  %4d AA;  %d MW;  %16s CRC64;\n",
 			  $len,$mw,$crc64));
    $self->_print( "     ");
@@ -585,10 +585,10 @@ sub write_seq {
 
 
 =cut
-    
+
 sub _generateCRCTable {
   # 10001000001010010010001110000100
-  # 32 
+  # 32
   my $poly = 0xEDB88320;
   my ($self) = shift;
         
@@ -657,7 +657,7 @@ sub _crc64{
     my $POLY64REVh = 0xd8000000;
     my @CRCTableh = 256;
     my @CRCTablel = 256;
-    my $initialized;       
+    my $initialized;
     
 
     my $seq = $$sequence;

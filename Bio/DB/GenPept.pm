@@ -160,7 +160,7 @@ sub default_format {
   Returns : Bio::Seq object
   Args    : accession number to retrive by
 
-=head2 Routines implemented by Bio::DB::NCBIHelper
+=head1 Routines implemented by Bio::DB::NCBIHelper
 
 =head2 get_request
 

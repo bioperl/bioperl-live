@@ -12,7 +12,7 @@
 
 =head1 NAME
 
-  Bio::LiveSeq::Mutator - Package mutating LiveSequences
+Bio::LiveSeq::Mutator - Package mutating LiveSequences
 
 =head1 SYNOPSIS
 
