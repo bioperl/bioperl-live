@@ -161,7 +161,7 @@ sub next_assembly {
 	    $consensus_sequence = Bio::LocatableSeq->new(-seq=>$consensus_sequence,
 							      -start=>1,
 							      -end=>$consensus_length,
-							      -id=>$contigID);
+							      -id=>"Consensus sequence for $contigID");
 	    $contigOBJ->set_consensus_sequence($consensus_sequence);
 	    $assembly->add_contig($contigOBJ);
 	};
