@@ -87,7 +87,7 @@ use Bio::SeqAnalysisParserI;
 use Bio::SeqFeature::FeaturePair;
 use Bio::SeqFeature::Generic;
 
-@ISA = qw(Bio::SeqAnalysisParserI Bio::Root::IO Bio::Root::Root);
+@ISA = qw(Bio::Root::Root Bio::SeqAnalysisParserI Bio::Root::IO );
 
 =head2 new
 

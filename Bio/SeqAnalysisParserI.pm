@@ -79,27 +79,9 @@ Internal methods are usually preceded with a _
 package Bio::SeqAnalysisParserI;
 use strict;
 use vars qw(@ISA);
-use Bio::Root::Root;
+use Bio::Root::RootI;
 use Carp;
-@ISA = qw(Bio::Root::Root);
-
-=head2 new
-
- Title   : new
- Remark  : Classes implementing this interface are expected to implement
-           recognition of at least the following named parameters:
-           -file     input file (alternative to -fh)
-           -fh       input stream (alternative to -file)
-
-=cut
-
-sub new {
-    my ($class,@args) = @_;
-    if( $class eq 'Bio::SeqAnalysisParserI') {
-	confess('Do not use this object directly it is an interface');
-    }
-    return $class->SUPER::new(@args);
-}
+@ISA = qw(Bio::Root::RootI);
 
 =head2 next_feature
 
@@ -116,15 +98,7 @@ sub new {
 
 sub next_feature {
     my ($self);
-    $self->_abstractDeath();
-}
-
-sub _abstractDeath {
-  my $self = shift;
-  my $package = ref $self;
-  my $caller = (caller)[1];
-  
-  confess "Abstract method '$caller' defined in interface Bio::SeqAnalsysiParserI not implemented by pacakge $package. Not your fault - author of $package should be blamed!";
+    $self->_abstractDeath('next_feature');
 }
 
 1;
