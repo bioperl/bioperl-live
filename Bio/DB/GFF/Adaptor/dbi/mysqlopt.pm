@@ -313,8 +313,8 @@ sub make_object {
 # WHETHER OR NOT THIS WORKS IS CRITICALLY DEPENDENT ON THE RELATIVE MAGNITUDE OF THE
 sub make_features_from_part {
   my $self = shift;
-  my $sparse = shift;
   my $options = shift || {};
+  my $sparse = shift;
   my $index = $sparse ? ' USE INDEX(ftypeid)': '';
   return $options->{attributes} ? "fdata${index},ftype,fgroup,fattribute,fattribute_to_feature\n"
                                 : "fdata${index},ftype,fgroup\n";

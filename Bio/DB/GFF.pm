@@ -956,7 +956,7 @@ This method can be used to fetch a named feature from the database.
 GFF annotations are named using the group class and name fields, so
 for features that belong to a group of size one, this method can be
 used to retrieve that group (and is equivalent to the segment()
-method).
+method).  Any Alias attributes are also searched for matching names.
 
 This method may return zero, one, or several Bio::DB::GFF::Feature
 objects.
@@ -993,6 +993,7 @@ sub get_feature_by_name {
   my $features = [];
   my $callback = sub { push @$features,$self->make_feature(undef,\%groups,@_) };
   $self->_feature_by_name($gclass,$gname,$callback);
+  $self->_feature_by_alias($gclass,$gname,$callback) if $self->can('_feature_by_alias');
 
   warn "aggregating...\n" if $self->debug;
   foreach my $a (@aggregators) {  # last aggregator gets first shot

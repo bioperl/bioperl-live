@@ -110,6 +110,17 @@ sub stop    {
   return $self->{stop}
 }
 sub end     { shift->stop }
+sub length { my $self = shift; $self->stop - $self->start };
+sub score {
+    my $self = shift;
+    return $self->{score} if exists $self->{score};
+    return $self->{score} = ($self->{feature}->score || 0);
+}
+sub strand {
+    my $self = shift;
+    return $self->{strand} if exists $self->{strand};
+    return $self->{strand} = ($self->{feature}->strand || 0);
+}
 sub map_pt  { shift->{factory}->map_pt(@_) }
 sub map_no_trunc { shift->{factory}->map_no_trunc(@_) }
 
@@ -326,6 +337,8 @@ sub connector {
 #              -1   bump up
 #              +2   simple (hyper) bump up
 #              -2   simple (hyper) bump down
+#              +3   bump down, not position dependent
+#              -3   bump up, not position dependent
 sub bump {
   my $self = shift;
   return $self->option('bump');
@@ -371,6 +384,57 @@ sub connector_color {
   $self->color('connector_color') || $self->fgcolor;
 }
 
+sub layout_sort {
+
+    my $self = shift;
+    my $sortfunc;
+
+    my $opt = $self->option("sort_order");
+    if (!$opt) {
+       $sortfunc = eval 'sub { $a->left <=> $b->left }';
+    } elsif (ref $opt eq 'CODE') {
+       $sortfunc = $opt;
+    } elsif ($opt =~ /^sub\s+\{/o) {
+       $sortfunc = eval $opt;
+    } else {
+       # build $sortfunc for ourselves:
+       my @sortbys = split(/\s*\|\s*/o, $opt);
+       $sortfunc = 'sub { ';
+       my $sawleft = 0;
+       for my $sortby (@sortbys) {
+           if ($sortby eq "left" || $sortby eq "default") {
+               $sortfunc .= '($a->left <=> $b->left) || ';
+               $sawleft++;
+           } elsif ($sortby eq "right") {
+               $sortfunc .= '($a->right <=> $b->right) || ';
+           } elsif ($sortby eq "low_score") {
+               $sortfunc .= '($a->score <=> $b->score) || ';
+           } elsif ($sortby eq "high_score") {
+               $sortfunc .= '($b->score <=> $a->score) || ';
+           } elsif ($sortby eq "longest") {
+               $sortfunc .= '(($b->length) <=> ($a->length)) || ';
+           } elsif ($sortby eq "shortest") {
+               $sortfunc .= '(($a->length) <=> ($b->length)) || ';
+           } elsif ($sortby eq "strand") {
+               $sortfunc .= '($b->strand <=> $a->strand) || ';
+           }
+       }
+       unless ($sawleft) {
+           $sortfunc .= ' ($a->left <=> $b->left) ';
+       } else {
+           $sortfunc .= ' 0';
+       }
+       $sortfunc .= '}';
+       $sortfunc = eval $sortfunc;
+    }
+
+    # would be nice to cache this somehow, but won't this override the
+    # settings for other tracks?
+    # $self->factory->set_option(sort_order => $sortfunc);
+
+    return sort $sortfunc @_;
+}
+
 # handle collision detection
 sub layout {
   my $self = shift;
@@ -380,6 +444,7 @@ sub layout {
     || return $self->{layout_height} = $self->height + $self->pad_top + $self->pad_bottom;
 
   my $bump_direction = $self->bump;
+  $bump_direction = 3;
 
   $_->layout foreach @parts;  # recursively lay out
 
@@ -396,7 +461,7 @@ sub layout {
   if (abs($bump_direction) <= 1) {  # original bump algorithm
 
     my %occupied; # format of occupied: key={top,bottom}, value=right
-    for my $g (sort { $a->left <=> $b->left } @parts) {
+    for my $g ($self->layout_sort(@parts)) {
 
       my $pos = 0;
       my $left   = $g->left;
@@ -434,16 +499,47 @@ sub layout {
     }
   }
 
-  else {  # abs(bump) >= 2 -- simple bump algorithm
+  elsif(abs($bump_direction) == 2) {  # abs(bump) == 2 -- simple bump algorithm
     my $pos = 0;
     my $last;
-    for my $g (sort { $a->left <=> $b->left } @parts) {
+    for my $g ($self->layout_sort(@parts)) {
       next if !defined($last);
       $pos += $bump_direction > 0 ? $last->{layout_height} + BUMP_SPACING 
                                   : - ($g->{layout_height}+BUMP_SPACING);
       $g->move(0,$pos);
     } continue {
       $last = $g;
+    }
+  } else {
+    # abs(bump) >=3 -- yet another bump algorithm that doesn't
+    # depend on left position:
+    my @overlaps;
+    for my $g ($self->layout_sort(@parts)) {
+      my $j;
+      LEVEL : for ($j = 0; $j < @overlaps; $j++) {
+       for my $h (@{$overlaps[$j]}) {
+         # do they overlap?
+         if ( ($g->right >= $h->left && $g->right <= $h->right) ||
+              ($h->right >= $g->left && $h->right <= $g->right)
+            ) {
+           next LEVEL; # yep, try again at the next level ...
+         }
+        }
+       last LEVEL; # nope, no overlap to any $h at this level;
+                   # $g can go in this level ...
+      }
+      unshift @{$overlaps[$j]}, $g; # most likely to overlap at
+                                    # the beginning of the list;
+                                    # this is a small optimization.
+    }
+
+    my $pos = 0;
+    for (my $j = 1; $j < @overlaps ; $j++) {
+      $pos += $bump_direction > 0 ? $overlaps[$j-1]->[0]->{layout_height} + BUMP_SPACING
+         : - ($overlaps[$j-1]->[0]->{layout_height} + BUMP_SPACING);
+      for my $h (@{$overlaps[$j]}) {
+       $h->move(0, $pos);
+      }
     }
   }
 
@@ -1135,6 +1231,8 @@ glyph pages for more options.
 
   -description  Whether to draw a description  0 (false)
 
+  -sort_order   Specify layout sort order      "default"
+
 For glyphs that consist of multiple segments, the -connector option
 controls what's drawn between the segments.  The default is 0 (no
 connector).  Options include "hat", an upward-angling conector,
@@ -1162,6 +1260,42 @@ create a suitable description.
 The -strand_arrow option, if true, requests that the glyph indicate
 which strand it is on, usually by drawing an arrowhead.  Not all
 glyphs can respond appropriately to this request.
+
+By default, features are drawn with a layout based only on the
+position of the feature, assuring a maximal "packing" of the glyphs
+when bumped.  In some cases, however, it makes sense to display the
+glyphs sorted by score or some other comparison, e.g. such that more
+"important" features are nearer the top of the display, stacked above
+less important features.  The -sort_order option allows a few
+different built-in values for changing the default sort order (which
+is by "left" position): "low_score" (or "high_score") will cause
+features to be sorted from lowest to highest score (or vice versa).
+"left" (or "default") and "right" values will cause features to be
+sorted by their position in the sequence.  "longer" (or "shorter")
+will cause the longest (or shortest) features to be sorted first, and
+"strand" will cause the features to be sorted by strand: "+1"
+(forward) then "0" (unknown, or NA) then "-1" (reverse).
+
+In all cases, the "left" position will be used to break any ties.  To
+break ties using another field, options may be strung together using a
+"|" character; e.g. "strand|low_score|right" would cause the features
+to be sorted first by strand, then score (lowest to highest), then by
+"right" position in the sequence.  Finally, a subroutine coderef can
+be provided, which should expect to receive two feature objects (via
+the special sort variables $a and $b), and should return -1, 0 or 1
+(see Perl's sort() function for more information); this subroutine
+will be used without further modification for sorting.  For example,
+to sort a set of database search hits by bits (stored in the features'
+"score" fields), scaled by the log of the alignment length (with
+"left" position breaking any ties):
+
+  sort_order = sub { ( $b->score/log($b->length)
+                                      <=>
+                       $a->score/log($a->length) )
+                                      ||
+                     ( $a->start <=> $b->start )
+                   }
+
 
 =head1 SUBCLASSING Bio::Graphics::Glyph
 

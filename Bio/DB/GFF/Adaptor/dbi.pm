@@ -327,6 +327,46 @@ sub _feature_by_name {
   return $count;
 }
 
+=head2 _feature_by_alias
+
+ Title   : _feature_by_alias
+ Usage   : $db->get_features_by_alias($name,$class,$callback)
+ Function: get a list of features by name and class
+ Returns : count of number of features retrieved
+ Args    : name of feature, class of feature, and a callback
+ Status  : protected
+
+This method is used internally.  The callback arguments are those used
+by make_feature().  Internally, it invokes the following abstract procedures:
+
+ make_features_select_part
+ make_features_from_part
+ make_features_by_name_where_part
+ make_features_join_part
+
+=cut
+
+sub _feature_by_alias {
+  my $self = shift;
+  my ($class,$name,$callback) = @_;
+  $callback || $self->throw('must provide a callback argument');
+
+  my $select         = $self->make_features_select_part;
+  my $from           = $self->make_features_from_part({attributes=>1});
+  my ($where,@args)  = $self->make_features_by_alias_where_part($class,$name);
+  my $join           = $self->make_features_by_alias_join_part;
+  my $query  = "SELECT $select FROM $from WHERE $where AND $join";
+  my $sth    = $self->dbh->do_query($query,@args);
+
+  my $count = 0;
+  while (my @row = $sth->fetchrow_array) {
+    $callback->(@row);
+    $count++;
+  }
+  $sth->finish;
+  return $count;
+}
+
 =head2 _feature_by_id
 
  Title   : _feature_by_id
@@ -376,7 +416,7 @@ sub _feature_by_attribute {
   $callback || $self->throw('must provide a callback argument');
 
   my $select         = $self->make_features_select_part;
-  my $from           = $self->make_features_from_part(undef,{attributes=>$attributes});
+  my $from           = $self->make_features_from_part({attributes=>$attributes},undef);
   my ($where,@args)  = $self->make_features_by_range_where_part('',{attributes=>$attributes});
   my $join           = $self->make_features_join_part({attributes=>$attributes});
   my $query          = "SELECT $select FROM $from WHERE $where AND $join";
@@ -529,7 +569,7 @@ sub range_query {
   my %a             = (refseq=>$refseq,class=>$class,start=>$start,stop=>$stop,types=>$types,attributes=>$attributes,bin_width=>$bin);
   my $straight      = $self->do_straight_join(\%a) ? 'straight_join' : '';
   my $select        = $self->make_features_select_part(\%a);
-  my $from          = $self->make_features_from_part($sparse,\%a);
+  my $from          = $self->make_features_from_part(\%a,$sparse);
   my $join          = $self->make_features_join_part(\%a);
   my ($where,@args) = $self->make_features_by_range_where_part($rangetype,\%a);
   my ($group_by,@more_args) = $self->make_features_group_by_part(\%a);
@@ -910,11 +950,14 @@ sub make_features_select_part {
 
 =head2 make_features_from_part
 
- Title   : make_features_from_part
+ Title   : make_features_from_part($atributes,$sparse)
  Usage   : $string = $db->make_features_from_part()
  Function: make from part of the features query
  Returns : a string
- Args    : none
+ Args    : $attributes is a hash containing attributes to match
+           (see get_by_attribute), and $sparse is a flag indicating
+           that there are relatively few of this type of feature
+           in the data table.
  Status  : Abstract
 
 This abstract method creates the part of the features query that
@@ -944,6 +987,26 @@ do not need to join, return "1".
 
 sub make_features_join_part {
   shift->throw("make_features_join_part(): must be implemented by subclass");
+}
+
+=head2 make_features_by_alias_join_part
+
+ Title   : make_features_by_alias_join_part
+ Usage   : $string = $db->make_features_by_alias_join_part()
+ Function: make join part of the features query
+ Returns : a string
+ Args    : none
+ Status  : Abstract
+
+This abstract method creates the part of the features query that
+immediately follows the WHERE keyword.  It is combined with the output
+of make_feautres_where_part() to form the full WHERE clause.  If you
+do not need to join, return "1".
+
+=cut
+
+sub make_features_by_alias_join_part {
+  shift->throw("make_features_by_alias_join_part(): must be implemented by subclass");
 }
 
 =head2 make_features_order_by_part
@@ -983,6 +1046,24 @@ sub make_features_by_name_where_part {
   my ($class,$name) = @_;
   shift->throw('make_features_by_name_where_part(): must be implemented by subclass');
 }
+
+=head2 make_features_by_alias_where_part
+
+ Title   : make_features_by_alias_where_part
+ Usage   : $db->make_features_by_alias_where_part
+ Function: create the SQL fragment needed to select a feature by its alias & group class
+ Returns : a SQL fragment and bind arguments
+ Args    : see below
+ Status  : Protected
+
+=cut
+
+sub make_features_by_alias_where_part {
+  my $self = shift;
+  my ($class,$name) = @_;
+  shift->throw('make_features_by_name_where_part(): must be implemented by subclass');
+}
+
 
 =head2 make_features_by_id_where_part
 

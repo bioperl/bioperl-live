@@ -426,11 +426,33 @@ sub get_abscoords {
 sub make_features_by_name_where_part {
   my $self = shift;
   my ($class,$name) = @_;
-  if ($name =~ /\*/) {
-    $name =~ s/\*/%/g;
+  if ($name =~ /[*?]/) {
+    $name =~ tr/*?/%_/;
     return ("fgroup.gclass=? AND fgroup.gname LIKE ?",$class,$name);
   } else {
     return ("fgroup.gclass=? AND fgroup.gname=?",$class,$name);
+  }
+}
+
+=head2 make_features_by_alias_where_part
+
+ Title   : make_features_by_alias_where_part
+ Usage   : $db->make_features_by_alias_where_part
+ Function: create the SQL fragment needed to select a feature by its alias & group class
+ Returns : a SQL fragment and bind arguments
+ Args    : see below
+ Status  : Protected
+
+=cut
+
+sub make_features_by_alias_where_part {
+  my $self = shift;
+  my ($class,$name) = @_;
+  if ($name =~ /[*?]/) {
+    $name =~ tr/*?/%_/;
+    return ("fgroup.gclass=? AND fattribute_to_feature.fattribute_value LIKE ?",$class,$name);
+  } else {
+    return ("fgroup.gclass=? AND  fattribute_to_feature.fattribute_value=?",$class,$name);
   }
 }
 
@@ -571,6 +593,34 @@ END1
   AND fdata.fid=fattribute_to_feature.fid
 END2
 }
+
+=head2 make_features_by_alias_join_part
+
+ Title   : make_features_by_alias_join_part
+ Usage   : $string = $db->make_features_by_alias_join_part()
+ Function: make join part of the features query
+ Returns : a string
+ Args    : none
+ Status  : Abstract
+
+This abstract method creates the part of the features query that
+immediately follows the WHERE keyword.  It is combined with the output
+of make_feautres_where_part() to form the full WHERE clause.  If you
+do not need to join, return "1".
+
+=cut
+
+sub make_features_by_alias_join_part {
+  my $self = shift;
+  return <<END;
+  fgroup.gid = fdata.gid
+  AND fattribute.fattribute_name='Alias'
+  AND fattribute_to_feature.fattribute_id=fattribute.fattribute_id
+  AND fattribute_to_feature.fid=fdata.fid
+  AND ftype.ftypeid = fdata.ftypeid
+END
+}
+
 
 =head2 make_features_order_by_part
 
