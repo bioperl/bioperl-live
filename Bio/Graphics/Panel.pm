@@ -39,6 +39,7 @@ sub new {
   my $allcallbacks = $options{-all_callbacks} || 0;
   my $gridcolor    = $options{-gridcolor} || GRIDCOLOR;
   my $grid         = $options{-grid}       || 0;
+  my $flip         = $options{-flip}       || 0;
   my $empty_track_style   = $options{-empty_tracks} || 'key';
   my $truecolor    = $options{-truecolor}  || 0;
 
@@ -72,6 +73,7 @@ sub new {
 		key_align => $keyalign,
 		all_callbacks => $allcallbacks,
 		truecolor     => $truecolor,
+		flip          => $flip,
 		empty_track_style    => $empty_track_style,
 	       },$class;
 }
@@ -101,6 +103,13 @@ sub pad_bottom {
   $g;
 }
 
+sub flip {
+  my $self = shift;
+  my $g = $self->{flip};
+  $self->{flip} = shift if @_;
+  $g;
+}
+
 # values of empty_track_style are:
 #    "suppress" -- suppress empty tracks entirely (default)
 #    "key"      -- show just the key in "between" mode
@@ -127,9 +136,11 @@ sub map_pt {
   my $scale  = $self->{scale} || $self->scale;
   my $pl     = $self->{pad_left};
   my $pr     = $self->{width} - $self->{pad_right};
+  my $flip   = $self->{flip};
+  my $length = $self->{length};
   my @result;
   foreach (@_) {
-    my $val = int (0.5 + $pl + ($_-$offset-1) * $scale);
+    my $val = $flip ? int (0.5 + $pr - ($length - ($_- 1)) * $scale) : int (0.5 + $pl + ($_-$offset-1) * $scale);
     $val = $pl-1 if $val < $pl;
     $val = $pr+1 if $val > $pr;
     push @result,$val;
@@ -141,10 +152,13 @@ sub map_no_trunc {
   my $self   = shift;
   my $offset = $self->{offset};
   my $scale  = $self->scale;
-  my $pl = $self->{pad_left};
+  my $pl     = $self->{pad_left};
+  my $pr     = $self->{width} - $self->{pad_right};
+  my $flip   = $self->{flip};
+  my $length = $self->{length};
   my @result;
   foreach (@_) {
-    my $val = int (0.5 + $pl + ($_-$offset-1) * $scale);
+    my $val = $flip ? int (0.5 + $pr - ($length - ($_- 1)) * $scale) : int (0.5 + $pl + ($_-$offset-1) * $scale);
     push @result,$val;
   }
   @result;
@@ -627,6 +641,7 @@ sub draw_grid {
   my $pl = $self->pad_left;
   my $pt = $self->pad_top;
   my $pb = $self->height - $self->pad_bottom;
+  local $self->{flip} = 0;
   for my $tick (@positions) {
     my ($pos) = $self->map_pt($tick);
     $gd->line($pos,$pt,$pos,$pb,$gridcolor);
@@ -1130,6 +1145,12 @@ a set of tag/value pairs as follows:
               the key in "between" mode ("key"),
               to draw a thin grey line ("line"),
               or to draw a dashed line ("dashed").
+
+  -flip       flip the drawing coordinates left     false
+              to right, so that lower coordinates
+              are to the right.  This can be
+              useful for drawing (-) strand
+              features.
 
   -all_callbacks Whether to invoke callbacks on      false
                the automatic "track" and "group"
@@ -1662,6 +1683,7 @@ and then caches the result.
    spacing()	      Get/set spacing between tracks
    key_spacing()      Get/set spacing between keys
    length()	      Get/set length of segment (bp)
+   flip()             Get/set coordinate flipping
    pad_top()	      Get/set top padding
    pad_left()	      Get/set left padding
    pad_bottom()	      Get/set bottom padding

@@ -44,15 +44,14 @@ sub draw_component {
   my $filled = defined($self->{partno}) && $width >= MIN_WIDTH_FOR_ARROW;
 
   if ($filled) {
-    my $f = $self->feature;
+    my $f      = $self->feature;
+    my $strand = $f->strand;
+    my ($first,$last)  = ($self->{partno} == 0 , $self->{partno} == $self->{total_parts}-1);
+    ($first,$last)     = ($last,$first) if exists $self->{flip};
 
-    if ($f->strand < 0
-	&&
-	$self->{partno} == 0) { # first exon, minus strand transcript
+    if ($strand < 0 && $first) { # first exon, minus strand transcript
       $self->filled_arrow($gd,-1,@rect);
-    } elsif ($f->strand >= 0
-	     &&
-	     $self->{partno} == $self->{total_parts}-1) { # last exon, plus strand
+    } elsif ($strand >= 0 && $last) { # last exon, plus strand
       $self->filled_arrow($gd,+1,@rect);
     } else {
       $self->SUPER::draw_component($gd,@_);

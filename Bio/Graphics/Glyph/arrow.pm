@@ -98,7 +98,7 @@ sub draw_parallel {
     my $stop     = $start + $self->feature->length - 1;
 
     my $offset   = $relative ? $self->feature->start-1 : 0;
-    my $reversed = $relative && $self->feature->strand < 0;
+    my $reversed = exists $self->{flip} || ($relative && $self->feature->strand < 0);
 
     my $unit_label   = $self->option('units') || '';
     my $unit_divider = $self->option('unit_divider') || 1;

@@ -145,6 +145,7 @@ sub arrowhead {
   my $self = shift;
   my $gd   = shift;
   my ($x,$y,$height,$orientation) = @_;
+
   my $fg = $self->set_pen;
   my $style = $self->option('arrowstyle') || 'regular';
 

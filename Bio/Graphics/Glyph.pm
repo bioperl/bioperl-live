@@ -29,11 +29,13 @@ sub new {
   my $feature = $arg{-feature} or die "No feature";
   my $factory = $arg{-factory} || $class->default_factory;
   my $level   = $arg{-level} || 0;
+  my $flip    = $arg{-flip};
 
   my $self = bless {},$class;
   $self->{feature} = $feature;
   $self->{factory} = $factory;
   $self->{level}   = $level;
+  $self->{flip}++  if $flip;
   $self->{top} = 0;
 
   my @subglyphs;
@@ -100,7 +102,7 @@ sub scale   { shift->factory->scale }
 sub start   {
   my $self = shift;
   return $self->{start} if exists $self->{start};
-  $self->{start} = $self->{feature}->start;
+  $self->{start} = exists $self->{flip} ? $self->panel->end + 1 - $self->{feature}->end : $self->{feature}->start;
 
   # handle the case of features whose endpoints are undef
   # (this happens with wormbase clones where one or more clone end is not defined)
@@ -112,7 +114,7 @@ sub start   {
 sub stop    {
   my $self = shift;
   return $self->{stop} if exists $self->{stop};
-  $self->{stop} = $self->{feature}->end;
+  $self->{stop} = exists $self->{flip} ?  $self->panel->end + 1 - $self->{feature}->start : $self->{feature}->end;
 
   # handle the case of features whose endpoints are undef
   # (this happens with wormbase clones where one or more clone end is not defined)
@@ -212,7 +214,6 @@ sub bounds {
    $dx + $self->{left} + $self->{width} - 1,
    $dy + $self->bottom - $self->pad_bottom);
 }
-
 
 
 sub box {
@@ -815,6 +816,7 @@ sub filled_arrow {
   my $self = shift;
   my $gd  = shift;
   my $orientation = shift;
+  $orientation *= -1 if exists $self->{flip};
 
   my ($x1,$y1,$x2,$y2) = @_;
 

@@ -45,14 +45,26 @@ sub draw_connectors {
     @parts = $self;
   }
 
-  if ($self->feature->strand >= 0) {
-    my($x1,$y1,$x2,$y2) = $parts[-1]->bounds(@_);
+  # flip argument makes this confusing
+  # certainly there's a simpler way to express this idea
+  my $strand    = $self->feature->strand;
+  my ($first,$last) = ($parts[0],$parts[-1]);
+  ($first,$last) = ($last,$first) if exists $self->{flip};
+
+  if ($strand >= 0) {
+    my($x1,$y1,$x2,$y2) = $last->bounds(@_);
     my $center = ($y2+$y1)/2;
-    $self->arrow($gd,$x2,$x2+$self->arrow_length,$center);
+    exists $self->{flip} ?
+	$self->arrow($gd,$x1,$x1-$self->arrow_length,$center)
+      :
+	$self->arrow($gd,$x2,$x2+$self->arrow_length,$center);
   } else {
-    my($x1,$y1,$x2,$y2) = $parts[0]->bounds(@_);
+    my($x1,$y1,$x2,$y2) = $first->bounds(@_);
     my $center = ($y2+$y1)/2;
-    $self->arrow($gd,$x1,$x1 - $self->arrow_length,$center);
+    exists $self->{flip } ?
+	$self->arrow($gd,$x2,$x2+$self->arrow_length,$center)
+      :
+	$self->arrow($gd,$x1,$x1 - $self->arrow_length,$center);
   }
 }
 
