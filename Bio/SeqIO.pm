@@ -191,6 +191,7 @@ Specify the format of the file.  Supported formats include:
    Fastq       Fastq format
    GCG         GCG format
    GenBank     GenBank format
+   kegg        KEGG format
    PIR         Protein Information Resource format
    PLN         Staden plain tracefile format
    SCF         SCF tracefile format
@@ -202,6 +203,8 @@ Specify the format of the file.  Supported formats include:
    qual        Quality values (get a sequence of quality scores)
    raw         Raw format (one sequence per line, no ID)
    swiss       Swissprot format
+   tab         tab-delimited
+   tigr        TIGR XML format
 
 If no format is specified and a filename is given then the module
 will attempt to deduce the format from the filename suffix.  If this
@@ -618,7 +621,6 @@ sub _guess_format {
    return unless $_ = shift;
    return 'fasta'   if /\.(fasta|fast|fas|seq|fa|fsa|nt|aa)$/i;
    return 'genbank' if /\.(gb|gbank|genbank|gbk|gbs)$/i;
-   return 'scf'     if /\.scf$/i;
    return 'scf'     if /\.scf$/i;
    return 'abi'     if /\.ab[i1]$/i;
    return 'alf'     if /\.alf$/i;
