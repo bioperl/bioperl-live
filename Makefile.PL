@@ -76,15 +76,12 @@ $tline = "show_tests :\n\t\@echo \'type make test_<subtest> to run\'\n\t\@echo '
 
 print STDERR "Generated sub tests. go make show_tests to see available subtests\n";
 
-sub MY::postamble {
-             $tline;
-         }
-
 #
 # Prompt user for BioDBGFF stuff
 #
 
 if(  eval { require DBI } && grep {/mysql/} DBI->available_drivers) {
+  print "\n";
   my $proceed = prompt("Do you want to run the BioDBGFF tests (requires a mysql, postgres or oracle database) y/n",'n');
   if( $proceed =~ /^[yY]/) {
     my $cfg = {dbd_driver => 'mysql'};
@@ -100,6 +97,21 @@ if(  eval { require DBI } && grep {/mysql/} DBI->available_drivers) {
       unlink "t/do_biodbgff.tests";
     }
   }
+}
+
+#
+# Prompt user for installing scripts
+#
+print "\nBioperl comes with a number of useful scripts which you may wish to install.\n";
+my $prompt_mode = prompt("Install [a]ll Bioperl scripts, [n]one, or choose groups [i]nteractively?",'i');
+
+sub MY::postamble {
+  $tline . <<END;
+
+bioperl_scripts_install ::
+	\$(PERL) scripts/install_bioperl_scripts.pl \$(INSTALLSCRIPT) $prompt_mode
+
+END
 }
 
 
@@ -268,14 +280,20 @@ WriteMakefile(
 
 
 sub MY::manifypods {
-    my $self = shift;
-    #print STDERR "In manifypods moment\n";
-    if( 1 ) {
-        return "\nmanifypods : pure_all\n\t$self->{NOECHO}\$(NOOP)\n"
-      }
-      else {
-        return $self->SUPER::manifypods(@_);
-      }
-    }
+  my $self = shift;
+  #print STDERR "In manifypods moment\n";
+  if( 1 ) {
+    return "\nmanifypods : pure_all\n\t$self->{NOECHO}\$(NOOP)\n"
+  }
+  else {
+    return $self->SUPER::manifypods(@_);
+  }
+}
 
+sub MY::install {
+  package MY;
+  my $inherited = shift->SUPER::install(@_);
+  $inherited =~ s/doc_install/doc_install bioperl_scripts_install/;
+  $inherited;
+}
 

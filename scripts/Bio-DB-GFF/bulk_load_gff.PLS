@@ -187,7 +187,7 @@ my $tmpdir = $ENV{TMPDIR} || $ENV{TMP} || '/usr/tmp';
 $tmpdir =~ s!\\!\\\\!g if $bWINDOWS; #eliminates backslash mis-interpretation
 my @files = (FDATA,FTYPE,FGROUP,FDNA,FATTRIBUTE,FATTRIBUTE_TO_FEATURE);
 foreach (@files) {
-  $FH{$_} = IO::File->new("$tmpdir/$_.$$",">") or die $_,": $!";
+  $FH{$_} = IO::File->new(">$tmpdir/$_.$$") or die $_,": $!";
   $FH{$_}->autoflush;
 }
 
