@@ -89,13 +89,12 @@ use strict;
 # Object preamble - inheritance
 
 use Bio::PrimarySeq;
-use Bio::Root::Object;
 use Bio::DBLinkContainerI;
 
-@ISA = qw( Bio::Root::Object Bio::PrimarySeq Bio::DBLinkContainerI );
+@ISA = qw( Bio::PrimarySeq Bio::DBLinkContainerI );
 
 sub _initialize {
-    my ($self, @args) = @_;
+    my($self, @args) = @_;
 
     my($seq,$id,$acc,$pid,$desc,$moltype,$given_id, 
        $is_reference, $repeat_unit, $repeat_count) =
@@ -127,9 +126,7 @@ sub _initialize {
     $repeat_unit && $self->repeat_unit($repeat_unit);
     $repeat_count && $self->repeat_count($repeat_count);
 
-    # set stuff in self from @args
     return $make; # success - we hope!
-    #return $self; # success - we hope!
 }
 
 
