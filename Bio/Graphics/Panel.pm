@@ -7,7 +7,7 @@ use Carp 'cluck';
 use GD;
 use vars '$VERSION';
 
-$VERSION = '1.01';
+$VERSION = 1.03;
 
 use constant KEYLABELFONT => gdMediumBoldFont;
 use constant KEYSPACING   => 5; # extra space between key columns
@@ -16,6 +16,7 @@ use constant KEYCOLOR     => 'wheat';
 use constant KEYSTYLE     => 'bottom';
 use constant KEYALIGN     => 'left';
 use constant GRIDCOLOR    => 'lightcyan';
+use constant MISSING_TRACK_COLOR =>'lightgrey';
 
 my %COLORS;  # translation table for symbolic color names to RGB triple
 
@@ -38,7 +39,8 @@ sub new {
   my $keyalign = $options{-key_align} || KEYALIGN;
   my $allcallbacks = $options{-all_callbacks} || 0;
   my $gridcolor    = $options{-gridcolor} || GRIDCOLOR;
-  my $grid         = $options{-grid} || 0;
+  my $grid         = $options{-grid}       || 0;
+  my $show_empty   = $options{-empty_tracks} || 'suppress';
 
   $offset   ||= $options{-segment}->start-1 if $options{-segment};
   $length   ||= $options{-segment}->length  if $options{-segment};
@@ -67,6 +69,7 @@ sub new {
 		key_style => $keystyle,
 		key_align => $keyalign,
 		all_callbacks => $allcallbacks,
+		show_empty    => $show_empty,
 	       },$class;
 }
 
@@ -95,13 +98,25 @@ sub pad_bottom {
   $g;
 }
 
+# values of show_empty are:
+#    "suppress" -- suppress empty tracks entirely (default)
+#    "key"      -- show just the key in "between" mode
+#    "line"     -- draw a thin grey line
+#    "dashed"   -- draw a dashed line
+sub show_empty {
+  my $self = shift;
+  my $g = $self->{show_empty};
+  $self->{show_empty} = shift if @_;
+  $g;
+}
+
 # numerous direct calls into array used here for performance considerations
 sub map_pt {
   my $self   = shift;
   my $offset = $self->{offset};
   my $scale  = $self->{scale} || $self->scale;
-  my $pl = $self->{pad_left};
-  my $pr = $self->{width} - $self->{pad_right};
+  my $pl     = $self->{pad_left};
+  my $pr     = $self->{width} - $self->{pad_right};
   my @result;
   foreach (@_) {
     my $val = int (0.5 + $pl + ($_-$offset-1) * $scale);
@@ -115,9 +130,8 @@ sub map_pt {
 sub map_no_trunc {
   my $self   = shift;
   my $offset = $self->{offset};
-  my $scale  = $self->{scale} || $self->scale;
+  my $scale  = $self->scale;
   my $pl = $self->{pad_left};
-  my $pr = $self->{width} - $self->{pad_right};
   my @result;
   foreach (@_) {
     my $val = int (0.5 + $pl + ($_-$offset-1) * $scale);
@@ -149,7 +163,7 @@ sub left {
 }
 sub right {
   my $self = shift;
-  $self->width - $self->pad_left;
+  $self->width - $self->pad_right;
 }
 
 sub spacing {
@@ -318,6 +332,7 @@ sub gd {
   my $offset = $pt;
   my $keyheight   = $self->{key_font}->height;
   my $between_key = $self->{key_style} eq 'between';
+  my $empty_track_style = $self->show_empty;
   my $spacing = $self->spacing;
 
   # we draw in two steps, once for background of tracks, and once for
@@ -339,9 +354,15 @@ sub gd {
 
   $offset = $pt;
   for my $track (@{$self->{tracks}}) {
-    next unless $track->parts;
-    $offset += $self->draw_between_key($gd,$track,$offset) if $between_key && $track->option('key');
+    my $draw_between = $between_key && $track->option('key');
+    if (!$track->parts) { # an empty track
+      next if $empty_track_style eq 'suppress';
+      next if $empty_track_style eq 'key' && !$draw_between;
+      $self->draw_empty($gd,$offset,$empty_track_style) if $empty_track_style=~/^(line|dashed)$/;
+    }
+    $offset += $self->draw_between_key($gd,$track,$offset) if $draw_between;
     $track->draw($gd,0,$offset,0,1);
+    $self->track_position($track,$offset);
     $offset += $track->layout_height + $spacing;
   }
 
@@ -356,14 +377,29 @@ sub boxes {
   my $pl = $self->pad_left;
   my $pt = $self->pad_top;
   my $between = $self->{key_style} eq 'between';
+  my $empty_track_style = $self->show_empty;
+
   for my $track (@{$self->{tracks}}) {
-    next unless $track->parts;
-    $offset += $self->{key_font}->height if $between && $track->option('key');
+    my $draw_between =  $between && $track->option('key');
+    if (!$track->parts) {
+      next if $empty_track_style eq 'suppress';
+      next if $empty_track_style eq 'key' && !$draw_between;
+    }
+    $offset += $self->{key_font}->height if $draw_between;
     my $boxes = $track->boxes(0,$offset+$pt);
     push @boxes,@$boxes;
+    $self->track_position($track,$offset);
     $offset += $track->layout_height + $self->spacing;
   }
   return wantarray ? @boxes : \@boxes;
+}
+
+sub track_position {
+  my $self  = shift;
+  my $track = shift;
+  my $d = $self->{_track_position}{$track};
+  $self->{_track_position}{$track} = shift if @_;
+  $d;
 }
 
 # draw the keys -- between
@@ -472,6 +508,20 @@ sub format_key {
 
   else {  # no known key style, neither "between" nor "bottom"
     return $self->{key_height} = 0;
+  }
+}
+
+sub draw_empty {
+  my $self  = shift;
+  my ($gd,$offset,$style) = @_;
+  my $left  = $self->pad_left;
+  my $right = $self->width;
+  my $color = $self->translate_color(MISSING_TRACK_COLOR);
+  if ($style eq 'dashed') {
+    $gd->setStyle($color,$color,gdTransparent,gdTransparent);
+    $gd->line($left,$offset,$right,$offset,gdStyled);
+  } else {
+    $gd->line($left,$offset,$right,$offset,$color);
   }
 }
 
@@ -1188,6 +1238,13 @@ Ace::Sequence::Feature, a Das::Segment::Feature, or another Bioperl
 Bio::SeqFeatureI object.  The coordinates are the topleft and
 bottomright corners of the glyph, including any space allocated for
 labels.
+
+=item $position = $panel-E<gt>track_position($track)
+
+After calling gd() or boxes(), you can learn the resulting Y
+coordinate of a track by calling track_position() with the value
+returned by add_track() or unshift_track().  This will return undef if
+called before gd() or boxes() or with an invalid track.
 
 =back
 
