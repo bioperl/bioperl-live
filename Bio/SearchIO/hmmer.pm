@@ -301,6 +301,9 @@ sub next_result{
 			   $self->element({'Name' => 'Hit_score',
 					   'Data' => shift @{$info}});
 		       }
+		       $self->end_element({'Name' => 'Hsp'})
+			   if $self->in_element('hsp');
+		       
 		       $self->start_element({'Name' => 'Hsp'});
 		       $self->element({'Name' => 'Hsp_identity',
 				       'Data' => 0});
