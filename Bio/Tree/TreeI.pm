@@ -161,6 +161,4 @@ sub height{
    return log($nodect) / log(2);
 }
 
-
-
 1;

@@ -165,5 +165,22 @@ sub get_marker_names{
    return keys %{$self->{'_data'}};
 }
 
+=head2 purge_markers
+
+ Title   : purge_markers
+ Usage   : $node->purge_markers;
+ Function: Reset the markers and alleles
+ Returns : none
+ Args    : none
+
+
+=cut
+
+sub purge_markers{
+   my ($self) = @_;
+   $self->{'_data'} = {};
+   return;
+}
+
 
 1;

@@ -106,7 +106,7 @@ sub new {
 						 DESC
 						 )],
 					     @args);
-  $self->{'_descendents'} = {};
+  $self->{'_desc'} = {};
   defined $desc && $self->description($desc);  
   defined $bootstrap && $self->bootstrap($bootstrap);
   defined $id && $self->id($id);
@@ -142,8 +142,8 @@ sub add_Descendent{
    }
    # do we care about order?
    $node->ancestor($self);
-   $self->{'_descendents'}->{$node} = $node;
-   return scalar keys %{$self->{'_descendents'}};
+   $self->{'_desc'}->{$node} = $node;
+   return scalar keys %{$self->{'_desc'}};
 }
 
 
@@ -162,7 +162,7 @@ sub each_Descendent{
    my ($self) = @_;
    # order can be based on branch length (and sub branchlength)    
    
-   return sort { $a->height <=> $b->height } values %{$self->{'_descendents'}};
+   return sort { $a->height <=> $b->height } values %{$self->{'_desc'}};
 }
 
 =head2 get_Descendents
@@ -281,12 +281,12 @@ sub DESTROY {
     my ($self) = @_;
     # try to insure that everything is cleaned up
     $self->SUPER::DESTROY();
-    if( defined $self->{'_descendents'} && 
-	ref($self->{'_descendents'}) =~ /ARRAY/i ) {
-	foreach my $n ( @{$self->{'_descendents'}} ) {
+    if( defined $self->{'_desc'} && 
+	ref($self->{'_desc'}) =~ /ARRAY/i ) {
+	foreach my $n ( @{$self->{'_desc'}} ) {
 	    $n->DESTROY();
 	}
-	$self->{'_descendents'} = {};
+	$self->{'_desc'} = {};
     }
 }
 
@@ -304,8 +304,10 @@ sub DESTROY {
 
 sub is_Leaf {
     my ($self) = @_;
-    return (defined $self->{'_descedendants'} &&
-	keys %{$self->{'_descedendants'}} > 0);
+    my $rc = 0;
+    $rc = 1 if( ! defined $self->{'_desc'} ||	
+		keys %{$self->{'_desc'}} == 0);
+    return $rc;
 }
 
 =head2 to_string
