@@ -60,9 +60,7 @@ use  Bio::DB::EMBL;
 use  Bio::DB::BioFetch;
 
 my $verbose = -1;
-my $verbose = 0 if $DEBUG;
-
-
+$verbose = 0 if $DEBUG;
 
 sub fetch {
     my ($id, $class) = @_;
