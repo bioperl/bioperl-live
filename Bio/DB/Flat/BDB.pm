@@ -45,7 +45,6 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 the bugs and their resolution.  Bug reports can be submitted via
 email or the web:
 
-  bioperl-bugs@bio.perl.org
   http://bugzilla.bioperl.org/
 
 =head1 AUTHOR - Lincoln Stein
@@ -134,7 +133,19 @@ sub get_Seq_by_id {
 # fetch array of Bio::Seq objects
 sub get_Seq_by_acc {
   my $self = shift;
-  return $self->get_Seq_by_id(shift) if @_ == 1;
+  unshift @_,'ACC' if @_==1;
+  my ($ns,$key) = @_;
+  my @primary_ids = $self->expand_ids($ns => $key);
+  $self->throw("more than one sequences correspond to this accession")
+      if @primary_ids > 1 && ! wantarray;
+  my @rc = map {$self->get_Seq_by_id($_)} @primary_ids;
+ return wantarray ? @rc : $rc[0];
+}
+
+# fetch array of Bio::Seq objects
+sub get_Seq_by_version {
+  my $self = shift;
+  unshift @_,'VERSION' if @_==1;
   my ($ns,$key) = @_;
   my @primary_ids = $self->expand_ids($ns => $key);
   $self->throw("more than one sequences correspond to this accession")
@@ -199,7 +210,9 @@ sub build_index {
   my @files = @_;
   my $count = 0;
   for my $file (@files) {
-    $count++ if $self->_index_file($file);
+    $file = File::Spec->rel2abs($file)
+      unless File::Spec->file_name_is_absolute($file);
+    $count += $self->_index_file($file);
   }
   $self->write_config;
   $count;
@@ -214,14 +227,16 @@ sub _index_file {
 
   my $fh     = $self->_fhcache($file) or $self->throw("could not open $file for indexing: $!");
   my $offset = 0;
+  my $count  = 0;
   while (!eof($fh)) {
-    my ($ids,$adjustment)  = $self->parse_one_record($fh);
+    my ($ids,$adjustment)  = $self->parse_one_record($fh) or next;
     $adjustment ||= 0;  # prevent uninit variable warning
     my $pos = tell($fh) + $adjustment;
     $self->_store_index($ids,$file,$offset,$pos-$offset);
     $offset = $pos;
+    $count++;
   }
-  1;
+  $count;
 }
 
 =head2 To Be Implemented in Subclasses
@@ -404,7 +419,7 @@ sub _open_bdb {
 
   my $primary_db = {};
   tie(%$primary_db,'DB_File',$self->_catfile($self->_primary_db_name),$flags,0666,$DB_BTREE)
-    or $self->throw("Could not open primary index file");
+    or $self->throw("Could not open primary index file: $! (did you remember to use -write_flag=>1?)");
   $self->{bdb_primary_db} = $primary_db;
 
   for my $secondary ($self->secondary_namespaces) {
