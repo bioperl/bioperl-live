@@ -1021,7 +1021,7 @@ methods for performing many common (and some not-so-common) tasks of
 sequence manipulation and data retrieval.  Here are some of the most
 useful:
 
-The following methods return strings
+These methods return strings or may be used to set values:
 
   $seqobj->display_id();       # the human read-able id of the sequence
   $seqobj->seq();              # string of sequence
@@ -1072,14 +1072,14 @@ there's a section on features in the FAQ
 (http://bioperl.org/Core/Latest/faq.html#5).
 
 The following methods returns new sequence objects, but do not transfer
-features across:
+the features from the starting object to the resulting feature:
 
   $seqobj->trunc(5,10);  # truncation from 5 to 10 as new object
   $seqobj->revcom;       # reverse complements sequence
   $seqobj->translate;    # translation of the sequence
 
 Note that some methods return strings, some return arrays and some
-return references to objects.  See L<Bio::Seq> for more information.
+return objects.  See L<Bio::Seq> for more information.
 
 Many of these methods are self-explanatory. However, bioperl's flexible
 translation methods warrant further comment. Translation in bioinformatics
@@ -2906,8 +2906,8 @@ $access_remote_db = sub {
     };
 
 if ($@ || !$seq1) {
-    warn "Warning: Couldn't connect to Genbank with Bio::DB::GenBank.pm!\nProbably no network access.\n Skipping method 'access_remote_db'.\n";
-    return 0;
+    warn "Warning: Couldn't connect to Genbank with Bio::DB::GenBank.pm!\nProbably no network access.\nSkipping method 'access_remote_db'.\n";
+    exit;
 }
     $seq1_id =  $seq1->display_id();
     print $outputfh "seq1 display id is $seq1_id \n";
@@ -2945,8 +2945,6 @@ $index_local_db = sub {
     eval { use Cwd; $dir = cwd; };
     # CWD not installed, revert to unix behavior, best we can do
     if( $@) { $dir = `pwd`;}
-
-
     $inx1 = Bio::Index::Fasta->new
         ('-FILENAME' => "$dir/$Index_File_Name",
          '-write_flag' => 1);
@@ -2991,7 +2989,7 @@ $fetch_local_db = sub {
       print STDERR "Perhaps you didn't run the index_local_db demo? \n";
       print STDERR "Skipping fetch_local_db example.\n\n";
       return 0;
-    }      
+    }
 
     $indexhash = $inx2->db();
     $keyfound = "";
@@ -3021,8 +3019,6 @@ $sequence_manipulations = sub {
     $infile = $dna_seq_file;
 
     print $outputfh "\nBeginning sequence_manipulations and SeqIO example... \n";
-
-
     # III.3.1 Transforming sequence files (SeqIO)
 
     $in  = Bio::SeqIO->new('-file' => $infile ,
@@ -3085,8 +3081,8 @@ $sequence_manipulations = sub {
 
     print $outputfh "\nBeginning 3-frame and alternate codon translation example... \n";
 
-    my $seq = new Bio::PrimarySeq('-SEQ' => $c,
-                                  '-ID' => 'no.One');
+    my $seq = new Bio::PrimarySeq(-seq => $c,
+                                  -id => 'no.One');
     print $outputfh "$c translated using method defaults   : ",
     $seq->translate->seq, "\n";
 
@@ -3129,9 +3125,9 @@ $seqstats_and_seqwords = sub {
     my ($seqobj, $weight, $monomer_ref, $codon_ref,
         $seq_stats, $words, $hash);
     $seqobj = Bio::Seq->new
-        ('-seq'=>'ACTGTGGCGTCAACTGACTGTGGCGTCAACTGACTGTGGGCGTCAACTGACTGTGGCGTCAACTG',
-         '-alphabet'=>'dna',
-         '-id'=>'test');
+        (-seq =>'ACTGTGGCGTCAACTGACTGTGGCGTCAACTGACTGTGGGCGTCAACTGACTGTGGCGTCAACTG',
+         -alphabet =>'dna',
+         -id =>'test');
 
 
     # III.4.1 Obtaining basic sequence statistics- MW,
@@ -3253,7 +3249,6 @@ $run_standaloneblast = sub {
       return 0;
     }
     print $outputfh "\nBeginning run_standaloneblast example... \n";
-
     my (@params, $factory, $input, $blast_report, $blast_present,
         $database, $sbjct, $str, $seq1);
 
@@ -3265,7 +3260,7 @@ $run_standaloneblast = sub {
     $factory = Bio::Tools::Run::StandAloneBlast->new(@params);
 
     unless ($factory->executable('blastall')) {
-        warn "blast program not found. Skipping StandAloneBlast example\n";
+        warn "blastall program not found. Skipping StandAloneBlast example\n";
         return 0;
     }
 
@@ -3311,7 +3306,7 @@ $run_remoteblast = sub {
 	  $r = $remote_blast_object->submit_blast( $blast_file);
       };
       if (($r < 0) || $@)  {
-	  warn "\n\n**Warning**: Couldn't connect to NCBI with Bio::Tools::Run::StandAloneBlast.pm!\nProbably no network access.\n Skipping Test\n";
+	  warn "\n\n**Warning**: Couldn't connect to NCBI with Bio::Tools::Run::StandAloneBlast.pm!\nProbably no network access.\nSkipping Test\n";
 	  return 0;
       }
       print $outputfh "submitted Blast job\n";
@@ -3346,19 +3341,15 @@ $run_remoteblast = sub {
 #  searchio_parsing ():
 #
 
-
-
 $searchio_parsing = sub {
 
 my ($searchio, $result,$hit,$hsp);
-
 
 use lib '.';
 use Bio::SearchIO;
 use Bio::Root::IO;
 
 print $outputfh "\nBeginning searchio-parser example... \n";
-
 $searchio = new Bio::SearchIO ('-format' => 'blast',
   '-file' => Bio::Root::IO->catfile('t','data','ecolitst.bls'));
 
@@ -3369,7 +3360,6 @@ print $outputfh "Algorithm is ", $result->algorithm , "\n";
 print $outputfh "Query length used is ", $result->query_length , "\n";
 print $outputfh "Kappa value is ", $result->get_statistic('kappa') , "\n";
 print $outputfh "Name of matrix used is ", $result->get_parameter('matrix') , "\n";
-
 
 $hit = $result->next_hit;
 print $outputfh "First hit name is ", $hit->name , "\n";
@@ -3398,10 +3388,8 @@ $bplite_parsing = sub {
         $matches, $loop);
 
     print $outputfh "\nBeginning bplite, bppsilite, bpbl2seq parsing example... \n";
-
     ($file1, $file2, $file3) = ($bp_parse_file1,
                                 $bp_parse_file2 ,$bp_parse_file3 );
-    #open FH, "t/data/blast.report";
     $report = Bio::Tools::BPlite->new('-file'=>$file1);
     $sbjct = $report->nextSbjct;
 
@@ -3443,7 +3431,6 @@ $hmmer_parsing = sub {
 
     print $outputfh "\nBeginning hmmer_parsing example \n" .
           " (note: this test may be a little slow, please be patient...) \n";
-
     # Parsing HMM reports
     use Bio::SearchIO;
 
@@ -3475,7 +3462,6 @@ $run_clustalw_tcoffee = sub {
 
     # Aligning multiple sequences (Clustalw.pm, TCoffee.pm)
     print $outputfh "\nBeginning run_clustalw example... \n";
-
     eval {require Bio::Tools::Run::Alignment::Clustalw; };
     if ( $@ ) { 
 	print STDERR "Cannot find Bio::Tools::Run::Alignment::Clustalw\n";
@@ -3541,7 +3527,6 @@ $simplealign = sub {
     my ( $str, $resSlice1, $resSlice2, $resSlice3, $tmpfile);
 
     print $outputfh "\nBeginning simplealign and alignio example... \n";
-
     # III.3.2 Transforming alignment files (AlignIO)
     $infile = $aligned_amino_file;
     #$tmpfile = "test.tmp";
@@ -3603,8 +3588,7 @@ $run_psw_bl2seq = sub {
 	# Aligning 2 sequences with Smith-Waterman (pSW)
 
 	# Get protein sequences from file
-
-	$str = Bio::SeqIO->new('-file'=>Bio::Root::IO->catfile("t","data","amino.fa") ,
+        $str = Bio::SeqIO->new('-file'=>Bio::Root::IO->catfile("t","data","amino.fa") ,
 			       '-format' => 'Fasta', );
 	$seq1 = $str->next_seq();
 	$seq2 = $str->next_seq();
@@ -3643,7 +3627,6 @@ $run_psw_bl2seq = sub {
         warn "\n Blast program not found. Skipping bl2seq example\n\n";
         return 0;
     }
-
     $factory->bl2seq($seq1, $seq2);
 
     # Use AlignIO.pm to create a SimpleAlign object from the bl2seq report
@@ -3670,7 +3653,6 @@ $gene_prediction_parsing = sub {
     use Bio::Tools::Genscan;
 
     print $outputfh "\nBeginning genscan_result_parsing example... \n";
-
     my ($genscan, $gene, @exon_arr, $first_exon);
 
     # III.7 Searching for genes and other structures
@@ -3792,7 +3774,6 @@ $sequence_annotation = sub {
 $largeseqs = sub {
 
     print $outputfh "\nBeginning largeseqs example... \n";
-
     # III.7.3 Representing large sequences
     my ( $tmpfile, $seqio, $pseq, $plength, $last_4);
 
@@ -3825,7 +3806,6 @@ $liveseqs = sub {
     my ($loader, $gene, $id, $maxstart);
 
     print $outputfh "\nBeginning liveseqs example... \n";
-
     # Representing changing sequences (LiveSeq)
 
     $loader=Bio::LiveSeq::IO::BioPerl->load('-db'=>"EMBL",
@@ -3855,7 +3835,6 @@ $run_struct = sub {
     return 0;
   } else {
     print $outputfh "\nBeginning Structure object example... \n";
-
     # testing PDB format
     my $pdb_file = Bio::Root::IO->catfile("t","data","pdb1bpt.ent"); 
     my $structio = Bio::Structure::IO->new(-file  => $pdb_file,
@@ -3883,9 +3862,7 @@ $run_map = sub {
 use Bio::MapIO;
 use Bio::Root::IO;
 
- print $outputfh "\nBeginning MapIO example... \n";
-
-
+print $outputfh "\nBeginning MapIO example... \n";
 my $mapio = new Bio::MapIO(
 			    '-format' => 'mapmaker',
 			    '-file'   => Bio::Root::IO->catfile('t','data', 
@@ -3917,7 +3894,6 @@ use Bio::Root::IO;
 
 print $outputfh "\nBeginning phylogenetic tree example... \n";
 
-
 my $treeio = new Bio::TreeIO( -format => 'newick',
 			    -file   => Bio::Root::IO->catfile('t','data', 
 							       'cysprot1b.newick'));
@@ -3945,16 +3921,15 @@ my @nodes = $tree->get_nodes;
 #
 
 $run_perl = sub {
-
     use Bio::Perl qw( read_sequence 
 		      read_all_sequences 
 		      write_sequence 
 		      new_sequence 
 		      get_sequence );
-    
+
     print $outputfh "\nBeginning example of sequence manipulation without explicit Seq objects... \n";
-    
-# getting a sequence from a database (assummes internet connection)
+
+    # getting a sequence from a database (assummes internet connection)
  
     my $seq_object;
     eval { 
@@ -3966,13 +3941,12 @@ $run_perl = sub {
 
     # sequences are Bio::Seq objects, so the following methods work
     # (for more info see Bio::Seq documentation - try perldoc Bio::Seq)
-    
+
     print $outputfh "Name of sequence retrieved from swissprot is ",$seq_object->display_id,"\n";
     print $outputfh "Sequence acc  is ",$seq_object->accession_number,"\n";
     print $outputfh "First 5 residues are ",$seq_object->subseq(1,5),"\n";
-    
+
   # getting sequence data from disk
-    
     $seq_object = read_sequence($amino_seq_file,'fasta'); 
     print $outputfh "Name of sequence retrieved from disk is ",$seq_object->display_id,"\n";
    return 1;
@@ -4044,7 +4018,6 @@ $demo_xml = sub {
 
     eval { 
 	require XML::Parser;
-	
 	$str = Bio::SeqIO->new('-file'=>
 			       Bio::Root::IO->catfile("t","data","test.game"),
 			       '-format' => 'game'); };
@@ -4197,7 +4170,7 @@ $bpinspect1 = sub {
     $object_class = $object . ".pm";
     eval { require $object_class;};
     # eval causes replacement of "::" with "/" or "\"
-    
+
     my $method_hash = $object->methods('all');
 
     print $outputfh " \n ***Methods for Object $object ********  \n";
@@ -4255,6 +4228,13 @@ $bpinspect1 = sub {
     if( defined $ARGV[0] && $ARGV[0] == -1 ) {
 	open(OUT, ">bptutorial.out") || die("cannot open outputfile: $!");
 	$outputfh = *OUT;
+    }
+    foreach my $num (@ARGV) {
+       if ( !(-d "t/data") && 
+	       grep /^$num$/,(23,4,1,14,12,13,6,7,8,9,24,25,10,5,15,16,17,20,21) ) {
+	  print $outputfh "Example $num uses files in t/data\nDirectory t/data not found\n";
+	  exit;
+       }
     }
     &run_examples(@ARGV);
 
