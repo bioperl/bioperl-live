@@ -171,7 +171,7 @@ which is meant to illustrate the use of a module and its methods.
 
 =back
 
-Running the tutorial.pl script while going through this tutorial - or
+Running the bptutorial.pl script while going through this tutorial - or
 better yet, stepping through it with an interactive debugger - is a
 good way of learning bioperl.  The tutorial script is also a good
 place from which to cut-and-paste code for your scripts(rather than
