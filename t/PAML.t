@@ -47,8 +47,9 @@ my $verbose = 0;
 ## Insert additional test code below but remember to change
 ## the print "1..x\n" in the BEGIN block to reflect the
 ## total number of tests that will be run. 
+use Bio::Root::IO;
 
-my $inpaml = new Bio::Tools::Phylo::PAML(-file => 't/data/codeml.mlc');
+my $inpaml = new Bio::Tools::Phylo::PAML(-file => Bio::Root::IO->catfile(qw(t data codeml.mlc)));
 ok($inpaml);
 my $result = $inpaml->next_result;
 ok($result);
@@ -77,7 +78,8 @@ ok($codonposfreq[0]->{'T'}, 0.14737);
 ok($codonposfreq[1]->{'C'}, 0.25123);
 ok($codonposfreq[2]->{'G'}, 0.32842);
 
-$inpaml = new Bio::Tools::Phylo::PAML(-file => 't/data/aaml.mlc');
+$inpaml = new Bio::Tools::Phylo::PAML(-file => Bio::Root::IO->catfile(qw(t data aaml.mlc)));
+
 ok($inpaml);
 #$result = $inpaml->next_result;
 #ok($result);
