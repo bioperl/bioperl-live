@@ -32,7 +32,7 @@ exit;
 				   -getswissprotinfo => 0);
 
     print STDERR "Gene: ",$gene->name,"\n";
-    print STDERR "    Moltype: ", $gene->get_DNA->moltype,  "\n";
+    print STDERR "    Moltype: ", $gene->get_DNA->alphabet,  "\n";
     print STDERR "    Features:\n";
     print STDERR $gene->printfeaturesnum();
     print STDERR "    Gene has boundaries ",$gene->upbound," - ",$gene->downbound,"\n";

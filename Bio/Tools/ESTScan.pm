@@ -211,7 +211,7 @@ sub next_prediction {
 	$cds = Bio::PrimarySeq->new('-seq' => $cds,
 				    '-display_id' => $seq->display_id(),
 				    '-desc' => $seq->desc(),
-				    '-moltype' => "dna");
+				    '-alphabet' => "dna");
 	$gene->predicted_cds($cds);
 	$predobj->predicted_cds($cds);
 	if($gene->strand() == -1) {
@@ -267,7 +267,7 @@ sub next_prediction {
 	    $cds = Bio::PrimarySeq->new('-seq' => $cds,
 					'-display_id' => $seq->display_id(),
 					'-desc' => $seq->desc(),
-					'-moltype' => "dna");
+					'-alphabet' => "dna");
 	    # only store the first one in the overall prediction
 	    $gene->predicted_cds($cds) unless $gene->predicted_cds();
 	    $predobj->predicted_cds($cds);

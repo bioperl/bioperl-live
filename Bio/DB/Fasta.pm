@@ -14,7 +14,7 @@ Bio::DB::Fasta -- Fast indexed access to a directory of fasta files
   my $revseq  = $db->seq('CHROMOSOME_I',4_100_000 => 4_000_000);
   my @ids     = $db->ids;
   my $length  = $db->length('CHROMOSOME_I');
-  my $moltype = $db->moltype('CHROMOSOME_I');
+  my $alphabet = $db->alphabet('CHROMOSOME_I');
   my $header  = $db->header('CHROMOSOME_I');
 
   # Bioperl-style access
@@ -187,7 +187,7 @@ Return the length of the indicated sequence.
 
 Return the header line for the ID, including the initial "E<gt>".
 
-=item $type  = $db-E<gt>moltype($id)
+=item $type  = $db-E<gt>alphabet($id)
 
 Return the molecular type of the indicated sequence.  One of "dna",
 "rna" or "protein".
@@ -739,7 +739,7 @@ sub headerlen {
   ($self->_unpack($offset))[3];
 }
 
-sub moltype {
+sub alphabet {
   my $self = shift;
   my $id   = shift;
   my $offset = $self->{offsets}{$id} or return;
@@ -984,9 +984,9 @@ sub primary_id {
 
 sub can_call_new { return 0 }
 
-sub moltype {
+sub alphabet {
   my $self = shift;
-  return $self->{db}->moltype($self->{id});
+  return $self->{db}->alphabet($self->{id});
 }
 
 sub revcom {

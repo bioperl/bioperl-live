@@ -528,7 +528,7 @@ sub cds {
     return undef unless $cds;
     return Bio::PrimarySeq->new('-id' => $self->seqname(),
 				'-seq' => $cds,
-				'-moltype' => "dna");
+				'-alphabet' => "dna");
 }
 
 =head2 protein
@@ -581,7 +581,7 @@ sub mrna {
     $seq = $self->cds();
     if(! $seq) {
 	$seq = Bio::PrimarySeq->new('-id' => $self->seqname(),
-				    '-moltype' => "rna",
+				    '-alphabet' => "rna",
 				    '-seq' => "");
     }
     # get and add UTR sequences

@@ -116,7 +116,7 @@ sub _initialize {
 sub _seqDiff {
     my ($t, $term)= @_;
     $seqdiff->id( $term->att('id') );
-    $seqdiff->moltype( $term->att('moltype') );
+    $seqdiff->alphabet( $term->att('moltype') );
     $seqdiff->offset( $term->att('offset') );
 
     foreach my $child ($term->children) {
@@ -254,7 +254,7 @@ sub write {
 	#
 	# seqDiff
 	#
-	$h->moltype || $self->throw("Moltype of the reference sequence is not set!");
+	$h->alphabet || $self->throw("Moltype of the reference sequence is not set!");
 	my $hasAA = 0;
 	foreach my $mut ($h->each_Variant) {	
 	    $hasAA = 1 if  $mut->isa('Bio::Variation::AAChange');
@@ -262,7 +262,7 @@ sub write {
 	if ($hasAA) {
 	    $w->startTag("seqDiff",
 			 "id" => $h->id,
-			 "moltype" => $h->moltype,
+			 "moltype" => $h->alphabet,
 			 "offset" => $h->offset,
 			 "sysname" => $h->sysname,
 			 "trivname" => $h->trivname
@@ -270,7 +270,7 @@ sub write {
 	} else {
 	    $w->startTag("seqDiff",
 			 "id" => $h->id,
-			 "moltype" => $h->moltype,
+			 "moltype" => $h->alphabet,
 			 "offset" => $h->offset,
 			 "sysname" => $h->sysname
 			 );

@@ -19,7 +19,7 @@ Bio::Variation::SeqDiff - Container class for mutation/variant descriptions
 
   $seqDiff = Bio::Variation::SeqDiff->new (
                                            -id => $M20132,
-					   -moltype => 'rna',
+					   -alphabet => 'rna',
                                            -gene_symbol => 'AR'
                                            -chromosome => 'X',
                                            -numbering => 'coding'
@@ -119,7 +119,7 @@ sub new {
     bless $self, $class;
 
     my($id, $sysname, $trivname, $chr, $gene_symbol, 
-       $desc, $moltype, $numbering, $offset, $rna_offset, $rna_id, $cds_end,
+       $desc, $alphabet, $numbering, $offset, $rna_offset, $rna_id, $cds_end,
        $dna_ori, $dna_mut, $rna_ori, $rna_mut, $aa_ori, $aa_mut
        #@variants, @genes
        ) =
@@ -129,7 +129,7 @@ sub new {
 				 CHR
 				 GENE_SYMBOL
 				 DESC
-				 MOLTYPE
+				 ALPHABET
 				 NUMBERING
 				 OFFSET
 				 RNA_OFFSET
@@ -151,7 +151,7 @@ sub new {
     $chr       && $self->chromosome($chr);  
     $gene_symbol && $self->gene_symbol($chr);
     $desc      && $self->description($desc);
-    $moltype   && $self->moltype($moltype);
+    $alphabet   && $self->alphabet($alphabet);
     $numbering && $self->numbering($numbering);
     $offset    && $self->offset($offset);   
     $rna_offset && $self->rna_offset($rna_offset);   
@@ -380,10 +380,10 @@ sub description {
 }
 
 
-=head2 moltype
+=head2 alphabet
 
- Title   : moltype
- Usage   : if( $obj->moltype eq 'dna' ) { /Do Something/ }
+ Title   : alphabet
+ Usage   : if( $obj->alphabet eq 'dna' ) { /Do Something/ }
  Function: Returns the type of primary reference sequence being one of 
            'dna', 'rna' or 'protein'. This is case sensitive.
 
@@ -393,19 +393,19 @@ sub description {
 
 =cut
 
-sub moltype {
+sub alphabet {
    my ($self,$value) = @_;
    my %type = (dna => 1,
 	       rna => 1,
 	       protein => 1);
    if( defined $value ) {
        if ($type{$value}) {
-	   $self->{'moltype'} = $value;
+	   $self->{'alphabet'} = $value;
        } else {
-	   $self->throw("$value is not valid moltype value!");
+	   $self->throw("$value is not valid alphabet value!");
        }
    }
-   return $self->{'moltype'};
+   return $self->{'alphabet'};
 }
 
 
@@ -878,15 +878,15 @@ sub seqobj {
   $valid_obj{$value} ||
       $self->throw("Sequence type '$value' is not a valid type (".
                   join(',', map "'$_'", sort keys %valid_obj) .") lowercase");
-  my ($moltype) = $value =~ /([^_]+)/;
+  my ($alphabet) = $value =~ /([^_]+)/;
   my $id =  $self->id;
   $id =  $self->rna_id if $self->rna_id;
-  $moltype = 'protein' if $moltype eq 'aa';
+  $alphabet = 'protein' if $alphabet eq 'aa';
   $out = Bio::PrimarySeq->new
       ( '-seq' => $self->{$value},
 	'-display_id'  => $id,
 	'-accession_number' => $self->id,
-	'-moltype' => $moltype
+	'-alphabet' => $alphabet
 	) if   $self->{$value} ;
   return $out;
 }

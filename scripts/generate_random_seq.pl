@@ -15,7 +15,7 @@ my %alphabets = ( 'dna' => [qw(C A G T)],
 &GetOptions 
     (
      'l|length:s'         => \$length,
-     't|type|m|moltype:s' => \$type,
+     't|type|m|alphabet:s' => \$type,
      'f|file|filename:s'  => \$filename
      );
 

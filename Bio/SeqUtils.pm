@@ -119,7 +119,7 @@ my  %threecode =
  Function:
 
            Read only method that returns the amino acid sequence as a
-           string of three letter codes. moltype has to be
+           string of three letter codes. alphabet has to be
            'protein'. Output follows the IUPAC standard plus 'Ter' for
            terminator. Any unknown character, including the default
            unknown character 'X', is changed into 'Xaa'. A noncoded
@@ -137,7 +137,7 @@ sub seq3 {
 
    $seq->isa('Bio::PrimarySeqI') ||
        $self->throw('Not a Bio::PrimarySeqI object but [$self]');
-   $seq->moltype eq 'protein' ||
+   $seq->alphabet eq 'protein' ||
        $self->throw('Not a protein sequence');
 
    if (defined $stop) {
@@ -162,7 +162,7 @@ sub seq3 {
  Function:
 
            Read only method that returns the amino acid sequence as a
-           string of three letter codes. moltype has to be
+           string of three letter codes. alphabet has to be
            'protein'. Output follows the IUPAC standard plus 'Ter' for
            terminator. Any unknown character, including the default
            unknown character 'X', is changed into 'Xaa'
@@ -182,7 +182,7 @@ sub seq3in {
 
    $seq->isa('Bio::PrimarySeqI') ||
        $self->throw('Not a Bio::PrimarySeqI object but [$self]');
-   $seq->moltype eq 'protein' ||
+   $seq->alphabet eq 'protein' ||
        $self->throw('Not a protein sequence');
 
    if (defined $stop) {

@@ -275,7 +275,7 @@ sub hash2liveseq {
   my $i;
   my @transcripts;
   my $dna=Bio::LiveSeq::DNA->new(-seq => $entry->{'Sequence'} );
-  $dna->moltype(lc($entry->{'Molecule'}));
+  $dna->alphabet(lc($entry->{'Molecule'}));
   $dna->display_id($entry->{'ID'});
   $dna->accession_number($entry->{'AccNumber'});
   $dna->desc($entry->{'Description'});
@@ -361,7 +361,7 @@ sub hash2gene {
 
   # create DNA
   my $dna=Bio::LiveSeq::DNA->new(-seq => $subseq, -offset => $mindna);
-  $dna->moltype(lc($entry->{'Molecule'}));
+  $dna->alphabet(lc($entry->{'Molecule'}));
   $dna->source($entry->{'Organism'});
   $dna->display_id($entry->{'ID'});
   $dna->accession_number($entry->{'AccNumber'});

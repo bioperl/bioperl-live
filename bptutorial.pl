@@ -540,7 +540,7 @@ Seq object, eg:
                        '-desc'=>'Sample Bio::Seq object',
                        '-display_id' => 'something',
                        '-accession_number' => 'accnum',
-                       '-moltype' => 'dna' );
+                       '-alphabet' => 'dna' );
 
 However, in most cases, it is preferable to access sequence data from
 some online data file or database (Note that in common with
@@ -677,7 +677,7 @@ The following methods return strings
   $seqobj->seq();        # string of sequence
   $seqobj->subseq(5,10); # part of the sequence as a string
   $seqobj->accession_number(); # when there, the accession number
-  $seqobj->moltype();    # one of 'dna','rna','protein'
+  $seqobj->alphabet();    # one of 'dna','rna','protein'
   $seqobj->primary_id(); # a unique id for this sequence irregardless
                          # of its display_id or accession number
 
@@ -714,7 +714,7 @@ can mean two slightly different things:
 =back
 
 For historical reasons the bioperl implementation of translation does
-the first of these tasks easily. Any sequence object which is not of moltype
+the first of these tasks easily. Any sequence object which is not of alphabet
 'protein' can be translated by simply calling the method which returns
 a protein sequence object:
 
@@ -1688,7 +1688,7 @@ I<Methods taken from package Bio::LocatableSeq>
 I<Methods taken from package Bio::PrimarySeqI>
 
  GCG_checksum accession_number ary can_call_new desc display_id getseq
- id moltype out_fasta primary_id revcom seq seq_len setseq str subseq
+ id alphabet out_fasta primary_id revcom seq seq_len setseq str subseq
  translate translate_old trunc type
 
 I<Methods taken from package Bio::RangeI>
@@ -1711,7 +1711,7 @@ B<Methods for Object Bio::Seq>
 I<Methods taken from package Bio::PrimarySeqI>
 
  GCG_checksum accession_number ary can_call_new carp confess croak
- desc display_id getseq id length moltype out_fasta primary_id revcom
+ desc display_id getseq id length alphabet out_fasta primary_id revcom
  seq seq_len setseq str subseq translate translate_old trunc type
 
 I<Methods taken from package Bio::Seq>
@@ -1728,7 +1728,7 @@ B<Methods for Object Bio::SeqIO>
 
 I<Methods taken from package Bio::SeqIO>
 
- PRINT READLINE TIEHANDLE close fh moltype newFh next_primary_seq
+ PRINT READLINE TIEHANDLE close fh alphabet newFh next_primary_seq
  next_seq write_seq
 
 B<Methods for Object Bio::SimpleAlign>
@@ -1934,7 +1934,7 @@ B<Methods for Object Bio::Tools::Sigcleave>
 I<Methods taken from package Bio::PrimarySeqI>
 
  GCG_checksum accession_number ary can_call_new carp confess croak
- desc display_id getseq id length moltype out_fasta primary_id revcom
+ desc display_id getseq id length alphabet out_fasta primary_id revcom
  seq seq_len setseq str subseq translate translate_old trunc type
 
 I<Methods taken from package Bio::Seq>
@@ -2015,7 +2015,7 @@ I<Methods taken from package Bio::DBLinkContainerI>
 I<Methods taken from package Bio::PrimarySeqI>
 
  GCG_checksum accession_number ary can_call_new desc display_id getseq
- id length moltype out_fasta primary_id revcom seq seq_len setseq str
+ id length alphabet out_fasta primary_id revcom seq seq_len setseq str
  subseq translate translate_old trunc type
 
 I<Methods taken from package Bio::Variation::Allele>
@@ -2060,7 +2060,7 @@ I<Methods taken from package Bio::Variation::SeqDiff>
 
  aa_mut aa_ori add_Gene add_Variant alignment cds_end cds_start
  chromosome description dna_mut dna_ori each_Gene each_Variant
- gene_symbol id moltype numbering offset rna_id rna_mut rna_offset
+ gene_symbol id alphabet numbering offset rna_id rna_mut rna_offset
  rna_ori seqobj sysname trivname
 
 =head2 V.2 Appendix: Tutorial demo scripts
@@ -2325,7 +2325,7 @@ $sequence_manipulations = sub {
     print "Acc num is ",
     $seqobj->accession_number(), " \n"; # when there, the accession number
     print "Moltype is ",
-    $seqobj->moltype(), " \n";    # one of 'dna','rna','protein'
+    $seqobj->alphabet(), " \n";    # one of 'dna','rna','protein'
     print "Primary id is ", $seqobj->primary_seq->primary_id(),
     " \n"; # a unique id for this sequence irregardless
     #print "Primary id is ", $seqobj->primary_id(), " \n";
@@ -2400,7 +2400,7 @@ $seqstats_and_seqwords = sub {
 	$seq_stats, $words, $hash);
     $seqobj = Bio::Seq->new
 	('-seq'=>'ACTGTGGCGTCAACTGACTGTGGCGTCAACTGACTGTGGGCGTCAACTGACTGTGGCGTCAACTG',
-	 '-moltype'=>'dna',
+	 '-alphabet'=>'dna',
 	 '-id'=>'test');
 
 
@@ -3050,9 +3050,9 @@ $demo_variations = sub {
     $dnamut->add_Allele($a2);
     $seqDiff = Bio::Variation::SeqDiff->new
 	('-id' => 'M20132',
-	 '-moltype' => 'rna',
+	 '-alphabet' => 'rna',
 	 #$seqDiff = Bio::Variation::SeqDiff->new
-	 #( '-id' => 'M20132', '-moltype' => 'RNA',
+	 #( '-id' => 'M20132', '-alphabet' => 'RNA',
 	 '-gene_symbol' => 'AR',
 	 '-chromosome' => 'X',
 	 '-numbering' => 'coding');
@@ -3094,7 +3094,7 @@ $demo_xml = sub {
     print "   ", $seqobj->desc(), " \n";
     print "Acc num is ", $seqobj->accession_number(),
     " \n"; # when there, the accession number
-    print "Moltype is ", $seqobj->moltype(),
+    print "Moltype is ", $seqobj->alphabet(),
     " \n";    # one of 'dna','rna','protein'
 
     @feats = $seqobj->all_SeqFeatures();

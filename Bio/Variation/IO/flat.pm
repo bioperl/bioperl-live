@@ -117,20 +117,20 @@ sub next {
 
     $entry =~ /\s*ID\s+\S+/ || $self->throw("We do need an ID!");
 
-    my ($id, $offset, $moltype) = $entry =~ /\s*ID +([^:]+)..(\d+)[^\)]*.\[?([cg])?/
+    my ($id, $offset, $alphabet) = $entry =~ /\s*ID +([^:]+)..(\d+)[^\)]*.\[?([cg])?/
 	or $self->throw("Can't parse ID line");
 #    $self->throw("$1|$2|$3");
     my $h =Bio::Variation::SeqDiff->new(-id         => $id,
 					-offset     => $offset,
 					  );
-    if ($moltype) { 
-	if ($moltype eq 'g') {
-	    $moltype = 'dna';
+    if ($alphabet) { 
+	if ($alphabet eq 'g') {
+	    $alphabet = 'dna';
 	} 
-	elsif ($moltype eq 'c') {
-	    $moltype = 'rna';
+	elsif ($alphabet eq 'c') {
+	    $alphabet = 'rna';
 	}
-	$h->moltype($moltype);
+	$h->alphabet($alphabet);
     }
     #
     # DNA 
@@ -456,7 +456,7 @@ sub write {
 			     $text .= $mut->start;
 			 }
 
-			 if ($h->moltype && $h->moltype eq 'dna') {
+			 if ($h->alphabet && $h->alphabet eq 'dna') {
 			     $tmp = $mut->start + $h->offset;
 			     $tmp-- if $tmp <= 0;
 			     $mut->start < 1 && $tmp++; 
@@ -569,7 +569,7 @@ sub write {
 			     $text .= $mut->start;
 			 }
 
-			 if ($h->moltype && $h->moltype eq 'rna') {
+			 if ($h->alphabet && $h->alphabet eq 'rna') {
 			     $tmp = $mut->start + $h->offset;
 			     $tmp-- if $tmp <= 0;
 			     #$mut->start < 1 && $tmp++;			     

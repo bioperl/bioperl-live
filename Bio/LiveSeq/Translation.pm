@@ -109,7 +109,7 @@ sub new {
   $obj->{'strand'}=$strand;
   $obj->{'seq'}=$seq;
   $obj->{'transcript'}=$transcript;
-  $obj->{'moltype'}="protein";
+  $obj->{'alphabet'}="protein";
 
   $transcript->{'translation'}=$obj;# set the Translation ref into its Transcript
   return $obj;
@@ -172,7 +172,7 @@ sub seq {
     #carp "the downstream is: $downstreamseq"; # debug
     my $cdnaseq=$transcript->seq();
     my $extendedseq = new Bio::PrimarySeq(-seq => "$cdnaseq$downstreamseq",
-					  -moltype => 'dna'
+					  -alphabet => 'dna'
 					  );
 
     $translation=$extendedseq->translate(undef, undef, undef, 

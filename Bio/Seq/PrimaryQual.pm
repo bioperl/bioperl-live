@@ -100,12 +100,12 @@ sub new {
     }
     if( defined $given_id ) { $id = $given_id; }
 
-    # if moltype is provided we set it first, so that it won't be guessed
+    # if alphabet is provided we set it first, so that it won't be guessed
     # when the sequence is set
 
-	# what is the best way to deal with moltype?
+	# what is the best way to deal with alphabet?
 	# IGNORE it. Bwahahahaha.
-	# $moltype && $self->moltype($moltype);
+	# $alphabet && $self->alphabet($alphabet);
 
 	    # note: the sequence string may be empty
 
@@ -126,7 +126,7 @@ sub new {
 
 
 
-sub moltype {
+sub alphabet {
 	return undef;
 }
 
@@ -162,7 +162,7 @@ sub qual {
 	    $obj->{'qual'} = \@quality_array;
 	}
 	# if(($is_changed_qual && (CORE::length($value) > 0)) ||
-	# (! defined($obj->moltype()))) {
+	# (! defined($obj->alphabet()))) {
 	#	$obj->_guess_type();
 	# }
     }

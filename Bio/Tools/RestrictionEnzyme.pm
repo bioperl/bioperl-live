@@ -357,7 +357,7 @@ sub new {
     }
     $self->{'_seq'} = new Bio::Seq(%data, 
 				   -VERBOSE =>$self->verbose,
-				   -moltype => 'dna',
+				   -alphabet => 'dna',
 				   );
     return $self;
 }

@@ -48,7 +48,7 @@ my $gene=$loader->gene2liveseq(-gene_name => "factor7");
 ok $gene;
 ok ref($gene), "Bio::LiveSeq::Gene";
 ok $gene->name, "factor7";
-ok $gene->get_DNA->moltype, "dna";
+ok $gene->get_DNA->alphabet, "dna";
 ok $gene->get_DNA->display_id, "HSCFVII";
 ok $gene->get_DNA->accession_number, "J02933";
 ok $gene, $gene->get_DNA->gene;

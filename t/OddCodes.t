@@ -23,7 +23,7 @@ ok 1;
 my ($seqobj, $oddcode_obj);
 
 $seqobj = Bio::PrimarySeq->new('-seq'=>'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
-			       '-moltype'=>'protein', 
+			       '-alphabet'=>'protein', 
 			       '-id'=>'test');
 $oddcode_obj  =  Bio::Tools::OddCodes->new('-seq' => $seqobj);
 

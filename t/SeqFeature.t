@@ -108,7 +108,7 @@ ok $pair->end, 440;
     my $seq = Bio::Seq->new(
         '-seq'          => 'aaaaggggtttt',
         '-display_id'   => 'test',
-        '-moltype'      => 'dna',
+        '-alphabet'      => 'dna',
         );
     
     # Make a SeqFeature

@@ -41,7 +41,7 @@ or:
 
 	my $seqobj = Bio::PrimarySeq->new
               (-seq=>'[cut and paste a sequence here]', 
-               -moltype = 'protein', 
+               -alphabet = 'protein', 
                -id = 'test');
 	my $oddcode_obj  =  Bio::Tools::OddCodes->new(-seq => $seqobj);
 

@@ -123,7 +123,7 @@ sub next_primary_seq {
     $seq =~ s/[\(\)\.\/\=\,]//g;
     $seq =~ s/\s+//g;		# get rid of whitespace
 
-    my ($moltype,$seqobj) = ('protein',undef);
+    my ($alphabet,$seqobj) = ('protein',undef);
     # TODO - not processing SFS data
     if ($as_next_seq) {
 	# Return a Bio::Seq if asked for
@@ -131,14 +131,14 @@ sub next_primary_seq {
 				-primary_id => $id,
 				-id         => $type. '1; ' . $id,
 				-desc       => $desc,
-				-moltype    => $moltype
+				-alphabet    => $alphabet
 				);
     } else {
 	$seqobj = Bio::PrimarySeq->new(-seq        => $seq,
 				       -primary_id => $id,
 				       -id         => $type. '1; ' . $id,
 				       -desc       => $desc,
-				       -moltype    => $moltype
+				       -alphabet    => $alphabet
 				       );
     }
     return $seqobj;

@@ -88,7 +88,7 @@ sub new {
     $obj->throw("$class not initialized properly");
   }
 
-  $obj->{'moltype'}='dna'; # set moltype default
+  $obj->{'alphabet'}='dna'; # set alphabet default
   $obj->{'strand'}=1; # set strand default = 1
   $obj->{'seq'}=$obj; # set seq field to itself
 

@@ -136,14 +136,14 @@ use Bio::Seq;
                 -seq        => $_,
 	        -primary_id => $id,
 	        -display_id => $id,
-                -moltype    => $mol_type,
+                -alphabet    => $mol_type,
 	        );
         } else {
             return Bio::PrimarySeq->new(
                 -seq        => $_,
 	        -primary_id => $id,
 	        -display_id => $id,
-                -moltype    => $mol_type,
+                -alphabet    => $mol_type,
 	        );
         }
     }
@@ -170,7 +170,7 @@ sub write_seq {
     
     foreach my $seq (@seq) {
 
-        my $mol_type = $seq->moltype;
+        my $mol_type = $seq->alphabet;
         my $id = $seq->display_id;
         
         # Escape special charachers in id

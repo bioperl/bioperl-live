@@ -26,7 +26,7 @@ Bio::PrimarySeq - Bioperl lightweight Sequence Object
   $seqobj = Bio::PrimarySeq->new ( -seq => 'ATGGGGTGGGCGGTGGGTGGTTTG',
 			    -id  => 'GeneFragment-12',
 			    -accession_number => 'X78121',
-			    -moltype => 'dna',
+			    -alphabet => 'dna',
 			    -is_circular => 1
 			    );
   print "Sequence ", $seqobj->id(), " with accession ", $seqobj->accession_number, "\n";
@@ -113,7 +113,7 @@ provide a warning that someone has called a deprecated method.
 
 =item ary - use seq/subseq with your own split afterwards
 
-=item type - use moltype, but notice that moltype returns different values (lowercase)
+=item type - use alphabet, but notice that alphabet returns different values (lowercase)
 
 =back
 
@@ -163,7 +163,7 @@ use Bio::PrimarySeqI;
 @ISA = qw(Bio::Root::RootI Bio::PrimarySeqI);
 
 #
-# setup the allowed values for moltype()
+# setup the allowed values for alphabet()
 #
 BEGIN {
     %valid_type = map {$_, 1} qw( dna rna protein );
@@ -183,7 +183,7 @@ BEGIN {
 
            Note that you can provide an empty sequence string. However, in
            this case you MUST specify the type of sequence you wish to
-           initialize by the parameter -moltype. See moltype() for possible
+           initialize by the parameter -alphabet. See alphabet() for possible
            values.
  Returns : a new Bio::PrimarySeq object
  Args    : -seq         => sequence string
@@ -191,7 +191,7 @@ BEGIN {
            -accession_number => accession number
            -primary_id  => primary id (Genbank id)
            -desc        => description text
-           -moltype     => molecule type (dna,rna,protein)
+           -alphabet     => molecule type (dna,rna,protein)
            -id          => alias for display id
 
 =cut
@@ -201,13 +201,13 @@ sub new {
     my ($class, @args) = @_;
     my $self = $class->SUPER::new(@args);
 
-    my($seq,$id,$acc,$pid,$desc,$moltype,$given_id,$is_circular) =
+    my($seq,$id,$acc,$pid,$desc,$alphabet,$given_id,$is_circular) =
 	$self->_rearrange([qw(SEQ
 			      DISPLAY_ID
 			      ACCESSION_NUMBER
 			      PRIMARY_ID
 			      DESC
-			      MOLTYPE
+			      ALPHABET
 			      ID
 			      IS_CIRCULAR
 			      )],
@@ -221,9 +221,9 @@ sub new {
     }
     if( defined $given_id ) { $id = $given_id; }
 
-    # if moltype is provided we set it first, so that it won't be guessed
+    # if alphabet is provided we set it first, so that it won't be guessed
     # when the sequence is set
-    $moltype && $self->moltype($moltype);
+    $alphabet && $self->alphabet($alphabet);
     # note: the sequence string may be empty
     $self->seq($seq) if defined($seq);
     $id      && $self->display_id($id);
@@ -259,7 +259,7 @@ sub seq {
        my $is_changed_seq = exists($obj->{'seq'});
        $obj->{'seq'} = $value;
        if(($is_changed_seq && (CORE::length($value) > 0)) ||
-	  (! defined($obj->moltype()))) {
+	  (! defined($obj->alphabet()))) {
 	   $obj->_guess_type();
        }
     }
@@ -277,7 +277,7 @@ sub seq {
            must be accepted by seq(). A string that does not validate will
            lead to an exception if passed to seq().
 
-           The implementation provided here does not take moltype() into
+           The implementation provided here does not take alphabet() into
            account. Allowed are all letters (A-Z) and '-','.', '*' and '?'.
 
  Example :
@@ -438,10 +438,10 @@ sub primary_id {
 }
 
 
-=head2 moltype
+=head2 alphabet
 
- Title   : moltype
- Usage   : if( $obj->moltype eq 'dna' ) { /Do Something/ }
+ Title   : alphabet
+ Usage   : if( $obj->alphabet eq 'dna' ) { /Do Something/ }
  Function: Returns the type of sequence being one of
            'dna', 'rna' or 'protein'. This is case sensitive.
 
@@ -456,7 +456,7 @@ sub primary_id {
 
 =cut
 
-sub moltype {
+sub alphabet {
     my ($obj,$value) = @_;
     if (defined $value) {
 	$value = lc $value;
@@ -464,9 +464,9 @@ sub moltype {
 	    $obj->throw("Molecular type '$value' is not a valid type (".
 			join(',', map "'$_'", sort keys %valid_type) .") lowercase");
 	}
-	$obj->{'moltype'} = $value;
+	$obj->{'alphabet'} = $value;
     }
-    return $obj->{'moltype'};
+    return $obj->{'alphabet'};
 }
 
 =head2 desc
@@ -624,7 +624,7 @@ sub _guess_type {
        $type = 'protein';
    }
 
-   $self->moltype($type);
+   $self->alphabet($type);
 
 }
 

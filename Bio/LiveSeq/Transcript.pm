@@ -120,7 +120,7 @@ sub new {
   #my $end = $lastexon->end;
   my $strand = $firstexon->strand;
   my $seq = $firstexon->{'seq'};
-  $obj->moltype('rna');
+  $obj->alphabet('rna');
 
   unless (_checkexons(\@exons)) {
     $obj->warn("$class not initialised because of problems in the exon structure");
@@ -196,7 +196,7 @@ sub downstream_seq {
       $self->throw("No sense in asking less than 1 downstream nucleotides!");
     }
   } else {
-    unless ($self->{'seq'}->moltype eq 'rna') { # if rna retrieve until the end
+    unless ($self->{'seq'}->alphabet eq 'rna') { # if rna retrieve until the end
       #$str=$DNAobj->labelsubseq($self->end,undef,undef,"unsecuremoderequested");
       #return(substr($str,1)); # delete first nucleotide that is the last of Transcript
       if ($self->gene) { # if there is Gene object attached fetch relevant info
@@ -250,7 +250,7 @@ sub upstream_seq {
       $self->throw("No sense in asking less than 1 upstream nucleotides!");
     }
   } else {
-    unless ($self->{'seq'}->moltype eq 'rna') { # if rna retrieve from the start
+    unless ($self->{'seq'}->alphabet eq 'rna') { # if rna retrieve from the start
       if ($self->gene) { # if there is Gene object attached fetch relevant info
 	my $str=$self->{'seq'}->labelsubseq($self->gene->maxtranscript->start,undef,$self->start); # retrieve from start of maxtranscript to start of this Transcript
 	chop $str; # delete last nucleotide that is the A of starting ATG

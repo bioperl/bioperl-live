@@ -111,7 +111,7 @@ sub trunc {
 				  '-display_id' => $self->display_id,
 				  '-accession_number' => $self->accession_number,
 				  '-desc' => $self->desc,
-				  '-moltype' => $self->moltype,
+				  '-alphabet' => $self->alphabet,
 				  -primaryseq => 
 				  $self->primary_seq->trunc($s,$e));
 

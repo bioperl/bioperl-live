@@ -202,7 +202,7 @@ sub next_prediction {
 	    ($id, $seq) = $self->_read_fasta_seq();
 	    $seqobj = Bio::PrimarySeq->new('-seq' => $seq,
 					   '-display_id' => $id,
-					   '-moltype' => "protein");
+					   '-alphabet' => "protein");
 	}
 	# check that prediction number matches the prediction number
 	# indicated in the sequence id (there may be incomplete gene
@@ -220,7 +220,7 @@ sub next_prediction {
 		($id, $seq) = $self->_read_fasta_seq();
 		$seqobj = Bio::PrimarySeq->new('-seq' => $seq,
 					       '-display_id' => $id,
-					       '-moltype' => "dna");
+					       '-alphabet' => "dna");
 		$gene->predicted_cds($seqobj);
 	    }
 	}

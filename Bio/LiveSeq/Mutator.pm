@@ -674,7 +674,7 @@ sub change_gene {
     my $refseq; # will hold Bio::LiveSeq:Transcript object or Bio::LiveSeq::DNA
 
     # 'gene' eq 'coding' if reference sequence is cDNA
-    $self->numbering ('coding') if $self->gene->get_DNA->moltype eq 'rna' and $self->numbering eq 'gene';
+    $self->numbering ('coding') if $self->gene->get_DNA->alphabet eq 'rna' and $self->numbering eq 'gene';
 
     if ($self->numbering =~ /(coding)( )?(\d+)?/ ) {
 	$self->numbering($1);
@@ -694,7 +694,7 @@ sub change_gene {
     # Recording the state: SeqDiff object creation  ?? transcript no.??
     #
     my $seqDiff = Bio::Variation::SeqDiff->new();
-    $seqDiff->moltype($self->gene->get_DNA->moltype);
+    $seqDiff->alphabet($self->gene->get_DNA->alphabet);
     $seqDiff->numbering($self->numbering);
     my ($DNAobj, $RNAobj);
     if ($refseq->isa("Bio::LiveSeq::Transcript")) {

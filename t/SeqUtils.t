@@ -30,7 +30,7 @@ $ascii3 =
     'AlaAsxCysAspGluPheGlyHisIleXaaLysLeuMetAsnXaaProGlnArgSerThrSelValTrpXaaTyrGlx';
 
 $seq = Bio::PrimarySeq->new('-seq'=> $ascii,
-			       '-moltype'=>'protein', 
+			       '-alphabet'=>'protein', 
 			       '-id'=>'test');
 
 # one letter amino acid code to three letter code

@@ -183,7 +183,7 @@ sub seq {
            must be accepted by seq(). A string that does not validate will
            lead to an exception if passed to seq().
 
-           The implementation provided here does not take moltype() into
+           The implementation provided here does not take alphabet() into
            account. Allowed are all letters (A-Z) and '-','.', and '*'.
 
  Example :
@@ -372,7 +372,7 @@ sub primary_id {
            $myobject->new( -seq => $sequence_as_string,
 			   -display_id  => $id
 			   -accession_number => $accession
-			   -moltype => 'dna',
+			   -alphabet => 'dna',
 			   );
  Example :
  Returns : 1 or 0
@@ -387,10 +387,10 @@ sub can_call_new {
    return 1;
 }
 
-=head2 moltype
+=head2 alphabet
 
- Title   : moltype
- Usage   : if( $obj->moltype eq 'dna' ) { /Do Something/ }
+ Title   : alphabet
+ Usage   : if( $obj->alphabet eq 'dna' ) { /Do Something/ }
  Function: Returns the type of sequence being one of
            'dna', 'rna' or 'protein'. This is case sensitive.
 
@@ -405,12 +405,12 @@ sub can_call_new {
 
 =cut
 
-sub moltype {
+sub alphabet {
    my ($self,$value) = @_;
    if( defined $value ) {
-       return $self->primary_seq->moltype($value);
+       return $self->primary_seq->alphabet($value);
    }
-   return $self->primary_seq->moltype();
+   return $self->primary_seq->alphabet();
 }
 
 =head1 Methods provided in the Bio::PrimarySeqI interface

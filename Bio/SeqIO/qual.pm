@@ -119,7 +119,7 @@ sub next_primary_qual {
 	# print("CSM next_primary_qual!\n");
   my( $self, $as_next_qual ) = @_;
   my ($qual,$seq);
-  my $moltype;
+  my $alphabet;
   local $/ = "\n>";
 
   return unless my $entry = $self->_readline;
@@ -137,18 +137,18 @@ sub next_primary_qual {
   	# $sequence =~ s/\s//g; # Remove whitespace
   # for empty sequences we need to know the mol.type
 	# no we don't, not for PrimaryQuals because... well just because.
-	# $moltype = $self->moltype();
-	# print("CSM \$moltype is $moltype\n");
+	# $alphabet = $self->alphabet();
+	# print("CSM \$alphabet is $alphabet\n");
   if(length($sequence) == 0) {
-      if(! defined($moltype)) {
+      if(! defined($alphabet)) {
           # let's default to dna
 		# lets not.
-		# $moltype = "dna";
+		# $alphabet = "dna";
       }
   } else {
       # we don't need it really, so disable
 	# you bet we don't need it because PrimaryQual doesn't pay it any mind anyway
-	# $moltype = undef;
+	# $alphabet = undef;
   }
 
   # create the seq object
@@ -164,7 +164,7 @@ sub next_primary_qual {
   }
   # if there wasn't one before, set the guessed type
 	# no, don't.
-  	# $self->moltype($qual->moltype());
+  	# $self->alphabet($qual->alphabet());
   	# print("CSM next_primary_qual: returning $qual.\n");
   return $qual;
 }

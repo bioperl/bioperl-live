@@ -156,7 +156,6 @@ sub seq {
  Args    :
  Status  : Virtual
 
-
 =cut
 
 sub subseq{
@@ -286,7 +285,7 @@ sub primary_id {
            $myobject->new( -seq => $sequence_as_string,
 			   -display_id  => $id
 			   -accession_number => $accession
-			   -moltype => 'dna',
+			   -alphabet => 'dna',
 			   );
  Example :
  Returns : 1 or 0
@@ -303,10 +302,10 @@ sub can_call_new{
    return 0;
 }
 
-=head2 moltype
+=head2 alphabet
 
- Title   : moltype
- Usage   : if( $obj->moltype eq 'dna' ) { /Do Something/ }
+ Title   : alphabet
+ Usage   : if( $obj->alphabet eq 'dna' ) { /Do Something/ }
  Function: Returns the type of sequence being one of
            'dna', 'rna' or 'protein'. This is case sensitive.
 
@@ -322,7 +321,7 @@ sub can_call_new{
 
 =cut
 
-sub moltype{
+sub alphabet{
    my ($self,@args) = @_;
 
    if( $self->can('throw') ) {
@@ -330,9 +329,15 @@ sub moltype{
    } else {
        confess("Bio::PrimarySeqI definition of seq - implementing class did not provide this method");
    }
-
-
 }
+
+sub moltype{
+   my ($self,@args) = @_;
+
+   $self->warn("moltype: pre v1.0 method. Calling alphabet() instead...");
+   $self->alphabet(@args);
+}
+
 
 =head1 Optional Implementation Functions
 
@@ -356,7 +361,7 @@ are encouraged to override these methods
            is the reversed complement of the sequence. For protein
            sequences this throws an exception of "Sequence is a protein. Cannot revcom"
 
-           The id is the same id as the orginal sequence, and the accession number
+           The id is the same id as the original sequence, and the accession number
            is also indentical. If someone wants to track that this sequence has be
            reversed, it needs to define its own extensions
 
@@ -378,7 +383,7 @@ sub revcom{
 
 
    # check the type is good first.
-   my $t = $self->moltype;
+   my $t = $self->alphabet;
 
    if( $t eq 'protein' ) {
        if( $self->can('throw') ) {
@@ -425,7 +430,7 @@ sub revcom{
    my $out = $seqclass->new( '-seq' => $revseq,
 			     '-display_id'  => $self->display_id,
 			     '-accession_number' => $self->accession_number,
-			     '-moltype' => $self->moltype,
+			     '-alphabet' => $self->alphabet,
 			     '-desc' => $self->desc()
 			     );
    return $out;
@@ -476,7 +481,7 @@ sub trunc{
    my $out = $seqclass->new( '-seq' => $str,
 			     '-display_id'  => $self->display_id,
 			     '-accession_number' => $self->accession_number,
-			     '-moltype' => $self->moltype,
+			     '-alphabet' => $self->alphabet,
 			     '-desc' => $self->desc()
 			     );
    return $out;
@@ -530,7 +535,7 @@ sub translate {
     
     ##Error if monomer is "Amino"
     $self->throw("Can't translate an amino acid sequence.") if
-	($self->moltype eq 'protein');
+	($self->alphabet eq 'protein');
     
     ##Error if frame is not 0, 1 or 2
     $self->throw("Valid values for frame are 0, 1, 2, not [$frame].") unless
@@ -593,7 +598,7 @@ sub translate {
 			      # is there anything wrong with retaining the
 			      # description?
 			      '-desc' => $self->desc(),
-			      '-moltype' => 'protein'
+			      '-alphabet' => 'protein'
 			      );
     return $out;
     
@@ -745,9 +750,9 @@ sub type{
 
    # we assumme anyone using this is using vanilla bioperl object
    my ($p,$f,$l) = caller;
-   $self->warn("$f:$l Seq::type - deprecated method. You should use \$obj->moltype in preference (notice that moltype returns lowercase strings)");
+   $self->warn("$f:$l Seq::type - deprecated method. You should use \$obj->alphabet in preference (notice that alphabet returns lowercase strings)");
 
-   my $t = $self->moltype;
+   my $t = $self->alphabet;
    $t eq "dna" && return "DNA";
    $t eq "rna" && return "RNA";
    $t eq "protein" && return "PROTEIN";

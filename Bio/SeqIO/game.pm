@@ -311,7 +311,7 @@ sub next_seq {
     # get the features.
     my $fhandler = Bio::SeqIO::game::featureHandler->new($pseq->id(),
 							 $pseq->length(), 
-							 $pseq->moltype());
+							 $pseq->alphabet());
     $options = {Handler=>$fhandler};
     
     $parser = XML::Parser::PerlSAX->new($options);
@@ -497,7 +497,7 @@ sub write_seq {
      $writer ->startTag([$bxseq, 'seq'], 
       		       [$bxseq, 'id'] => $seq->display_id,
 		       [$bxseq, 'length'] => $seq->length,
-		       [$bxseq, 'type'] => $seq->moltype);
+		       [$bxseq, 'type'] => $seq->alphabet);
     if ($seq->length > 0) {
       $writer ->startTag([$bxseq, 'residues']);
       $writer->characters($seq->seq);

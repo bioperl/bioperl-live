@@ -98,7 +98,7 @@ sub end_document              {
     my ($self, $document) = @_;
     delete $self->{'Names'};
     return new Bio::PrimarySeq( -seq => $self->{'residues'},
-				-moltype => $self->{'moltype'},
+				-alphabet => $self->{'alphabet'},
 				-id => $self->{'seq'},
 				-accession => $self->{'accession'},
 				-desc => $self->{'desc'},
@@ -127,7 +127,7 @@ sub start_element             {
     if ($element->{'Name'} eq 'bx-seq:seq') {
 	if ($element->{'Attributes'}->{'bx-seq:id'} eq $self->{'seq'}) {
 	    $self->{'in_current_seq'} = 'true';
-	    $self->{'moltype'} = $element->{'Attributes'}->{'bx-seq:type'};
+	    $self->{'alphabet'} = $element->{'Attributes'}->{'bx-seq:type'};
 	    $self->{'length'} =  $element->{'Attributes'}->{'bx-seq:length'};
 	} else {
 	    #This is not the sequence we want to import, but that's ok

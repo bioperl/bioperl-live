@@ -768,10 +768,10 @@ sub match_line {
     
     my @seqchars;
     my $seqcount = 0;
-    my $moltype;
+    my $alphabet;
     foreach my $seq ( $self->each_seq ) {
 	push @seqchars, [ split(//, uc ($seq->seq)) ];
-	$moltype = $seq->moltype unless defined $moltype;
+	$alphabet = $seq->alphabet unless defined $alphabet;
     }
     my $refseq = shift @seqchars;
     # let's just march down the columns
@@ -790,7 +790,7 @@ sub match_line {
 	# if all the values are the same
 	if( $dash ) { $char = ' ' }
 	elsif( @colresidues == 1 ) { $char = $matchchars{'match'} }
-	elsif( $moltype eq 'protein' ) { # only try to do weak/strong
+	elsif( $alphabet eq 'protein' ) { # only try to do weak/strong
 	                                      # matches for protein seqs
 	    TYPE: foreach my $type ( qw(strong weak) ) { 
                 # iterate through categories
@@ -1075,7 +1075,7 @@ sub _consensus_aa {
 
              Note that if your alignment sequences contain a lot if
              IUPAC ambiquity codes you often have to manually set
-             moltype.  L<Bio::PrimarySeq::_guess_type> thinks they
+             alphabet.  L<Bio::PrimarySeq::_guess_type> thinks they
              indicate a protein sequence.
 
  Returns   : consensus string
@@ -1092,7 +1092,7 @@ sub consensus_iupac {
     # only DNA and RNA sequences are valid 
     foreach my $seq ( $self->each_seq() ) {
 	$self->throw("Seq [". $seq->get_nse. "] is a protein") 
-	    if $seq->moltype eq 'protein';
+	    if $seq->alphabet eq 'protein';
     }
     # loop over the alignment columns
     foreach my $count ( 0 .. $len ) {

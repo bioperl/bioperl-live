@@ -348,12 +348,12 @@ sub sysname {
 	$self->warn('Mutation start position is not defined') 
 	    if not defined $self->start;
 	my $sysname = '';
-	# show the moltype only if $self->SeqDiff->moltype is set;
+	# show the alphabet only if $self->SeqDiff->alphabet is set;
 	my $mol = '';
-	if ($self->SeqDiff->moltype && $self->SeqDiff->moltype eq 'dna') {
+	if ($self->SeqDiff->alphabet && $self->SeqDiff->alphabet eq 'dna') {
 	    $mol = 'g.';
 	}
-	elsif ($self->SeqDiff->moltype && $self->SeqDiff->moltype eq 'rna') {
+	elsif ($self->SeqDiff->alphabet && $self->SeqDiff->alphabet eq 'rna') {
 	    $mol = 'c.';
 	}
 	my $sep;

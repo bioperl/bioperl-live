@@ -124,7 +124,7 @@ ok defined $as->seq;
 ok($as->id, 'ROA1_HUMAN', "id is ".$as->id);
 ok($as->primary_id, 'ROA1');
 ok($as->length, 371);
-ok($as->moltype, 'protein');
+ok($as->alphabet, 'protein');
 ok($as->division, 'HUMAN');
 ok(scalar $as->all_SeqFeatures(), 16);
 
@@ -169,8 +169,8 @@ unlink(Bio::Root::IO->catfile("t","data","embl.out"));
     ok( $esc_name , 'Name; 4% strewn with \ various / escaped characters', 
 	"bad unescaping of characters, $esc_name");
     
-    ok $a_seq[0]->moltype, 'protein', 'moltypes incorrectly detected';
-    ok $a_seq[1]->moltype, 'dna', 'moltypes incorrectly detected';
+    ok $a_seq[0]->alphabet, 'protein', 'alphabets incorrectly detected';
+    ok $a_seq[1]->alphabet, 'dna', 'alphabets incorrectly detected';
     
     my $o_file = Bio::Root::IO->catfile("t","data","test.out.ace");
     my $a_out = Bio::SeqIO->new( -FILE => "> $o_file", -FORMAT => 'ace');
@@ -272,7 +272,7 @@ ok($seq->primary_id, 'MA32');
 ok($seq->display_id, 'MA32_HUMAN');
 ok($seq->length, 282);
 ok($seq->division, 'HUMAN');
-ok($seq->moltype, 'protein');
+ok($seq->alphabet, 'protein');
 ok(scalar $seq->all_SeqFeatures(), 2);
 
 my $seen = 0;
@@ -326,7 +326,7 @@ while( $seq = $str->next_seq()) {
 
 my $primaryseq = new Bio::PrimarySeq( -seq => 'AGAGAGAGATA',
 				      -id  => 'myid',
-				      -moltype => 'DNA',
+				      -alphabet => 'DNA',
 				      -accession_number => 'myaccession');
 my $embl = new Bio::SeqIO(-format => 'embl' );
 

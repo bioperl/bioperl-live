@@ -173,7 +173,7 @@ sub write_aln {
 
     $date = localtime(time);
     $msftag = "MSF";
-    $type = $valid_type{$aln->get_seq_by_pos(1)->moltype};
+    $type = $valid_type{$aln->get_seq_by_pos(1)->alphabet};
     $maxname = $aln->maxdisplayname_length();
     $length  = $aln->length();
     $name = $aln->id();

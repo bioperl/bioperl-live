@@ -87,7 +87,7 @@ BEGIN {
 sub next_aln {
     my $self = shift;
     my $entry;
-    my ($aln_name, $seqcount, $residuecount, %hash, $moltype, 
+    my ($aln_name, $seqcount, $residuecount, %hash, $alphabet, 
 	$match, $gap, $missing, $equate, $interleave,
 	$name,$str,@names,$seqname,$start,$end,$count,$seq);
     
@@ -125,15 +125,15 @@ sub next_aln {
 	/gap ?= ?(.)/i and $gap = $1;
 	/missing ?= ?(.)/i and $missing = $1;
 	/equate ?= ?"([^\"]+)/i and $equate = $1;  # "e.g. equate="T=C G=A"; 
-	/datatype ?= ?(\w+)/i and $moltype = lc $1;
+	/datatype ?= ?(\w+)/i and $alphabet = lc $1;
 	/interleave/i and $interleave = 1 ;
 
 	last if /matrix/i;
     }
     $self->throw("Not a valid NEXUS sequence file. Datatype not specified") 
-	unless $moltype;
-    $self->throw("Not a valid NEXUS sequence file. Datatype should not be [$moltype]") 
-	unless $valid_type{$moltype};
+	unless $alphabet;
+    $self->throw("Not a valid NEXUS sequence file. Datatype should not be [$alphabet]") 
+	unless $valid_type{$alphabet};
 
     $aln->gap_char($gap);
     $aln->missing_char($missing);
@@ -213,7 +213,7 @@ seqcount [$count] > predeclared [$seqcount] ") if $count > $seqcount;
 				     '-id'=>$seqname,
 				     '-start'=>$start,
 				     '-end'=>$end,
-				     'moltype'=>$moltype
+				     'alphabet'=>$alphabet
 				     );
 	$aln->add_seq($seq);
     }
@@ -277,7 +277,7 @@ sub write_aln {
 	 $gap = "gap=". $aln->gap_char if $aln->gap_char;
 
 	 $self->_print (sprintf("format interleave datatype=%s %s %s %s;\n\nmatrix\n",
-				$aln->get_seq_by_pos(1)->moltype, $match, $missing, $gap));
+				$aln->get_seq_by_pos(1)->alphabet, $match, $missing, $gap));
 
 	 my $indent = $aln->maxdisplayname_length;
 

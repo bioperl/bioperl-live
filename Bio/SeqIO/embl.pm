@@ -166,21 +166,21 @@ sub next_seq {
 	   $mol =~  s|circular ||;
        }
        $seq->molecule($mol);
-       my $moltype;
+       my $alphabet;
        if (defined $seq->molecule) {
 	   my $mol =$seq->molecule;
 	   if ($mol =~ /DNA/) {
-	       $moltype='dna';
+	       $alphabet='dna';
 	   }
 	   elsif ($mol =~ /RNA/) {
-	       $moltype='dna';
+	       $alphabet='dna';
 	   }
 	   elsif ($mol =~ /AA/) {
-	       $moltype='protein';
+	       $alphabet='protein';
 	   }
        }
-       if ($moltype) {
-	   $seq->primary_seq->moltype($moltype);
+       if ($alphabet) {
+	   $seq->primary_seq->alphabet($alphabet);
        }
 
    }
@@ -346,15 +346,15 @@ sub write_seq {
         $mol = $seq->molecule();
 	$mol = 'RNA' if $mol =~ /RNA/; # no 'mRNA' 
     }
-    elsif (defined $seq->primary_seq->moltype) {
-	my $moltype =$seq->primary_seq->moltype;
-	if ($moltype eq 'dna') {
+    elsif (defined $seq->primary_seq->alphabet) {
+	my $alphabet =$seq->primary_seq->alphabet;
+	if ($alphabet eq 'dna') {
 	    $mol ='DNA';
 	}
-	elsif ($moltype eq 'rna') {
+	elsif ($alphabet eq 'rna') {
 	    $mol='RNA';
 	}
-	elsif ($moltype eq 'protein') {
+	elsif ($alphabet eq 'protein') {
 	    $mol='AA';
 	}
     }

@@ -151,12 +151,12 @@ sub next_seq {
     # this is important to have the id for display in e.g. FTHelper, otherwise
     # you won't know which entry caused an error
     $seq->display_id($name);
-    # the moltype of the entry
+    # the alphabet of the entry
     if($2 eq 'bp') {
-	$seq->moltype('dna');
+	$seq->alphabet('dna');
     } else {
 	# $2 eq 'aa'
-	$seq->moltype('protein');
+	$seq->alphabet('protein');
     }
     # for aa there is usually no 'molecule' (mRNA etc)
     if (($2 eq 'bp') || defined($5)) {
@@ -433,7 +433,7 @@ sub write_seq {
     my $count = 1;
     foreach my $ref ( $seq->annotation->each_Reference() ) {
 	$temp_line = sprintf ("REFERENCE   $count  (%s %d to %d)",
-			      ($seq->moltype() eq "protein" ?
+			      ($seq->alphabet() eq "protein" ?
 			       "residues" : "bases"),
 			      $ref->start,$ref->end);
 	$self->_print("$temp_line\n");

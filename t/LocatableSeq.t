@@ -26,9 +26,9 @@ ok $seq = new Bio::LocatableSeq(
 			     -start => 1,
 			     -end => 6,
 			     -strand => 1,
-			     -moltype => 'dna'
+			     -alphabet => 'dna'
 			     );
-ok $seq->moltype, 'dna';
+ok $seq->alphabet, 'dna';
 ok $seq->start, 1;
 ok $seq->end, 6;
 ok $seq->strand, 1;

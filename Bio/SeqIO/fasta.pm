@@ -98,7 +98,7 @@ sub next_seq {
 sub next_primary_seq {
   my( $self, $as_next_seq ) = @_;
   my $seq;
-  my $moltype;
+  my $alphabet;
   local $/ = "\n>";
 
   return unless my $entry = $self->_readline;
@@ -115,15 +115,15 @@ sub next_primary_seq {
   $sequence =~ s/\s//g; # Remove whitespace
 
   # for empty sequences we need to know the mol.type
-  $moltype = $self->moltype();
+  $alphabet = $self->alphabet();
   if(length($sequence) == 0) {
-      if(! defined($moltype)) {
+      if(! defined($alphabet)) {
 	  # let's default to dna
-	  $moltype = "dna";
+	  $alphabet = "dna";
       }
   } else {
       # we don't need it really, so disable
-      $moltype = undef;
+      $alphabet = undef;
   }
 
   # create the seq object
@@ -133,18 +133,18 @@ sub next_primary_seq {
 		         -id         => $id,
 		         -primary_id => $id,
 		         -desc       => $fulldesc,
-			 -moltype    => $moltype
+			 -alphabet    => $alphabet
 		         );
   } else {
     $seq = Bio::PrimarySeq->new(-seq        => $sequence,
 		                -id         => $id,
 		                -primary_id => $id,
 		                -desc       => $fulldesc,
-				-moltype    => $moltype
+				-alphabet    => $alphabet
 		                );
   }
   # if there wasn't one before, set the guessed type
-  $self->moltype($seq->moltype());
+  $self->alphabet($seq->alphabet());
   
   return $seq;
 }

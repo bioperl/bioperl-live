@@ -134,7 +134,7 @@ $opt_debug  = 0;
 %ids_excl    = ();
 
 # Private:
-my (%not_filtered, $moltype, %_tested, @_tested, $_dir, $seqout);
+my (%not_filtered, $alphabet, %_tested, @_tested, $_dir, $seqout);
 my (@ids_incl_uc, @ids_excl_uc, %ids_incl_uc, %ids_excl_uc);
 
 
@@ -262,11 +262,11 @@ sub init_seq {
 	open (STDERR, ">>$opt_err") or croak "*** $0: Can't open err file $opt_err: $!\n\n";
     }
 
-    $moltype = 'protein' if $opt_prot;
-    $moltype = 'dna' if $opt_nucl;
+    $alphabet = 'protein' if $opt_prot;
+    $alphabet = 'dna' if $opt_nucl;
 
     if($DEBUG) {
-	$moltype or print STDERR "\n*** Sequence moltype not specified (can use -nucl or -prot on command line)\n\n";
+	$alphabet or print STDERR "\n*** Sequence alphabet not specified (can use -nucl or -prot on command line)\n\n";
     }
     
     if(! grep /$opt_fmt/i, @SUPPORTED_FORMATS) {
@@ -420,7 +420,7 @@ sub load_seqs {
 
     $seqout = Bio::SeqIO->new(%params);
     
-    if(defined $moltype) { $seqin->moltype($moltype); }
+    if(defined $alphabet) { $seqin->alphabet($alphabet); }
 
     $SIG{ALRM} = sub { die "Timed out!"; };
 

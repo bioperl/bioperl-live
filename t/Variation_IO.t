@@ -112,10 +112,10 @@ sub io {
 
 
 io  (Bio::Root::IO->catfile("t","data","mutations.dat"), 
-   Bio::Root::IO->catfile("t","data","mutations.out.dat")); #2..6
+   Bio::Root::IO->catfile("t","data","mutations.out.dat")); #1..5
 
 io  (Bio::Root::IO->catfile("t","data","polymorphism.dat"), 
-   Bio::Root::IO->catfile("t","data","polymorphism.out.dat")); #7..11
+   Bio::Root::IO->catfile("t","data","polymorphism.out.dat")); #6..10
 
 
 eval {
@@ -124,29 +124,29 @@ eval {
 
 if( $@ ) {
     print STDERR
-	"\nThe XML-format conversion requires the CPAN modules ",
-	"XML::Twig, XML::Writer, and IO::String to be installed ",
-	"on your system, which they probably aren't. Skipping these tests.\n";
+	 "\nThe XML-format conversion requires the CPAN modules ",
+	 "XML::Twig, XML::Writer, and IO::String to be installed ",
+	 "on your system, which they probably aren't. Skipping these tests.\n";
     for( $Test::ntest..$NUMTESTS) {
-	skip(1, 1,"");
+	 skip(1, 1,"");
     }
     exit(0);
 }
 
 eval {
     io  (Bio::Root::IO->catfile("t","data","mutations.xml"), 
-       Bio::Root::IO->catfile("t","data","mutations.out.xml")); #12..16
+	Bio::Root::IO->catfile("t","data","mutations.out.xml")); #10..12
 };
 
 eval {
     io  (Bio::Root::IO->catfile("t","data","polymorphism.xml"), 
-       Bio::Root::IO->catfile("t","data","polymorphism.out.xml")); #17..21
+	Bio::Root::IO->catfile("t","data","polymorphism.out.xml")); #13..14
 };
 
 
 eval { 
-	io  (Bio::Root::IO->catfile("t","data","mutations.dat"), 
-	   Bio::Root::IO->catfile("t","data","mutations.out.xml")); #22..26
+	 io  (Bio::Root::IO->catfile("t","data","mutations.dat"), 
+	    Bio::Root::IO->catfile("t","data","mutations.out.xml")); #15..25
 };
 
 

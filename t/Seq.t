@@ -26,7 +26,7 @@ ok(1);
 
 my $seq = Bio::Seq->new(-seq=>'ACTGTGGCGTCAACT',
                         -desc=>'Sample Bio::Seq object',
-			-moltype => 'dna' );
+			-alphabet => 'dna' );
 ok $seq;
 
 my $trunc = $seq->trunc(1,4);
@@ -41,9 +41,9 @@ ok $seq = Bio::Seq->new(-seq=>'actgtggcgtcaact',
 		     -desc=>'Sample Bio::Seq object',
 		     -display_id => 'something',
 		     -accession_number => 'accnum',
-		     -moltype => 'dna' );
+		     -alphabet => 'dna' );
 
-ok uc $seq->moltype, 'DNA' , 'moltype was ' .$seq->moltype();
+ok uc $seq->alphabet, 'DNA' , 'alphabet was ' .$seq->alphabet();
 
 # basic methods
 
@@ -143,7 +143,7 @@ ok( $seq->translate('J', '-',)->seq, 'MWJJ');
 # tests for RichSeq
 my $richseq = Bio::Seq::RichSeq->new( -seq => 'atgtggtaataa',
 				      -accession_number => 'AC123',
-				      -moltype => 'rna',
+				      -alphabet => 'rna',
 				      -molecule => 'mRNA',		
 				      -id => 'id1',
 				      -dates => [ '2001/1/1' ],
@@ -158,7 +158,7 @@ ok ($richseq->display_id, 'id1');
 ok (($richseq->get_dates)[0], '2001/1/1');
 ok (($richseq->get_secondary_accessions)[0], 'AC1152');
 ok ($richseq->accession_number, 'AC123');
-ok ($richseq->moltype, 'rna');
+ok ($richseq->alphabet, 'rna');
 ok ($richseq->molecule, 'mRNA');
 ok ($richseq->pid, 887821);
 ok ($richseq->division, 'Fungi');

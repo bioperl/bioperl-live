@@ -71,16 +71,16 @@ ok(!$@);
 
 
 print("\tb) No ids, no sequence, quality object...\n");
-	# note that you must provide a moltype for this one.
+	# note that you must provide a alphabet for this one.
 $wswq1 = Bio::Seq::SeqWithQuality->new( -seq => "",
 					-qual => $qualobj,
-					-moltype => 'dna'
+					-alphabet => 'dna'
 );
 print("\tc) Absolutely nothing. (HAHAHAHA)...\n");
 eval {
 	$wswq1 = Bio::Seq::SeqWithQuality->new( -seq => "",
 						-qual => "",
-						-moltype => 'dna'
+						-alphabet => 'dna'
 	);
 };
 ok(!$@);
@@ -88,7 +88,7 @@ print("\td) Absolutely nothing but an ID\n");
 eval {
 	$wswq1 = Bio::Seq::SeqWithQuality->new( -seq => "",
 						-qual => "",
-						-moltype => 'dna',
+						-alphabet => 'dna',
 						-id => 'an object with no sequence and no quality but with an id'
 	);
 };
@@ -100,7 +100,7 @@ eval {
 	$wswq1 = Bio::Seq::SeqWithQuality->new( -seq  =>	"",
 							-qual	=>	"");
 };
-	# this should fail without a moltype
+	# this should fail without a alphabet
 ok($@);
 	# dumpValue($wswq1);
 

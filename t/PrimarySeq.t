@@ -15,7 +15,7 @@ BEGIN {
 	use lib 't';
     }
     use Test;
-    plan tests => 15;
+    plan tests => 17;
 }
 use Bio::PrimarySeq;
 
@@ -23,7 +23,7 @@ ok(1);
 
 my $seq = Bio::PrimarySeq->new('-seq'              =>'TTGGTGGCGTCAACT',
 			       '-display_id'       => 'new-id',
-			       '-moltype'          => 'dna',
+			       '-alphabet'          => 'dna',
 			       '-accession_number' => 'X677667',
 			       '-desc'             =>'Sample Bio::Seq object');
 ok defined $seq;
@@ -31,7 +31,7 @@ ok $seq->isa('Bio::PrimarySeqI');
 ok $seq->accession_number(), 'X677667';
 ok $seq->seq(), 'TTGGTGGCGTCAACT';
 ok $seq->display_id(), 'new-id';
-ok $seq->moltype(), 'dna';
+ok $seq->alphabet(), 'dna';
 ok $seq->is_circular(), undef;
 ok $seq->is_circular(1);
 

@@ -23,7 +23,7 @@ my($a,$trunc,$rev);
 
 $a = Bio::Variation::Allele->new(-seq=>'ACTGACTGACTG',
 			-display_id => 'new-id',
-			-moltype => 'dna',
+			-alphabet => 'dna',
 			-accession_number => 'X677667',
                         -desc=>'Sample Bio::Seq object');
 ok defined $a,
@@ -33,7 +33,7 @@ ok $a->accession_number(), 'X677667';
 ok $a->seq(), 'ACTGACTGACTG';
 ok $a->display_id(),'new-id' ;
 ok $a->desc, 'Sample Bio::Seq object';
-ok $a->moltype(), 'dna';
+ok $a->alphabet(), 'dna';
 
 ok defined($trunc = $a->trunc(1,4));
 ok $trunc->seq(), 'ACTG', "Expecting ACTG. Got ". $trunc->seq();

@@ -160,7 +160,7 @@ sub new {
     }
     $seq->isa('Bio::Seq') or $self->throw("Must supply a Seq.pm object to IUPAC!");
     $self->{'_SeqObj'} = $seq;
-    if ($self->{'_SeqObj'}->moltype() =~ m/^[dr]na$/i ) { # nucleotide seq object
+    if ($self->{'_SeqObj'}->alphabet() =~ m/^[dr]na$/i ) { # nucleotide seq object
 	$self->{'_iupac_iub'} = { A => [qw(A)],
 				  C => [qw(C)],
 				  G => [qw(G)],
@@ -180,7 +180,7 @@ sub new {
 				  N => [qw(G A T C)]
 				};
 	$self->{'_alpha'} = [ map { $self->{'_iupac_iub'}{uc($_)} } split('', $self->{'_SeqObj'}->seq()) ];
-    } elsif ($self->{'_SeqObj'}->moltype() =~ m/^protein$/i ) { # amino acid seq object
+    } elsif ($self->{'_SeqObj'}->alphabet() =~ m/^protein$/i ) { # amino acid seq object
 	$self->{'_iupac_iup'} = { A => [qw(A)],
 				  B => [qw(D N)],
 				  C => [qw(C)],

@@ -425,33 +425,33 @@ sub write_seq {
 }
 
 
-=head2 moltype
+=head2 alphabet
 
- Title   : moltype
- Usage   : $self->moltype($newval)
+ Title   : alphabet
+ Usage   : $self->alphabet($newval)
  Function: Set/get the molecule type for the Seq objects to be created.
- Example : $seqio->moltype('protein')
- Returns : value of moltype: 'dna', 'rna', or 'protein'
+ Example : $seqio->alphabet('protein')
+ Returns : value of alphabet: 'dna', 'rna', or 'protein'
  Args    : newvalue (optional)
  Throws  : Exception if the argument is not one of 'dna', 'rna', or 'protein'
 
 =cut
 
-sub moltype {
+sub alphabet {
    my ($self, $value) = @_;
 
    if ( defined $value) {
        # instead of hard-coding the allowed values once more, we check by
        # creating a dummy sequence object
        eval {
-	   my $seq = Bio::PrimarySeq->new('-moltype' => $value);
+	   my $seq = Bio::PrimarySeq->new('-alphabet' => $value);
        };
        if($@) {
-	   $self->throw("Invalid moltype: $value\n. See Bio::PrimarySeq for allowed values.");
+	   $self->throw("Invalid alphabet: $value\n. See Bio::PrimarySeq for allowed values.");
        }
-       $self->{'moltype'} = "\L$value";
+       $self->{'alphabet'} = "\L$value";
    }
-   return $self->{'moltype'};
+   return $self->{'alphabet'};
 }
 
 =head2 _load_format_module

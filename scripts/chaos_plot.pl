@@ -56,8 +56,8 @@ my $white = $img->colorAllocate(255,255,255);
 my $black = $img->colorAllocate(0,0,0); 
 
 my $seq = $seqin->next_seq;
-die("Sequence type must be DNA not " . $seq->moltype())
-    unless $seq->moltype ne 'dna' or $seq->moltype ne 'rna';
+die("Sequence type must be DNA not " . $seq->alphabet())
+    unless $seq->alphabet ne 'dna' or $seq->alphabet ne 'rna';
 my %nmerdata;
 my $len = $seq->length();
 my $max = 0;

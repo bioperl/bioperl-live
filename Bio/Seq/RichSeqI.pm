@@ -125,7 +125,7 @@ sub division{
  Function: Get (and set, depending on the implementation) the molecule
            type for the sequence.
 
-           This is not necessarily the same as Bio::PrimarySeqI::moltype(),
+           This is not necessarily the same as Bio::PrimarySeqI::alphabet(),
            because it is databank-specific.
  Example :
  Returns : a string

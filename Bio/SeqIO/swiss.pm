@@ -162,7 +162,7 @@ sub next_seq {
        $seq->division('UNK');       
    }
    $seq->primary_id($1);
-   $seq->moltype('protein');
+   $seq->alphabet('protein');
     # this is important to have the id for display in e.g. FTHelper, otherwise
     # you won't know which entry caused an error
    $seq->display_id($name);
@@ -347,7 +347,7 @@ sub write_seq {
        $div = 'UNK';
    }
    
-   if( ! $seq->can('moltype') || ! defined ($mol = $seq->moltype) ) {
+   if( ! $seq->can('alphabet') || ! defined ($mol = $seq->alphabet) ) {
        $mol = 'XXX';
    }
    

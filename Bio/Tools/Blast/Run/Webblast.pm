@@ -1230,7 +1230,7 @@ sub _validate_seq {
 # Returns : zero if sequence length is too short or too long
 #           otherwise returns 1.
     my $seq = shift;
-    my $type = $seq->moltype;
+    my $type = $seq->alphabet;
     my $len = $seq->length;
 
     # Verify that sequence type is correct type for selected program.

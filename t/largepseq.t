@@ -35,7 +35,7 @@ ok($pseq->trunc(8,15)->seq, 'GGGGTGAA',
     'trunc seq was ' . $pseq->trunc(8,15)->seq);
 
 
-ok $pseq->moltype('dna'), 'dna'; # so translate will not complain
+ok $pseq->alphabet('dna'), 'dna'; # so translate will not complain
 ok $pseq->translate()->seq, 'MGWGETLWGWGKCLGLNPFGG';
 
 
@@ -49,7 +49,7 @@ ok $seq->subseq(3,7), 'GGGGT', "Subseq is ".$seq->subseq(3,7);
 ok ($seq->trunc(8,15)->seq, 'GGGGTGAA', 
     'trunc seq was ' . $seq->trunc(8,15)->seq);
 
-ok $seq->moltype('dna'), 'dna'; # so translate will not complain
+ok $seq->alphabet('dna'), 'dna'; # so translate will not complain
 ok $seq->translate()->seq, 'MGWGETLWGWGKCLGLNPFGG';
 
 $seq = new Bio::Seq::LargeSeq( -display_id => 'hello');
@@ -62,5 +62,5 @@ ok $seq->subseq(3,7), 'GGGGT', "Subseq is ".$seq->subseq(3,7);
 ok ($seq->trunc(8,12)->seq, 'GGGGT', 
     'trunc seq was ' . $seq->trunc(8,12)->seq);
 
-ok $seq->moltype('dna'), 'dna'; # so translate will not complain
+ok $seq->alphabet('dna'), 'dna'; # so translate will not complain
 ok $seq->translate()->seq, 'MGWG';

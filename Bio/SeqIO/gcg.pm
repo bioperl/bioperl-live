@@ -162,7 +162,7 @@ sub write_seq {
 	my $str         = $seq->seq;
 	my $comment     = $seq->desc; 
 	my $id          = $seq->id;
-	my $type        = ( $seq->moltype() =~ /[dr]na/i ) ? 'N' : 'P';
+	my $type        = ( $seq->alphabet() =~ /[dr]na/i ) ? 'N' : 'P';
 	my $timestamp;
 
 	if( $seq->can('get_dates') ) {

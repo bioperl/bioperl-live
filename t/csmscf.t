@@ -111,7 +111,7 @@ $out_scf = Bio::SeqIO->new('-verbose' => 1,
 
 $swq = Bio::Seq::SeqWithQuality->new(-seq=>'',
 				     -qual=>"10 20 30 40 50 20 10 30 40 50",
-				     -moltype=>'dna');
+				     -alphabet=>'dna');
 
 $out_scf->write_seq(	-SeqWithQuality	=>	$swq,
 			-MACH		=>	'CSM sequence-o-matic 5000',

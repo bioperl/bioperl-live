@@ -94,7 +94,7 @@ $VERSION=3.3;
 #                                    working on methods defined with Heikki
 # Tue Mar 21 01:37:52 GMT 2000 v 2.1 created strand(), seq()
 # Tue Mar 21 02:43:21 GMT 2000 v 2.11 seq() prints correctly also for exons
-# Wed Mar 22 19:41:45 GMT 2000 v 2.22 translate, moltype, length, all_labels
+# Wed Mar 22 19:41:45 GMT 2000 v 2.22 translate, alphabet, length, all_labels
 # Thu Mar 23 21:03:42 GMT 2000 v 2.3 follows() label() position()
 # Fri Mar 24 18:33:18 GMT 2000 v 2.33 rewritten position(), now works with diverse coordinate_starts
 # Sat Mar 25 06:11:55 GMT 2000 v 2.4 started subseq
@@ -790,10 +790,10 @@ sub strand {
   return $self->{'strand'};
 }
 
-=head2 moltype
+=head2 alphabet
 
- Title   : moltype
- Usage   : if( $obj->moltype eq 'dna' ) { /Do Something/ }
+ Title   : alphabet
+ Usage   : if( $obj->alphabet eq 'dna' ) { /Do Something/ }
  Function: Returns the type of sequence being one of
            'dna', 'rna' or 'protein'. This is case sensitive.
 
@@ -804,7 +804,7 @@ sub strand {
 =cut
 
 
-sub moltype {
+sub alphabet {
   my %valid_type = map {$_, 1} qw( dna rna protein );
   my ($self,$value) = @_;
   if (defined $value) {
@@ -812,9 +812,9 @@ sub moltype {
     unless ( $valid_type{$value} ) {
       $self->warn("Molecular type '$value' is not a valid type");
     }
-    $self->{'moltype'} = $value;
+    $self->{'alphabet'} = $value;
   }
-  return $self->{'moltype'};
+  return $self->{'alphabet'};
 }
 
 =head2 coordinate_start
@@ -1042,7 +1042,7 @@ sub follows {
 #
 #  ##Error if monomer is "Amino"
 #  $self->warn("Can't translate an amino acid sequence.") 
-#      if (defined $self->moltype && $self->moltype eq 'protein');
+#      if (defined $self->alphabet && $self->alphabet eq 'protein');
 #
 #  ##Error if frame is not 0, 1 or 2
 #  $self->warn("Valid values for frame are 0, 1, 2, not [$frame].")

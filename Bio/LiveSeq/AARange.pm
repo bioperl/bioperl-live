@@ -186,7 +186,7 @@ sub new {
   $self->{'translation'}=$translation;
   $self->{'name'}=$name;
   $self->{'description'}=$description;
-  $self->{'moltype'}="protein";
+  $self->{'alphabet'}="protein";
 
   return $obj;
 }

@@ -30,13 +30,13 @@ Bio::Seq::SeqWithQuality - Bioperl object packaging a sequence with its quality
 	my $seqobj = Bio::PrimarySeq->new ( 	-seq => 'atcgatcg',
 						-id  => 'GeneFragment-12',
 						-accession_number => 'X78121',
-						-moltype => 'dna'
+						-alphabet => 'dna'
 						);
 		# now make a PrimaryQual object
 	my $qualobj = Bio::Seq::PrimaryQual->new( -qual => '10 20 30 40 50 50 20 10',
 						-id  => 'GeneFragment-12',
 						-accession_number => 'X78121',
-						-moltype => 'dna'
+						-alphabet => 'dna'
 						);
 		# now make the SeqWithQuality object						
 	my $swqobj = Bio::Seq::SeqQithQuality->new( -seq  => $seqobj,
@@ -142,7 +142,7 @@ use Bio::PrimarySeqI;
 sub new {
     my ($class, @args) = @_;
     my $self = $class->SUPER::new(@args);
-    my($qual,$seq,$id,$acc,$pid,$desc,$given_id,$moltype) =
+    my($qual,$seq,$id,$acc,$pid,$desc,$given_id,$alphabet) =
 	$self->_rearrange([qw(
 			      QUAL
 			      SEQ
@@ -151,7 +151,7 @@ sub new {
 			      PRIMARY_ID
 			      DESC
 			      ID
-			      MOLTYPE
+			      ALPHABET
 			      )],
 			  @args);
     # first, deal with the sequence and quality information
@@ -174,8 +174,8 @@ sub new {
     if (!$seq) {
 	my $id;
 	$self->warn("You did not provide sequence information during the construction of a Bio::Seq::SeqWithQuality object. Sequence components for this object will be empty.");
-	if (!$moltype) {
-	    $self->throw("If you want me to create a PrimarySeq object for your empty sequence <boggle> you must specify a -moltype to satisfy the constructor requirements for a Bio::PrimarySeq object with no sequence. Read the POD for it, luke.");		
+	if (!$alphabet) {
+	    $self->throw("If you want me to create a PrimarySeq object for your empty sequence <boggle> you must specify a -alphabet to satisfy the constructor requirements for a Bio::PrimarySeq object with no sequence. Read the POD for it, luke.");		
 	}
 	# if (!$self->display_id()) {
 	# my $id;
@@ -190,7 +190,7 @@ sub new {
 	     -primary_id	=>	$pid,
 	     -desc		=>	$desc,
 	     -display_id	=>	$id,
-	     -moltype	=>	$moltype
+	     -alphabet	=>	$alphabet
 	     );
     }
     elsif (ref($seq) eq "Bio::PrimarySeq" ) {
@@ -248,7 +248,7 @@ sub new {
 
     # now try to set the descriptors for this object
     # print("Done with the sequence and quality. Dealing with descriptors now.\n");
-    $self->_set_descriptors($qual,$seq,$id,$acc,$pid,$desc,$given_id,$moltype);
+    $self->_set_descriptors($qual,$seq,$id,$acc,$pid,$desc,$given_id,$alphabet);
     $self->length();
     return $self;
 }
@@ -381,19 +381,19 @@ sub set_common_descriptors {
 	&_common_desc();
 }
 
-=head2 moltype()
+=head2 alphabet()
 
- Title   : moltype();
- Usage   : $molecule_type = $obj->moltype();
+ Title   : alphabet();
+ Usage   : $molecule_type = $obj->alphabet();
  Function: Get the molecule type from the PrimarySeq object.
  Returns : What what PrimarySeq says the type of the sequence is.
  Args    : None.
 
 =cut
 
-sub moltype {
+sub alphabet {
 	my $self = shift;
-	return $self->{seq_ref}->moltype();	
+	return $self->{seq_ref}->alphabet();	
 }
 
 =head2 display_id()
@@ -684,12 +684,12 @@ sub seq_obj {
 =head2 _set_descriptors
 
  Title   : _set_descriptors()
- Usage   : $seqWqual->_qual_obj($qual,$seq,$id,$acc,$pid,$desc,$given_id,$moltype);
+ Usage   : $seqWqual->_qual_obj($qual,$seq,$id,$acc,$pid,$desc,$given_id,$alphabet);
  Function: Set the descriptors for the SeqWithQuality object. Try to match the
 	descriptors in the PrimarySeq object and in the PrimaryQual object if 
 	descriptors were not provided with construction.
  Returns : Nothing.
- Args    : $qual,$seq,$id,$acc,$pid,$desc,$given_id,$moltype as found in the
+ Args    : $qual,$seq,$id,$acc,$pid,$desc,$given_id,$alphabet as found in the
 	new() method.
  Notes   : Really only intended to be called by the new() method. If you want
 	to invoke a similar function try set_common_descriptors().
@@ -698,7 +698,7 @@ sub seq_obj {
 
 
 sub _set_descriptors {
-	my ($self,$qual,$seq,$id,$acc,$pid,$desc,$given_id,$moltype) = @_;
+	my ($self,$qual,$seq,$id,$acc,$pid,$desc,$given_id,$alphabet) = @_;
 	my ($c_id,$c_acc,$c_pid,$c_desc);
 	if (!$self->display_id()) {
 		if ($c_id = $self->_common_id() ) { $self->display_id($c_id); }

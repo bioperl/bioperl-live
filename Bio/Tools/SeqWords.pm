@@ -43,7 +43,7 @@ Creating the SeqWords object, eg:
 or:
 
 	my $seqobj = Bio::PrimarySeq->new(-seq=>'[cut and paste a sequence here]', 
-                                          -moltype = 'dna', -id = 'test');
+                                          -alphabet = 'dna', -id = 'test');
 	my $seq_word  =  Bio::Tools::SeqWords->new(-seq => $seqobj);
 
 obtain a hash of word counts, eg:

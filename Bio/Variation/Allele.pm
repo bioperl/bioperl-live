@@ -18,7 +18,7 @@ Bio::Variation::Allele - Sequence object with allele-specific attributes
 
   $allele1 = Bio::Variation::Allele->new ( -seq => 'A',
                                            -id  => 'AC00001.1',
-                                           -moltype => 'dna',
+                                           -alphabet => 'dna',
                                            -is_reference => 1
                                          );
 
@@ -93,14 +93,14 @@ use Bio::DBLinkContainerI;
 sub _initialize {
     my($self, @args) = @_;
 
-    my($seq,$id,$acc,$pid,$desc,$moltype,$given_id, 
+    my($seq,$id,$acc,$pid,$desc,$alphabet,$given_id, 
        $is_reference, $repeat_unit, $repeat_count) =
 	   $self->_rearrange([qw(SEQ
 				 DISPLAY_ID
 				 ACCESSION_NUMBER
 				 PRIMARY_ID
 				 DESC
-				 MOLTYPE
+				 ALPHABET
 				 ID
 				 IS_REFERENCE
 				 REPEAT_UNIT
@@ -117,7 +117,7 @@ sub _initialize {
     $acc     && $self->SUPER::accession_number($acc);
     $pid     && $self->SUPER::primary_id($pid);
     $desc    && $self->SUPER::desc($desc);
-    $moltype && $self->SUPER::moltype($moltype);
+    $alphabet && $self->SUPER::alphabet($alphabet);
 
     $is_reference && $self->is_reference($is_reference);
     $repeat_unit && $self->repeat_unit($repeat_unit);

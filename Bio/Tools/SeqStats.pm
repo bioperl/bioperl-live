@@ -20,7 +20,7 @@ Bio::Tools::SeqStats - Object holding statistics for one particular sequence
     # then build a statistics object from the sequence object 
 
 	$seqobj = Bio::PrimarySeq->new(-seq=>'ACTGTGGCGTCAACTG', 
-									-moltype=>'dna', 
+									-alphabet=>'dna', 
 									-id=>'test');
 	$seq_stats  =  Bio::Tools::SeqStats->new(-seq=>$seqobj);
 
@@ -326,8 +326,8 @@ sub new {
     unless  ($seqobj->isa("Bio::PrimarySeqI")) {
 	$self->throw(" SeqStats works only on PrimarySeqI objects  \n");
     }
-    if ( !defined $seqobj->moltype || ! defined $Alphabets{$seqobj->moltype}) {
-	$self->throw("Must have a valid moltype defined for seq (".
+    if ( !defined $seqobj->alphabet || ! defined $Alphabets{$seqobj->alphabet}) {
+	$self->throw("Must have a valid alphabet defined for seq (".
 		     join(",",keys %Alphabets));
     }
     $self->{'_seqref'} = $seqobj;
@@ -388,8 +388,8 @@ sub count_monomers{
 	$_is_strict =  _is_alphabet_strict($seqobj); 
     }
 	
-    my $alphabet =  $_is_strict ? $Alphabets_strict{$seqobj->moltype} :
-	$Alphabets{$seqobj->moltype}  ; # get array of allowed letters
+    my $alphabet =  $_is_strict ? $Alphabets_strict{$seqobj->alphabet} :
+	$Alphabets{$seqobj->alphabet}  ; # get array of allowed letters
 	
     # convert everything to upper case to be safe
     my $seqstring = uc $seqobj->seq();   
@@ -463,7 +463,7 @@ sub get_mol_wt {
 
 # We will also need to know what type of monomer we are dealing with
     
-    my $moltype = $seqobj->moltype();
+    my $moltype = $seqobj->alphabet();
 
 # In general,the molecular weight is bounded below by the sum of the
 # weights of lower bounds of each alphabet symbol times the number of
@@ -555,10 +555,10 @@ sub count_codons {
     }
     
 # Codon counts only make sense for nucleic acid sequences
-    my $moltype = $seqobj->moltype();
+    my $alphabet = $seqobj->alphabet();
     
-    unless ($moltype =~ /[dr]na/) {
-	$seqobj->throw(" Codon counts only meaningful for dna or rna, not for $moltype sequences. \n");
+    unless ($alphabet =~ /[dr]na/) {
+	$seqobj->throw(" Codon counts only meaningful for dna or rna, not for $alphabet sequences. \n");
     }
     
 # If sequence contains ambiguous bases, warn that codons containing them will all be
@@ -619,7 +619,7 @@ sub count_codons {
 sub _is_alphabet_strict {
 
     my ($seqobj) = @_;
-    my $moltype = $seqobj->moltype();
+    my $moltype = $seqobj->alphabet();
     # convert everything to upper case to be safe
     my $seqstring = uc $seqobj->seq();   
 

@@ -216,24 +216,24 @@ sub _filename{
     return $obj->{'_filename'};
 
 }
-=head2 moltype
+=head2 alphabet
 
- Title   : moltype
- Usage   : $obj->moltype($newval)
+ Title   : alphabet
+ Usage   : $obj->alphabet($newval)
  Function: 
  Example : 
- Returns : value of moltype
+ Returns : value of alphabet
  Args    : newvalue (optional)
 
 
 =cut
 
-sub moltype{
+sub alphabet{
    my ($self,$value) = @_;
    if( defined $value) {
-      $self->SUPER::moltype($value);
+      $self->SUPER::alphabet($value);
     }
-    return $self->SUPER::moltype() || 'dna';
+    return $self->SUPER::alphabet() || 'dna';
 
 }
 

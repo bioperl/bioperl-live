@@ -359,7 +359,7 @@ sub _parse_predictions {
 		          #print "x SEQ : \n $seq \nXXXX\n";
   			  my $seqobj = Bio::Seq->new('-seq' => $seq,
 	                     		             '-display_id' => $aa_id,
-					              '-moltype' => "protein");
+					              '-alphabet' => "protein");
 			$gene->predicted_protein($seqobj);
 			last FINDPRED;
 		    }	  

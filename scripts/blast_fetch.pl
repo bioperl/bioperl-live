@@ -6,18 +6,18 @@ use Bio::SeqIO;
 use Getopt::Long;
 
 use strict;
-use vars qw($usage $moltype $file $db $blastfile );
-$usage = "usage: blast_fetch [ -moltype protein|nuc ] blastfile\n";
+use vars qw($usage $alphabet $file $db $blastfile );
+$usage = "usage: blast_fetch [ -alphabet protein|nuc ] blastfile\n";
 
-$moltype = 'DNA';
+$alphabet = 'DNA';
 my $result = GetOptions( 'help' => sub { print STDERR "$usage"; exit; },
-			 'moltype=s' => sub { $moltype = &assign_type(pop @_)},
+			 'alphabet=s' => sub { $alphabet = &assign_type(pop @_)},
 			 );
 ( $blastfile) = @ARGV;
 
-if( $moltype eq 'DNA' ) {
+if( $alphabet eq 'DNA' ) {
     $db = new Bio::DB::GenBank;
-} elsif( $moltype eq 'PROT' ) {
+} elsif( $alphabet eq 'PROT' ) {
     $db = new Bio::DB::GenPept;
 } else { 
     die $usage;

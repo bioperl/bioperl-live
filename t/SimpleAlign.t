@@ -97,13 +97,13 @@ my $s1 = new Bio::LocatableSeq (-id => 'AAA',
 			    -seq => 'aawtat-tn-',
 			    -start => 1,
 			    -end => 8,
-  			    -moltype => 'dna'
+  			    -alphabet => 'dna'
 			    );
 my $s2 = new Bio::LocatableSeq (-id => 'BBB', 
 			    -seq => '-aaaat-tt-',
 			    -start => 1,
 			    -end => 7,
-  			    -moltype => 'dna'
+  			    -alphabet => 'dna'
 			    );
 $a = new Bio::SimpleAlign;
 $a->add_seq($s1);
@@ -111,7 +111,7 @@ $a->add_seq($s2);
 
 ok $a->consensus_iupac, "aAWWAT-TN-";
 $s1->seq('aaaaattttt');
-$s1->moltype('dna');
+$s1->alphabet('dna');
 $s1->end(10);
 $s2->seq('-aaaatttt-');
 $s2->end(8);
