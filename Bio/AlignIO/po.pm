@@ -1,8 +1,10 @@
 # $Id: po.pm
 #
 # BioPerl module for Bio::AlignIO::po
+
 #	based on the Bio::AlignIO::fasta module
 #       by Peter Schattner (and others?)
+#
 #       and the SimpleAlign.pm module of Ewan Birney
 #
 # You may distribute this module under the same terms as perl itself
@@ -30,9 +32,10 @@ sequence alignment using partial order graphs', Bioinformatics (2002),
 =head2 Reporting Bugs
 
 Report bugs to the Bioperl bug tracking system to help us keep track
-the bugs and their resolution.  Bug reports can be submitted via the
-web:
+the bugs and their resolution.  Bug reports can be submitted via email
+or the web:
 
+  bioperl-bugs@bio.perl.org
   http://bugzilla.bioperl.org/
 
 =head1 AUTHORS - Matthew Betts
@@ -63,7 +66,7 @@ use Bio::SimpleAlign;
  Title   : next_aln
  Usage   : $aln = $stream->next_aln()
  Function: returns the next alignment in the stream.
- Returns : Bio::Align::AlignI object - returns undef on end of file
+ Returns : L<Bio::Align::AlignI> object - returns undef on end of file
 	    or on error
  Args    : NONE
 
@@ -208,7 +211,7 @@ sub next_aln {
  Usage   : $stream->write_aln(@aln)
  Function: writes the $aln object into the stream in po format
  Returns : 1 for success and 0 for error
- Args    : Bio::Align::AlignI object
+ Args    : L<Bio::Align::AlignI> object
 
 =cut
 
@@ -319,7 +322,7 @@ sub write_aln {
 			  $seq->{'first'}->{'n'}, ' ', # index of first node containing the sequence
 			  0,                      ' ', # FIXME - sequence weight?
 			  -1,                     ' ', # FIXME - index of bundle containing sequence?
-			  ($seq->{'seq'}->description or ''), "\n",
+			  ($seq->{'seq'}->description or 'untitled'), "\n",
 			 );
 	}
 
