@@ -14,10 +14,13 @@ Revision history for Bioperl core modules
 
     o brought the OBDA Registry code Bio::DB::Registry up to latest specs 
 
+    o added Bio::Tools:Promoterwise and two analysis interface files
+      to make this release compatible with the bioperl-run release.
+
     o Bio::DB::GenBank
       - eutils URL change
       - accession number retrieval fixed
-
+      
     o Bio::SearchIO::blast - fix bug #1443 (missing last hits), parse megablast
 
     o Bio::SearchIO::Writer::(HTML|Text)ResultWriter fix bugs #1458, 
@@ -44,13 +47,16 @@ Revision history for Bioperl core modules
       - write moltype correctly for genpept
       - allow feature table keys longer then 15 characters
 
+    o Bio::Factory::FTLocationFactory
+      - fix to bug #1371 where nonstandard bond FT key killed the parser.
+        GenBank and GenPept parsers were affected
+
     o Bio::SeqIO::embl
       - allow feature table keys longer then 15 characters
       - fix bug #1393; multiple keywords now handled properly
    
     o Bio::SeqIO::swiss
       - fix bug #1393; multiple keywords now handled properly
-
 
 1.2.1 Stable release update
 
