@@ -1,9 +1,26 @@
 
-These HOWTOs are written in DocBook XML.  See the LDP
-at http://www.tldp.org for more information on how to write documents 
-in DocBook, in particular the LDP Author guide. DocBook XML can
-be turned into PDF, HTML, Text, and RTF (which can be turned into
-MS Word).   
+These HOWTOs are written in DocBook SGML.  See the LDP at
+http://www.tldp.org for more information on how to write documents in
+DocBook, in particular the LDP Author guide. DocBook SGML can be
+turned into PDF, HTML, Text, and RTF (which can be turned into
+MSWord).
+
+To process the SGML files I reccomend docbook2pdf, docbook2html, docbook2txt which are part of the docbook-utils package.  There are fink packages for this on OS X and RPMs on linux.
+
+For the XML I find that saxon + fop work fine on OSX using the fink
+packages for these.  Some helpful pages here talk about the XSLT
+process for rendering the docbook XML.
+http://docbook.sourceforge.net/release/xsl/current/doc/publishing.html
+
+I do it like this
+saxon FILE.xml my.xsl > FILE.fo
+ OR
+xsltproc FILE.xml my.xsl > FILE.fo
+
+Where my.xsl is something like /usr/share/sgml/docbook/xsl-stylesheets/fo/docbook.xsl or /sw/share/xml/xsl/docbook-xsl/fo/
+
+fop FILE.fo FILE.pdf
 
 Jason Stajich
 July 2002
+Updated Dec 2005
