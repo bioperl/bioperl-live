@@ -599,12 +599,9 @@ sub exists_tcoffee {
 
 sub version {
     my ($self) = @_;
-
     return undef unless $self->exists_tcoffee;
-    my $string = `t_coffee -quiet=stdout 2>&1` ;
-    $string =~ /Version_([\d.]+)/;
-    return $1 || undef;
-
+    my $string = `t_coffee -quiet=stdout 2>&1`;
+    return ( $string =~ /Version_([\d.]+)/) ? $1 : undef;
 }
 
 =head2  align
