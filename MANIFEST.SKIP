@@ -5,5 +5,6 @@
 \.old$
 \.bak$
 \.dist$
+^pm_to_blib
 bioperl.lisp
 Makefile
