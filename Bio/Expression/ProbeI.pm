@@ -60,7 +60,7 @@ use Bio::Root::Root;
 use base qw(Bio::Root::Root);
 use vars qw($DEBUG);
 
-=head2 sequence
+=head2 sequence()
 
   Title   : sequence
   Usage   : $seq = $probe->sequence()
@@ -74,7 +74,30 @@ sub sequence {
   shift->throw_not_implemented();
 }
 
-=head2 value
+=head2 length()
+
+  Title   : length
+  Usage   : $len = $probe->length()
+  Function: get/set the length of the probe sequence
+  Returns : An integer
+  Args    : a new integer (optional)
+  Comments: this should probably defer to the
+            Bio::Seq object returned by sequence(),
+            but to allow ProbeI objects to be
+            lightweight, we also have this method.
+
+=cut
+
+sub length {
+  my($self,$arg) = @_;
+  if($arg){
+    $self->throw(__PACKAGE__ . "::value only accepts integer values") unless $arg =~ /^[\d]+$/;
+    $self->{length} = $arg;
+  }
+  return $self->{length} || 0;
+}
+
+=head2 value()
 
   Title   : value
   Usage   : $val = $probe->value()
@@ -85,7 +108,6 @@ sub sequence {
 =cut
 
 sub value {
-  shift->throw_not_implemented();
   my($self,$arg) = @_;
   if($arg){
     $self->throw(__PACKAGE__ . "::value only accepts numeric values") unless $arg =~ /^[\d.]+$/;
@@ -94,7 +116,7 @@ sub value {
   return $self->{value} || 0;
 }
 
-=head2 value_units
+=head2 value_units()
 
   Title   : value_units
   Usage   : $units = $probe->units()
@@ -108,6 +130,46 @@ sub value_units {
   my($self,$arg) = @_;
   $self->{value_units} = $arg if defined $arg;
   return $self->{value_units};
+}
+
+=head2 standard_deviation()
+
+  Title   : standard_deviation
+  Usage   : $std_dev = $probe->standard_deviation()
+  Function: get/set the probe's standard deviation of value()
+  Returns : A numeric value
+  Args    : a new numeric value (optional)
+  Comments: no calculation is done here
+
+=cut
+
+sub standard_deviation {
+  my($self,$arg) = @_;
+  if($arg){
+    $self->throw(__PACKAGE__ . "::standard_deviation only accepts numeric values") unless $arg =~ /^[\d.]+$/;
+    $self->{standard_deviation} = $arg;
+  }
+  return $self->{deviation} || 0;
+}
+
+=head2 sample_count()
+
+  Title   : sample_count
+  Usage   : $sample_count = $probe->sample_count()
+  Function: get/set the number of samples used to calculate
+            value()
+  Returns : An integer
+  Args    : a new integer (optional)
+
+=cut
+
+sub sample_count {
+  my($self,$arg) = @_;
+  if($arg){
+    $self->throw(__PACKAGE__ . "::sample_count only accepts integers") unless $arg =~ /^[\d]+$/;
+    $self->{sample_count} = $arg;
+  }
+  return $self->{sample_count} || 0;
 }
 
 1;
