@@ -127,6 +127,34 @@ sub next_prediction {
     return $gene;
 }
 
+=head2 _get_strand
+
+ Title   : _get_strand
+ Usage   : $obj->_get_strand
+ Function: takes start and end values, swap them if start>end and returns end
+ Example :
+ Returns :$start,$end,$strand
+
+=cut
+
+sub _get_strand {
+  my ($self,$start,$end) = @_;
+  $start || $self->throw("Need a start");
+  $end   || $self->throw("Need an end");
+  my $strand;
+  if ($start > $end) {
+    my $tmp = $start;
+    $start = $end;
+    $end = $tmp;
+    $strand = -1;
+  }
+  else {
+    $strand = 1;
+  }
+  return ($start,$end,$strand);
+}
+
+
 =head2 _parse_predictions
 
  Title   : _parse_predictions()
@@ -142,93 +170,60 @@ sub _parse_predictions {
     my ($self, $filehandle) = @_;
     my $genes = new Bio::SeqFeature::Gene::GeneStructure ;
     my $transcript = new Bio::SeqFeature::Gene::Transcript ;
-    my $curr_exon;
+    $/ = "//";
     my $score;
-    my $seqname;
-    my $start;
-    my $end;
-    my $strand;
-    my $phaseno;
-    my $pf;
-    my $gf;
-    #The big parsing loop - parses exons and predicted peptides
-    #$/ = "\n//\n";
     while (<$filehandle>) {
-        chomp;
-        my @f = split;
-        if($f[0] eq 'Score'){
-          $score = $f[1];
-        }
-        elsif (($f[0] eq 'Gene') && (scalar(@f)==2)) {
-          $seqname = $f[0]." ".$f[1];
-        }
-        elsif ($f[0] eq 'Exon') {
-          $start = $f[1];
-          $end = $f[2];
-          $phaseno = $f[4];
-          $strand = 1;
-          if ( $f[1] > $f[2] ) {
-              $strand = -1;
-              $start = $f[2];
-              $end = $f[1];
-          }
-        }
-        elsif ($f[0] eq 'Supporting') {
-          my $gstart = $f[1];
-          my $gend = $f[2];
-          my $gstrand = 1;
-          if ($gstart > $gend){
-              $gstart = $f[2];
-              $gend = $f[1];
-              $gstrand = -1;
-          }
-            if ( $gstrand != $strand ) {
-              $self->throw("incompatible strands between exon and supporting feature - cannot add suppfeat\n");
-            }
 
-          my $pstart = $f[3];
-          my $pend = $f[4];
-          my $pstrand = 1;
-            if($pstart > $pend){
-              $self->warn("Protein start greater than end! Skipping this suppfeat\n");
-            }
+        ($score) = $_=~m/Score\s+(\d+[\.][\d]+)/ unless defined $score;
 
-          $pf = new Bio::SeqFeature::Generic( -start   => $pstart,
-              -end     => $pend,
-              -seqname => 'protein',
-              -score   => $score,
-              -strand  => $pstrand,
-              -source_tag => 'genewise',
-              -primary_tag => 'supporting_protein_feature',
-              );
-          $pf->source_tag('genewise');
-          $pf->primary_tag('supporting_protein_feature');
-          $gf  = new Bio::SeqFeature::Generic( -start   => $gstart,
-              -end     => $gend,
-              -seqname => 'genomic',
-              -score   => $score,
-              -strand  => $gstrand,
-              -source_tag => 'genewise',
-              -primary_tag => 'supporting_genomic_feature',
-              );
-          $gf->source_tag('genewise');
-          $gf->primary_tag('supporting_genomic_feature');
+        next unless /Gene\s+\d+\n/;
+
+        #grab exon + supporting feature info
+        my @exons =$_=~ m/(Exon .+\s+Supporting .+)/g;
+        my $nbr = 1;;
+
+        #loop through each exon-supporting feature pair
+        foreach my $e (@exons){
+          my ($e_start,$e_end,$phase) = $_=~ m/Exon\s+(\d+)\s+(\d+)\s+phase\s+(\d+)/;
+          my $e_strand;
+          ($e_start,$e_end,$e_strand) = $self->_get_strand($e_start,$e_end);
+          $transcript->strand($e_strand) unless $transcript->strand != 0;
+
+          my $exon = new Bio::SeqFeature::Gene::Exon (-seqname=>"Exon $nbr", -start=>$e_start, -end=>$e_end, -strand=>$e_strand);
+          $nbr++;
+          $exon->add_tag_value('phase',$phase);
+
+          my ($geno_start,$geno_end,$prot_start,$prot_end) = $_=~m/Supporting\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)/;
+          my $prot_strand;
+          ($prot_start,$prot_end,$prot_strand) = $self->_get_strand($prot_start,$prot_end);
+          my $pf = new Bio::SeqFeature::Generic( -start   => $prot_start,
+                                              -end     => $prot_end,
+                                              -seqname => 'protein',
+                                              -score   => $score,
+                                              -strand  => $prot_strand,
+                                              -source_tag => 'genewise',
+                                              -primary_tag => 'supporting_protein_feature',
+                                              );
+          my $geno_strand;
+          ($geno_start,$geno_end,$geno_strand) = $self->_get_strand($geno_start,$geno_end);
+          my $gf = new Bio::SeqFeature::Generic( -start   => $geno_start,
+                                              -end     => $geno_end,
+                                              -seqname => 'genomic',
+                                              -score   => $score,
+                                              -strand  => $geno_strand,
+                                              -source_tag => 'genewise',
+                                              -primary_tag => 'supporting_genomic_feature',
+                                              );
+          $exon->add_tag_value( 'supporting_protein_feature' => $pf );
+          $exon->add_tag_value( 'supporting_genomic_feature' => $gf );
+          $transcript->add_exon($exon);
         }
-         # for listing out elements of the array
-         # for ( my $i=0; $i<scalar(@f); $i++) {
-         #     print "$i "."$f[$i]\n";
-         # }
-    }
-    $curr_exon = new Bio::SeqFeature::Gene::Exon (-seqname=>$seqname, -start=>$start, -end=>$end, -strand=>$strand);
-    $curr_exon->add_tag_value( 'phase' => $phaseno );
-    $curr_exon->add_tag_value( 'supporting_protein_feature' => $pf );
-    $curr_exon->add_tag_value( 'supporting_genomic_feature' => $gf );
 
-    $transcript->add_exon($curr_exon);
     $genes->add_transcript($transcript);
+  }
 
-    $self->_add_prediction($genes);
-    $self->_predictions_parsed(1);
+  $self->_add_prediction($genes);
+  $self->_predictions_parsed(1);
 }
 
 =head1 _prediction
