@@ -19,23 +19,24 @@ based on query accession(s)
 
     use strict;
     use Bio::Index::Blast;
-    my ($indexfile,$file1, $file2);
+    my ($indexfile,$file1,$file2,$query);
     my $index = new Bio::Index::Blast(-filename => $indexfile,
-				      -write_flag => 1);
-    $index->make_index($file1, $file2);
+				                          -write_flag => 1);
+    $index->make_index($file1,$file2);
 
-    my $id;
-    my $data = $index->get_stream($id);
+    my $data = $index->get_stream($query);
 
-    my $blast_report = $index->fetch_report($id);
+    my $blast_report = $index->fetch_report($query);
     print "query is ", $blast_report->query, "\n";
     while( my $result = $blast_report->next_result ) {
-  	    print $result->algorithm, "\n";
-	    while( my $hsp = $result->next_hit ) {
-	      print "\t name ", $hsp->name,
-	    }
-	    print "\n";
+            print $result->algorithm, "\n";
+            while( my $hsp = $result->next_hit ) {
+              print "\t name ", $hsp->name,
+            }
+            print "\n";
     }
+
+=head1 DESCRIPTION
 
 =head1 DESCRIPTION
 
@@ -43,8 +44,8 @@ This object allows one to build an index on a blast file (or files)
 and provide quick access to the blast report for that accession.
 Note: for best results 'use strict'.
 
-The default key is the word after the ">" character (/^\s*(\S+)/).
-You can also set or customize the unique key used to retrieve by 
+The default key is the first word in a line (/^\s*(\S+)/).
+You can also set or customize the unique key used to retrieve by
 writing your own function and calling the id_parser() method.
 For example:
 
@@ -55,7 +56,7 @@ For example:
    # here is where the retrieval key is specified
    sub get_id {
       my $line = shift;
-      $line =~ /^\s+([A-Z]+)/i;
+      $line =~ /^>\s+([A-Z]+)/i;
       $1;
    }
 
@@ -92,21 +93,27 @@ Internal methods are usually preceded with a _
 
 =cut
 
+
 # Let the code begin...
 
+
 package Bio::Index::Blast;
-use vars qw(@ISA );
+use vars qw(@ISA $VERSION);
 use strict;
 
 use Bio::Root::Root;
 use Bio::Index::Abstract;
-use Bio::SearchIO;
+use Bio::Tools::BPlite;
 use IO::String;
 
 @ISA = qw(Bio::Index::Abstract Bio::Root::Root );
 
+BEGIN {
+	$VERSION = 0.1;
+}
+
 sub _version {
-	return 0.1;
+	return $VERSION;
 }
 
 =head2 new
@@ -116,6 +123,7 @@ sub _version {
                 -write_flag  => 0,
                 -dbm_package => 'DB_File',
                 -verbose     => 0);
+
   Function: Returns a new index object.  If filename is
             specified, then open_dbm() is immediately called. 
             Bio::Index::Abstract->new() will usually be called
@@ -147,23 +155,24 @@ sub new {
 
  Title   : fetch_report
  Usage   : my $blastreport = $idx->fetch_report($id);
- Function: Returns a Bio::Search::Result::ResultI report object 
-          for a specific blast report
- Returns : Bio::Search::Result::ResultI
+ Function: Returns a Bio::SearchIO report object 
+           for a specific blast report
+ Returns : Bio::SearchIO
  Args    : valid id
 
 =cut
 
 sub fetch_report{
-	my ($self,$id) = @_;
-	my $fh = $self->get_stream($id);
-	my $report = new Bio::SearchIO(-noclose => 1,
-											 -format => 'blast',
-											 -fh     => $fh);
-	return $report->next_result;
+        my ($self,$id) = @_;
+        my $fh = $self->get_stream($id);
+        my $report = new Bio::SearchIO(-noclose => 1,
+													-format => 'blast',
+													-fh => $fh);
+        return $report->next_result;
 }
 
-# shamelessly stolen from Bio::Index::Fasta
+
+# shamlessly stolen from Bio::Index::Fasta
 
 =head2 id_parser
 
@@ -174,9 +183,7 @@ sub fetch_report{
             for (for instance) specifying a different
             parser for different flavours of blast dbs. 
             Returns \&default_id_parser (see below) if not
-            set. If you supply your own id_parser
-            subroutine, then it should expect a fasta
-            description line.  An entry will be added to
+            set. An entry will be added to
             the index for each string in the list returned.
   Example : $index->id_parser( \&my_id_parser )
   Returns : ref to CODE if called without arguments
@@ -185,12 +192,12 @@ sub fetch_report{
 =cut
 
 sub id_parser {
-	my( $self, $code ) = @_;
+    my( $self, $code ) = @_;
 
-	if ($code) {
-		$self->{'_id_parser'} = $code;
-	}
-	return $self->{'_id_parser'} || \&default_id_parser;
+    if ($code) {
+        $self->{'_id_parser'} = $code;
+    }
+    return $self->{'_id_parser'} || \&default_id_parser;
 }
 
 
@@ -198,17 +205,17 @@ sub id_parser {
 =head2 default_id_parser
 
   Title   : default_id_parser
-  Usage   : $id = default_id_parser( $header )
+  Usage   : $id = default_id_parser( $line )
   Function: The default Blast Query ID parser for Bio::Index::Blast.pm
-            Returns $1 from applying the regexp /^>\s*(\S+)/
-            to $header.
+            Returns $1 from applying the regexp /^\s*(\S+)/
+            to $line.
   Returns : ID string
-  Args    : a header line string
+  Args    : a line string
 
 =cut
 
 sub default_id_parser {
-	if ($_[0] =~ /^>\s*(\S+)/) {
+	if ($_[0] =~ /^\s*(\S+)/) {
 		return $1;
 	} else {
 		return;
@@ -238,8 +245,8 @@ sub _index_file {
 		 $i,    # Index-number of file being indexed
 	  ) = @_;
 
-	my( $begin, # Offset from start of file of the start
-		         # of the last found record.
+	my( $begin,  # Offset from start of file of the start
+		          # of the last found record.
 	  );
 
 	open(BLAST, "<$file") or die("cannot open file $file\n");
@@ -260,11 +267,11 @@ sub _index_file {
 	      # by skipping here when empty
 
 			# since we are at the beginning of a new report
-			# store this begin location for the next index
+			# store this begin location for the next index	   
 			$indexpoint = $lastline;
 			@data = ();
 		}
-		push @data, $_ if defined;
+		push @data, $_;
 		$lastline = tell(BLAST);
 	}
 	# handle fencepost problem (end)
@@ -283,11 +290,10 @@ sub _process_report {
 	my $id_parser = $self->id_parser;
 
 	my $datal = new IO::String($data);
-	my $report = new Bio::SearchIO(-noclose => 1,
-											 -format => 'blast',
-											 -fh     => $datal);
-	my $result = $report->next_result;
-	my $query = $result->query_name;
+	my $report = new Bio::Tools::BPlite(-fh      => $datal,
+					-noclose => 1);
+
+	my $query = $report->query;
 	foreach my $id (&$id_parser($query)) {
 		print "id is $id, begin is $begin\n" if( $self->verbose > 0);
 		$self->add_record($id, $i, $begin);
@@ -295,7 +301,6 @@ sub _process_report {
 }
 
 =head2 Bio::Index::Abstract methods
-
 
 =head2 filename
 
@@ -475,5 +480,10 @@ sub _process_report {
 
 
 =cut
+
+
+1;
+
+
 
 1;
