@@ -1426,7 +1426,7 @@ ok($hsp->query->end, 384);
 ok($hsp->hit->start, 1);
 ok($hsp->hit->end,128);
 ok($hsp->gaps, 0);
-ok($hsp->query->frame,-1);
+ok($hsp->query->frame,0);
 ok($hsp->hit->frame,0);
 ok($hsp->query->strand,-1);
 ok($hsp->hit->strand,0);
