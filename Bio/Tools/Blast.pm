@@ -238,11 +238,11 @@ The Blast family includes 5 different programs:
 
               Query Seq        Database
              ------------     ----------
- BLASTP  --  protein          protein
- BLASTN  --  nucleotide       nucleotide 
- BLASTX  --  nucleotide*      protein
- TBLASTN --  protein          nucleotide*
- TBLASTX --  nucleotide*      nucleotide*
+ blastp  --  protein          protein
+ blastn  --  nucleotide       nucleotide 
+ blastx  --  nucleotide*      protein
+ tblastn --  protein          nucleotide*
+ tblastx --  nucleotide*      nucleotide*
  
             * = dynamically translated in all reading frames, both strands
 
@@ -311,13 +311,14 @@ http://www.ncbi.nlm.nih.gov/htbin-post/Entrez/query?uid=8390686&form=6&db=m&Dopt
 
 =head2 Creating Blast objects
 
-A Blast object is constructed from the contents of a Blast report using 
-a set of named parameters. The report data
-can be read in from an existing file specified with the 
-C<-file =E<gt> 'filename'> parameter or from a
-STDIN stream containing potentially multiple
-Blast reports. If the C<-file> parameter does not contain a valid filename, 
-STDIN will be used. 
+A Blast object can be constructed from the contents of a Blast report
+using a set of named parameters that specify significance criteria for
+parsing.  The report data can be read in from an existing file
+specified with the C<-file =E<gt> 'filename'> parameter or from a
+STDIN stream containing potentially multiple Blast reports. If the
+C<-file> parameter does not contain a valid filename, STDIN will be
+used. Separate Blast objects will be created for each report in the
+stream.
 
 To parse the report, you must include a C<-parse =E<gt> 1> parameter
 in addition to any other parsing parameters
@@ -325,15 +326,19 @@ See L<parse>() for a full description of parsing parameters.
 To run a new report and then parse it, include a C<-run =E<gt> \%runParams> 
 parameter containing a reference to a hash
 that hold the parameters required by the L<run>() method.
-L<_initialize> is called by L<new>() and contains general information 
-for creating Blast objects. (The L<new>() method is inherited from
-B<Bio::Root::Object.pm>, see L<Links to related modules>).
 
-Pre-existing file are automatically uncompressed/compressed 
-to access the data and will be left compressed if they
-were originally compressed. Compression/decompression uses the gzip or compress programs 
-that are standard on Unix systems and should not require special configuration.
-  
+The constructor for Blast objects is inherited from Bio::Tools::SeqAnal.pm.
+See the B<_initialize)() method of that package for general information 
+relevant to creating Blast objects. (The B<new>() method, inherited from
+B<Bio::Root::Object.pm>, calls B<_initialize>(). See L<Links to related modules>).
+
+The Blast object can read compressed (gzipped) Blast report
+files. Compression/decompression uses the gzip or compress programs
+that are standard on Unix systems and should not require special
+configuration. If you can't or don't want to use gzip as the file 
+compression tool, either pre-uncompress your files before parsing with
+this module or modify B<Bio::Root::Utilities.pm> to your liking.
+
 Blast objects can be generated either by direct instantiation as in:
 
  use Bio::Tools::Blast;		 
@@ -358,7 +363,7 @@ Using the static $Blast object for parsing a STDIN stream of Blast reports:
     use Bio::Tools::Blast qw(:obj);
 
     sub process_blast {
-	$blastObj = shift;
+	my $blastObj = shift;
 	print $blastObj->table();
 	$blastObj->destroy;
     }
@@ -383,17 +388,19 @@ To run a Blast, create a new Blast object with a C<-run =E<gt> \%runParams> para
 Remote Blasts are performed by including a  C<-method =E<gt> 'remote'> parameter;
 local Blasts are performed by including a  C<-method =E<gt> 'local'> parameter.
 See L<Running Blast reports> as well as the L<DEMO SCRIPTS> for examples.
+Note that running local Blasts is not yet supported, see below.
 
-Note that the C<-method =E<gt> [ $seqs ]> parameter must contain a reference to an array
+Note that the C<-seqs =E<gt> [ $seqs ]> run parameter must contain a reference to an array 
 of B<Bio::Seq.pm> objects (L<Links to related modules>). Encapsulating the sequence in 
 an object makes sequence information much easier to handle as it can be supplied in 
 a variety of formats. Bio::Seq.pm is included with this distribution (L<INSTALLATION>).
 
-Remote Blasts are implemented using the B<Bio::Tools::Blast::Run::Webblast.pm> module.
-Local Blasts require that you customize the B<Bio::Tools::Blast::Run::LocalBlast.pm> module.
-The version of this module included with this distribution provides the basic framework
-for running local Blasts. See L<Links to related modules>.
-
+Remote Blasts are implemented using the
+B<Bio::Tools::Blast::Run::Webblast.pm> module.  Local Blasts require
+that you customize the B<Bio::Tools::Blast::Run::LocalBlast.pm>
+module.  The version of LocalBlast.pm included with this distribution
+provides the basic framework for running local Blasts. 
+See L<Links to related modules>.
 
 =head2 Significance screening
 
@@ -633,8 +640,10 @@ that you want to appear at the top of the Blast report.
 
 =head1 DEMO SCRIPTS
 
-Sample Scripts are available at the following URLs. These scripts are included in the
-in the installed 'exxamples/blast/' directory (see L<INSTALLATION>).
+Sample Scripts are included in the central bioperl distribution in the 
+'exxamples/blast/' directory (see L<INSTALLATION>). These are also available 
+at the following URLs (but it would be safer to use the scripts included with 
+the distribution).
 
 =head2 Handy library for working with Bio::Tools::Blast.pm
 
@@ -642,12 +651,13 @@ in the installed 'exxamples/blast/' directory (see L<INSTALLATION>).
 
 =head2 Parsing Blast reports one at a time.
 
-   http://bio.perl.org/Core/Examples/blast/parse.pl
+   http://bio.perl.org/Core/Examples/blast/parse_blast.pl
    http://bio.perl.org/Core/Examples/blast/parse2.pl
    http://bio.perl.org/Core/Examples/blast/parse_positions.pl
 
-=head2 Parsing Blast report streams.
+=head2 Parsing sets of Blast reports.
 
+   http://bio.perl.org/Core/Examples/blast/parse_blast.pl
    http://bio.perl.org/Core/Examples/blast/parse_stream.pl
    http://bio.perl.org/Core/Examples/blast/parse_multi.pl
 
@@ -1393,13 +1403,10 @@ sub parse {
     ## Initialize the static Blast object with parameters that 
     ## apply to all Blast objects within a parsing session.
 
-    ## Why have the {'_initialized'} ???
-#    if(not $Blast->{'_initialized'}) {
-      &_init_parse_params($share, $filt_func, $check_all,
-			  $signif, $min_len, $strict,
-			  $best, $signif_fmt, $stats
-			 );
-#    }
+    &_init_parse_params($share, $filt_func, $check_all,
+			$signif, $min_len, $strict,
+			$best, $signif_fmt, $stats
+		       );
 
     my $count = $self->_parse_blast_stream(@param);
 	
@@ -1411,10 +1418,6 @@ sub parse {
       foreach(@errs) { print STDERR "$_\n"; }
       @{$Blast->{'_blast_errs'}} = ();
     }
-
-    # Parsing session is over. Reset static variables.
-#    if($self->name eq 'Static Blast object') {
-#    $Blast->{'_initialized'} = 0;   }
 
     return $count;
 }
@@ -1460,8 +1463,6 @@ sub _init_parse_params {
 
     # Clear any errors from previous parse.
     undef $Blast->{'_blast_errs'};
-
-#    $Blast->{'_initialized'} = 1;  # purpose?
 }
 
 
@@ -1508,8 +1509,7 @@ sub _set_signif {
 	$Blast->{'_significance'} = $sig;
     } else {
 	$Blast->{'_significance'}   = $DEFAULT_SIGNIF;
-	$Blast->{'_is_significant'} = 1;
-	$Blast->{'_check_all'}     = 1 if not $Blast->{'_filt_func'}; 
+	$Blast->{'_check_all'}      = 1 if not $Blast->{'_filt_func'}; 
     }
 
     if(defined $len) {
@@ -1531,7 +1531,6 @@ sub _set_signif {
   }
 
 
-
 =head2 _parse_blast_stream
 
  Usage     : n/a. Internal method called by parse()
@@ -1550,11 +1549,13 @@ sub _parse_blast_stream {
     my ($self, %param) = @_;
 
     my $func = $self->_get_parse_blast_func(%param);
+#    my $func = sub { my $data = shift; 
+#		      printf STDERR "Chunk length = %d\n", length($data);
+#		      sleep(3);
+#		    };
 
-    # Only setting the newline character once for efficiency.
+    # Only setting the newline character once per session.
     $Newline ||= $Util->get_newline(-client => $self, %param);
-
-#    print STDERR "\nNEWLINE = $Newline<----";
 
     $self->read(-REC_SEP  =>"$Newline>", 
 		-FUNC     => $func,
@@ -1607,7 +1608,7 @@ sub _get_parse_blast_func {
 #		     "Need to do something with the Blast objects.");
     }
 
-    ## This closure is getting a bit hairy.
+    ## Might consider breaking this closure up if possible.
 
      return sub {
 	my ($data) = @_;
@@ -1695,7 +1696,7 @@ sub _get_parse_blast_func {
 	# If the current Blast object has been completely parsed
 	# (occurs with a single Blast stream), or if there is a previous 
 	# Blast object (occurs with a multi Blast stream), 
-	# exec a supplied function on it or store it in a supplied array.
+	# exect a supplied function on it or store it in a supplied array.
 
 	if( defined $prev_blast or $current_blast->{'_found_params'}) {
 	  my $finished_blast = defined($prev_blast) ? $prev_blast : $current_blast;
@@ -1910,7 +1911,7 @@ sub _parse_descriptions {
       }
       not $layout_set and ($self->_layout($layout), $layout_set = 1);
       
-      $sig = $self->_parse_signif( $line, $layout );
+      $sig = &_parse_signif( $line, $layout );
       
 #      print STDERR "  Parsed signif ($layout) = $sig\n"; 
 
@@ -1921,14 +1922,13 @@ sub _parse_descriptions {
                                     ? $sig : $self->{'_lowestSignif'};
       # Significance value assessment.
       $sig <= $my_signif and $self->{'_num_hits_significant'}++;
-      last desc_loop if ($sig > $my_signif and not $Blast->{'_check_all'});
-
       $self->{'_num_hits'}++;
+      last desc_loop if ($sig > $my_signif and not $Blast->{'_check_all'});
     }
 
     $self->{'_is_significant'} = 1 if $self->{'_num_hits_significant'};
 
-  printf "\n%d SIGNIFICANT HITS.\nDONE PARSING DESCRIPTIONS.\n", $self->{'_num_hits_significant'};
+#  printf "\n%d SIGNIFICANT HITS.\nDONE PARSING DESCRIPTIONS.\n", $self->{'_num_hits_significant'};
 }
 
 
@@ -2011,11 +2011,11 @@ sub _parse_alignment {
     
     $self->{'_current_hit'}++;
     
+    # If not confirming significance, _parse_descriptions will not have been run,
+    # so we need to count the total number of hits here.
     if( not $Blast->{'_confirm_significance'}) {
-       # Also need to set high/low signif values.
       $self->{'_num_hits'}++;
     }
-
 
     my $hit;  # Must be my'ed within hit_loop or failure in 
     # _parse_hsp_data() will cause no hits to be saved.
@@ -2035,13 +2035,18 @@ sub _parse_alignment {
     if($@) {
       # Throwing lots of errors can slow down the code substantially.
       # Error handling code is not that efficient.
+      print STDERR "\nERROR _parse_alignment: $@\n";
       push @{$self->{'_blast_errs'}}, $@;
       $hit->destroy if ref $hit;
       undef $hit;
     } else {
       # Test significance using custom function (if supplied)
       if($filt_func) {
-	not &$filt_func($hit) and do { $hit->destroy; undef $hit; };
+	if(&$filt_func($hit)) {
+	  push @{$self->{'_hits'}}, $hit;
+	} else {
+	  $hit->destroy; undef $hit; 
+	}
       } elsif($hit->signif <= $my_signif) {
 	push @{$self->{'_hits'}}, $hit;
       }
@@ -2520,6 +2525,7 @@ sub _set_query {
 =head2 _parse_signif
 
  Usage     : &_parse_signif(string, layout, gapped);
+           : This is a class function.
  Purpose   : Extracts the P- or Expect value from a single line of a BLAST description section.
  Example   : &_parse_signif("PDB_UNIQUEP:3HSC_  heat-shock cognate ...   799  4.0e-206  2", 1);
            : &_parse_signif("gi|758803  (U23828) peritrophin-95 precurs   38  0.19", 2);
@@ -2534,7 +2540,7 @@ sub _set_query {
 #------------------
 sub _parse_signif {
 #------------------
-    my ($self, $line, $layout, $gapped) = @_;
+    my ($line, $layout, $gapped) = @_;
 
     local $_ = $line;
     my @linedat = split();
@@ -2665,7 +2671,7 @@ See Also   : L<_set_signif>(), L<_test_significance>()
 =cut
 
 #------------
-sub is_signif { my $self = shift; $self->{'_is_significant'}; }
+sub is_signif { my $self = shift; return $self->{'_is_significant'}; }
 #------------
 
 # is_signif() doesn't incorporate the static $Blast object but is included
@@ -2826,14 +2832,15 @@ sub hits {
 #----------
     my $self = shift;
 
+    my $num = ref($self->{'_hits'}) ? scalar(@{$self->{'_hits'}}) : 0;
+    my @ary = ref($self->{'_hits'}) ? @{$self->{'_hits'}} : ();
+
     return wantarray 
         #  returning list containing all hits or empty list.
-	? ($self->{'_is_significant'} ? @{$self->{'_hits'}} : ())
+	?  $self->{'_is_significant'} ? @ary : ()
         #  returning number of hits or 0.
-        : ($self->{'_is_significant'} ? scalar(@{$self->{'_hits'}}) : 0);
+        :  $self->{'_is_significant'} ? $num : 0;
 }
-
-
 
 
 =head2 hit
@@ -2900,8 +2907,12 @@ sub hit {
            : Not throwing exception because the absence of hits may have
            : resulted from stringent significance criteria, not a failure
            : set the hits.
-
-See Also   : L<hits>(), L<hit>(), L<is_signif>(), L<_set_signif>()
+ Comments  : A significant hit is defined as a hit with an expect value
+           : (or P value for WU-Blast) at or below the -signif parameter
+           : used when parsing the report. Additionally, if a filter function
+           : was supplied, the significant hit must also pass that
+           : criteria.
+See Also   : L<hits>(), L<hit>(), L<is_signif>(), L<_set_signif>(), L<parse>()
 
 =cut
 
@@ -2914,7 +2925,9 @@ sub num_hits {
     $option =~ /total/i and return $self->{'_num_hits'} || 0;
 
     # Default: returning number of significant hits.
-    return $self->{'_num_hits_significant'} || 0;
+#    return $self->{'_num_hits_significant'} || 0;
+    return 0 if not ref $self->{'_hits'};
+    return scalar(@{$self->{'_hits'}});
 }
 
 

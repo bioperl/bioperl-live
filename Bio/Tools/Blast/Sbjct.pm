@@ -824,7 +824,7 @@ sub _tile_hsps {
            : Also, it does not keep track of the number of HSPs that
            : overlap within the amount specified by overlap().
            : This will lead to significant tracking errors for large
-           : overlaP-values()
+           : overlap values.
 
 See Also   : L<overlap>(), L<_tile_hsps>(), B<Bio::Tools::Blast::HSP.pm>::matches
 

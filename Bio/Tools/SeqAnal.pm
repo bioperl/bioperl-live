@@ -692,7 +692,7 @@ sub _display_stats {
 #--------------------
     my( $self, $OUT ) = @_;
     
-    printf( $OUT "%-15s: %s\n", "QUERY NAME", $self->query ||'UNKNOWN' );
+    printf( $OUT "\n%-15s: %s\n", "QUERY NAME", $self->query ||'UNKNOWN' );
     printf( $OUT "%-15s: %s\n", "QUERY DESC", $self->query_desc || 'UNKNOWN');
     printf( $OUT "%-15s: %s\n", "LENGTH", $self->length || 'UNKNOWN');
     printf( $OUT "%-15s: %s\n", "FILE", $self->file || 'STDIN');
