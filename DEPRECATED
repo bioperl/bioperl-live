@@ -1,0 +1,12 @@
+# These are modules which are deprecated and later removed from the toolkit
+
+Deprecated Modules     Version Deprecated   Version Removed 
+--------------------------------------------------------------
+Bio::Tools::Blast            1.0	          1.1
+Bio::Tools::Blast::HSP       1.0		  1.1
+Bio::Tools::Blast::HTML      1.0		  1.1
+Bio::Tools::Blast::Sbjct     1.0		  1.1
+
+Bio::Tools::WWW		     1.1
+
+Bio::UnivAln		     1.0		  1.1
