@@ -28,6 +28,7 @@ Remote-blast "factory object" creation and blast-parameter initialization:
   my @params = ( '-prog' => $prog,
   		 '-data' => $db,
   		 '-expect' => $e_val );
+                 '-readmethod' => 'BPlite' );
 
   my $factory = Bio::Tools::Run::RemoteBlast->new(@params);
   $v = 1;
@@ -47,14 +48,10 @@ Remote-blast "factory object" creation and blast-parameter initialization:
   	      sleep 5;
   	  } else { 
   	      $factory->remove_rid($rid);
-  	      my $result = $rc->next_result;
-  	      print "db is ", $result->database_name(), "\n";
-  	      my $count = 0;
-  	      while( my $hit = $result->next_hit ) {		
-  		  $count++;
+  	      while ( my $hit = $rc->nextSbjct ) {
   		  next unless ( $v > 0);
   		  print "hit name is ", $hit->name, "\n";
-  		  while( my $hsp = $hit->next_hsp ) {
+  		  while( my $hsp = $hit->nextHSP ) {
   		      print "score is ", $hsp->score, "\n";
   		  } 
   	      }
