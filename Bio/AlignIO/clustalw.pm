@@ -77,6 +77,32 @@ BEGIN {
 
 @ISA = qw(Bio::AlignIO);
 
+
+=head2 new
+
+ Title   : new
+ Usage   : $alignio = new Bio::AlignIO(-format => 'clustalw', 
+				       -file => 'filename');
+ Function: returns a new Bio::AlignIO object to handle clustalw files
+ Returns : Bio::AlignIO::clustalw object
+ Args    : -verbose => verbosity setting (-1,0,1,2)
+           -file    => name of file to read in or with ">" - writeout
+           -fh      => alternative to -file param - provide a filehandle 
+                       to read from/write to 
+           -format  => type of Alignment Format to process
+           -percentages => (clustalw only) display a percentage of identity
+                           in each line of the alignment.
+=cut
+
+sub _initialize {
+    my ($self, @args) = @_;
+    $self->SUPER::_initialize(@args);
+    my ($percentages) = $self->_rearrange([qw(PERCENTAGES)], @args);
+    
+    defined $percentages && $self->percentages($percentages);
+
+}
+
 =head2 next_aln
 
  Title   : next_aln
@@ -99,7 +125,7 @@ sub next_aln {
     my $aln =  Bio::SimpleAlign->new();
     my $order = 0;
     my %order;
-
+    $self->{_lastline} = '';
     while( defined ($_ = $self->_readline) ) {
 	next if ( /^\s+$/ );	
 
@@ -109,8 +135,8 @@ sub next_aln {
 	    ($seqname,$aln_line) = ("$1:$2-$3",$4);
 	} elsif( /^(\S+)\s+([A-Z\-]+)\s*$/ ) {
 	    ($seqname,$aln_line) = ($1,$2);
-	} else { next }
-
+	} else { $self->{_lastline} = $_; next }
+	
 	if( !exists $order{$seqname} ) {
 	    $order{$seqname} = $order++;
 	}
@@ -186,17 +212,46 @@ sub write_aln {
 		  }
 		  $substring = "";
 	      }
+		
 		$self->_print (sprintf("%-".$max."s %s\n",
 				       $aln->displayname($seq->get_nse()),
-				       $substring)) or return;		
-	    }
+				       $substring)) or return;
+	    }		
+	    
 	    my $linesubstr = substr($matchline, $count,$LINELENGTH);
-	    $self->_print (sprintf("%-".$max."s %s\n", '', $linesubstr));
+	    my $percentages = '';
+	    if( $self->percentages ) {
+		my ($strcpy) = ($linesubstr);
+		my $count = ($strcpy =~ tr/\*//);
+		$percentages = sprintf("\t%d%%", 100 * ($count / length($linesubstr)));
+	    }
+	    $self->_print (sprintf("%-".$max."s %s%s\n", '', $linesubstr,
+				   $percentages));	    
 	    $self->_print (sprintf("\n\n")) or return;
 	    $count += $LINELENGTH;
 	}
     }
     return 1;
+}
+
+=head2 percentages
+
+ Title   : percentages
+ Usage   : $obj->percentages($newval)
+ Function: Set the percentages flag - whether or not to show percentages in 
+           each output line
+ Returns : value of percentages
+ Args    : newvalue (optional)
+
+
+=cut
+
+sub percentages { 
+    my ($self,$value) = @_; 
+    if( defined $value) {
+	$self->{'_percentages'} = $value; 
+    } 
+    return $self->{'_percentages'}; 
 }
 
 1;
