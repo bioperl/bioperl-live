@@ -92,7 +92,7 @@ sub draw_dna {
   }
 
   my $start  = $self->map_no_trunc($feature->start);
-  my $offset = ($x1-$start-1)/$pixels_per_base;
+  my $offset = int(($x1-$start-1)/$pixels_per_base);
 
   for (my $i=$offset;$i<@bases;$i++) {
     my $x = $start + $i * $pixels_per_base;
