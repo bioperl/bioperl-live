@@ -114,7 +114,8 @@ sub next_seq {
 	    $self->_pushback($entry);
 	    return $largeseq;
 	}
-	if ( $entry eq '>' ) { $seen = 1; next; }      
+#	if ( ($entry eq '>') || eof($self->_fh) ) { $seen = 1; next; }      
+	if ( ($entry eq '>')  ) { $seen = 1; next; }      
 	elsif( $entry =~ /\s*>(.+?)$/ ) {
 	    $seen = 1;
 	    ($id,$fulldesc) = ($1 =~ /^\s*(\S+)\s*(.*)$/)

@@ -223,7 +223,7 @@ sub write_seq {
 	if ($count+50 > $length) { $max = $length; }
 	else { $max = $count+49; }
 	my @slice = @{$source->subqual($count,$max)};
-	$self->_print (join(' ',@slice), " \n");
+	$self->_print (join(' ',@slice), "\n");
     }
 
     $self->flush if $self->_flush_on_write && defined $self->_fh;

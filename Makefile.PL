@@ -75,9 +75,9 @@ $tline = "show_tests :\n\t\@echo \'type make test_<subtest> to run\'\n\t\@echo '
 
 print STDERR "Generated sub tests. go make show_tests to see available subtests\n";
 
-#sub MY::postamble {
- #            $tline;
-  #         }
+sub MY::postamble {
+             $tline;
+         }
 
 #
 # Prompt user for BioDBGFF stuff
@@ -273,7 +273,7 @@ WriteMakefile(
 
 sub MY::manifypods {
     my $self = shift;
-    print STDERR "In manifypods moment\n";
+    #print STDERR "In manifypods moment\n";
     if( 1 ) {
         return "\nmanifypods : pure_all\n\t$self->{NOECHO}\$(NOOP)\n"
       }
