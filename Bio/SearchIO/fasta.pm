@@ -80,8 +80,11 @@ use POSIX;
 
 BEGIN { 
     # Set IDLENGTH to a new value if you have
-    # compile FASTA with a different ID length    
-    $IDLENGTH = 7;
+    # compile FASTA with a different ID length
+    # (actually newest FASTA allows the setting of this
+    #  via -C parameter, default is 6)
+    $IDLENGTH = 6;
+
     # mapping of NCBI Blast terms to Bioperl hash keys
     %MODEMAP = ('FastaOutput' => 'result',
 		'Hit'         => 'hit',
@@ -387,7 +390,7 @@ sub next_result{
 	   
 	   my @data = ( '','','');
 	   my $count = 0;
-	   my $len = $self->idlength;
+	   my $len = $self->idlength +1;
 	   my ($seq1_id);
 	   # guarantee we don't start with a blank line 
 	   while( defined($_) ) {
@@ -411,6 +414,7 @@ sub next_result{
 		   }
 	       } elsif( $count == 1 || $count == 3 ) {
 		   if( /^(\S+)\s+/ ) {
+		       $len = CORE::length($1) unless $len < CORE::length($1);
 		       s/\s+$//; # trim trailing spaces,we don't want them 
 		       $data[$count-1] = substr($_,$len);
 		   } elsif( /^\s+(\d+)\s+/ ) {
@@ -526,7 +530,7 @@ sub end_element {
 	    $self->{'_values'}->{$MAPPING{$nm}} = $self->{'_last_data'};
 	}
     } else { 
-	print "unknown nm $nm, ignoring\n";
+	$self->warn( "unknown nm $nm, ignoring\n");
     }
     $self->{'_last_data'} = ''; # remove read data if we are at 
 				# end of an element
