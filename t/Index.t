@@ -2,6 +2,7 @@
 # $Id$
 
 use strict;
+my $exit = 0;
 BEGIN {     
     eval { require Test; };
     use vars qw($NUMTESTS);
@@ -10,19 +11,25 @@ BEGIN {
 	use lib 't';
     }
     use Test;
+    eval { require DB_File;
+	   require Bio::Index::Fasta;
+	   require Bio::Index::SwissPfam;
+	   require Bio::Index::EMBL;
+	   require Bio::Index::GenBank;
+	   require Bio::Index::Swissprot;
+       };
+    if( $@ ) {
+	$exit = 1;
+    }
     plan tests => $NUMTESTS;
 }
 
+exit if $exit;
+
 use Bio::Root::IO;
-use Bio::Index::Fasta;
-use Bio::Index::SwissPfam;
-use Bio::Index::EMBL;
-use Bio::Index::GenBank;
-use Bio::Index::Swissprot;
 use Bio::DB::InMemoryCache;
 
 eval { require Bio::DB::FileCache };
-
 
 use vars qw ($dir);
 
@@ -31,7 +38,7 @@ use vars qw ($dir);
  
 END { 
     foreach ( $Test::ntest..$NUMTESTS) {
-	skip('Bio::DB::FileCache not loaded because one or more of Storable, DB_File or File::Temp not installed',1);
+	skip('DB_File not loaded because one or more of Storable, DB_File or File::Temp not installed',1);
     }
 
     foreach my $root ( qw( Wibbl Wibbl2 Wibbl3 Wibbl4 Wibbl5 
