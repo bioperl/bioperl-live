@@ -195,7 +195,7 @@ called by a given object. One way to resolve this question is by using
 the software described in Appendix V.1.
 
 For those who prefer more visual descriptions,
-http://bioperl.org/Core/Lates/modules.html also offers links to three
+http://bioperl.org/Core/Latest/modules.html also offers links to three
 PDF files which contain schematics that describe how many of the bioperl
 objects related to one another.
 
