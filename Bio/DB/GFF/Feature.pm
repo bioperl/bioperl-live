@@ -412,6 +412,7 @@ compatibility.
 
 *info         = \&group;
 *display_id   = \&group;
+*display_name = \&group;
 
 =head2 target
 

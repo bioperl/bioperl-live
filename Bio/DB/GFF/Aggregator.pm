@@ -297,9 +297,9 @@ sub aggregate {
   for my $feature (@$features) {
     if ($feature->group && $matchsub->($feature)) {
       if ($main_method && lc $feature->method eq lc $main_method) {
-	$aggregates{$feature->group}{base} ||= $feature->clone;
+	$aggregates{$feature->group,$feature->ref}{base} ||= $feature->clone;
       } else {
-	push @{$aggregates{$feature->group}{subparts}},$feature;
+	push @{$aggregates{$feature->group,$feature->ref}{subparts}},$feature;
       }
       push @result,$feature if $passthru && $passthru->($feature);
 
