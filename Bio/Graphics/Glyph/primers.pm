@@ -41,7 +41,7 @@ sub draw {
   $gd->line($x2 - HEIGHT,$center,$x2 - HEIGHT + $a2,$center-$a2,$fg);
 
   # connect the dots if requested
-  if ($self->option('connect')) {
+  if ($self->connect) {
     my $c = $self->color('connect_color') || $self->bgcolor;
     $gd->line($x1 + HEIGHT + 2,$center,$x2 - HEIGHT - 2,$center,$c);
   }
@@ -49,6 +49,12 @@ sub draw {
   # add a label if requested
   $self->draw_label($gd,@_) if $self->option('label');
 
+}
+
+sub connect {
+  my $self = shift;
+  return $self->option('connect') if defined $self->option('connect');
+  1;  # default
 }
 
 1;
@@ -78,7 +84,7 @@ options are recognized:
   Option      Description               Default
   ------      -----------               -------
 
-  -connect    Whether to connect the      false
+  -connect    Whether to connect the      true
               two arrowheads by a line.
 
   -connect_color  The color to use for the    bgcolor

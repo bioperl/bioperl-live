@@ -175,7 +175,7 @@ sub draw_label {
   my $divisor = $UNITS{$units} || 1 if $units;
 
   my ($major_ticks,$minor_ticks) = $self->panel->ticks($start,$stop,$self->font,$divisor);
-  my $tick_scale = " (".($major_ticks->[1]-$major_ticks->[0])." bp/";
+  my $tick_scale = " ($major_ticks bp/";
   $tick_scale .= ($self->option('tick') >= 2)?"major tick)":"tick)";
 
   my $top_left_label = $label5;
@@ -219,11 +219,11 @@ __END__
 
 =head1 NAME
 
-Ace::Graphics::Glyph::arrow - The "ruler_arrow" glyph
+Bio::Graphics::Glyph::arrow - The "ruler_arrow" glyph
 
 =head1 SYNOPSIS
 
-  See L<Ace::Graphics::Panel> and L<Ace::Graphics::Glyph>.
+  See L<Bio::Graphics::Panel> and L<Bio::Graphics::Glyph>.
 
 =head1 DESCRIPTION
 
@@ -306,14 +306,14 @@ Please report them.
 
 =head1 SEE ALSO
 
-L<Ace::Sequence>, L<Ace::Sequence::Feature>, L<Ace::Graphics::Panel>,
-L<Ace::Graphics::Track>, L<Ace::Graphics::Glyph::anchored_arrow>,
-L<Ace::Graphics::Glyph::arrow>,
-L<Ace::Graphics::Glyph::box>,
-L<Ace::Graphics::Glyph::primers>,
-L<Ace::Graphics::Glyph::segments>,
-L<Ace::Graphics::Glyph::toomany>,
-L<Ace::Graphics::Glyph::transcript>,
+L<Ace::Sequence>, L<Ace::Sequence::Feature>, L<Bio::Graphics::Panel>,
+L<Ace::Graphics::Track>, L<Bio::Graphics::Glyph::anchored_arrow>,
+L<Bio::Graphics::Glyph::arrow>,
+L<Bio::Graphics::Glyph::box>,
+L<Bio::Graphics::Glyph::primers>,
+L<Bio::Graphics::Glyph::segments>,
+L<Bio::Graphics::Glyph::toomany>,
+L<Bio::Graphics::Glyph::transcript>,
 
 =head1 AUTHOR
 
