@@ -40,13 +40,13 @@ if( $error ==  1 ) {
 }
 
 use Bio::Cluster::UniGene;
-use Bio::ClusterIO::UniGeneIO;
+use Bio::ClusterIO;
 
 my ($str, $unigene); # predeclare variables for strict
 
 
 
-$str = Bio::ClusterIO::UniGeneIO->new('-file' => Bio::Root::IO->catfile("t","data","unigene.data"), '-format' => "unigene");
+$str = Bio::ClusterIO->new('-file' => Bio::Root::IO->catfile("t","data","unigene.data"), '-format' => "unigene");
 
 ok $str;
 
