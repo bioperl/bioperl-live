@@ -1,4 +1,4 @@
-
+# $Id$
 #
 # BioPerl module for Bio::Tools::HMMER::Set
 #
@@ -13,7 +13,6 @@
 =head1 NAME
 
 Bio::Tools::HMMER::Set - Set of identical domains from HMMER matches
-
 
 =head1 SYNOPSIS
 
@@ -72,10 +71,8 @@ package Bio::Tools::HMMER::Set;
 use vars qw(@ISA);
 use strict;
 
-
 use Bio::Root::RootI;
 use Bio::Tools::HMMER::Domain;
-
 
 @ISA = qw( Bio::Root::RootI );
 
@@ -93,7 +90,6 @@ sub new {
  Function: adds the domain to the list
  Returns : nothing
  Args    : A Bio::Tools::HMMER::Domain object
-
 
 =cut
 
@@ -203,9 +199,6 @@ sub eachHMMUnit {
     $self->warn("Using old eachHMMUnit call on Bio::Tools::HMMER::Set. Should replace with each_Domain");
     return $self->each_Domain();
 }
-
-
-
 
 1;  # says use was ok
 __END__
