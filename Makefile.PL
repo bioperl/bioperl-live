@@ -121,11 +121,11 @@ Warning:
    The installation of these external packages is very simple. You
    can read more about the external packages at
 
-   http://bio.perl.org/Download/Core/External.html
+   http://bio.perl.org/Core/external.shtml
 
    The ftp site
 
-   ftp://bio.perl.org/pub/External/Core/
+   ftp://bio.perl.org/pub/external/
 
    has all the external packages for easy retrieval, or you can use CPAN
 
