@@ -1,7 +1,7 @@
 <!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook V4.1//EN" [
 <!ENTITY paml "<acronym>PAML</acronym>" >
 ]>
-<!-- $Id: PAML.sgml,v 1.4 2003-09-17 12:46:51 bosborne Exp $ -->
+<!-- $Id: PAML.sgml,v 1.5 2003-12-28 18:56:22 bosborne Exp $ -->
 <article>
 <articleinfo>
 
@@ -86,7 +86,7 @@
 <para>
 	The <emphasis>paml</emphasis> package consists of many different executable
 	programs, but the BioPerl Bio::Tools::Phylo::PAML object
-	(hereafter referred to as simply <emphasis>the</emphasis> <emphasis>paml</emphasis>
+	(hereafter referred to as simply the <emphasis>paml</emphasis>
 	object) focuses on dealing with the output of the main
 	analysis programs "baseml", "codeml" (sometimes called "aaml")
 	and "codemlsites" (a batch version of "codeml").  All of these
@@ -215,7 +215,7 @@ while(my $result = $parser->next_result) {
 <title>Running PAML from within Bioperl</title>
 <para>
 
-       Bioperl also has facilities for runnning <emphasis>paml</emphasis> from within a
+       Bioperl also has facilities for running <emphasis>paml</emphasis> from within a
        Perl script.  This allows you to compute Ka and Ks estimations
        from within an analysis pipeline.  The following section will
        describe the process of getting data into Bioperl, running the
