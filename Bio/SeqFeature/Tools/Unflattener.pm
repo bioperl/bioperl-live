@@ -1409,7 +1409,7 @@ sub unflatten_seq{
 		   $self->throw(join("\n",
 				     map {"@$_"} @bad_problems));
 	       }
-	       $self->problem($_) foreach @problems;
+	       $self->problem(@$_) foreach @problems;
 	   }
        }
    }    
