@@ -108,6 +108,7 @@ sub _initialize {
 sub add_Domain{
    my ($self,$domain) = @_;
 
+
    if( ! defined $domain || ! $domain->isa("Bio::Tools::HMMER::Domain") ) {
        $self->throw("[$domain] is not a Bio::Tools::HMMER::Domain. aborting");
    }
@@ -167,6 +168,7 @@ sub name{
 
 sub bits{
    my ($obj,$value) = @_;
+
    if( defined $value) {
       $obj->{'bits'} = $value;
     }

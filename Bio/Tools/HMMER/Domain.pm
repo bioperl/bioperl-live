@@ -25,7 +25,7 @@ here, so this inheriets off Homol SeqFeature. As this code
 originally came from a separate project, there are some backward
 compatibility stuff provided to keep this working with old code.
 
-Don't forget this inheriets off Bio::SeqFeature, so all your usual
+Don\'t forget this inheriets off Bio::SeqFeature, so all your usual
 nice start/end/score stuff is ready for use.
 
 =head1 CONTACT
@@ -42,20 +42,24 @@ _
 package Bio::Tools::HMMER::Domain;
 
 use vars qw(@ISA);
-use Bio::SeqFeature::Homol;
-
+use Bio::SeqFeature::FeaturePair;
+use Bio::SeqFeature::Generic;
 use strict;
 
 
-@ISA = ( 'Bio::SeqFeature::Homol' );
+@ISA = ( 'Bio::SeqFeature::FeaturePair','Bio::SeqFeature::Generic');
 
-sub _initialize {
+sub _initialize { 
   my($self,@args) = @_;
   my $make = $self->SUPER::_initialize(@args);
+
   $self->{'alignlines'} = [];
 
-  my $hmmf = Bio::SeqFeature::Homol->new();
-  $self->homol_SeqFeature($hmmf);
+  my $hmmf1 = new Bio::SeqFeature::Generic;
+  my $hmmf2 = new Bio::SeqFeature::Generic;
+
+  $self->feature1($hmmf1);
+  $self->feature2($hmmf2);
 
   return $make;
 }
@@ -69,8 +73,8 @@ sub _initialize {
  Args    : scalar
 
  Adds an alignment line, mainly for storing the HMMER alignments
-as flat text which can be reguritated. You're right. This is *not
-nice* and not the right way to do it.  C'est la vie.
+as flat text which can be reguritated. You\'re right. This is *not
+nice* and not the right way to do it.  C\'est la vie.
 
 =cut
 
@@ -189,7 +193,7 @@ sub end_seq {
 sub start_hmm { 
     my $self = shift; 
     my $start = shift; 
-    return $self->homol_SeqFeature->start($start); 
+    return $self->hstart($start); 
 }
 
 
@@ -210,7 +214,7 @@ sub end_hmm {
     my $self = shift;
     my $end = shift;
 
-    return $self->homol_SeqFeature->end($end); 
+    return $self->hend($end); 
 }
 
 =head2 hmmacc
@@ -229,9 +233,9 @@ sub end_hmm {
 sub hmmacc{
    my ($self,$acc) = @_;
    if( defined $acc ) {
-       $self->homol_SeqFeature->add_tag_value('accession',$acc);
+       $self->feature2->add_tag_value('accession',$acc);
    }
-   my @vals = $self->homol_SeqFeature->each_tag_value('accession');
+   my @vals = $self->feature2->each_tag_value('accession');
    return shift @vals;
 }
 
@@ -250,10 +254,13 @@ sub hmmacc{
 
 sub hmmname {
    my ($self,$hname) = @_;
+
+
    if( defined $hname ) {
-       $self->homol_SeqFeature->seqname($hname);
+       $self->hseqname($hname);
    } 
-   return $self->homol_SeqFeature->seqname();
+
+   return $self->hseqname();
 }
 
 =head2 bits
@@ -288,6 +295,7 @@ sub bits{
 
 sub evalue{
    my ($self,$value) = @_;
+
    if( defined $value ) {
        $self->add_tag_value('evalue',$value);
    }

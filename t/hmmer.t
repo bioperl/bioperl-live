@@ -52,7 +52,7 @@ $domain->seqname('silly');
 print "ok 2\n";
 
 # test that we can get out forward and reverse homol_SeqFeatures
-$homol = $domain->homol_SeqFeature();
+$homol = $domain->feature2();
 if( $homol->start() == 10 ) {
     print "ok 3\n";
 } else {
@@ -60,7 +60,8 @@ if( $homol->start() == 10 ) {
 }
 
 
-$rev = $homol->homol_SeqFeature();
+$rev = $domain;
+
 if( $rev->start() == 50 ) {
     print "ok 4\n"
 }else {

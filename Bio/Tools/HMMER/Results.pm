@@ -13,7 +13,7 @@ Bio::Tools::HMMER::Results - Object representing HMMER output results
 =head1 SYNOPSIS
 
    # parse a hmmsearch file (can also parse a hmmpfam file)
-   $res = Bio::Tools::HMMER::Results( -file => 'output.hmm' , -type => 'hmmsearch');
+   $res = new Bio::Tools::HMMER::Results( -file => 'output.hmm' , -type => 'hmmsearch');
 
    # print out the results for each sequence
    foreach $seq ( $res->each_Set ) {
@@ -97,7 +97,8 @@ use FileHandle;
 sub _initialize {
   my($self,@args) = @_;
 
-  my $make = $self->SUPER::_initialize(@args);
+  my $make = $self->SUPER::_initialize();
+
   $self->{'domain'} = []; # array of HMMUnits
   $self->{'seq'} = {};
 
@@ -129,9 +130,6 @@ sub _initialize {
       $self->throw("Did not recoginise type $parsetype");
   } 
   
-
-
-# set stuff in self from @args
   return $make; # success - we hope!
 }
 
@@ -290,7 +288,6 @@ sub write_FT_output {
     if( !defined $idt ) {
 	$idt = "DOMAIN";
     }
-
 
     foreach $seq ( $self->each_Set() ) {
 	print $file sprintf("ID   %s\n",$seq->name());
@@ -576,10 +573,10 @@ sub add_Set {
     my $name;
 
     $name = $seq->name();
+
     if( exists $self->{'seq'}->{$name} ) {
 	$self->throw("You alredy have $name in HMMResults!");
     }
-
     $self->{'seq'}->{$name} = $seq;
 }
 
@@ -599,10 +596,10 @@ sub each_Set {
     my $self = shift;
     my (@array,$name);
 
+
     foreach $name ( keys %{$self->{'seq'}} ) {
 	push(@array,$self->{'seq'}->{$name});
     }
-
     return @array;
 }
 
@@ -645,22 +642,31 @@ sub _parse_hmmpfam {
 
     while(<$file>) {
 	if( /^Query:\s+(\S+)/ ) {
+
 	    $seqname = $1;
-	    $seq = Bio::Tools::HMMER::Set->new();
-	    $seq->name($seqname);
+	    $seq     = Bio::Tools::HMMER::Set->new();
+
+	    $seq ->name($seqname);
 	    $self->add_Set($seq);
+
 	    %hash = ();
 	    
 	    while(<$file>){
 		/^Parsed for domains/ && last;
+
 		# This is to parse out the accession numbers in old Pfam format.
 		# now not support due to changes in HMMER.
+
 		if( (($id,$acc, $sc, $ev, $nd) = /^\s*(\S+)\s+([A-Za-z]+\d+).+?\s(\S+)\s+(\S+)\s+(\d+)\s*$/)) {
 		    $hash{$id} = $sc; # we need this for the sequence score of hte domains below!
-		    $acc{$id} = $acc;
+		    $acc {$id} = $acc;
+
 		# this is the more common parsing routine
+
 		} elsif ( (($id,$sc, $ev, $nd) = /^\s*(\S+).+?\s(\S+)\s+(\S+)\s+(\d+)\s*$/) ) {
+
 		    $hash{$id} = $sc; # we need this for the sequence score of hte domains below!
+
 		}
 	    }
 
@@ -676,17 +682,19 @@ sub _parse_hmmpfam {
 		if( (($id, $sqfrom, $sqto, $hmmf,$hmmt,$sc, $ev) = /(\S+)\s+\S+\s+(\d+)\s+(\d+).+?(\d+)\s+(\d+)\s+\S+\s+(\S+)\s+(\S+)\s*$/)) {
 		    
 		    $unit = Bio::Tools::HMMER::Domain->new();
-		    $unit->seqname($seqname);
-		    $unit->hmmname($id);
-		    $unit->start($sqfrom);
-		    $unit->end($sqto);
+		    $unit->seqname  ($seqname);
+		    $unit->hmmname  ($id);
+		    $unit->start    ($sqfrom);
+		    $unit->end      ($sqto);
 		    $unit->start_hmm($hmmf);
-		    $unit->end_hmm($hmmt);
-		    $unit->bits($sc);
-		    $unit->evalue($ev);
+		    $unit->end_hmm  ($hmmt);
+		    $unit->bits     ($sc);
+		    $unit->evalue   ($ev);
+
 		    if( !exists($hash{$id}) ) {
 			$self->throw("HMMResults parsing error in hmmpfam for $id - can't find sequecne score");
 		    }
+
 		    $unit->seqbits($hash{$id});
 	    
 		    if( exists $acc{$id} ) {
@@ -740,17 +748,20 @@ sub _parse_hmmpfam {
 # mainly internal function
 
 sub get_unit_nse {
-    my $self = shift;
+    my $self    = shift;
     my $seqname = shift;
     my $domname = shift;
-    my $start = shift;
-    my $end = shift;
+    my $start   = shift;
+    my $end     = shift;
+
     my($seq,$unit);
     
     $seq = $self->get_Set($seqname);
+
     if( !defined $seq ) {
 	$self->throw("Could not get sequence name $seqname - so can't get its unit");
     }
+
     foreach $unit ( $seq->each_Domain() ) {
 	if( $unit->hmmname() eq $domname && $unit->start() == $start &&  $unit->end() == $end ) {
 	    return $unit;
