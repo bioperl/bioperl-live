@@ -311,29 +311,28 @@ sub description{
 =cut
 
 sub get_members {
-    my ($self,@args) = @_;
-
-    if(@args) {
-	my %hash = @args;
-	my @return;
-	foreach my $mem(@{$self->{'_members'}}){
-	    foreach my $key (keys %hash){
+    my $self = shift;
+    my @ret;
+    
+    if(@_) {
+	my %hash = @_;
+	foreach my $mem ( @{$self->{'_members'}} ) {
+	    foreach my $key ( keys %hash){
 		my $method = $key;
 		$method=~s/-//g;
 		if($mem->can('species')){
 		    my $species = $mem->species;
 		    $species->can($method) ||
 			$self->throw("$method is an invalid criteria");
-		    if($species->$method eq $hash{$key}){
-			push @return, $mem;
+		    if($species->$method() eq $hash{$key} ){
+			push @ret, $mem;
 		    }
 		}
 	    }
 	}
-	return @return;
-    } else {
-	return @{$self->{'_members'}};
+	return @ret;
     }
+    return @{$self->{'_members'}};    
 }
 
 =head2 size
