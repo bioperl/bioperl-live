@@ -10,18 +10,22 @@ o Getting Started
  
  Thanks for downloading this distribution!
 
- For tutorials see Bioperl's bptutorial.pl in this directory or 
- HOWTO documents in docs/howto or the online Bioperl tutorial
- at http://www.pasteur.fr/recherche/unites/sis/formation/bioperl. For
- information on databases and Bioperl see biodatabases.pod. To look at
- example code browse the scripts/ and examples/ directories, and look at
- bioscripts.pod for a descriptions of all these scripts. The bioperl.pod file
- also gives a overview of the history and purpose of Bioperl. The FAQ
+ For tutorials see Bioperl's bptutorial.pl in this directory or the
+ HOWTO documents in docs/howto or online at http://bioperl.org.
+ See http://www.pasteur.fr/recherche/unites/sis/formation/bioperl
+ for an online tutorial. For information on databases and Bioperl 
+ see biodatabases.pod. To look at example code browse the scripts/ 
+ and examples/ directories, and look at bioscripts.pod for a
+ description of all these scripts. The bioperl.pod file
+ gives a overview of the history and purpose of Bioperl. The FAQ
  may also be useful if you have a particular question.
 
+ Please see the the INSTALL or INSTALL.WIN documents for installation 
+ instructions.
+
  For people starting out with Perl and Bioperl, look at the Bio::Perl
- module (go perldoc Bio::Perl from the directory you are reading this file
- in). This module is designed to flatten the learning curve for newcomers.
+ module (go "perldoc Bio::Perl" from within this directory). This 
+ module is designed to flatten the learning curve for newcomers.
 
  For a discussion of issues in design and development please see
  biodesign.pod, recommended for those who want to contribute code. And for
@@ -32,10 +36,10 @@ o Getting Started
 
 o About Bioperl
 
- Bioperl is an association of developers of public domain Perl tools
- for computational molecular biology.
+ Bioperl is a package of public domain Perl tools for computational 
+ molecular biology.
 
- Our website http://bioperl.org provides an online resource for
+ Our website, http://bioperl.org, provides an online resource of
  modules, scripts, and web links for developers of Perl-based software
  for life science research.
 
@@ -59,9 +63,6 @@ o Contact info
 
  Please see the AUTHORS file for the complete list of bioperl
  developers and contributors.
-
- Please see the the INSTALL or INSTALL.WIN documents for installation 
- instructions.
 
 o About the directory structure
 
@@ -101,33 +102,30 @@ o Documentation
  
    pod2text bptutorial.pl | more 
 
- pod2html, which comes with Perl, can be used to create web-browser
- navigable documentation files.
-
  Individual *.pm modules have their own embedded POD documentation
  as well. A complete set of hyperlinked POD, or module, documentation 
  is available at http://www.bioperl.org.
 
- Remember 'perldoc' is your friend. You can use this to read any
+ Remember that 'perldoc' is your friend. You can use it to read any
  file containing POD formatted documentation without needing any type
  of translator.
 
- There is also an online course written at the Pasteur Institute. See:
+ There is also an online course written at the Pasteur Institute. See
  http://www.pasteur.fr/recherche/unites/sis/formation/bioperl.
 
  Useful documentation in the form of example code can also be found
- in the examples/ directory. The current collection includes scripts
- that run BLAST, index flat files, parse PDB structure files, make primers,
- retrieve ESTs based on tissue, align protein to nucleotide
- sequence, run GENSCAN on multiple sequences, and much more! See
- bioscripts.pod for a complete listing.
+ in the examples/ and scripts/ directories. The current collection 
+ includes scripts that run BLAST, index flat files, parse PDB 
+ structure files, make primers, retrieve ESTs based on tissue, align 
+ protein to nucleotide sequence, run GENSCAN on multiple sequences, 
+ and much more! See bioscripts.pod for a complete listing.
 
 o Releases
   
  Bioperl releases are always available from the website
- http://www.bioperl.org or by FTP from ftp://bioperl.org.  (Note that
+ http://www.bioperl.org or by FTP from ftp://bioperl.org (note that
  we've had trouble with our new network setup which is not allowing
- FTP to support passive mode properly: use http://www.bioperl.org/DIST
+ FTP to support passive mode properly, use http://www.bioperl.org/DIST
  to get a listing of the distribution directory).  Each release is
  tested with the test suite and cross-tested on a number of different
  platforms.  See the PLATFORMS file for more information on a specific
@@ -136,50 +134,46 @@ o Releases
  file.  See the Changes file for a listing of what features have been
  added or what APIs have changed between releases.
 
- Like many internet projects, Bioperl now has a consistent numbering
- scheme to indicate stable release series vs development release series.
- A release number is a three digit number like 1.2.0 - the first digit
+ Bioperl now has a consistent numbering scheme to indicate stable 
+ release series vs. development release series. A release number 
+ is a three digit number like 1.2.0 - the first digit
  indicates the major release - the idea being that all the API calls in a
  major release are reasonably consistent. The second number is the
  release series. This is probably the most important number. Even
  numbers here (1.0, 1.2 etc) indicate stable releases. Stable releases
  are well tested and recommended for most uses. Odd numbers (1.1, 1.3
  etc) are development releases which one should only use if you are
- interested in the latest and greatest features. The final number (eg,
- 1.2.0, 1.2.1 etc) is the bug fix release. The higher the number the
+ interested in the latest and greatest features. The final number (e.g.
+ 1.2.0, 1.2.1) is the bug fix release. The higher the number the
  more bug fixes has been incorporated. In theory you can upgrade from one
  bug fix release to the next with no changes to your own code (for production
  cases, obviously check things out carefully before you switch over).
 
 o Caveats, warnings, etc
 
- When you run the tests (make test) often some tests will issue
+ When you run the tests ("make test") some tests may issue
  warnings messages or even fail.  Sometimes this is because we didn't
- have anyone test the test system on the combination or your operating
+ have anyone to test the test system on the combination of your operating
  system, version of perl, and associated libraries and other modules.
  Because Bioperl depends on several outside libraries we may not be
- able to test every single combination (mind you, now you've tested
- another possible situation and we encourage you to contribute back to
- the development process by emailing the list or submitted a bug), so
- if there are warnings you will find that in fact many things are not
- a big deal.  See the PLATFORMS file for reports of specific issues.
+ able to test every single combination so if there are warnings you 
+ may find that the package is still perfectly useful.  See the 
+ PLATFORMS file for reports of specific issues.
  
  If you install the bioperl-run system and run tests when you don't
  have the program installed you'll get messages like 'program XXX not
  found, skipping tests'.  That's okay, Bioperl is doing what it is
- supposed to do.  If you wanted to run this program you'd need to
+ supposed to do.  If you wanted to run the program you'd need to
  install it first.
  
  Not all scripts in the examples/ directory are correct and up-to-date.
  We need volunteers to help maintain these so if you find they do not
- work, submit a bug report http://bugzilla.bioperl.org and/or consider
- helping out in their maintenance.  Don't be dissuaded by a script not
- working, often the SYNOPSIS of the module is the best place to start
- when trying to learn how to use them.  
+ work, submit a bug report to http://bugzilla.bioperl.org and consider
+ helping out in their maintenance.
 
  If you are confused about what modules are appropriate when you try
  and solve a particular issue in bioinformatics we urge you to look at
- the bptutorial first. 
+ the bptutorial or the HOWTO documents first. 
 
 o A simple module summary
 
@@ -273,7 +267,7 @@ o Upgrading from an older version
  If you have a previously installed version of bioperl on your system
  some of these notes may help you.  
 
- Some modules have been removed because they have been superseded by
+ Some modules have been removed because they have been superceded by
  new development efforts.  They are documented in the DEPRECATED file
  that is included in the release.  In addition some methods, or the
  Application Programming Interface (API), have changed or been
