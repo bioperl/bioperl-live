@@ -123,7 +123,6 @@ sub _generic_seqfeature {
 	    my $seqid = $annseq->id;
 	    if ( $next_loc =~ s/\(?\s*([A-Za-z\d]+(\.\d+)?):// ) {
 		$seqid = $1;
-		print "seqid is $seqid\n";
 	    }
 	    if( my $location = $fth->_parse_loc($sf,$next_loc)) {
 		print STDERR "I got ", join(",", ($location->start(), 
