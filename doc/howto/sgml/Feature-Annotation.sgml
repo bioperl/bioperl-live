@@ -304,6 +304,25 @@ FEATURES             Location/Qualifiers
       </tgroup>
     </table>
     <para>
+      It's not unusual for a Genbank file to have multiple CDS or gene
+      features, each with a number of tags, like 'gene', 'protein_id',
+      or 'product'. How can we get the nucleotide sequences and gene
+      names from all these CDS features? By putting all of this together we
+      arrive at something like:
+      <programlisting>
+        my $seqio_object = Bio::SeqIO->new(-file => $gb_file);
+        my $seq_object = $seqio_object->next_seq;
+
+	foreach my $feat_object ($seq_object->get_SeqFeatures) {
+	  if ($feat_object->primary_tag eq "CDS") {
+	    print $feat_object->spliced_seq->seq,"\n";
+	    foreach my $val ($feat->get_tag_values('gene')) {
+	      print "gene: ",$val,"\n";
+            }
+	}
+      </programlisting> 
+    </para>
+    <para>
       As an aside I should mention that certain data
       associated with the sequence in a Genbank file is accessible both 
       as a feature and through a specialized object. Taxonomic 
@@ -339,9 +358,9 @@ SOURCE      human.
   <section id="anno_from_genbank">
     <title>Annotations from Genbank</title>
     <para>
-      There's still quite a bit of data left in the Genbank file that's
+      There's still quite a bit of data left our Genbank files that's
       not a SeqFeature, and much of it is parsed into Annotation objects. 
-      In order to get access to these objects we have to get an
+      In order to get access to these objects we can get an
       AnnotationCollection object, which is exactly what it sounds like:
       <programlisting>
 	my $io = Bio::SeqIO->new(-file => $file, -format => "genbank" );
@@ -466,7 +485,7 @@ start: 1
                                            -format => "genbank");
 	eval { $seq_object = $seqio_object->next_seq; };
 	# if there's an error
-	print "Problem in $gb_file. Bad feature?\n" if $@;
+	print "Problem in $gb_file. Bad feature perhaps?\n" if $@;
       </programlisting>
     </para>  
   </section>
@@ -585,21 +604,18 @@ start: 1
 	# attach the sequence
 	$feat->attach_seq($seq_obj);
       </programlisting>
+      Once you have a feature you can add annotations to it using an
+      AnnotationCollection object:
+      <programlisting>
+	$db_link = new Bio::Annotation::DBLink();
+	$db_link->database('dbSNP');
+	$db_link->primary_id('2367');
+	$feat->annotation->add_Annotation('dblink',$db_link);
+    </programlisting>
     </para>
   </section>
 
 <!--
-Once you have a feature you can add annotations to its AnnotationCollection
-   $link2 = new Bio::Annotation::DBLink();
-   $link2->database('dbSNP');
-   $link2->primary_id('2367');
-
-   # DBLink is-a Bio::AnnotationI object, can be added to annotation
-   # collections, e.g. the one on features or seqs
-   $feat->annotation->add_Annotation('dblink', $link2);
-
-   my $coll = new Bio::Annotation::Collection;
-
    # this also implements a tag/value pair, where tag _and_ value are treated
    # as ontology terms
    my $annterm = new Bio::Annotation::OntologyTerm(-label => 'ABC1',
@@ -681,10 +697,5 @@ If you're making lots of Annotation perhaps you want a Factory:
 </article>
 
 <!-- 
-
-Bio::FeatureHolderI - Features held by a feature are essentially sub-features.
-What does this mean?
-
 <note>, <tip>, <warning>, <important> 
-
 -->
