@@ -847,7 +847,7 @@ sub _get_binary_bases {
      my $length = $trace->length();
      if ($version == 2) {
           $returner->{'version'} = "2";
-         for (my $current_base =1; $current_base < $length; $current_base++) {
+         for (my $current_base =1; $current_base <= $length; $current_base++) {
                my @current_row;
                push @current_row,$trace->peak_index_at($current_base);
                push @current_row,$trace->accuracy_at("a",$current_base);
