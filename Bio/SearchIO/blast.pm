@@ -449,7 +449,7 @@ sub next_result{
 		   last;
 	       }
                chomp;               
-               if( /\(([\d,]+)\s+letters.*\)/ ) {
+               if( /\((\-?[\d,]+)\s+letters.*\)/ ) {
                    $size = $1;
                    $size =~ s/,//g;
                    last;
@@ -528,7 +528,7 @@ sub next_result{
            my $db = $1;
 
            while( defined($_ = $self->_readline) ) {
-               if( /^\s+([\d\,]+)\s+sequences\;\s+([\d,]+)\s+total\s+letters/){
+               if( /^\s+(\-?[\d\,]+)\s+sequences\;\s+(\-?[\d,]+)\s+total\s+letters/){
                    my ($s,$l) = ($1,$2);
                    $s =~ s/,//g;
                    $l =~ s/,//g;
@@ -815,12 +815,12 @@ sub next_result{
                # here is where difference between wublast and ncbiblast
                # is better handled by different logic
                if( /Number of Sequences:\s+([\d\,]+)/i ||
-                        /of sequences in database:\s+([\d,]+)/i) {
+                        /of sequences in database:\s+(\-?[\d,]+)/i) {
                    my $c = $1;
                    $c =~ s/\,//g;
                    $self->element({'Name' => 'Statistics_db-len',
                                    'Data' => $c});
-               } elsif ( /letters in database:\s+([\d,]+)/i) {           
+               } elsif ( /letters in database:\s+(\-?[\d,]+)/i) {           
                    my $s = $1;
                    $s =~ s/,//g;
                    $self->element({'Name' => 'Statistics_db-let',
