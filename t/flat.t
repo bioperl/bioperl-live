@@ -24,20 +24,11 @@ BEGIN {
 
     $NUMTESTS = 7;
     plan tests => $NUMTESTS;
-    eval { require 'IO/String.pm' };
-    if( $@ ) {
-	print STDERR "IO::String not installed. This means the Bio::DB::* modules are not usable. Skipping tests.\n";
-	for( 1..$NUMTESTS ) {
-	    skip(1,"IO::String not installed. This means the Bio::DB::* modules are not usable. Skipping tests");
-	}
-       $error = 1; 
-    }
 }
 
 if( $error ==  1 ) {
     exit(0);
 }
-
 my $testnum;
 my $verbose = 0;
 
@@ -50,6 +41,7 @@ my $verbose = 0;
 
 #First of all we need to create an flat db
 use Bio::DB::Flat;
+use Bio::Root::IO;
 use Cwd;
 my $cd = cwd();
 my $tmpdir = $cd."/t/tmp";
@@ -96,8 +88,10 @@ ok($seq->length,12850);
 
 
 sub maketmpdir {
-     system("mkdir $tmpdir");
+    mkdir $tmpdir;
 }
-sub cleanup {
-     system("rm -rf $tmpdir");
+sub cleanup {    
+    eval { 
+      Bio::Root::IO->rmtree($tmpdir);
+    };
 } 
