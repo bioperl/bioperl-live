@@ -1,6 +1,7 @@
-<html><head><title>Bio::SearchIO HOWTO</title><link rel="stylesheet" href="e-novative.css" type="text/css"/><meta name="generator" content="DocBook XSL Stylesheets V1.55.0"/><meta name="description" content="&#xA;	This is a HOWTO written in DocBook (SGML) for the reasoning behind&#xA;	the creation of the Bio::SearchIO system, how to use it, and how one&#xA;	goes about writing new adaptors to different output formats.  We will&#xA;	also describe how the Bio::SearchIO::Writer modules work for outputting&#xA;	various formats from Bio::Search objects. &#xA;      "/></head><body><div xmlns="" id="customheader"><span class="logo">&gt;e-novative&gt;</span>
-    e-Business Software &amp; Solutions
-    </div><div class="article"><div class="titlepage"><div><h1 class="title"><a id="d3e1"/>Bio::SearchIO HOWTO</h1></div><div><div class="author"><h3 class="author">Jason Stajich</h3><div class="affiliation"><span class="orgname"><a href="http://www.duke.edu" target="_top">Duke
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"><head><title>Bio::SearchIO HOWTO</title><link rel="stylesheet" href="e-novative.css" type="text/css"/><meta name="generator" content="DocBook XSL Stylesheets V1.55.0"/><meta name="description" content="&#xA;	This is a HOWTO written in DocBook (SGML) for the reasoning behind&#xA;	the creation of the Bio::SearchIO system, how to use it, and how one&#xA;	goes about writing new adaptors to different output formats.  We will&#xA;	also describe how the Bio::SearchIO::Writer modules work for outputting&#xA;	various formats from Bio::Search objects. &#xA;      "/></head><body><div class="article"><div class="titlepage"><div><h1 class="title"><a id="d3e1"/>Bio::SearchIO HOWTO</h1></div><div><div class="author"><h3 class="author">Jason Stajich</h3><div class="affiliation"><span class="orgname"><a href="http://www.duke.edu" target="_top">Duke
 	University</a><br/></span><span class="orgdiv"><a href="http://upg.duke.edu" target="_top">University Program in Genetics</a><br/></span><span class="orgdiv"><a href="http://cgt.genetics.duke.edu" target="_top">Center for
 	Genome Technology</a><br/></span><div class="address"><p>
 	  Duke University Medical Center
@@ -85,7 +86,7 @@
       the query, the database searched, and the full collection of Hits
       found for the query.
     </p></div><div class="section"><div class="titlepage"><div><h2 class="title" style="clear: both"><a id="functionality"/>3. New Functionality</h2></div></div><p>
-      The generality of the SearchIO approach is demonstrated by the large number
+      The generality of the SearchIO approach is demonstrated by large number
       of report formats that have appeared since its introduction. These
       formats include AXT format reports (BLAT, BLASTZ), NCBI tabular output (-m 8 or -m 9
       options), NCBI Blast XML, chadosxpr format flat databases,
@@ -532,8 +533,4 @@ $searchio-&gt;_eventHandler-&gt;register_factory('hit', $hitfact);
       to be as efficient in parsing as we would like.  Future work will
       hopefully address speed and memory issues with this parser.
       Volunteers and improvement code is always welcome.
-    </p></div></div><div xmlns="" id="customfooter">
-      Copyright © 2002 e-novative GmbH.
-      All rights reserved.
-      e-novative® is a registered trademark of e-novative GmbH.
-    </div></body></html>
+    </p></div></div></body></html>
