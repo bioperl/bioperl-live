@@ -5,6 +5,7 @@ use base qw(Bio::Root::Root Bio::SeqFeatureI Bio::AnnotatableI Bio::FeatureHolde
 
 use Bio::Root::Root;
 use Bio::Annotation::Collection;
+use Bio::LocatableSeq;
 use Bio::Location::Simple;
 use Bio::Tools::GFF;
 
@@ -448,21 +449,20 @@ sub score {
   return $self->{'_gsf_score'};
 }
 
-=head2 phase 
-                                                                                
+=head2 phase
+
  Title   : phase
  Usage   : $phase = $feat->phase()
            $feat->phase($phase)
  Function: get/set on phase information
  Returns : 0,1,2, '.'
  Args    : none if get, the new value if set
-                                                                                
-                                                                                
+
 =cut
 
 sub phase {
   my $self = shift;
-                                                                                
+
   if ( @_ ) {
     my $value = shift;
     if ( defined $value &&
@@ -531,6 +531,40 @@ sub location {
   }
   return $self->{'_location'};
 }
+
+=head2 add_target()
+
+ Usage   : $seqfeature->add_target(Bio::LocatableSeq->new(...));
+ Function: adds a target location on another reference sequence for this feature
+ Returns : true on success
+ Args    : a Bio::LocatableSeq object
+
+
+=cut
+
+sub add_target {
+  my ($self,$seq) = @_;
+  $self->throw("$seq is not a Bio::LocatableSeq, bailing out") unless ref($seq) and seq->isa('Bio::LocatableSeq');
+  push @{ $self->{'targets'} }, $seq;
+  return $seq;
+}
+
+=head2 each_target()
+
+ Usage   : @targets = $seqfeature->each_target();
+ Function: Returns a list of Bio::LocatableSeqs which are the locations of this object.
+           To obtain the "primary" location, see L</location()>.
+ Returns : a list of 0..N Bio::LocatableSeq objects
+ Args    : none
+
+
+=cut
+
+sub each_target {
+  my ($self) = @_;
+  return $self->{'targets'} ? @{ $self->{'targets'} } : ();
+}
+
 
 sub _no_tags {
   my $self = shift;
