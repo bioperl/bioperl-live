@@ -61,7 +61,7 @@ methods. Internal methods are usually preceded with a _
 
 package Bio::DB::Registry;
 
-use vars qw(@ISA $OBDA_SPEC_VERSION $OBDA_SEARCH_PATH);
+use vars qw(@ISA $VERSION $OBDA_SPEC_VERSION $OBDA_SEARCH_PATH);
 use strict;
 
 use Bio::Root::Root;
@@ -69,6 +69,7 @@ use Bio::Root::Root;
 use Bio::DB::Failover;
 use Bio::Root::HTTPget;
 
+$VERSION = '1.2';
 BEGIN {
     $OBDA_SPEC_VERSION = 1.0;
     if (defined $ENV{OBDA_SEARCH_PATH}) {
