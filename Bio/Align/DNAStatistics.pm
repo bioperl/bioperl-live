@@ -1022,23 +1022,19 @@ sub _get_av_ds_dn {
 			#ret_value = -1 if error
 			next unless $d_nc >=0 && $d_syn >=0;
 
-			#	print "d syn is $d_syn, dn is $d_nc\n";
-
-			#now calculate variances assuming large sample
-			my $d_syn_var =  jk_var($d_syn, length($seqarray[$i]{'seq'})  - $gap_cnt );
-			my $d_nc_var =  jk_var($d_nc, length ($seqarray[$i]{'seq'}) - $gap_cnt);
-			
-			#now calculate z_value
-			#print "d_syn_var is  $d_syn_var,and d_nc_var is $d_nc_var\n";
-			$self->throw("error - sum of variances is negative - dodgy alignment?") 
-					if $d_syn_var + $d_nc_var < 0;
-			my $z = ($d_nc - $d_syn) / sqrt($d_syn_var + $d_nc_var);
-			#	print "z is $z\n";
-
 
 			push @{$dsfor_average{'ds'}}, $d_syn;
 			push @{$dsfor_average{'dn'}}, $d_nc;
+
+			#if not doing bootstrap, calculate the pairwise comparisin stats
 			if ($caller[3] =~ /calc_KaKs_pair/ || $caller[3] =~ /calc_all_KaKs_pairs/) {
+				#now calculate variances assuming large sample
+				my $d_syn_var =  jk_var($syn_prop, length($seqarray[$i]{'seq'})  - $gap_cnt );
+				my $d_nc_var =  jk_var($nc_prop, length ($seqarray[$i]{'seq'}) - $gap_cnt);
+			    #now calculate z_value
+		    	#print "d_syn_var is  $d_syn_var,and d_nc_var is $d_nc_var\n";
+			    my $z = ($d_nc - $d_syn) / sqrt($d_syn_var + $d_nc_var);
+			    #	print "z is $z\n";
 				push @$result , {S => $av_s_site, N=>$av_ns_syn_site,
 					S_d => $syn_count, N_d =>$non_syn_count,
 					P_s => $syn_prop, P_n=>$nc_prop,
@@ -1051,7 +1047,7 @@ sub _get_av_ds_dn {
 					};
 				$self->warn (" number of mutations too small to justify normal test for  $seqarray[$i]{'id'} and $seqarray[$j]{'id'}\n- use Fisher's exact, or bootstrap a MSA")
 					if $syn_count < 10 || $non_syn_count < 10;
-				}
+				}#endif
 			}
 	}
 
@@ -1061,7 +1057,6 @@ sub _get_av_ds_dn {
 
 	#return results unless bootstrapping
 	return $result if $caller[3]=~ /calc_all_KaKs/ || $caller[3] =~ /calc_KaKs_pair/; 
-
 	#else if getting average for bootstrap
 	return( mean ($dsfor_average{'ds'}),mean ($dsfor_average{'dn'})) ;
 }
@@ -1139,7 +1134,7 @@ for (my $j=0; $j< $seqlen; $j+=3) {
 					substr($altered, $mut_i,1) = substr($input{'cod2'}, $mut_i, 1);
 						if ($t[$CODONS->{$altered}] eq '*') {
 							$tot_muts -=2;
-							print "changes to stop codon!!\n";
+							#print "changes to stop codon!!\n";
 							next OUTER;
 							}
 						else {
