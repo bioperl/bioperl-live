@@ -178,7 +178,7 @@ sub normalize {
     $name = uc( $name );
 
     ## TODO: REMOVE
-    warn "Hey, got current name '$name'.";
+    #warn "Hey, got current name '$name'.";
 
     if( my $hugo_name = $self->{ '_hugo_names' }->{ $name } ) {
       ## TODO: REMOVE.  This is a hack.

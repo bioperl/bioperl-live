@@ -3585,7 +3585,7 @@ sub _features {
   #    $self->throw( "Internal error: $self->make_feature( $parent, \\\%groups, ".join( ", ", @_ )." ) has returned $new_feature, a ".ref( $new_feature ).".  Expecting a Bio::DB::GFF::Feature." );
   #  } else {
   #    ## TODO: REMOVE
-  #    print STDERR "Hey, got $new_feature.\n";
+  #    print STDERR "Hey, got $new_feature.  Its abs range is ".$new_feature->toRelRangeString( 1 ).".\n";
   #  }
   #  push( @$features, $new_feature );
   #};
