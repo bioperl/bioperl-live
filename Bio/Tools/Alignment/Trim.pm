@@ -222,7 +222,7 @@ sub dump_hash {
 
  Title   : trim_singlet($sequence,$quality,$name,$class)
  Usage   : ($r_trim_points,$trimmed_sequence) =
-	@o_trim->trim_singlet($sequence,$quality,$name,$class);
+	@{$o_trim->trim_singlet($sequence,$quality,$name,$class)};
  Function: Trim a singlet based on its quality.
  Returns : a reference to an array containing the forward and reverse
 	trim points and the trimmed sequence.
@@ -245,39 +245,40 @@ sub dump_hash {
 
 sub trim_singlet {
     my ($self,$sequence,$quality,$name,$class) = @_;
-          # this split is done because I normally store quality values in a
-          # space-delimited scalar rather then in an array.
-          # I do this because serialization of the arrays is tough.
+    # this split is done because I normally store quality values in a
+    # space-delimited scalar rather then in an array.
+    # I do this because serialization of the arrays is tough.
     my @qual = split(' ',$quality);
     my @points;
     my $sequence_length = length($sequence);
     my ($returnstring,$processed_sequence);
-          # smooth out the qualities
+    # smooth out the qualities
     my $r_windows = &_sliding_window(\@qual,$self->{windowsize});
-          # find out the leading and trailing trimpoints
+    # find out the leading and trailing trimpoints
     my $start_base = $self->_get_start($r_windows,$self->{windowsize},$self->{phreds});
-     my (@new_points,$trimmed_sequence);
-          # do you think that any sequence shorter then 100 should be
-          # discarded? I don't think that this should be the decision of this
-          # module.
-          # removed, 020926
-      $points[0] = $start_base;
-                  # whew! now for the end base
-                  # required parameters: reference_to_windows,windowsize,$phredvalue,start_base
-      my $end_base = &_get_end($r_windows,$self->{windowsize},$self->{phreds},$start_base);
-      $points[1] = $end_base;
-               # now do the actual trimming
-               # CHAD : I don't think that it is a good idea to call chop_sequence here
-               # because chop_sequence also removes X's and N's and things
-               # and that is not always what is wanted
-     return \@points;
+    my (@new_points,$trimmed_sequence);
+    # do you think that any sequence shorter then 100 should be
+    # discarded? I don't think that this should be the decision of this
+    # module.
+    # removed, 020926
+    $points[0] = $start_base;
+    # whew! now for the end base
+    # required parameters: reference_to_windows,windowsize,$phredvalue,start_base
+    my $end_base = &_get_end($r_windows,$self->{windowsize},
+			     $self->{phreds},$start_base);
+    $points[1] = $end_base;
+    # now do the actual trimming
+    # CHAD : I don't think that it is a good idea to call chop_sequence here
+    # because chop_sequence also removes X's and N's and things
+    # and that is not always what is wanted
+    return \@points;
 }
 
 =head2 trim_doublet($sequence,$quality,$name,$class)
 
  Title   : trim_doublet($sequence,$quality,$name,$class) 
  Usage   : ($r_trim_points,$trimmed_sequence) =
-	@o_trim->trim_singlet($sequence,$quality,$name,$class);
+	    @{$o_trim->trim_singlet($sequence,$quality,$name,$class)};
  Function: Trim a singlet based on its quality.
  Returns : a reference to an array containing the forward and reverse
  Args    : $sequence : A sequence
@@ -294,6 +295,7 @@ sub trim_singlet {
 	it.
 
 =cut 
+#'
 
 sub trim_doublet {
     my ($self,$sequence,$quality,$name,$class) = @_;
@@ -507,7 +509,7 @@ sub _get_end {
     else { }
     if ($qualsum) { } # print ("$qualsum\n");
     return $total_bases;
-}				# end get_end
+} # end get_end
 
 =head2 count_doublet_trailing_zeros($r_qual)
 
