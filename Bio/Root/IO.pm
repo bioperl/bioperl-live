@@ -123,9 +123,9 @@ BEGIN {
 		$TEMPDIR = $ENV{'TMPDIR'};
 	    }
 	    if($^O =~ /mswin/i) {
-		$TEMPDIR = "C:\TEMP" unless $TEMPDIR;
+		$TEMPDIR = 'C:\TEMP' unless $TEMPDIR;
 		$PATHSEP = "\\";
-		$ROOTDIR = "C:"
+		$ROOTDIR = 'C:';
 	    } elsif($^O =~ /macos/i) {
 		$TEMPDIR = "" unless $TEMPDIR; # what is a reasonable default on Macs?
 		$PATHSEP = ":";
