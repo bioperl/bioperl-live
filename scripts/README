@@ -1,0 +1,14 @@
+These scripts have been contributed by the developers and users of
+Bioperl. The scripts in scripts/ are production quality scripts that 
+have POD documentation and accept command-line arguments, and all of 
+these scripts have the PLS suffix.
+
+You can install the scripts in the scripts/ directory if you'd like,
+simply follow the instructions on 'make install'. The installation
+directory is specified by the INSTALLSCRIPT variable in the Makefile,
+the default directory is /usr/bin. Installation will copy the scripts
+to the specified directory, change the 'PLS' suffix to 'pl' and
+prepend 'bp_' to the script name if it isn't so named already.
+
+Please contact bioperl-l at bioperl.org if you are interested in
+contributing your own script.
