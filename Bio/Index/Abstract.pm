@@ -499,7 +499,7 @@ sub make_index {
     # We're really fussy/lazy, expecting all file names to be fully qualified
     $self->throw("No files to index provided") unless @files;
     for(my $i=0;$i<scalar @files; $i++)  {
-	if( $Bio::Root::RootI::FILESPECLOADED ) {	    
+	if( $Bio::Root::RootI::FILESPECLOADED && File::Spec->can('rel2abs') ) {	    
 	    if( ! File::Spec->file_name_is_absolute($files[$i]) ) {
 		$files[$i] = File::Spec->rel2abs($files[$i]);
 	    }

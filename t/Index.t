@@ -28,7 +28,7 @@ use Bio::Index::GenBank;
 use Bio::Index::Swissprot;
 use vars qw ($dir);
 
-($Bio::Root::RootI::FILESPECLOADED && ($dir = File::Spec->cwd) ) ||
+($Bio::Root::RootI::FILESPECLOADED && File::Spec->can('cwd') && ($dir = File::Spec->cwd) ) ||
     ($dir = `pwd`) || ($dir = '.');
  
 END {  unlink qw( Wibbl Wibbl2 Wibbl3 Wibbl4 Wibbl5); }
