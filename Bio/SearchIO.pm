@@ -324,6 +324,7 @@ sub write_result {
    my $str = $self->writer->to_string( $result, @args );
    #print "Got string: \n$str\n";
    $self->_print( "$str" );
+   
    return 1;
 }
 
@@ -448,15 +449,14 @@ sub default_hit_factory_class {
 #    $self->throw_not_implemented;
 }
 
-
 =head2 _load_format_module
 
  Title   : _load_format_module
  Usage   : *INTERNAL SearchIO stuff*
  Function: Loads up (like use) a module at run time on demand
- Example :
- Returns :
- Args    :
+ Example : 
+ Returns : 
+ Args    : 
 
 =cut
 
@@ -492,6 +492,7 @@ END
 
 =cut
 
+
 sub _guess_format {
    my $class = shift;
    return unless $_ = shift;
@@ -500,10 +501,16 @@ sub _guess_format {
    return 'blastxml' if (/blast/i and /\.xml$/i);
 }
 
+sub close { 
+    my $self = shift;
+    if( $self->writer ) {
+	$self->_print($self->writer->end_report());
+    }
+    $self->SUPER::close(@_);
+}
 
 sub DESTROY {
     my $self = shift;
-
     $self->close();
 }
 
