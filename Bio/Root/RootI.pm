@@ -259,7 +259,6 @@ sub deprecated{
    }
 }
 
-		     
 =head2 verbose
 
  Title   : verbose
