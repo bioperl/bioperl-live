@@ -363,13 +363,14 @@ sub new {
 	@param{ map { lc $_ } keys %param } = values %param; # lowercase keys
 	my $format = $param{'-format'} ||
 	    $class->_guess_format( $param{-file} || $ARGV[0] );
-
-        if ($param{-file}) {
-            $format = Bio::Tools::GuessSeqFormat->new(-file => $param{-file}||$ARGV[0] )->guess;
-        }
-        elsif ($param{-fh}) {
-            $format = Bio::Tools::GuessSeqFormat->new(-fh => $param{-fh}||$ARGV[0] )->guess;
-        }
+	
+	if( ! $format ) { 
+	    if ($param{-file}) {
+		$format = Bio::Tools::GuessSeqFormat->new(-file => $param{-file}||$ARGV[0] )->guess;
+	    } elsif ($param{-fh}) {
+		$format = Bio::Tools::GuessSeqFormat->new(-fh => $param{-fh}||$ARGV[0] )->guess;
+	    }
+	}
 	$format = "\L$format";	# normalize capitalization to lower case
         $class->throw("Unknown format given or could not determine it [$format]")
             if $format eq 'unknown';
