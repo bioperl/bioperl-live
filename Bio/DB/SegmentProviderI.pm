@@ -1,7 +1,7 @@
 package Bio::DB::SegmentProviderI;
 
 # $Id $
-# A class for objects that are both Bio::DB::SequenceProviderIs and
+# An interface for objects that are both Bio::DB::SequenceProviderIs and
 # Bio::DB::FeatureProviderIs.
 
 =head1 NAME
