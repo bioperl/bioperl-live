@@ -3,6 +3,7 @@
 # $Id$
 
 use strict;
+use constant TEST_COUNT => 108;
 BEGIN {     
     # to handle systems with no installed Test module
     # we include the t dir (where a copy of Test.pm is located)
@@ -11,8 +12,8 @@ BEGIN {
     if( $@ ) { 
 	use lib 't';
     }
-    require Test;
-    plan tests => 108; 
+    use Test;
+    plan test => TEST_COUNT;
 }
 
 use Bio::Tools::BPbl2seq;
