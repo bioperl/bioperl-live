@@ -573,6 +573,7 @@ sub parse_line {
     $feature->add_segment(map {
       _make_feature($name,$type,$strand,$description,$ref,\%attributes,$url,$score,[$_])
     }  @parts);
+    $self->{visible}{$feature}++  if $visible;
   }
 
   else {
@@ -951,7 +952,8 @@ Two APIs:
 # return features
 sub features {
   my $self = shift;
-  my ($types,$iterator,@rest) = defined($_[0] && $_[0]=~/^-/) ? rearrange([['TYPE','TYPES']],@_) : (\@_);
+  my ($types,$iterator,@rest) = defined($_[0] && $_[0]=~/^-/)
+    ? rearrange([['TYPE','TYPES']],@_) : (\@_);
   $types = [$types] if $types && !ref($types);
   my @types = ($types && @$types) ? @$types : $self->types;
   my @features = map {@{$self->{features}{$_}}} @types;

@@ -192,7 +192,7 @@ sub get_abscoords {
   my $regexp;
 
   if ($name =~ /[*?]/) {  # uh oh regexp time
-    $name =~ quotemeta($name);
+    $name = quotemeta($name);
     $name =~ s/\\\*/.*/g;
     $name =~ s/\\\?/.?/g;
     $regexp++;
@@ -222,11 +222,11 @@ sub get_abscoords {
 	next;
       }
     }
+
     push @{$refs{$feature->{ref}}},$feature;
   }
 
   # find out how many reference points we recovered
-
   if (! %refs) {
     $self->error("$name not found in database");
     return;
@@ -241,14 +241,15 @@ sub get_abscoords {
   foreach my $ref (keys %refs) {
     next if defined($refseq) and $ref ne $refseq;
     my @found = @{$refs{$ref}};
-    my ($strand,$start,$stop);
+    my ($strand,$start,$stop,$name);
     foreach (@found) {
       $strand ||= $_->{strand};
       $strand = '+' if $strand && $strand eq '.'; 
       $start  = $_->{start} if !defined($start) || $start > $_->{start};
       $stop   = $_->{stop}  if !defined($stop)  || $stop  < $_->{stop};
+      $name ||= $_->{gname};
     }
-    push @found_segments,[$ref,$class,$start,$stop,$strand];
+    push @found_segments,[$ref,$class,$start,$stop,$strand,$name];
 
   }
   return \@found_segments;
@@ -412,7 +413,8 @@ sub get_features{
   for my $feature (@{$found_features}) {  # only true if the sort by group option was specified
     $count++;
     $callback->(
-		@{$feature}{qw(ref start stop source method score strand phase gclass gname tstart tstop feature_id feature_group_id)}
+		@{$feature}{qw(ref start stop source method score strand phase
+			       gclass gname tstart tstop feature_id feature_group_id)}
 	       );
   }
 
@@ -453,11 +455,11 @@ sub _feature_by_name {
     $regexp++;
   }
 
-
   for my $feature (@{$self->{data}}) {
     $id++;
     next unless ($regexp && $feature->{gname} =~ /$name/i) || $feature->{gname}  eq $name;
     next unless $feature->{gclass} eq $class;
+
     if ($location) {
       next if $location->[0] ne $feature->{ref};
       next if $location->[1] && $location->[1] > $feature->{stop};
@@ -497,7 +499,6 @@ sub _feature_by_id{
   if ($type eq 'feature'){
     for my $feature_id (@$ids){
        my $feature = ${$self->{data}}[$feature_id];
-       
        $callback->($feature->{ref},
 	        $feature->{start},
 	        $feature->{stop},
@@ -512,8 +513,7 @@ sub _feature_by_id{
 		$feature->{tstop},
 	        $feature_id,
 		$feature_group_id);
-	   $count++;			
-    
+	   $count++;
     }
   }
 }
@@ -561,22 +561,22 @@ sub get_types {
     my $feature_class = $feature->{class};
     my $feature_method = $feature->{method};
     my $feature_source = $feature->{source};
-   
+
     if (defined $srcseq){
       next unless $feature_ref eq $srcseq ;
     }
-    
+
     if (defined $class){ 
       next unless defined $feature_class && $feature_class eq $class ;
     }
-    
+
      # the requested range should OVERLAP the retrieved features
      if (defined $start or defined $stop) {
       $start = 1           unless defined $start;
       $stop  = MAX_SEGMENT unless defined $stop;
       next unless $feature_stop >= $start && $feature_start <= $stop;
     }
-    
+
     if (defined $typelist && @$typelist){
       next unless _matching_typelist($feature_method,$feature_source,$typelist);
     }
@@ -586,7 +586,7 @@ sub get_types {
     $obj{$type} = $type;
 
   }   #end features loop
-  
+
   return $want_count ? %result : values %obj;
  
 }
@@ -603,7 +603,7 @@ sub _get_features_by_search_options{
   my ($rangetype,$refseq,$class,$start,$stop,$types,$sparse,$order_by_group,$attributes) = 
     (@{$search}{qw(rangetype refseq refclass start stop types)},
     @{$options}{qw(sparse sort_by_group ATTRIBUTES)}) ;
-					       
+
   my @found_features;
 
   my $feature_id = -1 ;
@@ -612,11 +612,11 @@ sub _get_features_by_search_options{
   for my $feature (@{$data}) {
 
     $feature_id++;
-    
+
     my $feature_start = $feature->{start};
     my $feature_stop  = $feature->{stop};
     my $feature_ref   = $feature->{ref};
-    
+
     if (defined $refseq){
       next unless $feature_ref eq $refseq;
     }
@@ -624,7 +624,7 @@ sub _get_features_by_search_options{
      if (defined $start or defined $stop) {
       $start = 0               unless defined($start);
       $stop  = MAX_SEGMENT     unless defined($stop);
-    
+
       if ($rangetype eq 'overlaps') {
 	next unless $feature_stop >= $start && $feature_start <= $stop;
       } elsif ($rangetype eq 'contains') {
@@ -636,28 +636,27 @@ sub _get_features_by_search_options{
       }
 
     }
-    
+
     my $feature_source = $feature->{source};
     my $feature_method = $feature->{method};
 
     if (defined $types && @$types){
       next unless _matching_typelist($feature_method,$feature_source,$types);
-    } 
+    }
 
     my $feature_attributes = $feature->{attributes};
     if (defined $attributes){
       next unless _matching_attributes($feature_attributes,$attributes);
-    } 
-    
+    }
+
     # if we get here, then we have a feature that meets the criteria.
     # Then we just push onto an array
     # of found features and continue. 
-   
+
     my $found_feature = $feature ;
     $found_feature->{feature_id} = $feature_id;
     $found_feature->{group_id} = $feature_group_id;
     push @found_features,$found_feature;
-   
   }
 
   return \@found_features; 
@@ -689,7 +688,7 @@ sub _convert_feature_hash_to_array{
 
   my @features_array_array;
   my $feature_count = 0;
-   
+
   for my $feature_hash (@{$features_hash_array[0]}){
     my @feature_array;
 
@@ -725,11 +724,10 @@ sub _matching_typelist{
   return 0;
 }
 
-sub _matching_attributes{
+sub _matching_attributes {
   my ($feature_attributes,$attributes) = @_ ;
   foreach (keys %$attributes) {
     return 0 if !_match_all_attr_in_feature($_,$attributes->{$_},$feature_attributes)
-   
   }
   return 1;
 }
