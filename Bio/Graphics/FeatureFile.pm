@@ -116,7 +116,7 @@ belong to the same group named yk53c10.
 
 use strict;
 use Bio::Graphics::Feature;
-use Bio::Graphics::Panel;
+use Bio::DB::GFF::Util::Rearrange;
 use Carp;
 use IO::File;
 use Text::Shellwords;
@@ -190,7 +190,6 @@ sub new {
   my $self = bless {
 		    config   => {},
 		    features => {},
-		    groups   => {},
 		    seenit   => {},
 		    types    => [],
 		    max      => undef,
@@ -258,7 +257,7 @@ sub render {
   my $color;
   my %types = map {$_=>1} $self->configured_types;
 
-  my @configured_types   = grep {exists $self->features->{$_}} $self->configured_types;
+  my @configured_types   = grep {exists $self->{features}{$_}} $self->configured_types;
   my @unconfigured_types = sort grep {!exists $types{$_}}      $self->types;
 
   my @base_config = $self->style('general');
@@ -429,11 +428,18 @@ sub parse_line {
   unshift @tokens,'' if /^\s+/;
 
   # close any open group
-  undef $self->{grouptype} if length $tokens[0] > 0;
+  if (length $tokens[0] > 0 && $self->{group}) {
+    push @{$self->{features}{$self->{grouptype}}},$self->{group};
+    undef $self->{group};
+    undef $self->{grouptype};
+  }
 
   if (@tokens < 3) {      # short line; assume a group identifier
-    $self->{grouptype}     = shift @tokens;
-    $self->{groupname}     = shift @tokens;
+    my $type               = shift @tokens;
+    my $name               = shift @tokens;
+    $self->{group}         = Bio::Graphics::Feature->new(-name => $name,
+							 -type => 'group');
+    $self->{grouptype}     = $type;
     return;
   }
 
@@ -453,7 +459,7 @@ sub parse_line {
       }
       $description = join '; ',@notes if @notes;
     }
-    $name ||= $self->{groupname};
+    $name ||= $self->{group}->display_id if $self->{group};
     $ref = $r;
   }
 
@@ -530,8 +536,8 @@ sub parse_line {
 				  defined($url) ? (-url      => $url) : (),
 				 );
     $feature->configurator($self) if $self->smart_features;
-    if ($self->{grouptype}) {
-      push @{$self->{groups}{$self->{grouptype}}{$self->{groupname}}},$feature;
+    if ($self->{group}) {
+      $self->{group}->add_segment($feature);
     } else {
       push @{$self->{features}{$type}},$feature;  # for speed; should use add_feature() instead
     }
@@ -829,6 +835,56 @@ sub types {
 
 =over 4
 
+=item $features = $features-E<gt>features($type)
+
+Return a list of all the feature types of type "$type".  If the
+featurefile object was created by parsing a file or text scalar, then
+the features will be of type Bio::Graphics::Feature (which follow the
+Bio::FeatureI interface).  Otherwise the list will contain objects of
+whatever type you added with calls to add_feature().
+
+Two APIs:
+
+  1) original API:
+
+      # Reference to an array of all features of type "$type"
+      $features = $features-E<gt>features($type)
+
+      # Reference to an array of all features of all types
+      $features = $features-E<gt>features()
+
+      # A list when called in a list context
+      @features = $features-E<gt>features()
+
+   2) Bio::Das::SegmentI API:
+
+       @features = $features-E<gt>features(-type=>['list','of','types']);
+
+       # variants
+       $features = $features-E<gt>features(-type=>['list','of','types']);
+       $features = $features-E<gt>features(-type=>'a type');
+       $iterator = $features-E<gt>features(-type=>'a type',-iterator=>1);
+
+=back
+
+=cut
+
+# return features
+sub features {
+  my $self = shift;
+  my ($types,$iterator,@rest) = $_[0]=~/^-/ ? rearrange([['TYPE','TYPES']],@_) : (\@_);
+  $types = [$types] if $types && !ref($types);
+  my @types = ($types && @$types) ? @$types : $self->types;
+  my @features = map {@{$self->{features}{$_}}} @types;
+  if ($iterator) {
+    require Bio::Graphics::FeatureFile::Iterator;
+    return Bio::Graphics::FeatureFile::Iterator->new(\@features);
+  }
+  return wantarray ? @features : \@features;
+}
+
+=over 4
+
 =item @features = $features-E<gt>features($type)
 
 Return a list of all the feature types of type "$type".  If the
@@ -841,21 +897,48 @@ whatever type you added with calls to add_feature().
 
 =cut
 
-# return features
-sub features {
-  my $self = shift;
-  return $self->{features}{shift()} if @_;
-  return $self->{features};
-}
-
-
-
 sub make_strand {
   local $^W = 0;
   return +1 if $_[0] =~ /^\+/ || $_[0] > 0;
   return -1 if $_[0] =~ /^\-/ || $_[0] < 0;
   return 0;
 }
+
+=head2 get_seq_stream
+
+ Title   : get_seq_stream
+ Usage   : $stream = $s->get_seq_stream(@args)
+ Function: get a stream of features that overlap this segment
+ Returns : a Bio::SeqIO::Stream-compliant stream
+ Args    : see below
+ Status  : Public
+
+This is the same as feature_stream(), and is provided for Bioperl
+compatibility.  Use like this:
+
+ $stream = $s->get_seq_stream('exon');
+ while (my $exon = $stream->next_seq) {
+    print $exon->start,"\n";
+ }
+
+=cut
+
+sub get_seq_stream {
+  my $self = shift;
+  my @args = $_[0] =~ /^-/ ? (@_,-iterator=>1) : (-types=>\@_,-iterator=>1);
+  $self->features(@args);
+}
+
+=head2 get_feature_stream(), top_SeqFeatures(), all_SeqFeatures()
+
+Provided for compatibility with older BioPerl and/or Bio::DB::GFF
+APIs.
+
+=cut
+
+*get_feature_stream = \&get_seq_stream;
+*top_SeqFeatures    = *all_SeqFeatures = \&features;
+
 
 =over 4
 
@@ -903,27 +986,14 @@ sub init_parse {
   $s->{seenit} = {}; 
   $s->{max}      = $s->{min} = undef;
   $s->{types}    = [];
-  $s->{groups}   = {};
   $s->{features} = {};
   $s->{config}   = {}
 }
 
 sub finish_parse {
   my $s = shift;
-  $s->consolidate_groups;
   $s->evaluate_coderefs if $s->safe;
   $s->{seenit} = {};
-  $s->{groups} = {};
-}
-
-sub consolidate_groups {
-  my $self = shift;
-  my $groups = $self->{groups} or return;
-
-  for my $type (keys %$groups) {
-    my @groups = values %{$groups->{$type}};
-    push @{$self->{features}{$type}},@groups;
-  }
 }
 
 sub evaluate_coderefs {
@@ -1000,6 +1070,8 @@ sub split_group {
 # create a panel if needed
 sub new_panel {
   my $self = shift;
+
+  require Bio::Graphics::Panel;
 
   # general configuration of the image here
   my $width         = $self->setting(general => 'pixels')
