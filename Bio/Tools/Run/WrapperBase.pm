@@ -99,10 +99,9 @@ use Bio::Root::IO;
 sub error_string{
    my ($self,$value) = @_;
    if( defined $value) {
-      $self->{'error_string'} = $value;
+      $self->{'_error_string'} = $value;
     }
-    return $self->{'error_string'};
-
+    return $self->{'_error_string'} || '';
 }
 
 
@@ -149,7 +148,7 @@ sub save_tempfiles{
 =head2 outfile_name
 
  Title   : outfile_name
- Usage   : my $outfile = $codeml->outfile_name();
+ Usage   : my $outfile = $wrapper->outfile_name();
  Function: Get/Set the name of the output file for this run
            (if you wanted to do something special)
  Returns : string
@@ -194,7 +193,7 @@ sub tempdir{
 =head2 cleanup
 
  Title   : cleanup
- Usage   : $codeml->cleanup();
+ Usage   : $wrapper->cleanup();
  Function: Will cleanup the tempdir directory after a PAML run
  Returns : none
  Args    : none
