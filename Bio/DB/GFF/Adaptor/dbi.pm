@@ -1,3 +1,5 @@
+# $Id$
+
 =head1 NAME
 
 Bio::DB::GFF::Adaptor::dbi -- Database adaptor for DBI (SQL) databases
@@ -835,7 +837,9 @@ sub make_meta_get_query {
 
 
 sub dna_chunk_size {
-  shift->meta('chunk_size');
+  my $self = shift;
+  $self->can('chunk_size') ? $self->chunk_size || $self->meta('chunk_size') :
+      $self->meta('chunk_size');  
 }
 
 =head2 make_meta_set_query
