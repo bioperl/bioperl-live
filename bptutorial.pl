@@ -689,6 +689,8 @@ follows:
   # this returns a SeqIO object :
   $seqio = $gb->get_Stream_by_id("J00522","AF303112","2981014");
 
+See section L<"III.2.1"> for information on using this SeqIO object.
+
 Bioperl currently supports sequence data retrieval from the genbank,
 genpept, RefSeq, swissprot, and EMBL databases. See L<Bio::DB::GenBank>,
 L<Bio::DB::GenPept>, L<Bio::DB::SwissProt>, L<Bio::DB::RefSeq> and
