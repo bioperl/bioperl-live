@@ -11,7 +11,7 @@ BEGIN {
 	use lib 't';
     }
     use Test;
-    $TESTCOUNT = 165;
+    $TESTCOUNT = 200;
     plan tests => $TESTCOUNT;
 }
 
@@ -466,3 +466,64 @@ ok($kw[-1], 'yabO');
 @sec_acc = $seq->get_secondary_accessions();
 ok(scalar @sec_acc,14);
 ok($sec_acc[-1], 'X56742');
+
+
+### TPA TESTS - Thanks to Richard Adams ###
+
+### test Third Party Annotation entries in EMBL/Gb format 
+#   to ensure compatability with parsers. 
+###embl####
+
+$str = new Bio::SeqIO(-format =>'embl', -file => Bio::Root::IO->catfile
+		      ( qw(t data BN000066-tpa.embl)));
+$seq = $str->next_seq;
+ok(defined $seq);
+ok($seq->accession_number, 'BN000066');
+ok($seq->alphabet, 'dna');
+ok($seq->display_id, 'AGA000066');
+ok($seq->length, 5195);
+ok($seq->division, 'INV');
+ok($seq->get_dates, 2);
+ok($seq->keywords, 'acetylcholinesterase; achE1 gene; Third Party Annotation; TPA.');
+ok($seq->seq_version, 1);
+ok($seq->feature_count, 15);
+
+	my $spec_obj = $seq->species;
+ok ($spec_obj->common_name, 'African malaria mosquito');
+ok ($spec_obj->species, 'gambiae');
+ok ($spec_obj->genus, 'Anopheles');
+ok ($spec_obj->binomial, 'Anopheles gambiae');
+
+	my $ac = $seq->annotation;
+		my $reference =  ($ac->get_Annotations('reference') )[1];
+		ok ($reference->title,'"A novel acetylcholinesterase gene in mosquitoes codes for the insecticide target and is non-homologous to the ace gene in Drosophila"');
+		ok ($reference->authors,'Weill M., Fort P., Berthomi eu A., Dubois M.P., Pasteur N., Raymond M.');
+		my $cmmnt =  ($ac->get_Annotations('comment') )[0];
+		ok($cmmnt->text, 'see also AJ488492 for achE-1 from Kisumu strain Third Party Annotation Database: This TPA record uses Anopheles gambiae trace archive data (http://trace.ensembl.org) ');
+
+## now genbank ##
+
+$str = new Bio::SeqIO(-format =>'genbank', -file => Bio::Root::IO->catfile
+			( qw(t data BK000016-tpa.gbk)));
+$seq = $str->next_seq;
+ok(defined $seq);
+ok(defined $seq->seq);
+ok($seq->accession_number, 'BK000016');
+ok($seq->alphabet, 'dna');
+ok($seq->display_id, 'BK000016');
+ok($seq->length, 1162);
+ok($seq->division, 'ROD');
+ok($seq->get_dates, 1);
+ok($seq->keywords, 'Third Party Annotation; TPA');
+ok($seq->desc, 'TPA: Mus musculus pantothenate kinase 4 mRNA, partial cds.');
+ok($seq->seq_version, 1);
+ok($seq->feature_count, 2);
+	 $spec_obj = $seq->species;
+ok ($spec_obj->common_name, 'Mus musculus (house mouse)');
+ok ($spec_obj->species, 'musculus');
+ok ($spec_obj->genus, 'Mus');
+ok ($spec_obj->binomial, 'Mus musculus');
+	 $ac = $seq->annotation;
+	 $reference =  ($ac->get_Annotations('reference') )[0];
+ok ($reference->pubmed, '11479594');
+ok ($reference->medline, '21372465');
