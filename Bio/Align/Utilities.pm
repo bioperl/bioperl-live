@@ -131,12 +131,14 @@ sub aa_to_dna_aln {
     my $alnlen = $aln->length;
     my $dnaalign = new Bio::SimpleAlign;
     $aln->map_chars('\.',$GAP);
+
     foreach my $seq ( $aln->each_seq ) {    
 	my $aa_seqstr = $seq->seq();
 	my $id = $seq->display_id;
 	my $dnaseq = $dnaseqs->{$id} || $aln->throw("cannot find ".
 						     $seq->display_id);
-	my $start_offset = ($seq->start() - 1) * CODONSIZE;
+	my $start_offset = ($seq->start - 1) * CODONSIZE;
+
 	$dnaseq = $dnaseq->seq();
 	my $dnalen = $dnaseqs->{$id}->length;
 	my $nt_seqstr;
@@ -150,6 +152,8 @@ sub aa_to_dna_aln {
 		$j += CODONSIZE;
 	    }
 	}
+	$nt_seqstr .= $GAP x (($alnlen * 3) - length($nt_seqstr));
+
 	my $newdna = new Bio::LocatableSeq(-display_id  => $id,
 					   -alphabet    => 'dna',
 					   -start       => $start_offset+1,
