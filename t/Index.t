@@ -21,6 +21,7 @@ BEGIN {
     plan tests => 10;
 }
 
+use Bio::Root::IO;
 use Bio::Index::Fasta;
 use Bio::Index::SwissPfam;
 use Bio::Index::EMBL;
@@ -28,7 +29,7 @@ use Bio::Index::GenBank;
 use Bio::Index::Swissprot;
 use vars qw ($dir);
 
-($Bio::Root::RootI::FILESPECLOADED && File::Spec->can('cwd') && ($dir = File::Spec->cwd) ) ||
+($Bio::Root::IO::FILESPECLOADED && File::Spec->can('cwd') && ($dir = File::Spec->cwd) ) ||
     ($dir = `pwd`) || ($dir = '.');
  
 END {  unlink qw( Wibbl Wibbl2 Wibbl3 Wibbl4 Wibbl5); }
