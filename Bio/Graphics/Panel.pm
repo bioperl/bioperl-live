@@ -527,7 +527,10 @@ sub draw_between_key {
   my $x =   $self->{key_align} eq 'center' ? $self->width - (CORE::length($key) * $self->{key_font}->width)/2
           : $self->{key_align} eq 'right'  ? $self->width - CORE::length($key)
           : $self->pad_left;
-  $gd->string($self->{key_font},$x,$offset,$key,1);
+
+  # Key color hard-coded. Should be configurable for the control freaks.
+  my $color = $self->translate_color('black');
+  $gd->string($self->{key_font},$x,$offset,$key,$color);
   return $self->{key_font}->height;
 }
 
@@ -538,7 +541,8 @@ sub draw_side_key {
   my $key = $track->option('key') or return;
   my $pos = $side eq 'left' ? $self->pad_left - $self->{key_font}->width * CORE::length($key)-3
                             : $self->width - $self->pad_right+3;
-  $gd->string($self->{key_font},$pos,$offset,$key,1);
+  my $color = $self->translate_color('black');
+  $gd->string($self->{key_font},$pos,$offset,$key,$color);
 }
 
 # draw the keys -- bottom
@@ -549,7 +553,8 @@ sub draw_bottom_key {
 
   my $color = $self->translate_color($self->{key_color});
   $gd->filledRectangle($left,$top,$self->width - $self->pad_right,$self->height-$self->pad_bottom,$color);
-  $gd->string($self->{key_font},$left,KEYPADTOP+$top,"KEY:",1);
+  my $text_color = $self->translate_color('black');
+  $gd->string($self->{key_font},$left,KEYPADTOP+$top,"KEY:",$text_color);
   $top += $self->{key_font}->height + KEYPADTOP;
 
   $_->draw($gd,$left,$top) foreach @$key_glyphs;
@@ -1108,7 +1113,7 @@ styles.  One style places the key captions at the top of each track.
 The other style generates a graphical key at the bottom of the image.
 
 Note that this module depends on GD. The optional SVG output depends
-on SVG.
+on GD::SVG and SVG.
 
 =head1 METHODS
 
