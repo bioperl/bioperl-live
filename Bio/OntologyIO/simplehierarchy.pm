@@ -441,11 +441,13 @@ sub _parse_flat_file {
 
  	$parent = $stack[-1];
 
- 	$self->_add_relationship($parent,
- 							 $current_term,
- 							 $self->_part_of_relationship(),
- 							 $ont
- 							);
+	if($parent ne $current_term) { #this prevents infinite recursion from a parent linking to itself
+	  $self->_add_relationship($parent,
+							   $current_term,
+							   $self->_part_of_relationship(),
+							   $ont
+							  );
+	}
 
 	$prev_indent = $current_indent;
 	$prev_term   = $current_term;
