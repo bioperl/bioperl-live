@@ -552,7 +552,10 @@ sub catfile {
 # taken straight from File::Path VERSION = "1.0403"
 sub rmtree {
     my($self,$roots, $verbose, $safe) = @_;
-    return File::Path->rmtree ($roots, $verbose, $safe) if( $FILEPATHLOADED );
+    if( $FILEPATHLOADED ) { 
+	return File::Path::rmtree ($roots, $verbose, $safe); 
+    }				
+    
     my $force_writeable = ($^O eq 'os2' || $^O eq 'dos' || $^O eq 'MSWin32'
 		       || $^O eq 'amigaos');
     my $Is_VMS = $^O eq 'VMS';
