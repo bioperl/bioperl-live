@@ -64,11 +64,15 @@ $verbose = 0 if $DEBUG;
 
 sub fetch {
     my ($id, $class) = @_;
+    print "###################### $class  ####################################\n" if $DEBUG;
     my $seq;
     ok defined ( my $gb = new $class('-verbose'=>$verbose,'-delay'=>0) );
-    $seq = $gb->get_Seq_by_id($id);
-    $seq ? ok 0 : ok 1;   # no sequence returned is ok
-
+    eval { $seq = $gb->get_Seq_by_id($id) };
+    if( $@ or not defined$seq ) {
+	ok 1;
+	return;
+    }
+    ok 0;
 }
 
 my @classes = qw( Bio::DB::BioFetch Bio::DB::GenBank Bio::DB::GenPept
@@ -77,7 +81,6 @@ my @classes = qw( Bio::DB::BioFetch Bio::DB::GenBank Bio::DB::GenPept
 my $id = 'XXX111';  # nonsense id
 
 for (@classes) {
-    print "###################### $_  ####################################\n" if $DEBUG;
     fetch ($id, $_);
 }
 
