@@ -126,7 +126,7 @@ use Text::Shellwords;
 my @COLORS = qw(cyan blue red yellow green wheat turquoise orange);
 
 use constant WIDTH => 600;
-use constant MAX_REMAP => 30;
+use constant MAX_REMAP => 100;
 
 =head2 METHODS
 
