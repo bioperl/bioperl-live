@@ -943,15 +943,13 @@ sub composite_LD {
     my @marker_names = $pop->get_marker_names;
     my @inds = $pop->get_Individuals;
     my $num_inds = scalar @inds;
-    my( %genotypes,%pairwise_genotypes);
-    my %lookup;
-    my (%total_genotype_count,%total_pairwisegeno_count);
-
+    my (%lookup);
     # calculate allele frequencies for each marker from the population
     # use the built-in get_Marker to get the allele freqs
     # we still need to calculate the genotype frequencies
-    foreach my $marker_name ( @marker_names ) { 
-	my %allelef;
+    foreach my $marker_name ( @marker_names ) {	
+	my(%allelef);
+
 	foreach my $ind ( @inds ) {
 	    my ($genotype) = $ind->get_Genotypes(-marker => $marker_name);
 	    my @alleles  = sort $genotype->get_Alleles;
@@ -999,6 +997,8 @@ sub composite_LD {
     # pairwise genotype (ie genotypes of the 2 sites) frequencies
     for( my $i = 0; $i < $site_count - 1; $i++ ) {
 	my $site1 = $marker_names[$i];
+	my (%genotypes, %total_genotype_count,
+	    %total_pairwisegeno_count,%pairwise_genotypes);
 	for( my $j = $i+1; $j < $site_count ; $j++) { 
 	    my $site2 = $marker_names[$j];
 	    my (%allele_count,%allele_freqs) = (0,0);
