@@ -180,7 +180,7 @@ sub new {
     $edited                         && $self->edited( $edited );    
     $contributors                   && $self->contributors( $contributors );
     $additional_references          && $self->additional_references( $additional_references );     
-    $clinical_symptoms              && $self->clinical_symptoms( $clinical_symptoms );
+    $clinical_symptoms              && $self->clinical_symptoms_raw( $clinical_symptoms );
     $miniMIM                        && $self->miniMIM( $miniMIM );
                                                     
     return $self;
@@ -337,9 +337,9 @@ sub MIM_number {
 =cut
 
 sub title {
-    my ( $self, $value ) = @_;
-
-    $self->name( $value );
+    my $self = shift;
+    
+    $self->name(@_);
     
 } # title
 
@@ -451,18 +451,10 @@ sub is_separate {
 =cut
 
 sub mapping_method {
-    my ( $self, $value ) = @_;
-
-    if ( defined $value ) {
-        $self->{ "_mapping_method" } = $value;
-    }
-
+    my $self = shift;
+    return $self->{ "_mapping_method" } = shift if(@_);
     return $self->{ "_mapping_method" };
-
 } # mapping_method
-
-
-
 
 =head2 gene_status
 
@@ -516,17 +508,13 @@ sub gene_status {
 } # gene_status
 
 
-
-
 =head2 clinical_symptoms
 
  Title   : clinical_symptoms
- Usage   : $omim->clinical_symptoms( "Patients with ..." );
-           or
-           print $omim->clinical_symptoms();
+ Usage   : $omim->clinical_symptoms({});
  Function: Set/get for the clinical symptoms of this OMIM entry.
- Returns : The clinical symptoms [scalar].
- Args    : The clinical symptoms [scalar] (optional).
+ Returns : [hash reference].
+ Args    : [hash reference]. Suggested not to assign alone. Parser will do.
 
 =cut
 
@@ -543,6 +531,17 @@ sub clinical_symptoms {
     return $self->{ "_clinical_symptoms" };
 
 } # clinical_symptoms
+
+=head2 clinical_symptoms_raw
+
+  Title     : clinical_symptoms_raw
+  Usage     : $omim->clinical_symptoms( "Patients with ..." );
+              print $omim->clinical_symptoms();
+  Functions : Get/set for text information of clinical symptoms
+  Returns   : The clinical symptoms [scalar].
+  Args      : The clinical symptoms [scalar] (optional).
+
+=cut 
 
 sub clinical_symptoms_raw {
     my $self = shift;
@@ -597,12 +596,8 @@ sub add_clinical_symptoms {
 =cut
 
 sub created {
-    my ( $self, $value ) = @_;
-
-    if ( defined $value ) {
-        $self->{ "_created" } = $value;
-    }
-
+    my $self = shift;
+    return $self->{ "_created" } = shift if(@_);
     return $self->{ "_created" };
 
 } # created
@@ -623,12 +618,8 @@ sub created {
 =cut
 
 sub contributors {
-    my ( $self, $value ) = @_;
-
-    if ( defined $value ) {
-        $self->{ "_contributors" } = $value;
-    }
-
+    my  $self = shift;
+    $self->{ "_contributors" } = shift if(@_);
     return $self->{ "_contributors" };
 
 } # contributors
@@ -649,12 +640,8 @@ sub contributors {
 =cut
 
 sub edited {
-    my ( $self, $value ) = @_;
-
-    if ( defined $value ) {
-        $self->{ "_edited" } = $value;
-    }
-
+    my $self = shift;
+    return $self->{ "_edited" } = shift if(@_);
     return $self->{ "_edited" };
 
 } # edited
@@ -676,18 +663,11 @@ sub edited {
 =cut
 
 sub additional_references {
-    my ( $self, $value ) = @_;
-
-    if ( defined $value ) {
-        $self->{ "_additional_references" } = $value;
-    }
-
+    my $self = shift;
+    return $self->{ "_additional_references" } = shift if(@_);
     return $self->{ "_additional_references" };
 
 } # additional_references
-
-
-
 
 =head2 miniMIM
 
@@ -713,9 +693,6 @@ sub miniMIM {
     
     return $self->{ "_mini_mim" };
 }
-
-
-
 
 =head2 each_AllelicVariant
 
@@ -787,9 +764,6 @@ sub remove_AllelicVariants {
     return @a;
 
 } # remove_AllelicVariants
-
-
-
 
 
 # Title   : _array_to_string         
