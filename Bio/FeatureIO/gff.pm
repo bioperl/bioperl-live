@@ -92,6 +92,11 @@ sub _initialize {
     $self->_handle_directive($directive)
   }
   $self->_pushback($directive);
+  
+#  if ($self->mode eq 'w') {   # [SG] I would love to use 'mode' but it does strange things...
+  if ($arg{-file} =~ /^>.*/ ) {
+      $self->_print("##gff-version " . $self->version() . "\n");
+  }
 
   #need to validate against SOFA, no SO
   $self->so(
