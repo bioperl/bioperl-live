@@ -192,14 +192,14 @@ sub _initialize {
  Usage   : my %base=$site->next_pos;
  Function: 
 
-           Retrieves the next position features: frequencies for
+           Retrieves the next position features: frequencies and weights for
            A,C,G,T, the main letter (as in consensus) and the
            probabilty for this letter to occur at this position and
            the current position
 
  Throws  :
  Example :
- Returns : hash (pA,pC,pG,pT,base,prob,rel)
+ Returns : hash (pA,pC,pG,pT,lA,lC,lG,lT,base,prob,rel)
  Args    : none
 
 
