@@ -43,11 +43,12 @@ Bio::Variation::DNAMutation - DNA level mutation class
 
 The instantiable class Bio::Variation::DNAMutation describes basic
 sequence changes in genomic DNA level. It uses methods defined in
-superclass L<Bio::Variation::VariantI>.
+superclass Bio::Variation::VariantI. See L<Bio::Variation::VariantI>
+for details.
 
 If the variation described by a DNAMutation object is transcibed, link
-the corresponding L<Bio::Variation::RNAChange> object to it using
-method RNAChange().
+the corresponding Bio::Variation::RNAChange object to it using
+method RNAChange(). See L<Bio::Variation::RNAChange> for more information.
 
 =head1 FEEDBACK
 

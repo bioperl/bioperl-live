@@ -49,15 +49,17 @@ Bio::Variation::RNAChange - Sequence change class for RNA level
 
 The instantiable class Bio::Variation::DNAMutation describes basic
 sequence changes at RNA molecule level. It uses methods defined in
-superclass L<Bio::Variation::VariantI>.
+superclass Bio::Variation::VariantI. See L<Bio::Variation::VariantI>
+for details.
 
 You are normally expected to create a corresponding
-L<Bio::Variation::DNAMutation> object even if mutation is defined at
+Bio::Variation::DNAMutation object even if mutation is defined at
 RNA level. The numbering follows then cDNA numbering.  Link the
 DNAMutation object to the RNAChange object using the method
 DNAMutation(). If the variation described by a RNAChange object is
-translated, link the corresponding L<Bio::Variation::AAChange> object
-to it using method AAChange().
+translated, link the corresponding Bio::Variation::AAChange object
+to it using method AAChange(). See L<Bio::Variation::DNAMutation> and
+L<Bio::Variation::AAChange> for more information.
 
 
 =head1 FEEDBACK

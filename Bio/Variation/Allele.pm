@@ -25,7 +25,8 @@ Bio::Variation::Allele - Sequence object with allele-specific attributes
 =head1 DESCRIPTION
 
 List of alleles describe known sequence alternatives in a variable region.
-Alleles are contained in L<Bio::Variation::VariantI> complying objects.
+Alleles are contained in Bio::Variation::VariantI complying objects.
+See L<Bio::Variation::VariantI> for details.
 
 Bio::Varation::Alleles are PrimarySeqI complying objects which can
 contain database cross references as specified in

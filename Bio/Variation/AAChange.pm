@@ -46,11 +46,12 @@ Bio::Variation::AAChange - Sequence change class for polypeptides
 
 The instantiable class Bio::Variation::RNAChange describes basic
 sequence changes at polypeptide  level. It uses methods defined in
-superclass L<Bio::Variation::VariantI>.
+superclass Bio::Variation::VariantI, see L<Bio::Variation::VariantI>
+for details.
 
 If the variation described by a AAChange object has a known
-L<Bio::Variation::RNAAChange> object, create the link with method
-AAChange().
+Bio::Variation::RNAAChange object, create the link with method
+AAChange(). See L<Bio::Variation::AAChange> for more information.
 
 =head1 FEEDBACK
 

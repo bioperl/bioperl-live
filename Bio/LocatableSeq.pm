@@ -320,9 +320,9 @@ sub column_from_residue_number {
            location_from_column( Seq1/91-97, 10) position 97^98
            location_from_column( Seq2/1-9, 1 )   position undef
 
-           An exact position returns a L<Bio::Location::Simple>
+           An exact position returns a Bio::Location::Simple
            object, a position between bases returns a
-           L<Bio::Location::Fuzzy> object where loc_type() returns
+           Bio::Location::Fuzzy object where loc_type() returns
            'BETWEEN'. Column before the first residue returns
            undef. Note that if the position is after the last residue
            in the alignment, that there is no guarantee that the
@@ -331,11 +331,12 @@ sub column_from_residue_number {
            An exception is thrown if the column number is not within
            the sequence.
 
- Returns : L<Bio::Location::Simple> or 
-           L<Bio::Location::Fuzzy> object or
+ Returns : Bio::Location::Simple or Bio::Location::Fuzzy object or
            undef
  Args    : A column number
  Throws  : If column is not within the sequence
+
+See L<Bio::Location::Simple>, L<Bio::Location::Fuzzy> for more.
 
 =cut
 

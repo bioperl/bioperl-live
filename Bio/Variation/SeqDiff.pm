@@ -30,22 +30,24 @@ Bio::Variation::SeqDiff - Container class for mutation/variant descriptions
 
 =head1 DESCRIPTION
 
-SeqDiff stores L<Bio::Variation::VariantI> object references and
+SeqDiff stores Bio::Variation::VariantI object references and
 descriptive information common to all changes in a sequence. Mutations
 are understood to be any kind of sequence markers and are expected to
-occur in the same chromosome.
+occur in the same chromosome. See L<Bio::Variation::VariantI> for details.
 
 The methods of SeqDiff are geared towards describing mutations in
-human genes using gene-based coordiante system where 'A' of the
+human genes using gene-based coordinate system where 'A' of the
 initiator codon has number 1 and the one before it -1. This is
 according to conventions of human genetics.
 
 There will be class Bio::Variation::Genotype to describe markers in
 different chromosomes and diploid genototypes.
 
-Classes implementing L<Bio::Variation::VariantI>
-interface are L<Bio::Variation::DNAMutation>,
-L<Bio::Variation::RNAChange> and L<Bio::Variation::AAChange>.
+Classes implementing Bio::Variation::VariantI interface are 
+Bio::Variation::DNAMutation, Bio::Variation::RNAChange, and
+Bio::Variation::AAChange. See L<Bio::Variation::VariantI>,
+L<Bio::Variation::DNAMutation>, L<Bio::Variation::RNAChange>, and
+L<Bio::Variation::AAChange> for more information.
 
 Variant objects can be added using two ways: an array passed to the
 constructor or as individual Variant objects with add_Variant
@@ -655,7 +657,9 @@ sub each_Variant{
 
  Example : 
  Returns : 1 when succeeds, 0 for failure.
- Args    : L<Bio::LiveSeq::Gene> object
+ Args    : Bio::LiveSeq::Gene object
+
+See L<Bio::LiveSeq::Gene> for more information.
 
 =cut
 
@@ -862,11 +866,13 @@ sub aa_mut {
  Function: 
 
 	    Returns the any original or mutated sequences as a
-	    L<Bio::PrimarySeq> object. 
+	    Bio::PrimarySeq object.
 
  Example : 
- Returns : L<Bio::PrimarySeq> object for the requested sequence
+ Returns : Bio::PrimarySeq object for the requested sequence
  Args    : string, method name for the sequence requested
+
+See L<Bio::PrimarySeq> for more information.
 
 =cut
 

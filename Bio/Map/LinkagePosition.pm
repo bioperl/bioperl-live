@@ -25,8 +25,9 @@ Bio::Map::LinkagePosition - Create a Position for a Marker that will be placed
 
 =head1 DESCRIPTION
 
-Position for a L<Bio::Map::MarkerI> compliant object that will be
-placed on a L<Bio::Map::LinkageMap>.
+Position for a Bio::Map::MarkerI compliant object that will be
+placed on a Bio::Map::LinkageMap. See L<Bio::Map::MarkerI> and
+L<Bio::Map::LinkageMap> for details
 
 =head1 FEEDBACK
 

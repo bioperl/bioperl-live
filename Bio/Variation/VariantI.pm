@@ -25,20 +25,24 @@ Bio::Variation::VariantI - Sequence Change SeqFeature abstract class
 =head1 DESCRIPTION
 
 This superclass defines common methods to basic sequence changes.  The
-instantiable classes L<Bio::Variation::DNAMutation>,
-L<Bio::Variation::RNAChange> and L<Bio::Variation::AAChange> use them.
+instantiable classes Bio::Variation::DNAMutation,
+Bio::Variation::RNAChange and Bio::Variation::AAChange use them.
+See L<Bio::Variation::DNAMutation>, L<Bio::Variation::RNAChange>,
+and L<Bio::Variation::AAChange> for more information.
 
 These classes store information, heavy computation to detemine allele
 sequences is done elsewhere.
 
 The database cross-references are implemented as
-L<Bio::Annotation::DBLink> objects. The methods to access them are
-defined in L<Bio::DBLinkContainerI>.
+Bio::Annotation::DBLink objects. The methods to access them are
+defined in Bio::DBLinkContainerI. See L<Bio::Annotation::DBLink>
+and L<Bio::DBLinkContainerI> for details.
 
 Bio::Variation::VariantI redifines and extends
-L<Bio::SeqFeature::Generic> for sequence variations. This class
+Bio::SeqFeature::Generic for sequence variations. This class
 describes specific sequence change events. These events are always
-from a specific reference sequence to something different.
+from a specific reference sequence to something different. See
+L<Bio::SeqFeature::Generic> for more information.
 
 IMPORTANT: The notion of reference sequence permeates all
 Bio::Variation classes. This is especially important to remember when
@@ -224,7 +228,7 @@ sub isMutation {
  Usage   : $obj->allele_ori();
  Function: 
 
-            Links to and returns the L<Bio::Variation::Allele> object.
+            Links to and returns the Bio::Variation::Allele object.
             If value is not set, returns false. All other Alleles are
             compared to this.
 
@@ -234,6 +238,8 @@ sub isMutation {
  Example : 
  Returns : string
  Args    : string
+
+See L<Bio::Variation::Allele> for more.
 
 =cut
 
@@ -261,7 +267,7 @@ sub allele_ori {
  Usage   : $obj->allele_mut();
  Function: 
 
-             Links to and returns the L<Bio::Variation::Allele>
+             Links to and returns the Bio::Variation::Allele
              object.  Sets and returns the mutated allele sequence.
              If value is not set, returns false.
 
@@ -271,6 +277,8 @@ sub allele_ori {
  Example : 
  Returns : string
  Args    : string
+
+See L<Bio::Variation::Allele> for more.
 
 =cut
 
@@ -639,13 +647,15 @@ sub mut_number {
  Function: 
 
            Returns or sets the link-reference to the umbrella
-           L<Bio::Variation::SeqDiff> object.  If there is no link,
+           Bio::Variation::SeqDiff object.  If there is no link,
            it will return undef
 
            Note: Adding a variant into a SeqDiff object will
            automatically set this value.
 
  Returns : an obj_ref or undef
+
+See L<Bio::Variation::SeqDiff> for more information.
 
 =cut
 

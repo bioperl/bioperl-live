@@ -16,12 +16,14 @@ Bio::SeqIO::Qual - .qual file input/output stream
 
 =head1 SYNOPSIS
 
-Do not use this module directly.  Use it via the L<Bio::SeqIO> class.
+Do not use this module directly.  Use it via the Bio::SeqIO class
+(see L<Bio::SeqIO> for details).
 
 =head1 DESCRIPTION
 
 This object can transform .qual (similar to fasta) objects to and from
-L<Bio::Seq::SeqWithQuality> objects.
+Bio::Seq::SeqWithQuality objects. See L<Bio::Seq::SeqWithQuality> for
+details.
 
 =head1 FEEDBACK
 

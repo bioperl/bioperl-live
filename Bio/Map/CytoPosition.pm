@@ -31,7 +31,7 @@ Bio::Map::CytoPosition - Marker class with cytogenetic band storing attributes
 =head1 DESCRIPTION
 
 CytoPosition is marker (Bio::Map::MarkerI compliant) with a location in a
-cytogenetic map.
+cytogenetic map. See L<Bio::Map::MarkerI> for more information.
 
 Cytogenetic locations are names of bands visible in stained mitotic
 eucaryotic chromosomes. The naming follows strict rules which are
@@ -553,8 +553,10 @@ sub value {
            This instanse of the method can also be set, but you better
            know what you are doing.
 
- Returns : L<Bio::RangeI> object 
- Args    : optional L<Bio::RangeI> object 
+ Returns : Bio::RangeI object 
+ Args    : optional Bio::RangeI object 
+
+See L<Bio::RangeI> for more information.
 
 =cut
 

@@ -251,10 +251,12 @@ sub series {
 
  Title   : editor
  Usage   : $editor = $obj->editor();
- Function: Returns or sets the reference to a L<Bio::Biblio::Provider> object.
+ Function: Returns or sets the reference to a Bio::Biblio::Provider object.
            If there is no link, it will return undef
  Returns : an obj_ref or undef
  Args    : Bio::Biblio::Provider object
+
+See L<Bio::Biblio::Provider> for more information.
 
 =cut
 

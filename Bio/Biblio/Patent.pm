@@ -222,12 +222,14 @@ sub doc_type {
  Usage   : $self->add_applicant($person)
  Function: 
 
-           Adds one L<Bio::Biblio::ProviderI> object into the list of
+           Adds one Bio::Biblio::ProviderI object into the list of
            applicants.
 
  Example : 
  Returns : 1 when succeeds, 0 for failure.
  Args    : Bio::Biblio::ProviderI object
+
+See L<Bio::Biblio::Provider> for more information.
 
 =cut
 

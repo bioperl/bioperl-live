@@ -11,7 +11,7 @@
 =head1 NAME
 
 Bio::Map::Marker - An central map object representing a generic marker
-  that can have multiple location in several maps.
+that can have multiple location in several maps.
 
 =head1 SYNOPSIS
 
@@ -23,7 +23,7 @@ Bio::Map::Marker - An central map object representing a generic marker
                                                   [$map1, $position2] 
 						] );
 
-  # The markers deal with L<Bio::Map::Position> objects which can also
+  # The markers deal with Bio::Map::Position objects which can also
   # be explicitely created and passed on to markers as an array ref:
   $o_usat2 = new Bio::Map::Marker (-name=>'Chad Super Marker 3',
 				  -positions => [ $pos1, 
@@ -54,7 +54,7 @@ Bio::Map::Marker - An central map object representing a generic marker
   # used by the marker to remember its latest, default map.
 
   # Regardes of how marker positions are created, they are stored and
-  # returned as L<Bio::Map::PositionI> objects:
+  # returned as Bio::Map::PositionI objects:
 
   # unique position
   print $marker1->position->value, "\n";
@@ -62,6 +62,8 @@ Bio::Map::Marker - An central map object representing a generic marker
   foreach $pos ($marker2->each_position($map1)) {
      print $pos->value, "\n";
   }
+
+See L<Bio::Map::Position> and L<Bio::Map::PositionI> for more information.
 
 =head1 DESCRIPTION
 
@@ -224,9 +226,11 @@ sub map {
  Usage   : my $pos = $marker->get_position_object();
  Function: To get an object of the default Position class
            for this Marker. Subclasses should redefine this method.
-           The Position needs to be L<Bio::Map::PositionI>.
- Returns : L<Bio::Map::Position>
+           The Position needs to be Bio::Map::PositionI.
+ Returns : Bio::Map::Position
  Args    : none
+
+See L<Bio::Map::Position> and L<Bio::Map::PositionI> for more information.
 
 =cut
 

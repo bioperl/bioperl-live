@@ -82,8 +82,10 @@ sequences.
  Function  : Adds another sequence to the alignment. *Does not* align
              it - just adds it to the hashes.
  Returns   : nothing
- Argument  : a L<Bio::LocatableSeq> object
+ Argument  : a Bio::LocatableSeq object
              order (optional)
+
+See L<Bio::LocatableSeq> for more information.
 
 =cut
 

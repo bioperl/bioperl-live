@@ -23,11 +23,12 @@ Do not use this module directly.  Use it via the Bio::AlignIO class.
 =head1 DESCRIPTION
 
 This object transforms the "sites sorted by p-value" sections of a meme
-(text) output file into a series of L<Bio::SimpleAlign> objects.  Each
-SimpleAlign object contains L<Bio::LocatableSeq> objects which represent the
+(text) output file into a series of Bio::SimpleAlign objects.  Each
+SimpleAlign object contains Bio::LocatableSeq objects which represent the
 individual aligned sites as defined by the central portion of the "site"
-field in the meme file.  The start and end coordinates are dervied from
-the "Start" field.
+field in the meme file.  The start and end coordinates are derived from
+the "Start" field. See L<Bio::SimpleAlign> and L<Bio::LocatableSeq> for
+more information.
 
 This module can only parse MEME version 3.0 and greater.  Previous versions
 have output formats that are more difficult to parse correctly.  If the meme

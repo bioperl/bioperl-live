@@ -124,11 +124,13 @@ sub new {
  Function:
 
            Returns or sets the link-reference to a
-           L<Bio::LiveSeq::Gene> object. If no value has ben set, it
+           Bio::LiveSeq::Gene object. If no value has ben set, it
            will return undef
 
  Returns : an object reference  or undef
- Args    : a L<Bio::LiveSeq::Gene>
+ Args    : a Bio::LiveSeq::Gene
+
+See L<Bio::LiveSeq::Gene> for more information.
 
 =cut
 
@@ -187,10 +189,12 @@ sub numbering {
 
  Title   : add_Mutation
  Usage   : $self->add_Mutation($ref)
- Function: adds a L<Bio::Liveseq::Mutation> object
+ Function: adds a Bio::LiveSeq::Mutation object
  Example :
  Returns :
- Args    : a L<Bio::Liveseq::Mutation>
+ Args    : a Bio::LiveSeq::Mutation
+
+See L<Bio::LiveSeq::Mutation> for more information.
 
 =cut
 
@@ -216,11 +220,12 @@ sub add_Mutation{
 
  Title   : each_Mutation
  Usage   : foreach $ref ( $a->each_Mutation )
- Function: gets an array of L<Bio::Liveseq::Mutation> objects
+ Function: gets an array of Bio::LiveSeq::Mutation objects
  Example :
  Returns : array of Mutations
  Args    :
 
+See L<Bio::LiveSeq::Mutation> for more information.
 
 =cut
 
@@ -346,7 +351,9 @@ sub RNA {
            If the value is not set, it will return undef.
            Internal method.
 
- Returns : an L<Bio::Variation::DNAMutation> or undef
+ Returns : a Bio::Variation::DNAMutation object or undef
+
+See L<Bio::Variation::DNAMutation> for more information.
 
 =cut
 
@@ -381,7 +388,9 @@ sub dnamut {
            If the value is not set, it will return undef.
            Internal method.
 
- Returns : an L<Bio::Variation::RNAChange> or undef
+ Returns : a Bio::Variation::RNAChange object or undef
+
+See L<Bio::Variation::RNAChange> for more information.
 
 =cut
 
@@ -416,7 +425,9 @@ sub rnachange {
            If the value is not set, it will return undef.
            Internal method.
 
- Returns : an L<Bio::Variation::AAChange> or undef
+ Returns : a Bio::Variation::AAChange object or undef
+
+See L<Bio::Variation::AAChange> for more information.
 
 =cut
 
@@ -451,7 +462,9 @@ sub aachange {
            If the value is not set, it will return undef.
            Internal method.
 
- Returns : an array of L<Bio::LiveSeq::Exon> objects or undef
+ Returns : an array of Bio::LiveSeq::Exon objects or undef
+
+See L<Bio::LiveSeq::Exon> for more information.
 
 =cut
 
@@ -481,12 +494,15 @@ sub exons {
            other one is assumed to be a part of the sequence from
            $gene.
 
-           This method offers a shortcut to L<change_gene> and
-           automates the creation of L<Bio::LiveSeq::Mutation> objects.
+           This method offers a shortcut to change_gene and
+           automates the creation of Bio::LiveSeq::Mutation objects.
            Use it with almost identical sequnces, e.g. to locate a SNP.
 
  Args    : Bio::SimpleAlign object representing a short local alignment
  Returns : Bio::Variation::SeqDiff object or 0 on error
+
+See L<Bio::LiveSeq::Mutation>, L<Bio::SimpleAlign>, and
+L<Bio::Variation::SeqDiff>  for more information.
 
 =cut
 
@@ -559,7 +575,7 @@ sub change_gene_with_alignment {
            Bio::LocatableSeq. Coordinate change to parent sequence
            numbering needs to be done by the calling code.
 
-           Called from L<change_gene_with_alignment>
+           Called from change_gene_with_alignment
 
  Args    : Bio::PrimarySeqI inheriting object for the reference sequence
            Bio::PrimarySeqI inheriting object for the query sequence
@@ -859,12 +875,14 @@ sub _mutationpos2label {
  Function:
 
            Stores DNA level mutation attributes before mutation into
-           L<Bio::Variation::DNAMutation> object.  Links it to SeqDiff
+           Bio::Variation::DNAMutation object.  Links it to SeqDiff
            object.
 
  Example :
- Returns : L<Bio::Variation::DNAMutation> object
- Args    : L<Bio::Variation::SeqDiff> object
+ Returns : Bio::Variation::DNAMutation object
+ Args    : Bio::Variation::SeqDiff object
+
+See L<Bio::Variation::DNAMutation> and L<Bio::Variation::SeqDiff>.
 
 =cut
 
@@ -1102,14 +1120,17 @@ sub _rnaAffected {
  Function:
 
            Stores RNA and AA level mutation attributes before mutation
-           into L<Bio::Variation::RNAChange> and
-           L<Bio::Variation::AACange> objects.  Links them to
+           into Bio::Variation::RNAChange and
+           Bio::Variation::AAChange objects.  Links them to
            SeqDiff object.
 
  Example :
  Returns :
- Args    : L<Bio::Variation::SeqDiff> object
-           L<Bio::Variation::DNAMutation> object
+ Args    : Bio::Variation::SeqDiff object
+           Bio::Variation::DNAMutation object
+
+See L<Bio::Variation::RNAChange>, L<Bio::Variation::RNAChange>,
+L<Bio::Variation::SeqDiff>, and L<Bio::Variation::DNAMutation>.
 
 =cut
 
@@ -1234,13 +1255,16 @@ sub _set_effects {
  Function:
 
            Stores RNA change attributes before mutation
-           into L<Bio::Variation::RNAChange object.  Links it to
+           into Bio::Variation::RNAChange object.  Links it to
            SeqDiff object.
 
  Example :
  Returns :
- Args    : L<Bio::Variation::SeqDiff> object
-           L<Bio::Variation::DNAMutation> object
+ Args    : Bio::Variation::SeqDiff object
+           Bio::Variation::DNAMutation object
+
+See L<Bio::Variation::RNAChange>, L<Bio::Variation::SeqDiff> and
+L<Bio::Variation::DNAMutation> for details.
 
 =cut
 
