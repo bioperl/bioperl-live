@@ -1,3 +1,9 @@
+# $Id$
+
+#
+# This module is licensed under the same terms as Perl itself. You use,
+# modify, and redistribute it under the terms of the Perl Artistic License.
+#
 
 =head1 NAME
 

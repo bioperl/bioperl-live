@@ -302,7 +302,7 @@ methods. Internal methods are usually preceded with a _
 
 =cut
 
-# Let the code begin...
+#' Let the code begin...
 
 package Bio::SeqIO;
 
@@ -325,7 +325,7 @@ sub BEGIN {
  Title   : new
  Usage   : $stream = Bio::SeqIO->new(-file => $filename, -format => 'Format')
  Function: Returns a new seqstream
- Returns : A Bio::SeqIO::Handler initialised with the appropriate format
+ Returns : A Bio::SeqIO stream initialised with the appropriate format
  Args    : -file => $filename
            -format => format
            -fh => filehandle to attach to

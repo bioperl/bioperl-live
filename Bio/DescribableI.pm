@@ -1,3 +1,10 @@
+# $Id$
+
+#
+# This module is licensed under the same terms as Perl itself. You use,
+# modify, and redistribute it under the terms of the Perl Artistic License.
+#
+
 =head1 NAME
 
 Bio::DescribableI - interface for objects with human readable names and descriptions
