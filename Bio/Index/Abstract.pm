@@ -129,14 +129,18 @@ sub new {
     my($class, @args) = @_;
     my $self = $class->SUPER::new(@args);
 
-    my( $filename, $write_flag, $dbm_package ) =
+    my( $filename, $write_flag, $dbm_package, $cachesize, $ffactor ) =
         $self->_rearrange([qw(FILENAME 
 			      WRITE_FLAG
 			      DBM_PACKAGE
+				  CACHESIZE
+				  FFACTOR
 			      )], @args);
     
     # Store any parameters passed
     $self->filename($filename)       if $filename;
+    $self->cachesize($cachesize)     if $cachesize;
+    $self->ffactor($ffactor)     	 if $ffactor;
     $self->write_flag($write_flag)   if $write_flag;
     $self->dbm_package($dbm_package) if $dbm_package;
 
@@ -195,22 +199,21 @@ sub dbm_package {
     my( $self, $value ) = @_;
     my $to_require = 0;
     if( $value || ! $self->{'_dbm_package'} ) {
-	my $type = $value || $USE_DBM_TYPE || 'DB_File';	
-	if( $type =~ /DB_File/i ) {
-	    eval { 
-		require DB_File;
-		DB_File->import('$DB_HASH');
-	    };
-	    $type = ( $@ ) ? 'SDBM_File' : 'DB_File';
-	} 	
-	if( $type ne 'DB_File' ) {
-	    eval { require "$type.pm"; };
-	    $self->throw($@) if( $@ );
-	}
-	$self->{'_dbm_package'} = $type;
-	if( ! defined $USE_DBM_TYPE ) {
-	    $USE_DBM_TYPE = $self->{'_dbm_package'};
-	}	
+		my $type = $value || $USE_DBM_TYPE || 'DB_File';	
+		if( $type =~ /DB_File/i ) {
+	    	eval { 
+				require DB_File;
+	    	};
+	    	$type = ( $@ ) ? 'SDBM_File' : 'DB_File';
+		} 	
+		if( $type ne 'DB_File' ) {
+	    	eval { require "$type.pm"; };
+	    	$self->throw($@) if( $@ );
+		}
+		$self->{'_dbm_package'} = $type;
+		if( ! defined $USE_DBM_TYPE ) {
+	    	$USE_DBM_TYPE = $self->{'_dbm_package'};
+		}	
     } 
     return $self->{'_dbm_package'};
 }
@@ -294,6 +297,49 @@ sub get_stream {
 }
 
 
+=head2 cachesize
+
+  Usage   : $index->cachesize(1000000)
+  Function: Sets the dbm file cache size for the index.
+  			Needs to be set before the DBM file gets opened.
+
+  Example : $index->cachesize(1000000)
+  Returns : size of the curent cache
+
+=cut
+
+sub cachesize {
+    my( $self, $size ) = @_;
+
+	if(defined $size){
+		$self->{'_cachesize'} = $size;
+	}
+	return ( $self->{'_cachesize'} );
+	
+}
+
+
+=head2 ffactor
+
+  Usage   : $index->ffactor(1000000)
+  Function: Sets the dbm file fill factor.
+  			Needs to be set before the DBM file gets opened.
+
+  Example : $index->ffactor(1000000)
+  Returns : size of the curent cache
+
+=cut
+
+sub ffactor {
+    my( $self, $size ) = @_;
+
+	if(defined $size){
+		$self->{'_ffactor'} = $size;
+	}
+	return ( $self->{'_ffactor'} );
+	
+}
+
 
 =head2 open_dbm
 
@@ -333,7 +379,16 @@ sub open_dbm {
     
     # Open the dbm file
     if ($dbm_type eq 'DB_File') {
-        tie( %$db, $dbm_type, $filename, $mode_flags, 0644, $DB_HASH )
+		my $hash_inf = DB_File::HASHINFO->new();
+		my $cache = $self->cachesize();
+		my $ffactor = $self->ffactor();
+		if ($cache){
+			$hash_inf->{'cachesize'} = $cache;
+		}
+		if ($ffactor){
+			$hash_inf->{'ffactor'} = $ffactor;
+		}
+        tie( %$db, $dbm_type, $filename, $mode_flags, 0644, $hash_inf )
             or $self->throw("Can't open '$dbm_type' dbm file '$filename' : $!");
     } else {
         tie( %$db, $dbm_type, $filename, $mode_flags, 0644 )

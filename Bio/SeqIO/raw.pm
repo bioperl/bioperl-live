@@ -130,4 +130,33 @@ sub write_seq {
    return 1;
 }
 
+=head2 write_qual
+
+ Title   : write_qual
+ Usage   : $stream->write_qual($seq)
+ Function: writes the $seq object into the stream
+ Returns : 1 for success and 0 for error
+ Args    : Bio::Seq object
+
+
+=cut
+
+sub write_qual {
+   my ($self,@seq) = @_;
+   my @qual = ();
+   foreach (@seq) {
+     unless ($_->isa("Bio::Seq::SeqWithQuality")){
+        warn("You cannot write raw qualities without supplying a Bio::Seq::SeqWithQuality object! You passed a ", ref($_), "\n");
+        next;
+     } 
+     @qual = @{$_->qual};
+     if(scalar(@qual) == 0) {
+	    $qual[0] = "\n";
+     }
+     
+     $self->_print (join " ", @qual,"\n") or return;
+
+   }
+   return 1;
+}
 1;
