@@ -384,7 +384,7 @@ sub next_seq {
       }
       if(! $builder->want_object()) {
 	  $builder->make_object(); # implicit end-of-object
-	  next RECORDTSTART;
+	  next RECORDSTART;
       }
       if($builder->want_slot('seq')) {
 	  my $seqc = '';
@@ -405,7 +405,7 @@ sub next_seq {
       # anymore. We don't want to return undef if the stream's not exhausted
       # yet.
       $seq = $builder->make_object();
-      next RECORDTSTART unless $seq;
+      next RECORDSTART unless $seq;
       last RECORDSTART;
   } # end while RECORDSTART
 
