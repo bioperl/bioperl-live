@@ -679,6 +679,11 @@ sub ticks {
     last if $pixels >= $minwidth;
     $interval *= 10;
   }
+
+  # to make sure a major tick shows up somewhere in the first half
+  #
+  $interval *= .5 if ($interval > 0.5*$length);
+
   return ($interval,$interval/10);
 }
 
