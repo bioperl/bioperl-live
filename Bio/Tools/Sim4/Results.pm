@@ -260,7 +260,7 @@ sub parse_next_alignment {
        };
        # this matches
        # start-end (start-end) pctid%
-       if(/^(\d+)-(\d+)\s+\((\d+)-(\d+)\)\s+(\d+)%/) {
+       if(/(\d+)-(\d+)\s+\((\d+)-(\d+)\)\s+(\d+)%/) {
  	   $seq1props{'start'} = $1;
  	   $seq1props{'end'} = $2;
  	   $seq2props{'start'} = $3;
