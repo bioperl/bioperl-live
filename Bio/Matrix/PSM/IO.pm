@@ -60,9 +60,13 @@ to Bio::Matrix::PSM::PsmHeaderI.
 See also Bio::Matrix::PSM::PsmI for details on using and manipulating
 the parsed data.
 
+The only way to write PFM/PWM is through masta module (something like fasta for
+DNA matrices). You can see an example by reading Bio::Matrix::PSM::IO::masta
+documentation.
+
 =head1 See also
 
-Bio::Matrix::PSM::PsmI, Bio::Matrix::PSM::PsmHeaderI
+Bio::Matrix::PSM::PsmI, Bio::Matrix::PSM::PsmHeaderI, Bio::Matrix::PSM::IO::masta
 
 =head1 FEEDBACK
 
@@ -100,7 +104,7 @@ use strict;
 
 @ISA=qw(Bio::Root::IO);
 
-@PSMFORMATS = qw(meme transfac mast psiblast);
+@PSMFORMATS = qw(meme transfac mast psiblast masta);
 
 =head2 new
 
