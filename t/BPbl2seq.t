@@ -11,7 +11,7 @@ BEGIN {
     if( $@ ) { 
 	use lib 't';
     }
-    require Test;
+    use Test;
     plan tests => 108; 
 }
 
