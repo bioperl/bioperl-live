@@ -575,9 +575,9 @@ sub create_mutation {
     $self->throw("Is not a Bio::PrimarySeqI object but a [$queryseq]") 
 	unless $queryseq->isa('Bio::PrimarySeqI');
     $self->throw("Position is not a positive integer but [$pos]") 
-	unless $pos =~ /^+?\d+$/;
+	unless $pos =~ /^\+?\d+$/;
     $self->throw("Length is not a positive integer but [$len]") 
-	unless $pos =~ /^+?\d+$/;
+	unless $len =~ /^\+?\d+$/;
 
     my $mutation;
     my $refstring = $refseq->subseq($pos, $pos + $len - 1);
