@@ -159,7 +159,7 @@ sub create_feature {
 
 
 
-    my $feature1= Bio::SeqFeature::Generic->new( -seqname    =>$feat->{name},
+    my $feature1= Bio::SeqFeature::Generic->new( -seq_id  =>$feat->{name},
                                                 -start      =>$feat->{start},
                                                 -end        =>$feat->{end},
                                                 -score      =>$feat->{score},
