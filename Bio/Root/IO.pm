@@ -294,10 +294,11 @@ sub _readline {
     # contents, rather than read from the filehandle
     if(exists($self->{'_readbuffer'})) {
 	$line = $self->{'_readbuffer'};
-	delete $self->{'_readbuffer'};
+	delete $self->{'_readbuffer'};	
     } else {
 	$line = <$fh>;
     }
+    $line =~ s/\r\n/\n/g if (defined $line);
     return $line;
 }
 
