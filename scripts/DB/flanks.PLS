@@ -1,6 +1,6 @@
 #!perl
 # -*-Perl-*-
-# $Id: flanks.PLS,v 1.1 2003-02-21 05:36:18 heikki Exp $
+# $Id: flanks.PLS,v 1.1.2.1 2003-02-21 05:38:00 heikki Exp $
 #
 # Heikki Lehvaslaiho <heikki@ebi.ac.uk>
 # Finding flanking sequences for a variant.
