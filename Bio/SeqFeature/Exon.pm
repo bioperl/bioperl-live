@@ -36,13 +36,14 @@ Copyright (c) National Research Council of Canada, April, 2001.
 
 =head1 DISCLAIMER
 
-Anyone who intends to use and uses this software and code acknowledges and
-agrees to the following: The National Research Council of Canada (herein "NRC")
-disclaims any warranties, expressed, implied, or statutory, of any kind or
-nature with respect to the software, including without limitation any warranty
-or merchantability or fitness for a particular purpose.  NRC shall not be liable
-in any event for any damages, whether direct or indirect,
-consequential or incidental, arising from the use of the software.
+Anyone who intends to use and uses this software and code acknowledges
+and agrees to the following: The National Research Council of Canada
+(herein "NRC") disclaims any warranties, expressed, implied, or
+statutory, of any kind or nature with respect to the software,
+including without limitation any warranty or merchantability or
+fitness for a particular purpose.  NRC shall not be liable in any
+event for any damages, whether direct or indirect, consequential or
+incidental, arising from the use of the software.
 
 =head1 CONTACT
 

@@ -321,3 +321,15 @@ while( $seq = $str->next_seq()) {
     ok($seq->length > 1);
     $strout->write_seq($seq) if( $verbosity > 0);
 }
+
+# test embl writing of a PrimarySeq
+
+my $primaryseq = new Bio::PrimarySeq( -seq => 'AGAGAGAGATA',
+				      -id  => 'myid',
+				      -moltype => 'DNA',
+				      -accession_number => 'myaccession');
+my $embl = new Bio::SeqIO(-format => 'embl' );
+
+ok($embl->write_seq($primaryseq));
+
+

@@ -307,7 +307,6 @@ sub new {
     }
 }
 
-
 =head2 newFh
 
  Title   : newFh
@@ -560,8 +559,8 @@ sub DESTROY {
 }
 
 sub TIEHANDLE {
-  my $class = shift;
-  return bless {seqio => shift}, $class;
+    my ($class,$val) = @_;
+    return bless {'seqio' => $val}, $class;
 }
 
 sub READLINE {

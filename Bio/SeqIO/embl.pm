@@ -362,8 +362,7 @@ sub write_seq {
         $temp_line = sprintf("%-11sstandard; $mol; $div; %d BP.", $seq->id(), $len);
     } 
 
-    $self->_print( "ID   $temp_line\n",
-		   "XX\n");
+    $self->_print( "ID   $temp_line\n","XX\n");
 
     # Write the accession line if present
     my( $acc );

@@ -121,6 +121,7 @@ use Bio::SeqFeatureI;
 use Bio::Annotation;
 use Bio::Location::Simple;
 use Bio::Tools::GFF;
+#use Tie::IxHash;
 
 @ISA = qw(Bio::Root::RootI Bio::SeqFeatureI);
 
@@ -128,7 +129,9 @@ sub new {
     my ( $caller, @args) = @_;   
     my ($self) = $caller->SUPER::new(@args); 
 
-    $self->{'_parse_h'} = {};
+    $self->{'_parse_h'}       = {};
+    $self->{'_gsf_tag_hash'}  = {};
+#    tie %{$self->{'_gsf_tag_hash'}}, "Tie::IxHash";
     my ($start, $end, $strand, $primary, $source, $frame, 
 	$score, $tag, $gff_string, $gff1_string, $seqname, $annot, $location) =
 	    $self->_rearrange([qw(START
@@ -347,7 +350,7 @@ sub sub_SeqFeature {
            as to whether it lies inside the parent, and throw
            an exception if not.
 
-           If EXPAND is used, the parent's start/end/strand will
+           If EXPAND is used, the parent\'s start/end/strand will
            be adjusted so that it grows to accommodate the new
            subFeature
  Returns : nothing
@@ -356,7 +359,6 @@ sub sub_SeqFeature {
 
 =cut
 
-#'
 sub add_sub_SeqFeature{
     my ($self,$feat,$expand) = @_;
 
@@ -470,10 +472,8 @@ sub has_tag {
 =cut
 
 sub add_tag_value {
-    my ($self, $tag, $value) = @_;
-
+    my ($self, $tag, $value) = @_;    
     $self->{'_gsf_tag_hash'}->{$tag} ||= [];
-
     push(@{$self->{'_gsf_tag_hash'}->{$tag}},$value);
 }
 
@@ -512,9 +512,8 @@ sub each_tag_value {
 =cut
 
 sub all_tags {
-   my ($self, @args) = @_;
-
-   return keys %{$self->{'_gsf_tag_hash'}};
+   my ($self, @args) = @_;   
+   return keys %{ $self->{'_gsf_tag_hash'}};
 }
 
 
@@ -535,8 +534,8 @@ sub remove_tag {
    if ( ! exists $self->{'_gsf_tag_hash'}->{$tag} ) {
        $self->throw("trying to remove a tag that does not exist: $tag");
    }
-
    delete $self->{'_gsf_tag_hash'}->{$tag};
+   return 1;
 }
 
 =head2 attach_seq

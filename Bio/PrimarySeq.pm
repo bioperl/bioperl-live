@@ -184,7 +184,13 @@ BEGIN {
            initialize by the parameter -moltype. See moltype() for possible
            values.
  Returns : a new Bio::PrimarySeq object
-
+ Args    : -seq         => sequence string
+           -display_id  => display id of the sequence (locus name) 
+           -accession_number => accession number
+           -primary_id  => primary id (Genbank id)
+           -desc        => description text
+           -moltype     => molecule type (dna,rna,prot)
+           -id          => alias for display id
 =cut
 
 
@@ -448,6 +454,7 @@ sub primary_id {
 sub moltype {
     my ($obj,$value) = @_;
     if (defined $value) {
+	$value = lc $value;
 	unless ( $valid_type{$value} ) {
 	    $obj->throw("Molecular type '$value' is not a valid type (".
 			join(',', map "'$_'", sort keys %valid_type) .") lowercase");
