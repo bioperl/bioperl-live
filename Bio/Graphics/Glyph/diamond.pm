@@ -3,6 +3,7 @@ package Bio::Graphics::Glyph::diamond;
 
 use strict;
 use vars '@ISA','$VERSION';
+use Bio::Graphics::Glyph::generic;
 @ISA = 'Bio::Graphics::Glyph::generic';
 $VERSION = 1.01;
 
