@@ -1114,6 +1114,7 @@ sub link_pattern {
       : $1 eq 'source'    ? eval {$feature->source} || $feature->source_tag
       : $1 eq 'start'     ? $feature->start
       : $1 eq 'end'       ? $feature->end
+      : $1 eq 'stop'      ? $feature->end
       : $1 eq 'segstart'  ? $panel->start
       : $1 eq 'segend'    ? $panel->end
       : $1
