@@ -1,3 +1,56 @@
+=pod
+
+=head1 NAME
+
+Bio::FeatureIO::gff - DESCRIPTION of Object
+
+=head1 SYNOPSIS
+
+Give standard usage here
+
+=head1 DESCRIPTION
+
+currently only handles gff version 3.  spec at http://song.sf.net/
+
+=head1 FEEDBACK
+
+=head2 Mailing Lists
+
+User feedback is an integral part of the evolution of this and other
+Bioperl modules. Send your comments and suggestions preferably to
+the Bioperl mailing list.  Your participation is much appreciated.
+
+  bioperl-l@bioperl.org              - General discussion
+  http://bioperl.org/MailList.shtml  - About the mailing lists
+
+=head2 Reporting Bugs
+
+Report bugs to the Bioperl bug tracking system to help us keep track
+of the bugs and their resolution. Bug reports can be submitted via
+the web:
+
+  http://bugzilla.bioperl.org/
+
+=head1 AUTHOR - Allen Day
+
+Email allenday@ucla.edu
+
+Describe contact details here
+
+=head1 CONTRIBUTORS
+
+Additional contributors names and emails here
+
+=head1 APPENDIX
+
+The rest of the documentation details each of the object methods.
+Internal methods are usually preceded with a _
+
+=cut
+
+
+# Let the code begin...
+
 package Bio::FeatureIO::gff;
 
 use strict;
@@ -10,12 +63,6 @@ use Bio::Annotation::SimpleValue;
 use Bio::Annotation::DBLink;
 
 use Bio::Ontology::OntologyStore;
-
-=pod
-
-currently only handles gff version 3.  spec at http://song.sf.net/
-
-=cut
 
 sub _initialize {
   my($self,%arg) = @_;
@@ -55,6 +102,7 @@ sub write_feature {
   if(my @v = ($feature->annotation->get_Annotations('ID'))){
     my $vstring = join ',', map {$_->value} @v;
     push @attr, "ID=$vstring";
+    $self->throw('GFF3 features may have at most one ID, feature with these IDs is invalid:\n'.$vstring) if scalar(@v) > 1;
   }
   if(my @v = ($feature->annotation->get_Annotations('Parent'))){
     my $vstring = join ',', map {$_->value} @v;
