@@ -8,14 +8,13 @@ use Bio::Biblio::IO;
 use Data::Dumper;
 
 # number of articles in Medline with author Osborne...
-my $num = new Bio::Biblio->find("Osborne","authors")->get_count;
+my $num = new Bio::Biblio(-access => "eutils")->find("Osborne","authors")->
+  get_count;
 
-# number of articles in Medline with author Osborne in year 2000...
-$num = new Bio::Biblio->find("Osborne","authors")->
+# number of articles in Medline with author Osborne in year 2000,
+# ("J Biol Chem","journal") is another example query
+$num = new Bio::Biblio->find("topoisomerase","title")->
   find("2000","year")->get_count;
-
-# number of JBC articles...
-$num = new Bio::Biblio->find("J Biol Chem","journal")->get_count;
 
 # a reference as XML...
 my $xml = new Bio::Biblio->get_by_id("3047008");
@@ -24,9 +23,15 @@ my $xml = new Bio::Biblio->get_by_id("3047008");
 my $arr_ref = new Bio::Biblio->find ("Osborne","authors")->
   find("2000","year")->get_all_ids;
 
+# get the vocabulary of a specific repository, but not all repositories
+# support these methods as of Bioperl 1.4...
+my $biblio = Bio::Biblio->new(-access => "soap");
+my $biblio_ref = $biblio->get_vocabulary_names;
+my $val_ref = $biblio->get_all_values('MEDLINE2004/JournalArticle/properties');
+
 # retrieve the entry as text or retrieve specific text fields...
 my $medline_id = "88329717";
-my $ref = new Bio::Biblio->get_by_id($medline_id);
+my $ref = Bio::Biblio->new(-access => "soap")->get_by_id($medline_id);
 my $io = Bio::Biblio::IO->new( -result => "raw",
 			       -data   => $ref );
 my $nextref = $io->next_bibref;
