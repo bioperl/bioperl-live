@@ -11,6 +11,8 @@
 # You may distribute this module under the same terms as perl itself
 
 # POD documentation - main docs before the code
+# 
+# Added LWP support - Jason Stajich 11/6/2000
 
 =head1 NAME
 
@@ -75,33 +77,63 @@ preceded with a _
 
 package Bio::DB::GenBank;
 use strict;
-use vars qw(@ISA);
-
+use vars qw(@ISA $DEFAULTFORMAT $MODVERSION $HOSTBASE);
 # Object preamble - inherits from Bio::DB::RandomAccessI
+
+$MODVERSION = '0.8';
 
 use Bio::DB::RandomAccessI;
 use Bio::SeqIO;
-use IO::Socket;
+use IO::String;
 use IO::File;
+use Bio::Root::RootI;
+use LWP::UserAgent;
+use HTTP::Request::Common;
+use HTTP::Response;
+	    
+$HOSTBASE = 'http://www.ncbi.nlm.nih.gov';
+@ISA = qw(Bio::Root::RootI Bio::DB::RandomAccessI);
+$DEFAULTFORMAT = 'GenBank';
 
-@ISA = qw(Bio::Root::Object Bio::DB::RandomAccessI);
+# the new way to make modules a little more lightweight
+sub new {
+  my($class,@args) = @_;
 
-# new() is inherited from Bio::Root::Object
-
-# _initialize is where the heavy stuff will happen when new is called
-
-sub _initialize {
-  my($self,@args) = @_;
-
-  my $make = $self->SUPER::_initialize(@args);
-  
-  my ($format) = $self->_rearrange([qw(FORMAT
-				       )],
+  my $self = bless {}, $class;
+  my ($format) = $self->_rearrange([qw(FORMAT)],
 				   @args);
-  $format = "GenBank" unless $format;
+  $format = $DEFAULTFORMAT unless $format;
   $self->request_format($format);
-  # set stuff in self from @args  
-  return $make; # success - we hope!
+  my $ua = new LWP::UserAgent;
+  $ua->agent("$class/$MODVERSION");
+  $self->ua($ua);
+  return $self;
+}
+
+sub ua {
+    my ($self, $ua) = @_;
+    if( defined $ua && $ua->isa("LWP::UserAgent") ) {
+	$self->{_ua} = $ua;
+    }
+    return $self->{_ua};
+}
+
+=head2 proxy
+
+ Title   : proxy
+ Usage   : $httpproxy = $db->proxy('http')  or 
+           $db->proxy(['http','ftp'], 'http://myproxy' )
+ Function: Get/Set a proxy for use
+ Returns : a string indicating the proxy
+ Args    : $protocol : an array ref of the protocol(s) to set/get
+           $proxyurl : url of the proxy to use for the specified protocol
+
+=cut
+
+
+sub proxy {
+    my ($self,$protocol,$proxy) = @_;
+    return $self->ua->proxy($protocol,$proxy);
 }
 
 =head2 get_Seq_by_id
@@ -236,31 +268,30 @@ sub get_Stream_by_batch {
    } elsif($fmt eq 'f') {
        $fmt = "1";
    } # else we leave it as it is
-   my $wwwbuf = "DB=n&REQUEST_TYPE=LIST_OF_GIS&FORMAT=$fmt&HTML=FALSE&SAVETO=FALSE&NOHEADER=TRUE&UID=" . join(',', grep { chomp; } <$fh> );
-
-   my $sock = $self->_get_sock();
-
-   select $sock;
-   print "POST /cgi-bin/Entrez/qserver.cgi HTTP/1.0\015\012";
-   print "Host: www.ncbi.nlm.nih.gov\015\012";
-   print "User-Agent: $0::Bio::DB::GenBank\015\012";
-   print "Connection: Keep-Alive\015\012";
-   print "Content-type: application/x-www-form-urlencoded\015\012";
-   print "Content-length: " . length($wwwbuf) . "\015\012";
-   print "\015\012";
-   print $wwwbuf;
-
-   while (<$sock>) {
-       if ( m,^HTTP/\d+\.\d+\s+(\d+)[^\012]\012, ) {
-	   my $code = $1;
-	   return undef unless $code =~ /^2/;
-       }
-       $self->throw("Entrez Error - check query sequences!\n") if m/^ERROR/i;
-       last if m/Batch Entrez results/;
+   my $wwwbuf = [ Connection => 'Keep-Alive',
+		  DB => 'n',		  
+		  REQUEST_TYPE =>'LIST_OF_GIS', FORMAT => $fmt,  
+		  HTML=>'FALSE', 
+		  SAVETO=>'FALSE', 
+		  NOHEADER=>'TRUE',
+		  UID => join(',', grep { chomp; } <$fh> ),
+		  ];
+   my $url = "$HOSTBASE/cgi-bin/Entrez/qserver.cgi";
+   
+   my $resp = $self->ua->request(POST $url,$wwwbuf );
+   my $content = $resp->content;
+   
+   if( ! $resp->is_success || $content =~ m/^ERROR/i ) {
+       $self->warn($resp->error_as_HTML());
+       $self->throw("Entrez Error - check query sequences!\n");
    }
-
-   return Bio::SeqIO->new('-fh' => $sock, '-format' => $streamfmt);
-
+   if(! defined($streamfmt)) {
+       my $dummy;
+       ($dummy, $streamfmt) = $self->request_format();
+   }
+   my $stream = new IO::String($content);
+   
+   return Bio::SeqIO->new('-fh' => $stream, '-format' => $streamfmt);
 }
 
 =head2 request_format
@@ -307,52 +338,31 @@ sub request_format {
 sub _get_stream {
 
   my($self, $entrez, $streamfmt) = @_;
+  
+  my $url = "$HOSTBASE/htbin-post/Entrez/query?$entrez";
+  my $resp =  $self->ua->request(GET $url);
 
-# most of this socket stuff is borrowed heavily from LWP::Simple, by
-# Gisle Aas and Martijn Koster.  They copyleft'ed it, but we should give
-# them full credit for this little diddy.
+  my $content = $resp->content;
 
-  my $sock = $self->_get_sock();
-
-  print $sock join("\015\012" =>
-		   "GET /htbin-post/Entrez/query?$entrez HTTP/1.0",
-		   "Host: www.ncbi.nlm.nih.gov",
-		   "User-Agent: $0::Bio::DB::GenBank",
-		   "", "");
-
-  while(<$sock>) {
-    if ( m,^HTTP/\d+\.\d+\s+(\d+)[^\012]\012, ) {
-      my $code = $1;
-      return undef unless $code =~ /^2/;
-    }
-    $self->throw("Entrez Error - check query sequences!\n") if m/^ERROR/i;
-    last if m/^------/; # Kludgy, but it's how L. Stein does Boulder too
+  if( !$resp->is_success || $content =~ m/^ERROR/i ) {
+      $self->warn($resp->error_as_HTML());
+      $self->throw("Entrez Error - check query sequences!\n");
   }
-
+  my @data;
+  my $read =0;
+  foreach my $line ( split(/\n+/,$content) ) {
+      if( $line =~ /^-----/ ) { $read =1 ; next }
+      next if( ! $read ); 
+      push @data, $line;
+  }
+  $content = join("\n", @data);
   if(! defined($streamfmt)) {
       my $dummy;
       ($dummy, $streamfmt) = $self->request_format();
   }
-  return Bio::SeqIO->new('-fh' => $sock, '-format' => $streamfmt);
-
+  my $stream = new IO::String($content);
+  return Bio::SeqIO->new('-fh' => $stream, '-format' => $streamfmt);
 }
-
-sub _get_sock {
-    my $self = shift;
-    my $sock = IO::Socket::INET->new(PeerAddr => 'www.ncbi.nlm.nih.gov',
-				     PeerPort => 80,
-				     Proto    => 'tcp',
-				     Timeout  => 60
-				     );
-    unless ($sock) {
-	$@ =~ s/^.*?: //;
-	$self->throw("Can't connect to GenBank ($@)\n");
-    }
-    $sock->autoflush();		# just for safety's sake if they have old IO::Socket
-
-    return $sock;
-}
-
 
 1;
 __END__
