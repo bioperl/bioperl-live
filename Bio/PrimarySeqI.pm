@@ -507,6 +507,7 @@ sub trunc{
            character for unknown amino acid (optional) defaults to 'X'
            frame (optional) valid values 0, 1, 3, defaults to 0
            codon table id (optional) defaults to 1
+
 =cut
 
 
