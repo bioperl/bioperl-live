@@ -8,6 +8,9 @@
 #
 # You may distribute this module under the same terms as perl itself
 
+# Changes 2003-07-31 (jason)
+# Gary has cleaned up the code a lot to produce better looking
+# HTML
 # POD documentation - main docs before the code
 
 =head1 NAME
@@ -26,10 +29,33 @@ Bio::SearchIO::Writer::HTMLResultWriter - Object to implement writing a Bio::Sea
   my $out = new Bio::SearchIO(-writer => $writer);
   $out->write_result($in->next_result);
 
+
+  # to filter your output
+  my $MinLength = 100; # need a variable with scope outside the method
+  sub hsp_filter { 
+      my $hsp = shift;
+      return 1 if $hsp->length('total') > $MinLength;
+  }
+  sub result_filter { 
+      my $result = shift;
+      return $hsp->num_hits > 0;
+  }
+
+  my $writer = new Bio::SearchIO::Writer::HTMLResultWriter
+                     (-filters => { 'HSP' => \&hsp_filter} );
+  my $out = new Bio::SearchIO(-writer => $writer);
+  $out->write_result($in->next_result);
+
+  # can also set the filter via the writer object
+  $writer->filter('RESULT', \&result_filter);
+  
+   
 =head1 DESCRIPTION
 
 This object implements the SearchWriterI interface which will produce
 a set of HTML for a specific Bio::Search::Report::ReportI interface.
+
+See L<Bio::SearchIO::SearchWriterI> for more info on the filter method.
 
 =head1 FEEDBACK
 
@@ -53,13 +79,11 @@ email or the web:
 
 =head1 AUTHOR - Jason Stajich
 
-Email jason@bioperl.org
-
-Describe contact details here
+Email jason-at-bioperl-dot-org
 
 =head1 CONTRIBUTORS
 
-Additional contributors names and emails here
+Gary Williams G.Williams@hgmp.mrc.ac.uk
 
 =head1 APPENDIX
 
@@ -68,8 +92,6 @@ Internal methods are usually preceded with a _
 
 =cut
 
-
-# Let the code begin...
 
 
 package Bio::SearchIO::Writer::HTMLResultWriter;
@@ -101,8 +123,9 @@ use Bio::SearchIO::SearchWriterI;
  Usage   : my $obj = new Bio::SearchIO::Writer::HTMLResultWriter();
  Function: Builds a new Bio::SearchIO::Writer::HTMLResultWriter object 
  Returns : Bio::SearchIO::Writer::HTMLResultWriter
- Args    :
-
+ Args    : -filters => hashref with any or all of the keys (HSP HIT RESULT)
+           which have values pointing to a subroutine reference
+           which will expect to get a 
 
 =cut
 
@@ -193,10 +216,14 @@ sub to_string {
     } elsif( $alg =~ /(FAST|BLAST)N/i || 
 	     $alg =~ /(WABA|EXONERATE)/i ) {
 	$qtype      = $dbtype = '';
-	$type       = 'NUCLEOTIDE';
+	$type = $dbseqtype  = 'NUCLEOTIDE';
     } elsif( $alg =~ /(FAST|BLAST)P/  || $alg =~ /SSEARCH/i ) {
 	$qtype      = $dbtype = '';
 	$type = $dbseqtype  = 'PROTEIN';
+    } elsif( $alg =~ /(FAST|BLAST)X/i ) {
+	$qtype      = 'translated';
+        $dbtype     = 'PROTEIN';
+	$dbseqtype  = $type      = 'PROTEIN';
     } else { 
 	print STDERR "algorithm was ", $result->algorithm, " couldn't match\n";
     }
@@ -268,7 +295,8 @@ qq{
 			 (defined $hsps[0] ? $hsps[0]->evalue : ' ')) 
 			);
 
-	$hspstr .= "<a name=\"$acc\"><pre>\n".
+#	$hspstr .= "<a name=\"$acc\"><pre>\n".
+	$hspstr .= "<a name=\"$acc\">\n".
 	    sprintf("><b>%s</b> %s\n<dd>Length = %d</dd><p>\n\n", $url_align, 
 			defined $hit->description ? $hit->description : '', 
 		    $hit->length);
@@ -305,15 +333,18 @@ qq{
 	    my ($h,$q) = ( $hsp->hit->frame, $hsp->query->frame);
 		
 	    if( $h || $q ) {
-		$hspstr .= " Frame = ";
-		
-		if( $h && ! $q) {  $hspstr .= $h }
-		elsif( $q && ! $h) {  $hspstr .= $q }
+		$hspstr .= "<br>Frame = ";
+		my ($signq, $signh);
+                $signq = ($q > 0 ? '+' : '');
+                $signh = ($q > 0 ? '+' : '');
+		if( $h && ! $q) {  $hspstr .= "$signh$h" }
+		elsif( $q && ! $h) {  $hspstr .= "$signq$q" }
 		else { 
-		    $hspstr .= " $h / $q ";
+		    $hspstr .= " $signh$h / $signq$q ";
 		}
 	    }
-	    $hspstr .= "</pre></a><p>\n<pre>";
+#	    $hspstr .= "</pre></a><p>\n<pre>";
+	    $hspstr .= "</a><p>\n<pre>";
 	    
 	    my @hspvals = ( {'name' => 'Query:',
 			     'seq'  => $hsp->query_string,
@@ -644,6 +675,10 @@ programs\",  Nucleic Acids Res. 25:3389-3402.<p>";
        return '';
    }
 }
+
+=head2 Methods Bio::SearchIO::SearchWriterI
+
+L<Bio::SearchIO::SearchWriterI> inherited methods.
 
 =head2 filter
 
