@@ -82,7 +82,7 @@ sub new{
     my $self = $class->SUPER::new(@args);
 
     my ($start,$end,$authors,$location,$title,$medline,
-	$pubmed,$rp) =
+	$pubmed,$rp,$rg) =
 	$self->_rearrange([qw(START
 			      END
 			      AUTHORS
@@ -91,6 +91,7 @@ sub new{
 			      MEDLINE
                               PUBMED
                               RP
+                              RG
 			      )],@args);
 
     defined $start    && $self->start($start);
@@ -101,6 +102,7 @@ sub new{
     defined $medline  && $self->medline($medline);
     defined $pubmed   && $self->pubmed($pubmed);
     defined $rp       && $self->rp($rp);
+    defined $rg       && $self->rg($rg);
     return $self;
 }
 
@@ -242,6 +244,29 @@ sub rp{
       $self->{'rp'} = $value;
     }
     return $self->{'rp'};
+}
+
+=head2 rg
+
+ Title   : rg
+ Usage   : $obj->rg($newval)
+ Function: Gives the RG line. This is Swissprot/Uniprot specific, and
+           if set will usually be identical to the authors attribute,
+           but the swissprot manual does allow both RG and RA (author)
+           to be present for the same reference.
+
+ Example : 
+ Returns : value of rg (a scalar)
+ Args    : on set, new value (a scalar or undef, optional)
+
+
+=cut
+
+sub rg{
+    my $self = shift;
+
+    return $self->{'rg'} = shift if @_;
+    return $self->{'rg'};
 }
 
 =head2 authors

@@ -521,8 +521,10 @@ sub write_seq {
 	    }
 	    my $author = $ref->authors .';' if($ref->authors);
 	    my $title = $ref->title .';' if( $ref->title);
+            my $rg = $ref->rg . ';' if $ref->rg;
 
-	    $self->_write_line_swissprot_regex("RA   ","RA   ",$author,"\\s\+\|\$",80);
+	    $self->_write_line_swissprot_regex("RG   ","RG   ",$rg,"\\s\+\|\$",80) if $rg;
+	    $self->_write_line_swissprot_regex("RA   ","RA   ",$author,"\\s\+\|\$",80) if $author;
 	    $self->_write_line_swissprot_regex("RT   ","RT   ",$title,"\\s\+\|\$",80);
 	    $self->_write_line_swissprot_regex("RL   ","RL   ",$ref->location,"\\s\+\|\$",80);
 	    $t++;
@@ -815,16 +817,19 @@ sub _print_swissprot_FTHelper {
 
 sub _read_swissprot_References{
    my ($self,$line) = @_;
-   my ($b1, $b2, $rp, $title, $loc, $au, $med, $com, $pubmed);
+   my ($b1, $b2, $rp, $rg, $title, $loc, $au, $med, $com, $pubmed);
    my @refs;
    local $_ = $line;
    while( defined $_ ) {
        if( /^[^R]/ ) { 
 	   if( $rp ) { 
-	       $au =~ s/;\s*$//g;
-	       if( defined $title ) {
-		   $title =~ s/;\s*$//g;
-	       }
+	       $rg =~ s/;\s*$//g if defined($rg);
+               if (!defined($au)) {
+                   $au = $rg;
+               } else {
+                   $au =~ s/;\s*$//;
+               }
+               $title =~ s/;\s*$//g if defined($title);
 	       push @refs, Bio::Annotation::Reference->new(-title    => $title,
 							   -start    => $b1,
 							   -end      => $b2,
@@ -833,8 +838,9 @@ sub _read_swissprot_References{
 							   -medline  => $med,
 							   -pubmed   => $pubmed,
 							   -comment  => $com,
-							   -rp       => $rp);
-	       $rp = '';
+							   -rp       => $rp,
+                                                           -rg       => $rg);
+	       $rp = ''; # we don't need this do we? HL, confused
 	   }
 	   $self->_pushback($_); # want this line to go back on the list
 	   last; # may be the safest exit point HL 05/11/2000
@@ -869,6 +875,8 @@ sub _read_swissprot_References{
 	   $pubmed= $2;
        } elsif( /^RA   (.*)/ ) { 
 	   $au .= $au ? " $1" : $1;
+       } elsif( /^RG   (.*)/ ) { 
+	   $rg .= $rg ? " $1" : $1;
        } elsif ( /^RT   (.*)/ ) { 
 	   $title .= $title ? " $1" : $1;
        } elsif (/^RL   (.*)/ ) { 
