@@ -37,6 +37,7 @@ package Bio::DB::GFF::Adaptor::memory_iterator;
 use strict;
 # $Id$
 # this module needs to be cleaned up and documented
+# use Bio::Root::Version;
 
 #use constant STH         => 0;
 #use constant CALLBACK    => 1;

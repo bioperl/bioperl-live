@@ -35,6 +35,7 @@ it under the same terms as Perl itself.
 
 package Bio::DB::GFF::Adaptor::dbi::iterator;
 use strict;
+# use Bio::Root::Version;
 
 use constant STH         => 0;
 use constant CALLBACK    => 1;
