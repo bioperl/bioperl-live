@@ -939,6 +939,7 @@ use vars qw(%FuncParse %FuncOut %Alphabets);
   ($SeqForm{'unknown'} => \&parse_unknown,
    $SeqForm{'fasta'}   => \&parse_fasta,
    $SeqForm{'raw'}     => \&parse_raw,
+   $SeqForm{'genbank'} => \&parse_genbank,
    $SeqForm{'gcg'}     => \&parse_gcg,
    $SeqForm{'pir'}     => \&parse_bad,
    );
@@ -1110,7 +1111,7 @@ sub _initialize {
   $self->{"descffmt"} = $SeqForm{"unknown"};
 
   # Overwrite with values from passed in filepath
-  if (defined($file)) {
+  if (defined($file) && length($file)) {
     $self->_file_read($file,$ffmt);
   }
 
@@ -1893,6 +1894,38 @@ sub parse_raw {
   return 1;
 }
 
+#_______________________________________________________________________
+ 
+=head2 parse_genbank
+ 
+ Title    : parse_genbank
+ 
+= cut
+ 
+sub parse_genbank {
+  my ($self) = shift;
+  my ($ent) = @_;
+  my $seqstart = false;
+  my $defstart = false;
+  
+  my @lines = split("\n", $ent);
+  for ( @lines ) {
+    chomp;
+    
+    m/LOCUS\s*(\S+)/ and $self->{"id"} = $1;
+    
+    m/DEFINITION\s*(.+)/ and do { $self->{"desc"} = $1; $defstart = true; };
+    $defstart and do {
+      m/^ {11}( .+)/ or $defstart = false;
+      $defstart and $self->{"desc"} .= $1; };
+    
+    m/ORIGIN/ and do { $seqstart = true; next; };
+    m!//! and $seqstart = false;
+    $seqstart and do { s/[\s|\d]//g; $self->{"seq"} .= $_; };
+  }
+ 
+  return 1;
+}
 
 #_______________________________________________________________________
 
