@@ -326,17 +326,17 @@ sub end {
 =head2 length
 
  Title   : length
- Usage   :
- Function:
- Example :
- Returns :
- Args    :
+ Usage   : my $len = $feature->length
+ Function: Get the feature length computed as 
+           $feat->end - $feat->start + 1
+ Returns : integer
+ Args    : none
 
 
 =cut
 
 sub length {
-   my ($self) = @_;
+   my $self = shift;
    return $self->end - $self->start() + 1;
 }
 
@@ -353,8 +353,8 @@ sub length {
 =cut
 
 sub strand {
-   my ($self,$value) = @_;
-   return $self->location->strand($value);
+   my $self = shift;
+   return $self->location->strand(@_);
 }
 
 =head2 score
@@ -370,17 +370,19 @@ sub strand {
 =cut
 
 sub score {
-  my ($self,$value) = @_;
+  my $self = shift;
 
-  if (defined($value)) {
-       if ( $value != 0 and $value !~ /^[+-]?\d+\.?\d*(e-\d+)?/ ) {
-           $self->throw(-class=>'Bio::Root::BadParameter',
-                        -text=>"'$value' is not a valid score",
-                        -value=>$value);
-       }
-       $self->{'_gsf_score'} = $value;
+  if (@_) {
+      my $value = shift;
+      
+      if ( defined $value &&
+	   $value != 0 and $value !~ /^[+-]?\d+\.?\d*(e-\d+)?/ ) {
+	  $self->throw(-class=>'Bio::Root::BadParameter',
+		       -text=>"'$value' is not a valid score",
+		       -value=>$value);
+      }
+      return $self->{'_gsf_score'} = $value;
   }
-
   return $self->{'_gsf_score'};
 }
 
@@ -397,14 +399,16 @@ sub score {
 =cut
 
 sub frame {
-  my ($self,$value) = @_;
+  my $self = shift;
 
-  if ( defined $value ) {
-       if ( $value !~ /^[0-2.]$/ ) {
-           $self->throw("'$value' is not a valid frame");
-       }
-       if( $value eq '.' ) { $value = '.'; } 
-       $self->{'_gsf_frame'} = $value;
+  if ( @_ ) {
+      my $value = shift;
+      if ( defined $value && 
+	   $value !~ /^[0-2.]$/ ) {
+	  $self->throw("'$value' is not a valid frame");
+      }
+      if( defined $value && $value eq '.' ) { $value = '.' } 
+      return $self->{'_gsf_frame'} = $value;
   }
   return $self->{'_gsf_frame'};
 }
@@ -423,11 +427,9 @@ sub frame {
 =cut
 
 sub primary_tag {
-   my ($self,$value) = @_;
-   if ( defined $value ) {
-       $self->{'_primary_tag'} = $value;
-   }
-   return $self->{'_primary_tag'};
+    my $self = shift;
+    return $self->{'_primary_tag'} = shift if @_;
+    return $self->{'_primary_tag'};
 }
 
 =head2 source_tag
@@ -444,12 +446,9 @@ sub primary_tag {
 =cut
 
 sub source_tag {
-   my ($self,$value) = @_;
-
-   if( defined $value ) {
-       $self->{'_source_tag'} = $value;
-   }
-   return $self->{'_source_tag'};
+    my $self = shift;
+    return $self->{'_source_tag'} = shift if @_;
+    return $self->{'_source_tag'};
 }
 
 =head2 has_tag
@@ -517,12 +516,16 @@ sub get_tag_values {
  Returns : An array of tag names
  Args    : none
 
+# added a sort so that tags will be returned in a predictable order
+# I still think we should be able to specify a sort function
+# to the object at some point
+# -js
 
 =cut
 
 sub get_all_tags {
    my ($self, @args) = @_;   
-   return keys %{ $self->{'_gsf_tag_hash'}};
+   return sort keys %{ $self->{'_gsf_tag_hash'}};
 }
 
 =head2 remove_tag
@@ -574,7 +577,6 @@ sub attach_seq {
    foreach ( $self->sub_SeqFeature() ) {
        $_->attach_seq($seq);
    }
-
    return 1;
 }
 
@@ -633,9 +635,7 @@ sub seq {
 =cut
 
 sub entire_seq {
-   my ($self) = @_;
-
-   return $self->{'_gsf_seq'};
+   return shift->{'_gsf_seq'};
 }
 
 
@@ -658,10 +658,8 @@ sub entire_seq {
 =cut
 
 sub seq_id {
-    my ($obj,$value) = @_;
-    if ( defined $value ) {
-        $obj->{'_gsf_seq_id'} = $value;
-    }
+    my $obj = shift;
+    return $obj->{'_gsf_seq_id'} = shift if @_;
     return $obj->{'_gsf_seq_id'};
 }
 
@@ -678,7 +676,6 @@ sub seq_id {
 
 sub display_name{
     my $self = shift;
-
     return $self->{'display_name'} = shift if @_;
     return $self->{'display_name'};
 }
@@ -733,13 +730,7 @@ feature holder are essentially sub-features.
 =cut
 
 sub get_SeqFeatures {
-    my ($self) = @_;
-
-    if ($self->{'_gsf_sub_array'}) {
-        return @{$self->{'_gsf_sub_array'}};
-    } else {
-        return;
-    }
+    return @{ shift->{'_gsf_sub_array'} || []};    
 }
 
 =head2 add_SeqFeature
@@ -894,13 +885,11 @@ sub slurp_gff_file {
    Bio::Root::Root->warn("deprecated method slurp_gff_file() called in Bio::SeqFeature::Generic. Use Bio::Tools::GFF instead.");
   
    while(<$f>) {
-
        my $sf = Bio::SeqFeature::Generic->new('-gff_string' => $_);
        push(@out, $sf);
    }
 
    return @out;
-
 }
 
 =head2 _from_gff_string
@@ -974,7 +963,6 @@ sub _expand_region {
 
 sub _parse {
    my ($self) = @_;
-
    return $self->{'_parse_h'};
 }
 
@@ -1028,6 +1016,5 @@ sub all_tags { return shift->get_all_tags(@_); }
 *flush_sub_SeqFeatures = \&remove_SeqFeatures;
 # this one is because of inconsistent naming ...
 *flush_sub_SeqFeature = \&remove_SeqFeatures;
-
 
 1;
