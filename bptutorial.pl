@@ -1054,10 +1054,11 @@ details.
 =head2    III.3.4 Identifying amino acid cleavage sites (Sigcleave)
 
 For amino acid sequences we may be interested to know whether the
-amino acid sequence contains a cleavable "signal sequence" for
+amino acid sequence contains a cleavable signal sequence for
 directing the transport of the protein within the cell.  SigCleave is
 a program (originally part of the EGCG molecular biology package) to
-predict signal sequences, and to identify the cleavage site.
+predict signal sequences, and to identify the cleavage site based on
+the von Heijne algorithm.
 
 The "threshold" setting controls the score reporting.  If no value for
 threshold is passed in by the user, the code defaults to a reporting
@@ -1071,20 +1072,23 @@ output of the original sigcleave utility.
 
 Syntax for using the modules is as follows:
 
+  # doesn't currently accept a Seq object
+  $seq = "AALLHHHHHHGGGGPPRTTTTTVVVVVVVVVVVVVVV";
+
   use Bio::Tools::Sigcleave;
   $sigcleave_object = new Bio::Tools::Sigcleave
-      ('-file'=>'sigtest.aa',
+      ('-seq'      =>'sigtest.aa',
        '-threshold'=>'3.5'
-       '-desc'=>'test sigcleave protein seq',
-       '-type'=>'AMINO
+       '-desc'     =>'test sigcleave protein seq',
+       '-type'     =>'AMINO
       ');
   %raw_results      = $sigcleave_object->signals;
   $formatted_output = $sigcleave_object->pretty_print;
 
-Note that Sigcleave is passed a raw sequence (or file containing a
-sequence) rather than a sequence object when it is created. Also note
-that the "type" in the Sigcleave object is "amino" whereas in a Seq
-object it is "protein". Please see L<Bio::Tools::SigCleave> for details.
+Note that Sigcleave is passed a raw sequence rather than a sequence
+object. Also note that the "type" in the Sigcleave object is "amino"
+whereas in a Seq object it is "protein". Please see
+L<Bio::Tools::SigCleave> for details.
 
 =head2 III.3.5 Miscellaneous sequence utilities: OddCodes, SeqPattern
 
