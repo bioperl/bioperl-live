@@ -380,14 +380,13 @@ use strict;
 
 use Bio::Root::Root;
 use Bio::SeqI;
-use Bio::RangeI;
 use Bio::Annotation::Collection;
 use Bio::PrimarySeq;
 use Bio::IdentifiableI;
 use Bio::DescribableI;
 
 $VERSION = '1.1';
-@ISA = qw(Bio::Root::Root Bio::SeqI Bio::RangeI
+@ISA = qw(Bio::Root::Root Bio::SeqI
 	  Bio::IdentifiableI Bio::DescribableI);
 
 =head2 new
@@ -518,8 +517,6 @@ sub validate_seq {
     return shift->primary_seq()->validate_seq(@_);
 }
 
-=head1 Bio::RangeI methods
-
 =head2 length
 
  Title   : length
@@ -533,51 +530,6 @@ sub validate_seq {
 
 sub length {
     return shift->primary_seq()->length(@_);
-}
-
-=head2 start
-
- Title   : start
- Usage   : $start = $seq->start()
- Function:
- Example :
- Returns : Integer representing the start of the sequence.
- Args    : None
-
-=cut
-
-sub start {
-    return 1;
-}
-
-=head2 end
-
- Title   : start
- Usage   : $start = $seq->end()
- Function:
- Example :
- Returns : Integer representing the end of the sequence.
- Args    : None
-
-=cut
-
-sub end {
-    return shift->length;
-}
-
-=head2 strand
-
- Title   : strand
- Usage   : $stand = $seq->strand()
- Function:
- Example :
- Returns : Integer representing the strand of the sequence [0,1,-1]
- Args    : None
-
-=cut
-
-sub strand {
-    return 0;
 }
 
 =head1 Methods from the Bio::PrimarySeqI interface
