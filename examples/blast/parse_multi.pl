@@ -216,7 +216,7 @@ sub get_blast {
     if($@) {
 	my $er = "\nFILE: $blastParam{-file}\n$@\n";
 	push @errs, $er;
-	print STDERR "TROUBLE:\n$er\n";
+	print STDERR "\n$er\n";
     }
     $opt_mon and print STDERR ".", $count % 50 ? '' : "\n";
 

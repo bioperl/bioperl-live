@@ -16,11 +16,9 @@
 #
 # COMMENTS:
 #
-# Code in this script was origincally in the parse.pl script but commented out.
-#
 # This demo script does not exercise all of the functionality of the Blast object.
-# See the parse.pl and parse_positions.pl script for some other manipulations and 
-# the POD for the Bio::Tools::Blast.pm, accessible from the above website.
+# See the parse_blast.pl and parse_positions.pl script for some other manipulations  
+# and the POD for the Bio::Tools::Blast.pm, accessible from the above website.
 #
 # MODIFIED:
 #   30 Jul 1998, sac:
@@ -100,6 +98,8 @@ if(@ARGV) {
 	    # Using functions provided by blast_config.pl
 	    # which also supplies $blastObj.
 	    $blast_obj = &create_blast;  
+	    $blast_obj->display(); <STDIN>;
+
 	    $opt_table ? &print_table($blast_obj) : &show_results($blast_obj);
 
 	     my $hsp = $blast_obj->hit->hsp;  # gets the first HSP of the first hit.
@@ -158,7 +158,6 @@ if(@ARGV) {
     }
 } else {
     # Building object from STDIN. Expecting only one Blast report.
-    # To parse a stream of Blast reports, use parse_stream.pl.
     print STDERR "\nReading Blast report from STDIN.\n";
     $blast_obj = &create_blast;
     $opt_table ? &print_table($blast_obj) : &show_results($blast_obj);

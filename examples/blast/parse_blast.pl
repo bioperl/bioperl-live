@@ -17,11 +17,13 @@
 # COMMENTS:
 #
 # Sample BLAST output files can be found in examples/blast/out/ of the distribution.
-# For processing a stream of Blast reports, see the the parse_stream.pl script.
+# This script can process Blast report files specified on the command line or
+# supplied via a STDIN stream.
 #
 # This demo script does not exercise all of the functionality of the Blast object.
 # See parse2.pl and parse_positions.pl script for some other manipulations and 
-# the POD for the Bio::Tools::Blast.pm, accessible from the above website.
+# the documentation in the Bio::Tools::Blast.pm, accessible from the above website
+# or by running Blast.pm through pos2html.
 #
 # TODO:
 #  * Create an example that shows how to parse with HTML-formatted
@@ -29,8 +31,8 @@
 #    directly.
 #
 # MODIFIED:
-#  sac, 11 Mar 1999: Renamed parse_blast.pl. No longer any parse_stream.pl
-#                    One script for all your parsing needs. ;)
+#  sac, 11 Mar 1999: Merged parse_stream.pl with parse.pl to create parse_blast.pl.
+#                    No longer any parse_stream.pl or parse.pl.
 #  sac,  4 Sep 1998: Added example of using -filt_func option.
 #  sac, 16 Jun 1998: Added installation comment, require statement comments.
 #                    Minor alteration of seq_inds() calls.
@@ -96,9 +98,9 @@ STREAM PARSING:
   gapped, ungapped, etc.). Most of the time, -noshare is unnecessary
   since all reports have the same program, version, gapping, etc.
 
-  The "print_blasts.pl dir" syntax is recommended when working with large
-  numbers of Blast reports (thousands). The Blasts reports located in "dir"
-  can be compressed or not. 
+  THe "print_blasts.pl dir" syntax or the parse_multi.pl script are 
+  recommended when working with large numbers of Blast reports (thousands).
+  The Blasts reports located in "dir" can be compressed or not. 
 
 QQ_EG_QQ
 }
