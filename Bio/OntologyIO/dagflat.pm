@@ -105,6 +105,7 @@ use strict;
 use Bio::Root::IO;
 use Bio::Ontology::SimpleGOEngine;
 use Bio::Ontology::Ontology;
+use Bio::Ontology::OntologyStore;
 use Bio::Ontology::TermFactory;
 use Bio::OntologyIO;
 
@@ -150,50 +151,52 @@ use constant FALSE        => 0;
 # in reality, we let OntologyIO::new do the instantiation, and override
 # _initialize for all initialization work
 sub _initialize {
-    my ($self, @args) = @_;
-    
-    $self->SUPER::_initialize( @args );
+  my ($self, %arg) = @_;
 
-    my ( $defs_file_name,$files,$defs_url,$url,$name,$eng ) =
+  my ( $defs_file_name,$files,$defs_url,$url,$name,$eng ) =
 	$self->_rearrange([qw( DEFS_FILE
                            FILES
                            DEFS_URL
                            URL
                            ONTOLOGY_NAME
                            ENGINE)
-			   ],
-			  @args );
-    
-    $self->_done( FALSE );
-    $self->_not_first_record( FALSE );
-    $self->_term( "" );
-    delete $self->{'_ontologies'};
+                      ],
+                      %arg );
 
-    # ontology engine (and possibly name if it's an OntologyI)
-    $eng = Bio::Ontology::SimpleGOEngine->new() unless $eng;
-    if($eng->isa("Bio::Ontology::OntologyI")) {
-	$self->ontology_name($eng->name());
-	$eng = $eng->engine() if $eng->can('engine');
-    }
-    $self->_ont_engine($eng);
+  delete($arg{-url}); #b/c GO has 3 files...
 
-    # flat files to parse
-    if(defined($defs_file_name) && defined($defs_url)){
-      $self->throw('cannot provide both -defs_file and -defs_url');
-    } else {
-      defined($defs_file_name) && $self->defs_file( $defs_file_name );
-      defined($defs_url)       && $self->defs_url( $defs_url );
-    }
+  $self->SUPER::_initialize( %arg );
 
-    if(defined($files) && defined($url)){
-    } elsif(defined($files)){
-      $self->{_flat_files} = $files ? ref($files) ? $files : [$files] : [];
-    } elsif(defined($url)){
-      $self->url($url);
-    }
+  $self->_done( FALSE );
+  $self->_not_first_record( FALSE );
+  $self->_term( "" );
+  delete $self->{'_ontologies'};
 
-    # ontology name (overrides implicit one through OntologyI engine)
-    $self->ontology_name($name) if $name;
+  # ontology engine (and possibly name if it's an OntologyI)
+  $eng = Bio::Ontology::SimpleGOEngine->new() unless $eng;
+  if($eng->isa("Bio::Ontology::OntologyI")) {
+    $self->ontology_name($eng->name());
+    $eng = $eng->engine() if $eng->can('engine');
+  }
+  $self->_ont_engine($eng);
+
+  # flat files to parse
+  if(defined($defs_file_name) && defined($defs_url)){
+    $self->throw('cannot provide both -defs_file and -defs_url');
+  } else {
+    defined($defs_file_name) && $self->defs_file( $defs_file_name );
+    defined($defs_url)       && $self->defs_url( $defs_url );
+  }
+
+  if(defined($files) && defined($url)){
+  } elsif(defined($files)){
+    $self->{_flat_files} = $files ? ref($files) ? $files : [$files] : [];
+  } elsif(defined($url)){
+    $self->url($url);
+  }
+
+  # ontology name (overrides implicit one through OntologyI engine)
+  $self->ontology_name($name) if $name;
 
 } # _initialize
 
@@ -236,6 +239,7 @@ sub ontology_name{
 sub parse {
     my $self = shift;
 
+    #warn "PARSING";
     # setup the default term factory if not done by anyone yet
     $self->term_factory(Bio::Ontology::TermFactory->new(
 					     -type => "Bio::Ontology::Term"))
@@ -252,15 +256,27 @@ sub parse {
 
     # set up the ontology of the relationship types
     foreach ($self->_part_of_relationship(), $self->_is_a_relationship(), $self->_related_to_relationship()) {
-	$_->ontology($ont);
+      $_->ontology($ont);
     }
 
     # pre-seed the IO system with the first flat file if -file wasn't provided
     if(! $self->_fh) {
-      if($self->_flat_files){
+      if($self->url){
+        if(ref($self->url) eq 'ARRAY'){
+          #warn "BA";
+          foreach my $url (@{ $self->url }){
+            #warn $url;
+            #warn $ont;
+            #warn scalar($ont->get_all_terms());
+            $self->_initialize_io(-url  => $url);
+            $self->_parse_flat_file($ont);
+          }
+          $self->close();
+        } else {
+          $self->_initialize_io(-url  => $self->url);
+        }
+      } elsif($self->_flat_files){
         $self->_initialize_io(-file => shift(@{$self->_flat_files()}));
-      } else {
-        $self->_initialize_io(-url  => $self->url);
       }
     }
 
@@ -275,10 +291,9 @@ sub parse {
       }
     }
     $self->_add_ontology($ont);
-    
+
     # not needed anywhere, only because of backward compatibility
     return $self->_ont_engine();
-    
 } # parse
 
 =head2 next_ontology
@@ -295,16 +310,22 @@ sub parse {
 
 =cut
 
-sub next_ontology{
-    my $self = shift;
+sub next_ontology {
+  my $self = shift;
 
-    # parse if not done already
-    $self->parse() unless exists($self->{'_ontologies'});
-    # return next available ontology
-    return shift(@{$self->{'_ontologies'}}) if exists($self->{'_ontologies'});
-    return undef;
+  # parse if not done already
+  $self->parse() unless exists($self->{'_ontologies'});
+  # return next available ontology
+  if(exists($self->{'_ontologies'})){
+    my $ont = shift (@{$self->{'_ontologies'}});
+    if($ont){
+      my $store = Bio::Ontology::OntologyStore->new();
+      $store->register_ontology($ont);
+      return $ont;
+    }
+  }
+  return undef;
 }
-
 
 =head2 defs_file
 

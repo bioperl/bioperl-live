@@ -316,9 +316,17 @@ sub _handle_feature {
   }
 
   #Handle Ontology_term attributes
-#  if($attr{Ontology_term}){
-#    $self->warn("Warning for line:\n$feature_string\nOntology_term attribute handling not yet implemented, skipping it");
-#  }
+  if($attr{Ontology_term}){
+
+    foreach my $id (@{ $attr{Ontology_term} }){
+      my $ont_name = Bio::Ontology::OntologyStore->guess_ontology($id);
+      my $ont = Bio::Ontology::OntologyStore->get_ontology($ont_name);
+      my($term) = $ont->find_terms(-identifier => $id);
+      my $a = Bio::Annotation::OntologyTerm->new();
+      $a->term($term);
+      $ac->add_Annotation('ontology_term',$a);
+    }
+  }
 
   #Handle Gap attributes
   if($attr{Gap}){
@@ -352,7 +360,7 @@ sub _handle_feature {
     $ac->add_Annotation('Name',$a);
   }
 
-  foreach my $other_canonical (qw(Alias Parent Note Ontology_term)){
+  foreach my $other_canonical (qw(Alias Parent Note)){
     if($attr{$other_canonical}){
       foreach my $value (@{ $attr{$other_canonical} }){
         my $a = Bio::Annotation::SimpleValue->new();

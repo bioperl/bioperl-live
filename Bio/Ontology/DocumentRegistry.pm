@@ -88,7 +88,19 @@ $instance = {
                 definitions =>'http://umn.dl.sourceforge.net/sourceforge/song/sofa.definition',
                 format => 'soflat',
                                     },
+             'Gene Ontology' => {
+                ontology => [
+                             'http://www.geneontology.org/ontology/function.ontology',
+                             'http://www.geneontology.org/ontology/process.ontology',
+                             'http://www.geneontology.org/ontology/component.ontology'
+                            ],
+                definitions => 'http://www.geneontology.org/ontology/GO.defs',
+                format => 'soflat',
+                                },
             };
+
+#aliases
+$instance->{Gene_Ontology} = $instance->{'Gene Ontology'};
 
 bless $instance, __PACKAGE__;
 }

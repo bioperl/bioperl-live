@@ -109,6 +109,9 @@ use Bio::OntologyIO;
 # only one of each in any application
 my %ont_store_by_name = ();
 my %ont_store_by_id = ();
+my %ont_aliases = (
+                   'Gene Ontology' => 'Gene_Ontology'
+                    );
 # also, this is really meant as a singleton object, so we try to enforce it
 my $instance = undef;
 
@@ -206,12 +209,19 @@ sub get_ontology{
   if($name) {
     my $o = $ont_store_by_name{$name};
 
-
     if(!$o){
       my $doc_registry = Bio::Ontology::DocumentRegistry->get_instance();
       my($url,$def,$fmt) = $doc_registry->documents($name);
 
-      if($url){
+      if(ref($url) eq 'ARRAY'){
+        my $io = Bio::OntologyIO->new(-url      => $url,
+                                      -defs_url => $def,
+                                      -format   => $fmt,
+                                     );
+
+        $o = $io->next_ontology();
+        $ont_store_by_name{$name} = $o;
+      } elsif($url){
         my $io = Bio::OntologyIO->new(-url      => $url,
                                       -defs_url => $def,
                                       -format   => $fmt,
@@ -244,31 +254,35 @@ sub get_ontology{
 
 =cut
 
-sub register_ontology{
-    my ($self,@args) = @_;
-    my $ret = 1;
+sub register_ontology {
+  my ($self,@args) = @_;
+  my $ret = 1;
+  foreach my $ont (@args) {
+    if(ref($ont) && $ont->isa('Bio::Ontology::OntologyI')){
+      $ont_store_by_name{$ont->name()} = $ont;
+      next;
+    }
 
-    foreach my $ont (@args) {
 	if(! (ref($ont) && $ont->isa("Bio::Ontology::OntologyI"))) {
-	    $self->throw((ref($ont) ? ref($ont) : $ont)." does not implement ".
-			 "Bio::Ontology::OntologyI or is not an object");
+      $self->throw((ref($ont) ? ref($ont) : $ont)." does not implement ".
+                   "Bio::Ontology::OntologyI or is not an object");
 	}
 	if($self->get_ontology(-name => $ont->name())) {
-	    $self->warn("ontology with name \"".$ont->name().
-			"\" already exists in the store, ignoring new one");
-	    $ret = 0;
-	    next;
+      $self->warn("ontology with name \"".$ont->name().
+                  "\" already exists in the store, ignoring new one");
+      $ret = 0;
+      next;
 	}
 	if($self->get_ontology(-id => $ont->identifier())) {
-	    $self->warn("ontology with id \"".$ont->identifier().
-			"\" already exists in the store, ignoring new one");
-	    $ret = 0;
-	    next;
+      $self->warn("ontology with id \"".$ont->identifier().
+                  "\" already exists in the store, ignoring new one");
+      $ret = 0;
+      next;
 	}
 	$ont_store_by_name{$ont->name()} = $ont;
 	$ont_store_by_id{$ont->identifier()} = $ont;
-    }
-    return $ret;
+  }
+  return $ret;
 }
 
 =head2 remove_ontology
@@ -296,6 +310,33 @@ sub remove_ontology{
 	delete $ont_store_by_name{$ont->name()} if $ont->name();
     }
     return 1;
+}
+
+=head2 guess_ontology()
+
+ Usage   : my $ontology = Bio::Ontology::OntologyStore->guess_ontology('GO:0000001');
+ Function: tries to guess which ontology a term identifier comes from, loads it as necessary,
+           and returns it as a Bio::Ontology::Ontology object.
+ Example :
+ Returns : a Bio::Ontology::Ontology object, or warns and returns undef
+ Args    : an ontology term identifier in XXXX:DDDDDDD format.  guessing is based on the XXXX
+           string before the colon.
+
+
+=cut
+
+sub guess_ontology {
+  my ($self,$id) = @_;
+
+  my($prefix) = $id =~ /^(.+?):.+$/;
+
+  my %prefix = (
+                SO => 'Sequence Ontology',
+                SOFA => 'Sequence Ontology Feature Annotation',
+                GO => 'Gene Ontology',
+               );
+
+  return $prefix{$prefix} || undef;
 }
 
 1;
