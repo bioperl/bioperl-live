@@ -19,7 +19,7 @@ Bio::SearchIO - Driver for parsing Sequence Database Searches (Blast,FASTA,...)
     use Bio::SearchIO;
     my $searchio = new Bio::SearchIO( -format => 'blastxml',
                                       -file   => 'blastout.xml' );
-    while ( my $result = $in->next_result() ) {
+    while ( my $result = $searchio->next_result() ) {
        while( my $hit = $result->next_hit ) {
 	# process the Bio::Search::HitI object
            while( my $align = $sbjct->next_align ) { 
