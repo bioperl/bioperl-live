@@ -217,8 +217,13 @@ sub new {
     # if there is an alphabet, and direct is passed in, assumme the alphabet
     # and sequence is ok 
 
-    if( $alphabet && $direct && $ref_to_seq) {
+    if( $direct && $ref_to_seq) {
 	$self->{'seq'} = $$ref_to_seq;
+	if( !defined $alphabet ) {
+	    $self->_guess_alphabet();
+	} else {
+	    $self->alphabet($alphabet);
+	}
     } else {
 	# note: the sequence string may be empty
 	$self->seq($seq) if defined($seq);

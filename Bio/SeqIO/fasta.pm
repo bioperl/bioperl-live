@@ -67,6 +67,7 @@ use strict;
 
 use Bio::SeqIO;
 use Bio::Seq::SeqFactory;
+use Bio::Seq::SeqFastaSpeedFactory;
 
 @ISA = qw(Bio::SeqIO);
 
@@ -78,7 +79,10 @@ sub _initialize {
   my ($width) = $self->_rearrange([qw(WIDTH)], @args);
   $width && $self->width($width);
   if( ! defined $self->sequence_factory ) {
-      $self->sequence_factory(new Bio::Seq::SeqFactory(-verbose => $self->verbose(), -type => 'Bio::Seq'));      
+      # we default to the speed factory
+      # print STDERR "Going to load default sequence factory...\n";
+      $self->sequence_factory(Bio::Seq::SeqFastaSpeedFactory->new());
+      #$self->sequence_factory(new Bio::Seq::SeqFactory(-verbose => $self->verbose(), -type => 'Bio::Seq'));      
   }
 }
 
@@ -122,9 +126,6 @@ sub next_seq {
 	$alphabet = undef;
     }
 
-    
-
-    # create the seq object
     $seq = $self->sequence_factory->create(
 					   -seq         => $sequence,
 					   -id          => $id,
@@ -133,13 +134,16 @@ sub next_seq {
 					   -alphabet    => $alphabet,
 					   -direct      => 1,
 					   );
-    
+
+
+
 
     # if there wasn't one before, set the guessed type
     unless ( defined $alphabet ) {
 	$self->alphabet($seq->alphabet());
     }
     return $seq;
+
 }
 
 =head2 write_seq

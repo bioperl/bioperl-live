@@ -406,36 +406,57 @@ $VERSION = '1.1';
 =cut
 
 sub new {
-    # standard new call..
     my($caller,@args) = @_;
-    my $self = $caller->SUPER::new(@args);
+    
+    if( $caller ne 'Bio::Seq') {
+	$caller = ref($caller) if ref($caller);
+    }
+
+    # we know our inherietance heirarchy
+    my $self = Bio::Root::Root->new(@args);
+    bless $self,$caller;
+
     # this is way too sneaky probably. We delegate the construction of
     # the Seq object onto PrimarySeq and then pop primary_seq into
     # our primary_seq slot
 
     my $pseq = Bio::PrimarySeq->new(@args);
-    $self->{'_as_feat'} = [];
-    my ($ann, $pid,$feat,$species) = $self->_rearrange([qw(ANNOTATION 
-						      PRIMARY_ID
-						      FEATURES 
-						      SPECIES)], @args);
-    $pid && $self->primary_id($pid);
-    $species && $self->species($species);
-    $ann && $self->annotation($ann);
-    $self->primary_seq($pseq);
-    if( defined $feat ) {
-	if( ref($feat) !~ /ARRAY/i ) {
-	    if( ref($feat) && $feat->isa('Bio::SeqFeatureI') ) {
-		$self->add_SeqFeature($feat);
+    
+    # as we have just made this, we know it is ok to set hash directly
+    # rather than going through the method 
+
+    $self->{'primary_seq'} = $pseq;
+
+    # setting this array is now delayed until the final
+    # moment, again speed ups for non feature containing things
+    # $self->{'_as_feat'} = [];
+
+
+    my ($ann, $pid,$feat,$species) = &Bio::Root::RootI::_rearrange($self,[qw(ANNOTATION PRIMARY_ID FEATURES SPECIES)], @args);
+
+    # for a number of cases - reading fasta files - these are never set. This
+    # gives a quick optimisation around testing things later on
+
+    if( defined $ann || defined $pid || defined $feat || defined $species ) {
+	$pid && $self->primary_id($pid);
+	$species && $self->species($species);
+	$ann && $self->annotation($ann);
+	
+	if( defined $feat ) {
+	    if( ref($feat) !~ /ARRAY/i ) {
+		if( ref($feat) && $feat->isa('Bio::SeqFeatureI') ) {
+		    $self->add_SeqFeature($feat);
+		} else { 
+		    $self->warn("Must specify a valid Bio::SeqFeatureI or ArrayRef of Bio::SeqFeatureI's with the -features init parameter for ".ref($self));
+		}
 	    } else { 
-		$self->warn("Must specify a valid Bio::SeqFeatureI or ArrayRef of Bio::SeqFeatureI's with the -features init parameter for ".ref($self));
+		foreach my $feature ( @$feat ) {
+		    $self->add_SeqFeature($feature);
+		}	    
 	    }
-	} else { 
-	    foreach my $feature ( @$feat ) {
-		$self->add_SeqFeature($feature);
-	    }	    
 	}
     }
+
     return $self;
 }
 
@@ -1030,6 +1051,12 @@ sub primary_seq {
 
 sub add_SeqFeature {
    my ($self,@feat) = @_;
+   my ($fseq,$aseq);
+
+   if( !defined $self->{'_as_feat'} ) {
+       $self->{'_as_feat'} = [];
+   }
+
 
    foreach my $feat ( @feat ) {
        if( !$feat->isa("Bio::SeqFeatureI") ) {
@@ -1101,6 +1128,10 @@ sub remove_SeqFeatures {
 sub top_SeqFeatures {
    my ($self) = @_;
 
+   if( !defined $self->{'_as_feat'} ) {
+       $self->{'_as_feat'} = [];
+   }
+
    return @{$self->{'_as_feat'}};
 }
 
@@ -1125,6 +1156,7 @@ sub top_SeqFeatures {
 sub all_SeqFeatures {
    my ($self) = @_;
    my (@array);
+
    foreach my $feat ( $self->top_SeqFeatures() ){
        push(@array,$feat);
        &_retrieve_subSeqFeature(\@array,$feat);
