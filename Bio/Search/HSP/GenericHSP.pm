@@ -439,7 +439,8 @@ sub frac_identical {
    my ($self, $type,$value) = @_;
 
    $type = lc $type if defined $type;
-   $type = 'hit' if( $type =~ /subject|sbjct/);
+   $type = 'hit' if( defined $type && 
+		     $type =~ /subject|sbjct/);
    $type = 'total' if( ! defined $type || $type eq 'hsp' ||
                         $type !~ /query|hit|subject|sbjct|total/);
    my $previous = $self->{'_frac_identical'}->{$type};
