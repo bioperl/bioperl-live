@@ -256,8 +256,8 @@ sub get_term_by_identifier{
   my @ans = ();
 
   foreach my $id (@ids) {
-    my $term = $self->_term_store->{$id};
-    push @ans, $term if defined $term;
+      my $term = $self->_term_store->{$id};
+      push @ans, $term if defined $term;
   }
 
   return @ans;
@@ -398,24 +398,27 @@ sub _relationship_type_store{
 =cut
 
 sub _add_relationship_simple{
-   my ($self, $store, $relationship, $inverted) = @_;
+   my ($self, $store, $rel, $inverted) = @_;
    my $parent_id;
    my $child_id;
 
    if ($inverted) {
-     $parent_id = $relationship->subject_term->identifier;
-     $child_id = $relationship->object_term->identifier;
+     $parent_id = $rel->subject_term->identifier;
+     $child_id = $rel->object_term->identifier;
    }
    else {
-     $parent_id = $relationship->object_term->identifier;
-     $child_id = $relationship->subject_term->identifier;
+     $parent_id = $rel->object_term->identifier;
+     $child_id = $rel->subject_term->identifier;
    }
-   if ( defined $store->{$parent_id}->{$child_id} ) {
-     $self->throw("relationship ".Dumper($relationship->predicate_term)." between ".$parent_id." and ".$child_id." already defined as ".Dumper($store->{$parent_id}->{$child_id})."\n")
-       if ($store->{$parent_id}->{$child_id}->name != $relationship->predicate_term->name);
+   if((defined $store->{$parent_id}->{$child_id}) &&
+      ($store->{$parent_id}->{$child_id}->name != $rel->predicate_term->name)){
+       $self->throw("relationship ".Dumper($rel->predicate_term).
+		    " between ".$parent_id." and ".$child_id.
+		    " already defined as ".
+		    Dumper($store->{$parent_id}->{$child_id})."\n");
    }
    else {
-     $store->{$parent_id}->{$child_id} = $relationship->predicate_term;
+     $store->{$parent_id}->{$child_id} = $rel->predicate_term;
    }
 }
 
@@ -438,8 +441,8 @@ sub add_relationship{
 				   $rel, 0);
    $self->_add_relationship_simple($self->_inverted_relationship_store,
 				   $rel, 1);
-   $self->_relationship_type_store->{$rel->predicate_term->identifier} =
-       $rel->predicate_term;
+   $self->_relationship_type_store->{
+       $self->_unique_termid($rel->predicate_term)} = $rel->predicate_term;
 
    return $rel;
 }
@@ -686,7 +689,12 @@ sub get_descendant_terms{
  Title   : get_parent_terms
  Usage   : get_parent_terms(TermI term, TermI[] predicate_terms): TermI[]
   get_child_terms(TermI term, RelationshipType[] predicate_terms): TermI[]
- Function: Retrieves all parent terms of a given term, that satisfy a relationship among those that are specified in the second argument or undef otherwise. get_parent_terms is a special case of get_ancestor_terms, limiting the search to the direct ancestors.
+ Function: Retrieves all parent terms of a given term, that satisfy a
+           relationship among those that are specified in the second
+           argument or undef otherwise. get_parent_terms is a special
+           case of get_ancestor_terms, limiting the search to the
+           direct ancestors.
+
  Example :
  Returns : Array of TermI objects.
  Args    : First argument is the term of interest, second is the list of relationship type terms.
@@ -696,7 +704,7 @@ sub get_descendant_terms{
 
 sub get_parent_terms{
   my ($self, $term, @relationship_types) = @_;
-  die if !defined $term;
+  $self->throw("term must be a valid object, not undef") unless defined $term;
 
   return $self->_filter_unmarked(
 	    $self->get_term_by_identifier(
@@ -726,9 +734,15 @@ sub get_parent_terms{
 
 sub get_ancestor_terms{
   my ($self, $term, @relationship_types) = @_;
-  die if !defined $term;
+  $self->throw("term must be a valid object, not undef") unless defined $term;
 
-  return $self->_filter_unmarked( $self->_filter_repeated( $self->get_term_by_identifier( $self->_typed_traversal($self->_inverted_relationship_store, 0, $term->identifier, @relationship_types) ) ) );
+  return $self->_filter_unmarked(
+	    $self->_filter_repeated(
+               $self->get_term_by_identifier(
+                  $self->_typed_traversal($self->_inverted_relationship_store,
+					  0,
+					  $term->identifier,
+					  @relationship_types) ) ) );
 }
 
 =head2 get_leaf_terms
@@ -942,7 +956,9 @@ sub _filter_unmarked{
 
  Title   : remove_term_by_id
  Usage   : remove_term_by_id(String id): TermI
- Function: Removes TermI object from the ontology engine using the string id as an identifier. Current implementation does not enforce consistency of the relationships using that term.
+ Function: Removes TermI object from the ontology engine using the
+           string id as an identifier. Current implementation does not
+           enforce consistency of the relationships using that term.
  Example : $term = $soe->remove_term_by_id($id);
  Returns : Object of class TermI or undef if not found.
  Args    : The string identifier of a term.
@@ -959,7 +975,7 @@ sub remove_term_by_id{
     return $term;
   }
   else {
-    warn "Term with id: ".$id." is not in the term store.\n";
+    $self->warn("Term with id '$id' is not in the term store");
     return undef;
   }
 }
@@ -968,7 +984,8 @@ sub remove_term_by_id{
 
  Title   : to_string
  Usage   : print $sv->to_string();
- Function: to_string method for simple ontology engine. Currently returns formatted string containing the number of terms and number of relationships from the ontology engine.
+ Function: Currently returns formatted string containing the number of
+           terms and number of relationships from the ontology engine.
  Example : print $sv->to_string();
  Returns :
  Args    :
@@ -987,6 +1004,42 @@ sub to_string{
 
   return $s;
 }
+
+=head2 _unique_termid
+
+ Title   : _unique_termid
+ Usage   :
+ Function: Returns a string that can be used as ID using fail-over
+           approaches. 
+
+           If the identifier attribute is not set, it uses the
+           combination of name and ontology name, provided both are
+           set. If they aren't, it returns the name alone.
+
+           Note that this is a private method. Call from inheriting
+           classes but not from outside.
+
+ Example :
+ Returns : a string
+ Args    : a Bio::Ontology::TermI compliant object
+
+
+=cut
+
+sub _unique_termid{
+    my $self = shift;
+    my $term = shift;
+
+    return $term->identifier() if $term->identifier();
+    my $id = $term->ontology->name() if $term->ontology();
+    if($id) { 
+	$id .= '|'; 
+    } else { 
+	$id = ''; 
+    }
+    $id .= $term->name();
+}
+
 
 #################################################################
 # aliases
