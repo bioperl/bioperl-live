@@ -1,6 +1,6 @@
 # $Id$
 #
-# BioPerl module for Bio::Tools::Alignment::Clustalw
+# BioPerl module for Bio::Tools::Run::Alignment::Clustalw
 #
 # Cared for by
 #
@@ -12,14 +12,14 @@
 
 =head1 NAME
 
-Bio::Tools::Alignment::Clustalw - Object for the calculation of a multiple sequence alignment
+Bio::Tools::Run::Alignment::Clustalw - Object for the calculation of a multiple sequence alignment
 from a set of unaligned sequences or alignments using the Clustalw program
 
 =head1 SYNOPSIS
 
 #  Build a clustalw alignment factory
 	@params = ('ktuple' => 2, 'matrix' => 'BLOSUM');
-	$factory = Bio::Tools::Alignment::Clustalw->new(@params);
+	$factory = Bio::Tools::Run::Alignment::Clustalw->new(@params);
 
 #  Pass the factory a list of sequences to be aligned.	
 	$inputfilename = 't/cysprot.fa';
@@ -57,7 +57,7 @@ to edit the variable $clustdir in Clustalw.pm to point to the clustalw
 program, and to ensure that users have execute privilieges for the
 clustalw program.
 
-Bio::Tools::Alignment::Clustalw.pm: is an object for performing a
+Bio::Tools::Run::Alignment::Clustalw.pm: is an object for performing a
 multiple sequence alignment from a set of unaligned sequences and/or
 sub-alignments by means of the clustalw program.
 
@@ -66,7 +66,7 @@ factory may be passed most of the parameters or switches of the
 clustalw program, e.g.:
 
 	@params = ('ktuple' => 2, 'matrix' => 'BLOSUM');
-	$factory = Bio::Tools::Alignment::Clustalw->new(@params);
+	$factory = Bio::Tools::Run::Alignment::Clustalw->new(@params);
 
 Any parameters not explicitly set will remain as the defaults of the
 clustalw program.  Additional parameters and switches (not available
@@ -207,7 +207,7 @@ methods. Internal methods are usually preceded with a _
 #'
 
 
-package Bio::Tools::Alignment::Clustalw;
+package Bio::Tools::Run::Alignment::Clustalw;
 
 use vars qw($AUTOLOAD @ISA $DEBUG $PROGRAM $PROGRAMDIR $TMPOUTFILE);
 use strict;
@@ -315,7 +315,7 @@ sub AUTOLOAD {
 =head2  exists_clustal()
 
  Title   : exists_clustal
- Usage   : $clustalfound = Bio::Tools::Alignment::Clustalw->exists_clustal()
+ Usage   : $clustalfound = Bio::Tools::Run::Alignment::Clustalw->exists_clustal()
  Function: Determine whether clustalw program can be found on current host
  Example :
  Returns : 1 if clustalw program found at expected location, 0 otherwise.

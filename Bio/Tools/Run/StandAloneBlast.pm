@@ -12,7 +12,7 @@
 
 =head1 NAME
 
-Bio::Tools::StandAloneBlast - Object for the local execution of the
+Bio::Tools::Run::StandAloneBlast - Object for the local execution of the
 NCBI Blast program suite (blastall, blastpgp, bl2seq)
 
 =head1 SYNOPSIS
@@ -22,7 +22,7 @@ Local-blast "factory object" creation and blast-parameter initialization:
  @params = ('database' => 'swissprot','outfile' => 'blast1.out', 
 	    '_READMETHOD' => 'Blast');
 
- $factory = Bio::Tools::StandAloneBlast->new(@params);
+ $factory = Bio::Tools::Run::StandAloneBlast->new(@params);
 
 Blast a sequence against a database:
 
@@ -35,12 +35,12 @@ Run an iterated Blast (psiblast) of a sequence against a database:
 
  $factory->j(3);    # 'j' is blast parameter for # of iterations
  $factory->outfile('psiblast1.out');
- $factory = Bio::Tools::StandAloneBlast->new(@params);
+ $factory = Bio::Tools::Run::StandAloneBlast->new(@params);
  $blast_report = $factory->blastpgp($input);
 
 Use blast to align 2 sequences against each other:
 
- $factory = Bio::Tools::StandAloneBlast->new('outfile' => 'bl2seq.out');
+ $factory = Bio::Tools::Run::StandAloneBlast->new('outfile' => 'bl2seq.out');
  $factory->bl2seq($input, $input2);
 
 Various additional options and input formats are available.  See the
@@ -48,7 +48,7 @@ DESCRIPTION section for details.
 
 =head1 DESCRIPTION
 
-This DESCRIPTION only documents Bio::Tools::StandAloneBlast.pm: - a
+This DESCRIPTION only documents Bio::Tools::Run::StandAloneBlast.pm: - a
 Bioperl object for running the NCBI standAlone BLAST package.  Blast,
 itself, is a large & complex program - for more information regarding
 BLAST, please see the BLAST documentation which accompanies the BLAST
@@ -87,7 +87,7 @@ an optional array of (non-default) parameters to be used by the
 factory, eg:
 
  @params = ('program' => 'blastn', 'database' => 'ecoli.nt');
- $factory = Bio::Tools::StandAloneBlast->new(@params);
+ $factory = Bio::Tools::Run::StandAloneBlast->new(@params);
 
 Any parameters not explicitly set will remain as the defaults of the
 BLAST executable.  Note each BLAST executable has somewhat different
@@ -184,7 +184,7 @@ of the two sequences produced by bl2seq as in:
  my $seq4 = $str->next_seq();
 
  # Run bl2seq on them
- $factory = Bio::Tools::StandAloneBlast->new('outfile' => 'bl2seq.out');
+ $factory = Bio::Tools::Run::StandAloneBlast->new('outfile' => 'bl2seq.out');
  my $bl2seq_report = $factory->bl2seq($seq3, $seq4);
 
  # Use AlignIO.pm to create a SimpleAlign object from the bl2seq report
@@ -240,7 +240,7 @@ methods. Internal methods are usually preceded with a _
 
 
 
-package Bio::Tools::StandAloneBlast;
+package Bio::Tools::Run::StandAloneBlast;
 
 use vars qw($AUTOLOAD @ISA);
 use strict;
@@ -375,7 +375,7 @@ sub AUTOLOAD {
 =head2  exists_blast()
 
  Title   : exists_blast
- Usage   : $blastfound = Bio::Tools::StandAloneBlast->exists_blast()
+ Usage   : $blastfound = Bio::Tools::Run::StandAloneBlast->exists_blast()
  Function: Determine whether Blast program can be found on current host
  Returns : 1 if Blast program found at expected location, 0 otherwise.
  Args    :  none

@@ -1,6 +1,6 @@
 # $Id$
 #
-# BioPerl module for Bio::Tools::Alignment::TCoffee
+# BioPerl module for Bio::Tools::Run::Alignment::TCoffee
 #
 # Cared for by Jason Stajich
 #
@@ -12,7 +12,7 @@
 
 =head1 NAME
 
-Bio::Tools::Alignment::TCoffee - Object for the calculation of a
+Bio::Tools::Run::Alignment::TCoffee - Object for the calculation of a
 multiple sequence alignment from a set of unaligned sequences or
 alignments using the TCoffee program
 
@@ -20,7 +20,7 @@ alignments using the TCoffee program
 
 #  Build a tcoffee alignment factory
 	@params = ('ktuple' => 2, 'matrix' => 'BLOSUM');
-	$factory = Bio::Tools::Alignment::TCoffee->new(@params);
+	$factory = Bio::Tools::Run::Alignment::TCoffee->new(@params);
 
 #  Pass the factory a list of sequences to be aligned.	
 	$inputfilename = 't/cysprot.fa';
@@ -81,7 +81,7 @@ methods. Internal methods are usually preceded with a _
 
 =cut
 
-package Bio::Tools::Alignment::TCoffee;
+package Bio::Tools::Run::Alignment::TCoffee;
 
 use vars qw($AUTOLOAD @ISA $TMPOUTFILE $DEBUG $PROGRAM $PROGRAMDIR);
 use strict;
@@ -100,7 +100,7 @@ use Bio::Root::RootI;
 #  2. define an environmental variable TCOFFEE:
 #	export TCOFEEDIR=/home/progs/tcoffee   or
 #  3. include a definition of an environmental variable TCOFFEEDIR in every script that will
-#     use Bio::Tools::Alignment::TCoffee.pm.
+#     use Bio::Tools::Run::Alignment::TCoffee.pm.
 #	BEGIN {$ENV{TCOFFEEDIR} = '/home/progs/tcoffee'; }
 $PROGRAMDIR = $ENV{TCOFFEEDIR} || '';
 $PROGRAMDIR .= '/' if( substr($PROGRAMDIR, -1) ne '/' ); 
@@ -187,7 +187,7 @@ sub AUTOLOAD {
 =head2  exists_tcoffee()
 
  Title   : exists_tcoffee
- Usage   : $coffeefound = Bio::Tools::Alignment::TCoffee->exists_tcoffee()
+ Usage   : $coffeefound = Bio::Tools::Run::Alignment::TCoffee->exists_tcoffee()
  Function: Determine whether tcoffee program can be found on current host
  Example :
  Returns : 1 if tcoffee program found at expected location, 0 otherwise.
