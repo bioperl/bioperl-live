@@ -397,10 +397,14 @@ sub each_Comment{
 =cut
 
 sub add_DBLink{
-   my ($self,$com) = @_;
-   if( ! $com->isa('Bio::Annotation::DBLink') ) {
-       $self->throw("Is not a link object but a  [$com]");
+   my ($self,@list) = @_;
+
+   foreach my $com ( @list ) {
+       if( ! $com->isa('Bio::Annotation::DBLink') ) {
+	   $self->throw("Is not a link object but a  [$com]");
+       }
    }
+
    push(@{$self->{'link'}},$com);
 }
 
