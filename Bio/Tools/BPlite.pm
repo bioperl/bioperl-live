@@ -73,7 +73,7 @@ in pipes.
 BPlite has three kinds of objects, the report, the subject, and the HSP. To
 create a new report, you pass a filehandle reference to the BPlite constructor.
 
- my $report = new BPlite(-fh=>\*STDIN); # or any other filehandle
+ my $report = new Bio::Tools::BPlite(-fh=>\*STDIN); # or any other filehandle
 
 The report has two attributes (query and database), and one method (nextSbjct).
 
@@ -105,8 +105,8 @@ anyone who has seen a blast report.
 For lazy/efficient coders, two-letter abbreviations are available for the 
 attributes with long names (qs, ss, hs). Ranges of the aligned sequences in
 query/subject and other information (like seqname) are stored
-in SeqFeature objects (i.e.: $hsp->query, $hsp->sbjct which is equal to
-$hsp->feature1, $hsp->feature2). querySeq, sbjctSeq and homologySeq do only
+in SeqFeature objects (i.e.: $hsp-E<gt>query, $hsp-E<gt>subject which is equal to
+$hsp-E<gt>feature1, $hsp-E<gt>feature2). querySeq, sbjctSeq and homologySeq do only
 contain the alignment sequences from the blast report.
 
  $hsp->score;
@@ -131,12 +131,12 @@ contain the alignment sequences from the blast report.
 
 I've included a little bit of overloading for double quote variable
 interpolation convenience. A subject will return its name and an HSP will
-return its query->start, query->end, and bits in the alignment. Feel free 
+return its query-E<gt>start, query-E<gt>end, and bits in the alignment. Feel free 
 to modify this to whatever is most frequently used by you.
 
 So a very simple look into a BLAST report might look like this.
 
- my $report = new BPlite(-fh=>\*STDIN);
+ my $report = new Bio::Tools::BPlite(-fh=>\*STDIN);
  while(my $sbjct = $report->nextSbjct) {
      print "$sbjct\n";
      while(my $hsp = $sbjct->nextHSP) {
@@ -222,11 +222,13 @@ sub new {
 
  Title   : next_feature
  Usage   : while( my $feat = $res->next_feature ) { # do something }
- Function: SeqAnalysisParserI implementing function
+ Function: SeqAnalysisParserI implementing function. This implementation
+           iterates over all HSPs. If the HSPs of the current subject match
+           are exhausted, it will automatically call nextSbjct().
  Example :
- Returns : A Bio::SeqFeatureI compliant object, in this case, 
-           each DomainUnit object, ie, flattening the Sequence
-           aspect of this.
+ Returns : A Bio::SeqFeatureI compliant object, in this case a
+           Bio::Tools::BPlite::HSP object, and FALSE if there are no more
+           HSPs.
  Args    : None
 
 =cut
