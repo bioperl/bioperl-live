@@ -5,7 +5,8 @@ use lib '.','../blib/lib';
 use Bio::DB::BioFetch;
 use Bio::Graphics;
 
-my $accession = shift or die <<END;
+my $accession = shift;
+if (!defined $accession || $accession =~ /^-/) { die <<END; }
 Usage: $0 <accession> [start] [stop]
    Render a GenBank/EMBL accession into drawable form.
    Return as a GIF or PNG image on standard output.

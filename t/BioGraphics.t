@@ -211,24 +211,24 @@ sub t2 {
 
   my $confirmed_exon1 = $ftr->new(-start=>1,-stop=>20,
 				  -type=>'exon',
-				  -source=>'confirmed',
+				  -desc=>'confirmed',
 				  -name => 'confirmed1',
 				 );
   my $predicted_exon1 = $ftr->new(-start=>30,-stop=>50,
 				  -type=>'exon',
 				  -name=>'predicted1',
-				  -source=>'predicted');
+				  -desc=>'predicted');
   my $predicted_exon2 = $ftr->new(-start=>60,-stop=>100,
 				  -name=>'predicted2',
-				  -type=>'exon',-source=>'predicted');
+				  -type=>'exon',-desc=>'predicted');
 
   my $confirmed_exon3 = $ftr->new(-start=>150,-stop=>190,
-				  -type=>'exon',-source=>'confirmed',
+				  -type=>'exon',-desc=>'confirmed',
 				  -name=>'abc123');
   my $partial_gene = $ftr->new(-segments=>[$confirmed_exon1,$predicted_exon1,$predicted_exon2,$confirmed_exon3],
 			       -name => 'partial gene',
 			       -type => 'transcript',
-			       -source => '(from a big annotation pipeline)'
+			       -desc => '(from a big annotation pipeline)'
 			    );
   my @segments = $partial_gene->segments;
   my $score = 10;
@@ -248,6 +248,7 @@ sub t2 {
 					-pad_left => 20,
 					-pad_right=> 20,
 					-key_style => 'between',
+					-empty_tracks => 'suppress',
 				       );
   my @colors = $panel->color_names();
 
@@ -283,6 +284,7 @@ sub t2 {
 			-bump => 1,
 			-linewidth=>2,
 			-key => 'Signs',
+			-empty_tracks => 'suppress',
 		       );
 
   my $track = $panel->add_track(-glyph=> sub { shift->primary_tag =~ /transcript|alignment/ ? 'transcript2': 'generic'},

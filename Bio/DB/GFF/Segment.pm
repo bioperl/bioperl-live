@@ -178,7 +178,7 @@ Returns the strand on which the segment resides, either +1, 0 or -1.
 
 sub strand {
   my $self = shift;
-  return $self->stop <=> $self->start;
+  0;
 }
 
 =head2 low

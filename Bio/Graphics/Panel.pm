@@ -40,7 +40,7 @@ sub new {
   my $allcallbacks = $options{-all_callbacks} || 0;
   my $gridcolor    = $options{-gridcolor} || GRIDCOLOR;
   my $grid         = $options{-grid}       || 0;
-  my $show_empty   = $options{-empty_tracks} || 'suppress';
+  my $empty_track_style   = $options{-empty_tracks} || 'key';
 
   $offset   ||= $options{-segment}->start-1 if $options{-segment};
   $length   ||= $options{-segment}->length  if $options{-segment};
@@ -69,7 +69,7 @@ sub new {
 		key_style => $keystyle,
 		key_align => $keyalign,
 		all_callbacks => $allcallbacks,
-		show_empty    => $show_empty,
+		empty_track_style    => $empty_track_style,
 	       },$class;
 }
 
@@ -98,15 +98,22 @@ sub pad_bottom {
   $g;
 }
 
-# values of show_empty are:
+# values of empty_track_style are:
 #    "suppress" -- suppress empty tracks entirely (default)
 #    "key"      -- show just the key in "between" mode
 #    "line"     -- draw a thin grey line
 #    "dashed"   -- draw a dashed line
-sub show_empty {
+sub empty_track_style {
   my $self = shift;
-  my $g = $self->{show_empty};
-  $self->{show_empty} = shift if @_;
+  my $g = $self->{empty_track_style};
+  $self->{empty_track_style} = shift if @_;
+  $g;
+}
+
+sub key_style {
+  my $self = shift;
+  my $g = $self->{key_style};
+  $self->{key_style} = shift if @_;
   $g;
 }
 
@@ -298,17 +305,27 @@ sub _add_track {
 
 sub height {
   my $self = shift;
-  my $spacing    = $self->spacing;
-  my $key_height = $self->format_key;
-  my $draw_empty = $self->show_empty =~ /^(line|dash)/;
+  my $spacing           = $self->spacing;
+  my $key_height        = $self->format_key;
+  my $empty_track_style = $self->empty_track_style;
+  my $key_style         = $self->key_style;
+  my $bottom_key        = $key_style eq 'bottom';
+  my $between_key       = $key_style eq 'between';
+  my $draw_empty        = $empty_track_style =~ /^(line|dashed)$/;
+  my $keyheight         = $self->{key_font}->height;
   my $height = 0;
-  foreach (@{$self->{tracks}}) {
-    if  (!$_->parts) {
-      $height += 2*$spacing if $draw_empty;
-    } else {
-      $height += $_->layout_height + $spacing;
-    }
+  for my $track (@{$self->{tracks}}) {
+    my $draw_between =  $between_key && $track->option('key');
+    my $has_parts = $track->parts;
+    next if !$has_parts && ($empty_track_style eq 'suppress'
+		        or  $empty_track_style eq 'key' && $bottom_key);
+    $height += $keyheight if $draw_between;
+    $height += $self->spacing;
+    $height += $track->layout_height;
   }
+
+  # get rid of spacing under last track
+  $height -= $self->spacing unless $bottom_key;
   return $height + $key_height + $self->pad_top + $self->pad_bottom;
 }
 
@@ -335,16 +352,19 @@ sub gd {
   my $pt = $self->pad_top;
   my $offset = $pt;
   my $keyheight   = $self->{key_font}->height;
+  my $bottom_key  = $self->{key_style} eq 'bottom';
   my $between_key = $self->{key_style} eq 'between';
   my $left_key    = $self->{key_style} eq 'left';
   my $right_key   = $self->{key_style} eq 'right';
-  my $empty_track_style = $self->show_empty;
+  my $empty_track_style = $self->empty_track_style;
   my $spacing = $self->spacing;
 
   # we draw in two steps, once for background of tracks, and once for
   # the contents.  This allows the grid to sit on top of the track background.
   for my $track (@{$self->{tracks}}) {
-    next unless $track->parts;
+    my $draw_between = $between_key && $track->option('key');
+    next if !$track->parts && ($empty_track_style eq 'suppress'
+			   or  $empty_track_style eq 'key' && $bottom_key);
     $gd->filledRectangle($pl,
 			 $offset,
 			 $width-$self->pad_right,
@@ -352,7 +372,7 @@ sub gd {
 			 + ($between_key ? $self->{key_font}->height : 0),
 			 $track->tkcolor)
       if defined $track->tkcolor;
-    $offset += $keyheight if $between_key && $track->option('key');
+    $offset += $keyheight if $draw_between;
     $offset += $track->layout_height + $spacing;
   }
 
@@ -361,20 +381,20 @@ sub gd {
   $offset = $pt;
   for my $track (@{$self->{tracks}}) {
     my $draw_between = $between_key && $track->option('key');
-    if (!$track->parts) { # an empty track
-      next if $empty_track_style eq 'suppress';
-      next if $empty_track_style eq 'key' && !$draw_between;
-      $offset += $self->draw_between_key($gd,$track,$offset) if $draw_between;
-      $self->draw_empty($gd,$offset,$empty_track_style) if $empty_track_style=~/^(line|dashed)$/;
-    }
+    my $has_parts = $track->parts;
+    next if !$has_parts && ($empty_track_style eq 'suppress'
+			or  $empty_track_style eq 'key' && $bottom_key);
 
-    elsif ($draw_between) {
+    if ($draw_between) {
       $offset += $self->draw_between_key($gd,$track,$offset);
     }
 
     elsif ($self->{key_style} =~ /^(left|right)$/) {
       $self->draw_side_key($gd,$track,$offset,$self->{key_style});
     }
+
+    $self->draw_empty($gd,$offset,$empty_track_style)
+      if !$has_parts && $empty_track_style=~/^(line|dashed)$/;
 
     $track->draw($gd,0,$offset,0,1);
     $self->track_position($track,$offset);
@@ -392,19 +412,20 @@ sub boxes {
 
   my $pl = $self->pad_left;
   my $pt = $self->pad_top;
-  my $between = $self->{key_style} eq 'between';
-  my $empty_track_style = $self->show_empty;
+  my $between_key       = $self->{key_style} eq 'between';
+  my $bottom_key        = $self->{key_style} eq 'bottom';
+  my $empty_track_style = $self->empty_track_style;
+  my $keyheight         = $self->{key_font}->height;
+  my $spacing = $self->spacing;
 
   for my $track (@{$self->{tracks}}) {
-    my $draw_between =  $between && $track->option('key');
-    if (!$track->parts) {
-      next if $empty_track_style eq 'suppress';
-      next if $empty_track_style eq 'key' && !$draw_between;
-    }
-    $offset += $self->{key_font}->height if $draw_between;
+    my $draw_between =  $between_key && $track->option('key');
+    next if !$track->parts && ($empty_track_style eq 'suppress'
+			    or  $empty_track_style eq 'key' && $bottom_key);
+    $offset += $keyheight if $draw_between;
     my $boxes = $track->boxes(0,$offset+$pt);
-    push @boxes,@$boxes;
     $self->track_position($track,$offset);
+    push @boxes,@$boxes;
     $offset += $track->layout_height + $self->spacing;
   }
   return wantarray ? @boxes : \@boxes;
@@ -457,15 +478,21 @@ sub draw_bottom_key {
 # Format the key section, and return its height
 sub format_key {
   my $self = shift;
+  return 0 unless $self->key_style eq 'bottom';
 
   return $self->{key_height} if defined $self->{key_height};
 
-  if ($self->{key_style} eq 'between') {
-    my @key_tracks = $self->{show_empty} eq 'suppress'
+  my $suppress = $self->{empty_track_style} eq 'suppress';
+  my $between  = $self->{key_style}         eq 'between';
+
+  if ($between) {
+    my @key_tracks = $suppress
       ? grep {$_->option('key') && $_->parts} @{$self->{tracks}}
       : grep {$_->option('key')} @{$self->{tracks}};
     return $self->{key_height} = @key_tracks * $self->{key_font}->height;
-  } elsif ($self->{key_style} eq 'bottom') {
+  }
+
+  elsif ($self->{key_style} eq 'bottom') {
 
     my ($height,$width) = (0,0);
     my %tracks;
@@ -475,6 +502,7 @@ sub format_key {
     # and their max size
     for my $track (@{$self->{tracks}}) {
       next unless $track->option('key');
+      next if $suppress && !$track->parts;
 
       my $glyph;
       if (my @parts = $track->parts) {
@@ -542,7 +570,7 @@ sub format_key {
 sub draw_empty {
   my $self  = shift;
   my ($gd,$offset,$style) = @_;
-  $offset  += $self->spacing;
+  $offset  += $self->spacing/2;
   my $left  = $self->pad_left;
   my $right = $self->width-$self->pad_right;
   my $color = $self->translate_color(MISSING_TRACK_COLOR);

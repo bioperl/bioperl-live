@@ -490,7 +490,7 @@ sub parse_line {
 				  -type     => $type,
 				  $strand ? (-strand   => make_strand($strand)) : (),
 				  -segments => \@parts,
-				  -source   => $description,
+				  -desc     => $description,
 				  -ref      => $ref,
 				  defined($url) ? (-url      => $url) : (),
 				 );

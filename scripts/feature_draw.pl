@@ -86,7 +86,7 @@ if ($BOXES) {  # debugging code
   debugging_rectangles($gd,$boxes);
 }
 
-print $gd->can('gif') ? $gd->gif : $gd->png;
+print $gd->can('png') ? $gd->png : $gd->gif;
 
 sub debugging_rectangles {
   my ($image,$boxes) = @_;
