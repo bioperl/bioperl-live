@@ -1,0 +1,163 @@
+# $Id$
+#
+# BioPerl module for Bio::Biblio::BiblioBase
+#
+# Cared for by Martin Senger <senger@ebi.ac.uk>
+# For copyright and disclaimer see below.
+
+# POD documentation - main docs before the code
+
+=head1 NAME
+
+Bio::Biblio::BiblioBase - An abstract base for other biblio classes
+
+=head1 SYNOPSIS
+
+ # to be written
+
+=head1 DESCRIPTION
+
+ # to be written
+
+
+=head1 FEEDBACK
+
+=head2 Mailing Lists
+
+User feedback is an integral part of the evolution of this and other
+Bioperl modules. Send your comments and suggestions preferably to
+the Bioperl mailing list.  Your participation is much appreciated.
+
+  bioperl-l@bioperl.org              - General discussion
+  http://bioperl.org/MailList.shtml  - About the mailing lists
+
+=head2 Reporting Bugs
+
+Report bugs to the Bioperl bug tracking system to help us keep track
+of the bugs and their resolution. Bug reports can be submitted via
+email or the web:
+
+  bioperl-bugs@bioperl.org
+  http://bioperl.org/bioperl-bugs/
+
+=head1 AUTHORS
+
+Heikki Lehvaslaiho (heikki@ebi.ac.uk)
+Martin Senger (senger@ebi.ac.uk)
+
+=head1 COPYRIGHT
+
+Copyright (c) 2002 European Bioinformatics Institute. All Rights Reserved.
+
+This module is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself.
+
+=head1 DISCLAIMER
+
+This software is provided "as is" without warranty of any kind.
+
+=cut
+
+
+# Let the code begin...
+
+
+package Bio::Biblio::BiblioBase;
+use strict;
+use vars qw(@ISA $AUTOLOAD);
+
+use Bio::Root::Root;
+
+@ISA = qw(Bio::Root::Root);
+
+sub _abstractDeath {
+  my $self = shift;
+  my $package = ref $self;
+  my $caller = (caller(1))[3];
+
+  $self->throw ("Abstract method '$caller' should not been called.\n" .
+		"Not your fault - author of $package should be blamed!");
+
+}
+
+# these methods should not be called here;
+# they should be implemented by a subclass
+sub _accessible { shift->_abstractDeath; }
+sub _attr_type { shift->_abstractDeath; }
+
+
+#
+# deal with 'set_' and 'get_' methods
+#
+sub AUTOLOAD {
+    my ($self, $newval) = @_;
+
+    if ($AUTOLOAD =~ /.*::get(_\w+)/ && $self->_accessible ($1)) {
+	my $attr_name = $1;
+
+	# remember this method in a system table so it is not
+	# autoloaded costly next time
+	*{$AUTOLOAD} = sub { return $_[0]->{$attr_name} };
+
+	# do what a 'get_' method is supposed to do
+	return $self->{$attr_name}
+    }
+
+    if ($AUTOLOAD =~ /.*::set(_\w+)/ && $self->_accessible ($1)) {
+	my $attr_name = $1;
+	my $attr_type = $self->_attr_type ($attr_name);
+	my $ref_sub =
+	    sub {
+		my ($this, $new_value) = @_;
+		my ($newval_type) = ref ($new_value) || 'string';
+		my ($expected_type) = $attr_type || 'string';
+		$self->throw ("In method $AUTOLOAD, trying to set a value of type '$newval_type' but '$expected_type' is expected.")
+		    if $newval_type ne $expected_type;
+		$this->{$attr_name} = $new_value;
+		return;
+	    };
+
+        no strict 'refs'; 
+        *{$AUTOLOAD} = $ref_sub;
+        $ref_sub->($self, $newval);
+        return;
+    }
+
+    $self->throw ("No such method: $AUTOLOAD");
+}
+
+# 
+
+sub new {
+    my ($caller, @args) = @_;
+    my $class = ref ($caller) || $caller;
+
+    # create and bless a new instance    
+    my ($self) = $class->SUPER::new (@args);	
+
+    # make a hashtable from @args
+    my %param = @args;
+    @param { map { lc $_ } keys %param } = values %param; # lowercase keys
+
+    # set all @args into this object with 'set' values;
+    # change '-key' into '_key', and making keys lowercase
+    my $new_key;
+    foreach my $key (keys %param) {
+	($new_key = $key) =~ s/-/_/og;   # change it everywhere, why not
+        my $method = 'set' . lc ($new_key);
+        no strict 'refs'; 
+        $method->($self, $param { $key });
+    }
+
+    # done
+    return $self;
+}
+
+sub print_me {
+    my ($self) = @_;
+    use Data::Dumper;
+    return Data::Dumper->Dump ( [$self], ['Citation']);
+}
+
+1;
+__END__
