@@ -25,6 +25,7 @@ BEGIN { $| = 1; print "1..26\n";
 END {print "not ok 1\n" unless $loaded;}
 
 use lib '../';
+use Text::Wrap 98;
 use Bio::Variation::IO;
 
 $loaded = 1;
