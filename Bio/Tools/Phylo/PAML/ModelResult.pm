@@ -305,7 +305,7 @@ sub dnds_site_classes{
 =cut
 
 sub get_pos_selected_sites{
-   return @{$_[0]->{'_posselsites'}};
+   return @{$_[0]->{'_posselsites'} || []};
 }
 
 =head2 add_pos_selected_site
