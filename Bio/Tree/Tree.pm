@@ -94,7 +94,7 @@ sub new {
   my $self = $class->SUPER::new(@args);
   $self->{'_rootnode'} = undef;
   $self->{'_maxbranchlen'} = 0;
-
+  $self->_register_for_cleanup(\&cleanup_tree);
   my ($root)= $self->_rearrange([qw(ROOT)], @args);
   if( $root ) { $self->set_root_node($root); }
   return $self;
@@ -258,5 +258,14 @@ sub score{
 
 =cut
 
+
+sub cleanup_tree {
+    my $self = shift;
+    foreach my $node ( $self->get_nodes ) {
+	$node->ancestor(undef);
+	$node = undef;	
+    }
+    $self->{'_rootnode'} = undef;
+}
 
 1;

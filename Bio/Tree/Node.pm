@@ -110,6 +110,7 @@ sub new {
 						 DESCRIPTION
 						 )],
 					     @args);
+  $self->_register_for_cleanup(\&node_cleanup);
   $self->{'_desc'} = {}; # for descendents
   if( $d && $desc ) { 
       $self->warn("can only accept -desc or -description, not both, accepting -description");
@@ -219,23 +220,26 @@ sub each_Descendent{
 
 sub remove_Descendent{
    my ($self,@nodes) = @_;
+   my $c= 0;
    foreach my $n ( @nodes ) { 
        if( $self->{'_desc'}->{$n->internal_id} ) {
 	   $n->ancestor(undef);
+	   # should be redundant
 	   $self->{'_desc'}->{$n->internal_id}->ancestor(undef);
 	   delete $self->{'_desc'}->{$n->internal_id};
 	   my $a1 = $self->ancestor;
-	   # remove unecessary nodes if we have removed the part which branches.
-	   if( $a1 ) {
-	       my $bl = $self->branch_length || 0;
-	       my @d = $self->each_Descendent;
-	       if (scalar @d == 1) {
-		   $d[0]->branch_length($bl + ($d[0]->branch_length || 0));
-		   $a1->add_Descendent($d[0]);
-	       }
-	       $a1->remove_Descendent($self);
-	   }
-       
+	   # remove unecessary nodes if we have removed the part 
+	   # which branches.
+	   # if( $a1 ) {
+	   #    my $bl = $self->branch_length || 0;
+	   #    my @d = $self->each_Descendent;
+	   #    if (scalar @d == 1) {
+	   #	   $d[0]->branch_length($bl + ($d[0]->branch_length || 0));
+	   #	   $a1->add_Descendent($d[0]);
+	   #    }
+	   #    $a1->remove_Descendent($self);
+	   #}
+	   $c++;
        } else { 
 	   if( $self->verbose ) {
 	       $self->debug(sprintf("no node %s (%s) listed as a descendent in this node %s (%s)\n",$n->id, $n,$self->id,$self));
@@ -243,7 +247,7 @@ sub remove_Descendent{
 	   }
        }
    }
-   1;
+   $c;
 }
 
 
@@ -381,21 +385,6 @@ sub id{
         $self->{'_id'} = $value;
     }
     return $self->{'_id'};
-}
-
-sub DESTROY {
-    my ($self) = @_;
-    # try to insure that everything is cleaned up
-    $self->SUPER::DESTROY();
-    if( defined $self->{'_desc'} &&
-	ref($self->{'_desc'}) =~ /ARRAY/i ) {
-	while( my ($nodeid,$node) = each %{ $self->{'_desc'} } ) {
-	    $node->ancestor(undef); # insure no circular references
-	    $node->DESTROY();
-	    $node = undef;
-	}
-	$self->{'_desc'} = {};
-    }
 }
 
 =head2 internal_id
@@ -618,10 +607,21 @@ sub get_tag_values{
 
 =cut
 
-sub has_tag{
+sub has_tag {
    my ($self,$tag) = @_;
    return exists $self->{'_tags'}->{$tag};
 }
 
-1;
+sub node_cleanup {
+    my $self = shift;
+    if( defined $self->{'_desc'} &&
+	ref($self->{'_desc'}) =~ /ARRAY/i ) {
+	while( my ($nodeid,$node) = each %{ $self->{'_desc'} } ) {
+	    $node->ancestor(undef); # insure no circular references
+	    $node = undef;
+	}
+    }
+    $self->{'_desc'} = {};
+}
 
+1;
