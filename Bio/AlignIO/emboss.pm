@@ -216,6 +216,7 @@ sub next_aln {
     }
     return undef unless $seenbegin;
     my $aln =  Bio::SimpleAlign->new(-verbose => $self->verbose(),
+				     -score   => $data{'score'},
 				     -source => "EMBOSS-".$data{'type'});
     
     foreach my $seqname ( qw(seq1 seq2) ) { 
