@@ -77,6 +77,7 @@ use vars qw(@ISA);
 use strict;
 # Object preamble - inherits from Bio::Root::Object
 
+use IO;
 use Bio::SeqIO;
 use Bio::SeqIO::game::seqHandler;
 use Bio::SeqIO::game::featureHandler;
@@ -109,11 +110,99 @@ sub _initialize {
   
   $self->{counter} = 0;
   $self->{id_counter} = 1;  
+
+  $self->_export_subfeatures(1);
+  $self->_group_subfeatures(1);
+  $self->_subfeature_types('exons', 'promoters','poly_A_sites','utrs','introns','sub_SeqFeature');
   
   ($self->{file} ) = $self->_rearrange( [ qw(FILE) ], @args);
   $self->throw("did not specify a file to read, Filehandle suport is not implemented currently") if( !defined $self->{file});
   return unless my $make = $self->SUPER::_initialize(@args);
 }
+
+
+
+=head2 _export_subfeatures
+
+ Title   : _export_subfeatures
+ Usage   : $obj->_export_subfeatures
+ Function: export all subfeatures (also in the geneprediction structure)
+ Returns : value of _export_subfeatures
+ Args    : newvalue (optional)
+
+=cut
+
+sub _export_subfeatures{
+   my $obj = shift;
+   if( @_ ) {
+      my $value = shift;
+      $obj->{'_export_subfeatures'} = $value;
+    }
+    return $obj->{'_export_subfeatures'};
+
+} 
+
+=head2 _group_subfeatures
+
+ Title   : _group_subfeatures
+ Usage   : $obj->_group_subfeatures
+ Function: Groups all subfeatures in separate feature_sets
+ Returns : value of _group_subfeatures
+ Args    : newvalue (optional)
+
+=cut
+
+sub _group_subfeatures{
+   my $obj = shift;
+   if( @_ ) {
+      my $value = shift;
+      $obj->{'_group_subfeatures'} = $value;
+    }
+    return $obj->{'_group_subfeatures'};
+}
+
+=head2 _subfeature_types
+
+ Title   : _subfeature_types
+ Usage   : $obj->_subfeature_types
+ Function: array of all possible subfeatures, it should be a name of a function which
+         : returns an arrau of sub_seqfeatures when called: @array = $feature->subfeaturetyp()
+ Returns : array of _subfeature_types
+ Args    : array of subfeature types (optional)
+
+=cut
+
+sub _subfeature_types{
+   my $obj = shift;
+   if( @_ ) {
+      my @values = @_;
+      $obj->{'_subfeature_types'} = \@values;
+    }
+    return @{$obj->{'_subfeature_types'}};
+
+} 
+
+=head2 _add_subfeature_type
+ 
+ Title   : _add_subfeature_type
+ Usage   : $obj->_add_subfeature_type
+ Function: add one possible subfeature, it should be a name of a function which
+         : returns an arrau of sub_seqfeatures when called: @array = $feature->subfeaturetyp()
+ Returns : 1
+ Args    : one subfeature type (optional)
+
+=cut
+
+sub _add_subfeature_type{
+   my $obj = shift;
+   if( @_ ) {
+      my @values = @_;
+      push @{$obj->{'_subfeature_types'}}, @values;
+    }
+    return 1;
+
+} 
+
 
 =head2 next_seq
 
@@ -223,16 +312,17 @@ sub write_seq {
   my $bxlink = "http://www.bioxml.org/dtds/link/v0_1";
   my $bxseq = "http://www.bioxml.org/dtds/seq/v0_1";
   
-  my $writer = new XML::Writer(FILENAME => $self->{file},
+  my $output = new IO::File(">" . $self->{file});
+  my $writer = new XML::Writer(OUTPUT => $output,
   		               NAMESPACES => 1,
 			       DATA_MODE => 1,
 			       DATA_INDENT => 4,
 			       PREFIX_MAP => {$bxfeat => 'bx-feature',
-					      $bxann => 'bx-annotation',
+					      $bxann =>  'bx-annotation',
 					      $bxcomp => 'bx-computation',
 					      $bxgame => 'bx-game',
 					      $bxlink => 'bx-link',
-					      $bxseq => 'bx-seq'
+					      $bxseq =>  'bx-seq'
 					     });
   
   
@@ -277,12 +367,8 @@ sub write_seq {
       $writer->emptyTag([$bxlink, 'ref_link'],
 		       [$bxlink, 'ref'] => $seq->display_id());
       $writer->endTag([$bxlink, 'link']);
-      $writer->endTag([$bxann, 'seq_link']);
-      $writer->startTag([$bxann, 'feature_set']);
-      foreach my $feature(@{$features->{annotations}->{$key}}) {
-	$self->__draw_feature($writer, $feature, $seq);
-      }
-      $writer->endTag([$bxann, 'feature_set']);
+      $writer->endTag([$bxann, 'seq_link']);					   
+      $self->__draw_feature_set($writer, $seq, $bxann, "", @{$features->{annotations}->{$key}});
       $writer->endTag([$bxann, 'annotation']);
     }
     
@@ -296,28 +382,60 @@ sub write_seq {
 		       [$bxlink, 'ref'] => $seq->display_id());
       $writer->endTag([$bxlink, 'link']);
       $writer->endTag([$bxcomp, 'seq_link']);
-      $writer->startTag([$bxcomp, 'feature_set']);
-      foreach my $feature(@{$features->{computations}->{$key}}) {
-	$self->__draw_feature($writer, $feature, $seq);
-      }
-      $writer->endTag([$bxcomp, 'feature_set']);
-      $writer->endTag([$bxcomp, 'computation']);
+      $self->__draw_feature_set($writer, $seq, $bxcomp, "", @{$features->{computations}->{$key}});   $writer->endTag([$bxcomp, 'computation']);
     }
 
     foreach my $feature(@{$features->{everybody_else}}) {
-      $self->__draw_feature($writer, $feature, $seq);
+        $self->__draw_feature($writer, $feature, $seq, "", $self->_export_subfeatures()) 
     }
   }
    $writer->endTag([$bxgame, 'game']);
 }
 
+
+#these two subroutines are very specific!
+
+sub __draw_feature_set {
+  my ($self, $writer, $seq, $namespace, $parent, @features) = @_;
+  my ($feature_set_id);
+	 
+  my $bxfeat = "http://www.bioxml.org/dtds/feature/v0_1";
+
+  if ($self->_export_subfeatures() && $self->_group_subfeatures()) {
+     $feature_set_id = $self->{id_counter}; $self->{id_counter}++;
+    $writer->startTag([$namespace, 'feature_set'],
+                        [$namespace, 'id'] => $feature_set_id);
+    foreach my $feature (@features) {
+      $self->__draw_feature($writer, $feature, $seq, $parent , 0);  
+    }
+    $writer->endTag([$namespace, 'feature_set']);
+    foreach my $feature (@features) {
+      foreach my $subset ($self->_subfeature_types()) {
+        if (my @subfeatures = eval ( '$feature->' . $subset . '()' )) {
+           my @id = $feature->each_tag_value('id');
+           $self->__draw_feature_set($writer, $seq, $namespace, $id[0], @subfeatures);     
+        }
+      }	        
+    }
+
+  } else {
+    $feature_set_id = $self->{id_counter}; $self->{id_counter}++;
+    $writer->startTag([$namespace, 'feature_set'],
+                      [$namespace, 'id'] => $feature_set_id);
+    foreach my $feature (@features) {
+        $self->__draw_feature($writer, $feature, $seq, "" , $self->_export_subfeatures());
+    }
+    $writer->endTag([$namespace, 'feature_set']);
+  }
+}
+
+
 sub __draw_feature {
-  my ($self, $writer, $feature, $seq, $parent) = @_;
+  my ($self, $writer, $feature, $seq, $parent, $recursive) = @_;
   my ($subfeature, $subset, @subfeatures, $score, $score_val, $score_no);
   my $bxfeat = "http://www.bioxml.org/dtds/feature/v0_1";
 
   if (!$feature->has_tag('id')) {
-    #$feature->remove_tag('id');
     $feature->add_tag_value('id', $self->{id_counter});
     $self->{id_counter}++;
   }
@@ -369,13 +487,14 @@ sub __draw_feature {
   $writer->endTag([$bxfeat, 'feature']);
 
   #proces subseqfeature's, exons, introns, promotors, whatever...
-
-  foreach $subset (('exons', 'promoters','poly_A_sites','utrs','introns','sub_SeqFeature')) {
-    #determine if it exists
-    if (@subfeatures = eval ( '$feature->' . $subset . '()' )) {
-      foreach $subfeature (@subfeatures) {
-         $self->__draw_feature ($writer, $subfeature, $seq, $id[0]);
-      }        
+  if ($recursive) {
+    foreach $subset ($self->_subfeature_types()) {
+      #determine if it exists
+      if (@subfeatures = eval ( '$feature->' . $subset . '()' )) {
+        foreach $subfeature (@subfeatures) {
+        $self->__draw_feature ($writer, $subfeature, $seq, $id[0], 1);
+        }        
+      }
     }
   }
 }
