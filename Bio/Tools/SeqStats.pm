@@ -123,7 +123,7 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 
 =head1 AUTHOR -  Peter Schattner
 
-Email peter@unix.sri.com
+Email schattner@alum.mit.edu
 
 =head1 APPENDIX
 
@@ -469,9 +469,8 @@ sub get_mol_wt {
 }
 
 
+=head2  count_codons
 
-=head2 count_codons
-    
  Title   : count_codons
  Usage   : $rcount = $seqstats->count_codons (); or $rcount = Bio::SeqStats->count_codons($seqobj);
  Function: Counts the number of each type of codons in a given frame for a dna or
