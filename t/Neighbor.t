@@ -70,20 +70,20 @@ unless ($neighbor_present) {
     exit 0;
 }
 
-
 $tree = $tree_factory->create_tree($inputfilename);
-my @nodes = $tree->get_nodes();
-ok ($nodes[1]->id, 'SINFRUP001', 
-    "failed creating tree by protpars");
+my @nodes = sort { defined $a->id && defined $b->id &&
+		       $a->id cmp $b->id } $tree->get_nodes();
 
-my $inputfilename = Bio::Root::IO->catfile("t","data","protpars.phy");
+ok($nodes[2]->id, 'SINFRUP001',"failed creating tree by protpars");
+
+$inputfilename = Bio::Root::IO->catfile("t","data","protpars.phy");
 my  $protdist_factory = Bio::Tools::Run::Phylo::Phylip::ProtDist->new();
 $protdist_factory->quiet(1);
 my $matrix = $protdist_factory->create_distance_matrix($inputfilename);
 $tree = $tree_factory->create_tree($matrix);
 
-
-my @nodes = $tree->get_nodes();
-ok ($nodes[1]->id, 'ENSP000003', 
-    "failed creating tree by neighbor");
+@nodes = sort { defined $a->id && 
+		    defined $b->id &&
+		    $a->id cmp $b->id } $tree->get_nodes();
+ok ($nodes[1]->id, 'ENSP000003',"failed creating tree by neighbor");
 	
