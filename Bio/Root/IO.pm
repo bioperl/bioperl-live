@@ -262,17 +262,18 @@ sub _initialize_io {
       my $trymax = 5;
 
       if($HAS_LWP){ #use LWP::Simple::getstore()
+        use LWP::Simple;
         #$self->warn("has lwp");
         my $http_result;
         my($handle,$tempfile) = $self->tempfile();
         close($handle);
 
         for(my $try = 1 ; $try <= $trymax ; $try++){
-          $http_result = LWP::Simple::getstore($input, $tempfile);
-          $self->warn("[$try/$trymax] tried to fetch $input, but server threw $http_result.  retrying...") if $http_result != 200;
+          $http_result = LWP::Simple::getstore($url, $tempfile);
+          $self->warn("[$try/$trymax] tried to fetch $url, but server threw $http_result.  retrying...") if $http_result != 200;
           last if $http_result == 200;
         }
-        $self->throw("failed to fetch $input, server threw $http_result") if $http_result != 200;
+        $self->throw("failed to fetch $url, server threw $http_result") if $http_result != 200;
 
         $input = $tempfile;
         $file  = $tempfile;
