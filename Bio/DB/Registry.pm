@@ -54,7 +54,7 @@ use Bio::Root::Root;
 @ISA = qw(Bio::Root::Root);
 
 my %implement = (
-		 'biocorba'      => 'Bio::CorbaClient::Client',
+		 'biocorba'      => 'Bio::CorbaClient::SeqDB',
 		 'index-berkeleydb' => 'XYZ',
 		 'biosql' => 'Bio::DB::SQL::BioDatabaseAdaptor',
 		 'biofetch' => 'Bio::DB::BioFetch'
@@ -107,6 +107,7 @@ sub _load_registry {
 		/^#/ && next;
 		/^$/ && last;
 		my ($tag,$value) = split('=',$_);
+		$value =~ s/\s//;
 		$hash->{$tag} = $value;
 	    }
 	    if( !exists $self->{$db} ) {
