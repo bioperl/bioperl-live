@@ -140,7 +140,7 @@ methods. Internal methods are usually preceded with a _
 
 
 package Bio::PrimarySeq;
-use vars qw(@ISA %valid_type);
+use vars qw(@ISA);
 use strict;
 
 use Bio::Root::Root;
@@ -155,7 +155,7 @@ use Bio::DescribableI;
 # setup the allowed values for alphabet()
 #
 
-%valid_type = map {$_, 1} qw( dna rna protein );
+our %valid_type = map {$_, 1} qw( dna rna protein );
 
 =head2 new
 
@@ -178,8 +178,9 @@ use Bio::DescribableI;
            -display_id  => display id of the sequence (locus name) 
            -accession_number => accession number
            -primary_id  => primary id (Genbank id)
+           -namespace   => the namespace for the accession
            -desc        => description text
-           -alphabet    => molecule type (dna,rna,protein)
+           -alphabet    => sequence type (alphabet) (dna|rna|protein)
            -id          => alias for display id
            -is_circular => boolean field for whether or not sequence is circular
 
@@ -190,11 +191,12 @@ sub new {
     my ($class, @args) = @_;
     my $self = $class->SUPER::new(@args);
 
-    my($seq,$id,$acc,$pid,$desc,$alphabet,$given_id,$is_circular,$direct,$ref_to_seq) =
+    my($seq,$id,$acc,$pid,$ns,$desc,$alphabet,$given_id,$is_circular,$direct,$ref_to_seq) =
 	$self->_rearrange([qw(SEQ
 			      DISPLAY_ID
 			      ACCESSION_NUMBER
 			      PRIMARY_ID
+			      NAMESPACE
 			      DESC
 			      ALPHABET
 			      ID
@@ -210,6 +212,7 @@ sub new {
 	}
     }
     if( defined $given_id ) { $id = $given_id; }
+
     # if alphabet is provided we set it first, so that it won't be guessed
     # when the sequence is set
     $alphabet && $self->alphabet($alphabet);
@@ -219,11 +222,9 @@ sub new {
 
     if( $direct && $ref_to_seq) {
 	$self->{'seq'} = $$ref_to_seq;
-	if( !defined $alphabet ) {
+	if( ! $alphabet ) {
 	    $self->_guess_alphabet();
-	} else {
-	    $self->alphabet($alphabet);
-	}
+	} # else it has been already above
     } else {
 	# note: the sequence string may be empty
 	$self->seq($seq) if defined($seq);
@@ -234,15 +235,15 @@ sub new {
     defined $pid     && $self->primary_id($pid);
     $desc    && $self->desc($desc);
     $is_circular && $self->is_circular($is_circular);
+    $ns      && $self->namespace($ns);
 
     return $self;
 }
 
 sub direct_seq_set {
-    my ($obj,$seq) = @_;
-
-    $obj->{'seq'} = $seq;
-    return $seq;
+    my $obj = shift;
+    return $obj->{'seq'} = shift if @_;
+    return undef;
 }
 
 
