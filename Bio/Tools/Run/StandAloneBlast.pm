@@ -337,7 +337,8 @@ sub new {
     my $self = $caller->SUPER::new(@args);
  
     # to facilitiate tempfile cleanup
-    my (undef,$tempfile) = $self->io->tempfile();
+    my ($tfh,$tempfile) = $self->io->tempfile();
+    close($tfh); # we don't want the filehandle, just a temporary name
     $self->outfile($tempfile);
     $self->_READMETHOD('Blast');
     while (@args)  {
