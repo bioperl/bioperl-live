@@ -330,36 +330,39 @@ Contents
   Q1.13: Can you explain the Object Model design and rationale?
 
       A: 
-	 There is complicated answer to these questions.  Simply put, this
-	 is a toolkit which has grown organically.  The goals and user
-	 audience has evolved.	Some decisions have been made and we have
-	 been forced to live by them rather than destroy backwards
-	 compatability.  In addition there are different philosophies of
-	 software development.	The major developers on the project have
-	 tried to impose a set of standards on the code so that the project
-	 can be coordinated without every commit being cleared by a few key
-	 individuals.  See Eric S Raymond's "The Cathedral and the Bazaar"
+	 There is no simple answer to this question.  Simply put, this is a
+	 toolkit which has grown organically.  The goals and user audience
+	 has evolved.  Some decisions have been made and we have been
+	 forced to live by them rather than destroy backward compatability.
+	  In addition there are different philosophies of software
+	 development.  The major developers on the project have tried to
+	 impose a set of standards on the code so that the project can be
+	 coordinated without every commit being cleared by a few key
+	 individuals (see Eric S. Raymond's "The Cathedral and the Bazaar"
 	 for different styles of running an open-source project - we are
-	 clearly on the Bazaar end.  The biodesign.pod document in the
-	 bioperl distribution and available on the website
-	 http://bioperl.org/Core/Lates/biodesign.html should detail more
-	 about specific design goals.
+	 clearly on the Bazaar end).
+
+	 
+	 The biodesign.pod document in the bioperl distribution and
+	 available on the website
+	 http://bioperl.org/Core/Latest/biodesign.html talks more about
+	 specific design goals.
 
 	 
 	 The clear consensus of the project developers is that Bioperl
 	 should be consistent.	This may cause us to pay the price of some
-	 copy+paste of code (the Get/Set accessor methods being a sore spot
-	 for some) and the lack of using AUTOLOAD.  By being consistent we
-	 hope that someone can grok the gist of a module from the basic
-	 documentation, see example code, and get a set of methods from the
-	 API documetation.  We aim to make the core object design easy to
-	 understand.  This has not been realized by any stretch of the
-	 imagination as the toolkit has well over 1000 modules in
-	 bioperl-live and bioperl-run alone.
+	 copy-and-paste of code, with the Get/Set accessor methods being a
+	 sore spot for some, and the lack of using AUTOLOAD.  By being
+	 consistent we hope that someone can grok the gist of a module from
+	 the basic documentation, see example code, and get a set of
+	 methods from the API documetation.  We aim to make the core object
+	 design easy to understand.  This has not been realized by any
+	 stretch of the imagination as the toolkit has well over 1000
+	 modules in bioperl-live and bioperl-run alone.
 
 	 
 	 That said we do want to improve things.  We want to experiment
-	 with newer modules which made Perl more Object-Oriented.  We have
+	 with newer modules which make Perl more Object-Oriented.  We have
 	 high hopes for some of the promises of Perl6.	To try and realize
 	 this goal we are encouraging developers to play with new object
 	 models in a bioperl-experimental project.  
