@@ -312,7 +312,7 @@ sub throw{
    }
    else {
 #       print STDERR "  Not calling Error::throw\n\n";
-
+       $class ||= '';
        my $std = $self->stack_trace_dump();
        my $title = "------------- EXCEPTION $class -------------";
        my $footer = "\n" . '-' x CORE::length($title);
