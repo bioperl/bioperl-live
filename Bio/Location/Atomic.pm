@@ -173,8 +173,8 @@ sub strand {
 	   elsif ( $value != -1 && $value != 1 && $value != 0 ) {
 	       $self->throw("$value is not a valid strand info");
 	   }
+           $self->{'_strand'} = $value;
        }
-       $self->{'_strand'} = $value;
   }
   # do not pretend the strand has been set if in fact it wasn't
   return $self->{'_strand'};
