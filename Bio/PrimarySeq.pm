@@ -28,10 +28,12 @@ Bio::PrimarySeq - Bioperl lightweight Sequence Object
 			    -accession_number => 'X78121',
 			    -moltype => 'dna'
 			    );
+  print "Sequence ", $seqobj->id(), " with accession ", $seqobj->accession_number, "\n";
 
   # read from file
   $inputstream = Bio::SeqIO->new(-file => "myseq.fa",-format => 'Fasta');
   $seqobj = $inputstream->next_seq();
+  print "Sequence ", $seqobj->id(), " and desc ", $seqobj->desc, "\n";
 
   # get from database
   $db = Bio::DB::GenBank->new();
@@ -39,11 +41,10 @@ Bio::PrimarySeq - Bioperl lightweight Sequence Object
 
   # to get out parts of the sequence.
 
-  print "Sequence ", $seqobj->id(), " with accession ", $seqobj->accession, " and desc ", $seqobj->desc, "\n";
+  print "Sequence ", $seqobj->id(), " with accession ", $seqobj->accession_number, " and desc ", $seqobj->desc, "\n";
 
   $string  = $seqobj->seq();
   $string2 = $seqobj->subseq(1,40);
-
 
 
 =head1 DESCRIPTION
