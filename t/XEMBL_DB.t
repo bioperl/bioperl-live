@@ -42,7 +42,7 @@ if( $error ==  1 ) {
 require Bio::DB::XEMBL;
 
 my $testnum;
-my $verbose = 0;
+my $verbose = 1;
 
 ## End of black magic.
 ##
@@ -54,9 +54,14 @@ my ($db,$seq,$seqio);
 # get a single seq
 
 $seq = $seqio = undef;
-
+eval { 
 ok defined($db = new Bio::DB::XEMBL(-verbose=>$verbose)); 
-ok(defined($seq = $db->get_Seq_by_acc('J00522')));
+if( ! defined $seq ) {
+    skip('server may be down',1);
+    goto DONE;
+} else {
+    ok(defined($seq = $db->get_Seq_by_acc('J00522')));
+}
 ok( $seq->length, 408);
 ok(defined($seq = $db->get_Seq_by_acc('J02231')));
 ok $seq->id, 'BUM';
@@ -65,7 +70,11 @@ ok(defined($seqio = $db->get_Stream_by_batch(['BUM'])));
 undef $db; # testing to see if we can remove gb
 ok( defined($seq = $seqio->next_seq()));
 ok( $seq->length, 200);
-
+};
+if( $@ ) { 
+  DONE:
+    exit; 
+}
 exit;
 $seq = $seqio = undef;
 
