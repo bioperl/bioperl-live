@@ -435,7 +435,7 @@ sub spliced_seq {
     }
 
     my $seqstr;
-    my $seqid = $self->entire_seq->id;
+    my $seqid = $self->entire_seq->display_id;
     # This is to deal with reverse strand features
     # so we are really sorting features 5' -> 3' on their strand
     # i.e. rev strand features will be sorted largest to smallest
@@ -444,6 +444,11 @@ sub spliced_seq {
     # (can I mention how much fun this is NOT! --jason)
     
     my ($mixed,$fstrand) = (0);
+    if( $self->isa('Bio::Das::SegmentI') &&
+	! $self->absolute ) { 
+	$self->warn("Calling spliced_seq with a Bio::Das::SegmentI which does have absolute set to 1 -- be warned you may not be getting things on the correct strand");
+    }
+    
     my @locs = map { $_->[0] }
     # sort so that most negative is first basically to order
     # the features on the opposite strand 5'->3' on their strand
@@ -467,7 +472,7 @@ sub spliced_seq {
 	}
 	my $called_seq;
 	if( $fstrand != $loc->strand ) {
-
+	    $self->warn("feature strand is different from location strand!");
 	}
 	# deal with remote sequences
 
@@ -492,20 +497,24 @@ sub spliced_seq {
 	} else {
 	    $called_seq = $self->entire_seq;
 	}
-	if( $loc->strand == 1 ) {
-	    $seqstr .= $called_seq->subseq($loc->start,$loc->end);
-	} else {
-	    $seqstr .= $called_seq->trunc($loc->start,$loc->end)->revcom->seq();
+	
+	if( $self->isa('Bio::Das::SegmentI') ) {
+	    my ($s,$e) = ($loc->start,$loc->end);	    
+	    $seqstr .= $called_seq->subseq($s,$e)->seq();
+	} else { 
+	    # This is dumb subseq should work on locations...
+	    if( $loc->strand == 1 ) {
+		$seqstr .= $called_seq->subseq($loc->start,$loc->end);
+	    } else {
+		$seqstr .= $called_seq->trunc($loc->start,$loc->end)->revcom->seq();
+	    }
 	}
     }
-    
-    my $out = Bio::Seq->new( -id => $self->entire_seq->id . "_spliced_feat",
+    my $out = Bio::Seq->new( -id => $self->entire_seq->display_id . "_spliced_feat",
 			     -seq => $seqstr);
     
     return $out;
 }
-
-
 
 =head1 RangeI methods
 
