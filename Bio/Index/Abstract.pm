@@ -589,7 +589,8 @@ sub make_index {
 
 	    # if it is the same size - fine. Otherwise die 
 	    if( -s $file == $size ) {
-		warn "File $file already indexed. Skipping...\n";
+		warn "File $file already indexed. Skipping...\n" 
+		    if $self->verbose >= 0;
 		next FILE;
 	    } else {
 		$self->throw("In index, $file has changed size ($size). Indicates that the index is out of date");
