@@ -65,6 +65,30 @@ do not expect this code to give you the right answer currently!  Use
 dnadist/distmat in the PHLYIP or EMBOSS packages to calculate the
 distances.
 
+
+Several different distance method calculations are supported.  Listed
+in brackets are the pattern which will match
+
+=over 3
+
+=item  JukesCantor [jc|jukes|jukescantor|jukes-cantor]
+
+=item Uncorrected [jcuncor|uncorrected]
+
+=item F81 [f81|felsenstein]
+
+=item Kimura [k2|k2p|k80|kimura]
+
+=item Tamura [t92|tamura|tamura92]
+
+=item F84 [f84|felsenstein84]
+
+=item TajimaNei [tajimanei|tajima\-nei]
+
+=item JinNei [jinnei|jin\-nei] (not implemented)
+
+=back
+
 There are also three methods to calculate the ratio of synonymous to
 non-synonymous mutations.  All are implementations of the Nei-Gojobori
 evolutionary pathway method and use the Jukes-Cantor method of
@@ -205,15 +229,32 @@ al) [dnadist.c].  Insight also gained from Eddy, Durbin,
 
 =head1 REFERENCES
 
-D_JukesCantor - "Phylogenetic Inference", Swoffrod, Olsen, Waddell and Hillis,
-                in Mol. Systematics, 2nd ed, 1996, Ch 11. 
-                Derived from "Evolution of Protein Molecules", Jukes & Cantor, 
-                in Mammalian Prot. Metab., III, 1969, pp. 21-132.
-D_Tamura - K Tamura, Mol. Biol. Evol. 1992, 9, 678.
-D_Kimura - M Kimura, J. Mol. Evol., 1980, 16, 111.
-D_JinNei - Jin and Nei, Mol. Biol. Evol. 82, 7, 1990.
-D_TajimaNei - Tajima and Nei, Mol. Biol. Evol. 1984, 1, 269.
+=over 3
 
+=item D_JukesCantor 
+
+"Phylogenetic Inference", Swoffrod, Olsen, Waddell and Hillis, in
+Mol. Systematics, 2nd ed, 1996, Ch 11.  Derived from "Evolution of
+Protein Molecules", Jukes & Cantor, in Mammalian Prot. Metab., III,
+1969, pp. 21-132.
+
+=item D_Tamura
+
+K Tamura, Mol. Biol. Evol. 1992, 9, 678.
+
+=item D_Kimura 
+
+M Kimura, J. Mol. Evol., 1980, 16, 111.
+
+=item JinNei 
+
+Jin and Nei, Mol. Biol. Evol. 82, 7, 1990.
+
+=item D_TajimaNei
+ 
+Tajima and Nei, Mol. Biol. Evol. 1984, 1, 269.
+
+=back
 
 =head1 FEEDBACK
 
@@ -313,12 +354,12 @@ BEGIN {
 					 'T' => [ 'C' ],
 				     },
 		    );
-    %DistanceMethods = ( 'jc|jukes|jukes-cantor' => 'JukesCantor',
+    %DistanceMethods = ( 'jc|jukes|jukescantor|jukes\-cantor' => 'JukesCantor',
 			 'jcuncor|uncorrected'   => 'Uncorrected',
-			 'f81'                   => 'F81',
+			 'f81|felsenstein81'     => 'F81',
 			 'k2|k2p|k80|kimura'     => 'Kimura',
 			 't92|tamura|tamura92'   => 'Tamura',
-			 'f84'                   => 'F84',
+			 'f84|felsenstein84'     => 'F84',
 			 'tajimanei|tajima\-nei' => 'TajimaNei',
 			 'jinnei|jin\-nei'       => 'JinNei');
 
@@ -879,11 +920,10 @@ sub D_TajimaNei{
 
 =cut
 
-
 sub D_JinNei{
    my ($self,@args) = @_;
-
-
+   $self->warn("JinNei implementation not completed");
+   return undef;
 }
 
 =head2 transversions
