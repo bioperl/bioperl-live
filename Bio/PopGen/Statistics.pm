@@ -862,4 +862,178 @@ sub external_mutations{
    return $external_alleles;
 }
 
+
+=head2 composite_LD
+
+ Title   : composite_LD
+ Usage   : %matrix = Bio::PopGen::Statistics->composite_LD($population);
+ Function: Calculate the Linkage Disequilibrium 
+           This is for calculating LD for unphased data. 
+           Other methods will be appropriate for phased haplotype data.
+          
+ Returns : Hash of Hashes - first key is site 1,second key is site 2
+           and value is LD for those two sites.
+           my $LD_site1_site2 = $matrix{$site1}->{$site2};
+ Args    : L<Bio::PopGen::PopulationI> or arrayref of 
+           L<Bio::PopGen::IndividualI>s 
+ Reference: Weir B.S. (1996) "Genetic Data Analysis II", 
+                      Sinauer, Sunderlanm MA.
+ 
+=cut
+
+sub composite_LD {
+    my ($self,$pop) = @_;
+    if( ref($pop) =~ /ARRAY/i ) {
+	if( ref($pop->[0]) && $pop->[0]->isa('Bio::PopGen::IndividualI') ) {
+	    $pop = new Bio::PopGen::Population(-individuals => @$pop);
+	} else { 
+	    $self->warn("composite_LD expects a Bio::PopGen::PopulationI or an arrayref of Bio::PopGen::IndividualI objects");
+	    return ();
+	}
+    } elsif( ! ref($pop) || ! $pop->isa('Bio::PopGen::PopulationI') ) {
+	$self->warn("composite_LD expects a Bio::PopGen::PopulationI or an arrayref of Bio::PopGen::IndividualI objects");
+	return ();
+    }
+
+    my @marker_names = $pop->get_marker_names;
+    my $site_count = scalar @marker_names;
+
+    my @inds = $pop->get_Individuals;
+    my $num_inds = scalar @inds;
+
+    my %allele_freqs;		# key is marker name
+    my( %genotypes,%pairwise_genotypes);
+    my %lookup_bigA;
+    my (%total_genotype_count,%total_pairwisegeno_count);
+
+    # calculate allele frequencies for each marker from the population
+    # use the built-in get_Marker to get the allele freqs
+    # we still need to calculate the genotype frequencies
+    foreach my $name ( @marker_names ) { 
+	foreach my $ind ( @inds ) {
+	    my ($genotype) = $ind->get_Genotypes(-marker => $name);
+	    my @alleles  = sort $genotype->get_Alleles;
+
+	    next if( scalar @alleles != 2);
+
+	    # fix the call for allele 1 (A or B) and 
+	    # allele 2 (a or b) in terms of how we'll do the 
+	    # N square from Weir p.126
+	    $lookup_bigA{$name}->{'1'} = $alleles[0];
+	    $lookup_bigA{$name}->{'2'} = $alleles[1];
+
+	    my $genostr  = join(',', @alleles);
+	    $genotypes{$name}->{$genostr}++;
+	    $total_genotype_count{$name}++;
+	}
+	# we should check for cases where there > 2 alleles or
+	# only 1 allele and throw out those markers.
+	my $allele_count = scalar keys %{$genotypes{$name}};
+	# test if site is polymorphic
+	if( $allele_count != 2) { 
+	    next;		# skip this marker
+	}
+	%{$allele_freqs{$name}} = $pop->get_Marker($name)->get_Allele_Frequencies();
+    }
+
+    @marker_names = keys %allele_freqs;
+    $site_count   = scalar @marker_names;
+
+    # where the final data will be stored
+    my %stats_for_sites;
+
+    # standard way of generating pairwise combos
+    # LD is done by comparing all the pairwise site (marker)
+    # combinations and keeping track of the genotype and 
+    # pairwise genotype (ie genotypes of the 2 sites) frequencies
+    for( my $i = 0; $i < $site_count - 1; $i++ ) {
+	
+	my $site1 = $marker_names[$i];
+	for( my $j = $i+1; $j < $site_count ; $j++) { 
+	    my $site2 = $marker_names[$j];
+	    foreach my $ind ( @inds ) {
+		# build string of genotype at site 1
+		my ($genotype1) = $ind->get_Genotypes(-marker => $site1);
+		my @alleles1  = sort $genotype1->get_Alleles;
+		my $genostr1  = join(',', @alleles1);
+		next if( scalar @alleles1 != 2);
+
+		# build string of genotype at site 2
+		my ($genotype2) = $ind->get_Genotypes(-marker => $site2);
+		my @alleles2  = sort $genotype2->get_Alleles;
+		my $genostr2  = join(',', @alleles2);
+		# if an individual has only one available allele
+		# (has a blank or N for one of the chromosomes)
+		# we don't want to use it in our calculation
+		next if( scalar @alleles2 != 2);
+		# We are using the $site1,$site2 to signify
+		# a unique key
+		$pairwise_genotypes{"$site1,$site2"}->{"$genostr1,$genostr2"}++;
+		# some individuals 
+		$total_pairwisegeno_count{"$site1,$site2"}++;
+	    }
+
+	    
+	    my $allele1_site1 = $lookup_bigA{$site1}->{'1'}; # this is the BigA allele
+	    my $allele1_site2 = $lookup_bigA{$site2}->{'1'}; # this is the BigB allele
+	    my $allele2_site1 = $lookup_bigA{$site1}->{'2'}; # this is the LittleA allele
+	    my $allele2_site2 = $lookup_bigA{$site2}->{'2'}; # this is the LittleB allele
+
+	    # AABB
+	    my $N1genostr = join(",",( $allele1_site1, $allele1_site1,
+				       $allele1_site2, $allele1_site2));
+	    # AABb
+	    my $N2genostr = join(",",( $allele1_site1, $allele1_site1,
+				       $allele1_site2, $allele2_site2));
+	    # AaBB
+	    my $N4genostr = join(",",( $allele1_site1, $allele2_site1,
+				       $allele1_site2, $allele1_site2));
+	    # AaBb
+	    my $N5genostr = join(",",( $allele1_site1, $allele2_site1,
+				       $allele1_site2, $allele2_site2));
+	    # count of AABB in 
+	    my $n1 = $pairwise_genotypes{"$site1,$site2"}->{$N1genostr};
+	    # count of AABb in 
+	    my $n2 = $pairwise_genotypes{"$site1,$site2"}->{$N2genostr};
+	    # count of AaBB in 
+	    my $n4 = $pairwise_genotypes{"$site1,$site2"}->{$N4genostr};
+	    # count of AaBb in 
+	    my $n5 = $pairwise_genotypes{"$site1,$site2"}->{$N5genostr};
+
+	    my $homozA_site1 = join(",", ($allele1_site1,$allele1_site1));
+	    my $homozB_site2 = join(",", ($allele1_site2,$allele1_site2));
+
+	    my $p_AA = $genotypes{$site1}->{$homozA_site1};
+	    my $p_BB = $genotypes{$site2}->{$homozB_site2};
+
+	    my $p_A  = $allele_freqs{$site1}->{$allele1_site1};	# an individual allele freq
+	    my $p_a  =  1 - $p_A;
+
+	    my $p_B  = $allele_freqs{$site2}->{$allele1_site2};	# an individual allele freq
+	    my $p_b  =  1 - $p_B;
+
+	    # variance of allele frequencies
+	    my $pi_A = $p_A * $p_a;
+	    my $pi_B = $p_B * $p_b;
+
+	    # hardy weinberg
+	    my $D_A  = $p_AA - $p_A**2;
+	    my $D_B  = $p_BB - $p_B**2;
+
+	    my $n = $total_pairwisegeno_count{"$site1,$site2"};	# number of inds
+
+	    my $n_AB = 2*$n1 + $n2 + $n4 + 0.5 * $n5;
+	    my $delta_AB = (1 / $n ) * ( $n_AB ) - ( 2 * $p_A * $p_B );
+
+	    my $chisquared = ( $n * ($delta_AB**2) ) / 
+		( ( $pi_A + $D_A) * ( $pi_B + $D_B) );
+
+	    # this will be an upper triangular matrix
+	    $stats_for_sites{$site1}->{$site2} = $chisquared;
+	}
+    }
+    return %stats_for_sites;
+}
+
+
 1;
