@@ -8,7 +8,7 @@ BEGIN {
 	use lib 't';
     }
     use Test;
-    plan tests => 53;
+    plan tests => 62;
 }
 
 use Bio::SimpleAlign;
@@ -195,12 +195,14 @@ $str = new Bio::AlignIO(-verbose => 1,
 $aln = $str->next_aln();
 ok($aln);
 ok(sprintf("%.1f",$aln->overall_percentage_identity), 2.1);
-ok(sprintf("%.1f",$aln->average_percentage_identity), 4.6);
+ok(sprintf("%.1f",$aln->average_percentage_identity), 38.5);
 ok($aln->get_seq_by_pos(1)->length, 238);
 ok($aln->length,238);
 ok($aln->get_seq_by_pos(1)->get_nse,'KV1K_HUMAN/1-108');
 ok($aln->get_seq_by_pos(2)->get_nse,'IF1Y_HUMAN/1-143');
-
+ok($aln->get_seq_by_pos(1)->seq(), 'DIQMTQSPSTLSVSVGDRVTITCEASQTVLSYLNWYQQKPGKAPKLLIYAASSLETGVPSRFSGQGSGTBFTFTISSVZPZBFATYYCQZYLDLPRTFGQGTKVDLKR'.'-'x130);
+ok($aln->get_seq_by_pos(2)->seq(), ('-'x94).'PKNKGKGGK-NRRRGKNENESEKRELVFKEDGQEYAQVIKMLGNGRLEALCFDGVKRLCHIRGKLRKKVWINTSDIILVGLRDYQDNKADVILKYNADEARSLKAYGGLPEHAKINETDTFGPGDDDEIQFDDIGDDDEDIDDI');
+ok($aln->is_flush);
 # MEGA
 
 $str = new Bio::AlignIO('-format' => 'mega',
@@ -218,3 +220,16 @@ $strout = new Bio::AlignIO('-format' => 'mega',
 
 $status = $strout->write_aln($aln);
 ok $status, 1, "  failed mega output test";
+
+
+# 
+
+$str = new Bio::AlignIO('-format' => 'emboss',
+			'-file'   => Bio::Root::IO->catfile('t','data','gf-s71.needle'));
+$aln = $str->next_aln();
+ok($aln);
+ok($aln->get_seq_by_pos(2)->seq(), 'MEDVTLFQFTWRKPI-RLQGEIVYKTSETQTIETNKKDVECVANFQENKEVQTDS-VDNGVGENVKKDITISKEVLNLLYDFVRDDSKVNYDRLLEFHKFDKVALETVQKYHVETRNENIILMISSSSRKTLILFGGISHETFCSHQARALLCSSSTSFSIPLPVCAISAVFYSSTQFILGDVSGNISMCSKDKIIFEKKITDGAVTCLEMCRHGLLSGSDDGNIILWQIGTSGLEKLGGTKLTVSDLSRKIRRSSTSNKPVAIVSMQVYVWPSGEEACVATETGGLYLLTLPTLDYKPLSHQTATSINKILFENQFVAVIYHTSNAAVFNSEGLVDEIPFVATLAVR----------PKLVLF--YTSVCVQDITLNCTSPFREFNNEYNPVIKFSKIRFSADLSVING-FRTSSPNSNN-----------------------------------------------');
+ok($aln->get_seq_by_pos(1)->seq(), 'MEDVTLHHFRWRKPVENKNGEIVYKTSETQTAEISRKDVECVANFQKSQESQTDDFMQNGVGDGIKKEIRISKEVLGHIYDFLRDDSKVNYDRLLEFHKFDKVSLETVQKYHVETRNENIILMISNSSRKTLILFGGLSHETFCSHQARAVLCSSSTTSSLPLPVCAISAVFYSSTQFLLGDISGNISMWTKEKMIFENKVTDGSVTSLELCRYGLLSGSDDGNVILWKVEESKIEKIEGIKLTVSDLSRKIRRSSTSNKPVAIVSMQV----SGDEVCVATETGGLYLLTLPTLESKPLT-QSATSIFKILYEHPYIAVVYHTSNSAIFNSEGLVDEIPFVATLAVRCGAYFIFSNQSRLIIWSMNTRSTVIDENLNCHS-ICSLSND--------------TLQVLDGDFNLNSQSENSATSESENLRISDLQNLRMLKLQNLRTSEFQNFRTSESQYFKKDNGEL');
+ok($aln->is_flush());
+ok($aln->get_seq_by_pos(1)->get_nse,'gf.s71.44/1-448');
+ok($aln->get_seq_by_pos(2)->get_nse,'Y50C1A.2/1-406');
