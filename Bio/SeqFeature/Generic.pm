@@ -69,11 +69,11 @@ Ewan Birney <birney@sanger.ac.uk>
 This class has been written with an eye out of inheritence. The fields
 the actual object hash are:
 
-   _gsf_tag_hash = reference to a hash for the tags
-   _gsf_sub_hash = reference to an array for sub arrays
-   _gsf_start    = scalar of the start point
-   _gsf_end      = scalar of the end point
-   _gsf_strand   = scalar of the strand
+   _gsf_tag_hash  = reference to a hash for the tags
+   _gsf_sub_array = reference to an array for sub arrays
+   _gsf_start     = scalar of the start point
+   _gsf_end       = scalar of the end point
+   _gsf_strand    = scalar of the strand
 
 =head1 APPENDIX
 
@@ -147,9 +147,10 @@ sub _initialize {
 =cut
 
 sub start{
-   my ($self,$value) = @_;
+   my $self = shift;
 
-   if( defined $value ) {
+   if( @_ ) {
+       my $value = shift;
        if( $value !~ /^\-?\d+/ ) {
 	   $self->throw("$value is not a valid start");
        }
@@ -172,9 +173,10 @@ sub start{
 =cut
 
 sub end{
-   my ($self,$value) = @_;
+   my $self = shift;
 
-   if( defined $value ) {
+   if( @_ ) {
+       my $value = shift;
        if( $value !~ /^\-?\d+/ ) {
 	   $self->throw("$value is not a valid end");
        }
@@ -198,9 +200,10 @@ sub end{
 =cut
 
 sub strand{
-   my ($self,$value) = @_;
+   my $self = shift;
 
-   if( defined $value ) {
+   if( @_ ) {
+       my $value = shift;
        if( $value != -1 && $value != 1 && $value != 0 ) {
 	   $self->throw("$value is not a valid strand info");
        }
@@ -208,6 +211,32 @@ sub strand{
    } 
 
    return $self->{'_gsf_strand'};
+}
+
+=head2 strand
+
+ Title   : score
+ Usage   : $score = $feat->score()
+           $feat->score($score)
+ Function: get/set on score information
+ Returns : float
+ Args    : none if get, the new value if set
+
+
+=cut
+
+sub score {
+  my $self = shift;
+  
+  if(@_) {
+       my $value = shift;
+       if( $value !~ /^\[+-]?\d+\.?\d*/ ) {
+	   $self->throw("$value is not a valid score");
+       }
+       $self->{'_gsf_score'} = $value;
+  }
+  
+  return $self->{'_gsf_score'};
 }
 
 =head2 sub_SeqFeature
@@ -321,10 +350,10 @@ sub source_tag{
 =cut
 
 sub has_tag{
-   my ($self,$tag,$value) = @_;
+   my ($self,$tag) = (shift, shift);
 
-   if( defined $value ) {
-       $self->{'_gsf_tag_hash'}->{$tag} = $value;
+   if( @_ ) {
+       $self->{'_gsf_tag_hash'}->{$tag} = shift;
    } 
 
    return $self->{'_gsf_tag_hash'}->{$tag};
@@ -346,13 +375,6 @@ sub all_tags{
 
    return keys %{$self->{'_gsf_tag_hash'}};
 }
-
-
-
-
-
-
-
 
 
 
