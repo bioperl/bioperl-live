@@ -206,20 +206,16 @@ sub next_tree{
    
    my @nodes = ();   
    foreach my $n ( @$treearray ) { 
+       for my $k ( qw(desc1 desc2) ) {
+	   next unless defined $n->{$k};
+	   push @{$n->{'descendents'}}, $nodes[$n->{$k}];
+       }
        push @nodes, 
        $nodetype->new(-id            => $n->{'nodenum'},
-		      -branch_length => $n->{'time'});
+		      -branch_length => $n->{'time'},
+		      -descendents   => $n->{'descendents'},
+		      );
    }
-   my $ct = 0;
-   foreach my $node ( @nodes ) { 
-       my $n = $treearray->[$ct++];
-       if( defined $n->{'desc1'} ) {
-	   $node->add_Descendent($nodes[$n->{'desc1'}]);
-       }
-       if( defined $n->{'desc2'} ) { 
-	   $node->add_Descendent($nodes[$n->{'desc2'}]);
-       }
-   }   
    my $T = Bio::Tree::Tree->new(-root => pop @nodes );
    return $T;
 }

@@ -88,9 +88,10 @@ BEGIN {
  Usage   : my $obj = new Bio::Tree::Node();
  Function: Builds a new Bio::Tree::Node object
  Returns : Bio::Tree::Node
- Args    : -left          => pointer to Left descendent (optional)
-           -right         => pointer to Right descenent (optional)
-	   -branch_length => branch length [integer] (optional)
+ Args    : -descendents   => arrayref of descendents (they will be
+                             updated s.t. their ancestor point is this
+                             node)
+           -branch_length => branch length [integer] (optional)
            -bootstrap     => value   bootstrap value (string)
            -description   => description of node
            -id            => human readable id for node
@@ -102,12 +103,13 @@ sub new {
 
   my $self = $class->SUPER::new(@args);
   my ($children, $branchlen,$id,
-      $bootstrap, $desc,$d) = $self->_rearrange([qw(DESCENDENTS
-						 BRANCH_LENGTH
-						 ID
-						 BOOTSTRAP
-						 DESC
-						 DESCRIPTION
+      $bootstrap, $desc,$d) = $self->_rearrange([qw(
+						    DESCENDENTS
+						    BRANCH_LENGTH
+						    ID
+						    BOOTSTRAP
+						    DESC
+						    DESCRIPTION
 						 )],
 					     @args);
   $self->_register_for_cleanup(\&node_cleanup);
@@ -122,7 +124,6 @@ sub new {
   defined $bootstrap && $self->bootstrap($bootstrap);
   defined $id && $self->id($id);
   defined $branchlen && $self->branch_length($branchlen);
-
   if( defined $children ) {
       if( ref($children) !~ /ARRAY/i ) {
 	  $self->warn("Must specify a valid ARRAY reference to initialize a Node's Descendents");
