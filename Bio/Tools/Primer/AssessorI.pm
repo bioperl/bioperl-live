@@ -68,7 +68,7 @@ Internal methods are usually preceded with a _
 
 # Let the code begin...
 
-package Bio::Tools::Primer::AssessorI.pm;
+package Bio::Tools::Primer::AssessorI;
 
 use Bio::Root::RootI;
 
