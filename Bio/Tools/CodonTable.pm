@@ -524,7 +524,7 @@ sub revtranslate {
 	$value = ucfirst $value;
 	$value = $onecode{$value}; 
     }
-    if ( defined $value and $value =~ /[ARNDCQEGHILKMFPSTWYVBZX]/ and length($value) == 1 ) {
+    if ( defined $value and $value =~ /[ARNDCQEGHILKMFPSTWYVBZX*]/ and length($value) == 1 ) {
 	$value = uc $value;
 	@aas = @ {$iupac_aa{$value}} ;	
 	foreach my $aa (@aas) {
