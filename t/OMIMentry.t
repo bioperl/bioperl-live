@@ -57,8 +57,8 @@ ok( $obj->gene_status( "I" ) );
 ok( $obj->gene_status(), "I" );
 
 
-ok( $obj->clinical_symptoms( "Patients with ..." ) );
-ok( $obj->clinical_symptoms(), "Patients with ..." );
+ok( $obj->clinical_symptoms_raw( "Patients with ..." ) );
+ok( $obj->clinical_symptoms_raw(), "Patients with ..." );
 
 
 ok( $obj->created( "Victor A. McKusick: 6/4/1986" ) );

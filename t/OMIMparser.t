@@ -46,7 +46,7 @@ ok( $omim_entry->edited(), "ed1\ned2\ned3" );
 ok( $omim_entry->created(), "cd1\ncd2\ncd3" );
 ok( $omim_entry->contributors(), "cn1\ncn2\ncn3" );
 ok( $omim_entry->additional_references(), "sa" );
-ok( $omim_entry->clinical_symptoms(), "clinical symptoms" );
+ok( ref($omim_entry->clinical_symptoms()), 'HASH' );
 ok( $omim_entry->species()->binomial(), "Homo sapiens" );
 
 
@@ -180,7 +180,9 @@ ok( $omim_entry2->edited(), "ed1\ned2\ned3" );
 ok( $omim_entry2->created(), "cd1\ncd2\ncd3" );
 ok( $omim_entry2->contributors(), "cn1\ncn2\ncn3" );
 ok( $omim_entry2->additional_references(), "sa" );
-ok( $omim_entry2->clinical_symptoms(), "clinical symptoms" );
+
+my $cs = $omim_entry2->clinical_symptoms();
+ok( ref($cs), 'HASH' );
 ok( $omim_entry2->species()->binomial(), "Homo sapiens" );
 
 
