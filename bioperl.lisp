@@ -35,7 +35,7 @@
   (insert "use strict;\n")
   (insert "\n# Object preamble - inherits from Bio::Root::RootI\n")
   (insert "\nuse Bio::Root::RootI;\n\n")
-  (insert "\nuse AutoLoader;\n@ISA = qw(Bio::Root::RootI );\n")
+  (insert "\n@ISA = qw(Bio::Root::RootI );\n")
   (insert "sub new {\n  my($class,@args) = @_;\n\n  my $self = $class->SUPER::new(@args);\n\n}\n")
   )
 
