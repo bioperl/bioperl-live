@@ -177,11 +177,11 @@ use vars qw( @ISA );
 my %column_map = (
                   'query_name'            => ['1', 'result', 'query_name', 's', 'QUERY' ],
                   'query_length'          => ['2', 'result', 'query_length', 'd', 'LEN_Q'],
-                  'hit_name'              => ['3', 'hit', 'hit_name', 's', 'HIT'],
+                  'hit_name'              => ['3', 'hit', 'name', 's', 'HIT'],
                   'hit_length'            => ['4', 'hit', 'hit_length', 'd', 'LEN_H'],
                   'round'                 => ['5', 'hit', 'iteration', 'd', 'ROUND', 'hit'],
                   'rank'                  => ['6', 'hsp', 'rank', 'd', 'RANK'],
-                  'expect'                => ['7', 'hsp', 'expect', '.1e', 'EXPCT'],
+                  'expect'                => ['7', 'hsp', 'evalue', '.1e', 'EXPCT'],
                   'score'                 => ['8', 'hsp', 'score', 'd', 'SCORE'],
                   'bits'                  => ['9', 'hsp', 'bits', 'd', 'BITS'],
                   'frac_identical_query'  => ['10', 'hsp', 'frac_identical/query', '.2f', 'FR_IDQ'],
