@@ -370,10 +370,10 @@ sub pairwise_alignment_score {
     $seq2->display_id('seq2') unless ( defined $seq2->id() );
 
     if ($prof->alphabet eq 'dna' and $seq2->alphabet eq 'dna') {
-	return Bio::Ext::Score_DNA_Sequences($prof, $seq2->seq);
+	return Bio::Ext::Align::Score_DNA_Sequences($prof, $seq2->seq);
     }
     elsif ($prof->alphabet eq 'protein' and $seq2->alphabet eq 'protein') {
-	return Bio::Ext::Score_Protein_Sequences($prof, $seq2->seq);
+	return Bio::Ext::Align::Score_Protein_Sequences($prof, $seq2->seq);
     }
     else {
 	croak("There is currently no support for the types of sequences you want to align!\n");
