@@ -128,12 +128,21 @@ sub new {
 
     # Note that we need to override the setting of result and factories here
     # so that we can set different default factories than are set by the super class.
-    $self->register_factory('result', $resultF || Bio::Factory::ObjectFactory->new(-type => 'Bio::Search::Result::BlastResult'));
-    $self->register_factory('hit', $hitF || Bio::Factory::ObjectFactory->new(-type => 'Bio::Search::Hit::BlastHit'));
+    $self->register_factory('result', $resultF || 
+                            Bio::Factory::ObjectFactory->new(
+                                 -type      => 'Bio::Search::Result::BlastResult',
+                                 -interface => 'Bio::Search::Result::ResultI'));
+
+    $self->register_factory('hit', $hitF || 
+                            Bio::Factory::ObjectFactory->new(
+                                 -type      => 'Bio::Search::Hit::BlastHit',
+                                 -interface => 'Bio::Search::Hit::HitI'));
 
     # TODO: Change this to BlastIteration (maybe)
-    $self->register_factory('iteration', $iterationF || Bio::Factory::ObjectFactory->new(-type => 'Bio::Search::Iteration::GenericIteration'));
-
+    $self->register_factory('iteration', $iterationF || 
+                            Bio::Factory::ObjectFactory->new(
+                                 -type      => 'Bio::Search::Iteration::GenericIteration',
+                                 -interface => 'Bio::Search::Iteration::IterationI'));
     return $self;
 }
 
@@ -240,7 +249,7 @@ sub end_result {
 
     $args{'-iterations'} = $self->{'_iterations'};
 
-    my $result = $self->factory('result')->create(%args);
+    my $result = $self->factory('result')->create_object(%args);
     $self->{'_iterations'} = [];
     return $result;
 }
@@ -392,7 +401,7 @@ sub end_iteration {
     $args{'-newhits_below'} = $self->{'_newhits_below'};
     $args{'-newhits_not_below'} = $self->{'_newhits_not_below'};
 
-    my $it = $self->factory('iteration')->create(%args);
+    my $it = $self->factory('iteration')->create_object(%args);
     push @{$self->{'_iterations'}}, $it;
     return $it;
 }

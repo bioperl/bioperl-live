@@ -149,9 +149,21 @@ BEGIN {
 sub _initialize {
     my ($self,@args) = @_;
     $self->SUPER::_initialize(@args);
-    $self->_eventHandler->register_factory('result', Bio::Factory::ObjectFactory->new(-type => 'Bio::Search::Result::HMMERResult'));
-    $self->_eventHandler->register_factory('hit', Bio::Factory::ObjectFactory->new(-type => 'Bio::Search::Hit::HMMERHit'));
-    $self->_eventHandler->register_factory('hsp', Bio::Factory::ObjectFactory->new(-type => 'Bio::Search::HSP::HMMERHSP'));
+    my $handler = $self->_eventHandler;
+    $handler->register_factory('result',
+                               Bio::Factory::ObjectFactory->new(
+                                      -type      => 'Bio::Search::Result::HMMERResult',
+                                      -interface => 'Bio::Search::Result::ResultI'));
+
+    $handler->register_factory('hit', 
+                               Bio::Factory::ObjectFactory->new(
+                                       -type      => 'Bio::Search::Hit::HMMERHit',
+                                       -interface => 'Bio::Search::Hit::HitI'));
+
+    $handler->register_factory('hsp', 
+                               Bio::Factory::ObjectFactory->new(
+                                       -type      => 'Bio::Search::HSP::HMMERHSP',
+                                       -interface => 'Bio::Search::HSP::HSPI'));
 }
 
 =head2 next_result
