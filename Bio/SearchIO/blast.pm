@@ -732,8 +732,7 @@ sub next_result{
                              'Data' => $evalue});
 	   $score = '' unless defined $score; # deal with BLAT which
                                               # has no score only bits
-           #$self->debug("Got NCBI HSP score=$score, evalue $evalue\n") 
-	       if $self->verbose > 0;
+           #$self->debug("Got NCBI HSP score=$score, evalue $evalue\n") if $self->verbose > 0;
 
        } elsif( $self->in_element('hsp') &&
                 m/Identities\s*=\s*(\d+)\s*\/\s*(\d+)\s*[\d\%\(\)]+\s*
