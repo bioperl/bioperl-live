@@ -84,7 +84,6 @@ use LWP::UserAgent;
 use HTTP::Request::Common;
 use HTTP::Response;
 use File::Spec;
-use File::Temp qw(tempfile tempdir);
 use IO::String;
 
 $MODVERSION = '0.8';
@@ -275,8 +274,8 @@ sub get_seq_stream {
     my $url = $self->get_request(%qualifiers);
     my ($stream,$resp);
     if( $self->retrieval_type =~ /temp/i ) {
-	my $dir = tempdir( CLEANUP => 1);
-	my ( $fh, $tmpfile) = tempfile( DIR => $dir );
+	my $dir = $self->tempdir( CLEANUP => 1);
+	my ( $fh, $tmpfile) = $self->tempfile( DIR => $dir );
 	close $fh;
 	my ($resp) = $self->_request($url, $tmpfile);		
 	if( ! -e $tmpfile || -z $tmpfile ) {
