@@ -7,7 +7,7 @@ pod.pl - check the POD documentation syntax in modules and scripts
 
 =head1 SYNOPSIS
 
-B<pod.pl> [B<-d|--dir> path ] [B<-v|--verbose>] B<-b|--blankline> 
+B<pod.pl> [B<-d|--dir> path ] [B<-v|--verbose>] B<-b|--blankline>
     [B<-?|-h|--help>]
 
 =head1 DESCRIPTION
@@ -90,6 +90,7 @@ sub podcheck {
     print "$_\n" if $verbose;
     my $checker = new Pod::Checker %POD_CHECKER_OPTIONS;
     $checker->parse_from_file($_, \*F);
+    print "$_\tno POD\n" if $checker->num_errors() < 0;
 }
 
 =head1 OPTIONS
