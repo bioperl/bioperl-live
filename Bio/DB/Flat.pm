@@ -16,6 +16,7 @@ Bio::DB::Flat - Interface for indexed flat files
 =head1 SYNOPSIS
 
   $db = Bio::DB::Flat->new(-directory  => '/usr/share/embl',
+			   -dbname     => 'mydb',
                            -format     => 'embl',
                            -write_flag => 1);
   $db->build_index('/usr/share/embl/primate.embl','/usr/share/embl/protists.embl');
@@ -82,6 +83,7 @@ use constant CONFIG_FILE_NAME => 'config.dat';
  Title   : new
  Usage   : my $db = new Bio::Flat->new(
                      -directory  => $root_directory,
+		     -dbname     => 'mydb',
 		     -write_flag => 0,
                      -index      => 'bdb'|'binarysearch',
                      -verbose    => 0,
@@ -95,10 +97,15 @@ use constant CONFIG_FILE_NAME => 'config.dat';
            -out          File to write to when write_seq invoked
  Status  : Public
 
-The root -directory indicates where the flat file indexes will be
-stored.  The build_index() and write_seq() methods will automatically
-create a human-readable configuration file named "config.dat" in this
-file.
+The required -directory argument indicates where the flat file indexes
+will be stored.  The build_index() and write_seq() methods will
+automatically create subdirectories of this root directory.  Each
+subdirectory will contain a human-readable configuration file named
+"config.dat" that specifies where the individual indexes are stored.
+
+The required -dbname argument gives a name to the database index.  The
+index files will actually be stored in a like-named subdirectory
+underneath the root directory.
 
 The -write_flag enables writing new entries into the database as well
 as the creation of the indexes.  By default the indexes will be opened
@@ -121,21 +128,33 @@ sub new {
   my $self = $class->SUPER::new(@_);
 
   # first we initialize ourselves
-  my ($flat_directory) = @_ == 1 ? shift
-                                 : $self->_rearrange([qw(DIRECTORY)],@_);
+  my ($flat_directory,$dbname) = $self->_rearrange([qw(DIRECTORY DBNAME)],@_);
+
+  defined $flat_directory
+    or $self->throw('Please supply a -directory argument');
+  defined $dbname
+    or $self->throw('Please supply a -dbname argument');
 
   # set values from configuration file
   $self->directory($flat_directory);
+  $self->dbname($dbname);
+
   $self->throw("Base directory $flat_directory doesn't exist")
     unless -e $flat_directory;
   $self->throw("$flat_directory isn't a directory")
     unless -d _;
+  my $dbpath = Bio::Root::IO->catfile($flat_directory,$dbname);
+  unless (-d $dbpath) {
+    warn "creating db directory $dbpath\n";
+    mkdir $dbpath,0777 or $self->throw("Can't create $dbpath: $!");
+  }
   $self->_read_config();
 
   # but override with initialization values
   $self->_initialize(@_);
 
-  $self->throw('you must specify an indexing scheme') unless $self->indexing_scheme;
+  $self->throw('you must specify an indexing scheme') 
+    unless $self->indexing_scheme;
 
   # now we figure out what subclass to instantiate
   my $index_type = $self->indexing_scheme eq 'BerkeleyDB/1' ? 'BDB'
@@ -169,8 +188,8 @@ sub new {
 sub _initialize {
   my $self = shift;
 
-  my ($flat_write_flag,$flat_indexing,$flat_verbose,$flat_outfile,$flat_format)
-    = $self->_rearrange([qw(WRITE_FLAG INDEX VERBOSE OUT FORMAT)],@_);
+  my ($flat_write_flag,$dbname,$flat_indexing,$flat_verbose,$flat_outfile,$flat_format)
+    = $self->_rearrange([qw(WRITE_FLAG DBNAME INDEX VERBOSE OUT FORMAT)],@_);
 
   $self->write_flag($flat_write_flag) if defined $flat_write_flag;
 
@@ -182,6 +201,7 @@ sub _initialize {
   }
 
   $self->verbose($flat_verbose)    if defined $flat_verbose;
+  $self->dbname($dbname)           if defined $dbname;
   $self->out_file($flat_outfile)   if defined $flat_outfile;
   $self->file_format($flat_format) if defined $flat_format;
 }
@@ -218,8 +238,11 @@ The following registry-configuration tags are recognized:
 
 sub new_from_registry {
     my ($self,%config) =  @_;
-    my $location = $config{'location'} or $self->throw('Location must be specified.');
-    my $index    = $self->new(-directory => $location);
+    my $location = $config{'location'} or $self->throw('location tag must be specified.');
+    my $dbname   = $config{'dbname'}   or $self->throw('dbname tag must be specified.');
+    my $index    = $self->new(-directory => $location,
+			      -dbname    => $dbname,
+			     );
 }
 
 # accessors
@@ -247,7 +270,12 @@ sub out_file {
   $self->{flat_outfile} = shift if @_;
   $d;
 }
-
+sub dbname {
+  my $self = shift;
+  my $d = $self->{flat_dbname};
+  $self->{flat_dbname} = shift if @_;
+  $d;
+}
 sub primary_namespace {
   my $self = shift;
   my $d    = $self->{flat_primary_namespace};
@@ -390,10 +418,7 @@ sub _filenos {
 # read the configuration file
 sub _read_config {
   my $self   = shift;
-  my $config = shift;
-
-  my $path = defined $config ? Bio::Root::IO->catfile($config,CONFIG_FILE_NAME) 
-                             : $self->_config_path;
+  my $path = $self->_config_path;
   return unless -e $path;
 
   open (F,$path) or $self->throw("open error on $path: $!");
@@ -438,7 +463,7 @@ sub _config_path {
 sub _catfile {
   my $self = shift;
   my $component = shift;
-  Bio::Root::IO->catfile($self->directory,$component);
+  Bio::Root::IO->catfile($self->directory,$self->dbname,$component);
 }
 
 sub _config_name { CONFIG_FILE_NAME }
