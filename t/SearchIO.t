@@ -22,7 +22,7 @@ BEGIN {
 	use lib 't';
     }
     use vars qw($NTESTS);
-    $NTESTS = 1214;
+    $NTESTS = 1216;
     $LASTXMLTEST = 63;
     $error = 0;
 
@@ -1646,6 +1646,8 @@ ok($result = $searchio->next_result);
 ok($hit = $result->next_hit);
 ok($hsp = $hit->next_hsp);
 ok($hsp->links,'(1)-3-2');
+ok($hsp->query->strand, 1);
+ok($hsp->hit->strand, 1);
 ok($hsp->hsp_group, '1');
 
 # some utilities
