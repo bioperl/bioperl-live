@@ -247,7 +247,7 @@ foreach my $arg ( @ARGV ) {
 		$db =~ /(\S+)\,(\d+)/ || die "$db is not server.name,port for acedb database";
 		$server = $1;
 		$port = $2;
-		print STDERR "Connecting to $server,$port\n";
+		# print STDERR "Connecting to $server,$port\n";
 
 		$dbobj = Bio::DB::Ace->new(-host => $server, -port => $port);
 		last SWITCH;
