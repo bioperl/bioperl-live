@@ -7,16 +7,29 @@ Revision history for Bioperl core modules
   improvements over the 0.7.x series of releases.   
 
     o Bio::Tools::Blast is officially deprecated.  Please see
-      Bio::SearchIO for BLAST, FASTA parsing.
+      Bio::SearchIO for BLAST and FastA parsing.
 
     o The methods trunc() and subseq() in Bio::PrimarySeqI now accepts
       Bio::LocationI objects as well as start/end.
 
     o Bio::Biblio contains modules for Bibliographic data. 
-      Bio::DB::Biblio contains the query modules.
+      Bio::DB::Biblio contains the query modules.  Additionally one can
+      parse medlinexml from the ebi bibliographic query service (BQS)
+      system and Pubmed xml from NCBI.  See Martin Senger's
+      documentation in Bio::Biblio for more information.
     
     o Bio::DB::Registry is a sequence database registry part of 
-      Open Bioinformatics Database Access.
+      Open Bioinformatics Database Access.  See
+      http://obda.open-bio.org for more information.
+    
+    o File-based and In-Memory Sequence caching is provided by
+      Bio::DB::InMemoryCache and Bio::DB::FileCache which acts like a
+      local database.
+
+    o Bio::Graphics for rendering sequences as PNG,JPG, or GIFs has
+      been added by Lincoln Stein.
+
+    o XEMBL SOAP service access in provided in Bio::DB::XEMBL.
 
     o A FAQ has been started and is included in the release to provide
       a starting point for frequent questions and issues.
