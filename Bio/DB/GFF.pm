@@ -391,10 +391,11 @@ contained in the database.  After the query is generated, each
 aggregator is called again in order to build composite annotations
 from the returned components.
 
-For example, during disaggregation, the standard "transcript"
-aggregator generates a list of component feature types including
-"intron", "exon", "CDS", and "3'UTR".  Later, it aggregates these
-features into a set of annotations of type "transcript".
+For example, during disaggregation, the standard
+"processed_transcript" aggregator generates a list of component
+feature types including "UTR", "CDS", and "polyA_site".  Later, it
+aggregates these features into a set of annotations of type
+"processed_transcript".
 
 During aggregation, the list of aggregators is called in reverse
 order.  This allows aggregators to collaborate to create multi-level
@@ -432,7 +433,7 @@ this call:
 will return a list of unaggregated similarity segments.
 
 For more informnation, see the manual pages for
-Bio::DB::GFF::Aggregator::transcript, Bio::DB::GFF::Aggregator::clone,
+Bio::DB::GFF::Aggregator::processed_transcript, Bio::DB::GFF::Aggregator::clone,
 etc.
 
 =back
@@ -480,7 +481,7 @@ These are the arguments:
 
  -aggregator   Array reference to a list of aggregators
                to apply to the database.  If none provided,
-	       defaults to ['transcript','clone','alignment'].
+	       defaults to ['processed_transcript','clone','alignment'].
 
   <other>      Any other named argument pairs are passed to
                the adaptor for processing.
@@ -1906,7 +1907,7 @@ specified in the constructor.
 
 sub default_aggregators {
   my $self = shift;
-  return ['transcript','clone','alignment'];
+  return ['processed_transcript','clone','alignment'];
 }
 
 =head2 do_load_gff

@@ -7,7 +7,7 @@
 use strict;
 use ExtUtils::MakeMaker;
 use Bio::Root::IO;
-use constant TEST_COUNT => 116;
+use constant TEST_COUNT => 120;
 use constant FASTA_FILES => Bio::Root::IO->catfile('t','data','dbfa');
 use constant GFF_FILE    => Bio::Root::IO->catfile('t','data',
 						   'biodbgff','test.gff');
@@ -48,6 +48,7 @@ if ($adaptor =~ /^dbi/) {
   $adaptor = "dbi::$cfg->{dbd_driver}" if $cfg->{dbd_driver};
   @args = ( '-adaptor'  => $adaptor,
 	    '-dsn'     => $cfg->{test_dsn},
+	    '-aggregators' => ['transcript','processed_transcript'],
 	  );
   push @args,('-user' => $cfg->{test_user}) if $cfg->{test_user};
   push @args,('-pass' => $cfg->{test_pass}) if $cfg->{test_pass};
@@ -69,7 +70,7 @@ ok($db->load_fasta(FASTA_FILES));
 
 # exercise db->types
 my @types = sort $db->types;
-ok(scalar @types,8);
+ok(scalar @types,10);
 ok($types[0],'CDS:confirmed');
 ok($types[-1],'transposon:tc1');
 my %types = $db->types('-enumerate'=>1);
@@ -368,6 +369,15 @@ ok($tseg->truncated);
 $db->strict_bounds_checking(0);
 $tseg    = $db->segment(-name=>'trans-1',-class=>'Transcript',-start=>1,-stop=>50000);
 ok(!$tseg->truncated);
+
+# test the processed_transcript aggregator
+$db->clear_aggregators;
+$db->add_aggregator('processed_transcript');
+my @f = $db->fetch_feature_by_name(mRNA => 'trans-8');
+ok(scalar @f,1);
+ok($f[0]->length,35000-32000+1);
+ok(scalar $f[0]->CDS,3);
+ok(scalar $f[0]->UTR,2);
 
 END {
   unlink FASTA_FILES."/directory.index";
