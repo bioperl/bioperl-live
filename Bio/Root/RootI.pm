@@ -15,6 +15,7 @@
 #
 # added debug and deprecated methods --Jason Stajich 2001-10-12
 # 
+
 =head1 NAME
 
 Bio::Root::RootI - Abstract interface to root object code
@@ -36,6 +37,17 @@ Bio::Root::RootI - Abstract interface to root object code
       print "no exception";
   }
 
+  # Using throw_not_implemented() within a RootI-based interface module:
+
+  package Foo;
+  @ISA = qw( Bio::Root::RootI );
+
+  sub foo {
+      my $self = shift;
+      $self->throw_not_implemented;
+  }
+
+
 =head1 DESCRIPTION
 
 This is just a set of methods which do not assume B<anything> about the object
@@ -44,6 +56,34 @@ stack traces.
 
 This is what should be inherited by all bioperl compliant interfaces, even
 if they are exotic XS/CORBA/Other perl systems.
+
+=head2 Using throw_not_implemented()
+
+The method L<throw_not_implemented()|throw_not_implemented> should be
+called by all methods within interface modules that extend RootI so
+that if an implementation fails to override them, an exception will be
+thrown.
+
+For example, say there is an interface module called C<FooI> that
+provides a method called C<foo()>. Since this method is considered
+abstract within FooI and should be implemented by any module claiming to
+implement C<FooI>, the C<FooI::foo()> method should consist of the
+following:
+
+    sub foo {
+    	my $self = shift;
+    	$self->throw_not_implemented;
+    }
+
+So, if an implementer of C<FooI> forgets to implement C<foo()>
+and a user of the implementation calls C<foo()>, a
+B<Bio::Exception::NotImplemented> exception will result.
+
+Unfortunately, failure to implement a method can only be determined at
+run time (i.e., you can't verify that an implementation is complete by
+running C<perl -wc> on it). So it should be standard practice for a test
+of an implementation to check each method and verify that it doesn't
+throw a B<Bio::Exception::NotImplemented>.
 
 =head1 CONTACT
 
@@ -102,7 +142,7 @@ sub _initialize {
     return 1;
 }
 
-=head2 _create_object()
+=head2 _create_object
 
  Title   : _create_object()
  Usage   : $obj->create_object(@args)
@@ -473,7 +513,7 @@ sub _cleanup_methods {
   return;
 }
 
-=head2 throw_not_implemented()
+=head2 throw_not_implemented
 
  Purpose : Throws a Bio::Root::NotImplemented exception.
            Intended for use in the method definitions of 
@@ -486,16 +526,13 @@ sub _cleanup_methods {
            }
  Returns : n/a
  Args    : n/a
- Throws  : A Bio::Root::NotImplemented exception (via Error.pm)
+ Throws  : A Bio::Root::NotImplemented exception.
            The message of the exception contains
              - the name of the method 
              - the name of the interface 
              - the name of the implementing class 
-           The name of the method is also placed within the 'value'
-           field of the Error object.
 
-           This method will work even when Error.pm isn't installed,
-  	   in which case $self->throw will be used.
+  	   If this object has a throw() method, $self->throw will be used.
            If the object doesn't have a throw() method, 
            Carp::confess() will be used.
 
@@ -518,6 +555,9 @@ sub throw_not_implemented {
     # Bio::Root::Root, which knows how to check for Error.pm.
 
     # EB - this wasn't working and I couldn't figure out!
+    # SC - OK, since most RootI objects will be Root.pm-based,
+    #      and Root.pm can deal with Error.pm. 
+    #      Still, I'd like to know why it wasn't working...
 
     if( $self->can('throw') ) {
 	 $self->throw( $message );
@@ -528,7 +568,7 @@ sub throw_not_implemented {
 }
 
 
-=head2 warn_not_implemented()
+=head2 warn_not_implemented
 
  Purpose : Generates a warning that a method has not been implemented.
            Intended for use in the method definitions of 
