@@ -60,8 +60,6 @@ email or the web:
 
 Email jason@bioperl.org
 
-Describe contact details here
-
 =head1 CONTRIBUTORS
 
 Steve Chervitz sac@bioperl.org
@@ -413,7 +411,7 @@ sub next_result{
                    my ($score, $evalue) = ($1, $2);
                    # Some data clean-up so e-value will appear numeric to perl
                    $evalue = "1$evalue" if $evalue =~ /^e/;
-                   push @hit_signifs, [ $evalue, $score ];
+		   push @hit_signifs, [ $evalue, $score ];
                } elsif( /^>/ ) {
                    $self->_pushback($_);
                    last descline;
@@ -432,7 +430,7 @@ sub next_result{
             while( defined ($_ = $self->_readline() ) && 
                   ! /^\s+$/ ) {        
                 my @line = split;
-                pop @line; # throw away first number which is for 'N'col
+		pop @line; # throw away first number which is for 'N'col
                 push @hit_signifs, [ pop @line, pop @line];
            }
        } elsif ( /^Database:\s*(.+)$/ ) {
@@ -526,17 +524,17 @@ sub next_result{
                 \s*(Sum)?\s*                # SUM
                 P(\(\d+\))?\s*=\s*([^,\s]+) # P-value
                 /ox 
-                  ) {
+                  ) { # wu-blast HSP parse
            $self->in_element('hsp') && $self->end_element({'Name' => 'Hsp'});
            $self->start_element({'Name' => 'Hsp'});
-        #   print STDERR "Got wu HSP score=$1\n";
-
+	   # print STDERR "Got wu HSP score=$1\n";
+	   
            # Some data clean-up so e-value will appear numeric to perl
            my ($score, $bits, $evalue, $pvalue) = ($1, $2, $3, $6);
            $evalue = "1$evalue" if $evalue =~ /^e/;
            $pvalue = "1$pvalue" if $pvalue =~ /^e/;
-
-                  $self->element( { 'Name' => 'Hsp_score',
+	   
+	   $self->element( { 'Name' => 'Hsp_score',
                              'Data' => $score});
            $self->element( { 'Name' => 'Hsp_bit-score',
                              'Data' => $bits});
@@ -549,7 +547,7 @@ sub next_result{
                 m/Score\s*=\s*(\S+)\s*bits\s* # Bit score
                 (\((\d+)\))?,                 # Missing for BLAT pseudo-BLAST fmt 
                 \s*Expect(\(\d+\))?\s*=\s*(\S+) # E-value
-                /ox) {
+                /ox) { # parse NCBI blast HSP
            $self->in_element('hsp') && $self->end_element({ 'Name' => 'Hsp'});
            
          #  print STDERR "Got ncbi HSP score=$3\n";
@@ -622,7 +620,9 @@ sub next_result{
 
            $self->in_element('hsp') && $self->end_element({'Name' => 'Hsp'});
            $self->in_element('hit') && $self->end_element({'Name' => 'Hit'});
-           $self->end_element({'Name' => 'Iteration'});
+           
+	   $self->within_element('iteration') && 
+	       $self->end_element({'Name' => 'Iteration'});
 
            next if /^\s+Subset/;
            my $blast = ( /Parameters\:/ ) ? 'wublast' : 'ncbi'; 
