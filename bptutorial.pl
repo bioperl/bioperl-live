@@ -2206,11 +2206,11 @@ cluster for manipulation might look like this:
 
   my $stream = Bio::ClusterIO->new(-file => "Hs.data", -format => "unigene");
   while ( my $in = $stream->next_cluster ) {
-    print $in->unigene_id() . "\n";
-      while ( my $sequence = $in->next_seq ) {
-	print $sequence->accession_number . "\n";
-      }
-   }
+     print $in->unigene_id() . "\n";
+     while ( my $sequence = $in->next_seq ) {
+        print $sequence->accession_number . "\n";
+     }
+  }
 
 See L<Bio::Cluster::UniGene> for more details.
 
@@ -2410,12 +2410,12 @@ auxiliary library if either:
 
 =item *
 
-the module requires the installation of additional non-standard
+The module requires the installation of additional non-standard
 external programs or modules, or
 
 =item *
 
-the module is perceived to be of interest to only a small percentage
+The module is perceived to be of interest to only a small percentage
 of the bioinformatics community
 
 =back
@@ -2713,8 +2713,7 @@ and see if they might be of use to you.
 
 =for html <A NAME ="v.1"></A>
 
-=head2 V.1 Appendix: Finding out which methods are used by which
-Bioperl Objects
+=head2 V.1 Appendix: Finding out which methods are used by which Bioperl Objects
 
 At numerous places in the tutorial, the reader is directed to the
 "documentation included with each of the modules."  As was mentioned in
