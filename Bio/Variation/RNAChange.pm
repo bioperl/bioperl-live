@@ -121,8 +121,8 @@ sub new {
 	$frame, $score, $gff_string,
 	$allele_ori,  $allele_mut,  $upstreamseq,  $dnstreamseq,  
 	$label,  $status,  $proof,  $region,  $numbering,
-	$mut_number,  $ispolymorphism,
-	$codon_ori, $codon_mut, $codon_pos, $translation_table, $cds_end) =
+	$mut_number,  $isMutation,
+	$codon_ori, $codon_mut, $codon_pos, $codon_table, $cds_end) =
 	    $self->_rearrange([qw(START
 				  END
 				  LENGTH
@@ -142,7 +142,7 @@ sub new {
 				  REGION
 				  NUMBERING
 				  MUT_NUMBER
-				  ISPOLYMORPHISM
+				  ISMUTATION
 				  CODON_ORI
 				  CODON_MUT
 				  CODON_POS
@@ -175,12 +175,12 @@ sub new {
     $region  && $self->region($region);
     $numbering && $self->SUPER::numbering($numbering);
     $mut_number && $self->SUPER::mut_number($mut_number);
-    $ispolymorphism && SUPER::isPolymorphism($ispolymorphism);
+    $isMutation && SUPER::isMutation($isMutation);
     
     $codon_ori  && $self->codon_ori($codon_ori);
     $codon_mut  && $self->codon_mut($codon_mut);
     $codon_pos  && $self->codon_pos($codon_pos);
-    $translation_table && $self->translation_table($translation_table);
+    $codon_table && $self->codon_table($codon_table);
     $cds_end  && $self->cds_end($cds_end);
     return $self; # success - we hope!
 }
