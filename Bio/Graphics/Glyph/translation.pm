@@ -191,7 +191,7 @@ sub draw_orfs {
   my ($protein,$strand,$color,$gd,$x1,$y1,$x2,$y2) = @_;
   my $pixels_per_base = $self->pixels_per_base * 3;
   $y1++;
-  my $right  = $self->panel->right;
+  my $right  = $self->panel->right + $self->panel->pad_right;
   my $flip   = $self->{flip};
 
   my $gcolor = $self->gridcolor;
