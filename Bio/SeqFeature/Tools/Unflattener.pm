@@ -1152,6 +1152,10 @@ sub unflatten_seq{
        # infer exons
        $self->feature_from_splitloc(-seq=>$seq);
 
+       # some exons are stated explicitly; ie there is an "exon" feature
+       # most exons are inferred; ie there is a "mRNA" feature with
+       # split locations
+       #
        # if there were exons explicitly stated in the entry, we need to
        # do two things:
        #
@@ -1208,10 +1212,13 @@ sub unflatten_seq{
 	   # do we have any inferred exons left over, that were not
 	   # covered in the explicit exons?
 	   if (keys %exon_h) {
-	       $problem .=
-		 sprintf("There are some inferred exons that are not in the ".
-			 "explicit exon list; they are the exons at locations:\n".
-			 join("\n", keys %exon_h)."\n");
+	       # TODO - we ignore this problem for now
+	       if (0) {
+		   $problem .=
+		     sprintf("There are some inferred exons that are not in the ".
+			     "explicit exon list; they are the exons at locations:\n".
+			     join("\n", keys %exon_h)."\n");
+	       }
 	   }
 
 	   # report any problems
@@ -1615,7 +1622,7 @@ sub _write_hier {
     my @sfs = @{shift || []};
     my $indent = shift || 0;
     foreach my $sf (@sfs) {
-        my $label;
+        my $label = '?';
         if ($sf->has_tag('product')) {
             ($label) = $sf->get_tag_values('product');
         }
@@ -1651,7 +1658,7 @@ sub _resolve_container_for_sf{
        if ($inside) {
 	   # SCORE: matching (ss-scoords+2)/(n-container-ss-coords+2)
 	   my $score =
-	     (scalar(@coords)+2)/scalar(@container_coords)+2;
+	     (scalar(@coords)+2)/(scalar(@container_coords)+2);
 	   push(@sf_score_pairs,
 		$_=>$score);
        }
