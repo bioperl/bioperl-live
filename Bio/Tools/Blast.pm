@@ -101,11 +101,11 @@ Full parameters for parsing Blast reports.
 	       );
 
 See L<parse>() for a description of parameters and see L<USAGE> for
-more examples including how to parse streams containing multiple Blast reports 
-L<Using the Static $Blast Object>.
+more examples including how to parse streams containing multiple Blast
+reports L<Using the Static $Blast Object>.
 
-See L<Memory Usage Issues> for information about how to make Blast parsing be
-more memory efficient.
+See L<Memory Usage Issues> for information about how to make Blast
+parsing be more memory efficient.
 
 
 =head2 Running Blast reports
@@ -163,8 +163,8 @@ Print an HTML-formatted version of a Blast report:
 		    -out    => \@array);  # store output
     $Blast->to_html();  # use STDIN
 
-Results are sent directly to STDOUT unless an C<-out =E<gt> array_ref> parameter 
-is supplied. See L<to_html>() for details.
+Results are sent directly to STDOUT unless an C<-out =E<gt> array_ref>
+parameter is supplied. See L<to_html>() for details.
 
 
 =head1 INSTALLATION
@@ -178,68 +178,77 @@ Follow the installation instructions included in the README file.
 
 =head1 DESCRIPTION
 
-The Bio::Tools::Blast.pm module encapsulates data and methods for running, 
-parsing, and analyzing pre-existing BLAST reports. This module defines an application
-programming interface (API) for working with Blast reports. A Blast object is constructed
-from raw Blast output and encapsulates the Blast results which can then be accessed
+The Bio::Tools::Blast.pm module encapsulates data and methods for
+running, parsing, and analyzing pre-existing BLAST reports. This
+module defines an application programming interface (API) for working
+with Blast reports. A Blast object is constructed from raw Blast
+output and encapsulates the Blast results which can then be accessed
 via the interface defined by the Blast object.
 
-The ways in which researchers use Blast data are many and varied. This module attempts
-to be general and flexible enough to accommodate different uses. The Blast module
-API is still at an early stage of evolution and I expect it to continue to evolve as new
-uses for Blast data are developed. Your L<FEEDBACK> is welcome.
+The ways in which researchers use Blast data are many and varied. This
+module attempts to be general and flexible enough to accommodate
+different uses. The Blast module API is still at an early stage of
+evolution and I expect it to continue to evolve as new uses for Blast
+data are developed. Your L<FEEDBACK> is welcome.
 
 B<FEATURES:>
 
 =over 2
 
-=item * Supports NCBI Blast1.x, Blast2.x, and WashU-Blast2.x, gapped and ungapped. 
+=item * Supports NCBI Blast1.x, Blast2.x, and WashU-Blast2.x, gapped
+and ungapped.
 
 Can parse HTML-formatted as well as non-HTML-formatted reports.
 
 =item * Launch new Blast analyses remotely or locally.
 
-Blast objects can be constructed directly from the results of the run. See L<run>(). 
+Blast objects can be constructed directly from the results of the
+run. See L<run>().
 
 =item * Construct Blast objects from pre-existing files or from a new run.
 
-Build a Blast object from a single file or build multiple Blast objects
-from an input stream containing multiple reports. See L<parse>().
+Build a Blast object from a single file or build multiple Blast
+objects from an input stream containing multiple reports. See
+L<parse>().
 
 =item * Add hypertext links from a BLAST report.
 
 See L<to_html>().
 
-=item * Generate sequence and sequence alignment objects from HSP sequences.
+=item * Generate sequence and sequence alignment objects from HSP
+sequences.
 
-If you have Bio::Seq.pm and Bio::UnivAln.pm installed on your system, they can be used 
-for working with high-scoring segment pair (HSP) sequences in the Blast alignment.
-(A new version of Bio::Seq.pm is included in the distribution, see L<INSTALLATION>).
-For more information about them, see:
+If you have Bio::Seq.pm and Bio::UnivAln.pm installed on your system,
+they can be used for working with high-scoring segment pair (HSP)
+sequences in the Blast alignment.  (A new version of Bio::Seq.pm is
+included in the distribution, see L<INSTALLATION>).  For more
+information about them, see:
 
     http://bio.perl.org/Projects/Sequence/
     http://bio.perl.org/Projects/SeqAlign/
 
 =back
 
-A variety of different data can be extracted from the Blast report
-by querying the Blast.pm object. Some basic examples are given in the
-L<USAGE> section. For some working scripts, see the links provided 
-in the L<DEMO SCRIPTS> section.
+A variety of different data can be extracted from the Blast report by
+querying the Blast.pm object. Some basic examples are given in the
+L<USAGE> section. For some working scripts, see the links provided in
+the L<DEMO SCRIPTS> section.
 
-As a part of the incipient Bioperl framework, the Bio::Tools::Blast.pm module inherits from
-B<Bio::Tools::SeqAnal.pm>, which provides some generic functionality for biological 
-sequence analysis. See the documentation for that module for details (L<Links to related modules>).
+As a part of the incipient Bioperl framework, the Bio::Tools::Blast.pm
+module inherits from B<Bio::Tools::SeqAnal.pm>, which provides some
+generic functionality for biological sequence analysis. See the
+documentation for that module for details (L<Links to related
+modules>).
 
 
 =head2 The BLAST Program
 
-BLAST (Basic Local Alignment Search Tool) is a widely used algorithm 
-for performing rapid sequence similarity 
-searches between a single DNA or protein sequence and a large dataset of sequences.
-BLAST analyses are typically performed by dedicated remote servers,
-such as the ones at the NCBI. Individual groups may also run the program 
-on local machines.
+BLAST (Basic Local Alignment Search Tool) is a widely used algorithm
+for performing rapid sequence similarity searches between a single DNA
+or protein sequence and a large dataset of sequences.  BLAST analyses
+are typically performed by dedicated remote servers, such as the ones
+at the NCBI. Individual groups may also run the program on local
+machines.
 
 The Blast family includes 5 different programs:
 
@@ -382,27 +391,31 @@ Using the static $Blast object for parsing a STDIN stream of Blast reports:
 		   -exec_func => \&process_blast,
 		   );
 
-Then pipe a stream of Blast reports into your script via STDIN.
-For each Blast report extracted from the input stream, the parser will generate 
-a new Blast object and pass it to the function specified by C<-exec_func>.
-The L<destroy>() call tells Perl to free the memory associated with the object,
-important if you are crunching through many reports. This method is inherited
-from B<Bio::Root::Object.pm> (see L<Links to related modules>). See L<parse>() for
-a full description of parameters and L<DEMO SCRIPTS> for additional examples.
+Then pipe a stream of Blast reports into your script via STDIN.  For
+each Blast report extracted from the input stream, the parser will
+generate a new Blast object and pass it to the function specified by
+C<-exec_func>.  The L<destroy>() call tells Perl to free the memory
+associated with the object, important if you are crunching through
+many reports. This method is inherited from B<Bio::Root::Object.pm>
+(see L<Links to related modules>). See L<parse>() for a full
+description of parameters and L<DEMO SCRIPTS> for additional examples.
 
 
 =head2 Running Blasts
 
-To run a Blast, create a new Blast object with a C<-run =E<gt> \%runParams> parameter.
-Remote Blasts are performed by including a  C<-method =E<gt> 'remote'> parameter;
-local Blasts are performed by including a  C<-method =E<gt> 'local'> parameter.
-See L<Running Blast reports> as well as the L<DEMO SCRIPTS> for examples.
-Note that running local Blasts is not yet supported, see below.
+To run a Blast, create a new Blast object with a C<-run =E<gt>
+\%runParams> parameter.  Remote Blasts are performed by including a
+C<-method =E<gt> 'remote'> parameter; local Blasts are performed by
+including a C<-method =E<gt> 'local'> parameter.  See L<Running Blast
+reports> as well as the L<DEMO SCRIPTS> for examples.  Note that
+running local Blasts is not yet supported, see below.
 
-Note that the C<-seqs =E<gt> [ $seqs ]> run parameter must contain a reference to an array 
-of B<Bio::Seq.pm> objects (L<Links to related modules>). Encapsulating the sequence in 
-an object makes sequence information much easier to handle as it can be supplied in 
-a variety of formats. Bio::Seq.pm is included with this distribution (L<INSTALLATION>).
+Note that the C<-seqs =E<gt> [ $seqs ]> run parameter must contain a
+reference to an array of B<Bio::Seq.pm> objects (L<Links to related
+modules>). Encapsulating the sequence in an object makes sequence
+information much easier to handle as it can be supplied in a variety
+of formats. Bio::Seq.pm is included with this distribution
+(L<INSTALLATION>).
 
 Remote Blasts are implemented using the
 B<Bio::Tools::Blast::Run::Webblast.pm> module.  Local Blasts require
@@ -413,12 +426,13 @@ See L<Links to related modules>.
 
 =head2 Significance screening
 
-A C<-signif> parameter can be used to screen out all
-hits with P-values (or Expect values) above a certain cutoff. For example, to exclude all 
-hits with Expect values above 1.0e-10: C<-signif =E<gt> 1e-10>. Providing a
-C<-signif> cutoff can speed up processing tremendously, since only a small
-fraction of the report need be parsed. This is because the C<-signif> value is used 
-to screen hits based on the data in the "Description" section of the Blast report:
+A C<-signif> parameter can be used to screen out all hits with
+P-values (or Expect values) above a certain cutoff. For example, to
+exclude all hits with Expect values above 1.0e-10: C<-signif =E<gt>
+1e-10>. Providing a C<-signif> cutoff can speed up processing
+tremendously, since only a small fraction of the report need be
+parsed. This is because the C<-signif> value is used to screen hits
+based on the data in the "Description" section of the Blast report:
 
 For NCBI BLAST2 reports:
 
@@ -438,12 +452,13 @@ For BLAST1 or WashU-BLAST2 reports:
   PDB:3PRK_E Proteinase K complexed with inhibitor ...........   504  1.8e-50   1
 
 
-Thus, the C<-signif> parameter will screen based on Expect values for BLAST2 reports
-and based on P-values for BLAST1/WashU-BLAST2 reports.
+Thus, the C<-signif> parameter will screen based on Expect values for
+BLAST2 reports and based on P-values for BLAST1/WashU-BLAST2 reports.
 
-To screen based on other criteria, you can supply a C<-filt_func> parameter containing 
-a function reference that takes a B<Bio::Tools::Sbjct.pm> object as an argument and
-returns a boolean, true if the hit is to be screened out. See example below for
+To screen based on other criteria, you can supply a C<-filt_func>
+parameter containing a function reference that takes a
+B<Bio::Tools::Sbjct.pm> object as an argument and returns a boolean,
+true if the hit is to be screened out. See example below for
 L<Screening hits using arbitrary criteria>.
 
 
@@ -646,9 +661,10 @@ and L<table_labels_tiled>().
      $blastObj->display(-show=>'hits');
 
 L<display>() prints various statistics extracted from the Blast report
-such as database name, database size, matrix used, etc. The C<display(-show=E<gt>'hits')>
-call prints a non-tab-delimited table attempting to line the data up into 
-more readable columns. The output generated is similar to L<table_tiled>().
+such as database name, database size, matrix used, etc. The
+C<display(-show=E<gt>'hits')> call prints a non-tab-delimited table
+attempting to line the data up into more readable columns. The output
+generated is similar to L<table_tiled>().
 
 =back
 
@@ -667,21 +683,22 @@ more readable columns. The output generated is similar to L<table_tiled>().
      # You can also use a specific Blast object created previously.
      $blastObj->to_html;
 
-L<to_html>() will send HTML output, line-by-line, directly to STDOUT 
-unless an C<-out =E<gt> array_ref> parameter is supplied (e.g., C<-out =E<gt> \@array>),
-in which case the HTML will be stored in @array, one line per array element. 
-The direct outputting permits faster response time since Blast 
-reports can be huge. The -header tag can contain a string containing any HTML
-that you want to appear at the top of the Blast report.
+L<to_html>() will send HTML output, line-by-line, directly to STDOUT
+unless an C<-out =E<gt> array_ref> parameter is supplied (e.g., C<-out
+=E<gt> \@array>), in which case the HTML will be stored in @array, one
+line per array element.  The direct outputting permits faster response
+time since Blast reports can be huge. The -header tag can contain a
+string containing any HTML that you want to appear at the top of the
+Blast report.
 
 =back
 
 =head1 DEMO SCRIPTS
 
-Sample Scripts are included in the central bioperl distribution in the 
-'examples/blast/' directory (see L<INSTALLATION>). These are also available 
-at the following URLs (but it would be safer to use the scripts included with 
-the distribution).
+Sample Scripts are included in the central bioperl distribution in the
+'examples/blast/' directory (see L<INSTALLATION>). These are also
+available at the following URLs (but it would be safer to use the
+scripts included with the distribution).
 
 =head2 Handy library for working with Bio::Tools::Blast.pm
 
@@ -718,35 +735,38 @@ the distribution).
 
 =head2 Blast Modes
 
-A BLAST object may be created using one of three different modes as defined
-by the B<Bio::Tools::SeqAnal.pm> package (See L<Links to related modules>):
+A BLAST object may be created using one of three different modes as
+defined by the B<Bio::Tools::SeqAnal.pm> package (See L<Links to
+related modules>):
 
- -- parse    - Load a BLAST report and parse it, storing parsed data in Blast.pm object.
+ -- parse - Load a BLAST report and parse it, storing parsed data in
+    Blast.pm object.
  -- run      - Run the BLAST program to generate a new report. 
  -- read     - Load a BLAST report into the Blast object without parsing.
 
 
-B<Run mode support has recently been added>. 
-The module B<Bio::Tools::Blast::Run::Webblast.pm> is an modularized adaptation 
-of the webblast script by Alex Dong Li: 
+B<Run mode support has recently been added>.  The module
+B<Bio::Tools::Blast::Run::Webblast.pm> is an modularized adaptation of
+the webblast script by Alex Dong Li:
 
    http://www.genet.sickkids.on.ca/bioinfo_resources/software.html#webblast
 
-for running remote Blast analyses and saving the results locally.
-Run mode can be combined with a parse mode to generate a Blast report and then
-build the Blast object from the parsed results of this report 
+for running remote Blast analyses and saving the results locally.  Run
+mode can be combined with a parse mode to generate a Blast report and
+then build the Blast object from the parsed results of this report
 (see L<run>() and L<SYNOPSIS>).
 
-In read mode, the BLAST report is read in by the Blast object but is not parsed.
-This could be used to internalize a Blast report but not parse
-it for results (e.g., generating HTML formatted output). 
+In read mode, the BLAST report is read in by the Blast object but is
+not parsed.  This could be used to internalize a Blast report but not
+parse it for results (e.g., generating HTML formatted output).
 
 
 
 =head2 Significant Hits
 
-This module permits the screening of hits on the basis of user-specified criteria
-for significance. Currently, Blast reports can be screened based on:
+This module permits the screening of hits on the basis of
+user-specified criteria for significance. Currently, Blast reports can
+be screened based on:
 
    CRITERIA                            PARAMETER       VALUE
    ----------------------------------  ---------      ----------------
@@ -754,13 +774,13 @@ for significance. Currently, Blast reports can be screened based on:
   2) the length of the query sequence  -min_length    integer
   3) arbitrary criteria                -filt_func     function reference
 
-The parameters are used for construction of the BLAST object
-or when running the L<parse>() method on the static $Blast object.
-The -SIGNIF value represents the number listed in the description section 
-at the top of the Blast report. For Blast2, this is an Expect value, for Blast1
-and WashU-Blast2, this is a P-value. 
-The idea behind the C<-filt_func> parameter is that the hit has to pass through a
-filter to be considered significant. Refer to the documentation for 
+The parameters are used for construction of the BLAST object or when
+running the L<parse>() method on the static $Blast object.  The
+-SIGNIF value represents the number listed in the description section
+at the top of the Blast report. For Blast2, this is an Expect value,
+for Blast1 and WashU-Blast2, this is a P-value.  The idea behind the
+C<-filt_func> parameter is that the hit has to pass through a filter
+to be considered significant. Refer to the documentation for
 B<Bio::Tools::Blast::Sbjct.pm> for ways to work with hit objects.
 
 Using a C<-signif> parameter allows for the following:
@@ -769,29 +789,30 @@ Using a C<-signif> parameter allows for the following:
 
 =item Faster parsing.
 
-Each hit can be screened by examination of the description line alone without 
-fully parsing the HSP alignment section.
+Each hit can be screened by examination of the description line alone
+without fully parsing the HSP alignment section.
 
 =item Flexibility.
 
-The C<-signif> tag provides a more semantic-free way to specify the value to be 
-used as a basis for screening hits. Thus, C<-signif> can be used for
-screening Blast1 or Blast2 reports. It is up to the user to understand whether
-C<-signif> represents a P-value or an Expect value.
+The C<-signif> tag provides a more semantic-free way to specify the
+value to be used as a basis for screening hits. Thus, C<-signif> can
+be used for screening Blast1 or Blast2 reports. It is up to the user
+to understand whether C<-signif> represents a P-value or an Expect
+value.
 
 =back
 
 Any hit not meeting the significance criteria will not be added to the
-"hit list" of the BLAST object. Also, a BLAST object without
-any hits meeting the significance criteria will throw an exception during object
-construction (a fatal event).  
+"hit list" of the BLAST object. Also, a BLAST object without any hits
+meeting the significance criteria will throw an exception during
+object construction (a fatal event).
 
 
 =head2 Statistical Parameters
 
-There are numerous parameters which define the behavior of the BLAST program
-and which are useful for interpreting the search results. These parameters 
-are extracted from the Blast report:
+There are numerous parameters which define the behavior of the BLAST
+program and which are useful for interpreting the search
+results. These parameters are extracted from the Blast report:
 
   filter  --  for masking out low-complexity sequences or short repeats
   matrix  --  name of the substitution scoring matrix (e.g., BLOSUM62)
@@ -804,9 +825,9 @@ are extracted from the Blast report:
   G       --  Gap creation penalty.
   E       --  Gap extension penalty. 
 
-These parameters are not always needed. Extraction may be turned off 
-explicitly by including a C<-stats =E<gt> 0> parameter during object construction.              
-Support for all statistical parameters is not complete.
+These parameters are not always needed. Extraction may be turned off
+explicitly by including a C<-stats =E<gt> 0> parameter during object
+construction.  Support for all statistical parameters is not complete.
 
 For more about the meaning of parameters, check out the NCBI URLs given above.
 
@@ -835,48 +856,51 @@ Bio:: hierarchy as shown in the diagram below.
                                   Webblast.pm   LocalBlast.pm 
 
 
-Bio::Tools::Blast.pm is a concrete class that inherits from B<Bio::Tools::SeqAnal.pm>
-and relies on other modules for parsing and managing BLAST data.
-Worth mentioning about this hierarchy is the lack of a "Parse.pm" module.
-Since parsing is considered central to the purpose of the Bioperl Blast module
-(and Bioperl in general), it seems somewhat unnatural to segregate out all
-parsing code. This segregation could also lead to inefficiencies and
-harder to maintain code. I consider this issue still open for debate.
+Bio::Tools::Blast.pm is a concrete class that inherits from
+B<Bio::Tools::SeqAnal.pm> and relies on other modules for parsing and
+managing BLAST data.  Worth mentioning about this hierarchy is the
+lack of a "Parse.pm" module.  Since parsing is considered central to
+the purpose of the Bioperl Blast module (and Bioperl in general), it
+seems somewhat unnatural to segregate out all parsing code. This
+segregation could also lead to inefficiencies and harder to maintain
+code. I consider this issue still open for debate.
 
-Bio::Tools::Blast.pm, B<Bio::Tools::Blast::Sbjct.pm>, and B<Bio::Tools::Blast::HSP.pm> are 
-mostly dedicated
-to parsing and all can be used to instantiate objects.
-Blast.pm is the main "command and control" module, inheriting some basic
-behaviors from SeqAnal.pm (things that are not specific to Blast I<per se>).
+Bio::Tools::Blast.pm, B<Bio::Tools::Blast::Sbjct.pm>, and
+B<Bio::Tools::Blast::HSP.pm> are mostly dedicated to parsing and all
+can be used to instantiate objects.  Blast.pm is the main "command and
+control" module, inheriting some basic behaviors from SeqAnal.pm
+(things that are not specific to Blast I<per se>).
 
-B<Bio::Tools::Blast::HTML.pm> contains functions dedicated to generating HTML-formatted Blast 
-reports and does not generate objects.
+B<Bio::Tools::Blast::HTML.pm> contains functions dedicated to
+generating HTML-formatted Blast reports and does not generate objects.
 
 =head2 Running Blasts: Details
 
 B<Bio::Tools::Blast::Run::Webblast.pm> contains a set of functions for
-running Blast analyses at a remote server and also does not instantiate objects.
-It uses a helper script called postclient.pl, located in the Run directory.
-The proposed LocalBlast.pm module would be used for running Blast reports
-on local machines and thus would be customizable for different sites. It would
-operate in a parallel fashion to Webblast.pm (i.e., being a collection of 
-functions, taking in sequence objects or files, returning result files).
+running Blast analyses at a remote server and also does not
+instantiate objects.  It uses a helper script called postclient.pl,
+located in the Run directory.  The proposed LocalBlast.pm module would
+be used for running Blast reports on local machines and thus would be
+customizable for different sites. It would operate in a parallel
+fashion to Webblast.pm (i.e., being a collection of functions, taking
+in sequence objects or files, returning result files).
 
-The Run modules are considered experimental. In particular, Webblast.pm catures 
-an HTML-formatted version of the Blast report from the NCBI server and strips out the HTML in 
-preparation for parsing. A more direct approach would be to capture the Blast results 
-directly from the server using an interface to the NCBI toolkit. 
-This approach was recently proposed on the Bioperl
-mailing list: http://www.uni-bielefeld.de/mailinglists/BCD/vsns-bcd-perl/9805/0000.html
+The Run modules are considered experimental. In particular,
+Webblast.pm catures an HTML-formatted version of the Blast report from
+the NCBI server and strips out the HTML in preparation for parsing. A
+more direct approach would be to capture the Blast results directly
+from the server using an interface to the NCBI toolkit.  This approach
+was recently proposed on the Bioperl mailing list:
+http://www.uni-bielefeld.de/mailinglists/BCD/vsns-bcd-perl/9805/0000.html
 
 
 =head2 Memory Usage Issues
 
-Parsing large numbers of Blast reports (a few thousand or so)
-with Bio::Tools::Blast.pm may lead to unacceptable memory usage situations. 
-This is somewhat dependent of the size and complexity of the reports. 
+Parsing large numbers of Blast reports (a few thousand or so) with
+Bio::Tools::Blast.pm may lead to unacceptable memory usage situations.
+This is somewhat dependent of the size and complexity of the reports.
 
-While this problem is under investigation, here are some workarounds 
+While this problem is under investigation, here are some workarounds
 that fix the memory usage problem:
 
 =over 4
@@ -892,20 +916,21 @@ scripts in C<examples/blast/> of the bioperl distribution), don't supply
 a C<-signif> command-line parameter.
   
 
-=item 2 If you want to impose a -signif criterion, put it inside a -filt_func.
+=item 2 If you want to impose a -signif criterion, put it inside a
+-filt_func.
 
-For the L<parse>() method, a -signif => 1e-5 parameter is equivalent to using 
-a filter function parameter of
+For the L<parse>() method, a -signif => 1e-5 parameter is equivalent
+to using a filter function parameter of
 
  -filt_func => sub { my $hit = shift; return $hit->signif <= 1e-5; }
 
-Using the B<examples/blast/parse_multi.pl> script, you can supply a command-line
-argument of 
+Using the B<examples/blast/parse_multi.pl> script, you can supply a
+command-line argument of
 
  -filt_func '$hit->signif <= 1e-5'
 
-For more information, see L<parse>() and the section 
-L<Screening hits using arbitrary criteria>.
+For more information, see L<parse>() and the section L<Screening hits
+using arbitrary criteria>.
 
 =back
 
@@ -917,20 +942,24 @@ L<Screening hits using arbitrary criteria>.
 
 =item * Add support for PSI-BLAST and PHI-BLAST
 
-=item * Parse histogram of expectations and retrieve gif image in Blast report (if present).
+=item * Parse histogram of expectations and retrieve gif image in
+Blast report (if present).
 
-=item * Further investigate memory leak that occurs when parsing Blast streams whe supplying a -signif parameter to L<parse>().
+=item * Further investigate memory leak that occurs when parsing Blast
+streams whe supplying a -signif parameter to L<parse>().
 
-=item * Access Blast results directly from the NCBI server
-using a Perl interface to the NCBI toolkit or XML formated Blast reports (when available).
+=item * Access Blast results directly from the NCBI server using a
+Perl interface to the NCBI toolkit or XML formated Blast reports (when
+available).
 
-=item * Further exploit Bio::UnivAln.pm 
-and multiple-sequence alignment programs using HSP sequence data. Some of this may 
-best go into a separate, dedicated module or script as opposed to 
-burdening Blast.pm, Sbjct.pm, and HSP.pm with additional functionality that is not always
-required.
+=item * Further exploit Bio::UnivAln.pm and multiple-sequence
+alignment programs using HSP sequence data. Some of this may best go
+into a separate, dedicated module or script as opposed to burdening
+Blast.pm, Sbjct.pm, and HSP.pm with additional functionality that is
+not always required.
 
-=item * Add an example script for parsing Blast reports containing HTML formatting.
+=item * Add an example script for parsing Blast reports containing
+HTML formatting.
 
 
 =back
@@ -945,18 +974,18 @@ Bio::Tools::Blast.pm, 0.09
 
 =head2 Mailing Lists 
 
-User feedback is an integral part of the evolution of this and other Bioperl modules.
-Send your comments and suggestions preferably to one of the Bioperl mailing lists.
-Your participation is much appreciated.
+User feedback is an integral part of the evolution of this and other
+Bioperl modules.  Send your comments and suggestions preferably to one
+of the Bioperl mailing lists.  Your participation is much appreciated.
 
-    vsns-bcd-perl@lists.uni-bielefeld.de          - General discussion
-    vsns-bcd-perl-guts@lists.uni-bielefeld.de     - Technically-oriented discussion
-    http://bio.perl.org/MailList.html             - About the mailing lists
+    bioperl-l@bioperl.org             - General discussion
+    http://bio.perl.org/MailList.html - About the mailing lists
 
 =head2 Reporting Bugs
 
-Report bugs to the Bioperl bug tracking system to help us keep track the bugs and 
-their resolution. Bug reports can be submitted via email or the web:
+Report bugs to the Bioperl bug tracking system to help us keep track
+the bugs and their resolution. Bug reports can be submitted via email
+or the web:
 
     bioperl-bugs@bio.perl.org                   
     http://bio.perl.org/bioperl-bugs/           
@@ -981,9 +1010,9 @@ Bio/Tools/Blast/CHANGES file of the distribution).
 
 =head1 COPYRIGHT
 
-Copyright (c) 1996-98 Steve A. Chervitz. All Rights Reserved.
-This module is free software; you can redistribute it and/or 
-modify it under the same terms as Perl itself.
+Copyright (c) 1996-98 Steve A. Chervitz. All Rights Reserved.  This
+module is free software; you can redistribute it and/or modify it
+under the same terms as Perl itself.
 
 =head1 SEE ALSO
 
@@ -1037,15 +1066,16 @@ L<References & Information about the BLAST program>.
 
 =head1 KNOWN BUGS
 
-There is a memory leak that occurs when parsing parsing streams containing 
-large numbers of Blast reports (a few thousand or so) and specifying a -signif 
-parameter to the L<parse>() method. For a workaround, see L<Memory Usage Issues>.
+There is a memory leak that occurs when parsing parsing streams
+containing large numbers of Blast reports (a few thousand or so) and
+specifying a -signif parameter to the L<parse>() method. For a
+workaround, see L<Memory Usage Issues>.
 
-Not sharing statistical parameters between different Blast objects when
-parsing a multi-report stream has not been completely tested and may be
-a little buggy.
+Not sharing statistical parameters between different Blast objects
+when parsing a multi-report stream has not been completely tested and
+may be a little buggy.
 
-Documentation inconsistencies or inaccuracies may exist since this 
+Documentation inconsistencies or inaccuracies may exist since this
 module underwend a fair bit of re-working going from 0.75 to 0.80
 (corresponds to versions 0.04.4 to 0.05 of the bioperl distribution).
 
@@ -1064,10 +1094,10 @@ module underwend a fair bit of re-working going from 0.75 to 0.80
 
 =head1 APPENDIX
 
-Methods beginning with a leading underscore are considered private
-and are intended for internal use by this module. They are
-B<not> considered part of the public interface and are described here
-for documentation purposes only.
+Methods beginning with a leading underscore are considered private and
+are intended for internal use by this module. They are B<not>
+considered part of the public interface and are described here for
+documentation purposes only.
 
 =cut
 
@@ -4074,7 +4104,7 @@ See Also   : B<Bio::Tools::Blast::HTML::get_html_func()>, B<Bio::Root::Object::r
 sub to_html {
 #------------
     my ($self, @param) = @_;
-
+    
     # Permits syntax such as: $blast->to_html($filename);
     my ($file, $header_html, $in_aref, $out_aref) = 
 	$self->_rearrange([qw(FILE HEADER IN OUT)], @param);
