@@ -931,24 +931,25 @@ based on actual content. Here is the current set of suffixes:
 
    Format     Suffixes                     Comment
 
-   fasta      fasta|fast|seq|fa|fsa|nt|aa  Fasta
-   genbank    gb|gbank|genbank|gbs|gbk     Genbank
-   scf        scf                          SCF tracefile
-   pir        pir                          PIR
-   embl       embl|ebl|emb|dat             EMBL
-   raw        txt                          plain
-   gcg        gcg                          GCG
    ace        ace                          ACeDB
    bsml       bsm|bsml                     BSML XML
-   game                                    GAME XML
-   swiss      swiss|sp                     SwissProt
-   phd        phd|phred                    Phred
-   fastq      fastq                        Fastq
-   Locuslink                               LL_tmpl format
-   qual                                    Phred quality file
    chado                                   Chado XML
-   tinyseq                                 NCBI TinySeq XML
+   embl       embl|ebl|emb|dat             EMBL
    exp        exp                          Staden experiment file
+   fasta      fasta|fast|seq|fa|fsa|nt|aa  Fasta
+   fastq      fastq                        Fastq
+   genbank    gb|gbank|genbank|gbs|gbk     Genbank
+   gcg        gcg                          GCG
+   game                                    GAME XML
+   kegg                                    KEGG genes
+   locuslink                               LL_tmpl format
+   pir        pir                          PIR
+   phd        phd|phred                    Phred
+   qual                                    Phred quality file
+   raw        txt                          plain
+   swiss      swiss|sp                     SwissProt
+   scf        scf                          SCF tracefile
+   tinyseq                                 NCBI TinySeq XML
    abi*       abi                          ABI tracefile
    alf*       alf                          ALF tracefile
    ctf*       ctf                          CTF tracefile
