@@ -1,4 +1,4 @@
-
+# $Id$
 #
 # Perl Module for HMMResults
 #
@@ -624,7 +624,7 @@ sub get_Set {
 =head2 _parse_hmmpfam
 
  Title   : _parse_hmmpfam
- Usage   : $res->parse_hmmpfam($filehandle)
+ Usage   : $res->_parse_hmmpfam($filehandle)
  Function:
  Returns : 
  Args    :
