@@ -70,6 +70,8 @@ by the \$TMPDIR environment variable), to hold the tables transiently.
 The adaptor used is dbi::mysqlopt.  There is currently no way to
 change this.
 
+Note that Windows users must use the --force option.
+
 USAGE
 ;
 
