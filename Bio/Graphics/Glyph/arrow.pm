@@ -8,7 +8,7 @@ use Bio::Coordinate::Pair;
 use Bio::Location::Simple;
 @ISA = 'Bio::Graphics::Glyph::generic';
 
-my %UNITS = (n => 1e-12,
+my %UNITS = (p => 1e-12,
 	     n => 1e-9,
 	     u => 1e-6,
 	     m => 0.001,
