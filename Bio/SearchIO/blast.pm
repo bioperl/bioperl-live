@@ -629,13 +629,15 @@ sub next_result{
 	   my %data = ( 'Query' => '',
 			'Mid' => '',
 			'Hit' => '' );
-	   my $len;
+	   my ($l,$len);
 	   for( my $i = 0; 
 		defined($_) && $i < 3; 
 		$i++ ){	       
-	       chomp;
-	       if( ($i == 0 &&  /^\s+$/) ||  /^\s*Lambda/i ) { 
+	       chomp;	       
+	       if( ($i == 0 &&  /^\s+$/) || ($l = /^\s*Lambda/i) ) { 
 		   $self->_pushback($_) if defined $_;
+		   # this fixes bug #1443
+		   $self->end_element({'Name' => 'Hit'}) if $l;
 		   $self->end_element({'Name' => 'Hsp'});
 		   last; 
 	       }
@@ -661,7 +663,18 @@ sub next_result{
 	   $self->debug( "unrecognized line $_");
        }
    } 
-   $self->end_element({'Name' => 'BlastOutput'}) unless ! $seentop;
+
+   if( $seentop ) {
+       # double back check that hits and hsps are closed
+       # this in response to bug #1443 (may be uncessary due to fix
+       # above, but making double sure)
+       $self->in_element('hsp') && 
+	   $self->end_element({'Name' => 'Hsp'});
+       $self->in_element('hit') && 
+	   $self->end_element({'Name' => 'Hit'});       
+       $self->end_element({'Name' => 'BlastOutput'});
+   }
+#   $self->end_element({'Name' => 'BlastOutput'}) unless ! $seentop;
    return $self->end_document();
 }
 
