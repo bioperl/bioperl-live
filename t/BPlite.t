@@ -107,11 +107,10 @@ $parser = new Bio::Tools::BPlite(-verbose => 1,
 								 "data",
 								 "multiseq.bls"));
 ok($parser);
-my $count = 0;
 
 while( my $sbjct = $parser->nextSbjct ) {
-    print "here I am\n";
     while( my $hsp = $sbjct->nextHsp ) {
-	print "start is ", $hsp->start, "\n";
+	# some oks would be here, except that this currently does not
+	# run because multi seq reports are not parsed properly.
     }
 }
