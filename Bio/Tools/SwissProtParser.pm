@@ -18,9 +18,7 @@ from FASTAParser.
      $sbjct->ID;
      $sbjct->identification;
 
-     #you also can call in scalar or list context
-     my @gene_names = $sbjct->GN; # the list itself
-     my $gene_names = $sbjct->GN; # space joined list
+     my @gene_names = $sbjct->GN;
  }
 
 =head1 DESCRIPTION
@@ -133,7 +131,7 @@ sub nextSbjct {
 	my $fh = $self->FH;
 	my $record = <$fh>;
 	return 0 unless $record;
-        return Bio::Tools::SwissProtParser::Sbjct::new ($self,$record);
+        return Bio::Tools::SwissProtParser::Sbjct::new ($record);
 }
 
 ###############################################################################
@@ -147,13 +145,10 @@ use vars qw(@ISA);
 @ISA = qw (Bio::Tools::SwissProtParser);
 
 sub new {
-        my $this = bless {};
-	my $parent = shift;
+        my $self = bless {};
 	my $record = shift;
-	return 0 unless $record;
-
-	$this->parse($record);
-	return $this;
+	$self->parse($record);
+	return $self;
 }
 
 sub parse {
@@ -200,35 +195,18 @@ sub parse {
 	}
 }
 
-#this is the piece that figures out what to return
-#based on calling context
-sub omatic {
-	my($self,$tag) = @_;
-	$tag = lc $tag;
-
-	return wantarray 
-		? defined $self->{$tag}
-			? @{$self->{$tag}}
-			: ()
-		: defined $self->{$tag}
-			? join " ",@{$self->{$tag}}
-			: undef;
-}
-
 sub identification { return shift->ID(@_) }
 sub ID {
 	my($self,$tag,$datum)=@_;
-
-	return $self->{id} unless defined $tag;
-
+	return $self->{id} || [] unless(defined $tag);
 	$datum =~ s!^(\S+).+!$1!;
-	$self->{id} = $datum;
+	push @{$self->{id}}, $datum;
 }
 
 sub accession { return shift->AC(@_) }
 sub AC {
 	my($self,$tag,$datum)=@_;
-	return $self->omatic($tag) unless defined $tag ;
+	return $self->{ac} || [] unless(defined $tag);
 	my @data = split ';',$datum;
 	push @{$self->{ac}}, @data;
 }
@@ -236,21 +214,21 @@ sub AC {
 sub date { return shift->DT(@_) }
 sub DT {
 	my($self,$tag,$datum)=@_;
-	return $self->{dt} unless defined $tag;
-	$self->{dt} = $datum;
+	return $self->{dt} || [] unless(defined $tag);
+	push @{$self->{dt}}, $datum;
 }
 
 sub description { return shift->DE(@_) }
 sub DE {
 	my($self,$tag,$datum)=@_;
-	return $self->omatic($tag) unless defined $tag ;
+	return $self->{de} || [] unless(defined $tag);
 	push @{$self->{de}}, $datum;
 }
 
 sub gene_name { return shift->GN(@_) }
 sub GN {
 	my($self,$tag,$datum)=@_;
-	return $self->omatic($tag) unless defined $tag ;
+	return $self->{gn} || [] unless(defined $tag);
 	my @data = split /AND|OR/ ,$datum;
 	push @{$self->{gn}}, @data;
 }
@@ -258,21 +236,21 @@ sub GN {
 sub organism_species { return shift->OS(@_) }
 sub OS {
 	my($self,$tag,$datum)=@_;
-	return $self->omatic($tag) unless defined $tag ;
-	$self->{os} = $datum;
+	return $self->{os} || [] unless(defined $tag);
+	push @{$self->{os}}, $datum;
 }
 
 sub organelle { return shift->OG(@_) }
 sub OG {
 	my($self,$tag,$datum)=@_;
-	return $self->omatic($tag) unless defined $tag ;
+	return $self->{og} || [] unless(defined $tag);
 	push @{$self->{og}}, $datum;
 }
 
 sub organism_classification { return shift->OC(@_) }
 sub OC {
 	my($self,$tag,$datum)=@_;
-	return $self->omatic($tag) unless defined $tag ;
+	return $self->{oc} || [] unless(defined $tag);
 	my @data = split ';',$datum;
 	push @{$self->{oc}}, @data;
 }
@@ -280,7 +258,7 @@ sub OC {
 sub organism_taxonomy_cross_reference { return shift->OX(@_) }
 sub OX {
 	my($self,$tag,$datum)=@_;
-	return $self->omatic($tag) unless defined $tag ;
+	return $self->{ox} || [] unless(defined $tag);
 	my @data = split ';',$datum;
 	push @{$self->{ox}}, @data;
 }
@@ -288,7 +266,7 @@ sub OX {
 sub keyword { return shift->KW(@_) }
 sub KW {
 	my($self,$tag,$datum)=@_;
-	return $self->omatic($tag) unless defined $tag ;
+	return $self->{kw} || [] unless(defined $tag);
 	my @data = split ';',$datum;
 	push @{$self->{kw}}, @data;
 }
@@ -296,7 +274,7 @@ sub KW {
 sub database_cross_reference { return shift->DR(@_) }
 sub DR {
 	my($self,$tag,$datum)=@_;
-	return $self->omatic($tag) unless defined $tag ;
+	return $self->{dr} || [] unless(defined $tag);
 	my @data = split ';',$datum;
 	push @{$self->{dr}}, [@data];
 }
@@ -304,7 +282,7 @@ sub DR {
 sub feature_table { return shift->FT(@_) }
 sub FT {
 	my($self,$tag,$datum)=@_;
-	return $self->omatic($tag) unless defined $tag ;
+	return $self->{ft} || [] unless(defined $tag);
 	my @data = $datum =~ /^(.{8}) (.{6}) (.{6})       (.+)$/;
 	chomp $_ foreach @data;
 	push @{$self->{ft}}, [@data];
@@ -313,7 +291,7 @@ sub FT {
 sub sequence_header { return shift->SQ(@_) }
 sub SQ {
 	my($self,$tag,$datum)=@_;
-	return $self->omatic($tag) unless defined $tag ;
+	return $self->{sq} || [] unless(defined $tag);
 	my @data = split ';',$datum;
 	push @{$self->{sq}}, [@data];
 }
@@ -333,7 +311,7 @@ sub RR {
 
 	unless(defined $tag){
 		return wantarray
-			? $self->{rr}
+			? $self->{rr} || []
 			: $self->prettyRR($self->{rr});
 	}
 
@@ -348,7 +326,7 @@ sub CC {
 
 	unless(defined $tag){
 		return wantarray
-			? $self->{cc}
+			? $self->{cc} || []
 			: $self->prettyCC($self->{cc});
 	}
 
