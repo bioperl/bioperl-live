@@ -211,7 +211,8 @@ sub lsid_string {
 sub namespace_string {
   my ($self) = @_;
 
-  return $self->namespace.":".$self->object_id.".".$self->version;
+  return $self->namespace.":".$self->object_id .
+      (defined($self->version()) ? ".".$self->version : '');
 }
 
 1;

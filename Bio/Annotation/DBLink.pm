@@ -66,12 +66,15 @@ sub new {
 
   my $self = $class->SUPER::new(@args);
 
-  my ($database, $primary_id, $optional_id, $comment, $tag) =
+  my ($database, $primary_id, $optional_id, $comment, $tag, $ns, $auth, $v) =
       $self->_rearrange([qw(DATABASE
 			    PRIMARY_ID
 			    OPTIONAL_ID
 			    COMMENT
 			    TAGNAME
+			    NAMESPACE
+			    AUTHORITY
+			    VERSION
 			    )], @args);
   
   $database    && $self->database($database);
@@ -79,7 +82,11 @@ sub new {
   $optional_id && $self->optional_id($optional_id);
   $comment     && $self->comment($comment);
   $tag         && $self->tagname($tag);
-  
+  # Bio::IdentifiableI parameters:
+  $ns          && $self->namespace($ns); # this will override $database
+  $auth        && $self->authority($auth);
+  defined($v)  && $self->version($v);
+
   return $self;
 }
 
