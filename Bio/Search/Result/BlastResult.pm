@@ -141,13 +141,12 @@ See L<Bio::Search::Result::ResultI::next_hit()|Bio::Search::Result::ResultI> for
 sub next_hit {
 #----------------
     my ($self) = @_;
-
-    unless($self->{'_hit_queue_started'}) {
-        $self->{'_hit_queue'} = [$self->hits()];
-        $self->{'_hit_queue_started'} = 1;
+    
+    unless(defined $self->{'_hit_queue'}) {	
+        $self->{'_hit_queue'} = [$self->hits()];	
     }
-
-    pop @{$self->{'_hit_queue'}};
+    
+    shift @{$self->{'_hit_queue'}};
 }
 
 =head2 query_name
@@ -501,7 +500,6 @@ sub add_hit {
 #---------------
     my ($self, $hit) = @_;
     my $add_it = 1;
-
     unless( ref $hit and $hit->isa('Bio::Search::Hit::HitI')) {
         $add_it = 0;
         $self->throw(-class =>'Bio::Root::BadParameter',
