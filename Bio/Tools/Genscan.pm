@@ -252,10 +252,21 @@ sub next_prediction {
 	# fill in predicted protein, and if available the predicted CDS
 	#
 	my ($id, $seq) = $self->_read_fasta_seq();
-	$gene->predicted_protein($seq);
+	my $seqobj = Bio::PrimarySeq->new('-seq' => $seq,
+					  '-display_id' => $id,
+					  '-moltype' => "protein");
+	$gene->predicted_protein($seqobj);
 	if($self->_has_cds()) {
 	    ($id, $seq) = $self->_read_fasta_seq();
-	    $gene->predicted_cds($seq);		
+	    # record the number of prepended Ns as an indication of the
+	    # initial offset
+	    my $frm_adjust = "";
+	    $seq =~ /^(n+)/ && $frm_adjust = $1;
+	    $gene->frame(length($frm_adjust));
+	    $seqobj = Bio::PrimarySeq->new('-seq' => $seq,
+					   '-display_id' => $id,
+					   '-moltype' => "dna");
+	    $gene->predicted_cds($seqobj);		
 	}
     }
 
