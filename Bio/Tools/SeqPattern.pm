@@ -144,10 +144,8 @@ Currently, this module only supports patterns using a grep-like syntax.
 
 =head1 USAGE
 
-A simple demo script is included in the examples/ directory of the central
-Bioperl distribution and is also available from:
-
-    http://bio.perl.org/Core/Examples/seq_pattern.pl
+A simple demo script called seq_pattern.pl is included in the examples/
+directory of the central Bioperl distribution.
 
 =head1 SEE ALSO
 
