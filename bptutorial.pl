@@ -109,7 +109,7 @@ BioPerlTutorial - a tutorial for bioperl
          IV.2.2 Aligning 2 sequences with Blast using  bl2seq and AlignIO
          IV.2.3 Aligning multiple sequences (Clustalw.pm, TCoffee.pm)
          IV.2.4 Aligning 2 sequences with Smith-Waterman (pSW)
-     IV.3 Bioperl-db
+     IV.3 Bioperl-db and BioSQL
      IV.4 Other Bioperl auxilliary libraries
 
   V.  Appendices
@@ -2387,7 +2387,7 @@ bioperl-run, bioperl-db, bioperl-pipeline, bioperl-microarray and
 bioperl-ext among others.  Generally, modules are placed in an
 auxilliary library if either:
 
-=over 4
+=over 2
 
 =item *
 
@@ -2413,20 +2413,25 @@ http://cvs.bioperl.org/cgi-bin/viewcvs/viewcvs.cgi/?cvsroot=bioperl
 Generally CVS packages are not as well tested as the released core
 library.  Consequently after downloading and running:
 
-  $ perl Makefile.PL
+  $perl Makefile.PL
+
 and
-  $ make
-one should always run:
+
+  $make
+
+One should always run:
+
   $make test
+
 before using the packages. Even if "make test" runs successfully. it
 may be safer to _not_ run "make install" and instead to include
 the library with the auxilliary modules (say in
 /home/peter/auxmodules) by adding this line to each of your scripts:
 
-use lib '/home/peter/auxmodules';
+  use lib '/home/peter/auxmodules';
 
 or by adding a "switch" to your invocation of perl on the command
-line, e,g,:
+line, e.g.:
 
   $perl -I/home/peter/auxmodules myscript.pl
 
@@ -2626,20 +2631,21 @@ directory and the documentation in L<Bio::Tools::pSW>.
 
 =for html <A NAME ="iv.3"></A>
 
-=head2 IV.3 bioperl-db
+=head2 IV.3 bioperl-db and BioSQL
 
 The Bioperl-db package is intended to enable the easy access and
 manipulation of biology relational databases via a perl
-interface. Obviously it requires having adminsitrative access to a
+interface. Obviously it requires having administrative access to a
 relational database.  Currently the bioperl-db interface is
-implemented primarily to support databases in the Mysql format
-(http://www.mysql.com). More details on bioperl-db can be found in the
-bioperl-db CVS directory at
+implemented to support databases in the Mysql, Postgres and Oracle formats.
+More details on bioperl-db can be found in the bioperl-db CVS directory at
 http://cvs.bioperl.org/cgi-bin/viewcvs/viewcvs.cgi/bioperl-db/?cvsroot=bioperl.
-It is worth mentioning that most of the bioperl objects mentioned
-above map directly to tables in the bioperl-db schema. Therefore
-object data such as sequences, their features, and annotations can be
-easily loaded into the databases, as in
+
+The database schema itself is not specified in the bioperl-db package but
+in the BioSQL package, available at http://obda.open-bio.org/. It is worth 
+mentioning that most of the bioperl objects mentioned above map directly to 
+tables in the Biosql schema. Therefore object data such as sequences, their 
+features, and annotations can be easily loaded into the databases, as in
 
   $loader->store($newid,$seqobj)
 
