@@ -202,41 +202,43 @@ sub new {
    # a primedseq
 
  foreach my $key (keys %args) {
-  if ($key eq "-seq" || $key eq "-SEQ") {
-   $self->{target_sequence} = $args{$key};
-   next;
-  }
-  else {
-   my $okey;
-   ($okey=$key)=~s/^-//;;
-   if (($okey eq "left_primer" || $okey eq "right_primer") && (ref($args{$key}) eq "Bio::Seq")) {
-    # we have been parsed a bio seq object. Make it a Bio::SeqFeature::Primer object
-    $self->{$okey} = Bio::SeqFeature::Primer->new(-seq=>$args{$key});
-    push @{$self->{'arguments'}},$okey;
-    next;
-   }
-   
-   $self->{$okey} = $args{$key};
-   push @{$self->{'arguments'}},$okey;
-  }
+     if ($key eq "-seq" || $key eq "-SEQ") {
+	 $self->{target_sequence} = $args{$key};
+	 next;
+     } else {
+	 my $okey;
+	 ($okey=$key)=~s/^-//;;
+	 if (($okey eq "left_primer" || $okey eq "right_primer") && 
+	     ref($args{$key}) && $args{$key}->isa('Bio::SeqI') ) {
+	     # we have been parsed a bio seq object. 
+	     # Make it a Bio::SeqFeature::Primer object
+	     $self->{$okey} = Bio::SeqFeature::Primer->new(-seq=>$args{$key});
+	     push @{$self->{'arguments'}},$okey;
+	     next;
+	 }
+
+	 $self->{$okey} = $args{$key};
+	 push @{$self->{'arguments'}},$okey;
+     }
  }
  # and now the insurance- make sure that things are ok
  if (!$self->{target_sequence} || !$self->{left_primer} || !$self->{right_primer} ) {
    $self->throw("You must provide a -target_sequence, -left_primer, and -right_primer to create this object.");
  }
   
- if (ref($self->{target_sequence}) ne "Bio::Seq") {
-   $self->throw("The target_sequence must be a Bio::Seq to create this object.");
+ if (! ref($self->{target_sequence}) ||
+     ! $self->{target_sequence}->isa('Bio::SeqI') ) {
+     $self->throw("The target_sequence must be a Bio::Seq to create this object.");
  }
- if (ref($self->{left_primer}) ne "Bio::SeqFeature::Primer" || ref($self->{right_primer}) ne "Bio::SeqFeature::Primer") {
-   $self->throw("You must provide a left_primer and right_primer, both as Bio::SeqFeature::Primer to create this object.");
+ if (! ref($self->{left_primer}) ||
+     ! $self->{left_primer}->isa("Bio::SeqFeature::Primer") || 
+     ! ref($self->{right_primer}) ||
+     ! $self->{right_primer}->isa("Bio::SeqFeature::Primer")) {
+     $self->throw("You must provide a left_primer and right_primer, both as Bio::SeqFeature::Primer to create this object.");
  }
  
  # now we have the sequences, lets find out where they are
  $self->_place_seqs();
- 
- 
- 
  return $self;
 }
 
