@@ -201,6 +201,24 @@ sub each_mapper{
    return @{$self->{'_mappers'}};
 }
 
+=head2 mapper_count
+
+ Title   : mapper_count
+ Usage   : my $count = $collection->mapper_count;
+ Function: Get the count of the number of mappers stored 
+           in this collection
+ Example :
+ Returns : integer
+ Args    : none
+
+
+=cut
+
+sub mapper_count{
+   my $self = shift;
+   return scalar @{$self->{'_mappers'} || []};
+}
+
 
 =head2 swap
 
