@@ -215,165 +215,137 @@ sub to_string {
         # unfortunately (or not??), HitI objects do not implement SeqFeatureI, so we can't just call ->gff_string
         # as a result, this module is quite brittle to changes in the GFF format since we are hard-coding the GFF output here :-(
         if (scalar(@plus_hsps)){
+	    my %tags ( 'ID' => "match_sequence$ID");
+
+	    if ($format==2.5) {
+		$tags{'Target'} = "EST:$seqname";
+		$tags{'tstart'} = $qpmin;
+		$tags{'tend'}   = $qpmax;
+	    }
+	    else {
+		$tags{'Target'} = "EST:$seqname $qpmin $qpmax";
+	    }
+
             my $feat = Bio::SeqFeature::Generic->new(
                 -seq_id      => $refseq,
                 -source_tag  => $source,
                 -primary_tag => $match_tag,
                 -start       => $spmin,
                 -end         => $spmax,
-                -score      => $score,
-                -strand     => '+',
-                -frame      => '.',
-                -tag         => {
-                    'ID'    => "match_sequence$ID",
-                    'Target' => (($format==2.5)?"EST:$seqname":"EST:$seqname+$qpmin+$qpmax"),
-                    'tstart' => $qpmin,
-                    'tend' => $qpmax,
-                }
-                                         );
+                -score       => $score,
+                -strand      => '+',
+                -frame       => '.',
+                -tag         => \%tags 
+            );
+
+
             my $formatter = Bio::Tools::GFF->new(-gff_version => $format);
             $GFF .= $feat->gff_string($formatter)."\n";
-            #    
-            #    $GFF .= _GFF25($refseq,$source,$match_tag,$spmin,$spmax,$score,'+','.',$seqname,"match_sequence$ID",$qpmin,$qpmax);
-            #} elsif ($format == 2){
-            #    $GFF .= _GFF2($refseq,$source,$match_tag,$spmin,$spmax,$score,'+','.',$seqname,"match_sequence$ID",$qpmin,$qpmax);
-            #} elsif ($format == 1){
-            #    $GFF .= _GFF1($refseq,$source,$match_tag,$spmin,$spmax,$score,'+','.',$seqname,"match_sequence$ID",$qpmin,$qpmax);
-            #} else { #$format == 3
-            #    $GFF .= _GFF3($refseq,$source,$match_tag,$spmin,$spmax,$score,'+','.',$seqname,"match_sequence$ID",$qpmin,$qpmax);
-            #}                
         }
         if (scalar(@minus_hsps)){
+	    my %tags ( 'ID' => "match_sequence$ID");
+
+            if ($format==2.5) {
+                $tags{'Target'} = "EST:$seqname";
+                $tags{'tstart'} = $qpmax;
+                $tags{'tend'}   = $qpmin;
+            }
+            else {
+                $tags{'Target'} = "EST:$seqname $qpmax $qpmin";
+            }
+
             my $feat = Bio::SeqFeature::Generic->new(
                 -seq_id      => $refseq,
                 -source_tag  => $source,
                 -primary_tag => $match_tag,
                 -start       => $smmin,
                 -end         => $smmax,
-                -score      => $score,
-                -strand     => '-',
-                -frame      => '.',
-                -tag         => {
-                    'ID'    => "match_sequence$ID",
-                    'Target' => (($format==2.5)?"EST:$seqname":"EST:$seqname+$qmmax+$qmmin"),
-                    'tstart' => $qmmax,
-                    'tend' => $qmmin,
-                }
-                                         );
+                -score       => $score,
+                -strand      => '-',
+                -frame       => '.',
+                -tag         => \%tags 
+	    );
+
             my $formatter = Bio::Tools::GFF->new(-gff_version => $format);
             $GFF .= $feat->gff_string($formatter)."\n";
-#
-#            if ($format == 2.5){
-#                $GFF .= _GFF25($refseq,$source,$match_tag,$smmin,$smmax,$score,'-','.',$seqname,"match_sequence$ID",$qmmax,$qmmin);
-#            } elsif ($format ==2){
-#                $GFF .= _GFF2($refseq,$source,$match_tag,$smmin,$smmax,$score,'-','.',$seqname,"match_sequence$ID",$qmmax,$qmmin);
-#            } elsif ($format == 1){
-#                $GFF .= _GFF1($refseq,$source,$match_tag,$smmin,$smmax,$score,'-','.',$seqname,"match_sequence$ID",$qmmax,$qmmin);
-#            } else { #$format == 3
-#                $GFF .= _GFF3($refseq,$source,$match_tag,$smmin,$smmax,$score,'-','.',$seqname,"match_sequence$ID",$qmmax,$qmmin);
-#            }
         }
+        
         # process + strand hsps
         foreach my $hsp(@plus_hsps){
-            my $hspID = $self->_incrementHSP();
+            my $hspID  = $self->_incrementHSP();
             my $qstart = $hsp->start('query');
-            my $qend = $hsp->end('query');
+            my $qend   = $hsp->end('query');
             my $sstart = $hsp->start('subject');
-            my $send = $hsp->end('subject');
-            my $score = $hsp->score;
+            my $send   = $hsp->end('subject');
+            my $score  = $hsp->score;
+
+	    my %tags ( 'ID'     => "match_hsp$hspID",
+		       'Parent' => "match_sequence$ID" );
+
+            if ($format==2.5) {
+                $tags{'Target'} = "EST:$seqname";
+                $tags{'tstart'} = $qstart;
+                $tags{'tend'}   = $qend;
+            }
+            else {
+                $tags{'Target'} = "EST:$seqname $qstart $qend";
+            }
+
             my $feat = Bio::SeqFeature::Generic->new(
                 -seq_id      => $refseq,
                 -source_tag  => $source,
                 -primary_tag => $match_tag,
                 -start       => $sstart,
                 -end         => $send,
-                -score      => $score,
-                -strand     => '+',
-                -frame      => '.',
-                -tag         => {
-                    'ID'    => "match_hsp$hspID",
-                    'Target' => (($format==2.5)?"EST:$seqname":"EST:$seqname+$qstart+$qend"),
-                    'tstart' => $qstart,
-                    'tend' => $qend,
-                    'Parent' => "match_sequence$ID",
-                }
-                                         );
+                -score       => $score,
+                -strand      => '+',
+                -frame       => '.',
+                -tag         => \%id 
+            );
+
             my $formatter = Bio::Tools::GFF->new(-gff_version => $format);
             $GFF .= $feat->gff_string($formatter)."\n";
-            #if ($format == 2.5){
-            #    $GFF .= _GFF25($refseq,$source,$match_tag,$sstart,$send,$score,'+','.',$seqname,"match_hsp$hspID",$qstart,$qend,"match_sequence$ID");
-            #} elsif ($format ==2){
-            #    $GFF .= _GFF2($refseq,$source,$match_tag,$sstart,$send,$score,'+','.',$seqname,"match_hsp$hspID",$qstart,$qend,"match_sequence$ID");
-            #} elsif ($format == 1){
-            #    $GFF .= _GFF1($refseq,$source,$match_tag,$sstart,$send,$score,'+','.',$seqname,"match_hsp$hspID",$qstart,$qend,"match_sequence$ID");
-            #} else { #$format == 3
-            #    $GFF .= _GFF3($refseq,$source,$match_tag,$sstart,$send,$score,'+','.',$seqname,"match_hsp$hspID",$qstart,$qend,"match_sequence$ID");
-            #}
         }
         foreach my $hsp(@minus_hsps){
+
             my $hspID = $self->_incrementHSP();
             my $qstart = $hsp->start('query');
             my $qend = $hsp->end('query');
             my $sstart = $hsp->start('subject');
             my $send = $hsp->end('subject');
             my $score = $hsp->score;
+
+            my %tags ( 'ID'     => "match_hsp$hspID",
+                       'Parent' => "match_sequence$ID" );
+
+            if ($format==2.5) {
+                $tags{'Target'} = "EST:$seqname";
+                $tags{'tstart'} = $qend;
+                $tags{'tend'}   = $qstart;
+            }
+            else {
+                $tags{'Target'} = "EST:$seqname $qend $qstart";
+            }
+
             my $feat = Bio::SeqFeature::Generic->new(
                 -seq_id      => $refseq,
                 -source_tag  => $source,
                 -primary_tag => $match_tag,
                 -start       => $sstart,
                 -end         => $send,
-                -score      => $score,
-                -strand     => '-',
-                -frame      => '.',
-                -tag         => {
-                    'ID'    => "match_hsp$hspID",
-                    'Target' => (($format==2.5)?"EST:$seqname":"EST:$seqname+$qend+$qstart"),
-                    'tstart' => $qend,
-                    'tend' => $qstart,
-                    'Parent' => "match_sequence$ID",
-                }
-                                         );
+                -score       => $score,
+                -strand      => '-',
+                -frame       => '.',
+		-tag         => \%tags 
+            );
+
             my $formatter = Bio::Tools::GFF->new(-gff_version => $format);
             $GFF .= $feat->gff_string($formatter) ."\n";
-            #if ($format == 2.5){
-            #    $GFF .= _GFF25($refseq,$source,$match_tag,$sstart,$send,$score,'-','.',$seqname,"match_hsp$hspID",$qend,$qstart,"match_sequence$ID");
-            #} elsif ($format ==2){
-            #    $GFF .= _GFF2($refseq,$source,$match_tag,$sstart,$send,$score,'-','.',$seqname,"match_hsp$hspID",$qend,$qstart,"match_sequence$ID");
-            #} elsif ($format == 1){
-            #    $GFF .= _GFF1($refseq,$source,$match_tag,$sstart,$send,$score,'-','.',$seqname,"match_hsp$hspID",$qend,$qstart,"match_sequence$ID");
-            #} else { #$format == 3
-            #    $GFF .= _GFF3($refseq,$source,$match_tag,$sstart,$send,$score,'-','.',$seqname,"match_hsp$hspID",$qend,$qstart,"match_sequence$ID");
-            #}
         }
     }
     return $GFF;
 }
 
-#sub _GFF1 {
-#    my ($refseq, $source, $match_tag, $start, $stop, $score, $strand, $frame, $EST, $ID, $hitmin, $hitmax, $parentID) = @_;
-#    return "$refseq\t$source\t$match_tag\t$start\t$stop\t$score\tstrand\t$frame";
-#    
-#}
-#
-#sub _GFF2 {
-#    my ($refseq, $source, $match_tag, $start, $stop, $score, $strand, $frame, $EST, $ID, $hitmin, $hitmax, $parentID) = @_;
-#    return"$refseq\t$source\t$match_tag\t$start\t$stop\t$score\t$strand\t$frame\tTarget EST:$EST ; tstart $hitmin ; tend $hitmax\n";
-#    
-#}
-#
-#sub _GFF25 {
-#    my ($refseq, $source, $match_tag, $start, $stop, $score, $strand, $frame, $EST, $ID, $hitmin, $hitmax, $parentID) = @_;
-#    return "$refseq\t$source\t$match_tag\t$start\t$stop\t$score\t$strand\t$frame\tTarget EST:$EST ; tstart $hitmin ; tend $hitmax\n";
-#
-#}
-#
-#sub _GFF3 {
-#    my ($refseq, $source, $match_tag, $start, $stop, $score, $strand, $frame, $EST, $ID, $hitmin, $hitmax, $parentID) = @_;
-#    return"$refseq\t$source\t$match_tag\t$start\t$stop\t$score\t$strand\t$frame\tID=$ID ; Target=EST:$EST+$hitmin+$hitmax".($parentID?" ; Parent=$parentID":"")."\n";
-#    
-#}
-#
 sub significance_filter {
     my ($self,$method,$code) = @_;    
     return undef unless $method;
