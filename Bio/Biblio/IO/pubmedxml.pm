@@ -16,7 +16,7 @@ Bio::Biblio::IO::pubmedxml - A converter of XML files with PUBMED citations
 Do not use this object directly, it is recommended to access it and use
 it through the I<Bio::Biblio::IO> module:
 
-  use Bio::Biblio:IO;
+  use Bio::Biblio::IO;
   my $io = new Bio::Biblio::IO (-format => 'pubmedxml');
 
 =head1 DESCRIPTION

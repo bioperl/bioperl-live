@@ -89,7 +89,7 @@ output formats:
 Bio::Biblio::IO is a handler module for accessing bibliographic
 citations. The citations can be in different formats - assuming that
 there is a corresponding module knowing that format in Bio::Biblio::IO
-directory (e.g. Bio::Biblio:IO::medlinexml). The format (and the
+directory (e.g. Bio::Biblio::IO::medlinexml). The format (and the
 module name) is given by the argument I<-format>.
 
 Once an instance of C<Bio::Biblio::IO> class is available, the
