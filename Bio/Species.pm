@@ -81,7 +81,7 @@ sub new {
   $self->{'common_name'} = undef;
   my ($classification) = $self->_rearrange([qw(CLASSIFICATION)], @args);
   if( defined $classification &&
-      (ref($classification) =~ /array/i) ) {
+      (ref($classification) eq "ARRAY") ) {
       $self->classification(@$classification);
   }
   return $self;
@@ -115,8 +115,7 @@ sub classification {
         # Check the names supplied in the classification string
         {
             # Species should be in lower case
-            my $species = $args[0];
-            $self->validate_species_name( $species );
+            $self->validate_species_name($args[0]);
 
             # All other names must be in title case
             for (my $i = 1; $i < @args; $i++) {
@@ -263,7 +262,7 @@ sub binomial {
     }
     $genus = ''   unless( defined $genus);
     my $bi = "$genus $species";
-    if (defined($full) && ($full eq 'FULL')) {
+    if (defined($full) && ((uc $full) eq 'FULL')) {
 	my $ssp = $self->sub_species;
         $bi .= " $ssp" if $ssp;
     }
@@ -273,15 +272,15 @@ sub binomial {
 sub validate_species_name {
     my( $self, $string ) = @_;
 
-    $string =~ /^[\S\d\.]+$||""/ or
-        $self->throw("Invalid species name '$string'");
+    return 1 if $string =~ /^[a-z]+$/;
+    $self->throw("Invalid species name '$string'");
 }
 
 sub validate_name {
     my( $self, $string ) = @_;
 
-    return $string =~ /^[A-Z][a-z]+$/ or
-        $self->throw("Invalid name '$string' (Wrong case?)");
+    return 1 if $string =~ /^[A-Z][a-z]+$/;
+    $self->throw("Invalid name '$string' (Wrong case?)");
 }
 
 =head2 ncbi_taxid
