@@ -53,6 +53,7 @@ methods. Internal methods are usually preceded with a _
 package Bio::Annotation::DBLink;
 use vars qw(@ISA);
 use strict;
+# use overload '""' => \&as_text; 
 
 use Bio::Root::Root;
 use Bio::AnnotationI;
