@@ -116,47 +116,43 @@ sub next_aln {
 				$self->throw($MEME_NO_HEADER_ERR) unless ($self->{'seen_header'});
 				$in_align_sec = 1;
 			}
-		}elsif ($line =~ /^(\S+)\s+([+-]?)\s+(\d+)\s+
+		} elsif ($line =~ /^(\S+)\s+([+-]?)\s+(\d+)\s+
                        (\S+)\s+([.ACTG]*)\s+([ACTG]+)\s+
                        ([.ACTG]*)/xi ) {
 			# Got a sequence line
 			my $seq_name = $1;
-			my $strand = ($2 eq '+' || $2 eq undef) ? 1 : -1;
+			my $strand = ($2 eq '-') ? -1 : 1;
 			my $start_pos = $3;
+			my $central = uc($6);
+
 			# my $p_val = $4;
 			# my $left_flank = uc($5);
-			my $central = uc($6);
 			# my $right_flank = uc($7);
 
-			# Info about the sequence
-			my $seq_res = $central;
-			my $seq_len = length($seq_res);
-
 			# Info about the flanking sequence
-			# my $left_len = length($left_flank);
-			# my $right_len = length($right_flank);
-			# my $start_len = ($strand > 0) ? $left_len : $right_len;
-			# my $end_len = ($strand > 0) ? $right_len : $left_len;
+			# my $start_len = ($strand > 0) ? length($left_flank) :
+			# length($right_flank);
+			# my $end_len = ($strand > 0) ? length($right_flank) :
+			# length($left_flank);
 
 			# Make the sequence.  Meme gives the start coordinate at the left
 			# hand side of the motif relative to the INPUT sequence.
-			my $start_coord = $start_pos;
-			my $end_coord = $start_coord + $seq_len - 1;
-			my $seq = new Bio::LocatableSeq(-seq    => $seq_res,
+			my $end_pos = $start_pos + length($central) - 1;
+			my $seq = new Bio::LocatableSeq(-seq    => $central,
 													  -id     => $seq_name,
-													  -start  => $start_coord,
-													  -end    => $end_coord,
+													  -start  => $start_pos,
+													  -end    => $end_pos,
 													  -strand => $strand
 													 );
-			# Make a seq_feature out of the motif
+			# Add the sequence motif to the alignment
 			$aln->add_seq($seq);
-		}elsif (($line =~ /^\-/) || ($line =~ /Sequence name/)){
+		} elsif (($line =~ /^\-/) || ($line =~ /Sequence name/)){
 			# These are acceptable things to be in the site section
-		}elsif ($line =~ /^\s*$/){
+		} elsif ($line =~ /^\s*$/){
 			# This ends the site section
 			$in_align_sec = 0;
 			$good_align_sec = 1;
-		}else{
+		} else{
 			$self->warn("Unrecognized format:\n$line");
 			return 0;
 		}
@@ -164,7 +160,7 @@ sub next_aln {
 	# Signal an error if we didn't find a header section
 	$self->throw($MEME_NO_HEADER_ERR) unless ($self->{'seen_header'});
 
-	return (($good_align_sec) ? $aln : 0);
+	return ($good_align_sec ? $aln : 0);
 }
 
 =head2 write_aln
