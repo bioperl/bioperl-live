@@ -666,9 +666,8 @@ sub frame {
 	  }
 	  $self->hit->frame($sframe);
       }
-
     if (wantarray() &&
-	$self->report_type eq 'TBLASTX')
+	$self->algorithm eq 'TBLASTX')
     {
 	return ($self->query->frame(), $self->hit->frame());
     } elsif (wantarray())  {
