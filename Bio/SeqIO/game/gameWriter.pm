@@ -344,7 +344,7 @@ sub _write_gene {
             # Make a synthetic exon to help build a hierarchy.  We have to assume that
             # the location is not segmented (otherwise it should be a mRNA)
 	    if ( $mRNA->primary_tag eq 'transcript') {
-		my $exon = Bio::SeqFeature::Generic->new ( -primary => exon );
+		my $exon = Bio::SeqFeature::Generic->new ( -primary => 'exon' );
 		$exon->location($mRNA->location);
 		$mRNA->add_SeqFeature($exon);
 	    }
