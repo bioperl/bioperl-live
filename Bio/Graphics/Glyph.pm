@@ -4,6 +4,8 @@ use GD;
 use strict;
 use Carp 'croak';
 use constant BUMP_SPACING => 2; # vertical distance between bumped glyphs
+use vars '$VERSION';
+$VERSION = '1.00';
 
 my %LAYOUT_COUNT;
 
@@ -481,7 +483,7 @@ sub draw_connectors {
   }
 
   # extra connectors going off ends
-  if (@parts>1) {
+  if (@parts) {
     my($x1,$y1,$x2,$y2) = $self->bounds(0,0);
     my($xl,$xt,$xr,$xb) = $parts[0]->bounds;
     $self->_connector($gd,$dx,$dy,$x1,$xt,$x1,$xb,$xl,$xt,$xr,$xb);
@@ -737,9 +739,9 @@ sub _subseq {
   my $feature = shift;
   return $feature->merged_segments         if $feature->can('merged_segments');
   return $feature->segments                if $feature->can('segments');
-  my @split = eval { my $id = $feature->location->seq_id;
+  my @split = eval { my $id   = $feature->location->seq_id;
 		     my @subs = $feature->location->sub_Location;
-		     grep {$id eq $_->seq_id} $feature->location->sub_Location};
+		     grep {$id eq $_->seq_id} @subs};
   return @split if @split;
   return $feature->sub_SeqFeature          if $feature->can('sub_SeqFeature');
   return;

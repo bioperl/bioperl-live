@@ -87,7 +87,6 @@ Bio/DB/GFF/Aggregator/alignment.pm
 Bio/DB/GFF/Aggregator/clone.pm
 Bio/DB/GFF/Aggregator/none.pm
 Bio/DB/GFF/Aggregator/transcript.pm
-Bio/DB/GFF/Aggregator/wormbase_gene.pm
 Bio/DB/GFF/Featname.pm
 Bio/DB/GFF/Feature.pm
 Bio/DB/GFF/Homol.pm
@@ -407,6 +406,7 @@ Changes
 FAQ
 INSTALL
 LICENSE
+Makefile.PL
 MANIFEST
 PLATFORMS
 README
