@@ -101,6 +101,7 @@ use strict;
 
 use Bio::SeqFeature::FeaturePair;
 use Bio::SeqFeature::Generic;
+use Bio::SeqFeature::SimilarityPair;
 
 @ISA = qw(Bio::SeqFeature::SimilarityPair);
 # new() is inherited from Bio::Root::Object
