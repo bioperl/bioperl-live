@@ -44,7 +44,8 @@ current bioperl usage.
 
 This class is aimed for representing mapping between whole chromosomes
 and contigs, or between contigs and clones, or between sequencing
-reads and assembly.
+reads and assembly. The submaps are automatically sorted, so they can
+be addedin any order.
 
 To map coordinates to other direction, you have to swap() the
 collection. Keeping track of teh direction and when to id restricitons
@@ -165,7 +166,7 @@ sub add_mapper {
 
 sub each_mapper{
    my ($self,@args) = @_;
-   return @{$self->{'_mappers'}}; 
+   return @{$self->{'_mappers'}};
 }
 
 
@@ -185,7 +186,7 @@ sub swap {
 
    #@{$self->{'mappers'}} = 
    map {$_->swap} @{$self->{'_mappers'}};
-   $self->_sort;
+   $self->sort;
 }
 
 =head2 test
@@ -237,7 +238,7 @@ sub map {
    $self->throw("No coordinate mappers!")
        unless $self->each_mapper;
 
-   $self->_sort unless $self->_is_sorted;
+   $self->sort unless $self->_is_sorted;
 
    my $result = new Bio::Coordinate::Result;
 
@@ -278,10 +279,10 @@ IDMATCH: {
 }
 
 
-=head2 _sort
+=head2 sort
 
- Title   : _sort
- Usage   : $obj->_sort;
+ Title   : sort
+ Usage   : $obj->sort;
  Function: Sort function so that all mappings are sorted by
            input coordinate start
  Example :
@@ -290,7 +291,7 @@ IDMATCH: {
 
 =cut
 
-sub _sort{
+sub sort{
    my ($self) = @_;
 
    @{$self->{'_mappers'}} =
