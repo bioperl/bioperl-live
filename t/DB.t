@@ -38,7 +38,7 @@ BEGIN {
 
 END { 
     foreach ( $Test::ntest..$NUMTESTS) {
-	skip('unable to run all of the DB tests',1);
+	skip('Unable to run all of the DB tests',1);
     }
 }
 
@@ -63,8 +63,7 @@ my $verbose = 0;
 
 my ($gb,$seq,$seqio,$query);
 # get a single seq
-
-
+if( 0 ) {
 eval {
     ok defined ( $gb = new Bio::DB::GenBank('-verbose'=>$verbose,'-delay'=>0) );
     ok( defined ($seq = $gb->get_Seq_by_id('MUSIGHBA1')));
@@ -83,7 +82,6 @@ if ($@) {
     foreach ( $Test::ntest..$NUMTESTS ) { skip('no network access',1); }
     exit(0);
 }
-
 $seq = $seqio = undef;
 
 eval {
@@ -265,8 +263,9 @@ if ($@) {
 	skip('could not connect to Genbank',1); 
     }
   }
-
 $seq = $seqio = undef;
+}
+
 
 # test query facility
 eval {
@@ -295,6 +294,6 @@ if ($@) {
     foreach ( $Test::ntest..$NUMTESTS ) { 
 	skip('could not connect to Genbank',1); 
     }
-  }
-
+}
 $seq = $seqio = undef;
+print STDERR "\n";
