@@ -1,4 +1,4 @@
-## $Id: MANIFEST,v 1.31 2001-03-02 03:44:12 dag Exp $
+## $Id: MANIFEST,v 1.32 2001-03-30 05:14:15 lapp Exp $
 ##
 ## This is the file listing for everything that
 ## comes with the bioperl distribution. The perl
@@ -161,6 +161,7 @@ Bio/Tools/ESTScan.pm
 Bio/Tools/Fasta.pm
 Bio/Tools/GFF.pm
 Bio/Tools/Genscan.pm
+Bio/Tools/Genemark.pm
 Bio/Tools/HMMER/Domain.pm
 Bio/Tools/HMMER/Results.pm
 Bio/Tools/HMMER/Set.pm
