@@ -79,39 +79,59 @@ sub _initialize {
   return unless my $make = $self->SUPER::_initialize(@args);
 }
 
+=head2 next_primary_seq
+
+ Title   : next_seq
+ Usage   : $seq = $stream->next_seq()
+ Function: returns the next sequence in the stream
+ Returns : Bio::PrimarySeq object
+ Args    : NONE
+
 =head2 next_seq
 
  Title   : next_seq
  Usage   : $seq = $stream->next_seq()
  Function: returns the next sequence in the stream
  Returns : Bio::Seq object
- Args    :
+ Args    : NONE
 
 =cut
 
-sub next_seq{
-  my $self = shift;
+sub next_seq {
+    return next_primary_seq( $_[0], 1 );
+}
+
+sub next_primary_seq {
+  my( $self, $as_next_seq ) = @_;
   local $/ = '>';
 
-  return unless my $next_line = $self->_readline;
+  return unless my $entry = $self->_readline;
 
-  if ($next_line eq '>')  {  # very first one
-    return unless $next_line = $self->_readline;
+  if ($entry eq '>')  {  # very first one
+    return unless $entry = $self->_readline;
   }
 
-  chomp $next_line;
+  my ($top,$sequence) = $entry =~ /^(.+?)\n([^>]+)/s
+    or $self->throw("Can't parse entry");
+  my ($id,$fulldesc) = $top =~ /^\s*(\S+)\s*(.*)/
+    or $self->throw("Can't parse fasta header");
+  
+  $sequence =~ s/\s//g; # Remove whitespace
 
-  my ($top,@lines) = split "\n",$next_line;
-  my ($id,$fulldesc) = $top =~ /^\s*(\S+)\s*(.*)/;
-  my $sequence = join '',@lines;
-  # remove whitespace
-  $sequence =~ s/\s//g;
-
-  return Bio::Seq->new(-seq => $sequence,
-		       -id => $id,
-		       -primary_id => $id,
-		       -desc => $fulldesc,
-		      );
+  if ($as_next_seq) {
+    # Return a Bio::Seq if asked for
+    return Bio::Seq->new(-seq        => $sequence,
+		         -id         => $id,
+		         -primary_id => $id,
+		         -desc       => $fulldesc,
+		         );
+  } else {
+    return Bio::PrimarySeq->new(-seq        => $sequence,
+		                -id         => $id,
+		                -primary_id => $id,
+		                -desc       => $fulldesc,
+		                );
+  }
 }
 
 =head2 write_seq
