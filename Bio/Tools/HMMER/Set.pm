@@ -77,7 +77,13 @@ use Bio::Tools::HMMER::Domain;
 
 sub new {
     my($class,@args) = @_;
-    my $self = $class->SUPER::new(@args);    
+    my $self = $class->SUPER::new(@args);
+    my ($name,$acc,$desc) = $self->_rearrange([qw(NAME ACCESSION DESC)],
+					      @args);
+    $name && $self->name($name);
+    $acc  && $self->accession($acc);
+    $desc && $self->desc($desc);
+
     $self->{'domains'} = [];
     return $self;
 }
@@ -141,6 +147,48 @@ sub name{
     return $obj->{'name'};
 
 }
+
+=head2 desc
+
+ Title   : desc
+ Usage   : $obj->desc($newval)
+ Function: 
+ Example : 
+ Returns : value of desc
+ Args    : newvalue (optional)
+
+=cut
+
+sub desc{
+   my ($self,$value) = @_;
+   if( defined $value) {
+      $self->{'desc'} = $value;
+    }
+    return $self->{'desc'};
+
+}
+
+=head2 accession
+
+ Title   : accession
+ Usage   : $obj->accession($newval)
+ Function: 
+ Example : 
+ Returns : value of accession
+ Args    : newvalue (optional)
+
+
+=cut
+
+sub accession{
+   my ($self,$value) = @_;
+   if( defined $value) {
+      $self->{'accession'} = $value;
+    }
+    return $self->{'accession'};
+}
+
+
 =head2 bits
 
  Title   : bits
