@@ -1,6 +1,35 @@
 $Id$
 Revision history for Bioperl core modules
 
+1.1.1 Developer release
+
+    o Deprecated modules are now listed in the DEPRECATED file
+
+    o New HowTo documents located in doc/howto describing 
+      a domain of Bioperl.
+
+    o Note that bugs are now stored at bugzilla.bioperl.org
+      and all old bugs are searchable through the bugzilla interface.
+
+    o Several reported bugs in Bio::Tools::Sigcleave and Bio::SimpleAlign 
+      have been addressed.
+
+    o Support for Genewise parsing in Bio::Tools::Genewise
+
+    o Speedup to the Bio::Root::Root object method _rearrange.
+      A global _load_module method was implemented to simplify the
+      dynamic loading of modules ala Bio::SeqIO::genbank.  This
+      method is now used by all the XXIO (AlignIO,TreeIO,SearchIO,SeqIO,
+      etc).
+
+    o Several performance improvements to sequence parsing in Bio::SeqIO.
+      Attempt to speedup by reducing object creation overhead.
+
+    o Bio::DB::GenBank and Bio::DB::GenPept use the NCBI's approved
+      method for sequence retrieval with their E-utils CGI scripts.
+      More work to support Entrez queries to their fullest is planned
+      before 1.2 release.
+
 1.1 Developer release 
 
     o Bio::Tools::Run has been broken off into a new pkg bioperl-run,
