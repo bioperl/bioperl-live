@@ -191,9 +191,9 @@ sub tile_hsps {
     $sbjct->length_aln('total', $hit_len_aln);
 
     $sbjct->start('query',$start_stop{'qstart'});
-    $sbjct->end('query', $start_stop{'$qstop'});
-    $sbjct->start('hit', $start_stop{'$sstart'});
-    $sbjct->end('hit', $start_stop{'$sstop'});
+    $sbjct->end('query', $start_stop{'qstop'});
+    $sbjct->start('hit', $start_stop{'sstart'});
+    $sbjct->end('hit', $start_stop{'sstop'});
 
     ## Collect data across the collected contigs.
 
