@@ -16,18 +16,18 @@ BEGIN {
     if( $@ ) {
 	use lib 't';
     }
-
+    use vars qw($NTESTS);
+    $NTESTS = 160;
     use Test;
-    plan tests => 119; 
+    plan tests => $NTESTS; 
 
     eval { require XML::Parser::PerlSAX; };
     if( $@ ) {
 	print STDERR "XML::Parser::PerlSAX not loaded. This means SearchIO::blastxml test cannot be executed. Skipping\n";
-	foreach ( 1..43 ) {
+	foreach ( 1..$NTESTS ) {
 	    skip(1,1);
 	}
-       $error = 1;
-	
+       $error = 1;	
     } 
 
 }
@@ -150,6 +150,7 @@ while( $subject = $report->next_subject ) {
 	    ok($hsp->score, 4058);
 	    ok($hsp->bits,1567);	    
 	    ok($hsp->positive, 806);
+	    ok($hsp->percent_identity, 98.2);
 	    ok($hsp->query->frac_identical, 806);
 	    ok($hsp->subject->frac_identical, 806);
 	    ok($hsp->gaps, 0);	    
@@ -197,8 +198,62 @@ while( $subject = $report->next_subject ) {
 	    ok($hsp->score, 4141);
 	    ok($hsp->bits,1462.8);	    
 	    ok($hsp->positive, 820);
+	    ok($hsp->percent_identity, 100);
 	    ok($hsp->query->frac_identical, 820);
 	    ok($hsp->subject->frac_identical, 820);
+	    ok($hsp->gaps, 0);	    
+	}
+    }
+    last if( $count++ > @valid );
+}
+
+# test tblastx 
+$searchio = new Bio::SearchIO ('-format' => 'blast',
+			       '-file'   => Bio::Root::IO->catfile('t','data','HUMBETGLOA.tblastx'));
+
+$report = $searchio->next_report;
+ok($report->database_name, 'ecoli.nt');
+ok($report->database_size, 4662239);
+ok($report->program_name, 'TBLASTX');
+ok($report->program_version, '2.1.2');
+ok($report->query_name, qr/HUMBETGLOA Human haplotype C4 beta-globin gene, complete cds./);
+ok($report->query_size, 3002);
+ok($report->get_statistic('kappa'), 0.135);
+ok($report->get_statistic('lambda'), 0.318);
+ok($report->get_statistic('entropy'), 0.401);
+ok($report->get_statistic('dblength'), 4662239);
+ok($report->get_statistic('dbnum'), 400);
+ok($report->get_parameter('matrix'), 'BLOSUM62');
+
+@valid = ( [ 'gb|AE000479.1|AE000479', 10934, 'AE000479'],
+	   [ 'gb|AE000302.1|AE000302', 10264, 'AE000302'],
+	   [ 'gb|AE000277.1|AE000277', 11653, 'AE000277']);
+$count = 0;
+
+while( $subject = $report->next_subject ) {
+    my $d = shift @valid;
+    ok($subject->name, $d->[0]);
+    ok($subject->length, $d->[1]);
+    ok($subject->accession, $d->[2]);
+    if( $count == 0 ) {
+	while( my $hsp = $subject->next_hsp ) {
+	    ok($hsp->query->start, 1057);
+	    ok($hsp->query->end, 1134);
+	    ok($hsp->query->strand, 1);
+	    ok($hsp->subject->end, 5893);
+	    ok($hsp->subject->start, 5816);
+	    ok($hsp->subject->strand, -1);
+	    ok($hsp->hsp_length, 26);
+	    ok($hsp->P == 0.13);
+	    ok($hsp->evalue == 0.13);
+	    ok($hsp->score, 67);
+	    ok($hsp->bits,33.6);	    
+	    ok($hsp->positive, 16);
+	    ok($hsp->percent_identity, 42.3);
+	    ok($hsp->query->frac_identical, 11);
+	    ok($hsp->subject->frac_identical, 11);
+	    ok($hsp->query->frame(), 0);
+	    ok($hsp->subject->frame(), 1);
 	    ok($hsp->gaps, 0);	    
 	}
     }
