@@ -48,7 +48,6 @@ END {
 use Bio::TreeIO;
 use Bio::Root::IO;
 my $verbose = $ENV{'BIOPERLDEBUG'} || 0;
-ok(1);
 
 my $treeio = new Bio::TreeIO(-verbose => $verbose,
 			     -format => 'newick',
@@ -124,7 +123,8 @@ my @vals = qw(SINFRUP0000006110);
 my $saw = 0;
 foreach my $node ( $tree->get_root_node()->each_Descendent() ) {
 	foreach my $v ( @vals ) {
-	   if( $node->id eq $v ){ $saw = 1; last; }
+	   if( defined $node->id && 
+	       $node->id eq $v ){ $saw = 1; last; }
 	}
 	last if $saw;
 }
@@ -200,8 +200,6 @@ ok(ref($tree) && $tree->isa('Bio::Tree::TreeI'));
 
 @nodes = $tree->get_nodes;
 ok(@nodes, 12, scalar @nodes);
-
-
 
 __DATA__
 (((A:1,B:1):1,(C:1,D:1):1):1,((E:1,F:1):1,(G:1,H:1):1):1);
