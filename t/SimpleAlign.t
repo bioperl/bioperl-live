@@ -1,16 +1,17 @@
 # -*-Perl-*-
 ## Bioperl Test Harness Script for Modules
 ## $Id$
-
 use strict;
+use constant NUMTESTS => 38;
+
 BEGIN {     
     eval { require Test; };
     if( $@ ) {
 	use lib 't';
     }
     use Test;
-
-    plan tests => 32;
+    
+    plan tests => NUMTESTS;
 }
 
 use Bio::SimpleAlign;
@@ -70,3 +71,68 @@ ok $aln->no_sequences, 16;
 
 # write test for:
 # purge()
+
+eval { require 'IO/String.pm' };
+if( $@ ) {
+    print STDERR "IO::String not installed.  Skipping tests.\n";
+    for( 32..NUMTESTS ) {
+	skip(1,"IO::String not installed. Skipping tests");
+    }
+    exit;
+}
+
+
+my $string;
+my $out = IO::String->new($string);
+
+my $s1 = new Bio::LocatableSeq (-id => 'AAA', 
+			    -seq => 'aaaaattttt',
+			    -start => 1,
+			    -end => 10
+			    );
+my $s2 = new Bio::LocatableSeq (-id => 'BBB', 
+			    -seq => '-aaaatttt-',
+			    -start => 1,
+			    -end => 8
+			    );
+
+$a = new Bio::SimpleAlign;
+$a->add_seq($s1);
+$a->add_seq($s2);
+
+
+my $strout = Bio::AlignIO->new(-fh   => $out,'-format' => 'pfam');
+$strout->write_aln($a);
+ok $string, "AAA/1-10    aaaaattttt
+BBB/1-8     -aaaatttt-
+";
+
+$out->setpos(0); $string ='';
+my $b = $a->slice(2,9);
+$strout->write_aln($b);
+ok $string, "AAA/2-9    aaaatttt
+BBB/1-8    aaaatttt
+";
+
+$out->setpos(0); $string ='';
+$b = $a->slice(9,10);
+$strout->write_aln($b);
+ok $string, "AAA/9-10    tt
+BBB/8-8     t-
+";
+
+$a->verbose(-1);
+$out->setpos(0); $string ='';
+$b = $a->slice(1,1);
+$strout->write_aln($b);
+ok $string, "AAA/1-1    a\n";
+
+$out->setpos(0); $string ='';
+$b = $a->slice(10,13);
+$strout->write_aln($b);
+ok $string, "AAA/10-10    t\n";
+
+eval {
+    $b = $a->slice(11,13);
+};
+ok 1 if $@;
