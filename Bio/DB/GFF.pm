@@ -572,7 +572,6 @@ sub new {
   # the aggreator is treated as a ready made object.
   $aggregators = $self->default_aggregators unless defined $aggregators;
   my @a = ref($aggregators) eq 'ARRAY' ? @$aggregators : $aggregators;
-  my @aggregators;
   for my $a (@a) {
     $self->add_aggregator($a);
   }
@@ -2638,7 +2637,7 @@ sub make_feature {
 
 sub make_aggregated_feature {
   my $self                 = shift;
-  my ($matchsub,$accumulated_features,$parent,$aggregators) = splice(@_,0,4);
+  my ($accumulated_features,$parent,$aggregators) = splice(@_,0,3);
   my $feature = $self->make_feature($parent,undef,@_);
   return [$feature] if $feature && !$feature->group;
 
@@ -2716,7 +2715,6 @@ sub make_match_sub {
   for my $type (@$types) {
     my ($method,$source) = @$type;
     $method ||= '.*';
-#    $source  = $source ? ":$source" : ":?.*";
     $source  = $source ? ":$source" : "(?::.+)?";
     push @expr,"${method}${source}";
   }
@@ -2840,14 +2838,13 @@ sub _features {
   my ($search,$options,$parent) = @_;
   (@{$search}{qw(start stop)}) = (@{$search}{qw(stop start)})
     if defined($search->{start}) && $search->{start} > $search->{stop};
-  
+
   my $types = $self->parse_types($search->{types});  # parse out list of types
   my @aggregated_types = @$types;         # keep a copy
 
   # allow the aggregators to operate on the original
-  my ($match,@aggregators);
+  my @aggregators;
   if ($options->{automerge}) {
-    $match = $self->make_match_sub($types);
     for my $a ($self->aggregators) {
       $a = $a->clone if $options->{iterator};
       unshift @aggregators,$a
@@ -2857,7 +2854,7 @@ sub _features {
 
   if ($options->{iterator}) {
     my @accumulated_features;
-    my $callback = $options->{automerge} ? sub { $self->make_aggregated_feature($match,\@accumulated_features,$parent,\@aggregators,@_) }
+    my $callback = $options->{automerge} ? sub { $self->make_aggregated_feature(\@accumulated_features,$parent,\@aggregators,@_) }
                                          : sub { [$self->make_feature($parent,undef,@_)] };
     return $self->get_features_iterator({ %$search, 
 					  types => \@aggregated_types  },
@@ -2880,7 +2877,7 @@ sub _features {
     warn "aggregating...\n" if $self->debug;
     foreach my $a (@aggregators) {  # last aggregator gets first shot
       warn "Aggregator $a:\n" if $self->debug;
-      $a->aggregate($features,$self) or next;
+      $a->aggregate($features,$self);
     }
   }
 

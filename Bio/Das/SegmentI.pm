@@ -385,8 +385,8 @@ have to implement it.
 
 sub get_feature_stream {
   my $self = shift;
-  my @args = $_[0] =~ /^-/ ? (@_,         -iterator=>1)
-                           : (-types=>\@_,-iterator=>1);
+  my @args = defined $_[0] && $_[0] =~ /^-/ ? (@_,         -iterator=>1)
+                                            : (-types=>\@_,-iterator=>1);
   $self->features(@args);
 }
 

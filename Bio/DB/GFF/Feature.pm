@@ -1016,7 +1016,7 @@ sub gff_string {
 
   my $group_field = join ' ; ',@group;
   my $strand = ('-','.','+')[$self->strand+1];
-  my $ref = $self->ref;
+  my $ref = $self->refseq;
   my $n   = ref($ref) ? $ref->name : $ref;
   my $phase = $self->phase;
   $phase = '.' unless defined $phase;

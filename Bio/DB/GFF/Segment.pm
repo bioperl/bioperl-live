@@ -526,7 +526,7 @@ An alias for refseq() but only allows reading.
 
 =cut
 
-sub seq_id { shift->ref }
+sub seq_id { shift->refseq }
 
 =head2 truncated
 
