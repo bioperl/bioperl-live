@@ -142,7 +142,8 @@ sub start {
     if( defined $value ) {
 	my ($encode, $min,$max) = $self->_fuzzypointencode($value);	
 	$self->{'_start_pos_type'} = $encode;
-	$self->{'_max_start'} = $self->{'_min_start'} = $self->{'_start'} = undef;
+	$self->{'_max_start'} = $self->{'_min_start'} = undef;
+	$self->{'_start'} = 0;
 	if( $encode eq 'EXACT' ) {
 	    # max and min should be equal to the start value 
 	    # if we have an exact point
@@ -176,10 +177,11 @@ sub start {
 sub end {
     my($self,$value) = @_;
     if( defined $value ) {
-	my ($encode, $min,$max) = $self->_fuzzypointencode($value);		
+	my ($encode, $min,$max) = $self->_fuzzypointencode($value);
 	$self->{'_end_pos_type'} = $encode;
 	# reset all the store values
-	$self->{'_max_end'} = $self->{'_min_end'} = $self->{'_end'} = undef;
+	$self->{'_max_end'} = $self->{'_min_end'}  = undef;
+	$self->{'_end'} = 0;
 	if( $encode eq 'EXACT' ) {
 	    # max and min should be equal to the end value 
 	    # if we have an exact point
