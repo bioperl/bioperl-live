@@ -345,7 +345,8 @@ sub remove_seq {
     # we need to shift order hash
     my %rev_order = reverse %{$self->{'_order'}};
     my $no = $rev_order{$name};
-    for (; $no < $self->no_sequences - 1; $no++) {
+    my $no_sequences = $self->no_sequences;
+    for (; $no < $no_sequences; $no++) {
        $self->{'_order'}->{$no} = $self->{'_order'}->{$no+1};
     }
     delete $self->{'_order'}->{$no};
