@@ -79,7 +79,7 @@ use Bio::Biblio::Ref;
     my %_allowed = (
 		    _url => undef,
 		    _estimated_size => undef,
-		    _costs => undef,
+		    _cost => undef,
 		    );
 
     # return 1 if $attr is allowed to be set/get in this class

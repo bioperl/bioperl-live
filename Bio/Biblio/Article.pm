@@ -79,25 +79,8 @@ use Bio::Biblio::Ref;
 {
     my %_allowed =
 	(
-	 _abstract => undef,
-	 _abstract_type => undef,
-	 _affiliation => undef,
-	 _author_list_complete => undef,
-	 _authors => 'ARRAY',
-	 _cross_references => 'ARRAY',
-	 _cross_references_list_complete => undef,
-	 _date_of_electronic_publication => undef,
 	 _first_page => undef,
-	 _grant_list_complete => undef,
-	 _grants => 'ARRAY',
-	 _language => undef,
 	 _last_page => undef,
-	 _medline_page => undef,
-	 _other_abstracts => 'ARRAY',
-	 _other_languages => undef,
-	 _rights => undef,
-	 _title => undef,
-	 _vernacular_title => undef,
 	 );
 
     # return 1 if $attr is allowed to be set/get in this class

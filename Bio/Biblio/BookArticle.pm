@@ -67,7 +67,7 @@ use vars qw(@ISA);
 
 use Bio::Biblio::Article;
 
-@ISA = qw( Bio::Biblio::Article);
+@ISA = qw(Bio::Biblio::Article);
 
 #
 # a closure with a list of allowed attribute names (these names

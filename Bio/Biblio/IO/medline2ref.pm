@@ -71,8 +71,8 @@ use strict;
 use vars qw(@ISA $VERSION $Revision);
 
 use Bio::Root::Root;
-use Bio::Biblio::Journal;
-use Bio::Biblio::Book;
+use Bio::Biblio::MedlineJournal;
+use Bio::Biblio::MedlineBook;
 use Bio::Biblio::Provider;
 use Bio::Biblio::Person;
 use Bio::Biblio::Organisation;
@@ -126,16 +126,16 @@ sub convert {
    my $article = $$source{'article'};
    if (defined $article) {
        if (defined $$article{'journal'}) {
-	   $result = $self->_new_instance ('Bio::Biblio::JournalArticle');
+	   $result = $self->_new_instance ('Bio::Biblio::MedlineJournalArticle');
 	   $result->type ('JournalArticle');
 	   &_convert_journal_article ($result, $source);
        } elsif (defined $$article{'book'}) {
-	   $result = $self->_new_instance ('Bio::Biblio::BookArticle');
+	   $result = $self->_new_instance ('Bio::Biblio::MedlineBookArticle');
 	   $result->type ('BookArticle');
 	   &_convert_journal_article ($result, $source);
        } else {
 	   $result->type ('Article');
-	   &_convert_article ($self->_new_instance ('Bio::Biblio::Article'), $source);
+	   &_convert_article ($self->_new_instance ('Bio::Biblio::MedlineArticle'), $source);
        }
 
    }
@@ -181,9 +181,6 @@ sub convert {
    if (defined $$source{'citationSubsets'}) {
        $result->repository_subset (join (',', @{ $$source{'citationSubsets'} }));
    }
-
-   # ...subject (keywords, subheadings,...)
-#	BiblioSubject subject = new BiblioSubject();
 
    # ...MEDLINE's Comments & Corrections will be arrays of hashes
    if (defined $$source{'commentsCorrections'}) {
@@ -263,7 +260,7 @@ sub convert {
    return $result;
 }
 
-# load a module (given as a real module name, e.g. 'Bio::Biblio::JournalArticle'),
+# load a module (given as a real module name, e.g. 'Bio::Biblio::MedlineJournalArticle'),
 # call new() method on it, and return the instance returned by the new() method
 sub _new_instance {
     my ($self, $module) = @_;
@@ -335,27 +332,27 @@ sub _convert_journal_article {
     my ($result, $source) = @_;
     my $article = $$source{'article'};
 
-    # create and populate a Journal object (where this article belongs to)
+    # create and populate both a Journal and a resulting Article objects
     my $from_journal = $$article{'journal'};
-    my $journal = new Bio::Biblio::Journal;
+    my $journal = new Bio::Biblio::MedlineJournal;
     $journal->name ($$from_journal{'title'}) if defined $$from_journal{'title'};
     $journal->issn ($$from_journal{'iSSN'}) if defined $$from_journal{'iSSN'};
     $journal->abbreviation ($$from_journal{'iSOAbbreviation'}) if defined $$from_journal{'iSOAbbreviation'};
     $journal->coden ($$from_journal{'coden'}) if defined $$from_journal{'coden'};
     if (defined $$from_journal{'journalIssue'}) {
 	my $issue = $$from_journal{'journalIssue'};
-	$journal->volume ($$issue{'volume'}) if defined $$issue{'volume'};
-	$journal->issue ($$issue{'issue'}) if defined $$issue{'issue'};
+	$result->volume ($$issue{'volume'}) if defined $$issue{'volume'};
+	$result->issue ($$issue{'issue'}) if defined $$issue{'issue'};
 
 	if (defined $$issue{'pubDate'}) {
 	    my $pub_date = $$issue{'pubDate'};
 	    my $converted = &_convert_date ($pub_date);
-	    $journal->pub_date ($converted) if defined $converted;
+	    $result->date ($converted) if defined $converted;
 
 	    # Some parts of a MEDLINE date are stored just as properties
 	    # because they have almost non-parseable format :-).
-	    $journal->medline_date ($$pub_date{'medlineDate'}) if defined $$pub_date{'medlineDate'};
-	    $journal->season ($$pub_date{'season'}) if defined $$pub_date{'season'};
+	    $result->medline_date ($$pub_date{'medlineDate'}) if defined $$pub_date{'medlineDate'};
+	    $result->season ($$pub_date{'season'}) if defined $$pub_date{'season'};
 	}
     }
 
@@ -381,9 +378,9 @@ sub _convert_book_article {
     my ($result, $source) = @_;
     my $article = $$source{'article'};
 
-    # create and populate a book object (where this article belongs to)
+    # create and populate both book and resulting article objects
     my $from_book = $$article{'book'};
-    my $book = new Bio::Biblio::Book;
+    my $book = new Bio::Biblio::MedlineBook;
     $book->title ($$from_book{'title'}) if defined $$from_book{'title'};
     $book->volume ($$from_book{'volume'}) if defined $$from_book{'volume'};
     $book->series ($$from_book{'collectionTitle'}) if defined $$from_book{'collectionTitle'};
@@ -391,17 +388,18 @@ sub _convert_book_article {
     if (defined $$from_book{'pubDate'}) {
 	my $pub_date = $$from_book{'pubDate'};
 	my $converted = &_convert_date ($pub_date);
-	$book->pub_date ($converted) if defined $converted;
+	$result->pub_date ($converted) if defined $converted;
 
 	# Some parts of a MEDLINE date are stored just as properties
 	# because they have almost non-parseable format :-).
-	$book->medline_date ($$pub_date{'medlineDate'}) if defined $$pub_date{'medlineDate'};
-	$book->season ($$pub_date{'season'}) if defined $$pub_date{'season'};
+	$result->medline_date ($$pub_date{'medlineDate'}) if defined $$pub_date{'medlineDate'};
+	$result->season ($$pub_date{'season'}) if defined $$pub_date{'season'};
     }
 
     if (defined $$from_book{'publisher'}) {
 	my $publisher = new Bio::Biblio::Organisation;
 	$publisher->name ($$from_book{'publisher'});
+        $book->publisher ($publisher);
     }
 
     my @authors = &_convert_providers ($$from_book{'authors'});

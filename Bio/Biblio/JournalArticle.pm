@@ -78,7 +78,10 @@ use Bio::Biblio::Article;
 {
     my %_allowed =
 	(
+	 _issue => undef,
+	 _issue_supplement => undef,
 	 _journal => 'Bio::Biblio::Journal',
+	 _volume => undef,
 	 );
 
     # return 1 if $attr is allowed to be set/get in this class

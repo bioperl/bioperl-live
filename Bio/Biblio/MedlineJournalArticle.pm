@@ -1,6 +1,6 @@
 # $Id$
 #
-# BioPerl module for Bio::Biblio::Patent
+# BioPerl module for Bio::Biblio::MedlineJournalArticle
 #
 # Cared for by Martin Senger <senger@ebi.ac.uk>
 # For copyright and disclaimer see below.
@@ -9,7 +9,7 @@
 
 =head1 NAME
 
-Bio::Biblio::Patent - Representation of a patent
+Bio::Biblio::MedlineJournalArticle - Representation of a MEDLINE journal article
 
 =head1 SYNOPSIS
 
@@ -61,13 +61,14 @@ This software is provided "as is" without warranty of any kind.
 # Let the code begin...
 
 
-package Bio::Biblio::Patent;
+package Bio::Biblio::MedlineJournalArticle;
 use strict;
 use vars qw(@ISA);
 
-use Bio::Biblio::Ref;
+use Bio::Biblio::JournalArticle;
+use Bio::Biblio::MedlineArticle;
 
-@ISA = qw(Bio::Biblio::Ref);
+@ISA = qw(Bio::Biblio::MedlineArticle Bio::Biblio::JournalArticle);
 
 #
 # a closure with a list of allowed attribute names (these names
@@ -76,17 +77,18 @@ use Bio::Biblio::Ref;
 # simple scalar)
 #
 {
-    my %_allowed = (
-		    _doc_number => undef,
-		    _doc_office => undef,
-		    _doc_type => undef,
-		    _applicants => 'ARRAY',
-    );
+    my %_allowed =
+	(
+	 _journal => 'Bio::Biblio::MedlineJournal',
+	 );
 
     # return 1 if $attr is allowed to be set/get in this class
     sub _accessible {
 	my ($self, $attr) = @_;
-	exists $_allowed{$attr} or $self->SUPER::_accessible ($attr);
+	return 1 if exists $_allowed{$attr};
+        foreach my $parent (@ISA) {
+	    return 1 if $parent->_accessible ($attr);
+	}
     }
 
     # return an expected type of given $attr
@@ -95,10 +97,16 @@ use Bio::Biblio::Ref;
 	if (exists $_allowed{$attr}) {
 	    return $_allowed{$attr};
 	} else {
-	    return $self->SUPER::_attr_type ($attr);
+	    foreach my $parent (@ISA) {
+		if ($parent->_accessible ($attr)) {
+		    return $parent->_attr_type ($attr);
+		}
+	    }
 	}
+	return 'unknown';
     }
 }
+
 
 1;
 __END__

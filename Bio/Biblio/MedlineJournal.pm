@@ -1,6 +1,6 @@
 # $Id$
 #
-# BioPerl module for Bio::Biblio::Patent
+# BioPerl module for Bio::Biblio::MedlineJournal
 #
 # Cared for by Martin Senger <senger@ebi.ac.uk>
 # For copyright and disclaimer see below.
@@ -9,7 +9,7 @@
 
 =head1 NAME
 
-Bio::Biblio::Patent - Representation of a patent
+Bio::Biblio::MedlineJournal - Representation of a MEDLINE journal
 
 =head1 SYNOPSIS
 
@@ -60,14 +60,13 @@ This software is provided "as is" without warranty of any kind.
 
 # Let the code begin...
 
-
-package Bio::Biblio::Patent;
+package Bio::Biblio::MedlineJournal;
 use strict;
 use vars qw(@ISA);
 
-use Bio::Biblio::Ref;
+use Bio::Biblio::Journal;
 
-@ISA = qw(Bio::Biblio::Ref);
+@ISA = qw(Bio::Biblio::Journal);
 
 #
 # a closure with a list of allowed attribute names (these names
@@ -76,12 +75,14 @@ use Bio::Biblio::Ref;
 # simple scalar)
 #
 {
-    my %_allowed = (
-		    _doc_number => undef,
-		    _doc_office => undef,
-		    _doc_type => undef,
-		    _applicants => 'ARRAY',
-    );
+    my %_allowed =
+	(
+	 _coden => undef,
+	 _country => undef,
+	 _medline_code => undef,
+	 _medline_ta => undef,
+	 _nlm_unique_id => undef,
+	 );
 
     # return 1 if $attr is allowed to be set/get in this class
     sub _accessible {

@@ -62,7 +62,7 @@ This software is provided "as is" without warranty of any kind.
 
 package Bio::Biblio::Journal;
 use strict;
-use vars qw(@ISA $AUTOLOAD);
+use vars qw(@ISA);
 
 use Bio::Biblio::BiblioBase;
 
@@ -78,18 +78,8 @@ use Bio::Biblio::BiblioBase;
     my %_allowed =
 	(
 	 _abbreviation => undef,
-	 _coden => undef,
-	 _country => undef,
 	 _issn => undef,
-	 _issue => undef,
-	 _medline_code => undef,
-	 _medline_date => undef,
-	 _medline_ta => undef,
 	 _name => undef,
-	 _nlm_unique_id => undef,
-	 _pub_date => undef,
-	 _season => undef,
-	 _volume => undef,
 	 );
 
     # return 1 if $attr is allowed to be set/get in this class

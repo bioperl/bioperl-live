@@ -2,6 +2,9 @@
 #
 #   A client showing how to use Bio::Biblio module, a module for
 #   accessing and querying a bibliographic repository.
+#   It also shows how to use modules Bio::Biblio::IO::medlinexml
+#   Bio::Biblio::IO::medline2ref which converts XML MEDLINE
+#   citations into a simple hash table and into full Perl objects.
 #
 #   It has many options in order to cover as many methods as
 #   possible.  Because of that, it can be also used as a fully
@@ -26,6 +29,7 @@ Usage:
    biblio.pl [abcdDeknmOpqrs] [-l <URL>] -i <collection-ID>
    biblio.pl [abcdDeknmOpqrs] [-l <URL>] - -find <keywords> [-attrs <attrs>]...
    biblio.pl [Vq]             [-l <URL>]
+   biblio.pl [Oq]             [-f <filename>]
 
 What service to contact:
     -l <URL> ... a location where a Bibliographic Query service is
@@ -87,7 +91,12 @@ What to do (with the query collection):
     -Oo        ... output as Biblio objects
     -Or        ... output as a raw hashtable
 
-    options dealing with controlled vocabularies:
+    The options above can be used also for converting an XML MEDLINE
+    local file without using any SOAP connection at all;
+
+    -f <filename> ... an XML file to be read and converted
+
+    Options dealing with controlled vocabularies:
 
     -Vn                  ... get all vocabulary names
     -Vv::<name>          ... get all values from vocabulary <name>
@@ -144,6 +153,11 @@ Examples:
       ISSN
       ...
 
+   Converting local XML MEDLINE file:
+
+      ./biblio.pl -f a_file.xml -Oo   ... to Perl objects
+      ./biblio.pl -f a_file.xml -Or   ... as a raw hash
+
 END_OF_USAGE
 }
 
@@ -161,8 +175,8 @@ BEGIN {
     # specialized options
     use vars qw/ $opt_a $opt_b $opt_c $opt_d $opt_D $opt_e $opt_k $opt_n $opt_p $opt_r $opt_s /;
     # options with a value
-    use vars qw/ $opt_g $opt_i $opt_l $opt_m $opt_O $opt_V /;
-    my $switches = 'gilmOV';   # these are switches taking an argument (a value)
+    use vars qw/ $opt_f $opt_g $opt_i $opt_l $opt_m $opt_O $opt_V /;
+    my $switches = 'fgilmOV';   # these are switches taking an argument (a value)
     getopt ($switches);
 
     # help wanted?
@@ -183,6 +197,8 @@ if ($opt_v) {
     exit 0;
 }
 
+# --- deal with a local file
+&convert_and_print ($opt_f) if $opt_f;
 
 # --- create a Biblio object;
 #     the new() method understands the following parameters
@@ -237,13 +253,13 @@ $biblio = &_find ($biblio, $keywords, $attrs) if $keywords;
 print $biblio->get_count . "\n" if $opt_c;
 
 # ...get one particular citation (this method does not use any -finds above)
-&print_one (&convert_one ($biblio->get_by_id ($opt_g))) if $opt_g;
+&convert_and_print ($biblio->get_by_id ($opt_g)) if $opt_g;
 
 # ...print all citation IDs
 print join ("\n", @{ $biblio->get_all_ids }) . "\n" if $opt_d;
 
 # ...print all citations - returned as one big string from the server
-print $biblio->get_all if $opt_s;
+&convert_and_print ($biblio->get_all) if $opt_s;
 
 # ... reset iteration in the collection again to the first citation
 if ($opt_r) {
@@ -253,11 +269,14 @@ if ($opt_r) {
 
 # ...print more citations (perhaps all) - returned as an array of citations
 $opt_m = 100000000 if $opt_a;
-print join ("\n------------------------------\n",
-	    @{ $biblio->get_more ($opt_m) }) if defined $opt_m;
+if (defined $opt_m) {
+    foreach my $cit (@{ $biblio->get_more ($opt_m) }) {
+	&convert_and_print ($cit);
+    }
+}
 
 # ...print next citation from the current collection
-print $biblio->get_next if $opt_n;
+&convert_and_print ($biblio->get_next) if $opt_n;
 
 # ...check existence of a collection and completeness of its iterator
 if ($opt_e) {
@@ -331,30 +350,42 @@ sub _find {
     return $new_biblio;
 }
 
-sub convert_one {
+sub convert_and_print {
     my ($citation) = @_;
 
-    # if no -O option given or if it -Ox we are happy returning XML string
-    return $citation unless defined $opt_O and $opt_O !~ /^x/;
+    # if no -O option given or if it is -Ox we are happy returning XML string
+    unless (defined $opt_O and $opt_O !~ /^x/) {
+	return if $opt_f;   # we do not do a simple file reading
+	&print_one ($citation);
+	return;
+    }
 
     # -Or means to return a raw hash, everything else means to return
     # Biblio objects
     my @args;
     push (@args, ('-result' => 'raw')) if $opt_O =~ /^r/;
 
-    # the rest of arguments is always the same
-    push (@args, ('-format' => 'medlinexml',
-		  '-data'   => $citation));
+    # an argument to specify that we want parse XML (which we always want)
+    push (@args, ('-format' => 'medlinexml'));
+    if ($opt_f) {
+	push (@args, ('-file' => $citation));
+    } else {
+	push (@args, ('-data' => $citation));
+    }
 
     # make an instance of a converter
     my $io = new Bio::Biblio::IO (@args);
 
     # and finally make the conversion
-    return $io->next_bibref;
+    while (my $bibref = $io->next_bibref) {
+	&print_one ($bibref);
+    }
+#    return $io->next_bibref;
 }
 
 sub print_one {
     my ($citation) = @_;
+    return unless defined $citation;
     if (ref (\$citation) eq 'SCALAR') {
 	print $citation;
     } elsif (ref ($citation) =~ /^HASH|ARRAY|SCALAR$/o) {

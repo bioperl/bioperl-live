@@ -78,13 +78,15 @@ use Bio::Biblio::Provider;
 {
     my %_allowed =
 	(
-	 _lastname => undef,
+	 _affiliation => undef,
+	 _email => undef,
 	 _firstname => undef,
-	 _middlename => undef,
 	 _forename => undef,
 	 _initials => undef,
+	 _lastname => undef,
+	 _middlename => undef,
+	 _postal_address => undef,
 	 _suffix => undef,
-	 _affiliation => undef,
 	 _type => undef,
 	 );
 

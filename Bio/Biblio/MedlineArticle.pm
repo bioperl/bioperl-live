@@ -1,6 +1,6 @@
 # $Id$
 #
-# BioPerl module for Bio::Biblio::Patent
+# BioPerl module for Bio::Biblio::MedlineArticle
 #
 # Cared for by Martin Senger <senger@ebi.ac.uk>
 # For copyright and disclaimer see below.
@@ -9,7 +9,7 @@
 
 =head1 NAME
 
-Bio::Biblio::Patent - Representation of a patent
+Bio::Biblio::edlineArticle - Representation of a general MEDLINE article
 
 =head1 SYNOPSIS
 
@@ -18,6 +18,7 @@ Bio::Biblio::Patent - Representation of a patent
 =head1 DESCRIPTION
 
 #
+
 
 =head1 FEEDBACK
 
@@ -61,13 +62,13 @@ This software is provided "as is" without warranty of any kind.
 # Let the code begin...
 
 
-package Bio::Biblio::Patent;
+package Bio::Biblio::MedlineArticle;
 use strict;
 use vars qw(@ISA);
 
-use Bio::Biblio::Ref;
+use Bio::Biblio::Article;
 
-@ISA = qw(Bio::Biblio::Ref);
+@ISA = qw(Bio::Biblio::Article);
 
 #
 # a closure with a list of allowed attribute names (these names
@@ -76,12 +77,40 @@ use Bio::Biblio::Ref;
 # simple scalar)
 #
 {
-    my %_allowed = (
-		    _doc_number => undef,
-		    _doc_office => undef,
-		    _doc_type => undef,
-		    _applicants => 'ARRAY',
-    );
+    my %_allowed =
+	(
+	 _affiliation => undef,
+	 _chemicals => 'ARRAY',
+	 _citation_owner => undef,
+	 _comment_ins => 'ARRAY',
+	 _comment_ons => 'ARRAY',
+	 _date_of_electronic_publication => undef,
+	 _erratum_fors => 'ARRAY',
+	 _erratum_ins => 'ARRAY',
+	 _general_notes => 'ARRAY',
+	 _grant_list_complete => undef,
+	 _grants => 'ARRAY',
+	 _medline_date => undef,
+	 _medline_id => undef,
+	 _medline_page => undef,
+	 _mesh_headings => 'ARRAY',
+	 _number_of_references => undef,
+	 _original_report_ins => 'ARRAY',
+	 _other_abstracts => 'ARRAY',
+	 _other_ids => 'ARRAY',
+	 _other_languages => undef,
+	 _pmid => undef,
+	 _republished_froms => 'ARRAY',
+	 _republished_ins => 'ARRAY',
+	 _retraction_ins => 'ARRAY',
+	 _retraction_ofs => 'ARRAY',
+	 _season => undef,
+	 _status => undef,
+	 _summary_for_patients_ins => 'ARRAY',
+	 _update_ins => 'ARRAY',
+	 _update_ofs => 'ARRAY',
+	 _vernacular_title => undef,
+	 );
 
     # return 1 if $attr is allowed to be set/get in this class
     sub _accessible {
@@ -99,6 +128,7 @@ use Bio::Biblio::Ref;
 	}
     }
 }
+
 
 1;
 __END__

@@ -67,7 +67,7 @@ use vars qw(@ISA);
 
 use Bio::Biblio::Ref;
 
-@ISA = qw( Bio::Biblio::Ref);
+@ISA = qw(Bio::Biblio::Ref);
 
 #
 # a closure with a list of allowed attribute names (these names
@@ -78,11 +78,9 @@ use Bio::Biblio::Ref;
 {
     my %_allowed =
 	(
-	 _authors => 'ARRAY',
+	 _edition => undef,
+	 _editor => 'Bio::Biblio::Provider',
 	 _isbn => undef,
-	 _medline_date => undef,
-	 _pub_date => undef,
-	 _season => undef,
 	 _series => undef,
 	 _title => undef,
 	 _volume => undef,
