@@ -1,0 +1,33 @@
+
+Protein : "roa1_drome"
+Peptide "roa1_drome"
+
+Peptide : "roa1_drome"
+MVNSNQNQNGNSNGHDDDFPQDSITEPEHMRKLFIGGLDYRTTDENLKAHEKWGNIVDVV
+VMKDPRTKRSRGFGFITYSHSSMIDEAQKSRPHKIDGRVEPKRAVPRQDIDSPNAGATVK
+KLFVGALKDDHDEQSIRDYFQHFGNIVDNIVIDKETGKKRGFAFVEFDDYDPVDKVVLQK
+QHQLNGKMVDVKKALPKNDQQGGGGGRGGPGGRAGGNRGNMGGGNYGNQNGGGNWNNGGN
+NWGNNRGNDNWGNNSFGGGGGGGGGYGGGNNSWGNNNPWDNGNGGGNFGGGGNNWNGGND
+FGGYQQNYGGGPQRGGGNFNNNRMQPYQGGGGFKAGGGNQGNYGNNQGFNNGGNNRRY
+
+
+Sequence : "Name\; 4\% strewn with \\ various \/ escaped characters"
+DNA "Name\; 4\% strewn with \\ various \/ escaped characters"
+
+DNA : "Name\; 4\% strewn with \\ various \/ escaped characters"
+gctcggactctatctagcagaaacctcgttcagctagtcttgcttcatggaggtttgatc
+tagactgcaaacgtcggtgctaaaagaccatacttccgtatgtgcctatcgggagcagtc
+gctgagaagtgcggaatgatccttcaatgaccgccgttaaagcctgggagtccgcgccac
+aatcattccatatacagcaacacgcgctacgcggacctctcggtgggtgacgattctatt
+gaggcgttgaagcgagaaagatattccgattcttttcgagtctatagttaaatcggactg
+catcatccattttagggcata
+
+
+Sequence : "Last"
+DNA "Last"
+
+DNA : "Last"
+ggccgggatggccggacctgttctgaacatcttatatccacccgaacaagttataaacaa
+tttaaatctgggcggccatctataagcgtgtcttcagtatgagagtcttcggatatcacg
+acccattaggaaag
+
