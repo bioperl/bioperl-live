@@ -12,9 +12,10 @@ use Bio::SearchIO;
 use Bio::SimpleAlign;
 use Bio::AlignIO;
 
-my $file = shift or die "No BLAST output file\n";
+my $file = shift or die "Usage: $0 <BLAST-report-file>\n";
 my $in = new Bio::SearchIO(-format => 'blast',
-			   -file   => $file );
+			   -file   => $file # comment out this line to read STDIN
+                          );
 while ( my $result = $in->next_result ) {
    print "Result\talgorithm\t" . $result->algorithm . "\n";
    print "Result\talgorithm_version\t" . $result->algorithm_version . "\n";
