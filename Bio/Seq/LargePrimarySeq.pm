@@ -169,8 +169,6 @@ sub subseq{
    if( !defined $ret ) {
        $self->throw("Unable to read $start:$end $!");
    }
-
-
    return $string;
 }
 
@@ -216,6 +214,26 @@ sub _filename{
       $obj->{'_filename'} = $value;
     }
     return $obj->{'_filename'};
+
+}
+=head2 moltype
+
+ Title   : moltype
+ Usage   : $obj->moltype($newval)
+ Function: 
+ Example : 
+ Returns : value of moltype
+ Args    : newvalue (optional)
+
+
+=cut
+
+sub moltype{
+   my ($obj,$value) = @_;
+   if( defined $value) {
+      $self->SUPER::moltype($value);
+    }
+    return $self->SUPER::moltype() || 'dna';
 
 }
 
