@@ -140,7 +140,7 @@ sub each_Location {
            those on other sequences).
 
            The sort order can be optionally specified or suppressed by the
-           value of the first argument. The default is a forward sort.
+           value of the first argument. The default is no sort.
 
  Returns : an array of Bio::LocationI implementing objects
  Args    : Optionally 1, 0, or -1 for specifying a forward, no, or reverse
@@ -162,7 +162,7 @@ sub sub_Location {
     # return the array if no ordering requested
     return @sublocs if( ($order == 0) || (! @sublocs) );
     
-    # sort those locations that are on the sequence as the top (`master')
+    # sort those locations that are on the same sequence as the top (`master')
     # if the top seq is undefined, we take the first defined in a sublocation
     my $seqid = $self->seq_id();
     my $i = 0;
