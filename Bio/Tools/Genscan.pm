@@ -348,6 +348,12 @@ sub _parse_predictions {
 	    $seqname = $1;
 	    next;
 	}
+        
+	if(/^Parameter matrix:\s+(\S+)/i) {
+	    $self->analysis_subject($1);
+	   next;
+	}
+	
 	if(/^Predicted coding/) {
 	    $self->_has_cds(1);
 	    next;
