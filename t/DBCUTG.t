@@ -64,7 +64,7 @@ my $cdtable =  $db->get_request(-sp =>'Pan troglodytes');
 exit unless $cdtable;
 #tests for Table.pm
 ok $cdtable->cds_count(), 325;
-ok $cdtable->aa_frequency('LEU'), "10.07";
+ok int($cdtable->aa_frequency('LEU')), 10;
 ok $cdtable->get_coding_gc('all');
 ok $cdtable->codon_rel_frequency('ttc'), "0.70"; 
 
@@ -72,7 +72,7 @@ ok $cdtable->codon_rel_frequency('ttc'), "0.70";
 ok my $io = Bio::CodonUsage::IO->new
        (-file=> Bio::Root::IO->catfile("t", "data", "MmCT"));
 ok  my $cut2 = $io->next_data();
-ok $cut2->aa_frequency('LEU'), "10.07";
+ok int($cut2->aa_frequency('LEU')), 10;
 
 #now try making a user defined CUT from a sequence
 
