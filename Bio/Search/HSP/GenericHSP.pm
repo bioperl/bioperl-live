@@ -682,7 +682,6 @@ sub get_aln {
     my $aln = new Bio::SimpleAlign;
     my $hs = $self->hit_string();
     my $qs = $self->query_string();
-    
     if( $self->algorithm  =~ /FAST/i ) {
 	# fasta reports some extra 'regional' sequence information
 	# we need to clear out first
@@ -703,8 +702,8 @@ sub get_aln {
 	$hs = substr($hs, $start,$self->length('total'));
 	$qs = substr($qs, $start,$self->length('total'));
 	foreach my $seq ( $qs,$hs)  {
-	    foreach my $f ( '\\', '/') {
-		my $index = index($seq,$f);
+	    foreach my $f ( '\\', '/', ' ') {
+		my $index =  index($seq,$f);
 		while( $index >=0 ) {
 		    substr($hs,$index,1) = '';
 		    substr($qs,$index,1) = '';
@@ -715,7 +714,7 @@ sub get_aln {
     }
 
     my $seqonly = $qs;
-    $seqonly =~ s/\-//g;
+    $seqonly =~ s/[\-\s]//g;
     my ($q_nm,$s_nm) = ($self->query->seqname(),
 			$self->hit->seqname());
     unless( defined $q_nm && CORE::length ($q_nm) ) {
@@ -730,8 +729,7 @@ sub get_aln {
 				      '-end' => CORE::length($seqonly),
 				      );
     $seqonly = $hs;
-    $seqonly =~ s/\-//g;
-    
+    $seqonly =~ s/[\-\s]//g;
     my $hit =  new Bio::LocatableSeq('-seq'   => $hs,
 				      '-id'    => $s_nm,
 				      '-start' => 1,

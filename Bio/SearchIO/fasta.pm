@@ -341,7 +341,6 @@ sub next_result{
 	   if( /(\d+(\.\d+)?)\%\s*identity(\s*\((\d+(\.\d+)?)\%\s*ungapped\))?\s*in\s*(\d+)\s+(aa|nt)\s+overlap\s*\((\d+)\-(\d+):(\d+)\-(\d+)\)/ ) {
 	       my ($identper,$gapper,$len,$querystart,
 		   $queryend,$hitstart,$hitend) = ($1,$4,$6,$8,$9,$10,$11);
-	       
 	       my $ident = POSIX::ceil(($identper/100) * $len);
 	       my $gaps = ( defined $gapper ) ? POSIX::ceil ( ($gapper/100) * $len) : undef;
 	       
@@ -390,15 +389,12 @@ sub next_result{
 	   
 	   my @data = ( '','','');
 	   my $count = 0;
-	   my $len = $self->idlength +1;
+	   my $len = $self->idlength + 1;
 	   my ($seq1_id);
-	   # guarantee we don't start with a blank line 
-	   while( defined($_) ) {
-	       last unless ( /^\s+$/);
-	       $_ = $self->_readline
-	   }
 	   while( defined($_ ) ) {
 	       chomp;
+	       $self->debug( "$count $_\n");
+
 	       if( /residues in \d+\s+query\s+sequences/) {
 		   $self->_pushback($_);
 		   last;
@@ -406,17 +402,17 @@ sub next_result{
 		   $self->_pushback($_);
 		   last;
 	       }
-	       $self->debug( "$count $_\n");
 	       if( $count == 0 ) { 
-		   unless( /^\s+\d+\s+/ ) {
+		   unless( /^\s+\d+\s+/ || /^\s+$/) {
 		       $self->_pushback($_);
 		       $count = 2;
 		   }
 	       } elsif( $count == 1 || $count == 3 ) {
 		   if( /^(\S+)\s+/ ) {
-		       $len = CORE::length($1) unless $len < CORE::length($1);
+		       $len = CORE::length($1) if $len < CORE::length($1);
 		       s/\s+$//; # trim trailing spaces,we don't want them 
 		       $data[$count-1] = substr($_,$len);
+		       
 		   } elsif( /^\s+(\d+)\s+/ ) {
 		       $self->warn("Unexpected state ($_)");
 		   } elsif( /^\s+$/ || length($_) == 0) {
@@ -426,7 +422,7 @@ sub next_result{
 		       $self->warn("Unrecognized alignment line ($count) '$_'");
 		   }
 	       } elsif( $count == 2 ) {
-		   if( /^\s+\d+\s+/) {
+		   if( /^\s+\d+\s+/ ) {
 		       $self->warn("$_\n");
 		       $count = 4;
 		   } else {
