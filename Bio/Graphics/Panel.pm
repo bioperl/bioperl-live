@@ -1738,11 +1738,12 @@ externally except in the design of glyphs.
 
 =item @boxes = $panel-E<gt>boxes
 
-The boxes() method returns the coordinates of each glyph, useful for
-constructing an image map.  In a scalar context, boxes() returns an
-array ref.  In an list context, the method returns the array directly.
+The boxes() method returns a list of arrayrefs containing the
+coordinates of each glyph.  The method is useful for constructing an
+image map.  In a scalar context, boxes() returns an arrayref.  In an
+list context, the method returns the list directly.
 
-Each member of the list is an anonymous array of the following format:
+Each member of the list is an arrayref of the following format:
 
   [ $feature, $x1, $y1, $x2, $y2, $track ]
 
