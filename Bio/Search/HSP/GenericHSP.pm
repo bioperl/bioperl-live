@@ -1121,5 +1121,123 @@ sub range {
     return ($start, $end);
 }
 
+# The cigar string code is written by Juguang Xiao <juguang@fugu-sg.org>
+
+=head1 Brief introduction on cigar string
+
+NOTE: the concept is originally from EnsEMBL docs at 
+http://www.ensensembl.org/Docs/ensembl9. Please append it if you got a better definition.
+
+Sequence alignment hits were previously stored within the core database as 
+ungapped alignments. This imposed 2 major constraints on alignments:
+
+a) alignments for a single hit record would require multiple rows in the 
+database, and
+b) it was not possible to accurately retrieve the exact original alignment.
+
+Therefore, in the new branch sequence alignments are now stored as ungapped 
+alignments in the cigar line format (where CIGAR stands for Concise 
+Idiosyncratic Gapped Alignment Report).
+
+In the cigar line format alignments are sotred as follows:
+
+M: Match
+D: Deletino
+I: Insertion
+
+An example of an alignment for a hypthetical protein match is shown below: 
+
+
+Query:   42 PGPAGLP----GSVGLQGPRGLRGPLP-GPLGPPL...
+
+            PG    P    G     GP   R      PLGP
+
+Sbjct: 1672 PGTP*TPLVPLGPWVPLGPSSPR--LPSGPLGPTD...
+
+
+protein_align_feature table as the following cigar line: 
+
+7M4D12M2I2MD7M 
+
+=head2 cigar_string
+
+  Name:     cigar_string
+  Usage:    $cigar_string = $hsp->cigar_string
+  Function: Generate and return cigar string for this HSP alignment
+  Args:     No input needed
+  Return:   a cigar string
+
+=cut
+
+
+sub cigar_string {
+    my ($self, $arg) = @_;
+    $self->warn("this is not a setter") if(defined $arg);
+
+    unless(defined $self->{_cigar_string}){ # generate cigar string
+        my $cigar_string = $self->generate_cigar_string($self->query_string, $self->hit_string);
+        $self->{_cigar_string} = $cigar_string;
+    } # end of unless
+
+    return $self->{_cigar_string};
+}
+
+=head2 generate_cigar_string
+
+  Name:     generate_cigar_string
+  Usage:    my $cigar_string = Bio::Search::HSP::GenericHSP::generate_cigar_string ($qstr, $hstr);
+  Function: generate cigar string from a simple sequence of alignment.
+  Args:     the string of query and subject
+  Return:   cigar string
+
+=cut
+
+sub generate_cigar_string {
+    my ($self, $qstr, $hstr) = @_;
+    my @qchars = split //, $qstr;
+    my @hchars = split //, $hstr;
+
+    unless(scalar(@qchars) == scalar(@hchars)){
+        $self->throw("two sequences are not equal in lengths");
+    }
+
+    $self->{_count_for_cigar_string} = 0;
+    $self->{_state_for_cigar_string} = 'M';
+
+    my $cigar_string = '';
+    for(my $i=0; $i <= $#qchars; $i++){
+        my $qchar = $qchars[$i];
+        my $hchar = $hchars[$i];
+        if($qchar ne $GAP_SYMBOL && $hchar ne $GAP_SYMBOL){ # Match
+            $cigar_string .= $self->_sub_cigar_string('M');
+        }elsif($qchar eq $GAP_SYMBOL){ # Deletion
+            $cigar_string .= $self->_sub_cigar_string('D');
+        }elsif($hchar eq $GAP_SYMBOL){ # Insertion
+            $cigar_string .= $self->_sub_cigar_string('I');
+        }else{
+            $self->throw("Impossible state that 2 gaps on each seq aligned");
+        }
+    }
+    $cigar_string .= $self->_sub_cigar_string('X'); # not forget the tail.
+    return $cigar_string;
+}
+
+# an internal method to help generate cigar string
+
+sub _sub_cigar_string {
+    my ($self, $new_state) = @_;
+
+    my $sub_cigar_string = '';
+    if($self->{_state_for_cigar_string} eq $new_state){
+        $self->{_count_for_cigar_string} += 1; # Remain the state and increase the counter
+    }else{
+        $sub_cigar_string .= $self->{_count_for_cigar_string}
+            unless $self->{_count_for_cigar_string} == 1;
+        $sub_cigar_string .= $self->{_state_for_cigar_string};
+        $self->{_count_for_cigar_string} = 1;
+        $self->{_state_for_cigar_string} = $new_state;
+    }
+    return $sub_cigar_string;
+}
 
 1;
