@@ -137,6 +137,11 @@ in the input file.
 Use this script to determine what primers would be useful for 
 frequent priming of nucleic acid for random labeling.
 
+=head2 scripts/taxa/local_taxonomydb_query.PLS
+
+Script that accesses a local Taxonomy database and retrieves
+species or taxon ids.
+
 =head2 scripts/taxa/taxid4species.PLS
 
 Retrieve the NCBI Tada ID for a given species.
