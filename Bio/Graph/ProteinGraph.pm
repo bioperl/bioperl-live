@@ -930,68 +930,66 @@ sub articulation_points {
  my @subgraphs = $self->components();
  my %rts;
  for my $sg (@subgraphs) {
-    my $all_nodes = $sg->_nodes;
+     my $all_nodes = $sg->_nodes;
 
-    ##ignore isolated vertices
-	next if scalar keys %$all_nodes <= 2;
-    my $neighbors = $sg->_neighbors;
+     ##ignore isolated vertices
+     next if scalar keys %$all_nodes <= 2;
+     my $neighbors = $sg->_neighbors;
 
-	## find most connected - will be artic point if has >2 neighbors.
-    ## use this to initiate DFS
-	my ($c, $id);
-	my $max = 0;
-	for my $n (keys %$neighbors) {
-		my $c = scalar @{$neighbors->{$n}};#
-		($max, $id) = ($c, $n) if  $c > $max;#
-	}
+     ## find most connected - will be artic point if has >2 neighbors.
+     ## use this to initiate DFS
+     my ($c, $id);
+     my $max = 0;
+     for my $n (keys %$neighbors) {
+	 my $c = scalar @{$neighbors->{$n}};#
+	 ($max, $id) = ($c, $n) if  $c > $max;#
+     }
 
-	my $t      = $sg->node_traversal($all_nodes->{$id},'d');
-	my @nodes  = $t->get_all();
-	my $id = 0;
-	#assign node ids
-	for my $n(@nodes) {
-		$n->{'_node_id'} = $id;	
-		$id++;
-	}
-	
+     my $t      = $sg->node_traversal($all_nodes->{$id},'d');
+     my @nodes  = $t->get_all();
+     $id = 0;
+     #assign node ids
+     for my $n(@nodes) {
+	 $n->{'_node_id'} = $id;	
+	 $id++;
+     }
 
-	
-	## cycle through each node 
-	for (my $i       = $#nodes; $i >= 0; $i--) {
+     ## cycle through each node 
+     for (my $i       = $#nodes; $i >= 0; $i--) {
 
-		## initiate minimumn to node_id
-		my $curr_min = $all_nodes->{$nodes[$i]}{'_node_id'};
-		#print STDERR "currmin - $curr_min, i = $i\n";
-		## cycle through neighbors, reset minumum if required
-		my $nbors    = $neighbors->{$nodes[$i]};
-		for my $nbor (@$nbors) {	
-			my $nbor_id = $all_nodes->{$nbor}{'_node_id'};
+	 ## initiate minimumn to node_id
+	 my $curr_min = $all_nodes->{$nodes[$i]}{'_node_id'};
+	 #print STDERR "currmin - $curr_min, i = $i\n";
+	 ## cycle through neighbors, reset minumum if required
+	 my $nbors    = $neighbors->{$nodes[$i]};
+	 for my $nbor (@$nbors) {	
+	     my $nbor_id = $all_nodes->{$nbor}{'_node_id'};
 
-			## if is back edge ##
-			if ($nbor_id < $i) {
-				$curr_min  = $nbor_id if $nbor_id < $curr_min ;
-				}
+	     ## if is back edge ##
+	     if ($nbor_id < $i) {
+		 $curr_min  = $nbor_id if $nbor_id < $curr_min ;
+	     }
 
-			## else is tree edge
-			elsif($nbor_id > $i) {
-				my $wlow   = $all_nodes->{$nbor}{'_wlow'};
-				$curr_min  = $wlow if $wlow < $curr_min;
-				}
-		}#next neighbor
+	     ## else is tree edge
+	     elsif($nbor_id > $i) {
+		 my $wlow   = $all_nodes->{$nbor}{'_wlow'};
+		 $curr_min  = $wlow if $wlow < $curr_min;
+	     }
+	 }#next neighbor
 
-		## now we know the minimum, save. 
-		$all_nodes->{$nodes[$i]}{'_wlow'} = $curr_min;
+	 ## now we know the minimum, save. 
+	 $all_nodes->{$nodes[$i]}{'_wlow'} = $curr_min;
 
-		## now get tree nodes and test condition
-        my @treenodes = grep{$all_nodes->{$_}{'_node_id'} > $i}@$nbors;
-		for my $tn (@treenodes) {
-			if(($all_nodes->{$tn}{'_wlow'} >= $i && $i != 0) ||
-			($i == 0  && scalar @{$neighbors->{$nodes[0]}} > 1) ){
-				$rts{$nodes[$i]} = $nodes[$i] unless exists $rts{$nodes[$i]};
-			}
-		}
+	 ## now get tree nodes and test condition
+	 my @treenodes = grep{$all_nodes->{$_}{'_node_id'} > $i}@$nbors;
+	 for my $tn (@treenodes) {
+	     if(($all_nodes->{$tn}{'_wlow'} >= $i && $i != 0) ||
+		($i == 0  && scalar @{$neighbors->{$nodes[0]}} > 1) ){
+		 $rts{$nodes[$i]} = $nodes[$i] unless exists $rts{$nodes[$i]};
+	     }
+	 }
 
-   }#next node
+     }#next node
  }#next sg
 
 return  values %rts; ## 
