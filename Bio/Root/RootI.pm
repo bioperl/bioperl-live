@@ -132,7 +132,6 @@ sub new {
 
     ## See "Comments" above regarding use of _rearrange().
     $self->verbose($verbose);
-
     return $self;
 }
 
@@ -156,7 +155,7 @@ sub _create_object {
   my $class = shift;
   my @args = @_;
   carp("Use of Bio::Root::RootI is deprecated.  Please use Bio::Root::Root instead");
-  eval "use Bio::Root::Root";
+  eval "require Bio::Root::Root";
   return Bio::Root::Root->new(@args);
 }
 
@@ -277,7 +276,7 @@ sub deprecated{
 
 sub verbose{
    my ($self,$value) = @_;
-   $self->_abstractDeath('verbose');
+   $self->throw_not_implemented();
 }
 
 =head2 stack_trace_dump
@@ -477,7 +476,7 @@ cleanup methods.
 
 sub _register_for_cleanup {
   my ($self,$method) = @_;
-  $self->_abstractDeath('_register_for_cleanup');
+   $self->throw_not_implemented();
 }
 
 =head2 _unregister_for_cleanup
@@ -494,7 +493,7 @@ sub _register_for_cleanup {
 
 sub _unregister_for_cleanup {
   my ($self,$method) = @_;
-  $self->_abstractDeath('_unregister_for_cleanup');
+   $self->throw_not_implemented();
 }
 
 =head2 _cleanup_methods
