@@ -154,9 +154,12 @@ sub fuzzy_range {
 
   Title   : _fuzzypointencode
   Usage   : $fuzzy->_fuzzypointencode('5>');
-  Function: encode a fuzzy string
-  Returns : array of fuzzy encoding and the integer value of the point
-          : empty array on fail
+  Function: Decode a fuzzy string
+  Returns : A two-element array consisting of a integer code of the fuzzy 
+            encoding being used, and the integer value of the point.
+            A fuzzy code of 0 means 'non-fuzzy', any other code indicates a
+            fuzzy location.
+          : Returns empty array on fail.
   Args    : fuzzypoint string
 
 =cut
@@ -179,8 +182,10 @@ sub _fuzzypointencode {
 
   Title   : _fuzzyrange
   Usage   : $fuzzy->_fuzzyrange('.');
-  Function: encode a fuzzy range
-  Returns : fuzzy range encoding string or undef on fail 
+  Function: Return a code identifying the type of fuzziness encoding being
+            used. A value of 0 means no fuzziness, any other value indicates
+            a fuzzy range.
+  Returns : fuzzy range encoding code or undef on fail 
   Args    : fuzzy range string [ '.', '..', '^' ]
 
 =cut
