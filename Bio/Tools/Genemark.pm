@@ -308,7 +308,7 @@ sub _parse_predictions {
 
        #Matrix file for eukaryot version
        if (/^Matrices file:\s+(\S*)/i)  {
-	    $self->analysis_query($1);
+	    $self->analysis_subject($1);
 	    # since the line after the matrix file is always the date
 	    # (in the output file's I have seen!) extract and store this 
 	    # here
@@ -366,6 +366,32 @@ sub _parse_predictions {
  	   last;
 	};
     }
+    
+    # if the analysis query object contains a ref to a Seq of PrimarySeq
+    # object, then extract the predicted sequences and add it to the gene
+    # object.
+    if (defined $self->analysis_subject) {
+        my $orig_seq = $self->analysis_query();
+	#print "Orig sequence = $orig_seq\n";
+        #print "start parsing the sequences out!\n";
+        FINDPREDSEQ: foreach my $gene (@{$self->{'_preds'}}) { 
+	   my $predseq = "";
+	   foreach my $exon ($gene->exons()) {
+		#print $exon->start() . " " . $exon->end () . "\n";
+		$predseq .= $orig_seq->subseq($exon->start(), $exon->end());
+	   }
+
+	   my $seqobj = Bio::PrimarySeq->new('-seq' => $predseq,
+	                     		     '-display_id' => "transl");
+	   
+	   $gene->predicted_cds($seqobj);
+	   
+	   #print "Predicted sequence " .$gene->predicted_cds()->seq() ."\n";
+	   #print "Predicted Protein   " . $gene->predicted_protein()->seq();
+	   #print "\nTranslated Sequence " . $seqobj->translate()->seq();
+	}
+    }
+    
     $self->_predictions_parsed(1);
 }
 
