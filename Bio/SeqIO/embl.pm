@@ -464,7 +464,8 @@ sub write_seq {
 		$sv = &{$func}($seq);
 	    } elsif($seq->isa('Bio::Seq::RichSeqI') && 
 		    defined($seq->seq_version)) {
-		$sv = "$acc.". $seq->seq_version();
+                my ($prim_acc) = $acc =~ /([^;]+)/;
+		$sv = "$prim_acc.". $seq->seq_version();
 	    }	
 	    if (defined $sv) {
 		$self->_print( "SV   $sv\n",
