@@ -530,7 +530,10 @@ sub index_dir {
   unlink $index if $force_reindex;
 
   # get the modification time of the index
-  my $indextime = (stat($index))[9] || 0;
+  my $indextime   = 0;
+  for my $suffix('','.pag','.dir') {
+    $indextime ||= (stat("${index}${suffix}"))[9];
+  }
 
   # get the most recent modification time of any of the contents
   my $modtime = 0;
