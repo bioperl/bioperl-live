@@ -11,12 +11,12 @@ BEGIN {
     # we include the t dir (where a copy of Test.pm is located)
     # as a fallback
     eval { require Test; };
-    if( $@ ) { 
-	use lib 't'; 
+    if( $@ ) {
+	use lib 't';
     }
     use Test;
 
-    plan tests => 30;
+    plan tests => 38;
 }
 use Bio::Tools::CodonTable;
 use vars qw($DEBUG);
@@ -148,3 +148,29 @@ ok $myCodonTable->is_unknown_codon('UAG'), 0;
 
 
 ok $myCodonTable->translate_strict('ATG'), 'M';
+
+
+
+#
+# adding a custom codon table
+#
+
+
+my @custom_table =
+    ( 'test1',
+      'FFLLSSSSYY**CC*WLLLL**PPHHQQR*RRIIIMT*TT*NKKSSRRV*VVAA*ADDEE*GGG'
+    );
+
+ok my $custct = $myCodonTable->add_table(@custom_table);
+ok $custct, 24;
+ok $myCodonTable->translate('atgaaraayacmacracwacka'), 'MKNTTTT';
+ok $myCodonTable->id($custct);
+ok $myCodonTable->translate('atgaaraayacmacracwacka'), 'MKXXTTT';
+
+# test doing this via Bio::PrimarySeq object
+
+use Bio::PrimarySeq;
+ok $seq = Bio::PrimarySeq->new(-seq=>'atgaaraayacmacracwacka', -alphabet=>'dna');
+ok $seq->translate()->seq, 'MKNTTTT';
+ok $seq->translate(undef, undef, undef, undef, undef, undef, $myCodonTable)->seq, 'MKXXTTT';
+
