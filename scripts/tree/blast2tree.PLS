@@ -41,6 +41,8 @@ $format = 'blast';
 $tree_method = 'neighbor';
 $cutoff = '0.01';
 GetOptions(
+	   'h|help'       => sub { exec('perldoc', $0);
+				   exit(0); },
 	   'i|input:s'    => \$report,
 	   'f|format:s'   => \$format,
 	   'm|method:s'   => \$tree_method,
@@ -72,8 +74,8 @@ while( my $r = $in->next_result ) {
 	    next if $hsp->evalue > $cutoff;
 	    my $seq = $hsp->get_aln->get_seq_by_pos(2)->seq();
 	    push @seqs, new Bio::PrimarySeq(-seq => $seq,
-					    -id  => $hsp->hit->seqname,
-					    -desc => $r->algorithm . " best align to ". $hsp->query->seqname );
+					    -id  => $hsp->hit->seq_id,
+					    -desc => $r->algorithm . " best align to ". $hsp->query->seq_id );
 	    last unless $keepall;
 	}
     }
