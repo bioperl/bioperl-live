@@ -19,11 +19,12 @@ NCBI databases.
 
 =head1 SYNOPSIS
 
- Do not use this module directly.
+ #Do not use this module directly.
+
  # get a Bio::DB::NCBIHelper object somehow
  my $seqio = $db->get_Stream_by_acc(['MUSIGHBA1']);
  foreach my $seq ( $seqio->next_seq ) {
-  # process seq
+     # process seq
  }
 
 =head1 DESCRIPTION
@@ -33,9 +34,8 @@ web databases.  This module just centralizes the methods for
 constructing a URL for querying NCBI GenBank and NCBI GenPept and the
 common HTML stripping done in L<postprocess_data>().
 
-The NCBI query URLs used are http://www.ncbi.nlm.nih.gov as the base URL,
-/cgi-bin/Entrez/qserver.cgi as the query interface for batch mode, and 
-/entrez/utils/qmap.cgi for single-query mode.
+The base NCBI query URL used is 
+http://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi.
 
 =head1 FEEDBACK
 
@@ -92,7 +92,7 @@ $VERSION = '0.8';
 
 BEGIN {
     $MAX_ENTRIES = 19000;
-    $HOSTBASE = 'http://www.ncbi.nlm.nih.gov';
+    $HOSTBASE = 'http://eutils.ncbi.nlm.nih.gov';
     %CGILOCATION = (
 		    'batch'  => ['post' => '/entrez/eutils/efetch.fcgi'],
 		    'query'  => ['get'  => '/entrez/eutils/efetch.fcgi'],
@@ -160,11 +160,12 @@ sub default_format {
 
 sub get_request {
     my ($self, @qualifiers) = @_;
-    my ($mode, $uids, $format, $query) = $self->_rearrange([qw(MODE UIDS FORMAT QUERY)],
+    my ($mode, $uids, $format, $query) = $self->_rearrange([qw(MODE UIDS 
+							       FORMAT QUERY)],
 							   @qualifiers);
 
     $mode = lc $mode;
-    ($format) = $self->request_format() if( !defined $format);
+    ($format) = $self->request_format() unless ( defined $format);
     if( !defined $mode || $mode eq '' ) { $mode = 'single'; }
     my %params = $self->get_params($mode);
     if( ! %params ) {
@@ -424,6 +425,7 @@ sub get_Stream_by_acc {
   Function: 
   Returns : A Bio::DB::RefSeq reference or throws
   Args    : $id(s), $string
+
 =cut
 
 sub _check_id {
