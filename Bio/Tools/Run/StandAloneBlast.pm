@@ -2,7 +2,7 @@
 #
 # BioPerl module for Bio::Tools::StandAloneBlast
 #
-# Cared for by
+# Cared for by Peter Schattner
 #
 # Copyright Peter Schattner
 #
@@ -57,7 +57,7 @@ distribution. BLAST is available from ftp://ncbi.nlm.nih.gov/blast/.
 (A source of confusion in documenting a BLAST interface is that the
 term "program" is used in - at least - three different ways in the
 BLAST documentation.  In this DESCRIPTION, "program" will refer to the
-BLAST routine set by BLAST's -p parameter that can be set to blastn,
+BLAST routine set by BLAST's C<-p> parameter that can be set to blastn,
 blastp, tblastx etc.  We will use the term Blast "executable" to refer
 to the various different executable files that may be called - ie
 blastall, blastpgp or bl2seq.  In addition, there are several BLAST
@@ -198,13 +198,12 @@ encouraged to run the scripts standaloneblast.pl in the bioperl
 
 =head1 DEVELOPERS NOTES
 
-
-=head1 STILL TO WRITE
+B<STILL TO BE WRITTEN>
 
 The following enhancements of StandAloneBlast.pm are under development:
  *  Incorporation of the phiblast option for pattern-based blasts
 
-Note: Blast.pm is still under development.  If you would like that a
+Note: This module is still under development.  If you would like that a
 specific BLAST feature be added to this perl interface, let me know.
 
 =head1 FEEDBACK
@@ -294,16 +293,16 @@ use Bio::Tools::Blast;
 
 @ISA = qw(Bio::Root::RootI);
 
-=head2  BLAST parameters
+=head1 BLAST parameters
 
-Essemtially all BLAST parameter can be set via StandAloneBlast.pm.
+Essentially all BLAST parameter can be set via StandAloneBlast.pm.
 Some of the most commonly used parameters are listed below.  All
 parameters have defaults and are optional (I think.)  For a complete
 listing of settable parameters, run the relevant executable BLAST
-program with the option "-" as in peter$blastall -
+program with the option "-" as in blastall -
 
-Blastall
---------
+=head2 Blastall
+
   -p  Program Name [String]
         Input should be one of "blastp", "blastn", "blastx", 
         "tblastn", or "tblastx".
@@ -320,8 +319,8 @@ Blastall
   -S  Query strands to search against database (for blast[nx], and tblastx).  3 is both, 1 is top, 2 is bottom [Integer]
 	default = 3
 
-Blastpgp  (including Psiblast)
---------
+=head2 Blastpgp (including Psiblast)
+
   -j   is the maximum number of rounds (default 1; i.e., regular BLAST)
   -h   is the e-value threshold for including sequences in the
 	score matrix model (default 0.001)
@@ -329,8 +328,8 @@ Blastpgp  (including Psiblast)
   -B  Multiple alignment file for PSI-BLAST "jump start mode"  Optional
   -Q  Output File for PSI-BLAST Matrix in ASCII [File Out]  Optional
 
-Bl2seq
-------
+=head2 Bl2seq
+
   -i  First sequence [File In]
   -j  Second sequence [File In]
   -p  Program name: blastp, blastn, blastx. For blastx 1st argument should be nucleotide [String]
@@ -340,10 +339,8 @@ Bl2seq
   -S  Query strands to search against database (blastn only).  3 is both, 1 is top, 2 is bottom [Integer]
     default = 3
 
-
 =cut
 
- 
 sub new {
     my ($caller, @args) = @_;
     # chained new
@@ -381,7 +378,9 @@ sub AUTOLOAD {
     return $self->{ $attr_letter};
 }
 
-=head2  exists_blast()
+=head1 Methods
+
+=head2  exists_blast
 
  Title   : exists_blast
  Usage   : $blastfound = Bio::Tools::Run::StandAloneBlast->exists_blast()
@@ -522,7 +521,7 @@ sub bl2seq {
 }
 #################################################
 
-=head2  _generic_local_blast ()
+=head2  _generic_local_blast
 
  Title   : _generic_local_blast
  Usage   :  internal function not called directly
@@ -606,7 +605,7 @@ sub _runblast {
     return $blast_obj;
 }
 
-=head2  _setinput()
+=head2  _setinput
 
  Title   :  _setinput
  Usage   :  Internal function, not to be called directly	
@@ -615,8 +614,8 @@ sub _runblast {
  Returns : name of file containing Blast data input
  Args    : Seq object reference or input file name
 
-
 =cut
+
 sub _setinput {
     my ($self, $executable, $input1, $input2) = @_;
     my ($seq, $temp, $infilename1, $infilename2,$fh ) ;
@@ -710,7 +709,7 @@ SWITCH2:  {
     return ($infilename1, $infilename2);
 }
 
-=head2  _setparams()
+=head2  _setparams
 
  Title   : _setparams
  Usage   : Internal function, not to be called directly	
