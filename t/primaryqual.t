@@ -177,7 +177,7 @@ if ($DEBUG) {
     print("Checking to see if PrimaryQual objects can be created from a file...\n");
 }
 
-my $in_qual  = Bio::SeqIO->new(-file => "<t/data/qualfile.qual" , '-format' => 'qual');
+my $in_qual  = Bio::SeqIO->new(-file => "<" . Bio::Root::IO->catfile("t","data","qualfile.qual") , '-format' => 'qual');
 ok(1);
 my $pq = $in_qual->next_seq();
 
