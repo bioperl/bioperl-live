@@ -313,6 +313,7 @@ sub frame {
        if ( $value !~ /^[0-2.]$/ ) {
 	   $self->throw("'$value' is not a valid frame");
        }
+       if( $value eq '.' ) { $value = undef; } 
        $self->{'_gsf_frame'} = $value;
   }
   return $self->{'_gsf_frame'};
