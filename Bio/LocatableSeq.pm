@@ -125,12 +125,10 @@ sub start{
    if( @_ ) {
       my $value = shift;
       $self->{'start'} = $value;
-    }
-   # LINCOLN: This line was causing GFF test 20 to fail; I don't understand rationale
-   # for it.
-   # $self->seq ? (return $self->{'start'} || 1) : undef;
-   $self->{'start'} || 1;
-
+  }
+   return $self->{'start'} if defined $self->{'start'};
+   return 1                if $self->seq;
+   return;
 }
 
 =head2 end
