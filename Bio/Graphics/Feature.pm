@@ -56,6 +56,7 @@ Arguments are as follows:
   -subtype     the type to use when creating subfeatures
   -strand      the strand of the feature (one of -1, 0 or +1)
   -id          an alias for -name
+  -seqname     an alias for -name
   -primary_id  an alias for -name
   -display_id  an alias for -name
 
@@ -140,7 +141,7 @@ sub new {
 
   $arg{-strand} ||= 0;
   $self->{strand}  = $arg{-strand} ? ($arg{-strand} >= 0 ? +1 : -1) : 0;
-  $self->{name}    = $arg{-name}   || $arg{-display_id} || $arg{-id} || $arg{-primary_id};
+  $self->{name}    = $arg{-name}   || $arg{-seqname} || $arg{-display_id} || $arg{-id} || $arg{-primary_id};
   $self->{type}    = $arg{-type}   || 'feature';
   $self->{subtype} = $arg{-subtype} if exists $arg{-subtype};
   $self->{source}  = $arg{-source} || $arg{-source_tag} || '';
