@@ -7,7 +7,6 @@
 # `make test'. After `make install' it should work as `perl test.t'
 use strict;
 use vars qw($NUMTESTS $DEBUG $ERROR);
-use lib '../';
 
 $DEBUG = $ENV{'BIOPERLDEBUG'} || 0;
 BEGIN {
@@ -59,10 +58,10 @@ ok my $db = Bio::DB::CUTG->new();
 ok $db->get_web_request(-sp =>'Pan troglodytes');
 ok my $cdtable = $db->next_data;
 ok $cdtable->cds_count(), 325;
-ok $cdtable->aa_frequency('LEU'), 10.065;
+ok $cdtable->aa_frequency('LEU'), "10.065";
 ok $cdtable->get_coding_gc('all');
 ok $cdtable->codon_rel_frequency('ttc'), "0.70"; 
-ok $db->get_local_request(-file=> Bio::Root::IO->catfile("data", "MmCT")), 1;
+ok $db->get_local_request(-file=> Bio::Root::IO->catfile("t", "data", "MmCT")), 1;
 ok my $cdtable2 = $db->next_data;
 ok $cdtable2->cds_count(), 0;
 
