@@ -182,10 +182,11 @@ sub next_seq {
        while( defined ($line = $self->_readline) ) {
 	   $line =~/^\S/ && last;
        }
-   }   
+   }
    if( !defined $line ) {
        return undef; # end of file
    }
+   last unless $line =~ /^ID\s/;
    $line =~ /^ID\s+\S+/ || $self->throw("EMBL stream with no ID. Not embl in my book");
    $line =~ /^ID\s+(\S+)\s+\S+\;\s+([^;]+)\;\s+(\S+)\;/;
    $name = $1;

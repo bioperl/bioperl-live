@@ -173,7 +173,8 @@ sub next_seq {
    if( !defined $line ) {
        return undef; # end of file
    }
-   
+   last unless $line =~ /^ID\s/;
+
    # fixed to allow _DIVISION to be optional for bug #946
    # see bug report for more information
    if( !($line =~ /^ID\s+([^\s_]+)(_([^\s_]+))?\s+([^\s;]+);\s+([^\s;]+);/)
