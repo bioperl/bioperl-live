@@ -15,7 +15,8 @@
 Bio::Tools::Eponine - Results of one Eponinerun
 
 =head1 SYNOPSIS
-use Bio::Tools::Run::Eponine;
+
+ use Bio::Tools::Run::Eponine;
  use strict;
     my $seq = "/data/seq.fa";
     my $threshold  = "0.999";
@@ -26,19 +27,21 @@ use Bio::Tools::Run::Eponine;
      # run eponine against fasta 
         my $r = $factory->run_eponine($seq);
         my $parser = Bio::Tools::Eponine->new($r);
-      
+
        while (my $feat = $parser->next_prediction){
                 #$feat contains array of SeqFeature
-               foreach my $orf($feat){
+               foreach my $orf($feat) {
                    print $orf->seqname. "\n";
                }
        }
 
 =head1 DESCRIPTION
 
-Parser for Eponine
-This module inherits off L<Bio::Tools::AnalysisResult> and therefore
-implements L<Bio::SeqAnalysisParserI>.
+Parser for Eponine, a probabilistic transcription start site detector
+optimized for mammalian genomic sequence. This module inherits off
+Bio::Tools::AnalysisResult and therefore implements 
+Bio::SeqAnalysisParserI (see L<Bio::Tools::AnalysisResult> and
+L<Bio::SeqAnalysisParserI>).
 
 =head1 FEEDBACK
 
@@ -225,6 +228,7 @@ sub _parse_predictions {
     Args    :   none
 
 =cut
+
 sub create_feature {
     my ($self, $feat) = @_;
      #create and fill Bio::EnsEMBL::Seqfeature object
