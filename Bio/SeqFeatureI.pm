@@ -453,7 +453,7 @@ sub spliced_seq {
     # Might need to eventually allow this to be programable?    
     # (can I mention how much fun this is NOT! --jason)
     
-    my ($mixed,$mixedloc,$tloc, $fstrand) = (0);
+    my ($mixed,$mixedloc, $fstrand) = (0);
     if( $db && ref($db) && ! $db->isa('Bio::DB::RandomAccessI') ) {
 	$self->warn("Must pass in a valid Bio::DB::RandomAccessI object for access to remote locations for spliced_seq");
 	$db = undef;
@@ -516,7 +516,6 @@ sub spliced_seq {
 		$called_seq = undef;
 	    }
 	    if( !defined $called_seq ) {
-		print STDERR "cannot get called seq for $seqid\n";
 		$seqstr .= 'N' x $self->length;
 		next;
 	    }
