@@ -223,9 +223,34 @@ sub next_seq {
 	  $params{'-division'} = shift(@tokens);
       }
       my $date = join(' ', @tokens); # we lump together the rest
-      if($date =~ s/.*(\d\d-\w\w\w-\d\d\d\d).*/$1/) {
-	  $params{'-dates'} = [$date];
+      # this is per request bug #1513
+      # we can handle
+      # 9-10-2003
+      # 9-10-03
+      #09-10-2003
+      #09-10-03
+      if($date =~ s/\s*((\d{1,2})-(\w{3})-(\d{2,4})).*/$1/) {
+	  if( length($date) < 11 ) { # improperly formatted date
+	                             # But we'll be nice and fix it for them
+	      my ($d,$m,$y) = ($2,$3,$4);
+	      if( length($d) == 1 ) {
+		  $d = "0$d";
+	      }
+	      # guess the century here
+	      if( length($y) == 2 ) {
+		  if( $y > 60 ) {  # arbitrarily guess that '60' means 1960
+		      $y = "19$y";
+		  } else { 
+		      $y = "20$y";
+		  }
+		  $self->warn("Date was malformed, guessing the century for $date to be $y\n");
+	      }
+	      $params{'-dates'} = [join('-',$d,$m,$y)];
+	  } else { 
+	      $params{'-dates'} = [$date];
+	  }
       }
+
       # set them all at once
       $builder->add_slot_value(%params);
       %params = ();
