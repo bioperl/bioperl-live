@@ -31,7 +31,8 @@
       <section_name>Bioperl in general</section_name>
       <q id="1">
          <question>What is Bioperl?</question>
-         <answer>Bioperl is a tookit of perl modules useful in building bioinformatics solutions in perl.  It is built in an object-oriented manner so that many modules depend on each other to achieve a task. The collection of modules in the bioperl-live repository consist of the core of the functionality of bioperl.  Additionally auxiliary modules for creating graphical interfaces (bioperl-gui), persistent storage in RDMBS (bioperl-db), and CORBA bridges to the BioCORBA (<a href="http://www.biocorba.org">http://www.biocorba.org</a>) specification (bioperl-corba-server and bioperl-corba-client) are all available as CVS modules in our repository.
+         <answer>Bioperl is a tookit of perl modules useful in building bioinformatics solutions in perl. It is built in an object-oriented manner so that many modules depend on each other to achieve a task. The collection of modules in the bioperl-live repository consist of the core of the functionality of bioperl. Additionally auxiliary modules for creating graphical interfaces (bioperl-gui), persistent storage in RDMBS (bioperl-db), running and parsing the results from hundreds of
+bioinformatics applications (bioperl-run), software to automate bioinformatic analyses (bioperl-pipeline), and CORBA bridges to the BioCORBA (<a href="http://www.biocorba.org">http://www.biocorba.org</a>) specification (bioperl-corba-server and bioperl-corba-client) are all available as CVS modules in our repository.
          </answer>
       </q>
       <q id="2">
@@ -43,7 +44,7 @@
          <question>What is the difference between 0.9.x and 0.7.x? What do you mean developer release?</question>
          <answer><p>0.7.X series (0.7.0, 0.7.2) were all released in 2001 and were stable releases on 0.7 branch.  This means they had a set of functionality that is maintained throughout (no experimental modules) and were guaranteed to have all tests and subsequent bug fix releases with the 0.7 designation would not have any API changes.</p>
             <p>The 0.9.X series was our first attempt at releasing so called developer releases.  These are snapshots of the actively developed code that at a minimum pass all our tests.</p>
-            <p>But really, you should be using version 1.*!</p>
+            <p>But really, you should be using version 1.21 or greater!</p>
          </answer>
       </q>
       <q id="4">
@@ -53,11 +54,12 @@
       </q>
       <q id="2">
          <question>How do I figure out how to use a module?</question>
-         <answer><p>Read the embedded perl documentation (Plain Old Documentation - POD) that is part of every modules.  Do: </p>
-            <code>  % perldoc MODULE
-            </code>
-            <p>(careful - spelling and case counts!).</p>
-            <p>The bioperl tutorial - bptutorial.pl - provided in the root directory of the bioperl release will also provide a good introduction.  There are links to tutorials off the bioperl website that may provide some additional help.</p>
+         <answer>A good list of the documentation can be found at <a href="http://bio.perl.org/Core/Latest/modules.html">http://bio.perl.org/Core/Latest/modules.html</a>. Read the embedded perl documentation (Plain Old Documentation - POD) that is part of every modules.  Do:
+            <p><code>
+             % perldoc MODULE
+            </code></p>
+            <p>Careful - spelling and case counts!</p>
+            <p>The bioperl tutorial - bptutorial.pl - provided in the root directory of the bioperl release will also provide a good introduction.  You may also find useful documentation in the form of a HOWTO in the bioperl package or at <a href="http://www.bioperl.org/HOWTOs">http://www.bioperl.org/HOWTOs</a>. There are links to tutorials off the bioperl website that may provide some additional help.</p>
             <p>There are also many scripts in the examples/ and scripts/ directories that could be useful - see bioperl.pod for a brief description of all of them.</p>
             <p>Additionally we have written many tests for our modules, you can see test data and example usage of the modules in these tests - look in the test dir (called 't').</p>
          </answer>
@@ -68,9 +70,9 @@
             <p>Go to <a href="http://cvs.bioperl.org">http://cvs.bioperl.org</a> and you'll see instructions on how to get the CVS code.
             </p>
             <p>Basically:</p>
-            <code>  % cvs -d :pserver:cvs@cvs.bioperl.org:/home/repository/bioperl login
+            <code>% cvs -d :pserver:cvs@cvs.bioperl.org:/home/repository/bioperl login
 </code>
-            <p>enter 'cvs' for the password</p>
+            <p>Enter 'cvs' for the password</p>
             <code>
   % cvs -d :pserver:cvs@cvs.bioperl.org:/home/repository/bioperl co bioperl_all
 </code>
@@ -79,7 +81,7 @@
       <q id="7">
          <question>Who uses this toolkit?</question>
          <answer>
-            <p>Lots of people.  Sanger Centre, EBI, many large and small academic laboratories, large and small pharmaceutical companies. All the developers on the bioperl list use the toolkit in some capacity on a regular basis.</p>
+            <p>Lots of people. Sanger Centre, EBI, many large and small academic laboratories, large and small pharmaceutical companies. All the developers on the bioperl list use the toolkit in some capacity on a regular basis.</p>
             <p>The Genquire annotation system (<a href="http://www.bioinformatics.org/Genquire/">http://www.bioinformatics.org/Genquire/</a>) and Ensembl (<a href="http://www.ensembl.org/">http://www.ensembl.org/</a>) use bioperl as the basis for their implementation.
             </p>
          </answer>
@@ -87,7 +89,7 @@
       <q id="8">
          <question>How should I cite Bioperl?</question>
          <answer>
-            <p>Please cite it as.
+            <p>Please cite it as:</p><p>
 Stajich JE, Block D, Boulez K, Brenner SE, Chervitz SA,  
 Dagdigian C, Fuellen G, Gilbert JGR, Korf I, Lapp H, 
 Lehvaslaiho H, Matsalla C, Mungall CJ, Osborne BI,
@@ -108,7 +110,7 @@ Genome Research. 2002 Oct;12(10):1161-8.
       <q id="10">
          <question>I want to help, where do I start?</question>
          <answer>
-            <p>Bioperl is a pretty diverse collection of modules which has grown from the direct needs of the developers participating in the project.  So if you don't have a need for a specific module in the toolkit it becomes hard to just describe ways it needs to be expanded or adapted.  One area, however is the development of stand alone scripts which use bioperl components for common tasks.  Some starting points for script: find out what people in your institution do routinely that a shortcut can be developed for.  Identify modules in bioperl that need easy intefaces and write that wrapper - you'll learn how to use the module inside and out. We always need people to help fix bugs - read the jitterbug bug tracking system (webpage linked from bioperl website sidebar  under "Bugs").</p>
+            <p>Bioperl is a pretty diverse collection of modules which has grown from the direct needs of the developers participating in the project.  So if you don't have a need for a specific module in the toolkit it becomes hard to just describe ways it needs to be expanded or adapted.  One area, however is the development of stand alone scripts which use bioperl components for common tasks.  Some starting points for script: find out what people in your institution do routinely that a shortcut can be developed for.  Identify modules in bioperl that need easy intefaces and write that wrapper - you'll learn how to use the module inside and out. We always need people to help fix bugs - check the Bugzilla bug tracking system (<a href="http://www.bioperl.org/Bugs">http://www.bioperl.org/bugs</a>).</p>
          </answer>
       </q>
       <q id="11">
@@ -123,7 +125,7 @@ Genome Research. 2002 Oct;12(10):1161-8.
       <q id="1">
          <question>How do I parse a sequence file?</question>
          <answer>
-            <p>Use the Bio::SeqIO system.  This will create Bio::Seq objects for you.  See the tutorial bptutorial.pl for more information or the documentation for Bio::SeqIO (e.g. 'perldoc SeqIO.pm').</p>
+            <p>Use the Bio::SeqIO system.  This will create Bio::Seq objects for you.  See the tutorial bptutorial.pl for more information or the <a href="http://www.bioperl.org/HOWTOs/html/SeqIO.html">SeqIO HOWTO</a> or the documentation for Bio::SeqIO (e.g. 'perldoc SeqIO.pm').</p>
          </answer>
       </q>
       <q id="2">
@@ -150,7 +152,8 @@ Genome Research. 2002 Oct;12(10):1161-8.
 
   my $seqio = new Bio::SeqIO(-fh =&gt; $stringfh, 
                              -format =&gt; 'fasta');
-  while( my $seq = $seqio-&gt;next_seq ) { # process each seq
+  while( my $seq = $seqio-&gt;next_seq ) { 
+      # process each seq
   }
 </code>
             </p>
@@ -163,7 +166,8 @@ Genome Research. 2002 Oct;12(10):1161-8.
          <question>I want to parse BLAST, how do I do this?</question>
          <answer>
             <p>Well you might notice that there are a lot of choices.  Sorry about that.  We've been evolving towards a single solution.</p>
-            <p>Currently the best way to parse a report is to use the SearchIO system.  This supports blast and fasta report parsing.  The bptutorial provides an example of how to use this system as well as the documentation in the Bio::SearchIO system. There is also a good HOWTO on the subject, see http://www.bioperl.org/HOWTOs/.</p>
+            <p>Currently the best way to parse a report is to use the SearchIO system.  This supports blast and fasta report parsing.  The bptutorial provides an example of how to use this system as well as the documentation in the
+	  Bio::SearchIO system. There is also a the <a href="http://www.bioperl.org/HOWTOs/html/SearchIO.html">SearchIO HOWTO</a>.</p>
          </answer>
       </q>
       <q id="2">
@@ -222,7 +226,7 @@ $hsp-&gt;query-&gt;frame();
       <q id="2">
          <question>How do I do motif searches with Bioperl? Can I do "find all sequences that are 75% identical" to a given motif?</question>
          <answer>
-            <p>There are a number of approaches. Within Bioperl take a look at Bio::Tools::SeqPattern. Or, take a look at the TFBS package, at <a href="http://forkhead.cgb.ki.se/TFBS">http://forkhead.cgb.ki.se/TFBS</a>(Transcription Factor Binding Site). This Bioperl-compliant package specializes in pattern searching of nucleotide sequence using matrices.</p>
+            <p>There are a number of approaches. Within Bioperl take a look at Bio::Tools::SeqPattern. Or, take a look at the TFBS package, at <a href="http://forkhead.cgb.ki.se/TFBS">http://forkhead.cgb.ki.se/TFBS</a> (Transcription Factor Binding Site). This Bioperl-compliant package specializes in pattern searching of nucleotide sequence using matrices.</p>
 <p>It's also conceivable that the combination of Bioperl and Perl's regular expressions could do the trick. You might also consider the CPAN module String::Approx (this module addresses the percent match query), but experienced users question whether its distance estimates are correct, the Unix agrep command is thought to be faster and more accurate.  Finally, you could use EMBOSS, as discussed in the previous question (or you could use Pise to run EMBOSS applications). The relevant programs would be fuzzpro or fuzznuc.
             </p>
          </answer>
@@ -284,10 +288,6 @@ $hsp-&gt;query-&gt;frame();
    <section>
    <section_name>Running external programs</section_name>
      <q id="1">
-<<<<<<< faq.xml
-     <question>Hey, I want to run blast or clustalw within Bioper, I
-      used Bio::Tools::Run::StandAloneBlast before - where did it go?</question>
-=======
      <question>How do I run Blast from within Bioperl?</question>
      <answer> Use the module Bio::Tools::Run::StandAloneBlast.  It will give you access to many of the search tools in the NCBI blast suite including blastll, bl2seq, blastpgp.  The basic structure is like this.
 
@@ -303,19 +303,19 @@ my $report = $factory->blastall($seq);
      </q>
      <q id="2">
      <question>Hey, I want to run clustalw within Bioperl, I used Bio::Tools::Run::Alignment::Clustalw before - where did it go?</question>
->>>>>>> 1.14
-      <answer>The Bio::Tools::Run directory was moved to a new package to help make the size of the core code smaller and separate out the more specialized nature of application running from the rest of Bioperl.  You can get these modules by installing the bioperl-run package.  This is either available from CVS under the same name or available in the http://bioperl.org/DIST directory and on CPAN.  This changeover began in the bioperl 1.1 developer release.
+      <answer>The Bio::Tools::Run directory was moved to a new package, bioperl-run, to help make the size of the core code smaller and separate out the more specialized nature of application running from the rest of Bioperl.  You can get these modules by installing the bioperl-run package.  This is either available from CVS under the same name or available in the http://bioperl.org/DIST directory and on CPAN.  This changeover began in the bioperl 1.1 developer release.
      </answer>
-
      </q>
      <q id="3">
-     <question>What does the future hold for running applications within Bioperl? </question>
-     <answer>
-<p>We are trying to build a standard starting point for analysis application which will probably look like Bio::Tools::Run::AnalysisFactory which will allow the user to request which type of remote or local server they want to use to run their analyses.  This will connect to the Pasteur's PISE server, the EBI's Novella server, as well as be aware of wrappers to run applications locally. </p>
-
-<p>Additionally we suggest investigating the BioPipe project(http://www.biopipe.org) which is making it easier to chain together various sets of analyses and build rules for peforming these computes.</p> 
+     <question>What does the future hold for running applications within Bioperl?</question>
+     <answer><p>We are trying to build a standard starting point for analysis application which will probably look like Bio::Tools::Run::AnalysisFactory which will allow the user to request which type of remote or local server they want to use to run their analyses.  This will connect to the Pasteur's PISE server, the EBI's Novella server, as well as be aware of wrappers to run applications locally.</p>
+<p>Additionally we suggest investigating the BioPipe project, also known as bioperl-pipeline, at <a href="http://www.biopipe.org">www.biopipe.org</a>. This is a sophisticated system to chain together sets of analyses and build rules for performing these computes.</p> 
     </answer>
     </q>
-   </section>
+	<q id="3">
+	<question>I'm trying to run StandAloneBlast and I'm seeing error messages like "Can't locate Bio/Tools/Run/WrapperBase.pm". How do I fix this?</question>
+	<answer>Yes, this file is missing in version 1.2. Two possible solutions: install version 1.2.1 or greater or retrieve and copy WrapperBase.pm to the proper location. You can get it at <a href="http://bio.perl.org/Bugs">http://bio.perl.org/Bugs</a>.</answer>
+	</q>   
+</section>
    <copyright>Copyright (c)2002-2003 Open Bioinformatics Foundation. You may distribute this FAQ under the same terms as perl itself.</copyright>
 </faq>
