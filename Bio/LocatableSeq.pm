@@ -12,11 +12,18 @@
 
 =head1 NAME
 
-Bio::LocatableSeq - A Sequence object with start/end points on it
+Bio::LocatableSeq - A Sequence object with start/end points on it that can be projected into a MSA or have coordinates relative to another seq.
+
 
 =head1 SYNOPSIS
 
-Give standard usage here
+
+    use Bio::LocatableSeq;
+    my $seq = new Bio::LocatableSeq(-seq => "CAGT-GGT",
+				    -id  => "seq1",
+				    -start => 1,
+				    -end   => 7);
+
 
 =head1 DESCRIPTION
 
