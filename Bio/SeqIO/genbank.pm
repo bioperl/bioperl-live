@@ -64,11 +64,11 @@ through the Bio::SeqI interface method L<annotation()|annotation>.
 The following are the names of the keys which are polled from a
 L<Bio::Annotation::Collection> object.
 
-reference       - Should contain Bio::Annotation::Reference objects
-comment         - Should contain Bio::Annotation::Comment objects
+ reference       - Should contain Bio::Annotation::Reference objects
+ comment         - Should contain Bio::Annotation::Comment objects
 
-segment         - Should contain a Bio::Annotation::SimpleValue object
-origin          - Should contain a Bio::Annotation::SimpleValue object
+ segment         - Should contain a Bio::Annotation::SimpleValue object
+ origin          - Should contain a Bio::Annotation::SimpleValue object
 
 =back
 
@@ -91,27 +91,27 @@ available when you try and get them.  If you are having this problem
 look at the type of SeqBuilder that is being used to contruct your
 sequence object.
 
-Comments             Annotation 'comment'
-References           Annotation 'reference'
-Segment              Annotation 'segment'
-Origin               Annotation 'origin'
+ Comments             Annotation 'comment'
+ References           Annotation 'reference'
+ Segment              Annotation 'segment'
+ Origin               Annotation 'origin'
 
-Accessions           PrimarySeq accession_number()
-Secondary accessions RichSeq get_secondary_accessions()
-GI number            PrimarySeq primary_id()
-LOCUS                PrimarySeq display_id()
-Keywords             RichSeq get_keywords()
-Dates                RichSeq get_dates()
-Molecule             RichSeq molecule()
-Seq Version          RichSeq seq_version()
-PID                  RichSeq pid()
-Division             RichSeq division()
-Features             Seq get_SeqFeatures()
-Alphabet             PrimarySeq alphabet()
-Definition           PrimarySeq description() or desc()
-Version              PrimarySeq version()
+ Accessions           PrimarySeq accession_number()
+ Secondary accessions RichSeq get_secondary_accessions()
+ GI number            PrimarySeq primary_id()
+ LOCUS                PrimarySeq display_id()
+ Keywords             RichSeq get_keywords()
+ Dates                RichSeq get_dates()
+ Molecule             RichSeq molecule()
+ Seq Version          RichSeq seq_version()
+ PID                  RichSeq pid()
+ Division             RichSeq division()
+ Features             Seq get_SeqFeatures()
+ Alphabet             PrimarySeq alphabet()
+ Definition           PrimarySeq description() or desc()
+ Version              PrimarySeq version()
 
-Sequence             PrimarySeq seq()
+ Sequence             PrimarySeq seq()
 
 =head1 FEEDBACK
 
