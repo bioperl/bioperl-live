@@ -81,14 +81,16 @@ sub new{
 
     my $self = $class->SUPER::new(@args);
 
-    my ($start,$end,$authors,$location,$title,$medline,$tag) =
+    my ($start,$end,$authors,$location,$title,$medline,
+	$pubmed,$rp) =
 	$self->_rearrange([qw(START
 			      END
 			      AUTHORS
 			      LOCATION
 			      TITLE
 			      MEDLINE
-			      TAGNAME
+                              PUBMED
+                              RP
 			      )],@args);
 
     defined $start    && $self->start($start);
@@ -97,8 +99,8 @@ sub new{
     defined $location && $self->location($location);
     defined $title    && $self->title($title);
     defined $medline  && $self->medline($medline);
-    defined $tag      && $self->tagname($tag);
-
+    defined $pubmed   && $self->pubmed($pubmed);
+    defined $rp       && $self->rp($rp);
     return $self;
 }
 
@@ -175,14 +177,6 @@ sub hash_tree{
 
 =cut
 
-sub tagname{
-    my ($self,$value) = @_;
-    if( defined $value) {
-	$self->{'tagname'} = $value;
-    }
-    return $self->{'tagname'};
-}
-
 
 =head1 Specific accessors for References
 
@@ -248,7 +242,6 @@ sub rp{
       $self->{'rp'} = $value;
     }
     return $self->{'rp'};
-
 }
 
 =head2 authors
