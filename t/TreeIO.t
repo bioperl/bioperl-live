@@ -18,18 +18,7 @@ BEGIN {
     }
 
     use Test;
-    plan tests => 41; 
-
-#    eval { require XML::Parser::PerlSAX; };
-#    if( $@ ) {
-#	print STDERR "XML::Parser::PerlSAX not loaded. This means TreeIO::phyloxml test cannot be executed. Skipping\n";
-#	foreach ( 1..43 ) {
-#	    skip(1,1);
-#	}
-#       $error = 1;
-#	
-#    } 
-
+    plan tests => 42; 
 }
 
 if( $error == 1 ) {
@@ -161,7 +150,7 @@ if( eval "require SVG::Graph; 1;" ) {
     skip("skipping SVG::Graph output, verbosity flag too low",1);
   }
 } else {
-    skip("skipping SVG::Graph output, SVG::Graph not installed",2);
+    skip("skipping SVG::Graph output, SVG::Graph not installed",1);
 }
 
 ok($treeio);
