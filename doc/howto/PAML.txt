@@ -1,0 +1,116 @@
+
+Bio::Tools::Phylo::PAML HOWTO
+
+   This document is copyright Aaron Mackey, 2002. For reproduction other
+   than personal use please contact me at amackey@virginia.edu
+
+                       Done.
+     Abstract
+
+    PAML is a package of C programs that implement Phylogenetic Analyses
+      using Maximum Likelihood, written by Dr. Ziheng Yang, University
+    College London. These programs implement a wide variety of models to
+   explore the evolutionary relationships between sequences at either the
+   protein, codon or raw DNA level. This document's aim is to explore and
+      document how the BioPerl PAML parser and result objects "work".
+            ____________________________________________________
+
+   Table of Contents
+   [1]Background
+   [2]Accessing PAML results
+   [3]New Section Title
+
+Background
+
+The PAML package consists of many different executable programs, but the
+BioPerl Bio::Tools::Phylo::PAML object (hereafter referred to as simply the
+PAML object) focuses on dealing with the output of the main analysis
+programs "baseml", "codeml" (sometimes called "aaml") and "codemlsites" (a
+batch version of "codeml"). All of these programs use maximum likelihood
+methods to fit a mathematical model of evolution to sequence data provided
+by the user. The main difference between these programs is the type of
+sequence on which they operate (baseml for raw DNA, codeml for DNA organized
+as codons, aaml for amino acids).
+
+While the general maximum likelihood approach used by the PAML programs is
+the same for all of them, the specific evolutionary models available for
+each sequence type vary greatly, as do the parameters specific to each
+model. The programs function in a handful of disparate modes, each requiring
+slight variations of inputs that can possibly include:
+
+    1. multiply-aligned sequences. representing 1 or more distinct genes
+       [ PAML parameter Mgene = 1 ], in 1 or more distinct datasets [
+       PAML ndata > 1 ])
+    2. a user-provided tree topology (or multiple tree topologies to be
+       evaluated and contrasted)
+    3. a set of instructions in a control file that specify the model (or
+       models) to be used, various options to specify how to handle the
+       sequence data (e.g. whether to dismiss columns with gaps or not [
+       cleandata = 1 ]), initial or fixed values for model parameters,
+       and the filenames for other input data.
+
+The output from PAML is directed to multiple "targets": data is written to
+the user-specified primary output file (conventionally named with an .mlc
+extension), as well as various accessory files with fixed names (e.g. 2ML.t,
+2ML.dN, 2ML.dS for pairwise Maximum Likelihood calculations) that appear in
+the same directory that the output file is found.
+
+   The  upshot  of  these  comments  is  that  one PAML program "run" can
+   potentially  generate results for many genes, many datasets, many tree
+   toplogies  and many evolutionary models, spread across multiple output
+   files.  Currently,  the PAML programs deal with the various categories
+   of  multiple  analyses  in  the  following "top-down" order: datasets,
+   genes,  models,  tree topologies. So how shall the BioPerl PAML module
+   treat these sources of multiple results?
+     _________________________________________________________________
+
+Accessing PAML results
+
+The BioPerl PAML result parser takes the view that a distinct "recordset" or
+single, top-level PAML::Result object represents a single dataset. Each
+PAML::Result object may therefore contain data from multiple genes, models,
+and/or tree topologies. To parse the output from a multiple-dataset PAML
+run, the familiar "next_result" iterator common to other BioPerl modules is
+invoked.
+
+   Example 1. Iterating over results with next_result
+use Bio::Tools::Phylo::PAML;
+
+my $parser = new Bio::Tools::Phylo::PAML (-file => "./output.mlc",
+                                          -dir  => "./",
+                                          -ctlf => "./codeml.ctl");
+
+while(my $result = $parser->next_result) {
+    # do something with the results from this dataset ...
+}
+
+In this example, we've created a new top-level PAML parser, specifying
+PAML's primary output file, the directory in which any other accessory files
+may be found, and the control file. We then trigger the parser to begin
+parsing the data, returning a new PAML::Result object for each dataset found
+in the output.
+
+   The  PAML::Result  object  provides access to the wide variety of data
+   found  in  the  output  files.  The  specific  kinds of data available
+   depends  on  which  PAML  analysis  program  was run, and the mode and
+   models  employed.  Generally,  these  include  a recapitulation of the
+   input  sequences  and  their  multiple  alignment  (which  may  differ
+   slightly from the original input sequences due to the data "cleansing"
+   PAML  performs),  descriptive  statistics of the input sequences (e.g.
+   codon  usage  tables,  nucleotide or amino acid composition), pairwise
+   Nei  &  Gojobori  (NG) calculation matrices (for codon models), fitted
+   model   parameter   values   (including   branch-specific   parameters
+   associated  with  any provided tree topology), reconstructed ancestral
+   sequences  (again,  associated with an accompanying tree topology), or
+   statistical comparisons of multiple tree topologies.
+     _________________________________________________________________
+
+New Section Title
+
+Text here.
+
+References
+
+   1. file://localhost/tmp/html-xULDRz#BACKGROUND
+   2. file://localhost/tmp/html-xULDRz#RESULTS
+   3. file://localhost/tmp/html-xULDRz#NEW
