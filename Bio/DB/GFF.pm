@@ -1365,7 +1365,11 @@ is the same as initialize(-erase=E<gt>1).
 
 sub initialize {
   my $self = shift;
-  $self->do_initialize(1) if @_ == 1 && $_[0];
+  #$self->do_initialize(1) if @_ == 1 && $_[0];
+  #why was this line (^) here?  I can't see that it actually does anything
+  #one option would be to execute the line and return, but I don't know
+  #why you would want to do that either.
+ 
   my ($erase,$meta) = rearrange(['ERASE'],@_);
   $meta ||= {};
 
