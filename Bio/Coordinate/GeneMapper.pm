@@ -823,7 +823,7 @@ sub map {
 
    $value = $value->location if $value->isa('Bio::SeqFeatureI');
    $self->debug( "=== Start location: ". $value->start. ",".
-		 $value->end. " (". $value->strand. ")\n");
+		 $value->end. " (". ($value->strand || ''). ")\n");
 	       
    # if nozero coordinate system is used in the input values
    if ( defined $self->{'_nozero'} &&

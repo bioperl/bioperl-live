@@ -369,7 +369,7 @@ sub location_from_column {
     my $relative_pos = ($strand == -1)
         ? ($self->end - $pos + 1)
             : ($pos + $start - 1);
-    if ($self->subseq($column, $column) =~ /[a-zA-Z]/ ) {
+    if ($self->subseq($column, $column) =~ /[a-zA-Z\*]/ ) {
 	$loc = new Bio::Location::Simple
 	    (-start => $relative_pos,
 	     -end => $relative_pos,

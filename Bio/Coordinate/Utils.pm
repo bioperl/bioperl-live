@@ -118,7 +118,6 @@ sub from_align {
    #foreach remaining seq in aln, do:
    $aln->map_chars('\.','-');
    my $cs = $aln->gap_line;
-   $aln->map_chars('\-','.');
    my $seq1 = $aln->get_seq_by_pos(1);
    my $seq2 = $aln->get_seq_by_pos(2);   
    while ( $cs =~ /([^\-]+)/g) {
@@ -137,10 +136,16 @@ sub from_align {
 	    -start  => $seq2->location_from_column($start)->start,
 	    -end    => $seq2->location_from_column($end)->start,
 	    -strand => $seq2->strand );
+       
        my $pair = Bio::Coordinate::Pair->new
 	   (-in  => $match1,
 	    -out => $match2
 	    );
+       if(! $pair->test ) {
+	   $self->warn("pair align did not pass test:\n",
+		       "\tm1=",$match1->to_FTstring(), " len=",$match1->length, 
+		       " m2=", $match2->to_FTstring()," len=",$match2->length,"\n");
+       }
        $collection->add_mapper($pair);
    }
    return ($collection->each_mapper)[0] if $collection->mapper_count == 1;
