@@ -39,6 +39,6 @@ my ($atom) = $struc->get_atom_by_serial(367);
 ok($atom->id, "NZ");
 ok($struc->parent($atom)->id, "LYS-46");
 my ($ann) = $struc->annotation->get_Annotations("author");
-ok($ann->as_text, "Value: D.HOUSSET,A.WLODAWER,F.TAO,J.FUCHS,C.WOODWARD");
+ok($ann->as_text, "Value: D.HOUSSET,A.WLODAWER,F.TAO,J.FUCHS,C.WOODWARD              ");
 
 

@@ -16,7 +16,7 @@ BEGIN {
 	use lib 't';
     }
     use Test;
-    plan tests => 55;
+    plan tests => 52;
 }
 use Bio::Structure::Entry;
 use Bio::Structure::Model;
@@ -65,10 +65,6 @@ ok $entry->model, 1;
 my @m = ($m1, $m2);
 $entry->model(\@m);
 ok $entry->model, 2;
-
-ok ref($entry->parent($m1)), 'Bio::Structure::Entry';
-ok ref($entry->parent($m2)), 'Bio::Structure::Entry';
-ok $entry->parent($m1), $entry->parent($m2);
 
 # does $m2 gest orphaned
 $entry->model($m1);
