@@ -32,13 +32,14 @@ sub test ($$;$) {
     my($num, $true,$msg) = @_;
     print($true ? "ok $num\n" : "not ok $num $msg\n");
 }
-$pseq = Bio::Seq::LargePrimarySeq->new();
+test 2, defined ($pseq = Bio::Seq::LargePrimarySeq->new());
 
 $pseq->add_sequence_as_string('ATGGGGTGGGGTGAAACCCTTTGGGGGTGGGGTAAAT');
 $pseq->add_sequence_as_string('GTTTGGGGTTAAACCCCTTTGGGGGGT');
 
-$pseq->display_id('hello');
+test 3, $pseq->display_id('hello') && $pseq->display_id eq 'hello';
 
-test 2, ( $pseq->seq eq 'ATGGGGTGGGGTGAAACCCTTTGGGGGTGGGGTAAATGTTTGGGGTTAAACCCCTTTGGGGGGT' ), "Sequence is " . $pseq->seq;
+test 4, ( $pseq->seq eq 'ATGGGGTGGGGTGAAACCCTTTGGGGGTGGGGTAAATGTTTGGGGTTAAACCCCTTTGGGGGGT' ), "Sequence is " . $pseq->seq;
 
-test 3, ( $pseq->subseq(3,7) eq 'GGGGT' ), "Subseq is ".$pseq->subseq(3,7);
+test 5, ( $pseq->subseq(3,7) eq 'GGGGT' ), "Subseq is ".$pseq->subseq(3,7);
+test 6, ( $pseq->trunc(8,15)->seq eq 'GGGGTGAA' ), 'trunc seq was ' . $pseq->trunc(8,15)->seq;
