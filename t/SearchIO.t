@@ -20,7 +20,7 @@ BEGIN {
 	use lib 't';
     }
     use vars qw($NTESTS);
-    $NTESTS = 378;
+    $NTESTS = 539;
     $LASTXMLTEST = 49;
     $error = 0;
 
@@ -545,6 +545,224 @@ while( my $hit = $result->next_hit ) {
     }
     last if( $count++ > @valid );
 } 
+
+#WU-BlastX test
+
+$searchio = new Bio::SearchIO('-format' => 'blast',
+			      '-file'   => Bio::Root::IO->catfile('t','data','dnaEbsub_ecoli.wublastx'));
+
+$result = $searchio->next_result;
+ok($result->database_name, 'ecoli.aa');
+ok($result->database_letters, 1358990);
+ok($result->database_entries, 4289);
+ok($result->algorithm, 'BLASTX');
+ok($result->algorithm_version, '2.0MP-WashU');
+ok($result->query_name, 'gi|142864|gb|M10040.1|BACDNAE B.subtilis dnaE gene encoding DNA primase, complete cds');
+ok($result->query_length, 2001);
+ok($result->get_parameter('matrix'), 'blosum62');
+
+ok($result->get_statistic('lambda'), 0.318);
+ok($result->get_statistic('kappa'), 0.135);
+ok($result->get_statistic('entropy'),0.401 );
+
+ok($result->get_statistic('dbentries'), 4289);
+
+@valid = ( [ 'gi|1789447|gb|AAC76102.1|', 581, 'AAC76102.1', '1.1e-74', 671]);
+$count = 0;
+
+while( my $hit = $result->next_hit ) {
+    my $d = shift @valid;
+    ok($hit->name, shift @$d);
+    ok($hit->length, shift @$d);
+    ok($hit->accession, shift @$d);
+    ok($hit->significance, shift @$d );
+    ok($hit->raw_score, shift @$d );
+
+    if( $count == 0 ) {
+	while( my $hsp = $hit->next_hsp ) {
+	    ok($hsp->query->start, 21);
+	    ok($hsp->query->end, 1265);
+	    ok($hsp->query->strand, 1);
+	    ok($hsp->hit->start, 1);
+	    ok($hsp->hit->end, 413);
+	    ok($hsp->hit->strand, 0);
+	    ok($hsp->length('hsp'), 421);	    
+	    ok($hsp->evalue == '1.1e-74');
+	    ok($hsp->pvalue == '1.1e-74');
+	    ok($hsp->score,671);
+	    ok($hsp->bits,265.8);
+	    ok(sprintf("%.2f",$hsp->percent_identity), 35.87);
+	    ok(sprintf("%.4f",$hsp->frac_identical('query')), 0.1213);	    
+	    ok(sprintf("%.4f",$hsp->frac_identical('hit')), 0.3656);
+	    ok(sprintf("%.4f",$hsp->frac_conserved('hsp')), 0.5297);
+	    ok($hsp->query->frame(), 2);
+	    ok($hsp->hit->frame(), 0);
+	    ok($hsp->gaps('query'), 6);
+	    ok($hsp->gaps('hit'), 8);
+	    ok($hsp->gaps, 14);	    
+	    ok($hsp->query_string, 'MGNRIPDEIVDQVQKSADIVEVIGDYVQLKKQGRNYFGLCPFHGESTPSFSVSPDKQIFHCFGCGAGGNVFSFLRQMEGYSFAESVSHLADKYQIDFPDDITVHSGARP---ESSGEQKMAEAHELLKKFYHHLLINTKEGQEALDYLLSRGFTKELINEFQIGYALDSWDFITKFLVKRGFSEAQMEKAGLLIRREDGSGYFDRFRNRVMFPIHDHHGAVVAFSGRALGSQQPKYMNSPETPLFHKSKLLYNFYKARLHIRKQERAVLFEGFADVYTAVSSDVKESIATMGTSLTDDHVKILRRNVEEIILCYDSDKAGYEATLKASELL---QKKGCKVRVAMIPDGLDPDDYIKKFGGEKFKNDIIDASVTVMAFKMQYFRKGKNLSDEGDRLAYIKDVLKEISTLSGSLEQEVYVKQ');
+	    ok($hsp->hit_string, 'MAGRIPRVFINDLLARTDIVDLIDARVKLKKQGKNFHACCPFHNEKTPSFTVNGEKQFYHCFGCGAHGNAIDFLMNYDKLEFVETVEELAAMHNLEVPFE----AGSGPSQIERHQRQTLYQLMDGLNTFYQQSL-QQPVATSARQYLEKRGLSHEVIARFAIGFAPPGWDNVLKRFGGNPENRQSLIDAGMLVTNDQGRSY-DRFRERVMFPIRDKRGRVIGFGGRVLGNDTPKYLNSPETDIFHKGRQLYGLYEAQQDNAEPNRLLVVEGYMDVVALAQYGINYAVASLGTSTTADHIQLLFRATNNVICCYDGDRAGRDAAWRALETALPYMTDGRQLRFMFLPDGEDPDTLVRKEGKEAFEARM-EQAMPLSAFLFNSLMPQVDLSTPDGRARLSTLALPLISQVPGETLR-IYLRQ');
+	    ok($hsp->homology_string, 'M  RIP   ++ +    DIV++I   V+LKKQG+N+   CPFH E TPSF+V+ +KQ +HCFGCGA GN   FL   +   F E+V  LA  + ++ P +    +G+ P   E    Q + +  + L  FY   L        A  YL  RG + E+I  F IG+A   WD + K       +   +  AG+L+  + G  Y DRFR RVMFPI D  G V+ F GR LG+  PKY+NSPET +FHK + LY  Y+A+    +  R ++ EG+ DV       +  ++A++GTS T DH+++L R    +I CYD D+AG +A  +A E        G ++R   +PDG DPD  ++K G E F+  + + ++ + AF         +LS    R       L  IS + G   + +Y++Q');
+	}
+    }
+    last if( $count++ > @valid );
+} 
+
+#WU-TBlastN test
+
+$searchio = new Bio::SearchIO('-format' => 'blast',
+			      '-file'   => Bio::Root::IO->catfile('t','data','dnaEbsub_ecoli.wutblastn'));
+
+$result = $searchio->next_result;
+ok($result->database_name, 'ecoli.nt');
+ok($result->database_letters, 4662239);
+ok($result->database_entries, 400);
+ok($result->algorithm, 'TBLASTN');
+ok($result->algorithm_version, '2.0MP-WashU');
+ok($result->query_name, 'gi|142865|gb|AAA22406.1| DNA primase');
+ok($result->query_length, 603);
+ok($result->get_parameter('matrix'), 'blosum62');
+
+ok($result->get_statistic('lambda'), '0.320');
+ok($result->get_statistic('kappa'), 0.136);
+ok($result->get_statistic('entropy'),0.387 );
+
+ok($result->get_statistic('dbentries'), 400);
+
+@valid = ( [ 'gi|1789441|gb|AE000388.1|AE000388', 10334, 'AE000388', '1.4e-73', 671]);
+$count = 0;
+
+while( my $hit = $result->next_hit ) {
+    my $d = shift @valid;
+    ok($hit->name, shift @$d);
+    ok($hit->length, shift @$d);
+    ok($hit->accession, shift @$d);
+    ok($hit->significance, shift @$d );
+    ok($hit->raw_score, shift @$d );
+
+    if( $count == 0 ) {
+	while( my $hsp = $hit->next_hsp ) {
+	    ok($hsp->query->start, 1);
+	    ok($hsp->query->end, 415);
+	    ok($hsp->query->strand, 0);
+	    ok($hsp->hit->start, 4778);
+	    ok($hsp->hit->end, 6016);
+	    ok($hsp->hit->strand, 1);
+	    ok($hsp->length('hsp'), 421);	    
+	    ok($hsp->evalue == '1.4e-73');
+	    ok($hsp->pvalue == '1.4e-73');
+	    ok($hsp->score,671);
+	    ok($hsp->bits,265.8);
+	    ok(sprintf("%.2f",$hsp->percent_identity), 35.87);
+	    ok(sprintf("%.4f",$hsp->frac_identical('hit')), 0.1219);	    
+	    ok(sprintf("%.4f",$hsp->frac_identical('query')), 0.3639);
+	    ok(sprintf("%.4f",$hsp->frac_conserved('hsp')), 0.5297);
+	    ok($hsp->query->frame(), 0);
+	    ok($hsp->hit->frame(), 1);
+	    ok($hsp->gaps('query'), 6);
+	    ok($hsp->gaps('hit'), 8);
+	    ok($hsp->gaps, 14);	    
+ok($hsp->query_string, 'MGNRIPDEIVDQVQKSADIVEVIGDYVQLKKQGRNYFGLCPFHGESTPSFSVSPDKQIFHCFGCGAGGNVFSFLRQMEGYSFAESVSHLADKYQIDFPDDITVHSGARP---ESSGEQKMAEAHELLKKFYHHLLINTKEGQEALDYLLSRGFTKELINEFQIGYALDSWDFITKFLVKRGFSEAQMEKAGLLIRREDGSGYFDRFRNRVMFPIHDHHGAVVAFSGRALGSQQPKYMNSPETPLFHKSKLLYNFYKARLHIRKQERAVLFEGFADVYTAVSSDVKESIATMGTSLTDDHVKILRRNVEEIILCYDSDKAGYEATLKASELL---QKKGCKVRVAMIPDGLDPDDYIKKFGGEKFKNDIIDASVTVMAFKMQYFRKGKNLSDEGDRLAYIKDVLKEISTLSGSLEQEVYVKQ');
+	    ok($hsp->hit_string, 'MAGRIPRVFINDLLARTDIVDLIDARVKLKKQGKNFHACCPFHNEKTPSFTVNGEKQFYHCFGCGAHGNAIDFLMNYDKLEFVETVEELAAMHNLEVPFE----AGSGPSQIERHQRQTLYQLMDGLNTFYQQSL-QQPVATSARQYLEKRGLSHEVIARFAIGFAPPGWDNVLKRFGGNPENRQSLIDAGMLVTNDQGRSY-DRFRERVMFPIRDKRGRVIGFGGRVLGNDTPKYLNSPETDIFHKGRQLYGLYEAQQDNAEPNRLLVVEGYMDVVALAQYGINYAVASLGTSTTADHIQLLFRATNNVICCYDGDRAGRDAAWRALETALPYMTDGRQLRFMFLPDGEDPDTLVRKEGKEAFEARM-EQAMPLSAFLFNSLMPQVDLSTPDGRARLSTLALPLISQVPGETLR-IYLRQ');
+	    ok($hsp->homology_string, 'M  RIP   ++ +    DIV++I   V+LKKQG+N+   CPFH E TPSF+V+ +KQ +HCFGCGA GN   FL   +   F E+V  LA  + ++ P +    +G+ P   E    Q + +  + L  FY   L        A  YL  RG + E+I  F IG+A   WD + K       +   +  AG+L+  + G  Y DRFR RVMFPI D  G V+ F GR LG+  PKY+NSPET +FHK + LY  Y+A+    +  R ++ EG+ DV       +  ++A++GTS T DH+++L R    +I CYD D+AG +A  +A E        G ++R   +PDG DPD  ++K G E F+  + + ++ + AF         +LS    R       L  IS + G   + +Y++Q');
+	}
+    }
+    last if( $count++ > @valid );
+}
+
+# WU-BLAST TBLASTX
+$searchio = new Bio::SearchIO('-format' => 'blast',
+			      '-file'   => Bio::Root::IO->catfile('t','data','dnaEbsub_ecoli.wutblastx'));
+
+$result = $searchio->next_result;
+ok($result->database_name, 'ecoli.nt');
+ok($result->database_letters, 4662239);
+ok($result->database_entries, 400);
+ok($result->algorithm, 'TBLASTX');
+ok($result->algorithm_version, '2.0MP-WashU');
+ok($result->query_name, 'gi|142864|gb|M10040.1|BACDNAE B.subtilis dnaE gene encoding DNA primase, complete cds');
+ok($result->query_length, 2001);
+ok($result->get_parameter('matrix'), 'blosum62');
+
+ok($result->get_statistic('lambda'), 0.318);
+ok($result->get_statistic('kappa'), 0.135);
+ok($result->get_statistic('entropy'),0.401 );
+ok($result->get_statistic('dbentries'), 400);
+
+@valid = ( [ 'gi|1789441|gb|AE000388.1|AE000388', 10334, 'AE000388', '6.4e-70', 318],
+	   [ 'gi|2367383|gb|AE000509.1|AE000509', 10589, 'AE000509', '0.9992', 59]
+	   );
+$count = 0;
+
+while( my $hit = $result->next_hit ) {
+    my $d = shift @valid;
+    ok($hit->name, shift @$d);
+    ok($hit->length, shift @$d);
+    ok($hit->accession, shift @$d);
+    ok($hit->significance, shift @$d );
+    ok($hit->raw_score, shift @$d );
+
+    if( $count == 0 ) {
+	my $hspcounter = 0;
+	while( my $hsp = $hit->next_hsp ) {
+	    $hspcounter++;
+	    if( $hspcounter == 3 ) {
+		# let's actually look at the 3rd HSP
+		ok($hsp->query->start, 441);
+		ok($hsp->query->end, 617);
+		ok($hsp->query->strand, 1);
+		ok($hsp->hit->start, 5192);
+		ok($hsp->hit->end, 5368);
+		ok($hsp->hit->strand, 1);
+		ok($hsp->length('hsp'), 59);	    
+		ok($hsp->evalue == '6.4e-70');
+		ok($hsp->pvalue == '6.4e-70');
+		ok($hsp->score,85);
+		ok($hsp->bits,41.8);
+		ok(sprintf("%.2f",$hsp->percent_identity), '32.20');
+		ok(sprintf("%.4f",$hsp->frac_identical('hit')), 0.1073);
+		ok(sprintf("%.4f",$hsp->frac_identical('query')), 0.1073);
+		ok(sprintf("%.4f",$hsp->frac_conserved('hsp')), 0.4746);
+		ok($hsp->query->frame(), 2);
+		ok($hsp->hit->frame(), 1);
+		ok($hsp->gaps('query'), 0);
+		ok($hsp->gaps('hit'), 0);
+		ok($hsp->gaps, 0);	    
+		ok($hsp->query_string, 'ALDYLLSRGFTKELINEFQIGYALDSWDFITKFLVKRGFSEAQMEKAGLLIRREDGSGY');
+	    ok($hsp->hit_string, 'ARQYLEKRGLSHEVIARFAIGFAPPGWDNVLKRFGGNPENRQSLIDAGMLVTNDQGRSY');
+	    ok($hsp->homology_string, 'A  YL  RG + E+I  F IG+A   WD + K       +   +  AG+L+  + G  Y');
+	    }
+	} 
+    } elsif( $count == 1 ) {
+	while( my $hsp = $hit->next_hsp ) {
+	    ok($hsp->query->start, 587);
+	    ok($hsp->query->end, 706);
+	    ok($hsp->query->strand, -1);
+	    ok($hsp->hit->start, 4108);
+	    ok($hsp->hit->end, 4227);
+	    ok($hsp->hit->strand, -1);
+	    ok($hsp->length('hsp'), 40);	    
+	    ok($hsp->evalue == '7.1');
+	    ok($hsp->pvalue == '1.00');
+	    ok($hsp->score,59);
+	    ok($hsp->bits,29.9);
+	    ok(sprintf("%.2f",$hsp->percent_identity), '37.50');
+	    ok(sprintf("%.4f",$hsp->frac_identical('hit')), '0.1250');
+	    ok(sprintf("%.4f",$hsp->frac_identical('query')), '0.1250');
+	    ok(sprintf("%.4f",$hsp->frac_conserved('hsp')), '0.4750');
+	    ok($hsp->query->frame(), 2);
+	    ok($hsp->hit->frame(), 2);
+	    ok($hsp->gaps('query'), 0);
+	    ok($hsp->gaps('hit'), 0);
+	    ok($hsp->gaps, 0);
+	    ok($hsp->query_string, 'WLPRALPEKATTAP**SWIGNMTRFLKRSKYPLPSSRLIR');
+	    ok($hsp->hit_string, 'WLSRTTVGSSTVSPRTFWITRMKVKLSSSKVTLPSTKSTR');
+	    ok($hsp->homology_string, 'WL R     +T +P   WI  M   L  SK  LPS++  R');
+	    last;
+	}       
+    }
+    last if( $count++ > @valid );
+}
 
 # TODO: Flesh this test out!
 $searchio = new Bio::SearchIO ('-format' => 'psiblast',
