@@ -290,7 +290,7 @@ sub input_spec { shift->throw_not_implemented(); }
 
 =head2 result_spec
 
- Usage   : $tool->input_spec;
+ Usage   : $tool->result_spec;
  Returns : a hash reference with result names as keys
            and result types as values
  Args    : none
