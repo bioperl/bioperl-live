@@ -7,7 +7,7 @@ BioPerlTutorial - a tutorial for bioperl
 
 =head1 VERSION
 
-1.4
+1.5
 
 =head1 AUTHOR
 
@@ -28,7 +28,7 @@ BioPerlTutorial - a tutorial for bioperl
 
 =head1 DESCRIPTION
 
-   This tutorial includes "snippets" of code and text from various
+   This tutorial includes snippets of code and text from various
    Bioperl documents including module documentation, example scripts
    and "t" test scripts. You may distribute this tutorial under the
    same terms as perl itself.
@@ -687,11 +687,8 @@ Seq object, eg:
                        -accession_number => 'accnum',
                        -alphabet         => 'dna' );
 
-However, in most cases, it is preferable to access sequence data from
-some online data file or database. Note that in common with
-conventional bioinformatics usage we will sometimes call a "database"
-what might be more appropriately referred to as an "indexed flat
-file".
+However, in most cases, you will probably be accessing sequence data
+from some online data file or database.
 
 Bioperl supports accessing remote databases as well as creating 
 indices for accessing local databases.  There are two general approaches 
@@ -711,9 +708,8 @@ possible to import sequence data from a database without your needing
 to know whether the required database is flat-file or relational or
 even whether it is local or accessible only over the net.
 Descriptions of how to set up the necessary registry configuration
-file and access sequence data with the registry in described in
-BIODATABASE_ACCESS in the doc/howto subdirectory and won't be repeated
-here.
+file and access sequence data with the registry in described at
+http://bioperl.org/HOWTO/OBDA_Access/index.html (or in doc/howto).
 
 =head2   III.1.1 Accessing remote databases (Bio::DB::GenBank, etc)
 
@@ -725,12 +721,16 @@ For retrieving data from genbank, for example, the code could be as
 follows:
 
   $gb = new Bio::DB::GenBank();
+
   # this returns a Seq object :
   $seq1 = $gb->get_Seq_by_id('MUSIGHBA1');
-  # this returns a Seq object :
+
+  # this also returns a Seq object :
   $seq2 = $gb->get_Seq_by_acc('AF303112');
-  # this returns a SeqIO object :
+
+  # this returns a SeqIO object, which can be used to get a Seq object :
   $seqio = $gb->get_Stream_by_id(["J00522","AF303112","2981014"]);
+  $seq3 = $seqio->next_seq;
 
 See section L<"III.2.1"> for information on using this SeqIO object.
 
@@ -738,7 +738,7 @@ Bioperl currently supports sequence data retrieval from the genbank,
 genpept, RefSeq, swissprot, and EMBL databases. See L<Bio::DB::GenBank>,
 L<Bio::DB::GenPept>, L<Bio::DB::SwissProt>, L<Bio::DB::RefSeq> and
 L<Bio::DB::EMBL> for more information. A user can also specify a different
-database mirror for a database - this is especially relevent for the SwissProt
+database mirror for a database - this is especially relevant for the SwissProt
 resource where there are many ExPaSy mirrors.  There are also configuration
 options for specifying local proxy servers for those behind firewalls.
 
@@ -761,7 +761,7 @@ http://stein.cshl.org/AcePerl/.
 An additional module is available for accessing remote databases, BioFetch,
 which queries the dbfetch script at EBI. The available databases are EMBL,
 GenBank, or SWALL, and the entries can be retrieved in different formats 
-as objects or streams (SeqIO objects), or as "tempfiles". See
+as objects or streams (SeqIO objects), or as temporary files. See
 L<Bio::DB::BioFetch> for the details.
 
 
@@ -899,13 +899,13 @@ A common - and tedious - bioinformatics task is that of converting
 sequence data among the many widely used data formats.  Bioperl's
 SeqIO object, however, makes this chore a breeze.  SeqIO can
 read a stream of sequences - located in a single or in multiple files -
-in a number of formats: Fasta, EMBL, GenBank, Swissprot, PIR, GCG, SCF,
+in a number of formats including Fasta, EMBL, GenBank, Swissprot, SCF,
 phd/phred, Ace, fastq, exp, chado, or raw (plain sequence). SeqIO can 
 also parse tracefiles in alf, ztr, abi, ctf, and ctr format Once the 
 sequence data has been read in with SeqIO, it is available to bioperl 
 in the form of Seq, PrimarySeq, or RichSeq objects, depending on what
 the sequence source is.  Moreover, the sequence objects can then be 
-written to another file (again using SeqIO) in any of the supported 
+written to another file using SeqIO in any of the supported 
 data formats making data converters simple to implement, for example:
 
   use Bio::SeqIO;
@@ -970,8 +970,8 @@ current set of suffixes:
    selex       selex|slx|selx|slex|sx       HMMER
    stockholm
 
-*water, needle, matcher, stretcher, merger, and supermatcher
-See L<"IV.2.1"> on EMBOSS for more information
+*water, needle, matcher, stretcher, merger, and supermatcher. See
+L<"IV.2.1"> on EMBOSS for more information
 
 Unlike SeqIO AlignIO cannot create output files in every format. AlignIO
 currently supports output in these 7 formats: fasta, mase, selex, clustalw,
@@ -1250,14 +1250,11 @@ The syntax for using Sigcleave is as follows:
       ( -seq       => $seqobj,
         -threshold => 3.5,
         -desc      => 'test sigcleave protein seq',
-        -type      => 'AMINO'
       );
   %raw_results      = $sigcleave_object->signals;
   $formatted_output = $sigcleave_object->pretty_print;
 
-Note that the "type" in the Sigcleave object is "amino"
-whereas in a Seq object it would be called "protein". Please see
-L<Bio::Tools::Sigcleave> for details.
+Please see L<Bio::Tools::Sigcleave> for details.
 
 
 =head2 III.3.5 Miscellaneous sequence utilities: OddCodes, SeqPattern
