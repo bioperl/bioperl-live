@@ -1013,6 +1013,7 @@ sub alignment {
 	    #translate
 	    my $tr = new Bio::Tools::CodonTable ('-id' => $mut->codon_table);
 	    my $apos =  $mut->AAChange->start;
+	    my $aposmax = CORE::length($self->aa_ori); #terminator codon no 
 	    my $rseqori;
 	    my $rseqmut;
 	    my $aaseqori;
@@ -1022,7 +1023,9 @@ sub alignment {
 
 		 $a =  $tr->translate($rseqori[$i]) if length($rseqori[$i]) == 3;
 		 
-		 if (length($a) != 1 or $apos - ( $maxflanklen/2 -1) + $i < 1) {
+		 if (length($a) != 1 or 
+		     $apos - ( $maxflanklen/2 -1) + $i < 1 or 
+		     $apos - ( $maxflanklen/2 -1) + $i > $aposmax ) {
 		     $aaseqori .= "    ";
 		 } else {
 		     $aaseqori .= " ". $a. "  ";
@@ -1035,10 +1038,15 @@ sub alignment {
 			 $b = $tr->translate($rseqmut[$i]);
 		     }
 		 }
-		 if ($b eq $a or length($b) != 1 or $apos - ( $maxflanklen/2 -1) + $i < 1) {
-		     $aaseqmut .= "    ";
-		 } else {
+		 if (( $b ne $a and
+		       length($b) == 1 and 
+		       $apos - ( $maxflanklen/2 -1) + $i >= 1 ) or
+		     ( $apos - ( $maxflanklen/2 -1) + $i >= $aposmax and 
+		       $mut->label =~ 'termination')
+		     ) {
 		     $aaseqmut .= " ". $b. "  ";
+		 } else {
+		     $aaseqmut .= "    ";
 		 }
 		 
 		 if ($i == 0 and length($rseqori[$i]) != 3) {

@@ -108,7 +108,7 @@ sub new {
     my ($start, $end, $length, $strand, $primary, $source, 
 	$frame, $score, $gff_string,
 	$allele_ori,  $allele_mut,  $upstreamseq,  $dnstreamseq,  
-	$label,  $status,  $proof,  $region, $region_value, $numbering, 
+	$label,  $status,  $proof,  $region, $region_value, $region_dist, $numbering, 
 	$cpg, $mut_number, $ismutation) =
 	    $self->_rearrange([qw(START
 				  END
@@ -128,6 +128,7 @@ sub new {
 				  PROOF
 				  REGION
 				  REGION_VALUE
+				  REGION_DIST
 				  NUMBERING
 				  CPG
 				  MUT_NUMBER
@@ -159,6 +160,7 @@ sub new {
     $proof && $self->SUPER::proof($proof);
     $region  && $self->SUPER::region($region);
     $region_value  && $self->SUPER::region_value($region_value);
+    $region_dist  && $self->SUPER::region_dist($region_dist);
     $numbering && $self->SUPER::numbering($numbering);
     $mut_number && $self->SUPER::mut_number($mut_number);
     $ismutation && $self->SUPER::isMutation($ismutation);

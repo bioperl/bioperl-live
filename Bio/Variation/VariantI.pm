@@ -532,6 +532,35 @@ sub region_value {
     return $self->{'region_value'};
 }
 
+=head2 region_dist
+
+ Title   : region_dist
+ Usage   : $obj->region_dist();
+ Function: 
+
+            Sets and returns the distance tot the closest region
+            (i.e. intro/exon or domain) boundary. If distance is not
+            set, returns false.
+
+ Example : 
+ Returns : integer
+ Args    : integer
+
+=cut
+
+
+sub region_dist {
+    my ($self,$value) = @_;
+    if( defined $value) {
+       if (  not $value =~ /^[+-]?\d+$/ ) {
+	   $self->throw("[$value] for region_dist has to be an integer\n");
+        } else {
+	    $self->{'region_dist'} = $value;
+        }
+    }
+    return $self->{'region_dist'};
+}
+
 
 =head2 numbering
 

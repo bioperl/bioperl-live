@@ -113,6 +113,7 @@ sub new {
 	$frame, $score, $gff_string,
 	$allele_ori,  $allele_mut,  $upstreamseq,  $dnstreamseq,  
 	$label,  $status,  $proof,  $re_changes,  $region, $region_value, 
+        $region_dist, 
 	$numbering,  $mut_number,  $ismutation) =
 	    $self->_rearrange([qw(START
 				  END
@@ -133,6 +134,7 @@ sub new {
 				  RE_CHANGES
 				  REGION
 				  REGION_VALUE
+				  REGION_DIST
 				  NUMBERING
 				  MUT_NUMBER
 				  ISMUTATION
@@ -162,6 +164,7 @@ sub new {
     $proof && $self->SUPER::proof($proof);
     $region  && $self->SUPER::region($region);
     $region_value  && $self->SUPER::region_value($region_value);
+    $region_dist  && $self->SUPER::region_dist($region_dist);
     $numbering && $self->SUPER::numbering($numbering);
     $mut_number && $self->SUPER::mut_number($mut_number);
     $ismutation && $self->SUPER::isMutation($ismutation);
