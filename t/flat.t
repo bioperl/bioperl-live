@@ -102,14 +102,7 @@ ok($seq->length,12850);
 
 undef $db;
 
-#&maketmpdir();
-#my $db = Bio::DB::Flat->new(-directory  => $tmpdir,
-#                            -index => 'flat',
-#                            -format => 'fasta',
-#                            -verbose => 1,
-#                            -write_flag => 1
-#                            );
-
+&maketmpdir();
 
 sub maketmpdir {
     mkdir ($tmpdir,0777);
