@@ -124,6 +124,7 @@ sub _abstractDeath {
 sub top_SeqFeatures{
    my ($self) = @_;
 
+   $self->_abstractDeath();
 
 }
 
@@ -143,6 +144,48 @@ sub all_SeqFeatures{
    my ($self) = @_;
    
    $self->_abstractDeath();
+
+}
+
+=head2 seq
+
+ Title   : seq
+ Usage   :
+ Function:
+ Example :
+ Returns : 
+ Args    :
+
+
+=cut
+
+sub seq{
+   my ($self) = @_;
+
+   $self->_abstractDeath();
+
+}
+
+=head2 write_GFF
+
+ Title   : write_GFF
+ Usage   :
+ Function:
+ Example :
+ Returns : 
+ Args    :
+
+
+=cut
+
+sub write_GFF{
+   my ($self,$fh) = @_;
+
+   $fh || do { $fh = \*STDOUT; };
+
+   foreach my $sf ( $self->all_SeqFeatures() ) {
+       print $fh $sf->gff_string, "\n";
+   }
 
 }
 

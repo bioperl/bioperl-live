@@ -280,13 +280,13 @@ sub frame {
   
   if(@_) {
        my $value = shift;
-       if( $value !~ /^[+-]?\d+\.?\d*(e-\d+)?/ ) {
-	   $self->throw("'$value' is not a valid score");
+       if( $value != 1 && $value != 2 && $value != 3 ) {
+	   $self->throw("'$value' is not a valid frame");
        }
        $self->{'_gsf_frame'} = $value;
   }
   
-  return $self->{'_gsf_frame'} || '.';
+  return $self->{'_gsf_frame'};
 }
 
 =head2 sub_SeqFeature
@@ -552,8 +552,14 @@ sub seq{
    # the entire sequence out here.
 
    my $seq = $self->{'_gsf_seq'}->trunc($self->start(),$self->end());
+
+
    if( $self->strand == -1 ) {
+
+       # ok. this does not work well (?)
+       #print STDERR "Before revcom", $seq->str, "\n";
        $seq = $seq->revcom;
+       #print STDERR "After  revcom", $seq->str, "\n";
    }
 
    return $seq;

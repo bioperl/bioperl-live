@@ -239,7 +239,7 @@ sub all_tags{
 
 sub gff_string{
    my ($feat) = @_;
-   my ($str,$score,$frame);
+   my ($str,$score,$frame,$name);
 
    if( $feat->can('score') ) {
        $score = $feat->score();
@@ -259,9 +259,17 @@ sub gff_string{
    } else {
        $strand = '.';
    }
+   
+   if( $feat->can('seqname') ) {
+       $name = $feat->seqname();
+       $name ||= 'SEQ';
+   } else {
+       $name = 'SEQ';
+   }
+
 
    $str = join("\t",
-                 "SEQ",
+                 $name,
 		 $feat->source_tag(),
 		 $feat->primary_tag(),
 		 $feat->start(),

@@ -103,7 +103,7 @@ sub _initialize {
 =cut
 
 sub from_SeqFeature {
-    my ($sf,$context_annseq) = shift;
+    my ($sf,$context_annseq,) = shift;
     my @ret;
     my $key;
 
@@ -157,10 +157,10 @@ sub from_SeqFeature {
     $fth->loc($loc);
     $fth->key($key);
     $fth->field->{'note'}= [];
-    push(@{$fth->field->{'note'}},"source=" . $sf->source_tag );
-    push(@{$fth->field->{'note'}},"score=" . $sf->score );
-    push(@{$fth->field->{'note'}},"frame=" . $sf->frame );
-    push(@{$fth->field->{'note'}},"strand=" . $sf->strand );
+    $sf->source_tag && do { push(@{$fth->field->{'note'}},"source=" . $sf->source_tag ); };
+    $sf->score && do { push(@{$fth->field->{'note'}},"score=" . $sf->score ); };
+    $sf->frame && do { push(@{$fth->field->{'note'}},"frame=" . $sf->frame ); };
+    #$sf->strand && do { push(@{$fth->field->{'note'}},"strand=" . $sf->strand ); };
 
     foreach my $tag ( $sf->all_tags ) {
 	if( !defined $fth->field->{$tag} ) {

@@ -286,11 +286,8 @@ sub write_annseq {
 
    print $fh "ID   $temp_line\n";   
    
-   print $fh "\nXX   \n";
-
-   # this next line screws up perl mode parsing. Sorry. It is a pain!
-   _write_line_EMBL_regex($fh,"DE   ","DE   ",$seq->desc(),'\s+|$',80);
    print $fh "XX   \n";
+
 
    # if there, write the accession line
 
@@ -306,11 +303,18 @@ sub write_annseq {
 
    if( $self->_sv_generation_func ) {
        $temp_line = &{$self->_sv_generation_func}($annseq);
-       print $fh "SV   $temp_line\n";   
-       print $fh "XX   \n";
+       if( $temp_line ) {
+	   print $fh "SV   $temp_line\n";   
+	   print $fh "XX   \n";
+       }
    } else {
        # nothing at the moment
    } 
+
+
+   # this next line screws up perl mode parsing. Sorry. It is a pain!
+   _write_line_EMBL_regex($fh,"DE   ","DE   ",$seq->desc(),'\s+|$',80);
+   print $fh "XX   \n";
 
    # if there, write the kw line
 
@@ -392,6 +396,8 @@ sub write_annseq {
        }
    }
 
+   print $fh "XX   \n";
+
    if( $self->_show_dna() == 0 ) {
        return;
    }
@@ -420,13 +426,13 @@ sub write_annseq {
        $self->warn("Weird. More atgc than bases. Problem!");
    }
 
-   print $fh "SQ  Sequence $len BP; $alen A; $clen C; $glen G; $tlen T; $olen other;\n";
-   print $fh "    ";
+   print $fh "SQ   Sequence $len BP; $alen A; $clen C; $glen G; $tlen T; $olen other;\n";
+   print $fh "     ";
    for ($i = 0; $i < length($str); $i += 10) {
        print $fh substr($str,$i,10), " ";
        if( ($i+10)%60 == 0 ) {
 	   my $end = $i+10;
-	   print $fh sprintf("%-5d\n    ",$end);
+	   print $fh sprintf("%-5d\n     ",$end);
        }
    }
 
@@ -449,7 +455,7 @@ sub write_annseq {
 =cut
 
 sub _print_EMBL_FTHelper {
-   my ($fth,$fh) = @_;
+   my ($fth,$fh,$always_quote) = @_;
    
    if( ! ref $fth || ! $fth->isa('Bio::AnnSeqIO::FTHelper') ) {
        $fth->warn("$fth is not a FTHelper class. Attempting to print, but there could be tears!");
@@ -461,7 +467,11 @@ sub _print_EMBL_FTHelper {
    &_write_line_EMBL_regex($fh,sprintf("FT   %-15s ",$fth->key),"FT                   ",$fth->loc,',|$',80);
    foreach my $tag ( keys %{$fth->field} ) {
        foreach my $value ( @{$fth->field->{$tag}} ) {
-	   &_write_line_EMBL_regex($fh,"FT                   ","FT                   ","/$tag=\"$value\"",'.|$',80);       
+           if( $always_quote == 1 || $value !~ /^\d+$/ ) {
+	      &_write_line_EMBL_regex($fh,"FT                   ","FT                   ","/$tag=\"$value\"",'.|$',80);
+           } else {
+              &_write_line_EMBL_regex($fh,"FT                   ","FT                   ","/$tag=$value",'.|$',80);
+           }
 	  # print $fh "FT                   /", $tag, "=\"", $value, "\"\n";
        }
    }
@@ -816,7 +826,7 @@ sub _write_line_EMBL_regex {
        die "Programming error - cannot called write_line_EMBL_regex with different length pre1 and pre2 tags!";
    }
 
-   my $subl = $length - length $pre1;
+   my $subl = $length - (length $pre1) -1 ;
    my @lines;
 
    while($line =~ m/(.{1,$subl})($regex)/g) {

@@ -2605,7 +2605,7 @@ sub Rna_to_Dna {
 
 sub translate {
   my($self) = shift;
-  my($stop, $unknown) = @_;
+  my($stop, $unknown,$frame) = @_;
   my($i, $len, $output) = (0,0,'');
   my($codon)   = "";
 
@@ -2628,6 +2628,10 @@ sub translate {
   #If it is unknown, we should probably guess it is DNA not RNA
   if( $self->_monomer eq "0" ) {
       $seq = $self->Dna_to_Rna;
+  }
+
+  if( $frame ) {
+      $seq = substr ($seq,$frame);
   }
 
   # if the seq have T's at this point. Worry...
