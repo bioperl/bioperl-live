@@ -764,6 +764,57 @@ sub exact_match {
   return qq($field = ?);
 }
 
+=head2 search_notes
+
+ Title   : search_notes
+ Usage   : @search_results = $db->search_notes("full text search string",$limit)
+ Function: Search the notes for a text string, using mysql full-text search
+ Returns : array of results
+ Args    : full text search string, and an optional row limit
+ Status  : public
+
+This is a mysql-specific method.  Given a search string, it performs a
+full-text search of the notes table and returns an array of results.
+Each row of the returned array is a arrayref containing the following fields:
+
+  column 1     A Bio::DB::GFF::Featname object, suitable for passing to segment()
+  column 2     The text of the note
+  column 3     A relevance score.
+
+=cut
+
+sub search_notes {
+  my $self = shift;
+  my ($search_string,$limit) = @_;
+
+  my @words  = $search_string =~ /(\w+)/g;
+  my $regex  = join '|',@words;
+  my @searches = map {"fattribute_value LIKE '%${_}%'"} @words;
+  my $search   = join(' OR ',@searches);
+
+  my $query = <<END;
+SELECT distinct gclass,gname,fattribute_value 
+  FROM fgroup,fattribute_to_feature,fdata
+  WHERE fgroup.gid=fdata.gid
+     AND fdata.fid=fattribute_to_feature.fid
+     AND ($search)
+END
+;
+
+  my $sth = $self->dbh->do_query($query);
+  my @results;
+  while (my ($class,$name,$note) = $sth->fetchrow_array) {
+     next unless $class && $name;    # sorry, ignore NULL objects
+     my @matches = $note =~ /($regex)/g;
+     my $relevance = 10*@matches;
+     my $featname = Bio::DB::GFF::Featname->new($class=>$name);
+     push @results,[$featname,$note,$relevance];
+     last if $limit && @results >= $limit;
+  }
+  @results;
+}
+
+
 =head2 meta
 
  Title   : meta

@@ -399,21 +399,21 @@ Each row of the returned array is a arrayref containing the following fields:
 
 =cut
 
-sub search_notes {
-  my $self = shift;
-  my ($search_string,$limit) = @_;
-  my $query = FULLTEXTSEARCH;
-  $query .= " limit $limit" if defined $limit;
-  my $sth = $self->dbh->do_query($query,$search_string,$search_string);
-  my @results;
-  while (my ($class,$name,$note,$relevance) = $sth->fetchrow_array) {
-     next unless $class && $name;    # sorry, ignore NULL objects
-     $relevance = sprintf("%.2f",$relevance);  # trim long floats
-     my $featname = Bio::DB::GFF::Featname->new($class=>$name);
-     push @results,[$featname,$note,$relevance];
-  }
-  @results;
-}
+# sub search_notes {
+#   my $self = shift;
+#   my ($search_string,$limit) = @_;
+#   my $query = FULLTEXTSEARCH;
+#   $query .= " limit $limit" if defined $limit;
+#   my $sth = $self->dbh->do_query($query,$search_string,$search_string);
+#   my @results;
+#   while (my ($class,$name,$note,$relevance) = $sth->fetchrow_array) {
+#      next unless $class && $name;    # sorry, ignore NULL objects
+#      $relevance = sprintf("%.2f",$relevance);  # trim long floats
+#      my $featname = Bio::DB::GFF::Featname->new($class=>$name);
+#      push @results,[$featname,$note,$relevance];
+#   }
+#   @results;
+# }
 
 
 
