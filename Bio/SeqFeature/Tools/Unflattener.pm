@@ -678,7 +678,10 @@ sub partonomy{
     my $self = shift;
 
     return $self->{'partonomy'} = shift if @_;
-    return $self->{'partonomy'} || $self->_default_partonomy;
+    if (!$self->{'partonomy'}) {
+	$self->{'partonomy'} = $self->_default_partonomy;
+    }
+    return $self->{'partonomy'};
 }
 
 sub _default_partonomy{
@@ -1074,6 +1077,23 @@ sub unflatten_seq{
        }
    }
 
+   if ($use_magic) {
+       my @roots = $self->_get_partonomy_roots;
+       foreach my $group (@groups) {
+	   my @sfs = @$group;
+	   if (@sfs > 1) {
+	       foreach my $sf (@sfs) {
+		   my $type = $sf->primary_tag;
+		   next if $type eq 'gene';
+		   my $container_type = $self->get_container_type($type);
+		   my $root = $roots[0];
+		   if (!$container_type) {
+		       $self->partonomy->{$type} = $root;
+		   }
+	       }
+	   }
+       }
+   }
 
    # we have done the first part of the unflattening.
    # we now have a list of groups; each group is a list of seqfeatures.
@@ -1356,7 +1376,9 @@ sub unflatten_group{
 
    if (@top_sfs > 1) {
        $self->_write_group($group, $self->group_tag);
-       $self->throw("multiple sfs @top_sfs in group");
+       print "TOP SFS:\n";
+       $self->_write_sf($_) foreach @top_sfs;
+       $self->throw("multiple top-sfs in group");
    }
 
 
@@ -1452,6 +1474,13 @@ sub _write_group {
 	   join(' ',
 		map { $_->primary_tag } @$group));
 
+}
+
+sub _write_sf {
+    my $self = shift;
+    my $sf = shift;
+    printf "TYPE:%s\n", $sf->primary_tag;
+    return;
 }
 
 # -----------------------------------------------
