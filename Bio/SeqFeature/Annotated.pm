@@ -536,4 +536,46 @@ sub remove_tag {
   return shift->_no_tags();
 }
 
+=head1 Shortcut methods
+
+=head2 get_Annotations
+
+ Title   : get_Annotations
+ Usage   : my $parent   = $obj->get_Annotations('Parent');
+           my @parents = $obj->get_Annotations('Parent');
+ Function: a wrapper around Bio::Annotation::Collection::get_Annotations().
+ Example :
+ Returns : returns annotations as Bio::Annotation::Collection::get_Annotations() does,
+           but additionally returns a single scalar in scalar context instead of list context
+           so that if an annotation tag contains only a single value, you can do:
+
+           $parent = $feature->get_Annotations('Parent');
+
+           instead of (yuck):
+
+           ($parent) = ($feature->get_Annotations('Parent')[0];
+
+           if the 'Parent' tag has multiple values and is called in a scalar context,
+           the number of annotations is returned.
+ Args    : an annotation tag name.
+
+
+=cut
+
+sub get_Annotations{
+   my ($self,$tag) = @_;
+
+   my @annotations = $self->annotation->get_Annotations($tag);
+   @annotations ||= ();
+
+   if(wantarray){
+     return @annotations;
+   } elsif(scalar(@annotations) == 1){
+     return $annotations[0];
+   } else {
+     return scalar(@annotations);
+   }
+}
+
+
 1;
