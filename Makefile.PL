@@ -189,7 +189,6 @@ use ExtUtils::MakeMaker ;
 $do_autoload_finesse = 0;
 $NAME     = 'Bio';
 $DISTNAME = "bioperl";
-$VERSION  = "1.1";
 
 if( $do_autoload_finesse == 1 ) {
     fatal("Autoload finessing does not work at the moment!");
@@ -241,7 +240,6 @@ QQ_ERROR_QQ
 open(CONF,'>bioperl.conf') or die "couldn't open bioperl.conf";
 
 print CONF<<'!NO!GROK!';
-VERSION		1.2
 AUTHORS		file://AUTHORS
 !NO!GROK!
 
@@ -251,7 +249,7 @@ close CONF;
 WriteMakefile(
     NAME	=> $NAME,
     DISTNAME    => $DISTNAME,
-    VERSION     => $VERSION,
+    VERSION_FROM => "Bio/Root/Version.pm",
     'dist'      => {  COMPRESS     => 'gzip -9f',
                       SUFFIX       => '.gz', 
                       DIST_DEFAULT => 'all tardist',

@@ -105,9 +105,11 @@ use vars qw($DEBUG $ID $Revision $VERSION $VERBOSITY);
 use strict;
 use Carp 'confess','carp';
 
+use Bio::Root::Version;
+
 BEGIN { 
     $ID        = 'Bio::Root::RootI';
-    $VERSION   = 1.0;
+#    $VERSION   = 1.0;
     $Revision  = '$Id$ ';
     $DEBUG     = 0;
     $VERBOSITY = 0;
