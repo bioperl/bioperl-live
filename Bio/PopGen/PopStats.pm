@@ -168,21 +168,23 @@ sub Fst {
 	   my $avg_samp_size         = 0; # n-bar
 	   my $avg_allele_freq       = 0; # p-tilda-A-dot
 
-	   my $total_samples_squared = 0;
+	   my $total_samples_squared = 0; # 
 	   my $sum_heterozygote      = 0;
 
 	   my @marker_freqs;
 
 	   # Walk through each population, get the calculated allele frequencies
 	   # for the marker, do some bookkeeping
+
+
 	   foreach my $pop ( @$populations ) {
 	       my $s = $pop->get_number_individuals($marker);
 	       
 	       $avg_samp_size += $s;
 	       $total_samples_squared += $s**2;
 
-	       my $marker = $pop->get_Marker($marker);
-	       if( ! defined $marker ) { 
+	       my $markerobj = $pop->get_Marker($marker);
+	       if( ! defined $markerobj ) { 
 		   $self->warn("Could not derive Marker for $marker ".
 			       "from population ". $pop->name);
 		   return undef;
@@ -190,16 +192,15 @@ sub Fst {
 
 	       my $freq_homozygotes = 
 		   $pop->get_Frequency_Homozygotes($marker,$allele_name);
-	       my %af = $marker->get_Allele_Frequencies();       
+	       my %af = $markerobj->get_Allele_Frequencies();       
+	       my $all_freq = ( ($af{$allele_name} || 0));
+
+	       $avg_allele_freq += $s * $all_freq;	   
+	       $sum_heterozygote += (2 * $s)*( $all_freq - $freq_homozygotes);
 	       
-	       $avg_allele_freq += ( $s * ($af{$allele_name} || 0));	   
-	       $sum_heterozygote += 2*$s * (($af{$allele_name} || 0) -
-					    $freq_homozygotes);
-	       push @marker_freqs, $marker;
+	       push @marker_freqs, \%af;
 	   }  
-
 	   my $total_samples =  $avg_samp_size;	# sum of n over i sub-populations
-
 	   $avg_samp_size /= $num_sub_pops;
 	   $avg_allele_freq /= $total_samples;
 
@@ -211,10 +212,11 @@ sub Fst {
 	   my $sum_variance          = 0;
 	   my $i = 0;		# we have cached the marker info
 	   foreach my $pop ( @$populations ) {
-	       my $s = $pop->get_number_individuals;
-	       my %af = $marker_freqs[$i++]->get_Allele_Frequencies;
-	       $sum_variance += $s * (( ($af{$allele_name} || 0) - $avg_allele_freq)**2);
-	   }       
+	       my $s = $pop->get_number_individuals($marker);
+	       my %af = %{$marker_freqs[$i++]};
+	       $sum_variance += $s * (( ($af{$allele_name} || 0) - 
+					$avg_allele_freq)**2);
+	   }
 	   $variance = ( 1 / (( $num_sub_pops-1)*$avg_samp_size))*$sum_variance;
 
 	   # H-tilda-A-dot
