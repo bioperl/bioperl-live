@@ -338,22 +338,24 @@ Describe contact details here
 =head1 APPENDIX
 
 
-The rest of the documentation details each of the object methods. Internal methods are usually preceded with a "_".
+The rest of the documentation details each of the object
+methods. Internal methods are usually preceded with a "_".
 
 =cut
-#'
 
+#'
 # Let the code begin...
 
 
 package Bio::Seq;
 use vars qw(@ISA $VERSION);
 use strict;
-use Bio::SeqI;
+
 
 # Object preamble - inherits from Bio::Root::Object
 
 use Bio::Root::Root;
+use Bio::SeqI;
 use Bio::RangeI;
 use Bio::Annotation::Collection;
 use Bio::PrimarySeq;
