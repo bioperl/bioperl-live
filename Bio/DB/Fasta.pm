@@ -393,7 +393,7 @@ use vars qw($VERSION @ISA);
 
 @ISA = qw(Bio::DB::SeqI Bio::Root::RootI);
 
-$VERSION = '1.0';
+$VERSION = '1.01';
 
 *seq = *sequence = \&subseq;
 *ids = \&get_all_ids;
@@ -652,42 +652,46 @@ sub index_name {
 =cut
 
 sub calculate_offsets {
-    my $self = shift;
-    my ($file,$offsets) = @_;
-    my $base = basename($file);
-
-    my $fh = IO::File->new($file) or $self->throw( "Can't open $file: $!");
-    warn "indexing $file\n" if $self->{debug};
-    my ($offset,$id,$linelength,$type,$firstline,$count,%offsets);
-    while (<$fh>) {		# don't try this at home
-	if (/^>(\S+)/) {
-	    print STDERR "indexed $count sequences...\n" 
-		if $self->{debug} && (++$count%1000) == 0;
-	    my $pos = tell($fh);
-	    if ($id) {
-		my $seqlength    = $pos - $offset - length($_) - 1;
-		$seqlength      -= int($seqlength/$linelength);
-		$offsets->{$id}  = $self->_pack($offset,$seqlength,
-						$linelength,$firstline,
-						$type,$base);
-	    }
-	    $id = ref($self->{makeid}) eq 'CODE' ? $self->{makeid}->($1) : $1;
-	    ($offset,$firstline,$linelength) = ($pos,length($_),0);
-	} else {
-	    $linelength ||= length($_);
-	    $type       ||= $self->_type($_);
-	}
+  my $self = shift;
+  my ($file,$offsets) = @_;
+  my $base = basename($file);
+  
+  my $fh = IO::File->new($file) or $self->throw( "Can't open $file: $!");
+  warn "indexing $file\n" if $self->{debug};
+  my ($offset,$id,$linelength,$type,$firstline,$count,%offsets);
+  while (<$fh>) {		# don't try this at home
+    if (/^>(\S+)/) {
+      print STDERR "indexed $count sequences...\n" 
+	if $self->{debug} && (++$count%1000) == 0;
+      my $pos = tell($fh);
+      if ($id) {
+	my $seqlength    = $pos - $offset - length($_) - 1;
+	$seqlength      -= int($seqlength/$linelength);
+	$offsets->{$id}  = $self->_pack($offset,$seqlength,
+					$linelength,$firstline,
+					$type,$base);
+      }
+      $id = ref($self->{makeid}) eq 'CODE' ? $self->{makeid}->($1) : $1;
+      ($offset,$firstline,$linelength) = ($pos,length($_),0);
+    } else {
+      $linelength ||= length($_);
+      $type       ||= $self->_type($_);
     }
-    # deal with last one was not written
-    if ($id) {
-	my $pos = tell($fh);
-	my $seqlength   = $pos - $offset - 1;
-	$seqlength     -= int($seqlength/$linelength);
-	$offsets->{$id} = $self->_pack($offset,$seqlength,
-				       $linelength,$firstline,
-				       $type,$base);
     }
-    return \%offsets;
+  # deal with last entry
+  if ($id) {
+    my $pos = tell($fh);
+    my $seqlength   = $pos - $offset - length($_) - 1;
+    if ($linelength == 0) { # yet another pesky empty chr_random.fa file
+      $seqlength = 0;
+    } else {
+      $seqlength -= int($seqlength/$linelength);
+    };
+    $offsets->{$id} = $self->_pack($offset,$seqlength,
+				   $linelength,$firstline,
+				   $type,$base);
+  }
+  return \%offsets;
 }
 
 =head2 get_all_ids
