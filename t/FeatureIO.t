@@ -1,20 +1,36 @@
 #$Id$
 use strict;
-use vars qw($DEBUG $TESTCOUNT);
+use vars qw($DEBUG);
 $DEBUG = $ENV{'BIOPERLDEBUG'} || 0;
-
+use constant NUMTESTS => 22;
+my $error;
 BEGIN {
   eval { require Test; };
   if( $@ ) {
     use lib 't';
   }
+  $error = 0;
   use Test;
-
-  $TESTCOUNT = 22;
-  plan tests => $TESTCOUNT;
+  plan tests => NUMTESTS;
+  unless( eval "require Graph; require Bio::FeatureIO; 1;" ) {
+    warn("Graph not installed.  Bio::FeatureIO is not installed.\n");
+    $error = 1;
+    for ( 1..NUMTESTS ) {
+	skip("Graph is not installed. Bio::FeatureIO::gff cannot be run",1);
+    }
+   }
 }
 
-use Bio::FeatureIO;
+if( $error ==  1 ) {
+    exit(0);
+}
+warn("error is $error\n");
+END {
+    foreach ( $Test::ntest..NUMTESTS) {
+        skip('Graph not installed',1);
+    }
+}
+use Bio::Root::IO;
 use Data::Dumper;
 ok(1);
 
