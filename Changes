@@ -1,6 +1,52 @@
 $Id$
 Revision history for Bioperl core modules
 
+(fixes and improvements on main trunk not on 1.2 branch)
+   o Bio::PopGen has been added to support several population genetics
+     types of questions.  Tests for statistical neutrality of mutations
+     (Fu and Li's D/F, Tajima's D) are in Bio::PopGen::Statistics.  Tests
+     of population structure (Wright's F-statistic: Fst) is in 
+     Bio::PopGen::PopStats.  Additionally some work to provide support for
+     calculating linkage disequilibrium (LD) is in Bio::PopGen::Statistics.
+     
+     Several modules for supporting the import and manipulation of 
+     Population/Individual/Genotype data are available as well including
+     an IO module (Bio::PopGen::IO) for reading in prettybase (SeattleSNPs) 
+     and comma delimited formatted data (csv).   
+
+     Additionally a directory for implementing population simulations has
+     been added Bio::PopGen::Simulations and 2 simulations - a Coalescent and 
+     a simple single-locus multi-allele genetic drift simulation have been
+     provided.
+
+   o Bio::Tools::Genewise has been improved for more robust parsing and 
+     producing features capable of being directly written as GFF
+     and readable by GBrowse loader.
+
+   o Bio::Matrix::IO has been added for generalized parsing of matrix
+     data.  Matrix::IO::scoring and Matrix::IO::phylip are initial 
+     implementations.
+
+1.2 branch stuff goes here
+
+1.2.3 Stable release update (if we do it)
+
+(bugs that have been fixed on the main trunk and the branch)
+    o Bio::SearchIO
+      - Fixed bugs in BLAST parsing which couldn't parse NCBI
+        gapped blast properly (was losing hit significance values due to
+        the extra unexpeted column).
+      - Parsing of blastcl3 (netblast from NCBI) now can handle case of
+        integer overflow (# of letters in nt seq dbs is > MAX_INT)
+        although doesn't try to correct it - will get the negative
+        number for you.  Added a test for this as well.
+      - Fixed HMMER parsing bug which prevented parsing when a hmmpfam report
+        has no top-level family classification scores but does have scores and
+        alignments for individual domains.
+     o Fix small error which made Bio::Graphics tests fail on certain
+       platforms (these could be safely ignored, but the testfiles just
+       needed  to be updated to handle it).
+
 1.2.2 Stable release update
 
     o A series of bug fixes of the Bio::OntologyIO dagflat-related parsers:
