@@ -13,8 +13,7 @@
 
 =head1 NAME
 
-Bio::Factory::SeqAnalysisParserFactoryI - class capable of
-              creating SeqAnalysisParserI compliant parsers
+Bio::Factory::SeqAnalysisParserFactory - class capable of creating SeqAnalysisParserI compliant parsers
 
 =head1 SYNOPSIS
 
