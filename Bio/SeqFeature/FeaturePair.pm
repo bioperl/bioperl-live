@@ -144,6 +144,7 @@ sub new {
 			      FEATURE_FACTORY
 			      )],@args);
     
+    $self->_register_for_cleanup(\&cleanup_fp);
     # initialize the feature object factory if not provided
     if(! $featfact) {
 	$featfact = Bio::Factory::ObjectFactory->new(
@@ -553,4 +554,8 @@ sub hseqname {
     return $self->hseq_id(@_);
 }
 
+sub cleanup_fp {
+    my $self = shift;
+    $self->{'feature1'} = $self->{'feature2'} = undef;
+}
 1;

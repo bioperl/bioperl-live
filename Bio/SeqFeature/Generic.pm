@@ -147,10 +147,9 @@ use Bio::Tools::GFF;
 sub new {
     my ( $caller, @args) = @_;   
     my ($self) = $caller->SUPER::new(@args); 
-
+    $self->_register_for_cleanup(\&cleanup_generic);
     $self->{'_parse_h'}       = {};
     $self->{'_gsf_tag_hash'}  = {};
-#    tie %{$self->{'_gsf_tag_hash'}}, "Tie::IxHash";
 
     # bulk-set attributes
     $self->set_attributes(@args);
@@ -1022,4 +1021,15 @@ sub all_tags { return shift->get_all_tags(@_); }
 # this one is because of inconsistent naming ...
 *flush_sub_SeqFeature = \&remove_SeqFeatures;
 
+
+sub cleanup_generic {
+    my $self = shift;
+    foreach my $f ( @{$self->{'_gsf_sub_array'} || []} ) {
+	$f = undef;
+    }
+    $self->{'_gsf_seq'} = undef;
+    foreach my $t ( keys %{$self->{'_gsf_tag_hash'} || {}} ) {
+	$self->{'_gsf_tag_hash'}->{$t} = undef;
+    }
+}
 1;

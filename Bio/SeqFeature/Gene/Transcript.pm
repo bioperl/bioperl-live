@@ -785,7 +785,11 @@ sub _new_of_type {
 
 sub transcript_destroy {
     my $self = shift;    
-    $self->flush_sub_SeqFeature();
+    # We're going to be really explicit to insure memory leaks 
+    # don't occur
+    foreach my $f ( $self->features ) {
+	$f = undef;
+    }
     $self->parent(undef);
 }
 
