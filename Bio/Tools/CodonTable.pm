@@ -104,6 +104,10 @@ The amino acid codes are IUPAC recommendations for common amino acids:
           X           Xaa            Any or unknown amino acid 
 
 
+It is worth noting that, "Bacterial" codon table no. 11 produces an
+polypeptide that is, confusingly, identical to the standard one. The
+only differences are in available initiator codons.
+
 
 NCBI Genetic Codes home page:
      http://www.ncbi.nlm.nih.gov/htbin-post/Taxonomy/wprintgc?mode=c
