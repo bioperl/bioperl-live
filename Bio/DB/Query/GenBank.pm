@@ -33,7 +33,7 @@ Bio::DB::Query::GenBank - Build a GenBank Entrez Query
    }
 
    # initialize the list yourself
-   my $query = Bio::DB::Query::GenBank->new(-ids=>['X1012','CA12345']);
+   my $query = Bio::DB::Query::GenBank->new(-ids=>[195052,2981014,11127914]);
 
 
 =head1 DESCRIPTION
@@ -123,15 +123,28 @@ END
            -maxdate  maximum date to retrieve from
            -reldate  relative date to retrieve from (days)
            -datetype date field to use ('edat' or 'mdat')
-           -ids      array ref of ids (overrides query)
+           -ids      array ref of gids (overrides query)
+
+This method creates a new query object.  Typically you will specify a
+-db and a -query argument, possibly modified by -mindate, -maxdate, or
+-reldate.  -mindate and -maxdate specify minimum and maximum dates for
+entries you are interested in retrieving, expressed in the form
+DD/MM/YYYY.  -reldate is used to fetch entries that are more recent
+than the indicated number of days.
+
+If you provide an array reference of IDs in -ids, the query will be
+ignored and the list of IDs will be used when the query is passed to a
+Bio::DB::GenBank object's get_Stream_by_query() method.  A variety of
+IDs are automatically recognized, including GI numbers, Accession
+numbers, Accession.version numbers and locus names.
 
 =cut
 
 sub new {
   my $class = shift;
   my $self  = $class->SUPER::new(@_);
-  my ($db,$reldate,$mindate,$maxdate,$datetype)
-    = $self->_rearrange([qw(DB RELDATE MINDATE MAXDATE DATETYPE)],@_);
+  my ($db,$reldate,$mindate,$maxdate,$datetype,$ids)
+    = $self->_rearrange([qw(DB RELDATE MINDATE MAXDATE DATETYPE IDS)],@_);
   $self->db($db || DEFAULT_DB);
   $reldate  && $self->reldate($reldate);
   $mindate  && $self->mindate($mindate);
@@ -167,17 +180,6 @@ sub cookie {
   }
 }
 
-=head2 _explicit_list
-
- Title   : _explicit_list
- Usage   : $list_flag = $db->_explicit_list
- Function: return true if query contains explicit list of ids
- Returns : boolean
-
-=cut
-
-sub _explicit_list { shift->{'_ids'} }
-
 =head2 _request_parameters
 
  Title   : _request_parameters
@@ -193,16 +195,10 @@ sub _request_parameters {
   my ($method,$base);
   my @params = map {$self->$_ ? ($_ => $self->$_) : () } @ATTRIBUTES;
   push @params,('usehistory'=>'y','tool'=>'bioperl');
-  if ($self->_explicit_list) {
-    $method = 'post';
-    $base   = EPOST;
-    push @params,'id' => join ',',$self->ids;
-  } else {
-    $method = 'get';
-    $base   = ESEARCH;
-    push @params,('term'   => $self->query);
-    push @params,('retmax' => $self->{'_count'} || MAXENTRY);
-  }
+  $method = 'get';
+  $base   = ESEARCH;
+  push @params,('term'   => $self->query);
+  push @params,('retmax' => $self->{'_count'} || MAXENTRY);
   ($method,$base,@params);
 }
 
@@ -272,6 +268,7 @@ sub _parse_response {
   if (my ($error) = $content =~ /<OutputMessage>([^<]+)/) {
     $self->throw("Error from Genbank: $error");
   }
+
   my ($count) = $content =~  /<Count>(\d+)/;
   my ($max)   = $content =~  /<RetMax>(\d+)/;
   my $truncated = $count > $max;
@@ -280,7 +277,6 @@ sub _parse_response {
     my @ids = $content =~ /<Id>(\d+)/g;
     $self->ids(\@ids);
   }
-
   $self->_truncated($truncated);
   my ($cookie)    = $content =~ m!<WebEnv>(\S+)</WebEnv>!;
   my ($querykey)  = $content =~ m!<QueryKey>(\d+)!;

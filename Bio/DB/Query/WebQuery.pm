@@ -79,17 +79,36 @@ use vars qw(@ISA $VERSION);
 @ISA = qw(Bio::Root::Root Bio::DB::QueryI);
 $VERSION = '0.1';
 
+=head2 new
+
+ Title   : new
+ Usage   : $db = Bio::DB::WebQuery->new(@args)
+ Function: create new query object
+ Returns : new query object
+ Args    : -db       database (e.g. 'protein')
+           -ids      array ref of ids (overrides query)
+
+This method creates a new query object.  Typically you will specify a
+-db and a -query argument.  The value of -query is a database-specific
+string.
+
+If you provide an array reference of IDs in -ids, the query will be
+ignored and the list of IDs will be used when the query is passed to
+the database.
+
+=cut
+
 # Borrowed shamelessly from WebDBSeqI.  Some of this code should be
 # refactored.
 sub new {
   my $class = shift;
   my $self  = $class->SUPER::new(@_);
 
-  my ($query,$ids) = $self->_rearrange([qw(QUERY IDS)],@_);
-  $self->throw('must provide one of the -query or -ids arguments')
+  my ($query,$ids) = $self->_rearrange(['QUERY','IDS'],@_);
+  $self->throw('must provide one of the the -query or -ids arguments')
     unless defined($query) || defined($ids);
+  $query ||= join ',',ref($ids) ? @$ids : $ids;
   $query && $self->query($query);
-  $ids   && $self->ids($ids);
 
   my $ua = new LWP::UserAgent;
   $ua->agent(ref($self) ."/$VERSION");

@@ -24,7 +24,7 @@ BEGIN {
     }
     use Test;
 
-    $NUMTESTS = 69;
+    $NUMTESTS = 78;
     plan tests => $NUMTESTS;
     eval { require IO::String };
     if( $@ ) {
@@ -248,6 +248,35 @@ eval {
   ok($seqio->next_seq->length,13747);
   ok($seqio->next_seq->length,3766);
   ok($seqio->next_seq->length,3857);
+};
+
+if ($@) {
+    if( $DEBUG ) {
+	warn "Warning: Couldn't connect to complete GenBank query tests!\n $@\n";
+    }
+    foreach ( $Test::ntest..$NUMTESTS ) { 
+	skip('could not connect to Genbank',1); 
+    }
+  }
+
+$seq = $seqio = undef;
+
+# test query facility
+eval {
+  ok defined ( $query = Bio::DB::Query::GenBank->new('-verbose' => $verbose,
+						     '-db'      => 'nucleotide',
+						     '-ids'     => [qw(J00522
+								       AF303112
+								       2981014)]));
+  ok $query->count > 0;
+  my @ids = $query->ids;
+  ok @ids > 0;
+  ok @ids == $query->count;
+  ok defined ($gb = Bio::DB::GenBank->new('-verbose' =>$verbose));
+  ok defined ($seqio = $gb->get_Stream_by_query($query));
+  ok($seqio->next_seq->length, 408);
+  ok($seqio->next_seq->length, 1611);
+  ok($seqio->next_seq->length, 1156);
 };
 
 if ($@) {
