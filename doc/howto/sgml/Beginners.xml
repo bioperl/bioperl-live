@@ -297,15 +297,47 @@
  </para>
   </section>
 
- <section id="starting">
-	 <title>Starting to write a script on Unix</title>
+ <section id="perldoc">
+   <title>Understanding Perl's Documentation System</title>
+      <para>
+      Documentation for Perl is written using a system known as POD, which
+      stands for "Plain Old Documentation." You can access Perl's built-in
+      documentation by using the "perldoc" command. To view information 
+      on how to use perldoc, type the following at the command line:
+         <programlisting>
+         > perldoc perldoc
+         </programlisting>
+      </para>
 
+      <para>
+      Bioperl is also documented using POD, and using perldoc can be an easy
+      way to obtain usage information on any of the Bioperl modules:
+         <programlisting>
+         > perldoc Bio::ModuleName 
+         </programlisting>
+      </para>
+
+      <para>
+      Perldoc is a very useful and versatile tool, shown below are some more
+      examples on how to use perldoc:
+      </para>
+
+      <para>
+         Read about Perl's built-in "print" function:
+         <programlisting>
+         > perldoc -f print
+         </programlisting>
+      </para>
+      <para>
+         Read about the Bio::SeqIO modules:
+         <programlisting>
+         > perldoc Bio::SeqIO
+         </programlisting>
+      </para>
+</section> 
+
+<section id="retrieving_gb"> <title>Retrieving a sequence from Genbank<title>
 </section>
-  <section id="retrieving_gb">
-	 <title>Retrieving a sequence from Genbank<title>
-		  
-
-  </section>
 
   <section id="retrieving_gb">
 	 <title>Retrieving a sequence from a file<title>
