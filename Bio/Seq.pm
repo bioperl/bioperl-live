@@ -2,7 +2,7 @@
 #
 # BioPerl module for Bio::Seq
 #
-# Cared for by Ewan Birney <birney@sanger.ac.uk>
+# Cared for by Ewan Birney <birney@ebi.ac.uk>
 #
 # Copyright Ewan Birney
 #
@@ -331,10 +331,11 @@ or the web:
 
 =head1 AUTHOR - Ewan Birney, inspired by Ian Korf objects
 
+Email birney@ebi.ac.uk
 
-Email birney@sanger.ac.uk
+=head1 CONTRIBUTORS
 
-Describe contact details here
+Jason Stajich E<lt>jason@bioperl.orgE<gt>
 
 =head1 APPENDIX
 
@@ -805,9 +806,8 @@ dealing with this is welcome to give it a go.
  Title   : id
  Usage   : $id = $seq->id()
  Function: This is mapped on display_id
- Example :
- Returns :
- Args    :
+ Returns : value of display_id()
+ Args    : [optional] value to update display_id
 
 
 =cut
@@ -875,7 +875,6 @@ sub primary_seq {
            objects to the feature array of this
            sequence. The object passed is required to implement the
            Bio::SeqFeatureI interface.
- Example :
  Returns : 1 on success
  Args    : A Bio::SeqFeatureI implementing object, or an array of such objects.
 
@@ -979,7 +978,6 @@ sub top_SeqFeatures {
 
            Use top_SeqFeatures() if you want the array to contain only the
            top-level features.
- Example :
  Returns : An array of Bio::SeqFeatureI implementing objects.
  Args    : None
 
@@ -1002,8 +1000,7 @@ sub all_SeqFeatures {
  Title   : feature_count
  Usage   : $seq->feature_count()
  Function: Return the number of SeqFeatures attached to a sequence
- Example :
- Returns : Number of SeqFeatures
+ Returns : integer representing the number of SeqFeatures
  Args    : None
 
 
@@ -1035,7 +1032,6 @@ sub _retrieve_subSeqFeature {
  Title   : species
  Usage   : $species = $seq->species() or $seq->species($species)
  Function: Gets or sets the species
- Example :
  Returns : L<Bio::Species> object
  Args    : None or L<Bio::Species> object
 
@@ -1058,7 +1054,6 @@ sub species {
  Title   : annotation
  Usage   : $ann = $seq->annotation or $seq->annotation($annotation)
  Function: Gets or sets the annotation
- Example :
  Returns : L<Bio::AnnotationCollectionI> object
  Args    : None or L<Bio::AnnotationCollectionI> object
 
@@ -1078,8 +1073,6 @@ sub annotation {
 
 
 # keep AUTOLOAD happy
-sub DESTROY {
-    my ($self) = @_;
-}
+sub DESTROY { }
 
 1;

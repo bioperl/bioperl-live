@@ -2,7 +2,7 @@
 #
 # BioPerl module for Bio::SeqI
 #
-# Cared for by Ewan Birney <birney@sanger.ac.uk>
+# Cared for by Ewan Birney <birney@ebi.ac.uk>
 #
 # Copyright Ewan Birney
 #
@@ -30,6 +30,7 @@ Bio::SeqI - Abstract Interface of Sequence (with features)
     $seq      = $seqobj->seq(); # actual sequence as a string
     $seqstr   = $seqobj->subseq(10,50);    
     $ann      = $seqobj->annotation(); # annotation object
+
 
 =head1 DESCRIPTION
 
@@ -96,11 +97,10 @@ use Bio::PrimarySeqI;
 =head2 top_SeqFeatures
 
  Title   : top_SeqFeatures
- Usage   : 
- Function:
- Example :
- Returns : 
- Args    :
+ Usage   : my @feats = $seq->top_SeqFeatures();
+ Function: retrieve just the toplevel sequence features attached to this seq
+ Returns : array of L<Bio::SeqFeatureI> objects
+ Args    : none
 
 
 =cut
@@ -116,7 +116,7 @@ sub top_SeqFeatures{
  Title   : all_SeqFeatures
  Usage   : @features = $annseq->all_SeqFeatures()
  Function: returns all SeqFeatures, included sub SeqFeatures
- Returns : an array
+ Returns : an array of L<Bio::SeqFeatureI> objects
  Args    : none
 
 
@@ -130,11 +130,10 @@ sub all_SeqFeatures{
 =head2 seq
 
  Title   : seq
- Usage   :
- Function:
- Example :
- Returns : 
- Args    :
+ Usage   : my $string = $seq->seq();
+ Function: Retrieves the sequence string for the sequence object
+ Returns : string
+ Args    : none
 
 
 =cut
@@ -147,11 +146,51 @@ sub seq{
 =head2 write_GFF
 
  Title   : write_GFF
- Usage   :
- Function:
- Example :
- Returns : 
- Args    :
+ Usage   : $seq->write_GFF(\*FILEHANDLE);
+ Function: Convience method to write out all the sequence features
+           in GFF format to the provided filehandle (STDOUT by default)
+ Returns : none
+ Args    : [optional] filehandle to write to (default is STDOUT)
+
+
+=cut
+
+sub write_GFF{
+   my ($self,$fh) = @_;
+
+   $fh || do { $fh = \*STDOUT; };
+
+   foreach my $sf ( $self->all_SeqFeatures() ) {
+       print $fh $sf->gff_string, "\n";
+   }
+
+}
+
+=head2 seq
+
+ Title   : seq
+ Usage   : my $string = $seq->seq();
+ Function: Get or set the basic sequence string associated with this
+           sequence object.
+ Returns : string
+ Args    : string or none
+
+
+=cut
+
+sub seq{
+   my ($self) = @_;
+   $self->throw_not_implemented();
+}
+
+=head2 write_GFF
+
+ Title   : write_GFF
+ Usage   : $seq->write_GFF(\*FILEHANDLE);
+ Function: Convience method to write out all the sequence features
+           in GFF format to the provided filehandle (STDOUT by default)
+ Returns : none
+ Args    : [optional] filehandle to write to (default is STDOUT)
 
 
 =cut
@@ -171,11 +210,11 @@ sub write_GFF{
 
  Title   : annotation
  Usage   : $obj->annotation($seq_obj)
- Function: 
- Example : 
- Returns : value of annotation
- Args    : newvalue (optional)
+ Function: retrieve the attatched annotation object
+ Returns :  L<Bio::AnnotationCollectionI> or none;
 
+See L<Bio::AnnotationCollectionI> and L<Bio::Annotation::Collection>
+for more information
 
 =cut
 
@@ -189,8 +228,7 @@ sub annotation {
  Title   : feature_count
  Usage   : $seq->feature_count()
  Function: Return the number of SeqFeatures attached to a sequence
- Example : 
- Returns : number of SeqFeatures
+ Returns : integer representing the number of SeqFeatures
  Args    : none
 
 
@@ -207,8 +245,8 @@ sub feature_count {
  Usage   : 
  Function: Gets or sets the species
  Example : $species = $self->species();
- Returns : Bio::Species object
- Args    : Bio::Species object or none;
+ Returns : L<Bio::Species> object
+ Args    : L<Bio::Species> object or none;
 
 
 =cut
@@ -222,10 +260,12 @@ sub species {
 
  Title   : primary_seq
  Usage   : $obj->primary_seq($newval)
- Function: 
- Example : 
- Returns : value of primary_seq
- Args    : newvalue (optional)
+ Function: Retrieve the underlying L<Bio::PrimarySeqI> object if available.
+           This is in the event one has a sequence with lots of features
+           but want to be able to narrow the object to just one with
+           the basics of a sequence (no features or annotations).
+ Returns : L<Bio::PrimarySeqI>
+ Args    : L<Bio::PrimarySeqI> or none;
 
 
 =cut
