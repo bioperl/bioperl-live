@@ -511,14 +511,6 @@ sub _cleanup_methods {
 
 sub throw_not_implemented {
     my $self = shift;
-    my $package = ref $self;
-    my $iface = caller(0);
-    my @call = caller(1);
-    my $meth = $call[3];
-
-    my $message = "Abstract method \"$meth\" is not implemented by package $package.\n" .
-		   "This is not your fault - author of $package should be blamed!\n";
-
     # Checking if Error.pm is available in case the object isn't decended from
     # Bio::Root::Root, which knows how to check for Error.pm.
 
@@ -526,13 +518,12 @@ sub throw_not_implemented {
     # SC - OK, since most RootI objects will be Root.pm-based,
     #      and Root.pm can deal with Error.pm. 
     #      Still, I'd like to know why it wasn't working...
+    my $message = $self->_not_implemented_msg;
 
     if( $self->can('throw') ) {
-	 $self->throw( -text  => $message,
-                       -class => 'Bio::Root::NotImplemented');
-    }
-    else {
-	confess $message ;
+	    $self->throw($message);
+    }else {
+	    confess $message ;
     }
 }
 
@@ -561,21 +552,26 @@ sub throw_not_implemented {
 
 sub warn_not_implemented {
     my $self = shift;
+    my $message = $self->_not_implemented_msg;
+    if( $self->can('warn') ) {
+        $self->warn( $message );
+    }else {
+	    carp $message ;
+    }
+}
+
+# Unify 'not implemented' message. -Juguang
+sub _not_implemented_msg {
+    my $self = shift;
     my $package = ref $self;
     my $iface = caller(0);
     my @call = caller(1);
     my $meth = $call[3];
-
-    my $message = "Abstract method \"$meth\" is not implemented by package $package.\n" .
-		   "This is not your fault - author of $package should be blamed!\n";
-
-    if( $self->can('warn') ) {
-        $self->warn( $message );
-    }
-    else {
-	carp $message ;
-    }
+    my $msg =<<EOD_NOT_IMP;
+Abstract method \"$meth\" is not implemented by package $package.
+This is not your fault - author of $package should be blamed!
+EOD_NOT_IMP
+    return $msg;
 }
-
 
 1;
