@@ -43,7 +43,7 @@ sub new {
   my $truecolor    = $options{-truecolor}  || 0;
 
   if (my $seg = $options{-segment}) {
-    $offset = eval {$seg->start-1} || 1;
+    $offset = eval {$seg->start-1} || 0;
     $length = $seg->length;
   }
 
