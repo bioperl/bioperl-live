@@ -6,16 +6,33 @@ Revision history for Bioperl core modules
     o Bug fixes in Bio::TreeIO::newick fixes bug introduced in 1.0.2
       Support for New Hampshire Extended (NHX) format parsing.
 
-    o Support for parsing Genomewise, Est2Genome
+    o Bio::Tools added support for parsing Genomewise, Pseudowise, Est2Genome,
+      Tmhmm, SignalP, Seg, RepeatMasker, FootPrinter, and a lightweight
+      Hmmpfam parser.
 
     o New ontology parsing Bio::Ontology
 
     o Bug fixes in Bio::SearchIO for HMMer parsing, support for
-      multi-report (mlib) fasta reports.
+      multi-report (mlib) fasta reports, support for waba and exonerate.
 
     o Bio::ClusterIO for parsing Unigene clusters
 
-    o Bio::Phenotype
+    o Bio::Assembly added for representing phrap and ace assembly clusters.
+
+    o Rudimentary support for writing Chado XML (see 
+      GMOD project: www.gmod.org for more information) 
+
+    o Bio::Coordinate for mapping between different coordinate systems such 
+      as protein -> cDNA -> Exon -> DNA and back.  Useful for mapping
+      features into different coordinate systems.  
+
+    o Bio::DB::GenBank/Bio::DB::GenPept now support Entrez queries
+      with the get_Stream_by_query method and supports the latest
+      NCBI eutils interface.
+
+    o Bugs fixed in Bio::SeqFeature::Collection an in-memory fast
+      object for extracting subsets of features : currently only
+      supports extraction by location.
 
 1.1.1 Developer release
 
