@@ -21,7 +21,7 @@ BEGIN {
     }
     use Test;
 
-    $NUMTESTS = 136;
+    $NUMTESTS = 140;
     plan tests => $NUMTESTS;
     eval { require IO::String; 
 	   require Bio::Tools::Phylo::PAML;}; 
@@ -281,3 +281,9 @@ ok($alphaM->get_entry($otus[0],$otus[1]),
    $alphaM->get_entry($otus[1],$otus[0]));
 ok($alphaM->get_entry($otus[1],$otus[2]), '1.1101');
 ok($alphaM->get_entry($otus[0],$otus[2]), '33.1197');
+
+
+ok($baseml->get_stat('loglikelihood'),-110.532715);
+ok($baseml->get_stat('constant_sites'),46);
+ok($baseml->get_stat('constant_sites_percentage'),'80.70');
+ok($baseml->model,'HKY85 dGamma (ncatG=5)');
