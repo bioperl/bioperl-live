@@ -486,6 +486,27 @@ sub contained_features {
   return $self->factory->contained_features(@args);
 }
 
+=head2 contained_in
+
+ Title   : contained_in
+ Usage   : @features = $s->contained_in(@args)
+ Function: get features that contain this segment
+ Returns : a list of Bio::DB::GFF::Feature objects
+ Args    : see features()
+ Status  : Public
+
+This is identical in behavior to features() except that it returns
+only those features that completely contain the segment.
+
+=cut 
+
+# return all features completely contained within this segment
+sub contained_in {
+  my $self = shift;
+  my @args = $self->_process_feature_args(@_);
+  return $self->factory->contained_in(@args);
+}
+
 =head2 _process_feature_args
 
  Title   : _process_feature_args

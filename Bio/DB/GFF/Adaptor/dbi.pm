@@ -220,10 +220,8 @@ callback subroutine.
 
 The seven arguments are as follows:
 
-  $isrange    true if this is a range query, false if an overlap query
-              In a range query all features are completely contained between
-              start and stop (inclusive).  An overlap query requests any feature
-              that overlaps start and stop.
+  $rangetype  One of "overlaps", "contains" or "contains_in".  Indicates
+              the type of range query requested.
 
   $refseq     The reference sequence for this range.  This may be undef if no
               range restriction is desired.
@@ -270,7 +268,7 @@ available via Bio::DB::GFF->id() if wanted.  In the dbi::mysql and
 dbi::mysqlopt adaptor, the ID is a unique row ID.  In the acedb
 adaptor it is not used.
 
-Internally, get_features() is a front end for range_or_overlap().  The
+Internally, get_features() is a front end for range_query().  The
 latter method constructs the query and executes it.  get_features()
 calls fetchrow_array() to recover the fields and passes them to the
 callback.
@@ -281,10 +279,10 @@ callback.
 # all features.  Passes features through callback.
 sub get_features {
   my $self = shift;
-  my ($isrange,$srcseq,$class,$start,$stop,$types,$callback) = @_;
+  my ($range_type,$srcseq,$class,$start,$stop,$types,$callback) = @_;
   $callback || $self->throw('must provide a callback argument');
 
-  my $sth = $self->range_or_overlap($isrange,$srcseq,$class,$start,$stop,$types,$class) or return;
+  my $sth = $self->range_query($range_type,$srcseq,$class,$start,$stop,$types,$class) or return;
 
   my $count = 0;
   while (my @row = $sth->fetchrow_array) {
@@ -308,7 +306,7 @@ This method takes the same arguments as get_features(), but returns an
 iterator that can be used to fetch features sequentially, as per
 Bio::SeqIO.
 
-Internally, this method is simply a front end to range_or_overlap().
+Internally, this method is simply a front end to range_query().
 The latter method constructs and executes the query, returning a
 statement handle. This routine passes the statement handle to the
 constructor for the iterator, along with the callback.
@@ -320,7 +318,7 @@ sub get_features_iterator {
   my ($isrange,$srcseq,$class,$start,$stop,$types,$callback) = @_;
   $callback || $self->throw('must provide a callback argument');
 
-  my $sth = $self->range_or_overlap($isrange,$srcseq,$class,$start,$stop,$types,$class) or return;
+  my $sth = $self->range_query($isrange,$srcseq,$class,$start,$stop,$types,$class) or return;
 
   return Bio::DB::GFF::Adaptor::dbi::iterator->new($sth,$callback);
 }
@@ -372,10 +370,10 @@ sub get_types {
   return $want_count ? %result : values %obj;
 }
 
-=head2 range_or_overlap
+=head2 range_query
 
- Title   : range_or_overlap
- Usage   : $db->range_or_overlap($isrange,$refseq,$refclass,$start,$stop,$types)
+ Title   : range_query
+ Usage   : $db->range_query($isrange,$refseq,$refclass,$start,$stop,$types)
  Function: create statement handle for range/overlap queries
  Returns : a DBI statement handle
  Args    : see below
@@ -407,7 +405,7 @@ The six positional arguments are as follows:
 If successful, this method returns a statement handle.  The handle is
 expected to return the fields described for get_features().
 
-Internally, range_or_overlap() makes calls to the following methods,
+Internally, range_query() makes calls to the following methods,
 each of which is expected to be overridden in subclasses:
 
   $select        = $self->make_features_select_part;
@@ -423,15 +421,15 @@ The query that is constructed looks like this:
 The arguments that are returned from make_features_where_part() are
 passed to the statement handler's execute() method.
 
-range_or_overlap() also calls a do_straight_join() method, described
+range_query() also calls a do_straight_join() method, described
 below.  If this method returns true, then the keyword "straight_join"
 is inserted right after SELECT.
 
 =cut
 
-sub range_or_overlap {
+sub range_query {
   my $self = shift;
-  my($isrange,$srcseq,$class,$start,$stop,$types) = @_;
+  my($rangetype,$srcseq,$class,$start,$stop,$types) = @_;
 
   my $dbh = $self->features_db;
 
@@ -440,7 +438,7 @@ sub range_or_overlap {
   my $select        = $self->make_features_select_part;
   my $from          = $self->make_features_from_part;
   my $join          = $self->make_features_join_part;
-  my ($where,@args) = $self->make_features_where_part($isrange,$srcseq,$class,
+  my ($where,@args) = $self->make_features_where_part($rangetype,$srcseq,$class,
 						      $start,$stop,$types,$class);
   my $query         = "SELECT $straight $select FROM $from WHERE $join AND $where";
 
@@ -550,7 +548,7 @@ See Bio::DB::Adaptor::dbi::mysql for an example of how this works.
 
 sub make_features_where_part {
   my $self = shift;
-  my($isrange,$refseq,$class,$start,$stop,$types) = @_;
+  my($rangetype,$refseq,$class,$start,$stop,$types) = @_;
   my @query;
   my @args;
 
@@ -565,8 +563,12 @@ sub make_features_where_part {
     $start = 0               unless defined($start);
     $stop  = MAX_SEGMENT     unless defined($stop);
 
-    my ($range_query,@range_args) = $isrange ? $self->range_query($start,$stop) 
-                                             : $self->overlap_query($start,$stop);
+    my ($range_query,@range_args) =
+           $rangetype eq 'overlaps'     ? $self->overlap_query($start,$stop)
+	 : $rangetype eq 'contains'     ? $self->contains_query($start,$stop)
+         : $rangetype eq 'contained_in' ? $self->contained_in_query($start,$stop)
+         : $self->throw("range type $rangetype is invalid or unknown");
+
     push @query,$range_query;
     push @args,@range_args;
   }
@@ -587,13 +589,13 @@ sub make_features_where_part {
  Usage   : $boolean = $db->do_straight_join($refseq,$start,$stop,$types)
  Function: optimization flag
  Returns : a flag
- Args    : see range_or_overlap()
+ Args    : see range_query()
  Status  : Protected
 
-This subroutine, called by range_or_overlap() returns a boolean flag.
-If true, range_or_overlap() will perform a straight join, which can be
+This subroutine, called by range_query() returns a boolean flag.
+If true, range_query() will perform a straight join, which can be
 used to optimize certain SQL queries.  The four arguments correspond
-to similarly-named arguments passed to range_or_overlap().
+to similarly-named arguments passed to range_query().
 
 =cut
 
@@ -721,10 +723,10 @@ sub overlap_query {
   # in array context, return a query string and bind arguments
 }
 
-=head2 range_query
+=head2 contains_query
 
- Title   : range_query
- Usage   : ($query,@args) = $db->range_query($start,$stop)
+ Title   : contains_query
+ Usage   : ($query,@args) = $db->contains_query($start,$stop)
  Function: create SQL fragment that selects the desired features by range
  Returns : a list containing the query and bind arguments
  Args    : the start and stop of a range, inclusive
@@ -736,7 +738,7 @@ entirely enclosed by a range. It returns a multi-element list in which
 the first element is the SQL fragment and subsequent elements are bind
 values.  For example:
 
-  sub range_query {
+  sub contains_query {
      my ($start,$stop) = @_;
      return ('gff.start>=? AND gff.stop<=?',
 	     $start,$stop);
@@ -746,10 +748,43 @@ values.  For example:
 
 # generate the fragment of SQL responsible for searching for
 # features that are completely contained within a range
-sub range_query {
+sub contains_query {
   my $self = shift;
   my ($start,$stop) = @_;
-  $self->throw("range_query(): must be implemented by subclass");
+  $self->throw("contains_query(): must be implemented by subclass");
+  # in scalar context, return a query string.
+  # in array context, return a query string and bind arguments
+}
+
+=head2 contained_in_query
+
+ Title   : contained_in_query
+ Usage   : ($query,@args) = $db->contained_in_query($start,$stop)
+ Function: create SQL fragment that selects the desired features by range
+ Returns : a list containing the query and bind arguments
+ Args    : the start and stop of a range, inclusive
+ Status  : Abstract
+
+This method is called by make_features_where_part() to construct the
+part of the select WHERE section that selects a set of features
+entirely enclosed by a range. It returns a multi-element list in which
+the first element is the SQL fragment and subsequent elements are bind
+values.  For example:
+
+  sub contained_in_query {
+     my ($start,$stop) = @_;
+     return ('gff.start<=? AND gff.stop>=?',
+	     $start,$stop);
+  }
+
+=cut
+
+# generate the fragment of SQL responsible for searching for
+# features that are completely contained within a range
+sub contained_in_query {
+  my $self = shift;
+  my ($start,$stop) = @_;
+  $self->throw("contained_in_query(): must be implemented by subclass");
   # in scalar context, return a query string.
   # in array context, return a query string and bind arguments
 }

@@ -107,11 +107,22 @@ sub overlap_query {
 }
 
 # find features that are completely contained within a range
-sub range_query {
+sub contains_query {
   my $self = shift;
   my ($start,$stop) = @_;
   my ($bq,@bargs)   = $self->bin_query($start,$stop);
-  my ($iq,@iargs) = $self->SUPER::range_query($start,$stop);
+  my ($iq,@iargs) = $self->SUPER::contains_query($start,$stop);
+  my $query = "($bq)\n\tAND $iq";
+  my @args  = (@bargs,@iargs);
+  return wantarray ? ($query,@args) : $self->dbi_quote($query,@args);
+}
+
+# find features that are completely contained within a range
+sub contained_in_query {
+  my $self = shift;
+  my ($start,$stop) = @_;
+  my ($bq,@bargs)   = $self->bin_query($start,$stop);
+  my ($iq,@iargs) = $self->SUPER::contained_in_query($start,$stop);
   my $query = "($bq)\n\tAND $iq";
   my @args  = (@bargs,@iargs);
   return wantarray ? ($query,@args) : $self->dbi_quote($query,@args);

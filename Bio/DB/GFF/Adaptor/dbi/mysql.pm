@@ -59,7 +59,7 @@ END
 sub refseq_query {
   my $self = shift;
   my ($srcseq,$refclass) = @_;
-  my $query = "fdata.fref = ?\n";
+  my $query = "fdata.fref = ?";
   return wantarray ? ($query,$srcseq) : $self->dbi_quote($query,$srcseq);
 }
 
@@ -74,10 +74,18 @@ sub overlap_query {
 }
 
 # find features that are completely contained within a range
-sub range_query {
+sub contains_query {
   my $self = shift;
   my ($start,$stop) = @_;
   my $query    = qq(fdata.fstart>=? AND fdata.fstop<=?);
+  return wantarray ? ($query,$start,$stop) : $self->dbi_quote($query,$start,$stop);
+}
+
+# find features that are completely contained within a range
+sub contained_in_query {
+  my $self = shift;
+  my ($start,$stop) = @_;
+  my $query    = qq(fdata.fstart<=? AND fdata.fstop>=?);
   return wantarray ? ($query,$start,$stop) : $self->dbi_quote($query,$start,$stop);
 }
 

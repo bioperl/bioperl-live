@@ -232,7 +232,10 @@ use Bio::Root::RootI;
 use vars qw($VERSION @ISA);
 @ISA = qw(Bio::Root::RootI);
 
-$VERSION = '0.35';
+$VERSION = '0.36';
+my %valid_range_types = (overlaps     => 1,
+			 contains     => 1,
+			 contained_in => 1);
 
 =head2 new
 
@@ -275,6 +278,8 @@ pass it to the GFF constructor this way:
                              -dsn      => 'dbi:mysql:elegans42');
 
 =cut
+
+#'
 
 sub new {
   my $package   = shift;
@@ -551,6 +556,7 @@ the beginning of $s2, accounting for differences in strandedness:
   my $rel_start = $segment->start;
 
 =cut
+#'
 
 sub segment {
   my $self = shift;
@@ -641,6 +647,28 @@ sub dna {
   $self->get_dna($id,$class,$start,$stop);
 }
 
+sub features_in_range {
+  my $self = shift;
+  my ($range_type,$refseq,$class,$start,$stop,$types,$parent,$automerge,$iterator) =
+    rearrange([
+	       [qw(RANGE_TYPE)],
+	       [qw(REF REFSEQ)],
+	       qw(CLASS),
+	       qw(START),
+	       [qw(STOP END)],
+	       [qw(TYPE TYPES)],
+	       qw(PARENT),
+	       [qw(MERGE AUTOMERGE)],
+	       'ITERATOR'
+	      ],@_);
+  $automerge = 1 unless defined $automerge;
+  $self->throw("range type must be one of {".
+	       join(',',keys %valid_range_types).
+	       "}\n")
+    unless $valid_range_types{lc $range_type};
+  $self->_features(lc $range_type,$refseq,$class,$start,$stop,$types,$parent,$automerge,$iterator);
+}
+
 =head2 overlapping_features
 
  Title   : overlapping_features
@@ -687,21 +715,7 @@ expressions are allowed in either field, as in: "similarity:BLAST.*".
 # real work is done by get_features
 sub overlapping_features {
   my $self = shift;
-  my ($refseq,$class,$start,$stop,$types,$parent,$automerge,$iterator) =
-    rearrange([
-	       [qw(REF REFSEQ)],
-	       qw(CLASS),
-	       qw(START),
-	       [qw(STOP END)],
-	       [qw(TYPE TYPES)],
-	       qw(PARENT),
-	       [qw(MERGE AUTOMERGE)],
-	       'ITERATOR'
-	      ],@_);
-
-  # return unless defined $start && defined $stop;
-  $automerge = 1 unless defined $automerge;
-  $self->_features(0,$refseq,$class,$start,$stop,$types,$parent,$automerge,$iterator);
+  $self->features_in_range(-range_type=>'overlaps',@_);
 }
 
 
@@ -727,21 +741,12 @@ call its contained_features() method rather than call this directly.
 # range (much faster usually)
 sub contained_features {
   my $self = shift;
-  my ($refseq,$class,$start,$stop,$types,$parent,$automerge,$iterator) = 
-    rearrange([
-	       [qw(REF REFSEQ)],
-	       qw(CLASS),
-	       qw(START),
-	       [qw(STOP END)],
-	       [qw(TYPE TYPES)],
-	       qw(PARENT),
-	       [qw(MERGE AUTOMERGE)],
-	       'ITERATOR'
-	      ],@_);
+  $self->features_in_range(-range_type=>'contains',@_);
+}
 
-  # return unless defined $start && defined $stop;
-  $automerge = 1 unless defined $automerge;
-  $self->_features(1,$refseq,$class,$start,$stop,$types,$parent,$automerge,$iterator);
+sub contained_in {
+  my $self = shift;
+  $self->features_in_range(-range_type=>'contained_in',@_);
 }
 
 =head2 features
@@ -796,7 +801,7 @@ sub features {
   }
 
   $automerge = 1 unless defined $automerge;
-  $self->_features(1,undef,undef,undef,undef,$types,undef,$automerge,$iterator);
+  $self->_features('contains',undef,undef,undef,undef,$types,undef,$automerge,$iterator);
 }
 
 =head2 add_aggregator
@@ -1061,10 +1066,8 @@ sub get_dna {
 
 Arguments are as follows:
 
-   $isrange   Flag indicating that a range query is desired, in which 
-              case only features that are completely contained within
-              start->stop (inclusive) are retrieved.  Otherwise, an
-              overlap retrieval is performed to find those 
+   $rangetype One of "overlaps", "contains" or "contains_in".  Indicates
+              the type of range query requested.
 
    $refseq    ID of the landmark that establishes the absolute 
               coordinate system.
@@ -1107,7 +1110,7 @@ fields.
 
 sub get_features{
   my $self = shift;
-  my ($isrange,$srcseq,$class,$start,$stop,$types,$callback) = @_;
+  my ($rangetype,$srcseq,$class,$start,$stop,$types,$callback) = @_;
   $self->throw("get_features() must be implemented by an adaptor");
 }
 
@@ -1378,8 +1381,8 @@ This is an internal method that is called by overlapping_features(),
 contained_features() and features() to do the actual work.  It takes
 nine positional arguments:
 
-  $range_query	 if true, this is a request for contained features, 
-		 otherwise for overlapping features.
+  $rangetype     One of "overlaps", "contains" or "contains_in".  Indicates
+                 the type of range query requested.
   $refseq        reference sequence ID
   $class	 reference sequence class
   $start	 start of range
@@ -1393,7 +1396,7 @@ nine positional arguments:
 
 sub _features {
   my $self = shift;
-  my ($range_query,$refseq,$class,$start,$stop,$types,$parent,$automerge,$iterator) = @_;
+  my ($range_type,$refseq,$class,$start,$stop,$types,$parent,$automerge,$iterator) = @_;
 
   ($start,$stop) = ($stop,$start) if defined($start) && $start > $stop;
 
@@ -1404,7 +1407,7 @@ sub _features {
 
   if ($iterator) {
     my $callback = sub { $self->make_feature($parent,\%groups,@_) };
-    return $self->get_features_iterator($range_query,$refseq,$class,
+    return $self->get_features_iterator($range_type,$refseq,$class,
 					$start,$stop,\@aggregated_types,$callback) ;
   }
 
@@ -1418,7 +1421,7 @@ sub _features {
   my $features = [];
 
   my $callback = sub { push @$features,$self->make_feature($parent,\%groups,@_) };
-  $self->get_features($range_query,$refseq,$class,
+  $self->get_features($range_type,$refseq,$class,
 		      $start,$stop,\@aggregated_types,$callback) ;
 
   if ($automerge) {
