@@ -75,16 +75,16 @@ use Bio::SeqFeature::Generic;
 @ISA = qw(Bio::SeqFeature::Generic);
 
 sub new {
-    my ( $caller, @args) = @_;   
-    my ($self) = $caller->SUPER::new(@args); 
+    my ( $caller, @args) = @_;
+    my ($self) = $caller->SUPER::new(@args);
 
     my ($primary,$evalue, $bits, $frac,$seqlen,$seqdesc) =
 	$self->_rearrange([qw(PRIMARY
 			      EXPECT
 			      BITS
 			      FRAC
+			      SEQLENGTH
 			      SEQDESC
-			      SEQLENGTH				      
 			      )],@args);
 
     defined $evalue && $self->significance($evalue);
