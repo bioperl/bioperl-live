@@ -47,7 +47,7 @@ SimpleAlign - Multiple alignments held as a set of sequences
 =head1 DESCRIPTION
 
 SimpleAlign handles multiple alignments of sequences. It is very
-permissive of types (it won\'t insist on things being all same length
+permissive of types (it won't insist on things being all same length
 etc): really it is a SequenceSet explicitly held in memory with a
 whole series of built in manipulations and especially file format
 systems for read/writing alignments.
@@ -73,7 +73,7 @@ multiple names in an alignment or names specific to the alignment
 'displayname', and generally is what is used to print out the
 alignment. They default to name/start-end.
 
-The SimpleAlign Module came from Ewan Birney\'s Align module.
+The SimpleAlign Module came from Ewan Birney's Align module.
 
 =head1 PROGRESS
 
@@ -1177,7 +1177,15 @@ sub percentage_identity{
 
 =head1 Alignment positions
 
-A method to map a sequence position into an alignment column.
+Methods to map a sequence position into an alignment column and back.
+column_from_residue_number() does the former. The latter is really a property
+of the sequence object and can done using L<Bio::LocatableSeq::location_from_column>: 
+
+    # select somehow a sequence from the alignment, e.g.
+    $my seq = $aln->get_seq_by_pos(1);
+    #$loc is undef or Bio::LocationI object
+    my $loc = $seq->location_from_column(5);
+
 
 =head2 column_from_residue_number
 

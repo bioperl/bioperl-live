@@ -82,18 +82,21 @@ use strict;
 
 use Bio::PrimarySeq;
 use Bio::RangeI;
+use Bio::Location::Simple;
+use Bio::Location::Fuzzy;
+
 
 @ISA = qw(Bio::PrimarySeq Bio::RangeI);
 
 # new() is inherited from Bio::Root::RootI
 
-# _initialize is where the heavy stuff will happen when new is called
-
 sub new {
     my ($class, @args) = @_;
     my $self = $class->SUPER::new(@args);
 
-    my ($start,$end,$strand) = $self->_rearrange( [qw(START END STRAND)],@args);
+    my ($start,$end,$strand) = 
+	$self->_rearrange( [qw(START END STRAND)],
+			   @args);
     
     defined $start && $self->start($start);
     defined $end   && $self->end($end);
@@ -171,10 +174,9 @@ sub strand{
       $self->{'strand'} = $value;
     }
     return $self->{'strand'};
-
 }
 
-=head2 get_nse
+=head2 get_xbnse
 
  Title   : get_nse
  Usage   :
@@ -290,5 +292,77 @@ sub column_from_residue_number {
 
 }
 
+
+=head2 location_from_column
+
+ Title   : location_from_column
+ Usage   : $loc = $ali->location_from_column( $seq_number, $column_number)
+ Function:
+
+           This function gives the residue number in the sequence with
+           the given name for a given position in the alignment
+           (i.e. column number) of the given. Gaps complicate this
+           process and force the output to be a L<Bio::Range> where
+           values can be undefined. For example, for the alignment
+
+  	     Seq1/91-97 AC..DEF.G.
+  	     Seq2/1-9   .CYHDEFKGK
+
+           location_from_column( Seq1/91-97, 3 ) position 93
+           location_from_column( Seq1/91-97, 2 ) position 92^93
+           location_from_column( Seq1/91-97, 10) position 97^98
+           location_from_column( Seq2/1-9, 1 )   position undef
+
+           An exact position returns a L<Bio::Location::Simple>
+           object, a position between bases returns a
+           L<Bio::Location::Fuzzy> object where loc_type() returns
+           'BETWEEN'. Column before the first residue returns
+           undef. Note that if the position is after the last residue
+           in the alignment, that there is no guarantee that the
+           original sequence has residues after that position.
+
+           An exception is thrown if the column number is not within
+           the sequence.
+
+ Returns : L<Bio::Location::Simple> or 
+           L<Bio::Location::Fuzzy> object or
+           undef
+ Args    : A column number
+ Throws  : If column is not within the sequence
+
+=cut
+
+sub location_from_column {
+    my ($self, $column) = @_;
+
+    $self->throw("Column number has to be a positive integer, not [$column]") 
+	unless $column =~ /^\d+$/ and $column > 0;
+    $self->throw("Column number [column] is larger than".
+		 " sequence length [". $self->length. "]") 
+	unless $column <= $self->length;
+
+    my ($loc);
+    my $s = $self->subseq(1,$column);
+    $s =~ s/\W//g;
+    my $pos = CORE::length $s;
+
+    if ($self->subseq($column, $column) =~ /[a-zA-Z]/ ) {
+	$loc = new Bio::Location::Simple 
+	    (-start => $pos + $self->start - 1,
+	     -end => $pos + $self->start - 1,
+	     -strand => 1
+	     );
+    }
+    elsif ($pos == 0 and $self->start == 1) {
+    } else {
+	$loc = new Bio::Location::Fuzzy 
+	    (-start => $pos + $self->start - 1,
+	     -end => $pos +1 + $self->start - 1,
+	     -strand => 1,
+	     -loc_type => '^'
+	     );
+    }
+    return $loc;
+}
 
 1;
