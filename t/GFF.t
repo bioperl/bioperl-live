@@ -15,7 +15,7 @@ BEGIN {
         use lib 't';
     }
     use Test;
-    plan test => 15;
+    plan test => 16;
 }
 
 use Bio::Seq;
@@ -29,7 +29,7 @@ my $feat = new Bio::SeqFeature::Generic( -start => 10, -end => 100,
 				-tag    => {
 				    new => 1,
 				    author => 'someone',
-				    sillytag => 'this is silly!' } );
+				    sillytag => 'this is silly!;breakfast' } );
 ok($feat);
 my $gff1out = Bio::Tools::GFF->new(-gff_version => 1, -file => ">out1.gff");
 ok($gff1out);
@@ -60,7 +60,7 @@ ok($feat2->start, $feat->start);
 ok($feat2->end, $feat->end);
 ok($feat2->primary_tag, $feat->primary_tag);
 ok($feat2->score, $feat->score);
-
+ok(($feat2->each_tag_value('sillytag'))[0], 'this is silly!;breakfast');
 END {
     unlink("out1.gff", "out2.gff");
 }
