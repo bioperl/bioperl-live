@@ -397,7 +397,7 @@ sub _feature_by_name {
   $callback || $self->throw('must provide a callback argument');
 
   my $select         = $self->make_features_select_part;
-  my $from           = $self->make_features_from_part;
+  my $from           = $self->make_features_from_part(undef,{sparse_groups=>1});
   my ($where,@args)  = $self->make_features_by_name_where_part($class,$name);
   my $join           = $self->make_features_join_part;
   my $range          = $self->make_features_by_range_where_part('overlaps',

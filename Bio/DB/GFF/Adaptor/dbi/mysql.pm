@@ -371,9 +371,12 @@ END
 # WHETHER OR NOT THIS WORKS IS CRITICALLY DEPENDENT ON THE RELATIVE MAGNITUDE OF THE
 sub make_features_from_part {
   my $self = shift;
-  my $sparse = shift;
-  my $options = shift || {};
-  my $index = $sparse ? ' USE INDEX(ftypeid)': '';
+  my $sparse_types  = shift;
+  my $options       = shift || {};
+  my $sparse_groups = $options->{sparse_groups};
+  my $index =  $sparse_groups ? ' USE INDEX(gid)'
+             : $sparse_types  ? ' USE INDEX(ftypeid)'
+             : '';
   return $options->{attributes} ? "fdata${index},ftype,fgroup,fattribute,fattribute_to_feature\n"
                                 : "fdata${index},ftype,fgroup\n";
 }
