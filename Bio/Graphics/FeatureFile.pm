@@ -124,7 +124,9 @@ use Text::Shellwords;
 
 # default colors for unconfigured features
 my @COLORS = qw(cyan blue red yellow green wheat turquoise orange);
+
 use constant WIDTH => 600;
+use constant MAX_REMAP => 100;
 
 =head2 METHODS
 
@@ -516,6 +518,7 @@ sub parse_line {
     my @remapped = $self->{coordinate_mapper}->($ref,@parts);
     ($ref,@parts) = @remapped if @remapped;
     $visible   = @remapped;
+    return 1 if !$visible && $self->{feature_count} > MAX_REMAP;
   }
 
   $type = '' unless defined $type;
@@ -566,6 +569,7 @@ sub parse_line {
     } else {
       push @{$self->{features}{$type}},$feature;  # for speed; should use add_feature() instead
       $self->{visible}{$feature}++  if $visible;
+      $self->{feature_count}++;
     }
   }
 
@@ -1150,6 +1154,7 @@ sub init_parse {
   $s->{features}    = {};
   $s->{config}      = {};
   $s->{gff_version} = 0;
+  $s->{feature_count}=0; 
 }
 
 sub finish_parse {
