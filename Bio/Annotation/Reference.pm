@@ -199,40 +199,40 @@ sub title{
 =cut
 
 sub medline{
-   my ($self,$value) = @_;
-   if( defined $value) {
-      $self->{'medline'} = $value;
+    my ($self,$value) = @_;
+    if( defined $value) {
+	$self->{'medline'} = $value;
     }
     return $self->{'medline'};
-
 }
 
-=head2 comment
+=head2 pubmed
 
- Title   : comment
- Usage   : $obj->comment($newval)
- Function: 
+ Title   : pubmed
+ Usage   : $refobj->pubmed($newval)
+ Function: Get/Set the PubMed number, if it is different from the MedLine
+           number.
  Example : 
- Returns : value of comment
+ Returns : value of medline
  Args    : newvalue (optional)
 
 
 =cut
 
-sub comment{
-   my ($obj,$value) = @_;
-   if( defined $value) {
-      $obj->{'comment'} = $value;
+sub pubmed {
+    my ($self,$value) = @_;
+    if( defined $value) {
+	$self->{'pubmed'} = $value;
     }
-    return $obj->{'comment'};
-
+    return $self->{'pubmed'};
 }
 
 =head2 database
 
  Title   : database
  Usage   :
- Function: Overrides DBLink database to be hard coded to 'MEDLINE'
+ Function: Overrides DBLink database to be hard coded to 'MEDLINE', unless
+           the database has been set explicitely before.
  Example :
  Returns : 
  Args    :
@@ -241,9 +241,9 @@ sub comment{
 =cut
 
 sub database{
-   my ($self) = @_;
+   my ($self, $val) = @_;
 
-   return 'MEDLINE';
+   return $self->SUPER::database($val) || 'MEDLINE';
 }
 
 =head2 primary_id
@@ -259,20 +259,28 @@ sub database{
 =cut
 
 sub primary_id{
-   my ($self) = @_;
+   my ($self, $val) = @_;
 
-   return $self->medline();
+   return $self->medline($val);
+}
+
+=head2 optional_id
+
+ Title   : optional_id
+ Usage   :
+ Function: Overrides DBLink optional_id to provide the PubMed number.
+ Example :
+ Returns : 
+ Args    :
+
+
+=cut
+
+sub primary_id{
+   my ($self, $val) = @_;
+
+   return $self->pubmed($val);
 }
 
 
 1;
-
-
-
-
-
-
-
-
-
-
