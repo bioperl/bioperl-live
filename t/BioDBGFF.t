@@ -60,6 +60,7 @@ ok($db);
 fail(TEST_COUNT - 1) unless $db;
 
 $db->debug(0);
+#$db->debug(1);
 
 # exercise the loader
 ok($db->initialize(1));
@@ -103,7 +104,7 @@ my $att = $t->attributes;
 ok(scalar @{$att->{Gene}},2);
 @t = sort $db->fetch_feature_by_attribute('Gene'=>'abc-1');
 ok(@t>0);
-ok($t[0] eq $t);
+ok($t[0] eq $t); # test number 25
 my $seg = $db->segment('Contig1');
 @t = $seg->features(-attributes=>{'Gene'=>'abc-1'});
 ok(@t>0);
@@ -191,14 +192,14 @@ ok($segment6->dna,$dna);
 undef $@;
 my $result = eval { $segment6->ref('Contig2') };
 ok(!$result);
-ok("$@" =~ /are on different sequence segments/);
+ok("$@" =~ /are on different sequence/);
 
 # types across a segment
 $segment1 = $db->segment('Contig1');
 @types = sort $segment1->types;
 ok(scalar @types,6);
 ok($types[0],'CDS:confirmed');
-ok($types[-1],'transposon:tc1');
+ok( @types && ( $types[-1] eq 'transposon:tc1' ) );
 %types = $segment1->types('-enumerate'=>1);
 ok($types{'similarity:est'},3);
 
@@ -227,14 +228,22 @@ ok($features[0]->dna,$db->segment('Contig1',$features[0]->start,$features[0]->en
 for (1..3,-3..-1) {
   $segment2 = $db->segment($features[$_],50,100);
   if ($features[$_]->strand >= 0) {
-    ok($segment2->dna,$db->segment('Contig1',
-				   $features[$_]->start+50-1,
-				   $features[$_]->start+100-1)->dna)
+    $tmp = $db->segment( 'Contig1',
+			 $features[$_]->start+50-1,
+			 $features[$_]->start+100-1 );
   } else {
-    ok($segment2->dna,$db->segment('Contig1',
-				   $features[$_]->start-50+1,
-				   $features[$_]->start-100+1)->dna)
+    ## Paul added parens, because the range 50..100 of 31000..30001
+    ## should be 30951..30901, not 30949..30899.  (why would pos #1 be
+    ## the 3rd?)
+    ## This is what this used to be:
+    #$tmp = $db->segment( 'Contig1',
+	#		 $features[$_]->start-50-1,
+	#		 $features[$_]->start-100-1 );
+    $tmp = $db->segment( 'Contig1',
+			 $features[$_]->start-(50-1),
+			 $features[$_]->start-(100-1) );
   }
+  ok($segment2->dna,$tmp->dna);
 }
 
 # exercise the aggregator
@@ -246,41 +255,76 @@ $segment1 = $db->segment('Contig1');
 @features = sort $segment1->features('aggregated_transcript');  # sort so that trans-1 comes first
 ok(scalar @features,2);
 ok($features[0]->Exon > 0);
-ok($features[0]->Cds > 0);
+ok($features[0]->Cds > 0); # test number 83
 
-# Test that sorting is correct.  The way that test.gff is set up, the lower one is
-# on the + strand and the higher is on the -.
+# Test that sorting is correct.  The way that test.gff is set up, the
+# lower one is on the + strand and the higher is on the -.
 @features = sort {$a->start <=> $b->start} @features;
 ok($features[0]->strand,1);
 ok($features[1]->strand,-1);
 
 my $last = 0;
 $inconsistency = 0;
-foreach ($features[0]->Exon) {
-  $inconsistency++ if $_->start > $_->end;
-  $inconsistency++ if $last && $_->start < $last;
+foreach ( $features[ 0 ]->features( -type => 'exon', -sort => 1 ) ) {
+  if( $_->start > $_->end ) {
+    $inconsistency++;
+  }
+  if( $last && ( $_->start < $last ) ) {
+    $inconsistency++;
+  }
   $last = $_->start;
 }
 ok(!$inconsistency);
 
 $inconsistency = $last = 0;
-foreach ($features[1]->Exon) {
-  $inconsistency++ if $_->start < $_->end;
-  $inconsistency++ if $last && $_->start > $last;
+my $abs_last = 0;
+# For this one we expect the sorted features to be sorted relative to
+# $features[ 1 ], which is on the negative strand; this means that
+# their absolute positions will be reverse-sorted.
+foreach ( $features[ 1 ]->features( -type => 'exon', -sort => 1 ) ) {
+  if( $_->start > $_->end ) {
+    ## TODO: REMOVE
+    print STDERR "Inconsistency: $_ start > end\n";
+    $inconsistency++;
+  }
+  if( $_->abs_start < $_->abs_end ) {
+    ## TODO: REMOVE
+    print STDERR "Inconsistency: $_ abs_start < abs_end\n";
+    $inconsistency++;
+  }
+  if( $last && $_->start < $last ) {
+    ## TODO: REMOVE
+    print STDERR "Inconsistency: $_ start < $last\n";
+    $inconsistency++;
+  }
+  if( $abs_last && $_->abs_start > $abs_last ) {
+    ## TODO: REMOVE
+    print STDERR "Inconsistency: $_ abs_start > $abs_last\n";
+    $inconsistency++;
+  }
   $last = $_->start;
 }
 ok(!$inconsistency);
 
 # relative addressing in aggregated features
 my $transcript1 = $db->segment($features[0]);
+## Paul notes that the next line because it is redundant, or should be.
 $transcript1->ref($features[0]);
 my @overlap     = sort {$a->start <=> $b->start } $transcript1->features;
 ok(scalar(@overlap),11);
-ok($overlap[0]->start,-999);
+if( @overlap ) {
+  ok($overlap[0]->start,-999);
+} else {
+  ok( 0 );
+}
 
 $transcript1 = $db->segment('Transcript' => 'trans-1');
 @overlap     = sort {$a->start <=> $b->start } $transcript1->features;
-ok($overlap[0]->start,-999);
+if ( @overlap ) {
+  ok($overlap[0]->start,-999);
+} else {
+  ok( 0 );
+}
 
 # test strandedness of features
 $segment1 = $db->segment('-class' => 'Transcript',
@@ -290,10 +334,26 @@ $segment1 = $db->segment('-class' => 'Transcript',
 ok($segment1->strand,1);
 @overlap  = sort {$a->start <=> $b->start} $segment1->features('transcript');
 ok(scalar(@overlap),2);
-ok($overlap[0]->name,'trans-3');
-ok($overlap[1]->name,'trans-4');
-ok($overlap[0]->strand,1);
-ok($overlap[1]->strand,-1);
+if( @overlap ) {
+  ok($overlap[0]->name,'trans-3');
+} else {
+  ok( 0 );
+}
+if( @overlap >= 2 ) {
+  ok($overlap[1]->name,'trans-4');
+} else {
+  ok( 0 );
+}
+if( @overlap ) {
+  ok($overlap[0]->strand,1);
+} else {
+  ok( 0 );
+}
+if( @overlap >= 2 ) {
+  ok($overlap[1]->strand,-1);
+} else {
+  ok( 0 );
+}
 
 # testing feature id and group_id
 my $tf = $overlap[0];
