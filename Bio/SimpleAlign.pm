@@ -873,7 +873,7 @@ sub read_fasta {
 		} else {
 		    $seqname=$name;
 		    $start = 1;
-		    $end = length($align{$name});
+		    $end = length($seqchar);
 		}
 		
 		$seq = new Bio::LocatableSeq('-seq'=>$seqchar,
@@ -903,7 +903,7 @@ sub read_fasta {
     } else {
 	$seqname=$name;
 	$start = 1;
-	$end = length($align{$name});
+	$end = length($seqchar);
     }
     
     $seq = new Bio::LocatableSeq('-seq'=>$seqchar,

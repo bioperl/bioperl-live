@@ -248,7 +248,7 @@ sub subseq {
    }
 
    if( $start <= 0 || $end > $self->length ) {
-       $self->throw("You have to have start positive and length less than the total length of sequence");
+       $self->throw("You have to have start positive and length less than the total length of sequence [$start:$end] Total ".$self->length."");
    }
 
    # remove one from start, and then length is end-start
