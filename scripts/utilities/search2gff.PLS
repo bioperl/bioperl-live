@@ -1,5 +1,5 @@
 #!/usr/bin/perl -w
-# $Id: search2gff.PLS,v 1.9 2004-07-02 15:29:38 jason Exp $
+# $Id: search2gff.PLS,v 1.10 2004-07-04 17:49:48 jason Exp $
 
 # Author:      Jason Stajich <jason@bioperl.org>
 # Description: Turn SearchIO parseable report(s) into a GFF report
@@ -125,36 +125,35 @@ while( my $result = $parser->next_result ) {
 	my (%min,%max,$seqid,$name,$st);
 	while( my $hsp = $hit->next_hsp ) {
 	    my $feature = new Bio::SeqFeature::Generic;
-	    my ($proxyfor,$other);
+	    my ($proxyfor,$otherf);
 	    if( $type eq 'query' ) {
-		($proxyfor,$other) = ($hsp->query,
+		($proxyfor,$otherf) = ($hsp->query,
 				      $hsp->hit);
 		$name  ||= $hit->name;
-		if( $match && $gffver == 3) {
-		    $feature->add_tag_value('Parent', $name);
-		}
-		$feature->add_tag_value('Target', 'Sequence:'.$name);
-		$feature->add_tag_value('Target', $hsp->hit->start);
-		$feature->add_tag_value('Target', $hsp->hit->end);
 	    } else {
 		($other,$proxyfor) = ($hsp->query,
 				      $hsp->hit);
 		$name ||= $acc;
-		$proxyfor->score($hit->bits) unless( $proxyfor->score );
-		if( $match && $gffver == 3 ) { 
-		    $feature->add_tag_value('Parent', $acc);
-		}
-		
-		$feature->add_tag_value('Target', 'Sequence:'.
-					$acc);
-		$feature->add_tag_value('Target', $hsp->query->start);
-		$feature->add_tag_value('Target', $hsp->query->end);
 	    }
+	    $proxyfor->score($hit->bits) unless( $proxyfor->score );
+	    if( $match && $gffver == 3) {
+		$feature->add_tag_value('Parent', $name);
+	    }
+	    
+	    $min{$type} = $proxyfor->start unless defined $min{$type} && $min{$type} < $proxyfor->start;
+	    $max{$type} = $proxyfor->start unless defined $max{$type} && $max{$type} > $proxyfor->end;
+	    $min{$other} = $otherf->start unless defined $min{$type} && $min{$type} < $otherf->start;
+	    $max{$other} = $otherf->start unless defined $max{$type} && $max{$type} > $otherf->end;
+	    
+	    $feature->add_tag_value('Target', 'Sequence:'.$name);
+	    $feature->add_tag_value('Target', $otherf->start);
+	    $feature->add_tag_value('Target', $otherf->end);
+
 	    $feature->location($proxyfor->location);
 	    #  strand for feature is always going to be product of
 	    #  query & hit strands so that target can always be just
 	    #  '+'
-	    $feature->strand ( $proxyfor->strand * $other->strand);
+	    $feature->strand ( $proxyfor->strand * $otherf->strand);
 	    if( $sourcetag ) { 
 		$feature->source_tag($sourcetag);
 	    } else {
@@ -171,11 +170,12 @@ while( my $result = $parser->next_result ) {
 	if( $match ) { 
 	    
 	    my $matchf = Bio::SeqFeature::Generic->new
-		(-start => $hit->start($type),
-		 -end   => $hit->end($type),
+		(-start => $min{$type},
+		 -end   => $max{$type},
 		 -strand=> $hit->strand($type)*$hit->strand($other),
 		 -primary_tag => 'match',
 		 -source_tag  => $st,
+		 -score => $hit->bits,
 		 -seq_id => $seqid);
 	    if( $gffver == 3 ) { 
 		$matchf->add_tag_value('ID', $name);
