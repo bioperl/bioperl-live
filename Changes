@@ -1,6 +1,7 @@
 Revision history for Bioperl core modules
 
 0.04.3  Wed Feb  3 04:01:16 1999
+        - Added new utility, Bio::Tools::Sigcleave.pm
         - Bio::Root::Object.pm and Global.pm now detect when
           script is run as a CGI and suppress output that is only
           appropriate when running interactively.
