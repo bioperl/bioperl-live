@@ -12,7 +12,19 @@ Bio::Tools::Pseudowise - Results of one Pseudowise run
 
 =head1 SYNOPSIS
 
+  use Bio::Tools::Pseudowise;
+
+  my $parser = Bio::Tools::Pseudowise->new(-file=>"pw.out");
+  while(my $feat = $parser->next_result){
+      push @feat, $feat;
+  }
+
 =head1 DESCRIPTION
+
+Pseudowise is a pseudogene prediction program written by Ewan Birney as part of the 
+Wise Package. This module is the parser for the output of the program.
+
+http://www.sanger.ac.uk/software/wise2
 
 =head1 FEEDBACK
 
