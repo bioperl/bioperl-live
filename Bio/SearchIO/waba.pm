@@ -170,7 +170,11 @@ sub next_result{
 		      \s+(\S+)\.         # hit db
 		      (\S+):(\d+)\-(\d+) # The accession:start-end for hit
 		      \s+([\-\+])\s*$    # hit strand
-		      /x );
+		      /ox );
+	    
+	    # Curses.  Jim's code is 0 based, the following is to readjust
+	    $hstart++; $hend++; $qstart++; $qend++;
+	    
 	    if( ! defined $alnlen ) {
 		$self->warn("Unable to parse the rest of the WABA alignment info for: $_");
 		last;

@@ -36,17 +36,20 @@ use Bio::Root::IO;
 my $wabain = new Bio::SearchIO(-format => 'waba',
 			       -file   => Bio::Root::IO->catfile('t','data',
 								 'test.waba'));
+
+# These won't look the same as the WABA file because Jim's code is 0 based
+# while we (bioperl) are 1 based.
 my @results = ( 
 		[ 'U57623', 'pair1_hs.fa', 'pair1_mm.fa',
 		  [ 'U02884', 3, 
-		    [qw(3833 33 2971 1 242 3687 1 40.9)],
-		    [qw(4211 3021 6913 1 3704 6847 1 43.7)],
-		    [qw(2218 7003 9170 1 6891 8711 1 50.3)],
+		    [qw(3833 34 2972 1 243 3688 1 40.9)],
+		    [qw(4211 3022 6914 1 3705 6848 1 43.7)],
+		    [qw(2218 7004 9171 1 6892 8712 1 50.3)],
 		    ], 
 		  ],
 		[ 'X57152', 'pair9_hs.fa', 'pair9_mm.fa',
 		  [ 'X80685', 1, 
-		    [qw(7572 3 5844 1 631 7367 1 46.8)],
+		    [qw(7572 4 5845 1 632 7368 1 46.8)],
 		    ], 
 		  ]
 		);
