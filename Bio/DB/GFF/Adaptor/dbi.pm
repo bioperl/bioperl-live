@@ -30,9 +30,26 @@ use Bio::DB::GFF::Adaptor::dbi::caching_handle;
 use vars qw($VERSION @ISA);
 
 @ISA =  qw(Bio::DB::GFF);
-$VERSION = '0.30';
+$VERSION = '0.40';
+
+# constants for choosing
 
 use constant MAX_SEGMENT => 100_000_000;  # the largest a segment can get
+
+# this is the largest that any reference sequence can be (100 megabases)
+use constant MAX_BIN    => 100_000_000;
+
+# this is the smallest bin (1 K)
+use constant MIN_BIN    => 1000;
+
+# size of range over which it is faster to force the database to use the range for indexing
+use constant STRAIGHT_JOIN_LIMIT => 200_000;
+
+# this is the size to which DNA should be shredded
+use constant DNA_CHUNK_SIZE  => 2000;
+
+##############################################################################
+
 
 =head2 new
 
@@ -140,7 +157,7 @@ sub get_dna {
   }
 
   # turn start and stop into 0-based offsets
-  my $cs = $self->chunk_size;
+  my $cs = $self->dna_chunk_size;
   $start -= 1;  $stop -= 1;
   $offset_start = int($start/$cs)*$cs;
   $offset_stop  = int($stop/$cs)*$cs;
@@ -838,8 +855,7 @@ sub make_meta_get_query {
 
 sub dna_chunk_size {
   my $self = shift;
-  $self->can('chunk_size') ? $self->chunk_size || $self->meta('chunk_size') :
-      $self->meta('chunk_size');  
+  $self->meta('chunk_size') || DNA_CHUNK_SIZE;
 }
 
 =head2 make_meta_set_query
@@ -858,6 +874,50 @@ retrieved.
 
 sub make_meta_set_query {
   return;
+}
+
+=head2 default_meta_values
+
+ Title   : default_meta_values
+ Usage   : %values = $db->default_meta_values
+ Function: empty the database
+ Returns : a list of tag=>value pairs
+ Args    : none
+ Status  : protected
+
+This method returns a list of tag=E<gt>value pairs that contain default
+meta information about the database.  It is invoked by initialize() to
+write out the default meta values.  The base class version returns an
+empty list.
+
+For things to work properly, meta value names must be UPPERCASE.
+
+=cut
+
+sub default_meta_values {
+  my $self = shift;
+  my @values = $self->SUPER::default_meta_values;
+  return (
+	  @values,
+	  max_bin             => MAX_BIN,
+	  min_bin             => MIN_BIN,
+	  straight_join_limit => STRAIGHT_JOIN_LIMIT,
+          chunk_size          => DNA_CHUNK_SIZE,
+	 );
+}
+
+sub min_bin {
+  my $self = shift;
+  return $self->meta('min_bin') || MIN_BIN;
+}
+sub max_bin {
+  my $self = shift;
+  return $self->meta('max_bin') || MAX_BIN;
+}
+
+sub straight_join_limit {
+  my $self = shift;
+  return $self->meta('straight_join_limit') || STRAIGHT_JOIN_LIMIT;
 }
 
 =head2 get_features_iterator
@@ -1856,25 +1916,6 @@ sub contained_in_query {
   my $query = "($bq)\n\tAND $iq";
   my @args  = (@bargs,@iargs);
   return wantarray ? ($query,@args) : $self->dbh->dbi_quote($query,@args);
-}
-
-sub do_straight_join_old {
-  my $self = shift;
-  my($srcseq,$class,$start,$stop,$types) = @_;
-
-  # Might try turning on and off straight join based on the number of types
-  # specified, but this turns out to be very difficult indeed!
-
-  # if a list of types has been specified, then it is almost always faster
-  # to let the query optimizer figure it out.
-  # the exception is when a type of "similarity" has been specified, in which
-  # case the range query is better.  (yes, definitely a hack)
-  # return 0 if defined($types) and @$types > 0 
-  # and !grep {$_->[0] =~ /similarity/ } @$types;
-
-  # if no types are specified then it is faster to do a range search, up to a point.
-  return $srcseq && defined($start) && defined($stop) && 
-    abs($stop-$start) < $self->straight_join_limit;
 }
 
 1;

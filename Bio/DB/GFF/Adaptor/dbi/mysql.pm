@@ -20,7 +20,6 @@ use vars qw($VERSION @ISA);
 $VERSION = '0.90';
 
 use constant MAX_SEGMENT => 100_000_000;  # the largest a segment can get
-use constant DEFAULT_CHUNK => 2000;
 
 use constant GETSEQCOORDS =><<END;
 SELECT fref,
@@ -96,21 +95,6 @@ SELECT distinct gclass,gname,fattribute_value,MATCH(fattribute_value) AGAINST (?
     AND MATCH(fattribute_value) AGAINST (?)
 END
 ;
-
-########################
-# moved from mysqlopt.pm
-########################
-
-# this is the largest that any reference sequence can be (100 megabases)
-use constant MAX_BIN    => 100_000_000;
-
-# this is the smallest bin (1 K)
-use constant MIN_BIN    => 1000;
-
-# size of range over which it is faster to force mysql to use the range for indexing
-use constant STRAIGHT_JOIN_LIMIT => 200_000;
-
-##############################################################################
 
 =head1 DESCRIPTION
 
@@ -302,62 +286,6 @@ name, class and the desired range.  This should probably be moved to
 the parent class.
 
 =cut
-
-sub get_dna_old {
-  my $self = shift;
-  my ($ref,$start,$stop,$class) = @_;
-  my ($offset_start,$offset_stop);
-
-  my $has_start = defined $start;
-  my $has_stop  = defined $stop;
-
-  my $reversed;
-  if ($has_start && $has_stop && $start > $stop) {
-    $reversed++;
-    ($start,$stop) = ($stop,$start);
-  }
-
-  # turn start and stop into 0-based offsets
-  my $cs = $self->chunk_size;
-  $start -= 1;  $stop -= 1;
-  $offset_start = int($start/$cs)*$cs;
-  $offset_stop  = int($stop/$cs)*$cs;
-
-  my $sth;
-  # special case, get it all
-  if (!($has_start || $has_stop)) {
-    $sth = $self->dbh->do_query('select fdna,foffset from fdna where fref=? order by foffset',$ref);
-  } 
-
-  elsif (!$has_stop) {
-    $sth = $self->dbh->do_query('select fdna,foffset from fdna where fref=? and foffset>=? order by foffset',
-				$ref,$offset_start);
-  } 
-
-  else {  # both start and stop defined
-    $sth = $self->dbh->do_query('select fdna,foffset from fdna where fref=? and foffset>=? and foffset<=? order by foffset',
-				$ref,$offset_start,$offset_stop);
-  }
-
-  my $dna;
-  while (my($frag,$offset) = $sth->fetchrow_array) {
-    substr($frag,0,$start-$offset) = '' if $has_start && $start > $offset;
-    $dna .= $frag;
-  }
-  substr($dna,$stop-$start+1)  = '' if $has_stop && $stop-$start+1 < length $dna;
-  if ($reversed) {
-    $dna = reverse $dna;
-    $dna =~ tr/gatcGATC/ctagCTAG/;
-  }
-
-  $sth->finish;
-  $dna;
-}
-
-sub chunk_size {
-  my $self = shift;
-  $self->meta('chunk_size') || DEFAULT_CHUNK;
-}
 
 sub getseqcoords_query {
    my $self = shift;
@@ -639,13 +567,6 @@ sub make_classes_query {
 }
 
 
-sub default_meta_values_old {
-  my $self = shift;
-  return (
-	  chunk_size => DEFAULT_CHUNK,
-	 );
-}
-
 =head2 make_meta_set_query
 
  Title   : make_meta_set_query
@@ -789,44 +710,6 @@ sub load_gff_line {
 }
 
 
-sub load_gff_line_old {
-  my $self = shift;
-  my $gff = shift;
-
-  my $s    = $self->{load_stuff};
-  my $dbh  = $self->features_db;
-  local $dbh->{PrintError} = 0;
-
-  defined(my $typeid  = $self->get_table_id('ftype', $gff->{method} => $gff->{source})) or return;
-  defined(my $groupid = $self->get_table_id('fgroup',$gff->{gname}  => $gff->{gclass})) or return;
-
-  my $result = $s->{sth}{insert_data}->execute($gff->{ref},
-					       $gff->{start},$gff->{stop},
-					       $typeid,
-					       $gff->{score},$gff->{strand},$gff->{phase},
-					       $groupid,
-					       $gff->{tstart},$gff->{tstop});
-
-  warn $dbh->errstr,"\n" and return unless $result;
-
-  my $fid = $dbh->{mysql_insertid}
-    || $self->get_feature_id($gff->{ref},$gff->{start},$gff->{stop},$typeid,$groupid);
-
-
-  # insert attributes
-  foreach (@{$gff->{attributes}}) {
-    defined(my $attribute_id = $self->get_table_id('fattribute',$_->[0])) or return;
-    $s->{sth}{insert_fattribute_value}->execute($fid,$attribute_id,$_->[1]);
-  }
-
-  if ( (++$s->{counter} % 1000) == 0) {
-    print STDERR "$s->{counter} records loaded...";
-    print STDERR -t STDOUT && !$ENV{EMACS} ? "\r" : "\n";
-  }
-
-  $fid;
-}
-
 sub insert_sequence {
   my $self = shift;
   my($id,$offset,$seq) = @_;
@@ -934,54 +817,6 @@ sub get_feature_id {
   $sth->execute($ref,$start,$stop,$typeid,$groupid) or return;
   my ($fid) = $sth->fetchrow_array;
   return $fid;
-}
-
-#############################################
-# Moved from mysqlopt.pm to mysql.pm
-#############################################
-# meta values
-
-
-=head2 default_meta_values
-
- Title   : default_meta_values
- Usage   : %values = $db->default_meta_values
- Function: empty the database
- Returns : a list of tag=>value pairs
- Args    : none
- Status  : protected
-
-This method returns a list of tag=E<gt>value pairs that contain default
-meta information about the database.  It is invoked by initialize() to
-write out the default meta values.  The base class version returns an
-empty list.
-
-For things to work properly, meta value names must be UPPERCASE.
-
-=cut
-
-sub default_meta_values {
-  my $self = shift;
-  my @values = $self->SUPER::default_meta_values;
-  return (
-	  @values,
-	  max_bin => MAX_BIN,
-	  min_bin => MIN_BIN,
-	  straight_join_limit => STRAIGHT_JOIN_LIMIT,
-	 );
-}
-
-sub min_bin {
-  my $self = shift;
-  return $self->meta('min_bin') || MIN_BIN;
-}
-sub max_bin {
-  my $self = shift;
-  return $self->meta('max_bin') || MAX_BIN;
-}
-sub straight_join_limit {
-  my $self = shift;
-  return $self->meta('straight_join_limit') || STRAIGHT_JOIN_LIMIT;
 }
 
 1;
