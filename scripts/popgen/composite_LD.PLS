@@ -1,0 +1,87 @@
+#!/usr/bin/perl -w
+# -*-Perl-*- 
+=head1 NAME 
+
+composite_LD -i filename.prettybase.txt --sortbyld > 
+
+=head1 SYNOPSIS
+
+composite_LD -i filename.prettybase [-o out.LD] [-f prettybase/csv] [--sortbyld] 
+
+=head2 DESCRIPTION
+
+This a script which allows an easy way to calculate composite LD.  
+
+=head2 OPTIONS
+
+-i or --in     filename
+-f or --format genotype format (prettybase or CSV)
+--sortbyld     To see data sorted by LD instead of just all the 
+               site1/site2 pair LD values.
+
+=head2 AUTHOR Jason Stajich, Matthew Hahn
+
+For more information contact:
+
+Matthew Hahn, E<lt>matthew.hahn-at-duke.eduE<gt>
+Jason Stajich E<lt>jason-at-bioperl-dot-orgE<gt>
+
+
+=cut
+
+use strict;
+
+use Bio::PopGen::IO;
+use Bio::PopGen::Statistics;
+use Bio::PopGen::Population;
+
+use Getopt::Long;
+
+my ($file,$outfile,$sortbyld);
+
+GetOptions(
+	   'i|in:s'  => \$file, # pass the filename as 
+	   'o|out:s' => \$outfile,
+	   'sortbyld'=> \$sortbyld,
+	   );
+
+if( ! $file ) { 
+    $file = shift @ARGV;  # if no -i specified
+}
+
+my $io = new Bio::PopGen::IO(-format => 'prettybase',
+			     -file   => $file);
+
+my $pop = $io->next_population;
+
+my %LD_matrix = Bio::PopGen::Statistics->composite_LD($pop);
+
+# sites can be ordered by sorting their names
+
+my @sites;
+my $out;
+if( $outfile ) { 
+    open($out, ">$outfile") || die("$outfile: $!");
+} else { 
+    $out = \*STDOUT;
+}
+foreach my $site1 ( sort keys %LD_matrix ) {
+    foreach my $site2 ( sort keys %{ $LD_matrix{$site1} } ) {
+	my $LD = $LD_matrix{$site1}->{$site2}; # LD for site1,site2 
+	if( $sortbyld ) {
+	    push @sites, [ $site1,$site2,$LD];
+	} else { 
+	    print $out "$site1,$site2 - $LD\n";
+	}
+    }
+}
+
+if( $sortbyld ) {
+    foreach my $s ( sort { $b->[2] <=> $a->[2] } @sites ) {
+	my ($site1,$site2,$LD) = @$s;
+	print $out "$site1,$site2 - $LD\n";
+    }
+}
+
+
+
