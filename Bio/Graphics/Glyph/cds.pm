@@ -16,6 +16,13 @@ sub description {
   return $self->SUPER::description;
 };
 
+sub sixframe {
+  my $self = shift;
+  $self->{sixframe} = $self->option('sixframe')
+    unless exists $self->{sixframe};
+  return $self->{sixframe};
+}
+
 # figure out (in advance) the color of each component
 sub draw {
   my $self = shift;
@@ -30,9 +37,10 @@ sub draw {
   if (!$fits) {
     # draw the staff (musically speaking)
     my ($x1,$y1,$x2,$y2) = $self->bounds($left,$top);
-    my $height = ($y2-$y1)/3;
+    my $line_count = $self->sixframe ? 6 : 3;
+    my $height = ($y2-$y1)/$line_count;
     my $grid  = $self->gridcolor;
-    for (0..2) {
+    for (0..$line_count-1) {
       my $offset = $y1+$height*$_+1;
       $gd->line($x1,$offset,$x2,$offset,$grid);
     }
@@ -105,10 +113,12 @@ sub draw_component {
   my $color = $self->{cds_partcolor};
   my $feature   = $self->feature;
   my $frame     = $self->{cds_frame};
+  my $linecount = $self->sixframe ? 6 : 3;
 
   unless ($self->protein_fits) {
-    my $height = ($y2-$y1)/3;
+    my $height = ($y2-$y1)/$linecount;
     my $offset = $y1 + $height*$frame;
+    $offset   += ($y2-$y1)/2 if $self->sixframe && $self->strand < 0;
     $gd->filledRectangle($x1,$offset,$x2,$offset+2,$color);
     return;
   }
@@ -249,6 +259,8 @@ glyph-specific options:
   -frame2r    Color for third (-) frame    background color
 
   -gridcolor  Color for the "staff"        lightslategray
+
+  -sixframe   Draw a six-frame staff       false (usually draws 3 frame)
 
 =head1 SUGGESTED STANZA FOR GENOME BROWSER
 
