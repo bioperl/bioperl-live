@@ -82,7 +82,7 @@ sub seq_to_ids {
   my %ids;
   $ids{ID}       = $display_id;
   $ids{ACC}      = $accession            if defined $accession;
-  $ids{VERSION}  = $accession            if defined $accession;
+  $ids{VERSION}  = "$accession.version"  if defined $accession && defined $version;
   return \%ids;
 }
 

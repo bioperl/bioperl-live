@@ -1,5 +1,5 @@
 #!/usr/bin/perl -w
-#$Id: bioflat_index.PLS,v 1.1 2003-11-20 12:39:02 bosborne Exp $
+#$Id: bioflat_index.PLS,v 1.2 2004-06-16 15:06:15 lstein Exp $
 
 use strict;
 use Bio::Root::Root;
@@ -67,7 +67,7 @@ defined $DBNAME or $root->throw("please provide a database name with the --dbnam
 
 defined $FORMAT or $root->throw("please specify the format for the input files with the --format option");
 
-defined $INDEXTYPE or ($INDEXTYPE='flat'
+defined $INDEXTYPE or (($INDEXTYPE='flat')
 		       && $root->warn('setting index type to "flat", use the --indextype option to override'));
 
 # Confirm that database is there and that --create flag is sensible.
@@ -98,3 +98,4 @@ my $entries = $db->build_index(@ARGV);
 
 print STDERR "(Re)indexed $entries entries.\n ";
 1;
+

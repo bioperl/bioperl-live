@@ -19,8 +19,8 @@ Bio::Seq::RichSeqI - interface for sequences from rich data sources, mostly data
     @secondary   = $richseq->get_secondary_accessions;
     $division    = $richseq->division;
     $mol         = $richseq->molecule;
-    @dates       = $richseq->get_dates; 
-    $seq_version = $richseq->seq_version;  
+    @dates       = $richseq->get_dates;
+    $seq_version = $richseq->seq_version;
     $pid         = $richseq->pid;
     @keywords    = $richseq->get_keywords;
 
