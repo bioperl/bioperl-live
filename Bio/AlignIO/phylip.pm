@@ -15,8 +15,11 @@ Bio::AlignIO::phylip - PHYLIP format sequence input/output stream
 
     use Bio::AlignIO;
     use Bio::SimpleAlign;
+	#you can set the name length to something other than the default 10
+	#if you use a version of phylip (hacked) that accepts ids > 10
     my $phylipstream = new Bio::AlignIO(-format => 'phylip',
-					-fh   => \*STDOUT);
+					-fh   => \*STDOUT,
+					-idlength=>30);
     # convert data from one format to another
     my $gcgstream     =  new Bio::AlignIO(-format => 'msf',
 					  -file   => 't/data/cysprot1a.msf');    
@@ -30,7 +33,8 @@ Bio::AlignIO::phylip - PHYLIP format sequence input/output stream
     # can also initialize the object like this
     $phylipstream = new Bio::AlignIO(-interleaved => 0,
 				     -format => 'phylip',
-				     -fh   => \*STDOUT);
+				     -fh   => \*STDOUT,
+					 -idlength=>10);
     $gcgstream     =  new Bio::AlignIO(-format => 'msf',
 				       -file   => 't/data/cysprot1a.msf');    
 
@@ -85,9 +89,12 @@ sub _initialize {
   my($self,@args) = @_;
   $self->SUPER::_initialize(@args);
 
-  my ($interleave) = $self->_rearrange([qw(INTERLEAVED)],@args);
+  my ($interleave,$idlength) = $self->_rearrange([qw(INTERLEAVED IDLENGTH)],@args);
   if( ! defined $interleave ) { $interleave = 1 }  # this is the default
   $self->interleaved(1) if( $interleave);
+  if (!defined $idlength) {$idlength = 10}
+  $self->idlength($idlength);
+
 
   1;
 }
@@ -194,7 +201,7 @@ sub write_aln {
     my $count = 0;
     my $wrapped = 0;
     my $maxname;
-    my ($length,$date,$name,$seq,$miss,$pad,%hash,@arr,$tempcount,$index);
+    my ($length,$date,$name,$seq,$miss,$pad,%hash,@arr,$tempcount,$index,$idlength);
     
     foreach my $aln (@aln) {
 	$self->throw("All sequences in the alignment must be the same length") 
@@ -203,11 +210,12 @@ sub write_aln {
 	$aln->set_displayname_flat(); # plain
 	$length  = $aln->length();
 	$self->_print (sprintf(" %s %s\n", $aln->no_sequences, $aln->length));
-	
+
+	$idlength = $self->idlength();	
 	foreach $seq ( $aln->each_seq() ) {
 	    $name = $aln->displayname($seq->get_nse);
-	    $name = substr($name, 0, 10) if length($name) > 10;
-	    $name = sprintf("%-10s",$name);
+	    $name = substr($name, 0, $idlength) if length($name) > $idlength;
+	    $name = sprintf("%-".$idlength."s",$name);
 	    $name .= '   ' if( $self->interleaved());
 	    $hash{$name} = $seq->seq();
 	    push(@arr,$name);
@@ -220,7 +228,7 @@ sub write_aln {
 		foreach $name ( @arr ) {
 		    my $dispname = $name;
 		    $dispname = '' if $wrapped;
-		    $self->_print (sprintf("%13s  ",$dispname));
+		    $self->_print (sprintf("%".($idlength+3)."s",$dispname));
 		    $tempcount = $count;
 		    $index = 0;
 		    while( ($tempcount + 10 < $length) && ($index < 5)  ) {
@@ -271,4 +279,22 @@ sub interleaved{
    return $previous;
 }
 
+=head2 idlength
+
+ Title   : idlength
+ Usage   : my $idlength = $obj->interleaved
+ Function: Get/Set value of id length 
+ Returns : string 
+ Args    : string 
+
+
+=cut
+
+sub idlength {
+	my($self,$value) = @_;
+	if (defined $value){
+	   $self->{'_idlength'} = $value;
+	}
+	return $self->{'_idlength'};
+}
 1;
