@@ -350,7 +350,7 @@ sub write_seq {
     
     my $temp_line;
     if( $self->_id_generation_func ) {
-	$temp_line = &{$self->_id_generation_func}($seq);
+	$temp_line = &{$self->_id_generation_func}($seq,'genbank');
     } else {
 	my @dates = $seq->each_date();
 	my $date = shift @dates;

@@ -354,7 +354,7 @@ sub write_seq {
    
     my $temp_line;
     if( $self->_id_generation_func ) {
-        $temp_line = &{$self->_id_generation_func}($seq);
+        $temp_line = &{$self->_id_generation_func}($seq,'embl');
     } else {
         $temp_line = sprintf("%-11sstandard; $mol; $div; %d BP.", $seq->id(), $len);
     } 
