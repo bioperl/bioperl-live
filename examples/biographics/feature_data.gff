@@ -1,0 +1,27 @@
+# this is a regular GFF-format file
+
+[intron:curated]
+glyph = segments
+description = 1
+bgcolor = green
+height = 5
+key = Curated Introns
+
+[structural:GenePair_STS]
+glyph = primers
+fgcolor = black
+bgcolor = blue
+connect = 1
+
+III	curated	Sequence	2729913	2752540	.	+	.	Sequence "H19M22.2a"
+III	curated	Sequence	2729913	2752540	.	+	.	Sequence "H19M22.2b"
+III	Expr_profile	Expression	2731006	2732545	.	+	.	Expr_profile "H19M22.2"
+III	GenePair_STS	structural	2731006	2732545	.	+	.	PCR_product "sjj_H19M22.2"
+III	curated	Sequence	2748310	2752540	.	+	.	Sequence "H19M22.2c"
+III	curated	intron	2730004	2730635	.	+	.	Sequence "H19M22.2b" ; Confirmed_by_EST
+III	curated	intron	2730004	2730635	.	+	.	Sequence "H19M22.2a" ; Confirmed_by_EST
+III	curated	intron	2730705	2730846	.	+	.	Sequence "H19M22.2a" ; Confirmed_by_EST
+III	curated	intron	2730705	2730846	.	+	.	Sequence "H19M22.2b" ; Confirmed_by_EST
+III	curated	intron	2731102	2731151	.	+	.	Sequence "H19M22.2a" ; Confirmed_by_EST
+III	curated	intron	2731102	2731151	.	+	.	Sequence "H19M22.2b" ; Confirmed_by_EST
+III	curated	intron	2731541	2732220	.	+	.	Sequence "H19M22.2b" ; Confirmed_by_cDNA

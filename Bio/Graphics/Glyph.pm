@@ -444,7 +444,6 @@ sub layout {
     || return $self->{layout_height} = $self->height + $self->pad_top + $self->pad_bottom;
 
   my $bump_direction = $self->bump;
-  $bump_direction = 3;
 
   $_->layout foreach @parts;  # recursively lay out
 
