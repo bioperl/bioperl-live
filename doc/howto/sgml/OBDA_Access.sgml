@@ -109,7 +109,7 @@
       <revision>
 	<revnumber>1.7</revnumber>
 	<date>2003/06/10</date>
-	<authorinitials>bosborne</authorinitials>
+	<authorinitials>BIO</authorinitials>
 	<revremark>convert to XML/SGML, corrections</revremark>
       </revision>
     </revhistory>
@@ -149,14 +149,15 @@ configuration file. This makes application code more portable and
 easier to maintain. This document shows how to set up the required
 OBDA-registry configuration file and how to access data from the
 databases referred to in the configuration file using a perl script as
-well as from the command line.
+well as from the command line. The Web site for OBDA is 
+<ulink url="http://obda.open-bio.org">obda.open-bio.org</ulink>.
     </para>
-    <para>
-Note: accessing data via the OBDA system is optional in Bioperl.  It
-is still possible (though probably not advantageous) to access
+    <note>
+Accessing data via the OBDA system is optional in Bioperl.  It
+is still possible, though probably not advantageous, to access
 sequence data via the old database-format-specific modules such as 
-Bio::Index::Fasta.
-    </para>
+Bio::Index::Fasta or Bio::DB::Fasta.
+    </note>
   </section>
   <section id="registry">
     <title>Using the OBDA Registry System</title>
@@ -179,21 +180,22 @@ local copy automatically - no source code changes are necessary.
     <title>Installing the Registry File</title>
     <para>
 The registry file should be named seqdatabase.ini.  By default, it
-should be installed in one of the following locations:
+should be installed in one or more of the following locations:
     <programlisting>
    $HOME/.bioinformatics/seqdatabase.ini
    /etc/bioinformatics/seqdatabase.ini
     </programlisting>
 The Bio{Perl,Java,Python,Ruby} registry-handling code will initialize
 itself from the registry file located in the home directory first,
-followed by the system-wide default in /etc. ActiveState Perl users
+and then it will read the system-wide default in /etc. Windows Perl users
 should make sure to set the $HOME variable, otherwise the
-seqdatabase.ini file will not be found. Unix users need not do this
+seqdatabase.ini file may not be found. Unix users need not do this
 since the code will use the getpwuid() method.    
     </para>
     <para>
-If a local registry file cannot be found, the registry-handling code
-will take its configuration from the file located at this URL:
+      If a local registry file cannot be found, the registry-handling code
+      will attempt to copy the file located at this URL to a
+      $HOME/.bioinformatics directory:
     <programlisting>
    http://www.open-bio.org/registry/seqdatabase.ini
     </programlisting>    
@@ -209,15 +211,13 @@ environment variable OBDA_SEARCH_PATH.  This variable is a
     <programlisting>
  OBDA_SEARCH_PATH=/home/lstein/;http://foo.org/
     </programlisting>
-The search order proceeds from left to right.  The first file or URL
-that is found ends the search.
     </para>    
-    <para>
-Warning! Note that the fact that the search path is for an entire file
+    <important>
+Note that the fact that the search path is for an entire file
 (seqdatabase.ini) rather than for single entry (e.g. 'genbank') means
 that you have to copy any default values you want to keep from the
 (old) default configuration file to your new configuration file. 
-    </para>
+    </important>
     <para>
 For example, say you have been using biofetch with the default
 configuration file http://www.open-bio.org/registry/seqdatabase.ini
@@ -229,6 +229,7 @@ http://www.open-bio.org/registry/seqdatabase.ini will no longer be
 found in a registry-file search.
     </para>
   </section>
+
   <section id="format">
     <title>Format of the Registry File</title>
     <para>
@@ -378,12 +379,18 @@ will need to create and initialize local databases.  See the following
 documentation on how to do this:
   </para>	
   <para>
-   flat protocol:    See FLAT-DATABASES-HOWTO.txt (in the doc/howto subdirectory)
+   flat protocol:<ulink
+   url="http://bioperl.org/HOWTOs/html/Flat_Databases.html">Flat
+   Databases HOWTO</ulink>
   </para>
   <para>
-   biosql protocol:  See BIOSQL-HOWTO.txt (this doc is still being developed)
+   biosql protocol: BioSQL INSTALL (from the biosql-schema package,
+   available at <ulink
+   url="http://obda.open-bio.org/">obda.open-bio.org</ulink>).
+      Download the Biosql tar file to view all the documentation.
   </para>
   </section>
+
   <section id="code">
   <title>Writing code to use the Registry</title>
   <para>
@@ -422,7 +429,9 @@ appropriate manual page), which has just three methods:
 These methods return Bio::Seq objects by searching for their primary
 IDs, accession numbers and accession.version numbers respectively.
 The returned objects have all the methods defined by Bio::Seq (see
-the appropriate manual page).  In line 5, we call the sequence
+the appropriate manual page, online at <ulink
+	url="http://doc.bioperl.org">doc.bioperl.org</ulink>).  In 
+	  line 5, we call the sequence
 object's seq() method to fetch and print out the DNA or protein
 string.
   </para>
@@ -430,12 +439,12 @@ string.
   <section id="biogetseq">
   <title>Using biogetseq to Access Registry Databases</title>
   <para>
-As a convenience, the Bioperl distribution includes a script
-      'biogetseq' that enables one to have OBDA access to sequence
+      As a convenience, the Bioperl distribution includes the script
+      biogetseq.PLS that enables one to have OBDA access to sequence
       data from the command line.
   </para>
   <para>
-The script 'biogetseq' is located at the scripts/DB directory of the
+The script 'biogetseq' is located in the scripts/DB directory of the
 bioperl distribution. Move or add it into your path to run it. You can get to help by running it with no arguments:
   <programlisting>
 Usage: biogetseq --dbname embl --format embl --namespace acc id [ id ... ]*
