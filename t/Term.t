@@ -15,12 +15,14 @@ BEGIN {
         use lib 't';
     }
     use Test;
-    plan tests => 49;
+    plan tests => 51;
 }
 
 use Bio::Ontology::Term;
 use Bio::Ontology::TermFactory;
-  
+use Bio::Annotation::DBLink;
+use Bio::Annotation::Reference;
+
 my $obj = Bio::Ontology::Term->new();
 
 ok( $obj->isa( "Bio::Ontology::TermI" ) );
@@ -76,13 +78,20 @@ ok( $obj->is_obsolete(0), 0 );
 ok( $obj->comment(undef), undef );
 
 
-$obj = Bio::Ontology::Term->new( -identifier  => "0016847",
-                                 -name        => "1-aminocyclopropane-1-carboxylate synthase",
-                                 -definition  => "Catalysis of ...",
-                                 -is_obsolete => 0,
-                                 -version     => "6.6.6",
-                                 -ontology    => "cat",
-                                 -comment     => "X" );  
+$obj = Bio::Ontology::Term->new( 
+    -identifier  => "0016847",
+    -name        => "1-aminocyclopropane-1-carboxylate synthase",
+    -definition  => "Catalysis of ...",
+    -is_obsolete => 0,
+    -version     => "6.6.6",
+    -ontology    => "cat",
+    -comment     => "X",
+    -dblinks    => [
+        Bio::Annotation::DBLink->new(-dbname => 'db1'),
+        Bio::Annotation::DBLink->new(-dbname => 'db2')
+    ],
+    -references => ['']
+);  
 
 ok( $obj->identifier(), "0016847" );
 ok( $obj->name(), "1-aminocyclopropane-1-carboxylate synthase" );
@@ -91,6 +100,8 @@ ok( $obj->is_obsolete(), 0);
 ok( $obj->comment(), "X" );
 ok( $obj->version(), "6.6.6" );
 ok( $obj->ontology()->name(), "cat" );
+ok( scalar($obj->get_dblinks), 2);
+ok( scalar($obj->get_references), 1);
 
 # test object factory for terms
 my $fact = Bio::Ontology::TermFactory->new();
