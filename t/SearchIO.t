@@ -20,7 +20,7 @@ BEGIN {
 	use lib 't';
     }
     use vars qw($NTESTS);
-    $NTESTS = 664;
+    $NTESTS = 718;
     $LASTXMLTEST = 54;
     $error = 0;
 
@@ -149,9 +149,9 @@ ok($result->get_parameter('matrix'), 'BLOSUM62');
 ok($result->get_parameter('gapopen'), 11);
 ok($result->get_parameter('gapext'), 1);
 
-my @valid = ( [ 'gb|AAC73113.1|', 820, 'AAC73113.1', '0', 1567],
-	      [ 'gb|AAC76922.1|', 810, 'AAC76922.1', '1e-91', 332],
-	      [ 'gb|AAC76994.1|', 449, 'AAC76994.1', '3e-47', 184]);
+my @valid = ( [ 'gb|AAC73113.1|', 820, 'AAC73113', '0', 1567],
+	      [ 'gb|AAC76922.1|', 810, 'AAC76922', '1e-91', 332],
+	      [ 'gb|AAC76994.1|', 449, 'AAC76994', '3e-47', 184]);
 my $count = 0;
 while( $hit = $result->next_hit ) {
     my $d = shift @valid;
@@ -205,9 +205,9 @@ ok($result->get_statistic('dbletters'), 1358990);
 ok($result->get_statistic('dbentries'), 4289);
 ok($result->get_parameter('matrix'), 'BLOSUM62');
 
-@valid = ( [ 'gb|AAC73113.1|', 820, 'AAC73113.1', '0', 4141],
-	   [ 'gb|AAC76922.1|', 810, 'AAC76922.1', '3.1e-86', 844],
-	   [ 'gb|AAC76994.1|', 449, 'AAC76994.1', '2.8e-47', 483]);
+@valid = ( [ 'gb|AAC73113.1|', 820, 'AAC73113', '0', 4141],
+	   [ 'gb|AAC76922.1|', 810, 'AAC76922', '3.1e-86', 844],
+	   [ 'gb|AAC76994.1|', 449, 'AAC76994', '2.8e-47', 483]);
 $count = 0;
 while( $hit = $result->next_hit ) {
     my $d = shift @valid;
@@ -597,7 +597,7 @@ ok($result->get_statistic('S2'), 17);
 
 ok($result->get_statistic('dbentries'), 1083200);
 
-@valid = ( [ 'gb|AY052359.1|', 2826, 'AY052359.1', '3e-18', 96, 1, 60, 
+@valid = ( [ 'gb|AY052359.1|', 2826, 'AY052359', '3e-18', 96, 1, 60, 
 	     '1.0000'],
 	   [ 'gb|AC002329.2|AC002329', 76170, 'AC002329', '3e-18', 96, 1, 60, 
 	     '1.0000' ],
@@ -668,7 +668,7 @@ ok($result->get_statistic('entropy'),0.401 );
 
 ok($result->get_statistic('dbentries'), 4289);
 
-@valid = ( [ 'gi|1789447|gb|AAC76102.1|', 581, 'AAC76102.1', '1.1e-74', 671]);
+@valid = ( [ 'gi|1789447|gb|AAC76102.1|', 581, 'AAC76102', '1.1e-74', 671]);
 $count = 0;
 
 while( my $hit = $result->next_hit ) {
@@ -988,6 +988,44 @@ $outhtml = new Bio::SearchIO(-writer => $writerhtml,
 $outhtml->write_result($result, 1);
 ok(-e "searchio.html");
 
+#test all the database accession number formats
+$searchio = new Bio::SearchIO(-format => 'blast',
+				 -file   => 't/data/testdbaccnums.out');
+$result = $searchio->next_result;
+
+@valid = (['pir||T14789','T14789','T14789','CAB53709','AAH01726'],['gb|NP_065733.1|CYT19', 'NP_065733','CYT19'],
+['emb|XP_053690.4|Cyt19','XP_053690'],['dbj|NP_056277.2|DKFZP586L0724','NP_056277'],
+['prf||XP_064862.2','XP_064862'],['pdb|BAB13968.1|1','BAB13968'],
+['sp|Q16478|GLK5_HUMAN','Q16478'],['pat|US|NP_002079.2','NP_002079'],
+['bbs|NP_079463.2|','NP_079463'],['gnl|db1|NP_002444.1','NP_002444'],
+['ref|XP_051877.1|','XP_051877'],['lcl|AAH16829.1|','AAH16829'],
+['gi|1|gb|NP_065733.1|CYT19','NP_065733'],['gi|2|emb|XP_053690.4|Cyt19','XP_053690'],
+['gi|3|dbj|NP_056277.2|DKFZP586L0724','NP_056277'],['gi|4|pir||T14789','T14789'],
+['gi|5|prf||XP_064862.2','XP_064862'],['gi|6|pdb|BAB13968.1|1','BAB13968'],
+['gi|7|sp|Q16478|GLK5_HUMAN','Q16478'],['gi|8|pat|US|NP_002079.2','NP_002079'],
+['gi|9|bbs|NP_079463.2|','NP_079463'],['gi|10|gnl|db1|NP_002444.1','NP_002444'],
+['gi|11|ref|XP_051877.1|','XP_051877'],['gi|12|lcl|AAH16829.1|','AAH16829'],
+['MY_test_ID','MY_test_ID']);
+
+$hit = $result->next_hit;
+my $d = shift @valid;
+ok($hit->name, shift @$d);
+ok($hit->accession, shift @$d);
+my @accnums = $hit->each_accession_number;
+foreach my $a (@accnums) {
+	ok($a, shift @$d);
+}
+my $d = shift @valid;
+$hit = $result->next_hit;
+ok($hit->name, shift @$d);
+ok($hit->accession, shift @$d);
+ok($hit->locus, shift @$d);
+
+while( $hit = $result->next_hit ) {
+    my $d = shift @valid;
+    ok($hit->name, shift @$d);
+    ok($hit->accession, shift @$d);
+}
 END { 
     unlink 'searchio.out';
     unlink 'searchio.html';
