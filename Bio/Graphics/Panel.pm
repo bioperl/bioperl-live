@@ -97,7 +97,7 @@ sub pad_bottom {
 
 # numerous direct calls into array used here for performance considerations
 sub map_pt {
-  my $self = shift;
+  my $self   = shift;
   my $offset = $self->{offset};
   my $scale  = $self->{scale} || $self->scale;
   my $pl = $self->{pad_left};
@@ -111,6 +111,21 @@ sub map_pt {
   }
   @result;
 }
+
+sub map_no_trunc {
+  my $self   = shift;
+  my $offset = $self->{offset};
+  my $scale  = $self->{scale} || $self->scale;
+  my $pl = $self->{pad_left};
+  my $pr = $self->{width} - $self->{pad_right};
+  my @result;
+  foreach (@_) {
+    my $val = int (0.5 + $pl + ($_-$offset-1) * $scale);
+    push @result,$val;
+  }
+  @result;
+}
+
 sub scale {
   my $self = shift;
   $self->{scale} ||= ($self->{width}-$self->pad_left-$self->pad_right-1)/($self->length-1);

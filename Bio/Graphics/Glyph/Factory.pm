@@ -53,6 +53,12 @@ sub map_pt {
   return wantarray ? @result : $result[0];
 }
 
+sub map_no_trunc {
+  my $self = shift;
+  my @result = $self->panel->map_no_trunc(@_);
+  return wantarray ? @result : $result[0];
+}
+
 sub translate_color {
   my $self = shift;
   my $color_name = shift;

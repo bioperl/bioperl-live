@@ -105,13 +105,13 @@ sub draw_gc_content {
   my $axiscolor  = $self->color('axis_color') || $fgcolor;
 
   $gd->line($x1,  $y1,        $x1,  $y2,        $axiscolor);
-  $gd->line($x2,  $y1,        $x2,  $y2,        $axiscolor);
+  $gd->line($x2-1,$y1,        $x2-1,$y2,        $axiscolor);
   $gd->line($x1,  $y1,        $x1+3,$y1,        $axiscolor);
   $gd->line($x1,  $y2,        $x1+3,$y2,        $axiscolor);
   $gd->line($x1,  ($y2+$y1)/2,$x1+3,($y2+$y1)/2,$axiscolor);
-  $gd->line($x2-3,$y1,        $x2,  $y1,        $axiscolor);
-  $gd->line($x2-3,$y2,        $x2,  $y2,        $axiscolor);
-  $gd->line($x2-3,($y2+$y1)/2,$x2,  ($y2+$y1)/2,$axiscolor);
+  $gd->line($x2-3,$y1,        $x2-1, $y1,       $axiscolor);
+  $gd->line($x2-3,$y2,        $x2-1, $y2,       $axiscolor);
+  $gd->line($x2-3,($y2+$y1)/2,$x2-1,($y2+$y1)/2,$axiscolor);
   $gd->line($x1+5,$y2,        $x2-5,$y2,        $bgcolor);
   $gd->line($x1+5,($y2+$y1)/2,$x2-5,($y2+$y1)/2,$bgcolor);
   $gd->line($x1+5,$y1,        $x2-5,$y1,        $bgcolor);

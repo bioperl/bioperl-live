@@ -107,22 +107,6 @@ L<Bio::Graphics::Glyph> for a full explanation.
   -strand_arrow Whether to indicate            0 (false)
                  strandedness
 
-In addition, the alignment glyph recognizes the following
-glyph-specific options:
-
-  Option      Description                  Default
-  ------      -----------                  -------
-
-  -max_score  Maximum value of the	   Calculated
-              feature's "score" attribute
-
-  -min_score  Minimum value of the         Calculated
-              feature's "score" attribute
-
-If max_score and min_score are not specified, then the glyph will
-calculate the local maximum and minimum scores at run time.
-
-
 =head1 BUGS
 
 Please report them.

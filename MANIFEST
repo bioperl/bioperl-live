@@ -135,6 +135,7 @@ Bio/Graphics/Glyph/alignment.pm
 Bio/Graphics/Glyph/anchored_arrow.pm
 Bio/Graphics/Glyph/arrow.pm
 Bio/Graphics/Glyph/box.pm
+Bio/Graphics/Glyph/cds.pm
 Bio/Graphics/Glyph/crossbox.pm
 Bio/Graphics/Glyph/diamond.pm
 Bio/Graphics/Glyph/dna.pm
@@ -161,6 +162,7 @@ Bio/Graphics/Glyph/transcript2.pm
 Bio/Graphics/Glyph/translation.pm
 Bio/Graphics/Glyph/triangle.pm
 Bio/Graphics/Panel.pm
+Bio/Graphics/Util.pm
 Bio/Index/Abstract.pm
 Bio/Index/AbstractSeq.pm
 Bio/Index/Blast.pm
