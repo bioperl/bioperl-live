@@ -19,8 +19,9 @@ examples of Bioperl code.
 You can install the scripts in the scripts/ directory if you'd like,
 simply follow the instructions on 'make install'. The installation
 directory is specified by the INSTALLSCRIPT variable in the Makefile.
-Installation will copy the scripts to the specified directory and
-change the 'PLS' suffix to 'pl'.
+Installation will copy the scripts to the specified directory, change 
+the 'PLS' suffix to 'pl' and prepend 'bp_' to the script name if it
+isn't so named already.
 
 Please contact bioperl-l at bioperl.org if you are interested in 
 contributing your own script.

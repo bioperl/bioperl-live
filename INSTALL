@@ -195,7 +195,8 @@ o System requirements
  simply follow the instructions on 'make install'. The installation
  directory is specified by the INSTALLSCRIPT variable in the Makefile,
  the default location is /usr/bin. Installation will copy the scripts
- to the specified directory and change the 'PLS' suffix to 'pl'.
+ to the specified directory, change the 'PLS' suffix to 'pl', and
+ prepend 'bp_' to all the script names if they aren't so named already.
 
 
  INSTALLING BIOPERL IN A PERSONAL OR PRIVATE MODULE AREA
