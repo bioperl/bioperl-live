@@ -250,21 +250,25 @@ sub trim_singlet {
     my $phreds = 20;
           # start_base required: r_quality,$windowsize,$phredvalue
     my $start_base = &_get_start($r_windows,5,20);
+
+     my (@new_points,$trimmed_sequence);
     if ($start_base > ($sequence_length - 100)) {
-	     $points[0] = ("FAILED");
-	     $points[1] = ("FAILED");
-     	return @points;
+	     $new_points[0] = ("FAILED");
+	     $new_points[1] = ("FAILED");
+     	     # return @points;
     }
-    $points[0] = $start_base;
-          #
-          # whew! now for the end base
-          # 
-          # required parameters: reference_to_windows,windowsize,$phredvalue,start_base
-    my $end_base = &_get_end($r_windows,20,20,$start_base);
-    $points[1] = $end_base;
-    # now do the actual trimming
-    my @new_points = $self->chop_sequence($name,$class,$sequence,@points);
-    my $trimmed_sequence = pop(@new_points);
+     else {
+            $points[0] = $start_base;
+                  #
+                  # whew! now for the end base
+                  # 
+                  # required parameters: reference_to_windows,windowsize,$phredvalue,start_base
+            my $end_base = &_get_end($r_windows,20,20,$start_base);
+            $points[1] = $end_base;
+               # now do the actual trimming
+            @new_points = $self->chop_sequence($name,$class,$sequence,@points);
+            $trimmed_sequence = pop(@new_points);
+     }
     return \@new_points,$trimmed_sequence;
 }
 

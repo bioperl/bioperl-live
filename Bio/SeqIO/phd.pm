@@ -104,8 +104,7 @@ sub next_seq {
     while ($entry = $self->_readline) {
 	return if (!$entry);
 	chomp($entry);
-	if ($entry =~ /^BEGIN_SEQUENCE\s+(\S+)/) {
-	    $self->debug("Setting id to $1\n");
+	if ($entry =~ /^CHROMAT_FILE:\s+(\S+)/) {
 	    $id = $1;
 	    $entry = $self->_readline();
 	}
@@ -125,7 +124,7 @@ sub next_seq {
 	push @qualities,$2;
 	push(@lines,$entry);
     }
-    $self->debug("Creating objects with id = $id\n");
+     # $self->debug("csmCreating objects with id = $id\n");
     my $swq = $self->sequence_factory->create
 	(-seq        => join('',@bases),
 	 -qual       => \@qualities,
