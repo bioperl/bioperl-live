@@ -26,6 +26,10 @@ Revision history for Bioperl core modules
       - Fixed HMMER parsing bug which prevented parsing when a hmmpfam report
         has no top-level family classification scores but does have scores and
         alignments for individual domains.
+      - Parsing FASTA reports where ungapped percent ID is < 10 and the 
+        regular expression to match the line was missing the possibility of
+        an extra space.  This is rare, which is why we probably did not 
+        catch it before.
      o Fix small error which made Bio::Graphics tests fail on certain
        platforms (these could be safely ignored, but the testfiles just
        needed  to be updated to handle it).
