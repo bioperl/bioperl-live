@@ -236,7 +236,7 @@ Bio::Perl has a number of other "easy to use" functions, including
 
   get_sequence        - gets a sequence from standard, internet accessible
                         databases
-  read_sequence       - reads a seqeunce from a file
+  read_sequence       - reads a sequence from a file
   read_all_sequences  - reads all sequences from a file 
   new_sequence        - makes a bioperl sequence just from a string
   write_sequence      - writes a single or an array of sequence to a file
@@ -258,7 +258,7 @@ accesses a subset of the underlying Bioperl functions (for example,
 translation in Bioperl can handle many different translation tables
 and provides different options for stop codon processing) - in most
 cases, most users will migrate to using the underlying bioperl objects
-as their sophistication level increases, but L<Bio::Perl> provides an
+as their sophistication level increases, but Bio::Perl provides an
 easy on-ramp for newcomers and lazy programmers. Also see examples/bioperl.pl
 for more examples of usage of this module.
 
@@ -270,7 +270,7 @@ What's required to run bioperl.
 
 For a "minimal" installation of bioperl, you will need to have perl
 itself installed as well as the bioperl "core modules".  Bioperl has
-been tested primarily using perl 5.005 and perl 5.6.
+been tested primarily using perl 5.005, 5.6, and 5.8.
 The minimal bioperl installation should still work under perl 5.004.
 However, as increasing numbers of bioperl objects are using modules
 from CPAN (see below), problems have been observed for bioperl running
@@ -291,11 +291,11 @@ it like "perl -d <script>). The Perl tool Data::Dumper used with the
 syntax:
 
   use Data::Dumper;
-  printer Dumper($seq);
+  print Dumper($seqobj);
 
 can also be helpful for obtaining debugging information on perl objects.
 
-=head2     I.3.2 Complete installation
+=head2 I.3.2 Complete installation
 
 Some of the capabilities of bioperl require software beyond that of
 the minimal installation.  This additional software includes perl
@@ -362,8 +362,8 @@ Remove the file archive (eg with tar -xvf)
 
 =item *
 
-Create a "makefile" (with "perl Makefile.PL" for perl modules or a
-supplied "install" or "configure" program for non-perl program
+Create a "makefile" with "perl Makefile.PL" for perl modules or a
+supplied "install" or "configure" program for non-perl programs
 
 =item *
 
@@ -510,9 +510,21 @@ automatically when you read in a file containing sequence data using
 the SeqIO object.  This procedure is described in section L<"III.2.1">.
 In addition to storing its identification labels and the sequence itself,
 a Seq object can store multiple annotations and associated "sequence
-features".  This capability can be very useful - especially in
-development of automated genome annotation systems, see section
-L<"III.7.1">.
+features", such as those contained in most Genbank and EMBL sequence files.
+This capability can be very useful - especially in development of
+automated genome annotation systems, see section L<"III.7.1">.
+
+On the other hand, if you need a script capable of simultaneously
+handling hundreds or thousands sequences at a time, then the
+overhead of adding annotations to each sequence can be significant.
+For such applications, you will want to use the PrimarySeq
+object. PrimarySeq is basically a "stripped down" version of Seq.
+It contains just the sequence data itself and a few identifying labels
+(id, accession number, alphabet = dna, rna, or protein), and no features.
+For applications with hundreds or thousands or sequences, using PrimarySeq
+objects can significantly speed up program execution and decrease the
+amount of RAM the program requires. See L<Bio::PrimarySeq> for more
+details.
 
 RichSeq objects store additional annotations beyond those used by
 standard Seq objects.  If you are using sources with very rich
@@ -522,19 +534,7 @@ used to manipulate sequences with quality data, like those produced by
 phred.  These objects are described in section L<"III.7.4">,
 L<Bio::Seq::RichSeqI>, and in L<Bio::Seq::SeqWithQuality>.
 
-On the other hand, if you need a script capable of simultaneously
-handling many (hundreds or thousands) sequences at a time, then the
-overhead of adding annotations to each sequence can be significant.
-For such applications, you will want to use the PrimarySeq
-object. PrimarySeq is basically a "stripped down" version of Seq.
-It contains just the sequence data itself and a few identifying labels
-(id, accession number, alphabet = dna, rna, or protein).  For
-applications with hundreds or thousands or sequences, using PrimarySeq
-objects can significantly speed up program execution and decrease the
-amount of RAM the program requires. See L<Bio::PrimarySeq> for more
-details.
-
-What is (for historical reasons) called a LocatableSeq object
+What is called a LocatableSeq object for historical reasons
 might be more appropriately called an "AlignedSeq" object.  It is a Seq
 object which is part of a multiple sequence alignment.  It has "start" and
 "end" positions indicating from where in a larger sequence it may have
@@ -556,12 +556,12 @@ of the genomic coordinate system.  This situation may occur when
 looking at a sub-sequence (e.g. an exon) which is located on a longer
 underlying underlying sequence such as a chromosome or a contig. Such
 manipulations may be important, for example when designing a graphical
-genome "browaer". If your code may need such a capability, look at the
+genome browser. If your code may need such a capability, look at the
 documentation L<Bio::DB::GFF::RelSegment> which describes this feature
 in detail.
 
 A LargeSeq object is a special type of Seq object used for
-handling very long ( eg E<gt> 100 MB) sequences.  If you need to
+handling very long sequences (eg E<gt> 100 MB).  If you need to
 manipulate such long sequences see section L<"III.7.2"> which describes
 LargeSeq objects, or L<Bio::Seq::LargeSeq>.
 
@@ -572,7 +572,7 @@ sequence feature objects are used to store gene locations on newly
 sequenced genomes - locations which can change as higher quality
 sequencing data becomes available.  Although a LiveSeq object is not
 implemented in the same way as a Seq object, LiveSeq does implement
-the SeqI interface (see below).  Consequently, most methods available
+the SeqI interface (see below). Consequently, most methods available
 for Seq objects will work fine with LiveSeq objects. Section L<"III.7.2">
 and L<Bio::LiveSeq> contain further discussion of LiveSeq objects.
 
@@ -581,10 +581,10 @@ L<Bio::SeqI>). They are used to ensure bioperl's compatibility with
 other software packages. SeqI and other interface objects are not
 likely to be relevant to the casual bioperl user.
 
-*** Having described these other types of sequence objects, the
-    "bottom line" still is that if you store your sequence data in Seq
-    objects (which is where they'll be if you read them in with
-    SeqIO), you will usually do just fine. ***
+Having described these other types of sequence objects, the
+"bottom line" still is that if you store your sequence data in Seq
+objects (which is where they'll be if you read them in with
+SeqIO), you will usually do just fine. ***
 
 =for html <A NAME ="ii.2"></A>
 
@@ -669,11 +669,11 @@ bioperl can manipulate sequences, it needs to have access to sequence
 data.  Now one can directly enter data sequence data into a bioperl
 Seq object, eg:
 
-  $seq = Bio::Seq->new('-seq'=>'actgtggcgtcaact',
-                       '-desc'=>'Sample Bio::Seq object',
-                       '-display_id' => 'something',
-                       '-accession_number' => 'accnum',
-                       '-alphabet' => 'dna' );
+  $seq = Bio::Seq->new('-seq'              =>'actgtggcgtcaact',
+                       '-desc'             =>'Sample Bio::Seq object',
+                       '-display_id'       =>'something',
+                       '-accession_number' =>'accnum',
+                       '-alphabet'         =>'dna' );
 
 However, in most cases, it is preferable to access sequence data from
 some online data file or database. Note that in common with
@@ -701,8 +701,8 @@ even whether it is local or accessible only over the net.
 Descriptions of how to set up the necessary registry configuration
 file and access sequence data with the registry in described in
 BIODATABASE_ACCESS in the doc/howto subdirectory and won't be repeated
-here. Note, the OBDA approach is still under development as of this 
-writing (March 2003); so if you run into difficulties, you can always 
+here. The OBDA approach is still under development as of this 
+writing (March 2003) so if you run into difficulties you can always 
 use the older database specific access methods described in the next
 two subsections.
 
