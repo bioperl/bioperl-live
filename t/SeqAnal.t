@@ -27,7 +27,7 @@ use Bio::Seq;
 my $ambiseq = new Bio::Seq (-seq => 'ARTCGTTGR', -type =>
 			    'Dna'); 
 
-my $stream  = new Bio::Tools::IUPAC($ambiseq);
+my $stream  = new Bio::Tools::IUPAC('-seq' => $ambiseq);
 
 my $b = 1; 
 while (my $uniqueseq = $stream->next_seq()) {
@@ -37,9 +37,3 @@ while (my $uniqueseq = $stream->next_seq()) {
     }
 }
 ok $b;
-
-
-
-
-
-
