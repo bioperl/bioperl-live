@@ -81,7 +81,6 @@ use vars qw(@ISA);
 use strict;
 # Object preamble - inherits from Bio::Root::Object
 
-use IO;
 use Bio::SeqIO;
 use Bio::SeqIO::game::seqHandler;
 use Bio::SeqIO::game::featureHandler;
