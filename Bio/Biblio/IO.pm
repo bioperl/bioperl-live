@@ -17,7 +17,7 @@ Bio::Biblio::IO - Handling the bibliographic references
 
     $in = Bio::Biblio::IO->new(-fh => $io_handle , '-format' => 'medlinexml');
 
-    while ( my $citation = $in->next() ) {
+    while ( my $citation = $in->next_bibref() ) {
 	print $citation;
     }
 
@@ -30,7 +30,7 @@ into an IO handle:
     my $reader = Bio::Biblio::IO->new ('-fh' => IO::String->new ($xml),
 				       '-format' => 'medlinexml',
 				       '-result' => 'bibref');
-    while (my $citation = $reader->next()) {
+    while (my $citation = $reader->next_bibref()) {
        ... do something here with $citation
        }
 
@@ -223,7 +223,7 @@ It makes an expert guess what kind of data are in the given file
 sub _guess_format {
    my $class = shift;
    return unless $_ = shift;
-   return 'medlinexml'   if /\.(xml|medlinexml)$/i;
+   return 'medlinexml'   if (/\.(xml|medlinexml)$/i);
    return;
 }
 
@@ -233,17 +233,17 @@ sub DESTROY {
     $self->close();
 }
 
-#sub TIEHANDLE {
-#    my ($class,$val) = @_;
-#    return bless {'seqio' => $val}, $class;
-#}
+sub TIEHANDLE {
+    my ($class,$val) = @_;
+    return bless {'biblio' => $val}, $class;
+}
 
-#sub READLINE {
-#  my $self = shift;
-#  return $self->{'seqio'}->next_seq() unless wantarray;
-#  my (@list, $obj);
-#  push @list, $obj while $obj = $self->{'seqio'}->next_seq();
-#  return @list;
-#}
+sub READLINE {
+  my $self = shift;
+  return $self->{'biblio'}->next_bibref() unless wantarray;
+  my (@list, $obj);
+  push @list, $obj while $obj = $self->{'biblio'}->next_bibref();
+  return @list;
+}
 
 1;

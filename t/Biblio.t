@@ -21,7 +21,7 @@ BEGIN {
 	use lib 't';
     }
     use Test;
-    plan tests => 20;
+    plan tests => 24;
 }
 
 my $testnum;
@@ -53,7 +53,6 @@ unless (eval "require XML::Parser; 1;") {
     print STDERR "XML::Parser not installed. Skipping some tests.\n";
     $xerror = 1;
 }
-
 
 use Bio::Root::IO;
 my $testfile = Bio::Root::IO->catfile ('t','data','stress_test_medline.xml');
@@ -179,7 +178,7 @@ skip ($ferror2 || $xerror,
 print "Reading and parsing PUBMED XML file...\n";
 if ($xerror) {
     foreach my $i (1..4) {
-	print sprintf ($format, "    citation $i "); skip (1,1);
+	print sprintf ($format, "    citation $i "); skip (1,"Can't read citation from PUBMED XML");
     }
 } else {
     print sprintf ($format, "    citation 1 "); skip ($ferror2, eval { $io->next_bibref->identifier }, '11223344');
@@ -188,4 +187,19 @@ if ($xerror) {
     print sprintf ($format, "    citation 4 "); skip ($ferror2, eval { $io->next_bibref->identifier }, '21138228');
 }
 
+# test for FH
+my $fh;
+my @expvals = qw(11223344 21583752 21465135 21138228);
+print "Testing FH\n";
+eval { 
+    $fh = Bio::Biblio::IO->newFh('-format' => 'pubmedxml',
+				  '-file'   => $testfile2,
+				  '-result' => 'pubmed2ref');
+    while(<$fh>) {
+	ok($_->identifier,shift @expvals);
+    }
+};
+if( $@) {
+    foreach ( 1..4 ) { skip(1,"unable to use pubmedxml"); }
+}
 __END__
