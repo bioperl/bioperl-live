@@ -56,11 +56,9 @@ email or the web:
 
 Email dimitrov@gnf.org
 
-Describe contact details here
-
 =head1 CONTRIBUTORS
 
-Additional contributors names and emails here
+Hilmar Lapp, hlapp at gmx.net
 
 =head1 APPENDIX
 
@@ -241,11 +239,12 @@ sub add_term{
 =head2 get_term_by_identifier
 
  Title   : get_term_by_identifier
- Usage   : get_term_by_identifier(String id): TermI
- Function: Retrieves term from the term store by its identifier field, or undef if not there.
+ Usage   : get_term_by_identifier(String[] id): TermI[]
+ Function: Retrieves terms from the term store by their identifier
+           field, or undef if not there.
  Example : $term = $soe->get_term_by_identifier("IPR000001");
- Returns : The term.
- Args    : Valid identifier.
+ Returns : An array of zero or more Bio::Ontology::TermI objects.
+ Args    : An array of identifier strings
 
 
 =cut
@@ -440,6 +439,69 @@ sub add_relationship{
    return $relationship;
 }
 
+=head2 get_relationships
+
+ Title   : get_relationships
+ Usage   : get_relationships(): RelationshipI[]
+ Function: Retrieves all relationship objects.
+ Example :
+ Returns : Array of RelationshipI objects
+ Args    :
+
+
+=cut
+
+sub get_relationships{
+    my $self = shift;
+    my $term = shift;
+    my @rels;
+    my $store = $self->_relationship_store;
+
+    my @parent_ids = $term ?
+	# if a term is supplied then only get the term's parents
+	(map { $_->identifier(); } $self->get_parent_terms($term)) :
+	# otherwise use all parent ids
+	(keys %{$store});
+    # add the term as a parent too if one is supplied
+    push(@parent_ids,$term->identifier) if $term;
+    
+    foreach my $parent_id (@parent_ids) {
+	my $parent_entry = $store->{$parent_id};
+
+	# if a term is supplied, add a relationship for the parent to the term
+	# except if the parent is the term itself (we added that one before)
+	if($term && ($parent_id ne $term->identifier())) {
+	    my $parent_term = $self->get_term_by_identifier($parent_id);
+	    push(@rels,
+		 Bio::Ontology::Relationship->new(
+		    -parent_term => $parent_term,
+		    -child_term => $term,
+		    -relationship_type => $parent_entry->{$term->identifier},
+		    -ontology => $term->ontology())
+		 );
+		 
+	} else {
+	    # otherwise, i.e., no term supplied, or the parent equals the
+	    # supplied term
+	    my $parent_term = $term ?
+		$term : $self->get_term_by_identifier($parent_id);
+	    foreach my $child_id (keys %$parent_entry) {
+		my $rel_info = $parent_entry->{$child_id};
+
+		push(@rels,
+		     Bio::Ontology::Relationship->new(
+		       -parent_term => $parent_term,
+		       -child_term => $self->get_term_by_identifier($child_id),
+                       -relationship_type => $rel_info,
+		       -ontology => $parent_term->ontology())
+		     );
+	    }
+	}
+    }
+
+    return @rels;
+}
+
 =head2 get_all_relationships
 
  Title   : get_all_relationships
@@ -453,24 +515,7 @@ sub add_relationship{
 =cut
 
 sub get_all_relationships{
-  my ($self) = @_;
-  my @rels;
-  my $store = $self->_relationship_store;
-
-  foreach my $parent_id (keys %{$store}) {
-    my $parent_entry = $store->{$parent_id};
-
-    foreach my $child_id (keys %$parent_entry) {
-      my $rel_info = $parent_entry->{$child_id};
-
-      push @rels, Bio::Ontology::Relationship->new( -parent_term => $self->get_term_by_identifier($parent_id),
-						    -child_term => $self->get_term_by_identifier($child_id),
-						    -relationship_type => $rel_info
-						  );
-    }
-  }
-
-  return @rels;
+    return shift->get_relationships();
 }
 
 =head2 get_relationship_types
@@ -613,7 +658,12 @@ sub get_parent_terms{
   my ($self, $term, @relationship_types) = @_;
   die if !defined $term;
 
-  return $self->_filter_unmarked( $self->get_term_by_identifier( $self->_typed_traversal($self->_inverted_relationship_store, 1, $term->identifier, @relationship_types) ) );
+  return $self->_filter_unmarked(
+	    $self->get_term_by_identifier(
+		$self->_typed_traversal($self->_inverted_relationship_store,
+					1,
+					$term->identifier,
+					@relationship_types) ) );
 }
 
 =head2 get_ancestor_terms
@@ -726,6 +776,44 @@ sub get_all_terms{
 
   return $self->_filter_unmarked( values %{$self->_term_store} );
 }
+
+=head2 find_terms
+
+ Title   : find_terms
+ Usage   : ($term) = $oe->find_terms(-identifier => "SO:0000263");
+ Function: Find term instances matching queries for their attributes.
+
+           This implementation can efficiently resolve queries by
+           identifier.
+
+ Example :
+ Returns : an array of zero or more Bio::Ontology::TermI objects
+ Args    : Named parameters. The following parameters should be recognized
+           by any implementations:
+
+              -identifier    query by the given identifier
+              -name          query by the given name
+
+
+=cut
+
+sub find_terms{
+    my ($self,@args) = @_;
+    my @terms;
+
+    my ($id,$name) = $self->_rearrange([qw(IDENTIFIER NAME)],@args);
+
+    if(defined($id)) {
+	@terms = $self->get_term_by_identifier($id);
+    } else {
+	@terms = $self->get_all_terms();
+    }
+    if(defined($name)) {
+	@terms = grep { $_->name() eq $name; } @terms;
+    }
+    return @terms;
+}
+
 
 =head2 _filter_unmarked
 

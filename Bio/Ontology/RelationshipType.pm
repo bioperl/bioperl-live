@@ -268,7 +268,8 @@ sub definition {
 	$ret = $self->SUPER::definition(@_);
     }
     # let's be nice and return something readable here
-    return $ret || ($self->name() . " relationship type");
+    return $ret if $ret;
+    return $self->name()." relationship type" if $self->name();
 } # definition
 
 

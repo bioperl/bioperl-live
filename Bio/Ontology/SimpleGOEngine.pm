@@ -329,7 +329,8 @@ sub add_relationship {
 
  Title   : get_relationships
  Usage   : $engine->get_relationships( $term );
- Function: Returns all relationships of a term
+ Function: Returns all relationships of a term, or all relationships in
+           the graph if no term is specified.
  Returns : Relationship[]
  Args    : term id
            or
@@ -339,6 +340,9 @@ sub add_relationship {
 
 sub get_relationships {
     my ( $self, $term ) = @_;
+
+    # branch off right away if someone's asking for everything
+    return $self->get_all_relationships() unless $term;
 
     my $g = $self->graph();
 
@@ -376,6 +380,53 @@ sub get_relationships {
 
     return @rels;
 
+} # get_relationships
+
+=head2 get_relationships
+
+
+ Title   : get_all_relationships
+ Usage   : @rels = $engine->get_all_relationships();
+ Function: Returns all relationships in the graph.
+ Returns : Relationship[]
+ Args    : 
+
+=cut
+
+sub get_all_relationships {
+    my $self = shift;
+    my $term = shift;
+    my $g = $self->graph();
+
+    # we'll traverse the graph in breadth-first order and accumulate the
+    # relationships from a node to each one's children 
+    my @rels = ();
+    my @terms = $self->get_root_terms();
+    # @terms is the stack to be processed: loop while something is on the
+    # stack
+    while(@terms) {
+	# do one at a time
+	my $term = shift(@terms); # we're using it as a queue actually
+	# grab its children
+	my @children = $self->get_child_terms($term);
+	# and establish a relationship for each parent-child pair
+	foreach my $child (@children) {
+	    my $rel = Bio::Ontology::Relationship->new(
+                          -parent_term => $term,
+                          -child_term  => $child,
+			  -relationship_type => $g->get_attribute(TYPE,
+						         $term->identifier(),
+						         $child->identifier()),
+			  -ontology          =>  $g->get_attribute( ONTOLOGY,
+					                 $term->identifier(),
+							 $child->identifier())
+						       );
+	    push( @rels, $rel );
+	}
+	# now push the children onto the stack as we have to process them too
+	push(@terms, @children);
+    }
+    return @rels;
 } # get_relationships
 
 
@@ -626,6 +677,42 @@ sub get_all_terms {
 } # get_all_terms
 
 
+=head2 find_terms
+
+ Title   : find_terms
+ Usage   : ($term) = $oe->find_terms(-identifier => "SO:0000263");
+ Function: Find term instances matching queries for their attributes.
+
+           This implementation can efficiently resolver queries by
+           identifier.
+
+ Example :
+ Returns : an array of zero or more Bio::Ontology::TermI objects
+ Args    : Named parameters. The following parameters should be recognized
+           by any implementations:
+
+              -identifier    query by the given identifier
+              -name          query by the given name
+
+
+=cut
+
+sub find_terms{
+    my ($self,@args) = @_;
+    my @terms;
+
+    my ($id,$name) = $self->_rearrange([qw(IDENTIFIER NAME)],@args);
+
+    if(defined($id)) {
+	@terms = $self->get_terms($id);
+    } else {
+	@terms = $self->get_all_terms();
+    }
+    if(defined($name)) {
+	@terms = grep { $_->name() eq $name; } @terms;
+    }
+    return @terms;
+}
 
 
 =head2 graph
@@ -687,7 +774,7 @@ sub _get_child_parent_terms_helper {
     my ( $self, $term, $do_get_child_terms, @types ) = @_;
 
     foreach my $type ( @types ) {
-        $self->_check_class( $type, "Bio::Ontology::RelationshipType" );
+        $self->_check_class( $type, "Bio::Ontology::TermI" );
     }
 
     my @relative_terms = ();
