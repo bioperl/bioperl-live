@@ -78,6 +78,7 @@ use strict;
 package Bio::Tools::Analysis::Protein::ELM;
 use vars qw(@ISA %cc);
 use Bio::Tools::Analysis::SimpleAnalysisBase;
+use HTML::HeadParser;
 use Bio::SeqFeature::Generic;
 use HTTP::Request::Common qw(POST);
 use IO::String;
@@ -251,24 +252,36 @@ sub  _run {
         Content_Type => 'form-data',
             Content  => \@cc_str;
 	$self->debug( $request->as_string);
-    my $text = $self->request($request)->content;
-	my ($url) = $text =~ /URL=(\S+)"/s;
-	$url =~ s/amp;//g ;
-    my $resp2;
-	while (1) {
-		my $req2 = HTTP::Request->new(GET=>$url);
-    	 $resp2 = $self->request ($req2)->content();
-		if ($resp2 !~ /patient/s) {
-			$self->status('COMPLETED');
-			$resp2=~ s/<[^>]+>/ /sg;
+    my $r1 = $self->request($request);
+    if( $r1->is_error  ) {
+	$self->warn(ref($self)." Request Error:\n".$r1->as_string);
+	return;
+    }
+
+    my $text = $r1->content;
+    my ($url) = $text =~ /URL=(\S+)\"/s; 
+    $url =~ s/amp;//g ;
+    my ($resp2);
+    while (1) {
+	my $req2 = HTTP::Request->new(GET=>$url);
+	my $r2 = $self->request ($req2);
+	if( $r2->is_error ) {
+	    $self->warn(ref($self)." Request Error:\n".$r2->as_string);	    
+	    return;
+	} 
+	$resp2 = $r2->content();
+	
+	if ($resp2 !~ /patient/s) {
+	    $self->status('COMPLETED');
+	    $resp2=~ s/<[^>]+>/ /sg;
             $self->{'_result'} = $resp2;
-			return;
-			}
-		else {
-			print "." if $self->verbose > 0;
-			$self->sleep();
-			}
+	    return;
 	}
+	else {
+	    print "." if $self->verbose > 0;
+	    $self->sleep();
+	}
+    }
 }
 
 =head1      result
