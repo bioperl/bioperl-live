@@ -9,7 +9,7 @@ o System requirements
 
  - perl 5.004 or later *.
 
- - ANSI C or Gnu C compiler for XS extensions
+ - ANSI C or Gnu C compiler for optional extra XS extensions 
 
  - External modules: Bioperl uses functionality provided in other
    Perl modules.  Some of these are included in the standard perl
@@ -23,7 +23,7 @@ o System requirements
  - Bioperl on ActiveState for Windows - An ActiveState PPM distribution is
    available for bioperl.  Issue the following command in your PPM
    shell to install the Bioperl PPD.
-   PPM> set repository Bioperl ftp://bioperl.org/pub/DIST/
+   PPM> set repository Bioperl http://bioperl.org/DIST/
    PPM> install bioperl
 
  - Additional information using Bioperl with MacOS can be 
