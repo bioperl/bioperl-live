@@ -38,12 +38,12 @@ print "ok 1\n";    # 1st test passes.
 
 my $range = Bio::Range->new(-start=>10,
                             -end=>20,
-			    -strand=>"+1");
+			    -strand=>1);
 print "ok 2\n"; 
 
 my $range2 = Bio::Range->new(-start=>15,
                              -end=>25,
-			     -strand=>"+1");
+			     -strand=>1);
 
 print "ok 3\n";
 
