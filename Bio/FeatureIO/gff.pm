@@ -186,7 +186,7 @@ sub _write_feature_3 {
   }
   my $type;
   if ($feature->type()) { $type = $feature->type->name; }
-  else { $type = "unknowntype"; }
+  else { $type = "region"; }
   my $min    = $feature->start   || '.';
   my $max    = $feature->end     || '.';
   my $strand = $feature->strand == 1 ? '+' : $feature->strand == -1 ? '-' : '.';
@@ -195,16 +195,25 @@ sub _write_feature_3 {
 
   my @attr;
   if(my @v = ($feature->get_Annotations('Name'))){
-    my $vstring = join ',', map {$_->value} @v;
+    my $vstring = join ',', map {uri_escape($_->value)} @v;
     push @attr, "Name=$vstring";
   }
   if(my @v = ($feature->get_Annotations('ID'))){
-    my $vstring = join ',', map {$_->value} @v;
+    my $vstring = join ',', map {uri_escape($_->value)} @v;
     push @attr, "ID=$vstring";
     $self->throw('GFF3 features may have at most one ID, feature with these IDs is invalid:\n'.$vstring) if scalar(@v) > 1;
   }
   if(my @v = ($feature->get_Annotations('Parent'))){
-    my $vstring = join ',', map {$_->value} @v;
+    my $vstring = join ',', map {uri_escape($_->value)} @v;
+    push @attr, "Parent=$vstring";
+  }
+  if(my @v = ($feature->get_Annotations('dblink'))){
+    my $vstring = join ',', map {uri_escape($_->primary_id)} @v;
+    push @attr, "Dbxref=$vstring";
+  }
+  if(my @v = ($feature->get_Annotations('ontology_term'))){
+    my $vstring = join ',', map {uri_escape($_->identifier)} @v;
+    push @attr, "Ontology_term=$vstring";
   }
 
   my $attr = join ';', @attr;

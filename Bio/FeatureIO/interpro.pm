@@ -70,6 +70,9 @@ sub next_feature {
                                                       -seq_id => $pNode->getAttribute('id'),
                                                      );
 
+        my $t = Bio::Annotation::OntologyTerm->new(-identifier => 'SO:0000001', -name => 'region');
+        $feature->add_Annotation('type',$t);
+
         my $d = Bio::Annotation::DBLink->new();
         $d->database($mNode->getAttribute('dbname'));
         $d->primary_id($mNode->getAttribute('id'));
