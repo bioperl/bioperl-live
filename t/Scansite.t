@@ -32,8 +32,14 @@ BEGIN {
 }
 
 END {
-    foreach ( $Test::ntest..$NUMTESTS) {
-	skip('unable to run all of the tests depending on web access',1);
+    if ($DEBUG) {
+        foreach ( $Test::ntest..$NUMTESTS) {
+            skip('unable to run all of the tests depending on web access',1);
+        }
+    } else {
+        foreach ( $Test::ntest..$NUMTESTS) {
+            skip('set env BIOPERLDEBUG to run tests over web ',1);
+        }
     }
 }
 
@@ -64,6 +70,7 @@ ok $tool = Bio::Tools::Analysis::Protein::Scansite->new(
 ok $tool->stringency('Low');
 ok $tool->stringency(), 'Low';
 ok $tool->protein_id(), $tool->seq->display_id();
+exit unless $DEBUG;
 ok $tool->run ();
 exit if $tool->status eq 'TERMINATED_BY_ERROR';
 ok my $raw = $tool->result('');
