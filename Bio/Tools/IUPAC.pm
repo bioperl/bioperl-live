@@ -161,7 +161,7 @@ BEGIN {
 				AT	=> 'W',
 				CG	=> 'S',
 				CT	=> 'Y',
-				GT	=> 'K',
+				'GT'	=> 'K',
 				ACG	=> 'V',
 				ACT	=> 'H',
 				AGT	=> 'D',
