@@ -1,14 +1,15 @@
 # $Id$
 # BioPerl module for Bio::Expression::FeatureSet
 #
-# Copyright Allen Day <allenday@ucla.edu>, Stan Nelsonley <snelson@ucla.edu>
+# Copyright Allen Day <allenday@ucla.edu>, Stanley Nelson <snelson@ucla.edu>
 # Human Genetics, UCLA Medical School, University of California, Los Angeles
 
 # POD documentation - main docs before the code
 
 =head1 NAME
 
-Bio::Expression::FeatureSet - a set of DNA/RNA features
+Bio::Expression::FeatureSet - a set of DNA/RNA features.  ISA
+Bio::Expression::FeatureI
 
 =head1 SYNOPSIS
 
@@ -51,7 +52,7 @@ package Bio::Expression::FeatureSet;
 
 use strict;
 
-use base qw(Bio::Root::Root);
+use base qw(Bio::Root::Root Bio Expression::FeatureI);
 use vars qw($DEBUG);
 
 =head2 new
