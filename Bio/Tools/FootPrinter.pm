@@ -233,7 +233,7 @@ sub _parse {
     }
     my $last;
     my $feat = new Bio::SeqFeature::Generic(-seq_id=>$name);
-    my $offset;
+    my $offset=0;
     foreach my $w(@words){
         if($w !~ /^$/){
           my $index = index($pattern,$w,$offset);
