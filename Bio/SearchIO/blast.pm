@@ -249,6 +249,10 @@ sub next_result{
 	   if( defined $seenquery ) {
 	       $self->_pushback($reportline);
 	       $self->_pushback($_);
+	       $self->in_element('hsp') &&
+		   $self->end_element({'Name'=> 'Hsp'});
+	       $self->in_element('hit') &&
+		   $self->end_element({'Name'=> 'Hit'});
 	       $self->end_element({'Name' => 'BlastOutput'});
 	       return $self->end_document();
 	   } else { 
@@ -487,13 +491,20 @@ sub next_result{
 	   $self->element({'Name' => 'Parameters_allowgaps',
 			   'Data' => 'yes'});
 	   while( defined ($_ = $self->_readline ) ) {
-	       if( /^(PSI)?([T]?BLAST[NPX])\s*([\d\.]+)/i ) {
+	       if( /^(PSI)?([T]?BLAST[NPX])\s*([\d\.]+)/i ||
+		   /^MEGABLAST/i ) {
 		   $self->_pushback($_);
 		   # let's handle this in the loop
 		   last;
 	       } elsif( /^Query=/ ) {	
 		   $self->_pushback($reportline);
 		   $self->_pushback($_);
+		   # -- Superfluous I think
+		   $self->in_element('hsp') && 
+		       $self->end_element({'Name' => 'Hsp'});
+		   $self->in_element('hit') && 
+		       $self->end_element({'Name' => 'Hit'});
+		   # --
 		   $self->end_element({ 'Name' => 'BlastOutput'});
 		   return $self->end_document();
 	       }
