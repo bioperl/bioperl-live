@@ -78,8 +78,9 @@ sub new {
     my ( $caller, @args) = @_;   
     my ($self) = $caller->SUPER::new(@args); 
 
-    my ($evalue, $bits, $frac,$seqlen,$seqdesc) =
-	$self->_rearrange([qw(EXPECT
+    my ($primary,$evalue, $bits, $frac,$seqlen,$seqdesc) =
+	$self->_rearrange([qw(PRIMARY
+			      EXPECT
 			      BITS
 			      FRAC
 			      SEQDESC
@@ -91,7 +92,8 @@ sub new {
     $frac   && $self->frac_identical($frac);
     $seqlen && $self->seqlength($seqlen);
     $seqdesc && $self->seqdesc($seqdesc);
-    $self->primary_tag('similarity') unless( defined $self->primary_tag() );
+    $primary  = 'similarity' unless defined $primary;
+    $self->primary_tag($primary) unless( defined $self->primary_tag() );
     $self->strand(0) unless( defined $self->strand() );
 
     return $self;

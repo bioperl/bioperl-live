@@ -98,17 +98,14 @@ use Bio::SeqFeature::Generic;
 						     
 sub new {
     my ( $class, @args) = @_;
+    
     my $self = $class->SUPER::new(@args);
 
-    #_gsf_sub_hash is a hash of hashes:
-    %{$self->{'gsf_sub_hash'}} = ();
-    $self->{'_gsf_score_hash'} = {};
 
-    my ( $computation_id, $score,
+    my ( $computation_id, 
 	$program_name, $program_date, $program_version,
 	$database_name, $database_date, $database_version) =
 	    $self->_rearrange([qw(COMPUTATION_ID
-				  SCORE
 				  PROGRAM_NAME
 				  PROGRAM_DATE
 				  PROGRAM_VERSION
@@ -124,16 +121,7 @@ sub new {
     $database_date    && $self->database_date($database_date);
     $database_version && $self->database_version($database_version);
     $computation_id   && $self->computation_id($computation_id);
-    $score            && do {
-	if (ref($score) =~ /hash/i) {
-	    while( my ($t,$val) = each %$score ) {
-		$self->add_score_value($t,$val);
-	    }
-	} else { 	     
-	    $self->score($score); 	
-	}
-
-    };
+    
     return $self;
 }  
 
@@ -194,12 +182,16 @@ sub score {
     my ($self, $value) = @_;
     my @v;
     if (defined $value) {
-	if( ref($value) ) {
-	    $self->warn("Do not use score with a hash - you must initialize each item individually");
-	    return;
-	} 
-	@v = $value;
-	$self->add_score_value('default', $value);
+
+	if( ref($value) =~ /HASH/i ) {
+	    while( my ($t,$val) = each %{ $value } ) {
+		$self->add_score_value($t,$val);
+	    }
+	} else {
+	    @v = $value;
+	    $self->add_score_value('default', $value);
+	}
+	
     } else {       
 	@v = $self->each_score_value('default');
     }
@@ -220,7 +212,8 @@ sub score {
 sub each_score_value {
    my ($self, $score) = @_;
    if ( ! exists $self->{'_gsf_score_hash'}->{$score} ) {
-       $self->throw("asking for score value that does not exist $score");
+       $self->warn("asking for score value that does not exist $score");
+       return undef;
    }
    return @{$self->{'_gsf_score_hash'}->{$score}};
 }

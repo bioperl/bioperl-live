@@ -110,8 +110,9 @@ sub new {
     # TODO: Remove this when BlastHSP doesn't do lazy parsing.
     $self->{'_initializing'} = 1;
 
-    my ($hit, $query, $fea1, $source,$sbjct) =
-	$self->_rearrange([qw(HIT
+    my ($primary, $hit, $query, $fea1, $source,$sbjct) =
+	$self->_rearrange([qw(PRIMARY
+			      HIT
 			      QUERY
 			      FEATURE1
                               SOURCE
@@ -119,7 +120,8 @@ sub new {
 			      )],@args);
     
     if( $sbjct ) { 
-#	$self->deprecated("use of -subject deprecated: SimilarityPair now uses 'hit'");
+	# undeprecated by Jason before 1.1 release 
+        # $self->deprecated("use of -subject deprecated: SimilarityPair now uses 'hit'");
 	if(! $hit) { $hit = $sbjct } 
 	else { 
 	    $self->warn("-hit and -subject were specified, using -hit and ignoring -subject");
@@ -132,7 +134,11 @@ sub new {
     
     $hit && $self->hit($hit);
     # the following refer to feature1, which has been ensured to exist
-    $self->primary_tag('similarity') unless( defined $self->primary_tag() );
+    if( defined $primary || ! defined $self->primary_tag) { 
+	$primary = 'similarity' unless defined $primary;
+	$self->primary_tag($primary);
+    } 
+
     $source && $self->source_tag($source);
     $self->strand(0) unless( defined $self->strand() );
 
@@ -149,10 +155,11 @@ sub new {
  Title   : query
  Usage   : $query_feature = $obj->query();
            $obj->query($query_feature);
- Function: 
- Returns : 
- Args    : 
+ Function: The query object for this similarity pair
+ Returns : Bio::SeqFeature::Similarity
+ Args    : [optional] Bio::SeqFeature::Similarity
 
+See L<Bio::SeqFeature::Similarity>, L<Bio::SeqFeature::FeaturePair>
 
 =cut
 
@@ -161,7 +168,7 @@ sub query {
     my $f = $self->feature1();
     if( ! @args || ( !ref($args[0]) && $args[0] eq 'null') ) {
 	if( ! defined( $f) ) {
-	    @args = Bio::SeqFeature::Similarity->new();	    
+	    @args = Bio::SeqFeature::Similarity->new();
 	} elsif( ! $f->isa('Bio::SeqFeature::Similarity') && 
 		 $f->isa('Bio::SeqFeatureI') ) {
 	    # a Bio::SeqFeature::Generic was placeholder for feature1	    

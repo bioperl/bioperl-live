@@ -172,6 +172,59 @@ sub new {
 }
 
 
+sub bulkset {
+    my ($self,@args) = @_;
+    my ($start, $end, $strand, $primary, $source, $frame, 
+	$score, $tag, $gff_string, $gff1_string, $seqname, $annot, $location) =
+	    $self->_rearrange([qw(START
+				  END
+				  STRAND
+				  PRIMARY
+				  SOURCE
+				  FRAME
+				  SCORE
+				  TAG
+				  GFF_STRING
+				  GFF1_STRING
+				  SEQNAME
+				  ANNOTATION
+				  LOCATION
+				  )], @args);
+    $location    && $self->location($location);
+    $gff_string  && $self->_from_gff_string($gff_string);
+    $gff1_string  && do {
+	$self->gff_format(Bio::Tools::GFF->new('-gff_version' => 1));
+	$self->_from_gff_stream($gff1_string);
+    };
+    $primary        && $self->primary_tag($primary);
+    $source         && $self->source_tag($source);
+    defined $start  && $self->start($start);
+    defined $end    && $self->end($end);
+    defined $strand && $self->strand($strand);
+    defined $frame  && $self->frame($frame);
+    $score          && $self->score($score);
+    $seqname        && $self->seqname($seqname);
+    $annot          && $self->annotation($annot);
+    $tag            && do {
+	foreach my $t ( keys %$tag ) {
+	    $self->add_tag_value($t,$tag->{$t});
+	}
+    };
+}
+
+
+=head2 direct_new
+
+ Title   : direct_new
+ Usage   : my $obj = Bio::SeqFeature::Generic->direct_new
+ Function: create a blessed hash - for performance improvement in 
+           object creation
+ Returns : Bio::SeqFeature::Generic object
+ Args    : none
+
+
+=cut
+
 sub direct_new {
     my ( $class) = @_;   
     my ($self) = {};
