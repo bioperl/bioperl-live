@@ -71,7 +71,7 @@ methods. Internal methods are usually preceded with a _
 
 # Let the code begin...
 
-package Bio::SeqIO::game2;
+package Bio::SeqIO::game;
 use vars qw(@ISA);
 use strict;
 # Object preamble - inherits from Bio::Root::Object
