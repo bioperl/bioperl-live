@@ -451,7 +451,7 @@ use Bio::Root::Root;
 use vars qw($VERSION @ISA);
 @ISA = qw(Bio::Root::Root);
 
-$VERSION = '1.02';
+$VERSION = '1.03';
 my %valid_range_types = (overlaps     => 1,
 			 contains     => 1,
 			 contained_in => 1);
@@ -776,8 +776,9 @@ sub segment {
   } elsif (wantarray) { # more than one reference sequence
     return @segments;
   } else {
-    $self->error($segments[0]->name," has more than one reference sequence in database.  Please call in a list context to retrieve them all.");
-    croak('multiple segment exception');
+    $self->error($segments[0]->name,
+		 " has more than one reference sequence in database.  Please call in a list context to retrieve them all.");
+    $self->throw('multiple segment exception');
     return;
   }
 }
