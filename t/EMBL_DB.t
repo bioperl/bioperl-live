@@ -91,7 +91,7 @@ eval {
 			    -retrievaltype => 'tempfile',
 			    -format => 'fasta'
 			    ); 
-    ok( defined($seqio = $db->get_Stream_by_batch(['J00522 AF303112 J02231'])));
+    ok( defined($seqio = $db->get_Stream_by_acc(['J00522 AF303112 J02231'])));
     ok($seqio->next_seq->length, 408);
     ok($seqio->next_seq->length, 1611);
     ok($seqio->next_seq->length, 200);
