@@ -1,7 +1,7 @@
 #!/usr/bin/perl
 # Brian Osborne
 # script to run genscan on all nucleotide sequences in a fasta file
-# and save results as fasta, creates <file>.gs.pept and <file>.gs.cds,
+# and save results as the fasta files <file>.gs.pept and <file>.gs.cds,
 # and <file>.gs.exons
 
 use Bio::SeqIO;
@@ -44,29 +44,28 @@ while ( my $seq = $in->next_seq() ) {
    my $genscan = Bio::Tools::Genscan->new( -file => "$file_id.gs.raw");
    while ( my $gene = $genscan->next_prediction() ) {
       $i++;
-      my $prt = $gene->predicted_protein;
+      my $pept = $gene->predicted_protein;
       my $cds = $gene->predicted_cds;
       my @exon_arr = $gene->exons;
 
       if ( defined $cds  ) {
-	 my $cds_seq = Bio::Seq->new(-seq => $prt->seq,
+	 my $cds_seq = Bio::Seq->new(-seq => $cds->seq,
 				     -display_id => $cds->display_id);
 	 $cds_out->write_seq($cds_seq);
       }
 
-      if ( defined $prt ) {
-	 my $pept_seq = Bio::Seq->new(-seq => $prt->seq,
-				      -display_id => $prt->display_id);
+      if ( defined $pept ) {
+	 my $pept_seq = Bio::Seq->new(-seq => $pept->seq,
+				      -display_id => $pept->display_id);
 	 $pept_out->write_seq($pept_seq);
       }
 
       for my $exon (@exon_arr) {
-	 my $display_id = $seq->display_id;
 	 my $desc = $exon->strand . " " . $exon->start . "-" . $exon->end .
 	   " " . $exon->primary_tag . " " . "GENSCAN_predicted_$i";
 	 my $exon_seq = Bio::Seq->new(-seq => $seq->subseq($exon->start,
 							   $exon->end),
-				      -display_id => $display_id,
+				      -display_id => $seq->display_id,
 				      -desc => $desc );
 	 $exons_out->write_seq($exon_seq);
       }
