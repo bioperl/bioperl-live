@@ -124,19 +124,7 @@ sub _overload {
 
 =cut
 
-sub P               {shift->significance(@_)}
-
-=head2 percent
-
- Title    : percent
- Usage    : $hsp->percent();
- Function : returns the percent matching 
- Returns  : (double) percent matching
- Args     : none
-
-=cut
-
-sub percent {
+sub P {
 	my ($self, @args) = @_;
 	my $float = $self->significance(@args);
 	my $match = '([+-]?)(?=\d|\.\d)\d*(\.\d*)?([Ee]([+-]?\d+))?'; # Perl Cookbook 2.1
@@ -151,6 +139,19 @@ sub percent {
 		return 0;
 	}
 }
+
+=head2 percent
+
+ Title    : percent
+ Usage    : $hsp->percent();
+ Function : returns the percent matching 
+ Returns  : (double) percent matching
+ Args     : none
+
+=cut
+
+sub percent         {shift->{'PERCENT'}}
+
 
 =head2 match
 
