@@ -264,20 +264,24 @@ sub next_result{
 	   }
 	   $seenquery = $q;
 	   $_ = $self->_readline;
-	   while( defined ($_) && $_ !~ /^\s+$/ ) {	
-	       chomp;
-	       if( /\(([\d,]+)\s+letters.*\)/ ) {		   
-		   $size = $1;
-		   $size =~ s/,//g;
+	   while( defined ($_) ) {
+               if( /^Database:/ ) {
+		   $self->_pushback($_);
 		   last;
-	       } else { 
-		   $q .= " $_";
-		   $q =~ s/ +/ /g;
-		   $q =~ s/^ | $//g;
 	       }
+               chomp;               
+               if( /\(([\d,]+)\s+letters.*\)/ ) {
+                   $size = $1;
+                   $size =~ s/,//g;
+                   last;
+               } else { 
+                   $q .= " $_";
+                   $q =~ s/ +/ /g;
+                   $q =~ s/^ | $//g;
+               }
 
-	       $_ = $self->_readline;
-	   }
+               $_ = $self->_readline;
+           }
 	   chomp($q);
 	   my ($nm,$desc) = split(/\s+/,$q,2);	   
 	   $self->element({ 'Name' => 'BlastOutput_query-def',
