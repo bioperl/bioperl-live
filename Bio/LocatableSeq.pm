@@ -410,7 +410,7 @@ sub revcom {
     my ($self) = @_;
 
     my $new = $self->SUPER::revcom;
-    $new->strand($self->strand * -1);
+    $new->strand($self->strand * -1) if $self->strand;
     $new->start($self->start) if $self->start;
     $new->end($self->end) if $self->end;
     return $new;
@@ -434,11 +434,11 @@ sub revcom {
 sub trunc {
     my ($self, $start, $end) = @_;
     my $new = $self->SUPER::trunc($start, $end);
-    $new->strand($self->strand);
-
-    # end will be automatically calculated
-    $start = $end if $self->strand == -1;
-
+    if ($self->strand) {
+	    $new->strand($self->strand);
+	    # end will be automatically calculated
+	    $start = $end if $self->strand == -1;
+    }
     $start = $self->location_from_column($start);
     $start ? ($start = $start->end) : ($start = 1);
     $new->start($start) if $start;
