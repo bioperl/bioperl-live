@@ -1,0 +1,2 @@
+To generate the files run
+% docbook2html -u ../sgml/FILENAME.sgml
