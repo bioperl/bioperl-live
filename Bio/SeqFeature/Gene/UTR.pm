@@ -91,6 +91,7 @@ sub new {
  Returns : a string 
  Args    : none
 
+=cut
 
 sub primary_tag{
    my ($self,$val) = @_;
