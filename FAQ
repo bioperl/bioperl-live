@@ -63,6 +63,7 @@ Contents
 	 according to Blast?
    Q3.6: How do I tell BLAST to search multiple database using
 	 Bio::Tools::Run::StandAloneBlast?
+   Q3.7: Does SearchIO parse the HTML output file that BLAST can create?
 
 4. Utilities
 
@@ -508,6 +509,31 @@ Contents
 	 );
 	 my $seqobj = $seqio->next_seq();
 	 $factory->blastall($seqobj);
+
+
+   Q3.7: Does SearchIO parse the HTML output file that BLAST can create?
+
+      A: Yes, with a twist. You can modify SearchIO's _readline() method
+	 such that it reads in the HTML and strips it of tags using the
+	 StripHTML module:
+
+	 
+	 use Bio::SearchIO;
+	 use Bio::SearchIO::blast;
+	 use HTML::Strip;
+	 
+	 my $hs = new HTML::Strip;
+	 
+	 # replace the blast parser's _readline method with one that
+	 # auto-strips HTML:
+	 
+	 sub Bio::SearchIO::blast::_readline {
+	   my ($self, @args) = @_;
+	   return $hs->parse($self->SUPER::_readline(@args));
+	 }
+	 
+	 $io = new Bio::SearchIO -file => "etc", -format => "blast";
+	 # etc ...
 
 
 ---------------------------------------------------------------------------

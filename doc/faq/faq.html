@@ -6,7 +6,7 @@
 (Reference Sequences)?</a></li><li><a href="#Q2.4"><strong>Q2.4: </strong>How can I use SeqIO to parse sequence data to or from a string?</a></li><li><a href="#Q2.5"><strong>Q2.5: </strong>I'm using Bio::Index::Fasta in order to retrieve sequences from my indexed fasta file but I keep seeing ">> MSG: Did not provide a valid Bio::PrimarySeqI object" when I call fetch() followed by SeqIO::write_seq(). Why?
 </a></li></ul><strong><a href="#3">3. Report parsing</a></strong><ul><li><a href="#Q3.1"><strong>Q3.1: </strong>I want to parse BLAST, how do I do this?</a></li><li><a href="#Q3.2"><strong>Q3.2: </strong>What was wrong with Bio::Tools::Blast?</a></li><li><a href="#Q3.3"><strong>Q3.3: </strong>I want to parse FastA or NCBI -m7 (XML) format, how do I do this?</a></li><li><a href="#Q3.4"><strong>Q3.4: </strong>Let's say I want to do pairwise alignments of 2 sequences. How can I do this?</a></li><li><a href="#Q3.5"><strong>Q3.5: </strong>I'm using Bio::Search* and its frame() to parse Blast but I'm seeing 0, 1, or 2 instead of the expected -3, -2, -1, +1, +2, +3. Why am I seeing these different numbers and how do I get the frame according to Blast?
 </a></li><li><a href="#Q3.6"><strong>Q3.6: </strong>How do I tell BLAST to search multiple database using Bio::Tools::Run::StandAloneBlast?
-</a></li></ul><strong><a href="#4">4. Utilities</a></strong><ul><li><a href="#Q4.1"><strong>Q4.1: </strong>How do I find all the ORFs in a nucleotide sequence? Antigenic sites in a protein? Calculate nucleotide melting temperature? Find repeats?</a></li><li><a href="#Q4.2"><strong>Q4.2: </strong>How do I do motif searches with Bioperl? Can I do "find all sequences that are 75% identical" to a given motif?</a></li><li><a href="#Q4.3"><strong>Q4.3: </strong>Can I query MEDLINE or other bibliographic repositories using Bioperl?</a></li></ul><strong><a href="#5">5. Annotations and Features</a></strong><ul><li><a href="#Q5.1"><strong>Q5.1: </strong>I get the warning "(old style Annotation) on new style Annotation::Collection".  What is wrong?
+</a></li><li><a href="#Q3.7"><strong>Q3.7: </strong>Does SearchIO parse the HTML output file that BLAST can create?</a></li></ul><strong><a href="#4">4. Utilities</a></strong><ul><li><a href="#Q4.1"><strong>Q4.1: </strong>How do I find all the ORFs in a nucleotide sequence? Antigenic sites in a protein? Calculate nucleotide melting temperature? Find repeats?</a></li><li><a href="#Q4.2"><strong>Q4.2: </strong>How do I do motif searches with Bioperl? Can I do "find all sequences that are 75% identical" to a given motif?</a></li><li><a href="#Q4.3"><strong>Q4.3: </strong>Can I query MEDLINE or other bibliographic repositories using Bioperl?</a></li></ul><strong><a href="#5">5. Annotations and Features</a></strong><ul><li><a href="#Q5.1"><strong>Q5.1: </strong>I get the warning "(old style Annotation) on new style Annotation::Collection".  What is wrong?
         </a></li><li><a href="#Q5.2"><strong>Q5.2: </strong>How do I retrieve all the features from a Sequence?  How about all the features which are exons or have a /note field that contains a certain gene name?
       </a></li><li><a href="#Q5.3"><strong>Q5.3: </strong>How do I parse the CDS join() or complement() statements in Genbank or EMBL files to get the sub-locations, like the coordinates "45" and "122" in "join(45..122,233..267)"?
       </a></li><li><a href="#Q5.4"><strong>Q5.4: </strong>How do I retrieve a nucleotide coding sequence when I have a protein gi number?
@@ -91,6 +91,23 @@ my $factory = Bio::Tools::Run::StandAloneBlast->new(@params);
 my $seqio = Bio::SeqIO->new(-file=>'t/amino.fa',-format => 'Fasta' );
 my $seqobj = $seqio->next_seq();
 $factory->blastall($seqobj);
+</pre></font></td></tr></table><p></p><a name="Q3.7"></a><h3>Q3.7: Does SearchIO parse the HTML output file that BLAST can create?</h3><p><b>A: </b>Yes, with a twist. You can modify SearchIO's _readline() method such that it reads in the HTML and strips it of tags using the StripHTML module:</p><table bgcolor="pink" border="0" cellpadding="10" cellspacing="0"><tr><td><font color="blue"><pre>
+use Bio::SearchIO;
+use Bio::SearchIO::blast;
+use HTML::Strip;
+
+my $hs = new HTML::Strip;
+
+# replace the blast parser's _readline method with one that
+# auto-strips HTML:
+
+sub Bio::SearchIO::blast::_readline {
+  my ($self, @args) = @_;
+  return $hs->parse($self->SUPER::_readline(@args));
+}
+
+$io = new Bio::SearchIO -file => "etc", -format => "blast";
+# etc ...
 </pre></font></td></tr></table><hr></hr><h2>4. Utilities</h2><a name="4"></a><p></p><a name="Q4.1"></a><h3>Q4.1: How do I find all the ORFs in a nucleotide sequence? Antigenic sites in a protein? Calculate nucleotide melting temperature? Find repeats?</h3><p><b>A: </b>In fact, none of these functions are built into Bioperl but they are all available in the EMBOSS package (<a href="http://www.emboss.org/">http://www.emboss.org/</a>), as well as many others. The Bioperl developers created a simple interface to EMBOSS such that any and all EMBOSS programs can be run from within Bioperl. See Bio::Factory::EMBOSS for more information.
             </p><p>If you can't find the functionality you want in Bioperl then make sure to look for it in EMBOSS, these packages integrate quite gracefully with Bioperl. Of course, you will have to install EMBOSS to get this access.
             </p><p>In addition, Bioperl after version 1.0.1 contains the Pise/Bioperl modules. The Pise package (http://www-alt.pasteur.fr/~letondal/Pise) was designed to provide a uniform interface to bioinformatics applications, and currently provides wrappers to greater than 250 such applications! Included amongst these wrapped apps are HMMER, Phylip, BLAST, GENSCAN, even the EMBOSS suite. Use of the Pise/Bioperl modules does not require installation of the Pise package.
