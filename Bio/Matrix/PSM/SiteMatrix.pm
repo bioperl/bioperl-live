@@ -277,7 +277,7 @@ sub _calculate_consensus {
             and the current position
  Throws  :
  Example :
- Returns : hash (pA,pC,pG,pT,base,prob,rel)
+ Returns : hash (pA,pC,pG,pT,logA,logC,logG,logT,base,prob,rel)
  Args    : none
 
 
@@ -289,18 +289,22 @@ sub next_pos {
     my $len=@{$self->{seq}};
     my $pos=$self->{_position};
     # End reached?
-    if ($self->{_position}<$len) {
+    if ($pos<$len) {
 	my $pA=${$self->{probA}}[$pos];
 	my $pC=${$self->{probC}}[$pos];
 	my $pG=${$self->{probG}}[$pos];
 	my $pT=${$self->{probT}}[$pos];
+	my $lA=${$self->{logA}}[$pos];
+	my $lC=${$self->{logC}}[$pos];
+	my $lG=${$self->{logG}}[$pos];
+	my $lT=${$self->{logT}}[$pos];
 	my $base=${$self->{seq}}[$pos];
 	my $prob=${$self->{seqp}}[$pos];
 	$self->{_position}++;
-	my %seq=(pA=>$pA,pT=>$pT,pC=>$pC,pG=>$pG, base=>$base,rel=>$pos, prob=>$prob);
+	my %seq=(pA=>$pA,pT=>$pT,pC=>$pC,pG=>$pG, lA=>$lA,lT=>$lT,lC=>$lC,lG=>$lG,base=>$base,rel=>$pos, prob=>$prob);
 	return %seq;
     }
-    else {$self->{_position}=0; return undef;}
+    else {$self->{_position}=0; return;}
 }
 
 
