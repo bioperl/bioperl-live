@@ -1,0 +1,875 @@
+package Bio::DB::Fasta;
+
+BEGIN {
+  @AnyDBM_File::ISA = qw(DB_File GDBM_File NDBM_File SDBM_File)
+}
+
+use strict;
+use IO::File;
+use AnyDBM_File;
+use Fcntl;
+use File::Basename qw(basename dirname);
+use Carp 'croak';
+our $VERSION = '1.0';
+
+*seq = *sequence = \&subseq;
+*ids = \&get_all_ids;
+*get_seq_by_primary_id = *get_Seq_by_acc  = \&get_Seq_by_id;
+
+use constant STRUCT =>'NNnnCa*';
+use constant DNA     => 1;
+use constant RNA     => 2;
+use constant PROTEIN => 3;
+
+# Bio::DB-like object
+# providing fast random access to a directory of FASTA files
+
+sub new {
+  my $class = shift;
+  my $path  = shift;
+  my %opts  = @_;
+
+  my $self = bless { debug      => $opts{-debug},
+		     makeid     => $opts{-makeid},
+		     glob       => $opts{-glob}    || '*.{fa,fasta,FA,FASTA,fast,FAST}',
+		     maxopen    => $opts{-maxfh}   || 32,
+		     dbmargs    => $opts{-dbmargs} || undef,
+		     fhcache    => {},
+		     cacheseq   => {},
+		     curopen    => 0,
+		     openseq    => 1,
+		     dirname    => undef,
+		     offsets    => undef,
+		   }, $class;
+  my ($offsets,$dirname);
+
+  if (-d $path) {
+    $offsets = $self->index_dir($path,$opts{-reindex});
+    $dirname = $path;
+  } elsif (-f _) {
+    $offsets = $self->index_file($path,$opts{-reindex});
+    $dirname = dirname($path);
+  } else {
+    croak "$path: Invalid file or dirname";
+  }
+  @{$self}{qw(dirname offsets)} = ($dirname,$offsets);
+
+  $self;
+}
+
+sub newFh {
+  my $class = shift;
+  my $self  = $class->new(@_);
+  require Symbol;
+  my $fh = Symbol::gensym or return;
+  tie $$fh,'Bio::DB::Fasta::Stream',$self or return;
+  $fh;
+}
+
+sub index_dir {
+  my $self = shift;
+  my $dir  = shift;
+  my $force_reindex = shift;
+
+  # find all fasta files
+  my @files = glob("$dir/$self->{glob}");
+  croak "no fasta files in $dir" unless @files;
+
+  # get name of index
+  my $index = $self->index_name($dir,1);
+
+  # if caller has requested reindexing, then unlink
+  # the index file.
+  unlink $index if $force_reindex;
+
+  # get the modification time of the index
+  my $indextime = (stat($index))[9];
+
+  # get the most recent modification time of any of the contents
+  my ($modtime,%modtime);
+  foreach (@files) {
+    my $m = (stat($_))[9];
+    $modtime{$_} = $m;
+    $modtime = $modtime < $m ? $m : $modtime;
+  }
+  
+
+  my %offsets;
+  my $flags = $modtime <= $indextime ? O_RDONLY : O_CREAT|O_RDWR;
+
+  my @dbmargs = $self->dbmargs;
+  tie %offsets,'AnyDBM_File',$index,$flags,0644,@dbmargs or croak "Can't open cache file: $!";
+
+  # no indexing needed
+  return \%offsets if $modtime <= $indextime;
+
+  # otherwise reindex contents of changed files
+  $self->{indexing} = $index;
+  foreach (@files) {
+    next if $modtime{$_} <= $indextime;
+    $self->calculate_offsets($_,\%offsets);
+  }
+  delete $self->{indexing};
+  return \%offsets;
+}
+
+sub get_Seq_by_id {
+  my $self = shift;
+  my $id   = shift;
+  return Bio::PrimarySeq::Fasta->new($self,$id);
+}
+
+
+sub index_file {
+  my $self = shift;
+  my $file = shift;
+  my $force_reindex = shift;
+
+  my $index = $self->index_name($file);
+  # if caller has requested reindexing, then unlink the index
+  unlink $index if $force_reindex;
+
+  # get the modification time of the index
+  my $indextime = (stat($index))[9];
+  my $modtime   = (stat($file))[9];
+
+  my %offsets;
+  my $flags = $modtime <= $indextime ? O_RDONLY : O_CREAT|O_RDWR;
+  my @dbmargs = $self->dbmargs;
+  tie %offsets,'AnyDBM_File',$index,$flags,0644,@dbmargs or croak "Can't open cache file: $!";
+  return \%offsets if $modtime <= $indextime;
+
+  $self->{indexing} = $index;
+  $self->calculate_offsets($file,\%offsets);
+  delete $self->{indexing};
+  return \%offsets;
+}
+
+sub dbmargs {
+  my $self = shift;
+  my $args = $self->{dbmargs} or return;
+  return ref($args) eq 'ARRAY' ? @$args : $args;
+}
+
+sub index_name {
+  my $self  = shift;
+  my ($path,$isdir) = @_;
+  unless ($path) {
+    my $dir = $self->{dirname} or return;
+    return $self->index_name($dir,-d $dir);
+  } 
+  return "$path/directory.index" if $isdir;
+  return "$path.index";
+}
+
+
+sub calculate_offsets {
+  my $self = shift;
+  my ($file,$offsets) = @_;
+  my $base = basename($file);
+
+  my $fh = IO::File->new($file) or croak "Can't open $file: $!";
+  warn "indexing $file\n" if $self->{debug};
+  my ($offset,$id,$linelength,$type,$firstline,$count,%offsets);
+  while (<$fh>) {  # don't try this at home
+    if (/^>(\S+)/) {
+      print STDERR "indexed $count sequences...\n" if $self->{debug} && (++$count%1000) == 0;
+      my $pos = tell($fh);
+      if ($id) {
+	my $seqlength    = $pos - $offset - length($_) - 1;
+	$seqlength      -= int($seqlength/$linelength);
+	$offsets->{$id}  = $self->_pack($offset,$seqlength,$linelength,$firstline,$type,$base);
+      }
+      $id                      = ref($self->{makeid}) eq 'CODE' ? $self->{makeid}->($1) : $1;
+      ($offset,$firstline,$linelength) = ($pos,length($_),0);
+    } else {
+      $linelength ||= length($_);
+      $type       ||= $self->_type($_);
+    }
+  }
+  if ($id) {
+    my $pos = tell($fh);
+    my $seqlength   = $pos - $offset - length($_) - 1;
+    $seqlength     -= int($seqlength/$linelength);
+    $offsets->{$id} = $self->_pack($offset,$seqlength,$linelength,$firstline,$type,$base);
+  }
+  return \%offsets;
+}
+
+sub get_all_ids  { keys %{shift->{offsets}} }
+sub offset {
+  my $self = shift;
+  my $id   = shift;
+  my $offset = $self->{offsets}{$id} or return;
+  ($self->_unpack($offset))[0];
+}
+sub length {
+  my $self = shift;
+  my $id   = shift;
+  my $offset = $self->{offsets}{$id} or return;
+  ($self->_unpack($offset))[1];
+}
+sub linelen {
+  my $self = shift;
+  my $id   = shift;
+  my $offset = $self->{offsets}{$id} or return;
+  ($self->_unpack($offset))[2];
+}
+sub headerlen {
+  my $self = shift;
+  my $id   = shift;
+  my $offset = $self->{offsets}{$id} or return;
+  ($self->_unpack($offset))[3];
+}
+sub moltype {
+  my $self = shift;
+  my $id   = shift;
+  my $offset = $self->{offsets}{$id} or return;
+  my $type = ($self->_unpack($offset))[4];
+  return $type == DNA ? 'dna'
+         : $type == RNA ? 'rna'
+         : 'protein';
+
+}
+sub path { shift->{dirname} } 
+sub header_offset {
+    my $self = shift;
+    my $id   = shift;
+    return unless $self->{offsets}{$id};
+    return $self->offset($id) - $self->headerlen($id);
+}
+sub file {
+  my $self = shift;
+  my $id   = shift;
+  my $offset = $self->{offsets}{$id} or return;
+  ($self->_unpack($offset))[5];
+}
+
+sub subseq {
+  my $self = shift;
+  my ($id,$start,$stop) = @_;
+  if ($id =~ /^(.+):([\d_]+)[,-]([\d_]+)$/) {
+    ($id,$start,$stop) = ($1,$2,$3);
+    $start =~ s/_//g;
+    $stop =~ s/_//g;
+  }
+  $start ||= 1;
+  $stop  ||= $self->length($id);
+
+  my $reversed;
+  if ($start > $stop) {
+    ($start,$stop) = ($stop,$start);
+    $reversed++;
+  }
+
+  my $data;
+
+  my $fh = $self->fh($id) or return;
+  my $filestart = $self->caloffset($id,$start);
+  my $filestop  = $self->caloffset($id,$stop);
+
+  seek($fh,$filestart,0);
+  read($fh,$data,$filestop-$filestart+1);
+  $data =~ s/\n//g;
+  if ($reversed) {
+    $data = reverse $data;
+    $data =~ tr/gatcGATC/ctagCTAG/;
+  }
+  $data;
+}
+
+sub fh {
+  my $self = shift;
+  my $id   = shift;
+  my $file = $self->file($id) or return;
+  $self->fhcache("$self->{dirname}/$file") or croak "Can't open file $file";
+}
+
+sub header {
+  my $self = shift;
+  my $id   = shift;
+  my ($offset,$seqlength,$linelength,$firstline,$type,$file) 
+    = $self->_unpack($self->{offsets}{$id}) or return;
+  $offset -= $firstline;
+  my $data;
+  my $fh = $self->fh($id) or return;
+  seek($fh,$offset,0);
+  read($fh,$data,$firstline);
+  chomp $data;
+  substr($data,0,1) = '';
+  $data;
+}
+
+sub caloffset {
+  my $self = shift;
+  my $id   = shift;
+  my $a    = shift()-1;
+  my ($offset,$seqlength,$linelength,$firstline,$type,$file) = $self->_unpack($self->{offsets}{$id});
+  $a = 0            if $a < 0;
+  $a = $seqlength-1 if $a >= $seqlength;
+  $offset + $linelength * int($a/($linelength-1)) + $a % ($linelength-1);
+}
+
+sub fhcache {
+  my $self = shift;
+  my $path = shift;
+  if (!$self->{fhcache}{$path}) {
+    if ($self->{curopen} >= $self->{maxopen}) {
+      my @lru = sort {$self->{cacheseq}{$a} <=> $self->{cacheseq}{$b};} keys %{$self->{fhcache}};
+      splice(@lru, $self->{maxopen} / 3);
+      $self->{curopen} -= @lru;
+      for (@lru) { delete $self->{fhcache}{$_} }
+    }
+    $self->{fhcache}{$path} = IO::File->new($path) or return;
+    $self->{curopen}++;
+  }
+  $self->{cacheseq}{$path}++;
+  $self->{fhcache}{$path}
+}
+
+sub _pack {
+  shift;
+  pack STRUCT,@_;
+}
+
+sub _unpack {
+  shift;
+  unpack STRUCT,shift;
+}
+
+sub _type {
+  shift;
+  local $_ = shift;
+  return /^[gatcnGATCN*-]+$/   ? DNA
+         : /^[gaucnGAUCN*-]+$/ ? RNA
+	 : PROTEIN;
+}
+
+sub get_PrimarySeq_stream {
+  my $self = shift;
+  return Bio::DB::Fasta::Stream->new($self);
+}
+
+sub TIEHASH {
+  my $self = shift;
+  return $self->new(@_);
+}
+
+sub FETCH {
+  shift->subseq(@_);
+}
+sub STORE {
+  croak "Read-only database";
+}
+sub DELETE {
+  croak "Read-only database";
+}
+sub CLEAR {
+  croak "Read-only database";
+}
+sub EXISTS {
+  defined shift->offset(@_);
+}
+sub FIRSTKEY { tied(%{shift->{offsets}})->FIRSTKEY(@_); }
+sub NEXTKEY  { tied(%{shift->{offsets}})->NEXTKEY(@_);  }
+
+sub END {
+  my $self = shift;
+  if ($self->{indexing}) {  # killed prematurely, so index file is no good!
+    warn "indexing was interrupted, so unlinking $self->{indexing}";
+    unlink $self->{indexing};
+  }
+}
+
+#-------------------------------------------------------------
+# Bio::PrimarySeqI compatibility
+#
+package Bio::PrimarySeq::Fasta;
+use overload '""' => 'display_id';
+
+use vars '@ISA';
+eval {
+  require Bio::PrimarySeqI;
+  require Bio::Root::RootI;
+} && (@ISA = ('Bio::PrimarySeqI','Bio::Root::RootI'));
+
+sub new {
+  my $class = shift;
+  $class = ref($class) if ref $class;
+  my ($db,$id,$start,$stop) = @_;
+  return bless { db    => $db,
+		 id    => $id,
+		 start => $start || 1,
+		 stop  => $stop  || $db->length($id)
+	       },$class;
+}
+
+sub seq {
+  my $self = shift;
+  return $self->{db}->seq($self->{id},$self->{start},$self->{stop});
+}
+
+sub subseq {
+  my $self = shift;
+  my ($start,$stop) = @_;
+  $self->throw("Stop cannot be smaller than start")  unless $start <= $stop;
+  return $self->{start} <= $self->{stop} ?  $self->new($self->{db},
+						       $self->{id},
+						       $self->{start}+$start-1,
+						       $self->{start}+$stop-1)
+                                         :  $self->new($self->{db},
+						       $self->{id},
+						       $self->{start}-($start-1),
+						       $self->{start}-($stop-1)
+						      );
+	
+}
+
+sub display_id {
+  my $self = shift;
+  return $self->{id};
+}
+
+sub accession_number {
+  my $self = shift;
+  return "unknown";
+}
+
+sub primary_id {
+  my $self = shift;
+  return overload::StrVal($self);
+}
+
+sub can_call_new { return 0 }
+
+sub moltype {
+  my $self = shift;
+  return $self->{db}->moltype($self->{id});
+}
+
+sub revcom {
+  my $self = shift;
+  return $self->new(@{$self}{'db','id','stop','start'});
+}
+
+sub length {
+  my $self = shift;
+  return $self->{db}->length($self->{id});
+}
+
+#-------------------------------------------------------------
+# stream-based access to the database
+#
+package Bio::DB::Fasta::Stream;
+use base Tie::Handle;
+use vars '@ISA';
+eval {
+  require Bio::DB::SeqI;
+} && (push @ISA,'Bio::DB::SeqI');
+
+sub new {
+  my $class = shift;
+  my $db    = shift;
+  my $key = $db->FIRSTKEY;
+  return bless { db=>$db,key=>$key },$class;
+}
+
+sub next_seq {
+  my $self = shift;
+  my ($key,$db) = @{$self}{'key','db'};
+  my $value = $db->get_Seq_by_id($key);
+  $self->{key} = $db->NEXTKEY($key);
+  $value;
+}
+
+sub TIEHANDLE {
+  my $class = shift;
+  my $db    = shift;
+  return $class->new($db);
+}
+sub READLINE {
+  my $self = shift;
+  $self->next_seq;
+}
+
+
+1;
+
+__END__
+
+=head1 NAME
+
+Bio::DB::Fasta -- Fast indexed access to a directory of fasta files
+
+=head1 SYNOPSIS
+
+  use Bio::DB::Fasta;
+
+  # create database from directory of fasta files
+  my $db      = Bio::DB::Fasta->new('/path/to/fasta/files');
+
+  # simple access (for those without Bioperl)
+  my $seq     = $db->seq('CHROMOSOME_I',4_000_000 => 4_100_000);
+  my $revseq  = $db->seq('CHROMOSOME_I',4_100_000 => 4_000_000);
+  my @ids     = $db->ids;
+  my $length  = $db->length('CHROMOSOME_I');
+  my $moltype = $db->moltype('CHROMOSOME_I');
+  my $header  = $db->header('CHROMOSOME_I');
+
+  # Bioperl-style access
+  my $db      = Bio::DB::Fasta->new('/path/to/fasta/files');
+
+  my $obj     = $db->get_Seq_by_id('CHROMOSOME_I');
+  my $seq     = $obj->seq;
+  my $subseq  = $obj->subseq(4_000_000 => 4_100_000);
+  my $length  = $obj->length;
+  # (etc)
+
+  # BioSeqI-style access
+  my $stream  = Bio::DB::Fasta->new('/path/to/fasta/files')->get_PrimarySeq_stream;
+  while (my $seq = $stream->next_seq) {
+    # Bio::PrimarySeqI stuff
+  }
+
+  my $fh = Bio::DB::Fasta->newFh('/path/to/fasta/files');
+  while (my $seq = <$fh>) {
+    # Bio::PrimarySeqI stuff
+  }
+
+  # tied hash access
+  tie %sequences,'Bio::DB::Fasta','/path/to/fasta/files';
+  print $sequences{'CHROMOSOME_I:1,20000'};
+
+=head1 DESCRIPTION
+
+Bio::DB::Fasta provides indexed access to one or more Fasta files.  It
+provides random access to each sequence entry, and to subsequences
+within each entry, allowing you to retrieve portions of very large
+sequences without bringing the entire sequence into memory.
+
+When you initialize the module, you point it at a single fasta file or
+a directory of multiple such files.  The first time it is run, the
+module generates an index of the contents of the file or directory
+using the AnyDBM module (Berkeley DB preferred, followed by GDBM_File,
+NDBM_File, and SDBM_File).  Thereafter it uses the index file to find
+the file and offset for any requested sequence.  If one of the source
+fasta files is updated, the module reindexes just that one file.  (You
+can also force reindexing manually).  For improved performance, the
+module keeps a cache of open filehandles, closing less-recently used
+ones when the cache is full.
+
+The fasta files may contain any combination of nucleotide and protein
+sequences; during indexing the module guesses the molecular type.
+Entries may have any line length, and different line lengths are
+allowed in the same file.  However, within a sequence entry, all lines
+must be the same length except for the last.
+
+The module uses /^>(\S+)/ to extract each sequence's primary ID from
+the Fasta header.  During indexing, you may pass a callback routine to
+modify this primary ID.  For example, you may wish to extract a
+portion of the gi|gb|abc|xyz nonsense that GenBank Fasta files use.
+The original header line can be recovered later.
+
+This module was developed for use with the C. elegans and human
+genomes, and has been tested with sequence segments as large as 20
+megabases.  Indexing the C. elegans genome (100 megabases of genomic
+sequence plus 100,000 ESTs) takes ~5 minutes on my 300 MHz pentium
+laptop. On the same system, average access time for any 200-mer within
+the C. elegans genome was <0.02s.
+
+=head1 DATABASE CREATION AND INDEXING
+
+The two constructors for this class are new() and newFh().  The former
+creates a Bio::DB::Fasta object which is accessed via method calls.
+The latter creates a tied filehandle which can be used Bio::SeqIO
+style to fetch sequence objects in a stream fashion.  There is also a
+tied hash interface.
+
+=over 4
+
+=item $db = Bio::DB::Fasta->new($fasta_path [,@options])
+
+Create a new Bio::DB::Fasta object from the Fasta file or files
+indicated by $fasta_path.  Indexing will be performed automatically if
+needed.  If successful, new() will return the database accessor
+object.  Otherwise it will return undef.
+
+$fasta_path may be an individual Fasta file, or may refer to a
+directory containing one or more of such files.  Following the path,
+you may pass a series of name=>value options.  Valid options are:
+
+ Option Name   Description               Default
+ -----------   -----------               -------
+
+ -glob         Glob expression to use    *.{fa,fasta,fast,FA,FASTA,FAST}
+               for searching for Fasta
+	       files in directories. 
+
+ -makeid       A code subroutine for     None
+	       transforming Fasta IDs.
+
+ -maxopen      Maximum size of		 32
+	       filehandle cache.
+
+ -debug        Turn on status		 0
+	       messages.
+
+ -reindex      Force the index to be     0
+               rebuilt.
+
+ -dbmargs      Additional arguments      none
+               to pass to the DBM
+               routines when tied
+               (scalar or array ref).
+
+-dbmargs can be used to control the format of the index.  For example,
+you can pass $DB_BTREE to this argument so as to force the IDs to be
+sorted and retrieved alphabetically.  Note that you must use the same
+arguments every time you open the index!
+
+-reindex can be used to force the index to be recreated from scratch.
+
+=item $fh = Bio::DB::Fasta->newFh($fasta_path [,@options])
+
+Create a tied filehandle opened on a Bio::DB::Fasta object.  Reading
+from this filehandle with <> will return a stream of sequence objects,
+Bio::SeqIO style.
+
+=back
+
+The -makeid option gives you a chance to modify sequence IDs during
+indexing.  The option's value should be a code reference that will
+take a scalar argument and return a scalar result, like this:
+
+  sub make_my_id {
+    my $original_id = shift;
+    # modify it somehow
+    return $modified_id;
+  }
+
+As per the Fasta specification, the sequence ID consists of one or
+more non-whitespace characters following the initial >.  For example:
+
+ >A12345.3 Predicted C. elegans protein
+
+During indexing, the module will use the regular expression /^>(\S+)/
+to extract "A12345.3" for use as the ID.  If a -makeid callback is
+provided, the extracted ID will be passed to the subroutine.  This
+gives you a chance to extract preferred accession numbers from
+multipart IDs such as those provided by GenBank.
+
+The -makeid option is ignored after the index is constructed.
+
+=head1 OBJECT METHODS
+
+The following object methods are provided.
+
+=over 4
+
+=item $raw_seq = $db->seq($id [,$start, $stop])
+
+Return the raw sequence (a string) given an ID and optionally a start
+and stop position in the sequence.  In the case of DNA sequence, if
+$stop is less than $start, then the reverse complement of the sequence
+is returned (this violates Bio::Seq conventions).
+
+For your convenience, subsequences can be indicated with this compound 
+ID:
+
+   $db->seq("$id:$start,$stop")
+
+=item $length = $db->length($id)
+
+Return the length of the indicated sequence.
+
+=item $header = $db->header($id)
+
+Return the header line for the ID, including the initial ">".
+
+=item $type  = $db->moltype($id)
+
+Return the molecular type of the indicated sequence.  One of "dna",
+"rna" or "protein".
+
+=item $filename  = $db->file($id)
+
+Return the name of the file in which the indicated sequence can be
+found.
+
+=item $offset    = $db->offset($id)
+
+Return the offset of the indicated sequence from the beginning of the
+file in which it is located.  The offset points to the beginning of
+the sequence, not the beginning of the header line.
+
+=item $header_length = $db->headerlen($id)
+
+Return the length of the header line for the indicated sequence.
+
+=item $header_offset = $db->header_offset($id)
+
+Return the offset of the header line for the indicated sequence from
+the beginning of the file in which it is located.
+
+=item $index_name  = $db->index_name
+
+Return the path to the index file.
+
+=item $path = $db->path
+
+Return the path to the Fasta file(s).
+
+=back
+
+For BioPerl-style access, the following methods are provided:
+
+=over 4
+
+=item $seq = $db->get_Seq_by_id($id)
+
+Return a Bio::PrimarySeq::Fasta object, which obeys the
+Bio::PrimarySeqI conventions.  For example, to recover the raw DNA or
+protein sequence, call $seq->seq().
+
+Note that get_Seq_by_id() does not bring the entire sequence into
+memory until requested.  Internally, the returned object uses the
+accessor to generate subsequences as needed.
+
+=item $seq = $db->get_Seq_by_acc($id)
+
+=item $seq = $db->get_Seq_by_primary_id($id)
+
+These methods all do the same thing as get_Seq_by_id().
+
+=item $stream = $db->get_PrimarySeq_stream()
+
+Return a Bio::DB::Fasta::Stream object, which supports a single method
+next_seq(). Each call to next_seq() returns a new
+Bio::PrimarySeq::Fasta object, until no more sequences remain.
+
+=back
+
+See L<Bio::PrimarySeqI> for methods provided by the sequence objects
+returned from get_Seq_by_id() and get_PrimarySeq_stream().
+
+=head1 TIED INTERFACES
+
+This module provides two tied interfaces, one which allows you to
+treat the sequence database as a hash, and the other which allows you
+to treat the database as an I/O stream.
+
+=head2 Creating a Tied Hash
+
+The tied hash interface is very straightforward
+
+=over 4
+
+=item $obj = tie %db,'Bio::DB::Fasta','/path/to/fasta/files' [,@args]
+
+Tie %db to Bio::DB::Fasta using the indicated path to the Fasta files.
+The optional @args list is the same set of named argument/value pairs
+used by Bio::DB::Fasta->new().
+
+If successful, tie() will return the tied object.  Otherwise it will
+return undef.
+
+=back
+
+Once tied, you can use the hash to retrieve an individual sequence by
+its ID, like this:
+
+  my $seq = $db{CHROMOSOME_I};
+
+You may select a subsequence by appending the comma-separated range to 
+the sequence ID in the format "$id:$start,$stop".  For example, here
+is the first 1000 bp of the sequence with the ID "CHROMOSOME_I":
+
+  my $seq = $db{'CHROMOSOME_I:1,1000'};
+
+(The regular expression used to parse this format allows sequence IDs
+to contain colons.)
+
+When selecting subsequences, if $start > stop, then the reverse
+complement will be returned for DNA sequences.
+
+The keys() and values() functions will return the sequence IDs and
+their sequences, respectively.  In addition, each() can be used to
+iterate over the entire data set:
+
+ while (my ($id,$sequence) = each %db) {
+    print "$id => $sequence\n";
+ }
+
+When dealing with very large sequences, you can avoid bringing them
+into memory by calling each() in a scalar context.  This returns the
+key only.  You can then use tied(%db) to recover the Bio::DB::Fasta
+object and call its methods.
+
+ while (my $id = each %db) {
+    print "$id => $db{$sequence:1,100}\n";
+    print "$id => ",tied(%db)->length($id),"\n";
+ }
+
+You may, in addition invoke Bio::DB::Fasta's FIRSTKEY and NEXTKEY tied
+hash methods directly.
+
+=over 4
+
+=item $id = $db->FIRSTKEY
+
+Return the first ID in the database.
+
+=item $id = $db->NEXTKEY($id)
+
+Given an ID, return the next ID in sequence.
+
+=back
+
+This allows you to write the following iterative loop using just the
+object-oriented interface:
+
+ my $db = Bio::DB::Fasta->new('/path/to/fasta/files');
+ for (my $id=$db->FIRSTKEY; $id; $id=$db->NEXTKEY($id)) {
+    # do something with sequence
+ }
+
+=head2 Creating a Tied Filehandle
+
+The Bio::DB::Fasta->newFh() method creates a tied filehandle from
+which you can read Bio::PrimarySeq::Fasta sequence objects
+sequentially.  The following bit of code will iterate sequentially
+over all sequences in the database:
+
+ my $fh = Bio::DB::Fasta->newFh('/path/to/fasta/files');
+ while (my $seq = <$fh>) {
+   print $seq->id,' => ',$seq->length,"\n";
+ }
+
+When no more sequences remain to be retrieved, the stream will return
+undef.
+
+=head1 BUGS
+
+When a sequence is deleted from one of the Fasta files, this deletion
+is not detected by the module and removed from the index.  As a
+result, a "ghost" entry will remain in the index and will return
+garbage results if accessed.
+
+Currently, the only way to accomodate deletions is to rebuild the
+entire index, either by deleting it manually, or by passing
+-reindex=>1 to new() when initializing the module.
+
+=head1 SEE ALSO
+
+L<bioperl>
+
+=head1 AUTHOR
+
+Lincoln Stein <lstein@cshl.org>.  
+
+Copyright (c) 2001 Cold Spring Harbor Laboratory.
+
+This library is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself.  See DISCLAIMER.txt for
+disclaimers of warranty.
+

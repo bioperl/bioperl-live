@@ -1,4 +1,4 @@
-## $Id: MANIFEST,v 1.37 2001-04-30 15:55:38 jason Exp $
+## $Id: MANIFEST,v 1.38 2001-06-12 11:37:21 lstein Exp $
 ##
 ## This is the file listing for everything that
 ## comes with the bioperl distribution. The perl
@@ -29,6 +29,7 @@ Bio/Annotation/Comment.pm
 Bio/Annotation/DBLink.pm
 Bio/Annotation/Reference.pm
 Bio/DB/Ace.pm
+Bio/DB/Fasta.pm
 Bio/DB/GDB.pm
 Bio/DB/GenBank.pm
 Bio/DB/GenPept.pm
@@ -292,6 +293,7 @@ t/Chain.t
 t/Clustalw.t
 t/CodonTable.t
 t/DB.t
+t/DBFasta.t
 t/DNAMutation.t
 t/GDB.t
 t/GFF.t
@@ -402,3 +404,9 @@ t/data/testaln.prodom
 t/data/testaln.selex
 t/data/testaln.stockholm
 t/data/testfuzzy.genbank
+t/data/dbfa/1.fa
+t/data/dbfa/2.fa
+t/data/dbfa/3.fa
+t/data/dbfa/4.fa
+t/data/dbfa/5.fa
+t/data/dbfa/6.fa
