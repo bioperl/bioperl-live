@@ -310,9 +310,8 @@ sub write_result {
        $self->throw("ResultWriter not defined.");
    }
    my $str = $self->writer->to_string( $result, @args );
-   #print "Got string: \n$str\n";
+   # print "Got string: \n$str\n";
    $self->_print( "$str" );
-
    return 1;
 }
 
@@ -411,16 +410,18 @@ sub _guess_format {
 }
 
 sub close { 
-    my $self = shift;
+    my $self = shift;    
+
     if( $self->writer ) {
         $self->_print($self->writer->end_report());
+	$self->{'_result_writer'}= undef;
     }
     $self->SUPER::close(@_);
 }
 
 sub DESTROY {
     my $self = shift;
-    $self->close();
+    $self->close() if defined $self->_fh;
     $self->SUPER::DESTROY;
 }
 
@@ -441,6 +442,7 @@ sub PRINT {
   my $self = shift;
   $self->{'processor'}->write_result(@_);
 }
+
 
 1;
 
