@@ -1,0 +1,760 @@
+ FASTA searches a protein or DNA sequence data bank
+ version 3.3t08 Jan. 17, 2001
+Please cite:
+ W.R. Pearson & D.J. Lipman PNAS (1988) 85:2444-2448
+
+ cysprot.fa, 2385 aa
+ vs /data_2/jason/blastdb/gadflypep2 library
+
+7177762 residues in 14334 sequences
+  Expectation_n fit: rho(ln(x))= 4.9846+/-0.000606; mu= 15.4125+/- 0.036
+ mean_var=84.2366+/-16.296, 0's: 5 Z-trim: 12  B-trim: 404 in 1/54
+ Lambda= 0.1397
+
+FASTA (3.36 June 2000) function [optimized, BL50 matrix (15:-5)] ktup: 2
+ join: 43, opt: 31, gap-pen: -12/ -2, width:  16
+The best scores are:                                       opt bits E(14315)
+Cp1|FBgn0013770|pp-CT20780|FBan0006692 GO:[cathep  ( 341) 1073  228 3.1e-59
+CG11459|FBgn0037396|pp-CT28891|FBan0011459 GO:[ca  ( 336)  771  167 6.4e-41
+CG4847|FBgn0034229|pp-CT15577|FBan0004847 GO:[end  ( 390)  762  165 2.5e-40
+26/29kD-proteinase|FBgn0028967|pp-CT25694|FBan000  ( 549)  712  155 3.5e-37
+CG12163|FBgn0037303|pp-CT8855|FBan0012163 GO:[] m  ( 475)  558  124 6.9e-28
+CG1075|FBgn0037397|pp-CT1381|FBan0001075 GO:[cath  ( 274)  413   95   3e-19
+CG6347|FBgn0033874|pp-CT19836|FBan0006347 GO:[cat  ( 235)  311   74 4.1e-13
+CG6337|FBgn0033873|pp-CT19824|FBan0006337 GO:[end  ( 340)  265   65 3.3e-10
+CG5367|FBgn0032228|pp-CT17056|FBan0005367 GO:[end  ( 228)  249   62 2.4e-09
+CG3074|FBgn0034709|pp-CT10308|FBan0003074 GO:[cat  ( 441)  252   62 2.4e-09
+CG10992|FBgn0030521|pp-CT30795|FBan0010992 GO:[ca  ( 340)  235   59 2.2e-08
+CG10460|FBgn0034443|pp-CT29364|FBan0010460 GO:[en  (  79)  131   37   0.016
+Ddx1|FBgn0015075|pp-CT25986|FBan0009054 GO:[helic  ( 727)  107   33     2.2
+CPTI|FBgn0027842|pp-CT32036|FBan0012891 GO:[carni  ( 780)  105   33       3
+CG4393|FBgn0039075|pp-CT14338|FBan0004393 GO:[cyt  ( 968)  105   33     3.5
+CG4392|FBgn0036283|pp-CT14260|FBan0004392 GO:[mit  ( 370)  100   32     3.6
+CG14034|FBgn0031691|pp-CT33593|FBan0014034 GO:[ph  ( 223)   93   30     6.8
+CG6357|FBgn0033875|pp-CT19866|FBan0006357 GO:[end  ( 439)   96   31     7.2
+CG11288|FBgn0039895|pp-CT31491|FBan0011288 GO:[ce  ( 202)   91   30     8.4
+CG13155|FBgn0033723|pp-CT32396|FBan0013155 GO:[]   ( 236)   91   30     9.3
+CG4810|FBgn0037994|pp-CT15451|FBan0004810 GO:[tra  ( 551)   95   31     9.6
+
+
+>>Cp1|FBgn0013770|pp-CT20780|FBan0006692 GO:[cathepsin L  (341 aa)
+ initn: 829 init1: 615 opt: 1073  Z-score: 1170.6  bits: 227.8 E(): 3.1e-59
+Smith-Waterman score: 1219;  53.043% identity (56.135% ungapped) in 345 aa overlap (1373-1706:5-341)
+
+           1350      1360      1370      1380      1390      1400  
+PAPA_C SNWGNNGYFLIERGKNMCGLAACASYPIPQVMNPTLILAAFCLGIASATLTFDHSLEAQW
+                                     :. : : :    :..:.: ..:   .  .:
+Cp1|FB                           MRTAVLLPLLAL----LAVAQA-VSFADVVMEEW
+                                         10             20         
+
+           1410       1420      1430      1440      1450      1460 
+PAPA_C TKWKAMHNRLY-GMNEEGWRRAVWEKNMKMIELHNQEYREGKHSFTMAMNAFGDMTSEEF
+         .:  : . :   .:: .:  ....: . :  :::.. ::: :: .:.: ..:.  .::
+Cp1|FB HTFKLEHRKNYQDETEERFRLKIFNENKHKIAKHNQRFAEGKVSFKLAVNKYADLLHHEF
+      30        40        50        60        70        80         
+
+               1470            1480      1490      1500      1510  
+PAPA_C RQVMNGFQ---NRKPR------KGKVFQEPLFYEAPRSVDWREKGYVTPVKNQGQCGSCW
+       ::.::::.   ... :      :: .:  :     :.::::: :: :: ::.::.:::::
+Cp1|FB RQLMNGFNYTLHKQLRAADESFKGVTFISPAHVTLPKSVDWRTKGAVTAVKDQGHCGSCW
+      90       100       110       120       130       140         
+
+           1520      1530      1540      1550      1560      1570  
+PAPA_C AFSATGALEGQMFRKTGRLISLSEQNLVDCSGPQGNEGCNGGLMDYAFQYVQDNGGLDSE
+       :::.::::::: :::.: :.:::::::::::   ::.:::::::: ::.:..::::.:.:
+Cp1|FB AFSSTGALEGQHFRKSGVLVSLSEQNLVDCSTKYGNNGCNGGLMDNAFRYIKDNGGIDTE
+     150       160       170       180       190       200         
+
+           1580      1590      1600       1610      1620      1630 
+PAPA_C ESYPYEATEESCKYNPKYSVANDTGFVDIPK-QEKALMKAVATVGPISVAIDAGHESFLF
+       .:::::: ..::..:     :.: ::.:::. .:: . .:::::::.::::::.:::: :
+Cp1|FB KSYPYEAIDDSCHFNKGTVGATDRGFTDIPQGDEKKMAEAVATVGPVSVAIDASHESFQF
+     210       220       230       240       250       260         
+
+            1640      1650      1660      1670      1680      1690 
+PAPA_C YKEGIYFEPDCSSEDMDHGVLVVGYGFESTESDNNKYWLVKNSWGEEWGMGGYVKMAKDR
+       :.::.: ::.:.....::::::::.: . .  :   :::::::::  ::  :..:: ...
+Cp1|FB YSEGVYNEPQCDAQNLDHGVLVVGFGTDESGED---YWLVKNSWGTTWGDKGFIKMLRNK
+     270       280       290       300          310       320      
+
+            1700      1710      1720      1730      1740      1750 
+PAPA_C RNHCGIASAASYPTVMTPLLLLAVLCLGTALATPKFDQTFNAQWHQWKSTHRRLYGTNEE
+       .:.::::::.::: :                                             
+Cp1|FB ENQCGIASASSYPLV                                             
+        330       340                                              
+
+>>CG11459|FBgn0037396|pp-CT28891|FBan0011459 GO:[catheps  (336 aa)
+ initn: 350 init1: 191 opt: 771  Z-score: 841.7  bits: 166.9 E(): 6.4e-41
+Smith-Waterman score: 771;  37.143% identity (38.870% ungapped) in 315 aa overlap (1399-1705:27-335)
+
+     1370      1380      1390      1400      1410      1420        
+PAPA_C PIPQVMNPTLILAAFCLGIASATLTFDHSLEAQWTKWKAMHNRLYGMNEEGWRRAVWEKN
+                                     ...: ..:: .:. :  :.. ..::..:. 
+CG1145     MGTPRLTVVHGLILLLLVELGLTAVSDTEWDQYKAKYNKQY-RNRDKYHRALYEQR
+                   10        20        30        40         50     
+
+     1430      1440      1450      1460      1470      1480        
+PAPA_C MKMIELHNQEYREGKHSFTMAMNAFGDMTSEEFRQVMNGFQNRKPRKGKVFQEPLFY---
+       .  .: ::: : .:: .: :..: :.:  .. . .  ...      . ... : . :   
+CG1145 VLAVESHNQLYLQGKVAFKMGLNKFSDTDQRILFNYRSSIPAPLETSTNALTETVNYKRY
+          60        70        80        90       100       110     
+
+         1490      1500       1510      1520      1530      1540   
+PAPA_C -EAPRSVDWREKGYVTPVKNQG-QCGSCWAFSATGALEGQMFRKTGRLISLSEQNLVDCS
+        .  ...:::. ::..:: .:: .: ::::::..:.::..: .: : :. :: ..:::: 
+CG1145 DQITEGIDWRQYGYISPVGDQGTECLSCWAFSTSGVLEAHMAKKYGNLVPLSPKHLVDCV
+         120       130       140       150       160       170     
+
+          1550      1560      1570      1580      1590      1600   
+PAPA_C GPQGNEGCNGGLMDYAFQYVQDNGGLDSEESYPYEATEESCKYNPKYSVANDTGFVDIPK
+        :  :.::.:: .. ::.:..:.: . ..:::::: .   : ..   :... .:.: . .
+CG1145 -PYPNNGCSGGWVSVAFNYTRDHG-IATKESYPYEPVSGECLWKSDRSAGTLSGYVTLGN
+          180       190        200       210       220       230   
+
+           1610      1620      1630      1640        1650      1660
+PAPA_C -QEKALMKAVATVGPISVAIDAGHESFLFYKEGIYFEPDCSS--EDMDHGVLVVGYGFES
+        .:. : ..: ..::..:.::  :: :  :. :.   : : :  .:. :.::.::.: . 
+CG1145 YDERELAEVVYNIGPVAVSIDHLHEEFDQYSGGVLSIPACRSKRQDLTHSVLLVGFGTHR
+           240       250       260       270       280       290   
+
+             1670      1680      1690      1700      1710      1720
+PAPA_C TESDNNKYWLVKNSWGEEWGMGGYVKMAKDRRNHCGIASAASYPTVMTPLLLLAVLCLGT
+         .:   ::..:::.: .:: .::.:.:..  : ::.::  .:::               
+CG1145 KWGD---YWIIKNSYGTDWGESGYLKLARNANNMCGVASLPQYPTF              
+              300       310       320       330                    
+
+             1730      1740      1750      1760      1770      1780
+PAPA_C ALATPKFDQTFNAQWHQWKSTHRRLYGTNEEEWRRAVWEKNMRMIQLHNGEYSNGKHGFT
+
+>>CG4847|FBgn0034229|pp-CT15577|FBan0004847 GO:[endopept  (390 aa)
+ initn: 499 init1: 281 opt: 762  Z-score: 831.0  bits: 165.2 E(): 2.5e-40
+Smith-Waterman score: 762;  42.857% identity (45.896% ungapped) in 287 aa overlap (1431-1706:112-390)
+
+             1410      1420      1430      1440      1450      1460
+PAPA_C QWTKWKAMHNRLYGMNEEGWRRAVWEKNMKMIELHNQEYREGKHSFTMAMNAFGDMTSEE
+                                     ..:  :  . .: :.: .:.:::.:.:  :
+CG4847 FGDFLSQSGKTYLSAADRALHEGAFASTKNLVEAGNAAFAQGVHTFKQAVNAFADLTHSE
+              90       100       110       120       130       140 
+
+             1470            1480      1490      1500      1510    
+PAPA_C FRQVMNGFQNRKPRKG------KVFQEPLFYEAPRSVDWREKGYVTPVKNQGQCGSCWAF
+       : . ..:..     :.      :. . :     : . ::::.: ::::: :: :::::::
+CG4847 FLSQLTGLKRSPEAKARAAASLKLVNLPA-KPIPDAFDWREHGGVTPVKFQGTCGSCWAF
+             150       160       170        180       190       200
+
+         1520      1530      1540         1550      1560       1570
+PAPA_C SATGALEGQMFRKTGRLISLSEQNLVDCSGPQ---GNEGCNGGLMDYAFQYVQD-NGGLD
+       ..:::.::. ::::: : .::::::::: ::    : .::.::... :: .... . :..
+CG4847 ATTGAIEGHTFRKTGSLPNLSEQNLVDC-GPVEDFGLNGCDGGFQEAAFCFIDEVQKGVS
+              210       220        230       240       250         
+
+             1580      1590      1600       1610      1620         
+PAPA_C SEESYPYEATEESCKYNPKYSVANDTGFVDIP-KQEKALMKAVATVGPISVAIDAGHESF
+       .: .:::  .. .:::. . : :.  ::. :: :.:. : :.:::.::.. ... : :..
+CG4847 QEGAYPYIDNKGTCKYDGSKSGATLQGFAAIPPKDEEQLKKVVATLGPVACSVN-GLETL
+     260       270       280       290       300       310         
+
+    1630      1640      1650      1660      1670      1680         
+PAPA_C LFYKEGIYFEPDCSSEDMDHGVLVVGYGFESTESDNNKYWLVKNSWGEEWGMGGYVKMAK
+         :  ::: . .:.. . .:..:::::: :. ..    ::.::::: . ::  :: .. .
+CG4847 KNYAGGIYNDDECNKGEPNHSILVVGYGSEKGQD----YWIVKNSWDDTWGEKGYFRLPR
+      320       330       340       350           360       370    
+
+    1690      1700      1710      1720      1730      1740         
+PAPA_C DRRNHCGIASAASYPTVMTPLLLLAVLCLGTALATPKFDQTFNAQWHQWKSTHRRLYGTN
+        . :.: ::   :::.:                                           
+CG4847 GK-NYCFIAEECSYPVV                                           
+           380       390                                           
+
+>>26/29kD-proteinase|FBgn0028967|pp-CT25694|FBan0008947   (549 aa)
+ initn: 428 init1: 244 opt: 712  Z-score: 774.7  bits: 155.2 E(): 3.5e-37
+Smith-Waterman score: 769;  40.625% identity (43.624% ungapped) in 320 aa overlap (1728-2036:238-546)
+
+      1700      1710      1720      1730      1740       1750      
+PAPA_C ASAASYPTVMTPLLLLAVLCLGTALATPKFDQTFNAQWHQWKSTHRRLYGTN-EEEWRRA
+                                     :.  .  .:..:  :   : .. :.: :. 
+26/29k DDSLQCVGFPGPGTGHYATFNPMQEFISGTDEHVDKAFHHFKRKHGVAYHSDTEHEHRKN
+       210       220       230       240       250       260       
+
+       1760      1770      1780      1790      1800       1810     
+PAPA_C VWEKNMRMIQLHNGEYSNGKHGFTMEMNAFGDMTNEEFRQIVNGYRHQK-HKKGRLFQEP
+       ....:.:.:. .:     .:  .:. .: ..: :.::..    ::. .  .. :. :   
+26/29k IFRQNLRYIHSKN----RAKLTYTLAVNHLADKTEEELKA-RRGYKSSGIYNTGKPFPYD
+       270       280           290       300        310       320  
+
+           1820      1830      1840      1850      1860       1870 
+PAPA_C LML---QIPKTVDWREKGCVTPVKNQGQCGSCWAFSASGCLEGQMFLKTG-KLISLSEQN
+       .     .::   :::  : :::::.:. :::::.:.. : ::: .:::.: .:. ::.: 
+26/29k VPKYKDEIPDQYDWRLYGAVTPVKDQSVCGSCWSFGTIGHLEGAFFLKNGGNLVRLSQQA
+            330       340       350       360       370       380  
+
+            1880      1890       1900       1910      1920         
+PAPA_C LVDCSHDQGNQGCNGGLMDF-AFQYIKENGGLDSEESY-PYEAKDGSCKYRAEYAVANDT
+       :.:::   ::.::.::  :: ..:.. ..::. .:: : :: ..:: :.      ::   
+26/29k LIDCSWAYGNNGCDGG-EDFRVYQWMLQSGGVPTEEEYGPYLGQDGYCHVNNVTLVAPIK
+            390        400       410       420       430       440 
+
+    1930      1940       1950      1960      1970        1980      
+PAPA_C GFVDIPQQEKALMK-AVATVGPISVAMDASHPSLQFYSSGIYYEPNCSS--KDLDHGVLV
+       :::.. ...   .: :.   ::.:::.:::  ...::: :.::::.:..    :::.::.
+26/29k GFVNVTSNDPNAFKLALLKHGPLSVAIDASPKTFSFYSHGVYYEPTCKNDVDGLDHAVLA
+             450       460       470       480       490       500 
+
+       1990      2000      2010      2020      2030      2040      
+PAPA_C VGYGYEGTDSNKDKYWLVKNSWGKEWGMDGYIKIAKDRNNHCGLATAASYPIVNMAMIPS
+       ::::    . : . ::::::::.  :: :::: ..  .:: ::. :  .:          
+26/29k VGYG----SINGEDYWLVKNSWSTYWGNDGYILMSAKKNN-CGVMTMPTYVEM       
+                 510       520       530        540                
+
+       2050      2060      2070      2080      2090      2100      
+PAPA_C ISKLLFVAICLFVYMGLSFGDFSIVGYSQNDLTSTERLIQLFESWMLKHNKIYKNIDEKI
+
+>>CG12163|FBgn0037303|pp-CT8855|FBan0012163 GO:[] mol_we  (475 aa)
+ initn: 356 init1: 356 opt: 558  Z-score: 607.7  bits: 124.1 E(): 6.9e-28
+Smith-Waterman score: 847;  41.615% identity (44.816% ungapped) in 322 aa overlap (29-343:169-474)
+
+                 10        20        30        40         50       
+PAPA_C   MKVILLFVLAVFTVFVSSRGIPPEEQSQFLEFQDKFNKKY-SHEEYLERFEIFKSNLG
+                                     : .:: .:...: :  :   :..::..:: 
+CG1216 VQARHTRSVEWAEKKTHKKHSHRFDKVDHLFYKFQVRFGRRYVSTAERQMRLRIFRQNLK
+      140       150       160       170       180       190        
+
+        60        70        80        90        100       110      
+PAPA_C KIEELNLIAINHKADTKFGVNKFADLSSDEFKNYY-LNNKEAIFTDDLPVADYLDDEFIN
+        :::::    :. ...:.:...:::..:.:.:.   : ...   .    .:  .   . .
+CG1216 TIEELN---ANEMGSAKYGITEFADMTSSEYKERTGLWQRDEAKATGGSAA--VVPAYHG
+      200          210       220       230       240         250   
+
+        120       130       140       150       160       170      
+PAPA_C SIPTAFDWRTRGAVTPVKNQGQCGSCWSFSTTGNVEGQHFISQNKLVSLSEQNLVDCDHE
+        .:  :::: . ::: :::::.:::::.::.:::.:: . .. ..:  .:::.:.:::  
+CG1216 ELPKEFDWRQKDAVTQVKNQGSCGSCWAFSVTGNIEGLYAVKTGELKEFSEQELLDCD--
+           260       270       280       290       300       310   
+
+        180       190       200       210       220       230      
+PAPA_C CMEYEGEEACDEGCNGGLQPNAYNYIIKNGGIQTESSYPYTAETGTQCNFNSANIGAKIS
+               . : .:::::. :::. :   ::.. :. ::: :. . ::.:: .   ....
+CG1216 --------TTDSACNGGLMDNAYKAIKDIGGLEYEAEYPYKAKKN-QCHFNRTLSHVQVA
+                     320       330       340        350       360  
+
+        240        250       260       270          280       290  
+PAPA_C NFTMIPK-NETVMAGYIVSTGPLAIAADAVEWQFYIGGV---FDIPCNPNSLDHGILIVG
+       .:. .:: :::.:  .....::..:. .:   ::: :::   .   :. ..::::.:.::
+CG1216 GFVDLPKGNETAMQEWLLANGPISIGINANAMQFYRGGVSHPWKALCSKKNLDHGVLVVG
+            370       380       390       400       410       420  
+
+             300       310       320       330       340       350 
+PAPA_C YSAKN-TIFRKNMPYWIVKNSWGADWGEQGYIYLRRGKNTCGVSNFVSTSIIMAHARVLL
+       :....   :.:..::::::::::  ::::::  . :: ::::::........        
+CG1216 YGVSDYPNFHKTLPYWIVKNSWGPRWGEQGYYRVYRGDNTCGVSEMATSAVLA       
+            430       440       450       460       470            
+
+             360       370       380       390       400       410 
+PAPA_C LALAVLATAAVAVASSSSFADSNPIRPVTDRAASTLESAVLGALGRTRHALRFARFAVRY
+
+>>CG1075|FBgn0037397|pp-CT1381|FBan0001075 GO:[cathepsin  (274 aa)
+ initn: 233 init1: 148 opt: 413  Z-score: 452.7  bits: 94.7 E(): 3e-19
+Smith-Waterman score: 413;  36.548% identity (39.130% ungapped) in 197 aa overlap (1522-1715:87-273)
+
+            1500      1510      1520      1530      1540      1550 
+PAPA_C DWREKGYVTPVKNQGQCGSCWAFSATGALEGQMFRKTGRLISLSEQNLVDCSGPQGNEGC
+                                     :.  ::.:   .:: ..::::  :  :.::
+CG1075 QAVANHNGLYSQGRSGFRMGLNQLYIASASGEEVRKVG---DLSPKHLVDCF-PYPNQGC
+         60        70        80        90          100        110  
+
+            1560      1570      1580      1590      1600       1610
+PAPA_C NGGLMDYAFQYVQDNGGLDSEESYPYEATEESCKYNPKYSVANDTGFVDIPKQ-EKALMK
+       :.: .. ::.. .: : . :.:::::.  .  :... . :...   .: . .. :. : :
+CG1075 NAGWVSVAFNFKRDYG-IASKESYPYKPENGECRWDRRKSTGTLREYVTLTSNDERELAK
+            120        130       140       150       160       170 
+
+             1620      1630      1640        1650      1660        
+PAPA_C AVATVGPISVAIDAGHESFLFYKEGIYFEPDC--SSEDMDHGVLVVGYGFESTESDNNKY
+       .:  .::. :.::  :: :  :  ::   :.:  .. :. :.::.::.  .   .:   :
+CG1075 VVYKIGPVEVSIDHLHEEFDQYFGGILRTPSCRNTNYDLKHSVLLVGFETHPKWGD---Y
+             180       190       200       210       220           
+
+     1670      1680      1690      1700      1710      1720        
+PAPA_C WLVKNSWGEEWGMGGYVKMAKDRRNHCGIASAASYPTVMTPLLLLAVLCLGTALATPKFD
+       :..:::.: ::: .:: :.:.. ..:  . : .:   .. : :  :.             
+CG1075 WIIKNSYGTEWGESGYFKLARNCEQH--VISMTSIAKLVLPCLTEALN            
+      230       240       250         260       270                
+
+     1730      1740      1750      1760      1770      1780        
+PAPA_C QTFNAQWHQWKSTHRRLYGTNEEEWRRAVWEKNMRMIQLHNGEYSNGKHGFTMEMNAFGD
+
+>>CG6347|FBgn0033874|pp-CT19836|FBan0006347 GO:[cathepsi  (235 aa)
+ initn: 273 init1: 273 opt: 311  Z-score: 342.4  bits: 74.0 E(): 4.1e-13
+Smith-Waterman score: 436;  37.000% identity (39.785% ungapped) in 200 aa overlap (1710-1899:15-210)
+
+    1680      1690      1700      1710      1720        1730       
+PAPA_C GMGGYVKMAKDRRNHCGIASAASYPTVMTPLLLLAVLCLGTALATPKF-D-QTFNAQWHQ
+                                     : ::... :    . ::. : :.:.   .:
+CG6347                 MRMCSTMWLQMTLGLALLGAVSLQQLQSFPKLCDVQNFDDFLRQ
+                               10        20        30        40    
+
+      1740      1750      1760      1770      1780      1790       
+PAPA_C WKSTHRRLYGTNEEEWRRAVWEKNMRMIQLHNGEYSNGKHGFTMEMNAFGDMTNEEFRQI
+             ..:. .:. .:....  .: .: : : . .::  :: . .:...::: .:.  .
+CG6347 TG----KVYSDEERVYRESIFAAKMSLITLSNKNADNGVSGFRLGVNTLADMTRKEIATL
+               50        60        70        80        90       100
+
+            1800       1810      1820      1830       1840         
+PAPA_C VN------GYRHQK-HKKGRLFQEPLMLQIPKTVDWREKGCVTPVKNQG-QCGSCWAFSA
+       ..      : :. . : .    ..:   ..:.  :::::: :::   ::  ::.::.:..
+CG6347 LGSKISEFGERYTNGHINFVTARNPASANLPEMFDWREKGGVTPPGFQGVGCGACWSFAT
+              110       120       130       140       150       160
+
+    1850      1860      1870      1880      1890      1900         
+PAPA_C SGCLEGQMFLKTGKLISLSEQNLVDCSHDQGNQGCNGGLMDFAFQYIKENGGLDSEESYP
+       .: :::..: .:: : :::.::::::. : ::.::.::.....:.::...          
+CG6347 TGALEGHLFRRTGVLASLSQQNLVDCADDYGNMGCDGGFQEYGFEYIRDHERNRRTSTAR
+              170       180       190       200       210       220
+
+    1910      1920      1930      1940      1950      1960         
+PAPA_C YEAKDGSCKYRAEYAVANDTGFVDIPQQEKALMKAVATVGPISVAMDASHPSLQFYSSGI
+                                                                   
+CG6347 ESGENSRLCHHYSRG                                             
+              230                                                  
+
+>>CG6337|FBgn0033873|pp-CT19824|FBan0006337 GO:[endopept  (340 aa)
+ initn: 191 init1: 112 opt: 265  Z-score: 290.3  bits: 64.9 E(): 3.3e-10
+Smith-Waterman score: 346;  28.707% identity (31.488% ungapped) in 317 aa overlap (1073-1369:28-336)
+
+           1050      1060      1070      1080         1090         
+PAPA_C TALPLLCAGAWLLSAGATAELTVNAIEKFHFTSWMKQHQKTYSS---REYSHRLQVFANN
+                                     : ..  . .:::.:   :....   ..  :
+CG6337    MFKLLLCCLLLTIDSGWAFNHGQDLVDFQTYEDNFNKTYASTSARNFANYYFIYNRN
+                  10        20        30        40        50       
+
+    1100         1110       1120      1130      1140      1150     
+PAPA_C WRKIQAHN---QRNHT-FKMGLNQFSDMSFAEIKHKYLWSEPQNCSATKSNYLRGTGPYP
+         ..  ::   .::.: .. ..:::::. .  :.   :  .  :  .. ..   ..    
+CG6337 --QVAQHNAQADRNRTTYREAVNQFSDIRL--IQFAALLPKAVNTVTSAASDPPASQAAS
+          60        70        80          90       100       110   
+
+        1160      1170       1180        1190      1200      1210  
+PAPA_C SSMDWRKKGNVVSPVKNQGA-CGSCWTFSTTGALE--SAVAIASGKMMTLAEQQLVDCAQ
+       .:.:     ...  :..::. :.: :...:. :.:  .::  :.    .:. :::.::: 
+CG6337 ASFDIITDFGLTVAVEDQGVNCSSSWAYATAKAVEIMNAVQTANPLPSSLSAQQLLDCAG
+           120       130       140       150       160       170   
+
+           1220      1230        1240         1250      1260       
+PAPA_C NFNNHGCQGGLPSQAFEYI--LYNKGIMGEDSYPY---IGKNGQCKFNPEKAVAFVK--N
+          . ::.   :  :..:.  : .  .. : .::    .   :.:.  : .. . ::  .
+CG6337 M--GTGCSTQTPLAALNYLTQLTDAYLYPEVDYPNNNSLKTPGMCQ-PPSSVSVGVKLAG
+             180       190       200       210        220       230
+
+        1270      1280      1290       1300      1310      1320    
+PAPA_C VVNITLNDEAAMVEAVALYNPVSFAFE-VTEDFMMYKSGVYSSNSCHKTPDKVNHAVLAV
+         ... ::.::... :.   ::   .. .:  ::.:.:::: ...   :  : .. ...:
+CG6337 YSTVADNDDAAVMRYVSNGFPVIVEYNPATFGFMQYSSGVYVQETRALTNPKSSQFLVVV
+              240       250       260       270       280       290
+
+           1330      1340      1350      1360      1370      1380  
+PAPA_C GYGEQ--NGLLYWIVKNSWGSNWGNNGYFLIERGKNMCGLAACASYPIPQVMNPTLILAA
+       :: ..  ..: ::   ::.:..::..::. : : .:.  .:  : .:             
+CG6337 GYDHDVDSNLDYWRCLNSFGDTWGEEGYIRIVRRSNQ-PIAKNAVFPSALA         
+              300       310       320        330       340         
+
+           1390      1400      1410      1420      1430      1440  
+PAPA_C FCLGIASATLTFDHSLEAQWTKWKAMHNRLYGMNEEGWRRAVWEKNMKMIELHNQEYREG
+
+>>CG5367|FBgn0032228|pp-CT17056|FBan0005367 GO:[endopept  (228 aa)
+ initn: 309 init1: 173 opt: 249  Z-score: 275.0  bits: 61.5 E(): 2.4e-09
+Smith-Waterman score: 493;  30.556% identity (40.741% ungapped) in 288 aa overlap (1425-1706:7-228)
+
+         1400      1410      1420      1430      1440      1450    
+PAPA_C DHSLEAQWTKWKAMHNRLYGMNEEGWRRAVWEKNMKMIELHNQEYREGKHSFTMAMNAFG
+                                     .:.:.:.:: :::.:.::. :: .  : :.
+CG5367                         MRSYKAFEENFKVIEEHNQNYKEGQTSFRLKPNIFA
+                                       10        20        30      
+
+         1460           1470      1480      1490      1500         
+PAPA_C DMTSEEF-----RQVMNGFQNRKPRKGKVFQEPLFYEAPRSVDWREKGYVTPVKNQGQCG
+       ::... .     : . .....     ...   ::. ..:.:.::: ::..::  :: .::
+CG5367 DMSTDGYLKGFLRLLKSNIEDSADNMAEIVGSPLMANVPESLDWRSKGFITPPYNQLSCG
+         40        50        60        70        80        90      
+
+    1510      1520      1530      1540      1550      1560         
+PAPA_C SCWAFSATGALEGQMFRKTGRLISLSEQNLVDCSGPQGNEGCNGGLMDYAFQYVQDNGGL
+       ::.::: . .. ::     :.                                       
+CG5367 SCYAFSIAESIMGQ----KGK---------------------------------------
+        100       110                                              
+
+    1570      1580      1590      1600       1610      1620        
+PAPA_C DSEESYPYEATEESCKYNPKYSVANDTGFVDIP-KQEKALMKAVATVGPISVAIDAGHES
+                     :.. :  ::.: :... .: ..:.:.. ::. .::....:.:. ..
+CG5367 --------------CQFVPDLSVVNVTSWAILPVRDEQAIQAAVTHIGPVAISINASPKT
+                         120       130       140       150         
+
+     1630      1640      1650      1660      1670      1680        
+PAPA_C FLFYKEGIYFEPDCSSEDMDHGVLVVGYGFESTESDNNKYWLVKNSWGEEWGMGGYVKMA
+       : .:..::: .: ::: ...:...:.:.:        . ::..:: ::..:: .::... 
+CG5367 FQLYSDGIYDDPLCSSASVNHAMVVIGFG--------KDYWILKNWWGQNWGENGYIRIR
+     160       170       180               190       200       210 
+
+     1690      1700      1710      1720      1730      1740        
+PAPA_C KDRRNHCGIASAASYPTVMTPLLLLAVLCLGTALATPKFDQTFNAQWHQWKSTHRRLYGT
+       :   : ::::. :.:  :                                          
+CG5367 KGV-NMCGIANYAAYAIV                                          
+              220                                                  
+
+>>CG3074|FBgn0034709|pp-CT10308|FBan0003074 GO:[cathepsi  (441 aa)
+ initn: 288 init1: 124 opt: 252  Z-score: 274.7  bits: 62.4 E(): 2.4e-09
+Smith-Waterman score: 411;  35.124% identity (39.352% ungapped) in 242 aa overlap (1151-1369:184-422)
+
+             1130      1140      1150       1160      1170         
+PAPA_C SDMSFAEIKHKYLWSEPQNCSATKSNYLRGTGPYPSSMD-WRKKGNVVSPVKNQGACGSC
+                                     :   :::..   : .. .: : .:: ::. 
+CG3074 GRKYSEGLKLRLGTKEPTYRVKAMTRLKNPTDGLPSSFNALDKWSSYISEVPDQGWCGAS
+           160       170       180       190       200       210   
+
+    1180      1190        1200      1210      1220      1230       
+PAPA_C WTFSTTGALESAVAIAS-GKM-MTLAEQQLVDCAQNFNNHGCQGGLPSQAFEYILYNKGI
+       :..:::..  .  :: : ::  . :. :....:..   ..::.::  . :..: :..::.
+CG3074 WVLSTTSVASDRFAIQSKGKENVQLSAQNILSCTRR--QQGCEGGHLDAAWRY-LHKKGV
+           220       230       240         250       260        270
+
+      1240      1250        1260                   1270      1280  
+PAPA_C MGEDSYPYIGKNGQCKF--NPEKAVAF-VKNVVNI------------TLNDEAAMVEAVA
+       . :. :::  .   ::.  : ..  :   .. ::.            .:: :: ..  . 
+CG3074 VDENCYPYTQHRDTCKIRHNSRSLRANGCQKPVNVDRDSLYTVGPAYSLNREADIMAEIF
+              280       290       300       310       320       330
+
+           1290      1300      1310      1320       1330           
+PAPA_C LYNPVSFAFEVTEDFMMYKSGVYSSNSCHKTPDKVNHAVLAVGYGEQ-NGLLYW--IVKN
+         .::. ...:..::. :..:::  .. ..      :.:  ::.::. ::  ::  :. :
+CG3074 HSGPVQATMRVNRDFFAYSGGVYRETAANRKAPTGFHSVKLVGWGEEHNGEKYWVSIAAN
+              340       350       360       370       380       390
+
+    1340      1350      1360        1370      1380      1390       
+PAPA_C SWGSNWGNNGYFLIERGKNMCGLA--ACASYPIPQVMNPTLILAAFCLGIASATLTFDHS
+       :::: ::..::: : ::.: ::.   . ::.:                            
+CG3074 SWGSWWGEHGYFRILRGSNECGIEEYVLASWPYVYSYYNVKPMEISRLIYF         
+              400       410       420       430       440          
+
+      1400      1410      1420      1430      1440      1450       
+PAPA_C LEAQWTKWKAMHNRLYGMNEEGWRRAVWEKNMKMIELHNQEYREGKHSFTMAMNAFGDMT
+
+>>CG10992|FBgn0030521|pp-CT30795|FBan0010992 GO:[catheps  (340 aa)
+ initn: 193 init1: 146 opt: 235  Z-score: 257.6  bits: 58.9 E(): 2.2e-08
+Smith-Waterman score: 370;  24.620% identity (29.889% ungapped) in 329 aa overlap (753-1038:25-338)
+
+            730       740       750       760          770         
+PAPA_C PVCGAAELSVNSLEKFHFKSWMSKHRKTYSTEEYHHRLQTFASNW---RKINAHNNGNHT
+                                     ..:. . ... :..:   :...:  . .: 
+CG1099       MNLLLLVATAASVAALTSGEPSLLSDEFIEVVRSKAKTWTVGRNFDASVTEGHI
+                     10        20        30        40        50    
+
+     780       790       800       810       820       830         
+PAPA_C FKMALNQFSDMSFAEIKHKYLWSEPQNCSATKSNYLRGTGPYPPSVDWRKKGN---FVSP
+        ..       :.     ::.  . :..  .  . :. ..   :   : ::.      .. 
+CG1099 RRL-------MGVHPDAHKF--ALPDKREVLGDLYVNSVDELPEEFDSRKQWPNCPTIGE
+                  60          70        80        90       100     
+
+        840       850       860         870       880       890    
+PAPA_C VKNQGACGSCWTFSTTGALESAIAIATGKMLSL--AEQQLVDCAQDFNNYGCQGGLPSQA
+       ...::.:::::.:... :. . . : .:  ...  . ..::.: .  . .::.::.:. :
+CG1099 IRDQGSCGSCWAFGAVEAMSDRVCIHSGGKVNFHFSADDLVSCCHTCG-FGCNGGFPGAA
+         110       120       130       140       150        160    
+
+          900       910                                920         
+PAPA_C FEYILYNKGIMGEDTY-------PYQ------------------GKDGYCKF--QPGKAI
+       . :    :::..   :       ::.                  :.   :.   : : ..
+CG1099 WSYWTR-KGIVSGGPYGSNQGCRPYEISPCEHHVNGTRPPCAHGGRTPKCSHVCQSGYTV
+          170        180       190       200       210       220   
+
+       930            940       950       960       970       980  
+PAPA_C GFVKD----VANITIY-DEEAMVEAVALYNPVSFAFEVTQDFMMYRTGIYSSTSCHKTPD
+        ..::      . ..  . . . : .   .::  :: : .:...:. :.:.    :.   
+CG1099 DYAKDKHFGSKSYSVRRNVREIQEEIMTNGPVEGAFTVYEDLILYKDGVYQ----HEHGK
+           230       240       250       260       270             
+
+             990        1000      1010      1020      1030         
+PAPA_C KVN-HAVLAVGYG--EKNGIPYWIVKNSWGPQWGMNGYFLIERGKNMCGLAACASYPIPL
+       ... ::.  .:.:   .. ::::.. :::. .:: .:.: : ::.. ::. .  :  .: 
+CG1099 ELGGHAIRILGWGVWGEEKIPYWLIGNSWNTDWGDHGFFRILRGQDHCGIESSISAGLPK
+     280       290       300       310       320       330         
+
+    1040      1050      1060      1070      1080      1090         
+PAPA_C VMWTALPLLCAGAWLLSAGATAELTVNAIEKFHFTSWMKQHQKTYSSREYSHRLQVFANN
+                                                                   
+CG1099 L                                                           
+     340                                                           
+
+>>CG10460|FBgn0034443|pp-CT29364|FBan0010460 GO:[endopep  (79 aa)
+ initn: 115 init1: 115 opt: 131  Z-score: 152.2  bits: 37.3 E(): 0.016
+Smith-Waterman score: 141;  29.231% identity (29.231% ungapped) in 65 aa overlap (1399-1463:6-70)
+
+     1370      1380      1390      1400      1410      1420        
+PAPA_C PIPQVMNPTLILAAFCLGIASATLTFDHSLEAQWTKWKAMHNRLYGMNEEGWRRAVWEKN
+                                     . .:...:.  .. :  .:.  :: .. ..
+CG1046                          MSLVSDEEWVEYKSKFDKNYEAEEDLMRRRIYAES
+                                        10        20        30     
+
+     1430      1440      1450      1460      1470      1480        
+PAPA_C MKMIELHNQEYREGKHSFTMAMNAFGDMTSEEFRQVMNGFQNRKPRKGKVFQEPLFYEAP
+          :: ::.....:. .. :..: ..:.: ::: :                         
+CG1046 KARIEEHNRKFEKGEVTWKMGINHLADLTPEEFAQRCGKKVPPN                
+          40        50        60        70                         
+
+     1490      1500      1510      1520      1530      1540        
+PAPA_C RSVDWREKGYVTPVKNQGQCGSCWAFSATGALEGQMFRKTGRLISLSEQNLVDCSGPQGN
+
+>>Ddx1|FBgn0015075|pp-CT25986|FBan0009054 GO:[helicase (  (727 aa)
+ initn:  64 init1:  64 opt: 107  Z-score: 114.0  bits: 33.4 E():  2.2
+Smith-Waterman score: 107;  25.581% identity (29.412% ungapped) in 215 aa overlap (2142-2341:72-273)
+
+            2120      2130      2140      2150      2160           
+PAPA_C FKDNLKYIDETNKKNNSYWLGLNVFADMSNDEFKEKYTGSIAGNYTTTELSYEE------
+                                     .: :    :.:.:  :   .:. .      
+Ddx1|F VLMAAETGSGKTGAFCLPILQIVWETLRDLEEGKAGKGGAIGGAVTPWTMSFFDRGNALA
+              50        60        70        80        90       100 
+
+        2170       2180      2190      2200      2210      2220    
+PAPA_C VLNDG-DVNIPEYVDWRQKGAVTPVKNQGSCGSCWAFSAVVTIEGIIKIRTGNLNEYSEQ
+       :  ::   .  :. .:.   :.: :...:.    . : :.:: ::. ..  :  .. .. 
+Ddx1|F VTPDGLRCQSREFKEWHGCRATTGVRGKGK----FYFEATVTDEGLCRV--GWSTQQANL
+             110       120       130           140         150     
+
+         2230      2240      2250      2260      2270       2280   
+PAPA_C ELLDCDRRSYGCNGGYPWSALQLVAQYGIHYRNTYPYEGVQRYCRSREKG-PYAAKTDGV
+       .:  : : ..: .:    :  .   .::  . ..    :     ...: .    ... ::
+Ddx1|F DLGTC-RMGFGFGGTGKKSNNRQFDDYGEAFGKA-DVIGCLLDLKNQEVSFTKNGQNLGV
+         160        170       180        190       200       210   
+
+          2290      2300      2310             2320      2330      
+PAPA_C RQVQPYNEGALLYSIANQPVSVVLEAA------GK-DFQLYRGGIFVGPCGNKVDHAVAA
+           : : .   .  :     :::. :      :: ::.   :. ::: :    .:. : 
+Ddx1|F AFRLPDNLAKETFYPA-----VVLKNAEMQFNFGKTDFKYAPGNGFVGACQAGPEHSKAN
+           220            230       240       250       260        
+
+       2340      2350      2360      2370      2380                
+PAPA_C VGYGPNYILIKNSWGTGWGENGYIRIKRGTGNSYGVCGLYTSSFYPVKN           
+          ::                                                       
+Ddx1|F PITGPAAGAPSAKPAPNAPQAIIMEPSRELAEQTYNQIEKFKYHLSNPEVRSLLLIGGVR
+      270       280       290       300       310       320        
+
+>>CPTI|FBgn0027842|pp-CT32036|FBan0012891 GO:[carnitine   (780 aa)
+ initn:  63 init1:  63 opt: 105  Z-score: 111.4  bits: 33.0 E():    3
+Smith-Waterman score: 105;  27.551% identity (30.000% ungapped) in 98 aa overlap (904-998:486-578)
+
+           880       890       900       910          920       930
+PAPA_C LVDCAQDFNNYGCQGGLPSQAFEYILYNKGIMGEDTYPYQ---GKDGYCKFQPGKAIGFV
+                                     :.:.: : :.   .  :   :::     ..
+CPTI|F TVCVGTNGRVGFNAEHTWADAPVLGHLWEYIFGDDIYGYDETGNTKGTPAFQPPTPTRLT
+         460       470       480       490       500       510     
+
+              940       950       960       970       980       990
+PAPA_C KDVANITIYDEEAMVEAVALYNPVSFAFEVTQDFMMYRTGIYSSTSCHKTPDKVNHAVLA
+        :.       ::: .... : : :.. . : ::   :  :....  :. .::   . .: 
+CPTI|F WDLKPCLAQIEEATIDVTKLINEVNLRILVHQD---YGKGFMKK--CRISPDAYIQMALQ
+         520       530       540          550         560       570
+
+             1000      1010      1020      1030      1040      1050
+PAPA_C VGYGEKNGIPYWIVKNSWGPQWGMNGYFLIERGKNMCGLAACASYPIPLVMWTALPLLCA
+       ..: .  :                                                    
+CPTI|F LAYYRDAGRFSLTYEASMTRLFREGRTETVRPCTIESSAWVKAMQNPNTTNDERVKMMQA
+              580       590       600       610       620       630
+
+>>CG4393|FBgn0039075|pp-CT14338|FBan0004393 GO:[cytoskel  (968 aa)
+ initn:  40 init1:  40 opt: 105  Z-score: 110.3  bits: 33.1 E():  3.5
+Smith-Waterman score: 105;  23.973% identity (25.547% ungapped) in 146 aa overlap (412-555:373-511)
+
+             390       400       410       420       430       440 
+PAPA_C RAASTLESAVLGALGRTRHALRFARFAVRYGKSYESAAEVRRRFRIFSESLEEVRSTNRK
+                                     ::: .:: . . ::    ..   ..: :. 
+CG4393 NHLLNHSHSMQQSGYSKQRLSAGNGGPYNGGKSLDSALQPEDRFYQDLNAHSPLHSQNEM
+            350       360       370       380       390       400  
+
+             450       460       470         480       490         
+PAPA_C GLPYRLGINRFSDMSWEEFQATRLGAAQTCSATLAGN--HLMRDAAALPETKDWREDGIV
+       :  :  ...  :..:   :. . ..  . ::.   :.  :.   : : :  :  :..  :
+CG4393 GGGY--SVSPSSSLS--SFEPASVSPRSRCSTGGLGQPMHMSTFAPAGPPKKPPRRNLSV
+              410         420       430       440       450        
+
+     500       510       520       530       540       550         
+PAPA_C SPVKNQAHCGSCWTFSTTGALEAAYTQATGKNISLSEQQLVDCAGGFNNFGCNGGLPSQA
+       ::.  .:  :. ...:. ..   . ... :.: .. .:   .   . .. :  ::.    
+CG4393 SPT--HAGPGQQFSYSSPSSQSQSQSHGHGQN-QVRRQPASESPYSHQSHGSVGGMSFDE
+      460         470       480        490       500       510     
+
+     560       570       580       590       600       610         
+PAPA_C FEYIKYNGGIDTEESYPYKGVNGVCHYKAENAAVQVLDSVNITLNAEDELKNAVGLVRPV
+                                                                   
+CG4393 TQLRERQRNDRLYASARQSTRSAIAGGMSLSSSNDMLDRQCSSSELNSETSVPNSSGDSP
+         520       530       540       550       560       570     
+
+>>CG4392|FBgn0036283|pp-CT14260|FBan0004392 GO:[mitochon  (370 aa)
+ initn:  55 init1:  55 opt: 100  Z-score: 110.0  bits: 31.7 E():  3.6
+Smith-Waterman score: 104;  20.426% identity (22.642% ungapped) in 235 aa overlap (2099-2317:15-242)
+
+     2070      2080      2090      2100      2110      2120        
+PAPA_C SIVGYSQNDLTSTERLIQLFESWMLKHNKIYKNIDEKIYRFEIFKDNLKYIDETNKKNNS
+                                     :.::..     ....: .  . .   .  .
+CG4392                 MLRNSTYQYNLPVDYHNIQQMAVAGDMMEDFVVIFRDMMGRYLD
+                               10        20        30        40    
+
+     2130      2140            2150      2160       2170      2180 
+PAPA_C YWLGLNVFADMSNDE------FKEKYTGSIAGNYTTTELS-YEEVLNDGDVNIPEYVDWR
+           .::  :... :      ...  .:.:::  . :  .  ...    .:: :.:.   
+CG4392 IGEDMNVPDDFTQKEMQTGLWWRHLVAGGIAGAVSRTCTAPLDRIKVYLQVNQPRYTVQT
+           50        60        70        80        90       100    
+
+                2190      2200      2210      2220      2230       
+PAPA_C QKGAVTP----VKNQGSCGSCWAFSAVVTIEGIIKIRTGNLNEYSEQELLDCDRRSYGCN
+       :. ...     . :.:.  : :  ...    ...::   .  ...  : .   :   : .
+CG4392 QRMGISECMHIMLNEGGSRSMWRGNGI----NVLKIAPETAFKFAAYEQMK--RLIRGDD
+          110       120       130           140       150          
+
+      2240          2250      2260      2270      2280      2290   
+PAPA_C GGYPWSALQL----VAQYGIHYRNTYPYEGVQRYCRSREKGPYAAKTDGVRQVQPYNEGA
+       :.   : ..     .:  ::     ::.: ..     :. : ::. .:.. ..   .::.
+CG4392 GSRQMSIVERFYAGAAAGGISQTIIYPMEVLKTRLALRRTGQYAGIADAAVKIYK-QEGV
+      160       170       180       190       200       210        
+
+          2300       2310      2320      2330      2340      2350  
+PAPA_C LLYSIANQP-VSVVLEAAGKDFQLYRGGIFVGPCGNKVDHAVAAVGYGPNYILIKNSWGT
+         .  .  : .  .:  :: :. .:.                                  
+CG4392 RSFYRGYVPNILGILPYAGIDLAVYETLKRRYIANHDNNEQPSFLVLLACGSTSSTLGQL
+       220       230       240       250       260       270       
+
+>>CG14034|FBgn0031691|pp-CT33593|FBan0014034 GO:[phospho  (223 aa)
+ initn:  60 init1:  60 opt:  93  Z-score: 105.2  bits: 30.1 E():  6.8
+Smith-Waterman score: 93;  18.719% identity (21.965% ungapped) in 203 aa overlap (1434-1625:28-211)
+
+          1410      1420      1430      1440      1450      1460   
+PAPA_C KWKAMHNRLYGMNEEGWRRAVWEKNMKMIELHNQEYREGKHSFTMAMNAFGDMTSEEFRQ
+                                     :...: .:: .  .. .: :  .  . .. 
+CG1403    MLVAGLDDMNCFSLQNEICPNANISFWLYTKENQEGTKLSVFELNRFEFYHHKPLKV
+                  10        20        30        40        50       
+
+          1470      1480         1490          1500      1510      
+PAPA_C VMNGFQNRKPRKGKVFQEPLFYEAPR---SVDW----REKGYVTPVKNQGQCGSCWAFSA
+       ...::....  . ..  .:::        :.:.     :  :.  :.:    . : :   
+CG1403 LIHGFNGHRDFSPNTQLRPLFLTQDYNLISLDYPKLAYEPCYTEAVHNAKYVARCTA---
+        60        70        80        90       100       110       
+
+       1520         1530      1540      1550       1560      1570  
+PAPA_C TGALEGQMFR---KTGRLISLSEQNLVDCSGPQGNEGCNGGLM-DYAFQYVQDNGGLDSE
+             :..:   ..: :... . .:.  .      :  : .. .. ....    .::  
+CG1403 ------QLLRVLLESG-LVKIEDLHLIGLGLGAHVAGFIGQFLPEHKLEHIT---ALDPA
+                120        130       140       150          160    
+
+           1580      1590      1600      1610      1620      1630  
+PAPA_C ESYPYEATEESCKYNPKYSVANDTGFVDIPKQEKALMKAVATVGPISVAIDAGHESFLFY
+       . . : . . . : .:     .:. :::. . . ...  . .:: ..  .. :       
+CG1403 KPF-YMVKDPALKLDP-----TDAKFVDVVHTDVTMLGLLDAVGHVDFYLNMGVSQPNCG
+           170            180       190       200       210        
+
+           1640      1650      1660      1670      1680      1690  
+PAPA_C KEGIYFEPDCSSEDMDHGVLVVGYGFESTESDNNKYWLVKNSWGEEWGMGGYVKMAKDRR
+                                                                   
+CG1403 PINKS                                                       
+      220                                                          
+
+>>CG6357|FBgn0033875|pp-CT19866|FBan0006357 GO:[endopept  (439 aa)
+ initn: 174 init1:  92 opt:  96  Z-score: 104.8  bits: 31.0 E():  7.2
+Smith-Waterman score: 136;  31.852% identity (37.069% ungapped) in 135 aa overlap (344-461:1-133)
+
+           320       330       340       350          360       370
+PAPA_C GADWGEQGYIYLRRGKNTCGVSNFVSTSIIMAHARVLL---LALAVLATAAVAVASSSSF
+                                     :. ::.::   : : ....:  . .:.:: 
+CG6357                               MTSARILLGVPLLLYLMGVALGVPVSTSSP
+                                             10        20        30
+
+                380             390       400         410       420
+PAPA_C ADS--NPIRPVT------DRAASTLESAVLGALGRTRHALRFA--RFAVRYGKSYESAAE
+       : .  ::   ::      : .. :.: .  ..:.. ..  .::  :: : .   :..  :
+CG6357 ATQKINPEIGVTTGKSDADSSTPTIEHT--SGLSEFEEECQFAWQRFLVDFDVHYDNDYE
+               40        50          60        70        80        
+
+              430       440           450       460       470      
+PAPA_C VRRRFRIFSESLEEVRSTNRK---GL-PYRLGINRFSDMSWEEFQATRLGAAQTCSATLA
+        ..:  :: :. ..::. : :   :.  .. :::..::...::..               
+CG6357 RQKRRDIFCENWQKVRDHNLKYDLGVVSFKKGINQWSDLTFEEWKEKQTPKVMPEIASES
+       90       100       110       120       130       140        
+
+        480       490       500       510       520       530      
+PAPA_C GNHLMRDAAALPETKDWREDGIVSPVKNQAHCGSCWTFSTTGALEAAYTQATGKNISLSE
+                                                                   
+CG6357 SKEERDKVNCQAAWEKFLIDFGAQYKNANETEKRRNVFCANWRAIVEHNVQYEKWAEPFK
+      150       160       170       180       190       200        
+
+>>CG11288|FBgn0039895|pp-CT31491|FBan0011288 GO:[cell ad  (202 aa)
+ initn:  61 init1:  61 opt:  91  Z-score: 103.5  bits: 29.6 E():  8.4
+Smith-Waterman score: 91;  24.731% identity (25.843% ungapped) in 93 aa overlap (1843-1931:48-140)
+
+           1820      1830      1840      1850      1860            
+PAPA_C QEPLMLQIPKTVDWREKGCVTPVKNQGQCGSCWAFSASGCLEGQMFLKT-GKLISLSE--
+                                     .:  .... :  :  . :  .: :...:  
+CG1128 ENLCAHICENTFDAYQCKCHPGFMLDNNNVTCSPMKTQICPSGYNLDKLDNKCIDIDECR
+        20        30        40        50        60        70       
+
+    1870      1880      1890      1900      1910      1920         
+PAPA_C QNLVDCSHDQGNQGCNGGLMDFAFQYIKENGGLDSEESYPYEAKDGSCKYRAEYAVAN-D
+       ..: ::. .:  .. :::   .  .  .   :.  ...:     : .:: :    . . :
+CG1128 EDLHDCKSSQYCHNTNGGYHCLNVKEKECPPGFHYDHDYDACKDDYKCKDRKCVKIQSCD
+        80        90       100       110       120       130       
+
+     1930      1940      1950      1960      1970      1980        
+PAPA_C TGFVDIPQQEKALMKAVATVGPISVAMDASHPSLQFYSSGIYYEPNCSSKDLDHGVLVVG
+        ::                                                         
+CG1128 KGFSLHNGTCSDIDECSHKSLNNCHVNSNQECVNTVGSYSCNCLPGFNLDATLNKCVGKY
+       140       150       160       170       180       190       
+
+>>CG13155|FBgn0033723|pp-CT32396|FBan0013155 GO:[] mol_w  (236 aa)
+ initn:  67 init1:  67 opt:  91  Z-score: 102.7  bits: 29.7 E():  9.3
+Smith-Waterman score: 91;  27.397% identity (28.986% ungapped) in 73 aa overlap (165-237:146-214)
+
+          140       150       160       170       180       190    
+PAPA_C NQGQCGSCWSFSTTGNVEGQHFISQNKLVSLSEQNLVDCDHECMEYEGEEACDEGCNGGL
+                                     :.:..: : :.    :  .:  :.::. . 
+CG1315 NFNGTGWQIIQFQWVRDGDESHPDTKEYSYLTENKLWDSDQA---YAYQEP-DDGCHINC
+         120       130       140       150          160        170 
+
+          200       210       220       230       240       250    
+PAPA_C QPNAYNYIIKNGGIQTESSYPYTAETGTQCNFNSANIGAKISNFTMIPKNETVMAGYIVS
+       ::..  : ...  .:     :   .  .. :.:: .  .:: .                 
+CG1315 QPETAVYPLQSEPVQEPVVQPTQEQQQSRTNINSEQDPGKIHDTINEVLEYIQQRILPTL
+             180       190       200       210       220       230 
+
+          260       270       280       290       300       310    
+PAPA_C TGPLAIAADAVEWQFYIGGVFDIPCNPNSLDHGILIVGYSAKNTIFRKNMPYWIVKNSWG
+                                                                   
+CG1315 PIKGE                                                       
+                                                                   
+
+>>CG4810|FBgn0037994|pp-CT15451|FBan0004810 GO:[translat  (551 aa)
+ initn:  60 init1:  60 opt:  95  Z-score: 102.4  bits: 30.9 E():  9.6
+Smith-Waterman score: 95;  25.000% identity (28.409% ungapped) in 100 aa overlap (2138-2227:368-465)
+
+      2110      2120      2130      2140         2150      2160    
+PAPA_C RFEIFKDNLKYIDETNKKNNSYWLGLNVFADMSNDEF---KEKYTGSIAGNYTTTELSYE
+                                     :..::     . :..: : :    ...   
+CG4810 QEPRFMFEEPNPFEEPGVDLASIGYRYRQWDLGNDVVLIARCKHNGVIQGPNGDVQFLSI
+       340       350       360       370       380       390       
+
+         2170      2180             2190      2200      2210       
+PAPA_C EVLNDGDVNIPEYVDWRQK-----GAV--TPVKNQGSCGSCWAFSAVVTIEGIIKIRTGN
+       ..::. : .. . :.::::     :::  . ..:..   . :.  ::..  :  ... : 
+CG4810 KALNEWDSKVTNSVEWRQKLDTQRGAVLASELRNNACKLARWTVEAVLA--GSDQLKLGY
+       400       410       420       430       440         450     
+
+      2220      2230      2240      2250      2260      2270       
+PAPA_C LNEYSEQELLDCDRRSYGCNGGYPWSALQLVAQYGIHYRNTYPYEGVQRYCRSREKGPYA
+       ..... .. :                                                  
+CG4810 VSRMNPRDHLRHVILGTQQFKPQEFATQINLNMDNAWGVLRCLIDLVMRQPDGKYLIMKD
+         460       470       480       490       500       510     
+
+
+
+
+2385 residues in 1 query   sequences
+7177762 residues in 14334 library sequences
+ Scomplib [33t08]
+ start: Tue May 21 16:24:31 2002 done: Tue May 21 16:24:44 2002
+ Scan time: 11.240 Display time:  1.580
+
+Function used was FASTA [version 3.3t08 Jan. 17, 2001]
