@@ -20,7 +20,7 @@ BEGIN {
     }
     use Test;
 
-    plan tests => 33;
+    plan tests => 37;
 }
 
 use Bio::Seq;
@@ -174,3 +174,11 @@ $sfeat->add_sub_SeqFeature(new Bio::SeqFeature::Generic(-start => 6,
 
 ok($sfeat->start, 2);
 ok($sfeat->end, 8);
+
+# some tests to see if we can set a feature to start at 0
+$sfeat = new Bio::SeqFeature::Generic(-start => 0, -end => 0 );
+
+ok(defined $sfeat->start);
+ok($sfeat->start,0);
+ok(defined $sfeat->end);
+ok($sfeat->end,0);
