@@ -214,7 +214,7 @@ sub to_string {
 qq{
     %s
     <hr>
-	<pre>%s</pre>
+    %s
     <b>Query=</b>%s %s<br><dd>(%s letters)</dd>
     <p>
     <b>Database:</b> %s<br><dd>%d sequences; %d total letters<p></dd>
@@ -623,24 +623,23 @@ sub algorithm_reference{
    return '' if( ! defined $result || !ref($result) ||
 		 ! $result->isa('Bio::Search::Result::ResultI')) ;   
    if( $result->algorithm =~ /BLAST/i ) {
-       my $res = $result->algorithm . ' '. $result->algorithm_version. "\n";
+       my $res = $result->algorithm . ' ' . $result->algorithm_version . "<p>";
        if( $result->algorithm_version =~ /WashU/i ) {
 	   return $res .
-"Copyright (C) 1996-2000 Washington University, Saint Louis, Missouri USA.\n
-All Rights Reserved.\n
-\n 
-Reference:  Gish, W. (1996-2000) <a href=\"http://blast.wustl.edu\">http://blast.wustl.edu</a>\n";	   
+"Copyright (C) 1996-2000 Washington University, Saint Louis, Missouri USA.<br>
+All Rights Reserved.<p>
+<b>Reference:</b>  Gish, W. (1996-2000) <a href=\"http://blast.wustl.edu\">http://blast.wustl.edu</a><p>";	   
        } else {
 	   return $res . 
-"Reference: Altschul, Stephen F., Thomas L. Madden, Alejandro A. Schaffer,\n
-Jinghui Zhang, Zheng Zhang, Webb Miller, and David J. Lipman (1997),\n
-\"Gapped BLAST and PSI-BLAST: a new generation of protein database search\n
-programs\",  Nucleic Acids Res. 25:3389-3402.\n";
+"<b>Reference:</b> Altschul, Stephen F., Thomas L. Madden, Alejandro A. Schaffer,<br>
+Jinghui Zhang, Zheng Zhang, Webb Miller, and David J. Lipman (1997),<br>
+\"Gapped BLAST and PSI-BLAST: a new generation of protein database search<br>
+programs\",  Nucleic Acids Res. 25:3389-3402.<p>";
 
        }       
    } elsif( $result->algorithm =~ /FAST/i ) {
-       return $result->algorithm. " ". $result->algorithm_version . "\n".
-	   "\nReference: Pearson et al, Genomics (1997) 46:24-36\n";
+       return $result->algorithm . " " . $result->algorithm_version . "<br>" .
+	   "\n<b>Reference:</b> Pearson et al, Genomics (1997) 46:24-36<p>";
    } else { 
        return '';
    }
