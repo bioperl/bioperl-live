@@ -295,8 +295,8 @@ sub _from_gff2_string {
 
        my @values;								
 
-       while ($values =~ s/"(.*?)"//){          # free text is quoted, so match each free-text block
-       		if ($1){push @values, $1};          # and push it on to the list of values (tags may have more than one value...)
+       while ($values =~ s/"(.*?)"//){          # free text is quoted, so match each free-text block and remove it from the $values string
+       		push @values, $1;          # and push it on to the list of values (tags may have more than one value... and the value may be undef)
        }
 
        my @othervals = split /\s+/, $values;  # and what is left over should be space-separated non-free-text values
@@ -488,6 +488,7 @@ sub _gff2_string{
          			$value =~ s/\t/\\t/g;          # substitute tab and newline characters
          			$value =~ s/\n/\\n/g;          # to their UNIX equivalents
          			$value = '"' . $value . '" '}  # if the value contains anything other than valid tag/value characters, then quote it
+				$value = "\"\"" unless $value;  # if it is completely empty, then just make empty double quotes
          		$valuestr .=  $value . " ";								# with a trailing space in case there are multiple values
          															# for this tag (allowed in GFF2 and .ace format)		
             }
