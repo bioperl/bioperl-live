@@ -32,7 +32,7 @@ while (<>) { # read blast file
   chomp;
   next if /^\#/;  # ignore comments
   my($name,$score,$start,$end) = split /\t+/;
-  my $feature = Bio::SeqFeature::Generic->new(-seq_id=>$name,-score=>$score,
+  my $feature = Bio::SeqFeature::Generic->new(-display_name=>$name,-score=>$score,
 					      -start=>$start,-end=>$end);
   $track->add_feature($feature);
 }

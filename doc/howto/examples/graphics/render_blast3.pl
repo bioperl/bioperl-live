@@ -40,7 +40,7 @@ while (<>) { # read blast file
   next if /^\#/;  # ignore comments
   my($name,$score,$start,$end) = split /\t+/;
   my $feature = Bio::SeqFeature::Generic->new(-score=>$score,
-					      -seq_id=>$name,
+					      -display_name=>$name,
 					      -start=>$start,-end=>$end);
   $track->add_feature($feature);
 }

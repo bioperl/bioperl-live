@@ -27,7 +27,7 @@ my $file = shift                       or die USAGE;
 my $io = Bio::SeqIO->new(-file=>$file) or die USAGE;
 my $seq = $io->next_seq                or die USAGE;
 my $wholeseq = Bio::SeqFeature::Generic->new(-start=>1,-end=>$seq->length,
-					     -seq_id=>$seq->display_name);
+					     -display_name=>$seq->display_name);
 
 my @features = $seq->all_SeqFeatures;
 

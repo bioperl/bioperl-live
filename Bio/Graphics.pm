@@ -14,6 +14,12 @@ Bio::Graphics - Generate GD images of Bio::Seq objects
 
 =head1 SYNOPSIS
 
+ # This script generates a PNG picture of a 10K region containing a set of red features
+ # and a set of blue features. Call it like this:
+ #         red_and_blue.pl > redblue.png
+ # you can now view the picture with your favorite imae application
+
+
  # This script parses a GenBank or EMBL file named on the command
  # line and produces a PNG rendering of it.  Call it like this:
  # render.pl my_file.embl | display -
@@ -35,6 +41,8 @@ Bio::Graphics - Generate GD images of Bio::Seq objects
    push @{$sorted_features{$tag}},$f;
  }
 
+ my $wholeseq = Bio::SeqFeature::Generic->new(-start=>1,-end=>$seq->length)
+
  my $panel = Bio::Graphics::Panel->new(
 				      -length    => $seq->length,
  				      -key_style => 'between',
@@ -42,7 +50,7 @@ Bio::Graphics - Generate GD images of Bio::Seq objects
  				      -pad_left  => 10,
  				      -pad_right => 10,
  				      );
- $panel->add_track($seq,
+ $panel->add_track($wholeseq,
  		  -glyph => 'arrow',
  		  -bump => 0,
  		  -double=>1,

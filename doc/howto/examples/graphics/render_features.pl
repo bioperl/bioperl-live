@@ -14,7 +14,7 @@ my $file = shift                       or die "provide a sequence file as the ar
 my $io = Bio::SeqIO->new(-file=>$file) or die "couldn't create Bio::SeqIO";
 my $seq = $io->next_seq                or die "couldn't find a sequence in the file";
 my $wholeseq = Bio::SeqFeature::Generic->new(-start=>1,-end=>$seq->length,
-					     -seq_id=>$seq->display_name);
+					     -display_name=>$seq->display_name);
 
 my @features = $seq->all_SeqFeatures;
 

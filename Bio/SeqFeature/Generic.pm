@@ -18,7 +18,8 @@ Bio::SeqFeature::Generic - Generic SeqFeature
 
    $feat = new Bio::SeqFeature::Generic ( -start => 10, -end => 100,
                                 -strand => -1, -primary => 'repeat',
-                                -source_tag => 'repeatmasker',
+                                -source_tag   => 'repeatmasker',
+				-display_name => 'alu family',
                                 -score  => 1000,
                                 -tag    => {
                                     new => 1,
