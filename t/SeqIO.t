@@ -12,7 +12,6 @@ use strict;
 use vars qw($DEBUG);
 BEGIN { plan tests => 33 }
 
-use lib '../';
 use Bio::Seq;
 use Bio::SeqIO;
 use Bio::SeqIO::MultiFile;
@@ -95,9 +94,12 @@ ok ( $seq = $str->next_seq() );
 print "Sequence 1 of 1 from GenBank stream:\n", $seq->seq, "\n" if( $DEBUG);
 
 
-$str = Bio::SeqIO->new(-file=> '>t/genbank.out', '-format' => 'GenBank');
-
-$str->write_seq($seq);
+my $strout = Bio::SeqIO->new(-file=> '>t/genbank.out', '-format' => 'GenBank');
+while( $seq ) {
+    $strout->write_seq($seq);
+    $seq = $str->next_seq();
+}
+undef $strout;
 ok(1);
 
 # please leave this as the last line:
