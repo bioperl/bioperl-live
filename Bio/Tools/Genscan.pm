@@ -219,7 +219,7 @@ sub next_prediction {
 	# check that prediction number matches the prediction number
 	# indicated in the sequence id (there may be incomplete gene
 	# predictions that contain only signals with no associated protein
-	# and CDS, like promotors, poly-A sites etc)
+	# and CDS, like promoters, poly-A sites etc)
 	$gene->primary_tag() =~ /[^0-9]([0-9]+)$/;
 	my $prednr = $1;
 	if($seqobj->display_id() !~ /_predicted_\w+_$prednr\|/) {
@@ -287,7 +287,7 @@ sub _parse_predictions {
 		# an exon
 		$predobj = Bio::Tools::Prediction::Exon->new();
 	    } else {
-		# PolyA site, or Promotor
+		# PolyA site, or Promoter
 		$predobj = Bio::SeqFeature::Generic->new();
 	    }
 	    # set common fields
@@ -317,8 +317,8 @@ sub _parse_predictions {
 		$predobj->primary_tag("PolyAsite");
 		$gene->add_poly_A_site($predobj);
 	    } elsif($flds[1] eq 'Prom') {
-		$predobj->primary_tag("Promotor");
-		$gene->add_promotor($predobj);
+		$predobj->primary_tag("Promoter");
+		$gene->add_promoter($predobj);
 	    }
 	    next;
 	}

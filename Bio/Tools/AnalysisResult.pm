@@ -280,7 +280,7 @@ sub analysis_query {
  Usage     : $result->analyis_subject();
  Purpose   : Set/Get the subject of the analysis against which it was
              performed. For similarity searches it will probably be a database,
-             and for sequence feature predictions (exons, promotors, etc) it
+             and for sequence feature predictions (exons, promoters, etc) it
              may be a collection of models or homologous sequences that were
              used, or undefined.
  Returns   : The object that was set before, or undef.

@@ -94,65 +94,65 @@ sub _initialize {
 # Everything else is just inherited from SeqFeature::Generic.
 #
 
-=head2 promotors
+=head2 promoters
 
- Title   : promotors()
- Usage   : @prom_sites = $gene->promotors();
- Function: Get the promotor features/sites of this gene structure.
+ Title   : promoters()
+ Usage   : @prom_sites = $gene->promoters();
+ Function: Get the promoter features/sites of this gene structure.
  Returns : An array of Bio::SeqFeatureI implementing objects representing the
-           promotor regions or sites.
+           promoter regions or sites.
  Args    : 
 
 
 =cut
 
-sub promotors {
+sub promoters {
     my ($self) = @_;
 
-    return () unless exists($self->{'_promotors'});
-    return @{$self->{'_promotors'}};
+    return () unless exists($self->{'_promoters'});
+    return @{$self->{'_promoters'}};
 }
 
-=head2 add_promotor
+=head2 add_promoter
 
- Title   : add_promotor()
- Usage   : $gene->add_promotor($feature);
- Function: Add a promotor feature/site to this gene structure.
+ Title   : add_promoter()
+ Usage   : $gene->add_promoter($feature);
+ Function: Add a promoter feature/site to this gene structure.
  Returns : 
  Args    : A Bio::SeqFeatureI implementing object.
 
 
 =cut
 
-sub add_promotor {
+sub add_promoter {
     my ($self, $fea) = @_;
 
     if(! $fea->isa('Bio::SeqFeatureI') ) {
 	$self->throw("$fea does not implement Bio::SeqFeatureI");
     }
-    if(! exists($self->{'_promotors'})) {
-	$self->{'_promotors'} = [];
+    if(! exists($self->{'_promoters'})) {
+	$self->{'_promoters'} = [];
     }
     $self->_expand_region($fea);
-    push(@{$self->{'_promotors'}}, $fea);
+    push(@{$self->{'_promoters'}}, $fea);
 }
 
-=head2 flush_promotors
+=head2 flush_promoters
 
- Title   : flush_promotors()
- Usage   : $gene->flush_promotors();
- Function: Remove all promotor features/sites from this gene structure.
+ Title   : flush_promoters()
+ Usage   : $gene->flush_promoters();
+ Function: Remove all promoter features/sites from this gene structure.
  Returns : 
  Args    :
 
 
 =cut
 
-sub flush_promotors {
+sub flush_promoters {
     my ($self) = @_;
 
-    if(exists($self->{'_promotors'})) {
-	delete($self->{'_promotors'});
+    if(exists($self->{'_promoters'})) {
+	delete($self->{'_promoters'});
     }
 }
 
@@ -437,7 +437,7 @@ sub seqname {
 		$fea->seqname($val);
 	    }
 	}
-	foreach $fea ($self->promotors()) {
+	foreach $fea ($self->promoters()) {
 	    if($fea->can("seqname") ) {
 		$fea->seqname($val);
 	    }
@@ -486,7 +486,7 @@ sub attach_seq {
 	    $fea->attach_seq($seq);
 	}
     }
-    foreach $fea ($self->promotors()) {
+    foreach $fea ($self->promoters()) {
 	if($fea->can("attach_seq") ) {
 	    $fea->attach_seq($seq);
 	}
