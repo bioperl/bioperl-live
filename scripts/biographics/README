@@ -1,0 +1,8 @@
+These are scripts that run on top of Bio::Graphics
+
+render_sequence.pl	render a set of features into a drawing, using Bio::Graphics::FeatureFile's
+			idiosyncratic (but relatively friendly)
+			feature notation.
+
+frend			the same thing, but a CGI front end
+
