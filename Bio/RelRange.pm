@@ -69,10 +69,49 @@ use vars qw( @ISA );
 
 use Bio::Root::Root;
 use Bio::RelRangeI;
-@ISA = qw( Bio::Root::Root Bio::RelRangeI );
+use Exporter;
+@ISA = qw( Bio::Root::Root Bio::RelRangeI Exporter );
+@EXPORT_OK = qw( absSeqId );
 
 use vars '$VERSION';
 $VERSION = '1.00';
+
+=head1 Exported functions
+
+=head2 absSeqId
+
+  Title   : absSeqId
+  Usage   : use Bio::RelRange qw( absSeqId );
+            my $abs_seq_id = absSeqId( $range );
+  Function: Get the unique_id or primary_id of the L<Bio::PrimarySeqI>
+            that the given L<Bio::RangeI> object is defined over.
+  Returns : The root seq_id, or undef if there is none.
+  Args    : a L<Bio::RangeI> object.
+
+  This is a utility function provided by the RelRange package to find
+  the root seq_id of any L<Bio::RangeI> objects (even those that are not
+  L<Bio::RelRangeI> implementers).
+
+=cut
+
+sub absSeqId {
+  my $range = shift;
+  unless( ref( $range ) && $range->isa( 'Bio::RangeI' ) ) {
+    return undef;
+  }
+  if( $range->isa( 'Bio::RelRangeI' ) ) {
+    return $range->abs_seq_id();
+  }
+
+  ## Okay so it's a RangeI but not a RelRangeI.
+  my $seq_id = $range->seq_id();
+  while( defined( $seq_id ) &&
+         ref( $seq_id ) ) {
+    ## Assertion: ( $seq_id isa 'Bio::RangeI' )
+    $seq_id = $seq_id->seq_id();
+  }
+  return $seq_id;
+} # absSeqId()
 
 =head1 Constructors
 
