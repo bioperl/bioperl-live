@@ -534,7 +534,7 @@ sub next_result{
                if( /^>/ ) {
                    $self->_pushback($_);
                    last descline;
-               } elsif( /(\d+)\s+([\d\.\-eE]+)(\s+\d+)?\s*$/) {
+               } elsif( /([\d\.\+\-eE]+)\s+([\d\.\+\-eE]+)(\s+\d+)?\s*$/) {
 		   # the last match is for gapped BLAST output
 		   # which will report the number of HSPs for the Hit
                    my ($score, $evalue) = ($1, $2);
