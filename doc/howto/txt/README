@@ -1,0 +1,4 @@
+Most of these text files are created using the corresponding HTML
+files and lynx:
+
+>lynx -dump <HTML file> > <text file>
