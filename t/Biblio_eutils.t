@@ -7,13 +7,10 @@
 # `make test'. After `make install' it should work as `perl test.t'
 
 use strict;
-use vars qw($NUMTESTS $DEBUG);
-use vars qw($NUMTESTS $DEBUG);
-$DEBUG = $ENV{'BIOPERLDEBUG'} || 0;
-
-my $error;
+use vars qw($NUMTESTS $DEBUG $error $msg);
 
 BEGIN { 
+    $DEBUG = $ENV{'BIOPERLDEBUG'} || 0;
     # to handle systems with no installed Test module
     # we include the t dir (where a copy of Test.pm is located)
     # as a fallback
@@ -23,26 +20,27 @@ BEGIN {
 	use lib 't';
     }
     use Test;
-    $NUMTESTS = 5;
-    plan tests => $NUMTESTS;
-    eval { require 'IO/String.pm' };
+    
+    plan tests => ($NUMTESTS = 5);
+    eval { require IO::String; };
     if( $@ ) {
-	if( $DEBUG ) {
-	    print STDERR "IO::String not installed. This means the Bio::DB::* modules are not usable. Skipping tests.\n" if($DEBUG);
-	}
-	for( $Test::ntest..$NUMTESTS ) {
-	    skip("IO::String not installed. Skipping tests",1);
-	}
-       $error = 1; 
+	warn( "IO::String not installed. This means the Bio::DB::* modules are not usable. Skipping tests.\n") if $DEBUG;
+    	$msg .= 'IO::String not installed. ';
+	$error = 1;
+    } 
+    eval { require LWP::Simple; };
+    if( $@ ) {
+	warn( "LWP::Simple not installed. This means the Bio::DB::* modules are not usable. Skipping tests.\n") if $DEBUG;
+	$msg .= 'LWP::Simple not installed. ';
+	$error = 1; 
     }
 }
 
-if( $error ==  1 ) {
-    exit(0);
-}
-END{ 
+exit(0) if $error;
+
+END { 
     foreach ( $Test::ntest..$NUMTESTS) {
-	skip('unable to run all of the Biblio_biofetch tests',1);
+	skip($msg,1);
     }
 }
 use Bio::Biblio;
@@ -64,15 +62,11 @@ eval {
 };
 
 if ($@) {
-    if( $DEBUG  ) { 
-	print STDERR "Warning: Couldn't connect to Eutils server!\n" . $@;
-    }
-    foreach ( $Test::ntest..$NUMTESTS) { 
-	skip('No network access - could not connect to PubMed Eutils',1);
-    }
+    warn "Warning: Couldn't connect to Eutils server!\n$@\n" if $DEBUG;
+    $msg = 'No network access - could not connect to PubMed Eutils';
     exit(0);
 }
 
-while(my $xml = $db->get_next){
-  ok(1);
+while(my $xml = $db->get_next) {
+    ok(1);
 }
