@@ -346,18 +346,18 @@ sub open_dbm {
 
     # The following methods access data in the dbm file:
 
+    # Now, if we're a Bio::Index::Abstract caterpillar, then we
+    # transform ourselves into a Bio::Index::<something> butterfly!
+    if( ref($self) eq "Bio::Index::Abstract" ) { 
+	my $pkg = $self->_code_base();
+	bless $self, $pkg;
+    }
+
     # Check or set this is the right kind and version of index
     $self->_type_and_version();
     
     # Check files haven't changed size since they were indexed
     $self->_check_file_sizes();
-
-    # Now, if we're a Bio::Index::Abstract caterpillar, then we
-    # transform ourselves into a Bio::Index::<something> butterfly!
-    if( ref $self eq "Bio::Index::Abstract" ) { 
-	my $pkg = $self->_code_base();
-	bless $self, $pkg;
-    }
 
     return 1;
 }
@@ -430,7 +430,7 @@ sub _type_and_version {
     my $version = $self->_version();
     my $type    = ref $self;
     
-    # Add type and version key if missing else run check
+    # Run check or add type and version key if missing
     if (my $rec = $self->db->{ $key }) {
         my( $db_type, $db_version ) = $self->unpack_record($rec);
         $self->throw("This index file is from version [$db_version] - You need to rebuild it to use module version [$version]")

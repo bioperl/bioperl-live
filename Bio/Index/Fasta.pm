@@ -175,19 +175,13 @@ sub _index_file {
     # Main indexing loop
     while (<FASTA>) {
         if (/^>/) {
-            my $new_begin = tell(FASTA) - length( $_ );
+            # $begin is the position of the first character after the '>'
+            my $begin = tell(FASTA) - length( $_ ) + 1;
 
-            foreach my $id (@id_list) {
+            foreach my $id (&$id_parser($_)) {
                 $self->add_record($id, $i, $begin);
             }
-
-            $begin = $new_begin;
-            @id_list = &$id_parser($_);
         }
-    }
-    # Don't forget to add the last record
-    foreach my $id (@id_list) {
-        $self->add_record($id, $i, $begin);
     }
 
     close FASTA;
