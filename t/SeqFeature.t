@@ -30,6 +30,7 @@ END {print "not ok 1\n" unless $loaded;}
 use Bio::Seq;
 use Bio::SeqFeature::Generic;
 use Bio::SeqFeature::FeaturePair;
+use Bio::SeqFeature::Computation;
 
 $loaded = 1;
 print "ok 1\n";    # 1st test passes.
@@ -155,4 +156,15 @@ test 17, ( $pair->end == 440 );
     test 21, ($sf_seq2 eq 'acccct');
 }
 
+#Do some tests for computation.pm
+
+test 22, ( $comp_obj1 = Bio::SeqFeature::Computation->new() );
+test 23, ( $comp_obj1->computation_id(332) );
+test 24, ( $comp_obj1->add_score_value('P', 33) );
+{
+    $comp_obj2 = Bio::SeqFeature::Computation->new();
+    test 25, ($comp_obj1->add_sub_SeqFeature($comp_obj2, 'exon') );
+    test 26, (@sft = $comp_obj1->all_sub_SeqFeature_types() );
+    test 27, ($sft[0] eq 'exon');
+}
 
