@@ -327,24 +327,24 @@ sub next_annseq{
 =cut
 
 sub write_annseq {
-   my ($self,$annseq) = @_;
+    my ($self,$annseq) = @_;
 
-   if( !defined $annseq ) {
-       $self->throw("Attempting to write with no annseq!");
-   }
+    if( !defined $annseq ) {
+        $self->throw("Attempting to write with no annseq!");
+    }
 
-   if( ! ref $annseq || ! $annseq->isa('Bio::AnnSeqI') ) {
-       $self->warn(" $annseq is not a AnnSeqI compliant module. Attempting to dump, but may fail!");
-   }
+    if( ! ref $annseq || ! $annseq->isa('Bio::AnnSeqI') ) {
+        $self->warn(" $annseq is not a AnnSeqI compliant module. Attempting to dump, but may fail!");
+    }
 
-   my $fh = $self->_filehandle();
-   my $seq = $annseq->seq();
-   my $i;
-   my $str = $seq->seq;
-   
-   my $mol;
-   my $div;
-   my $len = $seq->seq_len();
+    my $fh = $self->_filehandle();
+    my $seq = $annseq->seq();
+    my $i;
+    my $str = $seq->seq;
+
+    my $mol;
+    my $div;
+    my $len = $seq->seq_len();
 
     if ($annseq->can('division')) {
         $div = $annseq->division();
@@ -356,73 +356,71 @@ sub write_annseq {
     }
     $mol ||= 'XXX';
    
-   my $temp_line;
-   if( $self->_id_generation_func ) {
-       $temp_line = &{$self->_id_generation_func}($annseq);
-   } else {
-       $temp_line = sprintf ("%-11sstandard; $mol; $div; %d BP.",$seq->id(),$len);
-   } 
+    my $temp_line;
+    if( $self->_id_generation_func ) {
+        $temp_line = &{$self->_id_generation_func}($annseq);
+    } else {
+        $temp_line = sprintf("%-11sstandard; $mol; $div; %d BP.", $seq->id(), $len);
+    } 
 
-   print $fh "ID   $temp_line\n";   
-   print $fh "XX   \n";
+    print $fh "ID   $temp_line\n",
+              "XX\n";
 
-   # if there, write the accession line
+    # if there, write the accession line
+    {
+        my( $acc );
+        if( my $func = $self->_ac_generation_func ) {
+            $acc = &{$func}($annseq);
+        } elsif( $annseq->can('accession')) {
+            $acc = $annseq->accession;
+        }
+        if (defined $acc) {
+            print $fh "AC   $acc\n",
+                      "XX\n";
+        }
+    }
 
-   if( $self->_ac_generation_func ) {
-       $temp_line = &{$self->_ac_generation_func}($annseq);
-       print $fh "AC   $temp_line\n";   
-       print $fh "XX   \n";
-   } else {
-       if( $annseq->can('accession') ) {
-	   print "AC   ",$annseq->accession,";\n";
-	   print "XX   \n";
-       }
-       # otherwise - cannot print <sigh>
-   } 
+    # if there, write the sv line
+    {
+        my( $sv );
+        if (my $func = $self->_sv_generation_func) {
+            $sv = &{$func}($annseq);
+        } elsif( $annseq->can('sv')) {
+            $sv = $annseq->sv;
+        }
+        if (defined $sv) {
+            print $fh "SV   $sv\n",
+                      "XX\n";
+        }
+    }
 
-   # if there, write the sv line
+    # Date lines
+    my $switch=0;
+    foreach my $dt ( $annseq->each_date() ) {
+        _write_line_EMBL_regex($fh,"DT   ","DT   ",$dt,"\\s\+\|\$",80);
+        $switch=1;
+    }
+    if ($switch == 1) {
+        print $fh "XX\n";
+    }
 
-   if( $self->_sv_generation_func ) {
-       $temp_line = &{$self->_sv_generation_func}($annseq);
-       if( $temp_line ) {
-	   print $fh "SV   $temp_line\n";   
-	   print $fh "XX   \n";
-       }
-   } else {
-       if( $annseq->can('sv') ) {
-	   print $fh "SV   ",$annseq->sv,";\n";
-	   print $fh "XX   \n";
-       }
-   } 
+    # Description lines
+    _write_line_EMBL_regex($fh,"DE   ","DE   ",$seq->desc(),"\\s\+\|\$",80);
+    print $fh "XX\n";
 
-   #Date lines
-   my $switch=0;
-   foreach my $dt ( $annseq->each_date() ) {
-       _write_line_EMBL_regex($fh,"DT   ","DT   ",$dt,"\\s\+\|\$",80);
-       $switch=1;
-   }
-   if ($switch == 1) {
-       print $fh "XX   \n";
-   }
-   
-   #Definition lines
-   _write_line_EMBL_regex($fh,"DE   ","DE   ",$seq->desc(),"\\s\+\|\$",80);
-   print $fh "XX   \n";
-
-   # if there, write the kw line
-
-   if( $self->_kw_generation_func ) {
-       $temp_line = &{$self->_kw_generation_func}($annseq);
-       print $fh "KW   $temp_line\n";   
-       print $fh "XX   \n";
-   } else {
-       if( $annseq->can('keywords') ) {
-	   print $fh "KW   ",$annseq->keywords,"\n";
-	   print $fh "XX   \n";
-       }
-   } 
-
-
+    # if there, write the kw line
+    {
+        my( $kw );
+        if( my $func = $self->_kw_generation_func ) {
+            $kw = &{$func}($annseq);
+        } elsif( $annseq->can('keywords') ) {
+	    $kw = $annseq->keywords;
+        }
+        if (defined $kw) {
+            print $fh "KW   $kw\n",
+                      "XX\n";
+        }
+    }
    
     # Organism lines
     if (my $spec = $annseq->species) {
@@ -439,37 +437,48 @@ sub write_annseq {
 	if ($spec->organelle) {
 	    _write_line_EMBL_regex($fh,"OG   ","OG   ",$spec->organelle,"\; \|\$",80);
 	}
-        print $fh "XX   \n";
+        print $fh "XX\n";
+    }
+   
+    # Reference lines
+    my $t = 1;
+    foreach my $ref ( $annseq->annotation->each_Reference() ) {
+        print $fh "RN   [$t]\n";
+        
+        # Blank RP lines are legal, but we need both
+        # start and end for a valid location.
+        my $start = $ref->start;
+        my $end   = $ref->end;
+        if ($start and $end) {
+            print $fh "RP   $start-$end\n";
+        } elsif ($start or $end) {
+            $self->throw("Both start and end are needed for a valid RP line.  Got: start='$start' end='$end'");
+        }
+
+        if (my $med = $ref->medline) {
+            print $fh "RX   MEDLINE; $med\n";
+        }
+
+        &_write_line_EMBL_regex($fh, "RA   ", "RA   ", $ref->authors,  "\\s\+\|\$", 80);       
+        &_write_line_EMBL_regex($fh, "RT   ", "RT   ", $ref->title,    "\\s\+\|\$", 80);       
+        &_write_line_EMBL_regex($fh, "RL   ", "RL   ", $ref->location, "\\s\+\|\$", 80);
+        if ($ref->comment) {
+	    &_write_line_EMBL_regex($fh, "RC   ", "RC   ", $ref->comment, "\\s\+\|\$", 80); 
+        }
+        print $fh "XX\n";
+        $t++;
     }
 
-   # Comment lines
-   foreach my $comment ( $annseq->annotation->each_Comment() ) {
-       foreach my $line (split /\n+/, $comment->text) {
-          _write_line_EMBL_regex($fh, "CC   ", "CC   ", $line, "\\s\+\|\$", 80);
-       }
-       print $fh "XX   \n";
-   }
-   
-   # Reference lines
-   my $t = 1;
-   foreach my $ref ( $annseq->annotation->each_Reference() ) {
-       print $fh "RN   [$t]\n";
-       $temp_line = sprintf ("RX   %d-%d",$ref->start,$ref->end);
-       print $fh "$temp_line\n";
-       &_write_line_EMBL_regex($fh,"RA   ","RA   ",$ref->authors,"\\s\+\|\$",80);       
-       &_write_line_EMBL_regex($fh,"RT   ","RT   ",$ref->title,"\\s\+\|\$",80);       
-       &_write_line_EMBL_regex($fh,"RL   ","RL   ",$ref->location,"\\s\+\|\$",80);
-       if ($ref->comment) {
-	   &_write_line_EMBL_regex($fh,"RC   ","RC   ",$ref->comment,"\\s\+\|\$",80); 
-       }
-       print $fh "XX   \n";
-       $t++;
-   }
-
-
+    # Comment lines
+    foreach my $comment ( $annseq->annotation->each_Comment() ) {
+        foreach my $line (split /\n+/, $comment->text) {
+           _write_line_EMBL_regex($fh, "CC   ", "CC   ", $line, "\\s\+\|\$", 80);
+        }
+        print $fh "XX\n";
+    }
 
    print $fh "FH   Key             Location/Qualifiers\n";
-   print $fh "FH   \n";
+   print $fh "FH\n";
 
 
    if( defined $self->_post_sort ) {
@@ -503,7 +512,7 @@ sub write_annseq {
        }
    }
 
-   print $fh "XX   \n";
+   print $fh "XX\n";
 
    if( $self->_show_dna() == 0 ) {
        return;
@@ -605,7 +614,7 @@ sub _print_EMBL_FTHelper {
 
 =cut
 
-sub _read_EMBL_References{
+sub _read_EMBL_References {
    my ($buffer,$fh) = @_;
    my (@refs);
    
@@ -847,7 +856,7 @@ sub _read_FTHelper_EMBL {
 
 =cut
 
-sub _write_line_EMBL{
+sub _write_line_EMBL {
    my ($fh,$pre1,$pre2,$line,$length) = @_;
 
    $length || die "Miscalled write_line_EMBL without length. Programming error!";
@@ -883,29 +892,28 @@ sub _write_line_EMBL{
 =cut
 
 sub _write_line_EMBL_regex {
-   my ($fh,$pre1,$pre2,$line,$regex,$length) = @_;
+    my ($fh,$pre1,$pre2,$line,$regex,$length) = @_;
 
-   
-   #print STDOUT "Going to print with $line!\n";
+    #print STDOUT "Going to print with $line!\n";
 
-   $length || die "Miscalled write_line_EMBL without length. Programming error!";
+    $length || die "Miscalled write_line_EMBL without length. Programming error!";
 
-   if( length $pre1 != length $pre2 ) {
-       die "Programming error - cannot called write_line_EMBL_regex with different length pre1 and pre2 tags!";
-   }
+    if( length $pre1 != length $pre2 ) {
+        die "Programming error - cannot called write_line_EMBL_regex with different length pre1 and pre2 tags!";
+    }
 
-   my $subl = $length - (length $pre1) -1 ;
-   my @lines;
+    my $subl = $length - (length $pre1) -1 ;
+    my @lines;
 
-   while($line =~ m/(.{1,$subl})($regex)/g) {
-       push(@lines, $1.$2);
-   }
-   
-   my $s = shift @lines;
-   print $fh "$pre1$s\n";
-   foreach my $s ( @lines ) {
-       print $fh "$pre2$s\n";
-   }
+    while($line =~ m/(.{1,$subl})($regex)/g) {
+        push(@lines, $1.$2);
+    }
+    chomp(@lines);
+    my $s = shift(@lines);
+    print $fh "$pre1$s\n";
+    foreach my $s ( @lines ) {
+        print $fh "$pre2$s\n";
+    }
 }
 
 =head2 _post_sort

@@ -152,7 +152,7 @@ Specify the format of the file.  Supported formats include:
    Fasta       FASTA format
    EMBL        EMBL format
    SCF         SCF tracefile format
-   PIR         Protein Information Resource frmat
+   PIR         Protein Information Resource format
    GCG         GCG format
    raw         Raw format (one sequence per line, no ID)
 
