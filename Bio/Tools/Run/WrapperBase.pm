@@ -350,6 +350,5 @@ sub program_name {
     $self->throw_not_implemented();
 }
 
-*program = \&executable;
 
 1;
