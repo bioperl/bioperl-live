@@ -26,16 +26,20 @@ BEGIN {
 	    skip(1,1);
 	}
        $error = 1;
+	
     } 
     # make sure we can load it, assuming that the prerequisites are really met
-    eval { require Bio::SeqIO::game; };
-    if( $@ ) {
-	print STDERR "game.pm not loaded. This means game test cannot be executed. Skipping\n";
-	foreach ( 1..9 ) {
-	    skip(1,1);
-	}
-       $error = 1;
-    } 
+
+    if( $error == 0 ) {
+	eval { require Bio::SeqIO::game; };
+	if( $@ ) {
+	    print STDERR "game.pm not loaded. This means game test cannot be executed. Skipping\n";
+	    foreach ( 1..9 ) {
+		skip(1,1);
+	    }
+	    $error = 1;
+	} 
+    }
 }
 
 if( $error == 1 ) {
