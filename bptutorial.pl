@@ -52,7 +52,7 @@
      III.5.2 Aligning 2 sequences with Blast using  bl2seq and AlignIO
      III.5.3 Aligning multiple sequences (Clustalw.pm, TCoffee.pm)
      III.5.4 Manipulating / displaying alignments (SimpleAlign, UnivAln)
-  III.6 Searching for genes and other structures on genomic DNA (Genscan, ESTScan, MZEF)
+  III.6 Searching for genes and other structures on genomic DNA (Genscan, Sim4, ESTScan, MZEF)
   III.7 Developing machine readable sequence annotations
      III.7.1 Representing sequence annotations (Annotation, SeqFeature)
      III.7.2 Representing and large and/or changing sequences (LiveSeq,LargeSeq)
@@ -562,7 +562,10 @@ follows:
   $seqio = $gb->get_Stream_by_batch([ qw(J00522 AF303112 2981014)]));
 
 Bioperl currently supports sequence data retrieval from the genbank,
-genpept and swissprot databases.
+genpept, swissprot and gdb databases. Bioperl also supports retrieval
+from a remote Ace database. This capability requires the presence of
+the external AcePerl module. You need to download and install the aceperl
+module from http://stein.cshl.org/AcePerl/.
 
 =head2  III.1.2 Indexing and accessing local databases (Bio::Index::*,
    bpindex.pl, bpfetch.pl)
@@ -1289,7 +1292,7 @@ format (which can be done via the SimpleAlign and AlignIO objects
 discussed above.)
 
 =head2 III.6 Searching for genes and other structures on genomic DNA
-(Genscan, ESTScan, MZEF)
+(Genscan, Sim4, ESTScan, MZEF)
 
 Automated searching for putative genes, coding sequences and other
 functional units in genomic and expressed sequence tag (EST) data has
@@ -1298,20 +1301,32 @@ rapidly increased.  Many gene searching programs currently exist.
 Each produces reports containing predictions that must be read
 manually or parsed by automated report readers.
 
-Parsers for three widely used gene prediction programs- Genscan,
+Parsers for four widely used gene prediction programs- Genscan, Sim4,
 ESTScan and MZEF - are currently available or under active development
-in bioperl.  The interfaces for all three parsers are very similar and
-are illustrated here for Genscan.  The syntax is relatively
+in bioperl.  The interfaces for the four parsers are similar. We illustrate
+the usage for Genscan and Sim4 here.  The syntax is relatively
 self-explanatory; further details are available in the module
 documentation in the Bio::Tools directory.
 
   use Bio::Tools::Genscan;
   $genscan = Bio::Tools::Genscan->new(-file => 'result.genscan');
-  # $gene is an instance of Bio::Tools::Prediction::Gene
-  # $gene->exons() returns an array of Bio::Tools::Prediction::Exon objects
+# $gene is an instance of Bio::Tools::Prediction::Gene
+# $gene->exons() returns an array of Bio::Tools::Prediction::Exon objects
   while($gene = $genscan->next_prediction()) 
       { @exon_arr = $gene->exons(); }
   $genscan->close();
+
+  use Bio::Tools::Sim4::Results;
+   $sim4 = new Bio::Tools::Sim4::Results(-file=> 't/sim4.rev', -estisfirst=>0);
+ # $exonset is-a Bio::SeqFeature::Generic with Bio::Tools::Sim4::Exons
+ # as sub features
+   $exonset = $sim4->next_exonset;
+   @exons = $exonset->sub_SeqFeature();
+# $exon is-a Bio::SeqFeature::FeaturePair
+   $exon = 1;
+   $exonstart = $exons[$exon]->start();
+   $estname = $exons[$exon]->est_hit()->seqname();
+  $sim4->close();
 
 =head2 III.7 Developing machine readable sequence annotations
 
@@ -1651,7 +1666,7 @@ $display_help = sub {
     print STDERR <<"QQ_PARAMS_QQ";
 
 The following numeric arguments can be passed to run the corresponding demo-script.
-#1 => access_remote_db ,            (# not currently implemented)
+1 => access_remote_db ,
 2 => index_local_db ,
 3 => fetch_local_db ,               (# NOTE: needs to be run with demo 2)
 4 => sequence_manipulations ,
@@ -1701,36 +1716,25 @@ $access_remote_db = sub {
 
     # III.2.1 Accessing remote databases (Bio::DB::GenBank, etc)
 
-    my ($gb, $seq1, $seq2, $seq1_id, $seq2_id,$seqio);
+    my ($gb, $seq1, $seq2, $seq1_id, $seqobj, $seq2_id,$seqio);
 
     eval {
 	$gb = new Bio::DB::GenBank();
-	# $gb = new Bio::DB::GenBank('-verbose'=>$verbose);
-	# test defined ($seq = $gb->get_Seq_by_id('MUSIGHBA1')) ;
-
+    	$seq1 = $gb->get_Seq_by_id('MUSIGHBA1');
     };
 
-    if ($@) {
-	warn "Warning: Couldn't connect to Genbank with Bio::DB::GenBank.pm!\nProbably no network access.\n Skipping Test\n";
-	return 0;
-    }
-
-
-
-    # $gb = new Bio::DB::GenBank();
-    $seq1 = $gb->get_Seq_by_id('MUSIGHBA1');
-
-    print "debug debug debug \n";
+if ($@ || !$seq1) {
+    warn "Warning: Couldn't connect to Genbank with Bio::DB::GenBank.pm!\nProbably no network access.\n Skipping Test\n";
+    return 0;
+}
     $seq1_id =  $seq1->display_id();
     print "seq1 display id is $seq1_id \n";
-
     $seq2 = $gb->get_Seq_by_acc('AF303112');
     $seq2_id =  $seq2->display_id();
     print "seq2 display id is $seq2_id \n";
-
-    $seqio = $gb->get_Stream_by_batch([ qw(J00522 AF303112 2981014)]);
-
-
+    $seqio = $gb->get_Stream_by_batch([ qw(2981014 J00522 AF303112)]);
+    $seqobj = $seqio->next_seq();
+    print "Display id of first sequence in stream is ", $seqobj->display_id()  ,"\n";
     return 1;
 } ;
 
@@ -2379,7 +2383,7 @@ $gene_prediction_parsing = sub {
 
     use Bio::Tools::Genscan;
 
-    print "\nBeginning gene_prediction_parsing example... \n";
+    print "\nBeginning genscan_result_parsing example... \n";
 
     my ($genscan, $gene, @exon_arr, $first_exon);
 
@@ -2399,6 +2403,19 @@ $gene_prediction_parsing = sub {
 	$first_exon->start," \n";
     }
     $genscan->close();
+
+    use Bio::Tools::Sim4::Results;
+    print "\nBeginning Sim4_result_parsing example... \n";
+    my ($sim4,$exonset, @exons, $exon, $homol);
+
+   $sim4 = new Bio::Tools::Sim4::Results(-file=> 't/sim4.rev', -estisfirst=>0);
+   $exonset = $sim4->next_exonset;
+   @exons = $exonset->sub_SeqFeature();
+   $exon = $exons[1];
+    print "Start location of first exon of first exon set is ",$exon->start(), " \n";
+   print "Name of est sequence is ",$exon->est_hit()->seqname(), " \n";
+   print "The length of the est hit is ",$exon->est_hit()->seqlength(), " \n";
+   $sim4->close();
 
     return 1;
 } ;
@@ -2695,10 +2712,9 @@ $other_seq_utilities = sub {
 
     @runlist = @ARGV;
     if (scalar(@runlist)==0) {&$display_help;}; # display help if no option
-    if ($runlist[0] == 0) {@runlist = (2..20); }; # argument = 0 means run all tests
-
+    if ($runlist[0] == 0) {@runlist = (1..20); }; # argument = 0 means run all tests
     foreach $n  (@runlist) {
-#	if ($n ==1) {&$access_remote_db; next;}
+	if ($n ==1) {&$access_remote_db; next;}
 	if ($n ==2) {&$index_local_db; next;}
 	if ($n ==3) {&$fetch_local_db; next;}
 	if ($n ==4) {&$sequence_manipulations; next;}

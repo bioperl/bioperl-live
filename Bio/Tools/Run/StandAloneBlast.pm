@@ -195,13 +195,13 @@ For more examples of syntax and use of Blast.pm, the user is
 encouraged to run the scripts standaloneblast.pl in the bioperl
 /examples directory and StandAloneBlast.t in the bioperl /t directory.
 
+Note: There is a similar (but older) perl object interface offered by nhgri. The nhgri module
+only supports blastall and does not support blastpgp, psiblast, phiblast, bl2seq etc.
+This module can be found at http://genome.nhgri.nih.gov/blastall/.
 
 =head1 DEVELOPERS NOTES
 
 B<STILL TO BE WRITTEN>
-
-The following enhancements of StandAloneBlast.pm are under development:
- *  Incorporation of the phiblast option for pattern-based blasts
 
 Note: This module is still under development.  If you would like that a
 specific BLAST feature be added to this perl interface, let me know.
