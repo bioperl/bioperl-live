@@ -731,7 +731,7 @@ sub _stream_request {
     $| = 1;
     my $records = 0;
     while (my $record = <FETCH>) {
-      chomp;
+      chomp($record);
       next unless $record;
       $records++;
       $self->postprocess_data('type'     => 'string',
