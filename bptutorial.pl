@@ -2100,30 +2100,10 @@ Toolkit" project at http://www.ebi.ac.uk/mutations/toolkit/.
 =head2 III.7.6 Incorporating quality data in sequence annotation (SeqWithQuality)
 
 SeqWithQuality objects are used to describe sequences with very
-specific annotations - that is, data quality annotations.  Data quality
+specific annotations - that is, base quality annotations.  Base quality
 information is important for documenting the reliability of base
-calls in newly sequenced or otherwise questionable sequence
-data. The quality data is contained within a Bio::Seq::PrimaryQual object.
-Syntax for using SeqWithQuality objects is as follows:
-
-  # first, make a PrimarySeq object
-  $seqobj = Bio::PrimarySeq->new( -seq => 'atcgatcg',
-                                  -id  => 'GeneFragment-12',
-	                          -accession_number => 'X78121',
-                                  -alphabet => 'dna');
-  # now make a PrimaryQual object
-  $qualobj = Bio::Seq::PrimaryQual->new(-qual => '10 20 30 40 50 50 20 10',
-                                        -id   => 'GeneFragment-12',
-	                                -accession_number => 'X78121',
-                                        -alphabet => 'dna');
-  # now make the SeqWithQuality object
-  $swqobj = Bio::Seq::SeqQithQuality->new(-seq  => $seqobj,
-                                          -qual => $qualobj);
-  # Now we access the sequence with quality object
-  $swqobj->id(); # the id of the SeqWithQuality object may not match the
-                 # id of the sequence or of the quality
-  $swqobj->seq(); # the sequence of the SeqWithQuality object
-  $swqobj->qual(); # the quality of the SeqWithQuality object
+calls, typically made by sequencing machines. The quality data is
+contained within a Bio::Seq::PrimaryQual object.
 
 A SeqWithQuality object is created automatically when phred output, a *phd
 file, is read by SeqIO, e.g.
@@ -2131,6 +2111,30 @@ file, is read by SeqIO, e.g.
   $seqio = Bio::SeqIO->new(-file=>"my.phd",-format=>"phd");
   # or just 'Bio::SeqIO->new(-file=>"my.phd")'
   $seqWithQualObj = $seqio->next_seq;
+
+Or, you can make a SeqWithQuality object yourself, e.g.
+
+  # first, make a PrimarySeq object
+  $seqobj = Bio::PrimarySeq->new( -seq => 'atcgatcg',
+                                  -id  => 'GeneFragment-12',
+	                          -accession_number => 'X78121',
+                                  -alphabet => 'dna');
+
+  # now make a PrimaryQual object
+  $qualobj = Bio::Seq::PrimaryQual->new(-qual => '10 20 30 40 50 50 20 10',
+                                        -id   => 'GeneFragment-12',
+	                                -accession_number => 'X78121',
+                                        -alphabet => 'dna');
+
+  # now make the SeqWithQuality object
+  $swqobj = Bio::Seq::SeqWithQuality->new(-seq  => $seqobj,
+                                          -qual => $qualobj);
+
+  # Now we access the sequence with quality object
+  $swqobj->id(); # the id of the SeqWithQuality object may not match the
+                 # id of the sequence or of the quality
+  $swqobj->seq(); # the sequence of the SeqWithQuality object
+  $swqobj->qual(); # the quality of the SeqWithQuality object
 
 See L<Bio::Seq::SeqWithQuality> for a detailed description of the methods,
 L<Bio::Seq::PrimaryQual>, and L<Bio::SeqIO::phd>.
