@@ -22,10 +22,10 @@ Bio::SearchIO - Driver for parsing Sequence Database Searches (Blast,FASTA,...)
                                       -file   => 'blastout.xml' );
     while ( my $result = $searchio->next_result() ) {
        while( my $hit = $result->next_hit ) {
-	# process the Bio::Search::Hit::HitI object
+        # process the Bio::Search::Hit::HitI object
            while( my $hsp = $hit->next_hsp ) { 
-	    # process the Bio::Search::HSP::HSPI object
-	}
+            # process the Bio::Search::HSP::HSPI object
+        }
     }
 
 =head1 DESCRIPTION
@@ -90,6 +90,7 @@ use Bio::Root::IO;
 use Bio::Event::EventGeneratorI;
 use Bio::SearchIO::SearchResultEventBuilder;
 use Bio::AnalysisParserI;
+
 use Symbol();
 
 @ISA = qw( Bio::Root::IO Bio::Event::EventGeneratorI Bio::AnalysisParserI);
@@ -103,13 +104,17 @@ use Symbol();
  Args    : Args    : -file => $filename
            -format => format
            -fh => filehandle to attach to
-           -result_factory => Object implementing Bio::Factory::ResultFactoryI
-           -hit_factory    => Object implementing Bio::Factory::HitFactoryI
+           -result_factory => Object implementing Bio::Factory::ObjectFactoryI
+           -hit_factory    => Object implementing Bio::Factory::ObjectFactoryI
+           -hsp_factory    => Object implementing Bio::Factory::ObjectFactoryI
            -writer         => Object implementing Bio::SearchIO::SearchWriterI
            -output_format  => output format, which will dynamically load writer
 
-See L<Bio::Factory::ResultFactoryI>, L<Bio::Factory::HitFactoryI>,
-L<Bio::SearchIO::SearchWriterI>
+See L<Bio::Factory::ObjectFactoryI>, L<Bio::SearchIO::SearchWriterI>
+
+Any factory objects in the arguments are passed along to the SearchResultEventBuilder
+object which holds these factories and sets default ones if none are supplied as
+arguments.
 
 =cut
 
@@ -120,7 +125,7 @@ sub new {
   # or do we want to call SUPER on an object if $caller is an
   # object?
   if( $class =~ /Bio::SearchIO::(\S+)/ ) {
-    my ($self) = $class->SUPER::new(@args);	
+    my ($self) = $class->SUPER::new(@args);        
     $self->_initialize(@args);
     return $self;
   } else { 
@@ -133,18 +138,18 @@ sub new {
     my $writer = undef;
 
     if( defined $output_format ) {
-	if( defined $param{'-writer'} ) {
-	    my $dummy = Bio::Root::Root->new();
-	    $dummy->throw("Both writer and output format specified - not good");
-	}
+        if( defined $param{'-writer'} ) {
+            my $dummy = Bio::Root::Root->new();
+            $dummy->throw("Both writer and output format specified - not good");
+        }
 
-	if( $output_format =~ /^blast$/i ) {
-	    $output_format = 'TextResultWriter';
-	}
-	my $output_module = "Bio::SearchIO::Writer::".$output_format;
-	$class->_load_module($output_module);
-	$writer = $output_module->new();
-	push(@args,"-writer",$writer);
+        if( $output_format =~ /^blast$/i ) {
+            $output_format = 'TextResultWriter';
+        }
+        my $output_module = "Bio::SearchIO::Writer::".$output_format;
+        $class->_load_module($output_module);
+        $writer = $output_module->new();
+        push(@args,"-writer",$writer);
     }
 
 
@@ -215,7 +220,7 @@ sub attach_EventHandler{
     my ($self,$handler) = @_;
     return if( ! $handler );
     if( ! $handler->isa('Bio::SearchIO::EventHandlerI') ) {
-	$self->warn("Ignoring request to attatch handler ".ref($handler). ' because it is not a Bio::SearchIO::EventHandlerI');
+        $self->warn("Ignoring request to attatch handler ".ref($handler). ' because it is not a Bio::SearchIO::EventHandlerI');
     }
     $self->{'_handler'} = $handler;
     return;
@@ -243,32 +248,15 @@ sub _initialize {
     $self->{'_handler'} = undef;
     # not really necessary unless we put more in RootI
     #$self->SUPER::_initialize(@args);
-    
+
     # initialize the IO part
     $self->_initialize_io(@args);
-    $self->attach_EventHandler(new Bio::SearchIO::SearchResultEventBuilder());
+    $self->attach_EventHandler(new Bio::SearchIO::SearchResultEventBuilder(@args));
     $self->{'_reporttype'} = '';
 
-    my ( $writer, $rfactory, $hfactory, $use_factories ) =
-      $self->_rearrange([qw(WRITER 
-			    RESULT_FACTORY 
-			    HIT_FACTORY
-			    USE_FACTORIES)], @args);
+    my ( $writer ) = $self->_rearrange([qw(WRITER)], @args);
 
     $self->writer( $writer ) if $writer;
-
-    # TODO: Resolve this issue:
-    # The $use_factories flag is a temporary hack to allow factory-based and 
-    # non-factory based SearchIO objects to co-exist. 
-    # steve --- Sat Dec 22 04:41:20 2001
-    if( $use_factories) {
-      if( not defined $self->{'_result_factory'}) {
-	$self->result_factory( $rfactory || $self->default_result_factory_class->new );
-      }
-      if( not defined $self->{'_hit_factory'}) {
-	$self->hit_factory( $hfactory || $self->default_hit_factory_class->new );
-      }
-    }
 }
 
 =head2 next_result
@@ -324,7 +312,7 @@ sub write_result {
    my $str = $self->writer->to_string( $result, @args );
    #print "Got string: \n$str\n";
    $self->_print( "$str" );
-   
+
    return 1;
 }
 
@@ -353,62 +341,6 @@ sub writer {
 }
 
 
-=head2 hit_factory
-
- Title   : hit_factory
- Usage   : $hit_factory = $stream->hit_factory;  (get)
-         : $stream->hit_factory( $factory );     (set)
- Function: Sets/Gets a factory object to create hit objects for this SearchIO
- Returns : Bio::Factory::HitFactoryI object 
- Args    : Bio::Factory::HitFactoryI object (when setting)
- Throws  : Bio::Root::Exception if a non-Bio::Factory::HitFactoryI object  
-           is passed in.
- Comments: A SearchIO implementation should provide a default hit factory.
-
-See L<Bio::Factory::HitFactoryI>
-
-=cut
-
-sub hit_factory {
-    my ($self, $fact) = @_;
-    if( ref $fact and $fact->isa( 'Bio::Factory::HitFactoryI' )) {
-    	   $self->{'_hit_factory'} = $fact;
-    }
-    elsif( defined $fact ) {
-        $self->throw("Can't set HitFactory. Not a Bio::Factory::HitFactoryI: $fact");
-    }
-    return $self->{'_hit_factory'};
-}
-
-=head2 result_factory
-
- Title   : result_factory
- Usage   : $result_factory = $stream->result_factory;  (get)
-         : $stream->result_factory( $factory );        (set)
- Function: Sets/Gets a factory object to create result objects for this
-           SearchIO.
- Returns : Bio::Factory::ResultFactoryI object 
- Args    : Bio::Factory::ResultFactoryI object (when setting)
- Throws  : Bio::Root::Exception if a non-Bio::Factory::ResultFactoryI object
-           is passed in.
- Comments: A SearchIO implementation should provide a default result factory.
-
-See L<Bio::Factory::ResultFactoryI>
-
-=cut
-
-sub result_factory {
-    my ($self, $fact) = @_;
-    if( ref $fact and $fact->isa( 'Bio::Factory::ResultFactoryI' )) {
-    	   $self->{'_result_factory'} = $fact;
-    }
-    elsif( defined $fact ) {
-        $self->throw("Can't set ResultFactory. Not a Bio::Factory::ResultFactoryI: $fact");
-    }
-    return $self->{'_result_factory'};
-}
-
-
 =head2 result_count
 
  Title   : result_count
@@ -425,29 +357,6 @@ sub result_count {
     $self->throw_not_implemented;
 }
 
-
-=head2 default_hit_factory_class
-
- Title   : default_hit_factory_class
- Usage   : $res_factory = $obj->default_hit_factory_class()->new( @args )
- Function: Returns the name of the default class to be used for creating
-           Bio::Search::Hit::HitI objects.
- Example :
- Returns : A string containing the name of a class that implements 
-           the Bio::Search::Hit::HitI interface.
- Args    : none
- Comments: Bio::SearchIO does not implement this method. It throws a
-           NotImplemented exception
-
-See L<Bio::Search::Hit::HitI>
-
-=cut
-
-sub default_hit_factory_class {
-    my $self = shift;
-# TODO: Uncomment this when Jason's SearchIO code conforms
-#    $self->throw_not_implemented;
-}
 
 =head2 _load_format_module
 
@@ -492,7 +401,6 @@ END
 
 =cut
 
-
 sub _guess_format {
    my $class = shift;
    return unless $_ = shift;
@@ -505,7 +413,7 @@ sub _guess_format {
 sub close { 
     my $self = shift;
     if( $self->writer ) {
-	$self->_print($self->writer->end_report());
+        $self->_print($self->writer->end_report());
     }
     $self->SUPER::close(@_);
 }
@@ -513,6 +421,7 @@ sub close {
 sub DESTROY {
     my $self = shift;
     $self->close();
+    $self->SUPER::DESTROY;
 }
 
 sub TIEHANDLE {
