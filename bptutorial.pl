@@ -332,11 +332,11 @@ XML-Writer-0.4
 
 =item *
 
-Soap-Lite
+Soap-Lite-0.52
 
 =item *
 
-XML-DOM
+XML-DOM-1.37
 
 =item *
 
@@ -815,7 +815,7 @@ Data files storing multiple sequence alignments also appear in varied
 formats.  AlignIO is the bioperl object for data conversion of
 alignment files. AlignIO is patterned on the SeqIO object and shares
 most of SeqIO\'s features.  AlignIO currently supports input in the
-following formats: fasta, mase, stockholm, prodom, selex, bl2seq,
+following formats: fasta, mase, stockholm, prodom, selex, bl2seq, clustalw,
 msf/gcg and output in these formats: : fasta, mase, selex, clustalw,
 msf/gcg.  One significant difference between AlignIO and SeqIO is that
 AlignIO handles IO for only a single alignment at a time (SeqIO.pm
