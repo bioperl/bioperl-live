@@ -14,7 +14,7 @@ BEGIN {
 	use lib 't';
     }
     use Test;
-    plan tests => 4;
+    plan tests => 8;
 }
 
 use Bio::Tree::RandomFactory;
@@ -59,6 +59,6 @@ ok(defined $tD,1, 'tajimaD');
 my $theta = $stats->theta($tree);
 ok(defined $theta,1, 'theta');
 
-$stats->verbose(1);
+# $stats->verbose(1);
 my $pi = $stats->pi($tree);
 #ok($pi,1, 'pi');
