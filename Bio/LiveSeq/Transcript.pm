@@ -12,10 +12,11 @@
 
 =head1 NAME
 
-  Bio::LiveSeq::Transcript - Transcript class for LiveSeq
+Bio::LiveSeq::Transcript - Transcript class for LiveSeq
 
 =head1 SYNOPSIS
 
+  # documentation needed
 
 =head1 DESCRIPTION
 
@@ -358,7 +359,7 @@ sub position {
       $out_pos=$self->{'seq'}->position($label,$start,$strand);
       $position=$out_pos-$coord_pos+1;
     } else { # label is in intron (not valid, not after, not before)!
-      carp "Cannot give position of label pointing to intron according to CDS numbering!";
+      #carp "Cannot give position of label pointing to intron according to CDS numbering!";
       return (0);
     }
   }
@@ -829,7 +830,7 @@ sub translation_table {
  Errorcode -1
 
 =cut
-  
+
 # args: label
 # returns: frame of nucleotide (0 1 2)
 # errorcode: -1
