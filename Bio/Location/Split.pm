@@ -100,13 +100,37 @@ sub new {
  Usage   : @locations = $feat->sub_Location();
  Function: Returns an array of LocationI objects
  Returns : An array
- Args    : none
+ Args    : $order => [1] (default) sorted by 
 
 =cut
 
 sub sub_Location {
-    my ($self) = @_;
-    return @{$self->{'_sublocations'}};
+    my ($self, $order) = @_;
+
+    if( !defined $order) { $order = 1;}
+    elsif( $order !~ /^-?\d+$/ ) {
+	$self->warn("value $order passed in to sub_Location is $order, an invalid value");
+	$order = 1;
+    } 
+    elsif( $order < 0 ) { $order = -1; }
+    elsif( $order > 0 ) { $order = 1; }
+    elsif( $order == 0 ) { $order = 0; }
+    else { $self->throw("Unknown parameter in sub_Location ($order)"); } 
+    # reyirm in sorted order, somewhat inefficient
+    return @{$self->{'_sublocations'}} if( $order == 0 );
+    
+    my @locs = sort { return $order * 1  unless  $a->start;
+		      return $order * -1 unless  $b->start;
+		      
+		      $order * $a->start<=> $b->start          ||
+		      $order * $a->min_start <=> $b->min_start ||
+		      $order * $a->max_start <=> $b->max_start ||
+		      $order * $a->end       <=> $b->end       ||
+		      $order * $a->min_end   <=> $b->min_end   ||
+  		      $order * $a->max_end <=> $b->max_end 	  
+		  } @{$self->{'_sublocations'}};
+
+    return @locs;
 }
 
 =head2 add_sub_Location
@@ -126,21 +150,9 @@ sub add_sub_Location {
 	if( !ref($loc) || ! $loc->isa('Bio::LocationI') ) {
 	    $self->warn("Trying to add $loc as a sub Location but it is not a Bio::LocationI object!");
 	    next;
-	}
-	push @locs, $loc;
+	}	
+	push @{$self->{'_sublocations'}}, $loc;
     }
-
-    # insert in sorted order, somewhat inefficient
-    $self->{'_sublocations'} = [ sort { return 1 unless defined $a->start;
-					return -1 unless defined $b->start;
-					
-					$a->start<=> $b->start          ||
-					$a->min_start <=> $b->min_start ||
-					$a->max_start <=> $b->max_start ||
-					$a->end       <=> $b->end       ||
-					$a->min_end   <=> $b->min_end;
-				      } 
-				 (@locs, @{$self->{'_sublocations'}}) ];
 
     return scalar @{$self->{'_sublocations'}};
 }
@@ -181,7 +193,7 @@ sub start {
     if( defined $value ) {
 	$self->warn("Trying to set the starting point of a split location, that is not possible, try manipulating the sub Locations");
     }
-    my @locs = $self->sub_Location();
+    my @locs = $self->sub_Location(1);
     return ( @locs ) ? $locs[0]->start : undef;
 }
 
@@ -200,7 +212,7 @@ sub end {
     if( defined $value ) {
 	$self->warn("Trying to set the ending point of a split location, that is not possible, try manipulating the sub Locations");
     }
-    my @locs = $self->sub_Location();
+    my @locs = $self->sub_Location(1);
     return ( @locs ) ? $locs[-1]->end : undef;
 }
 
@@ -279,11 +291,14 @@ sub start_pos_type {
 
 sub min_end {
     my ($self) = @_;
-    my @locs = $self->sub_Location();
+
+# reverse sort locations by largest ending to smallest ending
+    my @locs = $self->sub_Location(-1);
+
     if( @locs ) {
-	return ( defined $locs[-1]->min_end ? $locs[-1]->min_end :
-		 defined $locs[-1]->start ? $locs[-1]->start : 
-		 $locs[-1]->max_end); 
+	return ( defined $locs[0]->min_end ? $locs[0]->min_end :
+		 defined $locs[0]->start ? $locs[0]->start : 
+		 $locs[0]->max_end); 
     } 
     return undef;
 }
@@ -300,11 +315,20 @@ sub min_end {
 
 sub max_end {
     my ($self) = @_;
-    my @locs = $self->sub_Location();
+# reverse sort locations by largest ending to smallest ending
+    my @locs = sort { return -1 unless defined $a->end;
+		      return 1 unless defined $b->end;
+					
+					$b->end<=> $a->end          ||
+					$b->max_end <=> $a->max_end ||
+					$b->min_end <=> $a->max_end ||
+					$b->start       <=> $a->end ||
+					$b->min_end   <=> $a->min_end;
+		  } $self->sub_Location();
     if( @locs ) {
-	return ( defined $locs[-1]->max_end ? $locs[-1]->max_end :
-		 defined $locs[-1]->end ? $locs[-1]->end : 
-		 $locs[-1]->min_end); 
+	return ( defined $locs[0]->max_end ? $locs[0]->max_end :
+		 defined $locs[0]->end ? $locs[0]->end : 
+		 $locs[0]->min_end); 
     } 
     return undef;
 }

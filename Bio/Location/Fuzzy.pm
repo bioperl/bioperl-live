@@ -144,10 +144,10 @@ sub start {
 	$self->{'_start_pos_type'} = $encode;
 	$self->{'_max_start'} = $self->{'_min_start'} = undef;
 	$self->{'_start'} = 0;
+	
 	if( $encode eq 'EXACT' ) {
 	    # max and min should be equal to the start value 
 	    # if we have an exact point
-
 	    $self->{'_start'} = $value;
 	    $self->{'_max_start'} = $value;
 	    $self->{'_min_start'} = $value;
@@ -159,8 +159,7 @@ sub start {
 	    $self->{'_min_start'} = $min if( $encode ne 'AFTER' );
 	}
     }
-    # start is undef if we don't know where it is exactly
-
+    # start is 0 if we don't know where it is exactly    
     return $self->{'_start'};
 }
 

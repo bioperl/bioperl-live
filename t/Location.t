@@ -15,7 +15,7 @@ BEGIN {
 	use lib 't';
     }
     use Test;
-    plan tests => 31; 
+    plan tests => 34; 
 }
 
 use Bio::Location::Simple;
@@ -64,29 +64,12 @@ ok $featpair->overlaps($feat3);
 ok $generic->overlaps($simple);
 ok $generic->contains($simple);
 
-my $splitlocation = new Bio::Location::Split;
-$splitlocation->add_sub_Location(new Bio::Location::Simple('-start'=>1,
-							   '-end'=>30,
-							   '-strand'=>1));
-my $f = new Bio::Location::Fuzzy('-start'=>"<50",
-				 '-end'=>61,
-				 '-strand'=>1);
-ok($f->start, 0);
-ok($f->min_start, 50);
-ok($f->max_start,undef);
-$splitlocation->add_sub_Location($f);
-
-ok($splitlocation->max_end, 61);
-ok($splitlocation->min_start, 1);
-ok($splitlocation->end, 61);
-ok($splitlocation->start, 1);
-ok($splitlocation->sub_Location(),2);
-
+# fuzzy location tests
 my $fuzzy = new Bio::Location::Fuzzy('-start' =>'<10', '-end' => 20, 
 				     -strand=>1);
 				     
 ok($fuzzy->strand, 1);
-ok($fuzzy->start, undef);
+ok($fuzzy->start, 0);
 ok($fuzzy->end,20);
 ok($fuzzy->min_start, 10);
 ok($fuzzy->max_start, undef);
@@ -95,3 +78,46 @@ ok($fuzzy->max_end, 20);
 ok($fuzzy->loc_type, 'EXACT');
 ok($fuzzy->start_pos_type, 'BEFORE');
 ok($fuzzy->end_pos_type, 'EXACT');
+
+
+# split location tests
+my $splitlocation = new Bio::Location::Split;
+my $f = new Bio::Location::Simple('-start'=>13,
+				  '-end'=>30,
+				  '-strand'=>1);
+$splitlocation->add_sub_Location($f);
+ok($f->start, 13);
+ok($f->min_start, 13);
+ok($f->max_start,13);
+
+$f = new Bio::Location::Simple('-start'=>30,
+			       '-end'=>90,
+			       '-strand'=>1);
+$splitlocation->add_sub_Location($f);
+
+$f = new Bio::Location::Simple('-start'=>18,
+			       '-end'=>22,
+			       '-strand'=>1);
+$splitlocation->add_sub_Location($f);
+
+$f = new Bio::Location::Simple('-start'=>19,
+				  '-end'=>20,
+			       '-strand'=>1);
+
+$splitlocation->add_sub_Location($f);
+
+$f = new Bio::Location::Fuzzy('-start'=>"<50",
+			      '-end'=>61,
+			      '-strand'=>1);
+ok($f->start, 0);
+ok($f->min_start, 50);
+ok($f->max_start,undef);
+
+$splitlocation->add_sub_Location($f);
+
+ok($splitlocation->max_end, 90);
+ok($splitlocation->min_start, 13);
+ok($splitlocation->end, 61);
+ok($splitlocation->start, 13);
+ok($splitlocation->sub_Location(),5);
+
