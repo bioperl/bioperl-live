@@ -496,6 +496,7 @@ sub rangeofarray {
   my ($max,$min,$element);
   $min=$max=shift(@array);
   foreach $element (@array) {
+      $element = 0 unless defined $element;
     if ($element < $min) {
       $min=$element;
     }
