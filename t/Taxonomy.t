@@ -15,17 +15,27 @@ BEGIN {
     $error = 0;
     plan tests => $NUMTESTS;
 }
+END {
+    foreach ( $Test::ntest..$NUMTESTS) {
+	skip('unable to run all of the tests because XML::Twig is not installed',1);
+    }
+}
 
-use Bio::DB::Taxonomy;
-
-my $db = new Bio::DB::Taxonomy(-source => 'entrez');
-
-ok($db);
+eval { 
+    require Bio::DB::Taxonomy;
+    require XML::Twig; };
+if( $@ ) {
+    $error = 1;
+}
 
 my $actually_submit = $DEBUG > 0;
 if( $error ==  1 ) {
     exit(0);
 }
+
+my $db = new Bio::DB::Taxonomy(-source => 'entrez');
+
+ok($db);
 
 if( $actually_submit == 0 ) { 
     print STDERR "skipping Taxonomy tests to avoid blocking\n" if( $DEBUG);
