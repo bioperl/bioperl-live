@@ -36,15 +36,20 @@ fasta format on stdout
 
 =head1 OPTIONS
 
-  --fmt <format>   - Fasta (default), or EMBL
-  --dir <dir>      - directory to find the index files
-  --type <db_type> - DBM_file type. WARNING - you should read the docs before doing this 
+  -fmt  <format>   - Fasta (default), or EMBL
+
+options only for expert use
+
+  -dir  <dir>      - directory to find the index files
+                     (overrides BIOPERL_INDEX environment varaible)
+  -type <db_type>  - DBM_file type. 
+                     (overrides BIOPERL_INDEX_TYPE environment varaible)
 
 =head1 ENVIRONMENT
 
 bpindex and bpfetch coordinate where the databases lie using the
 enviroment variable BIOPERL_INDEX. This can be overridden using the
---dir option.
+-dir option.
 
 The DB type is coordinated with BIOPERL_INDEX_TYPE which if it
 is not there, defaults to whatever the bioperl modules have installed,
@@ -118,12 +123,6 @@ BEGIN {
     }
 }
 
-
-if( $#ARGV == 0 ) {
-    system("perldoc $0");
-    exit(1);
-}
-
 my $dir = $ENV{'BIOPERL_INDEX'};
 my $type = $ENV{'BIOPER_INDEX_TYPE'};
 my $fmt = 'Fasta';
@@ -131,10 +130,12 @@ my $fmt = 'Fasta';
 use Getopt::Long;
 &GetOptions("fmt=s" => \$fmt,"dir=s" => \$dir,"type=s" => \$type);
 
+exec('perldoc',$0) unless @ARGV;
+
 my $name = shift;
 
 if( !$dir ) {
-    print STDERR "\nNo directory specified for index\nDirectory must be specified by the environment varaible BIOPERL_INDEX or --dir option\ngo bpindex with no arguments for more help\n\n";
+    print STDERR "\nNo directory specified for index\nDirectory must be specified by the environment varaible BIOPERL_INDEX or -dir option\ngo bpindex with no arguments for more help\n\n";
     exit(1);
 }
 
@@ -167,9 +168,11 @@ $index->make_index(@ARGV);
 
 # finished. Neat eh.
 
-# check things close/deallocate etc.
-$index = undef;
-
+#
+# if you are using this in a script, to 
+# to force deallocation + closing of the index, go
+# $index = undef;
+#
 
 	
 

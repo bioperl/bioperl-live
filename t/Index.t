@@ -28,7 +28,7 @@ END {print "not ok 1\n" unless $loaded;}
 
 use Bio::Index::Fasta;
 use Bio::Index::SwissPfam;
-
+use Bio::Index::EMBL;
 
 $loaded = 1;
 print "ok 1\n";    # 1st test passes.
@@ -46,6 +46,9 @@ $ind->make_index("$dir/t/swisspfam.data");
 print "ok 3\n";
 $ind = 0;
 
+# don't test EMBL yet. Bad...
+
+system("rm -f Wibbl*");
 
 
 

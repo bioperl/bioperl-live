@@ -130,9 +130,13 @@ will work cleanly now.
 
 INSTALLING for *BSD and Solaris boxes.
 
-You should add the line -fPIC to the CFLAGS line in Compile/SW/libs/makefile.
-This makes the compile generate position independent code, which is
-required for these architectures.
+You should add the line -fPIC to the CFLAGS line in
+Compile/SW/libs/makefile.  This makes the compile generate position
+independent code, which is required for these architectures. In
+addition, on some solaris boxes, the generated Makefile does not make
+the correct -fPIC/-fpic flags for the c compiler that is used. This
+requires manual editing of the generated makefile to switch case. Try
+it out once, and if you get errors, try editing the -fpic line
 
 INSTALLING BIOPERL IN A PERSONAL OR PRIVATE MODULE AREA
 

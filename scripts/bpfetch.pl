@@ -13,25 +13,35 @@ bpfetch.pl - fetches sequences from bioperl indexed databases
 
   bpfetch.pl net::genpept:ROA1_HUMAN
 
-  bpfetch.pl --fmt GCG swiss:ROA1_HUMAN
+  bpfetch.pl -fmt GCG swiss:ROA1_HUMAN
 
 =head1 DESCRIPTION
 
 Fetches sequences using the DB access systems in Bioperl. The most
 common use of this is to fetch sequences from bioperl indices built
-using bpindex.pl
+using bpindex.pl, or to fetch sequences from the NCBI website
 
 =head1 OPTIONS
 
-  --fmt <format> - Output format
-                   Fasta (default), EMBL, raw or GCG
-  --dir <dir>    - directory to find the index files
+  -fmt  <format> - Output format
+                   Fasta (default), EMBL, Raw or GCG
+  -acc           - string is an accession number, not an
+                   id. 
+
+options only for expert use
+
+  -dir  <dir>    - directory to find the index files
+                  (overrides BIOPERL_INDEX environment varaible)
+  -type <type>   - type of DBM file to open 
+                  (overrides BIOPERL_INDEX_TYPE environment variable)
 
 =head1 ENVIRONMENT
 
 bpindex and bpfetch coordinate where the databases lie using the
 enviroment variable BIOPERL_INDEX. This can be overridden using the
---dir option
+-dir option. The index type (SDBM or DB_File or another index file)
+is controlled by the BIOPERL_INDEX_TYPE variable. This defaults to 
+SDBM_File 
 
 =head1 USING IT YOURSELF
 
@@ -41,8 +51,8 @@ the Bio::DB::BioSeqI abstract interface. These include:
   Author          Code
 
   James Gilbert - Fasta indexer, Abstract indexer
-  Ewan Birney   - EMBL .dat indexer
   Aaron Mackay  - GenBank and GenPept DB access
+  Ewan Birney   - EMBL .dat indexer
   Many people   - SeqIO code
 
 These modules can be used directly, which is far better than using
@@ -135,16 +145,14 @@ BEGIN {
 my $dir = $ENV{'BIOPERL_INDEX'};
 my $type = $ENV{'BIOPER_INDEX_TYPE'};
 my $fmt = 'Fasta';
-my $ret = GetOptions('dir=s' => \$dir,'fmt=s' => \$fmt , 'type=s' => \$type);
+my $useacc = 0;
+my $ret = GetOptions('dir=s' => \$dir,'fmt=s' => \$fmt , 'type=s' => \$type , 'acc!' => \$useacc);
 
 #
 # print pod documentation if we have no arguments
 #
 
-if( $#ARGV == -1 ) {
-    system("perldoc $0");
-    exit(1);
-}
+exec('perldoc',$0) unless @ARGV;
 
 my($isnet,$db,$id,$seq,$seqio,$out);
 
@@ -190,12 +198,12 @@ foreach my $arg ( @ARGV ) {
 
     eval {
 	if( $isnet == 1 ) {
-	    $db =~ /genbank/ && do {
+	    if( $db =~ /genbank/ ) {
 		$db = Bio::DB::GenBank->new();
-	    };
-	    $db =~ /genpept/ && do {
+	    }
+	    if( $db =~ /genpept/ ) {
 		$db = Bio::DB::GenPept->new();
-	    };
+	    }
 	} else {
 	    if( !$dir ) {
 		
@@ -203,12 +211,13 @@ foreach my $arg ( @ARGV ) {
 		exit(1);
 	    }
 
-	    $db = Bio::Index::Abstract->new("$dir/$db");
-
 	    #
 	    # $db gets re-blessed to the correct index when
 	    # it is made from the abstract class. Cute eh?
 	    #
+
+	    $db = Bio::Index::Abstract->new("$dir/$db");
+
 	}
     };
     if( $@ ) {
@@ -222,11 +231,16 @@ foreach my $arg ( @ARGV ) {
     #
 
     if( ! $db->isa('Bio::DB::BioSeqI') ) {
-	warn("$db in $arg does not inheriet from Bio::DB::BioSeqI, so is not expected to work under the DB guidlines. Going to try it anyway");
+	warn("$db in $arg does not inherit from Bio::DB::BioSeqI, so is not expected to work under the DB guidlines. Going to try it anyway");
     }
 
     eval {
-	$seq = $db->get_Seq_by_id($id);
+	if( $useacc == 0 ) {
+	    $seq = $db->get_Seq_by_id($id);
+	} else {
+	    $seq = $db->get_Seq_by_acc($id);
+	}
+
     };
     if( $@ ) {
 	warn("Sequence $id in Database $db in $arg is not loadable. Skipping.\n\nError $@");
@@ -238,3 +252,7 @@ foreach my $arg ( @ARGV ) {
 
 
 	
+
+
+
+

@@ -1,4 +1,4 @@
-## $Id: bioback.pod,v 1.2 1999-04-08 10:17:30 birney Exp $
+## $Id: bioback.pod,v 1.3 1999-04-12 18:09:59 birney Exp $
 
 #
 # Documentation about the backend of bioperl
@@ -40,7 +40,7 @@ Fetches sequences from a Database
 Builds indexes for flat files databases which are easily accessible
 by bpfetch
 
-=end
+=back
 
 The core of the backend system is found in following modules
 
@@ -48,18 +48,16 @@ The core of the backend system is found in following modules
 
 =item Bio::DB::*
 
-generic access to databases, whether flat file, web or rdb. At the moment,
-this provides random access retrieval, on the basis of ids or accession
-numbers, but does not provide the ability to loop over the entire database,
-nor does it provide any complex querying ability.
+generic access to databases, whether flat file, web or rdb. At the
+moment, this provides random access retrieval, on the basis of ids or
+accession numbers, but does not provide the ability to loop over the
+entire database, nor does it provide any complex querying ability.
 
 Bio::DB::BioSeqI is the abstract interface (hence the I) for the
 databases.  Bio::DB::GenBank and Bio::DB::GenPept are concrete
-implementations for network access to the GenBank and GenPept databases
-held at NCBI, using http as a protocol.
+implementations for network access to the GenBank and GenPept
+databases held at NCBI, using http as a protocol.
 
-
- 
 =item Bio::Index::*
 
 flat file indexing system, for read-only, flat file distributions. These
@@ -67,20 +65,71 @@ provide for specific instances generic type access, but the underlying
 machinery can be customised for any number of different flat file systems.
 
 The Index modules EMBL and Fasta, as they are designed as Sequence databases
-conform to the Bio::DB::BioSeqI interface, meaning they can be used where
+conform to the Bio::DB::BioSeqI interface, meaning they can be used whereever
+the Bio::DB::BioSeqI is expected.
 
 =item Bio::SeqIO::*
 
 conversion systems for Bio::Seq objects, either to or from sequence
 streams. The move of things into SeqIO prevents the Bio::Seq object
-bloating up with format code.
+bloating up with format code, and the SeqIO system has the benefit
+of being very easy to extend to new formats.
 
-=end
+=back
+
+=head1 SETTING UP BIOPERL INDICES
+
+If you want to use the bioperl indexing of fasta and embl/swissprot
+.dat files then the bpfetch and bpindex scripts are great ways to
+start off (and also reading the scripts shows you how to use the
+bioperl indexing stuff). bpfetch and bpindex coordinate by the use
+of two environment variables
+
+  BIOPERL_INDEX - directory where the indices are kept
+
+  BIOPERL_INDEX_TYPE - type of DBM file to use for the index
+
+The basic way of indexing a database, once BIOPERL_INDEX has been
+set up, is to go
+
+  bpindex <index-name> <filenames as full path>
+
+eg, for Fasta files
+
+  bpindex est /nfs/somewhere/fastafiles/est*.fa
+
+Or, for embl/swissprot files
+ 
+  bpindex -fmt=EMBL swiss /nfs/somewhere/swiss/swissprot.dat
+
+To retrieve sequences from the index go
+
+  bpfetch <index-name>:<id>
+
+eg,
+
+  bpfetch est:AA01234
+
+or
+
+  bpfetch swiss:VAV_HUMAN
 
 
-Stuff about customisation on a new system to be written here.
+bpfetch has other options to connect to genbank across the network.
 
-this documentation is not complete. For more help at the moment, please
-email Ewan Birney <birney@sanger.ac.uk>
+=head1 CHECKLIST
+
+   make a directory called /nfs/datadisk/bioperlindex/
+
+   setenv BIOPERL_INDEX (or export in Bash) in the system login
+   script to /nfs/datadisk/bioperlindex/
+
+   go bpindex swissprot /nfs/datadisk/swiss/swissprot.dat
+   etc
+
+   You are ready to use bpfetch
+
+
+   
 
 

@@ -1,4 +1,4 @@
-## $Id: bioperl.pod,v 1.3 1999-02-27 12:27:38 sac Exp $
+## $Id: bioperl.pod,v 1.4 1999-04-12 18:10:00 birney Exp $
 
 ## Should contain general info about the distribution including
 ## links to all the various modules.
@@ -48,11 +48,22 @@ The Bioperl modules are distributed as a tar file that expands into a
 standard perl CPAN distribution.  Detailed installation directions 
 can be found in the distribution README file.
 
+The Bioperl modules can now interact with local flat file databases.
+To learn how to set this up, look at the bioback.pod documentation
+(perldoc bioback will work once it has been installed. Alternatively
+go perldoc bioback.pod directly).
+
 =head1 GETTING STARTED
 
-The standalone scripts in the distribution I<examples/>
-directory and sub directories therein give you an idea of how to use 
-some of the modules and driver code.
+The directory scripts/ have fully working, industrial strength scripts
+for use with bioperl. These are documented (perldoc <scriptname> will
+work). This area only started in the 0.05 distribution, and so not
+that many scripts have been written (you are more than welcome to
+contribute!)
+
+The example scripts in the distribution I<examples/> directory and sub
+directories therein give you an idea of how to use some of the modules
+and driver code.
 
 If you have installed bioperl in the standard way, as said in the
 README in the distribution these examples should work by just running
