@@ -202,6 +202,7 @@ sub _load_embl {
 		       }
 		      );
   # now load each feature in turn
+  my ($transcript_version,$mRNA_version) = (0,0);
   for my $feat ($seq->all_SeqFeatures) {
     my $attributes = $self->get_attributes($feat);
     my $name       = $self->guess_name($attributes);
@@ -210,34 +211,43 @@ sub _load_embl {
     my @segments = map {[$_->start,$_->end,$_->seq_id]}
       $location->can('sub_Location') ? $location->sub_Location : $location;
 
-    my $type     =  $feat->primary_tag eq 'CDS'  ? 'mRNA' : $feat->primary_tag;
-    my $parttype =  $feat->primary_tag eq 'gene' ? 'exon' : $feat->primary_tag;
+    my $type     =   $feat->primary_tag eq 'CDS'   ? 'coding'
+                   : $feat->primary_tag;
+    my $parttype =  $feat->primary_tag eq 'mRNA'   ? 'exon' : $feat->primary_tag;
 
-    if ($feat->primary_tag =~ /^(gene|CDS)$/) {
-      my $strand = $feat->strand;
-      my $str    = defined $strand ?
-                                     ($strand > 0 ? '+' : '-')
-				   : '.';
-      $self->load_gff_line( {
-			     ref    => $acc,
-			     class  => $refclass,
-			     source => $source,
-			     method => $type,
-			     start  => $location->start,
-			     stop   => $location->end,
-			     score  => $feat->score || undef,
-			     strand => $str,
-			     phase  => $feat->frame || '.',
-			     gclass => $name->[0],
-			     gname  => $name->[1],
-			     tstart => undef,
-			     tstop  => undef,
-			     attributes  => $attributes,
-			    }
-			  );
-      @$attributes = ();
+    if ($type eq 'gene') {
+      $transcript_version = 0;
+      $mRNA_version       = 0;
+    } elsif ($type eq 'mRNA') {
+      $name->[1] = sprintf("%s.t%02d",$name->[1],++$transcript_version);
+    } elsif ($type eq 'coding') {
+      $name->[1] = sprintf("%s.c%02d",$name->[1],++$mRNA_version);
     }
 
+    my $strand = $feat->strand;
+    my $str    = defined $strand ?
+                                     ($strand > 0 ? '+' : '-')
+				   : '.';
+    $self->load_gff_line( {
+			   ref    => $acc,
+			   class  => $refclass,
+			   source => $source,
+			   method => $type,
+			   start  => $location->start,
+			   stop   => $location->end,
+			   score  => $feat->score || undef,
+			   strand => $str,
+			   phase  => $feat->frame || '.',
+			   gclass => $name->[0],
+			   gname  => $name->[1],
+			   tstart => undef,
+			   tstop  => undef,
+			   attributes  => $attributes,
+			  }
+			) if $type;
+    @$attributes = ();
+
+    next if @segments == 1;
     for my $segment (@segments) {
 
       my $strand = $feat->strand;

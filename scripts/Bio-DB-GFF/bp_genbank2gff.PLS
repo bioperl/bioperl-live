@@ -2,7 +2,7 @@
 
 use lib '.';
 
-# $Id: bp_genbank2gff.PLS,v 1.8 2003-09-07 23:54:36 lstein Exp $
+# $Id: bp_genbank2gff.PLS,v 1.9 2003-09-12 02:51:39 lstein Exp $
 use strict;
 use Bio::DB::GFF;
 use Getopt::Long;
@@ -77,9 +77,11 @@ sub load_gff_line {
   my ($self,$options) = @_;
   # synthesize GFF3-compatible line
   my @attributes;
-  if (my $parent = $options->{gname}) {
-     push @attributes,"Parent=".escape($parent) unless $options->{method} =~ /^(mRNA|gene)$/;
-     push @attributes,"ID=".escape($parent);
+  if (my $id = $options->{gname}) {
+    my $parent = $id;
+    $parent    =~ s/\..\d+$//                  if     $options->{method} =~ /^(mRNA|transcript|coding)$/;
+    push @attributes,"Parent=".escape($parent) if     $options->{method} =~ /^(exon|CDS|transcript|mRNA|coding)$/;
+    push @attributes,"ID=".escape($id)         unless $options->{method} =~ /^(exon|CDS)$/;
   }
   if (my $tstart = $options->{tstart}) {
     my $tstop    = $options->{tstop};
