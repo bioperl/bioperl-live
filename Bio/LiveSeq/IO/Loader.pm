@@ -44,67 +44,20 @@ methods. Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::LiveSeq::IO::Loader;
-$VERSION=4.44;
-
-# Version history:
-# Wed Feb 16 17:55:01 GMT 2000 0.1a was a general EMBL entry printer with SRS
-# Wed Mar 29 16:53:30 BST 2000 0.2 rewrote as SRS LiveSeq Loader
-# Wed Mar 29 19:11:21 BST 2000 0.2.1 used successfully by liveseq3.pl
-# Fri Mar 31 02:33:43 BST 2000 v 1.0 begun wrapping into this package
-# Fri Mar 31 03:58:43 BST 2000 v 1.1 finished wrapping
-# Fri Mar 31 04:24:50 BST 2000 v 1.2 added test_transl
-# Fri Mar 31 04:34:48 BST 2000: noticed problem with K02083, if translation is
-#                               included as valid qualifier name -> investigate
-# Fri Mar 31 16:55:07 BST 2000 v 1.21 removed chop in test_transl()
-# Mon Apr  3 18:25:27 BST 2000 v 1.3 begun working at lightweight loader
-# Mon Apr  3 18:42:30 BST 2000 v 1.31 started changing so that CDS is no more
-#                                   the only default feature possibly asked for
-# Tue Apr  4 16:19:09 BST 2000 v 1.4 started creating hash2gene
-# Tue Apr  4 16:41:56 BST 2000 v 1.42 created location2range and rewritten
-#                                     cdslocation2transcript
-# Tue Apr  4 18:18:42 BST 2000 v 1.44 finished (maybe) hash2gene
-# Tue Apr  4 19:14:33 BST 2000 v 1.49 temporary printgene done. All working :)
-# Wed Apr  5 02:04:01 BST 2000 v 1.5 added upbound,downbound to hash2gene
-# Wed Apr  5 13:06:43 BST 2000 v 2.0 started obj_oriented and inheritance
-# Thu Apr  6 03:11:29 BST 2000 v 2.2 transition from $location to @range
-# Thu Apr  6 04:26:04 BST 2000 v 2.3 both SRS and BP work with gene and entry!
-# Fri Apr  7 01:47:51 BST 2000 v 2.4 genes() created
-# Fri Apr  7 03:01:46 BST 2000 v 2.5 changed hash2gene so that if there is
-#                                    just 1 CDS in entry it will use all
-#                                    features of the entry as Gene features
-# Tue Apr 18 18:14:19 BST 2000 v 3.0 printswissprot added
-# Wed Apr 19 22:15:12 BST 2000 v 3.2 swisshash2liveseq created
-# Thu Apr 20 00:14:09 BST 2000 v 3.4 swisshash2liveseq updated: now it correctly handles cleaved_met and conflicts/mod_res/variants recorded differences between EMBL and SWISSPROT translations sequences. Still some not-recorded conflicts are possible and in these cases the program won't create the AARange -> this could change in the future, if a better stringcomparison is introduced
-# Thu Apr 20 01:14:16 BST 2000 v 3.6 changed entry2liveseq and gene2liveseq to namedargument input format; added getswissprotinfo flag/option
-# Thu Apr 20 02:18:58 BST 2000 v 3.7 mRNA added as valid_feature -> it gets recorded as prim_transcript object
-# Thu Apr 27 16:19:43 BST 2000 v 3.8 translation_table set added to hash2gene
-# Mon May  1 22:16:18 BST 2000 v 3.9 -position option added to gene2liveseq
-# Tue May  2 02:43:05 BST 2000 v 4.0 moved some code in _findgenefeatures, added the possibility of using cds_position information, created _checkfeatureproximity
-# Tue May  2 03:20:20 BST 2000 v 4.01 findgenefeatures debugged
-# Wed May 31 13:59:09 BST 2000 v 4.02 chopped $translated to take away STOP
-# Fri Jun  2 14:49:12 BST 2000 v 4.1 prints alignment with CLUSTALW
-# Wed Jun  7 02:07:54 BST 2000 v 4.2 added code for "simplifying" joinedlocation features (e.g. join() in mRNA features), changing them to plain start-end ones
-# Wed Jun  7 04:20:15 BST 2000 v 4.22 added translation->{'offset'} for INIT_MET
-# Tue Jun 27 14:05:19 BST 2000 v. 4.3 added if() conditions so that if new() of object creation failed, the object is not passed on
-# Tue Jul  4 14:15:58 BST 2000 v 4.4 note and number qualifier added to exon and intron descriptions
-# Wed Jul 12 14:06:38 BST 2000 v 4.41 added if() condition out of transcript creation in transexoncreation()
-# Fri Sep 15 15:41:02 BST 2000 v 4.44 created _common_novelaasequence2gene
-
-# Note: test_transl has been left as deprecated and is not really supported now
 
 use strict;
 use Carp qw(cluck croak carp);
-use vars qw($VERSION @ISA);
-use Bio::LiveSeq::DNA 1.2;
-use Bio::LiveSeq::Exon 1.0;
-use Bio::LiveSeq::Transcript 2.4;
-use Bio::LiveSeq::Translation 1.4;
-use Bio::LiveSeq::Gene 1.1;
-use Bio::LiveSeq::Intron 1.0;
-use Bio::LiveSeq::Prim_Transcript 1.0;
-use Bio::LiveSeq::Repeat_Region 1.0;
-use Bio::LiveSeq::Repeat_Unit 1.0;
-use Bio::LiveSeq::AARange 1.4;
+use vars qw(@ISA);
+use Bio::LiveSeq::DNA;
+use Bio::LiveSeq::Exon;
+use Bio::LiveSeq::Transcript ;
+use Bio::LiveSeq::Translation;
+use Bio::LiveSeq::Gene;
+use Bio::LiveSeq::Intron;
+use Bio::LiveSeq::Prim_Transcript;
+use Bio::LiveSeq::Repeat_Region;
+use Bio::LiveSeq::Repeat_Unit;
+use Bio::LiveSeq::AARange;
 use Bio::Tools::CodonTable;
 
 #@ISA=qw(Bio::LiveSeq::); # not useful now

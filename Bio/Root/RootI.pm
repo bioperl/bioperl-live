@@ -101,7 +101,7 @@ methods. Internal methods are usually preceded with a _
 
 package Bio::Root::RootI;
 
-use vars qw($DEBUG $ID $Revision $VERSION $VERBOSITY);
+use vars qw($DEBUG $ID $Revision $VERBOSITY);
 use strict;
 use Carp 'confess','carp';
 
@@ -109,7 +109,6 @@ use Bio::Root::Version;
 
 BEGIN { 
     $ID        = 'Bio::Root::RootI';
-#    $VERSION   = 1.0;
     $Revision  = '$Id$ ';
     $DEBUG     = 0;
     $VERBOSITY = 0;

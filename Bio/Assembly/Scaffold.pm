@@ -66,13 +66,12 @@ methods. Internal methods are usually preceded with a _
 package Bio::Assembly::Scaffold;
 
 use strict;
-use vars qw(@ISA $VERSION);
+use vars qw(@ISA);
 
 use Bio::Root::Root;
 use Bio::Assembly::ScaffoldI;
 use Bio::Annotation::Collection;
 
-$VERSION = '0.0.1';
 @ISA = qw(Bio::Root::Root Bio::Assembly::ScaffoldI);
 
 =head2 new ()

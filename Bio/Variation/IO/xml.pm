@@ -71,7 +71,7 @@ methods. Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::Variation::IO::xml;
-my $VERSION=1.1;
+
 use vars qw(@ISA $seqdiff $var $prevdnaobj $prevrnaobj $prevaaobj);
 use strict;
 

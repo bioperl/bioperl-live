@@ -57,10 +57,11 @@ package Bio::DB::GFF::Util::Rearrange;
 
 use strict;
 require Exporter;
-use vars qw($VERSION @ISA @EXPORT @EXPORT_OK);
+use vars qw(@ISA @EXPORT @EXPORT_OK);
 @ISA = 'Exporter';
 @EXPORT_OK = qw(rearrange);
 @EXPORT = qw(rearrange);
+use Bio::Root::Version;
 
 # default export
 sub rearrange {

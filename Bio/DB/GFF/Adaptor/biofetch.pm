@@ -31,9 +31,8 @@ use Bio::DB::GFF::Util::Rearrange; # for rearrange()
 use Bio::DB::GFF::Adaptor::dbi::mysql;
 use Bio::DB::BioFetch;
 
-use vars qw($VERSION @ISA);
+use vars qw(@ISA);
 @ISA = qw(Bio::DB::GFF::Adaptor::dbi::mysql);
-$VERSION = 0.50;
 
 =head2 new
 

@@ -105,7 +105,7 @@ with an underscore _.
 
 
 package Bio::DB::Biblio::soap;
-use vars qw(@ISA $VERSION $Revision $DEFAULT_SERVICE $DEFAULT_NAMESPACE);
+use vars qw(@ISA $Revision $DEFAULT_SERVICE $DEFAULT_NAMESPACE);
 use strict;
 
 use Bio::Biblio;  # TBD: ?? WHY SHOULD I DO THIS ??
@@ -122,9 +122,7 @@ use SOAP::Lite
 
 @ISA = qw(Bio::Biblio);
 
-BEGIN { 
-    # set the version for version checking
-    $VERSION = do { my @r = (q$Revision$ =~ /\d+/g); sprintf "%d.%-02d", @r };
+BEGIN {
     $Revision = q$Id$;
 
     # where to go...

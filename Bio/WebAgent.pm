@@ -84,15 +84,14 @@ This is actually the main documentation...
 # Let the code begin...
 
 package Bio::WebAgent;
-use vars qw(@ISA $VERSION $Revision $LAST_INVOCATION_TIME);
+use vars qw(@ISA  $Revision $LAST_INVOCATION_TIME);
 use strict;
 use LWP::UserAgent;
 use Bio::Root::Root;
 
 @ISA = qw(LWP::UserAgent Bio::Root::Root);
 
-BEGIN { 
-    $VERSION = do { my @r = (q$Revision$ =~ /\d+/g); sprintf "%d.%-02d", @r };
+BEGIN {
     $Revision = q$Id$;
 }
 

@@ -3,6 +3,7 @@ package Bio::Graphics::Glyph::splice_site;
 use strict;
 use vars '@ISA';
 @ISA = 'Bio::Graphics::Glyph::generic';
+use Bio::Graphics::Glyph::generic;
 
 use constant PWIDTH => 3;
 

@@ -2,9 +2,8 @@ package Bio::Graphics::Glyph::dna;
 
 use strict;
 use Bio::Graphics::Glyph::generic;
-use vars '@ISA','$VERSION';
+use vars '@ISA';
 @ISA = qw(Bio::Graphics::Glyph::generic);
-$VERSION = '1.01';
 
 my %complement = (g=>'c',a=>'t',t=>'a',c=>'g',n=>'n',
 		  G=>'C',A=>'T',T=>'A',C=>'G',N=>'N');

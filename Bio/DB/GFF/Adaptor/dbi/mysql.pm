@@ -15,9 +15,8 @@ use strict;
 use Bio::DB::GFF::Adaptor::dbi;
 use Bio::DB::GFF::Util::Rearrange; # for rearrange()
 use Bio::DB::GFF::Util::Binning;
-use vars qw($VERSION @ISA);
+use vars qw(@ISA);
 @ISA = qw(Bio::DB::GFF::Adaptor::dbi);
-$VERSION = '0.90';
 
 use constant MAX_SEGMENT => 100_000_000;  # the largest a segment can get
 

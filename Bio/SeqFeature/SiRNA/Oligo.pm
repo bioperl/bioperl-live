@@ -90,8 +90,6 @@ use Bio::SeqFeature::Generic;
 
 our @ISA = qw(Bio::SeqFeature::Generic);
 
-our $VERSION = '1.0';
-
 our @ARGNAMES = qw(SEQ START END STRAND PRIMARY SOURCE_TAG SCORE TAG 
                    SEQ_ID ANNOTATION LOCATION);
 

@@ -86,14 +86,13 @@ message. You need to call them on a C<Bio::Tools::Run::Analysis> object instead.
 # Let the code begin...
 
 package Bio::AnalysisI;
-use vars qw(@ISA $VERSION $Revision);
+use vars qw(@ISA  $Revision);
 use strict;
 use Bio::Root::RootI;
 
 @ISA = qw(Bio::Root::RootI);
 
 BEGIN {
-    $VERSION = do { my @r = (q$Revision$ =~ /\d+/g); sprintf "%d.%-02d", @r };
     $Revision = q$Id$;
 }
 

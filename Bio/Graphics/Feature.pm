@@ -116,8 +116,7 @@ use Bio::SeqFeatureI;
 use Bio::SeqI;
 use Bio::LocationI;
 
-use vars '$VERSION','@ISA';
-$VERSION = '1.41';
+use vars '@ISA';
 @ISA  = qw(Bio::Root::Root Bio::SeqFeatureI Bio::LocationI Bio::SeqI);
 
 *stop        = \&end;

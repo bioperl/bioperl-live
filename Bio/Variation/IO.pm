@@ -229,7 +229,6 @@ methods. Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::Variation::IO;
-my $VERSION=1.0;
 
 use strict;
 use vars '@ISA';

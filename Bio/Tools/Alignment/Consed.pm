@@ -99,7 +99,7 @@ methods. Internal methods are usually preceded with a _
 package Bio::Tools::Alignment::Consed;
 
 use strict;
-use vars qw($VERSION @ISA $Contigs %DEFAULTS);
+use vars qw(@ISA $Contigs %DEFAULTS);
 use FileHandle;
 use Dumpvalue qw(dumpValue);
 use Bio::Tools::Alignment::Trim;
@@ -108,7 +108,6 @@ use Bio::Root::IO;
 
 @ISA = qw(Bio::Root::Root Bio::Root::IO);
 
-$VERSION = '0.60';
 
 BEGIN {
     %DEFAULTS = ( 'f_designator' => 'f',

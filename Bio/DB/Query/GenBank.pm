@@ -92,10 +92,9 @@ use constant ESEARCH             => 'http://www.ncbi.nih.gov/entrez/eutils/esear
 use constant DEFAULT_DB          => 'protein';
 use constant MAXENTRY            => 100;
 
-use vars qw(@ISA @ATTRIBUTES $VERSION);
+use vars qw(@ISA @ATTRIBUTES);
 
 @ISA     = 'Bio::DB::Query::WebQuery';
-$VERSION = '0.2';
 
 BEGIN {
   @ATTRIBUTES = qw(db reldate mindate maxdate datetype);

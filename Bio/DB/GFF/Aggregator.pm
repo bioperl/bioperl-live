@@ -142,9 +142,8 @@ package Bio::DB::GFF::Aggregator;
 use strict;
 use Bio::DB::GFF::Util::Rearrange;  # for rearrange()
 use Bio::DB::GFF::Feature;
-use vars qw($VERSION @ISA);
+use vars qw(@ISA);
 
-$VERSION = '1.00';
 @ISA = qw(Bio::Root::Root);
 
 my $ALWAYS_TRUE   = sub { 1 };

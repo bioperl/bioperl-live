@@ -91,7 +91,6 @@ methods. Internal methods are usually preceded with a _
 
 
 package Bio::Variation::DNAMutation;
-my $VERSION=1.0;
 use vars qw(@ISA);
 use strict;
 

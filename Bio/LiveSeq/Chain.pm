@@ -70,39 +70,6 @@ methods. Internal methods are usually preceded with a _
 # insana@ebi.ac.uk, jinsana@gmx.net
 
 package Bio::LiveSeq::Chain;
-# Version history:
-# Fri Mar 10 16:46:51 GMT 2000 v1.0 begun working on chains in perl
-# Sat Mar 11 05:47:21 GMT 2000 v.1.4 working on splice method
-# Sun Mar 12 14:08:31 GMT 2000 v.1.5
-# Sun Mar 12 17:21:51 GMT 2000 v.2.0 splice method working, is_updownstream made
-# Sun Mar 12 18:11:22 GMT 2000 v.2.04 wrapped all in package Chain.pm
-# Sun Mar 12 18:49:23 GMT 2000 v.2.08 added elements()
-# Sun Mar 12 21:18:04 GMT 2000 v.2.1 done array2dchain, working on *insert*
-# Sun Mar 12 23:04:40 GMT 2000 v.2.16 done *insert*, up_element, create_elems
-# Sun Mar 12 23:45:32 GMT 2000 v.2.17 debugged and checked
-# Mon Mar 13 00:44:51 GMT 2000 v.2.2 added mutate()
-# Mon Mar 13 02:00:32 GMT 2000 v 2.21 added invert_dchain()
-# Mon Mar 13 03:01:21 GMT 2000 v 2.22 created updown_chain2string
-# Mon Mar 13 03:45:50 GMT 2000 v.2.24 added subchain_length()
-# Mon Mar 13 17:25:04 GMT 2000 v.2.26 added element_at_pos and pos_of_element
-# Wed Mar 15 23:05:06 GMT 2000 v.2.27 use strict enforced
-# Thu Mar 16 19:05:34 GMT 2000 v.2.3 changed dchain->chain everywhere
-# Fri Mar 17 01:48:36 GMT 2000 v.2.33 mutate_element renamed, created new
-#                                     methods: set_value, get_value...
-# Fri Mar 17 05:03:15 GMT 2000 v.2.4 set_value_at_pos, get_value_at_pos
-#                                    get_label_at_pos...
-# Fri Mar 17 15:51:07 GMT 2000 v.2.41 renamed pos_of_element -> get_pos_of_label
-# Fri Mar 17 18:10:36 GMT 2000 v.2.44 recoded subchain_length and pos_of_label
-# Fri Mar 17 20:12:27 GMT 2000 v.2.5 NAMING change: index->label everywhere
-# Mon Mar 20 18:33:10 GMT 2000 v.2.52 label_exists(), start(), end()
-# Mon Mar 20 23:10:28 GMT 2000 v.2.6 labels() created
-# Wed Mar 22 18:35:17 GMT 2000 v.2.61 chain2string() rewritten
-# Tue Dec 12 14:47:58 GMT 2000 v 2.66 optimized with /use integer/
-# Tue Dec 12 16:28:45 GMT 2000 v 2.7 rewritten comments to methods in pod style
-
-#
-$VERSION=2.7;
-#
 # TODO_list:
 # **** cleanup code
 # **** performance concerns
@@ -120,8 +87,9 @@ $VERSION=2.7;
 #            particular coordinate system (e.g. counting from the start)
 # "value" what is stored in a single element
 
-use Carp qw(croak cluck carp); # as of 2.3
-use strict; # as of 2.27
+use Carp qw(croak cluck carp);
+use Bio::Root::Version;
+use strict; 
 use integer; # WARNING: this is to increase performance
              # a little bit of attention has to be given if float need to
              # be stored as elements of the array

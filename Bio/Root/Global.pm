@@ -72,7 +72,7 @@ BEGIN {
 
     $CGI = 1 if $ENV{REMOTE_ADDR} || $ENV{REMOTE_HOST};
 }
-
+use Bio::Root::Version;
 use Exporter ();
 use vars qw($BASE_YEAR @DAYS @MONTHS);
 

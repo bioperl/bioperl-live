@@ -75,19 +75,15 @@ use Bio::Root::Root;
 use strict;
 use Dumpvalue;
 
-
-
-use vars qw($VERSION @ISA %DEFAULTS);
-
-$VERSION = '0.01';
+use vars qw(@ISA %DEFAULTS);
 
 @ISA = qw(Bio::Root::Root);
 
 BEGIN {
     %DEFAULTS = ( 'f_designator' => 'f',
 		  'r_designator' => 'r',
-          'windowsize' => '10',
-          'phreds' => '20');
+                  'windowsize' => '10',
+                  'phreds' => '20');
 }
 
 =head2 new()
@@ -95,12 +91,12 @@ BEGIN {
  Title   : new()
  Usage   : $o_trim = Bio::Tools::Alignment::Trim->new();
  Function: Construct the Bio::Tools::Alignment::Trim object. No parameters
-	are required to create this object. It is strictly a bundle of
-	functions, as far as I am concerned.
+	   are required to create this object. It is strictly a bundle of
+	   functions, as far as I am concerned.
  Returns : A reference to a Bio::Tools::Alignment::Trim object.
  Args    : (optional)
-     -windowsize (default 10)
-     -phreds (default 20)
+           -windowsize (default 10)
+           -phreds (default 20)
 
 
 =cut 

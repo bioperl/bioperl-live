@@ -189,10 +189,8 @@ use Bio::PrimarySeq;
 
 @ISA = qw(Bio::Root::Root);
 use strict;
-use vars qw ($ID $VERSION %WeightTable_euc  %WeightTable_pro );
+use vars qw ($ID %WeightTable_euc  %WeightTable_pro );
 $ID  = 'Bio::Tools::Sigcleave';
-$VERSION = 0.02;
-
 
   %WeightTable_euc = (
 #Sample: 161 aligned sequences

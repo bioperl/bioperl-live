@@ -45,29 +45,11 @@ methods. Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::LiveSeq::Translation;
-$VERSION=1.8;
-
-# Version history:
-# Thu Mar 23 14:41:52 GMT 2000 v.1.0 begun
-# Sat Mar 25 04:08:59 GMT 2000 v 1.2 valid(), label(), position()
-# Tue Mar 28 03:37:17 BST 2000 v 1.3 added inheritance from Transcript, subseq relies on it!
-# Fri Mar 31 16:53:53 BST 2000 v 1.4 new seq() function that checks for stop codons: it now returns only up to the stop but doesn't continue if stop not found
-# Fri Mar 31 18:45:07 BST 2000 v 1.41 now it asks for Transcript->downstream_seq
-# Fri Mar 31 19:20:04 BST 2000 v 1.49 seq() now works correctly
-# Thu Apr 13 00:10:29 BST 2000 v 1.5 start and end now take the information from Transcript
-# Thu Apr 27 16:18:55 BST 2000 v 1.6 translation_table info added
-# Thu May 11 17:30:41 BST 2000 v 1.66 position method updated so to return a position also for labels not in frame (not at 1st triplet position)
-# Mon May 22 14:59:14 BST 2000 v 1.7 labelsubseq added
-# Mon May 22 15:22:12 BST 2000 v 1.71 labelsubseq tweaked for cases where startlabel==endlabel (no useless follow() query!)
-# Mon May 22 15:28:49 BST 2000 v 1.74 modified seq() so that the "*" is printed
-# Wed Jun  7 04:02:18 BST 2000 v 1.75 added offset()
-# Thu Jun 29 15:10:22 BST 2000 v 1.76 bug corrected for elongation mutations, if stop codon is not found downstream
-# Wed Mar 28 16:37:37 BST 2001 v 1.8 carp -> warn,throw (coded methods in SeqI)
 
 use strict;
 #use Carp qw(croak carp cluck);
-use vars qw($VERSION @ISA);
-use Bio::LiveSeq::SeqI 3.2; # uses SeqI, inherits from it
+use vars qw(@ISA);
+use Bio::LiveSeq::SeqI; # uses SeqI, inherits from it
 use Bio::PrimarySeq;
 @ISA=qw(Bio::LiveSeq::Transcript ); 
 

@@ -3,9 +3,6 @@ package Bio::Graphics;
 use Bio::Graphics::Panel;
 use strict;
 
-use vars '$VERSION';
-$VERSION = '1.06';
-
 1;
 
 =head1 NAME

@@ -63,30 +63,14 @@ methods. Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::LiveSeq::IO::SRS;
-$VERSION=2.4;
-
-# Version history:
-# Wed Apr  5 13:06:43 BST 2000 v 1.0 restarted as a child of Loader.pm
-# Wed Apr  5 15:57:22 BST 2000 v 1.1 load() created
-# Thu Apr  6 02:52:11 BST 2000 v 1.2 new field "range" in hash
-# Thu Apr  6 03:11:29 BST 2000 v 1.22 transition from $location to @range
-# Thu Apr  6 03:40:04 BST 2000 v 1.25 added Division
-# Tue Apr 18 17:15:26 BST 2000 v 2.0 started coding swissprot2hash
-# Thu Apr 20 02:17:28 BST 2000 v 2.1 mRNA added to valid_feature_names
-# Wed Jun  7 02:08:57 BST 2000 v 2.2 added support for joinedlocation features
-# Thu Jun 29 19:07:59 BST 2000 v 2.22 Gene stripped of possible newlines (horrible characteristic of some entries!!!!)
-# Fri Jun 30 14:08:21 BST 2000 v 2.3 SRS querying routines now conveniently wrapped in eval{} blocks to avoid SRS crash the whole LiveSeq
-# Tue Jul  4 14:07:52 BST 2000 v 2.31 note&number added in val_qual_names
-# Mon Sep  4 17:46:42 BST 2000 v 2.4 novelaasequence2gene() added
-
 use strict;
 use Carp qw(cluck croak carp);
-use vars qw($VERSION @ISA);
+use vars qw(@ISA);
 use lib $ENV{SRSEXE};
 use srsperl;
 use Bio::Tools::CodonTable; # for novelaasequence2gene
 
-use Bio::LiveSeq::IO::Loader 2.2;
+use Bio::LiveSeq::IO::Loader;
 
 @ISA=qw(Bio::LiveSeq::IO::Loader);
 

@@ -2,10 +2,9 @@ package Bio::Graphics::Glyph::anchored_arrow;
 # package to use for drawing an arrow
 
 use strict;
-use vars '@ISA','$VERSION';
+use vars '@ISA';
 use Bio::Graphics::Glyph::arrow;
 @ISA = 'Bio::Graphics::Glyph::arrow';
-$VERSION = 1.01;
 
 sub draw_label {
   my $self = shift;

@@ -75,7 +75,7 @@ with an underscore _.
 
 
 package Bio::Biblio::IO::medlinexml;
-use vars qw(@ISA $VERSION $Revision);
+use vars qw(@ISA $Revision);
 use vars qw(@Citations $Callback $Convert @ObjectStack @PCDataStack);
 use vars qw(%PCDATA_NAMES %SIMPLE_TREATMENT %POP_DATA_AND_PEEK_OBJ %POP_OBJ_AND_PEEK_OBJ);
 use vars qw(%POP_AND_ADD_ELEMENT %POP_AND_ADD_DATA_ELEMENT);
@@ -87,9 +87,7 @@ use XML::Parser;
 
 @ISA = qw(Bio::Biblio::IO);
 
-BEGIN { 
-    # set the version for version checking
-    $VERSION = do { my @r = (q$Revision$ =~ /\d+/g); sprintf "%d.%-02d", @r };
+BEGIN {
     $Revision = q$Id$;
 }
 

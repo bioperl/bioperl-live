@@ -93,7 +93,7 @@ The rest of the documentation details each of the object methods. Internal metho
 
 package Bio::Index::EMBL;
 
-use vars qw($VERSION @ISA);
+use vars qw(@ISA);
 use strict;
 
 use Bio::Index::AbstractSeq;
@@ -105,17 +105,9 @@ sub _type_stamp {
     return '__EMBL_FLAT__'; # What kind of index are we?
 }
 
-#
-# Suggested fix by Michael G Schwern <schwern@pobox.com> to
-# get around a clash with CPAN shell...
-#
-
-BEGIN {
-    $VERSION = 0.1;
-}
 
 sub _version {
-    return $VERSION;
+    return 0.1;
 }
 
 =head2 _index_file

@@ -4,9 +4,8 @@ package Bio::Graphics::Glyph::transcript2;
 
 use strict;
 use Bio::Graphics::Glyph::transcript;
-use vars '@ISA','$VERSION';
+use vars '@ISA';
 @ISA = 'Bio::Graphics::Glyph::transcript';
-$VERSION = '1.2';
 
 use constant MIN_WIDTH_FOR_ARROW => 8;
 

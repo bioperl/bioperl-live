@@ -78,7 +78,7 @@ preceded with a _
 package Bio::DB::NCBIHelper;
 use strict;
 use vars qw(@ISA $HOSTBASE %CGILOCATION %FORMATMAP 
-	    $DEFAULTFORMAT $MAX_ENTRIES $VERSION);
+	    $DEFAULTFORMAT $MAX_ENTRIES);
 
 use Bio::DB::WebDBSeqI;
 use Bio::DB::Query::GenBank;
@@ -89,7 +89,6 @@ use Bio::DB::RefSeq;
 use Bio::Root::Root;
 
 @ISA = qw(Bio::DB::WebDBSeqI Bio::Root::Root);
-$VERSION = '0.8';
 
 BEGIN {
     $MAX_ENTRIES = 19000;

@@ -28,9 +28,8 @@ use Bio::RangeI;
 use Bio::Das::SegmentI;
 use Bio::SeqI;
 
-use vars qw($VERSION @ISA);
+use vars qw(@ISA);
 @ISA = qw(Bio::Root::Root Bio::RangeI Bio::SeqI Bio::Das::SegmentI);
-$VERSION = '0.31';
 
 use overload 
   '""'     => 'asString',

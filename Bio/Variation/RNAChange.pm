@@ -107,7 +107,7 @@ use vars qw(@ISA);
 use strict;
 
 # Object preamble - inheritance
-my $VERSION=1.0;
+
 use Bio::Variation::VariantI;
 use Bio::Tools::CodonTable;
 

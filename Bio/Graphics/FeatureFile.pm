@@ -120,8 +120,6 @@ use Bio::Graphics::Panel;
 use Carp;
 use IO::File;
 use Text::Shellwords;
-use vars '$VERSION';
-$VERSION = '1.04';
 
 # default colors for unconfigured features
 my @COLORS = qw(cyan blue red yellow green wheat turquoise orange);

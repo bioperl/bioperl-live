@@ -3,10 +3,8 @@ package Bio::Graphics::Panel;
 use strict;
 use Bio::Graphics::Glyph::Factory;
 use Bio::Graphics::Feature;
-use GD;
-use vars '$VERSION';
+use GD;;
 
-$VERSION = 1.04;
 
 use constant KEYLABELFONT => gdMediumBoldFont;
 use constant KEYSPACING   => 5; # extra space between key columns

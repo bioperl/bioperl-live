@@ -3,9 +3,8 @@ package Bio::Graphics::Glyph::redgreen_box;
 
 use strict;
 use Bio::Graphics::Glyph::generic;
-use vars '@ISA','$VERSION';
+use vars '@ISA';
 @ISA = 'Bio::Graphics::Glyph::generic';
-$VERSION = 1.00;
 
 sub bgcolor {
   my $self = shift;

@@ -4,9 +4,8 @@ package Bio::Graphics::Glyph::processed_transcript;
 
 use strict;
 use Bio::Graphics::Glyph::transcript2;
-use vars '@ISA','$VERSION';
+use vars '@ISA';
 @ISA = 'Bio::Graphics::Glyph::transcript2';
-$VERSION = '1.0';
 use constant DEFAULT_UTR_COLOR => '#D0D0D0';
 
 sub is_utr {

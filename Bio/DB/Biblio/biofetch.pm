@@ -92,7 +92,7 @@ with an underscore _.
 
 
 package Bio::DB::Biblio::biofetch;
-use vars qw(@ISA $VERSION %HOSTS  %FORMATMAP  $DEFAULTFORMAT 
+use vars qw(@ISA %HOSTS  %FORMATMAP  $DEFAULTFORMAT 
 	    $Revision $DEFAULT_SERVICE $DEFAULT_NAMESPACE);
 use strict;
 
@@ -104,8 +104,6 @@ use Bio::Biblio::IO;
 
 BEGIN {
 
-    # set the version for version checking
-    $VERSION = do { my @r = (q$Revision$ =~ /\d+/g); sprintf "%d.%-02d", @r };
     $Revision = q$Id$;
 
     # you can add your own here theoretically.

@@ -91,12 +91,10 @@ methods. Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::Map::CytoPosition;
-use vars qw(@ISA $VERSION);
+use vars qw(@ISA);
 
 use strict;
 use integer;
-
-$VERSION=1.0;
 
 # Object preamble - inheritance
 

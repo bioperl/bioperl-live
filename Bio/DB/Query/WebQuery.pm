@@ -77,10 +77,9 @@ use HTTP::Request::Common;
 use Bio::Root::Root;
 use Bio::DB::QueryI;
 
-use vars qw(@ISA $VERSION);
+use vars qw(@ISA);
 
 @ISA = qw(Bio::Root::Root Bio::DB::QueryI);
-$VERSION = '0.1';
 
 =head2 new
 
@@ -116,7 +115,7 @@ sub new {
   $verbose && $self->verbose($verbose);
 
   my $ua = new LWP::UserAgent;
-  $ua->agent(ref($self) ."/$VERSION");
+  $ua->agent(ref($self) ."/$Bio::DB::Query::WebQuery::VERSION");
   $self->ua($ua);
   $self->{'_authentication'} = [];
   $self;

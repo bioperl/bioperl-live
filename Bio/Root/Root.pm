@@ -134,7 +134,7 @@ methods. Internal methods are usually preceded with a _
 
 #'
 
-use vars qw(@ISA $DEBUG $ID $Revision $VERSION $VERBOSITY $ERRORLOADED);
+use vars qw(@ISA $DEBUG $ID $Revision $VERBOSITY $ERRORLOADED);
 use strict;
 use Bio::Root::RootI;
 use Bio::Root::IO;
@@ -144,7 +144,6 @@ use Bio::Root::IO;
 BEGIN { 
 
     $ID        = 'Bio::Root::Root';
-    $VERSION   = 1.0;
     $Revision  = '$Id$ ';
     $DEBUG     = 0;
     $VERBOSITY = 0;

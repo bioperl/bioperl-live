@@ -12,7 +12,8 @@
 
 =head1 NAME
 
-Bio::Align::Utilities - A collection of utilities regarding converting and manipulating alignment objects
+Bio::Align::Utilities - A collection of utilities regarding converting
+and manipulating alignment objects
 
 =head1 SYNOPSIS
 
@@ -76,6 +77,7 @@ package Bio::Align::Utilities;
 use vars qw(@ISA @EXPORT @EXPORT_OK);
 use strict;
 use Carp;
+use Bio::Root::Version;
 require Exporter;
 
 @ISA = qw(Exporter);

@@ -52,10 +52,9 @@ methods. Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::Variation::SNP;
-my $VERSION=1.0;
 
 use strict;
-use vars qw($VERSION @ISA $AUTOLOAD);
+use vars qw( @ISA $AUTOLOAD);
 use Bio::Root::Root;
 use Bio::Variation::SeqDiff;
 use Bio::Variation::Allele;

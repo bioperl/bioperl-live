@@ -100,12 +100,11 @@ methods. Internal methods are usually preceded with a _
 package Bio::Das::SegmentI;
 use strict;
 
-use vars qw(@ISA $VERSION);
+use vars qw(@ISA);
 use Bio::Root::RootI;
 
 # Object preamble - inherits from Bio::Root::RootI;
 @ISA = qw(Bio::Root::RootI);
-$VERSION = 1.00;
 
 =head2 seq_id
 

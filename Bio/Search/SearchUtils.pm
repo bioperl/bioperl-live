@@ -22,6 +22,7 @@ Steve Chervitz E<lt>sac@bioperl.orgE<gt>
 #'
 
 package Bio::Search::SearchUtils;
+use Bio::Root::Version;
 
 use strict;
 use vars qw($DEBUG);

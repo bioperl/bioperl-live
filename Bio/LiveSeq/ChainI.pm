@@ -67,23 +67,11 @@ methods. Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::LiveSeq::ChainI;
-$VERSION=1.9;
-# Version history:
-# Thu Mar 16 01:38:25 GMT 2000 v.1.4 1st wraparound of methods complete
-#                                    tested with chainseq_asobj_test.pl
-# Thu Mar 16 19:03:56 GMT 2000 v.1.5 decided to stick with same names as Chain
-# Fri Mar 17 05:08:15 GMT 2000 v.1.6 in sync with Chain 2.4
-# Fri Mar 17 15:47:23 GMT 2000 v.1.7 added pos_of_label, enforced down_ or up_
-# Fri Mar 17 20:12:27 GMT 2000 v.1.8 NAMING change: index->label everywhere
-# Mon Mar 20 19:20:17 GMT 2000 v.1.81 minor addings, Chain 2.52
-# Mon Mar 20 23:15:09 GMT 2000 v.1.82 in sync with Chain 2.6
-# Tue Mar 21 01:36:29 GMT 2000 v.1.83 added default strand if new(DNA)
-# Tue Mar 21 14:19:17 GMT 2000 v.1.9 moved new(DNA) to DNA, added chain2string()
 
 use Carp qw(croak);
 use strict; # this will be moved before when strict enforced in Chain.pm
 
-use Bio::LiveSeq::Chain 2.6; # package where all the subroutines are defined
+use Bio::LiveSeq::Chain; # package where all the subroutines are defined
 
 
 =head2 new

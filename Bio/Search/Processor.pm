@@ -62,6 +62,8 @@ package Bio::Search::Processor;
 use strict;
 use vars qw(@ISA);
 
+use Bio::Root::Version;
+
 =head2 new
 
  Title   : new

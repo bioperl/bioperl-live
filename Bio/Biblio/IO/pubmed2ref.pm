@@ -68,14 +68,12 @@ with an underscore _.
 package Bio::Biblio::IO::pubmed2ref;
 
 use strict;
-use vars qw(@ISA $VERSION $Revision);
+use vars qw(@ISA $Revision);
 
 use Bio::Biblio::IO::medline2ref;
 @ISA = qw(Bio::Biblio::IO::medline2ref);
 
-BEGIN { 
-    # set the version for version checking
-    $VERSION = do { my @r = (q$Revision$ =~ /\d+/g); sprintf "%d.%-02d", @r };
+BEGIN {
     $Revision = q$Id$;
 }
 

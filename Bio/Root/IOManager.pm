@@ -25,9 +25,8 @@ use FileHandle            ();
 @ISA   = qw(Bio::Root::Object);
 
 use strict;
-use vars qw($ID $VERSION $revision);
+use vars qw($ID $revision);
 $ID = 'Bio::Root::IOManager';
-$VERSION = 0.043;
 
 ## POD Documentation:
 

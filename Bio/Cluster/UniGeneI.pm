@@ -73,12 +73,11 @@ methods. Internal methods are usually preceded with a "_".
 
 
 package Bio::Cluster::UniGeneI;
-use vars qw(@ISA $VERSION);
+use vars qw(@ISA);
 use strict;
 
 use Bio::ClusterI;
 
-$VERSION = '1.0';
 @ISA = qw(Bio::ClusterI);
 
 

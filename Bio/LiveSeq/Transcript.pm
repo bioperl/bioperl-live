@@ -44,46 +44,12 @@ methods. Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::LiveSeq::Transcript;
-$VERSION=5.2;
-
-# Version history:
-# Tue Mar 21 14:38:02 GMT 2000 v 1.0 begun
-# Tue Mar 21 17:45:31 GMT 2000 v 1.1 new() created
-# Wed Mar 22 19:40:13 GMT 2000 v 1.4 all_Exons() seq(), length(), all_labels()
-# Thu Mar 23 19:08:36 GMT 2000 v 1.5 follows() replaces is_downstream()
-# Thu Mar 23 20:59:02 GMT 2000 v 2.0 valid _inside_position label position
-# Fri Mar 24 18:33:18 GMT 2000 v 2.2 rewritten position(), now should work with diverse coordinate_starts
-# Sat Mar 25 04:08:18 GMT 2000 v 2.21 added firstlabel to position and label so that Translation can exploit it
-# Sat Mar 25 06:39:27 GMT 2000 v 2.3 started override of subseq, works just internally
-# Mon Mar 27 19:05:15 BST 2000 v 2.4 subseq finished, it works with coord_start
-# Fri Mar 31 18:48:07 BST 2000 v 2.5 started downstream_seq()
-# Mon Apr  3 17:37:34 BST 2000 v 2.52 upstream_seq added
-# Fri Apr  7 03:29:43 BST 2000 v 2.6 up/downstream now can use Gene information
-# Sat Apr  8 12:59:58 BST 2000 v 3.0 all_Exons now skips no more valid exons
-# Sat Apr  8 13:32:08 BST 2000 v 3.1 get_Translation added
-# Wed Apr 12 12:37:08 BST 2000 v 3.2 all_Exons updates Transcript's start/end
-# Wed Apr 12 12:41:22 BST 2000 v 3.3 each Exon has "transcript" attribute added
-# Wed Apr 12 16:35:56 BST 2000 v 3.4 started coding _deletecheck
-# Wed Apr 12 23:40:19 BST 2000 v 3.5 start and end redefined here, no more checks after deletion to refix start/end attributes. And no need of those. Eliminated hence from new()
-# Wed Apr 12 23:47:02 BST 2000 v 3.9 finished _deletecheck, debugging starts
-# Thu Apr 13 00:37:16 BST 2000 v 4.0 debugging done: seems working OK
-# Thu Apr 27 16:18:55 BST 2000 v 4.1 translation_table added
-# Tue May 16 17:57:40 BST 2000 v 4.11 corrected bug in docs of downstream_seq
-# Wed May 17 16:48:34 BST 2000 v 4.2 frame() added
-# Mon May 22 15:22:12 BST 2000 v 4.21 labelsubseq tweaked for cases where startlabel==endlabel (no useless follow() query!)
-# Thu Jun 22 20:02:39 BST 2000 v 4.3 valid() moved to SeqI, to be inherited as the general one
-# Thu Jun 22 20:27:57 BST 2000 v 4.4 optimized labelsubseq coded!
-# Thu Jun 22 21:17:51 BST 2000 v 4.44 in_which_Exon() added
-# Sat Jun 24 00:49:55 BST 2000 v 4.5 new subseq() that exploits the new fast labelsubseq
-# Thu Jun 29 16:31:19 BST 2000 v 5.0 downsream_seq and upstream_seq recoded so that if entry is RNA it will return sequences up to the entry limits -> it should be properly debugged, expecially the upstream_seq one
-# Wed Jul 12 04:01:53 BST 2000 v 5.1 croak -> carp+return(-1)
-# Wed Mar 28 15:16:21 BST 2001 v 5.2 carp -> warn,throw (coded methods in SeqI)
 
 use strict;
 # use Carp qw(carp cluck);
-use vars qw($VERSION @ISA);
-use Bio::LiveSeq::SeqI 3.2; # uses SeqI, inherits from it
-use Bio::LiveSeq::Exon 1.0; # uses Exon to create new exon in case of deletion
+use vars qw(@ISA);
+use Bio::LiveSeq::SeqI; # uses SeqI, inherits from it
+use Bio::LiveSeq::Exon; # uses Exon to create new exon in case of deletion
 @ISA=qw(Bio::LiveSeq::SeqI);
 
 =head2 new

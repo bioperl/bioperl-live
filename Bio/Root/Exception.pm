@@ -186,6 +186,7 @@ This software is provided "as is" without warranty of any kind.
 # Define some generic exceptions.'
 
 package Bio::Root::Exception;
+use Bio::Root::Version;
 
 use strict;
 

@@ -113,9 +113,8 @@ use Bio::DB::GFF::Util::Rearrange;
 use Bio::DB::GFF::Segment;
 use Bio::RangeI;
 
-use vars qw($VERSION @ISA);
+use vars qw(@ISA);
 @ISA = qw(Bio::DB::GFF::Segment);
-$VERSION = '0.45';
 
 use overload '""' => 'asString',
              'bool' => sub { overload::StrVal(shift) },

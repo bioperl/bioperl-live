@@ -179,10 +179,6 @@ or the web:
 
 Steve Chervitz, sac@bioperl.org
 
-=head1 VERSION
-
-Bio::Tools::SeqPattern.pm, 0.011
-
 =head1 COPYRIGHT
 
 Copyright (c) 1997-8 Steve Chervitz. All Rights Reserved.
@@ -206,9 +202,8 @@ package Bio::Tools::SeqPattern;
 use Bio::Root::Root;
 @ISA = qw(Bio::Root::Root);
 use strict;
-use vars qw ($ID $VERSION);
+use vars qw ($ID);
 $ID  = 'Bio::Tools::SeqPattern';
-$VERSION = 0.011;
 
 ## These constants may be more appropriate in a Bio::Dictionary.pm 
 ## type of class.

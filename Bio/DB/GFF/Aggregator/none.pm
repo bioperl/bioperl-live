@@ -26,10 +26,9 @@ package Bio::DB::GFF::Aggregator::none;
 
 use strict;
 use Bio::DB::GFF::Aggregator;
-use vars qw($VERSION @ISA);
+use vars qw(@ISA);
 
 @ISA = qw(Bio::DB::GFF::Aggregator);
-$VERSION = '0.10';
 
 sub disaggregate {
   my $self  = shift;

@@ -92,8 +92,6 @@ use Bio::SeqFeature::Generic;
 
 our @ISA = qw(Bio::SeqFeature::Generic);
 
-our $VERSION = '1.0';
-
 # arguments to new().  Taken from Bio::SeqFeature Generic.
 # Omit frame (not relevant), GFF_STRING and GFF1_STRING 
 # because I'm not sure how to handle them.  Add RANK, FXGC, SENSE, ANTISENSE

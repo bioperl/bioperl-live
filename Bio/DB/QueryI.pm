@@ -85,10 +85,9 @@ package Bio::DB::QueryI;
 use strict;
 use Bio::Root::RootI;
 
-use vars qw(@ISA $VERSION);
+use vars qw(@ISA);
 
 @ISA = qw(Bio::Root::RootI);
-$VERSION = '0.1';
 
 =head2 new
 

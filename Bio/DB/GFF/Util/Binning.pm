@@ -27,10 +27,11 @@ package Bio::DB::GFF::Util::Binning;
 
 use strict;
 require Exporter;
-use vars qw($VERSION @ISA @EXPORT @EXPORT_OK);
+use vars qw(@ISA @EXPORT @EXPORT_OK);
 @ISA = 'Exporter';
 @EXPORT_OK = qw(bin bin_bot bin_top);
 @EXPORT = @EXPORT_OK;
+use Bio::Root::Version;
 
 =item $bin_name = bin($start,$stop,$bin_size)
 

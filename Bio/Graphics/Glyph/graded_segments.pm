@@ -3,9 +3,8 @@ package Bio::Graphics::Glyph::graded_segments;
 
 use strict;
 use Bio::Graphics::Glyph::segments;
-use vars '@ISA','$VERSION';
+use vars '@ISA';
 @ISA = 'Bio::Graphics::Glyph::segments';
-$VERSION = 1.01;
 
 # override draw method to calculate the min and max values for the components
 sub draw {

@@ -5,7 +5,7 @@ use strict;
 use Bio::Location::Simple;
 use Bio::Graphics::Glyph::generic;
 use Bio::Graphics::Glyph::segmented_keyglyph;
-use vars '@ISA','$VERSION';
+use vars '@ISA';
 
 use constant RAGGED_START_FUZZ => 25;  # will show ragged ends of alignments
                                        # up to this many bp.
@@ -14,7 +14,7 @@ use constant DEBUG => 0;
 @ISA = qw( Bio::Graphics::Glyph::segmented_keyglyph
 	   Bio::Graphics::Glyph::generic
 	 );
-$VERSION = '1.08';
+
 my %complement = (g=>'c',a=>'t',t=>'a',c=>'g',n=>'n',
 		  G=>'C',A=>'T',T=>'A',C=>'G',N=>'N');
 

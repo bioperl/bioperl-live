@@ -71,12 +71,13 @@ use strict;
 use Bio::DB::GFF;
 use Bio::DB::GFF::Util::Rearrange; # for rearrange()
 use Bio::DB::GFF::Adaptor::memory_iterator;
-use vars qw($VERSION @ISA);
+#use vars qw($VERSION @ISA);
+use vars qw(@ISA);
 
 use constant MAX_SEGMENT => 100_000_000;  # the largest a segment can get
 
 @ISA =  qw(Bio::DB::GFF);
-$VERSION = '0.02';
+#$VERSION = '0.02';
 
 sub new {
   my $class = shift ;

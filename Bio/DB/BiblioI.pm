@@ -80,14 +80,13 @@ message. You need to call them on a Bio::Biblio object.
 # Let the code begin...
 
 package Bio::DB::BiblioI;
-use vars qw(@ISA $VERSION $Revision);
+use vars qw(@ISA $Revision);
 use strict;
 use Bio::Root::RootI;
 
 @ISA = qw(Bio::Root::RootI);
 
-BEGIN { 
-    $VERSION = do { my @r = (q$Revision$ =~ /\d+/g); sprintf "%d.%-02d", @r };
+BEGIN {
     $Revision = q$Id$;
 }
 

@@ -80,18 +80,6 @@ methods. Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::LiveSeq::IO::BioPerl;
-$VERSION=2.42;
-
-# Version history:
-# Thu Apr  6 00:25:46 BST 2000 v 1.0 begun
-# Thu Apr  6 03:40:04 BST 2000 v 1.25 added Division
-# Thu Apr  6 03:40:36 BST 2000 v 2.0 working
-# Thu Apr 20 02:17:28 BST 2000 v 2.1 mRNA added to valid_feature_names
-# Tue Jul  4 14:07:52 BST 2000 v 2.11 note&number added in val_qual_names
-# Fri Sep 15 15:41:02 BST 2000 v 2.22 novelaasequence2gene now works without SRS
-# Mon Jan 29 17:40:06 EST 2001 v 2.3 made it work with the new split_location of BioPerl 0.7
-# Tue Apr 10 17:00:18 BST 2001 v 2.41 started work on support of DB::EMBL.pm
-# Tue Apr 10 17:22:26 BST 2001 v 2.42 -id should work now
 
 # TODO->TOCHECK
 # each_secondary_access not working
@@ -102,14 +90,14 @@ $VERSION=2.42;
 
 use strict;
 use Carp qw(cluck croak carp);
-use vars qw($VERSION @ISA);
+use vars qw(@ISA);
 use Bio::SeqIO; # for -file entry loading
 
 # Note, the following requires HTTP::Request. If the modules are not installed
 # uncomment the following and use only -filename and don't request swissprotinfo
 use Bio::DB::EMBL; # for -id entry loading
 
-use Bio::LiveSeq::IO::Loader 2.0;
+use Bio::LiveSeq::IO::Loader;
 
 @ISA=qw(Bio::LiveSeq::IO::Loader);
 

@@ -80,7 +80,7 @@ Internal methods are usually preceded with a _
 
 
 package Bio::Index::Blast;
-use vars qw(@ISA $VERSION);
+use vars qw(@ISA );
 use strict;
 
 use Bio::Root::Root;
@@ -90,12 +90,8 @@ use IO::String;
 
 @ISA = qw(Bio::Index::Abstract Bio::Root::Root );
 
-BEGIN { 
-    $VERSION = 0.1;
-}
-
 sub _version {
-    return $VERSION;
+    return 0.1;
 }
 
 =head2 new

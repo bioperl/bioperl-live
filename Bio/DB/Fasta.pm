@@ -392,11 +392,9 @@ use Fcntl;
 use File::Basename qw(basename dirname);
 use Bio::DB::SeqI;
 use Bio::Root::Root;
-use vars qw($VERSION @ISA);
+use vars qw(@ISA);
 
 @ISA = qw(Bio::DB::SeqI Bio::Root::Root);
-
-$VERSION = '1.03';
 
 *seq = *sequence = \&subseq;
 *ids = \&get_all_ids;

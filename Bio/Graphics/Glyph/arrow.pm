@@ -2,9 +2,8 @@ package Bio::Graphics::Glyph::arrow;
 # package to use for drawing an arrow
 
 use strict;
-use vars '@ISA','$VERSION';
+use vars '@ISA';
 use Bio::Graphics::Glyph::generic;
-$VERSION = 1.03;
 @ISA = 'Bio::Graphics::Glyph::generic';
 
 my %UNITS = (n => 1e-12,

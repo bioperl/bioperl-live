@@ -5,6 +5,7 @@ package Bio::Graphics::Glyph::primers;
 use strict;
 use vars '@ISA';
 @ISA = 'Bio::Graphics::Glyph::generic';
+use Bio::Graphics::Glyph::generic;
 
 use constant HEIGHT => 4;
 

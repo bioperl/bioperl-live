@@ -42,28 +42,10 @@ methods. Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::LiveSeq::Gene;
-$VERSION=2.3;
-
-# Version history:
-# Tue Apr  4 15:22:41 BST 2000 v 1.0 begun
-# Tue Apr  4 16:19:27 BST 2000 v 1.1 completed new()
-# Tue Apr  4 19:15:41 BST 2000 v 1.2 tested. Working. Simple methods created.
-# Wed Apr  5 01:26:58 BST 2000 v 1.21 multiplicity, featuresnum() created
-# Wed Apr  5 02:16:01 BST 2000 v 1.22 added upbound and downbound attributes
-# Fri Apr  7 02:03:39 BST 2000 v 1.3 added printfeaturesnum and _set_Gene_in_all
-# Fri Apr  7 02:53:05 BST 2000 v 2.0 added maxtranscript object creation
-# Wed Jun 28 18:38:45 BST 2000 v 2.1 chaged croak to carp + return(-1)
-# Wed Jul 12 15:19:26 BST 2000 v 2.11 ->strand call protected by if(ref(transcript))
-# Tue Jan 30 14:15:42 EST 2001 v 2.2 delete_Obj added, to flush circular references
-# Wed Apr  4 13:29:59 BST 2001 v 2.3 LiveSeq-wide warn and verbose added
-
 use strict;
 use Carp;
-use vars qw($VERSION @ISA);
-use Bio::LiveSeq::Prim_Transcript 1.0; # needed to create maxtranscript obj
-
-#use Bio::LiveSeq::SeqI 2.11; # uses SeqI, inherits from it
-#@ISA=qw(Bio::LiveSeq::SeqI);
+use vars qw(@ISA);
+use Bio::LiveSeq::Prim_Transcript; # needed to create maxtranscript obj
 
 =head2 new
 

@@ -12,7 +12,8 @@
 
 =head1 NAME
 
-Bio::Event::EventGeneratorI - This interface describes the basic event generator class.
+Bio::Event::EventGeneratorI - This interface describes the basic event
+generator class.
 
 =head1 SYNOPSIS
 
@@ -21,7 +22,8 @@ Bio::Event::EventGeneratorI - This interface describes the basic event generator
 
 =head1 DESCRIPTION
 
-This object describes the basic event generator system.  It basically allows one to attach one or many event handlers.
+This object describes the basic event generator system.  It basically
+allows one to attach one or many event handlers.
 
 
 =head1 FEEDBACK
@@ -68,6 +70,7 @@ Internal methods are usually preceded with a _
 package Bio::Event::EventGeneratorI;
 use vars qw(@ISA);
 use strict;
+use Bio::Root::RootI;
 
 @ISA = qw( Bio::Root::RootI );
 

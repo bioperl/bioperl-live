@@ -93,7 +93,7 @@ The rest of the documentation details each of the object methods. Internal metho
 
 package Bio::Index::SwissPfam;
 
-use vars qw($VERSION @ISA);
+use vars qw(@ISA);
 use strict;
 
 use Bio::Index::Abstract;
@@ -101,17 +101,8 @@ use Bio::Seq;
 
 @ISA = qw(Bio::Index::Abstract);
 
-#
-# Suggested fix by Michael G Schwern <schwern@pobox.com> to
-# get around a clash with CPAN shell...
-#
-
-BEGIN {
-    $VERSION = 0.1;
-}
-
 sub _version {
-    return $VERSION;
+    return 0.1;
 }
 
 =head2 _index_file

@@ -43,18 +43,10 @@ methods. Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::LiveSeq::DNA;
-$VERSION=1.4;
-
-# Version history:
-# Mon Mar 20 19:21:22 GMT 2000 v.1.0 begun
-# Tue Mar 21 14:20:30 GMT 2000 v.1.1 new() is now here, not inherited
-# Wed Mar 22 19:43:20 GMT 2000 v.1.2 length override
-# Thu Jun 22 20:02:39 BST 2000 v 1.3 valid() from SeqI now moved here, as override
-# Wed Mar 28 17:01:59 BST 2001 v 1.4 changed croaks into throw
 
 use strict;
-use vars qw($VERSION @ISA);
-use Bio::LiveSeq::SeqI 3.2; # uses SeqI, inherits from it
+use vars qw(@ISA);
+use Bio::LiveSeq::SeqI; # uses SeqI, inherits from it
 @ISA=qw(Bio::LiveSeq::SeqI);
 
 =head2 new

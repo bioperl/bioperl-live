@@ -3,9 +3,8 @@ package Bio::Graphics::Glyph::redgreen_segment;
 
 use strict;
 use Bio::Graphics::Glyph::graded_segments;
-use vars '@ISA','$VERSION';
+use vars '@ISA';
 @ISA = 'Bio::Graphics::Glyph::graded_segments';
-$VERSION = 1.01;
 
 sub calculate_color {
   my $self = shift;

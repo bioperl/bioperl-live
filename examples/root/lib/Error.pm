@@ -12,10 +12,7 @@
 package Error;
 
 use strict;
-use vars qw($VERSION);
 use 5.004;
-
-$VERSION = "0.15"; 
 
 use overload (
 	'""'	   =>	'stringify',

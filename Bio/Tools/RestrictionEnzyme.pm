@@ -170,14 +170,13 @@ use strict;
 use Bio::Root::Root;
 use Exporter;
 
-use vars qw (@ISA @EXPORT_OK %EXPORT_TAGS $ID $version @RE_available $Revision);
+use vars qw (@ISA @EXPORT_OK %EXPORT_TAGS $ID  @RE_available $Revision);
 
 @ISA         = qw(Bio::Root::Root Exporter);
 @EXPORT_OK   = qw(@RE_available);
 %EXPORT_TAGS = ( std => [qw(@RE_available)] );
 
 $ID = 'Bio::Tools::RestrictionEnzyme';
-$version = 0.04;
 $Revision = '$Id$';  #'
 
 # Generated from REBASE version 208 (strider format), dated Aug 1 2002

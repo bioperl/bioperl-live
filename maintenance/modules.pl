@@ -7,7 +7,8 @@ modules.pl - information about modules in BioPerl core
 =head1 SYNOPSIS
 
 B<modules.pl> [B<-c|--count>] | [B<-l|--list>] | [B<-u|--untested>] |
-  [B<-i|--info> class] | [B<-i|--inherit> | [B<-?|-h|--help>]
+  [B<-i|--info> class] | [B<-i|--inherit> | [B<-v|--version> |
+  [B<-?|-h|--help>]
 
 =head1 DESCRIPTION
 
@@ -103,9 +104,10 @@ sub untested;
 sub info;
 sub inherit;
 sub synopsis;
+sub version;
 
 # command line options
-my ($dir, $count,$list, $verbose,$info,$untested, $inherit, $synopsis);
+my ($dir, $count,$list, $verbose,$info,$untested, $inherit, $synopsis, $version);
 GetOptions(
 	   'dir:s'      => \$dir,
 	   'count'    => \$count,
@@ -116,6 +118,7 @@ GetOptions(
            'info:s' =>  \$info,
            'inherit' => \$inherit,
            'synopsis' => \$synopsis,
+           'version' => \$version,
 	   'h|help|?' => sub{ exec('perldoc',$0); exit(0) }
 	   );
 
@@ -137,6 +140,7 @@ elsif ($untested) { untested }
 elsif ($info)     { info($info) }
 elsif ($inherit)  { inherit }
 elsif ($synopsis) { synopsis }
+elsif ($version)   { version }
 else              { count }
 
 
@@ -374,7 +378,36 @@ sub synopsis {
     }
 }
 
+=item B<-v | --version>
 
+Test the VERSION of the module against the global one set in
+Bio::Root::Variation. Print out the different ones.
+
+=cut
+
+sub version {
+    use Bio::Root::Version;
+    print "|", $Bio::Root::Version::VERSION, "|\n";
+    my $version =  $Bio::Root::Version::VERSION;
+
+    foreach ( sort keys %MODULES) {
+        my $n=$MODULES{$_}->name;
+        next unless $n =~ /Root/;
+#        next if $n =~ /Root/;
+        next if $n =~ /SRS/i;
+        {
+            eval "require $n";
+            printf "%50s ", $n;
+            my $v = eval '$'. $n. '::VERSION';
+            if (defined $v) {
+                #print $v unless $v eq $version;
+                print "$v\n";
+            } else {
+                print "---\n";
+            }
+        }
+    }
+}
 
 __END__
 

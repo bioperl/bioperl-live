@@ -96,7 +96,7 @@ The rest of the documentation details each of the object methods. Internal metho
 
 package Bio::Index::Fasta;
 
-use vars qw($VERSION @ISA);
+use vars qw(@ISA);
 use strict;
 
 use Bio::Index::AbstractSeq;
@@ -109,12 +109,9 @@ use Bio::Seq;
 # get around a clash with CPAN shell...
 #
 
-BEGIN { 
-    $VERSION = 0.2;
-}
 
 sub _version {
-    return $VERSION;
+    return 0.2;
 }
 
 =head2 _file_format

@@ -16,11 +16,10 @@ use Bio::Root::Object ();
 use Bio::Root::Global qw(:std);
 
 use strict;
-use vars qw($ID $VERSION @ISA);
+use vars qw($ID @ISA);
 
 @ISA        = qw( Bio::Root::Object );
 $ID = 'Bio::Tools::SeqAnal';
-$VERSION  = 0.011;
 
 
 ## POD Documentation:

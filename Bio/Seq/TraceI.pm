@@ -84,6 +84,7 @@ use vars qw(@ISA);
 use strict;
 use Carp;
 use Dumpvalue;
+use Bio::Root::RootI;
 
 =head1 Implementation Specific Functions
 

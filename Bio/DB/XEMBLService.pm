@@ -72,7 +72,7 @@ my %methods = (
     ],
   },
 );
-
+use Bio::Root::Version;
 use SOAP::Lite;
 use Exporter;
 use Carp ();

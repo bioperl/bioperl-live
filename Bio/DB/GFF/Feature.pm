@@ -74,11 +74,10 @@ use Bio::SeqFeatureI;
 use Bio::Root::Root;
 use Bio::LocationI;
 
-use vars qw($VERSION @ISA $AUTOLOAD);
+use vars qw(@ISA $AUTOLOAD);
 @ISA = qw(Bio::DB::GFF::RelSegment Bio::SeqFeatureI 
 	  Bio::Root::Root);
 
-$VERSION = '0.62';
 #' 
 
 *segments = \&sub_SeqFeature;

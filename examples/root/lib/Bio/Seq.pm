@@ -445,7 +445,7 @@ methods. Internal methods are usually preceded with a "_".
 
 
 package Bio::Seq;
-use vars qw(@ISA $VERSION);
+use vars qw(@ISA);
 use strict;
 
 
@@ -460,7 +460,6 @@ use Bio::DescribableI;
 use Bio::AnnotatableI;
 use Bio::FeatureHolderI;
 
-$VERSION = '1.1';
 @ISA = qw(Bio::Root::Root Bio::SeqI
 	  Bio::IdentifiableI Bio::DescribableI
 	  Bio::AnnotatableI Bio::FeatureHolderI);

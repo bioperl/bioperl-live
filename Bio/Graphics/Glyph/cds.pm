@@ -5,9 +5,8 @@ use Bio::Graphics::Glyph::segments;
 use Bio::Graphics::Util qw(frame_and_offset);
 use Bio::Tools::CodonTable;
 use Bio::Graphics::Glyph::translation;
-use vars '@ISA','$VERSION';
+use vars '@ISA';
 @ISA = qw(Bio::Graphics::Glyph::segmented_keyglyph Bio::Graphics::Glyph::translation);
-$VERSION = '1.02';
 
 sub connector   { 0 };
 sub description {

@@ -27,7 +27,7 @@ Steve Chervitz E<lt>sac@bioperl.orgE<gt>
 #'
 
 package Bio::Search::BlastUtils;
-
+use Bio::Root::Version;
 
 
 =head2 tile_hsps

@@ -101,6 +101,7 @@ package Bio::Seq::QualI;
 use vars qw(@ISA);
 use strict;
 use Carp;
+use Bio::Root::RootI;
 
 @ISA = qw(Bio::Root::RootI );
 

@@ -115,9 +115,6 @@ use Bio::SeqFeature::SiRNA::Pair;
 
 our @ISA = qw(Bio::Root::Root);
 
-
-our $VERSION = '1.0';
-
 our %PATTERNS = ( 1 	=> '(AA.{19}TT)',
 		  2 	=> '(AA.{19}[ACG][ACG])',
 		  3 	=> '([CGT]A.{21})',

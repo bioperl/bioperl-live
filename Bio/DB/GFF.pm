@@ -455,10 +455,9 @@ use Bio::DB::GFF::Aggregator;
 use Bio::DasI;
 use Bio::Root::Root;
 
-use vars qw($VERSION @ISA);
+use vars qw(@ISA);
 @ISA = qw(Bio::Root::Root Bio::DasI);
 
-$VERSION = '1.04';
 my %valid_range_types = (overlaps     => 1,
 			 contains     => 1,
 			 contained_in => 1);

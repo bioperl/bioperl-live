@@ -33,10 +33,9 @@ package Bio::DB::GFF::Aggregator::alignment;
 use strict;
 
 use Bio::DB::GFF::Aggregator;
-use vars qw($VERSION @ISA);
+use vars qw(@ISA);
 
 @ISA = qw(Bio::DB::GFF::Aggregator);
-$VERSION = '0.15';
 
 =head2 aggregate
 

@@ -2,11 +2,10 @@ package Bio::Graphics::Glyph::xyplot;
 
 use strict;
 use Bio::Graphics::Glyph::segments;
-use vars '@ISA','$VERSION';
+use vars '@ISA';
 use GD 'gdTinyFont';
 
 @ISA = 'Bio::Graphics::Glyph::segments';
-$VERSION = '1.03';
 
 use constant DEFAULT_POINT_RADIUS=>1;
 

@@ -4,6 +4,7 @@ package Bio::Graphics::Glyph::toomany;
 use strict;
 use vars '@ISA';
 @ISA = 'Bio::Graphics::Glyph::generic';
+use Bio::Graphics::Glyph::generic;
 
 # draw the thing onto a canvas
 # this definitely gets overridden

@@ -170,7 +170,7 @@ methods. Internal methods are usually preceded with a "_".
 
 
 package Bio::Cluster::UniGene;
-use vars qw(@ISA $VERSION);
+use vars qw(@ISA);
 use strict;
 
 
@@ -186,7 +186,6 @@ use Bio::Factory::SequenceStreamI;
 use Bio::Seq::SeqFactory;
 use Bio::Cluster::UniGeneI;
 
-$VERSION = '1.1';
 @ISA = qw(Bio::Root::Root Bio::Cluster::UniGeneI
 	  Bio::IdentifiableI Bio::DescribableI Bio::AnnotatableI
 	  Bio::Factory::SequenceStreamI);

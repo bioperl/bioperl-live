@@ -29,10 +29,9 @@ package Bio::DB::GFF::Aggregator::ucsc_sanger22pseudo;
 use strict;
 use Bio::DB::GFF::Aggregator;
 
-use vars qw($VERSION @ISA);
+use vars qw(@ISA);
 @ISA = qw(Bio::DB::GFF::Aggregator);
 
-$VERSION = '0.10';
 
 =head2 method
 

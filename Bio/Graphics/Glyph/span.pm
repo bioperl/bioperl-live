@@ -4,6 +4,7 @@ package Bio::Graphics::Glyph::span;
 use strict;
 use vars '@ISA';
 @ISA = 'Bio::Graphics::Glyph::generic';
+use Bio::Graphics::Glyph::generic;
 
 1;
 

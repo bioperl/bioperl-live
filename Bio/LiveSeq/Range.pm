@@ -42,21 +42,9 @@ methods. Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::LiveSeq::Range;
-$VERSION=1.6;
-
-# Version history:
-# Mon Mar 20 22:21:44 GMT 2000 v 1.0 begun
-# Tue Mar 21 00:50:05 GMT 2000 v 1.1 new() added
-# Tue Mar 21 02:44:45 GMT 2000 v 1.2 private start(), more checks in new()
-# Thu Mar 23 19:06:03 GMT 2000 v 1.3 follows() replaces is_downstream
-# Wed Apr 12 16:35:12 BST 2000 v 1.4 added valid()
-# Mon Jun 26 15:25:14 BST 2000 v 1.44 ranges with start=end are now accepted / valid() removed because inherited now from SeqI
-# Tue Jun 27 14:06:06 BST 2000 v 1.5 croak changed to carp and return(-1) in new() function
-# Wed Mar 28 16:47:36 BST 2001 v 1.6 carp -> warn,throw (coded methods in SeqI)
-
 use strict;
-use vars qw($VERSION @ISA);
-use Bio::LiveSeq::SeqI 3.2; # uses SeqI, inherits from it
+use vars qw(@ISA);
+use Bio::LiveSeq::SeqI; # uses SeqI, inherits from it
 @ISA=qw(Bio::LiveSeq::SeqI);
 
 =head2 new

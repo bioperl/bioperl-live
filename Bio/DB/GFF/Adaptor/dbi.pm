@@ -27,10 +27,9 @@ use Bio::DB::GFF::Util::Rearrange; # for rearrange()
 use Bio::DB::GFF::Util::Binning;
 use Bio::DB::GFF::Adaptor::dbi::iterator;
 use Bio::DB::GFF::Adaptor::dbi::caching_handle;
-use vars qw($VERSION @ISA);
+use vars qw(@ISA);
 
 @ISA =  qw(Bio::DB::GFF);
-$VERSION = '0.40';
 
 # constants for choosing
 

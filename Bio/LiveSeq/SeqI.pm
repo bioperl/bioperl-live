@@ -83,47 +83,9 @@ Some note on the terminology/notation of method names:
 # Let the code begin...
 
 package Bio::LiveSeq::SeqI;
-$VERSION=3.3;
-# Version history:
-# Thu Mar 16 18:11:18 GMT 2000 v.1.0 Started implementation, interface/inheritance from ChainI.pm
-# Thu Mar 16 20:05:51 GMT 2000 v 1.2 implemented up to splice_out
-# Fri Mar 17 05:37:37 GMT 2000 v 1.3 implemented lot of new methods and written their documentation / in sync with ChainI 1.6 and Chain 2.4
-# Fri Mar 17 17:17:24 GMT 2000 v 1.7 in sync with ChainI 1.7
-# Fri Mar 17 20:12:27 GMT 2000 v 1.8 NAMING change: index->label everywhere     
-# Mon Mar 20 19:19:21 GMT 2000 v 2.0 renamed from DNA to SeqI and begun
-#                                    working on methods defined with Heikki
-# Tue Mar 21 01:37:52 GMT 2000 v 2.1 created strand(), seq()
-# Tue Mar 21 02:43:21 GMT 2000 v 2.11 seq() prints correctly also for exons
-# Wed Mar 22 19:41:45 GMT 2000 v 2.22 translate, alphabet, length, all_labels
-# Thu Mar 23 21:03:42 GMT 2000 v 2.3 follows() label() position()
-# Fri Mar 24 18:33:18 GMT 2000 v 2.33 rewritten position(), now works with diverse coordinate_starts
-# Sat Mar 25 06:11:55 GMT 2000 v 2.4 started subseq
-# Mon Mar 27 19:22:32 BST 2000 v 2.45 subseq should be ok but the thing about reverse strand has to be checked!!
-# Tue Mar 28 01:53:31 BST 2000 v 2.46 changed strand behaviour in subseq
-# Wed Mar 29 00:05:21 BST 2000 v 2.5 change() begun
-# Wed Mar 29 02:06:20 BST 2000 v 2.53 _delete _mutate _praeinsert coded
-# Wed Mar 29 02:29:01 BST 2000 v 2.531 _mutate changed to make it more general
-# Wed Mar 29 03:38:21 BST 2000 v 2.54 tested and corrected change
-# Wed Mar 29 16:23:39 BST 2000 v 2.55 change deals with complex now
-# Fri Mar 31 18:26:54 BST 2000 v 2.56 translate_string added
-# Sat Apr  1 19:02:28 BST 2000 v 2.57 labelchange() created
-# Fri Apr  7 03:31:35 BST 2000 v 2.6 labelsubseq() created
-# Sat Apr  8 13:01:09 BST 2000 v 2.61 obj_valid() created
-# Wed Apr 12 16:23:21 BST 2000 v 2.7 _deletecheck call added in _delete
-# Wed Apr 19 16:21:33 BST 2000 v 2.72 name() source() description() added
-# Thu Apr 20 14:42:57 BST 2000 v 2.8 added or rewritten much pod documentation
-# Thu Apr 27 16:18:55 BST 2000 v 2.82 translate now accounts for ttable info
-# Thu Jun 22 20:02:39 BST 2000 v 2.9 valid() from Transcript now moved here, as the general for all objects inheriting from SeqI
-# Thu Jun 22 20:17:32 BST 2000 v 2.91 _unsecure_labelsubseq() added
-# Sat Jun 24 00:10:31 BST 2000 v 2.92 unsecure is an option of labelsubseq() now
-# Thu Jun 29 16:38:45 BST 2000 v 3.0 labelchange() now calls itself again for the DNAobj if the label for the change is not valid for the object requested but valid for the DNAobj
-# Tue Jan 30 14:16:22 EST 2001 v 3.1 delete_Obj added, to flush circular references
-# Wed Mar 28 15:16:38 BST 2001 v 3.2 functions warn, verbose, throw, stack_trace, stack_trace_dump added
-# Wed Apr  4 13:34:29 BST 2001 v 3.3 moved from carp to warn
-
 use strict;
-use vars qw($VERSION @ISA);
-use Bio::LiveSeq::ChainI 1.9; # to inherit from it
+use vars qw(@ISA);
+use Bio::LiveSeq::ChainI; # to inherit from it
 use Bio::Tools::CodonTable; # for the translate() function
 use Bio::PrimarySeqI;
 

@@ -103,6 +103,7 @@ package Bio::SeqUtils;
 use vars qw(@ISA %ONECODE %THREECODE);
 use strict;
 use Carp;
+use Bio::Root::Root;
 
 @ISA = qw(Bio::Root::Root);
 # new inherited from RootI

@@ -32,8 +32,7 @@ use overload
   '""'     => 'asString',
   fallback => 1;
 
-use vars '$VERSION','@ISA';
-$VERSION=1.1;
+use vars '@ISA';
 
 @ISA = qw(Bio::Root::Root Bio::Das::FeatureTypeI);
 

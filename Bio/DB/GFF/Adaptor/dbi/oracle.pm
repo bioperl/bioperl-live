@@ -17,10 +17,9 @@ use Bio::DB::GFF::Adaptor::dbi;
 #use Bio::DB::GFF::Adaptor::dbi::mysqlopt;
 use Bio::DB::GFF::Util::Binning;
 use Bio::DB::GFF::Util::Rearrange; # for rearrange()
-use vars qw($VERSION @ISA);
+use vars qw(@ISA);
 #@ISA = qw(Bio::DB::GFF::Adaptor::dbi::mysqlopt);
 @ISA = qw(Bio::DB::GFF::Adaptor::dbi);
-$VERSION = '0.50';
 
 use constant MAX_SEGMENT => 100_000_000;  # the largest a segment can get
 use constant DEFAULT_CHUNK => 2000;
