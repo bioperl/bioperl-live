@@ -238,7 +238,7 @@ sub draw_multiple_alignment {
     }
     
     else {  # unfortunately if this isn't the case, then we have to realign the segment a bit
-      warn   "Realigning [$target,$src_start,$src_end,$tgt_start,$tgt_end].\n"; # if DEBUG;
+      warn   "Realigning [$target,$src_start,$src_end,$tgt_start,$tgt_end].\n" if DEBUG;
       my ($sdna,$tdna) = ($s->dna,$target->dna);
       warn   $sdna,"\n",$tdna,"\n" if DEBUG;
       my @result = $self->realign($sdna,$tdna);
@@ -380,7 +380,7 @@ sub draw_multiple_alignment {
       };
 
   my ($tgt_last_end,$src_last_end);
-  for my $seg (sort {$a->[TGT_START]<=>$b->[TGT_START]} @segments) {
+  for my $seg (sort {$a->[SRC_START]<=>$b->[SRC_START]} @segments) {
 
     my $y = $top - $lineheight/4; 
 
@@ -397,8 +397,9 @@ sub draw_multiple_alignment {
 
     # indicate the presence of insertions in the target
     if (defined $tgt_last_end) {
-      my $delta = $seg->[TGT_START] - $tgt_last_end;
-      if ($delta > 1) {  # an insertion in the target relative to the source
+      my $delta     = $seg->[TGT_START] - $tgt_last_end;
+      my $src_delta = $seg->[SRC_START] - $src_last_end;
+      if ($delta > 1 and $src_delta > 0) {  # an insertion in the target relative to the source
 	my $gap_left  = $fontwidth + $base2pixel->($src_last_end,0);
 	my $gap_right = $base2pixel->($seg->[SRC_START],0);
 	($gap_left,$gap_right) = ($gap_right+$fontwidth,$gap_left-$fontwidth) if $self->flip;
@@ -411,7 +412,7 @@ sub draw_multiple_alignment {
  	  for (my $i = 0; $i<$delta-1; $i++) {
  	    my $x = $gap_left + (1 + $pixels_per_inserted_base-$fontwidth)/2 + $pixels_per_inserted_base * $i;
  	    my $bp = $self->_subsequence($tgt_dna,$tgt_last_end+$i+1,$tgt_last_end+$i+1);
- 	    $gd->char($font,$x,$y,$bp,$grey);
+ 	    $gd->char($font,$x,$y,$bp,$grey) unless $x < $panel_left;
  	  }
  	} else {  # doesn't fit, so stick in a blob
 	  $self->_draw_insertion_point($gd,($gap_left+$gap_right)/2,$y+3,$color);
