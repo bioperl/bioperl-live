@@ -263,7 +263,7 @@ Sequences producing significant alignments:         Score       E
 			      'start' => $hsp->hit->strand >= 0 ? $hsp->hit->start : $hsp->hit->end,
 			      'end'   => $hsp->hit->strand >= 0 ? $hsp->hit->end : $hsp->hit->start,
 			      'index' => 0,
-			      'direction' => $hsp->query->strand || 1
+			      'direction' => $hsp->hit->strand || 1
 			      }
 			    );	    
 	    
