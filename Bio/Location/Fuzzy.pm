@@ -119,7 +119,7 @@ sub start {
     my($self,$value) = @_;
 
     if( defined $value ) {
-	my ($encode, $start) = $self->_fuzzypoint($value);	
+	my ($encode, $start) = $self->_fuzzypointencode($value);	
 	if( defined $encode ) {
 	    $self->fuzzy_start($value);
 	    $value = $start;
@@ -142,7 +142,7 @@ sub end {
     my($self,$value) = @_;
 
     if( defined $value ) {
-	my ($encode, $end) = $self->_fuzzypoint($value);	
+	my ($encode, $end) = $self->_fuzzypointencode($value);	
 	if( defined $encode ) {
 	    $self->fuzzy_end($value);
 	    $value = $end;
@@ -164,7 +164,7 @@ sub end {
 sub fuzzy_start {
     my ($self, $value) = @_;
     if( defined $value ) {	
-	my ($encode, $end) = $self->_fuzzypoint($value);
+	my ($encode, $end) = $self->_fuzzypointencode($value);
 	if( !defined $encode ) {
 	    $self->throw("Trying to set fuzzy_end to an invalid value ($value)");
 	}
@@ -187,7 +187,7 @@ sub fuzzy_start {
 sub fuzzy_end {
     my ($self, $value) = @_;
     if( defined $value ) {
-	my ($encode, $end) = $self->_fuzzypoint($value);
+	my ($encode, $end) = $self->_fuzzypointencode($value);
 	if( !defined $encode ) {
 	    $self->throw("Trying to set fuzzy_end to an invalid value ($value)");
 	}

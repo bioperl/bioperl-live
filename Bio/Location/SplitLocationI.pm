@@ -122,7 +122,7 @@ sub add_sub_Location {
     $self->_abstractDeath;
 }
 
-=head2
+=head2 min_start
 
   Title   : min_start
   Usage   : $min_start = $fuzzy->min_start();
@@ -137,7 +137,7 @@ sub min_start {
     $self->_abstractDeath();
 }
 
-=head2
+=head2 max_start
 
   Title   : max_end
   Usage   : $max_end = $fuzzy->max_end();
@@ -152,7 +152,20 @@ sub max_end {
     $self->_abstractDeath();
 }
 
+=head2 splittype
 
+  Title   : splittype
+  Usage   : $splittype = $fuzzy->splittype();
+  Function: get/set the split splittype
+  Returns : the splittype of split feature (join, order)
+  Args    : splittype to set
+
+=cut
+
+sub splittype {
+    my($self,$value) = @_;
+    $self->_abstractDeath();
+}
 # we'll need to override the RangeI methods since our locations will
 # not be contiguous.
 

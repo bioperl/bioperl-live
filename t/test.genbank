@@ -145,6 +145,48 @@ ORIGIN
       841 agattatatt gagacaaaaa ttatctattt gtatatatac ataacagggt aaattattca
       901 gttaagaaaa aaataatt
 //
+LOCUS       NT_010368  161485 bp    DNA             CON       16-NOV-2000
+DEFINITION  Homo sapiens chromosome 15 working draft sequence segment, complete
+            sequence.
+ACCESSION   NT_010368
+VERSION     NT_010368.1  GI:11433101
+KEYWORDS    HTG.
+SOURCE      human.
+  ORGANISM  Homo sapiens
+            Eukaryota; Metazoa; Chordata; Craniata; Vertebrata; Euteleostomi;
+            Mammalia; Eutheria; Primates; Catarrhini; Hominidae; Homo.
+REFERENCE   1  (bases 1 to 161485)
+  AUTHORS   International Human Genome Project collaborators.
+  TITLE     Toward the complete sequence of the human genome
+  JOURNAL   Unpublished
+COMMENT     GENOME ANNOTATION REFSEQ:  NCBI contigs are derived from assembled
+            genomic sequence data. They may include both draft and finished
+            sequence.
+            COMPLETENESS: not full length.
+FEATURES             Location/Qualifiers
+     source          1..310
+                     /organism="Homo sapiens"
+                     /db_xref="taxon:9606"
+                     /chromosome="15"
+     source          order(1..100,251..300,300..310)
+                     /note="Doctored from Accession AC011224 
+	             sequenced by Whitehead Institute
+                     for Biomedical Research"
+                     /organism="Homo sapiens"
+                     /db_xref="taxon:9606"
+                     /clone="RP11-10K20"
+     variation       244
+                     /allele="T"
+                     /allele="A"
+                     /db_xref="dbSNP:140670"
+ORIGIN      
+        1 gtgacagttg gctgtcagac atacaatgat tgtttagaag aggagaagat tgatccggag
+       61 taccgtgata gtattttaaa aactatgaaa gcgggaatac ttaatggtaa actagttaga
+      121 ttatgtgacg tgccaagggg tgtagatgta gaaattgaaa caactggtct aaccgattca
+      181 gaaggagaaa gtgaatcaaa agaagaagag tgatgatgaa tagccaccat tactgcatac
+      241 tgtagccctt acccttgtcg caccattagc cattaataaa aataaaaaat tatataaaaa
+      301 ttacacccat 
+//
 LOCUS       HUMBETGLOA   3002 bp    DNA             PRI       26-AUG-1994
 DEFINITION  Human haplotype C4 beta-globin gene, complete cds.
 ACCESSION   L26462
@@ -262,3 +304,4 @@ ORIGIN
      2941 cttccctgcc tcccccactc acagtgaccc ggaatctgca gtgctagtct cccggaacta
      3001 tc
 //
+

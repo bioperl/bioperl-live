@@ -107,32 +107,17 @@ sub _generic_seqfeature {
     }
 
     $sf = new Bio::SeqFeature::Generic;
+    my $strand = ( $fth->loc =~ /complement/i ) ? -1 : 1;
+    $sf->strand($strand);
 
-    # Trap 23.46 type fuzzy locations
-#      if ($fth->loc =~ /(\d+)\.(\d+)/) {
-#  	# handle these with Bio::Location::FuzzyLocation
-#  	$sf->strand( ( $fth->loc =~ /complement/ ) ? -1 : 1);
-#  	$sf->primary_tag($fth->key);
-#  	$sf->source_tag($source);
-#  	if( my $location = $fth->_parse_loc($sf,$fth->loc)) {
-#  	    $sf->location($location);
-#  	} else { 
-#  	    $fth->warn("unable to parse fuzzy location ('" .
-#  		       $fth->loc . "') ignoring feature (seqid=" .
-#  		       $annseq->id() . ")");
-#  	    $sf = undef;
-#  	}
-#      }
-
-# Parse compound features
-	if ( $fth->loc =~ /join/ ) {
-	my $strand = ( $fth->loc =~ /complement/ ) ? -1 : 1;
-
-	$sf->strand($strand);
+        # Parse compound features
+    if ( $fth->loc =~ /(join)/i || $fth->loc =~ /(order)/i) {
+	my $combotype=$1; 	
 	$sf->primary_tag($fth->key);
 	$sf->source_tag($source);
 
-	my $splitlocation = new Bio::Location::Split(-strand=>$strand);
+	my $splitlocation = new Bio::Location::Split(-strand=>$strand, 
+						     -splittype => $combotype);
 	# we need to make sub features
 	my $loc = $fth->loc;
 	while ( $loc =~ /(\<?\d+[ \W]{1,3}\>?\d+)/g ) {
@@ -152,7 +137,7 @@ sub _generic_seqfeature {
 	    }
 	}
 	$sf->location($splitlocation);
-    }
+    }     
     # Parse simple locations and fuzzy locations
     else {
 	$sf->source_tag($source);
@@ -233,7 +218,7 @@ sub _parse_loc {
     # HL 05/16/2000
 
     $strand = ( $locstr =~ /complement/ ) ? -1 : 1;
-    my ($fuzzystartbf, $fuzzystartaf, $fuzzyendbf,$fuzzyendaf,$delim);
+    my ($delim) = '';
     if($locstr =~ /^\s*(\w+[A-Za-z])?\(?([\<\>\?]?\d+[\<\>\?]?)([.\^\s]{1,3})([\<\>\?]?\d+[\<\>\?]?)[,;\" ]*([A-Za-z]\w*)?\"?\)?\s*$/) {
 #	print "1 = \"$1\", 2 = \"$2\", 3 = \"$3\", 4 = \"$4\"\n";
 	$fea_type = $1 if $1;
@@ -243,13 +228,13 @@ sub _parse_loc {
 	$tagval = $5 if $5;
     } 
     # like before, but only one number
-    elsif($locstr =~ /^\s*(\w+[A-Za-z])?\(?([\<\>\?]?\d+[\<\>\?])[,;\" ]*([A-Za-z]\w*)?\"?\)?\s*$/) {
+    elsif($locstr =~ /^\s*(\w+[A-Za-z])?\(?([\<\>\?]?\d+[\<\>\?]?)[,;\" ]*([A-Za-z]\w*)?\"?\)?\s*$/) {
 #	print "1 = \"$1\", 2 = \"$2\", 3 = \"$3\"\n";	
 	$fea_type = $1 if $1;
 	$start = $end = $2;
 	$tagval = $3 if $3;
-    } else {
-	#print "didn't match\n";
+    } else  {
+	print "$locstr didn't match\n" if( $self->verbose > 1);
 	return 0;
     }
     
@@ -314,7 +299,8 @@ sub from_SeqFeature {
 	foreach my $location ( $sf->location->sub_Location() ) {
 	    push @locationstrs, $fth->_output_single_location($location);
 	}
-	$locstr = sprintf("join(%s)", join(",", @locationstrs));
+	$locstr = sprintf("%s(%s)", $sf->location->splittype, 
+			  join(",", @locationstrs));
     }  else { 
 	$locstr = $fth->_output_single_location($sf->location);
     }    
@@ -366,13 +352,17 @@ sub _output_single_location {
     }
     # handle fuzziness here as well
     my ( $delim,$start, $end ) = ( '..', $location->start, $location->end );
-    if( $location->isa('Bio::Location::FuzzyLocationI') ) {
+    if( $start == $end ) {
+	$delim = $end = '';
+    }	
+    if( $location->isa('Bio::Location::FuzzyLocationI') &&
+	$location->fuzzy_range ne '^' ) { 
+	$delim = $location->fuzzy_range;
 	($start,$end) = ($location->fuzzy_start,
-			 $location->fuzzy_end);
-	$delim = $location->fuzzy_range;	
+			 $location->fuzzy_end);    
     }
-    
     my $str = $start . $delim . $end;
+    
     if( $location->strand == -1 ) {
 	$str = "complement($str)";
     }

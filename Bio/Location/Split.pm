@@ -82,12 +82,15 @@ use Bio::Location::Simple;
 sub new {
     my ($class, @args) = @_;
     my $self = $class->SUPER::new(@args);
-    my ( $locations ) = $self->_rearrange([qw(LOCATIONS)], @args);
+    my ( $type, $locations ) = $self->_rearrange([qw(SPLITTYPE 
+						     LOCATIONS)], @args);
     if( defined $locations && ref($locations) =~ /array/i ) {
 	$self->{'_sublocations'} = $locations;
     } else { 
 	$self->{'_sublocations'} = [];
     }
+    $type = lc ($type);    
+    $self->splittype($type || 'join');
     return $self;
 }
 
@@ -130,7 +133,7 @@ sub add_sub_Location {
 }
 
 
-=head2
+=head2 min_start
 
   Title   : min_start
   Usage   : $min_start = $fuzzy->min_start();
@@ -152,7 +155,7 @@ sub min_start {
     return 0;
 }
 
-=head2
+=head2 max_end
 
   Title   : max_end
   Usage   : $max_end = $fuzzy->max_end();
@@ -173,6 +176,24 @@ sub max_end {
 	}
     }
     return 0;
+}
+
+=head2 splittype
+
+  Title   : splittype
+  Usage   : $splittype = $fuzzy->splittype();
+  Function: get/set the split splittype
+  Returns : the splittype of split feature (join, order)
+  Args    : splittype to set
+
+=cut
+
+sub splittype {
+    my ($self, $value) = @_;
+    if( defined $value ) {
+	$self->{'_splittype'} = $value;
+    }
+    return $self->{'_splittype'};
 }
 
 # we'll probably need to override the RangeI methods since our locations will

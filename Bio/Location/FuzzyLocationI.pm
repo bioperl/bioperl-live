@@ -135,7 +135,7 @@ sub fuzzy_end {
     $self->_abstractDeath();
 }
 
-=head2
+=head2 fuzzy_range
 
   Title   : fuzzy_range
   Usage   : $status = $fuzzy->fuzzy_range();
@@ -150,10 +150,10 @@ sub fuzzy_range {
     $self->_abstractDeath();
 }
 
-=head2
+=head2 _fuzzypointencode
 
-  Title   : _fuzzypoint
-  Usage   : $fuzzy->_fuzzypoint('5>');
+  Title   : _fuzzypointencode
+  Usage   : $fuzzy->_fuzzypointencode('5>');
   Function: encode a fuzzy string
   Returns : array of fuzzy encoding and the integer value of the point
           : empty array on fail
@@ -161,7 +161,7 @@ sub fuzzy_range {
 
 =cut
 
-sub _fuzzypoint {
+sub _fuzzypointencode {
     my ($self, $string) = @_;
     return () if( !defined $string);
     foreach my $pattern ( keys %FUZZYPOINTENCODE ) {
@@ -175,7 +175,7 @@ sub _fuzzypoint {
     return ();
 }
 
-=head2
+=head2 _fuzzyrangeencode
 
   Title   : _fuzzyrange
   Usage   : $fuzzy->_fuzzyrange('.');

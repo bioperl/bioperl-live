@@ -86,28 +86,28 @@ ok($fuzzy->fuzzy_start, '<10');
 ok($fuzzy->fuzzy_end, 20);
 ok($fuzzy->fuzzy_range, '..');
 
-my ($encode,$pt) = $fuzzy->_fuzzypoint('>5');
+my ($encode,$pt) = $fuzzy->_fuzzypointencode('>5');
 ok($encode, -2);
 ok($pt, 5);
 
-($encode,$pt) = $fuzzy->_fuzzypoint('<5');
+($encode,$pt) = $fuzzy->_fuzzypointencode('<5');
 ok($encode, -1);
 ok($pt, 5);
 
-($encode,$pt) = $fuzzy->_fuzzypoint('5>');
+($encode,$pt) = $fuzzy->_fuzzypointencode('5>');
 ok($encode, 1);
 ok($pt, 5);
 
-($encode,$pt) = $fuzzy->_fuzzypoint('5<');
+($encode,$pt) = $fuzzy->_fuzzypointencode('5<');
 ok($encode, 2);
 ok($pt, 5);
 
-($encode,$pt) = $fuzzy->_fuzzypoint('5');
+($encode,$pt) = $fuzzy->_fuzzypointencode('5');
 ok($encode, 0);
 ok($pt, 5);
 
 $fuzzy->verbose(-1);
-($encode,$pt) = $fuzzy->_fuzzypoint('badstr');
+($encode,$pt) = $fuzzy->_fuzzypointencode('badstr');
 ok($encode, undef);
 ok($pt, undef);
 $fuzzy->verbose(0);
