@@ -119,7 +119,7 @@ use Carp;
 use IO::File;
 use Text::Shellwords;
 use vars '$VERSION';
-$VERSION = '1.02';
+$VERSION = '1.03';
 
 # default colors for unconfigured features
 my @COLORS = qw(cyan blue red yellow green wheat turquoise orange);
@@ -399,7 +399,7 @@ sub parse_line {
      return;
   }
 
-  if (/^([\w ]+?)\s*=\s*(.*)/) {   # key value pair within a configuration section
+  if (/^([\w: -]+?)\s*=\s*(.*)/) {   # key value pair within a configuration section
     my $tag = lc $1;
     my $cc = $self->{current_config} ||= 'general';       # in case no configuration named
     my $value = defined $2 ? $2 : '';

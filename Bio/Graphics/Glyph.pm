@@ -466,7 +466,7 @@ sub layout {
     = $self->height + $self->pad_top + $self->pad_bottom unless @parts;
 
   my $bump_direction = $self->bump;
-  my $bump_limit = $self->option('bump limit') || -1;
+  my $bump_limit = $self->option('bump_limit') || -1;
 
 
   $_->layout foreach @parts;  # recursively lay out
@@ -1298,6 +1298,8 @@ glyph pages for more options.
   -description  Whether to draw a description  0 (false)
 
   -sort_order   Specify layout sort order      "default"
+
+  -bump_limit   Maximum number of levels to bump 0 (unlimited)
 
 For glyphs that consist of multiple segments, the -connector option
 controls what's drawn between the segments.  The default is 0 (no

@@ -1364,6 +1364,11 @@ some are shared by all glyphs:
 
   -bump	      Bump direction		   0
 
+  -sort_order Specify layout sort order    "default"
+
+  -bump_limit Maximum number of levels     undef (unlimited)
+              to bump
+
   -connector  Type of connector to         none
 	      use to connect related
 	      features.  Options are
@@ -1464,6 +1469,47 @@ to create clickable imagemaps, for example), the rectangles will
 surround the top level features.  If you wish for the rectangles to
 surround subpieces of the glyph, such as the exons in a transcript,
 set box_subparts to a true value.
+
+B<sort_order>: By default, features are drawn with a layout based only on the
+position of the feature, assuring a maximal "packing" of the glyphs
+when bumped.  In some cases, however, it makes sense to display the
+glyphs sorted by score or some other comparison, e.g. such that more
+"important" features are nearer the top of the display, stacked above
+less important features.  The -sort_order option allows a few
+different built-in values for changing the default sort order (which
+is by "left" position): "low_score" (or "high_score") will cause
+features to be sorted from lowest to highest score (or vice versa).
+"left" (or "default") and "right" values will cause features to be
+sorted by their position in the sequence.  "longer" (or "shorter")
+will cause the longest (or shortest) features to be sorted first, and
+"strand" will cause the features to be sorted by strand: "+1"
+(forward) then "0" (unknown, or NA) then "-1" (reverse).
+
+In all cases, the "left" position will be used to break any ties.  To
+break ties using another field, options may be strung together using a
+"|" character; e.g. "strand|low_score|right" would cause the features
+to be sorted first by strand, then score (lowest to highest), then by
+"right" position in the sequence.  Finally, a subroutine coderef can
+be provided, which should expect to receive two feature objects (via
+the special sort variables $a and $b), and should return -1, 0 or 1
+(see Perl's sort() function for more information); this subroutine
+will be used without further modification for sorting.  For example,
+to sort a set of database search hits by bits (stored in the features'
+"score" fields), scaled by the log of the alignment length (with
+"left" position breaking any ties):
+
+  sort_order = sub { ( $b->score/log($b->length)
+                                      <=>
+                       $a->score/log($a->length) )
+                                      ||
+                     ( $a->start <=> $b->start )
+                   }
+
+B<bump_limit>: When bumping is chosen, colliding features will
+ordinarily move upward or downward without limit.  When many features
+collide, this can lead to excessively high images.  You can limit the
+number of levels that features will bump by providing a numeric
+B<bump_limit> option.
 
 =head2 Options and Callbacks
 
