@@ -30,7 +30,7 @@ rather go through the SeqIO handler system. Go:
 This object can transform Bio::Seq objects to and from swissprot flat
 file databases.
 
-There is alot of flexibility here about how to dump things which I need
+There is a lot of flexibility here about how to dump things which I need
 to document fully.
 
 
@@ -109,8 +109,8 @@ use Bio::Annotation::Collection;
 use Bio::Annotation::Comment;
 use Bio::Annotation::Reference;
 use Bio::Annotation::DBLink;
-use Bio::Annotation::OntologyTerm;
 use Bio::Annotation::SimpleValue;
+use Bio::Annotation::StructuredValue;
 
 @ISA = qw(Bio::SeqIO);
 
@@ -145,7 +145,9 @@ sub next_seq {
    my ($pseq,$c,$line,$name,$desc,$acc,$seqc,$mol,$div,
        $date,$comment,@date_arr, @sec);
    my ($keywords,$acc_string);
+   my $genename = "";
    my ($annotation, %params, @features) = ( new Bio::Annotation::Collection);
+
    $line = $self->_readline;
 
    if( !defined $line) {
@@ -195,15 +197,19 @@ sub next_seq {
            $desc .= $desc ? " $1" : $1;
        }
        #Gene name
-       elsif(/^GN\s+([^\.]+)/) {
-           # Drop trailing spaces and dots
-           s/[\. ]*$//;  # imported from swiss knife by cjm
-           if (/^GN\s+(.*)/) {
-               foreach my $gn (split(/ OR /,$1)) {
-                   my $sim = Bio::Annotation::SimpleValue->new();
-                   $sim->value($gn);		   
-                   $annotation->add_Annotation('gene_name',$sim);
+       elsif(/^GN\s+(.*)/) {
+	   $genename .= " " if $genename;
+	   $genename .= $1;
+	   # has GN terminated yet?
+	   if($genename =~ s/[\. ]+$//) {
+	       my $gn = Bio::Annotation::StructuredValue->new();
+	       foreach my $gene (split(/ AND /, $genename)) {
+		   $gene =~ s/^\(//;
+		   $gene =~ s/\)$//;
+		   $gn->add_value([-1,-1], split(/ OR /, $gene));
                }
+	       $annotation->add_Annotation('gene_name',$gn,
+					   "Bio::Annotation::SimpleValue");
            }
        }
        #accession number(s)
@@ -436,7 +442,14 @@ sub write_seq {
 
    #Gene name
    if ((my @genes = $seq->annotation->get_Annotations('gene_name') ) ) {
-       $self->_print("GN   ",join(' OR ', map { $_->value } @genes),".\n");
+       $self->_print("GN   ",
+		     join(' OR ',
+			  map {
+			      $_->isa("Bio::Annotation::StructuredValue") ?
+				  $_->value(-joins => [" AND ", " OR "]) :
+				  $_->value();
+			  } @genes),
+		     ".\n");
    }
    
    # Organism lines
@@ -854,40 +867,61 @@ sub _read_swissprot_Species {
     my $org;
 
     $_ = $$buffer;
-    my( $sub_species, $species, $genus, $common, @class, $osline, $ncbi_taxid );
+    my( $subspecies, $species, $genus, $common, $variant, $ncbi_taxid );
+    my @class;
+    my ($binomial, $descr);
+    my $osline = "";
+
     while (defined( $_ ||= $self->_readline )) {
 	last unless /^O[SCGX]/;
 	# believe it or not, but OS may come multiple times -- at this time
 	# we can't capture multiple species
-        if((! defined($genus)) &&
-	   /^OS\s+((\S+)(?:\s+([^\(]\S*))?(?:\s+([^\(]\S*))?(?:\s+\((.*)\))?.*)/) {
-	    $osline = $1;
-            $genus   = $2;
-	    if ($3) {
-		$species = $3;
-		# remove trailing dot (or comma if multiple species)
-		$species =~ s/[\.,]$//;
-	    } else {
-		$species = "sp.";
+	if(/^OS\s+(\S.+)/ && (! defined($binomial))) {
+	    $osline .= " " if $osline;
+	    $osline .= $1;
+	    if($osline =~ s/(,|, and|\.)$//) {
+		($binomial, $descr) = $osline =~ /(\S[^\(]+)(.*)/;
+		($genus, $species, $subspecies) = split(/\s+/, $binomial);
+		$species = "sp." unless $species;
+		while($descr =~ /\(([^\)]+)\)/g) {
+		    $common = $1;
+		    if($common =~ /^(strain|isolate|biovar|pv\.)/) {
+			$variant = $common;
+			$common = undef;
+		    } elsif($common =~ s/^subsp\.\s+//) {
+			if(! $subspecies) {
+			    $subspecies = $common;
+			} elsif(! $variant) {
+			    $variant = $common;
+			}
+			$common = undef;
+		    } else {
+			# we're only interested in the first common name, and
+			# strain and/or isolate are supposed to come before
+			last;
+		    }
+		}
 	    }
-	    $sub_species = $4 if $4;
-            $common      = $5 if $5;
         }
         elsif (s/^OC\s+//) {
             push(@class, split /[\;\.]\s*/);
-	    if($class[0] =~ /viruses/i) { # viruses have different OS/OC syntax
-		$common = $osline;        # LP 09/16/2000
+	    if($class[0] =~ /viruses/i) { 
+		# viruses have different OS/OC syntax
+		my @virusnames = split(/\s+/, $binomial);
+		$species = pop(@virusnames);
+		$genus = join(" ", @virusnames);
+		$subspecies = undef;
 	    }
         }
 	elsif (/^OG\s+(.*)/) {
 	    $org = $1;
 	}
-	elsif (/^OX\s+(.*)\;/) {
+	elsif (/^OX\s+(.*)/ && (! defined($ncbi_taxid))) {
             my $taxstring = $1;
+	    # we only keep the first one and ignore all others
             if ($taxstring =~ /NCBI_TaxID=([\w\d]+)/) {
                 $ncbi_taxid = $1;
-            }
-            else {
+            } else {
                 $self->throw("$taxstring doesn't look like NCBI_TaxID");
             }
 	}
@@ -900,23 +934,24 @@ sub _read_swissprot_Species {
     # Don't make a species object if it is "Unknown" or "None"
     return if $genus =~ /^(Unknown|None)$/i;
 
-    if ($class[0] !~ /viruses/i) { # different OS / OC syntax for viruses
-      # Bio::Species array needs array in Species -> Kingdom direction
-      if ($class[$#class] eq $genus) {
+    if ($class[$#class] eq $genus) {
         push( @class, $species );
-      } else {
+    } else {
         push( @class, $genus, $species );
-      }
     }
+
     @class = reverse @class;
     
-    my $make = Bio::Species->new();
-    $make->classification( @class );
-    $make->common_name( $common      ) if $common;
-    $make->sub_species( $sub_species ) if $sub_species;
-    $make->organelle  ( $org         ) if $org;
-    $make->ncbi_taxid ( $ncbi_taxid  ) if $ncbi_taxid;
-    return $make;
+    my $taxon = Bio::Species->new();
+    $taxon->classification( \@class, "FORCE" ); # no name validation please
+    $taxon->common_name( $common      ) if $common;
+    $taxon->sub_species( $subspecies ) if $subspecies;
+    $taxon->organelle  ( $org         ) if $org;
+    $taxon->ncbi_taxid ( $ncbi_taxid  ) if $ncbi_taxid;
+    $taxon->variant($variant)           if $variant;
+
+    # done
+    return $taxon;
 }
 
 =head2 _filehandle

@@ -9,7 +9,7 @@ BEGIN {
 	use lib 't';
     }
     use Test;
-    $TESTCOUNT = 112;
+    $TESTCOUNT = 129;
     plan tests => $TESTCOUNT;
 }
 
@@ -295,9 +295,11 @@ ok($seq->alphabet, 'protein');
 ok(scalar $seq->all_SeqFeatures(), 2);
 
 my @genenames = qw(GC1QBP HABP1 SF2P32 C1QBP);
-foreach my $gn ( $seq->annotation->get_Annotations('gene_name') ) {
-    ok ($gn->value, shift(@genenames));
+my ($ann) = $seq->annotation->get_Annotations('gene_name');
+foreach my $gn ( $ann->get_all_values() ) {
+    ok ($gn, shift(@genenames));
 }
+ok $ann->value(-joins => [" AND "," OR "]), "GC1QBP OR HABP1 OR SF2P32 OR C1QBP";
 
 # test for feature locations like ?..N
 ok(defined( $seq = $seqio->next_seq));
@@ -318,6 +320,20 @@ ok ($seq = $seqio->next_seq());
 ok ($seq->species->binomial, "Homo sapiens");
 ok ($seq->species->common_name, "Human");
 ok ($seq->species->ncbi_taxid, 9606);
+
+ok ($seq = $seqio->next_seq());
+ok ($seq->species->binomial, "Bos taurus");
+ok ($seq->species->common_name, "Bovine");
+ok ($seq->species->ncbi_taxid, 9913);
+
+# multiple genes in swissprot
+ok ($seq = $seqio->next_seq());
+($ann) = $seq->annotation->get_Annotations("gene_name");
+@genenames = qw(CALM1 CAM1 CALM CAM CALM2 CAM2 CAMB CALM3 CAM3 CAMC);
+foreach my $gn ( $ann->get_all_values() ) {
+    ok ($gn, shift(@genenames));
+}
+ok $ann->value(-joins => [" AND "," OR "]), "(CALM1 OR CAM1 OR CALM OR CAM) AND (CALM2 OR CAM2 OR CAMB) AND (CALM3 OR CAM3 OR CAMC)";
 
 # test dos Linefeeds in gcg parser
 $str = Bio::SeqIO->new('-file' => Bio::Root::IO->catfile("t","data","test_badlf.gcg"), 

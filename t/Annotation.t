@@ -15,7 +15,7 @@ BEGIN {
 	use lib 't';
     }
     use Test;
-    plan tests => 26;
+    plan tests => 51;
 }
 
 use Bio::Annotation::Collection;
@@ -24,6 +24,7 @@ use Bio::Annotation::Comment;
 use Bio::Annotation::Reference;
 use Bio::Annotation::SimpleValue;
 use Bio::Annotation::OntologyTerm;
+use Bio::Annotation::StructuredValue;
 
 ok(1);
 
@@ -86,4 +87,48 @@ foreach my $link ( $ac->get_Annotations('dblink') ) {
     $n++;
 }
 ok ($n, 3);
+
+# annotation of structured simple values (like swissprot's GN line)
+my $ann = Bio::Annotation::StructuredValue->new();
+ok ($ann->isa("Bio::AnnotationI"));
+
+$ann->add_value([-1], "val1");
+ok ($ann->value(), "val1");
+$ann->value("compat test");
+ok ($ann->value(), "compat test");
+$ann->add_value([-1], "val2");
+ok ($ann->value(-joins => [" AND "]), "compat test AND val2");
+$ann->add_value([0], "val1");
+ok ($ann->value(-joins => [" AND "]), "val1 AND val2");
+$ann->add_value([-1,-1], "val3", "val4");
+$ann->add_value([-1,-1], "val5", "val6");
+$ann->add_value([-1,-1], "val7");
+ok ($ann->value(-joins => [" AND "]), "val1 AND val2 AND (val3 AND val4) AND (val5 AND val6) AND val7");
+ok ($ann->value(-joins => [" AND ", " OR "]), "val1 AND val2 AND (val3 OR val4) AND (val5 OR val6) AND val7");
+
+$n = 1;
+foreach ($ann->get_all_values()) {
+    ok ($_, "val".$n++);
+}
+
+# nested collections
+my $nested_ac = Bio::Annotation::Collection->new();
+$nested_ac->add_Annotation('nested', $ac);
+
+ok (scalar($nested_ac->get_Annotations()), 1);
+($ac) = $nested_ac->get_Annotations();
+ok $ac->isa("Bio::AnnotationCollectionI");
+ok (scalar($nested_ac->get_all_Annotations()), 5);
+$nested_ac->add_Annotation('gene names', $ann);
+ok (scalar($nested_ac->get_Annotations()), 2);
+ok (scalar($nested_ac->get_all_Annotations()), 6);
+ok (scalar($nested_ac->get_Annotations('dblink')), 0);
+my @anns = $nested_ac->get_Annotations('gene names');
+ok $anns[0]->isa("Bio::Annotation::StructuredValue");
+@anns = map { $_->get_Annotations('dblink');
+	  } $nested_ac->get_Annotations('nested');
+ok (scalar(@anns), 3);
+ok (scalar($nested_ac->flatten_Annotations()), 2);
+ok (scalar($nested_ac->get_Annotations()), 6);
+ok (scalar($nested_ac->get_all_Annotations()), 6);
 

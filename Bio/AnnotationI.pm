@@ -33,15 +33,15 @@ Bio::AnnotationI - Annotation interface
 
 =head1 DESCRIPTION
 
-Interface all annotations must support. There are two things that each annotation
-has to support.
+Interface all annotations must support. There are two things that each
+annotation has to support.
 
   $annotation->as_text()
 
 Annotations have to support an "as_text" method. This should be a
 single text string, without newlines representing the annotation,
 mainly for human readability. It is not aimed at being able to
-store/represent the annotation
+store/represent the annotation.
 
 The second method allows annotations to at least attempt to represent
 themselves as pure data for storage/display/whatever. The method
@@ -113,46 +113,44 @@ use strict;
 
 # Object preamble - inherits from Bio::Root::Root
 
-use Bio::Root::Root;
+use Bio::Root::RootI;
 
 
-@ISA = qw(Bio::Root::Root);
-# new() can be inherited from Bio::Root::Root
+@ISA = qw(Bio::Root::RootI);
+
 
 =head2 as_text
 
  Title   : as_text
  Usage   :
- Function:
+ Function: single text string, without newlines representing the
+           annotation, mainly for human readability. It is not aimed
+           at being able to store/represent the annotation.
  Example :
- Returns : 
- Args    :
+ Returns : a string
+ Args    : none
 
 
 =cut
 
 sub as_text{
-   my ($self) = @_;
-
-   $self->throw("Implementing object did not provide as_text function");
+    shift->throw_not_implemented();
 }
 
 =head2 hash_tree
 
  Title   : hash_tree
  Usage   :
- Function:
+ Function: should return an anonymous hash with "XML-like" formatting
  Example :
- Returns : 
- Args    :
+ Returns : a hash reference
+ Args    : none
 
 
 =cut
 
 sub hash_tree{
-   my ($self,@args) = @_;
-
-   $self->throw("Implementing object did not provide hash_tree method");
+    shift->throw_not_implemented();
 }
 
 =head2 tagname
@@ -161,11 +159,13 @@ sub hash_tree{
  Usage   : $obj->tagname($newval)
  Function: Get/set the tagname for this annotation value.
 
-           Setting this is optional. If set, it obviates the need to provide
-           a tag to Bio::AnnotationCollectionI when adding this object. When
-           obtaining an AnnotationI object from the collection, the collection
-           will set the value to the tag under which it was stored unless the
-           object has a tag stored already.
+           Setting this is optional. If set, it obviates the need to
+           provide a tag to Bio::AnnotationCollectionI when adding
+           this object. When obtaining an AnnotationI object from the
+           collection, the collection will set the value to the tag
+           under which it was stored unless the object has a tag
+           stored already.
+
  Example : 
  Returns : value of tagname (a scalar)
  Args    : new value (a scalar, optional)
