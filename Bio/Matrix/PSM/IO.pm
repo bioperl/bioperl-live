@@ -99,7 +99,7 @@ use Bio::Root::IO;
 use vars qw(@ISA);
 use strict;
 
-@ISA=qw( Bio::Root::IO);
+@ISA=qw(Bio::Root::Root Bio::Root::IO);
 
 @Bio::Matrix::PSM::IO::PSMFORMATS=qw(meme transfac mast);
 
