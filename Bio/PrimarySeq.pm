@@ -298,6 +298,7 @@ sub validate_seq {
 
            OR
            Bio::LocationI location for subseq (strand honored)
+
 =cut
 
 sub subseq {
@@ -305,39 +306,24 @@ sub subseq {
 
    if( ref($start) && $start->isa('Bio::LocationI') ) {
        my $loc = $start;
-       if( $loc->length == 0 ) { 
-	   $self->warn("Expect location lengths to be > 0");
-	   return '';
-       } elsif( $loc->end < $loc->start ) { 
-	   # what about circular seqs
-	   $self->warn("Expect location start to come before location end");
-       }
-       my $seq = '';
-       if( $loc->isa('Bio::Location::SplitLocationI') ) {
-	   foreach my $subloc ( $loc->sub_Location ) {
-	       my $piece = substr( $self->seq(), $subloc->start - 1, 
-				   $subloc->length);
-	       if( $subloc->strand < 0 ) { 
-		   $piece = Bio::PrimarySeq->new('-seq' => 
-						 $piece)->revcom()->seq();
-	       }
-	       $seq .= $piece;
+       $replace = $end; # do we really use this anywhere? scary. HL
+       my $seq = "";
+       foreach my $subloc ($loc->each_Location()) {
+	   my $piece = $self->subseq($subloc->start(),
+				     $subloc->end(), $replace);
+	   if($subloc->strand() < 0) {
+	       $piece = Bio::PrimarySeq->new('-seq' => $piece)->revcom()->seq();
 	   }
-       } else {
-	   $seq = substr( $self->seq(), $loc->start - 1, $loc->length);
-       }
-       if( $loc->strand < 0 ) { 
-	   $seq = Bio::PrimarySeq->new('-seq' => $seq)->revcom()->seq();
+	   $seq .= $piece;
        }
        return $seq;
-   }
-   elsif(  defined  $start && defined $end ) {
+   } elsif(  defined  $start && defined $end ) {
        if( $start > $end ){
 	   $self->throw("in subseq, start [$start] has to be ".
 			"greater than end [$end]");
        }
        if( $start <= 0 || $end > $self->length ) {
-	   $self->throw("You have to have start positive \nand length less ".
+	   $self->throw("You have to have start positive\n\tand length less ".
 			"than the total length of sequence [$start:$end] ".
 			"Total ".$self->length."");
        }
