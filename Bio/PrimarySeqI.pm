@@ -513,93 +513,8 @@ sub trunc{
 
 =cut
 
-sub translate {
-    my($self) = shift;
-    my($stop, $unknown, $frame, $tableid, $fullCDS, $throw) = @_;
-    my($i, $len, $output) = (0,0,'');
-    my($codon)   = "";
-    my $aa;
-    
-    ## User can pass in symbol for stop and unknown codons
-    unless(defined($stop) and $stop ne '')    { $stop = "*"; }
-    unless(defined($unknown) and $unknown ne '') { $unknown = "X"; }
-    unless(defined($frame) and $frame ne '') { $frame = 0; }
-    
-    ## the codon table ID
-    unless(defined($tableid) and $tableid ne '')    { $tableid = 1; }
-    
-    ##Error if monomer is "Amino"
-    $self->throw("Can't translate an amino acid sequence.") if
-	($self->moltype eq 'protein');
-    
-    ##Error if frame is not 0, 1 or 2
-    $self->throw("Valid values for frame are 0, 1, 2, not [$frame].") unless
-	($frame == 0 or $frame == 1 or $frame == 2);
-    
-    #warns if ID is invalid
-    my $codonTable = Bio::Tools::CodonTable->new( -id => $tableid);
-    
-    my ($seq) = $self->seq();
-    
-    # deal with frame offset.
-    if( $frame ) {
-	$seq = substr ($seq,$frame);
-    }
-    
-    # Translate it
-    $output = $codonTable->translate($seq);
-    # Use user-input stop/unknown
-    $output =~ s/\*/$stop/g;
-    $output =~ s/X/$unknown/g;
-	
-    # only if we are expecting to translate a complete coding region
-    if ($fullCDS) {
-	my $id = $self->display_id;
-	#remove the stop character
-	if( substr($output,-1,1) eq $stop ) {
-	    chop $output;
-	} else {
-	    $throw && $self->throw("Seq [$id]: Not using a valid terminator codon!");
-	    $self->warn("Seq [$id]: Not using a valid terminator codon!");
-	}
-	# test if there are terminator characters inside the protein sequence!
-	if ($output =~ /\*/) {
-	    $throw && $self->throw("Seq [$id]: Terminator codon inside CDS!");
-	    $self->warn("Seq [$id]: Terminator codon inside CDS!");
-	}
-	# if the initiator codon is not ATG, the amino acid needs to changed into M
-	if ( substr($output,0,1) ne 'M' ) {
-	    if ($codonTable->is_start_codon(substr($seq, 0, 3)) ) {
-		$output = 'M'. substr($output,1);
-	    }
-	    elsif ($throw) {
-		$self->warn("Seq [$id]: Not using a valid initiator codon!");
-	    } else {
-		$self->throw("Seq [$id]: Not using a valid initiator codon!");
-	    }
-	}
-    }
-    
-    my $seqclass;
-    if($self->can_call_new()) {
-	$seqclass = ref($self);
-    } else {
-	$seqclass = 'Bio::PrimarySeq';
-	$self->_attempt_to_load_Seq();
-    }
-    my $out = $seqclass->new( '-seq' => $output,
-			      '-display_id'  => $self->display_id,
-			      '-accession_number' => $self->accession_number,
-			      # is there anything wrong with retaining the
-			      # description?
-			      '-desc' => $self->desc(),
-			      '-moltype' => 'protein'
-			      );
-    return $out;
-    
-}
 
-sub translate_old {
+sub translate {
   my($self) = shift;
   my($stop, $unknown, $frame, $tableid, $fullCDS, $throw) = @_;
   my($i, $len, $output) = (0,0,'');
@@ -636,7 +551,7 @@ sub translate_old {
   my $length = (length $seq) - 2;
   for ($i = 0 ; $i < $length ; $i += 3)  {
       my $codon = substr($seq, $i, 3);
-      my $aa = $codonTable->translate_old($codon);
+      my $aa = $codonTable->translate($codon);
       if ($aa eq '*') {
    	   $output .= $stop;
       }
