@@ -114,9 +114,10 @@ if (!$gr || !$gr->isa('Bio::Graph::ProteinGraph')) {
 	  }
 my @edges = $gr->edges();
 
-#need to have all ids as annotations with database ids as well
+# need to have all ids as annotations with database ids as well
+# idea is to be able to round trip, to write it in same way as 
 
-#for each edge
+#for each edge	
 for my $edge (@edges) {
 	my $str  = "DIP:" .$edge->object_id(). "\t";             #output string
 	my @nodes = $edge->nodes();
