@@ -89,13 +89,12 @@
 		  beginners, 
 		  <ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Perl">Bio::Perl</ulink>. The reason is that though this is an
 			 excellent introductory tool, it can't be extended. What's
-		  attempted here is both an introduction and suggestions on
+		  attempted here is both to introduce Bioperl and suggest
 		  ways to expand your new-found skills.
       </para>
     </note>
   </section>
 
-  
   <section id="installation">
     <title>Installing Bioperl</title>
     <para>
@@ -210,7 +209,7 @@
 			 What you are trying to do.
 		  </member>
 		  <member>
-			 The script you're writing, if you're writing a script.
+			 The code that gives the error, if you're writing a script.
 		  </member>
 		  <member>
 			 Any error messages you saw.
@@ -418,7 +417,8 @@ Internet, point your browser at http://www.perl.com/, the Perl Home Page.
 		The object was described as a data container, but it is more
 		than that. It is also a variable that can access specific 
 		methods, methods taken from the module or modules that were used
-		to create it. For example, the <classname>Bio::Seq</classname> module has a method
+		to create it. For example, the <classname>Bio::Seq</classname> 
+		module has a method
 		called <function>seq()</function> that will print out the
 		sequence of Bio::Seq objects. You could use it like this:
 	 </para>
@@ -497,13 +497,12 @@ Internet, point your browser at http://www.perl.com/, the Perl Home Page.
 
   <section id="retrieving_gb">
 	 <title>Retrieving a sequence from a file</title>
-		
 	 <para>
 		A common beginner's mistake is to not use
 		<classname>Bio::SeqIO</classname> when working with sequence
 		files. This is understandable in some respects, you
 		may have read about Perl's <function>open</function>
-		function, and Bioperl's way of retrieving sequences looks odd
+		function, and Bioperl's way of retrieving sequences may look odd
 		and overly complicated, at first. But don't use
 		<function>open()</function>! Using <function>open</function> 
 		immediately forces you to do the parsing of the sequence
@@ -515,8 +514,7 @@ Internet, point your browser at http://www.perl.com/, the Perl Home Page.
 	 </para>
 
 	 <para>
-		Once you've decided to read a sequence (or multiple sequences) from
-		a file, you should include the following line in your program:
+		
 	 </para>
 		  
 	 <para>
@@ -539,10 +537,6 @@ Internet, point your browser at http://www.perl.com/, the Perl Home Page.
 		amongst other things. 
 	 </para>
 	 <para>
-		In order to use this, or any other Perl module, you need to
-		instruct Perl explicitly. This will be your next line:
-	 </para>
-	 <para>
 		<programlisting>
 		  use Bio::DB::GenBank;
 		</programlisting>
@@ -551,6 +545,8 @@ Internet, point your browser at http://www.perl.com/, the Perl Home Page.
 		We could also query SwissProt, GenPept, EMBL, or RefSeq in an 
 		analogous fashion.
 	 </para>
+
+<!-- Bio::DB::Query? -->
 	 
   </section>
 

@@ -1,4 +1,12 @@
-<!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook V4.2//EN">
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE article
+  PUBLIC "-//OASIS//DTD DocBook XML V4.2//EN" "./docbookx.dtd"
+  [ <!ENTITY % global.entities SYSTEM "./global.xml">
+    %global.entities;
+
+    <!ENTITY % entities SYSTEM "./entities.xml">
+    %entities; ]
+>
 <article lang="en">
   <articleinfo>
     <title>Bio::SearchIO HOWTO</title>

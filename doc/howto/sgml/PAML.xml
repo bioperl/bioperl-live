@@ -1,5 +1,13 @@
-<!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook V4.1//EN">
-<!-- $Id: PAML.sgml,v 1.8 2004-09-27 17:03:12 bosborne Exp $ -->
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE article
+  PUBLIC "-//OASIS//DTD DocBook XML V4.2//EN" "./docbookx.dtd"
+  [ <!ENTITY % global.entities SYSTEM "./global.xml">
+    %global.entities;
+
+    <!ENTITY % entities SYSTEM "./entities.xml">
+    %entities; ]
+>
+<!-- $Id$ -->
 <article>
   <articleinfo>
     <title>Bio::Tools::Phylo::PAML HOWTO</title>
