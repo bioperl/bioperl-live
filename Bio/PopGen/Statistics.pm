@@ -1025,6 +1025,8 @@ sub derived_mutations{
 
 =cut
 
+    use Data::Dumper;
+
 sub composite_LD {
     my ($self,$pop) = @_;
     if( ref($pop) =~ /ARRAY/i ) {
@@ -1051,6 +1053,10 @@ sub composite_LD {
 
 	foreach my $ind ( @inds ) {
 	    my ($genotype) = $ind->get_Genotypes(-marker => $marker_name);
+	    if( ! defined $genotype ) { 
+		$self->warn("no genotype for marker $marker_name for individual ". $ind->unique_id. "\n");
+		next;
+	    }
 	    my @alleles  = sort $genotype->get_Alleles;
 	    next if( scalar @alleles != 2);
 	    my $genostr  = join(',', @alleles);
