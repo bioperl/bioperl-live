@@ -299,6 +299,10 @@ use Symbol();
 
 @ISA = qw(Bio::Root::Root Bio::Root::IO Bio::Factory::SequenceStreamI);
 
+sub BEGIN {
+    eval { require Bio::SeqIO::staden::read; };
+}
+
 =head2 new
 
  Title   : new
