@@ -131,7 +131,8 @@ package Bio::SeqFeature::Generic;
 use vars qw(@ISA);
 use strict;
 
-use Bio::Root::Root;
+use Bio::Range;
+use Bio::SeqFeature::SimpleCollection;
 use Bio::SeqFeatureI;
 use Bio::AnnotatableI;
 use Bio::FeatureHolderI;
@@ -141,9 +142,10 @@ use Bio::Tools::GFF;
 use Bio::AlternativeLocationHolderI;
 #use Tie::IxHash;
 
-@ISA = qw(Bio::Root::Root Bio::SeqFeatureI 
+@ISA = qw(Bio::Range Bio::SeqFeature::SimpleCollection
+          Bio::SeqFeatureI
           Bio::AnnotatableI Bio::FeatureHolderI
-	  Bio::AlternativeLocationHolderI);
+          Bio::AlternativeLocationHolderI);
 
 sub new {
     my ( $caller, @args) = @_;   
@@ -174,11 +176,13 @@ sub new {
                   -start          start position
  	 	  -end            end position
  	 	  -strand         strand
+                  -unique_id      unique id
  	 	  -primary        primary tag
  	 	  -source         source tag
  	 	  -frame          frame
  	 	  -score          score value
  	 	  -tag            a reference to a tag/value hash
+                  -type           a TypeI or a string representing the type
  	 	  -gff_string     GFF v.2 string to initialize from
  	 	  -gff1_string    GFF v.1 string to initialize from
  	 	  -seq_id         the display name of the sequence
@@ -189,12 +193,14 @@ sub new {
 
 sub set_attributes {
     my ($self,@args) = @_;
-    my ($start, $end, $strand, $primary_tag, $source_tag, $primary, $source, $frame, 
-	$score, $tag, $gff_string, $gff1_string,
+    my ($start, $end, $strand, $unique_id, $display_name, $primary_tag, $source_tag, $primary, $source, $frame, 
+	$score, $tag, $type, $gff_string, $gff1_string,
 	$seqname, $seqid, $annot, $location) =
 	    $self->_rearrange([qw(START
 				  END
 				  STRAND
+                                  UNIQUE_ID
+                                  DISPLAY_NAME
 				  PRIMARY_TAG
 				  SOURCE_TAG
               PRIMARY
@@ -202,6 +208,7 @@ sub set_attributes {
 				  FRAME
 				  SCORE
 				  TAG
+                                  TYPE
 				  GFF_STRING
 				  GFF1_STRING
 				  SEQNAME
@@ -219,9 +226,12 @@ sub set_attributes {
     $source_tag     && $self->source_tag($source_tag);
     $primary        && $self->primary_tag($primary);
     $source         && $self->source_tag($source);
+    $type           && $self->source_tag($type);
     defined $start  && $self->start($start);
     defined $end    && $self->end($end);
     defined $strand && $self->strand($strand);
+    defined $unique_id && $self->unique_id( $unique_id );
+    defined $display_name && $self->display_name( $display_name );
     defined $frame  && $self->frame($frame);
     $score          && $self->score($score);
     $annot          && $self->annotation($annot);
@@ -435,7 +445,7 @@ sub strand {
            passthrough to $obj->location->seq_id().
 
            This attribute *should* be used in GFF dumping.
- Returns : value of unique_id
+ Returns : value of seq_id
  Args    : newvalue (optional)
 
 
@@ -628,6 +638,29 @@ sub source_tag {
    return $self->{'_source_tag'};
 }
 
+=head2 type
+
+ Title   : type
+ Usage   : $tag = $feat->type()
+           $feat->type('genscan');
+ Function: Returns the type for a feature,
+           eg, 'exon' or TypeI for exon
+ Returns : a TypeI or a string
+ Args    : none
+
+
+=cut
+
+sub type {
+   my ($self,$value) = @_;
+
+   if( defined $value ) {
+       $self->{'_type'} = $value;
+   }
+   return $self->{'_type'};
+}
+
+
 =head2 has_tag
 
  Title   : has_tag
@@ -818,26 +851,33 @@ sub entire_seq {
 =head2 unique_id
 
  Title   : unique_id
- Usage   : $obj->unique_id($newval)
+ Usage   : my $unique_id = $feature->unique_id( [$newval] )
  Function: This is a unique identifier that identifies this object.
-           If not set, will return the memory location.
+           If not set, will return undef per L<Bio::LocallyIdentifiableI.pm>
+           If a value is given, the unique_id will be set to it, unless that
+           value is the string 'undef', in which case the unique_id will
+           become undefined.
 
            This attribute should *not* be used in GFF dumping, as
            that should come from the collection in which the seq
            feature was found or from seq_id().
- Returns : value of unique_id
+ Returns : The current (or former, if used as a set method) value of unique_id
  Args    : newvalue (optional)
-
 
 =cut
 
 sub unique_id {
-    my ($obj,$value) = @_;
-    if ( defined $value ) {
-	$obj->{'_gsf_unique_id'} = $value;
+  my ($obj,$value) = @_;
+  my $current_value = $obj->{'_gsf_unique_id'};
+  if ( defined $value ) {
+    if( !$value || ( $value eq 'undef' ) ) {
+      $obj->{'_gsf_unique_id'} = undef;
+    } else {
+      $obj->{'_gsf_unique_id'} = $value;
     }
-    return $obj->{'_gsf_unique_id'};
-}
+  }
+  return $current_value;
+} # unique_id()
 
 =head2 display_name
 
