@@ -276,7 +276,7 @@ sub _from_gff2_string {
    my $num = $#att;                 # count them
    my $flag = 0;
 	my @parsed;		# this is needed to hold the characters that have been parsed	
-	for (0; $a <= $num ; $a +=1){   # run through each character one at a time and check it
+	for (my $a = 0; $a <= $num ; $a +=1){   # run through each character one at a time and check it
 		if ($att[$a] eq "\""){$flag=($flag==0)?1:0}  # flag up on entering quoted text, down on leaving it
 		if (($att[$a] eq ";") && $flag){$att[$a] = "INSERT_SEMICOLON_HERE"}  # replace semicolon with an unusual message if the quoted text flag is up
 		if (($att[$a] eq "#") && !$flag){last}  # an unquoted hash symbol means the beginning of the comments field - discard
