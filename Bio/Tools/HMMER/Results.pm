@@ -362,7 +362,8 @@ sub write_FT_output {
     foreach $seq ( $self->each_Set() ) {
 	print $file sprintf("ID   %s\n",$seq->name());
 	foreach $unit ( $seq->each_Domain() ) {
-	    print $file sprintf("FT   %s   %d %d %s\n",$idt,$unit->start,$unit->end,$unit->hmmname);
+	    print $file sprintf("FT   %s   %d %d %s\n",$idt,
+				$unit->start,$unit->end,$unit->hmmname);
 	}
 	print $file "//\n";
     }
@@ -430,7 +431,10 @@ sub write_ascii_out {
 
     foreach $seq ( $self->each_Set()) {
 	foreach $unit ( $seq->each_Domain()) {
-	    print $fh sprintf("%s %4d %4d %s %4d %4d %4.2f %4.2g %s\n",$unit->seq_id(),$unit->start(),$unit->end(),$unit->hmmacc,$unit->hstart,$unit->hend,$unit->bits,$unit->evalue,$unit->hmmname);
+	    print $fh sprintf("%s %4d %4d %s %4d %4d %4.2f %4.2g %s\n",
+			      $unit->seq_id(),$unit->start(),$unit->end(),
+			      $unit->hmmacc,$unit->hstart,$unit->hend,
+			      $unit->bits,$unit->evalue,$unit->hmmname);
 	}
     }
 	    
@@ -716,6 +720,7 @@ sub _parse_hmmpfam {
 	    %hash = ();
 	    
 	    while(<$file>){
+
 		if( /Accession:\s+(\S+)/ ) { $seq->accession($1); next }
 		elsif( s/^Description:\s+// ) { chomp; $seq->desc($_); next } 
 		/^Parsed for domains/ && last;
@@ -723,7 +728,7 @@ sub _parse_hmmpfam {
 		# This is to parse out the accession numbers in old Pfam format.
 		# now not support due to changes in HMMER.
 
-		if( (($id,$acc, $sc, $ev, $nd) = /^\s*(\S+)\s+([A-Za-z]+\d+).+?\s(\S+)\s+(\S+)\s+(\d+)\s*$/)) {
+		if( (($id,$acc, $sc, $ev, $nd) = /^\s*(\S+)\s+(\S+).+?\s(\S+)\s+(\S+)\s+(\d+)\s*$/)) {
 		    $hash{$id} = $sc; # we need this for the sequence 
 		                      # core of the domains below!
 		    $acc {$id} = $acc;
@@ -765,7 +770,7 @@ sub _parse_hmmpfam {
 
 		    $unit->seqbits($hash{$id});
 	    
-		    if( exists $acc{$id} ) {
+		    if( defined $acc{$id} ) {
 			$unit->hmmacc($acc{$id});
 		    }
 
@@ -854,11 +859,14 @@ sub get_unit_nse {
 sub _parse_hmmsearch {
     my $self = shift;
     my $file = shift;
-    my ($id,$sqfrom,$sqto,$sc,$ev,$unit,$nd,$seq,$hmmf,$hmmt,$hmmfname,%seqh);
+    my ($id,$sqfrom,$sqto,$sc,$ev,$unit,$nd,$seq,$hmmf,$hmmt,
+	$hmmfname,$hmmacc, $hmmid, %seqh);
     my $count = 0;
     
     while(<$file>) {
         /^HMM file:\s+(\S+)/ and do { $self->hmmfile($1); $hmmfname = $1 };
+	/^Accession:\s+(\S+)/ and do { $hmmacc = $1 };
+	/^Query HMM:\s+(\S+)/ and do { $hmmid = $1 };	
 	/^Sequence database:\s+(\S+)/ and do { $self->seqfile($1) };
         /^Scores for complete sequences/ && last;
     }
@@ -874,6 +882,7 @@ sub _parse_hmmsearch {
 	    $seqh{$id} = $sc;
 	    $seq->evalue($ev);
 	    $self->add_Set($seq);
+	    $seq->accession($hmmacc);
 	}
     }
 
