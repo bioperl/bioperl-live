@@ -491,9 +491,7 @@ likely to be relevant to the casual bioperl user.
 
 =head2 II.2 Alignment objects (SimpleAlign)
 
-Early versions of bioperl used both UnivAln and SimpleAlign objects to
-represent and manipulate alignments but as of v. 1.0 only SimpleAlign.pm is
-supported. This module allows the user to convert between alignment formats
+This module allows the user to convert between alignment formats
 as well as more sophisticated operations, like extracting specific regions
 of the alignment and generating consensus sequences. For more information
 see section L<"III.5.4"> and L<Bio::SimpleAlign>.
@@ -1590,11 +1588,9 @@ encouraged to examine the script clustalw.pl in the examples/ directory.
 
 =for html <A NAME ="iii.5.4"></A>
 
-=head2 III.5.4 Manipulating / displaying alignments (SimpleAlign)
+=head2 III.5.4 Manipulating and displaying alignments (SimpleAlign)
 
-As described in section L<"II.2">, bioperl previously included two alignment
-objects, SimpleAlign and UnivAln, but UnivAln.pm is not supported as of v.
-1.0. SimpleAlign objects are produced by bioperl alignment creation objects
+SimpleAlign objects are produced by bioperl alignment creation objects
 (eg Clustalw.pm, BLAST's bl2seq, and pSW) and they can read and write multiple
 alignment formats via AlignIO.
 
@@ -2388,7 +2384,7 @@ my ($access_remote_db, $index_local_db, $fetch_local_db,
     $sequence_manipulations, $seqstats_and_seqwords,
     $restriction_and_sigcleave, $other_seq_utilities, $run_remoteblast,
     $run_standaloneblast,  $blast_parser, $bplite_parsing, $hmmer_parsing,
-    $run_clustalw_tcoffee, $run_psw_bl2seq, $simplealign_univaln,
+    $run_clustalw_tcoffee, $run_psw_bl2seq, $simplealign,
     $gene_prediction_parsing, $sequence_annotation, $largeseqs,
     $run_tree, $run_map, $run_struct, $run_perl, $searchio_parsing,
     $liveseqs, $demo_variations, $demo_xml, $display_help, $bpinspect1 );
@@ -2406,7 +2402,7 @@ my $bp_parse_file1 = Bio::Root::IO->catfile("t","data","blast.report");       # 
 my $bp_parse_file2 = Bio::Root::IO->catfile("t","data","psiblastreport.out"); # used in $bplite_parsing
 my $bp_parse_file3 = Bio::Root::IO->catfile("t","data","bl2seq.out");        # used in $bplite_parsing
 my $unaligned_amino_file = Bio::Root::IO->catfile("t","data","cysprot1a.fa"); # used in $run_clustalw_tcoffee
-my $aligned_amino_file = Bio::Root::IO->catfile("t","data","testaln.pfam");    # used in $simplealign_univaln
+my $aligned_amino_file = Bio::Root::IO->catfile("t","data","testaln.pfam");    # used in $simplealign
 
 # other global variables
 my (@runlist, $n );
@@ -2434,7 +2430,7 @@ The following numeric arguments can be passed to run the corresponding demo-scri
 10 => hmmer_parsing ,
 11 => run_clustalw_tcoffee ,
 12 => run_psw_bl2seq ,
-13 => simplealign_univaln ,
+13 => simplealign ,
 14 => gene_prediction_parsing ,
 15 => sequence_annotation ,
 15 => largeseqs ,
@@ -3089,10 +3085,10 @@ $run_clustalw_tcoffee = sub {
 } ;
 
 #################################################
-# simplealign_univaln  ():
+# simplealign  ():
 #
 
-$simplealign_univaln = sub {
+$simplealign = sub {
 
     my ($in, $out1,$out2, $aln, $threshold_percent, $infile);
     my ( $str, $resSlice1, $resSlice2, $resSlice3, $tmpfile);
@@ -3135,25 +3131,6 @@ $simplealign_univaln = sub {
     my $iupac_consensus =  $a->consensus_iupac;
     print "The IUPAC consensus of the dna alignment is... \t",$iupac_consensus  , "\n";
 
-
-    #use Bio::UnivAln;
-
-    #print "\nBeginning univaln example... \n";
-    #$aln = Bio::UnivAln->new('-file'=>'test.tmp',
-    #$aln = Bio::UnivAln->new('-file'=>Bio::Root::IO->catfile("t","data","alnfile.fasta"),
-     #                        '-desc'=>'Sample alignment',
-     #                        '-type'=>'amino',
-     #                        '-ffmt'=>'fasta'
-     #                        );
-
-    #print "\nCurrent alignment:\n",$aln->layout;
-
-    #$resSlice1 = $aln->remove_gaps(); # original sequences without gaps
-    #print "Alignment without gaps  is \n $resSlice1\n";
-    #$resSlice3 = $aln->consensus(0.2, [1,3]); # 60% majority, columns 1+3 only
-    #print "Consensus with 20% threshold for columns".
-    #    " 1 and 3 is \n $resSlice3\n";
-    #unlink $tmpfile;
     return 1;
 } ;
 
@@ -3734,8 +3711,8 @@ $bpinspect1 = sub {
      }
     print "\n";
 
-# The following subroutine is based closely on Mark Summerfield's and Piers Cawley's
-# clever Class_Methods_Introspection program
+# The following subroutine is based closely on Mark Summerfield's and Piers
+# Cawley's clever Class_Methods_Introspection program
 #
     package UNIVERSAL;
     sub methods {
@@ -3788,7 +3765,7 @@ $bpinspect1 = sub {
         if ($n ==10) {&$hmmer_parsing; next;}
         if ($n ==11) {&$run_clustalw_tcoffee; next;}
         if ($n ==12) {&$run_psw_bl2seq; next;}
-        if ($n ==13) {&$simplealign_univaln ; next;}
+        if ($n ==13) {&$simplealign ; next;}
         if ($n ==14) {&$gene_prediction_parsing; next;}
         if ($n ==15) {&$sequence_annotation; next;}
         if ($n ==16) {&$largeseqs; next;}
