@@ -367,13 +367,15 @@ sub write_seq {
 		   "XX\n");
 
     # Write the accession line if present
+    my( $acc );
     {
-        my( $acc );
         if( my $func = $self->_ac_generation_func ) {
             $acc = &{$func}($seq);
-        } elsif( $seq->can('accession_number')) {
+        } elsif( $seq->isa('Bio::Seq::RichSeqI') && 
+		 defined($seq->accession_number) ) {
             $acc = $seq->accession_number;
         }
+
         if (defined $acc) {
             $self->_print("AC   $acc;\n",
 			  "XX\n");
@@ -387,7 +389,7 @@ sub write_seq {
             $sv = &{$func}($seq);
         } elsif($seq->isa('Bio::Seq::RichSeqI') && 
 		defined($seq->seq_version)) {
-            $sv = $seq->accession_number() . ".". $seq->seq_version();
+            $sv = "$acc.". $seq->seq_version();
         }	
         if (defined $sv) {
             $self->_print( "SV   $sv\n",
@@ -477,8 +479,7 @@ sub write_seq {
            # a semi-colon.
            my $ref_title = $ref->title || '';
            $ref_title =~ s/[\s;]*$/;/;
-           $self->_write_line_EMBL_regex("RT   ", "RT   ", $ref_title,    '\s+|$', 80); #'       
-	    
+           $self->_write_line_EMBL_regex("RT   ", "RT   ", $ref_title,    '\s+|$', 80); #'
 	   $self->_write_line_EMBL_regex("RL   ", "RL   ", $ref->location, '\s+|$', 80); #'
            if ($ref->comment) {
 	       $self->_write_line_EMBL_regex("RC   ", "RC   ", $ref->comment, '\s+|$', 80); #' 
@@ -906,7 +907,7 @@ sub _read_FTHelper_EMBL {
             if (substr($value, 0, 1) eq '"') {
                 # Keep adding to value until we find the trailing quote
                 # and the quotes are balanced
-                while ($value !~ /"$/ or $value =~ tr/"/"/ % 2) { #" 
+                while ($value !~ /"$/ or $value =~ tr/"/"/ % 2) { #"
                     $i++;
                     my $next = $qual[$i];
                     unless (defined($next)) {
