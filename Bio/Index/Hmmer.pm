@@ -160,8 +160,8 @@ sub fetch_report
 
 	seek($fh, 0, 0); # The HMMER SearchIO wants the header, so we fetch it
 	while($line = <$fh>) {
-		last if $line =~ /Query sequence:/o;
 		push @header, $line; 
+		last if $line =~ /Query sequence:/o;
 	}
 	seek($fh, $pos, 0);
 
