@@ -173,7 +173,9 @@ sub draw_protein {
   my $pixels_per_base = $self->pixels_per_base;
   my $font   = $self->font;
   my $flip   = $self->{flip};
+  my $left   = $self->panel->left;
   my $right  = $self->panel->right;
+  my $left   = $self->panel->left;
 
   my @residues = split '',$$protein;
   for (my $i=0;$i<@residues;$i++) {
@@ -183,7 +185,7 @@ sub draw_protein {
     next if $x+1 < $x1;
     last if $x > $x2;
     if ($flip) {
-      $gd->char($font,$right-$x+2,$y1,$residues[$i],$color);
+      $gd->char($font,$right-($x-$left)+2,$y1,$residues[$i],$color);
     } else {
       $gd->char($font,$x+2,$y1,$residues[$i],$color);
     }
@@ -195,7 +197,8 @@ sub draw_orfs {
   my ($protein,$strand,$color,$gd,$x1,$y1,$x2,$y2) = @_;
   my $pixels_per_base = $self->pixels_per_base * 3;
   $y1++;
-  my $right  = $self->panel->right + $self->panel->pad_right;
+  my $right  = $self->panel->right;
+  my $left   = $self->panel->left;
   my $flip   = $self->{flip};
 
   my $gcolor = $self->gridcolor;
@@ -211,7 +214,7 @@ sub draw_orfs {
       next if $pos+1 < $x1;
       last if $pos   > $x2;
       if ($flip) {
-	$gd->line($right-$pos,$y1-2,$right-$pos,$y1+2,$color);
+	$gd->line($right-($pos-$left),$y1-2,$right-($pos-$left),$y1+2,$color);
       } else {
 	$gd->line($pos,$y1-2,$pos,$y1+2,$color);
       }
