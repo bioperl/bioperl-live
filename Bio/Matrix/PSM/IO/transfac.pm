@@ -86,7 +86,8 @@ sub new {
  Title   : next_psm
  Usage   : my $psm=$psmIO->next_psm();
  Function: Reads the next PSM from the input file, associated with this object
- Throws  :
+ Throws  : Upon finding a line, defining the matrix, where one or more positions
+            are not defined, see _make_matrix
  Returns : Bio::Matrix::PSM::Psm object
  Args    : none
 
@@ -122,7 +123,7 @@ sub next_psm {
 	last if ($line=~/^\/\//);
     }
     # We have the frequencies, let's create a SiteMatrix object
-    my %matrix = &_make_matrix(\@a,\@c,\@g,\@t,$id, $accn);
+    my %matrix = &_make_matrix($self,\@a,\@c,\@g,\@t,$id, $accn);
     $matrix{-sites}=$sites if ($sites);
     $matrix{-width}=@a;
     my $psm=new Bio::Matrix::PSM::Psm(%matrix);
@@ -154,7 +155,8 @@ sub _parse_matrix {
  Title   : _make_matrix
  Usage   :
  Function:
- Throws  :
+ Throws  :  If a position is undefined, for example if you have line like this
+            in the file you are parsing: 08  4,7,,9
  Example :  Internal stuff
  Returns :
  Args    :
@@ -164,12 +166,12 @@ sub _parse_matrix {
 sub _make_matrix {
     my ($a, $c, $g, $t, @fa, @fc,@fg, @ft, @a,@c,@g,@t);
     my $ave=0;
-    my ($cA,$cC,$cG,$cT, $id, $accn)= @_;
-    my $len = @{$cA}+1;
+    my ($self,$cA,$cC,$cG,$cT, $id, $accn)= @_;
 
-    for (my $i=0; $i <= $len;$i++) {
-	# reset to 0 if value is undefined - this might need to be set properly somewhere else
-	map { ${$_}[$i] ||= 0 } ($cA, $cG, $cC, $cT);
+    for (my $i=0; $i < @{$cA};$i++) {
+	#No value can be undefined -throw an exception, since setting to 0 probably would be wrong
+  #If this happens it would indicate most probably that the file, being parsed is in a different format
+	map {  $self->throw('Parsing error, a position is not defined') unless  defined(${$_}[$i]) } ($cA, $cG, $cC, $cT);
 	
 	if ( (${$cA}[$i] + ${$cC}[$i] + 
 	      ${$cG}[$i] + ${$cT}[$i] ) ==0 ) {
@@ -187,7 +189,7 @@ sub _make_matrix {
 		     ${$cG}[$i]+${$cT}[$i]) / 4 +$ave)/2;
 	}
     }
-    warn("a is $#a\n");
+
     for (my $i=0; $i<$#a;$i++) {
 	my $zero=($a[$i]+$c[$i]+$g[$i]+$t[$i]);
 	next if ($zero==0);
