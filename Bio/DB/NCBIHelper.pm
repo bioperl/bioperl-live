@@ -82,8 +82,8 @@ use HTTP::Request::Common;
 
 BEGIN { 	    
     $HOSTBASE = 'http://www.ncbi.nlm.nih.gov';
-    %CGILOCATION = ( batch  => '/cgi-bin/Entrez/qserver.cgi',
-		     single => '/entrez/utils/qmap.cgi' );
+    %CGILOCATION = ( 'batch' => '/cgi-bin/Entrez/qserver.cgi',
+		     'single'=> '/entrez/utils/qmap.cgi' );
     %FORMATMAP = ( 'genbank' => 'genbank',
 		   'genpept' => 'genbank',
 		   'fasta'   => 'fasta' );
@@ -206,7 +206,7 @@ sub get_request {
 
 sub get_Stream_by_batch {
     my ($self, $ids) = @_;
-    return $self->get_seq_stream(-uids => $ids, -mode=>'batch');
+    return $self->get_seq_stream('-uids' => $ids, '-mode'=>'batch');
 }
 
 =head2 postprocess_data
@@ -265,13 +265,17 @@ sub postprocess_data {
     print STDERR "format is ", $self->request_format(), "data is $data\n" if( $self->verbose > 1 );
 }
 
+
 =head2 request_format
 
  Title   : request_format
- Usage   : my $format = $self->request_format;
-           $self->request_format($format);
- Function: Get/Set sequence format retrieval
- Returns : string representing format
+ Usage   : my ($req_format, $ioformat) = $self->request_format;
+           $self->request_format("genbank");
+           $self->request_format("fasta");
+ Function: Get/Set sequence format retrieval. The get-form will normally not
+           be used outside of this and derived modules.
+ Returns : Array of two strings, the first representing the format for
+           retrieval, and the second specifying the corresponding SeqIO format.
  Args    : $format = sequence format
 
 =cut
@@ -282,6 +286,10 @@ sub request_format {
 	$value = lc $value;
 	if( defined $FORMATMAP{$value} ) {
 	    $self->{'_format'} = [ $value, $FORMATMAP{$value}];
+	} else {
+	    # Try to fall back to a default. Alternatively, we could throw
+	    # an exception
+	    $self->{'_format'} = [ $value, $value ];
 	}
     }
     return @{$self->{'_format'}};
