@@ -15,8 +15,9 @@
 #    containing your Bioperl modules.
 #
 
-use lib "/nfs/disk21/birney/prog/bioperl/Bio";
+
 use Bio::Seq;
+use Bio::SeqIO;
 
 # new sequence from raw memory...
 # it is *very* important to get the type right so it
@@ -26,19 +27,21 @@ $seq = Bio::Seq->new ( -id => "myseq",
 		      -seq => "CGCCGAAGAAGCATCGTTAAAGTCTCTCTTCACCCTGCCGTCATGTCTAAGTCAGAGTCTCCT",
 		      -type => 'Dna');
 
+$seqout = Bio::SeqIO->new('-format' => 'fasta', -fh => \*STDOUT);
+
 # make a reverse complement sequence
 
 $rev = $seq->revcom();
 
 # the actual sequence is here
 
-$actual_bases = $rev->str();
+$actual_bases = $rev->seq();
 
 print "Reversed sequence as a string is [$actual_bases]\n";
 
 # we could also write it as fasta formatted output
 
-print $rev->out_fasta();
+$seqout->write_seq($rev);
 
 # make a translation
 
@@ -46,5 +49,5 @@ $trans = $seq->translate();
 
 print "Translated sequence!\n";
 
-print $trans->out_fasta();
+$seqout->write_seq($trans);
 
