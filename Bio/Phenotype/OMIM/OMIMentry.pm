@@ -85,7 +85,7 @@ package Bio::Phenotype::OMIM::OMIMentry;
 use vars qw( @ISA );
 use strict;
 
-use Bio::Phenotype::PhenotypeI;
+use Bio::Phenotype::Phenotype;
 use Bio::Phenotype::OMIM::MiniMIMentry;
 use Bio::Phenotype::OMIM::OMIMentryAllelicVariant;
 
@@ -93,7 +93,7 @@ use constant TRUE              => 1;
 use constant FALSE             => 0;
 use constant DEFAULT_MIM_NUMER => 0;
 
-@ISA = qw( Bio::Phenotype::PhenotypeI );
+@ISA = qw( Bio::Phenotype::Phenotype );
 
 
 
@@ -225,6 +225,11 @@ sub init {
     $self->remove_AllelicVariants();
     $self->remove_CytoPositions();
     $self->remove_gene_symbols();
+    $self->remove_Genotypes();
+    $self->remove_DBLinks();
+    $self->remove_keywords();
+    $self->remove_Variants();
+    $self->remove_Measures();
     $self->miniMIM( Bio::Phenotype::OMIM::MiniMIMentry->new() );
   
 } # init

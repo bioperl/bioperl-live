@@ -1,6 +1,6 @@
 # $Id$
 #
-# BioPerl module for Bio::Phenotype::PhenotypeI
+# BioPerl module for Bio::Phenotype::Phenotype
 #
 # Cared for by Christian M. Zmasek <czmasek@gnf.org> or <zmasek@yahoo.com>
 #
@@ -22,7 +22,7 @@
 
 =head1 NAME
 
-PhenotypeI - An interface for classes modeling phenotypes
+Phenotype - A class for modeling phenotypes
 
 =head1 SYNOPSIS
 
@@ -58,11 +58,11 @@ PhenotypeI - An interface for classes modeling phenotypes
 
 =head1 DESCRIPTION
 
-This superclass defines common methods for classes modelling phenotypes.
+This superclass implements common methods for classes modelling phenotypes.
 Bio::Phenotype::OMIM::OMIMentry is an example of an instantiable phenotype
 class (the design of this interface was partially guided by the need
 to model OMIM entries).
-Please note. This interface provides methods to associate mutations
+Please note. This class provides methods to associate mutations
 (methods "each_Variant", ...) and genotypes (methods "each_Genotype", ...) 
 with phenotypes. Yet, these aspects might need some future enhancements,
 especially since there is no "genotype" class yet.
@@ -112,10 +112,12 @@ methods. Internal methods are usually preceded with a _
 # Let the code begin...
 
 
-package Bio::Phenotype::PhenotypeI;
+package Bio::Phenotype::Phenotype;
 use vars qw( @ISA );
 use strict;
+
 use Bio::Root::Root;
+use Bio::Phenotype::PhenotypeI;
 use Bio::Species;
 use Bio::Variation::VariantI;
 use Bio::Annotation::DBLink;
@@ -126,8 +128,85 @@ use Bio::Map::CytoPosition;
 use Bio::Range;
 
 
-@ISA = qw( Bio::Root::Root );
+@ISA = qw( Bio::Phenotype::PhenotypeI );
 
+
+
+
+=head2 new
+
+ Title   : new
+ Usage   : $obj = Bio::Phenotype::OMIM::OMIMentry->new( -mim_number          => 200000,
+                                                        -description         => "This is ...",
+                                                        -more_than_two_genes => 1 );                      
+ Function: Creates a new OMIMentry object.
+ Returns : A new OMIMentry object.
+ Args    : -name                           => the name
+           -description                    => the description of this phenotype
+           -species                        => ref to the the species
+           -comment                        => a comment 
+=cut
+
+sub new {
+
+    my( $class,@args ) = @_;
+    
+    my $self = $class->SUPER::new( @args );
+   
+    my ( $name,
+         $description,
+         $species,
+         $comment )
+    = $self->_rearrange( [ qw( NAME
+                               DESCRIPTION
+                               SPECIES 
+                               COMMENT ) ], @args );
+   
+    $self->init(); 
+    
+    $name                           && $self->name( $name );
+    $description                    && $self->description( $description );
+    $species                        && $self->species( $species );
+    $comment                        && $self->comment( $comment );  
+                                                    
+    return $self;
+    
+} # new
+
+
+
+=head2 init
+
+ Title   : init()
+ Usage   : $obj->init();   
+ Function: Initializes this OMIMentry to all "" and empty lists.
+ Returns : 
+ Args    :
+
+=cut
+
+sub init {
+
+    my( $self ) = @_;
+
+   
+    $self->name( "" );
+    $self->description( "" );
+    my $species = Bio::Species->new();
+    $species->classification( qw( sapiens Homo ) );
+    $self->species( $species );
+    $self->comment( "" );
+    $self->remove_Correlates();
+    $self->remove_References();
+    $self->remove_CytoPositions();
+    $self->remove_gene_symbols();
+    $self->remove_Genotypes();
+    $self->remove_DBLinks();
+    $self->remove_keywords();
+    $self->remove_Variants();
+    $self->remove_Measures();
+  
+} # init
 
 
 =head2 name
@@ -143,9 +222,13 @@ use Bio::Range;
 =cut
 
 sub name {
-    my ( $self ) = @_;
+    my ( $self, $value ) = @_;
 
-    $self->throw_not_implemented();
+    if ( defined $value ) {
+        $self->{ "_name" } = $value;
+    }
+
+    return $self->{ "_name" };
 
 } # name
 
@@ -165,9 +248,13 @@ sub name {
 =cut
 
 sub description {
-     my ( $self ) = @_;
+    my ( $self, $value ) = @_;
 
-    $self->throw_not_implemented();
+    if ( defined $value ) {
+        $self->{ "_description" } = $value;
+    }
+
+    return $self->{ "_description" };
 
 } # description
 
@@ -187,9 +274,14 @@ sub description {
 =cut
 
 sub species {
-    my ( $self ) = @_;
+    my ( $self, $value ) = @_;
 
-    $self->throw_not_implemented();
+    if ( defined $value ) {
+        $self->_check_ref_type( $value, "Bio::Species" );
+        $self->{ "_species" } = $value;
+    }
+
+    return $self->{ "_species" };
 
 } # species
 
@@ -209,9 +301,13 @@ sub species {
 =cut
 
 sub comment {
-    my ( $self ) = @_;
+    my ( $self, $value ) = @_;
 
-    $self->throw_not_implemented();
+    if ( defined $value ) {
+        $self->{ "_comment" } = $value;
+    }
+
+    return $self->{ "_comment" };
 
 } # comment
 
@@ -231,8 +327,13 @@ sub comment {
 
 sub each_gene_symbol {
     my ( $self ) = @_;
-
-    $self->throw_not_implemented();
+    
+    if ( $self->{ "_gene_symbols" } ) {
+        return @{ $self->{ "_gene_symbols" } };
+    }
+    else {
+        return my @a = (); 
+    }
 
 } # each_gene_symbol
 
@@ -251,9 +352,11 @@ sub each_gene_symbol {
 =cut
 
 sub add_gene_symbols {
-    my ( $self ) = @_;
-
-    $self->throw_not_implemented();
+    my ( $self, @values ) = @_;
+        
+    return unless( @values );
+            
+    push( @{ $self->{ "_gene_symbols" } }, @values );
     
 } # add_gene_symbols
 
@@ -270,8 +373,10 @@ sub add_gene_symbols {
 
 sub remove_gene_symbols {
     my ( $self ) = @_;
-
-    $self->throw_not_implemented();
+     
+    my @a = $self->each_gene_symbol();
+    $self->{ "_gene_symbols" } = [];
+    return @a;
 
 } # remove_gene_symbols
 
@@ -294,9 +399,14 @@ sub remove_gene_symbols {
 =cut
 
 sub each_Variant {
-    my ( $self ) = @_;
-
-    $self->throw_not_implemented();
+     my ( $self ) = @_;
+    
+    if ( $self->{ "_variants" } ) {
+        return @{ $self->{ "_variants" } };
+    }
+    else {
+        return my @a = (); 
+    }
 
 } # each_Variant
 
@@ -314,9 +424,15 @@ sub each_Variant {
 =cut
 
 sub add_Variants {
-    my ( $self ) = @_;
+    my ( $self, @values ) = @_;
+    
+    return unless( @values );
 
-    $self->throw_not_implemented();
+    foreach my $value ( @values ) {  
+        $self->_check_ref_type( $value, "Bio::Variation::VariantI" );
+    }
+        
+    push( @{ $self->{ "_variants" } }, @values );
     
 } # add_Variants
 
@@ -334,9 +450,11 @@ sub add_Variants {
 
 sub remove_Variants {
     my ( $self ) = @_;
+  
+    my @a = $self->each_Variant();
+    $self->{ "_variants" } = [];
+    return @a;
 
-    $self->throw_not_implemented();
-    
 } # remove_Variants
 
 
@@ -355,9 +473,14 @@ sub remove_Variants {
 
 sub each_Reference {
     my ( $self ) = @_;
-
-    $self->throw_not_implemented();
     
+    if ( $self->{ "_references" } ) {
+        return @{ $self->{ "_references" } };
+    }
+    else {
+        return my @a = (); 
+    }
+
 } # each_Reference
 
 
@@ -375,9 +498,15 @@ sub each_Reference {
 =cut
 
 sub add_References {
-    my ( $self ) = @_;
+    my ( $self, @values ) = @_;
 
-    $self->throw_not_implemented();
+    return unless( @values );
+
+    foreach my $value ( @values ) {  
+        $self->_check_ref_type( $value, "Bio::Annotation::Reference" );
+    }
+        
+    push( @{ $self->{ "_references" } }, @values );
     
 } # add_References
 
@@ -395,9 +524,11 @@ sub add_References {
 
 sub remove_References {
     my ( $self ) = @_;
+     
+    my @a = $self->each_Reference();
+    $self->{ "_references" } = [];
+    return @a;
 
-    $self->throw_not_implemented();
-    
 } # remove_References
 
 
@@ -416,9 +547,14 @@ sub remove_References {
 
 sub each_CytoPosition {
     my ( $self ) = @_;
-
-    $self->throw_not_implemented();
     
+    if ( $self->{ "_cyto_positions" } ) {
+        return @{ $self->{ "_cyto_positions" } };
+    }
+    else {
+        return my @a = (); 
+    }
+
 } # each_CytoPosition
 
 
@@ -436,9 +572,15 @@ sub each_CytoPosition {
 =cut
 
 sub add_CytoPositions {
-    my ( $self ) = @_;
+    my ( $self, @values ) = @_;
+    
+    return unless( @values );
 
-    $self->throw_not_implemented();
+    foreach my $value ( @values ) {  
+        $self->_check_ref_type( $value, "Bio::Map::CytoPosition" );
+    }
+        
+    push( @{ $self->{ "_cyto_positions" } }, @values );
     
 } # add_CytoPositions
 
@@ -456,9 +598,11 @@ sub add_CytoPositions {
 
 sub remove_CytoPositions {
     my ( $self ) = @_;
+     
+    my @a = $self->each_CytoPosition();
+    $self->{ "_cyto_positions" } = [];
+    return @a;
 
-    $self->throw_not_implemented();
-    
 } # remove_CytoPositions
 
 
@@ -481,8 +625,13 @@ sub remove_CytoPositions {
 sub each_Correlate {
     my ( $self ) = @_;
 
-    $self->throw_not_implemented();
-    
+    if ( $self->{ "_correlates" } ) {
+        return @{ $self->{ "_correlates" } };
+    }
+    else {
+        return my @a = (); 
+    }
+
 } # each_Correlate
 
 
@@ -502,9 +651,15 @@ sub each_Correlate {
 =cut
 
 sub add_Correlates {
-    my ( $self ) = @_;
+    my ( $self, @values ) = @_;
+    
+    return unless( @values );
 
-    $self->throw_not_implemented();
+    foreach my $value ( @values ) {  
+        $self->_check_ref_type( $value, "Bio::Phenotype::Correlate" );
+    }
+        
+    push( @{ $self->{ "_correlates" } }, @values );
     
 } # add_Correlates
 
@@ -522,9 +677,11 @@ sub add_Correlates {
 
 sub remove_Correlates {
     my ( $self ) = @_;
+  
+    my @a = $self->each_Correlate();
+    $self->{ "_correlates" } = [];
+    return @a;
 
-    $self->throw_not_implemented();
-    
 } # remove_Correlates
 
 
@@ -545,9 +702,14 @@ sub remove_Correlates {
 
 sub each_Measure {
     my ( $self ) = @_;
-
-    $self->throw_not_implemented();
     
+    if ( $self->{ "_measures" } ) {
+        return @{ $self->{ "_measures" } };
+    }
+    else {
+        return my @a = (); 
+    }
+
 } # each_Measure
 
 
@@ -565,9 +727,15 @@ sub each_Measure {
 =cut
 
 sub add_Measures {
-    my ( $self ) = @_;
+    my ( $self, @values ) = @_;
+    
+    return unless( @values );
 
-    $self->throw_not_implemented();
+    foreach my $value ( @values ) {  
+        $self->_check_ref_type( $value, "Bio::Phenotype::Measure" );
+    }
+        
+    push( @{ $self->{ "_measures" } }, @values );
     
 } # add_Measures
 
@@ -585,9 +753,11 @@ sub add_Measures {
 
 sub remove_Measures {
     my ( $self ) = @_;
+   
+    my @a = $self->each_Measure();
+    $self->{ "_measures" } = [];
+    return @a;
 
-    $self->throw_not_implemented();
-    
 } # remove_Measures
 
 
@@ -606,9 +776,14 @@ sub remove_Measures {
 
 sub each_keyword {
     my ( $self ) = @_;
-
-    $self->throw_not_implemented();
     
+    if ( $self->{ "_keywords" } ) {
+        return @{ $self->{ "_keywords" } };
+    }
+    else {
+        return my @a = (); 
+    }
+
 } # each_keyword
 
 
@@ -626,9 +801,11 @@ sub each_keyword {
 =cut
 
 sub add_keywords {
-    my ( $self ) = @_;
+    my ( $self, @values ) = @_;
 
-    $self->throw_not_implemented();
+    return unless( @values );
+
+    push( @{ $self->{ "_keywords" } }, @values );
     
 } # add_keywords
 
@@ -646,9 +823,11 @@ sub add_keywords {
 
 sub remove_keywords {
     my ( $self ) = @_;
-
-    $self->throw_not_implemented();
     
+    my @a = $self->each_keyword();
+    $self->{ "_keywords" } = [];
+    return @a;
+
 } # remove_keywords
 
 
@@ -667,9 +846,14 @@ sub remove_keywords {
 
 sub each_DBLink {
     my ( $self ) = @_;
-
-    $self->throw_not_implemented();
-    
+   
+    if ( $self->{ "_db_links" } ) {
+        return @{ $self->{ "_db_links" } };
+    }
+    else {
+        return my @a = (); 
+    }
+   
 }
 
 
@@ -687,10 +871,16 @@ sub each_DBLink {
 =cut
 
 sub add_DBLinks {
-    my ( $self ) = @_;
+    my ( $self, @values ) = @_;
 
-    $self->throw_not_implemented();
-    
+    return unless( @values );
+
+    foreach my $value ( @values ) {  
+        $self->_check_ref_type( $value, "Bio::Annotation::DBLink" );
+    }
+        
+    push( @{ $self->{ "_db_links" } }, @values );
+  
 } # add_DBLinks
 
 
@@ -707,8 +897,10 @@ sub add_DBLinks {
 
 sub remove_DBLinks {
     my ( $self ) = @_;
-
-    $self->throw_not_implemented();
+  
+    my @a = $self->each_DBLink();
+    $self->{ "_db_links" } = [];
+    return @a;
 
 } # remove_DBLinks
 
@@ -731,9 +923,14 @@ sub remove_DBLinks {
 
 sub each_Genotype {
     my ( $self ) = @_;
+   
+    if ( $self->{ "_genotypes" } ) {
+        return @{ $self->{ "_genotypes" } };
+    }
+    else {
+        return my @a = (); 
+    }
 
-    $self->throw_not_implemented();
-    
 } # each_Genotype
 
 
@@ -751,9 +948,15 @@ sub each_Genotype {
 =cut
 
 sub add_Genotypes {
-    my ( $self ) = @_;
+    my ( $self, @values ) = @_;
+    
+    return unless( @values );
 
-    $self->throw_not_implemented();
+    #foreach my $value ( @values ) {  
+    #    $self->_check_ref_type( $value, "Bio::GenotypeI" );
+    #}
+        
+    push( @{ $self->{ "_genotypes" } }, @values );
     
 } # add_Genotypes
 
@@ -772,11 +975,39 @@ sub add_Genotypes {
 sub remove_Genotypes {
     my ( $self ) = @_;
 
-    $self->throw_not_implemented();
-    
+    my @a = $self->each_Genotype();
+    $self->{ "_genotypes" } = [];
+    return @a;
+
 } # remove_Genotypes
 
 
+=head2 _check_ref_type
+
+ Title   : _check_ref_type
+ Usage   : $self->_check_ref_type( $value, "Bio::Annotation::DBLink" );
+ Function: Checks for the correct type.
+ Returns : 
+ Args    : The value to be checked, the expected class.
+
+=cut
+
+sub _check_ref_type {
+    my ( $self, $value, $expected_class ) = @_;
+
+    if ( ! defined( $value ) ) {
+        $self->throw( ( caller( 1 ) )[ 3 ] .": Found [undef" 
+        ."] where [$expected_class] expected" );
+    }
+    elsif ( ! ref( $value ) ) {
+        $self->throw( ( caller( 1 ) )[ 3 ] .": Found scalar"
+        ." where [$expected_class] expected" );
+    } 
+    elsif ( ! $value->isa( $expected_class ) ) {
+        $self->throw( ( caller( 1 ) )[ 3 ] .": Found [". ref( $value ) 
+        ."] where [$expected_class] expected" );
+    }    
+} # _check_ref_type
 
 
 
