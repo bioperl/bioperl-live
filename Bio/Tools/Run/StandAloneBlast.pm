@@ -273,7 +273,7 @@ BEGIN {
 #     use StandAloneBlast.pm.
 #	BEGIN {$ENV{BLASTDIR} = '/home/peter/blast/'; }
      $PROGRAMDIR = $ENV{'BLASTDIR'} || '';
-
+     
 # If local BLAST databases are not stored in the standard
 # /data directory, the variable BLASTDATADIR will need to be set explicitly 
      $DATADIR =  $ENV{'BLASTDATADIR'} || $ENV{'BLASTDB'} || '';
@@ -344,6 +344,8 @@ sub new {
 	my $attr =   shift @args;
 	my $value =  shift @args;
 	next if( $attr eq '-verbose');
+	# the workaround to deal with initializing
+	$attr = 'p' if $attr =~ /^\s*program\s*$/;
 	$self->$attr($value);
     }
     return $self;
@@ -358,7 +360,6 @@ sub AUTOLOAD {
     # actual key is first letter of $attr unless first attribute
     # letter is underscore (as in _READMETHOD), the $attr is a BLAST
     # parameter and should be truncated to its first letter only
-
     $attr = ($attr_letter eq '_') ? $attr : $attr_letter;
     $self->throw("Unallowed parameter: $attr !") unless $OK_FIELD{$attr};
 #    $self->throw("Unallowed parameter: $attr !") unless $ok_field{$attr_letter};
@@ -380,17 +381,17 @@ sub AUTOLOAD {
 
 =cut
 
-sub executable{
+sub executable {
    my ($self, $exename, $exe,$warn) = @_;
    $exename = 'blastall' unless defined $exename;
-   if( defined $exe ) {
+
+   if( defined $exe && -x $exe ) {
      $self->{'_pathtoexe'}->{$exename} = $exe;
    }
-   unless(defined $self->{'_pathtoexe'}->{$exename} ) {
-       if( $PROGRAMDIR ) {
-	   my $f = $self->io->catfile($PROGRAMDIR, $exename);	    
-	   $exe = $self->{'_pathtoexe'}->{$exename} = $f if(-e $f && -x $f );
-       } 
+   unless( defined $self->{'_pathtoexe'}->{$exename} ) {
+       my $f = $self->program_path($exename);	    
+       $exe = $self->{'_pathtoexe'}->{$exename} = $f if(-e $f && -x $f );
+        
        #  This is how I meant to split up these conditionals --jason
        # if exe is null we will execute this (handle the case where
        # PROGRAMDIR pointed to something invalid)
@@ -404,6 +405,50 @@ sub executable{
        }
    }
    return $self->{'_pathtoexe'}->{$exename};
+}
+
+
+=head2 program_path
+
+ Title   : program_path
+ Usage   : my $path = $factory->program_path();
+ Function: Builds path for executable 
+ Returns : string representing the full path to the exe
+ Args    : none
+
+=cut
+
+sub program_path {
+    my ($self,$program_name) = @_;
+    my @path;
+    push @path, $self->program_dir if $self->program_dir;
+    push @path, $program_name .($^O =~ /mswin/i ?'.exe':'');
+
+    return Bio::Root::IO->catfile(@path);
+}
+
+=head2 program_dir
+
+ Title   : program_dir
+ Usage   : my $dir = $factory->program_dir();
+ Function: Abstract get method for dir of program. To be implemented
+           by wrapper.
+ Returns : string representing program directory 
+ Args    : none 
+
+=cut
+
+sub program_dir {
+    $PROGRAMDIR;
+}
+
+sub program {
+    my $self = shift;
+    if( wantarray ) {
+	return ($self->executable, $self->p());
+    } else {
+	return $self->executable(@_);
+    }
 }
 
 =head2  blastall
