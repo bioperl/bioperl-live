@@ -72,21 +72,36 @@ package Bio::TreeIO::newick;
 use vars qw(@ISA);
 use strict;
 
-# Object preamble - inherits from Bio::Root::Root
-
 use Bio::TreeIO;
 use Bio::Event::EventGeneratorI;
-#use XML::Handler::Subs;
 
 
 @ISA = qw(Bio::TreeIO );
+
+
+=head2 _initialize
+
+ Title   : _initialize
+ Args    : -print_count => boolean  default is false
+
+
+=cut
+
+sub _initialize { 
+    my $self = shift;
+    $self->SUPER::_initialize(@_);
+    my ($print_count) = $self->_rearrange([qw(PRINT_COUNT)],
+					  @_);
+    $self->print_tree_count($print_count || 0);
+}
+
 
 =head2 next_tree
 
  Title   : next_tree
  Usage   : my $tree = $treeio->next_tree
  Function: Gets the next tree in the stream
- Returns : Bio::Tree::TreeI
+ Returns : L<Bio::Tree::TreeI>
  Args    : none
 
 
@@ -115,7 +130,7 @@ sub next_tree{
    $self->_eventHandler->start_document;
    my ($prev_event,$lastevent,$id) = ('','','');
    foreach my $ch ( split(//,$_) ) {
-       if( $ch eq ';' ) { 	   
+       if( $ch eq ';' ) {
 	   return $self->_eventHandler->end_document;
        } elsif( $ch eq '(' ) {
 	   $chars = '';
@@ -204,12 +219,15 @@ sub next_tree{
  Usage   : $treeio->write_tree($tree);
  Function: Write a tree out to data stream in newick/phylip format
  Returns : none
- Args    : Bio::Tree::TreeI object
+ Args    : L<Bio::Tree::TreeI> object
 
 =cut
 
 sub write_tree{
    my ($self,@trees) = @_;      
+   if( $self->print_tree_count ){ 
+       $self->_print(sprintf(" %d\n",scalar @trees));
+   }
    foreach my $tree( @trees ) {
        my @data = _write_tree_Helper($tree->get_root_node);
        if($data[-1] !~ /\)$/ ) {
@@ -254,6 +272,24 @@ sub _write_tree_Helper {
     }
     return @data;
 }
+
+=head2 print_tree_count
+
+ Title   : print_tree_count
+ Usage   : $obj->print_tree_count($newval)
+ Function: Get/Set flag for printing out the tree count (paml,protml way)
+ Returns : value of print_tree_count (a scalar)
+ Args    : on set, new value (a scalar or undef, optional)
+
+
+=cut
+
+sub print_tree_count{
+    my $self = shift;
+    return $self->{'_print_tree_count'} = shift if @_;
+    return $self->{'_print_tree_count'} || 0;
+}
+
 
 
 1;
