@@ -98,21 +98,22 @@ use Bio::Seq;
 sub _initialize {        
   my($self,@args) = @_;
   $self->SUPER::_initialize(@args);
-  my $xmlfile ="";
-  
-  $self->{'counter'} = 0;
+  my $xmlfile           = "";
+  $self->{'counter'}    = 0;
   $self->{'id_counter'} = 1;  
-  $self->{'leftovers'} = undef;
-  $self->{'header'} = undef;
-  $self->{'chunkable'} = undef;
-  $self->{'xmldoc'} = undef;
+  $self->{'leftovers'}  = undef;
+  $self->{'header'}     = undef;
+  $self->{'chunkable'}  = undef;
+  $self->{'xmldoc'}     = undef;
 
   $self->_export_subfeatures(1);
   $self->_group_subfeatures(1);
-  $self->_subfeature_types('exons', 'promoters','poly_A_sites','utrs','introns','sub_SeqFeature');
+  $self->_subfeature_types('exons', 'promoters','poly_A_sites',
+			   'utrs','introns','sub_SeqFeature');
   
   # filehandle is stored by superclass _initialize
 }
+
 
 =head2 _export_subfeatures
 
@@ -157,8 +158,10 @@ sub _group_subfeatures{
 
  Title   : _subfeature_types
  Usage   : $obj->_subfeature_types
- Function: array of all possible subfeatures, it should be a name of a function which
-         : returns an arrau of sub_seqfeatures when called: @array = $feature->subfeaturetyp()
+ Function: array of all possible subfeatures, it should be a 
+           name of a function which
+         : returns an arrau of sub_seqfeatures when called: 
+           @array = $feature->subfeaturetype()
  Returns : array of _subfeature_types
  Args    : array of subfeature types (optional)
 
@@ -469,13 +472,13 @@ sub next_primary_seq {
 sub write_seq {
     my ($self,@seqs) = @_;
 
-    my $bxfeat = "http://www.bioxml.org/dtds/current/feature.dtd";
-    my $bxann = "http://www.bioxml.org/dtds/current/annotation.dtd";
-    my $bxcomp = "http://www.bioxml.org/dtds/current/computation.dtd";
-    my $bxgame = "http://www.bioxml.org/dtds/current/game.dtd";
-    my $bxlink = "http://www.bioxml.org/dtds/current/link.dtd";
-    my $bxseq = "http://www.bioxml.org/dtds/current/seq.dtd";
-
+    my $bxfeat  = "http://www.bioxml.org/dtds/current/feature.dtd";
+    my $bxann   = "http://www.bioxml.org/dtds/current/annotation.dtd";
+    my $bxcomp  = "http://www.bioxml.org/dtds/current/computation.dtd";
+    my $bxgame  = "http://www.bioxml.org/dtds/current/game.dtd";
+    my $bxlink  = "http://www.bioxml.org/dtds/current/link.dtd";
+    my $bxseq   = "http://www.bioxml.org/dtds/current/seq.dtd";
+    
     my $writer = new XML::Writer(OUTPUT      => $self->_fh,
 				 NAMESPACES  => 1,
 				 DATA_MODE   => 1,
@@ -492,18 +495,17 @@ sub write_seq {
 
 
     $writer->xmlDecl("UTF-8");
-    $writer->doctype("bx-game:game", 'game', "http://www.bioxml.org/dtds/current/game.dtd");
-    
-    $writer ->startTag([$bxgame, 'game']);
-    $writer->startTag([$bxgame, 'flavor']);
+    $writer->doctype("bx-game:game", 'game', $bxgame);
+    $writer ->startTag ([$bxgame, 'game']);
+    $writer->startTag  ([$bxgame, 'flavor']);
     $writer->characters('chunkable');
-    $writer->endTag([$bxgame, 'flavor']);
+    $writer->endTag    ([$bxgame, 'flavor']);
 
     foreach my $seq (@seqs) {
-	$writer ->startTag([$bxseq, 'seq'], 
-			   [$bxseq, 'id'] => $seq->display_id,
-			   [$bxseq, 'length'] => $seq->length,
-			   [$bxseq, 'type'] => $seq->alphabet);
+	$writer->startTag([$bxseq, 'seq'], 
+			  [$bxseq, 'id'] => $seq->display_id,
+			  [$bxseq, 'length'] => $seq->length,
+			  [$bxseq, 'type'] => $seq->alphabet);
 	if ($seq->length > 0) {
 	    $writer->startTag([$bxseq, 'residues']);
 	    $writer->characters($seq->seq);
@@ -514,7 +516,6 @@ sub write_seq {
 	my @feats = $seq->all_SeqFeatures;
 
 	my $features;
-
 	foreach my $feature (@feats) {
 	    if ($feature->has_tag('annotation_id')) {
 		my @ann_id = $feature->each_tag_value('annotation_id');
@@ -526,7 +527,6 @@ sub write_seq {
 		push (@{$features->{'everybody_else'}}, $feature);
 	    }
 	}
-
 	foreach my $key (keys %{$features->{'annotations'}}) {
 	    $writer->startTag([$bxann, 'annotation'],
 			      [$bxann, 'id']=>$key
@@ -554,9 +554,9 @@ sub write_seq {
 	    $self->__draw_feature_set($writer, $seq, $bxcomp, "", @{$features->{'computations'}->{$key}});   
 	    $writer->endTag([$bxcomp, 'computation']);
 	}
-
-	foreach my $feature(@{$features->{'everybody_else'}}) {
-	    $self->__draw_feature($writer, $feature, $seq, "", $self->_export_subfeatures());
+	foreach my $feature (@{$features->{'everybody_else'}}) {
+	    $self->__draw_feature($writer, $feature, $seq, "", 
+				  $self->_export_subfeatures());
 	}
     }
     $writer->endTag([$bxgame, 'game']);
@@ -624,7 +624,6 @@ sub __draw_feature {
     $writer->startTag([$bxfeat, 'type']);
     $writer->characters($feature->primary_tag());
     $writer->endTag([$bxfeat, 'type']);
-
     foreach $score ($feature->all_tags()) {
 	next if ($score eq 'id');
 	$writer->startTag([$bxfeat, 'score'],
@@ -632,6 +631,7 @@ sub __draw_feature {
 			  );
 	$score_no = 0;
 	foreach $score_val ($feature->each_tag_value($score)) {
+	    next unless defined $score_val;
 	    $writer->characters(' ') if ($score_no > 0);
 	    $writer->characters($score_val);
 	    $score_no++;
