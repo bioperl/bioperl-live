@@ -59,22 +59,100 @@ use base qw(Bio::FeatureIO);
 use Bio::SeqFeature::Annotated;
 use Bio::OntologyIO;
 
+=head2 _initialize
+
+ Title   : _initialize
+ Function: initializes BED for reading/writing (currently write-only)
+ Args    : all optional:
+           name          description
+           ----------------------------------------------------------
+           -name         the name for the BED track, stored in header
+                         name defaults to localtime()
+           -description  the description for the BED track, stored in
+                         header.  defaults to localtime().
+           -use_score    whether or not the score attribute of
+                         features should be used when rendering them.
+                         the higher the score the darker the color.
+                         defaults to 0 (false)
+
+
+
+=cut
+
 sub _initialize {
   my($self,%arg) = @_;
 
   $self->SUPER::_initialize(%arg);
 
-  #read headers
-  my $directive;
-  while(($directive = $self->_readline()) && $directive =~ /^##/){
-    $self->_handle_directive($directive)
-  }
-  $self->_pushback($directive);
+  $self->name($arg{-name} || scalar(localtime()));
+  $self->description($arg{-description} || scalar(localtime()));
+  $self->use_score($arg{-use_score} || 0);
 
-  $self->so(
-            Bio::Ontology::OntologyStore->get_ontology('Sequence Ontology')
-           );
+  $self->_print(sprintf('track name="%s" description="%s" useScore=%d',
+                        $self->name,
+                        $self->description,
+                        $self->use_score ? 1 : 0
+                       )
+               );
 }
+
+=head2 use_score
+
+ Title   : use_score
+ Usage   : $obj->use_score($newval)
+ Function: should score be used to adjust feature color when rendering?  set to true if so.
+ Example : 
+ Returns : value of use_score (a scalar)
+ Args    : on set, new value (a scalar or undef, optional)
+
+
+=cut
+
+sub use_score{
+    my $self = shift;
+
+    return $self->{'use_score'} = shift if @_;
+    return $self->{'use_score'};
+}
+
+=head2 name
+
+ Title   : name
+ Usage   : $obj->name($newval)
+ Function: name of BED track
+ Example : 
+ Returns : value of name (a scalar)
+ Args    : on set, new value (a scalar or undef, optional)
+
+
+=cut
+
+sub name{
+    my $self = shift;
+
+    return $self->{'name'} = shift if @_;
+    return $self->{'name'};
+}
+
+=head2 description
+
+ Title   : description
+ Usage   : $obj->description($newval)
+ Function: description of BED track
+ Example : 
+ Returns : value of description (a scalar)
+ Args    : on set, new value (a scalar or undef, optional)
+
+
+=cut
+
+sub description{
+    my $self = shift;
+
+    return $self->{'description'} = shift if @_;
+    return $self->{'description'};
+}
+
 
 sub write_feature {
   my($self,$feature) = @_;
@@ -105,7 +183,7 @@ sub write_feature {
   my $block_sizes = '';  #not implemented, used for sub features
   my $block_starts = ''; #not implemented, used for sub features
 
-  print join("\t",($chrom,$chrom_start,$chrom_end,$name,$score,$strand,$thick_start,$thick_end,$reserved,$block_count,$block_sizes, $block_starts)),"\n";
+  $self->_print(join("\t",($chrom,$chrom_start,$chrom_end,$name,$score,$strand,$thick_start,$thick_end,$reserved,$block_count,$block_sizes, $block_starts)));
   $self->write_feature($_) foreach $feature->get_SeqFeatures();
 }
 
