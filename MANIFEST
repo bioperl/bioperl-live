@@ -159,7 +159,6 @@ Bio/Graphics/Glyph/track.pm
 Bio/Graphics/Glyph/transcript.pm
 Bio/Graphics/Glyph/transcript2.pm
 Bio/Graphics/Glyph/triangle.pm
-Bio/Graphics/Glyph/wormbase_transcript.pm
 Bio/Graphics/Panel.pm
 Bio/Index/Abstract.pm
 Bio/Index/AbstractSeq.pm
