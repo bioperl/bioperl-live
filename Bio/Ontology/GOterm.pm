@@ -389,9 +389,9 @@ sub to_string {
     $s .= "-- GO id:\n";
     $s .= $self->GO_id()."\n";
     $s .= "-- Name:\n";
-    $s .= $self->name()."\n";
+    $s .= $self->name() || '' ."\n";
     $s .= "-- Definition:\n";
-    $s .= $self->definition()."\n";
+    $s .= $self->definition() || '' ."\n";
     $s .= "-- Category:\n";
     if ( defined( $self->category() ) ) {
         $s .= $self->category()->name()."\n";
@@ -400,11 +400,11 @@ sub to_string {
         $s .= "\n";
     }
     $s .= "-- Version:\n";
-    $s .= $self->version()."\n";
+    $s .= $self->version() || '' ."\n";
     $s .= "-- Is obsolete:\n";
     $s .= $self->is_obsolete()."\n";
     $s .= "-- Comment:\n";
-    $s .= $self->comment()."\n"; 
+    $s .= $self->comment() || '' ."\n"; 
     $s .= "-- Definition references:\n";
     $s .= $self->_array_to_string( $self->each_dblink() )."\n";
     $s .= "-- Secondary GO ids:\n";
