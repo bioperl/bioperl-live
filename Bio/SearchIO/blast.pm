@@ -212,7 +212,7 @@ BEGIN {
 
           'Statistics_db-len'    => {'RESULT-statistics' => 'dbentries'},
           'Statistics_db-let'    => { 'RESULT-statistics' => 'dbletters'},
-          'Statistics_hsp-len'   => { 'RESULT-statistics' => 'hsplength'},
+          'Statistics_hsp-len'   => { 'RESULT-statistics' => 'effective_hsplength'},
           'Statistics_query-len'   => { 'RESULT-statistics' => 'querylength'},
           'Statistics_eff-space' => { 'RESULT-statistics' => 'effectivespace'},
           'Statistics_eff-spaceused' => { 'RESULT-statistics' => 'effectivespaceused'},
@@ -230,6 +230,14 @@ BEGIN {
           'Statistics_S1'=> { 'RESULT-statistics' => 'S1'},
           'Statistics_S2'=> { 'RESULT-statistics' => 'S2'},
 
+	  'Statistics_hit_to_db' => { 'RESULT-statistics'          => 'Hits_to_DB'},
+	  'Statistics_num_extensions' => { 'RESULT-statistics'     => 'num_extensions'},
+	  'Statistics_num_extensions' => { 'RESULT-statistics'     => 'num_extensions'},
+	  'Statistics_num_suc_extensions' => { 'RESULT-statistics' => 'num_successful_extensions'},
+	  'Statistics_seqs_better_than_cutoff' => { 'RESULT-statistics' 
+							           => 'seqs_better_than_cutoff'},
+	  'Statistics_posted_date' => { 'RESULT-statistics' => 'posted_date'},
+	  
           # WU-BLAST stats
           'Statistics_DFA_states'=> { 'RESULT-statistics' => 'num_dfa_states'},
           'Statistics_DFA_size'=> { 'RESULT-statistics' => 'dfa_size'},
@@ -771,7 +779,7 @@ sub next_result{
                            'Data' => $hitframe});
        } elsif(  /^Parameters:/ || /^\s+Database:\s+?/ || 
 		 /^\s+Subset/ || /^\s*Lambda/ || /^\s*Histogram/ ||
-                 ( $self->in_element('hsp') && (/WARNING/ || /NOTE/ )) ) {
+                 ( $self->in_element('hsp') && /WARNING|NOTE/ )) {
 
            # Note: Lambda check was necessary to parse 
 	   # t/data/ecoli_domains.rpsblast AND to parse bl2seq
@@ -784,7 +792,11 @@ sub next_result{
 	       $self->end_element({'Name' => 'Iteration'});
 
            next if /^\s+Subset/;
-           my $blast = ( /Parameters\:/ ) ? 'wublast' : 'ncbi'; 
+	   my $blast = ( /^(\s+Database\:)|(\s*Lambda)/ ) ? 'ncbi' : 'wublast';
+	   if( /^\s*Histogram/ ) {
+	       $blast = 'btk';
+	   }
+	   
            my $last = '';
            # default is that gaps are allowed
            $self->element({'Name' => 'Parameters_allowgaps',
@@ -827,7 +839,9 @@ sub next_result{
                    $s =~ s/,//g;
                    $self->element({'Name' => 'Statistics_db-let',
                                    'Data' => $s});
-               } elsif( $blast eq 'wublast' ) {
+               } elsif( $blast eq 'btk' ) { 
+		   next;
+	       } elsif( $blast eq 'wublast' ) {
                    if( /E=(\S+)/ ) {
                        $self->element({'Name' => 'Parameters_expect',
                                        'Data' => $1});
@@ -848,7 +862,12 @@ sub next_result{
                                        'Data' => $kappa});
                        $self->element({'Name' => 'Statistics_entropy',
                                        'Data' => $entropy});
-                   } elsif( /(\S+\s+\S+)\s+DFA:\s+(\S+)\s+\((.+)\)/ ) {
+                    } elsif( m/^\s+Q=(\d+),R=(\d+)\s+/ox ) {
+			$self->element({'Name' => 'Parameters_gap-open',
+					'Data' => $1});
+			$self->element({'Name' => 'Parameters_gap-extend',
+					'Data' => $2});
+		   } elsif( /(\S+\s+\S+)\s+DFA:\s+(\S+)\s+\((.+)\)/ ) {
                        if( $1 eq 'states in') { 
                            $self->element({'Name' => 'Statistics_DFA_states',
                                            'Data' => "$2 $3"});
@@ -883,8 +902,8 @@ sub next_result{
                    }
                    
                } elsif ( $blast eq 'ncbi' ) {
-
-                   if( /^Matrix:\s+(.+)\s*$/i ) {
+		   
+                   if( m/^Matrix:\s+(.+)\s*$/oxi ) {
                        $self->element({'Name' => 'Parameters_matrix',
                                        'Data' => $1});                       
                    } elsif( /Lambda/ ) {
@@ -897,15 +916,15 @@ sub next_result{
                                        'Data' => $kappa});
                        $self->element({'Name' => 'Statistics_entropy',
                                        'Data' => $entropy});
-                   } elsif( /effective\s+search\s+space\s+used:\s+(\d+)/ ) {
+                   } elsif( m/effective\s+search\s+space\s+used:\s+(\d+)/ox ) {
                        $self->element({'Name' => 'Statistics_eff-spaceused',
                                        'Data' => $1});                       
-                   } elsif( /effective\s+search\s+space:\s+(\d+)/ ) {
+                   } elsif( m/effective\s+search\s+space:\s+(\d+)/ox ) {
                        $self->element({'Name' => 'Statistics_eff-space',
                                        'Data' => $1});
                    } elsif( m/Gap\s+Penalties:\s+Existence:\s+(\d+)\,
-			    \s+Extension:\s+(\d+)/x) {
-                       $self->element({'Name' => 'Parameters_gap-open',
+			    \s+Extension:\s+(\d+)/ox) {
+		       $self->element({'Name' => 'Parameters_gap-open',
                                        'Data' => $1});
                        $self->element({'Name' => 'Parameters_gap-extend',
                                        'Data' => $2});
@@ -922,16 +941,41 @@ sub next_result{
                        $c =~ s/\,//g;
                        $self->element({'Name' => 'Statistics_eff-dblen',
                                        'Data' => $c});
-                   } elsif( /^(T|A|X1|X2|S1|S2):\s+(\d+)/ ) {
+                   } elsif( /^(T|A|X1|X2|S1|S2):\s+(.+)/ ) {
+		       my $v = $2;
+		       chomp($v);
                        $self->element({'Name' => "Statistics_$1",
-                                       'Data' => $2})
-                       } elsif( m/frameshift\s+window\,
-				\s+decay\s+const:\s+(\d+)\,\s+([\.\d]+)/x ) {
-                           $self->element({'Name'=> 'Statistics_framewindow',
-                                           'Data' => $1});
-                           $self->element({'Name'=> 'Statistics_decay',
-                                           'Data' => $2});
-                       }
+                                       'Data' => $v});
+		   } elsif( m/frameshift\s+window\,
+			    \s+decay\s+const:\s+(\d+)\,\s+([\.\d]+)/x ) {
+		       $self->element({'Name'=> 'Statistics_framewindow',
+				       'Data' => $1});
+		       $self->element({'Name'=> 'Statistics_decay',
+				       'Data' => $2});
+		   } elsif( m/^Number\s+of\s+Hits\s+to\s+DB:\s+(\S+)/ox ) {
+		       $self->element({'Name' => 'Statistics_hit_to_db',
+				       'Data' => $1});
+		   } elsif( m/^Number\s+of\s+extensions:\s+(\S+)/ox ) {
+		       $self->element({'Name' => 'Statistics_num_extensions',
+				       'Data' => $1});
+		   } elsif( m/^Number\s+of\s+successful\s+extensions:\s+
+			    (\S+)/ox ) {
+		       $self->element({'Name' => 'Statistics_num_suc_extensions',
+				       'Data' => $1});
+		   } elsif( m/^Number\s+of\s+sequences\s+better\s+than\s+
+			    (\S+):\s+(\d+)/ox ) {
+		       $self->element({'Name' => 'Parameters_expect',
+				       'Data' => $1});
+		       $self->element({'Name' => 'Statistics_seqs_better_than_cutoff',
+				       'Data' => $2});
+		   } elsif( /^\s+Posted\s+date:\s+(.+)/ ) {
+		       my $d = $1;
+		       chomp($d);
+		       $self->element({'Name' => 'Statistics_posted_date',
+				       'Data' => $d});
+		   } elsif( ! /^\s+$/ ) { 
+		       $self->debug( "unmatched stat $_");
+		   }
                }
                $last = $_;
            }

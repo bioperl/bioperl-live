@@ -20,7 +20,7 @@ BEGIN {
 	use lib 't';
     }
     use vars qw($NTESTS);
-    $NTESTS = 1105;
+    $NTESTS = 1108;
     $LASTXMLTEST = 54;
     $error = 0;
 
@@ -150,11 +150,15 @@ ok($result->get_statistic('lambda'), 0.267);
 ok($result->get_statistic('entropy') == 0.14);
 ok($result->get_statistic('dbletters'), 1358990);
 ok($result->get_statistic('dbentries'), 4289);
-ok($result->get_statistic('hsplength'), 47);
+ok($result->get_statistic('effective_hsplength'), 47);
 ok($result->get_statistic('effectivespace'), 894675611);
 ok($result->get_parameter('matrix'), 'BLOSUM62');
 ok($result->get_parameter('gapopen'), 11);
 ok($result->get_parameter('gapext'), 1);
+ok($result->get_statistic('S2'), '92 (40.0 bits)');
+ok($result->get_parameter('expect'), '1.0e-03');
+ok($result->get_statistic('num_extensions'), '82424');
+
 
 my @valid = ( [ 'gb|AAC73113.1|', 820, 'AAC73113', '0', 1567],
 	      [ 'gb|AAC76922.1|', 810, 'AAC76922', '1e-91', 332],
@@ -597,10 +601,10 @@ ok($result->get_statistic('kappa'), 0.711);
 ok($result->get_statistic('entropy'),1.31 );
 ok($result->get_statistic('T'), 0);
 ok($result->get_statistic('A'), 30);
-ok($result->get_statistic('X1'), 6);
-ok($result->get_statistic('X2'), 15);
-ok($result->get_statistic('S1'), 12);
-ok($result->get_statistic('S2'), 17);
+ok($result->get_statistic('X1'), "6 (11.9 bits)");
+ok($result->get_statistic('X2'), "15 (29.7 bits)");
+ok($result->get_statistic('S1'), "12 (24.3 bits)");
+ok($result->get_statistic('S2'), "17 (34.2 bits)");
 
 ok($result->get_statistic('dbentries'), 1083200);
 
@@ -1136,7 +1140,7 @@ ok($result->get_statistic('lambda') == 0.270);
 ok($result->get_statistic('entropy') == 0.230);
 ok($result->get_statistic('dbletters'), 31984247);
 ok($result->get_statistic('dbentries'), 88780);
-ok($result->get_statistic('hsplength'), 49);
+ok($result->get_statistic('effective_hsplength'), 49);
 ok($result->get_statistic('effectivespace'), 8124403938);
 ok($result->get_parameter('matrix'), 'BLOSUM62');
 ok($result->get_parameter('gapopen'), 11);
