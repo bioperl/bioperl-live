@@ -22,7 +22,7 @@ Bio::Event::EventHandlerI - An Event Handler Interface
 
 =head1 DESCRIPTION
 
-This interface describes the basic methods required for a
+This interface describes the basic methods required for
 EventHandlers.  These are essentially SAX methods. 
 
 =head1 FEEDBACK
