@@ -284,7 +284,7 @@ BEGIN {
 # If local BLAST databases are not stored in the standard
 # /data directory, the variable BLASTDATADIR will need to be set explicitly 
      $DATADIR =  $ENV{'BLASTDATADIR'} ||
-	 ($BLASTDIR ? Bio::Root::IO->catfile($BLASTDIR,'data') : undef);
+	 ($BLASTDIR ? Bio::Root::IO->catfile($BLASTDIR,'data') : '');
 }
 
 @ISA = qw(Bio::Root::RootI Bio::Root::IO);
