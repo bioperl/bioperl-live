@@ -168,10 +168,10 @@ sub cytoband {
 
  Title   : locuslink
  Usage   : locuslink();
- Function: Returns the locuslink associated with the object.
- Example : $locuslink = $unigene->locuslink or $unigene->locuslink($locuslink)
- Returns : A string
- Args    : None or a locuslink
+ Function: Returns or stores a reference to an array containing locuslink data.
+ 		   This should really only be used by ClusterIO, not directly
+ Returns : An array reference
+ Args    : None or an array reference
 
 =cut
 
@@ -179,6 +179,26 @@ sub locuslink {
 	my ($self) = @_;
 	$self->throw_not_implemented;
 }
+
+
+=head2 next_locuslink
+
+ Title   : next_locuslink
+ Usage   : next_locuslink();
+ Function: Returns the next locuslink from an array referred to using $obj->{'locuslink'}
+ Example : 	while ( my $locuslink = $in->next_locuslink() ) {
+				print "$locuslink\n";
+			}
+ Returns : String
+ Args    : None
+
+=cut
+
+sub next_locuslink {
+	my ($self) = @_;
+	$self->throw_not_implemented;
+}
+
 
 
 =head2 gnm_terminus
@@ -220,7 +240,7 @@ sub scount {
 
  Title   : express
  Usage   : express();
- Function: Returns or stores a reference to an array containing tissue expression data
+ Function: Returns or stores a reference to an array containing tissue expression data.
  		   This should really only be used by ClusterIO, not directly
  Returns : An array reference
  Args    : None or an array reference
