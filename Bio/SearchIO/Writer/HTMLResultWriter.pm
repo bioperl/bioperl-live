@@ -579,7 +579,7 @@ sub MAX { $a <=> $b ? $b : $a; }
 
 sub footer { 
     my ($self) = @_;
-    return "<hr><h5>Produced by Bioperl module ".ref($self)." on $DATE</h5>\n"
+    return "<hr><h5>Produced by Bioperl module ".ref($self)." on $DATE<br>Revision: $Revision</h5>\n"
     
 }
 
