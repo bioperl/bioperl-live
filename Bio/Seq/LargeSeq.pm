@@ -131,4 +131,9 @@ sub trunc {
 
 =cut
 
+sub add_sequence_as_string {
+    my ($self,$str) = @_;
+    return $self->primary_seq->add_sequence_as_string($str);
+}
+
 1;
