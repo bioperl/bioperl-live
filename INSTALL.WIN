@@ -14,9 +14,11 @@ BioPerl on Windows
 2.1 Subroutine <name> redefined at location <location> warnings
 2.2 Consed
 3.0 BioPerl in Cygwin
+3.1 Cygwin tips
 
-This introduction was written by Paul Boutros. Please report problems
-and/or fixes to the bioperl mailing list, bioperl-l@bioperl.org
+This introduction was written by Paul Boutros and other Bioperl
+authors. Please report problems and/or fixes to the bioperl 
+mailing list, bioperl-l@bioperl.org
 
 
 1.0 Installation
@@ -180,26 +182,71 @@ the -w flag and you will not receive these warnings.
 
 2.2 Consed
 ==========
+
 The consed module cannot be run under Windows.
 
 3.0 BioPerl in Cygwin
 =====================
 
 Cygwin is a Unix emulator and shell environment available free at
-www.cygwin.com. BioPerl v. 1.* runs perfectly well within Cygwin. The
-only known problem is that DBD::mysql can be tricky to install in
+www.cygwin.com. BioPerl v. 1.* runs perfectly well within Cygwin. 
+Some users claim that installation of Bioperl is easier within 
+Cygwin than within Windows, but these may be users with Unix 
+backgrounds.
+
+One advantage of using Bioperl in Cygwin is that all the external 
+modules are available through CPAN - the same cannot be said of 
+ActiveState's Perl.
+
+To get Bioperl running first install the basic Cygwin package as well
+as the Cygwin Perl, make, and gcc packages. Clicking the "View" button
+in the upper right of the installer enables you to see details on the
+various packages. Then follow the BioPerl installation instructions
+for Unix in BioPerl's INSTALL file.
+
+If you want use BLAST we recommend that the Windows binary be obtained 
+from NCBI (ftp://ftp.ncbi.nih.gov/blast/executables/LATEST-BLAST - the 
+file will be named something like blast-2.2.6-ia32-win32.exe). 
+Then follow the Windows instructions in README.bls. 
+
+Note that expat comes with Cygwin (it's used by the module XML::Parser).
+
+The only known problem is that DBD::mysql can be tricky to install in
 Cygwin and this module is required for the bioperl-db, biosql, and 
 bioperl-pipeline external packages. Fortunately there's some good 
 instructions online:
 http://search.cpan.org/src/JWIED/DBD-mysql-2.1025/INSTALL.html#windows/cygwin.
 
-To get Bioperl running first install the basic Cygwin package as well
-as the Cygwin Perl, make, and gcc packages. Clicking the "View" button
-in the upper left of the installer enables you to see details on the
-various packages. Then follow the BioPerl installation instructions
-for Unix in BioPerl's INSTALL file.
+3.1 Cygwin tips
+===============
 
-One advantage of using Cygwin and Bioperl is that all the external 
-modules are available - the same cannot be said of ActiveState's Perl.
+The easiest way to install Mysql itself is to use the Windows binaries 
+available at www.mysql.com. Note that Windows does not have
+sockets, so you need to force Mysql connections to use TCP/IP
+instead. One way to do this, if the database is installed is to use 
+the "-h" option from the command-line. Or, alias the mysql command in your 
+.tcshrc, .cshrc, or .bashrc so it uses a host. For example, if your
+databases are installed locally:
+
+alias mysql 'mysql -h 127.0.0.1'
+
+If you're trying to use some application or resource "outside" of 
+Cygwin and you're having a problem remember that Cygwin's path syntax 
+may not be the correct one. Cygwin understands '/home/jacky' or 
+'/cygdrive/e/cygwin/home/jacky' (when referring to the E: drive) 
+but the external resource may want 'E:/cygwin/home/jacky'. So your 
+*rc files may end up with paths written in these different syntaxes, 
+depending.
+
+If you can, install Cygwin on a drive or partition that's
+NTFS-formatted, not FAT32. When Cygwin is installed on a FAT32
+partition you will not be able to set permissions and ownership. 
+In most situations this probably won't make any difference but there 
+may be occasions where this is an important detail.
+
+Although we've recommended using the BLAST and Mysql binaries you
+should be able to compile just about everything else from source 
+code easily, using gcc. You'll notice when you're installing Cygwin
+that many different libraries are also available (gd, jpeg, etc.).
 
 =========================================================================
