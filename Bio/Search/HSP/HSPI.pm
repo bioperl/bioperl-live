@@ -406,9 +406,9 @@ These methods come from Bio::SeqFeature::SimilarityPair
  Title   : significance
  Usage   : $evalue = $obj->significance();
            $obj->significance($evalue);
- Function: 
- Returns : 
- Args    : 
+ Function: Get/Set the significance value (see Bio::SeqFeature::SimilarityPair)
+ Returns : significance value (scientific notation string)
+ Args    : significance value (sci notation string)
 
 
 =head2 score
