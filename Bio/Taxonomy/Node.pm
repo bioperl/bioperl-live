@@ -84,9 +84,6 @@ Internal methods are usually preceded with a _
 =cut
 
 
-# Let the code begin...
-
-
 package Bio::Taxonomy::Node;
 use vars qw(@ISA);
 use strict;
@@ -107,28 +104,63 @@ use Bio::DB::Taxonomy;
            -name      => a string representing the node name
            -object_id => unique identifier - typically NCBI Taxid
 
+
 =cut
 
 sub new {
   my($class,@args) = @_;
   my $self = $class->SUPER::new(@args);
-  my ($name,$uniqueid,$parentid,$rank,$div,$dbh, $factory) = 
-      $self->_rearrange([qw(NAME OBJECT_ID PARENT_ID RANK DIVISION
-			    DBH FACTORY)],
+  my ($name,$uniqueid,$parentid,
+      $rank,$div,$dbh, $factory,
+      $classification, $ncbitaxid, $commonname,
+      $organelle, $sub_species,$variant) = 
+	  $self->_rearrange([ qw ( NAME OBJECT_ID PARENT_ID RANK DIVISION
+                                   DBH FACTORY
+                                   CLASSIFICATION
+                                   NCBI_TAXID
+			           COMMON_NAME
+                                   ORGANELLE
+				   SUB_SPECIES
+			           VARIANT
+			     )],
 			@args);
-
-  $uniqueid && $self->object_id($uniqueid);
-  $name && $self->node_name($name);
-  $rank && $self->rank($rank);
-  $div  && $self->division($div);
-  $factory && $self->factory($factory);
-  unless(defined $factory){
-      $self->db_handle($dbh 
-        || Bio::DB::Taxonomy->new(-source => 'entrez'));
+  if( defined $ncbitaxid && defined $uniqueid && $ncbitaxid ne $uniqueid  ) {
+      $self->warn("Only provide one of -object_id or -ncbi_taxid, using $uniqueid\n");
+  } elsif( ! defined $uniqueid && defined $ncbitaxid ) { 
+      $uniqueid = $ncbitaxid;
   }
-  $self->parent_id($parentid);
+$uniqueid && $self->object_id($uniqueid);
+
+  if( defined $name && defined $commonname && $commonname ne $name ) { 
+      $self->warn("Only provide one of -name or -common_name to $class, using -name value\n");
+  } elsif( ! defined $name && defined $commonname ) { 
+      $name = $commonname;
+  }
+
+  defined $name && $self->node_name($name);
+  defined $rank && $self->rank($rank);
+  defined $div  && $self->division($div);
+
+  
+  unless(defined $factory ){
+      $self->db_handle($dbh || Bio::DB::Taxonomy->new(-source => 'entrez'));
+  } else { 
+      $self->factory($factory);
+  }
+  defined $parentid && $self->parent_id($parentid);
+  if( defined $classification ) {
+      if( ref($classification) !~ /ARRAY/ ) {
+	  $self->warn("Classification can only be initialize with an arrayref\n");
+      }
+      $self->classification(@$classification);
+  }
+  defined $organelle && $self->name('organelle', $organelle);
+  defined $sub_species && $self->name('sub_species', $sub_species);
+  defined $variant && $self->name('variant',$variant);
+
   return $self;
 }
+
 
 =head2 db_handle
 
@@ -141,13 +173,13 @@ sub new {
 
 =cut
 
-sub db_handle{
+sub db_handle {
     my $self = shift;
     if( @_ ) {
 	my $v = shift;
 	# until we establish some other higher level TaxonomyDB interface
 	if( ! ref($v) || ! $v->isa('Bio::DB::Taxonomy') ) {
-	  $self->throw("Must have provided a valid Bio::DB::Taxonomy object");
+	    $self->throw("Must have provided a valid Bio::DB::Taxonomy object");
 	}
 	$self->{'db_handle'} = $v;
     }
@@ -306,7 +338,12 @@ sub parent_id{
 
 sub get_Parent_Node {
    my ($self) = @_;
-   
+   if( ! $self->db_handle ||
+       ! defined $self->parent_id ) {
+       $self->warn("Cannot get the parent node for ",$self->name('common'), 
+		   " because parent_id or db handle is not defined\n");
+       return undef;
+   }
    my $node = $self->db_handle->get_Taxonomy_Node(-taxonid => $self->parent_id);
    unless ( $node ) {
        $self->warn("Could not find node for parent id ". $self->parent_id);
@@ -329,9 +366,11 @@ sub get_Parent_Node {
 
 sub node_name{
     my $self = shift;
-    return $self->{'node_name'} = shift if @_;
-    return $self->{'node_name'};
+    my @v = @{$self->name('common',@_) || []};
+    return ( wantarray ) ? @v : shift @v;
 }
+
+*common_name = \&node_name;
 
 =head2 classification
 
@@ -344,20 +383,28 @@ sub node_name{
            Checks are made that species is in lower case,
            and all other elements are in title case.
  Returns : Classification array
- Args    : none - this can be set directly
+ Args    : [optional] array of vals to set classification to
 
 =cut
 
 sub classification {
    my ($self,@vals) = @_;
    my $p;
-   if( defined($p = $self->get_Parent_Node()) &&
-	       $p->object_id != 1  ) {
-       # okay this won't really work - need to do proper recursion
-       push @vals, $p->classification;
-   }
-   if( $self->show_all || $self->rank ne 'no rank') {
-       push @vals,$self->node_name();
+   if( @vals ) {
+       $self->{'_classification'} = [@vals];
+       return @vals;
+   } elsif ( defined $self->{'_classification'} ) {
+       return @{$self->{'_classification'}};
+   } else { 
+       if( defined($p = $self->get_Parent_Node()) &&
+	   $p->object_id != 1  ) {
+	   # okay this won't really work - need to do proper recursion
+	   push @vals, $p->classification;
+       }
+       if( $self->show_all || $self->rank ne 'no rank') {
+	   push @vals,$self->node_name();
+       }
+       $self->{'_classification'} = \@vals;
    }
    return @vals;
 }
@@ -375,11 +422,10 @@ sub classification {
 
 =cut
 
-sub division{
+sub division {
     my $self = shift;
-
-    return $self->{'division'} = shift if @_;
-    return $self->{'division'};
+    my @v = @{$self->name('division',@_) || []};
+    return wantarray ? @v : shift @v;
 }
 
 =head2 show_all
@@ -396,7 +442,6 @@ sub division{
 
 sub show_all{
     my $self = shift;
-
     return $self->{'show_all'} = shift if @_;
     return $self->{'show_all'};
 }
@@ -421,13 +466,13 @@ sub name {
     $self->throw('No name class specified') unless defined $name_class;
     # scientific name should be special, because of its uniqueness.
     return [$self->scientific_name(@names)] if $name_class =~ /scientific/i;
-    $self->{_names_hash} = {} unless exists $self->{_names_hash};
+    $self->{'_names_hash'} = {} unless exists $self->{'_names_hash'};
     if(@names){
-        $self->{_names_hash}->{$name_class} = [] 
-            unless exists $self->{_names_hash}->{$name_class};
-        push @{$self->{_names_hash}->{$name_class}}, @names;
+        $self->{'_names_hash'}->{$name_class} = [] 
+            unless exists $self->{'_names_hash'}->{$name_class};
+        push @{$self->{'_names_hash'}->{$name_class}}, @names;
     }
-    return $self->{_names_hash}->{$name_class};
+    return $self->{'_names_hash'}->{$name_class};
 }
 
 =head2 scientific_name
@@ -442,15 +487,10 @@ sub name {
 
 sub scientific_name {
     my $self = shift;
-    if(@_){
-        my $scientific_name = shift;
-        if(defined $self->{_scientific_name}){
-            my $current = $self->{_scientific_name};
-            $self->throw("Scientific name can be set once only![$current]");
-        }
-        return $self->{_scientific_name} = $scientific_name;
+    if( @_ ) { 
+	$self->warn("Scientfic name must be set through classification");
     }
-    return $self->{_scientific_name};
+    $self->binomial;
 }
 
 =head2 parent_taxon_id
@@ -466,8 +506,158 @@ sub scientific_name {
 
 sub parent_taxon_id {
     my $self = shift;
-    return $self->{_parent_taxon_id} = shift if @_;
-    return $self->{_parent_taxon_id};
+    return $self->{'_parent_taxon_id'} = shift if @_;
+    return $self->{'_parent_taxon_id'};
 }
 
-1; # EOF
+
+=head2 species
+
+ Title   : species
+ Usage   : $self->species( $species );
+           $species = $self->species();
+ Function: Get or set the scientific species name.  The species
+           name must be in lower case.
+ Example : $self->species( 'sapiens' );
+ Returns : Scientific species name as string
+ Args    : Scientific species name as string
+
+=cut
+
+
+sub species {
+    my($self, $species) = @_;
+
+    if (defined $species) {
+        $self->validate_species_name( $species );
+        $self->{'_classification'}[0] = $species;
+    }
+    return $self->{'_classification'}[0];
+}
+
+=head2 genus
+
+ Title   : genus
+ Usage   : $self->genus( $genus );
+           $genus = $self->genus();
+ Function: Get or set the scientific genus name.  The genus
+           must be in title case.
+ Example : $self->genus( 'Homo' );
+ Returns : Scientific genus name as string
+ Args    : Scientific genus name as string
+
+=cut
+
+
+sub genus {
+    my($self, $genus) = @_;
+    if (defined $genus) {
+        $self->{'_classification'}[1] = $genus;
+    }
+    return $self->{'_classification'}[1];
+}
+
+=head2 sub_species
+
+ Title   : sub_species
+ Usage   : $obj->sub_species($newval)
+ Function:
+ Returns : value of sub_species
+ Args    : newvalue (optional)
+
+
+=cut
+
+sub sub_species {
+    my $self = shift;
+    my @v = @{$self->name('sub_species', @_) || []};
+    return wantarray ? @v : shift @v;
+}
+
+=head2 binomial
+
+ Title   : binomial
+ Usage   : $binomial = $self->binomial();
+           $binomial = $self->binomial('FULL');
+ Function: Returns a string "Genus species", or "Genus species subspecies",
+           if the first argument is 'FULL' (and the species has a subspecies).
+ Args    : Optionally the string 'FULL' to get the full name including
+           the subspecies.
+
+=cut
+
+
+sub binomial {
+    my( $self, $full ) = @_;
+
+    my( $species, $genus ) = $self->classification();
+    unless( defined $species) {
+	$species = 'sp.';
+	$self->warn("requested binomial but classification was not set");
+    }
+    $genus = ''   unless( defined $genus);
+    my $bi = "$genus $species";
+    if (defined($full) && $full =~ /full/i) { 
+	my $ssp = $self->sub_species;
+        $bi .= " $ssp" if $ssp;
+    }
+    return $bi;
+}
+
+
+=head2 organelle
+
+ Title   : organelle
+ Usage   : $self->organelle( $organelle );
+           $organelle = $self->organelle();
+ Function: Get or set the organelle name
+ Example : $self->organelle('Chloroplast')
+ Returns : The organelle name in a string
+ Args    : String, which is the organelle name
+
+=cut
+
+sub organelle {
+    my $self = shift;
+    my @v = @{$self->name('organelle', @_) || []};
+    return wantarray ? @v : shift @v;
+}
+
+=head2 variant
+
+ Title   : variant
+ Usage   : $obj->variant($newval)
+ Function: Get/set variant information for this species object (strain,
+           isolate, etc).
+ Example : 
+ Returns : value of variant (a scalar)
+ Args    : new value (a scalar or undef, optional)
+
+
+=cut
+
+sub variant{
+    my $self = shift;
+    my @v = @{$self->name('variant',@_) || []};
+    return wantarray ? @v : shift @v;
+}
+
+sub validate_species_name {
+    my( $self, $string ) = @_;
+
+    return 1 if $string eq "sp.";
+    return 1 if $string =~ /^[a-z][\w\s]+$/i;
+    $self->throw("Invalid species name '$string'");
+}
+
+sub validate_name {
+    return 1; # checking is disabled as there is really not much we can
+              # enforce HL 2002/10/03
+#     my( $self, $string ) = @_;
+
+#     return 1 if $string =~ /^[\w\s\-\,\.]+$/ or
+#         $self->throw("Invalid name '$string'");
+}
+
+
+1;
