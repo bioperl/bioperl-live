@@ -53,6 +53,8 @@ range, that match a certain feature type, etc.
 
   # subset should have 22 entries for this dataset
   print "size is ", scalar @subset, "\n";
+  print "total number of features in collection is ", 
+         $col->feature_count(),"\n";
 
 =head1 DESCRIPTION
 
@@ -263,7 +265,14 @@ sub features_in_range{
 						   @args);
        $contain = 1 unless defined $contain;
    }
-   $strand |= 1;
+   $strand = 1 unless defined $strand;
+   if( $strand !~ /^([\-\+])$/ &&
+       $strand !~ /^[\-\+]?1$/ ) {
+       $self->warn("must provide a valid numeric or +/- for strand");
+       return ();
+   }
+   if( defined $1 ) { $strand .= 1; }
+
    if( !defined $start && !defined $end ) {
        if( ! defined $range || !ref($range) || ! $range->isa("Bio::RangeI") ) 
        { 
@@ -345,6 +354,25 @@ sub max_bin {
   }
   return $self->{'max_bin'} || MAX_BIN;
 }
+
+=head2 feature_count
+
+ Title   : feature_count
+ Usage   : my $c = $col->feature_count()
+ Function: Retrieve the total number of features in the collection
+ Returns : integer
+ Args    : none
+
+
+=cut
+
+sub feature_count{
+   my ($self) = @_;
+   return scalar @{$self->{'_features'}};
+}
+
+
+
 sub _compare{ $_[0] <=> $_[1]}
 
 sub _comparepack { unpack("d", $_[0]) <=> unpack("d", $_[1]) ;}
