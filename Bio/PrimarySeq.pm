@@ -48,7 +48,7 @@ Bio::PrimarySeq - Bioperl lightweight Sequence Object
 
 =head1 DESCRIPTION
 
-PrimaySeq is a lightweight Sequence object, storing little more than
+PrimarySeq is a lightweight Sequence object, storing little more than
 the sequence, its name, a computer useful unique name. It does not
 contain sequence features or other information.  To have a sequence
 with sequence features you should use the Seq object which uses this
@@ -311,15 +311,14 @@ sub display_id {
 =cut
 
 sub accession_number {
-   my ($obj,$value) = @_;
-   if( defined $value) {
-      $obj->{'accession_number'} = $value;
-  }
-   if( ! exists $obj->{'accession_number'} ) {
-       return "unknown";
-   } 
-   return $obj->{'accession_number'};
-
+    my ($obj,$value) = @_;
+    if( defined $value) {
+	$obj->{'accession_number'} = $value;
+    }
+    if( ! exists $obj->{'accession_number'} ) {
+	return "unknown";
+    } 
+    return $obj->{'accession_number'};
 }
 
 
