@@ -541,14 +541,17 @@ sub seq {
     $seqType ||= 'query';
     $seqType = 'sbjct' if $seqType eq 'hit';
     my $str = $self->seq_str($seqType);
+    if( $seqType =~ /^(m|ho)/i ) {
+	$self->throw("cannot call seq on the homology match string, it isn't really a sequence, use get_aln to convert the HSP to a Bio::AlignIO and generate a consensus from that.");
+    }
     require Bio::LocatableSeq;
-
-    new Bio::LocatableSeq (-ID   => $self->to_string,
-			   -SEQ  => $str,
-			   -start => $self->start($seqType),
-			   -end   => $self->end($seqType),
-			   -strand=> $self->strand($seqType),
-			   -DESC => "$seqType sequence ",
+    my $id = $seqType =~ /^q/i ? $self->query->seq_id : $self->hit->seq_id;
+    new Bio::LocatableSeq (-ID    => $id,
+			   -SEQ   => $str,
+			   -START => $self->start($seqType),
+			   -END   => $self->end($seqType),
+			   -STRAND=> $self->strand($seqType),
+			   -DESC  => "$seqType sequence ",
 			   );
 }
 
@@ -575,8 +578,8 @@ sub seq_str {
     my $type = shift || 'query';
 
     if( $type =~ /^q/i ) { return $self->query_string(shift) }
-    elsif( $type =~ /^s/i || $type =~ /^hi/i ) { return $self->hit_string(shift)}
-    elsif ( $type =~ /^ho/i  || $type =~ /match/i ) { return $self->homology_string(shift) }
+    elsif( $type =~ /^(s|hi)/i ) { return $self->hit_string(shift)}
+    elsif ( $type =~ /^(ho|ma)/i  ) { return $self->homology_string(shift) }
     else { 
 	$self->warn("unknown sequence type $type");
     }
