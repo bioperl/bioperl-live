@@ -71,7 +71,8 @@ http://www.pasteur.fr/recherche/unites/sis/formation/bioperl. Make
 sure to check the documentation in the modules as well - there are
 over 900 modules in Bioperl, and counting, and there's detail in the
 modules' documentation that will not appear in the general
-documentation.
+documentation. You may also find the HOWTOs useful, these are 
+booklets focussed on specific topics (http://bioperl.org/HOWTOs).
 
 
 =head1 INSTALLATION
