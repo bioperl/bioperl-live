@@ -99,6 +99,7 @@ sub new {
   my($class,@args) = @_;
 
   my $self = $class->SUPER::new(@args);
+  $self->_register_for_cleanup(\&node_cleanup);
   my ($children, $branchlen,$id,
       $bootstrap, $desc,$d) = $self->_rearrange([qw(DESCENDENTS
 						 BRANCH_LENGTH
@@ -476,12 +477,13 @@ sub height {
 
  Title   : invalidate_height
  Usage   : private helper method
- Function: Invalidate our cached value of the node'e height in the tree
+ Function: Invalidate our cached value of the node's height in the tree
  Returns : nothing
  Args    : none
 
 =cut
 
+#'
 
 sub invalidate_height { 
     my ($self) = @_;
@@ -490,6 +492,20 @@ sub invalidate_height {
     if( $self->ancestor ) {
 	$self->ancestor->invalidate_height;
     }
+}
+
+# -- private internal methods --
+
+sub node_cleanup {
+    my $self = shift;
+    if( defined $self->{'_desc'} &&
+	ref($self->{'_desc'}) =~ /ARRAY/i ) {
+	while( my ($nodeid,$node) = each %{ $self->{'_desc'} } ) {
+	    $node->ancestor(undef); # insure no circular references
+	    $node = undef;
+	}
+    }
+    $self->{'_desc'} = {};
 }
 
 1;
