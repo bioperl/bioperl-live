@@ -102,9 +102,7 @@ use Bio::Variation::VariantI;
 
 sub new {
     my($class,@args) = @_;
-    my $self;
-    $self = {};
-    bless $self, $class;
+    my $self = $class->SUPER::new(@args);
     
     my ($start, $end, $length, $strand, $primary, $source, 
 	$frame, $score, $gff_string,
@@ -137,34 +135,34 @@ sub new {
 				  )],
 			      @args);
 
-    $self->SUPER::primary_tag("Variation");
+    $self->primary_tag("Variation");
 
     $self->{ 'alleles' } = [];
 
-    $start && $self->SUPER::start($start);
-    $end   && $self->SUPER::end($end);
-    $length && $self->SUPER::length($length);
-    $strand && $self->SUPER::strand($strand);
-    $primary && $self->SUPER::primary_tag($primary);
-    $source  && $self->SUPER::source_tag($source);
-    $frame   && $self->SUPER::frame($frame);
-    $score   && $self->SUPER::score($score);
-    $gff_string && $self->SUPER::_from_gff_string($gff_string);
+    $start && $self->start($start);
+    $end   && $self->end($end);
+    $length && $self->length($length);
+    $strand && $self->strand($strand);
+    $primary && $self->primary_tag($primary);
+    $source  && $self->source_tag($source);
+    $frame   && $self->frame($frame);
+    $score   && $self->score($score);
+    $gff_string && $self->_from_gff_string($gff_string);
     
-    $allele_ori && $self->SUPER::allele_ori($allele_ori);
-    $allele_mut  && $self->SUPER::allele_mut($allele_mut);
-    $upstreamseq  && $self->SUPER::upStreamSeq($upstreamseq);
-    $dnstreamseq  && $self->SUPER::dnStreamSeq($dnstreamseq);
+    $allele_ori && $self->allele_ori($allele_ori);
+    $allele_mut  && $self->allele_mut($allele_mut);
+    $upstreamseq  && $self->upStreamSeq($upstreamseq);
+    $dnstreamseq  && $self->dnStreamSeq($dnstreamseq);
     
     $label  && $self->label($label);
-    $status  && $self->SUPER::status($status);
-    $proof && $self->SUPER::proof($proof);
-    $region  && $self->SUPER::region($region);
-    $region_value  && $self->SUPER::region_value($region_value);
-    $region_dist  && $self->SUPER::region_dist($region_dist);
-    $numbering && $self->SUPER::numbering($numbering);
-    $mut_number && $self->SUPER::mut_number($mut_number);
-    $ismutation && $self->SUPER::isMutation($ismutation);
+    $status  && $self->status($status);
+    $proof && $self->proof($proof);
+    $region  && $self->region($region);
+    $region_value  && $self->region_value($region_value);
+    $region_dist  && $self->region_dist($region_dist);
+    $numbering && $self->numbering($numbering);
+    $mut_number && $self->mut_number($mut_number);
+    $ismutation && $self->isMutation($ismutation);
 
     $cpg && $self->CpG($cpg);
     

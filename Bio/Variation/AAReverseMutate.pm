@@ -101,9 +101,7 @@ use Bio::Variation::Allele;
 
 sub new {
     my($class,@args) = @_;
-    my $self;
-    $self = {};
-    bless $self, $class;
+    my $self = $class->SUPER::new(@args);
 
   my ($aa_ori, $aa_mut, $codon_ori, $codon_table) =
       $self->_rearrange([qw(AA_ORI
