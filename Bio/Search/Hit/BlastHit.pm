@@ -261,7 +261,7 @@ sub new {
     ($self->{'_blast_program'}, $self->{'_query_length'}, $raw_data, $hold_raw,
      $self->{'_overlap'}, $self->{'_iteration'}, $signif, $is_pval, 
      $self->{'_score'}, $self->{'_found_again'} ) = 
-       $self->_rearrange( [qw(PROGRAM,
+       $self->_rearrange( [qw(PROGRAM
 			      QUERY_LEN
 			      RAW_DATA
 			      HOLD_RAW_DATA
