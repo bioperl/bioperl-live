@@ -12,7 +12,7 @@ B<pod.pl> [B<-d|--dir> path ] [B<-v|--verbose>] B<-b|--blankline>
 =head1 DESCRIPTION
 
 Checks Plain Old Documentation (POD) with highest possible stringency
-in every bioperl module and script in CVS modues core and run.
+in every bioperl module and script in CVS modules 'core' and 'run'.
 
 Amounts to same as running
 
@@ -27,13 +27,13 @@ Otherwise, bioperl-run module is not found.
 =head2 Results
 
 The results are written into file '/tmp/bioperl_pod_check' and
-displayed after the run. The outut is filtered not to show
-conformations of correct syntax. The result file is not removed.
+displayed after the run. The output is filtered not to show
+confirmations of correct syntax. The result file is not removed.
 
 The aim is to have as few warnings, and no errors, as possible.  Links
-to web URLs give a waring but that seems to be spurious, so they are
+to web URLs give a warning but that seems to be spurious, so they are
 filtered out.  Currently there are a few cases of "multiple occurrence
-of link target" in several modlues which do no harm.
+of link target" in several modules which are harmless.
 
 =head1 SEE ALSO
 
