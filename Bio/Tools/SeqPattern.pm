@@ -60,10 +60,12 @@ Follow the installation instructions included in the README file.
 
 =head1 DESCRIPTION
 
-The Bio::Tools::SeqPattern.pm module encapsulates generic data and methods for manipulating 
-regular expressions describing nucleic or amino acid sequence patterns (a.k.a, "motifs").
+The Bio::Tools::SeqPattern.pm module encapsulates generic data and
+methods for manipulating regular expressions describing nucleic or
+amino acid sequence patterns (a.k.a, "motifs").
 
-Bio::Tools::SeqPattern.pm is a concrete class that inherits from B<Bio::Seq.pm>.
+Bio::Tools::SeqPattern.pm is a concrete class that inherits from
+B<Bio::Seq.pm>.
 
 This class grew out of a need to have a standard module for doing routine
 tasks with sequence patterns such as:
@@ -175,8 +177,8 @@ Currently, this module only supports patterns using a grep-like syntax.
 
 =head1 USAGE
 
-A simple demo script is included with the central Bioperl distribution (L<INSTALLATION>)
-and is also available from:
+A simple demo script is included with the central Bioperl distribution
+(L<INSTALLATION>) and is also available from:
 
     http://bio.perl.org/Core/Examples/seq_pattern.pl
 
@@ -192,9 +194,9 @@ and is also available from:
 
 =head2 Mailing Lists 
 
-User feedback is an integral part of the evolution of this and other Bioperl modules.
-Send your comments and suggestions preferably to one of the Bioperl mailing lists.
-Your participation is much appreciated.
+User feedback is an integral part of the evolution of this and other
+Bioperl modules.  Send your comments and suggestions preferably to one
+of the Bioperl mailing lists.  Your participation is much appreciated.
 
     vsns-bcd-perl@lists.uni-bielefeld.de          - General discussion
     vsns-bcd-perl-guts@lists.uni-bielefeld.de     - Technically-oriented discussion
