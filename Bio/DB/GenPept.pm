@@ -77,7 +77,7 @@ use IO::Socket;
 @ISA = qw(Bio::DB::BioSeqI Exporter);
 @EXPORT_OK = qw();
 
-# new() is inherited from Bio::DB::Abstract
+# new() is inherited from Bio::DB::BioSeqI
 
 # _initialize is where the heavy stuff will happen when new is called
 
