@@ -85,7 +85,7 @@ sub MY::postamble {
 #
 
 if(  eval { require DBI } && grep {/mysql/} DBI->available_drivers) {
-  my $proceed = prompt("Do you want to run the BioDBGFF tests (requires a mysql database) y/n",'n');
+  my $proceed = prompt("Do you want to run the BioDBGFF tests (requires a mysql, postgres or oracle database) y/n",'n');
   if( $proceed =~ /^[yY]/) {
     my $cfg = {dbd_driver => 'mysql'};
     GFFQueryDb($cfg,{'prompt'=>1,'verbose'=>1});
@@ -122,13 +122,19 @@ sub GFFQueryDb {
   my $db     = $cfg->{'description'} || $cfg->{'dbd_driver'};
   my $driver = $cfg->{'dbd_driver'};
 
-  my $d = lc $driver;
   my $prompt = $options->{'prompt'};
+
+  $driver  = prompt("Which database driver should I use for testing BioDBGFF (mysql,pg,Oracle)?",
+		    $driver) if $prompt;
+
+  my $d = lc $driver;
+  $cfg->{'dbd_driver'} = $driver;
 
   my $test_db =  exists($options->{"$d-test-db"}) ?
     $options->{"$d-test-db"} : ($cfg->{'test_db'} || 'test');
+
   $test_db = prompt
-    ("Which database should I use for testing the $db drivers?",
+    ("Which database should I use for testing the $driver driver?",
      $test_db) if $prompt;
 
   my $test_host = exists($options->{"$d-test-host"}) ?
@@ -159,7 +165,7 @@ sub GFFQueryDb {
   if ($test_host eq 'undef'  ||  $test_host eq 'localhost') {
     $test_host = '';
   }
-  my $test_dsn = "DBI:$driver:database=$test_db";
+  my $test_dsn = "dbi:$driver:database=$test_db";
   $cfg->{test_dsn} = $test_dsn;
   if ($test_host) {
     $cfg->{'test_dsn'} .= ";host=$test_host";

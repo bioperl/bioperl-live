@@ -45,6 +45,7 @@ if ($adaptor =~ /^dbi/) {
     my ($key,$value) = split "\t";
     $cfg->{$key}     = $value;
   }
+  $adaptor = "dbi::$cfg->{dbd_driver}" if $cfg->{dbd_driver};
   @args = ( '-adaptor'  => $adaptor,
 	    '-dsn'     => $cfg->{test_dsn},
 	  );
