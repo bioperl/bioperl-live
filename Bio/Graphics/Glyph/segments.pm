@@ -6,10 +6,14 @@ use Bio::Location::Simple;
 use Bio::Graphics::Glyph::generic;
 use Bio::Graphics::Glyph::segmented_keyglyph;
 use vars '@ISA','$VERSION';
+
+use constant RAGGED_START_FUZZ => 25;  # will show ragged ends of alignments
+                                       # up to this many bp.
+
 @ISA = qw( Bio::Graphics::Glyph::segmented_keyglyph
 	   Bio::Graphics::Glyph::generic
 	 );
-$VERSION = '1.00';
+$VERSION = '1.05';
 my %complement = (g=>'c',a=>'t',t=>'a',c=>'g',n=>'n',
 		  G=>'C',A=>'T',T=>'A',C=>'G',N=>'N');
 
@@ -50,20 +54,30 @@ sub draw_component {
   # to show a polyA end or a c. elegans trans-spliced leader.
   my $offset = 0;
   eval {  # protect against data structures that don't implement the target() method.
-#    warn "start = ",$self->feature->target->start;
-    if ($draw_target && $self->option('ragged_start') && $self->feature->target->start < 25) {
-      $offset = $self->feature->target->start - 1;
-      if ($offset > 0) {
-#	warn "subseq = (1-$offset,0)";
-	$dna       = $self->feature->target->subseq(1-$offset,0)->seq . $dna;
-	$genomic   = $self->feature->subseq(1-$offset,0)->seq         . $genomic;
-#	warn "dna = $dna\n";
-#	warn "gen = $genomic\n";
-	$x1        -= $offset * $self->scale;
+    if ($draw_target && $self->option('ragged_start')){
+      my $target = $self->feature->target;
+      if ($target->start < $target->end && $target->start < RAGGED_START_FUZZ) {
+	$offset = $target->start - 1;
+	if ($offset > 0) {
+	  #	warn "subseq = (1-$offset,0)";
+	  $dna       = $target->subseq(1-$offset,0)->seq . $dna;
+	  $genomic   = $self->feature->subseq(1-$offset,0)->seq         . $genomic;
+	  #	warn "dna = $dna\n";
+	  #	warn "gen = $genomic\n";
+	  $x1        -= $offset * $self->scale;
+	}
+      }
+      elsif ($target->end < $target->start && $target->end < RAGGED_START_FUZZ) {
+	$offset = $target->end - 1;
+	if ($offset > 0) {
+	  $dna       .= $target->factory->get_dna($target,$offset,1);
+	  $genomic   = $self->feature->subseq(-$offset,0)->seq . $genomic;
+	  $x2        += $offset * $self->scale;
+	  $offset = 0;
+	}
       }
     }
   };
-
 
   $self->draw_dna($gd,$offset,$dna,$genomic,$x1,$y1,$x2,$y2);
 }
