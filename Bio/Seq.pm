@@ -383,9 +383,12 @@ use Bio::SeqI;
 use Bio::RangeI;
 use Bio::Annotation::Collection;
 use Bio::PrimarySeq;
+use Bio::IdentifiableI;
+use Bio::DescribableI;
 
 $VERSION = '1.1';
-@ISA = qw(Bio::Root::Root Bio::SeqI Bio::RangeI);
+@ISA = qw(Bio::Root::Root Bio::SeqI Bio::RangeI
+	  Bio::IdentifiableI Bio::DescribableI);
 
 =head2 new
 
@@ -498,6 +501,8 @@ sub validate_seq {
    return $self->primary_seq()->validate_seq(@args);
 }
 
+=head1 Bio::RangeI methods
+
 =head2 length
 
  Title   : length
@@ -561,6 +566,8 @@ sub strand {
   my $self = shift;
   return 0;
 }
+
+=head1 Methods from the Bio::PrimarySeqI interface
 
 =head2 subseq
 
@@ -676,9 +683,6 @@ sub desc {
    return $self->primary_seq->desc();
 }
 
-
-
-
 =head2 primary_id
 
  Title   : primary_id
@@ -768,6 +772,125 @@ sub alphabet {
        return $self->primary_seq->alphabet($value);
    }
    return $self->primary_seq->alphabet();
+}
+
+=head1 Methods for Bio::IdentifiableI compliance
+
+=head2 object_id
+
+ Title   : object_id
+ Usage   : $string    = $obj->object_id()
+ Function: a string which represents the stable primary identifier
+           in this namespace of this object. For DNA sequences this
+           is its accession_number, similarly for protein sequences
+
+           This is aliased to accession_number().
+ Returns : A scalar
+
+
+=cut
+
+sub object_id {
+    my ($self, @args) = @_;
+    return $self->accession_number(@args);
+}
+
+=head2 version
+
+ Title   : version
+ Usage   : $version    = $obj->version()
+ Function: a number which differentiates between versions of
+           the same object. Higher numbers are considered to be
+           later and more relevant, but a single object described
+           the same identifier should represent the same concept
+
+ Returns : A number
+
+=cut
+
+sub version{
+    my ($self,$value) = @_;
+    return $self->primary_seq()->version($value);
+}
+
+
+=head2 authority
+
+ Title   : authority
+ Usage   : $authority    = $obj->authority()
+ Function: a string which represents the organisation which
+           granted the namespace, written as the DNS name for  
+           organisation (eg, wormbase.org)
+
+ Returns : A scalar
+
+=cut
+
+sub authority {
+    my ($obj,$value) = @_;
+    return $obj->primary_seq()->authority($value);
+}
+
+=head2 namespace
+
+ Title   : namespace
+ Usage   : $string    = $obj->namespace()
+ Function: A string representing the name space this identifier
+           is valid in, often the database name or the name
+           describing the collection 
+
+ Returns : A scalar
+
+
+=cut
+
+sub namespace{
+    my ($self,$value) = @_;
+    return $self->primary_seq()->namespace($value);
+}
+
+=head1 Methods for Bio::DescribableI compliance
+
+=head2 display_name
+
+ Title   : display_name
+ Usage   : $string    = $obj->display_name()
+ Function: A string which is what should be displayed to the user
+           the string should have no spaces (ideally, though a cautious
+           user of this interface would not assumme this) and should be
+           less than thirty characters (though again, double checking 
+           this is a good idea)
+
+           This is aliased to display_id().
+ Returns : A scalar
+
+=cut
+
+sub display_name {
+   my ($obj,$value) = @_;
+
+   return $obj->display_id($value);
+}
+
+=head2 description
+
+ Title   : description
+ Usage   : $string    = $obj->description()
+ Function: A text string suitable for displaying to the user a 
+           description. This string is likely to have spaces, but
+           should not have any newlines or formatting - just plain
+           text. The string should not be greater than 255 characters
+           and clients can feel justified at truncating strings at 255
+           characters for the purposes of display
+
+           This is aliased to desc().
+ Returns : A scalar
+
+=cut
+
+sub description {
+   my ($self,@args) = @_;
+   return $self->desc(@args);
 }
 
 =head1 Methods provided in the Bio::PrimarySeqI interface

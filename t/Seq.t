@@ -14,7 +14,7 @@ BEGIN {
     }
     use Test;
 
-    plan tests => 38;
+    plan tests => 47;
 }
 
 use Bio::Seq;
@@ -50,6 +50,18 @@ ok uc $seq->alphabet, 'DNA' , 'alphabet was ' .$seq->alphabet();
 ok $seq->id(), 'something',  "saw ".$seq->id;
 ok $seq->accession_number, 'accnum', "saw ". $seq->accession_number ;
 ok $seq->subseq(5, 9),  'tggcg', "subseq(5,9) was ". $seq->subseq(5,9);
+
+# check IdentifiableI and DescribableI interfaces
+ok $seq->isa('Bio::IdentifiableI');
+ok $seq->isa('Bio::DescribableI');
+# make sure all methods are implemented
+ok $seq->authority("bioperl.org"), "bioperl.org";
+ok $seq->namespace("t"), "t";
+ok $seq->version(0), 0;
+ok $seq->lsid_string(), "bioperl.org:t:accnum";
+ok $seq->namespace_string(), "t:accnum.0";
+ok $seq->description(), 'Sample Bio::Seq object';
+ok $seq->display_name(), "something";
 
 my $newfeat = Bio::SeqFeature::Generic->new( -start => 10,
 					     -end => 12,

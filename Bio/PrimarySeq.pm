@@ -145,8 +145,11 @@ use strict;
 
 use Bio::Root::Root;
 use Bio::PrimarySeqI;
+use Bio::IdentifiableI;
+use Bio::DescribableI;
 
-@ISA = qw(Bio::Root::Root Bio::PrimarySeqI);
+@ISA = qw(Bio::Root::Root Bio::PrimarySeqI
+	  Bio::IdentifiableI Bio::DescribableI);
 
 #
 # setup the allowed values for alphabet()
@@ -283,11 +286,12 @@ sub validate_seq {
     my ($self,$seqstr) = @_;
     if( ! defined $seqstr ){ $seqstr = $self->seq(); }
     return 0 unless( defined $seqstr); 
-   if((CORE::length($seqstr) > 0) && ($seqstr !~ /^([A-Za-z\-\.\*\?]+)$/)) {
-       print "mismatch is ", ($seqstr =~ /([^A-Za-z\-\.\*\?]+)/g), "\n";
-       return 0;
-   }
-   return 1;
+    if((CORE::length($seqstr) > 0) && ($seqstr !~ /^([A-Za-z\-\.\*\?]+)$/)) {
+	$self->warn("seq doesn't validate, mismatch is " .
+		   ($seqstr =~ /([^A-Za-z\-\.\*\?]+)/g));
+	return 0;
+    }
+    return 1;
 }
 
 =head2 subseq
@@ -381,8 +385,8 @@ sub length {
            other mechanisms (accession field for example, or extending
            the sequence object) to solve this.
 
-           With the new Bio::DescribeableI interface, this is aliased to
-           display_name
+           With the new Bio::DescribeableI interface, display_name aliases
+           to this method.
 
  Returns : A string
  Args    : None
@@ -397,12 +401,6 @@ sub display_id {
     }
     return $obj->{'display_id'};
 
-}
-
-sub display_name {
-   my ($obj,$value) = @_;
-
-   return $obj->display_id($value);
 }
 
 =head2 accession_number
@@ -439,13 +437,6 @@ sub accession_number {
     return $acc;
 }
 
-sub object_id {
-   my ($obj,$value) = @_;
-
-   return $obj->accession_number($value);
-}
-
-
 
 =head2 primary_id
 
@@ -474,59 +465,6 @@ sub primary_id {
    }
    return $obj->{'primary_id'};
 
-}
-
-
-=head2 authority
-
- Title   : authority
- Usage   : $string = $obj->authority();
- Function: a string which represents the organisation which
-           granted the namespace, written as the DNS name for  
-           organisation (eg, wormbase.org)
-
-           This is for compliance with the IdentifiableI interface
-
- Returns : A string
- Args    : None
-
-
-=cut
-
-sub authority {
-   my ($obj,$value) = @_;
-   if( defined $value) {
-      $obj->{'authority'} = $value;
-    }
-    return $obj->{'authority'};
-
-}
-
-
-
-=head2 namespace
-
- Title   : namespace
- Usage   : $string = $obj->namespace();
- Function: A string representing the name space this identifier
-           is valid in, often the database name or the name
-           describing the collection 
-
-
-           This is for compliance with the IdentifiableI interface
-
- Returns : A string
- Args    : None
-
-
-=cut
-
-sub namespace {
-   my ($obj,$value) = @_;
-   if( defined $value) {
-      $obj->{'namespace'} = $value;
-    }
-    return $obj->{'namespace'};
 }
 
 
@@ -586,13 +524,6 @@ sub desc {
 
 }
 
-sub description {
-   my ($obj,$value) = @_;
-
-   return $obj->desc($value);
-}
-
-
 =head2 can_call_new
 
  Title   : can_call_new
@@ -633,6 +564,133 @@ sub  id {
    return $self->display_id();
 }
 
+=head1 Methods for Bio::IdentifiableI compliance
+
+=head2 object_id
+
+ Title   : object_id
+ Usage   : $string    = $obj->object_id()
+ Function: a string which represents the stable primary identifier
+           in this namespace of this object. For DNA sequences this
+           is its accession_number, similarly for protein sequences
+
+           This is aliased to accession_number().
+ Returns : A scalar
+
+
+=cut
+
+sub object_id {
+    my ($self, @args) = @_;
+    return $self->accession_number(@args);
+}
+
+=head2 version
+
+ Title   : version
+ Usage   : $version    = $obj->version()
+ Function: a number which differentiates between versions of
+           the same object. Higher numbers are considered to be
+           later and more relevant, but a single object described
+           the same identifier should represent the same concept
+
+ Returns : A number
+
+=cut
+
+sub version{
+    my ($self,$value) = @_;
+    if( defined $value) {
+	$self->{'_version'} = $value;
+    }
+    return $self->{'_version'};
+}
+
+
+=head2 authority
+
+ Title   : authority
+ Usage   : $authority    = $obj->authority()
+ Function: a string which represents the organisation which
+           granted the namespace, written as the DNS name for  
+           organisation (eg, wormbase.org)
+
+ Returns : A scalar
+
+=cut
+
+sub authority {
+    my ($obj,$value) = @_;
+    if( defined $value) {
+	$obj->{'authority'} = $value;
+    }
+    return $obj->{'authority'};
+}
+
+=head2 namespace
+
+ Title   : namespace
+ Usage   : $string    = $obj->namespace()
+ Function: A string representing the name space this identifier
+           is valid in, often the database name or the name
+           describing the collection 
+
+ Returns : A scalar
+
+
+=cut
+
+sub namespace{
+    my ($self,$value) = @_;
+    if( defined $value) {
+	$self->{'namespace'} = $value;
+    }
+    return $self->{'namespace'} || "";
+}
+
+=head1 Methods for Bio::DescribableI compliance
+
+=head2 display_name
+
+ Title   : display_name
+ Usage   : $string    = $obj->display_name()
+ Function: A string which is what should be displayed to the user
+           the string should have no spaces (ideally, though a cautious
+           user of this interface would not assumme this) and should be
+           less than thirty characters (though again, double checking 
+           this is a good idea)
+
+           This is aliased to display_id().
+ Returns : A scalar
+
+=cut
+
+sub display_name {
+   my ($obj,$value) = @_;
+
+   return $obj->display_id($value);
+}
+
+=head2 description
+
+ Title   : description
+ Usage   : $string    = $obj->description()
+ Function: A text string suitable for displaying to the user a 
+           description. This string is likely to have spaces, but
+           should not have any newlines or formatting - just plain
+           text. The string should not be greater than 255 characters
+           and clients can feel justified at truncating strings at 255
+           characters for the purposes of display
+
+           This is aliased to desc().
+ Returns : A scalar
+
+=cut
+
+sub description {
+   my ($self,@args) = @_;
+   return $self->desc(@args);
+}
 
 =head1 Methods Inherited from Bio::PrimarySeqI
 

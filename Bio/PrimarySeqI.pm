@@ -112,11 +112,8 @@ use vars qw(@ISA );
 use strict;
 use Bio::Root::RootI;
 use Bio::Tools::CodonTable;
-use Bio::IdentifiableI;
-use Bio::DescribableI;
 
-
-@ISA = qw(Bio::IdentifiableI Bio::DescribableI);
+@ISA = qw(Bio:Root::RootI);
 
 =head1 Implementation Specific Functions
 
@@ -629,11 +626,9 @@ sub  length {
 
 sub desc {
    my ($self,$value) = @_;
-   $self->warn_not_implemented();
-   return '';
+   $self->throw_not_implemented();
 }
 
-*description = \&desc;
 
 =head2 is_circular
 
@@ -648,7 +643,7 @@ sub desc {
 sub is_circular{
     my ($self,$value) = @_;
     if (defined $value) {
-	$self->{'_is_circular'} = 1 if $value;
+	$self->{'_is_circular'} = $value;
     }
     return $self->{'_is_circular'};
 } 

@@ -15,7 +15,7 @@ BEGIN {
 	use lib 't';
     }
     use Test;
-    plan tests => 23;
+    plan tests => 33;
 }
 use Bio::PrimarySeq;
 use Bio::Location::Simple;
@@ -37,6 +37,19 @@ ok $seq->display_id(), 'new-id';
 ok $seq->alphabet(), 'dna';
 ok $seq->is_circular(), undef;
 ok $seq->is_circular(1);
+ok $seq->is_circular(0), 0;
+
+# check IdentifiableI and DescribableI interfaces
+ok $seq->isa('Bio::IdentifiableI');
+ok $seq->isa('Bio::DescribableI');
+# make sure all methods are implemented
+ok $seq->authority("bioperl.org"), "bioperl.org";
+ok $seq->namespace("t"), "t";
+ok $seq->version(0), 0;
+ok $seq->lsid_string(), "bioperl.org:t:X677667";
+ok $seq->namespace_string(), "t:X677667.0";
+ok $seq->description(), 'Sample Bio::Seq object';
+ok $seq->display_name(), "new-id";
 
 my $location = new Bio::Location::Simple('-start' => 2, '-end' => 5,
 					 '-strand' => -1);

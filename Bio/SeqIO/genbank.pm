@@ -90,6 +90,7 @@ Jason Stajich jason@bioperl.org
 Chris Mungall cjm@fruitfly.bdgp.berkeley.edu
 Lincoln Stein lstein@cshl.org
 Heikki Lehvaslaiho, heikki@ebi.ac.uk
+Hilmar Lapp, hlapp@gmx.net
 
 =head1 APPENDIX
 
