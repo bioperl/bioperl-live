@@ -3,7 +3,6 @@ use strict;
 
 use Bio::SeqIO;
 use Bio::Root::IO;
-use String::DiffLine qw(diffline);
 use Algorithm::Diff qw(diff LCS);
 use IO::ScalarArray;
 use IO::String;
