@@ -503,8 +503,9 @@ use Bio::SimpleAlign;
 use Bio::AlignIO;
 use Bio::Root::Root;
 use Bio::Root::IO;
+use Bio::Factory::ApplicationFactoryI;
 
-@ISA = qw(Bio::Root::Root Bio::Root::IO);
+@ISA = qw(Bio::Root::Root Bio::Root::IO Bio::Factory::ApplicationFactoryI);
 
 # You will need to enable TCoffee to find the tcoffee program. This can be done
 # in (at least) twp ways:
@@ -583,6 +584,27 @@ sub exists_tcoffee {
 	return 1;
     }
     return 0;
+}
+
+=head2  version
+
+ Title   : version
+ Usage   : exit if $prog->version() < 1.8
+ Function: Determine the version number of the program
+ Example :
+ Returns : float or undef
+ Args    : none
+
+=cut
+
+sub version {
+    my ($self) = @_;
+
+    return undef unless $self->exists_tcoffee;
+    my $string = `t_coffee -quiet=stdout 2>&1` ;
+    $string =~ /Version_([\d.]+)/;
+    return $1 || undef;
+
 }
 
 =head2  align
