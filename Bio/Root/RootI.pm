@@ -58,7 +58,7 @@ methods. Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::Root::RootI;
-use vars qw(@ISA $DEBUG $ID $Revision $VERSION $VERBOSITY 
+use vars qw(@ISA $DEBUG $ID $Revision $VERSION $VERBOSITY
 	    $TEMPMODLOADED $FILESPECLOADED $TEMPDIR $TEMPCOUNTER $OPENFLAGS);
 use strict;
 use Bio::Root::Err;
@@ -216,11 +216,11 @@ sub warn{
 sub verbose{
    my ($self,$value) = @_;
 
-   if( defined $value || ! defined $self->{'_rootI_verbose'} ) {
+   if(ref($self) && (defined $value || ! defined $self->{'_rootI_verbose'}) ) {
        $value = 0 unless defined $value;
        $self->{'_rootI_verbose'} = $value;
-   } 
-   return $self->{'_rootI_verbose'};
+   }
+   return (ref($self) ? $self->{'_rootI_verbose'} : $VERBOSITY);
 }
 
 =head2 stack_trace_dump
