@@ -30,7 +30,7 @@ use vars qw( $USAGE %VALIDFORMATS);
 		  'gd'   => 1,
 		  'wbmp' => 1 );
 
-$USAGE = "usage:\tcgr.pl -f/--file=INPUTFILE -if/--format=INPUTFORMAT \n".
+$USAGE = "usage:\tchaos_plot.pl -f/--file=INPUTFILE -if/--format=INPUTFORMAT \n".
     "\t-o/--output=OUTPUTFILE -g/--graphics=GRAPHIC TYPE\n";
 
 $USAGE .= "\tvalid graphics formats: (" . join(",", ( keys %VALIDFORMATS )) .")\n";
@@ -55,7 +55,8 @@ my $white = $img->colorAllocate(255,255,255);
 my $black = $img->colorAllocate(0,0,0); 
 
 my $seq = $seqin->next_seq;
-die("Sequence type must be DNA not " . $seq->moltype()) if( $seq->moltype ne 'dna' );
+die("Sequence type must be DNA not " . $seq->moltype())
+    unless $seq->moltype ne 'dna' or $seq->moltype ne 'rna';
 my %nmerdata;
 my $len = $seq->length();
 my $max = 0;
@@ -78,7 +79,7 @@ for( my $i = 1; $i <= $len; $i++ ) {
     } elsif ( $base eq 'c' ) {
 	$x *= 0.5;
 	$y  = ( $y + 1.0  ) * 0.5; 
-    } elsif ( $base eq 't' ) {
+    } elsif ( $base eq 't' or $base eq 'u' ) {
 	$x = ( $x + 1.0 ) * 0.5;
 	$y  *= 0.5;
     }
