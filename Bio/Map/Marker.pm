@@ -166,9 +166,10 @@ sub new {
 			      )], @args);
     if ($name) { $self->name($name); } 
     else {$self->name('Unnamed marker'); }
-    $position && $self->position($position); 
+    $position  && $self->position($position); 
     $positions && $self->positions($positions); 
-
+    $map       && $self->map($map);
+ 
     return $self;
 }
 
