@@ -909,7 +909,7 @@ sub GCG_checksum {
 
     foreach $char ( split(//, $seq)) {
 	$index++;
-	$checksum += ($index * (unpack("c",$char)));
+	$checksum += ($index * (unpack("c",$char) || 0) );
 	if( $index ==  57 ) {
 	    $index = 0;
 	}
