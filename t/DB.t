@@ -157,9 +157,9 @@ eval {
    ok(defined($seq = $gb->get_Seq_by_acc('P43780')));
    ok( $seq->length, $expected_lengths{$seq->display_id});
    ok( defined( $seq = $gb->get_Seq_by_acc('O39869')));
-   ok( $seq->length, $expected_lengths{$seq->display_id});
-   ok($seq->primary_id, 'O39869');
-   ok($seq->division, 'UNK');
+   ok( $seq->length, $expected_lengths{$seq->accession_number});
+   ok($seq->accession_number, 'O39869');
+   ok($seq->division, '9PICO');
 
    # test for bug #958
    $seq = $gb->get_Seq_by_id('P18584');
