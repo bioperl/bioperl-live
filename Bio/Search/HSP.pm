@@ -15,13 +15,69 @@
 Bio::Search::HSP - Implementation of Bio::Search::HSPI to handle High Scoring Pairs in memory 
 
 =head1 SYNOPSIS
+    # typically one gets a HSP From a SearchIO report or Subject Object
+    use Bio::Search::HSP;
+    my $hsp = new Bio::Search::HSP
+       (
+	'-report_type'   => 'BLASTP',
+	'-score'         => '101',
+	'-bits'          => '15.3',
+	'-match'         => 19,
+	'-hsp_length'    => 212,
+	'-positive'      => 30,
+	'-gaps'          => 10,
+	'-evalue'        => 0.2,
+	'-query_begin'   => 20,
+	'-query_end'     => 252,
+	'-subject_begin' => 37,
+	'-subject_end'   => 190,
+	'-query_seq'     => 'MVTYW',
+	'-subject_seq'   => 'MVXX-A',
+	'-homology_seq'  => 'MV    ',
+	'-query_length'  => '232',
+	'-subject_length'=> '153',
+	'-query_name'    => 'seqa',
+	'-subject_name'  => 'seqb',
+	'-query_frame'   => '0',
+	'-subject_frame' => '0',
+	);
 
-Give standard usage here
+    print (join(',',( $hsp->report_type,
+		      $hsp->score,
+		      $hsp->bits,
+		      
+		      $hsp->P,
+		      $hsp->evalue,
+		      $hsp->percent_identity,
+		      $hsp->gaps,
+		      $hsp->positive,
 
+		      $hsp->hsp_length, 
+		      $hsp->query->start,
+		      $hsp->query->end,
+		      $hsp->query->strand,
+		      $hsp->query->strand,
+		      $hsp->query->frame,
+		      $hsp->query->length,
+		      $hsp->subject->start,		      
+		      $hsp->subject->end,
+		      $hsp->subject->strand,
+		      $hsp->subject->frame,
+		      $hsp->subject->length,
+		      $hsp->query_seq,
+		      $hsp->subject_seq,
+		      $hsp->homology_seq,
+		      ))), "\n";
+    
 =head1 DESCRIPTION
 
-Describe the object here
+This object provides an in-memory copy of a High Scoring Pair
+implementation and appropriately initializes values like
+percent_identity from the values in identity and hsp_length.
 
+An HSP is-a FeaturePair so it has methods query() and subject() which
+provides access to the paired features that make up a HSP().
+ 
 =head1 FEEDBACK
 
 =head2 Mailing Lists
@@ -137,11 +193,13 @@ sub new {
     $self->{'_reporttype'} = $reporttype;
     # Determine strand meanings
     my ($queryfactor, $sbjctfactor) = (1,0); # default
-    if ($reporttype eq 'BLASTP' || $reporttype eq 'TBLASTN' ) {
+    if ($reporttype eq 'BLASTP' || $reporttype eq 'TBLASTN' 
+	|| $reporttype eq 'FASTX' || $reporttype eq 'FASTY') {
 	$queryfactor = 0;
     }
     if ($reporttype eq 'TBLASTN' || $reporttype eq 'TBLASTX' || 
-	$reporttype eq 'BLASTN' )  {
+	$reporttype eq 'BLASTN' || $reporttype eq 'TFASTX' || 
+	$reporttype eq 'FASTA' )  {
 	$sbjctfactor = 1;
     }
     if( $reporttype eq 'RPSBLAST' ) {

@@ -20,7 +20,7 @@ Give standard usage here
 
 =head1 DESCRIPTION
 
-Describe the interface here
+This object encapsulates the necessary data for a Subject in a Search Result.
 
 =head1 FEEDBACK
 
