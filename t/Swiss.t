@@ -41,7 +41,7 @@ my $seqio =
   new Bio::SeqIO( -verbose => $verbose,
                   -format => 'swiss',
                   -file   => Bio::Root::IO->catfile('t','data', 
-                                                    'swiss_unk.dat'));
+                                                    'test.swiss'));
 
 ok($seqio);
 my $seq = $seqio->next_seq;
@@ -49,7 +49,7 @@ my @gns = $seq->annotation->get_Annotations('gene_name');
 $seqio =
   new Bio::SeqIO( -verbose => $verbose,
                   -format => 'swiss',
-                  -file   => Bio::Root::IO->catfile('>swiss_unk.dat'));
+                  -file   => Bio::Root::IO->catfile('>test.swiss'));
 
 $seqio->write_seq($seq);
 
@@ -57,7 +57,7 @@ $seqio->write_seq($seq);
 $seqio =
   new Bio::SeqIO( -verbose => $verbose,
                   -format => 'swiss',
-                  -file   => Bio::Root::IO->catfile('swiss_unk.dat'));
+                  -file   => Bio::Root::IO->catfile('test.swiss'));
 
 $seq = $seqio->next_seq;
 ok($seq->species);
