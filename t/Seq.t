@@ -14,10 +14,11 @@ BEGIN {
     }
     use Test;
 
-    plan tests => 26;
+    plan tests => 38;
 }
 
 use Bio::Seq;
+use Bio::Seq::RichSeq;
 use Bio::SeqFeature::Generic;
 use Bio::Annotation;
 use Bio::Species;
@@ -137,4 +138,30 @@ eval {
 ok $@ ;
 
 $seq->seq('atgtggtaataa');
-ok $seq->translate('J', '-',)->seq, 'MWJJ';
+ok( $seq->translate('J', '-',)->seq, 'MWJJ');
+
+# tests for RichSeq
+my $richseq = Bio::Seq::RichSeq->new( -seq => 'atgtggtaataa',
+				      -accession_number => 'AC123',
+				      -moltype => 'rna',
+				      -molecule => 'mRNA',		
+				      -id => 'id1',
+				      -dates => [ '2001/1/1' ],
+				      -pid => '887821',
+				      -keywords => 'JUNK1 JUNK2',
+				      -division => 'Fungi',
+				      -secondary_accessions => 'AC1152' );
+				 
+ok ($richseq);
+ok ($richseq->seq, 'atgtggtaataa');
+ok ($richseq->display_id, 'id1');
+ok (($richseq->get_dates)[0], '2001/1/1');
+ok (($richseq->get_secondary_accessions)[0], 'AC1152');
+ok ($richseq->accession_number, 'AC123');
+ok ($richseq->moltype, 'rna');
+ok ($richseq->molecule, 'mRNA');
+ok ($richseq->pid, 887821);
+ok ($richseq->division, 'Fungi');
+ok ($richseq->keywords, 'JUNK1 JUNK2');
+$richseq->seq_version('2');
+ok ($richseq->seq_version, 2);
