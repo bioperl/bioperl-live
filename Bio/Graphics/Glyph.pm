@@ -2,9 +2,16 @@ package Bio::Graphics::Glyph;
 use GD;
 
 use strict;
+use Bio::Root::Root;
+use vars qw( @ISA );
+@ISA = qw( Bio::Root::Root );
+
 use Carp 'croak';
 use constant BUMP_SPACING => 2; # vertical distance between bumped glyphs
 use Bio::Root::Version;
+
+## TODO: REMOVE.  Testing.
+#use Devel::Peek qw( &SvREFCNT );
 
 my %LAYOUT_COUNT;
 
@@ -28,33 +35,54 @@ sub new {
   my %arg = @_;
 
   my $feature = $arg{-feature} or die "No feature";
+  my $flyweight = $arg{-flyweight};
+  ## TODO: REMOVE
+  if( $flyweight ) {
+    $class->throw( "Flyweight!" );
+  }
   my $factory = $arg{-factory} || $class->default_factory;
   my $level   = $arg{-level} || 0;
   my $flip    = $arg{-flip};
 
-  my $self = bless {},$class;
+  my $self;
+  if( $flyweight && ref( $class ) && $class->isa( 'Bio::Graphics::Glyph' ) ) {
+    $self = $class;
+  } else {
+    $self = bless {},$class;
+  }
   $self->{feature} = $feature;
   $self->{factory} = $factory;
+  $self->{flyweight} = $flyweight;
   $self->{level}   = $level;
-  $self->{flip}++  if $flip;
+  $self->{flip}    = 1  if $flip;
   $self->{top} = 0;
 
   my @subglyphs;
-  ## TODO: ERE I AM.  I just added a 'shallow' entry to the add_track call, so maybe we don't have to get the subfeatures here.  Eventually we should avoid it altogether...
+  ## TODO: I just added a 'shallow' entry to the add_track call, so maybe we don't have to get the subfeatures here.  Eventually we should avoid it altogether...
   my @subfeatures;
   unless( $self->option( 'shallow' ) && ( $level >= 0 ) ) {
     @subfeatures = $self->subseq( $feature );
   }
   if( @subfeatures ) {
-
-    # dynamic glyph resolution
-    @subglyphs = map { $_->[0] }
-    sort { $a->[1] <=> $b->[1] }
-    map { [$_, $_->left ] } 
-    $factory->make_glyph($level+1,@subfeatures);
-
-    $self->{parts}   = \@subglyphs;
-  }
+    ## TODO: REMOVE
+    #warn "Yes there are ".scalar( @subfeatures )." subfeatures.";
+    if( $flyweight ) {
+      ## TODO: REMOVE
+      warn "flyweight..";
+      ## If we're a flyweight then we don't want to have to create
+      ## glyphs for each child..
+      tie @subglyphs, 'Bio::Graphics::Glyph_SubglyphsTiedToFeatures', $level+1, \@subfeatures, $factory, $flip;
+    } else {
+      # dynamic glyph resolution
+      @subglyphs = map { $_->[0] }
+      sort { $a->[1] <=> $b->[1] }
+      map { [$_, $_->left ] } 
+      $factory->make_glyph($level+1,@subfeatures);
+      ## TODO: REMOVE
+      #warn ".. and we've made ".scalar( @subglyphs )." subglyphs.";
+    }
+    $self->{parts} = \@subglyphs; #Bio::Graphics::Glyph_Parts->new( @subglyphs );
+  } # End if @subfeatures
 
   my ($start,$stop) = ($self->start, $self->stop);
   if (defined $start && defined $stop) {
@@ -64,7 +92,7 @@ sub new {
     $self->{left}    = $left;
     $self->{width}   = $right - $left + 1;
   }
-  if (@subglyphs) {
+  if( @subglyphs ) {
       my $l            = $subglyphs[0]->left;
       $self->{left}    = $l if !defined($self->{left}) || $l < $self->{left};
       my $right        = (
@@ -92,7 +120,7 @@ sub new {
   return $self;
 }
 
-sub parts      {
+sub parts {
   my $self = shift;
   return unless $self->{parts};
   return wantarray ? @{$self->{parts}} : $self->{parts};
@@ -152,7 +180,7 @@ sub set_feature_collection {
   my @features = $collection->features();
 
   ## TODO: REMOVE
-  #warn "Glyph::set_feature_collection(..): features are ( " . join( ', ', @features ) . " )" if Bio::Graphics::Browser::DEBUG;
+  warn "Glyph::set_feature_collection(..): features are ( " . join( ', ', @features ) . " )" if Bio::Graphics::Browser::DEBUG;
 
   $self->add_feature( @features );
 } # set_feature_collection(..)
@@ -167,8 +195,19 @@ sub add_feature {
       $self->add_group(@$feature);
     } else {
       ## TODO: REMOVE
-      #warn "Glyph::add_feature(..): Adding a glyph for $feature" if Bio::Graphics::Browser::DEBUG;
-      push @{$self->{parts}},$factory->make_glyph(0,$feature);
+      warn "Glyph::add_feature(..): Adding a glyph for $feature" if Bio::Graphics::Browser::DEBUG;
+
+      ## TODO: ERE I AM.  Interestingly, when we remove this first
+      ## bit, so it just uses a dumb parts array, we get closer to the
+      ## right thing; so in addition to figuring out why we don't get
+      ## exactly the right thing, we need to figure out what's up with
+      ## that.
+      if( $self->{flyweight} && !defined( $self->{parts} ) ) {
+        my @subglyphs;
+        tie @subglyphs, 'Bio::Graphics::Glyph_SubglyphsTiedToFeatures', 0, [ $feature ], $self->factory(), $self->flip();
+      } else {
+        push @{$self->{parts}},$factory->make_glyph(0,$feature);
+      }
     }
   }
 }
@@ -181,6 +220,8 @@ sub add_group {
 					 -segments=>\@features,
 					 -type => 'group'
 					);
+  ## TODO: REMOVE
+  warn "Glyph::add_group(..): Adding a glyph for $f" if Bio::Graphics::Browser::DEBUG;
   $self->add_feature($f);
 }
 
@@ -285,10 +326,12 @@ sub boxes {
   my @result;
 
   $self->layout;
-  my @parts = $self->parts;
-  @parts    = $self if !@parts && $self->option('box_subparts') && $self->level>0;
+  my $parts = $self->parts or return;
+  $parts    = [ $self ] if !@$parts && $self->option('box_subparts') && $self->level>0;
 
-  for my $part ($self->parts) {
+  my $part;
+  for( my $part_i = 0; $part_i < scalar( @$parts ); $part_i++ ) {
+    $part = $parts->[ $part_i ];
     if (eval{$part->feature->primary_tag} eq 'group' or
 	($part->level == 0 && $self->option('box_subparts'))) {
       push @result,$part->boxes($left+$self->left+$self->pad_left,$top+$self->top+$self->pad_top);
@@ -319,10 +362,11 @@ sub pad_left {
 sub pad_right {
   my $self = shift;
 # this shouldn't be necessary
-  my @parts = $self->parts or return 0;
+  my $parts = $self->parts or return 0;
+  return 0 unless @$parts;
   my $max = 0;
-  foreach (@parts) {
-    my $pr = $_->pad_right;
+  for (my $part_i = 0; $part_i < scalar( @$parts ); $part_i++ ) {
+    my $pr = $parts->[ $part_i ]->pad_right;
     $max = $pr if $max < $pr;
   }
   $max;
@@ -331,13 +375,22 @@ sub pad_right {
 # move relative to parent
 sub move {
   my $self = shift;
+
+  ## TODO: REMOVE
+  #if( $self->{ 'flyweight' } ) {
+  #  $self->throw( "move" );
+  #}
+
   my ($dx,$dy) = @_;
   $self->{left} += $dx;
   $self->{top}  += $dy;
 
   # because the feature parts use *absolute* not relative addressing
   # we need to move each of the parts horizontally, but not vertically
-  $_->move($dx,0) foreach $self->parts;
+  my $parts = $self->parts() or return;
+  for( my $part_i = 0; $part_i < scalar( @$parts ); $part_i++ ) {
+    $parts->[ $part_i ]->move($dx,0);
+  }
 }
 
 # get an option
@@ -445,7 +498,6 @@ sub connector_color {
 }
 
 sub layout_sort {
-
     my $self = shift;
     my $sortfunc;
 
@@ -501,29 +553,40 @@ sub layout_sort {
 # handle collision detection
 sub layout {
   my $self = shift;
+
   return $self->{layout_height} if exists $self->{layout_height};
 
-  my @parts = $self->parts;
-  return $self->{layout_height}
-    = $self->height + $self->pad_top + $self->pad_bottom unless @parts;
+  my $parts = $self->parts;
+  unless( $parts && @$parts ) {
+    return $self->{layout_height} =
+      $self->height + $self->pad_top + $self->pad_bottom;
+  }
 
   my $bump_direction = $self->bump;
   my $bump_limit = $self->option('bump_limit') || -1;
 
-  $_->layout foreach @parts;  # recursively lay out
+  for( my $part_i = 0; $part_i < scalar( @$parts ); $part_i++ ) {
+    $parts->[ $part_i ]->layout;  # recursively lay out
+  }
 
   # no bumping requested, or only one part here
-  if (@parts == 1 || !$bump_direction) {
+  if (@$parts == 1 || !$bump_direction) {
     my $highest = 0;
-    foreach (@parts) {
-      my $height = $_->layout_height;
+    for( my $part_i = 0; $part_i < scalar( @$parts ); $part_i++ ) {
+      my $height = $parts->[ $part_i ]->layout_height;
       $highest   = $height > $highest ? $height : $highest;
     }
     return $self->{layout_height} = $highest + $self->pad_top + $self->pad_bottom;
   }
 
+  ## TODO: REMOVE
+  #if( $self->{ 'flyweight' } ) {
+  #  $self->throw( "layout" );
+  #}
+
   my (%bin1,%bin2);
-  for my $g ($self->layout_sort(@parts)) {
+  ## TODO: ERE I AM.  Of course it'll get all messed up calling layout_sort by value, but then again, we'll not be using this layout very soon anyways.
+  for my $g ($self->layout_sort(@$parts)) {
 
     my $pos = 0;
     my $bumplevel = 0;
@@ -536,8 +599,9 @@ sub layout {
       # stop bumping if we've gone too far down
       if ($bump_limit > 0 && $bumplevel++ >= $bump_limit) {
 	$g->{overbumped}++;  # this flag can be used to suppress label and description
-	foreach ($g->parts) {
-	  $_->{overbumped}++;
+        my $parts = $g->parts() or last;
+	for( my $part_i = 0; $part_i < scalar( @$parts ); $part_i++ ) {
+	  $parts->[ $part_i ]->{overbumped}++;
 	}
 	last;
       }
@@ -564,18 +628,22 @@ sub layout {
   # If -1 bumping was allowed, then normalize so that the top glyph is at zero
   if ($bump_direction < 0) {
     my $topmost;
-    foreach (@parts) {
-      my $top  = $_->top;
+    for( my $part_i = 0; $part_i < scalar( @$parts ); $part_i++ ) {
+      my $top  = $parts->[ $part_i ]->top;
       $topmost = $top if !defined($topmost) or $top < $topmost;
     }
     my $offset = - $topmost;
-    $_->move(0,$offset) foreach @parts;
+    for( my $part_i = 0; $part_i < scalar( @$parts ); $part_i++ ) {
+      $parts->[ $part_i ]->move(0,$offset);
+    }
   }
 
   # find new height
   my $bottom = 0;
-  foreach (@parts) {
-    $bottom = $_->bottom if $_->bottom > $bottom;
+  my $part;
+  for( my $part_i = 0; $part_i < scalar( @$parts ); $part_i++ ) {
+    $part = $parts->[ $part_i ];
+    $bottom = $part->bottom if $part->bottom > $bottom;
   }
   return $self->{layout_height} = $self->pad_bottom + $self->pad_top + $bottom - $self->top  + 1;
 }
@@ -631,24 +699,33 @@ sub draw {
   @{$self}{qw(partno total_parts)} = ($partno,$total_parts);
 
   my $connector =  $self->connector;
-  if (my @parts = $self->parts) {
-
+  my $parts = $self->parts;
+  ## TODO: REMOVE
+  #warn "draw(): parts is $parts, of size ".($parts?scalar( @$parts ):0).".  I am $self.  flyweight is ".$self->{flyweight};
+  if( $parts && @$parts ) {
     # invoke sorter if use wants to sort always and we haven't already sorted
     # during bumping.
-    @parts = $self->layout_sort(@parts) if !$self->bump && $self->option('always_sort');
+    if( !$self->bump && $self->option('always_sort') ) {
+      my @parts_l = $self->layout_sort(@$parts);
+      $parts = \@parts_l;
+    }
 
     my $x = $left;
     my $y = $top  + $self->top + $self->pad_top;
     $self->draw_connectors($gd,$x,$y) if $connector && $connector ne 'none';
 
     my $last_x;
-    for (my $i=0; $i<@parts; $i++) {
+    my $part;
+    for( my $part_i=0; $part_i<scalar( @$parts ); $part_i++ ) {
+      $part = $parts->[ $part_i ];
       # lie just a little bit to avoid lines overlapping and
       # make the picture prettier
       my $fake_x = $x;
-      $fake_x-- if defined $last_x && $parts[$i]->left - $last_x == 1;
-      $parts[$i]->draw($gd,$fake_x,$y,$i,scalar(@parts));
-      $last_x = $parts[$i]->right;
+      $fake_x-- if defined $last_x && $part->left - $last_x == 1;
+      ## TODO: REMOVE
+      #warn "invoking draw(..) on part $part_i.";
+      $part->draw($gd,$fake_x,$y,$part_i,scalar(@$parts));
+      $last_x = $part->right;
     }
   }
 
@@ -659,10 +736,30 @@ sub draw {
   }
 }
 
+## TODO: Document this...
+sub draw_flyweight {
+  my $self = shift;
+  my ( $feature, $factory, @draw_args ) = @_;
+
+  # Set ourselves up flyweight-style
+  $self->new(
+    '-flyweight' => 1,
+    '-feature'   => $feature || $self->feature(),
+    '-factory'   => $factory || $self->factory(),
+    '-level'     => $self->level() || 0,
+    '-flip'      => $self->flip()
+  );
+  $self->draw( @draw_args );
+} # draw_flyweight(..)
+
 # the "level" is the level of testing of the glyph
 # groups are level -1, top level glyphs are level 0, subcomponents are level 1 and so forth.
 sub level {
   shift->{level};
+}
+
+sub flip {
+  shift->{flip};
 }
 
 sub draw_connectors {
@@ -670,20 +767,27 @@ sub draw_connectors {
   return if $self->{overbumped};
   my $gd = shift;
   my ($dx,$dy) = @_;
-  my @parts = sort { $a->left <=> $b->left } $self->parts;
-  for (my $i = 0; $i < @parts-1; $i++) {
-    $self->_connector($gd,$dx,$dy,$parts[$i]->bounds,$parts[$i+1]->bounds);
+  #my $parts = $self->parts();
+  ## TODO: This won't work..
+  my @parts_l = sort { $a->left <=> $b->left } $self->parts();
+  my $parts = \@parts_l;
+  return unless( $parts && @$parts );
+  my ( $part, $next_part );
+  $part = $parts->[ 0 ];
+  for( my $part_i = 0; $part_i < ( scalar( @$parts ) - 1 ); $part_i++) {
+    $next_part = $parts->[ $part_i + 1 ];
+    $self->_connector($gd,$dx,$dy,$part->bounds,$next_part->bounds);
+    $part = $next_part;
   }
 
   # extra connectors going off ends
-  if (@parts) {
+  if (@$parts) {
     my($x1,$y1,$x2,$y2) = $self->bounds(0,0);
-    my($xl,$xt,$xr,$xb) = $parts[0]->bounds;
+    my($xl,$xt,$xr,$xb) = $parts->[0]->bounds;
     $self->_connector($gd,$dx,$dy,$x1,$xt,$x1,$xb,$xl,$xt,$xr,$xb)      if $x1 < $xl;
-    my ($xl2,$xt2,$xr2,$xb2) = $parts[-1]->bounds;
-    $self->_connector($gd,$dx,$dy,$parts[-1]->bounds,$x2,$xt2,$x2,$xb2) if $x2 > $xr;
+    my ($xl2,$xt2,$xr2,$xb2) = $parts->[-1]->bounds;
+    $self->_connector($gd,$dx,$dy,$parts->[-1]->bounds,$x2,$xt2,$x2,$xb2) if $x2 > $xr;
   }
-
 }
 
 sub _connector {
@@ -963,6 +1067,10 @@ sub subseq {
 sub _subseq {
   my $class   = shift;
   my $feature = shift;
+  ## TODO: REMOVE
+  #unless( ref $feature ) {
+  #  $class->throw( "uh-oh feature is $feature" );
+  #}
   return $feature->merged_segments         if $feature->can('merged_segments');
   return $feature->segments                if $feature->can('segments');
   my @split = eval { my $id   = $feature->location->seq_id;
@@ -1013,6 +1121,145 @@ sub all_callbacks {
 sub default_factory {
   croak "no default factory implemented";
 }
+
+## Inner class ##############################################################
+#============================================================================
+# Bio::Graphics::Glyph_Parts:
+#============================================================================
+package Bio::Graphics::Glyph_Parts;
+
+use overload
+  '@{}' => \&_arrayderef,
+  'fallback' => 1;
+
+sub new {
+  my $pack = shift;
+  my $self = bless [ @_ ], $pack;
+}
+
+## TODO: REMOVE
+sub _arrayderef {
+  Bio::Root::Root->throw( "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!_arrayderef()" );
+}
+
+#============================================================================
+## This is the end of Glyph_Parts, an inner class of Glyph.
+#============================================================================
+## End Inner class ##########################################################
+
+## Inner class ##############################################################
+#============================================================================
+# Bio::Graphics::Glyph_SubglyphsTiedToFeatures: A TIEARRAY module for using the
+# Glyph as a flyweight, that replaces the 'parts' array of sub-Glyphs with a
+# tied flyweight-maintaining array (so the entries aren't actual independent
+# Glyphs)
+#============================================================================
+package Bio::Graphics::Glyph_SubglyphsTiedToFeatures;
+
+use vars '@ISA';
+@ISA = qw( Tie::Array );
+use overload
+  '=' => \&_copy,
+  'fallback' => 1;
+
+sub _copy {
+  Bio::Root::Root->throw( "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!_copy()" );
+}
+
+sub TIEARRAY {
+  my $class = shift;
+  my ( $level, $features, $factory, $flip ) = @_;
+  return bless [ $level, $features, scalar( @$features ), $factory, undef, $flip, -1 ], $class;
+} # TIEARRAY(..)
+
+sub FETCH {
+  my $self = shift;
+  my ( $index ) = @_;
+  ## TODO: REMOVE
+  #warn "FETCH: Index is $index. size is ".$self->[ 2 ].".";
+  eval{ Bio::Root::Root->throw( "FETCH: Index is $index. size is ".$self->[ 2 ]."." ); };
+  warn $@;
+  if( $index < 0 ) {
+    $index = ( $self->[ 2 ] - $index );
+  }
+  if( ( $index >= $self->[ 2 ] ) || ( $index < 0 ) ) {
+    ## TODO: REMOVE
+    #warn "returning undef because index $index >= size or is < 0.";
+    return undef;
+  }
+  unless( defined( $self->[ 4 ] ) ) {
+    ## TODO: REMOVE
+    #warn "Creating flyweight for index $index: feature there is ".$self->[ 1 ]->[ $index ];
+    ## Create the flyweight.
+    return
+      $self->[ 4 ] =
+        $self->[ 3 ]->make_glyph( $self->[ 0 ], $self->[ 1 ]->[ $index ] );
+  } elsif( $index == $self->[ 6 ] ) {
+    ## TODO: REMOVE
+    #warn "Using existing flyweight for index $index: feature there is ".$self->[ 1 ]->[ $index ];
+    ## The glyph is already set up for this index.
+    return $self->[ 4 ];
+  } else {
+    my $glyph = $self->[ 4 ];
+    ## TODO: REMOVE
+    #warn "Before resetting, the glyph's keys are ( ".join( ', ', keys %$glyph )." )";
+    ## TODO: REMOVE
+    my $old_feature = $glyph->feature();
+    foreach my $key ( keys %$glyph ) {
+      $old_feature->{ '_____hack' }->{ $key } = $glyph->{ $key };
+    }
+    ## TODO: REMOVE
+    #warn "The glyph has ".Devel::Peek::SvREFCNT( $glyph )." references.";
+    ## TODO: REMOVE
+    #warn "Setting up flyweight for index $index: feature there is ".$self->[ 1 ]->[ $index ];
+    ## Set up the flyweight.
+    $glyph->new(
+      '-flyweight' => 1,
+      '-factory'   => $self->[ 3 ],
+      '-feature'   => $self->[ 1 ]->[ $index ],
+      '-level'     => $self->[ 0 ],
+      '-flip'      => $self->[ 5 ]
+    );
+    ## TODO: REMOVE
+    my $new_feature = $glyph->feature();
+    foreach my $key ( keys %{ $new_feature->{ '_____hack' } } ) {
+      ## TODO: REMOVE
+      #warn "Restoring the new feature's old glyph's $key value.";
+      $glyph->{ $key } = $new_feature->{ '_____hack' }->{ $key };
+    }
+    return $glyph;
+  }
+} # FETCH(..)
+
+sub FETCHSIZE {
+  my $self = shift;
+  return $self->[ 2 ];
+} # FETCHSIZE()
+
+sub STORE {
+  Bio::Root::Root->throw( "Sorry, but the flyweight mechanism won't support setting the glyph (yet?)." );
+} # STORE(..)
+
+sub STORESIZE {
+  Bio::Root::Root->throw( "Sorry, but the flyweight mechanism won't support setting the glyph (yet?)." );
+} # STORESIZE(..)
+
+sub PUSH {
+  Bio::Root::Root->throw( "Sorry, but the flyweight mechanism won't support setting the glyph (yet?)." );
+} # PUSH(..)
+
+sub DESTROY {
+  my $self = shift;
+  ## This is unnecessary.
+  for( my $i = 0; $i <= 5; $i++ ) {
+    undef $self->[ $i ];
+  }
+} # DESTROY(..)
+
+#============================================================================
+## This is the end of Glyph_SubglyphsTiedToFeatures, an inner class of Glyph.
+#============================================================================
+## End Inner class ##########################################################
 
 1;
 

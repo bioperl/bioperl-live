@@ -35,22 +35,22 @@ sub draw_connectors {
   my $gd = shift;
   my ($left,$top) = @_;
   $self->SUPER::draw_connectors($gd,$left,$top);
-  my @parts = $self->parts;
+  my $parts = $self->parts;
 
   # H'mmm.  No parts.  Must be in an intron, so draw intron
   # spanning entire range
-  if (!@parts) {
+  if( !$parts || !@$parts ) {
     my($x1,$y1,$x2,$y2) = $self->bounds(0,0);
     $self->_connector($gd,$left,$top,$x1,$y1,$x1,$y2,$x2,$y1,$x2,$y2);
-    @parts = $self;
+    $parts = [ $self ];
   }
 
   if ($self->feature->strand >= 0) {
-    my($x1,$y1,$x2,$y2) = $parts[-1]->bounds(@_);
+    my($x1,$y1,$x2,$y2) = $parts->[-1]->bounds(@_);
     my $center = ($y2+$y1)/2;
     $self->arrow($gd,$x2,$x2+$self->arrow_length,$center);
   } else {
-    my($x1,$y1,$x2,$y2) = $parts[0]->bounds(@_);
+    my($x1,$y1,$x2,$y2) = $parts->[0]->bounds(@_);
     my $center = ($y2+$y1)/2;
     $self->arrow($gd,$x1,$x1 - $self->arrow_length,$center);
   }

@@ -182,6 +182,8 @@ sub get {
     if( ( $section =~ /^default$/i ) || ( $section =~ /^general$/i ) ) {
       $section = '_general';
     }
+    ## TODO: REMOVE
+    #warn "Retrieving section $section key $params[ 1 ].";
     return $self->{ '_sections' }->{ $section }->{ $params[ 1 ] };
   } else {
     return;

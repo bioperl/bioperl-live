@@ -15,9 +15,11 @@ sub connector {
 sub draw {
   my $self = shift;
   my ($gd,$left,$top,$partno,$total_parts) = @_;
-  my @parts = $self->parts;
-  for (my $i=0; $i<@parts; $i++) {
-    $parts[$i]->draw($gd,$left,$top,0,1);
+  my $parts = $self->parts or return;
+  for (my $part_i=0; $part_i<@$parts; $part_i++) {
+    ## TODO: REMOVE
+    #warn "track glyph: invoking draw(..) on part $part_i, a ".ref( $parts->[$part_i] ).". I am $self.  flyweight is ".$self->{flyweight};
+    $parts->[$part_i]->draw($gd,$left,$top,0,1);
   }
 }
 

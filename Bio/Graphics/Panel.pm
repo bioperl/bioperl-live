@@ -369,6 +369,7 @@ sub _add_track {
   #warn "Panel::_add_track( $position, [ ".join( ', ', @$features )." ], @options ): creating factory and glyph." if Bio::Graphics::Browser::DEBUG;
   #warn "Panel::_add_track( $position, [ ".join( ', ', $feature->features() )." ], @options ): creating factory and glyph." if Bio::Graphics::Browser::DEBUG;
 
+  #my $factory = Bio::Graphics::Glyph::Factory->new($self,'-flyweight',1,@options); # TODO: REMOVE flyweight
   my $factory = Bio::Graphics::Glyph::Factory->new($self,@options);
   my $track   = $factory->make_glyph(-1,$feature);
 

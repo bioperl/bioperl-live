@@ -172,7 +172,8 @@ sub has_decoration {
   my $self = shift;
 
   ## TODO: ERE I AM
-  return ( $self->label() =~ /08/ );
+  #return ( $self->label() =~ /08/ );
+  return 0;
 }
 
 sub decoration_width {

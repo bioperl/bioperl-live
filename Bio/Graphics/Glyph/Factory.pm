@@ -75,6 +75,7 @@ my %GENERIC_OPTIONS = (
   Usage   : $f = Bio::Graphics::Glyph::Factory->new(
                      -stylesheet => $stylesheet,
 		     -glyph_map  => $glyph_map,
+                     -flyweight  => $flyweight,
 		     -options    => $options);
   Function : create a new Bio::Graphics::Glyph::Factory object
   Returns  : the new object
@@ -82,6 +83,7 @@ my %GENERIC_OPTIONS = (
                  convert Bio::Das feature objects into glyph names and
                  associated options.
              $glyph_map is a hash that maps primary tags to glyph names.
+             $flyweight is a boolean that, if true, tells the factory to conserve space and time by creating very few instances of the glyphs and reusing those instances.
              $options is a hash that maps option names to their values.
   Status   : Internal to Bio::Graphics
 
@@ -93,10 +95,12 @@ sub new {
   my %args = @_;
   my $stylesheet = $args{-stylesheet};   # optional, for Bio::Das compatibility
   my $map        = $args{-map};          # map type name to glyph name
+  my $flyweight  = $args{-flyweight};    # use flyweight
   my $options    = $args{-options};      # map type name to glyph options
   return bless {
 		stylesheet => $stylesheet,
 		glyph_map  => $map,
+		flyweight  => $flyweight,
 		options    => $options,
 		panel      => $panel,
 		},$class;
@@ -330,11 +334,12 @@ sub make_glyph {
     #warn "make_glyph( $level, $f ): glyphclass is $glyphclass." if Bio::Graphics::Browser::DEBUG;
     my $glyph = $glyphclass->new(-feature  => $f,
 				 -factory  => $self,
+                                 -flyweight => $self->{flyweight},
 				 -level    => $level);
 
     # this is removing glyphs that are not onscreen at all.
     # But never remove tracks!
-    push @result,$glyph if $type eq 'track'
+    push @result,$glyph if ( $type eq 'track' || $self->{flyweight} )
 	|| ($glyph->{left} + $glyph->{width} > $leftmost && $glyph->{left} < $rightmost);
 
   }

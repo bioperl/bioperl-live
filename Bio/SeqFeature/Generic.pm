@@ -316,8 +316,10 @@ sub new_from_feature {
     $new_feature->{ $key } = $feature->{ $key };
   }
   foreach my $key ( keys %{ $feature->{ '_gsf_tag_hash' } } ) {
-    $new_feature->{ '_gsf_tag_hash' }->{ $key } =
-      $feature->{ '_gsf_tag_hash' }->{ $key };
+    next unless $feature->{ '_gsf_tag_hash' }->{ $key };
+    foreach my $value ( @{ $feature->{ '_gsf_tag_hash' }->{ $key } } ) {
+      push( @{ $new_feature->{ '_gsf_tag_hash' }->{ $key } }, $value );
+    }
   }
   return bless $new_feature, __PACKAGE__;
 } # new_from_feature(..)

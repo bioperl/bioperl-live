@@ -225,12 +225,27 @@ sub disaggregate_types {
   my $sub_features = $self->parse_types($self->get_part_names);
   my $main_feature = $self->parse_types($self->get_main_name);
 
+  ## TODO: REMOVE
+  #warn "disaggregate_types: get_method returns ".$self->get_method().".";
+  ## TODO: REMOVE
+  #if( @$sub_features ) {
+  #  print STDERR "part_names types are ( ";
+  #  foreach my $sf ( @$sub_features ) {
+  #    print STDERR "[ ".join( ', ', @$sf )." ], ";
+  #  }
+  #  warn " )";
+  #}
+
+  my $self_method = lc( $self->get_method );
   if (@$types) {
     my (@synthetic_types,@unchanged);
     foreach (@$types) {
       my ($method,$source) = @$_;
-      if (lc($method) eq $self->get_method) { # e.g. "transcript"
-	push @synthetic_types,map { [$_->[0],$_->[1] || $source] } @$sub_features,@$main_feature;
+      ## TODO: REMOVE
+      #warn "type $_ method is $method.";
+      #warn "type $_ source is $source.";
+      if (lc($method) eq $self_method ) { # e.g. "transcript"
+	push @synthetic_types,map { [$_->[0],$_->[1] || $source] } (@$sub_features,@$main_feature);
       }
       else {
 	push @unchanged,$_;
@@ -239,6 +254,16 @@ sub disaggregate_types {
     # remember what we're searching for
     $self->components(\@synthetic_types);
     $self->passthru(\@unchanged);
+
+    ## TODO: REMOVE
+    #if( @synthetic_types ) {
+    #  print STDERR "Synthetic types are ( ";
+    #  foreach my $st ( @synthetic_types ) {
+    #    print STDERR "[ ".join( ', ', @$st )." ], ";
+    #  }
+    #  warn " )";
+    #}
+
     @$types = (@unchanged,@synthetic_types);
   }
 
@@ -301,15 +326,16 @@ sub aggregate {
   my $matchsub    = $self->match_sub($factory) or return;
   my $passthru    = $self->passthru_sub($factory);
 
-  ## TODO: ERE I AM.. Why isn't it aggregating?  See below..
   ## TODO: REMOVE
   #warn "aggregating.. main_method is $main_method.";
 
   my (%aggregates,@result,$changed);
   for my $feature (@$features) {
     if ($feature->group ) {#&& $matchsub->($feature)) {
+      ## TODO: REMOVE
+      #warn "feature method is ".$feature->method();
       if ($main_method && lc $feature->method eq lc $main_method) {
-	$aggregates{$feature->group,$feature->refseq}{base} ||= $feature->new_from_feature();
+	$aggregates{$feature->group,$feature->seq_id}{base} ||= $feature->new_from_feature();
       } else {
 	push @{$aggregates{$feature->group,$feature->seq_id}{subparts}},$feature;
       }
@@ -319,10 +345,8 @@ sub aggregate {
         $changed = 1;
       }
     } else {
-      ## TODO: ERE I AM.  The matchsub is returning false for some reason..
-
       ## TODO: REMOVE
-      #warn "Not aggregating feature $feature because either \$feature->group is false (it is ".$feature->group().") or because \$matchsub->(\$feature) returns false (it returns ".$matchsub->($feature).").";
+      warn "Not aggregating feature $feature because either \$feature->group is false (it is ".$feature->group().") or because \$matchsub->(\$feature) returns false (it returns ".$matchsub->($feature).").";
       push @result,$feature;
     }
   }
