@@ -36,7 +36,7 @@ Bio::Graphics - Generate GD images of Bio::Seq objects
  }
 
  my $panel = Bio::Graphics::Panel->new(
- 				      -segment   => $seq,
+				      -length    => $seq->length,
  				      -key_style => 'between',
  				      -width     => 800,
  				      -pad_left  => 10,
