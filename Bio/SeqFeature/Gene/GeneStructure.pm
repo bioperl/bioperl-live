@@ -157,6 +157,10 @@ sub flush_transcripts {
 
            This method basically merges the promoters returned by transcripts.
 
+           Note that OO-modeling of regulatory elements is not stable yet.
+           This means that this method might change or even disappear in a
+           future release. Be aware of this if you use it.
+
  Returns : An array of Bio::SeqFeatureI implementing objects.
  Args    : 
 

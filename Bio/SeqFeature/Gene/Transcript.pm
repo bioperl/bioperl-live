@@ -100,8 +100,9 @@ sub new {
  Usage   : @proms = $transcript->promoters();
  Function: Get the promoter features/sites of this transcript. 
 
-           Note that mrna() expects that there is only a single promoter
-           part of the sequence.
+           Note that OO-modeling of regulatory elements is not stable yet.
+           This means that this method might change or even disappear in a
+           future release. Be aware of this if you use it.
 
  Returns : An array of Bio::SeqFeatureI implementing objects representing the
            promoter regions or sites.
@@ -123,8 +124,10 @@ sub promoters {
  Usage   : $transcript->add_promoter($feature);
  Function: Add a promoter feature/site to this transcript.
 
-           Note that mrna() expects that there is only a single promotor
-           part of the sequence.
+
+           Note that OO-modeling of regulatory elements is not stable yet.
+           This means that this method might change or even disappear in a
+           future release. Be aware of this if you use it.
 
  Returns : 
  Args    : A Bio::SeqFeatureI implementing object.
@@ -154,6 +157,11 @@ sub add_promoter {
  Title   : flush_promoters()
  Usage   : $transcript->flush_promoters();
  Function: Remove all promoter features/sites from this transcript.
+
+           Note that OO-modeling of regulatory elements is not stable yet.
+           This means that this method might change or even disappear in a
+           future release. Be aware of this if you use it.
+
  Returns : 
  Args    : none
 

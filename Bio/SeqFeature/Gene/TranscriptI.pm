@@ -91,6 +91,11 @@ sub _abstractDeath {
  Title   : promoters()
  Usage   : @proms = $transcript->promoters();
  Function: Get the promoter features of this transcript.
+
+           Note that OO-modeling of regulatory elements is not stable yet.
+           This means that this method might change or even disappear in a
+           future release. Be aware of this if you use it.
+
  Returns : An array of Bio::SeqFeatureI implementing objects representing the
            promoter regions or sites.
  Args    : 
