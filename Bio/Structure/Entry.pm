@@ -674,8 +674,8 @@ sub master {
 
 sub seqres {
 	my ($self, $chainid) = @_;
-	my $s_u = "x4 A1 x7 A3 x1 A3 x1 A3 x1 A3 x1 A3 x1 A3 x1 A3 x1 A3 x1 A3 x1 A3 x1 A3 x1 A3 x1 A3";
-	my $seq;
+	my $s_u = "x3 A1 x7 A3 x1 A3 x1 A3 x1 A3 x1 A3 x1 A3 x1 A3 x1 A3 x1 A3 x1 A3 x1 A3 x1 A3 x1 A3";
+	my (%seq_ch);
 	if ( !defined $chainid) {
 		my $m = ($self->get_models($self))[0];
 		my $c = ($self->get_chains($m))[0];
@@ -685,15 +685,28 @@ sub seqres {
 	my $seqres_string = $seqres->as_text;
 $self->debug("seqres : $seqres_string\n");
 	$seqres_string =~ s/^Value: //;
-	$seqres_string =~ s/\d+//g;		# no numbers needed
-	$seqres_string =~ s/ \S //g;		# single character is Chain identifier
-	$seqres_string =~ s/(\w+)/\u\L$1/g;	# ALA -> Ala  (for SeqUtils)
-	$seqres_string =~ s/\s//g; 		# strip all spaces
-$self->debug("seqres : $seqres_string\n");
+	# split into lines of 62 long
+	my @l = unpack("A62" x (length($seqres_string)/62), $seqres_string);
+	for my $line (@l) {
+		# get out chain_id and sequence
+		my ($chid, $seq) = unpack("x3 A1 x7 A51", $line);
+		if ($chid eq " ") {
+			$chid = "default";
+		}
+		$seq =~ s/(\w+)/\u\L$1/g;	# ALA -> Ala  (for SeqUtils)
+		$seq =~ s/\s//g; 		# strip all spaces
+		$seq_ch{$chid} .= $seq;
+$self->debug("seqres : $chid $seq_ch{$chid}\n");
+	}
+	# do we have a seqres for this chainid
+	if(! exists $seq_ch{$chainid} ) {
+		$self->warn("There is no SEQRES known for chainid \"$chainid\"");
+		return undef;
+	}
 
 	# this will break for non-protein structures (about 10% for now) XXX KB
 	my $pseq = Bio::PrimarySeq->new(-alphabet => 'protein');
-	$pseq = Bio::SeqUtils->seq3in($pseq,$seqres_string);
+	$pseq = Bio::SeqUtils->seq3in($pseq,$seq_ch{$chainid});
 	my $id = $self->id . "_" . $chainid;
 	$pseq->id($id);
 	return $pseq;
