@@ -77,7 +77,7 @@ This makes possible simultaneous pattern matching on both sense and
 anti-sense strands of a query sequence. 
 
 In principle, one could do such a search more inefficiently by testing 
-ainst both sense and anti-sense versions of a sequence. 
+against both sense and anti-sense versions of a sequence. 
 It is entirely equivalent to test a regexp containing both sense and 
 anti-sense versions of the *pattern* against one copy of the sequence.
 The latter approach is much more efficient since:
@@ -160,24 +160,24 @@ Amino acid alphabet support is different from that of Seq.pm (see below).
 
 =head2   Multiple Format Support
 
-Ultimately, this module should be able to build SeqPattern.pm objects objects 
+Ultimately, this module should be able to build SeqPattern.pm objects
 using a variety of pattern formats such as ProSite, Blocks, Prints, GCG, etc.
-Currently, this module only supports patterns using a grep-like syntax. 
+Currently, this module only supports patterns using a grep-like syntax.
 
 =head1 USAGE
 
-A simple demo script is included with the central Bioperl distribution
-and is also available from:
+A simple demo script is included in the examples/ directory of the central
+Bioperl distribution and is also available from:
 
     http://bio.perl.org/Core/Examples/seq_pattern.pl
 
 =head1 SEE ALSO
 
-  Bio::Root::Object.pm    - Base class.
-  Bio::Seq.pm             - Lightweight sequence object.
+L<Bio::Root::Object>   - Base class.
+L<Bio::Seq>            - Lightweight sequence object.
 
-  http://bio.perl.org/Projects/modules.html  - Online module documentation
-  http://bio.perl.org/                       - Bioperl Project Homepage 
+http://bio.perl.org/Projects/modules.html  - Online module documentation
+http://bio.perl.org/                       - Bioperl Project Homepage 
 
 =head1 FEEDBACK
 
@@ -196,8 +196,8 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 the bugs and their resolution. Bug reports can be submitted via email
 or the web:
 
-    bioperl-bugs@bio.perl.org                   
-    http://bio.perl.org/bioperl-bugs/           
+    bioperl-bugs@bio.perl.org
+    http://bio.perl.org/bioperl-bugs/
 
 =head1 AUTHOR
 
