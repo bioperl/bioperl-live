@@ -1240,6 +1240,11 @@ Currently, the following glyphs are available:
   Name        Description
   ----        -----------
 
+  anchored_arrow
+              a span with vertical bases |---------|.  If one or
+              the other end of the feature is off-screen, the base
+              will be replaced by an arrow.
+
   arrow	      An arrow; can be unidirectional or bidirectional.
 	      It is also capable of displaying a scale with
 	      major and minor tickmarks, and can be oriented
@@ -1284,6 +1289,9 @@ Currently, the following glyphs are available:
 
   pinsertion  A triangle designed to look like an insertion location
               (e.g. a transposon insertion).
+
+  processed_transcript  multi-purpose representation of a spliced mRNA, including
+			positions of UTRs
 
   primers     Two inward pointing arrows connected by a line.
 	      Used for STSs.
