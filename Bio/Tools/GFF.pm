@@ -118,9 +118,10 @@ sub new {
   $gff_version ||= 2;
   
   if( ! $self->gff_version($gff_version) )  {
-    $self->throw("Can't build a GFF object with the unknown version ".
-		 $gff_version);
+      $self->throw("Can't build a GFF object with the unknown version ".
+		   $gff_version);
   }
+  $self->{'_first'} = 1;
   return $self;
 }
 
@@ -405,6 +406,11 @@ sub unescape {
 
 sub write_feature {
     my ($self, @features) = @_;
+    return unless @features;
+    if( $self->{'_first'} && $self->gff_version() == 3 ) {
+	$self->_print("##gff-version 3\n");
+    }
+    $self->{'_first'} = 0;
     foreach my $feature ( @features ) {
 	$self->_print($self->gff_string($feature)."\n");
     }
