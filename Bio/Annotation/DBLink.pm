@@ -2,7 +2,7 @@
 #
 # BioPerl module for Bio::Annotation::Link
 #
-# Cared for by Ewan Birney <pfam@sanger.ac.uk>
+# Cared for by Ewan Birney <birney@ebi.ac.uk>
 #
 # Copyright Ewan Birney
 #
@@ -16,7 +16,19 @@ Bio::Annotation::DBLink - DESCRIPTION of Object
 
 =head1 SYNOPSIS
 
-Give standard usage here
+$link1 = new Bio::Annotation::DBLink(-database => 'TSC',
+				     -primary_id => 'TSC0000030'
+				     );
+
+#or 
+
+$link2 = new Bio::Annotation::DBLink();
+$link2->database('dbSNP');
+$link2->primary_id('2367');
+
+# $feat is Bio::Annotation object, Bio::SeqFeature::Generic inherits it
+$feat->add_DBLink($link2);
+
 
 =head1 DESCRIPTION
 
@@ -29,7 +41,8 @@ Describe contact details here
 
 =head1 APPENDIX
 
-The rest of the documentation details each of the object methods. Internal methods are usually preceded with a _
+The rest of the documentation details each of the object
+methods. Internal methods are usually preceded with a _
 
 =cut
 
@@ -45,7 +58,6 @@ use strict;
 
 use Bio::Root::Object;
 
-
 @ISA = qw(Bio::Root::Object);
 # new() is inherited from Bio::Root::Object
 
@@ -54,10 +66,22 @@ use Bio::Root::Object;
 sub _initialize {
   my($self,@args) = @_;
 
-  my $make = $self->SUPER::_initialize;
+  my ($database, $primary_id, $optional_id, $comment) =
+      $self->_rearrange([qw(DATABASE
+			    PRIMARY_ID
+			    OPTIONAL_ID 
+			    COMMENT
+			    )], @args);
+  
+  my $make = $self->SUPER::_initialize(@args); 
 
+  $database    && $self->database($database);
+  $primary_id  && $self->primary_id($primary_id);
+  $optional_id && $self->optional_id($optional_id);
+  $comment     && $self->comment($comment);
+  
 # set stuff in self from @args
- return $make; # success - we hope!
+  return $make; # success - we hope!
 }
 
 =head2 database
@@ -74,6 +98,7 @@ sub _initialize {
 
 sub database{
    my ($self,$value) = @_;
+
    if( defined $value) {
       $self->{'database'} = $value;
     }
