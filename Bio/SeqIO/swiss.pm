@@ -821,7 +821,7 @@ sub _read_swissprot_References{
    my @refs;
    local $_ = $line;
    while( defined $_ ) {
-       if( /^[^R]/ ) { 
+       if( (/^[^R]/) || (/^RN/) ) { 
 	   if( $rp ) { 
 	       $rg =~ s/;\s*$//g if defined($rg);
                if (!defined($au)) {
@@ -840,10 +840,12 @@ sub _read_swissprot_References{
 							   -comment  => $com,
 							   -rp       => $rp,
                                                            -rg       => $rg);
-	       $rp = ''; # we don't need this do we? HL, confused
+	       $rp = '';
 	   }
-	   $self->_pushback($_); # want this line to go back on the list
-	   last; # may be the safest exit point HL 05/11/2000
+           if (index($_,'R') != 0) {
+               $self->_pushback($_); # want this line to go back on the list
+               last; # may be the safest exit point HL 05/11/2000
+           }
        } elsif ( /^RP   (SEQUENCE OF (\d+)-(\d+).*)/) { 
 	   $rp  .= $1;
 	   $b1   = $2;
@@ -851,23 +853,6 @@ sub _read_swissprot_References{
        } elsif ( /^RP   (.*)/) {
 	   if($rp) { $rp .= " ".$1 }
 	   else    { $rp = $1 }
-       } elsif ( /^RN/ ) { 
-	   if( $rp ) { 
-	       $au =~ s/;\s*$//g;
-	       if( defined $title ) {
-		   $title =~ s/;\s*$//g;
-	       }
-	       push @refs, Bio::Annotation::Reference->new(-title    => $title,
-							   -start    => $b1,
-							   -end      => $b2,
-							   -authors  => $au,
-							   -location => $loc,
-							   -medline  => $med,
-							   -pubmed   => $pubmed,
-							   -comment  => $com,
-							   -rp       => $rp);
-	       $rp = ''
-	   }
        } elsif( /^RX   MEDLINE;\s+(\d+)/ )  {
 	   $med   = $1;
        } elsif( /^RX   MEDLINE=(\d+);\s+PubMed=(\d+);/ ) { 
@@ -928,7 +913,7 @@ sub _read_swissprot_Species {
 		($ns_name) = $binomial;
                 $ns_name =~ s/\s+$//; #####
 
-		#binomial could contain more than a three words. 		
+		#binomial could contain more than a three words.
 		@spflds = split(' ',$binomial);
 
 		#if first term a conventional uppercase genus?
@@ -997,22 +982,16 @@ sub _read_swissprot_Species {
     $self->_pushback($_); # pushback the last line because we need it
     
     #if the organism belongs to taxid 32644 then no Bio::Species object.
-    my $unkn = grep { /^$binomial$/ } @Unknown_names;
-    return unless $unkn == 0;
-    if( ! @class ) { 
-	
-    } elsif ($class[0] eq 'Viruses') {
-        push( @class, $ns_name );
+    return if grep { /^$binomial$/ } @Unknown_names;
+    if (@class) { 
+	if ($class[0] eq 'Viruses') {
+            push( @class, $ns_name );
+        } elsif (defined($genus) && ($class[-1] eq $genus)) {
+            push( @class, $species );
+        } else {
+            push( @class, $genus, $species );
+        }
     }
-    elsif ($class[0] eq 'Viruses') {
-        push( @class, $ns_name );
-    }
-    elsif ($class[$#class] eq $genus) {
-        push( @class, $species );
-    } else {
-        push( @class, $genus, $species );
-    }
-
     @class = reverse @class;
     
     my $taxon = Bio::Species->new();
