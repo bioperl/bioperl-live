@@ -443,17 +443,34 @@ sub remove_synonyms {
  Usage   : @ds = $term->get_dblinks();
  Function: Returns a list of each dblinks of this GO term.
  Returns : A list of dblinks [array of [scalars]].
- Args    :
+ Args    : context. If omitted, the default/context-less one will be used.
 
 =cut
 
 sub get_dblinks {
     my $self = shift;
-
-    return @{$self->{ "_dblinks" }} if exists($self->{ "_dblinks" });
+    my $context=shift ||'_default';
+    
+    return @{$self->{_dblinks}->{$context}} 
+        if exists($self->{_dblinks}->{$context});
     return ();
 } # get_dblinks
 
+
+=head2 get_dblink_context
+
+  Title   : get_dblink_context
+  Usage   : @context = $term->get_dblink_context;
+  Function: Return all context existing in Term
+  Returns : a list of scalar
+  Args    : [none]
+
+=cut 
+
+sub get_dblink_context {
+    my $self=shift;
+    return keys %{$self->{_dblinks}};
+}
 
 =head2 add_dblink
 
@@ -465,22 +482,48 @@ sub get_dblinks {
  Returns :
  Args    : One  dblink [scalar] or a list of
             dblinks [array of [scalars]].
-
+ Note    : For back compatibility, we keep it since it takes an array of 
+            arguments.
 =cut
 
 sub add_dblink {
     my ( $self, @values ) = @_;
-
+    my $context = '_default';
     return unless( @values );
 
     # avoid duplicates
     foreach my $dbl (@values) {
-	next if grep { $_ eq $dbl; } @{$self->{ "_dblinks" }};
-	push( @{ $self->{ "_dblinks" } }, $dbl );
+	    next if grep { $_ eq $dbl; } @{$self->{_dblinks}->{$context}};
+	    push( @{ $self->{_dblinks}->{$context} }, $dbl );
     }
 
 } # add_dblink
 
+=head2 add_dblink_context 
+
+  Title   : add_db_link_context
+  Usage   : $term->add_dblink_context($db, $context);
+  Function: add a dblink with its context
+  Return  : [none]
+  Args    : [arg1] an object of Bio::Annotation::DBLink
+            [arg2] a string for context
+            context. If omitted, the default/context-less one will be used.
+
+=cut
+
+sub add_dblink_context {
+    my ($self, $value, $context)=@_;
+    return unless defined $value;
+    $self->throw("'all' is a reserved word for context.") if $context eq 'all';
+    $context ||= '_default';
+    $self->{_dblink_context}->{$context}={}
+        unless exist $self->{_dblink_context}->{$context};
+        
+    if(grep {$_ eq $value} @{$self->{_dblink_context}->{$context}}){
+        $self->warn("$value exists in the dblink of $context");
+    }
+    push @{$self->{_dblink_context}->{$context}}, $value;
+}
 
 =head2 remove_dblinks
 
@@ -488,16 +531,23 @@ sub add_dblink {
  Usage   : $term->remove_dblinks();
  Function: Deletes (and returns) the definition references of this GO term.
  Returns : A list of definition references [array of [scalars]].
- Args    :
+ Args    : context. If omitted, the default/context-less one will be used.
 
 =cut
 
 sub remove_dblinks {
-    my ( $self ) = @_;
-
-    my @a = $self->get_dblinks();
-    $self->{ "_dblinks" } = [];
-    return @a;
+    my ($self, $context) = @_;
+    $context ||= '_default';
+    my @old;
+    if($context eq 'all'){
+        foreach my $sub_context($self->get_dblink_context){
+            push @old, $self->remove_db_links($sub_context);
+        }
+    }else{
+        push @old, $self->get_dblinks($context);
+        $self->{_dblinks}->{$context}=[];
+    }
+    return @old;
 
 } # remove_dblinks
 
