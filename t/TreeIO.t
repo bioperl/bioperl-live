@@ -147,8 +147,9 @@ if( eval "require SVG::Graph; 1;" ) {
 	$treeout3->write_tree($tree);
 	ok (-e $FILE3);
 } else {
+    for ( 1..2 ) {
 	skip("skipping SVG::Graph output, SVG::Graph not installed",2);
-	skip("skipping SVG::Graph output, SVG::Graph not installed",2);
+    }
 }
 
 ok($treeio);
@@ -230,30 +231,35 @@ ok($node->id, 'C-vittat');
 ok($node->branch_length, '0.097855');
 ok($node->ancestor->id, '14');
 
+if( eval "require IO::String; 1;" ) {
 # test nexus tree parsing
-$treeio = Bio::TreeIO->new(-format => 'nexus',
-			   -file   => Bio::Root::IO->catfile
-			   (qw(t data urease.tre.nexus) ));
-
-$tree = $treeio->next_tree;
-ok($tree);
-ok($tree->id, 'PAUP_1');
-ok($tree->get_leaf_nodes, 6);
-($node) = $tree->find_node(-id => 'Spombe');
-ok($node->branch_length,0.221404);
-
+    $treeio = Bio::TreeIO->new(-format => 'nexus',
+			       -file   => Bio::Root::IO->catfile
+			       (qw(t data urease.tre.nexus) ));
+    
+    $tree = $treeio->next_tree;
+    ok($tree);
+    ok($tree->id, 'PAUP_1');
+    ok($tree->get_leaf_nodes, 6);
+    ($node) = $tree->find_node(-id => 'Spombe');
+    ok($node->branch_length,0.221404);
+    
 # test nexus MrBayes tree parsing
-$treeio = Bio::TreeIO->new(-format => 'nexus',
-			   -file   => Bio::Root::IO->catfile
-			   (qw(t data adh.mb_tree.nexus) ));
-
-$tree = $treeio->next_tree;
-ok($tree);
-ok($tree->id, 'rep.1');
-ok($tree->get_leaf_nodes, 54);
-($node) = $tree->find_node(-id => 'd.madeirensis');
-ok($node->branch_length,0.039223);
-
+    $treeio = Bio::TreeIO->new(-format => 'nexus',
+			       -file   => Bio::Root::IO->catfile
+			       (qw(t data adh.mb_tree.nexus) ));
+    
+    $tree = $treeio->next_tree;
+    ok($tree);
+    ok($tree->id, 'rep.1');
+    ok($tree->get_leaf_nodes, 54);
+    ($node) = $tree->find_node(-id => 'd.madeirensis');
+    ok($node->branch_length,0.039223);
+} else{
+    for ( 1..8 ) {
+	skip("skipping nexus tree parsing, IO::String not installed",1);
+    }
+}
 
 __DATA__
 (((A:1,B:1):1,(C:1,D:1):1):1,((E:1,F:1):1,(G:1,H:1):1):1);
