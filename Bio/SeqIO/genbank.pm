@@ -269,7 +269,7 @@ sub next_seq{
 		    $comment .= $_; 
 		}
 	    }
-	    
+	    goto ORIGIN if( /^ORIGIN/ );
 	    # Get next line.
 	    $buffer = $self->_readline;
 	}
@@ -281,6 +281,7 @@ sub next_seq{
     # see comments
 
     $buffer = $self->_readline;
+
     FEATURE_TABLE :
 	# DO NOT read lines in the while condition -- this is done as a side
 	# effect in _read_FTHelper_GenBank!
@@ -299,14 +300,13 @@ sub next_seq{
     while (defined( $_ = $self->_readline)) {
 	last if /^ORIGIN/;
     }
-
+  ORIGIN:
     while( defined($_ = $self->_readline) ) {
 	/^\/\// && last;
 	$_ = uc($_);
 	s/[^A-Za-z]//g;
 	$seqc .= $_;
     }
-
     $pseq = Bio::PrimarySeq->new(-seq => $seqc , -id => $name, -desc => $desc);
     $seq->primary_seq($pseq);
     return $seq;
