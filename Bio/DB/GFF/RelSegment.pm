@@ -259,6 +259,11 @@ sub new {
 
     $absstrand ||= '+';
 
+    if ($absstart > $absstop) { # AAARGH!  DATA FORMAT ERROR!  FIX.
+	($absstart,$absstop) = ($absstop,$absstart);
+	$absstrand = $absstrand eq '+' ? '-' : '+';
+    }
+
     # an explicit length overrides start and stop
     if (defined $offset) {
       warn "new(): bad idea to call new() with both a start and an offset"
