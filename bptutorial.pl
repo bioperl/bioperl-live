@@ -634,7 +634,7 @@ write sequence objects, eg:
   $in  = Bio::SeqIO->newFh('-file' => "inputfilename" , 
                            '-format' => 'Fasta');
   $out = Bio::SeqIO->newFh('-format' => 'EMBL');
-  print $output $_ while <$in>;
+  print $out $_ while <$in>;
 
 =head2   III.2.2 Transforming alignment files (AlignIO)
 
@@ -778,7 +778,7 @@ acids, SeqStats also returns counts of the number of codons used.  For
 example:
 
   use SeqStats
-  $seq_stats  =  Bio::SeqStats->new($seqobj);
+  $seq_stats  =  Bio::Tools::SeqStats->new($seqobj);
   $weight = $seq_stats->get_mol_wt();
   $monomer_ref = $seq_stats->count_monomers();
   $codon_ref = $seq_stats->count_codons();  # for nucleic acid sequence
@@ -873,8 +873,8 @@ along the sequence we perform:
   $output = $oddcode_obj->charge();
 
 The sequence will be transformed into a three-letter sequence (A,C,N)
-for positive (?), negative and neutral amino acids.  For example the
-ACDEFGH would become NNAANNC.
+for negative (acidic), positive (basic), and neutral amino acids.  For 
+example the ACDEFGH would become NNAANNC.
 
 For a more complete chemical description of the sequence one can call
 the chemical() method which turns sequence into one with an 8-letter
