@@ -22,7 +22,7 @@ BEGIN {
 
     eval { require XML::Parser::PerlSAX; };
     if( $@ ) {
-	print STDERR "XML::Parser::PerlSAX not loaded. This means game test cannot be executed. Skipping\n";
+	print STDERR "XML::Parser::PerlSAX not loaded. This means SearchIO::blastxml test cannot be executed. Skipping\n";
 	foreach ( 1..43 ) {
 	    skip(1,1);
 	}
