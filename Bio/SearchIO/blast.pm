@@ -179,7 +179,7 @@ BEGIN {
           'Hsp_query-frame'=> 'HSP-query_frame',
           'Hsp_hit-frame'  => 'HSP-hit_frame',
 	  'Hsp_links'      => 'HSP-links',
-	  'Hsp_group'      => 'HSP-group',
+	  'Hsp_group'      => 'HSP-hsp_group',
 
           'Hit_id'        => 'HIT-name',
           'Hit_len'       => 'HIT-length',
@@ -697,14 +697,14 @@ sub next_result{
                 \s*Expect\s*=\s*([^,\s]+),    # E-value
                 \s*(?:Sum)?\s*                # SUM
                 P(?:\(\d+\))?\s*=\s*([^,\s]+) # P-value
-                (?:\s+Group\s*\=\s*(\d+))?    # HSP Group
+                (?:\s*,\s+Group\s*\=\s*(\d+))?    # HSP Group
                 /ox 
                   ) { # wu-blast HSP parse
            $self->in_element('hsp') && $self->end_element({'Name' => 'Hsp'});
            $self->start_element({'Name' => 'Hsp'});
 	   
            # Some data clean-up so e-value will appear numeric to perl
-           my ($score, $bits, $evalue, $pvalue,$group) = ($1, $2, $3, $4,$5);
+           my ($score, $bits, $evalue, $pvalue,$group) = ($1, $2, $3, $4, $5);
            $evalue =~ s/^e/1e/i;
            $pvalue =~ s/^e/1e/i;
 	   
@@ -718,7 +718,7 @@ sub next_result{
                             'Data'  =>$pvalue});
 	   if( defined $group ) {
 	       $self->element( {'Name'  => 'Hsp_group',
-				'Data'  =>$group});
+				'Data'  => $group});
 	   }
 
        } elsif( ($self->in_element('hit') || 
@@ -1405,12 +1405,11 @@ sub element{
 
 sub characters{
    my ($self,$data) = @_;   
-   return unless ( defined $data->{'Data'} && $data->{'Data'} !~ /^\s+$/ );
-
    if( $self->in_element('hsp') && 
-       $data->{'Name'} =~ /Hsp\_(qseq|hseq|midline)/ ) {
+       $data->{'Name'} =~ /^Hsp\_(qseq|hseq|midline)$/ ) {
        $self->{'_last_hspdata'}->{$data->{'Name'}} .= $data->{'Data'};
-   }  
+   } 
+   return unless ( defined $data->{'Data'} && $data->{'Data'} !~ /^\s+$/ );
    $self->{'_last_data'} = $data->{'Data'}; 
 }
 
