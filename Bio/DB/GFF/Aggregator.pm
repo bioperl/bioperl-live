@@ -566,7 +566,11 @@ None known yet.
 
 =head1 SEE ALSO
 
-L<Bio::DB::GFF>
+L<Bio::DB::GFF>,
+L<Bio::DB::GFF::Aggregator::alignment>,
+L<Bio::DB::GFF::Aggregator::clone>,
+L<Bio::DB::GFF::Aggregator::transcript>,
+L<Bio::DB::GFF::Aggregator::none>
 
 =head1 AUTHOR
 

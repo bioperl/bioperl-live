@@ -2,8 +2,9 @@ package Bio::Graphics::Glyph::triangle;
 # DAS-compatible package to use for drawing a triangle
 
 use strict;
-use vars '@ISA';
+use vars '@ISA','$VERSION';
 @ISA = 'Bio::Graphics::Glyph::generic';
+$VERSION = 1.02;
 
 sub pad_left {
   my $self = shift;
@@ -32,7 +33,7 @@ sub draw_component {
   my $xmid = ($x1+$x2)/2;
   my $ymid = ($y1+$y2)/2;
 
-  my ($vx1,$vy1,$vx2,$vy2,$vx3,$vy3) = undef;
+  my ($vx1,$vy1,$vx2,$vy2,$vx3,$vy3);
 
   #make an equilateral
   my ($p,$q) = ($self->option('height'),($x2-$x1)/2);
@@ -42,8 +43,8 @@ sub draw_component {
     $y1 = $ymid - $q; $y2 = $ymid + $q;
   }
 
-  if   ($orient eq 'S'){$vx1=$xmid-$q;$vy1=$y1;$vx2=$xmid+$q;$vy2=$y1;$vx3=$xmid;$vy3=$y2;}
-  elsif($orient eq 'N'){$vx1=$xmid-$q;$vy1=$y2;$vx2=$xmid+$q;$vy2=$y2;$vx3=$xmid;$vy3=$y1;}
+  if   ($orient eq 'S'){$vx1=$x1;$vy1=$y1;$vx2=$x2;$vy2=$y1;$vx3=$xmid;$vy3=$y2;}
+  elsif($orient eq 'N'){$vx1=$x1;$vy1=$y2;$vx2=$x2;$vy2=$y2;$vx3=$xmid;$vy3=$y1;}
   elsif($orient eq 'W'){$vx1=$x2;$vy1=$y1;$vx2=$x2;$vy2=$y2;$vx3=$x2-$p;$vy3=$ymid;}
   elsif($orient eq 'E'){$vx1=$x1;$vy1=$y1;$vx2=$x1;$vy2=$y2;$vx3=$x1+$p;$vy3=$ymid;}
 

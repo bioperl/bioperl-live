@@ -313,13 +313,13 @@ sub t2 {
 		    -key => 'Signals',
 		   );
   $panel->add_track(generic => [],
-		    -key => 'Foobar');
-  
+		    -key => 'Empty');
+
   $panel->add_track(graded_segments => $partial_gene,
 		    -bgcolor =>'blue',
 		    -label   => 1,
 		    -key     => 'Scored thing');
-  
+
   $panel->add_track(diamond => [$segment,$zk154_1,$zk154_2,$zk154_3,$xyz4,$zed_27],
 		    -bgcolor =>'blue',
 		    -label   => 1,

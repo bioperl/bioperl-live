@@ -12,6 +12,11 @@ Bio::DB::GFF::Aggregator::alignment -- Alignment aggregator
 				   -aggregator => ['alignment'],
 				 );
 
+ -----------------------------
+ Aggregator method: alignment
+ Main method:       -none-
+ Sub methods:       similarity
+ -----------------------------
 
 =head1 DESCRIPTION
 

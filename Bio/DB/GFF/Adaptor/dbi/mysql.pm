@@ -492,9 +492,24 @@ follows the SELECT keyword.
 sub make_features_select_part {
   my $self = shift;
   my $options = shift || {};
-  my $s = <<END;
+  my $s;
+  if (my $b = $options->{bin_width}) {
+
+    $s = <<END;
+fref,
+  $b*floor(fstart/$b) as fstart,
+  $b*(1+floor(fstart/$b))-1 as fstop,
+  fsource,fmethod,
+  count(*) as fscore,
+  '.','.','bin',concat(fmethod,':',fsource),NULL,NULL,fdata.fid,fdata.gid
+END
+;
+  } else {
+    $s = <<END;
 fref,fstart,fstop,fsource,fmethod,fscore,fstrand,fphase,gclass,gname,ftarget_start,ftarget_stop,fdata.fid,fdata.gid
 END
+;
+}
   $s .= ",count(fdata.fid)" if $options->{attributes} && keys %{$options->{attributes}}>1;
   $s;
 }
@@ -587,13 +602,17 @@ related methods.
 sub make_features_group_by_part {
   my $self = shift;
   my $options = shift || {};
-  my $att = $options->{attributes} or return;
-  my $key_count = keys %$att;
-  return unless $key_count > 1;
-  return ("fdata.fid,fref,fstart,fstop,fsource,
+  if (my $att = $options->{attributes}) {
+    my $key_count = keys %$att;
+    return unless $key_count > 1;
+    return ("fdata.fid,fref,fstart,fstop,fsource,
            fmethod,fscore,fstrand,fphase,gclass,gname,ftarget_start,
-           ftarget_stop,fdata.gid 
+           ftarget_stop,fdata.gid
      HAVING count(fdata.fid) > ?",$key_count-1);
+  }
+  elsif (my $b = $options->{bin_width}) {
+    return "fstart,fdata.ftypeid";
+  }
 }
 
 =head2 refseq_query

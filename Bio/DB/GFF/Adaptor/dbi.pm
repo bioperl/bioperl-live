@@ -227,7 +227,8 @@ sub get_features {
 			       @{$options}{qw(
 					      sparse
 					      sort_by_group
-					      ATTRIBUTES)}) or return;
+					      ATTRIBUTES
+					      BINSIZE)}) or return;
 
   my $count = 0;
   while (my @row = $sth->fetchrow_array) {
@@ -455,7 +456,7 @@ sub get_types {
 =head2 range_query
 
  Title   : range_query
- Usage   : $db->range_query($range_type,$refseq,$refclass,$start,$stop,$types,$order_by_group)
+ Usage   : $db->range_query($range_type,$refseq,$refclass,$start,$stop,$types,$order_by_group,$attributes,$binsize)
  Function: create statement handle for range/overlap queries
  Returns : a DBI statement handle
  Args    : see below
@@ -465,7 +466,7 @@ This method constructs the statement handle for this module's central
 query: given a range and/or a list of feature types, fetch their GFF
 records.
 
-The six positional arguments are as follows:
+The positional arguments are as follows:
 
   Argument               Description
 
@@ -486,6 +487,10 @@ The six positional arguments are as follows:
 
   $order_by_group        A flag indicating that statement handler should group
                          the features by group id (handy for iterative fetches)
+
+  $attributes            A hash containing select attributes.
+
+  $binsize               A bin size for generating tables of feature density.
 
 If successful, this method returns a statement handle.  The handle is
 expected to return the fields described for get_features().
@@ -514,12 +519,12 @@ is inserted right after SELECT.
 
 sub range_query {
   my $self = shift;
-  my($rangetype,$refseq,$class,$start,$stop,$types,$sparse,$order_by_group,$attributes) = @_;
+  my($rangetype,$refseq,$class,$start,$stop,$types,$sparse,$order_by_group,$attributes,$bin) = @_;
 
   my $dbh = $self->features_db;
 
   # NOTE: straight_join is necessary in some database to force the right index to be used.
-  my %a             = (refseq=>$refseq,class=>$class,start=>$start,stop=>$stop,types=>$types,attributes=>$attributes);
+  my %a             = (refseq=>$refseq,class=>$class,start=>$start,stop=>$stop,types=>$types,attributes=>$attributes,bin_width=>$bin);
   my $straight      = $self->do_straight_join(\%a) ? 'straight_join' : '';
   my $select        = $self->make_features_select_part(\%a);
   my $from          = $self->make_features_from_part($sparse,\%a);
@@ -814,7 +819,8 @@ sub get_features_iterator {
 			       @{$options}{qw(
 					      sparse
 					      sort_by_group
-					      ATTRIBUTES)}) or return;
+					      ATTRIBUTES
+					      BINSIZE)}) or return;
   return Bio::DB::GFF::Adaptor::dbi::iterator->new($sth,$callback);
 }
 

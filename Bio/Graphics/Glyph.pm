@@ -56,18 +56,20 @@ sub new {
       $self->{width}   = $w if !defined($self->{width}) || $w > $self->{width};
   }
 
+  $self->{point} = $arg{-point} ? $self->height : undef;
   #Handle glyphs that don't actually fill their space, but merely mark a point.
   #They need to have their collision bounds altered.  We will (for now)
   #hard code them to be in the center of their feature.
-  $self->{point} = $arg{-point} ? $self->height : undef;
-  if($self->option('point')){
-    my ($left,$right) = $factory->map_pt($self->start,$self->stop);
-    my $center = int(($left+$right)/2);
+# note: this didn't actually seem to work properly, all features were aligned on
+# their right edges.  It works to do it in individual point-like glyphs such as triangle.
+#  if($self->option('point')){
+#    my ($left,$right) = $factory->map_pt($self->start,$self->stop);
+#    my $center = int(($left+$right)/2 + 0.5);
 
-    $self->{width} = $self->height;
-    $self->{left}  = $center - ($self->{width});
-    $self->{right} = $center + ($self->{width});
-  }
+#    $self->{width} = $self->height;
+#    $self->{left}  = $center - ($self->{width});
+#    $self->{right} = $center + ($self->{width});
+#  }
 
   return $self;
 }
@@ -143,14 +145,10 @@ sub top {
 }
 sub left {
   my $self = shift;
-#  return $self->{cache_left} if exists $self->{cache_left};
-#  $self->{cache_left} = $self->{left} - $self->pad_left;
   return $self->{left} - $self->pad_left;
 }
 sub right {
   my $self = shift;
-#  return $self->{cache_right} if exists $self->{cache_right};
-#  $self->{cache_right} = $self->left + $self->layout_width - 1;
   return $self->left + $self->layout_width - 1;
 }
 sub bottom {
@@ -175,7 +173,6 @@ sub layout_height {
 }
 sub layout_width {
   my $self = shift;
-#  return $self->{layout_width} ||= $self->width + $self->pad_left + $self->pad_right;
   return $self->width + $self->pad_left + $self->pad_right;
 }
 
@@ -746,7 +743,7 @@ sub draw_component {
   my $panel = $self->panel;
   return unless $x2 >= $panel->left and $x1 <= $panel->right;
 
-  if ($self->option('strand_arrow')) {
+  if ($self->option('strand_arrow') || $self->option('stranded')) {
     $self->filled_arrow($gd,$self->feature->strand,
 			$x1, $y1,
 			$x2, $y2)

@@ -213,3 +213,5 @@ sub namespace_string {
 
   return $self->namespace.":".$self->object_id.".".$self->version;
 }
+
+1;

@@ -12,6 +12,11 @@ Bio::DB::GFF::Aggregator::clone -- Clone aggregator
 				   -aggregator => ['transcript','clone'],
 				 );
 
+ ----------------------------------------------------------------------------
+ Aggregator method: clone
+ Main method:       -none-
+ Sub methods:       Clone_left_end Clone_right_end Sequence:Genomic_canonical
+ ----------------------------------------------------------------------------
 
 =head1 DESCRIPTION
 

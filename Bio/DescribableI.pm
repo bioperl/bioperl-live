@@ -104,7 +104,7 @@ sub display_name {
 
 =cut
 
-sub display_name {
+sub description {
    my ($self) = @_;
    $self->throw_not_implemented();
 }

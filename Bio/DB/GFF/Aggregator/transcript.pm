@@ -12,6 +12,11 @@ Bio::DB::GFF::Aggregator::transcript -- Transcript aggregator
 				   -aggregator => ['transcript','clone'],
 				 );
 
+ -------------------------------------------------
+ Aggregator method: transcript
+ Main method:       transcript
+ Sub methods:       exon CDS 5'UTR 3'UTR TSS PolyA
+ -------------------------------------------------
 
 =head1 DESCRIPTION
 

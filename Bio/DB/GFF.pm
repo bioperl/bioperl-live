@@ -2234,7 +2234,15 @@ that affect the way information is retrieved:
 
    sparse    A flag.  If true, means that the expected density of the 
              features is such that it will be more efficient to search
-             by type rather than by range.
+             by type rather than by range.  If it is taking a long
+             time to fetch features, give this a try.
+
+   binsize   A true value will create a set of artificial features whose
+             start and stop positions indicate bins of the given size, and
+             whose scores are the number of features in the bin.  The
+             class of the feature will be set to "bin", and its name to
+             "method:source".  This is a handy way of generating histograms
+             of feature density.
 
 The third argument, the $callback, is a code reference to which
 retrieved features are passed.  It is described in more detail below.
