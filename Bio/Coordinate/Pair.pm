@@ -261,17 +261,13 @@ sub map {
        my $result = new Bio::Coordinate::Result;
        my $split = new Bio::Location::Split(-seq_id=>$self->out->seq_id);
        foreach my $loc ( $value->sub_Location(1) ) {
-
            my $res = $self->_map($loc);
            map { $result->add_sub_Location($_) } $res->each_Location;
-
        }
        return $result;
-
    } else {
        return $self->_map($value);
    }
-
 }
 
 
@@ -294,9 +290,9 @@ sub _map {
    my $result = new Bio::Coordinate::Result;
 
    my $offset = $self->in->start - $self->out->start;
-   my $start = $value->start - $offset;
-   my $end = $value->end - $offset;
-
+   my $start  = $value->start - $offset;
+   my $end    = $value->end - $offset;
+   
    my $match = Bio::Location::Simple->new;
    $match->location_type($value->location_type);
    $match->strand($self->strand);
@@ -309,7 +305,7 @@ sub _map {
        $match->seq_id($self->out->seq_id);
        $result->seq_id($self->out->seq_id);
 
-       if ($self->strand == 1) {
+       if ($self->strand >= 0) {
 	   $match->start($start);
 	   $match->end($end);
        } else {
@@ -362,7 +358,7 @@ sub _map {
        # match
        $match->seq_id($self->out->seq_id);
 
-       if ($self->strand == 1) {
+       if ($self->strand >= 0) {
 	   $match->start($self->out->start);
 	   $match->end($end);
        } else {
@@ -383,7 +379,7 @@ sub _map {
 	   $match->strand($match->strand * $value->strand);
 	   $result->strand($match->strand);
        }
-       if ($self->strand == 1) {
+       if ($self->strand >= 0) {
 	   $match->start($start);
 	   $match->end($self->out->end);
        } else {
