@@ -39,10 +39,9 @@ of the Bioperl mailing lists.  Your participation is much appreciated.
 =head2 Reporting Bugs
 
 Report bugs to the Bioperl bug tracking system to help us keep track
- the bugs and their resolution.
- Bug reports can be submitted via email or the web:
+the bugs and their resolution.  Bug reports can be submitted via the
+web:
 
-  bioperl-bugs@bio.perl.org
   http://bugzilla.bioperl.org/
 
 =head1 AUTHORS - Ewan Birney & Lincoln Stein
@@ -50,6 +49,9 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 Email: birney@ebi.ac.uk
        lstein@cshl.org
 
+=head1 CONTRIBUTORS
+
+Jason Stajich, jason-at-bioperl.org
 
 =head1 APPENDIX
 
@@ -78,11 +80,8 @@ sub _initialize {
   $self->SUPER::_initialize(@args);  
   my ($width) = $self->_rearrange([qw(WIDTH)], @args);
   $width && $self->width($width);
-  if( ! defined $self->sequence_factory ) {
-      # we default to the speed factory
-      # print STDERR "Going to load default sequence factory...\n";
+  unless ( defined $self->sequence_factory ) {
       $self->sequence_factory(Bio::Seq::SeqFastaSpeedFactory->new());
-      #$self->sequence_factory(new Bio::Seq::SeqFactory(-verbose => $self->verbose(), -type => 'Bio::Seq'));      
   }
 }
 
@@ -103,15 +102,25 @@ sub next_seq {
     local $/ = "\n>";
     return unless my $entry = $self->_readline;
 
-    if ($entry eq '>')  {	# very first one
+    chomp($entry);
+    if ($entry =~ m/\A\s*\Z/s)  { # very first one
 	return unless $entry = $self->_readline;
+	chomp($entry);
+    }
+    $entry =~ s/^>//;
+
+    my ($top,$sequence) = split(/\n/,$entry,2);
+    $sequence =~ s/>//g;
+#    my ($top,$sequence) = $entry =~ /^>?(.+?)\n+([^>]*)/s
+#	or $self->throw("Can't parse fasta entry");
+
+    my ($id,$fulldesc);
+    if( $top =~ /^\s*(\S+)\s*(.*)/ ) {
+	($id,$fulldesc) = ($1,$2);
     }
     
-    my ($top,$sequence) = $entry =~ /^>?(.+?)\n([^>]*)/s
-	or $self->throw("Can't parse fasta entry");
-    my ($id,$fulldesc) = $top =~ /^\s*(\S+)\s*(.*)/
-	or $self->throw("Can't parse fasta header");
-    if ($id eq '') {$id=$fulldesc;} # FIX incase no space between > and name \AE
+    if (defined $id && $id eq '') {$id=$fulldesc;} # FIX incase no space 
+                                                   # between > and name \AE
     $sequence =~ s/\s//g;	# Remove whitespace
 
     # for empty sequences we need to know the mol.type
