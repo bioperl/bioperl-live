@@ -882,7 +882,7 @@ sub _read_swissprot_Species {
     my $org;
 
     $_ = $$buffer;
-    my( $subspecies, $species, $genus, $common, $variant, $ncbi_taxid );
+    my( $subspecies, $species, $genus, $common, $variant, $ncbi_taxid, $ns_name );
     my @class;
     my ($binomial, $descr);
     my $osline = "";
@@ -896,6 +896,8 @@ sub _read_swissprot_Species {
 	    $osline .= $1;
 	    if($osline =~ s/(,|, and|\.)$//) {
 		($binomial, $descr) = $osline =~ /(\S[^\(]+)(.*)/;
+                ($ns_name) = $binomial;
+                $ns_name =~ s/\s+$//; #####
 		($genus, $species, $subspecies) = split(/\s+/, $binomial);
 		$species = "sp." unless $species;
 		while($descr =~ /\(([^\)]+)\)/g) {
@@ -954,7 +956,13 @@ sub _read_swissprot_Species {
     # Don't make a species object if it is "Unknown" or "None"
     return if $genus =~ /^(Unknown|None)$/i;
 
-    if ($class[$#class] eq $genus) {
+    if ($class[0] eq 'Viruses') {
+        push( @class, $ns_name );
+    }
+    elsif ($class[0] eq 'Viruses') {
+        push( @class, $ns_name );
+    }
+    elsif ($class[$#class] eq $genus) {
         push( @class, $species );
     } else {
         push( @class, $genus, $species );

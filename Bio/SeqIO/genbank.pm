@@ -1051,7 +1051,7 @@ sub _read_GenBank_Species {
 
     $_ = $$buffer;
     
-    my( $sub_species, $species, $genus, $common, $organelle, @class );
+    my( $sub_species, $species, $genus, $common, $organelle, @class, $ns_name );
     # upon first entering the loop, we must not read a new line -- the SOURCE
     # line is already in the buffer (HL 05/10/2000)
     while (defined($_) || defined($_ = $self->_readline())) {
@@ -1066,6 +1066,7 @@ sub _read_GenBank_Species {
 	    $common =~ s/\.$//; # remove trailing dot
 	} elsif (/^\s+ORGANISM/) {
 	    my @spflds = split(' ', $_);
+            ($ns_name) = $_ =~ /\w+\s+(.*)/;
 	    shift(@spflds); # ORGANISM
 	    if(grep { $_ =~ /^$spflds[0]/i; } @organell_names) {
 		$organelle = shift(@spflds);
@@ -1096,7 +1097,10 @@ sub _read_GenBank_Species {
     return unless $genus and  $genus !~ /^(Unknown|None)$/i;
     
     # Bio::Species array needs array in Species -> Kingdom direction
-    if ($class[$#class] eq $genus) {
+    if ($class[0] eq 'Viruses') {
+        push( @class, $ns_name );
+    }
+    elsif ($class[$#class] eq $genus) {
         push( @class, $species );
     } else {
         push( @class, $genus, $species );
@@ -1106,7 +1110,9 @@ sub _read_GenBank_Species {
     my $make = Bio::Species->new();
     $make->classification( \@class, "FORCE" ); # no name validation please
     $make->common_name( $common      ) if $common;
-    $make->sub_species( $sub_species ) if $sub_species;
+    unless ($class[-1] eq 'Viruses') {
+        $make->sub_species( $sub_species ) if $sub_species;
+    }
     $make->organelle($organelle) if $organelle;
     return $make;
 }

@@ -806,14 +806,15 @@ sub _read_EMBL_Species {
     my $org;
 
     $_ = $$buffer;
-    my( $sub_species, $species, $genus, $common, @class );
+    my( $sub_species, $species, $genus, $common, @class, $ns_name );
     while (defined( $_ ||= $self->_readline )) {
-        
-        if (/^OS\s+(\S+)(?:\s+([^\(]\S*))?(?:\s+([^\(]\S*))?(?:\s+\((.*)\))?/) {
-            $genus   = $1;
-	    $species = $2 || 'sp.';
-	    $sub_species = $3 if $3;
-            $common      = $4 if $4;
+
+        if (/^OS\s+((\S+)(?:\s+([^\(]\S*))?(?:\s+([^\(]\S*))?(?:\s+\((.*)\))?)/) {
+            $ns_name = $1;
+            $genus   = $2;
+	    $species = $3 || 'sp.';
+	    $sub_species = $4 if $4;
+            $common      = $5 if $5;
         }
         elsif (s/^OC\s+//) {
 	    # only split on ';' or '.' so that 
@@ -829,27 +830,32 @@ sub _read_EMBL_Species {
         else {
             last;
         }
-        
+
         $_ = undef; # Empty $_ to trigger read of next line
     }
-    
+
     $$buffer = $_;
-    
+
     # Don't make a species object if it is "Unknown" or "None"
     return if $genus =~ /^(Unknown|None)$/i;
 
     # Bio::Species array needs array in Species -> Kingdom direction
-    if ($class[$#class] eq $genus) {
+    if ($class[0] eq 'Viruses') {
+        push( @class, $ns_name );
+    }
+    elsif ($class[$#class] eq $genus) {
         push( @class, $species );
     } else {
         push( @class, $genus, $species );
     }
     @class = reverse @class;
-    
+
     my $make = Bio::Species->new();
     $make->classification( \@class, "FORCE" );  # no name validation please
     $make->common_name( $common      ) if $common;
-    $make->sub_species( $sub_species ) if $sub_species;
+    unless ($class[-1] eq 'Viruses') {
+        $make->sub_species( $sub_species ) if $sub_species;
+    }
     $make->organelle  ( $org         ) if $org;
     return $make;
 }
