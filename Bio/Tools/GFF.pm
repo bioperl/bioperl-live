@@ -1015,7 +1015,9 @@ sub _gff3_string {
 		    $value =~ s/\t/\\t/g;	# substitute tab and newline 
 # characters
 		    $value =~ s/\n/\\n/g;		# to their UNIX equivalents
-		    $value = '"' . $value . '"';
+
+# Unescaped quotes are not allowed in GFF3
+#		    $value = '"' . $value . '"';
 		}
 		$value =~ s/([\t\n\=;,])/sprintf("%%%X",ord($1))/ge;
 	    } else {
