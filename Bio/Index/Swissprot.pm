@@ -37,13 +37,14 @@ Swissprot files.
     my $inx = Bio::Index::Swissprot->new(-filename => $Index_File_Name);
 
     foreach my $id (@ARGV) {
-        my $seq = $inx->fetch($ID); # Returns Bio::Seq object
+        my $seq = $inx->fetch($id); # Returns Bio::Seq object
         $out->write_seq($seq);
     }
 
     # alternatively
-    my $seq1 = $inx->get_Seq_by_id($ID);
-    my $seq2 = $inx->get_Seq_by_acc($AC);
+    my ($id, $acc);
+    my $seq1 = $inx->get_Seq_by_id($id);
+    my $seq2 = $inx->get_Seq_by_acc($ac);
 
 =head1 DESCRIPTION
 

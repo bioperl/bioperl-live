@@ -41,7 +41,7 @@ files (i.e. flat file GenBank format).
     }
 
     # alternatively
-    my ($id, $acc);
+    my ($locus, $acc);
     my $seq1 = $inx->get_Seq_by_id($locus);
     my $seq2 = $inx->get_Seq_by_acc($acc);
 

@@ -31,8 +31,8 @@ based on query accession(s)
     print "query is ", $blast_report->query, "\n";
     while( my $result = $blast_report->next_result ) {
   	    print $result->algorithm, "\n";
-	    while( my $hit = $result->next_hit ) {
-	      print "\t name ", $hsp->name,
+	    while( my $hsp = $result->next_hit ) {
+	      print "\t name ", $hit->name,
 	    }
 	    print "\n";
     }
