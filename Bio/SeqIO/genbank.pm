@@ -1159,9 +1159,8 @@ sub _read_GenBank_Species {
     
     # Don't make a species object if it's empty or "Unknown" or "None"
     #return unless $genus and  $genus !~ /^(Unknown|None)$/oi;
-    
-	 # Don't make a species object if it belongs to taxid 32644
-	 my $unkn = grep { $_ =~ /^$common$/; } @unkn_names;
+    	 # Don't make a species object if it belongs to taxid 32644
+	 my $unkn = grep { $_ =~ /^\Q$common\E$/; } @unkn_names;
 	 return unless ($species||$genus) and $unkn==0;
 	# Bio::Species array needs array in Species -> Kingdom direction
     if ($class[0] eq 'Viruses') {
