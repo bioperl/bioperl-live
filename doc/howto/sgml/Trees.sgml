@@ -192,7 +192,7 @@
    </programlisting>
    
      If you would like to do more sophisticated searches, like "find all
-     the nodes with boostrap value better than 70", you can easily
+     the nodes with bootstrap values better than 70", you can easily
      implement this yourself.
      <programlisting>
      my @nodes = grep { $_->bootstrap > 70 } $tree->get_nodes;
