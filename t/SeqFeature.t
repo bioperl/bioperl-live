@@ -20,7 +20,7 @@ BEGIN {
     }
     use Test;
 
-    plan tests => 44;
+    plan tests => 62;
 }
 
 use Bio::Seq;
@@ -212,16 +212,16 @@ ok($sfeat->end,0);
 # tests for Bio::SeqFeature::Gene::* objects
 # using information from acc: AB077698 as a guide
 
-my $seqio = new Bio::SeqIO(-format => 'genbank',
+ok my $seqio = new Bio::SeqIO(-format => 'genbank',
 			 -file   => Bio::Root::IO->catfile("t","data","AB077698.gb"));
-my $geneseq = $seqio->next_seq();
+ok my $geneseq = $seqio->next_seq();
 
-my $gene = new Bio::SeqFeature::Gene::GeneStructure(-primary => 'gene',
+ok my $gene = new Bio::SeqFeature::Gene::GeneStructure(-primary => 'gene',
 						    -start   => 1,
 						    -end     => 2701,
 						    -strand  => 1);
 
-my $transcript = new Bio::SeqFeature::Gene::Transcript(-primary => 'CDS',
+ok my $transcript = new Bio::SeqFeature::Gene::Transcript(-primary => 'CDS',
 						       -start   => 80,
 						       -end     => 1144,
 						       -tag     => { 
@@ -231,7 +231,7 @@ my $transcript = new Bio::SeqFeature::Gene::Transcript(-primary => 'CDS',
 							   'protein_id'  => 'BAB85648.1',
 						       });
 
-my $poly_A_site1 = new Bio::SeqFeature::Gene::Poly_A_site
+ok my $poly_A_site1 = new Bio::SeqFeature::Gene::Poly_A_site
     (-primary => 'polyA_site',
      -start => 2660,
      -end   => 2660,
@@ -239,7 +239,7 @@ my $poly_A_site1 = new Bio::SeqFeature::Gene::Poly_A_site
 	 'note' => "Encoded on BAC clone RP5-842K24 (AL050310); PolyA_site#2 used by CHCR EST clone DKFZp434G2222 (AL133625)"
 	 });
 
-my $poly_A_site2 = new Bio::SeqFeature::Gene::Poly_A_site
+ok my $poly_A_site2 = new Bio::SeqFeature::Gene::Poly_A_site
     (-primary => 'polyA_site',
      -start => 1606,
      -end   => 1606,
@@ -247,10 +247,10 @@ my $poly_A_site2 = new Bio::SeqFeature::Gene::Poly_A_site
 	 'note' => "Encoded on BAC clone RP5-842K24 (AL050310); PolyA_site#1 used by CHCR EST clone PLACE1010202 (AK002178)",
      });
 
-my $fiveprimeUTR = new Bio::SeqFeature::Gene::UTR(-primary => "utr");
-$fiveprimeUTR->location(new Bio::Location::Fuzzy(-start => "<1",
+ok my $fiveprimeUTR = new Bio::SeqFeature::Gene::UTR(-primary => "utr5prime");
+ok $fiveprimeUTR->location(new Bio::Location::Fuzzy(-start => "<1",
 						 -end   => 79));
-my $threeprimeUTR = new Bio::SeqFeature::Gene::UTR(-primary => "utr3prime",
+ok my $threeprimeUTR = new Bio::SeqFeature::Gene::UTR(-primary => "utr3prime",
 						   -start   => 1145,
 						   -end     => 2659);
 
@@ -258,19 +258,20 @@ my $threeprimeUTR = new Bio::SeqFeature::Gene::UTR(-primary => "utr3prime",
 # get the gene structure by hand since it is not in the file
 # --Jason
 
-my $exon1 = new Bio::SeqFeature::Gene::Exon(-primary => 'exon',
-				      -start => 80,
-				      -end   => 177);
-$geneseq->add_SeqFeature($exon1);
+ok my $exon1 = new Bio::SeqFeature::Gene::Exon(-primary => 'exon',
+					       -start => 80,
+					       -end   => 177);
+ok $geneseq->add_SeqFeature($exon1);
 
-$geneseq->add_SeqFeature($fiveprimeUTR);
-$geneseq->add_SeqFeature($threeprimeUTR);
-$geneseq->add_SeqFeature($poly_A_site1);
-$geneseq->add_SeqFeature($poly_A_site2);
-$transcript->add_utr($fiveprimeUTR, 'utr5prime');
-$transcript->add_utr($threeprimeUTR, 'utr3prime');
+ok $geneseq->add_SeqFeature($fiveprimeUTR);
+ok $geneseq->add_SeqFeature($threeprimeUTR);
+ok $geneseq->add_SeqFeature($poly_A_site1);
+ok $geneseq->add_SeqFeature($poly_A_site2);
 
-$transcript->add_exon($exon1);
+ok $transcript->add_utr($fiveprimeUTR, 'utr5prime');
+ok $transcript->add_utr($threeprimeUTR, 'utr3prime');
+
+ok $transcript->add_exon($exon1);
 
 # API only supports a single poly-A site per transcript at this point 
 $transcript->poly_A_site($poly_A_site2);
@@ -280,5 +281,5 @@ $geneseq->add_SeqFeature($gene);
 
 my ($t) = $gene->transcripts(); # get 1st transcript
 ok(defined $t); 
-ok($t->mrna->length, 1516);
+ok($t->mrna->length, 1595);
 ok($gene->utrs, 2);
