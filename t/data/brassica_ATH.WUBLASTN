@@ -1,0 +1,193 @@
+BLASTN 2.0MP-WashU [22-Aug-2004] [linux24-i686-ILP32F64 2004-08-22T21:42:14]
+
+Copyright (C) 1996-2004 Washington University, Saint Louis, Missouri USA.
+All Rights Reserved.
+
+Reference:  Gish, W. (1996-2004) http://blast.wustl.edu
+
+Notice:  this program and its default parameter settings are optimized to find
+nearly identical sequences rapidly.  To identify weak protein similarities
+encoded in nucleic acid, use BLASTX, TBLASTN or TBLASTX.
+
+Query=  e15_99na_plate_1as gi|21844367|gb|BQ704948.1|BQ704948 Bn01_02k05_A
+    Bn01_AAFC_ECORC_transgenic_Brassica_napus_overexpressing_BNCBF17_constituti
+    vely_frost_tolerant Brassica napus cDNA clone Bn01_02k05, mRNA sequence
+        (598 letters)
+
+Database:  ATH1_chr_all.5con
+           5 sequences; 119,186,497 total letters.
+Searching....10....20....30....40....50....60....70....80....90....100% done
+
+                                                                     Smallest
+                                                                       Sum
+                                                              High  Probability
+Sequences producing High-scoring Segment Pairs:              Score  P(N)      N
+
+CHR1v01212004                                                  932  1.3e-79   3
+CHR5v01212004                                                 1035  6.9e-71   2
+
+
+
+>CHR1v01212004
+        Length = 30,432,563
+
+  Plus Strand HSPs:
+
+ Score = 932 (145.9 bits), Expect = 1.3e-79, Sum P(3) = 1.3e-79, Group = 1
+ Identities = 230/282 (81%), Positives = 240/282 (85%), Strand = Plus / Plus
+ Links = (1)-3-2
+
+Query:       23 AAAGGARATTAAGCACCGGSTGAAGCTTGGTGGCTTGTAGGCGATGAAGACTGATGCRCT 82
+                || |||+|||||   |||| |||||||||||||||||||||| ||||| ||||||||+||
+Sbjct: 25052120 AAGGGAAATTAA---CCGG-TGAAGCTTGGTGGCTTGTAGGCAATGAA-ACTGATGCACT 25052174
+
+Query:       83 GGACCTGRCGCGTTGTTGTCGAATCCAATGATTCTAATAAAGGCGKTAGGGKACTCCGTT 142
+                |||| ||+|| || |||||||||||| ||||| ||||| ||||| +| |||+||||| ||
+Sbjct: 25052175 GGACTTGACGGGT-GTTGTCGAATCCGATGATCCTAATGAAGGCATTGGGGTACTCC-TT 25052232
+
+Query:      143 CTTGSACTCTTGCACTTCCTTCAACACTTGAGARGRGTCGGKGCATCCGARCAAAGGAAG 202
+                ||||+|||||| |||||||||||||||||||| +|+|||||+||| ||||+||| |||||
+Sbjct: 25052233 CTTGCACTCTTCCACTTCCTTCAACACTTGAGCGGAGTCGGTGCAACCGAACAAGGGAAG 25052292
+
+Query:      203 CTTCCACATTGTCCAATAACGGCCATCGTAGTATCCAGGTGTGCTTCCATGCTCACGGTA 262
+                ||||||||||||||| || || ||||| |||||||| |||| | | || |||||||||||
+Sbjct: 25052293 CTTCCACATTGTCCAGTACCGTCCATCATAGTATCCGGGTGAGTTACCGTGCTCACGGTA 25052352
+
+Query:      263 CACAAATCCGTGCTC--CAACTCAAATTCAACACAAGGAATC 302
+                ||||||||||||||   |||  || ||   ||| ||  | ||
+Sbjct: 25052353 CACAAATCCGTGCTATACAAACCACATGTTACA-AACCACTC 25052393
+
+ Score = 580 (93.1 bits), Expect = 1.3e-79, Sum P(3) = 1.3e-79, Group = 1
+ Identities = 153/192 (79%), Positives = 158/192 (82%), Strand = Plus / Plus
+ Links = 1-3-(2)
+
+Query:      410 ACCTTCATGCAGCTAACTCTTCCTCCGTTGCTTGCAATGGAAGTAATATCAGTGTT-GCT 468
+                |||| ||||||| |||||||||| ||||||||||  ||||||||||| ||  |||| || 
+Sbjct: 25052740 ACCTGCATGCAGTTAACTCTTCCGCCGTTGCTTGTGATGGAAGTAATGTCGTTGTTAGCC 25052799
+
+Query:      469 TTTGCGGGTGASTGGGAATGCRGCGGATGACTTCAAG-CCGGTRAAKWGGAGC-ACCATG 526
+                || ||||||| +|||||| ||+||||| ||||| ||| ||| |+|| +||||| ||||| 
+Sbjct: 25052800 TT-GCGGGTGGCTGGGAAGGCAGCGGAGGACTT-AAGTCCGTTGAA-AGGAGCGACCATA 25052856
+
+Query:      527 GTGGCTTGAGCCGGTGAGGTAGCCACAGCGGCGGGAGGAGAGCATAGRAGGWAGCCATTA 586
+                ||||| |||||||| |||| | ||| ||  |||| || ||||||||| |||+||||||| 
+Sbjct: 25052857 GTGGCCTGAGCCGGAGAGGCAACCATAGTAGCGGAAG-AGAGCATAG-AGGAAGCCATTG 25052914
+
+Query:      587 CTACTTCTTTTC 598
+                 | ||||||| |
+Sbjct: 25052915 TT-CTTCTTTAC 25052925
+
+ Score = 512 (82.9 bits), Expect = 1.3e-79, Sum P(3) = 1.3e-79, Group = 1
+ Identities = 118/139 (84%), Positives = 121/139 (87%), Strand = Plus / Plus
+ Links = 1-(3)-2
+
+Query:      275 CTCCAACTCAAATTCAACACAAGGAATCCACTCTGTTGCGGAGAAGGTAGTCAACTTCTT 334
+                ||||||||| |||||||||||||||||||||| ||||||||| ||||||||||||||| |
+Sbjct: 25052501 CTCCAACTCGAATTCAACACAAGGAATCCACT-TGTTGCGGATAAGGTAGTCAACTTCCT 25052559
+
+Query:      335 TGGCCAATTCAACGTCAGTRAGGTCAGGRAGATAAGAGAGAGTCTCAGHACTTCTTCTTT 394
+                | ||||||||    || ||+||||||||+|| |||||||||||||||  |||||||||||
+Sbjct: 25052560 TAGCCAATTCGGAATCGGTAAGGTCAGGAAGGTAAGAGAGAGTCTCA-AACTTCTTCTTT 25052618
+
+Query:      395 SCGACTGGKGGGCACACCT 413
+                +| |  || || |||||||
+Sbjct: 25052619 CCAATCGGAGGCCACACCT 25052637
+
+
+>CHR5v01212004
+        Length = 26,992,728
+
+  Plus Strand HSPs:
+
+ Score = 1035 (161.3 bits), Expect = 6.9e-71, Sum P(2) = 6.9e-71, Group = 1
+ Identities = 272/348 (78%), Positives = 281/348 (80%), Strand = Plus / Plus
+ Links = (1)-2
+
+Query:        1 GATTATT-ATATGATTGTTTTAGAAAGGARATTAAGCACCGGSTGAAGCTTGGTGGCTTG 59
+                ||| ||| ||| || ||||||||||| ||+|||||||  ||| |||||||||| ||||||
+Sbjct: 15394700 GATAATTCATAAGAATGTTTTAGAAAAGAAATTAAGCTTCGG-TGAAGCTTGGGGGCTTG 15394758
+
+Query:       60 TAGGCGATGAAGACTGATGCRCTGGACCTGRCGCGTTGTTGTCGAATCCAATGATTCTAA 119
+                ||||| ||||| ||||||||+ ||||| ||+|| || |||||||||||| ||||| ||||
+Sbjct: 15394759 TAGGCAATGAA-ACTGATGCATTGGACTTGACGGGT-GTTGTCGAATCCGATGATCCTAA 15394816
+
+Query:      120 TAAAGGCGKTAGGGKACTCCGTTCTTGSACTCTTGCACTTCCTTCAACACTTGAGARGRG 179
+                | ||||||   |||+||||| ||||||+| ||||  ||||||||||||||||||| +|+|
+Sbjct: 15394817 TGAAGGCGCCCGGGTACTCC-TTCTTGCATTCTTCAACTTCCTTCAACACTTGAGCGGAG 15394875
+
+Query:      180 TCGGKGCATCCGARCAAAGGAAGCTTCCACATTGTCCAATAACGGCCATCGTAGTATCCA 239
+                ||||+||||||||+||| |||||||||||||||||||| || || |||||||||||||| 
+Sbjct: 15394876 TCGGTGCATCCGAACAATGGAAGCTTCCACATTGTCCAGTACCGTCCATCGTAGTATCCG 15394935
+
+Query:      240 GGTGTGCTTCCATGCTCACGGTACACAAATCCGTGCTCCAA-CTCA-AATTCAACACAAG 297
+                || ||| |||| |||||||||||||||||||||||||  || | || ||   ||| ||  
+Sbjct: 15394936 GGAGTGTTTCCGTGCTCACGGTACACAAATCCGTGCTATAAACACATAAGAAAAC-CATT 15394994
+
+Query:      298 GAATCCACTCTGTTGC-GGAGAAGGTAGTCAACTTCTT-TGGCCAATT 343
+                 ||| || | || |   |||| |  |   |||  |  | | | | |||
+Sbjct: 15394995 CAATACAAT-TGATATTGGAGGATATGCACAAGGTGATATAGTCTATT 15395041
+
+ Score = 739 (116.9 bits), Expect = 6.9e-71, Sum P(2) = 6.9e-71, Group = 1
+ Identities = 166/189 (87%), Positives = 171/189 (90%), Strand = Plus / Plus
+ Links = 1-(2)
+
+Query:      410 ACCTTCATGCAGCTAACTCTTCCTCCGTTGCTTGCAATGGAAGTAATATCAGTGTTGCTT 469
+                ||||||||||||||||||||||| ||||||||||| |||||||| || ||  ||||| | 
+Sbjct: 15395364 ACCTTCATGCAGCTAACTCTTCCCCCGTTGCTTGCGATGGAAGTGATGTCCTTGTTGGTC 15395423
+
+Query:      470 TTGCGGGTGASTGGGAATGCRGCGGATGACTTCAAGCCGGTRAAKWGGAGC-ACCATGGT 528
+                ||||||||||+ ||||||||+||||||||||||||||||||+||+ ||||| ||||||||
+Sbjct: 15395424 TTGCGGGTGACCGGGAATGCAGCGGATGACTTCAAGCCGGTGAAT-GGAGCGACCATGGT 15395482
+
+Query:      529 GGCTTGAGCCGGTGAGGTAGCCACAGCGGCGGGAGGAGAGCATAGRAGGWAGCCATTACT 588
+                ||| |||||||| || ||| |||||||||||| |||||||||||| |||+||||||||||
+Sbjct: 15395483 GGCCTGAGCCGGGGATGTAACCACAGCGGCGG-AGGAGAGCATAG-AGGAAGCCATTACT 15395540
+
+Query:      589 ACTTCTTTT 597
+                ||||||| |
+Sbjct: 15395541 ACTTCTTGT 15395549
+
+
+Parameters:
+  -i /home/jasons/pubbrassica/pub_brassica.4
+  -d /home/jasons/pubbrassica/ATH1_chr_all.5con
+  E=1e-5
+  topcomboE=10
+  wordmask=seg
+  hspsepsmax=1000
+  links
+
+  ctxfactor=2.00
+
+  Query                        -----  As Used  -----    -----  Computed  ----
+  Strand MatID Matrix name     Lambda    K       H      Lambda    K       H
+   +1      0   +5,-4           0.195   0.175   0.361    same    same    same
+               Q=10,R=10       0.104   0.0151  0.0600    n/a     n/a     n/a
+   -1      0   +5,-4           0.195   0.175   0.361    same    same    same
+               Q=10,R=10       0.104   0.0151  0.0600    n/a     n/a     n/a
+
+  Query
+  Strand MatID  Length  Eff.Length     E     S  W   T   X   E2      S2
+   +1      0      598       598   1.0e-05  299 11 n/a  72  0.023    78
+                                                      134  0.025   117
+   -1      0      598       598   1.0e-05  299 11 n/a  72  0.023    78
+                                                      134  0.025   117
+
+
+Statistics:
+
+  Database:  /home/jasons/pubbrassica/ATH1_chr_all.5con
+   Title:  ATH1_chr_all.5con
+   Posted:  11:14:54 AM EST Sep 1, 2004
+   Created:  12:14:50 PM EETDT Sep 01, 2004
+   Format:  XDF-1
+   # of letters in database:  119,186,497
+   # of sequences in database:  5
+   # of database sequences satisfying E:  2
+  No. of states in DFA:  233 (233 KB)
+  Total size of DFA:  254 KB (2059 KB)
+  Time to generate neighborhood:  0.00u 0.01s 0.01t  Elapsed: 00:00:00
+  No. of threads or processors used:  2
+  Search cpu time:  0.58u 0.06s 0.64t  Elapsed: 00:00:00
+  Total cpu time:  0.66u 0.29s 0.95t  Elapsed: 00:00:01
+  Start:  Wed Sep  1 13:19:06 2004   End:  Wed Sep  1 13:19:07 2004
