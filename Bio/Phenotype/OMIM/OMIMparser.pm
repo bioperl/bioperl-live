@@ -543,18 +543,21 @@ sub _createOMIMentry {
 sub _finer_parse_symptoms {
     my ($self, $omim_entry) = @_;
     my $text = $omim_entry->clinical_symptoms_raw;
-
-    my $part;
-    foreach(split /\n/, $text){
-        my $line = $_;
-        if($line =~ /^(\w+)\:/){
-            $part = $1;
-        }else{
-            if($line =~ /(\s+)([^;]+)/){
-                my $symptom = $2;
-                $omim_entry->add_clinical_symptoms($part, $symptom);
-            }
-        }
+    if( $text ) { 
+	my $part;
+	for my $line (split /\n/, $text){
+	    if($line =~ /^([\w\s]+)\:\s*$/){
+		$part = $1;
+	    } elsif( $line =~ /^\s+$/ ) {
+	    } elsif($line =~ /^(\s+)([^;]+)\s*$/){
+		my $symptom = $2;
+		if( ! $part ) { 
+		    # $self->warn("$text\nline='$line'\n");
+		    next;
+		}
+		$omim_entry->add_clinical_symptoms($part, $symptom);
+	    }
+	}
     }
     $omim_entry->clinical_symptoms_raw('');
 }
@@ -575,7 +578,7 @@ sub _parse_genemap {
                push( @cps, $cp ); 
           }
           $omim_entry->add_CytoPositions( @cps );
-     }
+      }
 
      my $gene_symbols = $a[ 5 ];
      if ( defined ( $gene_symbols ) ) {
