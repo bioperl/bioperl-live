@@ -337,6 +337,9 @@ sub mode {
 
       if($^O eq 'linux'){
         $obj->{'_mode'} = 'r';
+        my $line = $iotest->getline;
+        $obj->_pushback($line) if defined $line;
+        $obj->{'_mode'} = defined $line ? 'r' : 'w';
         return $obj->{'_mode'};
       } else {
         my $line = $iotest->getline;
