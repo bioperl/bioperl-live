@@ -160,6 +160,28 @@ sub analysis_spec {
     return $self->{'_ANALYSIS_SPEC'};
 }
 
+=head2 clear
+
+    Usage     :$analysis->clear();
+    Returns   :true value on success
+    Arguments :none
+    Purpose   :to remove raw results from a previous analysis so that
+               an analysis can be repeated with different parameters.
+
+=cut
+
+sub clear {
+	my $self= shift;
+	if (defined($self->{'_result'})) {
+		delete $self->{'_result'};
+		}
+	if (defined ($self->{'_parsed'})) {
+		delete $self->{'_parsed'};
+		}
+	return 1;
+}
+		 
+
 
 =head2  input_spec
 
