@@ -300,27 +300,13 @@ sub introns {
         @exons = map { $_->[0] } sort { $b->[1] <=> $a->[1] } map { [ $_, $_->start()] } @exons;
     }
     # loop over all intervening gaps
-    for(my $i = 0; $i < $#exons; $i++) {
-	my ($start, $end);
-	my $intron;
-
-	if(defined($exons[$i]->strand()) &&
-	   (($exons[$i]->strand() * $strand) < 0)) {
-	    $self->throw("Transcript mixes plus and minus strand exons. ".
-			 "Computing introns makes no sense then.");
-	}
-	$start = $exons[$i+$rev_order]->end() + 1;     # $i or $i+1
-	$end = $exons[$i+1-$rev_order]->start() - 1;   # $i+1 or $i
-	$intron = Bio::SeqFeature::Gene::Intron->new(
-						     '-start'   => $start,
-						     '-end'     => $end,
-						     '-strand'  => $strand,
-						     '-primary' => 'intron',
-						     '-source'  => ref($self));
-	my $seq = $self->entire_seq();
-	$intron->attach_seq($seq) if $seq;
-	$intron->seq_id($self->seq_id());
-	push(@introns, $intron);
+    while ((my $exonA = shift (@exons)) &&(my $exonB = shift(@exons))){
+       my $intron = Bio::SeqFeature::Gene::Intron->new(-primary=>'intron');
+       $intron->upstream_Exon($exonA);
+       $intron->downstream_Exon($exonB);
+       $intron->attach_seq($self->entire_seq);
+       unshift(@exons,$exonB);
+       push @introns,$intron;
     }
     return @introns;
 }
