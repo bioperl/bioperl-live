@@ -315,7 +315,7 @@ sub defs_file {
  Function: Get the array of ontology flat files that need to be parsed.
 
            Note that this array will decrease in elements over the
-           parsing process. Therefore, it's value outside of this
+           parsing process. Therefore, it\'s value outside of this
            module will be limited. Also, be careful not to alter the
            array unless you know what you are doing.
 
@@ -419,110 +419,126 @@ sub _has_term {
 
 # This parses the relationships files
 sub _parse_flat_file {
-    my $self = shift;
-    my $ont  = shift;
+  my $self = shift;
+  my $ont  = shift;
     
-    my @stack       = ();
-    my $prev_spaces = -1;
-    my $prev_term   = "";
+  my @stack       = ();
+  my $prev_spaces = -1;
+  my $prev_term   = "";
     
-    while( my $line = $self->_readline() ) {
+  while ( my $line = $self->_readline() ) {
         
-        if ( $line =~ /^!/ ) {
-            next;
-        }
+	if ( $line =~ /^!/ ) {
+	  next;
+	}
         
-        my $current_term   = $self->_get_first_termid( $line );
-        my @isa_parents    = $self->_get_isa_termids( $line );
-        my @partof_parents = $self->_get_partof_termids( $line );
-        my @syns           = $self->_get_synonyms( $line );
-        my @sec_go_ids     = $self->_get_secondary_termids( $line );
-        my @cross_refs     = $self->_get_db_cross_refs( $line );
+	my $current_term   = $self->_get_first_termid( $line );
+	my @isa_parents    = $self->_get_isa_termids( $line );
+	my @partof_parents = $self->_get_partof_termids( $line );
+	my @syns           = $self->_get_synonyms( $line );
+	my @sec_go_ids     = $self->_get_secondary_termids( $line );
+	my @cross_refs     = $self->_get_db_cross_refs( $line );
         
         
-        if ( ! $self->_has_term( $current_term ) ) {
-            my $term =$self->_create_ont_entry($self->_get_name($line,
-								$current_term),
-					       $current_term );
-            $self->_add_term( $term, $ont );
-        }
+	if ( ! $self->_has_term( $current_term ) ) {
+	  my $term =$self->_create_ont_entry($self->_get_name($line,
+														  $current_term),
+										 $current_term );
+	  $self->_add_term( $term, $ont );
+	}
         
-        my $current_term_object = $self->_ont_engine()->get_terms( $current_term );
+	my $current_term_object = $self->_ont_engine()->get_terms( $current_term );
         
-        $current_term_object->add_dblink( @cross_refs );
-        $current_term_object->add_secondary_id( @sec_go_ids );
-        $current_term_object->add_synonym( @syns );
-        unless ( $line =~ /^\$/ ) {
-            $current_term_object->ontology( $ont );
-        }
-        foreach my $parent ( @isa_parents ) {
-            if ( ! $self->_has_term( $parent ) ) {
-                my $term = $self->_create_ont_entry($self->_get_name($line,
-								     $parent),
-						    $parent );
-                $self->_add_term( $term, $ont );
-            }
+	$current_term_object->add_dblink( @cross_refs );
+	$current_term_object->add_secondary_id( @sec_go_ids );
+	$current_term_object->add_synonym( @syns );
+	unless ( $line =~ /^\$/ ) {
+	  $current_term_object->ontology( $ont );
+	}
+	foreach my $parent ( @isa_parents ) {
+	  if ( ! $self->_has_term( $parent ) ) {
+		my $term = $self->_create_ont_entry($self->_get_name($line,
+															 $parent),
+											$parent );
+		$self->_add_term( $term, $ont );
+	  }
             
-            $self->_add_relationship( $parent,
-                                      $current_term,
-                                      $self->_is_a_relationship(),
-				      $ont);
+	  $self->_add_relationship( $parent,
+								$current_term,
+								$self->_is_a_relationship(),
+								$ont);
              
-        }
-        foreach my $parent ( @partof_parents ) {
-            if ( ! $self->_has_term( $parent ) ) {
-                my $term = $self->_create_ont_entry($self->_get_name($line,
-								     $parent),
-						    $parent );
-                $self->_add_term( $term, $ont );
-            }
+	}
+	foreach my $parent ( @partof_parents ) {
+	  if ( ! $self->_has_term( $parent ) ) {
+		my $term = $self->_create_ont_entry($self->_get_name($line,
+															 $parent),
+											$parent );
+		$self->_add_term( $term, $ont );
+	  }
            
-            $self->_add_relationship( $parent,
-                                      $current_term,
-                                      $self->_part_of_relationship(),
-				      $ont);
-        }
+	  $self->_add_relationship( $parent,
+								$current_term,
+								$self->_part_of_relationship(),
+								$ont);
+	}
         
-        my $current_spaces = $self->_count_spaces( $line );
+	my $current_spaces = $self->_count_spaces( $line );
         
-        if ( $current_spaces != $prev_spaces  ) {
+	if ( $current_spaces != $prev_spaces  ) {
        
-            if ( $current_spaces == $prev_spaces + 1 ) {
-                push( @stack, $prev_term ); 
-            }
-            elsif ( $current_spaces < $prev_spaces ) {
-                my $n = $prev_spaces -  $current_spaces;
-                for ( my $i = 0; $i < $n; ++$i ) {
-                    pop( @stack );
-                }
-            }
-            else {
+	  if ( $current_spaces == $prev_spaces + 1 ) {
+		push( @stack, $prev_term ); 
+	  } elsif ( $current_spaces < $prev_spaces ) {
+		my $n = $prev_spaces -  $current_spaces;
+		for ( my $i = 0; $i < $n; ++$i ) {
+		  pop( @stack );
+		}
+	  } else {
 		$self->throw( "format error (file ".$self->file.")" );
-            } 
-        }
-        
-        my $parent = $stack[ @stack - 1 ];
-        
-        # add a relationship if the line isn't the one with the root term
+	  } 
+	}
+
+	my $parent = $stack[ @stack - 1 ];
+
+	# add a relationship if the line isn\'t the one with the root term
 	# of the ontology (which is also the name of the ontology)
-        if ( index($line,'$') != 0 ) {
-	    if ( $line !~ /^\s*[<%]/ ) {
+	if ( index($line,'$') != 0 ) {
+	  #adding @reltype@ syntax
+	  if ( $line !~ /^\s*([<%]|\@\w+?\@)/ ) {
+warn $line;
 		$self->throw( "format error (file ".$self->file.")" );
-	    }
-	    my $reltype = ($line =~ /^\s*</) ?
-		$self->_part_of_relationship() :
-		$self->_is_a_relationship();
-            $self->_add_relationship( $parent, $current_term, $reltype,
-				      $ont);
-        }
-        
-        $prev_spaces = $current_spaces;
-        
-        $prev_term = $current_term;
-        
-    } 
-    return $ont;
-} # _parse_relationships_file
+	  }
+
+	  my($relstring) = $line =~ /^\s*([<%]|\@[^\@]+?\@)/;
+
+	  my $reltype;
+
+	  if ($relstring eq '<') {
+		$reltype = $self->_part_of_relationship;
+	  } elsif ($relstring eq '%') {
+		$reltype = $self->_is_a_relationship;
+	  } else {
+		$relstring =~ s/\@//g;
+		if ($self->_ont_engine->get_relationship_type($relstring)) {
+          $reltype = $self->_ont_engine->get_relationship_type($relstring);
+		} else {
+		  $self->_ont_engine->add_relationship_type($relstring, $ont);
+		  $reltype = $self->_ont_engine->get_relationship_type($relstring);
+		}
+	  }
+
+	  #my $reltype = ($line =~ /^\s*</) ?
+	  #$self->_part_of_relationship() :
+	  #$self->_is_a_relationship();
+	  $self->_add_relationship( $parent, $current_term, $reltype, $ont);
+	}
+
+	$prev_spaces = $current_spaces;
+	$prev_term = $current_term;
+  }
+  return $ont;
+}								# _parse_relationships_file
 
 
 
