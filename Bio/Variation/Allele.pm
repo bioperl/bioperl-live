@@ -235,4 +235,59 @@ sub repeat_count {
     return $self->{'repeat_count'};
 }
 
+=head2 count
+
+ Title   : count
+ Usage   : $obj->count();
+ Function: 
+
+            Sets and returns the number of times this allele was observed.
+
+ Example : 
+ Returns : string
+ Args    : string
+
+=cut
+
+sub count {
+    my ($self,$value) = @_;
+    if( defined $value) {
+	if (  not $value =~ /^\d+$/ ) {
+	    $self->throw("[$value] for count has to be a positive integer\n");
+	} else {
+	    $self->{'count'} = $value;
+	}
+    }
+    return $self->{'count'};
+}
+
+
+=head2 frequency
+
+ Title   : frequency
+ Usage   : $obj->frequency();
+ Function: 
+
+            Sets and returns the frequency of the allele in the observed
+            population.
+
+ Example : 
+ Returns : string
+ Args    : string
+
+=cut
+
+sub frequency {
+    my ($self,$value) = @_;
+    if( defined $value) {
+	if (  not $value =~ /^\d+$/ ) {
+	    $self->throw("[$value] for frequency has to be a positive integer\n");
+	} else {
+	    $self->{'frequency'} = $value;
+	}
+    }
+    return $self->{'frequency'};
+}
+
+
 1;
