@@ -15,7 +15,7 @@ BEGIN {
 	use lib 't';
     }
     use Test;
-    plan tests => 177;
+    plan tests => 179;
 }
 
 use Bio::Factory::FTLocationFactory;
@@ -101,3 +101,12 @@ foreach my $locstr (sort keys(%testcases)) {
     ok($loc->strand(), $res[9]);
 }
    
+
+# bug #1674
+for my $locstr ( 'join(11025..11049,join(complement(315036..315294),complement(251354..251412),complement(241499..241580),complement(239890..240081)))',
+		  
+		  'join(20464..20694,21548..22763,join(complement(314652..314672),complement(232596..232990),complement(231520..231669)))') {
+    my $loc = $locfac->from_string($locstr);
+    my $ftstr = $loc->to_FTstring();
+    ok($ftstr, $locstr);
+}
