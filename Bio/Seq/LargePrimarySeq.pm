@@ -73,37 +73,57 @@ package Bio::Seq::LargePrimarySeq;
 use vars qw($AUTOLOAD @ISA);
 use strict;
 
-# Object preamble - inherits from Bio::Root::Object
+# Object preamble - inherits from Bio::Root::Objecttest 8, 
 
 use Bio::Root::RootI;
 use Bio::PrimarySeqI;
 
 use POSIX;
 use FileHandle;
+use File::Spec;
 
-my $DEFAULT_TEMP_DIR = "/tmp";
+my $DEFAULT_TEMP_DIR = File::Spec->tmpdir();
 my $counter = 0;
 
 @ISA = qw(Bio::PrimarySeqI Bio::Root::RootI);
 
 sub new {
-    my ($class) = @_;
+    my ($class, @args) = @_;
 
-    my $self = {};
-    bless $self,$class;
-   
+    my $self = bless {}, $class;
+    my($seq,$id,$acc,$pid,$desc,$moltype,$given_id) =
+	$self->_rearrange([qw(SEQ
+			      DISPLAY_ID
+			      ACCESSION_NUMBER
+			      PRIMARY_ID
+			      DESC
+			      MOLTYPE
+			      ID
+			      )],
+			  @args);
+    
     my $id = POSIX::cuserid() . "$$" . $counter;
     my $file = "$DEFAULT_TEMP_DIR/$id";
     system("touch $file");
     my $fh = new FileHandle $file,"+>"; 
     if( !defined $fh ) {
-	$self->thro("Unable to make file $file $!");
+	$self->throw("Unable to make file $file $!");
     }
+    $acc = 'unknown' unless ( defined $acc );
+    $id  = 'no_id'   unless ( defined $id  );
+    $pid = "pid$$"   unless ( defined $pid );
+    
+    $seq     && $self->add_sequence_as_string($seq);
+    $id      && $self->display_id($id);
+    $acc     && $self->accession_number($acc);
+    $pid     && $self->primary_id($pid);
+    $desc    && $self->desc($desc);
+    $moltype && $self->moltype($moltype);    
 
-    $self->_fh($fh);
-    $self->_filename($file);
+    $fh      && $self->_fh($fh);
+    $file    && $self->_filename($file);
     $self->length(0);
-
+    
     return $self;
 }
 
@@ -164,6 +184,34 @@ sub accession_number{
       $obj->{'accession_number'} = $value;
     }
     return $obj->{'accession_number'};
+
+}
+
+=head2 primary_id
+
+ Title   : primary_id
+ Usage   : $unique_key = $obj->primary_id;
+ Function: Returns the unique id for this object in this
+           implementation. This allows implementations to manage
+           their own object ids in a way the implementaiton can control
+           clients can expect one id to map to one object.
+
+           For sequences with no natural primary id, this method should return
+           a stringified memory location.
+ Returns : A string
+ Args    : A string (optional, for setting)
+
+=cut
+
+sub primary_id {
+   my ($obj,$value) = @_;
+   if( defined $value) {
+      $obj->{'primary_id'} = $value;
+    }
+   if( ! exists $obj->{'primary_id'} ) {
+       return "$obj";
+   }
+   return $obj->{'primary_id'};
 
 }
 
@@ -239,6 +287,63 @@ sub subseq{
 
 
    return $string;
+}
+
+=head2 moltype
+
+ Title   : moltype
+ Usage   : if( $obj->moltype eq 'dna' ) { /Do Something/ }
+ Function: Returns the type of sequence being one of 
+           'dna', 'rna' or 'protein'. This is case sensitive.
+
+           This is not called <type> because this would cause
+           upgrade problems from the 0.5 and earlier Seq objects.
+           
+ Returns : a string either 'dna','rna','protein'. NB - the object must
+           make a call of the type - if there is no type specified it
+           has to guess.
+ Args    : none
+ Status  : Virtual
+
+
+=cut
+
+BEGIN {
+    my %valid_type = map {$_, 1} qw( dna rna protein );
+
+    sub moltype {
+       my ($obj,$value) = @_;
+       if (defined $value) {
+           unless ( $valid_type{$value} ) {
+	       $obj->throw("Molecular type '$value' is not a valid type (".
+                  join(',', map "'$_'", sort keys %valid_type) .") lowercase");
+           }
+           $obj->{'moltype'} = $value;
+       }
+       return $obj->{'moltype'};
+
+    }
+}
+
+=head2 desc
+
+ Title   : desc
+ Usage   : $obj->desc($newval)
+ Function: 
+ Example : 
+ Returns : value of desc
+ Args    : newvalue (optional)
+
+
+=cut
+
+sub desc {
+   my ($obj,$value) = @_;
+   if( defined $value) {
+      $obj->{'desc'} = $value;
+    }
+    return $obj->{'desc'};
+
 }
 
 
