@@ -30,7 +30,7 @@ if( $error == 1 ) {
     exit(0);
 }
 END {
-   unlink(qw (swiss_unk.dat));
+   unlink(qw (swiss_unk.dat test.swiss));
 }
 use Bio::SeqIO;
 use Bio::Root::IO;
