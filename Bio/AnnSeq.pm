@@ -112,6 +112,7 @@ sub _initialize {
   my $make = $self->SUPER::_initialize;
   $self->{'_as_feat'} = [];
   $self->{'date'} = [];
+  $self->{'secondary_accession'} = [];
   $ann = new Bio::Annotation;
   $self->annotation($ann);
 
@@ -443,25 +444,40 @@ sub accession{
 
 }
 
-=head2 accession2
+=head2 add_secondary_accession
 
- Title   : accession2
- Usage   : $obj->accession2($newval)
- Function: Secondary optional accession number
- Example : 
- Returns : value of accession2
- Args    : newvalue (optional)
+ Title   : add_secondary_accession
+ Usage   : $self->add_domment($ref)
+ Function: adds a secondary_accession
+ Example :
+ Returns : 
+ Args    :
 
 
 =cut
 
-sub accession2{
-   my ($obj,$value) = @_;
-   if( defined $value) {
-      $obj->{'accession2'} = $value;
-    }
-    return $obj->{'accession2'};
+sub add_secondary_accession{
+   my ($self) = shift;
+   foreach my $dt ( @_ ) {
+       push(@{$self->{'secondary_accession'}},$dt);
+   }
+}
 
+=head2 each_Comment
+
+ Title   : each_secondary_accession
+ Usage   : foreach $dt ( $self->each_secondary_accession() )
+ Function: gets an array of secondary_accessions
+ Example :
+ Returns : 
+ Args    :
+
+
+=cut
+
+sub each_secondary_accession{
+   my ($self) = @_;
+   return @{$self->{'secondary_accession'}}; 
 }
 
 =head2 sv

@@ -101,6 +101,28 @@ sub end{
 
 }
 
+=head2 rp
+
+ Title   : rp
+ Usage   : $self->rp($newval)
+ Function: Gives the RP line. No attempt is made to parse this line, unless it indicates
+           start and end reference bases
+ Example : 
+ Returns : value of rp
+ Args    : newvalue (optional)
+
+
+=cut
+
+sub rp{
+   my ($self,$value) = @_;
+   if( defined $value) {
+      $self->{'rp'} = $value;
+    }
+    return $self->{'rp'};
+
+}
+
 =head2 authors
 
  Title   : authors

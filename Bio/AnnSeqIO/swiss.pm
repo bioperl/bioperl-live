@@ -220,12 +220,12 @@ sub next_annseq{
        }  
 
        #accession number
-       if( /^AC\s+(\S+); (\S+)?/ ) {
+       if( /^AC\s+(\S+); (\S+)?/) {
 	   $acc = $1;
 	   my $acc2 = $2 if $2;
 	   $acc2 =~ s/\;//;
 	   $annseq->accession($acc);
-	   $annseq->accession2($acc2);
+	   $annseq->add_secondary_accession($acc2);
        }
        
        #version number
@@ -396,8 +396,8 @@ sub write_annseq {
    } else {
        if ($annseq->can('accession') ) {
 	   print "AC   ",$annseq->accession,";";
-	   if ($annseq->can('accession2') ) {
-	       print " ",$annseq->accession2,";\n";
+	   if ($annseq->can('each_secondary_accession') ) {
+	       print " ",$annseq->each_secondary_accession,";\n";
 	   }
 	   else {
 	       print "\n";
@@ -443,10 +443,10 @@ sub write_annseq {
        if ($ref->start && $ref->end) {
 	   print "RP   SEQUENCE OF ",$ref->start,"-",$ref->end," FROM N.A.\n";
        }
-       #else {
-	   #print "RP   SEQUENCE FROM N.A.\n";
-       #}
-       print $fh "RX   MEDLINE; ",$ref->medline,".\n";
+       elsif ($ref->rp) {
+	   print "RP   ",$ref->rp,"\n";
+       } 
+
        &_write_line_swissprot_regex($fh,"RA   ","RA   ",$ref->authors,"\\s\+\|\$",80);       
        &_write_line_swissprot_regex($fh,"RT   ","RT   ",$ref->title,"\\s\+\|\$",80);       
        &_write_line_swissprot_regex($fh,"RL   ","RL   ",$ref->location,"\\s\+\|\$",80);
@@ -586,18 +586,18 @@ sub _print_swissprot_FTHelper {
 sub _read_swissprot_References{
    my ($buffer,$fh) = @_;
    my (@refs);
+   my $b1, my $b2, my $rp, my $title, my $loc, my $au, my $med, my $com;
    
-   my $b1;
-   my $b2;
-   my $title;
-   my $loc;
-   my $au;
-   my $med;
-   my $com;
+   if ($$buffer !~ /^RP/) {
+       $$buffer = <$fh>;
+   }
    if( $$buffer =~ /^RP/ ) {
        if ($$buffer =~ /^RP   SEQUENCE OF (\d+)-(\d+)/) { 
 	   $b1=$1;
 	   $b2=$2; 
+       }
+       elsif ($$buffer =~ /^RP   (.*)/) {
+	   $rp=$1;
        }
        
    }
@@ -622,7 +622,8 @@ sub _read_swissprot_References{
    $ref->location($loc);
    $ref->medline($med);
    $ref->comment($com);
-   
+   $ref->rp($rp);
+
    push(@refs,$ref);
    $$buffer = $_;
    return @refs;
