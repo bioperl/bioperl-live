@@ -239,8 +239,9 @@ methods. Internal methods are usually preceded with a _
 
 package Bio::Tools::Run::StandAloneBlast;
 
-use vars qw($AUTOLOAD @ISA @BLASTALL_PARAMS @BLASTPGP_PARAMS 
-	    @BL2SEQ_PARAMS @OTHER_PARAMS %OK_FIELD $DATADIR $BLASTDIR);
+use vars qw($AUTOLOAD @ISA %PROGRAMS @BLASTALL_PARAMS @BLASTPGP_PARAMS 
+	    @BL2SEQ_PARAMS @OTHER_PARAMS %OK_FIELD $DATADIR $BLASTDIR 
+	    );
 use strict;
 use Bio::Root::Root;
 use Bio::Root::IO;
@@ -248,7 +249,7 @@ use Bio::Seq;
 use Bio::SeqIO;
 use Bio::Tools::BPbl2seq;
 use Bio::Tools::BPpsilite;
-use Bio::Tools::Blast;
+use Bio::SearchIO;
 
 BEGIN {      
 
@@ -283,8 +284,7 @@ BEGIN {
 
 # If local BLAST databases are not stored in the standard
 # /data directory, the variable BLASTDATADIR will need to be set explicitly 
-     $DATADIR =  $ENV{'BLASTDATADIR'} ||
-	 ($BLASTDIR ? Bio::Root::IO->catfile($BLASTDIR,'data') : '');
+     $DATADIR =  $ENV{'BLASTDATADIR'} || $ENV{'BLASTDB'};
 }
 
 @ISA = qw(Bio::Root::Root Bio::Root::IO);
@@ -343,12 +343,9 @@ sub new {
     my $self = $caller->SUPER::new(@args);
     # to facilitiate tempfile cleanup
     $self->_initialize_io();
-    
     unless (&Bio::Tools::Run::StandAloneBlast::exists_blast()) {
-	if( $self->verbose >= 0 ) {
-	    warn "Blast program not found or not executable. \n  Blast can be obtained from ftp://ncbi.nlm.nih.gov/blast\n";
-	}
-    }
+	$self->debug( "Blast program not found or not executable. \n  Blast can be obtained from ftp://ncbi.nlm.nih.gov/blast\n");    
+    } 
     # to facilitiate tempfile cleanup
     $self->_initialize_io();
     my ($fh,$tempfile) = $self->tempfile();
@@ -400,24 +397,23 @@ sub AUTOLOAD {
 =cut
 
 sub exists_blast {
-    my $exe = ($^O =~ /mswin/i) ? 'blastall.exe' : 'blastall';
+    my ($exe) =  shift;
+    # can call as a class method or as a function
+    if( defined $exe && $exe =~ /Bio::Tools/i ) { $exe = shift; }
+    $exe ||= 'blastall';
+    if( $^O =~ /mswin/i) { $exe .= '.exe'; }
+    my $f;
 
-    if($BLASTDIR) {
-	if((! $DATADIR) && (-d Bio::Root::IO->catfile($BLASTDIR, "data"))) {
-	    $DATADIR = Bio::Root::IO->catfile($BLASTDIR, "data");
-	}
-	return (-e Bio::Root::IO->catfile($BLASTDIR, $exe));
+    if((! $DATADIR) && (-d Bio::Root::IO->catfile($BLASTDIR, "data"))) {
+	$DATADIR = Bio::Root::IO->catfile($BLASTDIR, "data");
     }
-    # BLASTDIR not set. Let's see whether blastall is in the path.
-    foreach my $dir (File::Spec->path()) {
-	if(-e Bio::Root::IO->catfile($dir, $exe)) {
-	    $BLASTDIR = $dir;
-	    if((! $DATADIR) && (-d Bio::Root::IO->catfile($dir, "data"))) {
-		$DATADIR = Bio::Root::IO->catfile($dir, "data");
-	    }
-	    return 1;
-	}
+    if( ($f = Bio::Root::IO->exists_exe($exe)) ||
+	($f = Bio::Root::IO->exists_exe(Bio::Root::IO->catfile($BLASTDIR, 
+							       $exe))) ) {
+	$PROGRAMS{$exe} = $f if( -e $f );
+	return 1;
     }
+    &debug("exe is $exe blastall is $f\n");
     return 0;
 }
 
@@ -446,6 +442,7 @@ sub exists_blast {
 
 sub blastall {
     my ($self,$input1) = @_;
+    $self->_io_cleanup();
     my $executable = 'blastall';
     my $input2;
 # Create input file pointer
@@ -453,7 +450,7 @@ sub blastall {
     if (! $infilename1) {$self->throw(" $input1 ($infilename1) not Bio::Seq object or array of Bio::Seq objects or file name!");}
 
     $self->i($infilename1);	# set file name of sequence to be blasted to inputfilename1 (-i param of blastall)
-
+    
     my $blast_report = &_generic_local_blast($self, $executable, 
 					     $input1, $input2);
 }
@@ -543,7 +540,6 @@ sub bl2seq {
     $self->i($infilename1);	# set file name of first sequence to be aligned to inputfilename1 (-i param of bl2seq)
     $self->j($infilename2);	# set file name of first sequence to be aligned to inputfilename2 (-j param of bl2seq)
 
-
     my $blast_report = &_generic_local_blast($self, $executable);    
 }
 #################################################
@@ -586,11 +582,16 @@ sub _generic_local_blast {
 sub _runblast {
     my ($self,$executable,$param_string) = @_;
     my $blast_obj;
-
-    my $commandstring = Bio::Root::IO->catfile($BLASTDIR,$executable) . $param_string;
-
+    if( ! defined $PROGRAMS{$executable} ) {
+	unless (&Bio::Tools::Run::StandAloneBlast::exists_blast($executable)) {
+	    $self->warn("cannot find path to $executable");
+	    return undef;
+	}
+    }
+    my $commandstring = $PROGRAMS{$executable} . $param_string;
+   
     # next line for debugging
-    print STDERR "$commandstring \n" if ( $self->verbose() > 0 );
+    $self->debug( "$commandstring \n");
 
     my $status = system($commandstring);
 
@@ -601,8 +602,6 @@ sub _runblast {
 # set significance cutoff to set expectation value or default value
 # (may want to make this value vary for different executables)
 
-# Adjustment of Blast.pm parsing parameters not currently supported 
-#
 # If running bl2seq or psiblast (blastpgp with multiple iterations),
 # the specific parsers for these programs must be used (ie BPbl2seq or
 # BPpsilite).  Otherwise either the Blast parser or the BPlite
@@ -616,16 +615,12 @@ sub _runblast {
 	$blast_obj = Bio::Tools::BPpsilite->new(-file => $outfile);
     }
     elsif ($self->_READMETHOD eq 'Blast')  {
-	$blast_obj = Bio::Tools::Blast->new(-file=>$outfile,
-					    -signif => $signif,
-					    -parse  => 1,
-					    -stats  => 1,
-					    -check_all_hits => 1,   )  ;
+	$blast_obj = Bio::SearchIO->new(-file=>$outfile,
+					-format => 'blast'   )  ;
     }
     elsif ($self->_READMETHOD eq 'BPlite')  {
 	$blast_obj = Bio::Tools::BPlite->new(-file=>$outfile);
     }
-
     return $blast_obj;
 }
 
@@ -646,90 +641,90 @@ sub _setinput {
 #  If $input1 is not a reference it better be the name of a file with
 #  the sequence/ alignment data...
 
-SWITCH:  {
-    unless (ref $input1) {
-	$infilename1 = (-e $input1) ? $input1 : 0 ;
-	last SWITCH; 
-    }
+  SWITCH:  {
+      unless (ref $input1) {
+	  $infilename1 = (-e $input1) ? $input1 : 0 ;
+	  last SWITCH; 
+      }
 #  $input may be an array of BioSeq objects...
-    if (ref($input1) =~ /ARRAY/i ) {
-	($fh,$infilename1) = $self->tempfile();
-	$temp =  Bio::SeqIO->new(-fh=> $fh, '-format' => 'Fasta');
-	foreach $seq (@$input1) {
-	    unless ($seq->isa("Bio::PrimarySeqI")) {return 0;}
-	    $temp->write_seq($seq);
-	}
-	close $fh;
-	last SWITCH;
-    }
+      if (ref($input1) =~ /ARRAY/i ) {
+	  ($fh,$infilename1) = $self->tempfile();
+	  $temp =  Bio::SeqIO->new(-fh=> $fh, '-format' => 'Fasta');
+	  foreach $seq (@$input1) {
+	      unless ($seq->isa("Bio::PrimarySeqI")) {return 0;}
+	      $temp->write_seq($seq);
+	  }
+	  close $fh;
+	  last SWITCH;
+      }
 #  $input may be a single BioSeq object...
-    elsif ($input1->isa("Bio::PrimarySeqI")) {
-	($fh,$infilename1) = $self->tempfile();
+      elsif ($input1->isa("Bio::PrimarySeqI")) {
+	  ($fh,$infilename1) = $self->tempfile();
 
 # just in case $input1 is taken from an alignment and has spaces (ie
 # deletions) indicated within it, we have to remove them - otherwise
 # the BLAST programs will be unhappy
 
-	my $seq_id =  $input1->display_id();
-	my $seq_string =  $input1->seq();
-	$seq_string =~ s/\W+//g; # get rid of spaces in sequence
-	$seq = Bio::Seq->new(-seq=> $seq_string, -display_id =>$seq_id );
+	  my $seq_id =  $input1->display_id();
+	  my $seq_string =  $input1->seq();
+	  $seq_string =~ s/\W+//g; # get rid of spaces in sequence
+	  $seq = Bio::Seq->new(-seq=> $seq_string, -display_id =>$seq_id );
 
-	$temp =  Bio::SeqIO->new(-fh=> $fh, '-format' => 'Fasta');
-	$temp->write_seq($seq);
-	close $fh;
+	  $temp =  Bio::SeqIO->new(-fh=> $fh, '-format' => 'Fasta');
+	  $temp->write_seq($seq);
+	  close $fh;
 #		$temp->write_seq($input1);
-	last SWITCH;
-    }
-    $infilename1 = 0;		# Set error flag if you get here
-}				# End SWITCH
+	  last SWITCH;
+      }
+      $infilename1 = 0;		# Set error flag if you get here
+  }				# End SWITCH
     unless ($input2) { return $infilename1; }
-SWITCH2:  {
-    unless (ref $input2) {
-	$infilename2 =   (-e $input2) ? $input2 : 0 ;
-	last SWITCH2; 
-    }
-    if ($input2->isa("Bio::PrimarySeqI")  && $executable  eq 'bl2seq' ) {
-	($fh,$infilename2) = $self->tempfile();
-	
-	$temp =  Bio::SeqIO->new(-fh=> $fh, '-format' => 'Fasta');
-	$temp->write_seq($input2);
-	close $fh;
-	last SWITCH2;
-    }
+  SWITCH2:  {
+      unless (ref $input2) {
+	  $infilename2 =   (-e $input2) ? $input2 : 0 ;
+	  last SWITCH2; 
+      }
+      if ($input2->isa("Bio::PrimarySeqI")  && $executable  eq 'bl2seq' ) {
+	  ($fh,$infilename2) = $self->tempfile();
+
+	  $temp =  Bio::SeqIO->new(-fh=> $fh, '-format' => 'Fasta');
+	  $temp->write_seq($input2);
+	  close $fh;
+	  last SWITCH2;
+      }
 # Option for using psiblast's pre-alignment "jumpstart" feature
-    elsif ($input2->isa("Bio::SimpleAlign")  && 
-	   $executable  eq 'blastpgp' ) {
+      elsif ($input2->isa("Bio::SimpleAlign")  && 
+	     $executable  eq 'blastpgp' ) {
 # a bit of a lie since it won't be a fasta file
-	($fh,$infilename2) = $self->tempfile(); 
+	  ($fh,$infilename2) = $self->tempfile(); 
 
 # first we retrieve the "mask" that determines which residues should
 # by scored according to their position and which should be scored
 # using the non-position-specific matrices
 
-	my @mask = split("", shift ); #  get mask
+	  my @mask = split("", shift ); #  get mask
 
-# theh we have to convert all the residues in every sequence to upper
+# then we have to convert all the residues in every sequence to upper
 # case at the positions that we want psiblast to use position specific
 # scoring
 
-	foreach $seq ( $input2->eachSeq() ) {
-	    my @seqstringlist = split("",$seq->seq());
-	    for (my $i = 0; $i < scalar(@mask); $i++) {
-		unless ( $seqstringlist[$i] =~ /[a-zA-Z]/ ) {next}
-		$seqstringlist[$i] = $mask[$i] ? uc $seqstringlist[$i]: lc $seqstringlist[$i] ;
-	    }
-	    my $newseqstring = join("", @seqstringlist);
-	    $seq->seq($newseqstring);
-	}
+	  foreach $seq ( $input2->eachSeq() ) {
+	      my @seqstringlist = split("",$seq->seq());
+	      for (my $i = 0; $i < scalar(@mask); $i++) {
+		  unless ( $seqstringlist[$i] =~ /[a-zA-Z]/ ) {next}
+		  $seqstringlist[$i] = $mask[$i] ? uc $seqstringlist[$i]: lc $seqstringlist[$i] ;
+	      }
+	      my $newseqstring = join("", @seqstringlist);
+	      $seq->seq($newseqstring);
+	  }
 #  Now we need to write out the alignment to a file in the "psi format" which psiblast is expecting
-	$temp =  Bio::AlignIO->new(-fh=> $fh, '-format' => 'psi');
-	$temp->write_aln($input2);
-	close $fh;
-	last SWITCH2;
-    }
-    $infilename2 = 0;		# Set error flag if you get here
-}				# End SWITCH2
+	  $temp =  Bio::AlignIO->new(-fh=> $fh, '-format' => 'psi');
+	  $temp->write_aln($input2);
+	  close $fh;
+	  last SWITCH2;
+      }
+      $infilename2 = 0;		# Set error flag if you get here
+  }				# End SWITCH2
     return ($infilename1, $infilename2);
 }
 
