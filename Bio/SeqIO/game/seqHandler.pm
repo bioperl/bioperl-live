@@ -13,6 +13,7 @@ use XML::Handler::Subs;
 sub new {
     my ($class,$seq) = @_;
     my $self = bless ( {
+	string => '',
 	seq  => $seq,
     }, $class);
     return $self;
@@ -23,10 +24,11 @@ sub start_document            {
     my ($self, $document) = @_;
     
     $self->{Names} = [];
-
+    $self->{string} = '';
 }
 sub end_document              {
     my ($self, $document) = @_;
+    delete $self->{Names};
 
     return new Bio::PrimarySeq( -seq => $self->{residues},
 				-moltype => $self->{moltype},
@@ -36,14 +38,13 @@ sub end_document              {
 				-length => $self->{length}
 			      );
 
-    delete $self->{Names};
   }
 
 sub start_element             {
      my ($self, $element) = @_;
 
      push @{$self->{Names}}, $element->{Name};
-     $string = '';
+     $self->{string} = '';
 
      if ($element->{Name} eq 'bx-seq:seq') {
        if ($element->{Attributes}->{'bx-seq:id'} == $self->{seq}) {
@@ -67,28 +68,28 @@ sub end_element               {
     if ($self->{in_current_seq} eq 'true') {
       
       if ($self->in_element('bx-seq:residues')) {
-	while ($string =~ s/\s+//) {};
-	$self->{residues} = $string;
+	while ($self->{string} =~ s/\s+//) {};
+	$self->{residues} = $self->{string};
       }
       
       
       if ($self->in_element('bx-seq:name')) {
-	$string =~ s/^\s+//g;
-	$string =~ s/\s+$//;
-	$string =~ s/\n//g;
-	$self->{name} = $string;
+	$self->{string} =~ s/^\s+//g;
+	$self->{string} =~ s/\s+$//;
+	$self->{string} =~ s/\n//g;
+	$self->{name} = $self->{string};
       }
       
       
       if ($self->in_element('bx-link:id')  && $self->within_element('bx-link:dbxref')) {
-      	$string =~ s/^\s+//g;
-	$string =~ s/\s+$//;
-	$string =~ s/\n//g;
-	$self->{accession} = $string;
+      	$self->{string} =~ s/^\s+//g;
+	$self->{string} =~ s/\s+$//;
+	$self->{string} =~ s/\n//g;
+	$self->{accession} = $self->{string};
       }
 
       if ($self->in_element('bx-seq:description')) {
-	$self->{desc} = $string;
+	$self->{desc} = $self->{string};
       }
       
       if ($self->in_element('bx-seq:seq')) {
@@ -103,7 +104,7 @@ sub end_element               {
 sub characters   {
     my ($self, $text) = @_;
 
-    $string .= $text->{Data};
+    $self->{string} .= $text->{Data};
   }
 
 sub in_element {
