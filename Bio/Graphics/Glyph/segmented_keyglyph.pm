@@ -15,8 +15,8 @@ sub make_key_feature {
   my $offset = $self->panel->offset;
   my $feature =
     Bio::Graphics::Feature->new(
-				-segments=>[ [ 0*$scale +$offset,50*$scale+$offset],
-					     [60*$scale+$offset, 80*$scale+$offset]
+				-segments=>[ [ int( 0*$scale +$offset ), int( 50*$scale+$offset) ],
+					     [ int( 60*$scale+$offset ), int( 80*$scale+$offset) ]
 					   ],
 				-name => $self->option('key'),
 				-strand => '+1',

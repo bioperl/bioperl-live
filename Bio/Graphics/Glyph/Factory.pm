@@ -47,6 +47,7 @@ methods. Internal methods are usually preceded with an "_"
 (underscore).
 
 =cut
+#'
 
 package Bio::Graphics::Glyph::Factory;
 

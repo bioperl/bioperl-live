@@ -142,8 +142,8 @@ $v3 = $in_scf_v3->next_seq();
 # print("The full trace object is as follows:\n");
 my $sub_v3 = $v3->sub_trace_object(5,50);
 
-print("The subtrace object is this:\n");
-$dumper->dumpValue($sub_v3);
+#print("The subtrace object is this:\n");
+#$dumper->dumpValue($sub_v3);
 
 $out_scf->write_seq(
           -target   =>   $sub_v3

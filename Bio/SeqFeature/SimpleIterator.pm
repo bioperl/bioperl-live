@@ -9,8 +9,8 @@ Bio::SeqFeature::SimpleIterator - An iterator over Bio::SeqFeatureI objects.
 
 =head1 SYNOPSIS
 
-  my $iterator = $seq_feature_collection->iterator( @args );
-  while( $iterator->has_more_elements() ) {
+  my $iterator = $seq_feature_collection->features( '-iterator' => 1 );
+  while( $iterator->has_more_features() ) {
     my $seq_feature = $iterator->next_feature();
     # do something with the features...
   }
@@ -76,9 +76,9 @@ $VERSION = '0.01';
 =head2 new
 
  Title   : new
- Usage   : $iterator = new Bio::SeqFeature::SimpleIterator( $feature_list_ref )
+ Usage   : $iterator = Bio::SeqFeature::SimpleIterator->new( $feature_list_ref )
            OR
-           $iterator = new Bio::SeqFeature::SimpleIterator( @feature_list )
+           $iterator = Bio::SeqFeature::SimpleIterator->new( @feature_list )
  Function: Instantiates a new iterator over the given features
  Returns : a new Bio::SeqFeature::SimpleIterator
  Args    : A list (or list ref) of SeqFeatureI objects

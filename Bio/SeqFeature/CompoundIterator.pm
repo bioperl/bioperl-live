@@ -140,8 +140,10 @@ sub next_feature {
   my $next;
   while( defined( $current_iterator ) ) {
     if( $current_iterator == $self ) {
-      $next = $self->SUPER::next_feature();
-    } else {
+      if( $self->SUPER::has_more_features() ) {
+        $next = $self->SUPER::next_feature();
+      }
+    } elsif( $current_iterator->has_more_features() ) {
       $next = $current_iterator->next_feature();
     }
     if( defined( $next ) ) {

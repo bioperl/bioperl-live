@@ -7,7 +7,7 @@
 use strict;
 use ExtUtils::MakeMaker;
 use Bio::Root::IO;
-use constant TEST_COUNT => 116;
+use constant TEST_COUNT => 117;
 use constant FASTA_FILES => Bio::Root::IO->catfile('t','data','dbfa');
 use constant GFF_FILE    => Bio::Root::IO->catfile('t','data',
 						   'biodbgff','test.gff');
@@ -155,10 +155,11 @@ ok($segment5->strand,-1);
 # rel/rel addressing
 # first two positive strand features
 $segment4 = $db->segment('-name'=>'c128.1','-class'=>'Transposon');
-my $start4 = $segment4->abs_start;
+my $start4 = $segment4->abs_low;
 $segment5  = $db->segment('Transcript' => 'trans-1');
-my $start5 = $segment5->abs_start;
+my $start5 = $segment5->abs_low;
 $segment4->ref($segment5);
+
 ok($segment4->strand,1);
 ok($segment4->start,$start4-$start5+1);
 ok($segment4->stop,$start4-$start5+$segment4->length);
@@ -170,7 +171,7 @@ ok($segment5->start,$start5-$start4+1);
 
 # now a positive on a negative strand feature
 my $segment6 = $db->segment('Transcript'=>'trans-2');
-my $start6 = $segment6->abs_start;
+my $start6 = $segment6->abs_high;
 ok($segment6->strand,1);
 ok($segment6->abs_strand,-1);
 $segment6->ref($segment4);
@@ -178,9 +179,12 @@ ok($segment6->start,$start6-$start4+1);
 ok($segment6->strand,-1);
 
 $segment4->ref($segment6);
-ok($segment4->start,$start6-$start4+1);
+ok($segment4->high,$segment4->abs_high()+1-$segment6->abs_low());
 ok($segment4->strand,-1);
 ok($segment4->ref eq $segment6);
+unless($segment4->ref eq $segment6) {
+  warn "segment4's ref isn't segment6!  it is ".$segment4->ref()->toRelRangeString( 'both', 'plus' ).". segment4 is ".$segment4->toRelRangeString( 'both', 'plus' ).", segment6 is ".$segment6->toRelRangeString( 'both', 'plus' ).".";
+}
 
 # the reference sequence shouldn't affect the dna
 $segment6 = $db->segment('Transcript'=>'trans-2');
@@ -227,21 +231,14 @@ ok($features[0]->dna,$db->segment('Contig1',$features[0]->start,$features[0]->en
 # (This depends on the test.gff data)
 for (1..3,-3..-1) {
   $segment2 = $db->segment($features[$_],50,100);
-  if ($features[$_]->strand >= 0) {
+  if ($features[$_]->abs_strand() >= 0) {
     $tmp = $db->segment( 'Contig1',
-			 $features[$_]->start+50-1,
-			 $features[$_]->start+100-1 );
+			 $features[$_]->low()+50-1,
+			 $features[$_]->low()+100-1 );
   } else {
-    ## Paul added parens, because the range 50..100 of 31000..30001
-    ## should be 30951..30901, not 30949..30899.  (why would pos #1 be
-    ## the 3rd?)
-    ## This is what this used to be:
-    #$tmp = $db->segment( 'Contig1',
-	#		 $features[$_]->start-50-1,
-	#		 $features[$_]->start-100-1 );
     $tmp = $db->segment( 'Contig1',
-			 $features[$_]->start-(50-1),
-			 $features[$_]->start-(100-1) );
+			 $features[$_]->low()+100-1,
+			 $features[$_]->low()+50-1 );
   }
   ok($segment2->dna,$tmp->dna);
 }
@@ -284,22 +281,22 @@ my $abs_last = 0;
 foreach ( $features[ 1 ]->features( -type => 'exon', -sort => 1 ) ) {
   if( $_->start > $_->end ) {
     ## TODO: REMOVE
-    print STDERR "Inconsistency: $_ start > end\n";
+    print STDERR "Inconsistency A: $_ start > end\n";
     $inconsistency++;
   }
   if( $_->abs_start < $_->abs_end ) {
     ## TODO: REMOVE
-    print STDERR "Inconsistency: $_ abs_start < abs_end\n";
+    print STDERR "Inconsistency B: $_ abs_start < abs_end\n";
     $inconsistency++;
   }
   if( $last && $_->start < $last ) {
     ## TODO: REMOVE
-    print STDERR "Inconsistency: $_ start < $last\n";
+    print STDERR "Inconsistency C: $_ start < $last\n";
     $inconsistency++;
   }
   if( $abs_last && $_->abs_start > $abs_last ) {
     ## TODO: REMOVE
-    print STDERR "Inconsistency: $_ abs_start > $abs_last\n";
+    print STDERR "Inconsistency D: $_ abs_start > $abs_last\n";
     $inconsistency++;
   }
   $last = $_->start;
@@ -372,14 +369,19 @@ if (defined $tf->group_id) {
 
 $segment1 = $db->segment('-class' => 'Transcript',
 			 '-name'  => 'trans-4',
-			 '-start' => 1,
-			 '-stop'  => 6000);
+			 '-start' => -2000,
+			 '-stop'  => 4000);
 ok($segment1->strand,1);
-@overlap = sort {$a->start <=> $b->start} $segment1->features('transcript');
-ok($overlap[0]->name,'trans-4');
-ok($overlap[1]->name,'trans-3');
-ok($overlap[0]->strand,1);
-ok($overlap[1]->strand,-1);
+@overlap = sort {$a->low( 'stranded' ) <=> $b->low( 'stranded' )} $segment1->features('transcript');
+ok( scalar( @overlap ), 2, "Incorrect number of features returned by ".$segment1->toRelRangeString( 'both', 'plus' )."->features( 'transcript' )" );
+if( scalar( @overlap ) == 2 ) {
+  ok($overlap[0]->name,'trans-4');
+  ok($overlap[1]->name,'trans-3');
+  ok($overlap[0]->strand,1);
+  ok($overlap[1]->strand,-1);
+} else {
+  skip( "Skipping because test 102 failed", 4 );
+}
 
 @overlap = sort {$a->start <=> $b->start} $segment1->features('Component');
 ok($overlap[0]->strand,0);

@@ -664,6 +664,7 @@ sub features {
     my $super_iterator = $self->SUPER::features( %args );
     ## SimpleSegment_IteratorWrapper is defined in this file, below.
     return Bio::SeqFeature::SimpleSegment_IteratorWrapper->new(
+      $self,
       $baserange,
       $super_iterator
     );
@@ -1305,6 +1306,7 @@ use vars qw( @ISA );
 
  Title   : new
  Usage   : $iterator = Bio::SeqFeature::SimpleSegment_IteratorWrapper->new(
+                         $self, # The SimpleSegment creating this
                          $baserange,
                          $iterator_to_wrap
                        );
@@ -1320,8 +1322,9 @@ use vars qw( @ISA );
 sub new {
   my $class = shift;
   $class = ref( $class ) if ref( $class );
-  my ( $baserange, $iterator_to_wrap ) = @_;
+  my ( $simplesegment, $baserange, $iterator_to_wrap ) = @_;
   return bless {
+                 '_simplesegment' => $simplesegment,
 		 '_baserange'  => $baserange,
 		 '_peer'  => $iterator_to_wrap
 	       }, $class;
@@ -1342,7 +1345,7 @@ sub new {
 sub next_feature {
   my $self = shift;
 
-  return $self->_relativize_feature(
+  return $self->{ '_simplesegment' }->_relativize_feature(
     $self->{ '_baserange' },
     $self->{ '_peer' }->next_feature()
   );

@@ -301,6 +301,10 @@ sub aggregate {
   my $matchsub    = $self->match_sub($factory) or return;
   my $passthru    = $self->passthru_sub($factory);
 
+  ## TODO: ERE I AM.. Why isn't it aggregating?  See below..
+  ## TODO: REMOVE
+  warn "aggregating..";
+
   my (%aggregates,@result,$changed);
   for my $feature (@$features) {
     if ($feature->group && $matchsub->($feature)) {
@@ -315,6 +319,10 @@ sub aggregate {
         $changed = 1;
       }
     } else {
+      ## TODO: ERE I AM.  The matchsub is returning false for some reason..
+
+      ## TODO: REMOVE
+      warn "Not aggregating feature $feature because either \$feature->group is false (it is ".$feature->group().") or because \$matchsub->(\$feature) returns false (it returns ".$matchsub->($feature).").";
       push @result,$feature;
     }
   }
@@ -339,13 +347,13 @@ sub aggregate {
     );
     if( $aggregates{$aggregate}{subparts} ) {
       ## TODO: REMOVE
-      #warn "subparts are ( ".join( ', ', @{ $aggregates{$aggregate}{subparts}}  )." )";
+      warn "subparts are ( ".join( ', ', @{ $aggregates{$aggregate}{subparts}}  )." )";
       $base->add_features( @{$aggregates{$aggregate}{subparts}} );
       ## TODO: REMOVE
-      #warn "aggregate $aggregate: about to adjust_bounds of $base.\n";
+      warn "aggregate $aggregate: about to adjust_bounds of $base.\n";
       $base->adjust_bounds( 0 );
       ## TODO: REMOVE
-      #warn "aggregate $aggregate: now it is                 $base.\n";
+      warn "aggregate $aggregate: now it is                 $base.\n";
     }
     $base->compound(1);  # set the compound flag
     $changed = 1;

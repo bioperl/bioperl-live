@@ -490,6 +490,8 @@ sub features {
     my $compound_iterator = Bio::SeqFeature::CompoundIterator->new();
     $compound_iterator->add_next_iterator( $self->SUPER::features( @_ ) );
     foreach my $next_segment ( $self->get_next_segments() ) {
+      ## TODO: REMOVE
+      warn "CompoundSegment: next_segment is $next_segment, a ".ref( $next_segment )."\n";
       $compound_iterator->add_next_iterator( $next_segment->features( @_ ) );
     }
     return $compound_iterator;

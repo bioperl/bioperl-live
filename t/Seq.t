@@ -28,6 +28,7 @@ ok(1);
 my $seq = Bio::Seq->new(-seq=>'ACTGTGGCGTCAACT',
                         -desc=>'Sample Bio::Seq object',
 			-alphabet => 'dna' );
+
 ok $seq;
 
 my $trunc = $seq->trunc(1,4);

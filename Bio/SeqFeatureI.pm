@@ -1581,7 +1581,7 @@ sub equals {
  Title   : toString
  Usage   : $str_val = $feature->toString()
  Function: returns $self->unique_id() || $self->display_name() ||
-           $overload->StrVal( $self )
+           overload::StrVal( $self )
  Returns : a String
  Args    : None
  Status  : Public

@@ -1,4 +1,4 @@
-# $Id $
+# $Id$
 
 =head1 NAME
 
@@ -6,8 +6,8 @@ Bio::SeqFeature::IteratorI - An iterator over Bio::SeqFeatureI objects.
 
 =head1 SYNOPSIS
 
-  my $iterator = $seq_feature_collection->iterator( @args );
-  while( $iterator->has_more_elements() ) {
+  my $iterator = $seq_feature_collection->features( '-iterator' => 1 );
+  while( $iterator->has_more_features() ) {
     my $seq_feature = $iterator->next_feature();
     # do something with the features...
   }
@@ -69,6 +69,7 @@ use strict;
 use vars qw( $VERSION @ISA );
 
 $VERSION = '0.01';
+use Bio::Root::RootI;
 @ISA = qw( Bio::Root::RootI );
 
 =head2 next_feature

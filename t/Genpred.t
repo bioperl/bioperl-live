@@ -45,17 +45,17 @@ while(my $gene = $genscan->next_prediction()) {
     $pred_num++;
 
     if($pred_num == 1) {
-	$fea = ($gene->exons())[0];
-	ok $fea->strand(), -1, 
-	     "strand mismatch (".$fea->strand()." instead of -1)";
+	$fea = ($gene->exons_ordered())[0];
+	ok $fea->abs_strand(), -1, 
+	     "strand mismatch (".$fea->abs_strand()." instead of -1)";
 	$fea = ($gene->poly_A_site());
 	ok $fea->score(), 1.05, 
              "score mismatch (".$fea->score()." instead of 1.05)";
     }
     if($pred_num == 2) {
-	$fea = ($gene->exons("Initial"))[0];
-	ok $fea->strand(), 1, 
-	"strand mismatch (".$fea->strand()." instead of 1)";
+	$fea = ($gene->exons_ordered("Initial"))[0];
+	ok $fea->abs_strand(), 1, 
+	"strand mismatch (".$fea->abs_strand()." instead of 1)";
 	ok $fea->score(), 4.46, 
              "score mismatch (".$fea->score()." instead of 4.46)";
     }
@@ -63,7 +63,7 @@ while(my $gene = $genscan->next_prediction()) {
 	my @exons = $gene->exons("Initial");
 	ok scalar(@exons), 0, 
 	     "initial exons (".scalar(@exons)." instead of 0)";
-	$fea = ($gene->exons())[0];
+	$fea = ($gene->exons_ordered())[-1];
 	ok $fea->score(),  1.74, 
              "score mismatch (".$fea->score()." instead of 1.74)";
     }
@@ -74,7 +74,7 @@ while(my $gene = $genscan->next_prediction()) {
 	$tr_cds = $cds->translate()->seq();
 	$tr_cds =~ s/\*$//;
 	ok( lc($prtseq), lc($tr_cds),
-	    "predicted and extracted protein seqs don't match");
+	    "predicted and extracted protein seqs don't match for prediction $pred_num, gene $gene (RelRangeString is ".$gene->toRelRangeString( 'both', 'plus' ).".");
     }
 }
 
@@ -105,14 +105,14 @@ my $i = 0;
 my @num_exons = (1,5,2,1,9,5,3,2,3,2,1,2,7);
 while($gmgene = $genemark->next_prediction()) {
     $i++;
-    my @gmexons = $gmgene->exons();
+    my @gmexons = $gmgene->exons_ordered();
     ok scalar(@gmexons), $num_exons[$i];
 
     if($i == 5) {
-	my $gmstart = $gmexons[0]->start();
+	my $gmstart = $gmexons[-1]->abs_start( 'plus' );
 	ok $gmstart, 23000;
 
-	my $gmend = $gmexons[0]->end();
+	my $gmend = $gmexons[-1]->abs_end( 'plus' );
 	ok $gmend, 23061;
     }
 }
