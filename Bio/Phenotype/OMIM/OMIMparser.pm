@@ -59,14 +59,21 @@ OMIMparser - parser for the OMIM database
     my $comm  = $omim_entry->comment();                        # from genemap
 
     my $mini_mim   = $omim_entry->miniMIM();                   # *FIELD* MN
-      # Array of Bio::Phenotype::OMIM::MiniMIMentry objects.
+      # A Bio::Phenotype::OMIM::MiniMIMentry object.
       # class Bio::Phenotype::OMIM::MiniMIMentry
       # provides the following:
       # - description()
       # - created()
       # - contributors()
       # - edited() 
-
+      #
+    # Prints the contents of the MINI MIM entry (most OMIM entries do
+    # not have MINI MIM entries, though).
+    print $mini_mim->description()."\n";
+    print $mini_mim->created()."\n";
+    print $mini_mim->contributors()."\n";
+    print $mini_mim->edited()."\n";
+    
     my @corrs      = $omim_entry->each_Correlate();            # from genemap
       # Array of Bio::Phenotype::Correlate objects.
       # class Bio::Phenotype::Correlate
@@ -240,7 +247,7 @@ sub new {
 
 =cut
 
-sub next_phenotype  {
+sub next_phenotype {
     my ( $self ) = @_;
     
     unless( defined( $self->_OMIM_text_file() ) ) {
