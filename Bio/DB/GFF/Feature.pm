@@ -706,7 +706,7 @@ sub merged_segments {
     my ($pscore,$score) = (eval{$previous->score}||0,eval{$s->score}||0);
     if (defined($previous)
 	&& $previous->stop+1 >= $s->start
-	&& $previous->score  == $s->score
+	&& (!defined($s->score) || $previous->score  == $s->score)
 	&& $previous->method eq $s->method
        ) {
       if ($self->absolute && $self->strand < 0) {
