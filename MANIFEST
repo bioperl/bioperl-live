@@ -1,4 +1,4 @@
-## $Id: MANIFEST,v 1.44 2001-08-10 14:42:31 jason Exp $
+## $Id: MANIFEST,v 1.45 2001-08-10 14:43:17 jason Exp $
 ##
 ## This is the file listing for everything that
 ## comes with the bioperl distribution. The perl
@@ -179,7 +179,6 @@ Bio/Tools/Blast/HSP.pm
 Bio/Tools/Blast/HTML.pm
 Bio/Tools/Blast/README
 Bio/Tools/Blast/Run/LocalBlast.pm
-Bio/Tools/Blast/Run/Makefile.PL
 Bio/Tools/Blast/Run/Webblast.pm
 Bio/Tools/Blast/Run/postclient.pl
 Bio/Tools/Blast/Sbjct.pm
