@@ -741,6 +741,14 @@ sub _add {
     if(! $fea->isa($type) ) {
 	$fea=$self->_new_of_type($fea,$type);
     }
+    if (! $self->strand) {
+	$self->strand($fea->strand);
+    } else {
+	if ($self->strand * $fea->strand == -1) {
+	    $self->throw("$fea is on opposite strand from $self");
+	}
+    }
+
     $self->_expand_region($fea);
     if(defined($self->entire_seq()) && (! defined($fea->entire_seq())) &&
        $fea->can('attach_seq')) {
