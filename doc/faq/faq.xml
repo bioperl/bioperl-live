@@ -208,14 +208,14 @@ The same issue arises when you use Bio::DB::Fasta, but in that case the code mig
       <q id="1">
          <question>I want to parse BLAST, how do I do this?</question>
          <answer>
-            <p>Well you might notice that there are a lot of choices.  Sorry about that.  We've been evolving towards a single solution.</p>
-            <p>Currently the best way to parse a report is to use the SearchIO system.  This supports blast and fasta report parsing.  The bptutorial provides an example of how to use this system as well as the documentation in the Bio::SearchIO system. There is also a <a href="http://www.bioperl.org/HOWTOs/html/SearchIO.html">SearchIO HOWTO</a>.</p>
+            <p>Bioperl only supports one approach, Bio::SearchIO, as of verion 1.1. There are other Blast parsing modules in the package but they remain just to support older code.</p>
+            <p>SearchIO supports BLAST and fasta report parsing.  The bptutorial provides an example of how to use this system as well as the documentation in the Bio::SearchIO system. There is also a <a href="http://www.bioperl.org/HOWTOs/html/SearchIO.html">SearchIO HOWTO</a>.</p>
          </answer>
       </q>
       <q id="2">
-         <question>What's wrong with Bio::Tools::Blast?</question>
+         <question>What was wrong with Bio::Tools::Blast?</question>
          <answer>
-            <p>Nothing is really wrong with it, it has just been outgrown by a more generic approach to reports.  This generic approach allows us to just write pluggable modules for fasta and Blast parsing while using the same framework.  This is completely analogous to the Bio::SeqIO system of parsing sequence files.  However, the objects produced are of the Bio::Search rather than Bio::Seq variety.</p>
+            <p>Bio::Tools::Blast* is no longer supported, as of Bioperl version 1.1. Nothing is really wrong with it, it has just been outgrown by a more generic approach to reports.  This generic approach allows us to just write pluggable modules for fasta and Blast parsing while using the same framework.  This is completely analogous to the Bio::SeqIO system of parsing sequence files.  However, the objects produced are of the Bio::Search rather than Bio::Seq variety.</p>
          </answer>
       </q>
       <q id="3">
@@ -233,7 +233,7 @@ The same issue arises when you use Bio::DB::Fasta, but in that case the code mig
          </answer>
       </q>
       <q id="5">
-         <question>I'm using BPLite.pm and its frame() to parse Blast but I'm seeing 0, 1, or 2 instead of the expected -3, -2, -1, +1, +2, +3. Why am I seeing these different numbers and how do I get the frame according to Blast?
+         <question>I'm using Bio::Search* and its frame() to parse Blast but I'm seeing 0, 1, or 2 instead of the expected -3, -2, -1, +1, +2, +3. Why am I seeing these different numbers and how do I get the frame according to Blast?
 </question>
          <answer>
             <p>These are GFF frames - so +1 is 0 in GFF, -3 will be encoded with a frame of 2 with the strand being set to -1 (for more on GFF see <a href="http://www.sanger.ac.uk/Software/formats/GFF/GFF_Spec.shtml">http://www.sanger.ac.uk/Software/formats/GFF/GFF_Spec.shtml</a>).

@@ -1,7 +1,7 @@
 
 Bioperl FAQ
 -----------
-v. 1.2.1
+v. 1.2.2
 
 This FAQ maintained by:
 * Jason Stajich <jason@bioperl.org>
@@ -53,13 +53,13 @@ Contents
 3. Report parsing
 
    Q3.1: I want to parse BLAST, how do I do this?
-   Q3.2: What's wrong with Bio::Tools::Blast?
+   Q3.2: What was wrong with Bio::Tools::Blast?
    Q3.3: I want to parse FastA or NCBI -m7 (XML) format, how do I do this?
    Q3.4: Let's say I want to do pairwise alignments of 2 sequences. How can
 	 I do this?
-   Q3.5: I'm using BPLite.pm and its frame() to parse Blast but I'm seeing
-	 0, 1, or 2 instead of the expected -3, -2, -1, +1, +2, +3. Why am
-	 I seeing these different numbers and how do I get the frame
+   Q3.5: I'm using Bio::Search* and its frame() to parse Blast but I'm
+	 seeing 0, 1, or 2 instead of the expected -3, -2, -1, +1, +2, +3.
+	 Why am I seeing these different numbers and how do I get the frame
 	 according to Blast?
    Q3.6: How do I tell BLAST to search multiple database using
 	 Bio::Tools::Run::StandAloneBlast?
@@ -81,10 +81,13 @@ Contents
    Q5.2: How do I retrieve all the features from a Sequence?  How about all
 	 the features which are exons or have a /note field that contains a
 	 certain gene name?
-   Q5.3: How do I parse the CDS join() statements in Genbank or EMBL files
-	 so I can reconstruct the CDS sequence?
+   Q5.3: How do I parse the CDS join() or complement() statements in
+	 Genbank or EMBL files to get the sub-locations, like the
+	 coordinates "45" and "122" in "join(45..122,233..267)"?
    Q5.4: How do I retrieve a nucleotide coding sequence when I have a
 	 protein gi number?
+   Q5.5: How do I get the complete spliced nucleotide sequence from the CDS
+	 section?
 
 6. Running external programs
 
@@ -415,24 +418,26 @@ Contents
 
    Q3.1: I want to parse BLAST, how do I do this?
 
-      A: Well you might notice that there are a lot of choices.  Sorry
-	 about that.  We've been evolving towards a single solution.
+      A: Bioperl only supports one approach, Bio::SearchIO, as of verion
+	 1.1. There are other Blast parsing modules in the package but they
+	 remain just to support older code.
 
-	 Currently the best way to parse a report is to use the SearchIO
-	 system.  This supports blast and fasta report parsing.  The
-	 bptutorial provides an example of how to use this system as well
-	 as the documentation in the Bio::SearchIO system. There is also a
+	 SearchIO supports BLAST and fasta report parsing.  The bptutorial
+	 provides an example of how to use this system as well as the
+	 documentation in the Bio::SearchIO system. There is also a
 	 SearchIO HOWTO.
 
 
-   Q3.2: What's wrong with Bio::Tools::Blast?
+   Q3.2: What was wrong with Bio::Tools::Blast?
 
-      A: Nothing is really wrong with it, it has just been outgrown by a
-	 more generic approach to reports.  This generic approach allows us
-	 to just write pluggable modules for fasta and Blast parsing while
-	 using the same framework.  This is completely analogous to the
-	 Bio::SeqIO system of parsing sequence files.  However, the objects
-	 produced are of the Bio::Search rather than Bio::Seq variety.
+      A: Bio::Tools::Blast* is no longer supported, as of Bioperl version
+	 1.1. Nothing is really wrong with it, it has just been outgrown by
+	 a more generic approach to reports.  This generic approach allows
+	 us to just write pluggable modules for fasta and Blast parsing
+	 while using the same framework.  This is completely analogous to
+	 the Bio::SeqIO system of parsing sequence files.  However, the
+	 objects produced are of the Bio::Search rather than Bio::Seq
+	 variety.
 
 
    Q3.3: I want to parse FastA or NCBI -m7 (XML) format, how do I do this?
@@ -458,9 +463,9 @@ Contents
 	 else wants to provide an Inline::C implementation.
 
 
-   Q3.5: I'm using BPLite.pm and its frame() to parse Blast but I'm seeing
-	 0, 1, or 2 instead of the expected -3, -2, -1, +1, +2, +3. Why am
-	 I seeing these different numbers and how do I get the frame
+   Q3.5: I'm using Bio::Search* and its frame() to parse Blast but I'm
+	 seeing 0, 1, or 2 instead of the expected -3, -2, -1, +1, +2, +3.
+	 Why am I seeing these different numbers and how do I get the frame
 	 according to Blast?
 
       A: These are GFF frames - so +1 is 0 in GFF, -3 will be encoded with
@@ -614,24 +619,28 @@ Contents
 				  }  $seq->all_SeqFeatures(); 
 
 
-   Q5.3: How do I parse the CDS join() statements in Genbank or EMBL files
-	 so I can reconstruct the CDS sequence?
+   Q5.3: How do I parse the CDS join() or complement() statements in
+	 Genbank or EMBL files to get the sub-locations, like the
+	 coordinates "45" and "122" in "join(45..122,233..267)"?
 
-      A: You need to use a Location::SplitLocationI object to get the
-	 coordinates and primary_tag() to find the CDS features:
+      A: You could use primary_tag() to find the CDS features and the
+	 Location::SplitLocationI object to get the coordinates:
 
-	 if ( $feature->location->isa('Bio::Location::SplitLocationI') 
+	 
+	 foreach my $feature ($seqobj->top_SeqFeatures){
+	   if ( $feature->location->isa('Bio::Location::SplitLocationI') 
 			  && $feature->primary_tag eq 'CDS' )  {
-	   foreach $location ( $feature->location->sub_Location ) {
-	     print $location->start . ".." . $location->end . "\n";
+	     foreach my $location ( $feature->location->sub_Location ) {
+	       print $location->start . ".." . $location->end . "\n";
+	     }
 	   }
-	 }
+	 }  
 
 
    Q5.4: How do I retrieve a nucleotide coding sequence when I have a
 	 protein gi number?
 
-      A: You will go through the protein's feature table and find the
+      A: You could go through the protein's feature table and find the
 	 'coded_by' value. The trick is to associate the coded_by
 	 nucleotide coordinates to the nucleotide entry, which you'll
 	 retrieve using the accession number from the same feature.
@@ -658,6 +667,21 @@ Contents
 	 object
 	       $nuc_obj->add_SeqFeature($feat_obj);
 	       my $cds_obj = $feat_obj->spliced_seq;
+	       print "CDS sequence is ",$cds_obj->seq,"\n";
+	    }
+	 }
+
+
+   Q5.5: How do I get the complete spliced nucleotide sequence from the CDS
+	 section?
+
+      A: You can use the spliced_seq() method. For example:
+
+	 
+	 my $seq_obj = $db->get_Seq_by_id($gi);
+	 foreach my $feat ( $seq_obj->top_SeqFeatures ) {
+	    if ( $feat->primary_tag eq 'CDS' ) {
+	       my $cds_obj = $feat->spliced_seq;
 	       print "CDS sequence is ",$cds_obj->seq,"\n";
 	    }
 	 }
