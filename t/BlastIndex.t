@@ -37,7 +37,7 @@ require Bio::Tools::BPlite;
 require Bio::Index::Blast;
 require Bio::Root::IO;
 
-
+use Cwd;
 END {  unlink qw( Wibbl ); }
 
 ok(1);
@@ -45,7 +45,8 @@ ok(1);
 my $index = new Bio::Index::Blast(-filename => 'Wibbl',
 				  -write_flag => 1);
 ok($index);
-$index->make_index(Bio::Root::IO->catfile("t","data","multi_blast.bls"));
+
+$index->make_index(Bio::Root::IO->catfile(cwd,"t","data","multi_blast.bls"));
 ok(-e "Wibbl");
 
 foreach my $id ( qw(CATH_RAT PAPA_CARPA) ) {
