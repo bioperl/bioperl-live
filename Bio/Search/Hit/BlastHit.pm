@@ -1514,7 +1514,14 @@ sub frac_identical {
 
     Bio::Search::BlastUtils::tile_hsps($self) if not $self->{'_tile_hsps'};
 
-    sprintf( "%.2f", $self->{'_totalIdentical'}/$self->{'_length_aln_'.$seqType});
+    my $ident = $self->{'_totalIdentical'};
+    my $total = $self->{'_length_aln_'.$seqType};
+    my $ratio = $ident / $total;
+    my $ratio_rounded = sprintf( "%.3f", $ratio);
+
+    # Round down iff normal rounding yields 1 (just like blast)
+    $ratio_rounded = 0.999 if (($ratio_rounded == 1) && ($ratio < 1));
+    return $ratio_rounded;
 }
 
 
@@ -1568,7 +1575,14 @@ sub frac_conserved {
 
     Bio::Search::BlastUtils::tile_hsps($self) if not $self->{'_tile_hsps'};
 
-    sprintf( "%.2f", $self->{'_totalConserved'}/$self->{'_length_aln_'.$seqType});
+    my $consv = $self->{'_totalConserved'};
+    my $total = $self->{'_length_aln_'.$seqType};
+    my $ratio = $consv / $total;
+    my $ratio_rounded = sprintf( "%.3f", $ratio);
+
+    # Round down iff normal rounding yields 1 (just like blast)
+    $ratio_rounded = 0.999 if (($ratio_rounded == 1) && ($ratio < 1));
+    return $ratio_rounded;
 }
 
 
