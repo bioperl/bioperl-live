@@ -322,7 +322,7 @@ sub column_from_residue_number {
 
            An exact position returns a Bio::Location::Simple
            object, a position between bases returns a
-           Bio::Location::Fuzzy object where loc_type() returns
+           Bio::Location::Fuzzy object where location_type() returns
            'BETWEEN'. Column before the first residue returns
            undef. Note that if the position is after the last residue
            in the alignment, that there is no guarantee that the
@@ -362,12 +362,13 @@ sub location_from_column {
 	     );
     }
     elsif ($pos == 0 and $self->start == 1) {
+	
     } else {
 	$loc = new Bio::Location::Fuzzy 
 	    (-start => $pos + $self->start - 1,
 	     -end => $pos +1 + $self->start - 1,
 	     -strand => 1,
-	     -loc_type => '^'
+	     -location_type => '^'
 	     );
     }
     return $loc;
