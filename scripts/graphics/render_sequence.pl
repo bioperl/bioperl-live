@@ -4,6 +4,7 @@ use strict;
 use lib '.','../blib/lib';
 use Bio::DB::BioFetch;
 use Bio::Graphics;
+use Bio::SeqFeature::Generic;
 
 my $accession = shift;
 if (!defined $accession || $accession =~ /^-/) { die <<END; }
@@ -51,15 +52,15 @@ my @gene     = grep {$_->primary_tag eq 'gene'} @features;
 my @tRNAs    = grep {$_->primary_tag eq 'tRNA'} @features;
 
 warn "rendering...\n";
-$start = $seq->start unless defined $start;
-$stop  = $seq->end   unless defined $stop;
+$start = 1              unless defined $start;
+$stop  = $seq->length   unless defined $stop;
 
 my $panel = Bio::Graphics::Panel->new(
 				      -offset  => $start,
 				      -length  => $stop - $start + 1,
 				      -width   => 1000,
 				      );
-$panel->add_track(arrow => $seq,
+$panel->add_track(arrow => Bio::SeqFeature::Generic->new(-start=>$start,-end=>$seq->length),
 		  -bump => 0,
 		  -double=>1,
 		  -tick => 2);
