@@ -174,7 +174,7 @@ sub next_seq {
 	       $alphabet='dna';
 	   }
 	   elsif ($mol =~ /RNA/) {
-	       $alphabet='dna';
+	       $alphabet='rna';
 	   }
 	   elsif ($mol =~ /AA/) {
 	       $alphabet='protein';
@@ -212,7 +212,7 @@ sub next_seq {
        if( /^SV\s+\S+\.(\d+);?/ ) {
 	   my $sv = $1;
 	   $sv =~ s/\;//;
-	   $params{'-sequence_version'} = $sv;
+	   $params{'-seq_version'} = $sv;
        }
 
        #date (NOTE: takes last date line)
@@ -326,12 +326,14 @@ sub next_seq {
        (-verbose => $self->verbose(),
 	-division => $div,
 	-seq => $seqc,
+	-desc => $desc,
 	-display_id => $name,
 	-annotation => $annotation,
 	-molecule => $mol,
 	-alphabet => $alphabet,
 	-features => \@features,
 	%params);
+
    return $seq;
 }
 
