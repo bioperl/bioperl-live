@@ -3449,6 +3449,29 @@ sub parse_unknown {
       #               lookahead)
     $self->parse_fasta($ent);
   }
+  elsif ( $READSEQ_EXISTS ) {
+      # ok. use readseq... and hope it works!
+      my $fastaf = &Bio::Parse::convert(
+					-sequence => $ent,
+					-fmt => 'Fasta',
+					);
+
+      # FIXME:
+      # hack. I don't understand how to match to '\n' in the second regex
+      # (doesn't work for me!). EB. 
+
+      # substitute &&& for \n and then regex it out.
+      $fastaf =~ s/\n/&&&/g;
+      if( $fastaf =~ /^>(\S+).*?&&&(.*)$/ ) {
+	  $self->id($1);
+	  my $ss = $2;
+	  $ss =~ s/[^A-Za-z]//g;
+	  $self->setseq($ss);
+      } else {
+	  $self->throw("Despite having Readseq, cannot convert sequence. apologies!");
+      }
+  }
+
   elsif ($ent =~ /.*/mg) {
       # currently in raw format, everything is accepted...
     $self->parse_raw($ent);
