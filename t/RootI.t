@@ -22,7 +22,6 @@ BEGIN {
 use Bio::Root::Root;
 
 my $obj = new Bio::Root::Root();
-
 ok defined($obj) && $obj->isa('Bio::Root::RootI');
 
 eval { $obj->throw('Testing throw') };
@@ -74,6 +73,10 @@ ok scalar @stack, 2;
 my $verbobj = new Bio::Root::Root(-verbose=>1,-strict=>1);
 ok $verbobj->verbose(), 1;
 
+$Bio::Root::Root::DEBUG = 1;
+require Bio::SeqIO;
+my $seqio = new Bio::SeqIO;
+ok($seqio->verbose, 1);
 1;
 
 
