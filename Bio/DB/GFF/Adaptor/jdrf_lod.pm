@@ -457,7 +457,7 @@ sub _do_callback {
     ## Tags and their values
     'fuzzy' => $markers->{ $mrk_name }{ 'fuzzy' },
     'link'  => "http://jdrfdev.systemsbiology.net/cgi-bin/jdrf_publication.cgi?str_id=$str_id",
-    'description'  => ( $mrk_name.': '.$markers->{ $mrk_name }{ 'score' } )
+    'description'  => ( $mrk_name.': '.$markers->{ $mrk_name }{ 'lod' } )
   );
 } # _do_callback(..)
 
