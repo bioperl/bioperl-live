@@ -121,10 +121,10 @@ sub new {
     return $self;
 }
 
-sub DESTROY {
-    my $self = shift;
-    #print STDERR "->DESTROYING $self\n";
-}
+#sub DESTROY {
+#    my $self = shift;
+#    print STDERR "->DESTROYING $self\n";
+#}
 
 
 #=================================================
@@ -323,6 +323,16 @@ sub next_feature{
    return $hsp || undef;
 }
 
+
+sub algorithm { shift->analysis_method( @_ ); }
+sub algorithm_version { shift->analysis_method_version( @_ ); }
+
+# No-ops for now...
+sub available_parameters{ return ''; }
+sub get_parameter{ return ''; }
+sub available_statistics{ return ''; }
+sub get_statistic{ return ''; }
+
 #=================================================
 # End Bio::Search::Result::ResultI implementation
 #=================================================
@@ -360,6 +370,28 @@ sub database_name {
       $dbname = $self->analysis_subject->name;
     } 
     return $dbname;
+}
+
+#---------------
+sub database_entries {
+#---------------
+    my $self = shift;
+    my $dbentries = '';
+    if( ref $self->analysis_subject) {
+      $dbentries = $self->analysis_subject->entries;
+    } 
+    return $dbentries;
+}
+
+#---------------
+sub database_letters {
+#---------------
+    my $self = shift;
+    my $dbletters = '';
+    if( ref $self->analysis_subject) {
+      $dbletters = $self->analysis_subject->letters;
+    } 
+    return $dbletters;
 }
 
 #---------------
@@ -484,6 +516,7 @@ sub raw_statistics {
 
     @{$self->{'_raw_statistics'}};
 }
+
 
 
 =head2 no_hits_found
