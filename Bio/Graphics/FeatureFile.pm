@@ -377,7 +377,7 @@ sub parse_text {
   my $text = shift;
 
   $self->init_parse;
-  foreach (split /\r?\n|\r\n?/,$text) {
+  foreach (split /\015?\012|\015\012?/,$text) {
     $self->parse_line($_);
   }
   $self->finish_parse;
@@ -387,7 +387,7 @@ sub parse_line {
   my $self = shift;
   local $_ = shift;
 
-  s/\r//g;  # get rid of carriage returns left over by MS-DOS/Windows systems
+  s/\015//g;  # get rid of carriage returns left over by MS-DOS/Windows systems
 
   return if /^\s*[\#]/;
 
@@ -704,15 +704,15 @@ sub code_setting {
   return $setting if ref($setting) eq 'CODE';
   if ($setting =~ /^\\&(\w+)/) {  # coderef in string form
     my $subroutine_name = $1;
-    my $package = $self->base2package;
-    my $codestring = "\\&${package}\:\:${subroutine_name}";
-    my $coderef    = eval $codestring;
+    my $package         = $self->base2package;
+    my $codestring      = "\\&${package}\:\:${subroutine_name}";
+    my $coderef         = eval $codestring;
     warn $@ if $@;
     $self->set($section,$option,$coderef);
     return $coderef;
   }
   elsif ($setting =~ /^sub\s*\{/) {
-    my $coderef = eval $setting;
+    my $coderef   = eval $setting;
     warn $@ if $@;
     $self->set($section,$option,$coderef);
     return $coderef;
@@ -1104,10 +1104,11 @@ sub link_pattern {
   my $self = shift;
   my ($pattern,$feature,$panel) = @_;
   require CGI unless defined &CGI::escape;
+  my $n;
   $pattern =~ s/\$(\w+)/
     CGI::escape(
-    $1 eq 'ref'           ? $feature->location->seq_id
-      : $1 eq 'name'      ? $feature->display_name
+    $1 eq 'ref'           ? ($n = $feature->location->seq_id) && "$n"
+      : $1 eq 'name'      ? ($n = $feature->display_name) && "$n"  # workaround broken CGI.pm
       : $1 eq 'class'     ? eval {$feature->class}  || ''
       : $1 eq 'type'      ? eval {$feature->method} || $feature->primary_tag
       : $1 eq 'method'    ? eval {$feature->method} || $feature->primary_tag
