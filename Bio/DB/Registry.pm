@@ -82,9 +82,9 @@ BEGIN {
 }
 
 my %implement = ('biocorba'         => 'Bio::CorbaClient::SeqDB',
-					  'flat'             => 'Bio::DB::Flat',
-					  'biosql'           => 'Bio::DB::BioSQL::BioDatabaseAdaptor',
-					  'biofetch'         => 'Bio::DB::BioFetch' );
+		 'flat'             => 'Bio::DB::Flat',
+		 'biosql'           => 'Bio::DB::BioSQL::BioDatabaseAdaptor',
+		 'biofetch'         => 'Bio::DB::BioFetch' );
 
 my $fallbackRegistryURL = 'http://www.open-bio.org/registry/seqdatabase.ini';
 
@@ -180,12 +180,12 @@ sub _load_registry {
 			$self->verbose && $self->warn("Couldn't load $class");
 			next;
       } else {
-			eval {
-				my $randi = $class->new_from_registry( %{$hash->{$db}} );
-				$self->{'_dbs'}->{$db}->add_database($randi); };
-			if ($@) {
-				$self->warn("Couldn't call new_from_registry on [$class]\n$@");
-			}
+	  eval {
+	      my $randi = $class->new_from_registry( %{$hash->{$db}} );
+	      $self->{'_dbs'}->{$db}->add_database($randi); };
+	  if ($@) {
+	      $self->warn("Couldn't call new_from_registry on [$class]\n$@");
+	  }
       }
    }
 }
