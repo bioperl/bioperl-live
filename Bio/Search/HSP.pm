@@ -135,7 +135,6 @@ sub new {
 
     $reporttype = 'SEARCHREPORT' unless $reporttype;
     $self->{'_reporttype'} = $reporttype;
-    
     # Determine strand meanings
     my ($queryfactor, $sbjctfactor) = (1,0); # default
     if ($reporttype eq 'BLASTP' || $reporttype eq 'TBLASTN' ) {
@@ -404,11 +403,12 @@ sub hsp_length{
  Function: Set the Frame for both query and subject and insure that
            they agree.
            This overrides the frame() method implementation in 
-           FeaturePair.
+           FeaturePair.    
  Returns : array of query and subjects if return type wants an array
            or query frame if defined or subject frame
  Args    : none
-
+ Note    : Frames are stored in the GFF way (0-2 +/-) not 1-3 
+           as they are in BLAST
 =cut
 
 
@@ -421,12 +421,12 @@ sub frame {
 	    $self->warn("Specifying an invalid query frame ($qframe)");
 	    $qframe = undef;
 	} else { 
-	    print "qframe is $qframe\n";
 	    if( ($1 eq '-' && $self->query->strand >= 0) || 
 		($1 eq '+' && $self->query->strand <= 0) ) {
 		$self->warn("Query frame ($qframe) did not match strand of query (". $self->query->strand() . ")");
 	    }
-	    # Set frame to GFF [0-2]
+	    # Set frame to GFF [0-2] - 
+	    # what if someone tries to put in a GFF frame!
 	    $qframe = $2 - 1;
 	}
 	$self->query->frame($qframe);
@@ -453,17 +453,17 @@ sub frame {
     if (wantarray() && 
 	$self->report_type eq 'TBLASTX') 
     { 
-	return ($self->query->frame, $self->subject->frame); 
+	return ($self->query->frame(), $self->subject->frame()); 
     } elsif (wantarray())  { 
-	($self->query->frame && 
-	 return ($self->query->frame, undef)) || 
-	     ($self->subject->frame && 
-	      return (undef, $self->subject->frame)); 
+	($self->query->frame() && 
+	 return ($self->query->frame(), undef)) || 
+	     ($self->subject->frame() && 
+	      return (undef, $self->subject->frame())); 
     } else { 
-	($self->query->frame && 
-	 return $self->query->frame) || 
-	($self->subject->frame && 
-	 return $self->subject->frame); 
+	($self->query->frame() && 
+	 return $self->query->frame()) || 
+	($self->subject->frame() && 
+	 return $self->subject->frame()); 
     }
 }
 

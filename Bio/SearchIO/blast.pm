@@ -169,7 +169,7 @@ sub next_report{
    
    my $data = '';
    my $seentop = 0;
-
+   my $reporttype;
    $self->start_document();
    while( defined ($_ = $self->_readline )) {
        next if( /^\s+$/); # skip empty lines
@@ -181,8 +181,9 @@ sub next_report{
 	   }
 	   $self->start_element({ 'Name' => 'BlastOutput' } );
 	   $seentop = 1;
+	   $reporttype = $1;
 	   $self->element({ 'Name' => 'BlastOutput_program',
-			    'Data' => $1});
+			    'Data' => $reporttype});
 	   
 	   $self->element({ 'Name' => 'BlastOutput_version',
 			    'Data' => $2});
@@ -273,7 +274,23 @@ sub next_report{
 	   }
 	   $self->{'_Query'} = {'begin' => 0, 'end' => 0};
 	   $self->{'_Sbjct'} = { 'begin' => 0, 'end' => 0};
+       } elsif( $self->in_element('hsp') &&
+		/Frame = ([\+\-][1-3])\s*(\/\s*([\+\-][1-3]))/ ){
 	   
+	   my ($queryframe,$hitframe);
+	   if( $reporttype eq 'TBLASTX' ) {
+	       ($queryframe,$hitframe) = ($1,$2);
+	       $hitframe =~ s/\/\s*//g;
+	   } elsif( $reporttype eq 'TBLASTN' ) {
+	       ($hitframe,$queryframe) = ($1,0);
+	   } else { 
+	       ($queryframe,$hitframe) = ($1,0);
+	   }
+	   $self->element({'Name' => 'Hsp_query-frame',
+			   'Data' => $queryframe});
+	   	   
+	   $self->element({'Name' => 'Hsp_hit-frame',
+			   'Data' => $hitframe});
        } elsif(  /^Parameters:/ || /\s+Database:/ ) {
 	   $self->end_element({'Name' => 'Hsp'});
 	   $self->end_element({'Name' => 'Hit'});
@@ -316,7 +333,7 @@ sub next_report{
 		   if( /^Matrix:\s+(\S+)/ ) {
 		       $self->element({'Name' => 'Parameters_matrix',
 				       'Data' => $1});		       
-		   } elsif( $last =~ /Gapped/ && /Lambda/ ) {
+		   } elsif( /Lambda/ ) {
 		       $_ = $self->_readline;
 		       s/^\s+//;
 		       my ($lambda, $kappa, $entropy) = split;
