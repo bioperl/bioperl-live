@@ -9,13 +9,16 @@ Bio::DB::Registry - Access to the Open Bio Database Access registry scheme
 
 =head1 SYNOPSIS
 
+    use Bio::DB::Registry();
+
     $registry = new Bio::DB::Registry();
 
     @available_services = $registry->services;
-
-    $db = $registry->get_database('embl');
-
+    
+    $db = $registry->get_database('embl'); 
     # $db is a Bio::DB::SeqI implementing class
+
+    $seq = $db->get_Seq_by_acc("J02231");    
 
 =head1 DESCRIPTION
 
@@ -70,14 +73,11 @@ my $fallbackRegistryURL = 'http://www.open-bio.org/registry/seqdatabase.ini';
 
 sub new {
     my ($class,@args) = shift;
-
-    my $self = Bio::Root::Root->new();
-    bless $self,$class;
-    my ($verbose)= $self->_rearrange([qw(VERBOSE)],@args);
+    my $self = $class->SUPER::new(@args);
     
     # open files in order
+    $self->{'_dbs'} = {};
     $self->_load_registry();
-    $self->verbose($verbose);
     return $self;
 }
 
@@ -125,12 +125,11 @@ sub _load_registry {
 		$tag =~ s/\s//g;
 		$hash->{$tag} = $value;
 	    }
-
-	    if( !exists $self->{$db} ) {
+	    
+	    if( !exists $self->{'_dbs'}->{$db} ) {
 		my $failover = Bio::DB::Failover->new();
-		$self->{$db}=$failover;
+		$self->{'_dbs'}->{$db}=$failover;
 	    }
-
 	    my $class;
 	    if (defined $implement{$hash->{'protocol'}}) {
 		$class = $implement{$hash->{'protocol'}};
@@ -149,54 +148,60 @@ sub _load_registry {
 	    else {
 		eval {
 		    my $randi = $class->new_from_registry(%$hash);
-		    $self->{$db}->add_database($randi);		};
+		    $self->{'_dbs'}->{$db}->add_database($randi); };
 		if ($@) {
 		    $self->verbose && $self->warn("Couldn't call new_from_registry on [$class]\n$@");
 		}
 	    }
 	    next; # back to main loop
 	}
-
 	$self->warn("Uninterpretable line in registry, $_");
     }
 }
 
+=head2 get_database
 
-=head2 verbose
-
- Title   : verbose
- Usage   : 
- Function: get/set for verbose paramater
- Returns : integer
- Args    : none
+ Title   : get_database
+ Usage   : my $db = $registry->get_database($dbname);
+ Function: Retrieve a Database object which implements Bio::DB::SeqI interface
+ Returns : Bio::DB::SeqI object
+ Args    : string describing the name of the database
 
 
 =cut
-
-sub verbose {
-   my ($self,$value) = @_;
-
-   if ( defined $value ) {
-       $self->{'_verbose'} = $value;
-   }
-   return $self->{'_verbose'};
-}
-
 	
 sub get_database {
     my ($self,$dbname) = @_;
 
     if( !defined $dbname ) {
-	$self->throw("must get_database with a database name");
+	$self->warn("must get_database with a database name");
+	return undef;
     }
-
-    if( !exists $self->{$dbname} ) {
-	$self->throw("No database in with $dbname in registry");
+    if( !exists $self->{'_dbs'}->{$dbname} ) {
+	$self->warn("No database in with $dbname in registry");
+	return undef;
     }
-
-    return $self->{$dbname};
-
+    return $self->{'_dbs'}->{$dbname};
 }
+
+=head2 services
+
+ Title   : services
+ Usage   : my @available = $registry->services();
+ Function: returns list of possible services 
+ Returns : list of strings
+ Args    : none
+
+
+=cut
+
+sub services{ 
+    my ($self) = @_;
+    return () unless ( defined $self->{'_dbs'} &&
+		       ref( $self->{'_dbs'} ) =~ /HASH/i);
+    return keys %{$self->{'_dbs'}}; 
+}
+
 
 ## End of Package
 

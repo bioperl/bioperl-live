@@ -55,36 +55,51 @@ use strict;
 
 use Bio::Root::Root;
 use Bio::DB::RandomAccessI;
-@ISA = qw(Bio::DB::RandomAccessI Bio::Root::Root);
-
+@ISA = qw(Bio::Root::Root Bio::DB::RandomAccessI );
 
 sub new {
     my ($class,@args) = @_;
 
-    my $self = Bio::Root::Root->new();
-    bless $self,$class;
+    my $self = $class->SUPER::new(@args);
 
-    $self->{'database'} = [];
-
+    $self->{'_database'} = [];
     return $self;
 }
 
+=head2 add_database
+
+ Title   : add_database
+ Usage   : add_database(%db)
+ Function: Adds a database to the 
+ Returns : count of number of databases
+ Args    : hash of db resource name to Bio::DB::SeqI object
+
+=cut
 
 sub add_database {
     my ($self,@db) = @_;
-
-
     foreach my $db ( @db ) {
 	if( !ref $db || !$db->isa('Bio::DB::RandomAccessI') ) {
 	    $self->throw("Database objects $db is a not a Bio::DB::RandomAccessI");
 	    next;
 	}
 
-	push(@{$self->{'database'}},$db);
-    }
-    
+	push(@{$self->{'_database'}},$db);
+    }    
 }
 
+
+=head2 get_Seq_by_id
+
+ Title   : get_Seq_by_id
+ Usage   : $seq = $db->get_Seq_by_id('ROA1_HUMAN')
+ Function: Gets a Bio::Seq object by its name
+ Returns : a Bio::Seq object
+ Args    : the id (as a string) of a sequence
+ Throws  : "id does not exist" exception
+
+
+=cut
 
 sub get_Seq_by_id {
     my ($self,$id) = @_;
@@ -93,7 +108,7 @@ sub get_Seq_by_id {
 	$self->throw("no id is given!");
     }
 
-    foreach my $db ( @{$self->{'database'}} ) {
+    foreach my $db ( @{$self->{'_database'}} ) {
 	my $seq;
 
 	eval {
@@ -107,7 +122,17 @@ sub get_Seq_by_id {
     return undef;
 }
 
+=head2 get_Seq_by_acc
 
+ Title   : get_Seq_by_acc
+ Usage   : $seq = $db->get_Seq_by_acc('X77802');
+ Function: Gets a Bio::Seq object by accession number
+ Returns : A Bio::Seq object
+ Args    : accession number (as a string)
+ Throws  : "acc does not exist" exception
+
+
+=cut
 
 sub get_Seq_by_acc {
     my ($self,$id) = @_;
@@ -116,7 +141,7 @@ sub get_Seq_by_acc {
 	$self->throw("no id is given!");
     }
 
-    foreach my $db ( @{$self->{'database'}} ) {
+    foreach my $db ( @{$self->{'_database'}} ) {
 	my $seq;
 	eval {
 	    $seq = $db->get_Seq_by_acc($db);
@@ -125,7 +150,6 @@ sub get_Seq_by_acc {
 	    return $seq;
 	}
     }
-
     return undef;
 }
 
