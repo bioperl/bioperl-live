@@ -324,4 +324,20 @@ sub next_hsp {
     return $self->{'_hsps'}->[$self->{'_iterator'}++];    
 }
 
+=head2 rewind
+
+ Title   : rewind
+ Usage   : $hit->rewind;
+ Function: Allow one to reset the HSP iteration to the beginning
+           Since this is an in-memory implementation
+ Returns : none
+ Args    : none
+
+=cut
+
+sub rewind{
+   my ($self) = @_;
+   $self->{'_iterator'} = 0;
+}
+
 1;
