@@ -434,7 +434,8 @@ but can be validly overwritten by subclasses
 =cut
 
 sub spliced_seq {
-    my ($self,$db) = @_;
+    my $self = shift;
+    my $db = shift;
 
     if( ! $self->location->isa("Bio::Location::SplitLocationI") ) {
 	return $self->seq(); # nice and easy!
@@ -455,9 +456,20 @@ sub spliced_seq {
     # (can I mention how much fun this is NOT! --jason)
 
     my ($mixed,$mixedloc,$fstrand) = (0);
-    if( $db && ref($db) && ! $db->isa('Bio::DB::RandomAccessI') ) {
-	$self->warn("Must pass in a valid Bio::DB::RandomAccessI object for access to remote locations for spliced_seq");
-	$db = undef;
+
+    #
+    # utter madness. Weird behaviour on 5.6.0 on Mac OS X, involving
+    # garbage collector. Setting $db to a string prevents later insanity
+    #
+    if( !(ref($db)) ) {
+	$db = " ";
+    }
+
+    if( $db ) {
+	if( ref($db) &&  !$db->isa('Bio::DB::RandomAccessI') ) {
+	    $self->warn("Must pass in a valid Bio::DB::RandomAccessI object for access to remote locations for spliced_seq");
+	    $db = undef;
+	}
     }
     elsif( $HasInMemory && ! $db->isa('Bio::DB::InMemoryCache') ) {
 	$db = new Bio::DB::InMemoryCache(-seqdb => $db);
