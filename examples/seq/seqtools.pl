@@ -6,7 +6,7 @@ BEGIN {
         ###         to the directory right above Bio/ in order
         ###         for perl to be able to locate the .pm files. 
 
-	$INSTALL_PATH = "/home/steve/perl/bioperl";
+	$INSTALL_PATH = "/home/steve/perl/lib";
 
         ###
         ####
@@ -14,11 +14,13 @@ BEGIN {
 
 #---------------------------------------------------------------------------
 # LIBRARY      : seqtools.pl
-# PURPOSE      : To provide a set of standard functions & variables for 
-#                working with sets of sequences using Bioperl modules.
-#                Currently focuses on the Bio::Tools::Fasta.pm module.
-#                Thus, only Fasta-formatted sequence may be used as input.
-# AUTHOR       : Steve A. Chervitz ((sac@genome.stanford.edu)
+# PURPOSE      : Provides a set of standard functions & variables for 
+#                working with sets of sequences using Bio::SeqIO modules
+#                and Bio::Seq objects.
+#            Sequence data can be input and output in a variety of formats 
+#            (raw embl fasta gcg genbank pir scf swiss).
+#            See the Bio/SeqIO directory for the full list.
+# AUTHOR       : Steve A. Chervitz (sac@neomorphic.com)
 # CREATED      : 10 Apr 1998
 # REVISION     : $Id$
 # INSTALLATION : Edit $INSTALL_PATH to point to the directory containing
@@ -30,15 +32,15 @@ BEGIN {
 #
 #  ## A minimal script that uses this package:
 #  ## Adjust path according to your system:
-#  require "/home/me/perl/seq/seqtools.pl"; 
+#  require "/home/me/bioperl/examples/seq/seqtools.pl"; 
 #            
-#  &init_seq('myscript.pl', 0.1);
+#  &init_seq();
 #  &load_ids();
 #  &get_seq_objs();
 #  &print_seqs();
 #  &wrap_up();
 #
-# EXAMPLES : See the files seqs.pl, seqs2.pl, seqs3.pl, seqs4.pl
+# EXAMPLES : See the files seqs.pl, seqs2.pl, and seqs3.pl
 #            in this dir for some working examples.
 #
 #
@@ -46,25 +48,17 @@ BEGIN {
 #
 #    init_seq()
 #    load_ids()
-#    get_seq_objs()
-#    get_seq_data()
+#    load_seqs()
 #    print_seq()
 #    print_seqs()
 #    write_file()
 #    write_files()
 #    wrap_up_seq()
 #
-# COMMENTS :
-#            The sequences can be output in a variety of formats 
-#            (Fasta, Raw, GenBank, PIR, GCG, GCG_SEQ)
-#            but the input format must be Fasta. The variety of output formats
-#            will increase as Bio::Seq.pm matures.
-#            
-# BUGS:
-#  FileHandle.pm may produce a harmless warning with the -w flag such as:
-# "Close on unopened file <GEN0> at /usr/local/bin/perl/lib/FileHandle.pm line 255"
 #
 # MODIFIED:
+#  sac --- Wed Feb 23 00:32:20 2000
+#      * Converted to use Bio::SeqIO instead of Bio::Tools::Fasta.pm
 #  sac --- Thu Feb  4 06:48:42 1999
 #      * Added the -wait command-line option to prevent read() timeouts when
 #        using seqtools.pl in conjunction with blast_seq.pl.
@@ -89,46 +83,43 @@ BEGIN {
 use lib $INSTALL_PATH;
 use lib '.','..';  # fail-safe incase you forget to edit $INSTALL_PATH.
 
-use Bio::Tools::Fasta qw(:obj);
-use Bio::Root::Global qw(:devel);
+use Bio::SeqIO;
+use Bio::Root::Global qw(:devel $TIMEOUT_SECS);
 use Getopt::Long;
-require FileHandle;
 use Carp;
 
 select(STDOUT); $|=1;
 
-# Global:
-$ID         = 'seqtools.pl';
-$VERSION    = 0.21;
+my @SUPPORTED_FORMATS = qw(raw embl fasta gcg genbank pir scf swiss);
+
+$VERSION    = 0.3;
 $DESC       = "Provides standard functions and variables for working with sets\n".
-              "of sequences and sequence objects using Bioperl modules";
+              "of sequences and sequence objects using Bio::SeqIO modules.";
 %seqParams  = ();  
 $seqcount   = 0;
 @seqs       = ();
 @ids        = ();
 @descs      = ();
 $_count_processed = 0;
+@errs    = ();
 
 # Command-line options:
-$opt_strict     = 0;
+#$opt_strict     = 0;        # Verify seq data based on standard alphabet. 
 $opt_nucl       = 0;
 $opt_prot       = 0;
-$opt_eid        = 0; 
-$opt_eseq       = 0; 
 $opt_col        = 0;         # Column in the -incl or -excl files with the seq IDs.
 $opt_exact      = 1;         # Require exact match when filtering based on seq id.
-#$opt_fmt       = 'Fasta';   # Only working with Fasta input (for now)
-$opt_outfmt     = 'Fasta';
+$opt_fmt        = 'fasta';   # Default input format
+$opt_outfmt     = 'fasta';   # Default output format
 $opt_seq        = undef;
 $opt_incl       = undef;
 $opt_excl       = undef;
 $opt_out        = undef;
 $opt_err        = undef;
 $opt_tag        = undef;  # Optional tag string to be prepended to all descrptions.
-$opt_write_files = undef; # Hold directory name for where to write individual files 
+$opt_write_files= undef;  # Directory name when writing individual files 
                           # for each input sequence. 
-$opt_wait       = undef;  # Amount of time to wait during read() before timing out. 
-                          # Only necessary to use in the context of blast_seq.pl.
+$opt_wait = $TIMEOUT_SECS;  # Seconds to wait for input before timing out. 
 
 # General parameters
 $opt_h      = 0;
@@ -141,10 +132,9 @@ $opt_debug  = 0;
 @ids_excl    = ();
 %ids_incl    = ();
 %ids_excl    = ();
-$fh          = undef;  # FileHandle object for output (STDOUT or the -out specified file).
 
 # Private:
-my (%not_filtered, $type, %_tested, @_tested, $_dir);
+my (%not_filtered, $moltype, %_tested, @_tested, $_dir, $seqout);
 my (@ids_incl_uc, @ids_excl_uc, %ids_incl_uc, %ids_excl_uc);
 
 
@@ -162,16 +152,18 @@ sub seq_usage {
 #---------------
 # Basic usage for a script that uses this library.
 
-    print STDERR "$ID, $VERSION\n$DESC.\n";
+    print STDERR "$0, $VERSION\n$DESC\n";
     print STDERR <<"QQ_USAGE_QQ";
 
-Usage: $ID [ parameters ] seq/seqs.fasta > out
-       $ID [ parameters ] seq/*.fasta   > out
-       gzcat *fasta.gz | $ID [ parameters ] > out
+Usage: $0 [ parameters ] seq/seqs.fasta > out
+       $0 [ parameters ] seq/*.fasta   > out
+       gzcat *fasta.gz | $0 [ parameters ] > out
 
  input : Multiple Fasta-formatted sequences are read via STDIN
          or from a file(s) specified on the command line.
          
+ Use the -eg option to see some examples.
+
 QQ_USAGE_QQ
 
 }
@@ -184,10 +176,14 @@ sub seq_params {
 
  SEQTOOLS PARAMETERS:
  --------------------
+ -fmt <format> : Sequence format for readin sequence data (default = $opt_fmt).
+                 Supported: @SUPPORTED_FORMATS
+ -outfmt <format> : Sequence format for writing sequence data (default = $opt_outfmt).
+                   Supported: @SUPPORTED_FORMATS
  -incl <file|list> : Filename containing list of sequence IDs to include
                      -or- list of IDs separated by whitespace.
                      For lines containing multiple ids, only
-                     the first one is used, unless the -last option is used.
+                     the first one is used.
  -excl <file|list> : Filename containing list of sequence IDs to exclude
                      -or- list of IDs separated by whitespace.
  -seq  file    : Filename containing Fasta formated sequences (if not
@@ -196,20 +192,6 @@ sub seq_params {
  -nucl         : Nucleotide sequences  (optional).
  -prot         : Peptide sequences (optional).
  -out <file>   : Filename for saving output (default = STDOUT).
- -outfmt <fmt> : Sequence format for saving sequence data (default = Fasta).
-                   Also supported: raw, gcg, gcg_seq, gcg_ref.
- -eid          : Edit sequence IDs. 
-                 (Uppercases and cleans up complex sequence identifiers:
-	         gi|2980872|gnl|PID|e1283615 homeobox protein SHOTb
- 	                    is converted to:
-	         GI_2980872 homeobox protein SHOTb [ GNL PID e1283615 ]
-                 Recommended when working with GenBank Fasta files.
-	         Information will not be lost, just rearranged.
-	         (Default editing: IDs are uppercased only.)
- -eseq         : Edit sequence (removes ambiguous characters at termini).
-	         (Default editing: sequences will be uppercased and have all 
-                  non-alphabetic, non-gap characters and white space removed.
-		  Allowed gap characters = '.' and '-')
  -tag <string> : Prepend the string to the descriptions of all sequences.
  -col <int>    : Column in -incl or -excl file containing sequence IDs. 
                  Default = 0 (left-most column).
@@ -221,10 +203,8 @@ sub seq_params {
 	         Default = case-insensitive comparison.
  -write_files <dir> 
                : Directory for writing individual files for input sequences.
- -strict       : Create sequence objects in strict mode (default = nostrict).
- -wait <int>   : Amount of seconds to wait before timing out when reading in sequence
-                 data. Only an issue when using seqtools.pl within an second script 
-                 such as in blast_seq.pl. (Set it to 60 or more; default = 3sec).
+ -wait <int>   : Amount of seconds to wait before timing out when reading in 
+                 sequence data (default = $opt_wait seconds).
 
 QQ_PARAMS_QQ
 }
@@ -251,12 +231,12 @@ sub init_seq {
 #---------------
     ($usage_fref, @opts) = @_;
 
-    &GetOptions('last!', 'mon!', 'h!', 'debug!', 'incl=s', 'excl=s', 'wait=s', 
-		'seq=s', 'nucl!', 'prot!', 'strict!', 'out=s', 'eid!', 'eseq!', 
+    &GetOptions('mon!', 'h!', 'debug!', 'incl=s', 'excl=s', 'wait=s', 
+		'seq=s', 'nucl!', 'prot!', 'strict!', 'out=s',
 		'exact!', 'outfmt=s', 'err=s', 'eg!', 'write_files=s', 'tag=s',
 		@opts);
    
-    $MONITOR && print STDERR "$ID, v$VERSION\n",'-'x50,"\n";
+    $MONITOR && print STDERR "$0, v$VERSION\n",'-'x50,"\n";
 
     $opt_h and do{
 	(ref($usage_fref) =~ /CODE/) ? &$usage_fref : &print_seq_usage;
@@ -264,7 +244,7 @@ sub init_seq {
     };
 
     $opt_eg and do{
-	eval{ print STDERR "\n$ID EXAMPLES:\n",'-'x30,"\n\n", &examples(); };
+	eval{ print STDERR "\n$0 EXAMPLES:\n",'-'x30,"\n\n", &examples(); };
 	$@ and print STDERR "\nSorry. No examples available.\n";
 	exit 1;
     };
@@ -282,16 +262,20 @@ sub init_seq {
 	open (STDERR, ">>$opt_err") or croak "*** $0: Can't open err file $opt_err: $!\n\n";
     }
 
-    $type = 'Amino' if $opt_prot;
-    $type = 'Dna' if $opt_nucl;
+    $moltype = 'protein' if $opt_prot;
+    $moltype = 'dna' if $opt_nucl;
 
     if($DEBUG) {
-	$type or print STDERR "\n*** Sequence type not specified (can use -nucl or -prot on command line)\n\n";
+	$moltype or print STDERR "\n*** Sequence moltype not specified (can use -nucl or -prot on command line)\n\n";
     }
     
-    if($opt_outfmt !~ /fasta|gcg|gcg_seq|raw/i ) {
+    if(! grep /$opt_fmt/i, @SUPPORTED_FORMATS) {
+	print STDERR "\n*** Input format not supported: $opt_fmt\n";
+	print STDERR "\tValid formats: @SUPPORTED_FORMATS\n\n";
+    }
+    if(! grep /$opt_outfmt/i, @SUPPORTED_FORMATS) {
 	print STDERR "\n*** Output format not supported: $opt_outfmt\n";
-	print STDERR "\tValid formats: Raw, Fasta, GCG, GCG_SEQ, GCG_REF\n\n";
+	print STDERR "\tValid formats: @SUPPORTED_FORMATS\n\n";
     }
 
     local($^W) = 0;
@@ -302,16 +286,9 @@ sub init_seq {
 	$MONITOR and print STDERR "\nWriting sequence data to $opt_out\n\n";
     } 
     if($opt_write_files) {
-	$MONITOR and print STDERR "\nWriting sequence files in $opt_write_files\n\n";
+	$MONITOR and print STDERR "\nWriting sequence files to $opt_write_files\n\n";
     } 
 
-    $fh = new FileHandle;
-
-    if($opt_out) {
-	open ($fh, ">$opt_out") || croak "\n\a*** $0: Can't open output file $opt_out: $!\n\n";
-    } else {
-	$fh = \*STDOUT;
-    }
 }
 
 #----------------
@@ -324,12 +301,9 @@ sub print_params {
     printf STDERR "%-20s %s\n", 'seq', $opt_seq;
     printf STDERR "%-20s %s\n", 'prot/nucl', $opt_prot ? 'prot' : ($opt_nucl ? 'nucl' : '');
     printf STDERR "%-20s %s\n", 'outfmt', $opt_outfmt || '';
-    printf STDERR "%-20s %s\n", 'strict', $opt_strict;
+#    printf STDERR "%-20s %s\n", 'strict', $opt_strict;
     printf STDERR "%-20s %s\n", 'exact', $opt_exact;
-    printf STDERR "%-20s %s\n", 'eid', $opt_eid;
-    printf STDERR "%-20s %s\n", 'eseq', $opt_eseq || '';
     printf STDERR "%-20s %s\n", 'out', $opt_out || '';
-    printf STDERR "%-20s %s\n", 'last', $opt_last || '';
     printf STDERR "%-20s %s\n", 'write_files', $opt_write_files || '';
 }
 
@@ -423,112 +397,59 @@ sub _load_list {
 }
 
 
-#-----------------
-sub get_seq_objs {
-#-----------------
-# get_seq_objs() may be called with an optional function ref as the sole argument.
-# The supplied function should expect a single argument that is a
-# object reference for Bio::Seq.pm object.
-# If no function_ref is supplied, the sequence object will be loaded into
-# the @seqs array.
-
+#----------------
+sub load_seqs {
+#----------------
     my $func_ref = shift;
-
-    # The module now prints this.
-#    $MONITOR && print STDERR "\nParsing Fasta sequence objects (100/dot, 5000/line).\n";
-
-    # Use the static Fasta object provided by Fasta.pm.
-
-    # As the sequence data is parsed, the Fasta object returns a set of
-    # sequence objects, one for each sequence.
-    # (Parameters tags can be lowercase if desired.)
-
-    # The -SEQS parameter here serves only to indicate that we want 
-    # to parse a Fasta sequence file (not a analysis report).
-    # (Compare with get_seq_data() below).
-
-    %params = (
-	       -TYPE       => $type,
-	    #  -PARSE      => 1,  # not needed since were calling parse() directly
-	       -SEQS       => 1,
-	       -EDIT_ID    => $opt_eid,
-	       -EDIT_SEQ   => $opt_eseq,
-	       -STRICT     => $opt_strict,
-	       -FILT_FUNC  => ($opt_incl or $opt_excl) ? \&seq_filter : undef,
-	       -EXEC_FUNC  => $func_ref || undef,
-	       -SAVE_ARRAY => \@seqs,
-	       -WAIT       => $opt_wait,
-	       );
-    
-    _parse_seqs();
-}
-
-#-----------------
-sub get_seq_data {
-#-----------------
-# get_seq_data() may be called with an optional function ref:
-#    &get_seqs(\&funct_ref)
-# The supplied function should expect three string arguments:
-#   id, description, and sequence  (in that order).
-
-    my $func_ref = shift;
-
-    $MONITOR && print STDERR "\nParsing Fasta sequence data (100/dot, 5000/line).\n";
-
-    # Note that the array refs will not be used if a $func_ref is supplied.
-    # Defining these parameters are neccessary, however, to indicate that 
-    # we want data and not sequence objects.
-
-    # The -SEQS parameter serves double duty here since it serves to indicate
-    # that we want to parse a Fasta sequence file (not a analysis report)
-    # and it provides a place to store the raw sequence data if a $func_ref
-    # is not supplied.
-
-    # Fasta object returns a set of sequence objects, one for each sequence.
-    %params = (
-	       -TYPE       => $type,
-	    #  -PARSE      => 1,  # not needed since were calling parse() directly
-	       -SEQS       => \@seqs,
-	       -IDS        => \@ids,
-	       -DESCS      => \@descs,
-	       -EDIT_ID    => $opt_eid,
-	       -EDIT_SEQ   => $opt_eseq,
-	       -STRICT     => $opt_strict,
-	       -FILT_FUNC  => ($opt_incl or $opt_excl) ? \&seq_filter : undef,
-	       -EXEC_FUNC  => $func_ref || undef,
-	       );
-    
-    _parse_seqs();
-}
-
-#------------------
-sub _parse_seqs {
-#------------------
-
-    eval {
-	if(@ARGV) {
-	    foreach(@ARGV) {
-		next unless -s;
-		$MONITOR && print STDERR "\nParsing file $_\n";
-		$params{-FILE} = $_;
-		$seqcount += $Fasta->parse(%params);
-		
-	    }
-	} elsif($opt_seq) {
-	    $params{-FILE} = $opt_seq;
-	    $seqcount = $Fasta->parse(%params);
-
-	} else {
-	    $seqcount = $Fasta->parse(%params);
-	}
-    };
-    if($@) {
-	print STDERR "\n*** TROUBLE:\n$@\n";
-	exit 1;
+    my %params;
+    # Initialize input stream
+    if($opt_seq) { 
+        %params = ('-format' => $opt_fmt, '-file' => $opt_seq); 
+    } else { 
+        %params = ('-format' => $opt_fmt);  
     }
 
-    $MONITOR && print STDERR "\n$seqcount sequence(s) loaded/processed.\n";
-    exit 1 if !$seqcount;
+    my $seqin  = Bio::SeqIO->new(%params);
+
+    # Initialize output stream
+    if( $opt_out ) {
+        %params = ('-format' => $opt_outfmt, '-file' => ">$opt_out");
+    } else {
+        %params = ('-format' => $opt_outfmt, '-fh' => \*STDOUT);
+    }
+
+    $seqout = Bio::SeqIO->new(%params);
+    
+    if(defined $moltype) { $seqin->moltype($moltype); }
+
+    $SIG{ALRM} = sub { die "Timed out!"; };
+
+    my ($seq, $keep);
+    eval {
+        alarm($opt_wait);
+        while ( $seq = $seqin->next_seq() ) {
+	    alarm(0);  # Deactivate the alarm as soon as we start reading.
+            $keep = 1;
+            ## Should the sequence be filtered out?
+            if($opt_incl or $opt_excl) {
+                if(seq_filter($seq->length, $seq->id, $seq->desc)) {
+                    $keep = 0;
+                }
+            }
+            if(ref $func_ref eq "CODE") {
+                &$func_ref($seq) if $keep;
+            } else {
+                push @seqs, $seq if $keep;
+            }
+        }
+    };
+    if($@ =~ /Timed out!/) {
+	 croak "$0: Timed out while waiting for input.", " Timeout period = $opt_wait seconds.\nFor a longer time out period, supply a -wait <seconds> parameter\n";
+    } elsif($@ =~ /\S/) {
+         my $err = $@;
+	 croak "$0: Unexpected error during read: $err";
+    }
+
 }
 
 
@@ -579,15 +500,10 @@ sub print_seq {
     # Prepend an optional tag to the sequence.
     $opt_tag and $seq->desc($opt_tag.' '.$seq->desc);
 
-    print $fh $seq->layout($opt_outfmt);
-    print "\n" if $opt_outfmt =~ /raw/i; # raw format does not include new line.
+    $seqout->write_seq($seq);
     $_count_processed++;
 
-    if(@ids_incl_uc) {
-	return $count_processed >= scalar(@ids_incl_uc) ? 0 : 1;
-    }
-    1;
-}    
+}
 
 
 #---------------------
@@ -613,14 +529,22 @@ sub write_file {
  
     ($file = $seq->id) =~ s/\|/_/g;
     $file = $_dir . $file . substr(".\L$opt_outfmt\E", 0, 4);
-    open(OUT, ">$file") || croak "\n*** $0: Can't open file $file: $!\n\n";
-    print OUT $seq->layout($opt_outfmt);
-    close OUT;
 
-    $_count_processed++;
-    if(@ids_incl_uc) {
-	return $count_processed >= scalar(@ids_incl_uc) ? 0 : 1;
+    eval {
+        my $out = Bio::SeqIO->new('-format' => $opt_outfmt, 
+                                  '-file' => ">$file");
+
+        $out->write_seq($seq);
+        $_count_processed++;
+        if(@ids_incl_uc) {
+            return $count_processed >= scalar(@ids_incl_uc) ? 0 : 1;
+        }
+    };
+    if($@) {
+        my $err = $@;
+        push @errs, $err;
     }
+
     1;
 
 #    $MONITOR && print STDERR " wrote file: $file\n";
@@ -652,9 +576,18 @@ sub write_files {
 sub wrap_up_seq {
 #----------------
     # Want to verify that all sequences to be included, were.
-    # There seems to be some discrepency.
+    # Similarly for sequences to be excluded.
+    # Also check for errors.
     my ($id, $count);
     my $trouble = 0;
+    if(@errs) {
+        printf STDERR "WARNING: %d errors were encountered.\n", scalar(@errs);
+        print "View details of errors? [y|n] (y): ";
+        if( ($response = <STDIN>) =~ /^y|^$/i) {
+            foreach(@errs) { print STDERR $_; }
+        }
+    }
+
     if(%not_filtered) {
 	$MONITOR && print STDERR "\nChecking for discrepencies.\n";
 	$count = 0;
@@ -680,7 +613,7 @@ sub wrap_up_seq {
 		$trouble++;
 	    }
 	}
-	$MONITOR && print STDERR "All included.\n" unless $count;
+	$MONITOR && print STDERR "All included (as necessary).\n" unless $count;
 
 	if(%ids_excl_uc) {
 	    $count = 0;
@@ -694,7 +627,7 @@ sub wrap_up_seq {
 		    $trouble++;
 		}
 	    }
-	    $MONITOR && print STDERR "All excluded.\n" unless $count;
+	    $MONITOR && print STDERR "All excluded (as necessary).\n" unless $count;
 	}
     }
 
@@ -702,6 +635,7 @@ sub wrap_up_seq {
     local($^W) = 0;
     close $fh;
     $MONITOR && print STDERR "\n",'-'x50,"\nDone. $ID @argv\n";
+    $MONITOR && print STDERR "$_count_processed sequences processed.\n";
     exit $trouble;
 }
 

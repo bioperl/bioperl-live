@@ -1,44 +1,49 @@
 #!/usr/bin/perl -w
 
-# A minimal script using seqtools.pl
+#----------------------------------------------------------------
+# seqs1.pl
+# A minimal script that allows basic printing & reformatting of 
+# sequence data. Illustrates use of seqtools.pl (which uses Bio::SeqIO).
 # See seqs2.pl, seqs3.pl, and seqs4.pl for some more advanced scripts.
-# Author  : Steve A. Chervitz (sac@genome.stanford.edu)
+# Author  : Steve A. Chervitz (sac@neomorphic.com)
 # Revision: $Id$
 # Usage   : seqs1.pl -h
 # Modified: 
+#  sac, 21 feb 2000: Updated for use with Bio::SeqIO. Little change.
 #  sac, 16 Jun 1998: Added installation comment, require statement comments.
+# SEE ALSO : seqs1.pl, seqs3.pl
+#----------------------------------------------------------------
 
 # Using seqtools.pl in the examples/blast distribution directory:
 require "seqtools.pl"; 
 # Proper path to seqtools.pl after you install it in your system:
-#require "/share/www-data/html/perlOOP/bioperl/lib/Bio/drivers/seq/seqtools.pl";
+#require "/home/steve/perl/bioperl/examples/seqio/seqtools.pl";
 
-use vars qw($ID $VERSION);
-$ID      = 'seqs1.pl';
+
+use vars qw($VERSION $DESC);
 $VERSION = 0.1;
+$DESC = "This is a minimal script that uses the Bio::SeqIO module\n". 
+ "via seqtools.pl. Allows basic printing & reformatting.";
 
-&init_seq(\&_usage);
+&init_seq();
 &load_ids();
-&get_seq_objs();  # not passing any function ref means all seq objects will be saved.
+&load_seqs();  
 &print_seqs();
 &wrap_up_seq();
 
 
 #-----------
-sub _usage {
+sub examples {
 #-----------
-   print STDERR <<"QQ_USAGE_QQ";
+<<"QQ_EG_QQ";
+(using the files in this directory)
 
-Usage: $ID seq1.fasta
-       $ID -prot seq1.fasta >& err.fasta
-       $ID seq.fasta.gz -eid 
-       $ID *.fasta
-       $ID < seq2.fasta > out.fasta
+ $0 seq1.fasta
+ $0 *.fasta
+ gzip -cd seq.fasta.gz | $0 
+ $0 -prot seq1.fasta -outfmt genbank -out seq1.gb
+ $0 < seq2.fasta -outfmt swiss > out.swiss
 
- This is a minimal script that uses the Bio::Tools::Fasta.pm module 
- via seqtools.pl. Doesn't do much beyond loading a set of sequences 
- from a Fasta sequence file.
-
-QQ_USAGE_QQ
-
+QQ_EG_QQ
 }
+
