@@ -22,6 +22,9 @@ BEGIN {
 END {
     unlink qw(write_qual.qual );
 }
+
+print ("\$DEBUG is this: $DEBUG\n");
+
 print("Checking if the Bio::SeqIO::Qual module could be used, even though it shouldn't be directly use'd...\n") if ( $DEBUG );
         # test 1
 use Bio::SeqIO::qual;
@@ -55,3 +58,21 @@ while ( my $qual = $in_qual->next_seq() ) {
     }
     $first = 0;
 }
+
+# in October 2004, Carlos Mauricio La Rota posted a problem with descriptions
+# this routine is to test that
+
+my @quals = 10..20;
+# this one has a forced header
+my $seq = new Bio::Seq::PrimaryQual(
+                    -qual =>   \@quals,
+                    -header   =>   "Hank is a good cat. I gave him a bath yesterday.");
+my $out = new Bio::SeqIO(     -fh  =>   \*STDOUT,
+                         -format   =>   'qual');
+# yes, that works
+# $out->write_seq($seq);
+$seq->header('');
+$seq->id('Hank1');
+# yes, that works
+# $out->write_seq($seq);
+

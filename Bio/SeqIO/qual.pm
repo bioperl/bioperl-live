@@ -68,7 +68,8 @@ use vars qw(@ISA);
 use strict;
 use Bio::SeqIO;
 use Bio::Seq::SeqFactory;
-require 'dumpvar.pl';
+use Dumpvalue();
+my $dumper = new Dumpvalue();
 
 @ISA = qw(Bio::SeqIO);
 
@@ -202,12 +203,12 @@ sub next_primary_qual {
 sub write_seq {
     my ($self,@args) = @_;
     my ($source)  = $self->_rearrange([qw(SOURCE)], @args);
-
+     $dumper->dumpValue($source);
     if (!$source || ( !$source->isa('Bio::Seq::SeqWithQuality') && 
 		      !$source->isa('Bio::Seq::PrimaryQual')   )) {
 	$self->throw("You must pass a Bio::Seq::SeqWithQuality or a Bio::Seq::PrimaryQual object to write_seq as a parameter named \"source\"");
     }
-    my $header = $source->id();
+    my $header = $source->header() || $source->id();
     if (!$header) { $header = "unknown"; }
     my @quals = $source->qual();
     # ::dumpValue(\@quals);

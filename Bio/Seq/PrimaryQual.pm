@@ -122,13 +122,14 @@ sub new {
     my $self = $class->SUPER::new(@args);
 
     # default: turn ON the warnings (duh)
-    my($qual,$id,$acc,$pid,$desc,$given_id) =
+    my($qual,$id,$acc,$pid,$desc,$given_id,$header) =
         $self->_rearrange([qw(QUAL
                               DISPLAY_ID
                               ACCESSION_NUMBER
                               PRIMARY_ID
                               DESC
                               ID
+                              HEADER
                               )],
                           @args);
     if( defined $id && defined $given_id ) {
@@ -140,6 +141,7 @@ sub new {
     
     # note: the sequence string may be empty
     $self->qual($qual ? $qual : []);
+     $header && $self->header($header);
     $id      && $self->display_id($id);
     $acc     && $self->accession_number($acc);
     $pid     && $self->primary_id($pid);
@@ -268,6 +270,26 @@ sub display_id {
       $obj->{'display_id'} = $value;
     }
     return $obj->{'display_id'};
+
+}
+
+=head2 header()
+
+ Title   : header()
+ Usage   : $header = $obj->header();
+ Function: Get/set the header that the user wants printed for this
+     quality object.
+ Returns : A string
+ Args    : None
+
+=cut
+
+sub header {
+   my ($obj,$value) = @_;
+   if( defined $value) {
+      $obj->{'header'} = $value;
+    }
+    return $obj->{'header'};
 
 }
 
