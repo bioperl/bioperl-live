@@ -84,7 +84,6 @@ sub to_string {
 
 sub end_report { 
     my $self = shift;
-    $self->warn_not_implemented();
     return '';
 }
 
