@@ -25,9 +25,9 @@ foreach my $score ( @scores ) {
     $dist->add_score($score);
 }
     
-ok $dis->fit_evd(), 1;
+ok $dist->fit_evd(), 1;
 
-foreach $score ( @scores ) {
+foreach my $score ( @scores ) {
     my $evalue = $dist->evalue($score);
 #    print SDTERR "Score $score had an evalue of $evalue\n";
 }
