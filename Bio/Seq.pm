@@ -254,7 +254,7 @@ more information).
   $seqobj->seq();              # string of sequence
   $seqobj->subseq(5,10);       # part of the sequence as a string
   $seqobj->accession_number(); # when there, the accession number
-  $seqobj->moltype();          # one of 'dna','rna',or 'protein'
+  $seqobj->alphabet();          # one of 'dna','rna',or 'protein'
   $seqobj->seq_version()       # when there, the version
   $seqobj->keywords();         # when there, the Keywords line
   $seqobj->length()            # length
