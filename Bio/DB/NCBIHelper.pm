@@ -258,7 +258,7 @@ sub postprocess_data {
     	
     	# process GenBank CONTIG join(...) into two arrays
     	$data =~ /(?:CONTIG\s+join\()((?:.+\n)+)(?:\/\/)/;
-    	my $contig = $1;
+    	$contig = $1;
     	$contig =~ s/\n|\)//g;
 		foreach (split /,/,$contig){
 			if (/>(.+)<.+>:(.+)/) {
