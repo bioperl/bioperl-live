@@ -58,7 +58,11 @@ found at the end of this document.
 I wrote a detailed rationale for design that may explain the reasons why
 some things were done the way they were done. That document is beyond the
 scope of this pod and can probably be found in the directory from which
-this module was 'made';
+this module was 'made' or at
+http://www.dieselwurks.com/bioinformatics/consedpm_documentation.pdf
+
+Note that the pod in that document might be old but the original
+rationale still stands.
 
 =head1 FEEDBACK
 
