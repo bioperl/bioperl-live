@@ -16,7 +16,7 @@ Bio::Coordinate::MapperI - Interface describing coordinate mappers
 
 =head1 SYNOPSIS
 
-  # not to used directly
+  # not to be used directly
 
 =head1 DESCRIPTION
 
@@ -75,6 +75,43 @@ use Bio::Root::RootI;
 
 @ISA = qw(Bio::Root::RootI);
 
+
+
+=head2 in
+
+ Title   : in
+ Usage   : $obj->in('peptide');
+ Function: Set and read the input coordinate system.
+ Example :
+ Returns : value of input system
+ Args    : new value (optional), Bio::LocationI
+
+=cut
+
+sub in {
+   my ($self,$value) = @_;
+
+   $self->throw_not_implemented();
+
+}
+
+
+=head2 out
+
+ Title   : out
+ Usage   : $obj->out('peptide');
+ Function: Set and read the output coordinate system.
+ Example :
+ Returns : value of output system
+ Args    : new value (optional), Bio::LocationI
+
+=cut
+
+sub out {
+   my ($self,$value) = @_;
+
+   $self->throw_not_implemented();
+}
 
 =head2 swap
 
