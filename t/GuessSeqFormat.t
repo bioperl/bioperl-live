@@ -20,7 +20,7 @@ BEGIN {
       print STDERR "XML::Writer not found, skipping game test\n";
       $error = 1;
    }
-   $error == 0 ? $NUMTESTS = 44 : $NUMTESTS = 46;
+   $NUMTESTS = ($error == 1) ? 44 : 46;
    plan tests => $NUMTESTS;
 }
 
