@@ -192,13 +192,13 @@ sub _initialize {
 
 sub next_result{
    my ($self) = @_;
-   
+
    my $data = '';
    my $seentop = 0;
    my $current_hsp;
    $self->start_document();
    my @hit_signifs;
-   while( defined ($_ = $self->_readline )) {       
+   while( defined ($_ = $self->_readline )) {
        next if( ! $self->in_element('hsp')  &&
 		/^\s+$/); # skip empty lines
        if( /(\S+)\s+searches\s+a\s+((protein\s+or\s+DNA\s+sequence)|(sequence\s+database))/i || /(\S+) compares a/ ||
@@ -282,13 +282,14 @@ sub next_result{
 	       (defined ($_ = $self->_readline()) && /^\s*vs\s+(\S+)/)
 	     ) {
 	       $self->element({'Name' => 'FastaOutput_db',
-			       'Data' => $1});
+                           'Data' => $1});
 	   } elsif (m/^\s+opt(?:\s+E\(\))?$/o) {
 	       # histogram ... read over it more rapidly than the larger outer loop:
 	       while (defined($_ = $self->_readline)) {
 		   last if m/^>\d+/;
 	       }
 	   }
+
        } elsif( /(\d+) residues in\s+(\d+)\s+sequences/ ) {
 	   $self->element({'Name' => 'FastaOutput_db-let',
 			   'Data' => $1});
@@ -339,13 +340,14 @@ sub next_result{
 	       my %data;
 	       @data{@labels} = splice(@line, @line - @labels);
 	       if ($line[-1] =~ m/\[([1-6rf])\]/o) {
-		   $data{lframe} = ($1 =~ /\d/o ?
-		                   ($1 <= 3   ? "+$1" : "-@{[$1-3]}") :
-				   ($1 eq 'f' ? '+1'  : '-1')
-				   );
-		   pop @line;
+               my $fr = $1;
+               $data{lframe} = ($fr =~ /\d/o ?
+                                ($fr <= 3   ? "+$fr" : "-@{[$fr-3]}") :
+                                ($fr eq 'f' ? '+1'  : '-1')
+                               );
+               pop @line;
 	       } else {
-		   $data{lframe} = '0';
+               $data{lframe} = '0';
 	       }
 
 	       if ($line[-1] =~ m/^\(?(\d+)\)$/) {
