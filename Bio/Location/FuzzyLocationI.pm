@@ -10,7 +10,7 @@
 
 =head1 NAME
 
-Bio::FuzzyLocationI - Abstract interface of a Location on a Sequence
+Bio::Location::FuzzyLocationI - Abstract interface of a Location on a Sequence
 which has unclear start/end location
 
 =head1 SYNOPSIS
@@ -69,7 +69,8 @@ package Bio::Location::FuzzyLocationI;
 use vars qw(@ISA);
 use strict;
 
-use Bio::LocationI;use Carp;
+use Bio::LocationI;
+use Carp;
 
 @ISA = qw(Bio::LocationI);
 
