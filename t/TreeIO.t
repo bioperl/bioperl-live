@@ -18,7 +18,7 @@ BEGIN {
     }
 
     use Test;
-    plan tests => 4; 
+    plan tests => 9; 
 
 #    eval { require XML::Parser::PerlSAX; };
 #    if( $@ ) {
@@ -36,6 +36,13 @@ if( $error == 1 ) {
     exit(0);
 }
 
+use vars qw($FILE1 $FILE2);
+
+$FILE1= 'testnewick.phylip';
+$FILE2= 'testlarge.phy';
+END { 
+    unlink qw($FILE1 $FILE2);
+}
 use Bio::TreeIO;
 use Bio::Root::IO;
 my $verbose = $ENV{'BIOPERLDEBUG'};
@@ -45,28 +52,33 @@ my $treeio = new Bio::TreeIO(-verbose => $verbose,
 			     -format => 'newick',
 			     -file   => Bio::Root::IO->catfile('t','data', 
 							       'cysprot1b.dnd'));
-#							       'LOAD_Ccd1.dnd'));
+
 ok($treeio);
 my $tree = $treeio->next_tree;
 
 ok(ref($tree) && $tree->isa('Bio::Tree::TreeI'));
 
 my @nodes = $tree->get_nodes;
-ok(@nodes, 7);
+ok(@nodes, 6);
 
-foreach my $node ( @nodes ) {
-    if( $node->isa('Bio::Tree::PhyloNode') ) {
-#	if( $verbose ) { print "id=", $node->id, 
-#			 "; branch_len=", $node->branch_length, "\n"; }
-    } else { 
-#	print "node was ", $node->to_string(), "\n" if( $verbose );
+if($verbose ) { 
+    foreach my $node ( $tree->get_root_node()->each_Descendent() ) {
+	print "node: ", $node->to_string(), "\n";
+	my @ch = $node->each_Descendent();
+	if( @ch ) {
+	    print "\tchildren are: \n";
+	    foreach my $node ( $node->each_Descendent() ) {
+		print "\t\t ", $node->to_string(), "\n";
+	    }
+	}
     }
 }
 $treeio = new Bio::TreeIO(-verbose => $verbose,
 			  -format => 'newick', 
-			  -file   => '>testnewick.phylip');
+			  -file   => ">$FILE1");
 $treeio->write_tree($tree);
-
+undef $treeio;
+ok( -s $FILE1 );
 $treeio = new Bio::TreeIO(-verbose => $verbose,
 			  -format => 'newick',
 			  -file   => Bio::Root::IO->catfile('t','data', 
@@ -77,16 +89,24 @@ $tree = $treeio->next_tree;
 ok(ref($tree) && $tree->isa('Bio::Tree::TreeI'));
 
 @nodes = $tree->get_nodes;
-ok(@nodes, 53);
+ok(@nodes, 52);
 
-foreach my $node ( @nodes ) {
-    if( $node->isa('Bio::Tree::PhyloNode') ) {
-	print $node->id, ":", $node->branch_length(), "\n" if( $verbose );
-
-#	if( $verbose ) { print "id=", $node->id, 
-#			 "; branch_len=", $node->branch_length, "\n"; }
-    } else { 
-	print ":", $node->branch_length(), "\n" if( $verbose );
+if($verbose ) { 
+    foreach my $node ( @nodes ) {    
+	print "node: ", $node->to_string(), "\n";
+	my @ch = $node->each_Descendent();
+	if( @ch ) { 
+	    print "\tchildren are: \n";
+	    foreach my $node ( $node->each_Descendent() ) {
+		print "\t\t ", $node->to_string(), "\n";
+	    }
+	}
     }
 }
 
+$treeio = new Bio::TreeIO(-verbose => $verbose,
+			  -format => 'newick', 
+			  -file   => ">$FILE2");
+$treeio->write_tree($tree);
+undef $treeio;
+ok(-s $FILE2);

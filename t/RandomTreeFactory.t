@@ -21,16 +21,20 @@ use Bio::Tree::RandomFactory;
 use Bio::TreeIO;
 ok(1);
 
-#END { unlink("out.tre") }
+use vars qw($FILE1);
+$FILE1 = 'out.tre';
+END { unlink qw($FILE1) }
  
-my $ssize = 6;
+my $ssize = 25;
 my $factory = new Bio::Tree::RandomFactory(-sample_size => $ssize);
 
 my $tree = $factory->next_tree;
 
 ok($tree->get_nodes, ($ssize * 2 - 1));
 
-my $treeio = new Bio::TreeIO(-format => 'newick', -file => ">out.tre");
+my $treeio = new Bio::TreeIO(-format => 'newick', -file => ">$FILE1");
 
 $treeio->write_tree($tree);
-ok(1);
+undef $treeio;
+
+ok(-s $FILE1);
