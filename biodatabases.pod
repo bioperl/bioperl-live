@@ -71,7 +71,7 @@ Conversion systems for Bio::Seq objects, either to or from sequence
 streams. The movement of things into SeqIO prevents the Bio::Seq object
 bloating up with format code, and the SeqIO system has the benefit
 of being very easy to extend to new formats. Please see L<Bio::SeqIO>
-for more information.
+for more information, or the SeqIO HOWTO (http://bioperl.org/HOWTOs).
 
 =item bioperl-db
 
@@ -82,6 +82,12 @@ objects, and sequences in familiar formats can be loaded into
 the schema in relational form, and retrieved as Seq objects as well.
 Currently Mysql, Oracle, and Postgres are supported. See
 L<USING BIOPERL WITH A RELATIONAL DATABASE (bioperl-db)> below.
+
+=item OBDA
+
+Open Biological Database Access is a system for sequence retrieval
+that wraps all the different data sources mentioned above together
+with a single interface.
 
 =back
 
@@ -231,3 +237,15 @@ sequences and extract subsequences rapidly.
 
 See L<Bio::DB::GFF>, L<Bio::DB::GFF::RelSegment>,
 L<Bio::DB::GFF::Feature>, and L<Bio::DB::GFF::Adaptor::dbi>.
+
+
+=head1 OBDA
+
+The Open Biological Database Access (OBDA) system provides a single,
+configurable retrieval interface to sequence databases regardless of their
+format: relational (as in BioSQL), local indexed flat file, or remote and
+Internet-accessible. The user creates a single configuration file, a
+"registry", that describes the data source and OBDA handles the rest.
+See the OBDA_Access HOWTO for more information
+(http://bioperl.org/HOWTOs) or L<Bio::DB::Registry>.
+
