@@ -51,17 +51,17 @@ my $aln;
 
 my $coffee_present = Bio::Tools::Run::Alignment::TCoffee->exists_tcoffee();
 unless ($coffee_present) {
-	warn "tcoffee program not found. Skipping tests $Test::ntest to $NUMTESTS.\n";
-	foreach ( $Test::ntest..$NUMTESTS ) {
-	    skip(1,1);
-	}
-	exit(0);
+	 warn "tcoffee program not found. Skipping tests $Test::ntest to $NUMTESTS.\n";
+	 foreach ( $Test::ntest..$NUMTESTS ) {
+	     skip(1,1);
+	 }
+	 exit(0);
 }
 $aln = $factory->align($inputfilename);
 ok $aln->no_sequences, 7;
 
 my $str = Bio::SeqIO->new('-file' => Bio::Root::IO->catfile("t","cysprot.fa"), 
-			  '-format' => 'Fasta');
+			   '-format' => 'Fasta');
 my @seq_array =();
 
 while ( my $seq = $str->next_seq() ) {
@@ -73,7 +73,7 @@ my $seq_array_ref = \@seq_array;
 $aln = $factory->align($seq_array_ref);
 ok $aln->no_sequences, 7;
 
-	
+	 
 my $profile1 = Bio::Root::IO->catfile("t","cysprot1a.msf");
 my $profile2 = Bio::Root::IO->catfile("t","cysprot1b.msf");
 $aln = $factory->profile_align($profile1,$profile2);
@@ -99,7 +99,7 @@ $str2 = Bio::SeqIO->new(-file=> Bio::Root::IO->catfile("t","cysprot1b.fa"));
 my $seq = $str2->next_seq();
 
 ok $aln1->no_sequences, 3;
-ok int($aln->percentage_identity), 41 ;
+ok int($aln1->percentage_identity), 39 ;
 $aln = $factory->profile_align($aln1,$seq);
 ok $aln->no_sequences, 4;
 ok int($aln->percentage_identity), 47 ;

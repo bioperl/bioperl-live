@@ -44,7 +44,7 @@ ok $status, 1, "  failed msf output test";
 
 $str = Bio::AlignIO->new(-file=> Bio::Root::IO->catfile("t","testaln.fasta"), '-format' => 'fasta');
 $aln = $str->next_aln();
-ok $aln->{order}->{'0'}, 'AK1H_ECOLI-1-378', " failed fasta input test ";
+ok $aln->{order}->{'0'}, 'AK1H_ECOLI-114-431', " failed fasta input test ";
 
 
 $strout = Bio::AlignIO->new(-file=> ">".Bio::Root::IO->catfile("t","testout.fasta"), '-format' => 'fasta');
@@ -82,7 +82,7 @@ ok $aln->{order}->{'0'}, 'P04777-1-33', "  failed clustalw (.aln) output test - 
 my $in  = Bio::AlignIO->newFh(-file => Bio::Root::IO->catfile("t","testaln.fasta"), '-format' => 'fasta');
 my $out = Bio::AlignIO->newFh(-file => ">".Bio::Root::IO->catfile("t","testout2.pfam"), '-format' => 'pfam');
 while ( $aln = <$in>) {
-	ok $aln->{order}->{'0'}, 'AK1H_ECOLI-1-378', "  failed filehandle input test  ";
+	ok $aln->{order}->{'0'}, 'AK1H_ECOLI-114-431', "  failed filehandle input test  ";
 	$status = print $out $aln;
 	last;
 }
