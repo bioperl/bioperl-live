@@ -361,31 +361,31 @@ sub location_from_column {
 
     my ($loc);
     my $s = $self->subseq(1,$column);
-    $s =~ s/\W//g;
+    $s =~ s/[^a-zA-Z\*]//g;
+    
     my $pos = CORE::length $s;
-
+    
     my $start = $self->start || 0 ;
     my $strand = $self->strand() || 1;
     my $relative_pos = ($strand == -1)
         ? ($self->end - $pos + 1)
-            : ($pos + $start - 1);
+	: ($pos + $start - 1);
     if ($self->subseq($column, $column) =~ /[a-zA-Z\*]/ ) {
 	$loc = new Bio::Location::Simple
-	    (-start => $relative_pos,
-	     -end => $relative_pos,
+	    (-start  => $relative_pos,
+	     -end    => $relative_pos,
 	     -strand => 1,
 	     );
-    }
-    elsif ($pos == 0 and $self->start == 1) {
+    } elsif ($pos == 0 and $self->start == 1) {
     } else {
       my ($start,$end) = ($relative_pos, $relative_pos + $strand);
       if ($strand == -1) {
 	($start,$end) = ($end,$start);
       }
 	$loc = new Bio::Location::Simple
-	    (-start => $start,
-	     -end => $end,
-	     -strand => 1,
+	    (-start         => $start,
+	     -end           => $end,
+	     -strand        => 1,
 	     -location_type => 'IN-BETWEEN'
 	     );
     }
