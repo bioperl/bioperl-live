@@ -270,6 +270,13 @@ result by piping it to our favorite image display program.
 </para>
 
 <para>
+IMPORTANT NOTE: If you are on a Windows platform, you need to put
+STDOUT into binary mode so that the PNG file does not go through
+Window's carriage return/linefeed transformations.  Before the
+final print statement, write binmode(STDOUT).
+</para>
+
+<para>
 <figure>
 <title>Rendering BLAST hits</title>
 <programlisting>
@@ -412,6 +419,13 @@ When we run the modified script, we get this image.
 </imageobject>
 </mediaobject>
 </figure>
+</para>
+
+<para>
+IMPORTANT NOTE: Remember that if you are on a Windows platform, you need to put
+STDOUT into binary mode so that the PNG file does not go through
+Window's carriage return/linefeed transformations.  Before the
+final print statement, write binmode(STDOUT).
 </para>
 
 </section>
@@ -689,6 +703,13 @@ The next section will demonstrate how to parse and display feature
 tables from GenBank and EMBL.
 </para>
 
+<para>
+IMPORTANT NOTE: Remember that if you are on a Windows platform, you need to put
+STDOUT into binary mode so that the PNG file does not go through
+Window's carriage return/linefeed transformations.  Before the
+final print statement, write binmode(STDOUT).
+</para>
+
 </section>
 
 <!-- rendering features section -->
@@ -840,7 +861,9 @@ to choose useful label and description values on its own.
 <para>
 After adding all the feature types, we call the panel's
 <function>png()</function> method to generate a graphic file, which we
-print to STDOUT.
+print to STDOUT.  If we are on a Windows platform, we would have to include
+<function>binmode(STDOUT)</function> prior to this statement in order to
+avoid Windows textmode carriage return/linefeed transformations.
 </para>
 
 <para>
