@@ -77,7 +77,6 @@ use strict;
 
 use Bio::PrimarySeq;
 use Bio::Root::IO;
-use IO::File;
 
 @ISA = qw(Bio::PrimarySeq Bio::Root::IO);
 
@@ -96,12 +95,8 @@ sub new {
 
     my $tempdir = $self->tempdir( CLEANUP => 1);
     my ($tfh,$file) = $self->tempfile( DIR => $tempdir );
-    my $fh = IO::File->new($file, O_RDWR);    
-    # hack where IO::File does not want to work
-    if( ! $fh ) { $fh = $tfh; }
-    else { close ($tfh); }
 
-    $fh      && $self->_fh($fh);
+    $tfh     && $self->_fh($tfh);
     $file    && $self->_filename($file);    
     $self->length(0);
     $seq && $self->seq($seq); 
@@ -167,12 +162,10 @@ sub subseq{
    
    my $string;
    my $fh = $self->_fh();
-   if(! (ref($fh) eq 'GLOB' ? seek($fh,$start-1,0) : $fh->seek($start-1,0))) {
+   if(! seek($fh,$start-1,0)) {
        $self->throw("Unable to seek on file $start:$end $!");
    }
-   my $ret = (ref($fh) eq 'GLOB' ?
-	      read($fh, $string, $end-$start+1) :
-	      $fh->read($string, $end-$start+1));
+   my $ret = read($fh, $string, $end-$start+1);
    if( !defined $ret ) {
        $self->throw("Unable to read $start:$end $!");
    }
@@ -197,7 +190,9 @@ sub add_sequence_as_string{
    my ($self,$str) = @_;
    my $len = $self->length + CORE::length($str);
    my $fh = $self->_fh();
-   ref($fh) eq 'GLOB' ? seek($fh,0,2) : $fh->seek(0,2);
+   if(! seek($fh,0,2)) {
+       $self->throw("Unable to seek end of file: $!");
+   }
    $self->_print($str);
    $self->length($len);
 }
@@ -226,10 +221,8 @@ sub _filename{
 
 sub DESTROY {
     my $self = shift;
-    if( defined  $self->_fh ) {
-	my $fh = $self->_fh();
-	ref($fh) eq 'GLOB' ? close($fh) : $fh->close();
-    }
+    my $fh = $self->_fh();
+    close($fh) if( defined $fh );
     unlink $self->_filename;
     $self->SUPER::DESTROY();
 }
