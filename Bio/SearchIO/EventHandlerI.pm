@@ -12,15 +12,20 @@
 
 =head1 NAME
 
-Bio::SearchIO::EventHandlerI - An abstract Event Handler
+Bio::SearchIO::EventHandlerI - An abstract Event Handler for Search Result parsing
 
 =head1 SYNOPSIS
 
-Give standard usage here
+# do not use this object directly it is an interface
+# See Bio::SearchIO::SearchResultEventBuilder for an implementation
+
+    use Bio::SearchIO::SearchResultEventBuilder;
+    my $handler = new Bio::SearchIO::SearchResultEventBuilder();
 
 =head1 DESCRIPTION
 
-Describe the interface here
+This interface describes the basic methods needed to handle Events
+thrown from parsing a Search Result such as FASTA, BLAST, or HMMer.
 
 =head1 FEEDBACK
 
@@ -69,108 +74,101 @@ use strict;
 use Carp;
 
 use Bio::Event::EventHandlerI;
-use Bio::Event::EventGeneratorI;
 
 @ISA = qw (Bio::Event::EventHandlerI);
 
-=head2 start_report
+=head2 start_result
 
- Title   : start_report
- Usage   : $handler->start_report($data)
- Function: Begins a report event cycle
+ Title   : start_result
+ Usage   : $handler->start_result($data)
+ Function: Begins a result event cycle
  Returns : none 
- Args    : Type of Report
+ Args    : Type of Result
 
 =cut
 
-sub start_report {
+sub start_result {
     my ($self) = @_;
-    $self->_abstractDeath('start_report');
+    $self->throw_not_implemented();
 }
 
-=head2 end_report
+=head2 end_result
 
- Title   : end_report
- Usage   :
- Function:
- Example :
- Returns : 
- Args    :
+ Title   : end_result
+ Usage   : $handler->end_result($data)
+ Function: Ends a result event cycle
+ Returns : Bio::Search::Result::ResultI object
+ Args    : none
 
 
 =cut
 
-sub end_report{
+sub end_result{
    my ($self,@args) = @_;
-   $self->_abstractDeath('end_report');
+   $self->throw_not_implemented();
 }
 
 =head2 start_hsp
 
  Title   : start_hsp
- Usage   :
- Function:
- Example :
- Returns : 
- Args    :
-
+ Usage   : $handler->start_hsp($data)
+ Function: Start a HSP event cycle
+ Returns : none
+ Args    : type of element
+           associated hashref
 
 =cut
 
 sub start_hsp{
    my ($self,@args) = @_;
-   $self->_abstractDeath('start_hsp');
+   $self->throw_not_implemented();
 }
 
 =head2 end_hsp
 
  Title   : end_hsp
- Usage   :
- Function:
- Example :
- Returns : 
- Args    :
-
+ Usage   : $handler->end_hsp()
+ Function: Ends a HSP event cycle
+ Returns : Bio::Search::HSP::HSPI object
+ Args    : type of event and associated hashref
 
 =cut
 
 sub end_hsp{
    my ($self,@args) = @_;
-   $self->_abstractDeath('end_hsp');
+   $self->throw_not_implemented();
 }
 
-=head2 start_subject
+=head2 start_hit
 
- Title   : start_subject
- Usage   :
- Function:
- Example :
- Returns : 
- Args    :
+ Title   : start_hit
+ Usage   : $handler->start_hit()
+ Function: Starts a Hit event cycle
+ Returns : none
+ Args    : type of event and associated hashref
 
 
 =cut
 
-sub start_subject{
+sub start_hit {
    my ($self,@args) = @_;
-   $self->_abstractDeath('start_subject');
+   $self->throw_not_implemented
 }
 
-=head2 end_subject
+=head2 end_hit
 
- Title   : end_subject
- Usage   :
- Function:
- Example :
- Returns : 
- Args    :
+ Title   : end_hit
+ Usage   : $handler->end_hit()
+ Function: Ends a Hit event cycle
+ Returns : Bio::Search::Hit::HitI object
+ Args    : type of event and associated hashref
 
 
 =cut
 
-sub end_subject{
+sub end_hit {
    my ($self,@args) = @_;
-   $self->_abstractDeath('end_subject');
+   $self->throw_not_implemented();
 }
 
 =head2 Bio::Event::EventHandlerI methods
@@ -190,75 +188,9 @@ sub end_subject{
 
 =head2 SAX methods
 
-=cut
-
-=head2 start_document
-
- Title   : start_document
- Usage   :
- Function:
- Example :
- Returns : 
- Args    :
-
-
-=head2 end_document
-
- Title   : end_document
- Usage   :
- Function:
- Example :
- Returns : 
- Args    :
-
-
-=head2 start_element
-
- Title   : start_element
- Usage   :
- Function:
- Example :
- Returns : 
- Args    :
-
-=head2 end_element
-
- Title   : end_element
- Usage   :
- Function:
- Example :
- Returns : 
- Args    :
-
-
-=head2 in_element
-
- Title   : in_element
- Usage   :
- Function:
- Example :
- Returns : 
- Args    :
-
-=head2 within_element
-
- Title   : within_element
- Usage   :
- Function:
- Example :
- Returns : 
- Args    :
-
-=head2 characters
-
- Title   : characters
- Usage   :
- Function:
- Example :
- Returns : 
- Args    :
-
+See L<Bio::Event::EventHandlerI> for the additional SAX methods.
 
 =cut
+
 
 1;

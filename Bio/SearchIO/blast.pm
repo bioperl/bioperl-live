@@ -21,9 +21,13 @@ Bio::SearchIO::blast - Event generator for event based parsing of blast reports
 
     use Bio::SearchIO;
     my $searchio = new Bio::SearchIO(-format => 'blast',
-				     -file   => 'file1.bls');
+				     -file   => 't/data/ecolitst.bls');
     while( my $result = $searchio->next_result ) {
-
+	while( my $hit = $result->next_hit ) {
+	    while( my $hsp = $hit->next_hsp ) {
+		
+	    }
+	}
     }
 
 =head1 DESCRIPTION
@@ -456,11 +460,10 @@ sub next_result{
 =head2 start_element
 
  Title   : start_element
- Usage   :
- Function:
- Example :
- Returns : 
- Args    :
+ Usage   : $eventgenerator->start_element
+ Function: Handles a start element event
+ Returns : none
+ Args    : hashref with at least 2 keys 'Data' and 'Name'
 
 
 =cut
@@ -487,12 +490,11 @@ sub start_element{
 
 =head2 end_element
 
- Title   : end_element
- Usage   :
- Function:
- Example :
- Returns : 
- Args    :
+ Title   : start_element
+ Usage   : $eventgenerator->end_element
+ Function: Handles an end element event
+ Returns : none
+ Args    : hashref with at least 2 keys 'Data' and 'Name'
 
 
 =cut
@@ -552,11 +554,10 @@ sub end_element {
 =head2 element
 
  Title   : element
- Usage   :
- Function:
- Example :
- Returns : 
- Args    :
+ Usage   : $eventhandler->element({'Name' => $name, 'Data' => $str});
+ Function: Convience method that calls start_element, characters, end_element
+ Returns : none
+ Args    : Hash ref with the keys 'Name' and 'Data'
 
 
 =cut
@@ -568,15 +569,13 @@ sub element{
    $self->end_element($data);
 }
 
-
 =head2 characters
 
  Title   : characters
- Usage   :
- Function:
- Example :
- Returns : 
- Args    :
+ Usage   : $eventgenerator->characters($str)
+ Function: Send a character events
+ Returns : none
+ Args    : string
 
 
 =cut
@@ -613,14 +612,42 @@ sub _mode{
     return $self->{'_mode'};
 }
 
+=head2 within_element
+
+ Title   : within_element
+ Usage   : if( $eventgenerator->within_element($element) ) {}
+ Function: Test if we are within a particular element
+           This is different than 'in' because within can be tested
+           for a whole block.
+ Returns : boolean
+ Args    : string element name 
+
+
+=cut
+
+sub within_element{
+   my ($self,$name) = @_;  
+   return 0 if ( ! defined $name &&
+		 ! defined  $self->{'_elements'} ||
+		 scalar @{$self->{'_elements'}} == 0) ;
+   foreach (  @{$self->{'_elements'}} ) {
+       if( $_ eq $name  ) {
+	   return 1;
+       } 
+   }
+   return 0;
+}
+
+
 =head2 in_element
 
  Title   : in_element
- Usage   :
- Function:
- Example :
- Returns : 
- Args    :
+ Usage   : if( $eventgenerator->in_element($element) ) {}
+ Function: Test if we are in a particular element
+           This is different than 'in' because within can be tested
+           for a whole block.
+ Returns : boolean
+ Args    : string element name 
 
 
 =cut
@@ -634,11 +661,10 @@ sub in_element{
 =head2 start_document
 
  Title   : start_document
- Usage   : 
- Function:
- Example :
- Returns : 
- Args    :
+ Usage   : $eventgenerator->start_document
+ Function: Handle a start document event
+ Returns : none
+ Args    : none
 
 
 =cut
@@ -655,11 +681,10 @@ sub start_document{
 =head2 end_document
 
  Title   : end_document
- Usage   :
- Function:
- Example :
- Returns : 
- Args    :
+ Usage   : $eventgenerator->end_document
+ Function: Handles an end document event
+ Returns : Bio::Search::Result::ResultI object
+ Args    : none
 
 
 =cut

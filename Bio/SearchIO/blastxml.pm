@@ -92,7 +92,6 @@ $DTD = 'ftp://ftp.ncbi.nlm.nih.gov/blast/documents/NCBI_BlastOutput.dtd';
 # Object preamble - inherits from Bio::Root::Root
 
 use Bio::Root::Root;
-use Bio::SearchIO::EventGeneratorI;
 use Bio::SearchIO;
 use XML::Parser::PerlSAX;
 use XML::Handler::Subs;
