@@ -197,9 +197,10 @@ sub descendent_count{
 
 sub to_string{
    my ($self) = @_;
-   return sprintf("%s%s",defined $self->id ? $self->id : '',
-		  defined $self->branch_length ? 
-		  ":" . $self->branch_length : ' ');
+   return sprintf("%s%s",
+		  defined $self->id ? $self->id : '',
+		  defined $self->branch_length ? ':' . $self->branch_length : ' '
+		 );
 }
 
 =head2 height

@@ -198,7 +198,7 @@ sub _initialize {
     
     # initialize the IO part
     $self->_initialize_io(@args);
-    $self->attach_EventHandler(new Bio::TreeIO::TreeEventBuilder(-verbose => $self->verbose()));
+    $self->attach_EventHandler(new Bio::TreeIO::TreeEventBuilder(-verbose => $self->verbose(), @args));
 }
 
 =head2 _load_format_module

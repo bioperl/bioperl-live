@@ -91,8 +91,49 @@ sub new {
   my($class,@args) = @_;
 
   my $self = $class->SUPER::new(@args);
+  my ($treetype, $nodetype) = $self->_rearrange([qw(TREETYPE NODETYPE)], @args);
+  $self->treetype($treetype || 'Bio::Tree::Tree');
+  $self->nodetype($nodetype || 'Bio::Tree::Node');
   
   return $self;
+}
+
+=head2 treetype
+
+ Title   : treetype
+ Usage   : $obj->treetype($newval)
+ Function: 
+ Returns : value of treetype
+ Args    : newvalue (optional)
+
+
+=cut
+
+sub treetype{
+   my ($self,$value) = @_;
+   if( defined $value) {
+      $self->{'treetype'} = $value;
+    }
+    return $self->{'treetype'};
+}
+
+=head2 nodetype
+
+ Title   : nodetype
+ Usage   : $obj->nodetype($newval)
+ Function: 
+ Returns : value of nodetype
+ Args    : newvalue (optional)
+
+
+=cut
+
+sub nodetype{
+   my ($self,$value) = @_;
+   if( defined $value) {
+      $self->{'nodetype'} = $value;
+    }
+    return $self->{'nodetype'};
 }
 
 
@@ -130,7 +171,7 @@ sub start_document {
 
 sub end_document {
     my ($self) = @_; 
-    my $root = new Bio::Tree::Node();
+    my $root = $self->nodetype->new;
     # aggregate the nodes into trees basically ad-hoc.
     while ( @{$self->{'_currentnodes'}} ) {	
 	my ($node) = ( shift @{$self->{'_currentnodes'}});
@@ -143,7 +184,7 @@ sub end_document {
 	    $self->debug("node is ". $node->to_string(). "\n");
 	}
     }
-    my $tree = new Bio::Tree::Tree(-root => $root);
+    my $tree = $self->treetype->new(-root => $root);
     return $tree;       
 }
 
@@ -161,13 +202,18 @@ sub end_document {
 sub start_element{
    my ($self,$data) =@_;
    $self->{'_lastitem'}->{$data->{'Name'}}++;   
+
+   $self->debug("starting element: $data->{Name}\n");
+
    push @{$self->{'_lastitem'}->{'current'}},$data->{'Name'};
 
    my %data;
    
    if( $data->{'Name'} eq 'node' ) {
        push @{$self->{'_currentitems'}}, \%data; 
-   } 
+   } elsif ( $data->{Name} eq 'tree' ) {
+       $self->{_treelevel}++;
+   }
 }
 
 =head2 end_element
@@ -182,24 +228,29 @@ sub start_element{
 
 sub end_element{
    my ($self,$data) = @_;   
+
+   $self->debug("end of element: $data->{Name}\n");
+
    if( $data->{'Name'} eq 'node' ) {
        my $tnode;
        my $node = pop @{$self->{'_currentitems'}};	   
-       if( $node->{'-id'} ) { 
-	   $tnode = new Bio::Tree::Node( %{$node});
-       } else {
-	   my ($right,$left) = ( pop @{$self->{'_currentnodes'}},
-				 pop @{$self->{'_currentnodes'}},
-				 );
-	   $tnode = new Bio::Tree::Node(%{$node});
-	   $tnode->add_Descendent($right);
-	   $tnode->add_Descendent($left);	   
+
+       $tnode = $self->nodetype->new( %{$node});
+       unless ( $node->{'-id'} ) { 
+	   for ( splice( @{$self->{_currentnodes}}, -$self->{_nodect}->[$self->{_treelevel} + 1]) ) {
+	       $self->debug("adding desc: " . $_->to_string . "\n");
+	       $tnode->add_Descendent($_);
+	   }
+	   $self->{_nodect}->[$self->{_treelevel}+1] = 0;
        }
-       push @{$self->{'_currentnodes'}}, $tnode;       
-       $self->debug ("added node: nodes in stack is ". scalar @{$self->{'_currentnodes'}}. "\n");       
+       push @{$self->{'_currentnodes'}}, $tnode;
+       $self->{_nodect}->[$self->{_treelevel}]++;
+       $self->debug ("added node: nodes in stack is ". scalar @{$self->{'_currentnodes'}} . ", treelevel: $self->{_treelevel}, nodect: $self->{_nodect}->[$self->{_treelevel}]\n");
    } elsif(  $data->{'Name'} eq 'tree' ) { 
        $self->debug("end of tree: nodes in stack is ". scalar @{$self->{'_currentnodes'}}. "\n");
+       $self->{_treelevel}--;
    }
+
    $self->{'_lastitem'}->{ $data->{'Name'} }--; 
    
    pop @{$self->{'_lastitem'}->{'current'}};
@@ -241,7 +292,7 @@ sub in_element{
 
 sub within_element{
    my ($self,$e) = @_;
-   return ( $self->{'_lastitem'}->{$e} );
+   return $self->{'_lastitem'}->{$e};
 }
 
 =head2 characters
@@ -267,9 +318,15 @@ sub characters{
 	   $hash->{'-id'} = $ch;
        } elsif( $self->in_element('description') ) {
 	   $hash->{'-desc'} = $ch;
+       } elsif ( $self->in_element('tag_name') ) {
+	   $hash->{'-NHXtagname'} = $ch;
+       } elsif ( $self->in_element('tag_value') ) {
+	   $hash->{'-nhx'}->{$hash->{'-NHXtagname'}} = $ch;
+	   delete $hash->{'-NHXtagname'};
        }
        push @{$self->{'_currentitems'}}, $hash;
-   } 
+   }
+   $self->debug("chars: $ch\n");
 }
 
 

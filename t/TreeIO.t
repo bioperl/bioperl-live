@@ -18,7 +18,7 @@ BEGIN {
     }
 
     use Test;
-    plan tests => 14; 
+    plan tests => 17; 
 
 #    eval { require XML::Parser::PerlSAX; };
 #    if( $@ ) {
@@ -188,6 +188,21 @@ for ($i = 0; $i <= $#nodes; $i++) {
 if( $verbose > 0  ) {
     $treeout2->write_tree($tree);
 }
+
+$treeio = new Bio::TreeIO(-verbose => $verbose,
+			  -format => 'nhx',
+			  -file   => Bio::Root::IO->catfile('t','data', 
+							    'test.nhx'));
+
+ok($treeio);
+$tree = $treeio->next_tree;
+
+ok(ref($tree) && $tree->isa('Bio::Tree::TreeI'));
+
+@nodes = $tree->get_nodes;
+ok(@nodes, 12, scalar @nodes);
+
+
 
 __DATA__
 (((A:1,B:1):1,(C:1,D:1):1):1,((E:1,F:1):1,(G:1,H:1):1):1);

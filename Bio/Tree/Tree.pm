@@ -119,7 +119,7 @@ sub get_nodes{
    
    my ($order) = $self->_rearrange([qw(ORDER)],@args);
 
-   # this is depth search I believe
+   # this is depth-first search I believe
    my $node = $self->get_root_node;
    my @children = ($node,$node->get_Descendents);
    return @children;
