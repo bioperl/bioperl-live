@@ -20,7 +20,7 @@ Give standard usage here
 
 =head1 DESCRIPTION
 
-Describe the object here
+Calculate pairwise statistics.
 
 =head1 FEEDBACK
 
@@ -164,9 +164,11 @@ sub number_of_gaps{
 #    my $secondseq = shift @seqs;
    my $gapcount = 0;
     for (my $i = 0;$i<$aln->length; $i++ ) { 
-	($gapcount++) && next if( $firstseq->[$i]  =~ /^$GapChars$/);
+	($gapcount++) && next if( ! defined $firstseq->[$i] ||
+				  $firstseq->[$i]  =~ /^$GapChars$/);
 	foreach my $seq ( @seqs ) {
-	    ($gapcount++) && next if( $seq->[$i]  =~ /^$GapChars$/);
+	    ($gapcount++) && next if( ! defined $seq->[$i] ||
+				      $seq->[$i]  =~ /^$GapChars$/);
 	}
     }
     return $gapcount;
