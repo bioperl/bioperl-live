@@ -383,7 +383,7 @@ sub union {
 	    $union_strand = $_->strand;
 	    next;
 	} else {
-	    if($union_strand ne $_->strand) {
+	    if(not defined $_->strand or $union_strand ne $_->strand) {
 		$union_strand = 0;
 		last;
 	    }
