@@ -36,7 +36,12 @@
 	<authorinitials>JES</authorinitials>
 	<revremark>Updated method docs</revremark>
       </revision>
-
+      <revision>
+	<revnumber>0.3</revnumber>
+	<date>2005-03-05</date>
+	<authorinitials>JES</authorinitials>
+	<revremark>Expanded to cover coalescent and others</revremark>
+      </revision>
     </revhistory>
     <legalnotice>
       
@@ -44,9 +49,10 @@
 	copied and distributed under the terms of the Perl Artistic
 	License.</para>
     </legalnotice>
-    <releaseinfo role="cvs">
+<!--    <releaseinfo role="cvs">
 $Id$
     </releaseinfo>      
+-->
    </articleinfo>
 
  <section id="intoduction">
@@ -63,7 +69,7 @@ $Id$
   <para>
 
   To see results of using these tools see Stajich and Hahn (2005)
-  <function>tajima_D</function>, Hahn MW et al (2004)
+  using <function>tajima_D</function>, Hahn MW et al (2004)
   using <function>composite_LD</function>, and Rockman MV et al
   (2003) using <function>F<subscript>st</subscript></function>.
 
@@ -88,19 +94,21 @@ $Id$
     directory.
   </para>
   <para>
+
     Bio::PopGen::Population is a container for a set of
     Bio::PopGen::Individual in order to represent individuals from a
     population.  Each Individual has a set of Bio::PopGen::Genotype
     genotype objects which are an allele set associated with a unique
     marker name.  Methods associated with the Population object can
-    calculate the summary statistics such as <function>pi</function>, <function>theta</function>, <function>heterozygocity</function>
-    by processing each Individual in the set.
+    calculate the summary statistics such
+    as <function>pi</function>, <function>theta</function>, 
+    <function>heterozygocity</function> by processing each Individual
+    in the set.
   </para>
+
   <para>
 
     A Marker is the name given to a polymorphic region of the genome.
-    In some instances a Marker can be a unique collection of primer
-    pair(s).  In other cases it be a set of restriction enzymes.
     Markers are represented by
     a <classname>Bio::PopGen::Marker</classname> object which can
     contain information such as allele frequencies in a population.
@@ -161,9 +169,7 @@ my $ind = Bio::PopGen::Individual->new(-unique_id  => '1001',
    <para>
      There is no restriction on the names of markers nor is there any 
      attempted validation that a genotype's individual_id is equal to
-     the id of Individual is has been associated with it.  It is
-     merely a convience as it is 
-    
+     the id of Individual is has been associated with it.    
    </para>
    <para>
     Additional genotypes can be added to an individual with the
@@ -190,8 +196,9 @@ my $pop = Bio::PopGen::Population->new(-name        => 'pop name',
 $pop->add_Inidividual($ind2);
    </programlisting>
    <para>
-     Using these basic operations one can create a population
-     individuals.  Bio::PopGen::Marker objects are intended to provide
+     Using these basic operations one can create
+     a <classname>Population</classname> of individuals.  
+     <classname>Bio::PopGen::Marker</classname> objects are intended to provide
      summary of information about the markers stored for all the
      individuals.  
    </para>
@@ -206,11 +213,12 @@ $pop->add_Inidividual($ind2);
      coded as a dash ('-'), as a blank or empty (' ', or ''), or as
      missing '?'. The 'N' allele is also considered a blank allele.
      The regexp used to test if an allele is blank is stored in the
-     Bio::PopGen::Genotype as the package variable $BlankAlleles.
+     <classname>Bio::PopGen::Genotype</classname> as the package 
+     variable $BlankAlleles.
      The following code resets the blank allele pattern to
      additionally match '.' as a blank allele.  This code should go
-     BEFORE any code that calls the get_Alleles method in 
-     Bio::PopGen::Genotype;
+     BEFORE any code that calls the <function>get_Alleles</function> method in 
+     <classname>Bio::PopGen::Genotype</classname>.
    </para>
    <programlisting>
      use Bio::PopGen::Genotype;
@@ -245,17 +253,16 @@ $pop->add_Inidividual($ind2);
    <para>
      To read in this CSV we use
      the <classname>Bio::Popgen::IO</classname> object and specify the
-     csv format.  We can
-     call <programlisting>next_individual</programlisting> repeated
-     times to get back a list of the individuals (one is returned
-     after each time the iterator is called).  Additionally
-     the <programlisting>next_population</programlisting> is a
-     convience method which will read in all the individuals at once
-     and create a new Bio::PopGen::Population object containing all of
-     thse individuals.  The CSV format assumes that ',' is the
-     delimiter between columns while '\s+' is the delimiter between
-     alleles.  One can override these settings by providing the
-     -field_delimiter and -allele_delimited argument to
+     csv format.  We can call <function>next_individual</function>
+     repeated times to get back a list of the individuals (one is
+     returned after each time the iterator is called).  Additionally
+     the <function>next_population</function> is a convience method
+     which will read in all the individuals at once and create a
+     new <classname>Bio::PopGen::Population</classname> object
+     containing all of thse individuals.  The CSV format assumes that
+     ',' is the delimiter between columns while '\s+' is the delimiter
+     between alleles.  One can override these settings by providing
+     the -field_delimiter and -allele_delimited argument to
      Bio::Popgen::IO when instantiating.  Additionally a flag called
      -no_header can be supplied which specifies there is no header
      line in the report and that the object should assign arbitrary
@@ -568,7 +575,7 @@ for ( 1..50 ) {
 </section>
 <bibliography>
 <biblioentry>
-  <biblioset relation="article">
+  <bibliomset relation="article">
   <title>Disentangling the effects of demography and selection in
   human history</title>
   <authorgroup>
@@ -583,10 +590,10 @@ for ( 1..50 ) {
     </authorgroup>
     <title>Mol Biol Evol</title>
     <year>2005 </year><volumenum>22(1):63-73</volumenum>
-  </biblioset>
+  </bibliomset>
 </biblioentry>
 <biblioentry>  
-  <biblioset relation="article">
+  <bibliomset relation="article">
     <title>Population genetic and phylogenetic evidence for positive selection on regulatory mutations at the factor VII locus in humans</title>
     <authorgroup>
       <author><firstname>Matthew</firstname>
@@ -610,13 +617,12 @@ for ( 1..50 ) {
       </author>
     </authorgroup>
     <title>Genetics</title>
-    <year>2004 </year> <volumenum>167(2):</volumenum>
-    <pagenums>867-77</pagenums>
-  </biblioset>
+    <year>2004 </year> <volumenum>167(2):867-77</volumenum>
+  </bibliomset>
 </biblioentry>
 <biblioentry>  
   <bibliomset relation="article">
-    <title>Positive selection on a human-specific transcription factor binding site regulating IL4 expression.</title>
+    <title>Positive selection on a human-specific transcription factor binding site regulating IL4 expression</title>
     <authorgroup>
       <author><firstname>Matthew</firstname>
 	<othername role="middle">V</othername>
@@ -639,8 +645,7 @@ for ( 1..50 ) {
       </author>
     </authorgroup>
     <title>Current Biology</title>
-    <year>2003 </year> <volumenum>13(23)</volumenum>
-    <pagenums>2118-23</pagenums>
+    <year>2003 </year> <volumenum>13(23):2118-23</volumenum>
   </bibliomset>
 </biblioentry>
 </bibliography>
