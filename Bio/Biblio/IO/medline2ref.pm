@@ -306,8 +306,8 @@ sub _convert_date {
 
     if (exists $$date{'hour'}) {
 	$converted .= 'T' . $$date{'hour'} .
-	    (exists $$date{'minute'} ? $$date{'minute'} : ':00') .
-		(exists $$date{'minute'} ? $$date{'minute'} : ':00') . 'Z';
+	    ':' . (exists $$date{'minute'} ? $$date{'minute'} : '00') .
+		':' . (exists $$date{'second'} ? $$date{'second'} : '00') . 'Z';
     }
     return $converted;
 }

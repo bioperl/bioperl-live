@@ -199,11 +199,10 @@ sub _load_format_module {
     require $load;
   };
   if ( $@ ) {
-    print STDERR <<END;
+    Bio::Root::Root->throw (<<END);
 $load: $format cannot be found or loaded
 Exception $@
 For more information about the Biblio system please see the Bio::Biblio::IO docs.
-This includes ways of checking for formats at compile time, not run time
 END
   ;
     return;

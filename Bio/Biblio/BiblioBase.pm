@@ -169,7 +169,7 @@ sub _wrong_type_msg {
 #
 sub print_me {
     my ($self) = @_;
-    use Data::Dumper;
+    require Data::Dumper;
     return Data::Dumper->Dump ( [$self], ['Citation']);
 }
 

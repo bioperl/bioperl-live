@@ -87,7 +87,6 @@ use Bio::Biblio::Provider;
 	 _middlename => undef,
 	 _postal_address => undef,
 	 _suffix => undef,
-	 _type => undef,
 	 );
 
     # return 1 if $attr is allowed to be set/get in this class

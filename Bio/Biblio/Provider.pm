@@ -78,6 +78,7 @@ use Bio::Biblio::BiblioBase;
 {
     my %_allowed =
 	(
+	 _type => undef,
 	 );
 
     # return 1 if $attr is allowed to be set/get in this class

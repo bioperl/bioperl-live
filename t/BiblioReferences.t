@@ -16,10 +16,7 @@ BEGIN {
     }
     use Test;
 
-    plan tests => 109 }
-
-use Bio::Biblio::TechReport;
-ok(1);
+    plan tests => 521 }
 
 ## End of black magic.
 ##
@@ -27,168 +24,506 @@ ok(1);
 ## the print "1..x\n" in the BEGIN block to reflect the
 ## total number of tests that will be run. 
 
-my($citation, $citation2, $me, $you, @persons, $link1, $link2);
+my ($biblio, $count, $str, @args);
+my ($citation, $provider, $me, $you);
 
-ok $citation = new Bio::Biblio::TechReport (-identifier => '123');
-ok $citation->identifier, '123';
-ok $citation->identifier('123'), '123';
+my @objects =
+    qw(
+       Bio::Biblio::Article
+       Bio::Biblio::Book
+       Bio::Biblio::BookArticle
+       Bio::Biblio::Journal
+       Bio::Biblio::JournalArticle
+       Bio::Biblio::MedlineArticle
+       Bio::Biblio::MedlineBook
+       Bio::Biblio::MedlineBookArticle
+       Bio::Biblio::MedlineJournal
+       Bio::Biblio::MedlineJournalArticle
+       Bio::Biblio::Organisation
+       Bio::Biblio::Patent
+       Bio::Biblio::Person
+       Bio::Biblio::Proceeding
+       Bio::Biblio::Provider
+       Bio::Biblio::Ref
+       Bio::Biblio::Service
+       Bio::Biblio::TechReport
+       Bio::Biblio::Thesis
+       Bio::Biblio::WebResource
+       );
 
-use Bio::Biblio::MedlineJournalArticle;
-ok $citation = new Bio::Biblio::MedlineJournalArticle (-identifier => '122');
-ok $citation->identifier, '122';
-ok $citation->identifier('122'), '122';
-
-my @string_methods = qw(type title rights language format date spatial_location 
-		     temporal_period last_modified_date repository_subset abstract 
-		     abstract_type toc toc_type 
-		     ); 
-
-foreach my $method (@string_methods) {
-    ok $citation->$method('string'), 'string';
-    ok $citation->$method(), 'string';
+print "Testing 'use Bio::Biblio:: ...'\n";
+foreach my $object (@objects) {
+    eval "use $object 99.99"; # hm, definitely should fail
+    print sprintf ("\t%-45s", "use $object"); ok ($@ =~ /99\.99 required/);
 }
-use Bio::Biblio::Person;
-ok 1;
-ok $me = new Bio::Biblio::Person (-lastname => 'me');
-ok $you = new Bio::Biblio::Person (-lastname => 'you');
 
-ok $citation->publisher($me);
-ok $citation->publisher->lastname(), 'me';
+print "Testing 'new Bio::Biblio:: ...'\n";
+foreach my $object (@objects) {
+    print sprintf ("\t%-45s", "new $object"); ok defined ($biblio = new $object);
+}
 
-ok $citation->add_author($me);
-$citation->add_author($you);
-ok ${ $citation->authors }[1]->lastname, 'you';
+my @scalar_methods_for_ref =
+    qw(
+     abstract
+     abstract_language
+     abstract_type
+     author_list_complete
+     cross_references_list_complete
+     date
+     date_completed
+     date_created
+     date_revised
+     format
+     identifier
+     language
+     last_modified_date
+     repository_subset
+     rights
+     spatial_location
+     subject_headings_source
+     temporal_period
+     title
+     toc
+     toc_type
+     type
+     );
+my @other_methods_for_ref =
+    qw(
+     authors
+     cross_references
+     codes
+     contributors
+     keywords
+     publisher
+     subject_headings
+    );
 
-ok $citation->add_contributor($me);
-$citation->add_contributor($you);
-ok ${ $citation->contributors }[1]->lastname, 'you';
+my @scalar_methods_for_book =
+    qw(
+     edition
+     isbn
+     series
+     volume
+     );
+my @other_methods_for_book =
+    qw(
+     editor
+     );
 
+my @scalar_methods_for_bookarticle =
+    qw(
+     );
+my @other_methods_for_bookarticle =
+    qw(
+     book
+     );
+
+my @scalar_methods_for_article =
+    qw(
+     first_page
+     last_page
+     );
+my @other_methods_for_article =
+    qw(
+     );
+
+my @scalar_methods_for_journalarticle =
+    qw(
+     issue
+     issue_supplement
+     volume
+     );
+my @other_methods_for_journalarticle =
+    qw(
+     journal
+     );
+
+my @scalar_methods_for_medlinearticle =
+    qw(
+     affiliation
+     citation_owner
+     date_of_electronic_publication
+     gene_symbols
+     grant_list_complete
+     medline_date
+     medline_id
+     medline_page
+     number_of_references
+     other_languages
+     pmid
+     season
+     status
+     vernacular_title
+     );
+my @other_methods_for_medlinearticle =
+    qw(
+     chemicals
+     comment_ins
+     comment_ons
+     erratum_fors
+     erratum_ins
+     general_notes
+     grants
+     mesh_headings
+     original_report_ins
+     other_abstracts
+     other_ids
+     republished_froms
+     republished_ins
+     retraction_ins
+     retraction_ofs
+     summary_for_patients_ins
+     update_ins
+     update_ofs
+     );
+
+my @scalar_methods_for_medlinejournalarticle =
+    qw(
+     );
+my @other_methods_for_medlinejournalarticle =
+    qw(
+     journal
+     );
+
+my @scalar_methods_for_medlinebookarticle =
+    qw(
+     );
+my @other_methods_for_medlinebookarticle =
+    qw(
+     book
+     );
+
+my @scalar_methods_for_medlinebook =
+    qw(
+     );
+my @other_methods_for_medlinebook =
+    qw(
+     );
+
+my @scalar_methods_for_medlinebookarticle =
+    qw(
+     );
+my @other_methods_for_medlinebookarticle =
+    qw(
+     book
+     );
+
+my @scalar_methods_for_journal =
+    qw(
+     abbreviation
+     issn
+     name
+     );
+my @other_methods_for_journal =
+    qw(
+     );
+
+my @scalar_methods_for_medlinejournal =
+    qw(
+     coden
+     country
+     medline_code
+     medline_ta
+     nlm_unique_id
+     );
+my @other_methods_for_medlinejournal =
+    qw(
+     );
+
+my @scalar_methods_for_patent =
+    qw(
+     doc_number
+     doc_office
+     doc_type
+     );
+my @other_methods_for_patent =
+    qw(
+     applicants
+     );
+
+my @scalar_methods_for_webresource =
+    qw(
+     url
+     estimated_size
+     cost
+     );
+my @other_methods_for_webresource =
+    qw(
+     );
+
+my @scalar_methods_for_provider =
+    qw(
+     type
+     );
+
+my @scalar_methods_for_person =
+    qw(
+     affiliation
+     email
+     firstname
+     forename
+     initials
+     lastname
+     middlename
+     postal_address
+     suffix
+     );
+
+my @scalar_methods_for_organisation =
+    qw(
+     name
+     );
+
+my @scalar_methods_for_service =
+    qw(
+     name
+     );
+
+#
+# Bio::Biblio::MedlineJournalArticle
+#
+print "Testing Bio::Biblio::MedlineJournalArticle ...\n";
+$citation = new Bio::Biblio::MedlineJournalArticle;
+@args = ();
+$count = 1;
+foreach my $method (@scalar_methods_for_ref,
+                    @scalar_methods_for_article,
+                    @scalar_methods_for_journalarticle,
+                    @scalar_methods_for_medlinearticle,
+                    @scalar_methods_for_medlinejournalarticle) {
+    $str = 'string' . ($count++);
+    print sprintf ("\t%-45s", "set '$method' "); ok $citation->$method ($str), $str;
+    print sprintf ("\t%-45s", "get '$method' "); ok $citation->$method(), $str;
+    push (@args, ("-$method" => $str));
+}
+print sprintf ("\t%-45s", "set all attributes in a constructor");
+ok defined ($biblio = new Bio::Biblio::MedlineJournalArticle (@args));
+for (my $i = 0; $i < @args; $i += 2) {
+    my $method = substr ($args[$i], 1);
+    print sprintf ("\t%-45s", "   $method"); ok $citation->$method(), $args[$i+1];
+}
+foreach my $method (@other_methods_for_ref,
+                    @other_methods_for_article,
+                    @other_methods_for_journalarticle,
+                    @other_methods_for_medlinearticle,
+                    @other_methods_for_medlinejournalarticle) {
+    print sprintf ("\t%-45s", "get '$method' "); ok $citation->$method(), undef;
+}
+my ($me) = new Bio::Biblio::Person (-lastname => 'me');
+my ($you) = new Bio::Biblio::Person (-lastname => 'you');
+print sprintf ("\t%-45s", "add_author 1"); ok $citation->add_author ($me);
+print sprintf ("\t%-45s", "add_author 2"); ok $citation->add_author ($you);
+print sprintf ("\t%-45s", "get authors");  ok ${ $citation->authors }[1]->lastname, 'you';
+
+print sprintf ("\t%-45s", "add_contributor 1"); ok $citation->add_contributor ($me);
+print sprintf ("\t%-45s", "add_contributor 2"); ok $citation->add_contributor ($you);
+print sprintf ("\t%-45s", "get contributors");  ok ${ $citation->contributors }[1]->lastname, 'you';
 
 use Bio::Annotation::DBLink;
-$link1 = new Bio::Annotation::DBLink(-database => 'here',
-				     -primary_id => '001'
-				     );
-$link2 = new Bio::Annotation::DBLink(-database => 'there',
-				     -primary_id => '002'
-				     );
-
-ok $citation->add_cross_reference ($link1);
-$citation->add_cross_reference ($link2);
-ok ${ $citation->cross_references }[0]->database, 'here';
-ok ${ $citation->cross_references }[1]->primary_id, '002';
-
-# all Ref methods tested
-
-use Bio::Biblio::Proceeding;
-ok 1;
-ok $citation = new Bio::Biblio::Proceeding (-title => 'this');
-
-use Bio::Biblio::Thesis;
-ok 1;
-ok $citation = new Bio::Biblio::Thesis (-language => 'English');
-
-use Bio::Biblio::WebResource;
-ok 1;
-ok $citation = new Bio::Biblio::WebResource (-format => 'XML');
+my $link1 = new Bio::Annotation::DBLink(-database => 'here',
+				        -primary_id => '001'
+				        );
+my $link2 = new Bio::Annotation::DBLink(-database => 'there',
+				        -primary_id => '002'
+				        );
+print sprintf ("\t%-45s", "add_cross_reference 1"); ok $citation->add_cross_reference ($link1);
+print sprintf ("\t%-45s", "add_cross_reference 2"); ok $citation->add_cross_reference ($link2);
+print sprintf ("\t%-45s", "get cross_references");  ok ${ $citation->cross_references }[0]->database, 'here';
+print sprintf ("\t%-45s", "get cross_references");  ok ${ $citation->cross_references }[1]->primary_id, '002';
 
 
-ok $citation->url('http://my.own.domain/'), 'http://my.own.domain/';
-ok $citation->url, 'http://my.own.domain/';
-
-ok $citation->estimated_size(12345), 12345;
-ok $citation->estimated_size, 12345;
-
-
-ok $citation->cost('1 euro'), '1 euro';
-ok $citation->cost, '1 euro';
-
-
-
-use Bio::Biblio::Patent;
-ok 1;
-ok $citation = new Bio::Biblio::Patent (-rights => 'no');
-
-
-ok $citation->doc_number('123456789'), '123456789';
-ok $citation->doc_number, '123456789';
-
-ok $citation->doc_office('EPO'), 'EPO';
-ok $citation->doc_office, 'EPO';
-
-ok $citation->doc_type('plain'), 'plain';
-ok $citation->doc_type, 'plain';
-
-#ok $citation->add_applicant($me);
-#$citation->add_applicant($you);
-
-#@persons = $citation->each_applicant;
-#ok $persons[1]->name, 'you';
-
-
-use Bio::Biblio::Book;
-ok 1;
-ok $citation = new Bio::Biblio::Book (-series => 'Masterpieces');
-ok $citation->series, 'Masterpieces';
-ok $citation->series('Rubbish'), 'Rubbish';
-
-ok $citation->isbn('123-123-123'), '123-123-123';;
-ok $citation->isbn(), '123-123-123';
-
-ok $citation->edition('first'), 'first';
-ok $citation->edition(), 'first';
-
-ok $citation->volume('XX');
-ok $citation->volume(), 'XX';
-
-ok $citation->editor($me);
-ok $citation->editor->lastname, 'me';
+#
+# Bio::Biblio::MedlineBookArticle
+#
+print "Testing Bio::Biblio::MedlineBookArticle ...\n";
+$citation = new Bio::Biblio::MedlineBookArticle;
+@args = ();
+$count = 1;
+foreach my $method (@scalar_methods_for_ref,
+                    @scalar_methods_for_article,
+                    @scalar_methods_for_bookarticle,
+                    @scalar_methods_for_medlinearticle,
+                    @scalar_methods_for_medlinebookarticle) {
+    $str = 'string' . ($count++);
+    print sprintf ("\t%-45s", "set '$method' "); ok $citation->$method ($str), $str;
+    print sprintf ("\t%-45s", "get '$method' "); ok $citation->$method(), $str;
+    push (@args, ("-$method" => $str));
+}
+print sprintf ("\t%-45s", "set all attributes in a constructor");
+ok defined ($biblio = new Bio::Biblio::MedlineBookArticle (@args));
+for (my $i = 0; $i < @args; $i += 2) {
+    my $method = substr ($args[$i], 1);
+    print sprintf ("\t%-45s", "   $method"); ok $citation->$method(), $args[$i+1];
+}
+foreach my $method (@other_methods_for_ref,
+                    @other_methods_for_article,
+                    @other_methods_for_bookarticle,
+                    @other_methods_for_medlinearticle,
+                    @other_methods_for_medlinebookarticle) {
+    print sprintf ("\t%-45s", "get '$method' "); ok $citation->$method(), undef;
+}
 
 
-use Bio::Biblio::Article;
-ok 1;
-ok $citation2 = new Bio::Biblio::Article (-first_page => 222);
-ok $citation2->first_page, 222;
-ok $citation2->first_page(333), 333;
+#
+# Bio::Biblio::MedlineBook
+#
+print "Testing Bio::Biblio::MedlineBook ...\n";
+$citation = new Bio::Biblio::MedlineBook;
+@args = ();
+$count = 1;
+foreach my $method (@scalar_methods_for_ref,
+                    @scalar_methods_for_book,
+                    @scalar_methods_for_medlinebook) {
+    $str = 'string' . ($count++);
+    print sprintf ("\t%-45s", "set '$method' "); ok $citation->$method ($str), $str;
+    print sprintf ("\t%-45s", "get '$method' "); ok $citation->$method(), $str;
+    push (@args, ("-$method" => $str));
+}
+print sprintf ("\t%-45s", "set all attributes in a constructor");
+ok defined ($biblio = new Bio::Biblio::MedlineBook (@args));
+for (my $i = 0; $i < @args; $i += 2) {
+    my $method = substr ($args[$i], 1);
+    print sprintf ("\t%-45s", "   $method"); ok $citation->$method(), $args[$i+1];
+}
+foreach my $method (@other_methods_for_ref,
+                    @other_methods_for_book,
+                    @other_methods_for_medlinebook) {
+    print sprintf ("\t%-45s", "get '$method' "); ok $citation->$method(), undef;
+}
 
-ok $citation2->last_page(444), 444;;
-ok $citation2->last_page(), 444;
+#
+# Bio::Biblio::MedlineJournal
+#
+print "Testing Bio::Biblio::MedlineJournal ...\n";
+$citation = new Bio::Biblio::MedlineJournal;
+@args = ();
+$count = 1;
+foreach my $method (@scalar_methods_for_journal,
+                    @scalar_methods_for_medlinejournal) {
+    $str = 'string' . ($count++);
+    print sprintf ("\t%-45s", "set '$method' "); ok $citation->$method ($str), $str;
+    print sprintf ("\t%-45s", "get '$method' "); ok $citation->$method(), $str;
+    push (@args, ("-$method" => $str));
+}
+print sprintf ("\t%-45s", "set all attributes in a constructor");
+ok defined ($biblio = new Bio::Biblio::MedlineJournal (@args));
+for (my $i = 0; $i < @args; $i += 2) {
+    my $method = substr ($args[$i], 1);
+    print sprintf ("\t%-45s", "   $method"); ok $citation->$method(), $args[$i+1];
+}
+foreach my $method (@other_methods_for_journal,
+                    @other_methods_for_medlinejournal) {
+    print sprintf ("\t%-45s", "get '$method' "); ok $citation->$method(), undef;
+}
 
-use Bio::Biblio::BookArticle;
-ok 1;
-ok $citation2 = new Bio::Biblio::BookArticle (-first_page => 222);
-ok $citation2->first_page, 222;
-ok $citation2->first_page(333), 333;
+#
+# Bio::Biblio::Patent
+#
+print "Testing Bio::Biblio::Patent ...\n";
+$citation = new Bio::Biblio::Patent;
+@args = ();
+$count = 1;
+foreach my $method (@scalar_methods_for_patent) {
+    $str = 'string' . ($count++);
+    print sprintf ("\t%-45s", "set '$method' "); ok $citation->$method ($str), $str;
+    print sprintf ("\t%-45s", "get '$method' "); ok $citation->$method(), $str;
+    push (@args, ("-$method" => $str));
+}
+print sprintf ("\t%-45s", "set all attributes in a constructor");
+ok defined ($biblio = new Bio::Biblio::Patent (@args));
+for (my $i = 0; $i < @args; $i += 2) {
+    my $method = substr ($args[$i], 1);
+    print sprintf ("\t%-45s", "   $method"); ok $citation->$method(), $args[$i+1];
+}
+foreach my $method (@other_methods_for_patent) {
+    print sprintf ("\t%-45s", "get '$method' "); ok $citation->$method(), undef;
+}
 
-ok $citation2->book($citation);
-ok $citation2->book->edition, 'first';
+#
+# Bio::Biblio::WebResource
+#
+print "Testing Bio::Biblio::WebResource ...\n";
+$citation = new Bio::Biblio::WebResource;
+@args = ();
+$count = 1;
+foreach my $method (@scalar_methods_for_webresource) {
+    $str = 'string' . ($count++);
+    print sprintf ("\t%-45s", "set '$method' "); ok $citation->$method ($str), $str;
+    print sprintf ("\t%-45s", "get '$method' "); ok $citation->$method(), $str;
+    push (@args, ("-$method" => $str));
+}
+print sprintf ("\t%-45s", "set all attributes in a constructor");
+ok defined ($biblio = new Bio::Biblio::WebResource (@args));
+for (my $i = 0; $i < @args; $i += 2) {
+    my $method = substr ($args[$i], 1);
+    print sprintf ("\t%-45s", "   $method"); ok $citation->$method(), $args[$i+1];
+}
+foreach my $method (@other_methods_for_webresource) {
+    print sprintf ("\t%-45s", "get '$method' "); ok $citation->$method(), undef;
+}
 
 
-use Bio::Biblio::Journal;
-ok 1;
-my $journal;
-ok $journal = new Bio::Biblio::Journal (-name => 'Nature');
-ok $journal->name, 'Nature';
-ok $journal->name('Science'), 'Science';
+#
+# Bio::Biblio::Person
+#
+print "Testing Bio::Biblio::Person ...\n";
+$provider = new Bio::Biblio::Person;
+@args = ();
+$count = 1;
+foreach my $method (@scalar_methods_for_provider,
+                    @scalar_methods_for_person) {
+    $str = 'string' . ($count++);
+    print sprintf ("\t%-45s", "set '$method' "); ok $provider->$method ($str), $str;
+    print sprintf ("\t%-45s", "get '$method' "); ok $provider->$method(), $str;
+    push (@args, ("-$method" => $str));
+}
+print sprintf ("\t%-45s", "set all attributes in a constructor");
+ok defined ($biblio = new Bio::Biblio::Person (@args));
+for (my $i = 0; $i < @args; $i += 2) {
+    my $method = substr ($args[$i], 1);
+    print sprintf ("\t%-45s", "   $method"); ok $provider->$method(), $args[$i+1];
+}
 
+#
+# Bio::Biblio::Organisation
+#
+print "Testing Bio::Biblio::Organisation ...\n";
+$provider = new Bio::Biblio::Organisation;
+@args = ();
+$count = 1;
+foreach my $method (@scalar_methods_for_provider,
+                    @scalar_methods_for_organisation) {
+    $str = 'string' . ($count++);
+    print sprintf ("\t%-45s", "set '$method' "); ok $provider->$method ($str), $str;
+    print sprintf ("\t%-45s", "get '$method' "); ok $provider->$method(), $str;
+    push (@args, ("-$method" => $str));
+}
+print sprintf ("\t%-45s", "set all attributes in a constructor");
+ok defined ($biblio = new Bio::Biblio::Organisation (@args));
+for (my $i = 0; $i < @args; $i += 2) {
+    my $method = substr ($args[$i], 1);
+    print sprintf ("\t%-45s", "   $method"); ok $provider->$method(), $args[$i+1];
+}
 
-use Bio::Biblio::JournalArticle;
-ok 1;
-ok $citation = new Bio::Biblio::JournalArticle (-identifier => '9999999');
-ok $citation->identifier, '9999999';
-ok $citation->identifier('000000'), '000000';
+#
+# Bio::Biblio::Service
+#
+print "Testing Bio::Biblio::Service ...\n";
+$provider = new Bio::Biblio::Service;
+@args = ();
+$count = 1;
+foreach my $method (@scalar_methods_for_provider,
+                    @scalar_methods_for_organisation) {
+    $str = 'string' . ($count++);
+    print sprintf ("\t%-45s", "set '$method' "); ok $provider->$method ($str), $str;
+    print sprintf ("\t%-45s", "get '$method' "); ok $provider->$method(), $str;
+    push (@args, ("-$method" => $str));
+}
+print sprintf ("\t%-45s", "set all attributes in a constructor");
+ok defined ($biblio = new Bio::Biblio::Service (@args));
+for (my $i = 0; $i < @args; $i += 2) {
+    my $method = substr ($args[$i], 1);
+    print sprintf ("\t%-45s", "   $method"); ok $provider->$method(), $args[$i+1];
+}
 
-ok $citation->volume(123), 123;;
-ok $citation->volume(), '123';
-
-ok $citation->issue('12b'), '12b';
-ok $citation->issue(), '12b';
-
-ok $citation->issue_supplement('c'), 'c';
-ok $citation->issue_supplement(), 'c';
-
-
-ok $citation->volume('XX'); ok $citation->volume(), 'XX';
-
-
-ok $citation->journal($journal);
-ok $citation->journal->name(), 'Science';
+__END__

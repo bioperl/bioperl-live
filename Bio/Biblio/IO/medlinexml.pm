@@ -155,10 +155,17 @@ sub _parse {
     my ($self) = shift;
 
 
-    if ($self->{'_file'}) {
+    if (defined $self->{'_file'}) {
 	$self->{'_xml_parser'}->parsefile ($self->{'_file'});
-    } elsif ($self->{'_fh'}) {
-	$self->{'_xml_parser'}->parse ($self->{'_fh'});
+    } elsif (defined $self->{'_fh'}) {
+	my $fh = $self->{'_fh'};
+	if (ref ($fh) and UNIVERSAL::isa ($fh, 'IO::Handler')) {
+	    $self->{'_xml_parser'}->parse ($fh);
+	} else {
+	    my $data;
+	    $data .= $_ while <$fh>;
+	    $self->{'_xml_parser'}->parse ($data);
+	}
     } elsif ($self->{'_data'}) {
 	$self->{'_xml_parser'}->parse ($self->{'_data'});
     } else {
@@ -654,7 +661,7 @@ sub handle_end {
 
     } elsif ($e eq 'DeleteCitation') {
 	pop @ObjectStack;
-	warn ("'DeleteCitation' tag found. Not known what to do with it.");
+###	warn ("'DeleteCitation' tag found. Not known what to do with it.");   # silently ignored
 
     } elsif ($e eq 'MedlineCitation') {
 

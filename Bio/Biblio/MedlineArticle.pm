@@ -87,6 +87,7 @@ use Bio::Biblio::Article;
 	 _date_of_electronic_publication => undef,
 	 _erratum_fors => 'ARRAY',
 	 _erratum_ins => 'ARRAY',
+	 _gene_symbols => undef,
 	 _general_notes => 'ARRAY',
 	 _grant_list_complete => undef,
 	 _grants => 'ARRAY',

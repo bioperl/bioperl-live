@@ -320,7 +320,6 @@ if ($opt_V) {
 
 	# ...print all entries from a given vocabulary (-Va::<name>)
 	} elsif ($opt_V =~ /^a/) {
-	    use Data::Dumper;
 	    print Data::Dumper->Dump ( [$biblio->get_all_entries ($name)], ['All entries']);
 
 	# ...print description of a given vocabulary entry (-Vd::<name>::<value>)
