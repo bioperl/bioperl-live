@@ -88,9 +88,6 @@ sub new {
 
   my $self = $class->SUPER::new(@args);
 
-  $self->{'_classification'} = [];
-  $self->{'_common_name'} = undef;
-  
   my ($id, $cn,$div,$org,$sp,$var,
       $classification) = $self->_rearrange([qw(NCBI_TAXID
 					       COMMON_NAME
@@ -101,6 +98,7 @@ sub new {
 					       CLASSIFICATION)], @args);
   if( defined $classification &&
       (ref($classification) eq "ARRAY") ) {
+      print "classification was @$classification\n";
       $self->classification(@$classification);
   }
   defined $id  && $self->ncbi_taxid($id);
@@ -241,9 +239,9 @@ sub species {
 
     if (defined $species) {
         $self->validate_species_name( $species );
-        $self->{'classification'}[0] = $species;
+        $self->{'_classification'}[0] = $species;
     }
-    return $self->{'classification'}[0];
+    return $self->{'_classification'}[0];
 }
 
 =head2 genus
@@ -265,9 +263,9 @@ sub genus {
 
     if (defined $genus) {
         $self->validate_name( $genus );
-        $self->{'classification'}[1] = $genus;
+        $self->{'_classification'}[1] = $genus;
     }
-    return $self->{'classification'}[1];
+    return $self->{'_classification'}[1];
 }
 
 =head2 sub_species
@@ -366,8 +364,8 @@ sub ncbi_taxid {
 sub division{
     my $self = shift;
     
-    return $self->{'division'} = shift if @_;
-    return $self->{'division'};
+    return $self->{'_division'} = shift if @_;
+    return $self->{'_division'};
 }
 
 1;
