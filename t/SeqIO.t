@@ -9,7 +9,7 @@ BEGIN {
 	use lib 't';
     }
     use Test;
-    $TESTCOUNT = 146;
+    $TESTCOUNT = 182;
     plan tests => $TESTCOUNT;
 }
 
