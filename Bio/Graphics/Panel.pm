@@ -165,9 +165,10 @@ sub map_no_trunc {
   my $pr     = $self->{width} - $self->{pad_right};
   my $flip   = $self->{flip};
   my $length = $self->{length};
+  my $end    = $offset+$length;
   my @result;
   foreach (@_) {
-    my $val = $flip ? int (0.5 + $pr - ($length - ($_- 1)) * $scale) : int (0.5 + $pl + ($_-$offset-1) * $scale);
+    my $val = $flip ? int (0.5 + $pl + ($end - ($_- 1)) * $scale) : int (0.5 + $pl + ($_-$offset-1) * $scale);
     push @result,$val;
   }
   @result;

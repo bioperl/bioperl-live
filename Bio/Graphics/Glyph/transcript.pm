@@ -54,14 +54,14 @@ sub draw_connectors {
   if ($strand >= 0) {
     my($x1,$y1,$x2,$y2) = $last->bounds(@_);
     my $center = ($y2+$y1)/2;
-    exists $self->{flip} ?
+    $self->{flip} ?
 	$self->arrow($gd,$x1,$x1-$self->arrow_length,$center)
       :
 	$self->arrow($gd,$x2,$x2+$self->arrow_length,$center);
   } else {
     my($x1,$y1,$x2,$y2) = $first->bounds(@_);
     my $center = ($y2+$y1)/2;
-    exists $self->{flip } ?
+    $self->{flip } ?
 	$self->arrow($gd,$x2,$x2+$self->arrow_length,$center)
       :
 	$self->arrow($gd,$x1,$x1 - $self->arrow_length,$center);

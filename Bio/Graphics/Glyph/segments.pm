@@ -80,6 +80,7 @@ sub draw_component {
     if ($draw_target && $self->option('ragged_start')){
       my $target = $self->feature->hit;
       if ($target->start < $target->end && $target->start < RAGGED_START_FUZZ  && $self->{partno} == 0) {
+	warn "ragged left";
 	$offset = $target->start - 1;
 	if ($offset > 0) {
 	  $dna       = $target->subseq(1-$offset,0)->seq . $dna;
@@ -88,6 +89,7 @@ sub draw_component {
 	}
       }
       elsif ($target->end < $target->start && $target->end < RAGGED_START_FUZZ && $self->{partno} == $self->{total_parts}) {
+	warn "ragged right";
 	$offset = $target->end - 1;
 	if ($offset > 0) {
 	  $dna       .= $target->factory->get_dna($target,$offset,1);
@@ -107,7 +109,15 @@ sub draw_dna {
 
   my ($gd,$start_offset,$dna,$genomic,$x1,$y1,$x2,$y2) = @_;
   my $pixels_per_base = $self->scale;
-  my $complement      = $self->feature->strand < 0;
+  my $strand          = $self->feature->strand;
+  $strand            *= -1 if $self->{flip};
+  my $complement      = $strand < 0;
+
+
+  # flipping was an afterthought, and as a result this section
+  # is not well thought out.
+
+  $dna = $self->reversec($dna) if $self->{flip};
 
   my @bases   = split '',$dna;
   my @genomic = split '',$genomic;
@@ -119,10 +129,11 @@ sub draw_dna {
   my $pink = $self->factory->translate_color('lightpink');
 
   my $start  = $self->map_no_trunc($self->feature->start-$start_offset);
-  my $offset = int (($x1-$start-1)/$pixels_per_base);
+  my $end    = $self->map_no_trunc($self->feature->end-$start_offset);
+  my $offset = $self->{flip} ? int (($x2-$start)/$pixels_per_base) : int (($x1-$start-1)/$pixels_per_base);
 
   for (my $i=$offset;$i<@bases;$i++) {
-    my $x = int($start + $i * $pixels_per_base+0.5);
+    my $x = $self->{flip} ? int($end + ($i-1) * $pixels_per_base+0.5) : int($start + $i * $pixels_per_base+0.5);
     next if $x+1 < $x1;
     last if $x+1 > $x2;
     if ($genomic[$i] && lc($bases[$i]) ne lc($complement ? $complement{$genomic[@genomic - $i - 1]} : $genomic[$i])) {

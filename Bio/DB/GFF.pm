@@ -1494,7 +1494,7 @@ sub load_fasta {
   my $self              = shift;
   my $file_or_directory = shift || '.';
   open SAVEIN,"<&STDIN";
-  local @ARGV = $self->setup_argv($file_or_directory,'fa') or return;  # to play tricks with reader
+  local @ARGV = $self->setup_argv($file_or_directory,'fa','dna','fasta') or return;  # to play tricks with reader
   my $result = $self->load_sequence();
   open STDIN,"<&SAVEIN";  # restore STDIN
   return $result;
@@ -1523,13 +1523,13 @@ sub load_sequence_string {
 sub setup_argv {
   my $self = shift;
   my $file_or_directory = shift;
-  my $suffix = shift;
+  my @suffixes          = @_;
   no strict 'refs';  # so that we can call fileno() on the argument
 
   my @argv;
 
   if (-d $file_or_directory) {
-    @argv = glob("$file_or_directory/*.{$suffix,$suffix.gz,$suffix.Z,$suffix.bz2}");
+    @argv = map { glob("$file_or_directory/*.{$_,$_.gz,$_.Z,$_.bz2}")} @suffixes;
   } elsif (my $fd = fileno($file_or_directory)) {
     open STDIN,"<&=$fd" or $self->throw("Can't dup STDIN");
     @argv = '-';

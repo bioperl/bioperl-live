@@ -45,8 +45,8 @@ sub new {
 
     # dynamic glyph resolution
     @subglyphs = map { $_->[0] }
-    sort { $a->[1] <=> $b->[1] }
-    map { [$_, $_->left ] } 
+          sort { $a->[1] <=> $b->[1] }
+             map { [$_, $_->left ] } 
     $factory->make_glyph($level+1,@subfeatures);
 
     $self->{parts}   = \@subglyphs;
@@ -102,7 +102,7 @@ sub scale   { shift->factory->scale }
 sub start   {
   my $self = shift;
   return $self->{start} if exists $self->{start};
-  $self->{start} = exists $self->{flip} ? $self->panel->end + 1 - $self->{feature}->end : $self->{feature}->start;
+  $self->{start} = $self->{flip} ? $self->panel->end + 1 - $self->{feature}->end : $self->{feature}->start;
 
   # handle the case of features whose endpoints are undef
   # (this happens with wormbase clones where one or more clone end is not defined)
@@ -114,7 +114,7 @@ sub start   {
 sub stop    {
   my $self = shift;
   return $self->{stop} if exists $self->{stop};
-  $self->{stop} = exists $self->{flip} ?  $self->panel->end + 1 - $self->{feature}->start : $self->{feature}->end;
+  $self->{stop} = $self->{flip} ?  $self->panel->end + 1 - $self->{feature}->start : $self->{feature}->end;
 
   # handle the case of features whose endpoints are undef
   # (this happens with wormbase clones where one or more clone end is not defined)
@@ -656,10 +656,8 @@ sub draw_connectors {
   if (@parts) {
     my($x1,$y1,$x2,$y2) = $self->bounds(0,0);
     my($xl,$xt,$xr,$xb) = $parts[0]->bounds;
-#    $self->_connector($gd,$dx,$dy,$x1,$xt,$x1,$xb,$xl,$xt,$xr,$xb)      if $x1 <= $self->panel->left;
     $self->_connector($gd,$dx,$dy,$x1,$xt,$x1,$xb,$xl,$xt,$xr,$xb)      if $x1 < $xl;
     my ($xl2,$xt2,$xr2,$xb2) = $parts[-1]->bounds;
-#    $self->_connector($gd,$dx,$dy,$parts[-1]->bounds,$x2,$xt2,$x2,$xb2) if $x2 >= $self->panel->right;
     $self->_connector($gd,$dx,$dy,$parts[-1]->bounds,$x2,$xt2,$x2,$xb2) if $x2 > $xr;
   }
 
@@ -679,7 +677,7 @@ sub _connector {
   my $bottom2  = $dy + $yb;
   # restore this comment if you don't like the group dash working
   # its way backwards.
-  #    return unless $right-$left > 1;
+  return if $right-$left < 1 && !$self->isa('Bio::Graphics::Glyph::group');
 
   $self->draw_connector($gd,
 			$top1,$bottom1,$left,
@@ -821,7 +819,7 @@ sub filled_arrow {
   my $self = shift;
   my $gd  = shift;
   my $orientation = shift;
-  $orientation *= -1 if exists $self->{flip};
+  $orientation *= -1 if $self->{flip};
 
   my ($x1,$y1,$x2,$y2) = @_;
 
