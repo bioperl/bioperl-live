@@ -52,10 +52,9 @@ the Bioperl mailing list.  Your participation is much appreciated.
 =head2 Reporting Bugs
 
 Report bugs to the Bioperl bug tracking system to help us keep track
-of the bugs and their resolution. Bug reports can be submitted via
-email or the web:
+of the bugs and their resolution. Bug reports can be submitted via the
+web:
 
-  bioperl-bugs@bioperl.org
   http://bugzilla.bioperl.org/
 
 =head1 AUTHOR - Hilmar Lapp
@@ -64,7 +63,7 @@ Email hlapp at gmx.net
 
 =head1 CONTRIBUTORS
 
-Additional contributors names and emails here
+Jason Stajich, jason-at-bioperl-dot-org
 
 =head1 APPENDIX
 
@@ -213,11 +212,17 @@ sub _parse_location {
     if ( ($start =~ /[\>\<\?\.\^]/) || ($end   =~ /[\>\<\?\.\^]/) ) {
 	$locclass = 'Bio::Location::Fuzzy';
     } 
+    my $strand = 1;
 
+    if( $start > $end ) {
+	($start,$end,$strand) = ($end,$start,-1);
+    }
     # instantiate location and initialize
     $loc = $locclass->new(-verbose => $self->verbose,
-			  -start => $start, -end  => $end, 
-			  -strand => 1, -location_type => $loctype);
+			  -start   => $start, 
+			  -end     => $end, 
+			  -strand  => $strand, 
+			  -location_type => $loctype);
     # set remote ID if remote location
     if($seqid) {
 	$loc->is_remote(1);
