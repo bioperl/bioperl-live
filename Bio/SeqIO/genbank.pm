@@ -333,7 +333,8 @@ sub write_seq {
     
     my $temp_line;
     if( $self->_id_generation_func ) {
-	$temp_line = &{$self->_id_generation_func}($seq);
+	my $t2 = &{$self->_id_generation_func}($seq,'genbank');
+	$temp_line = sprintf ("%-12s%s",'LOCUS',$t2);
     } else {
 	my $date = '';
 	if( $seq->can('get_dates') ) { 
