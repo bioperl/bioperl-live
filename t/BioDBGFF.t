@@ -38,6 +38,11 @@ my %PREFERRED_DRIVERS  = map {$_=>$idx++} @PREFERRED_DRIVERS;
 
 my $adaptor = shift || 'dbi::mysqlopt';
 my @args;
+
+if( ! -e 't/do_biodbgff.tests' ) {
+  bail(TEST_COUNT,'Skipped by user');
+}
+
 if ($adaptor =~ /^dbi/) {
   eval { require DBI } or bail(TEST_COUNT,'DBI driver is missing');
   my $cfg = ChooseDrivers() or bail(TEST_COUNT,'Skipped by user');

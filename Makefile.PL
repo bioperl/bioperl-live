@@ -72,6 +72,29 @@ sub MY::postamble {
              $tline;
            }
 
+#
+# Prompt user for BioGFFDB stuff
+#
+
+if(  eval { require DBI } ) {
+  my $proceed = user_prompt("Do you want to run the BioGFFDB tests (requires mysql) y/n",'n');
+  if( $proceed eq 'y' ) {
+    system("touch t/do_biodbgff.tests");
+  }
+}
+
+sub user_prompt ($;$) {
+    my($mess,$def)=@_;
+    Carp::confess("prompt function called without an argument") unless defined $mess;
+    my $dispdef = defined $def ? "[$def] " : " ";
+    $def = defined $def ? $def : "";
+    my $ans;
+    local $|=1;
+    print STDERR "$mess $dispdef";
+    chomp($ans = <STDIN>);
+    return ($ans ne '') ? $ans : $def;
+}
+
 
 				           
 #
