@@ -473,8 +473,8 @@ use Bio::Seq;
     </para>
 <para></para>
 	 <para>
-		This line tells Perl to "use" a module on your machine called
-		"Bio/Seq.pm".
+		This line tells Perl to <function>use</function> a module on 
+		your machine called "Bio/Seq.pm".
 		We will use this 
 		<ulink
 		url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Seq.html">Bio::Seq</ulink>
@@ -742,7 +742,7 @@ use Bio::SeqIO;
 $seqio_obj = Bio::SeqIO->new(-file => "sequence.fa",
                              -format => "fasta" );
 		  
-$seq_obj = $seqio->next_seq;
+$seq_obj = $seqio_obj->next_seq;
 		</programlisting>
 	 </para>
 <para></para>
@@ -771,7 +771,7 @@ $seq_obj = $seqio->next_seq;
 	 </para>
 	 <para>
 		<programlisting>
-while ($seq_obj = $seqio->next_seq){
+while ($seq_obj = $seqio_obj->next_seq){
     # print the sequence
     print $seq_obj->seq,"\n";
 }
@@ -1567,7 +1567,7 @@ SQ   SEQUENCE   913 AA;  101638 MW;  D0E135DBEC30C28C CRC64;
 		url="http://bioinformatics.ubc.ca/resources/tools/index.php?name=blastall">BLAST</ulink>,
 		so let's use it as an example. First you'll need to get 
 		BLAST, also known as blastall, installed on your machine
-		and running. This example assumes that you used the formatdb 
+		and running. This example also assumes that you used the formatdb 
 		program to index the database sequence file "db.fa".
 	 </para>
     <para>
@@ -1636,6 +1636,138 @@ print $result_obj->num_hits;
 	 </para>
   </section>
 
+  <section id="indexing">
+	 <title>Indexing for Fast Retrieval</title>
+	 <para>
+		One of the under-appreciated features of Bioperl is its ability
+		to index sequence files. The idea is that you would create some sequence
+		file locally and create an index file for it that enables you to 
+		retrieve sequences from the sequence file. Why would you want to do this?
+		Speed, for one. Retrieving sequences from local, indexed
+		sequence files is much faster than using the Bio::DB* modules
+		that were used above. It's also much faster than using SeqIO,
+		in part because SeqIO is stepping through the file, one at a 
+		time, starting at
+		the beginning of the file. Flexibility would be another reason. What
+		if you'd created your own collection of sequences, not found in
+		a public database?
+	 </para>
+	 <para>
+		There's only one requirement here, the term or id that you
+		use to retrieve the sequence object must be unique in the index,
+		these indices are not built to retrieve multiple sequence
+		objects at a time.
+	 </para>
+	 <para>
+		Let's begin our script with the <function>use</function>
+		statement and also set up our environment with some
+		variables (the sequence file, fasta format, will be called 
+		"sequence.fa"):
+	 </para>
+	 <para>
+		<programlisting>
+use Bio::Index::Fasta;
+$ENV{BIOPERL_INDEX_TYPE} = "SDBM_File";
+$ENV{BIOPERL_INDEX} = ".";
+		</programlisting>
+	 </para>
+	 <para></para>
+	 <para>
+		Yes, you can set environmental variables from within Perl and
+		they are stored in Perl's own <varname>%ENV</varname> hash.
+		This is essentially the same thing as the following in tcsh
+		or csh:
+	 </para>
+	 <para>
+		<programlisting>
+>setenv BIOPERL_INDEX_TYPE SDBM_File
+		</programlisting>
+	 </para>
+	 <para></para>
+	 <para>
+		Or the following in the bash shell:
+	 </para>
+<para></para>
+	 <para>
+		<programlisting>
+>export BIOPERL_INDEX_TYPE=SDBM_File
+		</programlisting>
+	 </para>
+	 <para></para>
+	 <para>
+		The BIOPERL_INDEX_TYPE variable refers to the indexing scheme, 
+		and SDBM_File is the scheme that comes with Perl. BIOPERL_INDEX
+		stipulates the location of the index file, this way you could have more 
+		than one index file per sequence file if you wanted (and the 
+		utility of more than 1 index will become apparent).
+	 </para>
+	 <para>
+		Now let's construct the index:
+	 </para>
+	 <para>
+		<programlisting>
+$ENV{BIOPERL_INDEX_TYPE} = "SDBM_File";
+$ENV{BIOPERL_INDEX} = ".";
+use Bio::Index::Fasta;
+
+$file_name = "sequence.fa";
+$id = "48882";
+$inx = Bio::Index::Fasta->new (-filename => $file_name . ".idx",
+                               -write_flag => 1);
+$inx->make_index($file_name);
+		</programlisting>
+	 </para>
+	 <para></para>
+	 <para>
+		You would execute this script in the directory containing the
+		"sequence.fa" file, and it would create an index file called
+		"sequence.fa.idx". Then you would retrieve a sequence object
+		like this:
+	 </para>
+	 <para>
+		<programlisting>
+$seq_obj = $inx->fetch($id)
+		</programlisting>
+	 </para>
+	 <para></para>
+	 <para>
+		By default the indexing code will use the string following the 
+		<emphasis>&gt;</emphasis> character as a key, meaning that fasta header line
+		should look something like this:
+	 </para>
+	 <para>
+		<programlisting>
+>48882 pdb|1CRA
+		</programlisting>
+	 </para>
+	 <para></para>
+	  <para>
+		However, what if you wanted to retrieve using some other key,
+		like "1CRA" in this example? You can customize the index by 
+		using the <function>id_parser</function> method, which accepts
+		the name of a function as an argument where that function
+		tells the indexing object what key to use. For example:
+	 </para>
+	 <para>
+		<programlisting>
+$inx->id_parser(\&amp;get_id);
+$inx->make_index($file_name);
+
+sub get_id {
+	$header = shift;
+	$header =~ /pdb\|(\S+)/;
+	$1;
+}
+		</programlisting>
+	 </para>
+	 <para></para>
+	 <para>
+		To be precise, one would say that the
+		<function>id_parser</function> method accepts
+		a reference to a function as an argument.
+	 </para>
+</section>
+
 <!--
   <section id="regexp">
     <title>Regular Expressions</title>
@@ -1686,8 +1818,7 @@ print $result_obj->num_hits;
 		  <listitem><para>
 			 <ulink url="http://bioperl.org/Core/Latest/modules.html#user">User-contributed documentation</ulink>. If you look on the
 			 documentation page will you will see this section,
-			 there's some very good material here, and it's useful to
-				look at a given topic from different points of view.
+			 there's some very good material here.
 		  </para></listitem>
 		</orderedlist>
 	 </para>
