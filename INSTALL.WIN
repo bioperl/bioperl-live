@@ -13,7 +13,7 @@ BioPerl on Windows
 2.0 Windows Specific Behaviour
 2.1 Subroutine <name> redefined at location <location> warnings
 2.2 Consed
-
+3.0 BioPerl in Cygwin
 
 This introduction was written by Paul Boutros. Please report problems
 and/or fixes to the bioperl mailing, bioperl-l@bioperl.org
@@ -181,6 +181,17 @@ the -w flag and you will not receive these warnings.
 2.2 Consed
 ==========
 The consed module cannot be run under Windows.
+
+3.0 BioPerl in Cygwin
+=====================
+
+Cygwin is a Unix emulator and shell environment available free at
+www.cygwin.com. BioPerl v. 1.* runs perfectly well within Cygwin. The
+only known problem is that DBD::mysql can be difficult to install in
+Cygwin and this module is required for the bioperl-db and bioperl-pipeline
+external packages. First install Cygwin and Cygwin's PERL, then follow 
+the BioPerl installation instructions for Unix in BioPerl's INSTALL file.
+
 =========================================================================
 
 
