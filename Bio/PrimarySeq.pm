@@ -184,6 +184,13 @@ BEGIN {
            initialize by the parameter -moltype. See moltype() for possible
            values.
  Returns : a new Bio::PrimarySeq object
+ Args    : -seq         => sequence string
+           -display_id  => display id of the sequence (locus name) 
+           -accession_number => accession number
+           -primary_id  => primary id (Genbank id)
+           -desc        => description text
+           -moltype     => molecule type (dna,rna,prot)
+           -id          => alias for display id
 
 =cut
 
