@@ -1,5 +1,3 @@
-#!/lab/bin/perl
-
 #!/usr/bin/perl -w
 
 =head1 NAME
@@ -16,7 +14,7 @@ ncbi_2_gff.pl - Massage NCBI chromosome annotation into GFF-format suitable for 
 
 =head2 SYNOPSIS
 
-   perl ncbi_to_gff.pl [options] /path/to/gzipped/datafile(s)
+   perl process_ncbi_human.pl [options] /path/to/gzipped/datafile(s)
 
 =head2 DESCRIPTION
 
@@ -24,19 +22,12 @@ This script massages the chromosome annotation files located at
 
   ftp://ftp.ncbi.nih.gov/genomes/H_sapiens/maps/mapview/chromosome_order/
 
-into the GFF-format recognized by Bio::DB::GFF. If the resulting
-GFF-files are loaded into a Bio::DB:GFF database using the utilities
-described below, the annotation can be viewed in the Generic Genome
-Browser (http://www.gmod.org/ggb/) and interfaced with using the
-Bio::DB:GFF libraries.  (NB these NCBI-datafiles are dumps from their
-own mapviewer database backend, according to their READMEs)
+into the GFF-format recognized by Bio::DB::GFF. If the resulting GFF-files are loaded into a Bio::DB:GFF database using the utilities described below, the annotation can be viewed in the Generic Genome Browser (http://www.gmod.org/ggb/) and interfaced with using the Bio::DB:GFF libraries.
+  (NB these NCBI-datafiles are dumps from their own mapviewer database backend, according to their READMEs)
 
-To produce the GFF-files, download all the chr*sequence.gz files from
-the FTP-directory above. While in that same directory, run the
-following example command (see also help clause by running script with
-no arguments):
+To produce the GFF-files, download all the chr*sequence.gz files from the FTP-directory above. While in that same directory, run the following example command (see also help clause by running script with no arguments):
 
-  ncbi_to_gff.pl --locuslink [path to LL.out_hs.gz] chr*sequence.gz
+process_ncbi_human.pl --locuslink [path to LL.out_hs.gz] chr*sequence.gz
 
 This will unzip all the files on the fly and open an output file with
 the name chrom[$chrom]_ncbiannotation.gff for each, read the LocusLink

@@ -1,10 +1,8 @@
 #!/usr/bin/perl
 
+use constant ACEDB => 'sace://aceserver.cshl.org:2005'; 
 use strict;
 use Ace;
-
-my $db = Ace->connect(-host=>'www.wormbase.org',
-		      -port=>2007) or die "Can't open ace database:",Ace->error;
 
 my @framework = qw(mex-3 spe-15 lin-17 unc-11 dhc-1 unc-40 smg-5
 		   unc-13 unc-29 eat-16 lin-11 spe-9 par-6 unc-59 unc-54 mab-9 lin-42
@@ -52,6 +50,9 @@ USAGE
 
 die $USAGE if $ARGV[0]=~/^-?-h/i;
 
+my $db = Ace->connect(-url=>ACEDB,
+		      -query_timeout=>500) or die "Can't open ace database:",Ace->error;
+
 if (-d $ARGV[0]) {
   @ARGV = <$ARGV[0]/*.gff.gz>;
 }
@@ -62,12 +63,12 @@ foreach (@ARGV) { # GFF FILES
   $_ = "gunzip -c $_ |" if /\.gz$/;
 }
 
-my (%NOTES,%LOCUS,%GENBANK);
+my (%NOTES,%LOCUS,%GENBANK,%CONFIRMED,%ORFEOME);
+get_confirmed($db,\%CONFIRMED);
 get_genbank($db,\%GENBANK);
 get_loci($db,\%LOCUS);
 get_notes($db,\%NOTES);
-#parse_notes(SEQUENCE2LOCUS,\%LOCUS);
-#parse_notes(SEQUENCE2BRIEFID,\%NOTES);
+get_orfeome($db,\%ORFEOME);
 
 while (<>) {
   chomp;
@@ -77,16 +78,19 @@ while (<>) {
   $ref    =~ s/^CHROMOSOME_//;
   $group  =~ s/CHROMOSOME_//;
 
+  $source ='' if $source eq '*UNKNOWN*';
+
   if ($method eq 'Sequence' && ($source eq 'curated' || $source eq 'RNA') && $group =~ /Sequence "(\w+\.\d+[a-z]?)"/) {
     my @notes;
-    push @notes,map { qq(Note "$_") } @{$NOTES{$1}} if $NOTES{$1};
-    push @notes,map { qq(Note "$_") } @{$LOCUS{$1}} if $LOCUS{$1};
+    push @notes,map { qq(Note "$_")        } @{$NOTES{$1}}     if $NOTES{$1};
+    push @notes,map { qq(Note "$_")        } @{$LOCUS{$1}}     if $LOCUS{$1};
+    push @notes,qq(Confirmed_by "$CONFIRMED{$1}")              if $CONFIRMED{$1};
     $group = join ' ; ',$group,@notes;
     if (my $loci = $LOCUS{$1}) {
       foreach (@$loci) {
-	print join("\t",$ref,$source,'gene',$start,$stop,$score,$strand,$phase,"Locus $_"),"\n";
-	print join("\t",$ref,'framework','gene',$start,$stop,$score,$strand,$phase,"Locus $_"),"\n" 
-	  if $framework{$_} && !$framework_seen{$_}++;
+        print join("\t",$ref,$source,'gene',$start,$stop,$score,$strand,$phase,"Locus $_"),"\n";
+        print join("\t",$ref,'framework','gene',$start,$stop,$score,$strand,$phase,"Locus $_"),"\n" 
+          if $framework{$_} && !$framework_seen{$_}++;
       }
     }
   }
@@ -98,8 +102,20 @@ while (<>) {
     }
   }
 
+  if ($method eq 'reagent' && $source eq 'Orfeome_project' && $group =~ /PCR_product "([^\"]+)"/) {
+    my $amp = $ORFEOME{$1};
+    $group .= qq( ; Amplified $amp) if defined $amp;
+  }
+
   # fix variant fields: Variant "T" => Note "T"
   $group =~ s/(?:Variant|Insert) "(\w+)"/Note "$1"/;
+
+  # fix UTR fields
+  if ($group =~ /UTR "([35])_UTR:(\S+)"/) {
+    $method = 'UTR';
+    $source = "$1_UTR";
+    $group = qq(Sequence "$2");
+  }
 
   print join("\t",$ref,$source,$method,$start,$stop,$score,$strand,$phase,$group),"\n";
 }
@@ -134,24 +150,22 @@ sub get_genbank {
   }
 }
 
-sub parse_notes {
-  my ($file,$notes) = @_;
-  my $s;
-  open S,$file or die "$file: $!\n";
-  while (<S>) {
-    chomp;
-    if (/Sequence : "(\S+)"/) {
-      $s = $1;
-      next;
-    }
-    if (/^\w+\s+"(.+?)"$/) {
-      my $id = $1;
-      $id =~ s/\\//g;
-      next unless $s;
-      push @{$notes->{$s}},$id;
-    }
+sub get_confirmed {
+  my ($db,$hash) = @_;  # hash keys are predicted gene names, values are confirmation type
+  my @confirmed = $db->fetch(-query=>'find Sequence Confirmed_by',-filltag=>'Confirmed_by');
+  foreach my $obj (@confirmed) {
+    my $confirmed_by = $obj->Confirmed_by || 'Unknown';
+    $hash->{$obj} = $confirmed_by;
   }
-  close S;
+}
+
+sub get_orfeome {
+  my ($db,$hash) = @_;
+  my @mv_primers = $db->fetch(-query=>'find PCR_Product mv*',-filltag=>'Amplified');
+  for my $obj (@mv_primers) {
+    my $amplified = $obj->Amplified;
+    $hash->{$obj} = $amplified;
+  }
 }
 
 __END__
@@ -199,7 +213,7 @@ L<Bio::DB::GFF>, L<bulk_load_gff.pl>, L<load_gff.pl>
 
 =head1 AUTHOR
 
-Lincoln Stein, lstein@cshl.org
+Lincoln Stein E<lt>lstein@cshl.orgE<gt>
 
 Copyright (c) 2002 Cold Spring Harbor Laboratory
 
@@ -208,5 +222,4 @@ it under the same terms as Perl itself.  See DISCLAIMER.txt for
 disclaimers of warranty.
 
 =cut
-
 

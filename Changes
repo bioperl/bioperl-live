@@ -33,6 +33,9 @@ Revision history for Bioperl core modules
      o Fix small error which made Bio::Graphics tests fail on certain
        platforms (these could be safely ignored, but the testfiles just
        needed  to be updated to handle it).
+     o Bio::DB::GFF
+      - Update for GFF3 compatibility.
+      - Added scripts for importing from UCSC and GenBank.
      
 1.2.2 Stable release update
 

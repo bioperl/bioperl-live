@@ -1,7 +1,7 @@
 #!/usr/bin/perl
 
 use strict;
-use lib './blib/lib';
+# use lib './blib/lib';
 use DBI;
 use IO::File;
 use Getopt::Long;
@@ -17,45 +17,41 @@ use constant FDNA       => 'fdna';
 use constant FATTRIBUTE => 'fattribute';
 use constant FATTRIBUTE_TO_FEATURE => 'fattribute_to_feature';
 
-package Bio::DB::GFF::Adaptor::faux;
+=head1 NAME
 
-use Bio::DB::GFF::Adaptor::dbi::mysqlopt;
-use vars '@ISA';
-@ISA = 'Bio::DB::GFF::Adaptor::dbi::mysqlopt';
+bp_bulk_load_gff.pl - Bulk-load a Bio::DB::GFF database from GFF files.
 
-sub insert_sequence {
-  my $self = shift;
-  my ($id,$offset,$seq) = @_;
-  print join "\t",$id,$offset,$seq,"\n";
-}
+=head1 SYNOPSIS
 
-package main;
+  % bp_bulk_load_gff.pl -d testdb dna1.fa dna2.fa features1.gff features2.gff ...
 
-my ($DSN,$FORCE,$USER,$PASSWORD,$FASTA);
+=head1 DESCRIPTION
 
-GetOptions ('database:s'    => \$DSN,
-	    'create'         => \$FORCE,
-	    'user:s'        => \$USER,
-	    'password:s'    => \$PASSWORD,
-	    'fasta:s'       => \$FASTA,
-	   ) or die <<USAGE;
-Usage: $0 [options] <gff file 1> <gff file 2> ...
-Bulk-load a Bio::DB::GFF database from GFF files.
+This script loads a Bio::DB::GFF database with the features contained
+in a list of GFF files and/or FASTA sequence files.  You must use the
+exact variant of GFF described in L<Bio::DB::GFF>.  Various
+command-line options allow you to control which database to load and
+whether to allow an existing database to be overwritten.
 
- Options:
-   --database <dsn>      Mysql database name
-   --create              Reinitialize/create data tables without asking
-   --user                Username to log in as
-   --fasta               File or directory containing fasta files to load
-   --password            Password to use for authentication
+This script differs from bp_load_gff.pl in that it is hard-coded to use
+MySQL and cannot perform incremental loads.  See L<bp_load_gff.pl> for an
+incremental loader that works with all databases supported by
+Bio::DB::GFF, and L<bp_fast_load_gff.pl> for a MySQL loader that supports
+fast incremental loads.
 
-Options can be abbreviated.  For example, you can use -d for
---database.
+=head2 NOTES
 
-NOTE: If no arguments are provided, then the input is taken from
-standard input. Compressed files (.gz, .Z, .bz2) are automatically
-uncompressed.  Fasta files must end in .fa optionally followed by a
-compression suffix in order to be recognized.
+If the filename is given as "-" then the input is taken from standard
+input. Compressed files (.gz, .Z, .bz2) are automatically
+uncompressed.
+
+FASTA format files are distinguished from GFF files by their filename
+extensions.  Files ending in .fa, .fasta, .fast, .seq, .dna and their
+uppercase variants are treated as FASTA files.  Everything else is
+treated as a GFF file.  If you wish to load -fasta files from STDIN,
+then use the -f command-line swith with an argument of '-', as in 
+
+    gunzip my_data.fa.gz | bp_fast_load_gff.pl -d test -f -
 
 The nature of the bulk load requires that the database be on the local
 machine and that the indicated user have the "file" privilege to load
@@ -65,13 +61,73 @@ by the \$TMPDIR environment variable), to hold the tables transiently.
 The adaptor used is dbi::mysqlopt.  There is currently no way to
 change this.
 
-USAGE
-;
+Note that Windows users must use the --create option.
+
+=head1 COMMAND-LINE OPTIONS
+
+Command-line options can be abbreviated to single-letter options.
+e.g. -d instead of --database.
+
+   --database <dsn>      Mysql database name
+   --create              Reinitialize/create data tables without asking
+   --user                Username to log in as
+   --fasta               File or directory containing fasta files to load
+   --password            Password to use for authentication
+
+=head1 SEE ALSO
+
+L<Bio::DB::GFF>, L<fast_load_gff.pl>, L<load_gff.pl>
+
+=head1 AUTHOR
+
+Lincoln Stein, lstein@cshl.org
+
+Copyright (c) 2002 Cold Spring Harbor Laboratory
+
+This library is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself.  See DISCLAIMER.txt for
+disclaimers of warranty.
+
+=cut
+
+package Bio::DB::GFF::Adaptor::faux;
+
+use Bio::DB::GFF::Adaptor::dbi::mysqlopt;
+use vars '@ISA';
+@ISA = 'Bio::DB::GFF::Adaptor::dbi::mysqlopt';
+
+sub insert_sequence {
+  my $self = shift;
+  my ($id,$offset,$seq) = @_;
+  print join("\t",$id,$offset,$seq),"\n";
+}
+
+package main;
+
+my $bWINDOWS = 0;    # Boolean: is this a MSWindows operating system?
+if ($^O =~ /MSWin32/i) {
+    $bWINDOWS = 1;
+}
+
+my ($DSN,$FORCE,$USER,$PASSWORD,$FASTA);
+
+GetOptions ('database:s'    => \$DSN,
+	    'create'         => \$FORCE,
+	    'user:s'        => \$USER,
+	    'password:s'    => \$PASSWORD,
+	    'fasta:s'       => \$FASTA,
+	   ) or (system('pod2text', $0), exit -1);
 
 $DSN ||= 'test';
 
+if ($bWINDOWS && not $FORCE) {
+  die "Note that Windows users must use the --create option.\n";
+}
+
 unless ($FORCE) {
-  open (TTY,"/dev/tty") or die "/dev/tty: $!\n";
+  die "This will delete all existing data in database $DSN.  If you want to do this, rerun with the --create option.\n"
+    if $bWINDOWS;
+  open (TTY,"/dev/tty") or die "/dev/tty: $!\n";  #TTY use removed for win compatability
   print STDERR "This operation will delete all existing data in database $DSN.  Continue? ";
   my $f = <TTY>;
   die "Aborted\n" unless $f =~ /^[yY]/;
@@ -99,12 +155,24 @@ foreach (@ARGV) {
   $_ = "bunzip2 -c $_ |" if /\.bz2$/;
 }
 
+my (@gff,@fasta);
+foreach (@ARGV) {
+  if (/\.(fa|fasta|dna|seq|fast)\b/i) {
+    push @fasta,$_;
+  } else {
+    push @gff,$_;
+  }
+}
+@ARGV = @gff;
+push @fasta,$FASTA if defined $FASTA;
+
 # drop everything that was there before
 my %FH;
 my $tmpdir = $ENV{TMPDIR} || $ENV{TMP} || '/usr/tmp';
+$tmpdir =~ s!\\!\\\\!g if $bWINDOWS; #eliminates backslash mis-interpretation
 my @files = (FDATA,FTYPE,FGROUP,FDNA,FATTRIBUTE,FATTRIBUTE_TO_FEATURE);
 foreach (@files) {
-  $FH{$_} = IO::File->new("$tmpdir/$_.$$",">") or die $_,": $!";
+  $FH{$_} = IO::File->new(">$tmpdir/$_.$$") or die $_,": $!";
   $FH{$_}->autoflush;
 }
 
@@ -119,15 +187,31 @@ my %DONE        = ();
 my $FEATURES    = 0;
 
 my $count;
+my $fasta_sequence_id;
+my $gff3;
+
 while (<>) {
   chomp;
   my ($ref,$source,$method,$start,$stop,$score,$strand,$phase,$group);
-  if (/^\#\#\s*sequence-region\s+(\S+)\s+(\d+)\s+(\d+)/i) { # header line
+  if (/^>(\S+)/) {  # uh oh, sequence coming
+      $fasta_sequence_id = $1;
+      last;
+    }
+
+  elsif (/^\#\#gff-version\s+3/) {
+    $gff3++;
+  }
+
+  elsif (/^\#\#\s*sequence-region\s+(\S+)\s+(\d+)\s+(\d+)/i) { # header line
     ($ref,$source,$method,$start,$stop,$score,$strand,$phase,$group) = 
       ($1,'reference','Component',$2,$3,'.','.','.',qq(Sequence "$1"));
-  } elsif (/^\#/) {
+  }
+
+  elsif (/^\#/) {
     next;
-  } else {
+  }
+
+  else {
     ($ref,$source,$method,$start,$stop,$score,$strand,$phase,$group) = split "\t";
   }
   next unless defined $ref;
@@ -138,13 +222,7 @@ while (<>) {
   $strand = '\N' if $strand eq '.';
   $phase  = '\N' if $phase  eq '.';
 
-  # handle group parsing
-  $group =~ s/\\;/$;/g;  # protect embedded semicolons in the group
-  $group =~ s/( \"[^\"]*);([^\"]*\")/$1$;$2/g;
-  my @groups = split(/\s*;\s*/,$group);
-  foreach (@groups) { s/$;/;/g }
-
-  my ($group_class,$group_name,$target_start,$target_stop,$attributes) = Bio::DB::GFF->_split_group(@groups);
+  my ($group_class,$group_name,$target_start,$target_stop,$attributes) = Bio::DB::GFF->split_group($group,$gff3);
   $group_class  ||= '\N';
   $group_name   ||= '\N';
   $target_start ||= '\N';
@@ -175,10 +253,18 @@ while (<>) {
 
 }
 
-if ($FASTA) {
+if (defined $fasta_sequence_id) {
+  warn "Preparing embedded sequence....\n";
+  my $old = select($FH{FDNA()});
+  $db->load_sequence('ARGV',$fasta_sequence_id);
+  warn "done....\n";
+  select $old;
+}
+
+for my $file (@fasta) {
   warn "Preparing DNA files....\n";
   my $old = select($FH{FDNA()});
-  $db->load_fasta($FASTA);
+  $db->load_fasta($file);
   warn "done...\n";
   select $old;
 }
@@ -188,10 +274,11 @@ $_->close foreach values %FH;
 warn "Loading feature data.  You may see duplicate key warnings here...\n";
 
 my $success = 1;
+my $TERMINATEDBY = $bWINDOWS ? q( LINES TERMINATED BY '\r\n') : ''; 
 foreach (@files) {
   my $command =<<END;
 ${\MYSQL} $AUTH
--e "lock tables $_ write; delete from $_; load data infile '$tmpdir/$_.$$' replace into table $_; unlock tables"
+-e "lock tables $_ write; delete from $_; load data infile '$tmpdir/$_.$$' replace into table $_  $TERMINATEDBY; unlock tables"
 $DSN
 END
 ;
@@ -202,7 +289,7 @@ END
 warn "done...\n";
 
 if ($success) {
-  print "SUCCESS: $FEATURES features successfully loaded\n";
+  print "$FEATURES features successfully loaded\n";
   exit 0;
 } else {
   print "FAILURE: Please see standard error for details\n";

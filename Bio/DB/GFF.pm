@@ -96,7 +96,7 @@ directory under a subdirectory named Bio::DB::GFF:
 
 =over 4
 
-=item load_gff.pl
+=item bp_load_gff.pl
 
 This script will load a Bio::DB::GFF database from a flat GFF file of
 sequence annotations.  Only the relational database version of
@@ -110,7 +110,7 @@ for most of their functionality.
 load_gff.pl also has a --upgrade option, which will perform a
 non-destructive upgrade of older schemas to newer ones.
 
-=item bulk_load_gff.pl
+=item bp_bulk_load_gff.pl
 
 This script will populate a Bio::DB::GFF database from a flat GFF file
 of sequence annotations.  Only the MySQL database version of
@@ -121,6 +121,15 @@ for the initial load, and not for updates.
 This script takes a --fasta argument to load raw DNA into the database
 as well.  However, GFF databases do not require access to the raw DNA
 for most of their functionality.
+
+=item bp_fast_load_gff.pl
+
+This script is as fast as bp_bulk_load_gff.pl but uses Unix pipe
+tricks to allow for incremental updates.  It only supports the MySQL
+database version of Bio::DB::GFF and is guaranteed not to work on
+non-Unix platforms.
+
+Arguments are the same as bp_load_gff.pl
 
 =item gadfly_to_gff.pl
 
@@ -210,9 +219,9 @@ The group field is also used to store information about the target of
 sequence similarity hits, and miscellaneous notes.  See the next
 section for a description of how to describe similarity targets.
 
-The format of the group fields is "Class:ID" with a ":" separating the
-class from the ID. It is VERY IMPORTANT to follow this format, or
-grouping will not work properly.
+The format of the group fields is "Class ID" with a single space (not
+a tab) separating the class from the ID. It is VERY IMPORTANT to
+follow this format, or grouping will not work properly.
 
 =back
 
@@ -275,7 +284,7 @@ have an entry in the GFF file similar to this one:
 This indicates that the reference sequence named "Chr1" has length
 14972282 bp, method "chromosome" and source "assembly".  In addition,
 as indicated by the group field, Chr1 has class "Sequence" and name
-"Chr".
+"Chr1".
 
 The object class "Sequence" is used by default when the class is not
 specified in the segment() call.  This allows you to use a shortcut
@@ -455,9 +464,10 @@ use Bio::DB::GFF::Aggregator;
 use Bio::DasI;
 use Bio::Root::Root;
 
-use vars qw(@ISA);
+use vars qw(@ISA $VERSION);
 @ISA = qw(Bio::Root::Root Bio::DasI);
 
+$VERSION = '1.2003';
 my %valid_range_types = (overlaps     => 1,
 			 contains     => 1,
 			 contained_in => 1);
@@ -480,7 +490,7 @@ These are the arguments:
 
  -aggregator   Array reference to a list of aggregators
                to apply to the database.  If none provided,
-	       defaults to ['processed_transcript','clone','alignment'].
+	       defaults to ['processed_transcript','alignment'].
 
   <other>      Any other named argument pairs are passed to
                the adaptor for processing.
@@ -827,7 +837,7 @@ sub abs_segment {
 
 sub setup_segment_args {
   my $self = shift;
-  return @_ if $_[0] =~ /^-/;
+  return @_ if defined $_[0] && $_[0] =~ /^-/;
   return (-name=>$_[0],-start=>$_[1],-stop=>$_[2]) if @_ == 3;
   return (-class=>$_[0],-name=>$_[1])              if @_ == 2;
   return (-name=>$_[0])                            if @_ == 1;
@@ -896,7 +906,8 @@ are ANDed together.
 sub features {
   my $self = shift;
   my ($types,$automerge,$sparse,$iterator,$other);
-  if ($_[0] =~ /^-/) {
+  if (defined $_[0] && 
+      $_[0] =~ /^-/) {
     ($types,$automerge,$sparse,$iterator,$other) = rearrange([
 							      [qw(TYPE TYPES)],
 							      [qw(MERGE AUTOMERGE)],
@@ -1142,6 +1153,164 @@ sub get_feature_by_gid {
 }
 *fetch_feature_by_gid = \&get_feature_by_gid;
 
+=head2 delete_features
+
+ Title   : delete_features
+ Usage   : $db->delete_features(@ids_or_features)
+ Function: delete one or more features
+ Returns : count of features deleted
+ Args    : list of features or feature ids
+ Status  : public
+
+Pass this method a list of numeric feature ids or a set of features.
+It will attempt to remove the features from the database and return a
+count of the features removed.  
+
+NOTE: This method is also called delete_feature().  Also see
+delete_groups().
+
+=cut
+
+*delete_feature = \&delete_features;
+
+sub delete_features {
+  my $self = shift;
+  my @features_or_ids = @_;
+  my @ids = map {UNIVERSAL::isa($_,'Bio::DB::GFF::Feature') ? $_->id : $_} @features_or_ids;
+  return unless @ids;
+  $self->_delete_features(@ids);
+}
+
+=head2 delete_groups
+
+ Title   : delete_groups
+ Usage   : $db->delete_groups(@ids_or_features)
+ Function: delete one or more feature groups
+ Returns : count of features deleted
+ Args    : list of features or feature group ids
+ Status  : public
+
+Pass this method a list of numeric group ids or a set of features.  It
+will attempt to recursively remove the features and ALL members of
+their group from the database.  It returns a count of the number of
+features (not groups) returned.
+
+NOTE: This method is also called delete_group().  Also see
+delete_features().
+
+=cut
+
+*delete_group = \&delete_groupss;
+
+sub delete_groups {
+  my $self = shift;
+  my @features_or_ids = @_;
+  my @ids = map {UNIVERSAL::isa($_,'Bio::DB::GFF::Feature') ? $_->group_id : $_} @features_or_ids;
+  return unless @ids;
+  $self->_delete_groups(@ids);
+}
+
+=head2 delete
+
+ Title   : delete
+ Usage   : $db->delete(@args)
+ Function: delete features
+ Returns : count of features deleted -- if available
+ Args    : numerous, see below
+ Status  : public
+
+This method deletes all features that overlap the specified region or
+are of a particular type.  If no arguments are provided and the -force
+argument is true, then deletes ALL features.
+
+Arguments:
+
+ -name         ID of the landmark sequence.
+
+ -ref          ID of the landmark sequence (synonym for -name).
+
+ -class        Database object class for the landmark sequence.
+               "Sequence" assumed if not specified.  This is
+               irrelevant for databases which do not recognize
+               object classes.
+
+ -start        Start of the segment relative to landmark.  Positions
+               follow standard 1-based sequence rules.  If not specified,
+               defaults to the beginning of the landmark.
+
+ -end          Stop of the segment relative to the landmark.  If not specified,
+               defaults to the end of the landmark.
+
+ -offset       Zero-based addressing
+
+ -length       Length of region
+
+ -type,-types  Either a single scalar type to be deleted, or an
+               reference to an array of types.
+
+ -force        Force operation to be performed even if it would delete
+               entire feature table.
+
+ -range_type   Control the range type of the deletion.  One of "overlaps" (default)
+               "contains" or "contained_in"
+
+Examples:
+
+  $db->delete(-type=>['intron','repeat:repeatMasker']);  # remove all introns & repeats
+  $db->delete(-name=>'chr3',-start=>1,-end=>1000);       # remove annotations on chr3 from 1 to 1000
+  $db->delete(-name=>'chr3',-type=>'exon');              # remove all exons on chr3
+
+The short form of this call, as described in segment() is also allowed:
+
+  $db->delete("chr3",1=>1000);
+  $db->delete("chr3");
+
+IMPORTANT NOTE: This method only deletes features.  It does *NOT*
+delete the names of groups that contain the deleted features.  Group
+IDs will be reused if you later load a feature with the same group
+name as one that was previously deleted.
+
+NOTE ON FEATURE COUNTS: The DBI-based versions of this call return the
+result code from the SQL DELETE operation.  Some dbd drivers return the
+count of rows deleted, while others return 0E0.  Caveat emptor.
+
+=cut
+
+sub delete {
+  my $self = shift;
+  my @args = $self->setup_segment_args(@_);
+  my ($name,$class,$start,$end,$offset,$length,$type,$force,$range_type) =
+    rearrange([['NAME','REF'],'CLASS','START',[qw(END STOP)],'OFFSET',
+	       'LENGTH',[qw(TYPE TYPES)],'FORCE','RANGE_TYPE'],@args);
+  $offset = 0 unless defined $offset;
+  $start = $offset+1 unless defined $start;
+  $end   = $start+$length-1 if !defined $end and $length;
+  $class ||= $self->default_class;
+
+  my $types = $self->parse_types($type);  # parse out list of types
+
+  $range_type ||= 'overlaps';
+  $self->throw("range type must be one of {".
+	       join(',',keys %valid_range_types).
+	       "}\n")
+    unless $valid_range_types{lc $range_type};
+
+
+  my @segments;
+  if (defined $name && $name ne '') {
+    my @args = (-name=>$name,-class=>$class);
+    push @args,(-start=>$start) if defined $start;
+    push @args,(-end  =>$end)   if defined $end;
+    @segments = $self->segment(@args);
+    return unless @segments;
+  }
+  $self->_delete({segments   => \@segments,
+		  types      => $types,
+		  range_type => $range_type,
+		  force      => $force}
+		);
+}
+
 =head2 absolute
 
  Title   : absolute
@@ -1365,7 +1534,11 @@ is the same as initialize(-erase=E<gt>1).
 
 sub initialize {
   my $self = shift;
-  $self->do_initialize(1) if @_ == 1 && $_[0];
+  #$self->do_initialize(1) if @_ == 1 && $_[0];
+  #why was this line (^) here?  I can't see that it actually does anything
+  #one option would be to execute the line and return, but I don't know
+  #why you would want to do that either.
+ 
   my ($erase,$meta) = rearrange(['ERASE'],@_);
   $meta ||= {};
 
@@ -1418,7 +1591,8 @@ suffixes .gff, .gff.gz, .gff.Z or .gff.bz2.
 
 =item 4. filehandle
 
-An open filehandle from which to read the GFF data.
+An open filehandle from which to read the GFF data.  Tied filehandles
+now work as well.
 
 =item 5. a pipe expression
 
@@ -1440,10 +1614,13 @@ old method name is also recognized.
 sub load_gff {
   my $self              = shift;
   my $file_or_directory = shift || '.';
+  return $self->do_load_gff($file_or_directory) if ref($file_or_directory) &&
+                                                   tied *$file_or_directory;
+
   my $tied_stdin = tied(*STDIN);
   open SAVEIN,"<&STDIN" unless $tied_stdin;
   local @ARGV = $self->setup_argv($file_or_directory,'gff') or return;  # to play tricks with reader
-  my $result = $self->do_load_gff();
+  my $result = $self->do_load_gff('ARGV');
   open STDIN,"<&SAVEIN" unless $tied_stdin;  # restore STDIN
   return $result;
 }
@@ -1498,10 +1675,13 @@ web server can be loaded with an expression like this:
 sub load_fasta {
   my $self              = shift;
   my $file_or_directory = shift || '.';
+  return $self->load_sequence($file_or_directory) if ref($file_or_directory) &&
+                                                     tied *$file_or_directory;
+
   my $tied = tied(*STDIN);
   open SAVEIN,"<&STDIN" unless $tied;
   local @ARGV = $self->setup_argv($file_or_directory,'fa','dna','fasta') or return;  # to play tricks with reader
-  my $result = $self->load_sequence();
+  my $result = $self->load_sequence('ARGV');
   open STDIN,"<&SAVEIN" unless $tied;  # restore STDIN
   return $result;
 }
@@ -1536,7 +1716,7 @@ sub setup_argv {
 
   if (-d $file_or_directory) {
     @argv = map { glob("$file_or_directory/*.{$_,$_.gz,$_.Z,$_.bz2}")} @suffixes;
-  } elsif (my $fd = fileno($file_or_directory)) {
+  }elsif (my $fd = fileno($file_or_directory)) {
     open STDIN,"<&=$fd" or $self->throw("Can't dup STDIN");
     @argv = '-';
   } elsif (ref $file_or_directory) {
@@ -1918,10 +2098,10 @@ sub default_aggregators {
 =head2 do_load_gff
 
  Title   : do_load_gff
- Usage   : $db->do_load_gff
+ Usage   : $db->do_load_gff($handle)
  Function: load a GFF input stream
  Returns : number of features loaded
- Args    : none
+ Args    : A filehandle.
  Status  : protected
 
 This method is called to load a GFF data stream.  The method will read
@@ -1932,17 +2112,22 @@ Note that the method is responsible for parsing the GFF lines.  This
 is to allow for differences in the interpretation of the "group"
 field, which are legion.
 
+You probably want to use load_gff() instead.  It is more flexible
+about the arguments it accepts.
+
 =cut
 
 # load from <>
 sub do_load_gff {
-  my $self = shift;
+  my $self      = shift;
+  my $io_handle = shift;
+
   local $self->{gff3_flag} = 0;
   $self->setup_load();
 
   my $fasta_sequence_id;
 
-  while (<>) {
+  while (<$io_handle>) {
     chomp;
     $self->{gff3_flag}++ if /^\#\#gff-version\s+3/;
     if (/^>(\S+)/) {  # uh oh, sequence coming
@@ -1978,23 +2163,7 @@ sub do_load_gff {
       undef $$_ if $$_ eq '.';
     }
 
-    my ($gclass,$gname,$tstart,$tstop,$attributes);
-    if ($self->{gff3_flag}) {
-      my @groups = split /[;&]/,$group;  # so easy!
-      ($gclass,$gname,$tstart,$tstop,$attributes) = $self->_split_gff3_group(@groups);
-    }
-
-    else { #gff2 parsing
-      # handle group parsing
-      # protect embedded semicolons in the group; there must be faster/more elegant way
-      # to do this.
-      $group =~ s/\\;/$;/g;
-      while ($group =~ s/( \"[^\"]*);([^\"]*\")/$1$;$2/) { 1 }
-      my @groups = split(/\s*;\s*/,$group);
-      foreach (@groups) { s/$;/;/g }
-
-      ($gclass,$gname,$tstart,$tstop,$attributes) = $self->_split_group(@groups);
-    }
+    my ($gclass,$gname,$tstart,$tstop,$attributes) = $self->split_group($group,$self->{gff3_flag});
 
     # no standard way in the GFF file to denote the class of the reference sequence -- drat!
     # so we invoke the factory to do it
@@ -2027,17 +2196,37 @@ sub do_load_gff {
   }
 
   my $result = $self->finish_load();
-  $result += $self->load_sequence($fasta_sequence_id) if defined $fasta_sequence_id;
+  $result += $self->load_sequence($io_handle,$fasta_sequence_id) 
+    if defined $fasta_sequence_id;
   $result;
 
 }
 
+=head2 load_sequence
+
+ Title   : load_sequence
+ Usage   : $db->load_sequence($handle [,$id])
+ Function: load a FASTA data stream
+ Returns : number of sequences
+ Args    : a filehandle and optionally the ID of
+  the first sequence in the stream.
+ Status  : protected
+
+You probably want to use load_fasta() instead.  The $id argument is a
+hack used to switch from GFF loading to FASTA loading when load_gff()
+discovers FASTA data hiding at the bottom of the GFF file (as Artemis
+does).
+
+=cut
+
 sub load_sequence {
   my $self = shift;
-  my $id   = shift;   # hack for GFF files that contain fasta data
+  my $io_handle = shift;
+  my $id        = shift;   # hack for GFF files that contain fasta data
+
   # read fasta file(s) from ARGV
   my ($seq,$offset,$loaded) = (undef,0,0);
-  while (<>) {
+  while (<$io_handle>) {
     chomp;
     if (/^>(\S+)/) {
       $self->insert_sequence($id,$offset,$seq) if $id;
@@ -2065,6 +2254,7 @@ sub insert_sequence_chunk {
       substr($$seqp,0,$cs) = '';
     }
   }
+  return 1;  # the calling routine may expect success or failure
 }
 
 # used to store big pieces of DNA in itty bitty pieces
@@ -2729,8 +2919,8 @@ the list of type names.
 # turn feature types in the format "method:source" into a list of [method,source] refs
 sub parse_types {
   my $self  = shift;
-  return [] if !@_ or !defined($_[0]);
-
+  return []   if !@_ or !defined($_[0]);
+  return $_[0] if ref $_[0] eq 'ARRAY' && ref $_[0][0];
   my @types = ref($_[0]) ? @{$_[0]} : @_;
   my @type_list = map { [split(':',$_,2)] } @types;
   return \@type_list;
@@ -2960,24 +3150,48 @@ sub get_features_iterator {
   $self->throw('feature iteration is not implemented in this adaptor');
 }
 
-=head2 _split_group
+=head2 split_group
 
- Title   : _split_group
- Usage   : $db->_split_group(@groups)
+ Title   : split_group
+ Usage   : $db->split_group($group_field,$gff3_flag)
  Function: parse GFF group field
  Returns : ($gclass,$gname,$tstart,$tstop,$attributes)
- Args    : a list of group fields from a GFF line
+ Args    : the gff group column and a flag indicating gff3 compatibility
  Status  : internal
 
-This is an internal method that is called by load_gff_line to parse
-out the contents of one or more group fields.  It returns the class of
-the group, its name, the start and stop of the target, if any, and an
+This is a method that is called by load_gff_line to parse out the
+contents of one or more group fields.  It returns the class of the
+group, its name, the start and stop of the target, if any, and an
 array reference containing any attributes that were stuck into the
 group field, in [attribute_name,attribute_value] format.
 
 =cut
 
-sub _split_group {
+sub split_group {
+  my $self = shift;
+  my ($group,$gff3) = @_;
+  if ($gff3) {
+    my @groups = split /[;&]/,$group;  # so easy!
+    return $self->_split_gff3_group(@groups);
+  } else {
+    # handle group parsing
+    # protect embedded semicolons in the group; there must be faster/more elegant way
+    # to do this.
+    $group =~ s/\\;/$;/g;
+    while ($group =~ s/( \"[^\"]*);([^\"]*\")/$1$;$2/) { 1 }
+    my @groups = split(/\s*;\s*/,$group);
+    foreach (@groups) { s/$;/;/g }
+    return $self->_split_gff2_group(@groups);
+  }
+}
+
+=head2 _split_gff2_group
+
+This is an internal method called by split_group().
+
+=cut
+
+sub _split_gff2_group {
   my $self = shift;
   my @groups = @_;
 
@@ -3024,20 +3238,7 @@ sub _split_group {
 
 =head2 _split_gff3_group
 
- Title   : _split_gff3_group
- Usage   : $db->_split_gff3_group(@groups)
- Function: parse GFF3 group field
- Returns : ($gclass,$gname,$tstart,$tstop,$attributes)
- Args    : a list of group fields from a GFF line
- Status  : internal
-
-This is an internal method that is called by load_gff_line to parse
-out the contents of one or more group fields.  It returns the class of
-the group, its name, the start and stop of the target, if any, and an
-array reference containing any attributes that were stuck into the
-group field, in [attribute_name,attribute_value] format.
-
-It is used for lines from GFF3 files.
+This is called internally from split_group().
 
 =cut
 
@@ -3065,6 +3266,47 @@ sub _split_gff3_group {
     push @attributes,[$tag=>$_] foreach @values;
   }
   return ($gclass,$gname,$tstart,$tstop,\@attributes);
+}
+
+=head2 _delete_features(), _delete_groups(),_delete()
+
+ Title   : _delete_features(), _delete_groups(),_delete()
+ Usage   : $count = $db->_delete_features(@feature_ids)
+           $count = $db->_delete_groups(@group_ids)
+           $count = $db->_delete(\%delete_spec)
+ Function: low-level feature/group deleter
+ Returns : count of groups removed
+ Args    : list of feature or group ids removed
+ Status  : for implementation by subclasses
+
+These methods need to be implemented in adaptors.  For
+_delete_features and _delete_groups, the arguments are a list of
+feature or group IDs to remove.  For _delete(), the argument is a
+hashref with the three keys 'segments', 'types' and 'force'.  The
+first contains an arrayref of Bio::DB::GFF::RelSegment objects to
+delete (all FEATURES within the segment are deleted).  The second
+contains an arrayref of [method,source] feature types to delete.  The
+two are ANDed together.  If 'force' has a true value, this forces the
+operation to continue even if it would delete all features.
+
+=cut
+
+sub _delete_features {
+  my $self = shift;
+  my @feature_ids = @_;
+  $self->throw('_delete_features is not implemented in this adaptor');
+}
+
+sub _delete_groups {
+  my $self = shift;
+  my @group_ids = @_;
+  $self->throw('_delete_groups is not implemented in this adaptor');
+}
+
+sub _delete {
+  my $self = shift;
+  my $delete_options = shift;
+  $self->throw('_delete is not implemented in this adaptor');
 }
 
 sub unescape {
