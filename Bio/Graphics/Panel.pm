@@ -42,8 +42,10 @@ sub new {
   my $empty_track_style   = $options{-empty_tracks} || 'key';
   my $truecolor    = $options{-truecolor}  || 0;
 
-  $offset   ||= $options{-segment}->start-1 if $options{-segment};
-  $length   ||= $options{-segment}->length  if $options{-segment};
+  if (my $seg = $options{-segment}) {
+    $offset = eval {$seg->start-1} || 1;
+    $length = $seg->length;
+  }
 
   $offset   ||= $options{-start}-1 if defined $options{-start};
   $length   ||= $options{-stop}-$options{-start}+1 
