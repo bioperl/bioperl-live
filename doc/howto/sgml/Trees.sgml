@@ -70,12 +70,12 @@
 
       In practice there are just a few main
       objects, or modules, you need to know about.  There is the main
-      Tree object <emphasis>Bio::Tree::Tree</emphasis> which is the main
+      Tree object <classname>Bio::Tree::Tree</classname> which is the main
       entry point to the data represented by a tree.  A Node is
-      represented generically by <emphasis>Bio::Tree::Node</emphasis>,
+      represented generically by <classname>Bio::Tree::Node</classname>,
       however there are subclasses of this object to handle particular
       cases where we need a richer object (see
-      <emphasis>Bio::PopGen::Simulations::Coalescent</emphasis> and
+      <classname>Bio::PopGen::Simulations::Coalescent</classname> and
       the PopGen HOWTO for more information).  The connections between
       Nodes are described using a few simple concepts. There is the concept of
       pointers or references where a particular Node keeps track of
@@ -84,7 +84,7 @@
       information in a tree pertaining to the relationships between
       Nodes and specific data, like bootstrap values and labels, are all
       stored in the Node objects while the
-      <emphasis>Bio::Tree::Tree</emphasis> object is just a 
+      <classname>Bio::Tree::Tree</classname> object is just a 
       container for some summary information about the tree and a
       description of the tree's root node.
       </para>
@@ -100,26 +100,26 @@
    <section id="IO">
    <title>Reading and Writing Trees</title>
    <para>
-      Using <emphasis>Bio::TreeIO</emphasis> one can read trees
+      Using <classname>Bio::TreeIO</classname> one can read trees
       from files or datastreams and
-      create <emphasis>Bio::Tree::Tree</emphasis> objects.  This is
+      create <classname>Bio::Tree::Tree</classname> objects.  This is
       analagous to how we read sequences from sequence files with
-      <emphasis>Bio::SeqIO</emphasis> to create Bioperl sequence
+      <classname>Bio::SeqIO</classname> to create Bioperl sequence
       objects which can be queried and manipulated.  Similarly we can
-      write <emphasis>Bio::Tree::Tree</emphasis> objects out to string
+      write <classname>Bio::Tree::Tree</classname> objects out to string
       representations like the Newick or New Hampshire format which can
       be printed to a file, a datastream, stored in database, etc.
    </para>
    <para>
       The main module for reading and writing trees is the
-      <emphasis>Bio::TreeIO</emphasis> factory module which has
+      <classname>Bio::TreeIO</classname> factory module which has
       several driver modules which plug into it.  These drivers
-      include <emphasis>Bio::TreeIO::newick</emphasis> for New
+      include <classname>Bio::TreeIO::newick</classname> for New
       Hampshire or Newick format,
-      <emphasis>Bio::TreeIO::nhx</emphasis> for the New Hampshire eXtended
+      <classname>Bio::TreeIO::nhx</classname> for the New Hampshire eXtended
       format from Sean Eddy and Christian Zmeck as part of their RIO
       and ATV system [reference here].  The driver
-      <emphasis>Bio::TreeIO::nexus</emphasis> supports parsing tree
+      <classname>Bio::TreeIO::nexus</classname> supports parsing tree
       data from PAUP's Nexus format. However this driver currently
       only supports parsing, not writing, of Nexus format tree files.
    </para>
@@ -129,7 +129,7 @@
       <para>
       Here is some code which will read in a Tree from a file called
       "tree.tre" and produce a Bio::Tree::Tree object which is stored in 
-      the variable <emphasis>$tree</emphasis>.
+      the variable <programlisting>$tree</programlisting>.
       </para>
       <para>
       Like most modules which do input/output you can also specify
@@ -147,7 +147,7 @@
       </para>
       <para>
       Once you have a Tree object you can do a number of things with it.
-      These are all methods required in <emphasis>Bio::Tree::TreeI</emphasis>.
+      These are all methods required in <classname>Bio::Tree::TreeI</classname>.
       </para>
       </section>
 
@@ -240,13 +240,13 @@
    
    Perform a test of paraphyly for a set of nodes and a given outgroup
    node.  This means that a common ancestor 'A' for the members of the
-   group is more recent than a common ancestor 'B' that they share with
+   ingroup is more recent than a common ancestor 'B' that they share with
    the outgroup node <emphasis>and</emphasis> that there are no other 
-	nodes in the tree which have 'A' as a common ancestor before 'B'.
+   nodes in the tree which have 'A' as a common ancestor before 'B'.
    
    <programlisting>
    if( $tree->is_paraphyletic(-nodes    => \@internal_nodes,
-                              -outgroup => $outgroup) ) {
+                              -outgroup => $outgroup) > 0 ) {
      print "these nodes are monophyletic: ",
           join(",",map { $_->id } @internal_nodes ), "\n";
    }   
@@ -268,7 +268,7 @@
    <title>Advanced Topics</title>
    <para>
    It is possible to generate random tree topologies with a Bioperl
-   object called <emphasis>Bio::Tree::RandomFactory</emphasis>.  The
+   object called <classname>Bio::Tree::RandomFactory</classname>.  The
    factory only requires the specification of the total number of taxa
    in order to simulate a history.  One can request different methods for
    generating the random phylogeny. At present, however, only the
@@ -315,10 +315,20 @@
    
    </section>
    <section id="References">
+   <!-- do bibliography here -->
    <title>References and More Reading</title>
    <para>
    For more reading and some references for the techniques above see
-   these titles.
+   these titles.   
    </para>   
+   <para>
+   <simplelist>
+   <member>
+   J. Felsenstein, "Infering Phylogenies" 2003. Sinuar and Associates.
+   </member>
+   <member>
+   </member>
+   </simplelist>
+   </para>
    </section>
  </article> 
