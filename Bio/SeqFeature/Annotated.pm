@@ -173,7 +173,6 @@ sub type {
     }
     $self->remove_Annotations('type');
     $self->add_Annotation('type',$term);
-    $self->add_Annotation('chad',new Bio::Annotation::Comment("tanya"));
   }
   else {
     return $self->get_Annotations('type');
