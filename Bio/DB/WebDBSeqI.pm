@@ -398,9 +398,9 @@ sub url_params {
 sub ua {
     my ($self, $ua) = @_;
     if( defined $ua && $ua->isa("LWP::UserAgent") ) {
-	$self->{_ua} = $ua;
+	$self->{'_ua'} = $ua;
     }
-    return $self->{_ua};
+    return $self->{'_ua'};
 }
 
 =head2 postprocess_data

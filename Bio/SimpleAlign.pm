@@ -437,8 +437,8 @@ sub get_displayname {
     my $self = shift;
     my $name = shift;
 
-    if( defined $self->{dis_name}->{$name} ) {
-	return  $self->{dis_name}->{$name};
+    if( defined $self->{'dis_name'}->{$name} ) {
+	return  $self->{'dis_name'}->{$name};
     } else {
 	return $name;
     }
@@ -1326,7 +1326,7 @@ sub set_displayname {
     my $disname = shift;
 
     # print "Setting $name to $disname\n";
-    $self->{dis_name}->{$name} = $disname;
+    $self->{'dis_name'}->{$name} = $disname;
 }
 
 =head2 set_displayname_count

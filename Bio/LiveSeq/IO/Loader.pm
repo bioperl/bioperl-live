@@ -82,7 +82,7 @@ $VERSION=4.44;
 # Wed May 31 13:59:09 BST 2000 v 4.02 chopped $translated to take away STOP
 # Fri Jun  2 14:49:12 BST 2000 v 4.1 prints alignment with CLUSTALW
 # Wed Jun  7 02:07:54 BST 2000 v 4.2 added code for "simplifying" joinedlocation features (e.g. join() in mRNA features), changing them to plain start-end ones
-# Wed Jun  7 04:20:15 BST 2000 v 4.22 added translation->{offset} for INIT_MET
+# Wed Jun  7 04:20:15 BST 2000 v 4.22 added translation->{'offset'} for INIT_MET
 # Tue Jun 27 14:05:19 BST 2000 v. 4.3 added if() conditions so that if new() of object creation failed, the object is not passed on
 # Tue Jul  4 14:15:58 BST 2000 v 4.4 note and number qualifier added to exon and intron descriptions
 # Wed Jul 12 14:06:38 BST 2000 v 4.41 added if() condition out of transcript creation in transexoncreation()
@@ -134,7 +134,7 @@ sub entry2liveseq {
   } else {
     $getswissprotinfo=1;
   }
-  my $hashref=$self->{hash};
+  my $hashref=$self->{'hash'};
   unless ($hashref) { return (0); }
   my @translationobjects=$self->hash2liveseq($hashref,$getswissprotinfo);
   my $test_transl=0;
@@ -230,7 +230,7 @@ sub gene2liveseq {
   } else {
     $flanking=500; # the default flanking length
   }
-  my $hashref=$self->{hash};
+  my $hashref=$self->{'hash'};
   unless ($hashref) { return (0); }
   my $gene=$self->hash2gene($hashref,$input,$flanking,$getswissprotinfo);
   unless ($gene) { # if $gene == 0 it means problems in hash2gene
@@ -244,14 +244,14 @@ sub gene2liveseq {
 # this method is for now deprecated and not supported
 sub test_transl {
   my ($self,$entry)=@_;
-  my @features=@{$entry->{Features}};
+  my @features=@{$entry->{'Features'}};
   my @translationobjects=@{$_[1]};
   my ($i,$translation);
   my ($obj_transl,$hash_transl);
-  my @cds=@{$entry->{CDS}};
+  my @cds=@{$entry->{'CDS'}};
   foreach $translation (@translationobjects) {
     $obj_transl=$translation->seq;
-    $hash_transl=$cds[$i]->{qualifiers}->{translation};
+    $hash_transl=$cds[$i]->{'qualifiers'}->{'translation'};
     #before seq was changed in Translation 1.4# chop $obj_transl; # to remove trailing "*"
     unless ($obj_transl eq $hash_transl) {
       cluck "Serious error: Translation from the Entry does not match Translation from object's seq for CDS at position $i";
@@ -271,20 +271,20 @@ sub hash2liveseq {
   my ($self,$entry,$getswissprotinfo)=@_;
   my $i;
   my @transcripts;
-  my $dna=Bio::LiveSeq::DNA->new(-seq => $entry->{Sequence} );
-  $dna->moltype(lc($entry->{Molecule}));
-  $dna->display_id($entry->{ID});
-  $dna->accession_number($entry->{AccNumber});
-  $dna->description($entry->{Description});
-  my @cds=@{$entry->{CDS}};
+  my $dna=Bio::LiveSeq::DNA->new(-seq => $entry->{'Sequence'} );
+  $dna->moltype(lc($entry->{'Molecule'}));
+  $dna->display_id($entry->{'ID'});
+  $dna->accession_number($entry->{'AccNumber'});
+  $dna->description($entry->{'Description'});
+  my @cds=@{$entry->{'CDS'}};
   my ($swissacc,$swisshash); my @swisshashes;
   for $i (0..$#cds) {
-    #my @transcript=@{$cds[$i]->{range}};
+    #my @transcript=@{$cds[$i]->{'range'}};
     #$transcript=\@transcript;
     #push (@transcripts,$transcript);
-    push (@transcripts,$cds[$i]->{range});
+    push (@transcripts,$cds[$i]->{'range'});
     if ($getswissprotinfo) {
-      $swissacc=$cds[$i]->{qualifiers}->{db_xref};
+      $swissacc=$cds[$i]->{'qualifiers'}->{'db_xref'};
       $swisshash=$self->get_swisshash($swissacc);
       #$self->printswissprot($swisshash); # DEBUG
       push (@swisshashes,$swisshash);
@@ -317,7 +317,7 @@ sub hash2gene {
   my $entryfeature;
   my $genefeatureshash;
 
-  my @cds=@{$entry->{CDS}};
+  my @cds=@{$entry->{'CDS'}};
 
   # checking if a position has been given instead than a gene_name
   if (index($input,"cds-position:") == 0 ) {
@@ -329,7 +329,7 @@ sub hash2gene {
     $genefeatureshash=$self->_findgenefeatures($entry,$input,undef,$getswissprotinfo);
   }
 
-  unless (($genefeatureshash)&&(scalar(@{$genefeatureshash->{genefeatures}}))) { # array empty, no gene features found
+  unless (($genefeatureshash)&&(scalar(@{$genefeatureshash->{'genefeatures'}}))) { # array empty, no gene features found
     my @genes=$self->genes($entry);
     my $cds_number=scalar(@cds);
     warn "Warning! Not even one genefeature found for /$input/....
@@ -339,8 +339,8 @@ sub hash2gene {
   }
 
   # get max and min, check flankings
-  my ($min,$max)=$self->rangeofarray(@{$genefeatureshash->{labels}}); # gene "boundaries"
-  my $seqlength=$entry->{SeqLength};
+  my ($min,$max)=$self->rangeofarray(@{$genefeatureshash->{'labels'}}); # gene "boundaries"
+  my $seqlength=$entry->{'SeqLength'};
   my ($mindna,$maxdna); # some flanking region next to the gene "boundaries"
   if ($min-$flanking < 1) {
     $mindna=1;
@@ -352,19 +352,19 @@ sub hash2gene {
   } else {
     $maxdna=$max+$flanking;
   }
-  my $subseq=substr($entry->{Sequence},$mindna-1,$maxdna-$mindna+1);
+  my $subseq=substr($entry->{'Sequence'},$mindna-1,$maxdna-$mindna+1);
 
   # create LiveSeq objects
 
   # create DNA
   my $dna=Bio::LiveSeq::DNA->new(-seq => $subseq, -offset => $mindna);
-  $dna->moltype(lc($entry->{Molecule}));
-  $dna->source($entry->{Organism});
-  $dna->display_id($entry->{ID});
-  $dna->accession_number($entry->{AccNumber});
-  $dna->description($entry->{Description});
+  $dna->moltype(lc($entry->{'Molecule'}));
+  $dna->source($entry->{'Organism'});
+  $dna->display_id($entry->{'ID'});
+  $dna->accession_number($entry->{'AccNumber'});
+  $dna->description($entry->{'Description'});
 
-  my @transcripts=@{$genefeatureshash->{transcripts}};
+  my @transcripts=@{$genefeatureshash->{'transcripts'}};
   # create Translations, Transcripts, Exons out of the CDS
   unless (@transcripts) {
     cluck "no CDS feature found for /$input/....";
@@ -376,8 +376,8 @@ sub hash2gene {
   # get the Transcript obj_refs
   my $translation;
   my $j=0;
-  my @ttables=@{$genefeatureshash->{ttables}};
-  my @swisshashes=@{$genefeatureshash->{swisshashes}};
+  my @ttables=@{$genefeatureshash->{'ttables'}};
+  my @swisshashes=@{$genefeatureshash->{'swisshashes'}};
   foreach $translation (@translationobjs) {
     push(@transcriptobjs,$translation->get_Transcript);
     if ($ttables[$j]) { # if not undef
@@ -402,8 +402,8 @@ sub hash2gene {
 
   my ($object,$range,$start,$end,$strand);
 
-  my @exons=@{$genefeatureshash->{exons}};
-  my @exondescs=@{$genefeatureshash->{exondescs}};
+  my @exons=@{$genefeatureshash->{'exons'}};
+  my @exondescs=@{$genefeatureshash->{'exondescs'}};
   if (@exons) {
     my $exoncount = 0;
     foreach $range (@exons) {
@@ -419,8 +419,8 @@ sub hash2gene {
     }
     $gene{Exons}=\@exonobjs;
   }
-  my @introns=@{$genefeatureshash->{introns}};
-  my @introndescs=@{$genefeatureshash->{introndescs}};
+  my @introns=@{$genefeatureshash->{'introns'}};
+  my @introndescs=@{$genefeatureshash->{'introndescs'}};
   if (@introns) {
     my $introncount = 0;
     foreach $range (@introns) {
@@ -436,7 +436,7 @@ sub hash2gene {
     }
     $gene{Introns}=\@intronobjs;
   }
-  my @prim_transcripts=@{$genefeatureshash->{prim_transcripts}};
+  my @prim_transcripts=@{$genefeatureshash->{'prim_transcripts'}};
   if (@prim_transcripts) {
     foreach $range (@prim_transcripts) {
       ($start,$end,$strand)=@{$range};
@@ -445,8 +445,8 @@ sub hash2gene {
     }
     $gene{Prim_Transcripts}=\@primtranscriptobjs;
   }
-  my @repeat_regions=@{$genefeatureshash->{repeat_regions}};
-  my @repeat_regions_family=@{$genefeatureshash->{repeat_regions_family}};
+  my @repeat_regions=@{$genefeatureshash->{'repeat_regions'}};
+  my @repeat_regions_family=@{$genefeatureshash->{'repeat_regions_family'}};
   if (@repeat_regions) {
     my $k=0;
     foreach $range (@repeat_regions) {
@@ -462,8 +462,8 @@ sub hash2gene {
     }
     $gene{Repeat_Regions}=\@repeatregionobjs;
   }
-  my @repeat_units=@{$genefeatureshash->{repeat_units}};
-  my @repeat_units_family=@{$genefeatureshash->{repeat_units_family}};
+  my @repeat_units=@{$genefeatureshash->{'repeat_units'}};
+  my @repeat_units_family=@{$genefeatureshash->{'repeat_units_family'}};
   if (@repeat_units) {
     my $k=0;
     foreach $range (@repeat_units) {
@@ -481,7 +481,7 @@ sub hash2gene {
   }
 
   # create the Gene
-  my $gene_name=$genefeatureshash->{gene_name}; # either a name or a cdspos
+  my $gene_name=$genefeatureshash->{'gene_name'}; # either a name or a cdspos
   return (Bio::LiveSeq::Gene->new(-name=>$gene_name,-features=>\%gene,
                                   -upbound=>$min,-downbound=>$max));
 }
@@ -563,26 +563,26 @@ sub printswissprot {
     return;
   }
   printf "ID: %s\n",
-      $entry->{ID};
+      $entry->{'ID'};
   printf "ACC: %s\n",
-      $entry->{AccNumber};
+      $entry->{'AccNumber'};
   printf "GENE: %s\n",
-      $entry->{Gene};
+      $entry->{'Gene'};
   printf "DES: %s\n",
-      $entry->{Description};
+      $entry->{'Description'};
   printf "ORG: %s\n",
-      $entry->{Organism};
+      $entry->{'Organism'};
   printf "SEQLN: %s\n",
-      $entry->{SeqLength};
+      $entry->{'SeqLength'};
   printf "SEQ: %s\n",
-      substr($entry->{Sequence},0,64);
-  if ($entry->{Features}) {
-    my @features=@{$entry->{Features}};
+      substr($entry->{'Sequence'},0,64);
+  if ($entry->{'Features'}) {
+    my @features=@{$entry->{'Features'}};
     my $i;
     for $i (0..$#features) {
-      print "|",$features[$i]->{name},"|";
-      print " at ",$features[$i]->{location},": ";
-      print "",$features[$i]->{description},"\n";
+      print "|",$features[$i]->{'name'},"|";
+      print " at ",$features[$i]->{'location'},": ";
+      print "",$features[$i]->{'description'},"\n";
     }
   }
 }
@@ -602,38 +602,38 @@ sub printswissprot {
 sub printembl {
   my ($self,$entry)=@_;
   unless ($entry) {
-    $entry=$self->{hash};
+    $entry=$self->{'hash'};
   }
   my ($i,$featurename);
   printf "ID: %s\n",
-      $entry->{ID};
+      $entry->{'ID'};
   printf "ACC: %s\n",
-      $entry->{AccNumber};
+      $entry->{'AccNumber'};
   printf "MOL: %s\n",
-      $entry->{Molecule};
+      $entry->{'Molecule'};
   printf "DIV: %s\n",
-      $entry->{Division};
+      $entry->{'Division'};
   printf "DES: %s\n",
-      $entry->{Description};
+      $entry->{'Description'};
   printf "ORG: %s\n",
-      $entry->{Organism};
+      $entry->{'Organism'};
   printf "SEQLN: %s\n",
-      $entry->{SeqLength};
+      $entry->{'SeqLength'};
   printf "SEQ: %s\n",
-      substr($entry->{Sequence},0,64);
-  my @features=@{$entry->{Features}};
-  my @cds=@{$entry->{CDS}};
-  print "\nFEATURES\nNumber of CDS: ",scalar(@cds)," (out of ",$entry->{FeaturesNumber}, " total features)\n";
+      substr($entry->{'Sequence'},0,64);
+  my @features=@{$entry->{'Features'}};
+  my @cds=@{$entry->{'CDS'}};
+  print "\nFEATURES\nNumber of CDS: ",scalar(@cds)," (out of ",$entry->{'FeaturesNumber'}, " total features)\n";
   my ($exonref,$transcript);
   my ($qualifiernumber,$qualifiers,$key);
   my ($start,$end,$strand);
   my $j=0;
   for $i (0..$#features) {
-    $featurename=$features[$i]->{name};
+    $featurename=$features[$i]->{'name'};
     if ($featurename eq "CDS") {
       print "|CDS| number $j at feature position: $i\n";
-      #print $features[$i]->{location},"\n";
-      $transcript=$features[$i]->{range};
+      #print $features[$i]->{'location'},"\n";
+      $transcript=$features[$i]->{'range'};
       foreach $exonref (@{$transcript}) {
 	($start,$end,$strand)=@{$exonref};
 	print "\tExon: start $start end $end strand $strand\n";
@@ -642,11 +642,11 @@ sub printembl {
     } else {
       print "|$featurename| at feature position: $i\n";
       print "\trange: ";
-      print join("\t",@{$features[$i]->{range}}),"\n";
-      #print $features[$i]->{location},"\n";
+      print join("\t",@{$features[$i]->{'range'}}),"\n";
+      #print $features[$i]->{'location'},"\n";
     }
-    $qualifiernumber=$features[$i]->{qual_number};
-    $qualifiers=$features[$i]->{qualifiers}; # hash
+    $qualifiernumber=$features[$i]->{'qual_number'};
+    $qualifiers=$features[$i]->{'qualifiers'}; # hash
     foreach $key (keys (%{$qualifiers})) {
     print "\t\t",$key,": ";
       print $qualifiers->{$key},"\n";
@@ -669,12 +669,12 @@ sub printembl {
 sub genes {
   my ($self,$entry)=@_;
   unless ($entry) {
-    $entry=$self->{hash};
+    $entry=$self->{'hash'};
   }
-  my @entryfeatures=@{$entry->{Features}};
+  my @entryfeatures=@{$entry->{'Features'}};
   my ($genename,$genenames,$entryfeature);
   for $entryfeature (@entryfeatures) {
-    $genename=$entryfeature->{qualifiers}->{gene};
+    $genename=$entryfeature->{'qualifiers'}->{'gene'};
     if ($genename) {
       if (index($genenames,$genename) == -1) { # if name is new
 	$genenames .= $genename . " "; # add the name
@@ -690,29 +690,29 @@ sub genes {
 sub swisshash2liveseq {
   my ($self,$entry,$translation)=@_;
   my $translength=$translation->length;
-  $translation->description($translation->description . $entry->{Description});
-  $translation->display_id("SWISSPROT:" . $entry->{ID});
-  $translation->accession_number("SWISSPROT:" . $entry->{AccNumber});
-  $translation->name($entry->{Gene});
-  $translation->source($entry->{Organism});
+  $translation->description($translation->description . $entry->{'Description'});
+  $translation->display_id("SWISSPROT:" . $entry->{'ID'});
+  $translation->accession_number("SWISSPROT:" . $entry->{'AccNumber'});
+  $translation->name($entry->{'Gene'});
+  $translation->source($entry->{'Organism'});
   my @aarangeobjects;
   my ($start,$end,$aarangeobj,$feature);
   my @features; my @newfeatures;
-  if ($entry->{Features}) {
-    @features=@{$entry->{Features}};
+  if ($entry->{'Features'}) {
+    @features=@{$entry->{'Features'}};
   }
   my $cleavedmet=0;
   # check for cleaved Met
   foreach $feature (@features) {
-    if (($feature->{name} eq "INIT_MET")&&($feature->{location} eq "0 0")) {
+    if (($feature->{'name'} eq "INIT_MET")&&($feature->{'location'} eq "0 0")) {
       $cleavedmet=1;
-      $translation->{offset}="1"; # from swissprot to liveseq protein sequence
+      $translation->{'offset'}="1"; # from swissprot to liveseq protein sequence
     } else {
       push(@newfeatures,$feature);
     }
   }
 
-  my $swissseq=$entry->{Sequence};
+  my $swissseq=$entry->{'Sequence'};
   my $liveseqtransl=$translation->seq;
   chop $liveseqtransl; # to take away the trailing STOP "*"
   my $translated=substr($liveseqtransl,$cleavedmet);
@@ -729,15 +729,15 @@ sub swisshash2liveseq {
   @features=@newfeatures;
   foreach $feature (@features) {
     #print "Processing SwissProtFeature: $i\n"; # debug
-    ($start,$end)=split(/ /,$feature->{location});
+    ($start,$end)=split(/ /,$feature->{'location'});
     # Note: cleavedmet is taken in account for updating numbering
-    $aarangeobj=Bio::LiveSeq::AARange->new(-start => $start+$cleavedmet, -end => $end+$cleavedmet, -name => $feature->{name}, -description => $feature->{description}, -translation => $translation, -translength => $translength);
+    $aarangeobj=Bio::LiveSeq::AARange->new(-start => $start+$cleavedmet, -end => $end+$cleavedmet, -name => $feature->{'name'}, -description => $feature->{'description'}, -translation => $translation, -translength => $translength);
     if ($aarangeobj != -1) {
       push(@aarangeobjects,$aarangeobj);
     }
     # $i++; # debug
   }
-  $translation->{aa_ranges}=\@aarangeobjects;
+  $translation->{'aa_ranges'}=\@aarangeobjects;
 }
 
 # if there is no SRS support, the default will be to return 0
@@ -756,7 +756,7 @@ sub get_swisshash {
 sub _findgenefeatures {
   my ($self,$entry,$gene_name,$cds_position,$getswissprotinfo)=@_;
 
-  my @entryfeatures=@{$entry->{Features}};
+  my @entryfeatures=@{$entry->{'Features'}};
   my @exons; my @introns; my @prim_transcripts; my @transcripts;
   my @repeat_units; my @repeat_regions;
   my @repeat_units_family; my @repeat_regions_family; my $rpt_family;
@@ -777,7 +777,7 @@ sub _findgenefeatures {
   # in the entry (e.g. tRNA entry -> TOCHECK).
   # let's deal with the special case in which there is just one gene per entry
   # usually without /gene qualifier
-  my @cds=@{$entry->{CDS}};
+  my @cds=@{$entry->{'CDS'}};
 
   my $skipgenematch=0;
   if (scalar(@cds) == 1) {
@@ -787,9 +787,9 @@ sub _findgenefeatures {
 
   my ($cds_begin,$cds_end,$proximity);
   if ($cds_position) { # if a position has been requested
-    my @cds_exons=@{$cds[$cds_position-1]->{range}};
+    my @cds_exons=@{$cds[$cds_position-1]->{'range'}};
     ($cds_begin,$cds_end)=($cds_exons[0]->[0],$cds_exons[-1]->[1]); # begin and end of CDS
-    $gene_name=$cds[$cds_position-1]->{qualifiers}->{gene};
+    $gene_name=$cds[$cds_position-1]->{'qualifiers'}->{'gene'};
     # DEBUG
     unless ($skipgenematch) {
       carp "--DEBUG-- cdsbegin $cds_begin cdsend $cds_end--------";
@@ -798,68 +798,68 @@ sub _findgenefeatures {
   }
 
   for $entryfeature (@entryfeatures) { # get only features for the desired gene
-    if (($skipgenematch)||(($cds_position)&&($self->_checkfeatureproximity($entryfeature->{range},$cds_begin,$cds_end,$proximity)))||(!($cds_position)&&($entryfeature->{qualifiers}->{gene} eq "$gene_name"))) {
+    if (($skipgenematch)||(($cds_position)&&($self->_checkfeatureproximity($entryfeature->{'range'},$cds_begin,$cds_end,$proximity)))||(!($cds_position)&&($entryfeature->{'qualifiers'}->{'gene'} eq "$gene_name"))) {
       push(@genefeatures,$entryfeature);
 
-      my @range=@{$entryfeature->{range}};
-      $name=$entryfeature->{name};
-      my %qualifierhash=%{$entryfeature->{qualifiers}};
+      my @range=@{$entryfeature->{'range'}};
+      $name=$entryfeature->{'name'};
+      my %qualifierhash=%{$entryfeature->{'qualifiers'}};
       if ($name eq "CDS") { # that has range containing array of exons
 
 	# swissprot crossindexing (if without SRS support it will fill array
 	# with zeros and do nothing
 	if ($getswissprotinfo) {
-	  $swissacc=$entryfeature->{qualifiers}->{db_xref};
+	  $swissacc=$entryfeature->{'qualifiers'}->{'db_xref'};
 	  $swisshash=$self->get_swisshash($swissacc);
 	  #$self->printswissprot($swisshash); # DEBUG
 	  push (@swisshashes,$swisshash);
 	}
 
-	push (@ttables,$entryfeature->{qualifiers}->{transl_table}); # undef if not specified
+	push (@ttables,$entryfeature->{'qualifiers'}->{'transl_table'}); # undef if not specified
 	
 	# create labels array
 	for $exon (@range) {
 	  push(@labels,$exon->[0],$exon->[1]); # start and end of every exon of the CDS
 	}
-	push (@transcripts,$entryfeature->{range});
+	push (@transcripts,$entryfeature->{'range'});
       } else {
 	# "simplifying" the joinedlocation features. I.e. changing them from
 	# multijoined ones to simple plain start-end features, taking only
 	# the start of the first "exon" and the end of the last "exon" as
 	# start and end of the entire feature
-	if ($entryfeature->{locationtype} && $entryfeature->{locationtype} eq "joined") { # joined location
+	if ($entryfeature->{'locationtype'} && $entryfeature->{'locationtype'} eq "joined") { # joined location
 	  @range=($range[0]->[0],$range[-1]->[1]);
 	}
 	push(@labels,$range[0],$range[1]); # start and end of every feature
 	if ($name eq "exon") {
-	  $desc=$entryfeature->{qualifiers}->{number};
-	  if ($entryfeature->{qualifiers}->{note}) {
+	  $desc=$entryfeature->{'qualifiers'}->{'number'};
+	  if ($entryfeature->{'qualifiers'}->{'note'}) {
 	    if ($desc) {
-	      $desc .= "|" . $entryfeature->{qualifiers}->{note};
+	      $desc .= "|" . $entryfeature->{'qualifiers'}->{'note'};
 	    } else {
-	      $desc = $entryfeature->{qualifiers}->{note};
+	      $desc = $entryfeature->{'qualifiers'}->{'note'};
 	    }
 	  }
 	  push (@exondescs,$desc || "unknown");
 	  push(@exons,\@range);
 	}
 	if ($name eq "intron") {
- 	  $desc=$entryfeature->{qualifiers}->{number};
+ 	  $desc=$entryfeature->{'qualifiers'}->{'number'};
 	  if ($desc) {
-	    $desc .= "|" . $entryfeature->{qualifiers}->{note};
+	    $desc .= "|" . $entryfeature->{'qualifiers'}->{'note'};
 	  } else {
-	    $desc = $entryfeature->{qualifiers}->{note};
+	    $desc = $entryfeature->{'qualifiers'}->{'note'};
 	  }
 	  push (@introndescs,$desc || "unknown"); 
 	  push(@introns,\@range);
 	}
 	if (($name eq "prim_transcript")||($name eq "mRNA")) { push(@prim_transcripts,\@range); }
 	if ($name eq "repeat_unit") { push(@repeat_units,\@range);
-	  $rpt_family=$entryfeature->{qualifiers}->{rpt_family};
+	  $rpt_family=$entryfeature->{'qualifiers'}->{'rpt_family'};
 	  push (@repeat_units_family,$rpt_family || "unknown");
 	}
 	if ($name eq "repeat_region") { push(@repeat_regions,\@range);
-	  $rpt_family=$entryfeature->{qualifiers}->{rpt_family};
+	  $rpt_family=$entryfeature->{'qualifiers'}->{'rpt_family'};
 	  push (@repeat_regions_family,$rpt_family || "unknown");
 	}
       }

@@ -310,7 +310,7 @@ sub embl2hash {
     $entryhash{Features}=\@features; # put this also into the hash
     my @cds; # array just of CDSs
     for $i (0..$#features) {
-      if ($features[$i]->{name} eq "CDS") {
+      if ($features[$i]->{'name'} eq "CDS") {
 	push(@cds,$features[$i]);
       }
     }

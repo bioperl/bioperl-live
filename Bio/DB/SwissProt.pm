@@ -249,7 +249,7 @@ sub hostlocation {
     my $servertype = $self->servertype;
     $self->throw("Must have a valid servertype defined not $servertype")
 	unless defined $servertype; 
-    my %hosts = %{$HOSTS{$servertype}->{hosts}};
+    my %hosts = %{$HOSTS{$servertype}->{'hosts'}};
     if( defined $location && $location ne '' ) {
 	if( ! $hosts{$location} ) {
 	    $self->throw("Must specify a known host, not $location,".
@@ -278,8 +278,8 @@ sub location_url {
     if( ! defined $location || !defined $servertype )  {	
 	$self->throw("must have a valid hostlocation and servertype set before calling location_url");
     }
-    return sprintf($HOSTS{$servertype}->{baseurl}, 
-		   $HOSTS{$servertype}->{hosts}->{$location});
+    return sprintf($HOSTS{$servertype}->{'baseurl'}, 
+		   $HOSTS{$servertype}->{'hosts'}->{$location});
 }		   
 
 1;

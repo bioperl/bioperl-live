@@ -106,7 +106,7 @@ sub _initialize {
 	    return 0;
 	}
     }
-    $self->{_seqctr} = 0;
+    $self->{'_seqctr'} = 0;
 }
 
 sub _residues {
@@ -151,7 +151,7 @@ sub _accession {
 
 sub next_seq{
     my ($self ) = @_;
-    if ($self->{_seqctr} < $seq->getLength()) {
+    if ($self->{'_seqctr'} < $seq->getLength()) {
 	my $id = &_id($seq);
 	my ($sequence, $type)=&_residues($seq);
 	my $accession = &_accession($seq);

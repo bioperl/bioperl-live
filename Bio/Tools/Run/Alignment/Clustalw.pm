@@ -307,8 +307,8 @@ sub AUTOLOAD {
     $attr = uc $attr;
     $self->throw("Unallowed parameter: $attr !") unless $ok_field{uc $attr};
 
-    $self->{uc $attr} = shift if @_;
-    return $self->{uc $attr};
+    $self->{'uc $attr'} = shift if @_;
+    return $self->{'uc $attr'};
 }
 
 

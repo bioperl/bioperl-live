@@ -114,7 +114,7 @@ sub new {
   #my $start = $firstexon->start;
   #my $end = $lastexon->end;
   my $strand = $firstexon->strand;
-  my $seq = $firstexon->{seq};
+  my $seq = $firstexon->{'seq'};
 
   unless (_checkexons(\@exons)) {
     carp "$class not initialised because of problems in the exon structure";
@@ -126,7 +126,7 @@ sub new {
   # set Transcript into each Exon
   my $exon;
   foreach $exon (@exons) {
-    $exon->{transcript}=$obj;
+    $exon->{'transcript'}=$obj;
   }
   return $obj;
 }
@@ -145,7 +145,7 @@ sub new {
 
 sub all_Exons {
   my $self=shift;
-  my $exonsref=$self->{exons};
+  my $exonsref=$self->{'exons'};
   my @exons=@{$exonsref};
   my @newexons;
   my $exon;
@@ -158,7 +158,7 @@ sub all_Exons {
   }
   if ($#exons != $#newexons) {
     # update exons field
-    $self->{exons}=\@newexons;
+    $self->{'exons'}=\@newexons;
   }
   return (@newexons);
 }
@@ -189,11 +189,11 @@ sub downstream_seq {
       cluck "No sense in asking less than 1 downstream nucleotides!";
     }
   } else {
-    unless ($self->{seq}->moltype eq 'rna') { # if rna retrieve until the end
+    unless ($self->{'seq'}->moltype eq 'rna') { # if rna retrieve until the end
       #$str=$DNAobj->labelsubseq($self->end,undef,undef,"unsecuremoderequested");
       #return(substr($str,1)); # delete first nucleotide that is the last of Transcript
       if ($self->gene) { # if there is Gene object attached fetch relevant info
-	$str=$self->{seq}->labelsubseq($self->end,undef,$self->gene->maxtranscript->end); # retrieve from end of this Transcript to end of the maxtranscript
+	$str=$self->{'seq'}->labelsubseq($self->end,undef,$self->gene->maxtranscript->end); # retrieve from end of this Transcript to end of the maxtranscript
 	$str=substr($str,1); # delete first nucleotide that is the last of Transcript
 	if (CORE::length($str) > 0) {
 	  return($str);
@@ -217,9 +217,9 @@ sub downstream_seq {
       $downstream_seq=substr($lastexon->labelsubseq($self->end,$howmany,undef,"unsecuremoderequested"),1);
   } else {
     if ($strand == 1) {
-      $downstream_seq=substr($lastexon->labelsubseq($self->end,undef,$self->{seq}->end,"unsecuremoderequested"),1);
+      $downstream_seq=substr($lastexon->labelsubseq($self->end,undef,$self->{'seq'}->end,"unsecuremoderequested"),1);
     } else {
-      $downstream_seq=substr($lastexon->labelsubseq($self->end,undef,$self->{seq}->start,"unsecuremoderequested"),1);
+      $downstream_seq=substr($lastexon->labelsubseq($self->end,undef,$self->{'seq'}->start,"unsecuremoderequested"),1);
     }
   }
   return $downstream_seq;
@@ -243,9 +243,9 @@ sub upstream_seq {
       cluck "No sense in asking less than 1 upstream nucleotides!";
     }
   } else {
-    unless ($self->{seq}->moltype eq 'rna') { # if rna retrieve from the start
+    unless ($self->{'seq'}->moltype eq 'rna') { # if rna retrieve from the start
       if ($self->gene) { # if there is Gene object attached fetch relevant info
-	my $str=$self->{seq}->labelsubseq($self->gene->maxtranscript->start,undef,$self->start); # retrieve from start of maxtranscript to start of this Transcript
+	my $str=$self->{'seq'}->labelsubseq($self->gene->maxtranscript->start,undef,$self->start); # retrieve from start of maxtranscript to start of this Transcript
 	chop $str; # delete last nucleotide that is the A of starting ATG
 	if (length($str) > 0) {
 	  return($str);
@@ -267,19 +267,19 @@ sub upstream_seq {
     my $labelbefore=$firstexon->label(-$howmany,$firstexon->start);
     if ($labelbefore < 1) {
       if ($strand == 1) {
-	$labelbefore=$self->{seq}->start;
+	$labelbefore=$self->{'seq'}->start;
       } else {
-	$labelbefore=$self->{seq}->end;
+	$labelbefore=$self->{'seq'}->end;
       }
     }
     $upstream_seq=$firstexon->labelsubseq($labelbefore,undef,$firstexon->start,"unsecuremoderequested");
     chop $upstream_seq;
   } else {
     if ($strand == 1) {
-      $upstream_seq=$firstexon->labelsubseq($self->{seq}->start,undef,$self->start,"unsecuremoderequested");
+      $upstream_seq=$firstexon->labelsubseq($self->{'seq'}->start,undef,$self->start,"unsecuremoderequested");
       chop $upstream_seq; # delete last nucleotide that is the A of starting ATG
     } else {
-      $upstream_seq=$firstexon->labelsubseq($self->{seq}->end,undef,$self->start,"unsecuremoderequested");
+      $upstream_seq=$firstexon->labelsubseq($self->{'seq'}->end,undef,$self->start,"unsecuremoderequested");
       chop $upstream_seq; # delete last nucleotide that is the A of starting ATG
     }
   }
@@ -311,9 +311,9 @@ sub label {
     $arraypos=$position+$coord_pos-2;
     #print "\n=-=-=-=-DEBUG: arraypos $arraypos, pos $position, coordpos: $coord_pos";
     if ($arraypos < 0) {
-      $label=$self->{seq}->label($arraypos,$start,$strand); #?
+      $label=$self->{'seq'}->label($arraypos,$start,$strand); #?
     } elsif ($arraypos >= $length) {
-      $label=$self->{seq}->label($arraypos-$length+2,$end,$strand); #?
+      $label=$self->{'seq'}->label($arraypos-$length+2,$end,$strand); #?
     } else { # inside the Transcript
       @labels=$self->all_labels;
       $label=$labels[$arraypos];
@@ -328,7 +328,7 @@ sub label {
 #                                This is useful when called by Translation
 sub position {
   my ($self,$label,$firstlabel)=@_;
-  unless ($self->{seq}->valid($label)) {
+  unless ($self->{'seq'}->valid($label)) {
     carp "label is not valid";
     return (0);
   }
@@ -350,12 +350,12 @@ sub position {
     }
   } else {
     if ($self->follows($end,$label)) { # label after end of transcript
-      $out_pos=$self->{seq}->position($label,$end,$strand);
+      $out_pos=$self->{'seq'}->position($label,$end,$strand);
       #print "\n+++++++++DEBUG label $label FOLLOWS end $end outpos $out_pos coordpos $coord_pos";
       $position=$out_pos+$length-$coord_pos;
     } elsif ($self->follows($label,$start)) { # label before begin of transcript
       #print "\n+++++++++DEBUG label $label BEFORE start $start outpos $out_pos coordpos $coord_pos";
-      $out_pos=$self->{seq}->position($label,$start,$strand);
+      $out_pos=$self->{'seq'}->position($label,$start,$strand);
       $position=$out_pos-$coord_pos+1;
     } else { # label is in intron (not valid, not after, not before)!
       carp "Cannot give position of label pointing to intron according to CDS numbering!";
@@ -639,14 +639,14 @@ sub old_subseq {
 # reset it.
 sub start {
   my $self = shift;
-  my $exonsref=$self->{exons};
+  my $exonsref=$self->{'exons'};
   my @exons=@{$exonsref};
   return ($exons[0]->start);
 }
 
 sub end {
   my $self = shift;
-  my $exonsref=$self->{exons};
+  my $exonsref=$self->{'exons'};
   my @exons=@{$exonsref};
   return ($exons[-1]->end);
 }
@@ -721,7 +721,7 @@ sub _checkexons {
 
 sub get_Translation {
   my $self=shift;
-  return ($self->{translation}); # this is set when Translation->new is called
+  return ($self->{'translation'}); # this is set when Translation->new is called
 }
 
 # this checks so that deletion spanning multiple exons is
@@ -730,7 +730,7 @@ sub get_Translation {
 # this is called BEFORE any deletion in the chain
 sub _deletecheck {
   my ($self,$startlabel,$endlabel)=@_;
-  my $exonsref=$self->{exons};
+  my $exonsref=$self->{'exons'};
   my @exons=@{$exonsref};
   my ($startexon,$endexon,$exon);
   $startexon=$endexon=0;
@@ -757,7 +757,7 @@ sub _deletecheck {
 	  push(@newexons,$exon);
 	}
       }
-      $self->{exons}=\@newexons;
+      $self->{'exons'}=\@newexons;
     } elsif ($startexon->start eq $startlabel) { # special cases
       $startexon->{'start'}=$nextend; # set a new start of exon
     } elsif ($startexon->end eq $endlabel) {
@@ -786,7 +786,7 @@ sub _deletecheck {
 	}# else skip them
       }
     }
-    $self->{exons}=\@newexons;
+    $self->{'exons'}=\@newexons;
   }
 }
 

@@ -333,7 +333,7 @@ sub _initialize {
 				     @args,
 				     );
 
-  $self->{readbuffer} = undef; # buffer for storing lines from _readline
+  $self->{'readbuffer'} = undef; # buffer for storing lines from _readline
 
   if ( defined $file and defined $fh ) {
       $self->throw("Providing both a file and a filehandle for reading from - only one please!");
@@ -515,9 +515,9 @@ sub _readline {
 
   # if the buffer been filled by _pushback then return the buffer
   # contents, rather than read from the filehandle
-  if ( defined $self->{readbuffer} ) {
-    $line = $self->{readbuffer};
-    undef $self->{readbuffer};
+  if ( defined $self->{'readbuffer'} ) {
+    $line = $self->{'readbuffer'};
+    undef $self->{'readbuffer'};
   }
   else {
     $line = defined($fh) ? <$fh> : <>;
@@ -538,7 +538,7 @@ sub _readline {
 
 sub _pushback {
   my ($obj, $value) = @_;
-  $obj->{readbuffer} .= $value;
+  $obj->{'readbuffer'} .= $value;
 }
 
 =head2 _concatenate_lines
@@ -621,15 +621,15 @@ sub TIEHANDLE {
 
 sub READLINE {
   my $self = shift;
-  return $self->{seqio}->next_seq() unless wantarray;
+  return $self->{'seqio'}->next_seq() unless wantarray;
   my (@list, $obj);
-  push @list, $obj while $obj = $self->{seqio}->next_seq();
+  push @list, $obj while $obj = $self->{'seqio'}->next_seq();
   return @list;
 }
 
 sub PRINT {
   my $self = shift;
-  $self->{seqio}->write_seq(@_);
+  $self->{'seqio'}->write_seq(@_);
 }
 
 1;

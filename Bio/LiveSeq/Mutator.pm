@@ -533,7 +533,7 @@ sub change_gene {
 	    $refseq=$transcripts[0];
 	}
     } else {
-	$refseq=$transcripts[0]->{seq};
+	$refseq=$transcripts[0]->{'seq'};
     }
     #
     # Converting mutation positions to labels
@@ -548,7 +548,7 @@ sub change_gene {
     my ($DNAobj, $RNAobj);
     if ($refseq->isa("Bio::LiveSeq::Transcript")) {
 	$self->RNA($refseq);
-	$self->DNA($refseq->{seq});
+	$self->DNA($refseq->{'seq'});
 	$seqDiff->rna_ori($refseq->seq );
 	$seqDiff->aa_ori($refseq->get_Translation->seq);
     } else {
@@ -733,7 +733,7 @@ sub _set_DNAMutation {
 	 $dnamut->proof('computed');
     }
     # how many nucleotides to store upstream and downstream of the change
-    my $flanklen = $self->{flanklen};
+    my $flanklen = $self->{'flanklen'};
     #print  `date`, " flanking sequences start\n";
     my $uplabel = $self->DNA->label(1-$flanklen,$self->mutation->prelabel); # this could be unavailable!
 
@@ -784,7 +784,7 @@ sub _rnaAffected {
     my ($rnaAffected) = 0;
 
     # check for inserted labels (that require follows instead of <,>)
-    my $DNAend=$self->RNA->{seq}->end;
+    my $DNAend=$self->RNA->{'seq'}->end;
     if ($self->mutation->prelabel > $DNAend or $self->mutation->postlabel > $DNAend) {
 	 #this means one of the two labels is an inserted one
 	 #(coming from a previous mutation. This would falsify all <,>
@@ -854,7 +854,7 @@ sub _rnaAffected {
 sub _set_effects {
     my ($self, $seqDiff, $dnamut) = @_;
     my ($rnapos_end, $upstreamseq, $dnstreamseq);
-    my $flanklen = $self->{flanklen};
+    my $flanklen = $self->{'flanklen'};
 
     $self->mutation->len == 0 ?
 	$rnapos_end = $self->mutation->transpos :

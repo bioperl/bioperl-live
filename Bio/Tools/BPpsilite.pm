@@ -159,13 +159,13 @@ sub _initialize {
     { $self->throw("Expecting a GLOB reference, not $fh!"); }
 
   $self->fh($fh);
-  $self->{LASTLINE} = "";
-  $self->{QPATLOCATION} = [];  # Anonymous array of query pattern locations for PHIBLAST
-  $self->{NEXT_ITERATION_NUMBER} = 1;
-  $self->{TOTAL_ITERATION_NUMBER} = -1;  # -1 indicates preprocessing not yet done
+  $self->{'LASTLINE'} = "";
+  $self->{'QPATLOCATION'} = [];  # Anonymous array of query pattern locations for PHIBLAST
+  $self->{'NEXT_ITERATION_NUMBER'} = 1;
+  $self->{'TOTAL_ITERATION_NUMBER'} = -1;  # -1 indicates preprocessing not yet done
 
-  if ($self->_parseHeader) {$self->{REPORT_DONE} = 0} # there are alignments
-  else                     {$self->{REPORT_DONE} = 1} # empty report
+  if ($self->_parseHeader) {$self->{'REPORT_DONE'} = 0} # there are alignments
+  else                     {$self->{'REPORT_DONE'} = 1} # empty report
   
   return $make; # success - we hope!
 }
@@ -180,7 +180,7 @@ sub _initialize {
 
 =cut
 
-sub query    {shift->{QUERY}}
+sub query    {shift->{'QUERY'}}
 
 =head2 qlength
 
@@ -192,7 +192,7 @@ sub query    {shift->{QUERY}}
 
 =cut
 
-sub qlength  {shift->{LENGTH}}
+sub qlength  {shift->{'LENGTH'}}
 
 =head2 database
 
@@ -204,7 +204,7 @@ sub qlength  {shift->{LENGTH}}
 
 =cut
 
-sub database {shift->{DATABASE}}
+sub database {shift->{'DATABASE'}}
 
 =head2 number_of_iterations
 
@@ -225,7 +225,7 @@ sub database {shift->{DATABASE}}
 
 =cut
 
-sub pattern {shift->{PATTERN}}
+sub pattern {shift->{'PATTERN'}}
 
 =head2 query_pattern_location
 
@@ -236,15 +236,15 @@ sub pattern {shift->{PATTERN}}
 
 =cut
 
-sub query_pattern_location {shift->{QPATLOCATION}}
+sub query_pattern_location {shift->{'QPATLOCATION'}}
 
 
 
 
 sub number_of_iterations {
 	my $self = shift;
-  	if ($self->{TOTAL_ITERATION_NUMBER} == -1){&_preprocess($self);}
-	$self->{TOTAL_ITERATION_NUMBER};
+  	if ($self->{'TOTAL_ITERATION_NUMBER'} == -1){&_preprocess($self);}
+	$self->{'TOTAL_ITERATION_NUMBER'};
 }
 
 =head2 round
@@ -265,8 +265,8 @@ sub round {
   my $iterationfile = "iteration$iter_num.tmp";
   open (FILEHANDLE, "$iterationfile");
   my $iter=new Bio::Tools::BPlite::Iteration( -fh => \*FILEHANDLE,
-					      -lastline=>$self->{LASTLINE},
-					      -lastline=>$self->{LASTLINE},
+					      -lastline=>$self->{'LASTLINE'},
+					      -lastline=>$self->{'LASTLINE'},
 					      -round=>$iter_num,
 					      -parent=>$self);
 
@@ -285,9 +285,9 @@ sub round {
 sub fh {
     my ($self, $value) = @_;
     if( defined $value && ref($value) =~ /GLOB/i ) {
-	$self->{FH} = $value;
+	$self->{'FH'} = $value;
     } 
-    return $self->{FH};
+    return $self->{'FH'};
 }
 # begin private routines
 
@@ -306,17 +306,17 @@ sub _parseHeader {
       $query =~ s/^>//;
       $query =~ /\((\d+)\s+\S+\)\s*$/;
       my $length = $1;
-      $self->{QUERY} = $query;
-      $self->{LENGTH} = $length;
+      $self->{'QUERY'} = $query;
+      $self->{'LENGTH'} = $length;
     }
-    elsif ($_ =~ /^Database:\s+(.+)/) {$self->{DATABASE} = $1}
+    elsif ($_ =~ /^Database:\s+(.+)/) {$self->{'DATABASE'} = $1}
     elsif ($_ =~ /^\s*pattern\s+(\S+).*position\s+(\d+)\D/) {   # For PHIBLAST reports
-			$self->{PATTERN} = $1;
-			push (@{$self->{QPATLOCATION}}, $2);
+			$self->{'PATTERN'} = $1;
+			push (@{$self->{'QPATLOCATION'}}, $2);
 			}
-    elsif ($_ =~ /^>|^Results from round 1/)    {$self->{LASTLINE} = $_; return 1;}
+    elsif ($_ =~ /^>|^Results from round 1/)    {$self->{'LASTLINE'} = $_; return 1;}
     elsif ($_ =~ /^Parameters|^\s+Database:/) {
-      $self->{LASTLINE} = $_;
+      $self->{'LASTLINE'} = $_;
       return 0; # there's nothing in the report
     }
   }
@@ -359,7 +359,7 @@ sub _preprocess {
 	print FILEHANDLE $currentline ;
 
     }
-    $self->{TOTAL_ITERATION_NUMBER}= $round;
+    $self->{'TOTAL_ITERATION_NUMBER'}= $round;
 }
 
 1;

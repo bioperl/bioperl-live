@@ -107,19 +107,19 @@ sub _initialize {
   my($self,@args) = @_;
   my $xmlfile ="";
   
-  $self->{counter} = 0;
-  $self->{id_counter} = 1;  
-  $self->{leftovers} = undef;
-  $self->{header} = undef;
-  $self->{chunkable} = undef;
-  $self->{xmldoc} = undef;
+  $self->{'counter'} = 0;
+  $self->{'id_counter'} = 1;  
+  $self->{'leftovers'} = undef;
+  $self->{'header'} = undef;
+  $self->{'chunkable'} = undef;
+  $self->{'xmldoc'} = undef;
 
   $self->_export_subfeatures(1);
   $self->_group_subfeatures(1);
   $self->_subfeature_types('exons', 'promoters','poly_A_sites','utrs','introns','sub_SeqFeature');
   
-  ($self->{file}, $self->{fh} ) = $self->_rearrange( [ qw(FILE FH) ], @args);
-#  $self->throw("did not specify a file to read, Filehandle suport is not implemented currently") if( !defined $self->{file});
+  ($self->{'file'}, $self->{'fh'} ) = $self->_rearrange( [ qw(FILE FH) ], @args);
+#  $self->throw("did not specify a file to read, Filehandle suport is not implemented currently") if( !defined $self->{'file'});
   return unless my $make = $self->SUPER::_initialize(@args);
 }
 
@@ -226,19 +226,19 @@ sub next_seq {
   #  If you don't include this in each 'chunk', the
   #  parser will barf.
   my $header;
-  unless ($self->{header}) {
+  unless ($self->{'header'}) {
     while (my $next_line = $self->_readline) {
       if($next_line=~/<bx-seq:seq?/) {
 	$header .= $`;
-	$self->{header}=$header;
-	$self->{leftovers} .= "<bx-seq:seq".$';
+	$self->{'header'}=$header;
+	$self->{'leftovers'} .= "<bx-seq:seq".$';
 	last;
       } else {
 	$header .= $next_line;
       }      
     }
-    if ($self->{header}=~m|<bx-game:flavor>.*chunkable.*</bx-game:flavor>|) {
-      $self->{chunkable}=1;
+    if ($self->{'header'}=~m|<bx-game:flavor>.*chunkable.*</bx-game:flavor>|) {
+      $self->{'chunkable'}=1;
     }
     
   }
@@ -248,8 +248,8 @@ sub next_seq {
   my $seq;
   #  If chunkable, we read in the document until the next 
   #  TOP LEVEL sequence.
-  if ($self->{chunkable}) {
-    $xmldoc = $self->{header}.$self->{leftovers};
+  if ($self->{'chunkable'}) {
+    $xmldoc = $self->{'header'}.$self->{'leftovers'};
     while (my $next_line = $self->_readline) {
       # Maintain depth of computations and annotations. 
       # We only want TOP LEVEL seqs if chunkable.
@@ -268,7 +268,7 @@ sub next_seq {
       if($next_line=~/<bx-seq:seq?/) {
 	if (!$not_top_level) {
 	  $xmldoc .= $`;
-	  $self->{leftovers} .= "<bx-seq:seq".$';
+	  $self->{'leftovers'} .= "<bx-seq:seq".$';
 	  last;
 	}
       } else {
@@ -285,36 +285,36 @@ sub next_seq {
       my $handler = Bio::SeqIO::game::idHandler->new();
       my $options = {Handler=>$handler};
       my $parser  = XML::Parser::PerlSAX->new($options);
-      $self->{seqs} = $parser->parse(Source => { String => $xmldoc });
+      $self->{'seqs'} = $parser->parse(Source => { String => $xmldoc });
     } else { # No sequences.
       return 0;
     }
     # Get the seq out of the array.
-    $seq = @{$self->{seqs}}[0];
+    $seq = @{$self->{'seqs'}}[0];
   # If not chunkable,
   # only read document into memory once!
-  } elsif (!$self->{xmldoc}) {
-    $self->{xmldoc}=$self->{header}.$self->{leftovers};
+  } elsif (!$self->{'xmldoc'}) {
+    $self->{'xmldoc'}=$self->{'header'}.$self->{'leftovers'};
     while (my $next_line = $self->_readline) {
-      $self->{xmldoc} .= $next_line;
+      $self->{'xmldoc'} .= $next_line;
     }
-    $xmldoc=$self->{xmldoc};
+    $xmldoc=$self->{'xmldoc'};
     # Get the seq id index.
     if ($xmldoc =~ m|</bx-seq:seq|) {
       my $handler = Bio::SeqIO::game::idHandler->new();
       my $options = {Handler=>$handler};
       my $parser  = XML::Parser::PerlSAX->new($options);
-      $self->{seqs} = $parser->parse(Source => { String => $xmldoc });
-      $seq = shift @{$self->{seqs}};
+      $self->{'seqs'} = $parser->parse(Source => { String => $xmldoc });
+      $seq = shift @{$self->{'seqs'}};
     } else { # No sequences.
       return 0;
     }
-    my $seq = @{$self->{seqs}}[0];
+    my $seq = @{$self->{'seqs'}}[0];
   # if we already have the doc in memory, 
   # just get the doc.
-  } elsif ($self->{xmldoc}) {
-    $xmldoc=$self->{xmldoc};
-    $seq = shift @{$self->{seqs}};
+  } elsif ($self->{'xmldoc'}) {
+    $xmldoc=$self->{'xmldoc'};
+    $seq = shift @{$self->{'seqs'}};
   }
   #  If there's more sequences:
   if ($seq) {
@@ -361,19 +361,19 @@ sub next_primary_seq {
   #  If you don't include this in each 'chunk', the
   #  parser will barf.
   my $header;
-  unless ($self->{header}) {
+  unless ($self->{'header'}) {
     while (my $next_line = $self->_readline) {
       if($next_line=~/<bx-seq:seq?/) {
 	$header .= $`;
-	$self->{header}=$header;
-	$self->{leftovers} .= "<bx-seq:seq".$';
+	$self->{'header'}=$header;
+	$self->{'leftovers'} .= "<bx-seq:seq".$';
 	last;
       } else {
 	$header .= $next_line;
       }      
     }
-    if ($self->{header}=~m|<bx-game:flavor>.*chunkable.*</bx-game:flavor>|) {
-      $self->{chunkable}=1;
+    if ($self->{'header'}=~m|<bx-game:flavor>.*chunkable.*</bx-game:flavor>|) {
+      $self->{'chunkable'}=1;
     }
       
   }
@@ -383,8 +383,8 @@ sub next_primary_seq {
   my $seq;
   #  If chunkable, we read in the document until the next 
   #  TOP LEVEL sequence.
-  if ($self->{chunkable}) {
-    $xmldoc = $self->{header}.$self->{leftovers};
+  if ($self->{'chunkable'}) {
+    $xmldoc = $self->{'header'}.$self->{'leftovers'};
     while (my $next_line = $self->_readline) {
       # Maintain depth of computations and annotations. 
       # We only want TOP LEVEL seqs if chunkable.
@@ -403,7 +403,7 @@ sub next_primary_seq {
       if($next_line=~/<bx-seq:seq?/) {
 	if (!$not_top_level) {
 	  $xmldoc .= $`;
-	  $self->{leftovers} .= "<bx-seq:seq".$';
+	  $self->{'leftovers'} .= "<bx-seq:seq".$';
 	  last;
 	}
       } else {
@@ -420,35 +420,35 @@ sub next_primary_seq {
       my $handler = Bio::SeqIO::game::idHandler->new();
       my $options = {Handler=>$handler};
       my $parser  = XML::Parser::PerlSAX->new($options);
-      $self->{seqs} = $parser->parse(Source => { String => $xmldoc });
+      $self->{'seqs'} = $parser->parse(Source => { String => $xmldoc });
     } else { # No sequences.
       return 0;
     }
-    $seq = @{$self->{seqs}}[0];
+    $seq = @{$self->{'seqs'}}[0];
   # If not chunkable,
   # only read document into memory once!
-  } elsif (!$self->{xmldoc}) {
-    $self->{xmldoc}=$self->{header}.$self->{leftovers};
+  } elsif (!$self->{'xmldoc'}) {
+    $self->{'xmldoc'}=$self->{'header'}.$self->{'leftovers'};
     while (my $next_line = $self->_readline) {
-      $self->{xmldoc} .= $next_line;
+      $self->{'xmldoc'} .= $next_line;
     }
-    $xmldoc=$self->{xmldoc};
+    $xmldoc=$self->{'xmldoc'};
     # Get the seq id index.
     if ($xmldoc =~ m|</bx-seq:seq|) {
       my $handler = Bio::SeqIO::game::idHandler->new();
       my $options = {Handler=>$handler};
       my $parser  = XML::Parser::PerlSAX->new($options);
-      $self->{seqs} = $parser->parse(Source => { String => $xmldoc });
-      $seq = shift @{$self->{seqs}};
+      $self->{'seqs'} = $parser->parse(Source => { String => $xmldoc });
+      $seq = shift @{$self->{'seqs'}};
     } else { # No sequences.
       return 0;
     }
-    my $seq = @{$self->{seqs}}[0];
+    my $seq = @{$self->{'seqs'}}[0];
   # if we already have the doc in memory, 
   # just get the doc.
-  } elsif ($self->{xmldoc}) {
-    $xmldoc=$self->{xmldoc};
-    $seq = shift @{$self->{seqs}};
+  } elsif ($self->{'xmldoc'}) {
+    $xmldoc=$self->{'xmldoc'};
+    $seq = shift @{$self->{'seqs'}};
   }
 
   #print $xmldoc;
@@ -487,7 +487,7 @@ sub write_seq {
   my $bxlink = "http://www.bioxml.org/dtds/link/v0_1";
   my $bxseq = "http://www.bioxml.org/dtds/seq/v0_1";
   
-  my $output = new IO::File(">" . $self->{file});
+  my $output = new IO::File(">" . $self->{'file'});
   my $writer = new XML::Writer(OUTPUT => $output,
   		               NAMESPACES => 1,
 			       DATA_MODE => 1,
@@ -527,16 +527,16 @@ sub write_seq {
     foreach my $feature (@feats) {
       if ($feature->has_tag('annotation_id')) {
 	my @ann_id = $feature->each_tag_value('annotation_id');
-	push (@{$features->{annotations}->{$ann_id[0]}}, $feature);
+	push (@{$features->{'annotations'}->{$ann_id[0]}}, $feature);
       } elsif ($feature->has_tag('computation_id')) {
 	my @comp_id = $feature->each_tag_value('computation_id');
-	push (@{$features->{computations}->{$comp_id[0]}}, $feature);
+	push (@{$features->{'computations'}->{$comp_id[0]}}, $feature);
       } else {
-	push (@{$features->{everybody_else}}, $feature);
+	push (@{$features->{'everybody_else'}}, $feature);
       }
     }
     
-    foreach my $key (keys %{$features->{annotations}}) {
+    foreach my $key (keys %{$features->{'annotations'}}) {
       $writer->startTag([$bxann, 'annotation'],
 			[$bxann, 'id']=>$key
 		       );
@@ -546,11 +546,11 @@ sub write_seq {
 		       [$bxlink, 'ref'] => $seq->display_id());
       $writer->endTag([$bxlink, 'link']);
       $writer->endTag([$bxann, 'seq_link']);					   
-      $self->__draw_feature_set($writer, $seq, $bxann, "", @{$features->{annotations}->{$key}});
+      $self->__draw_feature_set($writer, $seq, $bxann, "", @{$features->{'annotations'}->{$key}});
       $writer->endTag([$bxann, 'annotation']);
     }
     
-    foreach my $key (keys %{$features->{computations}}) {
+    foreach my $key (keys %{$features->{'computations'}}) {
       $writer->startTag([$bxcomp, 'computation'],
 			[$bxcomp, 'id']=>$key
 		       );
@@ -560,10 +560,10 @@ sub write_seq {
 		       [$bxlink, 'ref'] => $seq->display_id());
       $writer->endTag([$bxlink, 'link']);
       $writer->endTag([$bxcomp, 'seq_link']);
-      $self->__draw_feature_set($writer, $seq, $bxcomp, "", @{$features->{computations}->{$key}});   $writer->endTag([$bxcomp, 'computation']);
+      $self->__draw_feature_set($writer, $seq, $bxcomp, "", @{$features->{'computations'}->{$key}});   $writer->endTag([$bxcomp, 'computation']);
     }
 
-    foreach my $feature(@{$features->{everybody_else}}) {
+    foreach my $feature(@{$features->{'everybody_else'}}) {
         $self->__draw_feature($writer, $feature, $seq, "", $self->_export_subfeatures()) 
     }
   }
@@ -580,7 +580,7 @@ sub __draw_feature_set {
   my $bxfeat = "http://www.bioxml.org/dtds/feature/v0_1";
 
   if ($self->_export_subfeatures() && $self->_group_subfeatures()) {
-     $feature_set_id = $self->{id_counter}; $self->{id_counter}++;
+     $feature_set_id = $self->{'id_counter'}; $self->{'id_counter'}++;
     $writer->startTag([$namespace, 'feature_set'],
                         [$namespace, 'id'] => $feature_set_id);
     foreach my $feature (@features) {
@@ -597,7 +597,7 @@ sub __draw_feature_set {
     }
 
   } else {
-    $feature_set_id = $self->{id_counter}; $self->{id_counter}++;
+    $feature_set_id = $self->{'id_counter'}; $self->{'id_counter'}++;
     $writer->startTag([$namespace, 'feature_set'],
                       [$namespace, 'id'] => $feature_set_id);
     foreach my $feature (@features) {
@@ -614,8 +614,8 @@ sub __draw_feature {
   my $bxfeat = "http://www.bioxml.org/dtds/feature/v0_1";
 
   if (!$feature->has_tag('id')) {
-    $feature->add_tag_value('id', $self->{id_counter});
-    $self->{id_counter}++;
+    $feature->add_tag_value('id', $self->{'id_counter'});
+    $self->{'id_counter'}++;
   }
 
   my @id = $feature->each_tag_value('id');

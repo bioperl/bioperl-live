@@ -84,7 +84,7 @@ use Bio::LiveSeq::Range 1.2; # uses Range, inherits from it
 
 sub get_Transcript {
   my $self=shift;
-  return ($self->{transcript}); # this is set on all Exons a Transcript is made of when Transcript->new is called
+  return ($self->{'transcript'}); # this is set on all Exons a Transcript is made of when Transcript->new is called
 }
 
 # this checks if the attached Transcript has a Gene object attached

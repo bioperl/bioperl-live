@@ -11,7 +11,7 @@ use strict;
 sub new {
     my $class = shift;
     my $self = {};
-    $self->{ids} = [];
+    $self->{'ids'} = [];
     return bless ($self, $class);
 }
 
@@ -23,14 +23,14 @@ sub start_document            {
 }
 sub end_document              {
     my ($self, $document) = @_;
-    return $self->{ids};
+    return $self->{'ids'};
 }
 sub start_element             {
      my ($self, $element) = @_;
 
-     if ($element->{Name} eq 'bx-seq:seq') {
-       if ($element->{Attributes}->{'bx-seq:id'}) {
-	 push @{$self->{ids}}, $element->{Attributes}->{'bx-seq:id'};
+     if ($element->{'Name'} eq 'bx-seq:seq') {
+       if ($element->{'Attributes'}->{'bx-seq:id'}) {
+	 push @{$self->{'ids'}}, $element->{'Attributes'}->{'bx-seq:id'};
        } else {
 	 if ($self->can('warn')) {
 	   $self->warn('WARNING: Attribute bx-seq:id is required on bx-seq:seq. Sequence will not be parsed.');

@@ -98,12 +98,12 @@ sub new {
   #my $startbase = $transcript->start;
   #my $endbase = $transcript->end;
   my $strand = $transcript->strand;
-  my $seq = $transcript->{seq};
+  my $seq = $transcript->{'seq'};
 
   %translation = (strand => $strand, seq => $seq, transcript => $transcript, moltype => "protein");
   $obj = \%translation;
   $obj = bless $obj, $class;
-  $transcript->{translation}=$obj;# set the Translation ref into its Transcript
+  $transcript->{'translation'}=$obj;# set the Translation ref into its Transcript
   return $obj;
 }
 
@@ -120,7 +120,7 @@ sub new {
 
 sub get_Transcript {
   my $self=shift;
-  return ($self->{transcript});
+  return ($self->{'transcript'});
 }
 
 # These get redefined here, overriding the SeqI ones
@@ -254,12 +254,12 @@ sub position {
 
 sub start {
   my $self=shift;
-  return ($self->{transcript}->start);
+  return ($self->{'transcript'}->start);
 }
 
 sub end {
   my $self=shift;
-  return ($self->{transcript}->end);
+  return ($self->{'transcript'}->end);
 }
 
 =head2 aa_ranges
@@ -277,7 +277,7 @@ sub end {
 # returns an array of obj_ref of AARange objects attached to the Translation
 sub aa_ranges {
   my $self=shift;
-  return ($self->{aa_ranges});
+  return ($self->{'aa_ranges'});
 }
 
 sub translation_table {
@@ -322,7 +322,7 @@ sub labelsubseq {
 # sequence (usually as a result of an INIT_MET or a gap)
 sub offset {
   my $self=shift;
-  return ($self->{offset});
+  return ($self->{'offset'});
 }
 
 1;

@@ -153,8 +153,8 @@ These methods let you get at and set the member variables
 
 sub start {
   my $self = shift;
-  @_ ? $self->{start} = shift
-     : $self->{start};
+  @_ ? $self->{'start'} = shift
+     : $self->{'start'};
 }
 
 =head2 end
@@ -170,8 +170,8 @@ sub start {
 
 sub end {
   my $self = shift;
-  @_ ? $self->{end} = shift
-     : $self->{end};
+  @_ ? $self->{'end'} = shift
+     : $self->{'end'};
 }
 
 =head2 strand
@@ -193,10 +193,10 @@ sub strand {
     $val =~ tr/-/-1/;
     $val =~ tr/./0/;
     if($val == -1 || $val == 0 || $val == 1 ) {
-      $self->{strand} = $val;
+      $self->{'strand'} = $val;
     }
   }  
-  return $self->{strand};
+  return $self->{'strand'};
 }
 
 =head2 length

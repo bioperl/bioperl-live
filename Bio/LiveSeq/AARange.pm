@@ -225,7 +225,7 @@ sub get_Transcript {
 
 sub get_Translation {
   my $self=shift;
-  return ($self->{translation});
+  return ($self->{'translation'});
 }
 
 sub change {
@@ -332,7 +332,7 @@ sub position {
 
 sub aa_start {
   my $self=shift;
-  my $aastart=$self->get_Translation->position($self->{start});
+  my $aastart=$self->get_Translation->position($self->{'start'});
 }
 
 =head2 aa_end
@@ -347,7 +347,7 @@ sub aa_start {
 
 sub aa_end {
   my $self=shift;
-  my $aastart=$self->get_Translation->position($self->{end});
+  my $aastart=$self->get_Translation->position($self->{'end'});
 }
 
 =head2 dna_seq

@@ -104,7 +104,7 @@ sub _initialize {
 	}
 
 	$params = [] if( !defined $params );
-	my $modulename = $DRIVERVALUES{$method}->{MODULE};
+	my $modulename = $DRIVERVALUES{$method}->{'MODULE'};
 	if( &_load_module($modulename) == 0 ) {
 	    return undef;
 	}

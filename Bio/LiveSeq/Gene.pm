@@ -110,7 +110,7 @@ sub new {
   my %features=%{$inputfeatures}; # this is done to make our own hash&ref, not
   my $features=\%features; # the ones input'ed, that could get destroyed
   
-  my $DNA=$features->{DNA};
+  my $DNA=$features->{'DNA'};
   unless (ref($DNA) eq "Bio::LiveSeq::DNA") {
     carp "$class not initialised because DNA feature not found";
     return (-1);
@@ -120,7 +120,7 @@ sub new {
 
   my ($start,$end);
 
-  my @Transcripts=@{$features->{Transcripts}};
+  my @Transcripts=@{$features->{'Transcripts'}};
 
   my $strand;
   unless (ref($Transcripts[0]) eq "Bio::LiveSeq::Transcript") {
@@ -148,18 +148,18 @@ sub new {
   }  
   my @Translations; my @Introns; my @Repeat_Units; my @Repeat_Regions;
   my @Prim_Transcripts; my @Exons;
-  if (defined($features->{Translations})) {
-    @Translations=@{$features->{Translations}}; }
-  if (defined($features->{Exons})) {
-    @Exons=@{$features->{Exons}}; }
-  if (defined($features->{Introns})) {
-    @Introns=@{$features->{Introns}}; }
-  if (defined($features->{Repeat_Units})) {
-    @Repeat_Units=@{$features->{Repeat_Units}}; }
-  if (defined($features->{Repeat_Regions})) {
-    @Repeat_Regions=@{$features->{Repeat_Regions}}; }
-  if (defined($features->{Prim_Transcripts})) {
-    @Prim_Transcripts=@{$features->{Prim_Transcripts}}; }
+  if (defined($features->{'Translations'})) {
+    @Translations=@{$features->{'Translations'}}; }
+  if (defined($features->{'Exons'})) {
+    @Exons=@{$features->{'Exons'}}; }
+  if (defined($features->{'Introns'})) {
+    @Introns=@{$features->{'Introns'}}; }
+  if (defined($features->{'Repeat_Units'})) {
+    @Repeat_Units=@{$features->{'Repeat_Units'}}; }
+  if (defined($features->{'Repeat_Regions'})) {
+    @Repeat_Regions=@{$features->{'Repeat_Regions'}}; }
+  if (defined($features->{'Prim_Transcripts'})) {
+    @Prim_Transcripts=@{$features->{'Prim_Transcripts'}}; }
 
   
   if (@Translations) {
@@ -311,47 +311,47 @@ sub features {
 }
 sub get_DNA {
   my $self=shift;
-  return ($self->{'features'}->{DNA});
+  return ($self->{'features'}->{'DNA'});
 }
 sub get_Transcripts {
   my $self=shift;
-  return ($self->{'features'}->{Transcripts});
+  return ($self->{'features'}->{'Transcripts'});
 }
 sub get_Translations {
   my $self=shift;
-  return ($self->{'features'}->{Translations});
+  return ($self->{'features'}->{'Translations'});
 }
 sub get_Prim_Transcripts {
   my $self=shift;
-  return ($self->{'features'}->{Prim_Transcripts});
+  return ($self->{'features'}->{'Prim_Transcripts'});
 }
 sub get_Repeat_Units {
   my $self=shift;
-  return ($self->{'features'}->{Repeat_Units});
+  return ($self->{'features'}->{'Repeat_Units'});
 }
 sub get_Repeat_Regions {
   my $self=shift;
-  return ($self->{'features'}->{Repeat_Regions});
+  return ($self->{'features'}->{'Repeat_Regions'});
 }
 sub get_Introns {
   my $self=shift;
-  return ($self->{'features'}->{Introns});
+  return ($self->{'features'}->{'Introns'});
 }
 sub get_Exons {
   my $self=shift;
-  return ($self->{'features'}->{Exons});
+  return ($self->{'features'}->{'Exons'});
 }
 sub featuresnum {
   my $self=shift;
-  return ($self->{multiplicity});
+  return ($self->{'multiplicity'});
 }
 sub upbound {
   my $self=shift;
-  return ($self->{upbound});
+  return ($self->{'upbound'});
 }
 sub downbound {
   my $self=shift;
-  return ($self->{downbound});
+  return ($self->{'downbound'});
 }
 sub printfeaturesnum {
   my $self=shift;
@@ -364,7 +364,7 @@ sub printfeaturesnum {
 }
 sub maxtranscript {
   my $self=shift;
-  return ($self->{maxtranscript});
+  return ($self->{'maxtranscript'});
 }
 
 1;

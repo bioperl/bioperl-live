@@ -31,8 +31,8 @@ sub _initialize {
   my ($self, @args) = @_; 
   my $make = $self->SUPER::_initialize(@args);
   
-  ($self->{NAME},$self->{LENGTH},$self->{FH},
-   $self->{LASTLINE},$self->{PARENT}) =
+  ($self->{'NAME'},$self->{'LENGTH'},$self->{'FH'},
+   $self->{'LASTLINE'},$self->{'PARENT'}) =
        $self->_rearrange([qw(NAME
 			     LENGTH
 			     FH
@@ -40,7 +40,7 @@ sub _initialize {
 			     PARENT
 			     )],@args);
   
-  $self->{HSP_ALL_PARSED} = 0;
+  $self->{'HSP_ALL_PARSED'} = 0;
     
   return $make; # success - we hope!
 }
@@ -56,7 +56,7 @@ sub _initialize {
 
 =cut
 
-sub name {shift->{NAME}}
+sub name {shift->{'NAME'}}
 
 =head2 nextFeaturePair
 
@@ -84,13 +84,13 @@ sub nextFeaturePair {shift->nextHSP}; # just another name
 
 sub nextHSP {
   my ($self) = @_;
-  return 0 if $self->{HSP_ALL_PARSED};
+  return 0 if $self->{'HSP_ALL_PARSED'};
   
   ############################
   # get and parse scorelines #
   ############################
-  my $scoreline = $self->{LASTLINE};
-  my $FH = $self->{FH};
+  my $scoreline = $self->{'LASTLINE'};
+  my $FH = $self->{'FH'};
   my $nextline = <$FH>;
   return undef if not defined $nextline;
   $scoreline .= $nextline;
@@ -123,11 +123,11 @@ sub nextHSP {
     elsif ($_ !~ /\S/)            {next}
     elsif ($_ =~ /Strand HSP/)    {next} # WU-BLAST non-data
     elsif ($_ =~ /^\s*Strand/)    {next} # NCBI-BLAST non-data
-    elsif ($_ =~ /^\s*Score/)     {$self->{LASTLINE} = $_; last}
+    elsif ($_ =~ /^\s*Score/)     {$self->{'LASTLINE'} = $_; last}
     elsif ($_ =~ /^>|^Parameters|^\s+Database:|^CPU\stime/)   {
-      $self->{LASTLINE} = $_;
-      $self->{PARENT}->{LASTLINE} = $_;
-      $self->{HSP_ALL_PARSED} = 1;
+      $self->{'LASTLINE'} = $_;
+      $self->{'PARENT'}->{'LASTLINE'} = $_;
+      $self->{'HSP_ALL_PARSED'} = 1;
       last;
     }
     else {
@@ -180,10 +180,10 @@ sub nextHSP {
 					'-querySeq'=>$ql, 
 					'-sbjctSeq'=>$sl,
 					'-homologySeq'=>$as, 
-					'-queryName'=>$self->{PARENT}->query,
-					'-sbjctName'=>$self->{NAME},
-					'-queryLength'=>$self->{PARENT}->qlength,
-					'-sbjctLength'=>$self->{LENGTH});
+					'-queryName'=>$self->{'PARENT'}->query,
+					'-sbjctName'=>$self->{'NAME'},
+					'-queryLength'=>$self->{'PARENT'}->qlength,
+					'-sbjctLength'=>$self->{'LENGTH'});
   return $hsp;
 }
 

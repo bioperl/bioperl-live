@@ -84,9 +84,9 @@ sub new {
     croak "$class not initialized properly";
   }
 
-  $obj->{moltype}='dna'; # set moltype default
-  $obj->{strand}=1; # set strand default = 1
-  $obj->{seq}=$obj; # set seq field to itself
+  $obj->{'moltype'}='dna'; # set moltype default
+  $obj->{'strand'}=1; # set strand default = 1
+  $obj->{'seq'}=$obj; # set seq field to itself
 
   $obj = bless $obj, $class;
   return $obj;
@@ -96,7 +96,7 @@ sub new {
 # it has to be redefined here because default from SeqI accesses field "start"
 sub start {
   my $self = shift;
-  return $self->{begin}; # the chain's start is called begin
+  return $self->{'begin'}; # the chain's start is called begin
 }
 
 # it is overridden to provide faster output

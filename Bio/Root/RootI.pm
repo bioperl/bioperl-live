@@ -877,7 +877,7 @@ sub tempfile {
     my ($self, @args) = @_;
     if ( $TEMPMODLOADED ) {
 	my ($tfh, $file) = &File::Temp::tempfile(@args);
-	push @{$self->{_rooti_tempfiles}}, $file;
+	push @{$self->{'_rooti_tempfiles'}}, $file;
 	return ($tfh,$file);
     }
     my %hash = @args;
@@ -887,7 +887,7 @@ sub tempfile {
     my $tfilename = sprintf("%s/%s-%s-%s", $dir, 
 			    $ENV{USER} || 'unknown', $$, 
 			    $TEMPCOUNTER++);
-    push @{$self->{_rooti_tempfiles}}, $tfilename;
+    push @{$self->{'_rooti_tempfiles'}}, $tfilename;
 
     # taken from File::Temp;
     my $fh;
@@ -934,18 +934,18 @@ sub tempdir {
 
     if( $TEMPMODLOADED ) {
 	my $dir = &File::Temp::tempdir(%hash);
-	push @{$self->{_rooti_tempdirs}},$dir;
+	push @{$self->{'_rooti_tempdirs'}},$dir;
 	return $dir;
     }
     # we are planning to cleanup temp files no matter what
-    if( $hash{CLEANUP} == 1 ) {	$self->{_cleanuptempdir} = 1;
+    if( $hash{CLEANUP} == 1 ) {	$self->{'_cleanuptempdir'} = 1;
     }
     
     my $tdir = sprintf("%s/%s-%s-%s", $TEMPDIR, 
 		    "dir_". $ENV{USER} || 'unknown', $$, 
 		    $TEMPCOUNTER++);
     mkdir($tdir, 0755);
-    push @{$self->{_rooti_tempdirs}}, $tdir; 
+    push @{$self->{'_rooti_tempdirs'}}, $tdir; 
     return $tdir;
 }
 
@@ -953,10 +953,10 @@ sub tempdir {
 sub DESTROY {
     my ($self) = @_;
     # we are planning to cleanup temp files no matter what
-    unlink @{$self->{_rooti_tempfiles}} 
-    if( defined $self->{_rooti_tempfiles} 
-	&& ref($self->{_rooti_tempfiles}) =~ /array/i );
-    foreach ( @{$self->{_rooti_tempdirs}} ) {
+    unlink @{$self->{'_rooti_tempfiles'}} 
+    if( defined $self->{'_rooti_tempfiles'} 
+	&& ref($self->{'_rooti_tempfiles'}) =~ /array/i );
+    foreach ( @{$self->{'_rooti_tempdirs'}} ) {
 #	rmdir($_);
     }
 }

@@ -116,7 +116,7 @@ sub _initialize {
 
 # grab the filename
   my ($file) = $self->_rearrange([qw(FILE)],@args);
-  $self->{_filename}= $file;
+  $self->{'_filename'}= $file;
 
   return unless my $make = $self->SUPER::_initialize(@args);
 }
@@ -137,7 +137,7 @@ sub next_aln {
     my ($start,$end,$name,$seqname,$seq,$seqchar);
     my $aln =  Bio::SimpleAlign->new();
 
-	open FH, $self->{_filename};
+	open FH, $self->{'_filename'};
  	my $bl2seqobj = Bio::Tools::BPbl2seq->new(\*FH);
 
 	$seqchar = $bl2seqobj->querySeq ;

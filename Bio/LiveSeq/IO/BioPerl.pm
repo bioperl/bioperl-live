@@ -288,7 +288,7 @@ sub embl2hash {
 
   my @cds; # array just of CDSs
   for $i (0..$#features) {
-    if ($features[$i]->{name} eq "CDS") {
+    if ($features[$i]->{'name'} eq "CDS") {
       push(@cds,$features[$i]);
     }
   }

@@ -535,15 +535,15 @@ sub TIEHANDLE {
 
 sub READLINE {
   my $self = shift;
-  return $self->{alignio}->next_aln() unless wantarray;
+  return $self->{'alignio'}->next_aln() unless wantarray;
   my (@list,$obj);
-  push @list,$obj  while $obj = $self->{alignio}->next_aln();
+  push @list,$obj  while $obj = $self->{'alignio'}->next_aln();
   return @list;
 }
 
 sub PRINT {
   my $self = shift;
-  $self->{alignio}->write_aln(@_);
+  $self->{'alignio'}->write_aln(@_);
 }
 
 1;

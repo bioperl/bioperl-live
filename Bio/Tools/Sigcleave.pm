@@ -268,9 +268,9 @@ sub new {
 
     # set threshold if supplied, otherwise default to 3.5
     if (defined $threshold) {
-	$self->{threshold} = $threshold;
+	$self->{'threshold'} = $threshold;
     } else {
-      $self->{threshold} = 3.5;
+      $self->{'threshold'} = 3.5;
     }
 
     $self->_Analyze;
@@ -377,7 +377,7 @@ See Also   : n/a
 sub threshold {
 #----------------
 my $self = shift;
-return $self->{threshold};
+return $self->{'threshold'};
 }
 
 
@@ -407,8 +407,8 @@ my $self = shift;
 my %results;
 my $position;
 
- foreach $position ( sort keys %{ $self->{signal_scores} } ) {
-     $results{$position} = $self->{signal_scores}{$position};    
+ foreach $position ( sort keys %{ $self->{'signal_scores'} } ) {
+     $results{$position} = $self->{'signal_scores'}{$position};    
  }
 
 return %results;

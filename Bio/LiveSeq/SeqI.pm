@@ -142,9 +142,9 @@ sub seq {
   my $self = shift;
   my ($start,$end) = ($self->start(),$self->end());
   if ($self->strand() == 1) {
-    return $self->{seq}->down_chain2string($start,undef,$end);
+    return $self->{'seq'}->down_chain2string($start,undef,$end);
   } else { # reverse strand
-    my $str = $self->{seq}->up_chain2string($start,undef,$end);
+    my $str = $self->{'seq'}->up_chain2string($start,undef,$end);
     $str =~ tr/acgtrymkswhbvdnxACGTRYMKSWHBVDNX/tgcayrkmswdvbhnxTGCAYRKMSWDVBHNX/;
     return $str;
   }
@@ -747,7 +747,7 @@ sub valid {
 
 sub start {
   my ($self) = @_;
-  return $self->{start}; # common for all classes BUT DNA (which redefines it) and Transcript (that takes the information from the Exons)
+  return $self->{'start'}; # common for all classes BUT DNA (which redefines it) and Transcript (that takes the information from the Exons)
 }
 
 =head1 end
@@ -762,7 +762,7 @@ sub start {
 
 sub end {
   my ($self) = @_;
-  return $self->{end};
+  return $self->{'end'};
 }
 
 =head1 strand
@@ -782,10 +782,10 @@ sub strand {
     if (($strand != 1)&&($strand != -1)) {
       carp "strand information not changed because strand identifier not valid";
     } else {
-      $self->{strand} = $strand;
+      $self->{'strand'} = $strand;
     }
   }
-  return $self->{strand};
+  return $self->{'strand'};
 }
 
 =head1 moltype

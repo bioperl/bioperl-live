@@ -560,8 +560,8 @@ sub AUTOLOAD {
     $attr = uc $attr;
     $self->throw("Unallowed parameter: $attr !") unless $ok_field{uc $attr};
 
-    $self->{uc $attr} = shift if @_;
-    return $self->{uc $attr};
+    $self->{'uc $attr'} = shift if @_;
+    return $self->{'uc $attr'};
 }
 
 
@@ -617,7 +617,7 @@ sub align {
     if (!$infilename) {$self->throw("Bad input data or less than 2 sequences in $input !");}
 
 # Create parameter string to pass to tcoffee program
-    $self->{_in} = [];    
+    $self->{'_in'} = [];    
 
     my $param_string = $self->_setparams();
 
@@ -655,7 +655,7 @@ sub profile_align {
     if (!$infilename1 || !$infilename2) {$self->throw("Bad input data: $input1 or $input2 !");}
 
     # Create parameter string to pass to tcoffee program
-    $self->{_in} = [];    
+    $self->{'_in'} = [];    
     my $param_string = $self->_setparams();
 
 # run tcoffee
@@ -684,15 +684,15 @@ sub _run {
     my $command = shift;
     if ($command =~ /align/) {
         $infilename = shift ;
-	push @{$self->{_in}}, "$infilename";
+	push @{$self->{'_in'}}, "$infilename";
     }
     if ($command =~ /profile/) {
 	$infile1 = shift ;
         $infile2 = shift ;
-	push @{$self->{_in}}, "$infile1", "$infile2";	
+	push @{$self->{'_in'}}, "$infile1", "$infile2";	
     }
     my $param_string = shift;
-    my $instring = "-in=".join(",", @{$self->{_in}});
+    my $instring = "-in=".join(",", @{$self->{'_in'}});
     my $commandstring = $PROGRAM." $instring".
 	" -output=gcg". " $param_string";    
     # next line is for debugging purposes
@@ -813,7 +813,7 @@ sub _setparams {
 	next unless (defined $value);	
 	my $attr_key = lc $attr;
 	if( $attr_key =~ /matrix/ ) {
-	    $self->{_in} = [ "X".lc($value) ];
+	    $self->{'_in'} = [ "X".lc($value) ];
 	} else {
 	    $attr_key = ' -'.$attr_key;
 	    $param_string .= $attr_key .'='.$value; 

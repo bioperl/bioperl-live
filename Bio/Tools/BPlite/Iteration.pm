@@ -78,21 +78,21 @@ sub _initialize {
   my ($self, @args) = @_; 
   my $make = $self->SUPER::_initialize(@args);
 
-  ($self->{FH},$self->{PARENT},$self->{ROUND}) =
+  ($self->{'FH'},$self->{'PARENT'},$self->{'ROUND'}) =
       $self->_rearrange([qw(FH
 			    PARENT
 			    ROUND
 			    )],@args);
 
-  if (ref $self->{FH} !~ /GLOB/)
-    { $self->throw("Expecting a GLOB reference, not $self->{FH} !"); }
+  if (ref $self->{'FH'} !~ /GLOB/)
+    { $self->throw("Expecting a GLOB reference, not $self->{'FH'} !"); }
 
-  $self->{LASTLINE} = "";
-  $self->{QUERY} = $self->{PARENT}->{QUERY};
-  $self->{LENGTH} = $self->{PARENT}->{LENGTH};
+  $self->{'LASTLINE'} = "";
+  $self->{'QUERY'} = $self->{'PARENT'}->{'QUERY'};
+  $self->{'LENGTH'} = $self->{'PARENT'}->{'LENGTH'};
 
-  if ($self->_parseHeader) {$self->{REPORT_DONE} = 0} # there are alignments
-  else                     {$self->{REPORT_DONE} = 1} # empty report
+  if ($self->_parseHeader) {$self->{'REPORT_DONE'} = 0} # there are alignments
+  else                     {$self->{'REPORT_DONE'} = 1} # empty report
   
   return $make; # success - we hope!
 }
@@ -109,7 +109,7 @@ sub _initialize {
 
 =cut
 
-sub query    {shift->{QUERY}}
+sub query    {shift->{'QUERY'}}
 
 =head2 qlength
 
@@ -120,7 +120,7 @@ sub query    {shift->{QUERY}}
 
 =cut
 
-sub qlength  {shift->{LENGTH}}
+sub qlength  {shift->{'LENGTH'}}
 
 =head2 newhits
 
@@ -133,7 +133,7 @@ sub qlength  {shift->{LENGTH}}
 
 =cut
 
-sub  newhits  {shift->{NEWHITS}}
+sub  newhits  {shift->{'NEWHITS'}}
 
 =head2 oldhits
 
@@ -146,7 +146,7 @@ sub  newhits  {shift->{NEWHITS}}
 
 =cut
 
-sub  oldhits  {shift->{OLDHITS}}
+sub  oldhits  {shift->{'OLDHITS'}}
 
 
 =head2 nextSbjct
@@ -167,12 +167,12 @@ sub nextSbjct {
   #######################
   # get all sbjct lines #
   #######################
-  my $def = $self->{LASTLINE};
-  my $FH = $self->{FH};
+  my $def = $self->{'LASTLINE'};
+  my $FH = $self->{'FH'};
   while(<$FH>) {
     if    ($_ !~ /\w/)            {next}
     elsif ($_ =~ /Strand HSP/)    {next} # WU-BLAST non-data
-    elsif ($_ =~ /^\s{0,2}Score/) {$self->{LASTLINE} = $_; last}
+    elsif ($_ =~ /^\s{0,2}Score/) {$self->{'LASTLINE'} = $_; last}
     else                          {$def .= $_}
   }
   $def =~ s/\s+/ /g;
@@ -187,8 +187,8 @@ sub nextSbjct {
   ####################
   my $sbjct = new Bio::Tools::BPlite::Sbjct('-name'=>$def,
 					    '-length'=>$length,
-                                            '-fh'=>$self->{FH}, 
-					    '-lastline'=>$self->{LASTLINE}, 
+                                            '-fh'=>$self->{'FH'}, 
+					    '-lastline'=>$self->{'LASTLINE'}, 
 					    '-parent'=>$self);
   return $sbjct;
 }
@@ -196,8 +196,8 @@ sub nextSbjct {
 sub _parseHeader {
   my ($self) = @_;
   my (@old_hits, @new_hits);
-  my $FH = $self->{FH};
-  my $newhits_true = ($self->{ROUND} < 2) ? 1  : 0 ;
+  my $FH = $self->{'FH'};
+  my $newhits_true = ($self->{'ROUND'} < 2) ? 1  : 0 ;
   while(<$FH>) {
     if ($_ =~ /(\w\w|.*|\w+.*)\s\s+(\d+)\s+([-\.e\d]+)$/)    {
 	my $id= $1;
@@ -208,14 +208,14 @@ sub _parseHeader {
     }
     elsif ($_ =~ /^Sequences not found previously/)  {$newhits_true = 1 ;}
     elsif ($_ =~ /^>/)
-        {$self->{LASTLINE} = $_;
-	 $self->{OLDHITS} = \@old_hits;
-	 $self->{NEWHITS} = \@new_hits;
-	 $self->{LASTLINE} = $_;	
+        {$self->{'LASTLINE'} = $_;
+	 $self->{'OLDHITS'} = \@old_hits;
+	 $self->{'NEWHITS'} = \@new_hits;
+	 $self->{'LASTLINE'} = $_;	
 	 return 1;
     }
     elsif ($_ =~ /^Parameters|^\s+Database:|^\s*Results from round\s+(d+)/) {
-      	$self->{LASTLINE} = $_;
+      	$self->{'LASTLINE'} = $_;
       	return 0; #  no sequences found in this iteration
     }
   }
@@ -224,13 +224,13 @@ sub _parseHeader {
 
 sub _fastForward {
   my ($self) = @_;
-  return 0 if $self->{REPORT_DONE}; # empty report
-  return 1 if $self->{LASTLINE} =~ /^>/;
+  return 0 if $self->{'REPORT_DONE'}; # empty report
+  return 1 if $self->{'LASTLINE'} =~ /^>/;
 
-  my $FH = $self->{FH};
+  my $FH = $self->{'FH'};
   while(<$FH>) {
     if ($_ =~ /^>|^Parameters|^\s+Database:/) {
-      $self->{LASTLINE} = $_;
+      $self->{'LASTLINE'} = $_;
       return 1;
     }
   }

@@ -164,7 +164,7 @@ sub _updown_chain2string {
   my ($direction,$chain,$first,$len,$last)=@_;
   unless($chain) { cluck "no chain input"; return (-1); }
   my $begin=$chain->{'begin'}; # the label of the BEGIN element
-  my $end=$chain->{end}; # the label of the END element
+  my $end=$chain->{'end'}; # the label of the END element
   my $flow;
 
   if ($direction eq "up") {
@@ -238,7 +238,7 @@ sub _updown_labels {
   my ($direction,$chain,$first,$last)=@_;
   unless($chain) { cluck "no chain input"; return (0); }
   my $begin=$chain->{'begin'}; # the label of the BEGIN element
-  my $end=$chain->{end}; # the label of the END element
+  my $end=$chain->{'end'}; # the label of the END element
   my $flow;
   if ($direction eq "up") { $flow=2;
     unless ($first) { $first=$end; }
@@ -291,7 +291,7 @@ sub start {
 sub end {
   my $chain=$_[0];
   unless($chain) { cluck "no chain input"; return (-1); }
-  return ($chain->{end});
+  return ($chain->{'end'});
 }
 
 =head2 label_exists
@@ -741,7 +741,7 @@ sub _create_chain_elements {
   my $array_count=scalar(@{$arrayref});
   unless ($array_count) {
     warn ("Warning _create_chain_elements: no elements input"); return (0); }
-  my $begin=$chain->{firstfree};
+  my $begin=$chain->{'firstfree'};
   my $i=$begin-1;
   my $element;
   foreach $element (@{$arrayref}) {
@@ -749,8 +749,8 @@ sub _create_chain_elements {
     $chain->{$i}=[$element,$i+1,$i-1];
   }
   my $end=$i;
-  $chain->{firstfree}=$i+1; # what a new added element should be called
-  $chain->{size} += $end-$begin+1; # increase size of chain
+  $chain->{'firstfree'}=$i+1; # what a new added element should be called
+  $chain->{'size'} += $end-$begin+1; # increase size of chain
   # leave sticky edges (to be joined by whoever called this subroutine)
   $chain->{$begin}[2]=undef;
   $chain->{$end}[1]=undef;
@@ -952,7 +952,7 @@ sub _sizecheck {
   my $begin=$chain->{'begin'}; # the name of the first element
   my $warncode=1;
   my ($label,@array);
-  my $size=$chain->{size};
+  my $size=$chain->{'size'};
   my $count=0;
   $label=$begin;
   while ($label) { # proceed with linked elements, counting
@@ -1015,7 +1015,7 @@ sub chain_length {
   my $chain=$_[0];
   unless($chain) {
     warn ("Warning chain_length: no chain input"); return (-1); }
-  my $size=$chain->{size};
+  my $size=$chain->{'size'};
   if ($size) {
     return ($size);
   } else {
@@ -1124,7 +1124,7 @@ sub splice_chain {
       $chain->{'end'}=undef;
     }
   }
-  $chain->{size}=($chain->{size}) - $i + 1; # update the SIZE field
+  $chain->{'size'}=($chain->{'size'}) - $i + 1; # update the SIZE field
 
   return $string;
 }
@@ -1274,8 +1274,8 @@ sub old_updown_chain2string {
   }
 
   if ($verbose) {
-    print "BEGIN=$begin"; print " END=$end"; print " SIZE=$chain->{size}";
-    print " FIRSTFREE=$chain->{firstfree} \n";
+    print "BEGIN=$begin"; print " END=$end"; print " SIZE=$chain->{'size'}";
+    print " FIRSTFREE=$chain->{'firstfree'} \n";
   }
 
   my $i=1;

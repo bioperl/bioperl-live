@@ -702,30 +702,30 @@ Currently, the object hash has the following keys. This may be subject
 to change; in particular the alignment data may at some point be stored
 more efficiently in a PDL (Perl Data Language) array.
 
-  $self->{seqs}   : An array of array references, each of which holds
+  $self->{'seqs'}   : An array of array references, each of which holds
                     one sequence of the alignment
-  $self->{id}     : String specifying the ID; shall be in \w+ (i.e. composed
+  $self->{'id'}     : String specifying the ID; shall be in \w+ (i.e. composed
                     of characters in [a-zA-Z_0-9]; only \S+ is enforced, though)
-  $self->{desc}   : String giving a description, (later) to be formatted
+  $self->{'desc'}   : String giving a description, (later) to be formatted
                     according to $descffmt
-  $self->{names}  : A reference to a hash which stores {loc,name} pairs of
+  $self->{'names'}  : A reference to a hash which stores {loc,name} pairs of
                     other database locations and corresponding names where
                     the alignment is located.
-  $self->{row_ids}: A reference to an array which stores row (sequence) ids
-  $self->{col_ids}: Same as $self->{row_ids}, for the columns (sites)
-  $self->{row_descs}: A reference to an array which stores row (sequence)
+  $self->{'row_ids'}: A reference to an array which stores row (sequence) ids
+  $self->{'col_ids'}: Same as $self->{'row_ids'}, for the columns (sites)
+  $self->{'row_descs'}: A reference to an array which stores row (sequence)
                     descriptions
-  $self->{col_descs}: Same as $self->{row_descs}, for the columns (sites)
-  $self->{numbering}: The offset of the first column, an integer
-  $self->{type}   : The type of the alignment, concatenated from the molecule 
+  $self->{'col_descs'}: Same as $self->{'row_descs'}, for the columns (sites)
+  $self->{'numbering'}: The offset of the first column, an integer
+  $self->{'type'}   : The type of the alignment, concatenated from the molecule 
                     type (see L<Alignment Types>) and a flag that is not 
                     currently used, but intended to flag sequence bags
-  $self->{ffmt}   : alignment format, see L<Alignment Formats>.
-  $self->{descffmt}: format of $desc; right now this should be ``raw''
+  $self->{'ffmt'}   : alignment format, see L<Alignment Formats>.
+  $self->{'descffmt'}: format of $desc; right now this should be ``raw''
                     or ``fasta'' which just implies that no specific
                     format is being followed, any text is allowed
                     excluding ``\n''(newline). More support is planned.
-  $self->{inplace}: Flag which is set to true if accessors (and utility
+  $self->{'inplace'}: Flag which is set to true if accessors (and utility
                     functions) should make the modification to the object
                     itself, and just return true on success. (See inplace().)
 
@@ -740,7 +740,7 @@ map and grep...
 
 Soon: 
 
-Better handling of access, copying and slicing of C<$self->{row_ids}>, etc.
+Better handling of access, copying and slicing of C<$self->{'row_ids'}>, etc.
 Add pointer to a UnivAln demo page based on the draft at
 http://www.techfak.uni-bielefeld.de/bcd/Perl/Bio/Docs/phylosnapshot.html.
 Fix alphabet_check() (current workaround cannot be generalized),
@@ -1069,8 +1069,8 @@ grep {$UnivAlnAlphs{$_.'Mg'} ||= [ @{ $UnivAlnAlphs{$_} },$_UNKN_SYMBOL ] } keys
             $row_ids  :A reference to an array which stores row (sequence) ids.
             $row_descs:A reference to an array which stores row (sequence)
                     descriptions
-            $col_ids:  Same as $self->{row_ids}, for the columns (sites)
-            $col_descs:Same as $self->{row_descs}, for the columns (sites)
+            $col_ids:  Same as $self->{'row_ids'}, for the columns (sites)
+            $col_descs:Same as $self->{'row_descs'}, for the columns (sites)
             $numbering: The offset of the first column
             $type: The type of the alignment, see ``Alignment Types''.
             $ffmt: alignment format, see ``Alignment Formats''.
@@ -1132,14 +1132,14 @@ sub _initialize {
     
     # Set default values that need not be inferred later
   $self->{'seqs'} = ( );
-  $self->{id} = "_";
-  $self->{desc} = "No Description Given"; # only preliminary!
+  $self->{'id'} = "_";
+  $self->{'desc'} = "No Description Given"; # only preliminary!
   $self->{'names'} = { };
-  $self->{numbering} = 1;
-  $self->{type} = [$UnivAlnType{"unknown"},"unknown"];
-  $self->{ffmt} = $UnivAlnForm{"unknown"};
-  $self->{descffmt} = $UnivAlnForm{"unknown"};
-  $self->{inplace} = 0;
+  $self->{'numbering'} = 1;
+  $self->{'type'} = [$UnivAlnType{"unknown"},"unknown"];
+  $self->{'ffmt'} = $UnivAlnForm{"unknown"};
+  $self->{'descffmt'} = $UnivAlnForm{"unknown"};
+  $self->{'inplace'} = 0;
 
   if ( ! @p ) {
     return undef;
@@ -1163,7 +1163,7 @@ sub _initialize {
                        'INPLACE'],
                        @p);
 
-  $self->{desc} = defined($file) ? basename($file) 
+  $self->{'desc'} = defined($file) ? basename($file) 
                   : "No Description Given"; #cf File::Basename
 
     # Overwrite with values from file
@@ -2508,10 +2508,10 @@ sub id {
   my($self) = shift;
   my($nid) = @_;
 
-  my $oid = $self->{id};
+  my $oid = $self->{'id'};
   if (defined($nid)) {
-    $self->{id} = $nid;
-    $self->{id} = undef if $nid eq "-undef";
+    $self->{'id'} = $nid;
+    $self->{'id'} = undef if $nid eq "-undef";
     if ($nid =~ /\s/) {
       carp("identifier $nid has illegal whitespace");
     }
@@ -2536,8 +2536,8 @@ sub desc {
   my($self) = shift;
   my($ndesc) = @_;
 
-  my $odesc = $self->{desc};
-  $self->{desc} = $ndesc if defined($ndesc);
+  my $odesc = $self->{'desc'};
+  $self->{'desc'} = $ndesc if defined($ndesc);
 
   return $odesc;
 }
@@ -2591,8 +2591,8 @@ sub row_ids {
   my($self) = shift;
   my($nrow_ids) = @_;
 
-  my $orow_ids = $self->{row_ids};
-  $self->{row_ids} = $nrow_ids if defined($nrow_ids);
+  my $orow_ids = $self->{'row_ids'};
+  $self->{'row_ids'} = $nrow_ids if defined($nrow_ids);
 
   return $orow_ids;
 }
@@ -2611,8 +2611,8 @@ sub col_ids {
   my($self) = shift;
   my($ncol_ids) = @_;
 
-  my $ocol_ids = $self->{col_ids};
-  $self->{col_ids} = $ncol_ids if defined($ncol_ids);
+  my $ocol_ids = $self->{'col_ids'};
+  $self->{'col_ids'} = $ncol_ids if defined($ncol_ids);
 
   return $ocol_ids;
 }
@@ -2631,8 +2631,8 @@ sub row_descs {
   my($self) = shift;
   my($nrow_descs) = @_;
 
-  my $orow_descs = $self->{row_descs};
-  $self->{row_descs} = $nrow_descs if defined($nrow_descs);
+  my $orow_descs = $self->{'row_descs'};
+  $self->{'row_descs'} = $nrow_descs if defined($nrow_descs);
 
   return $orow_descs;
 }
@@ -2651,8 +2651,8 @@ sub col_descs {
   my($self) = shift;
   my($ncol_descs) = @_;
 
-  my $ocol_descs = $self->{col_descs};
-  $self->{col_descs} = $ncol_descs if defined($ncol_descs);
+  my $ocol_descs = $self->{'col_descs'};
+  $self->{'col_descs'} = $ncol_descs if defined($ncol_descs);
 
   return $ocol_descs;
 }
@@ -2685,7 +2685,7 @@ sub _type {
   my($self) = shift;
   my($ntype) = @_;
 
-  my $otype = $self->{type};
+  my $otype = $self->{'type'};
   if (defined($ntype)) {
     my($monomer,$samelength);
     $samelength = "unknown";
@@ -2695,7 +2695,7 @@ sub _type {
       $monomer = $UnivAlnType{"unknown"};
       carp("Unrecognized alignment type: $ntype");
     }
-    $self->{type} = [$monomer,$samelength];
+    $self->{'type'} = [$monomer,$samelength];
   }
 
   return @{$otype};
@@ -2706,8 +2706,8 @@ sub samelength {
   my($self) = shift;
   my($ntype) = @_;
 
-  my $otype = $self->{type}[1];
-  $self->{type}[1] = $ntype if defined($ntype);
+  my $otype = $self->{'type'}[1];
+  $self->{'type'}[1] = $ntype if defined($ntype);
 
   return $otype;
 }
@@ -2729,8 +2729,8 @@ sub type {
   my($self) = shift;
   my($ntype) = @_;
 
-  my $otype = $self->{type}[0];
-  $self->{type}[0] = $ntype if defined($ntype);
+  my $otype = $self->{'type'}[0];
+  $self->{'type'}[0] = $ntype if defined($ntype);
 
   return (defined($TypeUnivAln[$otype])) ? $TypeUnivAln[$otype] : 'undef';
 }
@@ -2754,10 +2754,10 @@ sub ffmt {
   my($self) = shift;
   my($nffmt) = @_;
 
-  my $offmt = $self->{ffmt};
+  my $offmt = $self->{'ffmt'};
   if (defined($nffmt)) {
     if (defined($UnivAlnForm{$nffmt})) {
-      $self->{ffmt} = $UnivAlnForm{$nffmt};
+      $self->{'ffmt'} = $UnivAlnForm{$nffmt};
     }
     else {
       carp("Can't set to unrecognized sequence format: $nffmt");
@@ -2772,10 +2772,10 @@ sub descffmt {
   my($self) = shift;
   my($ndescffmt) = @_;
 
-  my $odescffmt = $self->{descffmt};
+  my $odescffmt = $self->{'descffmt'};
   if (defined($ndescffmt)) {
     if (defined($UnivAlnForm{$ndescffmt})) {
-      $self->{descffmt} = $UnivAlnForm{$ndescffmt};
+      $self->{'descffmt'} = $UnivAlnForm{$ndescffmt};
     }
     else {
       carp("Unrecognized description format: $ndescffmt");
@@ -2806,8 +2806,8 @@ sub inplace {
   my($self) = shift;
   my($ninplace) = @_;
 
-  my $oinplace = $self->{inplace};
-  $self->{inplace} = $ninplace if defined($ninplace);
+  my $oinplace = $self->{'inplace'};
+  $self->{'inplace'} = $ninplace if defined($ninplace);
 
   return $oinplace;
 }
@@ -2974,7 +2974,7 @@ sub parse_bad {
 
  Usage    : $aln->_parse($ent,[$ffmt]);
  Function : Parses $ent into the object fields, according to
-            $ffmt or $self->{ffmt}.
+            $ffmt or $self->{'ffmt'}.
  Returns  : 1 on success
  Argument : the prospective alignment to be parsed, 
             and optionally its format so that it doesn't need to be estimated

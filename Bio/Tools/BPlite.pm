@@ -183,11 +183,11 @@ sub _initialize {
     { $self->throw("Expecting a GLOB reference, not $fh!"); }
 
   $self->fh($fh);
-  $self->{LASTLINE} = "";
-  $self->{QPATLOCATION} = [];  # Anonymous array of query pattern locations for PHIBLAST
+  $self->{'LASTLINE'} = "";
+  $self->{'QPATLOCATION'} = [];  # Anonymous array of query pattern locations for PHIBLAST
 
-  if ($self->_parseHeader) {$self->{REPORT_DONE} = 0} # there are alignments
-  else                     {$self->{REPORT_DONE} = 1} # empty report
+  if ($self->_parseHeader) {$self->{'REPORT_DONE'} = 0} # there are alignments
+  else                     {$self->{'REPORT_DONE'} = 1} # empty report
   
   return $make; # success - we hope!
 }
@@ -203,7 +203,7 @@ sub _initialize {
 
 =cut
 
-sub query    {shift->{QUERY}}
+sub query    {shift->{'QUERY'}}
 
 =head2 qlength
 
@@ -216,7 +216,7 @@ sub query    {shift->{QUERY}}
 
 =cut
 
-sub qlength  {shift->{LENGTH}}
+sub qlength  {shift->{'LENGTH'}}
 
 =head2 pattern
 
@@ -226,7 +226,7 @@ sub qlength  {shift->{LENGTH}}
 
 =cut
 
-sub pattern {shift->{PATTERN}}
+sub pattern {shift->{'PATTERN'}}
 
 =head2 query_pattern_location
 
@@ -237,7 +237,7 @@ sub pattern {shift->{PATTERN}}
 
 =cut
 
-sub query_pattern_location {shift->{QPATLOCATION}}
+sub query_pattern_location {shift->{'QPATLOCATION'}}
 
 =head2 database
 
@@ -250,7 +250,7 @@ sub query_pattern_location {shift->{QPATLOCATION}}
 
 =cut
 
-sub database {shift->{DATABASE}}
+sub database {shift->{'DATABASE'}}
 
 =head2 nextSbjct
 
@@ -271,12 +271,12 @@ sub nextSbjct {
   #######################
   # get all sbjct lines #
   #######################
-  my $def = $self->{LASTLINE};
+  my $def = $self->{'LASTLINE'};
   my $FH = $self->fh();
   while(<$FH>) {
     if    ($_ !~ /\w/)            {next}
     elsif ($_ =~ /Strand HSP/)    {next} # WU-BLAST non-data
-    elsif ($_ =~ /^\s{0,2}Score/) {$self->{LASTLINE} = $_; last}
+    elsif ($_ =~ /^\s{0,2}Score/) {$self->{'LASTLINE'} = $_; last}
     else                          {$def .= $_}
   }
   $def =~ s/\s+/ /g;
@@ -292,7 +292,7 @@ sub nextSbjct {
   my $sbjct = new Bio::Tools::BPlite::Sbjct('-name'=>$def,
 					    '-length'=>$length,
                                             '-fh'=>$self->fh, 
-					    '-lastline'=>$self->{LASTLINE}, 
+					    '-lastline'=>$self->{'LASTLINE'}, 
 					    '-parent'=>$self);
   return $sbjct;
 }
@@ -310,9 +310,9 @@ sub nextSbjct {
 sub fh {
     my ($self, $value) = @_;
     if( defined $value && ref($value) =~ /GLOB/i ) {
-	$self->{FH} = $value;
+	$self->{'FH'} = $value;
     } 
-    return $self->{FH};
+    return $self->{'FH'};
 }
 # begin private routines
 
@@ -331,33 +331,33 @@ sub _parseHeader {
       $query =~ s/^>//;
       $query =~ /\((\d+)\s+\S+\)\s*$/;
       my $length = $1;
-      $self->{QUERY} = $query;
-      $self->{LENGTH} = $length;
+      $self->{'QUERY'} = $query;
+      $self->{'LENGTH'} = $length;
     }
-    elsif ($_ =~ /^Database:\s+(.+)/) {$self->{DATABASE} = $1}
+    elsif ($_ =~ /^Database:\s+(.+)/) {$self->{'DATABASE'} = $1}
     elsif ($_ =~ /^\s*pattern\s+(\S+).*position\s+(\d+)\D/) {   
 # For PHIBLAST reports
-	$self->{PATTERN} = $1;
-	push (@{$self->{QPATLOCATION}}, $2);
-#			$self->{QPATLOCATION} = $2;
+	$self->{'PATTERN'} = $1;
+	push (@{$self->{'QPATLOCATION'}}, $2);
+#			$self->{'QPATLOCATION'} = $2;
     } 
-    elsif ($_ =~ /^>/) {$self->{LASTLINE} = $_; return 1}
+    elsif ($_ =~ /^>/) {$self->{'LASTLINE'} = $_; return 1}
     elsif ($_ =~ /^Parameters|^\s+Database:/) {
-      $self->{LASTLINE} = $_;
+      $self->{'LASTLINE'} = $_;
       return 0; # there's nothing in the report
     }
   }
 }
 sub _fastForward {
     my ($self) = @_;
-    return 0 if $self->{REPORT_DONE}; # empty report
-    return 1 if $self->{LASTLINE} =~ /^>/;
+    return 0 if $self->{'REPORT_DONE'}; # empty report
+    return 1 if $self->{'LASTLINE'} =~ /^>/;
 
     my $FH = $self->fh();
     my $capture;
     while(<$FH>) {
 	if ($_ =~ /^>|^Parameters|^\s+Database:|^\s+Posted date:/) {
-	    $self->{LASTLINE} = $_;
+	    $self->{'LASTLINE'} = $_;
 	    return 1;
 	}
     }

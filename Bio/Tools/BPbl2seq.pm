@@ -127,7 +127,7 @@ sub _initialize {
   if (ref($fh) !~ /GLOB/) {
       $self->throw("Expecting a GLOB reference, not $fh!");
   } 
-  $self->{FH} = $fh;
+  $self->{'FH'} = $fh;
   
   my ($score,$bits,$match,$positive,$p,$qb,$qe,$sb,$se,$qs,
       $ss,$hs,$qname,$sname,$qlength,$slength) = $self->_parsebl2seq($query);
@@ -165,11 +165,11 @@ sub _initialize {
   $self->significance($p);
   $self->query->frac_identical($match);
   $self->subject->frac_identical($match);
-  $self->{PERCENT} = int((1000 * $match)/ $self->query->length)/10;
-  $self->{POSITIVE} = $positive;
-  $self->{QS} = $qs;
-  $self->{SS} = $ss;
-  $self->{HS} = $hs;
+  $self->{'PERCENT'} = int((1000 * $match)/ $self->query->length)/10;
+  $self->{'POSITIVE'} = $positive;
+  $self->{'QS'} = $qs;
+  $self->{'SS'} = $ss;
+  $self->{'HS'} = $hs;
 
   return $make; # success - we hope!
 }
@@ -204,7 +204,7 @@ sub P               {shift->significance(@_)}
 
 =cut
 
-sub percent         {shift->{PERCENT}}
+sub percent         {shift->{'PERCENT'}}
 
 =head2 match
 
@@ -230,7 +230,7 @@ sub match           {shift->query->frac_identical(@_)}
 
 =cut
 
-sub positive        {shift->{POSITIVE}}
+sub positive        {shift->{'POSITIVE'}}
 
 =head2 querySeq
 
@@ -243,7 +243,7 @@ sub positive        {shift->{POSITIVE}}
 
 =cut
 
-sub querySeq        {shift->{QS}}
+sub querySeq        {shift->{'QS'}}
 
 =head2 sbjctSeq
 
@@ -256,7 +256,7 @@ sub querySeq        {shift->{QS}}
 
 =cut
 
-sub sbjctSeq        {shift->{SS}}
+sub sbjctSeq        {shift->{'SS'}}
 
 =head2 homologySeq
 
@@ -269,7 +269,7 @@ sub sbjctSeq        {shift->{SS}}
 
 =cut
 
-sub homologySeq     {shift->{HS}}
+sub homologySeq     {shift->{'HS'}}
 
 =head2 qs
 
@@ -282,7 +282,7 @@ sub homologySeq     {shift->{HS}}
 
 =cut
 
-sub qs              {shift->{QS}}
+sub qs              {shift->{'QS'}}
 
 =head2 ss
 
@@ -295,7 +295,7 @@ sub qs              {shift->{QS}}
 
 =cut
 
-sub ss              {shift->{SS}}
+sub ss              {shift->{'SS'}}
 
 =head2 hs
 
@@ -308,7 +308,7 @@ sub ss              {shift->{SS}}
 
 =cut
 
-sub hs              {shift->{HS}}
+sub hs              {shift->{'HS'}}
 
 sub _parsebl2seq {
   my ($self,$query) = @_;
@@ -317,7 +317,7 @@ sub _parsebl2seq {
   ############################
   # get seq2 (the "hit") name & lrngth  
   ############################
-  my $FH = $self->{FH};
+  my $FH = $self->{'FH'};
   while(<$FH>) {
     if    ($_ !~ /\w/)            {next}
     elsif ($_ =~ /^\s*Length/) {$def .= $_; last}
@@ -372,7 +372,7 @@ sub _parsebl2seq {
     elsif ($_ !~ /\S/)            {next}
     elsif ($_ =~ /Strand HSP/)    {next} # WU-BLAST non-data
     elsif ($_ =~ /^\s*Strand/)    {next} # NCBI-BLAST non-data
-    elsif ($_ =~ /^\s*Score/)     {$self->{LASTLINE} = $_; last}
+    elsif ($_ =~ /^\s*Score/)     {$self->{'LASTLINE'} = $_; last}
     elsif ($_ =~ /^>|^Parameters|^\s+Database:|^CPU\stime:|^\s*Lambda/)   {
       last;
     }
