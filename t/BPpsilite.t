@@ -17,8 +17,7 @@ use Bio::Tools::BPlite::Iteration;
 use Bio::Tools::BPpsilite;
 use Bio::Root::IO;
 
-open FH, Bio::Root::IO->catfile("t", "psiblastreport.out");
-my $report = Bio::Tools::BPpsilite->new(-fh=>\*FH);
+my $report = Bio::Tools::BPpsilite->new(-file=>Bio::Root::IO->catfile("t", "psiblastreport.out"));
 ok $report;
 ok $report->query =~ /DICDI/;# " query not found";
 ok $report->database =~ /swissprot/i;# " database name not found";

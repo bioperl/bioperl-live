@@ -307,7 +307,7 @@ methods. Internal methods are usually preceded with a _
 package Bio::Tools::Run::Alignment::Clustalw;
 
 use vars qw($AUTOLOAD @ISA $DEBUG $PROGRAM $PROGRAMDIR
-	    $TMPOUTFILE @CLUSTALW_SWITCHES @CLUSTALW_PARAMS 
+	    $TMPDIR $TMPOUTFILE @CLUSTALW_SWITCHES @CLUSTALW_PARAMS 
 	    @OTHER_SWITCHES %OK_FIELD);
 use strict;
 use Bio::Seq;
@@ -365,7 +365,8 @@ sub new {
     }
     
     my ($attr, $value);
-    (undef,$TMPOUTFILE) = $self->tempfile();
+    (undef,$TMPDIR) = $self->tempdir(CLEANUP=>1);
+    (undef,$TMPOUTFILE) = $self->tempfile(-dir => $TMPDIR);
     while (@args)  {
 	$attr =   shift @args;
 	$value =  shift @args;
@@ -563,8 +564,9 @@ sub _setinput {
     #  $input may be an array of BioSeq objects...
     if (ref($input) eq "ARRAY") {
         #  Open temporary file for both reading & writing of BioSeq array
-	($tfh,$infilename) = $self->tempfile();
-	$temp =  Bio::SeqIO->new(-fh=>$tfh, '-format' =>'Fasta');
+	($tfh,$infilename) = $self->tempfile(-dir=>$TMPDIR);
+	$temp =  Bio::SeqIO->new('-fh'=>$tfh, 
+				 '-format' =>'Fasta');
 
 	# Need at least 2 seqs for alignment
 	unless (scalar(@$input) > 1) {return 0;} 
@@ -574,21 +576,23 @@ sub _setinput {
 	    {return 0;}
 	    $temp->write_seq($seq);
 	}
+	$temp->close();
 	return $infilename;
     }
 #  $input may be a SimpleAlign object.
-    if (ref($input) eq "Bio::SimpleAlign") {
+   elsif (ref($input) eq "Bio::SimpleAlign") {
 	#  Open temporary file for both reading & writing of SimpleAlign object
-	($tfh,$infilename) = $self->tempfile() if ($suffix ==1 ||
-$suffix== 2 );
-	$temp =  Bio::AlignIO->new(-fh=> $tfh,
+	if ($suffix ==1 || $suffix== 2 ) {
+	    ($tfh,$infilename) = $self->tempfile(-dir=>$TMPDIR);
+	}
+	$temp =  Bio::AlignIO->new('-fh'=> $tfh,
 				   '-format' => 'Fasta');
 	$temp->write_aln($input);
 	return $infilename;
     }
 
 #  or $input may be a single BioSeq object (to be added to a previous alignment)
-    if (ref($input) && $input->isa("Bio::PrimarySeqI") && $suffix==2) {
+    elsif (ref($input) && $input->isa("Bio::PrimarySeqI") && $suffix==2) {
         #  Open temporary file for both reading & writing of BioSeq object
 	($tfh,$infilename) = $self->tempfile();
 	$temp =  Bio::SeqIO->new(-fh=> $tfh, '-format' =>'Fasta');
@@ -597,7 +601,6 @@ $suffix== 2 );
     }
     return 0;
 }
-
 
 =head2  _setparams()
 

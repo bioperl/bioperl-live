@@ -157,7 +157,7 @@ sub new {
 
   # initialize IO
   $self->_initialize_io(@args);
-
+  $self->{'_tempdir'} = $self->tempdir(CLEANUP=>1);
   $self->{'LASTLINE'} = "";
   $self->{'QPATLOCATION'} = [];  # Anonymous array of query pattern locations for PHIBLAST
   $self->{'NEXT_ITERATION_NUMBER'} = 1;
@@ -261,7 +261,8 @@ sub number_of_iterations {
 sub round {
   my $self = shift;
   my $iter_num = shift;
-  open FH, "iteration".$iter_num.".tmp" ||
+  open( FH, Bio::Root::IO->catfile($self->{'_tempdir'}, 
+				  "iteration".$iter_num.".tmp")) ||
       $self->throw("unable to re-open iteration file for round ".$iter_num);
   return Bio::Tools::BPlite::Iteration->new(-fh => \*FH,
 					    -lastline=>$self->{'LASTLINE'},
@@ -324,17 +325,21 @@ sub _preprocess {
 
 # open output file for data from iteration round #1
     $round = 1;
-    $currentfile = "iteration$round.tmp";
-    open (FILEHANDLE, ">$currentfile") ;	
+    $currentfile = Bio::Root::IO->catfile($self->{'_tempdir'}, 
+					  "iteration$round.tmp");
+    open (FILEHANDLE, ">$currentfile") || 
+	$self->throw("cannot open filehandle to write to file $currentfile");
 
     while($currentline = <$FH>) {
 	if ($currentline =~ /^Results from round\s+(\d+)/) {
 	    if ($oldround) { close (FILEHANDLE) ;}
 	    $round = $1;
-	    $currentfile = "iteration$round.tmp";
-	    open (FILEHANDLE, ">$currentfile") ;		
-	    $oldround = $round;		
+	    $currentfile = Bio::Root::IO->catfile($self->{'_tempdir'}, 
+						  "iteration$round.tmp");
 
+	    open (FILEHANDLE, ">$currentfile") || 
+		$self->throw("cannot open filehandle to write to file $currentfile");
+	    $oldround = $round;
 	}
 	print FILEHANDLE $currentline ;
 
