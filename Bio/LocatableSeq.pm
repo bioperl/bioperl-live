@@ -163,7 +163,7 @@ Overriding value [$value] with value $len for Bio::LocatableSeq::end().")
 sub _ungapped_len {
     my $self = shift;
     my $string = $self->seq || '';
-    $string =~ s/[.-]+//g;
+    $string =~ s/[\.\-]+//g;
     $self->seq ? (return $self->start + CORE::length($string) - 1 ) : undef;
 }
 
