@@ -189,11 +189,12 @@ sub write_seq {
 	       $top .= "." . $seq->version();
 	   }
        } elsif($id_type =~ /^displ/i ) {
-
+	   
            $self->warn("No whitespace allowed in FASTA ID [". $seq->display_id. "]")
-               if $seq->display_id =~ /\s/;
+               if defined $seq->display_id && $seq->display_id =~ /\s/;
 
 	   $top = $seq->display_id();
+	   $top = '' unless defined $top;
 	   $self->warn("No whitespace allowed in FASTA ID [". $top. "]")
 	       if defined $top && $top =~ /\s/;
        } elsif($id_type =~ /^pri/i ) {
