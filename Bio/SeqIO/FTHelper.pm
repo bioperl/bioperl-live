@@ -148,7 +148,6 @@ sub _generic_seqfeature {
 		if ($remote) {
 		    $location->is_remote(1);
 		}
-                $location->strand($strand);
 		$splitlocation->add_sub_Location($location);
 	    } else {
 		$fth->warn("unable to parse location successfully out of " .
