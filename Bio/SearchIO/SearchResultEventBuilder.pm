@@ -144,6 +144,7 @@ sub start_report {
 
 sub end_report {
     my ($self,$type,$data) = @_;
+
     my $report = new Bio::Search::Report
 	('-db_name'     => $data->{'dbname'},
 	 '-db_size'     => $data->{'dbsize'},
@@ -154,7 +155,8 @@ sub end_report {
 	 '-report_type' => $type,
 	 '-parameters'  => $data->{'param'},
 	 '-statistics'  => $data->{'stat'},
-	 '-subjects'    => $self->{'_subjects'} );
+	 '-subjects'    => $self->{'_subjects'});
+
     $self->{'_subjects'} = [];
     return $report;
 }

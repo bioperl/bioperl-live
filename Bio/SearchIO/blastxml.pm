@@ -267,7 +267,6 @@ sub start_element{
  Returns : 
  Args    :
 
-
 =cut
 
 sub end_element{

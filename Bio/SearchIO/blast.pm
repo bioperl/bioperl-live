@@ -173,7 +173,7 @@ sub next_report{
    $self->start_document();
    while( defined ($_ = $self->_readline )) {
        next if( /^\s+$/); # skip empty lines
-       if( /^([T]?BLAST[NPX])\s*([\d\.]+)/i ) {
+       if( /^([T]?BLAST[NPX])\s*(\S+)/i ) {
 	   if( $seentop ) {
 	       $self->_pushback($_);
 	       $self->end_element({ 'Name' => 'BlastOutput'});
@@ -191,7 +191,6 @@ sub next_report{
 	   my $size = 0;      
 	   $_ = $self->_readline;
 	   while( defined ($_) && $_ !~ /^\s+$/ ) {	       
-	       chomp;
 	       if( /([\d,]+)\s+letters/ ) {		   
 		   $size = $1;
 		   $size =~ s/,//g;
@@ -201,7 +200,7 @@ sub next_report{
 	       }
 	       $_ = $self->_readline;
 	   }
-
+	   chomp($q);
 	   $self->element({ 'Name' => 'BlastOutput_query-def',
 			    'Data' => $q});
 	   $self->element({ 'Name' => 'BlastOutput_query-len', 
@@ -275,17 +274,73 @@ sub next_report{
 	   $self->{'_Query'} = {'begin' => 0, 'end' => 0};
 	   $self->{'_Sbjct'} = { 'begin' => 0, 'end' => 0};
 	   
-       } elsif( /\s+Database:/ ) {
+       } elsif(  /^Parameters:/ || /\s+Database:/ ) {
 	   $self->end_element({'Name' => 'Hsp'});
 	   $self->end_element({'Name' => 'Hit'});
-       } elsif( /Matrix:\s+(\S+)/ ) {
-	   $self->element({'Name' => 'Parameters_matrix',
-			   'Data' => $1});
-       } elsif( /Gap Penalties: Existence: (\d+), Extension: (\d+)/) {
-	   $self->element({'Name' => 'Parameters_gap-open',
-			   'Data' => $1});
-	   $self->element({'Name' => 'Parameters_gap-extend',
-			   'Data' => $1});
+	   my $blast = ( /Parameters/ ) ? 'wublast'  : 'ncbi'; 
+	   my $last = '';
+	   while( defined ($_ = $self->_readline ) ) {
+	       if( /^([T]?BLAST[NPX])\s*([\d\.]+)/i ) {
+		   $self->_pushback($_);
+		   # let's handle this in the loop
+		   last;
+	       }
+	       # here is where difference between wublast and ncbiblast
+	       # is better handled by different logic
+	       if( /Number of Sequences:\s+(\d+)/ ||
+			/of sequences in database:\s+(\d+)/) {
+		   $self->element({'Name' => 'Statistics_db-num',
+				   'Data' => $1});
+	       } elsif ( /letters in database:\s+([\d,]+)/) {	   
+		   my $s = $1;
+		   $s =~ s/,//g;
+		   $self->element({'Name' => 'Statistics_db-len',
+				   'Data' => $s});
+	       } elsif( $blast eq 'wublast' ) {
+		   if( /E=(\S+)/ ) {
+		       $self->element({'Name' => 'Parameters_expect',
+				       'Data' => $1});
+		   } elsif( $last =~ /Frame\s+MatID\s+Matrix name/ ) {
+		       s/^\s+//;
+		       my (undef,undef,$matrix,$lambda,$kappa,$entropy) = split;
+		       $self->element({'Name' => 'Parameters_matrix',
+				       'Data' => $matrix});
+		       $self->element({'Name' => 'Statistics_lambda',
+				       'Data' => $lambda});
+		       $self->element({'Name' => 'Statistics_kappa',
+				       'Data' => $kappa});
+		       $self->element({'Name' => 'Statistics_entropy',
+				       'Data' => $entropy});
+		   } 
+	       } elsif ( $blast eq 'ncbi' ) {
+		   if( /^Matrix:\s+(\S+)/ ) {
+		       $self->element({'Name' => 'Parameters_matrix',
+				       'Data' => $1});		       
+		   } elsif( $last =~ /Gapped/ && /Lambda/ ) {
+		       $_ = $self->_readline;
+		       s/^\s+//;
+		       my ($lambda, $kappa, $entropy) = split;
+		       $self->element({'Name' => 'Statistics_lambda',
+				       'Data' => $lambda});
+		       $self->element({'Name' => 'Statistics_kappa',
+				       'Data' => $kappa});
+		       $self->element({'Name' => 'Statistics_entropy',
+				       'Data' => $entropy});
+		   } elsif( /effective search space: (\d+)/ ) {
+		       $self->element({'Name' => 'Statistics_eff-space',
+				       'Data' => $1});
+		   } elsif( /Gap Penalties:\s+Existence:\s+(\d+),\s+Extension:\s+(\d+)/) {
+		       $self->element({'Name' => 'Parameters_gap-open',
+				       'Data' => $1});
+		       $self->element({'Name' => 'Parameters_gap-extend',
+				       'Data' => $2});
+		   } elsif( /effective HSP length:\s+(\d+)/ ) {
+		        $self->element({'Name' => 'Statistics_hsp-len',
+					'Data' => $1});
+		   }
+	       }
+	       $last = $_;
+	   }
        } elsif( $self->in_element('hsp') ) {
 	   
            # let's read 3 lines at a time;
@@ -398,7 +453,7 @@ sub end_element {
     } elsif( $MAPPING{$nm} ) { 	
 	
 	if ( ref($MAPPING{$nm}) =~ /hash/i ) {
-	    my $key = (keys %{$MAPPING{$nm}})[0];
+	    my $key = (keys %{$MAPPING{$nm}})[0];	    
 	    $self->{'_values'}->{$key}->{$MAPPING{$nm}->{$key}} = $self->{'_last_data'};
 	} else {
 	    $self->{'_values'}->{$MAPPING{$nm}} = $self->{'_last_data'};
