@@ -183,7 +183,7 @@ sub next_seq {
     }
     ($date) = ($line =~ /.*(\d\d-\w\w\w-\d\d\d\d)/);
     if ($date) {
-	push @{$params{'date'}}, $date;
+	push @{$params{'-date'}}, $date;
     }
     my $buffer = $self->_readline();
         
@@ -205,7 +205,7 @@ sub next_seq {
 	
 	# PID
 	if( /^PID\s+(\S+)/ ) {
-	    $params{'pid'} = $1;
+	    $params{'-pid'} = $1;
 	}
 
 	#Version number
@@ -322,6 +322,8 @@ sub next_seq {
 	s/[^A-Za-z]//g;
 	$seqc .= $_;
     }
+    $self->debug("sequence length is ". length($seqc) ."\n");
+    $self->debug("params are " . join(',',keys( %params)) . "\n");
     my $seq = $self->sequence_factory->create_sequence
 	('-verbose' =>$self->verbose(), 
 	 %params,
