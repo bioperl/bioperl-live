@@ -503,9 +503,10 @@ sub model{
  Returns : Hashref of pattern data
  Args    : [optional] Hashref of patterns
          : The hashref is typically
-         : -patterns => \@arrayref
-         : -ns       => $ns
-         : -ls       => $ls
+         : { -patterns => \@arrayref
+         :   -ns       => $ns
+         :   -ls       => $ls
+         : }
 
 =cut
 
