@@ -21,7 +21,7 @@ BEGIN {
         use lib 't';
     }
     use Test; 
-    $NUMTESTS = 39;
+    $NUMTESTS = 47;
     plan tests => $NUMTESTS;
     eval { 
 	require XML::Parser;	
@@ -66,7 +66,9 @@ my @rt = sort { $a->name cmp $b->name; } $ip->get_root_terms();
 
 # there should be 4 root terms: InterPro Domain, InterPro Family,
 # InterPro Repeat, and InterPro PTM (Post Translational Modification)
-ok (scalar(@rt), 4);
+#
+# I added 2 more terms, Active_site and Binding_site. -Juguang
+ok (scalar(@rt), 6);
 
 # every InterPro term should have an ontology,
 foreach ($ip->get_leaf_terms, @rt) {
@@ -76,22 +78,23 @@ foreach ($ip->get_leaf_terms, @rt) {
 }
 
 # there are 6 fully instantiated InterPro terms in total, which should be returned as the leafs
-ok (scalar($ip->get_leaf_terms()), 6);
+ok (scalar($ip->get_leaf_terms()), 8);
 # roots and leafs together:
-ok (scalar($ip->get_all_terms()), 11);
+ok (scalar($ip->get_all_terms()), 13);
 
 # descendants and children (synonymous here because of depth 1)
 # note that the sort should have placed Domain first and Family second
-ok (scalar($ip->get_descendant_terms($rt[0])), 4); # 4 InterPro Domains
-ok (scalar($ip->get_child_terms($rt[0])), 4);      # dto.
-ok (scalar($ip->get_descendant_terms($rt[1])), 3); # 3 Interpro Family
-ok (scalar($ip->get_child_terms($rt[1])), 3);      # dto.
+ok (scalar($ip->get_descendant_terms($rt[2])), 4); # 4 InterPro Domains
+ok (scalar($ip->get_child_terms($rt[2])), 4);      # dto.
+ok (scalar($ip->get_descendant_terms($rt[3])), 3); # 3 Interpro Family
+ok (scalar($ip->get_child_terms($rt[3])), 3);      # dto.
 
 # test for ancestors and parents (synonymous here because of depth 1)
 foreach my $t ($ip->get_leaf_terms) {
     # every InterPro term has exactly one parent - namely either 
     # Domain, Family, Repeat, or PTM(Post Transl. Modification)
-    if (!($t->identifier eq "Repeat" || $t->identifier eq "PTM")) {
+    if (!($t->identifier eq "Repeat" || $t->identifier eq "PTM" 
+        || $t->identifier eq'Active_site' || $t->identifier eq'Binding_site')) {
 	ok (scalar($ip->get_parent_terms($t)), 1);
 	ok (scalar($ip->get_ancestor_terms($t)), 1);
     }
