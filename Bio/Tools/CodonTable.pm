@@ -417,8 +417,8 @@ sub translate{
 
    if (length $value != 3 and length $value != 2) {
        return '';
-   }
-   else {
+   } 
+   elsif ($value =~ /[^atgc]/i or length $value == 2 ) {  
        if (length $value == 2 ) {
 	   $value = $value. 'n';
 	   $partial = 1;
@@ -441,14 +441,14 @@ sub translate{
 	   }
 	   elsif ($aas{'E'} and $aas{'Q'}) {
 	       return 'Z';
+	   } else {
+	       $partial ? return '' :  return 'X';
 	   }
-	   else {
+       } else {
 	   $partial ? return '' :  return 'X';
-	   }
-       }
-       else {
-	   $partial ? return '' :  return 'X';
-       }
+       } 
+   } else {
+       return translate_strict (@_); 
    }
 }
 
