@@ -78,10 +78,12 @@ sub new {
 
     bless $self,$class;
 
-    my ($start,$end,$strand,$seqid) = $self->_rearrange([qw(START 
+    my ($v,$start,$end,$strand,$seqid) = $self->_rearrange([qw(VERBOSE
+							       START 
 							    END 
 							    STRAND
 							    SEQID)],@args);
+    defined $v && $self->verbose($v);
     defined $strand && $self->strand($strand);
     defined $start  && $self->start($start);
     defined $end    && $self->end($end);
