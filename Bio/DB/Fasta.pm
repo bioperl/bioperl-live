@@ -656,8 +656,8 @@ sub index_name {
 sub calculate_offsets {
   my $self = shift;
   my ($file,$offsets) = @_;
-  my $base = basename($file);
-  
+  my $base = $self->path2fileno(basename($file));
+
   my $fh = IO::File->new($file) or $self->throw( "Can't open $file: $!");
   warn "indexing $file\n" if $self->{debug};
   my ($offset,$id,$linelength,$type,$firstline,$count,%offsets);
@@ -764,7 +764,21 @@ sub file {
   my $self = shift;
   my $id   = shift;
   my $offset = $self->{offsets}{$id} or return;
-  ($self->_unpack($offset))[5];
+  $self->fileno2path(($self->_unpack($offset))[5]);
+}
+
+sub fileno2path {
+  my $self = shift;
+  my $no   = shift;
+  return $self->{offsets}{"__file_$no"};
+}
+
+sub path2fileno {
+  my $self = shift;
+  my $path = shift;
+  $self->{offsets}{"__path_$path"} = 0+ $self->{fileno}++
+    unless exists $self->{offsets}{"__path_$path"};
+  return $self->{offsets}{"__path_$path"}
 }
 
 =head2 subseq

@@ -64,10 +64,8 @@ use Bio::Root::Root;
  Title   : get_Seq_by_id
  Usage   : $seq = $db->get_Seq_by_id('ROA1_HUMAN')
  Function: Gets a Bio::Seq object by its name
- Returns : a Bio::Seq object
- Args    : the id (as a string) of a sequence
- Throws  : "id does not exist" exception
-
+ Returns : a Bio::Seq object or undef if not found
+ Args    : the id (as a string) of a sequence,
 
 =cut
 
@@ -81,11 +79,17 @@ sub get_Seq_by_id{
 
  Title   : get_Seq_by_acc
  Usage   : $seq = $db->get_Seq_by_acc('X77802');
+           $seq = $db->get_Seq_by_acc(Locus => 'X77802');
  Function: Gets a Bio::Seq object by accession number
- Returns : A Bio::Seq object
- Args    : accession number (as a string)
- Throws  : "acc does not exist" exception
+ Returns : A Bio::Seq object or undef if not found
+ Args    : accession number (as a string), or a two
+               element list consisting of namespace=>accession
+ Throws  : "more than one sequences correspond to this accession"
+            if the accession maps to multiple primary ids and
+            method is called in a scalar context
 
+NOTE: The two-element form allows you to choose the namespace for the
+accession number.
 
 =cut
 
