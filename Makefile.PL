@@ -27,14 +27,13 @@
 	     'SOAP::Lite'               => '0.0/SOAP protocol/XEMBL Services (also Bibliographic queries in Biblio::) /Bio::DB::XEMBLService',
 	     'HTML::Parser'             => '0.0/HTML parsing of GDB page/Bio::DB::GDB',
 	     'DBD::mysql'               => '0.0/Mysql driver/loading and querying of Mysql-based GFF feature databases/Bio::DB::GFF',
+	     'srsperl.pm'               => '0.0/Sequence Retrieval System (SRS) perl API/alternative way of retrieving sequences/Bio::LiveSeq::IO::SRS.pm'
 	     );
 
 sub check_package {
     my ($name,$str) = @_;
-    my($ver,$desc,$expl,@modules);
-
-    ($ver,$desc,$expl,$module) = split( /\// , $str);
-    if( !eval "require $name") {
+    my ($ver,$desc,$expl,$module) = split( /\// , $str);
+    if( !eval "require($name)") {
 	print "External Module $name, $desc,\n is not installed on this computer.\n  The $module in Bioperl needs it for $expl\n\n";
 	return 1;
     }
@@ -135,6 +134,7 @@ if( $do_autoload_finesse ) {
 }
 
 $error = 0;
+print "\n";
 foreach $name ( keys %packages ) {
     if( &check_package($name,$packages{$name}) == 1 ) {
 	$error = 1;
