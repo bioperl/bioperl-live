@@ -237,9 +237,7 @@ sub sub_species {
     my( $self, $sub ) = @_;
 
     if ($sub) {
-        #use Data::Dumper;
         $self->{'_sub_species'} = $sub;
-        #warn "Set sub_species=$sub\nin: ", Dumper($self);
     }
     return $self->{'_sub_species'};
 }
