@@ -176,9 +176,11 @@ sub next_seq {
            $desc .= $desc ? " $1" : $1;
        }
        #Gene name
-       elsif (/^GN\s+(\S+)/) {
-	   $seq->annotation->gene_name($1);
-       }  
+       elsif(/^GN\s+([^\.]+)/) {
+	   foreach my $gn (split(/ OR /,$1)) {
+	       $seq->annotation->add_gene_name($gn);
+	   }
+       }     
        #accession number(s)
        elsif( /^AC\s+(.+)/) {
            $acc_string .= $acc_string ? " $1" : $1;
