@@ -329,6 +329,8 @@ FEATURES             Location/Qualifiers
      tRNA            join(103..111,121..157)
                      /gene="Phe-tRNA"
       </programlisting>
+    </para>
+    <para>
       To get the sequence string from the start to the end of the tRNA
       feature use <function>seq()</function>. To get the spliced
       sequence string, accounting for the start and end locations of 
@@ -463,6 +465,8 @@ FEATURES             Location/Qualifiers
 	my $start = $feat_object->location->start;
 	my $end = $feat_object->location->end;
          </programlisting>
+    </para>
+    <para>
       By now you know that the <function>location()</function> method returns
       an object, in this case a Location object, with an <function>
 	end()</function> method.
@@ -652,6 +656,8 @@ start: 1
 	  print "author: ",$value->authors(), "\n";
 	}
       </programlisting>
+    </para>
+    <para>
       There's also title(), publisher(), medline(), editors(),
       database(), pubmed() and a number of other methods.
     </para>
@@ -755,6 +761,8 @@ start: 1
 	# then add the feature to the sequence
 	$seq_obj->add_SeqFeature($feat_object);
       </programlisting>
+      </para>
+    <para>
     The <function>add_SeqFeature()</function> method will also accept an array
     of SeqFeature objects.
     </para>
@@ -767,6 +775,8 @@ start: 1
 	$db_link->primary_id('2367');
 	$feat->annotation->add_Annotation('dblink',$db_link);
 	</programlisting>
+    </para>
+    <para>
       Note that the first argument to <function>add_Annotation()</function>
       is the tag name, 'dblink', this is the general idiom for adding
       Annotations.
