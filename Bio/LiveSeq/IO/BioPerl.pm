@@ -225,78 +225,85 @@ sub embl2hash {
   my @subfeat;
   my $i=0;
   foreach $feat (@topfeatures) {
-    my %feature;
-    $feature_name = $feat->primary_tag;
-    unless ($valid_features{$feature_name}) {
-      #print "skipping $feature_name\n";
-      next;
-    }
+      my %feature;
+      $feature_name = $feat->primary_tag;
+      unless ($valid_features{$feature_name}) {
+	  #print "skipping $feature_name\n";
+	  next;
+      }
 # works ok with 0.6.2
 #    if ($feature_name eq "CDS_span") { # case of CDS with various exons 0.6.2
 #      $feature_name="CDS"; # 0.6.2
-    my $featlocation=$feat->location; # 0.7
-    if (($feature_name eq "CDS")&&($featlocation->isa('Bio::Location::SplitLocationI'))) { # case of CDS with various exons BioPerl 0.7
+      my $featlocation=$feat->location; # 0.7
+      if (($feature_name eq "CDS")&&($featlocation->isa('Bio::Location::SplitLocationI'))) { # case of CDS with various exons BioPerl 0.7
 #      @subfeat=$feat->sub_SeqFeature; # 0.6.2
-      @subfeat=$featlocation->sub_Location(); # 0.7
-      my @transcript;
-      foreach $subfeat (@subfeat) {
-	my @range;
-	if ($subfeat->strand == -1) {
-	  @range=($subfeat->end,$subfeat->start,$subfeat->strand);
-	} else {
-	  @range=($subfeat->start,$subfeat->end,$subfeat->strand);
-	}
-	push (@transcript,\@range);
-      }
-      $feature{range}=\@transcript;
-    } else {
-      my @range;
-      if ($feat->strand == -1) {
-	@range=($feat->end,$feat->start,$feat->strand);
+	  @subfeat=$featlocation->sub_Location(); # 0.7
+	  my @transcript;
+	  foreach $subfeat (@subfeat) {
+	      my @range;
+	      if ($subfeat->strand == -1) {
+		  @range=($subfeat->end,$subfeat->start,$subfeat->strand);
+	      } else {
+		  @range=($subfeat->start,$subfeat->end,$subfeat->strand);
+	      }
+	      push (@transcript,\@range);
+	  }
+	  $feature{range}=\@transcript;
       } else {
-	@range=($feat->start,$feat->end,$feat->strand);
-      }
+	  my @range;
+	  if ($featlocation->isa('Bio::Location::FuzzyLocationI') ) { # esp. exons
+	      my ($start, $end);
+	      $featlocation->start ? $start = $featlocation->start :  
+		  $start = $featlocation->min_start;
+	      $featlocation->end ? $end = $featlocation->end :
+		  $end = $featlocation->max_end;
+	      ($feat->strand == -1) ? ( @range = ($end, $start, $featlocation->strand) ) :
+		  ( @range= ($start, $end, $featlocation->strand) );
+	  } else {
+	      ($feat->strand == -1) ? (@range = ($feat->end, $feat->start, $feat->strand) ) :
+		  (@range = ( $feat->start,$feat->end,$feat->strand) );
+	  }
 # works ok with 0.6.2
-      if ($feature_name eq "CDS") { # case of single exon CDS (CDS name but not split location)
-	my @transcript=(\@range);
-	$feature{range}=\@transcript;
-      } else { # all other range features
-	$feature{range}=\@range;
+	  if ($feature_name eq "CDS") { # case of single exon CDS (CDS name but not split location)
+	      my @transcript=(\@range);
+	      $feature{range}=\@transcript;
+	  } else { # all other range features
+	      $feature{range}=\@range;
+	  }
       }
-    }
-    $feature{location}="deprecated";
-
-    $feature{position}=$i;
-    $feature{name}=$feature_name;
-
-    @feature_qual_names= $feat->all_tags();
-    $feature_qual_number= scalar(@feature_qual_names);
-
-    $feature{qual_number}=$feature_qual_number;
-
-    my %feature_qualifiers;
-    for $qual (@feature_qual_names) {
-      $feature_qual_name=$qual;
-      unless ($valid_names{$feature_qual_name}) {
-	next;
-      }
+      $feature{location}="deprecated";
+      
+      $feature{position}=$i;
+      $feature{name}=$feature_name;
+      
+      @feature_qual_names= $feat->all_tags();
+      $feature_qual_number= scalar(@feature_qual_names);
+      
+      $feature{qual_number}=$feature_qual_number;
+      
+      my %feature_qualifiers;
+      for $qual (@feature_qual_names) {
+	  $feature_qual_name=$qual;
+	  unless ($valid_names{$feature_qual_name}) {
+	      next;
+	  }
       @feature_qual_value=$feat->each_tag_value($qual);
-      #print "$qual => @feature_qual_value \n";
-      $feature_qualifiers{$feature_qual_name}=$feature_qual_value[0]; # ?
+	  #print "$qual => @feature_qual_value \n";
+	  $feature_qualifiers{$feature_qual_name}=$feature_qual_value[0]; # ?
       # maybe the whole array should be entered, not just the 1st element?
-      # what could be the other elements? TOCHECK!
-    }
-    $feature{qualifiers}=\%feature_qualifiers;
-    push (@features,\%feature); # array of features
-    $i++;
+	  # what could be the other elements? TOCHECK!
+      }
+      $feature{qualifiers}=\%feature_qualifiers;
+      push (@features,\%feature); # array of features
+      $i++;
   }
   $entryhash{Features}=\@features; # put this also into the hash
-
+  
   my @cds; # array just of CDSs
   for $i (0..$#features) {
-    if ($features[$i]->{'name'} eq "CDS") {
-      push(@cds,$features[$i]);
-    }
+      if ($features[$i]->{'name'} eq "CDS") {
+	  push(@cds,$features[$i]);
+      }
   }
   $entryhash{CDS}=\@cds; # put this also into the hash
   return (\%entryhash);
