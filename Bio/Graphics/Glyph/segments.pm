@@ -69,7 +69,7 @@ sub draw_component {
   return $self->SUPER::draw_component(@_) unless length $dna > 0;  # safety
 
   my $show_mismatch = $draw_target && $self->option('show_mismatch');
-  my $genomic = eval {$self->feature->seq} if $show_mismatch;
+  my $genomic       = eval {$self->feature->seq} if $show_mismatch;
 
   my $gd = shift;
   my ($x1,$y1,$x2,$y2) = $self->bounds(@_);
@@ -126,7 +126,7 @@ sub draw_dna {
 
   warn "strand = $strand, complement = $complement" if DEBUG;
 
-  if (length($genomic) != length($dna) && eval { require Bio::Graphics::Browser::Realign}) {
+  if ($genomic && length($genomic) != length($dna) && eval { require Bio::Graphics::Browser::Realign}) {
     warn "$genomic\n$dna\n" if DEBUG;
     warn "strand = $strand" if DEBUG;
     @segs = Bio::Graphics::Browser::Realign::align_segs($genomic,$dna);
