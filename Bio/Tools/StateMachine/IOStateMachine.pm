@@ -149,7 +149,8 @@ sub check_for_new_state {
 
     # Determine if we're supposed to ignore blanks and if so, loop
     # until we're either out of input or hit a non-blank line.
-    if( $ignore_blank_lines and $chunk =~ /^\s*$/ ) {
+    if( defined $chunk && 
+	$ignore_blank_lines and $chunk =~ /^\s*$/ ) {
         while(  $chunk = $self->next_input_chunk()) {
             last unless not $chunk or $chunk =~ /^\s*$/;
         }
