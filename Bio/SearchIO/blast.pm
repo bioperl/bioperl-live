@@ -214,14 +214,15 @@ sub next_result{
    
    $self->start_document();
    my @hit_signifs;
+   
    while( defined ($_ = $self->_readline )) {       
        next if( /^\s+$/); # skip empty lines
        next if( /CPU time:/);
        next if( /^>\s*$/);
-       
+
        if( /^([T]?BLAST[NPX])\s*(.+)$/i ||
 	   /^(RPS-BLAST)\s*(.+)$/i ) {
-	   if( $seentop ) {
+	   if( $seentop ) {	    
 	       $self->_pushback($_);
 	       $self->end_element({ 'Name' => 'BlastOutput'});
 	       return $self->end_document();
@@ -239,9 +240,9 @@ sub next_result{
        } elsif ( /^Query=\s*(.+)$/ ) {	   
 	   my $q = $1;
 	   my $size = 0;
-
 	   if( defined $seenquery ) {
-	       $self->_pushback($reportline.$_);
+	       $self->_pushback($reportline);
+	       $self->_pushback($_);
 	       $self->end_element({'Name' => 'BlastOutput'});
 	       return $self->end_document();
 	   } else { 
@@ -437,11 +438,18 @@ sub next_result{
 	   $self->element({'Name' => 'Parameters_allowgaps',
 			   'Data' => 'yes'});
 	   while( defined ($_ = $self->_readline ) ) {
+
 	       if( /^([T]?BLAST[NPX])\s*([\d\.]+)/i ) {
 		   $self->_pushback($_);
 		   # let's handle this in the loop
 		   last;
+	       } elsif( /^Query=/ ) {	
+		   $self->_pushback($reportline);
+		   $self->_pushback($_);
+		   $self->end_element({ 'Name' => 'BlastOutput'});
+		   return $self->end_document();
 	       }
+
 	       # here is where difference between wublast and ncbiblast
 	       # is better handled by different logic
 	       if( /Number of Sequences:\s+([\d\,]+)/i ||
