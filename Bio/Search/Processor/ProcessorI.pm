@@ -98,23 +98,7 @@ sub _initialize {
 
     my $make = $self->SUPER::_initialize;
 
-# set stuff in self from @args
-
-    my($file, $fh, $algorithm) =
-	$self->_rearrange( [ qw(
-                                FILE
-                                FH
-                                ALGORITHM
-                               )
-                           ], @args);
-
-    defined $file || defined $fh or $self->throw("Must supply either a file or fh!");
-    defined $algorithm or $self->throw("Must specify algorithm!");
-
-    $self->_algorithm($algorithm);
-
-    $fh = new IO::File $file if defined $file;
-    $self->_filehandle($fh);
+    # set stuff in self from @args
 
     return $make; # success - we hope!
 }
@@ -124,7 +108,7 @@ sub _initialize {
  Title   : next_result
  Usage   : $result = $processor->next_result()
  Function: Returns the next Bio::Search::Result::* object available from
-           the provided data stream
+           the provided data stream or undef if no more are available.
  Returns : Bio::Search::Result object
  Args    : <none>
 
@@ -137,49 +121,6 @@ sub next_result{
    $self->throw("Abstract processor call of next_result() - your processor type has not implemented this method!");
 
 }
-
-=head2 _filehandle
-
- Title   : _filehandle
- Usage   : $obj->_filehandle($newval)
- Function: Internal function to handle handles
- Returns : value of _filehandle
- Args    : newvalue (optional)
-
-
-=cut
-
-sub _filehandle{
-    my ($obj,$value) = @_;
-
-    if( defined $value) {
-	$obj->{'_filehandle'} = $value;
-    }
-    return $obj->{'_filehandle'};
-}
-
-=head2 _algorithm
-
- Title   : _algorithm
- Usage   : $obj->_algorithm($newval)
- Function: Internal function to specify algorithm
- Returns : value of _algorithm
- Args    : newvalue (optional)
-
-
-=cut
-
-sub _algorithm{
-    my ($obj,$value) = @_;
-
-    if( defined $value) {
-	$obj->{'_algorithm'} = $value;
-    }
-    return $obj->{'_algorithm'};
-}
-
-
-1;
 
 __END__
 

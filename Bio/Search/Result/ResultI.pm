@@ -74,15 +74,6 @@ use Bio::Root::Object;
 
 @ISA = qw(Bio::Root::Object Exporter);
 
-my @AUTOLOAD_OK = qw( _QUERY_ID
-                      _LIBRARY_NAME
-                      _LIBRARY_SIZE
-                      _HIT_OBJECTS
-                    );
-
-my %AUTOLOAD_OK = ();
-@AUTOLOAD_OK{@AUTOLOAD_OK} = 1;
-
 # new() is inherited from Bio::Root::Object
 
 # _initialize is where the heavy stuff will happen when new is called
@@ -93,14 +84,6 @@ sub _initialize {
     my $make = $self->SUPER::_initialize;
 
     # set stuff in self from @args
-
-    while ( @args > 1 ) { # use AUTOLOADER !
-	my ($arg, $val) = splice(@args, 0, 2);
-	$arg =~ s/^-?(.*)/_\U$1\E/; # we require hash parameters, no arrays!
-	$self->$arg($val);
-    }
-
-    $self->throw("Ill-defined arguments to Result's new() function!") if @args;
 
     return $make; # success - we hope!
 }
@@ -116,10 +99,10 @@ sub _initialize {
 
 =cut
 
-sub get_query_id{
+sub get_query_id {
    my ($self,@args) = @_;
 
-   return $self->_QUERY_ID();
+   return $self->throw("Abstract interface call.");
 }
 
 =head2 get_library_name
@@ -133,17 +116,17 @@ sub get_query_id{
 
 =cut
 
-sub get_library_name{
+sub get_library_name {
    my ($self,@args) = @_;
 
-   return $self->_LIBRARY_NAME();
+   return $self->throw("Abstract interface call.");
 }
 
 =head2 get_library_size
 
  Title   : get_library_size
  Usage   : $size = $result->get_library_size()
- Function: Used to obtain the size of library that was search against.
+ Function: Used to obtain the size of library that was searched against.
  Returns : a scalar integer (units specific to algorithm, but probably the
            total number of residues in the library, if available) or undef if
            the information was not available to the Processor object.
@@ -152,10 +135,28 @@ sub get_library_name{
 
 =cut
 
-sub get_library_size{
+sub get_library_size {
    my ($self,@args) = @_;
 
-   return $self->_LIBRARY_SIZE();
+   return $self->throw("Abstract interface call.");
+}
+
+=head2 get_library_count
+
+ Title   : get_library_count
+ Usage   : $count = $result->get_library_count()
+ Function: Used to obtain the number of entries contained in the library.
+ Returns : a scalar integer representing the number of entities in the library
+           or undef if the information was not available.
+ Args    : <none>
+
+
+=cut
+
+sub get_library_count {
+   my ($self,@args) = @_;
+
+   return $self->throw("Abstract interface call.");
 }
 
 =head2 get_hits
@@ -171,25 +172,13 @@ sub get_library_size{
 
 =cut
 
-sub get_hits{
+sub get_hits {
    my ($self,@args) = @_;
 
-   return $self->_HIT_OBJECTS();
-}
-
-
-sub AUTOLOAD {
-    my ($self, $val) = @_;
-
-    if ( $AUTOLOAD_OK{$AUTOLOAD} ) {
-	$self->{$AUTOLOAD} = $val if defined $val;
-	return $self->{$AUTOLOAD};
-    } else {
-	my $check = $self->SUPER::AUTOLOAD($val);
-	$self->throw("Failed accessor: $AUTOLOAD !") unless defined $check;
-	return $check;
-    }
+   return $self->throw("Abstract interface call.");
 }
 
 
 1;
+
+
