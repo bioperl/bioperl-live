@@ -675,39 +675,6 @@ sub desc {
    return '';
 }
 
-=head2 GCG_checksum
-
- Title     : GCG_checksum
- Usage     : $myseq->GCG_checksum;
- Function  : returns a gcg checksum for the sequence
- Example   : 
- Returns   : 
- Argument  : none
-
-=cut
- 
-sub GCG_checksum {
-    my $self = shift;
-    my $seq;
-    my $index = 0;
-    my $checksum = 0;
-    my $char;
-
-
-    $seq = $self->seq();
-    $seq =~ tr/a-z/A-Z/;
-    
-    foreach $char ( split(/[\.\-]*/, $seq)) {
-	$index++;
-	$checksum += ($index * (unpack("c",$char) || 0) );
-	if( $index ==  57 ) {
-	    $index = 0;
-	}
-    }
-
-    return ($checksum % 10000);
-}
-
 #  These methods are here for backward compatibility with the old, 0.5
 #  Seq objects. They all throw warnings that someone is using a 
 #  deprecated method, and may eventually be removed completely from
