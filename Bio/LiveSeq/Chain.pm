@@ -1,6 +1,69 @@
 #!/usr/bin/perl
 # $Id$
 #
+# bioperl module for Bio::LiveSeq::Chain
+#
+# Cared for by Joseph Insana <insana@ebi.ac.uk> <jinsana@gmx.net>
+#
+# Copyright Joseph Insana
+#
+# You may distribute this module under the same terms as perl itself
+#
+# POD documentation - main docs before the code
+#
+
+=head1 NAME
+
+  Bio::LiveSeq::Chain - DoubleChain DataStructure for Perl
+
+=head1 SYNOPSIS
+
+
+=head1 DESCRIPTION
+
+This is a general purpose module (that's why it's not in object-oriented
+form) that introduces a novel datastructure in PERL. It implements
+the "double linked chain". The elements of the chain can contain basically
+everything. From chars to strings, from object references to arrays or hashes.
+It is used in the LiveSequence project to create a dynamical DNA sequence,
+easier to manipulate and change. It's use is mainly for sequence variation
+analysis but it could be used - for example - in e-cell projects.
+The Chain module in itself doesn't have any biological bias, so can be
+used for any programming purpose.
+
+Each element of the chain (with the exclusion of the first and the last of the
+chain) is connected to other two elements (the PREVious and the NEXT one).
+There is no absolute position (like in an array), hence if positions are
+important, they need to be computed (methods are provided).
+Otherwise it's easy to keep track of the elements with their "LABELs".
+There is one LABEL (think of it as a pointer) to each ELEMENT. The labels
+won't change after insertions or deletions of the chain. So it's
+always possible to retrieve an element even if the chain has been
+modified by successive insertions or deletions.
+From this the high potential profit for bioinformatics: dealing with
+sequences in a way that doesn't have to rely on positions, without
+the need of constantly updating them if the sequence changes, even
+dramatically.
+
+=head1 AUTHOR - Joseph A.L. Insana
+
+Email:  Insana@ebi.ac.uk, jinsana@gmx.net
+
+Address: 
+
+     EMBL Outstation, European Bioinformatics Institute
+     Wellcome Trust Genome Campus, Hinxton
+     Cambs. CB10 1SD, United Kingdom 
+
+=head1 APPENDIX
+
+The rest of the documentation details each of the object
+methods. Internal methods are usually preceded with a _
+
+=cut
+
+# Let the code begin...
+
 # DoubleChain Data Structure for PERL
 # by Joseph A.L. Insana - Deathson - Filius Mortis - Fal Mortais
 # insana@ebi.ac.uk, jinsana@gmx.net
