@@ -19,12 +19,13 @@ sub new {
 
 sub _initialize {
   my ($self,@args) = @_;
-  my ($start, $end, $strand, $frame,$score,
+  my ($start, $end, $strand, $frame,$phase,$score,
       $seq_id, $annot, $location,$display_name) =
         $self->_rearrange([qw(START
                               END
                               STRAND
                               FRAME
+                              PHASE
                               SCORE
                               SEQ_ID
                               ANNOTATION
@@ -36,6 +37,7 @@ sub _initialize {
   defined $end          && $self->end($end);
   defined $strand       && $self->strand($strand);
   defined $frame        && $self->frame($frame);
+  defined $phase        && $self->phase($phase);
   defined $display_name && $self->display_name($display_name);
   defined $score        && $self->score($score);
   $location             && $self->location($location);
@@ -445,6 +447,34 @@ sub score {
   }
   return $self->{'_gsf_score'};
 }
+
+=head2 phase 
+                                                                                
+ Title   : phase
+ Usage   : $phase = $feat->phase()
+           $feat->phase($phase)
+ Function: get/set on phase information
+ Returns : 0,1,2, '.'
+ Args    : none if get, the new value if set
+                                                                                
+                                                                                
+=cut
+
+sub phase {
+  my $self = shift;
+                                                                                
+  if ( @_ ) {
+    my $value = shift;
+    if ( defined $value &&
+         $value !~ /^[0-2.]$/ ) {
+          $self->throw("'$value' is not a valid phase");
+    }
+    if( defined $value && $value eq '.' ) { $value = '.' }
+    return $self->{'_gsf_phase'} = $value;
+  }
+  return $self->{'_gsf_phase'};
+}
+
 
 =head2 frame
 

@@ -141,7 +141,7 @@ sub _write_feature_25 {
   my $max    = $feature->end     || '.';
   my $strand = $feature->strand == 1 ? '+' : $feature->strand == -1 ? '-' : '.';
   my $score  = $feature->score   || '.';
-  my $phase  = $feature->frame   || '.';
+  my $phase  = $feature->phase   || '.';
 
   #these are the only valid types in a GTF document
   if($type eq 'EXON' or $type eq 'CDS' or $type eq 'start_codon' or $type eq 'stop_codon'){
@@ -167,7 +167,7 @@ sub _write_feature_3 {
   my $max    = $feature->end     || '.';
   my $strand = $feature->strand == 1 ? '+' : $feature->strand == -1 ? '-' : '.';
   my $score  = $feature->score   || '.';
-  my $phase  = $feature->frame   || '.';
+  my $phase  = $feature->phase   || '.';
 
   my @attr;
   if(my @v = ($feature->annotation->get_Annotations('Name'))){
@@ -270,7 +270,7 @@ sub _handle_feature {
   my $feat = Bio::SeqFeature::Annotated->new();
   my $ac = $feat->annotation(); #initialize Bio::Annotation::Collection
 
-  my($seq,$source,$type,$start,$end,$score,$strand,$phase,$attribute_string) = split /\s+/, $feature_string;
+  my($seq,$source,$type,$start,$end,$score,$strand,$phase,$attribute_string) = split /\t/, $feature_string;
 
   $feat->seq_id( uri_unescape($seq) );
   $feat->source( uri_unescape($source) );
@@ -278,7 +278,8 @@ sub _handle_feature {
   $feat->end($end) unless $end eq '.';
   $feat->strand($strand eq '+' ? 1 : $strand eq '-' ? -1 : 0);
   $feat->score($score) unless $score eq '.';
-  $feat->frame($phase);
+  $feat->phase($phase) unless $phase eq '.';
+#  $feat->frame($phase); NO!
 
   my $feature_type;
   if($type =~ /^\D+:\d+$/){
@@ -311,10 +312,12 @@ sub _handle_feature {
 
       if(!$db or !$accession){ #dbxref malformed
         $self->throw("Error in line:\n$feature_string\nDbxref value '$value' did not conform to GFF3 specification");
+        next;
       }
 
       $a->database($db);
       $a->primary_id($accession);
+      $ac->add_Annotation('Dbxref',$a);
     }
   }
 
@@ -338,7 +341,30 @@ sub _handle_feature {
 
   #Handle Target attributes
   if($attr{Target}){
-    $self->warn("Warning for line:\n$feature_string\nTarget attribute handling not yet implemented, skipping it");
+    my $target_collection = Bio::Annotation::Collection->new();
+
+    foreach my $target_string (@{ $attr{Target} } ) {
+      $target_string =~ s/\+/ /g; 
+      my ($t_id,$tstart,$tend,$strand,$extra) = split /\s+/, $target_string; 
+      if (!$tend || $extra) { # too much or too little stuff in the string
+        $self->throw("The value in the Target string, $target_string, does not conform to the GFF3 specification");
+      }
+      my $target_loc = Bio::Location::Simple->new(
+          -seq_id => $t_id,
+          -start  => $tstart, 
+          -end    => $tend,
+      ); 
+
+      if ($strand eq '+') {
+        $strand = 1;
+      } elsif ($strand eq '-') {
+        $strand = -1;
+      }
+      $target_loc->strand($strand) if $strand;
+      $target_loc->is_remote(1); 
+      
+      $self->warn("Warning for line:\n$feature_string\nTarget attribute handling not yet implemented, skipping it");  
+    }
   }
 
   #Handle ID attribute.  May only have one ID, throw error otherwise
