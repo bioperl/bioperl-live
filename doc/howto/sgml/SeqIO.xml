@@ -357,8 +357,8 @@ file into an array:
                                         '-format' => $outfileformat);
 
           # write each entry in the input file to the output file
-          while (my $inseq = $seqin->next_seq) {
-             $seqout->write_seq($inseq);
+          while ( my $inseq = $seq_in->next_seq ) {
+             $seq_out->write_seq($inseq);
           }
           exit;
      </programlisting>                          
