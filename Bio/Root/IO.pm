@@ -551,7 +551,8 @@ sub tempdir {
     #
     # we are planning to cleanup temp files no matter what
     my %params = @args;
-    $self->{'_cleanuptempdir'} = $params{CLEANUP} == 1;
+    $self->{'_cleanuptempdir'} = ( defined $params{CLEANUP} && 
+				   $params{CLEANUP} == 1);
     my $tdir = $self->catfile($TEMPDIR,
 			      sprintf("dir_%s-%s-%s", 
 				      $ENV{USER} || 'unknown', $$, 
