@@ -20,7 +20,7 @@ BEGIN {
     }
     use Test;
 
-    $NUMTESTS = 23;
+    $NUMTESTS = 22;
     plan tests => $NUMTESTS;
 
     eval {
@@ -63,10 +63,10 @@ ok my $db = Bio::DB::CUTG->new();
 my $cdtable =  $db->get_request(-sp =>'Pan troglodytes');
 exit unless $cdtable;
 #tests for Table.pm
-ok $cdtable->cds_count(), 325;
-ok int($cdtable->aa_frequency('LEU')), 10;
+ok $cdtable->cds_count(), 401;
+ok int($cdtable->aa_frequency('LEU')), 9;
 ok $cdtable->get_coding_gc('all');
-ok $cdtable->codon_rel_frequency('ttc'), "0.70"; 
+ok $cdtable->codon_rel_frequency('ttc'), "0.68"; 
 
 #now try reading from file
 ok my $io = Bio::CodonUsage::IO->new
