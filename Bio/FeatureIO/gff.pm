@@ -2,10 +2,11 @@ package Bio::FeatureIO::gff;
 
 use strict;
 use base qw(Bio::FeatureIO);
-use Bio::SeqFeature::Generic;
+use Bio::SeqFeature::Annotated;
 use Bio::OntologyIO;
 
 use Bio::Annotation::OntologyTerm;
+use Bio::Annotation::SimpleValue;
 use Bio::Ontology::OntologyStore;
 
 =pod
@@ -15,8 +16,9 @@ currently only handles gff version 3.  spec at http://song.sf.net/
 =cut
 
 sub _initialize {
-  my $self = shift;
-  my %arg = @_;
+  my($self,%arg) = @_;
+
+  $self->SUPER::_initialize(%arg);
 
   #read headers
   my $directive;
@@ -133,12 +135,12 @@ sub _handle_directive {
 sub _handle_feature {
   my($self,$feature_string) = @_;
 
-  $self->warn('FIXME, use Bio::SeqFeature::Annotated instead of Bio::SeqFeature::Generic');
-  my $feat = Bio::SeqFeature::Generic->new();
+  my $feat = Bio::SeqFeature::Annotated->new();
   my $ac = $feat->annotation(); #initialize Bio::Annotation::Collection
 
   my($seq,$source,$type,$start,$end,$score,$strand,$phase,$attribute_string) = split /\s+/, $feature_string;
 
+  $feat->seq_id($seq);
   $feat->start($start) unless $start eq '.';
   $feat->end($end) unless $end eq '.';
   $feat->strand($strand eq '+' ? 1 : $strand eq '-' ? -1 : 0);
@@ -157,9 +159,23 @@ sub _handle_feature {
   my $fta = Bio::Annotation::OntologyTerm->new();
   $fta->term($feature_type);
 
+  my %attr = ();
+  my @attributes = split ';', $attribute_string;
+  foreach my $attribute (@attributes){
+    my($key,$values) = split '=', $attribute;
+    my @values = split ',', $values;
+    $attr{$key} = [@values];
+  }
+
+  foreach my $id (@{ $attr{ID} }){
+    my $a = Bio::Annotation::SimpleValue->new();
+    $a->value($id);
+    $ac->add_Annotation('ID',$a);
+  }
+
   $ac->add_Annotation('feature_type',$fta);
 
-  return $feat;  
+  return $feat;
 }
 
 sub so {
