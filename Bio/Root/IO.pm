@@ -26,7 +26,7 @@ Bio::Root::IO - module providing several methods often needed when dealing with 
     # obtain platform-compatible filenames
     $path = Bio::Root::IO->catfile($dir, $subdir, $filename);
     # obtain a temporary file (created in $TEMPDIR)
-    ($handle) = Bio::Root::IO->tempfile();
+    ($handle) = $io->tempfile();
 
 =head1 DESCRIPTION
 
@@ -93,9 +93,10 @@ The rest of the documentation details each of the object methods. Internal metho
 
 
 package Bio::Root::IO;
-use vars qw(@ISA $TEMPDIR $PATHSEP $ROOTDIR $OPENFLAGS);
+use vars qw(@ISA $FILESPECLOADED $TEMPDIR $PATHSEP $ROOTDIR $OPENFLAGS);
 use strict;
 
+use Symbol;
 use Bio::Root::RootI;
 
 @ISA = qw(Bio::Root::RootI);
@@ -104,9 +105,11 @@ my $TEMPCOUNTER;
 
 BEGIN {
     $TEMPCOUNTER = 0;
+    $FILESPECLOADED = 0;
     # try to load those modules that may cause trouble on some systems
     eval {
 	require File::Spec;
+	$FILESPECLOADED = 1;
 	$TEMPDIR = File::Spec->tmpdir();
 	$ROOTDIR = File::Spec->rootdir();
 	require File::Temp; # tempfile creation
@@ -188,9 +191,29 @@ sub new {
 sub _initialize_io {
     my($self, @args) = @_;
 
-    my ($file, $fh) = $self->_rearrange([qw(FILE FH)], @args);
+    my ($input, $file, $fh) = $self->_rearrange([qw(INPUT FILE FH)], @args);
 
     delete $self->{'_readbuffer'};
+    delete $self->{'_filehandle'};
+
+    # determine whether the input is a file(name) or a stream
+    if($input) {
+	if(ref(\$input) eq "SCALAR") {
+	    # we assume that a scalar is a filename
+	    if($file && ($file ne $input)) {
+		$self->throw("input file given twice: $file and $input disagree");
+	    }
+	    $file = $input;
+	} elsif(ref($input) &&
+		((ref($input) eq "GLOB") || $input->isa('IO::Handle'))) {
+	    # input is a stream
+	    $fh = $input;
+	} else {
+	    # let's be strict for now
+	    $self->throw("unable to determine type of input $input: ".
+			 "not string and not GLOB");
+	}
+    }
     if(defined($file) && defined($fh)) {
 	$self->throw("Providing both a file and a filehandle for reading - only one please!");
     }
@@ -200,8 +223,7 @@ sub _initialize_io {
 	open ($fh,$file) ||
 	    $self->throw("Could not open $file for reading: $!");
     }
-    $fh = \*STDOUT unless $fh;
-    $self->_fh($fh);
+    $self->_fh($fh) if $fh; # if not provided, defaults to STDIN and STDOUT
     return 1;
 }
 
@@ -260,7 +282,7 @@ sub _print {
 
 sub _readline {
     my $self = shift;
-    my $fh = $self->_fh;
+    my $fh = $self->_fh || \*STDIN;
     my $line;
     
     # if the buffer been filled by _pushback then return the buffer
@@ -269,7 +291,7 @@ sub _readline {
 	$line = $self->{'_readbuffer'};
 	delete $self->{'_readbuffer'};
     } else {
-	$line = defined($fh) ? <$fh> : <>;
+	$line = <$fh>;
     }
     return $line;
 }
@@ -306,6 +328,7 @@ sub close {
    my ($self, @args) = @_;
 
    $self->{'_filehandle'} = undef;
+   delete $self->{'_readbuffer'};
 }
 
 
@@ -331,7 +354,7 @@ sub DESTROY {
 =head2  tempfile
 
  Title   : tempfile
- Usage   : my ($handle,$tempfile) = $self->tempfile(); 
+ Usage   : my ($handle,$tempfile) = $io->tempfile(); 
  Function: Returns a temporary filename and a handle opened for writing and
            and reading.
 
@@ -351,14 +374,20 @@ sub tempfile {
     my ($tfh, $file);
     my %params = @args;
 
+    # map between naming with and without dash
+    foreach my $key (grep { $_ =~ /^-/; } keys(%params)) {
+	$params{substr($key,1)} = $params{$key};
+	delete $params{$key};
+    }
+
     $params{'DIR'} = $TEMPDIR if(! exists($params{'DIR'}));
     if(exists($INC{"File/Temp.pm"})) {
 	if(exists($params{'TEMPLATE'})) {
 	    my $template = $params{'TEMPLATE'};
 	    delete $params{'TEMPLATE'};
-	    ($tfh, $file) = File::Temp->tempfile($template, %params);
+	    ($tfh, $file) = File::Temp::tempfile($template, %params);
 	} else {
-	    ($tfh, $file) = File::Temp->tempfile(@args);
+	    ($tfh, $file) = File::Temp::tempfile(@args);
 	}
     } else {
 	my $dir = $params{'DIR'};
@@ -395,7 +424,7 @@ sub tempfile {
 =head2  tempdir
 
  Title   : tempdir
- Usage   : my ($tempdir) = $self->tempdir(CLEANUP=>1); 
+ Usage   : my ($tempdir) = $io->tempdir(CLEANUP=>1); 
  Function: Creates and returns the name of a new temporary directory.
 
            Note that you should not use this function for obtaining "the"
