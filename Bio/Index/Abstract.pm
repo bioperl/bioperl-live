@@ -752,6 +752,34 @@ sub unpack_record {
     return split /\034/, $args[0];
 }
 
+=head2 count_records
+
+ Title   : count_records
+ Usage   : $recs = $seqdb->count_records()
+ Function: return count of all recs in the index 
+ Example :
+ Returns : a scalar
+ Args    : none
+
+
+=cut
+
+sub count_records {
+   my ($self,@args) = @_;
+   my $db = $self->db;
+   my $c = 0;
+   while (my($id, $rec) = each %$db) {
+       if( $id =~ /^__/ ) {
+           # internal info
+           next;
+       }
+		$c++;
+   }
+
+   return ($c);
+}
+
+
 =head2 DESTROY
 
  Title   : DESTROY
