@@ -300,13 +300,19 @@ sub next_result{
 	   }
 	   
        } elsif( /Sequences producing significant alignments:/ ) {
-	   # skip the next whitespace line
-	   $_ = $self->_readline();
-	   while( defined ($_ = $self->_readline() ) && 
-		  ! /^\s+$/ ) {
-	       if( /(\d+)\s+([\d\.\-eE]+)\s*$/) {
-		   push @hit_signifs, [ $2,$1 ];
-	       }
+	 descline:
+           while( defined ($_ = $self->_readline() )) {
+               if( /^>/ ) {
+                   $self->_pushback($_);
+                   last descline;
+               } elsif( /(\d+)\s+([\d\.\-eE]+)(\s+\d+)?\s*$/) {
+		   # the last match is for gapped BLAST output
+		   # which will report the number of HSPs for the Hit
+                   my ($score, $evalue) = ($1, $2);
+                   # Some data clean-up so e-value will appear numeric to perl
+                   $evalue =~ s/^e/1e/i;
+		   push @hit_signifs, [ $evalue, $score ];
+               }
 	   }
        } elsif( /Sequences producing High-scoring Segment Pairs:/ ) {
 	   # skip the next line
@@ -402,42 +408,47 @@ sub next_result{
 	   next;
        } elsif( ($self->in_element('hit') || 
 		 $self->in_element('hsp')) && # wublast
-	       m/Score\s*=\s*(\S+)\s*       # Bit score
-		\(([\d\.]+)\s*bits\),       # Raw score
-		\s*Expect\s*=\s*([^,\s]+),  # E-value
-		\s*(Sum)?\s*                # SUM
-		P(\(\d+\))?\s*=\s*([^,\s]+) # P-value
+	       m/Score\s*=\s*(\S+)\s*         # Bit score
+		\(([\d\.]+)\s*bits\),         # Raw score
+		\s*Expect\s*=\s*([^,\s]+),    # E-value
+		\s*(?:Sum)?\s*                # SUM
+		P(?:\(\d+\))?\s*=\s*([^,\s]+) # P-value
 		/ox 
-		  ) {
+		  ) {	   
+	   my ($score, $bits,$evalue,$pvalue) = ($1,$2,$3,$4);
+	   $evalue =~ s/^e/1e/i;
+	   $pvalue =~ s/^e/1e/i;
 	   $self->in_element('hsp') && $self->end_element({'Name' => 'Hsp'});
 	   $self->start_element({'Name' => 'Hsp'});
        	   $self->element( { 'Name' => 'Hsp_score',
-			     'Data' => $1});
+			     'Data' => $score});
 	   $self->element( { 'Name' => 'Hsp_bit-score',
-			     'Data' => $2});
+			     'Data' => $bits});
 	   $self->element( { 'Name' => 'Hsp_evalue',			     
-			     'Data' => $3});
+			     'Data' => $evalue});
 	   $self->element( {'Name'  => 'Hsp_pvalue',
-			    'Data'  =>$6});       
+			    'Data'  => $pvalue});       
        } elsif( ($self->in_element('hit') || 
 		 $self->in_element('hsp')) && # ncbi blast
 		m/Score\s*=\s*(\S+)\s*bits\s* # Bit score
-		(\((\d+)\))?,                 # Missing for BLAT pseudo-BLAST fmt 
-		\s*Expect(\(\d+\))?\s*=\s*(\S+) # E-value
+		(?:\((\d+)\))?,             # Missing for BLAT pseudo-BLAST fmt
+		\s*Expect(?:\(\d+\))?\s*=\s*(\S+) # E-value
 		/ox) {
+	   my ($bits,$score,$evalue) = ($1,$2,$3);
+	   $evalue =~ s/^e/1e/i;
 	   $self->in_element('hsp') && $self->end_element({ 'Name' => 'Hsp'});
 	   
 	   $self->start_element({'Name' => 'Hsp'});
 	   $self->element( { 'Name' => 'Hsp_score',
-			     'Data' => $3});
+			     'Data' => $score});
 	   $self->element( { 'Name' => 'Hsp_bit-score',
-			     'Data' => $1});
+			     'Data' => $bits});
 	   $self->element( { 'Name' => 'Hsp_evalue',
-			     'Data' => $5});
+			     'Data' => $evalue});
        } elsif( $self->in_element('hsp') &&
 		m/Identities\s*=\s*(\d+)\s*\/\s*(\d+)\s*[\d\%\(\)]+\s*
-		(,\s*Positives\s*=\s*(\d+)\/(\d+)\s*[\d\%\(\)]+\s*)? # pos only valid for Protein alignments
-		(\,\s*Gaps\s*=\s*(\d+)\/(\d+))? # Gaps
+		(?:,\s*Positives\s*=\s*(\d+)\/(\d+)\s*[\d\%\(\)]+\s*)? # pos only valid for Protein alignments
+		(?:\,\s*Gaps\s*=\s*(\d+)\/(\d+))? # Gaps
 		/oxi 
 		) {
 	   $self->element( { 'Name' => 'Hsp_identity',
@@ -446,14 +457,14 @@ sub next_result{
 			    'Data' => $2});
 	   if( defined $3 ) {
 	       $self->element( { 'Name' => 'Hsp_positive',
-				 'Data' => $4});
+				 'Data' => $3});
 	   } else { 
 	       $self->element( { 'Name' => 'Hsp_positive',
 				 'Data' => $1});
 	   }
 	   if( defined $6 ) { 	       
 	       $self->element( { 'Name' => 'Hsp_gaps',
-				 'Data' => $7});
+				 'Data' => $5});
 	   }
 	   
 	   $self->{'_Query'} = { 'begin' => 0, 'end' => 0};
