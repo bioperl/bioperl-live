@@ -1,4 +1,4 @@
-## $Id: MANIFEST,v 1.48 2001-09-24 02:09:41 jason Exp $
+## $Id: MANIFEST,v 1.49 2001-10-15 19:10:40 dag Exp $
 ##
 ## This is the file listing for everything that
 ## comes with the bioperl distribution. The perl
@@ -138,8 +138,8 @@ Bio/SeqFeature/Gene/NC_Feature.pm
 Bio/SeqFeature/Gene/Promoter.pm
 Bio/SeqFeature/Gene/Transcript.pm
 Bio/SeqFeature/Gene/TranscriptI.pm
-Bio/SeqFeature/Gene/poly_A_site.pm
-Bio/SeqFeature/Gene/utr.pm
+Bio/SeqFeature/Gene/Poly_A_site.pm
+Bio/SeqFeature/Gene/UTR.pm
 Bio/SeqFeature/Generic.pm
 Bio/SeqFeature/Similarity.pm
 Bio/SeqFeature/SimilarityPair.pm
