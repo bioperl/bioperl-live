@@ -95,6 +95,7 @@ use Bio::Root::Root;
 use Bio::SearchIO;
 use XML::Parser::PerlSAX;
 use XML::Handler::Subs;
+use HTML::Entities;
 use IO::File;
 
 
@@ -141,7 +142,7 @@ BEGIN {
 		 
 		 'BlastOutput_program'  => 'programname',
 		 'BlastOutput_version'  => 'programver',
-		 'BlastOutput_query-def'=> 'queryname',
+		 'BlastOutput_query-def'=> 'querydesc',
 		 'BlastOutput_query-len'=> 'querylen',
 		 'BlastOutput_db'       => 'dbname',
 		 'BlastOutput_reference' => 'programref',
@@ -202,7 +203,6 @@ sub _initialize{
    defined $usetempfile && $self->use_tempfile($usetempfile);
    $self->{'_xmlparser'} = new XML::Parser::PerlSAX();
    $DEBUG = 1 if( ! defined $DEBUG && $self->verbose > 0);
-
 }
 
 =head2 next_result
@@ -235,9 +235,10 @@ sub next_result {
 	    $self->_pushback($_);
 	    last;
 	}
-	s/\&apos;/\`/g;	
-	s/\&gt;/\>/g;
-	s/\&lt;/\</g;
+	$_ = decode_entities($_);
+#	s/\&apos;/\`/g;	
+#	s/\&gt;/\>/g;
+#	s/\&lt;/\</g;
 	$okaytoprocess = 1;
 	if( defined $tfh ) {
 	    print $tfh $_;

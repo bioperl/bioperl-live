@@ -89,12 +89,7 @@ use Bio::Search::HSP::GenericHSP;
 
 =cut
 
-sub new {
-  my($class,@args) = @_;
-
-  my $self = $class->SUPER::new(@args);
-  return $self;
-}
+# new comes from the superclass
 
 =head2 will_handle
 
@@ -145,7 +140,23 @@ sub start_result {
 
 sub end_result {
     my ($self,$type,$data) = @_;
+    
+    if( defined $data->{'runid'} &&
+	$data->{'runid'} !~ /^\s+$/ ) {	
 
+	if( $data->{'runid'} !~ /^lcl\|/) { 
+	    $data->{"queryname"}= $data->{'runid'};
+	} else { 
+	    ($data->{"queryname"},$data->{"querydesc"}) = split(/\s+/,$data->{"querydesc"},2);
+	}
+	
+	if( my @a = split(/\|/,$data->{'queryname'}) ) {
+	    my $acc = pop @a ; # this is for accession |1234|gb|AAABB1.1|AAABB1
+	    # this is for |123|gb|ABC1.1|
+	    $acc = pop @a if( ! defined $acc || $acc =~ /^\s+$/);
+	    $data->{"queryacc"}= $acc;
+	}
+    }
     my $result = new Bio::Search::Result::GenericResult
 	('-database_name'           => $data->{'dbname'},
 	 '-database_letters'        => $data->{'dblets'},
@@ -154,7 +165,6 @@ sub end_result {
 	 '-query_length'            => $data->{'querylen'},
 	 '-query_accession'         => $data->{'queryacc'},
 	 '-query_description'       => $data->{'querydesc'},
-	 
 #	 '-program_name'            => $data->{'programname'},
 #	 '-program_version'         => $data->{'programver'},
 	 '-algorithm'              => $type,
@@ -212,7 +222,8 @@ sub end_hsp {
     { 
 	# swap
 	($data->{'querystart'},
-	 $data->{'queryend'}) = ($data->{'queryend'},				 $data->{'querystart'});
+	 $data->{'queryend'}) = ($data->{'queryend'},
+				 $data->{'querystart'});
     } 
     if( defined $data->{'hitframe'} && # this is here to protect from undefs
 	((defined $data->{'hitframe'} && $data->{'hitframe'} < 0 && 
