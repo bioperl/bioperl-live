@@ -884,11 +884,11 @@ sub seqobj {
   $id =  $self->rna_id if $self->rna_id;
   $moltype = 'protein' if $moltype eq 'aa';
   $out = Bio::PrimarySeq->new
-      ( '-seq' => $self->$value,
+      ( '-seq' => $self->{$value},
 	'-display_id'  => $id,
 	'-accession_number' => $self->id,
 	'-moltype' => $moltype
-	) if   $self->$value ;
+	) if   $self->{$value} ;
   return $out;
 }
 
