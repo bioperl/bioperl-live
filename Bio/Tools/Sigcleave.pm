@@ -101,7 +101,14 @@ In both cases, the "threshold" setting controls the score reporting level. If no
 value for threshold is passed in by the user, the code defaults to a reporting value
 of 3.5. 
 
-Example pretty_print output:
+In this implemntation the accessor will never return any score/position pair which does not
+meet the threshold limit. This is the slightly different from the behaviour of
+the 8.1 EGCG sigcleave program which will report the highest of the under-threshold
+results if nothing else is found.
+
+
+
+Example of pretty_print output:
 
 	SIGCLEAVE of sigtest from: 1 to 146
 
@@ -126,7 +133,13 @@ Example pretty_print output:
 No warranty implied or expressed. Use at your own risk :) Users unfamiliar
 with the original Sigcleave application should read the von Heijne papers. 
 
-The weight matrix in thos code is for eukaryote signal sequences.
+The emphasis here is on correctly replicating the calls that 8.1 EGCG sigcleave
+would make. This code has been tested against a non-redundant curated set
+of 405 Swissprot proteins representing secreted, non-secreted, membrane and
+transit proteins. Except for the EGCG sigcleave habit of reporting an
+under-threshold score if nothing better is found the output was identical.
+
+The weight matrix in this code is for eukaryote signal sequences.
 
 Please see the example script located in the bioperl distribution
 to see how this code can be used.
