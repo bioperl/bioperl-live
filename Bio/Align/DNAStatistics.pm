@@ -624,8 +624,8 @@ sub D_Uncorrected {
 
  Title   : D_Kimura
  Usage   : my $d = $stat->D_Kimura($aln)
- Function: Calculates D (pairwise distance) between 2 sequences in an 
-           alignment using the Kimura 2 parameter model.
+ Function: Calculates D (pairwise distance) between all pairs of sequences 
+           in an alignment using the Kimura 2 parameter model.
  Returns : L<Bio::Matrix::PhylipDist>
  Args    : L<Bio::Align::AlignI> of DNA sequences
 
@@ -653,6 +653,9 @@ sub D_Kimura {
        for( my $j = $i+1; $j < $seqct; $j++ ) {
 	   my $pairwise = $aln->select_noncont($i+1,$j+1);
 	   my $L = $self->pairwise_stats->number_of_comparable_bases($pairwise);
+	   unless( $L ) { 
+	       $L = 1;
+	   }
 	   my $P = $self->transitions($pairwise) / $L;
 	   my $Q = $self->transversions($pairwise) / $L;
 	   
@@ -674,6 +677,89 @@ sub D_Kimura {
 				       -names   => \@names,
 				       -values  => \@values); 
 }
+
+
+=head2 D_Kimura_variance
+
+ Title   : D_Kimura
+ Usage   : my $d = $stat->D_Kimura_variance($aln)
+ Function: Calculates D (pairwise distance) between all pairs of sequences 
+           in an alignment using the Kimura 2 parameter model.
+ Returns : array of 2 L<Bio::Matrix::PhylipDist>,
+           the first is the Kimura distance and the second is
+           a matrix of variance V(K)
+ Args    : L<Bio::Align::AlignI> of DNA sequences
+
+
+=cut
+
+sub D_Kimura_variance {
+   my ($self,$aln) = @_;
+   return 0 unless $self->_check_arg($aln);
+   # ambiguities ignored at this point
+   my (@names,@values,%dist,@var);
+   my $seqct = 0;
+   foreach my $seq ( $aln->each_seq) {
+       push @names, $seq->display_id;
+       $seqct++;
+   }
+
+   my $precisionstr = "%.$Precision"."f";
+
+   for( my $i = 0; $i < $seqct-1; $i++ ) {
+       # (diagonals) distance is 0 for same sequence
+       $dist{$names[$i]}->{$names[$i]} = [$i,$i];
+       $values[$i][$i] = sprintf($precisionstr,0);
+
+       for( my $j = $i+1; $j < $seqct; $j++ ) {
+	   my $pairwise = $aln->select_noncont($i+1,$j+1);
+	   my $L = $self->pairwise_stats->number_of_comparable_bases($pairwise);
+	   unless( $L ) { 
+	       $L = 1;
+	   }
+	   my $P = $self->transitions($pairwise) / $L;
+	   my $Q = $self->transversions($pairwise) / $L;
+	   my ($a,$b,$K,$var_k);
+	   my $a_denom = ( 1 - (2 * $P) - $Q);
+	   my $b_denom = 1 - 2 * $Q;
+	   unless( $a_denom > 0 && $b_denom > 0 ) {
+	       $a = 1;
+	       $b = 1;
+	       $K = -1;
+	       $var_k = -1;
+	   } else { 
+	       $a = 1 / $a_denom;
+	       $b = 1 / $b_denom;
+	       $K = (1/2) * log ( $a ) + (1/4) * log($b);
+	       # from Wu and Li 1985 which in turn is from Kimura 1980
+	       my $c = ( $a - $b ) / 2;
+	       my $d = ( $a + $b ) / 2;
+	       $var_k = ( $a**2 * $P + $d**2 * $Q - ( $a * $P + $d * $Q)**2 ) / $L;
+	   }
+
+	   # fwd and rev lookup
+	   $dist{$names[$i]}->{$names[$j]} = [$i,$j];
+	   $dist{$names[$j]}->{$names[$i]} = [$i,$j];	   
+	   $values[$j][$i] = $values[$i][$j] = sprintf($precisionstr,$K);
+           # (diagonals) distance is 0 for same sequence
+	   $dist{$names[$j]}->{$names[$j]} = [$j,$j];   
+	   $values[$j]->[$j] = sprintf($precisionstr,0); 
+	   
+	   $var[$j]->[$i] = $var[$i]->[$j] = sprintf($precisionstr,$var_k);
+	   $var[$j]->[$j] = $values[$j]->[$j];
+       }
+   }
+   return ( Bio::Matrix::PhylipDist->new(-program => 'bioperl_DNAstats',
+					 -matrix  => \%dist,
+					 -names   => \@names,
+					 -values  => \@values),
+	    Bio::Matrix::PhylipDist->new(-program => 'bioperl_DNAstats',
+					 -matrix  => \%dist,
+					 -names   => \@names,
+					 -values  => \@var)
+	    );
+}
+
 
 #  K Tamura, Mol. Biol. Evol. 1992, 9, 678.
 
