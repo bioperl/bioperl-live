@@ -68,7 +68,7 @@ use vars qw(@ISA);
 use strict;
 
 use Bio::ClusterIO;
-use Bio::Cluster::Unigene;
+use Bio::Cluster::UniGene;
 
 @ISA = qw(Bio::ClusterIO);
 
