@@ -18,7 +18,7 @@
 
 
 ## We start with some black magic to print on failure.
-BEGIN { $| = 1; print "1..2\n"; 
+BEGIN { $| = 1; print "1..3\n"; 
 	use vars qw($loaded); }
 END {print "not ok 1\n" unless $loaded;}
 
@@ -35,13 +35,20 @@ print "ok 1\n";    # 1st test passes.
 ## the print "1..x\n" in the BEGIN block to reflect the
 ## total number of tests that will be run. 
 
-print "2..2\n";
+print "1..4\n";
 
 my $seq = Bio::Seq->new(-seq=>'ACTGTGGCGTCAACTG',
                         -desc=>'Sample Bio::Seq object');
 print "ok 2\n"; 
 
+$trunc = $seq->trunc(1,4);
 
+print "ok 3\n";
 
+if( $trunc->str() ne 'ACTG' ) {
+   print "not ok 4\n";
+} else {
+   print "ok 4\n";
+}
 
 

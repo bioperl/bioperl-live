@@ -1242,12 +1242,12 @@ sub _file_read {
   my($self, $filename, $ffmt) = @_;
   my($ent);
 
-        ##Read in file and invoke parsing code
-        open(Seq::INPUT, $filename);
-        $ent = join("\n",<Seq::INPUT>);
-        close(Seq::INPUT);
-
-        parse($self, $ent, $ffmt, $filename);
+  ##Read in file and invoke parsing code
+  open(Seq::INPUT, $filename) || $self->throw("Could not open [$filename] as sequence stream");
+  $ent = join("\n",<Seq::INPUT>);
+  close(Seq::INPUT) || $self->throw("Could not close [$filename] as a sequence stream");
+  
+  parse($self, $ent, $ffmt, $filename);
 
   return 1;
 }
@@ -2234,6 +2234,40 @@ sub version;
 #=head2 ## METHODS FOR SEQUENCE MANIPULATION ##
 
 #_______________________________________________________________________
+
+=head2 trunc
+
+ Title     : trunc
+ Usage     : $trunc_seq = $mySeq->trunc(12,20);
+ Function  : Returns a truncated part of the sequence, truncation
+             happening by the ->str() call. This is just a convience call
+             therefore for this object
+
+ Returns   : Bio::Seq object ref.
+ Argument  : start point, end point in biological coordinates
+
+=cut
+
+sub trunc {
+  my($self,$start,$end) = @_;
+  my ($new);
+  
+  if( $start <= 0 || $end <= 0 ) { 
+    $self->throw("Truncation indices [$start,$end] less than 0 - not good!");
+  }
+
+  if( $end <= $start ) {
+    $self->throw("Truncation must have start [$start] less than end [$end]. If you want to revcomp it as well, use revcomp");
+  }
+
+  my $str = $self->str($start,$end);
+
+  $new = $self->new('-seq' => $str, '-id' => $self->id(), '-start' => $start, '-end' => $end);
+    
+  return $new;
+}
+
+
 
 =head2 copy
 

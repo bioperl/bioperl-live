@@ -13,6 +13,7 @@ Bio/Root/Utilities.pm
 Bio/Root/Vector.pm
 Bio/Root/Xref.pm
 Bio/Seq.pm
+Bio/SearchDist.pm
 Bio/SimpleAlign.pm
 Bio/Tools/AlignFactory.pm
 Bio/Tools/Blast.pm
@@ -28,6 +29,7 @@ Bio/Tools/SeqAnal.pm
 Bio/Tools/WWW.pm
 Bio/Tools/pSW.pm
 Bio/Tools/RestrictionEnzyme.pm
+Bio/DB/Abstract.pm
 t/Seq.t
 t/SimpleAlign.t
 t/Blast.t              
