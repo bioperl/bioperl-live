@@ -796,6 +796,8 @@ sub alphabet {
    return $self->primary_seq->alphabet();
 }
 
+sub is_circular { shift->primary_seq->is_circular }
+
 =head1 Methods for Bio::IdentifiableI compliance
 
 =cut
