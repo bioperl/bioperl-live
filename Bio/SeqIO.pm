@@ -547,8 +547,7 @@ sub _guess_format {
    return 'genbank' if /\.(gb|gbank|genbank)$/i;
    return 'scf'     if /\.scf$/i;
    return 'pir'     if /\.pir$/i;
-   return 'embl'    if /\.(embl|ebl|emb)$/i;
-   return 'embl'    if /\.dat$/i;
+   return 'embl'    if /\.(embl|ebl|emb|dat)$/i;
    return 'raw'     if /\.(txt)$/i;
    return 'gcg'     if /\.gcg$/i;
    return 'ace'     if /\.ace$/i;
