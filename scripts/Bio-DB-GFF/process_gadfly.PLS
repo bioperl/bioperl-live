@@ -1,4 +1,4 @@
-#!/lab/bin/perl
+#!/usr/bin/perl
 if ($ARGV[0]=~/^-?-h/ || @ARGV < 1) {
 die <<'USAGE';
 
