@@ -64,13 +64,13 @@ use vars qw(@ISA);
 use strict;
 
 use Bio::Root::Root;
-use Bio::StructureI;
+use Bio::Structure::StructureI;
 use Bio::Structure::Model;
 use Bio::Structure::Chain;
 use Bio::Annotation::Collection;
 use Tie::RefHash;
 
-@ISA = qw(Bio::Root::Root Bio::StructureI);
+@ISA = qw(Bio::Root::Root Bio::Structure::StructureI);
 
 
 =head2 new()

@@ -539,7 +539,7 @@ sub write_structure {
 		$self->throw("Attempting to write with no structure!");
 	}
 
-	if( ! ref $struc || ! $struc->isa('Bio::StructureI') ) {
+	if( ! ref $struc || ! $struc->isa('Bio::Structure::StructureI') ) {
 		$self->throw(" $struc is not a StructureI compliant module.");
 	}
 	my ($ann, $string, $output_string, $key);
