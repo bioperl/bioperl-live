@@ -65,6 +65,9 @@ Donald Jackson, E<lt>donald.jackson@bms.com<gt>
 =head1 CONTRIBUTORS
                                                                                                                                        
 Additional contributors names and emails here
+
+Parts of this module  and the test script were patterned after Sheldon McKay's Bio::SeqIO::game.  If it breaks, however, it's my fault not his ;).
+
                                                                                                                                        
 =head1 APPENDIX
                                                                                                                                        
@@ -127,7 +130,7 @@ sub next_seq {
   Args		: one or more sequence objects as TinySeq XML
   Note		: because the TSeq dtd includes closing tags after all sets are written, the output
                   will not be complete until the program terminates or the object is forced out of
-                  scope (see _close_writer()).
+                  scope (see close_writer()).
                   May not perfectly reproduce TSeq_sid element for all sequences
 
 =cut
