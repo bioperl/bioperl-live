@@ -1244,7 +1244,7 @@ sub delete_Obj {
            verbose level of each object in a different way.
 
            So for example, after $loader= and $gene= have been retrieved
-           by a program, the command $gene->get_DNA->verbose(0); would
+           by a program, the command $gene->verbose(0); would
            set the default verbosity level to 0 for all objects.
 
  Returns : the current verbosity level
