@@ -327,7 +327,7 @@ sub _handle_feature {
       my($term) = $ont->find_terms(-identifier => $id);
       my $a = Bio::Annotation::OntologyTerm->new();
       $a->term($term);
-      $ac->add_Annotation('ontology_term',$a);
+      $ac->add_Annotation('Ontology_term',$a);
     }
   }
 
