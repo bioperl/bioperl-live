@@ -250,10 +250,10 @@ use Bio::Root::Object;
 use Bio::Tools::BPbl2seq;
 use Bio::Tools::BPpsilite;
 use Bio::Tools::Blast;
+use File::Temp qw(tempdir tempfile);
 
 
-
-@ISA = qw(Bio::Root::Object);
+@ISA = qw(Bio::Root::RootI);
 
 # You will need to enable Blast to find the Blast program. This can be done
 # in (at least) three ways:
@@ -344,25 +344,20 @@ my $attr;
 foreach $attr (@blastall_params,  @blastpgp_params, @bl2seq_params, @other_params )
  { $ok_field{$attr}++; }
 
-return 1;     # Needed to keep compiler happy
-
-# new() is inherited from Bio::Root::Object
-
-# _initialize is where the heavy stuff will happen when new is called
 
 sub _initialize {
     my($self,@args) = @_;
     my ($attr, $value);
-    my $make = $self->SUPER::_initialize;
+    my $make = $self->SUPER::_initialize(@args);
 # set default BLAST output file and _READMETHOD
     $self->outfile('./blastreport.out');
     $self->_READMETHOD('BPlite');
+    $self->{_tempfiles} = [];
     while (@args)  {
 	$attr =  shift @args;
 	$value =  shift @args;
 	$self->$attr($value);
     }
-
     return $make;		# success - we hope!
 }
 
@@ -418,19 +413,17 @@ sub exists_blast {
 =cut
 
 sub blastall {
-
-    my $self = shift;
+    my ($self,$input1) = @_;
     my $executable = 'blastall';
-    my $input1 = shift;
     my $input2;
-
 # Create input file pointer
-    my $infilename1 = &_setinput($executable, $input1);
-    if (!$infilename1) {$self->throw(" $input1  not Bio::Seq object or array of Bio::Seq objects or file name!");}
+    my $infilename1 = $self->_setinput($executable, $input1);
+    if (! $infilename1) {$self->throw(" $input1 ($infilename1) not Bio::Seq object or array of Bio::Seq objects or file name!");}
 
     $self->i($infilename1);	# set file name of sequence to be blasted to inputfilename1 (-i param of blastall)
 
-    my $blast_report = &_generic_local_blast($self, $executable, $input1, $input2);
+    my $blast_report = &_generic_local_blast($self, $executable, 
+					     $input1, $input2);
 }
 
 =head2  blastpgp
@@ -469,7 +462,9 @@ sub blastpgp {
     my $input2 = shift;
     my $mask = shift;		# used by blastpgp's -B option to specify which residues are position aligned
 
-    my  ($infilename1, $infilename2 )  = &_setinput($executable, $input1, $input2, $mask);
+    my  ($infilename1, $infilename2 )  = $self->_setinput($executable, 
+							  $input1, $input2, 
+							  $mask);
     if (!$infilename1) {$self->throw(" $input1  not Bio::Seq object or array of Bio::Seq objects or file name!");}
     $self->i($infilename1);	# set file name of sequence to be blasted to inputfilename1 (-i param of blastpgp)
 
@@ -508,7 +503,8 @@ sub bl2seq {
     my $input2 = shift;
 
 # Create input file pointer
-    my  ($infilename1, $infilename2 )  = &_setinput($executable, $input1, $input2);
+    my  ($infilename1, $infilename2 )  = $self->_setinput($executable, 
+							  $input1, $input2);
     if (!$infilename1) {$self->throw(" $input1  not Seq Object or file name!");}
     if  (!$infilename2) {$self->throw("$input2  not Seq Object or file name!");}
 
@@ -535,7 +531,7 @@ sub _generic_local_blast {
     my $executable = shift;
 
 # Create parameter string to pass to Blast program
-    my $param_string = &_setparams($self, $executable);
+    my $param_string = $self->_setparams($executable);
 
 # run Blast
     my $blast_report = &_runblast($self, $executable, $param_string);
@@ -556,9 +552,7 @@ sub _generic_local_blast {
 =cut
 
 sub _runblast {
-    my $self = shift;
-    my $executable = shift;
-    my $param_string = shift;
+    my ($self,$executable,$param_string) = @_;
     my $blast_obj;
 
     my $commandstring = "$blastdir"."$executable "." $param_string";
@@ -596,9 +590,8 @@ sub _runblast {
 	$blast_obj = Bio::Tools::BPlite->new(-fh=>\*FH);
     }
 
-# Clean up the temporary files created along the way...
-    system('rm -f tmp1.fa tmp2.fa') ;
-
+    unlink @{$self->{_tempfiles}};
+    $self->{_tempfiles} = [];
     return $blast_obj;
 }
 
@@ -614,31 +607,33 @@ sub _runblast {
 
 =cut
 sub _setinput {
+    my ($self, $executable, $input1, $input2) = @_;
+    my ($seq, $temp, $infilename1, $infilename2,$fh ) ;
+#  If $input1 is not a reference it better be the name of a file with
+#  the sequence/ alignment data...
 
-    my ($seq, $temp, $infilename1, $infilename2 )  ;
-    my $executable = shift;
-    my $input1 = shift;
-    my $input2 = shift;
-#  If $input1 is not a reference it better be the name of a file with the sequence/
-#  alignment data...
 SWITCH:  {
     unless (ref $input1) {
-	$infilename1 =   (-e $input1) ? $input1 : 0 ;
+	$infilename1 = (-e $input1) ? $input1 : 0 ;
 	last SWITCH; 
     }
 #  $input may be an array of BioSeq objects...
     if (ref($input1) eq "ARRAY") {
-	$infilename1 = 'tmp1.fa';
-	$temp =  Bio::SeqIO->new(-file=> ">$infilename1", '-format' => 'Fasta');
+	($fh,$infilename1) = &tempfile();
+	push @{$self->{_tempfiles}}, $infilename1;
+	$temp =  Bio::SeqIO->new(-fh=> $fh, '-format' => 'Fasta');
 	foreach $seq (@$input1) {
 	    unless ($seq->isa("Bio::Seq")) {return 0;}
 	    $temp->write_seq($seq);
 	}
+	close $fh;
 	last SWITCH;
     }
 #  $input may be a single BioSeq object...
-    if ($input1->isa("Bio::Seq")) {
-	$infilename1 = 'tmp1.fa';
+    elsif ($input1->isa("Bio::Seq")) {
+	($fh,$infilename1) = &tempfile();
+	push @{$self->{_tempfiles}}, $infilename1;
+
 # just in case $input1 is taken from an alignment and has spaces (ie deletions) indicated
 # within it, we have to remove them - otherwise the BLAST programs will be unhappy
 	my $seq_id =  $input1->display_id();
@@ -646,8 +641,9 @@ SWITCH:  {
 	$seq_string =~ s/\W+//g; # get rid of spaces in sequence
 	$seq = Bio::Seq->new(-seq=> $seq_string, -display_id =>$seq_id );
 
-	$temp =  Bio::SeqIO->new(-file=> ">$infilename1", '-format' => 'Fasta');
+	$temp =  Bio::SeqIO->new(-fh=> $fh, '-format' => 'Fasta');
 	$temp->write_seq($seq);
+	close $fh;
 #		$temp->write_seq($input1);
 	last SWITCH;
     }
@@ -660,20 +656,30 @@ SWITCH2:  {
 	last SWITCH2; 
     }
     if ($input2->isa("Bio::Seq")  && $executable  eq 'bl2seq' ) {
-	$infilename2 = 'tmp2.fa';
-	$temp =  Bio::SeqIO->new(-file=> ">$infilename2", '-format' => 'Fasta');
+	($fh,$infilename2) = &tempfile();
+	push @{$self->{_tempfiles}}, $infilename2;
+	$temp =  Bio::SeqIO->new(-fh=> $fh, '-format' => 'Fasta');
 	$temp->write_seq($input2);
+	close $fh;
 	last SWITCH2;
     }
 # Option for using psiblast's pre-alignment "jumpstart" feature
-    elsif ($input2->isa("Bio::SimpleAlign")  && $executable  eq 'blastpgp' ) {
-	$infilename2 = 'tmp2.fa'; # a bit of a lie since it won't be a fasta file
+    elsif ($input2->isa("Bio::SimpleAlign")  && 
+	   $executable  eq 'blastpgp' ) {
+# a bit of a lie since it won't be a fasta file
+	($fh,$infilename2) = &tempfile(); 
+	push @{$self->{_tempfiles}}, $infilename2;
 
-# first we retrieve the "mask" that determines which residues should by scored according
-# to their position and which should be scored using the non-position-specific matrices
+# first we retrieve the "mask" that determines which residues should
+# by scored according to their position and which should be scored
+# using the non-position-specific matrices
+
 	my @mask = split("", shift ); #  get mask
-# theh we have to convert all the residues in every sequence to upper case at the positions
-# that we want psiblast to use position specific scoring		
+
+# theh we have to convert all the residues in every sequence to upper
+# case at the positions that we want psiblast to use position specific
+# scoring
+
 	foreach $seq ( $input2->eachSeq() ) {
 	    my @seqstringlist = split("",$seq->seq());
 	    for (my $i = 0; $i < scalar(@mask); $i++) {
@@ -684,8 +690,9 @@ SWITCH2:  {
 	    $seq->seq($newseqstring);
 	}
 #  Now we need to write out the alignment to a file in the "psi format" which psiblast is expecting
-	$temp =  Bio::AlignIO->new(-file=> ">$infilename2", '-format' => 'psi');
+	$temp =  Bio::AlignIO->new(-fh=> $fh, '-format' => 'psi');
 	$temp->write_aln($input2);
+	close $fh;
 	last SWITCH2;
     }
     $infilename2 = 0;		# Set error flag if you get here
@@ -705,10 +712,9 @@ SWITCH2:  {
 =cut
 
 sub _setparams {
-    my ($attr, $value, $self, $executable, @execparams);
+    my ($self,$executable) = @_;
+    my ($attr, $value, @execparams);
 
-    $self = shift;
-    $executable = shift;
     if ($executable eq 'blastall') {@execparams = @blastall_params; }
     if ($executable eq 'blastpgp') {@execparams = @blastpgp_params; }
     if ($executable eq 'bl2seq') {@execparams = @bl2seq_params; }
