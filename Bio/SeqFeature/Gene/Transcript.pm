@@ -304,7 +304,7 @@ sub introns {
        my $intron = Bio::SeqFeature::Gene::Intron->new(-primary=>'intron');
        $intron->upstream_Exon($exonA);
        $intron->downstream_Exon($exonB);
-       $intron->attach_seq($self->entire_seq);
+       $intron->attach_seq($self->entire_seq) if $self->entire_seq;
        unshift(@exons,$exonB);
        push @introns,$intron;
     }
