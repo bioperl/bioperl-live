@@ -182,11 +182,11 @@ sub sub_Location {
 	# Schwartzian transforms for performance boost	  
 	  @locs = map {$_->[0]}
 	  sort { $a->[1] <=> $b->[1] }
-	    map { [$_=>$_->start] } @locs;
+	    map { [$_, $_->start] } @locs;
       } else { # $order == -1
 	@locs = map {$_->[0]}
 	  sort { $b->[1] <=> $a->[1] }
-	    map { [$_=>$_->end] } @locs;
+	    map { [$_, $_->end] } @locs;
       }
     }
     # push the rest unsorted
