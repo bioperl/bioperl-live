@@ -8,7 +8,7 @@ BEGIN {
 	use lib 't';
     }
     use Test;
-    plan tests => 51;
+    plan tests => 53;
 }
 
 use Bio::SimpleAlign;
@@ -157,7 +157,9 @@ $aln = $str->next_aln();
 ok($aln);
 ok($aln->get_seq_by_pos(1)->get_nse,'PAPA_CARPA/3-342');
 ok($aln->get_seq_by_pos(2)->get_nse,'CATL_HUMAN/1-331');
-ok(sprintf("%.1f",$aln->percentage_identity),33.8);
+ok(sprintf("%.1f",$aln->overall_percentage_identity),33.8);
+ok(sprintf("%.1f",$aln->average_percentage_identity),40.1);
+
 ok($aln->get_seq_by_pos(1)->start, 3);
 ok($aln->length,364);
 
@@ -192,7 +194,8 @@ $str = new Bio::AlignIO(-verbose => 1,
 			'-file'   => Bio::Root::IO->catfile("t", "data", 'sparsealn.needle'));
 $aln = $str->next_aln();
 ok($aln);
-ok(sprintf("%.1f",$aln->percentage_identity), 2.1);
+ok(sprintf("%.1f",$aln->overall_percentage_identity), 2.1);
+ok(sprintf("%.1f",$aln->average_percentage_identity), 4.6);
 ok($aln->get_seq_by_pos(1)->length, 238);
 ok($aln->length,238);
 ok($aln->get_seq_by_pos(1)->get_nse,'KV1K_HUMAN/1-108');
