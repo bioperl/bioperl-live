@@ -19,7 +19,7 @@ sub draw_component {
   my $height    = $y2 - $y1;
   my $fraction  = $self->option('height_fraction') || 1.0;
   my $bottom    = $y2;
-  my $top       = $y2 - $fraction * $height;
+  $top          = $y2 - $fraction * $height;
   
   # draw the base
   my $fgcolor = $self->fgcolor;
