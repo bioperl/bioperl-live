@@ -50,7 +50,7 @@ my $verbose = $ENV{'BIOPERLDEBUG'} || 0;
 
 
 #First of all we need to create an flat db
-use Bio::SeqFeature::Collection;
+require Bio::SeqFeature::Collection;
 use Bio::Root::IO;
 use Bio::Location::Simple;
 use Bio::Tools::GFF;
