@@ -30,11 +30,20 @@ use strict;
 use Bio::Index::Fasta;
 use Bio::Index::SwissPfam;
 use Bio::Index::EMBL;
+my $dir;
+eval {
+    use Cwd;
+    $dir = cwd;
+};
+if( $@) {
+    # CWD not installed, revert to unix behavior, best we can do
+    $dir = `pwd`;
+}
 
 $loaded = 1;
 print "ok 1\n";    # 1st test passes.
 
-chomp( my $dir = `pwd` );
+chomp( $dir );
 {
     my $ind = Bio::Index::Fasta->new(-filename => 'Wibbl', -write_flag => 1, -verbose => 0);
     $ind->make_index("$dir/t/multifa.seq");
