@@ -340,12 +340,16 @@ sub remove_features{
        next if ! ref($f) || ! $f->isa('Bio::RangeI');
        my $bin = bin($f->start,$f->end,$self->min_bin);
        my @vals = $self->{'_btree'}->get_dup($bin);
-       if( @vals && $self->{'_btree'}->del($bin) == 0 ) {
-	   $countprocessed++;
-	   foreach my $v ( @vals ) { 
-	       # eventually this array will become sparse...
+       my $vcount = scalar @vals;
+       foreach my $v ( @vals )  {	   
+	   # eventually this array will become sparse...	   
+	   if( $self->{'_features'}->[$v] == $f ) {
 	       $self->{'_features'}->[$v] = undef;
+	       $vcount--;
 	   }
+       } 
+       if( $vcount == 0 ) { 
+	   $self->{'_btree'}->del($bin);
        }
    }
 
@@ -419,7 +423,7 @@ sub max_bin {
 
 sub feature_count{
    my ($self) = @_;
-   return scalar @{$self->{'_features'}};
+   return scalar ( grep {defined $_} @{ $self->{'_features'} });
 }
 
 sub _compare{ $_[0] <=> $_[1]}
