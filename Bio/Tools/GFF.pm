@@ -156,18 +156,41 @@ sub next_feature {
     return undef unless $gff_string;
 
     my $feat = Bio::SeqFeature::Generic->new();
-    
-    if($self->gff_version() == 1)  {
-	$self->_from_gff_string($feat, $gff_string);
-    } else {
-	$self->_from_gff2_string($feat, $gff_string);
-    }
+    $self->from_gff_string($feat, $gff_string);
+
     return $feat;
 }
 
-=head2 _from_gff_string
+=head2 from_gff_string
 
- Title   : _from_gff_string
+ Title   : from_gff_string
+ Usage   : $gff->from_gff_string($feature, $gff_string);
+ Function: Sets properties of a SeqFeatureI object from a GFF-formatted
+           string. Interpretation of the string depends on the version
+           that has been specified at initialization.
+
+           This method is used by next_feature(). It actually dispatches to
+           one of the version-specific (private) methods.
+ Example :
+ Returns : void
+ Args    : A Bio::SeqFeatureI implementing object to be initialized
+           The GFF-formatted string to initialize it from
+
+=cut
+
+sub from_gff_string {
+    my ($self, $feat, $gff_string) = @_;
+
+    if($self->gff_version() == 1)  {
+	$self->_from_gff1_string($feat, $gff_string);
+    } else {
+	$self->_from_gff2_string($feat, $gff_string);
+    }
+}
+
+=head2 _from_gff1_string
+
+ Title   : _from_gff1_string
  Usage   :
  Function:
  Example :
@@ -177,7 +200,7 @@ sub next_feature {
 
 =cut
 
-sub _from_gff_string {
+sub _from_gff1_string {
    my ($gff, $feat, $string) = @_;
 
    my ($seqname, $source, $primary, $start, $end, $score, $strand, $frame, @group) = split(/\s+/, $string);
@@ -285,26 +308,48 @@ sub _from_gff2_string {
 =cut
 
 sub write_feature {
-  my ($self, $feature) = @_;
-  if($self->gff_version() == 1) {
-    $self->_print($self->_gff_string($feature)."\n");
-  } else {
-    $self->_print($self->_gff2_string($feature)."\n");
-  }
+    my ($self, $feature) = @_;
+    
+    $self->_print($self->gff_string($feature)."\n");
 }
 
-=head2 _gff_string
+=head2 gff_string
 
- Title   : _gff_string
- Usage   : $gffstr = $gffio->_gff_string
- Function: 
+ Title   : gff_string
+ Usage   : $gffstr = $gffio->gff_string($feature);
+ Function: Obtain the GFF-formatted representation of a SeqFeatureI object.
+           The formatting depends on the version specified at initialization.
+
+           This method is used by write_feature(). It actually dispatches to
+           one of the version-specific (private) methods.
  Example :
  Returns : A GFF-formatted string representation of the SeqFeature
  Args    : A Bio::SeqFeatureI implementing object to be GFF-stringified
 
 =cut
 
-sub _gff_string{
+sub gff_string{
+    my ($self, $feature) = @_;
+
+    if($self->gff_version() == 1) {
+	return $self->_gff1_string($feature);
+    } else {
+	return $self->_gff2_string($feature);
+    }
+}
+
+=head2 _gff1_string
+
+ Title   : _gff1_string
+ Usage   : $gffstr = $gffio->_gff1_string
+ Function: 
+ Example :
+ Returns : A GFF1-formatted string representation of the SeqFeature
+ Args    : A Bio::SeqFeatureI implementing object to be GFF-stringified
+
+=cut
+
+sub _gff1_string{
    my ($gff, $feat) = @_;
    my ($str,$score,$frame,$name,$strand);
 
