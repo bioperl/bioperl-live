@@ -123,8 +123,7 @@ BEGIN {
 
 @ISA = qw(Exporter);
 
-@EXPORT_OK = qw(read_sequence read_all_sequences write_sequence 
-		new_sequence get_sequence);
+@EXPORT_OK = qw(read_sequence read_all_sequences write_sequence new_sequence get_sequence translate translate_as_string);
 
 
 =head2 read_sequence
@@ -381,6 +380,70 @@ sub get_sequence{
    }
 
    return $seq;
+}
+
+
+=head2 translate
+
+ Title   : translate
+ Usage   : $seqobj = translate($seq_or_string_scalar)
+
+ Function: translates a DNA sequence object OR just a plain
+           string of DNA to amino acids
+ Returns : A Bio::Seq object
+
+ Args    : Either a sequence object or a string of 
+           just DNA sequence characters
+=cut
+
+sub translate {
+   my ($scalar) = shift;
+   
+   my $obj;
+
+   if( ref $scalar ) {
+     if( !$scalar->isa("Bio::PrimarySeqI") ) {
+        confess("Expecting a sequence object not a $scalar");
+     } else {
+        $obj= $scalar;
+
+     }
+
+   } else {
+
+     # check this looks vaguely like DNA
+     my $n = ( $scalar =~ tr/ATGCNatgc/ATGCNatgcn/ );
+
+     if( $n < length($scalar) * 0.85 ) {
+       confess("Sequence [$scalar] is less than 85% ATGCN, which doesn't look very DNA to me");
+     }
+
+     $obj = Bio::PrimarySeq->new(-id => 'internalbioperlseq',-seq => $scalar);
+   }
+
+   return $obj->translate();
+}
+
+
+=head2 translate_as_string
+
+ Title   : translate_as_string
+ Usage   : $seqstring = translate_as_string($seq_or_string_scalar)
+
+ Function: translates a DNA sequence object OR just a plain
+           string of DNA to amino acids
+ Returns : A stirng of just amino acids
+
+ Args    : Either a sequence object or a string of 
+           just DNA sequence characters
+=cut
+
+sub translate_as_string {
+   my ($scalar) = shift;
+   
+   my $obj = Bio::Perl::translate($scalar);
+
+   return $obj->seq;
 }
 
 1;

@@ -731,7 +731,7 @@ sub _guess_alphabet {
    }
 
    $self->alphabet($type);
-
+   return $type;
 }
 
 1;

@@ -23,7 +23,7 @@ BEGIN {
     }
     use Test;
 
-    $NUMTESTS = 9;
+    $NUMTESTS = 13;
     $BIODBTESTS = 4;
     plan tests => $NUMTESTS;
     eval { require IO::String };
@@ -45,7 +45,8 @@ use Bio::Perl qw( read_sequence
 		  read_all_sequences 
 		  write_sequence 
 		  new_sequence 
-		  get_sequence );
+		  get_sequence translate     
+                  translate_as_string);
 
 ## End of black magic.
 ##
@@ -114,4 +115,15 @@ ok (@seq_object_array = read_all_sequences($filename,'fasta'), 2);
 $filename = 'Perltmp';
 ok write_sequence(">$filename",'genbank',$seq_object);
 ok ($seq_object = new_sequence("ATTGGTTTGGGGACCCAATTTGTGTGTTATATGTA","myname","AL12232"));
+
+my $trans;
+
+ok ($trans = translate($seq_object));
+
+ok ($trans = translate("ATTGGTTTGGGGACCCAATTTGTGTGTTATATGTA"));
+
+ok ($trans = translate_as_string($seq_object));
+
+ok ($trans = translate_as_string("ATTGGTTTGGGGACCCAATTTGTGTGTTATATGTA"));
+
 
