@@ -59,6 +59,8 @@ e.g. -d instead of --database.
    --fasta   <path>      Fasta file or directory containing fasta files for the DNA
    --create              Force creation and initialization of database
    --maxbin              Set the value of the maximum bin size
+   --group               A list of one or more tag names (comma or space separated)
+                          to be used for grouping in the 9th column.
    --upgrade             Upgrade existing database to current schema
 
 =head1 SEE ALSO
@@ -78,7 +80,7 @@ disclaimers of warranty.
 =cut
 
 
-my ($DSN,$ADAPTOR,$CREATE,$USER,$PASSWORD,$FASTA,$UPGRADE,$MAX_BIN);
+my ($DSN,$ADAPTOR,$CREATE,$USER,$PASSWORD,$FASTA,$UPGRADE,$MAX_BIN,$GROUP_TAG);
 
 GetOptions ('dsn:s'       => \$DSN,
 	    'adaptor:s'   => \$ADAPTOR,
@@ -87,17 +89,19 @@ GetOptions ('dsn:s'       => \$DSN,
             'fasta:s'     => \$FASTA,
             'upgrade'     => \$UPGRADE,
             'maxbin:s'    => \$MAX_BIN,
+	    'group:s'     => \$GROUP_TAG,
 	    create        => \$CREATE) or (system('pod2text',$0), exit -1);
 
 # some local defaults
 $DSN     ||= 'dbi:mysql:test';
 $ADAPTOR ||= 'dbi::mysqlopt';
 
-my @auth;
-push @auth,(-user=>$USER)     if defined $USER;
-push @auth,(-pass=>$PASSWORD) if defined $PASSWORD;
+my @args;
+push @args,(-user=>$USER)     if defined $USER;
+push @args,(-pass=>$PASSWORD) if defined $PASSWORD;
+push @args,(-preferred_groups=>[split(/[,\s+]+/,$GROUP_TAG)]) if defined $GROUP_TAG;
 
-my $db = Bio::DB::GFF->new(-adaptor=>$ADAPTOR,-dsn => $DSN,@auth)
+my $db = Bio::DB::GFF->new(-adaptor=>$ADAPTOR,-dsn => $DSN,@args)
   or die "Can't open database: ",Bio::DB::GFF->error,"\n";
 
 if ($CREATE) {

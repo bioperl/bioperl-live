@@ -305,6 +305,49 @@ This is sufficient to use Chr1 as a reference point.
 The ##sequence-region line is frequently found in the GFF files
 distributed by annotation groups.
 
+=head2 Specifying the group tag
+
+A frequent problem with GFF files is the problem distinguishing
+which of the several tag/value pairs in the 9th column is the grouping
+pair.  Ordinarily the first tag will be used for grouping, but some
+GFF manipulating tools do not preserve the order of attributes.  To
+eliminate this ambiguity, this module provides two ways of explicitly
+specifying which tag to group on:
+
+=over 4
+
+=item Using -preferred_groups
+
+When you create a Bio::DB::GFF object, pass it a -preferred_groups=>
+argument.  This specifies a tag that will be used for grouping.  You
+can pass an array reference to specify a list of such tags.
+
+=item In the GFF header
+
+The GFF file itself can specify which tags are to be used for
+grouping.  Insert a comment like the following:
+
+ ##group-tags Accession Locus
+
+This says to use the Accession tag for grouping.  If it is not
+available, use the Locus tag.  If neither tag is available, use the
+first pair to appear.
+
+=back
+
+These options only apply when B<loading> a GFF file into the database,
+and have no effect on existing databases.
+
+The group-tags comment in the GFF file will *override* the preferred
+groups set when you create the Bio::DB::GFF object.
+
+For backward compatibility, the tags Sequence and Transcript are
+always treated as grouping tags unless preferred_tags are specified.
+The "Target" tag is always used for grouping regardless of the
+preferred_groups() setting, and the tags "tstart", "tend" and "Note"
+cannot be used for grouping.  These are historical artefacts coming
+from various interpretations of GFF2, and cannot be changed.
+
 =head2 Sequence alignments
 
 There are two cases in which an annotation indicates the relationship
@@ -2179,7 +2222,8 @@ sub do_load_gff {
 
   while (<$io_handle>) {
     chomp;
-    $self->{gff3_flag}++ if /^\#\#gff-version\s+3/;
+    $self->{gff3_flag}++                      if /^\#\#\s*gff-version\s+3/;
+    $self->preferred_groups(split(/\s+/,$1))  if /^\#\#\s*group-tags?\s+(.+)/;
     if (/^>(\S+)/) {  # uh oh, sequence coming
       $fasta_sequence_id = $1;
       last;
@@ -3295,12 +3339,13 @@ sub _split_gff2_group {
   }
 
   # group assignment
+
   if ( @attributes && !($gclass && $gname) ) {
     my @preferred = $self->preferred_groups if ref($self);
- 
+
     # give acedb-style GFF first crack at group assignment
     unshift @preferred, qw/Sequence Transcript/;
- 
+
     # Look for a preferred group (in order)
     unless ($gclass && $gname) {
       for my $pgrp ( @preferred ) {
@@ -3311,15 +3356,20 @@ sub _split_gff2_group {
 	  last;
 	}
       }
+
+      # Backward compatibility for acedb-style GFF
+      elsif ( $k =~ /Sequence|Transcript/ && !$gclass) {
+        ($gclass, $gname) = ($k, $v);
+      }
     }
- 
+
     # Otherwise, use the first attribute
     unless ( $gclass && $gname ) {
       my $grp = shift @attributes;
       ($gclass, $gname) = @$grp;
     }
   }
- 
+
   push @attributes, @notes;
 
   return ($gclass,$gname,$tstart,$tstop,\@attributes);

@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-# $Id: fast_load_gff.PLS,v 1.11 2003-11-10 17:07:48 scain Exp $
+# $Id: fast_load_gff.PLS,v 1.12 2004-03-11 19:47:51 lstein Exp $
 
 use strict;
 # use lib './blib/lib';
@@ -84,6 +84,8 @@ e.g. -d instead of --database.
    --fasta               File or directory containing fasta files to load
    --password            Password to use for authentication
    --maxbin              Set the value of the maximum bin size
+   --group               A list of one or more tag names (comma or space separated)
+                          to be used for grouping in the 9th column.
 
 =head1 SEE ALSO
 
@@ -115,7 +117,7 @@ sub insert_sequence {
 
 package main;
 
-my ($DSN,$CREATE,$USER,$PASSWORD,$FASTA,$FAILED,$LOCAL,%PID,$MAX_BIN);
+my ($DSN,$CREATE,$USER,$PASSWORD,$FASTA,$FAILED,$LOCAL,%PID,$MAX_BIN,$GROUP_TAG);
 
 if ($DO_FAST) {
   $SIG{CHLD} = sub {
@@ -134,22 +136,24 @@ GetOptions ('database:s'    => \$DSN,
             'local'         => \$LOCAL,
 	    'password:s'    => \$PASSWORD,
 	    'fasta:s'       => \$FASTA,
+	    'group:s'       => \$GROUP_TAG,
             'maxbin:s'      => \$MAX_BIN
 	   ) or (system('pod2text',$0), exit -1);
 
 $DSN ||= 'test';
 
-my (@auth,$AUTH);
+my (@args,$AUTH);
 if (defined $USER) {
-  push @auth,(-user=>$USER);
+  push @args,(-user=>$USER);
   $AUTH .= " -u$USER";
 }
 if (defined $PASSWORD) {
-  push @auth,(-pass=>$PASSWORD);
+  push @args,(-pass=>$PASSWORD);
   $AUTH .= " -p$PASSWORD";
 }
+push @args,(-preferred_groups=>[split(/[,\s+]+/,$GROUP_TAG)]) if defined $GROUP_TAG;
 
-my $db = Bio::DB::GFF->new(-adaptor=>'faux',-dsn => $DSN,@auth)
+my $db = Bio::DB::GFF->new(-adaptor=>'faux',-dsn => $DSN,@args)
   or die "Can't open database: ",Bio::DB::GFF->error,"\n";
 
 if ($CREATE) {
@@ -235,7 +239,12 @@ while (<>) {
       last;
     }
 
-  elsif (/^\#\#gff-version\s+3/) {
+  elsif (/^\#\#\s*group-tags\s+(.+)/) {
+    $db->preferred_groups(split(/\s+/,$1));
+    next;
+  }
+
+  elsif (/^\#\#\s*gff-version\s+3/) {
     $gff3++;
     next;
   }
@@ -260,7 +269,7 @@ while (<>) {
   $strand = '\N' if $strand eq '.';
   $phase  = '\N' if $phase  eq '.';
 
-  my ($group_class,$group_name,$target_start,$target_stop,$attributes) = Bio::DB::GFF->split_group($group,$gff3);
+  my ($group_class,$group_name,$target_start,$target_stop,$attributes) = $db->split_group($group,$gff3);
   $group_class  ||= '\N';
   $group_name   ||= '\N';
   $target_start ||= '\N';
