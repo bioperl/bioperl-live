@@ -41,6 +41,25 @@ ok(1);
 #     returns always a match or undef
 #     -strict
 #
+
+
+# the  reverse strand pair
+my $inr = new Bio::Location::Simple(-start=>2, -end=>5, -strand=>1);
+my $outr = new Bio::Location::Simple(-start=>10, -end=>13, -strand=>-1);
+ok my $pairr = Bio::Coordinate::ExtrapolatingPair->
+    new(-in => $inr,
+	-out => $outr
+       );
+
+my $posr = Bio::Location::Simple->new 
+    (-start => 3, -end => 4, -strand=> 1 );
+my $resr = $pairr->map($posr);
+ok $resr->start, 11;
+ok $resr->end, 12;
+ok $resr->strand, -1;
+
+
+
 # propepide
 my $match1 = Bio::Location::Simple->new 
     (-seq_id => 'propeptide', -start => 21, -end => 40, -strand=>1 );

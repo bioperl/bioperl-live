@@ -144,8 +144,9 @@ sub map {
 
    my ($offset, $start, $end);
    if ($self->strand == -1) {
-       $start = -1 * ($value->end - $self->in->end  - 1);
-       $end = -1* ($value->start - $self->in->end  - 1);
+       $offset = $self->in->end + $self->out->start;
+       $start = $offset - $value->end;
+       $end = $offset - $value->start ;
    } else { # undef, 0 or 1
        $offset = $self->in->start - $self->out->start;
        $start = $value->start - $offset;
