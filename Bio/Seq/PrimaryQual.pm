@@ -120,10 +120,8 @@ use Bio::Seq::QualI;
 sub new {
     my ($class, @args) = @_;
     my $self = $class->SUPER::new(@args);
-     print("Here are the args: @args \n");
+     $self->debug("Here are the args: @args \n");
         # default: turn ON the warnings (duh)
-	$self->{supress_warnings} = 1;
-	my $quiet = 1;
     my($qual,$id,$acc,$pid,$desc,$given_id) =
         $self->_rearrange([qw(QUAL
                               DISPLAY_ID
@@ -131,36 +129,24 @@ sub new {
                               PRIMARY_ID
                               DESC
                               ID
-				QUIET
                               )],
                           @args);
-	if (defined($quiet)) {
-		 $self->quiet($quiet);
-	}
-
     if( defined $id && defined $given_id ) {
         if( $id ne $given_id ) {
             $self->throw("Provided both id and display_id constructor functions. [$id] [$given_id]");   
         }
     }
     if( defined $given_id ) { $id = $given_id; }
-
+    
     # if alphabet is provided we set it first, so that it won't be guessed
     # when the sequence is set
-
-	# what is the best way to deal with alphabet?
-	# IGNORE it. Bwahahahaha.
-	# $alphabet && $self->alphabet($alphabet);
-
-	    # note: the sequence string may be empty
-
-	if ($qual) {
-	    $self->qual($qual);
-	}
-	else {
-		$self->qual([]);
-	}
-	# if defined($qual);
+    
+    # what is the best way to deal with alphabet?
+    # IGNORE it. Bwahahahaha.
+    # $alphabet && $self->alphabet($alphabet);
+    
+    # note: the sequence string may be empty
+    $self->qual($qual || []);    
     $id      && $self->display_id($id);
     $acc     && $self->accession_number($acc);
     $pid     && $self->primary_id($pid);
@@ -168,8 +154,6 @@ sub new {
 
     return $self;
 }
-
-
 
 sub alphabet {
 	return undef;
@@ -180,38 +164,26 @@ sub alphabet {
  Title   : qual()
  Usage   : @quality_values  = @{$obj->qual()};
  Function: Returns the quality as a reference to an array containing the
-        quality values. The individual elements of the quality array are
-        not validated and can be any numeric value.
+           quality values. The individual elements of the quality array are
+           not validated and can be any numeric value.
  Returns : A reference to an array.
 
 =cut
 
 sub qual {
     my ($self,$value) = @_;
-    if( defined $value) {
-	if (!$value) {
-	unless ($self->{supress_warnings} == 1) {
-	    $self->warn("Setting quality to an empty value (NOT $value).");
-	}
-	    my @foo = [];
-	    $self->{'qual'} = \@foo;
-	}
-	elsif(! $self->validate_qual($value)) {
-	    $self->throw("Attempting to set the quality to [$value] which does not look healthy");
-	}
-	elsif (ref($value) eq "ARRAY") {
-	    # if the user passed in a reference to an array
-	    $self->{'qual'} = $value;
-	}
-	else {
-	    my @quality_array = split/\s+/,$value;
-	    $self->{'qual'} = \@quality_array;
-	}
-	# if(($is_changed_qual && (CORE::length($value) > 0)) ||
-	# (! defined($obj->alphabet()))) {
-	#	$obj->_guess_type();
-	# }
+    
+    if( ! defined $value || length($value) == 0 ) { 
+	$self->{'qual'} ||= [];
+    } elsif( ref($value) =~ /ARRAY/i ) {
+	# if the user passed in a reference to an array
+	$self->{'qual'} = $value;
+    } elsif(! $self->validate_qual($value)){
+	$self->throw("Attempting to set the quality to [$value] which does not look healthy");	    
+    } else {
+	$self->{'qual'} = [split(/\s+/,$value)];
     }
+    
     return $self->{'qual'};
 }
 
@@ -230,18 +202,16 @@ sub qual {
 =cut
 
 sub validate_qual {
-	# how do I validate quality values?
-	# \d+\s+\d+..., I suppose
-   my ($self,$qualstr) = @_;
-	# why the CORE??
-	if (CORE::length($qualstr) == 0) {
-		return 0;
-	}
-   if((CORE::length($qualstr) > 0) && $qualstr =~ /\d/) {
-	# print("The length of this thing is greater then zero and contains at least one digit <boggle>!\n");
-       return 1;
-   }
-   return 0;
+    # how do I validate quality values?
+    # \d+\s+\d+..., I suppose
+    my ($self,$qualstr) = @_;
+    # why the CORE?? -- (Because Bio::PrimarySeqI namespace has a 
+    #                    length method, you have to qualify 
+    #                    which length to use)
+    return 0 if (!defined $qualstr || CORE::length($qualstr) <= 0);   
+    return 1 if( $qualstr =~ /\d/);
+    
+    return 0;
 }
 
 =head2 subqual($start,$end)
@@ -418,13 +388,11 @@ sub id {
 =cut
 
 sub length {
-	my $self = shift;
-	if (ref($self->{qual}) ne "ARRAY") {
-		unless ($self->{supress_warnings} == 1) {
-			$self->warn("{qual} is not an array here. Why? It appears to be ".ref($self->{qual})."(".$self->{qual}."). Good thing this can _never_ happen.");
-		}
-	}
-	return scalar(@{$self->{qual}});
+    my $self = shift;
+    if (ref($self->{qual}) ne "ARRAY") {
+	$self->warn("{qual} is not an array here. Why? It appears to be ".ref($self->{qual})."(".$self->{qual}."). Good thing this can _never_ happen.");
+    }
+    return scalar(@{$self->{qual}});
 }
 
 =head2 qualat($position)
@@ -441,14 +409,14 @@ sub length {
 =cut
 
 sub qualat {
-        my ($self,$val) = @_;
-        my @qualat = @{$self->subqual($val,$val)};
-        if (scalar(@qualat) == 1) {
-                return $qualat[0];
-        }
-        else {
-                $self->throw("AAAH! qualat provided more then one quality.");
-        }
+    my ($self,$val) = @_;
+    my @qualat = @{$self->subqual($val,$val)};
+    if (scalar(@qualat) == 1) {
+	return $qualat[0];
+    }
+    else {
+	$self->throw("AAAH! qualat provided more then one quality.");
+    }
 } 
 
 =head2 to_string()
@@ -470,50 +438,33 @@ sub qualat {
 =cut
 
 sub to_string {
-	my ($self,$out,$result) = shift;
-	$out = "qual: ".join(',',@{$self->qual()});
-	foreach (qw(display_id accession_number primary_id desc id)) {
-		$result = $self->$_();
-		if (!$result) { $result = "<unset>"; }
-		$out .= "$_: $result\n";
-	}
-	return $out;
+    my ($self,$out,$result) = shift;
+    $out = "qual: ".join(',',@{$self->qual()});
+    foreach (qw(display_id accession_number primary_id desc id)) {
+	$result = $self->$_();
+	if (!$result) { $result = "<unset>"; }
+	$out .= "$_: $result\n";
+    }
+    return $out;
 }
 
 
 sub to_string_automatic {
-        my ($self,$sub_result,$out) = shift;
-	foreach (sort keys %$self) {
-		print("Working on $_\n");
-		eval { $self->$_(); };
-		if ($@) { $sub_result = ref($_); }
-		elsif (!($sub_result = $self->$_())) {
-			$sub_result = "<unset>";
-		}
-		if (ref($sub_result) eq "ARRAY") {
-			print("This thing ($_) is an array!\n");
-			$sub_result = join(',',@$sub_result);	
-		}
-		$out .= "$_: ".$sub_result."\n";
+    my ($self,$sub_result,$out) = shift;
+    foreach (sort keys %$self) {
+	print("Working on $_\n");
+	eval { $self->$_(); };
+	if ($@) { $sub_result = ref($_); }
+	elsif (!($sub_result = $self->$_())) {
+	    $sub_result = "<unset>";
 	}
-	return $out;
+	if (ref($sub_result) eq "ARRAY") {
+	    print("This thing ($_) is an array!\n");
+	    $sub_result = join(',',@$sub_result);	
+	}
+	$out .= "$_: ".$sub_result."\n";
+    }
+    return $out;
 } 
-
-=head2 quiet($mode)
-
- Title   : quiet($mode)
- Usage   : $obj->quiet(1);
- Function: Shuit off warnings. Used pretty much exclusively so that make
-        test doesn't spill out warnings. I wouldn't advise you turn these off
-        because they are there for your own good.
- Returns : Nothing
- Args    : "1" for supression of warnings, "0" for normal mode.
-
-=cut
-
-sub quiet {
-        my ($self,$mode) = @_;
-        $self->{supress_warnings} = $mode;
-}
 
 1;
