@@ -126,12 +126,11 @@ sub new {
 
 sub feature1 {
     my ($self,$arg) = @_;    
-    if ( defined($arg) ) {
+    if ( defined($arg) || !defined $self->{'feature1'} ) {
+	$arg = new Bio::SeqFeature::Generic unless( defined $arg);
 	$self->throw("Argument [$arg] must be a Bio::SeqFeatureI") 
 	    unless (ref($arg) && $arg->isa("Bio::SeqFeatureI"));
 	$self->{'feature1'} = $arg;
-    } elsif( ! defined $self->{'feature1'} ) {
-	$self->{'feature1'} = new Bio::SeqFeature::Generic;
     }
     return $self->{'feature1'};
 }
@@ -151,14 +150,12 @@ sub feature1 {
 sub feature2 {
     my ($self,$arg) = @_;
 
-    if ( defined($arg) ) {
+    if ( defined($arg) || ! defined $self->{'feature2'}) {
+	$arg = new Bio::SeqFeature::Generic unless( defined $arg);
 	$self->throw("Argument [$arg] must be a Bio::SeqFeatureI") 
 	    unless (ref($arg) && $arg->isa("Bio::SeqFeatureI"));
 	$self->{'feature2'} = $arg;
-    } elsif( ! defined $self->{'feature2'} ) {
-	$self->{'feature2'} = new Bio::SeqFeature::Generic;
     }
-
     return $self->{'feature2'};
 }
 
@@ -174,14 +171,8 @@ sub feature2 {
 =cut
 
 sub start {
-    my ($self,$value) = @_;
-    print $self->{'_gsf_start'}, " is stored start\n" 
-	if( $self->{'_gsf_start'}); 
-    if (defined($value)) {
-	return $self->feature1->start($value);
-    } else {
-	return $self->feature1->start;
-    }
+    my ($self,$value) = @_;    
+    return $self->feature1->start($value);
 }
 
 =head2 end
@@ -197,13 +188,8 @@ sub start {
 =cut
 
 sub end{
-    my ($self,$value) = @_;
-
-    if (defined($value)) {
-	return $self->feature1->end($value);
-    } else {
-	return $self->feature1->end;
-    }
+    my ($self,$value) = @_;    
+    return $self->feature1->end($value);    
 }
 
 =head2 strand
@@ -220,12 +206,7 @@ sub end{
 
 sub strand{
     my ($self,$arg) = @_;
-
-    if (defined($arg)) {
-	return $self->feature1->strand($arg);
-    } else {
-	return $self->feature1->strand;
-    }
+    return $self->feature1->strand($arg);    
 }
 
 =head2 score
@@ -242,12 +223,7 @@ sub strand{
 
 sub score {
     my ($self,$arg) = @_;
-  
-    if (defined($arg)) {
-	return $self->feature1->score($arg);
-    } else {
-	return $self->feature1->score;
-    }
+    return $self->feature1->score($arg);    
 }
 
 =head2 frame
@@ -264,12 +240,7 @@ sub score {
 
 sub frame {
     my ($self,$arg) = @_;
-    
-    if (defined($arg)) {
-	return $self->feature1->frame($arg);
-    } else {
-	return $self->feature1->frame;
-    }
+    return $self->feature1->frame($arg);    
 }
 
 =head2 primary_tag
@@ -285,11 +256,7 @@ sub frame {
 
 sub primary_tag{
     my ($self,$arg) = @_;
-    if (defined($arg)) {
-	return $self->feature1->primary_tag($arg);
-    } else {
-	return $self->feature1->primary_tag;
-    }
+    return $self->feature1->primary_tag($arg);    
 }
 
 =head2 source_tag
@@ -307,12 +274,7 @@ sub primary_tag{
 
 sub source_tag{
     my ($self,$arg) = @_;
-
-    if (defined($arg)) {
-	return $self->feature1->source_tag($arg);
-    } else {
-	return $self->feature1->source_tag;
-    }
+    return $self->feature1->source_tag($arg);    
 }
 
 =head2 seqname
@@ -335,12 +297,7 @@ sub source_tag{
 
 sub seqname{
     my ($self,$arg) = @_;
-    
-    if (defined($arg)) {
-	return $self->feature1->seqname($arg);
-    } else {
-	return $self->feature1->seqname;
-    }
+    return $self->feature1->seqname($arg);    
 }
 
 =head2 hseqname
@@ -357,12 +314,7 @@ sub seqname{
 
 sub hseqname {
     my ($self,$arg) = @_;
-
-    if (defined($arg)) {
-	$self->feature2->seqname($arg);
-    }
-
-    return $self->feature2->seqname;
+    return $self->feature2->seqname($arg);
 }
 
 
@@ -379,13 +331,7 @@ sub hseqname {
 
 sub hstart {
     my ($self,$value) = @_;
-    
-    if (defined($value)) {
-	return $self->feature2->start($value);
-    } else {
-	return $self->feature2->start;
-    }
-
+    return $self->feature2->start($value);    
 }
 
 =head2 hend
@@ -402,14 +348,8 @@ sub hstart {
 
 sub hend{
     my ($self,$value) = @_;
-
-    if (defined($value)) {
-	return $self->feature2->end($value);
-    } else {
-	return $self->feature2->end;
-    }
+    return $self->feature2->end($value);    
 }
-
 
 
 =head2 hstrand
@@ -426,12 +366,7 @@ sub hend{
 
 sub hstrand{
     my ($self,$arg) = @_;
-
-    if (defined($arg)) {
-	return $self->feature2->strand($arg);
-    } else {
-	return $self->feature2->strand;
-    }
+    return $self->feature2->strand($arg);
 }
 
 =head2 hscore
@@ -448,12 +383,7 @@ sub hstrand{
 
 sub hscore {
     my ($self,$arg) = @_;
-  
-    if (defined($arg)) {
-	return $self->feature2->score($arg);
-    } else {
-	return $self->feature2->score;
-    }
+    return $self->feature2->score($arg);    
 }
 
 =head2 hframe
@@ -470,12 +400,7 @@ sub hscore {
 
 sub hframe {
     my ($self,$arg) = @_;
-    
-    if (defined($arg)) {
-	return $self->feature2->frame($arg);
-    } else { 
-	return $self->feature2->frame;
-    }
+    return $self->feature2->frame($arg);    
 }
 
 =head2 hprimary_tag
@@ -491,12 +416,7 @@ sub hframe {
 
 sub hprimary_tag{
     my ($self,$arg) = @_;
-
-    if (defined($arg)) {
-	return $self->feature2->primary_tag($arg);
-    } else {
-	return $self->feature2->primary_tag;
-    }
+    return $self->feature2->primary_tag($arg);    
 }
 
 =head2 hsource_tag
@@ -514,12 +434,7 @@ sub hprimary_tag{
 
 sub hsource_tag{
     my ($self,$arg) = @_;
-
-    if (defined($arg)) {
-	return $self->feature2->source_tag($arg);
-    } else {
-	return $self->feature2->source_tag;
-    }
+    return $self->feature2->source_tag($arg);
 }
 
 =head2 invert
@@ -540,7 +455,7 @@ sub invert {
     
     $self->feature1($self->feature2);
     $self->feature2($tmp);
-
+    return undef;
 }
 
 1;

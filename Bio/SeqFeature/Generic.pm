@@ -119,7 +119,7 @@ use strict;
 use Bio::Root::RootI;
 use Bio::SeqFeatureI;
 use Bio::Annotation;
-
+use Bio::Location::Simple;
 
 @ISA = qw(Bio::Root::RootI Bio::SeqFeatureI);
 
@@ -130,9 +130,8 @@ sub new {
     $self->{'_gsf_tag_hash'} = {};
     $self->{'_gsf_sub_array'} = [];
     $self->{'_parse_h'} = {};
-    
     my ($start, $end, $strand, $primary, $source, $frame, 
-	$score, $tag, $gff_string, $gff2_string, $seqname, $annot) =
+	$score, $tag, $gff_string, $gff2_string, $seqname, $annot, $location) =
 	    $self->_rearrange([qw(START
 				  END
 				  STRAND
@@ -145,14 +144,16 @@ sub new {
 				  GFF2_STRING
 				  SEQNAME
 				  ANNOTATION
+				  LOCATION
 				  )], @args);
+    $location    && $self->location($location);
     $gff2_string && $self->_from_gff2_string($gff2_string);
     $gff_string  && $self->_from_gff_string($gff_string);
-    $start       && $self->start($start);    
-    $end         && $self->end($end);
-    $strand      && $self->strand($strand);
     $primary     && $self->primary_tag($primary);
     $source      && $self->source_tag($source);
+    $start       && $self->start($start);
+    $end         && $self->end($end);
+    $strand      && $self->strand($strand);
     $frame       && $self->frame($frame);
     $score       && $self->score($score);
     $seqname     && $self->seqname($seqname);
@@ -163,6 +164,28 @@ sub new {
 	}
     };
     return $self;
+}
+
+=head2 location
+
+ Title   : location
+ Usage   : my $location = $seqfeature->location()
+ Function: returns a location object suitable for identifying location 
+	   of feature on sequence or parent feature  
+ Returns : Bio::LocationI object
+ Args    : none
+
+
+=cut
+
+sub location {
+   my ($self,$value) = @_;  
+   # guarantees a real location object is returned every time
+   if( defined $value || !defined $self->{'_location'} ) {       
+       $value = new Bio::Location::Simple() unless defined $value;
+       $self->{'_location'} = $value;
+   }
+   return $self->{'_location'};
 }
 
 
@@ -180,14 +203,7 @@ sub new {
 
 sub start {
    my ($self,$value) = @_;
-   if ( defined $value ) {
-       if ( $value !~ /^\-?\d+/ ) {
-	   $self->throw("$value is not a valid start");
-       }
-       $self->{'_gsf_start'} = $value
-   }
-
-   return $self->{'_gsf_start'};
+   return $self->location->start($value);
 }
 
 =head2 end
@@ -204,15 +220,7 @@ sub start {
 
 sub end {
    my ($self,$value) = @_;
-
-   if ( defined $value ) {       
-       if ( $value !~ /^\-?\d+/ ) {
-	   $self->throw("$value is not a valid end");
-       }
-       $self->{'_gsf_end'} = $value
-   }
-
-   return $self->{'_gsf_end'};
+   return $self->location->end($value);
 }
 
 =head2 length
@@ -229,9 +237,8 @@ sub end {
 
 sub length {
    my ($self) = @_;
-   return $self->end() - $self->start() +1;
+   return $self->end - $self->start() + 1;
 }
-
 
 =head2 strand
 
@@ -246,22 +253,8 @@ sub length {
 =cut
 
 sub strand {
-   my $self = shift;
-
-   if ( @_ ) {
-       my $value = shift;
-       $value = 0 unless defined($value);
-       if ( $value eq '+' ) { $value = 1; }
-       if ( $value eq '-' ) { $value = -1; }
-       if ( $value eq '.' ) { $value = 0; }
-
-       if ( $value != -1 && $value != 1 && $value != 0 ) {
-	   $self->throw("$value is not a valid strand info");
-       }
-       $self->{'_gsf_strand'} = $value
-   }
-
-   return $self->{'_gsf_strand'};
+   my ($self,$value) = @_;
+   return $self->location->strand($value);
 }
 
 =head2 score
@@ -302,10 +295,9 @@ sub score {
 =cut
 
 sub frame {
-  my $self = shift;
+  my ($self,$value) = @_;
 
-  if ( @_ ) {
-       my $value = shift;
+  if ( defined $value || !defined $self->{'_gsf_frame'} ) {
        $value = 0 unless defined($value);
        if ( $value != 0 && $value != 1 && $value != 2 ) {
 	   $self->throw("'$value' is not a valid frame");
@@ -407,9 +399,9 @@ sub flush_sub_SeqFeature {
 =cut
 
 sub primary_tag {
-   my $self = shift;
-   if ( @_ ) {
-       $self->{'_primary_tag'} = shift;
+   my ($self,$value) = @_;
+   if ( defined $value ) {
+       $self->{'_primary_tag'} = $value;
    }
    return $self->{'_primary_tag'};
 }
@@ -428,10 +420,10 @@ sub primary_tag {
 =cut
 
 sub source_tag {
-   my $self = shift;
+   my ($self,$value) = @_;
 
-   if( @_ ) {
-       $self->{'_source_tag'} = shift;
+   if( defined $value ) {
+       $self->{'_source_tag'} = $value;
    }
    return $self->{'_source_tag'};
 }
@@ -450,7 +442,6 @@ sub source_tag {
 
 sub has_tag {
    my ($self, $tag) = (shift, shift);
-
    return exists $self->{'_gsf_tag_hash'}->{$tag};
 }
 
@@ -672,10 +663,8 @@ sub annotation {
 
     # we are smart if someone references the object and there hasn't been
     # one set yet
-    if((! exists($obj->{'annotation'})) && (! defined($value))) {
-	$value = Bio::Annotation->new();
-    }
-    if(defined $value) {
+    if(defined $value || ! defined $obj->{'annotation'} ) {
+	$value = new Bio::Annotation unless ( defined $value );
 	$obj->{'annotation'} = $value;
     }
     return $obj->{'annotation'};

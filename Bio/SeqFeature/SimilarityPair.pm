@@ -268,7 +268,7 @@ sub query {
 	    @args = Bio::SeqFeature::Similarity->new();	    
 	} elsif( ! $f->isa('Bio::SeqFeature::Similarity') && 
 		 $f->isa('Bio::SeqFeatureI') ) {
-	    # a Bio::SeqFeature::Generic was placeholder for feature1
+	    # a Bio::SeqFeature::Generic was placeholder for feature1	    
 	    my $newf = new 
 	      Bio::SeqFeature::Similarity( -start   => $f->start(),
 					   -end     => $f->end(),
@@ -310,7 +310,7 @@ sub subject {
 	    @args = Bio::SeqFeature::Similarity->new();
 	} elsif( ! $f->isa('Bio::SeqFeature::Similarity') && 
 		 $f->isa('Bio::SeqFeatureI')) {
-	    # a Bio::SeqFeature::Generic was placeholder for feature2
+	    # a Bio::SeqFeature::Generic was placeholder for feature2	    
 	    my $newf = new 
 	      Bio::SeqFeature::Similarity( -start   => $f->start(),
 					   -end     => $f->end(),
