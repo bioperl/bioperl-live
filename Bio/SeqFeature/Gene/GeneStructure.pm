@@ -151,6 +151,37 @@ sub flush_transcripts {
     }
 }
 
+=head2 add_transcript_as_features
+
+ Title   : add_transcript_as_features
+ Usage   : $gene->add_transcript_as_features(@featurelist);
+ Function: take a list of Bio::SeqFeatureI objects and turn them into a
+           Bio::SeqFeature::Gene::Transcript object.  Add that transcript to the gene.
+ Returns : nothing
+ Args    : a list of Bio::SeqFeatureI compliant objects
+
+
+=cut
+
+sub add_transcript_as_features{
+   my ($self,@features) = @_;
+   my $transcript=Bio::SeqFeature::Gene::Transcript->new;
+   foreach my $fea (@features) {
+       if ($fea->primary_tag =~ /utr/i) {           #UTR / utr/ 3' utr / utr5 etc.
+	   $transcript->add_utr($fea);
+       } elsif ($fea->primary_tag =~ /promot/i) {   #allow for spelling differences
+	   $transcript->add_promoter($fea);
+       } elsif ($fea->primary_tag =~ /poly.*A/i) {  #polyA, POLY_A, etc.
+	   $transcript->poly_A_site($fea);
+       } else {                                     #assume the rest are exons
+	   $transcript->add_exon($fea);
+       }
+   }
+   $self->add_transcript($transcript);
+
+}
+
+
 =head2 promoters
 
  Title   : promoters
