@@ -161,8 +161,8 @@ sub new {
     $region_value  && $self->SUPER::region_value($region_value);
     $numbering && $self->SUPER::numbering($numbering);
     $mut_number && $self->SUPER::mut_number($mut_number);
-    $ismutation && SUPER::isMutation($ismutation);
-    
+    $ismutation && $self->SUPER::isMutation($ismutation);
+
     $cpg && $self->CpG($cpg);
     
     return $self; # success - we hope!

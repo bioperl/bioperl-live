@@ -115,7 +115,7 @@ sub new {
 	$frame, $score, $gff_string,
 	$allele_ori,  $allele_mut,  $upstreamseq,  $dnstreamseq,  
 	$label,  $status,  $proof,  $re_changes,  $region, $region_value, 
-	$numbering,  $mut_number,  $ispolymorphism) =
+	$numbering,  $mut_number,  $ismutation) =
 	    $self->_rearrange([qw(START
 				  END
 				  LENGTH
@@ -137,7 +137,7 @@ sub new {
 				  REGION_VALUE
 				  NUMBERING
 				  MUT_NUMBER
-				  ISPOLYMORPHISM
+				  ISMUTATION
 				  )],@args);
     
     $self->SUPER::primary_tag("Variation");
@@ -166,7 +166,7 @@ sub new {
     $region_value  && $self->SUPER::region_value($region_value);
     $numbering && $self->SUPER::numbering($numbering);
     $mut_number && $self->SUPER::mut_number($mut_number);
-    $ispolymorphism && SUPER::isPolymorphism($ispolymorphism);
+    $ismutation && $self->SUPER::isMutation($ismutation);
 
     return $self; # success - we hope!
 }
