@@ -14,7 +14,6 @@
 
 use strict;
 use Text::Wrap qw(wrap $columns);
-
 use Bio::Tools::BPlite;
 BEGIN { 
     eval { 
@@ -27,6 +26,7 @@ BEGIN {
     }
 
 }
+use Tk;
     $columns = 80;
 
 my $report = Bio::Tools::BPlite->new(-fh => \*STDIN);
