@@ -100,8 +100,8 @@ ok $citation->size(12345), 12345;
 ok $citation->size, 12345;
 
 
-ok $citation->url('1 euro'), '1 euro';
-ok $citation->url, '1 euro';
+ok $citation->cost('1 euro'), '1 euro';
+ok $citation->cost, '1 euro';
 
 
 
