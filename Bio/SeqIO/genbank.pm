@@ -339,8 +339,10 @@ sub write_seq {
     if( $self->_id_generation_func ) {
 	$temp_line = &{$self->_id_generation_func}($seq);
     } else {
-	my @dates = $seq->get_dates();
-	my $date = shift @dates;
+	my $date = '';
+	if( $seq->can('get_dates') ) { 
+	    ($date) = $seq->get_dates(); # get first one from the list
+	}
 	$temp_line = sprintf ("%-12s%-10s%10s bp%8s%5s %3s ", 'LOCUS',$seq->id(),$len,$mol,$div,$date);
     } 
     
