@@ -100,19 +100,20 @@
       </revision>
     </revhistory>
     <legalnotice>
-      <para>This document is copyright Jason Stajich, Brian Osborne,
-	2002-2004.  It can be copied and distributed under the terms
-	of the Perl Artistic License.
-	</para>
+      <para>
+		  This document is copyright Jason Stajich, Brian Osborne,
+		  2002-2004.  It can be copied and distributed under the terms
+		  of the Perl Artistic License.
+		</para>
     </legalnotice>
     
     <abstract>
       <para>
-	This is a HOWTO written in DocBook (SGML) for the reasoning behind
-	the creation of the Bio::SearchIO system, how to use it, and how one
-	goes about writing new adaptors to different output formats.  We will
-	also describe how the Bio::SearchIO::Writer modules work for outputting
-	various formats from Bio::Search objects.
+		  This is a HOWTO written in DocBook (XML) for the reasoning behind
+		  the creation of the Bio::SearchIO system, how to use it, and how one
+		  goes about writing new adaptors to different output formats.  We will
+		  also describe how the Bio::SearchIO::Writer modules work for outputting
+		  various formats from Bio::Search objects.
       </para>
     </abstract>
   </articleinfo>

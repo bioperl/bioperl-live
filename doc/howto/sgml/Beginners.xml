@@ -195,6 +195,9 @@
 			 It's your computer, you will have to deal with the installation details
 			 yourself.
 		  </member>
+		  <member>
+			 Your computer may not be able to handle serious computation gracefully.
+		  </member>
 		</simplelist>
 	 </para>
     <para>
@@ -257,19 +260,27 @@
   <section id="perl">
     <title>Perl Itself</title>
     <para>
-		Perhaps you're already know a little Perl, or 
-		have started to study it. If you haven't, here are a few books 
-		you could look at:
+		Here are a few things you might want to look at if you
+		want to learn about Perl itself:
 	 </para>
     <para>
 		<simplelist type="horiz" columns="2">
 		  <member>
+			 Perl's own documentation. Do "perldoc perl" from the
+			 command-line for an introduction.
+		  </member>
+		  <member>
+			 <ulink url="">Learning Perl</ulink>
+			 is the most frequently cited beginner's book.
+		  </member>
+		  <member>
+			 <ulink url="">Perl in a Nutshell</ulink>
+			 is also good. Not much in the way of examples, but covers
+			 many topics succintly.
+		  </member>
+		  <member>
 		  </member>
 		</simplelist>
-    </para>
-    <para>
-      <programlisting>
-      </programlisting>
     </para>
     <para>
     </para>
@@ -419,7 +430,7 @@ Internet, point your browser at http://www.perl.com/, the Perl Home Page.
     </para>
 	 <para>
 		That's it! The variable <varname>$seq_obj</varname> is the
-		Sequence object, a plain one, containing just a sequence.
+		Sequence object, a simple one, containing just a sequence.
 	 </para>
 	 <para>
       <note>
@@ -476,11 +487,7 @@ Internet, point your browser at http://www.perl.com/, the Perl Home Page.
 		As you'd expect, this script will print out <emphasis>
 		  aaaatgggggggggggccccgtt</emphasis>. That <emphasis>->
 		</emphasis> symbol is used when an object calls or accesses
-		its methods. Yes, the
-		same method, <function>seq()</function>, can be used to 
-		<emphasis>get</emphasis> or <emphasis>set</emphasis> values.
-		You're setting values when you create the object, you're
-		getting values when you ask the object what values it has.
+		its methods. 
 	 </para>
 	 <para>
 		Let's make our example a bit more true-to-life, since a typical
@@ -568,7 +575,7 @@ Internet, point your browser at http://www.perl.com/, the Perl Home Page.
 		</programlisting> 
 	 </para> 
 	 <para>
-		Let's consider that last line, since this is where some of the 
+		Let's consider that last line, since this is where some  
 		neophytes start to get a bit nervous. What does it mean? In that
 		line we handed or passed the Sequence object to the SeqIO object as an
 		argument to its <function>write_seq</function> method. Another
@@ -630,7 +637,7 @@ ORIGIN
 	 </para>
 	 <para>
 		Let's read the file we created previously, "sequence.fasta",
-		using SeqIO. The syntax will look somewhat familiar:
+		using SeqIO. The syntax will look familiar:
 	 </para>
 	 <para>
 		<programlisting>
@@ -687,7 +694,7 @@ ORIGIN
 	 </para>
 	 <para>
 		Do you have to supply a "-format" argument when you are reading 
-		from a file, as we did? Not necessarily, but it's generally the safe thing
+		from a file, as we did? Not necessarily, but it's the safe thing
 		to do. If you don't give a format then the SeqIO object will 
 		try to determine the format from the file suffix or extension 
 		(and a list of the file extensions is in the  
@@ -769,7 +776,7 @@ ORIGIN
 		That is how we would construct a "query object", but we
 		haven't retrieved sequences yet. To do so we will have to create
 		a "database object", some object that can get Sequence objects
-		for us, just as we did initially:
+		for us, just as we did in the first Genbank example:
 	 </para>
 	  <para>
 		<programlisting>
@@ -800,14 +807,14 @@ ORIGIN
 	 <para>
 		Notice how carefully separated the responsibilities of each
 		object are in the code above: an object just to describe the query,
-		an object to access Genbank using the query, an object to 
+		an object to execute the query using the query object, an object to 
 		retrieve, and finally the sequence object.
 	 </para>
 	 <warning>
 		<para>
 		  Be careful what you ask for, many of today's nucleotide database
-		  entries are genome-size, and you will run out of memory
-		  if you attempt to access them this way.
+		  entries are genome-size and you will probably run out of memory
+		  if your query unintentionally tries to retrieve one of these monstrosities.
 		</para>
 	 </warning>
 	 <para>
@@ -841,10 +848,12 @@ while( my $seq = $seq_in->next_seq() ) {
 		haven't shown what it's capable of doing. The table below
 		lists the methods available to you if you have a Sequence
 		object in hand. "Returns" means what the object will give
-		you if you use or call the method without an argument. Recall that
-		the <functionname>seq</functionname> method can either 
-		<emphasis>get</emphasis> or <emphasis>return</emphasis> a value,
-		like so:
+		you if you use or call the method without an argument. The
+		same method, such as <function>seq()</function>, can be used to 
+		<emphasis>get</emphasis> or <emphasis>set</emphasis> values.
+		You're setting when you assign a value, you're
+		getting when you ask the object what values it has.
+		For example, to <emphasis>get</emphasis> or retrieve a value
     </para>
     <para>
       <programlisting>
@@ -852,8 +861,7 @@ while( my $seq = $seq_in->next_seq() ) {
       </programlisting>
 	 </para>
 	 <para>
-		Or be used to <emphasis>set</emphasis> or assign a value, like
-		so:
+		Or <emphasis>set</emphasis> or assign a value:
 	 </para>
 	 <para>
 		<programlisting>
@@ -868,6 +876,7 @@ while( my $seq = $seq_in->next_seq() ) {
 				<row>
 				  <entry>Name</entry>
 				  <entry>Returns</entry>
+				  <entry>Example</entry>
 				  <entry>Note</entry>
 				</row>
 			 </thead>
@@ -875,61 +884,73 @@ while( my $seq = $seq_in->next_seq() ) {
 				<row>
 				  <entry>new</entry>
 				  <entry>Sequence object</entry>
+				  <entry>$so = Bio::Seq->new(-seq => "at")</entry>
 				  <entry>create a new one</entry>
 				</row>
 				  <entry>seq</entry>
 				  <entry>sequence string</entry>
+				  <entry>$seq = $so->seq</entry>
 				  <entry>get or set the sequence</entry>
 				</row>
 				<row>
 				  <entry>display_id</entry>
 				  <entry>identifier</entry>
+				  <entry>$so->display_id("#12345")</entry>
 				  <entry>get or set an identifier</entry>
 				</row>
 				<row>
 				  <entry>display_name</entry>
 				  <entry>name</entry>
+				  <entry>$so->display_name("Example 1")</entry>
 				  <entry>get or set an identifier</entry>
 				</row>
 				<row>
 				  <entry>primary_id</entry>
 				  <entry>identifier</entry>
+				  <entry>$so->primary_id(12345)</entry>
 				  <entry>get or set an identifier</entry>
 				</row>
 				<row>
 				  <entry>desc</entry>
 				  <entry>description</entry>
+				  <entry>$so->desc("Example 1")</entry>
 				  <entry>get or set a description</entry>
 				</row>
 				<row>
 				  <entry>accession</entry>
 				  <entry>identifier</entry>
+				  <entry>$so->accession</entry>
 				  <entry>get or set an identifier</entry>
 				</row>
 				<row>
 				  <entry>length</entry>
 				  <entry>length</entry>
+				  <entry>$so->length</entry>
 				  <entry></entry>
 				</row>
 				<row>
 				  <entry>alphabet</entry>
 				  <entry>alphabet</entry>
+				  <entry>$so->alphabet('dna')</entry>
 				  <entry>get or set the alphabet ('dna','rna','protein')</entry>
 				</row>
 				<row>
 				  <entry>subseq</entry>
-				  <entry></entry>
-				  <entry></entry>
+				  <entry>sequence string</entry>
+				  <entry>$seq_obj->subseq(10,40)</entry>
+				  <entry>Arguments are start and end</entry>
 				</row>
 				<row>
 				  <entry>trunc</entry>
 				  <entry>Sequence object</entry>
-				  <entry></entry>
+				  <entry>$so2 = $so1->trunc(10,40)</entry>
+				  <entry>truncate, arguments are start and end</entry>
 				</row>
 				<row>
 				  <entry>revcom</entry>
 				  <entry>Sequence object</entry>
-				  <entry></entry>
+				  <entry>$so2 = $so1->revcom</entry>
+				  <entry>reverse complement</entry>
 				</row>
 				<row>
 				  <entry>translate</entry>

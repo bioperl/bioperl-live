@@ -129,7 +129,7 @@
     
     <abstract>
       <para>
-	This is a HOWTO written in DocBook (SGML) that explains how to set up 
+	This is a HOWTO written in DocBook (XML) that explains how to set up 
 	and use the Open Biological Database Access system. 
       </para>
     </abstract>
