@@ -133,6 +133,7 @@ sub next_primary_seq {
       }
       (++$count % 1000 == 0 && $self->verbose() > 0) && print "line $count\n";
   }
+  if( $largepseq->length == 0 ) { return undef; }
   if( $as_next_seq ) {
       return new Bio::Seq::LargeSeq(-primaryseq => $largepseq );      
   } else {
