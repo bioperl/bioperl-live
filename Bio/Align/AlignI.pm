@@ -12,15 +12,18 @@
 
 =head1 NAME
 
-Bio::Align::AlignI - DESCRIPTION of Interface
+Bio::Align::AlignI - An interface for describing sequence alignments.
 
 =head1 SYNOPSIS
 
-Give standard usage here
+# get a Bio::Align::AlignI somehow - typically using Bio::AlignIO system
+
+    print "aln is ", $aln->length, "\n";
+
 
 =head1 DESCRIPTION
 
-Describe the interface here
+This interface describes the basis for alignment objects.
 
 =head1 FEEDBACK
 

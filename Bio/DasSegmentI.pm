@@ -1,3 +1,4 @@
+# $Id$
 #
 # BioPerl module for Bio::DasI
 #
@@ -11,7 +12,7 @@
 
 =head1 NAME
 
-Bio::DasI - DAS-style access to a feature database
+Bio::DasSegmentI - DAS-style access to a feature database
 
 =head1 SYNOPSIS
 
@@ -32,7 +33,7 @@ Bio::DasI - DAS-style access to a feature database
 
 =head1 DESCRIPTION
 
-Bio::DasI is a simplified alternative interface to sequence annotation
+Bio::DasSegmentI is a simplified alternative interface to sequence annotation
 databases used by the distributed annotation system. In this scheme,
 the genome is represented as a series of landmarks.  You fetch regions
 of the genome by specifying a landmark, and optionally a start and end
