@@ -575,18 +575,25 @@ sub to_bsml {
 	my $seqDesc = [];
 	push @{$seqDesc}, ["comment" , "This file generated to BSML 2.2 standards - joins will be collapsed to a single feature enclosing all members of the join"];
 	push @{$seqDesc}, ["description" , $bioSeq->desc];
-	push @{$seqDesc}, ["keyword" , $bioSeq->keywords];
-	push @{$seqDesc}, ["version" , $bioSeq->seq_version];
-	push @{$seqDesc}, ["division" , $bioSeq->division];
-	push @{$seqDesc}, ["pid" , $bioSeq->pid];
-#	push @{$seqDesc}, ["bio_object" , ref($bioSeq)];
 	push @{$seqDesc}, ["primary_id" , $bioSeq->primary_id];
-	foreach my $dt ($bioSeq->get_dates() ) {
+
+	# NONE of these methods are required by the SeqI interface; therefore
+	# we eval{} them.
+	eval { push @{$seqDesc}, ["keyword" , $bioSeq->keywords]    };
+	eval { push @{$seqDesc}, ["version" , $bioSeq->seq_version] };
+	eval { push @{$seqDesc}, ["division" , $bioSeq->division]   };
+	eval { push @{$seqDesc}, ["pid" , $bioSeq->pid]             };
+	  #	push @{$seqDesc}, ["bio_object" , ref($bioSeq)];
+	eval {
+	  foreach my $dt ($bioSeq->get_dates() ) {
 	    push @{$seqDesc}, ["date" , $dt];
-	}
-	foreach my $ac ($bioSeq->get_secondary_accessions() ) {
+	  }
+	};
+	eval {
+	  foreach my $ac ($bioSeq->get_secondary_accessions() ) {
 	    push @{$seqDesc}, ["secondary_accession" , $ac];
-	}
+	  }
+	};
 	
 	# Determine the accession number and a unique identifier
 	my $acc = $bioSeq->accession_number eq "unknown" ?
@@ -607,7 +614,7 @@ sub to_bsml {
 	# Map over <Sequence> attributes
 	my %attr = ( 'title'         => $bioSeq->display_id,
 		     'length'        => $bioSeq->length,
-		     'molecule'      => $mol{ lc($bioSeq->molecule) },
+		     'molecule'      => $mol{ lc($bioSeq->alphabet) },
 		     'ic-acckey'     => $acc,
 		     'id'            => $id,
 		     'representation' => 'raw',
