@@ -364,6 +364,7 @@ for tcoffee alignments-
 http://igs-server.cnrs-mrs.fr/~cnotred/Projects_home_page/t_coffee_home_page.html
 
 for local blast searching- ftp://ftp.ncbi.nlm.nih.gov/blast/server/current_release/
+
 =for html <A NAME ="i.3"></A>
 
 =head2  I.3 Installation
@@ -732,6 +733,13 @@ capability requires the presence of the external AcePerl module. You
 need to download and install the aceperl module from
 http://stein.cshl.org/AcePerl/.
 
+An additional module is available for accessing remote databases, BioFetch,
+which queries the dbfetch script at EBI. The available databases are EMBL,
+GenBank, or SWALL, and the entries can be retrieved in different formats 
+as objects or streams (SeqIO objects), or as "tempfiles". See
+L<Bio::DB::BioFetch> for the details.
+
+
 =head2  III.1.2 Indexing and accessing local databases (Bio::Index::*, bpindex.pl, bpfetch.pl, Bio::DB::*)
 
 Alternately, bioperl permits indexing local sequence data files by
@@ -766,9 +774,9 @@ in the scripts/ directory, bpindex.pl and bpfetch.pl.  These scripts
 can be used as templates to develop customized local data-file indexing
 systems.
 
-In the Perl spirit, as in "there is more than one way to do it", bioperl
-also supplies Bio::DB::Fasta as a means to index and query Fasta format files.
-It's similar to Bio::Index::Fasta but offers more methods, eg
+Bioperl also supplies Bio::DB::Fasta as a means to index and query Fasta
+format files. It's similar in spirit to Bio::Index::Fasta but offers more
+methods, eg
 
   use Bio::DB::Fasta;
   $db = Bio::DB::Fasta->new($file);  # one file or many files
@@ -776,8 +784,10 @@ It's similar to Bio::Index::Fasta but offers more methods, eg
   $seqobj = $db->get_Seq_by_id($id); # get a PrimarySeq obj
   $desc = $db->header($id);          # get the header, or description, line
 
-Please see L<Bio::DB::Fasta> for more information on this fully-featured
-module.
+This module also offers the user the ability to designate a specific string
+within the fasta header as the desired id, such as the gi number within the
+string "gi|4556644|gb|X45555" (use the -makeid option for this capability).
+See L<Bio::DB::Fasta> for more information on this fully-featured module.
 
 
 =head2 III.2 Transforming formats of database/ file records
@@ -1157,7 +1167,7 @@ accept a file name as input, eg
 
   -sequence => "inputfasta.fa"
 
-Some EMBOSS programs will returns strings, others will create files that
+Some EMBOSS programs will return strings, others will create files that
 can be read directly using Bio::SeqIO (section L<"III.2.1">), as in the
 example above.
 
@@ -2075,8 +2085,8 @@ such as protein structure, phylogenetic trees and genetic maps.
 (StructureI, Structure::IO)
 
 A StructureIO object can be created from one or more 3D structures
-represented in Protein Data Bank, or pdb, format, see
-http://www.rcsb.org/pdb for details.
+represented in Protein Data Bank, or pdb, format (see
+http://www.rcsb.org/pdb for details).
 
 StructureIO objects allow access to a variety of related Bio:Structure
 objects. An Entry object consist of one or more Model objects, which
