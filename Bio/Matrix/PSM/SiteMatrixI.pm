@@ -572,5 +572,21 @@ sub sequence_match_weight {
     $self->throw_not_implemented();
 }
 
+=head2 get_all_vectors
 
+ Title   : get_all_vectors
+ Usage   :
+ Function:  returns all possible sequence vectors to satisfy the PFM under
+            a given threshold
+ Throws  :  If threshold outside of 3..7 (no sense to do that)
+ Example :  my @vectors=$self->get_all_vectors(4);
+ Returns :  Array of strings
+ Args    :  (optional) floating
+
+=cut
+
+sub get_all_vectors {
+ my $self = shift;
+    $self->throw_not_implemented();
+}
 1;

@@ -883,4 +883,48 @@ foreach my $pos (@seq) {
 return $score;
 }
 
+
+=head2 get_all_vectors
+
+ Title   : get_all_vectors
+ Usage   :
+ Function:  returns all possible sequence vectors to satisfy the PFM under
+            a given threshold
+ Throws  :  If threshold outside of 3..7 (no sense to do that)
+ Example :  my @vectors=$self->get_all_vectors(4);
+ Returns :  Array of strings
+ Args    :  (optional) floating
+
+=cut
+
+sub get_all_vectors {
+	my $self=shift;
+	my $thresh=shift;
+  $self->throw("Out of range. Threshold should be >3 and 7<.\n") if (($thresh<3) || ($thresh>7));
+  my @seq=split(//,$self->consensus($thresh));
+  my @perm;
+  $thresh=$thresh/10;
+  for my $i (0..@{$self->{probA}}) {
+    push @{$perm[$i]},'A' if ($self->{probA}->[$i]>$thresh);
+    push @{$perm[$i]},'C' if ($self->{probC}->[$i]>$thresh);
+    push @{$perm[$i]},'G' if ($self->{probG}->[$i]>$thresh);
+    push @{$perm[$i]},'T' if ($self->{probT}->[$i]>$thresh);
+    push @{$perm[$i]},'N' if  ($seq[$i] eq 'N');
+  }
+  my $fpos=shift @perm;
+  my @strings=@$fpos;
+  foreach my $pos (@perm) {
+    my @newstr;
+    foreach my $let (@$pos) {
+      foreach my $string (@strings) {
+        my $newstring = $string . $let;
+        push @newstr,$newstring;
+      }
+    }
+    @strings=@newstr;
+  }
+	return @strings;
+}
+
+
 1;
