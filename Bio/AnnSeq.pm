@@ -337,6 +337,48 @@ sub accession{
 
 }
 
+=head2 sv
+
+ Title   : sv
+ Usage   : $obj->sv($newval)
+ Function: 
+ Returns : value of sv
+ Args    : newvalue (optional)
+
+
+=cut
+
+sub sv{
+   my $obj = shift;
+   if( @_ ) {
+      my $value = shift;
+      $obj->{'sv'} = $value;
+    }
+    return $obj->{'sv'};
+
+}
+
+=head2 keywords
+
+ Title   : keywords
+ Usage   : $obj->keywords($newval)
+ Function: 
+ Returns : value of keywords
+ Args    : newvalue (optional)
+
+
+=cut
+
+sub keywords{
+   my $obj = shift;
+   if( @_ ) {
+      my $value = shift;
+      $obj->{'keywords'} = $value;
+    }
+    return $obj->{'keywords'};
+
+}
+
 
 
 

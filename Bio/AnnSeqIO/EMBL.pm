@@ -195,6 +195,16 @@ sub next_annseq{
 	   $annseq->accession($acc);
        }
 
+       if( /^SV\s+(\S+);?/ ) {
+	   my $sv = $1;
+	   $annseq->sv($sv);
+       }
+
+       if( /^KW   (.*)\S*$/ ) {
+	   my $keywords = $1;
+	   $annseq->keywords($keywords);
+       }
+
        # accession numbers...
        
        # References
