@@ -35,7 +35,7 @@ END {
 }
 
 
-#use Data::Dumper;
+use Data::Dumper;
 use Bio::Phenotype::MeSH::Term;
 use Bio::Phenotype::MeSH::Twig;
 use Bio::DB::MeSH;
@@ -55,6 +55,7 @@ ok my $twig = Bio::Phenotype::MeSH::Twig->new(-verbose =>$verbose);
 ok $twig->parent('Fats'), 'Fats';
 ok $twig->parent(), 'Fats';
 
+
 ok $term->add_twig($twig);
 ok $term->each_twig(), 1;
 ok $twig->term, $term;
@@ -73,7 +74,7 @@ ok $twig->each_child(), 0;
 
 eval {
     ok my $mesh = new Bio::DB::MeSH(-verbose => $verbose);
-    ok my $t=$mesh->get_exact_term('Butter');
-    ok $t->each_twig(), 3;
+    ok my $t=$mesh->get_exact_term('Dietary Fats');
+    ok $t->each_twig(), 2;
     #print Dumper $t;
 };
