@@ -774,6 +774,8 @@ sub alphabet{
 
 sub desc { shift->asString }
 
+*description = \&desc;
+
 =head2 species
 
  Title   : species

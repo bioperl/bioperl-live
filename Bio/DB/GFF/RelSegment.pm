@@ -630,6 +630,45 @@ sub features {
   return $self->factory->overlapping_features(@args);
 }
 
+
+=head2 get_SeqFeatures
+
+ Title   : get_SeqFeatures
+ Usage   :
+ Function: returns the top level sequence features
+ Returns : L<Bio::SeqFeatureI> objects
+ Args    : none
+
+Alias for features().  Provided for Bio::SeqI compatibility.
+
+=cut
+
+=head2 get_all_SeqFeatures
+
+ Title   : get_all_SeqFeatures
+ Usage   :
+ Function: returns all the sequence features
+ Returns : L<Bio::SeqFeatureI> objects
+ Args    :
+
+Alias for features().  Provided for Bio::SeqI compatibility.
+
+=cut
+
+=head2 sub_SeqFeatures
+
+ Title   : sub_SeqFeatures
+ Usage   :
+ Function:
+ Example :
+ Returns :
+ Args    :
+
+Alias for features().  Provided for Bio::SeqI compatibility.
+
+=cut
+
+
 =head2 top_SeqFeatures
 
  Title   : top_SeqFeatures
@@ -669,7 +708,28 @@ Alias for features().  Provided for Bio::SeqI compatibility.
 
 =cut
 
-*top_SeqFeatures = *all_SeqFeatures = \&features;
+*get_all_SeqFeature = *get_SeqFeatures = *top_SeqFeatures = *all_SeqFeatures = \&features;
+
+=head2 feature_count
+
+ Title   : feature_count
+ Usage   : $seq->feature_count()
+ Function: Return the number of SeqFeatures attached to a sequence
+ Returns : integer representing the number of SeqFeatures
+ Args    : none
+
+This method comes through extension of Bio::FeatureHolderI. See
+L<Bio::FeatureHolderI> for more information.
+
+=cut
+
+sub feature_count { 
+    my $self = shift;
+    my $ct = 0;
+    my %type_counts = $self->types(-enumerate=>1);
+    map { $ct += $_ } values %type_counts;
+    $ct;
+}
 
 =head2 get_feature_stream
 
@@ -961,7 +1021,7 @@ sub rel2abs {
  Usage   : @rel_coords = $s-abs2rel(@abs_coords)
  Function: convert absolute coordinates into relative coordinates
  Returns : a list of relative coordinates
- Args    : a list of absolutee coordinates
+ Args    : a list of absolute coordinates
  Status  : Public
 
 This function takes a list of positions in absolute coordinates
