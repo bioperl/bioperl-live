@@ -13,7 +13,7 @@
 
 =head1 NAME
 
-  Bio::DB::WebDBSeqI - Object Interface to generalize Web Databases
+Bio::DB::WebDBSeqI - Object Interface to generalize Web Databases
   for retrieving sequences
 
 =head1 SYNOPSIS
@@ -21,7 +21,6 @@
    # get a WebDBSeqI object somehow
    # assuming it is a nucleotide db
    my $seq = $db->get_Seq_by_id('ROA1_HUMAN')
-  
 
 =head1 DESCRIPTION
 

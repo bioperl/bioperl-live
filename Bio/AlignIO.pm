@@ -23,7 +23,7 @@ Bio::AlignIO - Handler for AlignIO Formats
 =head1 SYNOPSIS
 
     use Bio::AlignIO;
-    
+
     $inputfilename = "testaln.fasta";
     $in  = Bio::AlignIO->new(-file => $inputfilename , '-format' => 'fasta');
     $out = Bio::AlignIO->new(-file => ">out.aln.pfam" , '-format' => 'pfam');
