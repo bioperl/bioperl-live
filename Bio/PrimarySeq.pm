@@ -152,13 +152,20 @@ The rest of the documentation details each of the object methods. Internal metho
 
 
 package Bio::PrimarySeq;
-use vars qw(@ISA);
+use vars qw(@ISA %valid_type);
 use strict;
 
 use Bio::Root::RootI;
 use Bio::PrimarySeqI;
 
 @ISA = qw(Bio::Root::RootI Bio::PrimarySeqI);
+
+#
+# setup the allowed values for moltype()
+#
+BEGIN {
+    %valid_type = map {$_, 1} qw( dna rna protein );
+}
 
 =head2 new
 
@@ -407,21 +414,16 @@ sub primary_id {
 
 =cut
 
-BEGIN {
-    my %valid_type = map {$_, 1} qw( dna rna protein );
-
-    sub moltype {
-       my ($obj,$value) = @_;
-       if (defined $value) {
-           unless ( $valid_type{$value} ) {
-	       $obj->throw("Molecular type '$value' is not a valid type (".
-                  join(',', map "'$_'", sort keys %valid_type) .") lowercase");
-           }
-           $obj->{'moltype'} = $value;
-       }
-       return $obj->{'moltype'};
-
+sub moltype {
+    my ($obj,$value) = @_;
+    if (defined $value) {
+	unless ( $valid_type{$value} ) {
+	    $obj->throw("Molecular type '$value' is not a valid type (".
+			join(',', map "'$_'", sort keys %valid_type) .") lowercase");
+	}
+	$obj->{'moltype'} = $value;
     }
+    return $obj->{'moltype'};    
 }
 
 =head2 desc
