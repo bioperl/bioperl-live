@@ -54,7 +54,7 @@ ok my $tool = Bio::WebAgent->new(-verbose =>$verbose);
 
 
 
-my $seq = Bio::Seq->new(-seq => 'MSADQRWRQDSQDSFGDSFDGDSFFGSDFDGDSDFGSDFGSDGDFGSDFGDSFGDGFSDRSRQDQRS',
+my $seq = Bio::PrimarySeq->new(-seq => 'MSADQRWRQDSQDSFGDSFDGDSFFGSDFDGDSDFGSDFGSDGDFGSDFGDSFGDGFSDRSRQDQRS',
 						-display_id => 'test2');
 
 ok $tool = Bio::Tools::Analysis::Protein::Mitoprot->new( -seq=>$seq);

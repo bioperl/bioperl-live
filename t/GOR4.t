@@ -77,7 +77,7 @@ if (scalar @res > 0) {
 } else {
     skip('No network access - could not connect to GOR4 server', 1);
 }
-ok my $meta = $tool->result('all');
+ok my $meta = $tool->result('meta');
 
 if (!$METAERROR) { #if Bio::Seq::Meta::Array available
 

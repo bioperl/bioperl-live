@@ -19,7 +19,7 @@ BEGIN {
     }
     use Test;
 
-    $NUMTESTS = 21;
+    $NUMTESTS = 22;
     plan tests => $NUMTESTS;
 
     eval {
@@ -62,7 +62,7 @@ $verbose = 1 if $DEBUG;
 ok my $tool = Bio::WebAgent->new(-verbose =>$verbose);
 
 
-
+######## test using PrimarySeq object ##############
 my $seq = Bio::PrimarySeq->new(-seq => 'MSADQRWRQDSQDSFGDSFDGDPPPPPPPPFGDSFGDGFSDRSRQDQRS',
 						-display_id => 'test2');
 
@@ -77,33 +77,41 @@ if (scalar @res > 0) {
 } else {
     skip('No network access - could not connect to NetPhos server', 1);
 }
-ok my $meta = $tool->result('all');
+ok my $meta = $tool->result('meta');
 
 if (!$METAERROR) { #if Bio::Seq::Meta::Array available
 	ok($meta->named_submeta_text('Domcut', 1,2), "0.068 0.053");
 	ok ($meta->seq, "MSADQRWRQDSQDSFGDSFDGDPPPPPPPPFGDSFGDGFSDRSRQDQRS");
 	}
+	
+	
+########## test using Bio::Seq object ##############
 ok my $tool2 = Bio::WebAgent->new(-verbose =>$verbose);
 
-
-
-my $seq2 = Bio::PrimarySeq->new(-seq => 'MSADQRWRQDSQDSFGDSFDGDPPPPPPPPFGDSFGDGFSDRSRQDQRS',
+ok my $seq2 = Bio::Seq->new(-seq => 'MSADQRWRQDSQDSFGDSFDGDPPPPPPPPFGDSFGDGFSDRSRQDQRS',
 						-display_id => 'test2');
 
-ok $tool2 = Bio::Tools::Analysis::Protein::Domcut->new( -seq=>$seq2);
+ok $tool2 = Bio::Tools::Analysis::Protein::Domcut->new( -seq=>$seq2->primary_seq);
 ok $tool2->run ();
-ok my $raw2 = $tool2->result('');
+
 ok my $parsed2 = $tool2->result('parsed');
 ok ($parsed2->[23]{'score'}, '-0.209');
+
 @res = $tool2->result('Bio::SeqFeatureI');
+
 if (scalar @res > 0) {
     ok 1;
 } else {
-    skip('No network access - could not connect to NetPhos server', 1);
+    skip('No network access - could not connect to Domcut server', 1);
 }
-ok my $meta2 = $tool2->result('all');
+ok my $meta2 = $tool2->result('meta');
 
 if (!$METAERROR) { #if Bio::Seq::Meta::Array available
 	ok($meta2->named_submeta_text('Domcut', 1,2), "0.068 0.053");
 	ok ($meta2->seq, "MSADQRWRQDSQDSFGDSFDGDPPPPPPPPFGDSFGDGFSDRSRQDQRS");
 	}
+ok my $seq4 = new Bio::Seq;
+ok $seq2->primary_seq($meta2);
+ok $seq2->add_SeqFeature(@res);
+ok $seq2->primary_seq->named_submeta_text('Domcut', 1,2);
+
