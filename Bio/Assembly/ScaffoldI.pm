@@ -76,6 +76,8 @@ use Bio::Root::RootI;
 
 =head1 Accessing general assembly data
 
+=cut
+
 =head2 get_nof_contigs
 
 	Title   : get_nof_contigs
@@ -174,6 +176,12 @@ sub get_singlet_by_id {
 
 =head1 Modifier methods
 
+Implementation of these methods is optional in the sense that
+read-only implementations may not have these. If an object implements
+one of them, it should however implement all.
+
+=cut
+
 =head2 add_contig
 
 	Title   : add_contig
@@ -249,6 +257,8 @@ sub remove_singlets {
 }
 
 =head1 Contig and singlet selection methos
+
+=cut
 
 =head2 select_contigs
 

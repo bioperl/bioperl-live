@@ -143,10 +143,11 @@ use strict;
 # Object preamble - inherits from Bio::Root::Root
 
 use Bio::Root::Root;
+use Bio::AnnotatableI;
 use Bio::AnnotationCollectionI;
 use Bio::Annotation::SimpleValue;
 
-@ISA = qw(Bio::Root::Root Bio::AnnotationCollectionI);
+@ISA = qw(Bio::Root::Root Bio::AnnotationCollectionI Bio::AnnotatableI);
 
 =head2 new
 

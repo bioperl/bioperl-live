@@ -329,6 +329,23 @@ statements (e.g. "CDS    join(51..142,273..495,1346..1474)"):
 See L<Bio::LocationI> and L<Bio::Location::SplitLocationI> for more
 information.
 
+=head1 Implemented Interfaces
+
+This class implementes the following interfaces.
+
+=over 4
+
+=item Bio::SeqI
+
+Note that this includes implementing Bio::PrimarySeqI.
+
+=item Bio::IdentifiableI
+
+=item Bio::DescribableI
+
+=item Bio::AnnotatableI
+
+=back
 
 =head1 FEEDBACK
 
@@ -384,10 +401,11 @@ use Bio::Annotation::Collection;
 use Bio::PrimarySeq;
 use Bio::IdentifiableI;
 use Bio::DescribableI;
+use Bio::AnnotatableI;
 
 $VERSION = '1.1';
 @ISA = qw(Bio::Root::Root Bio::SeqI
-	  Bio::IdentifiableI Bio::DescribableI);
+	  Bio::IdentifiableI Bio::DescribableI Bio::AnnotatableI);
 
 =head2 new
 

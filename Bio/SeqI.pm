@@ -89,10 +89,11 @@ use strict;
 
 use vars qw(@ISA);
 use Bio::PrimarySeqI;
+use Bio::AnnotatableI;
 
 # Object preamble - inheriets from Bio::PrimarySeqI
 
-@ISA = qw(Bio::PrimarySeqI);
+@ISA = qw(Bio::PrimarySeqI Bio::AnnotatableI);
 
 =head2 top_SeqFeatures
 
@@ -172,18 +173,15 @@ sub write_GFF{
 
  Title   : annotation
  Usage   : $obj->annotation($seq_obj)
- Function: retrieve the attatched annotation object
+ Function: retrieve the attached annotation object
  Returns : Bio::AnnotationCollectionI or none;
 
 See L<Bio::AnnotationCollectionI> and L<Bio::Annotation::Collection>
-for more information
+for more information. This method comes through inheritance from
+L<Bio::AnnotatableI>.
 
 =cut
 
-sub annotation {
-   my ($obj) = @_;
-   $obj->throw_not_implemented();
-}
 
 =head2 feature_count
 

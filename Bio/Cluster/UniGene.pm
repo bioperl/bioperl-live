@@ -109,6 +109,26 @@ next_seq() - returns a Seq object that currently only contains an
 accession number
 
 
+=head1 Implemented Interfaces
+
+This class implementes the following interfaces.
+
+=over 4
+
+=item Bio::Cluster::UniGeneI
+
+This includes implementing Bio::ClusterI.
+
+=item Bio::IdentifiableI
+
+=item Bio::DescribableI
+
+=item Bio::AnnotatableI
+
+=item Bio::Factory::SequenceStreamI
+
+=back
+
 =head1 FEEDBACK
 
 
@@ -157,6 +177,7 @@ use strict;
 use Bio::Root::Root;
 use Bio::IdentifiableI;
 use Bio::DescribableI;
+use Bio::AnnotatableI;
 use Bio::Annotation::Collection;
 use Bio::Annotation::DBLink;
 use Bio::Annotation::SimpleValue;
@@ -165,10 +186,10 @@ use Bio::Factory::SequenceStreamI;
 use Bio::Seq::SeqFactory;
 use Bio::Cluster::UniGeneI;
 
-$VERSION = '1.0';
+$VERSION = '1.1';
 @ISA = qw(Bio::Root::Root Bio::Cluster::UniGeneI
-	Bio::IdentifiableI Bio::DescribableI
-	Bio::Factory::SequenceStreamI);
+	  Bio::IdentifiableI Bio::DescribableI Bio::AnnotatableI
+	  Bio::Factory::SequenceStreamI);
 
 my %species_map = (
 		 'Hs'  => "Homo sapiens",
@@ -1175,7 +1196,7 @@ sub next_seq {
 	  -primary_id       => $seq_h->{nid},
 	  -display_id       => $seq_h->{acc},
 	  -alphabet         => $obj->{'_alphabet'},
-	  -namespace        => 'GenBank',
+	  -namespace        => $seq_h->{acc} =~ /^NM_/ ? 'RefSeq' : 'GenBank',
 	  -authority        => $obj->authority(), # default is NCBI
 	  -species          => $obj->species(),
 	  -annotation       => $ac

@@ -322,7 +322,7 @@ interface calls get_feature_by_name() and returns the first element.
 =cut
 
 sub get_feature_by_id {
-  (shift->get_feature_by_id(@_))[0];
+  (shift->get_feature_by_name(@_))[0];
 }
 
 =head2 get_feature_by_attribute

@@ -239,6 +239,7 @@ methods, so does not need to be implemented.
 
 =cut
 
+#'
 sub equals {
   my $self = shift;
   my $term2 = shift;

@@ -56,7 +56,7 @@ example a common one is that this feature is 'new' whereas other
 features are 'old'.  The tag system, which here is implemented using a
 hash can be used here.  You can use the tag system to extend the
 SeqFeature::Generic programmatically: that is, you know that you have
-read in more information into the tag 'mytag' which you can the
+read in more information into the tag 'mytag' which you can then
 retrieve. This means you do not need to know how to write inherieted
 Perl to provide more complex information on a feature, and/or, if you
 do know but you do not want to write a new class every time you need
@@ -65,6 +65,20 @@ store and then retrieve information.
 
 The tag system can be written in/out of GFF format, and also into EMBL
 format via the SeqIO system
+
+=head1 Implemented Interfaces
+
+This class implementes the following interfaces.
+
+=over 4
+
+=item Bio::SeqFeatureI
+
+Note that this includes implementing Bio::RangeI.
+
+=item Bio::AnnotatableI
+
+=back
 
 =head1 FEEDBACK
 
@@ -96,10 +110,7 @@ This class has been written with an eye out of inheritence. The fields
 the actual object hash are:
 
    _gsf_tag_hash  = reference to a hash for the tags
-   _gsf_sub_array = reference to an array for sub arrays
-   _gsf_start     = scalar of the start point
-   _gsf_end       = scalar of the end point
-   _gsf_strand    = scalar of the strand
+   _gsf_sub_array = reference to an array for subfeatures
 
 =head1 APPENDIX
 
@@ -118,12 +129,13 @@ use strict;
 
 use Bio::Root::Root;
 use Bio::SeqFeatureI;
+use Bio::AnnotatableI;
 use Bio::Annotation::Collection;
 use Bio::Location::Simple;
 use Bio::Tools::GFF;
 #use Tie::IxHash;
 
-@ISA = qw(Bio::Root::Root Bio::SeqFeatureI);
+@ISA = qw(Bio::Root::Root Bio::SeqFeatureI Bio::AnnotatableI);
 
 sub new {
     my ( $caller, @args) = @_;   
@@ -467,11 +479,6 @@ sub flush_sub_SeqFeatures {
    my @subfeats = @{$self->{'_gsf_sub_array'}};
    $self->{'_gsf_sub_array'} = []; # zap the array implicitly.
    return @subfeats;
-}
-
-# lack of consistency sucks!
-sub flush_sub_SeqFeature {
-    shift->flush_sub_SeqFeatures(@_);
 }
 
 =head2 primary_tag
@@ -996,5 +1003,8 @@ sub display_id {
 # this is towards consistent naming
 sub each_tag_value { return shift->get_tag_values(@_); }
 sub all_tags { return shift->get_all_tags(@_); }
+# lack of consistency sucks!
+sub flush_sub_SeqFeature { return shift->flush_sub_SeqFeatures(@_); }
+
 
 1;

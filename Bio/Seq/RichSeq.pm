@@ -27,6 +27,24 @@ like EMBL, GenBank, and SwissProt. Methods added to the Bio::SeqI
 interface therefore focus on databank-specific information. Note that
 not every rich databank format may use all of the properties provided.
 
+=head1 Implemented Interfaces
+
+This class implementes the following interfaces.
+
+=over 4
+
+=item Bio::Seq::RichSeqI
+
+Note that this includes implementing Bio::PrimarySeqI and Bio::SeqI.
+
+=item Bio::IdentifiableI
+
+=item Bio::DescribableI
+
+=item Bio::AnnotatableI
+
+=back
+
 =head1 FEEDBACK
 
 =head2 Mailing Lists

@@ -15,7 +15,7 @@ BEGIN {
 	use lib 't';
     }
     use Test;
-    plan tests => 51;
+    plan tests => 60;
 }
 
 use Bio::Annotation::Collection;
@@ -25,6 +25,9 @@ use Bio::Annotation::Reference;
 use Bio::Annotation::SimpleValue;
 use Bio::Annotation::OntologyTerm;
 use Bio::Annotation::StructuredValue;
+use Bio::Seq;
+use Bio::SeqFeature::Generic;
+use Bio::Cluster::UniGene;
 
 ok(1);
 
@@ -132,3 +135,21 @@ ok (scalar($nested_ac->flatten_Annotations()), 2);
 ok (scalar($nested_ac->get_Annotations()), 6);
 ok (scalar($nested_ac->get_all_Annotations()), 6);
 
+# OntologyTerm annotation
+my $termann = Bio::Annotation::OntologyTerm->new(-label => 'test case',
+						 -identifier => 'Ann:00001',
+						 -category => 'dumpster');
+ok ($termann->term);
+ok ($termann->term->name, 'test case');
+ok ($termann->term->identifier, 'Ann:00001');
+ok ($termann->tagname, 'dumpster');
+ok ($termann->category->name, 'dumpster');
+ok ($termann->as_text, "dumpster|test case|Ann:00001");
+
+# AnnotatableI
+my $seq = Bio::Seq->new();
+ok ($seq->isa("Bio::AnnotatableI"));
+my $fea = Bio::SeqFeature::Generic->new();
+ok ($fea->isa("Bio::AnnotatableI"));
+my $clu = Bio::Cluster::UniGene->new();
+ok ($clu->isa("Bio::AnnotatableI"));
