@@ -364,12 +364,24 @@ sub description{
  Returns : value of id
  Args    : newvalue (optional)
 
+"A name can be any string of printable characters except blanks,
+colons, semicolons, parentheses, and square brackets. Because you may
+want to include a blank in a name, it is assumed that an underscore
+character ("_") stands for a blank; any of these in a name will be
+converted to a blank when it is read in."
+
+from L<http://evolution.genetics.washington.edu/phylip/newicktree.html>
 
 =cut
 
 sub id{
-    my $self = shift;
-    $self->{'_id'} = shift @_ if @_;
+    my ($self, $value) = @_;
+    if ($value) {
+        $self->warn("Illegal characters ();:  and space in the id [$value], converting to _ ")
+            if $value =~ /\(\);:/ and $self->verbose >= 0;
+        $value =~ s/\(\);: /_/g;
+        $self->{'_id'} = $value;
+    }
     return $self->{'_id'};
 }
 
