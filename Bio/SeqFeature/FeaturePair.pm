@@ -112,8 +112,8 @@ sub _initialize {
 
   # Store the features in the object
 
-  $self->feature1($feature1);
-  $self->feature2($feature2);
+  $feature1 && $self->feature1($feature1);
+  $feature2 && $self->feature2($feature2);
 
   # set stuff in self from @args
   return $make; # success - we hope!
@@ -360,7 +360,11 @@ sub source_tag{
 sub seqname{
     my ($self,$arg) = @_;
     
-    return $self->feature1->seqname($arg);
+    if (defined($arg)) {
+	return $self->feature1->seqname($arg);
+    } else {
+	return $self->feature1->seqname;
+    }
 }
 
 =head2 hseqname
