@@ -652,7 +652,7 @@ sub add_DBLink{
 sub each_DBLink{
    my ($self) = @_;
 
-   $self->deprecated("each_DBLink (old style Annotation) on new style Annotation::Collection");
+   $self->deprecated("each_DBLink (old style Annotation) on new style Annotation::Collection - use get_Annotations('dblink')");
    
    return $self->get_Annotations('dblink');
 }

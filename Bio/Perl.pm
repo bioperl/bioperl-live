@@ -101,7 +101,7 @@ Internal methods are usually preceded with a _
 
 
 package Bio::Perl;
-use vars qw(@ISA @EXPORT_OK $DBOKAY);
+use vars qw(@ISA @EXPORT $DBOKAY);
 use strict;
 use Carp;
 use Exporter;
@@ -124,7 +124,7 @@ BEGIN {
 
 @ISA = qw(Exporter);
 
-@EXPORT_OK = qw(read_sequence read_all_sequences write_sequence new_sequence get_sequence translate translate_as_string reverse_complement revcom revcom_as_string reverse_complement_as_string);
+@EXPORT = qw(read_sequence read_all_sequences write_sequence new_sequence get_sequence translate translate_as_string reverse_complement revcom revcom_as_string reverse_complement_as_string blast_sequence);
 
 
 =head2 read_sequence
@@ -247,6 +247,10 @@ sub write_sequence{
    my $error = 0;
    my $seqname = "sequence1";
 
+   if( $filename !~ /^\>/ && $filename !~ /^|/ ) {
+       $filename = ">".$filename;
+   }
+
    my $seqio = Bio::SeqIO->new('-file' => $filename, '-format' => $format);
 
    foreach my $seq ( @sequence_objects ) {
@@ -306,6 +310,85 @@ sub new_sequence{
    $accession && $seq_object->accession_number($accession);
 
    return $seq_object;
+}
+
+=head2 blast_sequence
+
+ Title   : blast_sequence
+ Usage   : $blast_result = blast_sequence($seq)
+           $blast_result = blast_sequence('MFVEGGTFASEDDDSASAEDE');
+
+ Function: If the computer has Internet accessibility, blasts
+           the sequence using the NCBI BLAST server against nrdb.
+          
+           It choose the flavour of BLAST on the basis of the sequence.
+
+           This function uses Bio::Tools::Run::RemoteBlast, which itself
+           use Bio::SearchIO - as soon as you want to more, check out
+           these modules
+ Returns : Bio::Search::Result::GenericResult.pm
+ 
+ Args    : Either a string of protein letters or nucleotides, or a
+           Bio::Seq object
+
+=cut
+
+sub blast_sequence {
+    my ($seq,$verbose) = shift;
+
+    if( !defined $verbose ) {
+	$verbose = 1;
+    }
+
+    if( !ref $seq ) {
+	$seq = Bio::Seq->new( -seq => $seq, -id => 'blast-sequence-temp-id');
+    } elsif ( !$seq->isa('Bio::PrimarySeqI') ) {
+	croak("[$seq] is an object, but not a Bio::Seq object, cannot be blasted");
+    }
+
+    require Bio::Tools::Run::RemoteBlast;
+
+    my $prog = 'blastp';
+    my $e_val= '1e-10';
+    
+    my @params = ( '-prog' => $prog,
+		   '-expect' => $e_val, 
+		   '-readmethod' => 'SearchIO' );
+
+    my $factory = Bio::Tools::Run::RemoteBlast->new(@params);
+ 
+    my $r = $factory->submit_blast($seq);
+    if( $verbose ) {
+	print STDERR "Submitted Blast for [".$seq->id."] ";
+    }
+    sleep 5;
+
+    my $result;
+    
+    LOOP :
+    while( my @rids = $factory->each_rid) {
+	foreach my $rid ( @rids ) {
+	    my $rc = $factory->retrieve_blast($rid);
+	    if( !ref($rc) ) {
+		if( $rc < 0 ) {
+		    $factory->remove_rid($rid);
+		}
+		if( $verbose ) {
+		    print STDERR ".";
+		}
+		sleep 10;
+	    } else {
+		$result = $rc->next_result();
+		$factory->remove_rid($rid);
+		last LOOP;
+	    }
+	}
+    }
+
+    if( $verbose ) {
+	print STDERR "\n";
+    }
+    return $result;
 }
 
 =head2 get_sequence
