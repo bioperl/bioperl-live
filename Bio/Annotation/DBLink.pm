@@ -56,9 +56,9 @@ use strict;
 
 use Bio::Root::Root;
 use Bio::AnnotationI;
-use Bio::IdentifiableI;
+use Bio::GloballyIdentifiableI;
 
-@ISA = qw(Bio::Root::Root Bio::AnnotationI Bio::IdentifiableI);
+@ISA = qw(Bio::Root::Root Bio::AnnotationI Bio::GloballyIdentifiableI);
 
 
 sub new {
@@ -82,7 +82,7 @@ sub new {
   $optional_id && $self->optional_id($optional_id);
   $comment     && $self->comment($comment);
   $tag         && $self->tagname($tag);
-  # Bio::IdentifiableI parameters:
+  # Bio::GloballyIdentifiableI parameters:
   $ns          && $self->namespace($ns); # this will override $database
   $auth        && $self->authority($auth);
   defined($v)  && $self->version($v);
@@ -269,7 +269,7 @@ sub comment {
     return $self->{'comment'};
 }
 
-=head1 Methods for Bio::IdentifiableI compliance
+=head1 Methods for Bio::GloballyIdentifiableI compliance
 
 =head2 object_id
 
