@@ -172,7 +172,7 @@ sub program {
     my ($self, $value) = @_;
 
     unless( $self->{'_programs'}->{$value} ) {
-	$self->warn('Application [$value] is not available!');
+	$self->warn("Application [$value] is not available!");
 	return undef;
     }
     my $attr = {};
