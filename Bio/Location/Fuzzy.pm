@@ -137,9 +137,9 @@ BEGIN {
 sub new {
     my ($class, @args) = @_;
     my $self = $class->SUPER::new(@args);
-    my ($location_type, $start_ext, $start_fuz, $end_ext, $end_fuz,$seqid) = 
+    my ($location_type, $start_ext, $start_fuz, $end_ext, $end_fuz) = 
 	$self->_rearrange([ qw(LOCATION_TYPE START_EXT START_FUZ 
-			       END_EXT END_FUZ SEQ_ID)
+			       END_EXT END_FUZ )
 			    ], @args);
 
     $location_type  && $self->location_type($location_type);
@@ -147,7 +147,6 @@ sub new {
     $end_ext   && $self->max_end($self->min_end + $end_ext);
     $start_fuz && $self->start_pos_type($start_fuz);
     $end_fuz   && $self->end_pos_type($end_fuz);
-    $seqid          && $self->seq_id($seqid);
     return $self;
 }
 
