@@ -13,9 +13,11 @@ Revision history for Bioperl core modules
        parsing. This is considered the supported BLAST parser;
        Bio::Tools::Blast.pm will eventually phase out due to lack of support.
 
-     o Improved Sequence Feature model. Added complete
-       location modelling (with fuzzy and compound locations). 
-       See Bio::LocationI and the modules under Bio/Location.
+     o Improved Sequence Feature model. Added complete location
+       modelling (with fuzzy and compound locations).  See
+       Bio::LocationI and the modules under Bio/Location.  Added
+       support in Genbank/EMBL format parsing to completely parse
+       feature tables for complex locations.
 
      o Moved special support for databanks etc to specialized modules under
        Bio/Seq/. One of these supports very large sequences through 
@@ -29,13 +31,17 @@ Revision history for Bioperl core modules
      o Refactored Bio/DB/GenBank+GenPept. There is now also DB/SwissProt and
        DB/GDB (the latter has platform-specific limitations).
 
-     o New analysis parser framework for HT sequence annotation
-       (see Bio::SeqAnalysisParserI and 
-        Bio::Factory::SeqAnalysisParserFactory)
+     o New analysis parser framework for HT sequence annotation (see
+       Bio::SeqAnalysisParserI and Bio::Factory::SeqAnalysisParserFactory)
 
      o New Alignment IO framework
 
      o New Index modules (Swissprot)
+
+     o New modules for running Blast within perl
+       (Bio::Tools::Run::StandAloneBlast). Added modules for running
+       Multiple Sequence Alignment tools ClustalW and TCoffee
+       (Bio::Tools::Run::Alignment).
 
      o New Cookbook-style tutorial (see bptutorial.pl). Improved
        documentation across the package.
