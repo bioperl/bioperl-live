@@ -586,11 +586,12 @@ sub _from_gff3_string {
     my ($gff, $feat, $string) = @_;
     chomp($string);
 
-    # according to the nascent GFF3 spec, it should be space
-    # separated elements, spaces anywhere else should be escaped.
+    # according to the now nearly final GFF3 spec, columns should 
+    # be tab separated, allowing unescaped spaces to occur in
+    # column 9
 
     my ($seqname, $source, $primary, $start, $end, 
-	$score, $strand, $frame, $groups) = split(/\s+/, $string);
+	$score, $strand, $frame, $groups) = split(/\t/, $string);
     
     if ( ! defined $frame ) {
 	$feat->throw("[$string] does not look like GFF3 to me");
