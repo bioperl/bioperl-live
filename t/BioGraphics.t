@@ -294,7 +294,7 @@ sub t2 {
 
   my $track = $panel->add_track(-glyph=> sub { shift->primary_tag =~ /transcript|alignment/ ? 'transcript2': 'generic'},
 				-label   => sub { $_[-1]->level == 0 } ,
-				-connector => sub { return shift->type eq 'group' ? 'dashed' : ''},
+				-connector => sub { return shift->type eq 'group' ? 'dashed' : 'hat'},
 				-point  => 0,
 				-orient => 'N',
 				-height => 8,
