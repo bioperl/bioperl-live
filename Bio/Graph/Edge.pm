@@ -1,4 +1,59 @@
-#!/bin/perl -w
+# $Id$
+#
+# BioPerl module for Bio::Graph::Edge
+#
+# You may distribute this module under the same terms as perl itself
+# POD documentation - main docs before the code
+
+=head1 NAME
+
+Bio::Graph::Edge
+
+=head1 SYNOPSIS
+
+An encapsulation of an interaction between 2 Bio::Seq objects
+
+  ## get an interaction between two nodes ##
+
+  my $edge  = $gr->edge( $gr->nodes_by_id('P12345'),
+                         $gr->nodes_by_id('P23456'));
+  my $id    = $edge->object_id();
+  my $wt    = $edge->weight();
+  my @nodes = $edge->nodes();
+
+=head1 DESCRIPTION
+
+This class contains information about a bimolecular interaction.
+At present it just contains data about its component node, a weight
+(if set) and an identifier. Subclasses could hold more specific 
+information.
+
+=head1 FEEDBACK
+
+=head2 Mailing Lists
+
+User feedback is an integral part of the evolution of this and other
+Bioperl modules. Send your comments and suggestions preferably to one
+of the Bioperl mailing lists. Your participation is much appreciated.
+
+  bioperl-l@bioperl.org              - General discussion
+  http://bio.perl.org/MailList.html  - About the mailing lists
+
+=head2 Reporting Bugs
+
+Report bugs to the Bioperl bug tracking system to help us keep track
+the bugs and their resolution.  Bug reports can be submitted via email
+or the web:
+
+  bioperl-bugs@bioperl.org
+  http://bugzilla.bioperl.org/
+
+=head1 AUTHOR - Richard Adams
+
+Email richard.adams@ed.ac.uk
+
+=cut
+
 use strict;
 package Bio::Graph::Edge;
 use Bio::Root::Root;
@@ -6,38 +61,16 @@ use Bio::IdentifiableI;
 use vars qw(@ISA);
 @ISA = qw(Bio::Root::Root Bio::IdentifiableI);
 
-=head1        TITLE
 
-Bio::Graph::Edge - an encapsulation of an interaction between 2 Bio::Seq objects
+=head2 new
 
-
-=head1        SYNOPSIS
-
-## get an interaction between two nodes ##
-
-my $edge  = $gr->edge( $gr->nodes_by_id('P12345'),
-                       $gr->nodes_by_id('P23456'));
-my $id    = $edge->object_id();
-my $wt    = $edge->weight();
-my @nodes = $edge->nodes();
-
-=head1         DESCRIPTION
-
-This class contains information about a bimolecular interaction.
-At present it just contains data about its component node, a weight
-(if set) and an identifier. Subclasses could hold more specific information. 
-
-=head1         METHODS
-
-=head2         new
-
-name       : new
-purpose    : constructor for an edge object
-usage      : my $edge = Bio::Graph::Edge->new(nodes => [$node1, $node2]
-                                                 id => $id);
+ Name       : new
+ Purpose    : constructor for an edge object
+ Usage      : my $edge = Bio::Graph::Edge->new(nodes => [$node1,$node2]
+                                               id => $id);
               $graph->add_edge($edge);
-returns    : a new Bio::Graph::Edge object 
-arguments  :  hash nodes            => array reference of 2 nodes
+ Returns    : a new Bio::Graph::Edge object 
+ Arguments  : hash nodes            => array reference of 2 nodes
                    id               => edge id
                    weight(optional) => weight score.
 =cut
@@ -64,27 +97,27 @@ sub new {
 
 }
 
-=head2       weight
- name      : weight
- purpose   : get/setter for weight score
- usage     : my $weight = $edge->weight();
- returns   : anumber
- arguments : void/ a number
+=head2 weight
+ Name      : weight
+ Purpose   : get/setter for weight score
+ Usage     : my $weight = $edge->weight();
+ Returns   : anumber
+ Arguments : void/ a number
 
 =cut
- 
+
 sub weight {
 	my $self = shift;
 	if (@_) {$self->[2] = shift;}
 	return defined($self->[2])?$self->[2]:undef;
 }
 
-=head2       object_id
- name      : object_id
- purpose   : get/setter for object_id
- usage     : my $id = $edge->object_id();
- returns   : a string identifier
- arguments : void/ an identifier 
+=head2 object_id
+ Name      : object_id
+ Purpose   : get/setter for object_id
+ Usage     : my $id = $edge->object_id();
+ Returns   : a string identifier
+ Arguments : void/ an identifier 
 
 =cut
 
@@ -101,13 +134,13 @@ sub object_id {
 	return defined($self->[3])?$self->[3]:undef;
 }
 
-=head2       nodes
+=head2  nodes
 
- name      : nodes
- purpose   : get/setter for nodes
- usage     : my @nodes = $edge->nodes();
- returns   : a 2 element list of nodes /void
- arguments : void/ a 2 element list of nodes. 
+ Name      : nodes
+ Purpose   : get/setter for nodes
+ Usage     : my @nodes = $edge->nodes();
+ Returns   : a 2 element list of nodes /void
+ Arguments : void/ a 2 element list of nodes. 
 
 =cut
 
@@ -118,5 +151,4 @@ sub nodes {
 		$self->[1] =  $args[1];
 		}
 	return ($self->[0], $self->[1]);
-	
 }

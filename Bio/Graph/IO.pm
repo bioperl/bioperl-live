@@ -1,9 +1,9 @@
-#!/bin/perl -w
-use strict;
-package Bio::Graph::IO;
-use vars qw(@ISA);
-use Bio::Root::IO;
-@ISA = qw(Bio::Root::IO);
+# $Id$
+#
+# BioPerl module for Bio::Graph::IO
+#
+# You may distribute this module under the same terms as perl itself
+# POD documentation - main docs before the code
 
 =head1  NAME
 
@@ -11,8 +11,8 @@ Bio::Graph::IO - Class for reading /writing biological graph data.
 
 =head1  SYNOPSIS
 
-  # This is a class for reading /writing biological data that can 
-  # be represented by graphs e.g., protein interaction data. 
+  # This is a class for reading /writing biological data that can
+  # be represented by graphs e.g., protein interaction data.
 
   #e.g., a graph reformatter..
   my $graph_in = Bio::Graph::IO->new(-file =>'myfile.dat',
@@ -31,7 +31,7 @@ module is available and loads it.
 
 At present only the DIP tab delimited format and psi-XML is supported
 
-=head1  METHODS
+=head1 METHODS
 
 The main methods are:
 
@@ -46,7 +46,7 @@ with the $seqio-E<gt>next_seq() and $alnio-E<gt>next_aln() methods.
 Writes the graph data to file in requested format.
 
 
-=head1   REQUIREMENTS
+=head1  REQUIREMENTS
 
 To read write from XML you will need the XML::Twig module available
 from CPAN.
@@ -79,6 +79,11 @@ Email richard.adams@ed.ac.uk
 
 =cut
 
+use strict;
+package Bio::Graph::IO;
+use vars qw(@ISA);
+use Bio::Root::IO;
+@ISA = qw(Bio::Root::IO);
 
 =head2  new
 
@@ -91,9 +96,6 @@ Email richard.adams@ed.ac.uk
 				  -threshold => a confidence score for the interaction, optional
 
 =cut
-
-
-
 
 sub new {
 	my ($caller, @args) = @_;
@@ -175,6 +177,7 @@ END
   return $ok;
 
 }
+
 sub _initialize_io {
 
 	my ($self, @args) = @_;
@@ -186,5 +189,3 @@ sub _initialize_io {
 }
 
 1;
-
-
