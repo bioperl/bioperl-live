@@ -20,7 +20,7 @@ BEGIN {
 	use lib 't';
     }
     use vars qw($NTESTS);
-    $NTESTS = 539;
+    $NTESTS = 550;
     $LASTXMLTEST = 49;
     $error = 0;
 
@@ -242,7 +242,8 @@ ok($result->database_letters, 4662239);
 ok($result->database_entries, 400);
 ok($result->algorithm, 'TBLASTX');
 ok($result->algorithm_version, qr/^2\.1\.2/);
-ok($result->query_name, qr/HUMBETGLOA Human haplotype C4 beta-globin gene, complete cds./);
+ok($result->query_name, 'HUMBETGLOA');
+ok($result->query_description, 'Human haplotype C4 beta-globin gene, complete cds.');
 ok($result->query_length, 3002);
 ok($result->get_statistic('kappa'), 0.135);
 ok($result->get_statistic('lambda'), 0.318);
@@ -557,7 +558,9 @@ ok($result->database_letters, 1358990);
 ok($result->database_entries, 4289);
 ok($result->algorithm, 'BLASTX');
 ok($result->algorithm_version, qr/^2\.0MP\-WashU/);
-ok($result->query_name, 'gi|142864|gb|M10040.1|BACDNAE B.subtilis dnaE gene encoding DNA primase, complete cds');
+ok($result->query_name, 'gi|142864|gb|M10040.1|BACDNAE');
+ok($result->query_description, 'B.subtilis dnaE gene encoding DNA primase, complete cds');
+ok($result->query_accession, 'BACDNAE');
 ok($result->query_length, 2001);
 ok($result->get_parameter('matrix'), 'blosum62');
 
@@ -619,7 +622,9 @@ ok($result->database_letters, 4662239);
 ok($result->database_entries, 400);
 ok($result->algorithm, 'TBLASTN');
 ok($result->algorithm_version, qr/^2\.0MP\-WashU/);
-ok($result->query_name, 'gi|142865|gb|AAA22406.1| DNA primase');
+ok($result->query_name, 'gi|142865|gb|AAA22406.1|');
+ok($result->query_description, 'DNA primase');
+ok($result->query_accession, 'AAA22406.1');
 ok($result->query_length, 603);
 ok($result->get_parameter('matrix'), 'blosum62');
 
@@ -680,7 +685,9 @@ ok($result->database_letters, 4662239);
 ok($result->database_entries, 400);
 ok($result->algorithm, 'TBLASTX');
 ok($result->algorithm_version, qr/^2\.0MP\-WashU/);
-ok($result->query_name, 'gi|142864|gb|M10040.1|BACDNAE B.subtilis dnaE gene encoding DNA primase, complete cds');
+ok($result->query_name, 'gi|142864|gb|M10040.1|BACDNAE');
+ok($result->query_description, 'B.subtilis dnaE gene encoding DNA primase, complete cds');
+ok($result->query_accession, 'BACDNAE');
 ok($result->query_length, 2001);
 ok($result->get_parameter('matrix'), 'blosum62');
 
@@ -762,6 +769,15 @@ while( my $hit = $result->next_hit ) {
 	}       
     }
     last if( $count++ > @valid );
+}
+
+# Do a multiblast report test
+$searchio = new Bio::SearchIO ('-format' => 'blast',
+			       '-file'   => Bio::Root::IO->catfile('t','data','multi_blast.bls'));
+
+my @expected = qw(CATH_RAT CATL_HUMAN CATL_RAT PAPA_CARPA);
+while( my $result = $searchio->next_result ) {
+    ok($result->query_name, shift @expected, "Multiblast query test");
 }
 
 # TODO: Flesh this test out!
