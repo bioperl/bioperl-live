@@ -118,8 +118,18 @@ use Bio::Ontology::SimpleGOEngine;
  Usage   : my $obj = new Bio::Ontology::Ontology();
  Function: Builds a new Bio::Ontology::Ontology object
  Returns : an instance of Bio::Ontology::Ontology
- Args    :
+ Args    : any number of named arguments. The following names will be
+           recognized by this module:
 
+            -name         the name of the ontology
+            -authority    the name of the authority for the ontology
+            -identifier   an identifier for the ontology, if any
+            -engine       the Bio::Ontology::OntologyEngineI
+                          implementation that this instance should use;
+                          default is Bio::Ontology::SimpleOntologyEngine
+
+            See the corresponding get/set methods for further documentation
+            on individual properties.
 
 =cut
 
