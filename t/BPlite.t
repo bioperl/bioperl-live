@@ -19,6 +19,7 @@ BEGIN {
 }
 
 use Bio::Tools::BPlite;
+use Bio::Root::IO;
 ok(1);
 
 my $seq =
@@ -32,7 +33,7 @@ my $seq =
     "DEATPTLTNQSPTLTLQSTNTHTQSSSSSSDGGLFRSRPAHSLPPGEDGRVEPYVDFAEFY".
     "RLWSVDHGEQSVVTAP";
 
-open FH, "t/blast.report";
+open FH, Bio::Root::IO->catfile("t","blast.report");
 my $report = Bio::Tools::BPlite->new(-fh=>\*FH);
 ok $report->isa('Bio::Tools::BPlite');
 my $sbjct = $report->nextSbjct;
@@ -64,7 +65,7 @@ close FH;
 
 # Verify that BPlite is properly parsing PHIBLAST reports as well
 
-my $report2 = Bio::Tools::BPlite->new(-file=>'t/phi.out');
+my $report2 = Bio::Tools::BPlite->new(-file=>Bio::Root::IO->catfile("t","phi.out"));
 
 ok $report2->pattern, "P-E-E-Q";
 ok $report2->query_pattern_location->[0], 23;
@@ -81,12 +82,12 @@ close FH;
 
 # tests 29-38 are just counting to see that we get the expected number 
 # of features
-my $parser = new Bio::Tools::BPlite(-file => "t/blast.report");
+my $parser = new Bio::Tools::BPlite(-file => Bio::Root::IO->catfile("t","blast.report"));
 while( $parser->next_feature ) {
     ok(1);
 }
 
-$parser = new Bio::Tools::BPlite(-file => 't/cysprot.tblastn');
+$parser = new Bio::Tools::BPlite(-file => Bio::Root::IO->catfile("t","cysprot.tblastn"));
 while( $parser->next_feature ) {
     ok(1);
 }

@@ -21,6 +21,7 @@ BEGIN {
 use Bio::Seq;
 use Bio::SeqIO;
 use Bio::SeqIO::MultiFile;
+use Bio::Root::IO;
 
 ok(1);
 
@@ -34,7 +35,7 @@ ok(1);
 my $verbosity = -1;   # Set to -1 for release version, so warnings aren't printed
 
 my ($str, $seq,$ast,$temp,$mf,$ent,$out); # predeclare variables for strict
-$str = Bio::SeqIO->new(-file=> 't/test.fasta', '-format' => 'Fasta');
+$str = Bio::SeqIO->new(-file=> Bio::Root::IO->catfile("t","test.fasta"), '-format' => 'Fasta');
 ok $str;
 
 ok ($seq = $str->next_seq());
@@ -57,7 +58,7 @@ ok $seq->length, 358;
 ## Not tested yet: ability to write a raw formatted stream
 ## Not tested yet: ability to write a GCG formatted stream
 
-$str = Bio::SeqIO->new(-file=> 't/test.raw', '-format' => 'Raw');
+$str = Bio::SeqIO->new(-file=> Bio::Root::IO->catfile("t","test.raw"), '-format' => 'Raw');
 
 ok $str;
 
@@ -72,7 +73,7 @@ print "Sequence 2 of 2 from Raw stream:\n", $seq->seq, $seq->seq, "\n"
 
 ## Now we test Bio::SeqIO::GCG
 
-$str = Bio::SeqIO->new(-file=> 't/test.gcg', '-format' => 'GCG');
+$str = Bio::SeqIO->new(-file=> Bio::Root::IO->catfile("t","test.gcg"), '-format' => 'GCG');
 
 ok $str;
 
@@ -92,7 +93,7 @@ unlink('t/gcg.out');
 #####
 
 ## Now we test Bio::SeqIO::GenBank
-$str = Bio::SeqIO->new( -file=> 't/test.genbank', '-format' => 'GenBank');
+$str = Bio::SeqIO->new( -file=> Bio::Root::IO->catfile("t","test.genbank"), '-format' => 'GenBank');
 
 ok $str;
 $str->verbose($verbosity);
@@ -116,14 +117,14 @@ $str = undef;
 
 # EMBL format
 
-$ast = Bio::SeqIO->new( '-format' => 'embl' , -file => 't/roa1.dat');
+$ast = Bio::SeqIO->new( '-format' => 'embl' , -file => Bio::Root::IO->catfile("t","roa1.dat"));
 $ast->verbose($verbosity);
 my $as = $ast->next_seq();
 ok defined $as->seq;
 
 
 $ast = Bio::SeqIO->new( '-format' => 'GenBank' , 
-			-file => 't/roa1.genbank');
+			-file => Bio::Root::IO->catfile("t","roa1.genbank"));
 $ast->verbose($verbosity);
 $as = $ast->next_seq();
 ok defined $as->seq;
@@ -141,7 +142,7 @@ eval {
 };
 ok ! $@;
 $temp = undef;
-$ast = Bio::SeqIO->new( '-format' => 'Swiss' , -file => 't/roa1.swiss');
+$ast = Bio::SeqIO->new( '-format' => 'Swiss' , -file => Bio::Root::IO->catfile("t","roa1.swiss"));
 $ast->verbose($verbosity);
 $as = $ast->next_seq();
 ok defined $as->seq;
@@ -225,7 +226,7 @@ unlink('t/embl.out');
 #
 # Tests for feature-rich GenBank-entries. Added by HL <hlapp@gmx.net> 05/07/00
 #
-my $stream = Bio::SeqIO->new('-file' => 't/test.genbank',
+my $stream = Bio::SeqIO->new('-file' => Bio::Root::IO->catfile("t","test.genbank"),
 			     '-format' => 'GenBank');
 $stream->verbose($verbosity);
 my $seqnum = 0;
@@ -263,7 +264,7 @@ $ent->close();
 
 # let's test to see how well we handle FuzzyLocations
 $seq = Bio::SeqIO->new( '-format' => 'GenBank' , 
-			-file => 't/testfuzzy.genbank');
+			-file => Bio::Root::IO->catfile("t","testfuzzy.genbank"));
 $seq->verbose($verbosity);
 $as = $seq->next_seq();
 ok defined $as->seq;

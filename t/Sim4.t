@@ -16,9 +16,10 @@ BEGIN {
 }
 
 use Bio::Tools::Sim4::Results;
+use Bio::Root::IO;
 
 ok(1);
-my $sim4 = new Bio::Tools::Sim4::Results(-file=> 't/sim4.rev', -estisfirst=>0);
+my $sim4 = new Bio::Tools::Sim4::Results(-file=> Bio::Root::IO->catfile("t","sim4.rev"), -estisfirst=>0);
 ok $sim4;
 
 

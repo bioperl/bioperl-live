@@ -21,11 +21,12 @@ BEGIN {
 }
 
 use Bio::LiveSeq::IO::BioPerl;
+use Bio::Root::IO;
 
 ok(1);
 
 my $loader=Bio::LiveSeq::IO::BioPerl->load(-db=>"EMBL", 
-					   -file=>"t/factor7.embl");
+					   -file=>Bio::Root::IO->catfile("t","factor7.embl"));
 ok $loader;
 my $gene=$loader->gene2liveseq(-gene_name => "factor7");
 ok $gene;

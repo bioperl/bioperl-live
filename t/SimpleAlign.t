@@ -19,9 +19,10 @@ BEGIN {
     plan tests => 6;
 }
 use Bio::SimpleAlign;
+use Bio::Root::IO;
 ok(1);
 
-open(FH,"t/test.mase") || die "Could not open test.mase $!";
+open(FH,Bio::Root::IO->catfile("t","test.mase")) || die "Could not open test.mase $!";
 my $aln = Bio::SimpleAlign->new();
 $aln->read_mase(\*FH);
 close(FH);
@@ -33,7 +34,7 @@ close(OUT);
 ok(1);
 
 $aln = Bio::SimpleAlign->new();
-open(FH,"t/test.pfam");
+open(FH,Bio::Root::IO->catfile("t","test.pfam"));
 $aln->read_Pfam(\*FH);
 close(FH);
 
@@ -46,7 +47,7 @@ ok(1);
 
 # make sure we can dogfood here
 $aln = Bio::SimpleAlign->new();
-open(IN,"t/out.pfam");
+open(IN,Bio::Root::IO->catfile("t","out.pfam"));
 $aln->read_Pfam(\*IN);
 close(IN);
 

@@ -15,8 +15,9 @@ BEGIN {
 
 use Bio::Tools::BPlite::Iteration;
 use Bio::Tools::BPpsilite;
+use Bio::Root::IO;
 
-open FH, "t/psiblastreport.out";
+open FH, Bio::Root::IO->catfile("t", "psiblastreport.out");
 my $report = Bio::Tools::BPpsilite->new(-fh=>\*FH);
 ok $report;
 ok $report->query =~ /DICDI/;# " query not found";
@@ -38,10 +39,11 @@ my ($sbjct, $id, $new_hsp, @is_old);
 	ok $new_hsp->score, 1097, " HSP score not found";
 	last HIT;
  }
+$report->close();
 close FH;
 
 # Verify parsing of PHI-PSI Blast reports
-open FH, "t/phipsi.out";
+open FH, Bio::Root::IO->catfile("t","phipsi.out");
 my $report2 = Bio::Tools::BPpsilite->new(-fh=>\*FH);
 
 ok $report2;
@@ -56,6 +58,7 @@ my $sbjct2 = $last_iteration2->nextSbjct;
 ok $last_iteration2->newhits->[1] =~ /ARATH/;# " Hit not found in phiblast report";
 my $hsp2 = $sbjct2->nextHSP;
 ok $hsp2->subject->end, 343, " HSP start not found in phiblast report";
+$report2->close();
 
 close FH;
 

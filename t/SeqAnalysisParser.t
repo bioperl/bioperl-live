@@ -22,10 +22,11 @@ BEGIN {
 
 use Bio::Factory::SeqAnalysisParserFactory;
 use Bio::SeqIO;
+use Bio::Root::IO;
 
 my ($seqio,$seq,$factory,$parser, $gene_seen, $exon_seen);
 
-$seqio = new Bio::SeqIO('-format'=>'fasta', '-file' => 't/genomic-seq.fasta');
+$seqio = new Bio::SeqIO('-format'=>'fasta', '-file' => Bio::Root::IO->catfile("t","genomic-seq.fasta"));
 ok $seqio->isa('Bio::SeqIO');# 'seqio was not created';
 $seq = $seqio->next_seq;
 ok $seq->isa('Bio::PrimarySeqI');#'could not read sequence';
@@ -50,7 +51,7 @@ ok $exon_seen, 37;
 ok $gene_seen, 3;
 $parser = $factory->get_parser(-input => 't/genomic-seq.mzef',
 			       -method=> 'mzef');
-$seqio = new Bio::SeqIO('-format'=>'fasta', '-file' => 't/genomic-seq.fasta');
+$seqio = new Bio::SeqIO('-format'=>'fasta', '-file' => Bio::Root::IO->catfile("t","genomic-seq.fasta"));
 $seq = $seqio->next_seq();
 ok(defined $seq && $seq->isa('Bio::PrimarySeqI'));
 

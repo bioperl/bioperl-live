@@ -20,12 +20,13 @@ BEGIN {
 
 use Bio::Tools::Blast::HTML;
 use Bio::Tools::Blast;
+use Bio::Root::IO;
 
 ok(1);
 my $blastobj = new Bio::Tools::Blast();
 ok($blastobj->isa('Bio::Tools::Blast'));
 my @reportarray;
-$blastobj->to_html(-file=>'t/blast.report', 
+$blastobj->to_html(-file=>Bio::Root::IO->catfile("t","blast.report"), 
 		   -out=>\@reportarray);
 ok(@reportarray, 428, 'did not produce any htmlified blast report lines');
 

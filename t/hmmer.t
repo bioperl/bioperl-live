@@ -22,6 +22,7 @@ BEGIN {
 use Bio::Tools::HMMER::Domain;
 use Bio::Tools::HMMER::Set;
 use Bio::Tools::HMMER::Results;
+use Bio::Root::IO;
 
 my ($domain,$set,$homol,$rev,$res,$dom,@doms);
 $domain = Bio::Tools::HMMER::Domain->new(-verbose=>1);
@@ -61,7 +62,7 @@ ok $set->bits(), 300;
 ok $set->evalue(), 0.0001;
 ok $set->name(), 'sillyname';
 
-$res = Bio::Tools::HMMER::Results->new( -file => 't/hmmsearch.out' , -type => 'hmmsearch');
+$res = Bio::Tools::HMMER::Results->new( -file => Bio::Root::IO->catfile("t","hmmsearch.out") , -type => 'hmmsearch');
 my $seen =0;
 foreach $set ( $res->each_Set) {
   foreach $domain ( $set->each_Domain ) {
@@ -74,7 +75,7 @@ ok $seen, 1;
 
 ok $res->number, 1215, "\nBad number of domains. Expecting 1215. Got" . $res->number;
 
-$res = Bio::Tools::HMMER::Results->new( -file => 't/hmmpfam.out' , 
+$res = Bio::Tools::HMMER::Results->new( -file => Bio::Root::IO->catfile("t","hmmpfam.out") , 
 					-type => 'hmmpfam');
 
 ok $res->number, 2, "\nBad number of domains. Expecting 2. Got".$res->number;

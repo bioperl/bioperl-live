@@ -24,9 +24,10 @@ BEGIN {
 use Bio::SeqIO;
 use Bio::Tools::SeqWords;
 use Bio::Tools::SeqStats;
+use Bio::Root::IO;
 
 ok(1);
-my $str = Bio::SeqIO->new(-file=> 't/multifa.seq', '-format' => 'Fasta');
+my $str = Bio::SeqIO->new(-file=> Bio::Root::IO->catfile("t","multifa.seq"), '-format' => 'Fasta');
 my $seqobj= $str->next_seq();
 ok $seqobj;
 

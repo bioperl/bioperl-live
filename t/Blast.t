@@ -29,13 +29,14 @@ END {
 }
 
 use Bio::Tools::Blast;
+use Bio::Root::IO;
 $loaded = 1;
 
 my($blast,@hits,@inds,$cfile,$ufile);
 
 open (OUT,">$testout");
 
-ok $blast = Bio::Tools::Blast->new(-file   =>'t/blast.report',
+ok $blast = Bio::Tools::Blast->new(-file   =>Bio::Root::IO->catfile("t","blast.report"),
 					-signif => 1e-5,
 					-parse  => 1,
 					-stats  => 1,

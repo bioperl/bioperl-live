@@ -21,13 +21,14 @@ BEGIN {
 use Bio::Tools::Genscan;
 use Bio::Tools::MZEF;  # THIS IS STILL TODO!
 use Bio::SeqIO;
+use Bio::Root::IO;
 
 # Genscan report
-my $genscan = Bio::Tools::Genscan->new('-file' => "t/genomic-seq.genscan");
+my $genscan = Bio::Tools::Genscan->new('-file' => Bio::Root::IO->catfile("t","genomic-seq.genscan"));
 ok $genscan;
 
 # original sequence
-my $seqin = Bio::SeqIO->new('-file' => "t/genomic-seq.fasta",
+my $seqin = Bio::SeqIO->new('-file' => Bio::Root::IO->catfile("t","genomic-seq.fasta"),
 			    '-format' => "fasta");
 ok $seqin;
 my $seq = $seqin->next_seq();
@@ -77,7 +78,7 @@ while(my $gene = $genscan->next_prediction()) {
 }
 
 # MZEF report
-my $mzef = Bio::Tools::MZEF->new('-file' => "t/genomic-seq.mzef");
+my $mzef = Bio::Tools::MZEF->new('-file' => Bio::Root::IO->catfile("t","genomic-seq.mzef"));
 ok $mzef;
 
 my $exon_num = 0;
