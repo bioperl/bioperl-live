@@ -28,7 +28,7 @@ Michele Clamp <michele at sanger.ac.uk>
 Tony Cox <avc at sanger.ac.uk>
 James Cuff <james at sanger.ac.uk>
 Andrew Dalke <dalke at acm.org>
-Allen Day <allens@cpan.org>
+Allen Day <allenday at ucla.edu>
 James Diggans <JDiggans at genelogic.com>
 Arne Elofsson <arne at sbc.su.se>
 Mark Fiers <M.W.E.J.Fiers at plant.wag-ur.nl>
@@ -53,6 +53,7 @@ Richard Resnick -- original Bio::Seq
 Todd Richmond <todd at andrew2.stanford.edu>
 Peter Schattner <schattner at alum.mit.edu>
 Martin Senger <senger at ebi.ac.uk> -- Biblio
+Allen Smith <allens at cpan.org> -- Bio::Matrix and Bio::SimpleAlign fixes
 Arne Stabenau <stabenau at ebi.ac.uk>
 Elia Stupka <elia at ebi.ac.uk>
 Gert Thijs <gert.thijs at esat.kuleuven.ac.be> 
