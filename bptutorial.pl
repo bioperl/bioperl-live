@@ -69,7 +69,7 @@ BioPerlTutorial - a tutorial for bioperl
     III.3.4 Identifying amino acid cleavage sites (Sigcleave)
     III.3.5 Miscellaneous sequence utilities: OddCodes, SeqPattern
     III.3.6 Converting coordinate systems (Coordinate::Pair, RelSegment)
-  III.4 Searching for "similar" sequences
+  III.4 Searching for similar sequences
      III.4.1 Running BLAST remotely (using RemoteBlast.pm)
      III.4.2 Parsing BLAST and FASTA reports with Search and SearchIO
      III.4.3 Parsing BLAST reports with BPlite, BPpsilite, and BPbl2seq
@@ -182,7 +182,8 @@ the scripts/ and examples/ directories. Summary descriptions of all
 of these scripts can be found in the file bioscripts.pod.  In
 addition, the POD documentation for many Bioperl modules should contain
 runnable code in the SYNOPSIS section which is meant to illustrate the
-use of a module and its methods.
+use of a module and its methods. You will also find some interesting
+bits of code in the FAQ (http://bioperl.org/Core/Latest/faq.html).
 
 =back
 
@@ -293,7 +294,7 @@ The Perl tool Data::Dumper used with the syntax:
   use Data::Dumper;
   print Dumper($seqobj);
 
-can also be helpful for obtaining debugging information on perl objects.
+can also be helpful for obtaining debugging information on Bioperl objects.
 
 =head2 I.3.2 Complete installation
 
@@ -655,7 +656,7 @@ bioinformatics programming.  These include:
 
 =item * Manipulating individual sequences
 
-=item * Searching for "similar" sequences
+=item * Searching for similar sequences
 
 =item * Creating and manipulating sequence alignments
 
@@ -871,14 +872,14 @@ Modify the function that's passed to the id_parser method:
 The Bio::DB::Fasta module uses the same principle, but the syntax is 
 slightly different, for example:
 
-my $db = Bio::DB::Fasta->new('test.fa', -makeid=>\&make_my_id);
-my $seqobj = $db->get_Seq_by_id($id);
+  my $db = Bio::DB::Fasta->new('test.fa', -makeid=>\&make_my_id);
+  my $seqobj = $db->get_Seq_by_id($id);
 
-sub make_my_id {
-   my $description_line = shift;
-   $description_line =~ /gi\|(\d+)\|emb\|(\w+)/;
-   ($1,$2);
-}
+  sub make_my_id {
+     my $description_line = shift;
+     $description_line =~ /gi\|(\d+)\|emb\|(\w+)/;
+     ($1,$2);
+  }
 
 The core bioperl installation does not support accessing sequences
 and data stored in relational databases. However, this capability is
@@ -904,50 +905,52 @@ written to another file (again using SeqIO) in any of the supported
 data formats making data converters simple to implement, for example:
 
   use Bio::SeqIO;
-  $in  = Bio::SeqIO->new('-file' => "inputfilename",
-                         '-format' => 'Fasta');
-  $out = Bio::SeqIO->new('-file' => ">outputfilename",
-                         '-format' => 'EMBL');
+  $in  = Bio::SeqIO->new(-file => "inputfilename",
+                         -format => 'Fasta');
+  $out = Bio::SeqIO->new(-file => ">outputfilename",
+                         -format => 'EMBL');
   while ( my $seq = $in->next_seq() ) {$out->write_seq($seq); }
 
 In addition, perl "tied filehandle" syntax is available to SeqIO,
 allowing you to use the standard E<lt>E<gt> and print operations to read
 and write sequence objects, eg:
 
-  $in  = Bio::SeqIO->newFh('-file' => "inputfilename" ,
-                           '-format' => 'Fasta');
-  $out = Bio::SeqIO->newFh('-format' => 'EMBL');
+  $in  = Bio::SeqIO->newFh(-file => "inputfilename" ,
+                           -format => 'Fasta');
+  $out = Bio::SeqIO->newFh(-format => 'EMBL');
   print $out $_ while <$in>;
 
 If the "-format" argument isn't used then Bioperl will guess the format
 based on the file's suffix in a case-insensitive manner. Here are the
 current interpretations:
 
-   Format   Suffixes
+   Format     Suffixes                     Comment
 
-   fasta    fasta|fast|seq|fa|fsa|nt|aa
-   genbank  gb|gbank|genbank
-   scf      scf
-   pir      pir
-   embl     embl|ebl|emb|dat
-   raw      txt
-   gcg      gcg
-   ace      ace
-   bsml     bsm|bsml
-   swiss    swiss|sp
-   phd      phd|phred
-   fastq    fastq
-   qual
-   chado
-   abi*
-   alf*
-   ctf*
-   exp*
-   scf*
-   ztr*
-   pln*
+   fasta      fasta|fast|seq|fa|fsa|nt|aa  Fasta
+   genbank    gb|gbank|genbank             Genbank
+   scf        scf                          SCF tracefile
+   pir        pir                          PIR
+   embl       embl|ebl|emb|dat             EMBL
+   raw        txt                          plain
+   gcg        gcg                          GCG
+   ace        ace                          ACeDB
+   bsml       bsm|bsml                     BSML XML
+   game                                    GAME XML
+   swiss      swiss|sp                     SwissProt
+   phd        phd|phred                    Phred
+   fastq      fastq                        Fastq
+   Locuslink                               LL_tmpl format
+   qual                                    Phred quality file
+   chado                                   Chado XML
+   exp        exp                          Staden experiment file
+   abi*       abi                          ABI tracefile
+   alf*       alf                          ALF tracefile
+   ctf*       ctf                          CTF tracefile
+   ztr*       ztr                          ZTR tracefile
+   pln*       pln                          Staden plain tracefile
 
-* These formats require the bioperl-ext package
+* These formats require the bioperl-ext package and the io_lib library
+  from the Staden package
 
 For more information see L<Bio::SeqIO> or the SeqIO HOWTO at 
 http://bioperl.org/HOWTOs/html/SeqIO.html.
@@ -987,10 +990,10 @@ at a time but SeqIO.pm handles IO for multiple sequences in a single
 stream. Syntax for AlignIO is almost identical to that of SeqIO:
 
   use Bio::AlignIO;
-  $in  = Bio::AlignIO->new('-file' => "inputfilename" ,
-                           '-format' => 'fasta');
-  $out = Bio::AlignIO->new('-file' => ">outputfilename",
-                           '-format' => 'pfam');
+  $in  = Bio::AlignIO->new(-file => "inputfilename" ,
+                           -format => 'fasta');
+  $out = Bio::AlignIO->new(-file => ">outputfilename",
+                           -format => 'pfam');
   while ( my $aln = $in->next_aln() ) { $out->write_aln($aln); }
 
 The only difference is that here, the returned object reference, $aln,
@@ -1064,7 +1067,9 @@ object can be found in L<Bio::SeqFeature::Generic>, and a description
 of related, top-level "annotation" is found in L<Bio::Annotation::Collection>.
 
 Additional sample code for obtaining sequence features can be found in
-the script gb2features.pl in the subdirectory examples/DB.
+the script gb2features.pl in the subdirectory examples/DB. And finally,
+there's a section on features in the FAQ 
+(http://bioperl.org/Core/Latest/faq.html#5).
 
 The following methods returns new sequence objects, but do not transfer
 features across:
@@ -1114,8 +1119,7 @@ Nuclear' translation. These tables are located in the object
 Bio::Tools::CodonTable which is used by the translate method. For
 example, for mitochondrial translation:
 
-  $human_mitochondrial_translation =
-      $my_seq_object->translate(undef,undef,undef, 2);
+  $human_mitochondrial_translation = $seq_obj->translate(undef,undef,undef,2);
 
 If we want to translate full coding regions (CDS) the way major
 nucleotide databanks EMBL, GenBank and DDBJ do it, the translate
@@ -1133,8 +1137,7 @@ not met, the method, by default, issues a warning. By setting the
 sixth argument to evaluate to "true", one can instead instruct
 the program to die if an improper CDS is found, e.g.
 
-  $protein_object =
-      $cds->translate(undef,undef,undef,undef,1,'die_if_errors');
+  $protein_object = $cds->translate(undef,undef,undef,undef,1,'die_if_errors');
 
 See L<Bio::Tools::CodonTable> for related details.
 
@@ -1151,7 +1154,7 @@ SeqStats also returns counts of the number of codons used.  For
 example:
 
   use SeqStats;
-  $seq_stats  =  Bio::Tools::SeqStats->new($seqobj);
+  $seq_stats  = Bio::Tools::SeqStats->new($seqobj);
   $weight = $seq_stats->get_mol_wt();
   $monomer_ref = $seq_stats->count_monomers();
   $codon_ref = $seq_stats->count_codons();  # for nucleic acid sequence
@@ -1191,7 +1194,7 @@ recognition sites that are six bases long one could write:
      # prints name, recognition site, overhang
   }
 
-There are other criteria that can be used to select enzyme objects,
+There are other methods that can be used to select sets of enzyme objects,
 such as unique_cutters() and blunt_enzymes(). You can also select a
 Enzyme object by name, like so:
 
@@ -1312,8 +1315,8 @@ examples in the script seq_pattern.pl in the examples/tools directory.
 
   use Bio::Tools::SeqPattern;
   $pattern     = '(CCCCT)N{1,200}(agggg)N{1,200}(agggg)';
-  $pattern_obj = new Bio::Tools::SeqPattern('-SEQ'  => $pattern,
-                                            '-TYPE' => 'dna');
+  $pattern_obj = new Bio::Tools::SeqPattern(-SEQ  => $pattern,
+                                            -TYPE => 'dna');
   $pattern_obj2 = $pattern_obj->revcom();
   $pattern_obj->revcom(1); # returns expanded rev complement pattern.
 
@@ -1397,7 +1400,7 @@ For more details on coordinate transformations and other GFF-related
 capabilities in Bioperl see  Bio::DB::GFF::RelSegment.pm, Bio::DB::GFF.pm 
 and the test file t/BioDBGFF.t.
 
-=head2 III.4 Searching for "similar" sequences
+=head2 III.4 Searching for similar sequences
 
 One of the basic tasks in molecular biology is identifying sequences
 that are, in some way, similar to a sequence of interest.  The Blast
@@ -1413,11 +1416,12 @@ RemoteBlast object.
 
 A skeleton script to run a remote blast might look as follows:
 
-  $remote_blast = Bio::Tools::Run::RemoteBlast->new(
-  	   '-prog' => 'blastp','-data' => 'ecoli','-expect' => '1e-10' );
+  $remote_blast = Bio::Tools::Run::RemoteBlast->new (
+  	   -prog => 'blastp',-data => 'ecoli',-expect => '1e-10' );
   $r = $remote_blast->submit_blast("t/data/ecolitst.fa");
   while (@rids = $remote_blast->each_rid ) {
-      foreach $rid ( @rids ) {$rc = $remote_blast->retrieve_blast($rid);}}
+      foreach $rid ( @rids ) {$rc = $remote_blast->retrieve_blast($rid);}
+  }
 
 You may want to change some parameter of the remote job and this example
 shows how to change the matrix:
@@ -1514,7 +1518,8 @@ documentation can be found in: L<Bio::SearchIO::blast>,
 L<Bio::SearchIO::psiblast>, L<Bio::SearchIO::blastxml>,
 L<Bio::SearchIO::fasta>, and L<Bio::SearchIO>. There is also sample
 code in the Bio/examples/searchio directory which illustrates how to
-use SearchIO.
+use SearchIO. And finally, there's a section with SearchIO questions
+in the FAQ (http://bioperl.org/Core/Latest/faq.html#3).
 
 =for html <A NAME ="iii.4.3"></A>
 
@@ -1541,7 +1546,7 @@ method for retrieving high-scoring-pairs is called "nextHSP":
   $report->query;
   while(my $sbjct = $report->nextSbjct) {
        $sbjct->name;
-       while (my $hsp = $sbjct->nextHSP) { $hsp->score; }
+       while (my $hsp = $sbjct->nextHSP) { print $hsp->score,"\n"; }
   }
 
 A complete description of the module can be found in L<Bio::Tools::BPlite>.
@@ -1664,8 +1669,8 @@ well as one or more blast-readable databases.
 Basic usage of the StandAloneBlast.pm module is simple.  Initially, a
 local blast "factory object" is created.
 
-  @params = ('program'  => 'blastn',
-             'database' => 'ecoli.nt');
+  @params = (program  => 'blastn',
+             database => 'ecoli.nt');
   $factory = Bio::Tools::Run::StandAloneBlast->new(@params);
 
 Any parameters not explicitly set will remain as the BLAST defaults.
@@ -1694,7 +1699,7 @@ can access the SearchIO blast parser directly, e.g.
 
   while (my $hit = $blast_report->next_hit){
      while (my $hsp = $sbjct->next_hsp){
-        print $hsp->score . " " . $hit->name . "\n";
+        print $hsp->score," ",$hit->name,"\n";
      }
   }
 
@@ -1861,11 +1866,11 @@ and comments) associated with it.  Creating a new SeqFeature and
 Annotation and associating it with a Seq is accomplished with syntax
 like:
 
-  $feat = new Bio::SeqFeature::Generic('-start'   => 40,
-  				       '-end'     => 80,
-  				       '-strand'  => 1,
-  				       '-primary' => 'exon',
-  				       '-source'  => 'internal' );
+  $feat = new Bio::SeqFeature::Generic(-start   => 40,
+  				       -end     => 80,
+  				       -strand  => 1,
+  				       -primary => 'exon',
+  				       -source  => 'internal' );
   $seqobj->add_SeqFeature($feat); # Add the SeqFeature to the parent
   $annotations = $seqobj->annotation(new Bio::Annotation::Collection);
   $annotations->add_Annotation('disease', $object);
@@ -1903,7 +1908,8 @@ with methods including:
 
 See L<Bio::Annotation::Collection> and L<Bio::SeqFeature::Generic> as starting
 points for further exploration, and see the examples/tools/gff2ps.pl
-and examples/tools/gb_to_gff.pl scripts.
+and examples/tools/gb_to_gff.pl scripts. There's also a section on 
+features and annotations in the FAQ (http://bioperl.org/Core/Latest/faq.html#5).
 
 It is worth mentioning that one can also retrieve the start and end
 positions of a feature using a Bio::LocationI object:
@@ -2050,12 +2056,12 @@ mutation are exactly the same in DNA and RNA sequences, we can write:
   use Bio::LiveSeq::Mutator;
   use Bio::LiveSeq::Mutation;
 
-  $loader = Bio::LiveSeq::IO::BioPerl->load('-file' => "$filename");
-  $gene = $loader->gene2liveseq('-gene_name' => $gene_name);
-  $mutation = new Bio::LiveSeq::Mutation ('-seq' =>'G',
-  					  '-pos' => 100 );
-  $mutate = Bio::LiveSeq::Mutator->new('-gene'      => $gene,
-  				       '-numbering' => "coding"  );
+  $loader = Bio::LiveSeq::IO::BioPerl->load(-file => "$filename");
+  $gene = $loader->gene2liveseq(-gene_name => $gene_name);
+  $mutation = new Bio::LiveSeq::Mutation (-seq =>'G',
+  					  -pos => 100 );
+  $mutate = Bio::LiveSeq::Mutator->new(-gene      => $gene,
+  				       -numbering => "coding"  );
   $mutate->add_Mutation($mutation);
   $seqdiff = $mutate->change_gene();
   $DNA_re_changes = $seqdiff->DNAMutation->restriction_changes;
