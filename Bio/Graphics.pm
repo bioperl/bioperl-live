@@ -82,7 +82,7 @@ Bio::Graphics - Generate GD images of Bio::Seq objects
 
 =head1 DESCRIPTION
 
-Please see L<Bio::Graphics::Panel> for the full API.
+Please see L<Bio::Graphics::Panel> for the full interface.
 
 =head1 SEE ALSO
 

@@ -77,7 +77,7 @@ sub arrow_length {
 sub connector {
   my $self = shift;
   return $self->SUPER::connector(@_) if $self->all_callbacks;
-  return 'hat';
+  return ($self->option('connector') || 'hat');
 }
 
 

@@ -15,6 +15,8 @@ use constant CM2 => 50;  # big bin, y axis
 use constant CM3 => 50;  # small bin, x axis
 use constant CM4 => 50;  # small bin, y axis
 
+use constant QUILL_INTERVAL => 8;  # number of pixels between Jim Kent style intron "quills"
+
 # a bumpable graphical object that has bumpable graphical subparts
 
 # args:  -feature => $feature_object (may contain subsequences)
@@ -697,6 +699,8 @@ sub draw_connector {
     $self->draw_solid_connector($gd,$color,@_);
   } elsif ($connector_type eq 'dashed') {
     $self->draw_dashed_connector($gd,$color,@_);
+  } elsif ($connector_type eq 'quill') {
+    $self->draw_quill_connector($gd,$color,@_);
   } else {
     ; # draw nothing
   }
@@ -751,6 +755,36 @@ sub draw_dashed_connector {
 
   $gd->setStyle($color,$color,gdTransparent,gdTransparent,);
   $gd->line($left,$center1,$right,$center2,gdStyled);
+}
+
+sub draw_quill_connector {
+  my $self = shift;
+  my $gd   = shift;
+  my $color = shift;
+  my ($top1,$bottom1,$left,$top2,$bottom2,$right) = @_;
+
+  my $center1  = ($top1 + $bottom1)/2;
+  my $center2  = ($top2 + $bottom2)/2;
+
+  $gd->line($left,$center1,$right,$center2,$color);
+  my $direction = $self->feature->strand;
+  return unless $direction;
+
+  if ($direction > 0) {
+    my $start = $left+4;
+    my $end   = $right-1;
+    for (my $position=$start; $position <= $end; $position += QUILL_INTERVAL) {
+      $gd->line($position,$center1,$position-2,$center1-2,$color);
+      $gd->line($position,$center1,$position-2,$center1+2,$color);
+    }
+  } else {
+    my $start = $left+1;
+    my $end   = $right-4;
+    for (my $position=$start; $position <= $end; $position += QUILL_INTERVAL) {
+      $gd->line($position,$center1,$position+2,$center1-2,$color);
+      $gd->line($position,$center1,$position+2,$center1+2,$color);
+    }
+  }
 }
 
 sub filled_box {
@@ -1263,45 +1297,51 @@ glyph pages for more options.
 
   -font         Glyph font		       gdSmallFont
 
-  -connector    Connector type                 0 (false)
+  -connector    Connector type                 undef (false)
 
   -connector_color
                 Connector color                black
 
-  -strand_arrow Whether to indicate            0 (false)
+  -strand_arrow Whether to indicate            undef (false)
                  strandedness
 
-  -label        Whether to draw a label	       0 (false)
+  -label        Whether to draw a label	       undef (false)
 
-  -description  Whether to draw a description  0 (false)
+  -description  Whether to draw a description  undef (false)
 
   -sort_order   Specify layout sort order      "default"
 
-  -always_sort  Sort even when bumping is off  0 (false)
+  -always_sort  Sort even when bumping is off  undef (false)
 
-  -bump_limit   Maximum number of levels to bump 0 (unlimited)
+  -bump_limit   Maximum number of levels to bump undef (unlimited)
 
-For glyphs that consist of multiple segments, the -connector option
-controls what's drawn between the segments.  The default is 0 (no
-connector).  Options include "hat", an upward-angling conector,
-"solid", a straight horizontal connector, and "dashed", for a
-horizontal dashed line.  The -connector_color option controls the
-color of the connector, if any.
+For glyphs that consist of multiple segments, the B<-connector> option
+controls what's drawn between the segments.  The default is undef (no
+connector).  Options include:
+
+   "hat"     an upward-angling conector
+   "solid"   a straight horizontal connector
+   "quill"   a decorated line with small arrows indicating strandedness
+             (like the UCSC Genome Browser uses)
+   "dashed"  a horizontal dashed line.  
+
+The B<-connector_color> option controls the color of the connector, if
+any.
 
 The label is printed above the glyph.  You may pass an anonymous
-subroutine to -label, in which case the subroutine will be invoked
+subroutine to B<-label>, in which case the subroutine will be invoked
 with the feature as its single argument.  and is expected to return
 the string to use as the description.  If you provide the numeric
-value "1" to -description, the description will be read off the
+value "1" to B<-description>, the description will be read off the
 feature's seqname(), info() and primary_tag() methods will be called
 until a suitable name is found.  To create a label with the
 text "1", pass the string "1 ".  (A 1 followed by a space).
 
 The description is printed below the glyph.  You may pass an anonymous
-subroutine to -description, in which case the subroutine will be
+subroutine to B<-description>, in which case the subroutine will be
 invoked with the feature as its single argument and is expected to
 return the string to use as the description.  If you provide the
-numeric value "1" to -description, the description will be read off
+numeric value "1" to B<-description>, the description will be read off
 the feature's source_tag() method.  To create a description with the
 text "1", pass the string "1 ".  (A 1 followed by a space).
 
@@ -1309,9 +1349,10 @@ In the case of ACEDB Ace::Sequence feature objects, the feature's
 info(), Brief_identification() and Locus() methods will be called to
 create a suitable description.
 
-The -strand_arrow option, if true, requests that the glyph indicate
+The B<-strand_arrow> option, if true, requests that the glyph indicate
 which strand it is on, usually by drawing an arrowhead.  Not all
-glyphs can respond appropriately to this request.
+glyphs will respond to this request.  For historical reasons,
+B<-stranded> is a synonym for this option.
 
 By default, features are drawn with a layout based only on the
 position of the feature, assuring a maximal "packing" of the glyphs

@@ -13,11 +13,12 @@ use constant MODE    => 0555;         # -r-xr-xr-x
 my $install_dir = shift || $Config{installscript};
 my $prompt_mode = shift || 'n';
 
-print "\n** BioPerl Scripts Install** \n\n";
 $prompt_mode = 'all'  if $prompt_mode =~ /^a/i;
 $prompt_mode = 'none' if $prompt_mode =~ /^n/i;
 $prompt_mode = 'some' if $prompt_mode =~ /^i/i;
 exit 0 if $prompt_mode eq 'none';
+
+print "\n** BioPerl Scripts Install** \n\n";
 
 chdir SCRIPTS  or die "Can't chdir to ",SCRIPTS,": $!";
 opendir(F,".") or die "Can't opendir ",SCRIPTS,": $!";
@@ -50,7 +51,8 @@ sub install_contents {
   while (my $script = readdir(D)) {
     next unless $script =~ /\.PLS$/;
     my $in  = IO::File->new("$dir/$script")    or die "Can't open $dir/$script: $!";
-    $script =~ s/\.PLS$/\.pl/;
+    $script =~ s/\.PLS$/\.pl/;                   # change from .PLS to .pl
+    $script =~ s/^/bp_/ unless $script =~ /^bp/; # add the "bp" prefix
     print "\tInstalling $script....\n";
     unlink "$dest/$script" if -e "$dest/$script";
     my $out = IO::File->new(">$dest/$script")  or die "Can't open $dest/$script: $!";

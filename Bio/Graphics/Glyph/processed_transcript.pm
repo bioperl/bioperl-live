@@ -44,6 +44,12 @@ sub bgcolor {
   return $self->utr_color;
 }
 
+sub connector {
+  my $self = shift;
+  return 'quill' if $self->option('decorate_introns');
+  return $self->SUPER::connector(@_);
+}
+
 
 1;
 
@@ -95,16 +101,16 @@ L<Bio::Graphics::Glyph> for a full explanation.
 
   -font         Glyph font		       gdSmallFont
 
-  -connector    Connector type                 0 (false)
+  -connector    Connector type                 undef (false)
 
   -connector_color
                 Connector color                black
 
-  -label        Whether to draw a label	       0 (false)
+  -label        Whether to draw a label	       undef (false)
 
-  -description  Whether to draw a description  0 (false)
+  -description  Whether to draw a description  undef (false)
 
-  -strand_arrow Whether to indicate            0 (false)
+  -strand_arrow Whether to indicate            undef (false)
                  strandedness
 
 In addition, the alignment glyph recognizes the following
@@ -113,11 +119,15 @@ glyph-specific options:
   Option         Description                  Default
   ------         -----------                  -------
 
-  -thin_utr      Flag.  If true, UTRs will      0 (false)
+  -thin_utr      Flag.  If true, UTRs will      undef (false)
                  be drawn at 2/3 of the
                  height of CDS segments.
 
   -utr_color     Color of UTR segments.         Gray #D0D0D0
+
+  -decorate_introns
+                 Draw strand with little arrows undef (false)
+                 on the intron.
 
 =head1 BUGS
 

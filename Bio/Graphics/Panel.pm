@@ -1484,11 +1484,16 @@ some are shared by all glyphs:
   -bump_limit Maximum number of levels     undef (unlimited)
               to bump
 
+  -strand_arrow Whether to indicate        undef (false)
+                 strandedness
+
+  -stranded    Synonym for -strand_arrow   undef (false)
+
   -connector  Type of connector to         none
 	      use to connect related
 	      features.  Options are
-	      "hat", "dashed" and
-	      "none".
+	      "solid," "hat", "dashed", 
+              "quill" and "none".
 
   -key        Description of track for     undef
 	      use in key.
@@ -1562,7 +1567,17 @@ subglyphs, and the "transcript" and "transcript2" glyphs draw
 hat-shaped lines between their subglyphs.  All other glyphs do not
 connect their components.  You can override this behavior by providing 
 a -connector option, to explicitly set the type of connector.  Valid
-options are "dashed", "solid", "hat" and "none".
+options are:
+
+
+   "hat"     an upward-angling conector
+   "solid"   a straight horizontal connector
+   "quill"   a decorated line with small arrows indicating strandedness
+             (like the UCSC Genome Browser uses)
+   "dashed"  a horizontal dashed line.
+
+The B<-connector_color> option controls the color of the connector, if
+any.
 
 B<Collision control:> The -bump argument controls what happens when
 glyphs collide.  By default, they will simply overlap (value 0).  A
@@ -1582,6 +1597,12 @@ to create clickable imagemaps, for example), the rectangles will
 surround the top level features.  If you wish for the rectangles to
 surround subpieces of the glyph, such as the exons in a transcript,
 set box_subparts to a true value.
+
+B<strand_arrow:> If set to true, some glyphs will indicate their
+strandedness, usually by drawing an arrow.  For this to work, the
+Bio::SeqFeature must have a strand of +1 or -1.  The glyph will ignore
+this directive if the underlying feature has a strand of zero or
+undef.
 
 B<sort_order>: By default, features are drawn with a layout based only on the
 position of the feature, assuring a maximal "packing" of the glyphs

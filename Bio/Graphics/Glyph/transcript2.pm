@@ -63,11 +63,6 @@ sub draw_component {
 
 }
 
-# override option() for force the "hat" type of connector
-sub connector {
-  return 'hat';
-}
-
 sub draw_connectors {
   my $self = shift;
   my ($gd,$dx,$dy) = @_;
