@@ -149,6 +149,7 @@ if( eval "require SVG::Graph; 1;" ) {
   }
 } else {
     skip("skipping SVG::Graph output, SVG::Graph not installed",2);
+    skip("skipping SVG::Graph output, SVG::Graph not installed",2);
 }
 
 ok($treeio);
