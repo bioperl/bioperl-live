@@ -148,7 +148,7 @@ sub end {
 	  my $id = $self->id; 
 	  $self->warn("In sequence $id residue count gives value $len.
 Overriding value [$value] with value $new_end for Bio::LocatableSeq::end().")
-	      and $value = $new_end if $new_end != $value;
+	      and $value = $new_end if $new_end != $value and $self->verbose > 0;
       }
       
       $self->{'end'} = $value;
