@@ -1,7 +1,12 @@
+#!/usr/bin/perl -w
+
 # $Id$
 # An example of how to use the different alignment tools in bioperl
 # to align some sequences
-#!/usr/bin/perl -w
+
+# All these methods except Bio::Tools::pSW will work for DNA sequence
+# (need to use a different matrix however)
+
 use Bio::Factory::EMBOSS;
 use Bio::SeqIO;
 use Bio::AlignIO;
@@ -63,12 +68,12 @@ $alignout->write_aln($aln);
 
 $factory = new Bio::Tools::Run::Alignment::Clustalw('ktuple' => 2, 
 						    'matrix' => 'BLOSUM');
-$aln = $factory->align($seq,$seq2);
+$aln = $factory->align([$seq,$seq2]);
 $alignout->write_aln($aln);
 
 $factory = new Bio::Tools::Run::Alignment::TCoffee('ktuple' => 2, 
 						   'matrix' => 'BLOSUM');
-$aln = $factory->align($seq,$seq2);
+$aln = $factory->align([$seq,$seq2]);
 $alignout->write_aln($aln);
 
 $factory = new Bio::Tools::Run::StandAloneBlast();
