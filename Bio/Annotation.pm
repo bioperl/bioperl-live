@@ -26,13 +26,12 @@ Bio::Annotation - A generic object for annotations
 
     foreach $comment ( $ann->each_Comment ) {
        # $comment is a Bio::Annotation::Comment object
-          print "Comment: ", $comment->text(), "\n"
-       }
+       print "Comment: ", $comment->text(), "\n";
     }
 
     foreach $link ( $ann->each_DBLink ) {
        # link is a Bio::Annotation::DBLink object
-       print "Link to ",$link->primary_id, " in database", $link->db "\n";
+       print "Link to ",$link->primary_id, " in database", $link->database "\n";
     }
 
     foreach $ref ( $ann->each_Reference ) {
@@ -260,6 +259,9 @@ sub each_Comment{
 
 sub add_DBLink{
    my ($self,$com) = @_;
+   if( ! $com->isa('Bio::Annotation::DBLink') ) {
+       $self->throw("Is not a link object but a  [$com]");
+   }
    push(@{$self->{'link'}},$com);
 }
 
