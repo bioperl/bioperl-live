@@ -12,6 +12,8 @@ BEGIN {
     # to handle systems with no installed Test module
     # we include the t dir (where a copy of Test.pm is located)
     # as a fallback
+     # bioperl takes far too long to compile.
+    unshift(@INC,'Bio');
     eval { require Test; };
     if( $@ ) {
         use lib 't';
@@ -27,7 +29,9 @@ use Bio::Assembly::Contig;
 use Bio::Assembly::Singlet;
 use Bio::Seq::SeqWithQuality;
 use Bio::Seq::PrimaryQual;
-
+use Dumpvalue();
+my $dumper = new Dumpvalue();
+$dumper->veryCompact(1);
 
 
 my $aio = Bio::Assembly::IO->new(-file=>"<t/data/consed_project/edit_dir/test_project.fasta.screen.ace.1",
@@ -37,17 +41,37 @@ my $assembly = $aio->next_assembly();
 my @contigs = $assembly->all_contigs();
 my @singlets = $assembly->all_singlets();
 
-print("Testing to see if the first contig is a Contig.\n");
-my $first_contig = pop(@contigs);
-ok(ref($first_contig) eq "Bio::Assembly::Contig");
+# print("Testing to see if the first contig is a Contig.\n");
+ok(ref($contigs[0]) eq "Bio::Assembly::Contig");
 
-print("Testing to see if the first singlet is a Singlet.\n");
-my $first_singlet = pop(@singlets);
-ok(ref($first_singlet) eq "Bio::Assembly::Singlet");
+# print("Testing to see if the first singlet is a Singlet.\n");
+ok(ref($singlets[0]) eq "Bio::Assembly::Singlet");
 
-print("Testing to see if the Singlet ISA Contig.\n");
-ok(UNIVERSAL::isa($first_singlet,'Bio::Assembly::Contig'));
+# print("Testing to see if the Singlet ISA Contig.\n");
+ok(UNIVERSAL::isa($singlets[0],'Bio::Assembly::Contig'));
+
+# this is what i really want to do:
+# print("There were this many contigs: (".scalar(@contigs).")\n");
+# print("There were this many singlets: (".scalar(@singlets).")\n");
+push @contigs,@singlets;
+# print("This is a list of the ".scalar(@contigs)." contigs:\n");
+foreach my $contig (@contigs) {
+     # print &contig_dump($contig);
+}
 
 
 
-
+sub contig_dump {
+     my ($contig) = @_;
+     my $returner;
+     my $count = 1;
+     my $prefix .= ("Contig: name(".$contig->id().") ");
+     my @members = $contig->each_seq();
+     if (!@members) { return $prefix." No Members\n"; }
+     my $count = 1;
+     foreach my $member (@members) {
+          print("$prefix Member $count chromatfilename(".$member->{chromatfilename}.") phdfilenamename(".$member->{phdfilename}.") start(".$member->start().")\n");
+          $count++;
+     }
+     return $returner;
+}

@@ -374,15 +374,25 @@ sub next_assembly {
                # oh deario, no singlets here
           return $assembly;
      }
+     # print("Opening the singletsfile (".$singletsfilename.")\n");
      my $singlets_fh = Bio::SeqIO->new(-file   => "<$singletsfilename",
                                           -format => 'fasta');
      my $adder;
      while (my $seq = $singlets_fh->next_seq()) {
+          # $dumper->dumpValue($seq);
                # find the name of this singlet and attempt to get the phd from phd_dir instead
-          my $phdfilename = $seq->display_id();
+          my ($phdfilename,$chromatfilename);
+          if ($seq->desc() =~ /PHD_FILE: (\S+)/) {
+              $phdfilename = $1;
+          }
+          if ($seq->desc() =~ /CHROMAT_FILE: (\S+)/) {
+               $chromatfilename = $1;
+          }
           (my $phdfile = $singletsfilename) =~ s/edit_dir.*//;
           $phdfile .= "phd_dir/$phdfilename";
+          my $singlet = new Bio::Assembly::Singlet();
           if (-f $phdfile) {
+               # print("Reading singlet data from this phdfile ($phdfilename)\n");
                my $phd_fh = new Bio::SeqIO( -file =>   "<$phdfile", -format     =>   'phd');
                my $swq = $phd_fh->next_seq();
                $adder = $swq;
@@ -390,7 +400,10 @@ sub next_assembly {
           else {
                $adder = $seq;
           }
-          $assembly->add_singlet(new Bio::Assembly::Singlet(-seq => $adder));
+          $adder->{phdfilename} = $phdfilename;
+          $adder->{chromatfilename} = $chromatfilename;
+          $singlet->seq_to_singlet($adder);
+          $assembly->add_singlet($singlet);
      }
     $assembly->update_seq_list();
     return $assembly;

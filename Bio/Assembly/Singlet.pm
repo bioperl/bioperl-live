@@ -74,17 +74,19 @@ use Bio::Root::Root;
 use Bio::Align::AlignI;
 use Bio::SeqFeature::Collection;
 use Bio::Seq::PrimaryQual;
-
-@ISA = qw(Bio::Root::Root Bio::Align::AlignI Bio::Assembly::Contig);
+use Bio::Assembly::Contig;
+use Dumpvalue();
+my $dumper = new Dumpvalue();
+$dumper->veryCompact(1);
+@ISA = qw(Bio::Assembly::Contig Bio::Root::Root Bio::Align::AlignI Bio::Assembly::Contig);
 
 
 sub new {
      my ($class,%ARG) = @_;
-     my $self = {};
+     my $self = $class->SUPER::new(%ARG);
      my $args = \%ARG;
      bless ($self,$class);
      if ($args->{'-seq'}) {
-          $self->seqref($args->{'-seq'});
           $self->seq_to_singlet($args->{'-seq'});
      }
      return $self;
@@ -102,9 +104,20 @@ sub new {
 
 sub seq_to_singlet {
     my ($self,$seq) = @_;
-     my $singlet = new Bio::Assembly::Singlet();
-     
-     return $singlet;
+    $self->seqref($seq);
+    $self->strand(1);
+     my $lseq = new Bio::LocatableSeq(
+               -seq =>   $seq->seq(),
+               -start    =>   1,
+               -end =>   $seq->length(),
+               -id  =>   $seq->display_id());
+     $lseq->{chromatfilename} = $seq->{'chromatfilename'};
+     $lseq->{phdfilename} = $seq->{'phdfilename'};
+    $self->set_consensus_sequence($lseq);
+    if (UNIVERSAL::isa($seq,"Bio::Seq::SeqWithQuality")) {
+          $self->set_consensus_quality($seq->qual_obj())
+    }
+     $self->add_seq($lseq);
 }
 
 
@@ -120,7 +133,10 @@ sub seq_to_singlet {
 
 sub id {
      my $self = shift;
-     return $self->seqref()->display_id();
+     # print("Getting the id for this thing:\n");
+     # $dumper->dumpValue($self->seqref());
+     # print("This is the id: (".$self->seqref()->id().")\n");
+     return $self->seqref()->id();
 }
 
 
@@ -141,7 +157,37 @@ sub seqref {
 }
 
 
+=head2 chromatfilename
 
+    Title   : chromatfilename
+    Usage   : my $chromatfilename = $singlet->chromatfilename($newfilename);
+    Function: Get the name of the chromatfile for this singlet
+    Returns : A string.
+    Args    : If a string is provided, the chromatfilename will be set to that value.
+
+=cut
+
+sub chromatfilename {
+     my ($self,$name) = @_;
+     if ($name) { $self->{'chromatfilename'} = $name; }
+     return $self->{'chromatfilename'};
+}
+
+=head2 phdfilename
+
+    Title   : phdfilename
+    Usage   : my $phdfilename = $singlet->phdfilename($newfilename);
+    Function: Get the name of the phdfile for this singlet
+    Returns : A string.
+    Args    : If a string is provided, the phdfilename will be set to that value.
+
+=cut
+
+sub phdfilename {
+     my ($self,$name) = @_;
+     if ($name) { $self->{phdfilename} = $name; }
+     return $self->{'phdfilename'};
+}
 
 
 1;
