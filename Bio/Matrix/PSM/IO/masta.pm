@@ -11,15 +11,23 @@ like fasta and then the actual data, which is tab delimited:
 0.1	0.62	.017	0.11
 0.22	0.13	0.54	0.11
 
-Or A,C,G and T could be horizontally positioned. Please note masta will parse only DNA at
-the moment.
+Or A,C,G and T could be horizontally positioned (positioning is automatically detected).
+Please note masta will parse only DNA at the moment.
 
+It will also convert a set of aligned sequences:
+ACATGCAT
+ACAGGGAT
+ACAGGCAT
+ACCGGCAT
+
+to a PFM (SiteMatrix object). When writing if you supply SEQ it will write 10 random instances,
+which represent correctly the frequency and can be used as an input for weblogo creation purposes.
 
 See Bio::Matrix::PSM::IO for detailed documentation on how to use masta parser
 
 =head1 DESCRIPTION
 
-Parser for meme.
+Parser for simple fasta-like PFM/PWM/gapless sequence alignment formats.
 
 =head1 FEEDBACK
 
@@ -66,7 +74,7 @@ use strict;
 
  Title   : new
  Usage   : my $psmIO =  new Bio::Matrix::PSM::IO(-format=>'masta',
-						 -file=>$file, -mtype=>'pwm');
+						 -file=>$file, -mtype=>'PWM');
  Function: Associates a file with the appropriate parser
  Throws  :
  Example :
@@ -91,16 +99,17 @@ sub new {
 
  Title   : write_psm
  Usage   : 
- Function: 
+ Function: writes a pfm/pwm/raw sequence in a simple masta format
  Throws  :
- Example :
- Args    : 
+ Example : 
+ Args    : SiteMatrix object, type (optional string: PWM, SEQ or PFM)
  Returns : 
 
 =cut
 
 sub write_psm {
-    my ($self,$matrix)=@_;
+    my ($self,$matrix,$type)=@_;
+    $self->{mtype}=uc($type) if ($type);
     my $idline=">". $matrix->id . "\n";
     $self->_print($idline);
     while (my %h=$matrix->next_pos) {
@@ -112,9 +121,10 @@ sub write_psm {
 =head2 next_matrix
 
  Title   : next_matrix
- Usage   :
- Function:
- Throws  :
+ Usage   : my $matrix=$psmio->next_matrix;
+ Function: returns the next matrix in the stream
+ Throws  : If there is you mix different types, for example weights and frequencies occur in the same entry
+	   You can mix weights, but these should be designated by different ID lines
  Example :
  Args    :
  Returns : Bio::Matrix::PSM::SiteMatrix
@@ -128,29 +138,38 @@ sub next_matrix {
     $self->throw("No ID line- wrong format\n") unless ($line=~/^>/);
     my ($id,$desc)=split(/[\t\s]+/,$line,2);
     $id=~s/>//;
-    my ($mtype,$format,@mdata);
+    my ($mtype,$format,@mdata,$len);
     while ($line=$self->_readline) {
       chomp $line;
-      next if ($line eq '');
+      next if ($line eq '');#THere should not be empty lines, but just in case...
       if ($line=~/^>/) {
           $self->_pushback($line);
           last;
       }
+      if ($line!~/[^ACGTacgt]/g) {#This is a set of aligned sequences
+      	         $self->throw("Mixing between types is not allowedor a parsing error occured\n") if (($self->{_mtype} !=3) &&($mtype)) ;
+		$self->throw("Bad sequence- different length: $line\n") if (($len) && ($len!=length($line)));
+		$len=length($line) unless ($len);
+		push @mdata,$line;
+		$self->{_mtype}=3;
+	}
+	else {
       $line=~s/[a-zA-Z]//g;  #Well we may wanna do a hash and auto check for letter order if there is a really boring talk...
       $line=~s/^[\s\t]+//;
       $line=~s/[\s\t]+/\t/g;
       my @data=split(/\t/,$line);
       if ($#data==3) {
-         $self->throw("Type 1 and type 2 formats cannot be mixed or a parsing error occured\n") if (($self->{_mtype} !=1) &&($mtype)) ;
+         $self->throw("Mixing between types is not allowed or a parsing error occured\n") if (($self->{_mtype} !=1) &&($mtype)) ;
          $self->{_mtype}=1;
          $mtype=1;
       }
       else   {
-         $self->throw("Type 1 and type 2 formats cannot be mixed or a parsing error occured\n") if (($self->{_mtype} !=2) &&($mtype)) ;
+         $self->throw("Mixing between types is not allowedor a parsing error occured\n") if (($self->{_mtype} !=2) &&($mtype)) ;
          $self->{_mtype}=2;
          $mtype=1;
       }
       push @mdata,\@data;
+    }
     }
     $self->{_end}=1 if  ($line!~/^>/);
     return _make_matrix(\@mdata,$self->{_mtype},$id,$desc);
@@ -159,16 +178,22 @@ sub next_matrix {
 sub _make_matrix {
 my ($mdata,$type,$id,$desc)=@_;
 $mdata=_rearrange_matrix($mdata) if ($type==1);
-my ($a,$c,$g,$t)=@{$mdata};
 #Auto recognition for what type is this entry (PFM, PWM or simple count)
 #A bit dangerous, I hate too much auto stuff, but I want to be able to mix different
 #types in a single file
 my $mformat='count';
-my $k=$a->[0]+$c->[0]+$g->[0]+$t->[0];
-my $l= ($a->[0]+$c->[0]+$g->[0]+$t->[0]) - 
+my ($a,$c,$g,$t);
+if ($type==3) {
+	($a,$c,$g,$t)=_count_positions($mdata);
+}
+else {
+	($a,$c,$g,$t)=@{$mdata};	
+	my $k=$a->[0]+$c->[0]+$g->[0]+$t->[0];
+	my $l= ($a->[0]+$c->[0]+$g->[0]+$t->[0]) - 
 		(abs($a->[0])+abs($c->[0])+abs($g->[0])+abs($t->[0]));
 $mformat='freq' if (($k==1) && ($l==0));
 $mformat='pwm' if ($l!=0);
+}
 my (@fa,@fc,@fg,@ft,%mparam);
 if ($mformat eq 'pwm') {
   foreach my $i (0..$#{$a}) {
@@ -208,3 +233,15 @@ foreach my $entry (@{$mdata}) {
 return \@a,\@c,\@g,\@t;
 }
 
+
+sub _count_positions {
+	my $seq=shift;
+	my %pos;
+	foreach my $sequence (@{$seq}) {
+		my @let=split(//,$sequence);
+		for my $i (0..$#let) {
+			$pos{uc($let[$i])}->[$i]++;
+		}
+	}
+	return $pos{A},$pos{C},$pos{G},$pos{T};
+}
