@@ -403,7 +403,7 @@ sub file {
 
 sub _print {
     my $self = shift;
-    my $fh = $self->_fh || \*STDOUT;
+    my $fh = $self->_fh() || \*STDOUT;
     print $fh @_;
 }
 
@@ -432,7 +432,6 @@ sub _print {
 sub _readline {
     my $self = shift;
     my %param =@_;
-    
     my $fh = $self->_fh || \*ARGV;
     my $line;
 
@@ -479,11 +478,17 @@ sub _pushback {
 
 sub close {
    my ($self) = @_;
-   return if $self->noclose;
+   return if $self->noclose; # don't close if we explictly asked not to
    if( defined $self->{'_filehandle'} ) {
        $self->flush;
-       if( !ref($self->{'_filehandle'}) ||
-	   ! $self->{'_filehandle'}->isa('IO::String') ) {
+       return if( \*STDOUT == $self->_fh ||
+		  \*STDERR == $self->_fh ||
+		  \*STDIN == $self->_fh
+		  ); # don't close STDOUT fh
+       if( ! ref($self->{'_filehandle'}) ||
+	   ! $self->{'_filehandle'}->isa('IO::String')  ||
+	   $self->{'_filehandle'} != \*STDOUT
+	   ) {
 	   close($self->{'_filehandle'});
        }
    }
