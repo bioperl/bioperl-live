@@ -30,12 +30,16 @@ nice start/end/score stuff is ready for use.
 
 =head1 CONTACT
 
-Describe contact details here
+Ewan Birney, birney@ebi.ac.uk
+
+=head1 CONTRIBUTORS
+
+Jason Stajich, jason@bioperl.org
 
 =head1 APPENDIX
 
-The rest of the documentation details each of the object methods. Internal methods are usually preceded with a 
-_
+The rest of the documentation details each of the object
+methods. Internal methods are usually preceded with a _
 
 =cut
 
@@ -244,7 +248,6 @@ sub hmmacc{
  Example :
  Returns : 
  Args    :
-
 
 =cut
 

@@ -273,10 +273,10 @@ sub nextHSP {
     
     $hspline[$i+2] =~ /^Sbjct:\s+(\d+)\s*([\D\S]+)\s+(\d+)/;
     $sl = $2; $sb = $1 unless $sb; $se = $3;
-    
+
     push @QL, $ql; push @SL, $sl; push @AS, $as;
   }
-  
+
   ##################
   # the HSP object #
   ##################
@@ -290,6 +290,7 @@ sub nextHSP {
 	$qname = $self->{'PARENT'}->query;
 	$qlength = $self->{'PARENT'}->qlength;
   }	
+  
   my $hsp = new Bio::Tools::BPlite::HSP
       ('-score'      => $score, 
        '-bits'       => $bits, 

@@ -68,13 +68,16 @@ or the web:
 
 =head1 AUTHOR - Ewan Birney
 
-Email birney@sanger.ac.uk
+Email birney@ebi.ac.uk
 
-Describe contact details here
+=head1 CONTRIBUTORS
+
+Jason Stajich, jason@bioperl.org
 
 =head1 APPENDIX
 
-The rest of the documentation details each of the object methods. Internal methods are usually preceded with a _
+The rest of the documentation details each of the object
+methods. Internal methods are usually preceded with a _
 
 =cut
 
@@ -301,7 +304,6 @@ sub dictate_hmm_acc {
 
 =cut
 
-
 sub write_FT_output {
     my $self = shift;
     my $file = shift;
@@ -331,9 +333,7 @@ sub write_FT_output {
  Args    : sequence cutoff and domain cutoff. in bits score
            if you want one cutoff, simply use same number both places
 
-
 =cut
-
 
 sub filter_on_cutoff {
     my $self = shift;
@@ -362,8 +362,7 @@ sub filter_on_cutoff {
 	    $new->add_Domain($unit);
 	}
 
-    }
-    
+    }    
 }
 
 =head2 write_ascii_out
