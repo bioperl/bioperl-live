@@ -16,7 +16,7 @@ BEGIN {
     }
     use Test;
 
-    plan tests => 23 }
+    plan tests => 107 }
 
 use Bio::Biblio::TechReport;
 ok(1);
@@ -136,7 +136,7 @@ ok $citation->isbn('123-123-123'), '123-123-123';;
 ok $citation->isbn(), '123-123-123';
 
 ok $citation->edition('first'), 'first';
-$citation->edition(), 'first';
+ok $citation->edition(), 'first';
 
 ok $citation->volume('XX');
 ok $citation->volume(), 'XX';
