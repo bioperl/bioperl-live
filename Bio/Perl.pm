@@ -1,4 +1,4 @@
-
+# $Id$
 #
 # BioPerl module for Bio::Perl
 #
@@ -101,7 +101,7 @@ Internal methods are usually preceded with a _
 
 
 package Bio::Perl;
-use vars qw(@ISA @EXPORT $DBOKAY);
+use vars qw(@ISA @EXPORT @EXPORT_OK $DBOKAY);
 use strict;
 use Carp;
 use Exporter;
@@ -114,6 +114,7 @@ BEGIN {
 	require Bio::DB::GenBank;
 	require Bio::DB::SwissProt;
 	require Bio::DB::RefSeq;
+	require Bio::DB::GenPept;
     };
     if( $@ ) {
 	$DBOKAY = 0;
@@ -124,7 +125,12 @@ BEGIN {
 
 @ISA = qw(Exporter);
 
-@EXPORT = qw(read_sequence read_all_sequences write_sequence new_sequence get_sequence translate translate_as_string reverse_complement revcom revcom_as_string reverse_complement_as_string blast_sequence write_blast);
+@EXPORT = qw(read_sequence read_all_sequences write_sequence 
+	     new_sequence get_sequence translate translate_as_string 
+	     reverse_complement revcom revcom_as_string 
+	     reverse_complement_as_string blast_sequence write_blast);
+
+@EXPORT_OK = @EXPORT;
 
 
 =head2 read_sequence
@@ -443,6 +449,7 @@ sub write_blast {
 =cut
 
 my $genbank_db = undef;
+my $genpept_db = undef;
 my $embl_db = undef;
 my $swiss_db = undef;
 my $refseq_db = undef;
@@ -457,11 +464,17 @@ sub get_sequence{
 
    my $db;
 
-   if( $db_type =~ /gen/ ) {
+   if( $db_type =~ /genbank/ ) {
        if( !defined $genbank_db ) {
 	   $genbank_db = Bio::DB::GenBank->new();
        }
        $db = $genbank_db;
+   }
+   if( $db_type =~ /genpept/ ) {
+       if( !defined $genpept_db ) {
+	   $genpept_db = Bio::DB::GenPept->new();
+       } 
+       $db = $genpept_db;
    }
 
    if( $db_type =~ /swiss/ ) {
@@ -478,7 +491,8 @@ sub get_sequence{
        $db = $embl_db;
    }
 
-   if( $db_type =~ /refseq/ or ($db_type !~ /swiss/ and $identifier =~ /_/)) {
+   if( $db_type =~ /refseq/ or ($db_type !~ /swiss/ and 
+				$identifier =~ /^\s*N\S+_/)) {
        if( !defined $refseq_db ) {
 	   $refseq_db = Bio::DB::RefSeq->new();
        }
