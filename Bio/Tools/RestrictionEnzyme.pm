@@ -233,7 +233,7 @@ Follow the installation instructions included in the README file.
 =head1 DESCRIPTION
 
 The Bio::Tools::RestrictionEnzyme.pm module encapsulates generic data and 
-methods for using restriction endonucleases for L<in silico> restriction
+methods for using restriction endonucleases for in silico restriction
 analysis of DNA sequences.
 
 =head2 Considerations
@@ -414,8 +414,8 @@ sub _make_standard {
 See Also   : L<_initialize>()
 
 =cut
-#'
 
+#'
 #-----------------
 sub _make_custom {
 #-----------------
@@ -460,8 +460,8 @@ sub _make_custom {
 See Also   : L<_make_standard>(), L<_make_custom>()
 
 =cut
-#'
 
+#'
 #---------------
 sub cuts_after { 
 #---------------
@@ -581,8 +581,8 @@ sub revcom {  my $self = shift; $self->{'_seq'}->revcom->seq(); }
            : There is currently no support for partial digestions.
 
 =cut
-#'
 
+#'
 #-------------
 sub cut_seq {
 #-------------

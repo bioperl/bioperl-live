@@ -144,7 +144,7 @@ Steve A. Chervitz, sac@genome.stanford.edu
  Bio::UnivAln.pm               - Biosequence alignment object.
  Bio::Root::Object.pm          - Proposed base class for all Bioperl objects.
 
-Links:
+=head2 Links:
 
  http://bio.perl.org/Core/POD/Tools/Blast/Sbjct.pm.html
 

@@ -91,8 +91,8 @@ anyone who has seen a blast report.
 For lazy/efficient coders, two-letter abbreviations are available for the 
 attributes with long names (qs, ss, hs). Ranges of the aligned sequences in
 query/subject and other information (like seqname) are stored
-in SeqFeature objects (i.e.: $hsp->query, $hsp->sbjct which is equal to
-$hsp->feature1, $hsp->feature2). querySeq, sbjctSeq and homologySeq do only
+in SeqFeature objects (i.e.: $hsp-E<gt>query, $hsp-E<gt>sbjct which is equal to
+$hsp-E<gt>feature1, $hsp-E<gt>feature2). querySeq, sbjctSeq and homologySeq do only
 contain the alignment sequences from the blast report.
 
  $hsp->score;
@@ -117,7 +117,7 @@ contain the alignment sequences from the blast report.
 
 I've included a little bit of overloading for double quote variable
 interpolation convenience. A subject will return its name and an HSP will
-return its query->start, query->end, and bits in the alignment. Feel free 
+return its query-E<gt>start, query-E<gt>end, and bits in the alignment. Feel free 
 to modify this to whatever is most frequently used by you.
 
 So a very simple look into a BLAST report might look like this.
@@ -159,8 +159,8 @@ Copyright (C) 1999 Ian Korf. All Rights Reserved.
 This software is provided "as is" without warranty of any kind.
 
 =cut
-#'
 
+#'
 package Bio::Tools::BPlite;
 
 use strict;

@@ -54,7 +54,7 @@ sim4 results are specialised types of SeqFeatures, meaning you can add them
 to AnnSeq objects fine, and manipulate them in the "normal" seqfeature manner.
 
 The sim4 Exon objects are Bio::SeqFeature::FeaturePair inherited objects. The 
-$esthit = $exon->est_hit() is the alignment as a feature on the matching 
+$esthit = $exon-E<gt>est_hit() is the alignment as a feature on the matching 
 object (normally, an EST), in which the start/end points are where the hit
 lies.
 

@@ -17,6 +17,7 @@ Bio::SeqFeature::Gene::TranscriptI - Interface for a feature representing a
 
 =head1 SYNOPSIS
 
+  #documentation needed
 
 =head1 DESCRIPTION
 

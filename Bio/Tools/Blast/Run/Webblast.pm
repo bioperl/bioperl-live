@@ -343,15 +343,15 @@ their resolution. Bug reports can be submitted via email or the web:
 
 =over 0
 
-=item Steve A. Chervitz <sac@genome.stanford.edu>
+=item Steve A. Chervitz E<lt>sac@genome.stanford.eduE<gt>
 
     - Webblast.pm modularized version of webblast script.
 
-=item Alex Dong Li <ali@genet.sickkids.on.ca>
+=item Alex Dong Li E<lt>ali@genet.sickkids.on.caE<gt>
 
     - original webblast script.
 
-=item Ross N. Crowhurst <RCrowhurst@hort.cri.nz>
+=item Ross N. Crowhurst E<lt>RCrowhurst@hort.cri.nzE<gt>
 
     - modified Webblast.pm to use LWP to give proxy server support.
 
@@ -503,11 +503,11 @@ for documentation purposes only.
        4             flat master-slave without identities
  -------------------------------------------------------------
   Available substitution scoring matrices (NCBI):
-      
+
       BLAST2 matrices: BLOSUM80, BLOSUM62, BLOSUM45, PAM30, PAM70
 
       BLAST1 matrices: BLOSUM62, PAM40, PAM120, PAM250, IDENTITY.
-      
+
       Others members of the BLOSUM and PAM family of matrices
       may be available as well.
       These are exported by this module in the @Blast_matrix_remote array.

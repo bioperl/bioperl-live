@@ -55,7 +55,7 @@ bioperl-ext package.
 The mixture of C and Perl is ideal for this sort of 
 problem. Here are some plus points for this strategy: 
 
-=over
+=over 2
 
 =item Speed and Memory 
 

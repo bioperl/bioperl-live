@@ -94,7 +94,7 @@ BLAST executable.  Note each BLAST executable has somewhat different
 parameters and options.  See the BLAST Documentation for a description
 or run the BLAST executable from the command line followed solely with
 a "-" to see a list of options and default values for that executable;
-eg >blastall -.
+eg E<gt>blastall -.
 
 BLAST parameters can be changed and/or examined at any time after the
 factory has been created.  The program checks that any
@@ -113,7 +113,7 @@ the parameter for expectation-value cutoff)
 Note that for improved script readibility one can modify the name of
 the BLAST parameters as desired as long as the initial letter (and
 case) of the parameter are preserved, eg
-$factory->expectvalue($expectvalue); Unfortunately, some of the BLAST
+$factory-E<gt>expectvalue($expectvalue); Unfortunately, some of the BLAST
 parameters are not the single letter one might expect (eg "iteration
 round" in blastpgp is 'j'). Again one can check by using (eg)
 
@@ -145,7 +145,7 @@ available. The filename is set by the in the 'outfile' parameter and
 has the default value of "blastreport.out".
 
 When using the Blast.pm parser, only a default configuration is currently supported:
- 	
+
         -signif => $self->e()  || 1e-5, # where $self->e(), if set, is the BLAST cutoff value
 	-parse  => 1,
 	-stats  => 1,
@@ -153,7 +153,7 @@ When using the Blast.pm parser, only a default configuration is currently suppor
 
 If it is desired to parse the resulting report with Blast.pm with
 other values, the user can save the report in the file given by
- $factory->outfile('outputfilelocation') 
+ $factory-E<gt>outfile('outputfilelocation') 
 and then reading that file with Blast.pm using any parameters desired.
 
 

@@ -84,7 +84,7 @@ specified by L<blast_local>().
 
 a list of names of files containing the raw Blast reports.
 
-=item 3 Export arrays containing a list of available databases 
+=item 3 Exporting arrays containing a list of available databases 
 
 in the arrays C<@Blast_dbn_local> and C<@Blast_dbp_local>.
 

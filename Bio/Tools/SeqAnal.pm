@@ -6,7 +6,7 @@
 # REVISION: $Id$
 # STATUS  : Alpha
 #
-# For documentation, run this module through pod2html 
+# For documentation, run this module through pod2html
 # (preferably from Perl v5.004 or better).
 #-------------------------------------------------------------------------------
 
@@ -20,7 +20,7 @@ use vars qw($ID $VERSION @ISA);
 
 @ISA        = qw( Bio::Root::Object );
 $ID = 'Bio::Tools::SeqAnal';
-$VERSION  = 0.011;  
+$VERSION  = 0.011;
 
 
 ## POD Documentation:
@@ -33,8 +33,8 @@ Bio::Tools::SeqAnal.pm - Bioperl sequence analysis base class.
 
 =head2 Object Creation
 
-This module is an abstract base class. Perl will let you instantiate it, 
-but it provides little functionality on its own. This module 
+This module is an abstract base class. Perl will let you instantiate it,
+but it provides little functionality on its own. This module
 should be used via a specialized subclass. See L<_initialize>()
 for a description of constructor parameters.
 
@@ -94,7 +94,7 @@ a specialized module such as:
 
 =back
 
-Some of these functionalities (reading, file maipulation) are inherited from 
+Some of these functionalities (reading, file maipulation) are inherited from
 B<Bio::Root::Object.pm>, from which Bio::Tools::SeqAnal.pm derives.
 
 
@@ -107,12 +107,12 @@ A SeqAnal.pm object can be created using one of three modes: run, parse, or read
   -----     -----------
   run       Run a new sequence analysis report. New results can then
             be parsed or saved for analysis later.
- 
+
   parse     Parse the data from a sequence analysis report loading it
             into the SeqAnal.pm object.
- 
+
   read      Read in data from an existing raw analysis report without
-            parsing it. In the future, this may also permit persistent 
+            parsing it. In the future, this may also permit persistent
             SeqAnal.pm objects. This mode is considered experimental.
 
 The mode is set by supplying switches to the constructor, see L<_initialize>().
@@ -121,7 +121,7 @@ The mode is set by supplying switches to the constructor, see L<_initialize>().
 
 A key feature of SeqAnal.pm is the ability to access raw data in a generic
 fashion. Regardless of what sequence analysis method is used, the raw data
-always need to be read into memory.  The SeqAnal.pm class utilizes the L<read>() 
+always need to be read into memory.  The SeqAnal.pm class utilizes the L<read>()
 method inherited from B<Bio::Root::Object.pm> to permit the following:
 
 =over 4
@@ -145,7 +145,7 @@ B<Bio::Tools::Fasta.pm>.
 
 =head2 Parsing & Running
 
-Parsing and running of sequence analysis reports must be implemented for each 
+Parsing and running of sequence analysis reports must be implemented for each
 specific subclass of SeqAnal.pm. No-op stubs ("virtual methods") are provided here for
 the L<parse>() and L<run>() methods. See B<Bio::Tools::Blast.pm> and B<Bio::Tools::Fasta.pm>
 for examples.
@@ -161,7 +161,7 @@ deleting, and obtaining date.
 
 =head1 FEEDBACK
 
-=head2 Mailing Lists 
+=head2 Mailing Lists
 
 User feedback is an integral part of the evolution of this and other Bioperl modules.
 Send your comments and suggestions preferably to one of the Bioperl mailing lists.
@@ -172,11 +172,11 @@ Your participation is much appreciated.
 
 =head2 Reporting Bugs
 
-Report bugs to the Bioperl bug tracking system to help us keep track the bugs and 
+Report bugs to the Bioperl bug tracking system to help us keep track the bugs and
 their resolution. Bug reports can be submitted via email or the web:
 
-    bioperl-bugs@bio.perl.org                   
-    http://bio.perl.org/bioperl-bugs/           
+    bioperl-bugs@bio.perl.org
+    http://bio.perl.org/bioperl-bugs/
 
 =head1 AUTHOR
 
@@ -191,14 +191,14 @@ Bio::Tools::SeqAnal.pm, 0.011
 =head1 COPYRIGHT
 
 Copyright (c) 1998 Steve A. Chervitz. All Rights Reserved.
-This module is free software; you can redistribute it and/or 
+This module is free software; you can redistribute it and/or
 modify it under the same terms as Perl itself.
 
 
 =head1 SEE ALSO
 
  http://bio.perl.org/Projects/modules.html  - Online module documentation
- http://bio.perl.org/Projects/Blast/        - Bioperl Blast Project     
+ http://bio.perl.org/Projects/Blast/        - Bioperl Blast Project
  http://bio.perl.org/                       - Bioperl Project Homepage
 
 
@@ -236,11 +236,11 @@ for documentation purposes only.
  Returns   : string containing the make parameter value.
  Argument  : Named parameters (TAGS CAN BE ALL UPPER OR ALL LOWER CASE).
            : The SeqAnal.pm constructor only processes the following
-           : parameters passed from new() 
-           :     -RUN     => hash reference for named parameters to be used 
+           : parameters passed from new()
+           :     -RUN     => hash reference for named parameters to be used
            :                 for running a sequence analysis program.
            :                 These are dereferenced and passed to the run() method.
-	   :     -PARSE   => boolean, 
+	   :     -PARSE   => boolean,
 	   :     -READ    => boolean,
            :
            : If -RUN is HASH ref, the run() method will be called with the
@@ -257,15 +257,16 @@ for documentation purposes only.
 See Also   : B<Bio::Root::Object::new()>, B<Bio::Root::Object::_rearrange()>
 
 =cut
+
 #-----------------
 sub _initialize {
 #-----------------
     my( $self, %param ) = @_;
-    
+
     my $make = $self->SUPER::_initialize(%param);
-    
+
     my($read, $parse, $runparam) = (
-	($param{-READ}||$param{'-read'}), ($param{-PARSE}||$param{'-parse'}), 
+	($param{-READ}||$param{'-read'}), ($param{-PARSE}||$param{'-parse'}),
 	($param{-RUN}||$param{'-run'})
 				    );
 
@@ -279,14 +280,14 @@ sub _initialize {
 
     if($parse) { $self->parse(%param); }
     elsif($read) { $self->read(%param) }
-    
+
     $make;
 }
 
 #--------------
 sub destroy {
 #--------------
-    my $self=shift; 
+    my $self=shift;
     $DEBUG==2 && print STDERR "DESTROYING $self ${\$self->name}";
     undef $self->{'_rawData'};
     $self->SUPER::destroy;
@@ -294,11 +295,11 @@ sub destroy {
 
 
 ###############################################################################
-#                                 ACCESSORS                                 
+#                                 ACCESSORS
 ###############################################################################
 
 # The mode of the SeqAnal object is no longer explicitly set.
-# This simplifies the interface somewhat. 
+# This simplifies the interface somewhat.
 
 ##----------------------------------------------------------------------
 #=head2 mode()
@@ -317,26 +318,26 @@ sub destroy {
 #	    :
 #	    :    'parse' -- Parse the sequence analysis output data.
 #	    :
-#	    :     'read' -- Reads in the raw report but does not 
+#	    :     'read' -- Reads in the raw report but does not
 #	    :               attempt to parse it. Useful when you just
-#	    :               want to work with the output as-is 
+#	    :               want to work with the output as-is
 #	    :               (e.g., create HTML-formatted output).
 #	    :
-#	    :     'run'  -- Generates a new report. 
+#	    :     'run'  -- Generates a new report.
 #	    :
 #	    : Allowable modes are defined by the exported package global array
-#	    : @SeqAnal_modes. 
+#	    : @SeqAnal_modes.
 #
 #See Also   : _set_mode()
 #=cut
 ##----------------------------------------------------------------------
-#sub mode { 
-#    my $self = shift; 
+#sub mode {
+#    my $self = shift;
 #    if(@_) { $self->{'_mode'} = lc(shift); }
-#    $self->{'_mode'}; 
+#    $self->{'_mode'};
 #}
 #
-    
+
 
 =head2 best
 
@@ -348,11 +349,11 @@ sub destroy {
 =cut
 
 #----------
-sub best { 
+sub best {
 #----------
-    my $self = shift; 
+    my $self = shift;
     if(@_) { $self->{'_best'} = shift; }
-    $self->{'_best'}; 
+    $self->{'_best'};
 }
 
 
@@ -369,7 +370,7 @@ sub best {
 =cut
 
 #-------------------
-sub _set_db_stats { 
+sub _set_db_stats {
 #-------------------
     my ($self, %param) = @_;
 
@@ -377,7 +378,7 @@ sub _set_db_stats {
     $self->{'_dbRelease'}   = $param{-RELEASE} || '';
     ($self->{'_dbLetters'}  = $param{-LETTERS} || 0)  =~ s/,//g;
     ($self->{'_dbSeqs'}     = $param{-SEQS}    || 0) =~ s/,//g;
-    
+
 }
 
 
@@ -391,9 +392,9 @@ sub _set_db_stats {
 =cut
 
 #---------------
-sub database { 
+sub database {
 #---------------
-    my $self = shift; 
+    my $self = shift;
     if(@_) { $self->{'_db'} = shift; }
     $self->{'_db'};
 }
@@ -410,9 +411,9 @@ sub database {
 =cut
 
 #-----------------------
-sub database_release { 
+sub database_release {
 #-----------------------
-    my $self = shift; 
+    my $self = shift;
     if(@_) { $self->{'_dbRelease'} = shift; }
     $self->{'_dbRelease'};
 }
@@ -428,9 +429,9 @@ sub database_release {
 =cut
 
 #----------------------
-sub database_letters { 
+sub database_letters {
 #----------------------
-    my $self = shift; 
+    my $self = shift;
     if(@_) { $self->{'_dbLetters'} = shift; }
     $self->{'_dbLetters'};
 }
@@ -447,9 +448,9 @@ sub database_letters {
 =cut
 
 #------------------
-sub database_seqs { 
+sub database_seqs {
 #------------------
-    my $self = shift; 
+    my $self = shift;
     if(@_) { $self->{'_dbSeqs'} = shift; }
     $self->{'_dbSeqs'};
 }
@@ -460,7 +461,7 @@ sub database_seqs {
 
  Usage     : $object->set_date([<string>]);
  Purpose   : Set the name of the date on which the analysis was performed.
- Argument  : The optional string argument ca be the date or the 
+ Argument  : The optional string argument ca be the date or the
            : string 'file' in which case the date will be obtained from
            : the report file
  Returns   : String
@@ -468,7 +469,7 @@ sub database_seqs {
  Comments  : This method attempts to set the date in either of two ways:
            :   1) using data passed in as an argument,
            :   2) using the Bio::Root::Utilities.pm file_date() method
-           :      on the output file. 
+           :      on the output file.
            : Another way is to extract the date from the contents of the
            : raw output data. Such parsing will have to be specialized
            : for different seq analysis reports. Override this method
@@ -479,17 +480,17 @@ See Also   : L<date>(), B<Bio::Root::Object::file_date()>
 =cut
 
 #---------------
-sub set_date { 
+sub set_date {
 #---------------
-    my $self = shift; 
+    my $self = shift;
     my $date = shift;
     my ($file);
 
-    if( !$date and ($file = $self->file)) { 
+    if( !$date and ($file = $self->file)) {
 	# If no date is passed and a file exists, determine date from the file.
 	# (provided by superclass Bio::Root::Object.pm)
 	eval {
-	    $date = $self->SUPER::file_date(-FMT => 'd m y');  
+	    $date = $self->SUPER::file_date(-FMT => 'd m y');
 	};
 	if($@) {
 	    $date = 'UNKNOWN';
@@ -508,7 +509,7 @@ sub set_date {
  Returns   : String
  Argument  : n/a
  Comments  : This method is not a combination set/get, it only gets.
-           
+
 See Also   : L<set_date>()
 
 =cut
@@ -528,17 +529,16 @@ sub date {  my $self = shift;  $self->{'_date'}; }
  Argument  : n/a
  Comments  : Developer note: when using the built-in length function within
            : this module, call it as CORE::length().
+
 =cut
 
 #------------
-sub length { 
+sub length {
 #------------
-    my $self = shift;  
+    my $self = shift;
     if(@_) { $self->{'_length'} = shift; }
-    $self->{'_length'}; 
+    $self->{'_length'};
 }
-
-
 
 =head2 program
 
@@ -550,11 +550,11 @@ sub length {
 =cut
 
 #-------------
-sub program { 
+sub program {
 #-------------
-    my $self = shift;  
+    my $self = shift;
     if(@_) { $self->{'_prog'} = shift; }
-    $self->{'_prog'}; 
+    $self->{'_prog'};
 }
 
 
@@ -572,9 +572,9 @@ sub program {
 #---------------------
 sub program_version {
 #---------------------
-    my $self = shift; 
+    my $self = shift;
     if(@_) { $self->{'_progVersion'} = shift; }
-    $self->{'_progVersion'}; 
+    $self->{'_progVersion'};
 }
 
 
@@ -603,9 +603,9 @@ sub query { my $self = shift; $self->name; }
 =cut
 
 #--------------
-sub query_desc { 
+sub query_desc {
 #--------------
-    my $self = shift;  
+    my $self = shift;
     if(@_) { $self->{'_qDesc'} = shift; }
     $self->{'_qDesc'};
 }
@@ -632,9 +632,9 @@ See Also   : L<_display_stats>(), L<_display_file>(), B<Bio::Root::Object::displ
 sub display {
 #---------------
     my( $self, %param ) = @_;
-    
+
     $self->SUPER::display(%param);
-    
+
     my $OUT = $self->fh();
     $self->show =~ /file/i and $self->_display_file($OUT);
     1;
@@ -651,7 +651,7 @@ sub display {
  Returns   : true (1)
  Status    : Experimental
 
-See Also   : L<display>()  
+See Also   : L<display>()
 
 =cut
 
@@ -670,14 +670,14 @@ sub _display_file {
 
  Usage     : n/a; called automatically by display()
  Purpose   : Display information about Bio::Tools::SeqAnal.pm data members.
-           : Prints the file name, program, program version, database name, 
-           : database version, query name, query length, 
+           : Prints the file name, program, program version, database name,
+           : database version, query name, query length,
  Example   : n/a
  Argument  : one argument = filehandle object.
  Returns   : printf call.
  Status    : Experimental
 
-See Also   : B<Bio::Root::Object.pm>::display()  
+See Also   : B<Bio::Root::Object.pm>::display()
 
 =cut
 
@@ -685,7 +685,7 @@ See Also   : B<Bio::Root::Object.pm>::display()
 sub _display_stats {
 #--------------------
     my( $self, $OUT ) = @_;
-    
+
     printf( $OUT "\n%-15s: %s\n", "QUERY NAME", $self->query ||'UNKNOWN' );
     printf( $OUT "%-15s: %s\n", "QUERY DESC", $self->query_desc || 'UNKNOWN');
     printf( $OUT "%-15s: %s\n", "LENGTH", $self->length || 'UNKNOWN');
@@ -763,26 +763,26 @@ __END__
 #                                END OF CLASS                                       #
 #####################################################################################
 
- 
+
 =head1 FOR DEVELOPERS ONLY
 
 =head2 Data Members
 
-Information about the various data members of this module is provided for those 
-wishing to modify or understand the code. Two things to bear in mind: 
+Information about the various data members of this module is provided for those
+wishing to modify or understand the code. Two things to bear in mind:
 
 =over 4
 
-=item 1 Do NOT rely on these in any code outside of this module. 
+=item 1 Do NOT rely on these in any code outside of this module.
 
 All data members are prefixed with an underscore to signify that they are private.
-Always use accessor methods. If the accessor doesn't exist or is inadequate, 
-create or modify an accessor (and let me know, too!). 
+Always use accessor methods. If the accessor doesn't exist or is inadequate,
+create or modify an accessor (and let me know, too!).
 
 =item 2 This documentation may be incomplete and out of date.
 
-It is easy for these data member descriptions to become obsolete as 
-this module is still evolving. Always double check this info and search 
+It is easy for these data member descriptions to become obsolete as
+this module is still evolving. Always double check this info and search
 for members not described here.
 
 =back
@@ -797,30 +797,30 @@ all or some of the following fields:
   _mode            Affects how much detail to extract from the raw report.
  		   Future mode will also distinguish 'running' from 'parsing'
 
- 
+
  THE FOLLOWING MAY BE EXTRACTABLE FROM THE RAW REPORT FILE:
- 
+
   _prog            Name of the sequence analysis program.
 
   _progVersion     Version number of the program.
- 		   
-  _db              Database searched. 
+
+  _db              Database searched.
 
   _dbRelease       Version or date of the database searched.
- 		   
+
   _dbLetters       Total number of letters in the database.
- 		   
+
   _dbSequences     Total number of sequences in the database.
- 		   
+
   _query           Name of query sequence.
 
-  _length          Length of the query sequence. 
+  _length          Length of the query sequence.
 
   _date            Date on which the analysis was performed.
 
- 
-  INHERITED DATA MEMBERS 
- 
+
+  INHERITED DATA MEMBERS
+
   _name            From Bio::Root::Object.pm. String representing the name of the query sequence.
  		   Typically obtained from the report file.
 

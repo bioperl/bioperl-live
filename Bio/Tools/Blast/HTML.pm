@@ -348,7 +348,7 @@ sub _set_markup_data {
  Comments  : This is used for converting local database IDs into
            : understandable terms. At present, it only recognizes
            : databases used locally at SGD. 
-           
+
 See Also   : L<get_html_func>()
 
 =cut

@@ -17,31 +17,31 @@ Bio::Tools::Sim4::Exon - A single exon determined by an alignment
 
 =head1 SYNOPSIS
 
-# See Bio::Tools::Sim4::Results for a description of the context.
+  # See Bio::Tools::Sim4::Results for a description of the context.
 
-# an instance of this class is-a Bio::SeqFeature::SimilarityPair
+  # an instance of this class is-a Bio::SeqFeature::SimilarityPair
 
-# coordinates of the exon (recommended way):
-print "exon from ", $exon->start(),
-      " to ", $exon->end(), "\n";
+  # coordinates of the exon (recommended way):
+  print "exon from ", $exon->start(),
+  	" to ", $exon->end(), "\n";
 
-# the same (feature1() inherited from Bio::SeqFeature::FeaturePair)
-print "exon from ", $exon->feature1()->start(),
-      " to ", $exon->feature1()->end(), "\n";
-# also the same (query() inherited from Bio::SeqFeature::SimilarityPair):
-print "exon from ", $exon->query()->start(),
-      " to ", $exon->query()->end(), "\n";
+  # the same (feature1() inherited from Bio::SeqFeature::FeaturePair)
+  print "exon from ", $exon->feature1()->start(),
+  	" to ", $exon->feature1()->end(), "\n";
+  # also the same (query() inherited from Bio::SeqFeature::SimilarityPair):
+  print "exon from ", $exon->query()->start(),
+  	" to ", $exon->query()->end(), "\n";
 
-# coordinates on the matching EST (recommended way):
-print "matches on EST from ", $exon->est_hit()->start(),
-      " to ", $exon->est_hit()->end(), "\n";
+  # coordinates on the matching EST (recommended way):
+  print "matches on EST from ", $exon->est_hit()->start(),
+  	" to ", $exon->est_hit()->end(), "\n";
 
-# the same (feature2() inherited from Bio::SeqFeature::FeaturePair)
-print "matches on EST from ", $exon->feature2()->start(),
-      " to ", $exon->feature2()->end(), "\n";
-# also the same (subject() inherited from Bio::SeqFeature::SimilarityPair):
-print "exon from ", $exon->subject()->start(),
-      " to ", $exon->subject()->end(), "\n";
+  # the same (feature2() inherited from Bio::SeqFeature::FeaturePair)
+  print "matches on EST from ", $exon->feature2()->start(),
+  	" to ", $exon->feature2()->end(), "\n";
+  # also the same (subject() inherited from Bio::SeqFeature::SimilarityPair):
+  print "exon from ", $exon->subject()->start(),
+  	" to ", $exon->subject()->end(), "\n";
 
 =head1 DESCRIPTION
 
@@ -50,10 +50,10 @@ exon on a genomic sequence determined by similarity, that is, by aligning an
 EST sequence (using Sim4 in this case). Consequently, the notion of query and
 subject is always from the perspective of the genomic sequence: query refers
 to the genomic seq, subject to the aligned EST hit. Because of this,
-$exon->start(), $exon->end() etc will always return what you expect. 
+$exon-E<gt>start(), $exon-E<gt>end() etc will always return what you expect. 
 
 To get the coordinates on the matching EST, refer to the properties of the
-feature returned by L<est_hit()>.
+feature returned by L<est_hit>().
 
 =head1 FEEDBACK
 
@@ -79,7 +79,7 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 =head1 AUTHOR - Ewan Birney, Hilmar Lapp
 
 Email birney@sanger.ac.uk
-Hilmar Lapp <hlapp@gmx.net> or <hilmar.lapp@pharma.novartis.com>.
+Hilmar Lapp E<lt>hlapp@gmx.netE<gt> or E<lt>hilmar.lapp@pharma.novartis.comE<gt>.
 
 Describe contact details here
 

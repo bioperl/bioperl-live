@@ -110,9 +110,6 @@ ambiguous codons together and issuing a warning to that effect.
 
 Ewan moved it from Bio::SeqStats to Bio::Tools::SeqStats
 
-=head1 STILL TO WRITE
-
-
 =head1 FEEDBACK
 
 =head2 Mailing Lists
