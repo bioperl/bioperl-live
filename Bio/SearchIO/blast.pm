@@ -95,92 +95,90 @@ BEGIN {
     # This should really be done more intelligently, like with
     # XSLT
 
-    %MAPPING = ( 
-		 'Hsp_bit-score'  => 'bits',
-		 'Hsp_score'      => 'score',
-		 'Hsp_evalue'     => 'evalue',
-		 'Hsp_pvalue'     => 'pvalue',
-		 'Hsp_query-from' => 'querystart',
-		 'Hsp_query-to'   => 'queryend',
-		 'Hsp_hit-from'   => 'hitstart',
-		 'Hsp_hit-to'     => 'hitend',
-		 'Hsp_positive'   => 'conserved',
-		 'Hsp_identity'   => 'identical',
-		 'Hsp_gaps'      => 'gaps',
-		 'Hsp_hitgaps'   => 'hitgaps',
-		 'Hsp_querygaps' => 'querygaps',
-		 'Hsp_qseq'       => 'queryseq',
-		 'Hsp_hseq'       => 'hitseq',
-		 'Hsp_midline'    => 'homolseq',
-		 'Hsp_align-len'  => 'hsplen',
-		 'Hsp_query-frame'=> 'queryframe',
-		 'Hsp_hit-frame'  => 'hitframe',
+    %MAPPING = 
+	( 
+	  'Hsp_bit-score'  => 'HSP-bits',
+	  'Hsp_score'      => 'HSP-score',
+	  'Hsp_evalue'     => 'HSP-evalue',
+	  'Hsp_pvalue'     => 'HSP-pvalue',
+	  'Hsp_query-from' => 'HSP-query_start',
+	  'Hsp_query-to'   => 'HSP-query_end',
+	  'Hsp_hit-from'   => 'HSP-hit_start',
+	  'Hsp_hit-to'     => 'HSP-hit_end',
+	  'Hsp_positive'   => 'HSP-conserved',
+	  'Hsp_identity'   => 'HSP-identical',
+	  'Hsp_gaps'       => 'HSP-hsp_gaps',
+	  'Hsp_hitgaps'    => 'HSP-hit_gaps',
+	  'Hsp_querygaps'  => 'HSP-query_gaps',
+	  'Hsp_qseq'       => 'HSP-query_seq',
+	  'Hsp_hseq'       => 'HSP-hit_seq',
+	  'Hsp_midline'    => 'HSP-homology_seq',
+	  'Hsp_align-len'  => 'HSP-hsp_length',
+	  'Hsp_query-frame'=> 'HSP-query_frame',
+	  'Hsp_hit-frame'  => 'HSP-hit_frame',
 
-		 'Hit_id'        => 'hitname',
-		 'Hit_len'       => 'hitlen',
-		 'Hit_accession' => 'hitacc',
-		 'Hit_def'       => 'hitdesc',
-		 'Hit_signif'    => 'hitsignif',
-		 'Hit_score'     => 'hitscore',
-		 
-		 'BlastOutput_program'  => 'programname',
-		 'BlastOutput_version'  => 'programver',
-		 'BlastOutput_query-def'=> 'queryname',
-		 'BlastOutput_query-len'=> 'querylen',
-		 'BlastOutput_query-acc'=> 'queryacc',
-		 'BlastOutput_querydesc'=> 'querydesc',
-		 'BlastOutput_db'       => 'dbname',
-		 'BlastOutput_db-len'   => 'dbsize',
-		 'BlastOutput_db-let'   => 'dblets',
-		 'BlastOutput_query-acc'=> 'queryacc',
+	  'Hit_id'        => 'HIT-name',
+	  'Hit_len'       => 'HIT-length',
+	  'Hit_accession' => 'HIT-accession',
+	  'Hit_def'       => 'HIT-description',
+	  'Hit_signif'    => 'HIT-significance',
+	  'Hit_score'     => 'HIT-score',
+	  'Iteration_iter-num'   => 'HIT-iteration',
 
-		 'Iteration_iter-num'   => 'iternum',
-		 'Parameters_matrix'    => { 'param' => 'matrix'},
-		 'Parameters_expect'    => { 'param' => 'expect'},
-		 'Parameters_include'   => { 'param' => 'include'},
-		 'Parameters_sc-match'  => { 'param' => 'match'},
-		 'Parameters_sc-mismatch' => { 'param' => 'mismatch'},
-		 'Parameters_gap-open'  =>   { 'param' => 'gapopen'},
-		 'Parameters_gap-extend'=>   { 'param' => 'gapext'},
-		 'Parameters_filter'    =>  {'param' => 'filter'},
-		 'Parameters_allowgaps' =>   { 'param' => 'allowgaps'},
+	  'BlastOutput_program'  => 'RESULT-algorithm_name',
+	  'BlastOutput_version'  => 'RESULT-algorithm_version',
+	  'BlastOutput_query-def'=> 'RESULT-query_name',
+	  'BlastOutput_query-len'=> 'RESULT-query_length',
+	  'BlastOutput_query-acc'=> 'RESULT-query_accession',
+	  'BlastOutput_querydesc'=> 'RESULT-query_description',
+	  'BlastOutput_db'       => 'RESULT-database_name',
+	  'BlastOutput_db-len'   => 'RESULT-database_entries',
+	  'BlastOutput_db-let'   => 'RESULT-database_letters',
 
-		 'Statistics_db-len'    => {'stat' => 'dbentries'},
-		 'Statistics_db-let'    => { 'stat' => 'dbletters'},
-		 'Statistics_hsp-len'   => { 'stat' => 'hsplength'},
-		 'Statistics_query-len'   => { 'stat' => 'querylength'},
-		 'Statistics_eff-space' => { 'stat' => 'effectivespace'},
-		 'Statistics_eff-spaceused' => { 'stat' => 'effectivespaceused'},
-		 'Statistics_eff-dblen'    => { 'stat' => 'effectivedblength'},
-		 'Statistics_kappa'     => { 'stat' => 'kappa' },
-		 'Statistics_lambda'    => { 'stat' => 'lambda' },
-		 'Statistics_entropy'   => { 'stat' => 'entropy'},
-		 'Statistics_framewindow'=> { 'stat' => 'frameshiftwindow'},
-		 'Statistics_decay'=> { 'stat' => 'decayconst'},
+	  'Parameters_matrix'    => { 'RESULT-parameters' => 'matrix'},
+	  'Parameters_expect'    => { 'RESULT-parameters' => 'expect'},
+	  'Parameters_include'   => { 'RESULT-parameters' => 'include'},
+	  'Parameters_sc-match'  => { 'RESULT-parameters' => 'match'},
+	  'Parameters_sc-mismatch' => { 'RESULT-parameters' => 'mismatch'},
+	  'Parameters_gap-open'  =>   { 'RESULT-parameters' => 'gapopen'},
+	  'Parameters_gap-extend'=>   { 'RESULT-parameters' => 'gapext'},
+	  'Parameters_filter'    =>  {'RESULT-parameters' => 'filter'},
+	  'Parameters_allowgaps' =>   { 'RESULT-parameters' => 'allowgaps'},
 
-		 'Statistics_T'=> { 'stat' => 'T'},
-		 'Statistics_A'=> { 'stat' => 'A'},
-		 'Statistics_X1'=> { 'stat' => 'X1'},
-		 'Statistics_X2'=> { 'stat' => 'X2'},
-		 'Statistics_S1'=> { 'stat' => 'S1'},
-		 'Statistics_S2'=> { 'stat' => 'S2'},
-		 
-		 # WU-BLAST stats
-		 'Statistics_DFA_states'=> { 'stat' => 'num_dfa_states'},
-		 'Statistics_DFA_size'=> { 'stat' => 'dfa_size'},
-		 
-		 'Statistics_search_cputime' => { 'stat' => 'search_cputime'},
-		 'Statistics_total_cputime' => { 'stat' => 'total_cputime'},
-		 'Statistics_search_actualtime' => { 'stat' => 'search_actualtime'},
-		 'Statistics_total_actualtime' => { 'stat' => 'total_actualtime'},
-		 
-		 'Statistics_noprocessors' => { 'stat' => 'no_of_processors'},
-		 'Statistics_neighbortime' => { 'stat' => 'neighborhood_generate_time'},
-		 'Statistics_starttime' => { 'stat' => 'start_time'},
-		 'Statistics_endtime' => { 'stat' => 'end_time'},
-		 
-		 
-		 );
+	  'Statistics_db-len'    => {'RESULT-statistics' => 'dbentries'},
+	  'Statistics_db-let'    => { 'RESULT-statistics' => 'dbletters'},
+	  'Statistics_hsp-len'   => { 'RESULT-statistics' => 'hsplength'},
+	  'Statistics_query-len'   => { 'RESULT-statistics' => 'querylength'},
+	  'Statistics_eff-space' => { 'RESULT-statistics' => 'effectivespace'},
+	  'Statistics_eff-spaceused' => { 'RESULT-statistics' => 'effectivespaceused'},
+	  'Statistics_eff-dblen' => { 'RESULT-statistics' => 'effectivedblength'},
+	  'Statistics_kappa'     => { 'RESULT-statistics' => 'kappa' },
+	  'Statistics_lambda'    => { 'RESULT-statistics' => 'lambda' },
+	  'Statistics_entropy'   => { 'RESULT-statistics' => 'entropy'},
+	  'Statistics_framewindow'=> { 'RESULT-statistics' => 'frameshiftwindow'},
+	  'Statistics_decay'=> { 'RESULT-statistics' => 'decayconst'},
+
+	  'Statistics_T'=> { 'RESULT-statistics' => 'T'},
+	  'Statistics_A'=> { 'RESULT-statistics' => 'A'},
+	  'Statistics_X1'=> { 'RESULT-statistics' => 'X1'},
+	  'Statistics_X2'=> { 'RESULT-statistics' => 'X2'},
+	  'Statistics_S1'=> { 'RESULT-statistics' => 'S1'},
+	  'Statistics_S2'=> { 'RESULT-statistics' => 'S2'},
+
+	  # WU-BLAST stats
+	  'Statistics_DFA_states'=> { 'RESULT-statistics' => 'num_dfa_states'},
+	  'Statistics_DFA_size'=> { 'RESULT-statistics' => 'dfa_size'},
+
+	  'Statistics_search_cputime' => { 'RESULT-statistics' => 'search_cputime'},
+	  'Statistics_total_cputime' => { 'RESULT-statistics' => 'total_cputime'},
+	  'Statistics_search_actualtime' => { 'RESULT-statistics' => 'search_actualtime'},
+	  'Statistics_total_actualtime' => { 'RESULT-statistics' => 'total_actualtime'},
+
+	  'Statistics_noprocessors' => { 'RESULT-statistics' => 'no_of_processors'},
+	  'Statistics_neighbortime' => { 'RESULT-statistics' => 'neighborhood_generate_time'},
+	  'Statistics_starttime' => { 'RESULT-statistics' => 'start_time'},
+	  'Statistics_endtime' => { 'RESULT-statistics' => 'end_time'},
+	  );
 }
 
 
@@ -190,16 +188,10 @@ BEGIN {
  Usage   : my $obj = new Bio::SearchIO::blast();
  Function: Builds a new Bio::SearchIO::blast object 
  Returns : Bio::SearchIO::blast
- Args    :
+ Args    : -fh/-file => filehandle/filename to BLAST file
+           -format   => 'blast'
 
 =cut
-
-sub new {
-  my($class,@args) = @_;
-
-  my $self = $class->SUPER::new(@args);
-}
-
 
 =head2 next_result
 

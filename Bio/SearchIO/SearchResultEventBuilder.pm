@@ -139,40 +139,28 @@ sub start_result {
 =cut
 
 sub end_result {
-    my ($self,$type,$data) = @_;
-    
+    my ($self,$type,$data) = @_;    
     if( defined $data->{'runid'} &&
 	$data->{'runid'} !~ /^\s+$/ ) {	
-
+	
 	if( $data->{'runid'} !~ /^lcl\|/) { 
-	    $data->{"queryname"}= $data->{'runid'};
+	    $data->{"RESULT-query_name"}= $data->{'runid'};
 	} else { 
-	    ($data->{"queryname"},$data->{"querydesc"}) = split(/\s+/,$data->{"querydesc"},2);
+	    ($data->{"RESULT-query_name"},$data->{"RESULT-query_description"}) = split(/\s+/,$data->{"RESULT-query_description"},2);
 	}
 	
-	if( my @a = split(/\|/,$data->{'queryname'}) ) {
+	if( my @a = split(/\|/,$data->{'RESULT-query_name'}) ) {
 	    my $acc = pop @a ; # this is for accession |1234|gb|AAABB1.1|AAABB1
 	    # this is for |123|gb|ABC1.1|
 	    $acc = pop @a if( ! defined $acc || $acc =~ /^\s+$/);
-	    $data->{"queryacc"}= $acc;
+	    $data->{"RESULT-query_accession"}= $acc;
 	}
+	delete $data->{'runid'};
     }
-    my $result = new Bio::Search::Result::GenericResult
-	('-database_name'           => $data->{'dbname'},
-	 '-database_letters'        => $data->{'dblets'},
-	 '-database_entries'        => $data->{'dbsize'},
-	 '-query_name'              => $data->{'queryname'},
-	 '-query_length'            => $data->{'querylen'},
-	 '-query_accession'         => $data->{'queryacc'},
-	 '-query_description'       => $data->{'querydesc'},
-#	 '-program_name'            => $data->{'programname'},
-#	 '-program_version'         => $data->{'programver'},
-	 '-algorithm'              => $type,
-	 '-algorithm_version'      => $data->{'programver'},	 
-	 '-parameters'        => $data->{'param'},
-	 '-statistics'        => $data->{'stat'},
-	 '-hits'              => $self->{'_hits'});
-
+    my %args = map { my $v = $data->{$_}; s/RESULT//; ($_ => $v) } grep { '^RESULT' } keys %{$data};
+    $args{'-algorithm'} =  $type;
+    $args{'-hits'}      =  $self->{'_hits'};
+    my $result = new Bio::Search::Result::GenericResult(%args);
     $self->{'_hits'} = [];
     return $result;
 }
@@ -213,66 +201,44 @@ sub end_hsp {
     # which expect to be able to infer strand from the order of 
     # of the begin/end of the query and hit coordinates
 
-    if( defined $data->{'queryframe'} && # this is here to protect from undefs
-	(( $data->{'queryframe'} < 0 && 
-	   $data->{'querystart'} < $data->{'queryend'} ) ||       
-	 $data->{'queryframe'} > 0 && 
-	 ( $data->{'querystart'} > $data->{'queryend'} ) ) 
+    if( defined $data->{'HSP-query_frame'} && # this is here to protect from undefs
+	(( $data->{'HSP-query_frame'} < 0 && 
+	   $data->{'HSP-query_start'} < $data->{'HSP-query_end'} ) ||       
+	 $data->{'HSP-query_frame'} > 0 && 
+	 ( $data->{'HSP-query_start'} > $data->{'HSP-query_end'} ) ) 
 	)
     { 
 	# swap
-	($data->{'querystart'},
-	 $data->{'queryend'}) = ($data->{'queryend'},
-				 $data->{'querystart'});
+	($data->{'HSP-query_start'},
+	 $data->{'HSP-query_end'}) = ($data->{'HSP-query_end'},
+				      $data->{'HSP-query_start'});
     } 
-    if( defined $data->{'hitframe'} && # this is here to protect from undefs
-	((defined $data->{'hitframe'} && $data->{'hitframe'} < 0 && 
-	  $data->{'hitstart'} < $data->{'hitend'} ) ||       
-	 defined $data->{'hitframe'} && $data->{'hitframe'} > 0 && 
-	 ( $data->{'hitstart'} > $data->{'hitend'} ) )
+    if( defined $data->{'HSP-hit_frame'} && # this is here to protect from undefs
+	((defined $data->{'HSP-hit_frame'} && $data->{'HSP-hit_frame'} < 0 && 
+	  $data->{'HSP-hit_start'} < $data->{'HSP-hit_end'} ) ||       
+	 defined $data->{'HSP-hit_frame'} && $data->{'HSP-hit_frame'} > 0 && 
+	 ( $data->{'HSP-hit_start'} > $data->{'HSP-hit_end'} ) )
 	) 
     { 
 	# swap
-	($data->{'hitstart'},
-	 $data->{'hitend'}) = ($data->{'hitend'},
-			       $data->{'hitstart'});
+	($data->{'HSP-hit_start'},
+	 $data->{'HSP-hit_end'}) = ($data->{'HSP-hit_end'},
+			       $data->{'HSP-hit_start'});
     }
-    $data->{'queryframe'} ||= 0;
-    $data->{'hitframe'} ||= 0;
+    $data->{'HSP-query_frame'} ||= 0;
+    $data->{'HSP-hit_frame'} ||= 0;
     # handle Blast 2.1.2 which did not support data member: hsp_align-len
     
-    $data->{'querylen'} ||= length $data->{'queryseq'};
-    $data->{'hitlen'}   ||= length $data->{'hitseq'};
-    $data->{'hsplen'}   ||= length $data->{'homolseq'};
+    $data->{'HSP-query_length'} ||= length $data->{'HSP-query_seq'};
+    $data->{'HSP-hit_length'}   ||= length $data->{'HSP-hit_seq'};
+    $data->{'HSP-hsp_length'}   ||= length $data->{'HSP-homology_seq'};
     
-
-    my $hsp = new Bio::Search::HSP::GenericHSP
-	(
-	 '-algorithm'     => $type,
-	 '-score'         => $data->{'score'} || $data->{'swscore'},
-	 '-bits'          => $data->{'bits'},
-	 '-identical'     => $data->{'identical'},
-	 '-hsp_length'    => $data->{'hsplen'},
-	 '-conserved'     => $data->{'conserved'},
-	 '-hsp_gaps'      => $data->{'gaps'},
-	 '-hit_gaps'      => $data->{'hitgaps'},
-	 '-query_gaps'    => $data->{'querygaps'},
-	 '-evalue'        => $data->{'evalue'},
-	 '-pvalue'        => $data->{'pvalue'},
-	 '-query_start'   => $data->{'querystart'},
-	 '-query_end'     => $data->{'queryend'},
-	 '-hit_start'     => $data->{'hitstart'},
-	 '-hit_end'       => $data->{'hitend'},
-	 '-query_seq'     => $data->{'queryseq'},
-	 '-hit_seq'       => $data->{'hitseq'},
-	 '-homology_seq'  => $data->{'homolseq'},
-	 '-query_length'  => $data->{'querylen'},
-	 '-hit_length'    => $data->{'hitlen'},
-	 '-query_name'    => $data->{'queryname'},
-	 '-hit_name'      => $data->{'hitname'},
-	 '-query_frame'   => $data->{'queryframe'},
-	 '-hit_frame'     => $data->{'hitframe'},
-	 );
+    my %args = map { my $v = $data->{$_}; s/HSP//; ($_ => $v) } grep { '^HSP' } keys %{$data};
+    $args{'-algorithm'} = $type;
+    # copy this over from result
+    $args{'-query_name'} = $data->{'RESULT-query_name'};
+    $args{'-hit_name'} = $data->{'HIT-name'};
+    my $hsp = new Bio::Search::HSP::GenericHSP(%args);
     push @{$self->{'_hsps'}}, $hsp;
     return $hsp;
 }
@@ -308,16 +274,11 @@ sub start_hit{
 =cut
 
 sub end_hit{
-   my ($self,$type,$data) = @_;   
-    my $hit = new Bio::Search::Hit::GenericHit
-	( '-algorithm' => $type,
-	  '-name'        => $data->{'hitname'}, 
-	  '-length'      => $data->{'hitlen'},
-	  '-accession'   => $data->{'hitacc'},
-	  '-description' => $data->{'hitdesc'},
-	  '-significance'=> $data->{'hitsignif'},
-	  '-score'       => $data->{'hitscore'},
-	  '-hsps'        => $self->{'_hsps'});
+    my ($self,$type,$data) = @_;   
+    my %args = map { my $v = $_; s/HIT//; ($_ => $data->{$v}) } grep { '^HIT' } keys %{$data};
+    $args{'-algorithm'} = $type;
+    $args{'-hsps'}      = $self->{'_hsps'};
+    my $hit = new Bio::Search::Hit::GenericHit(%args);
    push @{$self->{'_hits'}}, $hit;
    $self->{'_hsps'} = [];
    return $hit;

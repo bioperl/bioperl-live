@@ -178,7 +178,7 @@ qq{<HTML>
   }, 
 		      $result->algorithm, $result->algorithm,		      
 		      $result->query_name(), 
-		      $self->algorithm_reference($result),,
+		      $result->program_reference || $self->algorithm_reference($result),
 		      $result->query_name, 
 		      $result->query_description, $result->query_length, 
 		      $result->database_name(),

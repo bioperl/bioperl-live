@@ -146,7 +146,7 @@ Sequences producing significant alignments:         Score       E
 },
 		      $result->algorithm,  $result->algorithm_version,
 		      $result->algorithm, ref($result),
-		      $self->algorithm_reference($result),
+		      $result->program_reference() || $self->algorithm_reference($result),
 		      $result->query_name, $result->query_description, 
 		      $result->query_length, 
 		      $result->database_name(),
