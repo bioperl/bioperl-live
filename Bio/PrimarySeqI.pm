@@ -423,14 +423,16 @@ sub revcom{
        $out = $self->new( '-seq' => $revseq,
 			  '-display_id'  => $self->display_id,
 			  '-accession_number' => $self->accession_number,
-			  '-moltype' => $self->moltype
+			  '-moltype' => $self->moltype,
+			  '-desc' => $self->desc()
 			  );
    } else {
        $self->_attempt_to_load_Seq();
        $out = Bio::PrimarySeq->new('-seq' => $revseq,
 			  '-display_id'  => $self->display_id,
 			  '-accession_number' => $self->accession_number,
-			  '-moltype' => $self->moltype
+			  '-moltype' => $self->moltype,
+			  '-desc' => $self->desc()
 			  );
    }
 
@@ -477,14 +479,16 @@ sub trunc{
        $out = $self->new( '-seq' => $str,
 			  '-display_id'  => $self->display_id,
 			  '-accession_number' => $self->accession_number,
-			  '-moltype' => $self->moltype
+			  '-moltype' => $self->moltype,
+			  '-desc' => $self->desc()
 			  );
    } else {
        $self->_attempt_to_load_Seq();
        $out = Bio::PrimarySeq->new('-seq' => $str,
 			    '-display_id'  => $self->display_id,
 			    '-accession_number' => $self->accession_number,
-			    '-moltype' => $self->moltype
+			    '-moltype' => $self->moltype,
+			    '-desc' => $self->desc()
 			    );
    }
    
