@@ -26,7 +26,7 @@ ok defined($report->query),1, " no query";
 ok $report->score, 481, "wrong score";
 ok $report->bits, 191, "wrong score in bits ";
 ok $report->percent, 35.1, "wrong match percent";
-ok $report->P , 2e-53;# "wrong expectation value ";
+ok $report->P == 2e-53;# "wrong expectation value ";
 ok $report->match, 111, "wrong number of matches ";
 ok $report->positive, 167, "wrong number of positives";
 ok $report->start, 28, 'wrong starting position';
