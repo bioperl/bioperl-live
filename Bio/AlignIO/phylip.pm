@@ -76,17 +76,19 @@ methods. Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::AlignIO::phylip;
-use vars qw(@ISA $DEFAULTIDLENGTH $DEFAULTLINELEN);
+use vars qw(@ISA $DEFAULTIDLENGTH $DEFAULTLINELEN $DEFAULTTAGLEN);
 use strict;
 
 use Bio::SimpleAlign;
 use Bio::AlignIO;
+use POSIX; # for the rounding call
 
 @ISA = qw(Bio::AlignIO);
 
 BEGIN { 
     $DEFAULTIDLENGTH = 10;
     $DEFAULTLINELEN = 60;
+    $DEFAULTTAGLEN = 10;
 }
 
 =head2 new
@@ -103,9 +105,14 @@ BEGIN {
 						    spaces if needed) 
            -interleaved => boolean - whether or not write as interleaved 
                                      or sequential format
-           -linelength  => integer of how long a sequence lines should be 
+           -line_length  => integer of how long a sequence lines should be 
            -idlinebreak => insert a line break after the sequence id
                            so that sequence starts on the next line 
+           -flag_SI => whether or not write a "S" or "I" just after
+                       the num.seq. and line len., in the first line
+           -tag_length => integer of how long the tags have to be in
+                         each line between the space separator. set it
+                         to 0 to have 1 tag only.
 
 =cut
 
@@ -114,14 +121,19 @@ sub _initialize {
   $self->SUPER::_initialize(@args);
 
   my ($interleave,$linelen,$idlinebreak,
-      $idlength) = $self->_rearrange([qw(INTERLEAVED 
-					 LINELENGTH
-					 IDLINEBREAK
-					 IDLENGTH)],@args);
+      $idlength, $flag_SI, $tag_length) = 
+          $self->_rearrange([qw(INTERLEAVED 
+                                LINE_LENGTH
+                                IDLINEBREAK
+                                IDLENGTH
+                                FLAG_SI
+                                TAG_LENGTH)],@args);
   $self->interleaved(1) if( $interleave || ! defined $interleave);
   $self->idlength($idlength || $DEFAULTIDLENGTH);
   $self->id_linebreak(1) if( $idlinebreak );
   $self->line_length($linelen) if defined $linelen && $linelen > 0;
+  $self->flag_SI(1) if ( $flag_SI );
+  $self->tag_length($tag_length) if ( $tag_length || $DEFAULTTAGLEN );
   1;
 }
 
@@ -270,7 +282,7 @@ sub write_aln {
     my $wrapped = 0;
     my $maxname;
     my ($length,$date,$name,$seq,$miss,$pad,
-	%hash,@arr,$tempcount,$index,$idlength);
+	%hash,@arr,$tempcount,$index,$idlength,$flag_SI,$line_length, $tag_length);
     
     foreach my $aln (@aln) {
 	if( ! $aln || ! $aln->isa('Bio::Align::AlignI')  ) { 
@@ -280,11 +292,22 @@ sub write_aln {
 	$self->throw("All sequences in the alignment must be the same length") 
 	    unless $aln->is_flush(1) ;
 
+        $flag_SI = $self->flag_SI();
 	$aln->set_displayname_flat(); # plain
 	$length  = $aln->length();
-	$self->_print (sprintf(" %s %s\n", $aln->no_sequences, $aln->length));
+        if ($flag_SI) {
+            if ($self->interleaved() ) {
+                $self->_print (sprintf(" %s %s I\n", $aln->no_sequences, $aln->length));
+            } else {
+                $self->_print (sprintf(" %s %s S\n", $aln->no_sequences, $aln->length));
+            }
+        } else {
+            $self->_print (sprintf(" %s %s\n", $aln->no_sequences, $aln->length));
+        }
 
 	$idlength = $self->idlength();	
+	$line_length = $self->line_length();
+	$tag_length = $self->tag_length();
 	foreach $seq ( $aln->each_seq() ) {
 	    $name = $aln->displayname($seq->get_nse);
 	    $name = substr($name, 0, $idlength) if length($name) > $idlength;
@@ -303,6 +326,13 @@ sub write_aln {
 	}
 
 	if( $self->interleaved() ) {
+            my $numtags;
+            if ($tag_length <= $line_length) {
+                $numtags = floor($line_length/$tag_length);
+                $line_length = $tag_length*$numtags;
+            } else {
+                $numtags = 1;
+            }
 	    while( $count < $length ) {	
 		
 		# there is another block to go!
@@ -311,21 +341,21 @@ sub write_aln {
 		    $dispname = '' if $wrapped;
 		    $self->_print (sprintf("%".($idlength+3)."s",$dispname));
 		    $tempcount = $count;
-		    $index = 0;
+                    $index = 0;
                     $self->debug("residue count: $count\n") if ($count%100000 == 0);
-		    while( ($tempcount + $idlength < $length) && ($index < 5)  ) {
+		    while( ($tempcount + $tag_length < $length) && ($index < $numtags)  ) {
 			$self->_print (sprintf("%s ",substr($hash{$name},
 							    $tempcount,
-							    $idlength)));
-			$tempcount += $idlength;
+							    $tag_length)));
+			$tempcount += $tag_length;
 			$index++;
 		    }
 		    # last
-		    if( $index < 5) {
+		    if( $index < $numtags) {
 			# space to print!
 			$self->_print (sprintf("%s ",substr($hash{$name},
 							    $tempcount)));
-			$tempcount += $idlength;
+			$tempcount += $tag_length;
 		    }
 		    $self->_print ("\n");
 		}
@@ -365,6 +395,28 @@ sub interleaved{
    return $previous;
 }
 
+=head2 flag_SI
+
+ Title   : flag_SI
+ Usage   : my $flag = $obj->flag_SI
+ Function: Get/Set if the Sequential/Interleaved flag has to be shown
+           after the number of sequences and sequence length
+ Example :
+ Returns : boolean
+ Args    : boolean
+
+
+=cut
+
+sub flag_SI{
+   my ($self,$value) = @_;
+   my $previous = $self->{'_flag_SI'};
+   if( defined $value ) { 
+       $self->{'_flag_SI'} = $value;
+   }
+   return $previous;
+}
+
 =head2 idlength
 
  Title   : idlength
@@ -398,11 +450,32 @@ sub idlength {
 sub line_length{
    my ($self,$value) = @_;
    if( defined $value) {
-      $self->{'line_length'} = $value;
+      $self->{'_line_length'} = $value;
     }
-    return $self->{'line_length'} || $DEFAULTLINELEN;
+    return $self->{'_line_length'} || $DEFAULTLINELEN;
 
 }
+
+=head2 tag_length
+
+ Title   : tag_length
+ Usage   : $obj->tag_length($newval)
+ Function:
+ Example : my $tag_length = $obj->tag_length
+ Returns : value of the length for each space-separated tag in a line
+ Args    : newvalue (optional) - set to zero to have one tag per line
+
+
+=cut
+
+sub tag_length{
+   my ($self,$value) = @_;
+   if( defined $value) {
+      $self->{'_tag_length'} = $value;
+    }
+    return $self->{'_tag_length'} || $DEFAULTTAGLEN;
+}
+
 
 =head2 id_linebreak
 
