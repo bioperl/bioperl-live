@@ -1,7 +1,7 @@
 #!/bin/perl -w
 use strict;
-package Bio::Graph::Protein;
-use SimpleGraph;
+package Bio::Graph::ProteinGraph;
+use Bio::Graph::SimpleGraph;
 use Clone qw(clone);
 use vars  qw(@ISA);
 our @ISA = qw(SimpleGraph);
@@ -97,6 +97,7 @@ Bio::Graph::Protein - a representation of a protein interaction graph.
 =head1  REQUIREMENTS
 
 To use this code you will need the Clone.pm module availabe from CPAN.
+You also need Class::AutoClass availabe from CPAN as well. 
 
 =head1 SEE ALSO
 
@@ -171,9 +172,11 @@ sub has_node {
 
 sub nodes_by_id {
 
-	my $self = shift;
-	my @refs = $self->_ids(@_);
-	return $self->nodes(@refs);
+	my $self  = shift;
+	my @refs  = $self->_ids(@_);
+	my @nodes = $self->nodes(@refs);
+	wantarray? @nodes: $nodes[0];
+
 }
 
 
@@ -258,11 +261,11 @@ sub union {
 		my @other_ns  = $other->neighbors($other->nodes_by_id($common));
 	
 		## now get all ids of all neighbours
-		my %self_n_ids = _get_ids(@self_ns); # get all ids of neighbors
+		my %self_n_ids = $self->_get_ids(@self_ns); # get all ids of neighbors
 
 		##cycle through other neighbors
 		for my $other_n(@other_ns){ 
-			my %other_n_ids = _get_ids($other_n); # get ids of single other neighbor
+			my %other_n_ids = $self->_get_ids($other_n); # get ids of single other neighbor
 
             ## case (1) in description
 			## do any ids exist in any self neighbors?
@@ -348,18 +351,19 @@ sub union {
 
 sub _get_ids {
 	my %ids;
+	my $dummy_self = shift;
 	while (my $n = shift @_ ){  #ref to node, assume is a Bio::Seq
 		if (!$n->isa('Bio::PrimarySeqI')) {
 			$n->throw("I need a Bio::Seq object, not a [" .ref($n) ."]");
 		}
 		## get ids
-		map{$ids{$_} = undef}($n->accession_number, $n->primary_id);
+		#map{$ids{$_} = undef}($n->accession_number, $n->primary_id);
 
 		##if BioSeq getdbxref ids as well.
 		if ($n->can('annotation')) {
 			my $ac = $n->annotation();	
 			for my $an($ac->get_Annotations('dblink')) {
-				$ids{$an->primary_id()} = undef;
+				$ids{$an->database()} = $an->primary_id();
 			}
 		}
 	}
@@ -373,7 +377,7 @@ sub add_edge {
   my $dup_edges = $self->_dup_edges;
 	my $edge;
   while (@_) {
-    if ( $_[0]->isa('edge') ) {	# it's already an edge
+    if ( $_[0]->isa('Bio::Graph::Edge') ) {	# it's already an edge
        $edge = shift;
     } 
 	elsif(ref($_[0]) eq 'ARRAY' || !ref($_[0])) {

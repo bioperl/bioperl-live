@@ -1,7 +1,7 @@
-package SimpleGraph;
+package Bio::Graph::SimpleGraph;
 use vars qw(@ISA @AUTO_ATTRIBUTES @OTHER_ATTRIBUTES %SYNONYMS %DEFAULTS);
 use Class::AutoClass;
-use SimpleGraph::Traversal;
+use Bio::Graph::SimpleGraph::Traversal;
 use strict;
 @ISA = qw(Class::AutoClass); # AutoClass must be first!!
 @AUTO_ATTRIBUTES=qw(_nodes _edges _neighbors _dup_edges _is_connected _components);

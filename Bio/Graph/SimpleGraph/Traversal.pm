@@ -1,6 +1,5 @@
 package SimpleGraph::Traversal;
 use vars qw(@ISA @AUTO_ATTRIBUTES @OTHER_ATTRIBUTES %SYNONYMS %DEFAULTS);
-use lib '../';
 use Class::AutoClass;
 use SimpleGraph;
 use strict;

@@ -3,7 +3,7 @@ package Bio::Graph::IO::dip;
 use vars qw(@ISA $FAC);
 
 use Bio::Graph::IO;
-#use Bio::Graph::ProteinGraph;
+use Bio::Graph::ProteinGraph;
 use Bio::Seq::SeqFactory;
 use Bio::Annotation::DBLink;
 use Bio::Annotation::Collection;
@@ -48,8 +48,9 @@ sub next_network {
 			if($g1){ $g1 =~ s/GI://;     }
 			if($p1){ $p1 =~ s/PIR://;  }
 			if($s1){ $s1 =~ s/SWP://;  }
+			if($n1){ $n1 =~ s/DIP://;  }
 			my $acc = $s1 || $p1 || $g1;
-			my $ac  = $self->_add_db_links($acc, $s1, $p1,  $n1);
+			my $ac  = $self->_add_db_links($acc, $s1, $p1,  $n1, $g1);
 			$node1 = $FAC->create(
 								-accession_number => $acc,
 								-primary_id       => $g1,
@@ -66,8 +67,9 @@ sub next_network {
 			if($g2){$g2 =~ s/GI://; }
 			if($p2){$p2 =~ s/PIR://; }
 			if($s2){$s2 =~ s/SWP://; }
+			if($n2){$n2 =~ s/DIP://;  }
 			my $acc = $s2 || $p2 || $g2;
-			my $ac  = $self->_add_db_links($acc, $s2, $p2,  $n2);
+			my $ac  = $self->_add_db_links($acc, $s2, $p2,  $n2, $g2);
 			$node2  = $FAC->create(
 								-accession_number => $acc,
 								-primary_id       => $g2,
@@ -107,7 +109,7 @@ sub next_network {
 sub write_network {
 
 my ($self, $gr) = @_;
-if ($gr || !$gr->isa('Bio::Graph::ProteinGraph')) {
+if (!$gr || !$gr->isa('Bio::Graph::ProteinGraph')) {
 	$self->throw("I need a Bio::Graph::ProteinGraph, not a [".
 	              ref($gr) . "]");
 	  }
@@ -117,16 +119,19 @@ my @edges = $gr->edges();
 
 #for each edge
 for my $edge (@edges) {
-	my $str  = $edge->object_id(). "\t";             #output string
+	my $str  = "DIP:" .$edge->object_id(). "\t";             #output string
 	my @nodes = $edge->nodes();
 	
 	# add node ids to string in correct order
 	for my $n (@nodes){
 	    # print out nodes in dip order
-		my %ids = $gr->get_all_ids($n); #need to modify this in graph()
+		my %ids = $gr->_get_ids($n); #need to modify this in graph()
 		for my $db (qw(DIP SWP PIR GI)){
 			if (exists($ids{$db})){
 				$str .= "$db:$ids{$db}\t";
+			}
+			else {
+				$str .= "\t";
 			}
 		}
 	}
@@ -138,22 +143,24 @@ for my $edge (@edges) {
 		}else {
 		$str .= "\n";
 	}
-	$self->_print($str);# or whatever
+	$self->_print($str);
  }# next edge
+$self->flush();
 		
 }
 
 
 
 sub _add_db_links {
-	my ($self, $acc, $s1, $p1,  $n1) = @_;
+	my ($self, $acc, $s1, $p1,  $n1, $g1) = @_;
 	my %ids;
-	$ids{'pir'} = $p1 if $p1;
-	$ids{'swp'} = $s1 if $s1;
-	$ids{'dip'} = $n1 if $n1;
+	$ids{'PIR'} = $p1 if $p1;
+	$ids{'SWP'} = $s1 if $s1;
+	$ids{'DIP'} = $n1 if $n1;
+	$ids{'GI'}  = $g1 if $g1;
 	my $ac = Bio::Annotation::Collection->new();
 	for my $db (keys %ids) {
-		next if  $ids{$db}  eq $acc;
+		#next if  $ids{$db}  eq $acc;
 		my $an = Bio::Annotation::DBLink->new( -database   => $db,
 											   -primary_id => $ids{$db},
 											);
