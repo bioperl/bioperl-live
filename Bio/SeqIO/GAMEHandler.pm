@@ -3,6 +3,7 @@
 #
 # $Id$
 #
+
 =head1 NAME
 
 Bio::SeqIO::Bioxml  Parses bioxml 0.3 and higher into Bio::Seq objects. - 
