@@ -62,11 +62,11 @@ $mt_b = pop @each;
 test 9, ($mt_b->seq eq 'g');
 #my $filename='/home/heikki/src/bioperl-live/t/g6pd.embl';
 my $filename='t/ar.embl';
-my $loader=Bio::LiveSeq::IO::BioPerl->load(-file => "$filename");
+my $loader=Bio::LiveSeq::IO::BioPerl->load('-file' => "$filename");
 my $gene_name='AR'; # was G6PD
 
-test 10, my $gene=$loader->gene2liveseq(-gene_name => $gene_name, 
-					-getswissprotinfo => 0);
+test 10, my $gene=$loader->gene2liveseq('-gene_name' => $gene_name, 
+					'-getswissprotinfo' => 0);
 #print STDERR "Gene: ",$gene->name,"\n";
 test 11, $a->gene($gene);
 

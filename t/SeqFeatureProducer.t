@@ -40,7 +40,7 @@ sub test ($$;$) {
 
 my ($seqio,$seq,$sfp, $gene_seen, $exon_seen);
 
-test 2, defined ( $seqio = new Bio::SeqIO(-format=>'fasta', -file => 't/genomic-seq.fasta')), 'seqio was not created';
+test 2, defined ( $seqio = new Bio::SeqIO('-format'=>'fasta', '-file' => 't/genomic-seq.fasta')), 'seqio was not created';
 test 3, defined ( $seq = $seqio->next_seq ), 'could not read sequence';
 
 test 4, ( $sfp = new Bio::SeqFeatureProducer(-method => 'genscan',
@@ -63,7 +63,7 @@ test 6, $gene_seen == 3;
 test 7, defined ( $sfp = new Bio::SeqFeatureProducer());
 
 my $parser = new Bio::Tools::MZEF(-file => 't/genomic-seq.mzef');
-$seqio = new Bio::SeqIO(-format=>'fasta', -file => 't/genomic-seq.fasta');
+$seqio = new Bio::SeqIO('-format'=>'fasta', '-file' => 't/genomic-seq.fasta');
 
 test 8, defined ($seq = $seqio->next_seq());
 

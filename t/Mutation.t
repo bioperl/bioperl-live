@@ -57,10 +57,10 @@ test 13, $a->postlabel(57) && $a->postlabel eq '57';
 test 14, $a->lastlabel(57) && $a->lastlabel eq '57';
 
 #constuctor test
-$b = Bio::LiveSeq::Mutation->new(-seq=>'AC',
-				 -seqori => 'GG',
-				 -pos => 5,
-				 -len => 2,
+$b = Bio::LiveSeq::Mutation->new('-seq'=>'AC',
+				 '-seqori' => 'GG',
+				 '-pos' => 5,
+				 '-len' => 2,
 				 );
 test 15,  defined $b;
 test 16, $b->seqori eq 'GG';

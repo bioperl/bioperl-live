@@ -19,8 +19,18 @@
 
 
 ## We start with some black magic to print on failure.
-BEGIN { $| = 1; print "1..26\n";
-	use vars qw($loaded); }
+BEGIN { 
+
+    eval { require 'Text/Wrap.pm' };
+    if( $@ || $Text::Wrap::VERSION < 98 ) {
+	print STDERR "Must have at least Text::Wrap 98 installed\n";
+	print "1..1\n";
+	print "ok 1\n";
+	exit(0);
+    }    
+    
+    $| = 1; print "1..26\n";
+    use vars qw($loaded); }
 
 END {print "not ok 1\n" unless $loaded;}
 
