@@ -236,7 +236,7 @@ use strict;
 use vars '@ISA';
 
 use Bio::Root::RootI;
-use Bio::Seq;
+use Bio::PrimarySeq;
 use Symbol();
 
 @ISA = qw(Bio::Root::RootI);
@@ -355,46 +355,22 @@ sub _initialize {
   $self->_filehandle($fh) if( defined $fh);
 }
 
-=head2 _load_format_module
-
- Title   : _load_format_module
- Usage   : *INTERNAL SeqIO stuff*
- Function: Loads up (like use) a module at run time on demand
- Example :
- Returns :
- Args    :
-
-=cut
-
-sub _load_format_module {
-  my ($format) = @_;
-  my ($module, $load, $m);
-
-  $module = "_<Bio/SeqIO/$format.pm";
-  $load = "Bio/SeqIO/$format.pm";
-
-  return 1 if $main::{$module};
-  eval {
-    require $load;
-  };
-  if ( $@ ) {
-    print STDERR <<END;
-$load: $format cannot be found
-Exception $@
-For more information about the SeqIO system please see the SeqIO docs.
-This includes ways of checking for formats at compile time, not run time
-END
-  ;
-    return;
-  }
-  return 1;
-}
-
 =head2 next_seq
 
  Title   : next_seq
  Usage   : $seq = stream->next_seq
- Function: reads the next $seq object from the stream
+ Function: Reads the next sequence object from the stream and returns it.
+
+           Certain driver modules may encounter entries in the stream that
+           are either misformatted or that use syntax not yet understood
+           by the driver. If such an incident is recoverable, e.g., by
+           dismissing a feature of a feature table or some other non-mandatory
+           part of an entry, the driver will issue a warning. In the case
+           of a non-recoverable situation an exception will be thrown.
+           Do not assume that you can resume parsing the same stream after
+           catching the exception. Note that you can always turn recoverable
+           errors into exceptions by calling $stream->verbose(2) (see
+           Bio::RootI POD page).
  Returns : a Bio::Seq sequence object
  Args    :
 =cut
@@ -456,14 +432,19 @@ sub write_seq {
 
 sub moltype {
    my ($self, $value) = @_;
-   my @VALID_MOLTYPES = qw(dna rna protein);
+
    if ( defined $value) {
-     if ( ! grep /$value/i, @VALID_MOLTYPES ) {
-         $self->throw("Invalid moltype: $value\nPlease use one of @VALID_MOLTYPES\n");
-     }
-      $self->{'moltype'} = "\L$value";
-    }
-    return $self->{'moltype'};
+       # instead of hard-coding the allowed values once more, we check by
+       # creating a dummy sequence object
+       eval {
+	   my $seq = Bio::PrimarySeq->new('-moltype' => $value);
+       };
+       if($@) {
+	   $self->throw("Invalid moltype: $value\n. See Bio::PrimarySeq for allowed values.");
+       }
+       $self->{'moltype'} = "\L$value";
+   }
+   return $self->{'moltype'};
 }
 
 =head2 close
@@ -481,6 +462,41 @@ sub close {
    my ($self, @args) = @_;
 
    $self->{'_filehandle'} = undef;
+}
+
+=head2 _load_format_module
+
+ Title   : _load_format_module
+ Usage   : *INTERNAL SeqIO stuff*
+ Function: Loads up (like use) a module at run time on demand
+ Example :
+ Returns :
+ Args    :
+
+=cut
+
+sub _load_format_module {
+  my ($format) = @_;
+  my ($module, $load, $m);
+
+  $module = "_<Bio/SeqIO/$format.pm";
+  $load = "Bio/SeqIO/$format.pm";
+
+  return 1 if $main::{$module};
+  eval {
+    require $load;
+  };
+  if ( $@ ) {
+    print STDERR <<END;
+$load: $format cannot be found
+Exception $@
+For more information about the SeqIO system please see the SeqIO docs.
+This includes ways of checking for formats at compile time, not run time
+END
+  ;
+    return;
+  }
+  return 1;
 }
 
 =head2 _print
