@@ -34,10 +34,11 @@ my $verbose = 0;
 
 my ($gdb, $marker, $info);
 # get a single seq
+$marker = 'D1S234';
 eval { 
     ok defined ( $gdb = new Bio::DB::GDB(-verbose=>$verbose) );     
-    ok ($info = $gdb->get_info(-type=>'marker',
-			       -id  => $marker));
+    ok($info = $gdb->get_info(-type=>'marker',
+			   -id  => $marker));
 };
 if( $@ ) {
     warn "Warning: Couldn't connect to GDB website with Bio::DB::GDB.pm!\nError: $@ Do you have network access? Skipping all other tests";
@@ -45,7 +46,6 @@ if( $@ ) {
     exit(0);
 }
 
-$marker = 'D1S234';
 
 ok $info->{gdbid}, 'GDB:188296', 'value was ' . $info->{gdbid};
 ok $info->{primers}->[0], 'GCCCAGGAGGTTGAGG', 'value was ' . $info->{primers}->[0];
