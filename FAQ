@@ -1,4 +1,4 @@
-# $Id: FAQ,v 1.10 2002-05-10 16:05:44 bosborne Exp $
+# $Id: FAQ,v 1.11 2002-05-23 19:19:10 jason Exp $
 
 Bioperl FAQ
 -----------
@@ -23,6 +23,7 @@ II. Sequences
   1. How do I parse a sequence file?  
   2. I can't get sequences with Bio::DB::GenBank any more, why not?
   3. How can I get NT_ or NM_ accessions from NCBI (Reference Sequences)?
+  4. How can I use SeqIO to parse sequence data from a string?
 
 III. Report parsing
 
@@ -206,6 +207,17 @@ II. Sequences
      system which is accessible through the Bio::DB::RefSeq object
      however, there are cases where NT_ accessions will not be
      retrievable.  
+
+  4. How can I use SeqIO to parse sequence data from a string?
+
+     use IO::String;
+     use Bio::SeqIO;
+     my $stringfh = new IO::String($string);
+
+     my $seqio = new Bio::SeqIO(-fh => $stringfh, -format => 'fasta');
+
+     while( my $seq = $seqio->next_seq ) { # process each seq
+     }
 
 ------------------------------------------------------------------------
 III. Report parsing
