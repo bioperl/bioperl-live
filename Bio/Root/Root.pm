@@ -329,6 +329,36 @@ sub throw{
    }
 }
 
+=head2 _load_module
+
+ Title   : _load_module
+ Usage   : $self->_load_module("Bio::SeqIO::genbank");
+ Function: Loads up (like use) the specified module at run time on demand.
+ Example : 
+ Returns : TRUE on success. Throws an exception upon failure.
+ Args    : The module to load (_without_ the trailing .pm).
+
+=cut
+
+sub _load_module {
+    my ($self, $name) = @_;
+    my ($module, $load, $m);
+    $module = "_<$name.pm";
+    return 1 if $main::{$module};
+    $load = "$name.pm";
+
+    my $io = Bio::Root::IO->new();
+    # catfile comes from IO
+    $load = $io->catfile((split(/::/,$load)));
+    eval {
+        require $load;
+    };
+    if ( $@ ) {
+        $self->throw("Failed to load module $name. ".$@);
+    }
+    return 1;
+}
+
 
 1;
 
