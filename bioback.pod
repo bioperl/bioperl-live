@@ -1,4 +1,4 @@
-## $Id: bioback.pod,v 1.5 2002-01-09 05:54:24 njoly Exp $
+## $Id: bioback.pod,v 1.6 2002-01-16 17:19:51 bosborne Exp $
 
 #
 # Documentation about the backend of bioperl
@@ -25,17 +25,17 @@ databases. In addition another layer, above flat file indexing
 is provided, allowing sites to retrieve sequences from GenBank via
 the web or via flat file indexing, or - if you have the time to 
 do so, you can write your own interface to an in-house RDB. Using
-DBI this should be quite simple.
+DBI or bioperl-db this should be quite simple.
 
 Two scripts are provided to get you started with the bioperl backend:
 
 =over 2
 
-=item bpfetch 
+=item scripts/bpfetch.pl 
 
 Fetches sequences from a Database
 
-=item bpindex
+=item scripts/bpindex.pl
 
 Builds indexes for flat files databases which are easily accessible
 by bpfetch
@@ -92,30 +92,30 @@ of two environment variables
 The basic way of indexing a database, once BIOPERL_INDEX has been
 set up, is to go
 
-  bpindex <index-name> <filenames as full path>
+  bpindex.pl <index-name> <filenames as full path>
 
 eg, for Fasta files
 
-  bpindex est /nfs/somewhere/fastafiles/est*.fa
+  bpindex.pl est /nfs/somewhere/fastafiles/est*.fa
 
 Or, for embl/swissprot files
 
-  bpindex -fmt=EMBL swiss /nfs/somewhere/swiss/swissprot.dat
+  bpindex.pl -fmt=EMBL swiss /nfs/somewhere/swiss/swissprot.dat
 
 To retrieve sequences from the index go
 
-  bpfetch <index-name>:<id>
+  bpfetch.pl <index-name>:<id>
 
 eg,
 
-  bpfetch est:AA01234
+  bpfetch.pl est:AA01234
 
 or
 
-  bpfetch swiss:VAV_HUMAN
+  bpfetch.pl swiss:VAV_HUMAN
 
 
-bpfetch has other options to connect to genbank across the network.
+bpfetch.pl has other options to connect to genbank across the network.
 
 =head1 CHECKLIST
 
@@ -124,9 +124,10 @@ bpfetch has other options to connect to genbank across the network.
    setenv BIOPERL_INDEX (or export in Bash) in the system login
    script to /nfs/datadisk/bioperlindex/
 
-   go bpindex swissprot /nfs/datadisk/swiss/swissprot.dat
-   etc
+   go 
 
-   You are ready to use bpfetch
+   bpindex.pl swissprot /nfs/datadisk/swiss/swissprot.dat
 
+   etc.
 
+   You are ready to use bpfetch.pl

@@ -44,14 +44,14 @@ o Contact info
 
 o System requirements
 
-  - Not tested on anything but common forms of Unix
+  - Not tested on anything but common forms of Unix (see the PLATFORMS file for more details
   - perl 5.004 or later (*).
   - ANSI C or Gnu C compiler for XS extensions
   - LWP (libwww-perl) modules for running network BLAST analyses
     (available from CPAN http://www.perl.com/CPAN/).
 
   - Additional perl module and application dependencies listed at
-    http://bioperl.org/Core/external.shtml
+    http://bioperl.org/Core/external.shtml and in bptutorial.pl
 
   - Additional information using Bioperl with MacOS can be 
     found at http://bioperl.org/Core/mac-bioperl.html
@@ -71,6 +71,8 @@ o Documentation
 
   The bptutorial.pl file is a POD formatted tutorial document 
   that contains useful information for new and existing Bioperl users.
+  This file also contains a number of useful scripts that the 
+  student of Bioperl may want to examine.
 
   Use your favorite pod2* translator turn it into the format of
   choice or view it directly via perldoc.
@@ -89,11 +91,22 @@ o Documentation
   navigable documentation files.
 
   Individual .pm modules have their own embedded POD documentation
-  as well. 
+  as well. A complete set of hyperlinked POD, or module, documentation 
+  is available at http://www.bioperl.org.
 
   Remember 'perldoc' is your friend. You can use this to read any
   file containing POD formatted documentation without needing any type
   of translator.
+
+  There is also an online course written at the Pasteur Institute. See:
+  http://www.pasteur.fr/recherche/unites/sis/formation/bioperl.
+
+  Useful documentation, in the form of example code, can also be found
+  in the scripts/ and examples/ directories. The current collection
+  includes scripts that run BLAST and retrieve full "Subject" sequences,
+  make primers, retrieve ESTs based on tissue, align protein to nucleotide
+  sequence, run GENSCAN on multiple sequences, and retrieve multiple
+  conformers from PDB files made from NMR data. 
 
 o Releases
   
@@ -142,7 +155,7 @@ such as
 
 /usr/bin/pod2man: Unrecognized pod directive in paragraph 168 of Bio/Tools/Blast.pm: head3
 
-You don't need to worry about them: they do not effect the documentation
+You don't need to worry about them: they do not affect the documentation
 processing.
 
 To install you need write permission in the perl5/site_perl/ source area. 
@@ -273,3 +286,17 @@ Example:
    use Bio::Seq;
 
    <...insert whizzy perl code here...>
+
+
+o MISCELLANEOUS DOCUMENTS
+
+You may want to take a look at these POD documents as well.
+
+  - bioback.pod: This file discusses how to set up sequence
+    databases for quick and easy access using Bioperl and some 
+    Bioperl scripts supplied in the scripts/ directory.
+
+  - biodesign.pod: This file discusses a number of the design issues
+    that have been raised and collectively addressed in the course of 
+    the development of Bioperl. Recommended reading for anyone who
+    intends to use Bioperl extensively.

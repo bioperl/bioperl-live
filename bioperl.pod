@@ -1,4 +1,4 @@
-## $Id: bioperl.pod,v 1.14 2002-01-11 08:05:30 sac Exp $
+## $Id: bioperl.pod,v 1.15 2002-01-16 17:19:52 bosborne Exp $
 
 ## Should contain general info about the distribution including
 ## links to all the various modules.
@@ -26,28 +26,24 @@ objects are made from the Sequence objects and so on. This means that
 the objects provide a coordinated framework to do computational
 biology.
 
-If you are new to bioperl, reading biostart.pod will get you aquainted
-with writing scripts and the main players for the objects. 
-
-We now also have a cookbook tutorial in bptutorial.pl which has
-embedded documentation. Start there if learning-by-example suites you
-most
-
 Bioperl development is focused on the objects themselves, and less on the 
 scripts (programs) that put these objects together. There are some example
 scripts provided in the distribution, but it is not the focus of the
 objects that are distributed. Of course, as the objects do most of the
-hardwork for you, all you have to do is combine a number of objects
+hard work for you, all you have to do is combine a number of objects
 together sensibly.
 
 The intent of the bioperl development effort is to make reusable tools
-that aid people in creating their own site or job specific applications.
+that aid people in creating their own site or job-specific applications.
 
 The bioperl.org (http://bioperl.org) website also attempts to maintain 
 links and archives of standalone bio-related perl tools that are not
 affiliated or related to the core bioperl effort. Check the site for
 useful code ideas and contribute your own if possible.
 
+We now also have a cookbook tutorial in bptutorial.pl which has
+embedded documentation. Start there if learning-by-example suits you
+most, or examine the Bioperl online course at http://www.pasteur.fr/recherche/unites/sis/formation/bioperl.
 
 =head1 INSTALLATION
 
@@ -142,12 +138,12 @@ except for Seq.pm). Talk to him or her and suggest changes.
 =head2 Make your own objects
 
 If you can make a useful object we will happily include it into the
-core. Probably you will want to read alot of the documentation 
-in the Bio::Root section and also talk to people on the bioperl
+core. Probably you will want to read a lot of the documentation 
+in the L<Bio::Root> section and also talk to people on the bioperl
 mailing list bioperl-l@bioperl.org
 
 biodesign.pod provides documentation on the conventions and ideas
-used in bioperl. It is definitely worth a ready if you are interested
+used in bioperl. It is definitely worth a read if you are interested
 in contributing.
 
 =head1 CONVENTIONS
@@ -249,7 +245,7 @@ indicating that is both useful and that it works.
 Jason Staijch and Hilmar Lapp joined bioperl for the drive towards a
 0.7 release over 2000 and the first part of 2001, which includes a
 revised feature location model, richer feature objects (in particular
-genes) and more and better tools. Peter Schatner and Lorenz Pollak
+genes) and more and better tools. Peter Schattner and Lorenz Pollak
 contributed serious chunks of code, being the AlignIO and bptutorial
 scripts and the BPLite port to bioperl respectively. At this time
 Bioperl was being used in absolute earnest by the Ensembl group which
