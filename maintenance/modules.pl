@@ -1,5 +1,6 @@
 #!/usr/bin/perl -w
-
+# $Id$
+#
 =head1 NAME
 
 modules.pl - information about modules in BioPerl core

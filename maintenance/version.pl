@@ -1,4 +1,6 @@
-
+#!/usr/bin/perl -w
+# $Id$
+#
 =head1 version
 
 This script is to add or modify version declaration for each bioperl pm.

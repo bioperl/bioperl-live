@@ -1,5 +1,6 @@
 #!/usr/bin/perl -w
-
+# $Id$
+#
 =head1 NAME
 
 pod.pl - check the POD documentation syntax in modules and scripts

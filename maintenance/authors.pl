@@ -1,5 +1,6 @@
 #!/usr/bin/perl -w
-
+# $Id$
+#
 =head1 NAME
 
 authors.pl - check modules and scripts for authors not in AUTHORS file
