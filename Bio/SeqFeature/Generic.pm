@@ -26,8 +26,8 @@ Bio::SeqFeature::Generic - Generic SeqFeature
 				    sillytag => 'this is silly!' } );
 
    $feat = new Bio::SeqFeature::Generic ( -gff_string => $string );
-
-   $feat = new Bio::SeqFeature::Generic ( -gff2_string => $string );
+   # if you want explicitly GFF1
+   $feat = new Bio::SeqFeature::Generic ( -gff1_string => $string );
 
    # add it to an annotated sequence
 
@@ -120,6 +120,7 @@ use Bio::Root::RootI;
 use Bio::SeqFeatureI;
 use Bio::Annotation;
 use Bio::Location::Simple;
+use Bio::Tools::GFF;
 
 @ISA = qw(Bio::Root::RootI Bio::SeqFeatureI);
 
@@ -131,7 +132,7 @@ sub new {
     $self->{'_gsf_sub_array'} = [];
     $self->{'_parse_h'} = {};
     my ($start, $end, $strand, $primary, $source, $frame, 
-	$score, $tag, $gff_string, $gff2_string, $seqname, $annot, $location) =
+	$score, $tag, $gff_string, $gff1_string, $seqname, $annot, $location) =
 	    $self->_rearrange([qw(START
 				  END
 				  STRAND
@@ -141,14 +142,17 @@ sub new {
 				  SCORE
 				  TAG
 				  GFF_STRING
-				  GFF2_STRING
+				  GFF1_STRING
 				  SEQNAME
 				  ANNOTATION
 				  LOCATION
 				  )], @args);
     $location    && $self->location($location);
-    $gff2_string && $self->_from_gff2_string($gff2_string);
     $gff_string  && $self->_from_gff_string($gff_string);
+    $gff1_string  && do {
+	$self->gff_format(Bio::Tools::GFF->new('-gff_version' => 1));
+	$self->_from_gff_stream($gff1_string);
+    };
     $primary     && $self->primary_tag($primary);
     $source      && $self->source_tag($source);
     $start       && $self->start($start);
@@ -679,26 +683,88 @@ sub annotation {
 
 }
 
-=head2 slurp_gff_file
+=head2 gff_format
 
- Title   : slurp_file
- Usage   : @features = Bio::SeqFeature::Generic::slurp_gff_file(\*FILE);
- Function: Sneaky function to load an entire file as in memory objects.
-           Beware big files
- Example :
- Returns :
- Args    :
+ Title   : gff_format
+ Usage   : # get:
+           $gffio = $feature->gff_format();
+           # set (change the default version of GFF2):
+           $feature->gff_format(Bio::Tools::GFF(-gff_version => 1));
+ Function: Get/set the GFF format interpreter. This object is supposed to 
+           format and parse GFF. See Bio::Tools::GFF for the interface.
+
+           If this method is called as class method, the default for all
+           newly created instances will be changed. Otherwise only this
+           instance will be affected.
+ Example : 
+ Returns : a Bio::Tools::GFF compliant object
+ Args    : On set, an instance of Bio::Tools::GFF or a derived object.
 
 
 =cut
+
+sub gff_format {
+    my ($self, $gffio) = @_;
+
+    if(defined($gffio)) {
+	if(ref($self)) {
+	    $self->{'_gffio'} = $gffio;
+	} else {
+	    $Bio::SeqFeatureI::GFF_FORMATTER = $gffio;
+	}
+    }
+    return (ref($self) && exists($self->{'_gffio'}) ?
+	    $self->{'_gffio'} : $Bio::SeqFeatureI::GFF_FORMATTER);
+}
+
+=head2 gff_string
+
+ Title   : gff_string
+ Usage   : $str = $feat->gff_string;
+           $str = $feat->gff_string($gff_formatter);
+ Function: Provides the feature information in GFF format.
+
+           We override this here from Bio::SeqFeatureI in order to use the
+           formatter returned by gff_format().
+
+ Returns : A string
+ Args    : Optionally, an object implementing gff_string().
+
+
+=cut
+
+sub gff_string{
+   my ($self,$formatter) = @_;
+
+   $formatter = $self->gff_format() unless $formatter;
+   return $formatter->gff_string($self);
+}
+
+#  =head2 slurp_gff_file
+#
+#   Title   : slurp_file
+#   Usage   : @features = Bio::SeqFeature::Generic::slurp_gff_file(\*FILE);
+#   Function: Sneaky function to load an entire file as in memory objects.
+#             Beware of big files.
+#
+#             This method is deprecated. Use Bio::Tools::GFF instead, which can
+#             also handle large files.
+#
+#   Example :
+#   Returns :
+#   Args    :
+#
+#  =cut
 
 sub slurp_gff_file {
    my ($f) = @_;
    my @out;
    if ( !defined $f ) {
-       die "Must has a filehandle";
+       die "Must have a filehandle";
    }
 
+   Bio::Root::RootI->warn("deprecated method slurp_gff_file() called in Bio::SeqFeature::Generic. Use Bio::Tools::GFF instead.");
+  
    while(<$f>) {
 
        my $sf = Bio::SeqFeature::Generic->new(-gff_string => $_);
@@ -713,10 +779,15 @@ sub slurp_gff_file {
 
  Title   : _from_gff_string
  Usage   :
- Function:
+ Function: Set feature properties from GFF string. 
+
+           This method uses the object returned by gff_format() for the
+           actual interpretation of the string. Set a different GFF format
+           interpreter first if you need a specific version, like GFF1. (The
+           default is GFF2.)
  Example :
- Returns :
- Args    :
+ Returns : 
+ Args    : a GFF-formatted string
 
 
 =cut
@@ -724,96 +795,9 @@ sub slurp_gff_file {
 sub _from_gff_string {
    my ($self, $string) = @_;
 
-   my ($seqname, $source, $primary, $start, $end, $score, $strand, $frame, @group) = split(/\s+/, $string);
-
-   if ( !defined $frame ) {
-       $self->throw("[$string] does not look like GFF to me");
-   }
-   $frame = 0 unless( $frame =~ /^\d+$/);
-   $self->seqname($seqname);
-   $self->source_tag($source);
-   $self->primary_tag($primary);
-   $self->start($start);
-   $self->end($end);
-   $self->frame($frame);
-   if ( $score eq '.' ) {
-       #$self->score(undef);
-   } else {
-       $self->score($score);
-   }
-   if ( $strand eq '-' ) { $self->strand(-1); }
-   if ( $strand eq '+' ) { $self->strand(1); }
-   if ( $strand eq '.' ) { $self->strand(0); }
-   foreach my $g ( @group ) {
-       if ( $g =~ /(\S+)=(\S+)/ ) {
-	   my $tag = $1;
-	   my $value = $2;
-	   $self->add_tag_value($1, $2);
-       } else {
-	   $self->add_tag_value('group', $g);
-       }
-   }
+   $self->gff_format()->from_gff_string($self, $string);
 }
 
-=head2 _from_gff2_string
-
- Title   : _from_gff2_string
- Usage   :
- Function:
- Example :
- Returns :
- Args    :
-
-
-=cut
-
-sub _from_gff2_string {
-   my ($self, $string) = @_;
-   # according to the Sanger website, GFF2 should be single-tab separated elements, and the
-   # free-text at the end should contain text-translated tab symbols but no "real" tabs,
-   # so splitting on \t is safe, and $attribs gets the entire attributes field to be parsed later
-   my ($seqname, $source, $primary, $start, $end, $score, $strand, $frame, @attribs) = split(/\t+/, $string);
-   my $attribs = join '', @attribs;  # just in case the rule against tab characters has been broken
-   if ( !defined $frame ) {
-       $self->throw("[$string] does not look like GFF2 to me");
-   }
-   $self->seqname($seqname);
-   $self->source_tag($source);
-   $self->primary_tag($primary);
-   $self->start($start);
-   $self->end($end);
-   $self->frame($frame);
-   if ( $score eq '.' ) {
-       #$self->score(undef);
-   } else {
-       $self->score($score);
-   }
-   if ( $strand eq '-' ) { $self->strand(-1); }
-   if ( $strand eq '+' ) { $self->strand(1); }
-   if ( $strand eq '.' ) { $self->strand(0); }
-
-   $attribs =~ s/\#(.*)$//;				 # remove comments field (format:  #blah blah blah...  at the end of the GFF line)
-   my @key_vals = split /;/, $attribs;   # attributes are semicolon-delimited
-
-   foreach my $pair ( @key_vals ) {
-       my ($blank, $key, $values) = split  /^\s*([\w\d]+)\s/, $pair;	# separate the key from the value based on the = sign
-
-       my @values;								
-
-       while ($values =~ s/"(.*?)"//){          # free text is quoted, so match each free-text block
-       		if ($1){push @values, $1};           # and push it on to the list of values (tags may have more than one value...)
-       }
-
-       my @othervals = split /\s+/, $values;  # and what is left over should be space-separated non-free-text values
-       foreach my $othervalue(@othervals){
-       		if (CORE::length($othervalue) > 0){push @values, $othervalue}  # get rid of any empty strings which might result from the split
-       }
-
-       foreach my $value(@values){
-       	   	$self->add_tag_value($key, $value);
-      }
-   }
-}
 
 =head2 _expand_region
 
