@@ -1112,7 +1112,7 @@ create table fdata (
     unique index(fref,fstart,fstop,ftypeid,gid),
     index(ftypeid),
     index(gid)
-)
+) type=MyISAM
 }  # fdata table
 }, # fdata
 
@@ -1124,7 +1124,7 @@ create table fgroup (
     gname   varchar(100),
     primary key(gid),
     unique(gclass,gname)
-)
+) type=MyISAM
 }
 },
 
@@ -1138,7 +1138,7 @@ create table ftype (
     index(fmethod),
     index(fsource),
     unique ftype (fmethod,fsource)
-)
+) type=MyISAM
 }  #ftype table
 }, #ftype
 
@@ -1149,7 +1149,7 @@ create table fdna (
 	        foffset int(10) unsigned not null,
 	        fdna    longblob,
 		primary key(fref,foffset)
-)
+) type=MyISAM
 } # fdna table
 },#fdna
 
@@ -1159,7 +1159,7 @@ create table fmeta (
 		fname   varchar(255) not null,
 	        fvalue  varchar(255) not null,
 		primary key(fname)
-)
+) type=MyISAM
 } # fmeta table
 },#fmeta
 
@@ -1169,7 +1169,7 @@ create table fattribute (
 	fattribute_id     int(10)         unsigned not null auto_increment,
         fattribute_name   varchar(255)    not null,
 	primary key(fattribute_id)
-)
+) type=MyISAM
 } #fattribute table
 },#fattribute
 
@@ -1182,7 +1182,7 @@ create table fattribute_to_feature (
         key(fid,fattribute_id),
 	key(fattribute_value(48)),
         fulltext(fattribute_value)
-)
+) type=MyISAM
 } # fattribute_to_feature table
     }, # fattribute_to_feature
 );

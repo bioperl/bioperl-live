@@ -431,7 +431,7 @@ sub schema {
     unique index(fref,fbin,fstart,fstop,ftypeid,gid),
     index(ftypeid),
     index(gid)
-		   )                    }
+		   ) type=MyISAM                   }
 		      };
   $schema;
 }
