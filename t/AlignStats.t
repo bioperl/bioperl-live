@@ -18,7 +18,7 @@ BEGIN {
     }
 
     use Test;
-    plan tests => 21; 
+    plan tests => 27; 
 }
 
 if( $error == 1 ) {
@@ -52,52 +52,61 @@ ok( $stats->pairwise_stats->number_of_differences($aln),13);
 my $d = $stats->distance(-align=> $aln,
 			 -method => 'JC');
 ok( $d->get_entry('hs_insulin','seq2'), '0.07918');
+
 $d = $stats->distance(-align=> $aln,
-			 -method => 'Kimura');
+		      -method => 'Kimura');
 ok( $d->get_entry('hs_insulin','seq2'), '0.07984');
+
 $d = $stats->distance(-align=> $aln,
-			 -method => 'TajimaNei');
+		      -method => 'TajimaNei');
+ok( $d->get_entry('seq2','hs_insulin'), '0.08106');
 
-#ok( $d->get_entry('seq2','hs_insulin'), '0.0780');
+$d = $stats->distance(-align=> $aln,
+		      -method => 'Tamura');
+ok( $d->get_entry('seq2','hs_insulin'), '0.08037');
 
-$aln = $in->next_aln();
-ok(! defined $aln);
+#$d =  $stats->distance(-align => $aln,
+#		       -method => 'JinNei');
+#ok( $d->get_entry('seq2','hs_insulin'), 0.0850);
 
-$in = new Bio::AlignIO(-format => 'fasta',
+$in = new Bio::AlignIO(-format => 'clustalw',
 		       -file   => Bio::Root::IO->catfile('t','data',
-							 'hs_owlmonkey.fasta'));
+							 'hs_owlmonkey.aln'));
 
 $aln = $in->next_aln();
 ok($aln);
 
-ok( $stats->transversions($aln),4);
-ok( $stats->transitions($aln),14);
-ok( $stats->pairwise_stats->number_of_gaps($aln),33);
-ok( $stats->pairwise_stats->number_of_comparable_bases($aln),163);
-ok( $stats->pairwise_stats->number_of_differences($aln),18);
+ok( $stats->transversions($aln),10);
+ok( $stats->transitions($aln),17);
+ok( $stats->pairwise_stats->number_of_gaps($aln),19);
+ok( $stats->pairwise_stats->number_of_comparable_bases($aln),170);
+ok( $stats->pairwise_stats->number_of_differences($aln),27);
 
 # now test the distance calculations
-if( 0 ) {
-    $d = $stats->distance(-align => $aln, -method => 'jc');
-    ok( sprintf("%.4f", $d->[1]->[2]), 0.1195);
+$d = $stats->distance(-align => $aln, -method => 'jc');
+ok( $d->get_entry('human','owlmonkey'), 0.17847);
 
-    $d =  $stats->distance(-align => $aln,
-			   -method => 'Kimura');
-    ok( sprintf("%.4f", $d->[1]->[2]), 0.1219);
+$d = $stats->distance(-align => $aln, -method => 'uncorrected');
+ok( $d->get_entry('human','owlmonkey'), 0.15882);
 
-#    $d =  $stats->distance(-align => $aln,
-#			   -method => 'TajimaNei');
-#    ok( sprintf("%.4f", $d->[1]->[2]), 0.1246);
-}
-#ok( sprintf("%.4f", Bio::Align::DNAStatistics->D_JukesCantorInCor($aln)), 0.1104);
+$d =  $stats->distance(-align => $aln, -method => 'Kimura');
+ok( $d->get_entry('human','owlmonkey'), 0.18105);
 
-#ok( sprintf("%.4f", Bio::Align::DNAStatistics->D_Tamura($aln)), 0.1233);
-#ok( sprintf("%.4f", Bio::Align::DNAStatistics->D_Tamura($aln)), 0.1246);
-#ok( sprintf("%.4f", Bio::Align::DNAStatistics->D_JinNeiGamma($aln)), 0.1350);
+$d =  $stats->distance(-align => $aln, -method => 'TajimaNei');
+ok( $d->get_entry('human','owlmonkey'), 0.18489);
+
+$d =  $stats->distance(-align => $aln,
+		       -method => 'Tamura');
+
+ok( $d->get_entry('human','owlmonkey'), 0.18333);
+#$d =  $stats->distance(-align => $aln,
+#		       -method => 'JinNei');
+#ok( $d->get_entry('human','owlmonkey'), 0.2079);
 
 ### now test Nei_gojobori methods ##
 $in = Bio::AlignIO->new(-format => 'fasta',
-		       -file   => Bio::Root::IO->catfile('t','data', 'nei_gojobori_test.aln'));
+		       -file   => Bio::Root::IO->catfile('t','data',
+							 'nei_gojobori_test.aln'));
 my $alnobj = $in->next_aln();
 ok($alnobj);
 my $result = $stats->calc_KaKs_pair($alnobj, 'seq1', 'seq2');
