@@ -145,9 +145,11 @@ sub end_document {
 sub start_element{
    my ($self,$data) = @_;
    $self->{'_lastitem'}->{$data->{'Name'}} = 1;   
+   $self->{'_lastitem'}->{'current'} = $data->{'Name'};   
 
+   my %data;
    if( $data->{'Name'} eq 'node' ) {
-       push @{$self->{'_currentitems'}}, {}; 
+       push @{$self->{'_currentitems'}}, \%data; 
    }
 }
 
@@ -163,17 +165,18 @@ sub start_element{
 
 sub end_element{
    my ($self,$data) = @_;
+
    if( $data->{'Name'} eq 'node' ) {
-       
        my $node = pop @{$self->{'_currentitems'}};
        my $tnode;
-       if( $node->{'id'} ) { 
+       if( $node->{'-id'} ) { 
 	   $tnode = new Bio::Tree::PhyloNode( %{$node});
        } else { 
 	   $tnode = new Bio::Tree::Node( %{$node} );
        }
-       
        $self->{'_tree'}->add_node($tnode);
+   } elsif( $data->{'Name'} eq 'tree' ) {
+       
    }
    $self->{'_lastitem'}->{$data->{'Name'}} = 0; 
    $self->{'_lastitem'}->{'current'} = '';   
@@ -194,6 +197,7 @@ sub end_element{
 
 sub in_element{
    my ($self,$e) = @_;
+
    return 0 if ! defined $self->{'_lastitem'} || 
        ! defined $self->{'_lastitem'}->{'current'};
    return ($e eq $self->{'_lastitem'}->{'current'});
@@ -231,15 +235,17 @@ sub within_element{
 sub characters{
    my ($self,$ch) = @_;
    if( $self->within_element('node') ) {
-       my $node = pop @{$self->{'_currentitems'}};
+       my $hash = pop @{$self->{'_currentitems'}};
        if( $self->in_element('bootstrap') ) {
-	   $node->{'bootstrap'} = $ch;
+	   $hash->{'-bootstrap'} = $ch;
+       } elsif( $self->in_element('branch_length') ) {
+	   $hash->{'-branch_length'} = $ch;
        } elsif( $self->in_element('id')  ) {
-	   $node->{'id'} = $ch;
+	   $hash->{'-id'} = $ch;
        } elsif( $self->in_element('description') ) {
-	   $node->{'desc'} = $ch;
+	   $hash->{'-desc'} = $ch;
        }
-       push @{$self->{'_currentitems'}}, $node;
+       push @{$self->{'_currentitems'}}, $hash;
    } 
 }
 

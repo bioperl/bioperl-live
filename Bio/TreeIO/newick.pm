@@ -97,40 +97,36 @@ sub next_tree{
    s/\s+//g;
    $self->debug("entry is $_\n");
    
-   my $empty = chr(20);
+#   my $empty = chr(20);
  
  
    # replace empty labels with a tag
-   s/\(,/\($empty,/ig;
-   s/,,/,$empty,/ig;
-   s/,,/,/ig;
-   s/,\)/,$empty\)/ig;
-   s/\"/\'/ig;
+#   s/\(,/\($empty,/ig;
+#   s/,,/,$empty,/ig;
+#   s/,,/,/ig;
+#   s/,\)/,$empty\)/ig;
+#   s/\"/\'/ig;
 
-   my $chars;
+   my $chars = '';
    $self->_eventHandler->start_document;
    foreach my $ch ( split(//,$_) ) {
        if( $ch eq ';' ) { 	   
 	   return $self->_eventHandler->end_document;
        } elsif( $ch eq '(' ) {
-	   $self->_eventHandler->start_element( { 'Name' => 'node' } );
-	   $self->_eventHandler->start_element( { 'Name' => 'id' } );
-	   
-       } elsif($ch eq ')' ) {
+	   $chars = '';
+       } elsif($ch eq ')' || $ch eq ',' ) {
 	   $self->_eventHandler->characters($chars);
+	   $self->_eventHandler->end_element( {'Name' => 'branch_length'});
 	   $self->_eventHandler->end_element( {'Name' => 'node'} );
-	   $self->_eventHandler->end_element( {'Name' => 'bootstrap'});
 	   $chars = '';
        } elsif( $ch eq ':' ) {
+	   $self->_eventHandler->start_element( { 'Name' => 'node' } );
+	   $self->_eventHandler->start_element( { 'Name' => 'id' } );	   
 	   $self->_eventHandler->characters($chars);
 	   $self->_eventHandler->end_element( { 'Name' => 'id' } );
-	   $self->_eventHandler->start_element( { 'Name' => 'boostrap' } );
+	   $self->_eventHandler->start_element( { 'Name' => 'branch_length'});
 	   $chars = '';
-       } elsif( $ch eq ',' ) { 
-	   $self->_eventHandler->characters($chars);
-	   $self->_eventHandler->end_element( {'Name' => 'node'} );
-	   $self->_eventHandler->end_element( {'Name' => 'bootstrap'});
-       } else { 
+       } else { 	   
 	   $chars .= $ch;
        } 
    }
