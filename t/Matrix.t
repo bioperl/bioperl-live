@@ -16,13 +16,15 @@ BEGIN {
         use lib 't';
     }
     use Test;
-    plan tests => 23;
+    plan tests => 46;
 }
 
 END {
 }
 
 use Bio::Matrix::Generic;
+use Bio::Matrix::IO;
+use Bio::Root::IO;
 
 my $raw = [ [ 0, 10, 20],
 	    [ 2, 17,  4],
@@ -67,3 +69,43 @@ ok($matrix->column_header(3),'F');
 
 
 ok($matrix->get_entry('b', 'f'), 81);
+
+
+# read in a scoring matrix
+
+my $io = Bio::Matrix::IO->new(-format => 'scoring',
+			      -file   => Bio::Root::IO->catfile
+			      (qw(t data BLOSUM50)));
+my $blosum_matrix = $io->next_matrix;
+ok($blosum_matrix->isa('Bio::Matrix::Scoring'));
+ok($blosum_matrix->entropy, 0.4808);
+ok($blosum_matrix->expected_score, -0.3573);
+ok($blosum_matrix->scale, '1/3');
+ok($blosum_matrix->get_entry('*','A'), -5);
+ok($blosum_matrix->get_entry('V','Y'), -1);
+ok($blosum_matrix->get_entry('Y','V'), -1);
+ok($blosum_matrix->get_entry('L','I'), 2);
+my @diag = $blosum_matrix->get_diagonal;
+ok($diag[2],7);
+my @row = $blosum_matrix->get_row('D');
+ok($row[5], $blosum_matrix->get_entry('D','Q'));
+ok($blosum_matrix->num_rows,24);
+ok($blosum_matrix->num_columns,24);
+ 
+$io = Bio::Matrix::IO->new(-format => 'scoring',
+			   -file   => Bio::Root::IO->catfile
+			   (qw(t data PAM250)));
+my $pam_matrix = $io->next_matrix;
+ok($pam_matrix->isa('Bio::Matrix::Scoring'));
+ok($pam_matrix->entropy, 0.354);
+ok($pam_matrix->expected_score, -0.844,);
+ok($pam_matrix->scale, 'ln(2)/3');
+ok($pam_matrix->num_rows,24);
+ok($pam_matrix->get_entry('G','*'), -8);
+ok($pam_matrix->get_entry('V','Y'), -2);
+ok($pam_matrix->get_entry('Y','V'), -2);
+ok($pam_matrix->get_entry('L','I'), 2);
+@diag = $pam_matrix->get_diagonal;
+ok($diag[2],2);
+@row = $pam_matrix->get_row('D');
+ok($row[5], $pam_matrix->get_entry('D','Q'));
