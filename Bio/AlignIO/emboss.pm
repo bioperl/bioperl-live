@@ -151,39 +151,24 @@ sub next_aln {
 	    $data{"seq$1"}->{'name'} = $nm;	
 	} elsif( $data{'seq1'}->{'name'} &&
 		 /^$data{'seq1'}->{'name'}/ ) {	    
-	    $seenbegin = 1;
 	    my $count = 0;
+	    $seenbegin = 1;
 	    while( defined ($_) ) {
+		my $align_other = '';
+		my $delayed;
 		if($count == 0 || $count == 2 ) {
 		    my @l = split;
 		    my ($seq,$start,$align,$end);
 		    if( $count == 2 && $data{'seq2'}->{'name'} eq '' ) {
 			($start,$align,$end) = @l;
+		    } elsif( @l == 3 ) {
+			$align = '';
+			($seq,$start,$end) = @l
 		    } else { 
 			($seq,$start,$align,$end) = @l;
  		    }
-                     ## copes when the alignment is longer that an individual
-                     ## sequence resulting in blank lines.
-		    if( ! defined $end ){
-			$end = $align;
-			$align = "";
-                     }
-		    
 		    my $seqname = sprintf("seq%d", ($count == 0) ? '1' : '2'); 
-		    ## do we have a truncated sequence
-		    if( length( $align ) != $EMBOSSLineLen ){
-			## truncation at the beginning.
-			if( $start == 1 ){
-			    $align = "-" x ( $EMBOSSLineLen - 
-					     length( $align ) ) . $align;
-			}
-			## truncation at the end.
-			else{
-                         $align = $align . "-" x ( $EMBOSSLineLen - 
-						   length( $align ) );
-		     }
-		    }
-
+		    
 		    $data{$seqname}->{'data'} .= $align;
 		    $data{$seqname}->{'start'} ||= $start;
 		    $data{$seqname}->{'end'} = $end;
@@ -192,13 +177,33 @@ sub next_aln {
 		    s/\s+$//;
 		    $data{'align'} .= $_;
 		}
+	      BOTTOM:
 		last if( $count++ == 2);
 		$_ = $self->_readline();
+	    }
+	    if( $data{'type'} eq 'needle' ) {
+		# which ever one is shorter we want to bring it up to 
+		# length.  Man this stinks.
+		my ($s1,$s2) =  sort { length($a->{'data'}) <=>
+					   length($b->{'data'}) } 
+		                ($data{'seq1'}, $data{'seq2'});
+		if(length($s1->{'data'}) != length($s2->{'data'}) ) {
+
+		    if( $s1->{'start'} <= 1) { # could be 0?
+			$s1->{'data'} = '-' x ( length($s2->{'data'})
+						- length($s1->{'data'})) . 
+						    $s1->{'data'};
+		    } else {
+			$s1->{'data'} .= '-' x ( length($s2->{'data'})
+						 - length($s1->{'data'}));
+		    }
+		}
 	    }
 	}
     }
     return undef unless $seenbegin;
-    my $aln =  Bio::SimpleAlign->new(-source => "EMBOSS-".$data{'type'});
+    my $aln =  Bio::SimpleAlign->new(-verbose => $self->verbose(),
+				     -source => "EMBOSS-".$data{'type'});
     
     foreach my $seqname ( qw(seq1 seq2) ) { 
 	return undef unless ( defined $data{$seqname} );	
