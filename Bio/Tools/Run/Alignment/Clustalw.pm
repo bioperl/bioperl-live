@@ -336,10 +336,14 @@ use Bio::Factory::ApplicationFactoryI;
 
 BEGIN {
 
-    $PROGRAMDIR = $ENV{CLUSTALDIR} || '';
-    $PROGRAM = Bio::Root::IO->catfile($PROGRAMDIR,
-				      'clustalw'.($^O =~ /mswin/i ?'.exe':''));
-
+    if (defined $ENV{CLUSTALDIR}) {
+	$PROGRAMDIR = $ENV{CLUSTALDIR} || '';
+	$PROGRAM = Bio::Root::IO->catfile($PROGRAMDIR,
+					  'clustalw'.($^O =~ /mswin/i ?'.exe':''));
+    }
+    else {
+	$PROGRAM = 'clustalw';
+    }
     @CLUSTALW_PARAMS = qw(KTUPLE TOPDIAGS WINDOW PAIRGAP FIXEDGAP
                    FLOATGAP MATRIX TYPE	TRANSIT DNAMATRIX OUTFILE
                    GAPOPEN GAPEXT MAXDIV GAPDIST HGAPRESIDUES PWMATRIX
@@ -538,11 +542,10 @@ sub _run {
 
     my $commandstring = $PROGRAM." $command"." $instring".
 	" -output=gcg". " $param_string";
-    
     $self->debug( "clustal command = $commandstring");
     	
     my $status = system($commandstring);    
-    $self->throw( "Clustalw call crashed: $? \n") unless $status==0;
+    $self->throw( "Clustalw call ($commandstring) crashed: $? \n") unless $status==0;
     
     my $outfile = $self->outfile() || $TMPOUTFILE ;
 # retrieve alignment (Note: MSF format for AlignIO = GCG format of clustalw)
