@@ -55,9 +55,9 @@ methods. Internal methods are usually preceded with a _
 package Bio::Expression::ProbeI;
 
 use strict;
-use Bio::Root::RootI;
+use Bio::Root::Root;
 
-use base qw(Bio::Root::RootI);
+use base qw(Bio::Root::Root);
 use vars qw($DEBUG);
 
 =head2 sequence
