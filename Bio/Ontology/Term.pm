@@ -147,7 +147,8 @@ sub new {
 	 $ont,
          $version,
          $is_obsolete,
-         $comment )
+         $comment,
+	 $dblinks)
 	= $self->_rearrange( [ qw( IDENTIFIER
 				   NAME
 				   DEFINITION
@@ -155,7 +156,9 @@ sub new {
                                    ONTOLOGY
 				   VERSION
 				   IS_OBSOLETE
-				   COMMENT ) ], @args );
+				   COMMENT
+                                   DBLINKS
+                                 ) ], @args );
 
     $self->init();
 
@@ -167,6 +170,7 @@ sub new {
     defined($version)      && $self->version( $version );
     defined($is_obsolete)  && $self->is_obsolete( $is_obsolete );
     $comment               && $self->comment( $comment  );
+    ref($dblinks)          && $self->add_dblink(@$dblinks);
 
     return $self;
 
@@ -395,7 +399,11 @@ sub add_synonym {
 
     return unless( @values );
 
-    push( @{ $self->{ "_synonyms" } }, @values );
+    # avoid duplicates
+    foreach my $syn (@values) {
+	next if grep { $_ eq $syn; } @{$self->{ "_synonyms" }};
+	push( @{ $self->{ "_synonyms" } }, $syn );
+    }
 
 } # add_synonym
 
@@ -443,8 +451,7 @@ sub get_dblinks {
  Usage   : $term->add_dblink( @dbls );
            or
            $term->add_dblink( $dbl );
- Function: Pushes one or more dblinks
-           into the list of dblinks.
+ Function: Pushes one or more dblinks onto the list of dblinks.
  Returns :
  Args    : One  dblink [scalar] or a list of
             dblinks [array of [scalars]].
@@ -456,8 +463,11 @@ sub add_dblink {
 
     return unless( @values );
 
-    $self->{ "_dblinks" } = [] unless exists($self->{ "_dblinks" });
-    push( @{ $self->{ "_dblinks" } }, @values );
+    # avoid duplicates
+    foreach my $dbl (@values) {
+	next if grep { $_ eq $dbl; } @{$self->{ "_dblinks" }};
+	push( @{ $self->{ "_dblinks" } }, $dbl );
+    }
 
 } # add_dblink
 
@@ -519,8 +529,12 @@ sub add_secondary_id {
     my $self = shift;
 
     return unless @_;
-    $self->{"_secondary_ids"} = [] unless exists($self->{"_secondary_ids"});
-    push( @{ $self->{ "_secondary_ids" } }, @_ );
+
+    # avoid duplicates
+    foreach my $id (@_) {
+	next if grep { $_ eq $id; } @{$self->{ "_secondary_ids" }};
+	push( @{ $self->{ "_secondary_ids" } }, $id );
+    }
 
 } # add_secondary_id
 

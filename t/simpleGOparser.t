@@ -227,23 +227,23 @@ my @rels = sort child_goid ( $ont->get_relationships( "GO:0005625" ) );
 
 ok( @rels == 3 );
 
-ok( $rels[ 0 ]->parent_term()->GO_id(), "GO:0005625" );
-ok( $rels[ 0 ]->child_term()->GO_id(), "GO:0000666" );
-ok( $rels[ 0 ]->relationship_type()->equals( $PART_OF ) );
+ok( $rels[ 0 ]->object_term()->GO_id(), "GO:0005625" );
+ok( $rels[ 0 ]->subject_term()->GO_id(), "GO:0000666" );
+ok( $rels[ 0 ]->predicate_term()->equals( $PART_OF ) );
 
-ok( $rels[ 1 ]->parent_term()->GO_id(), "GO:0005625" );
-ok( $rels[ 1 ]->child_term()->GO_id(), "GO:0000667" );
-ok( $rels[ 1 ]->relationship_type()->equals( $PART_OF ) );
+ok( $rels[ 1 ]->object_term()->GO_id(), "GO:0005625" );
+ok( $rels[ 1 ]->subject_term()->GO_id(), "GO:0000667" );
+ok( $rels[ 1 ]->predicate_term()->equals( $PART_OF ) );
 
-ok( $rels[ 2 ]->parent_term()->GO_id(), "GO:0000267" );
-ok( $rels[ 2 ]->child_term()->GO_id(), "GO:0005625" );
-ok( $rels[ 2 ]->relationship_type()->equals( $IS_A ) );
+ok( $rels[ 2 ]->object_term()->GO_id(), "GO:0000267" );
+ok( $rels[ 2 ]->subject_term()->GO_id(), "GO:0005625" );
+ok( $rels[ 2 ]->predicate_term()->equals( $IS_A ) );
 
 
 
 ok( $engine->graph() );
 
-ok( $ont->add_term( Bio::Ontology::GOterm->new() ) );
+ok( $ont->add_term( Bio::Ontology::GOterm->new(-identifier => "GO:0000000")));
 
 ok( $engine->has_term( "GO:0000300" ) );
 
@@ -253,7 +253,7 @@ ok( scalar $ont->get_relationship_types(), 2 );
 
 ok( ! $ont->add_relationship( $rels[ 2 ] ) ); # this edge already exists, cannot add
 
-$rels[ 2 ]->child_term()->GO_id( "GO:0005938" );
+$rels[ 2 ]->subject_term()->GO_id( "GO:0005938" );
 ok( $ont->add_relationship( $rels[ 2 ] ) ); # now it's changed, can add
  
 

@@ -179,7 +179,7 @@ sub tagname{
  Title   : database
  Usage   : $self->database($newval)
  Function: set/get on the database string. Databases are just
-           a string here which can then be interpretted elsewhere
+           a string here which can then be interpreted elsewhere
  Example : 
  Returns : value of database
  Args    : newvalue (optional)
@@ -187,13 +187,10 @@ sub tagname{
 =cut
 
 sub database{
-   my ($self,$value) = @_;
+    my $self = shift;
 
-   if( defined $value) {
-      $self->{'database'} = $value;
-    }
+    return $self->{'database'} = shift if @_;
     return $self->{'database'};
-
 }
 
 =head2 primary_id
@@ -211,12 +208,10 @@ sub database{
 =cut
 
 sub primary_id{
-   my ($self,$value) = @_;
-   if( defined $value) {
-      $self->{'primary_id'} = $value;
-    }
-    return $self->{'primary_id'};
+    my $self = shift;
 
+    return $self->{'primary_id'} = shift if @_;
+    return $self->{'primary_id'};
 }
 
 =head2 optional_id
@@ -241,12 +236,10 @@ sub primary_id{
 #'
 
 sub optional_id{
-   my ($self,$value) = @_;
-   if( defined $value) {
-      $self->{'optional_id'} = $value;
-    }
-    return $self->{'optional_id'};
+    my $self = shift;
 
+    return $self->{'optional_id'} = shift if @_;
+    return $self->{'optional_id'};
 }
 
 =head2 comment
@@ -261,11 +254,10 @@ sub optional_id{
 
 =cut
 
-sub comment {
-   my ($self,$value) = @_;
-   if( defined $value) {
-      $self->{'comment'} = $value;
-    }
+sub comment{
+    my $self = shift;
+
+    return $self->{'comment'} = shift if @_;
     return $self->{'comment'};
 }
 
@@ -303,13 +295,11 @@ sub object_id {
 =cut
 
 sub version{
-    my ($self,$value) = @_;
-    if( defined $value) {
-	$self->{'_version'} = $value;
-    }
-    return $self->{'_version'};
-}
+    my $self = shift;
 
+    return $self->{'version'} = shift if @_;
+    return $self->{'version'};
+}
 
 =head2 authority
 
@@ -323,12 +313,11 @@ sub version{
 
 =cut
 
-sub authority {
-    my ($obj,$value) = @_;
-    if( defined $value) {
-	$obj->{'authority'} = $value;
-    }
-    return $obj->{'authority'};
+sub authority{
+    my $self = shift;
+
+    return $self->{'authority'} = shift if @_;
+    return $self->{'authority'};
 }
 
 =head2 namespace
