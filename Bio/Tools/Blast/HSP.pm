@@ -1528,10 +1528,11 @@ sub display {
     } else {
 	printf( $OUT "%-15s: %.1e\n", "EXPECT", $self->{'_expect'} );
     }
+    my $seqType = 'query'; # query or sbjct shouldn't matter for the length
     printf( $OUT "%-15s: %d (%0.0f%%)\n", "IDENTICAL", $self->{'_numIdentical'}, 
-	   $self->{'_numIdentical'}/$self->{'_length'}*100 );
+	   $self->{'_numIdentical'}/$self->{$seqType.'Length'}*100 );
     printf( $OUT "%-15s: %d (%0.0f%%)  %s \n", "CONSERVED", $self->{'_numConserved'}, 
-	   $self->{'_numConserved'}/$self->{'_length'}*100,
+	   $self->{'_numConserved'}/$self->{$seqType.'Length'}*100,
 	   "includes identical" );
     
     $self->_display_seq('query', $queryName, $OUT);
