@@ -25,6 +25,9 @@
 # See the POD for the Bio::Tools::Blast.pm, accessible from the above URL.
 #
 # MODIFIED:
+#
+#   For all further modifications, refer to the cvs log.
+#
 #  sac, 22 Mar 2000: Added usage note about using retrieve_blast.pl
 #  sac, 16 Jun 1998: Added installation comment, require statement comments.
 #                    Minor example change.
@@ -33,9 +36,11 @@
 # Using blast_config.pl in the examples/blast distribution directory:
 require "blast_config.pl"; 
 # Proper path to blast_config.pl after you install it in your system:
-#require "/share/www-data/html/perlOOP/bioperl/bin/blast/blast_config.pl";
+#require "/home/steve/bin/bioperl/examples/blast/blast_config.pl";
 
 require Bio::Seq;
+require Bio::SeqIO;
+use Carp;
 
 # Using vars from blast_config to prevent warning messages under -w.
 use vars qw($ID $VERSION $DESC $MONITOR %runParam %blastParam 
@@ -100,16 +105,26 @@ if(not -s ($opt_seq ||= $ARGV[0]))  {
 &set_blast_params();
 
 # Create a new sequence object (query sequence)
-$qseq = new Bio::Seq ( -file => $opt_seq,
-		       -ffmt => $opt_seqfmt,
-		       # $opt_dna is no longer used.
-		       # Automatic sequence type detection is still
-		       # an open issue.
-		       # -type => $opt_dna ? 'Dna' : 'Amino'
-		     );
+# Only using the first sequence from the input file.
 
-#print "\nSEQ ${\$qseq->id} IN FASTA FORMAT:\n";
-#print $qseq->layout('Fasta'); <STDIN>;
+my $in = Bio::SeqIO->new('-file' => $opt_seq,
+                         '-format' => $opt_seqfmt,
+                         # $opt_dna is no longer used.
+                         # Automatic sequence type detection is still
+                         # an open issue.
+                         # -type => $opt_dna ? 'Dna' : 'Amino' 
+                        );
+
+my $qseq = $in->next_seq();
+
+$qseq or croak "\nTrouble reading sequence file.\nCannot proceed.\n";
+
+# For debugging:
+# my $out = Bio::SeqIO->new('-fh' => \*STDOUT, 
+#                           '-format' => 'embl');
+# print "\nSEQ ", $qseq->id, " IN EMBL FORMAT:\n";
+# print $out->write_seq($qseq); 
+
 
 if($qseq->id =~ /^no_id/i) {
     $opt_seq =~ /\/([\w_.]+)$/;
@@ -129,17 +144,26 @@ $blastParam{-run} = \%runParam;
 
 eval { 
     $blastObj = &create_blast;  # provided by blast_config.pl
+
+    # The Blast object is failing to be created because
+    # the NCBI request no longer returns the report directly
+    # but rather an HTML page instructing how to retrieve it
+    # from the queueing system. 
+    # The Blast object isn't yet smart about this, so we do 
+    # a simple check to see if we got a good looking blast object.
+    ref $blastObj or exit(0);
+
     $file = $blastObj->file;
     $MONITOR and print STDERR "Blast output saved to: $file\n\n";
-
+    
     if($opt_html and not $opt_parse) {
 	
-# Uncomment the following 4 lines to send the HTML version to STDOUT.
-#	 $file = $opt_parse ? "$file.html" : $file;
-#	 open( HTML, $file) or die "Can't open HTML file: $file: $!\n\n";
-#	 while(<HTML>) { print; }
-#	 close HTML;
-	 exit 0;
+        # Uncomment the following 4 lines to send the HTML version to STDOUT.
+        #	 $file = $opt_parse ? "$file.html" : $file;
+        #	 open( HTML, $file) or die "Can't open HTML file: $file: $!\n\n";
+        #	 while(<HTML>) { print; }
+        #	 close HTML;
+        exit 0;
     }
 };
 
