@@ -178,7 +178,7 @@ sub _nj {
    my $precisionstr = "%.$Precision"."f";
 
    my @names =  @{$distmat->names || []};
-   my $N = scalar @names;scalar @names;;
+   my $N = scalar @names;
    my ($i,$j,$m,@nodes,$mat,@r);
    my $L = $N;
 
