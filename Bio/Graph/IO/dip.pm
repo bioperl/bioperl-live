@@ -43,12 +43,11 @@ sub next_network {
 
 	   ## build node object if is new node
 	   my ($node1, $node2);
+	 	$n1 =~ s/DIP://;  
 	   if(!exists($seen_nodes{$n1}) ) {
-
 			if($g1){ $g1 =~ s/GI://;     }
 			if($p1){ $p1 =~ s/PIR://;  }
 			if($s1){ $s1 =~ s/SWP://;  }
-			if($n1){ $n1 =~ s/DIP://;  }
 			my $acc = $s1 || $p1 || $g1;
 			my $ac  = $self->_add_db_links($acc, $s1, $p1,  $n1, $g1);
 			$node1 = $FAC->create(
@@ -63,11 +62,11 @@ sub next_network {
 			} else {
 			$node1 = $seen_nodes{$n1};
 		}
+	 	$n2 =~ s/DIP://;  
 		if(!exists($seen_nodes{$n2}) ) {
 			if($g2){$g2 =~ s/GI://; }
 			if($p2){$p2 =~ s/PIR://; }
 			if($s2){$s2 =~ s/SWP://; }
-			if($n2){$n2 =~ s/DIP://;  }
 			my $acc = $s2 || $p2 || $g2;
 			my $ac  = $self->_add_db_links($acc, $s2, $p2,  $n2, $g2);
 			$node2  = $FAC->create(
@@ -124,18 +123,18 @@ for my $edge (@edges) {
 	
 	# add node ids to string in correct order
 	for my $n (@nodes){
+
 	    # print out nodes in dip order
 		my %ids = $gr->_get_ids($n); #need to modify this in graph()
+
 		for my $db (qw(DIP SWP PIR GI)){
 			if (exists($ids{$db})){
 				$str .= "$db:$ids{$db}\t";
-			}
-			else {
+			} else {
 				$str .= "\t";
 			}
 		}
 	}
-	
 	# add weights if defined
 	$str =~ s/\t$//;
 	if(defined($edge->weight)) {
