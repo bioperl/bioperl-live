@@ -405,12 +405,12 @@ sub hash2gene {
   my @exons=@{$genefeatureshash->{exons}};
   my @exondescs=@{$genefeatureshash->{exondescs}};
   if (@exons) {
-    my $exoncount;
+    my $exoncount = 0;
     foreach $range (@exons) {
       ($start,$end,$strand)=@{$range};
       $object=Bio::LiveSeq::Exon->new(-seq=>$dna,-start=>$start,-end=>$end,-strand=>$strand);
       if ($object != -1) {
-	$object->description($exondescs[$exoncount]);
+	$object->description($exondescs[$exoncount]) if defined $exondescs[$exoncount];
 	$exoncount++;
 	push (@exonobjs,$object);
       } else {
@@ -422,7 +422,7 @@ sub hash2gene {
   my @introns=@{$genefeatureshash->{introns}};
   my @introndescs=@{$genefeatureshash->{introndescs}};
   if (@introns) {
-    my $introncount;
+    my $introncount = 0;
     foreach $range (@introns) {
       ($start,$end,$strand)=@{$range};
       $object=Bio::LiveSeq::Intron->new(-seq=>$dna,-start=>$start,-end=>$end,-strand=>$strand);
