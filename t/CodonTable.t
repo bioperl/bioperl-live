@@ -78,6 +78,7 @@ test 6, $test;
 test 7,  ($myCodonTable->translate('ag') eq ''
 	  and $myCodonTable->translate('jj') eq ''
 	  and $myCodonTable->translate('jjg') eq 'X' 
+	  and $myCodonTable->translate('gt') eq 'V' 
 	  and $myCodonTable->translate('g') eq '');
 
 # a more comprehensive test on ambiguous codes

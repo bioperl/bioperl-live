@@ -19,7 +19,7 @@
 
 
 ## We start with some black magic to print on failure.
-BEGIN { $| = 1; print "1..14\n"; 
+BEGIN { $| = 1; print "1..22\n"; 
 	use vars qw($loaded); }
 END {print "not ok 1\n" unless $loaded;}
 
@@ -108,3 +108,42 @@ test 13, $seq->species->binomial eq 'Homo sapiens';
 $seq->annotation(new Bio::Annotation('-description' => 'desc-here'));
 test 14, $seq->annotation()->description() eq  'desc-here', 
 		 'annotation was ' . $seq->annotation();
+
+#
+# more translation tests
+#
+
+# unambiguous two character codons like 'ACN' and 'GTN' should give out an amino acid
+
+$seq->seq('ACTGTGGCGTCAAC');
+$trans = $seq->translate();
+test 15, ( $trans->seq() eq 'TVAST' ), 'translated sequence was ' . $trans->seq();
+
+$seq->seq('ACTGTGGCGTCAACA');
+$trans = $seq->translate();
+test 16, ( $trans->seq() eq 'TVAST' ), 'translated sequence was ' . $trans->seq();
+
+$seq->seq('ACTGTGGCGTCAACAG');
+$trans = $seq->translate();
+test 17, ( $trans->seq() eq 'TVAST' ), 'translated sequence was ' . $trans->seq();
+
+$seq->seq('ACTGTGGCGTCAACAGT');
+$trans = $seq->translate();
+test 18, ( $trans->seq() eq 'TVASTV' ), 'translated sequence was ' . $trans->seq();
+
+$seq->seq(ACTGTGGCGTCAACAGTA);
+$trans = $seq->translate();
+test 19, ( $trans->seq() eq 'TVASTV' ), 'translated sequence was ' . $trans->seq();
+
+$seq->seq('AC');
+test 20, ( $seq->translate->seq eq 'T' ), 'translated sequence was ' . $seq->translate->seq();
+
+#difference between the default and full CDS tranlation
+
+$seq->seq('atgtggtaa');
+$trans = $seq->translate();
+test 21, ( $trans->seq() eq 'MW*' ), 'translated sequence was ' . $trans->seq();
+
+$seq->seq('atgtggtaa');
+$trans = $seq->translate(undef,undef,undef,undef,1);
+test 22, ( $trans->seq() eq 'MW' ), 'translated sequence was ' . $trans->seq();

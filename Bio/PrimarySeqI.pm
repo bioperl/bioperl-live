@@ -501,21 +501,26 @@ sub trunc{
 
  Title   : translate
  Usage   : $protein_seq_obj = $dna_seq_obj->translate
+           #if full CDS expected:
+           $protein_seq_obj = $cds_seq_obj->translate(undef,undef,undef,undef,1);
  Function: 
 
-           Provides the translation of the DNA sequence
-           using full IUPAC ambiguities in DNA/RNA and amino acid codes.
+           Provides the translation of the DNA sequence using full
+           IUPAC ambiguities in DNA/RNA and amino acid codes.
 
-           The resulting translation is identical to EMBL/TREMBL database 
-           translations.
+           The full CDS translation is identical to EMBL/TREMBL
+           database translation. Note that the trailing terminator
+           character is removed before returning the translation
+           object.
 
-           Note: if you set $dna_seq_obj->verbose(1) you will get
-           a warning if the first codon is not a valid initator.
+           Note: if you set $dna_seq_obj->verbose(1) you will get a
+           warning if the first codon is not a valid initator.
+
 
  Returns : A Bio::PrimarySeqI implementing object
  Args    : character for terminator (optional) defaults to '*'
            character for unknown amino acid (optional) defaults to 'X'
-           frame (optional) valid values 0, 1, 3, defaults to 0
+           frame (optional) valid values 0, 1, 2, defaults to 0
            codon table id (optional) defaults to 1
            complete coding sequence expected, defaults to 0 (false)
            boolean, throw exception if not complete CDS (true) or defaults to warning (false) 
@@ -556,8 +561,10 @@ sub translate {
   if( $frame ) {
       $seq = substr ($seq,$frame);
   }
-
-  for $codon ( grep { length == 3 } split(/(.{3})/, $seq) ) {
+  $seq .= 'n';
+  my $length = (length $seq) - 2;
+  for ($i = 0 ; $i < $length ; $i += 3)  {
+      my $codon = substr($seq, $i, 3);
       my $aa = $codonTable->translate($codon);
       if ($aa eq '*') {
    	   $output .= $stop;
