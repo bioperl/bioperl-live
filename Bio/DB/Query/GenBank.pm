@@ -85,11 +85,12 @@ preceded with a _
 package Bio::DB::Query::GenBank;
 use strict;
 use Bio::DB::Query::WebQuery;
+use URI::Escape 'uri_unescape';
 
 use constant EPOST               => 'http://www.ncbi.nih.gov/entrez/eutils/epost.fcgi';
 use constant ESEARCH             => 'http://www.ncbi.nih.gov/entrez/eutils/esearch.fcgi';
 use constant DEFAULT_DB          => 'protein';
-use constant MAXENTRY_SWITCHOVER => 100;
+use constant MAXENTRY            => 100;
 
 use vars qw(@ISA @ATTRIBUTES $VERSION);
 
@@ -200,7 +201,7 @@ sub _request_parameters {
     $method = 'get';
     $base   = ESEARCH;
     push @params,('term'   => $self->query);
-    push @params,('retmax' => $self->{'_count'}) if $self->{'_count'};
+    push @params,('retmax' => $self->{'_count'} || MAXENTRY);
   }
   ($method,$base,@params);
 }
@@ -283,7 +284,7 @@ sub _parse_response {
   $self->_truncated($truncated);
   my ($cookie)    = $content =~ m!<WebEnv>(\S+)</WebEnv>!;
   my ($querykey)  = $content =~ m!<QueryKey>(\d+)!;
-  $self->cookie($cookie,$querykey);
+  $self->cookie(uri_unescape($cookie),$querykey);
 }
 
 1;

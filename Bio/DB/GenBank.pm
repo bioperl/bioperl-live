@@ -38,6 +38,17 @@ Bio::DB::GenBank - Database object interface to GenBank
     $seq = $gb->get_Seq_by_version('J00522.1'); # Accession.version
     $seq = $gb->get_Seq_by_gi('405830'); # GI Number
 
+    # get a stream via a query string
+    my $seqio = $gb->get_Stream_by_query('Oryza sativa[Organism] AND EST');
+    while( my $seq =  $seqio->next_seq ) {
+      print "seq length is ", $seq->length,"\n";
+    }
+
+    # or using a Bio::DB::Query::GenBank query
+    my $query = Bio::DB::Query::GenBank->new(-query   =>'Oryza sativa AND EST',
+                                             -reldate => '30');
+    my $seqio = $gb->get_Stream_by_query($query);
+
     # or ... best when downloading very large files, prevents
     # keeping all of the file in memory
 
@@ -118,6 +129,9 @@ BEGIN {
     %PARAMSTRING = ( 
 		     'batch' => { 'db'     => 'protein',
 				  'usehistory' => 'n',
+				  'tool'   => 'bioperl',
+				  'retmode' => 'text'},
+		     'query' => { 'usehistory' => 'y',
 				  'tool'   => 'bioperl',
 				  'retmode' => 'text'},
 		     'gi' => { 'db'     => 'protein',
@@ -217,6 +231,22 @@ sub get_params {
   Returns : a Bio::SeqIO stream object
   Args    : $ref : either an array reference, a filename, or a filehandle
             from which to get the list of unique ids/accession numbers.
+
+=head2 get_Stream_by_query
+
+  Title   : get_Stream_by_query
+  Usage   : $seq = $db->get_Stream_by_query($query);
+  Function: Retrieves Seq objects from Entrez 'en masse', rather than one
+            at a time.  For large numbers of sequences, this is far superior
+            than get_Stream_by_[id/acc]().
+  Example :
+  Returns : a Bio::SeqIO stream object
+  Args    : $query :   An Entrez query string or a
+            Bio::DB::Query::GenBank object.  It is suggested that you
+            create a Bio::DB::Query::GenBank object and get the entry
+            count before you fetch a potentially large stream.
+
+=cut
 
 =head2 get_Stream_by_id
 

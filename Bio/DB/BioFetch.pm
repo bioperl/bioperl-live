@@ -393,7 +393,7 @@ sub postprocess_data {
   }
 
   else {
-    $self->throw("Don't know how to preprocess data of type $args{'type'}");
+    $self->throw("Don't know how to postprocess data of type $args{'type'}");
   }
 }
 

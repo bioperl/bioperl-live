@@ -153,7 +153,7 @@ sub next_seq {
    if( !defined $line) {
        return undef; # no throws - end of file
    }
-   
+
    if( $line =~ /^\s+$/ ) {
        while( defined ($line = $self->_readline) ) {
    	   $line =~ /\S/ && last;

@@ -179,18 +179,6 @@ sub default_format {
  Returns : 
  Args    : %qualifiers = a hash of qualifiers (ids, format, etc)
 
-=head2 get_Stream_by_batch
-
-  Title   : get_Stream_by_batch
-  Usage   : $seq = $db->get_Stream_by_batch($ref);
-  Function: Retrieves Seq objects from Entrez 'en masse', rather than one
-            at a time.  For large numbers of sequences, this is far superior
-            than get_Stream_by_[id/acc]().
-  Example :
-  Returns : a Bio::SeqIO stream object
-  Args    : $ref : either an array reference, a filename, or a filehandle
-            from which to get the list of unique ids/accession numbers.
-
 =head2 get_Stream_by_id
 
   Title   : get_Stream_by_id

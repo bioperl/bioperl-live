@@ -174,7 +174,8 @@ sub ids     {
   my $self = shift;
   if (@_) {
     my $d = $self->{'_ids'};
-    $self->{'_ids'} = shift;
+    my $arg = shift;
+    $self->{'_ids'} = ref $arg ? $arg : [$arg];
     return $d ? @$d : ();
   } else {
     $self->_fetch_ids;

@@ -80,7 +80,9 @@ use vars qw(@ISA $HOSTBASE %CGILOCATION %FORMATMAP
 	    $DEFAULTFORMAT $MAX_ENTRIES $VERSION);
 
 use Bio::DB::WebDBSeqI;
+use Bio::DB::Query::GenBank;
 use HTTP::Request::Common;
+use URI;
 use Bio::Root::IO;
 use Bio::DB::RefSeq;
 use Bio::Root::Root;
@@ -91,19 +93,19 @@ $VERSION = '0.8';
 BEGIN {
     $MAX_ENTRIES = 19000;
     $HOSTBASE = 'http://www.ncbi.nih.gov';
-    %CGILOCATION = ( 
+    %CGILOCATION = (
 		    'batch'  => ['post' => '/entrez/eutils/efetch.fcgi'],
-		    'single' => ['get' => '/entrez/eutils/efetch.fcgi'],
-		    'version'=> ['get' => '/entrez/eutils/efetch.fcgi'],
-		     'gi'     => '/entrez/eutils/efetch.fcgi',
-		     
+		    'query'  => ['get'  => '/entrez/eutils/efetch.fcgi'],
+		    'single' => ['get'  => '/entrez/eutils/efetch.fcgi'],
+		    'version'=> ['get'  => '/entrez/eutils/efetch.fcgi'],
+		    'gi'   =>   ['get'  => '/entrez/eutils/efetch.fcgi'],
 		     );
-    
+
     %FORMATMAP = ( 'gb' => 'genbank',
 		   'gp' => 'genbank',
 		   'fasta'   => 'fasta',
 		   );
-    
+
     $DEFAULTFORMAT = 'gb';
 }
 
@@ -112,7 +114,7 @@ BEGIN {
 sub new {
     my ($class, @args ) = @_;
     my $self = $class->SUPER::new(@args);
-    
+
     return $self;
 }
 
@@ -159,35 +161,47 @@ sub default_format {
 
 sub get_request {
     my ($self, @qualifiers) = @_;
-    my ($mode, $uids, $format) = $self->_rearrange([qw(MODE UIDS FORMAT)],
-							 @qualifiers);
-    
+    my ($mode, $uids, $format, $query) = $self->_rearrange([qw(MODE UIDS FORMAT QUERY)],
+							   @qualifiers);
+
     $mode = lc $mode;
     ($format) = $self->request_format() if( !defined $format);
     if( !defined $mode || $mode eq '' ) { $mode = 'single'; }
-    my %params = $self->get_params($mode);    
+    my %params = $self->get_params($mode);
     if( ! %params ) {
-	$self->throw("must specify a valid retrival mode 'single' or 'batch' not '$mode'") 
+	$self->throw("must specify a valid retrieval mode 'single' or 'batch' not '$mode'") 
     }
-    my $url = $HOSTBASE . $CGILOCATION{$mode}[1];
-    if( !defined $uids ) {
-	$self->throw("Must specify a value for uids to query");
+    my $url = URI->new($HOSTBASE . $CGILOCATION{$mode}[1]);
+
+    unless( defined $uids or defined $query) {
+	$self->throw("Must specify a query or list of uids to fetch");
     }
 
-    if( ref($uids) =~ /array/i ) {
+    if ($uids) {
+      if( ref($uids) =~ /array/i ) {
 	$uids = join(",", @$uids);
+      }
+      $params{'id'}      = $uids;
     }
-    $params{'id'} = $uids;
+
+    elsif ($query && $query->can('cookie')) {
+      @params{'WebEnv','query_key'} = $query->cookie;
+      $params{'db'}                 = $query->db;
+    }
+
+    elsif ($query) {
+      $params{'id'} = join ',',$query->ids;
+    }
+
     $params{'rettype'} = $format;
-    my $querystr = '?' . join("&", map { "$_=$params{$_}" } keys %params);
-    $self->debug("url is $url$querystr \n");
     if ($CGILOCATION{$mode}[0] eq 'post') {
       return POST $url,[%params];
     } else {
-      return GET $url . $querystr;
+      $url->query_form(%params);
+      $self->debug("url is $url \n");
+      return GET $url;
     }
 }
-
 
 =head2 get_Stream_by_batch
 
@@ -201,11 +215,38 @@ sub get_request {
   Args    : $ref : either an array reference, a filename, or a filehandle
             from which to get the list of unique ids/accession numbers.
 
+NOTE: deprecated API.  Use get_Stream_by_id() instead.
+
 =cut
 
-sub get_Stream_by_batch {
-    my ($self, $ids) = @_;
-    return $self->get_seq_stream('-uids' => $ids, '-mode'=>'batch');
+*get_Stream_by_batch = sub { 
+   my $self = shift;
+   $self->deprecated('get_Stream_by_batch() is deprecated; use get_Stream_by_id() instead');
+   $self->get_Stream_by_id(@_) 
+};
+
+=head2 get_Stream_by_query
+
+  Title   : get_Stream_by_query
+  Usage   : $seq = $db->get_Stream_by_query($query);
+  Function: Retrieves Seq objects from Entrez 'en masse', rather than one
+            at a time.  For large numbers of sequences, this is far superior
+            than get_Stream_by_[id/acc]().
+  Example :
+  Returns : a Bio::SeqIO stream object
+  Args    : $query :   An Entrez query string or a
+            Bio::DB::Query::GenBank object.  It is suggested that you
+            create a Bio::DB::Query::GenBank object and get the entry
+            count before you fetch a potentially large stream.
+
+=cut
+
+sub get_Stream_by_query {
+    my ($self, $query) = @_;
+    unless (ref $query && $query->can('query')) {
+       $query = Bio::DB::Query::GenBank->new($query);
+    }
+    return $self->get_seq_stream('-query' => $query, '-mode'=>'query');
 }
 
 =head2 postprocess_data
@@ -224,7 +265,7 @@ sub get_Stream_by_batch {
 # the default method, works for genbank/genpept, other classes should
 # override it with their own method.
 
-sub postprocess_data {    
+sub postprocess_data {
     my ($self, %args) = @_;
     my $data;
     my $type = uc $args{'type'};
@@ -311,7 +352,7 @@ sub postprocess_data {
 	$data =~ s/&gt;/>/ig;
 	$data =~ s/&lt;/</ig;
 	if( $type eq 'FILE'  ) {
-	    open(TMP, ">$location") or $self->throw("could overwrite file $location");
+	    open(TMP, ">$location") or $self->throw("couldn't overwrite file $location");
 	    print TMP $data;
 	    close TMP;
 	} elsif ( $type eq 'STRING' ) {
