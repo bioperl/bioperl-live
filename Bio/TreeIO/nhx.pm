@@ -108,8 +108,7 @@ sub next_tree{
     $self->_eventHandler->start_document;
     my ($prev_event,$lastevent) = ('','');
     my @ch = split(//, $_);
-    for (my $i = 0 ; $i < @ch ; $i++) {
-	my $ch = $ch[$i];
+    foreach my $ch  (@ch) {
 	if( $ch eq ';' ) { 	   
 	    $self->_eventHandler->in_element('node') && 
 		$self->_eventHandler->end_element( {'Name' => 'node'});
@@ -131,16 +130,12 @@ sub next_tree{
 	    } else {
 		$self->_eventHandler->start_element( { Name => 'node' } );
 	    }
-	    my $leafstatus = 0;
-	    if( $lastevent ne ')' ) {
-		$leafstatus = 1;
-	    }
-	    
+	    my $leafstatus = ( $lastevent ne ')' ) ? 1 : 0;
 	    $self->_eventHandler->start_element({'Name' => 'leaf'});
 	    $self->_eventHandler->characters($leafstatus);
-	    $self->_eventHandler->end_element({'Name' => 'leaf'});
-	    
+	    $self->_eventHandler->end_element({'Name' => 'leaf'});	   
 	    $chars = '';
+	    
 	    $self->_eventHandler->start_element( { Name => 'nhx_tag' });
 	} elsif( $ch eq '(' ) {
 	    $chars = '';
@@ -166,13 +161,10 @@ sub next_tree{
 	    } elsif ( $lastevent ne ']' ) {
 		$self->_eventHandler->start_element( {'Name' => 'node'} );
 	    }
-	   my $leafstatus = 0;
-	   if( $lastevent ne ')' ) {
-	       $leafstatus = 1;
-	   }
-	   $self->_eventHandler->start_element({'Name' => 'leaf'});
-	   $self->_eventHandler->characters($leafstatus);
-	   $self->_eventHandler->end_element({'Name' => 'leaf'});	   
+	    my $leafstatus = ( $lastevent ne ')' ) ? 1 : 0;
+	    $self->_eventHandler->start_element({'Name' => 'leaf'});
+	    $self->_eventHandler->characters($leafstatus);
+	    $self->_eventHandler->end_element({'Name' => 'leaf'});	   
 	    
 	    $self->_eventHandler->end_element( {'Name' => 'node'} );
 	    $self->_eventHandler->end_element( {'Name' => 'tree'} );
