@@ -14,6 +14,7 @@ Bio/AlignIO/nexus.pm
 Bio/AlignIO/pfam.pm
 Bio/AlignIO/phylip.pm
 Bio/AlignIO/prodom.pm
+Bio/AlignIO/psi.pm
 Bio/AlignIO/selex.pm
 Bio/AlignIO/stockholm.pm
 Bio/AnalysisParserI.pm
@@ -245,8 +246,6 @@ Bio/Search/Hit/Fasta.pm
 Bio/Search/Hit/GenericHit.pm
 Bio/Search/Hit/HitI.pm
 Bio/Search/Processor.pm
-Bio/Search/Processor/Fasta.pm
-Bio/Search/Processor/ProcessorI.pm
 Bio/Search/Result/BlastResult.pm
 Bio/Search/Result/GenericResult.pm
 Bio/Search/Result/ResultI.pm
@@ -346,9 +345,6 @@ Bio/Tools/Blast/CHANGES
 Bio/Tools/Blast/HSP.pm
 Bio/Tools/Blast/HTML.pm
 Bio/Tools/Blast/README
-Bio/Tools/Blast/Run/LocalBlast.pm
-Bio/Tools/Blast/Run/Webblast.pm
-Bio/Tools/Blast/Run/postclient.pl
 Bio/Tools/Blast/Sbjct.pm
 Bio/Tools/CodonTable.pm
 Bio/Tools/EPCR.pm
@@ -678,7 +674,7 @@ t/data/AAC12660.fa
 t/data/AE003528_ecoli.bls
 t/data/AF165282.gb
 t/data/HUMBETGLOA.FASTA
-t/data/HUMBETGLOA.fasta
+t/data/HUMBETGLOA.fa
 t/data/HUMBETGLOA.gff
 t/data/HUMBETGLOA.grail
 t/data/HUMBETGLOA.grailexp
@@ -788,6 +784,7 @@ t/data/short.blx
 t/data/sim4.for.for
 t/data/sim4.for.rev
 t/data/sim4.rev
+t/data/sparsealn.needle
 t/data/stress_test_medline.xml
 t/data/stress_test_pubmed.xml
 t/data/swiss.dat
