@@ -110,7 +110,7 @@ sub load_or_store_fasta {
       (-d $fasta && -w $fasta)) {
     require Bio::DB::Fasta;
     my $dna_db = eval {Bio::DB::Fasta->new($fasta)} 
-      or warn "No sequence available. Use -gff instead of -dir if you wish to load features without sequence.\n";
+      or warn "$@\nCan't open sequence file(s). Use -gff instead of -dir if you wish to load features without sequence.\n";
     $dna_db && $self->dna_db($dna_db);
   } else {
     $self->load_fasta($fasta);

@@ -1616,6 +1616,10 @@ some are shared by all glyphs:
   -bump_limit Maximum number of levels     undef (unlimited)
               to bump
 
+  -hbumppad   Additional horizontal        0
+              padding between bumped
+              features
+
   -strand_arrow Whether to indicate        undef (false)
                  strandedness
 
@@ -1711,12 +1715,20 @@ options are:
 The B<-connector_color> option controls the color of the connector, if
 any.
 
-B<Collision control:> The -bump argument controls what happens when
+B<Collision control:> The B<-bump> argument controls what happens when
 glyphs collide.  By default, they will simply overlap (value 0).  A
 -bump value of +1 will cause overlapping glyphs to bump downwards
 until there is room for them.  A -bump value of -1 will cause
-overlapping glyphs to bump upwards.  The bump argument can also be a
-code reference; see below.
+overlapping glyphs to bump upwards.  You may also provide a -bump
+value of +2 or -2 to activate a very simple type of collision control
+in which each feature occupies its own line.  This is useful for
+showing dense, nearly-full length features such as similarity hits.
+The bump argument can also be a code reference; see below.
+
+If you would like to see more horizontal whitespace between features
+that occupy the same line, you can specify it with the B<-hbumppad>
+option.  Positive values increase the amount of whitespace between
+features.  Negative values decrease the whitespace.
 
 B<Keys:> The -key argument declares that the track is to be shown in a
 key appended to the bottom of the image.  The key contains a picture
