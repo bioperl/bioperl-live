@@ -56,16 +56,15 @@ data in interleaved format.
 =head2 Reporting Bugs
 
 Report bugs to the Bioperl bug tracking system to help us keep track
- the bugs and their resolution.
- Bug reports can be submitted via email or the web:
+the bugs and their resolution. Bug reports can be submitted via the
+web:
 
-  bioperl-bugs@bio.perl.org
   http://bugzilla.bioperl.org/
 
 =head1 AUTHORS - Heikki Lehvaslaiho and Jason Stajich
 
-Email: heikki@ebi.ac.uk
-Email: jason@bioperl.org
+Email: heikki at ebi.ac.uk
+Email: jason at bioperl.org
 
 =head1 APPENDIX
 
@@ -154,8 +153,8 @@ sub next_aln {
     $count = 0;
     my $iter = 1;
     my $non_interleaved = ! $self->interleaved ;
-    
     while( $entry = $self->_readline) {
+	
 	last if( $entry =~ /^\s?$/ && ! $non_interleaved );
 
 	if( $entry =~ /^\s+(\d+)\s+(\d+)\s*$/) { 
@@ -169,7 +168,7 @@ sub next_aln {
 	    unless( ! $non_interleaved ) {
 		$count = scalar @names;
 		$hash{$count} .= $str;
-	    } else { 
+	    } else {
 		$hash{$iter++} .= $str;
 		$iter = 1 if $iter > $count;
 	    }
@@ -184,6 +183,20 @@ sub next_aln {
 	    $str =~ s/\s//g;
 	    $count = scalar @names;
 	    $hash{$count} = $str;
+	} elsif( $non_interleaved ) {
+	    if( $entry =~ /^(\S+)\s+(.+)/ ||
+		$entry =~ /^(.{$idlen})(.*)\s$/ ) {
+		$name = $1;
+		$str = $2;
+		$name =~ s/[\s\/]/_/g;
+		$name =~ s/_+$//; # remove any trailing _'s
+		push @names, $name;
+		$str =~ s/\s//g;
+		$count = scalar @names;
+		$hash{$count} = $str;
+	    } else { 
+		$self->debug("unmatched line: $entry");
+	    }
 	}
 	$self->throw("Not a valid interleaved PHYLIP file!") if $count > $seqcount; 
     }
@@ -192,7 +205,6 @@ sub next_aln {
 	# interleaved sections
 	$count = 0;
 	while( $entry = $self->_readline) {
-	    
             # finish current entry
 	    if($entry =~/\s*\d+\s+\d+/){
 		$self->_pushback($entry);
