@@ -44,7 +44,7 @@ sub new {
   if (defined $start && defined $stop) {
     ($start,$stop) = ($stop,$start) if $start > $stop;  # sheer paranoia
     # the +1 here is critical for allowing features to meet nicely at nucleotide resolution
-    my ($left,$right) = $factory->map_pt($start,$stop+1); 
+    my ($left,$right) = $factory->map_pt($start,$stop+1);
     $self->{left}    = $left;
     $self->{width}   = $right - $left + 1;
   }

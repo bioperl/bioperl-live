@@ -16,7 +16,7 @@ use Bio::DB::GFF::Adaptor::dbi;
 use Bio::DB::GFF::Util::Rearrange; # for rearrange()
 use vars qw($VERSION @ISA);
 @ISA = qw(Bio::DB::GFF::Adaptor::dbi);
-$VERSION = '0.50';
+$VERSION = '0.80';
 
 use constant MAX_SEGMENT => 100_000_000;  # the largest a segment can get
 use constant DEFAULT_CHUNK => 2000;
@@ -497,11 +497,13 @@ sub make_features_select_part {
 
     $s = <<END;
 fref,
-  $b*floor(fstart/$b) as fstart,
-  $b*(1+floor(fstart/$b))-1 as fstop,
-  fsource,fmethod,
+  1+$b*floor(fstart/$b)   as fstart,
+  $b*(1+floor(fstart/$b)) as fstop,
+  IF(ISNULL(fsource),fmethod,concat(fmethod,':',fsource)),'bin',
   count(*) as fscore,
-  '.','.','bin',concat(fmethod,':',fsource),NULL,NULL,fdata.fid,fdata.gid
+  '.','.','bin',
+  IF(ISNULL(fsource),concat(fref,':',fmethod),concat(fref,':',fmethod,':',fsource)),
+  NULL,NULL,NULL,NULL
 END
 ;
   } else {
@@ -611,7 +613,7 @@ sub make_features_group_by_part {
      HAVING count(fdata.fid) > ?",$key_count-1);
   }
   elsif (my $b = $options->{bin_width}) {
-    return "fstart,fdata.ftypeid";
+    return "fref,fstart,fdata.ftypeid";
   }
 }
 
@@ -1048,7 +1050,7 @@ sub get_features_iterator {
  Status  : protected
 
 This method lists the tables known to the module, namely qw(fdata fref
-fgroup ftype fdna fnote fmeta).
+fgroup ftype fdna fattribute fattribute_to_feature fmeta).
 
 =cut
 

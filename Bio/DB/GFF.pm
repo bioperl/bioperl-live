@@ -485,10 +485,12 @@ Bio::DB::GFF::Adaptor::dbi::mysql adaptor is loaded by specifying
 'dbi:mysql'.  By Perl convention, the adaptors names are lower case
 because they are loaded at run time.
 
-The aggregator array may contain a list of aggregator names, or a list 
-of initialized aggregator objects.  For example, if you wish to change
-the components aggregated by the transcript aggregator, you could
-pass it to the GFF constructor this way:
+The aggregator array may contain a list of aggregator names, a list of
+initialized aggregator objects, or a string in the form
+"aggregator_name{subpart1,subpart2,subpart3/main_method}" (the
+/main_method part is optional).  For example, if you wish to change
+the components aggregated by the transcript aggregator, you could pass
+it to the GFF constructor this way:
 
   my $transcript = 
      Bio::DB::Aggregator::transcript->new(-sub_parts=>[qw(exon intron utr
@@ -497,6 +499,16 @@ pass it to the GFF constructor this way:
   my $db = Bio::DB::GFF->new(-aggregator=>[$transcript,'clone','alignment],
                              -adaptor   => 'dbi:mysql',
                              -dsn      => 'dbi:mysql:elegans42');
+
+Alternatively, you could create an entirely new transcript aggregator
+this way:
+
+  my $new_agg = 'transcript{exon,intron,utr,polyA,spliced_leader}';
+  my $db      = Bio::DB::GFF->new(-aggregator=>[$new_agg,'clone','alignment],
+                                  -adaptor   => 'dbi:mysql',
+                                  -dsn       => 'dbi:mysql:elegans42');
+
+See L<Bio::DB::GFF::Aggregator> for more details.
 
 The commonly used 'dbi:mysql' adaptor recognizes the following
 adaptor-specific arguments:
@@ -828,12 +840,23 @@ Arguments are as follows:
 
   -types     List of feature types to return.  Argument is an array
 	     reference containing strings of the format "method:source"
+
   -merge     Whether to apply aggregators to the generated features.
+
   -rare      Turn on optimizations suitable for a relatively rare feature type,
              where it makes more sense to filter by feature type first,
              and then by position.
+
   -attributes A hash reference containing attributes to match.
+
   -iterator  Whether to return an iterator across the features.
+
+  -binsize   A true value will create a set of artificial features whose
+             start and stop positions indicate bins of the given size, and
+             whose scores are the number of features in the bin.  The
+             class and method of the feature will be set to "bin",
+             its source to "method:source", and its group to "bin:method:source".
+             This is a handy way of generating histograms of feature density.
 
 If -iterator is true, then the method returns a single scalar value
 consisting of a Bio::SeqIO object.  You can call next_seq() repeatedly
@@ -1731,7 +1754,14 @@ sub fast_queries {
  Status  : public
 
 This method will append an aggregator to the end of the list of
-registered aggregators.
+registered aggregators.  Three different argument types are accepted:
+
+  1) a Bio::DB::GFF::Aggregator object -- will be added
+  2) a string in the form "aggregator_name{subpart1,subpart2,subpart3/main_method}"
+         -- will be turned into a Bio::DB::GFF::Aggregator object (the /main_method
+        part is optional).
+  3) a valid Perl token -- will be turned into a Bio::DB::GFF::Aggregator
+        subclass, where the token corresponds to the subclass name.
 
 =cut
 
@@ -1742,7 +1772,19 @@ sub add_aggregator {
   if (ref $aggregator) { # an object
     @$list = grep {$_->get_method ne $aggregator->get_method} @$list;
     push @$list,$aggregator;
-  } else {
+  }
+
+  elsif ($aggregator =~ /^(\w+)\{([^\/\}]+)\/?(.*)\}$/) {
+    my($agg_name,$subparts,$mainpart) = ($1,$2,$3);
+    my @subparts = split /,\s*/,$subparts;
+    my @args = (-method    => $agg_name,
+		-sub_parts => \@subparts);
+    push @args,(-main_method => $mainpart) if $mainpart;
+    warn "making an aggregator with (@args), subparts = @subparts" if $self->debug;
+    push @$list,Bio::DB::GFF::Aggregator->new(@args);
+  }
+
+  else {
     my $class = "Bio::DB::GFF::Aggregator::\L${aggregator}\E";
     eval "require $class";
     $self->throw("Unable to load $aggregator aggregator: $@") if $@;
@@ -2831,6 +2873,7 @@ sub _features {
   if ($options->{automerge}) {
     warn "aggregating...\n" if $self->debug;
     foreach my $a (@aggregators) {  # last aggregator gets first shot
+      warn "Aggregator $a:\n" if $self->debug;
       $a->aggregate($features,$self) or next;
     }
   }
@@ -2969,9 +3012,11 @@ fixed.
 
 L<bioperl>,
 L<Bio::DB::GFF::RelSegment>,
+L<Bio::DB::GFF::Aggregator>,
 L<Bio::DB::GFF::Feature>,
-L<Bio::DB::GFF::Adaptor::dbi::mysql>,
-L<Bio::DB::GFF::Adaptor::dbi::mysqlopt>
+L<Bio::DB::GFF::Adaptor::dbi::mysqlopt>,
+L<Bio::DB::GFF::Adaptor::dbi::oracle>,
+L<Bio::DB::GFF::Adaptor::dbi::memory>
 
 =head1 AUTHOR
 

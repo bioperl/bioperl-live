@@ -77,7 +77,7 @@ use Bio::LocationI;
 use vars qw($VERSION @ISA $AUTOLOAD);
 @ISA = qw(Bio::DB::GFF::RelSegment Bio::SeqFeatureI Bio::LocationI Bio::Root::Root);
 
-$VERSION = '0.60';
+$VERSION = '0.61';
 #' 
 
 *segments = \&sub_SeqFeature;
@@ -383,6 +383,20 @@ sub group  {
   $d;
 }
 
+=head2 display_id
+
+ Title   : display_id
+ Usage   : $display_id = $f->display_id([$display_id])
+ Function: get or set the feature display id
+ Returns : a Bio::DB::GFF::Featname object
+ Args    : a new display_id (optional)
+ Status  : Public
+
+This method is an alias for group().  It is provided for
+Bio::SeqFeatureI compatibility.
+
+=cut
+
 =head2 info
 
  Title   : info
@@ -397,7 +411,8 @@ compatibility.
 
 =cut
 
-*info   = \&group;
+*info         = \&group;
+*display_id   = \&group;
 
 =head2 target
 
@@ -651,7 +666,11 @@ sub merged_segments {
   my @merged = ();
   for my $s (@segs) {
     my $previous = $merged[-1] if @merged;
-    if (defined($previous) && $previous->stop+1 >= $s->start){
+    my ($pscore,$score) = (eval{$previous->score}||0,eval{$s->score}||0);
+    if (defined($previous) 
+	&& $previous->stop+1 >= $s->start
+	&& $previous->score == $s->score
+       ) {
       if ($self->absolute && $self->strand < 0) {
 	$previous->{start} = $s->{start};
       } else {
@@ -663,7 +682,9 @@ sub merged_segments {
 	my $cg = $s->{group};
 	$g->{stop} = $cg->{stop};
       }
-    } elsif (defined($previous) && $previous->start == $s->start && $previous->stop == $s->stop) {
+    } elsif (defined($previous) 
+	     && $previous->start == $s->start 
+	     && $previous->stop == $s->stop) {
       next;
     } else {
       my $copy = $s->clone;

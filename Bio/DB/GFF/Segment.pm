@@ -29,7 +29,7 @@ use Bio::SeqI;
 
 use vars qw($VERSION @ISA);
 @ISA = qw(Bio::Root::Root Bio::RangeI Bio::SeqI);
-$VERSION = '0.30';
+$VERSION = '0.31';
 
 use overload 
   '""'     => 'asString',
@@ -239,17 +239,22 @@ sub sourceseq { shift->{sourceseq} }
 =head2 class
 
  Title   : class
- Usage   : $s->class
+ Usage   : $s->class([$newclass])
  Function: get the source sequence class
  Returns : a string
- Args    : none
+ Args    : new class (optional)
  Status  : Public
 
-Returns the class for the source sequence for this segment.
+Gets or sets the class for the source sequence for this segment.
 
 =cut
 
-sub class     { shift->{class}     }
+sub class     { 
+  my $self = shift;
+  my $d = $self->{class};
+  $self->{class} = shift if @_;
+  $d;
+}
 
 =head2 subseq
 

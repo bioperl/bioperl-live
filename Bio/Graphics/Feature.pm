@@ -177,7 +177,7 @@ sub seq {
 
 =cut
 
-sub display_id { shift->seq_id }
+sub display_id { shift->name }
 
 =head2 accession_number
 

@@ -107,14 +107,29 @@ sub do_write {
 sub do_compare {
   my $test = shift;
   my $canpng = GD::Image->can('png');
-  my $input_file = IMAGES . ($canpng ? "/$test.png" : "/$test.gif");
+  my @input_files = glob(IMAGES . ($canpng ? "/$test/*.png" : "/$test/*.gif"));
   my $test_sub    = $test;
   my $panel       = eval "$test_sub()" or die "Couldn't run test";
-  open IN,"<$input_file" or die "Couldn't open $input_file for writing: $!";
+  my $ok = 0;
+  my $test_data = $canpng ? $panel->gd->png : $panel->gd->gif;
+  foreach (@input_files) {
+    my $reference_data = read_file($_);
+    if ($reference_data eq $test_data) {
+      $ok++;
+      last;
+    }
+  }
+  ok($ok);
+}
+
+sub read_file {
+  my $f = shift;
+  open F,$f or die "Can't open $f: $!";
+  binmode(F);
   my $data = '';
-  while (read(IN,$data,1024,length $data)) { 1 }
-  close IN;
-  ok($data eq ($canpng ? $panel->gd->png : $panel->gd->gif));
+  while (read(F,$data,1024,length $data)) { 1 }
+  close F;
+  $data;
 }
 
 

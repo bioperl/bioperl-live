@@ -69,7 +69,6 @@ sub keyglyph {
   # two segments, at pixels 0->50, 60->80
   my $offset = $self->panel->offset;
 
-
   my $feature =
     Bio::Graphics::Feature->new(
 				-segments=>[ [ 0*$scale +$offset,20*$scale+$offset],

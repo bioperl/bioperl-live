@@ -140,6 +140,21 @@ sub sub_SeqFeature{
    $self->throw_not_implemented();
 }
 
+=head2 display_id
+
+ Title   : display_id
+ Usage   : $name = $feat->display_id()
+ Function: Returns the human-readable ID of the
+           feature for displays.
+ Returns : a string
+ Args    : none
+
+=cut
+
+sub display_id { 
+  my ($self,@args) = @_;
+  $self->throw_not_implemented();
+}
 
 =head2 primary_tag
 

@@ -16,7 +16,7 @@ use constant KEYCOLOR     => 'wheat';
 use constant KEYSTYLE     => 'bottom';
 use constant KEYALIGN     => 'left';
 use constant GRIDCOLOR    => 'lightcyan';
-use constant MISSING_TRACK_COLOR =>'lightgrey';
+use constant MISSING_TRACK_COLOR =>'gray';
 
 my %COLORS;  # translation table for symbolic color names to RGB triple
 
@@ -332,6 +332,8 @@ sub gd {
   my $offset = $pt;
   my $keyheight   = $self->{key_font}->height;
   my $between_key = $self->{key_style} eq 'between';
+  my $left_key    = $self->{key_style} eq 'left';
+  my $right_key   = $self->{key_style} eq 'right';
   my $empty_track_style = $self->show_empty;
   my $spacing = $self->spacing;
 
@@ -360,7 +362,12 @@ sub gd {
       next if $empty_track_style eq 'key' && !$draw_between;
       $self->draw_empty($gd,$offset,$empty_track_style) if $empty_track_style=~/^(line|dashed)$/;
     }
-    $offset += $self->draw_between_key($gd,$track,$offset) if $draw_between;
+    if ($self->{key_style} eq 'between') {
+      $offset += $self->draw_between_key($gd,$track,$offset);
+    } elsif ($self->{key_style} =~ /^(left|right)$/) {
+      $self->draw_side_key($gd,$track,$offset,$self->{key_style});
+    }
+
     $track->draw($gd,0,$offset,0,1);
     $self->track_position($track,$offset);
     $offset += $track->layout_height + $spacing;
@@ -374,6 +381,7 @@ sub boxes {
   my $self = shift;
   my @boxes;
   my $offset = 0;
+
   my $pl = $self->pad_left;
   my $pt = $self->pad_top;
   my $between = $self->{key_style} eq 'between';
@@ -412,6 +420,16 @@ sub draw_between_key {
           : $self->pad_left;
   $gd->string($self->{key_font},$x,$offset,$key,1);
   return $self->{key_font}->height;
+}
+
+# draw the keys -- left or right side
+sub draw_side_key {
+  my $self   = shift;
+  my ($gd,$track,$offset,$side) = @_;
+  my $key = $track->option('key') or return;
+  my $pos = $side eq 'left' ? $self->pad_left - $self->{key_font}->width * CORE::length($key)-3
+                            : $self->width - $self->pad_right+3;
+  $gd->string($self->{key_font},$pos,$offset,$key,1);
 }
 
 # draw the keys -- bottom
@@ -514,8 +532,9 @@ sub format_key {
 sub draw_empty {
   my $self  = shift;
   my ($gd,$offset,$style) = @_;
+  $offset += $self->spacing;
   my $left  = $self->pad_left;
-  my $right = $self->width;
+  my $right = $self->width-$self->pad_right;
   my $color = $self->translate_color(MISSING_TRACK_COLOR);
   if ($style eq 'dashed') {
     $gd->setStyle($color,$color,gdTransparent,gdTransparent);
@@ -988,8 +1007,17 @@ a set of tag/value pairs as follows:
 
   -key_style   Whether to print key at bottom of     none
 	       panel ("bottom"), between each
-	       track ("between"), or not at all
-	       ("none").
+	       track ("between"), to the left of
+               each track ("left"), to the right
+               of each track ("right") or
+               not at all ("none").
+
+  -empty_tracks What to do when a track is empty.    suppress
+              Options are to suppress the track
+              completely ("empty"), to show just
+              the key in "between" mode ("key"),
+              to draw a thin grey line ("line"),
+              or to draw a dashed line ("dashed").
 
   -all_callbacks Whether to invoke callbacks on      false
                the automatic "track" and "group"
@@ -1014,6 +1042,16 @@ panel will derive its scale.
 				     -width   => 800);
 
 new() will return undef in case of an error.
+
+Note that if you use the "left" or "right" key styles, you are
+responsible for allocating sufficient -pad_left or -pad_right room for
+the labels to appear.  The necessary width is the number of characters
+in the longest key times the font width (gdMediumBoldFont by default)
+plus 3 pixels of internal padding.  The simplest way to calculate this
+is to iterate over the possible track labels, find the largest one,
+and then to compute its width using the formula:
+
+  $width = gdMediumBoldFont->width * length($longest_key) +3;
 
 =back
 

@@ -64,7 +64,7 @@ sub _label {
 
   # figure it out ourselves
   my $f = $self->feature;
-  my $info = eval {$f->info};
+  my $info = eval {$f->display_id};
   return $info if $info;
   return eval {$f->display_id} || eval {$f->seqname} || eval{$f->primary_tag};
 }

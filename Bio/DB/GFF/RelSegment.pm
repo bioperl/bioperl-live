@@ -566,6 +566,13 @@ The named parameter form gives you control over a few options:
 
   -iterator  Whether to return an iterator across the features.
 
+  -binsize   A true value will create a set of artificial features whose
+             start and stop positions indicate bins of the given size, and
+             whose scores are the number of features in the bin.  The
+             class and method of the feature will be set to "bin",
+             its source to "method:source", and its group to "bin:method:source".
+             This is a handy way of generating histograms of feature density.
+
 -merge is a boolean flag that controls whether the adaptor's
 aggregators wll be applied to the features returned by this method.
 
