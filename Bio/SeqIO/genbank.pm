@@ -189,22 +189,22 @@ use Bio::Annotation::DBLink;
 @ISA = qw(Bio::SeqIO);
 
 %FTQUAL_NO_QUOTE=(
-  'anticodon'=>1,
-  'citation'=>1,
-  'codon'=>1,
-  'codon_start'=>1,
-  'cons_splice'=>1,
-  'direction'=>1,
-  'evidence'=>1,
-  'label'=>1,
-  'mod_base'=> 1,
-  'number'=> 1,
-  'rpt_type'=> 1,
-  'rpt_unit'=> 1,
-  'transl_except'=> 1,
-  'transl_table'=> 1,
-  'usedin'=> 1,
-);
+		  'anticodon'    => 1,
+		  'citation'     => 1,
+		  'codon'        => 1,
+		  'codon_start'  => 1,
+		  'cons_splice'  => 1,
+		  'direction'    => 1,
+		  'evidence'     => 1,
+		  'label'        => 1,
+		  'mod_base'     => 1,
+		  'number'       => 1,
+		  'rpt_type'     => 1,
+		  'rpt_unit'     => 1,
+		  'transl_except'=> 1,
+		  'transl_table' => 1,
+		  'usedin'       => 1,
+		  );
 
 sub _initialize {
     my($self,@args) = @_;
@@ -253,7 +253,7 @@ sub next_seq {
 	  last if index($buffer,'LOCUS       ') == 0;
       }
       return undef if( !defined $buffer ); # end of file
-      $buffer =~ /^LOCUS\s+(\S.*)$/ ||
+      $buffer =~ /^LOCUS\s+(\S.*)$/o ||
 	  $self->throw("GenBank stream with bad LOCUS line. Not GenBank in my book. Got '$buffer'");
       
       my @tokens = split(' ', $1);
@@ -432,8 +432,8 @@ sub next_seq {
 		      last if (/^\S/);
 		      $segment .= $_; 
 		  }
-		  $segment =~ s/\n/ /g;
-		  $segment =~ s/  +/ /g;
+		  $segment =~ s/\n/ /og;
+		  $segment =~ s/ {2,}/ /og;
 		  $annotation->add_Annotation(
 					      'segment',
 					      Bio::Annotation::SimpleValue->new(-value => $segment));
@@ -466,7 +466,7 @@ sub next_seq {
       }      
       
       # some "minimal" formats may not necessarily have a feature table
-      if($builder->want_slot('features') && defined($_) && /^FEATURES/) {
+      if($builder->want_slot('features') && defined($_) && /^FEATURES/o) {
 	  # need to read the first line of the feature table
 	  $buffer = $self->_readline;
 	  
@@ -475,8 +475,8 @@ sub next_seq {
 	  while( defined($buffer) ) {
 	      # check immediately -- not at the end of the loop
 	      # note: GenPept entries obviously do not have a BASE line
-	      last if(($buffer =~ /^BASE/) || ($buffer =~ /^ORIGIN/) ||
-		      ($buffer =~ /^CONTIG/) );
+	      last if(($buffer =~ /^BASE/o) || ($buffer =~ /^ORIGIN/o) ||
+		      ($buffer =~ /^CONTIG/o) );
 
 	      # slurp in one feature at a time -- at return, the start of
 	      # the next feature will have been read already, so we need
@@ -490,7 +490,8 @@ sub next_seq {
 	      if( !defined $ftunit ) {
 		  # GRRRR. We have fallen over. Try to recover
 		  $self->warn("Unexpected error in feature table for ".$params{'-display_id'}." Skipping feature, attempting to recover");
-		  unless( ($buffer =~ /^\s{5,5}\S+/) or ($buffer =~ /^\S+/)) {
+		  unless( ($buffer =~ /^\s{5,5}\S+/o) or 
+			  ($buffer =~ /^\S+/o)) {
 		      $buffer = $self->_readline();
 		  }
 		  next; # back to reading FTHelpers
@@ -516,7 +517,7 @@ sub next_seq {
 	  $_ = $buffer;
       }
       if( defined ($_) ) {
-	  if( /^CONTIG/ && $builder->want_slot('features')) {
+	  if( /^CONTIG/o && $builder->want_slot('features')) {
 	      $b = "     $_"; # need 5 spaces to treat it like a feature
 	      my $ftunit = $self->_read_FTHelper_GenBank(\$b);
 	      if( ! defined $ftunit ) {
@@ -930,28 +931,28 @@ sub _read_GenBank_References{
    my (@title,@loc,@authors,@com,@medline,@pubmed);
 
    REFLOOP: while( defined($_) || defined($_ = $self->_readline) ) {
-       if (/^  AUTHORS\s+(.*)/) { 
+       if (/^\s{2}AUTHORS\s+(.*)/o) { 
 	   push (@authors, $1);   
 	   while ( defined($_ = $self->_readline) ) {
-	       /^\s{3,}(.*)/ && do { push (@authors, $1);next;};
+	       /^\s{3,}(.*)/o && do { push (@authors, $1);next;};
 	       last;
 	   }
 	   $ref->authors(join(' ', @authors));
        }
-       if (/^  TITLE\s+(.*)/)  { 
+       if (/^\s{2}TITLE\s+(.*)/o)  { 
 	   push (@title, $1);
 	   while ( defined($_ = $self->_readline) ) {
-	       /^\s{3,}(.*)/ && do { push (@title, $1);
+	       /^\s{3,}(.*)/o && do { push (@title, $1);
 				     next;
 				 };
 	       last;
 	   }
 	   $ref->title(join(' ', @title));
        }
-       if (/^  JOURNAL\s+(.*)/) { 
+       if (/^\s{2}JOURNAL\s+(.*)/o) { 
 	   push(@loc, $1);
 	   while ( defined($_ = $self->_readline) ) {
-	       /^\s{3,}(.*)/ && do { push(@loc, $1);
+	       /^\s{3,}(.*)/o && do { push(@loc, $1);
 				     next;
 				 };
 	       last;
@@ -959,10 +960,10 @@ sub _read_GenBank_References{
 	   $ref->location(join(' ', @loc));
 	   redo REFLOOP;
        }
-       if (/^  REMARK\s+(.*)/) { 
+       if (/^\s{2}REMARK\s+(.*)/o) { 
 	   push (@com, $1);
 	   while ( defined($_ = $self->_readline) ) {	       
-	       /^\s{3,}(.*)/ && do { push(@com, $1);
+	       /^\s{3,}(.*)/o && do { push(@com, $1);
 				     next;
 				 };
 	       last;
@@ -970,7 +971,7 @@ sub _read_GenBank_References{
 	   $ref->comment(join(' ', @com));
 	   redo REFLOOP;
        }
-       if( /^  MEDLINE\s+(.*)/ ) {
+       if( /^\s{2}MEDLINE\s+(.*)/ ) {
 	   push(@medline,$1);
 	   while ( defined($_ = $self->_readline) ) {	       
 	       /^\s{4,}(.*)/ && do { push(@medline, $1);
@@ -981,7 +982,7 @@ sub _read_GenBank_References{
 	   $ref->medline(join(' ', @medline));
 	   redo REFLOOP;
        }
-       if( /^   PUBMED\s+(.*)/ ) {
+       if( /^\s{3}PUBMED\s+(.*)/ ) {
 	   push(@pubmed,$1);
 	   while ( defined($_ = $self->_readline) ) {	       
 	       /^\s{5,}(.*)/ && do { push(@pubmed, $1);
@@ -993,7 +994,7 @@ sub _read_GenBank_References{
 	   redo REFLOOP;
        }
        
-       /^REFERENCE/ && do {
+       /^REFERENCE/o && do {
 	   # store current reference
 	   $self->_add_ref_to_array(\@refs,$ref) if $ref;
 	   # reset
@@ -1012,7 +1013,7 @@ sub _read_GenBank_References{
 	   }
        };
 
-       /^(FEATURES)|(COMMENT)/ && last;
+       /^(FEATURES)|(COMMENT)/o && last;
 
        $_ = undef; # Empty $_ to trigger read of next line
    }
@@ -1079,15 +1080,15 @@ sub _read_GenBank_Species {
 	# de-HTMLify (links that may be encountered here don't contain
 	# escaped '>', so a simple-minded approach suffices)
         s/<[^>]+>//g;
-	if (/^SOURCE\s+(.*)/) {
+	if (/^SOURCE\s+(.*)/o) {
 	    # FIXME this is probably mostly wrong (e.g., it yields things like
 	    # Homo sapiens adult placenta cDNA to mRNA
 	    # which is certainly not what you want)
 	    $common = $1;
 	    $common =~ s/\.$//; # remove trailing dot
-	} elsif (/^\s+ORGANISM/) {
+	} elsif (/^\s{2}ORGANISM/o) {
 	    my @spflds = split(' ', $_);
-            ($ns_name) = $_ =~ /\w+\s+(.*)/;
+            ($ns_name) = $_ =~ /\w+\s+(.*)/o;
 	    shift(@spflds); # ORGANISM
 	    if(grep { $_ =~ /^$spflds[0]/i; } @organell_names) {
 		$organelle = shift(@spflds);
@@ -1099,7 +1100,7 @@ sub _read_GenBank_Species {
 		$species = "sp.";
 	    }
 	    $sub_species = shift(@spflds) if(@spflds);
-        } elsif (/^\s+(.+)/) {
+        } elsif (/^\s+(.+)/o) {
 	    # only split on ';' or '.' so that 
 	    # classification that is 2 words will 
 	    # still get matched
@@ -1115,7 +1116,7 @@ sub _read_GenBank_Species {
     $$buffer = $_;
     
     # Don't make a species object if it's empty or "Unknown" or "None"
-    return unless $genus and  $genus !~ /^(Unknown|None)$/i;
+    return unless $genus and  $genus !~ /^(Unknown|None)$/oi;
     
     # Bio::Species array needs array in Species -> Kingdom direction
     if ($class[0] eq 'Viruses') {
@@ -1158,7 +1159,7 @@ sub _read_FTHelper_GenBank {
         );
     my @qual = (); # An arrray of lines making up the qualifiers
     
-    if ($$buffer =~ /^     (\S+)\s+(.+?)\s*$/o) {
+    if ($$buffer =~ /^\s{5}(\S+)\s+(.+?)\s*$/o) {
         $key = $1;
         $loc = $2;
         # Read all the lines up to the next feature
@@ -1222,7 +1223,7 @@ sub _read_FTHelper_GenBank {
                 while ($value !~ /\"$/ or $value =~ tr/"/"/ % 2) {
 		    if($i >= $#qual) {
 		       $self->warn("Unbalanced quote in:\n" .
-				   join('', map("$_\n", @qual)) .
+				   join("\n", @qual) .
 				   "No further qualifiers will " .
 				   "be added for this feature");
 		       last QUAL;
@@ -1233,7 +1234,7 @@ sub _read_FTHelper_GenBank {
 
                     # add to value with a space unless the value appears
 		    # to be a sequence (translation for example)
-		    if(($value.$next) =~ /[^A-Za-z"-]/) {
+		    if(($value.$next) =~ /[^A-Za-z\"\-]/o) {
 			$value .= " ";
 		    }
                     $value .= $next;
@@ -1242,7 +1243,26 @@ sub _read_FTHelper_GenBank {
                 $value =~ s/^"|"$//g;
                 # Undouble internal quotes
                 $value =~ s/""/\"/g;
-            }
+            } elsif ( $value =~ /^\(/ ) { # values quoted by ()s
+		# Keep addingto value until we find the trailing bracket
+		# and the ()s are balanced
+		my $left = ($value =~ tr/\(/\(/); # count left parens
+		my $right = ($value =~ tr/\)/\)/); # count right parens
+		while( $value !~ /\)$/ or $left != $right ) {
+		    if( $i >= $#qual) {
+			$self->warn("Unbalanced parens in:\n".
+				    join("\n", @qual).
+				    "No further qualifiers will ".
+				    "be added for this feature");
+			last QUAL;
+		    }
+		    $i++;
+		    my $next = $qual[$i];		    
+		    $value .= $next;
+		    $left += ($next =~ tr/\(/\(/);
+		    $right += ($next =~ tr/\)/\)/);
+		}
+	    }
         } else {
             $value = '_no_value';
         }
