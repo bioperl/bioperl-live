@@ -11,7 +11,7 @@ BEGIN {
 	use lib 't';
     }
     use Test;
-    $TESTCOUNT = 219;
+    $TESTCOUNT = 220;
     plan tests => $TESTCOUNT;
 }
 
@@ -53,6 +53,11 @@ sub read_write {
     my $out = Bio::SeqIO->new('-file'=> ">". Bio::Root::IO->catfile("t","data","$format.out"),
                            '-format' => $format);
     ok $out->write_seq($seq);
+    if ($format eq 'fasta') {
+        my $id_type;
+        ok($id_type = $out->preferred_id_type('accession.version'), 'accession.version');
+    }
+
 }
 
 my @formats = qw(gcg fasta raw pir tab);
