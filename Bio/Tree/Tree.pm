@@ -75,9 +75,10 @@ use strict;
 # Object preamble - inherits from Bio::Root::Root
 
 use Bio::Root::Root;
+use Bio::Tree::TreeFunctionsI;
 use Bio::Tree::TreeI;
 
-@ISA = qw(Bio::Root::Root Bio::Tree::TreeI );
+@ISA = qw(Bio::Root::Root Bio::Tree::TreeI Bio::Tree::TreeFunctionsI   );
 
 =head2 new
 
@@ -216,5 +217,6 @@ sub total_branch_length {
 
 
 =cut
+
 
 1;
