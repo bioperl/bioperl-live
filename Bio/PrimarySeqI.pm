@@ -969,6 +969,28 @@ sub GCG_checksum {
     return ($checksum % 10000);
 }
 
+=head2 desc
+
+ Title   : desc
+ Usage   : $obj->desc($newval)
+ Function: 
+ Example : 
+ Returns : value of desc
+ Args    : newvalue (optional)
+
+
+=cut
+
+sub desc {
+   my ($self,$value) = @_;
+   if( $self->can('warn') ) {
+       $self->warn("Bio::PrimarySeqI definition of desc - implementing class did not provide this method");
+   } else {
+       warn("Bio::PrimarySeqI definition of desc - implementing class did not provide this method");
+   }
+   return '';
+}
+
 =head1 Private functions
 
 These are some private functions for the PrimarySeqI interface. You do not
