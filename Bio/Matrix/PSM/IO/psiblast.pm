@@ -45,7 +45,6 @@ Email tex@biosysadmin.com
 
 # Let the code begin...
 package Bio::Matrix::PSM::IO::psiblast;
-use lib '/usr/local/bioperl/core/';
 use Bio::Matrix::PSM::Psm;
 use Bio::Matrix::PSM::IO;
 use Bio::Matrix::PSM::ProtMatrix;
@@ -94,7 +93,7 @@ sub new {
  Usage   : my $psm = $psmIO->next_psm();
  Function: Reads the next PSM from the input file, associated with this object
  Throws  : None
- Returns : Bio::Matrix::PSM::Psm object
+ Returns : Bio::Matrix::PSM::ProtPsm object
  Args    : none
 
 =cut

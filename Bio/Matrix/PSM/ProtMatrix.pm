@@ -248,33 +248,36 @@ sub new {
 
 =head2 _calculate_consensus
 
+ Title    : Returns an array (or array reference if desired) to the alphabet 
+ Usage    :
+ Function : Returns an array (or array reference) containing all of the
+            allowable characters for this matrix.
+ Throws   :
+ Example  :
+ Returns  : Array or arrary reference.
+ Args     :
+
+=cut
+
+sub alphabet {
+   my $self = shift;
+   if ( wantarray ) {
+      return $self->{_alphabet};
+   } else {
+      return @{$self->{_alphabet}};
+   }
+}
+=head2 _calculate_consensus
+
  Title    : _calculate_consensus
  Usage    :
- Function : Calculates the consensus sequence for this matrix. (non-functional as of 9/20/04) - jthompson
+ Function : Calculates the consensus sequence for this matrix. 
  Throws   :
  Example  :
  Returns  :
  Args     :
 
 =cut
-
-#sub _calculate_consensus {
-#      my $self   = shift;
-#      my $thresh = shift;
-#      
-#      # verify that all of the array lengths in %probs are the same
-#      my @lengths = map { scalar(@$_) } values %{$self->{_probs}};
-#      my $len = shift @lengths;
-#      for ( @lengths ) {
-#         if ( $_ ne $len ) { $self->throw( "Probability matrix is damaged!\n" ) };
-#      }
-#
-#      for (my $i=0; $i<$len+1; $i++) {
-#        (${$self->{IUPAC}}[$i],${$self->{IUPACp}}[$i])=_to_IUPAC(${$self->{probA}}[$i],${$self->{probC}}[$i],${$self->{probG}}[$i],${$self->{probT}}[$i],$thresh);
-#        (${$self->{seq}}[$i],${$self->{seqp}}[$i])=_to_cons(${$self->{probA}}[$i],${$self->{probC}}[$i],${$self->{probG}}[$i],${$self->{probT}}[$i],$thresh);
-#      }
-#      return $self;
-#}
 
 sub _calculate_consensus {
    my $self   = shift;
