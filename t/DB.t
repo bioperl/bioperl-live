@@ -84,7 +84,7 @@ if ($@) {
 $seq = $seqio = undef;
 
 eval { 
-    ok defined($gb = new Bio::DB::GenPept(-verbose=>$verbose)); 
+    ok defined($gb = new Bio::DB::GenPept('-verbose'=>$verbose)); 
     ok( defined($seq = $gb->get_Seq_by_id('195055')));
     ok( $seq->length, 136); 
     $seq = $gb->get_Seq_by_acc('AAC06201');
@@ -105,11 +105,11 @@ if ($@) {
 $seq  = $seqio = undef;
 
 eval { 
-    ok defined($gb = new Bio::DB::SwissProt(-verbose=>$verbose)); 
+    ok defined($gb = new Bio::DB::SwissProt('-verbose'=>$verbose)); 
     ok(defined($seq = $gb->get_Seq_by_acc('P43780')));
     ok( $seq->length, 103); 
-    ok( defined($gb = new Bio::DB::SwissProt(-verbose=>$verbose, 
-					     -retrievaltype => 'tempfile')));
+    ok( defined($gb = new Bio::DB::SwissProt('-verbose'=>$verbose, 
+					     '-retrievaltype' => 'tempfile')));
     ok(defined($seqio = $gb->get_Stream_by_id(['KPY1_ECOLI'])));
     undef $gb; # testing to see if we can remove gb
     ok( defined($seq = $seqio->next_seq()));
@@ -126,9 +126,9 @@ $seq = undef;
 
 # test the temporary file creation and fasta
 eval {
-    ok defined ( $gb = new Bio::DB::GenBank(-verbose=>$verbose,
-					    -format => 'fasta',
-					    -retrievaltype => 'tempfile') );
+    ok defined ( $gb = new Bio::DB::GenBank('-verbose' =>$verbose,
+					    '-format' => 'fasta',
+					    '-retrievaltype' => 'tempfile') );
     ok( defined ($seq = $gb->get_Seq_by_id('MUSIGHBA1')));
     ok($seq->length, 408); 
     $seq = $gb->get_Seq_by_acc('AF303112');
