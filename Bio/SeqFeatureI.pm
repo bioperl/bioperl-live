@@ -53,8 +53,8 @@ User feedback is an integral part of the evolution of this and other
 Bioperl modules. Send your comments and suggestions preferably to one
 of the Bioperl mailing lists.  Your participation is much appreciated.
 
-  bioperl-l@bioperl.org          - General discussion
-  http://bio.perl.org/MailList.html             - About the mailing lists
+  bioperl-l@bioperl.org                     - General discussion
+  http://bio.perl.org/MailList.html         - About the mailing lists
 
 =head2 Reporting Bugs
 
@@ -217,19 +217,20 @@ sub get_all_tags{
            Bio::Seq object is for the *entire* sequence: ie
            from 1 to 10000
 
-           Note that it is not guaranteed that if you obtain a feature from
-           an object in bioperl, it will have a sequence attached. Also,
-           implementors of this interface can choose to provide an empty
-           implementation of this method. I.e., there is also no guarantee 
-           that if you do attach a sequence, seq() or entire_seq() will not
-           return undef.
+           Note that it is not guaranteed that if you obtain a feature
+           from an object in bioperl, it will have a sequence
+           attached. Also, implementors of this interface can choose
+           to provide an empty implementation of this method. I.e.,
+           there is also no guarantee that if you do attach a
+           sequence, seq() or entire_seq() will not return undef.
 
-           The reason that this method is here on the interface is to enable
-           you to call it on every SeqFeatureI compliant object, and
-           that it will be implemented in a useful way and set to a useful 
-           value for the great majority of use cases. Implementors who choose
-           to ignore the call are encouraged to specifically state this in
-           their documentation.
+           The reason that this method is here on the interface is to
+           enable you to call it on every SeqFeatureI compliant
+           object, and that it will be implemented in a useful way and
+           set to a useful value for the great majority of use
+           cases. Implementors who choose to ignore the call are
+           encouraged to specifically state this in their
+           documentation.
 
  Example :
  Returns : TRUE on success
@@ -399,24 +400,27 @@ but can be validly overwritten by subclasses
             $seq = $feature_with_remote_locations->spliced_seq($db_for_seqs)
 
   Function: Provides a sequence of the feature which is the most
-            semantically "relevant" feature for this sequence. A default
-            implementation is provided which for simple cases returns just
-            the sequence, but for split cases, loops over the split location
-            to return the sequence. In the case of split locations with
-            remote locations, eg
+            semantically "relevant" feature for this sequence. A
+            default implementation is provided which for simple cases
+            returns just the sequence, but for split cases, loops over
+            the split location to return the sequence. In the case of
+            split locations with remote locations, eg
 
             join(AB000123:5567-5589,80..1144)
 
-            in the case when a database object is passed in, it will attempt
-            to retrieve the sequence from the database object, and "Do the right thing",
-            however if no database object is provided, it will generate the correct
-            number of N's (DNA) or X's (protein, though this is unlikely).
+            in the case when a database object is passed in, it will
+            attempt to retrieve the sequence from the database object,
+            and "Do the right thing", however if no database object is
+            provided, it will generate the correct number of N's (DNA)
+            or X's (protein, though this is unlikely).
 
-            This function is deliberately "magical" attempting to second guess
-            what a user wants as "the" sequence for this feature
+            This function is deliberately "magical" attempting to
+            second guess what a user wants as "the" sequence for this
+            feature
 
-            Implementing classes are free to override this method with their
-            own magic if they have a better idea what the user wants
+            Implementing classes are free to override this method with
+            their own magic if they have a better idea what the user
+            wants
 
   Args    : [optional] A Bio::DB::RandomAccessI compliant object
   Returns : A Bio::Seq
@@ -441,15 +445,17 @@ sub spliced_seq {
     # so we are really sorting features 5' -> 3' on their strand
     # i.e. rev strand features will be sorted largest to smallest
     # as this how revcom CDSes seem to be annotated in genbank.
-    # Might need to eventually allow this to be programable?    
+    # Might need to eventually allow this to be programable?
     # (can I mention how much fun this is NOT! --jason)
-    
+
     my ($mixed,$fstrand) = (0);
     if( $self->isa('Bio::Das::SegmentI') &&
 	! $self->absolute ) { 
-	$self->warn("Calling spliced_seq with a Bio::Das::SegmentI which does have absolute set to 1 -- be warned you may not be getting things on the correct strand");
+	$self->warn("Calling spliced_seq with a Bio::Das::SegmentI ".
+                    "which does have absolute set to 1 -- be warned ".
+                    "you may not be getting things on the correct strand");
     }
-    
+
     my @locs = map { $_->[0] }
     # sort so that most negative is first basically to order
     # the features on the opposite strand 5'->3' on their strand
@@ -459,11 +465,12 @@ sub spliced_seq {
     map { 
 	$fstrand = $_->strand unless defined $fstrand;
 	$mixed = 1 if defined $_->strand && $fstrand != $_->strand;
-	[ $_, $_->start* ($_->strand || 1)];	    
+	[ $_, $_->start* ($_->strand || 1)];
     } $self->location->each_Location; 
-    
+
     if ( $mixed ) { 
-	$self->warn("Mixed strand locations, spliced seq using the input order rather than trying to sort");    
+	$self->warn("Mixed strand locations, spliced seq using the input ".
+                    "order rather than trying to sort");
 	@locs = $self->location->each_Location; 
     }
 
@@ -485,7 +492,9 @@ sub spliced_seq {
 		    $called_seq = $db->get_Seq_by_acc($sid);
 		};
 		if( $@ ) {
-		    $self->warn("In attempting to join a remote location, sequence $sid was not in database. Will provide padding N's. Full exception \n\n$@");
+		    $self->warn("In attempting to join a remote location, ".
+                                "sequence $sid was not in database. Will ".
+                                "provide padding N's. Full exception \n\n$@");
 		    $called_seq = undef;
 		}
 	    } else {
@@ -500,7 +509,7 @@ sub spliced_seq {
 	}
 	
 	if( $self->isa('Bio::Das::SegmentI') ) {
-	    my ($s,$e) = ($loc->start,$loc->end);	    
+	    my ($s,$e) = ($loc->start,$loc->end);
 	    $seqstr .= $called_seq->subseq($s,$e)->seq();
 	} else { 
 	    # This is dumb subseq should work on locations...
@@ -513,7 +522,7 @@ sub spliced_seq {
     }
     my $out = Bio::Seq->new( -id => $self->entire_seq->display_id . "_spliced_feat",
 				      -seq => $seqstr);
-    
+
     return $out;
 }
 
