@@ -486,7 +486,6 @@ FEATURES             Location/Qualifiers
   <section id="location">
     <title>Location Objects</title>
     <para>
-<!-- link to modules -->
       There's quite a bit to this idea of location, so much that it
       probably deserves its own HOWTO. This is my way of saying that
       if this topic interests you should take a closer look at the modules that
@@ -667,6 +666,15 @@ tagname : date_changed
       </programlisting>
     </para>
     <para>
+      And if you'd simply like all of the Annotations, regardless of
+      key, you can do this:
+    </para>
+    <para>
+      <programlisting>
+	my @annotations = $anno_collection->get_Annotations();
+      </programlisting>
+    </para>
+    <para>
       The following is a list of some of the common Annotations, their
       keys in Bioperl, and what they're derived from in Genbank files: 
     </para>
@@ -691,7 +699,6 @@ tagname : date_changed
 	</tbody>
       </tgroup>
     </table>
-<!-- need list of all object types -->
     <para>
       Some Annotation objects, like Reference, make use of a
       <function>hash_tree()</function> method, which returns a hash 
@@ -752,8 +759,10 @@ start: 1
       </programlisting>
     </para>
     <para>
-      There's also title(), publisher(), medline(), editors(),
-      database(), pubmed() and a number of other methods.
+      There's also <function>title()</function>, <function>publisher()</function>, 
+      <function>medline()</function>, <function>editors()</function>,
+      <function>database()</function>, <function>pubmed()</function> 
+      and a number of other methods.
     </para>
   </section>
 
