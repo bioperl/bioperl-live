@@ -49,6 +49,9 @@ Contents
 	 indexed fasta file but I keep seeing ">> MSG: Did not provide a
 	 valid Bio::PrimarySeqI object" when I call fetch() followed by
 	 SeqIO::write_seq(). Why?
+   Q2.6: I'm using Bio::DB::GenBank to query Genbank and I'm certain that
+	 the id is there but I'm seeing the error "WebDBSeqI Error - check
+	 query sequences".
 
 3. Report parsing
 
@@ -64,6 +67,8 @@ Contents
    Q3.6: How do I tell BLAST to search multiple database using
 	 Bio::Tools::Run::StandAloneBlast?
    Q3.7: Does SearchIO parse the HTML output file that BLAST can create?
+   Q3.8: Can I get domain number from hmmpfam or hmmsearch output? E.g.
+	 SH2_5: domain 2 of 2, from 349 to 432: score 104.4, E = 1.9e-26
 
 4. Utilities
 
@@ -411,6 +416,15 @@ Contents
 	   $inx = Bio::DB::Fasta->new($fastaname,-makeid =>\&get_id);
 
 
+   Q2.6: I'm using Bio::DB::GenBank to query Genbank and I'm certain that
+	 the id is there but I'm seeing the error "WebDBSeqI Error - check
+	 query sequences".
+
+      A: This bug in versions 1.2 and 1.2.1, but it is fixed in 1.2.2.
+	 Either upgrade to 1.2.2 or edit Bio/DB/GenBank.pm and change
+	 'protein' to 'nucleotide' in the BEGIN block.
+
+
 ---------------------------------------------------------------------------
 
 3. Report parsing
@@ -425,10 +439,10 @@ Contents
 	 1.1. There are other Blast parsing modules in the package but they
 	 remain just to support older code.
 
-	 SearchIO supports BLAST and fasta report parsing.  The bptutorial
-	 provides an example of how to use this system as well as the
-	 documentation in the Bio::SearchIO system. There is also a
-	 SearchIO HOWTO.
+	 SearchIO supports BLAST, PSIBLAST, HMMER, WABA, and fasta report
+	 parsing.  The bptutorial provides an example of how to use this
+	 system as well as the documentation in the Bio::SearchIO system.
+	 There is also a SearchIO HOWTO.
 
 
    Q3.2: What was wrong with Bio::Tools::Blast?
@@ -532,8 +546,25 @@ Contents
 	   return $hs->parse($self->SUPER::_readline(@args));
 	 }
 	 
-	 $io = new Bio::SearchIO -file => "etc", -format => "blast";
+	 $io = new Bio::SearchIO(-file => "etc.bls", -format => "blast");
 	 # etc ...
+
+
+   Q3.8: Can I get domain number from hmmpfam or hmmsearch output? E.g.
+	 SH2_5: domain 2 of 2, from 349 to 432: score 104.4, E = 1.9e-26
+
+      A: Not directly but you can compute it since the domains are numbered
+	 by their order on the protein:
+
+	 
+	 my @domains = $hit->domains;
+	 my $domainnum = 1;
+	 my $total = scalar @domains;
+	 foreach my $domain ( sort { $a->start <=> $b->start }
+	 $hit->domains ) {
+	    print "domain $domainnum of $total,\n";
+	    $domainnum++;
+	 }
 
 
 ---------------------------------------------------------------------------

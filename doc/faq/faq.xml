@@ -202,7 +202,15 @@ The same issue arises when you use Bio::DB::Fasta, but in that case the code mig
 </code>	 
          </answer>
       </q>
-   </section>
+<q id="6">   
+<question>
+<p>I'm using Bio::DB::GenBank to query Genbank and I'm certain that the id is there but I'm seeing the error "WebDBSeqI Error - check query sequences".</p>
+</question>
+<answer>
+<p>This bug in versions 1.2 and 1.2.1, but it is fixed in 1.2.2. Either upgrade to 1.2.2 or edit Bio/DB/GenBank.pm and change 'protein' to 'nucleotide' in the BEGIN block.</p>
+</answer>
+</q>
+</section>
    <section id="3">
       <section_name>Report parsing</section_name>
       <q id="1">
@@ -294,6 +302,25 @@ $io = new Bio::SearchIO(-file => "etc.bls", -format => "blast");
 </code>
 </answer>
 </q>
+      <q id="8">
+         <question><p>Can I get domain number from hmmpfam or hmmsearch output? E.g.</p>
+<code>
+SH2_5: domain 2 of 2, from 349 to 432: score 104.4, E = 1.9e-26
+</code>
+</question>
+         <answer>
+            <p>Not directly but you can compute it since the domains are numbered by their order on the protein:</p>
+<code>
+my @domains = $hit->domains;
+my $domainnum = 1;
+my $total = scalar @domains;
+foreach my $domain ( sort { $a-&gt;start &lt;=&gt; $b-&gt;start } $hit-&gt;domains ) {
+   print "domain $domainnum of $total,\n";
+   $domainnum++;
+}
+</code>
+          </answer>
+      </q>
    </section>
    <section id="4">
       <section_name>Utilities</section_name>
