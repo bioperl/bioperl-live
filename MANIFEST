@@ -75,6 +75,7 @@ Bio/DB/Flat/BDB/fasta.pm
 Bio/DB/Flat/OBDAIndex.pm
 Bio/DB/GDB.pm
 Bio/DB/GFF.pm
+Bio/DB/GFF/Adaptor/biofetch.pm
 Bio/DB/GFF/Adaptor/dbi.pm
 Bio/DB/GFF/Adaptor/dbi/caching_handle.pm
 Bio/DB/GFF/Adaptor/dbi/iterator.pm
@@ -146,6 +147,7 @@ Bio/Graphics/Glyph/extending_arrow.pm
 Bio/Graphics/Glyph/generic.pm
 Bio/Graphics/Glyph/graded_segments.pm
 Bio/Graphics/Glyph/group.pm
+Bio/Graphics/Glyph/heterogeneous_segments.pm
 Bio/Graphics/Glyph/line.pm
 Bio/Graphics/Glyph/oval.pm
 Bio/Graphics/Glyph/pinsertion.pm
@@ -619,6 +621,7 @@ t/DBFasta.t
 t/DNAMutation.t
 t/EMBL_DB.t
 t/EMBOSS.t
+t/Exception.t
 t/GDB.t
 t/GFF.t
 t/Genpred.t
@@ -696,8 +699,11 @@ t/data/amino.fa
 t/data/ar.embl
 t/data/biodbgff/test.gff
 t/data/biographics/feature_data.txt
+t/data/biographics/t1.gif
 t/data/biographics/t1.png
+t/data/biographics/t2.gif
 t/data/biographics/t2.png
+t/data/biographics/t3.gif
 t/data/biographics/t3.png
 t/data/bl2seq.bug940.out
 t/data/bl2seq.out
@@ -829,7 +835,6 @@ t/data/testfuzzy.genbank
 t/data/version2.scf
 t/data/version3.scf
 t/ePCR.t
-t/exception.t
 t/flat.t
 t/game.t
 t/hmmer.t
@@ -844,3 +849,4 @@ t/scf.t
 t/seqwithquality.t
 t/testformats.pl
 t/trim.t
+testfasta.pl
