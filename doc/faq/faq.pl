@@ -8,25 +8,18 @@
 # Modified for Bioperl FAQ by Heikki Lehvaslaiho
 
 use strict;
-use XML::Twig;
+use XML::Twig 3.0;
 use Text::Wrap;
 use Getopt::Long;
-use HTML::Entities;
 
 my $text = '';
 my $html = '';
-my $silent = ''; # see the debugging output
-GetOptions('text' => \$text, 'html' => \$html, 'debug' => \$silent);
-$text || $html || die "Usage: faq.pl (-t[ext] | -h[tml) <xml_file>";
-if ($silent) {
-  $text = '';
-  $silent = '';
-}
-$html and $text = ''; #preference for HTML output
+GetOptions('text' => \$text, 'html' => \$html);
+$text || $html || die "Usage: faq.pl [-text|-html] <xml_file>";
 
-my $file= shift || die "Usage faq.pl (-t[ext] | -h[tml) <xml_file>";
+my $file= shift || die "usage [-text|-html] faq.pl <xml_file>";
 
-# those 2 globals are grabbed from the xml header and used to
+# those 2 globals are grabed from the xml header and used to
 # generate the html header
 my $G_TITLE;   # title
 my $G_VERSION; # version
@@ -35,7 +28,6 @@ my $SNB = -1;     # section index
 my $QNB =  0;     # question index
 
 # text mode globals
-my $INDENT = 7;
 my $SEP = "-" x 75;
 $SEP .= "\n";
 my @QA;
@@ -77,11 +69,12 @@ my $title= new XML::Twig::Elt( 'title', "$G_TITLE - version $G_VERSION");
 my $html_header= new XML::Twig::Elt( 'header', $title);
 
 $html_header->paste( $faq);
+
 $faq->print if $html;
 
 if ($text) {
     foreach (@QA) {
-	print decode_entities($_);
+	print;
     }
     print "\n";
 }
@@ -120,7 +113,7 @@ sub header {
 	print "This FAQ maintained by:\n";
 
 	foreach my $author( @author) {
-	    print "* ", decode_entities($author->text), "\n";
+	    print "* ", $author->text, "\n";
 	}
 	print "\n";
     }
@@ -151,7 +144,7 @@ sub section  {
     if ($text) {
 	print "\n$SEP\n", ucfirst($section->gi), "\n\n$SEP", ;
 	foreach my $para ($section->children) {
-	    print "\n\n", wrap("        ", "        ", decode_entities($para->text). "\n");
+	    print "\n\n", wrap("        ", "        ", $para->text. "\n");
 	}
 
     }
@@ -185,7 +178,7 @@ sub block {
     $SNB++;
     my $target= "$SNB";
 
-    my $blocktext = decode_entities($block->text);
+    my $blocktext = $block->text;
 
     my $section=  new XML::Twig::Elt( 'h2', "$target. $blocktext" );
     $section->paste( 'after', $hr);
@@ -224,9 +217,9 @@ sub block {
 
     if ($text) {
 	push @QA, "\n\n", $SEP;
-	push @QA, "\n", decode_entities($section->text), "\n\n";
+	push @QA, "\n", $section->text, "\n\n";
 	push @QA, $SEP, "\n";
-	print "\n",decode_entities($section->text), "\n\n";
+	print "\n",$section->text, "\n\n";
     }
 
     # reset question counter for this section
@@ -245,8 +238,8 @@ sub question {
     my $hr= new XML::Twig::Elt( 'p');
     $hr->paste( 'before', $question);
 
-    # store the original text for headers
-    my $question_text = decode_entities($question->text);
+    # store teh original text for headers
+    my $question_text = $question->text;
 
     # add the question number
     $QNB++;
@@ -264,7 +257,7 @@ sub question {
 	my $q= $question->parent->parent;
         $TOC= new XML::Twig::Elt( 'ul');
         $TOC->paste( 'before', $q);
-        my $toc_title=  new XML::Twig::Elt( 'h3', 'Contents');
+        my $toc_title=  new XML::Twig::Elt( 'h3', 'Content');
         $toc_title->paste( 'before', $TOC);
 	my $hr= new XML::Twig::Elt ( 'hr');
 	$hr->paste( 'before', $toc_title);
@@ -275,9 +268,8 @@ sub question {
 
     if ($text) {
 
-	my $indent_length = $INDENT - length($target);
-	push @QA, "\n\n", wrap(" " x $indent_length, " " x ($INDENT+2), decode_entities($question->text). "\n");
-	print wrap(" " x $indent_length, " " x ($INDENT+2), decode_entities($question->text). "\n");
+	push @QA, "\n\n", wrap("  ", "        ", $question->text. "\n");
+	print wrap("  ", "        ", $question->text. "\n");
     }
 
     $question->set_gi( 'h3');
@@ -286,42 +278,20 @@ sub question {
 sub answer { 
     my( $t, $answer)= @_;
 
-
-    # add an A for an answer
-    my $a_string = "A: ";
-    my $a= new XML::Twig::Elt( 'b', $a_string);
-
-    my $first_child= $answer->first_child;
-    if( $first_child->gi eq 'p') {
-	$a->paste( $first_child);
-    } else {
-	$a->paste( $answer);
-    }
-
     if ($text) {
-	my $indent_length = $INDENT - length($a_string) + 2;
 	if ($answer->first_child && $answer->first_child->gi eq 'p') {
-	    my @answers = $answer->children;
-	    #first paragraph
-	    my $first_answer = shift @answers;
-	    push @QA, "\n", wrap(" " x $indent_length, " " x ($INDENT+2),
-				     decode_entities($first_answer->text). "\n");
-	    foreach my $para (@answers) {
-		push @QA, "\n", wrap(" " x ($INDENT+2), " " x ($INDENT+2),
-				     decode_entities($para->text). "\n");
-#		push @QA, "\n", wrap("        ", "        ",
-#				     $para->text. "\n");
+	    foreach my $para ($answer->children) {
+		push @QA, "\n", wrap("        ", "        ", $para->text. "\n");
 	    }
 	} else {
-	    push @QA, "\n", wrap(" " x $indent_length, " " x ($INDENT+2),
-				 decode_entities($answer->text). "\n");
-#	    push @QA, "\n", wrap("      ", "         ", $answer->text. "\n");
+	    push @QA, "\n", wrap("        ", "        ", $answer->text. "\n");
 	}
     }
 
-    # replace the answer tag by a 'p'
+
+    # replace the answer by a 'p'$answer->first_child
     # unless the first child is already a 'p'
-    # and add the A into appropriate place
+    my $first_child= $answer->first_child;
     if( $first_child->gi eq 'p') {
 	$answer->erase;
     } else {
@@ -331,19 +301,20 @@ sub answer {
 
 sub code {
     my( $t, $code)= @_;
-#    my $table = new XML::Twig::Elt( 'table');
-#    $table->set_att( bgcolor => "light grey", border => 0, cellspacing => 0, cellpadding => 10);
-#    my $tr = new XML::Twig::Elt( 'tr');
-#    $tr->paste($table);
-#    my $td = new XML::Twig::Elt( 'td');
-#    $td->paste($tr);
-#    my $font = new XML::Twig::Elt( 'font');
-#    $font->set_att(color => "blue");
-#    $font->paste($td);
-#    $table->paste('before', $code);
-#    $code->move($font);
+    my $table = new XML::Twig::Elt( 'table');
+    $table->set_att( bgcolor => "light grey", border => 0, cellspacing => 0, cellpadding => 10);
+    my $tr = new XML::Twig::Elt( 'tr');
+    $tr->paste($table);
+    my $td = new XML::Twig::Elt( 'td');
+    $td->paste($tr);
+    my $font = new XML::Twig::Elt( 'font');
+    $font->set_att(color => "blue");
+    $font->paste($td);
+    $table->paste('before', $code);
+    $code->move($font);
 
     $code->set_gi( 'pre');
+
 }
 
 
@@ -351,7 +322,7 @@ sub copyright {
     my( $t, $copyright)= @_;
 
     if ($text) {
-	push @QA, "\n$SEP", wrap("", "", decode_entities($copyright->text). "\n");
+	push @QA, "\n$SEP", wrap("", "", $copyright->text. "\n");
     }
 
     # add an <hr />
@@ -368,3 +339,4 @@ sub generate_toc_entry {
     my $entry= parse XML::Twig::Elt(  "<li><a href=\"#$target\">$text</a></li>");
     $entry->paste( 'last_child', $TOC_HEADER);
 }
+
