@@ -29,10 +29,14 @@ BEGIN {
     $NUMTESTS = 14;
     plan tests => $NUMTESTS;
 
-    unless( eval "require GD; 1;" ) {
-      for( $Test::ntest..$NUMTESTS ) {
-	skip("GD module not installed. This means that Bio::Graphics module is unusable. Skipping tests.",1);
-      }
+    eval { 
+	require GD; 
+	require Text::Shellwords; 
+	require Bio::Graphics::FeatureFile;
+	require Bio::Graphics;
+    };
+    if( $@ ) {
+	print STDERR "GD or Text::Shellwords modules are not installed. This means that Bio::Graphics module is unusable. Skipping tests.\n";
       $error = 1;
     }
 }
@@ -44,9 +48,6 @@ END {
 	skip('unable to run all of the Bio::Graphics tests',1);
     }
 }
-
-use Bio::Graphics::FeatureFile;
-use Bio::Graphics;
 
 my $verbose = -1;
 my $write   = 0;
