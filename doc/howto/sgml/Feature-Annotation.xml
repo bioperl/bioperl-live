@@ -16,7 +16,8 @@
       <surname>Osborne</surname>
       <affiliation>
 		  <orgname>
-			 <ulink url="http://www.cognia.com"><citetitle>Cognia Corporation</citetitle></ulink>
+			 <ulink url="http://www.cognia.com">
+				<citetitle>Cognia Corporation</citetitle></ulink>
 		  </orgname>
 		  <address>
 			 <email>brian_osborne-at-cognia.com</email>
@@ -166,7 +167,7 @@
 	my $seq_object = $seqio_object->next_seq;
       </programlisting>
     </para>
-
+	 <para></para>
     <note>
       <para>
 	This object, $seq_object, is actually a 
@@ -226,15 +227,51 @@ FEATURES             Location/Qualifiers
     </para>
     <para>
       Features in Bioperl are accessed using their tags, either a
-      "primary tag" or a plain "tag". Examples of primary tags in this 
-      text are "source", "gene", and "CDS". Plain tags in this table include
-      "organism" (<emphasis>/organism="Homo sapiens"</emphasis>), "note" 
-	(<emphasis>/note="ND"</emphasis>), 
-      "db_xref" (<emphasis>/db_xref="taxon:9606"</emphasis>), and "translation"
-      (<emphasis>/translation="MRKHVL...HCEECNS"</emphasis>).
-    </para>
+      "primary tag" or a plain "tag". Examples of primary tags and
+      tags in this Genbank entry are shown below. You can see that
+		in this case the primary tag is a means to access the tags
+		and it's the tags that are associated with the data from 
+		the file.
+	 </para>
+	 <para></para>
     <para>
-      When a Genbank file like this is parsed the
+      <table>
+		  <title>Tag Examples</title>
+		  <tgroup cols="3">
+			 <thead>
+				<row><entry>Tag name</entry><entry>Tag type</entry>
+				<entry>Tag value</entry></row>  
+			 </thead>
+			 <tbody>
+				<row>
+				  <entry>source</entry><entry>primary tag</entry><entry></entry>
+				</row>
+				<row>
+				  <entry>CDS</entry><entry>primary tag</entry><entry></entry>
+				</row>
+				<row>
+				  <entry>gene</entry><entry>primary tag</entry><entry></entry>
+				</row>
+				<row>
+				  <entry>organism</entry><entry>tag</entry><entry>Homo sapiens</entry>
+				</row>
+				<row>
+				  <entry>note</entry><entry>tag</entry><entry>ND</entry>
+				</row>
+				<row>
+				  <entry>protein_id</entry><entry>tag</entry><entry>NP_000257.1</entry>
+				</row>
+				<row>
+				  <entry>translation</entry><entry>tag</entry><entry>MRKHVL...HCEECNS</entry>
+				</row>
+			 </tbody>
+		  </tgroup>
+      </table>
+    </para>
+	 
+
+    <para>
+      When a Genbank file like the one above is parsed the
       feature data is converted into objects, specifically 
       <ulink
 	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqFeature/Generic.html"><citetitle>Bio::SeqFeature::Generic</citetitle></ulink> objects. How many? In this 
@@ -256,12 +293,12 @@ FEATURES             Location/Qualifiers
     </para>
     <tip>
       <para>
-	By the way, how does one know what kind of object one has in hand? Try
-	something like:
-	<programlisting>
+		  By the way, how does one know what kind of object one has in hand? Try
+		  something like:
+		  <programlisting>
 	  print ref($seq_object);
 	  # results in "Bio::Seq::RichSeq"
-	</programlisting>
+		  </programlisting>
       </para>
     </tip>
     <para>
@@ -272,18 +309,19 @@ FEATURES             Location/Qualifiers
       way to access all the data in the features of a Seq object would
       look something like this: 
       <programlisting>
-	foreach my $feat_object ($seq_object->get_SeqFeatures) {
+	for my $feat_object ($seq_object->get_SeqFeatures) {
 	   print "primary tag: ", $feat_object->primary_tag, "\n";
-	   foreach my $tag ($feat_object->get_all_tags) {
+	   for my $tag ($feat_object->get_all_tags) {
 	      print "  tag: ", $tag, "\n";
-	      foreach my $value ($feat_object->get_tag_values($tag)) {
+	      for my $value ($feat_object->get_tag_values($tag)) {
 	         print "    value: ", $value, "\n";
 	      }
 	   }
 	}
       </programlisting>
     </para>
-    <para>
+	 <para></para>
+	 <para>
       This bit would print out something like:
       <programlisting>
 primary tag: source
@@ -325,7 +363,7 @@ primary tag: CDS
     </para>
     <para>
     <programlisting>
-      foreach my $feat_object ($seq_object->get_SeqFeatures) {
+      for my $feat_object ($seq_object->get_SeqFeatures) {
          push @ids,$feat_object->get_tag_values("db_xref") 
               if ($feat_object->has_tag("db_xref"));
       }
@@ -334,7 +372,7 @@ primary tag: CDS
     <para>
     </para>
     <important><para>
-      Make sure to include that "if ($feat_object->has_tag("&lt;tag&gt;"))"
+      Make sure to include that <emphasis>if ($feat_object->has_tag("&lt;tag&gt;"))</emphasis>
       part, otherwise you'll get errors when the feature does not
       have the tag you're requesting.
     </para></important>
@@ -351,7 +389,7 @@ primary tag: CDS
       Genbank, EMBL, and DDBJ feature tags.
     </para>
     <para>
-      Despite this specification some non-standard feature descriptors 
+      Despite this specification some non-standard feature tags
       have crept into Genbank, like "bond". When the Bioperl Genbank 
       parser encounters a non-standard
       feature like this it's going to throw a fatal exception. The 
@@ -376,8 +414,8 @@ primary tag: CDS
     <title>Getting Sequences</title>
     <para>
       One commonly asked question is "How do I get the sequence of a
-      SeqFeature?" The answer is "it depends on what you're looking
-      for". If you'd like the sequence of the parent, the sequence
+      SeqFeature?" The answer is "It depends on what you're looking
+      for." If you'd like the sequence of the parent, the sequence
       object that the SeqFeature is associated with, then use 
       <function>entire_seq()</function>:
     </para>
@@ -399,6 +437,7 @@ primary tag: CDS
 	my $sequence_string = $feat_object->entire_seq->seq;
       </programlisting>
     </para>
+	 <para></para>
     <para>
       There are 2 other useful methods, <function>seq()</function> and
       <function>spliced_seq()</function>. Consider the following
@@ -422,30 +461,32 @@ FEATURES             Location/Qualifiers
       each sub-sequence, use <function>spliced_seq()</function>. Here
       are the methods and the corresponding example coordinates:
     </para>
+
     <para>
       <table>
-	<title>Sequence retrieval methods</title>
-	<tgroup cols="2">
-	  <thead>
-	    <row><entry>Method</entry><entry>Coordinates</entry></row>  
-	  </thead>
-	  <tbody>
-	    <row>
-	      <entry>entire_seq()</entry><entry>1..177</entry>
-	    </row>
-	    <row>
-	      <entry>seq()</entry><entry>103..157</entry>
-	    </row>
-	    <row>
-	      <entry>spliced_seq()</entry><entry>103..111,121..157</entry>
-	    </row>
-	  </tbody>
-	</tgroup>
+		  <title>Sequence retrieval methods</title>
+		  <tgroup cols="2">
+			 <thead>
+				<row><entry>Method</entry><entry>Coordinates</entry></row>  
+			 </thead>
+			 <tbody>
+				<row>
+				  <entry>entire_seq()</entry><entry>1..177</entry>
+				</row>
+				<row>
+				  <entry>seq()</entry><entry>103..157</entry>
+				</row>
+				<row>
+				  <entry>spliced_seq()</entry><entry>103..111,121..157</entry>
+				</row>
+			 </tbody>
+		  </tgroup>
       </table>
     </para>
+
     <para>
       It's not unusual for a Genbank file to have multiple CDS or gene
-      features (and recall that 'CDS' or 'gene' are common primary tags
+      features (and recall that 'CDS' and 'gene' are common primary tags
       in Genbank format), each with a number of tags, like 'note', 'protein_id',
       or 'product'. How can we get, say, the nucleotide sequences and gene
       names from all these CDS features? By putting all of this together we
@@ -458,13 +499,13 @@ FEATURES             Location/Qualifiers
 	my $seqio_object = Bio::SeqIO->new(-file => $gb_file);
         my $seq_object = $seqio_object->next_seq;
 
-	foreach my $feat_object ($seq_object->get_SeqFeatures) {
+	for my $feat_object ($seq_object->get_SeqFeatures) {
 	  if ($feat_object->primary_tag eq "CDS") {
 	    print $feat_object->spliced_seq->seq,"\n";
 	# e.g. 'ATTATTTTCGCTCGCTTCTCGCGCTTTTTGAGATAAGGTCGCGT...'
 	    if ($feat->has_tag('gene')) {
-	      foreach my $val ($feat->get_tag_values('gene')){
-	      print "gene: ",$val,"\n";
+	      for my $val ($feat->get_tag_values('gene')){
+	        print "gene: ",$val,"\n";
 	# e.g. 'NDP', from a line like '/gene="NDP"'
 	      }
             }
@@ -570,13 +611,13 @@ FEATURES             Location/Qualifiers
     <para>
       <programlisting>
 	# polyA_signal    1811..1815
-         #                 /gene="NDP"
+        #                 /gene="NDP"
 	my $start = $feat_object->location->start;
 	my $end = $feat_object->location->end;
          </programlisting>
     </para>
     <para>
-      By now you know that the <function>location()</function> method returns
+      By now you've figured out that the <function>location()</function> method returns
       a Location object - this object has <function>end()</function> and 
       <function>start()</function> methods.
     </para>
@@ -590,10 +631,10 @@ FEATURES             Location/Qualifiers
     </para>
     <para>
       <programlisting>
-       foreach my $feature ($seqobj->top_SeqFeatures){
+       for my $feature ($seqobj->top_SeqFeatures){
          if ( $feature->location->isa('Bio::Location::SplitLocationI')
                         &amp;&amp; $feature->primary_tag eq 'CDS' )  {
-           foreach my $location ( $feature->location->sub_Location ) {
+           for my $location ( $feature->location->sub_Location ) {
              print $location->start . ".." . $location->end . "\n";
            }
          }
@@ -670,9 +711,9 @@ SOURCE      human.
     </para>
     <para>
       <programlisting>
-	foreach my $key ( $anno_collection->get_all_annotation_keys ) {
+	for my $key ( $anno_collection->get_all_annotation_keys ) {
 	  my @annotations = $anno_collection->get_Annotations($key);
-	  foreach my $value ( @annotations ) {
+	  for my $value ( @annotations ) {
 	    print "tagname : ", $value->tagname, "\n";
 	    # $value is an Bio::Annotation, and has an "as_text" method
 	    print "  annotation value: ", $value->as_text, "\n";
@@ -776,6 +817,7 @@ tagname : date_changed
 	}
       </programlisting>
     </para>
+	 <para></para>
     <para>
       Which yields:
     </para>
@@ -807,6 +849,7 @@ start: 1
       these specialized objects will have specialized methods. Take the 
       Annotation::Reference object, for example:
     </para>
+	 <para></para>
     <para>
       <programlisting>
 	if ($value->tagname eq "reference") {
@@ -814,6 +857,7 @@ start: 1
 	}
       </programlisting>
     </para>
+	 <para></para>
     <para>
       There's also <function>title()</function>, 
       <function>publisher()</function>, 
@@ -949,17 +993,19 @@ MAPLINK: default_human_gene|ADRA1A
 GO: cellular component|integral to plasma membrane|P|GO:0005887|Proteome|8396931
       </programlisting>
     </para>
+	 <para></para>
     <para>
       First collect all the annotations:
     </para>
     <para>
       <programlisting>
-	use Bio::SeqIO;
+use Bio::SeqIO;
 
-	my @annotations = Bio::SeqIO->new(-file => "148.ll", -format => "locuslink")->
+my @annotations = Bio::SeqIO->new(-file => "148.ll", -format => "locuslink")->
 	       next_seq->annotation->get_Annotations;
       </programlisting>
     </para>
+	 <para></para>
     <para>
       And from this array of Annotations let's extract a hash containing 
       the <function>as_text</function> strings as keys and
@@ -967,9 +1013,11 @@ GO: cellular component|integral to plasma membrane|P|GO:0005887|Proteome|8396931
     </para>
     <para>
       <programlisting>
-	my %tagname_type = map {$_->as_text,($_->tagname . " " . ref($_)) } @annotations;
+	my %tagname_type = map {$_->as_text,($_->tagname . " " . ref($_)) } 
+		  @annotations;
       </programlisting>
     </para>
+	 <para></para>
     <para>
       The contents of the <varname>%tagname_type</varname> hash will 
       look like the table below.
@@ -977,14 +1025,14 @@ GO: cellular component|integral to plasma membrane|P|GO:0005887|Proteome|8396931
 
     <para>
       <table>
-	<title>Locuslink Annotations</title>
-	<tgroup cols="3">
-	  <thead>
-	    <row><entry>as_text()</entry><entry>tagname()</entry>
-	      <entry>ref()</entry></row>  
-	  </thead>
-	  <tbody>
-<row><entry>Direct database link to AAA93114 in database GenBank</entry><entry>dblink</entry><entry><ulink
+		  <title>Locuslink Annotations</title>
+		  <tgroup cols="3">
+			 <thead>
+				<row><entry>as_text()</entry><entry>tagname()</entry>
+				  <entry>ref()</entry></row>  
+			 </thead>
+			 <tbody>
+				<row><entry>Direct database link to AAA93114 in database GenBank</entry><entry>dblink</entry><entry><ulink
 	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/DBLink.html"><citetitle>Bio::Annotation::DBLink</citetitle></ulink></entry></row>
 <row><entry>Value:
 	    http://www.ncbi.nlm.nih.gov/UniGene/clust.cgi?ORG=Hs&amp;CID=52931</entry><entry>URL</entry><entry>
@@ -1027,8 +1075,8 @@ GO: cellular component|integral to plasma membrane|P|GO:0005887|Proteome|8396931
 	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/DBLink.html"><citetitle>Bio::Annotation::DBLink</citetitle></ulink></entry></row>
 <row><entry>Direct database link to P35348 in database GenBank</entry><entry>dblink</entry><entry><ulink
 	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/DBLink.html"><citetitle>Bio::Annotation::DBLink</citetitle></ulink></entry></row>
-	  </tbody>
-	</tgroup>
+			 </tbody>
+		  </tgroup>
       </table>
     </para>
     <para>
@@ -1046,9 +1094,11 @@ GO: cellular component|integral to plasma membrane|P|GO:0005887|Proteome|8396931
 	 </para>
     <para>
       <programlisting>
-        @term_annotations = map { $_->isa("Bio::Ontology::TermI"); } $seq_object->get_Annotations();
+           @term_annotations = map { $_->isa("Bio::Ontology::TermI"); } 
+                      $seq_object->get_Annotations();
       </programlisting>
     </para>
+	 <para></para>
     <para>
       To completely parse these sequence formats you may also need to 
       use methods that don't have anything to do with Features or 
@@ -1075,12 +1125,12 @@ GO: cellular component|integral to plasma membrane|P|GO:0005887|Proteome|8396931
       its flexibility. Let's assume we have a sequence that has an
       interesting sub-sequence, going from position 10 to 22.
     </para>
+	 <para></para>
     <para>
       <programlisting>
 	use Bio::SeqFeature::Generic;
 
-	# create the feature and add additional data while initializing, 
-	# an author and a note
+	# create the feature with some data, evidence and a note
 	my $feat = new Bio::SeqFeature::Generic(-start  => 10,
 	                                        -end    => 22,
 					        -strand => 1,
@@ -1088,6 +1138,7 @@ GO: cellular component|integral to plasma membrane|P|GO:0005887|Proteome|8396931
 						            note   => 'TATA box' } );
 	</programlisting>
     </para>
+	 <para></para>
     <para>
       The <ulink
 	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqFeature/Generic.html"><citetitle>SeqFeature::Generic</citetitle></ulink> object offers the user a "tag system" for
@@ -1131,6 +1182,7 @@ GO: cellular component|integral to plasma membrane|P|GO:0005887|Proteome|8396931
 	$seq_obj->add_SeqFeature($feat);
       </programlisting>
     </para>
+	 <para></para>
     <para>
       The <function>add_SeqFeature()</function> method will also accept an array
       of SeqFeature objects.
@@ -1154,6 +1206,7 @@ GO: cellular component|integral to plasma membrane|P|GO:0005887|Proteome|8396931
 	$seq_obj->annotation($coll);
       </programlisting>
     </para>
+	 <para></para>
     <para>
       Now let's examine what we've created by writing the contents of
       <varname>$seq_obj</varname> to a Genbank file called "test.gb":
@@ -1167,6 +1220,7 @@ GO: cellular component|integral to plasma membrane|P|GO:0005887|Proteome|8396931
 	$io->write_seq($seq_obj);
       </programlisting>
     </para>
+	 <para></para>
     <para>
       Voila!
     </para>
