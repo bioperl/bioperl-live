@@ -1365,6 +1365,7 @@ sub setup_argv {
   my $self = shift;
   my $file_or_directory = shift;
   my $suffix = shift;
+  no strict 'refs';  # so that we can call fileno() on the argument
 
   my @argv;
 

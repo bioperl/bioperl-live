@@ -188,10 +188,10 @@ ok("$@" =~ /are on different sequence segments/);
 
 # types across a segment
 $segment1 = $db->segment('Contig1');
-@types = $segment1->types;
+@types = sort $segment1->types;
 ok(scalar @types,6);
-ok($types[0],'exon:confirmed');
-ok($types[-1],'CDS:confirmed');
+ok($types[0],'CDS:confirmed');
+ok($types[-1],'transposon:tc1');
 %types = $segment1->types('-enumerate'=>1);
 ok($types{'similarity:est'},3);
 
