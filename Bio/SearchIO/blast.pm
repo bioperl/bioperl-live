@@ -491,8 +491,9 @@ sub next_result{
 	   $self->element({'Name' => 'Parameters_allowgaps',
 			   'Data' => 'yes'});
 	   while( defined ($_ = $self->_readline ) ) {
-	       if( /^(PSI)?([T]?BLAST[NPX])\s*([\d\.]+)/i ||
-		   /^MEGABLAST/i ) {
+	       if( /^(PSI)?([T]?BLAST[NPX])\s*(.+)$/i ||
+		   /^(RPS-BLAST)\s*(.+)$/i ||
+		   /^(MEGABLAST)\s*(.+)$/i  ) {
 		   $self->_pushback($_);
 		   # let's handle this in the loop
 		   last;
