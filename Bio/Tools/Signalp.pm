@@ -211,7 +211,7 @@ sub create_feature {
     $feature->add_tag_value('evalue',$feat->{anchorProb});
     $feature->add_tag_value('percent_id','NULL');
     $feature->add_tag_value("hid",$feat->{primary});
-    $feature->add_tag_value('SignalpProediction', $feat->{hmmProdiction});
+    $feature->add_tag_value('SignalpPrediction', $feat->{hmmProdiction});
     return $feature; 
 
 }
