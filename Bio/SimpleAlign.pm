@@ -1688,7 +1688,7 @@ sub write_MSF {
     #
     # ok - heavy handed, but there you go.
     #
-    print "\n//\n";
+    print $file "\n//\n";
 
     while( $count < $length ) {
 	
@@ -1724,7 +1724,8 @@ sub write_MSF {
 	    print $file "\n";
 	} # end of each sequence
 
-	print "\n\n";
+	print $file "\n\n"; # added $file HL 08/08/2000; do we really need
+                            # so many newlines?
 
 	$count = $tempcount;
     }				
