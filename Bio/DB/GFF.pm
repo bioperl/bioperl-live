@@ -491,7 +491,7 @@ the components aggregated by the transcript aggregator, you could
 pass it to the GFF constructor this way:
 
   my $transcript = 
-     Bio::DB::Aggregator::transcript->new(-sub_parts=>[qw(exon intron utr
+     Bio::DB::GFF::Aggregator::transcript->new(-sub_parts=>[qw(exon intron utr
                                                           polyA spliced_leader)]);
 
   my $db = Bio::DB::GFF->new(-aggregator=>[$transcript,'clone','alignment],
@@ -607,7 +607,7 @@ The argument -end is a synonum for -stop, and -count is a synonym for
 -enumerate.
 
 =cut
-
+#'
 sub types {
   my $self = shift;
   my ($refseq,$start,$stop,$enumerate,$refclass,$types) = rearrange ([
