@@ -1068,10 +1068,10 @@ sub link_pattern {
   $pattern =~ s/\$(\w+)/
     $1 eq 'ref'           ? $feature->location->seq_id
       : $1 eq 'name'      ? $feature->display_name
-      : $1 eq 'class'     ? $feature->class
-      : $1 eq 'type'      ? $feature->method
-      : $1 eq 'method'    ? $feature->method
-      : $1 eq 'source'    ? $feature->source
+      : $1 eq 'class'     ? eval {$feature->class}  || ''
+      : $1 eq 'type'      ? eval {$feature->method} || $feature->primary_tag
+      : $1 eq 'method'    ? eval {$feature->method} || $feature->primary_tag
+      : $1 eq 'source'    ? eval {$feature->source} || $feature->source_tag
       : $1 eq 'start'     ? $feature->start
       : $1 eq 'end'       ? $feature->end
       : $1 eq 'segstart'  ? $panel->start
