@@ -181,7 +181,7 @@ sub to_string {
     my $reference = $result->algorithm_reference || $self->algorithm_reference($result);
     $reference =~ s/\~/\n/g;
     my $str;
-    if( $num <= 1 ) { 
+    if( ! defined $num || $num <= 1 ) { 
 	$str = $self->start_report($result);
     }
     $str .= sprintf(	    

@@ -309,7 +309,9 @@ sub write_result {
    if( not ref($self->{'_result_writer'}) ) {
        $self->throw("ResultWriter not defined.");
    }
-   my $str = $self->writer->to_string( $result, @args );
+   my $str = $self->writer->to_string( $result, @args || 
+				       $self->{'_notfirsttime'} );
+   $self->{_notfirsttime} = 1;
    # print "Got string: \n$str\n";
    $self->_print( "$str" );
    return 1;
