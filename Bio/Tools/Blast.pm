@@ -1,6 +1,7 @@
-#-------------------------------------------------------------------------------
+#----------------------------------------------------------------------------
 # PACKAGE : Bio::Tools::Blast.pm
-# PURPOSE : To encapsulate code for running, parsing, and analyzing BLAST reports.
+# PURPOSE : To encapsulate code for running, parsing, and analyzing 
+#           BLAST reports.
 # AUTHOR  : Steve A. Chervitz (sac@genome.stanford.edu)
 # CREATED : March 1996
 # REVISION: $Id$
@@ -15,7 +16,7 @@
 # Copyright (c) 1996-98 Steve A. Chervitz. All Rights Reserved.
 #           This module is free software; you can redistribute it and/or 
 #           modify it under the same terms as Perl itself.
-#-------------------------------------------------------------------------------
+#----------------------------------------------------------------------------
 
 package Bio::Tools::Blast;
 
@@ -99,6 +100,9 @@ Full parameters for parsing Blast reports.
 See L<parse>() for a description of parameters and see L<USAGE> for
 more examples including how to parse streams containing multiple Blast reports 
 L<Using the Static $Blast Object>.
+
+See L<Memory Usage Issues> for information about how to make Blast parsing be
+more memory efficient.
 
 
 =head2 Running Blast reports
@@ -641,7 +645,7 @@ that you want to appear at the top of the Blast report.
 =head1 DEMO SCRIPTS
 
 Sample Scripts are included in the central bioperl distribution in the 
-'exxamples/blast/' directory (see L<INSTALLATION>). These are also available 
+'examples/blast/' directory (see L<INSTALLATION>). These are also available 
 at the following URLs (but it would be safer to use the scripts included with 
 the distribution).
 
@@ -652,24 +656,19 @@ the distribution).
 =head2 Parsing Blast reports one at a time.
 
    http://bio.perl.org/Core/Examples/blast/parse_blast.pl
-   http://bio.perl.org/Core/Examples/blast/parse2.pl
+   http://bio.perl.org/Core/Examples/blast/parse_blast2.pl
    http://bio.perl.org/Core/Examples/blast/parse_positions.pl
 
 =head2 Parsing sets of Blast reports.
 
    http://bio.perl.org/Core/Examples/blast/parse_blast.pl
-   http://bio.perl.org/Core/Examples/blast/parse_stream.pl
    http://bio.perl.org/Core/Examples/blast/parse_multi.pl
 
-B<Warning:> Parsing streams containing large numbers of Blast reports
-(a few thousand or so) using parse_stream.pl or parse_multi.pl
-may lead to unacceptable memory usage situations. This 
-is somewhat dependent of the size and complexity of the reports. 
-
+   B<Warning:> See note about L<Memory Usage Issues>.
 
 =head2 Running Blast analyses one at a time.
 
-   http://bio.perl.org/Core/Examples/blast/run.pl
+   http://bio.perl.org/Core/Examples/blast/run_blast_remote.pl
 
 =head2 Running Blast analyses given a set of sequences.
 
@@ -837,46 +836,68 @@ This approach was recently proposed on the Bioperl
 mailing list: http://www.uni-bielefeld.de/mailinglists/BCD/vsns-bcd-perl/9805/0000.html
 
 
+=head2 Memory Usage Issues
+
+Parsing large numbers of Blast reports (a few thousand or so)
+with Bio::Tools::Blast.pm may lead to unacceptable memory usage situations. 
+This is somewhat dependent of the size and complexity of the reports. 
+
+While this problem is under investigation, here are some workarounds 
+that fix the memory usage problem:
+
+=over 4
+
+=item 1 Don't specify a -signif criterion when calling L<parse>().
+
+The C<-signif> value is used for imposing a upper limit to the expect- or 
+P-value for Blast hits to be parsed. For reasons that are still under 
+investigation, specifying a value for C<-signif> in the L<parse>() 
+method prevents Blast objects from being fully
+garbage collected. When using the B<parse_blast.pl> or B<parse_multi.pl> 
+scripts in C<examples/blast/> of the bioperl distribution), don't supply 
+a C<-signif> command-line parameter.
+  
+
+=item 2 If you want to impose a -signif criterion, put it inside a -filt_func.
+
+For the L<parse>() method, a -signif => 1e-5 parameter is equivalent to using 
+a filter function parameter of
+
+ -filt_func => sub { my $hit = shift; return $hit->signif <= 1e-5; }
+
+Using the B<examples/blast/parse_multi.pl> script, you can supply a command-line
+argument of 
+
+ -filt_func '$hit->signif <= 1e-5'
+
+For more information, see L<parse>() and the section 
+L<Screening hits using arbitrary criteria>.
+
+=back
+
 =head1 TODO
 
 =over 4
 
 =item * Develop a functional, prototype Bio::Tools::Blast::Run::LocalBlast.pm module.
 
-=item * Add support for PSI-BLAST
+=item * Add support for PSI-BLAST and PHI-BLAST
 
-=item * Permit Webblast.pm to handle sequence files 
+=item * Parse histogram of expectations and retrieve gif image in Blast report (if present).
 
-as well as Bio::Seq.pm objects
+=item * Further investigate memory leak that occurs when parsing Blast streams whe supplying a -signif parameter to L<parse>().
+
+=item * Access Blast results directly from the NCBI server
+using a Perl interface to the NCBI toolkit or XML formated Blast reports (when available).
 
 =item * Further exploit Bio::UnivAln.pm 
-
 and multiple-sequence alignment programs using HSP sequence data. Some of this may 
 best go into a separate, dedicated module or script as opposed to 
 burdening Blast.pm, Sbjct.pm, and HSP.pm with additional functionality that is not always
 required.
 
-=item * Parse histogram of expectations & retrieve gif image in Blast report (if present).
+=item * Add an example script for parsing Blast reports containing HTML formatting.
 
-=item * Add a method to the Blast object for removing HTML from a Blast report.
-
-Use Bio::Tools::Blast::HTML::strip_html().
-
-=item * Access Blast results directly from the NCBI server
-
-using a Perl interface to the NCBI toolkit (when available).
-
-=item * Enhance the test script 
-
-for use with "make test" during installation.
-
-=item * Explore alternatives to autoloading.
-
-=item * Fix memory leak that occurs when parsing Blast streams.
-
-=item * Enhance performance.
-
-=item * Improve documentation.
 
 =back
 
@@ -983,9 +1004,16 @@ L<References & Information about the BLAST program>.
 =head1 KNOWN BUGS
 
 There is a memory leak that occurs when parsing parsing streams containing 
-large numbers of Blast reports (a few thousand or so).
-The severity of the leak is dependent of the size and complexity of the 
-Blast reports being parsed. 
+large numbers of Blast reports (a few thousand or so) and specifying a -signif 
+parameter to the L<parse>() method. For a workaround, see L<Memory Usage Issues>.
+
+Not sharing statistical parameters between different Blast objects when
+parsing a multi-report stream has not been completely tested and may be
+a little buggy.
+
+Documentation inconsistencies or inaccuracies may exist since this 
+module underwend a fair bit of re-working going from 0.75 to 0.80
+(corresponds to versions 0.04.4 to 0.05 of the bioperl distribution).
 
 =cut
 
@@ -1177,7 +1205,7 @@ sub _run_remote {
     my ($self, %param) = @_;
 
     require Bio::Tools::Blast::Run::Webblast; 
-    import  Bio::Tools::Blast::Run::Webblast qw(&blast_remote);
+    Bio::Tools::Blast::Run::Webblast->import(qw(&blast_remote));
 
     &blast_remote($self, %param);
 }
@@ -1217,7 +1245,7 @@ sub _run_local {
     my ($self, %param) = @_;
     
     require Bio::Tools::Blast::Run::Webblast; 
-    import  Bio::Tools::Blast::Run::Webblast qw(&blast_local);
+    Bio::Tools::Blast::Run::Webblast->import(qw(&blast_local));
 
     &blast_local($self, %param);
 }
@@ -1247,14 +1275,16 @@ sub db_remote {
     $type ||= 'p';
 
     require Bio::Tools::Blast::Run::Webblast; 
-    use Bio::Tools::Blast::Run::Webblast qw(@Blast_dbp_remote
-					    @Blast_dbn_remote);
+    Bio::Tools::Blast::Run::Webblast->import(qw(@Blast_dbp_remote
+						 @Blast_dbn_remote));
+
+    # We shouldn't have to fully qualify the Blast_dbX_remote arrays. Hm.
 
     my(@dbs);
     if( $type =~ /^p|amino/i) {
-	@dbs = @Blast_dbp_remote;
+	@dbs = @Bio::Tools::Blast::Run::Webblast::Blast_dbp_remote;
     } else {
-	@dbs = @Blast_dbn_remote;
+	@dbs = @Bio::Tools::Blast::Run::Webblast::Blast_dbn_remote;
     }
     @dbs;
 }
@@ -1285,14 +1315,16 @@ sub db_local {
     $type ||= 'p';
 
     require Bio::Tools::Blast::Run::LocalBlast; 
-    use Bio::Tools::Blast::Run::LocalBlast qw(@Blast_dbp_local
-					      @Blast_dbn_local);
+    Bio::Tools::Blast::Run::LocalBlast->import(qw(@Blast_dbp_local
+						  @Blast_dbn_local));
+
+    # We shouldn't have to fully qualify the Blast_dbX_local arrays. Hm.
 
     my(@dbs);
     if( $type =~ /^p|amino/i) {
-	@dbs = @Blast_dbp_local;
+	@dbs = @Bio::Tools::Blast::Run::LocalBlast::Blast_dbp_local;
     } else {
-	@dbs = @Blast_dbn_local;
+	@dbs = @Bio::Tools::Blast::Run::LocalBlast::Blast_dbn_local;
     }
     @dbs;
 }
@@ -1302,10 +1334,10 @@ sub db_local {
 
  Usage     : $blast_object->parse( %named_parameters )
  Purpose   : Parse a Blast report from a file or STDIN.
-           :   * Handles both single files and streams containing multiple reports.
-           :   * Relies on a panel of private methods to parse the raw BLAST data.
+           :   * Parses a raw BLAST data, populating Blast object with report data.
            :   * Sets the significance cutoff.
-           :   * Extracts parameters about the BLAST run.
+           :   * Extracts statistical parameters about the BLAST run.
+           :   * Handles both single files and streams containing multiple reports.
  Returns   : integer (number of Blast reports parsed)
  Argument  : <named parameters>:  (PARAMETER TAGS CAN BE UPPER OR LOWER CASE).
 	   : -FILE       => string (name of file containing raw Blast output. 
@@ -1384,7 +1416,7 @@ sub db_local {
            : prior to parsing. Parsing HTML-formatted reports is highly
            : error prone and is generally not recommended.
 
-See Also   : L<_parse>(), L<_init_parse_params>(), L<overlap>(), L<signif_fmt>(), B<Bio::Root::Object::read()>, B<Bio::Tools::Blast::HTML.pm::strip_html()>, L<Links to related modules>
+See Also   : L<_init_parse_params>(), L<_parse_blast_stream>(), L<overlap>(), L<signif_fmt>(), B<Bio::Root::Object::read()>, B<Bio::Tools::Blast::HTML.pm::strip_html()>, L<Links to related modules>
 
 =cut
 
@@ -1491,7 +1523,7 @@ sub _init_parse_params {
            : If no $signif is defined, the '_significance' level is set to 
            : $Bio::Tools::Blast::DEFAULT_SIGNIF (999).
 
-See Also   : L<_test_significance>(), L<_confirm_significance>(), L<signif>(), L<min_length>(), L<_init_parse_params>(), parse>()
+See Also   : L<signif>(), L<min_length>(), L<_init_parse_params>(), parse>()
 
 =cut
 
@@ -1574,7 +1606,8 @@ sub _parse_blast_stream {
            : raw data as it is being loaded by Bio::Root::IOManager::read().
  Returns   : Function reference (closure).
  Comments  : The the function reference contains a fair bit of logic
-           : at present. This should probably be broken up if possible.
+           : at present. It could perhaps be split up into separate
+           : functions to make it more 'digestible'.
 
 See Also   : L<_parse_blast_stream>()
 
@@ -1655,7 +1688,8 @@ sub _get_parse_blast_func {
 	      if($data =~ m/Database:\s+(.+?)$Newline/so ) {
 		$current_db = $1;
 	      } else {
-		$Blast->warn("Can't determine database type from BLAST report.");
+		# In some reports, the Database is only listed at end.
+		#$Blast->warn("Can't determine database name from BLAST report.");
 	      }
 	    }
 
@@ -1799,17 +1833,17 @@ sub _parse_header {
     
     $data =~ s/^\s+|\s+>?$//sg;
 
-    if($data =~ /<HTML>|<A HREF/i) {
+    if($data =~ /<HTML/i) {
       $self->throw("Can't parse HTML-formatted BLAST reports.",
 #		    "Such reports can be parsed with a special parsing \n".
 #		    "script included in the examples/blast directory \n".
-#		    "of the Bioperl distribution."
+#		    "of the Bioperl distribution. (TODO)"
 		  );
       # This was the old strategy, can't do it with new strategy
       # since we don't have the whole report in one chunk.
       # This could be the basis for the "special parsing script".
 #	 require Bio::Tools::Blast::HTML; 
-#	 import Bio::Tools::Blast::HTML qw(&strip_html); 
+#	 Bio::Tools::Blast::HTML->import(&strip_html); 
 #	 &strip_html(\$data);
     }
 	
@@ -1839,7 +1873,8 @@ sub _parse_header {
       if($data =~ m/Database:\s+(.+?)$Newline/so ) {
 	$Blast->database($1);
       } else {
-	$self->warn("Can't determine database type from BLAST report.");
+	# In some reports, the Database is only listed at end.
+	#$self->warn("Can't determine database name from BLAST report (_parse_header)\n$data\n.");
       }
     }
 
@@ -1942,18 +1977,20 @@ sub _parse_descriptions {
  Throws    : n/a; All errors are trapped while parsing the hit data
            : and are processed as a group when the report is 
            : completely processed (See _report_errors()).
+           :
  Comments  : Alignment section contains all HSPs for a hit.
            : Requires Bio::Tools::Blast::Sbjct.pm.
            : Optionally calls a filter function to screen the hit on arbitrary
            : criteria. If the filter function returns true for a given hit,
            : that hit will be skipped.
+           :
            : If the Blast object was created with -check_all_hits set to true,
            : all hits will be checked for significance and processed if necessary.
            : If this field is false, the parsing will stop after the first
            : non-significant hit. 
            : See parse() for description of parsing parameters.
 
-See Also   : L<parse>(), L<_get_parse_blast_func>(), L<_report_error>(), B<Bio::Tools::Blast::Sbjct()>, L<Links to related modules>
+See Also   : L<parse>(), L<_get_parse_blast_func>(), L<_report_errors>(), B<Bio::Tools::Blast::Sbjct()>, L<Links to related modules>
 
 =cut
 
@@ -2072,7 +2109,7 @@ sub _parse_alignment {
            : The determination whether to set additional stats is made 
            : by methods called by _parse_footer().
 
-See Also   : L<parse>(), L<_parse_alignment>(), L<_set_database>(), L<_set_program>()
+See Also   : L<parse>(), L<_parse_alignment>(), L<_set_database>()
 
 =cut
 
@@ -2453,8 +2490,11 @@ sub _set_database {
     my $strict = $self->strict > 0;
 
     # This is fail-safe since DB name usually gets set in _parse_header()
+    # In some reports, the database is only listed at bottom (NCBI 2.0.8).
     if($data =~ m/Database: +(.+?)$Newline/so ) {
       $name = $1;
+    } elsif(not $self->database) {
+      $self->warn("Can't determine database name from BLAST report.");
     }
 
     if($data =~ m/Posted date: +(.+?)$Newline/so ) {
@@ -2642,7 +2682,7 @@ sub best {
            : Obtains info from the static $Blast object if it has not been set
            : for the current object.
 
-See Also   : L<_set_signif>(), L<_test_significance>()
+See Also   : L<_set_signif>()
 
 =cut
 
@@ -2667,7 +2707,7 @@ sub signif {
            : This obviates the need to check significant() for
            : such objects.
 
-See Also   : L<_set_signif>(), L<_test_significance>()
+See Also   : L<_set_signif>()
 
 =cut
 
@@ -2717,7 +2757,7 @@ sub signif_fmt {
  Comments  : Obtains info from the static $Blast object if it has not been set
            : for the current object.
 
-See Also   : L<_set_signif>(), L<_test_significance>(), L<signif>()
+See Also   : L<_set_signif>(), L<signif>()
 
 =cut
 
@@ -3152,8 +3192,6 @@ sub highest_signif {
  Argument  : n/a
  Returns   : string or undef if not defined
 
-See Also   : L<set_parameters>()
-
 =cut
 
 #------------
@@ -3169,8 +3207,6 @@ sub matrix { my $self = shift; $self->{'_matrix'} || $Blast->{'_matrix'}; }
            : This is extracted from the report.
  Argument  : n/a
  Returns   : string or undef if not defined
-
-See Also   : L<set_parameters>()
 
 =cut
 
@@ -3188,8 +3224,6 @@ sub filter { my $self = shift; $self->{'_filter'}  || $Blast->{'_filter'}; }
  Argument  : n/a
  Returns   : string or undef if not defined.
 
-See Also   : L<set_parameters>()
-
 =cut
 
 #-----------
@@ -3206,8 +3240,6 @@ sub expect { my $self = shift; $self->{'_expect'} || $Blast->{'_expect'}; }
  Argument  : n/a
  Returns   : list of three floats (Lambda, K, H)
            : If not defined, returns list of three zeros)
-
-See Also   : L<set_parameters>()
 
 =cut
 
@@ -3234,8 +3266,6 @@ sub karlin_altschul {
  Argument  : n/a
  Returns   : integer or undef if not defined.
 
-See Also   : L<set_parameters>()
-
 =cut
 
 #--------------
@@ -3254,8 +3284,6 @@ sub word_size {
            : This is extracted from the report.
  Argument  : n/a
  Returns   : integer or undef if not defined.
-
-See Also   : L<set_parameters>()
 
 =cut
 
@@ -3889,7 +3917,7 @@ sub to_html {
     (ref($out_aref) eq 'ARRAY') ? push(@$out_aref, $header_html) : print "$header_html$Newline";
 
     require Bio::Tools::Blast::HTML; 
-    import Bio::Tools::Blast::HTML qw(&get_html_func); 
+    Bio::Tools::Blast::HTML->import(qw(&get_html_func)); 
 
     my ($func);
     eval{ $func = &get_html_func($out_aref);  };
