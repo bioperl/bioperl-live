@@ -1,3 +1,15 @@
+# $Id$
+#
+# BioPerl module for Bio::SeqIO::GenBank
+#
+# Cared for by Elia Stupka <elia@tll.org.sg>
+#
+# Copyright Elia Stupka
+#
+# You may distribute this module under the same terms as perl itself
+
+# POD documentation - main docs before the code
+
 =head1 NAME
 
 Bio::SeqIO::GenBank - GenBank sequence input/output stream
@@ -1064,7 +1076,7 @@ sub _read_GenBank_Species {
     my @organell_names = ("chloroplast", "mitochondr"); 
     # only those carrying DNA, apart from the nucleus
 	
-	my @unkn_names=("other", 'unknown organism', 'not specified', 'not shown', 'Unspecified', 'Unknown', 'None', 'unclassified', 'unidentified organism');
+	my @unkn_names=("other", 'unknown organism', 'not specified', 'not shown', 'Unspecified', 'Unknown', 'None', 'unclassified', 'unidentified organism', 'not supplied');
 	#dictionary of synonyms for taxid 32644
 	my @unkn_genus=('unknown','unclassified','uncultured','unidentified');
 	#all above can be part of valid species name
