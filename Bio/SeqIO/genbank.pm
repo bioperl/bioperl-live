@@ -1,5 +1,3 @@
-
-
 # BioPerl module for Bio::SeqIO::GenBank
 #
 # Cared for by Elia Stupka <elia@ebi.ac.uk>
@@ -275,12 +273,25 @@ sub next_seq{
 	}
 
     # need to read the first line of the feature table
-    FEATURE_TABLE :   
-	while( defined ( $buffer = $self->_readline) ) {	    
+    
+    # following block and loop fixed by
+    # HL <Hilmar.Lapp@pharma.novartis.com>, 05/05/2000
+    # see comments
+
+    $buffer = $self->_readline;
+    FEATURE_TABLE :
+	# DO NOT read lines in the while condition -- this is done as a side
+	# effect in _read_FTHelper_GenBank!
+	while( defined($buffer) ) {
+	    # check immidiately -- not at the end of the loop
+	    last if($buffer =~ /^BASE/);
+	    # slurp in one feature at a time -- at return, the start of
+	    # the next feature will have been read already, so we need
+	    # to pass a reference, and the called method must set this
+	    # to the last line read before returning 
 	    my $ftunit = $self->_read_FTHelper_GenBank(\$buffer);
 	    # process ftunit
 	    $ftunit->_generic_seqfeature($seq);
-	    last if /^BASE/;
 	}
     $seqc = "";	
     while (defined( $_ = $self->_readline)) {
@@ -791,8 +802,10 @@ sub _read_FTHelper_GenBank {
    # Loop reads $_ when defined (i.e. only in first loop), then read $self->_readline, until eof 
    while ( defined($_ ||= $self->_readline) ) {
        # Exit loop on new primary key or end of features
-       (/^     \S+/||/^BASE/) && last;
-       
+       #(/^     \S+/||/^BASE/) && last;
+       # Requiring a fixed number of spaces is prone to break. Try to be
+       # as smart as possible. HL <Hilmar.Lapp@pharma.novartis.com>, 05/05/2000
+       (/^(\s+)([^\s\/]\S+)(\s+)(\S+)/ || /^BASE/) && last;
        # Field on one line
        if (/^\s+\/(\S+)=\"(.*)\"/) {
 	   my $key = $1;
