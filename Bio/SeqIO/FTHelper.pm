@@ -120,10 +120,11 @@ sub _generic_seqfeature {
 	my $loc = $fth->loc;
 	$loc =~ s/^$combotype\((\S+)\)/$1/;
 	foreach my $next_loc ( split(/\s*,\s*/, $loc) ) {
+	    my $remote=0;
 	    my $seqid = $annseq->id;
-	    if ( $next_loc =~ s/^.*\(\s*(\S+:)// ) {
+	    if ( $next_loc =~ s/\(?\s*([A-Za-z\d]+(\.\d+)?):// ) {
 		$seqid = $1;
-		$seqid =~ s/://;
+		$remote=1;
 	    }
 	    if( my $location = $fth->_parse_loc($sf,$next_loc)) {
 		print STDERR "I got ", join(",", ($location->start(), 
@@ -131,6 +132,9 @@ sub _generic_seqfeature {
 					 $location->strand())), 
 		" for $next_loc\n" if( $fth->verbose > 0 );
 		$location->seq_id($seqid);
+		if ($remote) {
+		    $location->is_remote(1);
+		}
 		$splitlocation->add_sub_Location($location);
 	    } else {
 		$fth->warn("unable to parse location successfully out of " .
