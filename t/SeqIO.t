@@ -8,7 +8,7 @@ BEGIN {
 	use lib 't';
     }
     use Test;
-    plan tests => 101;
+    plan tests => 104;
 }
 
 use Bio::Seq;
@@ -138,6 +138,7 @@ ok($as->alphabet, 'protein');
 ok($as->division, 'HUMAN');
 ok(scalar $as->all_SeqFeatures(), 16);
 
+ok(scalar $as->annotation->get_Annotations('reference'), 11);
 ($ent, $seq, $out) = undef;
 
 $ent = Bio::SeqIO->new( '-file' => Bio::Root::IO->catfile("t","data","test.embl"),
@@ -147,7 +148,7 @@ $seq = $ent->next_seq();
 
 ok(defined $seq->seq(), 1, 
    'failure to read Embl with ^ location and badly split double quotes');
-
+ok(scalar $seq->annotation->get_Annotations('reference'), 3);
 $out = Bio::SeqIO->new('-file'=> ">". Bio::Root::IO->catfile("t","data","embl.out"), 
 		       '-format' => 'embl');
 
@@ -226,6 +227,8 @@ while($seq = $stream->next_seq()) {
     $lasts = $seq;
 }
 ok $lasts->display_id(), "HUMBETGLOA";
+ok(scalar $lasts->annotation->get_Annotations('reference'), 1);
+
 $stream->close();
 $ent = Bio::SeqIO->new( '-file' => Bio::Root::IO->catfile("t","data","test.embl"), 
 			'-format' => 'embl');
@@ -235,7 +238,6 @@ $species = $seq->species();
 @cl = $species->classification();
 ok( $cl[3] ne $species->genus(), 1, 'genus duplicated in EMBL parsing');
 $ent->close();
-
 
 $seq = Bio::SeqIO->new( '-format' => 'GenBank' , 
 			-file => Bio::Root::IO->catfile("t","data","testfuzzy.genbank"));
