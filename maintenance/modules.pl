@@ -30,6 +30,7 @@ sub new {
     $self->{'name'} = $name;
     $self->{'tested'} = 0;
     $self->{'type'} = '';
+    $self->{'path'} = '';
 
     bless $self, $class;
 }
@@ -52,6 +53,13 @@ sub type {
     my $value = shift;
     $self->{'type'} = $value if defined $value;
     return $self->{'type'};
+}
+
+sub path {
+    my $self = shift;
+    my $value = shift;
+    $self->{'path'} = $value if defined $value;
+    return $self->{'path'};
 }
 
 sub add_superclass {
@@ -87,16 +95,19 @@ use strict;
 
 
 # declare subroutines
+sub dir;
 sub modules;
 sub count;
 sub list_all;
 sub untested;
 sub info;
 sub inherit;
+sub synopsis;
 
 # command line options
-my ($count,$list, $verbose,$info,$untested, $inherit);
+my ($dir, $count,$list, $verbose,$info,$untested, $inherit, $synopsis);
 GetOptions(
+	   'dir:s'      => \$dir,
 	   'count'    => \$count,
 	   'list'     => \$list,
            'test_BioClass' => \&_test_BioClass,
@@ -104,34 +115,33 @@ GetOptions(
            'untested' => \$untested,
            'info:s' =>  \$info,
            'inherit' => \$inherit,
+           'synopsis' => \$synopsis,
 	   'h|help|?' => sub{ exec('perldoc',$0); exit(0) }
 	   );
 
 
 our %MODULES; # storage structure
 
-# find modules in Bio directory
+# find modules
+my $pwd = $ENV{PWD};
+my $seachdir = "$pwd/../Bio"; #default
 my %FIND_OPTIONS = ( wanted => \&modules );
-find \%FIND_OPTIONS, '/home/heikki/src/bioperl/core/Bio/';
+
+$seachdir = "$pwd/$dir" if $dir;
+find \%FIND_OPTIONS, $seachdir;
 
 
 # call subroutines
-if ($list) {
-    list_all;
-}
-elsif ($untested) {
-    untested;
-}
-elsif ($info) {
-    info($info);
-}
-elsif ($inherit) {
-    inherit;
-} else {
-    count;
-}
+if    ($list)     { list_all }
+elsif ($untested) { untested }
+elsif ($info)     { info($info) }
+elsif ($inherit)  { inherit }
+elsif ($synopsis) { synopsis }
+else              { count }
 
-#print Dumper \%MODULES;
+
+################# end main ####################
+
 
 #
 # subroutines;
@@ -170,6 +180,7 @@ sub modules {
             } else {
                 $class->type('instance');
             }
+            $class->path($File::Find::name);
         }
         if (/^\w*use/ && /(Bio[\w:]+)\W*;/) {
             print "\t$1\n" if $verbose;
@@ -192,6 +203,7 @@ sub modules {
             }
         }
     }
+
     close F;
 }
 
@@ -318,6 +330,47 @@ sub inherit {
             next if $super =~ /I$/;
             print "Check this inheritance: ", $c->name, " <-- $super\n";
         }
+    }
+}
+
+=item B<-s | --synopsis>
+
+Test SYNOPSIS section of bioperl modules for runnablity
+
+=cut
+
+sub synopsis {
+    foreach ( sort keys %MODULES) {
+        my $c=$MODULES{$_};
+
+        next unless $c->type eq "instance";
+        next if $c->name eq 'Bio::Root::Version';
+
+        my $synopsis = '';
+        open (F, $c->path) or warn "can't open file ".$c->name.": $!" && return;
+
+        my $flag = 0;
+        while (<F>) {
+            last if $flag && /^=/;
+            $synopsis .= $_ if $flag;
+            $flag = 1 if /^=head1 +SYNOPSIS/;
+        }
+
+        # remove comments
+        $synopsis =~ s/[^\$]#[^\n]*//g;
+        # allow linking to an other Bio module, e.g.: See L<Bio::DB::GFF>.
+        $synopsis =~ s/[^\n]*L<Bio[^\n]*//g;
+        # protect single quotes
+        $synopsis =~ s/'/"/g;
+
+        my $res = `perl -ce '$synopsis' 2>&1 `;
+        next if $res =~ /syntax OK/;
+        print $c->path, "\n";
+        print $synopsis;
+        print $res;
+        print "-" x 70, "\n"; 
+        # print "SYNOPSIS not runnable\n";
+        close F;
     }
 }
 
