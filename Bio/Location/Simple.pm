@@ -353,24 +353,5 @@ sub trunc {
   return $out;
 }
 
-=head2 each_Location
-
- Title   : each_Location
- Usage   : @locations = $locObject->each_Location($order);
- Function: Conserved function call across Location:: modules - will
-           return an array containing the component Location(s) in
-           that object, regardless if the calling object is itself a
-           single location or one containing sublocations.
- Returns : an array of Bio::LocationI implementing objects - for
-           Simple locations, the return value is just itself.
- Args    : 
-
-=cut
-
-sub each_Location {
-   my ($self) = @_;
-   return ($self);
-}
-
 1;
 

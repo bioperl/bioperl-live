@@ -15,7 +15,7 @@ BEGIN {
 	use lib 't';
     }
     use Test;
-    plan tests => 67;
+    plan tests => 72;
 }
 
 use Bio::Location::Simple;
@@ -36,6 +36,9 @@ ok $simple->start, 10;
 ok $simple->end, 20;
 ok $simple->seq_id, 'my1';
 
+my ($loc) = $simple->each_Location();
+ok $loc;
+ok ("$loc", "$simple");
 
 my $generic = new Bio::SeqFeature::Generic('-start' => 5, '-end' => 30, 
 					   '-strand' => 1);
@@ -83,6 +86,10 @@ ok($fuzzy->end_pos_type, 'EXACT');
 ok $fuzzy->seq_id, 'my2';
 ok $fuzzy->seq_id('my3'), 'my3';
 
+($loc) = $fuzzy->each_Location();
+ok $loc;
+ok ("$loc", "$fuzzy");
+
 # split location tests
 my $splitlocation = new Bio::Location::Split;
 my $f = new Bio::Location::Simple('-start'=>13,
@@ -116,6 +123,8 @@ $f = new Bio::Location::Fuzzy('-start'=>"<50",
 ok($f->start, 50);
 ok(! defined $f->min_start);
 ok($f->max_start, 50);
+
+ok (scalar($splitlocation->each_Location()), 4);
 
 $splitlocation->add_sub_Location($f);
 
