@@ -548,13 +548,6 @@ L<Bio::Tools::Phylo::PAML>.
 Example code for using the XS extensions for comparing proteins 
 using Smith-Waterman.
 
-=head2 examples/tools/restriction.pl
-
-Example code for using the RestrictionEnzyme module. See
-L<Bio::Tools::RestrictionEnzyme> for more information (note that
-Bio::Tools::RestrictionEnzyme has been superceded by 
-Bio::Restriction::*).
-
 =head2 examples/tools/run_genscan.pl
 
 Run GENSCAN on multiple sequences and create output sequence files
