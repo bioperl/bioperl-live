@@ -1,4 +1,8 @@
 ## Bioperl Test Harness Script for Modules
+##
+# CVS Version
+# $Id$
+
 
 # Before `make install' is performed this script should be runnable with
 # `make test'. After `make install' it should work as `perl test.t'
@@ -17,13 +21,15 @@
 
 
 ## We start with some black magic to print on failure.
-BEGIN { $| = 1; print "1..3\n"; 
+BEGIN { $| = 1; print "1..6\n"; 
 	use vars qw($loaded); }
+
 END {print "not ok 1\n" unless $loaded;}
 
 use Bio::SeqIO;
 use Bio::SeqIO::Fasta;
 use Bio::SeqIO::EMBL;
+use Bio::SeqIO::Raw;
 
 $loaded = 1;
 print "ok 1\n";    # 1st test passes.
@@ -35,7 +41,7 @@ print "ok 1\n";    # 1st test passes.
 ## the print "1..x\n" in the BEGIN block to reflect the
 ## total number of tests that will be run. 
 
-$str = Bio::SeqIO->new(-file => 'temp.fa', -format => 'Fasta');
+$str = Bio::SeqIO->new(-file=> 't/test.fasta', '-format' => 'Fasta');
 
 if( $str ) {
     print "ok 2\n";
@@ -52,5 +58,38 @@ if( $seq->id eq 'roa1_drome' ) {
 }
 
 
+#####
+## ChrisDag -- testing out Bio::SeqIO::Raw
+##
+## We open a file, test.raw which has 2 raw lines of
+## sequence. No formatting at all. Raw sequences are delimited
+## simply by a newline. This code tests to make sure we can
+## create 2 sequential bioseq objects out of the raw file without
+## breaking or getting confused.
+##
+## Not tested yet: ability to write a raw formatted stream
+##
+$str = Bio::SeqIO->new(-file=> 't/test.raw', '-format' => 'Raw');
 
+if( $str ) {
+    print "ok 4\n";
+} else {
+    print "not ok 4 , unable to open stream from raw sequence DB\n";	
+}
+
+if($seq = $str->next_seq()) { print "ok 5\n";
+ } else { print "not ok 5 , failed to read 1st raw sequence from stream,\n"; }
+print "Sequence 1 of 2 from Raw stream:\n", $seq->seq;
+
+print "\n\n";
+
+if($seq = $str->next_seq()) { print "ok 6\n";
+ } else { print "not ok 6 , failed to read 2nd raw sequence from stream.\n"; }
+print "Sequence 2 of 2 from Raw stream:\n", $seq->seq;
+print $seq->seq;
+print "\n";
+
+#####
+## done with tests of Bio::SeqIO::Raw
+#####
 
