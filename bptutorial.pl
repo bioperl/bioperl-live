@@ -927,42 +927,9 @@ and write sequence objects, eg:
 If the "-format" argument isn't used then Bioperl will try to determine 
 the format based on the file's suffix, in a case-insensitive manner. If 
 there's no suffix available then SeqIO will attempt to guess the format 
-based on actual content. Here is the current set of suffixes:
-
-   Format     Suffixes                     Comment
-
-   ace        ace                          ACeDB
-   agave                                   AGAVE XML
-   bsml       bsm|bsml                     BSML XML
-   chado                                   Chado XML
-   embl       embl|ebl|emb|dat             EMBL
-   exp        exp                          Staden experiment file
-   fasta      fasta|fast|seq|fa|fsa|nt|aa  Fasta
-   fastq      fastq                        Fastq
-   genbank    gb|gbank|genbank|gbs|gbk     Genbank
-   gcg        gcg                          GCG
-   game                                    GAME XML
-   interpro                                InterProScan XML
-   kegg                                    KEGG genes
-   locuslink                               LL_tmpl format
-   pir        pir                          PIR
-   phd        phd|phred                    Phred
-   qual                                    Phred quality file
-   raw        txt                          plain
-   swiss      swiss|sp                     SwissProt
-   scf        scf                          SCF tracefile
-   tinyseq                                 NCBI TinySeq XML
-   abi*       abi                          ABI tracefile
-   alf*       alf                          ALF tracefile
-   ctf*       ctf                          CTF tracefile
-   ztr*       ztr                          ZTR tracefile
-   pln*       pln                          Staden plain tracefile
-
-* These formats require the bioperl-ext package and the io_lib library
-  from the Staden package
-
-For more information see L<Bio::SeqIO> or the SeqIO HOWTO
-(http://bioperl.org/HOWTOs/html/SeqIO.html).
+based on actual content. If it can't determine the format then it will 
+assume "fasta". A complete list of formats and suffixes can be 
+found in the SeqIO HOWTO (http://bioperl.org/HOWTOs/SeqIO/index.html).
 
 =for html <A NAME ="iii.2.2"></A>
 
@@ -1095,7 +1062,7 @@ of related, top-level annotation is found in L<Bio::Annotation::Collection>.
 Additional sample code for obtaining sequence features can be found in
 the script gb2features.pl in the subdirectory examples/DB. Finally,
 there's a HOWTO on features and annotations
-(http://bioperl.org/HOWTOs/html/Feature-Annotation.html) and there's a 
+(http://bioperl.org/HOWTOs/Feature-Annotation/index.html) and there's a 
 section on features in the FAQ (http://bioperl.org/Core/Latest/faq.html#5).
 
 The following methods returns new sequence objects, but do not transfer
@@ -1540,7 +1507,7 @@ Sample code to read a BLAST report might look like this:
   $hsp_start = $hsp->query->start;
 
 For more details there is a good description of how to use
-SearchIO at http://www.bioperl.org/HOWTOs/html/SearchIO.html
+SearchIO at http://www.bioperl.org/HOWTOs/SearchIO/index.html
 or in the docs/howto subdirectory of the distribution. Additional
 documentation can be found in L<Bio::SearchIO::blast>,
 L<Bio::SearchIO::psiblast>, L<Bio::SearchIO::blastxml>,
@@ -1993,7 +1960,7 @@ Objects with the "reference" tagname are Bio::Annotation::Reference objects
 and represent scientific articles. See L<Bio::Annotation::Reference> for 
 descriptions of the methods used to access the data in Reference objects.
 There is also a HOWTO on features and annotation 
-(http://bioperl.org/HOWTOs/html/Feature-Annotation.html).
+(http://bioperl.org/HOWTOs/Feature-Annotation/index.html).
 
 =for html <A NAME ="iii.7.3"></A>
 
@@ -2298,7 +2265,7 @@ See L<Bio::TreeIO> and L<Bio::Tree::Tree> for details.
 Using the Bio::Tools::Phylo::PAML module one can also parse the
 results of the PAML tree-building programs codeml, baseml, basemlg,
 codemlsites and yn00. See L<Bio::Tools::Phylo::PAML> or the PAML HOWTO
-(http://bioperl.org/HOWTOs/html/PAML.html) for more information.
+(http://bioperl.org/HOWTOs/PAML/index.html) for more information.
 
 =head2 III.9.3 Map objects for manipulating genetic maps (Map::MapI, MapIO)
 

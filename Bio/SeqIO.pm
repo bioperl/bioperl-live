@@ -23,12 +23,13 @@ Bio::SeqIO - Handler for SeqIO Formats
 
     use Bio::SeqIO;
 
-    $in  = Bio::SeqIO->new(-file => "inputfilename" , '-format' => 'Fasta');
-    $out = Bio::SeqIO->new(-file => ">outputfilename" , '-format' => 'EMBL');
-    # note: we quote -format to keep older Perls from complaining.
+    $in  = Bio::SeqIO->new(-file => "inputfilename" , 
+                           -format => 'Fasta');
+    $out = Bio::SeqIO->new(-file => ">outputfilename" , 
+                           -format => 'EMBL');
 
     while ( my $seq = $in->next_seq() ) {
-	$out->write_seq($seq);
+	    $out->write_seq($seq);
     }
 
   # Now, to actually get at the sequence object, use the standard Bio::Seq
@@ -36,10 +37,12 @@ Bio::SeqIO - Handler for SeqIO Formats
 
     use Bio::SeqIO;
 
-    $in  = Bio::SeqIO->new(-file => "inputfilename" , '-format' => 'genbank');
+    $in  = Bio::SeqIO->new(-file => "inputfilename" , 
+                           -format => 'genbank');
 
     while ( my $seq = $in->next_seq() ) {
-       print "Sequence ",$seq->id," first 10 bases ",$seq->subseq(1,10),"\n";
+       print "Sequence ",$seq->id, " first 10 bases ",
+             $seq->subseq(1,10), "\n";
     }
 
 
@@ -49,8 +52,9 @@ Bio::SeqIO - Handler for SeqIO Formats
 
     use Bio::SeqIO;
 
-    $in  = Bio::SeqIO->newFh(-file => "inputfilename" , '-format' => 'Fasta');
-    $out = Bio::SeqIO->newFh('-format' => 'EMBL');
+    $in  = Bio::SeqIO->newFh(-file => "inputfilename" ,
+                             -format => 'Fasta');
+    $out = Bio::SeqIO->newFh(-format => 'EMBL');
 
     # World's shortest Fasta<->EMBL format converter:
     print $out $_ while <$in>;
@@ -91,10 +95,11 @@ to read and write sequence objects:
     use Bio::SeqIO;
 
     $stream = Bio::SeqIO->newFh(-format => 'Fasta',
-                                -fh     => \*ARGV); # read from standard input or the input filenames
+                                -fh     => \*ARGV);
+    # read from standard input or the input filenames
 
     while ( $seq = <$stream> ) {
-	# do something with $seq
+	  # do something with $seq
     }
 
 and
@@ -164,13 +169,13 @@ some HTML tags:
 
   use Bio::SeqIO;
   use IO::String;
-  my $in  = Bio::SeqIO->new('-file' => "emblfile" , 
-  			    '-format' => 'EMBL');
+  my $in  = Bio::SeqIO->new(-file => "emblfile",
+  			                   -format => 'EMBL');
   while ( my $seq = $in->next_seq() ) {
       # the output handle is reset for every file
       my $stringio = IO::String->new($string);
-      my $out = Bio::SeqIO->new('-fh' => $stringio,
-  			        '-format' => 'fasta');
+      my $out = Bio::SeqIO->new(-fh => $stringio,
+  			                       -format => 'fasta');
       # output goes into $string
       $out->write_seq($seq);
       # modify $string
@@ -181,40 +186,19 @@ some HTML tags:
 
 =item -format
 
-Specify the format of the file.  Supported formats include:
-
-   AB1         ABI tracefile format
-   ABI         ABI tracefile format
-   ALF         ALF tracefile format
-   CTF         CTF tracefile format
-   EMBL        EMBL format
-   EXP         Staden tagged experiment tracefile format
-   Fasta       FASTA format
-   Fastq       Fastq format
-   GCG         GCG format
-   GenBank     GenBank format
-   kegg        KEGG format
-   PIR         Protein Information Resource format
-   PLN         Staden plain tracefile format
-   SCF         SCF tracefile format
-   ZTR         ZTR tracefile format
-   ace         ACeDB sequence format
-   game        GAME XML format
-   locuslink   LocusLink annotation (LL_tmpl format only)
-   phd         phred output
-   qual        Quality values (get a sequence of quality scores)
-   raw         Raw format (one sequence per line, no ID)
-   swiss       Swissprot format
-   tab         tab-delimited
-   tigr        TIGR XML format
-   tinyseq     NCBI TinySeq XML
+Specify the format of the file.  Supported formats include fasta,
+genbank, embl, swiss (SwissProt), and tracefile formats such as
+abi (ABI) and scf. There are many more, for a complete listing see
+the SeqIO HOWTO (http://bioperl.org/HOWTOs/SeqIO/index.html).
 
 If no format is specified and a filename is given then the module
-will attempt to deduce the format from the filename suffix.  If this
-is unsuccessful then Fasta format is assumed.
+will attempt to deduce the format from the filename suffix. If
+there is no suffix that Bioperl understands then it will attempt
+to guess the format based on file content. If this is unsuccessful 
+then Fasta format is assumed.
 
-The format name is case insensitive.  'FASTA', 'Fasta' and 'fasta' are
-all valid suffixes.
+The format name is case-insensitive: 'FASTA', 'Fasta' and 'fasta' are
+all valid.
 
 Currently, the tracefile formats (except for SCF) require installation
 of the external Staden "io_lib" package, as well as the
@@ -242,7 +226,7 @@ evaluates as defined but false:
 
 =head2 Bio::SeqIO-E<gt>newFh()
 
-   $fh = Bio::SeqIO->newFh(-fh   => \*FILEHANDLE, -format=>$format);
+   $fh = Bio::SeqIO->newFh(-fh => \*FILEHANDLE, -format=>$format);
    $fh = Bio::SeqIO->newFh(-format => $format);
    # etc.
 
@@ -331,7 +315,8 @@ my %valid_alphabet_cache;
 =head2 new
 
  Title   : new
- Usage   : $stream = Bio::SeqIO->new(-file => $filename, -format => 'Format')
+ Usage   : $stream = Bio::SeqIO->new(-file => $filename, 
+                                     -format => 'Format')
  Function: Returns a new seqstream
  Returns : A Bio::SeqIO stream initialised with the appropriate format
  Args    : Named parameters:
@@ -342,9 +327,9 @@ my %valid_alphabet_cache;
            Additional arguments may be used to set factories and
            builders involved in the sequence object creation. None of
            these must be provided, they all have reasonable defaults.
-             -seqfactory   the L<Bio::Factory::SequenceFactoryI> object
-             -locfactory   the L<Bio::Factory::LocationFactoryI> object
-             -objbuilder   the L<Bio::Factory::ObjectBuilderI> object
+             -seqfactory   the Bio::Factory::SequenceFactoryI object
+             -locfactory   the Bio::Factory::LocationFactoryI object
+             -objbuilder   the Bio::Factory::ObjectBuilderI object
 
 See L<Bio::SeqIO::Handler>
 
@@ -353,18 +338,18 @@ See L<Bio::SeqIO::Handler>
 my $entry = 0;
 
 sub new {
-    my ($caller,@args) = @_;
-    my $class = ref($caller) || $caller;
+	my ($caller,@args) = @_;
+	my $class = ref($caller) || $caller;
 
-    # or do we want to call SUPER on an object if $caller is an
-    # object?
-    if( $class =~ /Bio::SeqIO::(\S+)/ ) {
-	my ($self) = $class->SUPER::new(@args);	
-	$self->_initialize(@args);
-	return $self;
-    } else {
-        
-	my %param = @args;
+	# or do we want to call SUPER on an object if $caller is an
+	# object?
+	if( $class =~ /Bio::SeqIO::(\S+)/ ) {
+		my ($self) = $class->SUPER::new(@args);	
+		$self->_initialize(@args);
+		return $self;
+	} else {
+
+		my %param = @args;
 	@param{ map { lc $_ } keys %param } = values %param; # lowercase keys
 
 	if (!defined($param{-file}) && !defined($param{-fh})) {
@@ -374,7 +359,7 @@ sub new {
 
 	my $format = $param{'-format'} ||
 	    $class->_guess_format( $param{-file} || $ARGV[0] );
-	
+
 	if( ! $format ) { 
 	    if ($param{-file}) {
 		$format = Bio::Tools::GuessSeqFormat->new(-file => $param{-file}||$ARGV[0] )->guess;
@@ -649,7 +634,6 @@ sub _guess_format {
 
 sub DESTROY {
     my $self = shift;
-
     $self->close();
 }
 
