@@ -203,39 +203,28 @@ sub next_result{
 		/^\s+$/); # skip empty lines
        if( /(\S+)\s+searches\s+a\s+((protein\s+or\s+DNA\s+sequence)|(sequence\s+database))/i || /(\S+) compares a/ ||
 	   ( m/^# / && ($_ = $self->_readline) &&
-	     /(\S+)\s+searches\s+a\s+((protein\s+or\s+DNA\s+sequence)|(sequence\s+database))/i || /(\S+) compares a/	     
-	   ) ||	
-	   (/^\s*\d+\s*>>>/)
+	     /(\S+)\s+searches\s+a\s+((protein\s+or\s+DNA\s+sequence)|(sequence\s+database))/i || /(\S+) compares a/
+	   )
 	 ) {
 	   if( $seentop ) {
 	       $self->_pushback($_);
 	       $self->end_element({ 'Name' => 'FastaOutput'});
 	       return $self->end_document();
 	   }
+	   $self->{'_reporttype'} = $1;
 	   $self->start_element({ 'Name' => 'FastaOutput' } );
-	   $seentop = 1;	   
-
+	   $seentop = 1;
 	   
-           # If we're dealing with mlib output this would have been
-	   # set by the preceeding iteration through this loop.
-	   # However in single iter FASTA this will be processed.
-	   
-	   if( defined $1 ) { 
-	       $self->{'_reporttype'} = $1;
-	       $_ = $self->_readline();
-	       my ($version) = (/version\s+(\S+)/);
-	       $version = '' unless defined $version;
-	       $self->{'_version'} = $version;
-	   } else { 
-	       $self->_pushback($_); # push it back one more time 
-	                             # for the benefit of using same
-	                             # same logic below
-	   }
-	   $self->element({ 'Name' => 'FastaOutput_version',
-			    'Data' => $self->{'_version'}});
 	   $self->element({ 'Name' => 'FastaOutput_program',
 			    'Data' => $self->{'_reporttype'}});
-	   my ($leadin, $type, $querylen, $querytype, $querydef);
+	   $_ = $self->_readline();
+	   my ($version) = (/version\s+(\S+)/);
+	   $version = '' unless defined $version;
+	   $self->{'_version'} = $version;
+	   $self->element({ 'Name' => 'FastaOutput_version',
+			    'Data' => $version});
+
+	   my ($last, $leadin, $type, $querylen, $querytype, $querydef);
 
 	   while( defined($_ = $self->_readline()) ) {
 	       if( /^ (
@@ -252,19 +241,19 @@ sub next_result{
 			   last;
 		       }
 		   } else {
-		       if( $self->{'_last'} =~ /(\S+)[:,]\s*(\d+)\s+(aa|nt)/ ){
+		       if( $last =~ /(\S+)[:,]\s*(\d+)\s+(aa|nt)/ ) {
 			   ($querylen, $querytype) = ($2, $3);
 			   $querydef ||= $1;
 			   last;
 		       }
 		   }
 	       } elsif ( m/^\s*vs\s+\S+/o ) {
-		   if ( $self->{'_last'} =~ /(\S+)[,:]\s+(\d+)\s+(aa|nt)/o) {
+		   if ( $last =~ /(\S+)[,:]\s+(\d+)\s+(aa|nt)/o) {
 		       ($querydef, $querylen, $querytype) = ($1, $2, $3);
 		       last;
 		   }
 	       }
-	       $self->{'_last'} = $_;
+	       $last = $_;
 	   }
 
 	   if( $self->{'_reporttype'} &&
@@ -288,14 +277,18 @@ sub next_result{
 	       $self->warn("unable to find and set query length");
 	   }
 
-	   if( $self->{'_last'} =~ /^\s*vs\s+(\S+)/ ||	       	       
+	   if( $last =~ /^\s*vs\s+(\S+)/ ||	       	       
 	       (defined $_ && /^\s*vs\s+(\S+)/) ||
 	       (defined ($_ = $self->_readline()) && /^\s*vs\s+(\S+)/)
 	     ) {
 	       $self->element({'Name' => 'FastaOutput_db',
 			       'Data' => $1});
+	   } elsif (m/^\s+opt(?:\s+E\(\))?$/o) {
+	       # histogram ... read over it more rapidly than the larger outer loop:
+	       while (defined($_ = $self->_readline)) {
+		   last if m/^>\d+/;
+	       }
 	   }
-
        } elsif( /(\d+) residues in\s+(\d+)\s+sequences/ ) {
 	   $self->element({'Name' => 'FastaOutput_db-let',
 			   'Data' => $1});
@@ -597,7 +590,7 @@ sub next_result{
 	   $self->end_element({ 'Name' => 'FastaOutput'});
 	   return $self->end_document();
        } elsif( /^\s*\d+\s*>>>/) {
-	   if ($self->in_element('FastaOutput')) {
+	   if ($self->within_element('FastaOutput')) {
 	       if( $self->in_element('hsp') ) {
 		   $self->end_element({'Name' => 'Hsp'});
 	       } 
@@ -848,12 +841,13 @@ sub end_element {
 
     if( my $type = $MODEMAP{$nm} ) {
 	if( $self->_eventHandler->will_handle($type) ) {
-	    my $func = sprintf("end_%s",lc $type);	    
+	    my $func = sprintf("end_%s",lc $type);
 	    $rc = $self->_eventHandler->$func($self->{'_reporttype'},
 					      $self->{'_values'});	    
 	}
 	shift @{$self->{'_elements'}};
-    } elsif( $MAPPING{$nm} ) {
+
+    } elsif( $MAPPING{$nm} ) { 	
 	if ( ref($MAPPING{$nm}) =~ /hash/i ) {
 	    my $key = (keys %{$MAPPING{$nm}})[0];	    
 	    $self->{'_values'}->{$key}->{$MAPPING{$nm}->{$key}} = $self->{'_last_data'};
