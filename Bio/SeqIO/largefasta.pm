@@ -114,7 +114,7 @@ sub next_primary_seq {
   my ($id,$fulldesc,$entry);
   my $count = 0;
   my $seen = 0;
-  while( defined ($entry = $self->_readline) ) {
+  while( defined ($entry = $self->_readline) ) {      
       if( $seen == 1 && $entry =~ /^\s*>/ ) {
 	  $self->_pushback($entry);
 	  return $largepseq;
@@ -133,6 +133,7 @@ sub next_primary_seq {
       }
       (++$count % 1000 == 0 && $self->verbose() > 0) && print "line $count\n";
   }
+  if( ! $seen ) { return undef; } 
   if( $as_next_seq ) {
       return new Bio::Seq::LargeSeq(-primaryseq => $largepseq );      
   } else {
