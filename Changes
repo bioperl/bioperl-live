@@ -1,6 +1,23 @@
 $Id$
 Revision history for Bioperl core modules
 
+1.2.3 Stable release update
+
+    o Bio::SearchIO
+      - Fixed bugs in BLAST parsing which couldn't parse NCBI
+        gapped blast properly (was losing hit significance values due to
+        the extra unexpeted column).
+      - Parsing of blastcl3 (netblast from NCBI) now can handle case of
+        integer overflow (# of letters in nt seq dbs is > MAX_INT)
+        although doesn't try to correct it - will get the negative
+        number for you.  Added a test for this as well.
+      - Fixed HMMER parsing bug which prevented parsing when a hmmpfam report
+        has no top-level family classification scores but does have scores and
+        alignments for individual domains.
+     o Fix small error which made Bio::Graphics tests fail on certain
+       platforms (these could be safely ignored, but the testfiles just
+       needed  to be updated to handle it).
+     
 1.2.2 Stable release update
 
     o A series of bug fixes of the Bio::OntologyIO dagflat-related parsers:
