@@ -16,13 +16,14 @@ use Getopt::Long;
 use Bio::Tools::Genscan;
 use Bio::Tools::Prediction::Gene;
 use Bio::SeqIO;
+use strict;
+use vars qw($in $seqfile $seq $out);
 
-my $in = \*STDIN;
-my $out = \*STDOUT;
+$in = \*STDIN;
+$out = \*STDOUT;
 
-$opt_ok = GetOptions("seq=s", \$seqfile);
+my $opt_ok = GetOptions("seq=s", \$seqfile);
 
-my $seq;
 
 if(defined($seqfile)) {
     my $seqin = Bio::SeqIO->new('-file' => $seqfile, '-format' => "fasta");
@@ -33,7 +34,7 @@ my $seqout = Bio::SeqIO->new('-fh' => $out);
 
 my $genscan = Bio::Tools::Genscan->new('-fh' => $in);
 
-while($gene = $genscan->next_prediction()) {
+while(my $gene = $genscan->next_prediction()) {
     $gene->attach_seq($seq) if $seq;
     
     my $fea;
@@ -42,10 +43,10 @@ while($gene = $genscan->next_prediction()) {
     foreach $fea ($gene->exons()) {
 	print $out "EXON ", $fea->gff_string(), "\n";
     }
-    foreach $fea ($gene->promotors()) {
+    foreach $fea ($gene->promoters()) {
 	print $out "PROM ", $fea->gff_string(), "\n";
     }
-    foreach $fea ($gene->poly_A_sites()) {
+    foreach $fea ($gene->poly_A_site()) {
 	print $out "POLA ", $fea->gff_string(), "\n";
     }
     # sequences
