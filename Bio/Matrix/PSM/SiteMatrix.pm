@@ -151,7 +151,8 @@ use strict;
 						     -pG=>$g,-pT=>$t,
 						     -IC=>$ic,
 						     -e_val=>$score, 
-						     -id=>$mid);
+						     -id=>$mid
+                 -model=>\%model);
  Function:  Creates a new Bio::Matrix::PSM::SiteMatrix object from memory
  Throws : If inconsistent data for all vectors (A,C,G and T) is
           provided, if you mix input types (string vs array) or if a
@@ -236,8 +237,11 @@ sub new {
 	${$self->{probG}}[$i]=${$self->{probG}}[$i]/$div;
 	${$self->{probT}}[$i]=${$self->{probT}}[$i]/$div;
     }
+ if  ((!defined($self->{logA})) && ($input{model})) {
+  $self=calc_weight($self,$input{model});
+ }
 #Make consensus, throw if any one of the vectors is shorter
-    $self=_calculate_consensus($self);
+    $self=_calculate_consensus($self,$input{model});
     return $self;
 }
 
@@ -268,6 +272,39 @@ sub _calculate_consensus {
     return $self;
 }
 
+=head2 calc_weight
+
+ Title   : calc_weight
+ Usage   : $self->calc_weight({A=>0.2562,C=>0.2438,G=>0.2432,T=>0.2568});
+ Function: Recalculates the PSM (or weights) based on the PFM (the frequency matrix)
+           and user supplied background model.
+ Throws  : if no model is supplied
+ Example :
+ Returns :
+ Args    : reference to a hash with background frequencies for A,C,G and T
+
+=cut
+
+sub calc_weight {
+    my ($self,$model)=@_;
+    my %model;
+    $model{probA}=$model->{A};
+    $model{probC}=$model->{C};
+    $model{probG}=$model->{G};
+    $model{probT}=$model->{T};
+    foreach my $let qw(probA probC probG probT) {
+      my @str;
+      $self->throw('You did not provide valid model\n') unless (($model{$let}>0) && ($model{$let}<1));
+      foreach my $f (@{$self->{$let}}) {
+        my $w=log($f)-log($model{$let});
+        push @str,$w;
+      }
+      my $llet=$let;
+      $llet=~s/prob/log/;
+      $self->{$llet}=\@str;
+    }
+    return $self;
+}
 =head2 next_pos
 
  Title   : next_pos
