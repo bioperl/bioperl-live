@@ -262,10 +262,11 @@ sub write_tree{
    foreach my $tree ( @trees ) {
        my @data = _write_tree_Helper($tree->get_root_node);
        # per bug # 1471 do not include enclosing brackets.
-#       if($data[-1] !~ /\)$/ ) {
-#	   $data[0] = "(".$data[0];
-#	   $data[-1] .= ")";
-#       }
+       # this is sort of cheating but it should work
+       # remove first and last paren if the set ends in a paren
+       if($data[-1] =~ s/\)$// ) {
+	   $data[0] =~ s/^\(//;
+       }
        $self->_print(join(',', @data), ";\n");
    }
    $self->flush if $self->_flush_on_write && defined $self->_fh;
