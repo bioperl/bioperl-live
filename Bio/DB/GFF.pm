@@ -446,10 +446,11 @@ use Bio::DB::GFF::Util::Rearrange;
 use Bio::DB::GFF::RelSegment;
 use Bio::DB::GFF::Feature;
 use Bio::DB::GFF::Aggregator;
+use Bio::DasI;
 use Bio::Root::Root;
 
 use vars qw($VERSION @ISA);
-@ISA = qw(Bio::Root::Root);
+@ISA = qw(Bio::Root::Root Bio::DasI);
 
 $VERSION = '1.04';
 my %valid_range_types = (overlaps     => 1,

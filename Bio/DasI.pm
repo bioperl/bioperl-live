@@ -351,7 +351,7 @@ sub get_feature_by_attribute {
 
  Title   : search_notes
  Usage   : $db->search_notes($search_term,$max_results)
- Function: full-text search on features, NCBI-style
+ Function: full-text search on features, ENSEMBL-style
  Returns : an array of [$name,$description,$score]
  Args    : see below
  Status  : public
