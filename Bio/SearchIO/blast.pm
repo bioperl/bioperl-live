@@ -252,7 +252,7 @@ sub next_result{
 	   $_ = $self->_readline;
 	   while( defined ($_) && $_ !~ /^\s+$/ ) {	
 	       chomp;
-	       if( /\(([\d,]+)\s+letters\)/ ) {		   
+	       if( /\(([\d,]+)\s+letters.*\)/ ) {		   
 		   $size = $1;
 		   $size =~ s/,//g;
 		   last;
@@ -261,10 +261,11 @@ sub next_result{
 		   $q =~ s/ +/ /g;
 		   $q =~ s/^ | $//g;
 	       }
+
 	       $_ = $self->_readline;
 	   }
 	   chomp($q);
-	   my ($nm,$desc) = split(/\s+/,$q,2);
+	   my ($nm,$desc) = split(/\s+/,$q,2);	   
 	   $self->element({ 'Name' => 'BlastOutput_query-def',
 			    'Data' => $nm});
 	   $self->element({ 'Name' => 'BlastOutput_query-len', 
