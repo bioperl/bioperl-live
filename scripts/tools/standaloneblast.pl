@@ -20,7 +20,8 @@
 #
 #
 #  We also need to select the database to be used
-my $amino_database = 'swissprot';
+#my $amino_database = 'swissprot';
+my $amino_database = "$ENV{BLASTDIR}/data/swissprot";
 
 # 
 #  We are going to demonstrate 3 possible applications of StandAloneBlast.pm:
@@ -428,16 +429,15 @@ sub example_usage {
  -maskvals <str>:  String containing mask threshold values (in per-cents) for example 3,
 		   separated by ":"'s. (default = '50:75:25')
 
-In addition, any valid Blast parameter can be set using the syntax "parameter=>value" as in "database=>swissprot"
+In addition, any valid Blast parameter can be set using the syntax "parameter=>value" as in 
+                 "database=>/blastdir/data/swissprot"
 
 So some typical command lines might be:
  >standaloneblast.pl -do 1 -param expectation -paramvals '1e-10:1e-5'
 or
- >standaloneblast.pl -do 1 -exec blastall -param q -paramvals '-1:-7' -in='t/dna1.fa' "pr=>blastn" "d=>ecoli.nt"
-or
  >standaloneblast.pl -do 4 -maskvals 0 -iter 3
 or
- >standaloneblast.pl -do 3 -maskvals '10:50:90'  -in 't/cysprot1.fa' -alnfmt msf -inaln 't/cysprot.msf'
+ >standaloneblast.pl -do 3 -maskvals '10:50:90'  -in 't/data/cysprot1.fa' -alnfmt msf -inaln 't/data/cysprot.msf'
 
 
 

@@ -42,7 +42,8 @@ use Bio::SeqIO;
 use strict;
 
 # set some default values
-my $infile = 't/cysprot1a.fa';
+#my $infile = 't/cysprot1a.fa';
+my $infile = Bio::Root::IO->catfile("t","data","cysprot.fa");;
 my @params = ('quiet' => 1 );
 my $do_only = '123'; 	# string listing examples to be executed. Default is to execute
 			# all tests (ie 1,2 and 3)
