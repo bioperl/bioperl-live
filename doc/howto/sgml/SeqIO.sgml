@@ -247,6 +247,11 @@ my $seq_object = $seqio_object->next_seq;
 	      <entry>gb|gbank|genbank</entry>
 	    </row>
 	    <row>
+	      <entry>interpro</entry>
+	      <entry>InterProScan XML</entry>
+	      <entry></entry>
+	    </row>
+	    <row>
 	      <entry>kegg</entry>
 	      <entry>KEGG</entry>
 	      <entry></entry>
