@@ -264,4 +264,92 @@ sub version{
    return undef;
 }
 
+=head2 executable
+
+ Title   : executable
+ Usage   : my $exe = $factory->executable();
+ Function: Finds the full path to the executable
+ Returns : string representing the full path to the exe
+ Args    : [optional] name of executable to set path to
+           [optional] boolean flag whether or not warn when exe is not found
+
+=cut
+
+sub executable{
+   my ($self, $exe,$warn) = @_;
+
+   if( defined $exe ) {
+     $self->{'_pathtoexe'} = $exe;
+   }
+   unless( defined $self->{'_pathtoexe'} ) {
+       my $prog_path = $self->program_path;
+       if( $prog_path && -e $prog_path && -x $prog_path ) {
+           $self->{'_pathtoexe'} = $prog_path;
+       } else {
+           my $exe;
+           if( ( $exe = $self->io->exists_exe($self->program_name) ) &&
+               -x $exe ) {
+               $self->{'_pathtoexe'} = $exe;
+           } else {
+               $self->warn("Cannot find executable for ".$self->program_name) if $warn;
+               $self->{'_pathtoexe'} = undef;
+           }
+       }
+   }
+   $self->{'_pathtoexe'};
+}
+
+=head2 program_path
+
+ Title   : program_path
+ Usage   : my $path = $factory->program_path();
+ Function: Builds path for executable 
+ Returns : string representing the full path to the exe
+ Args    : none
+
+=cut
+
+sub program_path {
+    my ($self) = @_;
+    my @path;
+    push @path, $self->program_dir if $self->program_dir;
+    push @path, $self->program_name.($^O =~ /mswin/i ?'.exe':'');
+
+    return Bio::Root::IO->catfile(@path);
+}
+
+=head2 program_dir
+
+ Title   : program_dir
+ Usage   : my $dir = $factory->program_dir();
+ Function: Abstract get method for dir of program. To be implemented
+           by wrapper.
+ Returns : string representing program directory 
+ Args    : none 
+
+=cut
+
+sub program_dir {
+    my ($self) = @_;
+    $self->throw_not_implemented();
+}
+
+=head2 program_name
+
+ Title   : program_name
+ Usage   : my $name = $factory->program_name();
+ Function: Abstract get method for name of program. To be implemented
+           by wrapper.
+ Returns : string representing program name
+ Args    : none
+
+=cut
+
+sub program_name {
+    my ($self) = @_;
+    $self->throw_not_implemented();
+}
+
+*program = \&executable;
+
 1;
