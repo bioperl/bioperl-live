@@ -203,6 +203,7 @@ sub new {
     # Store the aligned query as sequence feature
     my $strand;
     if( ! $qe || ! $qs ) { $self->throw("Did not specify a Query End or Query Begin"); }
+    if( ! $he || ! $hs ) { $self->throw("Did not specify a Hit End or Hit Begin"); }
     if ($qe > $qs) {  # normal query: start < end
 	if ($queryfactor) { $strand = 1; } else { $strand = undef; }
 	$self->query( Bio::SeqFeature::Similarity->new
@@ -708,9 +709,16 @@ sub get_aln {
 
     my $seqonly = $qs;
     $seqonly =~ s/\-//g;
-    
+    my ($q_nm,$s_nm) = ($self->query->seqname(),
+			$self->hit->seqname());
+    unless( defined $q_nm && CORE::length ($q_nm) ) {
+	$q_nm = 'query';
+    }
+    unless( defined $s_nm && CORE::length ($s_nm) ) {
+	$s_nm = 'hit';
+    }
     my $query = new Bio::LocatableSeq('-seq'   => $qs,
-				      '-id'    => $self->query->seqname(),
+				      '-id'    => $q_nm,
 				      '-start' => 1,
 				      '-end' => CORE::length($seqonly),
 				      );
@@ -718,7 +726,7 @@ sub get_aln {
     $seqonly =~ s/\-//g;
     
     my $hit =  new Bio::LocatableSeq('-seq'   => $hs,
-				      '-id'    => $self->hit->seqname(),
+				      '-id'    => $s_nm,
 				      '-start' => 1,
 				      '-end' => CORE::length($seqonly),
 				      );
