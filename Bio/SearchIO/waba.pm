@@ -82,6 +82,8 @@ use strict;
 # Object preamble - inherits from Bio::Root::Root
 
 use Bio::SearchIO;
+use Bio::Search::Result::ResultFactory;
+use Bio::Search::HSP::HSPFactory;
 
 use POSIX;
 
