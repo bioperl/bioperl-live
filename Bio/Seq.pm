@@ -393,7 +393,7 @@ This class implements the following interfaces.
 
 Note that this includes implementing Bio::PrimarySeqI.
 
-=item Bio::IdentifiableI
+=item Bio::GloballyIdentifiableI
 
 =item Bio::DescribableI
 
@@ -455,14 +455,14 @@ use Bio::Root::Root;
 use Bio::SeqI;
 use Bio::Annotation::Collection;
 use Bio::PrimarySeq;
-use Bio::IdentifiableI;
+use Bio::GloballyIdentifiableI;
 use Bio::DescribableI;
 use Bio::AnnotatableI;
 use Bio::FeatureHolderI;
 
 $VERSION = '1.1';
 @ISA = qw(Bio::Root::Root Bio::SeqI
-	  Bio::IdentifiableI Bio::DescribableI
+	  Bio::GloballyIdentifiableI Bio::DescribableI
 	  Bio::AnnotatableI Bio::FeatureHolderI);
 
 =head2 new
@@ -796,7 +796,7 @@ sub alphabet {
    return $self->primary_seq->alphabet();
 }
 
-=head1 Methods for Bio::IdentifiableI compliance
+=head1 Methods for Bio::GloballyIdentifiableI compliance
 
 =cut
 

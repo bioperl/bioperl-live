@@ -118,11 +118,11 @@ use strict;
 
 use Bio::Root::Root;
 use Bio::PrimarySeqI;
-use Bio::IdentifiableI;
+use Bio::GloballyIdentifiableI;
 use Bio::DescribableI;
 
 @ISA = qw(Bio::Root::Root Bio::PrimarySeqI
-	  Bio::IdentifiableI Bio::DescribableI);
+	  Bio::GloballyIdentifiableI Bio::DescribableI);
 
 #
 # setup the allowed values for alphabet()
@@ -473,7 +473,7 @@ sub display_id {
 
            [Note this method name is likely to change in 1.3]
 
-           With the new Bio::IdentifiableI interface, this is aliased 
+           With the new Bio::GloballyIdentifiableI interface, this is aliased 
            to object_id
 
  Returns : A string
@@ -613,7 +613,7 @@ sub  id {
    return shift->display_id(@_);
 }
 
-=head1 Methods for Bio::IdentifiableI compliance
+=head1 Methods for Bio::GloballyIdentifiableI compliance
 
 =cut
 
