@@ -132,7 +132,7 @@ sub _initialize {
   $score   && $self->score($score);
   $tag     && do {
       foreach my $t ( keys %$tag ) {
-	  $self->has_tag($t,$tag->{$t});
+	  $self->add_tag_value($t,$tag->{$t});
       }
   };
 
