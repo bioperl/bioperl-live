@@ -114,13 +114,13 @@ sub new {
 					  NAMES PROGRAM)],@args);
     
     ($matrix && $values && $names) || 
-	$self->throw("Need a file or file handle!");
+	$self->throw("Need matrix, values, and names fields all provided!");
 
     $program && $self->program($program);
     
-    $self->_matrix($matrix) if $matrix;
-    $self->_values($values) if $values;
-    $self->names($names) if $names;
+    $self->_matrix($matrix) if ref($matrix) =~ /HASH/i;
+    $self->_values($values) if ref($values) =~ /ARRAY/i;
+    $self->names($names) if ref($names) =~ /ARRAY/i;
 
     return $self;
 }
@@ -240,6 +240,7 @@ sub print_matrix {
   $str.= (" "x 4). scalar(@names)."\n";
   foreach my $name (@names){
     my $newname = $name. (" " x (15-length($name)));
+    if( length($name) >= 15 ) { $newname .= " " }
     $str.=$newname;
     my $count = 0;
     foreach my $n (@names){
@@ -334,10 +335,3 @@ sub _values {
 }
   
 1;
-
-
-    
-    
-    
-
-
