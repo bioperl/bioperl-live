@@ -42,31 +42,37 @@ record.
 
 =item 'ENTRY'
 
-$seq-E<gt>primary_id
+ $seq->primary_id
 
 =item 'NAME'
 
-$seq-E<gt>display_id
+$seq->display_id
 
 =item 'DEFINITION'
 
-$seq-E<gt>annotation-E<gt>get_Annotations('description');
+ $seq->annotation->get_Annotations('description');
 
 =item 'ORTHOLOG'
 
-grep {$_-E<gt>database eq 'KO'} $seq-E<gt>annotation-E<gt>get_Annotations('dblink')
+ grep {$_->database eq 'KO'} $seq->annotation->get_Annotations('dblink')
 
 =item 'CLASS'
 
-grep {$_-E<gt>database eq 'PATH'} $seq-E<gt>annotation-E<gt>get_Annotations('dblink')
+ grep {$_->database eq 'PATH'} $seq->annotation->get_Annotations('dblink')
 
 =item 'POSITION'
 
 FIXME, NOT IMPLEMENTED
 
+=item 'PATHWAY'
+
+ for my $pathway ( $seq->annotation->get_Annotations('pathway') ) {
+
+ }
+
 =item 'DBLINKS'
 
-$seq-E<gt>annotation-E<gt>get_Annotations('dblink')
+ $seq->annotation->get_Annotations('dblink')
 
 =item 'CODON_USAGE'
 
@@ -74,11 +80,11 @@ FIXME, NOT IMPLEMENTED
 
 =item 'AASEQ'
 
-$seq-E<gt>translate-E<gt>seq
+ $seq->translate->seq
 
 =item 'NTSEQ'
 
-$seq-E<gt>seq
+ $seq-E<gt>seq
 
 =back
 
@@ -100,7 +106,6 @@ Report bugs to the Bioperl bug tracking system to help us keep track
  the bugs and their resolution.
  Bug reports can be submitted via email or the web:
 
-  bioperl-bugs@bio.perl.org
   http://bugzilla.bioperl.org/
 
 =head1 AUTHOR - Allen Day
@@ -127,7 +132,6 @@ use Bio::Seq::SeqFactory;
 use Bio::Annotation::Collection;
 use Bio::Annotation::Comment;
 use Bio::Annotation::DBLink;
-use Bio::Annotation::SimpleValue;
 
 @ISA = qw(Bio::SeqIO);
  
@@ -216,7 +220,7 @@ sub next_seq {
       $pathway =~ s/\s+/ /g;
       $pathway =~ s/\s$//g;
       $pathway =~ s/^\s+//;
-      $annotation->add_Annotation('pathway', Bio::Annotation::SimpleValue->new(-value => $pathway));
+      $annotation->add_Annotation('pathway', Bio::Annotation::Comment->new(-text => $pathway));
       $annotation->add_Annotation('dblink',Bio::Annotation::DBLink->new(-database => $db, -primary_id => $id));
   }
 
