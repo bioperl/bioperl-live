@@ -174,6 +174,8 @@ sub _initialize {
   return unless @args;
   my ($idlength) = $self->_rearrange([qw(IDLENGTH)],@args);
   $self->idlength($idlength || $IDLENGTH);
+  $self->_eventHandler->register_factory('hsp', Bio::Search::HSP::HSPFactory->new(-type => 'Bio::Search::HSP::FastaHSP'));
+
   return 1;
 }
 
@@ -314,6 +316,7 @@ sub next_result{
 	   while( defined ($_ = $self->_readline() ) && 
 		  ! /^\s+$/ ) {
 	       my @line = split;
+	       
 	       if ($line[-1] =~ m/\=/o && $labels[-1] eq 'fs') {
 		   # unlabelled alignment hit;
 		   push @labels, "aln_code";
@@ -388,6 +391,7 @@ sub next_result{
 
 	   $_ = $self->_readline();
 	   my ($score,$bits,$e) = ( /Z-score:\s*(\S+)\s*bits:\s*(\S+)\s+E\(\):\s*(\S+)/ );
+
 	   my $v = shift @hit_signifs;
 	   if( defined $v ) {
 	       @{$v}{qw(evalue bits z-sc)} = ($e, $bits, $score);
@@ -397,7 +401,6 @@ sub next_result{
 			   'Data' => $v ? $v->{evalue} : $e });
 	   $self->element({'Name' => 'Hit_score',
 			   'Data' => $v ? $v->{bits} : $bits });
-
 	   $self->start_element({'Name' => 'Hsp'});
 
 	   $self->element({'Name' => 'Hsp_score',
@@ -455,7 +458,6 @@ sub next_result{
 	       } else {
 		   $self->element({'Name' => 'Hsp_query-frame', 'Data' => 0 });
 	       }
-
 	       $self->element({'Name' => 'Hsp_hit-frame', 'Data' => $v->{lframe} });
 
 	   } else {
