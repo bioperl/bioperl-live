@@ -1,5 +1,5 @@
 #!/usr/bin/perl -w
-# $Id: search2gff.PLS,v 1.3 2003-04-22 20:23:21 jason Exp $
+# $Id: search2gff.PLS,v 1.4 2003-05-19 17:27:09 jason Exp $
 
 # Author:      Jason Stajich <jason@bioperl.org>
 # Description: Turn SearchIO parseable report(s) into a GFF report
@@ -75,9 +75,10 @@ while( my $result = $parser->next_result ) {
     while( my $hit = $result->next_hit ) {
 	next if( defined $cutoff && $hit->significance > $cutoff);
 	while( my $hsp = $hit->next_hsp ) {
-	    my $feature;
+	    my $feature = new Bio::SeqFeature::Generic;
+	    my $proxyfor;
 	    if( $type eq 'query' ) {
-		$feature = $hsp->query;
+		$proxyfor = $hsp->query;
 		$feature->add_tag_value('Target', 'Sequence:'.$hit->name);
 		if( $hsp->hit->strand < 0 ) {
 		    $feature->add_tag_value('Target', $hsp->hit->end);
@@ -87,8 +88,11 @@ while( my $result = $parser->next_result ) {
 		    $feature->add_tag_value('Target', $hsp->hit->end);
 		}
 	    } else {
-		$feature = $hsp->hit;
-		$feature->add_tag_value('Target', 'Sequence:'.$result->query_name);
+		$proxyfor = $hsp->hit;
+		$feature->add_tag_value('Target', 'Sequence:'.
+					$result->query_name);
+		$proxyfor->score($hit->bits) unless( $proxyfor->score );
+
 		if( $hsp->query->strand < 0 ) {
 		    $feature->add_tag_value('Target', $hsp->query->end);
 		    $feature->add_tag_value('Target', $hsp->query->start);
@@ -97,12 +101,13 @@ while( my $result = $parser->next_result ) {
 		    $feature->add_tag_value('Target', $hsp->query->end);
 		}
 	    }
-	    # for now remove fracid - I don't like to see it in GFF
-	    $feature->remove_tag('FracId') if $feature->has_tag("FracId");
-	    # for now remove fracid - I don't like to see it in GFF
-	    $feature->remove_tag('signif') if $feature->has_tag("signif");
-	    
+	    $feature->location($proxyfor->location);
+	    $feature->source_tag($proxyfor->source_tag);
+	    $feature->score($proxyfor->score);
+	    $feature->frame($proxyfor->frame);
+	    $feature->seq_id($proxyfor->seq_id);
 	    $feature->primary_tag('similarity');
+
 	    $out->write_feature($feature);
 	}
     }
