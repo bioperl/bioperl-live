@@ -234,21 +234,21 @@ also load <classname>Bio::SeqFeature::Generic</classname> in order to
 create a series of Bio::SeqFeatureI objects for rendering.  We then
 create a Bio::Graphics::Panel object by calling its new() method,
 specifying that the panel is to correspond to a sequence that is 1000
-residues long, and has a physical width of 800 bp (line 5).  The Panel
-can contain multiple horizontal tracks, each of which has its own way
-of rendering features (called a "glyph"), color, labeling convention,
-and so forth.  In this simple example, we create a single track by
-calling the panel object's add_track() method (line 6), specify a
-glyph type of "generic", and ask that the objects in the track be
-labeled by providing a true value to the -label argument.  This gives
-us a track object that we can add our hits to.
+nucleotides long, and has a physical width of 800 pixels (line 5).
+The Panel can contain multiple horizontal tracks, each of which has
+its own way of rendering features (called a "glyph"), color, labeling
+convention, and so forth.  In this simple example, we create a single
+track by calling the panel object's add_track() method (line 6),
+specify a glyph type of "generic", and ask that the objects in the
+track be labeled by providing a true value to the -label argument.
+This gives us a track object that we can add our hits to.
 </para>
 
 <para>
 We're now ready to render the blast hit file.  We loop through it
 (line 7-14), stripping off the comments, and parsing out the name,
-score and range (line 10).  We now need a Bio::SeqI object to place in
-the track.  The easiest way to do this is to create a
+score and range (line 10).  We now need a Bio::SeqFeatureI object to
+place in the track.  The easiest way to do this is to create a
 Bio::SeqFeature::Generic object, which is similar to Bio::PrimarySeq,
 except that it provides a way of attaching start and end positions to
 the sequence, as well as such nebulous but useful attributes as the
@@ -735,7 +735,7 @@ Code example 5 shows the code for rendering an EMBL or GenBank entry.
 
  14  my @features = $seq-&gt;all_SeqFeatures;
 
- 15  # sort features by their primary tags
+ 15  # partition features by their primary tags
  16  my %sorted_features;
  17  for my $f (@features) {
  18    my $tag = $f-&gt;primary_tag;
