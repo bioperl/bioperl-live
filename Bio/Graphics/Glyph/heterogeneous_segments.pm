@@ -68,16 +68,6 @@ sub keyglyph {
   return $glyph;
 }
 
-# component draws a shaded box
-sub draw_component {
-  my $self = shift;
-  my $gd = shift;
-  my ($left,$top) = @_;
-  my $color = $self->{partcolor};
-  my @rect = $self->bounds(@_);
-  $self->filled_box($gd,@rect,$color,$color);
-}
-
 1;
 
 =head1 NAME

@@ -63,7 +63,6 @@ sub draw_component {
     unless $draw_dna || $draw_target;
   return $self->SUPER::draw_component(@_) unless $self->dna_fits;
 
-
   my $dna = $draw_target ? eval {$self->feature->hit->seq}
                          : eval {$self->feature->seq};
   return $self->SUPER::draw_component(@_) unless length $dna > 0;  # safety
