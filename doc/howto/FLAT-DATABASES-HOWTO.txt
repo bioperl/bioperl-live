@@ -9,9 +9,10 @@ indexes are created and accessed using the Bio::DB::Flat module.
 
 Bio::DB::Flat has the same functionality as the various Bio::Index
 modules.  The main reason to use it is if you want to use the
-BioSequence Registry system (see doc/howto/BIODATABASE_ACCESS.txt), or 
-if you want to share the same indexed files among scripts written in 
-other languages, such as those written with BioJava or BioPython.
+BioSequence Registry system (see the OBDA Access HOWTO at 
+http://bioperl.org/HOWTOs), or if you want to share the same indexed 
+files among scripts written in other languages, such as those written
+with BioJava or BioPython.
 
 There are three steps to creating a Bio::DB::Flat database:
 
