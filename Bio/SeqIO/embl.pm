@@ -197,7 +197,7 @@ sub next_seq {
        $_ = $buffer;
 
        # Exit at start of Feature table
-       last if /^FH/;
+       last if /^F[HT]/;
 
        # Description line(s)
        if (/^DE\s+(\S.*\S)/) {
@@ -294,7 +294,7 @@ sub next_seq {
 	 }
      }
    }
-	
+   
    if( $buffer !~ /^SQ/  ) {
        while( defined ($_ = $self->_readline) ) {
 	   /^SQ/ && last;
