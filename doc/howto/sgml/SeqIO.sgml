@@ -228,7 +228,7 @@ below. It prints out the accession number for each entry in the file.
      <programlisting>
      # first, bring in the SeqIO module
 
-     use Bio:SeqIO;
+     use Bio::SeqIO;
 
      # Notice that you do not have to use any Bio:SeqI
      # objects, because SeqIO does this for you. In fact, it
