@@ -35,14 +35,14 @@ Creating the OddCodes object, eg:
 	my $inputstream = Bio::SeqIO->new( '-file' => "seqfile", 
                                            '-format' => 'Fasta');
 	my $seqobj = $inputstream->next_seq();
-	my $oddcode_obj = Bio::Tools::Oddcodes->new($seqobj);
+	my $oddcode_obj = Bio::Tools::Oddcodes->new(-seq => $seqobj);
 
 or:
 	my $seqobj = Bio::PrimarySeq->new
               (-seq=>'[cut and paste a sequence here]', 
                -moltype = 'protein', 
                -id = 'test');
-	my $oddcode_obj  =  Bio::Tools::OddCodes->new($seqobj);
+	my $oddcode_obj  =  Bio::Tools::OddCodes->new(-seq => $seqobj);
 
 do the alternative coding, returning the answer as a reference to a string
 
@@ -124,7 +124,11 @@ sub new
 
     my $self = $class->SUPER::new(@args);
 
-    my $seqobj = shift (@args);
+    my ($seqobj) = $self->_rearrange([qw(SEQ)],@args);
+    if((! defined($seqobj)) && @args && ref($args[0])) {
+	# parameter not passed as named parameter?
+	$seqobj = $args[0];
+    }
     unless  ($seqobj->isa("Bio::PrimarySeqI")) 
     {
 	die("die in _init, OddCodes works only on PrimarySeqI

@@ -20,7 +20,7 @@ use Bio::Seq;
 use Bio::Tools::IUPAC;
 
 my $ambiseq = new Bio::Seq (-seq => 'ARTCGUTGR', -type => 'Dna');
-my $stream  = new Bio::Tools::IUPAC($ambiseq);
+my $stream  = new Bio::Tools::IUPAC(-seq => $ambiseq);
 
 while ($uniqueseq = $stream->next_seq()) {
     # process the unique Seq object.
@@ -153,7 +153,11 @@ sub new {
     my($class,@args) = @_;
     my $self = $class->SUPER::new(@args);    
 
-    my $seq = shift @args;
+    my ($seq) = $self->_rearrange([qw(SEQ)],@args);
+    if((! defined($seq)) && @args && ref($args[0])) {
+	# parameter not passed as named parameter?
+	$seq = $args[0];
+    }
     $seq->isa('Bio::Seq') or $self->throw("Must supply a Seq.pm object to IUPAC!");
     $self->{'_SeqObj'} = $seq;
     if ($self->{'_SeqObj'}->moltype() =~ m/^[dr]na$/i ) { # nucleotide seq object
