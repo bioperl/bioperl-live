@@ -36,11 +36,11 @@ Encapsulated PostScript (EPS) format.
 
 Bio::Tree::Draw::Cladogram is a Perl tool for drawing Bio::Tree::Tree
 objects in Encapsulated PostScript (EPS) format. It can be utilized
-both for displaying a single phylogenetic tree and for the comparative
-display of two phylogenetic trees, such as a gene tree and a species
-tree, a host tree and a parasite tree, two alternative trees for the
-same set of taxa, or two alternative trees for overlapping sets of
-taxa.
+both for displaying a single phylogenetic tree (a cladogram) and for
+the comparative display of two phylogenetic trees (a tanglegram) such
+as a gene tree and a species tree, a host tree and a parasite tree,
+two alternative trees for the same set of taxa, or two alternative
+trees for overlapping sets of taxa.
 
 Phylogenetic trees are drawn as rectangular cladograms, with
 horizontal orientation and ancestral nodes centered over their
@@ -48,8 +48,12 @@ descendents. The font used for taxa is Courier at 10 pt. A single
 Bio::Tree::Tree object is drawn with ancestors to the left and taxa
 flushed to the right. Two Bio::Tree::Tree objects are drawn with the
 first tree oriented left-to-right and the second tree oriented
-right-to-left, and with corresponding taxa connected by straight
-lines.
+right-to-left, and with corresponding taxa connected by straight lines
+in a shade of gray. Each correspondence between a $taxon1 of the first
+tree and a $taxon2 of the second tree is established by setting
+$taxon1->add_tag_value('connection',$taxon2). Thus, a taxon of the
+first tree can be connected to more than one taxon of the second tree,
+and vice versa.
 
 This is a preliminary release of Bio::Tree::Draw::Cladogram. Future
 improvements include a better placement of taxa names, an option to
@@ -111,13 +115,13 @@ my %xx;        # horizontal coordinate for each node
 my %yy;        # vertical coordinate for each node
 my $t1;        # first Bio::Tree::Tree object
 my $t2;        # second Bio::Tree::Tree object
-my %conn;      # connection between $t1 and $t2 taxa
 my $width;     # total drawing width
 my $height;    # total drawing height
 my $xstep;     # branch length in drawing
 my $tip;       # extra space between tip and label
 my $tipwidth1; # width of longest label among $t1 taxa
 my $tipwidth2; # width of longest label among $t2 taxa
+my $tiplen2;   # number of characters of longest label among $t2 taxa
 
 =head2 new
 
@@ -127,7 +131,6 @@ my $tipwidth2; # width of longest label among $t2 taxa
  Returns : Bio::Tree::Draw::Cladogram
  Args    : -tree => Bio::Tree::Tree object
            -second => Bio::Tree::Tree object (optional)
-           -connection => hash of taxa indexed by taxa (optional)
            -aspect => width to height ratio [real] (optional)
            -top => top margin [integer] (optional)
            -bottom => bottom margin [integer] (optional)
@@ -142,8 +145,8 @@ sub new {
   my($class,@args) = @_;
 
   my $self = $class->SUPER::new(@args);
-  ($t1, $t2, %conn, my $aspect, my $top, my $bottom, my $left, my $right,
-    $tip, my $column) = $self->_rearrange([qw(TREE SECOND ASPECT CONNECTION
+  ($t1, $t2, my $aspect, my $top, my $bottom, my $left, my $right,
+    $tip, my $column) = $self->_rearrange([qw(TREE SECOND ASPECT
     TOP BOTTOM LEFT RIGHT TIP COLUMN)], @args);
   $aspect ||= 2/(sqrt 5+1); # golden ratio
   $top ||= 10;
@@ -151,12 +154,51 @@ sub new {
   $left ||= 10;
   $right ||= 10;
   $tip ||= 5;
-  $column ||= 20;
+  $column ||= 60;
+
+  # Roughly, a cladogram is set according to the following parameters.
+
+  #################################
+  #                           # T #   $top (T, top margin)
+  #        +---------+ XXX    #   #   $bottom (B, bottom margin)
+  #        |                  #   #   $left (L, left margin)
+  #        |                  #   #   $right (R, right margin)
+  #   +----+                  #   #   $tip (X, extra tip space)
+  #        |    +----+ XXXX   #   #   $width (total drawing width)
+  #        |    |             #   #   $height (total drawing height)
+  #        +----+             # Y #   $aspect ($width / $height)
+  #             |             #   #   $xstep (S, stem length)
+  #             +----+ XX     #   #   $ystep (Y, space between taxa)
+  #                           # B #   $tiplen (string length of longest name)
+  #################################   $tipwidth (N, size of longest name)
+  # L         S       X  N  R #
+  #############################
+
+  # A tanglegram is roughly set as follows. The only additional
+  # parameter is $column (C, length of connection lines between taxa
+  # of the two trees), but $tip occurs four times, and $tiplen and
+  # $tipwidth differ for the first and the second tree.
+
+  ###########################################################
+  #                                                         #
+  #        +---------+ XXX  ----- XXXXXX +----+             #
+  #        |                                  |             #
+  #        |                                  +----+        #
+  #   +----+                                  |    |        #
+  #        |    +----+ XXXX -----    XXX +----+    |        #
+  #        |    |                                  +----+   #
+  #        +----+                                  |        #
+  #             |                                  |        #
+  #             +----+ XX   -----   XXXX +---------+        #
+  #                                                         #
+  ###########################################################
+  # L                 X    X  C  X      X                 R #
+  ###########################################################
 
   # An alternative would be to let the user set $width and $height in
   # points and to scale down everything to fit the desired
   # dimensions. However, the final EPS can later be scaled down to any
-  # desired size.
+  # desired size anyway.
 
   my @taxa1 = $t1->get_leaf_nodes;
   my $root1 = $t1->get_root_node;
@@ -168,7 +210,6 @@ sub new {
 
   my @taxa2;
   my $root2;
-  my $tiplen2;
 
   my $ystep = 10;
   $tipwidth1 = 6 * $tiplen1; # assuming a char is 6 points wide
@@ -186,7 +227,7 @@ sub new {
   my $depth = $root1->height + 1;
   $height = $bottom + $ystep * (@taxa1 - 1) + $top;
 
-  $width = $aspect * $height;
+  $width = $aspect * $height + 200;
   $width -= ($left + $tip + $tipwidth1 + $right);
 
   if ($t2) {
@@ -197,10 +238,37 @@ sub new {
   $xstep = $width / $depth;
 
   $width = $left + $tipwidth1 + $tip + $xstep * $depth + $right;
+  $height = $bottom + $ystep * (@taxa1 - 1) + $top;
   if ($t2) {
     $width += $tip + $column + $tip + $tipwidth2 + $tip;
+    if ( scalar(@taxa2) > scalar(@taxa1) ) {
+      $height = $bottom + $ystep * (@taxa2 - 1) + $top;
+    }
   }
-  $height = $bottom + $ystep * (@taxa1 - 1) + $top;
+
+  ###########################################################################
+  # A problem with this approach is that for long taxa names, stems
+  # can be much too short (even of negative length) in order to
+  # achieve the desired aspect ratio. The following solution consists
+  # of setting $xstep (the stem length) to an absolute length and
+  # rescaling $ystep (the vertical space between taxa names) to achive
+  # the desired aspect ratio.
+  ###########################################################################
+  my $stems = $root1->height + 1;
+  if ($t2) { $stems += $root2->height + 1; }
+  my $labels = $tipwidth1;
+  if ($t2) { $labels += $tipwidth2; }
+  $xstep = 20;
+  $width = $left + $stems * $xstep + $tip + $labels + $right;
+  if ($t2) { $width += $tip + $column + $tip + $tip; }
+  $height = $aspect * $width;
+  $ystep = $height / scalar(@taxa1);
+  if ($t2) {
+    if (scalar(@taxa2) > scalar(@taxa1)) {
+      $ystep = $height / scalar(@taxa2);
+    }
+  }
+  ###########################################################################
 
   my $x = $left + $xstep * ($root1->height + 1) + $tip;
   my $y = $bottom;
@@ -340,7 +408,8 @@ sub print {
     for my $taxon (reverse $t2->get_leaf_nodes) {
       print INFO $xx{$taxon} - $tipwidth2 - $tip, " ",
         $yy{$taxon} - 3, " moveto\n";
-      print INFO "(", $taxon->id, ") show\n";
+      my $format = "(%" . $tiplen2 . "s) show\n";
+      printf INFO $format, $taxon->id;
     }
 
     for my $node ($t2->get_nodes) {
@@ -366,21 +435,15 @@ sub print {
     my @taxa1 = $t1->get_leaf_nodes;
     my @taxa2 = $t2->get_leaf_nodes;
 
-    my $connection = scalar(keys(%conn));
-    if ($connection eq 1) {
+    # set default connection between $t1 and $t2 taxa, unless
+    # overridden by the user (the latter not implemented yet)
 
-      # set default connection between $t1 and $t2 taxa, unless
-      # overridden by %conn
-
-      foreach my $taxon1 (@taxa1) {
-        my $x1 = $xx{$taxon1} + $tip + $tipwidth1 + $tip;
-        my $y1 = $yy{$taxon1};
-        foreach my $taxon2 (@taxa2) {
-          if ($taxon1->id eq $taxon2->id) {
-	    $conn{$taxon1} = $taxon2;
-	    last;
-          }
-        }
+    foreach my $taxon1 (@taxa1) {
+      foreach my $taxon2 (@taxa2) {
+	if ($taxon1->id eq $taxon2->id) {
+	  $taxon1->add_tag_value('connection',$taxon2);
+	  last;
+	}
       }
     }
 
@@ -388,10 +451,11 @@ sub print {
 
     print INFO "stroke\n";
     print INFO "0.5 setgray\n";
+
     foreach my $taxon1 (@taxa1) {
-      if (defined $conn{$taxon1}) {
-        my $taxon2 = $conn{$taxon1};
-        my $x1 = $xx{$taxon1} + $tip + $tipwidth1 + $tip;
+      my @match = $taxon1->get_tag_values('connection');
+      foreach my $taxon2 (@match) {
+	my $x1 = $xx{$taxon1} + $tip + $tipwidth1 + $tip;
         my $y1 = $yy{$taxon1};
         my $x2 = $xx{$taxon2} - $tip - $tipwidth2 - $tip;
         my $y2 = $yy{$taxon2};
