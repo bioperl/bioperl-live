@@ -1,4 +1,4 @@
-## $Id: bioperl.pod,v 1.23 2002-03-08 16:55:34 bosborne Exp $
+## $Id: bioperl.pod,v 1.23.2.1 2002-03-15 23:03:23 bosborne Exp $
 
 ## Should contain general info about the distribution including
 ## links to many modules.
@@ -57,7 +57,7 @@ documentation that will not appear in the general documentation.
 
 The Bioperl modules are distributed as a tar file that expands into a
 standard perl CPAN distribution.  Detailed installation directions 
-can be found in the distribution README file.
+can be found in the distribution INSTALL file.
 
 The Bioperl modules can now interact with local flat file and relational
 databases. To learn how to set this up, look at the biodatabases.pod
@@ -87,7 +87,8 @@ and driver code.
 If you have installed Bioperl in the standard way, as detailed in the
 README in the distribution, these examples should work by just running
 them. If you have not installed it in a standard way you will
-have to change the 'use lib' to point to your installation.
+have to change the 'use lib' to point to your installation (see INSTALL
+for details).
 
 
 =head1 Examples/ Directory
