@@ -164,6 +164,7 @@ sub new {
   else {
       $self->{'_hsps'} = undef;
   }
+
   return $self;
 }
 
@@ -671,15 +672,23 @@ sub hsp {
  Usage     : $hit_object->logical_length( [seq_type] );
            : (mostly intended for internal use).
  Purpose   : Get the logical length of the hit sequence.
-           : If the Blast is a TBLASTN or TBLASTX, the returned length 
-           : is the length of the would-be amino acid sequence (length/3).
-           : For all other BLAST flavors, this function is the same as length().
+           : This is necessary since the number of identical/conserved residues 
+           : can be in terms of peptide sequence space, yet the query and/or hit
+           : sequence are in nucleotide space.
  Example   : $len    = $hit_object->logical_length();
  Returns   : Integer 
  Argument  : seq_type = 'query' or 'hit' or 'sbjct' (default = 'query')
              ('sbjct' is synonymous with 'hit')
  Throws    : n/a
- Comments  : This is important for functions like frac_aligned_query()
+ Comments  :
+           : In the case of BLAST flavors:
+           : For TBLASTN reports, the length of the aligned portion of the 
+           : nucleotide hit sequence is divided by 3; for BLASTX reports, 
+           : the length of the aligned portion of the nucleotide query 
+           : sequence is divided by 3. For TBLASTX reports, the length of 
+           : both hit and query sequence are converted.
+           :
+           : This is important for functions like frac_aligned_query()
            : which need to operate in amino acid coordinate space when dealing
            : with [T]BLAST[NX] type reports.
 
@@ -694,26 +703,21 @@ sub logical_length {
     my $seqType = shift || 'query';
     $seqType = 'sbjct' if $seqType eq 'hit';
 
-    my $length;
+    my ($length, $logical);
+    my $algo = $self->algorithm;
 
     # For the sbjct, return logical sbjct length
     if( $seqType eq 'sbjct' ) {
         $length = $self->length;
-        # Adjust length based on BLAST flavor.
-        if($self->algorithm =~ /TBLAST[NX]/ ) {
-            $length /= 3;
-        }
     } else {
         # Otherwise, return logical query length
         $length = $self->query_length();
         $self->throw("Must have defined query_len") unless ( $length );
-
-        # Adjust length based on BLAST flavor.
-        if($self->algorithm =~ /T?BLASTX/ ) {
-            $length /= 3;
-        }
     }
-    return int($length);
+
+    $logical = Bio::Search::SearchUtils::logical_length($algo, $seqType, $length);
+
+    return int($logical);
 }
 
 =head2 length_aln
@@ -748,6 +752,11 @@ sub length_aln {
     $seqType ||= 'query';
     $seqType = 'sbjct' if $seqType eq 'hit';
 
+    # Setter:
+    if( defined $num) {
+        return $self->{'_length_aln_'.$seqType} = $num;
+    }
+
     unless ($self->{'_hsps'}) {
         #return wantarray ? ('-','-') : '-';
         $self->_warn_about_no_hsps;
@@ -755,10 +764,6 @@ sub length_aln {
     }
 
     Bio::Search::SearchUtils::tile_hsps($self) unless $self->tiled_hsps;
-
-    if( defined $num) {
-        return $self->{'_length_aln_'.$seqType} = $num;
-    }
 
     my $data = $self->{'_length_aln_'.$seqType};
     
@@ -1045,7 +1050,19 @@ sub range {
            : default = 'query' (but see comments below).
            : ('sbjct' is synonymous with 'hit')
  Throws    : n/a
- Comments  : Different versions of Blast report different values for the total
+ Comments  :
+           : To compute the fraction identical, the logical length of the 
+           : aligned portion of the sequence is used, meaning that
+           : in the case of BLAST flavors, for TBLASTN reports, the length of 
+           : the aligned portion of the 
+           : nucleotide hit sequence is divided by 3; for BLASTX reports, 
+           : the length of the aligned portion of the nucleotide query 
+           : sequence is divided by 3. For TBLASTX reports, the length of 
+           : both hit and query sequence are converted.
+           : This is necessary since the number of identical residues is
+           : in terms of peptide sequence space.
+           :
+           : Different versions of Blast report different values for the total
            : length of the alignment. This is the number reported in the
            : denominators in the stats section:
            : "Identical = 34/120 Positives = 67/120".
@@ -1111,7 +1128,19 @@ sub frac_identical {
            : default = 'query' (but see comments below).
            : ('sbjct' is synonymous with 'hit')
  Throws    : n/a
- Comments  : Different versions of Blast report different values for the total
+ Comments  :
+           : To compute the fraction conserved, the logical length of the 
+           : aligned portion of the sequence is used, meaning that
+           : in the case of BLAST flavors, for TBLASTN reports, the length of 
+           : the aligned portion of the 
+           : nucleotide hit sequence is divided by 3; for BLASTX reports, 
+           : the length of the aligned portion of the nucleotide query 
+           : sequence is divided by 3. For TBLASTX reports, the length of 
+           : both hit and query sequence are converted.
+           : This is necessary since the number of conserved residues is
+           : in terms of peptide sequence space.
+           :
+           : Different versions of Blast report different values for the total
            : length of the alignment. This is the number reported in the
            : denominators in the stats section:
            : "Positives = 34/120 Positives = 67/120".
@@ -1179,11 +1208,6 @@ sub frac_conserved {
  Throws    : n/a
  Comments  : If you need data for each HSP, use hsps() and then interate
            : through the HSP objects.
-           : To compute the fraction aligned, the logical length of the query
-           : sequence is used, meaning that for [T]BLASTX reports, the 
-           : full length of the query sequence is converted into amino acids
-           : by dividing by 3. This is necessary because of the way 
-           : the lengths of aligned sequences are computed.
            : This method requires that all HSPs be tiled. If they have not
            : already been tiled, they will be tiled first automatically.
 
@@ -1204,7 +1228,7 @@ sub frac_aligned_query {
 
     Bio::Search::SearchUtils::tile_hsps($self) unless $self->tiled_hsps;
 
-    sprintf( "%.2f", $self->length_aln('query') / 
+    sprintf( "%.2f", $self->length_aln('query') /
              $self->logical_length('query'));
 }
 
@@ -1222,11 +1246,6 @@ sub frac_aligned_query {
  Throws    : n/a
  Comments  : If you need data for each HSP, use hsps() and then interate
            : through the HSP objects.
-           : To compute the fraction aligned, the logical length of the sbjct
-           : sequence is used, meaning that for TBLAST[NX] reports, the 
-           : full length of the sbjct sequence is converted into amino acids
-           : by dividing by 3. This is necessary because of the way 
-           : the lengths of aligned sequences are computed.
            : This method requires that all HSPs be tiled. If they have not
            : already been tiled, they will be tiled first automatically.
 
