@@ -1,4 +1,4 @@
-#!perl
+#!perl 
 # Author:  Jason Stajich <jason@bioperl.org>
 # Purpose: Bioperl implementation of Sean Eddy's sreformat
 #          We're not as clever as Sean's squid library though so 
@@ -23,9 +23,18 @@ my $USAGE = "bpsreformat -if INFORMAT -of OUTFORMAT -i FILENAME -o output.FORMAT
                         (to pass in data on STDIN omit this flag)
 -o/--output             Specify the output file name 
                         (to pass data out on STDOUT omit this flag
---msa                   Specify this is multiple sequence alignment data";
+--msa                   Specify this is multiple sequence alignment data
+--special=specialparams Specify special params supported by some formats
+                        Comma or space separated please.
+                        These include:
+                        nointerleaved   -- for phylip,non-interleaved format
+                        idlinebreak       -- for phylip, makes it molphy format
+                        percentages     -- for clustalw, show % id per line
+                        
+";
 
-my ($input,$output,$informat,$outformat,$msa);
+
+my ($input,$output,$informat,$outformat,$msa,$special);
 
 GetOptions(
 	   'h|help:s'          => sub { die($USAGE) },
@@ -34,11 +43,21 @@ GetOptions(
 	   'if|informat:s'     => \$informat,
 	   'of|outformat:s'    => \$outformat,
 	   'msa'               => \$msa,
+	   's|special:s'       => \$special,
 	   );
 
 unless( defined $informat && defined $outformat ) { die("Cannot proceed without a defined input and output you gave ($informat,$outformat)\n") }
 
 my ($in,$out);
+my @extra;
+if( $special ) { 
+    @extra = map { my @rc; 
+		   if( /nointerleaved/) { 
+		       @rc = ('-interleaved' => '0');
+		   } else{ @rc = ("-$_" => 1) }
+		   @rc;
+	       } split(/[\s,]/,$special);
+}
 if( $msa ) { 
     eval { 
 	$in = new Bio::AlignIO(-format => $informat, -file => $input);
@@ -49,10 +68,10 @@ if( $msa ) {
     eval { 
 	   if( $output ) { 
 	       $out = new Bio::AlignIO(-format => $outformat, 
-				       -file => ">$output");
+				       -file => ">$output", @extra);
 	   } else { 
 	       # default to STDOUT for output
-	       $out = new Bio::AlignIO(-format => $outformat);
+	       $out = new Bio::AlignIO(-format => $outformat,@extra);
 	   }
        };
     if( $@ ) { 
