@@ -86,7 +86,6 @@ my %implement = (
 
 my $fallbackRegistryURL = 'http://www.open-bio.org/registry/seqdatabase.ini';
 
-
 sub new {
     my ($class,@args) = shift;
     my $self = $class->SUPER::new(@args);
@@ -100,8 +99,10 @@ sub new {
 
 sub _load_registry {
     my ($self) = @_;
+    my $home = "";
+    defined $ENV{"HOME"} ? $home = $ENV{"HOME"} 
+      : $home = (getpwuid($>))[7]; # ActiveState has no getpwuid()
 
-    my $home = (getpwuid($>))[7];
     my $f;
 
     if ( $OBDA_SEARCH_PATH ) {
