@@ -278,6 +278,8 @@ sub _cleanup_methods {
 sub throw{
    my ($self,@args) = @_;
    
+   my ( $text, $class ) = $self->_rearrange( [qw(TEXT CLASS)], @args);
+
    if( $ERRORLOADED ) {
 #       print STDERR "  Calling Error::throw\n\n";
 
@@ -299,7 +301,6 @@ sub throw{
                throw $class ( '-text' => $text, '-value' => $args[0] ); 
            }
        } else {
-           my ( $text, $class ) = $self->_rearrange( [qw(TEXT CLASS)], @args);
            $class ||= "Bio::Root::Exception";
    
            my %args = @args;
@@ -313,11 +314,11 @@ sub throw{
 #       print STDERR "  Not calling Error::throw\n\n";
 
        my $std = $self->stack_trace_dump();
-       my $title = "------------- EXCEPTION -------------";
+       my $title = "------------- EXCEPTION $class -------------";
        my $footer = "\n" . '-' x CORE::length($title);
 
        my $out = $title . "\n" .
-           "MSG: ".$args[0]."\n". $std . $footer . "\n";
+           "MSG: ".$text."\n". $std . $footer . "\n";
 
        die $out;
    }
