@@ -20,14 +20,16 @@ Bio::PrimarySeqI - Interface definition for a Bio::PrimarySeq
 
     # to test this is a seq object
 
-    $obj->isa("Bio::PrimarySeqI") || $obj->throw("$obj does not implement the Bio::PrimarySeqI interface");
+    $obj->isa("Bio::PrimarySeqI") || 
+      $obj->throw("$obj does not implement the Bio::PrimarySeqI interface");
 
     # accessors
 
     $string    = $obj->seq();
     $substring = $obj->subseq(12,50);
     $display   = $obj->display_id(); # for human display
-    $id        = $obj->primary_id(); # unique id for this object, implementation defined
+    $id        = $obj->primary_id(); # unique id for this object, 
+                                     # implementation defined
     $unique_key= $obj->accession_number();
                        # unique biological id
 
@@ -37,13 +39,13 @@ Bio::PrimarySeqI - Interface definition for a Bio::PrimarySeq
 	$rev    = $obj->revcom();
     };
     if( $@ ) {
-	$obj->throw("Could not reverse complement. Probably not DNA. Actual exception\n$@\n");
+	$obj->throw("Could not reverse complement. ".
+		    "Probably not DNA. Actual exception\n$@\n");
     }
 
     $trunc = $obj->trunc(12,50);
 
     # $rev and $trunc are Bio::PrimarySeqI compliant objects
-
 
 
 =head1 DESCRIPTION
@@ -78,8 +80,8 @@ User feedback is an integral part of the evolution of this and other
 Bioperl modules. Send your comments and suggestions preferably to one
 of the Bioperl mailing lists.  Your participation is much appreciated.
 
-  bioperl-l@bioperl.org          - General discussion
-  http://bio.perl.org/MailList.html             - About the mailing lists
+  bioperl-l@bioperl.org                       - General discussion
+  http://bio.perl.org/MailList.html           - About the mailing lists
 
 =head2 Reporting Bugs
 
@@ -94,11 +96,10 @@ or the web:
 
 Email birney@sanger.ac.uk
 
-Describe contact details here
-
 =head1 APPENDIX
 
-The rest of the documentation details each of the object methods. Internal methods are usually preceded with a _
+The rest of the documentation details each of the object
+methods. Internal methods are usually preceded with a _
 
 =cut
 
@@ -109,9 +110,9 @@ The rest of the documentation details each of the object methods. Internal metho
 package Bio::PrimarySeqI;
 use vars qw(@ISA );
 use strict;
-use Carp;
-use Bio::Tools::CodonTable;
 use Bio::Root::RootI;
+use Bio::Tools::CodonTable;
+
 
 @ISA = qw(Bio::Root::RootI);
 
@@ -137,12 +138,7 @@ define.
 
 sub seq {
    my ($self) = @_;
-
-   if( $self->can('throw_not_implemented') ) {
-       $self->throw_not_implemented();
-   } else {
-       confess("Bio::PrimarySeqI definition of seq - implementing class did not provide this method");
-   }
+   $self->throw_not_implemented();
 }
 
 =head2 subseq
@@ -163,13 +159,7 @@ sub seq {
 
 sub subseq{
    my ($self) = @_;
-
-   if( $self->can('throw_not_implemented') ) {
-       $self->throw_not_implemented();
-   } else {
-       confess("Bio::PrimarySeqI definition of subseq - implementing class did not provide this method");
-   }
-
+   $self->throw_not_implemented();
 }
 
 =head2 display_id
@@ -200,13 +190,7 @@ sub subseq{
 
 sub display_id {
    my ($self) = @_;
-
-   if( $self->can('throw_not_implemented') ) {
-       $self->throw_not_implemented();
-   } else {
-       confess("Bio::PrimarySeqI definition of display_id - implementing class did not provide this method");
-   }
-
+   $self->throw_not_implemented();
 }
 
 
@@ -232,13 +216,7 @@ sub display_id {
 
 sub accession_number {
    my ($self,@args) = @_;
-
-   if( $self->can('throw_not_implemented') ) {
-       $self->throw_not_implemented();
-   } else {
-       confess("Bio::PrimarySeqI definition of seq - implementing class did not provide this method");
-   }
-
+   $self->throw_not_implemented();
 }
 
 
@@ -248,12 +226,13 @@ sub accession_number {
  Title   : primary_id
  Usage   : $unique_implementation_key = $obj->primary_id;
  Function: Returns the unique id for this object in this
-           implementation. This allows implementations to manage
-           their own object ids in a way the implementaiton can control
+           implementation. This allows implementations to manage their
+           own object ids in a way the implementaiton can control
            clients can expect one id to map to one object.
 
-           For sequences with no accession number, this method should return
-           a stringified memory location.
+           For sequences with no accession number, this method should
+           return a stringified memory location.
+
  Returns : A string
  Args    : None
  Status  : Virtual
@@ -263,13 +242,7 @@ sub accession_number {
 
 sub primary_id {
    my ($self,@args) = @_;
-
-   if( $self->can('throw_not_implemented') ) {
-       $self->throw_not_implemented();
-   } else {
-       confess("Bio::PrimarySeqI definition of seq - implementing class did not provide this method");
-   }
-
+   $self->throw_not_implemented();
 }
 
 
@@ -326,14 +299,7 @@ sub can_call_new{
 
 sub alphabet{
     my ( $self ) = @_;
-
-    if( $self->can('throw_not_implemented') ) {
-        $self->throw_not_implemented();
-    } else {
-	my $class = ref($self);
-	my $msg = "Class '$class' does not implement method 'alphabet'";
-        confess($msg);
-    }
+    $self->throw_not_implemented();
 }
 
 sub moltype{
@@ -346,8 +312,10 @@ sub moltype{
 
 =head1 Optional Implementation Functions
 
-The following functions rely on the above functions. A implementingclass does not need to provide these functions, as they will be
-provided by this class, but is free to override these functions.
+The following functions rely on the above functions. An
+implementing class does not need to provide these functions, as they
+will be provided by this class, but is free to override these
+functions.
 
 All of revcom(), trunc(), and translate() create new sequence
 objects. They will call new() on the class of the sequence object
@@ -363,18 +331,21 @@ are encouraged to override these methods
  Usage   : $rev = $seq->revcom()
  Function: Produces a new Bio::PrimarySeqI implementing object which
            is the reversed complement of the sequence. For protein
-           sequences this throws an exception of "Sequence is a protein. Cannot revcom"
+           sequences this throws an exception of "Sequence is a
+           protein. Cannot revcom"
 
-           The id is the same id as the original sequence, and the accession number
-           is also indentical. If someone wants to track that this sequence has be
-           reversed, it needs to define its own extensions
+           The id is the same id as the original sequence, and the
+           accession number is also indentical. If someone wants to
+           track that this sequence has be reversed, it needs to
+           define its own extensions
 
            To do an inplace edit of an object you can go:
 
            $seq = $seq->revcom();
 
-           This of course, causes Perl to handle the garbage collection of the old
-           object, but it is roughly speaking as efficient as an inplace edit.
+           This of course, causes Perl to handle the garbage
+           collection of the old object, but it is roughly speaking as
+           efficient as an inplace edit.
 
  Returns : A new (fresh) Bio::PrimarySeqI object
  Args    : none
@@ -390,18 +361,16 @@ sub revcom{
    my $t = $self->alphabet;
 
    if( $t eq 'protein' ) {
-       if( $self->can('throw') ) {
-	   $self->throw("Sequence is a protein. Cannot revcom");
-       } else {
-	   confess("[$self] Sequence is a protein. Cannot revcom");
-       }
+       $self->throw("Sequence is a protein. Cannot revcom");
    }
 
    if( $t ne 'dna' && $t ne 'rna' ) {
        if( $self->can('warn') ) {
-	   $self->warn("Sequence is not dna or rna, but [$t]. Attempting to revcom, but unsure if this is right");
+	   $self->warn("Sequence is not dna or rna, but [$t]. ".
+		       "Attempting to revcom, but unsure if this is right");
        } else {
-	   warn("[$self] Sequence is not dna or rna, but [$t]. Attempting to revcom, but unsure if this is right");
+	   warn("[$self] Sequence is not dna or rna, but [$t]. ".
+		"Attempting to revcom, but unsure if this is right");
        }
    }
 
@@ -462,18 +431,12 @@ sub trunc{
        $start->isa('Bio::LocationI') ) {
        $str = $self->subseq($start); # start is a location actually
    } elsif( !$end ) {
-       if( $self->can('throw')  ) {
-	   $self->throw("trunc start,end");
-       } else {
-	   confess("[$self] trunc start,end");
-       }
+       $self->throw("trunc start,end");
    } elsif( $end < $start ) {
-       my $msg = "start $start is greater than end $end. if you want to truncated and reverse complement, you must call trunc followed by revcom. Sorry.";
-       if( $self->can('throw')  ) {
-	   $self->throw($msg);
-       } else {
-	   confess($msg);
-       }
+       my $msg = "start [$start] is greater than end [$end. \n".
+	   "If you want to truncated and reverse complement, \n".
+	       "you must call trunc followed by revcom. Sorry.";
+       $self->throw($msg);
    } else { 
        $str = $self->subseq($start,$end);
    }
@@ -646,12 +609,7 @@ sub  id {
 
 sub  length {
    my ($self)= @_;
-
-   if( $self->can('throw_not_implemented') ) {
-       $self->throw_not_implemented();
-   } else {
-       confess("Bio::PrimarySeqI definition of length - implementing class did not provide this method");
-   }
+   $self->throw_not_implemented();
 }
 
 =head2 desc
@@ -669,11 +627,7 @@ sub  length {
 
 sub desc {
    my ($self,$value) = @_;
-   if( $self->can('warn_not_implemented') ) {
-       $self->warn_not_implemented();
-   } else {
-       warn("Bio::PrimarySeqI definition of desc - implementing class did not provide this method");
-   }
+   $self->warn_not_implemented();
    return '';
 }
 
@@ -695,98 +649,6 @@ sub is_circular{
     }
     return $self->{'_is_circular'};
 } 
-
-#  These methods are here for backward compatibility with the old, 0.5
-#  Seq objects. They all throw warnings that someone is using a
-#  deprecated method, and may eventually be removed completely from
-#  this object. However, they are important to ease the transition from
-#  the old system.
-
-sub str{
-   my ($self,$start,$end) = @_;
-
-   # we assumme anyone using this is using vanilla bioperl object
-   my ($p,$f,$l) = caller;
-   $self->deprecated("$f:$l Seq::str - deprecated method. You should use \$obj->seq in preference");
-
-   if( defined $end ) {
-       return $self->subseq($start,$end);
-   } else {
-       return $self->seq();
-   }
-}
-
-sub ary{
-   my ($self,$start,$end) = @_;
-
-   # we assumme anyone using this is using vanilla bioperl object
-   my ($p,$f,$l) = caller;
-   $self->deprecated("$f:$l Seq::ary - deprecated method. You should use \$obj->seq in preference, followed by your split to an array");
-
-   my $str;
-   if( defined $end ) {
-       $str = $self->subseq($start,$end);
-   } else {
-      $str = $self->seq();
-   }
-
-   return split(//,$str);
-}
-
-sub getseq{
-   my ($self,@args) = @_;
-
-   if( wantarray ) {
-       return $self->ary(@args);
-   } else {
-       return $self->str(@args);
-   }
-}
-
-sub setseq {
-   my ($self,$seq) = @_;
-
-   # we assumme anyone using this is using vanilla bioperl object
-   my ($p,$f,$l) = caller;
-   $self->deprecated("$f:$l Seq::setseq - deprecated method. You should use \$obj->seq in preference, followed by your split to an array");
-
-   return $self->seq($seq);
-}
-
-sub type{
-   my ($self) = @_;
-
-   # we assumme anyone using this is using vanilla bioperl object
-   my ($p,$f,$l) = caller;
-   $self->deprecated("$f:$l Seq::type - deprecated method. You should use \$obj->alphabet in preference (notice that alphabet returns lowercase strings)");
-
-   my $t = $self->alphabet;
-   $t eq "dna" && return "DNA";
-   $t eq "rna" && return "RNA";
-   $t eq "protein" && return "PROTEIN";
-   return "UNKNOWN";
-}
-
-sub seq_len {
-    my $self = shift;
-   # we assumme anyone using this is using vanilla bioperl object
-    my ($p,$f,$l) = caller;
-    $self->deprecated("$f:$l Seq::seq_len - deprecated method. You should use \$obj->length in preference");
-    return $self->length();
-}
-
-sub out_fasta{
-   my ($self,@args) = @_;
-
-   my ($p,$f,$l) = caller;
-   $self->deprecated("$f:$l Seq::out_fasta - deprecated method. You should use the SeqIO package in preference");
-
-   my $str = $self->seq;
-   $str =~ tr/a-z/A-Z/;
-   $str=~ s/(.{1,60})/$1\n/g;
-#  return ">". $self->id(). " ".$self->desc()."\n";
-   return ">". $self->id(). "\n" . $str . "\n";  #ps 3/25/00
-}
 
 =head1 Private functions
 
@@ -815,11 +677,13 @@ sub _attempt_to_load_Seq{
 	   require Bio::PrimarySeq;
        };
        if( $@ ) {
-	   if( $self->can('throw') ) {
-	       $self->throw("Bio::PrimarySeq could not be loaded for $self\nThis indicates that you are usnig Bio::PrimarySeqI without Bio::PrimarySeq loaded and without providing a complete solution\nThe most likely problem is that there has been a misconfiguration of the bioperl environment\nActual exception\n\n$@\n");
-	   } else {
-	       confess("Bio::PrimarySeq could not be loaded for $self\nThis indicates that you are using Bio::PrimarySeqI without Bio::PrimarySeq loaded and without providing a complete solution\nThe most likely problem is that there has been a misconfiguration of the bioperl environment\nActual exception\n\n$@\n");
-	   }
+	   my $text = "Bio::PrimarySeq could not be loaded for [$self]\n".
+	       "This indicates that you are using Bio::PrimarySeqI ".
+	       "without Bio::PrimarySeq loaded or without providing a ".
+	       "complete implementation.\nThe most likely problem is that there ".
+	       "has been a misconfiguration of the bioperl environment\n".
+	       "Actual exception:\n\n";
+	   $self->throw("$text$@\n");
 	   return 0;
        }
        return 1;
@@ -828,5 +692,3 @@ sub _attempt_to_load_Seq{
 }
 
 1;
-
-
