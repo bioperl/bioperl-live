@@ -168,21 +168,22 @@ semantics.
 
 Specify the format of the file.  Supported formats include:
 
-   fasta       FASTA format
-   selex       selex (hmmer) format
-   stockholm   stockholm format
-   prodom      prodom (protein domain) format
-   clustalw    clustalw (.aln) format
-   msf         msf (GCG) format
-   mase        mase (seaview) format
    bl2seq      Bl2seq Blast output
+   clustalw    clustalw (.aln) format
+   emboss      EMBOSS water and needle format
+   fasta       FASTA format
+   maf         Multiple Alignment Format
+   mase        mase (seaview) format
+   mega        MEGA format
+   meme        MEME format
+   msf         msf (GCG) format
    nexus       Swofford et al NEXUS format
    pfam        Pfam sequence alignment format
    phylip      Felsenstein's PHYLIP format
-   emboss      EMBOSS water and needle format
-   mega        MEGA format
-   meme        MEME format
+   prodom      prodom (protein domain) format
    psi         PSI-BLAST format
+   selex       selex (hmmer) format
+   stockholm   stockholm format
 
 Currently only those formats which were implemented in L<Bio::SimpleAlign>
 have been incorporated in AlignIO.pm.  Specifically, mase, stockholm
@@ -467,6 +468,7 @@ sub _guess_format {
    my $class = shift;
    return unless $_ = shift;
    return 'fasta'   if /\.(fasta|fast|seq|fa|fsa|nt|aa)$/i;
+   return 'maf'     if /\.maf/i;
    return 'msf'     if /\.(msf|pileup|gcg)$/i;
    return 'pfam'    if /\.(pfam|pfm)$/i;
    return 'selex'   if /\.(selex|slx|selx|slex|sx)$/i;

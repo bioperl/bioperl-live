@@ -878,6 +878,44 @@ These methods affect characters in all sequences without changeing the
 alignment.
 
 
+=head2 splice_by_seq_pos
+
+ Title   : splice_by_seq_pos
+ Usage   : $status = splice_by_seq_pos(1);
+ Function: splices all aligned sequences where the specified sequence
+           has gaps.
+ Example :
+ Returns : 1 on success
+ Args    : position of sequence to splice by
+
+
+=cut
+
+sub splice_by_seq_pos{
+  my ($self,$pos) = @_;
+
+  my $guide = $self->get_seq_by_pos($pos);
+  my $guide_seq = $guide->seq;
+
+  $guide_seq =~ s/\./\-/g;
+
+  my @gaps = ();
+  my $pos = -1;
+  while(($pos = index($guide_seq, '-', $pos)) > -1 ){
+    unshift @gaps, $pos;
+    $pos++;
+  }
+
+  foreach my $seq ($self->each_seq){
+    my @bases = split '', $seq->seq;
+
+    splice(@bases, $_, 1) foreach @gaps;
+    $seq->seq(join('', @bases));
+  }
+
+  1;
+}
+
 =head2 map_chars
 
  Title     : map_chars

@@ -198,9 +198,9 @@ sub get_nse{
    $char1 ||= "/";
    $char2 ||= "-";
 
-   $self->throw("Attribute id not set") unless $self->id();
-   $self->throw("Attribute start not set") unless $self->start();
-   $self->throw("Attribute end not set") unless $self->end();
+   $self->throw("Attribute id not set") unless defined($self->id());
+   $self->throw("Attribute start not set") unless defined($self->start());
+   $self->throw("Attribute end not set") unless defined($self->end());
 
    return $self->id() . $char1 . $self->start . $char2 . $self->end ;
 

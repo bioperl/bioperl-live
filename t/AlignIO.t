@@ -9,7 +9,7 @@ BEGIN {
 	use lib 't';
     }
     use Test;
-    plan tests => 74;
+    plan tests => 75;
 }
 
 use Bio::SimpleAlign;
@@ -54,6 +54,11 @@ $strout = Bio::AlignIO->new('-file' => ">".Bio::Root::IO->catfile("t","data","te
 			      '-format' => 'pfam');
 $status = $strout->write_aln($aln);
 ok $status, 1, " failed pfam output test";
+
+# MAF
+$str = Bio::AlignIO->new('-file' => Bio::Root::IO->catfile("t","data","humor.maf"));
+$aln = $str->next_aln();
+ok $aln->get_seq_by_pos(1)->get_nse, 'NM_006987/0-5000', " failed maf input test";
 
 # MSF
 $str = Bio::AlignIO->new('-file' => Bio::Root::IO->catfile("t","data","testaln.msf"));
