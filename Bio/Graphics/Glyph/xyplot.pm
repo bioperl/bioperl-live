@@ -26,8 +26,10 @@ sub draw {
   my $self = shift;
   my ($gd,$dx,$dy) = @_;
   my ($left,$top,$right,$bottom) = $self->calculate_boundaries($dx,$dy);
+  warn "here I am";
 
   my @parts = $self->parts;
+
   return $self->SUPER::draw(@_) unless @parts > 0;
 
   my ($min_score,$max_score) = $self->minmax(\@parts);
@@ -53,7 +55,7 @@ sub draw {
     $_->{_y_position} = $bottom - $position;
   }
 
-  my $type = $self->option('graph_type');
+  my $type = $self->option('graph_type') || $self->option('graphtype') || 'boxes';
   $self->_draw_histogram($gd,$x,$y)  if $type eq 'histogram';
   $self->_draw_boxes($gd,$x,$y)      if $type eq 'boxes';
   $self->_draw_line ($gd,$x,$y)      if $type eq 'line'
@@ -61,7 +63,10 @@ sub draw {
   $self->_draw_points($gd,$x,$y)     if $type eq 'points'
                                        or $type eq 'linepoints';
 
-  $self->_draw_scale($gd,$scale,$min_score,$max_score,$dx,$dy)      if $self->option('scale');
+  $self->_draw_scale($gd,$scale,$min_score,$max_score,$dx,$dy);
+
+  $self->draw_label(@_)       if $self->option('label');
+  $self->draw_description(@_) if $self->option('description');
 }
 
 sub log10 { log(shift)/log(10) }
@@ -193,7 +198,7 @@ sub _draw_scale {
 
   my $side = $self->option('scale');
   return if $side eq 'none';
-  $side   ||= 'both';
+  $side   ||= 'right';
 
   my $fg    = $self->fgcolor;
   my $half  = ($y1+$y2)/2;
@@ -221,7 +226,7 @@ sub _draw_scale {
 #		  $_->[1],
 #		  $fg);
       $gd->string($font,
-		  $x2 + 4,$_->[0]-($font->height/3),
+		  $x2 + 5,$_->[0]-($font->height/3),
 		  $_->[1],
 		  $fg);
     }

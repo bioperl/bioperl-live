@@ -125,6 +125,7 @@ package Bio::Graphics::Pictogram;
 use strict;
 use SVG 2.26;
 use Bio::Root::Root;
+use Bio::SeqIO;
 use vars qw(@ISA);
 @ISA = qw(Bio::Root::Root);
 

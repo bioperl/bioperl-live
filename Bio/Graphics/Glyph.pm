@@ -363,9 +363,18 @@ sub connector {
 #              0    no bumping
 #              +1   bump down
 #              -1   bump up
+#              +2   simple bump down
+#              -2   simple bump up
 sub bump {
   my $self = shift;
   return $self->option('bump');
+}
+
+# control horizontal and vertical collision control
+sub hbumppad {
+  my $self = shift;
+  return $self->{_hbumppad} if exists $self->{_hbumppad};
+  return $self->{_hbumppad}= $self->option('hbumppad');
 }
 
 # we also look for the "color" option for Ace::Graphics compatibility
@@ -519,13 +528,25 @@ sub layout {
   }
 
   my (%bin1,%bin2);
+  my $limit = 0;
+
   for my $g ($self->layout_sort(@parts)) {
 
+    my $height = $g->{layout_height};
+
+    # Simple +/- 2 bumping.  Every feature gets its very own line
+    if (abs($bump_direction) >= 2) {
+      $g->move(0,$limit);
+      $limit += $height + BUMP_SPACING if $bump_direction > 0;
+      $limit -= $height + BUMP_SPACING if $bump_direction < 0;
+      next;
+    }
+
+    # we get here for +/- 1 bumping
     my $pos = 0;
     my $bumplevel = 0;
     my $left   = $g->left;
     my $right  = $g->right;
-    my $height = $g->{layout_height};
 
     while (1) {
 
@@ -581,12 +602,14 @@ sub collides {
   my $self = shift;
   my ($occupied,$cm1,$cm2,$left,$top,$right,$bottom) = @_;
   my @keys = $self->_collision_keys($cm1,$cm2,$left,$top,$right,$bottom);
+  my $hspacing = $self->hbumppad || 0;
   my $collides = 0;
   for my $k (@keys) {
     next unless exists $occupied->{$k};
     for my $bounds (@{$occupied->{$k}}) {
       my ($l,$t,$r,$b) = @$bounds;
-      next unless $right >= $l and $left <= $r and $bottom >= $t and $top <= $b;
+      next unless $right+$hspacing >= $l and $left-$hspacing <= $r 
+	and $bottom >= $t and $top <= $b;
       $collides = $bounds;
       last;
     }
@@ -636,6 +659,7 @@ sub draw {
 
     my $x = $left;
     my $y = $top  + $self->top + $self->pad_top;
+
     $self->draw_connectors($gd,$x,$y) if $connector && $connector ne 'none';
 
     my $last_x;
@@ -1050,9 +1074,10 @@ sub default_factory {
 sub finished {
   my $self = shift;
   delete $self->{factory};
-  foreach (@{$self->{parts}}) {
+  foreach (@{$self->{parts} || []}) {
     $_->finished;
   }
+  delete $self->{parts};
 }
 
 1;
@@ -1384,6 +1409,10 @@ glyph pages for more options.
   -bump_limit   Maximum number of levels to bump undef (unlimited)
 
   -hilite       Highlight color                undef (no color)
+
+  -link, -title, -target
+               These options are used when creating imagemaps
+               for display on the web.  See L<Bio::Graphics::Panel/"Creating Imagemaps">.
 
 For glyphs that consist of multiple segments, the B<-connector> option
 controls what's drawn between the segments.  The default is undef (no

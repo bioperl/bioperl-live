@@ -15,6 +15,7 @@ use constant GRIDCOLOR    => 'lightcyan';
 use constant MISSING_TRACK_COLOR =>'gray';
 
 my %COLORS;  # translation table for symbolic color names to RGB triple
+my $IMAGEMAP = 'bgmap00001';
 
 # Create a new panel of a given width and height, and add lists of features
 # one by one
@@ -40,8 +41,11 @@ sub new {
   my $empty_track_style   = $options{-empty_tracks} || 'key';
   my $truecolor    = $options{-truecolor}  || 0;
   my $image_class  = $options{-image_class} || 'GD';
+  my $linkrule     = $options{-link};
+  my $titlerule    = $options{-title};
+  my $targetrule   = $options{-target};
   $options{-stop}||= $options{-end};  # damn damn damn
-  
+
   if (my $seg = $options{-segment}) {
     $offset = eval {$seg->start-1} || 0;
     $length = $seg->length;
@@ -73,6 +77,9 @@ sub new {
 		all_callbacks => $allcallbacks,
 		truecolor     => $truecolor,
 		flip          => $flip,
+		linkrule      => $linkrule,
+		titlerule     => $titlerule,
+		targetrule    => $targetrule,
 		empty_track_style  => $empty_track_style,
 		image_class  => $image_class,
 		image_package => $image_class . '::Image',     # Accessors
@@ -545,6 +552,10 @@ sub draw_side_key {
   my $pos = $side eq 'left' ? $self->pad_left - $self->{key_font}->width * CORE::length($key)-3
                             : $self->width - $self->pad_right+3;
   my $color = $self->translate_color('black');
+  # help me not go off the bottom!
+  if ((my $deficit = ($offset + $self->{key_font}->height) - ($gd->getBounds)[1])>0) {
+    $offset -= $deficit;
+  }
   $gd->string($self->{key_font},$pos,$offset,$key,$color);
 }
 
@@ -804,6 +815,162 @@ sub svg {
   $gd->svg;
 }
 
+
+# WARNING: THIS STUFF IS COPIED FROM Bio::Graphics::Browser.pm AND
+# Bio::Graphics::FeatureFile AND MUST BE REFACTORED
+# write a png image to disk and generate an image map in a convenient
+# CGIish way.
+sub image_and_map {
+  my $self        = shift;
+  my %args        = @_;
+  my $link_rule   = $args{-link}    || $self->{linkrule};
+  my $title_rule  = $args{-title}   || $self->{titlerule};
+  my $target_rule = $args{-target}  || $self->{targetrule};
+  my $tmpurl      = $args{-url}     || '/tmp';
+  my $docroot     = $args{-root}    || $ENV{DOCUMENT_ROOT} || '';
+  my $mapname     = $args{-mapname} || $IMAGEMAP++;
+  $docroot       .= '/' if $docroot && $docroot !~ m!/$!;
+
+  # get rid of any netstat part please
+  (my $tmpurlbase = $tmpurl) =~ s!^\w+://[^/]+!!;
+
+  my $tmpdir    = "${docroot}${tmpurlbase}";
+
+  my $url       = $self->create_web_image($tmpurl,$tmpdir);
+  my $map       = $self->create_web_map($mapname,$link_rule,$title_rule,$target_rule);
+  return ($url,$map,$mapname);
+}
+
+sub create_web_image {
+  my $self             = shift;
+  my ($tmpurl,$tmpdir) = @_;
+
+  # create directory if it isn't there already
+  # we need to untaint tmpdir before calling mkpath()
+  return unless $tmpdir =~ /^(.+)$/;
+  my $path = $1;
+  unless (-d $path) {
+    require File::Path unless defined &File::Path::mkpath;
+    File::Path::mkpath($path,0,0777) or die "Couldn't create temporary image directory $path: $!";
+  }
+
+  unless (defined &Digest::MD5::md5_hex) {
+    eval "require Digest::MD5; 1"
+      or die "Sorry, but the image_and_map() method requires the Digest::MD5 module.";
+  }
+  my $data      = $self->png;
+  my $signature = Digest::MD5::md5_hex($data);
+  my $extension = 'png';
+
+  # untaint signature for use in open
+  $signature =~ /^([0-9A-Fa-f]+)$/g or return;
+  $signature = $1;
+
+  my $url         = sprintf("%s/%s.%s",$tmpurl,$signature,$extension);
+  my $imagefile   = sprintf("%s/%s.%s",$tmpdir,$signature,$extension);
+
+  open (F,">$imagefile") || die("Can't open image file $imagefile for writing: $!\n");
+  binmode(F);
+  print F $data;
+  close F;
+
+  return $url;
+}
+
+sub create_web_map {
+  my $self     = shift;
+  my ($name,$linkrule,$titlerule,$targetrule) = @_;
+  $name ||= 'map';
+  my $boxes    = $self->boxes;
+  my (%track2link,%track2title,%track2target);
+
+  my $map = qq(<map name="$name" id="$name">\n);
+  foreach (@$boxes){
+    my ($feature,$left,$top,$right,$bottom,$track) = @$_;
+    next unless $feature->can('primary_tag');
+
+    my $lr  = $track2link{$track} ||= (defined $track->option('link') ? $track->option('link') : $linkrule);
+    next unless   $lr;
+
+    my $tr   = exists $track2title{$track} 
+      ? $track2title{$track}
+      : $track2title{$track} ||= (defined $track->option('title')  ? $track->option('title')  : $titlerule);
+    my $tgr  = exists $track2target{$track} 
+      ? $track2target{$track}
+      : $track2target{$track} ||= (defined $track->option('target')? $track->option('target')  : $targetrule);
+
+    my $href   = $self->make_link($lr,$feature);
+    my $alt    = $self->make_link($tr,$feature);
+    my $target = $self->make_link($tgr,$feature);
+    $alt       = $self->make_title($feature) unless defined $alt;
+
+    my $a      = $alt    ? qq(title="$alt" alt="$alt") : '';
+    my $t      = $target ? qq(target="$target")        : '';
+    $map .= qq(<area shape="rect" coords="$left,$top,$right,$bottom" href="$href" $a $t/>\n);
+  }
+  $map .= "</map>\n";
+  $map;
+}
+
+sub make_link {
+  my $self = shift;
+  my ($linkrule,$feature) = @_;
+
+  if (ref($linkrule) && ref($linkrule) eq 'CODE') {
+    my $val = eval {$linkrule->($feature,$self)};
+    warn $@ if $@;
+    return $val;
+  }
+
+  require CGI unless defined &CGI::escape;
+  my $n;
+  $linkrule =~ s/\$(\w+)/
+    CGI::escape(
+    $1 eq 'ref'              ? ($n = $feature->location->seq_id) && "$n"
+      : $1 eq 'name'         ? ($n = $feature->display_name) && "$n"  # workaround broken CGI.pm
+      : $1 eq 'class'        ? eval {$feature->class}  || ''
+      : $1 eq 'type'         ? eval {$feature->method} || $feature->primary_tag
+      : $1 eq 'method'       ? eval {$feature->method} || $feature->primary_tag
+      : $1 eq 'source'       ? eval {$feature->source} || $feature->source_tag
+      : $1 eq 'start'        ? $feature->start
+      : $1 eq 'end'          ? $feature->end
+      : $1 eq 'stop'         ? $feature->end
+      : $1 eq 'segstart'     ? $self->start
+      : $1 eq 'segend'       ? $self->end
+      : $1 eq 'description'  ? eval {join '',$feature->notes} || ''
+      : $1 eq 'id'           ? $feature->feature_id
+      : $1
+	       )
+       /exg;
+  return $linkrule;
+}
+
+sub make_title {
+  my $self = shift;
+  my $feature = shift;
+  my $method  = $feature->method;
+  my $seqid   = $feature->can('seq_id')      ? $feature->seq_id : $feature->location->seq_id;
+  my $title = eval {
+    if ($feature->can('target') && (my $target = $feature->target)) {
+      join (' ',
+	    $method,
+	    (defined $seqid ? "$seqid:" : '').
+	    $feature->start."..".$feature->end,
+	    $feature->target.':'.
+	    $feature->target->start."..".$feature->target->end);
+    } else {
+      join(' ',
+	   $method,
+	   $feature->can('display_name') ? $feature->display_name : $feature->info,
+	   (defined $seqid ? "$seqid:" : '').
+	   ($feature->start||'?')."..".($feature->end||'?')
+	  );
+    }
+  };
+  warn $@ if $@;
+  $title;
+}
+
 sub read_colors {
   my $class = shift;
   while (<DATA>) {
@@ -830,9 +997,11 @@ sub color_names {
 }
 
 sub finished {
-  for my $track (@{shift->{tracks}}) {
-    $track->finished();
-  }
+    my $self = shift;
+    for my $track (@{$self->{tracks} || []}) {
+	$track->finished();
+    }
+    delete $self->{tracks};
 }
 
 1;
@@ -1249,6 +1418,10 @@ a set of tag/value pairs as follows:
                using vanilla GD. See the corresponding
                image_class() method below for details.
 
+  -link, -title, -target
+               These options are used when creating imagemaps
+               for display on the web.  See L</"Creating Imagemaps">.
+
 Typically you will pass new() an object that implements the
 Bio::RangeI interface, providing a length() method, from which the
 panel will derive its scale.
@@ -1614,6 +1787,10 @@ some are shared by all glyphs:
   -bump_limit Maximum number of levels     undef (unlimited)
               to bump
 
+  -hbumppad   Additional horizontal        0
+              padding between bumped
+              features
+
   -strand_arrow Whether to indicate        undef (false)
                  strandedness
 
@@ -1636,6 +1813,9 @@ some are shared by all glyphs:
                subparts rather than around the
                feature itself.
 
+  -link, -title, -target
+               These options are used when creating imagemaps
+               for display on the web.  See L</"Creating Imagemaps">.
 
 B<Specifying colors:> Colors can be expressed in either of two ways:
 as symbolic names such as "cyan" and as HTML-style #RRGGBB triples.
@@ -1709,12 +1889,20 @@ options are:
 The B<-connector_color> option controls the color of the connector, if
 any.
 
-B<Collision control:> The -bump argument controls what happens when
+B<Collision control:> The B<-bump> argument controls what happens when
 glyphs collide.  By default, they will simply overlap (value 0).  A
 -bump value of +1 will cause overlapping glyphs to bump downwards
 until there is room for them.  A -bump value of -1 will cause
-overlapping glyphs to bump upwards.  The bump argument can also be a
-code reference; see below.
+overlapping glyphs to bump upwards.  You may also provide a -bump
+value of +2 or -2 to activate a very simple type of collision control
+in which each feature occupies its own line.  This is useful for
+showing dense, nearly-full length features such as similarity hits.
+The bump argument can also be a code reference; see below.
+
+If you would like to see more horizontal whitespace between features
+that occupy the same line, you can specify it with the B<-hbumppad>
+option.  Positive values increase the amount of whitespace between
+features.  Negative values decrease the whitespace.
 
 B<Keys:> The -key argument declares that the track is to be shown in a
 key appended to the bottom of the image.  The key contains a picture
@@ -1918,6 +2106,233 @@ method.  It returns the GD value gdBrushed, which should be used for
 drawing.
 
 =back
+
+=head2 Creating Imagemaps
+
+You may wish to use Bio::Graphics to create clickable imagemaps for
+display on the web.  The main method for achieving this is
+image_and_map().  Under special circumstances you may instead wish to
+call either or both of create_web_image() and create_web_map().
+
+Here is a synopsis of how to use image_and_map() in a CGI script,
+using CGI.pm calls to provide the HTML scaffolding:
+
+   print h2('My Genome');
+
+   my ($url,$map,$mapname) =
+       $panel->image_and_map(-root => '/var/www/html',
+                             -url  => '/tmpimages',
+                             -link => 'http://www.google.com/search?q=$name');
+
+   print img({-src=>$url,-usemap=>"#$mapname"});
+
+   print $map;
+
+We call image_and_map() with various arguments (described below) to
+generate a three element list consisting of the URL at which the image
+can be accessed, an HTML fragment containing the clickable imagemap
+data, and the name of the map.  We print out an E<lt>imageE<gt> tag
+that uses the URL of the map as its src attribute and the name of the
+map as the value of its usemap attribute.  It is important to note
+that we must put a "#" in front of the name of the map in order to
+indicate that the map can be found in the same document as the
+E<lt>imageE<gt> tag.  Lastly, we print out the map itself.
+
+=over 4
+
+=item ($url,$map,$mapname) = $panel->image_and_map(@options)
+
+Create the image in a web-accessible directory and return its URL, its
+clickable imagemap, and the name of the imagemap.  The following
+options are recognized:
+
+ Option        Description
+ ------        -----------
+
+ -url          The URL to store the image at.
+
+
+ -root         The directory path that should be appended to the
+               start of -url in order to obtain a physical
+               directory path.
+ -link         A string pattern or coderef that will be used to
+               generate the outgoing hypertext links for the imagemap.
+
+ -title        A string pattern or coderef that will be used to
+               generate the "title" tags of each element in the imagemap
+               (these appear as popup hint boxes in certain browsers).
+
+ -target       A string pattern or coderef that will be used to
+               generate the window target for each element.  This can
+               be used to pop up a new window when the user clicks on
+               an element.
+
+ -mapname      The name to use for the E<lt>mapE<gt> tag.  If not provided,
+               a unique one will be autogenerated for you.
+
+This method returns a three element list consisting of the URL at
+which the image has been written to, the imagemap HTML, and the name
+of the map.  Usually you will incorporate this information into an
+HTML document like so:
+
+  my ($url,$map,$mapname) =
+          $panel->image_and_map(-link=>'http://www.google.com/searche?q=$name');
+  print qq(<img src="$url" usemap="#$map">),"\n";
+  print $map,"\n";
+
+=item $url = $panel->create_web_image($url,$root)
+
+Create the image, write it into the directory indicated by
+concatenating $root and $url (i.e. "$root/$url"), and return $url.
+
+=item $map = $panel->create_web_map('mapname',$linkrule,$titlerule,$targetrule)
+
+Create a clickable imagemap named "mapname" using the indicated rules
+to generate the hypertext links, the element titles, and the window
+targets for the graphical elements.  Return the HTML for the map,
+including the enclosing E<lt>mapE<gt> tag itself.
+
+=back
+
+To use this method effectively, you will need a web server and an
+image directory in the document tree that is writable by the web
+server user.  For example, if your web server's document root is
+located at /var/www/html, you might want to create a directory named
+"tmpimages" for this purpose:
+
+  mkdir /var/www/html/tmpimages
+  chmod 1777 /var/www/html/tmpimages
+
+The 1777 privilege will allow anyone to create files and
+subdirectories in this directory, but only the owner of the file will
+be able to delete it.
+
+When you call image_and_map(), you must provide it with two vital
+pieces of information: the URL of the image directory and the physical
+location of the web server's document tree.  In our example, you would
+call:
+
+  $panel->image_and_map(-root => '/var/www/html',-url=>'/tmpimages');
+
+If you are working with virtual hosts, you might wish to provide the
+hostname:portnumber part of the URL.  This will work just as well:
+
+  $panel->image_and_map(-root => '/var/www/html',
+                        -url  => 'http://myhost.com:8080/tmpimages');
+
+If you do not provide the -root argument, the method will try to
+figure it out from the DOCUMENT_ROOT environment variable.  If you do
+not provide the -url argument, the method will assume "/tmp".
+
+During execution, the image_and_map() method will generate a unique
+name for the image using the Digest::MD5 module.  You can get this
+module on CPAN and it B<must> be installed in order to use
+image_and_map().  The imagename will be a long hexadecimal string such
+as "e7457643f12d413f20843d4030c197c6.png".  Its URL will be
+/tmpimages/e7457643f12d413f20843d4030c197c6.png, and its physical path
+will be /var/www/html/tmpimages/e7457643f12d413f20843d4030c197c6.png
+
+In addition to providing directory information, you must also tell
+image_and_map() how to create outgoing links for each graphical
+feature, and, optionally, how to create the "hover title" (the popup
+yellow box displayed by most modern browsers), and the name of the
+window or frame to link to when the user clicks on it.
+
+There are three ways to specify the link destination:
+
+=over 4
+
+=item 1. By configuring one or more tracks with a -link argument.
+
+=item 2. By configuring the panel with a -link argument.
+
+=item 3. By passing a -link argument in the call to image_and_map().
+
+=back
+
+The -link argument can be either a string or a coderef.  If you pass a
+string, it will be interpreted as a URL pattern containing runtime
+variables.  These variables begin with a dollar sign ($), and are
+replaced at run time with the information relating to the selected
+annotation.  Recognized variables include:
+
+     $name        The feature's name (display name)
+     $id          The feature's id (eg, PK from a database)
+     $class       The feature's class (group class)
+     $method      The feature's method (same as primary tag)
+     $source      The feature's source
+     $ref         The name of the sequence segment (chromosome, contig)
+                     on which this feature is located
+     $description The feature's description (notes)
+     $start       The start position of this feature, relative to $ref
+     $end         The end position of this feature, relative to $ref
+     $segstart    The left end of $ref displayed in the detailed view
+     $segend      The right end of $ref displayed in the detailed view
+
+For example, to link each feature to a Google search on the feature's
+description, use the argument:
+
+  -link => 'http://www.google.com/search?q=$description'
+
+Be sure to use single quotes around the pattern, or Perl will attempt
+to perform variable interpretation before image_and_map() has a chance
+to work on it.
+
+You may also pass a code reference to -link, in which case the code
+will be called every time a URL needs to be generated for the
+imagemap.  The subroutine will be called with two arguments, the
+feature and the Bio::Graphics::Panel object, and it should return the
+URL to link to, or an empty string if a link is not desired. Here is a
+simple example:
+
+  -link => sub {
+         my ($feature,$panel) = @_;
+         my $type = $feature->primary_tag;
+         my $name = $feature->display_name;
+         if ($primary_tag eq 'clone') {
+            return "http://www.google.com/search?q=$name";
+         } else {
+            return "http://www.yahoo.com/search?p=$name";
+         }
+
+The -link argument cascades. image_and_map() will first look for a
+-link option in the track configuration, and if that's not found, it
+will look in the Panel configuration (created during
+Bio::Graphics::Panel->new). If no -link configuration option is found
+in either location, then image_and_map() will use the value of -link
+passed in its argument list, if any.
+
+The -title and -target options behave in a similar manner to -link.
+-title is used to assign each feature "title" and "alt" attributes.
+The "title" attribute is used by many browsers to create a popup hints
+box when the mouse hovers over the feature's glyph for a preset length
+of time, while the "alt" attribute is used to create navigable menu
+items for the visually impaired.  As with -link, you can set the title
+by passing either a substitution pattern or a code ref, and the -title
+option can be set in the track, the panel, or the method call itself
+in that order of priority.
+
+If not provided, image_and_map() will autogenerate its own title in
+the form "<method> <display_name> <seqid>:start..end".
+
+The -target option can be used to specify the window or frame that
+clicked features will link to.  By default, when the user clicks on a
+feature, the loaded URL will replace the current page.  You can modify
+this by providing -target with the name of a preexisting or new window
+name in order to create effects like popup windows, multiple frames,
+popunders and the like.  The value of -target follows the same rules
+as -title and -link, including variable substitution and the use of
+code refs.
+
+NOTE: Each time you call image_and_map() it will generate a new image
+file.  Images that are identical to an earlier one will reuse the same
+name, but those that are different, even by one pixel, will result in
+the generation of a new image.  If you have limited disk space, you
+might wish to check the images directory periodically and remove those
+that have not been accessed recently.  The following cron script will
+remove image files that haven't been accessed in more than 20 days.
+
+30 2 * * * find /var/www/html/tmpimages -type f -atime +20 -exec rm {} \;
 
 =head1 BUGS
 

@@ -443,6 +443,10 @@ sub desc {
   $d;
 }
 
+sub attributes {
+  return;
+}
+
 sub notes {
   return shift->desc;
 }
