@@ -58,7 +58,7 @@ use vars qw(@ISA);
 use strict;
 
 use Bio::AlignIO;
-
+use Bio::SeqIO::gcg; # for GCG_checksum()
 
 @ISA = qw(Bio::AlignIO);
 
@@ -188,7 +188,7 @@ sub write_aln {
 	$miss += 2;
 	$pad  = " " x $miss;
 
-	$self->_print (sprintf(" Name: %s%sLen:    %d  Check:  %d  Weight:  1.00\n",$name,$pad,length $seq->seq(),$seq->GCG_checksum()));
+	$self->_print (sprintf(" Name: %s%sLen:    %d  Check:  %d  Weight:  1.00\n",$name,$pad,length $seq->seq(), Bio::SeqIO::gcg->GCG_checksum($seq)));
 	
 	$hash{$name} = $seq->seq();
 	push(@arr,$name);
