@@ -106,7 +106,7 @@ sub new {
   defined $org && $self->organelle($org);
   defined $sp  && $self->sub_species($sp); 
   defined $var && $self->variant($var);
-  
+
   return $self;
 }
 
@@ -145,7 +145,7 @@ sub classification {
 	} else {
 	    $classif = \@args;
 	}
-	
+
         # Check the names supplied in the classification string
 	# Species should be in lower case
 	if(! $force) {
@@ -317,17 +317,17 @@ sub validate_species_name {
     my( $self, $string ) = @_;
 
     return 1 if $string eq "sp.";
-    return 1 if $string =~ /^[a-z][\w\s]+$/i;
+    return 1 if $string =~ /^[a-z][\w\s-]+$/i;
     $self->throw("Invalid species name '$string'");
 }
 
 sub validate_name {
-    return 1; # checking is disabled as there is really not much we can
-              # enforce HL 2002/10/03
-#     my( $self, $string ) = @_;
-
-#     return 1 if $string =~ /^[\w\s\-\,\.]+$/ or
-#         $self->throw("Invalid name '$string'");
+    return 1;
+    # checking is disabled as there is really not much we can
+    # enforce HL 2002/10/03
+    #     my( $self, $string ) = @_;
+    #     return 1 if $string =~ /^[\w\s\-\,\.]+$/ or
+    #         $self->throw("Invalid name '$string'");
 }
 
 =head2 ncbi_taxid
@@ -361,7 +361,7 @@ sub ncbi_taxid {
 
 sub division{
     my $self = shift;
-    
+
     return $self->{'_division'} = shift if @_;
     return $self->{'_division'};
 }
