@@ -387,3 +387,7 @@ Text::Shellwords         Text parser
 
 XML::DOM		 XML parser
 			 Bio::SeqIO::bsml.pm
+
+DB_File                  Perl access to Berkeley DB
+                         Bio::DB::Flat
+                         Bio::SeqFeature::Collection
