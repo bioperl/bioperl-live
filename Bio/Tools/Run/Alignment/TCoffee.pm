@@ -2,9 +2,9 @@
 #
 # BioPerl module for Bio::Tools::Run::Alignment::TCoffee
 #
-# Cared for by Jason Stajich
+# Cared for by Jason Stajich, Peter Schattner
 #
-# Copyright Jason Stajich
+# Copyright Jason Stajich, Peter Schattner
 #
 # You may distribute this module under the same terms as perl itself
 
@@ -478,9 +478,9 @@ Report bugs to the Bioperl bug tracking system to help us keep track
   bioperl-bugs@bio.perl.org
   http://bio.perl.org/bioperl-bugs/
 
-=head1 AUTHOR -  Jason Stajich
+=head1 AUTHOR -  Jason Stajich, Peter Schattner
 
-Email schattner@alum.mit.edu
+Email jason@chg.mc.duke.edu, schattner@alum.mit.edu
 
 =head1 APPENDIX
 
