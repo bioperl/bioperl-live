@@ -544,7 +544,7 @@ sub _check_file_sizes {
 sub make_index {
     my($self, @files) = @_;
     my $count = 0;
-
+	my $recs = 0;
     # blow up if write flag is not set. EB fix
 
     if( !defined $self->write_flag ) {
@@ -602,7 +602,7 @@ sub make_index {
 	warn "Indexing file $file\n" if( $self->verbose > 0);
 
 	# this is supplied by the subclass and does the serious work
-        $self->_index_file( $file, $i ); # Specific method for each type of index
+        $recs += $self->_index_file( $file, $i ); # Specific method for each type of index
 
 
         # Save file name and size for this index
@@ -618,7 +618,7 @@ sub make_index {
 	
 
     }
-    return $count;
+    return ($count, $recs);
 }
 
 =head2 _filename
