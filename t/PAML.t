@@ -21,7 +21,7 @@ BEGIN {
     }
     use Test;
 
-    $NUMTESTS = 140;
+    $NUMTESTS = 142;
     plan tests => $NUMTESTS;
     eval { require IO::String; 
 	   require Bio::Tools::Phylo::PAML;}; 
@@ -287,3 +287,12 @@ ok($baseml->get_stat('loglikelihood'),-110.532715);
 ok($baseml->get_stat('constant_sites'),46);
 ok($baseml->get_stat('constant_sites_percentage'),'80.70');
 ok($baseml->model,'HKY85 dGamma (ncatG=5)');
+
+# user trees
+$baseml_p = Bio::Tools::Phylo::PAML->new
+    (-file => Bio::Root::IO->catfile(qw(t data baseml.usertree)));
+$baseml = $baseml_p->next_result;
+
+@trees = $baseml->get_trees;
+ok(@trees, 1);
+ok($trees[0]->score, -129.328757);
