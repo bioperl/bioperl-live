@@ -1,10 +1,10 @@
 =head1 NAME
 
-Bioperl databases 1.4 - how to use databases with Bioperl
+Bioperl databases 1.4
 
 =head1 SYNOPSIS
 
-Not really appropiate for a synopsis. Read on...
+How to use databases with Bioperl
 
 =head1 DESCRIPTION
 
@@ -12,23 +12,27 @@ This document is designed to let you use Bioperl with databases.
 Bioperl can work with a number of sequence formats and allows users
 to interconvert easily amongst these formats. Bioperl can also index
 flat files in some of these standard formats, allowing very fast retrieval.
-Other layers above flat file indexing are provided, allowing users to
-retrieve sequences from remote databases via the Web or build and query
-in-house relational databases (RDBs).
+You can also use Bioperl to retrieve sequences from remote databases
+via the Web or to build and query in-house relational databases (RDBs).
 
-Different scripts are provided to get you started with the Bioperl
-backend, for example:
+Different scripts are provided to get you started with some of these
+approaches, for example:
 
-=over 2
+=over 3
 
 =item scripts/bp_fetch.PLS
 
-Fetches sequences from a Database
+Fetches sequences from a flat-file database
 
 =item scripts/bp_index.PLS
 
-Builds indexes for flat files databases which are easily accessible
+Builds indexes for flat files databases which are accessed
 by bp_fetch.PLS. These scripts are discussed in more detail below.
+
+=item scripts/DB/bioflat_index.PLS
+
+Build indexes for flat file databases that can be used by the
+OBDA sequence retrieval system.
 
 =back
 
@@ -48,7 +52,8 @@ Bio::DB::BioSeqI is the abstract interface for the databases (hence
 the I). Bio::DB::GenBank and Bio::DB::GenPept are concrete
 implementations for network access to the GenBank and GenPept
 databases at NCBI, and others, using HTTP as a protocol. See
-L<Bio::DB::GenBank>, L<Bio::DB::GenPept>, and L<REMOTE SEQUENCE RETRIEVAL (Bio::DB::*)> for more information.
+L<Bio::DB::GenBank>, L<Bio::DB::GenPept>, and 
+L<REMOTE SEQUENCE RETRIEVAL (Bio::DB::*)> for more information.
 
 =item Bio::Index::* and Bio::DB::Fasta
 
@@ -87,7 +92,7 @@ the schema in relational form, and retrieved as Seq objects as well.
 Currently Mysql, Oracle, and Postgres are supported. See
 L<USING BIOPERL WITH A RELATIONAL DATABASE (bioperl-db)> below.
 
-=item OBDA
+=item The OBDA system
 
 Open Biological Database Access is a system for sequence retrieval
 that wraps all the different data sources mentioned above together
@@ -184,7 +189,7 @@ some functionality absent from Bio::Index::Fasta.
 The bioperl-db package works in conjunction with the BioSQL relational 
 schema (http://obda.open-bio.org/). The most recent version of the
 bioperl-db package can be obtained at 
-http://cvs.open-bio.org/cgi-bin/viewcvs/viewcvs.cgi/?cvsroot=bioperl. 
+http://cvs.open-bio.org/cgi-bin/viewcvs/viewcvs.cgi/?cvsroot=bioperl 
 
 The bioperl-db and BioSQL packages integrate neatly with Bioperl's 
 objects and contain tables for sequences, entries, sequence features, 
@@ -207,8 +212,8 @@ and retrieve arrays of Seq objects. For example
                          "keywords like *gyrase*"],
             ]);
 
-See L<Bio::DB::SQL::SeqAdaptor>, L<Bio::DB::SQL::QueryConstraint>, 
-L<Bio::DB::SQL::CommentAdaptor>, and L<Bio::DB::SQL::BioQuery> for
+See L<Bio::DB::BioSQL::SeqAdaptor>, L<Bio::DB::Query::QueryConstraint>, 
+L<Bio::DB::BioSQL::CommentAdaptor>, and L<Bio::DB::Query::BioQuery> for
 more examples.
 
 With bioperl-db and BioSQL installed you will also be able to load 
