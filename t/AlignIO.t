@@ -2,6 +2,7 @@
 # $Id$
 use strict;
 
+my $DEBUG = $ENV{'BIOPERLDEBUG'} || 0;
 BEGIN { 
     eval { require Test; };
     if( $@ ) { 
@@ -212,7 +213,7 @@ ok($aln->get_seq_by_pos(2)->get_nse,'ALEU_HORVU/61-360');
 
 # EMBOSS water 2.2.x sparse needle
 
-$str = new Bio::AlignIO(-verbose => 1,
+$str = new Bio::AlignIO(-verbose => $DEBUG,
 			'-format' => 'emboss',
 			'-file'   => Bio::Root::IO->catfile("t", "data", 'sparsealn.needle'));
 $aln = $str->next_aln();
