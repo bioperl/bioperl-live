@@ -87,11 +87,11 @@ sub new {
 			      SEQLENGTH				      
 			      )],@args);
 
-    $evalue && $self->significance($evalue);
-    $bits   && $self->bits($bits);
-    $frac   && $self->frac_identical($frac);
-    $seqlen && $self->seqlength($seqlen);
-    $seqdesc && $self->seqdesc($seqdesc);
+    defined $evalue && $self->significance($evalue);
+    defined $bits   && $self->bits($bits);
+    defined $frac   && $self->frac_identical($frac);
+    defined $seqlen && $self->seqlength($seqlen);
+    defined $seqdesc && $self->seqdesc($seqdesc);
     $primary  = 'similarity' unless defined $primary;
     $self->primary_tag($primary) unless( defined $self->primary_tag() );
     $self->strand(0) unless( defined $self->strand() );
