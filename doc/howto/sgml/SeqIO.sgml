@@ -31,20 +31,21 @@
       <firstname>Brian</firstname>
       <surname>Osborne</surname>
       <affiliation>
-	<orgname>Cognia Corporation</orgname>
-	<address><email>brian-at-cognia.com</email></address>
+		  <orgname>Cognia Corporation</orgname>
+		  <address><email>brian-at-cognia.com</email></address>
       </affiliation>
     </author>
     <legalnotice>	
-      <para>This document is copyright Ewan Birney, 2002.  For 
-	reproduction other than personal use please contact me at 
-	birney-at-ebi.ac.uk
+      <para>
+		  This document is copyright Ewan Birney, 2002.  For 
+		  reproduction other than personal use please contact me at 
+		  birney-at-ebi.ac.uk
       </para>
     </legalnotice>
     <abstract>
       <para>
-	This HOWTO tries to teach you about the SeqIO system for reading and 
-	writing sequences of various formats
+		  This HOWTO tries to teach you about the SeqIO system for reading and 
+		  writing sequences of various formats
       </para>
     </abstract>
   </articleinfo>
@@ -66,7 +67,9 @@
       <programlisting>
 #!/bin/perl
 
+use strict;
 use Bio::SeqIO;
+
 my $file = shift; # get the file name, somehow
 my $seqio_object = Bio::SeqIO->new(-file => $file);
 my $seq_object = $seqio_object->next_seq;
@@ -166,164 +169,200 @@ my $seq_object = $seqio_object->next_seq;
     </para>
     <para>	
       <table>
-	<title>Formats</title>
-	<tgroup cols="3">
-	  <thead>
-	    <row>
-	      <entry>Name</entry>
-	      <entry>Description</entry>
-	      <entry>extensions</entry>
-	    </row>
-	  </thead>
-	  <tbody>
-	    <row>
-	      <entry>abi</entry>
-	      <entry>ABI tracefile</entry>
-	      <entry>ab[i1]</entry>
-	    </row>
-	    <row>
-	      <entry>ace</entry>
-	      <entry>Ace database</entry>
-	      <entry>ace</entry>
-	    </row>
-	    <row>
-	      <entry>agave</entry>
-	      <entry>AGAVE XML</entry>
-	      <entry></entry>
-	    </row>
-	    <row>
-	      <entry>alf</entry>
-	      <entry>ALF tracefile</entry>
-	      <entry>alf</entry>
-	    </row>
-	    <row>
-	      <entry>bsml</entry>
-	      <entry></entry>
-	      <entry>bsm|bsml</entry>
-	    </row>
-	    <row>
-	      <entry>chado</entry>
-	      <entry>Chado</entry>
-	      <entry></entry>
-	    </row>
-	    <row>
-	      <entry>ctf</entry>
-	      <entry>CTF tracefile</entry>
-	      <entry>ctf</entry>
-	    </row>
-	    <row>
-	      <entry>embl</entry>
-	      <entry>EMBL database</entry>
-	      <entry>embl|ebl|emb|dat</entry>
-	    </row>
-	    <row>
-	      <entry>exp</entry>
-	      <entry>EXP format</entry>
-	      <entry>exp</entry>
-	    </row>
-	    <row>
-	      <entry>fasta</entry>
-	      <entry>FASTA</entry>
-	      <entry>fasta|fast|seq|fa|fsa|nt|aa</entry>
-	    </row>
-	    <row>
-	      <entry>fastq</entry>
-	      <entry></entry>
-	      <entry>fastq</entry>
-	    </row>
-	    <row>
-	      <entry>game</entry>
-	      <entry>GAME XML</entry>
-	      <entry> </entry>
-	    </row>
-	    <row>
-	      <entry>gcg</entry>
-	      <entry>GCG</entry>
-	      <entry>gcg</entry>
-	    </row>
-	    <row>
-	      <entry>genbank</entry>
-	      <entry>GenBank</entry>
-	      <entry>gb|gbank|genbank</entry>
-	    </row>
-	    <row>
-	      <entry>interpro</entry>
-	      <entry>InterProScan XML</entry>
-	      <entry></entry>
-	    </row>
-	    <row>
-	      <entry>kegg</entry>
-	      <entry>KEGG</entry>
-	      <entry></entry>
-	    </row>
-	    <row>
-	      <entry>largefasta</entry>
-	      <entry></entry>
-	      <entry> </entry>
-	    </row>
-	    <row>
-	      <entry>phd</entry>
-	      <entry>Phred</entry>
-	      <entry>phd|phred</entry>
-	    </row>
-	    <row>
-	      <entry>pir</entry>
-	      <entry>PIR database</entry>
-	      <entry>pir</entry>
-	    </row>
-	    <row>
-	      <entry>pln</entry>
-	      <entry>PLN tracefile</entry>
-	      <entry>pln</entry>
-	    </row>
-	    <row>
-	      <entry>qual</entry>
-	      <entry>Phred</entry>
-	      <entry> </entry>
-	    </row>
-	    <row>
-	      <entry>raw</entry>
-	      <entry>plain text</entry>
-	      <entry>txt</entry>
-	    </row>
-	    <row>
-	      <entry>scf</entry>
-	      <entry>Standard Chromatogram Format</entry>
-	      <entry>scf</entry>
-	    </row>
-	    <row>
-	      <entry>swiss</entry>
-	      <entry>SwissProt</entry>
-	      <entry>swiss|sp</entry>
-	    </row>
-	    <row>
-	      <entry>tab</entry>
-	      <entry>tab-delimited</entry>
-	      <entry></entry>
-	    </row>
-	    <row>
-	      <entry>tigr</entry>
-	      <entry>TIGR XML</entry>
-	      <entry></entry>
-	    </row>
-	    <row>
-	      <entry>tinyseq</entry>
-	      <entry>NCBI TinySeq XML</entry>
-	      <entry></entry>
-	    </row>
-	    <row>
-	      <entry>ztr</entry>
-	      <entry>ZTR tracefile</entry>
-	      <entry>ztr</entry>
-	    </row>
-	  </tbody>
-	</tgroup>
+		  <title>Formats</title>
+		  <tgroup cols="3">
+			 <thead>
+				<row>
+				  <entry>Name</entry>
+				  <entry>Description</entry>
+				  <entry>extensions</entry>
+				</row>
+			 </thead>
+			 <tbody>
+				<row>
+				  <entry>abi</entry>
+				  <entry>ABI tracefile</entry>
+				  <entry>ab[i1]</entry>
+				</row>
+				<row>
+				  <entry>ace</entry>
+				  <entry>Ace database</entry>
+				  <entry>ace</entry>
+				</row>
+				<row>
+				  <entry>agave</entry>
+				  <entry>AGAVE XML</entry>
+				  <entry></entry>
+				</row>
+				<row>
+				  <entry>alf</entry>
+				  <entry>ALF tracefile</entry>
+				  <entry>alf</entry>
+				</row>
+				<row>
+				  <entry>asciitree</entry>
+				  <entry>write-only, to visualize features</entry>
+				  <entry></entry>
+				</row>
+				<row>
+				  <entry>bsml</entry>
+				  <entry>BSML, using XML::DOM</entry>
+				  <entry>bsm|bsml</entry>
+				</row>
+				<row>
+				  <entry>bsml_sax</entry>
+				  <entry>BSML, using XML::SAX</entry>
+				  <entry></entry>
+				</row>
+				<row>
+				  <entry>chadoxml</entry>
+				  <entry>Chado XML</entry>
+				  <entry></entry>
+				</row>
+				<row>
+				  <entry>chaos</entry>
+				  <entry>Chaos XML</entry>
+				  <entry></entry>
+				</row>
+				<row>
+				  <entry>chaosxml</entry>
+				  <entry>Chaos XML</entry>
+				  <entry></entry>
+				</row>
+				<row>
+				  <entry>ctf</entry>
+				  <entry>CTF tracefile</entry>
+				  <entry>ctf</entry>
+				</row>
+				<row>
+				  <entry>embl</entry>
+				  <entry>EMBL database</entry>
+				  <entry>embl|ebl|emb|dat</entry>
+				</row>
+				<row>
+				  <entry>exp</entry>
+				  <entry>Staden EXP format</entry>
+				  <entry>exp</entry>
+				</row>
+				<row>
+				  <entry>fasta</entry>
+				  <entry>FASTA</entry>
+				  <entry>fasta|fast|seq|fa|fsa|nt|aa</entry>
+				</row>
+				<row>
+				  <entry>fastq</entry>
+				  <entry></entry>
+				  <entry>fastq</entry>
+				</row>
+				<row>
+				  <entry>game</entry>
+				  <entry>GAME XML</entry>
+				  <entry> </entry>
+				</row>
+				<row>
+				  <entry>gcg</entry>
+				  <entry>GCG</entry>
+				  <entry>gcg</entry>
+				</row>
+				<row>
+				  <entry>genbank</entry>
+				  <entry>GenBank</entry>
+				  <entry>gb|gbank|genbank</entry>
+				</row>
+				<row>
+				  <entry>interpro</entry>
+				  <entry>InterProScan XML</entry>
+				  <entry></entry>
+				</row>
+				<row>
+				  <entry>kegg</entry>
+				  <entry>KEGG</entry>
+				  <entry></entry>
+				</row>
+				<row>
+				  <entry>largefasta</entry>
+				  <entry></entry>
+				  <entry> </entry>
+				</row>
+				<row>
+				  <entry>locuslink</entry>
+				  <entry>LocusLink LL_tmpl</entry>
+				  <entry> </entry>
+				</row>
+				<row>
+				  <entry>metafasta</entry>
+				  <entry></entry>
+				  <entry> </entry>
+				</row>
+				<row>
+				  <entry>phd</entry>
+				  <entry>Phred</entry>
+				  <entry>phd|phred</entry>
+				</row>
+				<row>
+				  <entry>pir</entry>
+				  <entry>PIR database</entry>
+				  <entry>pir</entry>
+				</row>
+				<row>
+				  <entry>pln</entry>
+				  <entry>PLN tracefile</entry>
+				  <entry>pln</entry>
+				</row>
+				<row>
+				  <entry>qual</entry>
+				  <entry>Phred</entry>
+				  <entry> </entry>
+				</row>
+				<row>
+				  <entry>raw</entry>
+				  <entry>plain text</entry>
+				  <entry>txt</entry>
+				</row>
+				<row>
+				  <entry>scf</entry>
+				  <entry>Standard Chromatogram Format</entry>
+				  <entry>scf</entry>
+				</row>
+				<row>
+				  <entry>swiss</entry>
+				  <entry>SwissProt</entry>
+				  <entry>swiss|sp</entry>
+				</row>
+				<row>
+				  <entry>tab</entry>
+				  <entry>tab-delimited</entry>
+				  <entry></entry>
+				</row>
+				<row>
+				  <entry>tigr</entry>
+				  <entry>TIGR XML</entry>
+				  <entry></entry>
+				</row>
+				<row>
+				  <entry>tigrxml</entry>
+				  <entry>TIGR Coordset XML</entry>
+				  <entry></entry>
+				</row>
+				<row>
+				  <entry>tinyseq</entry>
+				  <entry>NCBI TinySeq XML</entry>
+				  <entry></entry>
+				</row>
+				<row>
+				  <entry>ztr</entry>
+				  <entry>ZTR tracefile</entry>
+				  <entry>ztr</entry>
+				</row>
+			 </tbody>
+		  </tgroup>
       </table>
     </para>
     <note>
       <para>
-	SeqIO needs the bioperl-ext package to read the scf, abi, alf,
-	pln, exp, ctf, and ztr formats.
+		  SeqIO needs the bioperl-ext package and the io_lib library
+		  from the Staden package in order to read the scf, abi, alf,
+		  pln, exp, ctf, and ztr formats.
       </para>
     </note>  
     <para>
@@ -340,49 +379,49 @@ my $seq_object = $seqio_object->next_seq;
     </para>
     <para>
       <table>
-	<title>Formats and Object</title>
-	<tgroup cols="2">
-	  <thead>
-	    <row>
-	      <entry>Format</entry>
-	      <entry>Object type</entry>
-	    </row>
-	  </thead>
-	  <tbody>	
-	    <row>
-	      <entry>fasta</entry>
-	      <entry>Bio::Seq</entry>
-	    </row>
-	    <row>
-	      <entry>genbank</entry>
-	      <entry>Bio::Seq::RichSeq</entry>
-	    </row>
-	    <row>
-	      <entry>pir</entry>
-	      <entry>Bio::Seq</entry>
-	    </row>
-	    <row>
-	      <entry>embl</entry>
-	      <entry>Bio::Seq::RichSeq</entry>
-	    </row>
-	    <row>
-	      <entry>raw</entry>
-	      <entry>Bio::Seq</entry>
-	    </row>
-	    <row>
-	      <entry>ace</entry>
-	      <entry>Bio::PrimarySeq</entry>
-	    </row>
-	    <row>
-	      <entry>bsml</entry>
-	      <entry>Bio::Seq::RichSeq</entry>
-	    </row>
-	    <row>
-	      <entry>swiss</entry>
-	      <entry>Bio::Seq::RichSeq</entry>
-	    </row>
-	  </tbody>
-	</tgroup>
+		  <title>Formats and Object</title>
+		  <tgroup cols="2">
+			 <thead>
+				<row>
+				  <entry>Format</entry>
+				  <entry>Object type</entry>
+				</row>
+			 </thead>
+			 <tbody>	
+				<row>
+				  <entry>fasta</entry>
+				  <entry>Bio::Seq</entry>
+				</row>
+				<row>
+				  <entry>genbank</entry>
+				  <entry>Bio::Seq::RichSeq</entry>
+				</row>
+				<row>
+				  <entry>pir</entry>
+				  <entry>Bio::Seq</entry>
+				</row>
+				<row>
+				  <entry>embl</entry>
+				  <entry>Bio::Seq::RichSeq</entry>
+				</row>
+				<row>
+				  <entry>raw</entry>
+				  <entry>Bio::Seq</entry>
+				</row>
+				<row>
+				  <entry>ace</entry>
+				  <entry>Bio::PrimarySeq</entry>
+				</row>
+				<row>
+				  <entry>bsml</entry>
+				  <entry>Bio::Seq::RichSeq</entry>
+				</row>
+				<row>
+				  <entry>swiss</entry>
+				  <entry>Bio::Seq::RichSeq</entry>
+				</row>
+			 </tbody>
+		  </tgroup>
       </table>
     </para>
   </section>
@@ -488,19 +527,21 @@ my $seq_object = $seqio_object->next_seq;
       </programlisting>
     </para>
     <para>
-      Now, what if we want to convert one format to another? When you create a 
-      Bio::SeqIO object to read in a flat file, the magic behind the curtains is that 
-      each call to 'next_seq' is a complex parsing of the next
-      sequence record into a SeqI object - not a
-      single line, but the entire record!! It knows when to start 
-      parsing, and when to stop and wait for the next call to next_seq. It knows how to 
-      get at the DIVISION information stored on the LOCUS line, etc. To get that SeqI 
-      information back out to a new file, of a different format (or of the same format, 
-      but with sequences grouped in a new way), Bio::SeqIO has a second method, called 
-      'write_seq' that revearses the process done by next_seq. It knows how to write 
-      all of the data contained in the SeqI object into the right places, with the 
-      correct labels, for any of the supported formats. Let's make this more concrete
-      by writing a universal format translator:
+      Now, what if we want to convert one format to another? When you 
+		create a Bio::SeqIO object to read in a flat file, the magic 
+		behind the curtains is that each call to 'next_seq' is a 
+		complex parsing of the next sequence record into a SeqI object 
+		- not a single line, but the entire record!! It knows when to start 
+      parsing, and when to stop and wait for the next call to
+		next_seq. It knows how to get at the DIVISION information stored 
+		on the LOCUS line, etc. To get that SeqI information back out to 
+		a new file, of a different format (or of the same format, 
+      but with sequences grouped in a new way), Bio::SeqIO has a
+		second method, called 'write_seq' that reverses the process done 
+		by next_seq. It knows how to write all of the data contained in 
+		the SeqI object into the right places, with the 
+      correct labels, for any of the supported formats. Let's make 
+		this more concrete by writing a universal format translator:
     </para>	
     <para>
       <programlisting>                         
@@ -534,33 +575,36 @@ my $seq_object = $seqio_object->next_seq;
     </para>
     <note>
       <para>
-	Bio::SeqIO actually allows you to make use of a rather
-	scary/clever part of Perl that can "mimic" filehandles, so that
-	the &lt;F&gt; operator returns sequences and the print F operator writes
-	sequences. However, for most people, including myself, this looks
-	really really weird and leads to probably more confusion.
+		  Bio::SeqIO actually allows you to make use of a rather
+		  scary/clever part of Perl that can "mimic" filehandles, so that
+		  the &lt;F&gt; operator returns sequences and the print 
+		  F operator writes sequences. However, for most people, 
+		  including myself, this looks really really weird and leads 
+		  to probably more confusion.
       </para>   
     </note>         
     <para>
       Notice that the universal formatter only required a
-      few more lines of code than the accession number lister and mean sequence 
-      length analyzer (mostly to get more command-line args). This is the 
-      beauty of using the Bioperl system. It doesn't take a lot of code to do 
-      some really complex things.
+      few more lines of code than the accession number lister and 
+		mean sequence length analyzer (mostly to get more command-line 
+		args). This is the beauty of using the Bioperl system. It
+      doesn't take a lot of code to do some really complex things.
     </para>
     <para>
-      Now, let's play around with the previous code, changing aspects of it to 
-      exploit the functionality of the SeqIO system. Let's take a
+      Now, let's play around with the previous code, changing aspects 
+		of it to exploit the functionality of the SeqIO system. Let's take a
       stream from STDIN, so that we can use other programs to stream
-      data of a particular format into
-      the program, and write out a file of a particular format. Here we have to make 
+      data of a particular format into the program, and write out 
+		a file of a particular format. Here we have to make 
       use of two new things: one perl-specific, and one SeqIO-specific.
-      Perl allows you to 'GLOB' a filehandle by placing a '*' in front of the
-      handle name, making it available for use as a variable, or as in this case, 
-      as an argument to a function. In concert, SeqIO allows you to pass a GLOB'ed  
-      filehandle to it using the '-fh' parameter in place of the '-file' parameter.
-      Here is a program that takes a stream of sequences in a given format from 
-      STDIN, meaning it could be used like this:
+      Perl allows you to 'GLOB' a filehandle by placing a '*' in 
+		front of the handle name, making it available for use as a 
+		variable, or as in this case, as an argument to a function. 
+		In concert, SeqIO allows you to pass a GLOB'ed  
+      filehandle to it using the '-fh' parameter in place of the 
+		'-file' parameter. Here is a program that takes a stream of 
+		sequences in a given format from  STDIN, meaning it could be 
+		used like this:
     </para>	
     <para>
       <programlisting>
@@ -632,15 +676,19 @@ my $seq_object = $seqio_object->next_seq;
   <section id="string">
     <title>To and from a string</title>
     <para>
-      A popular question many people have asked is "What if I have a string that has 
-      a series of sequence records in some format, and I want to make it a Seq object?" 
-      You might want to do this if you allow users to paste in sequence data into a web form, 
-      and then do something with that sequence data.  This can be accomplished using
-      the -fh parameter, along with perl's IO::String module that allows you to turn
-      the contents of a string into a standard globbed perl handle.  This isn't a complete
-      program, but gives you the most relevant bits.  Assume that there is some type of
-      CGI form processing, or some such business, that pulls a group of sequences into
-      a variable, and also pulls the format definition into another variable.
+      A popular question many people have asked is "What if I have a 
+		string that has a series of sequence records in some format, 
+		and I want to make it a Seq object?" You might want to do this 
+		if you allow users to paste in sequence data into a web form, 
+      and then do something with that sequence data.  This can be 
+		accomplished using the -fh parameter, along with perl's 
+		IO::String module that allows you to turn
+      the contents of a string into a standard globbed perl handle.  
+		This isn't a complete program, but gives you the most relevant 
+		bits.  Assume that there is some type of CGI form processing, 
+		or some such business, that pulls a group of sequences into
+      a variable, and also pulls the format definition into another 
+		variable.
     </para>	
     <para>
       <programlisting>                       
@@ -681,12 +729,14 @@ my $seq_object = $seqio_object->next_seq;
   <section id="and_more">
     <title>And more examples...</title>
     <para>                       
-      The -file parameter in SeqIO can take more than a filename. It can also take 
-      a string that tells it to 'pipe' something else into it. This is of the form
-      '-file' => 'command |'. Notice the vertical bar at the end, just before the 
-      single quote. This is especially useful when you are working with large, gzipped 
-      files because you just don't have enough disk space to unzip them (e.g. a Genbank 
-      full release file), but can make fasta files from them. Here is a program that
+      The -file parameter in SeqIO can take more than a filename. It
+		can also take a string that tells it to 'pipe' something else into 
+		it. This is of the form '-file' => 'command |'. Notice the
+		vertical bar at the end, just before the single quote. This is 
+		especially useful when you are working with large, gzipped 
+      files because you just don't have enough disk space to unzip 
+		them (e.g. a Genbank full release file), but can make fasta
+		files from them. Here is a program that
       takes a gzipped file of a given format and writes out a FASTA file,
       used like:
     </para>	
@@ -722,9 +772,10 @@ my $seq_object = $seqio_object->next_seq;
       </programlisting>
     </para>
     <para>                            
-      Bioperl also allows a 'pipe - out' to be given as an argument to -file. This
-      is of the form '-file' => "| command". This time the vertical bar is at the 
-      beginning, just after the first quote.  Let's write a program to take an input file, 
+      Bioperl also allows a 'pipe - out' to be given as an argument 
+		to -file. This is of the form '-file' => "| command". This time 
+		the vertical bar is at the beginning, just after the first
+      quote.  Let's write a program to take an input file, 
       and write it directly to a WashU Blastable Database, without ever
       writing out a fasta file, like:
     </para>	
@@ -762,14 +813,15 @@ my $seq_object = $seqio_object->next_seq;
       </programlisting>
     </para>
     <para>
-      Some of the more seasoned perl hackers may have noticed that the 'new' method
-      returns a reference, which can be placed into any of the data structures used in 
-      perl. For instance, let's say you wanted to take a genbank file with
-      multiple sequences, and split 
-      the human sequences out into a human.gb file, and all the rest of the sequences 
-      into the other.gb file. In this case, we will use a hash to store the two handles 
-      where 'human' is the key for the human output, and 'other' is the key
-      to other, so the usage would be:
+      Some of the more seasoned perl hackers may have noticed that 
+		the 'new' method returns a reference, which can be placed into 
+		any of the data structures used in perl. For instance, let's say 
+		you wanted to take a genbank file with multiple sequences, and split 
+      the human sequences out into a human.gb file, and all the rest 
+		of the sequences into the other.gb file. In this case, we will 
+		use a hash to store the two handles where 'human' is the key for 
+		the human output, and 'other' is the key to other, so the 
+		usage would be:
     </para>	
     <para>
       <programlisting>
