@@ -28,12 +28,6 @@ BEGIN {
    plan tests => $NUMTESTS;
 }
 
-foreach my $root ( qw( Wibbl Wibbl2 Wibbl3 Wibbl4 Wibbl5 ) ) {
-   if( -e "$root" ) { unlink $root;}
-   if( -e "$root.pag") { unlink "$root.pag";}
-   if( -e "$root.dir") { unlink "$root.dir";}
-}
-
 exit(0) if $exit;
 
 use Bio::Root::IO;
@@ -94,6 +88,7 @@ ok($seq->length,62);
 $ind = Bio::Index::SwissPfam->new(-filename   => 'Wibbl2',
 				  -write_flag =>1);
 $ind->make_index(Bio::Root::IO->catfile($dir,"t","data","swisspfam.data"));
+
 ok ( -e "Wibbl2" || -e "Wibbl2.pag" );
 
 $ind = Bio::Index::EMBL->new(-filename   => 'Wibbl3',
@@ -160,4 +155,10 @@ if (Bio::DB::FileCache->can('new')) {
    ok ($species->common_name(), 'human');
 } else {
    skip('Bio::DB::FileCache not loaded because one or more of Storable, DB_File or File::Temp not installed',1);
+}
+
+foreach my $root ( qw( Wibbl Wibbl2 Wibbl3 Wibbl4 Wibbl5 multifa_index multifa_qual_index ) ) {
+   if( -e $root ) { unlink $root;}
+   if( -e "$root.pag") { unlink "$root.pag";}
+   if( -e "$root.dir") { unlink "$root.dir";}
 }
