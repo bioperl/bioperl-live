@@ -1,0 +1,154 @@
+
+#
+# BioPerl module for Bio::LocatableSeq
+#
+# Cared for by Ewan Birney <birney@sanger.ac.uk>
+#
+# Copyright Ewan Birney
+#
+# You may distribute this module under the same terms as perl itself
+
+# POD documentation - main docs before the code
+
+=head1 NAME
+
+Bio::LocatableSeq - DESCRIPTION of Object
+
+=head1 SYNOPSIS
+
+Give standard usage here
+
+=head1 DESCRIPTION
+
+Describe the object here
+
+=head1 CONTACT
+
+Describe contact details here
+
+=head1 APPENDIX
+
+The rest of the documentation details each of the object methods. Internal methods are usually preceded with a _
+
+=cut
+
+
+# Let the code begin...
+
+
+package Bio::LocatableSeq;
+use vars qw(@ISA);
+use strict;
+
+use Bio::Seq;
+use Bio::RangeI;
+
+# Object preamble - inheriets from Bio::Root::Object
+
+use Bio::Root::Object;
+
+
+
+@ISA = qw(Bio::Seq Bio::RangeI);
+
+# new() is inherited from Bio::Root::Object
+
+# _initialize is where the heavy stuff will happen when new is called
+
+sub _initialize {
+  my($self,@args) = @_;
+
+  my ($start,$end,$strand) = $self->_rearrange( [qw(START END STRAND)],@args);
+  my $make = $self->SUPER::_initialize(@args);
+ 
+  defined $start && $self->start($start);
+  defined $end   && $self->end($end);
+  defined $strand && $self->strand($strand);
+
+# set stuff in self from @args
+ return $make; # success - we hope!
+}
+
+=head2 start
+
+ Title   : start
+ Usage   : $obj->start($newval)
+ Function: 
+ Returns : value of start
+ Args    : newvalue (optional)
+
+
+=cut
+
+sub start{
+   my $obj = shift;
+   if( @_ ) {
+      my $value = shift;
+      $obj->{'start'} = $value;
+    }
+    return $obj->{'start'};
+
+}
+
+=head2 end
+
+ Title   : end
+ Usage   : $obj->end($newval)
+ Function: 
+ Returns : value of end
+ Args    : newvalue (optional)
+
+
+=cut
+
+sub end{
+   my $obj = shift;
+   if( @_ ) {
+      my $value = shift;
+      $obj->{'end'} = $value;
+    }
+    return $obj->{'end'};
+
+}
+
+=head2 strand
+
+ Title   : strand
+ Usage   : $obj->strand($newval)
+ Function: 
+ Returns : value of strand
+ Args    : newvalue (optional)
+
+
+=cut
+
+sub strand{
+   my $obj = shift;
+   if( @_ ) {
+      my $value = shift;
+      $obj->{'strand'} = $value;
+    }
+    return $obj->{'strand'};
+
+}
+
+=head2 get_nse
+
+ Title   : get_nse
+ Usage   :
+ Function:
+ Example :
+ Returns : 
+ Args    :
+
+
+=cut
+
+sub get_nse{
+   my ($self) = @_;
+  
+   return $self->id() . "/" . $self->start . "-" . $self->end ;
+
+}
+
+

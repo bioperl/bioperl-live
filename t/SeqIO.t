@@ -19,7 +19,7 @@
 
 
 ## We start with some black magic to print on failure.
-BEGIN { $| = 1; print "1..12\n"; 
+BEGIN { $| = 1; print "1..14\n"; 
 	use vars qw($loaded); }
 
 END {print "not ok 1\n" unless $loaded;}
@@ -136,5 +136,30 @@ print "ok 12\n";
 
 # please leave this as the last line:
 $str = undef;
+
+
+# EMBL format
+
+$ast = Bio::SeqIO->new( '-format' => 'embl' , -file => 't/roa1.dat');
+
+while( my $as = $ast->next_seq() ) {
+       if( ! defined $as->seq ) {
+	   print "not ok 13\n";
+	   }
+      }
+
+
+print "ok 13\n";
+
+$ast = Bio::SeqIO->new( '-format' => 'GenBank' , -file => 't/roa1.genbank');
+
+while( my $as = $ast->next_seq() ) {
+       if( ! defined $as->seq ) {
+	   print "not ok 14\n";
+	   }
+      }
+
+
+print "ok 14\n";
 
 

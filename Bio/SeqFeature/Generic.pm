@@ -518,8 +518,8 @@ sub all_tags{
 sub attach_seq{
    my ($self,$seq) = @_;
 
-   if( !defined $seq  || !ref $seq || ! $seq->isa("Bio::Seq") ) {
-       $self->throw("Must attach Bio::Seq objects to SeqFeatures");
+   if( !defined $seq  || !ref $seq || ! $seq->isa("Bio::PrimarySeqI") ) {
+       $self->throw("Must attach Bio::PrimarySeqI objects to SeqFeatures");
    }
 
    $self->{'_gsf_seq'} = $seq;

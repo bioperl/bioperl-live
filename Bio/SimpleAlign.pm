@@ -99,7 +99,7 @@ Ewan Birney, birney@sanger.ac.uk
 
 =head1 SEE ALSO
 
- Bio::Seq.pm - The biosequence object
+ Bio::LocatableSeq.pm 
 
  http://bio.perl.org/Projects/modules.html  - Online module documentation
  http://bio.perl.org/Projects/SeqAlign/     - Bioperl sequence alignment project
@@ -122,7 +122,7 @@ use strict;
 # Object preamble - inheriets from Bio::Root::Object
 
 use Bio::Root::Object;
-use Bio::Seq;         # uses Seq's as list 
+use Bio::LocatableSeq;         # uses Seq's as list 
 
 
 @ISA = qw(Bio::Root::Object Exporter);
@@ -173,6 +173,10 @@ sub addSeq {
     my $seq  = shift;
     my $order = shift;
     my ($name,$id,$start,$end);
+
+    if( !ref $seq || ! $seq->isa('Bio::LocatableSeq') ) {
+	$self->throw("Unable to process non locatable sequences");
+    }
 
     $id = $seq->id();
     $start = $seq->start();
@@ -302,7 +306,7 @@ sub consensus_aa {
 
 
     foreach $seq ( $self->eachSeq() ) {
-	$letter = substr($seq->{'seq'},$point,1);
+	$letter = substr($seq->seq,$point,1);
 	($letter =~ /\./) && next;
 	# print "Looking at $letter\n";
 	$hash{$letter}++;
@@ -499,11 +503,11 @@ sub is_flush {
     
     foreach $seq ( $self->eachSeq() ) {
 	if( $length == (-1) ) {
-	    $length = length($seq->str());
+	    $length = length($seq->seq());
 	    next;
 	}
 
-	$temp = length($seq->str());
+	$temp = length($seq->seq());
 
 	if( $temp != $length ) {
 	    return 0;
@@ -536,7 +540,7 @@ sub length_aln {
     my ($temp,$len);
 
     foreach $seq ( $self->eachSeq() ) {
-	$temp = length($seq->str());
+	$temp = length($seq->seq());
 	if( $temp > $length ) {
 	    $length = $temp;
 	}
@@ -659,7 +663,7 @@ sub no_residues {
     my $count = 0;
 
     foreach my $seq ($self->eachSeq) {
-	my $str = $seq->str();
+	my $str = $seq->seq();
 
 	$count += ($str =~ s/[^A-Za-z]//g);
     }
@@ -872,11 +876,11 @@ sub read_fasta {
 		    $end = length($align{$name});
 		}
 		
-		$seq = new Bio::Seq('-seq'=>$seqchar,
+		$seq = new Bio::LocatableSeq('-seq'=>$seqchar,
 				    '-id'=>$seqname,
 				    '-start'=>$start,
 				    '-end'=>$end, 
-				    '-type'=>'aligned');
+				    );
 
 		$self->addSeq($seq);
 
@@ -902,11 +906,11 @@ sub read_fasta {
 	$end = length($align{$name});
     }
     
-    $seq = new Bio::Seq('-seq'=>$seqchar,
+    $seq = new Bio::LocatableSeq('-seq'=>$seqchar,
 			'-id'=>$seqname,
 			'-start'=>$start,
 			'-end'=>$end, 
-			'-type'=>'aligned');
+			);
     
     $self->addSeq($seq);
     
@@ -968,11 +972,11 @@ sub read_mase {
 	    $end = length($seq);
 	}
 
-	$add = new Bio::Seq('-seq'=>$seq,
+	$add = new Bio::LocatableSeq('-seq'=>$seq,
 			    '-id'=>$name,
 			    '-start'=>$start,
 			    '-end'=>$end, 
-			    '-type'=>'aligned');
+			    );
 
 
 	
@@ -1048,11 +1052,11 @@ sub read_MSF{
 	   $end = length($str);
        }
     
-       $seq = new Bio::Seq('-seq'=>$hash{$name},
+       $seq = new Bio::LocatableSeq('-seq'=>$hash{$name},
 			   '-id'=>$seqname,
 			   '-start'=>$start,
 			   '-end'=>$end, 
-			   '-type'=>'aligned');
+			   );
     
        $self->addSeq($seq);
     
@@ -1106,11 +1110,11 @@ sub read_Pfam {
 	$seq = $4;
 
 
-	$add = new Bio::Seq('-seq'=>$seq,
+	$add = new Bio::LocatableSeq('-seq'=>$seq,
 			    '-id'=>$name,
 			    '-start'=>$start,
 			    '-end'=>$end, 
-			    '-type'=>'aligned');
+			    );
      
 	$self->addSeq($add);
 	
@@ -1186,11 +1190,11 @@ sub read_Prodom{
 	   
 	   $names{'fake_id'} = $fake_id;
 
-	   $add = new Bio::Seq('-seq'=>$seq,
+	   $add = new Bio::LocatableSeq('-seq'=>$seq,
 			       '-id'=>$acc,
 			       '-start'=>$start,
 			       '-end'=>$end, 
-			       '-type'=>'aligned');
+			       );
 	   
 	   $self->addSeq($add);
        }
@@ -1263,12 +1267,13 @@ sub read_selex {
 	    $end = length($align{$name});
 	}
 
-	$seq = new Bio::Seq('-seq'=>$align{$name},
+	$seq = new Bio::LocatableSeq('-seq'=>$align{$name},
 			    '-id'=>$seqname,
 			    '-start'=>$start,
 			    '-end'=>$end, 
 			    '-type'=>'aligned',
-			    '-names'=>{'acc'=>$accession{$name}}
+				     '-accession_number' => $accession{$name},
+
 			    );
 
 	$self->addSeq($seq);
@@ -1549,7 +1554,7 @@ sub uppercase {
     my $temp;
 
     foreach $seq ( $self->eachSeq() ) {
-      $temp = $seq->str();
+      $temp = $seq->seq();
       $temp =~ tr/[a-z]/[A-Z]/;
 
       $seq->setseq($temp);
@@ -1587,7 +1592,7 @@ sub write_clustalw {
 
     while( $count < $length ) {
 	foreach $seq ( @seq ) {
-	    print $file sprintf("%-22s %s\n",$self->get_displayname($seq->get_nse()),substr($seq->str(),$count,50));
+	    print $file sprintf("%-22s %s\n",$self->get_displayname($seq->get_nse()),substr($seq->seq(),$count,50));
 	}
 	print $file "\n\n";
 	$count += 50;
@@ -1617,7 +1622,7 @@ sub write_fasta {
 
     foreach $rseq ( $self->eachSeq() ) {
 	$name = $self->get_displayname($rseq->get_nse());
-	$seq  = $rseq->str();
+	$seq  = $rseq->seq();
 	
 	print $file ">$name\n";
 	
@@ -1674,9 +1679,9 @@ sub write_MSF {
 	$miss += 2;
 	$pad  = " " x $miss;
 
-	print $file sprintf(" Name: %s%sLen:    %d  Check:  %d  Weight:  1.00\n",$name,$pad,length $seq->str(),$seq->GCG_checksum());
+	print $file sprintf(" Name: %s%sLen:    %d  Check:  %d  Weight:  1.00\n",$name,$pad,length $seq->seq(),$seq->GCG_checksum());
 	
-	$hash{$name} = $seq->str();
+	$hash{$name} = $seq->seq();
 	push(@arr,$name);
     }
 
@@ -1754,7 +1759,7 @@ sub write_Pfam {
 	$namestr = $self->get_displayname($seq->get_nse());
 	$add = $maxn - length($namestr) + 2;
 	$namestr .= " " x $add;
-	print $out sprintf("%s  %s\n",$namestr,$seq->str());
+	print $out sprintf("%s  %s\n",$namestr,$seq->seq());
     }
 }
 
@@ -1786,7 +1791,7 @@ sub write_selex {
 	$namestr = $self->get_displayname($seq->get_nse());
 	$add = $maxn - length($namestr) + 2;
 	$namestr .= " " x $add;
-	print $out sprintf("%s  %s\n",$namestr,$seq->str());
+	print $out sprintf("%s  %s\n",$namestr,$seq->seq());
     }
 }
 
