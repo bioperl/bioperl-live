@@ -62,7 +62,11 @@ if( $special ) {
 }
 if( $msa ) {
     eval {
-	$in = new Bio::AlignIO(-format => $informat, -file => $input);
+	if( $input ) { 
+	    $in = new Bio::AlignIO(-format => $informat, -file => $input);
+	} else { 
+	    $in = new Bio::AlignIO(-format => $informat, -fh => \*ARGV);
+	}
     };
     if( $@ ) {
 	die("Unknown MSA format to bioperl $informat\n");
@@ -73,7 +77,8 @@ if( $msa ) {
 				       -file => ">$output", @extra);
 	   } else {
 	       # default to STDOUT for output
-	       $out = new Bio::AlignIO(-format => $outformat,@extra);
+	       $out = new Bio::AlignIO(-format => $outformat,
+				       @extra);
 	   }
        };
     if( $@ ) {
@@ -83,7 +88,11 @@ if( $msa ) {
 
 } else {
     eval {
-	$in = new Bio::SeqIO(-format => $informat, -file => $input);
+	if( $input ) { 
+	    $in = new Bio::SeqIO(-format => $informat, -file => $input);
+	} else { 
+	    $in = new Bio::SeqIO(-format => $informat, -fh => \*ARGV);
+	}
     };
     if( $@ ) {
 	die("Unknown sequence format to bioperl $informat\n");
