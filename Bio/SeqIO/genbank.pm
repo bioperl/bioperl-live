@@ -711,10 +711,12 @@ sub write_seq {
 	# Reference lines
 	my $count = 1;
 	foreach my $ref ( $seq->annotation->get_Annotations('reference') ) {
-	    $temp_line = sprintf ("REFERENCE   $count  (%s %d to %d)",
+            $temp_line = "REFERENCE   $count";
+	    $temp_line .= sprintf ("  (%s %d to %d)",
 				  ($seq->alphabet() eq "protein" ?
 				   "residues" : "bases"),
-				  $ref->start,$ref->end);
+				  $ref->start,$ref->end)
+                if $ref->start;
 	    $self->_print("$temp_line\n");
 	    $self->_write_line_GenBank_regex("  AUTHORS   ",' 'x12,
 					     $ref->authors,"\\s\+\|\$",80);
