@@ -60,7 +60,8 @@ sub nextSbjct {
   $def =~ s/\s+$//g;
   $def =~ s/Length = [\d,]+$//g;
   return 0 unless $def =~ /^>/;
-	
+  $def =~ s/^>//;
+
   ####################
   # the Sbjct object #
   ####################
@@ -83,6 +84,7 @@ sub _parseHeader {
 	$query .= $_;
       }
       $query =~ s/\s+/ /g;
+      $query =~ s/^>//;
       $self->{QUERY} = $query;
     }
     elsif ($_ =~ /^Database:\s+(.+)/) {$self->{DATABASE} = $1}

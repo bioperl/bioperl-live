@@ -62,7 +62,7 @@ test 4, $hsp;
 
 test 5, $report->query eq "gi|1401126 (504 letters) ";
 test 6, $report->database eq 'Non-redundant GenBank+EMBL+DDBJ+PDB sequences';
-test 7, $sbjct->name eq '>gb|U49928|HSU49928 Homo sapiens TAK1 binding protein (TAB1) mRNA, complete cds. ';
+test 7, $sbjct->name eq 'gb|U49928|HSU49928 Homo sapiens TAK1 binding protein (TAB1) mRNA, complete cds. ';
 test 8, $hsp->bits == 1009;
 test 9, $hsp->score == 2580;
 test 10, $hsp->percent == 100;
