@@ -129,7 +129,7 @@ sub _initialize {
 
 sub next_seq{
     my ($self,@args) = @_;
-    my ($pseq,$c,$name,$desc,$seqc,$mol,$div,$date);
+    my ($pseq,$c,$name,@desc,$seqc,$mol,$div,$date);
     my $line;
     my @acc = ();
     my $seq = Bio::Seq::RichSeq->new('-verbose' =>$self->verbose());
@@ -180,10 +180,10 @@ sub next_seq{
 	
 	# Description line(s)
 	if (/^DEFINITION\s+(\S.*\S)/) {
-	    $desc .= $desc ? " $1" : $1;
-	    $desc .= " ";
+	    push(@desc, $1);
 	    while ( defined($_ = $self->_readline) ) { 
-		/^\s+(.*)/ && do { $desc .= $1; next;};
+		/^\s+(.*)/ && do { push (@desc,$1); 
+				   next;};
 		last;
 	    }
 	}		 
@@ -248,7 +248,7 @@ sub next_seq{
 	$buffer = $self->_readline;
     }
     return undef if(! defined($buffer));
-    $seq->desc($desc); # don't forget!
+    $seq->desc(join(' ', @desc)); # don't forget!
     $seq->accession_number(shift(@acc));
     $seq->add_secondary_accession(@acc);
     
@@ -342,8 +342,10 @@ sub write_seq {
 	if( $seq->can('get_dates') ) { 
 	    ($date) = $seq->get_dates(); # get first one from the list
 	}
-	$temp_line = sprintf ("%-12s%-10s%10s bp%8s%5s %3s ", 'LOCUS',$seq->id(),$len,$mol,$div,$date);
-    } 
+	$temp_line = sprintf ("%-12s%-10s%7s bp%4s%-5s%-11s%-3s%7s%-s", 
+			      'LOCUS', $seq->id(),$len,'',$mol,'',
+			      $div,'',$date);
+    }
     
     $self->_print("$temp_line\n");   
     $self->_write_line_GenBank_regex("DEFINITION  ","            ",$seq->desc(),"\\s\+\|\$",80);
@@ -380,7 +382,7 @@ sub write_seq {
 	    my $id = $seq->primary_id(); # this may be a GI number
 	    $self->_print("VERSION     ",
 			  $seq->accession_number(), ".", $seq->seq_version,
-			  ($id && ($id =~ /^\d+$/) ? " GI:".$id : ""),
+			  ($id && ($id =~ /^\d+$/) ? "  GI:".$id : ""),
 			  "\n");
        }
     } 
@@ -394,20 +396,24 @@ sub write_seq {
 	if( $seq->can('keywords') ) {
 	    $self->_print("KEYWORDS    ",$seq->keywords,"\n");
 	}
-    } 
-    
+    }     
     
     # Organism lines
     if (my $spec = $seq->species) {
         my ($species, $genus, @class) = $spec->classification();
-        my $OS = "$genus $species";
+        my $OS;
+        if( $spec->common_name ) {
+	    $OS = $spec->common_name;
+	} else { 
+	    $OS = "$genus $species";
+	}
         if (my $ssp = $spec->sub_species) {
             $OS .= " $ssp";
         }
 	$self->_print("SOURCE      $OS.\n");
 	$self->_print("  ORGANISM  ",
 		      ($spec->organelle() ? $spec->organelle()." " : ""),
-		      $OS, "\n");
+		      "$genus $species", "\n");
         my $OC = join('; ', (reverse(@class), $genus)) .'.';
         $self->_write_line_GenBank_regex("            ","            ",
 					 $OC,"\\s\+\|\$",80);
@@ -431,7 +437,20 @@ sub write_seq {
 	    $self->_write_line_GenBank_regex("  REMARK    ","            ",
 					     $ref->comment,"\\s\+\|\$",80);
 	}
-	    $count++;
+	if( $ref->medline) {
+	    $self->_write_line_GenBank_regex("  MEDLINE   ","            ",
+					     $ref->medline, "\\s\+\|\$",80);
+	     # I am assuming that pubmed entries only exist when there
+	     # are also MEDLINE entries due to the indentation
+	     # This could be a wrong assumption
+	    if( $ref->pubmed ) {
+		$self->_write_line_GenBank_regex("   PUBMED   ",
+						 "            ",
+						 $ref->pubmed, "\\s\+\|\$",
+						 80);
+	    }
+	}
+	$count++;
     }
     # Comment lines
     
@@ -490,11 +509,20 @@ sub write_seq {
     if( $olen < 0 ) {
 	$self->warn("Weird. More atgc than bases. Problem!");
     }
-    my $base_count = sprintf("BASE COUNT %8s a %6s c %6s g %6s t %6s others\n",
-			     $alen,$clen,$glen,$tlen,$olen);
+    my $base_count = sprintf("BASE COUNT %8s a %6s c %6s g %6s t%s\n",
+			     $alen,$clen,$glen,$tlen,
+			     ( $olen > 0 ) ? sprintf("%6s others",$olen) : '');
     $self->_print($base_count); 
-    $self->_print("ORIGIN      \n");
+    $self->_print(sprintf("ORIGIN%6s\n",''));
+
     my $di;
+
+    # push sequence blocks to be printed into an array
+    # so we can comply with genbank format and not have 
+    # block \n
+    #     ^^ space after last block before newline is not allowed
+    #        in the strictest sense of the format 
+    my @seqline;   
     for ($i = 0; $i < length($str); $i += 10) {
 	
 	$di=$i+11;
@@ -504,15 +532,18 @@ sub write_seq {
 	    $self->_print(sprintf("%9d ",1));
 	}
 	#print sequence, spaced by 10
-	$self->_print(substr($str,$i,10), " ");
-	
+	push @seqline, substr($str,$i,10);
 	#break line and print number at beginning of next line
-	if(($i+10)%60 == 0) {
-	    $self->_print("\n");
+	if(($i+10)%60 == 0) {	    
+	    $self->_print(join(' ', @seqline), "\n");
 	    $self->_print(sprintf("%9d ",$di));
+	    @seqline = ();
 	}
     }
-    
+    # fencepost problem, print whatever is left in the queue
+    # again we are doing this to comply with  genbank in the 
+    # strictest sense
+    $self->_print(join(' ', @seqline), ' ') if( @seqline );     
     
     $self->_print("\n//\n");
     return 1;
@@ -551,7 +582,7 @@ sub _print_GenBank_FTHelper {
 						"/$tag","\.\|\$",80);
 	   }
            elsif( $always_quote == 1 || $value !~ /^\d+$/ ) {
-              my $pat = $value =~ /\s/ ? '\s|$' : '.|$';
+              my ($pat) = ($value =~ /\s/ ? '\s|$' : '.|$');
 	      $self->_write_line_GenBank_regex("                     ",
 					       "                     ",
 					       "/$tag=\"$value\"",$pat,80);
@@ -591,58 +622,83 @@ sub _read_GenBank_References{
 
    $_ = $$buffer;
 
-   my $title;
-   my $loc;
-   my $au;
-   my $com;
+   my (@title,@loc,@authors,@com,@medline,@pubmed);
 
    while( defined($_) || defined($_ = $self->_readline) ) {
        if (/^  AUTHORS\s+(.*)/) { 
-	   $au .= $1;   
+	   push (@authors, $1);   
 	   while ( defined($_ = $self->_readline) ) {
 	       /^\s{3,}(.*)/ && do {
-		   $au .= $1;
-		   $au =~ s/\,(\S)/ $1/g;
-		   $au .= " ";
+		   push( @authors, $1);
+#		   $au =~ s/\,(\S)/ $1/g;
 		   next;
 	       };
 	       last;
 	   }
-	   $ref->authors($au);
+	   $ref->authors(join(' ', @authors));
        }
        if (/^  TITLE\s+(.*)/)  { 
-	   $title .= $1;
+	   push (@title, $1);
 	   while ( defined($_ = $self->_readline) ) {
-	       /^\s{3,}(.*)/ && do { $title .= " " . $1;
-				     next;};
+	       /^\s{3,}(.*)/ && do { push (@title, $1);
+				     next;
+				 };
 	       last;
 	   }
-	   $ref->title($title);
+	   $ref->title(join(' ', @title));
        }
        if (/^  JOURNAL\s+(.*)/) { 
-	   $loc .= $1;
+	   push(@loc, $1);
 	   while ( defined($_ = $self->_readline) ) {
-	       /^\s{3,}(.*)/ && do { $loc .= $1;$loc .= " ";next;};
+	       /^\s{3,}(.*)/ && do {  push(@loc, $1);
+				      next;
+				  };
 	       last;
 	   }
-	   $ref->location($loc);
+	   $ref->location(join(' ', @loc));
        }
        if (/^  REMARK\s+(.*)/) { 
-	   $com .= $1;
+	   push (@com, $1);
 	   while ( defined($_ = $self->_readline) ) {	       
-	       /^\s{3,}(.*)/ && do { $com .= $1;$com .= " ";next;};
+	       /^\s{3,}(.*)/ && do { push (@com,$1);
+				     next;
+				 };
 	       last;
 	   }
-	   $ref->comment($com);
+	   $ref->comment(join(' ', @com));
        }
+       if( /^  MEDLINE\s+(.*)/ ) {
+	   push(@medline,$1);
+	   while ( defined($_ = $self->_readline) ) {	       
+	       /^\s{4,}(.*)/ && do { push(@medline, $1);
+				     next;
+				 };
+	       last;
+	   }
+	   $ref->medline(join(' ', @medline));
+       }       
+       
+       if( /^   PUBMED\s+(.*)/ ) {
+	   push(@pubmed,$1);
+	   while ( defined($_ = $self->_readline) ) {	       
+	       /^\s{5,}(.*)/ && do { push(@pubmed, $1);
+				     next;
+				 };
+	       last;
+	   }
+	   $ref->pubmed(join(' ', @pubmed));
+       }
+       
        /^REFERENCE/ && do {
 	   # store current reference
 	   $self->_add_ref_to_array(\@refs,$ref) if $ref;
 	   # reset
-	   $au = "";
-	   $title = "";
-	   $loc = "";
-	   $com = "";
+	   @authors = ();
+	   @title = ();
+	   @loc = ();
+	   @com = ();
+	   @pubmed = ();
+	   @medline = ();
 	   # create the new reference object
 	   $ref = Bio::Annotation::Reference->new();
 	   # check whether start and end base is given
@@ -739,7 +795,11 @@ sub _read_GenBank_Species {
 	    }
 	    $sub_species = shift(@spflds) if(@spflds);
         } elsif (/^\s+(.+)/) {
-            push(@class, split /[;\s\.]+/, $1);
+	    # only split on ';' or '.' so that 
+	    # classification that is 2 words will 
+	    # still get matched
+	    # use map to remove trailing/leading spaces
+	    push (@class, map { s/^\s+//; s/\s+$//; $_; } split /[;\.]+/, $1);
         } else {
             last;
         }
@@ -905,7 +965,7 @@ sub _read_FTHelper_GenBank {
 sub _write_line_GenBank{
    my ($self,$pre1,$pre2,$line,$length) = @_;
 
-   $length || die "Miscalled write_line_GenBank without length. Programming error!";
+   $length || $self->throw( "Miscalled write_line_GenBank without length. Programming error!");
    my $subl = $length - length $pre2;
    my $linel = length $line;
    my $i;
@@ -942,17 +1002,21 @@ sub _write_line_GenBank_regex {
    
    #print STDOUT "Going to print with $line!\n";
 
-   $length || die "Miscalled write_line_GenBank without length. Programming error!";
+   $length || $self->throw( "Miscalled write_line_GenBank without length. Programming error!");
 
    if( length $pre1 != length $pre2 ) {
-       die "Programming error - cannot called write_line_GenBank_regex with different length pre1 and pre2 tags!";
+       $self->throw( "Programming error - cannot called write_line_GenBank_regex with different length pre1 and pre2 tags!");
    }
 
-   my $subl = $length - (length $pre1) -1 ;
+   my $subl = $length - (length $pre1) - 2;
    my @lines;
 
    while($line =~ m/(.{1,$subl})($regex)/g) {
-       push(@lines, $1.$2);
+       # be strict about not padding spaces according to 
+       # genbank format
+       my $l = $1.$2;
+       $l =~ s/\s+$//;
+       push(@lines, $l);
    }
    
    my $s = shift @lines;
@@ -974,13 +1038,11 @@ sub _write_line_GenBank_regex {
 =cut
 
 sub _post_sort{
-   my $obj = shift;
-   if( @_ ) {
-      my $value = shift;
-      $obj->{'_post_sort'} = $value;
-    }
-    return $obj->{'_post_sort'};
-
+   my ($obj,$value) = @_;
+   if( defined $value) {
+       $obj->{'_post_sort'} = $value;
+   }
+   return $obj->{'_post_sort'};
 }
 
 =head2 _show_dna
@@ -995,13 +1057,11 @@ sub _post_sort{
 =cut
 
 sub _show_dna{
-   my $obj = shift;
-   if( @_ ) {
-      my $value = shift;
-      $obj->{'_show_dna'} = $value;
-    }
-    return $obj->{'_show_dna'};
-
+   my ($obj,$value) = @_;
+   if( defined $value) {
+       $obj->{'_show_dna'} = $value;
+   }
+   return $obj->{'_show_dna'};
 }
 
 =head2 _id_generation_func
@@ -1016,13 +1076,11 @@ sub _show_dna{
 =cut
 
 sub _id_generation_func{
-   my $obj = shift;
-   if( @_ ) {
-      my $value = shift;
-      $obj->{'_id_generation_func'} = $value;
-    }
-    return $obj->{'_id_generation_func'};
-
+   my ($obj,$value) = @_;
+   if( defined $value ) {
+       $obj->{'_id_generation_func'} = $value;
+   }
+   return $obj->{'_id_generation_func'};
 }
 
 =head2 _ac_generation_func
@@ -1037,13 +1095,11 @@ sub _id_generation_func{
 =cut
 
 sub _ac_generation_func{
-   my $obj = shift;
-   if( @_ ) {
-      my $value = shift;
-      $obj->{'_ac_generation_func'} = $value;
-    }
-    return $obj->{'_ac_generation_func'};
-
+   my ($obj,$value) = @_;
+   if( defined $value ) {
+       $obj->{'_ac_generation_func'} = $value;
+   }
+   return $obj->{'_ac_generation_func'};
 }
 
 =head2 _sv_generation_func
@@ -1058,9 +1114,8 @@ sub _ac_generation_func{
 =cut
 
 sub _sv_generation_func{
-   my $obj = shift;
-   if( @_ ) {
-      my $value = shift;
+   my ($obj,$value) = @_;
+   if( defined $value ) {      
       $obj->{'_sv_generation_func'} = $value;
     }
     return $obj->{'_sv_generation_func'};
@@ -1079,13 +1134,11 @@ sub _sv_generation_func{
 =cut
 
 sub _kw_generation_func{
-   my $obj = shift;
-   if( @_ ) {
-      my $value = shift;
+   my ($obj,$value) = @_;
+   if( defined $value ) {
       $obj->{'_kw_generation_func'} = $value;
     }
     return $obj->{'_kw_generation_func'};
-
 }
 
 1;
