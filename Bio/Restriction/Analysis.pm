@@ -701,6 +701,9 @@ sub cutters {
     $end = $self->{'maximum_cuts'} if $end > $self->{'maximum_cuts'};
     my $set = new Bio::Restriction::EnzymeCollection(-empty => 1);
 
+    #return an empty set if nothing cuts
+    return $set unless $self->{'maximum_cuts'};
+
     for (my $i=$start; $i<=$end; $i++) {
         $set->enzymes( @{$self->{_number_of_cuts_by_cuts}->{$i}} )
             if defined $self->{_number_of_cuts_by_cuts}->{$i};
