@@ -116,6 +116,9 @@ sub insert_sequence {
 
 package main;
 
+eval "use Time::HiRes"; undef $@;
+my $timer = defined &Time::HiRes::time;
+
 my $bWINDOWS = 0;    # Boolean: is this a MSWindows operating system?
 if ($^O =~ /MSWin32/i) {
     $bWINDOWS = 1;
@@ -226,6 +229,9 @@ my $gff3;
 
 $db->preferred_groups(split (/[,\s]+/,$GROUP_TAG)) if defined $GROUP_TAG;
 
+my $last  = Time::HiRes::time() if $timer;
+my $start = $last;
+
 while (<>) {
   chomp;
   my ($ref,$source,$method,$start,$stop,$score,$strand,$phase,$group);
@@ -289,7 +295,10 @@ while (<>) {
   }
 
   if ( $fid % 1000 == 0) {
-    print STDERR "$fid features parsed...";
+    my $now    = Time::HiRes::time() if $timer;
+    my $elapsed = $timer ? sprintf(" in %5.2fs",$now - $last) : '';
+    $last = $now;
+    print STDERR "$fid features parsed$elapsed...";
     print STDERR -t STDOUT && !$ENV{EMACS} ? "\r" : "\n";
   }
 
@@ -313,7 +322,10 @@ for my $file (@fasta) {
 
 $_->close foreach values %FH;
 
+printf STDERR "Total parse time %5.2fs\n",(Time::HiRes::time() - $start) if $timer;
 warn "Loading feature data.  You may see duplicate key warnings here...\n";
+
+$start = time();
 
 my $success = 1;
 my $TERMINATEDBY = $bWINDOWS ? q( LINES TERMINATED BY '\r\n') : ''; 
@@ -327,6 +339,7 @@ END
   $success &&= system($command) == 0;
   unlink "$tmpdir/$_.$$";
 }
+printf STDERR "Total load time %5.2fs\n",(time() - $start) if $timer;
 warn "done...\n";
 
 if ($success) {

@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-# $Id: fast_load_gff.PLS,v 1.12 2004-03-11 19:47:51 lstein Exp $
+# $Id: fast_load_gff.PLS,v 1.13 2004-03-19 16:36:29 lstein Exp $
 
 use strict;
 # use lib './blib/lib';
@@ -117,6 +117,9 @@ sub insert_sequence {
 
 package main;
 
+eval "use Time::HiRes"; undef $@;
+my $timer = defined &Time::HiRes::time;
+
 my ($DSN,$CREATE,$USER,$PASSWORD,$FASTA,$FAILED,$LOCAL,%PID,$MAX_BIN,$GROUP_TAG);
 
 if ($DO_FAST) {
@@ -230,7 +233,11 @@ END
 
 print STDERR "Fast loading enabled\n" if $DO_FAST;
 
-my ($count,$fasta_sequence_id,$gff3);
+my ($count,$fasta_sequence_id,$gff3,$last,$start,$beginning);
+
+$last  = Time::HiRes::time() if $timer;
+$beginning = $start = $last;
+
 while (<>) {
   chomp;
   my ($ref,$source,$method,$start,$stop,$score,$strand,$phase,$group);
@@ -294,10 +301,16 @@ while (<>) {
   }
 
   if ( $FEATURES % 1000 == 0) {
-    print STDERR "$FEATURES features parsed...";
+    my $now    = Time::HiRes::time() if $timer;
+    my $elapsed = $timer ? sprintf(" in %5.2fs",$now - $last) : '';
+    $last = $now;
+    print STDERR "$fid features parsed$elapsed...";
     print STDERR -t STDOUT && !$ENV{EMACS} ? "\r" : "\n";
   }
 }
+
+printf STDERR "Feature load time %5.2fs\n",(Time::HiRes::time() - $start) if $timer;
+$start = time();
 
 if (defined $fasta_sequence_id) {
   warn "Preparing embedded sequence....\n";
@@ -305,6 +318,8 @@ if (defined $fasta_sequence_id) {
   $db->load_sequence('ARGV',$fasta_sequence_id);
   warn "done....\n";
   select $old;
+  printf STDERR "Sequence preparation time %5.2fs\n",(Time::HiRes::time() - $start) if $timer;
+  $start = time();
 }
 
 for my $fasta (@fasta) {
@@ -314,6 +329,9 @@ for my $fasta (@fasta) {
   warn "$fasta: $loaded records loaded\n";
   select $old;
 }
+
+  printf STDERR "Fasta load time %5.2fs\n",(Time::HiRes::time() - $start) if $timer;
+  $start = time();
 
 my $success = 1;
 $_->close foreach values %FH;
@@ -330,6 +348,8 @@ while (%PID) {
 $success &&= !$FAILED;
 
 cleanup();
+
+printf STDERR "Total parse & load time %5.2fs\n",(Time::HiRes::time() - $beginning) if $timer;
 
 if ($success) {
   print "SUCCESS: $FEATURES features successfully loaded\n";
