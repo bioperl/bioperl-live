@@ -364,9 +364,7 @@ sub write_annseq {
    } 
 
    print $fh "ID   $temp_line\n";   
-   
    print $fh "XX   \n";
-
 
    # if there, write the accession line
 
@@ -445,9 +443,10 @@ sub write_annseq {
     }
 
    # Comment lines
-
    foreach my $comment ( $annseq->annotation->each_Comment() ) {
-       _write_line_EMBL_regex($fh,"CC   ","CC   ",$comment->text,"\\s\+\|\$",80);
+       foreach my $line (split /\n+/, $comment->text) {
+          _write_line_EMBL_regex($fh, "CC   ", "CC   ", $line, "\\s\+\|\$", 80);
+       }
        print $fh "XX   \n";
    }
    
