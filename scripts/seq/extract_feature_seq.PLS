@@ -1,6 +1,6 @@
 #!perl -w
 use strict;
-# $Id: extract_feature_seq.PLS,v 1.1 2003-01-23 03:24:05 jason Exp $
+# $Id: extract_feature_seq.PLS,v 1.2 2005-02-03 15:04:58 avilella Exp $
 # Author Jason Stajich <jason@bioperl.org>
 
 =head1 NAME
@@ -9,7 +9,7 @@ extract_feature_seq - extract the corresponding sequence for a specified feature
 
 =head1 SYNOPSIS
 
-pairwise_kaks.PLS -i file --format genbank --feature=CDS -o output.fa
+extract_feature_seq.PLS -i file --format genbank --feature=CDS -o output.fa
 
 =head1 DESCRIPTION 
 
