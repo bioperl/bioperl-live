@@ -52,7 +52,7 @@ directory. These diagrams are not guaranteed to include every single class
 but may help you understand the overall layout of Bioperl's modules.
 
 Documentation on Bio::Root can also be found in the form of scripts - check
-the examples/root_object directory for a start. We have also created a 
+the scripts/root_object directory for a start. We have also created a 
 "howto" directory that addresses specific design questions, not
 necessarily related to Bio::Root. See doc/howto.
 
@@ -152,7 +152,7 @@ input parameters specified by an array.
 =back
 
 You can go to L<Bio::Root::Root> for more information. There are also
-a number of useful example scripts in the examples/root_object directory.
+a number of useful example scripts in the scripts/root_object directory.
 
 
 =head2 Using the root object
@@ -251,7 +251,7 @@ perspective (for example -E<gt>id() ), leaving it free to be used as a
 context for debugging purposes. You might prefer to overload the name
 attribute to be "useful" for the object.
 
-See examples/root_object/error.pl for demonstration code.
+See scripts/root_object/error.pl for demonstration code.
 
 
 =head1 Bioperl Interface design
