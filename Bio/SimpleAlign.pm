@@ -811,23 +811,26 @@ sub slice {
 
 =head2 remove_columns
 
- Title     : remove_column
+ Title     : remove_columns
  Usage     : $aln2 = $aln->remove_columns(['mismatch','weak'])
  Function  : Creates an aligment with columns removed corresponding to
              the specified criteria.
  Returns   : a Bio::SimpleAlign object
- Args      : array ref of types, 'match'|'weak'|'strong'|'mismatch'|'gaps'
+ Args      : array ref of types, 'match'|'weak'|'strong'|'mismatch'|'gaps'|
+                        'all_gaps_columns'
 
 =cut
 
 sub remove_columns{
     my ($self,$type) = @_;
     $type || return $self;
-    my $gap = $self->gap_char if (grep /gaps/, @{$type});
+    my $gap = $self->gap_char if (grep $_ eq 'gaps', @{$type});
+       my $all_gaps_columns = $self->gap_char if (grep /all_gaps_columns/,@{$type});
     my %matchchars = ( 'match'  => '\*',
                        'weak'   => '\.',
                        'strong' => ':',
                        'mismatch'=> ' ',
+                                          'gaps' => '', 'all_gaps_columns' => ''
                );
    #get the characters to delete against
    my $del_char;
@@ -860,6 +863,7 @@ sub remove_columns{
   $aln = $#remove >= 0 ? $self->_remove_col($aln,\@remove) : $self;
 
   $aln = $aln->remove_gaps() if $gap;
+  $aln = $aln->remove_gaps('', 1) if $all_gaps_columns;
 
   return $aln;
 }
@@ -868,17 +872,23 @@ sub remove_columns{
 =head2 remove_gaps
 
  Title     : remove_gaps
- Usage     : $aln2 = $aln->remove_gaps('-')
+ Usage     : $aln2 = $aln->remove_gaps('-'[,$all_gaps_columns])
  Function  : Creates an aligment with gaps removed 
  Returns   : a Bio::SimpleAlign object
  Args      : a gap character(optional) if no specified, 
-             taken from $self->gap_char
+             taken from $self->gap_char, optional $all_gaps_columns flag
+                        indicates that only all-gaps columns should be deleted
 
 =cut
 
 sub remove_gaps {
-  my ($self,$gapchar) = @_;
-  my $gap_line = $self->gap_line;
+  my ($self,$gapchar,$all_gaps_columns) = @_;
+  my $gap_line;
+  if ($all_gaps_columns) {
+       $gap_line = $self->all_gap_line;
+  } else {
+       $gap_line = $self->gap_line;
+  }
   my $aln = new $self;
 
    my @remove;
@@ -1189,29 +1199,48 @@ sub match_line {
 sub gap_line {
     my ($self,$gapchar) = @_;
     $gapchar = $gapchar || $self->gap_char;
-    my @seqchars;
-    my $seqcount = 0;
+    my %gap_hsh; # column gaps vector
     foreach my $seq ( $self->each_seq ) {
-    	push @seqchars, [ split(//, uc ($seq->seq)) ];
+		my $i = 0;
+    	map {$gap_hsh{$_->[0]} = undef} grep {$_->[1] eq '-'} 
+		  map {[$i++, $_]} split(//, uc ($seq->seq));
     }
-    my $refseq = shift @seqchars;
-    # let's just march down the columns
-    my $matchline;
-    POS: foreach my $pos ( 0..$self->length ) {
-    	my $refchar = $refseq->[$pos];
-    	next unless $refchar; # skip '' 
-    	my %col = ($refchar => 1);
-    	my $gap= ($refchar eq '-');
-    	foreach my $seq ( @seqchars ) {
-	      $gap= 1 if( $seq->[$pos] eq '-');
-	      $col{$seq->[$pos]}++;
-    	}
-      my @colresidues = sort keys %col;
-      my $char= ".";
-    	if( $gap) { $char =  $gapchar}
-      $matchline .= $char;
+    my $gap_line;
+    foreach my $pos ( 0..$self->length-1 ) {
+	  $gap_line .= (exists $gap_hsh{$pos}) ? $gapchar:'.';
     }
-    return $matchline;
+    return $gap_line;
+}
+
+=head2 all_gap_line
+
+ Title    : all_gap_line()
+ Usage    : $align->all_gap_line()
+ Function : Generates a gap line - much like consensus string
+            except that a line where '-' represents all-gap column
+ Args     : (optional) gap line characters ('-' by default)
+
+=cut
+
+sub all_gap_line {
+    my ($self,$gapchar) = @_;
+    $gapchar = $gapchar || $self->gap_char;
+    my %gap_hsh; # column gaps counter hash
+	my @seqs = $self->each_seq;
+    foreach my $seq ( @seqs ) {
+		my $i = 0;
+    	map {$gap_hsh{$_->[0]}++} grep {$_->[1] eq '-'} 
+		  map {[$i++, $_]} split(//, uc ($seq->seq));
+    }
+    my $gap_line;
+    foreach my $pos ( 0..$self->length-1 ) {
+	  if (exists $gap_hsh{$pos} && $gap_hsh{$pos} == scalar @seqs) {# gaps column
+    	$gap_line .= $gapchar;
+	  } else {
+    	$gap_line .= '.';
+	  }
+    }
+    return $gap_line;
 }
 
 =head2 match
