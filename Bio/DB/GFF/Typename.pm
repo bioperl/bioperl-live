@@ -110,7 +110,9 @@ operator.
 
 =cut
 
-sub asString { join ':',@{shift()}};
+sub asString {
+  $_[0]->[1] ? join ':',@{$_[0]} : $_[0]->[0];
+}
 
 =head2 clone
 
