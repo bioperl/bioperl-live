@@ -18,18 +18,7 @@ BEGIN {
     }
 
     use Test;
-    plan tests => 41; 
-
-#    eval { require XML::Parser::PerlSAX; };
-#    if( $@ ) {
-#	print STDERR "XML::Parser::PerlSAX not loaded. This means TreeIO::phyloxml test cannot be executed. Skipping\n";
-#	foreach ( 1..43 ) {
-#	    skip(1,1);
-#	}
-#       $error = 1;
-#	
-#    } 
-
+    plan tests => 51;
 }
 
 if( $error == 1 ) {
@@ -37,7 +26,6 @@ if( $error == 1 ) {
 }
 
 use vars qw($FILE1 $FILE2);
-
 $FILE1= 'testnewick.phylip';
 $FILE2= 'testlarge.phy';
 
@@ -51,12 +39,11 @@ my $verbose = $ENV{'BIOPERLDEBUG'} || 0;
 
 my $treeio = new Bio::TreeIO(-verbose => $verbose,
 			     -format => 'newick',
-			     -file   => Bio::Root::IO->catfile('t','data', 
-							       'cysprot1b.newick'));
+			     -file   => File::Spec->catfile
+			     (qw(t data cysprot1b.newick)));
 
 ok($treeio);
 my $tree = $treeio->next_tree;
-
 ok(ref($tree) && $tree->isa('Bio::Tree::TreeI'));
 
 my @nodes = $tree->get_nodes;
@@ -219,8 +206,8 @@ ok($node->id, 'C-vittat');
 ok($node->branch_length, '0.087619');
 ok($node->ancestor->id, '14');
 $treeio = new Bio::TreeIO(-format => 'lintree',
-			      -file   => Bio::Root::IO->catfile
-			      (qw(t data crab.dat.cn)));
+			  -file   => Bio::Root::IO->catfile
+			  (qw(t data crab.dat.cn)));
 $tree = $treeio->next_tree;
 
 ok(ref($tree) && $tree->isa('Bio::Tree::TreeI'));
@@ -239,6 +226,32 @@ ok($node->branch_length, '0.029044');
 ok($node->id, 'C-vittat');
 ok($node->branch_length, '0.097855');
 ok($node->ancestor->id, '14');
+
+
+# test nexus tree parsing
+$treeio = Bio::TreeIO->new(-format => 'nexus',
+			   -file   => Bio::Root::IO->catfile
+			   (qw(t data urease.tre.nexus) ));
+			   
+$tree = $treeio->next_tree;
+ok($tree);
+ok($tree->id, 'PAUP_1');
+ok($tree->get_leaf_nodes, 6);
+($node) = $tree->find_node(-id => 'Spombe');
+ok($node->branch_length,0.221404);
+
+# test nexus MrBayes tree parsing
+$treeio = Bio::TreeIO->new(-format => 'nexus',
+			   -file   => Bio::Root::IO->catfile
+			   (qw(t data adh.mb_tree.nexus) ));
+			   
+$tree = $treeio->next_tree;
+ok($tree);
+ok($tree->id, 'rep.1');
+ok($tree->get_leaf_nodes, 54);
+($node) = $tree->find_node(-id => 'd.madeirensis');
+ok($node->branch_length,0.039223);
+
 
 __DATA__
 (((A:1,B:1):1,(C:1,D:1):1):1,((E:1,F:1):1,(G:1,H:1):1):1);
