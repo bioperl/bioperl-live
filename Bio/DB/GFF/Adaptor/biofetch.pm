@@ -216,10 +216,18 @@ sub _load_embl {
 # CDS is in SOFA and coding is not
 #    my $type     =   $feat->primary_tag eq 'CDS'   ? 'coding'
 #                   : $feat->primary_tag;
-    my $type     =    $feat->primary_tag eq 'source' ? 'region'
-                    : $feat->primary_tag;
-    $type        =    $type eq 'misc_RNA' ? 'RNA'
-                    : $type;
+    my $type=  $feat->primary_tag;
+    next if (lc($type) eq 'contig');
+    next if (lc($type) eq 'variation');
+    if ($type  eq 'source') {
+      $type = 'region';
+    }
+    if ($type =~ /misc.*RNA/i) {
+      $type = 'RNA';
+    }
+#    if ($type eq 'variation') {
+#      $type = 'chromosome_variation';
+#    } 
     if ($type eq 'misc_feature' and $name->[1] =~ /similar/i) {
       $type = 'computed_feature_by_similarity';
     }
