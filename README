@@ -1,18 +1,7 @@
 This is the README file for the Bioperl central distribution,
-Version 0.9.0
-
-
-*NOTE* 
-
- This is a developer release for bioperl, the 0.9.x series
- does not guarantee a stable API between 0.9.x releases.  These
- releases will be provided on a frequent (3-5 week) basis until the 1.0
- release is prepared at the end of 2001.  Please see the section on
- developer releases at the bottom.
-
+Version 1.0.0
 
 # $Id$
-
 
 o Getting Started
  
@@ -64,10 +53,13 @@ o Contact info
 
 o System requirements
 
- - Not tested on anything but common forms of Unix (see the 
-   PLATFORMS file for more details)
+ - Tested on all common forms of Unix, Win9X/NT/2000, Mac OS X 
+   (see the PLATFORMS file for more details)
+
  - perl 5.004 or later *.
+
  - ANSI C or Gnu C compiler for XS extensions
+
  - LWP (libwww-perl) modules for running network BLAST analyses
    (available from CPAN http://www.perl.com/CPAN/).
 
@@ -85,6 +77,22 @@ o System requirements
    the Bio::Index::* modules. If you don't need these modules
    and you want to install bioperl using an earlier version of Perl,
    edit the "require 5.004;" line in Makefile.PL as necessary.
+
+o About the directory structure
+
+ The bioperl directory structure is organised as follows:
+
+ Bio/      - Bioperl modules  
+ models/   - DIA drawing program generated OO UML for bioperl classes
+ t/        - Perl built-in tests
+ t/data/   - Data files used for the tests - provides good data
+	     examples for those new to bioinformatics data.	     
+ scripts/  - Resuable scripts that use bioperl, some organisation in 
+	     attempted here (i.e. das contains das related scripts) 
+ scripts/contributed - User submissions of useful scripts not necessarily 
+		       integrated into bioperl.  Please see the README
+		       in this directory.
+ examples/ - Example code snippets
 
 o Documentation
 
@@ -115,7 +123,7 @@ o Documentation
 
  Individual *.pm modules have their own embedded POD documentation
  as well. A complete set of hyperlinked POD, or module, documentation 
- is available at http://www.bioperl.org.
+ is available at http://www.bioperl.org.  The most up-to-date 
 
  Remember 'perldoc' is your friend. You can use this to read any
  file containing POD formatted documentation without needing any type

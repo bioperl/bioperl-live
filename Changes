@@ -1,6 +1,25 @@
 $Id$
 Revision history for Bioperl core modules
 
+1.0.0 Major Stable Release
+
+  This represents a major release of bioperl with significant
+  improvements over the 0.7.x series of releases.   
+
+    o Bio::Tools::Blast is officially deprecated.  Please see
+      Bio::SearchIO for BLAST, FASTA parsing.
+
+    o The methods trunc() and subseq() in Bio::PrimarySeqI now accepts
+      Bio::LocationI objects as well as start/end.
+
+    o Bio::Biblio contains modules for Bibliographic data. 
+      Bio::DB::Biblio contains the query modules.
+    
+    o Bio::DB::Registry is a sequence database registry part of 
+      Open Bioinformatics Database Access.
+
+    o A FAQ has been started and is included in the release to provide
+      a starting point for frequent questions and issues.
 
 0.9.3 Developer's release
     
