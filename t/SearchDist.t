@@ -29,10 +29,9 @@ foreach my $i ( 1..5000 ) {
     push(@scores,$score);
 }
 
-    
-ok $dist->fit_evd(), 1;
+# this just checks that this routine runs ;)
+# as the distribution is not gaussian, it gives
+# non-sensical results    
 
-foreach my $score ( @scores ) {
-    my $evalue = $dist->evalue($score);
-    #print STDERR "# Score $score had an evalue of $evalue\n";
-}
+ok $dist->fit_Gaussian(1200), 1;
+

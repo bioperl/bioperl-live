@@ -177,6 +177,29 @@ sub fit_evd{
    return $self->_engine()->fit_EVD(10000,1);
 }
 
+=head2 fit_Gaussian
+
+ Title   : fit_Gaussian
+ Usage   :
+ Function:
+ Example :
+ Returns : 
+ Args    :
+
+
+=cut
+
+sub fit_Gaussian{
+   my ($self,$high) = @_;
+
+   if( ! defined $high ) {
+       $high = 10000;
+   }
+
+   return $self->_engine()->fit_Gaussian($high);
+}
+
+
 =head2 evalue
 
  Title   : evalue
