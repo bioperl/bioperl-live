@@ -208,9 +208,8 @@ objects related to one another.
 
 In addition, a bioperl online course is available on the web at
 http://www.pasteur.fr/recherche/unites/sis/formation/bioperl. The
-user is also referred to numerous bioperl scripts in the scripts/ and
-examples/ directories (see bioperl.pod for a description of all these
-scripts).
+user is also referred to numerous bioperl scripts in the scripts/
+directory (see bioscripts.pod for a description of these scripts).
 
 =head2 I.2 Software requirements
 
@@ -1065,7 +1064,7 @@ regular expressions.  This capability leads to significant performance
 gains when pattern matching on both the sense and anti-sense strands
 of a query sequence are required. Typical syntax for using SeqPattern
 is shown below.  For more information, there are several interesting
-examples in the script seq_pattern.pl in the examples/ directory.
+examples in the script seq_pattern.pl in the scripts/tools directory.
 
   Use Bio::Tools::SeqPattern;
   $pattern     = '(CCCCT)N{1,200}(agggg)N{1,200}(agggg)';
@@ -1198,7 +1197,7 @@ search.  The "raw" blast report is also available.
 The syntax for running PHIBLAST, PSIBLAST and bl2seq searches via
 StandAloneBlast is also straightforward.  See
 L<Bio::Tools::Run::StandAloneBlast> documentation for details. In
-addition, the script standaloneblast.pl in the examples/ directory
+addition, the script standaloneblast.pl in the scripts/tools directory
 contains descriptions of various possible applications of the
 StandAloneBlast object. This script shows how the blast report object
 can access a blast parser directly, eg
@@ -1317,7 +1316,7 @@ Sample code to read a BLAST report might look like this:
 For more details on parsing with Search/SearchIO see the Search and SearchIO
 documentation: L<Bio::SearchIO::blast>, L<Bio::SearchIO::psiblast>,
 L<Bio::SearchIO::blastxml>, L<Bio::SearchIO::fasta>, and L<Bio::SearchIO>.
-There is also sample code in the Bio/examples/searchio directory which
+There is also sample code in the Bio/scripts/searchio directory which
 illustrates how to use SearchIO.
 
 =for html <A NAME ="iii.4.4"></A>
@@ -1498,7 +1497,7 @@ pairwise_alignment produces a (reference to) a SimpleAlign object.
 SW matrix, gap and extension parameters can be adjusted as shown.
 Bioperl comes standard with blosum62 and gonnet250 matrices.  Others
 can be added by the user.  For additional information on accessing the
-SW algorithm via pSW see the script psw.pl in the examples/ directory and
+SW algorithm via pSW see the script psw.pl in the scripts/tools directory and
 the documentation in L<Bio::Tools::pSW>.
 
 An alternative way to get Smith-Waterman alignments is the EMBOSS
@@ -1584,7 +1583,7 @@ profile_align method. For further details on the required syntax and
 options for the profile_align method, the user is referred to
 L<Bio::Tools::Run::Alignment::Clustalw> and
 L<Bio::Tools::Run::Alignment::TCoffee>. The user is also
-encouraged to examine the script clustalw.pl in the examples/ directory.
+encouraged to examine the script clustalw.pl in the scripts/align directory.
 
 =for html <A NAME ="iii.5.4"></A>
 
@@ -1916,7 +1915,7 @@ mutation are exactly the same in DNA and RNA sequences, we can write:
   $DNA_re_changes eq $RNA_re_changes or print "Different!\n";
 
 For a complete working script, see the change_gene.pl script
-in the examples directory. For more details on the use of these objects
+in the scripts/liveseq directory. For more details on the use of these objects
 see L<Bio::LiveSeq::Mutator> and L<Bio::LiveSeq::Mutation> as well as
 the original documentation for the "Computational Mutation Expression
 Toolkit" project at http://www.ebi.ac.uk/mutations/toolkit/.
@@ -2032,7 +2031,7 @@ wealth of methods, here are just a few:
 
 These lines show how one has access to a number of related objects and methods.
 For examples of typical usage of these modules, see the scripts in the
-examples/structure subdirectory. Also see L<Bio::Structure::IO>, 
+scripts/structure subdirectory. Also see L<Bio::Structure::IO>, 
 L<Bio::Structure::Entry>, L<Bio::Structure::Model>,
 L<Bio::Structure::Chain>, L<Bio::Structure::Residue>, and
 L<Bio::Structure::Atom> for more information.
@@ -2086,7 +2085,7 @@ like:
       print $collection->get_next;
   }
 
-See L<Bio::Biblio> or the examples/biblio.pl script for details.
+See L<Bio::Biblio> or the scripts/biblio/biblio.pl script for details.
 
 
 =for html <A NAME ="iii.8.5"></A>
@@ -3161,7 +3160,7 @@ $run_psw_bl2seq = sub {
     $seq1 = $str->next_seq();
     $seq2 = $str->next_seq();
 
-    $factory = new Bio::Tools::pSW( '-matrix' => 'examples/blosum62.bla',
+    $factory = new Bio::Tools::pSW( '-matrix' => 'scripts/tools/blosum62.bla',
                                     '-gap' => 12,
                                     '-ext' => 2, );
 
