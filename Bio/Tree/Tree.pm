@@ -94,10 +94,29 @@ sub new {
   my $self = $class->SUPER::new(@args);
   $self->{'_rootnode'} = undef;
   $self->{'_maxbranchlen'} = 0;
-
-  my ($root)= $self->_rearrange([qw(ROOT)], @args);
+  $self->_register_for_cleanup(\&cleanup_tree);
+  my ($root,$nodel)= $self->_rearrange([qw(ROOT NODELETE)], @args);
   if( $root ) { $self->set_root_node($root); }
+  $self->nodelete( $nodel || 0);
   return $self;
+}
+
+=head2 nodelete
+
+ Title   : nodelete
+ Usage   : $obj->nodelete($newval)
+ Function: 
+ Example : 
+ Returns : value of nodelete (a scalar)
+ Args    : on set, new value (a scalar or undef, optional)
+
+
+=cut
+
+sub nodelete{
+    my $self = shift;
+    return $self->{'nodelete'} = shift if @_;
+    return $self->{'nodelete'};
 }
 
 
@@ -257,6 +276,20 @@ sub score{
 
 
 =cut
+
+
+# -- private internal methods --
+
+sub cleanup_tree {
+    my $self = shift;
+    unless( $self->nodelete ) { 
+	foreach my $node ( $self->get_nodes ) {
+	    $node->ancestor(undef);
+	    $node = undef;	
+	}
+    }
+    $self->{'_rootnode'} = undef;
+}
 
 
 1;

@@ -21,7 +21,7 @@ Bio::Tree::TreeFunctionsI - Decorated Interface implementing basic Tree explorat
 
   my $tree = $in->next_tree;
 
-  my @nodes = $tree->find_nodes('id1');
+  my @nodes = $tree->find_node('id1');
 
   if( $tree->is_monophyletic(-clade => @nodes, -outgroup => $outnode) ){
 
@@ -53,13 +53,18 @@ email or the web:
 
 =head1 AUTHOR - Jason Stajich, Aaron Mackey, Justin Reese
 
-Email jason@bioperl.org
-Email amackey@virginia.edu
-Email jtr4v@virginia.edu
+Email jason-at-bioperl-dot-org
+Email amackey-at-virginia.edu
+Email jtr4v-at-virginia.edu
 
 =head1 CONTRIBUTORS
 
 Additional contributors names and emails here
+
+Rerooting code was worked on by
+
+  Daniel Barker d.barker-at-reading.ac.uk
+  Ramiro Barrantes Ramiro.Barrantes-at-uvm.edu
 
 =head1 APPENDIX
 
@@ -124,7 +129,7 @@ sub find_node {
    } 
    my @nodes = grep { $_->can($type) && defined $_->$type() &&
 		     $_->$type() eq $field } $self->get_nodes();
-   
+
    if ( wantarray) { 
        return @nodes;
    } else { 
@@ -134,6 +139,36 @@ sub find_node {
        return shift @nodes;
    }
 }
+
+=head2 remove_Node
+
+ Title   : remove_Node
+ Usage   : $tree->remove_Node($node)
+ Function: Removes a node from the tree
+ Returns : boolean represent status of success
+ Args    : either Bio::Tree::NodeI or string of the node id
+
+
+=cut
+
+sub remove_Node {
+   my ($self,$input) = @_;
+   my $node = undef;
+   unless( ref($input) ) {
+       $node = $self->find_node($input);
+   }  elsif( ! $input->isa('Bio::Tree::NodeI') ) {
+       $self->warn("Did not provide either a valid Bio::Tree::NodeI object to remove_node or the node name");
+       return 0;
+   } else { 
+       $node = $input;
+   }
+   if( ! $node->ancestor && $self->get_root_node->internal_id != $node->internal_id) {
+       $self->warn("Node (".$node->to_string . ") has no ancestor, can't remove!");
+   } else { 
+       $node->ancestor->remove_Descendent($node);
+   }
+}
+
 
 # Added for Justin Reese by Jason
 
@@ -263,7 +298,7 @@ sub distance {
 
 # helper function to check lca and distance arguments
 
-sub _check_two_nodes {    
+sub _check_two_nodes {
     my ($self, $nodes) = @_;
 
    if( ref($nodes) !~ /ARRAY/i ||
@@ -277,7 +312,7 @@ sub _check_two_nodes {
    } elsif( scalar(@$nodes) < 2 ){
        $self->warn("-nodes parameter does not contain reference to two nodes");
        return undef;
-   }    
+   }
     unless( $nodes->[0]->isa('Bio::Tree::NodeI') &&
 	    $nodes->[1]->isa('Bio::Tree::NodeI') ) {
 	$self->warn("Did not provide valid Bio::Tree::NodeI objects as nodes\n");
@@ -352,7 +387,7 @@ is_monophyletic");
 sub is_paraphyletic{
    my ($self,@args) = @_;
    my ($nodes,$outgroup) = $self->_rearrange([qw(NODES OUTGROUP)],@args);
-   
+
    if( ! defined $nodes || ! defined $outgroup ) {
        $self->warn("Must suply -nodes and -outgroup parameters to the method is_paraphyletic");
        return undef;
@@ -384,8 +419,9 @@ sub is_paraphyletic{
        }
        $og_ancestor = $og_ancestor->ancestor;
    }
-   my $tree = new Bio::Tree::Tree(-root => $clade_root);
-   
+   my $tree = new Bio::Tree::Tree(-root     => $clade_root,
+				  -nodelete => 1);
+
    foreach my $n ( $tree->get_nodes() ) { 
        next unless $n->is_Leaf();
        # if any leaf node is not in the list
@@ -394,6 +430,124 @@ sub is_paraphyletic{
        return 1 unless (  $nodehash{$n->internal_id} );
    }
    return 0;
+}
+
+
+=head2 reroot
+
+ Title   : reroot_tree
+ Usage   : $tree->reroot($node);
+ Function: Reroots a tree either making a new node the root
+ Returns : 1 on success, 0 on failure
+ Args    : Bio::Tree::NodeI that is in the tree, but is not the current root
+ 
+
+=cut
+
+sub reroot {
+    my ($self,$new_root) = @_;
+    unless (defined $new_root && $new_root->isa("Bio::Tree::NodeI")) {
+	$self->warn("Must provide a valid Bio::Tree::NodeI when rerooting");
+	return 0;
+    }
+    if( $new_root->is_Leaf() ) {
+	$self->warn("Asking to root with a leaf, will use the leaf's ancestor");
+	$new_root = $new_root->ancestor;
+    }
+
+    my $old_root = $self->get_root_node;
+    if( $new_root == $old_root ) {
+	$self->warn("Node requested for reroot is already the root node!");
+	return 0;
+    }
+
+    my @path = ();	# along tree, from newroot to oldroot
+    my $node = $new_root;
+    while ($node) {
+	push @path, $node;
+	$node = $node->ancestor;
+    }
+
+    my @path_from_oldroot = reverse @path;
+    for (my $i = 0; $i < @path_from_oldroot - 1; $i++) {
+	my $current = $path_from_oldroot[$i];
+	my $next = $path_from_oldroot[$i + 1];
+	$current->remove_Descendent($next);
+	$current->branch_length($next->branch_length);
+	$next->add_Descendent($current);
+	
+    }
+    $new_root->branch_length(undef);
+    $self->set_root_node($new_root);
+
+    return 1;
+}
+
+=head2 reverse_edge
+                                                                               
+ Title   : reverse_edge
+ Usage   : $node->reverse_edge(child);
+ Function: makes child be a parent of node
+ Requires: child must be a direct descendent of node
+ Returns : nothing
+ Args    : Bio::Tree::NodeI that is in the tree
+
+=cut
+                                                                               
+sub reverse_edge {
+    my ($self,$node) = @_;
+    delete_edge($self, $node);
+    $node->add_Descendent($self);
+    1;
+}
+                                                                               
+                                                                               
+=head2 delete_edge
+                                                                               
+ Title   : delete_edge
+ Usage   : $node->reverse_edge(child); 
+ Function: makes child be a parent of node
+ Requires: child must be a direct descendent of node
+ Returns : nothing
+ Args    : Bio::Tree::NodeI that is in the tree
+ 
+=cut
+
+sub delete_edge {
+    my ($self,$node) = @_;
+    unless (defined $self && $self->isa("Bio::Tree::NodeI")) {
+        $self->warn("Must provide a valid Bio::Tree::NodeI when rerooting");
+        return 1;
+    }
+    unless (defined $node && $node->isa("Bio::Tree::NodeI")) {
+        $self->warn("Must provide a valid Bio::Tree::NodeI when rerooting");
+        return 1;
+    }
+    if( $self->{'_desc'}->{$node->internal_id} ) {
+        $node->ancestor(undef);
+        $self->{'_desc'}->{$node->internal_id}->ancestor(undef);
+        delete $self->{'_desc'}->{$node->internal_id};
+    } else {
+        $self->warn("First argument must be direct parent of node");
+        return 1;
+    }
+    1;
+}
+                                                                           
+                                                                               
+sub findnode_by_id {
+    my $tree = shift;
+    my $id = shift;
+    my $rootnode = $tree->get_root_node;
+    if ( ($rootnode->id) and ($rootnode->id eq $id) ) {
+        return $rootnode;
+    }
+    # process all the children
+    foreach my $node ( $rootnode->get_Descendents ) {
+        if ( ($node->id) and ($node->id eq $id ) ) {
+            return $node;
+        }
+    }
 }
 
 1;
