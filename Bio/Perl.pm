@@ -16,47 +16,48 @@ Bio::Perl - Functional access to BioPerl for people who don't know objects
 
 =head1 SYNOPSIS
 
-   use Bio::Perl qw(read_sequence read_all_sequences write_sequence new_sequence get_sequence);
+  use Bio::Perl qw(read_sequence read_all_sequences write_sequence new_sequence get_sequence);
 
-# will guess file format from extension
-   $seq_object = read_sequence($filename); 
+  # will guess file format from extension
+  $seq_object = read_sequence($filename); 
 
-# forces genbank format
-   $seq_object = read_sequence($filename,'genbank'); 
+  # forces genbank format
+  $seq_object = read_sequence($filename,'genbank'); 
 
-# reads an array of sequences
-   @seq_object_array = read_all_sequences($filename,'fasta'); 
+  # reads an array of sequences
+  @seq_object_array = read_all_sequences($filename,'fasta'); 
 
-# sequences are Bio::Seq objects, so the following methods work
-# for more info see L<Bio::Seq>, or do 'perldoc Bio/Seq.pm'
+  # sequences are Bio::Seq objects, so the following methods work
+  # for more info see L<Bio::Seq>, or do 'perldoc Bio/Seq.pm'
 
-   print "Sequence name is ",$seq_object->display_id,"\n";
-   print "Sequence acc  is ",$seq_object->accession_number,"\n";
-   print "First 5 bases is ",$seq_object->subseq(1,5),"\n";
+  print "Sequence name is ",$seq_object->display_id,"\n";
+  print "Sequence acc  is ",$seq_object->accession_number,"\n";
+  print "First 5 bases is ",$seq_object->subseq(1,5),"\n";
 
-# get the whole sequence as a single string
+  # get the whole sequence as a single string
 
-   $sequence_as_a_string = $seq_object->seq();
+  $sequence_as_a_string = $seq_object->seq();
 
-# writing sequences
+  # writing sequences
 
-   write_sequence(">$filename",'genbank',$seq_object);
+  write_sequence(">$filename",'genbank',$seq_object);
 
-   write_sequence(">$filename",'genbank',@seq_object_array);
+  write_sequence(">$filename",'genbank',@seq_object_array);
 
-# making a new sequence from just strings you have
-# from something else
+  # making a new sequence from just strings you have
+  # from something else
 
-   $seq_object = new_sequence("ATTGGTTTGGGGACCCAATTTGTGTGTTATATGTA","myname","AL12232");
+  $seq_object = new_sequence("ATTGGTTTGGGGACCCAATTTGTGTGTTATATGTA",
+      "myname","AL12232");
 
 
-# getting a sequence from a database (assumes internet connection)
+  # getting a sequence from a database (assumes internet connection)
 
-   $seq_object = get_sequence('swissprot',"ROA1_HUMAN");
+  $seq_object = get_sequence('swissprot',"ROA1_HUMAN");
 
-   $seq_object = get_sequence('embl',"AI129902");
+  $seq_object = get_sequence('embl',"AI129902");
 
-   $seq_object = get_sequence('genbank',"AI129902");
+  $seq_object = get_sequence('genbank',"AI129902");
 
 
 =head1 DESCRIPTION
@@ -399,7 +400,7 @@ sub get_sequence{
 
 sub translate {
    my ($scalar) = shift;
-   
+
    my $obj;
 
    if( ref $scalar ) {
@@ -442,7 +443,7 @@ sub translate {
 
 sub translate_as_string {
    my ($scalar) = shift;
-   
+
    my $obj = Bio::Perl::translate($scalar);
 
    return $obj->seq;
@@ -466,7 +467,7 @@ sub translate_as_string {
 
 sub reverse_complement {
    my ($scalar) = shift;
-   
+
    my $obj;
 
    if( ref $scalar ) {
@@ -506,6 +507,7 @@ sub reverse_complement {
 
  Args    : Either a sequence object or a string of 
            just DNA sequence characters
+
 =cut
 
 sub revcom {
@@ -529,7 +531,7 @@ sub revcom {
 
 sub reverse_complement_as_string {
    my ($scalar) = shift;
-   
+
    my $obj = &Bio::Perl::reverse_complement($scalar);
 
    return $obj->seq;
@@ -552,11 +554,11 @@ sub reverse_complement_as_string {
 
 sub revcom_as_string {
    my ($scalar) = shift;
-   
+
    my $obj = &Bio::Perl::reverse_complement($scalar);
 
    return $obj->seq;
 }
-    
+
 
 1;
