@@ -20,18 +20,6 @@ BEGIN {
 
     plan tests => $NUMTESTS;
 
-
-    eval { require Storeable; 
-       };
-    if( $@ ) {
-	print STDERR "Storeable not available, skipping\n";
-	for( 1..$NUMTESTS ) {
-	    skip("Storeable not available",1);
-	}
-       $error = 1; 
-    }
-
-
 }
 
 if( $error ==  1 ) {
