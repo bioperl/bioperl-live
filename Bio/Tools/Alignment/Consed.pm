@@ -129,9 +129,8 @@ BEGIN {
  Args    : A hash. (-acefile) is the filename of an acefile. If a full path
 	   is not specified "./" is prepended to the filename and used from
 	   instantiation until destruction. If you want 
-           Bio::Tools::Alignment::Consed to
-           be noisy during parsing of the acefile, specify some value for
-	   (-verbose).
+           Bio::Tools::Alignment::Consed to be noisy during parsing of
+           the acefile, specify some value for (-verbose).
 
 =cut
 
@@ -160,18 +159,18 @@ sub new {
  Title   : verbose()
  Usage   : $o_consed->verbose(1);
  Function: Set the verbosity level for debugging messages. On instantiation
-	of the Bio::Tools::Alignment::Consed object the verbosity level is set to 0
-	(quiet).
+	   of the Bio::Tools::Alignment::Consed object the verbosity level
+           is set to 0 (quiet).
  Returns : 1 or 0.
  Args    : The verbosity levels are:
-	0 - quiet
-	1 - noisy
-	2 - noisier
-	3 - annoyingly noisy
+	      0 - quiet
+	      1 - noisy
+	      2 - noisier
+	      3 - annoyingly noisy
  Notes   : This method for setting verbosity has largely been superseeded by
-	a sub-by-sub way, where for every sub you can provide a (-verbose)
-	switch. I am doing converting this bit-by-bit so do not be surprised
-	if some subs do not honour this.
+	   a sub-by-sub way, where for every sub you can provide a (-verbose)
+	   switch. I am doing converting this bit-by-bit so do not be surprised
+	   if some subs do not honour this.
 
 =cut
 
@@ -185,7 +184,7 @@ sub set_verbose { (shift)->verbose(@_) }
  Title   : get_filename()
  Usage   : $o_consed->get_filename();
  Function: Returns the name of the acefile being used by the
-	Bio::Tools::Alignment::Consed object.
+	   Bio::Tools::Alignment::Consed object.
  Returns : A scalar containing the name of a file.
  Args    : None.
 
@@ -202,16 +201,16 @@ sub get_filename {
  Title   : count_sequences_with_grep()
  Usage   : $o_consed->count_sequences_with_grep();
  Function: Use /bin/grep to scan through the files in the ace project dir
-	and count sequences in those files. I used this method in the
-	development of this module to verify that I was getting all of the
-	sequences. It works, but it is (I think) unix-like platform
-	dependent.
+	   and count sequences in those files. I used this method in the
+	   development of this module to verify that I was getting all of the
+	   sequences. It works, but it is (I think) unix-like platform
+	   dependent.
  Returns : A scalar containing the number of sequences in the ace project
-	directory.
+	   directory.
  Args    : None.
  Notes   : If you are on a non-UNIX platform, you really do not have to use
-	this. It is more of a debugging routine designed to address very
-	specific problems.
+	   this. It is more of a debugging routine designed to address very
+	   specific problems.
 
 =cut
 
@@ -257,11 +256,12 @@ sub get_path {
  Title   : get_contigs()
  Usage   : $o_consed->get_contigs();
  Function: Return the keys to the Bio::Tools::Alignment::Consed object.
- Returns : An array containing the keynames in the Bio::Tools::Alignment::Consed object.
+ Returns : An array containing the keynames in the
+           Bio::Tools::Alignment::Consed object.
  Args    : None.
  Notes   : This would normally be used to get the keynames for some sort of
-	iterator. These keys are worthless in general day-to-day use because
-	in the Consed acefile they are simply Contig1, Contig2, ...
+	   iterator. These keys are worthless in general day-to-day use because
+	   in the Consed acefile they are simply Contig1, Contig2, ...
 
 =cut
 
@@ -276,16 +276,18 @@ sub get_contigs {
  Title   : get_quality_array($contig_keyname)
  Usage   : $o_consed->get_quality_array($contig_keyname);
  Function: Returns the quality for the consensus sequence for the given
-	contig as an array. See get_quality_scalar to get this as a scalar.
+	   contig as an array. See get_quality_scalar to get this as a scalar.
  Returns : An array containing the quality for the consensus sequence with
-	the given keyname.
+	   the given keyname.
  Args    : The keyname of a contig. Note: This is a keyname. The key would
-	normally come from get_contigs.
+	   normally come from get_contigs.
  Notes   : Returns an array, not a reference. Is this a bug? <thinking> No.
-	Well, maybe.
-	Why was this developed like this? I was using FreezeThaw for object
-	presistence, and when it froze out these arrays it took a long time
-	to thaw it. Much better as a scalar.
+	   Well, maybe.
+	   Why was this developed like this? I was using FreezeThaw for object
+	   persistence, and when it froze out these arrays it took a long time
+	   to thaw it. Much better as a scalar.
+
+See L<get_quality_scalar()|get_quality_scalar>
 
 =cut
 
@@ -300,15 +302,16 @@ sub get_quality_array {
  Title   : get_quality_scalar($contig_keyname)
  Usage   : $o_consed->get_quality_scalar($contig_keyname);
  Function: Returns the quality for the consensus sequence for the given
-	contig as a scalar. See get_quality_array to get this as an array.
+	   contig as a scalar. See get_quality_array to get this as an array.
  Returns : An scalar containing the quality for the consensus sequence with
-        the given keyname.
+           the given keyname.
  Args    : The keyname of a contig. Note this is a _keyname_. The key would
-	normally come from get_contigs.
- Notes   :
-	Why was this developed like this? I was using FreezeThaw for object
-	presistence, and when it froze out these arrays it took a coon's age
-	to thaw it. Much better as a scalar.
+	   normally come from get_contigs.
+ Notes   : Why was this developed like this? I was using FreezeThaw for object
+	   persistence, and when it froze out these arrays it took a coon's age
+	   to thaw it. Much better as a scalar.
+
+See L<get_quality_array()|get_quality_array>
 
 =cut
 
@@ -331,7 +334,7 @@ sub get_quality_scalar {
  Returns : 0 or 1;
  Args    : None.
  Notes   : This procedure was removed so Consed.pm won't require
-	FreezeThaw.
+	   FreezeThaw.
 
 
 =cut
@@ -363,7 +366,9 @@ sub freeze_hash {
  Function: Return the _names_ of the reads in this contig.
  Returns : An array containing the names of the reads in this contig.
  Args    : The keyname of a contig. Note this is a keyname. The keyname
-	would normally come from get_contigs.
+	   would normally come from get_contigs.
+
+See L<get_contigs()|get_contigs>
 
 =cut
 
@@ -381,12 +386,14 @@ sub get_members {
  Title   : get_members_by_name($some_arbitrary_name)
  Usage   : $o_consed->get_members_by_name($some_arbitrary_name);
  Function: Return the names of the reads in a contig. This is the name given
-	to $contig{key} based on what is in the contig. This is different
-	from the keys retrieved through get_contigs().
+	   to $contig{key} based on what is in the contig. This is different
+	   from the keys retrieved through get_contigs().
  Returns : An array containing the names of the reads in the contig with this
-	name.
+	   name.
  Args    : The name of a contig. Not a key, but a name.
  Notes   : Highly inefficient. use some other method if possible.
+
+See L<get_contigs()|get_contigs>
 
 =cut
 
@@ -412,11 +419,13 @@ sub get_members_by_name {
  Title   : get_contig_number_by_name($some_arbitrary_name)
  Usage   : $o_consed->get_contig_number_by_name($some_arbitrary_name);
  Function: Return the names of the reads in a contig. This is the name given
-	to $contig{key} based on what is in the contig. This is different
-	from the keys retrieved through get_contigs().
+	   to $contig{key} based on what is in the contig. This is different
+	   from the keys retrieved through get_contigs().
  Returns : An array containing the names of the reads in the contig with this
-	name.
+	   name.
  Args    : The name of a contig. Not a key, but a name.
+
+See L<get_contigs()|get_contigs>
 
 =cut
 
@@ -432,11 +441,13 @@ sub get_contig_number_by_name {
 =head2 get_sequence($contig_keyname)
 
  Title   : get_sequence($contig_keyname)
- Usage   :$o_consed->get_sequence($contig_keyname); 
+ Usage   : $o_consed->get_sequence($contig_keyname); 
  Function: Returns the consensus sequence for a given contig.
  Returns : A scalar containing a sequence.
  Args    : The keyname of a contig. Note this is a key. The key would
-	normally come from get_contigs.
+	   normally come from get_contigs.
+
+See L<get_contigs()>
 
 =cut
 
@@ -450,11 +461,11 @@ sub get_sequence {
  Title   : set_final_sequence($name,$some_sequence)
  Usage   : $o_consed->set_final_sequence($name,$some_sequence);
  Function: Provides a manual way to set the sequence for a given key in the
-	contig hash. Rarely used.
+	   contig hash. Rarely used.
  Returns : 0 or 1;
  Args    : The name (not the keyname) of a contig and an arbitrary string.
  Notes   : A method with a questionable and somewhat mysterious origin. May
-	raise the dead or something like that.
+	   raise the dead or something like that.
 
 =cut
 
@@ -475,11 +486,11 @@ sub set_final_sequence {
  Title   : _read_file();
  Usage   : _read_file();
  Function: An internal subroutine used to read in an acefile and parse it
-	into a Bio::Tools::Alignment::Consed object.
+	   into a Bio::Tools::Alignment::Consed object.
  Returns : 0 or 1.
  Args    : Nothing.
  Notes   : This routine creates and saves the filhandle for reading the
-	files in {fh}
+	   files in {fh}
 
 =cut
 
@@ -599,10 +610,10 @@ sub _read_file {
  Title   : set_reverse_designator($some_string)
  Usage   : $o_consed->set_reverse_designator($some_string);
  Function: Set the designator for the reverse read of contigs in this
-	Bio::Tools::Alignment::Consed object. Used to determine if contigs containing
-	two reads can be named.
+	   Bio::Tools::Alignment::Consed object. Used to determine if
+           contigs containing two reads can be named.
  Returns : The value of $o_consed->{reverse_designator} so you can check
-	to see that it was set properly.
+	   to see that it was set properly.
  Args    : An arbitrary string.
  Notes   : May be useful only to me. <shrug>
 
@@ -620,10 +631,10 @@ sub set_reverse_designator {
  Title   : set_forward_designator($some_string)
  Usage   : $o_consed->set_forward_designator($some_string);
  Function: Set the designator for the forward read of contigs in this
-	Bio::Tools::Alignment::Consed object. Used to determine if contigs containing
-        two reads can be named.
+	   Bio::Tools::Alignment::Consed object. Used to determine if
+           contigs containing two reads can be named.
  Returns : The value of $o_consed->{forward_designator} so you can check
-	to see that it was set properly.
+	   to see that it was set properly.
  Args    : An arbitrary string.
  Notes   : May be useful only to me. <shrug>
 
@@ -670,6 +681,8 @@ sub set_designator_ignore_case {
  Args    : None.
  Notes   : Working on exceptions and warnings here.
 
+See L<Bio::Tools::Alignment::Trim> for more information
+
 =cut
 
 #' to make my emacs happy
@@ -712,13 +725,16 @@ sub set_trim_points_singlets_and_singletons {
  Title   : set_trim_points_doublets()
  Usage   : $o_consed->set_trim_points_doublets();
  Function: Set the trim points for doublets based on quality. Uses the
-	Bio::Tools::Alignment::Trim object. Use at your own risk because
-        the Bio::Tools::Alignment::Trim object was designed specifically for me and
-        is mysterious in its ways. Every time somebody other then me uses it
-	you risk a biblical plague being loosed on your city.
+	   Bio::Tools::Alignment::Trim object. Use at your own risk because
+           the Bio::Tools::Alignment::Trim object was designed specifically
+           for me and is mysterious in its ways. Every time somebody other
+           then me uses it you risk a biblical plague being loosed on your
+           city.
  Returns : Nothing.
  Args    : None.
  Notes   : Working on exceptions here.
+
+See L<Bio::Tools::Alignment::Trim> for more information
 
 =cut
 
@@ -796,15 +812,15 @@ sub set_dash_present_in_sequence_name {
  Title   : set_doublets()
  Usage   : $o_consed->set_doublets();
  Function: Find pairs that have similar names and mark them as doublets
-	and set the {name}.
+	   and set the {name}.
  Returns : 0 or 1.
  Args    : None.
  Notes   : A complicated subroutine that iterates over the
-	Bio::Tools::Alignment::Consed looking for contigs of 2. If the forward and
-	reverse designator are removed from each of the reads in
-	{'member_array'} and the remaining reads are the same, {name} is set
-	to that name and the contig's class is set as "doublet". If any of
-	those cases fail the contig is marked as a "pair".
+	   Bio::Tools::Alignment::Consed looking for contigs of 2. If the
+           forward and reverse designator are removed from each of the reads
+           in {'member_array'} and the remaining reads are the same, {name}
+           is set to that name and the contig's class is set as "doublet".
+           If any of those cases fail the contig is marked as a "pair".
 
 =cut
 
@@ -977,7 +993,7 @@ sub get_singlets {
            Probably used for testing.
  Returns : Nothing.
  Args    : The name of a contig and a scalar for its quality.
- Notes   : Deprected.
+ Notes   : Deprecated.
 
 =cut
 
@@ -1119,10 +1135,10 @@ sub get_multiplets {
   Usage   : @all_members = $o_consed->get_all_members();
   Function: Return a list of all of the read names in the 
             Bio::Tools::Alignment::Consed object.
- Returns : An array containing all of the elements in all of the
-           {'member_array'}s.
- Args    : None.
- Notes   : 
+  Returns : An array containing all of the elements in all of the
+            {'member_array'}s.
+  Args    : None.
+  Notes   : 
 
 =cut
 
@@ -1203,14 +1219,18 @@ sub sum_lets {
  Title   : write_stats()
  Usage   : $o_consed->write_stats();
  Function: Write a file called "statistics" containing numbers similar to
-	those provided in sum_lets().
+	   those provided in sum_lets().
  Returns : Nothing. Write a file in $o_consed->{path} containing something
-	like this:
-	0,0,50(100),0(0),0(0),100
-	Where the numbers provided are in the format described in the
-	documentation for sum_lets().
+	   like this: 
+
+           0,0,50(100),0(0),0(0),100
+
+           Where the numbers provided are in the format described in the
+	   documentation for sum_lets().
  Args    : None.
  Notes   : This might break platform independence, I do not know.
+
+See L<sum_lets()|sum_lets>
 
 =cut
 
@@ -1235,7 +1255,7 @@ sub write_stats {
  Usage   : @singletons = $o_consed->get_singletons();
  Function: Return the keynames of the singletons.
  Returns : Returns an array containing the keynames of all
-	Bio::Tools::Alignment::Consed sequences in the class "singleton".
+	   Bio::Tools::Alignment::Consed sequences in the class "singleton".
  Args    : None.
  Notes   : 
 
@@ -1267,8 +1287,8 @@ sub get_singletons {
  Title   : get_pairs()
  Usage   : @pairs = $o_consed->get_pairs();
  Function: Return the keynames of the pairs.
- Returns : Returns an array containing the keynames of all Bio::Tools::Alignment::Consed
-	sequences in the class "pair".
+ Returns : Returns an array containing the keynames of all
+           Bio::Tools::Alignment::Consed sequences in the class "pair".
  Args    : None.
  Notes   : 
 
@@ -1314,7 +1334,7 @@ sub get_name {
  Returns : The name for this contig.
  Args    : A reference to an array containing read names.
  Notes   : Depends on reverse_designator. Be sure this is set the way you
-	intend.
+	   intend.
 
 =cut
 
@@ -1368,8 +1388,8 @@ sub _get_contig_name {
  Title   : get_doublets()
  Usage   : @doublets = $o_consed->get_doublets();
  Function: Return the keynames of the doublets.
- Returns : Returns an array containing the keynames of all Bio::Tools::Alignment::Consed
-	sequences in the class "doublet".
+ Returns : Returns an array containing the keynames of all
+           Bio::Tools::Alignment::Consed sequences in the class "doublet".
  Args    : None.
  Notes   : 
 
@@ -1394,7 +1414,8 @@ sub get_doublets {
 
  Title   : dump_hash()
  Usage   : $o_consed->dump_hash();
- Function: Use dumpvar.pl to dump out the Bio::Tools::Alignment::Consed object to STDOUT.
+ Function: Use dumpvar.pl to dump out the Bio::Tools::Alignment::Consed
+           object to STDOUT.
  Returns : Nothing.
  Args    : None.
  Notes   : I used this a lot in debugging.
@@ -1416,7 +1437,8 @@ sub dump_hash {
  Function: Dump out the Bio::Tools::Alignment::Consed object in a compact way.
  Returns : Nothing.
  Args    : Nothing.
- Notes   : Cleaner then dumpValue(), dumpHash(). I used this a lot in debugging.
+ Notes   : Cleaner then dumpValue(), dumpHash(). I used this a lot in
+           debugging.
 
 =cut
 
@@ -1470,9 +1492,9 @@ sub dump_hash_compact {
 
  Title   : get_phreds()
  Usage   : @phreds = $o_consed->get_phreds();
- Function: For each doublet in the Bio::Tools::Alignment::Consed hash, go and get the
-	phreds for the top and bottom reads. Place them into {top_phreds}
-	and {bottom_phreds}.
+ Function: For each doublet in the Bio::Tools::Alignment::Consed hash, go
+           and get the phreds for the top and bottom reads. Place them into
+           {top_phreds} and {bottom_phreds}.
  Returns : Nothing.
  Args    : Nothing.
  Notes   : Requires parse_phd() and reverse_and_complement(). I realize that
@@ -1516,10 +1538,12 @@ sub get_phreds {
  Returns : A reference to an array containing the quality values for the read.
  Args    : The name of a read.
  Notes   : This is a significantly weak subroutine because it was always
-	intended that these functions, along with the finctions provided by
-	get_phreds() be put into the Bio::SeqIO:phred module. This is done now but
-	the Bio::Tools::Alignment::Consed module has not be rewritten to reflect this
-	change.
+	   intended that these functions, along with the functions provided by
+	   get_phreds() be put into the Bio::SeqIO:phd module. This is done
+           now but the Bio::Tools::Alignment::Consed module has not be
+           rewritten to reflect this change.
+
+See L<Bio::SeqIO::phd> for more information.
 
 =cut
 
@@ -1567,10 +1591,10 @@ sub reverse_and_complement {
  Title   : reverse_recurse(\@source,\@destination)
  Usage   : $o_consed->reverse_recurse(\@source,\@destination);
  Function: A recursive routine to reverse and complement an array of phred
-	data.
+	   data.
  Returns : A reference to an array containing reversed phred data.
  Args    : A reference to a source array and a reverence to a destination
-	array.
+	   array.
  Notes   : Recursion is kewl, but this sub should likely be _reverse_recurse.
 
 =cut
@@ -1590,8 +1614,8 @@ sub reverse_recurse($source,$destination) {
  Title   : show_missing_sequence();
  Usage   : $o_consed->show_missing_sequence();
  Function: Used by set_trim_points_doublets() to fill in quality values where
-	consed (phrap?) set them to 0 at the beginning and/or end of the
-	consensus sequences.
+	   consed (phrap?) set them to 0 at the beginning and/or end of the
+	   consensus sequences.
  Returns : Nothing.
  Args    : None.
  Notes   : Acts on doublets only. Really very somewhat quite ugly. A
