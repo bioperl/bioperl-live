@@ -181,21 +181,20 @@ sub next_result{
    $self->element({'Name' => 'WiseOutput_program',
 		   'Data' => $self->wisetype});
    $self->element({'Name' => 'WiseOutput_query-def',
-		   'Data' => $self->wise->_prot_id});
+		   'Data' => $self->wise->_target_id});
    my @transcripts = $prediction->transcripts;
 
    foreach my $transcript ( @transcripts ) {
        my @exons =  $transcript->exons;
        my $protid;
+       $self->start_element({'Name' => 'Hit'});
+       
        if( $exons[0]->has_tag('supporting_feature') ) {
 	   my ($supporting_feature) = $exons[0]->get_tag_values('supporting_feature');
 	   $protid = $supporting_feature->feature2->seq_id;
-       }
-       $self->start_element({'Name' => 'Hit'});
-       $self->element({'Name' => 'Hit_id',
-		       'Data' => $protid});
-       $self->element({'Name' => 'Hit_id',
-		       'Data' => $exons[0]->seq_id});
+	   $self->element({'Name' => 'Hit_id',
+			   'Data' => $protid});       
+       } 
        $self->element({'Name' => 'Hit_score',
 		       'Data' => $exons[0]->score});
        foreach my $exon ( @exons ) {
