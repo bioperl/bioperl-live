@@ -185,23 +185,20 @@ sub next_seq {
        return undef; # end of file
    }
    $line =~ /^ID\s+\S+/ || $self->throw("EMBL stream with no ID. Not embl in my book");
-   $line =~ /^ID\s+(\S+)\s+\S+\; (.+)\; (\S+)/;
+   $line =~ /^ID\s+(\S+)\s+\S+\;\s+(\S+)\;\s+(\S+)\;/;
    $name = $1;
+   $mol = $2;
+   $div = $3;
    if(! $name) {
        $name = "unknown id";
    }
     # this is important to have the id for display in e.g. FTHelper, otherwise
     # you won't know which entry caused an error
    $seq->display_id($name);
-   $mol= $2;
-   $mol =~ s/\;//;
-   if ($mol) {
+   if($mol) {
        $seq->molecule($mol);
    }
-   
-   if ($3) {
-       $div = $3;
-       $div =~ s/\;//;
+   if ($div) {
        $seq->division($div);
    }
    
@@ -236,9 +233,9 @@ sub next_seq {
        }
 
        #date (NOTE: takes last date line)
-       if( /^DT\s+(\S+)/ ) {
+       if( /^DT\s+(.+)$/ ) {
 	   my $date = $1;
-	   $date =~ s/\;//;
+	   $date =~ s/\;$//;
 	   $seq->add_date($date);
        }
        
@@ -471,11 +468,12 @@ sub write_seq {
 	    }
 	    
 	    if (my $med = $ref->medline) {
-		$self->_print( "RX   MEDLINE; $med\n");
+		$self->_print( "RX   MEDLINE; $med.\n");
 	    }
 	    
 	    $self->_write_line_EMBL_regex("RA   ", "RA   ", 
-					  $ref->authors,  '\s+|$', 80);       
+					  $ref->authors . ";",
+					  '\s+|$', 80);
 
            # If there is no title to the reference, it appears
            # as a single semi-colon.  All titles must end in
@@ -643,6 +641,7 @@ sub _print_EMBL_FTHelper {
 
 }
 
+#'
 =head2 _read_EMBL_References
 
  Title   : _read_EMBL_References
@@ -676,10 +675,18 @@ sub _read_EMBL_References {
        /^R/ || last;
        /^RP   (\d+)-(\d+)/ && do {$b1=$1;$b2=$2;};
        /^RX   MEDLINE;\s+(\d+)/ && do {$med=$1};
-       /^RA   (.*)/ && do { $au .= $1;   next;};
-       /^RT   (.*)/ && do { $title .= $1; next;};
-       /^RL   (.*)/ && do { $loc .= $1; next;};
-       /^RC   (.*)/ && do { $com .= $1; next;};
+       /^RA   (.*)/ && do {
+	   $au = $self->_concatenate_lines($au,$1); next;
+       };
+       /^RT   (.*)/ && do {
+	   $title = $self->_concatenate_lines($title,$1); next;
+       };
+       /^RL   (.*)/ && do {
+	   $loc = $self->_concatenate_lines($loc,$1); next;
+       };
+       /^RC   (.*)/ && do {
+	   $com = $self->_concatenate_lines($com,$1); next;
+       };
    }
    
    my $ref = new Bio::Annotation::Reference;
@@ -699,7 +706,6 @@ sub _read_EMBL_References {
    
    return @refs;
 }
-
 
 =head2 _read_EMBL_Species
 
