@@ -1,6 +1,6 @@
 #!perl -w
 use strict;
-# $Id: translate_seq.PLS,v 1.2 2003-05-30 15:48:29 jason Exp $
+# $Id: translate_seq.PLS,v 1.3 2004-01-10 23:01:52 jason Exp $
 
 
 =head1 NAME
@@ -52,7 +52,7 @@ GetOptions(
 my $oformat = 'fasta';
 
 # this implicity uses the <> file stream
-my $seqin = Bio::SeqIO->new( -format => $format); 
+my $seqin = Bio::SeqIO->new( -format => $format, -file => shift); 
 my $seqout = Bio::SeqIO->new( -format => $oformat, -file => ">-" );
 
 
