@@ -7,7 +7,7 @@ BioPerlTutorial - a tutorial for bioperl
 
 =head1 VERSION
 
-1.2.3
+1.4
 
 =head1 AUTHOR
 
