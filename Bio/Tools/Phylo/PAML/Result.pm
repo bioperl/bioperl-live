@@ -26,10 +26,15 @@ Bio::Tools::Phylo::PAML::Result - A PAML result set object
   my $result = $parser->next_result();
 
   my @seqs       = $result->get_seqs;
-  my @MLmatrix   = $result->get_MLmatrix; # get MaxLikelihood Matrix
-  my @NGmatrix   = $result->get_NGmatrix; # get Nei-Gojoburi Matrix
+  my $MLmatrix   = $result->get_MLmatrix; # get MaxLikelihood Matrix
+  my $NGmatrix   = $result->get_NGmatrix; # get Nei-Gojoburi Matrix
   my @basfreq    = $result->get_codon_pos_basefreq;
 
+
+  # for AAML runs
+  my $AAmatrix   = $result->get_AADistMatrix;
+  my $AAMLmatrix   = $result->get_AAMLDistMatrix;
+  
 =head1 DESCRIPTION
 
 This is a container object for PAML Results.
