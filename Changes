@@ -1,6 +1,54 @@
 $Id$
 Revision history for Bioperl core modules
 
+0.9.1 Developer's release
+
+    o Bio::Search and Bio::SearchIO system introduced for event based
+      parsing of Blast,Fasta reports Bio::SearchIO supports ncbi BLAST
+      in text and XML and FASTA reports in standard output format
+
+    o Bio::Tree and Bio::TreeIO for phylogenetic trees.  A Random tree
+      generator is included in Bio::TreeIO::RandomTrees and a
+      statistics module for evaluating
+      
+    o Bio::DB::GFF, Lincoln Stein's GFF database suitable as a DB
+      server for DAS servers.
+
+    o Bio::Tools::BPlite is provides more robust parsing of BLAST
+      files.  The entire BPlite system migrated to using Bio::Root::IO
+      for the data stream.
+	
+    o Bio::Tools::Alignment for Consed and sequence Trimming
+      functionality
+ 
+    o Bio::Structure for Protein structure information and parsing
+
+    o Bio::DB::GenBank/Bio::DB::GenPept updated to new NCBI Entrez
+      cgi-bin entry point which should be more reliable.
+   
+    o Bio::Map and Bio::MapIO for biological map navigation and a
+      framework afor parsing them in.  Only preliminary work here.
+ 
+    o Interface for executing EMBOSS programs locally in Bio::Factory::EMBOSS
+      Future work will integrate Pise and allow submission of analysis on
+      remote servers.
+
+    o Bio::AnnotationCollectionI and Bio::Annotation::Collection
+      introduced as new objects for handling Sequence Annotation
+      information (dblinks, references, etc) and is more robust that
+      previous system.
+ 
+    o Bio::Tools::FASTAParser introduced
+
+    o Scripts from the bioperl script submission project and new
+      scripts from bioperl authors are included in "scripts" directory.
+
+    o Factory objects and interfaces are being introduced and are more
+      strictly enforced.
+	
+    o Bio::Root::Root introduced as the base object while
+      Bio::Root::RootI is now simply an interface.
+
 0.9.0 Developer's release
 
     o perl version at least 5.005 is now required instead of perl 5.004
