@@ -234,11 +234,13 @@ sub close{
 =head2 get_relationships
 
  Title   : get_relationships
- Usage   : get_relationships(): RelationshipI[]
- Function: Retrieves all relationship objects.
+ Usage   : get_relationships(TermI term): RelationshipI[]
+ Function: Retrieves all relationship objects from this ontology engine,
+           or all relationships of a term if a term is supplied.
  Example :
- Returns : Array of RelationshipI objects
- Args    :
+ Returns : Array of Bio::Ontology::RelationshipI objects
+ Args    : None, or a Bio::Ontology::TermI compliant object for which
+           to retrieve the relationships.
 
 
 =cut
@@ -363,6 +365,29 @@ sub close{
  Example : @terms = $obj->get_all_terms()
  Returns : Array of TermI objects.
  Args    :
+
+
+=cut
+
+
+=head2 find_terms
+
+ Title   : find_terms
+ Usage   : ($term) = $oe->find_terms(-identifier => "SO:0000263");
+ Function: Find term instances matching queries for their attributes.
+
+           An implementation may not support querying for arbitrary
+           attributes, but can generally be expected to accept
+           -identifier and -name as queries. If both are provided,
+           they are implicitly intersected.
+
+ Example :
+ Returns : an array of zero or more Bio::Ontology::TermI objects
+ Args    : Named parameters. The following parameters should be recognized
+           by any implementation:
+
+              -identifier    query by the given identifier
+              -name          query by the given name
 
 
 =cut

@@ -268,8 +268,8 @@ sub stack_trace{
    my ($self) = @_;
 
    my $i = 0;
-   my @out;
-   my $prev;
+   my @out = ();
+   my $prev = [];
    while( my @call = caller($i++)) {
        # major annoyance that caller puts caller context as
        # function name. Hence some monkeying around...

@@ -576,4 +576,31 @@ sub get_all_terms{
     return grep { $_->ontology == $self; } $self->engine->get_all_terms(@_);
 }
 
+=head2 find_terms
+
+ Title   : find_terms
+ Usage   : ($term) = $oe->find_terms(-identifier => "SO:0000263");
+ Function: Find term instances matching queries for their attributes.
+
+           An implementation may not support querying for arbitrary
+           attributes, but can generally be expected to accept
+           -identifier and -name as queries. If both are provided,
+           they are implicitly intersected.
+
+ Example :
+ Returns : an array of zero or more Bio::Ontology::TermI objects
+ Args    : Named parameters. The following parameters should be recognized
+           by any implementations:
+
+              -identifier    query by the given identifier
+              -name          query by the given name
+
+
+=cut
+
+sub find_terms{
+    my $self = shift;
+    return grep { $_->ontology == $self; } $self->engine->find_terms(@_);
+}
+
 1;

@@ -132,11 +132,13 @@ sub add_relationship{
 =head2 get_relationships
 
  Title   : get_relationships
- Usage   : get_relationships(): RelationshipI[]
- Function: Retrieves all relationship objects.
+ Usage   : get_relationships(TermI term): RelationshipI[]
+ Function: Retrieves all relationship objects from this ontology engine,
+           or all relationships of a term if a term is supplied.
  Example :
- Returns : Array of RelationshipI objects
- Args    :
+ Returns : Array of Bio::Ontology::RelationshipI objects
+ Args    : None, or a Bio::Ontology::TermI compliant object for which
+           to retrieve the relationships.
 
 
 =cut
@@ -280,6 +282,15 @@ sub get_root_terms{
     shift->throw_not_implemented();
 }
 
+=head1 Decorator Methods
+
+ These methods come with a default implementation that uses the
+ abstract methods defined for this interface. This may not be very
+ efficient, and hence implementors are encouraged to override these
+ methods if they can provide more efficient implementations.
+
+=cut
+
 =head2 get_all_terms
 
  Title   : get_all_terms
@@ -314,10 +325,46 @@ sub get_all_terms{
     my @terms = map { $self->get_descendant_terms($_); } @roots;
     # add on the root terms themselves
     push(@terms, @roots);
-    # make unique by name
+    # make unique by name and ontology
     my %name_map = map { ($_->name."@".$_->ontology->name, $_); } @terms;
     # done 
     return values %name_map;
+}
+
+=head2 find_terms
+
+ Title   : find_terms
+ Usage   : ($term) = $oe->find_terms(-identifier => "SO:0000263");
+ Function: Find term instances matching queries for their attributes.
+
+           An implementation may not support querying for arbitrary
+           attributes, but can generally be expected to accept
+           -identifier and -name as queries. If both are provided,
+           they are implicitly intersected.
+
+ Example :
+ Returns : an array of zero or more Bio::Ontology::TermI objects
+ Args    : Named parameters. The following parameters should be recognized
+           by any implementation:
+
+              -identifier    query by the given identifier
+              -name          query by the given name
+
+
+=cut
+
+sub find_terms{
+    my $self = shift;
+    my %params = @_;
+    @params{ map { lc $_; } keys %params } = values %params; # lowercase keys
+
+    my @terms = grep {
+	my $ok = exists($params{-identifier}) ?
+	    $_->identifier() eq $params{-identifier} : 1;
+	$ok && ((! exists($params{-name})) ||
+		($_->name() eq $params{-name}));
+    } $self->get_all_terms();
+    return @terms;
 }
 
 1;
