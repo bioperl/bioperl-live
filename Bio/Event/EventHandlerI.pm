@@ -12,15 +12,18 @@
 
 =head1 NAME
 
-Bio::Event::EventHandlerI - An abstract Event Handler
+Bio::Event::EventHandlerI - An Event Handler Interface
 
 =head1 SYNOPSIS
 
-Give standard usage here
+    # do not use this module directly
+    # See Bio::SearchIO::SearchResultEventHandler for an example of
+    # implementation.
 
 =head1 DESCRIPTION
 
-Describe the interface here
+This interface describes the basic methods required for a
+EventHandlers.  These are essentially SAX methods. 
 
 =head1 FEEDBACK
 
@@ -85,6 +88,128 @@ use Carp;
 sub will_handle{
    my ($self,$type) = @_;
    $self->throw_not_implemented();
+}
+
+=head2 SAX methods
+
+=cut
+
+=head2 start_document
+
+ Title   : start_document
+ Usage   : $eventgenerator->start_document();
+ Function: Handle a start document event
+ Returns : none
+ Args    : none
+
+
+=cut
+
+sub start_document{
+   my ($self,@args) = @_;
+   $self->throw_not_implemented;
+}
+
+=head2 end_document
+
+ Title   : end_document
+ Usage   : $eventgenerator->end_document();
+ Function: Handle an end document event
+ Returns : none
+ Args    : none
+
+
+=cut
+
+sub end_document{
+   my ($self,@args) = @_;
+   $self->throw_not_implemented;
+}
+
+=head2 start_element
+
+ Title   : start_element
+ Usage   : $eventgenerator->start_element
+ Function: Handles a start element event
+ Returns : none
+ Args    : hashref with at least 2 keys 'Data' and 'Name'
+
+
+=cut
+
+sub start_element{
+   my ($self,@args) = @_;
+   $self->throw_not_implemented;
+}
+
+=head2 end_element
+
+ Title   : start_element
+ Usage   : $eventgenerator->end_element
+ Function: Handles an end element event
+ Returns : none
+ Args    : hashref with at least 2 keys 'Data' and 'Name'
+
+
+=cut
+
+sub end_element{
+   my ($self,@args) = @_;
+   $self->throw_not_implemented;
+}
+
+
+=head2 in_element
+
+ Title   : in_element
+ Usage   : if( $eventgenerator->in_element($element) ) {}
+ Function: Test if we are in a particular element
+           This is different than 'within' because 'in' tests only
+           if one has reached a specific element.
+ Returns : boolean
+ Args    : string element name 
+
+
+=cut
+
+sub in_element{
+   my ($self,@args) = @_;
+   $self->throw_not_implemented;
+
+}
+
+=head2 within_element
+
+ Title   : within_element
+ Usage   : if( $eventgenerator->within_element($element) ) {}
+ Function: Test if we are within a particular element
+           This is different than 'in' because within can be tested
+           for a whole block.
+ Returns : boolean
+ Args    : string element name 
+
+
+=cut
+
+sub within_element{
+   my ($self,@args) = @_;
+   $self->throw_not_implemented;
+}
+
+=head2 characters
+
+ Title   : characters
+ Usage   : $eventgenerator->characters($str)
+ Function: Send a character events
+ Returns : none
+ Args    : string
+
+
+=cut
+
+sub characters{
+   my ($self,@args) = @_;
+   $self->throw_not_implemented;
 }
 
 1;

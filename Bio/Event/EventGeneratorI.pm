@@ -12,15 +12,17 @@
 
 =head1 NAME
 
-Bio::Event::EventGeneratorI - DESCRIPTION of Interface
+Bio::Event::EventGeneratorI - This interface describes the basic event generator class.
 
 =head1 SYNOPSIS
 
-Give standard usage here
+    # Do not use this object directly
+    # This object has the basic methods for describing an event generator
 
 =head1 DESCRIPTION
 
-Describe the interface here
+This object describes the basic event generator system.  It basically allows one to attach one or many event handlers.
+
 
 =head1 FEEDBACK
 
@@ -69,129 +71,19 @@ use strict;
 
 @ISA = qw( Bio::Root::RootI );
 
-=head2 SAX methods
+=head2 attach_EventHandler
+
+ Title   : attach_EventHandler
+ Usage   : $parser->attatch_EventHandler($handler)
+ Function: Adds an event handler to listen for events
+ Returns : none
+ Args    : Bio::Event::EventHandlerI
 
 =cut
 
-=head2 start_document
-
- Title   : start_document
- Usage   :
- Function:
- Example :
- Returns : 
- Args    :
-
-
-=cut
-
-sub start_document{
-   my ($self,@args) = @_;
-   $self->throw_not_implemented;
-}
-
-=head2 end_document
-
- Title   : end_document
- Usage   :
- Function:
- Example :
- Returns : 
- Args    :
-
-
-=cut
-
-sub end_document{
-   my ($self,@args) = @_;
-   $self->throw_not_implemented;
-}
-
-=head2 start_element
-
- Title   : start_element
- Usage   :
- Function:
- Example :
- Returns : 
- Args    :
-
-
-=cut
-
-sub start_element{
-   my ($self,@args) = @_;
-   $self->throw_not_implemented;
-}
-
-=head2 end_element
-
- Title   : end_element
- Usage   :
- Function:
- Example :
- Returns : 
- Args    :
-
-
-=cut
-
-sub end_element{
-   my ($self,@args) = @_;
-   $self->throw_not_implemented;
-}
-
-
-=head2 in_element
-
- Title   : in_element
- Usage   :
- Function:
- Example :
- Returns : 
- Args    :
-
-
-=cut
-
-sub in_element{
-   my ($self,@args) = @_;
-   $self->throw_not_implemented;
-
-}
-
-=head2 within_element
-
- Title   : within_element
- Usage   :
- Function:
- Example :
- Returns : 
- Args    :
-
-
-=cut
-
-sub within_element{
-   my ($self,@args) = @_;
-   $self->throw_not_implemented;
-}
-
-=head2 characters
-
- Title   : characters
- Usage   :
- Function:
- Example :
- Returns : 
- Args    :
-
-
-=cut
-
-sub characters{
-   my ($self,@args) = @_;
-   $self->throw_not_implemented;
+sub attach_EventHandler{
+    my ($self) = @_;
+    $self->throw_not_implemented();
 }
 
 1;
