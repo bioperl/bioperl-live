@@ -8,7 +8,7 @@ BEGIN {
 	use lib 't';
     }
     use Test;
-    plan tests => 92;
+    plan tests => 101;
 }
 
 use Bio::Seq;
@@ -94,7 +94,15 @@ $ast = Bio::SeqIO->new( '-format' => 'embl' ,
 $ast->verbose($verbosity);
 my $as = $ast->next_seq();
 ok defined $as->seq;
-
+ok($as->display_id, 'HSHNCPA1');
+ok($as->accession_number, 'X79536');
+ok($as->seq_version, 1);
+ok($as->desc, 'H.sapiens mRNA for hnRNPcore protein A1');
+ok($as->molecule, 'RNA');
+ok($as->alphabet, 'rna');
+ok(scalar $as->all_SeqFeatures(), 4);
+ok($as->length, 1198);
+ok($as->species->binomial(), 'Homo sapiens');
 
 $ast = Bio::SeqIO->new( '-format' => 'GenBank' , 
 			'-file' => Bio::Root::IO->catfile("t","data","roa1.genbank"));
