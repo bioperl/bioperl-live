@@ -711,13 +711,11 @@ sub _set_data {
     $self->{'_matchList'} = \@matchList;
 
     if(not defined ($self->{'_numIdentical'})) {
-      $self->throw("Can't parse match statistics.",
-		   "Possibly a new or unrecognized Blast format.");
+      $self->throw( -text  => "Can't parse match statistics. Possibly a new or unrecognized Blast format.");
     }
 
     if(!scalar @queryList or !scalar @sbjctList) {
-        $self->throw("Can't find query or sbjct alignment lines.",
-	  	     "Possibly unrecognized Blast format.");
+        $self->throw( "Can't find query or sbjct alignment lines. Possibly unrecognized Blast format.");
       }
 }
 
@@ -773,7 +771,9 @@ sub _set_score_stats {
 	$p                 = $5;
 
     } else {
-	$self->throw("Can't parse score statistics: unrecognized format.", "$data");
+	$self->throw(-class => 'Bio::Root::Exception',
+		     -text => "Can't parse score statistics: unrecognized format.", 
+		     -value => $data);
     }
 
     $expect = "1$expect" if $expect =~ /^e/i;    
@@ -920,8 +920,8 @@ sub _set_seq {
 	}
     }
 
-    (scalar(@sequence) and scalar(@ranges)) || $self->throw("Can't set sequence: missing data",
-							    "Possibly unrecognized Blast format.");
+    (scalar(@sequence) and scalar(@ranges)) ||
+	$self->throw("Can't set sequence: missing data. Possibly unrecognized Blast format.");
  
     # Sensitive to member name changes.
     $seqType = "_\L$seqType\E";
@@ -1506,8 +1506,10 @@ sub seq_str {
 	return join('',@$aref); 
 
     } else {
-	$self->throw("Invalid or undefined sequence type: $seqType",
-		     "Valid types: query, sbjct, match");
+	$self->throw(-class => 'Bio::Root::BadParameter',
+		     -text => "Invalid or undefined sequence type: $seqType\n" . 
+		               "Valid types: query, sbjct, match",
+		     -value => $seqType);
     }
 }
 

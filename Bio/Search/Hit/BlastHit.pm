@@ -1066,7 +1066,7 @@ sub hsp {
     return $hsps[0]      if $option =~ /best|first|1/i;
     return $hsps[$#hsps] if $option =~ /worst|last/i;
 
-    $self->throw("Can't get HSP for: $option", 
+    $self->throw("Can't get HSP for: $option\n" .
 		 "Valid arguments: 'best', 'worst'");
 }
 
@@ -1184,7 +1184,7 @@ sub length_aln {
     
     ## If we don't have data, figure out what went wrong.
     if(!$data) {
-	$self->throw("Can't get length aln for sequence type \"$seqType\"",
+	$self->throw("Can't get length aln for sequence type \"$seqType\"" . 
 		     "Valid types are 'query', 'hit', 'sbjct' ('sbjct' = 'hit')");
     }		
     $data;
