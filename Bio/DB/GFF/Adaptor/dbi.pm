@@ -1251,7 +1251,7 @@ sub make_features_by_name_where_part {
   my $self = shift;
   my ($class,$name) = @_;
   if ($name =~ /\*/) {
-    $name =~ s/\*/%/g;
+    $name =~ tr/*/%/;
     return ("fgroup.gclass=? AND fgroup.gname LIKE ?",$class,$name);
   } else {
     return ("fgroup.gclass=? AND fgroup.gname=?",$class,$name);
@@ -1620,19 +1620,26 @@ sub types_query {
   my @args;
   for my $type (@$types) {
     my ($method,$source) = @$type;
-    my $meth_query = $self->exact_match('fmethod',$method) if defined $method && length $method;
-    my $src_query  = $self->exact_match('fsource',$source) if defined $source && length $source;
+    my ($mlike, $slike) = (0, 0);
+    if ($method && $method =~ m/\.\*/) {
+	$method =~ s/\.\*\??/%/g;
+	$mlike++;
+    }
+    if ($source && $source =~ m/\.\*/) {
+	$source =~ s/\.\*\??/%/g;
+	$slike++;
+    }
     my @pair;
     if (defined $method && length $method) {
-      push @pair,$self->exact_match('fmethod',$method);
-      push @args,$method;
+	push @pair, $mlike ? qq(fmethod LIKE ?) : qq(fmethod = ?);
+	push @args, $method;
     }
     if (defined $source && length $source) {
-      push @pair,$self->exact_match('fsource',$source);
-      push @args,$source;
+	push @pair, $slike ? qq(fsource LIKE ?) : qq(fsource = ?);
+	push @args, $source;
     }
     push @method_queries,"(" . join(' AND ',@pair) .")" if @pair;
-  }
+}
   my $query = " (".join(' OR ',@method_queries).")\n" if @method_queries;
   return wantarray ? ($query,@args) : $self->dbh->dbi_quote($query,@args);
 }
