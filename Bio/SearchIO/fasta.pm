@@ -371,7 +371,6 @@ sub next_result{
 		   last;
 	       }
 	       if( $count == 0 ) {
-		   
 	       } elsif( $count == 1 || $count == 3 ) {
 		   if( /^(\S+\s+)(\S+)/ ) {
 		       $len = length($1);
@@ -383,9 +382,11 @@ sub next_result{
 		   } else {
 		       $self->warn("Unrecognized alignment line ($count) $_");
 		   }
-	       } elsif( $count == 2 ) {
+	       } elsif( $count == 2 ) {		   
 		   # toss the first 7 characters of the line
-		   $data[$count-1] = substr($_,$len);
+		   if( length($_) >= $len ) {
+		       $data[$count-1] = substr($_,$len);
+		   }
 	       } 
 	       	       
 	       last if( $count++ >= 5);
@@ -529,11 +530,13 @@ sub element{
 sub characters{
    my ($self,$data) = @_;   
 
+   return unless ( defined $data->{'Data'} && $data->{'Data'} !~ /^\s+$/ );
+
    if( $self->in_element('hsp') && 
        $data->{'Name'} =~ /Hsp\_(qseq|hseq|midline)/ ) {
+       
        $self->{'_last_hspdata'}->{$data->{'Name'}} .= $data->{'Data'};
    }  
-   return unless ( defined $data->{'Data'} && $data->{'Data'} !~ /^\s+$/ );
    
    $self->{'_last_data'} = $data->{'Data'}; 
 }
