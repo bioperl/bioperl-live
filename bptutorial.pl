@@ -83,11 +83,13 @@ BioPerlTutorial - a tutorial for bioperl
      III.7.3 Representing related sequences - mutations, polymorphisms etc (Allele, SeqDiff)
      III.7.4 Incorpotating quality data in sequence annotation (SeqWithQuality)
      III.7.5 Sequence XML representations - generation and parsing (SeqIO::game)
-  III.8 Representing non-sequence data in Bioperl: structures, trees,maps, and bibliographic text
+  III.8 Representing non-sequence data in Bioperl: structures, trees, maps, graphics and bibliographic text
      III.8.1 Using 3D structure objects and reading PDB files (StructureI, Structure::IO)
-     III.8.2 Tree objects and phylogentic trees (Tree::Tree, TreeIO)
+     III.8.2 Tree objects and phylogenetic trees (Tree::Tree, TreeIO)
      III.8.3 Map objects for manipulating genetic maps (Map::MapI, MapIO)
      III.8.4 Bibliographic objects for querying bibliographic databases (Biblio)
+     III.8.5 Graphics objects for representing sequence objects as images (Graphics)
+
   III.9 Bioperl alphabets
      III.9.1 Extended DNA / RNA alphabet
      III.9.2 Amino Acid alphabet
@@ -1311,6 +1313,9 @@ and T-Coffee factories.  Specifically RemoteBlast requires parameters to
 be passed with a leading hyphen, as in '-prog' =E<gt> 'blastp', while the
 other programs do not pass parameters with a leading hyphen.
 
+
+=for html <A NAME ="iii.4.3"></A>
+
 =head2    III.4.3 Parsing BLAST and FASTA reports with Search and SearchIO
 
 No matter how Blast searches are run (locally or remotely, with or
@@ -1402,7 +1407,7 @@ for retrieving hits is now called "nextSbjct" (for "subject"), while the
 method for retrieving high-scoring-pairs is called "nextHSP":
 
   use Bio::Tools::BPlite;
-  $report = new BPlite(-fh=>\*STDIN);
+  $report = new Bio::Tools::BPlite(-fh=>\*STDIN);
   $report->query;
   while(my $sbjct = $report->nextSbjct) {
        $sbjct->name;
@@ -1425,7 +1430,7 @@ each iteration.  The results from each iteration are parsed in the
 same manner as a (complete) BPlite object.
 
   use Bio::Tools::BPpsilite;
-  $report = new BPpsilite(-fh=>\*STDIN);
+  $report = new Bio::Tools::BPpsilite(-fh=>\*STDIN);
   $total_iterations = $report->number_of_iterations;
   $last_iteration = $report->round($total_iterations)
   while(my $sbjct =  $last_iteration ->nextSbjct) {
@@ -1524,9 +1529,9 @@ of complexity.  As a result of this complexity and the fact that
 Blast.pm\'s original developer is no longer actively supporting the
 module, the Blast.pm parser has been difficult to maintain and has not
 been upgraded to handle the output of the newer blast options such as
-PSIBLAST and BL2SEQ.  Consequently, the BPlite parser
-(described in the section L<"III.4.4">) is recommended for most blast
-parsing within bioperl.
+PSIBLAST and BL2SEQ.  Consequently, the BPlite parser (described in the
+section L<"III.4.4">) or the Search/SearchIO parsers (section L<"III.4.3">)
+are recommended for most blast parsing within bioperl.
 
 See L<Bio::Tools::Blast> for more information.
 
@@ -1867,8 +1872,7 @@ with methods including:
   $feat->sub_SeqFeatures  # create/access an array of subsequence features
 
 See L<Bio::Annotation> and L<Bio::SeqFeature::Generic> as starting points
-for further exploration, and browse the scripts/ directory for example code
-(e.g. gff2ps.pl).
+for further exploration, and see the scripts/gff2ps.pl script.
 
 In general, storing and retrieving feature information should be
 straightforward.  However, one potential trap relates to features whose
@@ -1888,6 +1892,7 @@ Sample usage might be:
     $seq_version = $richseq->seq_version;  
 
 See L<Bio::Seq::RichSeqI> for more details.
+
 
 =for html <A NAME ="iii.7.2"></A>
 
@@ -2042,6 +2047,7 @@ file, is read by Seqio, eg
 See L<Bio::Seq::SeqWithQuality> for a detailed description of the methods,
 L<Bio::Seq::PrimaryQual>, and L<Bio::SeqIO::phd>.
 
+
 =head2 III.7.5 Sequence XML representations - generation and parsing (SeqIO::game, SeqIO::bsml)
 
 The previous subsections have described tools for automated sequence
@@ -2090,6 +2096,7 @@ Though bioperl has its roots in describing and searching nucleotide and protein
 sequences it has also branched out into related fields of study,
 such as protein structure, phylogenetic trees and genetic maps.
 
+
 =head2 III.8.1 Using 3D structure objects and reading PDB files
 (StructureI, Structure::IO)
 
@@ -2118,7 +2125,7 @@ L<Bio::Structure::Entry>, L<Bio::Structure::Model>,
 L<Bio::Structure::Chain>, L<Bio::Structure::Residue>, and
 L<Bio::Structure::Atom> for more information.
 
-=head2  III.8.2 Tree objects and phylogentic trees (Tree::Tree, TreeIO)
+=head2  III.8.2 Tree objects and phylogenetic trees (Tree::Tree, TreeIO)
 
 Bioperl Tree objects can store data for all kinds of computer trees
 and are intended especially for phylogenetic trees.  Nodes and
@@ -2168,6 +2175,22 @@ like:
   }
 
 See L<Bio::Biblio> or the examples/biblio.pl script for details.
+
+
+=for html <A NAME ="iii.8.5"></A>
+
+III.8.5 Graphics objects for representing sequence objects as images (Graphics)
+
+A user may want to represent Seq objects and their SeqFeatures graphically. The
+Bio::Graphics::* modules use Perl's GD.pm module to create a PNG or GIF image
+given the SeqFeatures (Section L<"III.7.1">) contained within a Seq object.
+
+These modules contain numerous methods to dictate the sizes, colors, labels,
+and line formats within the image. See L<Bio::Graphics>, L<Bio::Graphics::Panel>,
+or the scripts/render_sequence.pl script for more information.
+
+The Genquire application also provides ways to graphically represent Seq objects
+(see Section L<"IV.6">).
 
 
 =head2 III.9 Bioperl alphabets
@@ -2286,8 +2309,8 @@ biopython and biojava rather than the other way around.  However, in
 the future, some bioinformatics tasks may prove to be more effectively
 implemented in java or python in which case being able to call them
 from within bioperl will become more important.  For more information,
-go to the biojava http://biojava.org/ and biopython
-http://biopython.org/ websites.
+go to the biojava http://biojava.org/ and biopython http://biopython.org/
+websites.
 
 =head2 IV.3 EMBOSS
 
@@ -2350,17 +2373,21 @@ look at L<Bio::DB::GFF>and the load_gff.pl, bulk_load_gff.pl, gadfly_to_gff.pl,
 and sgd_to_gff.pl scripts in the scripts/Bio-DB-GFF directory.
 
 
+=for html <A NAME ="iv.6"></A>
+
 =head2 IV.6 Genquire, the Annotation Workbench and bioperl-gui
 
 The Annotation Workbench and Genquire were developed at the Plant
-Biotechnology Institute of the National Research Council of Canada  
-an integrated graphical suite of tools in Perl for examining a sequence,
+Biotechnology Institute of the National Research Council of Canada.
+This is an integrated graphical suite of tools in Perl for examining a sequence,
 predicting gene structure, and creating annotations.  Information about 
 Genquire is available at http://bioinformatics.org/project/?group_id=99. 
 With Genquire and bioperl-gui one can display a Bioperl Seq object
 graphically.  You can download the current version of
 the gui software from the bioperl-gui CVS directory at
 http://cvs.bioperl.org/cgi-bin/viewcvs/viewcvs.cgi/bioperl-gui/?cvsroot=bioperl.
+You will also need Tcl/Tk.
+
 
 =head2 V.1 Appendix: Finding out which methods are used by which
 Bioperl Objects
