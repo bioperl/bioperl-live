@@ -126,7 +126,7 @@ for my $edge (@edges) {
 	for my $n (@nodes){
 
 	    # print out nodes in dip order
-		my %ids = $gr->_get_ids($n); #need to modify this in graph()
+		my %ids = $gr->_get_ids_by_db($n); #need to modify this in graph()
 
 		for my $db (qw(DIP SWP PIR GI)){
 			if (exists($ids{$db})){
