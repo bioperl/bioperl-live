@@ -61,9 +61,11 @@ my $rio;
 my $wio;
 
 #test with files
-ok $rio = Bio::Root::IO->new(-file=>"$file");
+ok $rio = Bio::Root::IO->new(-file=>"t/data/test.waba");
 ok $wio = Bio::Root::IO->new(-file=>">$file");
+
 ok $rio->mode eq 'r';
+
 ok $wio->mode eq 'w';
 
 #test with handles

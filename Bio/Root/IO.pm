@@ -324,9 +324,22 @@ sub mode {
     #test for a readable filehandle;
     $iotest->fdopen( dup(fileno($obj->_fh)) , 'r' );
     if($iotest->error == 0){
-      $obj->{'_mode'} = 'r';
-      print STDERR $obj->{'_mode'} if $obj->verbose;
-      return $obj->{'_mode'};
+
+      # note the hack here, we actually have to try to read the line
+      # and if we get something, pushback() it into the readbuffer.
+      # this is because solaris and windows xp (others?) don't set
+      # IO::Handle::error.  for non-linux the r/w testing is done
+      # inside this read-test, instead of the write test below.  ugh.
+
+      if($^O eq 'linux'){
+        $obj->{'_mode'} = 'r';
+        return $obj->{'_mode'};
+      } else {
+        my $line = $iotest->getline;
+        $obj->_pushback($line) if defined $line;
+        $obj->{'_mode'} = defined $line ? 'r' : 'w';
+	return $obj->{'_mode'};
+      }
     }
     $iotest->clearerr;
 
@@ -334,13 +347,11 @@ sub mode {
     $iotest->fdopen( dup(fileno($obj->_fh)) , 'w' );
     if($iotest->error == 0){
       $obj->{'_mode'} = 'w';
-      print STDERR $obj->{'_mode'} if $obj->verbose;
-      return $obj->{'_mode'};
+#      return $obj->{'_mode'};
     }
 
     #wtf type of filehandle is this?
-    $obj->{'_mode'} = '?';
-    print STDERR $obj->{'_mode'} if $obj->verbose;
+#    $obj->{'_mode'} = '?';
     return $obj->{'_mode'};
 }
 
