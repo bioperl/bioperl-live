@@ -120,8 +120,8 @@ use Bio::Seq::QualI;
 sub new {
     my ($class, @args) = @_;
     my $self = $class->SUPER::new(@args);
-     $self->debug("Here are the args: @args \n");
-        # default: turn ON the warnings (duh)
+
+    # default: turn ON the warnings (duh)
     my($qual,$id,$acc,$pid,$desc,$given_id) =
         $self->_rearrange([qw(QUAL
                               DISPLAY_ID
