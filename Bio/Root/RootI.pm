@@ -65,7 +65,8 @@ BEGIN {
     $DEBUG     = 0;
     $VERBOSITY = 0;
 }
-=head2 new 
+
+=head2 new
 
  Purpose   : generic intantiation function can be overridden if 
              special needs of a module cannot be done in _initialize
@@ -587,7 +588,6 @@ sub _initialize {
 	($param{-VERBOSE}||$param{'-verbose'}),
         ($param{-OBJ}||$param{'-obj'}, $param{-RECORD_ERR}||$param{'-record_err'})
 					  );
-
     ## See "Comments" above regarding use of _rearrange().
 #	$self->_rearrange([qw(NAME PARENT MAKE STRICT VERBOSE OBJ)], %param);
 
@@ -605,7 +605,7 @@ sub _initialize {
 	$self->name($name) if $name; 
 	$self->parent($parent) if $parent;
 	$self->{'_strict'}  = $strict  || undef;
-	$self->{'_verbose'} = $verbose || undef;
+	$self->verbose($verbose) || undef;
 	$self->{'_record_err'} = $record_err || undef;
 
 	if($make) {
@@ -617,7 +617,7 @@ sub _initialize {
 	    $self->index() if $make =~ /index/; 
 	}
     }
-
+    
     $DEBUG and print STDERR "---> Initialized $ID (${\ref($self)}) ",$name,"\n";
 
     ## Return data of potential use to subclass constructors.
