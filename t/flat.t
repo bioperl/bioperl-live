@@ -24,7 +24,7 @@ BEGIN {
 
     $NUMTESTS = 7;
     plan tests => $NUMTESTS;
-    eval { require DB_File; reqiure Bio::DB::Flat; require Bio::Root::IO;};
+    eval { require DB_File; require Bio::DB::Flat; require Bio::Root::IO;};
     if( $@ ) {
 	print STDERR "DB_File not loaded. This means flat.t test cannot be executed. Skipping\n";
 	foreach ( $Test::ntest..$NUMTESTS ) {
