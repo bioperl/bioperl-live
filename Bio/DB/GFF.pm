@@ -3204,7 +3204,7 @@ sub _split_gff2_group {
   my @groups = @_;
   my $target_found;
 
-  my ($gclass,$gname,$tstart,$tstop,@attributes);
+  my ($gclass,$gname,$tstart,$tstop,@attributes,@notes);
 
   for (@groups) {
 
@@ -3215,6 +3215,7 @@ sub _split_gff2_group {
     }
     $value =~ s/\\t/\t/g;
     $value =~ s/\\r/\r/g;
+    $value =~ s/\s+$//;
 
     # Any additional groups become part of the attributes hash
     # For historical reasons, the tag "Note" is treated as an
@@ -3228,8 +3229,8 @@ sub _split_gff2_group {
       $tstop = $value;
     }
 
-    elsif ($tag eq 'Note' or ($gclass && $gname)) {
-      push @attributes,[$tag => $value];
+    elsif (ucfirst $tag eq 'Note') {
+      push @notes, [$tag => $value];
     }
 
     elsif ($tag eq 'Target' && /([^:\"\s]+):([^\"\s]+)/) { # major disagreement in implementors of GFF2 here
@@ -3239,17 +3240,47 @@ sub _split_gff2_group {
     }
 
     elsif (!$value) {
-      push @attributes,[Note => $tag];  # e.g. "Confirmed_by_EST"
+      push @notes, [Note => $tag];  # e.g. "Confirmed_by_EST"
     }
 
-    # otherwise, the tag and value correspond to the
-    # group class and name
     else {
-      ($gclass,$gname) = ($tag,$value);
+      push @attributes, [$tag => $value];
+    }
+  }
+  
+  # group assignment
+  if ( @attributes && !($gclass && $gname)) {
+    last if $gclass && $gname;    
+    for my $att ( @attributes ) {
+      my ($k, $v) = @$att;
+      # give acedb-style GFF first crack at it
+      if ( $k =~ /Sequence|Transcript/ && !$gclass) {
+        ($gclass, $gname) = ($k, $v);
+      }
+      # otherwise look for a gene name (in order of preference)
+      else {
+        for ( qw/standard_name gene locus_tag/ ) {
+	  if (uc $k eq uc $_ && !$gclass) {
+	    ($gclass, $gname) = ($k, $v);
+          }
+        }
+      } 
+    }  
+    # use the first tag/value if no group is assigned
+    unless ($gclass && $gname) {
+      my $grp = shift @attributes;
+      ($gclass, $gname) = @$grp;
     }
   }
 
-  return ($gclass,$gname,$tstart,$tstop,\@attributes);
+  my @atts;
+  for ( @attributes ) {
+    next if $_->[0] eq $gclass && $_->[1] eq $gname;
+    push @atts, $_;
+  }
+  push @atts, @notes;  
+
+  return ($gclass,$gname,$tstart,$tstop,\@atts);
 }
 
 =head2 _split_gff3_group
