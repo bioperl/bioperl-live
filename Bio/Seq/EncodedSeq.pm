@@ -387,7 +387,7 @@ sub _recheck_encoding {
     my @enc = split //, ($self->{_encoding} || '');
 
     my @nt = split(//, $self->SUPER::seq);
-    @nt = reverse @nt if $self->strand < 0;
+    @nt = reverse @nt if $self->strand && $self->strand < 0;
 
     # make sure an encoding exists!
     @enc = ('C') x scalar grep { !/[\.\-]/o } @nt
@@ -447,7 +447,7 @@ sub _recheck_encoding {
 	}
     }
 
-    @nt = reverse @nt if $self->strand < 0;
+    @nt = reverse @nt if $self->strand && $self->strand < 0;
 
     $self->{'seq'} = join('', @nt);
     # $self->seq(join('', @nt), 'dna');
@@ -504,7 +504,7 @@ sub cds {
 	}
     }
     
-    return ($self->can_call_new ? ref($self) : __PACKAGE__)->new(-seq => join('', @nt[$start..--$end]),
+    return ($self->can_call_new ? ref($self) : __PACKAGE__)->new(-seq => join('', grep { defined } @nt[$start..--$end]),
 								 -start => $self->start,
 								 -end => $self->end,
 								 -strand => 1, -alphabet => 'dna');
