@@ -338,7 +338,7 @@ sub next_result{
 	       $self->element({'Name' => 'Hsp_sw-score',
 			       'Data' => $1});
 	   }
-	   if( /(\d+(\.\d+)?)\%\s*identity(\s*\((\d+(\.\d+)?)\%\s*ungapped\))?\s*in\s*(\d+)\s+(aa|nt)\s+overlap\s*\((\d+)\-(\d+):(\d+)\-(\d+)\)/ ) {
+	   if( /(\d+(\.\d+)?)\%\s*identity(\s*\(\s*(\d+(\.\d+)?)\%\s*ungapped\))?\s*in\s*(\d+)\s+(aa|nt)\s+overlap\s*\((\d+)\-(\d+):(\d+)\-(\d+)\)/ ) {
 	       my ($identper,$gapper,$len,$querystart,
 		   $queryend,$hitstart,$hitend) = ($1,$4,$6,$8,$9,$10,$11);
 	       
@@ -415,7 +415,8 @@ sub next_result{
 		       s/\s+$//; # trim trailing spaces,we don't want them 
 		       $data[$count-1] = substr($_,$len);
 		   } elsif( /^\s+(\d+)\s+/ ) {
-		       $self->warn("Unexpected state ($_)");
+		       $count = -1;
+		       $self->_pushback($_);
 		   } elsif( /^\s+$/ || length($_) == 0) {
 		       $count = 5;
 		       # going to skip these
