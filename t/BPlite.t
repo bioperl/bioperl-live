@@ -15,7 +15,7 @@ BEGIN {
 	use lib 't';
     }
     use Test;
-    plan tests => 77;
+    plan tests => 95;
 }
 
 use Bio::Tools::BPlite;
@@ -60,6 +60,28 @@ ok $hsp->query->seqname, $report->query;
 ok $hsp->query->primary_tag, "similarity";
 ok $hsp->query->source_tag, "BLAST";
 ok $hsp->subject->length, 1512;
+ok $hsp->gaps, 0;
+
+$sbjct = $report->nextSbjct;
+ok defined $sbjct;
+$hsp = $sbjct->nextHSP;
+ok defined $hsp;
+
+ok $hsp->bits, 57.8;
+ok $hsp->score, 137;
+ok int($hsp->percent), 24;
+ok $hsp->P, 4e-07;
+ok $hsp->match, 64;
+ok $hsp->positive, 112;
+ok $hsp->hsplength, 263;
+ok $hsp->query->start, 64;
+ok $hsp->query->end, 324;
+ok $hsp->query->length, 261;
+ok $hsp->query->seqname, $report->query;
+ok $hsp->subject->start, 182;
+ok $hsp->subject->end, 844;
+ok $hsp->subject->length, 663;
+ok $hsp->gaps, 2;
 
 close FH;
 
