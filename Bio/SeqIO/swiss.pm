@@ -390,8 +390,8 @@ sub write_seq {
    if( $self->_id_generation_func ) {
        $temp_line = &{$self->_id_generation_func}($seq);
    } else {
-       $temp_line = sprintf ("%s_%s     STANDARD;      $mol;   %d AA.",
-			     $seq->primary_id(),$div,$len);
+       $temp_line = sprintf ("%10s     STANDARD;      %3s;   %d AA.",
+			     $seq->primary_id()."_".$div,$mol,$len);
    } 
 
    $self->_print( "ID   $temp_line\n");   
@@ -466,13 +466,17 @@ sub write_seq {
 	   # to
 	   $self->_print("RP   ",$ref->rp,"\n");
        } 
-
+       if ($ref->comment) {
+	 $self->_write_line_swissprot_regex("RC   ","RC   ",$ref->comment,
+					    "\\s\+\|\$",80); 
+       }
+       if ($ref->medline) {
+	 $self->_write_line_swissprot_regex("RX   MEDLINE; ","RX   MEDLINE; ",
+					    $ref->medline.".","\\s\+\|\$",80);
+       }
        $self->_write_line_swissprot_regex("RA   ","RA   ",$ref->authors,"\\s\+\|\$",80);       
        $self->_write_line_swissprot_regex("RT   ","RT   ",$ref->title,"\\s\+\|\$",80);       
        $self->_write_line_swissprot_regex("RL   ","RL   ",$ref->location,"\\s\+\|\$",80);
-       if ($ref->comment) {
-	   $self->_write_line_swissprot_regex("RC   ","RC   ",$ref->comment,"\\s\+\|\$",80); 
-       }
        $t++;
    }
    
@@ -547,7 +551,12 @@ sub write_seq {
 
    # finished printing features.
 
-   $self->_print( "SQ   SEQUENCE   $len AA;\n");
+   # molecular weight
+   my $mw = ${Bio::Tools::SeqStats->get_mol_wt($seq->primary_seq)}[0];
+   # checksum
+   my $crc32 = $self->_crc32(\$str); 
+   $self->_print( sprintf("SQ   SEQUENCE  %4d AA;  %d MW;  %X CRC32;\n",
+			  $len,$mw,$crc32));
    $self->_print( "     ");
    my $linepos;
    for ($i = 0; $i < length($str); $i += 10) {
@@ -559,6 +568,74 @@ sub write_seq {
    }
    $self->_print( "\n//\n");
    return 1;
+}
+
+# Thanks to James Gilbert for the following two. LP 08/01/2000
+
+=head2 _generateCRCTable
+
+ Title   : _generateCRCTable
+ Usage   :
+ Function:
+ Example :
+ Returns : 
+ Args    :
+
+
+=cut
+    
+sub _generateCRCTable {
+  # 10001000001010010010001110000100
+  # 32 
+  my $poly = 0xEDB88320;
+  my ($self) = shift;
+        
+  $self->{'_crcTable'} = [];
+  foreach my $i (0..255) {
+    my $crc = $i;
+    for (my $j=8; $j > 0; $j--) {
+      if ($crc & 1) {
+	$crc = ($crc >> 1) ^ $poly;
+      }
+      else {
+	$crc >>= 1;
+      }
+    }
+    ${$self->{'_crcTable'}}[$i] = $crc;
+  }
+}
+
+
+=head2 _crc32
+
+ Title   : _crc32
+ Usage   :
+ Function:
+ Example :
+ Returns : 
+ Args    :
+
+
+=cut
+
+sub _crc32 {
+  my( $self, $str ) = @_;
+  
+  $self->throw("Argument to crc32() must be ref to scalar")
+    unless ref($str) eq 'SCALAR';
+  
+  $self->_generateCRCTable() unless exists $self->{'_crcTable'};
+  
+  my $len = length($$str);
+  
+  my $crc = 0xFFFFFFFF;
+  for (my $i = 0; $i < $len; $i++) {
+    # Get upper case value of each letter
+    my $int = ord uc substr $$str, $i, 1;
+    $crc = (($crc >> 8) & 0x00FFFFFF) ^ 
+      ${$self->{'_crcTable'}}[ ($crc ^ $int) & 0xFF ];
+  }
+  return $crc;
 }
 
 =head2 _print_swissprot_FTHelper
