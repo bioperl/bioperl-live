@@ -120,20 +120,14 @@ package Bio::SimpleAlign;
 use vars qw(@ISA);
 use strict;
 
-# Object preamble - inheriets from Bio::Root::Object
-
-use Bio::Root::Object;
+use Bio::Root::RootI;
 use Bio::LocatableSeq;         # uses Seq's as list 
 
-@ISA = qw(Bio::Root::Object);
-# new() is inherited from Bio::Root::Object
+@ISA = qw(Bio::Root::RootI);
+sub new {
+  my($class,@args) = @_;
 
-# _initialize is where the heavy stuff will happen when new is called
-
-sub _initialize {
-  my($self,@args) = @_;
-
-  my $make = $self->SUPER::_initialize;
+  my $self = $class->SUPER::new(@args);
 
   # we need to set up internal hashs first!
 
@@ -145,8 +139,7 @@ sub _initialize {
 
   # maybe we should automatically read in from args. Hmmm...
 
-# set stuff in self from @args
-  return $make; # success - we hope!
+  return $self; # success - we hope!
 }
 
 =head2 addSeq

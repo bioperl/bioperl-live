@@ -84,14 +84,8 @@ BEGIN {
 
 sub new {
     my ($class, @args) = @_;
-    my $self = bless {}, $class;
-    $self->_initialize(@args);
-    return $self;
-}
+    my $self = $class->SUPER::new(@args);
 
-sub _initialize {
-    my ($self, @args) = @_;
-    my $make = $self->SUPER::_initialize(@args);
     my ($method, $input, $params) = $self->_rearrange([qw(METHOD 
 							  INPUT
 							  PARAMS)],
@@ -115,7 +109,7 @@ sub _initialize {
 	my $parser = $modulename->new($inputmethod => $input,@$params);
 	$self->analysis_parser($parser);
     }
-    return $make;
+    return $self;
 }
 
 =head2 add_features

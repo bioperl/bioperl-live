@@ -925,12 +925,14 @@ intended for internal use only: Use them only if you know what you're
 doing :-)
 
 =cut
-
+#"
+    
 use Exporter;
 use vars qw( @ISA  @EXPORT @EXPORT_OK );
 @ISA         = qw(Exporter);
 @EXPORT      = qw();
-@EXPORT_OK   = qw($VERSION %UnivAlnType @UnivAlnType %UnivAlnForm @UnivAlnForm %UnivAlnAlphs @UnivAlnAlphs);
+@EXPORT_OK   = qw($VERSION %UnivAlnType @UnivAlnType 
+                  %UnivAlnForm @UnivAlnForm %UnivAlnAlphs @UnivAlnAlphs);
 require 5.002;
 use Carp;
 #if ($] < 5.005) {carp "Not tested for Perl 5.002 or 5.003";}
@@ -1527,7 +1529,7 @@ sub _fixbounds {
                _select()
 
 =cut
-
+#'
 
 sub _select {
   my $self = shift;
@@ -2891,6 +2893,7 @@ sub _alphabet_check_array {
             to which the check is applied, as in cases (2)-(4) in seqs().
 
 =cut
+#'
 
 sub alphabet_check {
   my $self = shift;
@@ -2984,6 +2987,7 @@ sub parse_bad {
 
 
 =cut
+#'
 
 sub _parse {
   my($self, $ent, $ffmt) = @_;
@@ -3266,6 +3270,7 @@ sub layout {
  Argument : n/a
 
 =cut
+#'
 
 sub out_bad {
   my($self) = shift;
@@ -3430,8 +3435,6 @@ sub col {
 
   return wantarray ? @col : _stringify(@col);
 }
-
-
 
 
 +increment version number + revision history

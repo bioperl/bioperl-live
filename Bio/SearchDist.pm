@@ -110,6 +110,7 @@ BEGIN {
 	require Bio::Ext::Align;
     };
     if ( $@ ) {
+print $@;
 	print STDERR ("\nThe C-compiled engine for histogram object (Bio::Ext::Align) has not been installed.\n Please install the bioperl-ext package\n\n");
 	exit(1);
     }
@@ -117,16 +118,12 @@ BEGIN {
 
 
 @ISA = qw(Bio::Root::RootI);
-# new() is inherited from Bio::Root::RootI
 
-# _initialize is where the heavy stuff will happen when new is called
-
-sub _initialize {
-  my($self,%args) = @_;
+sub new {
+  my($class,@args) = @_;
+  my $self = $class->SUPER::new(@args);
   my($min, $max, $lump) = 
-	$self->_rearrange([qw(MIN MAX LUMP)], %args);
-
-  my $make = $self->SUPER::_initialize(%args);
+	$self->_rearrange([qw(MIN MAX LUMP)], @args);
 
   if( !  $min ) {
     $min = -100;
