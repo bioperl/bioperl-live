@@ -1,0 +1,120 @@
+TBLASTN 2.0MP-WashU [12-Feb-2001] [linux-i686 01:36:08 31-Jan-2001]
+
+Copyright (C) 1996-2000 Washington University, Saint Louis, Missouri USA.
+All Rights Reserved.
+
+Reference:  Gish, W. (1996-2000) http://blast.wustl.edu
+
+Notice:  statistical significance is estimated under the assumption that the
+equivalent of one entire reading frame of the database codes for protein and
+that significant alignments will involve only coding reading frames.
+
+Query=  gi|142865|gb|AAA22406.1| DNA primase
+        (603 letters)
+
+Database:  ecoli.nt
+           400 sequences; 4,662,239 total letters.
+Searching....10....20....30....40....50....60....70....80....90....100% done
+
+                                                                     Smallest
+                                                                       Sum
+                                                     Reading  High  Probability
+Sequences producing High-scoring Segment Pairs:        Frame Score  P(N)      N
+
+gi|1789441|gb|AE000388.1|AE000388 Escherichia coli K-1... +2   671  1.4e-73   1
+
+
+
+>gi|1789441|gb|AE000388.1|AE000388 Escherichia coli K-12 MG1655 section 278 of
+            400 of the complete genome
+        Length = 10,334
+
+  Plus Strand HSPs:
+
+ Score = 671 (265.8 bits), Expect = 1.4e-73, P = 1.4e-73
+ Identities = 151/421 (35%), Positives = 223/421 (52%), Frame = +2
+
+Query:     1 MGNRIPDEIVDQVQKSADIVEVIGDYVQLKKQGRNYFGLCPFHGESTPSFSVSPDKQIFH 60
+             M  RIP   ++ +    DIV++I   V+LKKQG+N+   CPFH E TPSF+V+ +KQ +H
+Sbjct:  4778 MAGRIPRVFINDLLARTDIVDLIDARVKLKKQGKNFHACCPFHNEKTPSFTVNGEKQFYH 4957
+
+Query:    61 CFGCGAGGNVFSFLRQMEGYSFAESVSHLADKYQIDFPDDITVHSGARP---ESSGEQKM 117
+             CFGCGA GN   FL   +   F E+V  LA  + ++ P +    +G+ P   E    Q +
+Sbjct:  4958 CFGCGAHGNAIDFLMNYDKLEFVETVEELAAMHNLEVPFE----AGSGPSQIERHQRQTL 5125
+
+Query:   118 AEAHELLKKFYHHLLINTKEGQEALDYLLSRGFTKELINEFQIGYALDSWDFITKFLVKR 177
+              +  + L  FY   L        A  YL  RG + E+I  F IG+A   WD + K     
+Sbjct:  5126 YQLMDGLNTFYQQSL-QQPVATSARQYLEKRGLSHEVIARFAIGFAPPGWDNVLKRFGGN 5302
+
+Query:   178 GFSEAQMEKAGLLIRREDGSGYFDRFRNRVMFPIHDHHGAVVAFSGRALGSQQPKYMNSP 237
+               +   +  AG+L+  + G  Y DRFR RVMFPI D  G V+ F GR LG+  PKY+NSP
+Sbjct:  5303 PENRQSLIDAGMLVTNDQGRSY-DRFRERVMFPIRDKRGRVIGFGGRVLGNDTPKYLNSP 5479
+
+Query:   238 ETPLFHKSKLLYNFYKARLHIRKQERAVLFEGFADVYTAVSSDVKESIATMGTSLTDDHV 297
+             ET +FHK + LY  Y+A+    +  R ++ EG+ DV       +  ++A++GTS T DH+
+Sbjct:  5480 ETDIFHKGRQLYGLYEAQQDNAEPNRLLVVEGYMDVVALAQYGINYAVASLGTSTTADHI 5659
+
+Query:   298 KILRRNVEEIILCYDSDKAGYEATLKASELL---QKKGCKVRVAMIPDGLDPDDYIKKFG 354
+             ++L R    +I CYD D+AG +A  +A E        G ++R   +PDG DPD  ++K G
+Sbjct:  5660 QLLFRATNNVICCYDGDRAGRDAAWRALETALPYMTDGRQLRFMFLPDGEDPDTLVRKEG 5839
+
+Query:   355 GEKFKNDIIDASVTVMAFKMQYFRKGKNLSDEGDRLAYIKDVLKEISTLSGSLEQEVYVK 414
+              E F+  + + ++ + AF         +LS    R       L  IS + G   + +Y++
+Sbjct:  5840 KEAFEARM-EQAMPLSAFLFNSLMPQVDLSTPDGRARLSTLALPLISQVPGETLR-IYLR 6013
+
+Query:   415 Q 415
+             Q
+Sbjct:  6014 Q 6016
+
+
+Parameters:
+  novalidctxok
+  nonnegok
+  gapall
+  Q=12
+  R=1
+  cpus=1
+  filter=seg
+  matrix=blosum62
+  W=3
+  S2=41
+  gapS2=68
+  X=16
+  gapX=38
+  hitdist=40
+  gi
+  gapL=0.27
+  gapK=0.047
+  gapH=0.23
+
+  ctxfactor=6.00
+  E=10
+
+  Query                        -----  As Used  -----    -----  Computed  ----
+  Frame  MatID Matrix name     Lambda    K       H      Lambda    K       H
+   +0      0   blosum62        0.320   0.136   0.387    same    same    same
+               Q=12,R=1        0.270   0.0470  0.230     n/a     n/a     n/a
+
+  Query
+  Frame  MatID  Length  Eff.Length     E    S W   T  X   E2     S2
+   +0      0      603       603       10.  59 3  13 16  0.020   41
+                                                    38  0.0     59
+
+
+Statistics:
+
+  Database:  /home/jes12/db/ecoli.nt
+   Title:  ecoli.nt
+   Posted:  3:16:20 PM EST Nov 18, 2001
+   Created:  10:10:31 AM EST Nov 18, 2001
+   Format:  XDF-1
+   # of letters in database:  4,662,239
+   # of sequences in database:  400
+   # of database sequences satisfying E:  1
+  No. of states in DFA:  538 (57 KB)
+  Total size of DFA:  76 KB (1061 KB)
+  Time to generate neighborhood:  0.00u 0.01s 0.01t  Elapsed: 00:00:00
+  No. of threads or processors used:  1
+  Search cpu time:  0.46u 0.01s 0.47t  Elapsed: 00:00:01
+  Total cpu time:  0.46u 0.03s 0.49t  Elapsed: 00:00:03
+  Start:  Sat Apr 20 18:21:51 2002   End:  Sat Apr 20 18:21:54 2002
