@@ -58,6 +58,7 @@ use Bio::ClusterIO;
 use Bio::Variation::SNP;
 use XML::Parser::PerlSAX;
 use XML::Handler::Subs;
+use Data::Dumper;
 use IO::File;
 
 use vars qw(@ISA $DTD $DEBUG %MODEMAP %MAPPING);
@@ -287,13 +288,12 @@ sub start_element{
 	$self->refsnp->add_subsnp;
 	return;
   }
-
   if(my $type = $MAPPING{$nm}){
 	if(ref $type eq 'HASH'){
-	  #okay, so this is nasty.  what can you do?
-	  ($self->{will_handle}) = sort keys %$type;
-	  my($valkey) = sort values %$type;
-	  ($self->{last_data})   = $at->{$valkey};
+	  #okay, this is nasty.  what can you do?
+	  $self->{will_handle}   = (keys %$type)[0];
+	  my $valkey             = (values %$type)[0];
+	  $self->{last_data}     = $at->{$valkey};
 	} else {
 	  $self->{will_handle} = $type;
 	  $self->{last_data} = undef;
@@ -319,9 +319,8 @@ sub end_element {
   my $at = $data->{'Attributes'};
 
   my $method = $self->{will_handle};
-
   if($method){
-	if($nm =~ /^NSE-rs/){
+	if($nm =~ /^NSE-rs/ or $nm =~ /^NSE-SeqLoc/ or $nm =~ /^NSE-FxnSet/){
 	  $self->refsnp->$method($self->{last_data});
 	} elsif ($nm =~ /^NSE-ss/){
 	  $self->refsnp->subsnp->$method($self->{last_data});
@@ -341,7 +340,8 @@ sub end_element {
 
 sub characters{
   my ($self,$data) = @_;
-  $self->{last_data} = $data->{Data};
+  $self->{last_data} = $data->{Data}
+    if $data->{Data} =~ /\S/; #whitespace is meaningless -ad
 }
 
 =head2 use_tempfile
