@@ -147,7 +147,74 @@ sub new {
     return $self;
 }
 
-=head2 Routines fro Bio::DB::WebDBSeqI
+=head2 Routines from Bio::DB::RandomAccessI
+
+=head2 get_Seq_by_id
+
+ Title   : get_Seq_by_id
+ Usage   : $seq = $db->get_Seq_by_id('ROA1_HUMAN')
+ Function: Gets a Bio::Seq object by its name
+ Returns : a Bio::Seq object
+ Args    : the id (as a string) of a sequence
+ Throws  : "id does not exist" exception
+
+=cut
+
+=head2 get_Seq_by_acc
+
+ Title   : get_Seq_by_acc
+ Usage   : $seq = $db->get_Seq_by_acc('X77802');
+ Function: Gets a Bio::Seq object by accession number
+ Returns : A Bio::Seq object
+ Args    : accession number (as a string)
+ Throws  : "acc does not exist" exception
+
+=cut
+
+=head2 get_Stream_by_id
+
+  Title   : get_Stream_by_id
+  Usage   : $stream = $db->get_Stream_by_id( [$uid1, $uid2] );
+  Function: Gets a series of Seq objects by unique identifiers
+  Returns : a Bio::SeqIO stream object
+  Args    : $ref : a reference to an array of unique identifiers for
+                   the desired sequence entries
+
+=cut
+
+=head2 get_Stream_by_acc
+
+  Title   : get_Stream_by_acc
+  Usage   : $seq = $db->get_Seq_by_acc([$acc1, $acc2]);
+  Function: Gets a series of Seq objects by accession numbers
+  Returns : a Bio::SeqIO stream object
+  Args    : $ref : a reference to an array of accession numbers for
+                   the desired sequence entries
+  Note    : For GenBank, this just calls the same code for get_Stream_by_id()
+
+=cut
+
+=head2 get_Stream_by_batch
+
+  Title   : get_Stream_by_batch
+  Usage   : $seq = $db->get_Stream_by_batch($ref);
+  Function: Retrieves Seq objects from SwissProt 'en masse', rather than one
+            at a time.  This is implemented the same way as get_Stream_by_id, 
+            but is provided here in keeping with access methods of NCBI 
+            modules.
+  Example :
+  Returns : a Bio::SeqIO stream object
+  Args    : $ref : either an array reference, a filename, or a filehandle
+            from which to get the list of unique ids/accession numbers.
+
+=cut
+
+sub get_Stream_by_batch {
+    my ($self, $ids) = @_;
+    return $self->get_Stream_by_id( $ids);
+}
+
+=head2 Implemented Routines from Bio::DB::WebDBSeqI interface
 
 =head2 get_request
 
