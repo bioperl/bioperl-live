@@ -127,6 +127,7 @@ sub add_transcript {
 	$self->{'_transcripts'} = [];
     }
     $self->_expand_region($fea);
+    $fea->parent($self);
     push(@{$self->{'_transcripts'}}, $fea);
 }
 
