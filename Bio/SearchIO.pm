@@ -106,6 +106,7 @@ use Symbol();
            -result_factory => Object implementing Bio::Factory::ResultFactoryI
            -hit_factory    => Object implementing Bio::Factory::HitFactoryI
            -writer         => Object implementing Bio::SearchIO::SearchWriterI
+           -output_format  => output format, which will dynamically load writer
 
 See L<Bio::Factory::ResultFactoryI>, L<Bio::Factory::HitFactoryI>,
 L<Bio::SearchIO::SearchWriterI>
@@ -127,7 +128,26 @@ sub new {
     @param{ map { lc $_ } keys %param } = values %param; # lowercase keys
     my $format = $param{'-format'} ||
       $class->_guess_format( $param{'-file'} || $ARGV[0] ) || 'blast';
-    
+
+    my $output_format = $param{'-output_format'};
+    my $writer = undef;
+
+    if( defined $output_format ) {
+	if( defined $param{'-writer'} ) {
+	    my $dummy = Bio::Root::Root->new();
+	    $dummy->throw("Both writer and output format specified - not good");
+	}
+
+	if( $output_format =~ /^blast$/i ) {
+	    $output_format = 'TextResultWriter';
+	}
+	my $output_module = "Bio::SearchIO::Writer::".$output_format;
+	$class->_load_module($output_module);
+	$writer = $output_module->new();
+	push(@args,"-writer",$writer);
+    }
+
+
     # normalize capitalization to lower case
     $format = "\L$format";
     

@@ -124,7 +124,7 @@ BEGIN {
 
 @ISA = qw(Exporter);
 
-@EXPORT = qw(read_sequence read_all_sequences write_sequence new_sequence get_sequence translate translate_as_string reverse_complement revcom revcom_as_string reverse_complement_as_string blast_sequence);
+@EXPORT = qw(read_sequence read_all_sequences write_sequence new_sequence get_sequence translate translate_as_string reverse_complement revcom revcom_as_string reverse_complement_as_string blast_sequence write_blast);
 
 
 =head2 read_sequence
@@ -389,6 +389,35 @@ sub blast_sequence {
 	print STDERR "\n";
     }
     return $result;
+}
+
+=head2 write_blast
+  
+ Title   : write_blast
+ Usage   : write_blast($filename,$blast_report);
+
+ Function: Writes a BLAST result object (or more formally
+           a SearchIO result object) out to a filename
+           in BLAST-like format
+
+ Returns : none
+ 
+ Args    : filename as a string
+           Bio::SearchIO::Results object
+
+=cut
+
+sub write_blast {
+    my ($filename,$blast) = @_;
+
+    if( $filename !~ /^\>/ && $filename !~ /^|/ ) {
+	$filename = ">".$filename;
+    }
+    
+    my $output = Bio::SearchIO->new( -output_format => 'blast', -file => $filename);
+
+    $output->write_result($blast);
+    
 }
 
 =head2 get_sequence
