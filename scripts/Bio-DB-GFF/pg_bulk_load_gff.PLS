@@ -20,7 +20,7 @@ bulk_load_gff.pl - Bulk-load a Bio::DB::GFF database from GFF files.
 
 =head1 SYNOPSIS
 
-  % bulk_load_gff.pl -d testdb -f dna.fa features1.gff features2.gff ...
+  % pg_bulk_load_gff.pl -d testdb -f dna.fa features1.gff features2.gff ...
 
 =head1 DESCRIPTION
 
@@ -36,14 +36,7 @@ supported by Bio::DB::GFF.
 
 =head2 NOTES
 
-Note that this bulk loader is different from the mysql bulk loader,
-as this script generates a Postgres dump file that it prints to
-standard out.  Therefore, the most common way to use it (ie, to
-load to a PostgreSQL database), pipe the output to psql:
-
-  pg_bulk_load_gff.pl <arguments> | psql <dbname>
-
-The dump file created is only compatible with PostgreSQL version 7.3 or
+The load file created is only compatible with PostgreSQL version 7.3 or
 greater.  Note that the create option will NOT create the database, that
 must be done beforehand.  The create option is a flag to indicate
 that it is OK to wipe the database (ie, drop the tables), and if you
@@ -58,25 +51,25 @@ optionally followed by a compression suffix in order to be recognized.
 
 To load FASTA files without GFF data, run like this:
 
- load_gff.pl --database my_database --fasta my_fasta_file_path </dev/null
+ pg_bulk_load_gff.pl --database my_database --fasta my_fasta_file_path </dev/null
 
 The nature of the bulk load requires that the database be on the local
 machine and have enough room in /usr/tmp (or whatever is specified
-by the \$TMPDIR environment variable), to hold the tables transiently.
+by the \$TMPDIR environment variable) to hold the tables transiently.
 
-Note that Windows users must use the --create option.
+Note that while this should work on Windows, it has not been tested there;
+Also, Windows users must use the --create option.
 
 =head1 COMMAND-LINE OPTIONS
 
 Command-line options can be abbreviated to single-letter options.
 e.g. -d instead of --database.
 
-   --database <dsn>      PostgreSQL database name (default 'dbi:Pg:test')
+   --database            PostgreSQL database name (default 'test')
    --create              Reinitialize/create data tables without asking
    --user                Username to log in as
    --fasta               File or directory containing fasta files to load
    --password            Password to use for authentication
-   --webowner		 User that Apache runs as (default 'nobody')
 
 =head1 SEE ALSO
 
@@ -100,6 +93,32 @@ use Bio::DB::GFF::Adaptor::dbi::pg;
 use vars '@ISA';
 @ISA = 'Bio::DB::GFF::Adaptor::dbi::pg';
 
+#these two subs are to separate the table creation from the
+#index creation
+sub do_initialize {
+  my $self = shift;
+  my $erase = shift;
+  $self->drop_all if $erase;
+                                                                                
+  my $dbh = $self->features_db;
+  my $schema = $self->schema;
+  foreach my $table_name ($self->tables) {
+    my $create_table_stmt = $schema->{$table_name}{table} ;
+    $dbh->do($create_table_stmt) ||  warn $dbh->errstr;
+  #  $self->create_other_schema_objects(\%{$schema->{$table_name}});
+  }
+}
+
+sub _create_indexes_etc {
+  my $self = shift;
+
+  my $dbh = $self->features_db;
+  my $schema = $self->schema;
+  foreach my $table_name ($self->tables) {
+    $self->create_other_schema_objects(\%{$schema->{$table_name}});
+  }
+}
+
 sub insert_sequence {
   my $self = shift;
   my ($id,$offset,$seq) = @_;
@@ -108,30 +127,25 @@ sub insert_sequence {
 
 package main;
 
-my $bWINDOWS = 0;    # Boolean: is this a MSWindows operating system?
-if ($^O =~ /MSWin32/i) {
-    $bWINDOWS = 1;
-}
+my $bWINDOWS = ($^O =~ /MSWin32/i) ? 1 : 0; 
 
-my ($DSN,$FORCE,$USER,$PASSWORD,$FASTA,$WEBOWNER);
+my ($DSN,$FORCE,$USER,$PASSWORD,$FASTA);
 
 GetOptions ('database:s'    => \$DSN,
 	    'create'         => \$FORCE,
 	    'user:s'        => \$USER,
 	    'password:s'    => \$PASSWORD,
-	    'fasta:s'       => \$FASTA,
-	    'webowner:s'    => \$WEBOWNER
+	    'fasta:s'       => \$FASTA
 	   ) or die <<USAGE;
 Usage: $0 [options] <gff file 1> <gff file 2> ...
 Bulk-load a Bio::DB::GFF database from GFF files.
 
  Options:
-   --database <dsn>      Mysql database name
+   --database            Postgres database name
    --create              Reinitialize/create data tables without asking
    --user                Username to log in as
    --fasta               File or directory containing fasta files to load
    --password            Password to use for authentication
-   --webowner		 The user that owns Apache processes (default 'nobody')
 
 Options can be abbreviated.  For example, you can use -d for
 --database.
@@ -150,15 +164,19 @@ Note that Windows users must use the --create option.
 USAGE
 ;
 
-$DSN ||= 'dbi:Pg:test';
+$DSN ||= 'test';
+
+if ($DSN =~ /\:([^:]+)\s*$/) {
+  $DSN = $1;
+  warn "DSN shortened to $DSN; this should be fine\n"; 
+}
 
 if ($bWINDOWS && not $FORCE) {
   die "Note that Windows users must use the --create option.\n";
 }
 
 unless ($FORCE) {
-  die "This will delete all existing data in database $DSN.  If you want to do this, rerun with the --create option.\n"
-    if $bWINDOWS;
+  die "This will delete all existing data in database $DSN.  If you want to do this, rerun with the --create option.\n" if $bWINDOWS;
   open (TTY,"/dev/tty") or die "/dev/tty: $!\n";  #TTY use removed for win compatability
   print STDERR "This operation will delete all existing data in database $DSN.  Continue? ";
   my $f = <TTY>;
@@ -179,7 +197,7 @@ if (defined $PASSWORD) {
 my $db = Bio::DB::GFF->new(-adaptor=>'faux',-dsn => $DSN,@auth)
   or die "Can't open database: ",Bio::DB::GFF->error,"\n";
 
-#$db->initialize(1); let this script do that, to separate table and index creation
+$db->initialize(1); 
 
 foreach (@ARGV) {
   $_ = "gunzip -c $_ |" if /\.gz$/;
@@ -274,16 +292,13 @@ while (<>) {
 
 }
 
-$WEBOWNER ||='nobody';
-table_create($WEBOWNER);
-
 if ($FASTA) {
   warn "Preparing DNA files....\n";
-  $FH{FDNA()                 }->print("COPY fdna (fref, foffset, fdna) FROM stdin;\n");
+  $FH{FDNA() }->print("COPY fdna (fref, foffset, fdna) FROM stdin;\n");
 
   my $old = select($FH{FDNA()});
   $db->load_fasta($FASTA);
-  $FH{FDNA()                 }->print("\\.\n\n");
+  $FH{FDNA() }->print("\\.\n\n");
   warn "done...\n";
   select $old;
 }
@@ -297,157 +312,18 @@ $FH{FATTRIBUTE_TO_FEATURE()}->print("\\.\n\n");
 
 $_->close foreach values %FH;
 
-warn "Loading feature data.  You will see Postgres comments...\n";
+warn "Loading feature data.  You may see Postgres comments...\n";
 
 foreach (@files) {
   my $file = "$tmpdir/$_.$$";
 
-  system('cat', $file);
+  system('psql','-f', $file, $DSN);
 
   unlink $file;
 }
-cleanup();
+
+$db->_create_indexes_etc();
+
 warn "done...\n";
-
-
-sub table_create {
-  my $webowner = shift;
-
-  print<<END;
-SET search_path = public, pg_catalog;
-
-/* CREATE USER $webowner;  */
-
-DROP TABLE fmeta;
-CREATE TABLE fmeta (
-    fname character varying(255) DEFAULT '' NOT NULL,
-    fvalue character varying(255) DEFAULT '' NOT NULL
-);
-
-REVOKE ALL ON TABLE fmeta FROM PUBLIC;
-GRANT SELECT ON TABLE fmeta TO $webowner;
-
-DROP TABLE fgroup;
-CREATE TABLE fgroup (
-    gid serial NOT NULL,
-    gclass character varying(100),
-    gname character varying(100)
-);
-
-REVOKE ALL ON TABLE fgroup FROM PUBLIC;
-GRANT SELECT ON TABLE fgroup TO $webowner;
-
-DROP TABLE fdata;
-CREATE TABLE fdata (
-    fid serial NOT NULL,
-    fref character varying(100) DEFAULT '' NOT NULL,
-    fstart integer DEFAULT '0' NOT NULL,
-    fstop integer DEFAULT '0' NOT NULL,
-    fbin double precision DEFAULT '0.000000' NOT NULL,
-    ftypeid integer DEFAULT '0' NOT NULL,
-    fscore double precision,
-    fstrand character varying(3),
-    fphase character varying(3),
-    gid integer DEFAULT '0' NOT NULL,
-    ftarget_start integer,
-    ftarget_stop integer,
-    CONSTRAINT chk_fdata_fphase CHECK ((((fphase = '0'::character varying) OR (fphase = '1'::character varying)) OR (fphase = '2'::character varying))),
-    CONSTRAINT chk_fdata_fstrand CHECK (((fstrand = '+'::character varying) OR (fstrand = '-'::character varying)))
-);
-
-REVOKE ALL ON TABLE fdata FROM PUBLIC;
-GRANT SELECT ON TABLE fdata TO $webowner;
-
-DROP TABLE fattribute_to_feature;
-CREATE TABLE fattribute_to_feature (
-    fid integer DEFAULT '0' NOT NULL,
-    fattribute_id integer DEFAULT '0' NOT NULL,
-    fattribute_value text
-);
-
-REVOKE ALL ON TABLE fattribute_to_feature FROM PUBLIC;
-GRANT SELECT ON TABLE fattribute_to_feature TO $webowner;
-
-DROP TABLE fdna;
-CREATE TABLE fdna (
-    fref character varying(100) DEFAULT '' NOT NULL,
-    foffset integer DEFAULT '0' NOT NULL,
-    fdna text
-);
-
-REVOKE ALL ON TABLE fdna FROM PUBLIC;
-GRANT SELECT ON TABLE fdna TO $webowner;
-
-DROP TABLE  fattribute;
-CREATE TABLE fattribute (
-    fattribute_id serial NOT NULL,
-    fattribute_name character varying(255) DEFAULT '' NOT NULL
-);
-
-REVOKE ALL ON TABLE fattribute FROM PUBLIC;
-GRANT SELECT ON TABLE fattribute TO $webowner;
-
-DROP TABLE ftype;
-CREATE TABLE ftype (
-    ftypeid serial NOT NULL,
-    fmethod character varying(100) DEFAULT '' NOT NULL,
-    fsource character varying(100)
-);
-
-REVOKE ALL ON TABLE ftype FROM PUBLIC;
-GRANT SELECT ON TABLE ftype TO $webowner;
-
-END
-;
-}
- 
-sub cleanup {
-  print<<END;
-CREATE UNIQUE INDEX fgroup_gclass_idx ON fgroup USING btree (gclass, gname);
-
-CREATE INDEX fdata_ftypeid_idx ON fdata USING btree (ftypeid);
-
-CREATE INDEX fdata_gid_idx ON fdata USING btree (gid);
-
-CREATE UNIQUE INDEX fdata_fref_idx ON fdata USING btree (fref, fbin, fstart, fstop, ftypeid, gid);
-
-CREATE INDEX fattribute_to_feature_fid ON fattribute_to_feature USING btree (fid, fattribute_id);
-
-CREATE INDEX ftype_fmethod_idx ON ftype USING btree (fmethod);
-
-CREATE INDEX ftype_fsource_idx ON ftype USING btree (fsource);
-
-CREATE UNIQUE INDEX ftype_ftype_idx ON ftype USING btree (fmethod, fsource);
-
-ALTER TABLE ONLY fmeta
-    ADD CONSTRAINT pk_fmeta PRIMARY KEY (fname);
-
-ALTER TABLE ONLY fgroup
-    ADD CONSTRAINT pk_fgroup PRIMARY KEY (gid);
-
-ALTER TABLE ONLY fgroup
-    ADD CONSTRAINT gclass_fgroup UNIQUE (gclass, gname);
-
-ALTER TABLE ONLY fdata
-    ADD CONSTRAINT pk_fdata PRIMARY KEY (fid);
-
-ALTER TABLE ONLY fdata
-    ADD CONSTRAINT fref_fdata UNIQUE (fref, fbin, fstart, fstop, ftypeid, gid);
-
-ALTER TABLE ONLY fdna
-    ADD CONSTRAINT pk_fdna PRIMARY KEY (fref, foffset);
-
-ALTER TABLE ONLY fattribute
-    ADD CONSTRAINT pk_fattribute PRIMARY KEY (fattribute_id);
-
-ALTER TABLE ONLY ftype
-    ADD CONSTRAINT pk_ftype PRIMARY KEY (ftypeid);
-
-ALTER TABLE ONLY ftype
-    ADD CONSTRAINT ftype_ftype UNIQUE (fmethod, fsource);
-
-END
-;
-}
 
 __END__

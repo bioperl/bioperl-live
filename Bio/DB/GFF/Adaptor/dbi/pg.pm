@@ -330,22 +330,24 @@ CREATE TABLE "fdata" (
   "ftarget_stop" integer DEFAULT NULL,
   CONSTRAINT chk_fdata_fstrand CHECK (fstrand IN ('+','-')),
   CONSTRAINT chk_fdata_fphase CHECK (fphase IN ('0','1','2')),
-  CONSTRAINT pk_fdata PRIMARY KEY (fid),
-  CONSTRAINT fref_fdata UNIQUE (fref, fbin, fstart, fstop, ftypeid, gid)
+  CONSTRAINT pk_fdata PRIMARY KEY (fid)
 )
 }, # fdata table
 
+#CONSTRAINT fref_fdata UNIQUE (fref, fbin, fstart, fstop, ftypeid, gid)
+# fdata_fref_idx => q{ CREATE UNIQUE INDEX fdata_fref_idx ON fdata (fref,fbin,fstart,fstop,ftypeid,gid)}, 
+
 index=>{
-		fdata_fref_idx => q{
-CREATE UNIQUE INDEX fdata_fref_idx ON fdata (fref,fbin,fstart,fstop,ftypeid,gid)
+                fdata_fref_idx => q{
+CREATE INDEX fdata_fref_idx ON fdata (fref,fbin,fstart,fstop,ftypeid,gid)
 },
-	
+
 		fdata_ftypeid_idx => q{
 CREATE INDEX fdata_ftypeid_idx ON fdata (ftypeid)
 },
 
 		fdata_gid_idx => q{
-CREATE  INDEX fdata_gid_idx ON fdata (gid)
+CREATE INDEX fdata_gid_idx ON fdata (gid)
 }
 	 }, # fdata indexes
 
