@@ -159,7 +159,7 @@
     <para>
       <programlisting>
 	# BAB55667.gb is a Genbank file, and Bioperl knows that it
-         # is a Genbank file because of the '.gb' file suffix
+        # is a Genbank file because of the '.gb' file suffix
 	use Bio::SeqIO;
 	
 	my $seqio_object = Bio::SeqIO->new(-file => "BAB55667.gb" );
@@ -244,7 +244,8 @@ FEATURES             Location/Qualifiers
       In other parts of
       the Bioperl documentation one finds discussions
       of the "SeqFeature object", but there's more
-      than one of these, so what is this a reference to? More
+      than one kind of these, as we'll see later, so what is this a 
+		reference to? More
       than likely it's referring to this same 
       <ulink
 	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqFeature/Generic.html"><citetitle>Bio::SeqFeature::Generic</citetitle></ulink>
@@ -366,7 +367,7 @@ primary tag: CDS
                                            -format => "genbank");
 	eval { $seq_object = $seqio_object->next_seq; };
 	# if there's an error
-   print "Problem in $gb_file. Bad feature perhaps?\n" if $@;
+        print "Problem in $gb_file. Bad feature perhaps?\n" if $@;
       </programlisting>
     </para>  
   </section>
@@ -1105,7 +1106,7 @@ GO: cellular component|integral to plasma membrane|P|GO:0005887|Proteome|8396931
 	for my $tag (@arr) {
 	  print $tag,":",$feat->get_tag_values($tag),"  ";
 	}
-         # prints out:
+        # prints out:
 	# author:john  match1:PF000123 e-7.2  match2:PF002534 e-3.1  note:TATA box
       </programlisting>
     </para>
@@ -1125,7 +1126,7 @@ GO: cellular component|integral to plasma membrane|P|GO:0005887|Proteome|8396931
 
 	# create a simple Sequence object
 	my $seq_obj = Bio::Seq->new(-seq => "attcccccttataaaattttttttttgaggggtggg",
-                                     -display_id => "BIO52" );
+                                    -display_id => "BIO52" );
 	# then add the feature we've created to the sequence
 	$seq_obj->add_SeqFeature($feat);
       </programlisting>
