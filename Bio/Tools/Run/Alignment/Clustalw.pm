@@ -576,7 +576,8 @@ sub _setinput {
 	unless (scalar(@$input) > 1) {return 0;}
 
 	foreach $seq (@$input) {
-	    unless ( $seq->isa("Bio::PrimarySeqI") and $seq->id() )
+	    unless (defined $seq &&
+		    $seq->isa("Bio::PrimarySeqI") and $seq->id() )
 	    {return 0;}
 	    $temp->write_seq($seq);
 	}
