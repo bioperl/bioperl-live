@@ -237,9 +237,7 @@ sub sub_species {
     my( $self, $sub ) = @_;
 
     if ($sub) {
-        use Data::Dumper;
         $self->{'_sub_species'} = $sub;
-        warn "Set sub_species=$sub\nin: ", Dumper($self);
     }
     return $self->{'_sub_species'};
 }
@@ -263,7 +261,7 @@ sub binomial {
     my( $species, $genus ) = $self->classification();
     my $bi = "$genus $species";
     if (defined($full) && ($full eq 'FULL')) {
-	my $ssp = $self->subspecies;
+	my $ssp = $self->sub_species;
         $bi .= " $ssp" if $ssp;
     }
     return $bi;

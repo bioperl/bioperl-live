@@ -701,10 +701,51 @@ sub _filehandle{
 =cut
 
 sub _read_FTHelper_swissprot {
-   my ($self,$buffer) = @_;
-   
-    ### FIXME - not implemented
+    # initial version implemented by HL 05/10/2000
+    # FIXME this may not be perfect, so please review 
+    my ($self,$buffer) = @_;
+    my ($key,   # The key of the feature
+        $loc,   # The location line from the feature
+        $desc,  # The descriptive text
+        );
+    
+    if ($$buffer =~ /^FT   (\w+)\s+([\d\?\<]+)\s+([\d\?\>]+)\s*(.*)$/) {
+        $key = $1;
+        my $loc1 = $2;
+        my $loc2 = $3;
+	$loc = "$loc1..$loc2";
+	if($4 && (length($4) > 0)) {
+	    $desc = 4;
+	    chomp($desc);
+	} else {
+	    $desc = "";
+	}
+	# Read all the continuation lines up to the next feature
+	while (defined($_ = $self->_readline) && /^FT\s{20,}(\S.*)$/) {
+	    $desc .= $1;
+	    chomp($desc);
+	}
+	$desc =~ s/\.$//;
+    } else {
+        # No feature key. What's this?
+	$self->warn("No feature key in putative feature table line: $_");
+        return;
+    } 
+    
+    # Put the first line of the next feature into the buffer
+    $$buffer = $_;
 
+    # Make the new FTHelper object
+    my $out = new Bio::SeqIO::FTHelper();
+    $out->key($key);
+    $out->loc($loc);
+    
+    # store the description if there is one
+    if($desc && (length($desc) > 0)) {
+	$out->field->{"description"} ||= [];
+	push(@{$out->field->{"description"}}, $desc);
+    }
+    return $out;
 }
 
 

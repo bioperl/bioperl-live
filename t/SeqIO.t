@@ -162,9 +162,6 @@ $ast = Bio::SeqIO->new( '-format' => 'embl' , -file => 't/roa1.dat');
     }
     print "ok 14\n";
 
-    use Data::Dumper;
-    warn Dumper($save->species);
-
     my $aso = Bio::SeqIO->new( '-format' => 'embl' , -file => '>t/roa1.out');
     if ($aso->write_seq($save)) {
         print "ok 15\n";
