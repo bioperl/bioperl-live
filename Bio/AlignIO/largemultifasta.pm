@@ -95,18 +95,15 @@ sub _initialize {
 
 sub next_seq {
     my ($self) = @_;
-#  local $/ = "\n";
     my $largeseq = $self->sequence_factory->create();
     my ($id,$fulldesc,$entry);
     my $count = 0;
     my $seen = 0;
-    my $length = 0;
     while( defined ($entry = $self->_readline) ) {
 	if( $seen == 1 && $entry =~ /^\s*>/ ) {
 	    $self->_pushback($entry);
 	    return $largeseq;
 	}
-#	if ( ($entry eq '>') || eof($self->_fh) ) { $seen = 1; next; }
 	if ( ($entry eq '>')  ) { $seen = 1; next; }
 	elsif( $entry =~ /\s*>(.+?)$/ ) {
 	    $seen = 1;
@@ -117,13 +114,10 @@ sub next_seq {
 	    $largeseq->desc($fulldesc);
 	} else {
 	    $entry =~ s/\s+//g;
-            $length += length($entry);
 	    $largeseq->add_sequence_as_string($entry);
 	}
 	(++$count % 1000 == 0 && $self->verbose() > 0) && print "line $count\n";
     }
-    # Store the length of the sequence so we don't need to look at it later
-    $self->length($length);
     if( ! $seen ) { return undef; }
     return $largeseq;
 }
@@ -144,7 +138,7 @@ sub next_aln {
     my $self = shift;
     my $largeseq;
     my $aln =  Bio::SimpleAlign->new();
-    $Bio::Seq::LargePrimarySeq::DEFAULT_TEMP_DIR = './';
+    #$Bio::Seq::LargePrimarySeq::DEFAULT_TEMP_DIR = './';
     while(defined ($largeseq = $self->next_seq) ) {
         $aln->add_seq($largeseq);
         $self->debug("sequence readed\n");

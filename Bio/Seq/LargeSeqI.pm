@@ -30,6 +30,10 @@ you do not want to inspect the sequence unless absolutely
 necessary. These sequences typically override the length() method not
 to check the sequence.
 
+The seq() method is not resetable, if you want to add to the end of the
+sequence you have to use add_sequence_as_string(), for any other sequence chnages you'll
+have to create a new object.
+
 =head1 FEEDBACK
 
 =head2 Mailing Lists
@@ -75,5 +79,24 @@ use strict;
 use Bio::Root::RootI;
 
 @ISA = qw( Bio::Root::RootI );
+
+
+=head2 add_sequence_as_string
+
+ Title   : add_sequence_as_string
+ Usage   : $seq->add_sequence_as_string("CATGAT");
+ Function: Appends additional residues to an existing  object.
+           This allows one to build up a large sequence without
+           storing entire object in memory.
+ Returns : Current length of sequence
+ Args    : string to append
+
+=cut
+
+sub add_sequence_as_string {
+    my ($self) = @_;
+    $self->throw_not_implemented();
+}
+
 
 1;
