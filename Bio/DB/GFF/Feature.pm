@@ -1264,6 +1264,53 @@ sub _escape {
   $toencode;
 }
 
+=head2 cmap_link()
+
+ Title   : cmap_link
+ Usage   : $link = $feature->cmap_link
+ Function: returns a URL link to the corresponding feature in cmap
+ Returns : a string
+ Args    : none
+ Status  : Public
+
+If integrated cmap/gbrowse installation, it returns a link to the map otherwise
+it returns a link to a feature search on the feature name.  See the cmap
+documentation for more information.
+
+This function is intended primarily to be used in gbrowse conf files. 
+For example:
+
+  link       = sub {my $self = shift; return $self->cmap_viewer_link(data_source);}
+
+=cut
+
+
+sub cmap_viewer_link {
+  # Use ONLY if CMap is installed 
+  my $self        = shift;
+  my $data_source = shift;
+  my $group_id    = $self->group_id;
+  my $factory     = $self->factory; # aka adaptor
+
+  my $link_str; 
+
+  if ($factory->can("create_cmap_viewer_link")){
+    $link_str = $factory->create_cmap_viewer_link(
+        data_source => $data_source,
+        group_id    => $group_id,
+    );
+  }
+  my $name = $self->name();
+  $link_str = '/cgi-bin/cmap/feature_search?features='
+    . $name
+    . '&search_field=feature_name&order_by=&data_source='
+    . $data_source
+    . '&submit=Submit'
+    unless $link_str;
+
+  return $link_str; 
+
+}
 
 =head1 A Note About Similarities
 
