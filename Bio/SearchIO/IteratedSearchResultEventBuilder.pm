@@ -297,7 +297,6 @@ sub _add_hit {
     }
 
     $add_hit && $self->_store_hit($hit, $hit_name, $hit_signif);
-
     # Building hit lookup hashes for determining if the hit is old/new and 
     # above/below threshold.
     $self->{'_old_hit_names'}->{$hit_name}++;
@@ -352,6 +351,7 @@ sub _store_hit {
             push @{$self->{'_newhits_not_below'}}, $hit;
         }
     }
+    $self->{'_hitcount'}++;
 }
 
 =head2 start_iteration
@@ -377,6 +377,7 @@ sub start_iteration {
     $self->{'_oldhits_below'}        = [];
     $self->{'_oldhits_newly_below'}  = [];
     $self->{'_oldhits_not_below'}    = [];
+    $self->{'_hitcount'} = 0;
     return;
 }
 
