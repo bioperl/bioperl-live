@@ -282,7 +282,10 @@ sub render {
   }
 
   for my $type (@configured_types,@unconfigured_types) {
-    my $features = $self->features($type);
+    my $f = $self->features($type);
+    my @features = grep {$self->{visible}{$_}} @$f;
+    my $features = \@features;
+
     my @auto_bump;
     push @auto_bump,(-bump  => @$features < $max_bump)  if defined $max_bump;
     push @auto_bump,(-label => @$features < $max_label) if defined $max_label;
@@ -508,10 +511,11 @@ sub parse_line {
     $self->{max} = $_->[1] if !defined $self->{max} || $_->[1] > $self->{max};
   }
 
+  my $visible = 1;
   if ($self->{coordinate_mapper} && $ref) {
     my @remapped = $self->{coordinate_mapper}->($ref,@parts);
-    # return 1 unless @remapped;
     ($ref,@parts) = @remapped if @remapped;
+    $visible   = @remapped;
   }
 
   $type = '' unless defined $type;
@@ -561,6 +565,7 @@ sub parse_line {
       $self->{group}->add_segment($feature);
     } else {
       push @{$self->{features}{$type}},$feature;  # for speed; should use add_feature() instead
+      $self->{visible}{$feature}++  if $visible;
     }
   }
 
@@ -1059,7 +1064,7 @@ sub search_notes {
   my $self = shift;
   my ($search_string,$limit) = @_;
   my @results;
-  my $search = join '|',map {quotemeta($_)} $search_string =~ /(\w+)/g;
+  my $search = join '|',map {quotemeta($_)} $search_string =~ /(\S+)/g;
 
   for my $feature ($self->features) {
     next unless $feature->{attributes};
