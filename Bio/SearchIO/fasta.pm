@@ -235,7 +235,7 @@ sub next_result{
 			    'Data' => $self->{'_version'}});
 	   $self->element({ 'Name' => 'FastaOutput_program',
 			    'Data' => $self->{'_reporttype'}});
-	   my ($last, $leadin, $type, $querylen, $querytype, $querydef);
+	   my ($leadin, $type, $querylen, $querytype, $querydef);
 
 	   while( defined($_ = $self->_readline()) ) {
 	       if( /^ (
@@ -252,19 +252,19 @@ sub next_result{
 			   last;
 		       }
 		   } else {
-		       if( $last =~ /(\S+)[:,]\s*(\d+)\s+(aa|nt)/ ) {
+		       if( $self->{'_last'} =~ /(\S+)[:,]\s*(\d+)\s+(aa|nt)/ ){
 			   ($querylen, $querytype) = ($2, $3);
 			   $querydef ||= $1;
 			   last;
 		       }
 		   }
 	       } elsif ( m/^\s*vs\s+\S+/o ) {
-		   if ( $last =~ /(\S+)[,:]\s+(\d+)\s+(aa|nt)/o) {
+		   if ( $self->{'_last'} =~ /(\S+)[,:]\s+(\d+)\s+(aa|nt)/o) {
 		       ($querydef, $querylen, $querytype) = ($1, $2, $3);
 		       last;
 		   }
 	       }
-	       $last = $_;
+	       $self->{'_last'} = $_;
 	   }
 
 	   if( $self->{'_reporttype'} &&
@@ -288,7 +288,7 @@ sub next_result{
 	       $self->warn("unable to find and set query length");
 	   }
 
-	   if( $last =~ /^\s*vs\s+(\S+)/ ||	       	       
+	   if( $self->{'_last'} =~ /^\s*vs\s+(\S+)/ ||	       	       
 	       (defined $_ && /^\s*vs\s+(\S+)/) ||
 	       (defined ($_ = $self->_readline()) && /^\s*vs\s+(\S+)/)
 	     ) {
