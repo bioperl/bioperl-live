@@ -18,6 +18,7 @@ Bio::PopGen::Statistics - Population Genetics statistical tests
 
   use Bio::PopGen::Statistics;
   use Bio::AlignIO;
+  use Bio::PopGen::IO;
   use Bio::PopGen::Simulation::Coalescent;
  
   my $sim = new Bio::PopGen::Simulation::Coalescent( -sample_size => 12);
@@ -46,6 +47,10 @@ Bio::PopGen::Statistics - Population Genetics statistical tests
   # Pi and Theta also take additional arguments,
   # see the documentation for more information  
 
+
+  # To come -- examples for creating pops/individuals from
+  # Aligned sequence data
+  
 =head1 DESCRIPTION
 
 This object is intended to provide implementations some standard
