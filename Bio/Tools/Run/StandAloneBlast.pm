@@ -730,7 +730,10 @@ sub _setparams {
 	next unless (defined $value);
 # Need to prepend datadirectory to database name
 	if ($attr  eq 'd' && ($executable ne 'bl2seq')) { 
+# This is addes so that you can specify a DB with a full path
+	  if (! (-e $value.".nin" || -e $value.".pin")){ 
 	    $value = File::Spec->catdir($DATADIR,$value);
+	  }
 	}
 # put params in format expected by Blast
 	$attr  = '-'. $attr ;       

@@ -90,7 +90,7 @@ my $BPlite_report2 = $factory->blastall(\@seq_array);
  $hsp = $sbjct->nextHSP;
 ok $testresults[5];
 
-@params = ('program' => 'blastp');
+@params = ('program' => 'T'); # This used to be blastp but atleast on my implementation it should be T
 $factory = Bio::Tools::Run::StandAloneBlast->new(@params);
 
 $str = Bio::SeqIO->new(-file=>Bio::Root::IO->catfile("t","data","amino.fa") , '-format' => 'Fasta', );

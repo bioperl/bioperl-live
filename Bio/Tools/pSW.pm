@@ -352,7 +352,7 @@ sub gap {
     
 
     if( defined $val ) {
-	if( $val <= 0 ) {
+	if( $val < 0 ) {    # Fixed so that gap==0 is allowed /AE
 	    $self->throw("Can't have a gap penalty less than 0");
 	}
 	$self->{'gap'} = $val;
@@ -377,7 +377,7 @@ sub ext {
     my ($self,$val) = @_;
     
     if( defined $val ) {
-	if( $val <= 0 ) {
+	if( $val < 0 ) {    # Fixed so that gap==0 is allowed /AE
 	    $self->throw("Can't have a gap penalty less than 0");
 	}
 	$self->{'ext'} = $val;
