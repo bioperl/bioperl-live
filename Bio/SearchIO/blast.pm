@@ -678,7 +678,7 @@ sub start_element{
        } else { 
 	   # cleanup some things
 	   if( defined $self->{'_values'} ) {
-	       foreach my $k ( grep { /$type/i } 
+	       foreach my $k ( grep { /^\U$type\-/ } 
 			       keys %{$self->{'_values'}} ) { 
 		   delete $self->{'_values'}->{$k};
 	       }
