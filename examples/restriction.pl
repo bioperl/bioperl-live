@@ -15,7 +15,7 @@
 #     Assorted updates associated with the new Bio:: modules.
 #----------------------------------------------------------
 
-use lib "/home/sac";
+use lib "/home/brad/bioperl/bioperl-live/";
 use Bio::Seq;
 use Bio::Tools::RestrictionEnzyme qw(@RE_available);
 
