@@ -54,6 +54,11 @@ Currently implemented:
 References forthcoming.
 
 
+In all cases where a the method expects an arrayref of
+L<Bio::PopGen::IndividualI> objects and L<Bio::PopGen::PopulationI>
+object will also work.
+
+
 =head1 FEEDBACK
 
 =head2 Mailing Lists
@@ -127,12 +132,30 @@ use Bio::Root::Root;
            arrayref of outgroup individuals
 =cut
 
-sub fu_and_li_D{
+sub fu_and_li_D { 
     my ($self,$ingroup,$outgroup) = @_;
-    if( ref($ingroup) !~ /ARRAY/i   ) {
-	$self->throw("expected array references which is list of Bio::PopGen::IndividualI to fu_and_li_D");
+
+    my ($seg_sites,$pi,$sample_size,$ext_mutations);
+    if( ref($ingroup) =~ /ARRAY/i ) {
+	$sample_size = scalar @$ingroup;
+	# pi - all pairwise differences 
+	$pi          = $self->pi($ingroup);  
+	$seg_sites   = $self->segregating_sites_count($ingroup);
+    } elsif( ref($ingroup) && 
+	     $ingroup->isa('Bio::PopGen::PopulationI')) {
+	$sample_size = $ingroup->get_number_individuals;
+	$pi          = $self->pi($ingroup);
+	$seg_sites   = $self->segregating_sites_count($ingroup);
+    } else { 
+	$self->throw("expected an array reference of a list of Bio::PopGen::IndividualI OR a Bio::PopGen::PopulationI object to tajima_D");
+	return 0;
     }
-    my $ext_mutations;
+    
+    if( $seg_sites <= 0 ) { 
+	$self->warn("mutation total was not > 0, cannot calculate a Fu and Li D");
+	return 0;
+    }
+
     if( ! defined $outgroup ) {
 	$self->warn("Need to provide either an array ref to the outgroup individuals or the number of external mutations");
 	return 0;
@@ -142,37 +165,27 @@ sub fu_and_li_D{
     } else { 
 	$ext_mutations = $outgroup;
     }
-       
-   my $seg_sites    = scalar $ingroup->[0]->get_marker_names;
-   my $sample_size  = scalar(@$ingroup);
 
-   my $tipmutcount;
-   
-   if( $seg_sites <= 0 ) { 
-       $self->warn("mutation total was not > 0, cannot calculate a Fu and Li D");
-       return 0;
-   }
-
-   my $a = 0;
-   for(my $k= 1; $k < $sample_size; $k++ ) {
+    my $a = 0;
+    for(my $k= 1; $k < $sample_size; $k++ ) {
         $a += ( 1 / $k );
     }
-   
-   my $b = 0;
+
+    my $b = 0;
     for(my $k= 1; $k < $sample_size; $k++ ) {
         $b += ( 1 / $k**2 );
     }
- 
+
     my $c = 2 * ( ( ( $sample_size * $a ) - (2 * ( $sample_size -1 ))) /
                   ( ( $sample_size - 1) * ( $sample_size - 2 ) ) );
- 
+
     my $v = 1 + ( ( $a**2 / ( $b + $a**2 ) ) * ( $c - ( ( $sample_size + 1) /
                                                         ( $sample_size - 1) ) ));
- 
+
     my $u = $a - 1 - $v;
     my $D = ( $seg_sites - (  $a * $ext_mutations) ) /
-            ( sqrt ( ($u * $seg_sites ) + ( $v * $seg_sites **2) ) );
- 
+	( sqrt ( ($u * $seg_sites ) + ( $v * $seg_sites **2) ) );
+
     return $D;
 }
 
@@ -180,11 +193,12 @@ sub fu_and_li_D{
 
  Title   : fu_and_li_D_star
  Usage   : my $D = $statistics->fu_an_li_D_star(\@individuals);
- Function: Fu and Li's D star statistic for this set of samples
+ Function: Fu and Li's D* statistic for a set of samples
             Without an outgroup
  Returns : decimal number
  Args    : array ref of L<Bio::PopGen::IndividualI> objects
-
+           OR
+           L<Bio::PopGen::PopulationI> object
 =cut
 
 #'
@@ -192,13 +206,25 @@ sub fu_and_li_D{
 
 sub fu_and_li_D_star {
     my ($self,$individuals) = @_;
-    if( ref($individuals) !~ /ARRAY/i ) {
-	$self->throw("expected an array reference of a list of Bio::PopGen::IndividualI to fu_and_li_D_star");
+
+    my ($seg_sites,$pi,$sample_size,$singletons);
+    if( ref($individuals) =~ /ARRAY/i ) {
+	$sample_size = scalar @$individuals;
+	# pi - all pairwise differences 
+	$pi          = $self->pi($individuals);  
+	$seg_sites   = $self->segregating_sites_count($individuals);
+	$singletons  = $self->singleton_count($individuals);
+    } elsif( ref($individuals) && 
+	     $individuals->isa('Bio::PopGen::PopulationI')) {
+	my $pop = $individuals;
+	$sample_size = $pop->get_number_individuals;
+	$pi          = $self->pi($pop);
+	$seg_sites   = $self->segregating_sites_count($pop);
+	$singletons  = $self->singleton_count($pop);
+    } else { 
+	$self->throw("expected an array reference of a list of Bio::PopGen::IndividualI OR a Bio::PopGen::PopulationI object to tajima_D");
+	return 0;
     }
-    my $sample_size = scalar @$individuals;
-    my $pi          = $self->pi($individuals);
-    my $seg_sites   = scalar ($individuals->[0]->get_marker_names());
-    my ($total,$unique,$singleton) = $self->allele_count($individuals);
 
     my $a = 0;
     for(my $k= 1; $k < $sample_size; $k++ ) {
@@ -232,7 +258,7 @@ sub fu_and_li_D_star {
 			  ($sample_size-1)))) - $v_star;
 
     my $D_star = ( (($sample_size/($sample_size-1))*$seg_sites) -
-		   ($a*$seg_sites) ) / 
+		   ($a*$singletons) ) / 
 		   ( sqrt( ($u_star*$seg_sites) + ($v_star*($seg_sites**2)) ));
     return $D_star;
 }
@@ -245,6 +271,8 @@ sub fu_and_li_D_star {
            outgroup individuals, or the number of external mutations
  Returns : decimal number
  Args    : array ref of L<Bio::PopGen::IndividualI> objects for the ingroup
+           OR a L<Bio::PopGen::PopulationI> object
+            
            number of external mutations OR list of individuals for the outgroup
 
 =cut
@@ -252,11 +280,22 @@ sub fu_and_li_D_star {
 
 sub fu_and_li_F {
     my ($self,$ingroup,$outgroup) = @_;
-
-    if( ref($ingroup) !~ /ARRAY/i ) {
-	$self->throw("expected an array reference of a list of Bio::PopGen::IndividualI to fu_and_li_F");
+    my ($seg_sites,$pi,$sample_size,$ext_mutations);
+    if( ref($ingroup) =~ /ARRAY/i ) {
+	$sample_size = scalar @$ingroup;
+	# pi - all pairwise differences 
+	$pi          = $self->pi($ingroup);  
+	$seg_sites   = $self->segregating_sites_count($ingroup);
+    } elsif( ref($ingroup) && 
+	     $ingroup->isa('Bio::PopGen::PopulationI')) {
+	$sample_size = $ingroup->get_number_individuals;
+	$pi          = $self->pi($ingroup);
+	$seg_sites   = $self->segregating_sites_count($ingroup);
+    } else { 
+	$self->throw("expected an array reference of a list of Bio::PopGen::IndividualI OR a Bio::PopGen::PopulationI object to tajima_D");
+	return 0;
     }
-    my $ext_mutations;
+
     if( ! defined $outgroup ) {
 	$self->warn("Need to provide either an array ref to the outgroup individuals or the number of external mutations");
 	return 0;
@@ -266,11 +305,6 @@ sub fu_and_li_F {
     } else { 
 	$ext_mutations = $outgroup;
     }
-
-    my $sample_size = scalar @$ingroup;
-    my $pi          = $self->pi($ingroup);
-    my $seg_sites   = scalar $ingroup->[0]->get_marker_names();
-    my ($total,$unique,$singleton) = $self->allele_count($ingroup);
     
     my $a = 0;
     for(my $k= 1; $k < $sample_size; $k++ ) {
@@ -311,7 +345,9 @@ sub fu_and_li_F {
  Usage   : my $D = Bio::PopGen::Statistics->tajima_D(\@samples);
  Function: Calculate Tajima's D on a set of samples 
  Returns : decimal number
- Args    : array ref of L<Bio::PopGen::IndividualI> objects 
+ Args    : array ref of L<Bio::PopGen::IndividualI> objects
+           OR 
+           L<Bio::PopGen::PopulationI> object
 
 
 =cut
@@ -320,15 +356,24 @@ sub fu_and_li_F {
 
 sub tajima_D {
     my ($self,$individuals) = @_;
-    if( ref($individuals) !~ /ARRAY/i ) {
-	$self->throw("expected an array reference of a list of Bio::PopGen::IndividualI to tajima_D");
-    }
-    my $sample_size = scalar @$individuals;
-    # pi - all pairwise differences 
-    my $pi          = $self->pi($individuals);  
-    my $seg_sites   = scalar ($individuals->[0]->get_marker_names);
-    my ($total,$unique,$singleton) = $self->allele_count($individuals);
+    my ($seg_sites,$pi,$sample_size);
 
+    if( ref($individuals) =~ /ARRAY/i ) {
+	$sample_size = scalar @$individuals;
+	# pi - all pairwise differences 
+	$pi          = $self->pi($individuals);  
+	$seg_sites = $self->segregating_sites_count($individuals);
+
+    } elsif( ref($individuals) && 
+	     $individuals->isa('Bio::PopGen::PopulationI')) {
+	my $pop = $individuals;
+	$sample_size = $pop->get_number_individuals;
+	$pi          = $self->pi($pop);
+	$seg_sites = $self->segregating_sites_count($pop);
+    } else { 
+	$self->throw("expected an array reference of a list of Bio::PopGen::IndividualI OR a Bio::PopGen::PopulationI object to tajima_D");
+	return 0;
+    }
     my $a1 = 0; 
     for(my $k= 1; $k < $sample_size; $k++ ) {
 	$a1 += ( 1 / $k );
@@ -390,9 +435,11 @@ sub pi {
 	foreach my $ind ( @$individuals ) {
 	    if( ! $ind->isa('Bio::PopGen::IndividualI') ) {
 		$self->warn("Expected an arrayref of Bio::PopGen::IndividualI objects, this is a ".ref($ind)."\n");
+		return 0;
 	    }
 	    foreach my $m ( @marker_names ) {
-		foreach my $a (map { $_->get_Alleles} $ind->get_Genotypes($m) ) {
+		foreach my $a (map { $_->get_Alleles} 
+			       $ind->get_Genotypes($m) ) {
 		    $data{$m}->{$a}++;
 		    $marker_total{$m}++;
 		}
@@ -469,19 +516,7 @@ sub theta {
 	my %data;
 	my @marker_names = $samps->[0]->get_marker_names;
 	# we need to calculate number of polymorphic sites
-	foreach my $ind ( @$samps ) {
-	    foreach my $m ( @marker_names ) {
-		foreach my $a (map { $_->get_Alleles} 
-			       $ind->get_Genotypes($m) ) {
-		    $data{$m}->{$a}++;
-		}
-	    }
-	}
-	# if there is >1 allele then it is polymorphic
-	$seg_sites = 0;
-	foreach my $marker ( @marker_names ) {
-	    $seg_sites++ if( scalar (keys %{$data{$marker}}) > 1 );
-	}
+	$seg_sites = $self->segregating_sites_count($samps);
 	$sample_size = scalar @$samps;
 
     } elsif(ref($sample_size) &&
@@ -490,11 +525,7 @@ sub theta {
 	my $pop = $sample_size;
 	$totalsites = $seg_sites; # shift the arguments over by one
 	$sample_size = $pop->get_number_individuals;
-	$seg_sites = 0;
-	foreach my $marker( $pop->get_Markers ) {  
-	    my @alleles = $marker->get_Alleles;	    
-	    $seg_sites++ if ( scalar @alleles > 1 );
-	}
+	$seg_sites = $self->segregating_sites_count($pop);
     }
     my $a1 = 0; 
     for(my $k= 1; $k < $sample_size; $k++ ) {
@@ -506,35 +537,44 @@ sub theta {
     return $seg_sites / $a1;
 }
 
+=head2 singleton_count
 
-=head2 allele_count
-
- Title   : allele_count
- Usage   : my ($totalct,$unqiuect,
-	       $singletons) = Bio::PopGen::Statistics->allele_count(\@inds)
+ Title   : singleton_count
+ Usage   : my ($singletons) = Bio::PopGen::Statistics->singleton_count(\@inds)
  Function: Calculate the number of mutations/alleles which only occur once in
            a list of individuals for all sites/markers
- Returns : A triple, 
-               first is total number of alleles (2* num markers for diploids)
-                                             or just num of sites for haploids)
-               second is total number of unique alleles (so if a single allele 
-                    is only seen at a site (marker))
-               third is number of alleles which only occur once (integer)
-
-           Called in list context it will just return the total number 
-              of alleles         
+ Returns : (integer) number of alleles which only occur once (integer)
  Args    : arrayref of L<Bio::PopGen::IndividualI> objects
+           OR
+           L<Bio::PopGen::PopulationI> object
 
 
 =cut
 
-sub allele_count {
+sub singleton_count {
     my ($self,$individuals) = @_;
-    my (%sites,$singleton_allele_ct,$total_allele_ct, $unique_allele_ct);
+
+    my @inds;
+    if( ref($individuals) =~ /ARRAY/ ) {
+	@inds = @$individuals;
+    } elsif( ref($individuals) && 
+	     $individuals->isa('Bio::PopGen::PopulationI') ) {
+	my $pop = $individuals;
+	@inds = $pop->get_Individuals();
+	unless( @inds ) { 
+	    $self->warn("Need to provide a population which has individuals loaded, not just a population with allele frequencies");
+	    return 0;
+	}
+    } else {
+	$self->warn("Expected either a PopulationI object or an arrayref of IndividualI objects");
+	return 0;
+    }
     # find number of sites where a particular allele is only seen once
-    
+
+    my ($singleton_allele_ct,%sites) = (0);
     # first collect all the alleles into a hash structure
-    foreach my $n ( @$individuals ) {
+    
+    foreach my $n ( @inds ) {
 	if( ! $n->isa('Bio::PopGen::IndividualI') ) {
 	    $self->warn("Expected an arrayref of Bio::PopGen::IndividualI objects, this is a ".ref($n)."\n");
 	    return 0;
@@ -546,20 +586,72 @@ sub allele_count {
 	    }
 	}
     }
-    foreach my $site ( values %sites ) { # don't really care what the namem is
+    foreach my $site ( values %sites ) { # don't really care what the name is
 	foreach my $allelect ( values %$site ) { # 
-	    $total_allele_ct += $allelect;
             # find the sites which have an allele with only 1 copy
  	    $singleton_allele_ct++ if( $allelect == 1 );
-	    $unique_allele_ct++;
 	}
     }
-    if( wantarray )  {
-	return ($total_allele_ct, $unique_allele_ct,$singleton_allele_ct);
-    } else {
-	return $total_allele_ct;
-    }
+    return $singleton_allele_ct;
 }
+
+# Yes I know that singleton_count and segregating_sites_count are
+# basically processing the same data so calling them both is
+# redundant, something I want to fix later but want to make things
+# correct and simple first
+
+=head2 segregating_sites_count
+
+ Title   : segregating_sites_count
+ Usage   : my $segsites = Bio::PopGen::Statistics->segregating_sites_count
+ Function: Gets the number of segregating sites (number of polymorphic sites)
+ Returns : (integer) number of segregating sites
+ Args    : arrayref of L<Bio::PopGen::IndividualI> objects 
+           OR
+           L<Bio::PopGen::PopulationI> object
+
+=cut
+
+# perhaps we'll change this in the future 
+# to return the actual segregating sites
+# so one can use this to pull in the names of those sites.
+# Would be trivial if it is useful.
+
+sub segregating_sites_count{
+   my ($self,$individuals) = @_;
+   my $type = ref($individuals);
+   my $seg_sites = 0;
+   if( $type =~ /ARRAY/i ) {
+       my %sites;
+       foreach my $n ( @$individuals ) {
+	   if( ! $n->isa('Bio::PopGen::IndividualI') ) {
+	       $self->warn("Expected an arrayref of Bio::PopGen::IndividualI objects, this is a ".ref($n)."\n");
+	       return 0;
+	   }
+	   foreach my $g ( $n->get_Genotypes ) {
+	       my ($nm,@alleles) = ($g->marker_name, $g->get_Alleles);
+	       foreach my $allele (@alleles ) {
+		   $sites{$nm}->{$allele}++;
+	       }
+	   }
+       }
+       foreach my $site ( values %sites ) { # use values b/c we don't 
+	                                    # really care what the name is
+	   # find the sites which >1 allele
+	   $seg_sites++ if( keys %$site > 1 );
+       }
+   } elsif( $type && $individuals->isa('Bio::PopGen::PopulationI') ) {
+       foreach my $marker ( $individuals->get_Markers ) {  
+	   my @alleles = $marker->get_Alleles;	    
+	   $seg_sites++ if ( scalar @alleles > 1 );
+       }
+   } else { 
+       $self->warn("segregating_sites_count expects either a PopulationI object or a list of IndividualI objects");
+       return 0;
+   } 
+   return $seg_sites;
+}
+
 
 =head2 heterozygosity
 
