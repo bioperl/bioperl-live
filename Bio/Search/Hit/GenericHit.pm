@@ -90,7 +90,8 @@ use Bio::Search::Hit::HitI;
            -significance => Significance value for the Hit (optional)
            -algorithm    => Algorithm used (BLASTP, FASTX, etc...)
            -hsps         => Array ref of HSPs for this Hit. 
-
+           -iteration    => integer for the PSI-Blast iteration number
+        
 =cut
 
 sub new {
@@ -98,11 +99,12 @@ sub new {
 
   my $self = $class->SUPER::new(@args);
   my ($hsps, $name,$desc, $acc, $length,
-      $score,$algo,$signif,$bits) = $self->_rearrange([qw(HSPS NAME DESCRIPTION
-						   ACCESSION
-						   LENGTH SCORE ALGORITHM 
-						   SIGNIFICANCE BITS)], @args);
-
+      $score,$algo,$signif,$bits,
+      $iter) = $self->_rearrange([qw(HSPS NAME DESCRIPTION
+				     ACCESSION
+				     LENGTH SCORE ALGORITHM 
+				     SIGNIFICANCE BITS ITERATION)], @args);
+  
   if( ! defined $name ) { 
       $self->throw("Must have defined a valid name for Hit");
   } else { 
@@ -115,6 +117,7 @@ sub new {
   defined $signif && $self->significance($signif);
   defined $score  && $self->raw_score($score);
   defined $bits   && $self->bits($bits);
+  defined $iter   && $self->iteration($iter);
 
   $self->{'_iterator'} = 0;
   $self->{'_hsps'} = [];
@@ -423,6 +426,26 @@ sub num_hsps {
 sub rewind{
    my ($self) = @_;
    $self->{'_iterator'} = 0;
+}
+
+=head2 iteration
+
+ Title   : iteration
+ Usage   : $obj->iteration($newval)
+ Function: PSI-BLAST iteration
+ Returns : value of iteration
+ Args    : newvalue (optional)
+
+
+=cut
+
+sub iteration{
+   my ($self,$value) = @_;
+   if( defined $value) {
+      $self->{'_psiblast_iteration'} = $value;
+    }
+    return $self->{'_psiblast_iteration'};
+
 }
 
 1;
