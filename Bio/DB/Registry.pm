@@ -83,9 +83,9 @@ BEGIN {
 }
 
 my %implement = ('biocorba'         => 'Bio::CorbaClient::SeqDB',
-		 'flat'             => 'Bio::DB::Flat',
-		 'biosql'           => 'Bio::DB::BioSQL::BioDatabaseAdaptor',
-		 'biofetch'         => 'Bio::DB::BioFetch' );
+					  'flat'             => 'Bio::DB::Flat',
+					  'biosql'           => 'Bio::DB::BioSQL::BioDatabaseAdaptor',
+					  'biofetch'         => 'Bio::DB::BioFetch' );
 
 my $fallbackRegistryURL = 'http://www.open-bio.org/registry/seqdatabase.ini';
 
@@ -113,9 +113,12 @@ sub new {
 sub _load_registry {
    my ($self) = @_;
    my $home = "";
-   defined $ENV{"HOME"} ? $home = $ENV{"HOME"} 
-     : $home = (getpwuid($>))[7]; # ActiveState has no getpwuid()
-   my @ini_files = _get_ini_files($home);
+	$home = $ENV{"HOME"} if defined $ENV{"HOME"};
+	eval {$home = (getpwuid($>))[7];} unless $home;
+	if ($@) {
+		warn "This Perl doesn't implement function getpwuid(). Skipping...\n"
+	}
+	my @ini_files = _get_ini_files($home) if (-d $home);
 
    unless (@ini_files) {
       $self->warn("No seqdatabase.ini file found in ~/.bioinformatics/\nnor in /etc/bioinformatics/ nor in directory specified by\n$OBDA_SEARCH_PATH. Using web to get database registry from\n$fallbackRegistryURL");
@@ -140,50 +143,50 @@ sub _load_registry {
    foreach my $file (@ini_files) {
       open FH,"$file";
       while( <FH> ) {
-	 if (/^VERSION=([\d\.]+)/) {
-	    if ($1 > $OBDA_SPEC_VERSION or !$1) {
-	       $self->throw("Do not know about this version [$1] > $OBDA_SPEC_VERSION");
-	       last;
-	    }
-	    next;
+			if (/^VERSION=([\d\.]+)/) {
+				if ($1 > $OBDA_SPEC_VERSION or !$1) {
+					$self->throw("Do not know about this version [$1] > $OBDA_SPEC_VERSION");
+					last;
+				}
+				next;
          }
-	 next if( /^#/ );
-	 next if( /^\s/ );
-	 if ( /^\[(\w+)\]/ ) {
-	    $db = $1;
-	    next;
-	 }
-	 my ($tag,$value) = split('=',$_);
-	 $value =~ s/\s//g;
-	 $tag =~ s/\s//g;
-	 $hash->{$db}->{"\L$tag"} = lc $value;
+			next if( /^#/ );
+			next if( /^\s/ );
+			if ( /^\[(\w+)\]/ ) {
+				$db = $1;
+				next;
+			}
+			my ($tag,$value) = split('=',$_);
+			$value =~ s/\s//g;
+			$tag =~ s/\s//g;
+			$hash->{$db}->{"\L$tag"} = lc $value;
       }
    }
 
    foreach my $db( keys %{$hash} ) {
       if ( !exists $self->{'_dbs'}->{$db} ) {
-	 my $failover = Bio::DB::Failover->new();
-	 $self->{'_dbs'}->{$db} = $failover;
+			my $failover = Bio::DB::Failover->new();
+			$self->{'_dbs'}->{$db} = $failover;
       }
       my $class;
       if (defined $implement{$hash->{$db}->{'protocol'}}) {
-	 $class = $implement{$hash->{$db}->{'protocol'}};
+			$class = $implement{$hash->{$db}->{'protocol'}};
       } else {
-	 $self->warn("Registry does not support protocol " .
-		     $hash->{$db}->{'protocol'});
-	 next;
+			$self->warn("Registry does not support protocol " .
+							$hash->{$db}->{'protocol'});
+			next;
       }
       eval "require $class";
       if ($@) {
-	 $self->verbose && $self->warn("Couldn't load $class");
-	 next;
+			$self->verbose && $self->warn("Couldn't load $class");
+			next;
       } else {
-	 eval {
-	    my $randi = $class->new_from_registry( %{$hash->{$db}} );
-	    $self->{'_dbs'}->{$db}->add_database($randi); };
-	 if ($@) {
-	    $self->warn("Couldn't call new_from_registry on [$class]\n$@");
-	 }
+			eval {
+				my $randi = $class->new_from_registry( %{$hash->{$db}} );
+				$self->{'_dbs'}->{$db}->add_database($randi); };
+			if ($@) {
+				$self->warn("Couldn't call new_from_registry on [$class]\n$@");
+			}
       }
    }
 }
@@ -199,18 +202,18 @@ sub _load_registry {
 =cut
 
 sub get_database {
-    my ($self,$dbname) = @_;
+	my ($self,$dbname) = @_;
 
-    $dbname = lc $dbname;
-    if( !defined $dbname ) {
-	$self->warn("must get_database with a database name");
-	return undef;
-    }
-    if( !exists $self->{'_dbs'}->{$dbname} ) {
-	$self->warn("No database with name $dbname in Registry");
-	return undef;
-    }
-    return $self->{'_dbs'}->{$dbname};
+	$dbname = lc $dbname;
+	if( !defined $dbname ) {
+		$self->warn("must get_database with a database name");
+		return undef;
+	}
+	if( !exists $self->{'_dbs'}->{$dbname} ) {
+		$self->warn("No database with name $dbname in Registry");
+		return undef;
+	}
+	return $self->{'_dbs'}->{$dbname};
 }
 
 =head2 services
@@ -246,9 +249,9 @@ sub _get_ini_files {
    my $file = "";
    if ( $OBDA_SEARCH_PATH ) {
       foreach my $dir ( split /;/,$OBDA_SEARCH_PATH ) {
-	 $file = $dir . "/" . "seqdatabase.ini";
-	 next unless -e $file;
-	 push @ini_files,$file;
+			$file = $dir . "/" . "seqdatabase.ini";
+			next unless -e $file;
+			push @ini_files,$file;
       }
    }
    push @ini_files,"$home/.bioinformatics/seqdatabase.ini" 
