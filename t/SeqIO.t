@@ -8,7 +8,7 @@ BEGIN {
 	use lib 't';
     }
     use Test;
-    plan tests => 48 }
+    plan tests => 51 }
 
 use Bio::Seq;
 use Bio::SeqIO;
@@ -259,3 +259,12 @@ foreach my $gn ( $seq->annotation->each_gene_name() ) {
 }
 
 ok $seen;
+
+# test dos Linefeeds in gcg parser
+$str = Bio::SeqIO->new('-file' => Bio::Root::IO->catfile("t","test_badlf.gcg"), 
+		       '-format' => 'GCG');
+
+ok($str);
+ok ( $seq = $str->next_seq());
+ok(length($seq->seq) > 0 );
+print "Sequence 1 of 1 from GCG stream:\n", $seq->seq, "\n" if( $DEBUG);
