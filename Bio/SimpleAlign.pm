@@ -735,6 +735,96 @@ sub slice {
     return $aln;
 }
 
+=head2 remove_columns
+
+ Title     : remove_column
+ Usage     : $aln2 = $aln->remove_columns(['mismatch','weak'])
+ Function  :
+             Creates an aligment with columns removed corresponding to
+             the specified criteria.
+ Returns   : a L<Bio::SimpleAlign> object
+ Args      : array ref of types, 'match'|'weak'|'strong'|'mismatch'
+
+=cut
+
+sub remove_columns{
+    my ($self,$type) = @_;
+    my %matchchars = ( 'match'  => '\*',
+                       'weak'   => '\.',
+                       'strong' => ':',
+                       'mismatch'=> ' ',
+               );
+   #get the characters to delete against
+   my $del_char;
+   foreach my $type(@{$type}){
+    $del_char.= $matchchars{$type};
+   }
+
+   my $match_line = $self->match_line;
+   my $aln = new $self;
+
+   my @remove;
+   my $length = 0;
+
+   #do the matching to get the segments to remove
+   while($match_line=~m/[$del_char]/g){
+    my $start = pos($match_line)-1;
+    $match_line=~/\G[$del_char]+/gc;
+    my $end = pos($match_line)-1;
+
+    #have to offset the start and end for subsequent removes
+    $start-=$length;
+    $end  -=$length;
+    $length += ($end-$start+1);
+    push @remove, [$start,$end];
+   }
+
+  #remove the segments
+  $aln = $self->_remove_col($aln,\@remove);
+
+  return $aln;
+}
+
+sub _remove_col {
+    my ($self,$aln,$remove) = @_;
+    my @new;
+
+    #splice out the segments and create new seq
+    foreach my $seq($self->each_seq){
+        my $new_seq = new Bio::LocatableSeq(-id=>$seq->id);
+        my $sequence;
+        foreach my $pair(@{$remove}){
+            my $start = $pair->[0];
+            my $end   = $pair->[1];
+            $sequence = $seq->seq unless $sequence;
+            my $spliced;
+            $spliced .= $start > 0 ? substr($sequence,0,$start) : '';
+            $spliced .= substr($sequence,$end+1,$seq->length-$end+1);
+            $sequence = $spliced;
+            if ($start == 1) {
+              $new_seq->start($end);
+            }
+            else {
+              $new_seq->start( $seq->start);
+            }
+            # end
+            if($end >= $seq->end){
+             $new_seq->end( $start);
+            }
+            else {
+             $new_seq->end($seq->end);
+            }
+        }
+        $new_seq->seq($sequence);
+        push @new, $new_seq;
+    }
+    #add the new seqs to the alignment
+    foreach my $new(@new){
+        $aln->add_seq($new);
+    }
+    return $aln;
+}
+
 =head1 Change sequences within the MSE
 
 These methods affect characters in all sequences without changeing the
