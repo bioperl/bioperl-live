@@ -1,8 +1,9 @@
-<?xml version="1.0" ?>
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE faq SYSTEM "faq.dtd">
 <faq>
    <header>
       <title>Bioperl FAQ</title>
-      <version>1.2</version>
+      <version>1.2.1</version>
       <author>Jason Stajich &lt;jason@bioperl.org&gt;</author>
       <author>Brian Osborne &lt;brian_osborne@cognia.com&gt;</author>
       <author>Heikki Lehvaslaiho &lt;heikki@ebi.ac.uk&gt;</author>
@@ -31,13 +32,12 @@
       <section_name>Bioperl in general</section_name>
       <q id="1">
          <question>What is Bioperl?</question>
-         <answer>Bioperl is a tookit of perl modules useful in building bioinformatics solutions in perl. It is built in an object-oriented manner so that many modules depend on each other to achieve a task. The collection of modules in the bioperl-live repository consist of the core of the functionality of bioperl. Additionally auxiliary modules for creating graphical interfaces (bioperl-gui), persistent storage in RDMBS (bioperl-db), running and parsing the results from hundreds of
-bioinformatics applications (bioperl-run), software to automate bioinformatic analyses (bioperl-pipeline), and CORBA bridges to the BioCORBA (<a href="http://www.biocorba.org">http://www.biocorba.org</a>) specification (bioperl-corba-server and bioperl-corba-client) are all available as CVS modules in our repository.
+         <answer><p>Bioperl is a tookit of perl modules useful in building bioinformatics solutions in perl. It is built in an object-oriented manner so that many modules depend on each other to achieve a task. The collection of modules in the bioperl-live repository consist of the core of the functionality of bioperl. Additionally auxiliary modules for creating graphical interfaces (bioperl-gui), persistent storage in RDMBS (bioperl-db), running and parsing the results from hundreds of bioinformatics applications (bioperl-run), software to automate bioinformatic analyses (bioperl-pipeline), and CORBA bridges to the BioCORBA (<a href="http://www.biocorba.org">http://www.biocorba.org</a>) specification (bioperl-corba-server and bioperl-corba-client) are all available as CVS modules in our repository.</p>
          </answer>
       </q>
       <q id="2">
          <question>Where do I go to get the latest release?</question>
-         <answer>You can always get our releases from <a href="ftp://bioperl.org/pub/DIST">ftp://bioperl.org/pub/DIST</a>. Official releases will be noted on the website <a href="http://bioperl.org">http://bioperl.org</a>.
+         <answer><p>You can always get our releases from <a href="ftp://bioperl.org/pub/DIST">ftp://bioperl.org/pub/DIST</a>. Official releases will be noted on the website <a href="http://bioperl.org">http://bioperl.org</a>.</p>
          </answer>
       </q>
       <q id="3">
@@ -54,10 +54,10 @@ bioinformatics applications (bioperl-run), software to automate bioinformatic an
       </q>
       <q id="2">
          <question>How do I figure out how to use a module?</question>
-         <answer>A good list of the documentation can be found at <a href="http://bio.perl.org/Core/Latest/modules.html">http://bio.perl.org/Core/Latest/modules.html</a>. Read the embedded perl documentation (Plain Old Documentation - POD) that is part of every modules.  Do:
-            <p><code>
+         <answer><p>A good list of the documentation can be found at <a href="http://bio.perl.org/Core/Latest/modules.html">http://bio.perl.org/Core/Latest/modules.html</a>. Read the embedded perl documentation (Plain Old Documentation - POD) that is part of every modules.  Do:</p>
+            <code>
              % perldoc MODULE
-            </code></p>
+            </code>
             <p>Careful - spelling and case counts!</p>
             <p>The bioperl tutorial - bptutorial.pl - provided in the root directory of the bioperl release will also provide a good introduction.  You may also find useful documentation in the form of a HOWTO in the bioperl package or at <a href="http://www.bioperl.org/HOWTOs">http://www.bioperl.org/HOWTOs</a>. There are links to tutorials off the bioperl website that may provide some additional help.</p>
             <p>There are also many scripts in the examples/ and scripts/ directories that could be useful - see bioperl.pod for a brief description of all of them.</p>
@@ -238,7 +238,7 @@ $hsp-&gt;query-&gt;frame();
          </answer>
       </q>
    </section>
-   <section>
+   <section id="5">
    <section_name>Annotations and Features</section_name>
       <q id="1">
         <question>I get the warning "(old style Annotation) on new style Annotation::Collection".  What is wrong?
@@ -285,7 +285,7 @@ $hsp-&gt;query-&gt;frame();
        </answer>
       </q>
    </section>
-   <section>
+   <section id="6">
    <section_name>Running external programs</section_name>
      <q id="1">
      <question>How do I run Blast from within Bioperl?</question>
@@ -314,7 +314,8 @@ my $report = $factory->blastall($seq);
     </q>
 	<q id="3">
 	<question>I'm trying to run StandAloneBlast and I'm seeing error messages like "Can't locate Bio/Tools/Run/WrapperBase.pm". How do I fix this?</question>
-	<answer>Yes, this file is missing in version 1.2. Two possible solutions: install version 1.2.1 or greater or retrieve and copy WrapperBase.pm to the proper location. You can get it at <a href="http://bio.perl.org/Bugs">http://bio.perl.org/Bugs</a>.</answer>
+	<answer>
+           <p>Yes, this file is missing in version 1.2. Two possible solutions: install version 1.2.1 or greater or retrieve and copy WrapperBase.pm to the proper location. You can get it at <a href="http://bio.perl.org/Bugs">http://bio.perl.org/Bugs</a>.</p></answer>
 	</q>   
 </section>
    <copyright>Copyright (c)2002-2003 Open Bioinformatics Foundation. You may distribute this FAQ under the same terms as perl itself.</copyright>
