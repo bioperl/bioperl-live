@@ -144,7 +144,7 @@ use Bio::DB::GFF::Util::Rearrange;  # for rearrange()
 use Bio::DB::GFF::Feature;
 use vars qw($VERSION @ISA);
 
-$VERSION = '0.10';
+$VERSION = '0.15';
 @ISA = qw(Bio::Root::RootI);
 
 =head2 new
@@ -171,8 +171,6 @@ are as follows:
 sub new {
   my $class = shift;
   my ($method,$main,$sub_parts) = rearrange([qw(METHOD MAIN_PART SUB_PARTS)],@_);
-  $method ||= $main;
-  $main   ||= $method;
   return bless {
 		method      => $method,
 		main_method => $main,
@@ -222,7 +220,7 @@ sub disaggregate {
   my (@synthetic_types,@unchanged);
   foreach (@$types) {
     my ($method,$source) = @$_;
-    if (lc($method) eq $self->method) { # e.g. "transcript"
+    if (lc($method) eq $self->get_method) { # e.g. "transcript"
       push @synthetic_types,map { [$_->[0],$_->[1] || $source] } @$sub_features,@$main_feature;
     }
     else {
@@ -274,7 +272,7 @@ sub aggregate {
   my $features = shift;
   my $factory  = shift;
 
-  my $main_method = $self->main_name;
+  my $main_method = $self->get_main_name;
   my $matchsub    = $self->match_sub($factory) or return;
 
   my %aggregates;
@@ -292,7 +290,7 @@ sub aggregate {
   my @result;
   my $pseudo_method = $self->get_method;
   foreach (keys %aggregates) {
-    next unless exists $aggregates{$_}{base};
+    next if $main_method and !exists($aggregates{$_}{base});
     next unless exists $aggregates{$_}{subparts};
     my $base = $aggregates{$_}{base};
     unless ($base) { # no base, so create one
@@ -331,6 +329,7 @@ This is the method that should be overridden in aggregator subclasses.
 
 # no default method
 sub method {
+  my $self = shift;
   return;
 }
 
@@ -353,6 +352,7 @@ This is the method that should be overridden in aggregator subclasses.
 
 # no default main method
 sub main_name {
+  my $self = shift;
   return;
 }
 

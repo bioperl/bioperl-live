@@ -303,7 +303,7 @@ sub new {
   # it is treated as a class name to call new() on.  In the latter
   # the aggreator is treated as a ready made object.
   $aggregators = $self->default_aggregators unless defined $aggregators;
-  my @a = ref($aggregators) ? @$aggregators : $aggregators;
+  my @a = ref($aggregators) eq 'ARRAY' ? @$aggregators : $aggregators;
   my @aggregators;
   for my $a (@a) {
     $self->add_aggregator($a);
@@ -914,7 +914,7 @@ sub add_aggregator {
   my $aggregator = shift;
   my $list = $self->{aggregators} ||= [];
   if (ref $aggregator) { # an object
-    push @$list,$a;
+    push @$list,$aggregator;
   } else {
     my $class = "Bio::DB::GFF::Aggregator::\L${aggregator}\E";
     eval "require $class";
