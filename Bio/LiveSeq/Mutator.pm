@@ -75,32 +75,6 @@ report bugs to the Bioperl bug tracking system to help us keep track
 # Let the code begin...
 
 package Bio::LiveSeq::Mutator;
-$VERSION=2.75;
-
-# Version history:
-# Thu Apr 13 18:09:55 BST 2000 v 1.0 begun
-# Thu Apr 13 19:15:28 BST 2000 v 1.1 first tentative version, to be tested
-# Fri Apr 14 03:13:18 BST 2000 v 1.2 debugged; generalized change_transcript to change_object
-# Fri Apr 14 14:51:21 BST 2000 v 2.0 change_gene created
-# Wed May  3 10:32:19 BST 2000 v 2.1 _pos2label_matrix now returns also a modified posmutmatrix with incorrect lines from input posmutmatrix deleted
-# Wed May  3 10:46:06 BST 2000 v 2.2 change_* will now call create_mut_objs every time a change is issued -> this will allow complete mutation analysis/tracking
-# Thu May  4 14:39:36 BST 2000 v 2.22 added before_mutation variable, i.e. possibility of passing information from create_mut*_before to create_mut*_after
-# Tue May  9 15:21:12 BST 2000 v 2.3 put some code in create_* and in change_gene for creating SeqDiff, DNAMutation and RNAChange objects
-# Thu May 11 17:11:10 BST 2000 v 2.31 started creating AAChange objects
-# Tue May 16 17:58:09 BST 2000 v 2.4 praelabel and postlabel calculated (limits of the change) / _is_rna_affected coded (workaround in it not coded yet)
-# Tue May 16 18:19:10 BST 2000 v 2.42 up/down streamseq code for RNAChange
-# Wed May 17 16:59:34 BST 2000 v 2.5 setting codon_pos and exons_modified informations
-# Mon May 22 14:52:19 BST 2000 v 2.52 aachange->allele_ori added
-# Wed Jun  7 18:05:43 BST 2000 v 2.6 Heikki's update with code from Analyzer
-# Fri Jun 23 15:45:00 BST 2000 v 2.61 Heikki's update
-# Thu Jun 29 16:45:56 BST 2000 v 2.64 dnamut_start now decremented if position is before ATG
-# LOT of changes in between by Heikki
-# Wed Sep 20 16:26:20 BST 2000 v 2.7 to fix bug in factor7 (point mut g 65), at the beginning of an exon (the second), introduced the new variable RNApraelabel. Probably a RNApostlabel is also required. Maybe the "affected exon" does not work correctly when mutating at edges of an exon!!!!
-# Mon Sep 25 14:56:15 BST 2000 v 2.74a tentatively added RNApostlabel but now this is alphaversion, has to be fully tested for possible inconsistency
-# Mon Sep 25 15:06:43 BST 2000 v 2.74b decided to take away RNApostlabel fix because it creates other problems and is not the real fix. AAChange now uses RNApraelabel and works.
-#Mon Dec 11 16:21:32 GMT 2000 v.2.75 complete rewrite into a class
-
-
 use vars qw(@ISA);
 use strict;
 
