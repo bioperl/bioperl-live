@@ -20,7 +20,6 @@ Bio::Search::HSP::GenericHSP - A "Generic" implementation of a High Scoring Pair
 						-evalue    => '1e-30',
 						);
 
-
     $r_type = $hsp->algorithm
 
     $pvalue = $hsp->p();
@@ -152,30 +151,32 @@ sub new {
 	$hsp_len, $query_len,$hit_len,
 	$hit_name,$query_name,$bits,$score,
 	$hs,$he,$qs,$qe,
-	$qframe,$hframe) = $self->_rearrange([qw(ALGORITHM
-						 EVALUE
-						 PVALUE
-						 IDENTICAL
-						 CONSERVED
-						 HSP_GAPS
-						 QUERY_GAPS
-						 HIT_GAPS
-						 HIT_SEQ
-						 QUERY_SEQ
-						 HOMOLOGY_SEQ
-						 HSP_LENGTH
-						 QUERY_LENGTH
-						 HIT_LENGTH
-						 HIT_NAME
-						 QUERY_NAME
-						 BITS
-						 SCORE
-						 HIT_START
-						 HIT_END
-						 QUERY_START
-						 QUERY_END
-						 QUERY_FRAME
-						 HIT_FRAME)], @args);
+	$qframe,$hframe,
+	$rank) = $self->_rearrange([qw(ALGORITHM
+				       EVALUE
+				       PVALUE
+				       IDENTICAL
+				       CONSERVED
+				       HSP_GAPS
+				       QUERY_GAPS
+				       HIT_GAPS
+				       HIT_SEQ
+				       QUERY_SEQ
+				       HOMOLOGY_SEQ
+				       HSP_LENGTH
+				       QUERY_LENGTH
+				       HIT_LENGTH
+				       HIT_NAME
+				       QUERY_NAME
+				       BITS
+				       SCORE
+				       HIT_START
+				       HIT_END
+				       QUERY_START
+				       QUERY_END
+				       QUERY_FRAME
+				       HIT_FRAME
+				       RANK )], @args);
 
     $algo = 'GENERIC' unless defined $algo;
     $self->algorithm($algo);
@@ -315,6 +316,7 @@ sub new {
 
     $self->percent_identity($identical / $hsp_len ) if( $hsp_len > 0 );
 
+    $rank && $self->rank($rank);
     return $self;
 }
 
@@ -794,6 +796,24 @@ sub num_identical{
        $self->{'_num_identical'} = $value;
    }
    return $self->{'_num_identical'};
+}
+
+=head2 rank
+
+ Usage     : $hsp->rank( [string] );
+ Purpose   : Get the rank of the HSP within a given Blast hit.
+ Example   : $rank = $hsp->rank;
+ Returns   : Integer (1..n) corresponding to the order in which the HSP
+             appears in the BLAST report.
+
+=cut
+
+sub rank { 
+    my ($self,$value) = @_;
+    if( defined $value) {
+	$self->{'_rank'} = $value;
+    }
+    return $self->{'_rank'};
 }
 
 
