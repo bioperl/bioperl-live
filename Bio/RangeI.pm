@@ -184,7 +184,7 @@ sub end {
   Function: get/set the length of this range
   Returns : the length of this range
   Args    : optionaly allows the length to be set
-          : using $range->length($start)
+          : using $range->length($length)
 
 =cut
 
@@ -199,7 +199,7 @@ sub length {
   Function: get/set the strand of this range
   Returns : the strandidness (-1, 0, +1)
   Args    : optionaly allows the strand to be set
-          : using $range->strand($start)
+          : using $range->strand($strand)
 
 =cut
 
@@ -218,7 +218,8 @@ These methods return true or false.
   Title   : overlaps
   Usage   : if($r1->overlaps($r2)) { do stuff }
   Function: tests if $r2 overlaps $r1
-  Args    : a range to test for overlap with
+  Args    : arg #1 = a range to compare this one to (mandatory)
+            arg #2 = strand option ('strong', 'weak', 'ignore') (optional)
   Returns : true if the ranges overlap, false otherwise
 
 =cut
@@ -237,8 +238,9 @@ sub overlaps {
 
   Title   : contains
   Usage   : if($r1->contains($r2) { do stuff }
-  Function: tests wether $r1 totaly contains $r2
-  Args    : a range to test for being contained
+  Function: tests whether $r1 totally contains $r2
+  Args    : arg #1 = a range to compare this one to (mandatory)
+            arg #2 = strand option ('strong', 'weak', 'ignore') (optional)
   Returns : true if the argument is totaly contained within this range
 
 =cut
@@ -281,9 +283,8 @@ triplets (start, stop, strand) from which new ranges could be built.
   Title   : intersection
   Usage   : ($start, $stop, $strand) = $r1->intersection($r2)
   Function: gives the range that is contained by both ranges
-  Args    : Two arguments:
-          :     arg #1 = a range to compare this one to
-          :     arg #2 = strand option ('strong', 'weak', 'ignore')
+  Args    : arg #1 = a range to compare this one to (mandatory)
+            arg #2 = strand option ('strong', 'weak', 'ignore') (optional)
   Returns : nothing if they do not overlap, or the range that they do overlap
 
 =cut
