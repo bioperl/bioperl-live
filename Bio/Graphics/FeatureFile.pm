@@ -14,8 +14,13 @@ Bio::Graphics::FeatureFile -- A set of Bio::Graphics features, stored in a file
  use Bio::Graphics::FeatureFile;
  my $data  = Bio::Graphics::FeatureFile->new(-file => 'features.txt');
 
- # render contents of the file onto a Bio::Graphics::Panel in one step
- $data->render($panel);
+
+ # create a new panel and render contents of the file onto it
+ my $panel = $data->new_panel;
+ my $tracks_rendered = $data->render($panel);
+
+ # or do it all in one step
+ my ($tracks_rendered,$panel) = $data->render;
 
  # for more control, render tracks individually
  my @feature_types = $data->types;
@@ -45,6 +50,12 @@ format and a more human-friendly file format described below.  Once a
 FeatureFile object has been initialized, you can interrogate it for
 its consistuent features and their settings, or render the entire file
 onto a Bio::Graphics::Panel.
+
+This moduel is a precursor of Jason Stajich's
+Bio::Annotation::Collection class, and fulfills a similar function of
+storing a collection of sequence features.  However, it also stores
+rendering information about the features, and does not currently
+follow the CollectionI interface.
 
 =head2 The File Format
 
@@ -103,15 +114,59 @@ belong to the same group named yk53c10.
 
 use strict;
 use Bio::Graphics::Feature;
+use Bio::Graphics::Panel;
 use Carp;
 use IO::File;
 use Text::Shellwords;
 use vars '$VERSION';
-$VERSION = '1.01';
+$VERSION = '1.02';
 
 # default colors for unconfigured features
 my @COLORS = qw(cyan blue red yellow green wheat turquoise orange);
 use constant WIDTH => 600;
+
+=head2 METHODS
+
+=over 4
+
+=item $features = Bio::Graphics::FeatureFile->new(@args)
+
+Create a new Bio::Graphics::FeatureFile using @args to initialize the
+object.  Arguments are -name=>value pairs:
+
+  Argument         Value
+  --------         -----
+
+   -file           Read data from a file path or filehandle.  Use
+                   "-" to read from standard input.
+
+   -text           Read data from a text scalar.
+
+   -map_coords     Coderef containing a subroutine to use for remapping
+                   all coordinates.
+
+   -smart_features Flag indicating that the features created by this
+                   module should be made aware of the FeatureFile
+		   object by calling their configurator() method.
+
+The -file and -text arguments are mutually exclusive, and -file will
+supersede the other if both are present.
+
+-map_coords points to a coderef with the following signature:
+
+  ($newref,[$start1,$end1],[$start2,$end2]....)
+            = coderef($ref,[$start1,$end1],[$start2,$end2]...)
+
+See the Bio::Graphics::Browser (part of the generic genome browser
+package) for an illustration of how to use this to do wonderful stuff.
+
+The -smart_features flag is used by the generic genome browser to
+provide features with a way to access the link-generation code.  See
+gbrowse for how this works.
+
+=back
+
+=cut
 
 # args array:
 # -file => parse from a file (- allowed for ARGV)
@@ -159,12 +214,104 @@ sub new {
   $self;
 }
 
+# render our features onto a panel using configuration data
+# return the number of tracks inserted
+=over 4
+
+=item ($rendered,$panel) = $features->render([$panel])
+
+Render features in the data set onto the indicated
+Bio::Graphics::Panel.  If no panel is specified, creates one.
+
+In a scalar context returns the number of tracks rendered.  In a list
+context, returns a two-element list containing the number of features
+rendered and the panel.  Use this form if you want the panel created
+for you.
+
+=back
+
+=cut
+
+sub render {
+  my $self = shift;
+  my $panel = shift;
+  my ($position_to_insert,$options) = @_;
+
+  $panel ||= $self->new_panel;
+
+  # count up number of tracks inserted
+  my $tracks = 0;
+  my $color;
+  my %types = map {$_=>1} $self->configured_types;
+
+  my @configured_types   = grep {exists $self->features->{$_}} $self->configured_types;
+  my @unconfigured_types = sort grep {!exists $types{$_}}      $self->types;
+
+  my @base_config = $self->style('general');
+
+  my @override = ();
+  if ($options && ref $options eq 'HASH') {
+    @override = %$options;
+  } else {
+    $options ||= 0;
+    push @override,(-bump => 1) if $options >= 1;
+    push @override,(-label =>1) if $options >= 2;
+  }
+
+  for my $type (@configured_types,@unconfigured_types) {
+    my @config = ( -glyph   => 'segments',         # really generic
+		   -bgcolor => $COLORS[$color++ % @COLORS],
+		   -label   => 1,
+		   -key     => $type,
+		   @base_config,         # global
+		   $self->style($type),  # feature-specificp
+		   @override,
+		 );
+    my $features = $self->features($type);
+    if (defined($position_to_insert)) {
+      $panel->insert_track($position_to_insert++,$features,@config);
+    } else {
+      $panel->add_track($features,@config);
+    }
+    $tracks++;
+  }
+  return wantarray ? ($tracks,$panel) : $tracks;
+}
+
+sub _stat {
+  my $self = shift;
+  my $fh   = shift;
+  $self->{stat} = [stat($fh)];
+}
+
+=over 4
+
+=item $error = $features->error([$error])
+
+Get/set the current error message.
+
+=back
+
+=cut
+
 sub error {
   my $self = shift;
   my $d = $self->{error};
   $self->{error} = shift if @_;
   $d;
 }
+
+=over 4
+
+=item $smart_features = $features->smart_features([$flag]
+
+Get/set the "smart_features" flag.  If this is set, then any features
+added to the featurefile object will have their configurator() method
+called using the featurefile object as the argument.
+
+=back
+
+=cut
 
 sub smart_features {
   my $self = shift;
@@ -337,6 +484,19 @@ sub parse_line {
   }
 }
 
+
+=over 4
+
+=item $features->add_feature($feature [=>$type])
+
+Add a new Bio::FeatureI object to the set.  If $type is specified, the
+object will be added with the indicated type.  Otherwise, the
+feature's primary_tag() method will be invoked to get the type.
+
+=back
+
+=cut
+
 # add a feature of given type to our list
 # we use the primary_tag() method
 sub add_feature {
@@ -345,6 +505,24 @@ sub add_feature {
   $type = $feature->primary_tag unless defined $type;
   push @{$self->{features}{$type}},$feature;
 }
+
+
+=over 4
+
+=item $features->add_type($type=>$hashref)
+
+Add a new feature type to the set.  The type is a string, such as
+"EST".  The hashref is a set of key=>value pairs indicating options to
+set on the type.  Example:
+
+  $features->add_type(EST => { glyph => 'generic', fgcolor => 'blue'})
+
+When a feature of type "EST" is rendered, it will use the generic
+glyph and have a foreground color of blue.
+
+=back
+
+=cut
 
 # Add a type to the list.  Hash values are used for key/value pairs
 # in the configuration.  Call as add_type($type,$configuration) where
@@ -360,6 +538,21 @@ sub add_type {
     }
   }
 }
+
+
+
+=over 4
+
+=item $features->set($type,$tag,$value)
+
+Change an individual option for a particular type.  For example, this
+will change the foreground color of EST features to my favorite color:
+
+  $features->set('EST',fgcolor=>'chartreuse')
+
+=back
+
+=cut
 
 # change configuration of a type.  Call as set($type,$tag,$value)
 # $type will be added if not already there.
@@ -383,6 +576,30 @@ sub destroy {
 
 sub DESTROY { shift->destroy(@_) }
 
+
+=over 4
+
+=item $value = $features->setting($stanza => $option)
+
+In the two-element form, the setting() method returns the value of an
+option in the configuration stanza indicated by $stanza.  For example:
+
+  $value = $features->setting(general => 'height')
+
+will return the value of the "height" option in the [general] stanza.
+
+Call with one element to retrieve all the option names in a stanza:
+
+  @options = $features->setting('general');
+
+Call with no elements to retrieve all stanza names:
+
+  @stanzas = $features->setting;
+
+=back
+
+=cut
+
 # return configuration information
 # arguments are ($type) => returns tags for type
 #               ($type=>$tag) => returns values of tag on type
@@ -393,6 +610,20 @@ sub setting {
   return keys %{$config->{$_[0]}} if @_ == 1;
   return $config->{$_[0]}{$_[1]}  if @_ > 1;
 }
+
+
+=over 4
+
+=item $value = $features->code_setting($stanza=>$option);
+
+This works like setting() except that it is also able to evaluate code
+references.  These are options whose values begin with the characters
+"sub {".  In this case the value will be passed to an eval() and the
+resulting codereference returned.  Use this with care!
+
+=back
+
+=cut
 
 sub code_setting {
   my $self = shift;
@@ -409,6 +640,19 @@ sub code_setting {
   return $self->{$section}{$option} = $coderef;
 }
 
+
+=over 4
+
+=item @args = $features->style($type)
+
+Given a feature type, returns a list of track configuration arguments
+suitable for suitable for passing to the
+Bio::Graphics::Panel->add_track() method.
+
+=back
+
+=cut
+
 # turn configuration into a set of -name=>value pairs suitable for add_track()
 sub style {
   my $self = shift;
@@ -420,6 +664,18 @@ sub style {
   return map {("-$_" => $hashref->{$_})} keys %$hashref;
 }
 
+
+=over 4
+
+=item $glyph = $features->glyph($type);
+
+Return the name of the glyph corresponding to the given type (same as
+$features->setting($type=>'glyph')).
+
+=back
+
+=cut
+
 # retrieve just the glyph part of the configuration
 sub glyph {
   my $self = shift;
@@ -429,12 +685,58 @@ sub glyph {
   return $hashref->{glyph};
 }
 
+
+=over 4
+
+=item @types = $features->configured_types()
+
+Return a list of all the feature types currently known to the feature
+file set.  Roughly equivalent to:
+
+  @types = grep {$_ ne 'general'} $features->setting;
+
+=back
+
+=cut
+
 # return list of configured types, in proper order
 sub configured_types {
   my $self = shift;
   my $types = $self->{types} or return;
   return @{$types};
 }
+
+=over 4
+
+=item  @types = $features->types()
+
+This is similar to the previous method, but will return *all* feature
+types, including those that are not configured with a stanza.
+
+=back
+
+=cut
+
+sub types {
+  my $self = shift;
+  my $features = $self->{features} or return;
+  return keys %{$features};
+}
+
+
+=over 4
+
+=item @features = $features->features($type)
+
+Return a list of all the feature types of type "$type".  If the
+featurefile object was created by parsing a file or text scalar, then
+the features will be of type Bio::Graphics::Feature (which follow the
+Bio::FeatureI interface).  Otherwise the list will contain objects of
+whatever type you added with calls to add_feature().
+
+=back
+
+=cut
 
 # return features
 sub features {
@@ -443,11 +745,6 @@ sub features {
   return $self->{features};
 }
 
-sub types {
-  my $self = shift;
-  my $features = $self->{features} or return;
-  return keys %{$features};
-}
 
 
 sub make_strand {
@@ -457,7 +754,44 @@ sub make_strand {
   return 0;
 }
 
+=over 4
+
+=item @refs = $features->refs
+
+Return the list of reference sequences referred to by this data file.
+
+=back
+
+=cut
+
+sub refs {
+  my $self = shift;
+  my $refs = $self->{refs} or return;
+  keys %$refs;
+}
+
+=over 4
+
+=item  $min = $features->min
+
+Return the minimum coordinate of the leftmost feature in the data set.
+
+=back
+
+=cut
+
 sub min { shift->{min} }
+
+=over 4
+
+=item $max = $features->max
+
+Return the maximum coordinate of the rightmost feature in the data set.
+
+=back
+
+=cut
+
 sub max { shift->{max} }
 
 sub init_parse {
@@ -533,54 +867,6 @@ sub split_group {
   return ($gclass,$gname,$tstart,$tstop,\@notes);
 }
 
-# render our features onto a panel using configuration data
-# return the number of tracks inserted
-sub render {
-  my $self = shift;
-  my $panel = shift;
-  my ($position_to_insert,$options) = @_;
-
-  $panel ||= $self->new_panel;
-
-  # count up number of tracks inserted
-  my $tracks = 0;
-  my $color;
-  my %types = map {$_=>1} $self->configured_types;
-
-  my @configured_types   = grep {exists $self->features->{$_}} $self->configured_types;
-  my @unconfigured_types = sort grep {!exists $types{$_}}      $self->types;
-
-  my @base_config = $self->style('general');
-
-  my @override = ();
-  if ($options && ref $options eq 'HASH') {
-    @override = %$options;
-  } else {
-    $options ||= 0;
-    push @override,(-bump => 1) if $options >= 1;
-    push @override,(-label =>1) if $options >= 2;
-  }
-
-  for my $type (@configured_types,@unconfigured_types) {
-    my @config = ( -glyph   => 'segments',         # really generic
-		   -bgcolor => $COLORS[$color++ % @COLORS],
-		   -label   => 1,
-		   -key     => $type,
-		   @base_config,         # global
-		   $self->style($type),  # feature-specificp
-		   @override,
-		 );
-    my $features = $self->features($type);
-    if (defined($position_to_insert)) {
-      $panel->insert_track($position_to_insert++,$features,@config);
-    } else {
-      $panel->add_track($features,@config);
-    }
-    $tracks++;
-  }
-  $tracks;
-}
-
 # create a panel if needed
 sub new_panel {
   my $self = shift;
@@ -609,11 +895,23 @@ sub new_panel {
   $panel;
 }
 
-sub _stat {
-  my $self = shift;
-  my $fh   = shift;
-  $self->{stat} = [stat($fh)];
-}
+=over 4
+
+=item $mtime = $features->mtime
+
+=item $atime = $features->atime
+
+=item $ctime = $features->ctime
+
+=item $size = $features->size
+
+Returns stat() information about the data file, for featurefile
+objects created using the -file option.  Size is in bytes.  mtime,
+atime, and ctime are in seconds since the epoch.
+
+=back
+
+=cut
 
 sub mtime {
   my $self = shift;
@@ -624,19 +922,38 @@ sub mtime {
 sub atime { shift->{stat}->[8];  }
 sub ctime { shift->{stat}->[10]; }
 sub size  { shift->{stat}->[7];  }
-sub refs {
-  my $self = shift;
-  my $refs = $self->{refs} or return;
-  keys %$refs;
-}
+
+=over 4
+
+=item $label = $features->feature2label($feature)
+
+Given a feature, determines the configuration stanza that bests
+describes it.  Uses the feature's type() method if it has it (DasI
+interface) or its primary_tag() method otherwise.
+
+=back
+
+=cut
 
 sub feature2label {
   my $self = shift;
   my $feature = shift;
-  my $type  = eval {$feature->type} or return;
-  my $label = $self->type2label($type) || $self->type2label($feature->primary_tag) || $type;
+  my $type  = eval {$feature->type} || $feature->primary_tag or return;
+  my $label = $self->type2label($type) || $type;
   $label;
 }
+
+=over 4
+
+=item $link = $features->make_link($feature)
+
+Given a feature, tries to generate a URL to link out from it.  This
+uses the 'link' option, if one is present.  This method is a
+convenience for the generic genome browser.
+
+=back
+
+=cut
 
 sub make_link {
   my $self     = shift;
@@ -683,6 +1000,18 @@ sub invert_types {
   \%inverted;
 }
 
+=over 4
+
+=item $citation = $features->citation($feature)
+
+Given a feature, tries to generate a citation for it, using the
+"citation" option if one is present.  This method is a convenience for
+the generic genome browser.
+
+=back
+
+=cut
+
 # This routine returns the "citation" field.  It is here in order to simplify the logic
 # a bit in the generic browser
 sub citation {
@@ -690,6 +1019,17 @@ sub citation {
   my $feature = shift || 'general';
   return $self->setting($feature=>'citation');
 }
+
+=over 4
+
+=item $name = $features->name([$feature])
+
+Get/set the name of this feature set.  This is a convenience method
+useful for keeping track of multiple feature sets.
+
+=back
+
+=cut
 
 # give this feature file a nickname
 sub name {

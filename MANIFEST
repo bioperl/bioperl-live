@@ -934,6 +934,7 @@ t/BiblioReferences.t
 t/Biblio_biofetch.t
 t/BioDBGFF.t
 t/BioFetch_DB.t
+t/BioGraphics.t
 t/BlastIndex.t
 t/Chain.t
 t/Clustalw.t
@@ -1030,6 +1031,10 @@ t/data/alnfile.fasta
 t/data/amino.fa
 t/data/ar.embl
 t/data/biodbgff/test.gff
+t/data/biographics/feature_data.txt
+t/data/biographics/t1.png
+t/data/biographics/t2.png
+t/data/biographics/t3.png
 t/data/bl2seq.bug940.out
 t/data/bl2seq.out
 t/data/blast.report

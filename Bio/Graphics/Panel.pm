@@ -1236,8 +1236,10 @@ B<Collision control:> The -bump argument controls what happens when
 glyphs collide.  By default, they will simply overlap (value 0).  A
 -bump value of +1 will cause overlapping glyphs to bump downwards
 until there is room for them.  A -bump value of -1 will cause
-overlapping glyphs to bump upwards.  This argument can also be a code
-reference; see below.
+overlapping glyphs to bump upwards.  Bump values of +2 and -2
+implement a simpler bump algorithm in which each horizontal position
+is occupied by one and only one feature.  The bump argument can also
+be a code reference; see below.
 
 B<Keys:> The -key argument declares that the track is to be shown in a
 key appended to the bottom of the image.  The key contains a picture
