@@ -20,7 +20,7 @@ Bio::Tools::Sim4::Results - Results of one Sim4 run
    # to preset the order of EST and genomic file as given on the sim4 
    # command line:
    $sim4 = Bio::Tools::Sim4::Results->new(-file => 'result.sim4',
-                                          -estisfirst => 1);
+                                          -estfirst => 1);
    # to let the order be determined automatically (by length comparison):
    $sim4 = Bio::Tools::Sim4->new( -file => 'sim4.results' );
    # filehandle:
