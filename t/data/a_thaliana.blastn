@@ -1,0 +1,505 @@
+BLASTN 2.2.1 [Apr-13-2001]
+
+Reference: Altschul, Stephen F., Thomas L. Madden, Alejandro A. Schaffer, 
+Jinghui Zhang, Zheng Zhang, Webb Miller, and David J. Lipman (1997), 
+"Gapped BLAST and PSI-BLAST: a new generation of protein database search
+programs",  Nucleic Acids Res. 25:3389-3402.
+RID: 1012577175-3730-28291
+Query= 
+         (60 letters)
+
+Database: All GenBank+EMBL+DDBJ+PDB sequences (but no EST, STS, GSS,
+or phase 0, 1 or 2 HTGS sequences) 
+           1,083,200 sequences; 4,677,375,331 total letters
+
+
+
+
+                                                                 Score    E
+Sequences producing significant alignments:                      (bits) Value
+
+gb|AY052359.1| Arabidopsis thaliana At2g17400 mRNA, complete cds       96   3e-18
+gb|AC002329.2|AC002329 Arabidopsis thaliana chromosome II sectio...    96   3e-18
+gb|AF132318.1|AF132318 Buchnera aphidicola phosphoribosyl anthra...    42   0.040
+gb|AC024791.1| Caenorhabditis elegans cosmid Y47G6A, complete se...    36   2.5  
+gb|AC017078.8| Homo sapiens BAC clone RP11-457N9 from 2, complet...    36   2.5  
+gb|AC005046.3|AC005046 Homo sapiens BAC clone CTB-13F3 from 7q22...    36   2.5  
+gb|AC006017.2|AC006017 Homo sapiens PAC clone RP5-981O7 from 7q3...    36   2.5  
+dbj|AP001519.1|AP001519 Bacillus halodurans genomic DNA, section...    36   2.5  
+gb|AC095064.3| Homo sapiens chromosome 4 clone RP11-620C21, comp...    34   9.7  
+gb|AC003029.3| Homo sapiens Chromosome 12q24 PAC RP3-462E2 (Rosw...    34   9.7  
+gb|AC079248.5| Homo sapiens BAC clone RP11-24J11 from 2, complet...    34   9.7  
+gb|AC093865.2| Homo sapiens chromosome 2 clone RP11-560C24, comp...    34   9.7  
+gb|AC010202.6|AC010202 Homo sapiens 12q BAC RP11-210L7 (Roswell ...    34   9.7  
+gb|AC017118.3|AC017118 Genomic sequence for Arabidopsis thaliana...    34   9.7  
+emb|AL355520.8|AL355520 Human DNA sequence from clone RP4-595C2 ...    34   9.7  
+emb|AL137879.15|AL137879 Human DNA sequence from clone RP11-153O...    34   9.7  
+gb|AC006395.1|AC006395 Homo sapiens PAC clone RP3-394H4 from Xq2...    34   9.7  
+gb|AE000650.1|AE000650 Helicobacter pylori 26695 section 128 of ...    34   9.7  
+gb|AC006924.3|AC006924 Homo sapiens, clone hRPK.32_A_1, complete...    34   9.7  
+gb|AC006266.1|AC006266 Arabidopsis thaliana BAC F1K3 from chromo...    34   9.7  
+gb|U32797.1|U32797 Haemophilus influenzae Rd section 112 of 163 ...    34   9.7  
+emb|AJ286341.1|HIM286341 Human immunodeficiency virus type 1 pro...    34   9.7  
+emb|AL161561.2|ATCHRIV61 Arabidopsis thaliana DNA chromosome 4, ...    34   9.7  
+emb|AL161508.2|ATCHRIV20 Arabidopsis thaliana DNA chromosome 4, ...    34   9.7  
+emb|AL035356.1|ATF22K18 Arabidopsis thaliana DNA chromosome 4, B...    34   9.7  
+emb|AJ132676.1|MMU132676 Mus musculus IgVk gh33r pseudogene            34   9.7  
+emb|AJ132673.1|MMU132673 Mus musculus IgVk gd33r pseudogene            34   9.7  
+emb|AJ132672.1|MMU132672 Mus musculus IgVk gc33r pseudogene            34   9.7  
+emb|Z74955.1|SCYOR047C S.cerevisiae chromosome XV reading frame ...    34   9.7  
+emb|Z74954.1|SCYOR046C S.cerevisiae chromosome XV reading frame ...    34   9.7  
+gb|U28135.1|SCU28135 Saccharomyces cerevisiae DEAD-Box Protein 5...    34   9.7  
+
+ALIGNMENTS
+>gb|AY052359.1| Arabidopsis thaliana At2g17400 mRNA, complete cds
+          Length = 2826
+
+ Score = 95.6 bits (48), Expect = 3e-18
+ Identities = 58/60 (96%), Gaps = 1/60 (1%)
+ Strand = Plus / Plus
+
+                                                                       
+Query: 1   aggaatgctgtttaattggaatcgtacaatggagaatttgacggaaatagaatcaacgat 60
+           |||||||||||||||||||||||  |||||||||||||||||||||||||||||||||||
+Sbjct: 154 aggaatgctgtttaattggaatca-acaatggagaatttgacggaaatagaatcaacgat 212
+
+
+>gb|AC002329.2|AC002329 Arabidopsis thaliana chromosome II section 100 of 255 of the complete
+             sequence. Sequence from clones T23A1, F5J6, MJB20
+          Length = 76170
+
+ Score = 95.6 bits (48), Expect = 3e-18
+ Identities = 58/60 (96%), Gaps = 1/60 (1%)
+ Strand = Plus / Plus
+
+                                                                         
+Query: 1     aggaatgctgtttaattggaatcgtacaatggagaatttgacggaaatagaatcaacgat 60
+             |||||||||||||||||||||||  |||||||||||||||||||||||||||||||||||
+Sbjct: 60659 aggaatgctgtttaattggaatca-acaatggagaatttgacggaaatagaatcaacgat 60717
+
+
+>gb|AF132318.1|AF132318 Buchnera aphidicola phosphoribosyl anthranilate transferase (trpD),
+           phosphoribosyl anthranilate isomerase/indoleglycerol
+           phosphate synthetase fusion (trpC/F), beta subunit of
+           tryptophan synthetase (trpB), and alpha subunit of
+           tryptophan synthetase (trp>
+          Length = 5383
+
+ Score = 42.1 bits (21), Expect = 0.040
+ Identities = 21/21 (100%)
+ Strand = Plus / Plus
+
+                                
+Query: 35  aatttgacggaaatagaatca 55
+           |||||||||||||||||||||
+Sbjct: 536 aatttgacggaaatagaatca 556
+
+
+>gb|AC024791.1| Caenorhabditis elegans cosmid Y47G6A, complete sequence
+          Length = 194322
+
+ Score = 36.2 bits (18), Expect = 2.5
+ Identities = 18/18 (100%)
+ Strand = Plus / Minus
+
+                                
+Query: 34     gaatttgacggaaataga 51
+              ||||||||||||||||||
+Sbjct: 193876 gaatttgacggaaataga 193859
+
+
+>gb|AC017078.8| Homo sapiens BAC clone RP11-457N9 from 2, complete sequence
+          Length = 193979
+
+ Score = 36.2 bits (18), Expect = 2.5
+ Identities = 24/26 (92%)
+ Strand = Plus / Plus
+
+                                        
+Query: 3      gaatgctgtttaattggaatcgtaca 28
+              ||||| ||||||| ||||||||||||
+Sbjct: 142900 gaatgttgtttaaatggaatcgtaca 142925
+
+
+>gb|AC005046.3|AC005046 Homo sapiens BAC clone CTB-13F3 from 7q22, complete sequence
+          Length = 219436
+
+ Score = 36.2 bits (18), Expect = 2.5
+ Identities = 18/18 (100%)
+ Strand = Plus / Plus
+
+                               
+Query: 13    taattggaatcgtacaat 30
+             ||||||||||||||||||
+Sbjct: 46649 taattggaatcgtacaat 46666
+
+
+>gb|AC006017.2|AC006017 Homo sapiens PAC clone RP5-981O7 from 7q34-q36, complete sequence
+          Length = 162556
+
+ Score = 36.2 bits (18), Expect = 2.5
+ Identities = 18/18 (100%)
+ Strand = Plus / Minus
+
+                                
+Query: 13     taattggaatcgtacaat 30
+              ||||||||||||||||||
+Sbjct: 114940 taattggaatcgtacaat 114923
+
+
+>dbj|AP001519.1|AP001519 Bacillus halodurans genomic DNA, section 13/14
+          Length = 303650
+
+ Score = 36.2 bits (18), Expect = 2.5
+ Identities = 18/18 (100%)
+ Strand = Plus / Minus
+
+                               
+Query: 30    tggagaatttgacggaaa 47
+             ||||||||||||||||||
+Sbjct: 28875 tggagaatttgacggaaa 28858
+
+
+>gb|AC095064.3| Homo sapiens chromosome 4 clone RP11-620C21, complete sequence
+          Length = 87943
+
+ Score = 34.2 bits (17), Expect = 9.7
+ Identities = 17/17 (100%)
+ Strand = Plus / Plus
+
+                              
+Query: 12    ttaattggaatcgtaca 28
+             |||||||||||||||||
+Sbjct: 42346 ttaattggaatcgtaca 42362
+
+
+>gb|AC003029.3| Homo sapiens Chromosome 12q24 PAC RP3-462E2 (Roswell Park Cancer
+             Institute Human PAC library) complete sequence
+          Length = 137830
+
+ Score = 34.2 bits (17), Expect = 9.7
+ Identities = 17/17 (100%)
+ Strand = Plus / Plus
+
+                              
+Query: 24    gtacaatggagaatttg 40
+             |||||||||||||||||
+Sbjct: 71491 gtacaatggagaatttg 71507
+
+
+>gb|AC079248.5| Homo sapiens BAC clone RP11-24J11 from 2, complete sequence
+          Length = 128535
+
+ Score = 34.2 bits (17), Expect = 9.7
+ Identities = 17/17 (100%)
+ Strand = Plus / Minus
+
+                               
+Query: 6      tgctgtttaattggaat 22
+              |||||||||||||||||
+Sbjct: 111999 tgctgtttaattggaat 111983
+
+
+>gb|AC093865.2| Homo sapiens chromosome 2 clone RP11-560C24, complete sequence
+          Length = 186218
+
+ Score = 34.2 bits (17), Expect = 9.7
+ Identities = 17/17 (100%)
+ Strand = Plus / Plus
+
+                               
+Query: 5      atgctgtttaattggaa 21
+              |||||||||||||||||
+Sbjct: 113514 atgctgtttaattggaa 113530
+
+
+>gb|AC010202.6|AC010202 Homo sapiens 12q BAC RP11-210L7 (Roswell Park Cancer Institute Human
+             BAC Library) complete sequence
+          Length = 170004
+
+ Score = 34.2 bits (17), Expect = 9.7
+ Identities = 17/17 (100%)
+ Strand = Plus / Plus
+
+                              
+Query: 4     aatgctgtttaattgga 20
+             |||||||||||||||||
+Sbjct: 95294 aatgctgtttaattgga 95310
+
+
+>gb|AC017118.3|AC017118 Genomic sequence for Arabidopsis thaliana BAC F6N18 from chromosome I,
+             complete sequence
+          Length = 92219
+
+ Score = 34.2 bits (17), Expect = 9.7
+ Identities = 17/17 (100%)
+ Strand = Plus / Plus
+
+                              
+Query: 14    aattggaatcgtacaat 30
+             |||||||||||||||||
+Sbjct: 84400 aattggaatcgtacaat 84416
+
+
+>emb|AL355520.8|AL355520 Human DNA sequence from clone RP4-595C2 on chromosome 1q24.1-25.3
+             Contains ESTs, STSs and GSSs. Contains the 3' part of the
+             gene for two isoforms of the KIAA0351 protein and the gene
+             for angiopoietin Y1, complete sequence [Homo sapiens]
+          Length = 157575
+
+ Score = 34.2 bits (17), Expect = 9.7
+ Identities = 17/17 (100%)
+ Strand = Plus / Plus
+
+                              
+Query: 5     atgctgtttaattggaa 21
+             |||||||||||||||||
+Sbjct: 80465 atgctgtttaattggaa 80481
+
+
+>emb|AL137879.15|AL137879 Human DNA sequence from clone RP11-153O23 on chromosome 13, complete
+             sequence [Homo sapiens]
+          Length = 85149
+
+ Score = 34.2 bits (17), Expect = 9.7
+ Identities = 17/17 (100%)
+ Strand = Plus / Plus
+
+                              
+Query: 25    tacaatggagaatttga 41
+             |||||||||||||||||
+Sbjct: 41783 tacaatggagaatttga 41799
+
+
+>gb|AC006395.1|AC006395 Homo sapiens PAC clone RP3-394H4 from Xq23, complete sequence
+          Length = 72291
+
+ Score = 34.2 bits (17), Expect = 9.7
+ Identities = 17/17 (100%)
+ Strand = Plus / Plus
+
+                              
+Query: 1     aggaatgctgtttaatt 17
+             |||||||||||||||||
+Sbjct: 40047 aggaatgctgtttaatt 40063
+
+
+>gb|AE000650.1|AE000650 Helicobacter pylori 26695 section 128 of 134 of the complete genome
+          Length = 11043
+
+ Score = 34.2 bits (17), Expect = 9.7
+ Identities = 17/17 (100%)
+ Strand = Plus / Minus
+
+                             
+Query: 36   atttgacggaaatagaa 52
+            |||||||||||||||||
+Sbjct: 1772 atttgacggaaatagaa 1756
+
+
+>gb|AC006924.3|AC006924 Homo sapiens, clone hRPK.32_A_1, complete sequence
+          Length = 165633
+
+ Score = 34.2 bits (17), Expect = 9.7
+ Identities = 17/17 (100%)
+ Strand = Plus / Minus
+
+                              
+Query: 4     aatgctgtttaattgga 20
+             |||||||||||||||||
+Sbjct: 11360 aatgctgtttaattgga 11344
+
+
+>gb|AC006266.1|AC006266 Arabidopsis thaliana BAC F1K3 from chromosome IV near 21 cM, complete
+             sequence
+          Length = 105680
+
+ Score = 34.2 bits (17), Expect = 9.7
+ Identities = 20/21 (95%)
+ Strand = Plus / Minus
+
+                                  
+Query: 20    aatcgtacaatggagaatttg 40
+             ||||||||||||||| |||||
+Sbjct: 52077 aatcgtacaatggagtatttg 52057
+
+
+>gb|U32797.1|U32797 Haemophilus influenzae Rd section 112 of 163 of the complete genome
+          Length = 10274
+
+ Score = 34.2 bits (17), Expect = 9.7
+ Identities = 17/17 (100%)
+ Strand = Plus / Minus
+
+                             
+Query: 26   acaatggagaatttgac 42
+            |||||||||||||||||
+Sbjct: 2447 acaatggagaatttgac 2431
+
+
+>emb|AJ286341.1|HIM286341 Human immunodeficiency virus type 1 proviral env gene for gp160,
+            genomic RNA, isolate M2424/4, clone 1
+          Length = 2586
+
+ Score = 34.2 bits (17), Expect = 9.7
+ Identities = 20/21 (95%)
+ Strand = Plus / Plus
+
+                                 
+Query: 7    gctgtttaattggaatcgtac 27
+            |||||||||||||||| ||||
+Sbjct: 1176 gctgtttaattggaatagtac 1196
+
+
+>emb|AL161561.2|ATCHRIV61 Arabidopsis thaliana DNA chromosome 4, contig fragment No. 61
+          Length = 198402
+
+ Score = 34.2 bits (17), Expect = 9.7
+ Identities = 17/17 (100%)
+ Strand = Plus / Plus
+
+                               
+Query: 44     gaaatagaatcaacgat 60
+              |||||||||||||||||
+Sbjct: 146009 gaaatagaatcaacgat 146025
+
+
+>emb|AL161508.2|ATCHRIV20 Arabidopsis thaliana DNA chromosome 4, contig fragment No. 20
+          Length = 196517
+
+ Score = 34.2 bits (17), Expect = 9.7
+ Identities = 20/21 (95%)
+ Strand = Plus / Minus
+
+                                   
+Query: 20     aatcgtacaatggagaatttg 40
+              ||||||||||||||| |||||
+Sbjct: 180658 aatcgtacaatggagtatttg 180638
+
+
+>emb|AL035356.1|ATF22K18 Arabidopsis thaliana DNA chromosome 4, BAC clone  F22K18 (ESSAII project)
+          Length = 125803
+
+ Score = 34.2 bits (17), Expect = 9.7
+ Identities = 17/17 (100%)
+ Strand = Plus / Minus
+
+                               
+Query: 44     gaaatagaatcaacgat 60
+              |||||||||||||||||
+Sbjct: 102901 gaaatagaatcaacgat 102885
+
+
+>emb|AJ132676.1|MMU132676 Mus musculus IgVk gh33r pseudogene
+          Length = 737
+
+ Score = 34.2 bits (17), Expect = 9.7
+ Identities = 17/17 (100%)
+ Strand = Plus / Minus
+
+                            
+Query: 13  taattggaatcgtacaa 29
+           |||||||||||||||||
+Sbjct: 317 taattggaatcgtacaa 301
+
+
+>emb|AJ132673.1|MMU132673 Mus musculus IgVk gd33r pseudogene
+          Length = 813
+
+ Score = 34.2 bits (17), Expect = 9.7
+ Identities = 17/17 (100%)
+ Strand = Plus / Minus
+
+                            
+Query: 13  taattggaatcgtacaa 29
+           |||||||||||||||||
+Sbjct: 318 taattggaatcgtacaa 302
+
+
+>emb|AJ132672.1|MMU132672 Mus musculus IgVk gc33r pseudogene
+          Length = 736
+
+ Score = 34.2 bits (17), Expect = 9.7
+ Identities = 17/17 (100%)
+ Strand = Plus / Minus
+
+                            
+Query: 13  taattggaatcgtacaa 29
+           |||||||||||||||||
+Sbjct: 318 taattggaatcgtacaa 302
+
+
+>emb|Z74955.1|SCYOR047C S.cerevisiae chromosome XV reading frame ORF YOR047c
+          Length = 3461
+
+ Score = 34.2 bits (17), Expect = 9.7
+ Identities = 17/17 (100%)
+ Strand = Plus / Plus
+
+                            
+Query: 24  gtacaatggagaatttg 40
+           |||||||||||||||||
+Sbjct: 473 gtacaatggagaatttg 489
+
+
+>emb|Z74954.1|SCYOR046C S.cerevisiae chromosome XV reading frame ORF YOR046c
+          Length = 2310
+
+ Score = 34.2 bits (17), Expect = 9.7
+ Identities = 17/17 (100%)
+ Strand = Plus / Plus
+
+                             
+Query: 24   gtacaatggagaatttg 40
+            |||||||||||||||||
+Sbjct: 1605 gtacaatggagaatttg 1621
+
+
+>gb|U28135.1|SCU28135 Saccharomyces cerevisiae DEAD-Box Protein 5 (DBP5) gene, complete cds
+          Length = 3696
+
+ Score = 34.2 bits (17), Expect = 9.7
+ Identities = 17/17 (100%)
+ Strand = Plus / Minus
+
+                             
+Query: 24   gtacaatggagaatttg 40
+            |||||||||||||||||
+Sbjct: 1212 gtacaatggagaatttg 1196
+
+
+  Database: All GenBank+EMBL+DDBJ+PDB sequences (but no EST, STS, GSS,
+  or phase 0, 1 or 2 HTGS sequences)
+    Posted date:  Jan 31, 2002 11:56 PM
+  Number of letters in database: 382,408,035
+  Number of sequences in database:  1,083,200
+  
+Lambda     K      H
+    1.37    0.711     1.31 
+
+Gapped
+Lambda     K      H
+    1.37    0.711     1.31 
+
+
+Matrix: blastn matrix:1 -3
+Gap Penalties: Existence: 5, Extension: 2
+Number of Hits to DB: 117,267
+Number of Sequences: 1083200
+Number of extensions: 117267
+Number of successful extensions: 7699
+Number of sequences better than 10.0: 31
+length of query: 60
+length of database: 4,677,375,331
+effective HSP length: 19
+effective length of query: 41
+effective length of database: 4,656,794,531
+effective search space: 190928575771
+effective search space used: 190928575771
+T: 0
+A: 30
+X1: 6 (11.9 bits)
+X2: 15 (29.7 bits)
+S1: 12 (24.3 bits)
+S2: 17 (34.2 bits)
+
