@@ -111,6 +111,7 @@ sub _initialize {
   my($ann);
   my $make = $self->SUPER::_initialize;
   $self->{'_as_feat'} = [];
+  $self->{'date'} = [];
   $ann = new Bio::Annotation;
   $self->annotation($ann);
 
