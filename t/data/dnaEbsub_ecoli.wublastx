@@ -1,0 +1,145 @@
+BLASTX 2.0MP-WashU [12-Feb-2001] [linux-i686 01:36:08 31-Jan-2001]
+
+Copyright (C) 1996-2000 Washington University, Saint Louis, Missouri USA.
+All Rights Reserved.
+
+Reference:  Gish, W. (1996-2000) http://blast.wustl.edu
+Gish, Warren and David J. States (1993).  Identification of protein coding
+regions by database similarity search.  Nat. Genet. 3:266-72.
+
+Notice:  statistical significance is estimated under the assumption that the
+equivalent of one entire reading frame in the query sequence codes for protein
+and that significant alignments will involve only coding reading frames.
+
+Query=  gi|142864|gb|M10040.1|BACDNAE B.subtilis dnaE gene encoding DNA
+    primase, complete cds
+        (2001 letters)
+
+  Translating both strands of query sequence in all 6 reading frames
+
+Database:  ecoli.aa
+           4289 sequences; 1,358,990 total letters.
+Searching....10....20....30....40....50....60....70....80....90....100% done
+
+                                                                     Smallest
+                                                                       Sum
+                                                              High  Probability
+Sequences producing High-scoring Segment Pairs:              Score  P(N)      N
+
+gi|1789447|gb|AAC76102.1| (AE000388) DNA biosynthesis; DN...   671  1.1e-74   1
+
+
+
+>gi|1789447|gb|AAC76102.1| (AE000388) DNA biosynthesis; DNA primase
+            [Escherichia coli]
+        Length = 581
+
+  Plus Strand HSPs:
+
+ Score = 671 (265.8 bits), Expect = 1.1e-74, P = 1.1e-74
+ Identities = 151/421 (35%), Positives = 223/421 (52%), Frame = +3
+
+Query:    21 MGNRIPDEIVDQVQKSADIVEVIGDYVQLKKQGRNYFGLCPFHGESTPSFSVSPDKQIFH 200
+             M  RIP   ++ +    DIV++I   V+LKKQG+N+   CPFH E TPSF+V+ +KQ +H
+Sbjct:     1 MAGRIPRVFINDLLARTDIVDLIDARVKLKKQGKNFHACCPFHNEKTPSFTVNGEKQFYH 60
+
+Query:   201 CFGCGAGGNVFSFLRQMEGYSFAESVSHLADKYQIDFPDDITVHSGARP---ESSGEQKM 371
+             CFGCGA GN   FL   +   F E+V  LA  + ++ P +    +G+ P   E    Q +
+Sbjct:    61 CFGCGAHGNAIDFLMNYDKLEFVETVEELAAMHNLEVPFE----AGSGPSQIERHQRQTL 116
+
+Query:   372 AEAHELLKKFYHHLLINTKEGQEALDYLLSRGFTKELINEFQIGYALDSWDFITKFLVKR 551
+              +  + L  FY   L        A  YL  RG + E+I  F IG+A   WD + K     
+Sbjct:   117 YQLMDGLNTFYQQSL-QQPVATSARQYLEKRGLSHEVIARFAIGFAPPGWDNVLKRFGGN 175
+
+Query:   552 GFSEAQMEKAGLLIRREDGSGYFDRFRNRVMFPIHDHHGAVVAFSGRALGSQQPKYMNSP 731
+               +   +  AG+L+  + G  Y DRFR RVMFPI D  G V+ F GR LG+  PKY+NSP
+Sbjct:   176 PENRQSLIDAGMLVTNDQGRSY-DRFRERVMFPIRDKRGRVIGFGGRVLGNDTPKYLNSP 234
+
+Query:   732 ETPLFHKSKLLYNFYKARLHIRKQERAVLFEGFADVYTAVSSDVKESIATMGTSLTDDHV 911
+             ET +FHK + LY  Y+A+    +  R ++ EG+ DV       +  ++A++GTS T DH+
+Sbjct:   235 ETDIFHKGRQLYGLYEAQQDNAEPNRLLVVEGYMDVVALAQYGINYAVASLGTSTTADHI 294
+
+Query:   912 KILRRNVEEIILCYDSDKAGYEATLKASELL---QKKGCKVRVAMIPDGLDPDDYIKKFG 1082
+             ++L R    +I CYD D+AG +A  +A E        G ++R   +PDG DPD  ++K G
+Sbjct:   295 QLLFRATNNVICCYDGDRAGRDAAWRALETALPYMTDGRQLRFMFLPDGEDPDTLVRKEG 354
+
+Query:  1083 GEKFKNDIIDASVTVMAFKMQYFRKGKNLSDEGDRLAYIKDVLKEISTLSGSLEQEVYVK 1262
+              E F+  + + ++ + AF         +LS    R       L  IS + G   + +Y++
+Sbjct:   355 KEAFEARM-EQAMPLSAFLFNSLMPQVDLSTPDGRARLSTLALPLISQVPGETLR-IYLR 412
+
+Query:  1263 Q 1265
+             Q
+Sbjct:   413 Q 413
+
+
+Parameters:
+  novalidctxok
+  nonnegok
+  gapall
+  Q=12
+  R=1
+  cpus=1
+  filter=seg
+  matrix=blosum62
+  W=3
+  S2=41
+  gapS2=68
+  X=16
+  gapX=38
+  hitdist=40
+  gi
+  gapL=0.27
+  gapK=0.047
+  gapH=0.23
+
+  ctxfactor=5.99
+  E=10
+
+  Query                        -----  As Used  -----    -----  Computed  ----
+  Frame  MatID Matrix name     Lambda    K       H      Lambda    K       H
+   +3      0   blosum62        0.318   0.135   0.401    0.324   0.139   0.405  
+               Q=12,R=1        0.270   0.0470  0.230     n/a     n/a     n/a
+   +2      0   blosum62        0.318   0.135   0.401    0.365   0.163   0.618  
+               Q=12,R=1        0.270   0.0470  0.230     n/a     n/a     n/a
+   +1      0   blosum62        0.318   0.135   0.401    0.356   0.155   0.528  
+               Q=12,R=1        0.270   0.0470  0.230     n/a     n/a     n/a
+   -1      0   blosum62        0.318   0.135   0.401    0.350   0.155   0.543  
+               Q=12,R=1        0.270   0.0470  0.230     n/a     n/a     n/a
+   -2      0   blosum62        0.318   0.135   0.401    0.350   0.155   0.505  
+               Q=12,R=1        0.270   0.0470  0.230     n/a     n/a     n/a
+   -3      0   blosum62        0.318   0.135   0.401    0.358   0.157   0.543  
+               Q=12,R=1        0.270   0.0470  0.230     n/a     n/a     n/a
+
+  Query
+  Frame  MatID  Length  Eff.Length     E    S W   T  X   E2     S2
+   +3      0      666       666       10.  59 3  12 16  0.021   41
+                                                    38  0.0     59
+   +2      0      666       666       10.  59 3  12 16  0.021   41
+                                                    38  0.0     59
+   +1      0      667       667       10.  59 3  12 16  0.021   41
+                                                    38  0.0     59
+   -1      0      667       667       10.  59 3  12 16  0.021   41
+                                                    38  0.0     59
+   -2      0      666       666       10.  59 3  12 16  0.021   41
+                                                    38  0.0     59
+   -3      0      666       666       10.  59 3  12 16  0.021   41
+                                                    38  0.0     59
+
+
+Statistics:
+
+  Database:  /home/jes12/db/ecoli.aa
+   Title:  ecoli.aa
+   Posted:  2:52:35 PM EST Nov 18, 2001
+   Created:  9:46:47 AM EST Nov 18, 2001
+   Format:  XDF-1
+   # of letters in database:  1,358,990
+   # of sequences in database:  4289
+   # of database sequences satisfying E:  1
+  No. of states in DFA:  600 (64 KB)
+  Total size of DFA:  655 KB (1283 KB)
+  Time to generate neighborhood:  0.04u 0.01s 0.05t  Elapsed: 00:00:00
+  No. of threads or processors used:  1
+  Search cpu time:  0.44u 0.01s 0.45t  Elapsed: 00:00:01
+  Total cpu time:  0.48u 0.02s 0.50t  Elapsed: 00:00:01
+  Start:  Sat Apr 20 14:39:05 2002   End:  Sat Apr 20 14:39:06 2002
