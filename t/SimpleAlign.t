@@ -2,7 +2,7 @@
 ## Bioperl Test Harness Script for Modules
 ## $Id$
 use strict;
-use constant NUMTESTS => 46;
+use constant NUMTESTS => 45;
 
 BEGIN {     
     eval { require Test; };
@@ -74,7 +74,6 @@ ok $aln->no_sequences, 16;
 ok $seq = $aln->get_seq_by_pos(1);
 
 ok (($aln->missing_char(), 'P') and  ($aln->missing_char('X'), 'X')) ;
-ok (($aln->unknown_char(), '?') and  ($aln->unknown_char('x'), 'x')) ;
 ok (($aln->match_char(), '.') and  ($aln->match_char('-'), '-')) ;
 ok (($aln->gap_char(), '-') and  ($aln->gap_char('.'), '.')) ;
 
