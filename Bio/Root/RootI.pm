@@ -54,9 +54,38 @@ methods. Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::Root::RootI;
-use vars qw(@ISA $DEBUG $ID $Revision $VERSION $VERBOSITY);
+use vars qw(@ISA $DEBUG $ID $Revision $VERSION $VERBOSITY 
+	    $TEMPMODLOADED $TEMPDIR $TEMPCOUNTER $OPENFLAGS);
 use strict;
 use Bio::Root::Err;
+use Fcntl;
+use Symbol;
+# determine tempfile
+$TEMPCOUNTER = 0;
+#eval {  use File::Temp; $TEMPMODLOADED = 1};
+#if( $@ ) { 
+#    print $@;
+$OPENFLAGS = O_CREAT | O_EXCL | O_RDWR;
+
+for my $oflag (qw/FOLLOW BINARY LARGEFILE EXLOCK NOINHERIT TEMPORARY/) {
+    my ($bit, $func) = (0, "Fcntl::O_" . $oflag);
+    no strict 'refs';
+    $OPENFLAGS |= $bit if eval { $bit = &$func(); 1 };
+}
+    eval { use File::Spec; $TEMPDIR = File::Spec->tmpdir(); };
+    if( $@ ) {
+	if (defined $ENV{'TEMPDIR'} && -d $ENV{'TEMPDIR'} ) {
+	    $TEMPDIR = $ENV{'TEMPDIR'};
+	} elsif( defined $ENV{'TMPDIR'} && -d $ENV{'TMPDIR'} ) {
+	    $TEMPDIR = $ENV{'TMPDIR'};
+	} elsif ( -d '/tmp' && -w '/tmp' ) {
+	    $TEMPDIR = '/tmp';
+	} else {
+	    $TEMPDIR = '.';
+	}
+    }
+#}
+
 BEGIN { 
 
     $ID        = 'Bio::Root::RootI';
@@ -65,6 +94,7 @@ BEGIN {
     $DEBUG     = 0;
     $VERBOSITY = 0;
 }
+
 
 =head2 new
 
@@ -834,4 +864,99 @@ sub parent {
     $self->{'_parent'};
 }
 
+=head2  tempfile
+
+ Title   : tempfile
+ Usage   : my ($handle,$tempfile) = $self->tempfile($dir); 
+ Function: returns a temporary file for writing
+ Example : my ($handle,$tempfile) = $self->tempfile($dir);
+ Returns : temporary handle and temporary file name
+ Args    : $dir - directory in which to create new file 
+
+=cut
+
+sub tempfile {
+    my ($self, @args) = @_;
+    if ( $TEMPMODLOADED ) {
+	return &File::Temp::tempfile(@args);
+    }
+    my %hash = @args;
+    my $dir;
+    $dir = ( $hash{DIR} ) ? $hash{DIR} : $dir = $TEMPDIR;
+
+    my $tfilename = sprintf("%s/%s-%s-%s", $dir, 
+			    $ENV{USER} || 'unknown', $$, 
+			    $TEMPCOUNTER++);
+    push @{$self->{_rooti_tempfiles}}, $tfilename;
+
+    # taken from File::Temp;
+    my $fh;
+    if ($] < 5.006) {
+        $fh = &Symbol::gensym;
+    }
+    
+    # Try to make sure this will be marked close-on-exec
+    # XXX: Win32 doesn't respect this, nor the proper fcntl,
+    #      but may have O_NOINHERIT. This may or may not be in Fcntl.
+    local $^F = 2; 
+    
+    # Store callers umask
+    my $umask = umask();
+    
+    # Set a known umaskr
+    umask(066);
+    
+    # Attempt to open the file
+    if ( sysopen($fh, $tfilename, $OPENFLAGS, 0600) ) {
+	
+        # Reset umask
+        umask($umask); 
+        # Opened successfully - return file handle and name
+        return ($fh, $tfilename);
+    } else { 
+	$self->throw("Could not open tempfile $tfilename $!\n");
+    }
+}
+
+=head2  tempdir
+
+ Title   : tempdir
+ Usage   : my ($tempdir) = $self->tempdir(CLEANUP=>1); 
+ Function: returns a temporary directory
+ Example : my ($tempdir) = $self->tempdir(CLEANUP=>1); 
+ Returns : a temporary directory
+ Args    : hash - ( key CLEANUP ) indicates whether or not to cleanup 
+           dir on object destruction
+=cut
+
+sub tempdir {
+    my ( $self, %hash ) = @_;
+
+    if( $TEMPMODLOADED ) {
+	return &File::Temp::tempdir(%hash);
+    }
+    # we are planning to cleanup temp files no matter what
+    if( $hash{CLEANUP} == 1 ) {
+	$self->{_cleanuptempdir} = 1;
+    }
+    
+    my $tdir = sprintf("%s/%s-%s-%s", $TEMPDIR, 
+		    "dir_". $ENV{USER} || 'unknown', $$, 
+		    $TEMPCOUNTER++);
+    mkdir($tdir);
+    push @{$self->{_rooti_tempdirs}}, $tdir; 
+    return $tdir;
+}
+
+
+sub DESTROY {
+    my ($self) = @_;
+    # we are planning to cleanup temp files no matter what
+    unlink @{$self->{_rooti_tempfiles}} 
+    if( defined $self->{_rooti_tempfiles} 
+	&& ref($self->{_rooti_tempfiles}) =~ /array/i );
+    foreach ( @{$self->{_rooti_tempdirs}} ) {
+	rmdir($_);
+    }
+}
 1;
