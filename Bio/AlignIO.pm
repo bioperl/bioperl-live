@@ -516,10 +516,11 @@ sub _guess_format {
    my $class = shift;
    return unless $_ = shift;
    return 'fasta'   if /\.(fasta|fast|seq|fa|fsa|nt|aa)$/i;
-   return 'msf'     if /\.msf$/i;
-   return 'pfam'     if /\.(pfam|pfm)$/i;
-   return 'selex'     if /\.(selex|slx|selx|slex|sx)$/i;
-   return 'embl'    if /\.(embl|ebl|emb)$/i;
+   return 'msf'     if /\.(msf|pileup)$/i;
+   return 'pfam'    if /\.(pfam|pfm)$/i;
+   return 'selex'   if /\.(selex|slx|selx|slex|sx)$/i;
+   return 'phylip'  if /\.(phylip|phlp|phyl|phy|phy|ph)$/i;
+   return 'nexus'   if /\.(nexus|nex)$/i;
 }
 
 sub DESTROY {
