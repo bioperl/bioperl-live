@@ -102,7 +102,10 @@ use Carp;
 use FileHandle;
 use Dumpvalue qw(dumpValue);
 use Bio::Tools::Alignment::Trim;
+use Bio::Root::Root;
 use Bio::Root::IO;
+
+@ISA = qw(Bio::Root::Root);
 
 $VERSION = '0.60';
 
@@ -165,8 +168,8 @@ sub new {
 	3 - annoyingly noisy
  Notes   : This method for setting verbosity has largely been superseeded by
 	a sub-by-sub way, where for every sub you can provide a (-verbose)
-	switch. I am doing converting this bit-by-bit so don't be surprised
-	if some subs don't honour this.
+	switch. I am doing converting this bit-by-bit so do not be surprised
+	if some subs do not honour this.
 
 =cut
 
@@ -177,7 +180,6 @@ sub set_verbose {
 		return 1;
 	}
 	$self->{'verbose'} = $verbose;
-		# print("Verbosity level set to $self->{'verbose'}.\n");
 	return 0;
 }
 
@@ -210,7 +212,7 @@ sub get_filename {
  Returns : A scalar containing the number of sequences in the ace project
 	directory.
  Args    : None.
- Notes   : If you are on a non-UNIX platform, you really don't have to use
+ Notes   : If you are on a non-UNIX platform, you really do not have to use
 	this. It is more of a debugging routine designed to address very
 	specific problems.
 
@@ -285,7 +287,7 @@ sub get_contigs {
  Notes   : Returns an array, not a reference. Is this a bug? <thinking> No.
 	Well, maybe.
 	Why was this developed like this? I was using FreezeThaw for object
-	presistence, and when it froze out these arrays it took a coon's age
+	presistence, and when it froze out these arrays it took a long time
 	to thaw it. Much better as a scalar.
 
 =cut
@@ -512,7 +514,7 @@ sub _read_file {
 		$in_quality = undef;
 	    }
 	    else {
-			# I wrote this in here because acefiles produced by cap3 don't have a leading space
+			# I wrote this in here because acefiles produced by cap3 do not have a leading space
 			# like the acefiles produced by phrap and there is the potential to have concatenated
 			# quality values like this: 2020 rather then 20 20 whre lines collide. Thanks Andrew for noticing.
 		if ($self->{'contigs'}->{$contig_number}->{'quality'} && !($self->{'contigs'}->{$contig_number}->{'quality'} =~ m/\ $/)) {
@@ -668,7 +670,7 @@ sub set_designator_ignore_case {
 	   object was designed specifically for me and is mysterious
 	   in its ways. Every time somebody other then me uses it a
 	   swarm of locusts decends on a small Central American
-	   village so don't say you weren't warned.
+	   village so do not say you weren't warned.
  Returns : Nothing.
  Args    : None.
  Notes   : Working on exceptions and warnings here.
@@ -677,10 +679,12 @@ sub set_designator_ignore_case {
 
 sub set_trim_points_singlets_and_singletons {
     my ($self,$verbose) = @_;
+	print("Consed.pm : \$self is $self\n");
+	::dumpValue($self);
     if ($self->{'verbose'} || $verbose ) { $verbose = 1; } else { $verbose = 0; }
     my (@points,$trimmed_sequence);
     if (!$self->{'doublets_set'}) {
-	$self->warn("You neet to set the doublets before you use set_trim_points_singlets_and_doublets. Doing that now.");
+	     # $self->warn("You need to set the doublets before you use set_trim_points_singlets_and_doublets. Doing that now.");
 	$self->set_doublets();
     }
     foreach (sort keys %{$self->{'contigs'}}) {
@@ -1220,7 +1224,7 @@ sub sum_lets {
 	Where the numbers provided are in the format described in the
 	documentation for sum_lets().
  Args    : None.
- Notes   : This might break platform independence, I don't know.
+ Notes   : This might break platform independence, I do not know.
 
 =cut
 
@@ -1335,7 +1339,7 @@ sub _get_contig_name {
 	foreach (@contig_members) {
 			# how can I distinguish the clone name from the direction label?
 			# look for $Consed::reverse_designator and $Consed::forward_designator
-			# what if you don't find _any_ of those?
+			# what if you do not find _any_ of those?
 		my $forward_designator = $self->{'forward_designator'} || "f";
 		my $reverse_designator = $self->{'reverse_designator'} || "r";
 		my $any_hits = /(.+)($forward_designator.*)/ || /(.+)($reverse_designator.*)/||/(.+)(_.+)/;

@@ -71,10 +71,13 @@ Internal methods are usually preceded with a _
 
 package Bio::Tools::Alignment::Trim;
 
+use Bio::Root::Root;
 use strict;
 use vars qw($VERSION @ISA);
 
 $VERSION = '0.01';
+
+@ISA = qw(Bio::Root::Root);
 
 # Preloaded methods go here.
 
@@ -115,7 +118,7 @@ sub new {
 
 sub set_designators {
 	my $self = shift;
-	($self->{f_designator},$self->{r_designator}) = @_;
+	($self->{'f_designator'},$self->{'r_designator'}) = @_;
 }
 
 =head2 set_forward_designator($designator)
@@ -131,7 +134,7 @@ sub set_designators {
 
 sub set_forward_designator {
 	my ($self,$desig) = @_;
-	$self->{f_designator} = $desig;
+	$self->{'f_designator'} = $desig;
 }
 
 =head2 set_reverse_designator($reverse_designator)
@@ -147,7 +150,7 @@ sub set_forward_designator {
 
 sub set_reverse_designator {
 	my ($self,$desig) = @_;
-	$self->{r_designator} = $desig;
+	$self->{'r_designator'} = $desig;
 }
 
 =head2 get_designators()
@@ -162,7 +165,7 @@ sub set_reverse_designator {
 
 sub get_designators {
 	my $self = shift;
-	return("forward: ".$self->{f_designator}." reverse: ".$self->{r_designator}); 
+	return("forward: ".$self->{'f_designator'}." reverse: ".$self->{'r_designator'}); 
 }	
 
 =head2 trim_leading_polys()
@@ -194,7 +197,7 @@ sub trim_leading_polys {
 
 sub dump_hash {
 	my $self = shift;
-	my %hash = %{$self->{qualities}};
+	my %hash = %{$self->{'qualities'}};
 } # end dump_hash
 
 =head2 trim_singleton()
@@ -237,41 +240,31 @@ sub trim_singleton {
 sub trim_singlet {
     my ($self,$sequence,$quality,$name,$class) = @_;
     my @qual = split(' ',$quality);
-    # print("\@qual: @qual\n");
     my @points;
     my $sequence_length = length($sequence);
     my ($returnstring,$processed_sequence);
-    # print("Trim: \$sequence: $sequence\nTrim: \$name: $name\nTrim: \$f_designator: $self->{f_designator}\n");
-    # print("Trim: \$r_designator: $self->{r_designator}\n");My own designators are".$self->{f_designator}."\n");
-    # $points[0] = "$name: singlet that ends in the forward designator";
-    # find out the leading and trailing trimpoints
-    # for now, the rule for trailing points will be a run of $windowsize each less then 10phreds
-    # print("Creating sliding window averages...\n");
+          # find out the leading and trailing trimpoints
+          # for now, the rule for trailing points will be a run of $windowsize each less then 10phreds
     my $windowsize = 10;
     my $r_windows = &_sliding_window(\@qual,$windowsize);
-    # print("Those sliding windows look like:\n");
-    # &_print_formatted_qualities($r_windows);
-    # my $r_windows = \@qual;
     my $windowtrail = 10;
     my $phreds = 20;
-    # start_base required: r_quality,$windowsize,$phredvalue
+          # start_base required: r_quality,$windowsize,$phredvalue
     my $start_base = &_get_start($r_windows,5,20);
     if ($start_base > ($sequence_length - 100)) {
-	# print("find_start: FAILED\n");
-	$points[0] = ("FAILED");
-	$points[1] = ("FAILED");
-	return @points;
+	     $points[0] = ("FAILED");
+	     $points[1] = ("FAILED");
+     	return @points;
     }
     $points[0] = $start_base;
-    #
-    # whew! now for the end base
-    # 
-    # required parameters: reference_to_windows,windowsize,$phredvalue,start_base
+          #
+          # whew! now for the end base
+          # 
+          # required parameters: reference_to_windows,windowsize,$phredvalue,start_base
     my $end_base = &_get_end($r_windows,20,20,$start_base);
     $points[1] = $end_base;
-    # now do the actual trimming
+          # now do the actual trimming
     my @new_points = &chop_sequence($self,$name,$class,$sequence,@points);
-    # substr EXPR,OFFSET,LEN,REPLACEMENT
     my $trimmed_sequence = pop(@new_points);
     return \@new_points,$trimmed_sequence;
 }
@@ -299,62 +292,45 @@ sub trim_singlet {
 =cut 
 
 sub trim_doublet {
-    #
     my ($self,$sequence,$quality,$name,$class) = @_;
     my @qual = split(' ',$quality);
-    # some debugging lines
-    # print("CSM::Consed::trim_doublet: there are ".scalar(@qual)." quality values here.\n");
-    # print("CSM::Consed::trim_doublet: working on $name.<br>\n");
     my @points;
     my $sequence_length = length($sequence);
     my ($returnstring,$processed_sequence);
-    # print("Trim: \$sequence: $sequence\nTrim: \$name: $name\nTrim: \$f_designator: $self->{f_designator}\n");
-    # print("Trim: \$r_designator: $self->{r_designator}\n");My own designators are".$self->{f_designator}."\n");
-    # $points[0] = "$name: singlet that ends in the forward designator";
-    # find out the leading and trailing trimpoints
-    # for now, the rule for trailing points will be a run of $windowsize each less then 10phreds
-    # print("Creating sliding window averages...\n");
+          # find out the leading and trailing trimpoints
+          # for now, the rule for trailing points will be a run of $windowsize each less then 10phreds
     my $windowsize = 10;
     my $r_windows = &_sliding_window(\@qual,$windowsize);
-    # print("Those sliding windows look like:\n");
-    # &_print_formatted_qualities($r_windows);
-    # my $r_windows = \@qual;
     my $windowtrail = 10;
     my $phreds = 20;
-    # determine where the consensus sequence starts
+          # determine where the consensus sequence starts
     my $offset = 0;
     for (my $current = 0; $current<$sequence_length;$current++) {
-	# print("\$current is $current\n");
-	if ($qual[$current] != 0) {
+          # print("\$current is $current\n");
+     if ($qual[$current] != 0) {
 	    $offset = $current;
 	    last;
 	}
     }
-    # print("The offset for this doublet is $offset\n");
-    # start_base required: r_quality,$windowsize,$phredvalue
+          # start_base required: r_quality,$windowsize,$phredvalue
     my $start_base = &_get_start($r_windows,5,20,$offset);
     if ($start_base > ($sequence_length - 100)) {
-	# print("find_start: FAILED\n");
-	$points[0] = ("FAILED");
-	$points[1] = ("FAILED");
-	return @points;
+          $points[0] = ("FAILED");
+          $points[1] = ("FAILED");
+          return @points;
     }
     $points[0] = $start_base;
-    #
-    # whew! now for the end base
-    # 
-    # required parameters: reference_to_windows,windowsize,$phredvalue,start_base
-    #								    |	
-    # 010420 NOTE: We will no longer get the end base to avoid the Q/--\___/-- syndrome
-    # my $end_base = &_get_end($r_windows,20,20,$start_base);
+          #
+          # whew! now for the end base
+          # 
+          # required parameters: reference_to_windows,windowsize,$phredvalue,start_base
+          #								    |	
+          # 010420 NOTE: We will no longer get the end base to avoid the Q/--\___/-- syndrome
     my $end_base = $sequence_length;
     my $start_of_trailing_zeros = &count_doublet_trailing_zeros(\@qual);
-    # print("The trailing zero point at the end of this sequence ($name) is $start_of_trailing_zeros\n");
-    # if ($start_of_trailing_zeros < $end_base) { $points[1] = $start_of_trailing_zeros; }
     $points[1] = $end_base;
-    # now do the actual trimming
+          # now do the actual trimming
     my @new_points = &chop_sequence($self,$name,$class,$sequence,@points);
-    # substr EXPR,OFFSET,LEN,REPLACEMENT
     my $trimmed_sequence = pop(@new_points);
     return @new_points,$trimmed_sequence;
 }				# end trim_doublet
@@ -382,36 +358,30 @@ sub trim_doublet {
 
 sub chop_sequence {
     my ($self,$name,$class,$sequence,@points) = @_;
-    my $fdesig = $self->{f_designator};
-    my $rdesig = $self->{r_designator};
+    my $fdesig = $self->{'f_designator'};
+    my $rdesig = $self->{'r_designator'};
     if (!$points[0] && !$points[1]) {
-	$sequence = "junk";
-	return $sequence;
+          $sequence = "junk";
+          return $sequence;
     }
-    # print("\tchop_sequence: before trimming at $points[0] and $points[1], the sequence length was ".length($sequence)."\n");
-    if ($class eq "singlet" && $name =~ /$fdesig$/) {
-	# print("\tchop_sequence: chopping singlet sequence for $name with F designator\n");
-	# EXPR,OFFSET,LEN
-	$sequence = substr($sequence,$points[0],$points[1]-$points[0]);
+     if ($class eq "singlet" && $name =~ /$fdesig$/) {
+          $sequence = substr($sequence,$points[0],$points[1]-$points[0]);
     }
     elsif ($class eq "singlet" && $name =~ /$rdesig$/) {
-	# print("\tchop_sequence: chopping singlet sequence for $name with R designator\n");
 	$sequence = substr($sequence,$points[0],$points[1]-$points[0]);
     }		
     elsif ($class eq "singleton" && $name =~ /$fdesig$/) {
-	# print("\tchop_sequence: chopping singleton sequence for $name with F designator\n");
 	$sequence = substr($sequence,$points[0],$points[1]-$points[0]);
     }
     elsif ($class eq "singleton" && $name =~ /$rdesig$/) {
-	# print("\tchop__sequence: chopping singleton sequence for $name with R designator\n");
 	$sequence = substr($sequence,$points[0],$points[1]-$points[0]);
     }
     elsif ($class eq "doublet") {
 	$sequence = substr($sequence,$points[0],$points[1]-$points[0]);
     }
-    # this is a _terrible_ to do this! i couldn't seem to find a better way
-    # i thought something like s/(^.*[Xx]{5,})//g; might work, but no go
-    # no time to find a fix!
+          # this is a _terrible_ to do this! i couldn't seem to find a better way
+          # i thought something like s/(^.*[Xx]{5,})//g; might work, but no go
+          # no time to find a fix!
     my $length_before_trimming = length($sequence);
     my $subs_Xs = $sequence =~ s/^.*[Xx]{5,}//g;
     if ($subs_Xs) {
@@ -424,15 +394,12 @@ sub chop_sequence {
     if ($subs_Ns) {
 	my $length_after_trimming = length($sequence);
 	my $number_Ns_trimmed = $length_before_trimming - $length_after_trimming;
-	# print("\tTrimmed $number_Ns_trimmed N's from the end of the sequence\n");
 	$points[1] -= $number_Ns_trimmed;
 	$points[1] -= 1;
     }
-    # print("\tchop_sequence: I chopped $subs_Xs for X\'s and $subs_Ns for N\'s\n");
-    # print("\tchop_sequence: after trimming, the sequence length was ".length($sequence)."\n");
     push @points,$sequence;
     return @points;
-}				# end chop_sequence
+}
 
 =head2 _get_start($r_quals,$windowsize,$phreds,$offset)
 
@@ -454,29 +421,23 @@ sub chop_sequence {
 sub _get_start {
     my ($r_quals,$windowsize,$phreds,$offset) = @_;
     # this is to help determine whether the sequence is good at all
-    # print("r_quals,windowsize,phreds = #$r_quals#,#$windowsize#,#$phreds#\n");
     my @quals = @$r_quals;
     my ($count,$count2,$qualsum);
     if ($offset) { $count = $offset; } else { $count = 0; }
     for (; ($count+$windowsize) <= scalar(@quals); $count++) {
-	# print("On window starting at base $count\n");
 	for($count2 = $count; $count2 < $count+$windowsize-1; $count2++) {
-				# print("Adding base $count2 ($quals[$count2]). Running total:");
 	    unless (!$quals[$count2]) {
 		$qualsum += $quals[$count2];
 	    }
-				# print("qualsum: $qualsum\n");
-
 	}
 	if ($qualsum && $qualsum >= $windowsize*$phreds) {
-				# print("\tset_start: $qualsum is greater then windowsize $windowsize times $phreds phreds in window starting at $count\n");
 	    return $count;
 	}
 	$qualsum = 0;
     }
     # if ($count > scalar(@quals)-$windowsize) { return; }
     return $count;
-}				# end get_start
+}	
 
 =head2 _get_end($r_qual,$windowsize,$phreds,$count)
 
@@ -497,12 +458,8 @@ sub _get_start {
 
 sub _get_end {
 	my ($r_qual,$windowsize,$phreds,$count) = @_;
-		# print("rqual,windowsize,phreds: #$r_qual#,#$windowsize#,#$phreds#\n");
-		# print("CSM::Consed::Trim::get_end: Starting the search for the end at $count\n");
 	my @quals = @$r_qual;
 	my $total_bases = scalar(@quals);
-		# print("CSM::Consed::Trim::get_end: \@quals are @quals\n");
-		# print("CSM::Consed::Trim::get_end: \$total_bases: $total_bases\n");
 	my ($count2,$qualsum,$end_of_quals,$bases_counted);
 	if (!$count) { $count=0; }
 	BASE: for (; $count < $total_bases; $count++) {
@@ -524,7 +481,7 @@ sub _get_end {
 						# print("adding quality $quals[$count2] at position $count2 to the total for the window starting at $count2\n");
 				$qualsum += $quals[$count2];
 				if ($qualsum < $bases_counted*$phreds) {
-					print("CSM::Consed::Trim::get_end: Found a quality problem at $count:\n\$qualsum: $qualsum\n\$bases_counted: $bases_counted\n");
+				          # print("CSM::Consed::Trim::get_end: Found a quality problem at $count:\n\$qualsum: $qualsum\n\$bases_counted: $bases_counted\n");
 					return $count+$bases_counted+$windowsize;
 				}
 				next BASE;
@@ -533,25 +490,25 @@ sub _get_end {
 				$qualsum += $quals[$count2];
 			}
 		}
-		print("Looking for the end in a window starting at $count: \$qualsum there was  $qualsum\n");
+		     # print("Looking for the end in a window starting at $count: \$qualsum there was  $qualsum\n");
 		if ($qualsum < $bases_counted*$phreds) {
-			print("CSM::Consed::Trim::get_end: Found a quality problem at $count:\n\$qualsum: $qualsum\n\$bases_counted: $bases_counted\n");
+			     # print("CSM::Consed::Trim::get_end: Found a quality problem at $count:\n\$qualsum: $qualsum\n\$bases_counted: $bases_counted\n");
 			return $count+$bases_counted+$windowsize;
 		}
 		else {
-			print("CSM::Consed::Trim::get_end: looks ok here at bast $count: \$bases_counted times \$phreds is ".$bases_counted*$phreds." which is greater then $qualsum\n"); 
+			     # print("CSM::Consed::Trim::get_end: looks ok here at bast $count: \$bases_counted times \$phreds is ".$bases_counted*$phreds." which is greater then $qualsum\n"); 
 		}
 		$qualsum = 0;
 	} # end for
 	if ($end_of_quals) {
 		my $bases_for_average = $total_bases-$count2;
-		print("CSM::Consed::Trim::get_end: Ran out of quals! count2 being $count2 and \$qualsum being $qualsum and \$bases_for_average is $bases_for_average\n");
+		     # print("CSM::Consed::Trim::get_end: Ran out of quals! count2 being $count2 and \$qualsum being $qualsum and \$bases_for_average is $bases_for_average\n");
 		return $count2;
 	}
 	else {
-		print("Nope. Not the end of the quals yet\n");
+		     # print("Nope. Not the end of the quals yet\n");
 	}
-	print("I didn't find an end anywhere. Search ended at base number $count where windowsize*phreds was ".$windowsize*$phreds." but qualsum was only ");
+	     # print("I didn't find an end anywhere. Search ended at base number $count where windowsize*phreds was ".$windowsize*$phreds." but qualsum was only ");
 		if ($qualsum) { print("$qualsum\n"); }
 		# else { print("0\n"); }
 	return $total_bases;
@@ -578,10 +535,6 @@ sub count_doublet_trailing_zeros {
 	for (my $current=scalar(@qualities);$current>0;$current--) {
 		if ($qualities[$current] && $qualities[$current] != 0) {
 			$number_of_trailing_zeros = scalar(@qualities)-$current;
-				# print("CSM::Consed::Trim::count_doublet_trailing_zeros:  The current quality $current is not zero. It is $qualities[$current]\n");
-				# print("returning $number_of_trailing_zeros\n");
-				# return $number_of_trailing_zeros;
-				# print("CSM::Consed::Trim::count_doublet_trailing_zeros: returning $current\n");
 			return $current+1;
 		}
 	}
@@ -609,7 +562,6 @@ sub _sliding_window {
     @quals = @$r_quals;
     # print("@quals\n");
     my $size_of_quality = scalar(@quals);
-    # print("CSM::Consed::Trim::sliding_window: there are $size_of_quality quality values to build windows for\n");
     for ($count=0; $count <= $size_of_quality; $count++) {
 				# print("SlidingWindow: Averaging bases from $count\n");
 				# original: 010105
@@ -640,16 +592,16 @@ sub _sliding_window {
 	    $average = $qualsum / $bases_counted;
 	}
 	if (!$average) { $average = "0"; }
-	# print("At position $count, \$qualsum is $qualsum and \$average is $average\n");
-	# print("Pushing average $average onto the averages array\n");
-	# print("Counted $bases_counted to get an average of $average.\n");
+     	# print("At position $count, \$qualsum is $qualsum and \$average is $average\n");
+	     # print("Pushing average $average onto the averages array\n");
+	     # print("Counted $bases_counted to get an average of $average.\n");
 	push @averages,$average;
 	$qualsum = 0;
-	# print("Done with count2: final value: $count2\n");
+	     # print("Done with count2: final value: $count2\n");
     }
-    # print("CSM::Consed::Trim::sliding_window: there are ".scalar(@averages)." averages here\n");
+          # print("CSM::Consed::Trim::sliding_window: there are ".scalar(@averages)." averages here\n");
     return \@averages;
-}				# end sliding_window
+}
 
 =head2 _print_formatted_qualities(\@quals)
 
@@ -693,10 +645,8 @@ sub _get_end_old {
     my ($count2,$qualsum,$end_of_quals);
     if (!$count) { $count=0; }
   BASE: for (; $count < $total_bases; $count++) {
-      print("Looking for quality window starting at base $count\n");
       for($count2 = $count; $count2 < $count+$windowsize; $count2++) {
 	  if ($count2 == scalar(@quals)-1) {
-	      print("Hit the end of the quals. Summing...\n");
 	      $qualsum += $quals[$count2];
 	      $end_of_quals = 1;
 	      last BASE;
@@ -707,7 +657,6 @@ sub _get_end_old {
       }
       # print("Looking for the end in a window starting at $count: \$qualsum there was  $qualsum\n");
       if ($qualsum < $windowsize*$phreds) {
-	  print("\tget_end: $qualsum is less then a window of $windowsize times $phreds phreds in window starting at $count\n");
 	  return $count+$windowsize;
       }
       $qualsum = 0;
