@@ -2,6 +2,7 @@
 # $Id$
 
 use strict;
+my $error;
 BEGIN {     
     eval { require Test; };
     use vars qw($NUMTESTS);
@@ -11,7 +12,10 @@ BEGIN {
     }
     use Test;
     plan tests => $NUMTESTS;
+    $error = 0;    
 }
+
+eval { require Bio::DB::FileCache };
 
 use Bio::Root::IO;
 use Bio::Index::Fasta;
@@ -20,10 +24,6 @@ use Bio::Index::EMBL;
 use Bio::Index::GenBank;
 use Bio::Index::Swissprot;
 use Bio::DB::InMemoryCache;
-use Bio::DB::GenPept;
-use Bio::DB::GenBank;
-
-eval { require Bio::DB::FileCache };
 
 
 use vars qw ($dir);
