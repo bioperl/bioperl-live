@@ -391,9 +391,9 @@ sub get_all_features{
    for ( keys %{$self->{'_btreehash'}} ) {
        my $v = $self->{'_btreehash'}->{$_};
        next unless defined  $v;
-       push @features, $v;
+       push @features, thaw($v);
    }
-   if( scalar @features !=  $self->{'_feature_count'} ) {
+   if( scalar @features !=  $self->feature_count() ) {
        $self->warn("feature count does not match actual count\n");
    }
    return @features;
