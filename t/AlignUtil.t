@@ -18,7 +18,7 @@ BEGIN {
     }
 
     use Test;
-    plan tests => 15; 
+    plan tests => 16; 
 }
 
 if( $error == 1 ) {
@@ -27,7 +27,7 @@ if( $error == 1 ) {
 
 my $debug = -1;
 
-use Bio::Align::Utilities qw(aa_to_dna_aln);
+use Bio::Align::Utilities qw(aa_to_dna_aln bootstrap_replicates);
 use Bio::AlignIO;
 use Bio::Root::IO;
 use Bio::SeqIO;
@@ -57,3 +57,7 @@ for my $cdsseq ( $cds_aln->each_seq ) {
     my $aaseq = shift @aa_seqs;
     ok($peptrans->seq(),$aaseq->seq());
 }
+
+my $bootstraps = &bootstrap_replicates($aln,10);
+
+ok(scalar @$bootstraps, 10);

@@ -18,7 +18,7 @@ BEGIN {
     }
 
     use Test;
-    plan tests => 6;
+    plan tests => 7;
 }
 
 if( $error == 1 ) {
@@ -29,6 +29,7 @@ my $debug = -1;
 
 use Bio::Align::DNAStatistics;
 use Bio::Align::ProteinStatistics;
+use Bio::Align::Utilities qw(:all);
 use Bio::AlignIO;
 use Bio::Root::IO;
 use Bio::Tree::DistanceFactory;
@@ -60,3 +61,8 @@ ok($tree->find_node('YOR262W')->ancestor->id,
 
 # TODO 
 # UPGMA tests
+
+
+# test the bootstrap
+my $replicates = &bootstrap_replicates($aln,10);
+ok(scalar @$replicates, 10);
