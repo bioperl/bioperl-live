@@ -505,7 +505,7 @@ sub _check_id {
     # Asking for a RefSeq from EMBL/GenBank
 
     if ($id =~ /N._/ &&  $self->db ne 'refseq') {
-	$self->warn("[$id] is not a normal sequence database but a RefSeq entry.".
+	$self->warn("[$id] is not a normal sequence entry but a RefSeq entry.".
 		   " Redirecting the request.\n")
 	    if $self->verbose >= 0;
 	$self->db('RefSeq');

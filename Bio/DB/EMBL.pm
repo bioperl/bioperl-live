@@ -199,7 +199,7 @@ sub _check_id {
     # Asking for a RefSeq from EMBL/GenBank
 
     if ($ids =~ /N._/) {
-	$self->warn("[$ids] is not a normal sequence database but a RefSeq entry.".
+	$self->warn("[$ids] is not a normal sequence entry but a RefSeq entry.".
 		   " Redirecting the request.\n")
 	    if $self->verbose >= 0;
 	return  new Bio::DB::RefSeq(-verbose => $self->verbose);
