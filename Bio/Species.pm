@@ -279,7 +279,7 @@ sub validate_species_name {
 sub validate_name {
     my( $self, $string ) = @_;
 
-    return 1 if $string =~ /^[\w\s]+$/ or
+    return 1 if $string =~ /^[\w\s\-\,\.]+$/ or
         $self->throw("Invalid name '$string'");
 }
 
