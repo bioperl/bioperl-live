@@ -1,4 +1,4 @@
-## $Id: bioperl.pod,v 1.29 2002-06-25 13:09:38 bosborne Exp $
+## $Id: bioperl.pod,v 1.30 2002-07-26 14:37:44 bosborne Exp $
 
 ## Should contain general info about the distribution including
 ## links to many modules.
@@ -295,6 +295,8 @@ I<scripts/subsequence.cgi> - CGI script to fetch a sequence from Genbank
 and extract a subsequence using DB::GenBank. See L<Bio::DB::GenBank>
 
 I<scripts/tree/paup2phylip.pl> - convert a PAUP tree block to Phylip format
+
+I<scripts/waba2gff.pl> - convert raw WABA output to one type of GFF
 
 
 =head1 GETTING INVOLVED
