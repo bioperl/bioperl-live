@@ -210,7 +210,7 @@ use constant DPALIGN_GLOBAL_MILLER_MYERS => 2;
 
 BEGIN {
     eval {
-        require Align;
+        require Bio::Ext::Align;
     };
     if ( $@ ) {
         die("\nThe C-compiled engine for Smith Waterman alignments (Align) has not been installed.\n Please read the install the bioperl-ext package\n\n");
@@ -283,10 +283,10 @@ sub new {
     }
 
     if (defined $matrix and $matrix->isa('Bio::Matrix::MatrixI')) {
-        $self->{'matrix'} = Align::ScoringMatrix->new(join("", $matrix->row_names), $self->gap, $self->ext);
+        $self->{'matrix'} = Bio::Ext::Align::ScoringMatrix->new(join("", $matrix->row_names), $self->gap, $self->ext);
         foreach $rowname ($matrix->row_names) {
             foreach $colname ($matrix->column_names) {
-                Align::ScoringMatrix->set_entry($self->{'matrix'}, $rowname, $colname, $matrix->entry($rowname, $colname));
+                Bio::Ext::Align::ScoringMatrix->set_entry($self->{'matrix'}, $rowname, $colname, $matrix->entry($rowname, $colname));
             }
         }
     }
