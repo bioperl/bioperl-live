@@ -107,6 +107,8 @@ sub next_aln {
 	       $self->throw("$name exists as an alignment line but not in the header. Not confident of what is going on!");
 	   }
 	   $str =~ s/\s//g;
+	   $str =~ s/\~/\-/g;
+	   
 	   $hash{$name} .= $str;
        };
    }
