@@ -322,9 +322,9 @@ ok($result->get_statistic('lambda'), 0.0823);
 ok($result->get_statistic('dbletters'), 112936249);
 ok($result->get_statistic('dbentries'), 657);
 
-@valid = ( [ 'BACR21I23', 73982, 'BACR21I23', '0.017', 44],
-	   [ 'BACR40P19', 73982, 'BACR40P19', '0.017', 44],
-	   [ 'BACR30L17', 32481, 'BACR30L17', '0.018', 44]);
+@valid = ( [ 'BACR21I23', 73982, 'BACR21I23', '0.017', 44.2],
+	   [ 'BACR40P19', 73982, 'BACR40P19', '0.017', 44.2],
+	   [ 'BACR30L17', 32481, 'BACR30L17', '0.018', 44.1]);
 $count = 0;
 
 while( my $hit = $result->next_hit ) {
@@ -387,9 +387,9 @@ ok($result->get_statistic('dbletters'), 1358987);
 ok($result->get_statistic('dbentries'), 4289);
 
 
-@valid = ( [ 'gi|1787478|gb|AAC74309.1|', 512, 'AAC74309', 1.2, 29],
-	   [ 'gi|1790635|gb|AAC77148.1|', 251, 'AAC77148', 2.1, 27],
-	   [ 'gi|1786590|gb|AAC73494.1|', 94, 'AAC73494',  2.1, 26]);
+@valid = ( [ 'gi|1787478|gb|AAC74309.1|', 512, 'AAC74309', 1.2, 29.2],
+	   [ 'gi|1790635|gb|AAC77148.1|', 251, 'AAC77148', 2.1, 27.4],
+	   [ 'gi|1786590|gb|AAC73494.1|', 94, 'AAC73494',  2.1, 25.9]);
 $count = 0;
 
 while( my $hit = $result->next_hit ) {
@@ -451,11 +451,11 @@ ok($result->get_statistic('dbentries'), 14334);
 
 
 @valid = ( [ 'Cp1|FBgn0013770|pp-CT20780|FBan0006692', 341, 
-	     'FBan0006692', 3.1e-59, 228],
+	     'FBan0006692', 3.1e-59, 227.8],
 	   [ 'CG11459|FBgn0037396|pp-CT28891|FBan0011459', 336, 
-	     'FBan0011459', 6.4e-41,  167],
+	     'FBan0011459', 6.4e-41,  166.9],
 	   [ 'CG4847|FBgn0034229|pp-CT15577|FBan0004847', 390, 
-	     'FBan0004847',  2.5e-40, 165]);
+	     'FBan0004847',  2.5e-40, 165.2]);
 $count = 0;
 
 while( my $hit = $result->next_hit ) {
@@ -518,9 +518,9 @@ ok($result->get_statistic('dbletters'), 4215311);
 ok($result->get_statistic('dbentries'), 9190);
 
 
-@valid = ( [ 'NR_SC:SW-YNN2_YEAST', 1056, 'NR_SC:SW-YNN2_YEAST','1.6e-154', 547],
-	   [ 'NR_SC:SW-MPCP_YEAST', 311, 'NR_SC:SW-MPCP_YEAST', '1.3e-25', 117],
-	   [ 'NR_SC:SW-YEO3_YEAST', 300, 'NR_SC:SW-YEO3_YEAST', '5.7e-05', 48]);
+@valid = ( [ 'NR_SC:SW-YNN2_YEAST', 1056, 'NR_SC:SW-YNN2_YEAST','1.6e-154', '547.0'],
+	   [ 'NR_SC:SW-MPCP_YEAST', 311, 'NR_SC:SW-MPCP_YEAST', '1.3e-25', 117.1],
+	   [ 'NR_SC:SW-YEO3_YEAST', 300, 'NR_SC:SW-YEO3_YEAST', '5.7e-05', 48.5]);
 $count = 0;
 
 while( my $hit = $result->next_hit ) {

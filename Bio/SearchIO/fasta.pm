@@ -213,44 +213,69 @@ sub next_result{
 	   $_ = $self->_readline();
 	   my ($version) = (/version\s+(\S+)/);
 	   $version = '' unless defined $version;
+	   $self->{'_version'} = $version;
 	   $self->element({ 'Name' => 'FastaOutput_version',
 			    'Data' => $version});
-	   my ($last);
+
+	   my ($last, $leadin, $type, $querylen, $querytype, $querydef);
+
 	   while( defined($_ = $self->_readline()) ) {
-	       if( /\s+>(.+)/ || /^\s*vs\s+/ ) {
-		   my $querydef = $1;
-		   
-		   if( $last =~ /(\S+)[:,]\s*(\d+)\s+(aa|nt)/ ) {
-		       if( $self->{'_reporttype'} &&
-			   $self->{'_reporttype'} eq 'FASTA' ) {
-			   if( $3 eq 'nt') {
-			       $self->{'_reporttype'} = 'FASTN' ;
-			   } elsif( $3 eq 'aa' ) {
-			       $self->{'_reporttype'} = 'FASTP' ;
-			   }
+	       if( /^ (
+                       (?:\s+>) |             # fa33 lead-in
+                       (?:\s+\d+\s*>>>)       # fa34 mlib lead-in
+                      )
+                      (.*)
+                   /x
+		 ) {
+		   ($leadin, $querydef) = ($1, $2);
+		   if ($leadin =~ m/>>>/) {
+		       if($querydef =~ /^(.*?)\s+\-\s+(\d+)\s+(aa|nt)\s*$/o ) {
+			   ($querydef, $querylen, $querytype) = ($1, $2, $3);
+			   last;
 		       }
-		       
-		       $self->element({'Name' => 'FastaOutput_query-def',
-				       'Data' => $querydef || $1});
-		       $self->element({'Name' => 'FastaOutput_query-len',
-				       'Data' => $2});
 		   } else {
-		       $self->element({'Name' => 'FastaOutput_query-def',
-				       'Data' => $querydef });
-		       $self->warn("unable to find and set query length");
+		       if( $last =~ /(\S+)[:,]\s*(\d+)\s+(aa|nt)/ ) {
+			   ($querylen, $querytype) = ($2, $3);
+			   $querydef ||= $1;
+			   last;
+		       }
 		   }
-		   last;
-	       } 
+	       } elsif ( m/^\s*vs\s+\S+/o ) {
+		   if ( $last =~ /(\S+)[,:]\s+(\d+)\s+(aa|nt)/o) {
+		       ($querydef, $querylen, $querytype) = ($1, $2, $3);
+		       last;
+		   }
+	       }
 	       $last = $_;
 	   }
+
+	   if( $self->{'_reporttype'} &&
+	       $self->{'_reporttype'} eq 'FASTA' ) {
+	       if( $querytype eq 'nt') {
+		   $self->{'_reporttype'} = 'FASTN' ;
+	       } elsif( $querytype eq 'aa' ) {
+		   $self->{'_reporttype'} = 'FASTP' ;
+	       }
+	   }
+		   
+	   $self->element({'Name' => 'FastaOutput_query-def',
+			   'Data' => $querydef});
+	   if ($querylen) {
+	       $self->element({'Name' => 'FastaOutput_query-len',
+			       'Data' => $querylen});
+	   } else {
+	       $self->warn("unable to find and set query length");		       
+	   }
+
 
 	   if( $last =~ /^\s*vs\s+(\S+)/ ||	       	       
 	       (defined $_ && /^\s*vs\s+(\S+)/) ||
 	       (defined ($_ = $self->_readline()) && /^\s*vs\s+(\S+)/)
-	       ) {
+	     ) {
 	       $self->element({'Name' => 'FastaOutput_db',
 			       'Data' => $1});
 	   }
+
        } elsif( /(\d+) residues in\s+(\d+)\s+sequences/ ) {
 	   $self->element({'Name' => 'FastaOutput_db-let',
 			   'Data' => $1});
@@ -263,6 +288,9 @@ sub next_result{
        } elsif( /Lambda=\s+(\S+)/ ) {
 	   $self->element({'Name' => 'Statistics_lambda',
 			   'Data' => $1});	  
+       } elsif (/K=\s*(\S+)/) {
+	   $self->element({'Name' => 'Statistics_kappa',
+			   'Data' => $1});
        } elsif( /^\s*(Smith-Waterman).+(\S+)\s*matrix/ ) {	   
 	   $self->element({'Name' => 'Parameters_matrix',
 			   'Data' => $2});
@@ -271,14 +299,54 @@ sub next_result{
 	   $self->element({ 'Name' => 'FastaOutput_program',
 			    'Data' => $self->{'_reporttype'}});
 	   
-       } elsif( /The best scores are:/ ) {
+       } elsif( /The best( related| unrelated)? scores are:/ ) {
+	   my $rel = $1;
+	   my @labels = split;
+	   @labels = map {
+	       if ($_ =~ m/^E\((\d+)\)$/o) {
+		   $self->element({'Name' => 'Statistics_eff-space', 'Data' => $1});
+		   "evalue";
+	       } else {
+		   $_;
+	       }
+	   } @labels[$rel ? 5 : 4 .. $#labels];
+
 	   while( defined ($_ = $self->_readline() ) && 
-		  ! /^\s+$/ ) {	       
+		  ! /^\s+$/ ) {
 	       my @line = split;
-	       # 0 is signif, 1 is raw score
-	       push @hit_signifs, [ pop @line, pop @line];
+	       if ($line[-1] =~ m/\=/o && $labels[-1] eq 'fs') {
+		   # unlabelled alignment hit;
+		   push @labels, "aln_code";
+	       }
+
+	       my %data;
+	       @data{@labels} = splice(@line, @line - @labels);
+	       # use Data::Dumper; warn Dumper(\%data); exit;
+	       if ($line[-1] =~ m/\[([1-6rf])\]/o) {
+		   $data{lframe} = ($1 =~ /\d/o ?
+		                   ($1 <= 3   ? "+$1" : "-@{[$1-3]}") :
+				   ($1 eq 'f' ? '+1'  : '-1')
+				   );
+		   pop @line;
+	       } else {
+		   $data{lframe} = '0';
+	       }
+
+	       if ($line[0] =~ m/^\(?(\d+)\)$/) {
+		   $data{hit_len} = $1;
+	       } else {
+		   $data{hit_len} = 0;
+	       }
+
+	       my ($id, $desc) = split(/\s+/,$_,2);
+	       my @pieces = split(/\|/,$id);
+	       my $acc = pop @pieces;
+	       $acc =~ s/\.\d+$//;
+
+	       @data{qw(id desc acc)} = ($id, $desc, $acc);
+
+	       push @hit_signifs, \%data;
 	   }
-	   
        } elsif( /^\s*([T]?FAST[XYAF]).+,\s*(\S+)\s*matrix.+ktup:\s*(\d+)/ ) {
 	   $self->element({'Name' => 'Parameters_matrix',
 			   'Data' => $2});
@@ -289,14 +357,14 @@ sub next_result{
 	   $self->element({ 'Name' => 'FastaOutput_program',
 			    'Data' => $self->{'_reporttype'}});
 	   
-       } elsif( /gap\-pen:\s+([\-\+]?\d+)\/\s+([\-\+]?\d+).+width:\s+(\d+)/ ) {
+       } elsif( /(?:gap\-pen|open\/ext):\s+([\-\+]?\d+)\s*\/\s*([\-\+]?\d+).+width:\s+(\d+)/ ) {
 	   $self->element({'Name' => 'Parameters_gap-open',
 			   'Data' => $1});
 	   $self->element({'Name' => 'Parameters_gap-ext',
 			   'Data' => $2});
 	   $self->element({'Name' => 'Parameters_word-size',
 			   'Data' => $3});
-       } elsif( /^>>(.+) \((\d+)\s*(aa|nt)\)$/ ) {
+       } elsif( /^>>(.+?)\s+\((\d+)\s*(aa|nt)\)$/ ) {
 	   if( $self->in_element('hsp') ) {
 	       $self->end_element({ 'Name' => 'Hsp'});
 	   }
@@ -310,13 +378,6 @@ sub next_result{
 	   my ($id,$desc) = split(/\s+/,$1,2);
 	   $self->element({ 'Name' => 'Hit_id',
 			    'Data' => $id}); 	   
-	   my $v = shift @hit_signifs;
-	   if( defined $v ) {
-	       $self->element({'Name' => 'Hit_signif',
-			       'Data' => $v->[0]});
-	       $self->element({'Name' => 'Hit_score',
-			       'Data' => $v->[1]});
-	   }
 	   my @pieces = split(/\|/,$id);
 	   my $acc = pop @pieces;
 	   $acc =~ s/\.\d+$//;
@@ -324,23 +385,39 @@ sub next_result{
 			    'Data'  => $acc});	
 	   $self->element({ 'Name' => 'Hit_def',
 			    'Data' => $desc});	   
-	   $self->start_element({'Name' => 'Hsp'});
+
 	   $_ = $self->_readline();
 	   my ($score,$bits,$e) = ( /Z-score:\s*(\S+)\s*bits:\s*(\S+)\s+E\(\):\s*(\S+)/ );
+	   my $v = shift @hit_signifs;
+	   if( defined $v ) {
+	       @{$v}{qw(evalue bits z-sc)} = ($e, $bits, $score);
+	   }
+
+	   $self->element({'Name' => 'Hit_signif',
+			   'Data' => $v ? $v->{evalue} : $e });
+	   $self->element({'Name' => 'Hit_score',
+			   'Data' => $v ? $v->{bits} : $bits });
+
+	   $self->start_element({'Name' => 'Hsp'});
+
 	   $self->element({'Name' => 'Hsp_score',
-			   'Data' => $score});
+			   'Data' => $v ? $v->{'z-sc'} : $score });
 	   $self->element({'Name' => 'Hsp_evalue',
-			   'Data' => $e});
+			   'Data' => $v ? $v->{evalue} : $e });
 	   $self->element({'Name' => 'Hsp_bit-score',
-			   'Data' => $bits});
+			   'Data' => $v ? $v->{bits} : $bits });
 	   $_ = $self->_readline();
 	   if( /Smith-Waterman score:\s*(\d+)/ ) {
 	       $self->element({'Name' => 'Hsp_sw-score',
 			       'Data' => $1});
 	   }
-	   if( /(\d+(\.\d+)?)\%\s*identity(\s*\(\s*(\d+(\.\d+)?)\%\s*ungapped\))?\s*in\s*(\d+)\s+(aa|nt)\s+overlap\s*\((\d+)\-(\d+):(\d+)\-(\d+)\)/ ) {
+	   if( / (\S+)\% \s* identity
+                 (?:\s* \( (\S+)\% \s* ungapped \) )?
+                 \s* in \s* (\d+) \s+ (?:aa|nt) \s+ overlap \s*
+                 \( (\d+) \- (\d+) : (\d+) \- (\d+) \)
+               /x ) {
 	       my ($identper,$gapper,$len,$querystart,
-		   $queryend,$hitstart,$hitend) = ($1,$4,$6,$8,$9,$10,$11);
+		   $queryend,$hitstart,$hitend) = ($1,$2,$3,$4,$5,$6,$7);
 	       my $ident = POSIX::ceil(($identper/100) * $len);
 	       my $gaps = ( defined $gapper ) ? POSIX::ceil ( ($gapper/100) * $len) : undef;
 	       
@@ -361,6 +438,26 @@ sub next_result{
 			       'Data' => $hitstart});
 	       $self->element({'Name' => 'Hsp_hit-to',
 			       'Data' => $hitend});
+	       
+	       }
+
+	   if ($v) {
+	       $self->element({'Name' => 'Hsp_querygaps', 'Data' => $v->{qgaps} }) if exists $v->{qgaps};
+	       $self->element({'Name' => 'Hsp_hitgaps', 'Data' => $v->{lgaps} }) if exists $v->{lgaps};
+
+	       if ($self->{'_reporttype'} =~ m/^FAST[NXY]$/o &&
+		   4 == scalar grep { exists $v->{$_} } qw(an0 ax0 pn0 px0)) {
+		   if ($v->{ax0} < $v->{an0}) {
+		       $self->element({'Name' => 'Hsp_query-frame', 'Data' => "-@{[(($v->{px0} - $v->{ax0}) % 3) + 1]}" });
+		   } else {
+		       $self->element({'Name' => 'Hsp_query-frame', 'Data' => "+@{[(($v->{an0} - $v->{pn0}) % 3) + 1]}" });
+		   }
+	       } else {
+		   $self->element({'Name' => 'Hsp_query-frame', 'Data' => 0 });
+	       }
+
+	       $self->element({'Name' => 'Hsp_hit-frame', 'Data' => $v->{lframe} });
+
 	   } else {
 	       $self->warn( "unable to parse FASTA score line: $_");
 	   }
@@ -383,8 +480,185 @@ sub next_result{
 		   $self->_pushback($_);
 	       }
 	   }
+
+           if (@hit_signifs) {
+	       # process remaining best hits
+	       for my $h (@hit_signifs) {
+		   #  Hsp_score Hsp_evalue Hsp_bit-score
+		   # Hsp_sw-score Hsp_gaps Hsp_identity Hsp_positive
+		   # Hsp_align-len Hsp_query-from Hsp_query-to
+		   # Hsp_hit-from Hsp_hit-to Hsp_qseq Hsp_midline
+
+		   $self->start_element({'Name' => 'Hit'});
+		   $self->element({ 'Name' => 'Hit_len',
+				    'Data' => $h->{hit_len}
+				  }) if exists $h->{hit_len};
+		   $self->element({ 'Name' => 'Hit_id',
+				    'Data' => $h->{id}
+				  }) if exists $h->{id};
+		   $self->element({ 'Name' =>  'Hit_accession',
+				    'Data'  => $h->{acc}
+				  }) if exists $h->{acc};
+		   $self->element({ 'Name' => 'Hit_def',
+				    'Data' => $h->{desc}
+				  }) if exists $h->{desc};
+		   $self->element({'Name' => 'Hit_signif',
+				   'Data' => $h->{evalue}
+				  }) if exists $h->{evalue};
+		   $self->element({'Name' => 'Hit_score',
+				   'Data' => $h->{bits}
+				  }) if exists $h->{bits};
+
+		   $self->start_element({'Name' => 'Hsp'});
+		   $self->element({'Name' => 'Hsp_score', 'Data' => $h->{'z-sc'} }) if exists $h->{'z-sc'};
+		   $self->element({'Name' => 'Hsp_evalue', 'Data' => $h->{evalue} }) if exists $h->{evalue};
+		   $self->element({'Name' => 'Hsp_bit-score', 'Data' => $h->{bits} }) if exists $h->{bits};
+		   $self->element({'Name' => 'Hsp_sw-score', 'Data' => $h->{sw} }) if exists $h->{sw};
+		   $self->element({'Name' => 'Hsp_gaps', 'Data' => $h->{'%_gid'} }) if exists $h->{'%_gid'};
+		   $self->element({'Name' => 'Hsp_identity', 'Data' => POSIX::ceil($h->{'%_id'} * $h->{alen}) })
+		       if (exists $h->{'%_id'} && exists $h->{alen});
+		   $self->element({'Name' => 'Hsp_positive', 'Data' => 100 * $h->{'%_id'} }) if exists $h->{'%_id'};
+		   $self->element({'Name' => 'Hsp_align-len', 'Data' => $h->{alen} }) if exists $h->{alen};
+		   $self->element({'Name' => 'Hsp_query-from', 'Data' => $h->{an0} }) if exists $h->{an0};
+		   $self->element({'Name' => 'Hsp_query-to', 'Data' => $h->{ax0} }) if exists $h->{ax0};
+		   $self->element({'Name' => 'Hsp_hit-from', 'Data' => $h->{an1} }) if exists $h->{an1};
+		   $self->element({'Name' => 'Hsp_hit-to', 'Data' => $h->{ax1} }) if exists $h->{ax1};
+
+		   $self->element({'Name' => 'Hsp_querygaps', 'Data' => $h->{qgaps} }) if exists $h->{qgaps};
+		   $self->element({'Name' => 'Hsp_hitgaps', 'Data' => $h->{lgaps} }) if exists $h->{lgaps};
+
+		   if ($self->{'_reporttype'} =~ m/^FAST[NXY]$/o &&
+		       4 == scalar grep { exists $h->{$_} } qw(an0 ax0 pn0 px0)) {
+		       if ($h->{ax0} < $h->{an0}) {
+			   $self->element({'Name' => 'Hsp_query-frame', 'Data' => "-@{[(($h->{px0} - $h->{ax0}) % 3) + 1]}" });
+		       } else {
+			   $self->element({'Name' => 'Hsp_query-frame', 'Data' => "+@{[(($h->{an0} - $h->{pn0}) % 3) + 1]}" });
+		       }
+		   } else {
+		       $self->element({'Name' => 'Hsp_query-frame', 'Data' => 0 });
+		   }
+
+		   $self->element({'Name' => 'Hsp_hit-frame', 'Data' => $h->{lframe} });
+
+		   $self->end_element({'Name' => 'Hsp'});
+		   $self->end_element({'Name' => 'Hit'});
+	       }
+	   }
+
 	   $self->end_element({ 'Name' => 'FastaOutput'});
 	   return $self->end_document();
+       } elsif( /^\s*\d+>>>/) {
+	   if ($self->in_element('FastaOutput')) {
+	       warn "ending!";
+	       if( $self->in_element('hsp') ) {
+		   $self->end_element({'Name' => 'Hsp'});
+	       } 
+	       if( $self->in_element('hit') ) {
+		   $self->end_element({'Name' => 'Hit'});
+	       }
+
+	       if (@hit_signifs) {
+		   # process remaining best hits
+		   for my $h (@hit_signifs) {
+		       $self->start_element({'Name' => 'Hit'});
+		       $self->element({ 'Name' => 'Hit_len',
+					'Data' => $h->{hit_len}
+				      }) if exists $h->{hit_len};
+		       $self->element({ 'Name' => 'Hit_id',
+					'Data' => $h->{id}
+				      }) if exists $h->{id};
+		       $self->element({ 'Name' =>  'Hit_accession',
+					'Data'  => $h->{acc}
+				      }) if exists $h->{acc};
+		       $self->element({ 'Name' => 'Hit_def',
+					'Data' => $h->{desc}
+				      }) if exists $h->{desc};
+		       $self->element({'Name' => 'Hit_signif',
+				       'Data' => $h->{evalue}
+				      }) if exists $h->{evalue};
+		       $self->element({'Name' => 'Hit_score',
+				       'Data' => $h->{bits}
+				      }) if exists $h->{bits};
+
+		       $self->start_element({'Name' => 'Hsp'});
+		       $self->element({'Name' => 'Hsp_score', 'Data' => $h->{'z-sc'} }) if exists $h->{'z-sc'};
+		       $self->element({'Name' => 'Hsp_evalue', 'Data' => $h->{evalue} }) if exists $h->{evalue};
+		       $self->element({'Name' => 'Hsp_bit-score', 'Data' => $h->{bits} }) if exists $h->{bits};
+		       $self->element({'Name' => 'Hsp_sw-score', 'Data' => $h->{sw} }) if exists $h->{sw};
+		       $self->element({'Name' => 'Hsp_gaps', 'Data' => $h->{'%_gid'} }) if exists $h->{'%_gid'};
+		       $self->element({'Name' => 'Hsp_identity', 'Data' => POSIX::ceil($h->{'%_id'} * $h->{alen}) })
+			   if (exists $h->{'%_id'} && exists $h->{alen});
+		       $self->element({'Name' => 'Hsp_positive', 'Data' => $h->{'%_id'} }) if exists $h->{'%_id'};
+		       $self->element({'Name' => 'Hsp_align-len', 'Data' => $h->{alen} }) if exists $h->{alen};
+		       $self->element({'Name' => 'Hsp_query-from', 'Data' => $h->{an0} }) if exists $h->{an0};
+		       $self->element({'Name' => 'Hsp_query-to', 'Data' => $h->{ax0} }) if exists $h->{ax0};
+		       $self->element({'Name' => 'Hsp_hit-from', 'Data' => $h->{an1} }) if exists $h->{an1};
+		       $self->element({'Name' => 'Hsp_hit-to', 'Data' => $h->{ax1} }) if exists $h->{ax1};
+
+		       $self->element({'Name' => 'Hsp_querygaps', 'Data' => $h->{qgaps} }) if exists $h->{qgaps};
+		       $self->element({'Name' => 'Hsp_hitgaps', 'Data' => $h->{lgaps} }) if exists $h->{lgaps};
+		       
+		       if ($self->{'_reporttype'} =~ m/^FAST[NXY]$/o &&
+			   4 == scalar grep { exists $h->{$_} } qw(an0 ax0 pn0 px0)) {
+			   if ($h->{ax0} < $h->{an0}) {
+			       $self->element({'Name' => 'Hsp_query-frame', 'Data' => "-@{[(($h->{px0} - $h->{ax0}) % 3) + 1]}" });
+			   } else {
+			       $self->element({'Name' => 'Hsp_query-frame', 'Data' => "+@{[(($h->{an0} - $h->{pn0}) % 3) + 1]}" });
+			   }
+		       } else {
+			   $self->element({'Name' => 'Hsp_query-frame', 'Data' => 0 });
+		       }
+
+		       $self->element({'Name' => 'Hsp_hit-frame', 'Data' => $h->{lframe} });
+
+		       $self->end_element({'Name' => 'Hsp'});
+		       $self->end_element({'Name' => 'Hit'});
+		   }
+	       }
+	       $self->end_element({ 'Name' => 'FastaOutput' });
+	       $self->_pushback($_);
+	       return $self->end_document();
+	   } else {
+	       $self->start_element({ 'Name' => 'FastaOutput' });
+	       $seentop = 1;
+	       $self->element({ 'Name' => 'FastaOutput_program',
+				'Data' => $self->{'_reporttype'} });
+	       $self->element({ 'Name' => 'FastaOutput_version',
+				'Data' => $self->{'_version'} });
+
+	       my ($type, $querylen, $querytype, $querydef);
+
+	       if( /^\s+\d+\s*>>>(.*)/ ) {
+		   $querydef = $1;
+		   if($querydef =~ /^(.*?)\s+\-\s+(\d+)\s+(aa|nt)\s*$/o ) {
+		       ($querydef, $querylen, $querytype) = ($1, $2, $3);
+		   }
+	       }
+
+	       if( $self->{'_reporttype'} &&
+		   $self->{'_reporttype'} eq 'FASTA' ) {
+		   if( $querytype eq 'nt') {
+		       $self->{'_reporttype'} = 'FASTN' ;
+		   } elsif( $querytype eq 'aa' ) {
+		       $self->{'_reporttype'} = 'FASTP' ;
+		   }
+	       }
+		   
+	       $self->element({'Name' => 'FastaOutput_query-def',
+			       'Data' => $querydef});
+	       if ($querylen) {
+		   $self->element({'Name' => 'FastaOutput_query-len',
+				   'Data' => $querylen});
+	       } else {
+		   $self->warn("unable to find and set query length");		       
+	       }
+
+
+	       if( defined ($_ = $self->_readline()) && /^\s*vs\s+(\S+)/ ) {
+		   $self->element({'Name' => 'FastaOutput_db',
+				   'Data' => $1});
+	       }
+	   }
        } elsif( $self->in_element('hsp' ) ) {
 	   
 	   my @data = ( '','','');
@@ -399,6 +673,9 @@ sub next_result{
 		   $self->_pushback($_);
 		   last;
 	       } elsif( /^>>/ ) {
+		   $self->_pushback($_);
+		   last;
+	       } elsif (/^\s*\d+>>>/) {
 		   $self->_pushback($_);
 		   last;
 	       }
