@@ -707,7 +707,7 @@ sub select {
     $self->throw("Select $start [$start] has to be smaller than or equal to end [$end]")
 	unless $start <= $end;
 
-    my $aln = new $self;
+    my $aln = $self->new;
     foreach my $pos ($start .. $end) {
 	$aln->add_seq($self->get_seq_by_pos($pos));
     }
@@ -735,7 +735,7 @@ sub select_noncont {
 	$self->throw("position must be a positive integer, > 0 and <= $end not [$_]")
 	    unless( /^\d+$/ && $_ > 0 && $_ <= $end );
     }
-    my $aln = new $self;
+    my $aln = $self->new;
     foreach my $p (@pos) {
 	$aln->add_seq($self->get_seq_by_pos($p));
     }
@@ -755,12 +755,14 @@ sub select_noncont {
  Returns   : a Bio::SimpleAlign object
  Args      : positive integer for start column
              positive integer for end column
+             optional boolean which if true will keep gap only columns too
+              in the newly created slice
 
 =cut
 
 sub slice {
     my $self = shift;
-    my ($start, $end) = @_;
+    my ($start, $end,$keep_gap_only) = @_;
 
     $self->throw("Slice start has to be a positive integer, not [$start]")
 	unless $start =~ /^\d+$/ and $start > 0;
@@ -768,16 +770,16 @@ sub slice {
 	unless $end =~ /^\d+$/ and $end > 0;
     $self->throw("Slice $start [$start] has to be smaller than or equal to end [$end]")
 	unless $start <= $end;
-    my $aln_length = $self->length;
     $self->throw("This alignment has only ". $self->length.
 		  " residues. Slice start [$start] is too bigger.")
 	 if $start > $self->length;
 
-    my $aln = new $self;
+    my $aln = $self->new;
     $aln->id($self->id);
     foreach my $seq ( $self->each_seq() ) {
-
-	my $new_seq = new Bio::LocatableSeq (-id => $seq->id);
+	my $new_seq = Bio::LocatableSeq->new(-id      => $seq->id,
+					     -strand  => $seq->strand,
+					     -verbose => $self->verbose);
 
 
 	# seq
@@ -790,7 +792,6 @@ sub slice {
 	
 	my $slice_seq = $seq->subseq($start, $seq_end);
 	$new_seq->seq( $slice_seq );
-
 	# start
 	if ($start > 1) {
 	    my $pre_start_seq = $seq->subseq(1, $start - 1);
@@ -803,15 +804,18 @@ sub slice {
 	# end
 	$slice_seq =~ s/\W//g;
 	$new_seq->end( $new_seq->start + CORE::length($slice_seq) - 1 );
-
+	
 	if ($new_seq->start and $new_seq->end >= $new_seq->start) {
 	    $aln->add_seq($new_seq);
 	} else {
-	    my $nse = $seq->get_nse();
-	    $self->warn("Slice [$start-$end] of sequence [$nse] contains no residues.".
-			" Sequence excluded from the new alignment.");
+	    if( $keep_gap_only ) {
+		$aln->add_seq($new_seq);
+	    } else {
+		my $nse = $seq->get_nse();
+		$self->warn("Slice [$start-$end] of sequence [$nse] contains no residues.".
+			    " Sequence excluded from the new alignment.");
+	    }
 	}
-
     }
 
     return $aln;
@@ -850,7 +854,7 @@ sub remove_columns{
     }
 
     my $match_line = $self->match_line;
-    my $aln = new $self;
+    my $aln = $self->new;
 
     my @remove;
     my $length = 0;
@@ -900,7 +904,7 @@ sub remove_gaps {
     } else {
         $gap_line = $self->gap_line;
     }
-    my $aln = new $self;
+    my $aln = $self->new;
 
     my @remove;
     my $length = 0;
@@ -931,7 +935,9 @@ sub _remove_col {
 
     #splice out the segments and create new seq
     foreach my $seq($self->each_seq){
-        my $new_seq = new Bio::LocatableSeq(-id=>$seq->id);
+        my $new_seq = new Bio::LocatableSeq(-id      => $seq->id,
+					    -strand  => $seq->strand,
+					    -verbose => $self->verbose);
         my $sequence = $seq->seq;
         foreach my $pair(@{$remove}){
             my $start = $pair->[0];
