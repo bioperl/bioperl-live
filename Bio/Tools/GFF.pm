@@ -156,6 +156,7 @@ sub features {
      # Have we seen a feature with the same ID before?  If so, then the GFF3
      # semantics are trying to tell us that this is a disjunct location.
      if (my $prev = $features{$id}) {
+       $self->_fixup_coordinates($feat,@features{@groups}); # BUG: MULTIPLE PARENTS?
        $self->_add_disjunct_location($prev,$feat);
        next;  # we're done with this feature
      }
@@ -203,22 +204,18 @@ sub _add_disjunct_location {
      # disjunct location, such as a segment in a gapped alignment.
      # Alternatively, somebody *might* by trying to indicate that this
      # is an alternative coordinate system for the same feature; not a
-     # good idea, but we'll handle it gracefully.  disjunct location
-     # on the primary coord system?
-  if ($prev->seq_id eq $feat->seq_id) { 
+     # good idea, but we'll handle it gracefully.
+  if ($prev->seq_id eq $feat->seq_id) {
 
     # add a disjunct location to the primary coordinate space
     $prev->location->add_sub_Location($feat->location);
 
     # and to the alternative coordinate spaces, if any
     for my $alt ($feat->alternative_locations) {
-      $_->add_sub_Location($alt) foreach $prev->alternative_locations($alt->seq_id);
+      foreach ($prev->alternative_locations($alt->seq_id)) {
+	$_->add_sub_Location($alt);
+      }
     }
-  }
-
-  # disjunct location on an alternative coord system?
-  elsif (my @locations = $prev->alternative_locations($feat->seq_id)) {
-    $_->add_sub_Location($feat->location) foreach @locations;
   }
 
   # never seen this seq_id before, so create a new alternative
@@ -247,7 +244,6 @@ sub _add_disjunct_location {
 
 sub next_feature {
     my ($self) = @_;
-    
     my $gff_string;
 
     # be graceful about empty lines or comments, and make sure we return undef
@@ -491,10 +487,12 @@ sub _from_gff3_string {
       if ($name eq 'Target') {
           my ($target,$tstart,$tend) = $value =~ /^(.+):(\d+)\.\.(\d+)$/ or next;
           my $tstrand = ($start < $end) ? +1 : -1;
-          my $location = Bio::Location::Simple->new(-start  => $tstart,
-                                                    -end    => $tend,
-                                                    -seq_id => $target,
-                                                    -strand => $tstrand);
+          my $location = Bio::Location::Simple->new(
+						    -start  => $tstart,
+						    -end    => $tend,
+						    -seq_id => $target,
+						    -strand => $tstrand
+						   );
           $feat->add_alternative_locations($location);
           next;
       }
@@ -518,42 +516,53 @@ sub _unescape {
  Usage   :
  Function:
  Example :
- Returns : 'UNCHANGED','REMAPPED'
+ Returns : 'UNCHANGED','REMAPPED','DISJUNCT'
  Args    : ($subfeature,$parent)
 
  Checks that subfeature shares the same coordinate system as its
  parent ($subfeature->seq_id eq $parent->seq_id).  If not,
  it checks whether $subfeature->seq_id eq $parent->unique_id,
  in which case it maps subfeature coordinates into parent
- coordinates.  Otherwise raises an exception.
+ coordinates.  Otherwise it returns DISJUNCT and leaves the
+ coordinates alone.
 
 =cut
 
 sub _fixup_coordinates {
   my $self = shift;
-  my ($feat,$parent) = @_;
-  my $subref = $feat->seq_id;
-  my $parref = $parent->seq_id;
-  my $parid  = $parent->unique_id;
-  return 'UNCHANGED' if $subref eq $parref;
-  $self->throw("subfeature must use same coordinate system as parent group, or be relative to parent")
-     unless $parid = $subref;
+  my ($feat,@parents) = @_;
+  return unless $feat && @parents;
+  my $status = 'UNCHANGED';
+  for my $parent (@parents) {
+    my $parref = $parent->seq_id;
+    my $parid  = $parent->unique_id;
 
-  # do coordinate mapping now
-  my ($start,$end,$strand);
-  if ($feat->strand >= 0) {
-     $start  = $parent->start + ($feat->start - 1);
-     $end    = $start + $feat->length - 1;
-     $strand = $parent->strand;
-  } else {
-     $end   = $parent->end   - ($feat->start - 1);
-     $start = $end - $feat->length + 1;
-     $strand *= -1;
+    # do coordinate mapping now
+    my ($start,$end,$strand);
+    my $subref = $feat->seq_id;
+    return $status if $subref eq $parref;
+
+    if ($parid ne $subref) {
+      $status = 'DISJUNCT';
+      next;
+    }
+
+    if ($feat->strand >= 0) {
+      $start  = $parent->start + ($feat->start - 1);
+      $end    = $start + $feat->length - 1;
+      $strand = $parent->strand;
+    } else {
+      $end   = $parent->end   - ($feat->start - 1);
+      $start = $end - $feat->length + 1;
+      $strand *= -1;
+    }
+    $feat->strand($strand);
+    $feat->start($start);
+    $feat->end($end);
+    $status = 'REMAPPED';
+    last;
   }
-  $feat->start($start);
-  $feat->end($end);
-  $feat->strand($strand);
-  return 'REMAPPED';
+  return $status;
 }
 
 =head2 write_feature

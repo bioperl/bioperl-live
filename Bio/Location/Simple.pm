@@ -328,6 +328,32 @@ sub to_FTstring {
     return $str;
 }
 
+=head2 add_sub_Location
+
+ Title   : add_sub_Location
+ Usage   : $loc->add_sub_Location(@locationIobjs);
+ Function: add a additional sublocation
+ Returns : number of current sub locations
+ Args    : list of Bio::LocationI implementing object(s) to add
+
+If the add_sub_Location() method is called, it will automatically
+promote this object into a Bio::Location::Split and make the current
+location a sublocation within it.
+
+=cut
+
+sub add_sub_Location {
+   my ($self,@args) = @_;
+   my $seqid = $self->seq_id;
+   require Bio::Location::Split;
+   my $subloc  = bless {%$self},ref $self;
+   push @args,$subloc;
+   my $newself = Bio::Location::Split->new(-seq_id=>$seqid);
+   %$self = %$newself;
+   bless $self,ref $newself;
+   $self->add_sub_Location(@args);
+}
+
 #
 # not tested
 #

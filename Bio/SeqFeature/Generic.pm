@@ -313,6 +313,8 @@ sub add_alternative_locations {
     }
 }
 
+*add_alternative_location = \&add_alternative_locations;
+
 =head2 alternative_locations
 
  Title   : alternative_locations
@@ -745,7 +747,7 @@ sub unique_id {
     if ( defined $value ) {
 	$obj->{'_gsf_unique_id'} = $value;
     }
-    return $obj->{'_gsf_unique_id'} || "$obj";
+    return $obj->{'_gsf_unique_id'};
 }
 
 =head2 display_name
