@@ -368,7 +368,7 @@ sub write_seq {
 		$self->throw("$seq is not a PrimarySeqI compliant sequence object!");
 	    }
 	}
-	my $str = $seq->seq;
+	my $str = $seq->seq || '';
 
 	my $mol;
 	my $div;
@@ -381,7 +381,7 @@ sub write_seq {
 
 	if ($seq->can('molecule')) {
 	    $mol = $seq->molecule();
-	    $mol = 'RNA' if $mol =~ /RNA/; # no 'mRNA' 
+	    $mol = 'RNA' if defined $mol && $mol =~ /RNA/; # no 'mRNA' 
 	}
 	elsif ($seq->can('primary_seq') && defined $seq->primary_seq->alphabet) {
 	    my $alphabet =$seq->primary_seq->alphabet;
@@ -596,7 +596,7 @@ sub write_seq {
 	$self->_print( "XX\n");
 
 	# finished printing features.
-
+	
 	$str =~ tr/A-Z/a-z/;
 
 	# Count each nucleotide
