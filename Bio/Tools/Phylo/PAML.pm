@@ -749,6 +749,7 @@ sub _parse_Forestry {
 	    $loglikelihood = $1;
 	} elsif( /^\(/) {
 	    if( $okay > 0 ) {
+		s/([\,:])\s+/$1/g;
 		my $treestr = new IO::String($_);
 		my $treeio = new Bio::TreeIO(-fh => $treestr,
 					     -format => 'newick');
