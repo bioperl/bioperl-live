@@ -298,9 +298,9 @@ qq{
 
 #	$hspstr .= "<a name=\"$acc\"><pre>\n".
 	$hspstr .= "<a name=\"$acc\">\n".
-	    sprintf("><b>%s</b> %s\n<dd>Length = %d</dd><p>\n\n", $url_align, 
+	    sprintf("><b>%s</b> %s\n<dd>Length = %s</dd><p>\n\n", $url_align, 
 			defined $hit->description ? $hit->description : '', 
-		    $hit->length);
+		    &_numwithcommas($hit->length));
 	my $ct = 0;
 	foreach my $hsp (@hsps ) {
 	    next if( $hspfilter && ! &{$hspfilter}($hsp) );
