@@ -29,8 +29,8 @@ sub new {
 sub bump {
   my $bump = shift->SUPER::bump(@_);
   return unless defined $bump;
-  return 1  if $bump > 1;
-  return -1 if $bump < 1;
+  return 1  if $bump >  1;
+  return -1 if $bump < -1;
   return $bump;
 }
 
