@@ -12,7 +12,7 @@
 
 =head1 NAME
 
-	Bio::Tools::dpAlign - Perl extension to do pairwise dynamic programming sequence alignment
+Bio::Tools::dpAlign - Perl extension to do pairwise dynamic programming sequence alignment
 
 =head1 SYNOPSIS
 
@@ -115,7 +115,7 @@
 	contains the XS code that implements the algorithms. This 
 	package won't work if you haven't compiled the bioperl-ext
 	package.
-	
+
 =head1 TO-DO
 
         1) Allow custom substitution matrix.
