@@ -18,7 +18,7 @@ Bio::Tools::Genewise - Results of one Genewise run
   my $gw = Bio::Tools::Genewise(-file=>"genewise.out");
 
   while (my $gene = $gw->next_prediction){
-      my @transcripts = $g->transcripts;
+      my @transcripts = $gw->transcripts;
       foreach my $t(@transcripts){
         my @exons =  $t->exons;
         foreach my $e(@exons){
@@ -67,7 +67,7 @@ The rest of the documentation details each of the object methods. Internal metho
 
 
 package Bio::Tools::Genewise;
-use vars qw(@ISA);
+use vars qw(@ISA $Srctag);
 use strict;
 use Symbol;
 
@@ -81,7 +81,7 @@ use Bio::SeqFeature::Gene::Transcript;
 use Bio::SeqFeature::Gene::GeneStructure;
 
 @ISA = qw(Bio::Root::Root Bio::Root::IO);
-
+$Srctag = 'genewise';
 
 =head2 new
 
@@ -201,69 +201,92 @@ sub _target_id {
 
 sub next_prediction {
     my ($self) = @_;
-    my $genes = new Bio::SeqFeature::Gene::GeneStructure ;
-    my $transcript = new Bio::SeqFeature::Gene::Transcript ;
+    my $genes = new Bio::SeqFeature::Gene::GeneStructure(-source => $Srctag);
+    my $transcript = new Bio::SeqFeature::Gene::Transcript(-source => $Srctag);
     $/ = "//";
     my $score;
     my $prot_id;
     my $target_id;
     while ($_ = $self->_readline) {
-
+	$self->debug( $_ ) if( $self->verbose > 0);
         ($score) = $_=~m/Score\s+(\d+[\.][\d]+)/;
         $self->_score($score) unless defined $self->_score;
         ($prot_id) = $_=~m/Query protein:\s+([\w\.]+)/;
         $self->_prot_id($prot_id) unless defined $self->_prot_id;
-        ($target_id) = $_=~m/Target Sequence\s+([\w\.]+)/;
+        ($target_id) = $_=~m/Target Sequence\s+([\w\.]+)/;	
         $self->_target_id($target_id) unless defined $self->_target_id;
-
-
         next unless /Gene\s+\d+\n/;
 
         #grab exon + supporting feature info
-        my @exons =$_=~ m/(Exon .+\s+Supporting .+)/g;
-        my $nbr = 1;;
+        my @exons;
+	
+	unless ( @exons = $_ =~ m/(Exon .+\s+Supporting .+)/g ) {
+	    @exons = $_ =~ m/(Exon .+\s+)/g;
+
+	}
+        my $nbr = 1;
 
         #loop through each exon-supporting feature pair
         foreach my $e (@exons){
-          my ($e_start,$e_end,$phase) = $e=~ m/Exon\s+(\d+)\s+(\d+)\s+phase\s+(\d+)/;
-          my $e_strand;
-          ($e_start,$e_end,$e_strand) = $self->_get_strand($e_start,$e_end);
-          $transcript->strand($e_strand) unless $transcript->strand != 0;
+	    my ($e_start,$e_end,$phase) = $e =~ m/Exon\s+(\d+)\s+(\d+)\s+phase\s+(\d+)/;
+	    my $e_strand;
+	    ($e_start,$e_end,$e_strand) = $self->_get_strand($e_start,$e_end);
+	    $transcript->strand($e_strand) unless $transcript->strand != 0;
+	    
+	    my $exon = new Bio::SeqFeature::Gene::Exon
+		(-seq_id=>$self->_target_id,
+		 -source => $Srctag,
+		 -start=>$e_start, 
+		 -end=>$e_end, 
+		 #-frame => $phase,
+		 -strand=>$e_strand);
+	    $exon->add_tag_value('phase',$phase);
+	    if( $self->_prot_id ) {
+		$exon->add_tag_value('Sequence',"Protein:".$self->_prot_id);
+	    }
+	    $exon->add_tag_value("Exon",$nbr++);
 
-          my $exon = new Bio::SeqFeature::Gene::Exon (-seq_id=>"Exon $nbr", -start=>$e_start, -end=>$e_end, -strand=>$e_strand);
-          $nbr++;
-          $exon->add_tag_value('phase',$phase);
-
-          my ($geno_start,$geno_end,$prot_start,$prot_end) = $_=~m/Supporting\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)/;
+	    if( $e =~ m/Supporting\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)/) {
+		my ($geno_start,$geno_end,
+		    $prot_start,
+		    $prot_end) = ($1,$2,$3,$4);
           
-          my $prot_strand;
-          ($prot_start,$prot_end,$prot_strand) = $self->_get_strand($prot_start,$prot_end);
-          my $pf = new Bio::SeqFeature::Generic( -start   => $prot_start,
-                                              -end     => $prot_end,
-                                              -seq_id  => $self->_prot_id,
-                                              -score   => $self->_score,
-                                              -strand  => $prot_strand,
-                                              -source=> 'genewise',
-                                              -primary=> 'supporting_protein_feature',
-                                              );
-          my $geno_strand;
-          ($geno_start,$geno_end,$geno_strand) = $self->_get_strand($geno_start,$geno_end);
-          my $gf = new Bio::SeqFeature::Generic( -start   => $geno_start,
-                                              -end     => $geno_end,
-                                              -seq_id  => $self->_target_id,
-                                              -score   => $self->_score,
-                                              -strand  => $geno_strand,
-                                              -source=> 'genewise',
-                                              -primary=> 'supporting_genomic_feature',
-                                              );
-          my $fp = new Bio::SeqFeature::FeaturePair(-feature1=>$gf,-feature2=>$pf);
-
-          $exon->add_tag_value( 'supporting_feature' => $fp );
+		my $prot_strand;
+		($prot_start,$prot_end,
+		 $prot_strand) = $self->_get_strand($prot_start,$prot_end);
+		
+		my $pf = new Bio::SeqFeature::Generic
+		    ( -start   => $prot_start,
+		      -end     => $prot_end,
+		      -seq_id  => $self->_prot_id,
+		      -score   => $self->_score,
+		      -strand  => $prot_strand,
+		      -source  => $Srctag,
+		      -primary=> 'supporting_protein_feature',
+		      );
+		my $geno_strand;
+		($geno_start,$geno_end,
+		 $geno_strand) = $self->_get_strand($geno_start,$geno_end);
+		my $gf = new Bio::SeqFeature::Generic
+		    ( -start   => $geno_start,
+		      -end     => $geno_end,
+		      -seq_id  => $self->_target_id,
+		      -score   => $self->_score,
+		      -strand  => $geno_strand,
+		      -source  => $Srctag,
+		      -primary => 'supporting_genomic_feature',
+		      );
+		my $fp = new Bio::SeqFeature::FeaturePair(-feature1=>$gf,
+							  -feature2=>$pf);
+	  
+		$exon->add_tag_value( 'supporting_feature' => $fp );
+	    }
           $transcript->add_exon($exon);
         }
-
-    $genes->add_transcript($transcript);
-    return $genes;
-  }
+	$transcript->seq_id($self->_target_id);
+	$genes->add_transcript($transcript);
+	$genes->seq_id($self->_target_id);
+	return $genes;
+    }
 }
 1;
