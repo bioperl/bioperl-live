@@ -400,7 +400,7 @@ sub write_seq {
        # Hence, switch to display_id(); _every_ sequence is supposed to have
        # this. HL 2000/09/03
        $temp_line = sprintf ("%10s     STANDARD;      %3s;   %d AA.",
-			     $seq->display_id()."_".$div, $mol, $len);
+			     $seq->display_id(), $mol, $len);
    } 
 
    $self->_print( "ID   $temp_line\n");   
