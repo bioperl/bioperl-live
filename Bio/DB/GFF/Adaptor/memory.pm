@@ -272,7 +272,7 @@ sub search_notes {
     my $matches    = 0;
     my $note;
     for my $w (@words) {
-      my @hits = $value =~ /($w)/g;
+      my @hits = $value =~ /($w)/ig;
       $note ||= $value if @hits;
       $matches += @hits;
     }

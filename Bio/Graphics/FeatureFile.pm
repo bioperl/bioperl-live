@@ -509,8 +509,9 @@ sub parse_line {
   }
 
   if ($self->{coordinate_mapper} && $ref) {
-    ($ref,@parts) = $self->{coordinate_mapper}->($ref,@parts);
-    return 1 unless $ref;
+    my @remapped = $self->{coordinate_mapper}->($ref,@parts);
+    # return 1 unless @remapped;
+    ($ref,@parts) = @remapped if @remapped;
   }
 
   $type = '' unless defined $type;
@@ -975,6 +976,114 @@ sub get_seq_stream {
   my @args = $_[0] =~ /^-/ ? (@_,-iterator=>1) : (-types=>\@_,-iterator=>1);
   $self->features(@args);
 }
+
+=head2 get_feature_by_name
+
+ Usage   : $db->get_feature_by_name(-name => $name)
+ Function: fetch features by their name
+ Returns : a list of Bio::DB::GFF::Feature objects
+ Args    : the name of the desired feature
+ Status  : public
+
+This method can be used to fetch a named feature from the file.
+
+The full syntax is as follows.  Features can be filtered by
+their reference, start and end positions
+
+  @f = $db->get_feature_by_name(-name  => $name,
+                                -ref   => $sequence_name,
+                                -start => $start,
+                                -end   => $end);
+
+This method may return zero, one, or several Bio::Graphics::Feature
+objects.
+
+=cut
+
+sub get_feature_by_name {
+   my $self = shift;
+   my ($name,$ref,$start,$end) = rearrange(['NAME','REF','START','END'],@_);
+   my $match = <<'END';
+sub {
+        my $f = shift;
+END
+   if (defined $name) {
+      if ($name =~ /[\?\*]/) {  # regexp
+        $name =  quotemeta($name);
+        $name =~ s/\\\?/.?/g;
+        $name =~ s/\\\*/.*/g;
+        $match .= "     return unless \$f->display_name =~ /$name/i;\n";
+      } else {
+        $match .= "     return unless \$f->display_name eq '$name';\n";
+      }
+   }
+
+   if (defined $ref) {
+      $match .= "     return unless \$f->ref eq '$ref';\n";
+   }
+   if (defined $start && $start =~ /^-?\d+$/) {
+      $match .= "     return unless \$f->stop >= $start;\n";
+   }
+   if (defined $end && $end =~ /^-?\d+$/) {
+      $match .= "     return unless \$f->start <= $end;\n";
+   }
+   $match .= "     return 1;\n}";
+
+   my $match_sub = eval $match;
+   unless ($match_sub) {
+     warn $@;
+     return;
+   }
+
+   return grep {$match_sub->($_)} $self->features;
+}
+
+=head2 search_notes
+
+ Title   : search_notes
+ Usage   : @search_results = $db->search_notes("full text search string",$limit)
+ Function: Search the notes for a text string
+ Returns : array of results
+ Args    : full text search string, and an optional row limit
+ Status  : public
+
+Each row of the returned array is a arrayref containing the following fields:
+
+  column 1     Display name of the feature
+  column 2     The text of the note
+  column 3     A relevance score.
+
+=cut
+
+sub search_notes {
+  my $self = shift;
+  my ($search_string,$limit) = @_;
+  my @results;
+  my $search = join '|',map {quotemeta($_)} $search_string =~ /(\w+)/g;
+
+  for my $feature ($self->features) {
+    next unless $feature->{attributes};
+    my @attributes = $feature->all_tags;
+    my @values     = map {$feature->each_tag_value} @attributes;
+    push @values,$feature->notes        if $feature->notes;
+    push @values,$feature->display_name if $feature->display_name;
+    next unless @values;
+    my $value      = "@values";
+    my $matches    = 0;
+    my $note;
+    my @hits = $value =~ /($search)/ig;
+    $note ||= $value if @hits;
+    $matches += @hits;
+    next unless $matches;
+
+    my $relevance = 10 * $matches;
+    push @results,[$feature,$note,$relevance];
+    last if @results >= $limit;
+  }
+
+  @results;
+}
+
 
 =head2 get_feature_stream(), top_SeqFeatures(), all_SeqFeatures()
 
