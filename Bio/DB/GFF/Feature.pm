@@ -547,6 +547,8 @@ and remarks.  Adaptors can elect to store the notes in the database,
 or just ignore them.  For those adaptors that store the notes, the
 notes() method will return them as a list.
 
+=cut
+
 sub notes {
   my $self = shift;
   my $id = $self->id;

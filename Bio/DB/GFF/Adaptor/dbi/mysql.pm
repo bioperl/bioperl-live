@@ -73,8 +73,7 @@ sub refseq_query {
 sub notes {
   my $self = shift;
   my $id = shift;
-  my $sth = $self->do_query('SELECT fnote FROM fnote WHERE fid=?');
-  $sth->execute($id) or return;
+  my $sth = $self->do_query('SELECT fnote FROM fnote WHERE fid=?',$id) or return;
 
   my @result;
   while (my($note) = $sth->fetchrow_array) {

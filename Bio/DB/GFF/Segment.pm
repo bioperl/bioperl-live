@@ -142,7 +142,7 @@ This is an alias for stop(), provided for BioSeq compatibility.
 
 =cut
 
-*end = \&stop;
+sub end { shift->stop(@_); }
 
 =head2 length
 

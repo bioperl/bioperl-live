@@ -1555,13 +1555,13 @@ sub _features {
   my @aggregated_types = @$types;         # keep a copy
 
   # allow the aggregators to operate on the original
+  my $match;
   if ($automerge) {
+    $match = $self->make_match_sub($types);
     for my $a ($self->aggregators) {
       $a->disaggregate(\@aggregated_types,$self);
     }
   }
-
-  my $match = $self->make_match_sub($types);
 
   if ($iterator) {
     my @accumulated_features;
@@ -1588,12 +1588,13 @@ sub _features {
       my $agg = $a->aggregate($features,$self) or next;
       push @$features,@$agg;
     }
+
+    warn "filtering...\n" if $self->debug;
+    # remove anything from the features list that was not specifically requested.
+    return grep { $match->($_) } @$features;
   }
 
-  warn "filtering...\n" if $self->debug;
-
-  # remove anything from the features list that was not specifically requested.
-  return grep { $match->($_) } @$features;
+  @$features;
 }
 
 =head2 get_features_iterator

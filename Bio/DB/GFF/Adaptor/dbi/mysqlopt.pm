@@ -110,8 +110,8 @@ sub overlap_query {
 sub contains_query {
   my $self = shift;
   my ($start,$stop) = @_;
-  my ($bq,@bargs)   = $self->bin_query($start,$stop);
-  my ($iq,@iargs) = $self->SUPER::contains_query($start,$stop);
+  my ($bq,@bargs)   = $self->bin_query($start,$stop,undef,bin($start,$stop,$self->{minbin}));
+  my ($iq,@iargs)   = $self->SUPER::contains_query($start,$stop);
   my $query = "($bq)\n\tAND $iq";
   my @args  = (@bargs,@iargs);
   return wantarray ? ($query,@args) : $self->dbi_quote($query,@args);
@@ -121,7 +121,7 @@ sub contains_query {
 sub contained_in_query {
   my $self = shift;
   my ($start,$stop) = @_;
-  my ($bq,@bargs)   = $self->bin_query($start,$stop);
+  my ($bq,@bargs)   = $self->bin_query($start,$stop,abs($stop-$start)+1,undef);
   my ($iq,@iargs) = $self->SUPER::contained_in_query($start,$stop);
   my $query = "($bq)\n\tAND $iq";
   my @args  = (@bargs,@iargs);
@@ -156,15 +156,17 @@ sub make_object {
 
 sub bin_query {
   my $self = shift;
-  my ($start,$stop) = @_;
+  my ($start,$stop,$minbin,$maxbin) = @_;
   my ($query,@args);
 
   $start = 0               unless defined($start);
   $stop  = $self->{maxbin} unless defined($stop);
 
   my @bins;
-  my $tier = $self->{maxbin};
-  while ($tier >= $self->{minbin}) {
+  my $minbin = defined $minbin ? $minbin : $self->{minbin};
+  my $maxbin = defined $maxbin ? $maxbin : $self->{maxbin};
+  my $tier = $maxbin;
+  while ($tier >= $minbin) {
     push @bins,'fbin between ? and ?';
     push @args,bin_bot($tier,$start),bin_top($tier,$stop);
     $tier /= 10;
