@@ -202,6 +202,11 @@ numbers of sequences, any sequence format.
 Masks parts of a sequence based on a significant matches to that
 sequence as contained in a SearchIO-compatible report file.
 
+=head2 scripts/utilities/mutate.PLS
+
+Randomly mutagenize a single protein or DNA sequence. Specify 
+percentage mutated and number of resulting mutagenized sequences.
+
 =head2 scripts/utilities/pairwise_kaks.PLS
 
 Takes cDNA sequences as input, aligns them as proteins, 
