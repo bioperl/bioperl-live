@@ -279,7 +279,8 @@ sub boxes {
   @parts    = $self if !@parts && $self->option('box_subparts') && $self->level>0;
 
   for my $part ($self->parts) {
-    if (eval{$part->feature->primary_tag} eq 'group' or
+    my $type = eval{$part->feature->primary_tag} || '';
+    if ($type eq 'group' or
 	($part->level == 0 && $self->option('box_subparts'))) {
       push @result,$part->boxes($left+$self->left+$self->pad_left,$top+$self->top+$self->pad_top,$self);
     } else {

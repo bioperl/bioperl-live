@@ -1327,6 +1327,7 @@ sub link_pattern {
 
   require CGI unless defined &CGI::escape;
   my $n;
+  $linkrule ||= ''; # prevent uninit warning
   $linkrule =~ s/\$(\w+)/
     CGI::escape(
     $1 eq 'ref'              ? (($n = $feature->location->seq_id) && "$n") || ''
