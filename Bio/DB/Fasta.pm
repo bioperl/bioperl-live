@@ -10,7 +10,8 @@ use AnyDBM_File;
 use Fcntl;
 use File::Basename qw(basename dirname);
 use Carp 'croak';
-our $VERSION = '1.0';
+use vars qw($VERSION);
+$VERSION = '1.0';
 
 *seq = *sequence = \&subseq;
 *ids = \&get_all_ids;
@@ -461,11 +462,13 @@ sub length {
 # stream-based access to the database
 #
 package Bio::DB::Fasta::Stream;
-use base Tie::Handle;
-use vars '@ISA';
+use Tie::Handle;
+use vars qw(@ISA);
+@ISA = qw(Tie::Handle);
 eval {
   require Bio::DB::SeqI;
 } && (push @ISA,'Bio::DB::SeqI');
+
 
 sub new {
   my $class = shift;
