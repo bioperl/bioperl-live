@@ -38,9 +38,9 @@ if( $error ==  1 ) {
     exit(0);
 }
 
-require Bio::DB::RefSeq;
-use  Bio::DB::GenBank;
-use  Bio::DB::EMBL;
+require  Bio::DB::RefSeq;
+require  Bio::DB::GenBank;
+require  Bio::DB::EMBL;
 
 my $testnum;
 my $verbose = 0;

@@ -5,7 +5,7 @@ BEGIN {
 	use lib 't';
     }
     use Test;
-    plan tests => 10;
+    plan tests => 11;
 }
 
 use Bio::Root::IO;
@@ -14,6 +14,7 @@ use Bio::Index::SwissPfam;
 use Bio::Index::EMBL;
 use Bio::Index::GenBank;
 use Bio::Index::Swissprot;
+use Bio::DB::InMemoryCache;
 use vars qw ($dir);
 
 ($Bio::Root::IO::FILESPECLOADED && File::Spec->can('cwd') && ($dir = File::Spec->cwd) ) ||
@@ -93,14 +94,20 @@ ok ( -e "Wibbl" );
     ok ($ind->fetch('P09651')->display_id(), 'ROA1_HUMAN');
 }
 
+my $gb_ind;
 {
-    my $ind = Bio::Index::GenBank->new(-filename=>'Wibbl5', 
+    $gb_ind = Bio::Index::GenBank->new(-filename=>'Wibbl5', 
 				       -write_flag=>1, 
 				       -verbose => 0);
-    $ind->make_index(Bio::Root::IO->catfile($dir,"t","data","roa1.genbank"));
+    $gb_ind->make_index(Bio::Root::IO->catfile($dir,"t","data","roa1.genbank"));
     ok ( -e "Wibbl5" );
-    ok ($ind->fetch('AI129902')->length, 37);
+    ok ($gb_ind->fetch('AI129902')->length, 37);
 }
+
+my $cache = Bio::DB::InMemoryCache->new( -seqdb => $gb_ind );
+
+ok ( $cache->get_Seq_by_id('AI129902') );
+
 
 
 

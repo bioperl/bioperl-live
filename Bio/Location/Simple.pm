@@ -354,5 +354,33 @@ sub to_FTstring {
     return $str;
 }
 
+
+sub trunc {
+  my ($self,$start,$end,$relative_ori) = @_;
+
+  
+  my $newstart  = $self->start - $start+1;
+  my $newend    = $self->end   - $start+1;
+  my $newstrand = $relative_ori * $self->strand;
+
+  my $out;
+  if( $newstart < 1 || $newend > ($end-$start+1) ) {
+    $out = Bio::Location::Simple->new();
+    $out->start($self->start);
+    $out->end($self->end);
+    $out->strand($self->strand);
+    $out->seq_id($self->seqid);
+    $out->is_remote(1);
+  } else {
+    $out = Bio::Location::Simple->new();
+    $out->start($newstart);
+    $out->end($newend);
+    $out->strand($newstrand);
+    $out->seq_id();
+  }
+
+  return $out;
+}
+
 1;
 
