@@ -582,7 +582,7 @@ sub tajima_D {
            average pairwise differences (pi)
 
 =cut
-
+#'
 
 sub tajima_D_counts {
     my ($self,$n,$seg_sites,$pi) = @_;
@@ -642,7 +642,7 @@ sub pi {
 	@marker_names = $individuals->[0]->get_marker_names;
 	$n = scalar @$individuals;
 
-	# Here we're calculating the allele frequencies
+	# Here we are calculating the allele frequencies
 	my %marker_total;
 	foreach my $ind ( @$individuals ) {
 	    if( ! $ind->isa('Bio::PopGen::IndividualI') ) {
