@@ -1337,14 +1337,12 @@ sub _write_line_GenBank{
    my $linel = length $line;
    my $i;
 
-   my $sub = substr($line,0,$length - length $pre1);
+   my $subr = substr($line,0,$length - length $pre1);
 
-   $self->_print("$pre1$sub\n");
-   
-   for($i= ($length - length $pre1);$i < $linel;) {
-       $sub = substr($line,$i,($subl));
-       $self->_print("$pre2$sub\n");
-       $i += $subl;
+   $self->_print("$pre1$subr\n");
+   for($i= ($length - length $pre1);$i < $linel;  $i += $subl) {
+       $subr = substr($line,$i,$subl);
+       $self->_print("$pre2$subr\n");
    }
 
 }
@@ -1380,11 +1378,12 @@ sub _write_line_GenBank_regex {
 
    CHUNK: while($line) {
        foreach my $pat ($regex, '[,;\.\/-]\s|'.$regex, '[,;\.\/-]|'.$regex) {
-	   if($line =~ m/^(.{1,$subl})($pat)(.*)/) {
-	       $line = $3;
+	   if($line =~ m/^(.{1,$subl})($pat)(.*)/ ) {	
+	       my $l = $1.$2;
+	       my $newl = $3;
+	       $line = substr($line,length($l));
 	       # be strict about not padding spaces according to 
 	       # genbank format
-	       my $l = $1.$2;
 	       $l =~ s/\s+$//;
 	       push(@lines, $l);
 	       next CHUNK;
@@ -1396,7 +1395,6 @@ sub _write_line_GenBank_regex {
        # insert a space char to prevent infinite loops
        $line = substr($line,0,$subl) . " " . substr($line,$subl);
    }
-   
    my $s = shift @lines;
    $self->_print("$pre1$s\n");
    foreach my $s ( @lines ) {
