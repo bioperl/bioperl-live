@@ -108,7 +108,6 @@ FT   RBS             complement(1308..1312)
 FT                   /note="possible RBS upstream of SC10H5.03c"
 FT   CDS             complement(1427..1735)
 FT                   /note="SC10H5.04c, unknown, len: 103 aa; possible membrane"
-FT                   " protein. Badly quoted note to test Bioperl parsing"
 FT                   /gene="SC10H5.04c"
 FT                   /product="hypothetical protein SC10H5.04c"
 FT   RBS             complement(1738..1741)
