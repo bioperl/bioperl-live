@@ -48,7 +48,7 @@ ok (Bio::SeqUtils->seq3($seq, '-', ':'),
     'Ala:Ser:Asp:Ter:Lys:Xaa:Xaa:Lys:Ter');
 
 # three letter amino acid code to one letter code
-ok (Bio::SeqUtils->seq3in($seq, 'AlaXaaCysAspGlu')), 
+ok (Bio::SeqUtils->seq3in($seq, 'AlaPYHCysAspGlu')), 
 ok  $seq->seq, 'AXCDE';
 ok (Bio::SeqUtils->seq3in($seq, $ascii3)->seq, $ascii_aa);
 #ok ();
