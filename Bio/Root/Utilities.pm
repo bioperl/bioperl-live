@@ -442,7 +442,7 @@ sub compress {
 
  Title     : uncompress
  Usage     : $Util->uncompress(filename, [tmp]);
- Purpose   : Uncompress a file to conserve disk space.
+ Purpose   : Uncompress a file.
  Example   : $Util->uncompress("/usr/people/me/data.txt.gz");
  Returns   : String (name of uncompressed file, full path).
  Argument  : filename = String (name of file to be uncompressed, full path).
