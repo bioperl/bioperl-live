@@ -21,15 +21,15 @@ ok(1);
 my $verbosity = -1;   # Set to -1 for release version, so warnings aren't printed
 
 my ($str, $seq,$ast,$temp,$mf,$ent,$out); # predeclare variables for strict
-$str = Bio::SeqIO->new(-file=> Bio::Root::IO->catfile("t","test.fasta"), '-format' => 'Fasta');
+$str = Bio::SeqIO->new('-file' => Bio::Root::IO->catfile("t","test.fasta"), 
+		       '-format' => 'Fasta');
 ok $str;
 
-ok ($seq = $str->next_seq());
+ok (defined($seq = $str->next_seq()));
 
 print "Sequence 1 of 2 from fasta stream:\n", $seq->seq, "\n" if ( $DEBUG);
 
-ok $seq->id, 'roa1_drome' ;
-
+ok($seq->id, 'roa1_drome');
 ok $seq->length, 358;
 
 
@@ -47,7 +47,8 @@ print "Sequence 2 of 2 from Raw stream:\n", $seq->seq, $seq->seq, "\n"
 
 
 
-$str = Bio::SeqIO->new(-file=> Bio::Root::IO->catfile("t","test.gcg"), '-format' => 'GCG');
+$str = Bio::SeqIO->new('-file' => Bio::Root::IO->catfile("t","test.gcg"), 
+		       '-format' => 'GCG');
 
 ok $str;
 
@@ -55,14 +56,16 @@ ok ( $seq = $str->next_seq());
 print "Sequence 1 of 1 from GCG stream:\n", $seq->seq, "\n" if( $DEBUG);
 
 
-$str = Bio::SeqIO->new(-file=> ">".Bio::Root::IO->catfile("t","gcg.out"), '-format' => 'GCG');
+$str = Bio::SeqIO->new('-file'=> ">".Bio::Root::IO->catfile("t","gcg.out"), 
+		       '-format' => 'GCG');
 
 $str->write_seq($seq);
 ok(1);
 unlink(Bio::Root::IO->catfile("t","gcg.out"));
 
 
-$str = Bio::SeqIO->new( -file=> Bio::Root::IO->catfile("t","test.genbank"), '-format' => 'GenBank');
+$str = Bio::SeqIO->new( '-file'=> Bio::Root::IO->catfile("t","test.genbank"), 
+			'-format' => 'GenBank');
 
 ok $str;
 $str->verbose($verbosity);
@@ -71,7 +74,8 @@ ok ( $seq = $str->next_seq() );
 print "Sequence 1 of 1 from GenBank stream:\n", $seq->seq, "\n" if( $DEBUG);
 
 
-my $strout = Bio::SeqIO->new(-file=> ">".Bio::Root::IO->catfile("t","genbank.out"), '-format' => 'GenBank');
+my $strout = Bio::SeqIO->new('-file'=> ">".Bio::Root::IO->catfile("t","genbank.out"), 
+			     '-format' => 'GenBank');
 while( $seq ) {
     $strout->write_seq($seq);
     $seq = $str->next_seq();
@@ -84,20 +88,23 @@ ok(1);
 $str = undef;
 
 
-$ast = Bio::SeqIO->new( '-format' => 'embl' , -file => Bio::Root::IO->catfile("t","roa1.dat"));
+$ast = Bio::SeqIO->new( '-format' => 'embl' , 
+			'-file' => Bio::Root::IO->catfile("t","roa1.dat"));
 $ast->verbose($verbosity);
 my $as = $ast->next_seq();
 ok defined $as->seq;
 
 
 $ast = Bio::SeqIO->new( '-format' => 'GenBank' , 
-			-file => Bio::Root::IO->catfile("t","roa1.genbank"));
+			'-file' => Bio::Root::IO->catfile("t","roa1.genbank"));
 $ast->verbose($verbosity);
 $as = $ast->next_seq();
 ok defined $as->seq;
 
 $mf = Bio::SeqIO::MultiFile->new( '-format' => 'Fasta' , 
-				  -files => [Bio::Root::IO->catfile("t","multi_1.fa"),Bio::Root::IO->catfile("t","multi_2.fa")]);
+				  '-files' => 
+				  [ Bio::Root::IO->catfile("t","multi_1.fa"),
+				  Bio::Root::IO->catfile("t","multi_2.fa")]);
 
 ok defined $mf;
 
