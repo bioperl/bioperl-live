@@ -69,7 +69,7 @@ else {
 $myCodonTable->id(10);
 print "ok 5\n";
 
-if( $myCodonTable->name() ==  'Euplotid Nuclear' ) {
+if( $myCodonTable->name() eq  'Euplotid Nuclear' ) {
    print "ok 6\n";
 } else {
    print "not ok 6\n";
