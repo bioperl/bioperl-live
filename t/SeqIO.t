@@ -225,7 +225,7 @@ unlink(Bio::Root::IO->catfile("t","genbank.fuzzyout"));
 my $seqio = Bio::SeqIO->new( '-format' => 'swiss' ,
 			  -file => Bio::Root::IO->catfile("t","swiss.dat"));
 
-my $seq = $seqio->next_seq;
+$seq = $seqio->next_seq;
 
 ok defined $seq;
 
