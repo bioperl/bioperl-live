@@ -9,23 +9,34 @@ use constant PI => 3.14159;
 
 sub draw {
   my $self = shift;
-
   my $gd = shift;
   my $fg = $self->fgcolor;
 
   # now draw a circle
+  my ($left,$top) = @_;
   my ($x1,$y1,$x2,$y2) = $self->calculate_boundaries(@_);
   my $xmid   = (($x1+$x2)/2);  my $width  = abs($x2-$x1);
   my $ymid   = (($y1+$y2)/2);  my $height = abs($y2-$y1);
 
-  #only point ovals allowed now
-  my $r = $self->height ;
+  # only point ovals allowed now
+  my $r = $self->height;
 
-  if ($self->option('bgcolor')){
-    my $c = $self->color('bgcolor');
-    $gd->filledEllipse($xmid,$ymid,$r,$r,$c);
+  # Code to maintain compliancy with gd 1.8.4 
+  # gd 1.8.4 does not support the ellipse() or filledEllipse() methods.
+  # Let's maintain the filledEllipse approach for installations
+  # using gd2 or for drawing images with GD::SVG
+  # Otherwise, we will use fill as before.
+  # The can() method fails with GD::SVG. Why?
+  my $bg = $self->bgcolor;
+  if ($gd->can('filledEllipse') || $gd =~ /SVG/ ) {
+    $gd->filledEllipse($xmid,$ymid,$r,$r,$bg) if ($bg);
+    # Draw the border (or unfilled ellipse)
+    $gd->ellipse($xmid,$ymid,$r,$r,$fg);
+  } else {
+    # Let's draw a circle in the gd 1.8.4 manner
+    $gd->arc($xmid,$ymid,$r,$r,0,360,$fg);
+    $gd->fillToBorder($xmid,$ymid,$fg,$bg) if ($bg);
   }
-  $gd->ellipse($xmid,$ymid,$r,$r,$fg);
 
   #how about a fuse for the bomb?
   #work in degrees, not radians.  So we define PI above
