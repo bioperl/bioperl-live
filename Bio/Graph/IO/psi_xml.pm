@@ -11,6 +11,15 @@ Bio::Graph::IO::psi_xml
 
 =head1 SYNOPSIS
 
+Do not use this module directly, use Bio::Graph::IO, for example:
+
+  my $graph_io = Bio::Graph::IO->new(-format => 'psi_xml',
+                                     -file   => 'data.xml');
+
+=head1 METHODS
+
+The naming system is analagous to the SeqIO system, although usually
+next_network() will be called only once per file.
 
 =cut
 
@@ -28,10 +37,10 @@ use vars qw(@ISA  %species $g $c $fac);
 @ISA = qw(Bio::Graph::IO);
 
 BEGIN{
-		 $fac  = Bio::Seq::SeqFactory->new(
-							-type => 'Bio::Seq::RichSeq'
-						);
-         $g = Bio::Graph::ProteinGraph->new();
+	$fac  = Bio::Seq::SeqFactory->new(
+			  -type => 'Bio::Seq::RichSeq'
+												);
+	$g = Bio::Graph::ProteinGraph->new();
 }
 
 #parsing done by XML::Twig, not by RootIO, therefore override usual new
@@ -63,10 +72,10 @@ sub next_network {
 
  my $self = shift;
  my $t    = XML::Twig->new
-				(  TwigHandlers => {
-									 proteinInteractor   => \&_proteinInteractor,
-								 	 interaction         => \&_addEdge
-									});
+	(  TwigHandlers => {
+							  proteinInteractor   => \&_proteinInteractor,
+							  interaction         => \&_addEdge
+							 });
  $t->parsefile($self->file);
  return $g;
 }

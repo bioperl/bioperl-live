@@ -1,3 +1,44 @@
+# $Id$
+#
+# BioPerl module for Bio::Graph::SimpleGraph::Traversal;
+#
+# You may distribute this module under the same terms as perl itself
+# POD documentation - main docs before the code
+
+=head1 NAME
+
+Bio::Graph::SimpleGraph::Traversal;
+
+=head1 SYNOPSIS
+
+=head1 DESCRIPTION
+
+=head1 FEEDBACK
+
+=head2 Mailing Lists
+
+User feedback is an integral part of the evolution of this and other
+Bioperl modules. Send your comments and suggestions preferably to one
+of the Bioperl mailing lists. Your participation is much appreciated.
+
+  bioperl-l@bioperl.org              - General discussion
+  http://bio.perl.org/MailList.html  - About the mailing lists
+
+=head2 Reporting Bugs
+
+Report bugs to the Bioperl bug tracking system to help us keep track
+the bugs and their resolution.  Bug reports can be submitted via email
+or the web:
+
+  bioperl-bugs@bioperl.org
+  http://bugzilla.bioperl.org/
+
+=head1 AUTHOR - Richard Adams
+
+Email richard.adams@ed.ac.uk
+
+=cut
+
 package Bio::Graph::SimpleGraph::Traversal;
 use vars qw(@ISA @AUTO_ATTRIBUTES @OTHER_ATTRIBUTES %SYNONYMS %DEFAULTS);
 use Class::AutoClass;
@@ -16,9 +57,11 @@ use strict;
 Class::AutoClass::declare(__PACKAGE__);
 
 sub _init_self {
-  my($self,$class,$args)=@_;
-  return unless $class eq __PACKAGE__; # to prevent subclasses from re-running this
-  $self->graph or $self->graph(new Bio::Graph::SimpleGraph); # can't be in DEFAULTS - circular includes!
+	my($self,$class,$args)=@_;
+	return unless $class eq __PACKAGE__; 
+	# to prevent subclasses from re-running this
+	$self->graph or $self->graph(new Bio::Graph::SimpleGraph);
+	# can't be in DEFAULTS - circular includes!
 }
 
 sub has_next {
@@ -49,6 +92,7 @@ sub get_next {
   }
   $self->_present(undef);
 }
+
 sub get_all {
   my($self, $val)   = @_;
   $self->reset unless $self->is_initialized;
@@ -68,13 +112,13 @@ sub get_all {
 		}
  	 $nodes->{$n}{'_node_id'} = undef;
 	}
-	
+
   my $results =[];
   while (@$future) {
     $present = shift @$future;
      if(!$past->{$present}) {	# this is a new node
          $past->{$present} = 1;
-		
+
          push(@$results,$present);
 		 $nodes->{$present}{'_node_id'} = $i if $is_href;
 		 $i++;
@@ -94,6 +138,7 @@ sub get_this {
   $self->reset unless $self->is_initialized;
   $self->_present;
 }
+
 sub reset {
   my($self)= @_;
   $self->_past({});
@@ -114,6 +159,5 @@ sub reset {
   return unless defined $start;
   $self->_future([$start]);
 }
-
 
 1;
