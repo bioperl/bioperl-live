@@ -218,19 +218,29 @@ sub _load_embl {
 #                   : $feat->primary_tag;
     my $type=  $feat->primary_tag;
     next if (lc($type) eq 'contig');
-    next if (lc($type) eq 'variation');
+#    next if (lc($type) eq 'variation');
+
+    if (lc($type) eq 'variation' and $feat->length == 1) {
+      $type = 'SNP';
+    } elsif (lc($type) eq 'variation' ) {
+      $type = 'chromosome_variation';
+    }
+
     if ($type  eq 'source') {
       $type = 'region';
     }
+
     if ($type =~ /misc.*RNA/i) {
       $type = 'RNA';
     }
-#    if ($type eq 'variation') {
-#      $type = 'chromosome_variation';
-#    } 
+
     if ($type eq 'misc_feature' and $name->[1] =~ /similar/i) {
       $type = 'computed_feature_by_similarity';
+    } elsif ($type eq 'misc_feature') {
+      warn "skipping a misc_feature\n";
+      next;
     }
+
     my $parttype =  $feat->primary_tag eq 'mRNA'   ? 'exon' : $feat->primary_tag;
 
     if ($type eq 'gene') {
@@ -239,7 +249,8 @@ sub _load_embl {
     } elsif ($type eq 'mRNA') {
       $name->[1] = sprintf("%s.t%02d",$name->[1],++$transcript_version);
     } elsif ($type eq 'CDS') {
-      $name->[1] = sprintf("%s.c%02d",$name->[1],++$mRNA_version);
+      $name->[0] = 'mRNA';
+      $name->[1] = sprintf("%s.t%02d",$name->[1],$transcript_version);
     }
 
     my $strand = $feat->strand;
@@ -262,7 +273,9 @@ sub _load_embl {
 			   tstop  => undef,
 			   attributes  => $attributes,
 			  }
-			) if $type;
+			) if ($type &&
+                           ($type ne 'CDS'||($type eq 'CDS'&&@segments==1) ) );
+
     @$attributes = ();
 
     next if @segments == 1;

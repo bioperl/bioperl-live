@@ -2,7 +2,7 @@
 
 use lib '.';
 
-# $Id: bp_genbank2gff.PLS,v 1.11 2003-12-17 13:49:52 lstein Exp $
+# $Id: bp_genbank2gff.PLS,v 1.12 2003-12-17 21:46:25 scain Exp $
 use strict;
 use Bio::DB::GFF;
 use Getopt::Long;
@@ -80,8 +80,8 @@ sub load_gff_line {
   my @attributes;
   if (my $id = $options->{gname}) {
     my $parent = $id;
-    $parent    =~ s/\..\d+$//                  if     $options->{method} =~ /^(mRNA|transcript|coding|CDS)$/;
-    push @attributes,"Parent=".escape($parent) if     $options->{method} =~ /^(exon|CDS|transcript|mRNA|coding)$/;
+    $parent    =~ s/\..\d+$//                  if     $options->{method} =~ /^(mRNA|transcript|exon)$/;
+    push @attributes,"Parent=".escape($parent) if     $options->{method} =~ /^(variation|exon|CDS|transcript|mRNA|coding)$/;
     push @attributes,"ID=".escape($id)         unless $options->{method} =~ /^(exon|CDS)$/;
   }
   if (my $tstart = $options->{tstart}) {
@@ -112,6 +112,7 @@ sub load_gff_line {
 sub load_sequence_string {
   my $self = shift;
   my ($acc,$seq)  = @_;
+  return unless $seq;
   $seq =~ s/(.{1,60})/$1\n/g;
   print ">$acc\n\L$seq\U\n";
 }
