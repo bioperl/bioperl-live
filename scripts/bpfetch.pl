@@ -13,6 +13,8 @@ bpfetch.pl - fetches sequences from bioperl indexed databases
 
   bpfetch.pl net::genpept:ROA1_HUMAN
 
+  bpfetch.pl ace::myserver.somewhere.edu,21000:X56676
+
   bpfetch.pl -fmt GCG swiss:ROA1_HUMAN
 
 =head1 DESCRIPTION
@@ -20,6 +22,24 @@ bpfetch.pl - fetches sequences from bioperl indexed databases
 Fetches sequences using the DB access systems in Bioperl. The most
 common use of this is to fetch sequences from bioperl indices built
 using bpindex.pl, or to fetch sequences from the NCBI website
+
+The format for retrieving sequences is delibrately like GCG/EMBOSS
+format, going
+
+  db:name
+
+with the potential of putting in a 'meta' database type, being
+
+  meta::db:name
+
+The meta information can be one of three types
+
+  local - local indexed flat file database
+  net   - networked http: based database
+  ace   - ACeDB database
+
+This information defaults to 'local' for database names with no meta
+db information
 
 =head1 OPTIONS
 
@@ -154,7 +174,7 @@ my $ret = GetOptions('dir=s' => \$dir,'fmt=s' => \$fmt , 'type=s' => \$type , 'a
 
 exec('perldoc',$0) unless @ARGV;
 
-my($isnet,$db,$id,$seq,$seqio,$out);
+my($isnet,$db,$dbobj,$id,$seq,$seqio,$out,$meta);
 
 #
 # Reset the type if needed
@@ -177,17 +197,18 @@ $out = Bio::SeqIO->new(-fh => \*STDOUT , -format => $fmt);
 foreach my $arg ( @ARGV ) {
     $_= $arg;
 
-    # strip out net:: if there
-    if( /^net::/ ) {
-	$isnet = 1;
-	s/^net:://;
+    
+    # strip out meta:: if there
+    if( /^(\w+)::/ ) {
+	$meta = $1;
+	s/^(\w+):://;
     } else {
-	$isnet = 0;
+	$meta = 'local';
     }
 
     # parse to db:id 
 
-    /^(\w+)\:(\S+)$/ || do { print STDERR "$_ is not parsed as db:name\n"; next;};
+    /^(\S+)\:(\S+)$/ || do { print STDERR "$_ is not parsed as db:name\n"; next;};
     $db = $1;
     $id = $2;
 
@@ -197,29 +218,55 @@ foreach my $arg ( @ARGV ) {
     #
 
     eval {
-	if( $isnet == 1 ) {
-	    if( $db =~ /genbank/ ) {
-		$db = Bio::DB::GenBank->new();
-	    }
-	    if( $db =~ /genpept/ ) {
-		$db = Bio::DB::GenPept->new();
-	    }
-	} else {
-	    if( !$dir ) {
+	SWITCH : {
+	    $_ = $meta;
+	    /^net$/ && do {
+		if( $db =~ /genbank/ ) {
+		    $dbobj = Bio::DB::GenBank->new();
+		}
+		elsif( $db =~ /genpept/ ) {
+		    $dbobj = Bio::DB::GenPept->new();
+		} else {
+		    die "Net database $db not available";
+		}
+		last SWITCH;
+	    };
+	    /^ace$/ && do {
 		
-		print STDERR "\nNo directory specified for index\nDirectory must be specified by the environment varaible BIOPERL_INDEX or --dir option\ngo bpindex with no arguments for more help\n\n";
-		exit(1);
-	    }
+		# yank in Bio::DB::Ace at runtime
+		eval {
+		    require Bio::DB::Ace;		    
+		};
+		if ( $@ ) {
+		    die "Unable to load Bio::DB::Ace for ace::$db\n\n$@\n";
+		}
 
-	    #
-	    # $db gets re-blessed to the correct index when
-	    # it is made from the abstract class. Cute eh?
-	    #
+		# db is server,port
+		my ($server,$port);
 
-	    $db = Bio::Index::Abstract->new("$dir/$db");
+		$db =~ /(\S+),(\d+)/ || die "$db is not server.name,port for acedb database";
+		$server = $1;
+		$port = $2;
 
+		$dbobj = Bio::DB::Ace->new(-server => $server, -port => $port);
+		last SWITCH;
+	    };
+	    /^local$/ && do {
+		if( !$dir ) {
+		    die "\nNo directory specified for index\nDirectory must be specified by the environment varaible BIOPERL_INDEX or --dir option\ngo bpindex with no arguments for more help\n\n";
+		}
+
+		#
+		# $db gets re-blessed to the correct index when
+		# it is made from the abstract class. Cute eh?
+		#
+
+		$dbobj = Bio::Index::Abstract->new("$dir/$db");
+		last SWITCH;
+	    };
+	    die "Meta database $meta is not valid";
 	}
-    };
+    }; # end of eval to get db
     if( $@ ) {
 	warn("Database $db in $arg is not loadable. Skipping\n\nError $@");
 	next;
@@ -230,15 +277,15 @@ foreach my $arg ( @ARGV ) {
     # the sequence index databases and the GenBank/GenPept do already
     #
 
-    if( ! $db->isa('Bio::DB::BioSeqI') ) {
+    if( ! $dbobj->isa('Bio::DB::BioSeqI') ) {
 	warn("$db in $arg does not inherit from Bio::DB::BioSeqI, so is not expected to work under the DB guidlines. Going to try it anyway");
     }
 
     eval {
 	if( $useacc == 0 ) {
-	    $seq = $db->get_Seq_by_id($id);
+	    $seq = $dbobj->get_Seq_by_id($id);
 	} else {
-	    $seq = $db->get_Seq_by_acc($id);
+	    $seq = $dbobj->get_Seq_by_acc($id);
 	}
 
     };
