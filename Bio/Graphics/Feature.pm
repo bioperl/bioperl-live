@@ -465,10 +465,10 @@ sub gff_string {
   my $class = $self->class;
   my $group = "$class $name" if $name;
   my $string;
-  $string .= join("\t",$self->ref,$self->source||'.',$self->method||'.',
-                       $self->start,$self->stop,
+  $string .= join("\t",$self->ref||'.',$self->source||'.',$self->method||'.',
+                       $self->start||'.',$self->stop||'.',
                        $self->score||'.',$self->strand||'.',$self->phase||'.',
-                       $group);
+                       $group||'');
   $string .= "\n";
   foreach ($self->sub_SeqFeature) {
     # add missing data if we need it

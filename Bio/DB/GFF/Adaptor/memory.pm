@@ -8,7 +8,7 @@ Bio::DB::GFF::Adaptor::dbi::mysql -- Database adaptor for a specific mysql schem
 
   use Bio::DB::GFF;
   my $db = Bio::DB::GFF->new(-adaptor=> 'memory',
-                             -file   => 'my_features.gff',
+                             -gff    => 'my_features.gff',
                              -fasta  => 'my_dna.fa'
                             );
 
@@ -29,7 +29,7 @@ Three named arguments are recommended:
    -adaptor         Set to "memory" to create an instance of this class.
    -gff             Read the indicated file or directory of .gff file.
    -fasta           Read the indicated file or directory of fasta files.
-   -dsn             Indicates a directory containing .gff and .fa files
+   -dir             Indicates a directory containing .gff and .fa files
 
 If you use the -dsn option and the indicated directory is writable by
 the current process, then this library will create a FASTA file index
@@ -77,18 +77,19 @@ use Bio::DB::GFF::Util::Rearrange; # for rearrange()
 use Bio::DB::GFF::Adaptor::memory_iterator;
 use File::Basename 'dirname';
 
-use vars qw(@ISA);
+use vars qw(@ISA $VERSION);
 
 use constant MAX_SEGMENT => 100_000_000;  # the largest a segment can get
 
 @ISA =  qw(Bio::DB::GFF);
+$VERSION = 1.00;
 
 sub new {
   my $class = shift ;
   my ($file,$fasta,$dbdir) = rearrange([
-					[qw(GFF FILE DIRECTORY)],
+					[qw(GFF FILE)],
 					'FASTA',
-					[qw(DSN DB DIR)],
+					[qw(DSN DB DIR DIRECTORY)],
 				],@_);
 
   # fill in object
@@ -107,9 +108,9 @@ sub load_or_store_fasta {
       or
       (-d $fasta && -w $fasta)) {
     require Bio::DB::Fasta;
-    my $dna_db = Bio::DB::Fasta->new($fasta)
-      or $self->throw("Couldn't create a new Bio::DB::Fasta index from $fasta");
-    $self->dna_db($dna_db);
+    my $dna_db = eval {Bio::DB::Fasta->new($fasta)} 
+      or warn "No sequence available. Use -gff instead of -dir if you wish to load features without sequence.\n";
+    $dna_db && $self->dna_db($dna_db);
   } else {
     $self->load_fasta($fasta);
   }

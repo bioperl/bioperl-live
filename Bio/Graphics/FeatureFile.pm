@@ -522,18 +522,29 @@ sub parse_line {
 
   # either create a new feature or add a segment to it
   if (my $feature = $self->{seenit}{$type,$name}) {
+
+    # create a new first part
+    if (!$feature->segments) {
+      $feature->add_segment(Bio::Graphics::Feature->new(-type   => $feature->type,
+							-strand => $feature->strand,
+							-start  => $feature->start,
+							-end    => $feature->end));
+    }
     $feature->add_segment(@parts);
-  } else {
-    $feature = $self->{seenit}{$type,$name} = 
+  }
+
+  else {
+    my @coordinates = @parts > 1 ? (-segments => \@parts) : (-start=>$parts[0][0],-end=>$parts[0][1]);
+    $feature = $self->{seenit}{$type,$name} =
       Bio::Graphics::Feature->new(-name       => $name,
 				  -type       => $type,
 				  $strand ? (-strand   => make_strand($strand)) : (),
 				  defined $score ? (-score=>$score) : (),
-				  -segments   => \@parts,
 				  -desc       => $description,
 				  -ref        => $ref,
 				  -attributes => \%attributes,
 				  defined($url) ? (-url      => $url) : (),
+				  @coordinates,
 				 );
     $feature->configurator($self) if $self->smart_features;
     if ($self->{group}) {
@@ -925,6 +936,7 @@ compatibility.  Use like this:
 
 sub get_seq_stream {
   my $self = shift;
+  local $^W = 0;
   my @args = $_[0] =~ /^-/ ? (@_,-iterator=>1) : (-types=>\@_,-iterator=>1);
   $self->features(@args);
 }
