@@ -724,7 +724,8 @@ sub _stream_request {
   my $child = open (FETCH,"-|");
   $self->throw("Couldn't fork: $!") unless defined $child;
 
-  my $is_fasta = $self->request_format eq 'fasta';
+  my ($rformat, $ioformat) = $self->request_format;
+  my $is_fasta = $ioformat eq 'fasta';
 
   if ($child) { # in parent
     local ($/) =  $is_fasta ? ">" : "//\n";  # assume genbank/swiss format
@@ -732,7 +733,7 @@ sub _stream_request {
     my $records = 0;
     while (my $record = <FETCH>) {
       chomp($record);
-      next unless $record;
+      next unless $record =~ /\S/;
       $records++;
       $self->postprocess_data('type'     => 'string',
 			      'location' => \$record);
