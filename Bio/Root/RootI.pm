@@ -62,9 +62,8 @@ use Fcntl;
 use Symbol;
 # determine tempfile
 $TEMPCOUNTER = 0;
-#eval {  use File::Temp; $TEMPMODLOADED = 1};
-#if( $@ ) { 
-#    print $@;
+eval {  use File::Temp; $TEMPMODLOADED = 1};
+if( $@ ) { 
 $OPENFLAGS = O_CREAT | O_EXCL | O_RDWR;
 
 for my $oflag (qw/FOLLOW BINARY LARGEFILE EXLOCK NOINHERIT TEMPORARY/) {
@@ -84,7 +83,7 @@ for my $oflag (qw/FOLLOW BINARY LARGEFILE EXLOCK NOINHERIT TEMPORARY/) {
 	    $TEMPDIR = '.';
 	}
     }
-#}
+}
 
 BEGIN { 
 
