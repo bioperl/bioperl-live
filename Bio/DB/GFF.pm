@@ -1,6 +1,4 @@
-package Bio::DB::GFF;
 # $Id$
-
 =head1 NAME
 
 Bio::DB::GFF -- Storage and retrieval of sequence annotation data
@@ -439,6 +437,8 @@ etc.
 The following is the API for Bio::DB::GFF.
 
 =cut
+
+package Bio::DB::GFF;
 
 use strict;
 
@@ -2711,10 +2711,9 @@ Bio::DB::GFF::RelSegment object or descendent.
 sub _features {
   my $self = shift;
   my ($search,$options,$parent) = @_;
-
   (@{$search}{qw(start stop)}) = (@{$search}{qw(stop start)})
     if defined($search->{start}) && $search->{start} > $search->{stop};
-
+  
   my $types = $self->parse_types($search->{types});  # parse out list of types
   my @aggregated_types = @$types;         # keep a copy
 
