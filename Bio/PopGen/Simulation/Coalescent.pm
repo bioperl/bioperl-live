@@ -16,19 +16,22 @@ Bio::PopGen::Simulation::Coalescent - A Coalescent simulation factory
 
 =head1 SYNOPSIS
 
-  use Bio::PopGen::Simulation::Coalescent;
-  my @taxonnames;
-  my $sim = new Bio::PopGen::Simluation::Coalescent( -samples => \@taxonnames);
+    use Bio::PopGen::Simulation::Coalescent;
+    my @taxonnames = qw(SpeciesA SpeciesB SpeciesC SpeciesD);
+    my $sim1 = Bio::PopGen::Simulation::Coalescent->new(-samples => \@taxonnames);
+    
+    my $tree = $sim1->next_tree;
+    
+    # add 20 mutations randomly to the tree
+    $sim1->add_Mutations($tree,20);
+    
+    # or for anonymous samples
 
-  # or for anonymous samples
-
-  my $factory = new Bio::PopGen::Simluation::Coalescent( -sample_size => 6,
-                                                         -maxcount => 50);
-
-  my $tree = $factory->next_tree;
-
-  # add 20 mutations randomly to the tree
-  $factory->add_Mutations($tree,20);
+    my $sim2 = Bio::PopGen::Simulation::Coalescent->new( -sample_size => 6,
+							 -maxcount => 50);
+    my $tree2 = $sim2->next_tree;
+    # add 20 mutations randomly to the tree
+    $sim2->add_Mutations($tree2,20);
 
 =head1 DESCRIPTION
 
@@ -127,11 +130,11 @@ sub new{
    
    if( ! defined $samps ) { 
        if( ! defined $samplesize || $samplesize <= 0 ) { 
-	   $self->throw("Must specify a valid samplesize if parameter -SAMPLE is not specified");
+	   $self->throw("Must specify a valid samplesize if parameter -SAMPLE is not specified (sampsize is $samplesize)");
        }
        foreach ( 1..$samplesize ) { push @samples, "Samp$_"; }      
    } else { 
-       if( ref($samps) =~ /ARRAY/i ) { 
+       if( ref($samps) !~ /ARRAY/i ) { 
 	   $self->throw("Must specify a valid ARRAY reference to the parameter -SAMPLES, did you forget a leading '\\'?");
        }
        @samples = @$samps;
