@@ -113,6 +113,7 @@ BEGIN {
 		 'Hit_len'       => 'hitlen',
 		 'Hit_accession' => 'hitacc',
 		 'Hit_def'       => 'hitdesc',
+		 'Hit_signif'    => 'hitsignif',
 		 
 		 'FastaOutput_program'  => 'programname',
 		 'FastaOutput_version'  => 'programver',
@@ -120,6 +121,7 @@ BEGIN {
 		 'FastaOutput_query-len'=> 'querylen',
 		 'FastaOutput_db'       => 'dbname',
 		 'FastaOutput_db-len'   => 'dbsize',
+		 'FastaOutput_db-let'   => 'dblets',
 
 		 'Parameters_matrix'    => { 'param' => 'matrix'},
 		 'Parameters_expect'    => { 'param' => 'expect'},
@@ -179,10 +181,11 @@ sub next_result{
    my $seentop = 0;
    
    $self->start_document();
-   
-   while( defined ($_ = $self->_readline )) {
-       next if( /^\s+$/); # skip empty lines
-       if( /([T]?FAST[AXYF]) searches a protein or DNA sequence/i ) {
+   my @hit_signifs;
+   while( defined ($_ = $self->_readline )) {       
+       next if( ! $self->in_element('hsp')  &&
+		/^\s+$/); # skip empty lines
+       if( /(\S+)\s+searches\s+a\s+((protein\s+or\s+DNA\s+sequence)|(sequence\s+database))/i || /(\S+) compares a/ ) {
 	   if( $seentop ) {
 	       $self->_pushback($_);
 	       $self->end_element({ 'Name' => 'FastaOutput'});
@@ -190,7 +193,6 @@ sub next_result{
 	   }
 	   $self->{'_reporttype'} = $1;
 	   $self->start_element({ 'Name' => 'FastaOutput' } );
-
 	   $seentop = 1;
 	   
 	   $self->element({ 'Name' => 'FastaOutput_program',
@@ -200,26 +202,39 @@ sub next_result{
 	   $version = '' unless defined $version;
 	   $self->element({ 'Name' => 'FastaOutput_version',
 			    'Data' => $version});
-	   my $last;
+	   my ($last);
 	   while( defined($_ = $self->_readline()) ) {
-	       if( />(.+)/ ) {
+	       if( />(.+)/ || /^\s*vs\s+/ ) {
 		   my $querydef = $1;
-		   my ($len) = ($last =~ /:\s*(\d+)\s+(aa|nt)/);
-		   $self->element({'Name' => 'FastaOutput_query-def',
-				   'Data' => $querydef});
-		   $self->element({'Name' => 'FastaOutput_query-len',
-				   'Data' => $len});
+		   
+		   if( $last =~ /(\S+)[:,]\s*(\d+)\s+(aa|nt)/ ) {
+		       		   		   
+		       $self->element({'Name' => 'FastaOutput_query-def',
+				       'Data' => $querydef || $1});
+		       $self->element({'Name' => 'FastaOutput_query-len',
+				       'Data' => $2});
+		   } else {
+		       $self->element({'Name' => 'FastaOutput_query-def',
+				       'Data' => $querydef });
+		       $self->warn("unable to find and set query length");
+		   }
 		   last;
-	       }
+	       } 
 	       $last = $_;
-	   }	   
-	   $_ = $self->_readline();
-	   my ($lib) = (/vs\s+(\S+)/);
-	   $self->element({'Name' => 'FastaOutput_db',
-			   'Data' => $lib});
+	   }
+
+	   if( $last =~ /^\s*vs\s+(\S+)/ ||	       	       
+	       (defined $_ && /^\s*vs\s+(\S+)/) ||
+	       (defined ($_ = $self->_readline()) && /^\s*vs\s+(\S+)/)
+	       ) {
+	       $self->element({'Name' => 'FastaOutput_db',
+			       'Data' => $1});
+	   }
        } elsif( /(\d+) residues in\s+(\d+)\s+sequences/ ) {
-	   $self->element({'Name' => 'FastaOutput_db-len',
+	   $self->element({'Name' => 'FastaOutput_db-let',
 			   'Data' => $1});
+	   $self->element({'Name' => 'FastaOutput_db-len',
+			   'Data' => $2});
 	   $self->element({'Name' => 'Statistics_db-len',
 			   'Data' => $1});
 	   $self->element({'Name' => 'Statistics_db-num',
@@ -227,7 +242,22 @@ sub next_result{
        } elsif( /Lambda=\s+(\S+)/ ) {
 	   $self->element({'Name' => 'Statistics_lambda',
 			   'Data' => $1});	  
-       } elsif( /^([T]?FAST[XYAF]).+(\S+)\s*matrix.+ktup:\s*(\d+)/ ) {
+       } elsif( /^\s*(Smith-Waterman).+(\S+)\s*matrix/ ) {	   
+	   $self->element({'Name' => 'Parameters_matrix',
+			   'Data' => $2});
+	   $self->{'_reporttype'} = $1;
+
+	   $self->element({ 'Name' => 'FastaOutput_program',
+			    'Data' => $self->{'_reporttype'}});
+	   
+       } elsif( /The best scores are:/ ) {
+	   while( defined ($_ = $self->_readline() ) && 
+		  ! /^\s+$/ ) {	       
+	       my @line = split;
+	       push @hit_signifs, pop @line;
+	   }
+	   
+       } elsif( /^\s*([T]?FAST[XYAF]).+,\s*(\S+)\s*matrix.+ktup:\s*(\d+)/ ) {
 	   $self->element({'Name' => 'Parameters_matrix',
 			   'Data' => $2});
 	   $self->element({'Name' => 'Parameters_ktup',
@@ -258,7 +288,8 @@ sub next_result{
 	   my ($id,$desc) = split(/\s+/,$1,2);
 	   $self->element({ 'Name' => 'Hit_id',
 			    'Data' => $id}); 
-
+	   $self->element({'Name' => 'Hit_signif',
+			  'Data' => shift @hit_signifs});
 	   my @pieces = split(/\|/,$id);
 	   my $acc = pop @pieces;
 	   $acc =~ s/\.\d+$//;
@@ -319,7 +350,12 @@ sub next_result{
 	   # fast forward to the end of the file as there is 
 	   # nothing else left to do with this file and want to be sure and
 	   # reset it
-	   while(defined($_ = $self->_readline() ) ) { }
+	   while(defined($_ = $self->_readline() ) ) { 
+	       last if( /^Function used was/);
+	       if( /(\S+)\s+searches\s+a\s+(protein\s+or\s+DNA\s+sequence)|(sequence\s+database)/ ) { 
+		   $self->_pushback($_);
+	       }
+	   }
 	   $self->end_element({ 'Name' => 'FastaOutput'});
 	   return $self->end_document();
        } elsif( $self->in_element('hsp' ) ) {
@@ -327,34 +363,47 @@ sub next_result{
 	   my @data = ( '','','');
 	   my $count = 0;
 	   my $len = 0;
+	   
 	   while( defined($_ ) ) {
 	       chomp;
-	       if( $count == 1 || $count == 3 ) {
+	       if( /residues in \d+\s+query\s+sequences/) {
+		   $self->_pushback($_);
+		   last;
+	       }
+	       if( $count == 0 ) {
+		   
+	       } elsif( $count == 1 || $count == 3 ) {
 		   if( /^(\S+\s+)(\S+)/ ) {
 		       $len = length($1);
 		       $data[$count-1] = $2;
+		   } elsif( /^\s+\d+/ ) {
+		       $count--; # handle the case where we're off by one line
+		   } elsif( /^\s+/ || length($_) == 0) {
+		       
 		   } else {
-		       $self->warn("Unrecognized alignment line $_");
+		       $self->warn("Unrecognized alignment line ($count) $_");
 		   }
 	       } elsif( $count == 2 ) {
 		   # toss the first 7 characters of the line
-		   $data[$count-1] = substr($_,7);
-	       }
+		   $data[$count-1] = substr($_,$len);
+	       } 
+	       	       
 	       last if( $count++ >= 5);
-	       $_ = $self->_readline();
+	       $_ = $self->_readline();	       
 	   }
-	   $self->characters({'Name' => 'Hsp_qseq',
-			      'Data' => $data[0] });
-	   $self->characters({'Name' => 'Hsp_midline',
-			      'Data' => $data[1]});
-	   $self->characters({'Name' => 'Hsp_hseq',
-			      'Data' => $data[2]});
-
+	   if( length($data[0]) > 0 ) {
+	       $self->characters({'Name' => 'Hsp_qseq',
+				  'Data' => $data[0] });
+	       $self->characters({'Name' => 'Hsp_midline',
+				  'Data' => $data[1]});
+	       $self->characters({'Name' => 'Hsp_hseq',
+				  'Data' => $data[2]});
+	   }
        } else {
 	   if( ! $seentop ) {
 	       print;
 	       
-	       $self->warn("unrecognized FASTA report file!");
+	       $self->warn("unrecognized FASTA Family report file!");
 	       return undef;
 	   }
        }

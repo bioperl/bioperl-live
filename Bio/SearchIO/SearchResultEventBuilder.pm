@@ -230,11 +230,11 @@ sub end_hsp {
     }
     $data->{'queryframe'} ||= 0;
     $data->{'hitframe'} ||= 0;
-    
+
     my $hsp = new Bio::Search::HSP::GenericHSP
 	(
 	 '-algorithm'     => $type,
-	 '-score'         => $data->{'score'},
+	 '-score'         => $data->{'score'} || $data->{'swscore'},
 	 '-bits'          => $data->{'bits'},
 	 '-identical'     => $data->{'identical'},
 	 '-hsp_length'    => $data->{'hsplen'},
@@ -299,6 +299,7 @@ sub end_hit{
 	  '-length'      => $data->{'hitlen'},
 	  '-accession'   => $data->{'hitacc'},
 	  '-description' => $data->{'hitdesc'},
+	  '-significance'=> $data->{'hitsignif'},
 	  '-hsps'        => $self->{'_hsps'});
    push @{$self->{'_hits'}}, $hit;
    $self->{'_hsps'} = [];
