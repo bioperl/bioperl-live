@@ -1,4 +1,4 @@
-# $Id: BUGS,v 1.5 2004-01-01 22:17:38 bosborne Exp $
+# $Id: BUGS,v 1.6 2004-02-24 19:58:26 bosborne Exp $
 
 Known Bugs 
 
@@ -6,9 +6,8 @@ Bioperl 1.2
 ===========
 
  * The StandAloneBlast.t test is failing on cygwin installations (and
-   nowhere else). We need a developer who works with cygwin to
-   help us out here. We suspect something to do with temporary file
-   opening.
+   nowhere else). We suspect something to do with temporary file
+   opening. Fixed in 1.4 (set TMPDIR).
 
 
 Bioperl 0.9.0 
