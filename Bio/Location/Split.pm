@@ -122,7 +122,7 @@ sub sub_Location {
     if( defined($order) && ($order !~ /^-?\d+$/) ) {
 	$self->throw("value $order passed in to sub_Location is $order, an invalid value");
     } 
-    $order = 1 if((!defined($order)) || ($order > 1));
+    $order = 1 if($order > 1);
     $order = -1 if($order < -1);
 
     my @sublocs = @{$self->{'_sublocations'}};
