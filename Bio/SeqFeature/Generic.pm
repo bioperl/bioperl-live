@@ -170,7 +170,8 @@ sub new {
 sub set_attributes {
     my ($self,@args) = @_;
     my ($start, $end, $strand, $primary, $source, $frame, 
-	$score, $tag, $gff_string, $gff1_string, $seqname, $annot, $location) =
+	$score, $tag, $gff_string, $gff1_string,
+	$seqname, $seqid, $annot, $location) =
 	    $self->_rearrange([qw(START
 				  END
 				  STRAND
@@ -182,6 +183,7 @@ sub set_attributes {
 				  GFF_STRING
 				  GFF1_STRING
 				  SEQNAME
+				  SEQ_ID
 				  ANNOTATION
 				  LOCATION
 				  )], @args);
@@ -198,7 +200,8 @@ sub set_attributes {
     defined $strand && $self->strand($strand);
     defined $frame  && $self->frame($frame);
     $score          && $self->score($score);
-    $seqname        && $self->seq_id($seqname);
+    $seqid = $seqname unless $seqid;
+    $seqid          && $self->seq_id($seqid);
     $annot          && $self->annotation($annot);
     $tag            && do {
 	foreach my $t ( keys %$tag ) {

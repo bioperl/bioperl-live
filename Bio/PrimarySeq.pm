@@ -214,6 +214,10 @@ sub new {
     }
     if( defined $given_id ) { $id = $given_id; }
 
+    # let's set the length before the seq -- if there is one, this length is
+    # going to be invalidated
+    defined $len && $self->length($len);
+
     # if alphabet is provided we set it first, so that it won't be guessed
     # when the sequence is set
     $alphabet && $self->alphabet($alphabet);
@@ -225,7 +229,7 @@ sub new {
 	$self->{'seq'} = $$ref_to_seq;
 	if( ! $alphabet ) {
 	    $self->_guess_alphabet();
-	} # else it has been already above
+	} # else it has been set already above
     } else {
 	# note: the sequence string may be empty
 	$self->seq($seq) if defined($seq);
@@ -237,7 +241,6 @@ sub new {
     $desc        && $self->desc($desc);
     $is_circular && $self->is_circular($is_circular);
     $ns          && $self->namespace($ns);
-    defined $len && $self->length($len);
 
     return $self;
 }
@@ -407,9 +410,7 @@ sub subseq {
            Note that if you set the sequence to a value other than
            undef at any time, the length attribute will be
            invalidated, and the length of the sequence string will be
-           reported again. Also, if you choose to lie about the actual
-           length, you''re on your own. Other methods may or may not
-           work anymore correctly.
+           reported again. Also, we won''t let you lie about the length.
 
  Example :
  Returns : integer representing the length of the sequence.
@@ -419,10 +420,19 @@ sub subseq {
 
 sub length {
     my $self = shift;
+    my $len = CORE::length($self->seq() || '');
     
-    $self->{'_seq_length'} = shift if @_;
-    return $self->{'_seq_length'} if defined($self->{'_seq_length'});
-    return CORE::length($self->seq() || '');
+    if(@_) {
+	my $val = shift;
+	if(defined($val) && $len && ($len != $val)) {
+	    $self->throw("You're trying to lie about the length: ".
+			 "is $len but you say ".$val);
+	}
+	$self->{'_seq_length'} = $val;
+    } elsif(defined($self->{'_seq_length'})) {
+	return $self->{'_seq_length'};
+    }
+    return $len;
 }
 
 =head2 display_id
