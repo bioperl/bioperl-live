@@ -1197,6 +1197,75 @@ sub delete_groups {
   $self->_delete_groups(@ids);
 }
 
+=head2 delete
+
+ Title   : delete
+ Usage   : $db->delete(@args)
+ Function: delete features
+ Returns : count of features deleted
+ Args    : numerous, see below
+ Status  : public
+
+This method deletes all features that overlap the specified region or
+are of a particular type.
+
+Arguments:
+
+ -name         ID of the landmark sequence.
+
+ -class        Database object class for the landmark sequence.
+               "Sequence" assumed if not specified.  This is
+               irrelevant for databases which do not recognize
+               object classes.
+
+ -start        Start of the segment relative to landmark.  Positions
+               follow standard 1-based sequence rules.  If not specified,
+               defaults to the beginning of the landmark.
+
+ -end          Stop of the segment relative to the landmark.  If not specified,
+               defaults to the end of the landmark.
+
+ -offset       Zero-based addressing
+
+ -length       Length of region
+
+ -type,-types  Either a single scalar type to be deleted, or an
+               reference to an array of types.
+
+Examples:
+
+  $db->delete(-type=>['intron','repeat:repeatMasker']);  # remove all introns & repeats
+  $db->delete(-name=>'chr3',-start=>1,-end=>1000);       # remove annotations on chr3 from 1 to 1000
+  $db->delete(-name=>'chr3',-type=>'exon');              # remove all exons on chr3
+
+The short form of this call, as described in segment() is also allowed:
+
+  $db->delete("chr3",1=>1000);
+  $db->delete("chr3");
+
+=cut
+
+sub delete {
+  my $self = shift;
+  my @args = $self->setup_segment_args(@_);
+  my ($name,$class,$start,$end,$offset,$length,$type) =
+    rearrange(['NAME','CLASS','START',[qw(END STOP)],'OFFSET','LENGTH',[qw(TYPE TYPES)]],@args);
+  $start ||= $offset+1;
+  $end   ||= $start+$length-1;
+  $class ||= $self->default_class;
+
+  my @segments;
+  $type   = [$type] unless ref $type eq 'ARRAY';
+  if (defined $name && defined $class) {
+    my @args = (-name=>$name,-class=>$class);
+    push @args,(-start=>$start) if defined $start;
+    push @args,(-end  =>$end)   if defined $end;
+    @segments = $db->segment(@args);
+  }
+  $self->_delete({segments => \@segments,
+		  types    => $type});
+}
+
 =head2 absolute
 
  Title   : absolute
@@ -3126,15 +3195,24 @@ sub _split_gff3_group {
   return ($gclass,$gname,$tstart,$tstop,\@attributes);
 }
 
-=head2 _delete_features(), _delete_groups()
+=head2 _delete_features(), _delete_groups(),_delete()
 
- Title   : _delete_features(), _delete_groups()
- Usage   : $count = $db->_delete_features(@ids)
-           $count = $db->_delete_groups(@ids)
+ Title   : _delete_features(), _delete_groups(),_delete()
+ Usage   : $count = $db->_delete_features(@feature_ids)
+           $count = $db->_delete_groups(@group_ids)
+           $count = $db->_delete(\%delete_spec)
  Function: low-level feature/group deleter
- Returns : count of features removed
+ Returns : count of groups removed
  Args    : list of feature or group ids removed
  Status  : for implementation by subclasses
+
+These methods need to be implemented in adaptors.  For
+_delete_features and _delete_groups, the arguments are a list of
+feature or group IDs to remove.  For _delete(), the argument is a
+hashref with the two keys 'segments' and 'types'.  The first contains
+an arrayref of Bio::DB::GFF::RelSegment objects to delete (all
+FEATURES within the segment are deleted).  The second contains an
+arrayref of feature types to delete.  The two are ANDED together.
 
 =cut
 
@@ -3148,6 +3226,12 @@ sub _delete_groups {
   my $self = shift;
   my @group_ids = @_;
   $self->throw('_delete_groups is not implemented in this adaptor');
+}
+
+sub _delete {
+  my $self = shift;
+  my $delete_options = shift;
+  $self->throw('_delete is not implemented in this adaptor');
 }
 
 sub unescape {
