@@ -158,9 +158,10 @@ sub next {
 	} else {
 	    $upflank =~ s/[ \n]//g;
 	    $dnflank =~ s/[ \n]//g;
-	    my ($region, $region_value) =  $dna =~ m|.+/region: (\w+); (\w+)|s ;
+	    my ($region, $junk, $region_value, $junk2, $region_dist) =  
+		$dna =~ m|.+/region: ([\w\']+)(; )?(\w+)?( ?\(\+?)?(-?\d+)?|s;
 	    #my $s = join ("|", $mut_number, $proof, $location, $upflank, 
-	    #	     $change, $dnflank, $region, $region_value);
+	    #	     $change, $dnflank, $region, $region_value, $region_dist, $1,$2,$3,$4,$5);
 	    #$self->warn($s);
 	    #exit;
 	    my ($start, $sep, $end) = $location =~ /(-?\d+)(.)?\D?(-?\d+)?/;
@@ -190,10 +191,10 @@ sub next {
 		$dnamut->isMutation(1);
 		$dnamut->allele_mut($a2);
 	    }
-	    if (defined $region) {
-		$dnamut->region($region);
-		$dnamut->region_value($region_value);
-	    }
+	    $dnamut->region($region) if defined $region;
+	    $dnamut->region_value($region_value) if defined $region_value;
+	    $dnamut->region_dist($region_dist) if defined $region_dist;
+
 	    $h->add_Variant($dnamut);
 	    $dnamut->SeqDiff($h);
 	}
@@ -210,11 +211,12 @@ sub next {
 	$rna =~ s/Feature[ \t]+//g;
 	($rna) = split "DNA; ", $rna; 
 	#$self->warn("|$rna|") ;
-	my ($mut_number, $proof, $location, $upflank, $change, $dnflank, $region) = 
-	    $rna =~ m|\W+([\d\.]+).+/proof: (\w+).+/location: ([^ \n]+).+/upflank: (\w+).+/change: ([^/]+).+/dnflank: (\w+).+/region: (\S+)|s ;#'
-	
+	my ($mut_number, $proof, $location, $upflank, $change, $dnflank) = 
+	    $rna =~ m|\W+([\d\.]+).+/proof: (\w+).+/location: ([^ \n]+).+/upflank: (\w+).+/change: ([^/]+).+/dnflank: (\w+)|s ;#'
+	my ($region, $junk, $region_value, $junk2, $region_dist) =  
+	    $rna =~ m|.+/region: ([\w\']+)(; )?(\w+)?( ?\(\+?)?(-?\d+)?|s;
 	#my $s = join ("|", $mut_number, $proof, $location, $upflank, 
-	#	     $change, $dnflank, $region);
+	#	      $change, $dnflank, $region, $region_value, $region_dist, $1,$2,$3,$4,$5);
 	#$self->warn($s);
 	#exit;
 	$change =~ s/[ \n]//g;	
@@ -243,7 +245,6 @@ sub next {
 		 '-upStreamSeq'   => $upflank,
 		 '-dnStreamSeq'   => $dnflank,
 		 '-proof'         => $proof,
-		 '-region'        => $region,
 		 '-mut_number'    => $mut_number
 		 
 		 );
@@ -258,6 +259,10 @@ sub next {
 		$rnamut->isMutation(1);
 		$rnamut->allele_mut($a2);
 	    }
+	    $rnamut->region($region) if defined $region;
+	    $rnamut->region_value($region_value) if defined $region_value;
+	    $rnamut->region_dist($region_dist) if defined $region_dist;
+
 	    $rnamut->codon_table($codon_table) if $codon_table;
 	    $rnamut->codon_pos($codon_pos) if $codon_pos;
 	    $h->add_Variant($rnamut);
@@ -360,8 +365,8 @@ sub write {
 	 'ID'               => 'ID           ',
 	 'Description'      => 'Description  ',
 	 'FeatureKey'       => 'Feature      ',
-	 'FeatureQual'      => 'Feature        ',
-	 'FeatureWrap'      => 'Feature         ',
+	 'FeatureQual'      => "Feature        ",
+	 'FeatureWrap'      => "Feature         ",
 	 'ErrorComment'     => 'Comment      '
 	 #'Comment'          => 'Comment      -!-',
 	 #'CommentLine'      => 'Comment         ',
@@ -395,14 +400,8 @@ sub write {
 	my @allvariants = $h->each_Variant;
 	my %variants = ();
 	foreach my $mut ($h->each_Variant) {
-	    #print STDERR  $mut->mut_number, "\t", $mut, "\t", $mut->proof, "\t", scalar $mut->each_Allele,  "\n";	    
 	    push @{$variants{$mut->mut_number} }, $mut; 
 	}
-#	 foreach my $var (sort keys %variants) {
-#	     print "variation: ",  scalar $var, "\n";
-#	 }
-	#exit;
-	#print "variation: ",  scalar $var, "\n";
 	#my ($variation_number, $change_number) = split /\./, $mut_number;
 	foreach my $var (sort keys %variants) {
 	    #print $var, ": ", join (" ", @{$variants{$var}}), "\n";	
@@ -503,21 +502,16 @@ sub write {
 			 }
 			 #region
 			 if ($mut->region ) {
-			     push (@entry,  
-				   $tag{FeatureQual}. '/region: '. 
-				   $mut->region. '; '. $mut->region_value
-				   );
+			     $text = $tag{FeatureQual}. '/region: '. $mut->region;
+			     $text .= ';' if $mut->region_value or $mut->region_dist; 
+			     $text .= ' '. $mut->region_value if $mut->region_value;
+			     if ($mut->region_dist ) {
+				 $tmp = '';
+				 $tmp = '+' if $mut->region_dist > 1;
+				 $text .= " (". $tmp. $mut->region_dist. ')';
+			     }
+			     push (@entry, $text);
 			 }
-			 #splice dist	  
-			 #if ($mut->param('molecule') eq "DNA") {
-			 #   if (abs $mut->param('splicedist') < 10 ) {
-			 #      	 push (@entry,  
-			 #      		$tag{FeatureQual}. '/splicedist: '. $mut->param('splicedist')
-			 #      		);
-			 #        }
-			 #   }
-			 #
-
 			 #CpG
 			 if ($mut->CpG) {
 			     push (@entry,  
@@ -639,9 +633,15 @@ sub write {
 			 }
 			 #region
 			 if ($mut->region ) {
-			     push (@entry,  
-				   $tag{FeatureQual}. '/region: '. $mut->region
-				   );
+			     $text = $tag{FeatureQual}. '/region: '. $mut->region;
+			     $text .= ';' if $mut->region_value or $mut->region_dist; 
+			     $text .= ' '. $mut->region_value if $mut->region_value;
+			     if ($mut->region_dist ) {
+				 $tmp = '';
+				 $tmp = '+' if $mut->region_dist > 1;
+				 $text .= " (". $tmp. $mut->region_dist. ')';
+			     }
+			     push (@entry, $text);
 			 }
 		     }
 		 }
@@ -698,19 +698,26 @@ sub write {
 			       );
 			 #region
 			 if ($mut->region ) {
-			     push (@entry,  
-				   $tag{FeatureQual}. '/region: '. $mut->region
-				   );
+			     $text = $tag{FeatureQual}. '/region: '. $mut->region;
+			     $text .= ';' if $mut->region_value or $mut->region_dist; 
+			     $text .= ' '. $mut->region_value if $mut->region_value;
+			     if ($mut->region_dist ) {
+				 $tmp = '';
+				 $tmp = '+' if $mut->region_dist > 1;
+				 $text .= " (". $tmp. $mut->region_dist. ')';
+			     }
+			     push (@entry, $text);
 			 }
 		     }
 		  }
 	     }
-	 }
-	 push (@entry, 
-	       "//"
-	       );  
-	 my $str = join ("\n", @entry). "\n";
-	 $self->_print($str);
+	}
+	push (@entry, 
+	      "//"
+	      );  
+	my $str = join ("\n", @entry). "\n";
+	$str =~ s/\t/        /g;
+	$self->_print($str);
     }
     return 1;
 }
