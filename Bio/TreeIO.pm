@@ -126,18 +126,32 @@ sub new {
 =head2 next_tree
 
  Title   : next_tree
- Usage   :
- Function:
- Example :
- Returns : 
- Args    :
-
+ Usage   : my $tree = $treeio->next_tree;
+ Function: Gets the next tree off the stream
+ Returns : Bio::Tree::TreeI or undef if no more trees
+ Args    : none
 
 =cut
 
 sub next_tree{
-   my ($self,@args) = @_;
+   my ($self) = @_;
    $self->throw("Cannot call method next_tree on Bio::TreeIO object must use a subclass");
+}
+
+=head2 write_tree
+
+ Title   : write_tree
+ Usage   : $treeio->write_tree($tree);
+ Function: Writes a tree onto the stream
+ Returns : none
+ Args    : Bio::Tree::TreeI
+
+
+=cut
+
+sub write_tree{
+   my ($self,$tree) = @_;
+   $self->throw("Cannot call method write_tree on Bio::TreeIO object must use a subclass");
 }
 
 
@@ -180,8 +194,6 @@ sub _eventHandler{
 sub _initialize {
     my($self, @args) = @_;
     $self->{'_handler'} = undef;
-    # not really necessary unless we put more in RootI
-    $self->SUPER::_initialize(@args);
     
     # initialize the IO part
     $self->_initialize_io(@args);
@@ -246,6 +258,24 @@ sub DESTROY {
     my $self = shift;
 
     $self->close();
+}
+
+sub TIEHANDLE {
+  my $class = shift;
+  return bless {'treeio' => shift},$class;
+}
+
+sub READLINE {
+  my $self = shift;
+  return $self->{'treeio'}->next_tree() unless wantarray;
+  my (@list,$obj);
+  push @list,$obj  while $obj = $self->{'treeio'}->next_tree();
+  return @list;
+}
+
+sub PRINT {
+  my $self = shift;
+  $self->{'treeio'}->write_tree(@_);
 }
 
 1;
