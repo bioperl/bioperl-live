@@ -108,6 +108,7 @@ BEGIN {
 	require Bio::Index::Fasta;
 	require Bio::Index::EMBL;
 	require Bio::Index::Swissprot;
+	require Bio::Index::GenBank;
     };
     if ( $@ ) {
 	# one up from here is Bio directory - we hope!
@@ -165,6 +166,10 @@ SWITCH : {
     };
     /swiss/ && do {
 	$index = Bio::Index::Swissprot->new("$dir/$name", 'WRITE');
+	last;
+    };
+    /GenBank/i && do {
+	$index = Bio::Index::GenBank->new("$dir/$name", 'WRITE');
 	last;
     };
     die("No index format called $fmt");

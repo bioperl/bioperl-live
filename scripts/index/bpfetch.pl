@@ -132,6 +132,7 @@ BEGIN {
     eval {
 	require Bio::Index::Fasta;
 	require Bio::Index::EMBL;
+	require Bio::Index::GenBank;
 	require Bio::Index::Swissprot;
         require Bio::DB::GenBank;
         require Bio::DB::GenPept;
@@ -296,6 +297,10 @@ foreach my $arg ( @ARGV ) {
     };
     if( $@ ) {
 	warn("Sequence $id in Database $db in $arg is not loadable. Skipping.\n\nError $@");
+	next;
+    }
+    if( !defined $seq ) {
+	warn("Sequence %id in Database $db is not present\n");
 	next;
     }
 
