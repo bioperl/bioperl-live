@@ -788,4 +788,26 @@ sub _parse {
    return $self->{'_parse_h'};
 }
 
+=head2 _tag_value
+
+ Title   : _tag_value
+ Usage   : 
+ Function: For internal use only. Convenience method for those tags that
+           may only have a single value.
+ Returns : 
+ Args    : 
+
+
+=cut
+
+sub _tag_value {
+    my ($self, $tag, $value) = @_;
+
+    if(defined($value) || (! $self->has_tag($tag))) {
+	$self->remove_tag($tag) if($self->has_tag($tag));
+	$self->add_tag_value($tag, $value);
+    }
+    return ($self->each_tag_value($tag))[0];
+}
+
 1;
