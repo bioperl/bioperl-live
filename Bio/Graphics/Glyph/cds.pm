@@ -7,13 +7,8 @@ use Bio::Tools::CodonTable;
 use Bio::Graphics::Glyph::translation;
 use vars '@ISA','$VERSION';
 @ISA = qw(Bio::Graphics::Glyph::segments Bio::Graphics::Glyph::translation);
-$VERSION = '1.00';
+$VERSION = '1.01';
 
-sub gridcolor {
-  my $self = shift;
-  my $index = $self->option('gridcolor') || 'lightslategray';
-  $self->factory->translate_color($index);
-}
 sub connector   { 0 };
 sub description {
   my $self = shift;

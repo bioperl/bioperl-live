@@ -32,6 +32,12 @@ sub pixels_per_residue {
   return $self->scale * 3;
 }
 
+sub gridcolor {
+  my $self = shift;
+  my $color = $self->option('gridcolor') || 'lightgrey';
+  $self->factory->translate_color($color);
+}
+
 sub protein_fits {
   my $self = shift;
 
@@ -45,6 +51,25 @@ sub protein_fits {
 sub translation_type {
   my $self = shift;
   return $self->option('translation') || '1frame';
+}
+
+sub arrow_height {
+  my $self = shift;
+  $self->option('arrow_height') || 1;
+}
+
+sub show_stop_codons {
+  my $self = shift;
+  my $show = $self->option('stop_codons');
+  return $show if defined $show;
+  return 1;
+}
+
+sub show_start_codons {
+  my $self = shift;
+  my $show = $self->option('start_codons');
+  return $show if defined $show;
+  return 0;
 }
 
 sub strand {
@@ -121,25 +146,48 @@ sub draw_orfs {
   my $pixels_per_base = $self->pixels_per_base * 3;
   $y1++;
 
-  my $stops = $self->find_stop_codons($protein);
+  my $gcolor = $self->gridcolor;
+  $gd->line($x1,$y1,$x2,$y1,$gcolor);
 
-  for my $stop (@$stops) {
+  if ($self->show_stop_codons) {
+    my $stops  = $self->find_codons($protein,'*');
+
+    for my $stop (@$stops) {
       my $pos = $strand > 0 
 	? $x1 + $stop * $pixels_per_base
         : $x2 - $stop * $pixels_per_base;
       $gd->line($pos,$y1-2,$pos,$y1+2,$color);
     }
-  $gd->line($x1,$y1,$x2,$y1,$color);
+  }
+
+  my $arrowhead_height = $self->arrow_height;
+
+  if ($self->show_start_codons) {
+    my $starts  = $self->find_codons($protein,'M');
+
+    for my $start (@$starts) {
+      my $pos = $strand > 0 
+	? $x1 + $start * $pixels_per_base
+        : $x2 - $start * $pixels_per_base;
+      # little arrowheads at the start codons
+      $strand > 0 ? $self->arrowhead($gd,$pos-$arrowhead_height,$y1,
+				     $arrowhead_height,+1)
+	          : $self->arrowhead($gd,$pos+$arrowhead_height,$y1,
+				     $arrowhead_height,-1)
+    }
+  }
+
   $strand > 0 ? $self->arrowhead($gd,$x2-1,$y1,3,+1)
               : $self->arrowhead($gd,$x1,$y1,3,-1)
 }
 
-sub find_stop_codons {
+sub find_codons {
   my $self    = shift;
   my $protein = shift;
+  my $codon   = shift || '*';
   my $pos = -1;
   my @stops;
-  while ( ($pos = index($$protein,'*',$pos+1)) >= 0) {
+  while ( ($pos = index($$protein,$codon,$pos+1)) >= 0) {
     push @stops,$pos;
   }
   \@stops;
@@ -229,6 +277,18 @@ options are recognized:
   -frame1       Color for the second frame   fgcolor
 
   -frame2       Color for the third frame    fgcolor
+
+  -gridcolor    Color for the horizontal     lightgrey
+                lines of the reading frames
+
+  -start_codons Draw little arrowheads       0 (false)
+                indicating start codons
+
+  -stop_codons  Draw little vertical ticks   1 (true)
+                indicating stop codons
+
+  -arrow_height Height of the start codon    1
+                arrowheads
 
 =head1 SUGGESTED STANZA FOR GENOME BROWSER
 
