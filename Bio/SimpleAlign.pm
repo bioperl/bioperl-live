@@ -980,7 +980,7 @@ sub splice_by_seq_pos{
   $guide_seq =~ s/\./\-/g;
 
   my @gaps = ();
-  my $pos = -1;
+  $pos = -1;
   while(($pos = index($guide_seq, '-', $pos)) > -1 ){
     unshift @gaps, $pos;
     $pos++;
