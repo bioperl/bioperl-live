@@ -16,16 +16,16 @@ Bio::SearchIO::exonerate - parser for Exonerate
 
 =head1 SYNOPSIS
 
-# do not use this module directly, it is a driver for SearchIO
+  # do not use this module directly, it is a driver for SearchIO
 
-use Bio::SearchIO;
-my $searchio = new Bio::SearchIO(-file => 'file.exonerate',
-                                 -format => 'exonerate');
+  use Bio::SearchIO;
+  my $searchio = new Bio::SearchIO(-file => 'file.exonerate',
+                                   -format => 'exonerate');
 
 
-while( my $r = $searchio->next_result ) {
-  print $r->query_name, "\n";
-}
+  while( my $r = $searchio->next_result ) {
+    print $r->query_name, "\n";
+  }
 
 =head1 DESCRIPTION
 

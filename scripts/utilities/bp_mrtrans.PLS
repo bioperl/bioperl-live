@@ -1,15 +1,53 @@
 #!/usr/bin/perl -w
+# $Id: bp_mrtrans.PLS,v 1.1.2.1 2003-03-25 12:32:17 heikki Exp $
+use strict;
+
 # Author:      Jason Stajich <jason@bioperl.org>
-# Description: Perl implementation of Bill Pearson's mrtrans 
+# Description: Perl implementation of Bill Pearson's mrtrans
 #              to project protein alignment back into cDNA coordinates
 #
+
+=head1 NAME
+
+bp_mrtrans - implement a transformer of alignments from protein to mrna coordinates
+
+=head1 SYNOPSIS
+
+Usage:
+  bp_mrtrans -i inputfile -o outputfile [-if input format] [-of output format] [-s cDNA sequence database]  [-sf cDNA sequence format] [-h]
+
+=head1 DESCRIPTION
+
+This script will convert a protein alignment back into a cDNA.  Loosely
+based on Bill Pearson's mrtrans.
+
+The options are:
+
+   -o filename          - the output filename [default STDOUT]
+   -of format           - output sequence format
+                          (multiple sequence alignment)
+                          [default phylip]
+   -i filename          - the input filename [required]
+   -if format           - input sequence format
+                          (multiple sequence alignment)
+                          [ default clustalw]
+   -s --seqdb filename  - the cDNA sequence database file
+   -sf --seqformat      - the cDNA seq db format (flatfile sequence format)
+   -h                   - this help menu
+
+=head1 AUTHOR
+
+Jason Stajich, jason@bioperl.org
+
+=cut
+
 use strict;
 use Bio::Align::Utilities qw(aa_to_dna_aln);
 use Bio::AlignIO;
 use Bio::SeqIO;
 use Getopt::Long;
 
-# TODO - finish documentation, 
+# TODO - finish documentation,
 #      - add support for extra options in output alignment formats
 #        such as idnewline in phylip out to support Molphy input files
 
@@ -29,17 +67,19 @@ GetOptions(
 	   'of|outformat:s'=> \$oformat,
 	   's|seqdb|db:s'  => \$seqdb,
 	   'sf|seqformat:s'=> \$seqformat,
-	   'h|help'        => sub{ die($usage) },
+	   'h|help'        => sub{ exec('perldoc',$0);
+				   exit(0)
+				   },
 	   );
 
 
 $input ||= shift;
 $seqdb ||= shift;
 $output ||= shift;
-if( ! defined $seqdb ) { 
+if( ! defined $seqdb ) {
     die("cannot proceed without a valid seqdb\n$usage");
 }
-if( ! defined $input ) { 
+if( ! defined $input ) {
     die("cannot proceed without an input file\n$usage");
 }
 my $indb = new Bio::SeqIO(-file => $seqdb,
@@ -55,7 +95,7 @@ my $out = new Bio::AlignIO(-format => $oformat,
 			   -idlength => 22,
 			   -interleaved => 0,
 			   defined $output ? (-file   => ">$output") : () );
-			   
+
 while( my $aln = $in->next_aln ) {
     my $dnaaln = aa_to_dna_aln($aln,\%seqs);
     $dnaaln->set_displayname_flat(1);

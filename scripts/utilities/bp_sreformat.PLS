@@ -1,8 +1,8 @@
-#!perl 
+#!perl
 # Author:  Jason Stajich <jason@bioperl.org>
 # Purpose: Bioperl implementation of Sean Eddy's sreformat
-#          We're not as clever as Sean's squid library though so 
-#          you have to specify the input format rather than letting 
+#          We're not as clever as Sean's squid library though so
+#          you have to specify the input format rather than letting
 #          the application guess.
 
 # TODO - support STDIN/STDOUT piping?
@@ -15,13 +15,13 @@ use Bio::AlignIO;
 use Getopt::Long;
 
 my $USAGE = "bpsreformat -if INFORMAT -of OUTFORMAT -i FILENAME -o output.FORMAT
-		   
+
 -h/--help               Print this help
 -if/--informat          Specify the input format
 -of/--outformat         Specify the output format
--i/--input              Specify the input file name 
+-i/--input              Specify the input file name
                         (to pass in data on STDIN omit this flag)
--o/--output             Specify the output file name 
+-o/--output             Specify the output file name
                         (to pass data out on STDOUT omit this flag
 --msa                   Specify this is multiple sequence alignment data
 --special=specialparams Specify special params supported by some formats
@@ -30,7 +30,7 @@ my $USAGE = "bpsreformat -if INFORMAT -of OUTFORMAT -i FILENAME -o output.FORMAT
                         nointerleaved   -- for phylip,non-interleaved format
                         idlinebreak       -- for phylip, makes it molphy format
                         percentages     -- for clustalw, show % id per line
-                        
+
 ";
 
 
@@ -46,66 +46,67 @@ GetOptions(
 	   's|special:s'       => \$special,
 	   );
 
-unless( defined $informat && defined $outformat ) { die("Cannot proceed without a defined input and output you gave ($informat,$outformat)\n") }
+unless( defined $informat && defined $outformat )
+    { die("Cannot proceed without a defined input and output you gave ($informat,$outformat)\n") }
 
 my ($in,$out);
 my @extra;
-if( $special ) { 
-    @extra = map { my @rc; 
-		   if( /nointerleaved/) { 
+if( $special ) {
+    @extra = map { my @rc;
+		   if( /nointerleaved/) {
 		       @rc = ('-interleaved' => '0');
 		   } else{ @rc = ("-$_" => 1) }
 		   @rc;
 	       } split(/[\s,]/,$special);
 }
-if( $msa ) { 
-    eval { 
+if( $msa ) {
+    eval {
 	$in = new Bio::AlignIO(-format => $informat, -file => $input);
     };
-    if( $@ ) { 
+    if( $@ ) {
 	die("Unknown MSA format to bioperl $informat\n");
     }
-    eval { 
-	   if( $output ) { 
-	       $out = new Bio::AlignIO(-format => $outformat, 
+    eval {
+	   if( $output ) {
+	       $out = new Bio::AlignIO(-format => $outformat,
 				       -file => ">$output", @extra);
-	   } else { 
+	   } else {
 	       # default to STDOUT for output
 	       $out = new Bio::AlignIO(-format => $outformat,@extra);
 	   }
        };
-    if( $@ ) { 
+    if( $@ ) {
 	die("Unknown MSA format to bioperl $outformat\n");
     }
     while( my $aln = $in->next_aln) { $out->write_aln($aln) }
 
-} else { 
-    eval { 
+} else {
+    eval {
 	$in = new Bio::SeqIO(-format => $informat, -file => $input);
     };
-    if( $@ ) { 
+    if( $@ ) {
 	die("Unknown sequence format to bioperl $informat\n");
     }
-    eval { 
-	   if( $output ) { 
-	       $out = new Bio::SeqIO(-format => $outformat, 
+    eval {
+	   if( $output ) {
+	       $out = new Bio::SeqIO(-format => $outformat,
 				       -file => ">$output");
-	   } else { 
+	   } else {
 	       # default to STDOUT for output
 	       $out = new Bio::SeqIO(-format => $outformat);
 	   }
        };
-    if( $@ ) { 
+    if( $@ ) {
 	die("Unknown sequence format to bioperl $outformat\n");
     }
-    while( my $seq = $in->next_seq ) { 
+    while( my $seq = $in->next_seq ) {
 	$out->write_seq($seq);
     }
 }
 
 =head1 NAME
-    
-    bpsreformat - convert sequence formats
+
+bpsreformat - convert sequence formats
 
 =head1 DESCRIPTION
 
@@ -121,25 +122,25 @@ Usage:
 
 bpsreformat -if INFORMAT -of OUTFORMAT -i FILENAME -o output.FORMAT
 
--h/--help        Print this help
+  -h/--help        Print this help
 
--if/--informat   Specify the input format
+  -if/--informat   Specify the input format
 
--of/--outformat  Specify the output format
+  -of/--outformat  Specify the output format
 
--i/--input       Specify the input file name 
-                 (to pass in data on STDIN omit this flag)
+  -i/--input       Specify the input file name
+                   (to pass in data on STDIN omit this flag)
 
--o/--output      Specify the output file name 
-                 (to pass data out on STDOUT omit this flag
+  -o/--output      Specify the output file name
+                   (to pass data out on STDOUT omit this flag
 
---msa            Specify this is multiple sequence alignment data
+  --msa            Specify this is multiple sequence alignment data
 
---special        Will pass on special parameters to the AlignIO/SeqIO
-                 object -- most of these are for Bio::AlignIO objects
-                 Comma separated list of the following
-                 nointerleaved   -- for phylip,non-interleaved format
-                 idlinebreak     -- for phylip, makes it molphy format
-                 percentages     -- for clustalw, show % id per line
+  --special        Will pass on special parameters to the AlignIO/SeqIO
+                   object -- most of these are for Bio::AlignIO objects
+                   Comma separated list of the following
+                   nointerleaved   -- for phylip,non-interleaved format
+                   idlinebreak     -- for phylip, makes it molphy format
+                   percentages     -- for clustalw, show % id per line
 
 =cut

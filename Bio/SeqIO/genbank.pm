@@ -47,7 +47,7 @@ record.
 
 =item GI number
 
-$seq->primary_id
+$seq-E<gt>primary_id
 
 =back
 

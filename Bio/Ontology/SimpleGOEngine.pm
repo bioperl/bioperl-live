@@ -382,7 +382,7 @@ sub get_relationships {
 
 } # get_relationships
 
-=head2 get_relationships
+=head2 get_all_relationships
 
 
  Title   : get_all_relationships
