@@ -171,6 +171,9 @@ sub add_Genotype {
 	   # a warning when we have verbosity cranked up 
 	   $self->debug("Overwriting the previous value for $mname for this individual");
        }
+       # this will force Genotype individual_id to be set to 
+       # the Individual it has been added for
+       $g->individual_id($self->unique_id);
        $self->{'_genotypes'}->{$mname} = $g;
    }
    return scalar keys %{$self->{'_genotypes'}};
