@@ -4,7 +4,7 @@
 
 use strict;
 
-BEGIN {     
+BEGIN {
     # to handle systems with no installed Test module
     # we include the t dir (where a copy of Test.pm is located)
     # as a fallback
@@ -13,11 +13,12 @@ BEGIN {
 	use lib 't';
     }
     use Test;
-    plan tests => 18;
+    plan tests => 21;
 }
 
 use Bio::PrimarySeq;
 use Bio::SeqUtils;
+use Bio::LiveSeq::Mutation;
 ok 1;
 
 my ($seq, $util, $ascii, $ascii_aa, $ascii3);
@@ -90,3 +91,38 @@ ok keys %valid_aa, 50;
 ok($valid_aa{'C'}, 'Cys');
 ok( $valid_aa{'Cys'}, 'C');
 
+
+#
+# Mutate
+#
+
+my $string1 = 'aggt';
+$seq = Bio::PrimarySeq->new('-seq'=> 'aggt',
+			    '-alphabet'=>'dna',
+			    '-id'=>'test3');
+
+# point
+Bio::SeqUtils->mutate($seq,
+                      Bio::LiveSeq::Mutation->new(-seq => 'c',
+                                                  -pos => 3
+                                                 )
+                     );
+ok $seq->seq, 'agct';
+
+# insertion
+Bio::SeqUtils->mutate($seq,
+                      Bio::LiveSeq::Mutation->new(-seq => 'tt',
+                                                  -pos => 2,
+                                                  -len => 0
+                                                 )
+                     );
+ok $seq->seq, 'attgct';
+
+
+# deletion
+Bio::SeqUtils->mutate($seq,
+                      Bio::LiveSeq::Mutation->new(-pos => 2,
+                                                  -len => 2
+                                                 )
+                     );
+ok $seq->seq, 'agct';
