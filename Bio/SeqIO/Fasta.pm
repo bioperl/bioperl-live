@@ -133,7 +133,7 @@ sub next_seq{
    }
 
    $line = <$fh>;
-   if( $line !~ /^>?(\S+)\s*(.*?)\s*$/ ) {
+   if( $line !~ /^>\s*(\S+)\s+(.*?)\s*$/ ) {
        $self->throw("Fasta stream read attempted with no '>' as first character[ $line ]");
    }
    $name = $1;
@@ -149,7 +149,7 @@ sub next_seq{
        if( $c eq '>' ) {
 	   last;
        } else {
-	   $seqc .= $c;
+	   $seqc .= $c unless $c =~ m/[\n\l\f\r\s]/;
        }
    }
 
