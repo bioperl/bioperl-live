@@ -405,9 +405,9 @@ sub write_seq {
    $self->_write_line_swissprot_regex("DE   ","DE   ",$seq->desc(),"\\s\+\|\$",80);
 
    #Gene name
-   if ($seq->annotation->can('each_gene_name') && 
-       (my @genes = $seq->annotation->each_gene_name) ) {
-       $self->_print("GN   ",join(' OR ', @genes),".\n");
+   if ($seq->annotation->can('get_Annotations') && 
+       (my @genes = $seq->annotation->get_Annotations('gene_name') ) ) {
+       $self->_print("GN   ",join(' OR ', map { $_->value } @genes),".\n");
    }
    
    # Organism lines
@@ -715,19 +715,23 @@ sub _crc64{
 sub _print_swissprot_FTHelper {
    my ($self,$fth,$always_quote) = @_;
    $always_quote ||= 0;
-   my ($start,$end);
+   my ($start,$end) = ('?', '?');
    
    if( ! ref $fth || ! $fth->isa('Bio::SeqIO::FTHelper') ) {
        $fth->warn("$fth is not a FTHelper class. ".
 		  "Attempting to print, but there could be tears!");
    }
 
-   $fth->loc =~ /(\d+)\.\.(\d+)/;
-   $start = $1;
-   $end = $2;
-   # to_FTString only returns one value when start == end,		#JB955
-   # so if no match is found, assume it is both start and end	#JB955
-   if (!$start) { $start = $end = $fth->loc; }					#JB955
+   if( $fth->loc =~ /(\?|\d+)?\.\.(\?|\d+)?/ ) {
+       $start = $1 if defined $1;
+       $end = $2 if defined $2;
+
+       # to_FTString only returns one value when start == end, #JB955
+       # so if no match is found, assume it is both start and end #JB955
+   } else {
+       $start = $end = $fth->loc; 
+   }
+   
    my $desc = "";
    $desc = @{$fth->field->{"description"}}[0]."." 
        if exists $fth->field->{"description"};
@@ -737,7 +741,7 @@ sub _print_swissprot_FTHelper {
 				      "FT                                ",
 				      $desc,'\s+|$',80);
 }
-
+#'
 
 =head2 _read_swissprot_References
 
