@@ -192,23 +192,30 @@ $VERSION = '1.1';
 	  Bio::Factory::SequenceStreamI);
 
 my %species_map = (
-		 'Hs'  => "Homo sapiens",
-		 'Mm'  => "Mus musculus",
-		 'Rn'  => "Rattus norvegicus",
-		 'Bt'  => "Bos taurus",
-		 'Dr'  => "Danio rerio",
-		 'Dm'  => "Drosophila melanogaster",
-		 'Aga' => "Anopheles gambiae",
-		 'Xl'  => "Xenopus laevis",
-		 'At'  => "Arabidopsis thaliana",
-		 'Gma' => "Glycine max",
-		 'Hv'  => "Hordeum vulgare",
-		 'Les' => "Lycopersicon esculentum",
-		 'Mtr' => "Medicago truncatula",
-		 'Os'  => "Oryza sativa",
-		 'Ta'  => "Triticum aestivum",
-		 'Zm'  => "Zea mays",
-		 );
+		   'Aga' => "Anopheles gambiae",
+		   'At'  => "Arabidopsis thaliana",
+		   'Bt'  => "Bos taurus",
+		   'Cel' => "Caenorhabditis elegans",
+		   'Cin' => "Ciona intestinalis",
+		   'Dr'  => "Danio rerio",
+		   'Dm'  => "Drosophila melanogaster",
+		   'Gga' => "Gallus gallus",
+		   'Gma' => "Glycine max",
+		   'Hs'  => "Homo sapiens",
+		   'Hv'  => "Hordeum vulgare",
+		   'Les' => "Lycopersicon esculentum",
+		   'Mtr' => "Medicago truncatula",
+		   'Mm'  => "Mus musculus",
+		   'Os'  => "Oryza sativa",
+		   'Ola' => "Oryzias latipes",
+		   'Rn'  => "Rattus norvegicus",
+		   'Str' => "Silurana tropicalis",
+		   'Sbi' => "Sorghum bicolor",
+		   'Ssc' => "Sus scrofa",
+		   'Ta'  => "Triticum aestivum",
+		   'Xl'  => "Xenopus laevis",
+		   'Zm'  => "Zea mays",
+		   );
 		 
 
 =head2 new
