@@ -98,37 +98,35 @@ my $num  = qr/(?:\d+)/;
 my $organism = qr/(?:At|Bt|Dr|Hs|Hv|Mm|Os|Rn|Ta|Xl|Zm)/;
 
 my %line_is = (
-			ID				=> 	qr/ID ($organism\.$num)/,
-			TITLE			=>	qr/TITLE ($data)/,
-			GENE			=>	qr/GENE ($data)/,
-			CYTOBAND		=>	qr/CYTOBAND ($data)/,
-			MGI				=>	qr/MGI ($data)/,
-			LOCUSLINK		=>	qr/LOCUSLINK ($data)/,
-			EXPRESS			=>	qr/EXPRESS ($data)/,
-			GNM_TERMINUS	=>	qr/GNM_TERMINUS ($data)/,
-			CHROMOSOME		=>	qr/CHROMOSOME ($data)/,
-			STS				=>	qr/STS ($data)/,
-			TXMAP			=>	qr/TXMAP ($data)/,
-			PROTSIM			=>	qr/PROTSIM ($data)/,
-			SCOUNT			=>	qr/SCOUNT ($num)/,
-			SEQUENCE		=>	qr/SEQUENCE ($data)/,
-			ACC				=>	qr/ACC=($data)/,
-			NID				=>	qr/NID=($data)/,
-			PID				=>	qr/PID=($data)/,
-			CLONE			=>	qr/CLONE=($data)/,
-			END				=>	qr/END=($data)/,
-			LID				=>	qr/LID=($data)/,
-			MGC				=>	qr/MGC=($data)/,
-			DELIMITER		=>	qr/^\/\//
+			ID				=> 	qq/ID ($organism\.$num)/,
+			TITLE			=>	qq/TITLE ($data)/,
+			GENE			=>	qq/GENE ($data)/,
+			CYTOBAND		=>	qq/CYTOBAND ($data)/,
+			MGI				=>	qq/MGI ($data)/,
+			LOCUSLINK		=>	qq/LOCUSLINK ($data)/,
+			EXPRESS			=>	qq/EXPRESS ($data)/,
+			GNM_TERMINUS	=>	qq/GNM_TERMINUS ($data)/,
+			CHROMOSOME		=>	qq/CHROMOSOME ($data)/,
+			STS				=>	qq/STS ($data)/,
+			TXMAP			=>	qq/TXMAP ($data)/,
+			PROTSIM			=>	qq/PROTSIM ($data)/,
+			SCOUNT			=>	qq/SCOUNT ($num)/,
+			SEQUENCE		=>	qq/SEQUENCE ($data)/,
+			ACC				=>	qq/ACC=($data)/,
+			NID				=>	qq/NID=($data)/,
+			PID				=>	qq/PID=($data)/,
+			CLONE			=>	qq/CLONE=($data)/,
+			END				=>	qq/END=($data)/,
+			LID				=>	qq/LID=($data)/,
+			MGC				=>	qq/MGC=($data)/,
+			DELIMITER		=>	q/^\/\//
 );
 
-
+# add whitespace parsing and precompile regexes
 foreach (values %line_is) {
 	$_ =~ s/\s+/\\s+/g;
 	$_ = qr/$_/x;
 }
-
-
 
 # run each line in an entry against the regexes
 	foreach my $line (split /\n/, $entry) {
