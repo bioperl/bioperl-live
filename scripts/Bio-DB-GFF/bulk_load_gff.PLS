@@ -19,11 +19,11 @@ use constant FATTRIBUTE_TO_FEATURE => 'fattribute_to_feature';
 
 =head1 NAME
 
-bp_bulk_load_gff.pl - Bulk-load a Bio::DB::GFF database from GFF files.
+bulk_load_gff.pl - Bulk-load a Bio::DB::GFF database from GFF files.
 
 =head1 SYNOPSIS
 
-  % bp_bulk_load_gff.pl -d testdb dna1.fa dna2.fa features1.gff features2.gff ...
+  % bulk_load_gff.pl -d testdb dna1.fa dna2.fa features1.gff features2.gff ...
 
 =head1 DESCRIPTION
 
@@ -58,6 +58,9 @@ machine and that the indicated user have the "file" privilege to load
 the tables and have enough room in /usr/tmp (or whatever is specified
 by the \$TMPDIR environment variable), to hold the tables transiently.
 
+Local data may now be uploaded to a remote server via the --local option
+with the database host specified in the dsn, e.g. dbi:mysql:test:db_host
+
 The adaptor used is dbi::mysqlopt.  There is currently no way to
 change this.
 
@@ -72,11 +75,12 @@ Note that Windows users must use the --create option.
 Command-line options can be abbreviated to single-letter options.
 e.g. -d instead of --database.
 
-   --database <dsn>      Mysql database name
+   --database <dsn>      Mysql database name (default dbi:mysql:test)
    --create              Reinitialize/create data tables without asking
    --user                Username to log in as
    --fasta               File or directory containing fasta files to load
    --password            Password to use for authentication
+   --local               Flag to indicate that the data source is local
    --maxbin              Set the value of the maximum bin size
 
 =head1 SEE ALSO
@@ -114,17 +118,18 @@ if ($^O =~ /MSWin32/i) {
     $bWINDOWS = 1;
 }
 
-my ($DSN,$FORCE,$USER,$PASSWORD,$FASTA,$MAX_BIN);
+my ($DSN,$FORCE,$USER,$PASSWORD,$FASTA,$LOCAL,$MAX_BIN);
 
 GetOptions ('database:s'    => \$DSN,
 	    'create'        => \$FORCE,
 	    'user:s'        => \$USER,
 	    'password:s'    => \$PASSWORD,
 	    'fasta:s'       => \$FASTA,
+            'local'         => \$LOCAL,
             'maxbin:s'      => \$MAX_BIN
 	   ) or (system('pod2text', $0), exit -1);
 
-$DSN ||= 'test';
+$DSN ||= 'dbi:mysql:test';
 
 if ($bWINDOWS && not $FORCE) {
   die "Note that Windows users must use the --create option.\n";
@@ -148,6 +153,21 @@ if (defined $USER) {
 if (defined $PASSWORD) {
   push @auth,(-pass=>$PASSWORD);
   $AUTH .= " -p$PASSWORD";
+}
+
+my($DBI,$DBD,$DBNAME,$HOST)=split /:/,$DSN;
+if (defined $HOST) {
+  $AUTH .= " -h$HOST";  
+}
+if (defined $DBNAME) {
+  $AUTH .= " -D$DBNAME";
+}
+
+if (defined $LOCAL) {
+  $LOCAL='local';
+  $AUTH.=' --local-infile=1';
+}else {
+  $LOCAL='';
 }
 
 my $db = Bio::DB::GFF->new(-adaptor=>'faux',-dsn => $DSN,@auth)
@@ -284,8 +304,7 @@ my $TERMINATEDBY = $bWINDOWS ? q( LINES TERMINATED BY '\r\n') : '';
 foreach (@files) {
   my $command =<<END;
 ${\MYSQL} $AUTH
--e "lock tables $_ write; delete from $_; load data infile '$tmpdir/$_.$$' replace into table $_  $TERMINATEDBY; unlock tables"
-$DSN
+-e "lock tables $_ write; delete from $_; load data $LOCAL infile '$tmpdir/$_.$$' replace into table $_  $TERMINATEDBY; unlock tables"
 END
 ;
   $command =~ s/\n/ /g;
