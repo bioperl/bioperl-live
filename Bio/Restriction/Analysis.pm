@@ -518,7 +518,7 @@ sub fragment_maps {
     } elsif ($enz->isa("Bio::Restriction::EnzymeI")) {
         @cut_positions=@{$self->{'_cut_positions'}->{$enz->name}};
     } elsif ($enz->isa("Bio::Restriction::EnzymeCollection")) {
-        $self->cuts('multiple', $enz);
+        $self->cut('multiple', $enz);
         @cut_positions=@{$self->{'_cut_positions'}->{'multiple_digest'}};
     }
 
