@@ -16,7 +16,7 @@ BEGIN {
 	use lib 't';
     }
     use Test;    
-    plan tests => 8;
+    plan tests => 10;
 }
 
 use Bio::Root::Root;
@@ -77,6 +77,14 @@ $Bio::Root::Root::DEBUG = 1;
 require Bio::SeqIO;
 my $seqio = new Bio::SeqIO;
 ok($seqio->verbose, 1);
+
+# test for bug #1343
+my @vals = Bio::Root::RootI->_rearrange([qw(apples pears)], 
+					-apples => 'up the',
+					-pears  => 'stairs');
+ok(shift @vals, 'up the');
+ok(shift @vals, 'stairs');
+
 1;
 
 
