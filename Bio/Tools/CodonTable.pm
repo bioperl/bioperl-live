@@ -547,6 +547,9 @@ sub revtranslate {
 
  Title   : reverse_translate_all
  Usage   : my $iup_str = $cttable->reverse_translate_all($seq_object)
+           my $iup_str = $cttable->reverse_translate_all($seq_object,
+                                                         $cutable,
+                                                         15);
  Function: reverse translates a protein sequence into IUPAC nucleotide
            sequence. An 'X' in the protein sequence is converted to 'NNN'
            in the nucleotide sequence.
@@ -771,9 +774,10 @@ sub _make_iupac_string {
 		$self->throw(" I need a reference to a list of references to codons, ".
 					 " not a [". ref($cod_ref) . "].");
 		}
-    my %iupac_hash = Bio::Tools::IUPAC->iupac_rev_iub();
+    my %iupac_hash   = Bio::Tools::IUPAC->iupac_rev_iub();
 	my $iupac_string = ''; ## the string to be returned
 	for my $aa (@$cod_ref) {
+
 		## scan through codon positions, record the differing values,	
 		# then look up in the iub hash
 		for my $index(0..2) {
