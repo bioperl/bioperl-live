@@ -461,17 +461,13 @@ sub _runclustalw {
     my $aln = $in->next_aln();
 
 # Clean up the temporary files created along the way...
-    foreach my $f ( $TMPOUTFILE, "tmp.fa", 'tmp1.fa', 'tmp2.fa', 
-		    'tmp.dnd', 'tmp1.dnd', 'tmp2.dnd')  {
-	unlink($f);
-    }
+    unlink ( $TMPOUTFILE, "tmp.fa", 'tmp1.fa', 'tmp2.fa', 
+	     'tmp.dnd', 'tmp1.dnd', 'tmp2.dnd');
     # Replace file suffix with dnd to find name of dendrogram file(s) to delete
     $infilename =~ s/\.[^\.]*// ;
     $infile1 =~ s/\.[^\.]*// ;
     $infile2 =~ s/\.[^\.]*// ;
-    foreach my $f ( "$infilename.dnd", "$infile1.dnd", "$infile2.dnd")  {
-	unlink($f);
-    }
+    unlink ( "$infilename.dnd", "$infile1.dnd", "$infile2.dnd");
 
     return $aln;
 }
