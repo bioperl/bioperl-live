@@ -4,7 +4,7 @@
 
 use Test;
 use strict;
-BEGIN { plan tests => 19 }
+BEGIN { plan tests => 18 }
 
 use Bio::Tools::BPbl2seq;
 ok(1);

@@ -10,7 +10,7 @@
 use Test;
 use strict;
 
-BEGIN { plan tests => 46 }
+BEGIN { plan tests => 45 }
 
 use Bio::LiveSeq::Chain;
 
