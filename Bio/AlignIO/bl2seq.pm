@@ -57,6 +57,9 @@ manipulated using any SimpleAlign.pm methods, eg:
    $str = Bio::AlignIO->new(-file=> 'bl2seq.out','-format' => 'bl2seq');
    $aln = $str->next_aln();
 
+   Pass in -report_type flag when initializing the object to have this
+   pass through to the Bio::Tools::BPbl2seq object.  See that object.
+
 =head1 FEEDBACK
 
 =head2 Mailing Lists
@@ -101,6 +104,16 @@ use Bio::Tools::BPbl2seq;
 
 @ISA = qw(Bio::AlignIO);
 
+
+
+sub _initialize {
+    my ($self,@args) = @_;
+    $self->SUPER::_initialize(@args);
+    ($self->{'report_type'}) = $self->_rearrange([qw(REPORT_TYPE)],
+						 @args);
+    return 1;
+}
+
 =head2 next_aln
 
  Title   : next_aln
@@ -117,7 +130,8 @@ sub next_aln {
     my ($start,$end,$name,$seqname,$seq,$seqchar);
     my $aln =  Bio::SimpleAlign->new(-source => 'bl2seq');
     $self->{'bl2seqobj'} =
-    	$self->{'bl2seqobj'} || Bio::Tools::BPbl2seq->new(-fh => $self->_fh);
+    	$self->{'bl2seqobj'} || Bio::Tools::BPbl2seq->new(-fh => $self->_fh,
+							  -report_type => $self->{'report_type'});
     my $bl2seqobj = $self->{'bl2seqobj'};
     my $hsp =   $bl2seqobj->next_feature;
     $seqchar = $hsp->querySeq;
