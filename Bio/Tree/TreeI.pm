@@ -162,4 +162,38 @@ sub height{
    return log($nodect) / log(2);
 }
 
+=head2 id
+
+ Title   : id
+ Usage   : my $id = $tree->id();
+ Function: An id value for the tree
+ Returns : scalar
+ Args    : 
+
+
+=cut
+
+sub id{
+   my ($self,@args) = @_;
+   $self->throw_not_implemented();
+}
+
+=head2 score
+
+ Title   : score
+ Usage   : $obj->score($newval)
+ Function: Sets the associated score with this tree
+           This is a generic slot which is probably best used 
+           for log likelihood or other overall tree score
+ Returns : value of score
+ Args    : newvalue (optional)
+
+
+=cut
+
+sub score{
+   my ($self,$value) = @_;
+   $self->throw_not_implemented();
+}
+
 1;

@@ -195,8 +195,48 @@ sub total_branch_length {
    return $sum;
 }
 
-# decorated interface TreeI Implements this
+=head2 id
 
+ Title   : id
+ Usage   : my $id = $tree->id();
+ Function: An id value for the tree
+ Returns : scalar
+ Args    : [optional] new value to set
+
+
+=cut
+
+sub id{
+   my ($self,$val) = @_;
+   if( defined $val ) { 
+       $self->{'_treeid'} = $val;
+   }
+   return $self->{'_treeid'};
+}
+
+=head2 score
+
+ Title   : score
+ Usage   : $obj->score($newval)
+ Function: Sets the associated score with this tree
+           This is a generic slot which is probably best used 
+           for log likelihood or other overall tree score
+ Returns : value of score
+ Args    : newvalue (optional)
+
+
+=cut
+
+sub score{
+   my ($self,$val) = @_;
+   if( defined $val ) { 
+       $self->{'_score'} = $val;
+   }
+   return $self->{'_score'};
+}
+
+
+# decorated interface TreeI Implements this
 
 =head2 height
 
