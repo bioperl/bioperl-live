@@ -440,7 +440,8 @@ sub range_query {
   my $join          = $self->make_features_join_part;
   my ($where,@args) = $self->make_features_where_part($rangetype,$srcseq,$class,
 						      $start,$stop,$types,$class);
-  my $query         = "SELECT $straight $select FROM $from WHERE $join AND $where";
+  my $query         = "SELECT $straight $select FROM $from WHERE $join";
+  $query           .= "AND $where" if $where;
 
   my $sth = $self->do_query($query,@args);
   $sth;
