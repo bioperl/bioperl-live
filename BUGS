@@ -1,3 +1,4 @@
+# $Id: BUGS,v 1.1.2.2 2001-06-21 16:43:47 jason Exp $
 Known Bugs 
 
 
@@ -5,7 +6,23 @@ Bioperl 0.7.1
 =============
  * Bio::Tools::BPlite does not parse and set frame properly for
    tblastx reports (Jitterbug bug # 978).
- * If File::Temp is not installed, tempdirs are not cleaned up properly.
+
+ * Bio::Tools::BPlite interface needs to be updated to fix parsing
+   more than bl2seq report report (Jitterbug bug #940), this has been
+   fixed on the main code trunk and will be part of the next major
+   bioperl release.
+
+ * If File::Temp is not installed, tempdirs are not cleaned up
+   properly.  This is fixed on main code trunk with the introduction
+   of rmtree method in Bio::Root::IO, however, it is best to install
+   File::Temp when running 0.7 branch code.
+
+ * Bio::Tools::Blast does not allow users to run blast, instead us
+   Bio::Tools::Run::StandAloneBlast to run local blasts.  To submit
+   jobs to a remote blast server like NCBI a module
+   Bio::Tools::Run::RemoteBlast has been written but is part of the
+   main trunk code and must be obtained through CVS until the next
+   major bioperl release.
 
 Bioperl 0.7
 ===========
