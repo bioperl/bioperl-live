@@ -493,7 +493,10 @@ sub next_result{
 	   
          descline:
            while( defined ($_ = $self->_readline() )) {
-               if( /(\d+)\s+([\d\.\-eE]+)\s*$/) {
+               if( /^>/ ) {
+                   $self->_pushback($_);
+                   last descline;
+               } elsif( /(\d+)\s+([\d\.\-eE]+)\s*$/) {
                    my ($score, $evalue) = ($1, $2);
                    # Some data clean-up so e-value will appear numeric to perl
                    $evalue =~ s/^e/1e/i;
@@ -502,11 +505,7 @@ sub next_result{
                    $self->element({ 'Name' => 'Iteration_converged',
                                     'Data' => 1});
                }
-
-               if( /^>/ ) {
-                   $self->_pushback($_);
-                   last descline;
-               }
+	       
            }
        } elsif( /Sequences producing High-scoring Segment Pairs:/ ) {
            # This block is for WU-BLAST, so we don't have to check for psi-blast stuff
