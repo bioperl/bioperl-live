@@ -34,6 +34,7 @@ use Bio::Tools::pSW;
 
 use Bio::Seq; 
 use Bio::SimpleAlign;
+use Bio::AlignIO;
 
 # for legibility - write with newlines and then strip them!
 
@@ -108,7 +109,11 @@ $fac->kbyte(100);
 
 $al = $fac->pairwise_alignment($seq1,$seq2);
 
-$al->write_MSF(\*STDOUT);
+
+# write out a MSF file
+my $out = Bio::AlignIO->newFh('-fh'=> \*STDOUT,  '-format' => 'msf');
+my $status = print $out $al;
+#$al->write_MSF(\*STDOUT);
 
 
 
