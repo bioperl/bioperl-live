@@ -1,8 +1,45 @@
 #!/usr/bin/perl -w
+# $Id: bp_mrtrans.PLS,v 1.2 2003-02-26 14:39:40 jason Exp $
+use strict;
+
 # Author:      Jason Stajich <jason@bioperl.org>
 # Description: Perl implementation of Bill Pearson's mrtrans 
 #              to project protein alignment back into cDNA coordinates
 #
+=head1 NAME
+
+bp_mrtrans - implement a transformer of alignments from protein to mrna coordinates
+
+=head1 SYNOPSIS
+
+Usage: 
+  bp_mrtrans -i inputfile -o outputfile [-if input format] [-of output format] [-s cDNA sequence database]  [-sf cDNA sequence format] [-h]
+ 
+=head1 DESCRIPTION
+
+This script will convert a protein alignment back into a cDNA.  Loosely 
+based on Bill Pearson's mrtrans.
+
+The options are:
+
+   -o filename          - the output filename [default STDOUT]
+   -of format           - output sequence format 
+                          (multiple sequence alignment)
+                          [default phylip]
+   -i filename          - the input filename [required]
+   -if format           - input sequence format 
+                          (multiple sequence alignment) 
+                          [ default clustalw]
+   -s --seqdb filename  - the cDNA sequence database file
+   -sf --seqformat      - the cDNA seq db format (flatfile sequence format) 
+   -h                   - this help menu
+
+=head1 AUTHOR
+
+Jason Stajich <jason@bioperl.org>
+
+=cut
+
 use strict;
 use Bio::Align::Utilities qw(aa_to_dna_aln);
 use Bio::AlignIO;
@@ -29,9 +66,10 @@ GetOptions(
 	   'of|outformat:s'=> \$oformat,
 	   's|seqdb|db:s'  => \$seqdb,
 	   'sf|seqformat:s'=> \$seqformat,
-	   'h|help'        => sub{ die($usage) },
+	   'h|help'        => sub{ exec('perldoc',$0);
+				   exit(0)
+				   },
 	   );
-
 
 $input ||= shift;
 $seqdb ||= shift;
