@@ -37,10 +37,11 @@ be supported in a future version of DB::GenBank.
 
 =head2 Mailing Lists
 
-User feedback is an integral part of the evolution of this
-and other Bioperl modules. Send your comments and suggestions preferably
- to one of the Bioperl mailing lists.
-Your participation is much appreciated.
+User feedback is an integral part of the
+evolution of this and other Bioperl modules. Send
+your comments and suggestions preferably to one
+of the Bioperl mailing lists. Your participation
+is much appreciated.
 
   vsns-bcd-perl@lists.uni-bielefeld.de          - General discussion
   vsns-bcd-perl-guts@lists.uni-bielefeld.de     - Technically-oriented discussion
@@ -48,9 +49,10 @@ Your participation is much appreciated.
 
 =head2 Reporting Bugs
 
-Report bugs to the Bioperl bug tracking system to help us keep track
- the bugs and their resolution.
- Bug reports can be submitted via email or the web:
+Report bugs to the Bioperl bug tracking system to
+help us keep track the bugs and their resolution.
+Bug reports can be submitted via email or the
+web:
 
   bioperl-bugs@bio.perl.org
   http://bio.perl.org/bioperl-bugs/
@@ -61,7 +63,9 @@ Email amackey@virginia.edu
 
 =head1 APPENDIX
 
-The rest of the documentation details each of the object methods. Internal methods are usually preceded with a _
+The rest of the documentation details each of the
+object methods. Internal methods are usually
+preceded with a _
 
 =cut
 
@@ -71,7 +75,7 @@ package Bio::DB::GenBank;
 use strict;
 use vars qw(@ISA);
 
-# Object preamble - inherits from Bio::DB::Abstract
+# Object preamble - inherits from Bio::DB::RandomAccessI
 
 use Bio::DB::RandomAccessI;
 use Bio::SeqIO;
@@ -80,7 +84,7 @@ use IO::File;
 
 @ISA = qw(Bio::Root::Object Bio::DB::RandomAccessI);
 
-# new() is inherited from Bio::DB::SeqI
+# new() is inherited from Bio::Root::Object
 
 # _initialize is where the heavy stuff will happen when new is called
 
@@ -192,7 +196,6 @@ sub get_Stream_by_acc {
   Returns : a Bio::SeqIO stream object
   Args    : $ref : either an array reference, a filename, or a filehandle
             from which to get the list of unique id's/accession numbers.
-#'
 
 =cut
 
