@@ -657,7 +657,7 @@ sub matches {
     $seqType ||= 'query';
     $seqType = 'sbjct' if $seqType eq 'hit';
 
-    if( !defined $beg && !defined $end) {
+    if( (!defined $beg && !defined $end) || ! $self->seq_str('match') ) {
         ## Get data for the whole alignment.
         push @data, ($self->num_identical, $self->num_conserved);
     } else {
