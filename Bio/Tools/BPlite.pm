@@ -183,7 +183,8 @@ sub _initialize {
 
   $self->{FH} = $fh;
   $self->{LASTLINE} = "";
-  
+  $self->{QPATLOCATION} = [];  # Anonymous array of query pattern locations for PHIBLAST
+
   if ($self->_parseHeader) {$self->{REPORT_DONE} = 0} # there are alignments
   else                     {$self->{REPORT_DONE} = 1} # empty report
   
@@ -215,6 +216,27 @@ sub query    {shift->{QUERY}}
 =cut
 
 sub qlength  {shift->{LENGTH}}
+
+=head2 pattern
+
+ Title    : database
+ Usage    : $pattern = $obj->pattern();
+ Function : returns the pattern used in a PHIBLAST search
+
+=cut
+
+sub pattern {shift->{PATTERN}}
+
+=head2 query_pattern_location
+
+ Title    : query_pattern_location
+ Usage    : $qpl = $obj->query_pattern_location();
+ Function : returns reference to array of locations in the query sequence
+            of pattern used in a PHIBLAST search
+
+=cut
+
+sub query_pattern_location {shift->{QPATLOCATION}}
 
 =head2 database
 
@@ -293,7 +315,12 @@ sub _parseHeader {
       $self->{LENGTH} = $length;
     }
     elsif ($_ =~ /^Database:\s+(.+)/) {$self->{DATABASE} = $1}
-    elsif ($_ =~ /^>/)                {$self->{LASTLINE} = $_; return 1}
+    elsif ($_ =~ /^\s*pattern\s+(\S+).*position\s+(\d+)\D/) {   # For PHIBLAST reports
+			$self->{PATTERN} = $1;
+			push (@{$self->{QPATLOCATION}}, $2);
+#			$self->{QPATLOCATION} = $2;
+			}
+    elsif ($_ =~ /^>/) {$self->{LASTLINE} = $_; return 1}
     elsif ($_ =~ /^Parameters|^\s+Database:/) {
       $self->{LASTLINE} = $_;
       return 0; # there's nothing in the report

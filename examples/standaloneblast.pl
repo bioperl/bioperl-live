@@ -53,12 +53,14 @@ my $example1values = [ 'BLOSUM62', 'BLOSUM80', 'PAM70']; # MATRIX values to be t
 my $example2values = [ 7, 9, 25]; # GAP values to be tried
 my $queryalnformat = 'msf';
 my  $jiter = 2;
-my  $masktype = 'all';
+my  $maskvalues = [50, 25, 75] ; # only use pos. specific scoring matrix if > 50% of residues have
+		     # consensus letter (and compare with 25% or 75% cut off)
 my $helpflag = 0;   # Flag to show usage info.
 
 # get user options
 my @argv       = @ARGV;  # copy ARGV before GetOptions() massacres it.
 my $paramvalstring;
+my $maskvalstring;
 
 &GetOptions("h!" => \$helpflag, "help!" => \$helpflag,
 	"in=s" => \$queryseq,
@@ -68,11 +70,12 @@ my $paramvalstring;
 	"exec=s" => \$executable,
 	"paramvals=s" => \$paramvalstring,
 	"do=i" =>  \$do_only,
-	"mask=s" => \$masktype,
+	"maskvals=s" => \$maskvalstring,
 	"iter=i" =>  \$jiter,
 	) ;
 
 if ($paramvalstring) { @$example1values = split (":", $paramvalstring); }
+if ($maskvalstring) { @$maskvalues = split (":", $maskvalstring); }
 
  if ($helpflag) { &example_usage(); exit 0;}
 
@@ -83,26 +86,29 @@ foreach my $argv (@argv) {
 }
 my  $factory = Bio::Tools::StandAloneBlast->new(@params);
 	
-# If "do" variable not set, do all three examples
+# If "do" variable not set, do all four examples
 if ( ! $do_only)  {
-	&vary_params($queryseq, $example1param, $example1values);
+	&vary_params($queryseq, $example1param, $example1values);   # ex. 1
 # To compare gap penalties of 7, 9 and 25 we need to set the scoring matrix to BLOSUM62
 #  and extension penalty to 2 (these are limitations of BLAST)
 
 	$factory->MATRIX('BLOSUM62');  
 
 	$factory->EXTENSION(2);  
-	&vary_params($queryseq, $example2param, $example2values);
+	&vary_params($queryseq, $example2param, $example2values);   # ex. 2
 # For the psiblast tests we want to restore gap opening and extension values to their defaults
-
-	$factory->GAP(11);  
-
-	$factory->EXTENSION(1);  
-	&aligned_blast($queryseq, $queryaln, $queryalnformat, $jiter, $masktype);
+	$factory->GAP(11);
+	$factory->EXTENSION(1);
+# now do the mask comparison example and ..
+	&vary_masks($queryseq, $maskvalues);       # ex. 3
+# do the jumpstart-align vs multiple iteration examples with the mask value set to 50%
+	&aligned_blast($queryseq, $queryaln, $queryalnformat, $jiter, $maskvalues->[0]);   # ex. 4
 } elsif ($do_only  == 1) {
 	&vary_params($queryseq,$example1param, $example1values);
-} elsif ($do_only  == 3 ) {
-	&aligned_blast ($queryseq, $queryaln, $queryalnformat, $jiter, $masktype);
+} elsif ($do_only  == 3) {
+	&vary_masks($queryseq, $maskvalues);
+} elsif ($do_only  == 4 ) {
+	&aligned_blast($queryseq, $queryaln, $queryalnformat, $jiter, $maskvalues->[0]);
 }  else {
 	&example_usage();
 }
@@ -162,11 +168,8 @@ return 1;
 
 
 #################################################
-
 #   vary_params(): Example demonstrating varying of parameter
-
 #
-
 #  args: 
 #	$queryseq  - query sequence (can be filename (fasta),  or Bio:Seq object) 
 #	$param  - name of parameter to be varied 
@@ -185,13 +188,12 @@ my $values = shift;
 print "Beginning $param parameter-varying example... \n";
 
 # Now we'll perform several blasts, 1 for each value of the selected parameter.
-# We also compute a simple consensus string for each alignment.
-# In the first default case, we vary the MATRIX substitution parameter,  
+# In the first default case, we vary the MATRIX substitution parameter,
 # creating 3 BLAST reports, using MATRIX values of  BLOSUM62, BLOSUM80 or PAM70.
 # In the second default case, we vary the GAP penalty parameter,  
 # creating 3 BLAST reports, using GAP penalties of 7, 9 and 25.
 # In either case we then automatically parse the resulting report to identify which hits
-# are found with any of the parameter values and which with only some of them.
+# are found with any of the parameter values and which with only one of them.
 #
 # To test the BLAST results to some other parameter it is only necessary to change the 
 # parameters passed to the script on the commandline.  The only tricky part is that the BLAST
@@ -219,6 +221,56 @@ return 1;
 
 }
 
+#################################################
+
+#   vary_masks(): Example demonstrating varying of parameter
+#
+#  args:
+#	$queryseq  - query sequence (can be filename (fasta),  or Bio:Seq object)
+#	$maskvalues  - reference to array of values to be used for the mask threshold
+#  returns: nothing
+
+# Now we'll perform several blasts, 1 for each value of the mask threshold.
+# In the default case, we use thresholds of 25%, 50% and 75%. (Recall the threshold is
+# % of resudues which must match the consensus residue before deciding to use the
+# position specific scoring matrix rather than the default - BLOSUM or PAM - matrix)
+# We then automatically parse the resulting reports to identify which hits
+# are found with any of the mask threshold values and which with only one of them.
+#
+
+sub vary_masks {
+
+my $queryseq = shift;
+my $values = shift;
+
+
+print "Beginning mask-varying example... \n";
+
+my ($report, $sbjct, $maskvalue);
+
+my $hashhits = { };     # key is hit id, value is string of param values for which hit was found
+
+# Get the alignment file
+my $str = Bio::AlignIO->new(-file=> "$queryaln", '-format' => "$queryalnformat", );
+my $aln = $str->next_aln();
+
+foreach $maskvalue (@$values)  {
+
+        print "Performing BLAST with mask threshold = $maskvalue % \n";
+
+	# Create the proper mask for 'jumpstarting'
+	my $mask = &create_mask($aln, $maskvalue);
+	my $report2 = $factory->blastpgp($queryseq, $aln, $mask);
+	while($sbjct = $report2->nextSbjct) {
+		$hashhits->{$sbjct->name} .= "$maskvalue";			
+	}
+}
+
+&compare_runs( 'mask threshold' , $values , $hashhits);
+
+return 1;
+
+}
 
 #################################################
 #  aligned_blast ():
@@ -231,13 +283,11 @@ return 1;
 #				(psiblast is very picky)
 #	$queryalnformat  - format of alignment (can = "fasta", "msf", etc)
 #	$jiter  - number of iterations in psiblast run
-#	$masktype  - key to indicate what sort of mask to use in creating jumpstart alignment file
-#		Currently only options are: "all" => use position specific matrix at all residues,  or
-#						   "none" => use default (eg BLOSUM) at all residues
+#	$maskvalue  - threshold indicating how similar residues must be at a sequence location
+#		before position-specific-scoring matrix is used
+#		: "0" => use position specific matrix at all residues,  or
+#			"100" => use default (eg BLOSUM) at all residues
 #  returns: nothing  
-
-
-
 
 
 # For this example, we'll compare the results of psiblast depending on whether psiblast itself is 
@@ -252,41 +302,24 @@ my     $queryseq  =  shift;
 my	$queryaln  =  shift; 
 my	$queryalnformat  =  shift;
 my	$jiter  =  shift;
-my	$masktype  =  shift;
+my	$maskvalue  =  shift;
 
 my $hashhits = { };
 my ($sbjct, $id);
 
 print "\nBeginning aligned blast example... \n";
 
-# First we do a "plain" psiblast multiple-iteration search
 
-print "\nBeginning multiple-iteration psiblast ... \n";
-
-my $tag1 = 'iterated';
-$factory->j($jiter);    # 'j' is blast parameter for # of iterations
-
-
-my $report1 = $factory->blastpgp($queryseq);
-my $total_iterations = $report1->number_of_iterations;
-my $last_iteration = $report1->round($total_iterations);
-
-
- while($sbjct = $last_iteration->nextSbjct) {
-		$hashhits->{$sbjct->name} .= "$tag1";			
-	}
-
-
-# Then we do a  single-iteration psiblast search but with a specified alignment to 
+# First we do a  single-iteration psiblast search but with a specified alignment to
 #  "jump start" psiblast
 
 
 print "\nBeginning jump-start psiblast ... \n";
 
 
-my $tag2 = 'jumpstart'; 
+my $tag1 = 'jumpstart';
 
-$factory->j('1');    # perform single iteration
+# $factory->j('1');    # perform single iteration
 
 # Get the alignment file
 my $str = Bio::AlignIO->new(-file=> "$queryaln", '-format' => "$queryalnformat", );
@@ -294,13 +327,33 @@ my $aln = $str->next_aln();
 
 
 # Create the proper mask for 'jumpstarting'
-my $mask = &create_mask($aln, $masktype);
+my $mask = &create_mask($aln, $maskvalue);
 
 
 my $report2 = $factory->blastpgp($queryseq, $aln, $mask);
 while($sbjct = $report2->nextSbjct) {
-		$hashhits->{$sbjct->name} .= "$tag2";			
+		$hashhits->{$sbjct->name} .= "$tag1";			
 }
+
+# Then we do a "plain" psiblast multiple-iteration search
+
+print "\nBeginning multiple-iteration psiblast ... \n";
+
+my $undefineB ;
+  $factory->B($undefineB);
+
+my $tag2 = 'iterated';
+$factory->j($jiter);    # 'j' is blast parameter for # of iterations
+my $report1 = $factory->blastpgp($queryseq);
+my $total_iterations = $report1->number_of_iterations;
+my $last_iteration = $report1->round($total_iterations);
+
+
+ while($sbjct = $last_iteration->nextSbjct) {
+		$hashhits->{$sbjct->name} .= "$tag2";			
+	}
+
+# Now we compare the results of the searches
 
 my $tagtype = 'iterated_or_jumpstart'; 
 my $values = [ $tag1, $tag2];
@@ -317,27 +370,31 @@ return 1;
 #	that determines at what residues position-specific scoring matrices (PSSMs)
 #	are used and at what residues default scoring matrices (eg BLOSUM)
 #	are used. See psiblast documentation for more details,
-#	Currently only two very simple masks are implemented here:
-#	Either *all* positions use the position specific matrix or *none* do
 #
 #  args: 
 #	$aln  -  SimpleAlign object with alignment
-#	$masktype  -  label describing type of "tags"
+#	$maskvalue  -  label describing type of "tags"
 #  returns: actual mask, ie a string of 0's and 1's which is the same length as each
-#		sequence in the alignment and has a "1" where (PSSMs) are to be used
-#		and a "0" at  
+#		sequence in the alignment and has a "1" at locations where (PSSMs) are to be used
+#		and a "0" at all other locations.
 
 sub create_mask {
 my $aln = shift;
-my $masktype = shift;
+my $maskvalue = shift;
 my $mask = "";
 
 unless ( $aln->is_flush() )  { die "psiblast jumpstart requires all sequences to be same length \n"; }
 my $len = $aln->length_aln();
-if ($masktype =~ /all/i  ) {  $mask =   '1' x $len; }
-if ($masktype =~ /none/i  ) {  $mask =   '0' x $len; }
+
+if ($maskvalue =~ /^(\d){1,3}$/  ) {
+   $mask = $aln->consensus_string($maskvalue) ;
+   $mask =~ s/[^\?]/1/g ;
+   $mask =~ s/\?/0/g ;
+}
+else { die "maskvalue must be an integer between 0 and 100 \n"; }
 return $mask ;
 }
+
 
 
 #----------------
@@ -362,21 +419,25 @@ sub example_usage {
  -exec <str>  	:  Blast executable to be used in example 1.  Can be "blastall" or
 		   "blastpgp" (default is "blastpgp").
  -param <str>  	:  Parameter to be varied in example 1. Any blast parameter
-		   which takes inteer values can be varied (default = 'MATRIX')
+		   can be varied (default = 'MATRIX')
  -paramvals <str>:  String containing parameter values in example 1, separated
 		   by ":"'s. (default = 'BLOSUM62:BLOSUM80:PAM70')
  -iter <int>    :  Maximum number of iterations in psiblast in example 3 (default = 2)
- -mask <str>	:  Type of alignment mask to be used in example 3. can equal "all"
-		   or "none". (default = 'all')
+ -maskvals <str>:  String containing mask threshold values (in per-cents) for example 3,
+		   separated by ":"'s. (default = '50:75:25')
 
 In addition, any valid Blast parameter can be set using the syntax "parameter=>value" as in "database=>swissprot"
 
 So some typical command lines might be:
- >standaloneblast.pl -do 1 -param MATRIX -paramvals 'BLOSUM62:BLOSUM80'
+ >standaloneblast.pl -do 1 -param expectation -paramvals '1e-10:1e-5'
 or
  >standaloneblast.pl -do 1 -exec blastall -param q -paramvals '-1:-7' -in='t/dna1.fa' "pr=>blastn" "d=>ecoli.nt"
 or
- >standaloneblast.pl -do 3 -mask none -iter 3
+ >standaloneblast.pl -do 4 -maskvals 0 -iter 3
+or
+ >standaloneblast.pl -do 3 -maskvals '10:50:90'  -in 't/cysprot1.fa' -alnfmt msf -inaln 't/cysprot.msf'
+
+
 
 QQ_PARAMS_QQ
 }

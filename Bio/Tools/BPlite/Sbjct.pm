@@ -14,7 +14,7 @@ use strict;
 use Bio::Root::Object; # root object to inherit from
 use Bio::Tools::BPlite::HSP; # we want to use HSP
 
-use overload '""' => 'name';
+#use overload '""' => 'name';
 use vars qw(@ISA);
 
 @ISA = qw(Bio::Root::Object);
@@ -123,7 +123,11 @@ sub nextHSP {
     }
     else {
       push @hspline, $_;           #      store the query line
-      my $l1 = <$FH>; push @hspline, $l1; # grab/store the alignment line
+      $nextline = <$FH> ;
+# Skip "pattern" line when parsing PHIBLAST reports, otherwise store the alignment line
+      my $l1 = ($nextline =~ /^\s*pattern/) ? <$FH> : $nextline;
+#     my $l1 =  push @hspline, $l1; # grab/store the alignment line
+      push @hspline, $l1; # store the alignment line
       my $l2 = <$FH>; push @hspline, $l2; # grab/store the sbjct line
     }
   }

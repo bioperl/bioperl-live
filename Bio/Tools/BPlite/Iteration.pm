@@ -26,7 +26,7 @@ $total_iterations = $report->number_of_iterations;
 $last_iteration = $report->round($total_iterations);
 
 # Process only hits found in last iteration ...
- $oldhitarray_ref = $last_iteration->{OLDHITS};
+ $oldhitarray_ref = $last_iteration->oldhits;
  HIT: while($sbjct = $last_iteration->nextSbjct) {
 	$id = $sbjct->name;
 	$is_old =  grep  /\Q$id\E/, @$oldhitarray_ref;
@@ -105,22 +105,43 @@ sub query    {shift->{QUERY}}
 
  Title    : qlength
  Usage    : $len = $obj->qlength();
- Function : returns the length of the query
- Example  :
  Returns  : length of query
- Args     :
+ Args     : none
 
 =cut
 
 sub qlength  {shift->{LENGTH}}
 
+=head2 newhits
+
+ Title    :  newhits
+ Usage    : $newhits = $obj->newhits();
+ Returns  : reference to an array listing all the hits from the current iteration
+		which were not identified in the previous iteration
+ Args     : none
+
+=cut
+
+sub  newhits  {shift->{NEWHITS}}
+
+=head2 oldhits
+
+ Title    :  oldhits
+ Usage    : $oldhits = $obj->oldhits();
+ Returns  : reference to an array listing all the hits from the current iteration
+		which were identified and above threshold in the previous iteration
+ Args     : none
+
+=cut
+
+sub  oldhits  {shift->{OLDHITS}}
 
 
 =head2 nextSbjct
 
  Title    : nextSbjct
  Usage    : $sbjct = $obj->nextSbjct();
- Function : Method of iterating through all the Sbjct retrieved 
+ Function : Method of iterating through all the Sbjct retrieved
             from parsing the report 
  Example  : while ( my $sbjct = $obj->nextSbjct ) {}
  Returns  : next Sbjct object or null if finished

@@ -14,7 +14,7 @@ use vars qw(@ISA);
 use strict;
 
 # to disable overloading comment this out:
-use overload '""' => '_overload';
+#use overload '""' => '_overload';
 
 # Object preamble - inheriets from Bio::SeqFeature::SimilarityPair
 

@@ -17,7 +17,7 @@
 
 
 ## We start with some black magic to print on failure.
-BEGIN { $| = 1; print "1..6\n";
+BEGIN { $| = 1; print "1..12\n";
 	use vars qw($loaded); }
 END {print "not ok 1\n" unless $loaded;}
 
@@ -51,7 +51,7 @@ my $total_iterations = $report->number_of_iterations;
 test 5, $total_iterations == 2, " wrong total iteration number";
 
 my $last_iteration = $report->round($total_iterations);
-my $oldhitarray_ref = $last_iteration->{OLDHITS};
+my $oldhitarray_ref = $last_iteration->oldhits;
 
 # Process initial newly identified hit only
 my ($sbjct, $id, $new_hsp, $is_old, @is_old);
@@ -66,3 +66,27 @@ my ($sbjct, $id, $new_hsp, $is_old, @is_old);
 	last HIT;
  }
 close FH;
+
+# Verify parsing of PHI-PSI Blast reports
+open FH, "t/phipsi.out";
+my $report2 = Bio::Tools::BPpsilite->new(-fh=>\*FH);
+
+test 7, $report2;
+test 8, $report2->pattern eq "P-E-E-Q", " wrong phi pattern";
+test 9, $report2->query_pattern_location->[1] == 120, " wrong phi pattern location";
+
+$total_iterations = $report2->number_of_iterations;
+test 10, $total_iterations == 2, " wrong total iteration number in phiblast report";
+
+my $last_iteration2 = $report2->round($total_iterations);
+my $sbjct2 = $last_iteration2->nextSbjct;
+test 11, $last_iteration2->newhits->[1] =~ /ARATH/, " Hit not found in phiblast report";
+my $hsp2 = $sbjct2->nextHSP;
+test 12, $hsp2->subject->end == 343, " HSP start not found in phiblast report";
+
+close FH;
+
+
+
+
+

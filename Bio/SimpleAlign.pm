@@ -8,6 +8,10 @@
 # You may distribute this module under the same terms as perl itself
 
 # POD documentation - main docs before the code
+#
+#  History:
+#	11/3/00 Added threshold feature to consensus and consensus_aa  - PS
+#		
 
 =head1 NAME
 
@@ -254,20 +258,19 @@ sub column_from_residue_number {
 =head2 consensus_string
 
  Title     : consensus_string
- Usage     : $str = $ali->consensus_string()
-           : 
-           :
+ Usage     : $str = $ali->consensus_string($threshold_percent)
  Function  : Makes a consensus
-           : 
-           : 
-           :
  Returns   : 
- Argument  : 
+ Argument  : Optional treshold ranging from 0 to 100.  If consensus residue appears in
+		fewer than threshold % of the sequences at a given location
+		consensus_string will return a "?" at that location rather than the consensus
+		letter. (Default value = 0%)
 
 =cut
 
 sub consensus_string {
     my $self = shift;
+    my $threshold = shift;
     my $len;
     my ($out,$count);
 
@@ -276,16 +279,31 @@ sub consensus_string {
     $len = $self->length_aln();
 
     foreach $count ( 0 .. $len ) {
-	$out .= $self->consensus_aa($count);
+	$out .= $self->consensus_aa($count,$threshold);
     }
 
     return $out;
     
 }
 
+=head2 consensus_aa
+
+ Title     : consensus_aa
+ Usage     : $consensus_residue = $ali->consensus_aa($residue_number, $threshold_percent)
+ Function  : Makes a consensus
+ Returns   :
+ Argument  : Optional treshold ranging from 0 to 100.  If consensus residue appears in
+		fewer than threshold % of the sequences at the specified location
+		consensus_string will return a "?"  rather than the consensus
+		letter. (Default value = 0%)
+
+=cut
+
+
 sub consensus_aa {
     my $self = shift;
     my $point = shift;
+    my $threshold_percent = shift || -1 ;
     my ($seq,%hash,$count,$letter,$key);
 
     foreach $seq ( $self->eachSeq() ) {
@@ -294,13 +312,14 @@ sub consensus_aa {
 	# print "Looking at $letter\n";
 	$hash{$letter}++;
     }
-
+    my $number_of_sequences = $self->no_sequences();
+    my $threshold = $number_of_sequences * $threshold_percent / 100. ;
     $count = -1;
     $letter = '?';
 
     foreach $key ( keys %hash ) {
 	# print "Now at $key $hash{$key}\n";
-	if( $hash{$key} > $count ) {
+	if( $hash{$key} > $count && $hash{$key} > $threshold) {
 	    $letter = $key;
 	    $count = $hash{$key};
 	}

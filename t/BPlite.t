@@ -18,7 +18,7 @@
 
 
 ## We start with some black magic to print on failure.
-BEGIN { $| = 1; print "1..24\n"; 
+BEGIN { $| = 1; print "1..29\n";
 	use vars qw($loaded); }
 END {print "not ok 1\n" unless $loaded;}
 
@@ -82,7 +82,24 @@ test 23, $hsp->subject->length == 1512;
 
 close FH;
 
-test 24, "everything fine";
+# Verify that BPlite is properly parsing PHIBLAST reports as well
+
+open FH, "t/phi.out";
+my $report2 = Bio::Tools::BPlite->new(-fh=>\*FH);
+
+test 24, $report2->pattern eq "P-E-E-Q";
+test 25, $report2->query_pattern_location->[0] == 23;
+test 26, $report2->query_pattern_location->[1] == 120;
+my $sbjct2 = $report2->nextSbjct;
+test 27, $sbjct2->name =~ /4988/;
+my $hsp2 = $sbjct2->nextHSP;
+test 28, $hsp2->subject->end == 343;
+
+close FH;
+
+
+
+test 29, "everything fine";
 
 
 

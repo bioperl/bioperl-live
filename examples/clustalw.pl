@@ -45,8 +45,6 @@ use strict;
 # set some default values
 my $infile = 't/cysprot1a.fa';
 my @params = ('quiet' => 1 );
-#my @params = ('matrix' => 'BLOSUM');
-#my @params = ('matrix' => 'BLOSUM', 'quiet' => 1 );
 my $do_only = '123'; 	# string listing examples to be executed. Default is to execute
 			# all tests (ie 1,2 and 3)
 my $param = 'ktuple';  # parameter to be varied in example 1
@@ -74,10 +72,7 @@ if ($helpflag) { &clustalw_usage(); exit 0;}
 # create factory & set user-specified global clustalw parameters
 foreach my $argv (@argv) {
 	unless ($argv =~ /^(.*)=>(.*)$/) { next;}
-#	my $attr = $1;
-#	my $value = $2;
 	push (@params, $1 => $2);
-#	push (@params, $attr, $value);
 }
 my  $factory = Bio::Tools::Alignment::Clustalw->new(@params);
 	
