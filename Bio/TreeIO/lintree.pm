@@ -155,20 +155,20 @@ sub next_tree {
     my $nodetype = $self->nodetype;   
 
     while( defined( $_ = $self->_readline) ) {
-	if( /^\s*(\d+)\s+sequences/ ) {
+	if( /^\s*(\d+)\s+sequences/ox ) {
 	    if( $seentop ) { 
 		$self->_pushback($_);
 		last;
 	    }
 	    $tipcount = $1;
 	    $seentop = 1;
-	} elsif( /^(\d+)\s+(\S+)/ ) {
+	} elsif( /^(\d+)\s+(\S+)\s*$/ox ) {
 	    # deal with setting an outgroup
 	    unless( defined $data{'outgroup'} ) {
 		$data{'outgroup'} = [$1,$2];
 	    }
 	    $nodes[$1 - 1] = { '-id' => $2 }; 
-	} elsif( m/^\s+(\d+)\s+and\s+(\d+)\s+(\d+\.\d+)(?:\s+(\d+))?/ox ) {
+	} elsif( m/^\s*(\d+)\s+and\s+(\d+)\s+(\d+\.\d+)(?:\s+(\d+))?/ox ) {
 	    my ($node,$descend,$blength,$bootstrap) = ( $1, $2, $3, $4 );
 	    # need to -- descend and node because
 	    # array is 0 based
@@ -178,9 +178,9 @@ sub next_tree {
 	    $nodes[$node]->{'-id'} = $node+1;
 	    push @{$nodes[$node]->{'-d'}}, $descend;
 	    
-	} elsif( /\s+(\S+)\-distance was used\./ ) {
+	} elsif( /\s+(\S+)\-distance was used\./ox ) {
 	    $data{'method'} = $1;
-	} elsif( /\s*seed=(\d+)/ ) {
+	} elsif( /\s*seed=(\d+)/ox ) {
 	    $data{'seed'} = $1;
 	} elsif( m/^outgroup:\s+(\d+)\s+(\S+)/ox ) {
 	    $data{'outgroup'} = [$1,$2];
