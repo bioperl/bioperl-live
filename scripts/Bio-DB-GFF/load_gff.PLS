@@ -43,6 +43,10 @@ then use the -f command-line swith with an argument of '-', as in
 On the first load of a database, you will see a number of "unknown
 table" errors.  This is normal.
 
+About maxbin: the default value is 100,000,000 bases.  If you have
+features that are close to or greater that 100Mb in length, then the
+value of maxbin should be increased to 1,000,000,000.
+
 =head1 COMMAND-LINE OPTIONS
 
 Command-line options can be abbreviated to single-letter options.
@@ -54,6 +58,7 @@ e.g. -d instead of --database.
    --pass    <password>  Password for mysql authentication
    --fasta   <path>      Fasta file or directory containing fasta files for the DNA
    --create              Force creation and initialization of database
+   --maxbin              Set the value of the maximum bin size
    --upgrade             Upgrade existing database to current schema
 
 =head1 SEE ALSO
@@ -73,7 +78,7 @@ disclaimers of warranty.
 =cut
 
 
-my ($DSN,$ADAPTOR,$CREATE,$USER,$PASSWORD,$FASTA,$UPGRADE);
+my ($DSN,$ADAPTOR,$CREATE,$USER,$PASSWORD,$FASTA,$UPGRADE,$MAX_BIN);
 
 GetOptions ('dsn:s'       => \$DSN,
 	    'adaptor:s'   => \$ADAPTOR,
@@ -81,6 +86,7 @@ GetOptions ('dsn:s'       => \$DSN,
 	    'password:s'  => \$PASSWORD,
             'fasta:s'     => \$FASTA,
             'upgrade'     => \$UPGRADE,
+            'maxbin:s'    => \$MAX_BIN,
 	    create        => \$CREATE) or (system('pod2text',$0), exit -1);
 
 # some local defaults
@@ -95,7 +101,8 @@ my $db = Bio::DB::GFF->new(-adaptor=>$ADAPTOR,-dsn => $DSN,@auth)
   or die "Can't open database: ",Bio::DB::GFF->error,"\n";
 
 if ($CREATE) {
-  $db->initialize(1);
+  $MAX_BIN ? $db->initialize(-erase=>1,-MAX_BIN=>$MAX_BIN) :
+             $db->initialize(1);
 } elsif ($UPGRADE) {
   warn qq(expect to see several "table already exists" messages\n);
   $db->initialize(0);
