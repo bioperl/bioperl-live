@@ -73,10 +73,12 @@ sub parse_ncbi_id {
     if( $_[0] =~ /^>(\S+)/ ) {
 	my $val = $1;
 	my (@elements) = split(/\|/, $val);
-	while( @elements ) {
+	while ( @elements ) {
 	    my $id = shift @elements;
-	    if( $id eq 'gb' || $id eq 'gi' ) {
-		$id = $id . '|' . shift @elements;
+	    if( $id =~ /(gb|emb|ref|dbj|sp|pir|gi)/ ) {
+		my $next = shift @elements;
+		push @retvals, ($next, "$id|$next");
+		next;
 	    }
 	    push @retvals, $id;
 	}
