@@ -1311,18 +1311,33 @@ sub unflatten_seq{
 
            # Are there any mRNA features in the record?
 	   if (!$n_mrnas) {
+               # NO mRNAs
 	       # looks like structure_type == 1
 	       $structure_type = 1;
 	       $need_to_infer_mRNAs = 1;
 	   }
 	   elsif (!$n_mrnas_attached_to_gene) {
-               # The files _does_ have at least one mRNA feature,
-               # but none of them are part of a group, i.e. they
+               # $n_mrnas > 0
+               # $n_mrnas_attached_to_gene = 0
+               #
+               # The entries _do_ contain mRNA features,
+               # but none of them are part of a group/gene, i.e. they
                # are 'floating'
 
 	       # this is an annoying weird file that has some floating
 	       # mRNA features; 
 	       # eg ftp.ncbi.nih.gov/genomes/Schizosaccharomyces_pombe/
+               
+               if ($self->verbose) {
+                   my @floating_mrnas =
+                     grep {$_->primary_tag eq 'mRNA' &&
+                             !$_->has_tag($group_tag)} @flat_seq_features;
+                   printf STDERR "Unattached mRNAs:\n";
+                   foreach my $mrna (@floating_mrnas) {
+                       $self->_write_sf_detail($mrna);
+                   }
+                   printf STDERR "Don't know how to deal with these; filter at source?\n";
+               }
 
 	       foreach (@flat_seq_features) {
 		   if ($_->primary_tag eq 'mRNA') {
@@ -1376,7 +1391,7 @@ sub unflatten_seq{
 
    # LOGGING
    if ($self->verbose > 0) {
-       warn "GROUPS:\n";
+       printf STDERR "GROUPS:\n";
        foreach my $group (@groups) {
 	   $self->_write_group($group, $group_tag);
        }
@@ -1472,7 +1487,7 @@ sub unflatten_seq{
    # INFERRING mRNAs
    if ($need_to_infer_mRNAs) {
        if ($self->verbose > 0) {
-	   warn "** INFERRING mRNA from CDS\n";
+	   printf STDERR "** INFERRING mRNA from CDS\n";
        }
        $self->infer_mRNA_from_CDS(-seq=>$seq);
    }
@@ -1545,7 +1560,9 @@ sub unflatten_seq{
 			   $exon->add_tag_value($tag, @vals);
 		       }
 		   }
-	       } else {
+	       } 
+               else {
+                   # no exons inferred at $locstr
 		   push(@problems,
 			[1, 
 			 "there is a conflict with exons; there was an explicitly ".
@@ -1569,7 +1586,7 @@ sub unflatten_seq{
 	       my $thresh = $self->error_threshold;
 	       my @bad_problems = grep {$_->[0] > $thresh} @problems;
 	       if (@bad_problems) {
-		   warn "PROBLEM:\n";
+		   printf STDERR "PROBLEM:\n";
 		   $self->_write_hier(\@top_sfs);
 		   # TODO - allow more fine grained control over this
 		   $self->{_problems_reported} = 1;
@@ -1617,7 +1634,7 @@ sub _split_group_if_disconnected {
 	# @ranges > 1
 	# split the group into disconnected ranges
 	if ($self->verbose > 0) {
-	    warn "GROUP PRE-SPLIT:\n";
+	    printf STDERR "GROUP PRE-SPLIT:\n";
 	    $self->_write_group($group, $self->group_tag);
 	}
 	@groups =
@@ -1628,7 +1645,7 @@ sub _split_group_if_disconnected {
 	      } @sfs]
 	  } @ranges;
 	if ($self->verbose > 0) {
-	    warn "SPLIT GROUPS:\n";
+	    printf STDERR "SPLIT GROUPS:\n";
 	    $self->_write_group($_, $self->group_tag) foreach @groups;	    
 	}
     }
@@ -1668,7 +1685,7 @@ sub _remove_duplicates_from_group {
 	# the latter with the following filter
 
 	if ($self->verbose > 0) {
-	    warn "REMOVING DUPLICATES:\n";
+	    printf STDERR "REMOVING DUPLICATES:\n";
 	}
 
 	@genes =
@@ -1785,7 +1802,7 @@ sub unflatten_group{
                           @args);
 
    if ($self->verbose > 0) {
-       warn "UNFLATTENING GROUP:\n";
+       printf STDERR "UNFLATTENING GROUP:\n";
        $self->_write_group($group, $self->group_tag);
    }
 
@@ -1871,7 +1888,7 @@ sub unflatten_group{
    # CONDITION: there must be at most one root
    if (@top_sfs > 1) {
        $self->_write_group($group, $self->group_tag);
-       warn "TOP SFS:\n";
+       printf STDERR "TOP SFS:\n";
        $self->_write_sf($_) foreach @top_sfs;
        $self->throw("multiple top-sfs in group");
    }
@@ -2022,7 +2039,7 @@ sub unflatten_group{
            my %childh = map {$_=>1} keys %unresolved;
            my %parenth = map {$_->[0]=>1} map {@$_} values %unresolved;
            if ($self->verbose > 0) {
-               printf "MATCHING %d CHILDREN TO %d PARENTS\n",
+               printf STDERR "MATCHING %d CHILDREN TO %d PARENTS\n",
                  scalar(keys %childh), scalar(keys %parenth);
            }
            # 99.99% of the time in genbank genomic record of structure type 0, we
@@ -2044,16 +2061,17 @@ sub unflatten_group{
 
    # DEBUGGING CODE
    if ($self->verbose > 0 && scalar(keys %unresolved)) {
-       warn "UNRESOLVED PAIRS:\n";
+       printf STDERR "UNRESOLVED PAIRS:\n";
        foreach my $childsf (keys %unresolved) {
 	   my @poss = @{$unresolved{$childsf}};
 	   foreach my $p (@poss) {
 	       my $parentsf = $p->[0];
 	       $childsf = $idxsf{$childsf};
-               my @clabels = $childsf->get_tagset_values(qw(protein_id label product));
-               my @plabels = $parentsf->get_tagset_values(qw(transcript_id label product));
-	       printf("  PAIR: $clabels[0] => $plabels[0]  (of %d)\n", 
-		      scalar(@poss));
+               my @clabels = ($childsf->get_tagset_values(qw(protein_id label product)), "?");
+               my @plabels = ($parentsf->get_tagset_values(qw(transcript_id label product)), "?");
+	       printf STDERR
+                      ("  PAIR: $clabels[0] => $plabels[0]  (of %d)\n", 
+                       scalar(@poss));
 	   }
        }
    } # -- end of verbose
@@ -2079,7 +2097,7 @@ sub unflatten_group{
        }
        foreach my $pair (@$new_pairs) {
 	   if ($self->verbose > 0) {
-	       printf "  resolved pair @$pair\n";
+	       printf STDERR "  resolved pair @$pair\n";
 	   }
 	   $container{$pair->[0]} = $pair->[1];
            delete $unresolved{$pair->[0]};
@@ -2165,7 +2183,7 @@ sub find_best_matches {
     my $verbose = $self->verbose;
     #################################print "I";
     if ($verbose > 0) {
-	printf "find_best_matches: (/%d)\n", scalar(@$pairs);
+	printf STDERR "find_best_matches: (/%d)\n", scalar(@$pairs);
     }
 
     my %selected_children = map {($_->[0]=>1)} @$pairs;
@@ -2177,7 +2195,7 @@ sub find_best_matches {
     my %unresolved =
       map {
           if ($verbose > 0) {
-              printf "  $_ : %s\n", join("; ", map {"[@$_]"} @{$matrix->{$_}});
+              printf STDERR "  $_ : %s\n", join("; ", map {"[@$_]"} @{$matrix->{$_}});
           }
 	  if ($selected_children{$_}) {
 	      ();
@@ -2264,12 +2282,12 @@ sub _write_group {
     my $group_tag = shift || 'gene';
 
     my $f = $group->[0];
-    my $label = '';
+    my $label = '?';
     if ($f->has_tag($group_tag)) {
 	($label) = $f->get_tag_values($group_tag);
     }
     if( $self->verbose > 0 ) { 
-	printf("  GROUP [%s]:%s\n",
+	printf STDERR ("  GROUP [%s]:%s\n",
 	       $label,
 	       join(' ',
 		    map { $_->primary_tag } @$group));
@@ -2280,7 +2298,7 @@ sub _write_group {
 sub _write_sf {
     my $self = shift;
     my $sf = shift;
-    printf "TYPE:%s\n", $sf->primary_tag;
+    printf STDERR "TYPE:%s\n", $sf->primary_tag;
     return;
 }
 
@@ -2288,9 +2306,9 @@ sub _write_sf_detail {
     my $self = shift;
     my $sf = shift;
     if( $self->verbose > 0 ) {
-	printf "TYPE:%s\n", $sf->primary_tag;
+	printf STDERR "TYPE:%s\n", $sf->primary_tag;
 	my @locs = $sf->location->each_Location;
-	printf "  %s,%s [%s]\n", $_->start, $_->end, $_->strand foreach @locs;
+	printf STDERR "  %s,%s [%s]\n", $_->start, $_->end, $_->strand foreach @locs;
     }
     return;
 }
@@ -2305,7 +2323,7 @@ sub _write_hier {
 	    if ($sf->has_tag('product')) {
 		($label) = $sf->get_tag_values('product');
 	    }
-	    printf "%s%s $label\n", '  ' x $indent, $sf->primary_tag;
+	    printf STDERR "%s%s $label\n", '  ' x $indent, $sf->primary_tag;
 	    my @sub_sfs = $sf->sub_SeqFeature;
 	    $self->_write_hier(\@sub_sfs, $indent+1);
 	}
@@ -2341,7 +2359,7 @@ sub _resolve_container_for_sf{
            }
        }
        if ($self->verbose > 0) {
-	   warn "    Checking containment:[$inside] (@container_coords) IN ($splice_uniq_str)\n";
+	   printf STDERR "    Checking containment:[$inside] (@container_coords) IN ($splice_uniq_str)\n";
        }
        if ($inside) {
 	   # SCORE: matching (ss-scoords+2)/(n-container-ss-coords+2)
@@ -2471,9 +2489,12 @@ sub feature_from_splitloc{
        
        # PARANOID CHECK
        my $ok =
-	 $self->_check_order_is_consistent(@subsfs);
+	 $self->_check_order_is_consistent($sf->location->strand,@subsfs);
        if (!$ok) {
-	   warn "Unordered features:\n";
+           use Data::Dumper;
+           print Dumper $sf->location;
+	   printf STDERR "Unordered features [on strand:%s]:\n",
+             $sf->location->strand;
 	   $self->_write_sf_detail($_) foreach @subsfs;
 	   $self->throw("ASSERTION ERROR: inconsistent order");
        }
@@ -2567,6 +2588,9 @@ sub infer_mRNA_from_CDS{
 
        $sf->isa("Bio::SeqFeatureI") || $self->throw("$sf NOT A SeqFeatureI");
        $sf->isa("Bio::FeatureHolderI") || $self->throw("$sf NOT A FeatureHolderI");
+       if ($self->verbose) {
+           printf STDERR "    Checking $sf %s\n", $sf->primary_tag;
+       }
        
        if ($sf->primary_tag eq 'mRNA') {
 	   $self->problem(2,
@@ -2579,9 +2603,12 @@ sub infer_mRNA_from_CDS{
 	   my @mrnas = ();
 	   foreach my $cds (@cdsl) {
 	       
+               if ($self->verbose) {
+                   print "    Inferring mRNA from CDS $cds\n";
+               }
 	       my $ok;
 	       $ok =
-		 $self->_check_order_is_consistent($cds->location->each_Location);
+		 $self->_check_order_is_consistent($cds->location->strand,$cds->location->each_Location);
 	       if (!$ok) {
 		   $self->_write_sf_detail($cds);
 		   $self->throw("inconsistent order");
@@ -2605,7 +2632,7 @@ sub infer_mRNA_from_CDS{
                $mrna->source_tag($cds->source_tag) if $cds->source_tag;
 
 	       $ok =
-		 $self->_check_order_is_consistent($mrna->location->each_Location);
+		 $self->_check_order_is_consistent($mrna->location->strand,$mrna->location->each_Location);
 	       if (!$ok) {
 		   $self->throw("inconsistent order");
 	       }
@@ -2672,27 +2699,40 @@ sub remove_types{
 
 sub _check_order_is_consistent {
     my $self = shift;
+    my $parent_strand = shift;
     my @ranges = @_;
     return unless @ranges;
     my $strand = $ranges[0]->strand;
     for (my $i=1; $i<@ranges;$i++) {
 	if ($ranges[$i]->strand != $strand) {
 	    return 1; # mixed ranges - autopass
+            # some mRNAs have exons on both strands; for
+            # example, the dmel mod(mdg4) gene which is
+            # trans-spliced (in actual fact two mRNAs)
 	}
     }
+    my $pass = 1;
     for (my $i=1; $i<@ranges;$i++) {
 	my $rangeP = $ranges[$i-1];
 	my $range = $ranges[$i];
-#	if ($strand < 0) {
-#	    if ($rangeP->end < $range->start) {
-#		return 0;
-#	    }
-#	}
-#	else {
 	    if ($rangeP->start > $range->end) {
-		return 0;
+		$pass = 0;
+                last;
 	    }
-#	}
+    }
+    
+    if (!$pass) {
+        # sometimes (eg ensembl flavour genbank files)
+        # exons on reverse strand listed in reverse order
+        # eg join(complement(R1),...,complement(Rn))
+        # where R1 > R2
+        for (my $i=1; $i<@ranges;$i++) {
+            my $rangeP = $ranges[$i-1];
+            my $range = $ranges[$i];
+	    if ($rangeP->end < $range->start) {
+                return 0;
+	    }
+        }
     }
     return 1; # pass
 }
