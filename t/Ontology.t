@@ -39,9 +39,7 @@ my $io = Bio::Root::IO->new(); # less typing from now on
 my $parser = Bio::OntologyIO->new(
                       -format    => "soflat",
 		      -file      => $io->catfile("t", "data",
-						 "sofa.ontology"),
-		      # test overwriting the default
-		      -ontology_name => "Sequence Feature Ontology");
+						 "sofa.ontology"));
 
 my $ont = $parser->next_ontology();
 ok ($ont);
