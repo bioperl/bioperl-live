@@ -69,6 +69,7 @@ use vars qw(@ISA);
 use strict;
 
 use Bio::SeqFeature::Generic;
+use Bio::SeqFeature::Gene::GeneStructureI;
 
 @ISA = qw(Bio::SeqFeature::Gene::GeneStructureI Bio::SeqFeature::Generic);
 
