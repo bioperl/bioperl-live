@@ -3286,7 +3286,7 @@ sub _split_gff2_group {
       ($tstart,$tstop) = / (\d+) (\d+)/;
     }
 
-    elsif (!$value) {
+    elsif (!defined($value)) {
       push @notes, [Note => $tag];  # e.g. "Confirmed_by_EST"
     }
 
