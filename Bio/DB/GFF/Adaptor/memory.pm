@@ -22,6 +22,29 @@ sub new {
   return $self;
 }
 
+sub insert_sequence {
+  my $self = shift;
+  my($id,$offset,$seq) = @_;
+  $self->{dna}{$id} .= $seq;
+}
+
+sub get_dna {
+  my $self = shift;
+  my ($id,$start,$stop,$class) = @_;
+  my $reversed = 0;
+  if ($start > $stop) {
+    $reversed++;
+    ($start,$stop) = ($stop,$start);
+  }
+  my $dna = substr($self->{dna}{$id},$start-1,$stop-$start+1);
+  if ($reversed) {
+    $dna =~ tr/gatcGATC/ctagCTAG/;
+    $dna = reverse $dna;
+  }
+
+  $dna;
+}
+
 sub load_gff_line {
   my $self = shift;
   my $feature_hash  = shift;
@@ -50,25 +73,20 @@ sub get_abscoords {
   }
 
   # find out how many reference points we recovered
-  if (! %refs) {
-    $self->error("$name not found in database");
-    return;
-  } elsif (keys %refs > 1) {
-    $self->error("$name has more than one reference sequence in database");
-    return;
+  my @found_segments;
+  foreach my $ref (keys %refs) {
+    next if defined($refseq) and $ref ne $refseq;
+    my @found = @{$refs{$ref}};
+    my ($strand,$start,$stop);
+    foreach (@found) {
+      $strand ||= $_->{strand};
+      $strand = '+' if $strand eq '.'; 
+      $start  = $_->{start} if !defined($start) || $start > $_->{start};
+      $stop   = $_->{stop}  if !defined($stop)  || $stop  < $_->{stop};
+    }
+    push @found_segments,[$ref,$class,$start,$stop,$strand];
   }
-
-  # compute min and max
-  my ($ref) = keys %refs;
-  my @found = @{$refs{$ref}};
-  my ($strand,$start,$stop);
-  foreach (@found) {
-    $strand ||= $_->{strand};
-    $strand = '+' if $strand eq '.'; 
-    $start  = $_->{start} if !defined($start) || $start > $_->{start};
-    $stop   = $_->{stop}  if !defined($stop)  || $stop  < $_->{stop};
-  }
-  return ($ref,$class,$start,$stop,$strand);
+  return \@found_segments;
 }
 
 

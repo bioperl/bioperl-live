@@ -28,7 +28,6 @@ BEGIN {
 sub bail ($;$);
 sub user_prompt ($;$);
 sub fail ($);
-eval { require DBI } or bail(TEST_COUNT,'DBI driver is missing');
 use lib './blib/lib';
 use Bio::DB::GFF;
 
@@ -37,16 +36,23 @@ my @PREFERRED_DRIVERS  = qw(mysql Pg Oracle Sybase mSQL Solid Informix Illustra 
 my $idx = 1;
 my %PREFERRED_DRIVERS  = map {$_=>$idx++} @PREFERRED_DRIVERS;
 
-my $cfg = ChooseDrivers() or bail(TEST_COUNT,'Skipped by user');
-QueryDb($cfg,{'prompt'=>1,'verbose'=>1});
-
-my @args = ( '-adaptor' => 'dbi::mysqlopt',         # the "mysqlopt" adaptor *might* work with other databases....
+my $adaptor = shift || 'dbi::mysqlopt';
+my @args;
+if ($adaptor =~ /^dbi/) {
+  eval { require DBI } or bail(TEST_COUNT,'DBI driver is missing');
+  my $cfg = ChooseDrivers() or bail(TEST_COUNT,'Skipped by user');
+  QueryDb($cfg,{'prompt'=>1,'verbose'=>1});
+  @args = ( '-adaptor'  => $adaptor,
 	     '-dsn'     => $cfg->{test_dsn},
-	   );
-push @args,('-user' => $cfg->{test_user}) if $cfg->{test_user};
-push @args,('-pass' => $cfg->{test_pass}) if $cfg->{test_pass};
+	     );
+  push @args,('-user' => $cfg->{test_user}) if $cfg->{test_user};
+  push @args,('-pass' => $cfg->{test_pass}) if $cfg->{test_pass};
+} else {
+  @args = ('-adaptor' => $adaptor);
+}
 
 my $db = eval { Bio::DB::GFF->new(@args) };
+warn $@ if $@;
 ok($db);
 fail(TEST_COUNT - 2) unless $db;
 
