@@ -9,7 +9,7 @@ use lib "$ENV{HOME}/projects/bioperl-live";
 use Bio::Graphics;
 use Bio::SearchIO;
 
-my $file = shift or die "Usage: render4.pl <blast file>\n";
+my $file = shift or die "Usage: render_blast4.pl <blast file>\n";
 
 my $searchio = Bio::SearchIO->new(-file   => $file,
 				  -format => 'blast') or die "parse failed";
