@@ -15,7 +15,7 @@ BEGIN {
     }
     use Test;
     use vars qw($TESTCOUNT);
-    $TESTCOUNT = 19;
+    $TESTCOUNT = 38;
     plan tests => $TESTCOUNT;
 }
 
@@ -56,4 +56,43 @@ ok(scalar @$q_gapblocks, 4);
 ok($q_gapblocks->[0]->[1],116);
 ok($q_gapblocks->[1]->[1],4);
 ok($q_gapblocks->[1]->[0],123856);
+
+
+#-----------------------------------
+
+
+my $pslparser = new Bio::SearchIO(-format => 'psl',
+				  -file   => Bio::Root::IO->catfile
+				  (qw(t data blat.psLayout3)));
+
+my $result = $pslparser->next_result;
+ok($result->query_name, 'sequence_10');
+ok($result->query_length, 1775);
+
+my $hit    = $result->next_hit;
+ok($hit->name, 'sequence_10');
+ok($hit->length, 1775);
+my $hsp    = $hit->next_hsp;
+ok($hsp->query->start,1);
+ok($hsp->query->end,1776);
+my $q_gapblocks = $hsp->gap_blocks('query');
+ok(scalar @$q_gapblocks, 1);
+ok($q_gapblocks->[0]->[1],1775);
+ok($q_gapblocks->[1]->[1],undef);
+ok($q_gapblocks->[1]->[0],undef);
+
+
+$hsp       = $hit->next_hsp;
+ok($hsp->hit->start,841);
+ok($hsp->hit->end,1245);
+ok($hsp->query->start, 841);
+ok($hsp->query->end, 1245);
+ok($hsp->query->strand,-1);
+
+$q_gapblocks = $hsp->gap_blocks('query');
+ok(scalar @$q_gapblocks, 4);
+ok($q_gapblocks->[0]->[1],14);
+ok($q_gapblocks->[1]->[1],21);
+ok($q_gapblocks->[1]->[0],1152);
+
 
