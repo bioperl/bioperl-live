@@ -374,6 +374,11 @@ sub _rearrange {
     return (@return_array);
 }
 
+# allow a top level DESTROY to inherit from
+sub DESTROY {
+    my ($self) = @_;
+}
+
 1;
 
 
