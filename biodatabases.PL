@@ -101,11 +101,11 @@ Bioperl offers a number of modules for retrieving sequences over the
 network. The available remote databases include GenBank, GenPept, GDB,
 EMBL, SwissProt, XEMBL, and remote Ace servers. A typical method is
 
-   get_Seq_by_id($id)
+   get_Seq_by_id\($id)
 
 which returns a Seq object, or
 
-   get_Stream_by_id($ref_to_array_of_ids)
+   get_Stream_by_id(\$ref_to_array_of_ids)
 
 which returns a SeqIO object. See L<Bio::DB::GenBank>, L<Bio::DB::GenPept>,
 L<Bio::DB::GDB>, L<Bio::DB::EMBL>, L<Bio::DB::SwissProt>, L<Bio::DB::XEMBL>,
@@ -190,12 +190,12 @@ features, taxonomic information, references, keywords, a wide variety of
 genetic markers, and more. With a Seq object and a built-in database
 "adaptor" one can load the object's data in one step, as in 
 
-  $adaptor->store($newid,$seqobj)
+  \$adaptor->store(\$newid,\$seqobj)
 
 Similarly, one can query the database with id's or using query objects
 and retrieve arrays of Seq objects. For example
 
-  @seqobjs = $adaptor->fetch_by_query( -constraints =>
+  \@seqobjs = \$adaptor->fetch_by_query( -constraints =>
             ["or", 
                   ["and", # find all human topoisomerases
                          "species=Human",

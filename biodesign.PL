@@ -166,7 +166,7 @@ a number of useful example scripts in the scripts/root_object directory.
 =head2 Using the root object
 
 To use the root object, the object has to inherit from it. This means
-the @ISA array should have (Bio::Root::Root) in it and that the module
+the \@ISA array should have (Bio::Root::Root) in it and that the module
 has a "use Bio::Root::Root". (If you are an emacs user, consider using
 the boilerplate methods in the bioperl.lisp to lay out your module
 initially for you).  The root object provides a top level -E<gt>new
@@ -183,35 +183,35 @@ The full code is given below for a basic skeleton object that uses bioperl.
   # should put it inside the Bio namespace
 
   package Bio::MyNewObject;
-  use vars qw(@ISA);
+  use vars qw(\@ISA);
   use strict;
 
   use Bio::Root::Root;
-  @ISA = qw(Bio::Root::Root);
+  \@ISA = qw(Bio::Root::Root);
 
   sub new {
-     my($class,@args) = @_;
+     my(\$class,\@args) = \@_;
      # call superclasses initialize
-     my $self = $class->SUPER::new(@args);
+     my \$self = \$class->SUPER::new(\@args);
 
      # do your own argument processing here
 
-     my ($arg1) = $self->_rearrange([qw(NAMEDARGUMENT1)], @args);
+     my (\$arg1) = \$self->_rearrange([qw(NAMEDARGUMENT1)], \@args);
 
      # set default attributes etc...
 
-     return $self;
+     return \$self;
   }
 
 =head2 Throwing Exceptions
 
-Exceptions are die functions, in which the $@ variable (a scalar) is
+Exceptions are die functions, in which the \$@ variable (a scalar) is
 used to indicate how it died. The exceptions can be caught using the
 eval {} system. The Bioperl root object has a method called "-E<gt>throw"
 which calls die but also provides a full stack trace of where this
 throw happened on. So an exception like
 
-  $obj->throw("I am throwing an exception");
+  \$obj->throw("I am throwing an exception");
 
 Provides the following output on STDERR if is not caught.
 
@@ -226,20 +226,20 @@ my_subroutine, in myscript.pl
 
 Exceptions can be caught using an eval block, such as
 
- my $obj = Bio::SomeObject->new();
- my $obj2
+ my \$obj = Bio::SomeObject->new();
+ my \$obj2
  eval {
-   $obj2 = $obj->method1();
-   $obj2->method2(10);
+   \$obj2 = \$obj->method1();
+   \$obj2->method2(10);
  }
 
- if( $@ ) {
+ if( \$@ ) {
    # exception was thrown
-   &tell_user("Exception was thrown, preventing whatever I wanted to do. Actual exception $@");
+   &tell_user("Exception was thrown, preventing whatever I wanted to do. Actual exception \$@");
    exit(0);
  }
 
- # else - use $obj2
+ # else - use \$obj2
 
 Notice that the eval block can have multiple statements in it, and
 also that if you want to use variables outside of the eval block, they
@@ -254,7 +254,7 @@ from, not where in the code the exception is thrown.
 
 One of the drawbacks to this scheme is that the attribute -E<gt>name is
 "special" from Bioperl's perspective. We believe it is best to stay
-away from using $obj-E<gt>name() to mean anything from the object's
+away from using \$obj-E<gt>name() to mean anything from the object's
 perspective (for example -E<gt>id() ), leaving it free to be used as a
 context for debugging purposes. You might prefer to overload the name
 attribute to be "useful" for the object.
@@ -282,7 +282,7 @@ warning. The exception to this rule are the implementation independent
 functions (see L<Implementation functions in Interface files>).
 
 Objects which want to implement this interface should inherit the
-Bio::MyObjectI file in their @ISA array. This means that if the
+Bio::MyObjectI file in their \@ISA array. This means that if the
 implementation does not provide a method which the interface defines,
 rather than the user getting a "method not found error" it gets a
 "mymethod() was not defined in MyObjectI, but should have been" which
@@ -294,9 +294,9 @@ their functions they should test the presence of the interface, not
 the implementation. for example
 
   sub my_sequence_routine {
-    my($seq,$other_argument) = @_;
+    my(\$seq,\$other_argument) = \@_;
 
-    $seq->isa('Bio::SeqI') || die "[$seq] is not a sequence. Cannot process";
+    \$seq->isa('Bio::SeqI') || die "[\$seq] is not a sequence. Cannot process";
 
     # do stuff
   }
@@ -304,10 +304,10 @@ the implementation. for example
 This is in contrast to
 
   sub my_incorrect_sequence_routine {
-    my($seq,$other_argument) = @_;
+    my(\$seq,\$other_argument) = \@_;
 
     # this line is INCORRECT
-    $seq->isa('Bio::Seq') || die "[$seq] is not a sequence. Cannot process";
+    \$seq->isa('Bio::Seq') || die "[\$seq] is not a sequence. Cannot process";
 
     # do stuff
   }
@@ -327,14 +327,14 @@ and Bioperl code.
 
 A better solution would be to implement the Bio::SeqI interface. You
 would read L<Bio::SeqI>, and then provide the methods
-which it required, and put Bio::SeqI in your @ISA array. Then you
+which it required, and put Bio::SeqI in your \@ISA array. Then you
 could pass in your object into Bioperl routines and I<eh voila> - you
 B<are> a Bioperl sequence object.
 
 (A problem might arise if your object has the same methods as the
-Bio::SeqI methods but use them differently - your $obj-E<gt>id() might
+Bio::SeqI methods but use them differently - your \$obj-E<gt>id() might
 mean provide the raw memory location of the object, whereas the
-documentation for Bio::SeqI $obj-E<gt>id() says it should return the
+documentation for Bio::SeqI \$obj-E<gt>id() says it should return the
 human-readable name. If so you need to look into providing an
 'Adaptor' class, as suggested in the Gang-of-four).
 
@@ -364,10 +364,10 @@ that there were methods that we would like to provide for classes
 which were independent of their implementation. A good example is
 a "Range" interface, which might define the following methods
 
-  $obj->start()
-  $obj->end()
+  \$obj->start()
+  \$obj->end()
 
-Now a client to the object might want to use a $obj-E<gt>length() method.
+Now a client to the object might want to use a \$obj-E<gt>length() method.
 because it is much easier than retrieving the two attributes and
 substracting them. However, the -E<gt>length() method is just a pain for
 someone providing the implementation to provide - once start() and
@@ -382,7 +382,7 @@ In the Range interface this became more than annoyance, as a lot of the
 "smarts" of the Range system was that we wanted to have the ability to
 say
 
-  if( $range->intersection($someother_range) )
+  if( \$range->intersection(\$someother_range) )
 
 We wanted a generic RangeI interface that we could apply to many
 objects, with definitions required only for -E<gt>start, -E<gt>end and
