@@ -9,7 +9,7 @@ my ($length,$type,$filename);
 $USAGE = 'usage: generate_random_seq.pl --length=1000 --type=dna --filename=/tmp/test.seq';
 
 my %alphabets = ( 'dna' => [qw(C A G T)],
-		  'rna' => [qw(C U G T)],
+		  'rna' => [qw(C A G U)],
 		  'prot'=> [qw( A C D E F G H I K L M N P Q R S T V W X Y)],
 	      );
 &GetOptions 
