@@ -307,7 +307,6 @@ BEGIN {
                            default = false.
 
 =cut
-#'
 
 sub _initialize {
     my ($self,@args) = @_;

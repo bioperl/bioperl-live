@@ -377,6 +377,8 @@ sub invalidate_height {
 
 =head2 Methods for associating Tag/Values with a Node
 
+These methods associate tag/value pairs with a Node
+
 =head2 add_tag_value
 
  Title   : add_tag_value
