@@ -19,7 +19,7 @@ Genotype or Sequence Results
 
   use Bio::PopGen::Individual;
 
-  my $ind = new Bio::PopGen::Individual(-unqiue_id => $id,
+  my $ind = new Bio::PopGen::Individual(-unique_id => $id,
                                         -genotypes => \@genotypes);
 
 =head1 DESCRIPTION

@@ -168,7 +168,7 @@ sub source{
 =head2 set_Allele_Frequency
 
  Title   : set_Allele_Frequency
- Usage   : $population->set_Allele_Frequency(
+ Usage   : $population->set_Allele_Frequency('marker' => { 'allele1' => 0.1});
  Function: Sets an allele frequency for a Marker for this Population
            This allows the Population to not have individual individual
            genotypes but rather a set of overall allele frequencies
@@ -504,13 +504,12 @@ sub get_Frequency_Heterozygotes{
 =head2 haploid_population
 
  Title   : haploid_population
- Usage   :
+ Usage   : my $pop = $population->haploid_population;
  Function: Make a new population where all the individuals
            are haploid - effectively an individual out of each
            chromosome an individual has.  
- Example :
- Returns : 
- Args    :
+ Returns : L<Bio::PopGen::PopulationI>
+ Args    : None
 
 
 =cut

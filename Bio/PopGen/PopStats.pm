@@ -18,8 +18,8 @@ statistics about a population or sets of populations
 =head1 SYNOPSIS
 
   use Bio::PopGen::PopStats;
-  my $stats = new Bio::PopGen::PopStats(); # add -haploid => 1 to process haploid
-                                           # data
+  my $stats = new Bio::PopGen::PopStats(); # add -haploid => 1 
+                                           # to process haploid data
 
 =head1 DESCRIPTION
 
