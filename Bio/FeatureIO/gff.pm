@@ -249,6 +249,9 @@ sub _handle_directive {
 
   elsif($directive eq 'FASTA'){
     $self->warn("'##$directive' directive handling not yet implemented");
+    while($self->_readline()){
+      #suck up the rest of the file
+    }
   }
 
   elsif($directive eq '#'){
