@@ -1,6 +1,9 @@
 $Id$
 Revision history for Bioperl core modules
 
+Bug numbers (#XXX) refer to bugzilla bug numbers.  Full descriptions
+of the bug are at http://bugzilla.bioperl.org/.
+
 1.2.3 Stable release update
     o Bug #1475 - Fix and add speedup to spliced_seq for remote location
                   handling.
@@ -40,8 +43,19 @@ Revision history for Bioperl core modules
      o Bio::Graphics
       - Updated tutorial.
       - Added a 1.2003 version number.
+     o Bug with parsing labeled nodes with Bio::TreeIO::newick fixed
+       this was only present on the branch for the 1.2.1 and 1.2.2 series
+     o SeqIO::swiss Bug #1504 fixed with swiss writing which was not
+       properly writing keywords out.
+     o Bio::SeqIO::genbank 
+      - Fixed bug/enhancement #1513 where dates of
+        the form D-MMM-YYYY were not parsed.  Even though this is
+        invalid format we can handle it - and also cleanup the date
+        string so it is properly formatted.
+      - Bug/enhancement #1517 fixed so that SEGMENT line can be parsed 
+        and written with Genbank format.  Similarly bug #1515 is fixed to
+        parse in the ORIGIN text.
 
-     
 1.2.2 Stable release update
 
     o A series of bug fixes of the Bio::OntologyIO dagflat-related parsers:
