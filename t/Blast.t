@@ -65,11 +65,20 @@ print OUT "\n\n";
 close OUT;
 
 ok (-s $blast->file);
-ok ($cfile = $blast->compress_file);
-ok (-s $cfile and -B $cfile), 1,"Can't compress Blast file";
-ok ($ufile = $blast->uncompress_file);
-ok (-s $ufile and -T $ufile), 1,"Can't uncompress Blast file";
+if( $^O !~ /(mswin|mac)/i ) {
+# violates cross-platform requirements
+    ok ($cfile = $blast->compress_file);
+    ok (-s $cfile and -B $cfile), 1,"Can't compress Blast file";
+    ok ($ufile = $blast->uncompress_file);
+    ok (-s $ufile and -T $ufile), 1,"Can't uncompress Blast file";    
+    print "checking expected output...\n";
 
-print "checking expected output...\n";
-
-ok system('diff', $testout, $expectedout), 0, "diff $testout $expectedout";
+    ok system('diff', $testout, $expectedout), 0, "diff $testout $expectedout";
+} else { 
+    print "actions only run on UN*X..\n";
+    skip(1,1, "actions only runs on UN*X");
+    skip(1,1, "actions only runs on UN*X");
+    skip(1,1, "actions only runs on UN*X");
+    skip(1,1, "actions only runs on UN*X");
+    skip(1,1, "actions only runs on UN*X");
+}
