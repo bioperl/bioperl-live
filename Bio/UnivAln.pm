@@ -554,11 +554,12 @@ a simple array of consensus letters.
 
 =head2 ALIGNMENT FORMATS
 
-The directly supported formats are fasta and raw (1 line in file -E<gt> 1 sequence,
-where "\n" (newline) is the delimiter.) If available (see L<INSTALLATION>),
-readseq is used to parse and write PIR/CODATA, MSF/GCG and PAUP/NEXUS
-formats; ASN.1 does not seem to work reliably. Clustal is used to parse
-in clustal format, if available.
+The directly supported formats are fasta and raw (1 line in file
+-E<gt> 1 sequence, where "\n" (newline) is the delimiter.) If
+available (see L<the INSTALLATION section | INSTALLATION>), readseq is
+used to parse and write PIR/CODATA, MSF/GCG and PAUP/NEXUS formats;
+ASN.1 does not seem to work reliably. Clustal is used to parse in
+clustal format, if available.
 
 =head2 ADVANCED STUFF
 

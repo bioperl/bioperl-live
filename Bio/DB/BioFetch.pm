@@ -90,11 +90,7 @@ use vars qw(@ISA $VERSION %FORMATMAP );
 $VERSION = '1.0';
 
 # warning: names used here must map into Bio::SeqIO::* space
-use constant DEFAULT_FORMAT   => 'fasta';
 use constant DEFAULT_LOCATION => 'http://www.ebi.ac.uk/cgi-bin/dbfetch';
-
-#my %SUPPORTED_FORMATS = map {$_=>1} qw(default fasta embl swissprot swiss);
-#my %SUPPORTED_DBS     = map {$_=>1} qw(embl genbank swall);
 
 BEGIN {
 
@@ -292,46 +288,19 @@ sub get_request {
     $self->throw("Must specify a value for UIDs to fetch")
 	unless defined $uids;
     my $tmp;
-    my $format_string = ''; #use Data::Dumper; print Dumper($self); exit;
+    my $format_string = '';
     $format ||= $self->default_format;
-    ($format, $tmp) = $self->request_format($format); $self->debug("====|$format|=====\n");
+    ($format, $tmp) = $self->request_format($format);
     $format_string = "&format=$format" if $format ne $self->default_format;
-#    if (defined $format && $format ne $self->default_format) {
-#    }
     my $base = $self->url_base_address;
     my $uid = join('+',ref $uids ? @$uids : $uids);
     $self->debug("\n$base$format_string&id=$uid\n");#$format='swissprot';
-#    return POST $url. $format_string. '&id='. $uid;
     return POST($base,
 		[ db     => $db,
 		  id     => join('+',ref $uids ? @$uids : $uids),
 		  format => $format,
 		  style  => 'raw'
 	     ]);
-}
-
-sub xget_request {
-  my $self = shift;
-  my %qualifiers = @_;
-  my $db     = $qualifiers{-db}     || $self->db;
-  my $format = $qualifiers{-format} || $self->request_format;
-
-#  $SUPPORTED_DBS{$db} or $self->throw('invalid -db argument, must be one of '.
-#				       join(' ',keys %SUPPORTED_DBS));
-#  print "format = $format\n";
-#  $SUPPORTED_FORMATS{$format}
-#    or $self->throw('-invalid -format argument, must be one of '.
-#		     join(' ',keys %SUPPORTED_FORMATS));
-#
-  my $base = $self->url_base_address;
-  my $uids = $qualifiers{-uids};$format='swissprot';
-  my $request = POST($base,
-		      [ db     => $db,
-			id     => join('+',ref $uids ? @$uids : $uids),
-			format => $format,
-			style  => 'raw'
-		      ]); print "++|$request, $format|++\n";
-  $request;
 }
 
 =head2 default_format
@@ -346,7 +315,7 @@ sub xget_request {
 
 sub default_format { 
     my ($self) = @_;
-    my $db = $self->db || DEFAULT_FORMAT;
+    my $db = $self->db || $self->default_db;
     my $format = $FORMATMAP{$db}->{'default'};
     $self->request_format($format);
     return $format;

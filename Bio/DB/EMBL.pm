@@ -171,7 +171,6 @@ sub get_Stream_by_acc {
   Title   : _check_id
   Usage   : 
   Function: 
-            
   Returns : A Bio::DB::RefSeq reference or throws
   Args    : $id(s), $string
 =cut

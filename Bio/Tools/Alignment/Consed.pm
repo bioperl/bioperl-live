@@ -315,6 +315,7 @@ See L<get_quality_array()|get_quality_array>
 
 =cut
 
+#'
 sub get_quality_scalar {
     my ($self,$contig) = @_;
     return $self->{'contigs'}->{$contig}->{'quality'};
@@ -447,7 +448,7 @@ sub get_contig_number_by_name {
  Args    : The keyname of a contig. Note this is a key. The key would
 	   normally come from get_contigs.
 
-See L<get_contigs()>
+See L<get_contigs()|get_contigs>
 
 =cut
 

@@ -120,7 +120,7 @@ use Carp;
 This routine returns a list of feature types known to the database. It
 is also possible to find out how many times each feature occurs.
 
-Arguments are -option=>value pairs as follows:
+Arguments are -option=E<gt>value pairs as follows:
 
   -enumerate  if true, count the features
 
@@ -133,7 +133,6 @@ Bio::DasFeatureTypeI and the values are the number of times each
 feature appears in the database.
 
 =cut
-#'
 
 sub types {  shift->throw_not_implemented; }
 
@@ -155,7 +154,7 @@ positional range relative to the landmark.  If no range is specified,
 then the entire region spanned by the landmark is used to generate the
 segment.
 
-Arguments are -option=>value pairs as follows:
+Arguments are -option=E<gt>value pairs as follows:
 
  -name         ID of the landmark sequence.
 
@@ -198,7 +197,7 @@ This routine will retrieve features in the database regardless of
 position.  It can be used to return all features, or a subset based on
 their type
 
-Arguments are -option=>value pairs as follows:
+Arguments are -option=E<gt>value pairs as follows:
 
   -types     List of feature types to return.  Argument is an array
              of Bio::DasFeatureTypeI objects.

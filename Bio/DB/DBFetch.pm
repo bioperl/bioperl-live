@@ -105,12 +105,10 @@ sub get_request {
     $self->throw("Must specify a value for UIDs to fetch")
 	unless defined $uids;
     my $tmp;
-    my $format_string = ''; #use Data::Dumper; print Dumper($self); exit;
+    my $format_string = '';
     $format ||= $self->default_format;
-    ($format, $tmp) = $self->request_format($format); $self->debug("====|$format|=====\n");
+    ($format, $tmp) = $self->request_format($format);
     $format_string = "&format=$format" if $format ne $self->default_format;
-#    if (defined $format && $format ne $self->default_format) {
-#    }
     my $url = $self->location_url();
     my $uid;
     if( ref($uids) =~ /ARRAY/i ) {
@@ -165,7 +163,7 @@ sub default_format {
 
   Title   : get_Stream_by_batch
   Usage   : $seq = $db->get_Stream_by_batch($ref);
-  Function: Retrieves Seq objects from Entrez 'en masse', rather than one
+  Function: Retrieves Seq objects from the server 'en masse', rather than one
             at a time.  For large numbers of sequences, this is far superior
             than get_Stream_by_[id/acc]().
   Example :
@@ -333,7 +331,7 @@ sub hosts {
 
  Title   : formatmap
  Usage   : 
- Function: get/set for formathash hash 
+ Function: get/set for format hash
  Returns : 
  Args    : optional hash
 

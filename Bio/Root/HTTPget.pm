@@ -45,10 +45,7 @@ from http://open-bio.org/registry/ without having to depend on
 external dependencies like Bundle::LWP for network HTTP access. 
 
 The core of this module was written by Lincoln Stein. It can handle proxies
-and HTTP-based authentication.
-
-proxy authentication.
- 
+and HTTP-based proxy authentication.
 
 =head1 FEEDBACK
 
@@ -60,7 +57,7 @@ and other Bioperl modules. Send your comments and suggestions preferably
 Your participation is much appreciated.
 
   bioperl-l@bioperl.org                 - General discussion
-  http://bio.perl.org/MailList.html             - About the mailing lists
+  http://bio.perl.org/MailList.html     - About the mailing lists
 
 =head2 Reporting Bugs
 

@@ -21,7 +21,7 @@ You should not be using this module directly
 
 This object provides the basic mechanism to associate positions in
 files with primary and secondary name spaces. Unlike
-Bio::Index::Abstract (see L<Bio::Index::Abstract), this is specialized
+Bio::Index::Abstract (see L<Bio::Index::Abstract>), this is specialized
 to work with the BerkeleyDB-indexed "common" flat file format worked
 out at the 2002 BioHackathon.
 

@@ -16,15 +16,12 @@ Bio::Annotation::SimpleValue - A simple scalar
 
 =head1 SYNOPSIS
 
-    use Bio::Annotation::SimpleValue;
-    use Bio::Annotation::Collection;
- 
+   use Bio::Annotation::SimpleValue;
+   use Bio::Annotation::Collection;
+
    my $col = new Bio::Annotation::Collection;
-
    my $sv = new Bio::Annotation::SimpleValue(-value => 'someval');   
-
    $col->add_Annotation('tagname', $sv);
-
 
 =head1 DESCRIPTION
 
