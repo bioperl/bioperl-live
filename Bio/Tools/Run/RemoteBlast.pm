@@ -348,23 +348,20 @@ sub retrieve_blast {
     if( $response->is_success ) {
 	my $size = -s $tempfile;
 	if( $size > 1000 ) {
+	    my ($fh2,$tempfile2) = $self->tempfile();
 	    my $blastobj;
 	    open(TMP, $tempfile) or $self->throw("cannot open $tempfile");
-	    open(OTMP, ">$tempfile.txt") or $self->throw("cannot write to $tempfile.txt");
-	    while(<TMP>){
-		print;
+	    # use second tmpfile to store HTML stripped data
+	    while(<TMP>) {
 		s/<[^>^<.]+>//g;
-		print;
-		print OTMP $_;
+		$fh2->print($_);
+		print $_ if ( $self->verbose > 0 );
 	    }
-	    close OTMP;
-	    open(ERR, "<$tempfile.txt") or $self->throw("cannot open file $tempfile");
-	    $self->warn(join("", <ERR>));
-	    close ERR;
+	    $fh2->close();
 	    if( $self->readmethod =~ /Blast/ ) {
-		$blastobj = new Bio::Tools::Blast(-file => "$tempfile.txt");
+		$blastobj = new Bio::Tools::Blast(-file => $tempfile2);
 	    } else { 
-		$blastobj = new Bio::Tools::BPlite(-file => "$tempfile.txt");
+		$blastobj = new Bio::Tools::BPlite(-file => $tempfile2);
 	    }
 	    return $blastobj;
 	} elsif( $size < 500 ) { # search had a problem

@@ -23,8 +23,8 @@ ok(1);
 
 my $prog = 'blastp';
 my $db   = 'ecoli';
-my $e_val= '1e-2';
-my $v = 1;
+my $e_val= '1e-10';
+my $v = 0;
 my  $remote_blast = Bio::Tools::Run::RemoteBlast->new('-verbose' => $v,
 						      '-prog' => $prog,
 						      '-data' => $db,
@@ -34,7 +34,7 @@ my $inputfilename = Bio::Root::IO->catfile("t","ecolitst.fa");
 ok( -e $inputfilename);
 my $r = $remote_blast->submit_blast($inputfilename);
 ok($r);
-print STDERR "waiting...";
+print STDERR "waiting..." if( $v > 0 );
 while ( my @rids = $remote_blast->each_rid ) {
     foreach my $rid ( @rids ) {
 	my $rc = $remote_blast->retrieve_blast($rid);
@@ -43,18 +43,22 @@ while ( my @rids = $remote_blast->each_rid ) {
 		$remote_blast->remove_rid($rid);
 		ok(0);
 	    }
-	    print STDERR ".";
-	    sleep 10;
+	    print STDERR "." if ( $v > 0 );
+	    sleep 5;
 	} else { 
 	    ok(1);
 	    $remote_blast->remove_rid($rid);
 	    ok($rc->database, qr/E. coli/);
-	    while( my $sbjct = $rc->nextSbjct ) {
+	    my $count = 0;
+	    while( my $sbjct = $rc->nextSbjct ) {		
+		$count++;
+		next unless ( $v > 0);
 		print "sbjct name is ", $sbjct->name, "\n";
 		while( my $hsp = $sbjct->nextHSP ) {
 		    print "score is ", $hsp->score, "\n";
 		} 
 	    }
+	    ok($count, 3);
 	}
     }
 }
