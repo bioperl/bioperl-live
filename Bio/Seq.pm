@@ -80,7 +80,7 @@ exons it finds as sequence features in Genbank Flat File format.
   while((my $seqobj = $seqin->next_seq())) {
       print "Seen sequence ",$seqobj->display_id,", start of seq ",
             substr($seqobj->seq,1,10),"\n";
-      if( $seqobj->moltype eq 'dna') {
+      if( $seqobj->alphabet eq 'dna') {
 	    $rev = $seqobj->revcom;
 	    $id  = $seqobj->display_id();
             $id  = "$id.rev";
@@ -141,11 +141,11 @@ reverse-complement and translation).
   print "Seen sequence ",$seqobj->display_id,", start of seq ",
                substr($seqobj->seq,1,10),"\n";
 
-Bioperl has to guess the type of the sequence, being either 'dna',
-'rna', or 'protein'. The moltype attribute is one of these three
+Bioperl has to guess the alphabet of the sequence, being either 'dna',
+'rna', or 'protein'. The alphabet attribute is one of these three
 possibilities.
 
-  if( $seqobj->moltype eq 'dna') {
+  if( $seqobj->alphabet eq 'dna') {
 
 The $seqobj-E<gt>revcom method provides the reverse complement of the Seq
 object as another Seq object. Thus, the $rev variable is a reference to
@@ -331,7 +331,7 @@ information.
 
 =head1 Implemented Interfaces
 
-This class implementes the following interfaces.
+This class implements the following interfaces.
 
 =over 4
 

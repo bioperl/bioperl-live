@@ -580,22 +580,21 @@ sub alphabet {
  Usage   : $obj->desc($newval)
  Function: Get/set description of the sequence.
 
-           This is aliased to description for compliance to the 
-           Bio::DescribeableI interface
+           description is an alias for this for compliance with the
+           Bio::DescribeableI interface.
+
  Example :
- Returns : value of desc
- Args    : newvalue (optional)
+ Returns : value of desc (a string)
+ Args    : newvalue (a string or undef, optional)
 
 
 =cut
 
-sub desc {
-   my ($obj,$value) = @_;
-   if( defined $value) {
-      $obj->{'desc'} = $value;
-    }
-    return $obj->{'desc'};
+sub desc{
+    my $self = shift;
 
+    return $self->{'desc'} = shift if @_;
+    return $self->{'desc'};
 }
 
 =head2 can_call_new
@@ -630,15 +629,12 @@ sub can_call_new {
 =cut
 
 sub  id {
-   my ($self,$value) = @_;
-
-   if( defined $value ) {
-	return $self->display_id($value);
-   }
-   return $self->display_id();
+   return shift->display_id(@_);
 }
 
 =head1 Methods for Bio::IdentifiableI compliance
+
+=cut
 
 =head2 object_id
 
@@ -655,8 +651,7 @@ sub  id {
 =cut
 
 sub object_id {
-    my ($self, @args) = @_;
-    return $self->accession_number(@args);
+    return shift->accession_number(@_);
 }
 
 =head2 version
@@ -724,6 +719,10 @@ sub namespace{
 
 =head1 Methods for Bio::DescribableI compliance
 
+This comprises of display_name and description.
+
+=cut
+
 =head2 display_name
 
  Title   : display_name
@@ -740,9 +739,7 @@ sub namespace{
 =cut
 
 sub display_name {
-   my ($obj,$value) = @_;
-
-   return $obj->display_id($value);
+    return shift->display_id(@_);
 }
 
 =head2 description
@@ -762,8 +759,7 @@ sub display_name {
 =cut
 
 sub description {
-   my ($self,@args) = @_;
-   return $self->desc(@args);
+    return shift->desc(@_);
 }
 
 =head1 Methods Inherited from Bio::PrimarySeqI
