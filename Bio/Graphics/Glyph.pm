@@ -409,7 +409,7 @@ sub font {
     		  gdGiantFont      => gdGiantFont(),
     		 };
 
-    my $gdfont = $ref->{$font} || $font;
+    my $gdfont = $ref->{$font} || gdSmallFont();
     $self->configure(font=>$gdfont);
     return $gdfont;
   }
