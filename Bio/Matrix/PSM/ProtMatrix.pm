@@ -651,8 +651,8 @@ sub regexp_array {
  Throws   :
  Example  :  Internal stuff
  Returns  :  String
- Args     :  array reference, followed by an max value and 
-             direction (optional, default 1-unsigned),1 unsigned, any other is signed. 
+ Args     :  array reference, followed by max value and direction (optional, defaults to 1),
+             direction of 1 is unsigned, anything else is signed. 
 
 =cut
 
@@ -678,13 +678,13 @@ sub _compress_array {
 
  Title    : _uncompress_string
  Usage    :
- Function:   Will uncompress a string (vector of bytes) to create an array of real
+ Function :   Will uncompress a string (vector of bytes) to create an array of real
                   signed numbers (opposite to_compress_array)
  Throws   :
- Example :   Internal stuff
- Returns :   string, followed by an max value and
-          direction (optional, default 1-unsigned), 1 unsigned, any other is signed.
- Args      :   array
+ Example  :   Internal stuff
+ Returns  :   string, followed by max value and direction (optional, defaults to 1),
+              direction of 1 is unsigned, anything else is signed.
+ Args     :   array
 
 =cut
 
@@ -700,6 +700,7 @@ sub _uncompress_string {
       my $num=$byte/$k1;
       unshift @array,$num;
    }
+
    return @array;
 }
    
