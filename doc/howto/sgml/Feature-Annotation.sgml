@@ -109,8 +109,8 @@
       Annotations associated with them.
     </para>
     <para>
-      An Annotation object is also associated with a sequence,
-      as you'd expect, but it does not have a location on the sequence, so it's
+      An Annotation object is also associated with a sequence
+      as you'd expect but it does not have a location on the sequence, it's
       associated with an entire sequence. This is one of the
       important differences between a SeqFeature and an
       Annotation. Annotations also can't have SeqFeatures, which makes
@@ -313,7 +313,7 @@ primary tag: CDS
     <para>
     </para>
     <important>
-      Make sure to include that "if ($feat_object->has_tag(&lt;tag&gt;))"
+      Make sure to include that "if ($feat_object->has_tag("&lt;tag&gt;"))"
       part, otherwise you'll get errors when the feature does not
       have the tag you're requesting.
     </important>
@@ -368,7 +368,7 @@ FEATURES             Location/Qualifiers
       are the methods and the corresponding example coordinates:
     </para>
     <table>
-      <title>Sequence string methods</title>
+      <title>Sequence retrieval methods</title>
       <tgroup cols="2">
 	<thead>
 	  <row><entry>Method</entry><entry>Coordinates</entry></row>  
@@ -399,8 +399,8 @@ FEATURES             Location/Qualifiers
 	  if ($feat_object->primary_tag eq "CDS") {
 	    print $feat_object->spliced_seq->seq,"\n";
 	# e.g. 'ATTATTTTCGCTCGCTTCTCGCGCTTTTTGAGATAAGGTCGCGT...'
-	    foreach my $val ($feat->get_tag_values('gene')) {
-	      if ($feat->has_tag('gene')) {
+	    if ($feat->has_tag('gene')) {
+	      foreach my $val ($feat->get_tag_values('gene')){
 	      print "gene: ",$val,"\n";
 	# e.g. 'NDP', from a line like '/gene="NDP"'
 	      }
@@ -1020,7 +1020,8 @@ GO: cellular component|integral to plasma membrane|P|GO:0005887|Proteome|8396931
 	</programlisting>
     </para>
     <para>
-      The SeqFeature::Generic object offers the user a "tag system" for
+      The <ulink
+	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqFeature/Generic.html">SeqFeature::Generic</ulink> object offers the user a "tag system" for
       addition of data that's not explicitly accounted for by its
       methods, that's what the "-tag" is for, above.
       If you want to add your own custom data to a feature you could
@@ -1086,7 +1087,7 @@ GO: cellular component|integral to plasma membrane|P|GO:0005887|Proteome|8396931
     </para>
     <para>
       Now let's examine what we've created by writing the contents of
-      <varname>$seq_obj</varname> to a Genbank file:
+      <varname>$seq_obj</varname> to a Genbank file called "test.gb":
     </para>
     <para>
       <programlisting>
