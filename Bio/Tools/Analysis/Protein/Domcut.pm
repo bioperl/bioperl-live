@@ -196,7 +196,8 @@ Returns the raw ASCII data stream but without HTML tags
 =item 'Bio::SeqFeatureI'
 
 The argument string defines the type of bioperl objects returned in an
-array.  The objects are L<Bio::SeqFeature::Generic>.
+array.  The objects are L<Bio::SeqFeature::Generic>. Tagnames are 'score' 
+and 'rank'.
 
 =item 'parsed'
 
