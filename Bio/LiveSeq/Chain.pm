@@ -131,7 +131,7 @@ use integer; # WARNING: this is to increase performance
              # "-" counts as a unary operation!
 
 =head2 _updown_chain2string
-    
+
   Title   : chain2string
   Usage   : $string = Bio::LiveSeq::Chain::chain2string("down",$chain,6,9)
   Function: reads the contents of the chain, outputting a string

@@ -96,10 +96,9 @@ use Bio::Variation::Allele;
  protein
  functional_class
 
-
 =cut
 
-
+#'
 my %OK_AUTOLOAD = (
 		id			=> '',
 		type			=> '',

@@ -103,6 +103,7 @@ methods have been modified to refelect the needs of cytogenetic maps.
                        (arrayref of Bio::Map::MappableI objects) [optional]
 
            -uid     => Unique Id
+
 =cut
 
 sub new {

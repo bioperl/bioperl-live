@@ -103,6 +103,7 @@ to create the segment.
 sub factory { shift->{factory} }
 
 # start, stop, length
+
 =head2 start
 
  Title   : start

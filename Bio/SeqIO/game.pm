@@ -178,7 +178,7 @@ sub _subfeature_types{
 } 
 
 =head2 _add_subfeature_type
- 
+
  Title   : _add_subfeature_type
  Usage   : $obj->_add_subfeature_type
  Function: add one possible subfeature, it should be a name of a function which

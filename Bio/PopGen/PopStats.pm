@@ -20,6 +20,7 @@ statistics about a population or sets of populations
   use Bio::PopGen::PopStats;
   my $stats = new Bio::PopGen::PopStats(); # add -haploid => 1 to process haploid
                                            # data
+
 =head1 DESCRIPTION
 
 Calculate various population structure statistics, most notably Wright's Fst.

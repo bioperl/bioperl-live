@@ -88,6 +88,7 @@ use Bio::Map::OrderedPosition;
  Returns : Bio::Map::LinkagePosition
  Args    : -order => the relative order of this marker on a linkage map
  	   -positions => positions on a map
+
 =cut
 
 =head2 Bio::Map::PositionI methods

@@ -9,6 +9,7 @@
 # You may distribute this module under the same terms as perl itself
 #
 # POD documentation - main docs before the code
+
 =head1 NAME
 
 Bio::Structure::SecStr::STRIDE::Res - Module for parsing/accessing stride output

@@ -98,6 +98,7 @@ use Bio::Map::SimpleMap;
                        (arrayref of Bio::Map::MappableI objects) [optional]
 
           -uid      => Unique ID of this map
+
 =cut
 
 # new provided by SimpleMap

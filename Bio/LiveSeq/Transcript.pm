@@ -140,7 +140,7 @@ sub new {
 
 
 =head2 all_Exons
- 
+
  Title   : all_Exons
  Usage   : $transcript_obj->all_Exons()
  Function: returns references to all Exon objects the Transcript is composed of
@@ -171,7 +171,7 @@ sub all_Exons {
 }
 
 =head2 downstream_seq
- 
+
  Title   : downstream_seq
  Usage   : $transcript_obj->downstream_seq()
          : $transcript_obj->downstream_seq(64)
@@ -233,7 +233,7 @@ sub downstream_seq {
 }
 
 =head2 upstream_seq
- 
+
  Title   : upstream_seq
  Usage   : $transcript_obj->upstream_seq()
          : $transcript_obj->upstream_seq(64)

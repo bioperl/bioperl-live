@@ -1397,7 +1397,7 @@ Typical usage is:
  		    -bump      =>  +1,
  		    -height    => 10,
  		    -label     => 1);
-v
+
 =item $track = unshift_track($glyph,$features,@options)
 
 unshift_track() works like add_track(), except that the new track is

@@ -192,9 +192,8 @@ sub each_Allele{
 }
 
 
- 
 =head2 isMutation
- 
+
  Title   : isMutation
  Usage   : print join('/', $obj->each_Allele) if not $obj->isMutation;
  Function:

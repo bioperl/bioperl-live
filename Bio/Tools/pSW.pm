@@ -295,7 +295,7 @@ sub pairwise_alignment{
 }
 
 =head2 align_and_show
- 
+
  Title   : align_and_show
  Usage   : $factory->align_and_show($seq1,$seq2,STDOUT)
 

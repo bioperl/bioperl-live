@@ -80,7 +80,7 @@ sub new {
 
 
 =head2 is_coding
-    
+
  Title   : is_coding
  Usage   : if ($feature->is_coding()) {
                      #do something
@@ -88,7 +88,6 @@ sub new {
  Function: Whether or not the feature codes for amino acid.
  Returns : FALSE
  Args    : none
-
 
 =cut
 

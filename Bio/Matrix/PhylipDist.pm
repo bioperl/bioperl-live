@@ -220,7 +220,7 @@ sub get_diagonal {
   }
   return @return;
 }
-    
+
 =head2 print_matrix
 
  Title   : print_matrix

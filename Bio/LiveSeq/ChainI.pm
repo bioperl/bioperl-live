@@ -87,7 +87,7 @@ use Bio::LiveSeq::Chain 2.6; # package where all the subroutines are defined
 
 
 =head2 new
-    
+
   Title   : new
   Usage   : $chain = Bio::LiveSeq::ChainI->new(-string => "thequickbrownfoxjumpsoverthelazydog",
 					     -offset => 3 );
@@ -98,6 +98,7 @@ use Bio::LiveSeq::Chain 2.6; # package where all the subroutines are defined
   Args    : string
          OR arrayreference
         AND optional offset to create element labels
+
 =cut
 
 sub new {

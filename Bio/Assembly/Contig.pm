@@ -1351,7 +1351,7 @@ sub select_noncont {
     my ($self) = @_;
     $self->throw_not_implemented();
 }
-    
+
 =head2 slice
 
  Title     : slice

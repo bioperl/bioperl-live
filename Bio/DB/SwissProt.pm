@@ -172,7 +172,7 @@ sub new {
 
 =head2 Routines from Bio::DB::RandomAccessI
 
-=cut 
+=cut
 
 =head2 get_Seq_by_id
 
@@ -320,8 +320,8 @@ sub default_format {
 }
 
 =head2 Bio::DB::SwissProt specific routines
- 
-=cut 
+
+=cut
 
 =head2 servertype
 
@@ -353,7 +353,7 @@ sub servertype {
 
 
 =head2 hostlocation
-    
+
  Title   : hostlocation
  Usage   : my $location = $self->hostlocation() 
           $self->hostlocation($location) 

@@ -993,14 +993,14 @@ sub set_singlets {
 }				# end sub set_singlets
 
 =head2 get_singlets()
-    
+
  Title   : get_singlets()
  Usage   : $o_consed->get_singlets();
  Function: Return the keynames of the singlets.
  Returns : An array containing the keynames of all 
            Bio::Tools::Alignment::Consed sequences in the class "singlet".
  Args    : None.
- Notes   :         
+ Notes   : 
 
 =cut
 

@@ -121,7 +121,7 @@ sub ua {
 # helper method to get specific options
 
 =head2 get_params
-    
+
  Title   : get_params
  Usage   : my %params = $self->get_params($mode)
  Function: Returns key,value pairs to be passed to query

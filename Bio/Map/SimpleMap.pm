@@ -99,6 +99,7 @@ BEGIN { $MAPCOUNT = 1; }
                        (arrayref of Bio::Map::MappableI objects) [optional]
 
            -uid     => Unique Id
+
 =cut
 
 sub new {

@@ -130,7 +130,7 @@ sub _init_state_machine {
 }
 
 =head2 check_for_new_state()
- 
+
  Purpose  : Obtains data from the input stream to be checked 
             for the existence of a new state.
  Usage    : check_for_new_state( [$ignore_blank_lines] );

@@ -97,6 +97,7 @@ use Bio::Symbol::AlphabetI;
  Args    : -symbols  => Array ref of Bio::Symbol::SymbolI objects
            -subalphas=> Array ref of Bio::Symbol::AlphabetI objects 
                         representing sub alphabets
+
 =cut
 
 sub new {

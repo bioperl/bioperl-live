@@ -425,6 +425,7 @@ sub get_Stream_by_acc {
   Function: 
   Returns : A Bio::DB::RefSeq reference or throws
   Args    : $id(s), $string
+
 =cut
 
 sub _check_id {
