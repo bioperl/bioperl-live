@@ -347,7 +347,6 @@ sub write_annseq {
 
     my $fh = $self->_filehandle();
     my $seq = $annseq->seq();
-    my $i;
     my $str = $seq->seq;
 
     my $mol;
@@ -433,8 +432,10 @@ sub write_annseq {
     # Organism lines
     if (my $spec = $annseq->species) {
         my($species, $genus, @class) = $spec->classification();
-	my $sub_species = $spec->sub_species;
-        my $OS = "$genus $species $sub_species";
+        my $OS = "$genus $species";
+	if (my $sub_species = $spec->sub_species) {
+            $OS .= " $sub_species";
+        }
         if (my $common = $spec->common_name) {
             $OS .= " ($common)";
         }
@@ -559,27 +560,32 @@ sub write_annseq {
     }
 
     print $fh "SQ   Sequence $len BP; $alen A; $clen C; $glen G; $tlen T; $olen other;\n";
-    print $fh "     ";
-    my $linepos;
-    for ($i = 0; $i < length($str); $i += 10) {
+    
+    my $nuc = 60;               # Number of nucleotides per line
+    my $whole_pat = 'a10' x 6;  # Pattern for unpacking a whole line
+    my $out_pat   = 'A11' x 6;  # Pattern for packing a line
+    my $length = length($str);
+    
+    # Calculate the number of nucleotides which fit on whole lines
+    my $whole = int($length / $nuc) * $nuc;
 
-        if( $i+10 >= length($str) ) {
-	    # last line.
-	    print $fh substr($str,$i);
-	    $linepos += length($str)-$i;
-	    print $fh ' ' x (70 - $linepos);
-	    print $fh sprintf(" %-5d\n",length($str));
-	    last;
-        }
-        print $fh substr($str,$i,10), " ";
-        $linepos += 11;
-        if( ($i+10)%60 == 0 ) {
-	    my $end = $i+10;
-	    print $fh sprintf("%-5d\n     ",$end);
-	    $linepos = 5;
-        }
+    # Print the whole lines
+    my( $i );
+    for ($i = 0; $i < $whole; $i += $nuc) {
+        my $blocks = pack $out_pat,
+                     unpack $whole_pat,
+                     substr($str, $i, $nuc);
+        printf $fh "     $blocks%9d\n", $i + $nuc;
     }
 
+    # Print the last line
+    if (my $last = substr($str, $i)) {
+        my $last_len = length($last);
+        my $last_pat = 'a10' x int($last_len / 10) .'a'. $last_len % 10;
+        my $blocks = pack $out_pat,
+                     unpack($last_pat, $last);
+        printf $fh "     $blocks%9d\n", $length;    # Add the length to the end
+    }
 
     print $fh "//\n";
     return 1;
@@ -855,57 +861,73 @@ sub _read_FTHelper_EMBL {
    # Loop reads $_ when defined (i.e. only in first loop), then $fh, until end of file
    while( defined($_ ||= <$fh>) ) {
       
-       # Exit loop on non FT lines!
-       /^FT/  || last;
-       
-       # Exit loop on new primary key
-       /^FT   \w/ && last;
-       
-       # Field on one line
-       if (/^FT\s+\/(\S+)=\"(.+)\"/) {
-	   my $key = $1;
-	   my $value = $2;
-	   if(! defined $out->field->{$key} ) {
-	       $out->field->{$key} = [];
-	   }
-	   $value =~ s/\"\"/\"/g;
+        # Exit loop on non FT lines!
+        /^FT/  || last;
 
-	   push(@{$out->field->{$key}},$value);
-       }
-       # Field on on multilines:
-       elsif (/^FT\s+\/(\S+)=\"(.*)/) {
-	   my $key = $1;
-	   my $value = $2;
-	   while ( <$fh> ) {
-	       s/\"\"/__DOUBLE_QUOTE_STRING__/g;
-	       /FT\s+(.*)\"/ && do { $value .= $1; last; };
-	       /FT\s+(.*)/ && do {$value .= $1; };
-	   }
-	   $value =~ s/__DOUBLE_QUOTE_STRING__/\"/g;
+        # Exit loop on new primary key
+        /^FT   [\w-]/ && last;
 
-	   if(! defined $out->field->{$key} ) {
-	       $out->field->{$key} = [];
-	   }
-	   push(@{$out->field->{$key}},$value);
-       }
-       # Field with no quoted value
-       elsif (/^FT\s+\/(\S+)=?(\S+)?/) {
-	   my $key = $1;
-	   my $value = $2 if $2;
-	   $value = "_no_value" unless $2;
-	   if(! defined $out->field->{$key} ) {
-	       $out->field->{$key} = [];
-	   }
-	   push(@{$out->field->{$key}},$value);
-       }
-       
-       # Empty $_ to trigger read from $fh
-       undef $_;
-   }
+        my( $key, $value );
+        
+        # Field on one line
+        if (/^FT\s+\/(\S+)=\"(.+)\"/) {
+	    $key = $1;
+	    $value = $2;
+	    $value =~ s/\"\"/\"/g;
+        }
+        
+        # Field on on multilines:
+        elsif (/^FT\s+\/(\S+)=\"(.*)/) {
+            $key = $1;
+            my @lines = ($2);
 
-   $$buffer = $_;
-   
-   return $out;
+            #    /FT\s+(.*)\"/ && do { $value .= $1; last; };
+            #    /FT\s+(.*?)\s*/ && do {$value .= $1; };
+
+            while ( <$fh> ) {
+                 s/\"\"/__DOUBLE_QUOTE_STRING__/g;
+
+                 if (/FT\s+(.*)\"/) {
+                     push(@lines, $1);
+                     last;
+                 }
+                 elsif (/FT\s+(.*?)\s*$/) {
+                     push(@lines, $1);
+                 }
+                 else {
+                     $out->throw("Couldn't match '$_'");
+                 }
+            }
+
+            # Join list with spaces any of the elements contain them
+            my( $join );
+            if (grep /\s/, @lines) {
+                $join = ' ';
+            } else {
+                $join = '';
+            }
+            $value = join($join, @lines);
+
+            $value =~ s/__DOUBLE_QUOTE_STRING__/\"/g;
+        }
+        
+        # Field with unquoted value
+        elsif (/^FT\s+\/(\S+)=?(\S+)?/) {
+	    $key = $1;
+	    $value = $2 ? $2 : "_no_value";
+        }
+
+        # Store the key and value
+        $out->field->{$key} ||= [];
+        push(@{$out->field->{$key}}, $value);
+
+        # Empty $_ to trigger read from $fh
+        undef $_;
+    }
+
+    $$buffer = $_;
+
+    return $out;
 }
 
 
