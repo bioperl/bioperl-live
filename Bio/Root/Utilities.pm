@@ -768,8 +768,6 @@ sub delete {
     } 
     my $ulval = unlink($fileName) > 0 or
 	$self->throw("Failed to delete file $fileName: $!"); 
-
-    print "\nUNLINK RETURN VAL = $ulval\n";
 }
 
 ######################################
