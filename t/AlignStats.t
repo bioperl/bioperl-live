@@ -32,12 +32,6 @@ use Bio::Align::ProteinStatistics;
 use Bio::AlignIO;
 use Bio::Root::IO;
 
-# NOTE NOTE NOTE
-# A lot more work needs to be done on this DNAStatistics object
-# it currently doesn't actually calculate everything correctly
-# The currently implemented tests show what DOES work.
-# Volunteers welcomed
-
 my $in = new Bio::AlignIO(-format => 'emboss',
 			  -file   => Bio::Root::IO->catfile('t', 'data',
 							    'insulin.water'));
