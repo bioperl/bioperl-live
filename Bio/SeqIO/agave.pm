@@ -372,7 +372,7 @@ sub _process_bio_sequence {
 		push @{$bio_sequence->{'sequence_map'}}, $sequence_map;
 	}
 
-	print Data::Dumper->Dump([$bio_sequence]); exit;
+	# print Data::Dumper->Dump([$bio_sequence]); exit;
 
 	return $bio_sequence;
 
@@ -608,30 +608,38 @@ sub _process_seq_feature {
         my $seq_feature;
         $self->_helper_store_attribute_list($attribute_line, \$seq_feature);
 
+
         $$line = $self->_readline;
+
 
 	# Zero or more <classification>
 	$self->_process_classification($line, \$seq_feature);
+
 
 
 	# Zero or one <note>
 	$self->_question_mark_tag($line, \$seq_feature, 'note');
 
 
+
 	# One <seq_location>
 	$self->_one_tag($line, \$seq_feature, 'seq_location');
+
 
 
 	# Zero or one <xrefs>
 	$self->_question_mark_tag($line, \$seq_feature, 'xrefs');
 
 
+
 	# Zero or one <evidence>
 	$self->_process_evidence($line, \$seq_feature);
 
 
+
 	# Zero or more <qualifier>
 	$self->_process_qualifier($line, \$seq_feature);
+
 
 
 	# Zero or more <seq_feature>.  A <seq_feature> tag within a <seq_feature> tag?  Oh, well.  Whatever...
@@ -664,14 +672,15 @@ sub _process_seq_feature {
 # ==================================================================================
 =head2
 
-	Title: _process_qualifier
-	Usage: $self->_process_qualifier
-	Function: Parse the data between the <qualifier></qualifier> tags.
-	Args: 2 scalars:
+	Title    : _process_qualifier
+	Usage    : $self->_process_qualifier
+	Function : Parse the data between the <qualifier></qualifier> tags.
+	Args     : 2 scalars:
                    - reference to a scalar holding the value of the line to be parsed.
-                   - reference to a data structure to store the <xref> data.
-	Returns: Nothing.
-	Note: 
+                   - reference to a data structure to store the <qualifer> data.
+	Returns  : Nothing.
+	Note     : Method(s) that call(s) this method : _process_seq_feature
+		   Method(s) that this method calls   : _helper_store_attribute_list , _question_mark_tag
 
 
 =cut
@@ -683,14 +692,28 @@ sub _process_qualifier {
 
 		my $qualifier;
 		$self->_helper_store_attribute_list($1, \$qualifier);
-		$self->_question_mark_tag($line, \$qualifier, 'qualifier');
+		$self->_star_tag($line, \$qualifier, 'qualifier');
 		push @{$$data_structure->{'qualifier'}},$qualifier; 		
 		
 	}
 
+	return;		# No need to return the data structure since its reference was what was modified.
 
 }
 # ==================================================================================
+=head2
+
+	Title: _process_classification
+	Usage: $self->_process_classification
+	Function: Parse the data between the <classification></classification> tags.
+	Args: 2 scalars:
+                   - reference to a scalar holding the value of the line to be parsed.
+                   - reference to a data structure to store the <qualifer> data.
+	Returns: Nothing.
+	Note: Method(s) that call(s) this method: _process_seq_feature
+	Method(s) that this method calls: _helper_store_attribute_list , _question_mark_tag , _star_tag, _process_evidence
+
+=cut
 sub _process_classification {
 
 	my ($self, $line, $data_structure) = @_;
@@ -905,36 +928,77 @@ sub _process_query_region {
 
 }
 # ==================================================================================
+=head2
+
+	Title    : _tag_processing_helper
+	Usage    : $self->_tag_processing_helper
+	Function : Stores the tag value within the data structure.  Also calls _helper_store_attribute_list to store the attributes and their
+		   values in the data structure. 
+	Args     : 5 scalars:
+		   - Scalar holding the value of the attributes
+	  	   - Reference to a data structure to store the data for <$tag_name>
+		   - Scalar holding the tag name.
+		   - Scalar holding the value of the tag.
+		   - Scalar holding the value of either 'star', 'plus', or 'question mark' which specifies what type of method 
+		     called this method.
+	Returns  : Nothing.
+	Note     : Method(s) that call(s) this method:
+		   Method(s) that this method calls: _helper_store_attribute_list
+
+=cut
 sub _tag_processing_helper {
 
 	my ($self, $attribute_list, $data_structure, $tag_name, $tag_value, $caller) = @_;
-	# print "attribute_list: $attribute_list\n"; 
+ 
+	# Add the attributes to the $$data_structure if they exist.
         if (defined $attribute_list){
                 $self->_helper_store_attribute_list($attribute_list, $data_structure);
         }
-	# print "tag_name: $tag_name\n";
+
+
 	if ($caller eq 'star' || $caller eq 'plus'){
-		push @{$$data_structure->{$tag_name}}, $tag_value;
+		push @{$$data_structure->{$tag_name}}, $tag_value;	# There's either zero or more tags (*) or one or more (+)
 	} else {
-        	$$data_structure->{$tag_name} = $tag_value || 'null';
+        	$$data_structure->{$tag_name} = $tag_value || 'null';   # There's zero or one tag (?)
 	}
+
+	return;
 
 }
 # ==================================================================================
+=head2
+
+	Title    : _one_tag
+	Usage    : $self->_one_tag
+	Function : A method to store data from tags that occurs just once.
+	Args     : 2 scalars:
+                   - reference to a scalar holding the value of the line to be parsed.
+	           - reference to a data structure to store the data for <$tag_name>
+	Returns  : Nothing.
+	Note     : Method(s) that call(s) this method : many
+	           Method(s) that this method calls   : _tag_processing_helper
+
+=cut
 sub _one_tag {
 
 	my ($self, $line, $data_structure, $tag_name) = @_;
 	
-	die "Error.  Missing <$tag_name></$tag_name>.  Got this instead: $$line" if $$line !~ /\<$tag_name/;
-	# print "line: $$line\n"; exit;
-	# die "$$line\n" if $tag_name eq "seq_location";
-	# <db_id id="J00231" version="9" db_code="EMBL" />
+	$self->throw("Error:  Missing <$tag_name></$tag_name>.  Got: $$line\n\n") if $$line !~ /\<$tag_name/; # check to see if $$line
+													      # is in correct format.
+
 	if ($$line =~ /<$tag_name\s?(.*?)\s?\/?>((.*?)<\/$tag_name>)?/){
-		$self->_tag_processing_helper($1, $data_structure, $tag_name, $2, 'one');
-		$$line = $self->_readline;
+		$self->_tag_processing_helper($1, $data_structure, $tag_name, $2, 'one');  # $1 = attributes
+											   # $data_structure = to hold the parsed values												# $tag_name = name of the tag
+											   # $2 = tag value
+											   # 'one' = lets _tag_processing_helper know that
+											   # it was called from the _one_tag method.
+		$$line = $self->_readline; # get the next line.
 	} else {
-		die "Error.  Do not understand this line: $$line";
+		$self->throw("Error:  Cannot parse this line: $$line\n\n");
 	}
+
+	return;
+
 }
 
 sub _question_mark_tag {
@@ -952,29 +1016,49 @@ sub _question_mark_tag {
 sub _star_tag {
 
 	my ($self, $line, $data_structure, $tag_name) = @_;
+print "tag_name in _star_tag: $tag_name\n"; exit;
 
 	while ($$line =~ /<$tag_name\s?(.*?)\s?>(.*?)<\/$tag_name>/){
-		$self->_tag_processing_helper($1, $data_structure, $tag_name, $2, 'star') if defined $1;
+		$self->_tag_processing_helper($1, $data_structure, $tag_name, $2, 'star');
 		$$line = $self->_readline;
 	}
 
 	return;
 
 }
+# ==================================================================================
+=head2
 
+	Title    : _plus_tag
+	Usage    : $self->_plus_tag
+	Function : Handles 'plus' tags (tags that occur one or more times).  tag_name+
+	Args     : 3 scalars:
+                   - reference to a scalar holding the value of the line to be parsed.
+                   - reference to a data structure to store the data for <$tag_name>
+		   - scalar holding the name of the tag.
+	Returns  : Nothing.
+	Note     : Method(s) that call(s) this method: many.
+		Method(s) that this method calls:
+
+=cut
 sub _plus_tag {
 
 	my ($self, $line, $data_structure, $tag_name) = @_;
 	
+print "tag_name: $tag_name\n"; exit;
 	if ($$line =~ /<$tag_name\s?(.*?)\s?>(.*?)<\/$tag_name>/){
 
-		
+
+		$$line = $self->_readline;
+		$self->_star_tag($line, $data_structure, $tag_name);		
 
 
 
 	} else {
 		die "Error.  Missing <$tag_name></$tag_name>.  Got: $$line";		
 	}
+
+	return;
 
 }
 # ==================================================================================
