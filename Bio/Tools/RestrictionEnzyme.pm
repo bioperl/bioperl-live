@@ -869,7 +869,7 @@ containing all or some of the following fields:
               :
  _cuts_after  : Integer indicating the cleavage position relative to the 
               : 5' end of the recognition sequence.
- 
+
  INHERITED DATA MEMBERS:
 
  _name      : (From Bio::Bio::Root::Object.pm) String containing name of the enzyme.

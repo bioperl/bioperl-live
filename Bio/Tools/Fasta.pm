@@ -362,11 +362,11 @@ sub parse {
   The motivation here is that when working with a potentially huge set of
   sequences, there is no need to read them all into memory before you start
   processing them. In fact, you may only be interested in a few of them.
- 
+
   This method constructs and returns a closure for parsing a single Fasta sequence.
   It is called automatically by the read() method inherited from 
   Bio::Root::Object.pm. 
- 
+
   Another issue concerns what to do with the parsed data: save it or
   use it? Sometimes you need to process all sequence data as a group
   (eg., sorting). Other times, you can safely process each sequence

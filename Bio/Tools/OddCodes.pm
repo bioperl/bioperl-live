@@ -55,7 +55,7 @@ do the alternative coding, returning the answer as a reference to a string
 	my $output = $oddcode_obj->Dayhoff();
 	my $output = $oddcode_obj->Sneath();
 	my $output = $oddcode_obj->Stanfel();
-	
+
 
 display sequence in new form, eg:
 

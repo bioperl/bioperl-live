@@ -39,16 +39,16 @@ B<WARNING: This module is still in the experimental phase and has not been teste
  use Bio::Root::Object;
 
  $myObj->xref($object_ref);
- 
+
 =head2 Object Manipulation
- 
+
  Accessors
  ---------------------------------------------------------------------
  obj()         - Get the cross-referenced object.
  desc()        - Description of the nature of the cross-reference.
  set_desc()    - Set description.
  type()        - Symmetric or assymetric.
- 
+
  Methods
  ---------------------------------------------------------------------
  clear()       - remove all cross-references within the Xref object (not implemented).
@@ -81,7 +81,7 @@ B<The API for this module is not complete since the module is under development.
 
   http://bio.perl.org/Projects/modules.html  - Online module documentation
   http://bio.perl.org/                       - Bioperl Project Homepage 
- 
+
 =head1 FEEDBACK
 
 =head2 Mailing Lists 
@@ -186,7 +186,7 @@ __END__
  _obj   : The object being cross-referenced to the parent.
  _type  : Symmetric or asymmetric
  _desc  : Description associated with the cross-reference
- 
+
  INHERITED DATA MEMBERS (from Bio::Root::Object)
 
  _parent : The object receiving the cross-reference.

@@ -32,7 +32,7 @@ Bio::Variation::AAChange - Sequence change class for polypeptides
    $a2->seq($mut) if $mut;
    $aachange->add_Allele($a2);
    $aachange->allele_mut($a2);
- 
+
    print  "\n"; 
 
    # add it to a SeqDiff container object

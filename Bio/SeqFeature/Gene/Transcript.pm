@@ -298,7 +298,7 @@ sub add_exon {
  Function: Remove all or a certain type of exon features from this transcript.
 
            See add_exon() for documentation about types.
- 
+
            Calling without a type will not flush UTRs. Call flush_utrs() for
            this purpose.
  Returns : 
@@ -325,7 +325,7 @@ sub flush_exons {
            $tableref = $transcript->exon_type_sortorder();
            Bio::SeqFeature::Gene::Transcript->exon_type_sortorder('type1','type2','type3');
  Function: Install or retrieve the sort-order of exon types.
- 
+
            Ordering exons by type is only of relevance for methods
            constructing a sequence corresponding to the transcript object
            (e.g., mrna(), cds(), etc). For instance, an initial exon would

@@ -213,7 +213,7 @@ sub write_seq {
  Argument  : a Bio::PrimarySeqI implementing object
 
 =cut
- 
+
 sub GCG_checksum {
     my ($self,$seqobj) = @_;
     my $index = 0;

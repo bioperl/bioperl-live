@@ -109,17 +109,16 @@ use Bio::SeqFeature::Generic;
  Title   : id
  Usage   : $obj->id
  Function:
- 
+
            Read only method. Returns the id of the variation object.
            The id is the id of the first DBLink object attached to this object.
- 
+
  Example :
  Returns : scalar
  Args    : none
 
 =cut
- 
- 
+
 sub id {
    my ($self) = @_;
    my @ids = $self->each_DBLink;
@@ -203,10 +202,9 @@ sub each_Allele{
            assumed that the Variant descibes polymorphisms.
 
  Returns : a boolean
- 
+
 =cut
- 
- 
+
 sub isMutation {
     my ($self,$value) = @_;
     if (defined $value) {
