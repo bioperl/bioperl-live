@@ -324,6 +324,11 @@ sub write_annseq {
 
 sub _print_EMBL_FTHelper {
    my ($fth,$fh) = @_;
+   
+   if(! $fth->isa('Bio::AnnSeqIO::FTHelper') ) {
+       $fth->warn("$fth is not a FTHelper class. Attempting to print, but there could be tears!");
+   }
+
 
    #print $fh "FH   Key             Location/Qualifiers\n";
    #print $fh  sprintf("FT   %-15s  %s\n",$fth->key,$fth->loc);

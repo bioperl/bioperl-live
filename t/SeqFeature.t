@@ -21,12 +21,14 @@
 
 
 ## We start with some black magic to print on failure.
-BEGIN { $| = 1; print "1..3\n"; 
+BEGIN { $| = 1; print "1..4\n"; 
 	use vars qw($loaded); }
 
 END {print "not ok 1\n" unless $loaded;}
 
 use Bio::SeqFeature::Generic;
+use Bio::SeqFeature::Homol;
+
 $loaded = 1;
 print "ok 1\n";    # 1st test passes.
 
@@ -49,4 +51,23 @@ if( $str ne "SEQ\tinternal\texon\t40\t80\t1\t.\t." ) {
 } else {
     print "ok 3\n";
 }
+
+$homol = new Bio::SeqFeature::Homol ( -start => 400,
+				      -end => 430,
+				      -strand => 1,
+				      -primary => 'match',
+				      -source => 'somewhere'
+				      );
+
+$homol->homol_SeqFeature($feat);
+
+$sf = $homol->homol_SeqFeature();
+
+print "ok 4\n";
+
+
+
+
+
+
 
