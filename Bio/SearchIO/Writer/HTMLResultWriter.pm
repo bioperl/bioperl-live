@@ -182,12 +182,7 @@ sub to_string {
     $reference =~ s/\~/\n/g;
     my $str;
     if( $num <= 1 ) { 
-	$str = sprintf(
-qq{<HTML>
-    <HEAD><CENTER><TITLE>Bioperl Reformatted HTML of %s Search output with Bioperl Bio::SearchIO system</TITLE></CENTER></HEAD>
-    <BODY BGCOLOR="WHITE">
-},$result->algorithm);
-
+	$str = $self->start_report($result);
     }
     $str .= sprintf(	    
 qq{
@@ -219,7 +214,8 @@ qq{
 	next if( $hitfilter && ! &{$hitfilter}($hit) );
 	my $nm = $hit->name();
 	my $id_parser = $self->id_parser;
-	print STDERR "no $nm for name (",$hit->description(), "\n" unless $nm;
+	$self->debug( "no $nm for name (".$hit->description(). "\n") 
+	    unless $nm;
 	my ($gi,$acc) = &$id_parser($nm);
 	my $p = "%-$MaxDescLen". "s";
 	my $descsub;
@@ -379,8 +375,7 @@ qq{
    foreach my $stat ( sort $result->available_statistics ) {
 	$str .= "<tr><td>$stat</td><td>". $result->get_statistic($stat). "</td></th>\n";
     }
-    $str .=  "</table>".$self->footer() . "</BODY>\n</HTML>\n";
-    
+    $str .=  "</table><P>".$self->footer() . "<P>\n";
     return $str;
 }
 
@@ -399,6 +394,27 @@ qq{
 
 sub end_report {
     return "</BODY>\n</HTML>\n";
+}
+
+=head2 start_report
+
+ Title   : start_report
+ Usage   : $self->start_report()
+ Function: The method to call when starting a report. You can override it
+           to make a custom header
+ Returns : string
+ Args    : none
+
+=cut
+
+sub start_report {
+    my ($self,$result) = @_;
+    return sprintf(
+qq{<HTML>
+       <HEAD> <CENTER><TITLE>Bioperl Reformatted HTML of %s output with Bioperl Bio::SearchIO system</TITLE></CENTER></HEAD>
+    <BODY BGCOLOR="WHITE">
+},$result->algorithm);
+    
 }
 
 # copied from Bio::Index::Fasta
