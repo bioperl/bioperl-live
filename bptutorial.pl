@@ -762,9 +762,11 @@ module.
 The Bio::DB::GFF module provides indexed access to files in GFF format,
 a file type that's highly suited to sequence annotation (see 
 http://www.sanger.ac.uk/software/GFF). The module accesses not
-only by id but by annotation type and position. Those who like to explore
-bioperl as a means to overlay nucleotide sequence, protein sequence,
-features, and annotations should take a close look at L<Bio::DB::GFF>.
+only by id but by annotation type and position. Those who would like to
+explore bioperl as a means to overlay nucleotide sequence, protein sequence,
+features, and annotations should take a close look at L<Bio::DB::GFF> and
+the load_gff.pl, bulk_load_gff.pl, gadfly_to_gff.pl, and sgd_to_gff.pl
+scripts in the scripts/Bio-DB-GFF directory.
 
 
 =head2 III.2 Transforming formats of database/ file records
@@ -831,7 +833,7 @@ AlignIO also supports the tied filehandle syntax described above for
 SeqIO.  Note that currently AlignIO is usable only with SimpleAlign
 alignment objects.  IO for UnivAln objects can only be done for
 files in fasta data format. See L<Bio::AlignIO> and L<Bio::UnivAln>
-and section L<III.5.4> for more information.
+and section L<"III.5.4"> for more information.
 
 =head2 III.3 Manipulating sequences
 
@@ -1112,7 +1114,7 @@ generating standard EMBOSS reports.  This functionality is
 being initially implemented with the EMBOSS sequence alignment
 programs, so that they will return SimpleAlign objects in a manner
 similar to the way the Bioperl modules TCoffee.pm and Clustalw.pm
-work (see section L<III.5.4> for a discussion of SimpleAlign).
+work (see section L<"III.5.4"> for a discussion of SimpleAlign).
 
 Of course, the EMBOSS package must be installed for the Bioperl
 wrapper to function. An example of usage of the Bioperl EMBOSS wrapper
@@ -1126,7 +1128,7 @@ would be:
   $compseqapp->run(\%input);
 
 Some EMBOSS programs will returns strings, others will create files that
-can be read directly using Bio::SeqIO (section L<III.2.1>).
+can be read directly using Bio::SeqIO (section L<"III.2.1">).
 
 
 =head2    III.3.7 Sequence manipulation without creating Bioperl "objects" (Perl.pm)
@@ -1680,8 +1682,9 @@ DNA and RNA.
 =back
 
 Skeleton code for using some of these features is shown below.  More detailed,
-working code is in Demo example 14.  Additional documentation on methods
-can be found in L<Bio::SimpleAlign> and L<Bio::LocatableSeq>.
+working code is in Demo example 14 and in align_on_codons.pl in the scripts
+directory. Additional documentation on methods can be found in
+L<Bio::SimpleAlign> and L<Bio::LocatableSeq>.
 
   use Bio::SimpleAlign;
   $aln = Bio::SimpleAlign->new('t/data/testaln.dna');
