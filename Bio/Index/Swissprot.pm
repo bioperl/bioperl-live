@@ -84,9 +84,8 @@ of the Bioperl mailing lists.  Your participation is much appreciated.
 
 Report bugs to the Bioperl bug tracking system to help us keep track
 the bugs and their resolution.  Bug reports can be submitted via
-email or the web:
+the web:
 
-  bioperl-bugs@bio.perl.org
   http://bugzilla.bioperl.org/
 
 =head1 AUTHOR - Ewan Birney
