@@ -80,14 +80,35 @@ Please report them.
 
 =head1 SEE ALSO
 
-L<Ace::Sequence>, L<Ace::Sequence::Feature>, L<Bio::Graphics::Panel>,
-L<Bio::Graphics::Track>, L<Bio::Graphics::Glyph::anchored_arrow>,
+L<Bio::Graphics::Panel>,
+L<Bio::Graphics::Glyph>,
 L<Bio::Graphics::Glyph::arrow>,
-L<Bio::Graphics::Glyph::box>,
+L<Bio::Graphics::Glyph::cds>,
+L<Bio::Graphics::Glyph::crossbox>,
+L<Bio::Graphics::Glyph::diamond>,
+L<Bio::Graphics::Glyph::dna>,
+L<Bio::Graphics::Glyph::dot>,
+L<Bio::Graphics::Glyph::ellipse>,
+L<Bio::Graphics::Glyph::extending_arrow>,
+L<Bio::Graphics::Glyph::generic>,
+L<Bio::Graphics::Glyph::graded_segments>,
+L<Bio::Graphics::Glyph::heterogeneous_segments>,
+L<Bio::Graphics::Glyph::line>,
+L<Bio::Graphics::Glyph::pinsertion>,
 L<Bio::Graphics::Glyph::primers>,
+L<Bio::Graphics::Glyph::rndrect>,
 L<Bio::Graphics::Glyph::segments>,
+L<Bio::Graphics::Glyph::ruler_arrow>,
 L<Bio::Graphics::Glyph::toomany>,
 L<Bio::Graphics::Glyph::transcript>,
+L<Bio::Graphics::Glyph::transcript2>,
+L<Bio::Graphics::Glyph::translation>,
+L<Bio::Graphics::Glyph::triangle>,
+L<Bio::DB::GFF>,
+L<Bio::SeqI>,
+L<Bio::SeqFeatureI>,
+L<Bio::Das>,
+L<GD>
 
 =head1 AUTHOR
 
