@@ -23,10 +23,9 @@ provides the sequences that the features reside on.
    Bio::SeqFeature::SimpleSegmentProvider->new();
 
  # Add some features
-
  $data_provider->insert_collection(
-   new Bio::SeqFeature::SimpleCollection(
-     new Bio::SeqFeature::Generic(
+   Bio::SeqFeature::SimpleCollection->new(
+     Bio::SeqFeature::Generic->new(
        -id => 'foo',
        -start => 10,
        -end => 100,
@@ -294,14 +293,7 @@ sub get_collection {
 =cut
 
 sub segment {
-  my $self = shift;
-  if( wantarray ) {
-    my @s = $self->get_collection( @_ );
-    return @s;
-  } else {
-    my $s = $self->get_collection( @_ );
-    return $s;
-  }
+  return shift->get_collection( @_ );
 } # segment(..)
 
 =head2 parent_segment_provider

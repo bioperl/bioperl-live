@@ -252,7 +252,8 @@ sub _parse_predictions {
 		    'Term' => 'Terminal',
 		    'Sngl' => '');
     my $gene;
-    my $seqname;
+    my $sequence;
+    my ( @parts_and_types );
 
     while(defined($_ = $self->_readline())) {
 	if(/^\s*(\d+)\.(\d+)/) {
@@ -260,9 +261,17 @@ sub _parse_predictions {
 	    my $prednr = $1;
 	    my $signalnr = $2; # not used presently
 	    if(! defined($gene)) {
-		$gene = Bio::Tools::Prediction::Gene->new(
-                                       '-primary' => "GenePrediction$prednr",
-				       '-source' => 'Genscan');
+		$gene =
+                  Bio::Tools::Prediction::Gene->new(
+                    '-primary' => "GenePrediction$prednr",
+		    '-source'  => 'Genscan'
+                  );
+
+                ## We have to set the seq_id outside of the
+                ## constructor because we don't want start, end, and
+                ## strand to be autoset (which they are in the Gene
+                ## constructor, alas).
+                $gene->seq_id( $sequence );
 	    }
 	    # split into fields
 	    chomp();
@@ -279,15 +288,13 @@ sub _parse_predictions {
 	    # set common fields
 	    $predobj->source_tag('Genscan');
 	    $predobj->score($flds[$#flds]);
-	    $predobj->strand((($flds[2] eq '+') ? 1 : -1));
 	    my ($start, $end) = @flds[(3,4)];
-	    if($predobj->strand() == 1) {
-		$predobj->start($start);
-		$predobj->end($end);
-	    } else {
-		$predobj->end($start);
-		$predobj->start($end);
-	    }
+            $predobj->start($start);
+            $predobj->end($end);
+	    $predobj->strand((($flds[2] eq '+') ? 1 : -1));
+            $predobj->ensure_orientation();
+            ## TODO: REMOVE
+            #warn "Hey man, predicted object $predobj isa ".$flds[1].", which is ".( $is_exon ? '' : 'NOT ' )."an exon.  Bounds are $start-$end on the ".$flds[2]." strand.";
 	    # add to gene structure (should be done only when start and end
 	    # are set, in order to allow for proper expansion of the range)
 	    if($is_exon) {
@@ -315,7 +322,7 @@ sub _parse_predictions {
 		    # the first base of the first complete codon, but viewed
 		    # from forward, which is the third base viewed from
 		    # reverse.
-		    $cod_offset = $flds[6] - (($predobj->end()-3) % 3);
+		    $cod_offset = $flds[6] - (($predobj->high()-3) % 3);
 		    # Possible values are -2, -1, 0, 1, 2. Due to the reverse
 		    # situation, {2,-1} and {1,-2} correspond to offsets
 		    # 1 and 2, resp. Offset 3 is the same as 0.
@@ -327,31 +334,67 @@ sub _parse_predictions {
 		# number of bases the first codon is missing).
 		$predobj->frame(3 - $cod_offset);
 		# then add to gene structure object
-		$gene->add_exon($predobj, $exontags{$flds[1]});		
+		#$gene->add_exon($predobj, $exontags{$flds[1]});
+                push( @parts_and_types, $predobj, 'Bio::SeqFeature::Gene::ExonI' );
+                ## TODO: REMOVE
+                #warn "After adding exon $predobj, gene is $gene";
 	    } elsif($flds[1] eq 'PlyA') {
 		$predobj->primary_tag("PolyAsite");
-		$gene->poly_A_site($predobj);
+                ## TODO: REMOVE
+                #warn "Before adding polyA-site $predobj, gene is $gene";
+		#$gene->poly_A_site($predobj);
+                push( @parts_and_types, $predobj, 'Bio::SeqFeature::Gene::Poly_A_site' );
+                ## TODO: REMOVE
+                #warn "After adding polyA-site $predobj, gene is $gene";
 	    } elsif($flds[1] eq 'Prom') {
 		$predobj->primary_tag("Promoter");
-		$gene->add_promoter($predobj);
+		#$gene->add_promoter($predobj);
+                push( @parts_and_types, $predobj, 'Bio::SeqFeature::Gene::Promoter' );
+                ## TODO: REMOVE
+                #warn "After adding promoter $predobj, gene is $gene";
 	    }
 	    next;
 	}
-	if(/^\s*$/ && defined($gene)) {
-	    # current gene is completed
-	    $gene->seq_id($seqname);
-	    $self->_add_prediction($gene);
-	    $gene = undef;
-	    next;
+	if( /^\s*$/ && defined( $gene ) ) {
+          ## TODO: REMOVE
+          #print STDOUT "Bouts to add to $gene these parts: ( ";
+          #for( my $i = 0; $i < scalar( @parts_and_types ); $i += 2 ) {
+          #  unless( $i == 0 ) {
+          #    print STDOUT ', ';
+          #  }
+          #  print STDOUT $parts_and_types[ $i ]->toRelRangeString().'[ '.$parts_and_types[ $i + 1 ].' ]';
+          #}
+          #print STDOUT " ).\n";
+          $gene->_add( @parts_and_types );
+          ## TODO: REMOVE
+          #print STDOUT "Shiz, we got a gene: $gene.  Its subfeatures are: ( ";
+          #my @feats = $gene->features();
+          #for( my $i = 0; $i < scalar( @feats ); $i++ ) {
+          #  unless( $i == 0 ) {
+          #    print STDOUT ', ';
+          #  }
+          #  print STDOUT $feats[ $i ]->toRelRangeString( 'both', 'plus' );
+          #}
+          #print STDOUT " ).\n";
+          $self->_add_prediction($gene);
+          undef $gene;
+          undef @parts_and_types;
+          next;
 	}
 	if(/^(GENSCAN)\s+(\S+)/) {
 	    $self->analysis_method($1);
 	    $self->analysis_method_version($2);
 	    next;
 	}
-	if(/^Sequence\s+(\S+)\s*:/) {
-	    $seqname = $1;
-	    next;
+	if(/^Sequence\s+(\S+)\s*:\s*(?:(\d+) bp)?/) {
+          $sequence =
+            Bio::PrimarySeq->new(
+              '-id' => $1,
+              '-length' => $2
+            );
+          ## TODO: REMOVE
+          #warn "Created sequence $sequence.  It is ".$sequence->length()." bases long.";
+          next;
 	}
         
 	if(/^Parameter matrix:\s+(\S+)/i) {

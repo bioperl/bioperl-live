@@ -164,6 +164,7 @@ my %valid_type = map {$_, 1} qw( dna rna protein );
 
 sub new {
     my ($class, @args) = @_;
+
     my $self = $class->SUPER::new(@args);
 
     my($seq,$id,$unique_id,$acc,$pid,$ns,$auth,$v,$oid,
@@ -364,7 +365,7 @@ sub subseq {
        }
        if( $start <= 0 || $end > $self->length ) {
 	   $self->throw("You have to have start positive\n\tand length less ".
-			"than the total length of sequence [$start:$end] ".
+			"than the total length of sequence (start is $start, end is $end) ".
 			"Total ".$self->length."");
        }
 
@@ -558,7 +559,6 @@ sub primary_id {
        );
    }
    return $self->{'primary_id'};
-
 }
 
 

@@ -93,6 +93,8 @@ use Bio::LocallyIdentifiableI;
 use vars '$VERSION';
 $VERSION = '1.00';
 
+use constant DEBUG_ADJUST_BOUNDS => 0;
+
 =head2 unique_id (from Bio::LocallyIdentifiableI)
 
  Title   : unique_id
@@ -584,15 +586,15 @@ sub adjust_bounds {
     @all_features = $self->features();
     @sub_features = @all_features;
     ## TODO: REMOVE
-    #print STDERR "$self->adjust_bounds(..): using all subfeatures.\n";
+    print STDERR "$self->adjust_bounds(..): using all subfeatures.\n" if DEBUG_ADJUST_BOUNDS;
   } else {
     ## TODO: REMOVE
-    #print STDERR "$self->adjust_bounds(..): \@sub_features are ( ", join( ", ", @sub_features ), " )\n";
+    print STDERR "$self->adjust_bounds(..): \@sub_features are ( ", join( ", ", @sub_features ), " )\n" if DEBUG_ADJUST_BOUNDS;
   }
   # Don't adjust if there's no subfeatures.
   unless( @sub_features ) {
     ## TODO: REMOVE
-    #print STDERR "No subfeatures to adjust around.\n";
+    print STDERR "No subfeatures to adjust around.\n" if DEBUG_ADJUST_BOUNDS;
     # Done.  No change.
     if( $absolute ) {
       $self->absolute( 1 );
@@ -606,18 +608,25 @@ sub adjust_bounds {
   unless( $shrink ) {
     ( $self_abs_low,
       $self_abs_high ) =
-        ( $self->abs_low(),
-          $self->abs_high() );
+        ( $self->abs_low( 'plus' ),
+          $self->abs_high( 'plus' ) );
   }
+  my $totally_ignorant_of_self_bounds;
+  unless( $self_abs_low && $self_abs_high &&
+          ( defined( $self->start() ) || defined( $self->end() ) ) ) {
+    undef $self_abs_low;
+    undef $self_abs_high;
+    $totally_ignorant_of_self_bounds = 1;
+  }
+  $self_abs_strand = $self->abs_strand();
   unless( $self->strand() ) {
     $self->strand( 1 );
   }
-  $self_abs_strand = $self->abs_strand();
   my ( $sub_feature_abs_low,
        $sub_feature_abs_high );
   foreach my $sub_feature ( @sub_features ) {
     ## TODO: REMOVE
-    #print STDERR "                   adjusting for $sub_feature.\n";
+    print STDERR "                   adjusting for $sub_feature.\n" if DEBUG_ADJUST_BOUNDS;
 
     # As an added bonus we will clean up any sloppy features that
     # don't know where they are.  We do this by telling them that they
@@ -625,68 +634,97 @@ sub adjust_bounds {
     # having been absolute already.
     unless( defined $sub_feature->seq_id() ) {
       ## TODO: REMOVE
-      #print STDERR "                   -> setting its seq_id to $self.\n";
+      print STDERR "                   -> setting its seq_id to $self.\n" if DEBUG_ADJUST_BOUNDS;
       ( $sub_feature_abs_low,
         $sub_feature_abs_high ) =
-          ( $sub_feature->low(),
-            $sub_feature->high() );
-      if( $sub_feature->strand() < 0 ) {
-        if( defined $self->end() ) {
-          $sub_feature->start( $self->end() + 1 - $sub_feature_abs_high );
-          $sub_feature->end( $self->end() + 1 - $sub_feature_abs_low );
-        }
-      } elsif( defined $self->start() ) {
-        $sub_feature->start( $sub_feature_abs_low + 1 - $self->start() );
-        $sub_feature->end( $sub_feature_abs_high + 1 - $self->start() );
+          ( $sub_feature->low( 'plus' ),
+            $sub_feature->high( 'plus' ) );
+      if( !$totally_ignorant_of_self_bounds &&
+          defined( $self->start() ) ) {
+        $sub_feature->start( 'plus',
+                             ( $sub_feature_abs_low + 1 - $self->start( 'plus' ) ) );
+        $sub_feature->end( 'plus',
+                           ( $sub_feature_abs_high + 1 - $self->start( 'plus' ) ) );
+      }
+      if( $self->strand() < 0 ) {
+        ## Now the strand is positive, related to me.
+        $sub_feature->strand( 1 );
       }
       $sub_feature->seq_id( $self );
       ## TODO: REMOVE
-      #print STDERR "                   ->   (so now it is $sub_feature).\n";
+      print STDERR "                   ->   (so now it is $sub_feature).\n" if DEBUG_ADJUST_BOUNDS;
     }
 
     ## TODO: REMOVE
-    #print STDERR "                   -> adjusting its bounds, with shrink = $shrink.\n";
+    print STDERR "                   -> adjusting its bounds, with shrink = $shrink.\n" if DEBUG_ADJUST_BOUNDS;
 
     # All sub_features must recursively adjust their bounds.
     $sub_feature->adjust_bounds( $shrink );
 
     ## TODO: REMOVE
-    #print STDERR "                   ->   now it is $sub_feature.\n";
+    print STDERR "                   ->   now it is $sub_feature.\n" if DEBUG_ADJUST_BOUNDS;
 
     # Skip any sub_features that are not on the same sequence.
-    if( $sub_feature->abs_seq_id() ne $self->abs_seq_id() ) {
+    if( defined( $self->abs_seq_id() ) &&
+        ( $sub_feature->abs_seq_id() ne $self->abs_seq_id() ) ) {
       ## TODO: Remove warning?
       warn "'$sub_feature', a subfeature of '$self', is defined on the sequence '", $sub_feature->abs_seq_id(), "', but '$self' is on the sequence '", $self->abs_seq_id(), "'.";
       next;
     }
 
-    ( $sub_feature_abs_low,
-      $sub_feature_abs_high ) =
-        ( $sub_feature->abs_low(),
-          $sub_feature->abs_high() );
+    if( $totally_ignorant_of_self_bounds ) {
+      ( $sub_feature_abs_low,
+        $sub_feature_abs_high ) =
+          ( $sub_feature->low( 'plus' ),
+            $sub_feature->high( 'plus' ) );
+    } else {
+      ( $sub_feature_abs_low,
+        $sub_feature_abs_high ) =
+          ( $sub_feature->abs_low( 'plus' ),
+            $sub_feature->abs_high( 'plus' ) );
+    }
     if( !$self_abs_low ||
         ( $sub_feature_abs_low &&
           ( $sub_feature_abs_low < $self_abs_low ) )
       ) {
       ## TODO: REMOVE
-      #print STDERR "                   -> taking on its low value ($sub_feature_abs_low).\n";
+      print STDERR "                   -> taking on its low value ($sub_feature_abs_low).\n" if DEBUG_ADJUST_BOUNDS;
       $self_abs_low = $sub_feature_abs_low;
+      $totally_ignorant_of_self_bounds = 0;
     }
     if( !$self_abs_high ||
         ( $sub_feature_abs_high &&
           ( $sub_feature_abs_high > $self_abs_high ) ) ) {
       ## TODO: REMOVE
-      #print STDERR "                   -> taking on its high value ($sub_feature_abs_high).\n";
+      print STDERR "                   -> taking on its high value ($sub_feature_abs_high).\n" if DEBUG_ADJUST_BOUNDS;
       $self_abs_high = $sub_feature_abs_high;
+      $totally_ignorant_of_self_bounds = 0;
     }
   } # End foreach sub_feature.
 
-  my ( $delta_low, $delta_high ) =
-    ( ( $self_abs_low - $self->abs_low() ),
-      ( $self_abs_high - $self->abs_high() ) );
+  my ( $delta_low, $delta_high );
+  unless( !$shrink && $self->abs_low( 'plus' ) && $self->abs_high( 'plus' ) &&
+          ( defined( $self->start( 'plus' ) ) ||
+            defined( $self->end( 'plus' ) ) )
+        ) {
+    $totally_ignorant_of_self_bounds = 1;
+  }
+  ## TODO: We should be able to remove the readjustment code below
+  ## when all features are observers of their seq_feature parents and
+  ## respond to the change in the parent's range by auto-adjusting..
+
+  if( $totally_ignorant_of_self_bounds ) {
+    ( $delta_low, $delta_high ) =
+      ( $self_abs_low, $self_abs_high );
+  } else {
+    ( $delta_low, $delta_high ) =
+      ( ( $self_abs_low - $self->abs_low( 'plus' ) ),
+        ( $self_abs_high - $self->abs_high( 'plus' ) ) );
+  }
+
   if( ( $delta_low == 0 ) && ( $delta_high == 0 ) ) {
     ## TODO: REMOVE
-    #print STDERR "                   no change.\n";
+    print STDERR "                   no change.\n" if DEBUG_ADJUST_BOUNDS;
     # Done.  No change.
     if( $absolute ) {
       $self->absolute( 1 );
@@ -694,16 +732,8 @@ sub adjust_bounds {
     return;
   }
 
-  ## TODO: We should be able to remove the readjustment code below
-  ## when all features are observers of their seq_feature parents and
-  ## respond to the change in the parent's range by auto-adjusting..
-
-  # We want delta_high to be for the 'end' value, which is not
-  # necessarily high.
-  if( $self_abs_strand < 0 ) {
-    # flip the delta values.
-    ( $delta_low, $delta_high ) = ( $delta_high, $delta_low );
-  }
+  ## TODO: REMOVE
+  print STDERR "delta_low is $delta_low, delta_high is $delta_high.\n" if DEBUG_ADJUST_BOUNDS;
 
   # We're going to have to go through all features that we contain,
   # plus those passed in as arguments (which may or may not be
@@ -730,7 +760,7 @@ sub adjust_bounds {
        $last_sub_feature_ancestor );
   foreach my $sub_feature ( @all_features ) {
     ## TODO: REMOVE
-    #print STDERR "                   adjusting $sub_feature for change to self.\n";
+    print STDERR "                   adjusting $sub_feature for change to self.\n" if DEBUG_ADJUST_BOUNDS;
     # Skip any sub_features that are not physically contained herein.
     $last_sub_feature_ancestor = $sub_feature;
     $sub_feature_ancestor = $sub_feature->seq_id();
@@ -751,43 +781,61 @@ sub adjust_bounds {
     ( $sub_feature_low,
       $sub_feature_high,
       $sub_feature_strand ) =
-        ( $sub_feature->low(),
-          $sub_feature->high(),
+        ( $sub_feature->low( 'plus' ),
+          $sub_feature->high( 'plus' ),
           $sub_feature->strand() );
-    if( $sub_feature_strand < 0 ) {
-      next unless $delta_high;
-      ## TODO: REMOVE
-      #print STDERR "                   readjusting $sub_feature by ( $delta_high ) (subfeature is on - strand).\n";
-      $sub_feature->start( $sub_feature_low + $delta_high );
-      $sub_feature->end( $sub_feature_high + $delta_high );
+    next unless $delta_low;
+    ## TODO: REMOVE
+    print STDERR "                   readjusting $sub_feature by ( $delta_low )\n" if DEBUG_ADJUST_BOUNDS;
+    if( $totally_ignorant_of_self_bounds ) {
+      ## If we had undefined bounds originally (or were otherwise
+      ## ignorant of our bounds) then delta_low is effectively
+      ## offset from 0, not 1.  We compensate by adding 1 here.
+      $sub_feature->start( 'plus', ( $sub_feature_low + 1 - $delta_low ) );
+      $sub_feature->end( 'plus', ( $sub_feature_high + 1 - $delta_low ) );
     } else {
-      next unless $delta_low;
-      ## TODO: REMOVE
-      #print STDERR "                   readjusting $sub_feature by ( $delta_low ) (subfeature is on + strand).\n";
-      $sub_feature->start( $sub_feature_low - $delta_low );
-      $sub_feature->end( $sub_feature_high - $delta_low );
+      $sub_feature->start( 'plus', ( $sub_feature_low - $delta_low ) );
+      $sub_feature->end( 'plus', ( $sub_feature_high - $delta_low ) );
     }
     $sub_feature->ensure_orientation();
     # Just in case its ancestor ceases to be == us after we adjust
     # ourself, we'll force it to be...
     $last_sub_feature_ancestor->seq_id( $self );
     ## TODO: REMOVE
-    #print STDERR "$sub_feature bounds is now ", $sub_feature->Bio::RelRangeI::toString(), "\n";
+    print STDERR "$sub_feature bounds is now ", $sub_feature->Bio::RelRangeI::toString(), "\n" if DEBUG_ADJUST_BOUNDS;
   } # End foreach sub_feature, rebound it so that when we change our
     # bounds, their absolute bounds remain the same.
 
   # Now, finally, change our own bounds.
-  if( $self_abs_strand < 0 ) {
-    # Remember that we already flipped delta_low and delta_high.
-    $self->start( $self->start() - $delta_low );
-    $self->end( $self->end() - $delta_high );
+  if( $totally_ignorant_of_self_bounds ) {
+    ## If we're ignorant of our bounds then the delta values are our
+    ## new absolute positions.  We might need to relativize the values
+    ## before setting them.
+    my $seq_id = $self->seq_id();
+    if( defined( $seq_id ) &&
+        ref( $seq_id ) &&
+        $seq_id->isa( 'Bio::RangeI' ) 
+      ) {
+      # Relativize.
+      my $seq_id_low;
+      if( $seq_id->isa( 'Bio::RelRangeI' ) ) {
+        $seq_id_low = $seq_id->low( 'plus' );
+      } else {
+        $seq_id_low = $seq_id->start();
+      }
+      $self->start( 'plus', ( $seq_id_low + $delta_low - 1 ) );
+      $self->end( 'plus', ( $seq_id_low + $delta_high - 1 ) );
+    } else {
+      $self->start( 'plus', $delta_low );
+      $self->end( 'plus', $delta_high );
+    }
   } else {
-    $self->start( $self->start() + $delta_low );
-    $self->end( $self->end() + $delta_high );
+    $self->start( 'plus', $self->start() + $delta_low );
+    $self->end( 'plus', $self->end() + $delta_high );
   }
   $self->ensure_orientation();
   ## TODO: REMOVE
-  #print STDERR "$self bounds is now ", $self->Bio::RelRangeI::toString(), "\n";
+  print STDERR "$self bounds is now ", $self->Bio::RelRangeI::toString(), "\n" if DEBUG_ADJUST_BOUNDS;
 
   if( $absolute ) {
     $self->absolute( 1 );

@@ -220,8 +220,9 @@ sub _parse_predictions {
 		    '_na_' => '');
     my $exontag;
     my $gene;
-    my $seqname;
+    my ( $sequence, $seqname );
     my $exontype;
+    my @parts_and_types;
     my $current_gene_no = -1;
 
     while(defined($_ = $self->_readline())) {
@@ -245,17 +246,17 @@ sub _parse_predictions {
 
 		 
 	    # define info depending on it being eu- or prokaryot
-	    my ($start, $end, $orientation, $prediction_source);
+	    my ($start, $end, $strand, $prediction_source);
 
 	    if ($self->analysis_method() =~ /PROKARYOTIC/i) {
 	        $prediction_source = "Genemark.hmm.pro";
-	       	$orientation = ($flds[1] eq '+') ? 1 : -1;
+	       	$strand = ($flds[1] eq '+') ? 1 : -1;
 	        ($start, $end) = @flds[(2,3)];
 		$exontag = "_na_";
 
 	    } else {		   
 	        $prediction_source = "Genemark.hmm.eu";
-	       	$orientation = ($flds[2] eq '+') ? 1 : -1;
+	       	$strand = ($flds[2] eq '+') ? 1 : -1;
 	        ($start, $end) = @flds[(4,5)];
 		$exontag = $flds[3];
 	    }
@@ -264,7 +265,7 @@ sub _parse_predictions {
             $predobj->source_tag($prediction_source);
 	    $predobj->start($start);		
 	    $predobj->end($end);
-	    $predobj->strand($orientation);
+	    $predobj->strand($strand);
 
 	    $predobj->primary_tag($exontags{$exontag} . "Exon");
 
@@ -281,23 +282,45 @@ sub _parse_predictions {
 	    if($prednr != $current_gene_no) {
  	        # a new gene, store the old one if it exists
 		if (defined ($gene)) {
-		    $gene->seq_id($seqname);
-		    $self->_add_prediction($gene);	    
-		    $gene = undef ;
+                  ## TODO: REMOVE
+                  #print STDOUT "Bouts to add to $gene these parts: ( ";
+                  #for( my $i = 0; $i < scalar( @parts_and_types ); $i += 2 ) {
+                  #  unless( $i == 0 ) {
+                  #    print STDOUT ', ';
+                  #  }
+                  #  print STDOUT $parts_and_types[ $i ]->toRelRangeString().'[ '.$parts_and_types[ $i + 1 ].' ]';
+                  #}
+                  #print STDOUT " ).\n";
+                  $gene->_add( @parts_and_types );
+                  ## TODO: REMOVE
+                  #print STDOUT "Shiz, we got a gene: ".$gene->toRelRangeString( 0, 'stranded' ).'{'.$gene->toRelRangeString( 1, 'plus' ).'}'.".  Its subfeatures are: ( ";
+                  #my @feats = $gene->features();
+                  #for( my $i = 0; $i < scalar( @feats ); $i++ ) {
+                  #  unless( $i == 0 ) {
+                  #    print STDOUT ', ';
+                  #  }
+                  #  print STDOUT $feats[ $i ]->toRelRangeString( 'both', 'plus' );
+                  #}
+                  #print STDOUT " ).\n";
+                  $self->_add_prediction($gene);
+                  undef $gene;
+                  undef @parts_and_types;
 		}
 		#and make a new one
 		$gene = Bio::Tools::Prediction::Gene->new
 		    (
 		     '-primary' => "GenePrediction$prednr",
 		     '-source' => $prediction_source);
-		
+                $gene->seq_id($sequence);
+
 		$current_gene_no = $prednr;
 	    } 
 	    
 	    # Add the exon to the gene
-	    $gene->add_exon($predobj, ($exontag eq "_na_" ?
-				       undef : $exontags{$exontag}));
+	    #$gene->add_exon($predobj, ($exontag eq "_na_" ?
+		#		       undef : $exontags{$exontag}));
 
+            push( @parts_and_types, $predobj, 'Bio::SeqFeature::Gene::ExonI' );
 	}
 
 	if(/^(Genemark\.hmm\s*[PROKARYOTIC]*)\s+\(Version (.*)\)$/i) {
@@ -334,9 +357,22 @@ sub _parse_predictions {
 	     }
 	}
 	
-	if(/^Sequence[ file]? name:\s+(.+)\s*$/i) {
+	if(/^Sequence(?: file)? name:\s+(.+)\s*$/i) {
 	    $seqname = $1;
 	    #    $self->analysis_subject($seqname);
+	    next;
+	}
+	
+
+	if(/^Sequence(?: file)? length:\s+(\d+) bp\s*$/i) {
+	    my $seqlen = $1;
+            $sequence =
+              Bio::PrimarySeq->new(
+                '-id' => $seqname,
+                '-length' => $seqlen
+              );
+            ## TODO: REMOVE
+            #warn "Created sequence $sequence.  It is ".$sequence->length()." bases long.";
 	    next;
 	}
 	

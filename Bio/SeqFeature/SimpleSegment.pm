@@ -1180,8 +1180,9 @@ sub _relativize_feature {
       return $feature; # It's already ready.
     }
     my $abs_seq_id = $feature->abs_seq_id();
-    unless( $abs_seq_id eq $abs_baserange ) { ## Assertion
-      $self->throw( "Internal error: a SeqFeatureI object that was to be returned by the features() method of a SimpleSegment is defined over the wrong sequence (it's on '$abs_seq_id' -- we expected it to be on '$abs_baserange').  This is not your fault unless you are the programmer of SimpleSegment or a class on which it is dependent." );
+    unless( !defined( $abs_baserange ) ||
+            ( $abs_seq_id eq $abs_baserange ) ) { ## Assertion
+      $self->throw( "Internal error: a SeqFeatureI object that was to be returned by the features() method of a SimpleSegment ($self) is defined over the wrong sequence ($feature is on '$abs_seq_id' -- we expected it to be on '$abs_baserange', like the given baserange $baserange).  This is not your fault unless you are the programmer of SimpleSegment or a class on which it is dependent." );
     }
     if( $feature->seq_id() eq $abs_seq_id ) {
       # The feature is already in absolute coords.

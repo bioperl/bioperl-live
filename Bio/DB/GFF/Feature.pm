@@ -649,7 +649,7 @@ sub merged_segments {
   my @segs = map  { $_->[0] } 
              sort { $a->[1] <=> $b->[1] ||
 		    $a->[2] cmp $b->[2] }
-             map  { [$_, $_->start, $_->type] } $self->sub_SeqFeature($type);
+             map  { [$_, $_->low( 'plus' ), $_->type] } $self->sub_SeqFeature($type);
 
   # attempt to merge overlapping segments
   my @merged = ();
@@ -657,23 +657,23 @@ sub merged_segments {
     my $previous = $merged[-1] if @merged;
     my ($pscore,$score) = (eval{$previous->score}||0,eval{$s->score}||0);
     if (defined($previous) 
-	&& $previous->stop+1 >= $s->start
+	&& $previous->high( 'plus' )+1 >= $s->low( 'plus' )
 	&& $pscore == $score
        ) {
       if ($self->absolute && $self->strand < 0) {
-	$previous->{start} = $s->{start};
+	$previous->low( 'plus', $s->low( 'plus' ) );
       } else {
-	$previous->{stop} = $s->{stop};
+	$previous->high( 'plus', $s->high( 'plus' ) );
       }
       # fix up the target too
       my $g = $previous->{group};
       if ( ref($g) &&  $g->isa('Bio::DB::GFF::Homol')) {
 	my $cg = $s->{group};
-	$g->{stop} = $cg->{stop};
+	$g->end( 'plus', $cg->end( 'plus' ) );
       }
     } elsif (defined($previous) 
-	     && $previous->start == $s->start 
-	     && $previous->stop == $s->stop) {
+	     && $previous->low( 'plus' ) == $s->low( 'plus' ) 
+	     && $previous->low( 'plus' ) == $s->low( 'plus' )) {
       next;
     } else {
       my $copy = $s->clone;
@@ -864,7 +864,7 @@ sub AUTOLOAD {
   return if $func_name eq 'DESTROY';
 
   # fetch subfeatures if func_name has an initial cap
-#  return sort {$a->start <=> $b->start} $self->sub_SeqFeature($func_name) if $func_name =~ /^[A-Z]/;
+#  return sort {$a->low( 'plus' ) <=> $b->low( 'plus' )} $self->sub_SeqFeature($func_name) if $func_name =~ /^[A-Z]/;
   return $self->sub_SeqFeature($func_name) if $func_name =~ /^[A-Z]/;
 
   # error message of last resort
@@ -911,7 +911,7 @@ is called by the overloaded "" operator.
 sub asString {
   my $self = shift;
   ## TODO: REMOVE?
-  #return $self->Bio::SeqFeatureI::toString();
+  #return $self->toRelRangeString( 'both', 'plus' );
 #  my $type = $self->type;
 #  my $name = $self->group;
 #  return "$type($name)" if $name;
@@ -928,7 +928,7 @@ sub name {
 
 sub gff_string {
   my $self = shift;
-  my ($start,$stop) = ($self->start,$self->stop);
+  my ($start,$stop) = ($self->low( 'plus' ),$self->high( 'plus' ));
 
   # the defined() tests prevent uninitialized variable warnings, when dealing with clone objects
   # whose endpoints may be undefined
@@ -939,8 +939,8 @@ sub gff_string {
   if (my $t = $self->target) {
     my $class = $t->class;
     my $name  = $t->name;
-    my $start = $t->start;
-    my $stop  = $t->stop;
+    my $start = $t->low( 'plus' );
+    my $stop  = $t->high( 'plus' );
     push @group,qq(Target "$class:$name" $start $stop);
   }
 

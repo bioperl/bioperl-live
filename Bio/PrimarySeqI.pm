@@ -262,10 +262,6 @@ sub unique_id {
   return $current_value;
 } # unique_id()
 
-sub unique_id {
-  shift->throw_not_implemented();
-}
-
 =head2 primary_id
 
  Title   : primary_id
@@ -288,9 +284,28 @@ sub primary_id {
 }
 
 # implements RangeI
+## Never returns 'unknown'
 sub seq_id {
-  return shift->primary_id( @_ );
-}
+  my $self = shift;
+  my ( $new_seq_id ) = @_;
+
+  my $current_seq_id = $self->unique_id();
+  if( $new_seq_id ) {
+    $self->unique_id( $new_seq_id );
+  }
+  return $current_seq_id if( $current_seq_id && ( $current_seq_id ne 'unknown' ) );
+
+  $current_seq_id = $self->primary_id();
+  return $current_seq_id if( $current_seq_id && ( $current_seq_id ne 'unknown' ) );
+
+  $current_seq_id = $self->accession_number();
+  return $current_seq_id if( $current_seq_id && ( $current_seq_id ne 'unknown' ) );
+
+  $current_seq_id = $self->display_id();
+  return $current_seq_id if( $current_seq_id && ( $current_seq_id ne 'unknown' ) );
+
+  return undef;
+} # seq_id(..)
 
 =head2 can_call_new
 
@@ -469,7 +484,7 @@ sub revcom{
 
 =cut
 
-sub trunc{
+sub trunc {
    my ($self,$start,$end) = @_;
 
    my $str;
@@ -583,6 +598,8 @@ sub translate {
 	} else {
 	    $throw && $self->throw("Seq [$id]: Not using a valid terminator codon!");
 	    $self->warn("Seq [$id]: Not using a valid terminator codon!");
+            ## TODO: REMOVE
+            #warn "The sequence is ".$output.".";
 	}
 	# test if there are terminator characters inside the protein sequence!
 	if ($output =~ /\*/) {
@@ -725,15 +742,24 @@ sub is_circular{
 
 =cut
 
+# Never returns 'unknown'.
 sub toString {
   my $self = shift;
 
-  return
-    $self->display_id() ||
-    $self->accession_number() ||
-    $self->primary_id() ||
-    $self->unique_id() ||
-    overload::StrVal( $self );
+  my $str_val =
+    $self->display_id();
+  return $str_val if( $str_val && ( $str_val ne 'unknown' ) );
+
+  $str_val = $self->accession_number();
+  return $str_val if( $str_val && ( $str_val ne 'unknown' ) );
+
+  $str_val = $self->primary_id();
+  return $str_val if( $str_val && ( $str_val ne 'unknown' ) );
+
+  $str_val = $self->unique_id();
+  return $str_val if( $str_val && ( $str_val ne 'unknown' ) );
+
+  return overload::StrVal( $self );
 } # toString()
 
 =head1 Private functions

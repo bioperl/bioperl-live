@@ -94,14 +94,20 @@ inherited from above).
 =head2 low
 
   Title   : low
-  Usage   : my $low = $range->low();
+  Usage   : my $low = $range->low( [$position_policy] );
   Function: Get the least-valued position of this range.
   Returns : The current lowest position of this range, relative to the
             seq_id.
-  Args    : none
+  Args    : [optional] either 'stranded' or 'plus'
 
   This will return either start() or end(), depending on which
   is lower.
+
+  The returned position will be given in minus-strand coordinates if
+  this RelRangeI's position_policy is 'stranded', which is the default
+  value.  If the argument to this method is a position policy (either
+  'stranded' or 'plus') then this policy will be used instead of the
+  object's overall policy.
 
   This method is implemented in the interface, and need not be
   overridden in concrete subclasses.
@@ -110,21 +116,29 @@ inherited from above).
 
 sub low {
   my $self = shift;
-  my ( $a, $b ) = ( $self->start(), $self->end() );
+  my ( $position_policy ) = @_;
+  my $a = $self->start( $position_policy );
+  my $b = $self->end( $position_policy );
   return ( ( $a < $b ) ? $a : $b );
 } # low()
 
 =head2 high
 
   Title   : high
-  Usage   : my $high = $range->high();
+  Usage   : my $high = $range->high( [$position_policy] );
   Function: Get the greatest-valued position of this range.
   Returns : The current highest position of this range, relative to the
             seq_id.
-  Args    : none
+  Args    : [optional] either 'stranded' or 'plus'
 
   This will return either start() or end(), depending on which
   is higher.
+
+  The returned position will be given in minus-strand coordinates if
+  this RelRangeI's position_policy is 'stranded', which is the default
+  value.  If the argument to this method is a position policy (either
+  'stranded' or 'plus') then this policy will be used instead of the
+  object's overall policy.
 
   This method is implemented in the interface, and need not be
   overridden in concrete subclasses.
@@ -133,7 +147,9 @@ sub low {
 
 sub high {
   my $self = shift;
-  my ( $a, $b ) = ( $self->start(), $self->end() );
+  my ( $position_policy ) = @_;
+  my $a = $self->start( $position_policy );
+  my $b = $self->end( $position_policy );
   return ( ( $a > $b ) ? $a : $b );
 } # high()
 
@@ -209,17 +225,23 @@ sub abs_seq_id {
 =head2 abs_start
 
   Title   : abs_start
-  Usage   : my $abs_start = $range->abs_start();
+  Usage   : my $abs_start = $range->abs_start( [$position_policy] );
   Function: Get the absolute start position of this range.
   Returns : The current start position of this range, relative to the
             abs_seq_id.
-  Args    : none
+  Args    : [optional] either 'stranded' or 'plus'
 
   Note the interdependence of abs_start() and start().  Changing start() will
   change abs_start().
 
   Note the interdependence of abs_start() and length().  Changing length() will
   change abs_start().
+
+  The returned position will be given in minus-strand coordinates if
+  this RelRangeI's position_policy is 'stranded', which is the default
+  value.  If the argument to this method is a position policy (either
+  'stranded' or 'plus') then this policy will be used instead of the
+  object's overall policy.
 
 =cut
 
@@ -230,17 +252,23 @@ sub abs_start {
 =head2 abs_end
 
   Title   : abs_end
-  Usage   : my $abs_end = $range->abs_end();
+  Usage   : my $abs_end = $range->abs_end( [$position_policy] );
   Function: Get the absolute end position of this range.
   Returns : The current absolute end position of this range, relative
             to the abs_seq_id.
-  Args    : none
+  Args    : [optional] either 'stranded' or 'plus'
 
   Note the interdependence of abs_end() and end().  Changing end() will
   change abs_end().
 
   Note the interdependence of abs_end() and length().  Changing length() will
   change abs_end().
+
+  The returned position will be given in minus-strand coordinates if
+  this RelRangeI's position_policy is 'stranded', which is the default
+  value.  If the argument to this method is a position policy (either
+  'stranded' or 'plus') then this policy will be used instead of the
+  object's overall policy.
 
 =cut
 
@@ -265,14 +293,20 @@ sub abs_strand {
 =head2 abs_low
 
   Title   : abs_low
-  Usage   : my $abs_low = $range->abs_low();
+  Usage   : my $abs_low = $range->abs_low( [$position_policy] );
   Function: Get the least-valued absolute position of this range.
   Returns : The current lowest position of this range, relative to the
             abs_seq_id.
-  Args    : none
+  Args    : [optional] either 'stranded' or 'plus'
 
   This will return either abs_start() or abs_end(), depending on which
   is lower.
+
+  The returned position will be given in minus-strand coordinates if
+  this RelRangeI's position_policy is 'stranded', which is the default
+  value.  If the argument to this method is a position policy (either
+  'stranded' or 'plus') then this policy will be used instead of the
+  object's overall policy.
 
   This method is implemented in the interface, and need not be
   overridden in concrete subclasses.
@@ -281,21 +315,29 @@ sub abs_strand {
 
 sub abs_low {
   my $self = shift;
-  my ( $a, $b ) = ( $self->abs_start(), $self->abs_end() );
+  my ( $position_policy ) = @_;
+  my $a = $self->abs_start( $position_policy );
+  my $b = $self->abs_end( $position_policy );
   return ( ( $a < $b ) ? $a : $b );
 } # abs_low()
 
 =head2 abs_high
 
   Title   : abs_high
-  Usage   : my $abs_high = $range->abs_high();
+  Usage   : my $abs_high = $range->abs_high( [$position_policy] );
   Function: Get the greatest-valued absolute position of this range.
   Returns : The current highest position of this range, relative to the
             abs_seq_id.
-  Args    : none
+  Args    : [optional] either 'stranded' or 'plus'
 
   This will return either abs_start() or abs_end(), depending on which
   is higher.
+
+  The returned position will be given in minus-strand coordinates if
+  this RelRangeI's position_policy is 'stranded', which is the default
+  value.  If the argument to this method is a position policy (either
+  'stranded' or 'plus') then this policy will be used instead of the
+  object's overall policy.
 
   This method is implemented in the interface, and need not be
   overridden in concrete subclasses.
@@ -304,7 +346,9 @@ sub abs_low {
 
 sub abs_high {
   my $self = shift;
-  my ( $a, $b ) = ( $self->abs_start(), $self->abs_end() );
+  my ( $position_policy ) = @_;
+  my $a = $self->abs_start( $position_policy );
+  my $b = $self->abs_end( $position_policy );
   return ( ( $a > $b ) ? $a : $b );
 } # abs_high()
 
@@ -335,13 +379,8 @@ sub rel2abs {
 
   my @result;
 
-  my $abs_start = $self->abs_start();
-  my $abs_strand = $self->abs_strand();
-  @result = (
-             ( $abs_strand < 0 ) ?
-             map { $abs_start - $_ + 1 } @_ :
-             map { $_ + $abs_start - 1 } @_
-            );
+  my $abs_start = $self->abs_low();
+  @result = map { $_ + $abs_start - 1 } @_;
 
   # if called with a single argument, caller will expect a single scalar reply
   # not the size of the returned array!
@@ -375,13 +414,8 @@ sub abs2rel {
   my $self = shift;
   my @result;
 
-  my $abs_start = $self->abs_start();
-  my $abs_strand = $self->abs_strand();
-  @result = (
-             ( $abs_strand < 0 ) ?
-             map { -( $_ - ( $abs_start + 1 ) ) } @_ :
-             map { $_ - $abs_start + 1 } @_
-            );
+  my $abs_start = $self->abs_low();
+  @result = map { $_ + 1 - $abs_start } @_;
 
   # if called with a single argument, caller will expect a single scalar reply
   # not the size of the returned array!
@@ -494,6 +528,41 @@ sub ensure_orientation {
   shift->throw_not_implemented();
 }
 
+=head2 position_policy
+
+  Title   : position_policy
+  Usage   : my $position_policy =
+              $range->position_policy( [new_policy] );
+  Function: Get/Set the position policy that this RelRangeI uses.
+  Returns : The current (or former, if used as a set method) value of
+            the position policy.
+  Args    : [optional] A new (string) position_policy value.
+
+  The BioPerl community has various opinions about how 
+  positions should be interpreted when the strand is
+  negative.  Some folks like the values to be relative to the minus
+  strand, so that the first on the minus strand is the complement of
+  the last position on the plus strand (we call this the 'stranded'
+  policy).  Others like positions to be always given on the
+  plus strand, so that the first position on the minus strand is the
+  complement of the first position on the plus strand (we call this
+  the 'plus' policy).
+
+  Legal values of abs_minus_policy are:
+      Value          Meaning
+   ------------   ---------------------
+
+   'stranded'     positions are given on the + strand except when the
+                  range is on the - strand; when the range is on the -
+                  strand the positions are given on the - strand. (default)
+   'plus'         positions are always given on the + strand
+
+=cut
+
+sub position_policy {
+  shift->throw_not_implemented();
+}
+
 =head1 Bio::RangeI methods
 
 These methods are inherited from L<Bio::RangeI>.  Changes between this
@@ -543,13 +612,13 @@ sub seq_id {
 =head2 start
 
   Title   : start
-  Usage   : my $start = $range->start( [$new_start] );
+  Usage   : my $start = $range->start( [$position_policy|$new_start] );
   Function: Get/set the start of this range.
   Returns : The current (or former, if used as a set method) start position
             of this range.  If absolute() is true then this value will
             be relative to the abs_seq_id; otherwise it will be
             relative to the seq_id.
-  Args    : [optional] a new start position
+  Args    : [optional] a new start position OR either 'stranded' or 'plus'
 
   Note the interdependence of start() and abs_start().  Changing start() will
   change abs_start().
@@ -558,6 +627,12 @@ sub seq_id {
 
   Note the interdependence of start() and length().  Changing start() will
   change length().
+
+  The returned position will be given in minus-strand coordinates if
+  this RelRangeI's position_policy is 'stranded', which is the default
+  value.  If the argument to this method is a position policy (either
+  'stranded' or 'plus') then this policy will be used instead of the
+  object's overall policy.
 
   The behavior of this method differs from its behavior in
   L<Bio::RangeI> when absolute() is true.  Also, the RangeI interface
@@ -574,13 +649,13 @@ sub start {
 =head2 end
 
   Title   : end
-  Usage   : my $end = $range->end( [$new_end] );
+  Usage   : my $end = $range->end( [$position_policy|$new_end] );
   Function: Get/set the end of this range.
   Returns : The current (or former, if used as a set method) end position
             of this range.  If absolute() is true then this value will
             be relative to the abs_seq_id; otherwise it will be
             relative to the seq_id.
-  Args    : [optional] a new end position
+  Args    : [optional] a new end position OR 'stranded' or 'plus'
 
   Note the interdependence of end() and abs_end().  Changing end() will
   change abs_end().
@@ -589,6 +664,12 @@ sub start {
 
   Note the interdependence of end() and length().  Changing one will
   change the other.
+
+  The returned position will be given in minus-strand coordinates if
+  this RelRangeI's position_policy is 'stranded', which is the default
+  value.  If the argument to this method is a position policy (either
+  'stranded' or 'plus') then this policy will be used instead of the
+  object's overall policy.
 
   The behavior of this method differs from its behavior in
   L<Bio::RangeI> when absolute() is true.  Also, the RangeI interface
@@ -689,8 +770,8 @@ sub overlaps {
                 defined( $other->abs_seq_id() ) ) ?
               ( $self->abs_seq_id() eq $other->abs_seq_id() ) : 1 ) and
             not (
-                 ( $self->abs_low() > $other->abs_high() or
-                   $self->abs_high() < $other->abs_low() ) )
+                 ( $self->abs_low( 'plus' ) > $other->abs_high( 'plus' ) or
+                   $self->abs_high( 'plus' ) < $other->abs_low( 'plus' ) ) )
            );
   } else {
     return $self->SUPER::overlaps(@_);
@@ -732,8 +813,8 @@ sub contains {
             ( ( defined( $self->abs_seq_id() ) &&
                 defined( $other->abs_seq_id() ) ) ?
               ( $self->abs_seq_id() eq $other->abs_seq_id() ) : 1 ) and
-            ( $self->abs_low() <= $other->abs_low() ) and
-            ( $self->abs_high() >= $other->abs_high() )
+            ( $self->abs_low( 'plus' ) <= $other->abs_low( 'plus' ) ) and
+            ( $self->abs_high( 'plus' ) >= $other->abs_high( 'plus' ) )
            );
   } else {
     return $self->SUPER::contains(@_);
@@ -772,8 +853,8 @@ sub equals {
             ( ( defined( $self->abs_seq_id() ) &&
                 defined( $other->abs_seq_id() ) ) ?
               ( $self->abs_seq_id() eq $other->abs_seq_id() ) : 1 ) and
-            ( $self->abs_low() == $other->abs_low() ) and
-            ( $self->abs_high() == $other->abs_high() )
+            ( $self->abs_low( 'plus' ) == $other->abs_low( 'plus' ) ) and
+            ( $self->abs_high( 'plus' ) == $other->abs_high( 'plus' ) )
            );
   } else {
     return $self->SUPER::equals( @_ );
@@ -959,8 +1040,8 @@ sub intersection {
       return undef;
     }
 
-    my @low = sort { $a <=> $b } ( $self->abs_low(), $other->abs_low() );
-    my @high   = sort { $a <=> $b } ( $self->abs_high(), $other->abs_high() );
+    my @low = sort { $a <=> $b } ( $self->abs_low( 'plus' ), $other->abs_low( 'plus' ) );
+    my @high   = sort { $a <=> $b } ( $self->abs_high( 'plus' ), $other->abs_high( 'plus' ) );
 
     my $low = pop @low;
     my $high = shift @high;
@@ -1051,11 +1132,11 @@ sub union {
       unless( defined( $abs_seq_id ) ) {
         $abs_seq_id = $range->abs_seq_id();
       }
-      if( !defined( $low ) or ( $low > $range->abs_low() ) ) {
-        $low = $range->abs_low();
+      if( !defined( $low ) or ( $low > $range->abs_low( 'plus' ) ) ) {
+        $low = $range->abs_low( 'plus' );
       }
-      if( !defined( $high ) or ( $high < $range->abs_high() ) ) {
-        $high = $range->abs_high();
+      if( !defined( $high ) or ( $high < $range->abs_high( 'plus' ) ) ) {
+        $high = $range->abs_high( 'plus' );
       }
     } else { # It's not a RelRangeI; must be a RangeI.  Assume absoluteness.
       if( defined( $abs_seq_id ) &&
@@ -1116,22 +1197,22 @@ sub overlap_extent {
     }
 
     my ( $self_unique, $other_unique );
-    if( $self->abs_low() < $other->abs_low() ) {
-      $self_unique = $other->abs_low() - $self->abs_low();
+    if( $self->abs_low( 'plus' ) < $other->abs_low( 'plus' ) ) {
+      $self_unique = $other->abs_low( 'plus' ) - $self->abs_low( 'plus' );
     } else {
-      $other_unique = $self->abs_low() - $other->abs_low();
+      $other_unique = $self->abs_low( 'plus' ) - $other->abs_low( 'plus' );
     }
 
-    if( $self->abs_high() > $other->abs_high() ) {
-      $self_unique += $self->abs_high() - $other->abs_high();
+    if( $self->abs_high( 'plus' ) > $other->abs_high( 'plus' ) ) {
+      $self_unique += $self->abs_high( 'plus' ) - $other->abs_high( 'plus' );
     } else {
-      $other_unique += $other->abs_high() - $self->abs_high();
+      $other_unique += $other->abs_high( 'plus' ) - $self->abs_high( 'plus' );
     }
     my $intersection = $self->intersection( $other );
     
     return (
             $self_unique,
-            ( 1 + $intersection->end() - $intersection->start() ),
+            ( 1 + $intersection->end( 'plus' ) - $intersection->start( 'plus' ) ),
             $other_unique
            );
   } else {
@@ -1139,13 +1220,53 @@ sub overlap_extent {
   }
 } # overlap_extent(..)
 
-## TODO: Document & dehackify
+## Alias for toRelRangeString().
 sub toString {
-  my $self = shift;
+  shift->toRelRangeString( @_ );
+} # toString(..)
 
-  ## TODO: REMOVE.  This is a hack.  Somebody is calling Bio::RelRangeI::toString(..) on objects that are Bio::RangeIs but not Bio::RelRangeIs.  It's me, elsewhere, for debugging porpuses.  Darned porpuses!
+=head2 toRelRangeString
+
+ Title   : toRelRangeString
+ Usage   : my $string = $range->toRelRangeString( [ $absolute [, $position_policy ] ] );
+ Function: Returns a string representation of this RelRange object.
+ Returns : a string
+ Args    : [optional] a boolean absolute argument; when true this method
+           will return the string representation of the absolute
+           interpretation of this RelRange (as if the absolute() flag
+           had been set to true before the call, even if it wasn't).
+           If the absolute argument is the string 'both', the relative
+           string value will be given, followed by the absolute
+           interpretation in braces.
+             AND
+           [optional] a boolean position_policy argument (either
+           'stranded' or 'plus').  This will override the object's
+           position policy.
+
+  Note that this method may be called on any Bio::RangeI implementing
+  object by calling Bio::RelRangeI::toRelRangeString( $range [,
+  $absolute] ).  If this is done on a range that is not a
+  Bio::RelRangeI implementer, the string output will look the same as
+  if a new RelRange object had been created to represent the given
+  range.
+
+  This method is implemented in the interface, and need not be
+  overridden in concrete subclasses.
+
+=cut
+#'
+
+## TODO: We don't use the position policy when the given range is not a RelRange.
+sub toRelRangeString {
+  my $self = shift;
+  my ( $absolute, $position_policy ) = @_;
+  unless( $position_policy && ( $position_policy =~ /^stranded|plus$/ ) ) {
+    $position_policy = $self->position_policy();
+  }
+
+  ## Special case handling: maybe $self isn't a RelRangeI, but just a RangeI.
   unless( $self->isa( 'Bio::RelRangeI' ) ) {
-    if( $self->isa( 'Bio::RangeI' ) ) {     # oops.
+    if( $self->isa( 'Bio::RangeI' ) ) {
       my $strand = $self->strand();
       my $strand_string;
       if( $strand > 0 ) {
@@ -1155,15 +1276,36 @@ sub toString {
       } else {
         $strand_string = '.';
       }
-      return $self->seq_id().'('.$strand_string.'):'.$self->start().'-'.$self->end();
+      if( $absolute eq 'both' ) {
+        ## This is kinda silly because the absolute interpretation is
+        ## the same as the relative interpretation, but we promise to
+        ## do the exact same thing when the range is just a mere
+        ## RangeI as when it's a supersuave RelRangeI, so la de da.
+        return $self->seq_id().'('.$strand_string.'):'.$self->start().'-'.$self->end().'{'.$self->seq_id().'('.$strand_string.'):'.$self->start().'-'.$self->end().'}';
+      } else {
+        return $self->seq_id().'('.$strand_string.'):'.$self->start().'-'.$self->end();
+      }
     } else {
-    Bio::Root::RootI->throw( "eegads.  \$self is $self, not a Bio::RelRangeI but a ".ref( $self )."." );
+      Bio::Root::RootI->throw( "Bio::RelRangeI::toRelRangeString(..) called on an object that is not a Bio::RangeI object!  \$self is $self, not a Bio::RelRangeI but a ".ref( $self )."." );
     }
   }
-  ## This one also shows the absolute interpretation:
-  #return $self->seq_id().'('.$self->strand_string().'):'.$self->start().'-'.$self->end().'{'.$self->abs_seq_id().'('.$self->strand_string( $self->abs_strand() ).'):'.$self->abs_start().'-'.$self->abs_end().'}';
-  ## This one does not show the absolute interpretation:
-  return $self->seq_id().'('.$self->strand_string().'):'.$self->start().'-'.$self->end();
+  if( $absolute eq 'both' ) {
+    ## This one shows the absolute interpretation alongside the relative one:
+    return $self->seq_id().'('.$self->strand_string().'):'.$self->start( $position_policy ).'-'.$self->end( $position_policy ).'{'.$self->abs_seq_id().'('.$self->strand_string( $self->abs_strand() ).'):'.$self->abs_start( $position_policy ).'-'.$self->abs_end( $position_policy ).'}';
+  } elsif( $absolute ) {
+    ## This one shows the absolute interpretation only:
+    return $self->abs_seq_id().'('.$self->strand_string( $self->abs_strand() ).'):'.$self->abs_start( $position_policy ).'-'.$self->abs_end( $position_policy );
+  } else {
+    ## This one shows the relative interpretation only:
+    return $self->seq_id().'('.$self->strand_string().'):'.$self->start( $position_policy ).'-'.$self->end( $position_policy );
+  }
+} # toRelRangeString(..)
+
+## For debugging, show the relative range in stranded coords and the absolute range in plus coords.
+sub debugRelRangeString {
+  my $self = shift;
+  #return $self->toRelRangeString( 0, 'stranded' ).'{'.$self->toRelRangeString( 1, 'plus' ).'}';
+  return $self->toRelRangeString( 0, 'stranded' ).'{'.$self->toRelRangeString( 1, 'stranded' ).'}';
 }
 
 ## TODO: Document & dehackify

@@ -481,6 +481,11 @@ sub start {
     my $self = shift;
     my $val = shift;
     $val = 'query' unless defined $val;
+    if( $val =~ /^stranded|plus$/ ) {
+      # oops.  That argument was for overriding the position policy.
+      unshift( @_, $val );
+      $val = 'query';
+    }
     if( $val =~ /^[\d+\-]+$/ ) {
       # oops.  That argument was for setting the value.
       unshift( @_, $val );
@@ -489,9 +494,9 @@ sub start {
     $val =~ s/^\s+//;
 
     if( $val =~ /^q/i ) { 
-	return $self->query->start(shift);
+	return $self->query->start(@_);
     } elsif( $val =~ /^(hi|s)/i ) {
-	return $self->hit->start(shift);
+	return $self->hit->start(@_);
     } else { 
 	$self->warn("unrecognized component $val requested\n");
     }
@@ -513,6 +518,11 @@ sub end {
     my $self = shift;
     my $val = shift;
     $val = 'query' unless defined $val;
+    if( $val =~ /^stranded|plus$/ ) {
+      # oops.  That argument was for overriding the position policy.
+      unshift( @_, $val );
+      $val = 'query';
+    }
     if( $val =~ /^[\d+\-]+$/ ) {
       # oops.  That argument was for setting the value.
       unshift( @_, $val );
@@ -521,9 +531,9 @@ sub end {
     $val =~ s/^\s+//;
 
     if( $val =~ /^q/i ) { 
-	return $self->query->end(shift);
+      return $self->query->end(@_);
     } elsif( $val =~ /^(hi|s)/i ) {
-	return $self->hit->end(shift);
+      return $self->hit->end(@_);
     } else { 
 	$self->warn("unrecognized component $val requested\n");
     }

@@ -1264,24 +1264,4 @@ sub delete_Obj {
   return(1);
 }
 
-# Overridden to never return 'unknown'.
-sub toString {
-  my $self = shift;
-
-  my $str_val =
-    $self->display_id();
-  return $str_val if( $str_val && ( $str_val ne 'unknown' ) );
-
-  $str_val = $self->accession_number();
-  return $str_val if( $str_val && ( $str_val ne 'unknown' ) );
-
-  $str_val = $self->primary_id();
-  return $str_val if( $str_val && ( $str_val ne 'unknown' ) );
-
-  $str_val = $self->unique_id();
-  return $str_val if( $str_val && ( $str_val ne 'unknown' ) );
-
-  return overload::StrVal( $self );
-} # toString()
-
 1;

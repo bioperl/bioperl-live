@@ -79,6 +79,7 @@ package Bio::Seq::PrimedSeq;
 use vars qw(@ISA);
 use strict;
 
+use Bio::Seq;
 use Bio::RangeI;
 
 @ISA = qw(Bio::Seq);
@@ -102,6 +103,7 @@ Developer Notes: This is incomplete and doesn't work. As of ISMB2002 I am workin
 
 
 =cut
+#'
 
 sub new {
      my($class,@args) = @_;
@@ -125,6 +127,7 @@ sub new {
      if (ref($self->{left_primer}) ne "Bio::SeqFeature::Primer" || ref($self->{right_primer}) ne "Bio::SeqFeature::Primer") {
           $self->throw("You must provide a left_primer and right_primer, both as Bio::SeqFeature::Primer to create this object.");
      }
+
      return $self;
 }
 

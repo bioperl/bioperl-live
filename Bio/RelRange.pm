@@ -79,6 +79,8 @@ $VERSION = '1.00';
 
 use Bio::DB::GFF::Util::Rearrange; # for &rearrange.
 
+use constant DEBUG => 0;
+
 =head1 Exported functions
 
 =head2 absRange
@@ -152,26 +154,39 @@ sub absSeqId {
   my $seq_id = $range->seq_id();
   while( defined( $seq_id ) &&
          ref( $seq_id ) &&
-         $seq_id->isa( 'Bio::RelRangeI' ) ) {
+         $seq_id->isa( 'Bio::RelRangeI' ) &&
+         !$seq_id->isa( 'Bio::PrimarySeqI' ) ) {
     $seq_id = $seq_id->seq_id();
   }
   return $seq_id;
 } # absSeqId()
 
+## TODO: Add position_policy() to this.
 =head2 absLow
 
   Title   : absLow
   Usage   : use Bio::RelRange qw( absLow );
-            my $abs_low = absLow( $range );
+            my $abs_low = absLow( $range [, $position_policy ] );
   Function: Get the absolute start or end position of the given range,
             whichever is lesser-valued.
   Returns : The current absolute start or end position of the given range
             (whichever is lower), relative to absSeqId( $range ).
   Args    : a L<Bio::RangeI> object.
+              AND
+            [optional] either 'stranded' or 'plus'
 
   This is a utility function provided by the RelRange package to convert
   the coordinate of any L<Bio::RangeI> objects (even those that are not
   L<Bio::RelRangeI> implementers) into its absolute equivalent.
+
+  The returned position will be given in minus-strand coordinates if
+  the given object's position_policy is 'stranded', which is the
+  default value.  If the argument to this method is a position policy
+  (either 'stranded' or 'plus') then this policy will be used instead
+  of the object's overall policy. If the object is not a
+  L<Bio::RelRangeI> then it won't have a position policy, so the
+  default of 'stranded' will be used unless a policy is given as an
+  argument. '
 
 =cut
 
@@ -185,21 +200,17 @@ sub absLow {
   }
 
   ## Okay so it's a RangeI but not a RelRangeI.
+  my ( $position_policy ) = @_;
+  unless( $position_policy && ( $position_policy =~ /^stranded|plus$/ ) ) {
+    ## TODO: Put back 'stranded'.  Testing.
+    $position_policy = 'plus'; #'stranded';
+  }
+
   my $seq_id = $range->seq_id();
   my $abs_strand = 1;
-  my ( $abs_low, $abs_high );
-  if( $range->strand() < 0 ) {# then abs_low starts high (confusing, ain't it!)
-    $abs_low = $range->_end();
-    $abs_high = $range->_start();
-    if( $abs_high > $abs_low ) {
-      ( $abs_low, $abs_high ) = ( $abs_high, $abs_low );
-    }
-  } else {
-    $abs_low = $range->_start();
-    $abs_high = $range->_end();
-    if( $abs_high > $abs_low ) {
-      ( $abs_low, $abs_high ) = ( $abs_high, $abs_low );
-    }
+  my ( $abs_low, $abs_high ) = ( $range->_start(), $range->_end() );
+  if( $abs_high < $abs_low ) {
+    ( $abs_low, $abs_high ) = ( $abs_high, $abs_low );
   }
 
   my ( $next_seq_id, $low, $high );
@@ -213,20 +224,20 @@ sub absLow {
       ( $low, $high ) = ( $high, $low );
     }
 
-    # If next_seq_id isn't a range then $seq_id *is* the
-    # root sequence's range (so it really should be 1..root sequence length).
-    if( ( defined( $next_seq_id ) && ref( $next_seq_id ) &&
-          $next_seq_id->isa( 'Bio::RangeI' ) ) ||
-        ( $low != 1 ) ) {
-      if( $abs_strand < 0 ) {
-        $abs_low = ( $high - $abs_low + 1 );
-        $abs_high = ( $high - $abs_high + 1 );
-      } else {
-        $abs_low += ( $low - 1 );
-        $abs_high += ( $low - 1 );
-      }
-    }
+    $abs_low += ( $low - 1 );
+    $abs_high += ( $low - 1 );
     $seq_id = $next_seq_id;
+  }
+  if( ( $position_policy eq 'stranded' ) && ( $abs_strand < 0 ) ) {
+    # If they want all positions in stranded coords, and we're
+    # on the negative strand, then we must convert (because we
+    # always store our positions in plus coords).
+    my $abs_seq_id = $range->seq_id();
+    if( $abs_seq_id && ref( $abs_seq_id ) && $abs_seq_id->isa( 'Bio::RangeI' ) ) {
+      my $abs_seq_id_length = $abs_seq_id->length();
+      $abs_high = ( $abs_seq_id_length + 1 - $abs_high );
+      $abs_low = ( $abs_seq_id_length + 1 - $abs_low );
+    }
   }
   if( $abs_low < $abs_high ) {
     return $abs_low;
@@ -239,11 +250,13 @@ sub absLow {
 
   Title   : absStart
   Usage   : use Bio::RelRange qw( absStart );
-            my $abs_start = absStart( $range );
+            my $abs_start = absStart( $range [, $position_policy ] );
   Function: Get the absolute start position of the given range.
   Returns : The current start position of the given range, relative to
             absSeqId( $range ).
-  Args    : a L<Bio::RangeI> object.
+  Args    : a L<Bio::RangeI> object
+              AND
+            [optional] either 'stranded' or 'plus'
 
   This is a utility function provided by the RelRange package to
   convert the start coordinate of any L<Bio::RangeI> objects (even
@@ -256,6 +269,15 @@ sub absLow {
   returned value will be the greater value iff the absStrand of the
   given range is negative.
 
+  The returned position will be given in minus-strand coordinates if
+  the given object's position_policy is 'stranded', which is the
+  default value.  If the argument to this method is a position policy
+  (either 'stranded' or 'plus') then this policy will be used instead
+  of the object's overall policy. If the object is not a
+  L<Bio::RelRangeI> then it won't have a position policy, so the
+  default of 'stranded' will be used unless a policy is given as an
+  argument. '
+
 =cut
 
 sub absStart {
@@ -264,15 +286,14 @@ sub absStart {
     return undef;
   }
   if( $range->isa( 'Bio::RelRangeI' ) ) {
-    return $range->abs_start();
+    return $range->abs_start( @_ );
   }
 
-  ## Okay so it's a RangeI but not a RelRangeI.
   my $abs_strand = absStrand( $range );
   if( $abs_strand < 0 ) {
-    return absHigh( $range );
+    return absHigh( $range, @_ );
   } else {
-    return absLow( $range );
+    return absLow( $range, @_ );
   }
 } # absStart()
 
@@ -280,15 +301,26 @@ sub absStart {
 
   Title   : absHigh
   Usage   : use Bio::RelRange qw( absHigh );
-            my $abs_high = absHigh( $range );
+            my $abs_high = absHigh( $range [, $position_policy ] );
   Function: Get the absolute high position of the given range.
   Returns : The current high position of the given range, relative to
             absSeqId( $range ).
   Args    : a L<Bio::RangeI> object.
+              AND
+            [optional] either 'stranded' or 'plus'
 
   This is a utility function provided by the RelRange package to convert
   the high coordinate of any L<Bio::RangeI> objects (even those that are not
   L<Bio::RelRangeI> implementers) into their absolute equivalents.
+
+  The returned position will be given in minus-strand coordinates if
+  the given object's position_policy is 'stranded', which is the
+  default value.  If the argument to this method is a position policy
+  (either 'stranded' or 'plus') then this policy will be used instead
+  of the object's overall policy. If the object is not a
+  L<Bio::RelRangeI> then it won't have a position policy, so the
+  default of 'stranded' will be used unless a policy is given as an
+  argument. '
 
 =cut
 
@@ -298,25 +330,21 @@ sub absHigh {
     return undef;
   }
   if( $range->isa( 'Bio::RelRangeI' ) ) {
-    return $range->abs_low();
+    return $range->abs_low( @_ );
   }
 
   ## Okay so it's a RangeI but not a RelRangeI.
+  my ( $position_policy ) = @_;
+  unless( $position_policy && ( $position_policy =~ /^stranded|plus$/ ) ) {
+    ## TODO: Put back 'stranded'.  Testing.
+    $position_policy = 'plus'; #'stranded';
+  }
+
   my $seq_id = $range->seq_id();
-  my $abs_strand = 1;
-  my ( $abs_low, $abs_high );
-  if( $range->strand() < 0 ) {# then abs_high starts low (confusing, ain't it!)
-    $abs_low = $range->_end();
-    $abs_high = $range->_start();
-    if( $abs_high > $abs_low ) {
-      ( $abs_low, $abs_high ) = ( $abs_high, $abs_low );
-    }
-  } else {
-    $abs_low = $range->_start();
-    $abs_high = $range->_end();
-    if( $abs_high > $abs_low ) {
-      ( $abs_low, $abs_high ) = ( $abs_high, $abs_low );
-    }
+  my $abs_strand = $range->_strand(); #1
+  my ( $abs_low, $abs_high ) = ( $range->_start(), $range->_end() );
+  if( $abs_high < $abs_low ) {
+    ( $abs_low, $abs_high ) = ( $abs_high, $abs_low );
   }
 
   my ( $next_seq_id, $low, $high );
@@ -330,20 +358,20 @@ sub absHigh {
       ( $low, $high ) = ( $high, $low );
     }
 
-    # If next_seq_id isn't a range then $seq_id *is* the
-    # root sequence's range (so it really should be 1..root sequence length).
-    if( ( defined( $next_seq_id ) && ref( $next_seq_id ) &&
-          $next_seq_id->isa( 'Bio::RangeI' ) ) ||
-        ( $low != 1 ) ) {
-      if( $abs_strand < 0 ) {
-        $abs_low = ( $high - $abs_low + 1 );
-        $abs_high = ( $high - $abs_high + 1 );
-      } else {
-        $abs_low += ( $low - 1 );
-        $abs_high += ( $low - 1 );
-      }
-    }
+    $abs_low += ( $low - 1 );
+    $abs_high += ( $low - 1 );
     $seq_id = $next_seq_id;
+  }
+  if( ( $position_policy eq 'stranded' ) && ( $abs_strand < 0 ) ) {
+    # If they want all positions in stranded coords, and we're
+    # on the negative strand, then we must convert (because we
+    # always store our positions in plus coords).
+    my $abs_seq_id = $range->seq_id();
+    if( $abs_seq_id && ref( $abs_seq_id ) && $abs_seq_id->isa( 'Bio::RangeI' ) ) {
+      my $abs_seq_id_length = $abs_seq_id->length();
+      $abs_high = ( $abs_seq_id_length + 1 - $abs_high );
+      $abs_low = ( $abs_seq_id_length + 1 - $abs_low );
+    }
   }
   if( $abs_low < $abs_high ) {
     return $abs_high;
@@ -356,11 +384,13 @@ sub absHigh {
 
   Title   : absEnd
   Usage   : use Bio::RelRange qw( absEnd );
-            my $abs_end = absEnd( $range );
+            my $abs_end = absEnd( $range [, $position_policy ] );
   Function: Get the absolute end position of the given range.
   Returns : The current end position of the given range, relative to
             absSeqId( $range ).
   Args    : a L<Bio::RangeI> object.
+              AND
+            [optional] either 'stranded' or 'plus'
 
   This is a utility function provided by the RelRange package to
   convert the end coordinate of any L<Bio::RangeI> objects (even
@@ -373,6 +403,15 @@ sub absHigh {
   returned value will be the lesser value iff the absStrand of the
   given range is negative.
 
+  The returned position will be given in minus-strand coordinates if
+  the given object's position_policy is 'stranded', which is the
+  default value.  If the argument to this method is a position policy
+  (either 'stranded' or 'plus') then this policy will be used instead
+  of the object's overall policy. If the object is not a
+  L<Bio::RelRangeI> then it won't have a position policy, so the
+  default of 'stranded' will be used unless a policy is given as an
+  argument. '
+
 =cut
 
 sub absEnd {
@@ -381,15 +420,15 @@ sub absEnd {
     return undef;
   }
   if( $range->isa( 'Bio::RelRangeI' ) ) {
-    return $range->abs_end();
+    return $range->abs_end( @_ );
   }
 
   ## Okay so it's a RangeI but not a RelRangeI.
   my $abs_strand = absStrand( $range );
   if( $abs_strand < 0 ) {
-    return absLow( $range );
+    return absLow( $range, @_ );
   } else {
-    return absHigh( $range );
+    return absHigh( $range, @_ );
   }
 } # absEnd()
 
@@ -500,8 +539,8 @@ sub new {
     if( $copy_from && ref( $copy_from ) && $copy_from->isa( 'Bio::RangeI' ) ) {
       $seq_id = $copy_from->seq_id();
       $strand = $copy_from->strand();
-      $start = $copy_from->start();
-      $end = $copy_from->end();
+      $start = $copy_from->start( 'plus' );
+      $end = $copy_from->end( 'plus' );
       if( $copy_from->isa( 'Bio::RelRangeI' ) ) {
         $policy = $copy_from->orientation_policy();
         ## Notice that we purposefully don't copy the absoluteness.
@@ -542,14 +581,23 @@ sub new {
   }
 
   ## Force the strand to negative if the coordinates are given in reverse.
-  if( $self->start() > $self->end() ) {
+  if( $self->start( 'plus' ) > $self->end( 'plus' ) ) {
     $strand = -1;
+  }
+
+  ## TODO: DEHACKIFY.  REMOVE.  Testing.
+  if( $strand < 0 ) {
+    ( $start, $end ) = ( $self->start( 'plus' ), $self->end( 'plus' ) );
+  }
+  $self->strand( $strand || 0 );
+  ## TODO: DEHACKIFY.  REMOVE.  Testing.
+  if( $strand < 0 ) {
+    $self->start( $start );
+    $self->end( $end );
   }
 
   $self->orientation_policy( $policy || 'ignorant' );
   $self->ensure_orientation();
-
-  $self->strand( $strand || 0 );
 
   $self->absolute( $absolute || 0 );
   return $self;
@@ -584,8 +632,8 @@ sub new_from_relrange {
   my $pack = shift; # ignored
   my $relrange = shift || $pack;
   my $new_relrange = shift || Bio::RelRange->new();
-  @{ $new_relrange }{ qw( _absolute _seq_id _start _end _strand ) } =
-    @{ $relrange }{ qw( _absolute _seq_id _start _end _strand ) };
+  @{ $new_relrange }{ qw( _orientation_policy _position_policy _absolute _seq_id _start _end _strand ) } =
+    @{ $relrange }{ qw( _orientation_policy _position_policy _absolute _seq_id _start _end _strand ) };
   return bless $new_relrange, __PACKAGE__;
 } # new_from_relrange(..)
 
@@ -677,6 +725,52 @@ sub ensure_orientation {
     }
   }
 } # ensure_orientation(..)
+
+=head2 position_policy
+
+  Title   : position_policy
+  Usage   : my $position_policy =
+              $range->position_policy( [new_policy] );
+  Function: Get/Set the position policy that this RelRangeI uses.
+  Returns : The current (or former, if used as a set method) value of
+            the position policy.
+  Args    : [optional] A new (string) position_policy value.
+
+  The BioPerl community has various opinions about how 
+  positions should be interpreted when the strand is
+  negative.  Some folks like the values to be relative to the minus
+  strand, so that the first on the minus strand is the complement of
+  the last position on the plus strand (we call this the 'stranded'
+  policy).  Others like positions to be always given on the
+  plus strand, so that the first position on the minus strand is the
+  complement of the first position on the plus strand (we call this
+  the 'plus' policy).
+
+  Legal values of abs_minus_policy are:
+      Value          Meaning
+   ------------   ---------------------
+
+   'stranded'     positions are given on the + strand except when the
+                  range is on the - strand; when the range is on the -
+                  strand the positions are given on the - strand. (default)
+   'plus'         positions are always given on the + strand
+
+=cut
+
+sub position_policy {
+  my $self = shift;
+  my $new_value = shift;
+  ## TODO: Put back 'stranded'.  Testing.
+  my $old_value = $self->{ '_position_policy' } || 'plus';#|| 'stranded';
+  if( defined( $new_value ) ) {
+    unless( ( $new_value eq 'stranded' ) ||
+            ( $new_value eq 'plus' ) ) {
+      $self->throw( "Illegal position_policy value: '$new_value'." );
+    }
+    $self->{ '_position_policy' } = $new_value;
+  }
+  return $old_value;
+} # position_policy(..)
 
 #                   --Coders beware!--
 # Changes to the Bio::RelRangeI pod need to be copied to here.
@@ -784,12 +878,24 @@ sub absolute {
 
 sub abs_range {
   my $self = shift;
+  my $abs_range_not_self = $self->_abs_range_not_self();
+  if( defined $abs_range_not_self ) {
+    return $abs_range_not_self;
+  } else {
+    return $self;
+  }
+} # abs_range()
+
+## This method is just like abs_range, but it returns undef where
+## abs_range would return $self.
+sub _abs_range_not_self {
+  my $self = shift;
   my $ancestor_seq_id = $self->_seq_id();
 
   unless( defined( $ancestor_seq_id ) &&
           ref( $ancestor_seq_id ) &&
           $ancestor_seq_id->isa( 'Bio::RangeI' ) ) {
-    return $self;
+    return undef;
   }
 
   my $next_ancestor_seq_id;
@@ -805,7 +911,7 @@ sub abs_range {
     $ancestor_seq_id = $next_ancestor_seq_id;
   }
   return $ancestor_seq_id;
-} # abs_range()
+} # _abs_range_not_self()
 
 =head2 abs_seq_id
 
@@ -852,26 +958,20 @@ sub abs_seq_id {
 
 sub abs_low {
   my $self = shift;
+  my ( $position_policy ) = @_;
+  unless( $position_policy && ( $position_policy =~ /^stranded|plus$/ ) ) {
+    $position_policy = $self->position_policy();
+  }
 
   my $ancestor_seq_id = $self->_seq_id();
-  my $abs_strand = 1;
-  my ( $abs_low, $abs_high );
-  if( $self->strand() < 0 ) { # then abs_low starts high (confusing, ain't it!)
-    $abs_low = $self->_end();
-    $abs_high = $self->_start();
-    if( $abs_high > $abs_low ) {
-      ( $abs_low, $abs_high ) = ( $abs_high, $abs_low );
-    }
-  } else {
-    $abs_low = $self->_start();
-    $abs_high = $self->_end();
-    if( $abs_high < $abs_low ) {
-      ( $abs_low, $abs_high ) = ( $abs_high, $abs_low );
-    }
+  my $abs_strand = $self->_strand(); # OLD: 1
+  my ( $abs_low, $abs_high ) = ( $self->_start(), $self->_end() );
+  if( $abs_high < $abs_low ) {
+    ( $abs_low, $abs_high ) = ( $abs_high, $abs_low );
   }
 
   ## TODO: REMOVE
-  #print STDERR "BEGIN abs_low()\n";
+  print STDERR "BEGIN abs_low()\n" if DEBUG;
 
   my ( $next_ancestor_seq_id, $low, $high );
   while( defined( $ancestor_seq_id ) &&
@@ -880,55 +980,62 @@ sub abs_low {
        ) {
     $next_ancestor_seq_id = $ancestor_seq_id->seq_id();
     $abs_strand *= $ancestor_seq_id->strand();
-    ( $low, $high ) = ( $ancestor_seq_id->start(), $ancestor_seq_id->end() );
+    if( $ancestor_seq_id->isa( 'Bio::RelRangeI' ) ) {
+      ( $low, $high ) =
+        ( $ancestor_seq_id->start( 'plus' ), $ancestor_seq_id->end( 'plus' ) );
+    } else {
+      ( $low, $high ) = ( $ancestor_seq_id->start(), $ancestor_seq_id->end() );
+    }
     if( $low > $high ) {
       ( $low, $high ) = ( $high, $low );
     }
 
     ## TODO: REMOVE
-    #print STDERR "   abs_low is $abs_low\n";
-    #print STDERR "   abs_high is $abs_high\n";
-    #print STDERR "   low is $low, high is $high\n";
-    #print STDERR "   asid is $ancestor_seq_id\n";
-    #print STDERR "   abs_strand is $abs_strand.\n";
-    #print STDERR "   next_asid is $next_ancestor_seq_id\n";
+    print STDERR "   abs_low is $abs_low\n" if DEBUG;
+    print STDERR "   abs_high is $abs_high\n" if DEBUG;
+    print STDERR "   low is $low, high is $high\n" if DEBUG;
+    print STDERR "   asid is $ancestor_seq_id\n" if DEBUG;
+    print STDERR "   abs_strand is $abs_strand.\n" if DEBUG;
+    print STDERR "   next_asid is $next_ancestor_seq_id\n" if DEBUG;
 
-    # If next_ancestor_seq_id isn't a range then $ancestor_seq_id *is* the
-    # root sequence's range (so it really should be 1..root sequence length).
-    if( ( defined( $next_ancestor_seq_id ) && ref( $next_ancestor_seq_id ) &&
-          $next_ancestor_seq_id->isa( 'Bio::RangeI' ) ) ||
-        ( $low != 1 ) ) {
-      if( $abs_strand < 0 ) {
-        if( defined $high ) {
-          $abs_low = ( $high - $abs_low + 1 );
-          $abs_high = ( $high - $abs_high + 1 );
-        }
-      } elsif( defined $low ) {
-        $abs_low += ( $low - 1 );
-        $abs_high += ( $low - 1 );
-      }
-    }
+    $abs_low += ( $low - 1 );
+    $abs_high += ( $low - 1 );
     $ancestor_seq_id = $next_ancestor_seq_id;
   }
+  #$abs_strand *= $self->_strand();
+  if( ( $position_policy eq 'stranded' ) && ( $abs_strand < 0 ) ) {
+    # If they want all positions in stranded coords, and we're
+    # on the negative strand, then we must convert (because we
+    # always store our positions in plus coords).
+    my $abs_seq_id = $self->_abs_range_not_self();
+    if( $abs_seq_id && ref( $abs_seq_id ) &&
+        $abs_seq_id->isa( 'Bio::RangeI' ) ) {
+      my $abs_seq_id_length = $abs_seq_id->length();
+      $abs_high = ( $abs_seq_id_length + 1 - $abs_high );
+      $abs_low = ( $abs_seq_id_length + 1 - $abs_low );
+    }
+  } # End position policy stuff
+  my $actual_abs_low;
   if( $abs_low < $abs_high ) {
     ## TODO: REMOVE
-    #print STDERR "END $abs_low\n";
-    return $abs_low;
+    print STDERR "END $abs_low\n" if DEBUG;
+    $actual_abs_low = $abs_low;
   } else {
     ## TODO: REMOVE
-    #print STDERR "END $abs_high\n";
-    return $abs_high;
+    print STDERR "END $abs_high\n" if DEBUG;
+    $actual_abs_low = $abs_high;
   }
+  return $actual_abs_low;
 } # abs_low()
 
 =head2 abs_start
 
   Title   : abs_start
-  Usage   : my $abs_start = $range->abs_start();
+  Usage   : my $abs_start = $range->abs_start( [$position_policy] );
   Function: Get the absolute start position of this range.
   Returns : The current start position of this range, relative to the
             abs_seq_id.
-  Args    : none
+  Args    : [optional] either 'stranded' or 'plus'
 
   Note the interdependence of abs_start() and start().  Changing start() will
   change abs_start().
@@ -936,58 +1043,68 @@ sub abs_low {
   Note the interdependence of abs_start() and length().  Changing length() will
   change abs_start().
 
+  The returned position will be given in minus-strand coordinates if
+  this RelRangeI's position_policy is 'stranded', which is the default
+  value.  If the argument to this method is a position policy (either
+  'stranded' or 'plus') then this policy will be used instead of the
+  object's overall policy.
+
   This method is defined in terms of abs_high(), abs_low(),
-  abs_strand(), and orientation_policy().
+  abs_strand(), position_policy(), and orientation_policy().
 
 =cut
 
 sub abs_start {
   my $self = shift;
+  my ( $position_policy ) = @_;
+  unless( $position_policy && ( $position_policy =~ /^stranded|plus$/ ) ) {
+    $position_policy = $self->position_policy();
+  }
 
   if( $self->orientation_policy() eq 'dependent' ) {
     if( $self->abs_strand() < 0 ) {
-      return $self->abs_high();
+      return $self->abs_high( $position_policy );
     } else {
-      return $self->abs_low();
+      return $self->abs_low( $position_policy );
     }
   } else {
-    return $self->abs_low();
+    return $self->abs_low( $position_policy );
   }
-} # abs_start()
+} # abs_start(..)
 
 =head2 abs_high
 
   Title   : abs_high
-  Usage   : my $abs_high = $range->abs_high();
+  Usage   : my $abs_high = $range->abs_high( [$position_policy] );
   Function: Get the greatest-valued absolute position of this range.
   Returns : The current highest position of this range, relative to the
             abs_seq_id.
-  Args    : none
+  Args    : [optional] either 'stranded' or 'plus'
+
+  The returned position will be given in minus-strand coordinates if
+  this RelRangeI's position_policy is 'stranded', which is the default
+  value.  If the argument to this method is a position policy (either
+  'stranded' or 'plus') then this policy will be used instead of the
+  object's overall policy.
 
 =cut
 
 sub abs_high {
   my $self = shift;
+  my ( $position_policy ) = @_;
+  unless( $position_policy && ( $position_policy =~ /^stranded|plus$/ ) ) {
+    $position_policy = $self->position_policy();
+  }
 
   my $ancestor_seq_id = $self->_seq_id();
-  my $abs_strand = 1;
-  my ( $abs_low, $abs_high );
-  if( $self->strand() < 0 ) { # then abs_high starts low (confusing, ain't it!)
-    $abs_low = $self->_end();
-    $abs_high = $self->_start();
-    if( $abs_high > $abs_low ) {
-      ( $abs_low, $abs_high ) = ( $abs_high, $abs_low );
-    }
-  } else {
-    $abs_low = $self->_start();
-    $abs_high = $self->_end();
-    if( $abs_high < $abs_low ) {
-      ( $abs_low, $abs_high ) = ( $abs_high, $abs_low );
-    }
+  my $abs_strand = $self->_strand(); #1;
+  my ( $abs_low, $abs_high ) = ( $self->_start(), $self->_end() );
+  if( $abs_high < $abs_low ) {
+    ( $abs_low, $abs_high ) = ( $abs_high, $abs_low );
   }
 
   ## TODO: REMOVE
-  #print STDERR "BEGIN abs_high()\n";
+  print STDERR "BEGIN abs_high()\n" if DEBUG;
 
   my ( $next_ancestor_seq_id, $low, $high );
   while( defined( $ancestor_seq_id ) &&
@@ -996,55 +1113,63 @@ sub abs_high {
        ) {
     $next_ancestor_seq_id = $ancestor_seq_id->seq_id();
     $abs_strand *= $ancestor_seq_id->strand();
-    ( $low, $high ) = ( $ancestor_seq_id->start(), $ancestor_seq_id->end() );
+    if( $ancestor_seq_id->isa( 'Bio::RelRangeI' ) ) {
+      ( $low, $high ) =
+        ( $ancestor_seq_id->start( 'plus' ), $ancestor_seq_id->end( 'plus' ) );
+    } else {
+      ( $low, $high ) = ( $ancestor_seq_id->start(), $ancestor_seq_id->end() );
+    }
     if( $low > $high ) {
       ( $low, $high ) = ( $high, $low );
     }
 
     ## TODO: REMOVE
-    #print STDERR "   abs_high is $abs_high\n";
-    #print STDERR "   abs_low is $abs_low\n";
-    #print STDERR "   high is $high, low is $low\n";
-    #print STDERR "   asid is $ancestor_seq_id\n";
-    #print STDERR "   abs_strand is $abs_strand.\n";
-    #print STDERR "   next_asid is $next_ancestor_seq_id\n";
+    print STDERR "   abs_high is $abs_high\n" if DEBUG;
+    print STDERR "   abs_low is $abs_low\n" if DEBUG;
+    print STDERR "   high is $high, low is $low\n" if DEBUG;
+    print STDERR "   asid is $ancestor_seq_id\n" if DEBUG;
+    print STDERR "   abs_strand is $abs_strand.\n" if DEBUG;
+    print STDERR "   next_asid is $next_ancestor_seq_id\n" if DEBUG;
 
-    # If next_ancestor_seq_id isn't a range then $ancestor_seq_id *is* the
-    # root sequence's range (so it really should be 1..root sequence length).
-    if( ( defined( $next_ancestor_seq_id ) && ref( $next_ancestor_seq_id ) &&
-          $next_ancestor_seq_id->isa( 'Bio::RangeI' ) ) ||
-        ( $low != 1 ) ) {
-      if( $abs_strand < 0 ) {
-        if( defined $high ) {
-          $abs_low = ( $high - $abs_low + 1 );
-          $abs_high = ( $high - $abs_high + 1 );
-        }
-      } elsif( defined $low ) {
-        $abs_low += ( $low - 1 );
-        $abs_high += ( $low - 1 );
-      }
-    }
+    $abs_low += ( $low - 1 );
+    $abs_high += ( $low - 1 );
     $ancestor_seq_id = $next_ancestor_seq_id;
   }
+  #$abs_strand *= $self->strand();
+  if( ( $position_policy eq 'stranded' ) && ( $abs_strand < 0 ) ) {
+    # If they want all positions in stranded coords, and we're
+    # on the negative strand, then we must convert (because we
+    # always store our positions in plus coords).
+    my $abs_seq_id = $self->_abs_range_not_self();
+    if( $abs_seq_id && ref( $abs_seq_id ) &&
+        $abs_seq_id->isa( 'Bio::RangeI' ) ) {
+      my $abs_seq_id_length = $abs_seq_id->length();
+      $abs_high = ( $abs_seq_id_length + 1 - $abs_low );
+      $abs_low = ( $abs_seq_id_length + 1 - $abs_low );
+    }
+  }
+  my $actual_abs_high;
   if( $abs_low > $abs_high ) {
     ## TODO: REMOVE
-    #print STDERR "END $abs_low\n";
-    return $abs_low;
+    print STDERR "END $abs_low\n" if DEBUG;
+    $actual_abs_high = $abs_low;
   } else {
     ## TODO: REMOVE
-    #print STDERR "END $abs_high\n";
-    return $abs_high;
+    print STDERR "END $abs_high\n" if DEBUG;
+    $actual_abs_high = $abs_high;
   }
+
+  return $actual_abs_high;
 } # abs_high()
 
 =head2 abs_end
 
   Title   : abs_end
-  Usage   : my $abs_end = $range->abs_end();
+  Usage   : my $abs_end = $range->abs_end( [$position_policy] );
   Function: Get the absolute end position of this range.
   Returns : The current absolute end position of this range, relative
             to the abs_seq_id.
-  Args    : none
+  Args    : [optional] either 'stranded' or 'plus'
 
   Note the interdependence of abs_end() and end().  Changing end() will
   change abs_end().
@@ -1052,22 +1177,32 @@ sub abs_high {
   Note the interdependence of abs_end() and length().  Changing length() will
   change abs_end().
 
+  The returned position will be given in minus-strand coordinates if
+  this RelRangeI's position_policy is 'stranded', which is the default
+  value.  If the argument to this method is a position policy (either
+  'stranded' or 'plus') then this policy will be used instead of the
+  object's overall policy.
+
   This method is defined in terms of abs_high(), abs_low(),
-  abs_strand(), and orientation_policy().
+  abs_strand(), position_policy(), and orientation_policy().
 
 =cut
 
 sub abs_end {
   my $self = shift;
+  my ( $position_policy ) = @_;
+  unless( $position_policy && ( $position_policy =~ /^stranded|plus$/ ) ) {
+    $position_policy = $self->position_policy();
+  }
 
   if( $self->orientation_policy() eq 'dependent' ) {
     if( $self->abs_strand() < 0 ) {
-      return $self->abs_low();
+      return $self->abs_low( $position_policy );
     } else {
-      return $self->abs_high();
+      return $self->abs_high( $position_policy );
     }
   } else {
-    return $self->abs_high();
+    return $self->abs_high( $position_policy );
   }
 } # abs_end()
 
@@ -1208,13 +1343,13 @@ sub seq_id {
 =head2 start
 
   Title   : start
-  Usage   : my $start = $range->start( [$new_start] );
+  Usage   : my $start = $range->start( [$position_policy|$new_start] );
   Function: Get/set the start of this range.
   Returns : The current (or former, if used as a set method) start position
             of this range.  If absolute() is true then this value will
             be relative to the abs_seq_id; otherwise it will be
             relative to the seq_id.
-  Args    : [optional] a new start position
+  Args    : [optional] a new start position OR 'stranded' or 'plus'
 
   Note the interdependence of start() and abs_start().  Changing start() will
   change abs_start().
@@ -1224,21 +1359,58 @@ sub seq_id {
   Note the interdependence of start() and length().  Changing start() will
   change length().
 
+  The returned position will be given in minus-strand coordinates if
+  this RelRangeI's position_policy is 'stranded', which is the default
+  value.  If the argument to this method is a position policy (either
+  'stranded' or 'plus') then this policy will be used instead of the
+  object's overall policy.
+
 =cut
 
 sub start {
   my $self = shift;
-  my ( $new_val ) = @_;
-  my $old_val =
-    ( $self->absolute() ?
-      $self->abs_start() :
-      $self->_start() );
+  my $new_val = shift;
+  my $position_policy;
+  if( $new_val && ( $new_val =~ /^stranded|plus$/ ) ) {
+    $position_policy = $new_val;
+    $new_val = shift;
+  } else {
+    $position_policy = $self->position_policy();
+  }
+  my $old_val;
+  if( $self->absolute() ) {
+    $old_val = $self->abs_start( $position_policy );
+  } else {
+    $old_val = $self->_start();
+    if( ( $position_policy eq 'stranded' ) && ( $self->strand() < 0 ) ) {
+      # If they want all positions in stranded coords, and we're
+      # on the negative strand, then we must convert (because we
+      # always store our positions in plus coords).
+      my $seq_id = $self->seq_id();
+      if( $seq_id && ref( $seq_id ) && $seq_id->isa( 'Bio::RangeI' ) ) {
+        my $seq_id_length = $seq_id->length();
+        $old_val = ( $seq_id_length + 1 - $old_val );
+      }
+    }
+  }
   if( defined( $new_val ) ) {
     if( $self->absolute() ) {
       $self->throw( "Unable to set the absolute start value.  If you would like to set the relative start, first turn the absolute() flag off, then try again." );
     }
     unless( $new_val =~ /^[-+]?\d+$/ ) {
       $self->throw( "'$new_val' is not an integer.\n" );
+    }
+    if( ( $position_policy eq 'stranded' ) && ( $self->strand() < 0 ) ) {
+      # If they give all positions in stranded coords, and we're
+      # on the negative strand, then we must convert (because we
+      # always store our positions in plus coords).
+      my $seq_id = $self->seq_id();
+      if( $seq_id && ref( $seq_id ) && $seq_id->isa( 'Bio::RangeI' ) ) {
+        my $seq_id_length = $seq_id->length();
+        ## TODO: REMOVE
+        #warn "fixing given start value $new_val for 'stranded' strandedness.";
+        $new_val = ( $seq_id_length + 1 - $new_val );
+      }
     }
     if( !defined( $old_val ) || ( $old_val != $new_val ) ) {
       $self->_start( $new_val );
@@ -1251,13 +1423,13 @@ sub start {
 =head2 end
 
   Title   : end
-  Usage   : my $end = $range->end( [$new_end] );
+  Usage   : my $end = $range->end( [$position_policy|$new_end] );
   Function: Get/set the end of this range.
   Returns : The current (or former, if used as a set method) end position
             of this range.  If absolute() is true then this value will
             be relative to the abs_seq_id; otherwise it will be
             relative to the seq_id.
-  Args    : [optional] a new end position
+  Args    : [optional] a new end position OR 'stranded' or 'plus'
 
   Note the interdependence of end() and abs_end().  Changing end() will
   change abs_end().
@@ -1267,15 +1439,49 @@ sub start {
   Note the interdependence of end() and length().  Changing one will
   change the other.
 
+  The returned position will be given in minus-strand coordinates if
+  this RelRangeI's position_policy is 'stranded', which is the default
+  value.  If the argument to this method is a position policy (either
+  'stranded' or 'plus') then this policy will be used instead of the
+  object's overall policy.
+
 =cut
 
 sub end {
   my $self = shift;
-  my ( $new_val ) = @_;
-  my $old_val =
-    ( $self->absolute() ?
-      $self->abs_end() :
-      $self->_end() );
+  my $new_val = shift;
+  ## TODO: REMOVE
+  #if( $self->isa( 'Bio::DB::GFF::Segment' ) ) {
+  #  warn "Hey dude.  in end(..) ofa Segment.";
+  #  if( $self->absolute() ) {
+  #    warn "absolute.";
+  #  }
+  #}
+  my $position_policy;
+  if( $new_val && ( $new_val =~ /^stranded|plus$/ ) ) {
+    $position_policy = $new_val;
+    $new_val = shift;
+  } else {
+    $position_policy = $self->position_policy();
+  }
+  my $old_val;
+  if( $self->absolute() ) {
+    $old_val = $self->abs_end( $position_policy );
+  } else {
+    $old_val = $self->_end();
+    if( ( $position_policy eq 'stranded' ) && ( $self->strand() < 0 ) ) {
+      # If they want all positions in stranded coords, and we're
+      # on the negative strand, then we must convert (because we
+      # always store our positions in plus coords).
+      my $seq_id = $self->seq_id();
+      if( $seq_id && ref( $seq_id ) && $seq_id->isa( 'Bio::RangeI' ) ) {
+        ## TODO: REMOVE
+        #warn "adjusting $old_val for 'stranded' policy.";
+        my $seq_id_length = $seq_id->length();
+        $old_val = ( $seq_id_length + 1 - $old_val );
+      }
+    }
+  }
   if( defined( $new_val ) ) {
     if( $self->absolute() ) {
       $self->throw( "Unable to set the absolute end value.  If you would like to set the relative end, first turn the absolute() flag off, then try again." );
@@ -1283,7 +1489,24 @@ sub end {
     unless( $new_val =~ /^[-+]?\d+$/ ) {
       $self->throw( "'$new_val' is not an integer.\n" );
     }
+    if( ( $position_policy eq 'stranded' ) && ( $self->strand() < 0 ) ) {
+      # If they give all positions in stranded coords, and we're
+      # on the negative strand, then we must convert (because we
+      # always store our positions in plus coords).
+      my $seq_id = $self->seq_id();
+      if( $seq_id && ref( $seq_id ) && $seq_id->isa( 'Bio::RangeI' ) ) {
+        my $seq_id_length = $seq_id->length();
+        ## TODO: REMOVE
+        #warn "fixing given end value $new_val for 'stranded' strandedness.  seq_id is $seq_id, of length $seq_id_length";
+        $new_val = ( $seq_id_length + 1 - $new_val );
+      } else {
+        ## TODO: REMOVE
+        #warn "UNABLE to FIX given end value $new_val for 'stranded' strandedness because the seq_id $seq_id isn't a RangeI.";
+      }
+    }
     if( !defined( $old_val ) || ( $old_val != $new_val ) ) {
+      ## TODO: REMOVE
+      #warn "Setting end to $new_val of a ".ref( $self ).".";
       $self->_end( $new_val );
       $self->notify_observers( 'end', '-old'=>$old_val, '-new'=>$new_val );
     }
@@ -1356,7 +1579,7 @@ sub strand {
 
 sub length {
   my $self = shift;
-  my $old_val = ( ( $self->high() - $self->low() ) + 1 );
+  my $old_val = ( ( $self->high( 'plus' ) - $self->low( 'plus' ) ) + 1 );
   my ( $new_val ) = @_;
 
   if( defined( $new_val ) ) {

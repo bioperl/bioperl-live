@@ -1236,11 +1236,11 @@ sub get_collection {
   my @features = $self->features( @_ );
   return unless( @features ); ## NOTE: We return if there's no features...
   ## TODO: REMOVE
-  warn "Bio::DB::GFF::Segment [$self]: got these features: [ ".join( ', ', @features )." ]\n";
+  #warn "Bio::DB::GFF::Segment [$self]: got these features: [ ".join( ', ', @features )." ]\n";
   my $segment = $self->_create_collection( \@_, @features );
   ## TODO: REMOVE?  Testing.
   ## TODO: REMOVE
-  warn "bouts to adjust bounds of $segment, which has these features: [ ".join( ', ', $segment->features() )." ]\n";
+  #warn "bouts to adjust bounds of $segment, which has these features: [ ".join( ', ', $segment->features() )." ]\n";
   $segment->adjust_bounds();
   return $segment;
 } # get_collection(..)
@@ -1711,10 +1711,10 @@ sub features {
     '-ref' => ( $ranges && @$ranges ? $ranges->[ 0 ]->seq_id() : undef ) ||
       $self->abs_seq_id(),
     '-class' => $namespace || $self->class(),
-    '-start' => ( $ranges && @$ranges ? $ranges->[ 0 ]->start() : undef ) ||
-      ( $self->{ 'whole' } ? undef : $self->abs_start() ),
-    '-end' => ( $ranges && @$ranges ? $ranges->[ 0 ]->end() : undef ) ||
-      ( $self->{ 'whole' } ? undef : $self->abs_end() ),
+    '-start' => ( $ranges && @$ranges ? $ranges->[ 0 ]->low( 'plus' ) : undef ) ||
+      ( $self->{ 'whole' } ? undef : $self->abs_start( 'plus' ) ),
+    '-end' => ( $ranges && @$ranges ? $ranges->[ 0 ]->high( 'plus' ) : undef ) ||
+      ( $self->{ 'whole' } ? undef : $self->abs_end( 'plus' ) ),
     '-range_type' => $rangetype,
     '-types' => $types,
     '-unique_ids' => $unique_ids,
@@ -1943,8 +1943,8 @@ sub types {
   $self->factory->types(
     '-ref'   => $self->abs_seq_id(),
     '-class' => $self->class(),
-    '-start' => $self->abs_start(),
-    '-stop'  => $self->abs_end(),
+    '-start' => $self->abs_start( 'plus' ),
+    '-stop'  => $self->abs_end( 'plus' ),
     @args
   );
 } # types(..)
@@ -2046,15 +2046,9 @@ sub subseq {
     $new->strand( ( $self->strand() || 1 ) * -1 );
   }
 
-  # The test here is from the old subseq method (but I still can't
-  # figure it out --Paul)
-  if( $self->start() <= $self->end() ) {
-    $new->start( $self->start() + $new_start - 1 );
-    $new->end( $self->start() + $new_end - 1 );
-  } else {
-    $new->start( $self->start() - $new_start - 1 );
-    $new->end( $self->start() - $new_end - 1 );
-  }
+  $new->start( 'plus', ( $self->start( 'plus' ) + $new_start - 1 ) );
+  $new->end( 'plus', ( $self->start( 'plus' ) + $new_end - 1 ) );
+
   return $new;
 } # subseq(..)
 
@@ -2079,8 +2073,8 @@ sub seq {
   my $self = shift;
   return $self->factory()->dna(
     '-id'    => $self->abs_seq_id(),
-    '-start' => $self->abs_start(),
-    '-end'   => $self->abs_end(),
+    '-start' => $self->abs_start( 'plus' ),
+    '-end'   => $self->abs_end( 'plus' ),
     '-class' => $self->class()
   );
 } # seq(..)
@@ -2132,12 +2126,13 @@ is:
 =cut
 
 sub asString {
-  #shift->toString();
-  ## TODO: Put back the old stuff.. I guess..
+  ## TODO: REMOVE
+  #return shift->toString();
+
   my $self = shift;
   my $label = $self->refseq();
-  my $start = $self->start();
-  my $stop  = $self->stop();
+  my $start = $self->start( 'plus' );
+  my $stop  = $self->stop( 'plus' );
   return "$label:$start,$stop";
 }
 
@@ -2260,11 +2255,13 @@ sub _seq_id {
       ## works for now.
       $new_seq_id = Bio::DB::GFF::Segment_NamedRelRange->new(
         '-name' => $name,
-        '-seq_id' => absRange( $newref ),
-        '-start' => absStart( $newref ),
-        '-end' => absEnd( $newref ),
+        '-seq_id' => absSeqId( $newref ),#absRange( $newref ),
+        '-start' => absStart( $newref, 'plus' ),
+        '-end' => absEnd( $newref, 'plus' ),
         '-strand' => absStrand( $newref )
       );
+      ## TODO: REMOVE
+      #warn "CREATED new_seq_id $new_seq_id (RelRangeString is ".$new_seq_id->toRelRangeString( 'both', 'plus' ).") from newref $newref (RelRangeString is ".$newref->toRelRangeString( 'both', 'plus' ).")";
     } else {
       my ( $newref_abs_seq_id, $refclass, $refstart, $refstop, $refstrand, $sname );
       my $coords = $self->factory()->abscoords( $newref, $newclass );
@@ -2326,9 +2323,9 @@ sub _seq_id {
     my $abs_self = new Bio::RelRange( $self );
     $abs_self->absolute( 1 );
     $self->{ '_start' } =
-      $temp_rel_range->abs2rel( $abs_self->start() );
+      $temp_rel_range->abs2rel( $abs_self->start( 'plus' ) );
     $self->{ '_end' } =
-      $temp_rel_range->abs2rel( $abs_self->end() );
+      $temp_rel_range->abs2rel( $abs_self->end( 'plus' ) );
     $self->{ '_strand' } =
       $temp_rel_range->abs2rel_strand( $abs_self->strand() );
 
@@ -2339,6 +2336,7 @@ sub _seq_id {
     }
 
     $self->{ '_seq_id' } = $new_seq_id;
+    ## TODO: ERE I AM.  If we're going to make it so that segments with string seq_ids have 'plus' position_policies (we've added code to new(..) for this, BTW), then we're going to want to switch now if the new seq_id is not a string and the old one was a string.  Actually we're going to want to make GFF work in a plus mode at all times, I think.  We're going to want to be able to know that from outside I think, so that the constructors are compatible... or something.  Actually the constructor should only be called from _create_segment(..) in other non-GFF classes, so then it's just a matter of making GFF's methods obey the contract, which should explicitly state a stranded assumption.  Anyways we're going to have to alter RelRange and RelRangeI so that you can be sure that the stored values are always stranded (or better, always 'plus' so that we don't need to know the length of the parent sequence), and also to do the right thing on setting the values as well as on retrieving them.
   }
   ## TODO: This is what this was from RelSegment::refseq(..):  why sourceseq?
   ## TODO: Note that presently we won't allow setting in absolute mode anyways.
@@ -2584,9 +2582,9 @@ use vars qw( @ISA );
 @ISA = qw( Bio::RelRange );
 
 use overload 
-  '""'     => 'name',
+#  '""'     => 'name',
 # For debugging, try using:
-#  '""'     => 'toString',
+  '""'     => 'toString',
   eq       => 'equals',
   fallback => 1;
 

@@ -620,11 +620,11 @@ sub features {
        sub{
          sort { ( $reverse_sort ?
                   ( $absolute ?
-                    $b->abs_high() <=> $a->abs_high() :
-                    $b->high() <=> $a->high() ) :
+                    $b->abs_high( 'stranded' ) <=> $a->abs_high( 'stranded' ) :
+                    $b->high( 'stranded' ) <=> $a->high( 'stranded' ) ) :
                   ( $absolute ?
-                    $a->abs_low() <=> $b->abs_low() :
-                    $a->low() <=> $b->low() ) ) } @_;
+                    $a->abs_low( 'plus' ) <=> $b->abs_low( 'plus' ) :
+                    $a->low( 'plus' ) <=> $b->low( 'plus' ) ) ) } @_;
        } :
        sub { return @_; }
      )->( map { ( values %{ $self->{ '_seq_id_to_feature_table' }->

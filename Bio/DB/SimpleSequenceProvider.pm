@@ -84,7 +84,6 @@ $VERSION = '0.01';
 
 sub new {
   my( $class, @args ) = @_;
-
   my $self = $class->SUPER::new( @args );
   $self->_initialize_simple_sequence_provider( @args );
   return $self;
@@ -912,7 +911,7 @@ sub _update_sequence {
   unless( defined $accession ) {
     $accession = 'undef';
   }
-  my $num_seqs = 0;
+  $num_seqs = 0;
   if(
      defined( $self->{ '_accession_to_sequence_table' }->{ $accession } )
     ) {
@@ -1065,7 +1064,7 @@ sub _insert_or_update_sequence {
   unless( defined $accession ) {
     $accession = 'undef';
   }
-  my $num_seqs = 0;
+  $num_seqs = 0;
   if(
      defined( $self->{ '_accession_to_sequence_table' }->{ $accession } )
     ) {
@@ -1226,7 +1225,7 @@ sub _remove_sequence {
   unless( defined $accession ) {
     $accession = 'undef';
   }
-  my $num_seqs = 0;
+  $num_seqs = 0;
   if(
      defined( $self->{ '_accession_to_sequence_table' }->{ $accession } )
     ) {

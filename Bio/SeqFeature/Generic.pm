@@ -801,6 +801,10 @@ sub attach_seq {
 
    $self->{'_gsf_seq'} = $seq;
 
+   unless( ( defined $self->seq_id() ) && ref( $self->seq_id() ) ) {
+     $self->seq_id( $seq );
+   }
+
    # attach to sub features if they want it
    foreach ( $self->sub_SeqFeature() ) {
      $_->attach_seq($seq);
@@ -835,15 +839,19 @@ sub seq {
 
   # assumming our seq object is sensible, it should not have to yank
   # the entire sequence out here.
-  my $seq = $self->{'_gsf_seq'}->trunc( $self->abs_start(), $self->abs_end() );
+  my $seq = $self->{'_gsf_seq'}->trunc( $self->abs_start( 'plus' ), $self->abs_end( 'plus' ) );
 
-  if ( $self->strand == -1 ) {
-
+  if ( $self->abs_strand() < 0 ) {
     # ok. this does not work well (?)
-    #print STDERR "Before revcom", $seq->str, "\n";
-    $seq = $seq->revcom;
-    #print STDERR "After  revcom", $seq->str, "\n";
+    ## TODO: REMOVE
+    #print STDERR "Before revcom: ".$seq->seq()."\n";
+    $seq = $seq->revcom();
+    ## TODO: REMOVE
+    #print STDERR "After  revcom: ".$seq->seq()."\n";
   }
+
+  ## TODO: REMOVE
+  #print STDERR "For $self: ".$self->stack_trace_dump();
 
   return $seq;
 }
@@ -1149,10 +1157,12 @@ sub add_sub_SeqFeature {
   shift->add_SeqFeatures( @_ );
 }
 sub flush_sub_SeqFeatures {
-  shift->remove_SeqFeatures( @_ );
+  my $self = shift;
+  my @features = @_ || $self->features();
+  $self->remove_SeqFeatures( @features );
 }
 sub flush_sub_SeqFeature {
-  shift->remove_SeqFeatures( @_ );
+  shift->flush_sub_SeqFeatures( @_ );
 }
 
 =head2 equals

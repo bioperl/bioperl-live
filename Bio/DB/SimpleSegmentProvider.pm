@@ -401,7 +401,7 @@ sub get_collection {
           }
           # Oh yeah and make sure it's the only unique_ids argument..
           ## TODO: What if they're uppercase?
-          [ qw( UNIQUE_IDS UNIQUEIDS IDS UNIQUE_ID UNIQUEID ID ) ],
+          # [ qw( UNIQUE_IDS UNIQUEIDS IDS UNIQUE_ID UNIQUEID ID ) ],
           delete @args{ qw( -unique_id -ids -id -uniqueids -uniqueid
                             uniqueids unique_id ids id uniqueids uniqueid ) };
           ## TODO: REMOVE

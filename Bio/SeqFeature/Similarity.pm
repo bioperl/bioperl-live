@@ -93,7 +93,8 @@ sub new {
     defined $seqlen && $self->seqlength($seqlen);
     defined $seqdesc && $self->seqdesc($seqdesc);
     $primary  = 'similarity' unless defined $primary;
-    $self->primary_tag($primary) unless( defined $self->primary_tag() );
+    ## I removed the unless already defined bit because it doesn't work.
+    $self->primary_tag($primary);# unless( defined $self->primary_tag() );
     $self->strand(0) unless( defined $self->strand() );
 
     return $self;

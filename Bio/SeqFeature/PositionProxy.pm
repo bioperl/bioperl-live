@@ -530,6 +530,12 @@ sub equals {
   return shift->{ '_gsf_peer' }->equals( @_ );
 }
 
+## TODO: REMOVE.  Testing
+sub isa {
+  my $self = shift;
+  return $self->SUPER::isa( @_ ) || $self->{ '_gsf_peer' }->isa( @_ );
+}
+
 1;
 
 __END__
