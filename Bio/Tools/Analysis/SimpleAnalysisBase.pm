@@ -121,6 +121,8 @@ sub seq {
     if ( defined $value) {
         $self->throw("I need a Bio::PrimarySeqI, not  [". $value. "]")
             unless $value->isa('Bio::PrimarySeqI');
+		$self->throw(" I need a PrimarySeq object, not a BioSeq object ")
+			if $value->isa('Bio::SeqI');
 
         my $mol_type = $self->analysis_spec->{'type'};
         $self->throw("I need a [" . $mol_type . "]  seq, not a  [". $value->alphabet. "]")
