@@ -493,6 +493,16 @@ sub newFh {
   $fh;
 }
 
+sub _open_index {
+  my $self = shift;
+  my ($index,$write) = @_;
+  my %offsets;
+  my $flags = $write ? O_CREAT|O_RDWR : O_RDONLY;
+  my @dbmargs = $self->dbmargs;
+  tie %offsets,'AnyDBM_File',$index,$flags,0644,@dbmargs or $self->throw( "Can't open cache file: $!");
+  return \%offsets;
+}
+
 =head2 index_dir
 
  Title   : index_dir
@@ -531,23 +541,21 @@ sub index_dir {
     $modtime = $m if $modtime < $m;
   }
 
-  my %offsets;
-  my $flags = $modtime <= $indextime ? O_RDONLY : O_CREAT|O_RDWR;
-
-  my @dbmargs = $self->dbmargs;
-  tie %offsets,'AnyDBM_File',$index,$flags,0644,@dbmargs or $self->throw( "Can't open FASTA index file $index: $!");
+  my $reindex = $force_reindex || $indextime < $modtime;
+  my $offsets = $self->_open_index($index,$reindex) or return;
+  $self->{offsets} = $offsets;
 
   # no indexing needed
-  return \%offsets if $modtime <= $indextime;
+  return $offsets unless $reindex;
 
   # otherwise reindex contents of changed files
   $self->{indexing} = $index;
   foreach (@files) {
     next if( defined $indextime && $modtime{$_} <= $indextime);
-    $self->calculate_offsets($_,\%offsets);
+    $self->calculate_offsets($_,$offsets);
   }
   delete $self->{indexing};
-  return \%offsets;
+  return $self->{offsets};
 }
 
 =head2 get_Seq_by_id
@@ -591,16 +599,16 @@ sub index_file {
   my $indextime = (stat($index))[9];
   my $modtime   = (stat($file))[9];
 
-  my %offsets;
-  my $flags = $modtime <= $indextime ? O_RDONLY : O_CREAT|O_RDWR;
-  my @dbmargs = $self->dbmargs;
-  tie %offsets,'AnyDBM_File',$index,$flags,0644,@dbmargs or $self->throw( "Can't open cache file: $!");
-  return \%offsets if $modtime <= $indextime;
+  my $reindex = $force_reindex || $indextime < $modtime;
+  my $offsets = $self->_open_index($index,$reindex) or return;
+  $self->{offsets} = $offsets;
+
+  return $self->{offsets} unless $reindex;
 
   $self->{indexing} = $index;
-  $self->calculate_offsets($file,\%offsets);
+  $self->calculate_offsets($file,$offsets);
   delete $self->{indexing};
-  return \%offsets;
+  return $self->{offsets};
 }
 
 =head2 dbmargs
@@ -710,7 +718,7 @@ sub calculate_offsets {
 
 =cut
 
-sub get_all_ids  { keys %{shift->{offsets}} }
+sub get_all_ids  { grep {!/^__/} keys %{shift->{offsets}} }
 
 sub offset {
   my $self = shift;
@@ -776,8 +784,10 @@ sub fileno2path {
 sub path2fileno {
   my $self = shift;
   my $path = shift;
-  $self->{offsets}{"__path_$path"} = 0+ $self->{fileno}++
-    unless exists $self->{offsets}{"__path_$path"};
+  unless (exists $self->{offsets}{"__path_$path"}) {
+    my $fileno  = ($self->{offsets}{"__path_$path"} = 0+ $self->{fileno}++);
+    $self->{offsets}{"__file_$fileno"} = $path;
+  }
   return $self->{offsets}{"__path_$path"}
 }
 

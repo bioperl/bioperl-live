@@ -93,8 +93,24 @@ use constant CONFIG_FILE_NAME => 'config.dat';
            -write_flag   If true, allows reindexing.
            -verbose      Verbose messages
            -out          File to write to when write_seq invoked
-
  Status  : Public
+
+The root -directory indicates where the flat file indexes will be
+stored.  The build_index() and write_seq() methods will automatically
+create a human-readable configuration file named "config.dat" in this
+file.
+
+The -write_flag enables writing new entries into the database as well
+as the creation of the indexes.  By default the indexes will be opened
+read only.
+
+-index is one of "bdb" or "flat" and indicates the type of index to
+generate.  "bdb" corresponds to Berkeley DB.  You *must* be using
+BerkeleyDB version 2 or higher, and have the Perl BerkeleyDB extension
+installed (DB_File will *not* work).
+
+The -out argument species the output file for writing objects created
+with write_seq().  
 
 =cut
 
