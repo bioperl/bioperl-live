@@ -697,9 +697,18 @@ sub get_aln {
 	    }
 	}
     }
+
     my $seqonly = $qs;
     $seqonly =~ s/\-//g;
-    
+    my ($q_nm,$s_nm) = ($self->query->seqname(),
+			$self->hit->seqname());
+    unless( defined $q_nm && CORE::length ($q_nm) ) {
+	$q_nm = 'query';
+    }
+    unless( defined $s_nm && CORE::length ($s_nm) ) {
+	$s_nm = 'hit';
+    }
+
     my $query = new Bio::LocatableSeq('-seq'   => $qs,
 				      '-id'    => $self->query->seqname(),
 				      '-start' => 1,

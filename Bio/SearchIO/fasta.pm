@@ -79,10 +79,11 @@ use Bio::SearchIO;
 use POSIX;
 
 BEGIN { 
-    # Set IDLENGTH [via $self->idlength($val) or when initializing a 
-    # new FastA parser to a new value if you have
-    # compile FASTA with a different ID length    
-    $IDLENGTH = 7;
+    # Set IDLENGTH to a new value if you have
+    # compile FASTA with a different ID length
+    # (actually newest FASTA allows the setting of this
+    #  via -C parameter, default is 6)
+    $IDLENGTH = 6;
 
     # mapping of NCBI Blast terms to Bioperl hash keys
     %MODEMAP = ('FastaOutput' => 'result',
@@ -389,7 +390,7 @@ sub next_result{
    
 	   my @data = ( '','','');
 	   my $count = 0;
-	   my $len = $self->idlength;
+	   my $len = $self->idlength + 1;
 	   my ($seq1_id);
 	   # guarantee we don't start with a blank line 
 	   while( defined($_) ) {
@@ -405,20 +406,21 @@ sub next_result{
 		   $self->_pushback($_);
 		   last;
 	       }
-	       $self->debug( "$count $_\n");
-	       if( $count == 0 ) { 
+	       $self->debug("$count $_\n");
+	       if( $count == 0 ) {
 		   unless( /^\s+\d+\s+/ ) {
 		       $self->_pushback($_);
 		       $count = 2;
 		   }
 	       } elsif( $count == 1 || $count == 3 ) {
 		   if( /^(\S+)\s+/ ) {
+		       $len = CORE::length($1) unless $len > CORE::length($1);
 		       s/\s+$//; # trim trailing spaces,we don't want them 
 		       $data[$count-1] = substr($_,$len);
 		   } elsif( /^\s+(\d+)\s+/ ) {
 		       $self->warn("Unexpected state ($_)");
 		   } elsif( /^\s+$/ || length($_) == 0) {
-		       $count = 5;  
+		       $count = 5;
 		       # going to skip these
 		   } else {
 		       $self->warn("Unrecognized alignment line ($count) '$_'");
