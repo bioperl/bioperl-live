@@ -638,8 +638,8 @@ sub next_result{
 	       if( ($i == 0 &&  /^\s+$/) || ($l = /^\s*Lambda/i) ) { 
 		   $self->_pushback($_) if defined $_;
 		   # this fixes bug #1443
-		   $self->end_element({'Name' => 'Hit'}) if $l;
 		   $self->end_element({'Name' => 'Hsp'});
+		   $self->end_element({'Name' => 'Hit'}) if $l;		   
 		   last; 
 	       }
 	       if( /^((Query|Sbjct):\s+(\d+)\s*)(\S+)\s+(\d+)/ ) {
