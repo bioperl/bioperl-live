@@ -6,7 +6,8 @@ Bio::Matrix::PSM::PsmHeader - PSM mast parser implementation
 
 =head1 SYNOPSIS
 
-See Bio::Matrix::PSM::IO for detailed documentation on how to use PSM parsers
+  # See Bio::Matrix::PSM::IO for detailed documentation on how to use
+  # PSM parsers
 
 =head1 DESCRIPTION
 

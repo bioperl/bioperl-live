@@ -6,15 +6,16 @@ Bio::Matrix::PSM::InstanceSite - A PSM site occurance
 
 =head1 SYNOPSIS
 
- use Bio::Matrix::PSM::InstanceSite;
+  use Bio::Matrix::PSM::InstanceSite;
 
   #You can get an InstanceSite object either from a file:
-   my ($instances,$matrix)=$SomePSMFile->parse_next;
+
+  my ($instances,$matrix)=$SomePSMFile->parse_next;
 
   #or from memory
 
   my %params=(seq=>'TATAAT',
-    id=>"TATAbox1", accession='ENSG00000122304', mid=>'TB1',
+    id=>"TATAbox1", accession=>'ENSG00000122304', mid=>'TB1',
     desc=>'TATA box, experimentally verified in PRM1 gene',
     relpos=>-35);
 
@@ -22,29 +23,30 @@ Bio::Matrix::PSM::InstanceSite - A PSM site occurance
 
 Abstract interface to PSM site occurrence (PSM sequence
 match). InstanceSite objects may be used to describe a PSM (See
-Bio::Matrix::PSM::SiteMatrix) sequence matches.  The usual
+L<Bio::Matrix::PSM::SiteMatrix>) sequence matches.  The usual
 characteristic of such a match is sequence coordinates, score,
-sequence and sequence (gene) identifier- accession number or other
-id. This object inherits from Bio::LocatableSeq (which defines the
-real sequence) and might hold a SiteMatrix object, used to detect the
-CRE (cis-regulatory element), or created from this CRE.  While the
-documentation states that the motif id and gene id (accession)
-combination should be unique, this is not entirely true- there might
-be more than one occurrence of the same cis-regulatory element in the
-upstream region of the same gene.  Therefore relpos would be the third
-element to create a really unique combination.
+sequence and sequence (gene) identifier- accession number or other id.
+
+This object inherits from Bio::LocatableSeq (which defines the real
+sequence) and might hold a SiteMatrix object, used to detect the CRE
+(cis-regulatory element), or created from this CRE.
+
+While the documentation states that the motif id and gene id
+(accession) combination should be unique, this is not entirely true-
+there might be more than one occurrence of the same cis-regulatory
+element in the upstream region of the same gene.  Therefore relpos
+would be the third element to create a really unique combination.
 
 =head1 FEEDBACK
 
 =head2 Mailing Lists
 
-User feedback is an integral part of the evolution of this
-and other Bioperl modules. Send your comments and suggestions preferably
- to one of the Bioperl mailing lists.
-Your participation is much appreciated.
+User feedback is an integral part of the evolution of this and other
+Bioperl modules. Send your comments and suggestions preferably to one
+of the Bioperl mailing lists.  Your participation is much appreciated.
 
   bioperl-l@bioperl.org                 - General discussion
-  http://bio.perl.org/MailList.html             - About the mailing lists
+  http://bio.perl.org/MailList.html     - About the mailing lists
 
 =head2 Reporting Bugs
 
