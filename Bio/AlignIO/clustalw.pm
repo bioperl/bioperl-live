@@ -30,11 +30,21 @@ file databases.
 
 =head1 FEEDBACK
 
+=head2 Mailing Lists
+
+User feedback is an integral part of the evolution of this and other
+Bioperl modules. Send your comments and suggestions preferably to one
+of the Bioperl mailing lists.  Your participation is much appreciated.
+
+  bioperl-l@bioperl.org               - General discussion
+  http://bio.perl.org/MailList.html   - About the mailing lists
+
+
 =head2 Reporting Bugs
 
 Report bugs to the Bioperl bug tracking system to help us keep track
- the bugs and their resolution.
- Bug reports can be submitted via email or the web:
+the bugs and their resolution.  Bug reports can be submitted via email
+or the web:
 
   bioperl-bugs@bio.perl.org
   http://bio.perl.org/bioperl-bugs/
@@ -54,11 +64,15 @@ methods. Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::AlignIO::clustalw;
-use vars qw(@ISA);
+use vars qw(@ISA $LINELENGTH);
 use strict;
 
 use Bio::AlignIO;
 use Bio::LocatableSeq;
+
+BEGIN { 
+    $LINELENGTH = 50;
+}
 
 @ISA = qw(Bio::AlignIO);
 
@@ -122,8 +136,6 @@ sub next_aln {
     return $aln;
 }
 
-
-
 =head2 write_aln
 
  Title   : write_aln
@@ -136,39 +148,49 @@ sub next_aln {
 =cut
 
 sub write_aln {
-   my ($self,@aln) = @_;
-   my ($count,$length,$seq,@seq,$tempcount);
+    my ($self,@aln) = @_;
+    my ($count,$length,$seq,@seq,$tempcount);
+    foreach my $aln (@aln) {
+	my $matchline = $aln->match_line;
+    
+	$self->_print (sprintf("CLUSTAL W(1.81) multiple sequence alignment\n\n\n")) or return;
 
-   foreach my $aln (@aln) {
+	$length = $aln->length();
+	$count = $tempcount = 0;
+	@seq = $aln->each_seq();
 
-    $self->_print (sprintf("CLUSTAL W(1.4) multiple sequence alignment\n\n\n")) or return;
-
-    $length = $aln->length();
-    $count = $tempcount = 0;
-    @seq = $aln->each_seq();
-
-    while( $count < $length ) {
-	foreach $seq ( @seq ) {
+	while( $count < $length ) {
+	    foreach $seq ( @seq ) {
 #
 #  Following lines are to suppress warnings
 #  if some sequences in the alignment are much longer than others.
-	   my $substring;
-           my $seqchars = $seq->seq();
-	SWITCH: {
-		if (length($seqchars) >= ($count + 50)) {
-			$substring = substr($seqchars,$count,50); last SWITCH; }
-		if (length($seqchars) >= $count) {
-			$substring = substr($seqchars,$count); last SWITCH; }
-                $substring = "";
-	}
 
-	   $self->_print (sprintf("%-22s %s\n",$aln->displayname($seq->get_nse()),$substring)) or return;
+		my ($substring);
+		my $seqchars = $seq->seq();
+
+	      SWITCH: {
+		  if (length($seqchars) >= ($count + $LINELENGTH)) {
+		      $substring = substr($seqchars,$count,$LINELENGTH); 
+		      last SWITCH; 
+		  } elsif (length($seqchars) >= $count) {
+		      $substring = substr($seqchars,$count); 
+		      last SWITCH; 
+		  }
+		  $substring = "";
+	      }
+		
+		$self->_print (sprintf("%-22s %s\n",
+				       $aln->displayname($seq->get_nse()),
+				       $substring)) or return;		
+	    }
+	    my $linesubstr = substr($matchline, $count,$LINELENGTH);
+
+	    $self->_print (sprintf("%-22s %s\n", '', $linesubstr));
+	    $self->_print (sprintf("\n\n")) or return;
+	    $count += 50;
 	}
-	$self->_print (sprintf("\n\n")) or return;
-	$count += 50;
     }
-   }
-   return 1;
+    return 1;
 }
 
 1;
