@@ -162,6 +162,14 @@ Examples:
       ./biblio.pl -f a_file.xml -Oo   ... to Perl objects
       ./biblio.pl -f a_file.xml -Or   ... as a raw hash
 
+Environment variables:
+   HTTPPROXY = <HTTP proxy server>
+      Use this if you use this script on a machine which
+      needs to access remote HTTP targets via a proxy server.
+      For example:
+         export HTTPPROXY=http://128.243.220.41:3128
+         ./biblio.pl -c
+
 END_OF_USAGE
 }
 
@@ -220,10 +228,14 @@ if ($opt_v) {
 #      -namespace => '...' (not set-able here, a default value will be used)
 #      -soap               (not set-able here)
 #
+#      Additionally, it uses env. variable HTTPPROXY to create parameter
+#      '-httpproxy'.
+#
 my @location   = ('-location', $opt_l) if defined $opt_l;
 my @collection = ('-collection_id', $opt_i) if defined $opt_i;
 my @destroy    = ('-destroy_on_exit', 0) if $opt_k or $opt_p or $opt_i;
-my $biblio = new Bio::Biblio (@location, @collection, @destroy);
+my @httpproxy  = ('-httpproxy', $ENV{'HTTPPROXY'}) if defined $ENV{'HTTPPROXY'};
+my $biblio = new Bio::Biblio (@location, @collection, @destroy, @httpproxy);
 
 die "Stopped. No success in accessing the bibliographic repository.\n" unless $biblio;
 

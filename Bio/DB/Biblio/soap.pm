@@ -187,6 +187,11 @@ BEGIN {
                 See the code for attributes of the default SOAP::Lite
                 object.
 
+              -httpproxy => 'http://server:port'
+                 In addition to the 'location' parameter, you may need
+                 to specify also a location/URL of a HTTP proxy server
+                 (if your site requires one).
+
 	   Additionally, the main module Bio::Biblio recognises
 	   also:
              -access => '...'
@@ -228,10 +233,18 @@ sub _initialize {
     $self->{'_location'} = $DEFAULT_SERVICE unless $self->{'_location'};
     $self->{'_namespace'} = $DEFAULT_NAMESPACE unless $self->{'_namespace'};
     $self->{'_destroy_on_exit'} = 1 unless defined $self->{'_destroy_on_exit'};
-    $self->{'_soap'} = SOAP::Lite
-	                  -> uri ($self->{'_namespace'})
-	                  -> proxy ($self->{'_location'}) unless $self->{'_soap'};
-
+    unless ($self->{'_soap'}) {
+	if (defined $self->{'_httpproxy'}) {
+	    $self->{'_soap'} = SOAP::Lite
+	                          -> uri ($self->{'_namespace'})
+		                  -> proxy ($self->{'_location'},
+				            proxy => ['http' => $self->{'_httpproxy'}]);
+	} else {
+	    $self->{'_soap'} = SOAP::Lite
+	                          -> uri ($self->{'_namespace'})
+				  -> proxy ($self->{'_location'});
+	}
+    }
 }
 
 # -----------------------------------------------------------------------------
@@ -420,7 +433,9 @@ sub get_next {
    my $soap = $self->{'_soap'};
    my ($collection_id) = $self->{'_collection_id'};
    $self->throw ($self->_no_id_msg) unless $collection_id;
-   $soap->getNext (SOAP::Data->type (string => $collection_id))->result;
+   my $ra = $soap->getNext (SOAP::Data->type (string => $collection_id))->result;
+   $self->{'_collection_id'} = shift @{ $ra };
+   shift @{ $ra };
 }
 
 sub get_more {
@@ -438,8 +453,10 @@ sub get_more {
        $how_many = 1;
    }
 
-   $soap->getMore (SOAP::Data->type (string => $collection_id),
-		   SOAP::Data->type (int    => $how_many))->result;
+   my $ra = $soap->getMore (SOAP::Data->type (string => $collection_id),
+			    SOAP::Data->type (int    => $how_many))->result;
+   $self->{'_collection_id'} = shift @{ $ra };
+   $ra;
 }
 
 sub reset_retrieval {
@@ -447,7 +464,7 @@ sub reset_retrieval {
    my $soap = $self->{'_soap'};
    my ($collection_id) = $self->{'_collection_id'};
    $self->throw ($self->_no_id_msg) unless $collection_id;
-   $soap->resetRetrieval (SOAP::Data->type (string => $collection_id));
+   $self->{'_collection_id'} = $soap->resetRetrieval (SOAP::Data->type (string => $collection_id))->result;
 }
 
 sub exists {
