@@ -85,15 +85,15 @@
 		about learning more about the programming side of bioinformatics.
 		In this HOWTO you'll see discussions of some of the common uses
 		of Bioperl, 
-		like sequence analysis with BLAST, retrieving sequences from 
-		public databases, and making alignments. You'll also see how to
+		like sequence analysis with BLAST and retrieving sequences from 
+		public databases. You'll also see how to
 		write Bioperl scripts that chain these tasks together, that's
 		how you'll be able to do really powerful things with Bioperl.
     </para>
     <para>
 		You will also see some discussions of software concepts, this
 		can't be avoided. The more you understand about
-		programming the better but all efforts will be made
+		programming the better, but all efforts will be made
 		to not introduce too much unfamiliar material. 
 		However, there will be an introducton to modularity, or objects. This is 
 		one of the aspects of the Bioperl package that you'll have
@@ -192,7 +192,7 @@
 		</simplelist>
 	 </para>
 	 <para>
-		<emphasis>Windows Disdvantages</emphasis>
+		<emphasis>Windows Disadvantages</emphasis>
 	 </para>
 	 <para>
 		<simplelist type="horiz" columns="1">
@@ -237,23 +237,23 @@
 		<emphasis>Please include:</emphasis>
 	 </para>
 	 <para>
-		<simplelist type="horiz" columns="1">
-		  <member>
-			 The version of Bioperl you're working with. 
-		  </member>
-		  <member>
-			 The platform or operating system you're using. 
-			 </member>
-		  <member>
-			 What you are trying to do.
-		  </member>
-		  <member>
-			 The code that gives the error, if you're writing a script.
-		  </member>
-		  <member>
-			 Any error messages you saw.
-		  </member>
-		</simplelist>
+		<orderedlist>
+		  <listitem>
+			<para> The version of Bioperl you're working with. </para>
+		  </listitem>
+		  <listitem>
+			 <para>The platform or operating system you're using. </para>
+		  </listitem>
+		  <listitem>
+			 <para>What you are trying to do.</para>
+		  </listitem>
+		  <listitem>
+		<para>	 The code that gives the error, if you're writing a script.</para>
+		  </listitem>
+		  <listitem>
+<para>			 Any error messages you saw.</para>
+		  </listitem>
+		</orderedlist>
     </para>    
     <para>
 		Every once in a while a message will appear in bioperl-l 
@@ -434,14 +434,12 @@ $seq_obj = Bio::Seq->new(-seq => "aaaatgggggggggggccccgtt");
 		That's it! The variable <varname>$seq_obj</varname> is the
 		Sequence object, a simple one, containing just a sequence.
 	 </para>
-      <note>
 		<para>
 			 <ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Seq.html">Bio::Seq</ulink> objects can be created manually, as above, but
 			 they're also create automatically in many operations
 			 in Bioperl, for example when alignment files or database
 			 entries or BLAST reports are parsed.
 		</para>      
-	 </note>
 	 <para>
 		Any time you explicitly create an object, you
 		will use this <function>new()</function> method. The syntax of this
@@ -459,6 +457,7 @@ $seq_obj = Bio::Seq->new(-seq => "aaaatgggggggggggccccgtt");
 		  "method" is used instead.			 
 		</para>
 	 </note>
+	 <para></para>
 	 <para>
 		The object was described as a data container, but it is more
 		than that. It can also do work, meaning it can call
@@ -499,14 +498,13 @@ print $seq_obj->seq;
 use Bio::Seq;
 		
 $seq_obj = Bio::Seq->new(-seq => "aaaatgggggggggggccccgtt",
-		                           -display_id => "#12345",
-		                     -desc => "example 1" );
+		         -display_id => "#12345",
+		         -desc => "example 1" );
 
 print $seq_obj->seq();
 		</programlisting>
 	 </para>
 	 <para>
-		"desc" is short for "description".
 		"aaaatgggggggggggccccgtt", "#12345", and "example 1" are called
 		"arguments" in programming jargon. You could say that
 		this example shows how to pass arguments to the
@@ -522,8 +520,7 @@ print $seq_obj->seq();
 		We already have a sequence object, <varname>$seq_obj</varname>, 
 		and we will create an
 		additional object whose responsibility it is to read from and write
-		to files. This object is the 
-<ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqIO.html">Bio::SeqIO</ulink> object, 
+		to files. This object is the SeqIO object, 
 		where IO stands for 
 		<emphasis>I</emphasis>nput-<emphasis>O</emphasis>utput.
 		By using 
@@ -541,7 +538,7 @@ print $seq_obj->seq();
 use Bio::SeqIO;
 
 $seqio_obj = Bio::SeqIO->new(-file => '>sequence.fasta', 
-		                        -format => 'fasta' );
+		             -format => 'fasta' );
 		</programlisting> 
 	 </para> 
 	 <para>
@@ -553,6 +550,7 @@ $seqio_obj = Bio::SeqIO->new(-file => '>sequence.fasta',
 		"-format" argument, "fasta", tells the SeqIO object that it
 		should create the file in fasta format.
     </para>
+	 <para></para>
     <para>
 		Let's put our 2 examples together:
 	 </para>
@@ -564,17 +562,17 @@ use Bio::Seq;
 use Bio::SeqIO;
 
 $seq_obj = Bio::Seq->new(-seq => "aaaatgggggggggggccccgtt",
-		                   -display_id => "#12345",
-		              -desc => "example 1" );
+		         -display_id => "#12345",
+		         -desc => "example 1" );
 
 $seqio_obj = Bio::SeqIO->new(-file => '>sequence.fasta', 
-	                    -format => 'fasta' );
+	                     -format => 'fasta' );
 
 $seqio_obj->write_seq($seq_obj);
 		</programlisting> 
 	 </para> 
 	 <para>
-		Let's consider that last line, where you see two objects, since 
+		Let's consider that last line where you see two objects since 
 		this is where some  
 		neophytes start to get a bit nervous. What's going on there? In that
 		line we handed or passed the Sequence object to the SeqIO object as an
@@ -601,8 +599,8 @@ aaaatgggggggggggccccgtt
 	 </para>
 	 <para>
 		Let's demonstrate the intelligence of the SeqIO object - the example
-		below shows what file content is created when "-format" is set to
-		"genbank" instead of "fasta":
+		below shows what file content is created when the argument to
+		"-format" is set to "genbank" instead of "fasta":
 	 </para>
 	 <para>
 		<programlisting>
@@ -687,8 +685,8 @@ $seq_obj = $seqio->next_seq;
 	 <para>
 		<programlisting>
 while ($seq_obj = $seqio->next_seq){
-	# print the sequence
-  print $seq_obj->seq,"\n";
+    # print the sequence
+    print $seq_obj->seq,"\n";
 }
 		</programlisting>
 	 </para>
@@ -752,8 +750,8 @@ $seq_obj = $db_obj->get_Seq_by_id(2);
 		method is an identifier, 2, a Genbank GI number. You could
 		also use the <function>get_Seq_by_acc</function> method, this
 		would accept an accession number, "A12345" for example. Make
-		sure to use the proper identifier for the method you use, they 
-		are not interchangeable.
+		sure to use the proper identifier for the method you use, the 
+		methods are not interchangeable.
 	 </para>
 	 <para>
 		There are more sophisticated ways to query Genbank than
@@ -769,7 +767,7 @@ use Bio::DB::Query::GenBank;
 
 $query = "Arabidopsis[ORGN] AND topoisomerase[TITL]";
 $query_obj = Bio::DB::Query::GenBank->new(-db    => 'nucleotide',
-		                                    -query => $query ); 
+		                          -query => $query ); 
 		</programlisting>
 	 </para>
 	 <para>
@@ -785,14 +783,14 @@ use Bio::DB::Query::GenBank;
 
 $query = "Arabidopsis[ORGN] AND topoisomerase[TITL]";
 $query_obj = Bio::DB::Query::GenBank->new(-db    => 'nucleotide',
-		                               -query => $query ); 
+		                          -query => $query ); 
 
 $gb_obj = Bio::DB::GenBank->new;
 
 $stream_obj = $gb_obj->get_Stream_by_query($query_obj);
 		  
 while ($seq_obj = $stream_obj->next_seq) {
-	# do something with the sequence object
+     # do something with the sequence object
      print $seq_obj->display_id, "\t", $seq_obj->length, "\n";
 }
 		</programlisting>
@@ -809,7 +807,7 @@ while ($seq_obj = $stream_obj->next_seq) {
 		Notice how carefully separated the responsibilities of each
 		object are in the code above: there's an object just to describe the query,
 		an object to execute the query using the query object, an object to 
-		retrieve, and finally the sequence object.
+		do the I/O, and finally the sequence object.
 	 </para>
 	 <warning>
 		<para>
@@ -818,6 +816,7 @@ while ($seq_obj = $stream_obj->next_seq) {
 		  if your query accidentally tries to retrieve one of these monstrosities.
 		</para>
 	 </warning>
+	 <para></para>
 	 <para>
 		You can find detailed information on Genbank's query fields
 		<ulink url="http://www.ncbi.nlm.nih.gov/entrez/query/static/help/Summary_Matrices.html">here</ulink>.
@@ -832,8 +831,8 @@ while ($seq_obj = $stream_obj->next_seq) {
 		haven't shown what it's capable of doing. The table below
 		lists the methods available to you if you have a Sequence
 		object in hand. "Returns" means what the object will give
-		you if you use or call the method without an argument. The
-		same method, such as <function>seq()</function>, can be used to 
+		you if you use or call the method without an argument. 
+		Some methods, such as <function>seq()</function>, can be used to 
 		<emphasis>get</emphasis> or <emphasis>set</emphasis> values.
 		You're setting when you assign a value, you're
 		getting when you ask the object what values it has.
@@ -898,13 +897,13 @@ $seq_obj->seq("MMTYDFFFFVVNNNNPPPPAAAW");
 				<row>
 				  <entry>accession</entry>
 				  <entry>identifier</entry>
-				  <entry>$so->accession</entry>
+				  <entry>$acc = $so->accession</entry>
 				  <entry>get or set an identifier</entry>
 				</row>
 				<row>
 				  <entry>length</entry>
 				  <entry>length, a number</entry>
-				  <entry>$so->length</entry>
+				  <entry>$len = $so->length</entry>
 				  <entry></entry>
 				</row>
 				<row>
@@ -957,9 +956,9 @@ $seq_obj->seq("MMTYDFFFFVVNNNNPPPPAAAW");
 				</row>
 				<row>
 				  <entry>keywords</entry>
-				  <entry>array of keywords</entry>
+				  <entry>keywords, if available</entry>
 				  <entry>@array = $so->keywords</entry>
-				  <entry>get or set</entry>
+				  <entry>get or set keywords</entry>
 				</row>
 				<row>
 				  <entry>namespace</entry>
@@ -976,7 +975,7 @@ $seq_obj->seq("MMTYDFFFFVVNNNNPPPPAAAW");
 				<row>
 				  <entry>is_circular</entry>
 				  <entry>Boolean</entry>
-				  <entry>if $so->is_circular</entry>
+				  <entry>if $so->is_circular { # }</entry>
 				  <entry>get or set</entry>
 				</row>
 			 </tbody>
@@ -1205,7 +1204,7 @@ ORIGIN      15 bp upstream from HhaI site.
 		there are no commonly agreed upon standard names - perhaps someday
 		the authors will be able to rewrite the code when we all agree 
 		what these values should be. Second, you noticed that there's an awful lot of
-		information missing. All of this missing information is stored in
+		information missing. Almost all of this missing information is stored in
 		what Bioperl calls Features and Annotations, see the
 		<ulink
 		url="http://bioperl.org/HOWTOs/Feature-Annotation/index.html">Feature
@@ -1214,7 +1213,7 @@ ORIGIN      15 bp upstream from HhaI site.
 		are and why particular fields or identifiers end up associated with
 		particular methods. Again, without having standard names for things
 		that are agreed upon by the creators of our public databases all
-		we can do is use common sense, and these choices seem to be
+		the authors could do is use common sense, and these choices seem to be
 		reasonable ones.
 	 </para>
 	 <para>
@@ -1287,7 +1286,7 @@ CTGGAATTTGCTGGCATGTTATGCAATTTGCATATCAAATGGTTAATTTTTGCACAGGAC
 	 <para>
 		If you compare these values to the values taken from the Genbank 
 		entry you'll see that certain values, or methods, are missing,
-		like <function>seq_version</function>. That's because data
+		like <function>seq_version</function>. That's because these values
 		like this aren't usually present in the typical fasta file. 
 	 </para>
 	 <para>
@@ -1309,9 +1308,11 @@ CTGGAATTTGCTGGCATGTTATGCAATTTGCATATCAAATGGTTAATTTTTGCACAGGAC
 		  <function>display_id</function> returns the same value when
 		  using Genbank format or Genbank's fasta format but why?
 		  Does any single organization deserve to become a standard
-		  when, really, what they should be doing is talking to each other?
+		  when, really, what they should be doing is talking to each
+		  other and using the same terms?
 		</para>
 	 </note>
+	 <para></para>
 	 <para>
 		Let's use a Swissprot file as our last example. The input entry
 		looks like this:
@@ -1425,10 +1426,6 @@ SQ   SEQUENCE   913 AA;  101638 MW;  D0E135DBEC30C28C CRC64;
 				  <entry>accession</entry><entry>Q8R2H7</entry>
 				</row>
 				<row>
-				  <entry>primary_id</entry>
-				  <entry>Bio::PrimarySeq=HASH(0xa5eb48c)</entry>
-				</row>
-				<row>
 				  <entry>is_circular</entry><entry></entry>
 				</row>
 				<row>
@@ -1446,6 +1443,13 @@ SQ   SEQUENCE   913 AA;  101638 MW;  D0E135DBEC30C28C CRC64;
 			 </tbody>
 		  </tgroup>
       </table>
+	 </para>
+	 <para>
+		As in the Genbank example there's information that the Sequence
+		object doesn't supply, and it's stored in Annotation objects. See the
+	<ulink
+		url="http://bioperl.org/HOWTOs/Feature-Annotation/index.html">Feature
+		and Annotation HOWTO</ulink> for more.
 	 </para>
   </section>
 
@@ -1469,45 +1473,61 @@ SQ   SEQUENCE   913 AA;  101638 MW;  D0E135DBEC30C28C CRC64;
 <ulink
 		  url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Tools/Run/StandAloneBlast.html">Bio::Tools::Run::StandAloneBlast</ulink>.
 		You stipulate the parameters used by the blastall program by
-		populating an array called
-		<varname>@params</varname>, but any name for the array 
+		populating an array, it's called
+		<varname>@params</varname> in this example but any name for the array 
 		will work:
 	 </para>
 	 <para>
       <programlisting>
 use Bio::Tools::Run::StandAloneBlast;
 
-my @params = (program  => 'blastn',
-	           database => 'db.fa' );
+@params = (program  => 'blastn',
+	   database => 'db.fa' );
       </programlisting>
     </para>
 	 <para>
+		As you'd expect, we want to create a Blast object, and we will
+		pass a Sequence object to the Blast object:
 	 </para>
 	 <para>
 		<programlisting>
+use Bio::Seq;
 use Bio::Tools::Run::StandAloneBlast;
 
 @params = (program  => 'blastn',
-	        database => 'db.fa' );
+	   database => 'db.fa' );
 
 $blast_obj = Bio::Tools::Run::StandAloneBlast->new(@params);
-		</programlisting>
-	 </para>
-	 
-	 <para>
-		<programlisting>
-my $seq_obj = Bio::Seq->new(-id  =>"test query",
-			  -seq =>"TTTAAATATATTTTGAAGTATAGATTATATGTT");
 
-$report_obj = $blast_obj->blastall($input);
+$seq_obj = Bio::Seq->new(-id  =>"test query",
+			 -seq =>"TTTAAATATATTTTGAAGTATAGATTATATGTT");
+
+$report_obj = $blast_obj->blastall($seq_obj);
 
 $result_obj = $report_obj->next_result;
 
-print $result->num_hits;
+print $result_obj->num_hits;
 		</programlisting>
+	 </para>
+	 <para>
+		The report object, <varname>$report_obj</varname>, and the
+		result object,<varname>$result_obj</varname>, come from 
+		the SearchIO modules. The
+		<ulink url="http://bioperl.org/HOWTOs/SearchIO/index.html">
+		  SearchIO HOWTO</ulink> will tell you all about using these
+		objects to extract useful data from the your BLAST analyses.
+	 </para>
+	 <para>
+		Bioperl enables you to run a wide variety of bioinformatics
+		programs but in order to do so, in most cases, you will need
+		to install the accessory bioperl-run package. In addition 
+		there is no guarantee that there is a corresponding parser
+		for the program that you wish to run, but parsers have been
+		built for the most popular programs.
 	 </para>
   </section>
 
+<!--
   <section id="regexp">
     <title>Regular Expressions</title>
     <para>
@@ -1519,19 +1539,20 @@ print $result->num_hits;
     <para>
     </para>
   </section>
-  
+-->  
+
   <section id="perldoc">
 	 <title>Perl's Documentation System</title>
 	 <para>
 		Documentation for Perl is written using a system known as POD, which
-		stands for "Plain Old Documentation." You can access Perl's built-in
+		stands for <emphasis>P</emphasis>lain <emphasis>O</emphasis>ld 
+		<emphasis>D</emphasis>ocumentation. You can access this built-in
 		documentation by using the "perldoc" command. To view information 
 		on how to use perldoc, type the following at the command line:
 		<programlisting>
 >perldoc perldoc
 		</programlisting>
 	 </para>
-  
 	 <para>
 		Bioperl is also documented using POD, and perldoc can be an easy way to
 		obtain usage information on any of the Bioperl modules:
@@ -1561,11 +1582,11 @@ print $result->num_hits;
 		object-oriented programming and procedural programming can be
 		simply illustrated.
 	 </para>
-	 
 	 <para>
 		<emphasis>A Simple Example</emphasis>
 		Assume that we have a DNA sequence stored in the scalar variable
-		$sequence. We'd like to generate the reverse complement of this 
+		<varname>$sequence</varname>. We'd like to generate the 
+		reverse complement of this 
 		sequence and store it in $reverse_complement. Shown below is the
 		procedural Perl technique of using a subroutine to operate on
 		this scalar data:
@@ -1573,10 +1594,11 @@ print $result->num_hits;
 	 <para>
 		Example 1: 
 		<programlisting>
-$reverse_complement = &amp;rev_com( $sequence );
+use Bio::Perl;
+
+$reverse_complement = revcom( $sequence );
 		</programlisting>
 	 </para>
-	 
 	 <para>
 		The hallmark of a procedural program is that data and 
 		functions to operate on that data are kept separate. In order 
@@ -1601,7 +1623,7 @@ $reverse_complement = $sequence->revcom;
 		The main difference between this object-oriented example and the
 		procedural example shown before is that the function for
 		generating the reverse complement (called "revcom") part of
-		$sequence. To put it another way, $sequence knows how to calculate
+		$sequence. To put it another way, The object $sequence knows how to calculate
 		and return its reverse complement. Encapsaluting both data and
 		functions into the same construct is the fundamental idea behind
 		object-oriented programming. 
@@ -1620,7 +1642,10 @@ $reverse_complement = $sequence->revcom;
 		defined class is referred to as an
 		<emphasis>instance</emphasis> of that class.
 	 </para>
-	 
+  </section>
+</article>
+
+<!--	 
 	 <para>
 		<emphasis>Further Reading</emphasis>
 		Bioperl uses the object-oriented paradigm, and readers
@@ -1634,8 +1659,7 @@ $reverse_complement = $sequence->revcom;
 		  url="http://bioperl.org/Core/Latest/biodesign.html">Bioperl
 		  design documentation</ulink>. 
 	 </para>
-  </section>
-</article>
+-->
 
 <!--
   <section id="read_seq"> 
@@ -1709,7 +1733,6 @@ $reverse_complement = $sequence->revcom;
          </para>
     
   </section>
-
 -->
 
 <!--
@@ -1735,8 +1758,6 @@ $reverse_complement = $sequence->revcom;
 -->
 
 <!--
-
-
 	 <para>
 		This line does several things:
 		<simplelist type="horiz" columns="1">
@@ -1761,6 +1782,5 @@ $reverse_complement = $sequence->revcom;
 			 variable $seqio. 
 		  </member>
 		</simplelist>
-	 </para>
-	 
+	 </para>	 
 -->
