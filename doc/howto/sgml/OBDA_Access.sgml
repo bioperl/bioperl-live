@@ -457,7 +457,7 @@ The output is directed to STDOUT, so it can be redirected to a
 file.  The options can be given in long "double hyphen" format or
 abbreviated to one letter format:
   <programlisting>
-  % biogetseq -f fasta --namespace acc J02231 A21530 A10516 > filed.seq
+  % biogetseq -f fasta -n acc J02231 A21530 A10516 > filed.seq
   </programlisting>
   </para>
   </section>
