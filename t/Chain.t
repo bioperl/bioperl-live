@@ -2,6 +2,7 @@
 ## Bioperl Test Harness Script for Modules
 ## $Id$
 # Created: Wed Dec 13 15:52:33 GMT 2000
+# By Joseph A.L. Insana, <insana@ebi.ac.uk>
 #
 # Before `make install' is performed this script should be runnable with
 # `make test'. After `make install' it should work as `perl test.t'
@@ -80,7 +81,7 @@ test 32, Bio::LiveSeq::Chain::splice_chain($chain,4,2) eq 'de';
 test 33, Bio::LiveSeq::Chain::splice_chain($chain,7,undef,9) eq 'ghi';
 my @array=Bio::LiveSeq::Chain::praeinsert_string($chain,"ghi",10);
 test 34, $array[0] == 27 && $array[1] == 29;
-my @array=Bio::LiveSeq::Chain::postinsert_string($chain,"de",3);
+@array=Bio::LiveSeq::Chain::postinsert_string($chain,"de",3);
 test 35, $array[0] == 30 && $array[1] == 31;
 test 36, Bio::LiveSeq::Chain::up_chain2string($chain) eq "zyxWvutsrqponmlkjihgfedcba";
 @array=Bio::LiveSeq::Chain::check_chain($chain);
