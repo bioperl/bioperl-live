@@ -119,7 +119,9 @@ sub _initialize {
  Returns : L<Bio::Align::AlignI> object
  Args    :
 
+
 =cut
+
 
 sub next_aln {
     my $self = shift;
@@ -149,26 +151,38 @@ sub next_aln {
 
     # data and taxa blocks
     my $taxlabels;
+    my $incomment;
     while ($entry = $self->_readline) {
 	local ($_) =  $entry;
-
+	next if s/\[[^\]]+\]//g; # remove comments
+	if( s/\[[^\]]+$// ) {
+	    $incomment = 1;
+	    next unless length($_); # skip the line if it is now empty
+	} elsif($incomment) {
+	    if( s/^[^\]]*\]// ) {
+		$incomment = 0;
+	    } else { 
+		next;
+	    }
+	}
 	# read in seq names if in taxa block
 	$taxlabels = 1 if /taxlabels/i;
+
 	if ($taxlabels) {
 	    @names = $self->_read_taxlabels;
 	    $taxlabels = 0;
 	}
 
-	/ntax ?= ?(\d+)/i and $seqcount = $1;
-	/nchar ?= ?(\d+)/i and $residuecount = $1;
-	/matchchar ?= ?(.)/i and $match = $1;
-	/gap ?= ?(.)/i and $gap = $1;
-	/missing ?= ?(.)/i and $missing = $1;
-	/equate ?= ?"([^\"]+)/i and $equate = $1;  # "e.g. equate="T=C G=A";
-	/datatype ?= ?(\w+)/i and $alphabet = lc $1;
-	/interleave/i and $interleave = 1 ;
+	/ntax\s*=\s*(\d+)/i        and $seqcount = $1;
+	/nchar\s*=\s*(\d+)/i       and $residuecount = $1;
+	/matchchar\s*=\s*(.)/i     and $match = $1;
+	/gap\s*=\s*(.)/i           and $gap = $1;
+	/missing\s*=\s*(.)/i       and $missing = $1;
+	/equate\s*=\s*\"([^\"]+)/i and $equate = $1;  # "e.g. equate="T=C G=A";
+	/datatype\s*=\s*(\w+)/i    and $alphabet = lc $1;
+	/interleave/i              and $interleave = 1 ;
 
-	last if /matrix/i;
+	last if /matrix/io;
     }
     $self->throw("Not a valid NEXUS sequence file. Datatype not specified")
 	unless $alphabet;
@@ -193,11 +207,13 @@ sub next_aln {
     # matrix command
     #
     # first alignment section
-    if (@names == 0) {  # taxa block did not exist
+    if (@names == 0) {		# taxa block did not exist
 	while ($entry = $self->_readline) {
 	    local ($_) =  $entry;
+	    if( s/\[[^\]]+\]//g ) { #]  remove comments
+		next unless length($_);
+            }
 
-	    s/\[[^[]+\]//g; #] remove comments
 	    if ($interleave) {
 		/^\s+$/ and last;
 	    } else {
@@ -205,27 +221,28 @@ sub next_aln {
 	    }
 	    /^\s*;\s*$/ and last;
 	    if (/^\s*('([^']*?)'|([^']\S*))\s+(.*)\s$/) { #'
-		 $name = ($2 || $3);
-		 $str = $4;
-		 $name =~ s/ /_/g;
-		 push @names, $name;
+		$name = ($2 || $3);
+		$str = $4;
+		$name =~ s/ /_/g;
+		push @names, $name;
 
-		 $str =~ s/\s//g;
-		 $count =  @names;
-		 $hash{$count} = $str;
-	     };
+		$str =~ s/\s//g;
+		$count =  @names;
+		$hash{$count} = $str;
+							};
 	    $self->throw("Not a valid interleaved NEXUS file!
 seqcount [$count] > predeclared [$seqcount] in the first section") if $count > $seqcount;
 	}
-    }
+		     }
 
     # interleaved sections
     $count = 0;
     while( $entry = $self->_readline) {
 	local ($_) =  $entry;
-	s/\[[^[]+\]//g; #] remove comments
+	if( s/\[[^\]]+\]//g ) { #]  remove comments	    
+	    next unless length($_);
+	}
 	last if /^\s*;/;
-
 	$count = 0, next if $entry =~ /^\s*$/;
         if (/^\s*('([^']*?)'|([^']\S*))\s+(.*)\s$/) { #'
 	    $str = $4;
@@ -277,7 +294,8 @@ seqcount [$count] > predeclared [$seqcount] ") if $count > $seqcount;
 	$aln->map_chars($1, $2) while $equate =~ /(\S)=(\S)/g;
     }
 
-    while  ($entry !~ /endblock/i) {
+    while  (defined $entry &&
+	    $entry !~ /endblock/i) {
         $entry = $self->_readline;
     }
 
