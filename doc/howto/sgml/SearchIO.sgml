@@ -33,8 +33,8 @@
  <legalnotice>
 
  <para>This document is copyright Jason Stajich, 2002.  For
- reproduction other than personal use please contact me at the above
- address. </para>
+ reproduction other than personal use please contact me at jason-at-bioperl.org
+ </para>
 
  </legalnotice>
 
@@ -136,7 +136,7 @@
     <para>
     Here's an example which processes a BLAST report finding all the
     hits where the HSPs are > 100 residues and the percent identity is
-    gt; 75 percent.
+    < 75 percent.
     
     <programlisting>
     use strict;
