@@ -131,6 +131,8 @@ sub each_Descendent{
    $self->_abstractDeath;   
 }
 
+=head2 Decorated Interface methods
+
 =head2 get_Descendents
 
  Title   : get_Descendents
@@ -163,7 +165,7 @@ sub get_Descendents{
 
 sub is_Leaf{
     my ($self) = @_;
-    return ( ! $self->each_Descendent );
+    $self->_abstractDeath;
 }
 
 =head2 descendent_count
@@ -187,6 +189,55 @@ sub descendent_count{
    return $count;
 }
 
+=head2 to_string
+
+ Title   : to_string
+ Usage   : my $str = $node->to_string()
+ Function: For debugging, provide a node as a string
+ Returns : string
+ Args    : none
+
+
+=cut
+
+sub to_string{
+   my ($self) = @_;
+   return sprintf("%s%s",defined $self->id ? $self->id : '',
+		  defined $self->branch_length ? 
+		  ":" . $self->branch_length : ' ');
+}
+
+=head2 height
+
+ Title   : height
+ Usage   : my $len = $node->height
+ Function: Returns the height of the tree starting at this
+           node.  Height is the maximum branchlength.
+ Returns : The longest length (weighting branches with branch_length) to a leaf
+ Args    : none
+
+=cut
+
+sub height{
+   my ($self) = @_;
+   
+   if( $self->is_Leaf ) { 
+       if( !defined $self->branch_length ) { 
+	   $self->warn(sprintf("Trying to calculate height of a node when a Node (%s) has an undefined branch_length",$self->id || '?' ));
+	   return 0;
+       }
+       return $self->branch_length;
+   }
+   my $max = 0;
+   foreach my $subnode ( $self->each_Descendent ) { 
+       my $s = $subnode->height;
+       if( $s > $max ) { $max = $s; }
+   }
+   return $max + $self->branch_length;
+}
+
+=head2 Get/Set methods
+
 =head2 branch_length
 
  Title   : branch_length
@@ -204,23 +255,56 @@ sub branch_length{
     $self->_abstractDeath;
 }
 
-=head2 to_string
+=head2 id
 
- Title   : to_string
- Usage   : my $str = $node->to_string()
- Function: For debugging, provide a node as a string
- Returns : string
- Args    : none
+ Title   : id
+ Usage   : $obj->id($newval)
+ Function: 
+ Example : 
+ Returns : value of id
+ Args    : newvalue (optional)
 
 
 =cut
 
-sub to_string{
-   my ($self) = @_;
-   return sprintf("BL:%s",defined $self->branch_length ? 
-		  $self->branch_length : ' ');
+sub id{
+    my ($self)= @_;
+    $self->_abstractDeath;
 }
 
+=head2 description
+
+ Title   : description
+ Usage   : $obj->description($newval)
+ Function: 
+ Example : 
+ Returns : value of description
+ Args    : newvalue (optional)
+
+
+=cut
+
+sub description{
+    my ($self) = @_;
+    $self->_abstractDeath;
+}
+
+=head2 bootstrap
+
+ Title   : bootstrap
+ Usage   : $obj->bootstrap($newval)
+ Function: 
+ Example : 
+ Returns : value of bootstrap
+ Args    : newvalue (optional)
+
+
+=cut
+
+sub bootstrap{
+    my ($self) = @_;
+    $self->_abstractDeath;
+}
 
 =head2 ancestor
 

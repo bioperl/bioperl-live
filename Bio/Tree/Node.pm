@@ -140,7 +140,7 @@ sub add_Descendent{
        $self->warn("Trying to add a Descendent who is not a Bio::Tree::NodeI");
        return -1;
    }
-   # do we care about order??
+   # do we care about order?
    $self->{'_descendents'}->{$node} = $node;
    return scalar keys %{$self->{'_descendents'}};
 }
@@ -159,8 +159,9 @@ sub add_Descendent{
 
 sub each_Descendent{
    my ($self) = @_;
-   values %{$self->{'_descendents'}};
-#   return @{$self->{'_descendents'}};
+   # order can be based on branch length (and sub branchlength)    
+   
+   return sort { $a->height <=> $b->height } values %{$self->{'_descendents'}};
 }
 
 =head2 get_Descendents
@@ -275,6 +276,21 @@ sub id{
    return $self->{'_id'};
 }
 
+sub DESTROY {
+    my ($self) = @_;
+    # try to insure that everything is cleaned up
+    $self->SUPER::DESTROY();
+    if( defined $self->{'_descendents'} && 
+	ref($self->{'_descendents'}) =~ /ARRAY/i ) {
+	foreach my $n ( @{$self->{'_descendents'}} ) {
+	    $n->DESTROY();
+	}
+	$self->{'_descendents'} = {};
+    }
+}
+
+# The following methods are implemented by NodeI decorated interface
+
 =head2 is_Leaf
 
  Title   : is_Leaf
@@ -285,6 +301,12 @@ sub id{
 
 =cut
 
+sub is_Leaf {
+    my ($self) = @_;
+    return (defined $self->{'_descedendants'} &&
+	keys %{$self->{'_descedendants'}} > 0);
+}
+
 =head2 to_string
 
  Title   : to_string
@@ -293,9 +315,16 @@ sub id{
  Returns : string
  Args    : none
 
+=head2 height
+
+ Title   : height
+ Usage   : my $len = $node->height
+ Function: Returns the height of the tree starting at this
+           node.  Height is the maximum branchlength.
+ Returns : The longest length (weighting branches with branch_length) to a leaf
+ Args    : none
 
 =cut
 
-# implemented by NodeI decorated interface
-
 1;
+
