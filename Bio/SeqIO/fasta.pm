@@ -122,9 +122,11 @@ sub next_seq {
 	$alphabet = undef;
     }
 
+    
+
     # create the seq object
     $seq = $self->sequence_factory->create(
-					   -ref_to_seq  => \$sequence,
+					   -seq         => $sequence,
 					   -id          => $id,
 					   -primary_id  => $id,
 					   -desc        => $fulldesc,
