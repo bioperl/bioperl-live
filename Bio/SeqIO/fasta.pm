@@ -107,11 +107,10 @@ sub next_primary_seq {
     return unless $entry = $self->_readline;
   }
 
-  my ($top,$sequence) = $entry =~ /^(.+?)\n([^>]*)/s
-    or $self->throw("Can't parse entry");
+  my ($top,$sequence) = $entry =~ /^>?(.+?)\n([^>]*)/s
+    or $self->throw("Can't parse fasta entry");
   my ($id,$fulldesc) = $top =~ /^\s*(\S+)\s*(.*)/
     or $self->throw("Can't parse fasta header");
-  $id =~ s/^>//;
   if ($id eq '') {$id=$fulldesc;} # FIX incase no space between > and name \AE
   $sequence =~ s/\s//g; # Remove whitespace
 
