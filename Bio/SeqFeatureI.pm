@@ -79,7 +79,6 @@ use vars qw(@ISA);
 use strict;
 
 # Object preamble - inheriets from Bio::Root::Object
-
 use Bio::RangeI;
 use Carp;
 
@@ -377,13 +376,17 @@ sub gff2_string{
 		 $strand,
 		 $frame);
 
-   # the routine below is the only modification I made to the original ->gff_string routine (above)
-   # as on November 17th, 2000, the Sanger webpage describing GFF2 format reads:
-   # From version 2 onwards, the attribute field must have a tag value structure following
-   # the syntax used within objects in a .ace file, flattened onto one line
-   # by semicolon separators. Tags must be standard identifiers ([A-Za-z][A-Za-z0-9_]*).
-   # Free text values must be quoted with double quotes.
+   # the routine below is the only modification I made to the original
+   # ->gff_string routine (above) as on November 17th, 2000, the
+   # Sanger webpage describing GFF2 format reads: "From version 2
+   # onwards, the attribute field must have a tag value structure
+   # following the syntax used within objects in a .ace file,
+   # flattened onto one line by semicolon separators. Tags must be
+   # standard identifiers ([A-Za-z][A-Za-z0-9_]*).  Free text values
+   # must be quoted with double quotes".
+
    # MW
+
    my $valuestr;
    if ($feat->all_tags){  # only play this game if it is worth playing...
         $str .= "\t";     # my interpretation of the GFF2 specification suggests the need for this additional TAB character...??
@@ -463,6 +466,25 @@ triplets (start, stop, strand) from which new ranges could be built.
 
 =cut
 #'
+
+=head2 location
+
+ Title   : location
+ Usage   : my $location = $seqfeature->location()
+ Function: returns a location object suitable for identifying location 
+	   of feature on sequence or parent feature  
+ Returns : Bio::LocationI object
+ Args    : none
+
+
+=cut
+
+sub location {
+   my ($self) = @_;
+
+   $self->_abstractDeath();
+}
+
 
 1;
 
