@@ -1,4 +1,4 @@
-#
+# $Id$
 # Bioperl module Bio::Tools::BPbl2seq
 #	based closely on the Bio::Tools::BPlite modules
 #	Ian Korf (ikorf@sapiens.wustl.edu, http://sapiens.wustl.edu/~ikorf), 
@@ -14,7 +14,8 @@
 
 =head1 NAME
 
-Bio::Tools::BPbl2seq - Lightweight BLAST parser for (iterated) psiblast reports
+Bio::Tools::BPbl2seq - Lightweight BLAST parser for (iterated)
+psiblast reports
 
 =head1 SYNOPSIS
 
@@ -44,19 +45,21 @@ the report format is similar to that of a conventional BLAST, there are a
 few differences so that the standard bioperl BLAST parsers Blast.pm and
 BPlite are unable to read bl2seq reports directly.
 
-From the user's perspective, the main difference between bl2seq and other blast reports
-is that the bl2seq report does not print out the name of the first of
-the two aligned sequences.  (The second sequence name is given in the report as the
-name of the "hit").  Consequently, BPbl2seq has no way of identifying the name of the initial
-sequence unless it is passed to constructor as a second argument as in:
+From the user's perspective, the main difference between bl2seq and
+other blast reports is that the bl2seq report does not print out the
+name of the first of the two aligned sequences.  (The second sequence
+name is given in the report as the name of the "hit").  Consequently,
+BPbl2seq has no way of identifying the name of the initial sequence
+unless it is passed to constructor as a second argument as in:
 
 	my $report = Bio::Tools::BPbl2seq->new(\*FH, "ALEU_HORVU");
 
-If the name of the first sequence is not passed to BPbl2seq.pm in this manner, the name of the
-first sequence will be left as "unknown".  (Note that to preserve a common interface with
-the other BLAST programs the two sequences being compared are referred to in bl2seq as "query"
-and "subject" although this is perhaps a bit misleading when simply comparing 2 sequences as
-opposed to querying a database.)
+If the name of the first sequence is not passed to BPbl2seq.pm in this
+manner, the name of the first sequence will be left as "unknown".
+(Note that to preserve a common interface with the other BLAST
+programs the two sequences being compared are referred to in bl2seq as
+"query" and "subject" although this is perhaps a bit misleading when
+simply comparing 2 sequences as opposed to querying a database.)
 
 
 =head1 FEEDBACK
@@ -98,7 +101,7 @@ BPlite.pm is copyright (C) 1999 by Ian Korf.
 This software is provided "as is" without warranty of any kind.
 
 =cut
-
+#'
 package Bio::Tools::BPbl2seq;
 
 use vars qw(@ISA);
@@ -114,28 +117,23 @@ use Bio::SeqFeature::Similarity;
 
 @ISA = qw(Bio::SeqFeature::SimilarityPair);
 
-# new() is inherited from Bio::Root::Object
-
-# _initialize is where the heavy stuff will happen when new is called
-
 sub _initialize {
-  my $self = shift;
-  my $fh = shift;
-  my $query = shift || "unknown";
-  my $make = $self->SUPER::_initialize;
+  my ($self,$fh,$query,@args) = @_;
+  $query = 'unknown' if( ! defined $query );
+  
+  my $make = $self->SUPER::_initialize(@args);
+  
 
-  if (ref $fh !~ /GLOB/) {
-	$self->throw("Expecting a GLOB reference, not $fh!");
-  }
+  if (ref($fh) !~ /GLOB/) {
+      $self->throw("Expecting a GLOB reference, not $fh!");
+  } 
   $self->{FH} = $fh;
-
+  
   my ($score,$bits,$match,$positive,$p,$qb,$qe,$sb,$se,$qs,
-      $ss,$hs,$qname,$sname,$qlength,$slength) = &_parsebl2seq($self, $query);
-
-  unless (defined $positive &&  $positive) {
+      $ss,$hs,$qname,$sname,$qlength,$slength) = $self->_parsebl2seq($query);
+  unless ( $positive ) {
 	$self->throw("No match found or other problem parsing bl2seq report");
   }
-
 
   # Store the aligned query as sequence feature
   if ($qe > $qb) { # normal query: start < end
@@ -167,8 +165,7 @@ sub _initialize {
   $self->significance($p);
   $self->query->frac_identical($match);
   $self->subject->frac_identical($match);
-  $self->{PERCENT} = int((1000 * $match)/
-			 $self->query->length)/10;
+  $self->{PERCENT} = int((1000 * $match)/ $self->query->length)/10;
   $self->{POSITIVE} = $positive;
   $self->{QS} = $qs;
   $self->{SS} = $ss;
@@ -313,14 +310,9 @@ sub ss              {shift->{SS}}
 
 sub hs              {shift->{HS}}
 
-
-
-
 sub _parsebl2seq {
-  my ($self) = shift;
-  my $query = shift;
+  my ($self,$query) = @_;
   my $def = "";
-
 
   ############################
   # get seq2 (the "hit") name & lrngth  
@@ -335,9 +327,8 @@ sub _parsebl2seq {
   $def =~ s/\s+$//g;
   $def =~ s/Length = ([\d,]+)$//g;
   my $hlength = $1;
-  return 0 unless $def =~ /^>/;
-  $def =~ s/^>//;
-
+  return 0 unless $def =~ />/;
+  $def =~ s/(.*)>//;
 
   ############################
   # get and parse scorelines #
@@ -347,7 +338,6 @@ sub _parsebl2seq {
  BLANKS: while ($nextline = <$FH>) {
      last BLANKS if ($nextline =~ /\w/) ;
  }
-
   return undef if not defined $nextline;
   my $scoreline = $nextline;
   my ($score, $bits);
@@ -421,8 +411,10 @@ sub _parsebl2seq {
   $sl = join("", @SL);
   $as = join("", @AS);
   my ($queryid, $querylength);
-  if  ($query eq 'unknown') { $queryid  = 'unknown'; $querylength = 0;}
-  else {
+  
+  if  (!defined $query || 
+       $query eq 'unknown') { $queryid  = 'unknown'; $querylength = 0;}
+  elsif( $query->can('id') && $query->can('length') ) {
 	$queryid  =  $query->id;
 	$querylength = $query->length;
   }
@@ -432,3 +424,4 @@ sub _parsebl2seq {
   return @returnarray;
 }
 
+1;

@@ -1,3 +1,4 @@
+# $Id$
 ##############################################################################
 # Bioperl module Bio::Tools::BPlite
 ##############################################################################
@@ -165,23 +166,23 @@ package Bio::Tools::BPlite;
 use strict;
 use vars qw(@ISA);
 
-use Bio::Root::Object; # root object to inherit from
+use Bio::Root::RootI;
 use Bio::Tools::BPlite::Sbjct; # we want to use Sbjct
 
-@ISA = qw(Bio::Root::Object);
+@ISA = qw(Bio::Root::RootI);
 
-# _initialize is where the heavy stuff will happen when new is called
+# new comes from a RootI now
 
 sub _initialize {
   my ($self, @args) = @_; 
-  my $make = $self->SUPER::_initialize;
+  my $make = $self->SUPER::_initialize(@args);
 
   my ($fh) = $self->_rearrange([qw(FH)],@args);
 
   if (ref $fh !~ /GLOB/)
     { $self->throw("Expecting a GLOB reference, not $fh!"); }
 
-  $self->{FH} = $fh;
+  $self->fh($fh);
   $self->{LASTLINE} = "";
   $self->{QPATLOCATION} = [];  # Anonymous array of query pattern locations for PHIBLAST
 
@@ -271,7 +272,7 @@ sub nextSbjct {
   # get all sbjct lines #
   #######################
   my $def = $self->{LASTLINE};
-  my $FH = $self->{FH};
+  my $FH = $self->fh();
   while(<$FH>) {
     if    ($_ !~ /\w/)            {next}
     elsif ($_ =~ /Strand HSP/)    {next} # WU-BLAST non-data
@@ -290,16 +291,34 @@ sub nextSbjct {
   ####################
   my $sbjct = new Bio::Tools::BPlite::Sbjct(-name=>$def,
 					    -length=>$length,
-                                            -fh=>$self->{FH}, 
+                                            -fh=>$self->fh, 
 					    -lastline=>$self->{LASTLINE}, 
 					    -parent=>$self);
   return $sbjct;
 }
 
+=head2 fh
+
+ Title    : fh
+ Usage    : $fh = $obj->fh();
+ Function : get/set filehandle
+ Returns  : file handle
+ Args     :
+
+=cut
+
+sub fh {
+    my ($self, $value) = @_;
+    if( defined $value && ref($value) =~ /GLOB/i ) {
+	$self->{FH} = $value;
+    } 
+    return $self->{FH};
+}
+# begin private routines
 
 sub _parseHeader {
   my ($self) = @_;
-  my $FH = $self->{FH};
+  my $FH = $self->fh();
   
   while(<$FH>) {
     if ($_ =~ /^Query=\s+([^\(]+)/)    {
@@ -334,7 +353,7 @@ sub _fastForward {
     return 0 if $self->{REPORT_DONE}; # empty report
     return 1 if $self->{LASTLINE} =~ /^>/;
 
-    my $FH = $self->{FH};
+    my $FH = $self->fh();
     my $capture;
     while(<$FH>) {
 	if ($_ =~ /^>|^Parameters|^\s+Database:|^\s+Posted date:/) {
@@ -348,14 +367,3 @@ sub _fastForward {
 
 1;
 __END__
-
-
-
-
-
-
-
-
-
-
-

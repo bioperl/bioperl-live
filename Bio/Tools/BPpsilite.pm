@@ -1,4 +1,4 @@
-#
+# $Id$
 # Bioperl module Bio::Tools::BPpsilite
 ############################################################
 #	based closely on the Bio::Tools::BPlite modules
@@ -138,25 +138,27 @@ use strict;
 use vars qw(@ISA);
 use Bio::Tools::BPlite::Iteration; #
 use Bio::Tools::BPlite::Sbjct; #   Debug code
-use Bio::Root::Object; # root object to inherit from
-use Bio::Tools::BPlite; #
-@ISA = qw( Bio::Root::Object);
+use Bio::Root::RootI; # root interface to inherit from
+use Bio::Tools::BPlite; 
+
+@ISA = qw( Bio::Root::RootI);
 
 #  clean up temporary files when exiting
-END {    system('rm -f iteration?.tmp ') ;}
+END { system('rm -f iteration?.tmp ') ;}
 
+# new comes from a RootI now
 
 # _initialize is where the heavy stuff will happen when new is called
 sub _initialize {
   my ($self, @args) = @_; 
-  my $make = $self->SUPER::_initialize;
+  my $make = $self->SUPER::_initialize(@args);
 
   my ($fh) = $self->_rearrange([qw(FH)],@args);
 
   if (ref $fh !~ /GLOB/)
     { $self->throw("Expecting a GLOB reference, not $fh!"); }
 
-  $self->{FH} = $fh;
+  $self->fh($fh);
   $self->{LASTLINE} = "";
   $self->{QPATLOCATION} = [];  # Anonymous array of query pattern locations for PHIBLAST
   $self->{NEXT_ITERATION_NUMBER} = 1;
@@ -270,9 +272,28 @@ sub round {
 
 }
 
+=head2 fh
+
+ Title    : fh
+ Usage    : $fh = $obj->fh();
+ Function : get/set filehandle
+ Returns  : file handle
+ Args     :
+
+=cut
+
+sub fh {
+    my ($self, $value) = @_;
+    if( defined $value && ref($value) =~ /GLOB/i ) {
+	$self->{FH} = $value;
+    } 
+    return $self->{FH};
+}
+# begin private routines
+
 sub _parseHeader {
   my ($self) = @_;
-  my $FH = $self->{FH};
+  my $FH = $self->fh();
   
   while(<$FH>) {
     if ($_ =~ /^Query=\s+([^\(]+)/)    {
@@ -317,7 +338,7 @@ sub _parseHeader {
 sub _preprocess {
     my $self = shift;
 #	$self->throw(" PSIBLAST report preprocessing not implemented yet!");
-    my $FH = $self->{FH};
+    my $FH = $self->fh();
     my  $oldround = 0;
     my ($currentline, $currentfile, $round);
 
