@@ -23,7 +23,7 @@ Bio::PrimarySeq - Bioperl lightweight Sequence Object
   use Bio::DB::GenBank;
 
   #make from memory
-  $seqobj = Bio::PrimaySeq->new ( -seq => 'ATGGGGTGGGCGGTGGGTGGTTTG',
+  $seqobj = Bio::PrimarySeq->new ( -seq => 'ATGGGGTGGGCGGTGGGTGGTTTG',
 			    -id  => 'GeneFragment-12',
 			    -accession => 'X78121',
 			    -moltype => 'dna'
@@ -48,7 +48,7 @@ Bio::PrimarySeq - Bioperl lightweight Sequence Object
 
 =head1 DESCRIPTION
 
-PrimaySeq is a lightweight Sequence object, storing little more than
+PrimarySeq is a lightweight Sequence object, storing little more than
 the sequence, its name, a computer useful unique name. It does not
 contain sequence features or other information.  To have a sequence
 with sequence features you should use the Seq object which uses this

@@ -42,7 +42,7 @@ Bio::PrimarySeqI - Interface definition for a Bio::PrimarySeq
 
     $trunc = $obj->trunc(12,50);
     
-    # $rev and $trunc are Bio::PrimaySeqI compliant objects
+    # $rev and $trunc are Bio::PrimarySeqI compliant objects
 
 
 
@@ -52,7 +52,7 @@ This object defines an abstract interface to basic sequence
 information. PrimarySeq is an object just for the sequence and its
 name(s), nothing more. Seq is the larger object complete with
 features. There is a pure perl implementation of this in
-Bio::PrimaySeq. If you just want to use Bio::PrimaySeq objects, then
+Bio::PrimarySeq. If you just want to use Bio::PrimarySeq objects, then
 please read that module first. This module defines the interface, and
 is of more interest to people who want to wrap their own Perl
 Objects/RDBs/FileSystems etc in way that they "are" bioperl sequence
@@ -61,11 +61,11 @@ objects, even though it is not using Perl to store the sequence etc.
 
 This interface defines what bioperl consideres necessary to "be" a
 sequence, without providing an implementation of this. (An
-implementation is provided in Bio::PrimaySeq). If you want to provide
+implementation is provided in Bio::PrimarySeq). If you want to provide
 a Bio::PrimarySeq 'compliant' object which in fact wraps another
 object/database/out-of-perl experience, then this is the correct thing
 to wrap, generally by providing a wrapper class which would inheriet
-from your object and this Bio::PrimaySeqI interface. The wrapper class
+from your object and this Bio::PrimarySeqI interface. The wrapper class
 then would have methods lists in the "Implementation Specific
 Functions" which would provide these methods for your object.
 
@@ -111,7 +111,6 @@ package Bio::PrimarySeqI;
 use vars qw(@ISA);
 use strict;
 use Carp;
-
 use Bio::Tools::CodonTable;
 
 =head1 Implementation Specific Functions
@@ -468,7 +467,7 @@ sub trunc{
    }
        
    my $str = $self->subseq($start,$end);
-
+   
    my $out;
    if( $self->can_call_new == 1  ) {
        $out = $self->new( '-seq' => $str,
@@ -915,15 +914,15 @@ need to implement these functions
 sub _attempt_to_load_Seq{
    my ($self) = @_;
 
-   if( $main::{'Bio::PrimaySeq'} ) {
+   if( $main::{'Bio::PrimarySeq'} ) {
        return 1;
    } else {
        eval {
-	   require "Bio::PrimaySeq";
+	   require Bio::PrimarySeq;
        };
        if( $@ ) {
 	   if( $self->can('throw') ) {
-	       $self->throw("Bio::PrimaySeq could not be loaded for $self\nThis indicates that you are usnig Bio::PrimarySeqI without Bio::PrimarySeq loaded and without providing a complete solution\nThe most likely problem is that there has been a misconfiguration of the bioperl environment\nActual exception\n\n$@\n");
+	       $self->throw("Bio::PrimarySeq could not be loaded for $self\nThis indicates that you are usnig Bio::PrimarySeqI without Bio::PrimarySeq loaded and without providing a complete solution\nThe most likely problem is that there has been a misconfiguration of the bioperl environment\nActual exception\n\n$@\n");
 	   } else {
 	       confess("Bio::PrimarySeq could not be loaded for $self\nThis indicates that you are usnig Bio::PrimarySeqI without Bio::PrimarySeq loaded and without providing a complete solution\nThe most likely problem is that there has been a misconfiguration of the bioperl environment\nActual exception\n\n$@\n");
 	   }
