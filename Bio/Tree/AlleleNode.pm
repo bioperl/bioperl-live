@@ -20,8 +20,11 @@ Bio::Tree::AlleleNode - A Node with Alleles attached
 
 =head1 DESCRIPTION
 
-AlleleNodes are basic Bio::Tree::Nodes with the added ability to add
-alleles.  Alelles are defined as a marker name with a set.
+AlleleNodes are basic L<Bio::Tree::Node>s with the added ability to
+add Genotypes alleles as defined by the L<Bio::PopGen::IndividualI>
+interface.  Genotypes are defined by the L<Bio::PopGen::GenotypeI>
+interface, you will probably want to use the L<Bio::PopGen::Genotype>
+implementation.
 
 =head1 FEEDBACK
 
@@ -45,9 +48,7 @@ email or the web:
 
 =head1 AUTHOR - Jason Stajich
 
-Email jason@bioperl.org
-
-Describe contact details here
+Email jason-at-bioperl-dot-org
 
 =head1 CONTRIBUTORS
 
@@ -58,8 +59,13 @@ Additional contributors names and emails here
 The rest of the documentation details each of the object methods.
 Internal methods are usually preceded with a _
 
-=cut
+=head1 HISTORY
 
+This module was re-written to be a combination of
+L<Bio::PopGen::Individual> and L<Bio::Tree::Node> primarily for use in
+L<Bio::PopGen::Simulation::Coalescent> simulations.
+
+=cut
 
 # Let the code begin...
 
@@ -69,136 +75,368 @@ use vars qw(@ISA);
 use strict;
 
 use Bio::Tree::Node;
+use Bio::PopGen::Individual;
+use Bio::PopGen::Genotype;
 
-@ISA = qw(Bio::Tree::Node );
+@ISA = qw(Bio::Tree::Node Bio::PopGen::Individual );
 
 =head2 new
 
  Title   : new
  Usage   : my $obj = new Bio::Tree::AlleleNode();
- Function: Builds a new Bio::Tree::AlleleNode object 
- Returns : Bio::Tree::AlleleNode
- Args    :
+ Function: Builds a new Bio::Tree::AlleleNode() object 
+ Returns : an instance of Bio::Tree::AlleleNode
+ Args    : -unique_id     => $id,
+           -genotypes     => \@genotypes
+           -left          => pointer to Left descendent (optional)
+           -right         => pointer to Right descenent (optional)
+	   -branch_length => branch length [integer] (optional)
+           -bootstrap     => value   bootstrap value (string)
+           -description   => description of node
+           -id            => human readable (unique) id for node
+                             Should NOT contain the characters 
+                             '();:'
+=cut
 
+=head2 Bio::PopGen::Individual methods
+
+Methods inherited from L<Bio::PopGen::Individual>.
+
+
+=head2 unique_id
+
+ Title   : unique_id
+ Usage   : my $id = $individual->unique_id
+ Function: Unique Identifier
+ Returns : string representing unique identifier
+ Args    : string
 
 =cut
 
-sub new {
-  my($class,@args) = @_;
-
-  my $self = $class->SUPER::new(@args);
-
-  my ($alleles) = $self->_rearrange([qw(ALLELES)], @args);
-  $self->{'_markerdata'} = {};
-  if( defined $alleles ) { 
-      if( ref($alleles) !~ /HASH/i ) {
-	  $self->warn("Must specify a valid HASH reference for the -alleles value...Ignoring initializing input");
-	  
-      } else { 
-	  foreach my $mkr ( keys %{$alleles} ) { 
-	      $self->add_alleles($mkr,@{$alleles->{$mkr}});
-	  }
-      }
-  }
-  return $self;
+sub unique_id { 
+    my $self = shift;
+    $self->internal_id(@_);
 }
 
-=head2 add_alleles
+=head2 num_of_results
 
- Title   : add_alleles
- Usage   : $node->add_alleles($mkr,@alleles);
- Function: Adds allele(s) for $mkr, @alleles can be a single or 
-           multiple alleles. If the same marker is added more than one, the 
-           previous value will be overwritten with a warning.
+ Title   : num_of_results
+ Usage   : my $count = $person->num_results;
+ Function: returns the count of the number of Results for a person
+ Returns : integer
+ Args    : none
+
+
+=head2 add_Genotype
+
+ Title   : add_Genotype
+ Usage   : $individual->add_Genotype
+ Function: add a genotype value
+ Returns : count of the number of genotypes associated with this individual
+ Args    : $genotype - Bio::PopGen::GenotypeI object containing the alleles for
+                       a marker
+
+=cut
+
+sub add_Genotype {
+    my ($self) = shift;
+    if( scalar @_ == 1 )  { 
+	return $self->SUPER::add_Genotype(@_);
+    }
+    my ($marker,@alleles) = @_;
+    my $all;
+    if( @alleles && ref($alleles[0]) =~ /ARRAY/ ) {
+	$all = shift @alleles;
+    } else { $all = \@alleles }
+    
+    return $self->SUPER::add_Genotype(Bio::PopGen::Genotype->new
+				      (-marker_name  => $marker,
+				       -individual_id=> $self->internal_id,
+				       -alleles      => $all));
+}
+
+=head2 reset_Genotypes
+
+ Title   : reset_Genotypes
+ Usage   : $individual->reset_Genotypes;
+ Function: Reset the genotypes stored for this individual
  Returns : none
- Args    : $marker => marker name
-           @alleles => alleles for the marker
+ Args    : none
 
 
-=cut
+=head2 remove_Genotype
 
-sub add_alleles{
-   my ($self,$marker,@alleles) = @_;
-   if( ! defined $marker || $marker eq '' ) { 
-       $self->warn("must specify a valid marker name for add_alleles");
-       return;
-   } 
-   if( $self->{'_markerdata'}->{$marker} ) { 
-       $self->warn("Overwriting value of $marker");
-   }
-   $self->{'_markerdata'}->{$marker} = []; # reset the array ref
-   foreach my $a ( sort @alleles ) { 
-       next if ! defined $a; # skip undef alleles 
-       push @{$self->{'_markerdata'}->{$marker}},$a;
-   }
-}
-
-=head2 get_alleles
-
- Title   : get_alleles
- Usage   : my @alleles = $node->get_alleles($marker);
- Function: Return the alleles for a marker $marker
- Returns : Array of Alleles for a marker or empty array
- Args    : $marker name
-
-=cut
-
-sub get_alleles{
-   my ($self,$marker) = @_;
-   if( defined $self->{'_markerdata'}->{$marker} ) { 
-       return @{ $self->{'_markerdata'}->{$marker} };
-   }
-   return ();
-}
-
-=head2 has_marker
-
- Title   : has_marker
- Usage   : if( $node->has_marker($marker) ) {}
- Function: Test if a marker exists for this node
- Returns : boolean
- Args    : $markername
+ Title   : remove_Genotype
+ Usage   : $individual->remove_Genotype(@names)
+ Function: Removes the genotypes for the requested markers
+ Returns : none
+ Args    : Names of markers 
 
 
-=cut
+=head2 get_Genotypes
 
-sub has_marker{
-   my ($self,$marker) = @_;
-   return defined $self->{'_markerdata'}->{$marker};
-}
+ Title   : get_Genotypes
+ Usage   : my @genotypes = $ind->get_Genotypes(-marker => $markername);
+ Function: Get the genotypes for an individual, based on a criteria
+ Returns : Array of genotypes
+ Args    : either none (return all genotypes) or 
+           -marker => name of marker to return (exact match, case matters)
+
+
+=head2 has_Marker
+
+ Title   : has_Marker
+ Usage   : if( $ind->has_Marker($name) ) {}
+ Function: Boolean test to see if an Individual has a genotype 
+           for a specific marker
+ Returns : Boolean (true or false)
+ Args    : String representing a marker name
 
 
 =head2 get_marker_names
 
  Title   : get_marker_names
- Usage   : my @names =$node->get_marker_names();
- Function: Return the names of the markers that have been added to this node
- Returns : List of Marker Names
+ Usage   : my @names = $individual->get_marker_names;
+ Function: Returns the list of known marker names
+ Returns : List of strings
+ Args    : none
+
+
+
+=head2 Bio::Tree::Node methods
+
+Methods inherited from L<Bio::Tree::Node>.
+
+
+=head2 add_Descendent
+
+ Title   : add_Descendent
+ Usage   : $node->add_Descendant($node);
+ Function: Adds a descendent to a node
+ Returns : number of current descendents for this node
+ Args    : Bio::Node::NodeI
+           boolean flag, true if you want to ignore the fact that you are
+           adding a second node with the same unique id (typically memory 
+           location reference in this implementation).  default is false and 
+           will throw an error if you try and overwrite an existing node.
+
+
+=head2 each_Descendent
+
+ Title   : each_Descendent($sortby)
+ Usage   : my @nodes = $node->each_Descendent;
+ Function: all the descendents for this Node (but not their descendents
+					      i.e. not a recursive fetchall)
+ Returns : Array of Bio::Tree::NodeI objects
+ Args    : $sortby [optional] "height", "creation" or coderef to be used
+           to sort the order of children nodes.
+
+
+=head2 remove_Descendent
+
+ Title   : remove_Descendent
+ Usage   : $node->remove_Descedent($node_foo);
+ Function: Removes a specific node from being a Descendent of this node
+ Returns : nothing
+ Args    : An array of Bio::Node::NodeI objects which have be previously
+           passed to the add_Descendent call of this object.
+
+
+=head2 remove_all_Descendents
+
+ Title   : remove_all_Descendents
+ Usage   : $node->remove_All_Descendents()
+ Function: Cleanup the node's reference to descendents and reset
+           their ancestor pointers to undef, if you don't have a reference
+           to these objects after this call they will be cleaned up - so
+           a get_nodes from the Tree object would be a safe thing to do first
+ Returns : nothing
+ Args    : none
+
+
+
+=head2 get_all_Descendents
+
+ Title   : get_all_Descendents
+ Usage   : my @nodes = $node->get_all_Descendents;
+ Function: Recursively fetch all the nodes and their descendents
+           *NOTE* This is different from each_Descendent
+ Returns : Array or Bio::Tree::NodeI objects
  Args    : none
 
 =cut
 
-sub get_marker_names{
-   my ($self) = @_;
-   return keys %{$self->{'_markerdata'}};
-}
+# implemented in the interface 
 
-=head2 purge_markers
+=head2 ancestor
 
- Title   : purge_markers
- Usage   : $node->purge_markers;
- Function: Reset the markers and alleles
- Returns : none
- Args    : none
+ Title   : ancestor
+ Usage   : $obj->ancestor($newval)
+ Function: Set the Ancestor
+ Returns : value of ancestor
+ Args    : newvalue (optional)
 
+
+=head2 branch_length
+
+ Title   : branch_length
+ Usage   : $obj->branch_length()
+ Function: Get/Set the branch length
+ Returns : value of branch_length
+ Args    : newvalue (optional)
+
+
+=head2 bootstrap
+
+ Title   : bootstrap
+ Usage   : $obj->bootstrap($newval)
+ Function: Get/Set the bootstrap value
+ Returns : value of bootstrap
+ Args    : newvalue (optional)
+
+
+=head2 description
+
+ Title   : description
+ Usage   : $obj->description($newval)
+ Function: Get/Set the description string
+ Returns : value of description
+ Args    : newvalue (optional)
+
+
+=head2 id
+
+ Title   : id
+ Usage   : $obj->id($newval)
+ Function: The human readable identifier for the node 
+ Returns : value of human readable id
+ Args    : newvalue (optional)
+ Note    : id cannot contain the chracters '();:'
+
+"A name can be any string of printable characters except blanks,
+colons, semicolons, parentheses, and square brackets. Because you may
+want to include a blank in a name, it is assumed that an underscore
+character ("_") stands for a blank; any of these in a name will be
+converted to a blank when it is read in."
+
+from L<http://evolution.genetics.washington.edu/phylip/newicktree.html>
 
 =cut
 
-sub purge_markers{
-   my ($self) = @_;
-   $self->{'_markerdata'} = {};
-   return;
-}
+=head2 internal_id
+
+ Title   : internal_id
+ Usage   : my $internalid = $node->internal_id
+ Function: Returns the internal unique id for this Node
+           (a monotonically increasing number for this in-memory implementation
+            but could be a database determined unique id in other 
+	    implementations)
+ Returns : unique id
+ Args    : none
+
+
+=head2 Bio::Node::NodeI decorated interface implemented
+
+The following methods are implemented by L<Bio::Node::NodeI> decorated
+interface.
+
+=head2 is_Leaf
+
+ Title   : is_Leaf
+ Usage   : if( $node->is_Leaf )
+ Function: Get Leaf status
+ Returns : boolean
+ Args    : none
+
+=cut
+
+=head2 to_string
+
+ Title   : to_string
+ Usage   : my $str = $node->to_string()
+ Function: For debugging, provide a node as a string
+ Returns : string
+ Args    : none
+
+=head2 height
+
+ Title   : height
+ Usage   : my $len = $node->height
+ Function: Returns the height of the tree starting at this
+           node.  Height is the maximum branchlength.
+ Returns : The longest length (weighting branches with branch_length) to a leaf
+ Args    : none
+
+=head2 invalidate_height
+
+ Title   : invalidate_height
+ Usage   : private helper method
+ Function: Invalidate our cached value of the node's height in the tree
+ Returns : nothing
+ Args    : none
+
+=cut
+
+#'
+
+=head2 add_tag_value
+
+ Title   : add_tag_value
+ Usage   : $node->add_tag_value($tag,$value)
+ Function: Adds a tag value to a node 
+ Returns : number of values stored for this tag
+ Args    : $tag   - tag name
+           $value - value to store for the tag
+
+
+=head2 remove_tag
+
+ Title   : remove_tag
+ Usage   : $node->remove_tag($tag)
+ Function: Remove the tag and all values for this tag
+ Returns : boolean representing success (0 if tag does not exist)
+ Args    : $tag - tagname to remove
+
+
+
+=head2 remove_all_tags
+
+ Title   : remove_all_tags
+ Usage   : $node->remove_all_tags()
+ Function: Removes all tags 
+ Returns : None
+ Args    : None
+
+
+
+=head2 get_all_tags
+
+ Title   : get_all_tags
+ Usage   : my @tags = $node->get_all_tags()
+ Function: Gets all the tag names for this Node
+ Returns : Array of tagnames
+ Args    : None
+
+
+=head2 get_tag_values
+
+ Title   : get_tag_values
+ Usage   : my @values = $node->get_tag_value($tag)
+ Function: Gets the values for given tag ($tag)
+ Returns : Array of values or empty list if tag does not exist
+ Args    : $tag - tag name
+
+
+=head2 has_tag
+
+ Title   : has_tag
+ Usage   : $node->has_tag($tag)
+ Function: Boolean test if tag exists in the Node
+ Returns : Boolean
+ Args    : $tag - tagname
+
+
+=cut
 
 
 1;
