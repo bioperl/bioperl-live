@@ -46,7 +46,7 @@ tasks with sequence patterns such as:
 Other features to look for in the future:
 
   -- Full pattern syntax checking
-  -- Conversion between expanded and ondensed forms of the pattern
+  -- Conversion between expanded and condensed forms of the pattern
 
 =head1 MOTIVATIONS
 
@@ -85,17 +85,17 @@ define the behavior or the expand() method.
  ------------------------------------------
  Symbol       Meaning      Nucleic Acid
  ------------------------------------------
-  A            A           Adenine
-  C            C           Cytosine
-  G            G           Guanine
-  T            T           Thymine
-  U            U           Uracil
-  M          A or C  
-  R          A or G        Any purine
-  W          A or T    
-  S          C or G     
-  Y          C or T        Any pyrimidine
-  K          G or T     
+  A            A           (A)denine
+  C            C           (C)ytosine
+  G            G           (G)uanine
+  T            T           (T)hymine
+  U            U           (U)racil
+  M          A or C        a(M)ino group
+  R          A or G        pu(R)ine
+  W          A or T        (W)eak bond
+  S          C or G        (S)trong bond
+  Y          C or T        p(Y)rimidine
+  K          G or T        (K)eto group
   V        A or C or G  
   H        A or C or T  
   D        A or G or T  
