@@ -93,8 +93,11 @@ sub next_aln {
 
     my $aln =  Bio::SimpleAlign->new(-source => 'nexus');
 
-    # file starts with #NEXUS
+    # file starts with '#NEXUS' but we allow white space only lines before it
     $entry = $self->_readline;
+    $entry = $self->_readline while $entry =~ /^\s+$/;
+
+    return unless $entry;
     $self->throw("Not a valid interleaved NEXUS file! [#NEXUS] not starting the file\n$entry")
 	unless $entry =~ /^#NEXUS/i;
 
@@ -235,6 +238,10 @@ seqcount [$count] > predeclared [$seqcount] ") if $count > $seqcount;
     # if equate ( e.g. equate="T=C G=A") is used
     if ($equate) {
 	$aln->map_chars($1, $2) while $equate =~ /(\S)=(\S)/g;
+    }
+
+    while  ($entry !~ /endblock/i) {
+        $entry = $self->_readline;
     }
 
     return $aln;
