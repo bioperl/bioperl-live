@@ -1137,7 +1137,7 @@ sub gff3_string {
 
 sub _escape {
   my $toencode = shift;
-  $toencode    =~ s/([^a-zA-Z0-9_. :?^*\(\)\[\]@!-])/uc sprintf("%%%02x",ord($1))/eg;
+  $toencode    =~ s/([^a-zA-Z0-9_,. :?^*\(\)\[\]@!-])/uc sprintf("%%%02x",ord($1))/eg;
   $toencode    =~ tr/ /+/;
   $toencode;
 }

@@ -157,7 +157,7 @@ foreach (@ARGV) {
 
 my (@gff,@fasta);
 foreach (@ARGV) {
-  if (/\.(fa|fasta|dna|seq|fast)\b/i) {
+  if (/\.(fa|fasta|dna|seq|fast)$/i) {
     push @fasta,$_;
   } else {
     push @gff,$_;

@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-# $Id: fast_load_gff.PLS,v 1.8 2003-09-27 20:41:41 lstein Exp $
+# $Id: fast_load_gff.PLS,v 1.9 2003-10-04 18:08:01 lstein Exp $
 
 use strict;
 # use lib './blib/lib';
@@ -155,7 +155,7 @@ foreach (@ARGV) {
 }
 my(@fasta,@gff);
 foreach (@ARGV) {
-  if (/\.(fa|fasta|dna|seq|fast)\b/i) {
+  if (/\.(fa|fasta|dna|seq|fast)$/i) {
     push @fasta,$_;
   } else {
     push @gff,$_;
