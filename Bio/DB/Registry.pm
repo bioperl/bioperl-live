@@ -54,7 +54,7 @@ methods. Internal methods are usually preceded with a _
 
 package Bio::DB::Registry;
 
-use vars qw(@ISA $BIOINFORMATICS);
+use vars qw(@ISA $OBDA_SPEC_VERSION $OBDA_SEARCH_PATH);
 use strict;
 
 use Bio::Root::Root;
@@ -63,9 +63,9 @@ use Bio::DB::Failover;
 use Bio::Root::HTTPget;
 
 BEGIN {
-
-    if (defined $ENV{BIOINFORMATICS}) {
-        $BIOINFORMATICS = $ENV{BIOINFORMATICS} || '';
+    $OBDA_SPEC_VERSION = 1.0;
+    if (defined $ENV{OBDA_SEARCH_PATH}) {
+        $OBDA_SEARCH_PATH = $ENV{OBDA_SEARCH_PATH} || '';
 
     }
 }
@@ -98,10 +98,15 @@ sub _load_registry {
     my $home = (getpwuid($>))[7];
     my $f;
 
-    if( $BIOINFORMATICS ) {
-        open(F,"$BIOINFORMATICS/seqdatabase.ini");
-        $f = \*F;
-    } elsif( -e "$home/.bioinformatics/seqdatabase.ini" ) {
+    if ( $OBDA_SEARCH_PATH ) {
+        foreach ( split /\+/, $OBDA_SEARCH_PATH ) {
+            next unless -e $_;
+            open(F,"$OBDA_SEARCH_PATH/seqdatabase.ini");
+            $f = \*F;
+            last;
+        }
+    }
+    elsif( -e "$home/.bioinformatics/seqdatabase.ini" ) {
 	open(F,"$home/.bioinformatics/seqdatabase.ini");
 	$f = \*F;
     } elsif ( -e "/etc/bioinformatics/seqdatabase.ini" ) {
@@ -129,6 +134,13 @@ sub _load_registry {
 	open(F,"$home/.bioinformatics/seqdatabase.ini");
 	$f = \*F;
 
+    }
+
+    while( <$f> ) {
+	/^VERSION=([\d\.]+)/;
+        $self->throw("Do not about this version [$1] > $OBDA_SPEC_VERSION")
+            if $1 > $OBDA_SPEC_VERSION or !$1;
+        last;
     }
 
     while( <$f> ) {
@@ -225,7 +237,7 @@ sub services{
     my ($self) = @_;
     return () unless ( defined $self->{'_dbs'} &&
 		       ref( $self->{'_dbs'} ) =~ /HASH/i);
-    return keys %{$self->{'_dbs'}}; 
+    return keys %{$self->{'_dbs'}};
 }
 
 
