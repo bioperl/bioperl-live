@@ -20,7 +20,7 @@ BEGIN {
 	use lib 't';
     }
     use vars qw($NTESTS);
-    $NTESTS = 348;
+    $NTESTS = 387;
     $LASTXMLTEST = 49;
     $error = 0;
 
@@ -142,15 +142,19 @@ ok($result->get_parameter('matrix'), 'BLOSUM62');
 ok($result->get_parameter('gapopen'), 11);
 ok($result->get_parameter('gapext'), 1);
 
-my @valid = ( [ 'gb|AAC73113.1|', 820, 'AAC73113.1'],
-	      [ 'gb|AAC76922.1|', 810, 'AAC76922.1'],
-	      [ 'gb|AAC76994.1|', 449, 'AAC76994.1']);
+my @valid = ( [ 'gb|AAC73113.1|', 820, 'AAC73113.1', '0.0', 1567],
+	      [ 'gb|AAC76922.1|', 810, 'AAC76922.1', '1e-91', 332],
+	      [ 'gb|AAC76994.1|', 449, 'AAC76994.1', '3e-47', 184]);
 my $count = 0;
 while( $hit = $result->next_hit ) {
     my $d = shift @valid;
-    ok($hit->name, $d->[0]);
-    ok($hit->length, $d->[1]);
-    ok($hit->accession, $d->[2]);
+
+    ok($hit->name, shift @$d);
+    ok($hit->length, shift @$d);
+    ok($hit->accession, shift @$d);
+    ok($hit->significance, shift @$d );
+    ok($hit->raw_score, shift @$d );
+
     if( $count == 0 ) {
 	while( my $hsp = $hit->next_hsp ) {
 	    ok($hsp->query->start, 1);
@@ -192,15 +196,19 @@ ok($result->get_statistic('dbletters'), 1358990);
 ok($result->get_statistic('dbentries'), 4289);
 ok($result->get_parameter('matrix'), 'BLOSUM62');
 
-@valid = ( [ 'gb|AAC73113.1|', 820, 'AAC73113.1'],
-	   [ 'gb|AAC76922.1|', 810, 'AAC76922.1'],
-	   [ 'gb|AAC76994.1|', 449, 'AAC76994.1']);
+@valid = ( [ 'gb|AAC73113.1|', 820, 'AAC73113.1', '0.0', 4141],
+	   [ 'gb|AAC76922.1|', 810, 'AAC76922.1', '3.1e-86', 844],
+	   [ 'gb|AAC76994.1|', 449, 'AAC76994.1', '2.8e-47', 483]);
 $count = 0;
 while( $hit = $result->next_hit ) {
     my $d = shift @valid;
-    ok($hit->name, $d->[0]);
-    ok($hit->length, $d->[1]);
-    ok($hit->accession, $d->[2]);
+
+    ok($hit->name, shift @$d);
+    ok($hit->length, shift @$d);
+    ok($hit->accession, shift @$d);
+    ok($hit->significance, shift @$d );
+    ok($hit->raw_score, shift @$d );
+
     if( $count == 0 ) {
 	while( my $hsp = $hit->next_hsp ) {
 	    ok($hsp->query->start, 1);
@@ -244,16 +252,19 @@ ok($result->get_statistic('decayconst'), 0.1);
 
 ok($result->get_parameter('matrix'), 'BLOSUM62');
 
-@valid = ( [ 'gb|AE000479.1|AE000479', 10934, 'AE000479'],
-	   [ 'gb|AE000302.1|AE000302', 10264, 'AE000302'],
-	   [ 'gb|AE000277.1|AE000277', 11653, 'AE000277']);
+@valid = ( [ 'gb|AE000479.1|AE000479', 10934, 'AE000479', '0.13', 34],
+	   [ 'gb|AE000302.1|AE000302', 10264, 'AE000302', '0.61', 31],
+	   [ 'gb|AE000277.1|AE000277', 11653, 'AE000277', '0.84', 31]);
 $count = 0;
 
 while( $hit = $result->next_hit ) {
     my $d = shift @valid;
-    ok($hit->name, $d->[0]);
-    ok($hit->length, $d->[1]);
-    ok($hit->accession, $d->[2]);
+    ok($hit->name, shift @$d);
+    ok($hit->length, shift @$d);
+    ok($hit->accession, shift @$d);
+    ok($hit->significance, shift @$d );
+    ok($hit->raw_score, shift @$d );
+
     if( $count == 0 ) {
 	while( my $hsp = $hit->next_hsp ) {
 	    ok($hsp->query->start, 1057);
@@ -299,17 +310,18 @@ ok($result->get_statistic('lambda'), 0.0823);
 ok($result->get_statistic('dbletters'), 112936249);
 ok($result->get_statistic('dbentries'), 657);
 
-@valid = ( [ 'BACR21I23', 73982, 'BACR21I23', '0.017'],
-	   [ 'BACR40P19', 73982, 'BACR40P19', '0.017'],
-	   [ 'BACR30L17', 32481, 'BACR30L17', '0.018']);
+@valid = ( [ 'BACR21I23', 73982, 'BACR21I23', '0.017', 44],
+	   [ 'BACR40P19', 73982, 'BACR40P19', '0.017', 44],
+	   [ 'BACR30L17', 32481, 'BACR30L17', '0.018', 44]);
 $count = 0;
 
 while( my $hit = $result->next_hit ) {
     my $d = shift @valid;
-    ok($hit->name, $d->[0]);
-    ok($hit->length, $d->[1]);
-    ok($hit->accession, $d->[2]);
-    ok($hit->significance, $d->[3]);
+    ok($hit->name, shift @$d);
+    ok($hit->length, shift @$d);
+    ok($hit->accession, shift @$d);
+    ok($hit->significance, shift @$d );
+    ok($hit->raw_score, shift @$d );
     
     if( $count == 0 ) {
 	while( my $hsp = $hit->next_hsp ) {
@@ -358,16 +370,20 @@ ok($result->get_statistic('dbletters'), 1358987);
 ok($result->get_statistic('dbentries'), 4289);
 
 
-@valid = ( [ 'gi|1787478|gb|AAC74309.1|', 512, 'AAC74309'],
-	   [ 'gi|1790635|gb|AAC77148.1|', 251, 'AAC77148'],
-	   [ 'gi|1786590|gb|AAC73494.1|', 94, 'AAC73494']);
+@valid = ( [ 'gi|1787478|gb|AAC74309.1|', 512, 'AAC74309', 1.2, 29],
+	   [ 'gi|1790635|gb|AAC77148.1|', 251, 'AAC77148', 2.1, 27],
+	   [ 'gi|1786590|gb|AAC73494.1|', 94, 'AAC73494',  2.1, 26]);
 $count = 0;
 
 while( my $hit = $result->next_hit ) {
     my $d = shift @valid;
-    ok($hit->name, $d->[0]);
-    ok($hit->length, $d->[1]);
-    ok($hit->accession, $d->[2]);
+
+    ok($hit->name, shift @$d);
+    ok($hit->length, shift @$d);
+    ok($hit->accession, shift @$d);
+    ok($hit->significance, shift @$d );
+    ok($hit->raw_score, shift @$d );
+
     if( $count == 0 ) {
 	while( my $hsp = $hit->next_hsp ) {
 	    ok($hsp->query->start, 125);
@@ -416,16 +432,20 @@ ok($result->get_statistic('dbletters'), 4215311);
 ok($result->get_statistic('dbentries'), 9190);
 
 
-@valid = ( [ 'NR_SC:SW-YNN2_YEAST', 1056, 'NR_SC:SW-YNN2_YEAST','1.6e-154'],
-	   [ 'NR_SC:SW-MPCP_YEAST', 311, 'NR_SC:SW-MPCP_YEAST', '1.3e-25'],
-	   [ 'NR_SC:SW-YEO3_YEAST', 300, 'NR_SC:SW-YEO3_YEAST', '5.7e-05']);
+@valid = ( [ 'NR_SC:SW-YNN2_YEAST', 1056, 'NR_SC:SW-YNN2_YEAST','1.6e-154', 547],
+	   [ 'NR_SC:SW-MPCP_YEAST', 311, 'NR_SC:SW-MPCP_YEAST', '1.3e-25', 117],
+	   [ 'NR_SC:SW-YEO3_YEAST', 300, 'NR_SC:SW-YEO3_YEAST', '5.7e-05', 48]);
 $count = 0;
 
 while( my $hit = $result->next_hit ) {
     my $d = shift @valid;
-    ok($hit->name, $d->[0]);
-    ok($hit->length, $d->[1]);
-    ok($hit->accession, $d->[2]);
+
+    ok($hit->name, shift @$d);
+    ok($hit->length, shift @$d);
+    ok($hit->accession, shift @$d);
+    ok($hit->significance, shift @$d );
+    ok($hit->raw_score, shift @$d );
+
     if( $count == 0 ) {
 	while( my $hsp = $hit->next_hsp ) {
 	    ok($hsp->query->start, 2180);
@@ -483,16 +503,19 @@ ok($result->get_statistic('S2'), 17);
 
 ok($result->get_statistic('dbentries'), 1083200);
 
-@valid = ( [ 'gb|AY052359.1|', 2826, 'AY052359.1'],
-	   [ 'gb|AC002329.2|AC002329', 76170, 'AC002329'],
-	   [ 'gb|AF132318.1|AF132318', 5383, 'AF132318']);
+@valid = ( [ 'gb|AY052359.1|', 2826, 'AY052359.1', '3e-18', 96],
+	   [ 'gb|AC002329.2|AC002329', 76170, 'AC002329', '3e-18', 96],
+	   [ 'gb|AF132318.1|AF132318', 5383, 'AF132318', '0.040', 42]);
 $count = 0;
 
 while( my $hit = $result->next_hit ) {
     my $d = shift @valid;
-    ok($hit->name, $d->[0]);
-    ok($hit->length, $d->[1]);
-    ok($hit->accession, $d->[2]);
+    ok($hit->name, shift @$d);
+    ok($hit->length, shift @$d);
+    ok($hit->accession, shift @$d);
+    ok($hit->significance, shift @$d );
+    ok($hit->raw_score, shift @$d );
+
     if( $count == 0 ) {
 	while( my $hsp = $hit->next_hsp ) {
 	    ok($hsp->query->start, 1);
