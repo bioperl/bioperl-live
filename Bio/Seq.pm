@@ -89,9 +89,9 @@ stability.
   # new style, better, but somewhat more wordy
   # notice this loops over multiple sequences
 
-  $stream = Bio::SeqIO->new(-file => 'myfile', -fmt => 'Fasta');
+  $stream = Bio::SeqIO->new(-file => 'myfile' -fmt => 'Fasta');
 
-  while ($seq = $stream->next_seq() ) {
+  while $seq ( $stream->next_seq() ) {
        # $seq is a Bio::Seq object
   }
 
@@ -99,9 +99,9 @@ stability.
 
 =head2 Object Manipulation
 
- $seq->METHOD();
+ $seq->[METHOD];
 
- $result = $seq->METHOD();
+ $result = $seq->[METHOD];
  
  
  
@@ -1273,7 +1273,7 @@ sub seq {
  Function  : Returns the sequence of the object as an array or a char
              string, depending on the value of wantarray. Will rtn a slice
              of the sequence if $start/$end are defined. If $start is
-             defined and $end isn''t, the slice is from $start to the
+             defined and $end isn't, the slice is from $start to the
              end of the sequence.
  Example   : @slice = $myObject->seq(3,9);
  Returns   : regular array of characters, or a scalar string
@@ -2525,7 +2525,7 @@ sub Rna_to_Dna {
            :   -or- with user defined stop/unknown codon symbols:
            : $translation = $mySeq->translate($stop_symbol,$unknown_symbol);
            : 
- Source    : modified from Jong''s <jong@mrc-lmb.cam.ac.uk>
+ Source    : modified from Jong's <jong@mrc-lmb.cam.ac.uk>
            : library of molbio perl routines
            :
  To-do     : - allow named parameters (just like new and out_GCG )
@@ -2582,7 +2582,7 @@ sub translate {
 
     # would this be easier with a hash system (?) EB
 
-    if   ($codon =~ /^UC[AUGCN]/)     {$output .= 'S'; }       # Serine
+    if   ($codon =~ /^UC[AUGC]/)     {$output .= 'S'; }       # Serine
     elsif($codon =~ /^UU[UC]/) {$output .= 'F'; }       # Phenylalanine
     elsif($codon =~ /^UU[AG]/) {$output .= 'L'; }       # Leucine
     elsif($codon =~ /^UA[UC]/) {$output .= 'Y'; }       # Tyrosine
@@ -2590,23 +2590,23 @@ sub translate {
     elsif($codon =~ /^UG[UC]/) {$output .= 'C'; }       # Cysteine
     elsif($codon =~ /^UGA/)    {$output .= $stop; }     # Stop
     elsif($codon =~ /^UGG/)    {$output .= 'W'; }       # Tryptophan
-    elsif($codon =~ /^CU[AUGCN]/)     {$output .= 'L'; }       # Leucine
-    elsif($codon =~ /^CC[AUGCN]/)     {$output .= 'P'; }       # Proline
+    elsif($codon =~ /^CU[AUGC]/)     {$output .= 'L'; }       # Leucine
+    elsif($codon =~ /^CC[AUGC]/)     {$output .= 'P'; }       # Proline
     elsif($codon =~ /^CA[UC]/) {$output .= 'H'; }       # Histidine
     elsif($codon =~ /^CA[AG]/) {$output .= 'Q'; }       # Glutamine
-    elsif($codon =~ /^CG[AUGCN]/)     {$output .= 'R'; }       # Arginine
+    elsif($codon =~ /^CG[AUGC]/)     {$output .= 'R'; }       # Arginine
     elsif($codon =~ /^AU[UCA]/){$output .= 'I'; }       # Isoleucine
     elsif($codon =~ /^AUG/)    {$output .= 'M'; }       # Methionine
-    elsif($codon =~ /^AC[AUGCN]/)     {$output .= 'T'; }       # Threonine
+    elsif($codon =~ /^AC[AUGC]/)     {$output .= 'T'; }       # Threonine
     elsif($codon =~ /^AA[UC]/) {$output .= 'N'; }       # Asparagine
     elsif($codon =~ /^AA[AG]/) {$output .= 'K'; }       # Lysine
     elsif($codon =~ /^AG[UC]/) {$output .= 'S'; }       # Serine
     elsif($codon =~ /^AG[AG]/) {$output .= 'R'; }       # Arginine
-    elsif($codon =~ /^GU[AUGCN]/)     {$output .= 'V'; }       # Valine
-    elsif($codon =~ /^GC[AUGCN]/)     {$output .= 'A'; }       # Alanine
+    elsif($codon =~ /^GU[AUGC]/)     {$output .= 'V'; }       # Valine
+    elsif($codon =~ /^GC[AUGC]/)     {$output .= 'A'; }       # Alanine
     elsif($codon =~ /^GA[UC]/) {$output .= 'D'; }       # Aspartic Acid
     elsif($codon =~ /^GA[AG]/) {$output .= 'E'; }       # Glutamic Acid
-    elsif($codon =~ /^GG[AUGCN]/)     {$output .= 'G'; }       # Glycine
+    elsif($codon =~ /^GG[AUGC]/)     {$output .= 'G'; }       # Glycine
     else {$output .= $unknown; }                        # Unknown Codon
   }
 

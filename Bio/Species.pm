@@ -8,9 +8,9 @@
 
 # POD documentation - main docs before the code
 
-=head1 NAME
+=head1 NAME - Bio::Species
 
-Bio::Species - Generic species object
+Generic species object
 
 =head1 SYNOPSIS
 
@@ -39,7 +39,7 @@ to any of the other node types (eg: "phlum", "class",
 "order", "family").  There's plenty of scope for making the
 model more sophisticated, if this is ever needed.
 
-A method is also provided for storing a common name of the
+A mehod is also provided for storing a common name of the
 species.
 
 =head1 CONTACT
@@ -150,27 +150,6 @@ sub common_name {
         return $self->{'common_name'} 
     }
 }
-=head2 
-
- Title   : organelle
- Usage   : $self->organelle( $organelle );
-           $organelle = $self->organelle();
- Function: Get or set the organelle name
- Example : $self->organelle('Chloroplast')
- Returns : The organelle name in a string
- Args    : String, which is the organelle name
-
-=cut
-
-sub organelle {
-    my($self, $name) = @_;
-    
-    if ($name) {
-        $self->{'organelle'} = $name;
-    } else {
-        return $self->{'organelle'} 
-    }
-}
 
 =head2 species
 
@@ -195,27 +174,6 @@ sub species {
     } else {
         return $self->{'classification'}[0];
     }
-}
-
-=head2 sub_species
-
- Title   : sub_species
- Usage   : $obj->sub_species($newval)
- Function: 
- Returns : value of sub_species
- Args    : newvalue (optional)
-
-
-=cut
-
-sub sub_species{
-   my $obj = shift;
-   if( @_ ) {
-      my $value = shift;
-      $obj->{'sub_species'} = $value;
-    }
-    return $obj->{'sub_species'};
-
 }
 
 =head2 genus
@@ -264,8 +222,8 @@ sub binomial {
 sub validate_species_name {
     my( $self, $string ) = @_;
     
-    $string =~ /^[\S\d\.]+$||""/ or
-        $self->throw("Invalid species name '$string'");
+    $string =~ /^[a-z]+$/ or
+        $self->throw("Invalid species name '$string' (Wrong case?)");
 }
 
 sub validate_name {

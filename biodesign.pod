@@ -1,7 +1,7 @@
 
 =head1 NAME
 
-Bioperl - Design Documentation
+Bioperl Design Documentation
 
 =head1 SYNOPSIS
 
@@ -126,7 +126,7 @@ that are thrown to say which object as throwing the exception.
    Bioperl root object have some helper methods, in particular rearrange to
 help functions which take hash inputs.
 
-=back
+=end
 
 =head2 Using the root object.
 

@@ -24,10 +24,10 @@ Bio::Seq - Bioperl lightweight Sequence Object
 
   #make from memory
   $seqobj = Bio::Seq->new ( -seq => 'ATGGGGTGGGCGGTGGGTGGTTTG',
-			    -id  => 'GeneFragment-12',
-			    -accession => 'X78121',
-			    -moltype => 'dna'
-			    );
+			 -id  => 'GeneFragment-12',
+			 -accession => 'X78121',
+			 -moltype => 'dna'
+			 );
   
   # read from file
   $inputstream = Bio::SeqIO->new(-file => "myseq.fa",-format => 'Fasta');
@@ -48,36 +48,31 @@ Bio::Seq - Bioperl lightweight Sequence Object
 
 =head1 DESCRIPTION
 
-Seq is a lightweight Sequence object, storing little more than the
-sequence, its name, a computer useful unique name. It does not contain
-sequence features or other information.  To have a sequence with
-sequence features you should use the AnnSeq object (AnnotatedSequence)
-which uses this object.
+Seq is a lightweight Sequence object, storing little more than the sequence, its name, a 
+computer useful unique name. It does not contain sequence features or other information.
+To have a sequence with sequence features you should use the AnnSeq object (AnnotatedSequence)
+which uses this object. 
 
-Sequence objects are defined by the Bio::SeqI interface, and this
-object is a pure Perl implementation of the interface (if that's
-gibberish to you, don't worry. The take home message is that this
-object is the bioperl default sequence object, but other people can
-use their own objects as sequences if they so wish). If you are
-interested in wrapping your own objects as compliant Bioperl sequence
-objects, then you should read the Bio::SeqI documentation
+Sequence objects are defined by the Bio::SeqI interface, and this object is a pure
+Perl implementation of the interface (if that's gibberish to you, don't worry. The take
+home message is that this object is the bioperl default sequence object, but other
+people can use their own objects as sequences if they so wish). If you are interested in
+wrapping your own objects as compliant Bioperl sequence objects, then you should read the
+Bio::SeqI documentation
 
-The documenation of this object is a merge of the Bio::Seq and
-Bio::SeqI documentation.  This allows all the methods which you can
-call on sequence objects here.
+The documenation of this object is a merge of the Bio::Seq and Bio::SeqI documentation.
+This allows all the methods which you can call on sequence objects here.
 
 =head1 Reimplementation
 
-The Sequence object was completely rewritten for the 0.6 series. This
-was because the old Sequence object was becoming heavily bloated and
-difficult to maintain. There are some key changes from the old object
-to the new object, but basically, everything should work with the new
-object with a minimal number of changes.
+The Sequence object was completely rewritten for the 0.6 series. This was because the
+old Sequence object was becoming heavily bloated and difficult to maintain. There are
+some key changes from the old object to the new object, but basically, everything should
+work with the new object with a minimal number of changes. 
 
-The key change is that the format IO has been removed from this object
-and moved to the Bio::SeqIO system, which provides a much better way
-to encapsulate the sequence format reading. Please read the SeqIO
-documentation, but the take home message is that lines like
+The key change is that the format IO has been removed from this object and moved to the
+Bio::SeqIO system, which provides a much better way to encapsulate the sequence format
+reading. Please read the SeqIO documentation, but the take home message is that lines like
 
     # old style reading from files
     $seq = Bio::Seq->new( -file => "myfile");
@@ -113,15 +108,16 @@ provide a warning that someone has called a deprecated method.
 
 =item type - use moltype, but notice that moltype returns different values (lowercase)
 
-=back
+=end
 
 =head1 FEEDBACK
 
 =head2 Mailing Lists
 
-User feedback is an integral part of the evolution of this and other
-Bioperl modules. Send your comments and suggestions preferably to one
-of the Bioperl mailing lists.  Your participation is much appreciated.
+User feedback is an integral part of the evolution of this
+and other Bioperl modules. Send your comments and suggestions preferably
+ to one of the Bioperl mailing lists.
+Your participation is much appreciated.
 
   vsns-bcd-perl@lists.uni-bielefeld.de          - General discussion
   vsns-bcd-perl-guts@lists.uni-bielefeld.de     - Technically-oriented discussion
@@ -130,8 +126,8 @@ of the Bioperl mailing lists.  Your participation is much appreciated.
 =head2 Reporting Bugs
 
 report bugs to the Bioperl bug tracking system to help us keep track
- the bugs and their resolution.  Bug reports can be submitted via
- email or the web:
+ the bugs and their resolution.
+ Bug reports can be submitted via email or the web:
 
   bioperl-bugs@bio.perl.org
   http://bio.perl.org/bioperl-bugs/

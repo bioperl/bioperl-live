@@ -102,94 +102,8 @@ sub _initialize {
 
 =cut
 
-=head2 _generic_seqfeature
-
- Title   : _generic_seqfeature
- Usage   : $fthelper->_generic_seqfeature($annseq)
- Function: processes fthelper into a generic seqfeature
- Returns : nothing (places a new seqfeature into annseq)
- Args    : Bio::AnnSeq,Bio::AnnSeqIO::FTHelper
-
-
-=cut
-
-sub _generic_seqfeature {
-   my ($fth,$annseq) = @_;
-   my ($sf);
-
-  # print "Converting from", $fth->key, "\n";
-
-   $sf = new Bio::SeqFeature::Generic;
-   if( $fth->loc =~ /join/ ) {
-       my $strand;
-       if ( $fth->loc =~ /complement/ ) {
-	   $strand = -1;
-       } else {
-	   $strand = 1;
-       }
-
-       $sf->strand($strand);
-       $sf->primary_tag($fth->key . "_span");
-       $sf->source_tag('GenBank');
-       $sf->has_tag("parent",1);
-       $sf->_parse->{'parent_homogenous'} = 1;
-
-       # we need to make sub features
-       my $loc = $fth->loc;
-       while( $loc =~ /\<?(\d+)\.\.\>?(\d+)/g ) {
-	   my $start = $1;
-	   my $end   = $2;
-	   #print "Processing $start-$end\n";
-	   my $sub = new Bio::SeqFeature::Generic;
-	   $sub->primary_tag($fth->key);
-	   $sub->start($start);
-	   $sub->end($end);
-	   $sub->strand($strand);
-	   $sub->source_tag('GenBank');
-	   $sf->add_sub_SeqFeature($sub,'EXPAND');
-       }
-
-   } else {
-       my $lst;
-       my $len;
-
-       if( $fth->loc =~ /^(\d+)$/ ) {
-	   $lst = $len = $1;
-       } else {
-	   $fth->loc =~ /\<?(\d+)\.\.\>?(\d+)/ || do {
-	       $annseq->throw("Weird location line [" . $fth->loc . "] in reading GenBank");
-	       last;
-	   };
-	   $lst = $1;
-	   $len = $2;
-       }
-
-       $sf->start($lst);
-       $sf->end($len);
-       $sf->source_tag('GenBank');
-       $sf->primary_tag($fth->key);
-       if( $fth->loc =~ /complement/ ) {
-	   $sf->strand(-1);
-       } else {
-	   $sf->strand(1);
-       }
-   }
-
-   #print "Adding B4 ", $sf->primary_tag , "\n";
-
-   foreach my $key ( keys %{$fth->field} ){
-       foreach my $value ( @{$fth->field->{$key}} ) {
-	   $sf->add_tag_value($key,$value);
-       }
-   }
-
-
-
-   $annseq->add_SeqFeature($sf);
-}
-
 sub from_SeqFeature {
-    my ($sf, $context_annseq) = @_;
+    my ($sf,$context_annseq,) = shift;
     my @ret;
     my $key;
 
@@ -199,7 +113,7 @@ sub from_SeqFeature {
     # themselves to the EMBL/GenBank...
     #
 
-    if ($sf->can("to_FTHelper")) {
+    if( $sf->can("to_FTHelper") ) {
 	return $sf->to_FTHelper($context_annseq);
     }
 
@@ -207,14 +121,7 @@ sub from_SeqFeature {
     # if the parent homogenous flag is set, build things from the
     # sub level
     my $loc;
-    my $ph_flag;
-    if( $sf->can('_parse') ) {
-	$ph_flag = $sf->_parse->{'parent_homogenous'} || 0;
-    } else {
-	$ph_flag = 0;
-    }
-
-    if( $ph_flag == 1 ) {
+    if( $sf->_parse->{'parent_homogenous'} == 1 ) {
 	$key = $sf->primary_tag();
 	$key =~ s/_span//g;
 	$loc = "join("; 
@@ -235,7 +142,6 @@ sub from_SeqFeature {
     } else {
 	$loc = $sf->start() . ".." . $sf->end();
 	$key = $sf->primary_tag();
-        
 	if( $sf->strand == -1 ) {
 	    $loc = "complement($loc)";
 	}
@@ -250,8 +156,8 @@ sub from_SeqFeature {
 
     $fth->loc($loc);
     $fth->key($key);
-    $fth->field->{'note'} = [];
-    #$sf->source_tag && do { push(@{$fth->field->{'note'}},"source=" . $sf->source_tag ); };
+    $fth->field->{'note'}= [];
+    $sf->source_tag && do { push(@{$fth->field->{'note'}},"source=" . $sf->source_tag ); };
     $sf->score && do { push(@{$fth->field->{'note'}},"score=" . $sf->score ); };
     $sf->frame && do { push(@{$fth->field->{'note'}},"frame=" . $sf->frame ); };
     #$sf->strand && do { push(@{$fth->field->{'note'}},"strand=" . $sf->strand ); };
@@ -267,7 +173,7 @@ sub from_SeqFeature {
 
     push(@ret,$fth);
 
-    unless (@ret) {
+    if( $#ret == -1 ) {
 	$context_annseq->throw("Problem in processing seqfeature $sf - no fthelpers. Error!");
     }
     foreach my $ft ( @ret ) {

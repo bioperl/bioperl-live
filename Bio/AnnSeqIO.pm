@@ -21,8 +21,8 @@ Bio::AnnSeqIO - Handler for AnnSeqIO Formats
     $in  = Bio::AnnSeqIO->new(-file => "inputfilename" , -format => 'Fasta');
     $out = Bio::AnnSeqIO->new(-file => ">outputfilename" , -format => 'EMBL');
 
-    while ($seq = $in->next_annseq() ) {
-	$out->write_annseq($seq);
+    while $seq ( $in->next_annseq() ) {
+	$out->write_annseq($out);
     }
 
 =head1 DESCRIPTION
