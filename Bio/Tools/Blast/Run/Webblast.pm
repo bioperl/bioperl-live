@@ -25,9 +25,27 @@
 
 package Bio::Tools::Blast::Run::Webblast;
 
-# rnc: now uses HTTP and LWP
-use HTTP::Request::Common qw(POST);
-use LWP::UserAgent;
+# rnc: now uses HTTP and LWP.
+# sac: Make sure HTTP and LWP are available.
+#      This check is also performed during bioperl installation.
+#      Warning instead of die-ing since exported variables can
+#      still be examined. Dieing only if blast_remote() is attempted.
+
+BEGIN {
+  use vars qw($Loaded_LWP);
+  $Loaded_LWP = 1;
+  unless( eval "require HTTP::Request::Common" and
+	  eval "require LWP::UserAgent") {
+    warn "\a\n".'='x50, "\n".
+      "WARNING: COULDN'T LOAD THE LWP MODULE.\n\n".
+      "   LWP (libwww-perl) is now required to run remote Blasts.\n".
+      "   Download it from CPAN: http://www.perl.com/CPAN/.".
+	"\n".'='x50, "\n\n";
+    $Loaded_LWP = 0;
+  }
+
+  HTTP::Request::Common->import(qw(POST)) if $Loaded_LWP;
+}
 
 use Bio::Root::Global    qw(:devel);
 use Bio::Root::Utilities qw(:obj);
@@ -223,7 +241,7 @@ for documentation purposes only.
            :
            :   -ALIGN      => integer, number of alignments (B, 100)
            :   -ALIGN_VIEW => alignment view option (see below)
-           :   -CUTOFF     => (not used by NCBI servers)
+           :   -CUTOFF     => Blast score cutoff (60-110 or 'default')
            :   -DATABASE   => name of database (see below)
            :   -DESCR      => integer, number of on-line descriptions (V, 100)
            :   -EXPECT     => expect value cutoff
@@ -234,6 +252,7 @@ for documentation purposes only.
            :   -GAP_EXTEND => gap extension penalty (E, 2)
            :   -GEN_CODE   => integer for special genetic code (see below) blastx only
            :   -GRAPH      => 'on' or 'off' (graphical overview not yet supported)
+           :   -HISTOGRAM  => 'on' or 'off' or 'both'
            :   -HTML       => 'on' or 'off' or 'both'
            :   -INPUT_TYPE => 'Sequence in FASTA format' or 'Accession or GI'
            :   -MATRIX     => substitution scoring matrix (blast1 only for NCBI server)
@@ -358,6 +377,12 @@ sub blast_remote {
 #-----------------
     my ($bobj, %param) = @_;
     
+    unless ($Loaded_LWP) {
+      croak ("THE LWP MODULE IS NOT INSTALLED.\n\n".
+	     "   LWP (libwww-perl) is now required to run remote Blasts.\n".
+	     "   Download it from CPAN: http://www.perl.com/CPAN/.\n");
+    }
+
     my ($seq_a);
     eval { 
 	# _rearrange() is an instance method of Bio::Root::Object.pm and is
@@ -404,8 +429,8 @@ sub _set_options {
 			  NCBI_GI DESCR ALIGN GRAPH GAP GEN_CODE EMAIL HTML SERVER 
 			  MAX_LEN MIN_LEN GAP_CREATE GAP_EXTEND MISMATCH MATCH 
 			  WORD OUT_DIR
-			  ORGANISM ORGANISM_CUSTOM ALIGN_VIEW CUTOFF INPUT_TYPE HISTOGRAM
-			  PROXY_SERVER
+			  ORGANISM ORGANISM_CUSTOM ALIGN_VIEW CUTOFF 
+		          INPUT_TYPE STRAND HISTOGRAM  PROXY_SERVER
 			    )], @param);
 		      
     if($prog) {
@@ -449,11 +474,24 @@ sub _set_options {
     if($maxl)    { $maximumLength = $maxl; } # if match maxlength
     if($dir)     { $_out_dir = $dir; }
 
+    # sac: New options to support rnc's additions.
     if($org)         { $gi_list = $org; }
     if($org_custom)  { $list_org = $org_custom; }
     if($aln_view)    { $alignment_view = $aln_view; }
     if($cut)         { $cutoff = $cut; }
-    if($in_type)     { $input_type = $in_type; }
+    if($in_type) { 
+  	if($in_type =~ /fasta/i) {
+  	  $input_type = 'Sequence in FASTA format'; 
+  	} elsif($in_type =~ /gi|acc/i) {
+  	  # This is not yet supported.
+  	  # $input_type = 'Accession or GI'; 
+  	  croak "\nUnsupported sequence input type for Blast: $in_type\n".
+  	    "Input type must be 'Fasta'\n";
+  	} else {
+  	  croak "\nUnsupported sequence input type for Blast: $in_type\n".
+  	    "Input type must be 'Fasta' or 'GI' or 'accession'\n";
+  	}
+    }
     if($strnd)       { $strand = $strnd; }
     if($hist)        { $histogram = $hist; }
     if($proxy)       { $proxyServerURL = $proxy;}
@@ -687,7 +725,7 @@ sub _blast {
 		  #       http: and ends with :somenumbers, maybe should ping the name
 		  #       or something as the request will just hang there a long time if
 		  #       proxy server 
-		  if ($proxyServerURL ne "")
+		  if ($proxyServerURL)
 		    {
 			# check proxyServerURL starts with http: - this is a very minimal verification
 			if ($proxyServerURL =~ m/^(\s+)?http:/i)

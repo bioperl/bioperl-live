@@ -1,6 +1,29 @@
 Revision history for Perl extension Bio::Tools::Blast.pm and related modules.
 
-0.075  Wed Feb 17 01:29:57 1999
+0.080  Sat Apr 24 19:39:37 1999  (bioperl 0.05)
+       - Complete re-implementation of the Blast report parsing strategy.
+         The parser now always streamifies all Blast report(s) and
+         segments them hit-wise instead of report-wise. This improves 
+         performance and memory usage (but doesn't solve the memory leak).
+       - Documented a workaround for the memory leak (see the docs for
+	 Blast.pm under the section "Memory Usage Issues").
+       - Webblast.pm now uses LWP instead of postclient.pl to post network 
+         Blast requests (thanks to Ross Crowhurst for code submission). 
+         This is a much more robust mechanism, although it now requires you 
+         to have LWP installed ("a good thing"). For example, it makes it 
+         easy to send requests and receive results through a firewall.
+         It can run Blast1, Blast2, and PSI-Blast at NCBI and also supports
+         WashU-Blast servers.
+       - Fixed some miscellaneous parsing bugs and errors reported by
+         Greg Colello, Xie Tao, and Richard Copley from the pre-release
+       - Updated example/blast scripts. Renamed parse.pl and parse2.pl to
+         parse_blast.pl and parse_blast2.pl. parse_stream.pl is gone
+         (since parse_blast.pl now handles both files and streams).
+         Renamed run.pl to run_blast_remote.pl and added additional
+         options to keep it in synch with the new Webblast.pm.
+       
+
+0.075  Wed Feb 17 01:29:57 1999  (bioperl 0.04.4)
         - Bug fix in Blast::Run::postclient.pl which was always printing 
           usage information (reported by Ross Crowhurst).
         - Improved error detection & reporting in Blast::Run::Webblast
@@ -12,7 +35,7 @@ Revision history for Perl extension Bio::Tools::Blast.pm and related modules.
         - Updated Blast example scripts in examples/blast/
 	  (in particular, run.pl).
 	  
-0.074  Wed Feb  3 04:10:06 1999
+0.074  Wed Feb  3 04:10:06 1999  (bioperl 0.04.3)
         - Modified blast_config.pl to make the -prog and -db command-line
           arguments mandatory. There are no default values for $opt_blast
           and $opt_db. Also removed the -dna command-line argument.
@@ -29,7 +52,7 @@ Revision history for Perl extension Bio::Tools::Blast.pm and related modules.
           for the -wait option (sets timeout during file/stream reading). 
         - Assorted touch-ups to example/blast scripts.
 
-0.073  Mon Dec 28 15:18:29 1998
+0.073  Mon Dec 28 15:18:29 1998  (bioperl 0.04.2)
         - Made changes in Sbjct.pm and HSP.pm to allow parsing of older
           versions of Blast. This affected HSP::_set_data() ("Query:?")
           and Sbjct::_set_hsps() ("\s*Score").
@@ -47,7 +70,7 @@ Revision history for Perl extension Bio::Tools::Blast.pm and related modules.
           the denominator (recommended).
         - Fixed error in test #29 in the t/Blast.t test script.
 
-0.072  Wed Dec 16 05:05:21 1998
+0.072  Wed Dec 16 05:05:21 1998  (bioperl 0.04.1)
         - Fixed out of range exception in HSP::matches() as suggested by
           Michael Lonetto in bio.perl.org bug report #11.
         - Made changes in Sbjct.pm and HSP.pm to deal with the reporting of
@@ -62,7 +85,7 @@ Revision history for Perl extension Bio::Tools::Blast.pm and related modules.
           them as before. This was in response to a report by Eli Venter.
         - Cleaned up a few "uninitialized value" warnings.
 
-0.071  Thu Dec 10 18:41:51 1998
+0.071  Thu Dec 10 18:41:51 1998  (bioperl 0.04)
         - Bio::Tools::Blast::Sbjct::_set_id() to no longer uppercases
           sequence ids for sbjct sequences. (Note however that the Blast
           dataset may have been built with a tool that uppercases all 
