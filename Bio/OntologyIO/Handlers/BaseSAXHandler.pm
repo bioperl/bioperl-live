@@ -83,6 +83,7 @@ sub _initialize {
     $self->{_tag_stack} = [];
     $self->{_visited_count} = {};
     $self->{_chars_hash} = {};
+    $self->{_current_hash} = {};
 }
 
 =head2 _tag_stack
@@ -150,6 +151,14 @@ sub _top_tag {
 
 sub _chars_hash {
     return shift->{_chars_hash};
+}
+
+=head2 _current_hash
+
+=cut
+
+sub _current_hash {
+    return  shift->{_current_hash};
 }
 
 =head2 _visited_count_inc
