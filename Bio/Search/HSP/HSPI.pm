@@ -50,7 +50,7 @@ Bio::Search::HSP::HSPI - Interface for a High Scoring Pair in a similarity searc
 Bio::Search::HSP::HSPI objects cannot be instantiated since this
 module defines a pure interface.
 
-Given an object that implements the Bio::Search::HSP::HSPI  interface,
+Given an object that implements the L<Bio::Search::HSP::HSPI> interface,
 you can do the following things with it:
 
 =head1 SEE ALSO
@@ -386,9 +386,9 @@ sub seq_inds {
     shift->throw_not_implemented();
 }
 
-=head2 Inherited from Bio::SeqFeature::SimilarityPair
+=head2 Inherited from L<Bio::SeqFeature::SimilarityPair>
 
-These methods come from Bio::SeqFeature::SimilarityPair
+These methods come from L<Bio::SeqFeature::SimilarityPair>
 
 =head2 query
 

@@ -134,6 +134,7 @@ BEGIN {
                                               analysis)
            -hsp_length=> Length of the HSP (including gaps)
            -identical => # of residues that that matched identically
+           -percent_identity => (optional) percent identity
            -conserved => # of residues that matched conservatively 
                            (only protein comparisions; 
                             conserved == identical in nucleotide comparisons)
@@ -161,7 +162,7 @@ sub new {
     my($class,@args) = @_;
 
     my $self = $class->SUPER::new(@args);
-    my ($algo, $evalue, $pvalue, $identical, $conserved, 
+    my ($algo, $evalue, $pvalue, $identical, $percent_id,$conserved, 
         $gaps, $query_gaps, $hit_gaps,
         $hit_seq, $query_seq, $homology_seq,
         $hsp_len, $query_len,$hit_len,
@@ -170,8 +171,9 @@ sub new {
         $qframe,$hframe,
         $rank) = $self->_rearrange([qw(ALGORITHM
                                        EVALUE
-                                       PVALUE
+                                       PVALUE				       
                                        IDENTICAL
+				       PERCENT_IDENTITY
                                        CONSERVED
                                        HSP_GAPS
                                        QUERY_GAPS
@@ -207,7 +209,6 @@ sub new {
     defined $bits      && $self->bits($bits);
     defined $score     && $self->score($score);
     my ($queryfactor, $hitfactor) = (0,0);
-
     if( $algo =~ /^(PSI)?T(BLAST|FAST|SW)[NY]/oi ) {
 	$hitfactor = 1;	
     } elsif ($algo =~ /^(FAST|BLAST)(X|Y|XY)/oi ||
@@ -215,7 +216,7 @@ sub new {
 	$queryfactor = 1;	
     } elsif ($algo =~ /^T(BLAST|FAST|SW)(X|Y|XY)/oi ||
 	     $algo =~ /^(BLAST|FAST|SW)N/oi ||
-	     $algo =~ /^WABA|AXT|MEGABLAST|EXONERATE|SW|SMITH\-WATERMAN|SIM4$/ 
+	     $algo =~ /^WABA|AXT|BLAT|BLASTZ|PSL|MEGABLAST|EXONERATE|SW|SMITH\-WATERMAN|SIM4$/ 
 	     ){
 	$hitfactor = 1;
 	$queryfactor = 1;
@@ -293,18 +294,20 @@ sub new {
         $self->throw("Must defined hit and query length");
     }
 
-    if( ! defined $identical ) { 
-        $self->warn("Did not defined the number of identical matches in the HSP assuming 0");
-        $identical = 0;
+    if( ! defined $identical  ) { 
+	if( ! defined $percent_id ) {
+	    $self->warn("Did not defined the number of identical matches or overall percent identity in the HSP assuming 0");
+	    $identical = 0;
+	}
+	$identical = int($percent_id * $hsp_len);
     } 
     if( ! defined $conserved ) {
 	$self->warn("Did not defined the number of conserved matches in the HSP assuming conserved == identical ($identical)") 
-	    if( $algo !~ /^((FAST|BLAST)N)|EXONERATE|SIM4|AXT|WABA/oi);
+	    if( $algo !~ /^((FAST|BLAST)N)|EXONERATE|SIM4|AXT|PSL|BLAT|BLASTZ|WABA/oi);
 	$conserved = $identical;
     } 
     # protect for divide by zero if user does not specify 
     # hsp_len, query_len, or hit_len
-    
     $self->num_identical($identical);
     $self->num_conserved($conserved);
     
@@ -341,7 +344,8 @@ sub new {
         $gaps = $self->gaps("query") + $self->gaps("hit");
     }
     $self->gaps('total', $gaps);
-    $self->percent_identity($identical / $hsp_len ) if( $hsp_len > 0 );
+    $self->percent_identity($percent_id || 
+			    $identical / $hsp_len ) if( $hsp_len > 0 );
 
     $rank && $self->rank($rank);
     return $self;
@@ -349,9 +353,9 @@ sub new {
 
 
 
-=head2 Bio::Search::HSP::HSPI methods
+=head2 L<Bio::Search::HSP::HSPI> methods
 
-Implementation of Bio::Search::HSP::HSPI methods follow
+Implementation of L<Bio::Search::HSP::HSPI> methods follow
 
 =head2 algorithm
 
@@ -726,8 +730,8 @@ sub frame {
 
  Title   : get_aln
  Usage   : my $aln = $hsp->gel_aln
- Function: Returns a Bio::SimpleAlign representing the HSP alignment
- Returns : Bio::SimpleAlign
+ Function: Returns a L<Bio::SimpleAlign> object representing the HSP alignment
+ Returns : L<Bio::SimpleAlign>
  Args    : none
 
 =cut
@@ -921,16 +925,16 @@ sub seq_inds{
 }
 
 
-=head2 Inherited from Bio::SeqFeature::SimilarityPair
+=head2 Inherited from L<Bio::SeqFeature::SimilarityPair>
 
-These methods come from Bio::SeqFeature::SimilarityPair
+These methods come from L<Bio::SeqFeature::SimilarityPair>
 
 =head2 query
 
  Title   : query
  Usage   : my $query = $hsp->query
  Function: Returns a SeqFeature representing the query in the HSP
- Returns : Bio::SeqFeature::Similarity
+ Returns : L<Bio::SeqFeature::Similarity>
  Args    : [optional] new value to set
 
 
@@ -939,7 +943,7 @@ These methods come from Bio::SeqFeature::SimilarityPair
  Title   : hit
  Usage   : my $hit = $hsp->hit
  Function: Returns a SeqFeature representing the hit in the HSP
- Returns : Bio::SeqFeature::Similarity
+ Returns : L<Bio::SeqFeature::Similarity>
  Args    : [optional] new value to set
 
 

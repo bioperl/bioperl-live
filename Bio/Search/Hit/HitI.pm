@@ -270,7 +270,7 @@ sub bits {
  Usage    : while( $hsp = $obj->next_hsp()) { ... }
  Function : Returns the next available High Scoring Pair
  Example  : 
- Returns  : Bio::Search::HSP::HSPI object or null if finished
+ Returns  : L<Bio::Search::HSP::HSPI> object or null if finished
  Args     : none
 
 =cut
@@ -288,7 +288,7 @@ sub next_hsp {
            : Get the numbers of HSPs for the current hit.
  Example   : @hsps = $hit_object->hsps();
            : $num  = $hit_object->hsps();  # alternatively, use num_hsps()
- Returns   : Array context : list of Bio::Search::HSP::BlastHSP.pm objects.
+ Returns   : Array context : list of L<Bio::Search::HSP::BlastHSP> objects.
            : Scalar context: integer (number of HSPs).
            :                 (Equivalent to num_hsps()).
  Argument  : n/a. Relies on wantarray
@@ -349,7 +349,7 @@ sub num_hsps {
            :             consolidating long lists. Default = no collapse.
  Throws    : n/a.
 
-See Also   : L<Bio::Search::HSP::BlastHSP::seq_inds()|Bio::Search::HSP::BlastHSP>
+See Also   : L<Bio::Search::HSP::HSPI::seq_inds()|Bio::Search::HSP::HSPI>
 
 =cut
 
@@ -408,7 +408,7 @@ sub rewind{
  Status    : Experimental
  Comments  : Any two HSPs whose sequences overlap by less than or equal
            : to the overlap() number of resides will be considered separate HSPs
-           : and will not get tiled by Bio::Search::BlastUtils::_adjust_contigs().
+           : and will not get tiled by L<Bio::Search::BlastUtils::_adjust_contigs()>.
 
 See Also   : L<Bio::Search::BlastUtils::_adjust_contigs()|Bio::Search::BlastUtils>, L<BUGS | BUGS>
 
@@ -480,7 +480,7 @@ sub p { shift->throw_not_implemented() }
  Example   : $hspObj  = $hit_object->hsp;  # same as 'best'
            : $hspObj  = $hit_object->hsp('best');
            : $hspObj  = $hit_object->hsp('worst');
- Returns   : Object reference for a Bio::Search::HSP::BlastHSP.pm object.
+ Returns   : Object reference for a L<Bio::Search::HSP::HSPI> object.
  Argument  : String (or no argument).
            :   No argument (default) = highest scoring HSP (same as 'best').
            :   'best' or 'first' = highest scoring HSP.
@@ -610,7 +610,7 @@ sub tiled_hsps { shift->throw_not_implemented }
            : dedicated method such as $hit->hsps_on_both_strands(). Similarly
            : for frame. This could be provided if there is interest.
 
-See Also   : B<Bio::Search::HSP::BlastHSP::strand>()
+See Also   : L<Bio::Search::HSP::HSPI::strand>()
 
 =cut
 
