@@ -305,25 +305,6 @@ sub algorithm{
     return $previous;   
 }
 
-=head2 bits
-
- Title   : bits
- Usage   : my $bits = $hsp->bits();
- Function: Returns the bit value for this HSP or undef 
- Returns : numeric
- Args    : [optional] numeric value to store for bits
-
-=cut
-
-sub bits {
-   my ($self,$value) = @_;
-   my $previous = $self->{'_bits'};
-   if( defined $value ) { 
-       $self->{'_bits'} = $value;
-   } 
-   return $previous;
-}
-
 =head2 p
 
  Title   : p
@@ -678,6 +659,19 @@ These methods come from Bio::SeqFeature::SimilarityPair
  Returns : numeric           
  Args    : [optional] numeric to set value
 
+=cut 
+
+# overriding 
+
+sub score {
+    my ($self,$value) = @_;
+    my $previous = $self->{'_score'};
+    if( defined $value ) { 
+        $self->{'_score'} = $value;
+    } 
+    return $previous;
+}
+
 =head2 bits
 
  Title   : bits
@@ -688,5 +682,15 @@ These methods come from Bio::SeqFeature::SimilarityPair
 
 =cut
 
+# overriding 
+
+sub bits {
+    my ($self,$value) = @_;
+    my $previous = $self->{'_bits'};
+    if( defined $value ) { 
+        $self->{'_bits'} = $value;
+    } 
+    return $previous;
+}
 
 1;
