@@ -1004,7 +1004,6 @@ sub _read_FTHelper_swissprot {
         $desc,  # The descriptive text
         );
     
-    ## TODO: ERE I AM, trying to figure out why the $$buffer is $_, but without the key, so changing the below regexp to \w+ where it is now \w* fixes a bug...
     if ($$buffer =~ /^FT   (\w+)\s+([\d\?\<]+)\s+([\d\?\>]+)\s*(.*)$/) {
         $key = $1;
         my $loc1 = $2;
