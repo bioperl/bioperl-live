@@ -68,7 +68,7 @@ Bio::Graphics::Glyph::rndrect - The "round rect" glyph
 =head1 DESCRIPTION
 
 This glyph was designed to show seq features in round edge rectangles.
-The glyph will be a rectangle if its width is < 4 pixels
+The glyph will be a rectangle if its width is E<lt> 4 pixels
 
 =head1 BUGS
 
@@ -87,7 +87,7 @@ L<Bio::Graphics::Glyph::transcript>,
 
 =head1 AUTHOR
 
-Shengqiang Shu (sshu@bdgp.lbl.gov)
+Shengqiang Shu E<lt>sshu@bdgp.lbl.govE<gt>
 
 Copyright (c) 2001 BDGP
 

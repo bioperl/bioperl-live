@@ -271,7 +271,6 @@ method:
     foreach my $id ( @{ $biblio->get_all_ids } ) {
         print $biblio->get_by_id ($id);
     }
-  
 
 It throws an exception if this object does not represent any query
 result - see explanation in method I<reset_retrieval> elsewhere in

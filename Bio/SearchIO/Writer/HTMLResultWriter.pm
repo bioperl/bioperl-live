@@ -16,16 +16,15 @@ Bio::SearchIO::Writer::HTMLResultWriter - Object to implement writing a Bio::Sea
 
 =head1 SYNOPSIS
 
-use Bio::SearchIO;
-use Bio::SearchIO::Writer::HTMLResultWriter;
+  use Bio::SearchIO;
+  use Bio::SearchIO::Writer::HTMLResultWriter;
 
-my $in = new Bio::SearchIO(-format => 'blast',
-			   -file   => shift @ARGV);
+  my $in = new Bio::SearchIO(-format => 'blast',
+			     -file   => shift @ARGV);
 
-my $writer = new Bio::SearchIO::Writer::HTMLResultWriter();
-my $out = new Bio::SearchIO(-writer => $writer);
-$out->write_result($in->next_result);
-
+  my $writer = new Bio::SearchIO::Writer::HTMLResultWriter();
+  my $out = new Bio::SearchIO(-writer => $writer);
+  $out->write_result($in->next_result);
 
 =head1 DESCRIPTION
 

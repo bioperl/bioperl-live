@@ -124,10 +124,10 @@ In addition to the standard options, this glyph recognizes the following:
   -rel_coords    use relative coordinates   false
                  for scale
 
-The argument for b<-tick> is an integer between 0 and 2 and has the same
-interpretation as the b<-tick> option in Bio::Graphics::Glyph::arrow.
+The argument for B<-tick> is an integer between 0 and 2 and has the same
+interpretation as the B<-tick> option in Bio::Graphics::Glyph::arrow.
 
-If b<-rel_coords> is set to a true value, then the scale drawn on the
+If B<-rel_coords> is set to a true value, then the scale drawn on the
 glyph will be in relative (1-based) coordinates relative to the beginning
 of the glyph.
 
@@ -148,7 +148,7 @@ L<Bio::Graphics::Glyph::transcript>,
 
 =head1 AUTHOR
 
-Allen Day <day@cshl.org>.
+Allen Day E<lt>day@cshl.orgE<gt>.
 
 Copyright (c) 2001 Cold Spring Harbor Laboratory
 

@@ -56,7 +56,7 @@ Bio::Biblio::IO - Handling the bibliographic references
         my $citation = shift;
 	print $citation->{'_identifier'} . "\n";
     }
-    
+
 
 Now, to actually get a citation in an XML format,
 use I<Bio::Biblio> module which returns an XML string:

@@ -152,7 +152,7 @@ take a scalar argument and return a scalar result, like this:
   }
 
 make_my_id() will be called with the full fasta id line (including the
-">" symbol!).  For example:
+"E<gt>" symbol!).  For example:
 
  >A12345.3 Predicted C. elegans protein egl-2
 

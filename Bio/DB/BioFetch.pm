@@ -241,18 +241,6 @@ sub get_Seq_by_version {
 
 =cut
 
-=head2 get_Stream_by_acc
-
-  Title   : get_Stream_by_acc
-  Usage   : $seq = $db->get_Seq_by_acc([$acc1, $acc2]);
-  Function: Gets a series of Seq objects by accession numbers
-  Returns : a Bio::SeqIO stream object
-  Args    : $ref : a reference to an array of accession numbers for
-                   the desired sequence entries
-  Note    : For GenBank, this just calls the same code for get_Stream_by_id()
-
-=cut
-
 =head2 get_Stream_by_gi
 
   Title   : get_Stream_by_gi

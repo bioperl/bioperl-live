@@ -290,9 +290,13 @@ Otherwise, there will be two arrows at the start and end:
        ^              ^
        |              |
 
-Scale: Pass in a externally established scale to reset the labels on the arrow.  This is particularly useful for manually constructed images where the founding parameters of the panel are not 1-based.  For example, a genetic map interval ranging from 0.1 - 0.3 can be constructed by first multiplying every value by 100. Passing
+Scale: Pass in a externally established scale to reset the labels on
+the arrow.  This is particularly useful for manually constructed
+images where the founding parameters of the panel are not 1-based.
+For example, a genetic map interval ranging from 0.1 - 0.3 can be
+constructed by first multiplying every value by 100. Passing
 
-arrow(-scale=>100);
+  arrow(-scale=>100);
 
 will draw tick marks labelled appropriately to your external scale.
 
@@ -313,8 +317,8 @@ L<Ace::Graphics::Glyph::transcript>,
 
 =head1 AUTHOR
 
-Shengqiang Shu <sshu@bdgp.lbl.gov>
-Lincoln Stein <lstein@cshl.org>.
+Shengqiang Shu E<lt>sshu@bdgp.lbl.govE<gt>
+Lincoln Stein E<lt>lstein@cshl.orgE<gt>.
 
 Copyright (c) 2001 BDGP, Cold Spring Harbor Laboratory
 
