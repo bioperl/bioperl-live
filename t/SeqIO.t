@@ -296,7 +296,7 @@ if ( $out->write_seq($seq) ) {
 }
 
 #
-# Tests for feature-rich GenBank-entries. Added by HL <hlapp@gmx.net> 07/05/00
+# Tests for feature-rich GenBank-entries. Added by HL <hlapp@gmx.net> 05/07/00
 #
 my $stream = Bio::SeqIO->new('-file' => 't/test.genbank',
 			     '-format' => 'GenBank');
