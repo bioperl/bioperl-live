@@ -2,22 +2,36 @@
 
 use strict;
 use vars qw($NUMTESTS);
+my $error;
 BEGIN { 
     eval { require Test; };
     if( $@ ) {
 	use lib 't';
     }
     use Test;
-
+    $error = 0;
     $NUMTESTS = 6; 
-    plan tests => 6; 
+    plan tests => 6;
+    eval { require 'IO/String.pm' };
+    if( $@ ) {
+	print STDERR "IO::String not installed. This means the Bio::DB::* modules are not usable. Skipping tests.\n";
+	for( 1..$NUMTESTS ) {
+	    skip(1,"IO::String not installed. This means the Bio::DB::* modules are not usable. Skipping tests");
+	}
+	$error = 1; 
+    }
 }
-use Bio::Tools::Run::RemoteBlast;
 
-use Bio::SeqIO;
-use Bio::AlignIO;
-use Bio::Seq;
-use Bio::Root::IO;
+if( $error ==  1 ) {
+    exit(0);
+}
+
+require Bio::Tools::Run::RemoteBlast;
+
+require Bio::SeqIO;
+require Bio::AlignIO;
+require Bio::Seq;
+require Bio::Root::IO;
 
 ok(1);
 

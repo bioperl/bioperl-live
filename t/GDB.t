@@ -39,7 +39,7 @@ if( $error == 1 ) {
     exit(0);
 }
 
-use Bio::DB::GDB;
+require Bio::DB::GDB;
 my $verbose = 0;
 
 my ($gdb, $marker, $info);
@@ -48,10 +48,10 @@ $marker = 'D1S234';
 eval { 
     ok defined ( $gdb = new Bio::DB::GDB(-verbose=>$verbose) );     
     ok($info = $gdb->get_info(-type=>'marker',
-			   -id  => $marker));
+			      -id  => $marker));
 };
 if( $@ ) {
-    warn "Warning: Couldn't connect to GDB website with Bio::DB::GDB.pm!\nError: $@ Do you have network access? Skipping all other tests";
+    warn "Warning: Couldn't connect to GDB website with Bio::DB::GDB.pm!\nError: Do you have network access? Skipping all other tests";
     foreach ( $Test::ntest..$NUMTESTS ) { skip(1,1, 'no network access'); }
     exit(0);
 }
