@@ -105,7 +105,8 @@ of a memory hog.
 To fetch sequences using an existing index first of all create your sequence 
 object 
 
-    my $index = new Bio::DB::Flat::OBDAIndex(-index => $index_directory);
+    my $index = new Bio::DB::Flat::OBDAIndex(-index_dir => $index_directory,
+                                             -dbname    => 'swissprot');
 
 Now you can happily fetch sequences either by the primary key or
 by the secondary keys.
@@ -249,6 +250,7 @@ sub new {
 
     $self->index_directory($index_dir);
     $self->database_name     ($dbname);
+
     if ($self->index_directory && $dbname) {
 
 	$self->read_config_file;
@@ -398,7 +400,11 @@ sub get_stream_by_id {
 sub get_Seq_by_acc {
     my ($self,$acc) = @_;
 
-    return $self->get_Seq_by_secondary("ACC",$acc);
+    if ($self->primary_namespace eq "ACC") {
+       return $self->get_Seq_by_id($acc);
+    } else {
+      return $self->get_Seq_by_secondary("ACC",$acc);
+    }
 }
 
 =head2 get_Seq_by_secondary
