@@ -136,9 +136,10 @@ sub fetch {
         
         # Get the (possibly cached) SeqIO object
         my $seqio = $self->_get_SeqIO_object( $file );
-        my $fh = $seqio->_filehandle();
+        my $fh = $seqio->_fh();
 
         # move to start of record
+	$begin-- if( $^O =~ /mswin/i); # workaround for Win DB_File bug
         seek($fh, $begin, 0);
 	
 	$seq = $seqio->next_seq();
