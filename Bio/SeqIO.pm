@@ -567,6 +567,7 @@ sub _guess_format {
    return 'gcg'     if /\.gcg$/i;
    return 'ace'     if /\.ace$/i;
    return 'bsml'    if /\.(bsm|bsml)$/i;
+   return 'swiss'   if /\.(swiss|sp)$/i;
 }
 
 sub DESTROY {
