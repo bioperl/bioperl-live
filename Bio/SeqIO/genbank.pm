@@ -176,8 +176,7 @@ sub next_seq {
       # may still be useful if we don't want the seq
       $params{'-length'} = shift(@tokens);
       # the alphabet of the entry
-      $params{'-alphabet'} = (shift(@tokens) eq 'bp') ? 'dna' : 'protein';
-      
+      $params{'-alphabet'} = (lc(shift @tokens) eq 'bp') ? 'dna' : 'protein';
       # for aa there is usually no 'molecule' (mRNA etc)
       if (($params{'-alphabet'} eq 'dna') || (@tokens > 2)) {	
 	  $params{'-molecule'} = shift(@tokens);
