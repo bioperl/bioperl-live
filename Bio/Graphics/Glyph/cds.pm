@@ -7,13 +7,8 @@ use Bio::Tools::CodonTable;
 use Bio::Graphics::Glyph::translation;
 use vars '@ISA','$VERSION';
 @ISA = qw(Bio::Graphics::Glyph::segments Bio::Graphics::Glyph::translation);
-$VERSION = '1.00';
+$VERSION = '1.01';
 
-sub gridcolor {
-  my $self = shift;
-  my $index = $self->option('gridcolor') || 'lightslategray';
-  $self->factory->translate_color($index);
-}
 sub connector   { 0 };
 sub description {
   my $self = shift;
@@ -133,7 +128,7 @@ sub draw_component {
   for (my $i=0;$i<@residues;$i++) {
     my $x = $strand > 0 ? $start + $i * $pixels_per_residue
                         : $stop  - $i * $pixels_per_residue;
-    $gd->char($font,$x,$y1,$residues[$i],$color) if $x > $x1 && $x < $x2;
+    $gd->char($font,$x,$y1,$residues[$i],$color) if $x >= $x1 && $x <= $x2;
   }
 }
 
