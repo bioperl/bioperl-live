@@ -5,56 +5,31 @@
 # Before `make install' is performed this script should be runnable with
 # `make test'. After `make install' it should work as `perl test.t'
 
-#-----------------------------------------------------------------------
-## perl test harness expects the following output syntax only!
-## 1..3
-## ok 1  [not ok 1 (if test fails)]
-## 2..3
-## ok 2  [not ok 2 (if test fails)]
-## 3..3
-## ok 3  [not ok 3 (if test fails)]
-##
-## etc. etc. etc. (continue on for each tested function in the .t file)
-#-----------------------------------------------------------------------
-
-
-## We start with some black magic to print on failure.
+use strict;
+use vars qw($NUMTESTS);
 BEGIN { 
+    # to handle systems with no installed Test module
+    # we include the t dir (where a copy of Test.pm is located
+    # as a fallback
+    eval { require Test; };
+    if( $@ ) {
+	use lib 't';
+    }
+    use Test;
 
     eval { require 'Text/Wrap.pm' };
     if( $@ || $Text::Wrap::VERSION < 98 ) {
 	print STDERR "Must have at least Text::Wrap 98 installed\n";
-	print "1..1\n";
-	print "ok 1\n";
+	plan tests => 1;
+	ok(1);
 	exit(0);
-    }    
-    
-    $| = 1; print "1..26\n";
-    use vars qw($loaded); }
-
-END {print "not ok 1\n" unless $loaded;}
-
-use lib '../';
-use Text::Wrap 98;
-use Bio::Variation::IO;
-
-$loaded = 1;
-print "ok 1\n";    # 1st test passes.
-
-
-## End of black magic.
-##
-## Insert additional test code below but remember to change
-## the print "1..x\n" in the BEGIN block to reflect the
-## total number of tests that will be run.
-
-sub test ($$;$) {
-    my($num, $true, $msg) = @_;
-    print($true ? "ok $num\n" : "not ok $num $msg\n");
-    $true ? return 1 : return 0;
+    }
+    $NUMTESTS = 25;
+    plan tests => $NUMTESTS;
 }
 
-my $no = 2;
+use Text::Wrap 98;
+use Bio::Variation::IO;
 
 sub fileformat ($) {
     my ($file) = shift;
@@ -106,7 +81,7 @@ sub io {
         close BEFORE;
     }
 
-    test $no++, $before, "Error in reading input file [$t_name.$o_ext]";
+    ok $before;#"Error in reading input file [$t_name.$o_ext]";
 
     # Test reading
     my $in = Bio::Variation::IO->new( -file => $t_file);
@@ -115,7 +90,7 @@ sub io {
         push @entries, $e;
     }
     my $count = scalar @entries;
-    test $no++, @entries > 0, "No SeqDiff objects [$count]";
+    ok @entries > 0;# "No SeqDiff objects [$count]";
     
     # Test writing
     my $out = Bio::Variation::IO->new( -FILE => "> $o_file", -FORMAT => $o_format);
@@ -124,7 +99,7 @@ sub io {
         $out->write($e) or $out_ok = 0;
     }
     undef($out);  # Flush to disk
-    test $no++, $out_ok,  "error writing variants";
+    ok $out_ok;#  "error writing variants";
 
     my( $after );
     {
@@ -135,11 +110,11 @@ sub io {
         close AFTER;
     }
 
-    test $no++, $after, "Error in reading in again the output file [$o_file]";
+    ok $after;# "Error in reading in again the output file [$o_file]";
 
     #Test that input and output files are identical
-    $res = test $no++, $before eq $after, "test output file differs from input";
-    print STDERR `diff $t_file $o_file` if ! $res;
+    ok $before, $after, "test output file differs from input";
+    print STDERR `diff $t_file $o_file` if $before ne $after;
     unlink($o_file); 
 }
 
@@ -169,8 +144,8 @@ if( $@ ) {
 	"\nThe XML-format conversion requires the CPAN modules ",
 	"XML::Node, XML::Writer, and IO::String to be installed ",
 	"on your system, which they probably aren't. Skipping these tests.\n";
-    while($no <= 26) {
-	test($no++, 1, "");
+    for( $Test::ntest..$NUMTESTS) {
+	skip(1, 1,"");
     }
     exit(0);
 }

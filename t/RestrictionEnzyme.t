@@ -2,11 +2,19 @@
 ## Bioperl Test Harness Script for Modules
 ## $Id$
 
-use Test;
 use strict;
-BEGIN { plan test => 14 }
 
-use lib '../';
+BEGIN { 
+    # to handle systems with no installed Test module
+    # we include the t dir (where a copy of Test.pm is located)
+    # as a fallback
+    eval { require Test; };
+    if( $@ ) {
+	use lib 't';
+    }
+    use Test;
+    plan test => 14 }
+
 use Bio::Tools::RestrictionEnzyme;
 use Bio::Seq;
 

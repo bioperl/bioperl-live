@@ -2,17 +2,26 @@
 ## Bioperl Test Harness Script for Modules
 ##
 
-use Test;
 use strict;
 
-BEGIN { plan tests => 18 }
+BEGIN { 
+    # to handle systems with no installed Test module
+    # we include the t dir (where a copy of Test.pm is located)
+    # as a fallback
+    eval { require Test; };
+    if( $@ ) { 
+	use lib 't';
+    }
+    use Test;
+    plan tests => 18 }
 
 use Bio::SimpleAlign;
 use Bio::AlignIO;
 
 my ($str,$aln,$strout,$status);
 ## Now we test Bio::AlignIO::stockholm input
-$str = Bio::AlignIO->new(-file=> 't/testaln.stockholm','-format' => 'stockholm');
+$str = Bio::AlignIO->new(-file=> 't/testaln.stockholm',
+			 '-format' => 'stockholm');
 ok defined($str) && ref($str) && $str->isa('Bio::AlignIO');
 $aln = $str->next_aln();
 ok $aln->{order}->{'0'}, '1433_LYCES-9-246';
@@ -98,5 +107,6 @@ ok $status, 1, "  failed filehandle output test";
 $str = Bio::AlignIO->new('-file'   => 't/bl2seq.out',
 			 '-format' => 'bl2seq');
 $aln = $str->next_aln();
-ok $aln->{order}->{'1'}, 'ALEU_HORVU -60-360', "failed BLAST bl2seq format test";
+ok ($aln->{order}->{'1'}, 'ALEU_HORVU -60-360', 
+    "failed BLAST bl2seq format test");
 

@@ -5,13 +5,22 @@
 # Before `make install' is performed this script should be runnable with
 # `make test'. After `make install' it should work as `perl test.t'
 
-use Test;
 use strict;
-BEGIN { plan tests => 12 }
+BEGIN {     
+    # to handle systems with no installed Test module
+    # we include the t dir (where a copy of Test.pm is located)
+    # as a fallback
+    eval { require Test; };
+    if( $@ ) {
+	use lib 't';
+    }
+    use Test;
+    plan tests => 14;
+}
+
 use Bio::Tools::Genscan;
 use Bio::Tools::MZEF;  # THIS IS STILL TODO!
 use Bio::SeqIO;
-
 
 # Genscan report
 my $genscan = Bio::Tools::Genscan->new('-file' => "t/genomic-seq.genscan");
@@ -66,3 +75,12 @@ while(my $gene = $genscan->next_prediction()) {
 	    "predicted and extracted protein seqs don't match");
     }
 }
+
+# MZEF report
+my $mzef = Bio::Tools::MZEF->new('-file' => "t/genomic-seq.mzef");
+ok $mzef;
+
+my $exon_num = 0;
+my $gene = $mzef->next_prediction();
+
+ok($gene->exons, 23);

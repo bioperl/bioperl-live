@@ -8,10 +8,19 @@
 # Before `make install' is performed this script should be runnable with
 # `make test'. After `make install' it should work as `perl test.t'
 
-## We start with some black magic to print on failure.
-use Test;
 use strict;
-BEGIN { plan tests => 10 }
+BEGIN {     
+    # to handle systems with no installed Test module
+    # we include the t dir (where a copy of Test.pm is located)
+    # as a fallback
+    eval { require Test; };
+    if( $@ ) {
+	use lib 't';
+    }
+    use Test;
+    plan tests => 10;
+}
+
 use Bio::Index::Fasta;
 use Bio::Index::SwissPfam;
 use Bio::Index::EMBL;

@@ -5,20 +5,26 @@
 # Before `make install' is performed this script should be runnable with
 # `make test'. After `make install' it should work as `perl test.t'
 
-
-## We start with some black magic to print on failure.
-use Test;
 use strict;
 BEGIN { 
-    eval { require XML::Parser::PerlSAX;
-             };
+    # to handle systems with no installed Test module
+    # we include the t dir (where a copy of Test.pm is located)
+    # as a fallback
+    eval { require Test; };
+    if( $@ ) {
+	use lib 't';
+    }
+    use Test;
+    plan tests => 9;
+    
+    eval { require XML::Parser::PerlSAX; };
     if( $@ ) {
 	print STDERR "XML::Parser::PerlSAX not loaded. This means game test cannot be executed. Skipping\n";
-	print "1..1\n";
-	print "ok 1\n";
+	foreach ( 1..9 ) {
+	    skip(1,1);
+	}
 	exit(0);
     } 
-    plan tests => 9;
 }
 
 use Bio::Seq;

@@ -1,7 +1,17 @@
 # -*-Perl-*- mode
-use Test;
+
 use strict;
-BEGIN { plan tests => 11 }
+BEGIN {     
+    # to handle systems with no installed Test module
+    # we include the t dir (where a copy of Test.pm is located)
+    # as a fallback
+    eval { require Test; };
+    if( $@ ) { 
+	use lib 't';
+    }
+    use Test;
+    plan tests => 11;
+}
 
 use Bio::Tools::BPlite::Iteration;
 use Bio::Tools::BPpsilite;
@@ -9,8 +19,8 @@ use Bio::Tools::BPpsilite;
 open FH, "t/psiblastreport.out";
 my $report = Bio::Tools::BPpsilite->new(-fh=>\*FH);
 ok $report;
-ok $report->query, qr/DICDI/, " query not found";
-ok $report->database, qr/swissprot/, " database name not found";
+ok $report->query =~ /DICDI/;# " query not found";
+ok $report->database =~ /swissprot/i;# " database name not found";
 
 my $total_iterations = $report->number_of_iterations;
 ok $total_iterations, 2, " wrong total iteration number";
@@ -43,7 +53,7 @@ ok $total_iterations, 2, " wrong total iteration number in phiblast report";
 
 my $last_iteration2 = $report2->round($total_iterations);
 my $sbjct2 = $last_iteration2->nextSbjct;
-ok $last_iteration2->newhits->[1], qr/ARATH/, " Hit not found in phiblast report";
+ok $last_iteration2->newhits->[1] =~ /ARATH/;# " Hit not found in phiblast report";
 my $hsp2 = $sbjct2->nextHSP;
 ok $hsp2->subject->end, 343, " HSP start not found in phiblast report";
 

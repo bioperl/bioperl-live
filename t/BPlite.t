@@ -4,18 +4,22 @@
 
 # Before `make install' is performed this script should be runnable with
 # `make test'. After `make install' it should work as `perl test.t'
-use Test;
+
 use strict;
-BEGIN { plan tests => 28 }
+BEGIN {
+    # to handle systems with no installed Test module
+    # we include the t dir (where a copy of Test.pm is located)
+    # as a fallback
+    eval { require Test; };
+    if( $@ ) { 
+	use lib 't';
+    }
+    use Test;
+    plan tests => 28;
+}
 
 use Bio::Tools::BPlite;
 ok(1);
-## End of black magic.
-##
-## Insert additional test code below but remember to change
-## the print "1..x\n" in the BEGIN block to reflect the
-## total number of tests that will be run. 
-
 
 my $seq =
     "MAAQRRSLLQSEQQPSWTDDLPLCHLSGVGSASNRSYSADGKGTESHPPEDSWLKFRSENN".
@@ -30,7 +34,7 @@ my $seq =
 
 open FH, "t/blast.report";
 my $report = Bio::Tools::BPlite->new(-fh=>\*FH);
-ok ref($report), qr/Bio::Tools::BPlite/;
+ok $report->isa('Bio::Tools::BPlite');
 my $sbjct = $report->nextSbjct;
 ok defined $sbjct;
 my $hsp = $sbjct->nextHSP;
@@ -67,7 +71,7 @@ ok $report2->pattern, "P-E-E-Q";
 ok $report2->query_pattern_location->[0], 23;
 ok $report2->query_pattern_location->[1], 120;
 my $sbjct2 = $report2->nextSbjct;
-ok $sbjct2->name, qr/4988/;
+ok $sbjct2->name =~ /4988/;
 my $hsp2 = $sbjct2->nextHSP;
 ok $hsp2->subject->end, 343;
 

@@ -5,12 +5,18 @@
 # Before `make install' is performed this script should be runnable with
 # `make test'. After `make install' it should work as `perl test.t'
 
-## We start with some black magic to print on failure.
-
-use Test;
 use strict;
 use vars qw($DEBUG);
-BEGIN { plan tests => 33 }
+BEGIN {     
+    # to handle systems with no installed Test module
+    # we include the t dir (where a copy of Test.pm is located)
+    # as a fallback
+    eval { require Test; };
+    if( $@ ) {
+	use lib 't';
+    }
+    use Test;
+    plan tests => 35 }
 
 use Bio::Seq;
 use Bio::SeqIO;
@@ -248,3 +254,16 @@ $species = $seq->species();
 @cl = $species->classification();
 ok( $cl[3] ne $species->genus(), 1, 'genus duplicated in EMBL parsing');
 $ent->close();
+
+
+# let's test to see how well we handle FuzzyLocations
+$seq = Bio::SeqIO->new( '-format' => 'GenBank' , 
+			-file => 't/testfuzzy.genbank');
+$seq->verbose($verbosity);
+$as = $seq->next_seq();
+ok defined $as->seq;
+
+$seq = Bio::SeqIO->new( '-format' => 'GenBank' , 
+			-file => '>t/genbank.fuzzyout');
+$seq->verbose($verbosity);
+ok($seq->write_seq($as));

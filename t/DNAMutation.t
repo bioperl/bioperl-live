@@ -5,14 +5,21 @@
 # Before `make install' is performed this script should be runnable with
 # `make test'. After `make install' it should work as `perl test.t'
 
-use Test;
 use strict;
+BEGIN {
+    # to handle systems with no installed Test module
+    # we include the t dir (where a copy of Test.pm is located)
+    # as a fallback
+    eval { require Test; };
+    if( $@ ) {
+	use lib 't';
+    }
+    use Test;
 
-BEGIN { plan tests => 27 }
+    plan tests => 27 }
 
 use Bio::Variation::DNAMutation;
 use Bio::Variation::Allele;
-
 
 ok(1);
 

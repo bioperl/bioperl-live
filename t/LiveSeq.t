@@ -7,14 +7,25 @@
 # Before `make install' is performed this script should be runnable with
 # `make test'. After `make install' it should work as `perl test.t'
 
-use Test;
 use strict;
-BEGIN { plan tests => 46 }
+BEGIN {     
+    # to handle systems with no installed Test module
+    # we include the t dir (where a copy of Test.pm is located)
+    # as a fallback
+    eval { require Test; };
+    if( $@ ) {
+	use lib 't';
+    }
+    use Test;
+    plan tests => 46; 
+}
+
 use Bio::LiveSeq::IO::BioPerl;
 
 ok(1);
 
-my $loader=Bio::LiveSeq::IO::BioPerl->load(-db=>"EMBL", -file=>"t/factor7.embl");
+my $loader=Bio::LiveSeq::IO::BioPerl->load(-db=>"EMBL", 
+					   -file=>"t/factor7.embl");
 ok $loader;
 my $gene=$loader->gene2liveseq(-gene_name => "factor7");
 ok $gene;

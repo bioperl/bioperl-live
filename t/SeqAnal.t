@@ -4,10 +4,19 @@
 # Before `make install' is performed this script should be runnable with
 # `make test'. After `make install' it should work as `perl test.t'
 
-use Test;
 use strict;
 
-BEGIN { plan test => 1 }
+BEGIN {     
+    # to handle systems with no installed Test module
+    # we include the t dir (where a copy of Test.pm is located)
+    # as a fallback
+    eval { require Test; };
+    if( $@ ) {
+	use lib 't';
+    }
+    use Test;
+    plan test => 1;
+}
 
 use Bio::Tools::SeqAnal;
 use Bio::Tools::IUPAC;

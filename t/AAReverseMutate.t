@@ -2,29 +2,29 @@
 ## Bioperl Test Harness Script for Modules
 ## $Id$
 
-# Before `make install' is performed this script should be runnable with
-# `make test'. After `make install' it should work as `perl test.t'
-## We start with some black magic to print on failure.
-
-use Test;
 use strict;
-BEGIN { plan tests => 16 }
+BEGIN { 
+    # to handle systems with no installed Test module
+    # we include the t dir (where a copy of Test.pm is located)
+    # as a fallback
+    eval { require Test; };
+    if( $@ ) { 
+	use lib 't';
+    }
+    use Test;
+
+    plan tests => 16;
+}
 
 use Bio::Variation::AAReverseMutate;
 ok(1);
-## End of black magic.
-##
-## Insert additional test code below but remember to change
-## the print "1..x\n" in the BEGIN block to reflect the
-## total number of tests that will be run. 
-
 
 my $obj = new Bio::Variation::AAReverseMutate
     ('-aa_ori' => 'F', 
      '-aa_mut' => 'S'
      );
 ok defined $obj;
-ok ref($obj), qr/Bio::Variation::AAReverseMutate/;
+ok $obj->isa('Bio::Variation::AAReverseMutate');
 
 ok $obj->aa_ori, 'F';
 
@@ -59,5 +59,3 @@ ok $rna->codon_pos, 2;
 
 $obj->codon_table(11);
 ok $obj->codon_table, 11;
-
-

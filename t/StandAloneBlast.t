@@ -6,9 +6,22 @@
 # Before `make install' is performed this script should be runnable with
 # `make test'. After `make install' it should work as `perl test.t'
 
-use Test;
 use strict;
-BEGIN { plan tests => 8; }
+use vars qw($NUMTESTS);
+BEGIN { 
+    # to handle systems with no installed Test module
+    # we include the t dir (where a copy of Test.pm is located)
+    # as a fallback
+    eval { require Test; };
+    if( $@ ) {
+	use lib 't';
+    }
+    use Test;
+
+    $NUMTESTS = 8; 
+    plan tests => 8; 
+}
+
 # Edit the following line to point to the location of your local blast files...
 # BEGIN {$ENV{BLASTDIR} = '/home/peter/blast/'; }
 END { unlink('blastreport.out') }
@@ -45,14 +58,11 @@ my $program = 'blastn';
 
 my $blast_present = Bio::Tools::Run::StandAloneBlast->exists_blast();
 unless ($blast_present) {
-	warn "blast program not found. Skipping tests 3 to 8\n";
-   	skip(1,1);
+    warn "blast program not found. Skipping tests $Test::ntest to $NUMTESTS\n";
+    foreach ($Test::ntest..$NUMTESTS) {
 	skip(1,1);
-	skip(1,1);
-	skip(1,1);
-	skip(1,1);
-	skip(1,1);	
-	exit 0;
+    }
+    exit 0;
 }
 
 # If the ecoli.nt and swissprot databases are not installed (but other ones presumably are),

@@ -2,22 +2,22 @@
 ## Bioperl Test Harness Script for Modules
 ## $Id$
 
-## We start with some black magic to print on failure.
-
-use Test;
 use strict;
 
-BEGIN { plan tests => 15 }
+BEGIN {
+    # to handle systems with no installed Test module
+    # we include the t dir (where a copy of Test.pm is located)
+    # as a fallback
+    eval { require Test; };
+    if( $@ ) { 
+	use lib 't';
+    }
+    use Test;
+    plan tests => 15 }
 
 use Bio::Variation::Allele;
 
 ok(1);
-
-## End of black magic.
-##
-## Insert additional test code below but remember to change
-## the print "1..x\n" in the BEGIN block to reflect the
-## total number of tests that will be run. 
 
 my($a,$trunc,$rev);
 

@@ -2,16 +2,26 @@
 ## Bioperl Test Harness Script for Modules
 ## $Id$
 
-use Test;
 use strict;
 
-BEGIN { plan tests => 26}
+BEGIN { 
+    # to handle systems with no installed Test module
+    # we include the t dir (where a copy of Test.pm is located)
+    # as a fallback
+    eval { require Test; };
+    if( $@ ) {
+	use lib 't';
+    }
+    use Test;
+
+    plan tests => 26;
+}
 
 use Bio::Seq;
 use Bio::SeqFeature::Generic;
 use Bio::Annotation;
 use Bio::Species;
-ok 1;
+ok(1);
 
 my $seq = Bio::Seq->new(-seq=>'ACTGTGGCGTCAACT',
                         -desc=>'Sample Bio::Seq object',

@@ -2,10 +2,16 @@
 ## Bioperl Test Harness Script for Modules
 ##
 
-use Test;
 use strict;
-
-BEGIN { plan tests => 24}
+BEGIN {     
+    # to handle systems with no installed Test module
+    # we include the t dir (where a copy of Test.pm is located)
+    # as a fallback
+    eval { require Test; };
+    if( $@ ) { use lib 't'; }
+    use Test;
+    plan tests => 24;
+}
 
 use Bio::PrimarySeq;
 use Bio::Tools::SeqStats;

@@ -11,10 +11,21 @@
 # Fairly rudimentary
 # Header code for this test was borrowed from Blast.t
 
-use Test;
 use strict;
 
-BEGIN { plan tests => 9 }
+BEGIN {     
+    # to handle systems with no installed Test module
+    # we include the t dir (where a copy of Test.pm is located)
+    # as a fallback
+    eval { require Test; };
+    if( $@ ) {
+	use lib 't';
+    }
+    use Test;
+
+    plan tests => 9;
+}
+
 use Bio::Species;
 
 ok(1);

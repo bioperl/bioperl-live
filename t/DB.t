@@ -6,21 +6,29 @@
 # Before `make install' is performed this script should be runnable with
 # `make test'. After `make install' it should work as `perl test.t'
 
-
-## We start with some black magic to print on failure.
-use Test;
 use strict;
+use vars qw($NUMTESTS);
 
 BEGIN { 
-    use vars qw($numtests);
-    $numtests = 30;
-    plan tests => $numtests;
+    # to handle systems with no installed Test module
+    # we include the t dir (where a copy of Test.pm is located)
+    # as a fallback
+    eval { require Test; };
+    if( $@ ) {
+	use lib 't';
+    }
+    use Test;
+
+    $NUMTESTS = 30;
+    plan tests => $NUMTESTS;
     eval { require 'IO/String.pm' };
     if( $@ ) {
 	print STDERR "IO::String not installed. This means the Bio::DB::* modules are not usable. Skipping tests.\n";
-	skip(1,1,1,"IO::String not installed. This means the Bio::DB::* modules are not usable. Skipping tests");
-	exit(0);
-    }     
+	for( 1..$NUMTESTS ) {
+	    skip(1,"IO::String not installed. This means the Bio::DB::* modules are not usable. Skipping tests");
+	    exit(0);
+	}
+    }
 }
 
 
@@ -48,7 +56,7 @@ eval {
 };
 if ($@) {
     warn "Warning: Couldn't connect to Genbank with Bio::DB::GenBank.pm!\nError: $@ Do you have network access? Skipping all other tests";
-    while ( $Test::ntest < $numtests ) { skip(1,1, 'no network access'); }
+    foreach ( $Test::ntest..$NUMTESTS ) { skip(1,1, 'no network access'); }
     exit(0);
 }
 
@@ -65,7 +73,7 @@ eval {
 
 if ($@) {
     warn "Batch access test failed.\nError: $@\n";
-    while ( $Test::ntest <= $numtests ) { skip(1,1,'no network access'); }
+    foreach ( $Test::ntest..$NUMTESTS ) { skip(1,1,'no network access'); }
 }
 $seq = $seqio = undef;
 
@@ -85,7 +93,7 @@ eval {
 if ($@) {
     warn "Warning: Couldn't connect to Genbank with Bio::DB::GenPept.pm!\n" 
 	. $@;
-    while( $Test::ntest <= $numtests ) { 
+    foreach( $Test::ntest..$NUMTESTS ) { 
 	skip(1,1,1,'could not connect with GenPept'); 
     }
 }
@@ -107,7 +115,7 @@ eval {
 if ($@) {
     print STDERR "Warning: Couldn't connect to SwissProt with Bio::DB::Swiss.pm!\n" . $@;
 
-    while( $Test::ntest <= $numtests) { 
+    foreach ( $Test::ntest..$NUMTESTS) { 
 	skip(1,1,1,'could not connect to swissprot');}
 
 }
@@ -140,7 +148,7 @@ eval {
 
 if ($@) {
     warn "Warning: Couldn't connect to Genbank with Bio::DB::GenBank.pm!\n" . $@;
-    while ( $Test::ntest <= $numtests ) { 
+    foreach ( $Test::ntest..$NUMTESTS ) { 
 	skip(1,,1,1,'could not connect to Genbank'); 
     }
 }
