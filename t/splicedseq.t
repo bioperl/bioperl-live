@@ -41,7 +41,7 @@ foreach my $ft ( grep { $_->primary_tag eq 'CDS'}
 	my $t = $ft->spliced_seq();
 	my $pepseq = $t->translate()->seq();
 	chop($pepseq);# chop is to remove stop codon
-	ok($translation,$pepseq); 
+	ok($pepseq,$translation); 
     }	
 }
 
