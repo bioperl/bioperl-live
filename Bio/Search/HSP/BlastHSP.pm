@@ -188,6 +188,8 @@ $GAP_SYMBOL    = '-';          # Need a more general way to handle gap symbols.
            :      -PROGRAM      => string ('TBLASTN', 'BLASTP', etc.).
            :      -QUERY_NAME   => string, id of query sequence
            :      -HIT_NAME     => string, id of hit sequence
+           :      -LINKS        => string or integer representing
+           :                       the links information (from WU-BLAST only)
            :
  Comments  : Having the raw data allows this object to do lazy parsing of 
            : the raw HSP data (i.e., not parsed until needed).
@@ -213,12 +215,13 @@ sub new {
     my ($raw_data, $qname, $hname, $qlen, $hlen);
 
     ($self->{'_prog'}, $self->{'_rank'}, $raw_data,
-     $qname, $hname) = 
+     $qname, $hname,$links) = 
       $self->_rearrange([qw( PROGRAM
 			     RANK
 			     RAW_DATA
 			     QUERY_NAME
 			     HIT_NAME
+			     LINKS
 			   )], @args );
     
     # _set_data() does a fair amount of parsing. 
@@ -255,6 +258,7 @@ sub new {
 
     $self->query->frac_identical($self->frac_identical('query'));
     $self->hit->frac_identical($self->frac_identical('hit'));
+    $self->links($links) if defined $links;
     return $self;
 }
 
@@ -1657,6 +1661,24 @@ sub get_aln {
     return $aln;
 }
 
+=head2 links
+
+ Title   : links
+ Usage   : $obj->links($newval)
+ Function: Get/Set the Links value (from WU-BLAST)
+           Indicates the placement of the alignment in the group of HSPs
+ Returns : Value of links
+ Args    : On set, new value (a scalar or undef, optional)
+
+
+=cut
+
+sub links{
+    my $self = shift;
+
+    return $self->{'links'} = shift if @_;
+    return $self->{'links'};
+}
 
 1;
 __END__

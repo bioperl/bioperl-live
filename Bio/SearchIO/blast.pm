@@ -178,6 +178,7 @@ BEGIN {
           'Hsp_align-len'  => 'HSP-hsp_length',
           'Hsp_query-frame'=> 'HSP-query_frame',
           'Hsp_hit-frame'  => 'HSP-hit_frame',
+	  'Hsp_links'      => 'HSP-links',
 
           'Hit_id'        => 'HIT-name',
           'Hit_len'       => 'HIT-length',
@@ -763,7 +764,7 @@ sub next_result{
            if( /(Frame\s*=\s*.+)$/ ) {
                # handle wu-blast Frame listing on same line
                $self->_pushback($1);
-           }           
+           }     
        } elsif( $self->in_element('hsp') &&
                 /Strand\s*=\s*(Plus|Minus)\s*\/\s*(Plus|Minus)/i ) {
            # consume this event ( we infer strand from start/end)
@@ -773,6 +774,10 @@ sub next_result{
 	                       # reporttype
 	   }
            next;
+       } elsif( $self->in_element('hsp') &&
+		/Links\s*=\s*(((\d+)\-)*\(\s*(\d+)\s*\))/ox ) {
+	   $self->element({'Name' => 'Hsp_links',
+			   'Data' => $1});
        } elsif( $self->in_element('hsp') &&
                 /Frame\s*=\s*([\+\-][1-3])\s*(\/\s*([\+\-][1-3]))?/ ){
 	   # this is for bl2seq only
