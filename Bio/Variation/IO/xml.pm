@@ -398,9 +398,11 @@ sub write {
 				     "isMutation" => $mut->isMutation
 				     );
 			if ($mut->label) {
-			    $w->startTag("label");
-			    $w->characters($mut->label );
-			    $w->endTag;
+			    foreach my $label (split ', ', $mut->label) {
+				$w->startTag("label");
+				$w->characters($label);
+				$w->endTag;
+			    }
 			}	
 			if ($mut->proof) {
 			    $w->startTag("proof");
@@ -472,9 +474,11 @@ sub write {
 				     );
 
 			if ($mut->label) {
-			    $w->startTag("label");
-			    $w->characters($mut->label );
-			    $w->endTag;
+			    foreach my $label (split ', ', $mut->label) {
+				$w->startTag("label");
+				$w->characters($label );
+				$w->endTag;
+			    }
 			}	
 			if ($mut->proof) {
 			    $w->startTag("proof");
@@ -567,9 +571,11 @@ sub write {
 				     );
 
 			if ($mut->label) {
-			    $w->startTag("label");
-			    $w->characters($mut->label );
-			    $w->endTag;
+			    foreach my $label (split ', ', $mut->label) {
+				$w->startTag("label");
+				$w->characters($label );
+				$w->endTag;
+			    }
 			}	
 			if ($mut->proof) {
 			    $w->startTag("proof");
