@@ -102,7 +102,7 @@ use strict;
 
 @ISA=qw(Bio::Root::Root Bio::Root::IO);
 
-@Bio::Matrix::PSM::IO::PSMFORMATS=qw(meme transfac mast);
+@Bio::Matrix::PSM::IO::PSMFORMATS=qw(meme transfac mast psiblast);
 
 =head2 new
 
