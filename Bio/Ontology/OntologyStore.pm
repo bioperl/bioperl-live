@@ -217,16 +217,16 @@ sub get_ontology{
       my($url,$def,$fmt) = $doc_registry->documents($name);
 
       if(ref($url) eq 'ARRAY'){
-        my $io = Bio::OntologyIO->new(-files      => $url,
-                                      -defs_file => $def,
+        my $io = Bio::OntologyIO->new(-url      => $url,
+                                      -defs_url => $def,
                                       -format   => $fmt,
                                      );
 
         $o = $io->next_ontology();
         $ont_store_by_name{$name} = $o;
       } elsif($url){
-        my $io = Bio::OntologyIO->new(-file      => $url,
-                                      -defs_file => $def,
+        my $io = Bio::OntologyIO->new(-url      => $url,
+                                      -defs_url => $def,
                                       -format   => $fmt,
                                      );
         $o = $io->next_ontology;
