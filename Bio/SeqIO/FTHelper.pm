@@ -106,9 +106,8 @@ sub _generic_seqfeature {
     }
 
     $sf = new Bio::SeqFeature::Generic;
-    my $strand = ( $fth->loc =~ /complement/i ) ? -1 : 1;
+    my $strand = ( $fth->loc =~ /complement/ ) ? -1 : 1;    
     $sf->strand($strand);
-
         # Parse compound features
     if ( $fth->loc =~ /(join)/i || $fth->loc =~ /(order)/i) {
 	my $combotype=$1; 	
@@ -119,10 +118,10 @@ sub _generic_seqfeature {
 						     -splittype => $combotype);
 	# we need to make sub features
 	my $loc = $fth->loc;
-	$loc =~ s/^$combotype\((\S+)\)/$1/;
+	$loc =~ s/^$combotype\((\S+)\)/$1/;	
 	foreach my $next_loc ( split(/\s*,\s*/, $loc) ) {
 	    if( my $location = $fth->_parse_loc($sf,$next_loc)) {
-		print "got ", join(",", ($location->start(), 
+		print STDERR "I got ", join(",", ($location->start(), 
 					 $location->end(), 
 					 $location->strand())), 
 		" for $next_loc\n" if( $fth->verbose > 0 );
@@ -130,7 +129,7 @@ sub _generic_seqfeature {
 	    } else {
 		$fth->warn("unable to parse location successfully out of " .
 			   $next_loc . ", ignoring feature (seqid=" .
-			   $annseq->id() . ")");
+			   $annseq->id() . ")");		
                 $sf = undef;
 	    }
 	}
@@ -185,8 +184,8 @@ sub _parse_loc {
 #my ($start,$end,$fea_type,$tagval)
 #    my %compl_of = ("5" => "3", "3" => "5");
     my ($fea_type, $tagval) = ('','');
-    my ($start,$end, $strand);
-    $self->warn( "Processing $locstr\n") if( $self->verbose > 0 );
+    my ($strand,$start,$end) = (1);
+    print STDERR "Processing $locstr\n" if( $self->verbose > 0 );
 
     # Two numbers separated by anything of '.', '^', and spaces (SRS puts a
     # space between the two dots), optionally surrounded by parentheses and a
@@ -219,10 +218,12 @@ sub _parse_loc {
     # (5.12)..17 
     # (5.18)..(300.305)
     # will not be parsed by the regex below.  Something to work on
-    
-    $strand = ( $locstr =~ /complement/ ) ? -1 : 1;
+    if( $locstr =~ /complement\((.+)/ ) {
+	$locstr = $1;
+	$strand = -1;
+    }
     my ($delim) = '';
-    if($locstr =~ /^\s*(\w+[A-Za-z])?\({0,2}([\<\>\?]?\d+[\<\>\?]?([\.\^]\d+)?)\)?([\.\^\s]{1,3})\(?([\<\>\?]?\d+[\<\>\?]?([\.\^]\d+)?)\)?\){0,2}[,;\" ]*([A-Za-z]\w*)?\"?\)?\s*$/) {
+    if($locstr =~ /^\s*(\w+[A-Za-z])?\({0,2}([\<\>\?]?\d+[\<\>\?]?([\.\^]\d+)?)\)?([\.\^\s]{1,3})\(?([\<\>\?]?\d+[\<\>\?]?([\.\^]\d+)?)\){0,2}[,;\" ]*([A-Za-z]\w*)?\"?\)?\s*$/) {
 #	print "1 = \"$1\", 2 = \"$2\", 3 = \"$3\", 4 = \"$4\", 5 = \"$5\", 6 = \"$6\", 7 = \"$7\"\n";
 	$fea_type = $1 if $1;
 	$start = $2;

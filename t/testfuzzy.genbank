@@ -58,6 +58,8 @@ FEATURES             Location/Qualifiers
                      /note="Fuzzy location14"
      misc_feature    J00194:(100..202),1..245,300..422
                      /note="Location partly in another entry"
+     misc_feature    complement(join(1..30,30.40,4^8,40.30..90))
+	             /note="complement of join"
 BASE COUNT      118 a     46 c     67 g     79 t
 ORIGIN      
         1 gtgacagttg gctgtcagac atacaatgat tgtttagaag aggagaagat tgatccggag
