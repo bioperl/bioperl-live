@@ -980,6 +980,11 @@ sub seq {
 
 sub subseq {
   my $self = shift;
+  $self->trunc(@_)->seq();	
+}
+
+sub trunc {
+  my $self = shift;
   my ($start,$stop) = @_;
   $self->throw("Stop cannot be smaller than start")  unless $start <= $stop;
   return $self->{start} <= $self->{stop} ?  $self->new($self->{db},
@@ -990,7 +995,7 @@ sub subseq {
 						       $self->{id},
 						       $self->{start}-($start-1),
 						       $self->{start}-($stop-1)
-						      );
+						      );  
 	
 }
 
@@ -1026,10 +1031,12 @@ sub length {
   return $self->{db}->length($self->{id});
 }
 
-sub desc  { 
+sub description  { 
     my $self = shift;
     return '';
 }
+
+*desc = \&description;
 
 #-------------------------------------------------------------
 # stream-based access to the database
