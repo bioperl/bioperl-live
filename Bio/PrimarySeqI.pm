@@ -113,7 +113,7 @@ use strict;
 use Bio::Root::RootI;
 use Bio::Tools::CodonTable;
 
-@ISA = qw(Bio:Root::RootI);
+@ISA = qw(Bio::Root::RootI);
 
 =head1 Implementation Specific Functions
 
