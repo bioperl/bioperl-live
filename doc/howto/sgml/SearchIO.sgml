@@ -482,6 +482,12 @@
 	    <entry>2e-022</entry>
 	    <entry>e-value</entry>
 	  </row>
+	   <row>
+	    <entry>HSP</entry>
+	    <entry>expect</entry>
+	    <entry>2e-022</entry>
+	    <entry>alias for evalue()</entry>
+	  </row>
 	  <row>
 	    <entry>HSP</entry>
 	    <entry>frac_identical</entry>
@@ -679,8 +685,8 @@
     </table>
     
     <para>
-      Table 1 shows that a method can return a string, an array, an array
-      of strings, or an object. When an object is returned some
+      Table 1 shows that a method can return a string, an array,
+      or an object. When an object is returned some
       additional code will probably be needed to get the data of
       interest. For example, if you wanted a printable alignment after
       you'd parsed BLAST output you could use the get_aln() method,
@@ -760,26 +766,28 @@
       <ulink url="http://doc.bioperl.org">http://doc.bioperl.org</ulink>
       which provides the HTML versions of the Perl POD (Plain Old
       Documentation) that is embedded in every well-written Perl
-      module. Another useful source of code is the examples/searchio/
-      directory in the Bioperl package.
+      module. Another sources of code are the examples/searchio/
+      and scripts/searchio directories in the Bioperl package.
     </para>
   </section>
   
   <section id="creating_reports">
+    <title>Creating Reports for SearchIO</title>
     <para>
       One note on creating reports that can be parsed by SearchIO: the
       developers haven't attempted to parse all the possible reports 
       that could be created by programs with many command-line options,
       like blastall. Certainly you should be able to parse reports
       created using the default settings, but if you're running
-      blastall, say, using some new set of options and you've
+      blastall, say, using some special set of options and you've
       encountered a parsing problem this may be the explanation.
     </para>
     <para>
-      One can currently parse BLAST output created with the default
+      For example, one can currently parse BLAST output created with the default
       settings as well as the reports created when using the "-m 8"
       or "-m 9" options (use format "blasttable") or the XML-formatted
-      reports.
+      reports but it's still possible to find sets of options that
+      SearchIO can't parse.
     </para>
   </section>
 
@@ -814,7 +822,7 @@
       when a new stack is started.  The listener will take the events
       and process them.  We've neglected to tell you of a third event
       that is thrown and caught.  This is the characters event in SAX
-      terminology which is simply data.  So one sends a start event,
+      terminology, which is simply data.  So one sends a start event,
       then some data, then an end event.  This process is analagous to
       a finite state machine in computer science (and I'm sure the
       computer scientists reading this right are already yawning) where
@@ -824,7 +832,7 @@
     </para>
     <para>
       A small caveat: in an ideal situation a processor would throw
-      events and not need to keep any state about where it is, it would
+      events and not need to maintain any state information, it would
       just be processing data and the listener would manage the
       information and state.  However, a lot of the parsing of these
       human-readable reports requires contextual information to apply
@@ -832,7 +840,7 @@
       has to know what state it is in and apply different methods based
       on this.  In contrast the XML parsers simply keep track of what
       state they are in, but can process all the data with the same
-      system of reading the tag and sending the data that is inbetween
+      system of reading the tag and sending the data that is in between
       the XML start and end tags.
     </para>
     <para>
@@ -844,23 +852,22 @@
       Bio::SearchIO is just the front-end to this process, in fact the
       processing of these reports is done by different modules in the
       Bio/SearchIO directory.  So if you look at your bioperl
-      distribution at the modules in Bio/SearchIO you'll see modules in
-      there like: blast.pm, fasta.pm, blastxml.pm,
+      distribution and the modules in Bio/SearchIO you'll see modules in
+      there like blast.pm, fasta.pm, blastxml.pm,
       SearchResultEventBuilder.pm, EventHandlerI.pm (depending on what
       version of the toolkit there may be more modules in there).
       There is also a SearchWriterI.pm and Writer directory in there
       but we'll save that for later.  If you don't have the
       distribution handy you can navigate this at the bioperl <ulink
-	url="http://cvs.open-bio.org/cgi-bin/viewcvs/viewcvs.cgi/bioperl-live/Bio/SearchIO/?cvsroot=bioperl">CVS web
-	page</ulink>.  
+	url="http://cvs.open-bio.org/cgi-bin/viewcvs/viewcvs.cgi/bioperl-live/Bio/SearchIO/?cvsroot=bioperl">CVS web page</ulink>.  
     </para>
     <para>
       Let's use the blast.pm module as an example to describe the
-      relationship of the modules in this dir (could have subsituted
+      relationship of the modules in this dir (could have substituted
       any of the other format parsers like fasta.pm or blastxml.pm -
       these are always lowercase for historical reasons).  The module
       has some features you should look for - the first is the hash in
-      the BEGIN block called %MAPPING.  This key value pairs here are
+      the BEGIN block called %MAPPING.  This key/value pairs here are
       the shorthand for how we map events from this module to general
       event names.  This is only necessary because if we have an XML
       processor (see the blastxml.pm module) the event names will be
@@ -869,7 +876,7 @@
       of the events inside our parser map to the values in the %MAPPING
       hash - we can call them whatever we want inside this module.
       Some of the events map to hash references (like
-      Statistics_db-len) this is so we can map multiple values to the
+      Statistics_db-len) and this is so we can map multiple values to the
       same top-level attribute field but we know they will be stored as
       a hash value in the subsequent object (in this example, keyed by
       the name 'dbentries').  The capital "RESULT", "HSP", or "HIT" in
@@ -885,7 +892,7 @@
       just as easily be propagating data directly into a database based
       on the events.  The SearchResultEventBuilder takes the events
       thrown by the SearchIO classes and builds the appropriate
-      Bio::Search::HSP:: object from it.
+      Bio::Search::HSP object from it.
     </para>
     <para>
       Sometimes special objects are needed that are extensions beyond
@@ -893,7 +900,7 @@
       represent.  For this case we have implemented
       Bio::SearchIO::SearchResultEventBuilder so that it can use
       factories for creating its resulting Bio::Search objects - see
-      Bio::SearchIO::hmmer _initialize method for an example of how
+      the Bio::SearchIO::hmmer::_initialize method for an example of how
       this can be set.
     </para>
   </section>
@@ -904,9 +911,9 @@
       most comfortable with that output or if you want to visualize the
       context of a weakly aligned region to use human intuition to score
       the confidence of a putative homologue.  Bio::SearchIO is for parsing
-      in the data and Bio::SearchIO::Writer is for outputting the
-      information. The simpliest way to output data as a pseudo-BLAST
-      HTML format is as follows. 
+      in the data but Bio::SearchIO::Writer is for outputting the
+      information. The simplest way to output data as a pseudo-BLAST
+      HTML format is as follows.
     </para>
     <para>
       <programlisting>
@@ -927,14 +934,14 @@
     <para>
       The HTMLResultWriter supports setting your own remote database url for
       the sequence links in the event you'd like to point to your own 
-      SRS or local HTTP based connection to the sequence data, simply use
+      SRS or local HTTP-based connection to the sequence data. Simply use
       the remote_database_url method which accepts a sequence type as input
       (protein or nucleotide).
     </para>
     <para>
       You can also override the id_parser() method to
-      define what are the unique IDs from these sequence ids in the event
-      you would like to use something other than accession number that is
+      define what the unique IDs are from these sequence ids in the event
+      you would like to use something other than the accession number that is
       gleaned from the sequence string.
     </para>
     <para>
@@ -942,7 +949,7 @@
       Bio::Search objects up in memory directly from your database and
       then use the Writer object to output the data.  Currently there is
       also a Bio::SearchIO::Writer::TextResultWriter which supports
-      writing BLAST textfile output.
+      writing BLAST text file output.
     </para>
   </section>
   <section id="extending">
@@ -952,21 +959,22 @@
       these reports and creating objects which represent the information.
       If you would like to create your own set of objects which extend the
       current functionality we have built the system so that it will
-      support this.  For example, if you've built your own HSP object
-      which supports a special operation like, realign_with_sw which might
-      realign the HSP via a Smith-Waterman algorithm pulling extra bases
+      support this.  For example, you may have built your own HSP object
+      which supports a special operation like realign_with_sw(), which might
+      realign the HSP via a Smith-Waterman algorithm, pulling extra bases
       from the flanking sequence.  You might call your module
       Bio::Search::HSP::RealignHSP and put it in a file called
       Bio/Search/HSP/RealignHSP.pm.  Note that you don't have to put this
       file directly in the bioperl source directory - you can create your own
       local directory structure that is in parallel to the bioperl release
-      src code as long as you have updated your PERL5LIB to contain your
-      local directory or use the 'use lib' directive in your script.
+      source code as long as you have updated your PERL5LIB to contain your
+      local directory or you are using the 'use lib' directive in your script.
       Also, you don't have to use the namespace Bio::Search::HSP as
-      namespaces don't mean anything about object inheritance in perl, but
-      we recommend you name things in a logical manner so that others
-      might read your code and if you feel encouraged to donate your code
-      to the project it might easily integrated with existing modules.
+      namespaces don't mean anything to perl with respect to object inheritance, but
+      do we recommend you name things in a logical manner so that others
+      might read and understand your code (and if you feel encouraged
+      to donate your code to the project it might easily integrated
+      with existing modules).
     </para>
     <para>
       So, you're going to write your new special module, you do need to
@@ -974,7 +982,7 @@
       Additionally unless you want to reimplement all the initialization
       state in the current Bio::Search::HSP::GenericHSP you should just
       plan to extend that object.  You need to follow the chained
-      constructor system that we have setup so that the arguments are
+      constructor system that we have set up so that the arguments are
       properly processed.  Here is a sample of what your code might look
       like (don't forget to write your own POD so that it will be
       documented, we've left it off here to keep things simple).
@@ -1006,7 +1014,7 @@
     <para>
       The above code gives you a skeleton of how to start to implement
       your object. To register it so that it is used when the SearchIO
-      systems makes HSPs you just need to call a couple of functions.  The
+      system makes HSPs you just need to call a couple of functions.  The
       code below outlines them.   
     </para>
     <para>
@@ -1032,16 +1040,16 @@ $searchio->_eventHandler->register_factory('hit', $hitfact);
       </programlisting>
     </para>
     <para>
-      We have to register the HSPFactory which is the object which will
+      We have to register the HSPFactory, which is the object which will
       create HSPI objects, by allowing this to be built by a factory
       rather than a hard-coded Bio::Search::HSP::GenericHSP->new(...) call.
       We are allowing the user to take advantage of the whole parsing
       structure and the ability to slot their own object into the process
       rather than re-implementing very much.  We think this is very
-      powerful and is worth the system overhead, but it may not permit this
+      powerful and worth the system overhead, but it may not permit this
       to be as efficient in parsing as we would like.  Future work will
       hopefully address speed and memory issues with this parser.
-      Volunteers and improvement code is always welcome.
+      Volunteers and improvement code are always welcome.
     </para>
   </section>
 </article>
