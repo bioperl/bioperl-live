@@ -90,9 +90,9 @@ I<Bio::Biblio> instances.
 =item B<Bio::DB::Biblio::soap>
 
 This is a real implementation of all methods defined in
-L<Bio::DB::BiblioI> using SOAP protocol (calling a WebService
+Bio::DB::BiblioI using SOAP protocol (calling a WebService
 based on SOAP). This class should not be instantiated directly (use
-I<Bio::Biblio> instead).
+I<Bio::Biblio> instead). See L<Bio::DB::BiblioI> for details.
 
 =item Bio::Biblio::IO   I<(not yet written)>
 
