@@ -129,6 +129,8 @@ use Bio::Root::Root;
 use Bio::Coordinate::Result;
 use Bio::Location::Simple;
 use Bio::Coordinate::Graph;
+use Bio::Coordinate::Collection;
+use Bio::Coordinate::Pair;
 
 @ISA = qw(Bio::Root::Root);
 
