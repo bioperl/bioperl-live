@@ -23,7 +23,7 @@
 
 BEGIN {	
     ## We start with some black magic to print on failure.
-    $| = 1; print "1..4\n"; 
+    $| = 1; print "1..5\n"; 
     # $^W = 0;  # I'm not sure what this means.
 }
 END {
@@ -47,20 +47,24 @@ sub test ($$;$) {
 }
 
 my $sps = Bio::Species->new();
-# this is more or less quoted from the doc, first in the format required by
-# the doc (but in contrary to the example), then the example, the latter
-# testing the code trying to be smart
 my $msg = 'bug in either Species->classification() or elsewhere in Bio::Species';
-$sps->classification(qw( sapiens Homo Hominidae Catarrhini Primates
-		         Eutheria Mammalia Vertebrata Chordata
-		         Metazoa Eukaryota));
+$sps->classification('sapiens', 'Homo', 'Hominidae',
+		     'Catarrhini', 'Primates', 'Eutheria', 'Mammalia',
+		     'Vertebrata', 'Chordata', 'Metazoa', 'Eukaryota');
 test 1, $sps->binomial() eq 'Homo sapiens', $msg;
-$sps->classification(qw( sapiens Homo Hominidae Catarrhini Primates
-		         Eutheria Mammalia Vertebrata Chordata
-		         Metazoa Eukaryota));
+
+$sps->classification('sapiens', 'Homo', 'Hominidae',
+		     'Catarrhini', 'Primates', 'Eutheria', 'Mammalia',
+		     'Vertebrata', 'Chordata', 'Metazoa', 'Eukaryota');
 $sps->sub_species('sapiensis');
 test 2, $sps->binomial() eq 'Homo sapiens', $msg;
 test 3, $sps->binomial('FULL') eq 'Homo sapiens sapiensis', $msg;
 test 4, $sps->sub_species() eq 'sapiensis', $msg;
+
+$sps->classification(qw( sapiens Homo Hominidae
+			 Catarrhini Primates Eutheria Mammalia Vertebrata
+			 Chordata Metazoa Eukaryota));
+test 5, $sps->binomial() eq 'Homo sapiens', $msg;
+
 
 
