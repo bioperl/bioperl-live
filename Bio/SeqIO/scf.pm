@@ -135,10 +135,11 @@ sub next_seq {
           # the rest of the the information is different between the
     $creator->{header} = $self->_get_header($buffer);
     if ($creator->{header}->{'version'} lt "3.00") {
+         warn("scf.pm is working with a version 2 scf.\n");
 	          # first gather the trace information
 	    $length = $creator->{header}->{'samples'}*
                $creator->{header}->{sample_size}*4;
-	    $buffer = $self->read_from_buffer($fh,$buffer,$length);
+	    $buffer = $self->read_from_buffer($fh,$buffer,$length,$creator->{header}->{samples_offset});
 	          # @read = unpack "n$length",$buffer;
 	          # these traces need to be split
                # returns a reference to a hash
@@ -148,7 +149,7 @@ sub next_seq {
 	    $offset = $creator->{header}->{bases_offset};
 	    $length = ($creator->{header}->{bases} * 12);
 	    seek $fh,$offset,0;
-	    $buffer = $self->read_from_buffer($fh,$buffer,$length);
+	    $buffer = $self->read_from_buffer($fh,$buffer,$length,$creator->{header}->{bases_offset});
 	          # now distill the information into its fractions.
 	          # the old way : $self->_set_v2_bases($buffer);
                # ref to an array, ref to a hash, string
@@ -158,54 +159,65 @@ sub next_seq {
            $creator->{accuracies}) = $self->_parse_v2_bases($buffer);
           
     } else {
+         warn("scf.pm is working with a version 3+ scf.\n");
 	    my $transformed_read;
-	    foreach (qw(a c g t)) {
-	        $length = $creator->{header}->{'samples'}*
+         my $current_read_position = $creator->{header}->{sample_offset};
+	    $length = $creator->{header}->{'samples'}*
                     $creator->{header}->{sample_size};
-	        $buffer = $self->read_from_buffer($fh,$buffer,$length);
-                my $byte = "n";
-                if ($creator->{header}->{sample_size} == 1){
+          # $dumper->dumpValue($creator->{header});
+	    foreach (qw(a c g t)) {
+               # print("Reading the samples for $_ from the buffer.\n");
+	          $buffer = $self->read_from_buffer($fh,$buffer,$length,$current_read_position);
+               my $byte = "n";
+               if ($creator->{header}->{sample_size} == 1) {
                     $byte = "c";
-                }
-	        @read = unpack "${byte}${length}",$buffer;
-
-		# this little spurt of nonsense is because
-		# the trace values are given in the binary
-		# file as unsigned shorts but they really
-		# are signed deltas. 30000 is an arbitrary number
-		# (will there be any traces with a given
-		# point greater then 30000? I hope not.
-		# once the read is read, it must be changed
-		# from relative
-                foreach (@read) {
-		    if ($_ > 30000) {
-		        $_ -= 65536;
-		    }
-	        }
-	        $transformed_read = $self->_delta(\@read,"backward");
-                # For 8-bit data we need to emulate a signed/unsigned
-                # cast that is implicit in the C implementations.....
-                if($creator->{header}->{sample_size} == 1){
+               }
+	          @read = unpack "${byte}${length}",$buffer;
+                    # print("This is the read: ".join(',',@read)."\n");
+                    # this little spurt of nonsense is because
+                    # the trace values are given in the binary
+                    # file as unsigned shorts but they really
+                    # are signed deltas. 30000 is an arbitrary number
+                    # (will there be any traces with a given
+                    # point greater then 30000? I hope not.
+                    # once the read is read, it must be changed
+                    # from relative
+               foreach (@read) {
+		          if ($_ > 30000) {
+		               $_ -= 65536;
+		          }
+	          }
+	          $transformed_read = $self->_delta(\@read,"backward");
+                    # For 8-bit data we need to emulate a signed/unsigned
+                    # cast that is implicit in the C implementations.....
+               if ($creator->{header}->{sample_size} == 1) {
                     foreach (@{$transformed_read}) {
                         $_ += 256 if ($_ < 0);
                     }
-                }
-                $creator->{'traces'}->{$_} = join(' ',@{$transformed_read});
+               }
+               $current_read_position += $length;
+                    # print("This is the transformed read: ",join(',',@{$transformed_read}),"\n");
+               $creator->{'traces'}->{$_} = join(' ',@{$transformed_read});
 	    }
 
 	          # now go and get the peak index information
 	    $offset = $creator->{header}->{bases_offset};
 	    $length = ($creator->{header}->{bases} * 4);
-	    seek $fh,$offset,0;
-	    $buffer = $self->read_from_buffer($fh,$buffer,$length);
+               # print("Reading peak index information from the buffer\n");
+	     $buffer = $self->read_from_buffer($fh,$buffer,$length,$offset);
           $creator->{peak_indices} = $self->_get_v3_peak_indices($buffer);
+          $offset += $length;
 	          # now go and get the accuracy information
-	    $buffer = $self->read_from_buffer($fh,$buffer,$length);
-	    $creator->{accuracies} = $self->_get_v3_base_accuracies($buffer);
+               # where, oh where should we go to get this?
+               # print("Reading accuracies from the buffer starting at position $offset\n");
+	     $buffer = $self->read_from_buffer($fh,$buffer,$length,$offset);
+	     $creator->{accuracies} = $self->_get_v3_base_accuracies($buffer);
 	          # OK, now go and get the base information.
-	    $length = $creator->{header}->{bases};
-	    $buffer = $self->read_from_buffer($fh,$buffer,$length);
-	    $creator->{'sequence'} = unpack("a$length",$buffer);
+          $offset += $length;
+	     $length = $creator->{header}->{bases};
+               # print("Reading bases from the buffer.\n");
+	     $buffer = $self->read_from_buffer($fh,$buffer,$length,$offset);
+	     $creator->{'sequence'} = unpack("a$length",$buffer);
 	          # now, finally, extract the calls from the accuracy information.
 	    $creator->{qualities} = $self->_get_v3_quality(
                $creator->{'sequence'},$creator->{accuracies});
@@ -308,7 +320,9 @@ sub _get_v3_base_accuracies {
 	     my @read;
 	     $last_base = $offset + $qlength;
 	     for (;$offset < $last_base; $offset += $qlength) {
-	          @read = unpack "c$qlength", substr($buffer,$offset,$qlength);
+                    # a bioperler (perhaps me?) changed the unpack string to include 'n' rather than 'C'
+                    # on 040322 I think that 'C' is correct. please email chad if you would like to accuse me of being incorrect
+	          @read = unpack "C$qlength", substr($buffer,$offset,$qlength);
 	          $accuracies->{$currbase} = \@read;
 	     }
     }
@@ -1111,7 +1125,20 @@ sub _unpack_magik {
 =cut
 
 sub read_from_buffer {
-	my ($self,$fh,$buffer,$length) = @_;
+	my ($self,$fh,$buffer,$length,$start_position) = @_;
+          # print("Reading from a buffer!!! length($length) ");
+     if ($start_position) {
+               # print(" startposition($start_position)(".sprintf("%X", $start_position).")\n"); 
+     }
+          # print("\n");
+     if ($start_position) {
+               # print("seeking to this position in the file: (".$start_position.")\n");
+          seek ($fh,$start_position,0);
+               # print("done. here is where I am now: (".tell($fh).")\n");
+     }
+     else {
+          # print("You did not specify a start position. Going from this position (the current position) (".tell($fh).")\n");
+     }
 	read $fh, $buffer, $length;
 	unless (length($buffer) == $length) {
 		$self->warn("The read was incomplete! Trying harder.");
