@@ -945,7 +945,7 @@ See Also  : B<Bio::Root::Object::valid()>
 #-------------
 sub valid_any {
 #-------------
-    my $self = shift;
+    my $self = &shift(@_);
     
     my $obj = $self->first();
     do{ 
@@ -970,7 +970,7 @@ See Also  : B<Bio::Root::Object::valid()>
 #--------------
 sub valid_all {
 #--------------
-    my $self = shift;
+    my $self = &shift(@_);
     
     my $obj = $self->first();
     do{ 
