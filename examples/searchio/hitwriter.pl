@@ -61,6 +61,14 @@ my @columns = qw(
                  strand_hit
 		);
 
+# The following columns require HSP alignment data:
+# 		  num_hsps
+#                 frac_identical_query
+#                 length_aln_query
+#                 gaps_total
+#                 strand_query
+#                 strand_hit
+
 print STDERR "\nUsing SearchIO->new()\n";
 
 # Note that all parameters for the $in, $out, and $writer objects are optional.
@@ -69,6 +77,7 @@ print STDERR "\nUsing SearchIO->new()\n";
 # called "hitwriter.out"
 # TODO: write hitless reports to STDERR and note if filtered.
 my $in     = Bio::SearchIO->new( -format => 'blast', 
+				 -fh => \*ARGV,
 				 -signif => 0.1, 
 				 -verbose=> 0 );
 my $writer = Bio::SearchIO::Writer::HitTableWriter->new( -columns => \@columns
@@ -83,9 +92,11 @@ my $hit_count = 0;
 while ( my $blast = $in->next_result() ) {
   printf STDERR "\nReport %d: $blast\n", $in->result_count;
   
+  print STDERR "query length=", $blast->query_length, "\n";
   if( $blast->hits ) {
-    $hit_count++;
-    $out->write_result($blast, $hit_count==1 );
+      print STDERR "# hits= ", $blast->num_hits, "\n";
+      $hit_count++;
+      $out->write_result($blast, $hit_count==1 );
   }
   else {
     print STDERR "Hitless Blast Report ";
