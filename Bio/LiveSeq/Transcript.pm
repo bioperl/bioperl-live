@@ -120,6 +120,7 @@ sub new {
   #my $end = $lastexon->end;
   my $strand = $firstexon->strand;
   my $seq = $firstexon->{'seq'};
+  $obj->moltype('rna');
 
   unless (_checkexons(\@exons)) {
     $obj->warn("$class not initialised because of problems in the exon structure");

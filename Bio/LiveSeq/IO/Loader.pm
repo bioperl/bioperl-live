@@ -278,7 +278,7 @@ sub hash2liveseq {
   $dna->moltype(lc($entry->{'Molecule'}));
   $dna->display_id($entry->{'ID'});
   $dna->accession_number($entry->{'AccNumber'});
-  $dna->description($entry->{'Description'});
+  $dna->desc($entry->{'Description'});
   my @cds=@{$entry->{'CDS'}};
   my ($swissacc,$swisshash); my @swisshashes;
   for $i (0..$#cds) {
@@ -365,7 +365,7 @@ sub hash2gene {
   $dna->source($entry->{'Organism'});
   $dna->display_id($entry->{'ID'});
   $dna->accession_number($entry->{'AccNumber'});
-  $dna->description($entry->{'Description'});
+  $dna->desc($entry->{'Description'});
 
   my @transcripts=@{$genefeatureshash->{'transcripts'}};
   # create Translations, Transcripts, Exons out of the CDS
@@ -413,7 +413,7 @@ sub hash2gene {
       ($start,$end,$strand)=@{$range};
       $object = Bio::LiveSeq::Exon->new(-seq=>$dna,-start=>$start,-end=>$end,-strand=>$strand);
       if ($object != -1) {
-	$object->description($exondescs[$exoncount]) if defined $exondescs[$exoncount];
+	$object->desc($exondescs[$exoncount]) if defined $exondescs[$exoncount];
 	$exoncount++;
 	push (@exonobjs,$object);
       } else {
@@ -430,7 +430,7 @@ sub hash2gene {
       ($start,$end,$strand)=@{$range};
       $object=Bio::LiveSeq::Intron->new(-seq=>$dna,-start=>$start,-end=>$end,-strand=>$strand);
       if ($object != -1) {
-	$object->description($introndescs[$introncount]);
+	$object->desc($introndescs[$introncount]);
 	$introncount++;
 	push (@intronobjs,$object);
       } else {
@@ -456,7 +456,7 @@ sub hash2gene {
       ($start,$end,$strand)=@{$range};
       $object=Bio::LiveSeq::Repeat_Region->new(-seq=>$dna,-start=>$start,-end=>$end,-strand=>$strand);
       if ($object != -1) {
-	$object->description($repeat_regions_family[$k]);
+	$object->desc($repeat_regions_family[$k]);
 	$k++;
 	push (@repeatregionobjs,$object);
       } else {
@@ -473,7 +473,7 @@ sub hash2gene {
       ($start,$end,$strand)=@{$range};
       $object=Bio::LiveSeq::Repeat_Unit->new(-seq=>$dna,-start=>$start,-end=>$end,-strand=>$strand);
       if ($object != -1) {
-	$object->description($repeat_units_family[$k]);
+	$object->desc($repeat_units_family[$k]);
 	$k++;
 	push (@repeatunitobjs,$object);
       } else {
@@ -587,7 +587,7 @@ sub printswissprot {
     for $i (0..$#features) {
       print "|",$features[$i]->{'name'},"|";
       print " at ",$features[$i]->{'location'},": ";
-      print "",$features[$i]->{'description'},"\n";
+      print "",$features[$i]->{'desc'},"\n";
     }
   }
 }
@@ -695,7 +695,7 @@ sub genes {
 sub swisshash2liveseq {
   my ($self,$entry,$translation)=@_;
   my $translength=$translation->length;
-  $translation->description($translation->description . $entry->{'Description'});
+  $translation->desc($translation->desc . $entry->{'Description'});
   $translation->display_id("SWISSPROT:" . $entry->{'ID'});
   $translation->accession_number("SWISSPROT:" . $entry->{'AccNumber'});
   $translation->name($entry->{'Gene'});
@@ -736,7 +736,7 @@ sub swisshash2liveseq {
     #print "Processing SwissProtFeature: $i\n"; # debug
     ($start,$end)=split(/ /,$feature->{'location'});
     # Note: cleavedmet is taken in account for updating numbering
-    $aarangeobj=Bio::LiveSeq::AARange->new(-start => $start+$cleavedmet, -end => $end+$cleavedmet, -name => $feature->{'name'}, -description => $feature->{'description'}, -translation => $translation, -translength => $translength);
+    $aarangeobj=Bio::LiveSeq::AARange->new(-start => $start+$cleavedmet, -end => $end+$cleavedmet, -name => $feature->{'name'}, -desc => $feature->{'desc'}, -translation => $translation, -translength => $translength);
     if ($aarangeobj != -1) {
       push(@aarangeobjects,$aarangeobj);
     }

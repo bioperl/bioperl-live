@@ -68,6 +68,7 @@ use strict;
 #use Carp qw(croak carp cluck);
 use vars qw($VERSION @ISA);
 use Bio::LiveSeq::SeqI 3.2; # uses SeqI, inherits from it
+use Bio::PrimarySeq;
 @ISA=qw(Bio::LiveSeq::Transcript ); 
 
 
@@ -153,7 +154,8 @@ sub labelchange {
 sub transl_seq {
   my $self=shift;
   my $transcript=$self->get_Transcript;
-  my $translation=$transcript->translate;
+  my $translation=$transcript->translate(undef, undef, undef, 
+					 $self->translation_table)->seq;
   return $translation;
 }
 
@@ -162,14 +164,19 @@ sub seq {
   my $self=shift;
   my $proteinseq;
   my $transcript=$self->get_Transcript;
-  my $translation=$transcript->translate;
+  my $translation=$transcript->translate(undef, undef, undef, 
+					 $self->translation_table)->seq;
   my $stop_pos=index($translation,"*");
   if ($stop_pos == -1) { # no stop present, continue downstream
     my $downstreamseq=$transcript->downstream_seq();
     #carp "the downstream is: $downstreamseq"; # debug
     my $cdnaseq=$transcript->seq();
-    my $extendedseq=$cdnaseq.$downstreamseq;
-    $translation=$transcript->translate_string($extendedseq);
+    my $extendedseq = new Bio::PrimarySeq(-seq => "$cdnaseq$downstreamseq",
+					  -moltype => 'dna'
+					  );
+
+    $translation=$extendedseq->translate(undef, undef, undef, 
+					 $self->translation_table)->seq;
     #carp "the new translation is: $translation"; # debug
     $stop_pos=index($translation,"*");
     if ($stop_pos == -1) { # still no stop present, return warning
