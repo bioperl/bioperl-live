@@ -63,7 +63,7 @@ ok my $tool = Bio::WebAgent->new(-verbose =>$verbose);
 
 
 ######## test using PrimarySeq object ##############
-my $seq = Bio::PrimarySeq->new(-seq => 'MSADQRWRQDSQDSFGDSFDGDPPPPPPPPFGDSFGDGFSDRSRQDQRS',
+my $seq = Bio::PrimarySeq->new(-seq => 'MSADQRWRQDSQDSFGDSFDGDPPPPPPPPFGDSFGDGFSDRSRQPPPPPPPPPPPPPDQRS',
 						-display_id => 'test2');
 
 ok $tool = Bio::Tools::Analysis::Protein::Domcut->new( -seq=>$seq);
@@ -81,7 +81,7 @@ ok my $meta = $tool->result('meta');
 
 if (!$METAERROR) { #if Bio::Seq::Meta::Array available
 	ok($meta->named_submeta_text('Domcut', 1,2), "0.068 0.053");
-	ok ($meta->seq, "MSADQRWRQDSQDSFGDSFDGDPPPPPPPPFGDSFGDGFSDRSRQDQRS");
+	ok ($meta->seq, "MSADQRWRQDSQDSFGDSFDGDPPPPPPPPFGDSFGDGFSDRSRQPPPPPPPPPPPPPDQRS");
 	}
 	
 	
