@@ -81,10 +81,10 @@ package Bio::LocatableSeq;
 use vars qw(@ISA);
 use strict;
 
-use Bio::Seq;
+use Bio::PrimarySeq;
 use Bio::RangeI;
 
-@ISA = qw(Bio::Seq Bio::RangeI);
+@ISA = qw(Bio::PrimarySeq Bio::RangeI);
 
 # new() is inherited from Bio::Root::RootI
 
@@ -92,9 +92,7 @@ use Bio::RangeI;
 
 sub new {
     my ($class, @args) = @_;
-    my $self = Bio::Seq->new(@args);
-
-    bless $self, ref($class) || $class;
+    my $self = $class->SUPER::new(@args);
 
     my ($start,$end,$strand) = $self->_rearrange( [qw(START END STRAND)],@args);
     
@@ -102,7 +100,6 @@ sub new {
     defined $end   && $self->end($end);
     defined $strand && $self->strand($strand);
     
-# set stuff in self from @args
     return $self; # success - we hope!
 }
 
