@@ -14,7 +14,7 @@ BEGIN {
         use lib 't';
     }
     use Test;
-    $NUMTESTS = 14;
+    $NUMTESTS  = 36;
     plan tests => $NUMTESTS;
     eval {	require Class::AutoClass;	
          	require Clone;
@@ -36,7 +36,7 @@ BEGIN {
 
 END {
     foreach ( $Test::ntest..$NUMTESTS) {
-	skip("Missing depensies. Skipping tests",1);
+	skip("Missing dependencies. Skipping tests",1);
     }
 }
 exit 0 if $ERROR ==  1;
@@ -52,7 +52,9 @@ ok 1;
 ###############  test dip tab delimited  format  ###################
 ## test read...
 ok my $io = Bio::Graph::IO->new(-format => 'dip',
-                                -file   => Bio::Root::IO->catfile("t","data","tab1part.mif"));
+                                -file   => Bio::Root::IO->catfile("t","data","tab1part.mif"),
+                                -threshold => 0.6);
+
 ok my $gr = $io->next_network();
 ok my $node   = $gr->nodes_by_id('A64696');
 ok $node->accession_number, 'A64696';
@@ -78,7 +80,25 @@ if (!$XML_ERROR){
 
 
 ##### now lets test some graph properties.....##
-##before deleting there are 2
+## basic properties from SImpleGraph.
+
+ok sprintf("%.3f",$gr->density), "0.027";
+ok $gr->is_connected, '';
+ok $gr->is_forest, undef;
+ok $gr->is_tree, '';
+ok $gr->is_empty, '';
+ok $gr->is_cyclic, 1;
+
+## get connected subgraphs
+my @components = $gr->components();
+ok scalar @components, 5;
+
+## get nodes connected to parameter
+my $t       = $gr->traversal($gr->nodes_by_id('3079N'));
+my @dfnodes = $t->get_all;
+##
+
+##before deleting 3048N,  3047N has 2 neighbours
 my @n1 = $gr->neighbors($gr->nodes_by_id('3047N'));
 ok scalar @n1,2;
 
@@ -93,13 +113,25 @@ ok scalar @n1,1;
 ok map {$_->object_id}$gr->edges;
 ok map {$_->object_id}$gr->nodes;
 
+## count all edges
+my $count = 0;
+ok scalar keys %{$gr->_edges}, 72;
 
+my @n = $gr->neighbors($gr->nodes_by_id('3075N'));
+ok scalar @n, 13;
 
+ok $gr->remove_nodes($gr->nodes_by_id('3075N'));
 
+## should be 13  less interactions in graph.  
+ok scalar keys %{$gr->_edges}, 59;
 
-## count neighbors
-my @ns = $gr->neighbors($gr->nodes_by_id('H64521'));
-ok scalar @ns, 13;
+## many more subgraphs now
+@components = $gr->components();
+ok scalar @components, 15;
+
+## how many unconnected nodes?
+my @ucnodes = $gr->unconnected_nodes;
+ok scalar  @ucnodes, 10;
 
 ##get CC using protein object..
 ok  sprintf("%.3f", $gr->clustering_coefficient($gr->nodes_by_id('B64525'))), 0.067;
@@ -111,11 +143,12 @@ ok  sprintf("%.3f", $gr->clustering_coefficient('B64525')), 0.067;
 ok $gr->has_node('B64525'), 1;
 ok $gr->has_node('B64'), 0;
 
+## remove a single duplicate edge
 ok $gr->remove_dup_edges($gr->nodes_by_id('3103N'));
 						
 
 
-## remove dups
+## remove  all duplicate edges
 ok $gr->remove_dup_edges();
 	
 ## should now be no duplicates
