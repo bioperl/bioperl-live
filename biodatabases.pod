@@ -189,37 +189,45 @@ some functionality absent from Bio::Index::Fasta.
 The bioperl-db package works in conjunction with the BioSQL relational 
 schema (http://obda.open-bio.org/). The most recent version of the
 bioperl-db package can be obtained at 
-http://cvs.open-bio.org/cgi-bin/viewcvs/viewcvs.cgi/?cvsroot=bioperl 
+http://cvs.open-bio.org/cgi-bin/viewcvs/viewcvs.cgi/bioperl-db/?cvsroot=bioperl
 
-The bioperl-db and BioSQL packages integrate neatly with Bioperl's 
-objects and contain tables for sequences, entries, sequence features, 
-taxonomic information, references, keywords, a wide variety of genetic 
-markers, and more. With a Seq object and a built-in database "adaptor" 
-one can load the object's data in one step, as in 
+The bioperl-db and BioSQL packages integrate neatly with Bioperl's
+objects and contain tables for sequences, entries, sequence features,
+taxonomic information, references, keywords, and more. Using a
+database adaptor factory, one can create "persistent objects" from
+bioperl objects. Persistent objects know how to store, update, and
+remove themselves to/from the database. For example,
 
-  $adaptor->store($newid,$seqobj)
+  use Bio::SeqIO;
+  use Bio::DB::BioDB;
+  # create the database-specific adaptor factory
+  $db = Bio::DB::BioDB->new(-database =>'biosql',
+                            # user, pwd, driver, host ...
+                            -dbcontext => $dbc);
+  # open stream of objects parsed from flatfile
+  my $stream = Bio::SeqIO->new(-fh => \*STDIN,
+                               -format => 'genbank');
+  while(my $seq = $stream->next_seq()) {
+      # convert to persistent object
+      $pseq = $db->create_persistent($seq);
+      # $pseq now implements Bio::DB::PersistentObjectI
+      # in addition to what $seq implemented before
+      # insert into datastore
+      $pseq->create();
+  }
 
-Similarly, one can query the database with id's or using query objects
-and retrieve arrays of Seq objects. For example
+There was a presentation at BOSC03 in Brisbane on bioperl-db,
+including how to code several use cases. You may want to consult the
+slides
+L<http://www.open-bio.org/bosc2003/slides/Persistent_Bioperl_BOSC03.pdf>.
 
-  @seqobjs = $adaptor->fetch_by_query( -constraints =>
-            ["or", 
-                  ["and", # find all human topoisomerases
-                         "species=Human",
-                         "keywords like *topoisomerase*"],
-                  ["and", # and Escherichia gyrases
-                         "species like Escherichia*",
-                         "keywords like *gyrase*"],
-            ]);
-
-See L<Bio::DB::BioSQL::SeqAdaptor>, L<Bio::DB::Query::QueryConstraint>, 
-L<Bio::DB::BioSQL::CommentAdaptor>, and L<Bio::DB::Query::BioQuery> for
-more examples.
+Similarly, one can query the database with id's or using query
+objects.  See L<Bio::DB::Query::BioQuery> and
+L<Bio::DB::Query::QueryConstraint> for examples.
 
 With bioperl-db and BioSQL installed you will also be able to load 
 sequence data, GO Ontology data, and NCBI taxonomic data into your own
 RDB.
-
 
 =head1 BIOPERL AND BIOSQL
 
