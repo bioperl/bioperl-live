@@ -28,12 +28,9 @@
 	     'HTML::Parser'             => '0.0/HTML parsing/HTML parsing of GDB page/Bio::DB::GDB',
 	     'DBD::mysql'               => '0.0/Mysql driver/loading and querying of Mysql-based GFF feature databases/Bio::DB::GFF',
 	     'GD'                       => '1.3/Graphical Drawing Toolkit/Rendering Sequences and Features/Bio::Graphics',
-	     'Text::Shellwords'           => '0.0/Graphical Drawing Toolkit/Rendering Sequences and Features/Bio::Graphics',
+	     'Text::Shellwords'         => '0.0/Execute shell commands/test scripts/Bio::Graphics',
 	     'Storable'                 => '0.0/Persistent object storage and retrieval/Storing sequence objects in local file cache/Bio::DB::FileCache',
-
-#these dependencies are moving over to bioperl-microarray -Allen
-#	     'enum'                     => '0.0/C style enumerated types and bitmask flags in Perl/Bio::Microarray::Affymetrix::*',
-#             'PDL'                      => '2.3.3/Perl Data Language for working with matrices/Bio::Microarray::Affymetrix::*',
+	     'enum'                     => '0.0/C style enumerated types and bitmask flags in Perl/Bio::Microarray::Affymetrix::*',
 
 # rare function let's not scare people
 # 	     'srsperl.pm'               => '0.0/Sequence Retrieval System (SRS) perl API/alternative way of retrieving sequences/Bio::LiveSeq::IO::SRS.pm'

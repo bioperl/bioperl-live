@@ -325,7 +325,7 @@ sub _print {
 =head2 _readline
 
  Title   : _readline
- Usage   : $obj->_readline
+ Usage   : $obj->_readline(%args)
  Function: Reads a line of input.
 
            Note that this method implicitely uses the value of $/ that is
@@ -334,13 +334,21 @@ sub _print {
            Note also that the current implementation does not handle pushed
            back input correctly unless the pushed back input ends with the
            value of $/.
+
  Example :
+ Args    : Accepts a hash of arguments, currently only -strip is recognized
+           passing (-strip => 0) prevents \r\n sequences from being changed
+           to \n.  The default value of -strip is 1, allowing \r\n to be
+           converted.
  Returns : 
 
 =cut
 
 sub _readline {
     my $self = shift;
+    my %param =@_;
+    $param{-strip} = 1 unless defined $param{-strip};
+
     my $fh = $self->_fh || \*STDIN;
     my $line;
     
@@ -352,7 +360,7 @@ sub _readline {
     } else {
 	$line = <$fh>;
     }
-    $line =~ s/\r\n/\n/g if (defined $line);
+    $line =~ s/\r\n/\n/g if $param{-strip} and defined $line;
     return $line;
 }
 
