@@ -364,9 +364,13 @@ sub tajima_D {
            available from the get_Genotypes() call in 
            L<Bio::PopGen::IndividualI>
  Returns : decimal number
- Args    : array ref of L<Bio::PopGen::IndividualI> objects
+ Args    : Arg1= array ref of L<Bio::PopGen::IndividualI> objects
              which have markers/mutations.  We expect all individuals to
              have a marker - we will deal with missing data as a special case.
+           OR
+           Arg1= L<Bio::PopGen::PopulationI> object.  In the event that
+                 only allele frequency data is available, storing it in
+                 Population object will make this available.
            num sites [optional], an optional second argument (integer)
              which is the number of sites, then pi returned is pi/site.
 
@@ -374,46 +378,61 @@ sub tajima_D {
 
 sub pi {
     my ($self,$individuals,$numsites) = @_;
-    if( ref($individuals) !~ /ARRAY/i ) {
+    my (%data,@marker_names,$sample_size);
+
+    if( ref($individuals) =~ /ARRAY/i ) {
+	# one possible argument is an arrayref of Bio::PopGen::IndividualI objs
+	@marker_names = $individuals->[0]->get_marker_names;
+	$sample_size = scalar @$individuals;
+
+	# Here we're calculating the allele frequencies
+	my %marker_total;
+	foreach my $ind ( @$individuals ) {
+	    if( ! $ind->isa('Bio::PopGen::IndividualI') ) {
+		$self->warn("Expected an arrayref of Bio::PopGen::IndividualI objects, this is a ".ref($ind)."\n");
+	    }
+	    foreach my $m ( @marker_names ) {
+		foreach my $a (map { $_->get_Alleles} $ind->get_Genotypes($m) ) {
+		    $data{$m}->{$a}++;
+		    $marker_total{$m}++;
+		}
+	    }
+	}
+	while( my ($marker,$count) =  each %marker_total ) {
+	    foreach my $c ( values %{$data{$marker}} ) {
+		$c /= $count;
+	    }
+	}
+	# %data will contain allele frequencies for each marker, allele
+    } elsif( ref($individuals) && 
+	     $individuals->isa('Bio::PopGen::PopulationI') ) {
+	my $pop = $individuals;
+	$sample_size = $pop->number_individuals;
+	foreach my $marker( $pop->get_Markers ) {
+	    push @marker_names, $marker->name;
+	    $data{$marker->name} = [$marker->get_Allele_Frequencies];
+	}
+    } else { 
 	$self->throw("expected an array reference of a list of Bio::PopGen::IndividualI to pi");
     }
-    my $sample_size = scalar @$individuals;
     # doing all pairwise combinations
 
     # For now we assume that all individuals have the same markers
-    my @marker_names = $individuals->[0]->get_marker_names;
-
-    # This is so we can calculate pi for diploids,
-    # we need to collect all the seen genotypes (chromosomes) for 
-    # all the individuals and count the number of pairwise differences
-    my %data;
-    foreach my $ind ( @$individuals ) {
-	if( ! $ind->isa('Bio::PopGen::IndividualI') ) {
-	    $self->warn("Expected an arrayref of Bio::PopGen::IndividualI objects, this is a ".ref($ind)."\n");
-	}
-	foreach my $m ( @marker_names ) {
-	    foreach my $g ( $ind->get_Genotypes($m) ) {
-		push @{$data{$m}}, $g
-	    }
-	}	
-    }
-    # there is definitely a better way to do this based on
-    # the fact that we already know the counts, but I haven't 
-    # work it out yet so we're stuck with enumerating the
-    # pairwise
     my ($diffcount,$totalcompare) = (0,0);
+    my $pi = 0;
     foreach my $markerdat ( values %data ) {
-	my $allelect = scalar @{$markerdat};
-	for( my $i = 0; $i < $allelect-1; $i++ ) {
-	    for( my $j=$i+1; $j < $allelect; $j++) {	    
-		$totalcompare++;		
-		$diffcount++ if( $markerdat->[$i] ne $markerdat->[$j] );
-	    }
+	my $totalalleles; # this will only be different among markers
+	                  # when there is missing data
+	my @alleles = keys %$markerdat;
+	foreach my $al ( @alleles ) { $totalalleles += $markerdat->{$al} }
+	for( my $i =0; $i < scalar @alleles -1; $i++ ) {
+	    my ($a1,$a2) = ( $alleles[$i], $alleles[$i+1]);
+	    $pi += $self->heterozygosity($sample_size, 
+					 $markerdat->{$a1} / $totalalleles,
+					 $markerdat->{$a2} / $totalalleles);
 	}
     }
-
-    my $pi = $diffcount / $totalcompare;
-    $self->debug( "total cmp=$totalcompare diff inds=$diffcount pi=$pi\n");
+    $self->debug( "pi=$pi\n");
     if( $numsites ) { 
 	return $pi / $numsites;
     } else { 
@@ -432,14 +451,49 @@ sub pi {
  Returns : decimal number 
  Args    : sample size (integer),
            num segregating sites (integer)
-           total sites (integer) [optional]
-
+           total sites (integer) [optional] (to calculate theta per site)
+           OR
+           provide an arrayref of the L<Bio::PopGen::IndividualI> objects
+           total sites (integer) [optional] (to calculate theta per site)
+           OR
+           provide an L<Bio::PopGen::PopulationI> object
+           total sites (integer)[optional]
 =cut
 
 sub theta {
-    my $self = shift;
+    my $self = shift;    
     my ( $sample_size, $seg_sites,$totalsites) = @_;
-
+    if( ref($sample_size) =~ /ARRAY/i ) {
+	my $samps = $sample_size;
+	$totalsites = $seg_sites; # only 2 arguments if one is an array
+	my %data;
+	my @marker_names = $samps->[0]->get_marker_names;
+	# we need to calculate number of polymorphic sites
+	foreach my $ind ( @$samps ) {
+	    foreach my $m ( @marker_names ) {
+		foreach my $a (map { $_->get_Alleles} 
+			       $ind->get_Genotypes($m) ) {
+		    $data{$m}->{$a}++;
+		}
+	    }
+	}
+	# if there is >1 allele then it is polymorphic
+	$seg_sites = 0;
+	foreach my $marker ( @marker_names ) {
+	    $seg_sites++ if( keys %{$data{$marker}} > 1 );
+	}
+	$sample_size = scalar @$samps;
+    } elsif(ref($sample_size) &&
+	    $sample_size->isa('Bio::PopGen::PopulationI') ) {
+	# This will handle the case when we pass in a PopulationI object
+	my $pop = $sample_size;
+	$totalsites = $seg_sites; # shift the arguments over by one
+	$sample_size = $pop->number_individuals;
+	$seg_sites = 0;
+	foreach my $marker( $pop->get_Markers ) {
+	    $seg_sites if ( scalar $marker->get_Alleles > 1 );
+	}
+    }
     my $a1 = 0; 
     for(my $k= 1; $k < $sample_size; $k++ ) {
 	$a1 += ( 1 / $k );
@@ -503,6 +557,32 @@ sub allele_count {
     } else {
 	return $total_allele_ct;
     }
+}
+
+=head2 heterozygosity
+
+ Title   : heterozygosity
+ Usage   : my $het = Bio::PopGen::Statistics->heterozygosity($sampsize,$freq1);
+ Function: Calculate the heterozgosity for a sample set for a set of alleles
+ Returns : decimal number
+ Args    : sample size (integer)
+           frequency of one allele (fraction - must be less than 1)
+           [optional] frequency of another allele - this is only needed
+                      in a non-binary allele system
+Note     : p^2 + 2pq + q^2
+
+=cut
+
+
+sub heterozygosity {
+    my ($self,$samp_size, $freq1,$freq2) = @_;
+    if( ! $freq2 ) { $freq2 = 1 - $freq1 }
+    if( $freq1 > 1 || $freq2 > 1 ) { 
+	$self->warn("heterozygosity expects frequencies to be less than 1");
+    }
+    my $sum = ($freq1**2) + (($freq2)**2);
+    my $h = ( $samp_size*(1- $sum) ) / ($samp_size - 1) ;
+    return $h;
 }
 
 1;
