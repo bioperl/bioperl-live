@@ -97,7 +97,7 @@ sub next_aln {
 		    $start = 1;
 		    $end = length($seqchar);   #ps 9/6/00
 		}
-		
+#		print STDERR  "Going to add with $seqchar $seqname\n";
 		$seq = new Bio::LocatableSeq('-seq'=>$seqchar,
 				    '-id'=>$seqname,
 				    '-start'=>$start,
@@ -139,14 +139,20 @@ sub next_aln {
 #
    if ($end <= 0) { undef $aln; return $aln;}
 
-
-    $seq = new Bio::LocatableSeq('-seq'=>$seqchar,
+# This logic now also reads empty lines at the 
+# end of the file. Skip this is seqchar and seqname is null
+    if( length($seqchar) == 0 && length($seqname) == 0 ) {
+	# skip
+    } else {
+#	print STDERR "end to add with $seqchar $seqname\n";
+	$seq = new Bio::LocatableSeq('-seq'=>$seqchar,
 			'-id'=>$seqname,
 			'-start'=>$start,
 			'-end'=>$end,
 			);
 
-    $aln->add_seq($seq);
+	$aln->add_seq($seq);
+    }
 
     return $aln;
 

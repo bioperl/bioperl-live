@@ -209,6 +209,7 @@ sub new {
 	    $self->_guess_alphabet();
 	} # else it has been set already above
     } else {
+#	print STDERR "DEBUG: setting sequence to [$seq]\n";
 	# note: the sequence string may be empty
 	$self->seq($seq) if defined($seq);
     }
@@ -252,7 +253,12 @@ sub direct_seq_set {
 sub seq {
    my ($obj,@args) = @_;
 
-   my ($value, $alphabet) = $obj->_rearrange([qw(SEQ ALPHABET)], @args);
+   if( scalar(@args) == 0 ) {
+       return $obj->{'seq'};
+   }
+
+   my ($value,$alphabet) = @args;
+
 
    if(@args) {
        if(defined($value) && (! $obj->validate_seq($value))) {
