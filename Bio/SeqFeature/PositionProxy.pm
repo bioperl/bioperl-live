@@ -12,7 +12,7 @@
 
 =head1 NAME
 
-Bio::SeqFeature::PositionProxy
+Bio::SeqFeature::PositionProxy - handle features when truncation/revcom sequences span a feature
 
 =head1 SYNOPSIS
 

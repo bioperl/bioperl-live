@@ -13,7 +13,7 @@
 
 =head1 NAME
 
-Bio::Tools::Tmhmm
+Bio::Tools::Tmhmm - parse TmHMM output (transmembrane HMM)
 
 =head1 SYNOPSIS
 

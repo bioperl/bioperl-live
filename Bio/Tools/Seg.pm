@@ -14,7 +14,7 @@
 
 =head1 NAME
 
-Bio::Tools::Seg
+Bio::Tools::Seg - parse Seg output (filter low complexity protein sequence)
 
 =head1 SYNOPSIS
 

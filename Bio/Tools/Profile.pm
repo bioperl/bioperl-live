@@ -7,7 +7,7 @@
 
 =head1 NAME
 
-Bio::Tools::Profile
+Bio::Tools::Profile - parse Profile output
 
 =head1 SYNOPSIS
 

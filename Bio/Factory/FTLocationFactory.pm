@@ -32,6 +32,7 @@ Bio::Factory::FTLocationFactory - DESCRIPTION of Object
 
     # parse a string into a location object
     $loc = Bio::Factory::FTLocationFactory->from_string("join(100..200, 400..500");
+
 =head1 DESCRIPTION
 
 Implementation of string-encoded location parsing for the Genbank feature table
