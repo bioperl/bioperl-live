@@ -75,7 +75,8 @@ use Bio::Root::Root;
 use Bio::LocationI;
 
 use vars qw($VERSION @ISA $AUTOLOAD);
-@ISA = qw(Bio::DB::GFF::RelSegment Bio::SeqFeatureI Bio::LocationI Bio::Root::Root);
+@ISA = qw(Bio::DB::GFF::RelSegment Bio::SeqFeatureI 
+	  Bio::Root::Root);
 
 $VERSION = '0.61';
 #' 
@@ -594,34 +595,37 @@ sub add_subfeature {
 sub location {
    my $self = shift;
    require Bio::Location::Split unless Bio::Location::Split->can('new');
+   require Bio::Location::Simple unless Bio::Location::Simple->can('new');
+
    my $location;
    if (my @segments = $self->segments) {
-       $location = Bio::Location::Split->new();
+       $location = Bio::Location::Split->new(-seq_id => $self->display_id);
        foreach (@segments) {
-          $location->add_sub_Location($_);
+          $location->add_sub_Location($_->location);
        }
    } else {
-       $location = $self;
+       $location = Bio::Location::Simple->new(-start  => $self->low,
+					      -end    => $self->high,
+					      -strand => $self->strand);
    }
    $location;
 }
 
-sub coordinate_policy {
-   require Bio::Location::WidestCoordPolicy unless Bio::Location::WidestCoordPolicy->can('new');
-   return Bio::Location::WidestCoordPolicy->new();
-}
+=head2 entire_seq
 
-sub min_start { shift->low }
-sub max_start { shift->low }
-sub min_end   { shift->high }
-sub max_end   { shift->high}
-sub start_pos_type { 'EXACT' }
-sub end_pos_type   { 'EXACT' }
-sub to_FTstring {
-  my $self = shift;
-  my $low  = $self->min_start;
-  my $high = $self->max_end;
-  return "$low..$high";
+ Title   : entire_seq
+ Usage   : $whole_seq = $sf->entire_seq()
+ Function: gives the entire sequence that this seqfeature is attached to
+ Example :
+ Returns : a Bio::PrimarySeqI compliant object, or undef if there is no
+           sequence attached
+ Args    : none
+
+
+=cut
+
+sub entire_seq {
+    return shift;
 }
 
 =head2 merged_segments
