@@ -331,7 +331,8 @@ my @blastpgp_params = qw(d i A f e m o y P F G E X N g S H a I h c
 my @bl2seq_params = qw(i j p g o d a G E X W M q r F e S T m);
 
 # Non BLAST parameters start with underscore to differentiate them from BLAST parameters
-my @other_params = qw(_READMETHOD);            #_READMETHOD = 'BPlite' (default) or 'Blast'
+my @other_params = qw(_READMETHOD);
+#_READMETHOD = 'BPlite' (default) or 'Blast'
 #my @other_switches = qw(QUIET);
 
 my %ok_field;
@@ -348,7 +349,8 @@ sub _initialize {
     my ($attr, $value);
     my $make = $self->SUPER::_initialize(@args);
 # set default BLAST output file and _READMETHOD
-    $self->outfile('./blastreport.out');
+    my ($fh,$tempfile) = $self->tempfile();
+    $self->outfile($tempfile);
     $self->_READMETHOD('BPlite');
     while (@args)  {
 	$attr =  shift @args;
@@ -558,7 +560,8 @@ sub _runblast {
 
     my $status = system($commandstring);
 
-    $self->throw("$executable call crashed: $? \n")  unless ($status==0) ;
+    $self->throw("$executable call crashed: $? $commandstring\n")  unless
+($status==0) ;
     my $outfile = $self->o() ;	# get outputfilename
     my $signif = $self->e()  || 1e-5  ; 
 

@@ -231,7 +231,6 @@ use Bio::Root::RootI;
 $PROGRAMDIR = $ENV{CLUSTALDIR} || '';
 $PROGRAMDIR .= '/' if( substr($PROGRAMDIR, -1) ne '/' ); 
 $PROGRAM =   $PROGRAMDIR.'clustalw';
-$DEBUG = 0;
 
 unless (exists_clustal()) {
 	warn "Clustalw program not found as $PROGRAM or not executable. \n  Clustalw can be obtained from eg- http://corba.ebi.ac.uk/Biocatalog/Alignment_Search_software.html/ \n";
@@ -284,12 +283,14 @@ foreach my $attr ( @clustal_params, @clustalw_switches, @other_switches ) { $ok_
 # new() is inherited from Bio::Root::RootI
 
 # _initialize is where the heavy stuff will happen when new is called
-
+$DEBUG=0;
 sub _initialize {
     my($self,@args) = @_;
     my ($attr, $value);
     my $make = $self->SUPER::_initialize(@args);
-    $TMPOUTFILE = $TMPOUTFILE || $self->tempfile();
+    my ($tfh,$tfile) = $self->tempfile();
+    $TMPOUTFILE = $tfile if ( ! $TMPOUTFILE );
+
     while (@args)  {
 	$attr =  shift @args;
 	$value =  shift @args;
@@ -355,8 +356,7 @@ or
 
 sub align {
 
-    my $self = shift;
-    my $input = shift;
+    my ($self,$input) = @_;
     my ($temp,$infilename, $seq);
     my ($attr, $value, $switch);
 
@@ -365,10 +365,10 @@ sub align {
     if (!$infilename) {$self->throw("Bad input data or less than 2 sequences in $input !");}
 
 # Create parameter string to pass to clustalw program
-    my $param_string = &_setparams($self);
+    my $param_string = $self->_setparams();
 
 # run clustalw
-    my $aln = &_runclustalw($self, 'align', $infilename, $param_string);
+    my $aln = $self->_runclustalw('align', $infilename,$param_string);
 }
 #################################################
 
@@ -390,14 +390,11 @@ or references to SimpleAlign objects.
 
 sub profile_align {
 
-    my $self = shift;
-    my $input1 = shift;
-    my $input2 = shift;
+    my ($self,$input1,$input2) = @_;
     my ($temp,$infilename1,$infilename2,$input,$seq);
 
 
-
-# Create input file pointers
+# Create input file pointer
     $infilename1 = $self->_setinput($input1,1);
     $infilename2 = $self->_setinput($input2,2);
     if (!$infilename1 || !$infilename2) {$self->throw("Bad input data: $input1 or $input2 !");}
@@ -427,24 +424,16 @@ sub profile_align {
 
 =cut
 sub _runclustalw {
+    my ($self,$command,$infile1,$infile2,$param_string) = @_;
     my $instring;
-    my $infilename = "";
-    my $infile1 = "";
-    my $infile2 = "";
-    my $self = shift;
-    my $command = shift;
     if ($command =~ /align/) {
-	$infilename = shift ;
-	$instring =  "-infile=$infilename";
+	$instring =  "-infile=$infile1";
+	$param_string = $infile2;
     }
     if ($command =~ /profile/) {
-	$infile1 = shift ;
-	$infile2 = shift ;
 	$instring =  "-profile1=$infile1  -profile2=$infile2";
 	$command = '-profile';
     }
-    my $param_string = shift;
-
     my $commandstring = $PROGRAM." $command"." $instring".
 	" -output=gcg". " $param_string";
 
@@ -462,10 +451,9 @@ sub _runclustalw {
 
     # Clean up the temporary files created along the way...
     # Replace file suffix with dnd to find name of dendrogram file(s) to delete
-    $infilename =~ s/\.[^\.]*// ;
     $infile1 =~ s/\.[^\.]*// ;
     $infile2 =~ s/\.[^\.]*// ;
-    unlink ( "$infilename.dnd", "$infile1.dnd", "$infile2.dnd");
+    unlink ( "$infile1.dnd", "$infile2.dnd");
     return $aln;
 }
 
@@ -483,7 +471,8 @@ sub _runclustalw {
 =cut
 
 sub _setinput {
-    my ($self, $input, $suffix, $infilename, $seq, $temp) = @_;
+    my ($self, $input, $suffix) = @_;
+    my ($infilename, $seq, $temp, $tfh);
 
     # suffix is used to distinguish alignment files If $input is not a
     # reference it better be the name of a file with the sequence/
@@ -500,8 +489,8 @@ sub _setinput {
     #  $input may be an array of BioSeq objects...
     if (ref($input) eq "ARRAY") {
         #  Open temporary file for both reading & writing of BioSeq array
-	$infilename = $self->tempfile();
-	$temp =  Bio::SeqIO->new(-file=> ">$infilename", '-format' => 'Fasta');
+	($tfh,$infilename) = $self->tempfile();
+	$temp =  Bio::SeqIO->new(-fh=>$tfh, '-format' =>'Fasta');
 
 	# Need at least 2 seqs for alignment
 	unless (scalar(@$input) > 1) {return 0;} 
@@ -516,10 +505,9 @@ sub _setinput {
 #  $input may be a SimpleAlign object.
     if (ref($input) eq "Bio::SimpleAlign") {
 	#  Open temporary file for both reading & writing of SimpleAlign object
-	$infilename = $self->tempfile() if ($suffix ==1);
-	$infilename = $self->tempfile() if ($suffix ==2);
-#		$infilename = "tmp$suffix.fa";
-	$temp =  Bio::AlignIO->new(-file=> ">$infilename",
+	($tfh,$infilename) = $self->tempfile() if ($suffix ==1 ||
+$suffix== 2 );
+	$temp =  Bio::AlignIO->new(-fh=> $tfh,
 				   '-format' => 'Fasta');
 	$temp->write_aln($input);
 	return $infilename;
@@ -528,8 +516,8 @@ sub _setinput {
 #  or $input may be a single BioSeq object (to be added to a previous alignment)
     if (ref($input) eq "Bio::Seq" && $suffix==2) {
         #  Open temporary file for both reading & writing of BioSeq object
-	$infilename = $self->tempfile();
-	$temp =  Bio::SeqIO->new(-file=> ">$infilename", '-format' => 'Fasta');
+	($tfh,$infilename) = $self->tempfile();
+	$temp =  Bio::SeqIO->new(-fh=> $tfh, '-format' =>'Fasta');
 	$temp->write_seq($input);
 	return $infilename;
     }
