@@ -15,7 +15,7 @@ BEGIN {
         use lib 't';
     }
     use Test;
-    plan test => 16;
+    plan test => 28;
 }
 
 use Bio::Seq;
@@ -61,6 +61,53 @@ ok($feat2->end, $feat->end);
 ok($feat2->primary_tag, $feat->primary_tag);
 ok($feat2->score, $feat->score);
 ok(($feat2->each_tag_value('sillytag'))[0], 'this is silly!;breakfast');
+
+
+# GFF3
+eval { require IO::String };
+unless( $@ ) {
+    my $str = IO::String->new;
+    my $gffout = new Bio::Tools::GFF(-fh => $str, -gff_version => 3);
+    my $feat_test = new Bio::SeqFeature::Generic
+	(-primary_tag => 'tag',
+	 -source_tag  => 'exon',
+	 -seq_id      => 'testseq',
+	 -score       => undef,
+	 -start       => 10,
+	 -end         => 120,
+	 -strand      => 1,
+	 -tag         => { 
+	     'bungle' => 'jungle;mumble',
+	     'lion'   => 'snake=tree'
+	     });
+    $feat_test->add_tag_value('giant_squid', 'lakeshore manor');
+    $gffout->write_feature($feat_test);
+    seek($str,0,0);
+    my $in = new Bio::Tools::GFF(-fh          => $str,
+				 -gff_version => 3);
+    my $f_recon = $in->next_feature;
+    ok($f_recon->primary_tag, $feat_test->primary_tag);
+    ok($f_recon->source_tag,  $feat_test->source_tag);
+    ok($f_recon->score, $feat_test->score);
+    ok($f_recon->start, $feat_test->start);
+    ok($f_recon->end, $feat_test->end);
+    ok($f_recon->strand, $feat_test->strand);
+    for my $tag ( $feat_test->get_all_tags ) {
+	ok($f_recon->has_tag($tag));
+	if( $f_recon->has_tag($tag) ) {
+	    my @v = $feat_test->get_tag_values($tag);
+	    my @g = $f_recon->get_tag_values($tag);
+	    while( @v && @g ) {
+		ok(shift @v, shift @g);
+	    }
+	}
+    }
+} else { 
+    for ( 17..28 ) {
+	skip('cannot verify GFF3 writing tests without IO::String installed',1);
+    }
+}
+
 END {
     unlink("out1.gff", "out2.gff");
 }
