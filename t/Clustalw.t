@@ -9,8 +9,9 @@ BEGIN {
 	use lib 't';
     }
     use Test;
-    
-    plan tests => 9;
+    use vars qw($NTESTS);
+    $NTESTS = 9;
+    plan tests => $NTESTS;
 }
 
 use Bio::Tools::Run::Alignment::Clustalw; 
@@ -19,9 +20,16 @@ use Bio::AlignIO;
 use Bio::SeqIO; 
 use Bio::Root::IO;
 
+END {     
+    for ( $Test::ntest..$NTESTS ) {
+	skip("Clustalw program not found. Skipping.\n",1);
+    }
+}
+
 ok(1);
 
-my @params = ('ktuple' => 2, 'matrix' => 'BLOSUM');
+my @params = ('ktuple' => 2, 'matrix' => 'BLOSUM', 
+	      -verbose => -1);
 my  $factory = Bio::Tools::Run::Alignment::Clustalw->new(@params);
 
 ok $factory->isa('Bio::Tools::Run::Alignment::Clustalw');
@@ -44,13 +52,8 @@ my $aln;
 
 my $clustal_present = Bio::Tools::Run::Alignment::Clustalw->exists_clustal();
 unless ($clustal_present) {
-	warn "Clustalw program not found. Skipping tests 5 to 9.\n";
-    	skip(1,1);
-	skip(1,1);
-	skip(1,1);
-	skip(1,1);
-	skip(1,1);
-	exit 0;
+    warn("Clustalw program not found. Skipping tests $Test::ntest to $NTESTS.\n");
+    exit 0;
 }
 $aln = $factory->align($inputfilename);
 

@@ -19,7 +19,7 @@ BEGIN {
     eval { local * STDERR; require Bio::Ext::Align };
     if ( $@ ) {
 	foreach ( 1..3) {
-	    skip(1,'Bio::Ext::Align not loaded');
+	    skip('Bio::Ext::Align not loaded',1);
 	}
         $error = 1;
     }

@@ -23,6 +23,12 @@ use Bio::AlignIO;
 use Bio::SeqIO;
 use Bio::Root::IO;
 
+END {     
+    for ( $Test::ntest..$NUMTESTS ) {
+	skip("TCoffee program not found. Skipping.\n",1);
+    }
+}
+
 ok(1);
 
 
@@ -51,16 +57,15 @@ my $aln;
 
 my $coffee_present = Bio::Tools::Run::Alignment::TCoffee->exists_tcoffee();
 unless ($coffee_present) {
-	warn "tcoffee program not found. Skipping tests $Test::ntest to $NUMTESTS.\n";
-	foreach ( $Test::ntest..$NUMTESTS ) {
-	    skip(1,1);
-	}
-	exit(0);
+    warn "tcoffee program not found. Skipping tests $Test::ntest to $NUMTESTS.\n";
+    exit(0);
 }
+
 $aln = $factory->align($inputfilename);
 ok $aln->no_sequences, 7;
 
-my $str = Bio::SeqIO->new('-file' => Bio::Root::IO->catfile("t","data","cysprot.fa"), 
+my $str = Bio::SeqIO->new('-file' => 
+			Bio::Root::IO->catfile("t","data","cysprot.fa"), 
 			  '-format' => 'Fasta');
 my @seq_array =();
 
