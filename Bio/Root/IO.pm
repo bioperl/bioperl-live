@@ -49,11 +49,10 @@ want to call them (except those not starting with an underscore).
 
 In addition this module contains a couple of convenience methods for
 cross-platform safe tempfile creation and similar tasks. There are
-some CPAN modules related that may be not be available on all
+some CPAN modules related that may not be available on all
 platforms. At present, File::Spec and File::Temp are attempted. This
-module exports $TEMPFILE and $ROOTDIR, which will always be set,
-$PATHSEP, which will be set if File::Spec fails, and $OPENFLAGS, which
-will be set if either of File::Spec or File::Temp fails.
+module exports $PATHSEP, $TEMPFILE, and $ROOTDIR, which will always be set, 
+and $OPENFLAGS, which will be set if either of File::Spec or File::Temp fails.
 
 =head1 FEEDBACK
 
@@ -119,7 +118,16 @@ BEGIN {
     if( $@ ) {
 	print STDERR "Cannot load File::Path: $@" if( $VERBOSE > 0 );
 	# do nothing
-    } 
+    }
+    # Try to provide a path separator. Why doesn't File::Spec export this,
+    # or did I miss it?
+    if($^O =~ /mswin/i) {
+	$PATHSEP = "\\";
+    } elsif($^O =~ /macos/i) {
+	$PATHSEP = ":";
+    } else { # unix
+	$PATHSEP = "/";
+    }
     eval {
 	require File::Spec;
 	$FILESPECLOADED = 1;
@@ -138,15 +146,12 @@ BEGIN {
 	    }
 	    if($^O =~ /mswin/i) {
 		$TEMPDIR = 'C:\TEMP' unless $TEMPDIR;
-		$PATHSEP = "\\";
 		$ROOTDIR = 'C:';
 	    } elsif($^O =~ /macos/i) {
 		$TEMPDIR = "" unless $TEMPDIR; # what is a reasonable default on Macs?
-		$PATHSEP = ":";
-		$ROOTDIR = ""; # what is the reasonable
+		$ROOTDIR = ""; # what is reasonable??
 	    } else { # unix
 		$TEMPDIR = "/tmp" unless $TEMPDIR;
-		$PATHSEP = "/";
 		$ROOTDIR = "/";
 	    }
 	    if (!( -d $TEMPDIR && -w $TEMPDIR )) {
@@ -334,7 +339,7 @@ sub _pushback {
 
  Title   : close
  Usage   : $seqio->close()
- Function: Closes the file handle associated with this seqio system
+ Function: Closes the file handle associated with this IO instance.
  Example :
  Returns :
  Args    :
@@ -375,6 +380,36 @@ sub _io_cleanup {
     }
 }
 
+=head2 exists_exe
+
+ Title   : exists_exe
+ Usage   : $exists = $obj->exists_exe('clustalw');
+           $exists = Bio::Root::IO->exists_exe('clustalw')
+           $exists = Bio::Root::IO::exists_exe('clustalw')
+ Function: Determines whether the given executable exists either as file
+           or within the path environment. The latter requires File::Spec
+           to be installed.
+           On Win32-based system, .exe is automatically appended to the program
+           name unless the program name already ends in .exe.
+ Example :
+ Returns : 1 if the given program is callable as an executable, and 0 otherwise
+ Args    : the name of the executable
+
+=cut
+
+sub exists_exe {
+    my ($self, $exe) = @_;
+    $exe = $self if(!(ref($self) || $exe));
+    $exe .= '.exe' if(($^O =~ /mswin/i) && ($exe !~ /\.(exe|com|bat|cmd)$/i));
+    return 1 if(-e $exe); # full path and exists
+    # Not a full path, or does not exist. Let's see whether it's in the path.
+    if($FILESPECLOADED) {
+	foreach my $dir (File::Spec->path()) {
+	    return 1 if(-e Bio::Root::IO->catfile($dir, $exe));
+	}
+    }
+    return 0;
+}
 
 =head2 tempfile
 
