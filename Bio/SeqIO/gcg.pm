@@ -239,7 +239,7 @@ sub _validate_checksum {
 
     ## Compare and decide if success or failure
 
-    if($parsed_sum = $computed_sum) {
+    if($parsed_sum == $computed_sum) {
 	return 1;
     } else { return 0; }
 
