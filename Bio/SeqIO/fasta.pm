@@ -107,7 +107,6 @@ sub next_seq{
   # remove whitespace
   $sequence =~ s/\s//g;
 
-  $sequence =~ tr/a-z/A-Z/;
   return Bio::Seq->new(-seq => $sequence,
 		       -id => $id,
 		       -primary_id => $id,
@@ -134,7 +133,6 @@ sub write_seq {
      if (my $desc = $seq->desc()) {
         $top .= " $desc";
      }
-     $str =~ tr/a-z/A-Z/;
      $str=~ s/(.{1,60})/$1\n/g;
      $self->_print (">",$top,"\n",$str) or return;
    }
