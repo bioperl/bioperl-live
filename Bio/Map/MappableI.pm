@@ -94,7 +94,7 @@ use Carp;
 
 sub position{
    my ($self,@args) = @_;
-   $self->_abstractDeath('position');
+   $self->throw_not_implemented();
 }
 
 =head2 equals
@@ -109,7 +109,7 @@ sub position{
 
 sub equals{
    my ($self,@args) = @_;
-   $self->_abstractDeath('equals');
+   $self->throw_not_implemented();
 }
 
 =head2 less_than
@@ -124,7 +124,7 @@ sub equals{
 
 sub less_than{
    my ($self,@args) = @_;
-   $self->_abstractDeath('less_than');
+   $self->throw_not_implemented();
 }
 
 =head2 greater_than
@@ -139,7 +139,7 @@ sub less_than{
 
 sub greater_than{
    my ($self,@args) = @_;
-   $self->_abstractDeath('greater_than');
+   $self->throw_not_implemented();
 }
 
 1;

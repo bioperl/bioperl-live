@@ -87,7 +87,7 @@ use Bio::Map::MappableI;
 
 sub name {
     my ($self) = @_;
-    $self->_abstractDeath('name');
+    $self->throw_not_implemented();
 }
 
 =head2 position
@@ -106,7 +106,7 @@ sub name {
 
 sub position{
    my ($self,$map, $value) = @_;
-   $self->_abstractDeath('add_position');
+   $self->throw_not_implemented();
 }
 
 =head2 add_position
@@ -122,7 +122,7 @@ sub position{
 
 sub add_position{
    my ($self,$map,$value) = @_;
-   $self->_abstractDeath('add_position');
+   $self->throw_not_implemented();
 }
 
 
@@ -138,7 +138,7 @@ sub add_position{
 
 sub each_position {
    my ($self,$mapname) = @_;
-   $self->_abstractDeath('add_position_value');
+   $self->throw_not_implemented();
 }
 
 =head2 purge_positions
@@ -153,7 +153,7 @@ sub each_position {
 
 sub purge_position_values{
    my ($self, $map) = @_;
-   $self->_abstractDeath('purge_position_values');
+   $self->throw_not_implemented();
 }
 
 =head2 known_maps
@@ -168,7 +168,7 @@ sub purge_position_values{
 
 sub known_maps{
    my ($self) = @_;
-   $self->_abstractDeath('known_maps');
+   $self->throw_not_implemented();
 }
 
 =head2 in_map
@@ -184,7 +184,7 @@ sub known_maps{
 
 sub in_map{
    my ($self,@args) = @_;
-   $self->_abstractDeath('in_map');
+   $self->throw_not_implemented();
 }
 
 #====================================================================
@@ -204,7 +204,7 @@ sub in_map{
 
 sub get_position_object {
     my ($self) = @_;
-    $self->_abstractDeath('get_position_object');
+    $self->throw_not_implemented();
 }
 
 
