@@ -551,8 +551,8 @@ sub _io_cleanup {
     if( exists($self->{'_rootio_tempfiles'}) &&
 	ref($self->{'_rootio_tempfiles'}) =~ /array/i) { 
 	if( $v > 0 ) {
-	    print STDERR "going to remove files ", 
-	    join(",",  @{$self->{'_rootio_tempfiles'}}), "\n";
+	    warn( "going to remove files ", 
+		  join(",",  @{$self->{'_rootio_tempfiles'}}), "\n");
 	}
 	unlink  (@{$self->{'_rootio_tempfiles'}} );
     }
@@ -562,8 +562,8 @@ sub _io_cleanup {
 	ref($self->{'_rootio_tempdirs'}) =~ /array/i) {	
 
 	if( $v > 0 ) {
-	    print STDERR "going to remove dirs ", 
-	    join(",",  @{$self->{'_rootio_tempdirs'}}), "\n";
+	    warn( "going to remove dirs ", 
+		  join(",",  @{$self->{'_rootio_tempdirs'}}), "\n");
 	}
 	$self->rmtree( $self->{'_rootio_tempdirs'});
     }
@@ -885,7 +885,7 @@ sub rmtree {
 	    chmod 0666, $root
 	      or $self->warn( "Can't make file $root writeable: $!")
 		if $force_writeable;
-	    print "unlink $root\n" if $verbose;
+	    warn "unlink $root\n" if $verbose;
 	    # delete all versions under VMS
 	    for (;;) {
 		unless (unlink $root) {
