@@ -63,7 +63,7 @@ package Bio::Root::RootI;
 
 use vars qw($DEBUG $ID $Revision $VERSION $VERBOSITY);
 use strict;
-use Carp 'confess';
+use Carp 'confess','carp';
 
 #use Bio::Root::Err; # we don't use that any longer, right?
 
@@ -117,7 +117,9 @@ sub _initialize {
 sub _create_object {
   my $class = shift;
   my @args = @_;
-  $class->_abstractDeath('_create_object');
+  carp("Use of Bio::Root::RootI is deprecated.  Please use Bio::Root::Root instead");
+  eval "use Bio::Root::Root";
+  return Bio::Root::Root->new(@args);
 }
 
 sub _abstractDeath {
@@ -479,7 +481,8 @@ sub _unregister_for_cleanup {
 
 sub _cleanup_methods {
   my $self = shift;
-  $self->_abstractDeath('_cleanup_methods');
+  carp("Use of Bio::Root::RootI is deprecated.  Please use Bio::Root::Root instead");
+  return;
 }
 
 sub DESTROY {
