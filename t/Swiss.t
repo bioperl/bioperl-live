@@ -29,7 +29,9 @@ BEGIN {
 if( $error == 1 ) {
     exit(0);
 }
-
+END {
+   unlink(qw (swiss_unk.dat));
+}
 use Bio::SeqIO;
 use Bio::Root::IO;
 my $verbose = $ENV{'BIOPERLDEBUG'};
