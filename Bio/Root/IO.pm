@@ -479,7 +479,11 @@ sub _readline {
 
     # if the buffer been filled by _pushback then return the buffer
     # contents, rather than read from the filehandle
-    $line = shift @{$self->{'_readbuffer'}} || <$fh>;
+    if( @{$self->{'_readbuffer'} || [] } ) {
+	$line = shift @{$self->{'_readbuffer'}};
+    } else {
+	$line = <$fh>;
+    }
 
     #don't strip line endings if -raw is specified
     # $line =~ s/\r\n/\n/g if( (!$param{-raw}) && (defined $line) );
@@ -505,9 +509,9 @@ sub _readline {
 
 sub _pushback {
     my ($obj, $value) = @_;
-
-	$obj->{'_readbuffer'} ||= [];
-	push @{$obj->{'_readbuffer'}}, $value;
+    $obj->{'_readbuffer'} ||= [];
+    return unless $value;
+    push @{$obj->{'_readbuffer'}}, $value;
 }
 
 =head2 close
