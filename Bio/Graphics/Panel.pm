@@ -42,7 +42,8 @@ sub new {
   my $empty_track_style   = $options{-empty_tracks} || 'key';
   my $autopad      = defined $options{-auto_pad} ? $options{-auto_pad} : 1;
   my $truecolor    = $options{-truecolor}  || 0;
-  my $image_class  = $options{-image_class} || 'GD';
+  my $image_class  = ($options{-image_class} && $options{-image_class} =~ /SVG/) ? 'GD::SVG' 
+		      : $options{-image_class} || 'GD';  # Allow users to specify GD::SVG using SVG
   my $linkrule     = $options{-link};
   my $titlerule    = $options{-title};
   my $targetrule   = $options{-target};
