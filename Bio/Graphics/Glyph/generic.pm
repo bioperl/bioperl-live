@@ -112,11 +112,17 @@ sub get_description {
 sub draw {
   my $self = shift;
   $self->SUPER::draw(@_);
-  $self->draw_decoration(@_)  if $self->has_decoration();
-  $self->draw_label(@_)       if $self->option('label');
+  if( $self->option('label') ) {
+    ## Draw the decoration and the label
+    $self->draw_label(@_);
+  } elsif( $self->has_decoration() ) {
+    ## Draw just the decoration
+    $self->draw_decoration(@_);
+  }
   $self->draw_description(@_) if $self->option('description');
 }
 
+# Also calls draw_decoration if $self->has_decoration returns true.
 sub draw_label {
   my $self = shift;
   my ($gd,$left,$top,$partno,$total_parts) = @_;
