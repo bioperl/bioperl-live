@@ -27,7 +27,7 @@ Bio::Cluster::UniGene - UniGene object
                                        '-format' => "unigene");
 	# note: we quote -format to keep older perl's from complaining.
 
-	while ( my $in = $stream->next_unigene() ) {
+	while ( my $in = $stream->next_cluster() ) {
 		print $in->unigene_id() . "\n";
 		while ( my $sequence = $in->next_seq() ) {
 			print $sequence->accession_number() . "\n";

@@ -26,7 +26,6 @@ Bio::ClusterIO - Handler for Cluster Formats
 
   #NB: This example is unigene specific
 
-  use Bio::Cluster::UniGene;
   use Bio::ClusterIO;
 
   $stream  = Bio::ClusterIO->new('-file' => "Hs.data", 
