@@ -95,7 +95,7 @@ ok $tool2->run ();
 ok my $raw2 = $tool2->result('');
 ok my $parsed2 = $tool2->result('parsed');
 ok ($parsed2->[23]{'score'}, '-0.209');
-my @res = $tool2->result('Bio::SeqFeatureI');
+@res = $tool2->result('Bio::SeqFeatureI');
 if (scalar @res > 0) {
     ok 1;
 } else {
