@@ -495,7 +495,9 @@ sub next_result{
                if( /^>/ ) {
                    $self->_pushback($_);
                    last descline;
-               } elsif( /(\d+)\s+([\d\.\-eE]+)\s*$/) {
+               } elsif( /(\d+)\s+([\d\.\-eE]+)(\s+\d+)?\s*$/) {
+		   # the last match is for gapped BLAST output
+		   # which will report the number of HSPs for the Hit
                    my ($score, $evalue) = ($1, $2);
                    # Some data clean-up so e-value will appear numeric to perl
                    $evalue =~ s/^e/1e/i;
@@ -617,7 +619,7 @@ sub next_result{
        } elsif( ($self->in_element('hit') || 
                  $self->in_element('hsp')) && # paracel genewise BTK
 		m/Score\s*=\s*(\S+)\s*bits\s* # Bit score
-                (\((\d+)\))?,                 # Raw score
+                (?:\((\d+)\))?,                 # Raw score
 		\s+Log\-Length\sScore\s*=\s*(\d+) # Log-Length score
                 /ox) {
 	   $self->in_element('hsp') && $self->end_element({'Name' => 'Hsp'});
@@ -625,7 +627,7 @@ sub next_result{
 #	   $self->debug( "Got paracel genewise HSP score=$1\n");
 	   
            # Some data clean-up so e-value will appear numeric to perl
-           my ($score, $bits, $evalue) = ($3, $1, $4);
+           my ($bits,$score, $evalue) = ($1,$2,$3);
            $evalue =~ s/^e/1e/i;
 	   $self->element( { 'Name' => 'Hsp_score',
                              'Data' => $score});
@@ -637,14 +639,14 @@ sub next_result{
                  $self->in_element('hsp')) && # paracel hframe BTK
 		m/Score\s*=\s*([^,\s]+),     # Raw score
 		\s*Expect\s*=\s*([^,\s]+),  # E-value
-                \s*P(\(\S+\))?\s*=\s*([^,\s]+) # P-value
+                \s*P(?:\(\S+\))?\s*=\s*([^,\s]+) # P-value
                 /ox) {
 	   $self->in_element('hsp') && $self->end_element({'Name' => 'Hsp'});
            $self->start_element({'Name' => 'Hsp'});
 #	   $self->debug( "Got paracel hframe HSP score=$1\n");
 
 	   # Some data clean-up so e-value will appear numeric to perl
-           my ($score, $evalue, $pvalue) = ($1, $2, $4);
+           my ($score, $evalue, $pvalue) = ($1, $2, $3);
            $evalue = "1$evalue" if $evalue =~ /^e/;
            $pvalue = "1$pvalue" if $pvalue =~ /^e/;
 	   
@@ -656,20 +658,20 @@ sub next_result{
                             'Data'  =>$pvalue});           
        } elsif( ($self->in_element('hit') || 
                  $self->in_element('hsp')) && # wublast
-               m/Score\s*=\s*(\S+)\s*       # Bit score
-                \(([\d\.]+)\s*bits\),       # Raw score
-                \s*Expect\s*=\s*([^,\s]+),  # E-value
-                \s*(Sum)?\s*                # SUM
-                P(\(\d+\))?\s*=\s*([^,\s]+) # P-value
+               m/Score\s*=\s*(\S+)\s*         # Bit score
+                \(([\d\.]+)\s*bits\),         # Raw score
+                \s*Expect\s*=\s*([^,\s]+),    # E-value
+                \s*(?:Sum)?\s*                # SUM
+                P(?:\(\d+\))?\s*=\s*([^,\s]+) # P-value
                 /ox 
                   ) { # wu-blast HSP parse
            $self->in_element('hsp') && $self->end_element({'Name' => 'Hsp'});
            $self->start_element({'Name' => 'Hsp'});
 	   
            # Some data clean-up so e-value will appear numeric to perl
-           my ($score, $bits, $evalue, $pvalue) = ($1, $2, $3, $6);
-           $evalue = "1$evalue" if $evalue =~ /^e/;
-           $pvalue = "1$pvalue" if $pvalue =~ /^e/;
+           my ($score, $bits, $evalue, $pvalue) = ($1, $2, $3, $4);
+           $evalue =~ s/^e/1e/i;
+           $pvalue =~ s/^e/1e/i;
 	   
 	   $self->element( { 'Name' => 'Hsp_score',
                              'Data' => $score});
@@ -682,14 +684,14 @@ sub next_result{
        } elsif( ($self->in_element('hit') || 
                  $self->in_element('hsp')) && # ncbi blast
                 m/Score\s*=\s*(\S+)\s*bits\s* # Bit score
-                (\((\d+)\))?,                 # Missing for BLAT pseudo-BLAST fmt 
-                \s*Expect(\(\d+\))?\s*=\s*(\S+) # E-value
+                (?:\((\d+)\))?,               # Missing for BLAT pseudo-BLAST fmt 
+                \s*Expect(?:\(\d+\))?\s*=\s*(\S+) # E-value
                 /ox) { # parse NCBI blast HSP
            $self->in_element('hsp') && $self->end_element({ 'Name' => 'Hsp'});
 	   
            # Some data clean-up so e-value will appear numeric to perl
-           my ($score, $bits, $evalue) = ($3, $1, $5);
-	   $evalue = "1$evalue" if $evalue =~ /^e/;
+           my ($bits,$score, $evalue) = ($1, $2, $3);
+	   $evalue =~ s/^e/1e/i;
 	   
            $self->start_element({'Name' => 'Hsp'});
            $self->element( { 'Name' => 'Hsp_score',
@@ -705,8 +707,8 @@ sub next_result{
 
        } elsif( $self->in_element('hsp') &&
                 m/Identities\s*=\s*(\d+)\s*\/\s*(\d+)\s*[\d\%\(\)]+\s*
-                (,\s*Positives\s*=\s*(\d+)\/(\d+)\s*[\d\%\(\)]+\s*)? # pos only valid for Protein alignments
-                (\,\s*Gaps\s*=\s*(\d+)\/(\d+))? # Gaps
+                (?:,\s*Positives\s*=\s*(\d+)\/(\d+)\s*[\d\%\(\)]+\s*)? # pos only valid for Protein alignments
+                (?:\,\s*Gaps\s*=\s*(\d+)\/(\d+))? # Gaps
                 /oxi 
                 ) {
            $self->element( { 'Name' => 'Hsp_identity',
@@ -715,14 +717,14 @@ sub next_result{
                             'Data' => $2});
            if( defined $3 ) {
                $self->element( { 'Name' => 'Hsp_positive',
-                                 'Data' => $4});
+                                 'Data' => $3});
            } else { 
                $self->element( { 'Name' => 'Hsp_positive',
                                  'Data' => $1});
            }
            if( defined $6 ) {
                $self->element( { 'Name' => 'Hsp_gaps',
-                                 'Data' => $7});
+                                 'Data' => $5});
            }
            
            $self->{'_Query'} = { 'begin' => 0, 'end' => 0};
