@@ -74,6 +74,9 @@ use vars qw(@ISA);
 use strict;
 use Data::Dumper;
 use Bio::Root::Root;
+use Bio::SeqIO; # for auto dumping sequences to files
+use Bio::Root::IO;
+
 @ISA = qw(Bio::Root::Root);
 
 
@@ -91,6 +94,7 @@ sub new {
   $self->group($self->{ '_attributes' }->{'groups'});
   delete $self->{ '_attributes' }->{'groups'};
 
+  $self->{'_io'} = new Bio::Root::IO('-verbose' => $self->verbose);
   return $self;
 }
 
@@ -115,7 +119,31 @@ sub run {
     my $option_string = '';
     foreach my $attr (keys %{$input}) {
 	my $attr_name = substr($attr, 1) if substr($attr, 0, 1) =~ /\W/;
+	
+	my $array = 0;
+	
+	if( defined $input->{$attr} && ref($input->{$attr}) ) {
 
+	    if( ($array = (ref($input->{$attr}) =~ /array/i)) ||
+		( $input->{$attr}->isa('Bio::PrimarySeqI')))
+	    {
+		my @seqs;
+		if( $array && defined $input->{$attr}->[0] && 
+		    $input->{$attr}->[0]->isa('Bio::PrimarySeqI') ) {
+		    @seqs = @{$input->{$attr}};
+		} else {
+		    @seqs = ($input->{$attr});
+		}
+		my ($tfh,$tempfile) = $self->{'_io'}->tempfile();
+		my $out = new Bio::SeqIO(-format => 'fasta',
+					 -fh     => $tfh);
+		foreach my $seq ( @seqs ) {
+		    $out->write_seq($seq);
+		}
+		$out->close();
+		$input->{$attr} = $tempfile;
+	    }
+	}
 	# ADD: validate the values against acd
 
 	print "Input attr: ", $attr_name, " => ", %{$input}->{$attr}, "\n" 
