@@ -206,12 +206,10 @@ sub write_seq {
 	$dumper->dumpValue($source);
 	if (!$source || ( !$source->isa('Bio::Seq::SeqWithQuality') && 
 							!$source->isa('Bio::Seq::PrimaryQual')   )) {
-		$self->throw("You must pass a Bio::Seq::SeqWithQuality or a Bio::Seq::PrimaryQual object to write_seq as a parameter named \"source\"");
+		$self->throw("You must pass a Bio::Seq::SeqWithQuality or a Bio::Seq::PrimaryQual object to write_seq() as a parameter named \"source\"");
 	}
-	my $header = $source->id;
-	$header = $source->header if (!$header &&
-				 $source->isa('Bio::Seq::PrimaryQual'));
-	if (!$header) { $header = "unknown"; }
+	my $header = $source->can("id") ? $source->id :
+	  $source->can("header") ? $source->header : "unknown";
 	my @quals = $source->qual();
 	# ::dumpValue(\@quals);
 	$self->_print (">$header \n");
