@@ -1532,6 +1532,7 @@ An alterative way to get Smith-Waterman alignments can come from the EMBOSS prog
   my $in = new Bio::AlignIO(-format => 'emboss', -file => 'filename');
   my $aln = $in->next_aln();  
 
+=for html <A NAME ="iii.5.2"></A>
 
 =head2   III.5.2 Aligning 2 sequences with Blast using bl2seq and AlignIO
 
