@@ -1111,7 +1111,10 @@ sub strand {
   if ($self->absolute) {
     return _to_strand($self->{strand});
   }
-  return $self->stop <=> $self->start;
+  my $start = $self->start;
+  my $stop  = $self->stop;
+  return 0 unless defined $start and defined $stop;
+  return $stop <=> $start;
 }
 
 sub _to_strand {

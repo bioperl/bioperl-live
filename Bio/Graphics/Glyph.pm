@@ -659,6 +659,7 @@ sub draw {
 
     my $x = $left;
     my $y = $top  + $self->top + $self->pad_top;
+
     $self->draw_connectors($gd,$x,$y) if $connector && $connector ne 'none';
 
     my $last_x;
