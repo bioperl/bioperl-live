@@ -57,17 +57,17 @@ http://igs-server.cnrs-mrs.fr/~cnotred/Documentation/t_coffee/t_coffee_doc.html
 These can be specified as paramters when instantiating a new TCoffee
 object, or through get/set methods of the same name (lowercase).
 
-=head2 PARAMETERS FOR ALIGNMENT COMPUTATION
+=head1 PARAMETERS FOR ALIGNMENT COMPUTATION
 
-=head2 IN 
- 
+=head2 IN
+
  Title       : IN
  Description : (optional) input filename, this is specified when
                align so should not use this directly unless one
                understand TCoffee program very well.
 
-=head2 TYPE 
-  
+=head2 TYPE
+
  Title       : TYPE
  Args        : [string] DNA, PROTEIN
  Description : (optional) set the sequence type, guessed automatically
@@ -564,7 +564,7 @@ sub AUTOLOAD {
 }
 
 
-=head2  exists_tcoffee()
+=head2  exists_tcoffee
 
  Title   : exists_tcoffee
  Usage   : $coffeefound = Bio::Tools::Run::Alignment::TCoffee->exists_tcoffee()
@@ -677,6 +677,7 @@ sub profile_align {
 
 
 =cut
+
 sub _run {
     my ($infilename, $infile1,$infile2) = ('','','');
     my $self = shift;
@@ -729,7 +730,7 @@ sub _run {
 }
 
 
-=head2  _setinput()
+=head2  _setinput
 
  Title   :  _setinput
  Usage   :  Internal function, not to be called directly	
@@ -790,7 +791,7 @@ sub _setinput {
 }
 
 
-=head2  _setparams()
+=head2  _setparams
 
  Title   :  _setparams
  Usage   :  Internal function, not to be called directly	
