@@ -232,7 +232,7 @@ sub position {
     return (0);
   } elsif ($position > 0) {
     if ($modulus != 1) {
-      carp "Attention! Label $label is not in frame (1st position of triplet) with protein";
+      #carp "Attention! Label $label is not in frame (1st position of triplet) with protein";
       if ($modulus == 2) {
 	return ($position / 3 + 1);
       } else { # i.e. modulus == 0
