@@ -531,11 +531,13 @@ sub attach_seq {
  Args    : TRUE or FALSE (the default) depending on whether or not to try
            to adjust the phase such that the resulting sequence will 
            contain at most a trailing stop codon.
+           The id of the codon table to use for determining stop codons in
+           correction (optional, default = 0; see Bio::Tools::CodonTable).
 
 =cut
 
 sub cds {
-    my ($self, $corr_phase) = @_;
+    my ($self, $corr_phase, $tableid) = @_;
     my @exons = $self->exons();
     my $cds = "";
 
@@ -556,7 +558,7 @@ sub cds {
 	    $cds .= $exon->seq()->seq();
 	}
 	if($corr_phase) {
-	    $cds = $self->correct_phase($cds);
+	    $cds = $self->correct_phase($cds, $tableid);
 	}
     }
     return $cds;
