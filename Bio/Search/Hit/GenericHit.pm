@@ -1126,8 +1126,6 @@ sub frac_aligned_query {
     my $self = shift;
 
     Bio::Search::SearchUtils::tile_hsps($self) unless $self->tiled_hsps;
-    print "logical len of the query is ",$self->logical_length('query'), "\n";
-    print "length of the aln query is ", $self->length_aln('query'), "\n";
     sprintf( "%.2f", $self->length_aln('query') / 
 	     $self->logical_length('query'));
 }
@@ -1164,7 +1162,6 @@ sub frac_aligned_hit {
     my $self = shift;
 
     Bio::Search::SearchUtils::tile_hsps($self) unless $self->tiled_hsps;
-    print "logical subject length is ", $self->logical_length('sbjct'), "\n";
     sprintf( "%.2f", $self->length_aln('sbjct') / $self->logical_length('sbjct'));
 }
 

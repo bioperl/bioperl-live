@@ -140,9 +140,9 @@ sub tile_hsps {
     my $hit_sgaps = 0;
     my $hit_len_aln = 0;
     my %start_stop;
-
+    my $v = $sbjct->verbose;
     foreach $hsp ( $sbjct->hsps() ) {
-	printf "  HSP: %s %d..%d\n",$hsp->query->seq_id, $hsp->query->start, $hsp->hit->end; #$hsp->str('query');
+	$sbjct->debug( sprintf("  HSP: %s %d..%d\n",$hsp->query->seq_id, $hsp->query->start, $hsp->hit->end)) if $v > 0; #$hsp->str('query');
 #	printf "  Length = %d; Identical = %d; Conserved = %d; Conserved(1-10): %d",$hsp->length, $hsp->length(-TYPE=>'iden'), 
 #	$hsp->length(-TYPE=>'cons'),
 #	$hsp->length(-TYPE=>'cons',
@@ -215,7 +215,7 @@ sub tile_hsps {
     foreach (@qcontigs) {
 	($frame, $strand) = ($_->{'frame'}, $_->{'strand'});
 	
-	if( $sbjct->verbose > 0 ) {
+	if( $v > 0 ) {
 	    $sbjct->debug(sprintf( "$frame/$strand len is getting %d for %d..%d\n", 
 				   ($_->{'stop'} - $_->{'start'} + 1), $_->{'start'}, $_->{'stop'}));
 	}
