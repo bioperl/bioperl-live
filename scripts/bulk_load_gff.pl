@@ -222,7 +222,7 @@ create table fnote (
     fid      int not null,
     fnote    text,
     index(fid),
-    fulltext(fnote),
+    fulltext(fnote)
 )\g
 create table ftype (
     ftypeid      int not null  auto_increment,
