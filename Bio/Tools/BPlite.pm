@@ -173,8 +173,8 @@ Copyright (C) 1999 Ian Korf. All Rights Reserved.
 This software is provided "as is" without warranty of any kind.
 
 =cut
-#'
 
+#'
 package Bio::Tools::BPlite;
 
 use strict;
@@ -366,7 +366,7 @@ sub _parseHeader {
   my $header_flag = 0;	# here is the flag/  It is "false" at first, and is set to "true" when any valid header element is encountered
   $self->{'REPORT_DONE'} = 0;  # reset this bit for a new report
   while(<$FH>) {
-    if ($_ =~ /^Query=\s+([^\(]+)/){
+    if ($_ =~ /^Query=(?:\s+([^\(]+))?/) {
       $header_flag = 1;   # valid header element found
       my $query = $1;
       while(<$FH>) {
