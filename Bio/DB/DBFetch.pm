@@ -118,7 +118,7 @@ sub get_request {
     } else {
 	$uid = $uids;
     }
-    $self->debug("\n$url$format_string&id=$uid\n");
+
     return GET $url. $format_string. '&id='. $uid;
 }
 

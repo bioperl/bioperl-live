@@ -155,7 +155,7 @@ use Carp 'confess';
 
 @ISA = 'Bio::Root::RootI';
 
-INIT { 
+BEGIN { 
 
     $ID        = 'Bio::Root::Root';
     $VERSION   = 1.0;
