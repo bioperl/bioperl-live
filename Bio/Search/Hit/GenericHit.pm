@@ -20,7 +20,7 @@ Bio::Search::Hit::GenericHit - A generic implementation of the Bio::Search::Hit:
     my $hit = new Bio::Search::Hit::GenericHit(-algorithm => 'blastp');
 
     # more likely
-    use Bio::SeachIO;
+    use Bio::SearchIO;
     my $parser = new Bio::SearchIO(-format => 'blast', -file => 'result.bls');
 
     my $result = $parser->next_result;
