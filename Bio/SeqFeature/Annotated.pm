@@ -348,9 +348,21 @@ sub _expand_region {
 
 sub source {
   my $self = shift;
+  my $source = shift;
 
-  return $self->{'source'} = shift if @_;
-  return $self->{'source'};
+  if ($source) {
+      $self->annotation->remove_Annotations('source');
+      $self->annotation->add_Annotation(Bio::Annotation::SimpleValue->new(-value => $source,
+									  -tagname => 'source')
+				       );
+  } else {
+      if (my ($sa) = $self->annotation->get_Annotations('source')) {
+	  $source = $sa->value;
+      } else {
+	  $source = "";
+      }
+  }
+  return $source;
 }
 
 
