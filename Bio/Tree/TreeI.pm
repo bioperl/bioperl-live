@@ -138,7 +138,7 @@ sub number_nodes{
 
 =cut
 
-sub branch_length {
+sub total_branch_length {
    my ($self) = @_;
    $self->throw_not_implemented();
 }
