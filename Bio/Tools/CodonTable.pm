@@ -162,6 +162,7 @@ methods. Internal methods are usually preceded with a _
 
 package Bio::Tools::CodonTable;
 use vars qw(@ISA @NAMES @TABLES @STARTS $TRCOL $CODONS %IUPAC_DNA 
+	    $CODONGAP $GAP
 	    %IUPAC_AA %THREELETTERSYMBOLS $VALID_PROTEIN $TERMINATOR);
 use strict;
 
@@ -172,9 +173,14 @@ use Bio::SeqUtils;
 
 @ISA = qw(Bio::Root::Root);
 
+
 # first set internal values for all translation tables
 
 BEGIN { 
+    use constant CODONSIZE => 3;
+    $GAP = '-';
+    $CODONGAP = $GAP x CODONSIZE;
+
     @NAMES =			#id
 	(
 	 'Standard',		#1
@@ -365,15 +371,17 @@ sub translate {
 
     my $id = $self->id;
     my ($partial) = 0;
-    $partial = 2 if length($seq) % 3 == 2;
+    $partial = 2 if length($seq) % CODONSIZE == 2;
     
-    $seq = lc $seq; 
+    $seq = lc $seq;
     $seq =~ tr/u/t/;
     my $protein = "";
     if ($seq =~ /[^actg]/ ) { #ambiguous chars
-        for (my $i = 0; $i < (length($seq) - 2 ); $i+=3) {
-            my $triplet = substr($seq, $i, 3);
-	    if (exists $CODONS->{$triplet}) {
+        for (my $i = 0; $i < (length($seq) - (CODONSIZE-1)); $i+= CODONSIZE) {
+            my $triplet = substr($seq, $i, CODONSIZE);
+	    if( $triplet eq $CODONGAP ) {
+		$protein .= $GAP;
+	    } elsif (exists $CODONS->{$triplet}) {
 		$protein .= substr($TABLES[$id-1], 
 				   $CODONS->{$triplet},1);
 	    } else {
@@ -381,9 +389,11 @@ sub translate {
 	    }
 	}
     } else { # simple, strict translation
-	for (my $i = 0; $i < (length($seq) - 2 ); $i+=3) {
-            my $triplet = substr($seq, $i, 3); 
-            if (exists $CODONS->{$triplet}) {
+	for (my $i = 0; $i < (length($seq) - (CODONSIZE -1)); $i+=CODONSIZE) {
+            my $triplet = substr($seq, $i, CODONSIZE); 
+            if( $triplet eq $CODONGAP ) {
+		$protein .= $GAP;
+	    } if (exists $CODONS->{$triplet}) {
                 $protein .= substr($TABLES[$id-1], $CODONS->{$triplet}, 1);
 	    } else {
                 $protein .= 'X';
@@ -392,7 +402,9 @@ sub translate {
     }
     if ($partial == 2) { # 2 overhanging nucleotides
 	my $triplet = substr($seq, ($partial -4)). "n";
-	if (exists $CODONS->{$triplet}) {
+	if( $triplet eq $CODONGAP ) {
+	    $protein .= $GAP;
+	} elsif (exists $CODONS->{$triplet}) {
 	    my $aa = substr($TABLES[$id-1], $CODONS->{$triplet},1);       
 	    $protein .= $aa;
 	} else {
