@@ -7,7 +7,7 @@
 use strict;
 use ExtUtils::MakeMaker;
 use Bio::Root::IO;
-use constant TEST_COUNT => 96;
+use constant TEST_COUNT => 109;
 use constant FASTA_FILES => Bio::Root::IO->catfile('t','data','dbfa');
 use constant GFF_FILE    => Bio::Root::IO->catfile('t','data',
 						   'biodbgff','test.gff');
@@ -87,6 +87,22 @@ my $segment3 = $db->segment('Contig1',10=>1);
 ok($segment3->start,10);
 ok($segment3->end,1);
 ok($segment3->strand,-1);
+
+# exercise attribute fetching
+my @t = $db->fetch_feature_by_name(Transcript => 'trans-1');
+my ($t) = grep {$_->type eq 'transcript:confirmed'} @t;
+ok($t->attributes('Note'),'function unknown');
+ok(join(' ',sort $t->attributes('Gene')),'abc-1 xyz-2');
+my $att = $t->attributes;
+ok(scalar @{$att->{Gene}},2);
+@t = $db->fetch_feature_by_attribute('Gene'=>'abc-1');
+ok(@t>0);
+ok($t[0] eq $t);
+my $seg = $db->segment('Contig1');
+@t = $seg->features(-attributes=>{'Gene'=>'abc-1'});
+ok(@t>0);
+@t = $seg->features(-attributes=>{'Gene'=>'xyz-2',Note=>'Terribly interesting'});
+  ok(@t==1);
 
 # exercise dna() a bit
 my $dna = $segment2->dna;
@@ -312,6 +328,14 @@ while (my $s = $i->next_feature) {
   $strand{$s->strand}++;
 }
 ok(keys %strand == 3);
+
+# test iterator across a segment, limited by an attribute
+$i = $seg->get_feature_stream(-attributes=>{'Gene'=>'abc-1',Note=>'function unknown'});
+my $count = 0;
+while ($i->next_seq) {
+  $count++;
+}
+ok($count,2);
 
 END {
   unlink FASTA_FILES."/directory.index";

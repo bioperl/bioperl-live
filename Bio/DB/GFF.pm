@@ -47,11 +47,17 @@ Bio::DB::GFF -- Storage and retrieval of sequence annotation data
   my %type_counts = $segment->types(-enumerate=>1);
 
   # get an iterator on all curated features of type 'exon' or 'intron'
-  my $iterator = $db->features(-type     => ['exon:curated','intron:curated'],
-                               -iterator => 1);
+  my $iterator = $db->get_feature_stream(-type     => ['exon:curated','intron:curated']);
 
-  while ($_ = $iterator->next_feature) {
-      print $_,"\n";
+  while (my $s = $iterator->next_feature) {
+      print $s,"\n";
+  }
+
+  # find all transcripts annotated as having function 'kinase'
+  my $iterator = $db->get_feature_stream(-type=>'transcript',
+			                 -attributes=>{Function=>'kinase'});
+  while (my $s = $iterator->next_feature) {
+      print $s,"\n";
   }
 
 =head1 DESCRIPTION
@@ -545,7 +551,6 @@ sub new {
   $self;
 }
 
-
 =head2 types
 
  Title   : types
@@ -781,6 +786,7 @@ Arguments are as follows:
   -rare      Turn on optimizations suitable for a relatively rare feature type,
              where it makes more sense to filter by feature type first,
              and then by position.
+  -attributes A hash reference containing attributes to match.
   -iterator  Whether to return an iterator across the features.
 
 If -iterator is true, then the method returns a single scalar value
@@ -797,39 +803,50 @@ missing field.  Type names without the colon (e.g. "exon") are
 interpreted as the method name and a source wild card.  Regular
 expressions are allowed in either field, as in: "similarity:BLAST.*".
 
+The -attributes argument is a hashref containing one or more attributes
+to match against:
+
+  -attributes => { Gene => 'abc-1',
+                   Note => 'confirmed' }
+
+Attribute matching is simple string matching, and multiple attributes
+are ANDed together.
+
 =cut
 
 sub features {
   my $self = shift;
-  my ($types,$automerge,$sparse,$iterator);
+  my ($types,$automerge,$sparse,$iterator,$other);
   if ($_[0] =~ /^-/) {
-    ($types,$automerge,$sparse,$iterator) = rearrange([
-						      [qw(TYPE TYPES)],
-						      [qw(MERGE AUTOMERGE)],
-						      [qw(RARE SPARSE)],
-						      'ITERATOR'
-						     ],@_);
+    ($types,$automerge,$sparse,$iterator,$other) = rearrange([
+							      [qw(TYPE TYPES)],
+							      [qw(MERGE AUTOMERGE)],
+							      [qw(RARE SPARSE)],
+							      'ITERATOR'
+							     ],@_);
   } else {
     $types = \@_;
   }
 
   # for whole database retrievals, we probably don't want to automerge!
   $automerge = $self->automerge unless defined $automerge;
+  $other ||= {};
   $self->_features({
 		    rangetype => 'contains',
 		    types     => $types,
 		   },
 		   { sparse    => $sparse,
-		    automerge => $automerge,
-		    iterator  =>$iterator
+		     automerge => $automerge,
+		     iterator  =>$iterator,
+		     %$other,
 		   }
 		   );
 }
 
-=head2 feature_stream
+=head2 get_feature_stream
 
  Title   : features
- Usage   : $db->feature_stream(@args)
+ Usage   : $db->get_feature_stream(@args)
  Function: get a stream on features, possibly filtered by type
   Returns : a Bio::SeqIO::Stream
  Args    : As in features()
@@ -838,14 +855,14 @@ sub features {
 This routine takes the same arguments as features(), but returns a
 Bio::SeqIO::Stream-compliant object.  Use it like this:
 
-  $stream = $db->feature_stream('exon');
+  $stream = $db->get_feature_stream('exon');
   while (my $exon = $stream->next_seq) {
      print $exon,"\n";  
   }
 
 =cut
 
-sub feature_stream {
+sub get_feature_stream {
   my $self = shift;
   my @args = $_[0] !~ /^-/ ? (-iterator=>1,-types=>\@_)
                            : (-iterator=>1,@_);
@@ -888,16 +905,82 @@ sub fetch_feature_by_name {
     ($gclass,$gname) = rearrange(['CLASS','NAME'],@_);
     $gclass ||= $self->default_class;
   }
+
+  # we need to refactor this... It's repeated code (see below)...
+  my @aggregators;
+  if ($self->automerge) {
+    for my $a ($self->aggregators) {
+      push @aggregators,$a if $a->disaggregate([],$self);
+    }
+  }
+
   my %groups;         # cache the groups we create to avoid consuming too much unecessary memory
   my $features = [];
   my $callback = sub { push @$features,$self->make_feature(undef,\%groups,@_) };
   $self->get_feature_by_name($gclass,$gname,$callback);
+
+  warn "aggregating...\n" if $self->debug;
+  foreach my $a (@aggregators) {  # last aggregator gets first shot
+      $a->aggregate($features,$self) or next;
+  }
+
   @$features;
 }
 
 # horrible indecision regarding proper names!
 *fetch_feature = *fetch_group = \&fetch_feature;
 *segments    = \&segment;
+
+=head2 fetch_feature_by_name
+
+ Title   : fetch_feature_by_name
+ Usage   : $db->fetch_feature_by_name($class => $name)
+ Function: fetch segments by feature (group) name
+ Returns : a list of Bio::DB::GFF::Feature objects
+ Args    : the class and name of the desired feature
+ Status  : public
+
+This method can be used to fetch a named feature from the database.
+GFF annotations are named using the group class and name fields, so
+for features that belong to a group of size one, this method can be
+used to retrieve that group (and is equivalent to the segment()
+method).
+
+This method may return zero, one, or several Bio::DB::GFF::Feature
+objects.
+
+Aggregation is performed on features as usual.
+
+NOTE: At various times, this function was called fetch_group() and
+fetch_feature(), and these names are preserved for backward
+compatibility.
+
+=cut
+
+sub fetch_feature_by_attribute {
+  my $self = shift;
+  my %attributes = ref($_[0]) ? %{$_[0]} : @_;
+
+  # we need to refactor this... It's repeated code (see above)...
+  my @aggregators;
+  if ($self->automerge) {
+    for my $a ($self->aggregators) {
+      unshift @aggregators,$a if $a->disaggregate([],$self);
+    }
+  }
+
+  my %groups;         # cache the groups we create to avoid consuming too much unecessary memory
+  my $features = [];
+  my $callback = sub { push @$features,$self->make_feature(undef,\%groups,@_) };
+  $self->get_feature_by_attribute(\%attributes,$callback);
+
+  warn "aggregating...\n" if $self->debug;
+  foreach my $a (@aggregators) {  # last aggregator gets first shot
+      $a->aggregate($features,$self) or next;
+  }
+
+  @$features;
+}
 
 =head2 fetch_feature_by_id
 
@@ -1050,7 +1133,7 @@ Bioperl compatibility.
 
 =cut
 
-sub get_Stream_by_id {
+sub get_Stream_by_group {
   my $self = shift;
   my @ids  = @_;
   my $id = ref($ids[0]) ? $ids[0] : \@ids;
@@ -1423,28 +1506,52 @@ sub automerge {
   $g;
 }
 
+=head2 attributes
 
-=head2 notes
-
- Title   : notes
- Usage   : @notes = $db->notes($id)
- Function: get the "notes" on a particular feature
+ Title   : attributes
+ Usage   : @attributes = $db->attributes($id,$name)
+ Function: get the "attributres" on a particular feature
  Returns : an array of string
  Args    : feature ID
  Status  : public
 
-Some GFF version 2 files use the groups column to store various notes
-and remarks.  Adaptors can elect to store the notes in the database,
-or just ignore them.  For those adaptors that store the notes, the
-notes() method will return them as a list.
+Some GFF version 2 files use the groups column to store a series of
+attribute/value pairs.  In this interpretation of GFF, the first such
+pair is treated as the primary group for the feature; subsequent pairs
+are treated as attributes.  Two attributes have special meaning:
+"Note" is for backward compatibility and is used for unstructured text
+remarks.  "Alias" is considered as a synonym for the feature name.
+
+If no name is provided, then attributes() returns a flattened hash, of
+attribute=>value pairs.  This lets you do:
+
+  %attributes = $db->attributes($id);
+
+Normally, attributes() will be called by the feature:
+
+  @notes = $feature->attributes('Note');
+
+In a scalar context, attributes() returns the first value of the
+attribute if a tag is present, otherwise a hash reference in which the
+keys are attribute names and the values are anonymous arrays
+containing the values.
 
 =cut
 
-sub notes {
+sub attributes {
   my $self = shift;
-  return;
-}
+  my ($id,$tag) = @_;
+  my @result = $self->do_attributes($id,$tag) or return;
+  return @result if wantarray;
 
+  # what to do in an array context
+  return $result[0] if $tag;
+  my %result;
+  while (my($key,$value) = splice(@result,0,2)) {
+     push @{$result{$key}},$value;
+  }
+  return \%result;
+}
 
 =head2 fast_queries
 
@@ -1645,7 +1752,7 @@ sub do_load_gff {
 			    gname  => $1,
 			    tstart => undef,
 			    tstop  => undef,
-			    notes  => undef
+			    attributes  => [],
 			   }
 			  );
       next;
@@ -1661,7 +1768,7 @@ sub do_load_gff {
     my @groups = split(/\s*;\s*/,$group);
     foreach (@groups) { s/$;/;/g }
 
-    my ($gclass,$gname,$tstart,$tstop,$notes) = $self->_split_group(@groups);
+    my ($gclass,$gname,$tstart,$tstop,$attributes) = $self->_split_group(@groups);
 
     # no standard way in the GFF file to denote the class of the reference sequence -- drat!
     # so we invoke the factory to do it
@@ -1689,7 +1796,7 @@ sub do_load_gff {
 			  gname  => $gname,
 			  tstart => $tstart,
 			  tstop  => $tstop,
-			  notes  => $notes}
+			  attributes  => $attributes}
 			);
   }
 
@@ -1817,7 +1924,7 @@ hashref containing parsed GFF fields.  The fields are:
   gname  => $gname,
   tstart => $tstart,
   tstop  => $tstop,
-  notes  => $notes}
+  attributes  => $attributes}
 
 =cut
 
@@ -1877,7 +1984,7 @@ sub dna {
 
 sub features_in_range {
   my $self = shift;
-  my ($range_type,$refseq,$class,$start,$stop,$types,$parent,$sparse,$automerge,$iterator) =
+  my ($range_type,$refseq,$class,$start,$stop,$types,$parent,$sparse,$automerge,$iterator,$other) =
     rearrange([
 	       [qw(RANGE_TYPE)],
 	       [qw(REF REFSEQ)],
@@ -1890,7 +1997,8 @@ sub features_in_range {
 	       [qw(MERGE AUTOMERGE)],
 	       'ITERATOR'
 	      ],@_);
-  $automerge = $self->automerge unless defined $automerge;
+  $other ||= {};
+  $automerge = $types && $self->automerge unless defined $automerge;
   $self->throw("range type must be one of {".
 	       join(',',keys %valid_range_types).
 	       "}\n")
@@ -1905,7 +2013,8 @@ sub features_in_range {
 		   {
 		    sparse    => $sparse,
 		    automerge => $automerge,
-		    iterator  => $iterator
+		    iterator  => $iterator,
+		    %$other,
 		   },
 		   $parent);
 }
@@ -2031,6 +2140,12 @@ subclasses.
 sub get_feature_by_name {
   my $self = shift;
   my ($class,$name,$callback) = @_;
+  $self->throw("get_feature_by_name() must be implemented by an adaptor");
+}
+
+sub get_feature_by_attribute {
+  my $self = shift;
+  my ($attributes,$callback) = @_;
   $self->throw("get_feature_by_name() must be implemented by an adaptor");
 }
 
@@ -2314,6 +2429,7 @@ sub make_aggregated_feature {
   my $self                 = shift;
   my ($matchsub,$accumulated_features,$parent,$aggregators) = splice(@_,0,4);
   my $feature = $self->make_feature($parent,undef,@_);
+  return [$feature] if $feature && !$feature->group;
 
   # if we have accumulated features and either: 
   # (1) make_feature() returned undef, indicated very end or
@@ -2389,7 +2505,8 @@ sub make_match_sub {
   for my $type (@$types) {
     my ($method,$source) = @$type;
     $method ||= '.*';
-    $source  = $source ? ":$source" : ":?.*";
+#    $source  = $source ? ":$source" : ":?.*";
+    $source  = $source ? ":$source" : ":.*";
     push @expr,"${method}${source}";
   }
   my $expr = join '|',@expr;
@@ -2398,9 +2515,10 @@ sub make_match_sub {
   my $sub =<<END;
 sub {
   my \$feature = shift or return;
-  return \$feature->type =~ /^$expr\$/;
+  return \$feature->type =~ /^($expr)\$/;
 }
 END
+  warn "match sub: $sub\n" if $self->debug;
   my $compiled_sub = eval $sub;
   $self->throw($@) if $@;
   return $self->{match_subs}{$expr} = $compiled_sub;
@@ -2438,6 +2556,31 @@ sub make_object {
     if defined $start and length $start;
   return Bio::DB::GFF::Featname->new($class,$name);
 }
+
+
+=head2 do_attributes
+
+ Title   : do_attributes
+ Usage   : $db->do_attributes($id [,$tag]);
+ Function: internal method to retrieve attributes given an id and tag
+ Returns : a list of Bio::DB::GFF::Feature objects
+ Args    : a feature id and a attribute tag (optional)
+ Status  : protected
+
+This method is overridden by subclasses in order to return a list of
+attributes.  If called with a tag, returns the value of attributes of
+that tag type.  If called without a tag, returns a flattened array of
+(tag=>value) pairs.  A particular tag can be present multiple times.
+
+=cut
+
+sub do_attributes {
+  my $self = shift;
+  my ($id,$tag) = @_;
+  return ();
+}
+
+
 
 =head1 Internal Methods
 
@@ -2518,20 +2661,16 @@ sub _features {
   my $features = [];
 
   my $callback = sub { push @$features,$self->make_feature($parent,\%groups,@_) };
-  $self->get_features({ %$search, 
+  $self->get_features({ %$search,
 			types  => \@aggregated_types },
-		      $options,
-		      $callback);
+		        $options,
+		        $callback);
 
   if ($options->{automerge}) {
     warn "aggregating...\n" if $self->debug;
     foreach my $a (@aggregators) {  # last aggregator gets first shot
       $a->aggregate($features,$self) or next;
     }
-
-    # warn "filtering...\n" if $self->debug;
-    # remove anything from the features list that was not specifically requested.
-    # return grep { $match->($_) } @$features;
   }
 
   @$features;
@@ -2568,15 +2707,15 @@ sub get_features_iterator {
  Title   : _split_group
  Usage   : $db->_split_group(@groups)
  Function: parse GFF group field
- Returns : ($gclass,$gname,$tstart,$tstop,$notes)
+ Returns : ($gclass,$gname,$tstart,$tstop,$attributes)
  Args    : a list of group fields from a GFF line
  Status  : internal
 
 This is an internal method that is called by load_gff_line to parse
 out the contents of one or more group fields.  It returns the class of
 the group, its name, the start and stop of the target, if any, and an
-array reference containing any notes that were stuck into the group
-field.
+array reference containing any attributes that were stuck into the
+group field, in [attribute_name,attribute_value] format.
 
 =cut
 
@@ -2584,7 +2723,7 @@ sub _split_group {
   my $self = shift;
   my @groups = @_;
 
-  my ($gclass,$gname,$tstart,$tstop,@notes);
+  my ($gclass,$gname,$tstart,$tstop,@attributes);
 
   for (@groups) {
 
@@ -2596,13 +2735,12 @@ sub _split_group {
     $value =~ s/\\t/\t/g;
     $value =~ s/\\r/\r/g;
 
-    # if the tag is "Note", then we add this to the
-    # notes array. Do the same thing with
-    # additional groups, since we don't handle
-    # complex groupings (yet)
+    # Any additional groups become part of the attributes hash
+    # For historical reasons, the tag "Note" is treated as an
+    # attribute, even if it is the only group.
     $tag ||= '';
     if ($tag eq 'Note' or ($gclass && $gname)) {
-      push @notes,$value;
+      push @attributes,[$tag => $value];
     }
 
     # if the tag eq 'Target' then the class name is embedded in the ID
@@ -2613,7 +2751,7 @@ sub _split_group {
     }
 
     elsif (!$value) {
-      push @notes,$tag;  # e.g. "Confirmed_by_EST"
+      push @attributes,[Note => $tag];  # e.g. "Confirmed_by_EST"
     }
 
     # otherwise, the tag and value correspond to the
@@ -2623,7 +2761,7 @@ sub _split_group {
     }
   }
 
-  return ($gclass,$gname,$tstart,$tstop,\@notes);
+  return ($gclass,$gname,$tstart,$tstop,\@attributes);
 }
 
 package Bio::DB::GFF::ID_Iterator;

@@ -292,8 +292,10 @@ sub make_object {
 sub make_features_from_part {
   my $self = shift;
   my $sparse = shift;
+  my $options = shift || {};
   my $index = $sparse ? ' USE INDEX(ftypeid)': '';
-  return "fdata${index},ftype,fgroup\n";
+  return $options->{attributes} ? "fdata${index},ftype,fgroup,fattribute,fattribute_to_feature\n"
+                                : "fdata${index},ftype,fgroup\n";
 }
 
 sub bin_query {
@@ -338,7 +340,7 @@ END
   my $lock_tables = join ', ',@tables;
 #   $dbh->do("LOCK TABLES $lock_tables");
 
-  $self->{load_stuff}{insert_data}  = $insert_data;
+  $self->{load_stuff}{sth}{insert_data}  = $insert_data;
 }
 
 sub load_gff_line {
@@ -353,21 +355,23 @@ sub load_gff_line {
   defined(my $groupid = $self->get_table_id('fgroup',$gff->{gname}  => $gff->{gclass})) or return;
 
   my $bin =  bin($gff->{start},$gff->{stop},$self->min_bin);
-
-  my $result = $s->{insert_data}->execute($gff->{ref},
-					  $gff->{start},$gff->{stop},$bin,
-					  $typeid,
-					  $gff->{score},$gff->{strand},$gff->{phase},
-					  $groupid,
-					  $gff->{tstart},$gff->{tstop});
+  my $result = $s->{sth}{insert_data}->execute($gff->{ref},
+					       $gff->{start},$gff->{stop},$bin,
+					       $typeid,
+					       $gff->{score},$gff->{strand},$gff->{phase},
+					       $groupid,
+					       $gff->{tstart},$gff->{tstop});
 
   warn $dbh->errstr,"\n" and return unless $result;
 
-  my $fid = $dbh->{mysql_insertid} 
+  my $fid = $dbh->{mysql_insertid}
     || $self->get_feature_id($gff->{ref},$gff->{start},$gff->{stop},$typeid,$groupid);
 
-  if (my $notes = $gff->{notes}) {
-    $s->{insert_fnote}->execute($fid,$_) foreach @$notes;
+
+  # insert attributes
+  foreach (@{$gff->{attributes}}) {
+    defined(my $attribute_id = $self->get_table_id('fattribute',$_->[0])) or return;
+    $s->{sth}{insert_fattribute_value}->execute($fid,$attribute_id,$_->[1]);
   }
 
   if ( (++$s->{counter} % 1000) == 0) {
@@ -378,18 +382,10 @@ sub load_gff_line {
   $fid;
 }
 
-sub finish_load {
-  my $self = shift;
-  $self->{load_stuff}{insert_note}->finish if $self->{load_stuff}{insert_note};
-  $self->SUPER::finish_load;
-}
-
-sub tables {
-  qw(fdata fgroup ftype fdna fnote fmeta)
-}
-
 sub schema {
-  return split "\n\n",<<END;
+  my $self = shift;
+  my $schema = $self->SUPER::schema;
+  $schema->{fdata} = q{
 create table fdata (
     fid	                int not null  auto_increment,
     fref                varchar(100) not null,
@@ -408,62 +404,9 @@ create table fdata (
     index(ftypeid),
     index(gid)
 )
-
-create table fgroup (
-    gid	    int not null auto_increment,
-    gclass  varchar(100),
-    gname   varchar(100),
-    primary key(gid),
-    unique(gclass,gname)
-)
-
-create table fnote (
-    fid      int not null,
-    fnote    text,
-    index(fid),
-    fulltext(fnote)
-)
-
-create table ftype (
-    ftypeid      int not null  auto_increment,
-    fmethod      varchar(100) not null,
-    fsource      varchar(100),
-    primary key(ftypeid),
-    index(fmethod),
-    index(fsource),
-    unique ftype (fmethod,fsource)
-)
-
-create table fdna (
-		fref    varchar(100) not null,
-	        foffset int(10) unsigned not null,
-	        fdna    longblob,
-		primary key(fref,foffset)
-)
-
-create table fmeta (
-		fname   varchar(255) not null,
-	        fvalue  varchar(255) not null,
-		primary key(fname)
-)
-
-create table fattribute (
-	faid    int(10) not null unsigned auto_increment,
-        faname  varchar(255)    not null,
-	primary key(faid)
-)
-
-create table fgroup_to_fattribute (
-        gid  int(10) not null,
-        faid int(10) not null,
-	favalue varchar(1024)
-)
-
-END
-;
+		      };
+  $schema;
 }
-
-
 
 1;
 

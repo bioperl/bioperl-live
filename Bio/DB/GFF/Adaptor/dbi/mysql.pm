@@ -312,10 +312,10 @@ sub make_abscoord_query {
     : $self->dbh->do_query(GETSEQCOORDS,$name,$class);
 }
 
-=head2 make_features_byname_where_part
+=head2 make_features_by_name_where_part
 
- Title   : make_features_byname_where_part
- Usage   : $db->make_features_byname_where_part
+ Title   : make_features_by_name_where_part
+ Usage   : $db->make_features_by_name_where_part
  Function: create the SQL fragment needed to select a feature by its group name & class
  Returns : a SQL fragment and bind arguments
  Args    : see below
@@ -323,10 +323,22 @@ sub make_abscoord_query {
 
 =cut
 
-sub make_features_byname_where_part {
+sub make_features_by_name_where_part {
   my $self = shift;
   my ($class,$name) = @_;
   return ("fgroup.gclass=? AND fgroup.gname=?",$class,$name);
+}
+
+sub make_features_by_attribute_where_part {
+  my $self = shift;
+  my $attributes = shift;
+  my @args;
+  my @sql;
+  foreach (keys %$attributes) {
+     push @sql,"(fattribute.fattribute_name=? AND fattribute_to_feature.fattribute_value=?)";
+     push @args,($_,$attributes->{$_});
+  }
+  return (join(' OR ',@sql),@args);
 }
 
 =head2 make_features_by_id_where_part
@@ -381,9 +393,12 @@ follows the SELECT keyword.
 
 sub make_features_select_part {
   my $self = shift;
-  return <<END;
-fref,fstart,fstop,fsource,fmethod,fscore,fstrand,fphase,gclass,gname,ftarget_start,ftarget_stop,fid,fdata.gid
+  my $options = shift || {};
+  my $s = <<END;
+fref,fstart,fstop,fsource,fmethod,fscore,fstrand,fphase,gclass,gname,ftarget_start,ftarget_stop,fdata.fid,fdata.gid
 END
+  $s .= ",count(fdata.fid) as c" if $options->{attributes} && keys %{$options->{attributes}}>1;
+  $s;
 }
 
 =head2 make_features_from_part
@@ -402,7 +417,9 @@ follows the FROM keyword.
 
 sub make_features_from_part {
   my $self = shift;
-  return "fdata,ftype,fgroup\n";
+  my $options = shift || {};
+  return $options->{attributes} ? "fdata,ftype,fgroup,fattribute,fattribute_to_feature\n"
+                                : "fdata,ftype,fgroup\n";
 }
 
 =head2 make_features_join_part
@@ -421,10 +438,16 @@ follows the WHERE keyword.
 
 sub make_features_join_part {
   my $self = shift;
-  return <<END;
+  my $options = shift || {};
+  return !$options->{attributes} ? <<END1 : <<END2;
   fgroup.gid = fdata.gid 
   AND ftype.ftypeid = fdata.ftypeid
-END
+END1
+  fgroup.gid = fdata.gid 
+  AND ftype.ftypeid = fdata.ftypeid
+  AND fattribute.fattribute_id=fattribute_to_feature.fattribute_id
+  AND fdata.fid=fattribute_to_feature.fid
+END2
 }
 
 =head2 make_features_order_by_part
@@ -444,7 +467,32 @@ related methods.
 
 sub make_features_order_by_part {
   my $self = shift;
+  my $options = shift || {};
   return "fgroup.gname";
+}
+
+=head2 make_features_group_by_part
+
+ Title   : make_features_group_by_part
+ Usage   : ($query,@args) = $db->make_features_group_by_part()
+ Function: make the GROUP BY part of the features() query
+ Returns : a SQL fragment and bind arguments, if any
+ Args    : none
+ Status  : protected
+
+This method creates the part of the features query that immediately
+follows the GROUP BY part of the query issued by features() and
+related methods.
+
+=cut
+
+sub make_features_group_by_part {
+  my $self = shift;
+  my $options = shift || {};
+  my $att = $options->{attributes} or return;
+  my $key_count = keys %$att;
+  return unless $key_count > 1;
+  return ("fdata.fid having c > ?",$key_count-1);
 }
 
 =head2 refseq_query
@@ -456,10 +504,11 @@ sub make_features_order_by_part {
  Args    : reference sequence name and class
  Status  : protected
 
-This method is called by make_features_byrange_where_part() to construct the
-part of the select WHERE section that selects a particular reference
-sequence.  It returns a mult-element list in which the first element
-is the SQL fragment and subsequent elements are bind values.
+This method is called by make_features_by_range_where_part() to
+construct the part of the select WHERE section that selects a
+particular reference sequence.  It returns a mult-element list in
+which the first element is the SQL fragment and subsequent elements
+are bind values.
 
 The current schema does not distinguish among different classes of
 reference sequence.
@@ -475,28 +524,45 @@ sub refseq_query {
   return wantarray ? ($query,$refseq) : $self->dbh->dbi_quote($query,$refseq);
 }
 
-=head2 notes
+=head2 attributes
 
- Title   : notes
- Usage   : @notes = $db->notes($id)
- Function: return the list of notes corresponding to a feature ID
- Returns : a list of strings
+ Title   : attributes
+ Usage   : @attributes = $db->attributes($id,$name)
+ Function: get the attributes on a particular feature
+ Returns : an array of string
  Args    : feature ID
- Status  : protected
+ Status  : public
 
-This method is called by Bio::DB::GFF-E<gt>notes() to retrieve the notes
-corresponding to the internal feature ID.
+Some GFF version 2 files use the groups column to store a series of
+attribute/value pairs.  In this interpretation of GFF, the first such
+pair is treated as the primary group for the feature; subsequent pairs
+are treated as attributes.  Two attributes have special meaning:
+"Note" is for backward compatibility and is used for unstructured text
+remarks.  "Alias" is considered as a synonym for the feature name.
+
+If no name is provided, then attributes() returns a flattened hash, of
+attribute=>value pairs.  This lets you do:
+
+  %attributes = $db->attributes($id);
+
+Normally, attributes() will be called by the feature:
+
+  @notes = $feature->attributes('Note');
 
 =cut
 
-sub notes {
-  my $self = shift;
-  my $id = shift;
-  my $sth = $self->dbh->do_query('SELECT fnote FROM fnote WHERE fid=?',$id) or return;
-
+sub do_attributes {
+  my $self        = shift;
+  my ($id,$tag)   = @_;
+  my $from   = 'fattribute_to_feature,fattribute';
+  my $join   = 'fattribute.fattribute_id=fattribute_to_feature.fattribute_id';
+  my $where1 = 'fid=? AND fattribute_name=?';
+  my $where2 = 'fid=?';
+  my $sth = defined($tag) ? $self->dbh->do_query("SELECT fattribute_value FROM $from WHERE $where1 AND $join",$id,$tag)
+                          : $self->dbh->do_query("SELECT fattribute_name,fattribute_value FROM $from WHERE $where2 AND $join",$id);
   my @result;
-  while (my($note) = $sth->fetchrow_array) {
-    push @result,$note;
+  while (my @stuff = $sth->fetchrow_array) {
+    push @result,@stuff;
   }
   $sth->finish;
   return @result;
@@ -850,7 +916,8 @@ fgroup ftype fdna fnote fmeta).
 
 # return list of tables that "belong" to us.
 sub tables {
-  qw(fdata fref fgroup ftype fdna fnote fmeta);
+  my $schema = shift->schema;
+  return keys %$schema;
 }
 
 =head2 schema
@@ -868,7 +935,8 @@ needed to initialize the database tables.
 =cut
 
 sub schema {
-  return split "\n\n",<<END;
+  my %schema = (
+		fdata => q{
 create table fdata (
     fid	         int not null  auto_increment,
     fref         varchar(100)    not null,
@@ -886,7 +954,9 @@ create table fdata (
     index(ftypeid),
     index(gid)
 )
+},
 
+		fgroup => q{
 create table fgroup (
     gid	    int not null  auto_increment,
     gclass  varchar(100),
@@ -894,7 +964,9 @@ create table fgroup (
     primary key(gid),
     unique(gclass,gname)
 )
+},
 
+          ftype => q{
 create table ftype (
     ftypeid      int not null   auto_increment,
     fmethod       varchar(100) not null,
@@ -904,28 +976,53 @@ create table ftype (
     index(fsource),
     unique ftype (fmethod,fsource)
 )
+},
 
+         fdna => q{
 create table fdna (
 		fref    varchar(100) not null,
 	        foffset int(10) unsigned not null,
 	        fdna    longblob,
 		primary key(fref,foffset)
 )
+},
 
+        fnote => q{
 create table fnote (
     fid      int not null,
     fnote    text,
     index(fid),
     fulltext(fnote)
 )
+},
 
+        fmeta => q{
 create table fmeta (
 		fname   varchar(255) not null,
 	        fvalue  varchar(255) not null,
 		primary key(fname)
 )
+},
 
-END
+       fattribute => q{
+create table fattribute (
+	fattribute_id     int(10)         unsigned not null auto_increment,
+        fattribute_name   varchar(255)    not null,
+	primary key(fattribute_id)
+)
+},
+
+       fattribute_to_feature => q{
+create table fattribute_to_feature (
+        fid              int(10) not null,
+        fattribute_id    int(10) not null,
+	fattribute_value text,
+        key(fid,fattribute_id),
+        fulltext(fattribute_value)
+)
+    },
+);
+  return \%schema;
 }
 
 =head2 default_meta_values
@@ -1025,7 +1122,10 @@ sub setup_load {
   my $lookup_group = $dbh->prepare_delayed('SELECT gid FROM fgroup WHERE gname=? AND gclass=?');
   my $insert_group = $dbh->prepare_delayed('REPLACE INTO fgroup (gname,gclass) VALUES (?,?)');
 
-  my $insert_note  = $dbh->prepare_delayed('REPLACE INTO fnote (fid,fnote) VALUES (?,?)');
+  my $lookup_attribute = $dbh->prepare_delayed('SELECT fattribute_id FROM fattribute WHERE fattribute_name=?');
+  my $insert_attribute = $dbh->prepare_delayed('REPLACE INTO fattribute (fattribute_name) VALUES (?)');
+  my $insert_attribute_value = $dbh->prepare_delayed('REPLACE INTO fattribute_to_feature (fid,fattribute_id,fattribute_value) VALUES (?,?,?)');
+
   my $insert_data  = $dbh->prepare_delayed(<<END);
 REPLACE INTO fdata (fref,fstart,fstop,ftypeid,fscore,
 		   fstrand,fphase,gid,ftarget_start,ftarget_stop)
@@ -1033,12 +1133,15 @@ REPLACE INTO fdata (fref,fstart,fstop,ftypeid,fscore,
 END
 ;
 
-  $self->{load_stuff}{lookup_ftype}  = $lookup_type;
-  $self->{load_stuff}{insert_ftype}  = $insert_type;
-  $self->{load_stuff}{lookup_fgroup} = $lookup_group;
-  $self->{load_stuff}{insert_fgroup} = $insert_group;
-  $self->{load_stuff}{insert_fdata}  = $insert_data;
-  $self->{load_stuff}{insert_fnote}  = $insert_note;
+
+  $self->{load_stuff}{sth}{lookup_ftype}     = $lookup_type;
+  $self->{load_stuff}{sth}{insert_ftype}     = $insert_type;
+  $self->{load_stuff}{sth}{lookup_fgroup}    = $lookup_group;
+  $self->{load_stuff}{sth}{insert_fgroup}    = $insert_group;
+  $self->{load_stuff}{sth}{insert_fdata}     = $insert_data;
+  $self->{load_stuff}{sth}{lookup_fattribute} = $lookup_attribute;
+  $self->{load_stuff}{sth}{insert_fattribute} = $insert_attribute;
+  $self->{load_stuff}{sth}{insert_fattribute_value} = $insert_attribute_value;
   $self->{load_stuff}{types}  = {};
   $self->{load_stuff}{groups} = {};
   $self->{load_stuff}{counter} = 0;
@@ -1047,28 +1150,28 @@ END
 =head2 load_gff_line
 
  Title   : load_gff_line
- Usage   : $db->load_gff_line(@args)
+ Usage   : $db->load_gff_line($fields)
  Function: called to load one parsed line of GFF
  Returns : true if successfully inserted
- Args    : see below
+ Args    : hashref containing GFF fields
  Status  : protected
 
 This method is called once per line of the GFF and passed a series of
-parsed data items.  The items are:
+parsed data items that are stored into the hashref $fields.  The keys are:
 
- $ref          reference sequence
- $source       annotation source
- $method       annotation method
- $start        annotation start
- $stop         annotation stop
- $score        annotation score (may be undef)
- $strand       annotation strand (may be undef)
- $phase        annotation phase (may be undef)
- $group_class  class of annotation's group (may be undef)
- $group_name   ID of annotation's group (may be undef)
- $target_start start of target of a similarity hit
- $target_stop  stop of target of a similarity hit
- $notes        array reference of text items to be attached
+ ref          reference sequence
+ source       annotation source
+ method       annotation method
+ start        annotation start
+ stop         annotation stop
+ score        annotation score (may be undef)
+ strand       annotation strand (may be undef)
+ phase        annotation phase (may be undef)
+ group_class  class of annotation's group (may be undef)
+ group_name   ID of annotation's group (may be undef)
+ target_start start of target of a similarity hit
+ target_stop  stop of target of a similarity hit
+ attributes   array reference of attributes, each of which is a [tag=>value] array ref
 
 =cut
 
@@ -1083,20 +1186,23 @@ sub load_gff_line {
   defined(my $typeid  = $self->get_table_id('ftype', $gff->{method} => $gff->{source})) or return;
   defined(my $groupid = $self->get_table_id('fgroup',$gff->{gname}  => $gff->{gclass})) or return;
 
-  my $result = $s->{insert_data}->execute($gff->{ref},
-					  $gff->{start},$gff->{stop},
-					  $typeid,
-					  $gff->{score},$gff->{strand},$gff->{phase},
-					  $groupid,
-					  $gff->{tstart},$gff->{tstop});
+  my $result = $s->{sth}{insert_data}->execute($gff->{ref},
+					       $gff->{start},$gff->{stop},
+					       $typeid,
+					       $gff->{score},$gff->{strand},$gff->{phase},
+					       $groupid,
+					       $gff->{tstart},$gff->{tstop});
 
   warn $dbh->errstr,"\n" and return unless $result;
 
-  my $fid = $dbh->{mysql_insertid} 
+  my $fid = $dbh->{mysql_insertid}
     || $self->get_feature_id($gff->{ref},$gff->{start},$gff->{stop},$typeid,$groupid);
 
-  if (my $notes = $gff->{notes}) {
-    $s->{insert_fnote}->execute($fid,$_) foreach @$notes;
+
+  # insert attributes
+  foreach (@{$gff->{attributes}}) {
+    defined(my $attribute_id = $self->get_table_id('fattribute',$_->[0])) or return;
+    $s->{sth}{insert_fattribute_value}->execute($fid,$attribute_id,$_->[1]);
   }
 
   if ( (++$s->{counter} % 1000) == 0) {
@@ -1136,9 +1242,8 @@ sub finish_load {
   my $dbh = $self->features_db or return;
   $dbh->do('UNLOCK TABLES') if $self->lock_on_load;
 
-  foreach (qw(lookup_type insert_type lookup_group insert_group insert_data)) {
-    next unless defined $self->{load_stuff}{$_};
-    $self->{load_stuff}{$_}->finish;
+  foreach (keys %{$self->{load_stuff}{sth}}) {
+    $self->{load_stuff}{sth}{$_}->finish;
   }
 
   my $counter = $self->{load_stuff}{counter};
@@ -1149,7 +1254,7 @@ sub finish_load {
 =head2 get_table_id
 
  Title   : get_table_id
- Usage   : $integer = $db->get_table_id($table,$id1,$id2)
+ Usage   : $integer = $db->get_table_id($table,@ids)
  Function: get the ID of a group or type
  Returns : an integer ID or undef
  Args    : none
@@ -1170,28 +1275,28 @@ deficiencies in mysql's INSERT syntax.
 #'
 # get the object ID from a named table
 sub get_table_id {
-  my $self  = shift;
-  my $table = shift;
-  my ($id1,$id2) = @_;
-  my $s = $self->{load_stuff};
+  my $self   = shift;
+  my $table  = shift;
+  my @ids    = @_;
+  my $id_key = join ':',@ids;
+
+  my $s   = $self->{load_stuff};
+  my $sth = $s->{sth};
   my $dbh = $self->features_db;
 
-  $id1 ||= '';
-  $id2 ||= '';
+  unless (defined($s->{$table}{$id_key})) {
 
-  unless (defined($s->{$table}{$id1,$id2})) {
-
-    if ( (my $result = $s->{"lookup_$table"}->execute($id1,$id2)) > 0) {
-      $s->{$table}{$id1,$id2} = ($s->{"lookup_$table"}->fetchrow_array)[0];
+    if ( (my $result = $sth->{"lookup_$table"}->execute(@ids)) > 0) {
+      $s->{$table}{$id_key} = ($sth->{"lookup_$table"}->fetchrow_array)[0];
     } else {
-      $s->{"insert_$table"}->execute($id1,$id2)
-	&& ($s->{$table}{$id1,$id2} = $s->{"insert_$table"}->insertid);
+      $sth->{"insert_$table"}->execute(@ids)
+	&& ($s->{$table}{$id_key} = $sth->{"insert_$table"}->insertid);
     }
   }
 
-  my $id = $s->{$table}{$id1,$id2};
+  my $id = $s->{$table}{$id_key};
   unless (defined $id) {
-    warn "No $table id for $id1:$id2 ",$dbh->errstr," Record skipped.\n";
+    warn "No $table id for $id_key ",$dbh->errstr," Record skipped.\n";
     return;
   }
   $id;

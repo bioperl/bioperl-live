@@ -491,6 +491,8 @@ The named parameter form gives you control over a few options:
              where it will be faster to filter by feature type first
              and then by position, rather than vice versa.
 
+  -attributes a hashref containing a set of attributes to match
+
   -iterator  Whether to return an iterator across the features.
 
 -merge is a boolean flag that controls whether the adaptor's
@@ -500,6 +502,15 @@ If -iterator is true, then the method returns a single scalar value
 consisting of a Bio::SeqIO object.  You can call next_seq() repeatedly
 on this object to fetch each of the features in turn.  If iterator is
 false or absent, then all the features are returned as a list.
+
+The -attributes argument is a hashref containing one or more
+attributes to match against:
+
+  -attributes => { Gene => 'abc-1',
+                   Note => 'confirmed' }
+
+Attribute matching is simple string matching, and multiple attributes
+are ANDed together.
 
 =cut
 
@@ -511,10 +522,10 @@ sub features {
   return $self->factory->overlapping_features(@args);
 }
 
-=head2 feature_stream
+=head2 get_feature_stream
 
  Title   : features
- Usage   : $stream = $s->feature_stream(@args)
+ Usage   : $stream = $s->get_feature_stream(@args)
  Function: get a stream of features that overlap this segment
  Returns : a Bio::SeqIO::Stream-compliant stream
  Args    : see below
@@ -522,7 +533,7 @@ sub features {
 
 This is the same as features(), but returns a stream.  Use like this:
 
- $stream = $s->feature_stream('exon');
+ $stream = $s->get_feature_stream('exon');
  while (my $exon = $stream->next_seq) {
     print $exon->start,"\n";
  }

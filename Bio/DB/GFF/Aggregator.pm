@@ -222,22 +222,31 @@ sub disaggregate {
   my $sub_features = Bio::DB::GFF->parse_types($self->get_part_names);
   my $main_feature = Bio::DB::GFF->parse_types($self->get_main_name);
 
-  my (@synthetic_types,@unchanged);
-  foreach (@$types) {
-    my ($method,$source) = @$_;
-    if (lc($method) eq $self->get_method) { # e.g. "transcript"
-      push @synthetic_types,map { [$_->[0],$_->[1] || $source] } @$sub_features,@$main_feature;
+  if (@$types) {
+    my (@synthetic_types,@unchanged);
+    foreach (@$types) {
+      my ($method,$source) = @$_;
+      if (lc($method) eq $self->get_method) { # e.g. "transcript"
+	push @synthetic_types,map { [$_->[0],$_->[1] || $source] } @$sub_features,@$main_feature;
+      }
+      else {
+	push @unchanged,$_;
+      }
     }
-    else {
-      push @unchanged,$_;
-    }
+    # remember what we're searching for
+    $self->components(\@synthetic_types);
+    $self->passthru(\@unchanged);
+    @$types = (@unchanged,@synthetic_types);
   }
 
-  # remember what we're searching for
-  $self->components(\@synthetic_types);
-  $self->passthru(\@unchanged);
-  @$types = (@unchanged,@synthetic_types);
-  return @synthetic_types > 0;
+  # we get here when no search types are listed
+  else {
+    my @stypes = map { [$_->[0],$_->[1]] }  @$sub_features,@$main_feature;
+    $self->components(\@stypes);
+    $self->passthru(undef);
+  }
+
+  return $self->components > 0;
 }
 
 
@@ -293,6 +302,7 @@ sub aggregate {
 	push @{$aggregates{$feature->group}{subparts}},$feature;
       }
       push @result,$feature if $passthru && $passthru->($feature);
+
     } else {
       push @result,$feature;
     }
@@ -434,7 +444,7 @@ sub match_sub {
 sub passthru_sub {
   my $self    = shift;
   my $factory = shift;
-  my $passthru = $self->passthru() or return;  # saved from disaggregate call
+  my $passthru = $self->passthru() or return;
   return unless @$passthru;
   return $factory->make_match_sub($passthru);
 }
