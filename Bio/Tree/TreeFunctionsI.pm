@@ -396,4 +396,42 @@ sub is_paraphyletic{
    return 0;
 }
 
+
+=head2 reroot
+
+ Title   : reroot_tree
+ Usage   : $tree->reroot($node);
+ Function: Reroots a tree either making a new node the root
+ Returns : 1 on success, 0 on failure
+ Args    : Bio::Tree::NodeI that is in the tree
+
+o
+=cut
+
+sub reroot {
+    my ($self,$node) = @_;
+    unless (defined $node && $node->isa("Bio::Tree::NodeI")) {
+	$self->warn("Must provide a valid Bio::Tree::NodeI when rerooting");
+	return 0;
+    }
+    # Still need to validate that $node is actually in the tree....
+    if( $node->is_Leaf() ) {
+	$self->warn("Asking to root with a leaf, will use the leaf's ancestor");
+	$node = $node->ancestor;
+    }
+
+    my $current_root = $self->get_root_node;
+    my $old_ancestor = $node->ancestor;
+
+    if( ! $old_ancestor ) {
+	$self->warn("Node requested for reroot is already the root node!");
+	return 0;
+    }
+
+    $old_ancestor->remove_Descendent($node);
+    $node->add_Descendent($current_root);
+    $self->set_root_node($node);
+    return 1;
+}
+
 1;

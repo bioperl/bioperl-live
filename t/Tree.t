@@ -15,7 +15,7 @@ BEGIN {
     }
     use Test;
     use vars qw($TESTCOUNT);
-    $TESTCOUNT = 9;
+    $TESTCOUNT = 10;
     plan tests => $TESTCOUNT;
 }
 
@@ -68,7 +68,6 @@ ok(! $tree->is_monophyletic(-nodes   => \@mixgroup,
 my $in = new Bio::TreeIO(-format => 'newick',
 			 -fh     => \*DATA);
 $tree = $in->next_tree;
-
 my ($a,$b,$c,$d) = ( $tree->find_node('A'),
 			   $tree->find_node('B'),
 			   $tree->find_node('C'),
@@ -103,8 +102,16 @@ ok(  $tree->is_paraphyletic(-nodes => [$a,$b,$c],
 
 ok(  $tree->is_paraphyletic(-nodes => [$a,$f,$e],
 			   -outgroup => $i), 1);
-    
+
+
+# test for rerooting the tree
+$tree  = $in->next_tree;
+my $outtre = new Bio::TreeIO(-format => 'newick');
+$a = $tree->find_node('A');
+$tree->reroot($a->ancestor);
+ok($tree->get_root_node, $a->ancestor);
 
 __DATA__
 (D,(C,(A,B)));
 (I,((D,(C,(A,B))),(E,(F,G))));
+(((A,B),C),D);
