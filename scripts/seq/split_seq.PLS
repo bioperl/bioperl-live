@@ -1,6 +1,6 @@
 #!perl -w
 use strict;
-# $Id: split_seq.PLS,v 1.1 2003-05-12 14:58:16 birney Exp $
+# $Id: split_seq.PLS,v 1.2 2004-10-27 19:38:03 jason Exp $
 
 
 =head1 NAME
@@ -43,21 +43,20 @@ email or the web:
 use Bio::SeqIO;
 use Getopt::Long;
 
-my ($format,$chunk,$do_file);
-
+my ($format,$chunk,$do_file) = ('fasta');
 $chunk = 10000;
 $do_file =0;
 
 GetOptions(
 	   'chunk:i' => \$chunk,
-	   'format:s'  => \$format,
-	   'file' => \$do_file
+	   'f|format:s'  => \$format,
+	   'i|file' => \$do_file
 	);
 
 my $oformat = 'fasta';
 
 # this implicity uses the <> file stream
-my $seqin = Bio::SeqIO->new( -format => $format); 
+my $seqin = Bio::SeqIO->new( -format => $format, -fh => \*ARGV);
 my $seqout = Bio::SeqIO->new( -format => $oformat, -file => ">-" );
 
 
