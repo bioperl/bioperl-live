@@ -14,7 +14,6 @@
   (insert "#!/usr/local/bin/perl\n"))
 
 
-
 (defun bioperl-object-start (perl-object-name perl-caretaker-name caretaker-email)
   "Places standard bioperl object notation headers and footers"
   (interactive "sName of Object: \nsName of caretaker: \nsEmail: ")
@@ -24,12 +23,12 @@
   (insert "=head1 SYNOPSIS\n\nGive standard usage here\n\n")
   (insert "=head1 DESCRIPTION\n\nDescribe the object here\n\n")
   (insert "=head1 FEEDBACK\n\n=head2 Mailing Lists\n\n")
-  (insert "User feedback is an integral part of the evolution of this\nand other Bioperl modules. Send your comments and suggestions preferably\n to the Bioperl mailing list.\nYour participation is much appreciated.\n\n")
-  (insert "  bioperl-l@bioperl.org          - General discussion\n  http://bioperl.org/MailList.shtml             - About the mailing lists\n\n")
-  (insert "=head2 Reporting Bugs\n\nReport bugs to the Bioperl bug tracking system to help us keep track\n the bugs and their resolution.\n Bug reports can be submitted via email or the web:\n\n")
+  (insert "User feedback is an integral part of the evolution of this and other\nBioperl modules. Send your comments and suggestions preferably to\nthe Bioperl mailing list.  Your participation is much appreciated.\n\n")
+  (insert "  bioperl-l@bioperl.org            - General discussion\nhttp://bioperl.org/MailList.shtml  - About the mailing lists\n\n")
+  (insert "=head2 Reporting Bugs\n\nReport bugs to the Bioperl bug tracking system to help us keep track\nof the bugs and their resolution. Bug reports can be submitted via\nemail or the web:\n\n")
   (insert "  bioperl-bugs@bioperl.org\n  http://bioperl.org/bioperl-bugs/\n\n")
   (insert "=head1 AUTHOR - " perl-caretaker-name "\n\nEmail " caretaker-email "\n\nDescribe contact details here\n\n")
-  (insert "=head1 APPENDIX\n\nThe rest of the documentation details each of the object methods. Internal methods are usually preceded with a _\n\n=cut\n\n")
+  (insert "=head1 APPENDIX\n\nThe rest of the documentation details each of the object methods.\nInternal methods are usually preceded with a _\n\n=cut\n\n")
   (insert "\n# Let the code begin...\n\n")
   (insert "\npackage " perl-object-name ";\n")
   (insert "use vars qw(@ISA);\n")
