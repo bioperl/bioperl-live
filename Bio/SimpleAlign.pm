@@ -1275,6 +1275,7 @@ sub _consensus_iupac {
 	$string =~ s/S/GC/;
 	$string =~ s/K/GT/;
 	$string =~ s/Y/CT/;
+	$string =~ s/R/AG/;
 	$string =~ s/W/AT/;
 	$string =~ s/M/AC/;
     }
