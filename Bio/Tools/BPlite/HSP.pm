@@ -240,10 +240,10 @@ sub frame {
     my ($self, $frame) = @_;
     if( defined $frame ) {
 	if( $frame == 0 ) {
-	    $frame = '.';
+	    $frame = undef;
 	} elsif( $frame !~ /^([+-])?([1-3])/ ) {	    
 	    $self->warn("Specifying an invalid frame ($frame)");
-	    $frame = '.';
+	    $frame = undef;
 	} else { 
 	    if( ($1 eq '-' && $self->subject->strand >= 0) ||
 		($1 eq '+' && $self->subject->strand <= 0) ) {

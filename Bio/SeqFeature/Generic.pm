@@ -300,7 +300,7 @@ sub score {
  Usage   : $frame = $feat->frame()
            $feat->frame($frame)
  Function: get/set on frame information
- Returns : 0,1,2
+ Returns : 0,1,2, '.'
  Args    : none if get, the new value if set
 
 
@@ -309,14 +309,12 @@ sub score {
 sub frame {
   my ($self,$value) = @_;
 
-  if ( defined $value || !defined $self->{'_gsf_frame'} ) {
-       $value = 0 unless defined($value);
-       if ( $value != 0 && $value != 1 && $value != 2 ) {
+  if ( defined $value ) {
+       if ( $value !~ /^[0-2]$/ ) {
 	   $self->throw("'$value' is not a valid frame");
        }
        $self->{'_gsf_frame'} = $value;
   }
-
   return $self->{'_gsf_frame'};
 }
 
