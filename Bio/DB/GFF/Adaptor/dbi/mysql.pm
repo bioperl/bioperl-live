@@ -16,7 +16,7 @@ use Bio::DB::GFF::Adaptor::dbi;
 use Bio::DB::GFF::Util::Rearrange; # for rearrange()
 use vars qw($VERSION @ISA);
 @ISA = qw(Bio::DB::GFF::Adaptor::dbi);
-$VERSION = '0.40';
+$VERSION = '0.50';
 
 use constant MAX_SEGMENT => 100_000_000;  # the largest a segment can get
 use constant DEFAULT_CHUNK => 2000;
@@ -379,7 +379,12 @@ sub get_abscoords {
 sub make_features_by_name_where_part {
   my $self = shift;
   my ($class,$name) = @_;
-  return ("fgroup.gclass=? AND fgroup.gname=?",$class,$name);
+  if ($name =~ /\*/) {
+    $name =~ s/\*/%/g;
+    return ("fgroup.gclass=? AND fgroup.gname LIKE ?",$class,$name);
+  } else {
+    return ("fgroup.gclass=? AND fgroup.gname=?",$class,$name);
+  }
 }
 
 sub make_features_by_attribute_where_part {
