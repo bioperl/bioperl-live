@@ -119,14 +119,13 @@ sub _generic_seqfeature {
 						     -splittype => $combotype);
 	# we need to make sub features
 	my $loc = $fth->loc;
-	while ( $loc =~ /(\<?\d+[ \W]{1,3}\>?\d+)/g ) {
-	    my $next_loc = $1;
-
+	$loc =~ s/^$combotype\((\S+)\)/$1/;
+	foreach my $next_loc ( split(/\s*,\s*/, $loc) ) {
 	    if( my $location = $fth->_parse_loc($sf,$next_loc)) {
 		print "got ", join(",", ($location->start(), 
 					 $location->end(), 
 					 $location->strand())), 
-		" for $next_loc\n" if( $fth->verbose > 1 );
+		" for $next_loc\n" if( $fth->verbose > 0 );
 		$splitlocation->add_sub_Location($location);
 	    } else {
 		$fth->warn("unable to parse location successfully out of " .
@@ -140,8 +139,7 @@ sub _generic_seqfeature {
     # Parse simple locations and fuzzy locations
     else {
 	$sf->source_tag($source);
-	$sf->primary_tag($fth->key);
-
+	$sf->primary_tag($fth->key);	
 	if( my $location = $fth->_parse_loc($sf,$fth->loc()) ) {
 	    $sf->location($location);
 	} else {
@@ -224,22 +222,22 @@ sub _parse_loc {
     
     $strand = ( $locstr =~ /complement/ ) ? -1 : 1;
     my ($delim) = '';
-    if($locstr =~ /^\s*(\w+[A-Za-z])?\(?([\<\>\?]?\d+[\<\>\?]?)([.\^\s]{1,3})([\<\>\?]?\d+[\<\>\?]?)[,;\" ]*([A-Za-z]\w*)?\"?\)?\s*$/) {
-#	print "1 = \"$1\", 2 = \"$2\", 3 = \"$3\", 4 = \"$4\"\n";
+    if($locstr =~ /^\s*(\w+[A-Za-z])?\({0,2}([\<\>\?]?\d+[\<\>\?]?([\.\^]\d+)?)\)?([.\^\s]{1,3})\(?([\<\>\?]?\d+[\<\>\?]?([\.\^]\d+)?)\)?\){0,2}?[,;\" ]*([A-Za-z]\w*)?\"?\)?\s*$/) {
+#	print "1 = \"$1\", 2 = \"$2\", 3 = \"$3\", 4 = \"$4\", 5 = \"$5\", 6 = \"$6\", 7 = \"$7\"\n";
 	$fea_type = $1 if $1;
 	$start = $2;
-	$delim = $3;
-	$end   = $4;
-	$tagval = $5 if $5;
+	$delim = $4;
+	$end   = $5;
+	$tagval = $7 if $7;
     } 
     # like before, but only one number
-    elsif($locstr =~ /^\s*(\w+[A-Za-z])?\(?([\<\>\?]?\d+[\<\>\?]?)[,;\" ]*([A-Za-z]\w*)?\"?\)?\s*$/) {
+    elsif($locstr =~ /^\s*(\w+[A-Za-z])?\(?([\<\>\?]?\d+[\<\>\?]?([\.\^]\d+)?)\)?[,;\" ]*([A-Za-z]\w*)?\"?\)?\s*$/) {
 #	print "1 = \"$1\", 2 = \"$2\", 3 = \"$3\"\n";	
 	$fea_type = $1 if $1;
 	$start = $end = $2;
-	$tagval = $3 if $3;
+	$tagval = $4 if $4;
     } else  {
-	print "$locstr didn't match\n" if( $self->verbose > 1);
+	$self->warn( "$locstr didn't match\n") if( $self->verbose > 0);
 	return 0;
     }
     
@@ -254,7 +252,6 @@ sub _parse_loc {
 	push @args, ('-loc_type' => $delim); 
     } 
     my $location = $type->new(@args);
-    
     if(defined($tagval) && $tagval ne '') {
 	if(! $fea_type) {
 	    $fea_type = "note";
