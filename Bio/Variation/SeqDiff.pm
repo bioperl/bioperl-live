@@ -912,7 +912,7 @@ sub alignment {
 	    
 	
 	    #translate
-	    my $tr = new Bio::Tools::CodonTable (-id => $mut->translation_table);
+	    my $tr = new Bio::Tools::CodonTable ('-id' => $mut->translation_table);
 	    my $apos =  $mut->AAChange->start;
 	    my $rseqori;
 	    my $rseqmut;
