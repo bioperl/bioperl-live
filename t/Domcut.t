@@ -63,20 +63,20 @@ ok my $tool = Bio::WebAgent->new(-verbose =>$verbose);
 
 
 ######## test using PrimarySeq object ##############
-my $seq = Bio::PrimarySeq->new(-seq => 'MSADQRWRQDSQDSFGDSFDGDPPPPPPPPFGDSFGDGFSDRSRQPPPPPPPPPPPPPDQRS',
-                               -display_id => 'test2');
+my $seq = Bio::PrimarySeq->new(-seq        => 'MSADQRWRQDSQDSFGDSFDGDPPPPPPPPFGDSFGDGFSDRSRQPPPPPPPPPPPPPDQRS',
+						       -display_id => 'test2');
 
 ok $tool = Bio::Tools::Analysis::Protein::Domcut->new( -seq=>$seq);
 ok $tool->run ();
 exit if $tool->status eq 'TERMINATED_BY_ERROR';
-ok my $raw = $tool->result('');
+ok my $raw    = $tool->result('');
 ok my $parsed = $tool->result('parsed');
 ok ($parsed->[23]{'score'}, '-0.209');
-my @res = $tool->result('Bio::SeqFeatureI');
+my @res       = $tool->result('Bio::SeqFeatureI');
 if (scalar @res > 0) {
     ok 1;
 } else {
-    skip('No network access - could not connect to NetPhos server', 1);
+    skip('No network access - could not connect to Domcut server', 1);
 }
 ok my $meta = $tool->result('meta');
 
@@ -89,7 +89,7 @@ if (!$METAERROR) { #if Bio::Seq::Meta::Array available
 ########## test using Bio::Seq object ##############
 ok my $tool2 = Bio::WebAgent->new(-verbose =>$verbose);
 
-ok my $seq2 = Bio::Seq->new(-seq => 'MSADQRWRQDSQDSFGDSFDGDPPPPPPPPFGDSFGDGFSDRSRQDQRS',
+ok my $seq2  = Bio::Seq->new(-seq => 'MSADQRWRQDSQDSFGDSFDGDPPPPPPPPFGDSFGDGFSDRSRQDQRS',
 						-display_id => 'test2');
 
 ok $tool2 = Bio::Tools::Analysis::Protein::Domcut->new( -seq=>$seq2->primary_seq);

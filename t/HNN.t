@@ -18,7 +18,7 @@ BEGIN {
     }
     use Test;
 
-    $NUMTESTS = 11;
+    $NUMTESTS = 13;
     plan tests => $NUMTESTS;
 
     eval {
@@ -51,6 +51,7 @@ exit 0 if $ERROR ==  1;
 use Data::Dumper;
 
 use Bio::PrimarySeq;
+use Bio::Seq;
 require Bio::Tools::Analysis::Protein::HNN;
 
 ok 1;
@@ -69,20 +70,19 @@ ok $tool = Bio::Tools::Analysis::Protein::HNN->new( -seq=>$seq,
                                                   );
 ok $tool->run ();
 exit if $tool->status eq 'TERMINATED_BY_ERROR';
-ok my $raw = $tool->result('');
+ok my $raw    = $tool->result('');
 ok my $parsed = $tool->result('parsed');
 ok ($parsed->[0]{'coil'}, '1000');
-my @res = $tool->result('Bio::SeqFeatureI');
+my @res       = $tool->result('Bio::SeqFeatureI');
 if (scalar @res > 0) {
     ok 1;
 } else {
     skip('No network access - could not connect to HNN server', 1);
 }
 ok my $meta = $tool->result('meta');
-
+ok my $seqobj = Bio::Seq->new(-primary_seq => $meta, display_id=>"a");
+ok $seqobj->add_SeqFeature($tool->result('Bio::SeqFeatureI'));
 if (!$METAERROR) { #if Bio::Seq::Meta::Array available
-    #meta sequence contains data...
-    #but not available thru method call...??
     ok ( $meta->named_submeta_text('HNN_helix',1,2), '0 111');
-    ok ($meta->seq, 'MSADQRWRQDSQDSFGDSFDGDPPPPPPPPFGDSFGDGFSDRSRQDQRS');
+    ok ( $meta->seq, 'MSADQRWRQDSQDSFGDSFDGDPPPPPPPPFGDSFGDGFSDRSRQDQRS');
 }
