@@ -97,6 +97,7 @@ use Symbol();
            -result_factory => Object implementing Bio::Factory::ResultFactoryI
            -hit_factory    => Object implementing Bio::Factory::HitFactoryI
            -writer         => Object implementing Bio::SearchIO::SearchWriterI
+
 =cut
 
 sub new {
@@ -272,6 +273,7 @@ sub next_result {
  Args    : Bio::Search:Result::ResultI object,
          : plus any other arguments for the Writer
  Throws  : Bio::Root::Exception if a Writer has not been set.
+
 =cut
 
 sub write_result {
@@ -296,6 +298,7 @@ sub write_result {
  Args    : Bio::SearchIO::SearchWriterI object (when setting)
  Throws  : Bio::Root::Exception if a non-Bio::SearchIO::SearchWriterI object
            is passed in.
+
 =cut
 
 sub writer {
@@ -372,6 +375,7 @@ sub result_factory {
  Args    : none
  Comments: Bio::SearchIO does not implement this method. It throws a NotImplemented
            exception
+
 =cut
 
 sub default_hit_factory_class {
