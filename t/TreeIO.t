@@ -181,20 +181,22 @@ ok(($adhy->get_tag_values('E'))[0], '1.1.1.1');
 $treeio = new Bio::TreeIO(-format => 'lintree',
 			      -file   => Bio::Root::IO->catfile
 			      (qw(t data crab.njb)));
-$tree = $treeio->next_tree;
+my (@leaves, $node);
+while( $tree = $treeio->next_tree ) {
 
-ok(ref($tree) && $tree->isa('Bio::Tree::TreeI'));
-
-@nodes = $tree->get_nodes;
-
-my @leaves = $tree->get_leaf_nodes;
-ok(@leaves, 13);
-ok(@nodes, 24);
-my ($node) = $tree->find_node(-id => '18');
-ok($node);
-ok($node->id, '18');
-ok($node->branch_length, '0.030579');
-ok($node->bootstrap, 998);
+    ok(ref($tree) && $tree->isa('Bio::Tree::TreeI'));
+    
+    @nodes = $tree->get_nodes;
+    
+    @leaves = $tree->get_leaf_nodes;
+    ok(@leaves, 13);
+    ok(@nodes, 24);
+    ($node) = $tree->find_node(-id => '18');
+    ok($node);
+    ok($node->id, '18');
+    ok($node->branch_length, '0.030579');
+    ok($node->bootstrap, 998);
+}
 
 $treeio = new Bio::TreeIO(-format => 'lintree',
 			   -file   => Bio::Root::IO->catfile
