@@ -9,7 +9,7 @@
 
 =head1 NAME
 
-Bio::Biblio::IO::medline - A converter of XML files wit MEDLINE citations
+Bio::Biblio::IO::medlinexml - A converter of XML files with MEDLINE citations
 
 =head1 SYNOPSIS
 
@@ -17,7 +17,7 @@ Do not use this object directly, it is recommended to access it and use
 it through the I<Bio::Biblio::IO> module:
 
   use Bio::Biblio:IO;
-  my $io = new Bio::Biblio::IO (-format => 'medline');
+  my $io = new Bio::Biblio::IO (-format => 'medlinexml');
 
 =head1 DESCRIPTION
 
@@ -84,7 +84,6 @@ use strict;
 
 use Bio::Biblio::IO;
 use XML::Parser;
-use Data::Dumper;   # just for debugging TBD: remove!
 
 @ISA = qw(Bio::Biblio::IO);
 
@@ -452,8 +451,8 @@ sub handle_char {
 
 =head2 VERSION and Revision
 
- Usage   : print $Bio::Biblio::IO::medline::VERSION;
-           print $Bio::Biblio::IO::medline::Revision;
+ Usage   : print $Bio::Biblio::IO::medlinexml::VERSION;
+           print $Bio::Biblio::IO::medlinexml::Revision;
 
 =cut
 
@@ -526,7 +525,8 @@ sub handle_start {
 	    $$peek{'descriptorMajorTopic'} = "Y";
 	}
 	    
-    } elsif ($e eq 'MedlineCitation') {
+    } elsif ($e eq 'MedlineCitation' ||
+	     $e eq 'NCBIArticle') {
 	my %p = ( 'type' => 'MedlineCitation' );
 	$p{'owner'} = $attrs{'Owner'} if $attrs{'Owner'};
 	$p{'status'} = $attrs{'Status'} if $attrs{'Status'};
@@ -668,14 +668,7 @@ sub handle_end {
 	#
 	# Here we finally have the whole citation ready.
 	#
-	my $citation = pop @ObjectStack;
-	$citation = $Convert->convert ($citation) if defined $Convert;
-
-	if ($Callback) {
-	    &$Callback ($citation);
-	} else {
-	    push (@Citations, $citation);
-	}
+	&_process_citation (pop @ObjectStack);
 
     #
     # ERROR: if we are here, there was an unexpected element
@@ -688,7 +681,17 @@ sub handle_end {
 
 }
 
+# what to do when we have the whole $citation ready
+sub _process_citation {
+    my ($citation) = @_;
+    $citation = $Convert->convert ($citation) if defined $Convert;
 
+    if ($Callback) {
+	&$Callback ($citation);
+    } else {
+	push (@Citations, $citation);
+    }
+}
 
 # add $element into an array named $key to the top object at @ObjectStack;
 # if $element is empty, take it from @PCDataStack

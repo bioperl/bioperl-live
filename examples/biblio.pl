@@ -25,11 +25,11 @@ sub get_usage {
     return <<"END_OF_USAGE";
 Usage:
    biblio.pl [vh]
-   biblio.pl [bcgOpq]         [-l <URL>]
-   biblio.pl [abcdDeknmOpqrs] [-l <URL>] -i <collection-ID>
-   biblio.pl [abcdDeknmOpqrs] [-l <URL>] - -find <keywords> [-attrs <attrs>]...
-   biblio.pl [Vq]             [-l <URL>]
-   biblio.pl [Oq]             [-f <filename>]
+   biblio.pl [bcFgOpq]         [-l <URL>]
+   biblio.pl [abcdDeFknmOpqrs] [-l <URL>] -i <collection-ID>
+   biblio.pl [abcdDeFknmOpqrs] [-l <URL>] - -find <keywords> [-attrs <attrs>]...
+   biblio.pl [Vq]              [-l <URL>]
+   biblio.pl [FOq]             [-f <filename>]
 
 What service to contact:
     -l <URL> ... a location where a Bibliographic Query service is
@@ -59,6 +59,10 @@ What query collection to use:
                             note that this script is a bit stupid
                             regarding quoted keywords, or keywords
                             containing commans... TBD better
+
+    what XML format is used for citations:
+    -Fm     ... MEDLINE (default)
+    -Fp     ... PubMed
 
 What to do (with the query collection):
     -g <id>    ... get citation <id>
@@ -175,8 +179,8 @@ BEGIN {
     # specialized options
     use vars qw/ $opt_a $opt_b $opt_c $opt_d $opt_D $opt_e $opt_k $opt_n $opt_p $opt_r $opt_s /;
     # options with a value
-    use vars qw/ $opt_f $opt_g $opt_i $opt_l $opt_m $opt_O $opt_V /;
-    my $switches = 'fgilmOV';   # these are switches taking an argument (a value)
+    use vars qw/ $opt_f $opt_F $opt_g $opt_i $opt_l $opt_m $opt_O $opt_V /;
+    my $switches = 'fFgilmOV';   # these are switches taking an argument (a value)
     getopt ($switches);
 
     # help wanted?
@@ -359,13 +363,27 @@ sub convert_and_print {
 	return;
     }
 
-    # -Or means to return a raw hash, everything else means to return
-    # Biblio objects
     my @args;
-    push (@args, ('-result' => 'raw')) if $opt_O =~ /^r/;
 
-    # an argument to specify that we want parse XML (which we always want)
-    push (@args, ('-format' => 'medlinexml'));
+    # -Or means to return a raw hash, everything else means to return
+    # Biblio objects - but there may be more types of them depending
+    # also on -F (which format the citation is in)
+    if ($opt_O =~ /^r/) {
+	push (@args, ('-result' => 'raw'));
+    } elsif ($opt_F and $opt_F =~ /^p/) {
+	push (@args, ('-result' => 'pubmed2ref'));
+    }
+    # default: -result => 'medline2ref'
+
+    # an argument to specify that we want parse XML (which we always want
+    # but there can be various XML formats)
+    if ($opt_F and $opt_F =~ /^p/) {
+	push (@args, ('-format' => 'pubmedxml'));
+    } else {
+	push (@args, ('-format' => 'medlinexml'));
+    }
+
+    # where to take the citation from
     if ($opt_f) {
 	push (@args, ('-file' => $citation));
     } else {
