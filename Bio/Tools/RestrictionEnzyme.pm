@@ -1,23 +1,159 @@
-#-----------------------------------------------------------------------------
-# PACKAGE : Bio::Tools::RestrictionEnzyme.pm
-# AUTHOR  : Steve Chervitz (sac@bioperl.org)
-# CREATED : 3 June 1997
-# REVISION: $Id$
-# STATUS  : Alpha
-#            
-# MODIFIED: 
-#  sac --- Tue Nov 24 04:39:59 1998
-#    * Removed -terse setting in constructor (deprecated).
-#  sac --- Mon Jul 13 15:35:08 1998
-#    * Fixed parameter lists (added hyphens to tags).
-#  sac --- Mon Nov 17 13:57:24 1997
-#    * Added a few new restriction enzymes to the %RE hash.
-#    * Fixed bug in _make_custom() (now strips white space from RE site).
+#------------------------------------------------------------------
+# $Id$
 #
-# Copyright (c) 1997-8 Steve Chervitz. All Rights Reserved.
-#           This module is free software; you can redistribute it and/or 
-#           modify it under the same terms as Perl itself.
-#-----------------------------------------------------------------------------
+# BioPerl module Bio::Tools::RestrictionEnzyme
+#
+# Cared for by Steve Chervitz <sac@bioperl.org>
+#
+# You may distribute this module under the same terms as perl itself
+#------------------------------------------------------------------
+
+## POD Documentation:
+
+=head1 NAME
+
+Bio::Tools::RestrictionEnzyme - Bioperl object for a restriction endonuclease (cuts DNA at specific locations)
+
+=head1 SYNOPSIS
+
+=head2 Object Creation
+
+    require Bio::Tools::RestrictionEnzyme;
+
+    ## Create a new object by name.
+
+    $re1 = new Bio::Tools::RestrictionEnzyme(-NAME =>'EcoRI');
+
+    ## Create a new object using special syntax
+    ## which specifies the enzyme name, recognition site, and cut position.
+    ## Used for enzymes not known to this module.
+
+    $re2 = new Bio::Tools::RestrictionEnzyme(-NAME =>'EcoRV--GAT^ATC', 
+				  	     -MAKE =>'custom');
+
+    ## Get a list of names of all available restriction enzymes 
+    ## known to this module.
+
+    @all = $re->available_list();
+
+    ## Get the names of restriction enzymes that have 6 bp 
+    ## recognition sequences
+
+    @sixcutters = $re->available_list(6);
+
+
+=head1 INSTALLATION
+
+This module is included with the central Bioperl distribution:
+
+   http://bio.perl.org/Core/Latest
+   ftp://bio.perl.org/pub/DIST
+
+Follow the installation instructions included in the README file.
+
+=head1 DESCRIPTION
+
+The Bio::Tools::RestrictionEnzyme.pm module encapsulates generic data and 
+methods for using restriction endonucleases for in silico restriction
+analysis of DNA sequences.
+
+=head2 Considerations
+
+This module is a precursor for a more full featured version that may do such things as
+download data from online databases such as REBase http://www.neb.com/rebase/.
+Thus, there is currently no functionality for obtaining data about commercial
+availability for a restriction enzyme.
+
+At some point in the future, it may make sense to derive RestrictionEnzymes from
+a class such as Bio::Enzyme or Bio::Prot::Protein (neither of which now exist) 
+so that more data about the enzyme and related information can be easily obtained.
+
+This module is currently in use at 
+
+ http://genome-www.stanford.edu/Sacch3D/analysis/
+
+
+=head2 Digesting on Runs of N
+
+To digest a sequence on runs of N's in the sequence. Here's what you can do:
+
+    $re_n  = new Bio::Tools::RestrictionEnzyme(-name=>'N--NNNNN', -make=>'custom');
+
+Specify the number of N's you want to match in the -name parameter. 
+So the above example will recognize and cut at runs of 5 Ns.
+ If you wanted to cut at runs of 10 N's, you would use 
+
+     -name => 'N--NNNNNNNNNN'
+
+Note that you must use a specific number of N's, you cannot use a regexp to digest at N+ for example,
+ because the actual number of N's at each site are not recorded when the sequence is analyzed. 
+So cut_locations( ) wouldn't be correct. 
+
+=head1 EXAMPLES
+
+See the script examples/restriction.pl in the Bioperl distribution.
+
+=head1 DEPENDENCIES 
+
+Bio::Tools::RestrictionEnzyme.pm is a concrete class that inherits from B<Bio::Root::Root>
+and uses by delegation B<Bio::PrimarySeq>.
+
+=head1 FEEDBACK
+
+=head2 Mailing Lists 
+
+User feedback is an integral part of the evolution of this and other Bioperl modules.
+Send your comments and suggestions preferably to one of the Bioperl mailing lists.
+Your participation is much appreciated.
+
+   bioperl-l@bioperl.org             - General discussion
+   http://bioperl.org/MailList.shtml - About the mailing lists
+
+=head2 Reporting Bugs
+
+Report bugs to the Bioperl bug tracking system to help us keep track the bugs and 
+their resolution. Bug reports can be submitted via email or the web:
+
+    bioperl-bugs@bio.perl.org                   
+    http://bio.perl.org/bioperl-bugs/           
+
+=head1 AUTHOR
+
+Steve Chervitz, E<lt>sac@bioperl.orgE<gt>
+
+=head1 COPYRIGHT
+
+Copyright (c) 1997-2002 Steve A. Chervitz. All Rights Reserved.
+This module is free software; you can redistribute it and/or 
+modify it under the same terms as Perl itself.
+
+=head1 SEE ALSO
+
+  Bio::Root::Root    - Base class.
+  Bio::PrimarySeq    - Lightweight sequence object.
+
+  http://bio.perl.org/  - Bioperl Project Homepage
+
+=cut
+
+#
+##
+###
+#### END of main POD documentation.
+###
+##
+#'
+
+
+=head1 APPENDIX
+
+Methods beginning with a leading underscore are considered private
+and are intended for internal use by this module. They are
+B<not> considered part of the public interface and are described here
+for documentation purposes only.
+
+=cut
+
 
 package Bio::Tools::RestrictionEnzyme;
 use strict;
@@ -25,14 +161,14 @@ use strict;
 use Bio::Root::Root;
 use Exporter;
 
-use vars qw (@ISA @EXPORT_OK %EXPORT_TAGS $ID $VERSION @RE_available $Revision);
+use vars qw (@ISA @EXPORT_OK %EXPORT_TAGS $ID $version @RE_available $Revision);
 
 @ISA         = qw(Bio::Root::Root Exporter);
 @EXPORT_OK   = qw(@RE_available);
 %EXPORT_TAGS = ( std => [qw(@RE_available)] );
 
 $ID = 'Bio::Tools::RestrictionEnzyme';
-$VERSION = 0.04;
+$version = 0.04;
 $Revision = '$Id$';  #'
 
 # Generated from REBASE version 802 (strider format), dated Jan 29 98
@@ -197,135 +333,6 @@ my %RE = (
 
 @RE_available = sort keys %RE;
 
-## POD Documentation:
-
-=head1 NAME
-
-Bio::Tools::RestrictionEnzyme.pm - Bioperl object for a restriction endonuclease object.
-
-=head1 SYNOPSIS
-
-=head2 Object Creation
-
-    require Bio::Tools::RestrictionEnzyme;
-
-    ## Create a new object by name.
-
-    $re1 = new Bio::Tools::RestrictionEnzyme(-NAME =>'EcoRI');
-
-    ## Create a new object using special syntax
-    ## which specifies the enzyme name, recognition site, and cut position.
-    ## Used for enzymes not known to this module.
-
-    $re2 = new Bio::Tools::RestrictionEnzyme(-NAME =>'EcoRV--GAT^ATC', 
-				  	     -MAKE =>'custom');
-
-
-=head1 INSTALLATION
-
-This module is included with the central Bioperl distribution:
-
-   http://bio.perl.org/Core/Latest
-   ftp://bio.perl.org/pub/DIST
-
-Follow the installation instructions included in the README file.
-
-=head1 DESCRIPTION
-
-The Bio::Tools::RestrictionEnzyme.pm module encapsulates generic data and 
-methods for using restriction endonucleases for in silico restriction
-analysis of DNA sequences.
-
-=head2 Considerations
-
-This module is a precursor for a more full featured version that may do such things as
-download data from online databases such as REBase http://www.neb.com/rebase/.
-Thus, there is currently no functionality for obtaining data about commercial
-availability for a restriction enzyme.
-
-At some point in the future, it may be best to derive RestrictionEnzymes from
-a class such as Bio::Enzyme.pm or Bio::Prot::Protein.pm so that more data about 
-the enzyme and related information can be easily obtained.
-
-This module is currently in use at 
-
- http://genome-www.stanford.edu/Sacch3D/analysis/
-
-B<This module is at an early stage of development and is not yet ready for general use. API documentation is presently incomplete.>
-
-
-=head1 DEPENDENCIES 
-
-Bio::Tools::RestrictionEnzyme.pm is a concrete class that inherits from B<Bio::Root::Object.pm>
-and uses by delegation B<Bio::Seq.pm>.
-
-=head1 FEEDBACK
-
-=head2 Mailing Lists 
-
-User feedback is an integral part of the evolution of this and other Bioperl modules.
-Send your comments and suggestions preferably to one of the Bioperl mailing lists.
-Your participation is much appreciated.
-
-   bioperl-l@bioperl.org             - General discussion
-   http://bioperl.org/MailList.shtml - About the mailing lists
-
-=head2 Reporting Bugs
-
-Report bugs to the Bioperl bug tracking system to help us keep track the bugs and 
-their resolution. Bug reports can be submitted via email or the web:
-
-    bioperl-bugs@bio.perl.org                   
-    http://bio.perl.org/bioperl-bugs/           
-
-=head1 AUTHOR
-
-Steve Chervitz, E<lt>sac@bioperl.orgE<gt>
-
-=head1 VERSION
-
-Bio::Tools::RestrictionEnzyme.pm, 0.04
-
-=head1 COPYRIGHT
-
-Copyright (c) 1997-8 Steve Chervitz. All Rights Reserved.
-This module is free software; you can redistribute it and/or 
-modify it under the same terms as Perl itself.
-
-=head1 SEE ALSO
-
-  Bio::Root::Object.pm    - Base class.
-  Bio::Seq.pm             - Lightweight sequence object.
-
-  http://bio.perl.org/Projects/modules.html  - Online module documentation
-  http://bio.perl.org/Projects/Blast/        - Bioperl Blast Project     
-  http://bio.perl.org/                       - Bioperl Project Homepage
-
-=cut
-
-#
-##
-###
-#### END of main POD documentation.
-###
-##
-#'
-
-
-=head1 APPENDIX
-
-Methods beginning with a leading underscore are considered private
-and are intended for internal use by this module. They are
-B<not> considered part of the public interface and are described here
-for documentation purposes only.
-
-=cut
-
-
-#######################################################
-#               CONSTRUCTOR/DESTRUCTOR                #
-#######################################################
-
 
 =head1 new
 
@@ -334,10 +341,10 @@ for documentation purposes only.
            : superclass constructor last (Bio:Seq.pm).
  Returns   : n/a
  Argument  : Parameters passed to new()
- Comments  : The process of creating a new SeqPattern.pm object
-           : ensures that the pattern string is untained.
+ Comments  : A RestrictionEnzyme object manages its recognition sequence
+           : as a Bio::PrimarySeq object.
 
-See Also   : L<_make_custom()|_make_custom>, L<_make_standard()|_make_standard>, L<Bio::Seq::_initialize()|Bio::Seq>
+See Also   : L<_make_custom>(), L<_make_standard>(), B<Bio::PrimarySeq.pm::_initialize()>
 
 =cut
 
@@ -355,28 +362,28 @@ sub new {
     } else {
 	%data = $self->_make_standard($name);
     }
-    $self->{'_seq'} = new Bio::Seq(%data, 
+    $self->{'_seq'} = new Bio::PrimarySeq(%data, 
 				   -VERBOSE =>$self->verbose,
-				   -alphabet => 'dna',
+ 				   -alphabet => 'dna',
 				   );
     return $self;
 }
 
 
-=head1 _make_standard
-
- Title     : _make_standard
- Usage     : n/a; automatically called by _initialize()
- Purpose   : Permits custom RE object construction from name.
-           : 'EcoRI'.
- Returns   : Hash containing named parameters for Bio::Seq.pm constructor.
- Argument  : String containing string with special syntax.
- Throws    : Exception if the requested enzyme name is unavailable.
-           : NOTE: Case sensitive.
-
-See Also   : L<Bio::Seq::_initialize()|Bio::Seq>, L<_make_custom()|_make_custom>
-
-=cut
+#=head1 _make_standard
+#
+# Title     : _make_standard
+# Usage     : n/a; automatically called by _initialize()
+# Purpose   : Permits custom RE object construction from name.
+#	    : 'EcoRI'.
+# Returns   : Hash containing named parameters for Bio::PrimarySeq.pm constructor.
+# Argument  : String containing string with special syntax.
+# Throws    : Exception if the requested enzyme name is unavailable.
+#	    : NOTE: Case sensitive.
+#
+#See Also   : L<Bio::PrimarySeq::_initialize()|Bio::PrimarySeq>, L<_make_custom()|_make_custom>
+#
+#=cut
 
 #------------------
 sub _make_standard {
@@ -386,7 +393,7 @@ sub _make_standard {
     $name =~ s/^\s+|\s+$//g;
  
     $self->is_available($name) || 
-	$self->throw("Unavailable or undefined enzyme: $name (Note: CASE SENSITIVE)",
+	$self->throw("Unavailable or undefined enzyme: $name (Note: CASE SENSITIVE)\n" .
 		     "Currently available enzymes: \n@RE_available\n");
 
     my @data = split( ' ', $RE{$name});
@@ -399,21 +406,21 @@ sub _make_standard {
 }
 
 
-=head1 _make_custom
-
- Title     : _make_custom
- Usage     : n/a; automatically called by _initialize()
- Purpose   : Permits custom RE object construction from strings 
-           : such as 'EcoRI--G^AATTC' as the name of the enzyme.
- Returns   : Hash containing named parameters for Bio::Seq.pm constructor.
- Argument  : String containing string with special syntax.
- Throws    : Exception if the string has bad syntax.
-           : Warning if the string did not specify cut position.
-           :         Places cut site after 5'-most position.
-
-See Also   : L<Bio::Seq::_initialize()|Bio::Seq>
-
-=cut
+#=head1 _make_custom
+#
+# Title     : _make_custom
+# Usage     : n/a; automatically called by _initialize()
+# Purpose   : Permits custom RE object construction from strings 
+#	    : such as 'EcoRI--G^AATTC' as the name of the enzyme.
+# Returns   : Hash containing named parameters for Bio::PrimarySeq.pm constructor.
+# Argument  : String containing string with special syntax.
+# Throws    : Exception if the string has bad syntax.
+#	    : Warning if the string did not specify cut position.
+#	    :         Places cut site after 5'-most position.
+#
+#See Also   : L<Bio::PrimarySeq::_initialize()|Bio::PrimarySeq>
+#
+#=cut
 
 #'
 #-----------------
@@ -432,7 +439,7 @@ sub _make_custom {
     ## Determine the cuts_after point.
     my $cut_index = index $parts[1], '^';
     if( $cut_index <0) { $cut_index = 0;
-			 $self->warn("Unknown cut position for $parts[0]. Assuming position 0",
+			 $self->warn("Unknown cut position for $parts[0]. Assuming position 0\n" . 
 				     "Use carat to specify cut position (e.g., G^AATTC)"); }
     $self->{'_cuts_after'} =  $cut_index;
 
@@ -446,9 +453,9 @@ sub _make_custom {
 =head1 cuts_after
 
  Title     : cuts_after
- Usage     : $re->cuts_after();
- Purpose   : Sets/Gets the position of cleavage relative to the 5' end.
- Example   : $num = $re->cuts_after() 
+ Usage     : $num = $re->cuts_after();
+ Purpose   : Sets/Gets an integer indicating the position of cleavage 
+           : relative to the 5' end of the recognition sequence.
  Returns   : Integer
  Argument  : Integer (optional)
  Throws    : Exception if argument is non-numeric.
@@ -468,8 +475,7 @@ sub cuts_after {
     my $self = shift; 
     if(@_) { my $num = shift;
 	     if($num == 0 and $num ne '0') {
-		 $self->throw("Bad number: $num", 
-			      "The cuts_after position be an integer.");
+		 $self->throw("The cuts_after position be an integer ($num)");
 	     }
 	     $self->{'_cuts_after'} = $num;
 	 }
@@ -497,9 +503,11 @@ sub site {
     my $self = shift;
     my $seq = $self->seq;
     my $cuts_after = $self->cuts_after;
-    if    (!$cuts_after)                { return '^' . $seq->subseq(1, $seq->length); }
-    elsif ($cuts_after == $seq->length) { return $seq->subseq(1, $seq->length) . '^'; }
-    else                                { return $seq->subseq(1, $cuts_after) . '^' . $seq->subseq($cuts_after + 1, $seq->length); }
+    if($cuts_after > 0) {
+        return $seq->subseq(1, $self->cuts_after).'^'.$seq->subseq($self->cuts_after+1, $seq->length); 
+    } else {
+        return $seq->seq;
+    }
 }
     
 
@@ -509,7 +517,7 @@ sub site {
 
  Title     : seq
  Usage     : $re->seq();
- Purpose   : Get the Bio::Seq.pm-derived object representing 
+ Purpose   : Get the Bio::PrimarySeq.pm-derived object representing 
            : the recognition sequence
  Returns   : String
  Argument  : n/a
@@ -533,7 +541,7 @@ sub seq    {  my $self = shift; $self->{'_seq'}; }
  Returns   : String
  Argument  : n/a
  Throws    : n/a
- Comments  : Delegates to the Bio::Seq.pm-derived object.
+ Comments  : Delegates to the Bio::PrimarySeq.pm-derived object.
 
 See Also   : L<seq()|seq>, L<revcom()|revcom>
 
@@ -554,8 +562,8 @@ sub string {  my $self = shift; $self->{'_seq'}->seq; }
  Returns   : String
  Argument  : n/a
  Throws    : n/a
- Comments  : Delegates to the Bio::Seq.pm-derived object, but needs to get
-             out the string from it, as now Bio::Seq->revcom makes a Bio::Seq
+ Comments  : Delegates to the Bio::PrimarySeq.pm-derived object, but needs to get
+             out the string from it, as now Bio::PrimarySeq->revcom makes a Bio::PrimarySeq
              object
 
 See Also   : L<seq()|seq>, L<string()|string>
@@ -575,9 +583,9 @@ sub revcom {  my $self = shift; $self->{'_seq'}->revcom->seq(); }
  Purpose   : Conceptually cut or "digest" a DNA sequence with the given enzyme.
  Example   : $string = $re->cut_seq(<sequence object>); 
  Returns   : List of strings containing the resulting fragments.
- Argument  : Reference to a Bio::Seq.pm-derived object.
+ Argument  : Reference to a Bio::PrimarySeq.pm-derived object.
  Throws    : Exception if argument is not an object.
-           : (Does not yet verify that it is derived from Bio::Seq.pm.)
+           : (Does not yet verify that it is derived from Bio::PrimarySeq.pm.)
  Comments  : Strategy relies on Perl's built-in split() function.
            : Since split removes the recognition pattern, the resulting
            : fragments must be repaired after split()-ing.
@@ -595,7 +603,7 @@ sub cut_seq {
     ref $seqObj || $self->throw( "Can't cut sequence. Missing or invalid object",
 				 "seqObj: $seqObj");
     
-#    print "$ID: cutting sequence.\n";
+#    print STDERR "$ID: cutting sequence.\n";
 
     my $cuts_after = $self->{'_cuts_after'};
     my ($site_3prime_seq, $site_5prime_seq);
@@ -611,16 +619,18 @@ sub cut_seq {
 	$site_5prime_seq = $reSeq->subseq($self->{'_cuts_after'}+1, $reSeq->length);
     }
 
-#    print "3' site: $site_3prime_seq\n5' site: $site_5prime_seq";<STDIN>;
+#    print STDERR "3' site: $site_3prime_seq\n5' site: $site_5prime_seq\n";
 
     my(@re_frags);
     my $seq = $reSeq->seq;
-    $seq =~ s/N/\./g;
-    $seq =~ s/R/\[AG\]/g;
-    $seq =~ s/Y/\[CT\]/g;
-    $seq =~ s/S/\[GC\]/g;
-    $seq =~ s/W/\[AT\]/g;
-    if(!$self->palindromic) {
+    if( $self->name ne 'N' ) {
+        $seq =~ s/N/\./g;
+        $seq =~ s/R/\[AG\]/g;
+        $seq =~ s/Y/\[CT\]/g;
+        $seq =~ s/S/\[GC\]/g;
+        $seq =~ s/W/\[AT\]/g;
+    }
+    if(!$self->palindromic and $self->name ne 'N') {
 	my $revseq = $reSeq->revcom;
 	$revseq =~ s/N/\./g;
 	$revseq =~ s/R/\[AG\]/g;
@@ -640,10 +650,9 @@ sub cut_seq {
     my($i);
     my $numFrags = scalar @re_frags;
     for($i=0; $i<$numFrags; $i++) {
-	$i < $#re_frags  and $re_frags[$i] = $re_frags[$i].$site_3prime_seq;
-	$i > 0           and $re_frags[$i] = $site_5prime_seq.$re_frags[$i];
+        $i < $#re_frags  and $re_frags[$i] = $re_frags[$i].$site_3prime_seq;
+        $i > 0           and $re_frags[$i] = $site_5prime_seq.$re_frags[$i];
     }
-
     @re_frags;
 }
 
@@ -655,7 +664,7 @@ sub cut_seq {
            : an input sequence. 
  Example   : my $locations = $re->annotate_seq($seqObj);
  Returns   : Arrayref of starting locations where enzyme would cut 
- Argument  : Reference to a Bio::SeqI-derived sequence object.
+ Argument  : Reference to a Bio::PrimarySeqI-derived sequence object.
  Throws    : n/a
  Comments  : 
 
@@ -669,11 +678,13 @@ sub cut_locations {
     my $site = $self->string;
     my $seq = $seqobj->seq;
     study($seq);
-    $site =~ s/N|X/\./g;
-    $site =~ s/R/\[AG\]/g;
-    $site =~ s/Y/\[CT\]/g;
-    $site =~ s/S/\[GC\]/g;
-    $site =~ s/W/\[AT\]/g;
+    if( $self->name ne 'N' ) {
+        $site =~ s/N|X/\./g;
+        $site =~ s/R/\[AG\]/g;
+        $site =~ s/Y/\[CT\]/g;
+        $site =~ s/S/\[GC\]/g;
+        $site =~ s/W/\[AT\]/g;
+    }
     my @locations;
     while( $seq =~ /($site)/g ) {
         # $` is preceding string before pattern so length returns position
@@ -681,6 +692,7 @@ sub cut_locations {
     }
     return \@locations;
 }    
+
 
 
 =head1 annotate_seq
@@ -691,7 +703,7 @@ sub cut_locations {
            : an input sequence. Uses HTML.
  Example   : $annot_seq = $re->annotate_seq($seqObj);
  Returns   : String containing the annotated sequence.
- Argument  : Reference to a Bio::Seq.pm-derived sequence object.
+ Argument  : Reference to a Bio::PrimarySeq.pm-derived sequence object.
  Throws    : n/a
  Comments  : The annotated sequence must be viewed with a web
            : browser to see the location(s) of the recognition site(s).
@@ -706,7 +718,7 @@ sub annotate_seq {
     my $site = $self->string;
     my $seq = $seqObj->seq;
 
-    $site =~ s/N|X/\./g;
+    $site =~ s/N|X/\./g unless $self->name eq 'N';
     $site =~ s/R/\[AG\]/g;
     $site =~ s/Y/\[CT\]/g;
     $site =~ s/S/\[GC\]/g;
@@ -833,48 +845,7 @@ sub available_list {
 }
 
 1;
-__END__
+
 	
-#########################################################################
-#  End of class 
-#########################################################################
 
-=head1 FOR DEVELOPERS ONLY
 
-=head2 Data Members
-
-Information about the various data members of this module is provided for those 
-wishing to modify or understand the code. Two things to bear in mind: 
-
-=over 4
-
-=item 1 Do NOT rely on these in any code outside of this module. 
-
-All data members are prefixed with an underscore to signify that they are private.
-Always use accessor methods. If the accessor doesn't exist or is inadequate, 
-create or modify an accessor (and let me know, too!). 
-
-=item 2 This documentation may be incomplete and out of date.
-
-It is easy for this documentation to become obsolete as this module is still evolving. 
-Always double check this info and search for members not described here.
-
-=back
-
-An instance of Bio::Tools::RestrictionEnzyme.pm is a blessed reference to a hash
-containing all or some of the following fields:
-
- FIELD          VALUE
- ------------------------------------------------------------------------
- _seq         : A Bio::Seq.pm-derived object.
-              :
- _site        : String containing the recognition sequence.
-              :
- _cuts_after  : Integer indicating the cleavage position relative to the 
-              : 5' end of the recognition sequence.
-
- INHERITED DATA MEMBERS:
-
- _name      : (From Bio::Bio::Root::Object.pm) String containing name of the enzyme.
-
-=cut
