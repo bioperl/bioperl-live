@@ -62,7 +62,7 @@ sub new {
   } elsif (my $text = $args{-text}) {
     $self->parse_text($text);
   }
-  $fh->close or warn "Error closing file: $!" if $fh;
+  close($fh) or warn "Error closing file: $!" if $fh;
   $self;
 }
 
