@@ -499,7 +499,7 @@ sub _gff2_string{
 
    my $valuestr;
    my @all_tags = $feat->all_tags;
-   if (@all_tags) { # only play this game if it is worth playing...
+   if (@all_tags) {  # only play this game if it is worth playing...
        $str .= "\t"; # my interpretation of the GFF2
                      # specification suggests the need 
                      # for this additional TAB character...??
@@ -516,7 +516,8 @@ sub _gff2_string{
 	                                         # anything other than valid 
 	                                         # tag/value characters, then 
 	                                         # quote it
-	       $value = "\"\"" unless $value; # if it is completely empty, 
+	       $value = "\"\"" unless defined $value; 
+                                              # if it is completely empty, 
 	                                      # then just make empty double 
 	                                      # quotes
 	       $valuestr .=  $value . " "; # with a trailing space in case 
