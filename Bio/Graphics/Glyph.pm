@@ -450,6 +450,8 @@ sub layout {
     = $self->height + $self->pad_top + $self->pad_bottom unless @parts;
 
   my $bump_direction = $self->bump;
+  my $bump_limit = $self->option('bump limit') || -1;
+
 
   $_->layout foreach @parts;  # recursively lay out
 
@@ -469,11 +471,16 @@ sub layout {
     for my $g ($self->layout_sort(@parts)) {
 
       my $pos = 0;
+      my $bumplevel = 0;
       my $left   = $g->left;
       my $right  = $g->right;
       my $height = $g->{layout_height};
 
       while (1) {
+
+	# stop bumping if we've gone too far down
+	last if ($bump_limit > 0 ? $bumplevel++ > $bump_limit : 0);
+
 	# look for collisions
 	my $bottom = $pos + $height;
 
@@ -507,10 +514,12 @@ sub layout {
   elsif(abs($bump_direction) == 2) {  # abs(bump) == 2 -- simple bump algorithm
     my $pos = 0;
     my $last;
+    my $bumplevel = 0;
     for my $g ($self->layout_sort(@parts)) {
       next if !defined($last);
-      $pos += $bump_direction > 0 ? $last->{layout_height} + BUMP_SPACING 
-                                  : - ($g->{layout_height}+BUMP_SPACING);
+      $pos += $bump_direction > 0 ? $last->{layout_height} + BUMP_SPACING
+                                  : - ($g->{layout_height}+BUMP_SPACING)
+				    if ($bump_limit > 0 ? $bumplevel++ < $bump_limit : 1);
       $g->move(0,$pos);
     } continue {
       $last = $g;
@@ -539,9 +548,12 @@ sub layout {
     }
 
     my $pos = 0;
+    my $bumplevel = 0;
     for (my $j = 1; $j < @overlaps ; $j++) {
       $pos += $bump_direction > 0 ? $overlaps[$j-1]->[0]->{layout_height} + BUMP_SPACING
-         : - ($overlaps[$j-1]->[0]->{layout_height} + BUMP_SPACING);
+                                 : - ($overlaps[$j-1]->[0]->{layout_height} + BUMP_SPACING)
+          if ($bump_limit > 0 ? $bumplevel++ < $bump_limit : 1);
+
       for my $h (@{$overlaps[$j]}) {
        $h->move(0, $pos);
       }
