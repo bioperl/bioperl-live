@@ -1,5 +1,5 @@
 #!perl -w
-# $Id: pairwise_kaks.PLS,v 1.7 2004-07-06 13:53:56 jason Exp $
+# $Id: pairwise_kaks.PLS,v 1.8 2005-01-24 19:52:35 jason Exp $
 use strict;
 # Author Jason Stajich <jason@bioperl.org>
 
@@ -103,7 +103,7 @@ if( $aln_prog =~ /clus/i ) {
     exit(0);
 }
 unless( $aln_factory->executable ) {
-    warn("Could not find the executable for $aln_prog, make sure you have installed it and have either set ".\U$aln_prog."DIR or it is in your PATH");
+    warn("Could not find the executable for $aln_prog, make sure you have installed it and have either set ".uc($aln_prog)."DIR or it is in your PATH");
     exit(0);
 }
 
