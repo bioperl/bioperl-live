@@ -136,7 +136,7 @@ sub _generic_seqfeature {
 
        # we need to make sub features
        my $loc = $fth->loc;
-       while( $loc =~ /(\d+)\.\.(\d+)/g ) {
+       while( $loc =~ /\<?(\d+)\.\.\>?(\d+)/g ) {
 	   my $start = $1;
 	   my $end   = $2;
 	   #print "Processing $start-$end\n";
@@ -156,7 +156,7 @@ sub _generic_seqfeature {
        if( $fth->loc =~ /^(\d+)$/ ) {
 	   $lst = $len = $1;
        } else {
-	   $fth->loc =~ /(\d+)\.\.(\d+)/ || do {
+	   $fth->loc =~ /\<?(\d+)\.\.\>?(\d+)/ || do {
 	       #$annseq->throw("Weird location line [" . $fth->loc . "] in reading GenBank");
 	       last;
 	   };

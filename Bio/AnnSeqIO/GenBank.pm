@@ -758,7 +758,7 @@ sub _read_FTHelper_GenBank {
    my ($key,$loc,$out);
 
    $_ = $$buffer;
-   if( $$buffer =~ /^\s+ (\S+)\s+(\S+)/ ) {
+   if( $$buffer =~ /^\s+(\S+)\s+(\S+)/ ) {
        $key = $1;
        $loc = $2;
        if ($$buffer !~ /^\s+\//) {
@@ -767,7 +767,7 @@ sub _read_FTHelper_GenBank {
 	       /^\s+\S+\s+\S+/ && last; # trigger for next feature
 	       /\s+\// && last; # trigger for qualifier
 	       /^BASE/ && last; # trigger for end of feature table
-	       /\s+(\S+)/ && do {$loc .= $1;};
+	       /\s+\>?(\S+)/ && do {$loc .= $1;};
 	       
 	   }
        }

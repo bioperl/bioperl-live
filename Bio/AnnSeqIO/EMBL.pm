@@ -771,6 +771,7 @@ sub _read_FTHelper_EMBL {
        # Get location line
        /^FT\s+(\S+)/ or $out->throw("Weird location line in EMBL feature table: '$_'");
        $loc .= $1;
+       print STDERR "\n$loc\n";XS
    }
 
    $loc =~ s/<//;
