@@ -15,7 +15,7 @@ BEGIN {
 	use lib 't';
     }
     use Test;
-    plan tests => 14;
+    plan tests => 15;
 }
 use Bio::PrimarySeq;
 
@@ -55,3 +55,6 @@ $aa = $seq->translate(undef, undef, undef, undef, 1);
 
 # tests for non-Methionin initiator codon (AGT) coding for M
 ok $aa->seq, 'MVAST', "Translation: ". $aa->seq;
+
+# test for character '?' in the sequence string
+ok $seq->seq('TTGGTGGCG?CAACT'), 'TTGGTGGCG?CAACT';
