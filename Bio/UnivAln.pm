@@ -2449,7 +2449,7 @@ sub _seqs {
                # by class ``UNIVERSAL'' to test whether
                # the object passed to us is usable, i.e. has methods ary(), etc
                    ##print "\nWriting sequence[$rrowsel2->[$counter] || $counter] ",$seq->ary;
-           $self->{'seqs'}[$index] = [ $seq->ary() ];
+           $self->{'seqs'}[$index] = [ split(//, $seq->seq()) ];
            $self->{'row_ids'}[$index] = $seq->id();
            $self->{'row_descs'}[$index] = $seq->desc();
         } else {
