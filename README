@@ -43,6 +43,9 @@ o System requirements
   - Additional perl module and application dependencies listed at
     http://bioperl.org/Core/external.shtml
 
+  - Additional information using Bioperl with MacOS can be 
+    found at http://bioperl.org/Core/mac-bioperl.html
+
   * Note that most modules will work with earlier versions of perl. 
     The only ones that will not are Bio::SimpleAlign.pm and 
     the Bio::Index::* modules. If you don't need these modules

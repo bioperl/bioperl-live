@@ -1,4 +1,4 @@
-# $Id: PLATFORMS,v 1.7.2.1 2001-03-02 18:31:25 jason Exp $
+# $Id: PLATFORMS,v 1.7.2.2 2001-03-04 01:05:52 dag Exp $
 
 Perl general comments:
 
@@ -27,7 +27,7 @@ Comments: none
 Machine : Digital Unix
 Compiler: cc
 Perl    : 5.004
-Comments: Failure on GDB.t, possibly due to LWP cissues
+Comments: Failure on GDB.t, possibly due to LWP issues
 
 Machine : OpenBSD 2.8 i386
 Compiler: cc
@@ -60,9 +60,9 @@ Comments: Likely failure of Index.t (i.e., the modules in Bio/Index/),
 
 Machine : MacOS
 Compiler: --
-Perl    : MacPerl
+Perl    : MacPerl 5.004
 Comments: Issues and possible ways to fix them summarized by Todd Richmond
-          on the bioperl.org Wiki.
+          at http://bioperl.org/Core/mac-bioperl.html
 
 
 

@@ -1,4 +1,4 @@
-## $Id: bioperl.pod,v 1.10.2.1 2001-03-03 08:45:30 heikki Exp $
+## $Id: bioperl.pod,v 1.10.2.2 2001-03-04 01:05:52 dag Exp $
 
 ## Should contain general info about the distribution including
 ## links to all the various modules.
@@ -43,7 +43,7 @@ together sensibly.
 The intent of the bioperl development effort is to make reusable tools
 that aid people in creating their own site or job specific applications.
 
-The bio.perl.org (http://bio.perl.org) website also attempts to maintain 
+The bioperl.org (http://bioperl.org) website also attempts to maintain 
 links and archives of standalone bio-related perl tools that are not
 affiliated or related to the core bioperl effort. Check the site for
 useful code ideas and contribute your own if possible.
@@ -102,7 +102,7 @@ funded and we don't have a mission statement. We encourage
 collaborative code, in particular in perl. You can help us in many
 different ways, from just a simple statement about how you have used
 bioperl to do something interesting to contributing a whole new object
-heirarchy. See http://bio.perl.org for more information. Here are
+heirarchy. See http://bioperl.org for more information. Here are
 some ways of helping us
 
 =head2 Telling us you used it
@@ -121,13 +121,13 @@ anything useful.
 
 By writing a good script that uses bioperl you both show that bioperl
 is useful and probably save someone elsewhere writing it. If you
-contribute it to the 'script central' at http://bio.perl.org then other
+contribute it to the 'script central' at http://bioperl.org then other
 people can view and use it
 
 =head2 Find bugs!
 
 We know that there are bugs in there. If you find something which you are
-pretty sure is a problem, post a note to bioperl-bugs@bio.perl.org and
+pretty sure is a problem, post a note to bioperl-bugs@bioperl.org and
 we will get on it as soon as possible. (you can also access the bug
 system through the web pages).
 
@@ -234,9 +234,10 @@ Bioperl owes its early organizational support to its association with
 the award-winning VSNS-BCD BioComputing Courses; some students of the
 1996 course (Chris Dagdigian, Richard Resnick, Lew Gramer, Alessandro
 Guffanti, and others) have contributed code and commentary. Georg
-Fuellen, the VSNS-BCD chief organizer is one of the driving forces
-behind bioperl. Steve Brenner, who was an early adopter of Perl for
-bioinformatics provided some of the early work on bioperl.
+Fuellen, the VSNS-BCD chief organizer was one of the early driving forces
+behind bioperl. Steven Brenner, who was an early adopter of Perl for
+bioinformatics provided some of the early work on bioperl. Lincoln Stein
+has long provided guidance and code.
 
 Bioperl was then taken up by people developing code at the large
 genome centres. In particular at Stanford, Steve Chervitz at the
@@ -258,18 +259,15 @@ Wilkinson and David Block) and Biocorba (Jason Staijch, Brad Chapman
 and Alan Robinson) and finally Game-XML (Brad Marshall) provided more
 interoperability.
 
+Current server hardware for bioperl.org (and other open-bio.org hosted
+projects) was provided by Compaq Computer Corporation.  The donation 
+was facilitated by both the Pharmaceutical Sales and High Performance 
+Technical Computing (HPTC) groups.
 
-
-Jon Orwant at The Perl Journal (http://www.tpj.com) gave us permission
-to reprint Lincoln Stein's great article on our website. He also
-worked with the Perl Institute (http://www.perl.org) to arrange our
-perl.org DNS entry.
-
-Hardware for bio.perl.org was donated by Compaq.
-
-
-Bandwith and internet connectivity (ISDN) donated by Genetics
-Institute Inc. (http://www.genetics.com).
+The bioperl servers reside in Cambridge, Massachusetts USA with
+colocation facilities and internet bandwidth donated by Genetics
+Institute. In particular Dr. Steven Howes, Kenny Grant & 
+Rich DiNunno have made significant efforts on our behalf.
 
 
 =head1 COPYRIGHT
