@@ -95,14 +95,14 @@ use Bio::DB::NCBIHelper;
 
 @ISA = qw(Bio::DB::NCBIHelper);
 BEGIN {    
-    %PARAMSTRING = ( batch  => { 'DB'          => 'n',
+    %PARAMSTRING = ( 'batch'=> { 'DB'          => 'n',
 				 'REQUEST_TYPE'=> 'LIST_OF_GIS',
 				 'HTML'        => 'FALSE',
-			     'SAVETO'      => 'FALSE',
+			         'SAVETO'      => 'FALSE',
 				 'NOHEADER'    => 'TRUE' },
-		     single => { 'db'    => 'n',
-				 'form'  => '6',			     
-				 'title' => 'no',			     
+		     'single'=> { 'db'    => 'n',
+				  'form'  => '6',			     
+				  'title' => 'no',			     
 			     }
 		     );
 }
@@ -149,15 +149,15 @@ sub get_params {
  Args    : the id (as a string) of a sequence
  Throws  : "id does not exist" exception
 
-=head2 get_Stream_by_acc
+=head2 get_Seq_by_acc
 
-  Title   : get_Stream_by_acc
+  Title   : get_Seq_by_acc
   Usage   : $seq = $db->get_Seq_by_acc($acc);
-  Function: Gets a series of Seq objects by accession numbers
-  Returns : a Bio::SeqIO stream object
-  Args    : $ref : a reference to an array of accession numbers for
-                   the desired sequence entries
-  Note    : For GenBank, this just calls the same code for get_Stream_by_id()
+  Function: Gets a Seq object by accession numbers
+  Returns : a Bio::Seq object
+  Args    : the accession number as a string
+  Note    : For GenBank, this just calls the same code for get_Seq_by_id()
+  Throws  : "id does not exist" exception
 
 =head2 Routines implemented by Bio::DB::NCBIHelper
 
@@ -193,31 +193,12 @@ sub get_params {
 =head2 get_Stream_by_acc
 
   Title   : get_Stream_by_acc
-  Usage   : $seq = $db->get_Seq_by_acc($acc);
+  Usage   : $seq = $db->get_Stream_by_acc([$acc1, $acc2]);
   Function: Gets a series of Seq objects by accession numbers
   Returns : a Bio::SeqIO stream object
   Args    : $ref : a reference to an array of accession numbers for
                    the desired sequence entries
   Note    : For GenBank, this just calls the same code for get_Stream_by_id()
-
-=head2 request_format
-
- Title   : request_format
- Usage   : my $format = $self->request_format;
-           $self->request_format($format);
- Function: Get/Set sequence format retrieval
- Returns : string representing format
- Args    : $format = sequence format
-
-=head2 default_format
-
- Title   : default_format
- Usage   : my $format = $self->default_format
- Function: Returns default sequence format for this module
- Returns : string
- Args    : none
-
-=cut
 
 1;
 __END__
