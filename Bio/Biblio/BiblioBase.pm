@@ -98,12 +98,12 @@ sub AUTOLOAD {
 	my $ref_sub =
 	    sub {
 		my ($this, $new_value) = @_;
-		return $self->{$attr_name} unless defined $new_value;
+		return $this->{$attr_name} unless defined $new_value;
 
 		# here we continue with 'set' method
 		my ($newval_type) = ref ($new_value) || 'string';
 		my ($expected_type) = $attr_type || 'string';
-		$self->throw ("In method $AUTOLOAD, trying to set a value of type '$newval_type' but '$expected_type' is expected.")
+		$this->throw ("In method $AUTOLOAD, trying to set a value of type '$newval_type' but '$expected_type' is expected.")
 		    if $newval_type ne $expected_type;
 		$this->{$attr_name} = $new_value;
 		return $new_value;
@@ -111,8 +111,8 @@ sub AUTOLOAD {
 
         no strict 'refs'; 
         *{$AUTOLOAD} = $ref_sub;
-        $ref_sub->($self, $newval);
-        return;
+        use strict 'refs'; 
+        return $ref_sub->($self, $newval);
     }
 
     $self->throw ("No such method: $AUTOLOAD");

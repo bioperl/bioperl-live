@@ -31,16 +31,17 @@ ok(1);
 ## the print "1..x\n" in the BEGIN block to reflect the
 ## total number of tests that will be run. 
 
+use Data::Dumper;
+
 my($obj);
 ok $obj = new Bio::Biblio::Organisation (-name => 'EBI');
 ok $obj->name, 'EBI';
 ok $obj->name('EMBL-EBI'), 'EMBL-EBI';
-
 ok $obj = new Bio::Biblio::Service (-name => 'EBI');
 ok $obj->name, 'EBI';
 ok $obj->name('EMBL-EBI'), 'EMBL-EBI';
 
-ok $obj = new Bio::Biblio::Person (-name => 'Lehvaslaiho');
+ok $obj = new Bio::Biblio::Person (-lastname => 'Lehvaslaiho');
 ok $obj->lastname, 'Lehvaslaiho';
 ok $obj->lastname('Lehva'), 'Lehva';
 ok $obj->lastname(), 'Lehva';
