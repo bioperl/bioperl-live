@@ -241,7 +241,7 @@ QQ_ERROR_QQ
 open(CONF,'>bioperl.conf') or die "couldn't open bioperl.conf";
 
 print CONF<<'!NO!GROK!';
-VERSION		1.2
+VERSION		1.2.2
 AUTHORS		file://AUTHORS
 !NO!GROK!
 
