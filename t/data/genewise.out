@@ -1,0 +1,325 @@
+genewise $Name: not supported by cvs2svn $ (unreleased release)
+This program is freely distributed under a GPL. See source directory
+Copyright (c) GRL limited: portions of the code are from separate copyright
+
+Query protein:       SINFRUP00000067802
+Comp Matrix:         blosum62.bla
+Gap open:            12
+Gap extension:       2
+Start/End            default
+Target Sequence      Scaffold_2042.1
+Strand:              forward
+Start/End (protein)  default
+Gene Paras:          human.gf
+Codon Table:         codon.table
+Subs error:          1e-05
+Indel error:         1e-05
+Model splice?        model
+Model codon bias?    flat
+Model intron bias?   tied
+Null model           syn
+Algorithm            623
+
+genewise output
+Score 2054.68 bits over entire alignment
+Scores as bits over a synchronous coding model
+
+Warning: The bits scores is not probablistically correct for single seqs
+See WWW help for more info
+
+SINFRUP00000067    1 LDEDQLSHSSSRLSRSPLKGVKKAKIMQCKVTLLDNSDYTIDVE      
+                     LDEDQLSHSSSRLSRSPLKGVKKAKIMQCKVTLLDNSDYTIDVE      
+                     LDEDQLSHSSSRLSRSPLKGVKKAKIMQCKVTLLDNSDYTIDVE      
+Scaffold_2042.122265 cgggcttcaaacctatccaggaagaaactagatcgatgtaaggg      
+                     taaaatcaggggtcgcctagtaacattagatcttaacaactata      
+                     gcgcgactccttccgtcgaacgaggaggtacaggcccccattag      
+
+
+SINFRUP00000067   45                            KGARGQMLFDKVCEHLNLLERD 
+                                                KGARGQMLFDKVCEHLNLLERD 
+                                                KGARGQMLFDKVCEHLNLLERD 
+Scaffold_2042.122397 GTGAGCA  Intron 1       CAGaggagcactgagtgccatcgag 
+                     <0-----[22397  :  24223]-0>agcggatttaatgaatattaga 
+                                                aacgcagcttaatgtatacgac 
+
+
+SINFRUP00000067   67 YFGITYRDVENQK                           NWLDPSKEL 
+                     YFGITYRDVENQK                           NWLDPSKEL 
+                     YFGITYRDVENQK                           NWLDPSKEL 
+Scaffold_2042.124290 ttgaatagggacaGTAAATA  Intron 2       CAGatcgctagc 
+                     atgtcagataaaa<0-----[24329  :  24470]-0>agtaccaat 
+                     ctccatactgtgg                           tggtttagg 
+
+
+SINFRUP00000067   89 KKQIR                              GPWNFAFNVKFYPP 
+                     KKQIR                              GPWNFAFNVKFYPP 
+                     KKQIR          T:T[act]            GPWNFAFNVKFYPP 
+Scaffold_2042.124498 aacacAGTAAGCA  Intron 3       CAGCTgctatgtagattcc 
+                     aaatg <1-----[24514  :  24586]-1>  gcgatctatatacc 
+                     aggcg                              tcgctcctcgtcta 
+
+
+SINFRUP00000067  109 DPVQLAEDIT                              YYLCLQLRD 
+                     DPVQLAEDIT                              YYLCLQLRD 
+                     DPVQLAEDIT           R:R[agg]           YYLCLQLRD 
+Scaffold_2042.124631 gcgccgggaaAGGTAAGAG  Intron 4       CAGGttttcccag 
+                     actatcaatc  <2-----[24663  :  24816]-2> aatgtatga 
+                     ttcggtgcca                              ctgtgggat 
+
+
+SINFRUP00000067  129 DVVSGRLPCSFATHTVLGSYTVQSELGDYDHEELGSDYLSELRLAPNQT 
+                     DVVSGRLPCSFATHTVLGSYTVQSELGDYDHEELGSDYLSELRLAPNQT 
+                     DVVSGRLPCSFATHTVLGSYTVQSELGDYDHEELGSDYLSELRLAPNQT 
+Scaffold_2042.124845 gggtgccctttgacagcgttagctgcggtgcggcgagtcagcccgcaca 
+                     attcggtcgctccacttgcactacatgaaaaaatggaatgatgtccaac 
+                     tgtgctgccttcccatactcgggtagactctgggccccctggctaccgc 
+
+
+SINFRUP00000067  178 KELEEKVMELHKSY                              GMTPG 
+                     KELEEKVMELHKSY                              GMTPG 
+                     KELEEKVMELHKSY           K:K[aag]           GMTPG 
+Scaffold_2042.124992 agcggagagccaatAAGTTGGTT  Intron 5       CAGGgaacg 
+                     aataaattataaga  <2-----[25036  :  25161]-2> gtccg 
+                     agtgagcgaccgcc                              ggatg 
+
+
+SINFRUP00000067  198 EAEMHFLENAKKLSMYGVDLHHAK                          
+                     EAEMHFLENAKKLSMYGVDLHHAK                          
+                     EAEMHFLENAKKLSMYGVDLHHAK                          
+Scaffold_2042.125178 gggactcgagaactatgggcccgaGTAATAA  Intron 6         
+                     acatattaacaatctagtataaca<0-----[25250  :  26185]  
+                     aaggccgatcgggcgccttccctg                          
+
+
+SINFRUP00000067  222    DSEGVEIMLGVCSSGLLIYRDRLRINRFAWPKILKISYKRNNFYIK 
+                        DSEGVEIMLGVCSSGLLIYRDRLRINRFAWPKILKISYKRNNFYIK 
+                        DSEGVEIMLGVCSSGLLIYRDRLRINRFAWPKILKISYKRNNFYIK 
+Scaffold_2042.126183 TAGgtggggaacggttagccatagatcaaatgtcaacaattaaaattaa 
+                     -0>acagtatttgtgcggtttagagtgtagtcgcattatcaagaatata 
+                        ctgatgcggatcgccgtccacgggccgttgtaacgttcggtcccca 
+
+
+SINFRUP00000067  268 IRPGE                           FEQFESTIGFKLPNHRA 
+                     IRPGE                           FEQFESTIGFKLPNHRA 
+                     IRPGE                           FEQFESTIGFKLPNHRA 
+Scaffold_2042.126324 accggGTAATTA  Intron 7       CAGtgctgaaagtaccaccg 
+                     tgcga<0-----[26339  :  26457]-0>taatagctgtatcaagc 
+                     ctgcg                           tggtgcgctcgtctttt 
+
+
+SINFRUP00000067  290 AKRLWKVCVEHHTFFRQVMKEVL                           
+                     AKRLWKVCVEHHTFFRQVMKEVL                           
+                     AKRLWKVCVEHHTFFRQVMKEVL           G:G[ggg]        
+Scaffold_2042.126509 gaactagtggccattacgaaggcGGGTTGCCA  Intron 8        
+                     cagtgatgtaaacttgattaatt  <2-----[26580  :  26864] 
+                     cagcggctggtccccgacggggg                           
+
+
+SINFRUP00000067  313     LVSPEAPPKKFLSLGSKFRYSGRTQAQTRRASSQIIRPAPFFERS 
+                         LVSPEAPPKKFLSLGSKFRYSGRTQAQTRRASSQIIRPAPFFERS 
+                         LVSPEAPPKKFLSLGSKFRYSGRTQAQTRRASSQIIRPAPFFERS 
+Scaffold_2042.126862 CAGGcgtcggccaatcacgtatctagaacgcaccgatcaaacgcttgct 
+                     -2> ttccacccaattgtgcatgagggcacacggcgcattgcccttagc 
+                         agttggtaggcgttctgtcctcaggtgcagcctgctattgctgtc 
+
+
+SINFRUP00000067  359 SSKRYNMSRSLDG                              SSADGV 
+                     SSKRYNMSRSLDG                              SSADGV 
+                     SSKRYNMSRSLDG          D:D[gac]            SSADGV 
+Scaffold_2042.127001 taactaatcatggGGTAGGAT  Intron 9       AAGACatgggg 
+                     cgagaatcggtag <1-----[27041  :  27314]-1>  gccagt 
+                     ccacccgcttata                              ctttag 
+
+
+SINFRUP00000067  379 ARVKGNIITTVTPERKAEEENGEQEDAKNDAADKPDPAASSPLHQETKV 
+                     ARVKGNIITTVTPERKAEEENGEQEDAKNDAADKPDPAASSPLHQETKV 
+                     ARVKGNIITTVTPERKAEEENGEQEDAKNDAADKPDPAASSPLHQETKV 
+Scaffold_2042.127335 gcgagaaaaagacgaaggggaggcgggaaggggacgcggtaccccgaag 
+                     cgtagattcctccagacaaaagaaaacaaaccaacaccccgctaaacat 
+                     tatgatccctatagaaaaagcagggtcgctgacgactttcctccaaaga 
+
+
+SINFRUP00000067  428 TL                              DPLRSELSLPSSPISFT 
+                     TL                              DPLRSELSLPSSPISFT 
+                     TL          D:D[gac]            DPLRSELSLPSSPISFT 
+Scaffold_2042.127482 acGGTCAACC  Intron 10      CAGACgccctgctccttcatta 
+                     ct <1-----[27489  :  28576]-1>  actgcatctcccctctc 
+                     aa                              tccctgctccattcact 
+
+
+SINFRUP00000067  448 KIRRRRRENAHKRASSVSPGKSSTGRCRRQALADRKAALLDEQALLLVA 
+                     KIRRRRRENAHKRASSVSPGKSSTGRCRRQALADRKAALLDEQALLLVA 
+                     KIRRRRRENAHKRASSVSPGKSSTGRCRRQALADRKAALLDEQALLLVA 
+Scaffold_2042.128630 aaccacagagcacgttgacgaaaagctcccgcggcaggccggcgtccgg 
+                     atgggggaacaagccctgcgaggcgggggactcagaccttaaacttttc 
+                     aagggcggcatgaccactacgccagtcctgctttcatggatgacggcga 
+
+
+SINFRUP00000067  497 RKQRLEQGRNHGGTLFSFSLHLPDLSSVLDEDGYITFPDLSKMRFLPEC 
+                     RKQRLEQGRNHGGTLFSFSLHLPDLSSVLDEDGYITFPDLSKMRFLPEC 
+                     RKQRLEQGRNHGGTLFSFSLHLPDLSSVLDEDGYITFPDLSKMRFLPEC 
+Scaffold_2042.128777 cacacgcgaacggacttttccccgcttgtggggtaatcgctaactccgt 
+                     gaagtaaggaaggcttctctatcatccttaaagatctcatcatgttcag 
+                     aggagggcgttccacccccgcgccgctcgcactccccctgcagccctgt 
+
+
+SINFRUP00000067  546 AQNFLPIKS                              YLCSLLLFTL 
+                     AQNFLPIKS                              YLCSLLLFTL 
+                     AQNFLPIKS           P:P[cct]           YLCSLLLFTL 
+Scaffold_2042.128924 gcatccaatCCGTCACTC  Intron 11      CAGTtcttccctac 
+                     caattctac  <2-----[28953  :  30816]-2> atgcttttct 
+                     ggccgccga                              ttcggatctc 
+
+
+SINFRUP00000067  566 FTFFFLCLLNSLHLSSFAVSRKQTRNLKYRLRYTGLTFIDRPCSMHQIL 
+                     FTFFFLCLLNSLHLSSFAVSRKQTRNLKYRLRYTGLTFIDRPCSMHQIL 
+                     FTFFFLCLLNSLHLSSFAVSRKQTRNLKYRLRYTGLTFIDRPCSMHQIL 
+Scaffold_2042.130848 tatttctccatccctttggacacaaacatacatagcatagccttaccac 
+                     tcttttgttactatcctctggaacgataagtgacgtcttagcgctaatt 
+                     cccttttaatttccctctctgggggtgacacgctgcttctgccggtact 
+
+
+SINFRUP00000067  615 DILTRCPEPSASTISHFAVSILAYCF                        
+                     DILTRCPEPSASTISHFAVSILAYCF                        
+                     DILTRCPEPSASTISHFAVSILAYCF                        
+Scaffold_2042.130995 gacaatcgctgtaaactggtatgttt                        
+                     attcggcaccccctgatctcttcagt                        
+                     cccaaccgagaccctcttcccgtccc                        
+
+
+SINFRUP00000067  641                               EVVKHQTNISELKRSFLET 
+                                                   EVVKHQTNISELKRSFLET 
+                               S:S[tct]            EVVKHQTNISELKRSFLET 
+Scaffold_2042.131073 TGTTGTCA  Intron 12      CAGCTgggaccaaaagcacttcga 
+                      <1-----[31074  :  31980]-1>  attaaacatgatagcttac 
+                                                   ggcacgccccaggcccggg 
+
+
+SINFRUP00000067  661 GDGTQGPTEWEKRLSSSPMCSPRFDEAPMIEPLDVSV             
+                     GDGTQGPTEWEKRLSSSPMCSPRFDEAPMIEPLDVSV             
+                     GDGTQGPTEWEKRLSSSPMCSPRFDEAPMIEPLDVSV             
+Scaffold_2042.132040 gggacgcagtgaactttcattcatgggcaagccggag             
+                     gagcagccagaagtcccctgccgtaaccttactatgt             
+                     ttcgacgcagggggcgtcgcaaattgaggtgggtacc             
+
+
+SINFRUP00000067  698                               ERTSDSQEDVSERSMLKVS 
+                                                   ERTSDSQEDVSERSMLKVS 
+                               D:D[gat]            ERTSDSQEDVSERSMLKVS 
+Scaffold_2042.132151 GGTCTGCA  Intron 13      CAGATgcatgtcgggtgatataga 
+                      <1-----[32152  :  33223]-1>  agccacaaatcagcttatg 
+                                                   gactccggcggggagggcc 
+
+
+SINFRUP00000067  718 PRAVTQEVSQAISDKKGRLIILKDAEHKEEDEEPGEAEGVEKELPPSKE 
+                     PRAVTQEVSQAISDKKGRLIILKDAEHKEEDEEPGEAEGVEKELPPSKE 
+                     PRAVTQEVSQAISDKKGRLIILKDAEHKEEDEEPGEAEGVEKELPPSKE 
+Scaffold_2042.133283 caggacggtcgaagaagacaatagggcagggggcgggggggagtcctag 
+                     cgctcaatcactgaaaggttttaacaaaaaaaacgacagtaaatcccaa 
+                     cattagagggcctcggagttcgattataggcaacagtacgggagtaaag 
+
+
+SINFRUP00000067  767 KEMVKEDAADVLASITREIKKQHPKVEIKTNGTQQINGSDSPKKAMVSW 
+                     KEMVKEDAADVLASITREIKKQHPKVEIKTNGTQQINGSDSPKKAMVSW 
+                     KEMVKEDAADVLASITREIKKQHPKVEIKTNGTQQINGSDSPKKAMVSW 
+Scaffold_2042.133430 agagaggggggcgtaaagaaacccaggaaaagaccaagagtcaagagtt 
+                     aattaaaccattcctcgataaaacatatacagcaataggaccaacttcg 
+                     aagtaacctttgctaagacgggtgggaaatccgagtcttcgtagcgggg 
+
+
+SINFRUP00000067  816 ISEEVKTVATKEVSEGESVEAPQQTAEIFTFEEEQSKSSPTQITVSESS 
+                     ISEEVKTVATKEVSEGESVEAPQQTAEIFTFEEEQSKSSPTQITVSESS 
+                     ISEEVKTVATKEVSEGESVEAPQQTAEIFTFEEEQSKSSPTQITVSESS 
+Scaffold_2042.133577 atgggaaggaaggagggagggcccaggatatgggctatacacaagtgtt 
+                     tcaatactccaatgagagtaccaaccattctaaaacacgccatctcacc 
+                     ctggggtcgagaatgagctagggagggccctagggagccgcgcattata 
+
+
+SINFRUP00000067  865 ASFAVV                              LDTTDAGTKEMPV 
+                     ASFAVV                              LDTTDAGTKEMPV 
+                     ASFAVV           H:H[cat]           LDTTDAGTKEMPV 
+Scaffold_2042.133724 gttgggCAGTATAAA  Intron 14      GAGTcgaagggaagacg 
+                     cctctt  <2-----[33744  :  35243]-2> taccacgcaatct 
+                     tttgga                              tcctttacaggcg 
+
+
+SINFRUP00000067  885 IHTETKTITYESAE                           VDTNGDLD 
+                     IHTETKTITYESAE                           VDTNGDLD 
+                     IHTETKTITYESAE                           VDTNGDLD 
+Scaffold_2042.135284 acagaaaaatgtggGTACACA  Intron 15      CAGggaaggtg 
+                     tacacactcaacca<0-----[35326  :  36271]-0>tacagata 
+                     ccagaatcccgtag                           tctttcgc 
+
+
+SINFRUP00000067  907 PGVLLSAQTITSEITSTTTTTHITK                         
+                     PGVLLSAQTITSEITSTTTTTHITK                         
+                     PGVLLSAQTITSEITSTTTTTHITK                         
+Scaffold_2042.136296 cggccagcaaatgaaaaaaaacaaaGTCAGTT  Intron 16       
+                     cgtttgcactccatcgcccccatca<0-----[36371  :  36567] 
+                     cttcgttgcctaatccccacaccag                         
+
+
+SINFRUP00000067  932    MVKGGISETRIEKRIVISGDADIDHDQ                    
+                        MVKGGISETRIEKRIVISGDADIDHDQ                    
+                        MVKGGISETRIEKRIVISGDADIDHDQ                    
+Scaffold_2042.136565 CAGagaggatgaaagaaagatggggagcgc                    
+                     -0>ttaggtcacgtaagtttcgacataaaa                    
+                        ggaagtaaaacgagcccaatacctctg                    
+
+
+SINFRUP00000067  959                            ALAQAIKEAKEQHPDMSVTKVV 
+                                                ALAQAIKEAKEQHPDMSVTKVV 
+                                                ALAQAIKEAKEQHPDMSVTKVV 
+Scaffold_2042.136649 GTCTCTT  Intron 17      CAGgcgcgaaggagcccgatgaagg 
+                     <0-----[36649  :  36954]-0>ctcactaacaaaacatctcatt 
+                                                tgtgcaagtaagttcgagcaag 
+
+
+SINFRUP00000067  981 VHKETEITPEEGED                                    
+                     VHKETEITPEEGED                                    
+                     VHKETEITPEEGED                                    
+Scaffold_2042.137021 gcagagaacggggg                                    
+                     taaacatccaagaa                                    
+                     atagagcgaagggc                                    
+
+
+//
+Gene 1
+Gene 22265 37062 
+  Exon 22265 22396 phase 0
+     Supporting 22265 22396 1 44
+  Exon 24224 24328 phase 0
+     Supporting 24224 24328 45 79
+  Exon 24471 24513 phase 0
+     Supporting 24471 24512 80 93
+  Exon 24587 24662 phase 1
+     Supporting 24589 24660 95 118
+  Exon 24817 25035 phase 2
+     Supporting 24818 25033 120 191
+  Exon 25162 25249 phase 2
+     Supporting 25163 25249 193 221
+  Exon 26186 26338 phase 0
+     Supporting 26186 26338 222 272
+  Exon 26458 26579 phase 0
+     Supporting 26458 26577 273 312
+  Exon 26865 27040 phase 2
+     Supporting 26866 27039 314 371
+  Exon 27315 27488 phase 1
+     Supporting 27317 27487 373 429
+  Exon 28577 28952 phase 1
+     Supporting 28579 28950 431 554
+  Exon 30817 31073 phase 2
+     Supporting 30818 31072 556 640
+  Exon 31981 32151 phase 1
+     Supporting 31983 32150 642 697
+  Exon 33224 33743 phase 1
+     Supporting 33226 33741 699 870
+  Exon 35244 35325 phase 2
+     Supporting 35245 35325 872 898
+  Exon 36272 36370 phase 0
+     Supporting 36272 36370 899 931
+  Exon 36568 36648 phase 0
+     Supporting 36568 36648 932 958
+  Exon 36955 37062 phase 0
+     Supporting 36955 37062 959 994
+//
