@@ -69,12 +69,19 @@ in any module or script.
 =over 8
 
 =item Bio::Root::Exception    
+
 =item Bio::Root::NotImplemented
+
 =item Bio::Root::IOException
+
 =item Bio::Root::FileOpenException
+
 =item Bio::Root::SystemException
+
 =item Bio::Root::BadParameter
+
 =item Bio::Root::OutOfRange
+
 =item Bio::Root::NoSuchThing
 
 =back
@@ -128,7 +135,7 @@ See these RFC's:
 
 =head1 AUTHOR - Steve Chervitz 
 
-sac@bioperl.org
+Email sac@bioperl.org
 
 =head1 COPYRIGHT
 
@@ -302,7 +309,7 @@ sub _reformat_stacktrace {
               print "$error";
            }
 
- See Also: L<pretty_format()>
+See Also: L<pretty_format()|pretty_format>
 
 =cut
 
