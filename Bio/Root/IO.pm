@@ -369,9 +369,7 @@ sub _io_cleanup {
 	    print STDERR "going to remove dirs ", 
 	    join(",",  @{$self->{'_rootio_tempdirs'}}), "\n";
 	}
-	foreach ( @{$self->{'_rootio_tempdirs'}} ) {
-	    rmtree($_); 
-	}
+	$self->rmtree( $self->{'_rootio_tempdirs'});
     }
 }
 
@@ -539,18 +537,19 @@ sub catfile {
                      C<unlink> to remove it, or that it's skipping it.
                      (defaults to FALSE)
 
-          safe - a boolean value, which if TRUE will cause C<rmtree>
-                 to skip any files to which you do not have delete
-                 access (if running under VMS) or write access (if
-                 running under another OS).  This will change in the
-                 future when a criterion for 'delete permission' under
-                 OSs other than VMS is settled.  (defaults to FALSE)
+           safe - a boolean value, which if TRUE will cause C<rmtree>
+                  to skip any files to which you do not have delete
+                  access (if running under VMS) or write access (if
+                  running under another OS).  This will change in the
+                  future when a criterion for 'delete permission'
+                  under OSs other than VMS is settled.  (defaults to
+                  FALSE)
 
 =cut
 
 # taken straight from File::Path VERSION = "1.0403"
 sub rmtree {
-    my($self, $roots, $verbose, $safe) = @_;
+    my($self,$roots, $verbose, $safe) = @_;
     File::Path->rmtree ($roots, $verbose, $safe) if( $FILEPATHLOADED );
     my $force_writeable = ($^O eq 'os2' || $^O eq 'dos' || $^O eq 'MSWin32'
 		       || $^O eq 'amigaos');
@@ -560,13 +559,11 @@ sub rmtree {
     my($count) = 0;
     $verbose ||= 0;
     $safe ||= 0;
-
     if ( defined($roots) && length($roots) ) {
-      $roots = [$roots] unless ref $roots;
-    }
-    else {
+	$roots = [$roots] unless ref $roots;
+    } else {
 	$self->warn("No root path(s) specified\n");
-      return 0;
+	return 0;
     }
 
     my($root);
@@ -582,12 +579,10 @@ sub rmtree {
 	    chmod(0777, ($Is_VMS ? VMS::Filespec::fileify($root) : $root))
 	      or $self->warn("Can't make directory $root read+writeable: $!")
 		unless $safe;
-
-	    if (opendir my $d, $root) {
-		@files = readdir $d;
-		closedir $d;
-	    }
-	    else {
+	    if (opendir(DIR, $root) ){
+		@files = readdir DIR;
+		closedir(DIR);
+	    } else {
 	        $self->warn( "Can't read $root: $!");
 		@files = ();
 	    }
@@ -597,7 +592,7 @@ sub rmtree {
 	    @files = reverse @files if $Is_VMS;
 	    ($root = VMS::Filespec::unixify($root)) =~ s#\.dir\z## if $Is_VMS;
 	    @files = map("$root/$_", grep $_!~/^\.{1,2}\z/s,@files);
-	    $count += rmtree(\@files,$verbose,$safe);
+	    $count += $self->rmtree([@files],$verbose,$safe);
 	    if ($safe &&
 		($Is_VMS ? !&VMS::Filespec::candelete($root) : !-w $root)) {
 		print "skipped $root\n" if $verbose;
@@ -617,7 +612,8 @@ sub rmtree {
 		            . sprintf("0%o",$rp) . "\n");
 	    }
 	}
-	else { 
+	else {
+
 	    if ($safe &&
 		($Is_VMS ? !&VMS::Filespec::candelete($root)
 		         : !(-l $root || -w $root)))
