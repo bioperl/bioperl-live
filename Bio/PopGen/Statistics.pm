@@ -49,7 +49,7 @@ Currently implemented:
  Fu and Li's F  (fu_and_li_F)
  Tajima's D     (tajima_D)
  theta          (theta)
- pi --- not currently working. (pi)
+ pi             (pi) - number of pairwise differences
 
 References forthcoming.
 
@@ -407,10 +407,10 @@ sub pi {
     } elsif( ref($individuals) && 
 	     $individuals->isa('Bio::PopGen::PopulationI') ) {
 	my $pop = $individuals;
-	$sample_size = $pop->number_individuals;
+	$sample_size = $pop->get_number_individuals;
 	foreach my $marker( $pop->get_Markers ) {
 	    push @marker_names, $marker->name;
-	    $data{$marker->name} = [$marker->get_Allele_Frequencies];
+	    $data{$marker->name} = {$marker->get_Allele_Frequencies};
 	}
     } else { 
 	$self->throw("expected an array reference of a list of Bio::PopGen::IndividualI to pi");
@@ -480,18 +480,20 @@ sub theta {
 	# if there is >1 allele then it is polymorphic
 	$seg_sites = 0;
 	foreach my $marker ( @marker_names ) {
-	    $seg_sites++ if( keys %{$data{$marker}} > 1 );
+	    $seg_sites++ if( scalar (keys %{$data{$marker}}) > 1 );
 	}
 	$sample_size = scalar @$samps;
+
     } elsif(ref($sample_size) &&
 	    $sample_size->isa('Bio::PopGen::PopulationI') ) {
 	# This will handle the case when we pass in a PopulationI object
 	my $pop = $sample_size;
 	$totalsites = $seg_sites; # shift the arguments over by one
-	$sample_size = $pop->number_individuals;
+	$sample_size = $pop->get_number_individuals;
 	$seg_sites = 0;
-	foreach my $marker( $pop->get_Markers ) {
-	    $seg_sites++ if ( scalar $marker->get_Alleles > 1 );
+	foreach my $marker( $pop->get_Markers ) {  
+	    my @alleles = $marker->get_Alleles;	    
+	    $seg_sites++ if ( scalar @alleles > 1 );
 	}
     }
     my $a1 = 0; 

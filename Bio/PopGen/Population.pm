@@ -398,6 +398,11 @@ sub get_Marker{
 
 sub get_number_individuals{
    my ($self,$markername) = @_;
+
+   if( $self->{'_forced_set_individuals'} ) {
+       return $self->{'_forced_set_individuals'};
+   }
+
    unless( defined $markername ) {
        return scalar @{$self->{'_individuals'}};
    } else { 
@@ -407,6 +412,29 @@ sub get_number_individuals{
        }
        return $number;
    }
+}
+
+=head2 set_number_individuals
+
+ Title   : set_number_individuals
+    Usage   : $pop->set_number_individuals($num);
+ Function: Fixes the number of individuals, call this with
+           0 to unset.
+           Only use this if you know what you are doing,
+           this is only relavent when you are just adding
+           allele frequency data for a population and want to
+           calculate something like theta
+ Returns : none
+ Args    : individual count, calling it with undef or 0
+            will reset the value to return a number
+            calculated from the number of individuals
+            stored for this population.
+
+=cut
+
+sub set_number_individuals{
+   my ($self,$indcount) = @_;
+   return $self->{'_forced_set_individuals'} = $indcount;
 }
 
 

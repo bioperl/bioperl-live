@@ -143,7 +143,7 @@ sub source{
  Title   : get_Individuals
  Usage   : my @inds = $pop->get_Individuals();
  Function: Return the individuals, alternatively restrict by a criteria
- Returns : Array of Bio::PopGen::IndividualI objects
+ Returns : Array of L<Bio::PopGen::IndividualI> objects
  Args    : none if want all the individuals OR,
            -unique_id => To get an individual with a specific id
            -marker    => To only get individuals which have a genotype specific
@@ -162,7 +162,7 @@ sub get_Individuals{
  Usage   : my @genotypes = $pop->get_Genotypes(-marker => $name)
  Function: Get the genotypes for all the individuals for a specific
            marker name
- Returns : Array of Bio::PopGen::GenotypeI objects
+ Returns : Array of L<Bio::PopGen::GenotypeI> objects
  Args    : -marker => name of the marker
 
 
@@ -177,7 +177,7 @@ sub get_Genotypes{
  Title   : get_Marker
  Usage   : my $marker = $population->get_Marker($name)
  Function: Get a Bio::PopGen::Marker object based on this population
- Returns : Bio::PopGen::MarkerI object
+ Returns : L<Bio::PopGen::MarkerI> object
  Args    : name of the marker
 
 

@@ -31,13 +31,14 @@ Bio::PopGen::Simulation::GeneticDrift - A simple genetic drift simulation
 
 =head1 DESCRIPTION
 
-A very simple random drift module, start with an initial set of allele
-frequency and simulate what happens over time.
+A very simple 1 locus multi-allele random drift module, start with an
+initial set of allele frequency and simulate what happens over time.
 
-Future more complicated implementation may attempt to simulate mating, etc.
+This isn't really useful for anything in particular yet but will be
+built upon.
 
-See Gillespie JH. (1998) "Population Genetics: a Concise guide." Johns
-              Hopkins Press, Baltimore, USA.  pp.19-47.
+See Gillespie JH. (1998) "Population Genetics: a Concise guide." The Johns
+              Hopkins University Press, Baltimore, USA.  pp.19-47.
 
 =head1 FEEDBACK
 
