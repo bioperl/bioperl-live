@@ -105,6 +105,7 @@ is not specified, this list, in this order, will be used as the default.
     end_hit*               # Ending coordinate of the aligned portion of the hit sequence
     strand_query           # Strand of the aligned query sequence
     strand_hit             # Strand of the aligned hit sequence
+    frame                  # Frame of the alignment (0,1,2)
     ambiguous_aln          # Ambiguous alignment indicator ('qs', 'q', 's')
     hit_description        # Full description of the hit sequence
     query_description      # Full description of the query sequence
@@ -211,9 +212,10 @@ my %column_map = (
                   'end_hit'               => ['24', 'hit', 'end/hit', 'd', 'END_H'],
                   'strand_query'          => ['25', 'hit', 'strand/query', 's', 'STRND_Q'],
                   'strand_hit'            => ['26', 'hit', 'strand/hit', 's', 'STRND_H'],
-                  'ambiguous_aln'         => ['27', 'hit', 'ambiguous_aln', 's', 'AMBIG'],
-                  'hit_description'       => ['28', 'hit', 'description', 's', 'DESC_H'],
-                  'query_description'     => ['29', 'result', 'query_description', 's', 'DESC_Q'],
+                  'frame'                 => ['27', 'hit', 'frame', 'd', 'FRAME'],
+                  'ambiguous_aln'         => ['28', 'hit', 'ambiguous_aln', 's', 'AMBIG'],
+                  'hit_description'       => ['29', 'hit', 'description', 's', 'DESC_H'],
+                  'query_description'     => ['30', 'result', 'query_description', 's', 'DESC_Q'],
                  );
 
 sub column_map { return %column_map }
