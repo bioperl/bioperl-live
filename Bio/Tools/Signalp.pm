@@ -149,7 +149,7 @@ sub next_result {
                   $feature{primary}= 'signal_peptide';
                   $feature{program} = 'Signalp';
                   $feature{logic_name} = 'signal_peptide';
-                  
+                  $self->_parse_hmm_result(\%feature);
                   my $new_feat = $self->create_feature (\%feature);
                   return $new_feat;
                   
@@ -162,6 +162,21 @@ sub next_result {
         
         }
         
+}
+
+sub _parse_hmm_result {
+    my ($self, $feature_hash) = @_;
+    while(my $line = $self->_readline){
+        chomp $line;
+        if($line =~ /Prediction: (.+)$/){
+            $feature_hash->{hmmProdiction} = $1;
+        }elsif($line =~ /Signal peptide probability: ([0-9\.]+)/){
+            $feature_hash->{peptideProb} = $1;
+        }elsif($line =~ /Signal anchor probability: ([0-9\.]+)/){
+            $feature_hash->{anchorProb} = $1;
+            last;
+        }
+    }
 }
 
 =head2 create_feature
@@ -181,21 +196,23 @@ sub create_feature {
 
        # create feature object
        my $feature = Bio::SeqFeature::Generic->new(
-                                                 -seq_id=>$feat->{name},
-                                                 -start       => $feat->{start},
-                                                 -end         => $feat->{end},
-                                                 -score       => $feat->{score},
-                                                 -source      => $feat->{source},
-                                                 -primary     => $feat->{primary},
-                                                 -logic_name  => $feat->{logic_name}, 
-                                               );
+            -seq_id=>$feat->{name},
+            -start       => $feat->{start},
+            -end         => $feat->{end},
+            -score       => $feat->{score},
+            -source      => $feat->{source},
+            -primary     => $feat->{primary},
+            -logic_name  => $feat->{logic_name}, 
+       );
            
-
-          $feature->add_tag_value('evalue',0);
-          $feature->add_tag_value('percent_id','NULL');
-          $feature->add_tag_value("hid",$feat->{primary});
-          
-          return $feature; 
+    $feature->score($feat->{peptideProb});
+    $feature->add_tag_value('peptideProb', $feat->{peptideProb});
+    $feature->add_tag_value('anchorProb', $feat->{anchorProb});
+    $feature->add_tag_value('evalue',$feat->{anchorProb});
+    $feature->add_tag_value('percent_id','NULL');
+    $feature->add_tag_value("hid",$feat->{primary});
+    $feature->add_tag_value('SignalpProediction', $feat->{hmmProdiction});
+    return $feature; 
 
 }
 =head2 seqname
