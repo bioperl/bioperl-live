@@ -151,6 +151,7 @@ o System requirements
 
  To install the Compiled extension for pSW you will need to read the
  next section of the manual.
+
  
  INSTALLING THE OPTIONAL COMPILED EXTENSIONS (bioperl-ext package)
 
@@ -185,6 +186,16 @@ o System requirements
 
  This should install the compiled extension. The Bio::Tools::pSW module
  will work cleanly now.
+
+
+ INSTALLING BIOPERL SCRIPTS
+
+ Bioperl comes with a set of production-quality scripts that are kept
+ in the scripts/ directory. You can install these scripts if you'd like,
+ simply follow the instructions on 'make install'. The installation
+ directory is specified by the INSTALLSCRIPT variable in the Makefile,
+ the default location is /usr/bin. Installation will copy the scripts
+ to the specified directory and change the 'PLS' suffix to 'pl'.
 
 
  INSTALLING BIOPERL IN A PERSONAL OR PRIVATE MODULE AREA
@@ -269,7 +280,8 @@ o System requirements
 
     <...insert whizzy perl code here...>
 
-THE TEST SYSTEM
+
+ THE TEST SYSTEM
 
  The Bioperl test system is located in the t/ directory and is
  automatically run whenever you execute the 'make test' command.
@@ -291,125 +303,126 @@ THE TEST SYSTEM
  detects that the network is not present and thus should skip, not
  fail, any tests that require a network connection.
 
-DEPENDENCIES AND Bundle::BioPerl
 
-The following packages are used by Bioperl.  Not all are required for
-Bioperl to operate properly, however, some functionality will be
-missing without them.  You can easily install all of these, except
-srsperl.pm, using the Bundle::BioPerl CPAN bundle. A command-line
-example:
+ DEPENDENCIES AND Bundle::BioPerl
+
+ The following packages are used by Bioperl.  Not all are required for
+ Bioperl to operate properly, however, some functionality will be
+ missing without them.  You can easily install all of these, except
+ srsperl.pm, using the Bundle::BioPerl CPAN bundle. A command-line
+ example:
 
   >perl -e shell -MCPAN
   cpan>install Bundle::BioPerl
   <...installation details...>
   cpan>quit
 
-or more simply:
+ or more simply:
 
   >perl -MCPAN -e "install Bundle::BioPerl"
 
-The DBD::mysql, DB_File and XML::Parser modules require other
-applications or databases: MySQL, Berkeley DB, and expat respectively.
+ The DBD::mysql, DB_File and XML::Parser modules require other
+ applications or databases: MySQL, Berkeley DB, and expat respectively.
 
-Module			 Where it is Used
-------------------------------------------------------------------
-HTTP::Request::Common    GenBank+GenPept sequence retrieval, 
-			 remote http Blast jobs
-			 Bio::DB::*
-			 Bio::Tools::Run::RemoteBlast
+ Module			 Where it is Used
+ ------------------------------------------------------------------
+ HTTP::Request::Common    GenBank+GenPept sequence retrieval, 
+	 		  remote http Blast jobs
+		 	  Bio::DB::*
+			  Bio::Tools::Run::RemoteBlast
 
-LWP::UserAgent           GenBank+GenPept sequence retrieval, 
-			 remote http Blast jobs
-			 Bio::DB::*
-			 Bio::Tools::Run::RemoteBlast
+ LWP::UserAgent           GenBank+GenPept sequence retrieval, 
+	 		  remote http Blast jobs
+			  Bio::DB::*
+			  Bio::Tools::Run::RemoteBlast
 
-AcePerl			 Access to ACeDB databases
-			 Bio::DB::Ace
-			 Available at http://stein.cshl.org
+ AcePerl	          Access to ACeDB databases
+			  Bio::DB::Ace
+			  Available at http://stein.cshl.org
 			 
-IO::String               IO handle to read or write to a string
-			 Bio::SeqIO
-			 Bio::Variation::*
-			 Bio::DB::*
-			 Bio::Index::Blast
-			 Bio::Tools::*
-			 Bio::Biblio::IO
-			 Bio::Structure::IO
+ IO::String               IO handle to read or write to a string
+			  Bio::SeqIO
+			  Bio::Variation::*
+			  Bio::DB::*
+			  Bio::Index::Blast
+			  Bio::Tools::*
+			  Bio::Biblio::IO
+			  Bio::Structure::IO
 
-XML::Parser              Parsing of XML documents
-			 Bio::SeqIO::game
-			 Bio::Variation::* 
-			 Bio::SearchIO::blastxml
-			 Bio::Biblio::IO::medlinexml
-			 Requires expat from
-			 http://sourceforge.net/projects/expat/
+ XML::Parser              Parsing of XML documents
+			  Bio::SeqIO::game
+			  Bio::Variation::* 
+			  Bio::SearchIO::blastxml
+			  Bio::Biblio::IO::medlinexml
+			  Requires expat from
+			  http://sourceforge.net/projects/expat/
 			 			 
-XML::Writer              Parsing + writing of XML documents
-			 Bio::SeqIO::game
-			 Bio::Variation::*
+ XML::Writer              Parsing + writing of XML documents
+			  Bio::SeqIO::game
+			  Bio::Variation::*
 
-XML::Parser::PerlSAX     Parsing of XML documents
-			 Bio::SeqIO::game
-			 Bio::Variation::*
-			 Bio::SearchIO::blastxml
-			 Bio::Biblio::IO::medlinexml
+ XML::Parser::PerlSAX     Parsing of XML documents
+			  Bio::SeqIO::game
+			  Bio::Variation::*
+			  Bio::SearchIO::blastxml
+			  Bio::Biblio::IO::medlinexml
 
-XML::Twig        	 Parsing of XML documents
-			 Bio::Variation::IO::xml
+ XML::Twig        	  Parsing of XML documents
+			  Bio::Variation::IO::xml
 
-File::Temp               Temporary File creation
-			 Bio::DB::FileCache
-			 Bio::DB::XEMBL
+ File::Temp               Temporary File creation
+			  Bio::DB::FileCache
+			  Bio::DB::XEMBL
 
-SOAP::Lite               SOAP protocol, XEMBL Services
-			 Bio::Biblio::*
-			 Bio::DB::XEMBLService
+ SOAP::Lite               SOAP protocol, XEMBL Services
+			  Bio::Biblio::*
+			  Bio::DB::XEMBLService
 
-HTML::Parser             HTML parsing of GDB page
-			 Bio::DB::GDB
+ HTML::Parser             HTML parsing of GDB page
+			  Bio::DB::GDB
 
-DBD::mysql               Mysql API for loading and querying of Mysql-based 
-			 GFF feature and BioSQL databases
-			 Bio::DB::GFF
-			 bioperl-db external package
-			 bioperl-pipeline external package
-			 Mysql DB free from www.mysql.org
+ DBD::mysql               Mysql API for loading and querying of Mysql-based 
+			  GFF feature and BioSQL databases
+			  Bio::DB::GFF
+			  bioperl-db external package
+			  bioperl-pipeline external package
+			  Mysql DB free from www.mysql.org
 
-GD			 GD graphical drawing library
-			 Bio::Graphics
-                         Requires GD library from www.boutell.com/gd
+ GD			  GD graphical drawing library
+			  Bio::Graphics
+                          Requires GD library from www.boutell.com/gd
 
-srsperl			 Sequence Retrieval System (SRS) 
-			 alternative way of retrieving 
-			 sequences
-			 Bio::LiveSeq::IO::SRS.pm
-			 See README in Bio/LiveSeq/IO
+ srsperl		  Sequence Retrieval System (SRS) 
+			  alternative way of retrieving 
+			  sequences
+			  Bio::LiveSeq::IO::SRS.pm
+			  See README in Bio/LiveSeq/IO
 
-Storable		 Persistent object storage & retrieval 
-			 Bio::DB::FileCache
+ Storable		  Persistent object storage & retrieval 
+			  Bio::DB::FileCache
 
-Text::Shellwords         Text parser
-                         Bio::Graphics::FeatureFile
+ Text::Shellwords         Text parser
+                          Bio::Graphics::FeatureFile
 
-XML::DOM		 XML parser
-			 Bio::SeqIO::bsml.pm
+ XML::DOM		  XML parser
+			  Bio::SeqIO::bsml.pm
 
-DB_File                  Perl access to Berkeley DB
-                         Bio::DB::Flat
-			 Bio::DB::Fasta,
-			 Bio::SeqFeature::Collection,
-			 Bio::Index::*
-                         Requires Berkeley DB, from Linux RPM
-			 or from www.sleepycat.com
+ DB_File                  Perl access to Berkeley DB
+                          Bio::DB::Flat
+			  Bio::DB::Fasta,
+			  Bio::SeqFeature::Collection,
+			  Bio::Index::*
+                          Requires Berkeley DB, from Linux RPM
+			  or from www.sleepycat.com
 
-Graph::Directed          generic graph data and algorithms
-                         Bio::Ontology::SimpleOntologyEngine
+ Graph::Directed          generic graph data and algorithms
+                          Bio::Ontology::SimpleOntologyEngine
 
-Data::Stag::ITextWriter  Structured Tags datastructures
-			 Bio::SeqIO::chadoitext
+ Data::Stag::ITextWriter  Structured Tags datastructures
+			  Bio::SeqIO::chadoitext
 
-Data::Stag::SxprWriter   Structured Tags datastructures
-			 Bio::SeqIO::chadosxpr
+ Data::Stag::SxprWriter   Structured Tags datastructures
+			  Bio::SeqIO::chadosxpr
 
-Data::Stag::XMLWriter    Structured Tags datastructures
-			 Bio::SeqIO::chadoxml
+ Data::Stag::XMLWriter    Structured Tags datastructures
+			  Bio::SeqIO::chadoxml
