@@ -194,14 +194,45 @@ sub has_tag{
  Usage   : @values = $self->get_tag_values('some_tag')
  Function: 
  Returns : An array comprising the values of the specified tag.
- Args    :
+ Args    : a string
 
+throws an exception if there is no such tag
 
 =cut
 
 sub get_tag_values {
     shift->throw_not_implemented();
 }
+
+=head2 get_tagset_values
+
+ Title   : get_tagset_values
+ Usage   : @values = $self->get_tagset_values(qw(label transcript_id product))
+ Function: 
+ Returns : An array comprising the values of the specified tags, in order of tags
+ Args    : An array of strings
+
+does NOT throw an exception if none of the tags are not present
+
+this method is useful for getting a human-readable label for a
+SeqFeatureI; not all tags can be assumed to be present, so a list of
+possible tags in preferential order is provided
+
+=cut
+
+# interface + abstract method
+sub get_tagset_values {
+    my ($self, @args) = @_;
+    my @vals = ();
+    foreach my $arg (@args) {
+        if ($self->has_tag($arg)) {
+            push(@vals, $self->get_tag_values($arg));
+        }
+    }
+    return @vals;
+}
+
+
 
 =head2 get_all_tags
 

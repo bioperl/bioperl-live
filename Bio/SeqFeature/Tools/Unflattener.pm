@@ -12,7 +12,7 @@
 
 =head1 NAME
 
-Bio::SeqFeature::Tools::Unflattener - nests a flat list of genbank-sourced features
+Bio::SeqFeature::Tools::Unflattener - turns flat list of genbank-sourced features into a nested SeqFeatureI hierarchy
 
 =head1 SYNOPSIS
 
@@ -27,12 +27,19 @@ Bio::SeqFeature::Tools::Unflattener - nests a flat list of genbank-sourced featu
   $seqio =
     Bio::SeqIO->new(-file=>'AE003644.gbk',
                     -format=>'GenBank');
+  my $out =
+    Bio::SeqIO->new(-format=>'asciitree');
   while ($seq = $seqio->next_seq()) {
 
     # get top level unflattended SeqFeatureI objects
     $unflattener->unflatten_seq(-seq=>$seq,
                                 -use_magic=>1);
+    $out->write_seq($seq);
+
     @top_sfs = $seq->get_SeqFeatures;
+    foreach my $sf (@top_sfs) {
+	# do something with top-level features (eg genes)
+    }
   }
 
 
@@ -42,7 +49,7 @@ Most GenBank entries for annotated genomic DNA contain a B<flat> list
 of features. These features can be parsed into an equivalent flat list
 of L<Bio::SeqFeatureI> objects using the standard L<Bio::SeqIO>
 classes. However, it is often desirable to B<unflatten> this list into
-something resembling actual B<gene models>, whereby genes, mRNAs and CDSs
+something resembling actual B<gene models>, in which genes, mRNAs and CDSs
 are B<nested> according to the nature of the gene model.
 
 The BioPerl object model allows us to store these kind of associations
@@ -72,6 +79,10 @@ B<AE003644>, you would see a flat list of features:
   CDS CG32954-PB
   CDS CG32954-PC
 
+These features have sequence locations, but it is not immediately
+clear how to write code such that each mRNA is linked to the
+appropriate CDS (other than relying on IDs which is very bad)
+
 We would like to convert the above list into the B<containment
 hierarchy>, shown below:
 
@@ -98,14 +109,15 @@ hierarchy>, shown below:
       exon
       exon
 
-Where each feature is nested underneath its container; exons have been
-automatically inferred (even for tRNA genes).
+Where each feature is nested underneath its container. Note that exons
+have been automatically inferred (even for tRNA genes).
 
-We do this using a call on a Bio::SeqFeature::Tools::Unflattener object
+We do this using a call on a L<Bio::SeqFeature::Tools::Unflattener>
+object
 
   @sfs = $unflattener->unflatten_seq(-seq=>$seq);
 
-This would return a list of the B<top level> (i.e. containing)
+This would return a list of the B<top level> (i.e. container)
 SeqFeatureI objects - in this case, genes. Other top level features
 are possible; for instance, the B<source> feature which is always
 present, and other features such as B<variation> or B<misc_feature>
@@ -876,6 +888,9 @@ sub add_problem{
     my $self = shift;
 
     $self->{'_problems'} = [] unless exists($self->{'_problems'});
+    if ($self->verbose) {
+        print "PROBLEM: $_\n" foreach @_;
+    }
     push(@{$self->{'_problems'}}, @_);
 }
 
@@ -887,8 +902,9 @@ sub problem {
     if (@sfs) {
 	foreach my $sf (@sfs) {
 	    $desc .=
-	      sprintf("\nSF: %s\n",
+	      sprintf("\nSF [$sf]: %s\n",
 		      join('; ',
+                           $sf->primary_tag,
 			   map {
 			       $sf->has_tag($_) ?
 				 $sf->get_tag_values($_) : ()
@@ -1013,6 +1029,8 @@ sub _get_partonomy_roots {
     # find parents that do not have parents themselves
     return grep {!$ch->{$_}} @parents;
 }
+
+
 
 =head2 unflatten_seq
 
@@ -1231,6 +1249,9 @@ sub unflatten_seq{
 	 scalar(grep {$_->primary_tag eq 'exon'} @flat_seq_features);
        my $n_mrnas =
 	 scalar(grep {$_->primary_tag eq 'mRNA'} @flat_seq_features);
+       my $n_mrnas_attached_to_gene =
+	 scalar(grep {$_->primary_tag eq 'mRNA' &&
+			$_->has_tag("gene")} @flat_seq_features);
        my $n_cdss =
 	 scalar(grep {$_->primary_tag eq 'CDS'} @flat_seq_features);
 	   
@@ -1241,6 +1262,27 @@ sub unflatten_seq{
 	       $structure_type = 1;
 	       $need_to_infer_mRNAs = 1;
 	   }
+	   elsif (!$n_mrnas_attached_to_gene) {
+	       # this is an annoying file that has some floating
+	       # mRNA features; 
+	       # eg ftp.ncbi.nih.gov/genomes/Schizosaccharomyces_pombe/
+
+	       foreach (@flat_seq_features) {
+		   if ($_->primary_tag eq 'mRNA') {
+		       # what should we do??
+		       
+		       # I think for pombe we just have to filter
+		       # out bogus mRNAs prior to starting
+		   }
+	       }
+
+	       # looks like structure_type == 2
+	       $structure_type = 2;
+	       $need_to_infer_mRNAs = 1;
+	   }
+	   else {
+	   }
+
 	   # we always infer exons in magic mode
 	   $need_to_infer_exons = 1;
        }
@@ -1370,6 +1412,9 @@ sub unflatten_seq{
 
    # INFERRING mRNAs
    if ($need_to_infer_mRNAs) {
+       if ($self->verbose) {
+	   print "** INFERRING mRNA from CDS\n";
+       }
        $self->infer_mRNA_from_CDS(-seq=>$seq);
    }
 
@@ -1779,7 +1824,7 @@ sub unflatten_group{
    # any mappings that need further resolution (eg CDS to mRNA) are
    # placed in %unresolved
 
-   my %unresolved = ();    # child->[parent,score] to be resolved
+   my %unresolved = ();    # child -> [parent,score] to be resolved
 
    my %idxsf = map {$_=>$_} @sfs;
 
@@ -1829,6 +1874,31 @@ sub unflatten_group{
        }
    }
 
+   # we require a 1:1 mapping between mRNAs and CDSs;
+   # create artificial duplicates if we can't do this...
+   if (%unresolved) {
+       my %childh = map {$_=>1} keys %unresolved;
+       my %parenth = map {$_->[0]=>1} map {@$_} values %unresolved;
+       if ($self->verbose) {
+           printf "MATCHING %d CHILDREN TO %d PARENTS\n",
+             scalar(keys %childh), scalar(keys %parenth);
+       }
+       # 99.99% of the time in genbank genomic record of structure type 0, we
+       # see one CDS for every mRNA; one exception is the S Pombe
+       # genome, which is all CDS, bar a few spurious mRNAs; we have to
+       # filter out the spurious mRNAs in this case
+       #
+       # another strange case is in the mouse genome, NT_078847.1
+       # for Pcdh13 you will notice there is 4 mRNAs and 5 CDSs.
+       # most unusual! 
+       # I'm at a loss for a really clever thing to do here. I think the
+       # best thing is to create duplicate features to preserve the 1:1 mapping
+#       my $suffix_id = 1;
+#       while (keys %childh > keys %parenth) {
+#           
+#       }
+   }
+
    # we now have a graph representing POSSIBLE parent/containment
    # relationships.
    if ($self->verbose && scalar(keys %unresolved)) {
@@ -1838,20 +1908,23 @@ sub unflatten_group{
 	   foreach my $p (@poss) {
 	       my $parentsf = $idxsf{$p->[0]};
 	       $childsf = $idxsf{$childsf};
-	       printf("  PAIR: %s => %s  (of %d)\n", 
-		      $childsf->has_tag('product') ? $childsf->get_tag_values('product') : '-',
-		      $parentsf->has_tag('product') ? $parentsf->get_tag_values('product') : '-',
+               my @clabels = $childsf->get_tagset_values(qw(protein_id label product));
+               my @plabels = $parentsf->get_tagset_values(qw(transcript_id label product));
+	       printf("  PAIR: $clabels[0] => $plabels[0]  (of %d)\n", 
 		      scalar(@poss));
 	   }
        }
    } # -- end of verbose
 
+   # find optimal set of pairings using find_best_matches() algorithm
    if (%unresolved) {
        my $new_pairs =
-	 find_best_matches(\%unresolved, []);
+	 $self->find_best_matches(\%unresolved, []);
        if (!$new_pairs) {
+           my ($g) = $sfs[0]->get_tagset_values($self->group_tag || 'gene');
 	   $self->problem(2,
-			  "Could not resolve hierarchy");
+			  "Could not resolve hierarchy for $g");
+           $new_pairs = [];
        }
        foreach my $pair (@$new_pairs) {
 	   if ($self->verbose) {
@@ -1890,10 +1963,20 @@ sub unflatten_group{
    return @top;
 }
 
+# recursively finds the best set of pairings from a matrix of possible pairings
+#
+# tries to make sure nothing is unpaired
+#
+# given a matrix of POSSIBLE matches
+#  (matrix expressed as hash/lookup; keyed by child object; val = [parent, score]
+#
+# 
 sub find_best_matches {
+    my $self = shift;
     my $matrix = shift;
-    my $pairs = shift;
-    my $verbose = shift;
+    my $pairs = shift;        # [child,parent] pairs already selected
+
+    my $verbose = $self->verbose;
     #################################print "I";
     if ($verbose) {
 	printf "find_best_matches: (/%d)\n", scalar(@$pairs);
@@ -1904,8 +1987,12 @@ sub find_best_matches {
     
     # make a copy of the matrix with the portions still to be
     # resolved
+    my %unresolved_parents = ();
     my %unresolved =
       map {
+          if ($verbose) {
+              printf "  $_ : %s\n", join("; ", map {"[@$_]"} @{$matrix->{$_}});
+          }
 	  if ($selected_children{$_}) {
 	      ();
 	  }
@@ -1914,13 +2001,21 @@ sub find_best_matches {
 		grep {
 		    !$selected_parents{$_->[0]}
 		} @{$matrix->{$_}};
+              $unresolved_parents{$_} = 1 foreach @parents;
+              # new parents
 	      ($_ => [@parents]);
 	  }
       } keys %$matrix;
     
     my @I = keys %unresolved;
 
+    return $pairs if !scalar(keys %unresolved_parents);
+    # NECESSARY CONDITION:
+    # all possible parents have a child match
+
     return $pairs if !scalar(@I);
+    # NECESSARY CONDITION:
+    # all possible children have a parent match
 
     # give those with fewest choices highest priority
     @I = sort {
@@ -1931,12 +2026,18 @@ sub find_best_matches {
     } @I;
     
     my $csf = shift @I;
-    my @J = @{$unresolved{$csf}};
+
+    my @J = @{$unresolved{$csf}};  # array of [parent, score]
+
     # sort by score, highest first
     @J =
       sort {
 	  $b->[1] <=> $a->[1]
       } @J;
+
+    # select pair(s) from remaining matrix of possible pairs
+    # by iterating through possible parents
+
     my $successful_pairs;
     foreach my $j (@J) {
 	my ($psf, $score) = @$j;
@@ -1953,7 +2054,7 @@ sub find_best_matches {
 	if (!$bad) {
 	    my $pair = [$csf, $psf];
 	    my $new_pairs = [@$pairs, $pair];
-	    my $set = find_best_matches($matrix, $new_pairs, $verbose);
+	    my $set = $self->find_best_matches($matrix, $new_pairs);
 	    if ($set) {
 		$successful_pairs = $set;
 		last;
@@ -2029,6 +2130,8 @@ sub _resolve_container_for_sf{
    my ($self, $sf, @possible_container_sfs) = @_;
 
    my @coords = $self->_get_splice_coords_for_sf($sf);
+   my $start = $sf->start;
+   my $end = $sf->end;
    my $splice_uniq_str = "@coords";
    
    my @sf_score_pairs = ();
@@ -2039,6 +2142,12 @@ sub _resolve_container_for_sf{
        my $inside = 
 	 !$splice_uniq_str || 
 	   index("@container_coords", $splice_uniq_str) > -1;
+       if ($inside) {
+           # the container cannot be smaller than the thing contained
+           if ($_->start > $start || $_->end < $end) {
+               $inside = 0;
+           }
+       }
        if ($self->verbose) {
 	   print "    Checking containment:[$inside] (@container_coords) IN ($splice_uniq_str)\n";
        }
@@ -2229,6 +2338,9 @@ this will infer the uniform "type 0" containment hierarchy
 
 all the children of the CDS will be moved to the mRNA
 
+a "type 2" containment hierarchy is mixed type "0" and "1" (for
+example, see ftp.ncbi.nih.gov/genomes/Schizosaccharomyces_pombe/)
+
 =cut
 
 sub infer_mRNA_from_CDS{
@@ -2251,8 +2363,8 @@ sub infer_mRNA_from_CDS{
        $sf->isa("Bio::FeatureHolderI") || $self->throw("$sf NOT A FeatureHolderI");
        
        if ($sf->primary_tag eq 'mRNA') {
-	   $self->problem(3,
-			  "you cannot infer mRNAs if there are already mRNAs present", $sf);
+	   $self->problem(2,
+			  "Inferring mRNAs when there are already mRNAs present");
        }
 
        my @cdsl = grep {$_->primary_tag eq 'CDS' } $sf->get_SeqFeatures;
@@ -2304,6 +2416,45 @@ sub infer_mRNA_from_CDS{
    
 
 }
+
+=head2 remove_types
+
+ Title   : remove_types
+ Usage   : $unf->remove_types(-seq=>$seq, -types=>["mRNA"]);
+ Function:
+ Example :
+ Returns : 
+ Args    :
+
+removes features of a set type
+
+useful for pre-filtering a genbank record; eg to get rid of STSs
+
+also, there is no way to unflatten
+ftp.ncbi.nih.gov/genomes/Schizosaccharomyces_pombe/ UNLESS the bogus
+mRNAs in these records are removed (or changed to a different type) -
+they just confuse things too much
+
+=cut
+
+sub remove_types{
+   my ($self,@args) = @_;
+
+   my($seq, $types) =
+     $self->_rearrange([qw(
+                           SEQ
+			   TYPES
+                          )],
+                          @args);
+   $seq->isa("Bio::SeqI") || $self->throw("$seq NOT A SeqI");
+   my @sfs = $seq->get_all_SeqFeatures;
+   my %rh = map {$_=>1} @$types;
+   @sfs = grep {!$rh{$_->primary_tag}} @sfs;
+   $seq->remove_SeqFeatures;
+   $seq->add_SeqFeature($_) foreach @sfs;
+   return;
+}
+
 
 sub _check_order_is_consistent {
     my $self = shift;
@@ -2366,4 +2517,3 @@ sub find_best_pairs {
     
 }
 
-1;
