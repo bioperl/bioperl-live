@@ -185,6 +185,11 @@ sub _load_Seq {
   } else {
     $self->throw("Bad internal error. Don't understand $type");
   }
+  if( ! $seq ) { 
+      # warding off bug #1628
+      $self->debug("could not find seq $id in seqdb\n");
+      return;
+  }
 
   if( $self->agr() ) {
       #print STDERR "Pulling out into memory\n";
