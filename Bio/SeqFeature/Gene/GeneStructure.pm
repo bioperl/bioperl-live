@@ -70,7 +70,7 @@ use strict;
 
 use Bio::SeqFeature::Generic;
 
-@ISA = qw(Bio::SeqFeature::Generic);
+@ISA = qw(Bio::SeqFeature::Gene::GeneStructureI);
 
 
 sub new {
