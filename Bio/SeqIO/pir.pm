@@ -56,6 +56,8 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 Aaron Mackey E<lt>amackey@virginia.eduE<gt>
 Lincoln Stein E<lt>lstein@cshl.orgE<gt>
 Jason Stajich E<lt>jason@chg.mc.duke.eduE<gt>
+
+
 =head1 APPENDIX
 
 The rest of the documentation details each of the object
@@ -129,14 +131,14 @@ sub next_primary_seq {
 	# Return a Bio::Seq if asked for
 	$seqobj = Bio::Seq->new(-seq        => $seq,
 				-primary_id => $id,
-				-id         => $type. '1; ' . $id,
+				-id         => $type. '1;' . $id,
 				-desc       => $desc,
 				-alphabet    => $alphabet
 				);
     } else {
 	$seqobj = Bio::PrimarySeq->new(-seq        => $seq,
 				       -primary_id => $id,
-				       -id         => $type. '1; ' . $id,
+				       -id         => $type. '1;' . $id,
 				       -desc       => $desc,
 				       -alphabet    => $alphabet
 				       );
