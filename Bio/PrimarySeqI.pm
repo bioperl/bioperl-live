@@ -517,6 +517,11 @@ sub translate {
   ##Error if monomer is "Amino"
   $self->throw("Can't translate an amino acid sequence.") if($self->moltype eq 'protein');
 
+  # deal with frame offset.
+  if( $frame ) {
+      $seq = substr ($seq,$frame);
+  }
+
   # map Tt's to Uu's
 
   $seq =~ s/[Tt]/U/g;
