@@ -97,11 +97,18 @@ sub _type_stamp {
     return '__EMBL_FLAT__'; # What kind of index are we?
 }
 
-sub _version {
-    return 0.1;
-}
-$VERSION = _version();
+#
+# Suggested fix by Michael G Schwern <schwern@pobox.com> to
+# get around a clash with CPAN shell...
+#
 
+BEGIN {
+    $VERSION = 0.1;
+}
+
+sub _version {
+    return $VERSION;
+}
 
 
 =head2 _initialize
