@@ -1,0 +1,31 @@
+<?xml version='1.0'?>  
+<sequences>
+<seq id="seq_dtd_id_12" name="common_name">
+       <dbxref>
+          <database>swissprot</database>
+          <unique_id>P09651</unique_id>
+       </dbxref>
+</seq>
+<seq id="seq_dtd_id_12" name="common_name">
+     <residues type="protein">
+     SKSESPKEPEQLRKLFIGGLSFETTDESLRSHFEQWGTLTDCVVMRDPNTKRSRGFGFVT
+     YATVEEVDAAF
+     </residues>
+</seq>
+<seq id="seq_dtd_id_12" name="common_name">
+       <dbxref>
+          <database>swissprot</database>
+          <unique_id>P09651</unique_id>
+       </dbxref>
+     <residues type="protein">
+     SKSESPKEPEQLRKLFIGGLSFETTDESLRSHFEQWGTLTDCVVMRDPNTKRSRGFGFVT
+     YATVEEVDAA
+     </residues>
+</seq>
+<seq id="seq_dtd_id_12">
+     <residues type="protein">
+     SKSESPKEPEQLRKLFIGGLSFETTDESLRSHFEQWGTLTDCVVMRDPNTKRSRGFGFVT
+     YATVEEVDAAF
+     </residues>
+</seq>
+</sequences>
