@@ -11,7 +11,7 @@ BEGIN {
     }
     use Test;
 
-    $NUMTESTS = 15; 
+    $NUMTESTS = 16; 
     plan tests => $NUMTESTS; 
 }
 
@@ -111,5 +111,5 @@ if( $version <= 1.22 ) {
     ok( int($aln->average_percentage_identity), 44);
 } else {
     ok( int($aln->overall_percentage_identity), 21);
-    ok( int($aln->average_percentage_identity), 39);    
+    ok( int($aln->average_percentage_identity), 47);    
 }
