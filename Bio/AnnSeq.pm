@@ -365,7 +365,7 @@ sub molecule{
 
  Title   : date
  Usage   : $obj->date($newval)
- Function: 
+ Function: date (EMBL format, last revision, GenBank format date)
  Returns : date of entry
  Args    : newvalue (optional)
 

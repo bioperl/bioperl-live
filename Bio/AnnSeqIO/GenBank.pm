@@ -167,7 +167,7 @@ sub next_annseq{
     my $annseq = Bio::AnnSeq->new();
     
     $fh = $self->_filehandle();
-#    $self->throw("This function has not been implemented yet!");
+
     if( eof $fh) {
 	return undef; # no throws - end of file
     }
@@ -216,23 +216,24 @@ sub next_annseq{
 		    last;
 		}
 	    }		 
+	    
 	    if( /^ACCESSION\s+(\S+)/ ) {
 		$acc = $1;
 		$annseq->accession($acc);
 	    }
 	    
+	    #Version number
 	    if( /^VERSION\s+(\S+)/ ) {
 		my $sv = $1;
 		$annseq->sv($sv);
 	    }
-	    
+
+	    #Keywords
 	    if( /^KEYWORDS\s+(.*)/ ) {
 		my $keywords = $1;
 		$keywords =~ s/\;//g;
 		$annseq->keywords($keywords);
 	    }
-	    
-	    # accession numbers...
 
 	    # Organism name and phylogenetic information
 	    if (/^SOURCE/) {
@@ -248,27 +249,29 @@ sub next_annseq{
 		next;
 	    }
 	    
+	    #Comments
+	    if (/^COMMENT\s+(.*)/) {
+		my $comment = $1;
+		while (<$fh>) {
+		    if (/^FEATURES/) {
+			$comment =~ s/\n/ /g;
+			$comment =~ s/  +/ /g;
+			$annseq->annotation->add_Comment($comment);
+			last BEFORE_FEATURE_TABLE;
+		    }
+		    $comment .= $_; 
+		}
+	    }
 	    
 	    # Get next line.
 	    $buffer = <$fh>;
 	}
-   
-
-    # $_ should be in feature line. If not, skip until it is
-
-    if( $_ !~ /^FEATURES/ ) {
-	while( <$fh> ) {
-	    /^FEATURES/ && last;
-	}
-    }
-
-
 
     # need to read the first line of the feature table
     $_ = <$fh>;
 
     $buffer = $_;
-    
+
     FEATURE_TABLE :   
 	until( eof($fh) ) {
 	    
@@ -413,7 +416,7 @@ sub write_annseq {
     # Comment lines
     
     foreach my $comment ( $annseq->annotation->each_Comment() ) {
-	_write_line_GenBank_regex($fh,"COMMENT     ","            ",$comment->text(),"\\s\+\|\$",80);
+	_write_line_GenBank_regex($fh,"COMMENT     ","            ",$comment,"\\s\+\|\$",80);
     }
     print $fh "FEATURES             Location/Qualifiers\n";
     

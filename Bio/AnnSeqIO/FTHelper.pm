@@ -157,7 +157,7 @@ sub from_SeqFeature {
     $fth->loc($loc);
     $fth->key($key);
     $fth->field->{'note'}= [];
-    $sf->source_tag && do { push(@{$fth->field->{'note'}},"source=" . $sf->source_tag ); };
+    #$sf->source_tag && do { push(@{$fth->field->{'note'}},"source=" . $sf->source_tag ); };
     $sf->score && do { push(@{$fth->field->{'note'}},"score=" . $sf->score ); };
     $sf->frame && do { push(@{$fth->field->{'note'}},"frame=" . $sf->frame ); };
     #$sf->strand && do { push(@{$fth->field->{'note'}},"strand=" . $sf->strand ); };

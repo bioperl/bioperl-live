@@ -164,7 +164,7 @@ sub _initialize {
 
 sub next_annseq{
    my ($self,@args) = @_;
-   my ($seq,$fh,$c,$line,$name,$desc,$acc,$seqc,$mol,$div, $date);
+   my ($seq,$fh,$c,$line,$name,$desc,$acc,$seqc,$mol,$div, $date, $comment);
    my $annseq = Bio::AnnSeq->new();
 
    $fh = $self->_filehandle();
@@ -222,7 +222,7 @@ sub next_annseq{
 	   $annseq->sv($sv);
        }
 
-       #date (NOTE: takes last date line, to be refined!)
+       #date (NOTE: takes last date line)
        if( /^DT\s+(\S+)/ ) {
 	   my $date = $1;
 	   $date =~ s/\;//;
@@ -235,18 +235,34 @@ sub next_annseq{
 	   $annseq->keywords($keywords);
        }
 
+       # Organism name and phylogenetic information
+       elsif (/^O[SC]/) {
+           my $species = _read_EMBL_Species(\$buffer, $fh);
+           $annseq->species( $species );
+       }
+
        # References
        elsif (/^R/) {
 	   my @refs = &_read_EMBL_References(\$buffer,$fh);
 	   $annseq->annotation->add_Reference(@refs);
        }
        
-       # Organism name and phylogenetic information
-       elsif (/^O[SC]/) {
-           my $species = _read_EMBL_Species(\$buffer, $fh);
-           $annseq->species( $species );
+       elsif (/^CC\s+(.*)/) {
+	   $comment .= $1;
+	   $comment .= " ";
+	   while (<$fh>) {
+	       if (/^CC\s+(.*)/) {
+		   $comment .= $1;
+		   $comment .= " ";
+	       }
+	       else { 
+		   last;
+	       }
+	   }
+	   $annseq->annotation->add_Comment($comment);
+	   $comment = "";
        }
-       
+
        # Get next line.
        $buffer = <$fh>;
    }
@@ -412,7 +428,7 @@ sub write_annseq {
    # Comment lines
 
    foreach my $comment ( $annseq->annotation->each_Comment() ) {
-       _write_line_EMBL_regex($fh,"CC   ","CC   ",$comment->text(),"\\s\+\|\$",80);
+       _write_line_EMBL_regex($fh,"CC   ","CC   ",$comment,"\\s\+\|\$",80);
        print $fh "XX   \n";
    }
    

@@ -37,3 +37,14 @@ while( my $as = $ast->next_annseq() ) {
 
 
 print "ok 2\n";
+
+$ast = Bio::AnnSeqIO->new( '-format' => 'GenBank' , -file => 't/roa1.genbank');
+
+while( my $as = $ast->next_annseq() ) {
+       if( ! defined $as->seq ) {
+	   print "not ok 3\n";
+	   }
+      }
+
+
+print "ok 3\n";
