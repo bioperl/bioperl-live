@@ -83,8 +83,9 @@ use vars qw( $TYPE_AND_VERSION_KEY
 
 use Bio::Root::RootI;
 use Symbol();
+use DB_File;
 
-@ISA = qw(Bio::Root::Object);
+@ISA = qw(Bio::Root::RootI);
 
 # new() is inherited from Bio::Root::Object
 
@@ -114,17 +115,16 @@ sub new {
     my($class, @args) = @_;
     my $self = $class->SUPER::new(@args);
 
-    my( $filename, $write_flag, $dbm_package, $verbose ) =
+    my( $filename, $write_flag, $dbm_package ) =
         $self->_rearrange([qw(FILENAME 
 			      WRITE_FLAG
 			      DBM_PACKAGE
-			      VERBOSE)], @args);
+			      )], @args);
     
     # Store any parameters passed
     $self->filename($filename)       if $filename;
     $self->write_flag($write_flag)   if $write_flag;
     $self->dbm_package($dbm_package) if $dbm_package;
-    $self->verbose($verbose);
 
     $self->{'_filehandle'} = []; # Array in which to cache SeqIO objects
     $self->{'_DB'}         = {}; # Gets tied to the DBM file
@@ -541,7 +541,7 @@ sub make_index {
 	}
 
 	# index this file
-	warn "Indexing file $file\n" if $self->verbose;
+	warn "Indexing file $file\n" if( $self->verbose > 0);
 
 	# this is supplied by the subclass and does the serious work
         $self->_index_file( $file, $i ); # Specific method for each type of index
@@ -653,8 +653,7 @@ sub _file_count {
 
 sub add_record {
     my( $self, $id, @rec ) = @_;
-
-    print STDERR "Adding key $id\n" if $self->verbose;
+    print STDERR "Adding key $id\n" if( $self->verbose > 0 );
     $self->db->{$id} = $self->pack_record( @rec );
     return 1;
 }
@@ -694,29 +693,6 @@ sub unpack_record {
     my( $self, @args ) = @_;
     return split /\034/, $args[0];
 }
-
-=head2 verbose
-
- Title   : verbose
- Usage   : $obj->verbose($newval)
- Function: sets whether a report to STDERR should be issued or not
-           for each sequence indexed. Helps track errors
- Example : 
- Returns : value of verbose
- Args    : newvalue (optional)
-
-
-=cut
-
-sub verbose {
-   my ($obj,$value) = @_;
-   if( defined $value) {
-      $obj->{'_verbose'} = $value;
-    }
-    return $obj->{'_verbose'};
-
-}
-
 
 =head2 DESTROY
 
