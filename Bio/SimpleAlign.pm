@@ -1488,12 +1488,6 @@ sub no_sequences {
 }
 
 
-# This method implemented by Kevin Howe calculates a figure that is 
-# designed to be similar to the average pairwise identity of the 
-# alignment (identical in the absence of gaps), without having to
-# explicitly calculate pairwise identities proposed by Richard Durbin.
-# Validated by Ewan Birney ad Alex Bateman.
-
 =head2 average_percentage_identity
 
  Title   : average_percentage_identity
@@ -1502,6 +1496,11 @@ sub no_sequences {
            percentage identity of the alignment
  Returns : The average percentage identity of the alignment
  Args    : None
+ Notes   : This method implemented by Kevin Howe calculates a figure that is 
+           designed to be similar to the average pairwise identity of the 
+           alignment (identical in the absence of gaps), without having to
+           explicitly calculate pairwise identities proposed by Richard Durbin.
+           Validated by Ewan Birney ad Alex Bateman.
 
 =cut
 
