@@ -77,7 +77,7 @@ preceded with a _
 package Bio::DB::NCBIHelper;
 use strict;
 use vars qw(@ISA $HOSTBASE %CGILOCATION %FORMATMAP 
-	    $DEFAULTFORMAT $MAX_ENTRIES);
+	    $DEFAULTFORMAT $MAX_ENTRIES $VERSION);
 
 use Bio::DB::WebDBSeqI;
 use HTTP::Request::Common;
@@ -86,17 +86,15 @@ use Bio::DB::RefSeq;
 use Bio::Root::Root;
 
 @ISA = qw(Bio::DB::WebDBSeqI Bio::Root::Root);
+$VERSION = '0.8';
 
 BEGIN {
     $MAX_ENTRIES = 19000;
     $HOSTBASE = 'http://www.ncbi.nih.gov';
     %CGILOCATION = ( 
-		     'batch'  => '/entrez/eutils/efetch.fcgi',
-# new style only returns HTML #'batch'  => '/entrez/batchentrez.cgi',
-# old style	              #'batch' => '/cgi-bin/Entrez/qserver.cgi/result',
-		     'single' => '/entrez/eutils/efetch.fcgi',
-		     'version'=> '/entrez/eutils/efetch.fcgi',
-#/htbin-post/Entrez/girevhist',
+		    'batch'  => ['post' => '/entrez/eutils/efetch.fcgi'],
+		    'single' => ['get' => '/entrez/eutils/efetch.fcgi'],
+		    'version'=> ['get' => '/entrez/eutils/efetch.fcgi'],
 		     'gi'     => '/entrez/eutils/efetch.fcgi',
 		     
 		     );
@@ -171,7 +169,7 @@ sub get_request {
     if( ! %params ) {
 	$self->throw("must specify a valid retrival mode 'single' or 'batch' not '$mode'") 
     }
-    my $url = $HOSTBASE . $CGILOCATION{$mode};
+    my $url = $HOSTBASE . $CGILOCATION{$mode}[1];
     if( !defined $uids ) {
 	$self->throw("Must specify a value for uids to query");
     }
@@ -183,8 +181,11 @@ sub get_request {
     $params{'rettype'} = $format;
     my $querystr = '?' . join("&", map { "$_=$params{$_}" } keys %params);
     $self->debug("url is $url$querystr \n");
-    return GET $url . $querystr;
-    
+    if ($CGILOCATION{$mode}[0] eq 'post') {
+      return POST $url,[%params];
+    } else {
+      return GET $url . $querystr;
+    }
 }
 
 
