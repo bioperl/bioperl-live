@@ -201,8 +201,8 @@ sub next_result{
 	   $self->element({'Name' => 'HMMER_seqfile',
 			   'Data' => $_});
        } elsif( s/^Query(\s+(sequence|HMM))?:\s+//o) {
-	   if( ! $seentop ) {
-	       # we're in a multi-query report
+	   if( ! $seentop ) {	       
+               # we're in a multi-query report
 	       $self->_pushback($self->{'_hmmidline'});
 	       $self->_pushback($self->{'_hmmfileline'});	       
 	       $self->_pushback($self->{'_hmmseqline'});
@@ -262,13 +262,13 @@ sub next_result{
 	       while( defined($_ = $self->_readline) ) {
 		   next if( /^Align/o ||
 			    /^\s+RF\s+[x\s]+$/o);
-		   if( /^Histogram/o || m!^//!o ) { 
+		   if( /^Histogram/o || m!^//!o ) {
 		       if( $self->in_element('hsp')) {
 			   $self->end_element({'Name' => 'Hsp'});
 		       }
 		       if( $self->within_element('hit')) {
 			   $self->end_element({'Name' => 'Hit'});
-		       }		       
+		       }
 		       last;
 		   }
 		   chomp;
@@ -377,6 +377,7 @@ sub next_result{
 		   }
 	       }
 	   } elsif(  /^Histogram/o || m!^//!o ) { 
+
 	       while( my $HSPinfo = shift @hspinfo ) {		  
 		   my $id = shift @$HSPinfo;
 		   my $info = [@{$hitinfo[$hitinfo{$id}]}];
@@ -446,14 +447,15 @@ sub next_result{
 	       my ($prelength,$lastdomain,$count,$width);
 	       $count = 0;
 	       my $second_tier=0;
-	       while( defined($_ = $self->_readline) ) {
-
+	       while( defined($_ = $self->_readline) ) {		   
 		   next if( /^Align/o || /^\s+RF\s+[x\s]+$/o);
-		   if( /^Histogram/o || m!^//!o ) { 
-		       if( $self->within_element('hsp')) {
+		   if( /^Histogram/o || m!^//!o ) { 		       
+		       if( $self->in_element('hsp')) {
 			   $self->end_element({'Name' => 'Hsp'});
 		       }
-		       $self->end_element({'Name' => 'Hit'});
+		       if( $self->in_element('hit') ) {
+			   $self->end_element({'Name' => 'Hit'});
+		       }
 		       
 		       $self->end_element({'Name' => 'HMMER_Output'});
 		       return $self->end_document();		       
@@ -463,8 +465,11 @@ sub next_result{
 		   if( /^\s*(\S+):.*from\s+(\d+)\s+to\s+(\d+)/o ) {
 		       my ($name,$from,$to) = ($1,$2,$3);
 		       if( ! defined $lastdomain || $lastdomain ne $name ) {
+			   
 			   if( $self->within_element('hit') ) {
-			       $self->end_element({'Name' => 'Hsp'});
+			       if( $self->in_element('hsp') ) {
+				   $self->end_element({'Name' => 'Hsp'});
+			       }
 			       $self->end_element({'Name' => 'Hit'});
 			   }
 			   $self->start_element({'Name' => 'Hit'});
@@ -472,6 +477,7 @@ sub next_result{
 			   if( $info->[0] ne $name ) { 
 			       $self->throw("Somehow the Model table order does not match the order in the domains (got ".$info->[0].", expected $name)"); 
 			   }
+
 			   $self->element({'Name' => 'Hit_id',
 					   'Data' => shift @{$info}});
 			   $self->element({'Name' => 'Hit_desc',
@@ -481,7 +487,8 @@ sub next_result{
 			   $self->element({'Name' => 'Hit_signif',
 					   'Data' => shift @{$info}});
 		       }
-		       if( defined $lastdomain ) {
+		       if( $self->within_element('hsp') ) {
+			   #if( defined $lastdomain ) {
 			   $self->end_element({'Name' => 'Hsp'});
 		       } 
 		       $self->start_element({'Name' => 'Hsp'});
@@ -508,7 +515,7 @@ sub next_result{
 		       $self->element({'Name' => 'Hsp_evalue',
 				       'Data' => shift @$HSPinfo});
 
-		       $lastdomain = $name;
+		       $lastdomain = $name;	       
 		   } else { 
 		       if( /^(\s+\*\-\>)(\S+)/o  ) { # start of domain
 			   $prelength = CORE::length($1);
@@ -536,7 +543,7 @@ sub next_result{
 			   }
 			   $self->element({'Name' => 'Hsp_hseq',
 					   'Data' => substr($_,$prelength)});
-		       } elsif( $count == 1) { 
+		       } elsif( $count == 1 ) { 
 			   if( ! defined $prelength ) { 
 			       $self->warn("prelength not set"); 
 			   }			       
@@ -547,7 +554,7 @@ sub next_result{
 			       $self->element({'Name' => 'Hsp_midline',
 					       'Data' => substr($_,$prelength)});
 			   }
-		       } elsif( $count == 2) {
+		       } elsif( $count == 2 ) {
 			   if( /^\s+(\S+)\s+(\d+)\s+(\S+)\s+(\d+)/o ||
 			       /^\s+(\S+)\s+(\-)\s+(\S*)\s+(\-)/o 
 			       ) {
@@ -558,7 +565,6 @@ sub next_result{
 			   }
 		       }
 		       $count = 0 if $count++ >= 2;
-		       
 		   }	       
 	       }	   
 	   } else { 
