@@ -48,7 +48,7 @@ Describe contact details here
 
 =head1 CONTRIBUTORS
 
-Additional contributors names and emails here
+Steffen Grossmann, grossman-at-molgen.mpg.de
 
 =head1 APPENDIX
 
@@ -134,7 +134,7 @@ sub _write_feature_25 {
   }
 
   my $seq    = $feature->seq_id || '.';
-  my $source = ($feature->annotation->get_Annotations('source'))[0]->value;
+  my $source = $feature->source || '.';
   my $type   = ($feature->annotation->get_Annotations('feature_type'))[0]->name;
   $type = 'EXON' if $type eq 'exon'; #a GTF peculiarity, incosistent with the sequence ontology.
   my $min    = $feature->start   || '.';
@@ -160,8 +160,8 @@ sub _write_feature_25 {
 sub _write_feature_3 {
   my($self,$feature) = @_;
 
-  my $seq    = $feature->seq_id || '.';
-  my $source = ($feature->annotation->get_Annotations('source'))[0]->value;
+  my $seq    = $feature->seq_id || 'SEQ';
+  my $source = $feature->source || '.';
   my $type   = ($feature->annotation->get_Annotations('feature_type'))[0]->name;
   my $min    = $feature->start   || '.';
   my $max    = $feature->end     || '.';
@@ -273,7 +273,7 @@ sub _handle_feature {
   my($seq,$source,$type,$start,$end,$score,$strand,$phase,$attribute_string) = split /\t/, $feature_string;
 
   $feat->seq_id( uri_unescape($seq) );
-  $feat->source( uri_unescape($source) );
+  $feat->source( uri_unescape($source) ) unless $source eq '.';
   $feat->start($start) unless $start eq '.';
   $feat->end($end) unless $end eq '.';
   $feat->strand($strand eq '+' ? 1 : $strand eq '-' ? -1 : 0);
@@ -297,6 +297,7 @@ sub _handle_feature {
   $fta->term($feature_type);
 
   my %attr = ();
+  chomp $attribute_string;
   my @attributes = split ';', $attribute_string;
   foreach my $attribute (@attributes){
     my($key,$values) = split '=', $attribute;
