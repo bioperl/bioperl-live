@@ -42,7 +42,7 @@ delimited string of files and URLs, for example:
 The search order proceeds from left to right.  The first file or URL
 that is found ends the search.
 
-=======================================================================================
+============================================================================
 
 FORMAT OF THE REGISTRY FILE
 
@@ -84,7 +84,8 @@ configure access to the service.
 Database-name stanzas can be repeated, in which case the client should
 try each service in turn from top to bottom.
 
-The options under each stanza must have two non-optional tag=value lines being
+The options under each stanza must have two non-optional tag=value
+lines being
 
   protocol=<protocol-type>
   location=<location-string>
@@ -125,14 +126,14 @@ nature of these tags depends on the access protocol selected.  Some
 protocols require no additional tags, whereas others will require
 several.
 
- Protocol       Tag       Description
- --------       ---       -----------
+ Protocol       Tag        Description
+ --------       ---        -----------
 
- flat           location  Directory in which the index is stored.
-                          The "config.dat" file generated during
-                          indexing must be found in this location.
+ flat           location   Directory in which the index is stored.
+                           The "config.dat" file generated during
+                           indexing must be found in this location.
 
-                dbname    Name of database.
+                dbname     Name of database.
 
  biofetch       location   Base URL for the web service.  Currently
                            the only compatible biofetch service is 
@@ -145,12 +146,14 @@ several.
 
  biosql		location   <host:port>
 		dbname     <database_name>
-		driver     mysql|postgres|oracle|sybase|sqlserver|access|csv|informix|odbc|rdb
+		driver     mysql|postgres|oracle|sybase|sqlserver|access
+                           |csv|informix|odbc|rdb
 		user       <username>
 		passwd     <passwd>
 		biodbname  <biodatabase name>
 
-=======================================================================================
+
+============================================================================
 
 INSTALLING LOCAL DATABASES
 
@@ -162,7 +165,8 @@ documentation on how to do this:
    flat protocol:    See FLAT-DATABASES-HOWTO.txt
    biosql protocol:  See BIOSQL-HOWTO.txt
 
-=======================================================================================
+============================================================================
+
 
 WRITING CODE TO USE THE REGISTRY
 
@@ -193,15 +197,41 @@ the appropriate manual page).  In line 5, we call the sequence
 object's seq() method to fetch and print out the DNA or protein
 string.
 
-=======================================================================================
+============================================================================
 
 USING BIOGETSEQ TO ACCESS REGISTRY SEQUENCES FROM THE COMMAND LINE
 
+The script 'biogetseq' is located at the scripts/DB directory of the
+bioperl distribution. Move or add it into your path to run it.
 
--------------------------------------------------------------------
+You can get to help by running it with no arguments:
+
+Usage: biogetseq --dbname embl --format embl --namespace acc id [ id ... ]*
+       dbname defaults to embl
+       format defaults to embl
+       namespace defaults to 'acc' ['id', 'acc', 'version']
+       rest of the arguments is a list of ids in the given namespace
+
+If you have a set of ids you want to fetch from EMBL database, you
+just give them as space separated parameters:
+
+  % biogetseq J02231 A21530 A10516
+
+The output is directed to standard out, so it can be redirected to a
+file.  The options can be given in long "double hyphen" format or
+abbreviated to one letter format:
+
+  % biogetseq -f fasta --namespace acc J02231 A21530 A10516 > filed.seq
+
+
+---------------------------------------------------------------------------- 
+
 ChangeLog
 
 $Log$
+Revision 1.3  2003/02/20 21:12:01  lstein
+added new heading to biodatabase access doc for Heikki to fill in
+
 Revision 1.2  2003/02/20 20:52:10  lstein
 check in reasonable howtos for database access and flat databases
 
