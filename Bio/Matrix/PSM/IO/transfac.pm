@@ -48,10 +48,13 @@ use Bio::Matrix::PSM::Psm;
 use Bio::Matrix::PSM::IO;
 use Bio::Matrix::PSM::PsmHeader;
 use Bio::Root::Root;
+use Bio::Annotation::Reference;
+use Bio::Annotation::Comment;
+use Bio::Annotation::DBLink;
 use vars qw(@ISA);
 use strict;
 
-@ISA=qw(Bio::Matrix::PSM::PsmHeader Bio::Root::Root Bio::Matrix::PSM::IO);
+@ISA=qw(Bio::Matrix::PSM::PsmHeader  Bio::Matrix::PSM::IO );
 
 =head2 new
 
@@ -91,14 +94,14 @@ sub new {
             are not defined, see _make_matrix
  Returns : Bio::Matrix::PSM::Psm object
  Args    : none
-
+                             '
 =cut
 
 sub next_psm {
     my $self=shift;
     my $line;
     return undef if ($self->{end});
-    my (@a,@c,@g,@t, $id, $tr1, $accn, $bf, $sites);
+    my (@a,@c,@g,@t, $id, $tr1, @refs,$accn, $bf, $sites);
     my $i=0;
     while (defined( $line=$self->_readline)) {
 	chomp($line);
@@ -119,8 +122,11 @@ sub next_psm {
 	if ($line=~/^BA\s/) {
 	    my ($tr1,$ba)=split(/\s{2}/,$line);
 	    ($sites)=split(/\s/,$ba);
-	    last;
 	}
+   if ($line=~/^RN/) { #Adding a reference as Bio::Annotation object (self)
+    my $ref=_parse_ref($self);
+    push @refs,$ref
+  }
 	last if ($line=~/^\/\//);
     }
     # We have the frequencies, let's create a SiteMatrix object
@@ -128,6 +134,7 @@ sub next_psm {
     $matrix{-sites}=$sites if ($sites);
     $matrix{-width}=@a;
     my $psm=new Bio::Matrix::PSM::Psm(%matrix);
+    foreach my $ref (@refs) { $psm->add_Annotation('reference',$ref); }
     return $psm;
 }
 
@@ -202,6 +209,39 @@ sub _make_matrix {
     return (-pA=>\@fa,-pC=>\@fc,-pG=>\@fg,-pT=>\@ft, -id=>$id, -accession_number=>$accn)
     }
 
+sub _parse_ref {
+my $self=shift;
+my ($authors,$title,$loc,@refs,$tr,$db,$dbid);
+    while (my $refline=$self->_readline) { #Poorely designed, should go through an array with fields
+      chomp $refline;
+      my ($field,$arg)=split(/\s+/,$refline,2);
+      last if ($field=~/XX/);
+      $field.=' ';
+      REF: {
+          if ($field=~/RX/) {  #DB Reference
+              $refline=~s/[;\.]//g;
+              ($tr, $db, $dbid)=split(/\s+/,$refline);
+              undef $dbid unless ($db eq 'MEDLINE');
+              last REF;
+          }
+         if ($field=~/RT/) {   #Title
+            $title .= $arg;
+            last REF;
+          }
+          if ($field=~/RA/) {  #Author
+            $authors .= $arg;
+            last REF;
+          }
+          if ($field=~/RL/) {  #Journal
+            $loc .= $arg;
+            last REF;
+          }
+        }
+     }
+     my $reference=new Bio::Annotation::Reference (-authors=>$authors, -title=>$title,
+                                                    -location=>$loc, -medline=>$dbid);
+     return $reference;
+}
 
 sub DESTROY {
     my $self=shift;
