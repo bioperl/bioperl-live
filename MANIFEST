@@ -36,7 +36,9 @@ Bio/Index/Abstract.pm
 Bio/Index/Fasta.pm
 Bio/Index/EMBL.pm
 Bio/Index/SwissPfam.pm
-Bio/DB/BioSeqI.pm
+Bio/DB/SeqI.pm
+Bio/DB/Ace.pm
+Bio/DB/RandomAccessI.pm
 Bio/DB/GenBank.pm
 Bio/DB/GenPept.pm
 Bio/SeqIO.pm
