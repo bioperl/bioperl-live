@@ -16,7 +16,7 @@ BEGIN {
 	use lib 't';
     }
     use Test;
-    plan test => 26;
+    plan test => 27;
 }
 
 use Bio::Tools::HMMER::Domain;
@@ -90,6 +90,7 @@ $res = Bio::Tools::HMMER::Results->new( -file =>
 
 ok ($res->number, 2);
 
+
 # parse HMM 2.2 files
 
 $res = Bio::Tools::HMMER::Results->new( -file => 
@@ -112,6 +113,8 @@ foreach $set ( $res->each_Set) {
 	ok($domain->end, 481);
 	ok($domain->bits, -105.2);
 	ok($domain->evalue, 0.0022 );
+	ok($domain->hmmname, 'Methylase_M');
+	
     }
 }
 ok ($res->number, 1);
