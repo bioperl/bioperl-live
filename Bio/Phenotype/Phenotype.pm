@@ -136,11 +136,10 @@ use Bio::Range;
 =head2 new
 
  Title   : new
- Usage   : $obj = Bio::Phenotype::OMIM::OMIMentry->new( -mim_number          => 200000,
-                                                        -description         => "This is ...",
-                                                        -more_than_two_genes => 1 );                      
- Function: Creates a new OMIMentry object.
- Returns : A new OMIMentry object.
+ Usage   : $obj = Bio::Phenotype::Phenotype->new( -name         => "XY",
+                                                  -description  => "This is ..." );                      
+ Function: Creates a new Phenotype object.
+ Returns : A new Phenotype object.
  Args    : -name                           => the name
            -description                    => the description of this phenotype
            -species                        => ref to the the species
