@@ -8,7 +8,7 @@ BEGIN {
 	use lib 't';
     }
     use Test;
-    plan tests => 67;
+    plan tests => 69;
 }
 
 use Bio::SimpleAlign;
@@ -19,14 +19,14 @@ ok (1);
 
 END {
     unlink(Bio::Root::IO->catfile("t","data","testout2.pfam"),
-	 Bio::Root::IO->catfile("t","data","testout.selex"),
-	 Bio::Root::IO->catfile("t","data","testout.pfam"),
-	 Bio::Root::IO->catfile("t","data","testout.msf"),
-	 Bio::Root::IO->catfile("t","data","testout.fasta"), 
-	 Bio::Root::IO->catfile("t","data","testout.clustal"),
-	 Bio::Root::IO->catfile("t","data","testout.phylip"),
-	 Bio::Root::IO->catfile("t","data","testout.nexus"),
-	 Bio::Root::IO->catfile("t","data","testout.mega"),
+	   Bio::Root::IO->catfile("t","data","testout.selex"),
+	   Bio::Root::IO->catfile("t","data","testout.pfam"),
+	   Bio::Root::IO->catfile("t","data","testout.msf"),
+	   Bio::Root::IO->catfile("t","data","testout.fasta"), 
+	   Bio::Root::IO->catfile("t","data","testout.clustal"),
+	   Bio::Root::IO->catfile("t","data","testout.phylip"),
+	   Bio::Root::IO->catfile("t","data","testout.nexus"),
+	   Bio::Root::IO->catfile("t","data","testout.mega"),
 	   );
 
 
@@ -72,6 +72,14 @@ $str = Bio::AlignIO->new('-file' => Bio::Root::IO->catfile("t","data","testaln.f
 			   '-format' => 'fasta');
 $aln = $str->next_aln();
 ok $aln->get_seq_by_pos(1)->get_nse, 'AK1H_ECOLI/114-431', " failed fasta input test ";
+ok ($aln->get_seq_by_pos(1)->description, 'DESCRIPTION HERE', 
+    " failed fasta input test for description");
+ok ($aln->get_seq_by_pos(11)->display_id, 'AK_YEAST',
+    " failed fasta input test for id");
+
+ok ($aln->get_seq_by_pos(11)->description, 'A COMMENT FOR YEAST', 
+    " failed fasta input test for description");
+
 $strout = Bio::AlignIO->new('-file' => ">".Bio::Root::IO->catfile("t","data","testout.fasta"), 
 			      '-format' => 'fasta');
 $status = $strout->write_aln($aln);

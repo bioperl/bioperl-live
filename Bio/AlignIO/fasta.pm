@@ -79,15 +79,17 @@ use Bio::SimpleAlign;
 sub next_aln {
     my $self = shift;
     my $entry;
-    my ($start,$end,$name,$seqname,$seq,$seqchar,$tempname,%align);
+    my ($start,$end,$name,$seqname,$seq,$seqchar,$tempname,$tempdesc,
+	%align,$desc);
     my $aln =  Bio::SimpleAlign->new();
     my $maxlen;
-    while(defined ($entry = $self->_readline)) {
-	if($entry =~ /^>(\S+)/ ) {
-	    $tempname = $1;
+    while(defined ($entry = $self->_readline) ) {
+	if( $entry =~ s/^>(\S+)\s*// ) {
+	    $tempname  = $1;
+	    chomp($entry);
+	    $tempdesc  = $entry;
 	    if( defined $name ) {
 		# put away last name and sequence
-
 		if( $name =~ /(\S+)\/(\d+)-(\d+)/ ) {
 		    $seqname = $1;
 		    $start = $2;
@@ -95,19 +97,22 @@ sub next_aln {
 		} else {
 		    $seqname=$name;
 		    $start = 1;
-		    $end = length($seqchar);   #ps 9/6/00
+		    $end = length($seqchar); #ps 9/6/00
 		}
 #		print STDERR  "Going to add with $seqchar $seqname\n";
-		$seq = new Bio::LocatableSeq('-seq'=>$seqchar,
-					     '-id'=>$seqname,
-					     '-start'=>$start,
-					     '-end'=>$end,
+		$seq = new Bio::LocatableSeq('-seq'        =>$seqchar,
+					     '-display_id' =>$seqname,
+					     '-description'=>$desc,
+					     '-start'      =>$start,
+					     '-end'        =>$end,
 					     );
 		$aln->add_seq($seq);
-	     }
-	     $name = $tempname;
-	     $seqchar  = "";
-	     next;
+	    }
+	    $desc = $tempdesc;	
+	    $name = $tempname;
+	    $desc = $entry;
+	    $seqchar  = "";
+	    next;
 	}
 	$entry =~ s/[^A-Za-z\.\-]//g;
 	$seqchar .= $entry;	
@@ -139,14 +144,16 @@ sub next_aln {
 
 # This logic now also reads empty lines at the 
 # end of the file. Skip this is seqchar and seqname is null
+
     if( length($seqchar) == 0 && length($seqname) == 0 ) {
 	# skip
     } else {
 #	print STDERR "end to add with $seqchar $seqname\n";
-	$seq = new Bio::LocatableSeq('-seq'=>$seqchar,
-				     '-id'=>$seqname,
-				     '-start'=>$start,
-				     '-end'=>$end,
+	$seq = new Bio::LocatableSeq('-seq'        => $seqchar,
+				     '-display_id' => $seqname,
+				     '-description'=> $desc,
+				     '-start'      => $start,
+				     '-end'        => $end,
 				     );
 	
 	$aln->add_seq($seq);
