@@ -27,7 +27,6 @@ BEGIN {
     plan tests => 7;
 }
 my $DEBUG = 0;
-print("------------- 05test_trim.t -------------\n") ;
 print("Checking if the Bio::Tools::Alignment::Consed module could be used...\n") if($DEBUG);
 use Bio::Tools::Alignment::Consed;
 use Bio::Root::IO;
