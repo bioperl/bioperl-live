@@ -997,55 +997,6 @@ sub record_err {
 }
 
 
-
-=head2 _set_err_state
-
- Usage     : n/a; called automatically by _set_err()
- Purpose   : Sets the {'_errState'} data member to one of @Bio::Root::Err::ERR_TYPES.
-           : This method is called after setting a new error with _set_err().
- Returns   : An Err.pm object (the current {'_err'} data member)
- Argument  : An Err.pm object (the one jsut created by _set_err()).
- Comments  : Modifications to state are permitted only if the object:
-           :   1. has only one error, OR
-           :   2. has multiple errors and none of those errors are fatal.
-           : This prevents an object from setting its state to warning
-           : if it already has a fatal error.
-           :
-           : The unfatal() method circumvents this method since the conditions
-           : under which unfatal() is called are different. _set_err_state() is
-           : only called when setting new errors.
-
-See also   : L<_set_err>(), L<_set_warning>() 
-
-=cut
-
-#--------------------
-sub _set_err_state {  
-#--------------------
-    my( $self, $err ) = @_;
-    my @state = ();
-    
-    require Bio::Root::Err; import Bio::Root::Err qw(:data);
-    
-    my $data = $err->type || 'EXCEPTION';
-
-    if($self->{'_errState'} and $self->{'_errState'} !~ /EXCEPTION|FATAL/) {
-	
-	my @err_types = @Bio::Root::Err::ERR_TYPES; # prevents warnings
-	if( @state = grep /$data/i, @Bio::Root::Err::ERR_TYPES ) {
-	    $self->{'_errState'} = $state[0];
-	} else {
-	    $self->{'_errState'} = 'UNKNOWN STATE';
-	}
-    }
-    $DEBUG and do{ print STDERR "$ID: Setting state to $self->{'_errState'} (arg=$data)\n"; <STDIN>; };
-
-#    $self->{'_err'}->last;
-    return $err;
-}
-
-
-
 =head2 err_state
 
  Usage     : $object->err_state();
