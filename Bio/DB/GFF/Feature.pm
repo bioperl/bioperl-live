@@ -224,8 +224,9 @@ sub new {
     @{$self}{qw(ref refstart refstrand)} = ($srcseq,1,'+');
   }
 
-  @{$self}{qw(type fstrand score phase group db_id group_id)} =
-    (Bio::DB::GFF::Typename->new($method,$source),$fstrand,$score,$phase,$group,$db_id,$group_id);
+  @{$self}{qw(type fstrand score phase group db_id group_id absolute)} =
+    (Bio::DB::GFF::Typename->new($method,$source),$fstrand,$score,$phase,
+     $group,$db_id,$group_id,$factory->{absolute});
 
   $self;
 }
@@ -600,14 +601,15 @@ sub location {
 
    my $location;
    if (my @segments = $self->segments) {
-       $location = Bio::Location::Split->new(-seq_id => $self->display_id);
+       $location = Bio::Location::Split->new(-seq_id => $self->seq_id);
        foreach (@segments) {
           $location->add_sub_Location($_->location);
        }
    } else {
-       $location = Bio::Location::Simple->new(-start  => $self->low,
-					      -end    => $self->high,
-					      -strand => $self->strand);
+       $location = Bio::Location::Simple->new(-start  => $self->start,
+					      -end    => $self->stop,
+					      -strand => $self->strand,
+					      -seq_id => $self->seq_id);
    }
    $location;
 }
@@ -626,7 +628,8 @@ sub location {
 =cut
 
 sub entire_seq {
-    return shift;
+    my $self = shift;
+    $self->factory->segment($self->sourceseq);
 }
 
 =head2 merged_segments
