@@ -2,8 +2,9 @@ package Bio::Graphics::Glyph::graded_segments;
 
 use strict;
 use Bio::Graphics::Glyph::generic;
-use vars '@ISA';
+use vars '@ISA','$VERSION';
 @ISA = 'Bio::Graphics::Glyph::generic';
+$VERSION = 1.01;
 
 # override draw method to calculate the min and max values for the components
 sub draw {
@@ -13,6 +14,7 @@ sub draw {
   # handle both das-style and Bio::SeqFeatureI style,
   # which use different names for subparts.
   my @parts = $self->parts;
+  @parts = $self unless @parts;
   return $self->SUPER::draw(@_) unless @parts;
 
   # figure out the colors
