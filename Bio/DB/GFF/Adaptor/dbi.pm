@@ -10,7 +10,7 @@ See L<Bio::DB::GFF>
 
 This is the base class for DBI-based adaptors.  It does everything
 except generating the text of the queries to be used.  See the section
-QUERIES TO IMPLEMENT for the list of queries that must be implemented.
+QUERIES TO IMPLEMENT for the list of methods that must be implemented.
 
 =cut
 
@@ -22,6 +22,7 @@ use strict;
 use DBI;
 use Bio::DB::GFF;
 use Bio::DB::GFF::Util::Rearrange; # for rearrange()
+use Bio::DB::GFF::Adaptor::dbi::iterator;
 use vars qw($VERSION @ISA);
 
 @ISA =  qw(Bio::DB::GFF);
@@ -218,7 +219,7 @@ the database.  It is responsible for retrieving features that satisfy
 range and feature type criteria, and passing the GFF fields to a
 callback subroutine.
 
-The seven arguments are as follows:
+The eight arguments are as follows:
 
   $rangetype  One of "overlaps", "contains" or "contains_in".  Indicates
               the type of range query requested.
@@ -240,6 +241,10 @@ The seven arguments are as follows:
 
   $callback   A code reference.  As features are retrieved, they are
               passed to this callback.
+
+  $order_by_group  A flag, which, if true will force the query to return feature
+              rows ordered by the group to which they belong.
+
 
 The callback expects thirteen arguments, which can be parsed directly out of GFF files:
 
@@ -313,6 +318,23 @@ If the $count flag is false, the method returns a simple list of
 vBio::DB::GFF::Typename objects.  If $count is true, the method returns
 a list of $name=>$count pairs, where $count indicates the number of
 times this feature occurs in the range.
+
+Internally, this method calls upon the following functions to generate
+the SQL and its bind variables:
+
+  ($q1,@args) = make_types_select_part(@args);
+  ($q2,@args) = make_types_from_part(@args);
+  ($q3,@args) = make_types_where_part(@args);
+  ($q4,@args) = make_types_join_part(@args);
+  ($q5,@args) = make_types_group_part(@args);
+
+The components are then combined as follows:
+
+  $query = "SELECT $q1 FROM $q2 WHERE $q3 AND $q4 GROUP BY $q5";
+
+If any of the query fragments contain the ? bind variable, then the
+same number of bind arguments must be provided in @args.  The
+fragment-generating functions are described below.
 
 =cut
 
@@ -422,66 +444,6 @@ sub range_query {
   my $sth = $self->do_query($query,@args);
   $sth;
 }
-
-=head2 make_features_select_part
-
- Title   : make_features_select_part
- Usage   : $string = $db->make_features_select_part()
- Function: make select part of the features query
- Returns : a string
- Args    : none
- Status  : Abstract
-
-This abstract method creates the part of the features query that
-immediately follows the SELECT keyword.  See
-Bio::DB::Adaptor::dbi::mysql for an example.
-
-=cut
-
-sub make_features_select_part {
-  shift->throw("make_features_select_part(): must be implemented by subclass");
-}
-
-=head2 make_features_from_part
-
- Title   : make_features_from_part
- Usage   : $string = $db->make_features_from_part()
- Function: make from part of the features query
- Returns : a string
- Args    : none
- Status  : Abstract
-
-This abstract method creates the part of the features query that
-immediately follows the FROM keyword.  See
-Bio::DB::Adaptor::dbi::mysql for an example.
-
-=cut
-
-sub make_features_from_part {
-  shift->throw("make_features_from_part(): must be implemented by subclass");
-}
-
-=head2 make_features_join_part
-
- Title   : make_features_join_part
- Usage   : $string = $db->make_features_join_part()
- Function: make join part of the features query
- Returns : a string
- Args    : none
- Status  : Abstract
-
-This abstract method creates the part of the features query that
-immediately follows the WHERE keyword.  It is combined with the output
-of make_feautres_where_part() to form the full WHERE clause.  If you
-do not need to join, return "1".  See Bio::DB::Adaptor::dbi::mysql for
-an example.
-
-=cut
-
-sub make_features_join_part {
-  shift->throw("make_features_join_part(): must be implemented by subclass");
-}
-
 =head2 make_features_where_part
 
  Title   : make_features_where_part
@@ -523,6 +485,8 @@ See Bio::DB::Adaptor::dbi::mysql for an example of how this works.
 
 =cut
 
+#'
+
 sub make_features_where_part {
   my $self = shift;
   my($rangetype,$refseq,$class,$start,$stop,$types) = @_;
@@ -560,11 +524,6 @@ sub make_features_where_part {
   return wantarray ? ($query,@args) : $self->dbi_quote($query,@args);
 }
 
-sub make_features_order_by_part {
-  my $self = shift;
-  $self->throw("please implement a make_features_order_by_part() method");
-}
-
 =head2 do_straight_join
 
  Title   : do_straight_join
@@ -583,11 +542,245 @@ to similarly-named arguments passed to range_query().
 
 sub do_straight_join { 0 }  # false by default
 
+=head2 string_match
+
+ Title   : string_match
+ Usage   : $string = $db->string_match($field,$value)
+ Function: create a SQL fragment for performing exact or regexp string matching
+ Returns : query string
+ Args    : the table field and match value
+ Status  : public
+
+This method examines the passed value for meta characters.  If so it
+produces a SQL fragment that performs a regular expression match.
+Otherwise, it produces a fragment that performs an exact string match.
+
+This method is not used in the module, but is available for use by
+subclasses.
+
+=cut
+
+sub string_match {
+  my $self           = shift;
+  my ($field,$value) = @_;
+  return qq($field = ?) if $value =~ /^[!@%&a-zA-Z0-9_\'\" ~-]+$/;
+  return qq($field REGEXP ?);
+}
+
+=head2 exact_match
+
+ Title   : exact_match
+ Usage   : $string = $db->exact_match($field,$value)
+ Function: create a SQL fragment for performing exact string matching
+ Returns : query string
+ Args    : the table field and match value
+ Status  : public
+
+This method produces the SQL fragment for matching a field name to a
+constant string value.
+
+=cut
+
+sub exact_match {
+  my $self           = shift;
+  my ($field,$value) = @_;
+  return qq($field = ?);
+}
+
+=head2 dbi_quote
+
+ Title   : dbi_quote
+ Usage   : $string = $db->dbi_quote($sql,@args)
+ Function: perform bind variable substitution
+ Returns : query string
+ Args    : the query string and bind arguments
+ Status  : public
+
+This method replaces the bind variable "?" in a SQL statement with
+appropriately quoted bind arguments.  It is used internally to handle
+drivers that don't support argument binding.
+
+=cut
+
+#'
+
+sub dbi_quote {
+  my $self = shift;
+  my ($query,@args) = @_;
+  my $dbi = $self->features_db;
+  $query =~ s/\?/$dbi->quote(shift @args)/eg;
+  $query;
+}
+
+=head2 get_features_iterator
+
+ Title   : get_features_iterator
+ Usage   : $iterator = $db->get_features_iterator(@args)
+ Function: create an iterator on a features() query
+ Returns : A Bio::DB::GFF::Adaptor::dbi::iterator object
+ Args    : see get_features()
+ Status  : public
+
+This method is similar to get_features(), except that it returns an
+iterator across the query.  See
+L<Bio::DB::GFF::Adaptor::dbi::iterator>.
+
+=cut
+
+sub get_features_iterator {
+  my $self = shift;
+  my ($rangetype,$srcseq,$class,$start,$stop,$types,$callback,$order_by_group) = @_;
+  $callback || $self->throw('must provide a callback argument');
+  my $sth = $self->range_query($rangetype,$srcseq,$class,$start,$stop,$types,$order_by_group) or return;
+  return Bio::DB::GFF::Adaptor::dbi::iterator->new($sth,$callback);
+}
+
+########################## loading and initialization  #####################
+
+=head2 do_initialize
+
+ Title   : do_initialize
+ Usage   : $success = $db->do_initialize($drop_all)
+ Function: initialize the database
+ Returns : a boolean indicating the success of the operation
+ Args    : a boolean indicating whether to delete existing data
+ Status  : protected
+
+This method will load the schema into the database.  If $drop_all is
+true, then any existing data in the tables known to the schema will be
+deleted.
+
+Internally, this method calls schema() to get the schema data.
+
+=cut
+
+# Create the schema from scratch.
+# You will need create privileges for this.
+sub do_initialize {
+  my $self = shift;
+  my $drop_all = shift;
+  $self->drop_all if $drop_all;
+
+  my $dbh = $self->features_db;
+  my @statements = split "\n\n",$self->schema;
+  foreach (@statements) {
+    s/;.*\Z//s;
+    unless ($dbh->do($_)) {
+      warn $dbh->errstr;
+      return;
+    }
+  }
+  1;
+}
+
+=head2 drop_all
+
+ Title   : drop_all
+ Usage   : $db->drop_all
+ Function: empty the database
+ Returns : void
+ Args    : none
+ Status  : protected
+
+This method drops the tables known to this module.  Internally it
+calls the abstract tables() method.
+
+=cut
+
+# Drop all the GFF tables -- dangerous!
+sub drop_all {
+  my $self = shift;
+  my $dbh = $self->features_db;
+  local $dbh->{PrintError} = 0;
+  foreach ($self->tables) {
+    $dbh->do("drop table $_");
+  }
+}
+
 =head1 QUERIES TO IMPLEMENT
 
 The following astract methods either return DBI statement handles or
 fragments of SQL.  They must be implemented by subclasses of this
 module.  See Bio::DB::GFF::Adaptor::dbi::mysql for examples.
+
+
+=head2 make_features_select_part
+
+ Title   : make_features_select_part
+ Usage   : $string = $db->make_features_select_part()
+ Function: make select part of the features query
+ Returns : a string
+ Args    : none
+ Status  : Abstract
+
+This abstract method creates the part of the features query that
+immediately follows the SELECT keyword.
+
+=cut
+
+sub make_features_select_part {
+  shift->throw("make_features_select_part(): must be implemented by subclass");
+}
+
+=head2 make_features_from_part
+
+ Title   : make_features_from_part
+ Usage   : $string = $db->make_features_from_part()
+ Function: make from part of the features query
+ Returns : a string
+ Args    : none
+ Status  : Abstract
+
+This abstract method creates the part of the features query that
+immediately follows the FROM keyword.
+
+=cut
+
+sub make_features_from_part {
+  shift->throw("make_features_from_part(): must be implemented by subclass");
+}
+
+=head2 make_features_join_part
+
+ Title   : make_features_join_part
+ Usage   : $string = $db->make_features_join_part()
+ Function: make join part of the features query
+ Returns : a string
+ Args    : none
+ Status  : Abstract
+
+This abstract method creates the part of the features query that
+immediately follows the WHERE keyword.  It is combined with the output
+of make_feautres_where_part() to form the full WHERE clause.  If you
+do not need to join, return "1".
+
+=cut
+
+sub make_features_join_part {
+  shift->throw("make_features_join_part(): must be implemented by subclass");
+}
+
+
+=head2 make_features_order_by_part
+
+ Title   : make_features_order_by_part
+ Usage   : ($query,@args) = $db->make_features_order_by_part()
+ Function: make the ORDER BY part of the features() query
+ Returns : a SQL fragment and bind arguments, if any
+ Args    : none
+ Status  : Abstract
+
+This abstract method creates the part of the features query that
+immediately follows the ORDER BY part of the query issued by
+features() and related methods.  Return undef if it is not necessary
+to order the returned features in some way.
+
+=cut
+
+sub make_features_order_by_part {
+  my $self = shift;
+  $self->throw("please implement a make_features_order_by_part() method");
+}
 
 =head2 make_dna_query
 
@@ -785,10 +978,10 @@ part of the select WHERE section that selects a set of features based
 on their type. It returns a multi-element list in which the first
 element is the SQL fragment and subsequent elements are bind values.
 The argument is an array reference containing zero or more
-[$method,$source] pairs.  See Bio::DB::GFF::Adaptor::dbi::mysql for
-examples.
+[$method,$source] pairs.
 
 =cut
+#'
 
 # generate the fragment of SQL responsible for searching for
 # features with particular types and methods
@@ -800,11 +993,65 @@ sub types_query {
   # in array context, return a query string and bind arguments
 }
 
+=head2 make_types_select_part
+
+ Title   : make_types_select_part
+ Usage   : ($string,@args) = $db->make_types_select_part(@args)
+ Function: create the select portion of the SQL for fetching features type list
+ Returns : query string and bind arguments
+ Args    : see below
+ Status  : Abstract
+
+This abstract method is called by get_types() to generate the query
+fragment and bind arguments for the SELECT part of the query that
+retrieves lists of feature types.  The four positional arguments are
+as follows:
+
+ $refseq      reference sequence name
+ $start       start of region
+ $stop        end of region
+ $want_count  true to return the count of this feature type
+
+If $want_count is false, the SQL fragment returned must produce a list
+of feature types in the format (method, source).
+
+If $want_count is true, the returned fragment must produce a list of
+feature types in the format (method, source, count).
+
+=cut
+
 sub make_types_select_part {
   my $self = shift;
   my ($srcseq,$start,$stop,$want_count) = @_;
   $self->throw("make_types_select_part(): must be implemented by subclass");
 }
+
+=head2 make_types_from_part
+
+ Title   : make_types_from_part
+ Usage   : ($string,@args) = $db->make_types_from_part(@args)
+ Function: create the FROM portion of the SQL for fetching features type lists
+ Returns : query string and bind arguments
+ Args    : see below
+ Status  : Abstract
+
+This abstract method is called by get_types() to generate the query
+fragment and bind arguments for the FROM part of the query that
+retrieves lists of feature types.  The four positional arguments are
+as follows:
+
+ $refseq      reference sequence name
+ $start       start of region
+ $stop        end of region
+ $want_count  true to return the count of this feature type
+
+If $want_count is false, the SQL fragment returned must produce a list
+of feature types in the format (method, source).
+
+If $want_count is true, the returned fragment must produce a list of
+feature types in the format (method, source, count).
+
+=cut
 
 sub make_types_from_part {
   my $self = shift;
@@ -812,11 +1059,53 @@ sub make_types_from_part {
   $self->throw("make_types_from_part(): must be implemented by subclass");
 }
 
+=head2 make_types_join_part
+
+ Title   : make_types_join_part
+ Usage   : ($string,@args) = $db->make_types_join_part(@args)
+ Function: create the JOIN portion of the SQL for fetching features type lists
+ Returns : query string and bind arguments
+ Args    : see below
+ Status  : Abstract
+
+This abstract method is called by get_types() to generate the query
+fragment and bind arguments for the JOIN part of the query that
+retrieves lists of feature types.  The four positional arguments are
+as follows:
+
+ $refseq      reference sequence name
+ $start       start of region
+ $stop        end of region
+ $want_count  true to return the count of this feature type
+
+=cut
+
 sub make_types_join_part {
   my $self = shift;
   my ($srcseq,$start,$stop,$want_count) = @_;
   $self->throw("make_types_join_part(): must be implemented by subclass");
 }
+
+=head2 make_types_where_part
+
+ Title   : make_types_where_part
+ Usage   : ($string,@args) = $db->make_types_where_part(@args)
+ Function: create the WHERE portion of the SQL for fetching features type lists
+ Returns : query string and bind arguments
+ Args    : see below
+ Status  : Abstract
+
+This abstract method is called by get_types() to generate the query
+fragment and bind arguments for the WHERE part of the query that
+retrieves lists of feature types.  The four positional arguments are
+as follows:
+
+ $refseq      reference sequence name
+ $start       start of region
+ $stop        end of region
+ $want_count  true to return the count of this feature type
+
+=cut
 
 sub make_types_where_part {
   my $self = shift;
@@ -824,115 +1113,139 @@ sub make_types_where_part {
   $self->throw("make_types_where_part(): must be implemented by subclass");
 }
 
+=head2 make_types_group_part
+
+ Title   : make_types_group_part
+ Usage   : ($string,@args) = $db->make_types_group_part(@args)
+ Function: create the GROUP BY portion of the SQL for fetching features type lists
+ Returns : query string and bind arguments
+ Args    : see below
+ Status  : Abstract
+
+This abstract method is called by get_types() to generate the query
+fragment and bind arguments for the GROUP BY part of the query that
+retrieves lists of feature types.  The four positional arguments are
+as follows:
+
+ $refseq      reference sequence name
+ $start       start of region
+ $stop        end of region
+ $want_count  true to return the count of this feature type
+
+This method may return an empty list if grouping is not required.
+Note, however, that grouping will always be required if a type count
+is requested.
+
+=cut
+
 sub make_types_group_part {
   my $self = shift;
   my ($srcseq,$start,$stop,$want_count) = @_;
   $self->throw("make_types_group_part(): must be implemented by subclass");
 }
 
-sub string_match {
-  my $self           = shift;
-  my ($field,$value) = @_;
-  return qq($field = ?) if $value =~ /^[!@%&a-zA-Z0-9_\'\" ~-]+$/;
-  return qq($field REGEXP ?);
-}
+=head2 tables
 
-sub exact_match {
-  my $self           = shift;
-  my ($field,$value) = @_;
-  return qq($field = ?);
-}
+ Title   : tables
+ Usage   : @tables = $db->tables
+ Function: return list of tables that belong to this module
+ Returns : list of tables
+ Args    : none
+ Status  : protected
 
-sub dbi_quote {
-  my $self = shift;
-  my ($query,@args) = @_;
-  my $dbi = $self->features_db;
-  $query =~ s/\?/$dbi->quote(shift @args)/eg;
-  $query;
-}
+This method lists the tables known to the module.
 
-sub get_features_iterator {
-  my $self = shift;
-  my ($rangetype,$srcseq,$class,$start,$stop,$types,$order_by_group,$callback) = @_;
-  $callback || $self->throw('must provide a callback argument');
-  my $sth = $self->range_query($rangetype,$srcseq,$class,$start,$stop,$types,$order_by_group) or return;
-  return Bio::DB::GFF::Adaptor::dbi::iterator->new($sth,$callback);
-}
-
-########################## loading and initialization  #####################
-
-# Create the schema from scratch.
-# You will need create privileges for this.
-sub do_initialize {
-  my $self = shift;
-  my $drop_all = shift;
-  $self->drop_all if $drop_all;
-
-  my $dbh = $self->features_db;
-  my @statements = split "\n\n",$self->schema;
-  foreach (@statements) {
-    s/;.*\Z//s;
-    unless ($dbh->do($_)) {
-      warn $dbh->errstr;
-      return;
-    }
-  }
-  1;
-}
-
-# Drop all the GFF tables -- dangerous!
-sub drop_all {
-  my $self = shift;
-  my $dbh = $self->features_db;
-  local $dbh->{PrintError} = 0;
-  foreach ($self->tables) {
-    $dbh->do("drop table $_");
-  }
-}
+=cut
 
 # return list of tables that "belong" to us.
 sub tables {
   shift->throw("tables(): must be implemented by subclass");
 }
 
+=head2 schema
+
+ Title   : schema
+ Usage   : $schema = $db->schema
+ Function: return the CREATE script for the schema
+ Returns : a string
+ Args    : none
+ Status  : abstract
+
+This method returns a string containing the various CREATE statements
+needed to initialize the database tables.  For historical reasons,
+there must be a blank line between each of the CREATE statements:
+
+ create table fgroup (
+     gid	    int not null  auto_increment,
+     gclass  varchar(20),
+     gname   varchar(100),
+     primary key(gid),
+     unique(gclass,gname)
+ );
+
+ create table ftype (
+     ftypeid      int not null   auto_increment,
+     fmethod       varchar(30) not null,
+     fsource       varchar(30),
+     primary key(ftypeid),
+     index(fmethod),
+     index(fsource),
+     unique ftype (fmethod,fsource)
+ );
+
+ create table fdna (
+     fref          varchar(20) not null,
+     fdna          longblob not null,
+     primary key(fref)
+ );
+
+=cut
+
+# return list of tables that "belong" to us.
+sub tables {
+  shift->throw("tables(): must be implemented by subclass");
+}
+
+=head2 DESTROY
+
+ Title   : DESTROY
+ Usage   : $db->DESTROY
+ Function: disconnect database at destruct time
+ Returns : void
+ Args    : none
+ Status  : protected
+
+This is the destructor for the class.
+
+=cut
+
 sub DESTROY {
   my $self = shift;
   $self->features_db->disconnect if defined $self->features_db;
 }
 
-package Bio::DB::GFF::Adaptor::dbi::iterator;
-use strict;
-
-use constant STH         => 0;
-use constant CALLBACK    => 1;
-
-*next_seq = \&next_feature;
-
-sub new {
-  my $class = shift;
-  my ($sth,$callback) = @_;
-  return bless [$sth,$callback],$class;
-}
-
-sub next_feature {
-  my $self = shift;
-  my $sth = $self->[STH] or return;
-  my $callback = $self->[CALLBACK];
-
-  my $feature;
-  while (1) {
-    if (my @row = $sth->fetchrow_array) {
-      $feature = $callback->(@row);
-      last if $feature;
-    } else {
-      $sth->finish;
-      undef $self->[STH];
-      $feature = $callback->();
-      last;
-    }
-  }
-  return $feature;
-}
-
 1;
+
 __END__
+
+=head1 BUGS
+
+Not really Bio::SeqFeatureI compliant yet.
+
+Schemas need some work.
+
+=head1 SEE ALSO
+
+L<Bio::DB::GFF>, L<bioperl>
+
+=head1 AUTHOR
+
+Lincoln Stein E<lt>lstein@cshl.orgE<gt>.
+
+Copyright (c) 2001 Cold Spring Harbor Laboratory.
+
+This library is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself.
+
+=cut
+

@@ -1,3 +1,127 @@
+=head1 NAME
+
+Bio::DB::GFF::Adaptor::dbi::mysql -- Database adaptor for a specific mysql schema
+
+=head1 SYNOPSIS
+
+See L<Bio::DB::GFF>
+
+=head1 DESCRIPTION
+
+This adaptor implements a specific mysql database schema that is
+compatible with Bio::DB::GFF.  It inherits from
+Bio::DB::GFF::Adaptor::dbi, which itself inherits from Bio::DB::GFF.
+
+The schema uses four tables:
+
+=over 4
+
+=item fdata
+
+This is the feature data table.  Its columns are:
+
+    fid	           feature ID (integer)
+    fref           reference sequence name (string)
+    fstart         start position relative to reference (integer)
+    fstop          stop postion relative to reference (integer)
+    ftypeid        feature type ID (integer)
+    fscore         feature score (float); may be null
+    fstrand        strand; one of "+" or "-"; may be null
+    fphase         phase; one of 0, 1 or 2; may be null
+    gid            group ID (integer)
+    ftarget_start  for similarity features, the target start position (integer)
+    ftarget_stop   for similarity features, the target stop position (integer)
+
+=item fgroup
+
+This is the group table. There is one row for each group.  Columns:
+
+    gid	      the group ID (integer)
+    gclass    the class of the group (string)
+    gname     the name of the group (string)
+
+The group table serves multiple purposes.  As you might expect, it is
+used to cluster features that logically belong together, such as the
+multiple exons of the same transcript.  It is also used to assign a
+name and class to a singleton feature.  Finally, the group table is
+used to identify the target of a similarity hit.  This is consistent
+with the way in which the group field is used in the GFF version 2
+format.
+
+The fgroup.gid field joins with the fdata.gid field. 
+
+Examples:
+
+  mysql> select * from fgroup where gname='sjj_2L52.1';
+  +-------+-------------+------------+
+  | gid   | gclass      | gname      |
+  +-------+-------------+------------+
+  | 69736 | PCR_product | sjj_2L52.1 |
+  +-------+-------------+------------+
+  1 row in set (0.70 sec)
+
+  mysql> select fref,fstart,fstop from fdata,fgroup 
+            where gclass='PCR_product' and gname = 'sjj_2L52.1' 
+                  and fdata.gid=fgroup.gid;
+  +---------------+--------+-------+
+  | fref          | fstart | fstop |
+  +---------------+--------+-------+
+  | CHROMOSOME_II |   1586 |  2355 |
+  +---------------+--------+-------+
+  1 row in set (0.03 sec)
+
+=item ftype
+
+This table contains the feature types, one per row.  Columns are:
+
+    ftypeid      the feature type ID (integer)
+    fmethod      the feature type method name (string)
+    fsource      the feature type source name (string)
+
+The ftype.ftypeid field joins with the fdata.ftypeid field.  Example:
+
+  mysql> select fref,fstart,fstop,fmethod,fsource from fdata,fgroup,ftype 
+         where gclass='PCR_product' 
+               and gname = 'sjj_2L52.1'
+               and fdata.gid=fgroup.gid
+               and fdata.ftypeid=ftype.ftypeid;
+  +---------------+--------+-------+-------------+-----------+
+  | fref          | fstart | fstop | fmethod     | fsource   |
+  +---------------+--------+-------+-------------+-----------+
+  | CHROMOSOME_II |   1586 |  2355 | PCR_product | GenePairs |
+  +---------------+--------+-------+-------------+-----------+
+  1 row in set (0.08 sec)
+
+=item fdna
+
+This table holds the raw DNA of the reference sequences.  It has two
+columns:
+
+    fref          reference sequence name (string)
+    fdna          the DNA sequence (longblob)
+
+Note that the GFF module will not help you load this table.  You must
+load it yourself.
+
+=item fnote
+
+This table holds "notes", which some groups have used the GFF group
+field to represent.  Notes are created by creating a group class of
+"Note" and a group value containing the text of the note.
+
+Columns are:
+
+    fid      feature ID (integer)
+    fnote    text of the note (text)
+
+The fdata.fid column joins with fnote.fid.
+
+=back
+
+
+
+=cut
+
 package Bio::DB::GFF::Adaptor::dbi::mysql;
 
 # a simple mysql adaptor
