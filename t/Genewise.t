@@ -10,11 +10,13 @@ BEGIN {
     }
     use Test;
     use vars qw($NTESTS);
-    $NTESTS = 32;
+    $NTESTS = 51;
     plan tests => $NTESTS;
 }
 use Bio::Tools::Genewise;
 use Bio::SeqIO;
+use Bio::SearchIO;
+use Bio::Root::IO;
 
 END {
     for ( $Test::ntest..$NTESTS ) {
@@ -79,12 +81,39 @@ ok ($sf->feature2->start,1);
 ok ($sf->feature2->end,44);
 ok ($sf->feature1->end,22396);
 
+$parser = new Bio::SearchIO(-file => 
+			    Bio::Root::IO->catfile(qw(t data genewise.out)),
+			    -format   => 'wise',
+			    -wisetype => 'genewise');
+my $result = $parser->next_result;
+ok($result->query_name, 'SINFRUP00000067802');
+my $hit = $result->next_hit;
+ok($hit->name, 'Scaffold_2042.1');
+ok($hit->score, 2054.68);
+my $hsp = $hit->next_hsp;
 
+ok($hsp->query->start,22265);
+ok($hsp->query->end,22396);
+ok($hsp->query->strand,1);
+ok($hsp->query->score, 2054.68);
 
+ok($hsp->hit->start,1);
+ok($hsp->hit->end,44);
+ok($hsp->hit->strand,0);
+ok($hsp->hit->score, 2054.68);
 
+$hsp = $hit->next_hsp;
 
+ok($hsp->query->start,24224);
+ok($hsp->query->end,24328);
 
+ok($hsp->hit->start,45);
+ok($hsp->hit->end,79);
 
+$hsp = $hit->next_hsp;
 
+ok($hsp->query->start,24471);
+ok($hsp->query->end,24513);
 
-
+ok($hsp->hit->start,80);
+ok($hsp->hit->end,93);
