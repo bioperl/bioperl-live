@@ -313,11 +313,18 @@ sub get_collection {
         #warn "Merging the two segments now...";
         my $existing_segment = $seq_ids{ $segment->abs_seq_id() };
         my $abs_range = $existing_segment->abs_range();
-        if( !ref( $abs_range ) ||
-            !$abs_range->isa( 'Bio::PrimarySeqI' ) ||
-            !$abs_range->length()
+        my $potential_abs_range = $segment->abs_range();
+        if( ( !ref( $abs_range ) && ref( $potential_abs_range ) ) ||
+            (
+             ( ref( $abs_range ) && !$abs_range->isa( 'Bio::PrimarySeqI' ) ) &&
+             ( ref( $potential_abs_range ) &&
+               $potential_abs_range->isa( 'Bio::PrimarySeqI' ) )
+            ) ||
+            ( ( ref( $abs_range ) && !$abs_range->length() ) &&
+              ( ref( $potential_abs_range ) && $potential_abs_range->length() )
+            )
           ) {
-          $abs_range = $segment->abs_range();
+          $abs_range = $potential_abs_range;
           ## TODO: REMOVE
           #warn "Okay, so the new abs_range is $abs_range, a ".ref( $abs_range )."; we got it from $next_provider.";
         } else {

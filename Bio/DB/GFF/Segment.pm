@@ -2020,7 +2020,7 @@ sub feature_count {
   my $self = shift;
 
   ## TODO: REMOVE.  Temporary hack because we never finished the jdrf_lod feature counting stuff.
-  return 1;
+  #return 1;
 
   ## TODO: REMOVE.  Paul's hack to deal with Luc Smink's 2q33 stuff:
   #if( $self->class() eq 'LucSmink' ) {

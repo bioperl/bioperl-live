@@ -151,6 +151,15 @@ sub get_abscoords {
     ( $start, $end ) = ( $end, $start );
     $strand = '-';
   }
+
+  ## TODO: REMOVE
+  #warn "jdrf_lod:get_abscoords( $chr:$start-$end ), name is $name;";
+
+  ## TODO: Dehackify
+  if( ( defined( $chr ) && ( $chr !~ /^\d/ ) ) ||
+      ( defined( $name ) && ( $name !~ /^\d/ ) ) ) {
+    return;
+  }
   ## Paul's note: I figured out how to do this by trial and error.  I
   ## can't say I understand *why* I had to do it like I did, but what
   ## can ya do?
@@ -447,7 +456,8 @@ sub _do_callback {
     'lod:$str_id',                    # $group_id    The group id..
     ## Tags and their values
     'fuzzy' => $markers->{ $mrk_name }{ 'fuzzy' },
-    'link'  => "http://jdrfdev.systemsbiology.net/cgi-bin/jdrf_publication.cgi?str_id=$str_id"
+    'link'  => "http://jdrfdev.systemsbiology.net/cgi-bin/jdrf_publication.cgi?str_id=$str_id",
+    'description'  => ( $mrk_name.': '.$markers->{ $mrk_name }{ 'score' } )
   );
 } # _do_callback(..)
 
@@ -531,7 +541,38 @@ Not Implemented (yet)
 =cut
 
 sub get_types {
-  return { 'lod:6' => 14 }; ## TODO: REMOVE!
+  my $self = shift;
+  my ( $chr, $class, $start, $stop, $count ) = @_;
+  ## TODO: Dehackify
+  if( $chr !~ /^\d/ ) {
+    return;
+  }
+  unless( exists( $self->{ '__valid_ranges_hack' } ) ) {
+    foreach my $valid_range qw(
+           11:65695316,70981556
+           14:83890000,91290000
+           2:202980000,213140000
+           10:109010000,116960000
+           1:228150000,229170000
+                               ) {
+      my ( $vr_chr, $vr_start, $vr_end ) =
+        ( $valid_range =~ /^(\d+):(\d+),(\d+)$/ );
+      push( @{ $self->{ '__valid_ranges_hack' } },
+            Bio::Range->new( '-seq_id' => $vr_chr, '-start' => $vr_start, '-end' => $vr_end ) );
+    }
+  }
+  my $query_range =
+    Bio::Range->new( '-seq_id' => $chr, '-start' => $start, '-end' => $stop );
+  foreach my $valid_range ( @{ $self->{ '__valid_ranges_hack' } } ) {
+    if( $valid_range->overlaps( $query_range ) ) {
+      ## TODO: REMOVE
+      #warn "Yes, a lod region";
+      return ( 'lod' => 1 );
+    }
+  }
+  ## TODO: REMOVE
+  #warn "No, not a lod region";
+  return undef;
 } # get_types(..)
 
 ##### GET STRATIFICATION IDS FOR A SEGMENT
