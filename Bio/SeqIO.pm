@@ -321,6 +321,8 @@ sub BEGIN {
     eval { require Bio::SeqIO::staden::read; };
 }
 
+my %valid_alphabet_cache;
+
 =head2 new
 
  Title   : new
@@ -483,16 +485,21 @@ sub alphabet {
    my ($self, $value) = @_;
 
    if ( defined $value) {
-       # instead of hard-coding the allowed values once more, we check by
-       # creating a dummy sequence object
-       eval {
-	   require Bio::PrimarySeq;
-	   my $seq = Bio::PrimarySeq->new('-alphabet' => $value);
-       };
-       if($@) {
-	   $self->throw("Invalid alphabet: $value\n. See Bio::PrimarySeq for allowed values.");
+       $value = lc $value;
+       unless ($valid_alphabet_cache{$value}) {
+	   # instead of hard-coding the allowed values once more, we check by
+	   # creating a dummy sequence object
+	   eval {
+	       require Bio::PrimarySeq;
+	       my $seq = Bio::PrimarySeq->new('-alphabet' => $value);
+		
+	   };
+	   if ($@) {
+	       $self->throw("Invalid alphabet: $value\n. See Bio::PrimarySeq for allowed values.");
+	   }
+	   $valid_alphabet_cache{$value} = 1;
        }
-       $self->{'alphabet'} = "\L$value";
+       $self->{'alphabet'} = $value;
    }
    return $self->{'alphabet'};
 }

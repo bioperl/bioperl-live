@@ -790,10 +790,8 @@ sub can_call_new {
 =cut
 
 sub alphabet {
-   my ($self,$value) = @_;
-   if( defined $value ) {
-       return $self->primary_seq->alphabet($value);
-   }
+   my $self = shift;
+   return $self->primary_seq->alphabet(shift) if @_ && defined $_[0];
    return $self->primary_seq->alphabet();
 }
 

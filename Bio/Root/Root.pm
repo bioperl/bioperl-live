@@ -227,13 +227,13 @@ sub new {
 sub verbose {
    my ($self,$value) = @_;
    # allow one to set global verbosity flag
-   if( $DEBUG ) { return $DEBUG }
+   return $DEBUG  if $DEBUG;
+   return $VERBOSITY unless ref $self;
    
-   if(ref($self) && (defined $value || ! defined $self->{'_root_verbose'}) ) {
-       $value = 0 unless defined $value;
-       $self->{'_root_verbose'} = $value;
-   }
-   return (ref($self) ? $self->{'_root_verbose'} : $VERBOSITY);
+    if (defined $value || ! defined $self->{'_root_verbose'}) {
+       $self->{'_root_verbose'} = $value || 0;
+    }
+    return $self->{'_root_verbose'};
 }
 
 sub _register_for_cleanup {
