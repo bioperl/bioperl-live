@@ -1,6 +1,3 @@
-
-# $Id$
-
 ## --Makefile.PL for Bioperl core module distribution--##
 ## ----------------------------------------------------##
 
@@ -17,10 +14,10 @@
 
 
 %packages = (
-	     'HTTP::Request::Common' => '0.0/Part of the LWP package/remote http Blast jobs/Bio::Tools::Blast',
-	     'LWP::UserAgent'        => '0.0/Part of the LWP package/remote http Blast jobs/Bio::Tools::Blast',
-	     'Ace'                   => '0.0/Aceperl/access of ACeDB database/Bio::DB::Ace',
-	     'Bio::Ext::Align'       => '0.0/Bioperl compile extensions/Bioperl alignment generation/Bio::Tools::pSW'
+	     'HTTP::Request::Common'    => '0.0/Part of the LWP package/remote http Blast jobs/Bio::Tools::Blast',
+	     'LWP::UserAgent'           => '0.0/Part of the LWP package/remote http Blast jobs/Bio::Tools::Blast',
+	     'Ace'                      => '0.0/Aceperl/access of ACeDB database/Bio::DB::Ace',
+	     'IO::Scalar'               => '0.0/IO handle to read or write to a string/remote http Blast jobs/Bio::Tools::Blast::Run::Webblast',
 	     );
 
 sub check_package {
