@@ -638,4 +638,45 @@ sub matches {
     }
     @data;
 }
+
+=head2 n
+
+ Usage     : $hsp_obj->n()
+ Purpose   : Get the N value (num HSPs on which P/Expect is based).
+           : This value is not defined with NCBI Blast2 with gapping.
+ Returns   : Integer or null string if not defined.
+ Argument  : n/a
+ Throws    : n/a
+ Comments  : The 'N' value is listed in parenthesis with P/Expect value:
+           : e.g., P(3) = 1.2e-30  ---> (N = 3).
+           : Not defined in NCBI Blast2 with gaps.
+           : This typically is equal to the number of HSPs but not always.
+           : To obtain the number of HSPs, use Bio::Search::Hit::HitI::num_hsps().
+
+See Also   : L<Bio::SeqFeature::SimilarityPair::score()|Bio::SeqFeature::SimilarityPair>
+
+=cut
+
+sub n { shift->throw_not_implemented }
+
+=head2 range
+
+ Usage     : $hsp->range( [seq_type] );
+ Purpose   : Gets the (start, end) coordinates for the query or sbjct sequence
+           : in the HSP alignment.
+ Example   : ($query_beg, $query_end) = $hsp->range('query');
+           : ($hit_beg, $hit_end) = $hsp->range('hit');
+ Returns   : Two-element array of integers 
+ Argument  : seq_type = string, 'query' or 'hit' or 'sbjct'  (default = 'query')
+           :  ('sbjct' is synonymous with 'hit') 
+ Throws    : n/a
+ Comments  : This is a convenience method for constructions such as
+             ($hsp->query->start, $hsp->query->end)
+
+=cut
+
+sub range { shift->throw_not_implemented }
+
+
 1;
+

@@ -1102,5 +1102,44 @@ sub _calculate_seq_positions {
     return 1;
 }
 
+=head2 n
+
+See documentation in L<Bio::Search::HSP::HSPI::n()|Bio::Search::HSP::HSPI>
+
+=cut
+
+#-----
+sub n { 
+    my $self = shift; 
+    if(@_) { $self->{'_n'} = shift; }
+    defined $self->{'_n'} ? $self->{'_n'} : '';
+}
+
+=head2 range
+
+See documentation in L<Bio::Search::HSP::HSPI::range()|Bio::Search::HSP::HSPI>
+
+=cut
+
+#----------
+sub range {
+#----------
+    my ($self, $seqType) = @_;
+
+    $seqType ||= 'query';
+    $seqType = 'sbjct' if $seqType eq 'hit';
+
+    my ($start, $end);
+    if( $seqType eq 'query' ) {
+        $start = $self->query->start;
+        $end = $self->query->end;
+    }
+    else {
+        $start = $self->hit->start;
+        $end = $self->hit->end;
+    }
+    return ($start, $end);
+}
+
 
 1;
