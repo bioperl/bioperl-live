@@ -3,33 +3,44 @@ Revision history for Bioperl core modules
 
 (fixes and improvements on main trunk not on 1.2 branch)
 
-   o Bio::SearchIO::axt and Bio::SearchIO::psl have been added
-     for parsing these UCSC formats.
+   o New Bio::SearchIO formats
+     - axt and psl:  UCSC formats.
+     - blasttable: NCBI -m 8 or -m 9 format from blastall
 
    o Bio::PopGen has been added to support several population genetics
      types of questions.  Tests for statistical neutrality of mutations
      (Fu and Li's D/F, Tajima's D) are in Bio::PopGen::Statistics.  Tests
      of population structure (Wright's F-statistic: Fst) is in 
-     Bio::PopGen::PopStats.  Additionally some work to provide support for
-     calculating linkage disequilibrium (LD) is in Bio::PopGen::Statistics.
+     Bio::PopGen::PopStats. Calculating composite linkage
+     disequilibrium (LD) is available in Bio::PopGen::Statistics as well.
      
      Several modules for supporting the import and manipulation of 
      Population/Individual/Genotype data are available as well including
      an IO module (Bio::PopGen::IO) for reading in prettybase (SeattleSNPs) 
-     and comma delimited formatted data (csv).   
+     and csv (comma delimited formatted) data.   
 
      Additionally a directory for implementing population simulations has
-     been added Bio::PopGen::Simulations and 2 simulations - a Coalescent and 
+     been added Bio::PopGen::Simulation and 2 simulations - a Coalescent and 
      a simple single-locus multi-allele genetic drift simulation have been
-     provided.
-
+     provided.  This replaces the code in Bio::Tree::RandomTree which
+     has been deprecated until proper methods for generating 
+     random phylogenetic trees are implemented.
+ 
+     Bio::Tree::AlleleNode has been updated to be a container of
+     an Bio::PopGen::Individual object for use in the Coalescent simulations.
+ 
    o Bio::Tools::Genewise has been improved for more robust parsing and 
      producing features capable of being directly written as GFF
      and readable by GBrowse loader.
 
+     Memory leaks which are introduced when dealing with Transcripts
+     and Genes are now properly handled and cleaned up.
+
    o Bio::Matrix::IO has been added for generalized parsing of matrix
      data.  Matrix::IO::scoring and Matrix::IO::phylip are initial 
-     implementations.
+     implementations for parsing BLOSUM/PAM and Phylip Distance matricies
+     respectively.  A generic matrix implementation for general use was
+     added in Bio::Matrix::Generic.
 
 1.2 branch stuff goes here
 
