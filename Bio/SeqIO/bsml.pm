@@ -845,7 +845,7 @@ sub _parse_location {
 	my %locAttr;
 	# Strand information is not well described in BSML
 	$locAttr{complement} = 1 if ($loc->strand == -1);
-	if ($start ne "" && $start == $end || $end eq "") {
+	if ($start ne "" && ($start == $end || $end eq "")) {
 	    $locAttr{sitepos} = $start;
 	    push @added, $self->_addel($xmlFeat,'Site-loc',\%locAttr);
 	} elsif ($start ne "" && $end ne "") {
