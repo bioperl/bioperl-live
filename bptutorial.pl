@@ -42,7 +42,7 @@ BioPerlTutorial - a tutorial for bioperl
   I.3 Installation procedures
   I.4 Additional comments for non-unix users
 
-  II. Brief overview to bioperl\'s objects
+  II. Brief overview to bioperl's objects
   II.1 Sequence objects:
          (Seq, PrimarySeq, LocatableSeq, LiveSeq, LargeSeq, RichSeq, SeqWithQuality, SeqI)
   II.2 Alignment objects (SimpleAlign)
@@ -362,8 +362,8 @@ NCBI-blast).
 Bioperl has mainly been developed and tested under various unix
 environments (including Linux) and this tutorial is intended primarily
 for unix users.  The minimal installation of bioperl should work
-under other OS\'s (NT, windows,Mac).  However, bioperl has not been
-widely tested under these OS\'s.
+under other OS's (NT, windows,Mac).  However, bioperl has not been
+widely tested under these OS's.
 
 Todd Richmond has written of his experiences with BioPerl on MacOS 9
 at http://bioperl.org/Core/mac-bioperl.html.  There is also a
@@ -477,13 +477,13 @@ for Seq objects will work fine with LiveSeq objects. Section L<"III.7.2">
 and L<Bio::LiveSeq> contain further discussion of LiveSeq objects.
 
 SeqI objects are Seq "interface objects" (see section L<"II.4"> and
-L<Bio::SeqI>). They are used to ensure bioperl\'s compatibility with
+L<Bio::SeqI>). They are used to ensure bioperl's compatibility with
 other software packages. SeqI and other interface objects are not
 likely to be relevant to the casual bioperl user.
 
 *** Having described these other types of sequence objects, the
     "bottom line" still is that if you store your sequence data in Seq
-    objects (which is where they\'ll be if you read them in with
+    objects (which is where they'll be if you read them in with
     SeqIO), you will usually do just fine. ***
 
 =for html <A NAME ="ii.2"></A>
@@ -598,7 +598,7 @@ setting up local databases.
 
 Accessing sequence data from the principal molecular biology databases
 is straightforward in bioperl.  Data can be accessed by means of the
-sequence\'s accession number or id.  Batch mode access is also
+sequence's accession number or id.  Batch mode access is also
 supported to facilitate the efficient retrieval of multiple sequences.
 For retrieving data from genbank, for example, the code could be as
 follows:
@@ -814,7 +814,7 @@ find it in EMBOSS, which is accessible through bioperl (see L<"III.3.6">).
 =head2 III.3.1  Manipulating sequence data with Seq methods
 
 OK, so we know how to retrieve sequences and access them as Seq
-objects.  Let\'s see how we can use the Seq objects to manipulate our
+objects.  Let's see how we can use the Seq objects to manipulate our
 sequence data and retrieve information.  Seq provides multiple
 methods for performing many common (and some not-so-common) tasks of
 sequence manipulation and data retrieval.  Here are some of the most
@@ -954,7 +954,7 @@ for more information.
 
 Another common sequence manipulation task for nucleic acid sequences
 is locating restriction enzyme cutting sites.  Bioperl provides the
-RestrictionEnzyme object for this purpose. Bioperl\'s
+RestrictionEnzyme object for this purpose. Bioperl's
 standard RestrictionEnzyme object comes with data for more than 150
 different restriction enzymes. A list of the available enzymes can be
 accessed using the available_list() method. For example to select all
@@ -2170,7 +2170,7 @@ See L<Bio::Biblio> or the examples/biblio.pl script for details.
 
 =for html <A NAME ="iii.8.5"></A>
 
-III.8.5 Graphics objects for representing sequence objects as images (Graphics)
+=head2 III.8.5 Graphics objects for representing sequence objects as images (Graphics)
 
 A user may want to represent Seq objects and their SeqFeatures graphically. The
 Bio::Graphics::* modules use Perl's GD.pm module to create a PNG or GIF image
