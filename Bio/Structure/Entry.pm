@@ -1,4 +1,4 @@
-# $Id $
+# $Id$
 #
 # bioperl module for Bio::Structure::Entry
 #
@@ -65,6 +65,8 @@ use Bio::Root::Root;
 use Bio::StructureI;
 use Bio::Structure::Model;
 use Bio::Structure::Chain;
+use Bio::Annotation::Collection;
+use Tie::RefHash;
 @ISA = qw(Bio::Root::Root Bio::StructureI);
 
 
@@ -72,8 +74,7 @@ use Bio::Structure::Chain;
 
  Title   : new()
  Usage   : $struc = Bio::Structure::Entry->new( 
-                                           -id  => 'human_id',
-                                           -accession_number => 'AL000012',
+                                           -id  => 'structure_id',
                                            );
 
  Function: Returns a new Bio::Structure::Entry object from basic 
@@ -81,9 +82,6 @@ use Bio::Structure::Chain;
  Returns : a new Bio::Structure::Model object
 
 =cut
-
-
-
 
 sub new {
     my ($class, @args) = @_;
@@ -98,27 +96,36 @@ sub new {
                               )],
                           @args);
 
+    # where to store parent->child relations (1 -> 1..n)
+    #  value to this hash will be an array ref
+    #  by using Tie::RefHash we can store references in this hash
+    $self->{'p_c'} = ();
+    tie %{ $self->{'p_c'} } , "Tie::RefHash";
+    
+    # where to store child->parent relations (1 -> 1)
+    $self->{'c_p'} = ();
+    tie %{ $self->{'c_p'} } , "Tie::RefHash";
+
     $id      && $self->id($id);
 
     $self->{'model'} = [];
+    $model   && $self->model($model);
 
-    # the 'smallest' item that can be added to an Entry is a residue. If
-    # neither model nor chain are present, a default is taken
-
-    if($model) {
-	    $self->model($model);
-    } else {  # create first model
-	    $model = Bio::Structure::Model->new();
-	    $self->model($model);
-    }
 
     if($chain) {
-		for my $m ($self->model) { # add this chain on all models
-		    $m->chain($chain);
-    		}
+	if ( ! defined($self->model) ) { # no model yet, create default one
+		$self->_create_default_model;
+	}
+	for my $m ($self->model) { # add this chain on all models
+		$m->chain($chain);
+    	}
     }
 
     $residue  && $self->residue($residue);
+
+    # taken from Bio::Seq (or should we just inherit Bio::Seq and override some methods)
+    my $ann = Bio::Annotation::Collection->new;
+    $self->annotation($ann);
 
     return $self;
 }
@@ -128,7 +135,6 @@ sub new {
 =head2 model()
 
  Title   : model
- Usage   : @models  = $structure->model($model);
  Function: Connects a (or a list of) Model objects to a Bio::Structure::Entry.
  	To add a Model (and keep the existing ones) use add_model()
  	It returns a list of Model objects.
@@ -138,20 +144,27 @@ sub new {
 =cut
 
 sub model {
-	my ($self,$value) = @_;
-	if( defined $value) {
-		if( (ref($value) eq "ARRAY") ||
-		      ($value->isa('Bio::Structure::Model')) ) {
+	my ($self, $model) = @_;
+	
+	if( defined $model) {
+		if( (ref($model) eq "ARRAY") ||
+		      ($model->isa('Bio::Structure::Model')) ) {
 			# remove existing ones, tell they've become orphan
-			$self->_remove_models;
+			my @obj = $self->model;
+			if (@obj) {
+				for my $m (@obj) {
+					$self->_remove_from_graph($m);
+				}
+			}
 			# add the new ones
-			$self->add_model($value);
+			$self->add_model($self,$model);
 		}
 		else {
-			$self->throw("Supplied a $value to model, we want a Bio::Structure::Model or a list of these\n");
+			$self->throw("Supplied a $model to model, we want a Bio::Structure::Model or a list of these\n");
 		}
    	}
-	return @{ $self->{'model'} };
+	# give back list of models via general get method
+	$self->get_models($self);
 }
 
 
@@ -167,31 +180,77 @@ sub model {
 =cut
 
 sub add_model {
-	my($self,$value) = @_;
-	if (defined $value) {
-		if (ref($value) eq "ARRAY") {
+	my($self,$entry,$model) = @_;
+
+	# if only one argument and it's a model, change evrything one place
+	# this is for people calling $entry->add_model($model);
+	if ( !defined $model && ref($entry) =~ /^Bio::Structure::Model/) {
+		$model = $entry;
+		$entry = $self;
+	}
+	# $self and $entry are the same here, but it's used for uniformicity
+	if ( !defined($entry) || ref($entry) !~ /^Bio::Structure::Entry/) {
+		$self->throw("first argument to add_model needs to be a Bio::Structure::Entry object\n");
+	}
+	if (defined $model) {
+		if (ref($model) eq "ARRAY") {
     			# if the user passed in a reference to an array
-			for my $m ( @{$value} ) {
+			for my $m ( @{$model} ) {
 				if( ! $m->isa('Bio::Structure::Model') ) {
 					$self->throw("$m is not a Model\n");
 				}
-				push @{$self->{'model'}}, $m;
-				# tell the child who his parent is
-				$m->entry($self);
+				if ( $self->_parent($m) ) {
+					$self->throw("$m already assigned to a parent\n");
+				}
+				$self->_parent($m, $entry);
+				$self->_child($entry, $m);
+				# create a stringified version of our ref
+				# not used untill we get symbolic ref working
+				#my $str_ref = "$self";
+				#$m->_grandparent($str_ref);
 			}
 		}
-		elsif ( $value->isa('Bio::Structure::Model') ) { 
-			push @{$self->{'model'}}, $value;
-			$value->entry($self);
+		elsif ( $model->isa('Bio::Structure::Model') ) { 
+			if ( $self->_parent($model) ) { # already assigned to a parent
+				$self->throw("$model already assigned\n");
+			}
+			$self->_parent($model, $entry);
+			$self->_child($entry, $model);
+			# create a stringified version of our ref
+			#my $str_ref = "$self";
+			#$model->_grandparent($str_ref);
 		}
 		else {
-			$self->throw("Supplied a $value to add_model, we want a Model or list of Models\n");
+			$self->throw("Supplied a $model to add_model, we want a Model or list of Models\n");
 		}
 	}
-	else {
-		$self->warn("You need to supply an argument of type Model to add_model\n");
-	}
+
+	my $array_ref = $self->_child($entry);
+	return $array_ref ? @{$array_ref} : ();
 }
+
+
+=head2 get_models()
+
+ Title   : get_models
+ Usage   : $structure->get_models($structure);
+ Function: general get method for models attached to an Entry
+ Returns : a list of models attached to this entry
+ Args    : an Entry
+
+=cut
+
+sub get_models {
+	my ($self, $entry) = @_;
+
+	# self and entry can be the same
+	if ( !defined $entry) {
+		$entry = $self;
+	}
+	# pass through to add_model
+	$self->add_model($entry);
+}
+
 
 
 =head2 id()
@@ -213,15 +272,368 @@ sub id {
 }
 
 
+=head2 chain()
+
+ Title   : chain
+ Usage   : @chains  = $structure->chain($chain);
+ Function: Connects a (or a list of) Chain objects to a Bio::Structure::Entry.
+ Returns : list of Bio::Structure::Residue objects
+ Args    : One Residue or a reference to an array of Residue objects
+
+=cut
+
+sub chain {
+	my ($self, $chain) = @_;
+
+	if ( ! $self->model ) {
+		$self->_create_default_model;
+	}
+	my @models = $self->model;
+	my $first_model = $models[0];
+
+	if ( defined $chain) {
+	
+		if( (ref($chain) eq "ARRAY") ||
+		      ($chain->isa('Bio::Structure::Chain')) ) {
+			# remove existing ones, tell they've become orphan
+			my @obj = $self->get_chains($first_model);
+			if (@obj) {
+				for my $c (@obj) {
+					$self->_remove_from_graph($c);
+				}
+			}
+			# add the new ones
+			$self->add_chain($first_model,$chain);
+		}
+		else {
+			$self->throw("Supplied a $chain to chain, we want a Bio::Structure::Chain or a list of these\n");
+		}
+	}
+	$self->get_chains($first_model);
+}
+
+
+=head2 add_chain()
+
+ Title   : add_chain
+ Usage   : @chains  = $structure->add_chain($add_chain);
+ Function: Adds a (or a list of) Chain objects to a Bio::Structure::Entry.
+ Returns : 
+ Args    : 
+
+=cut
+
+sub add_chain {
+	my($self, $model, $chain) = @_;
+
+	if (ref($model) !~ /^Bio::Structure::Model/) {
+		$self->throw("add_chain: first argument needs to be a Model object\n");
+	}
+	if (defined $chain) {
+		if (ref($chain) eq "ARRAY") {
+    			# if the user passed in a reference to an array
+			for my $c ( @{$chain} ) {
+				if( ! $c->isa('Bio::Structure::Chain') ) {
+					$self->throw("$c is not a Chain\n");
+				}
+				if ( $self->_parent($c) ) {
+					$self->throw("$c already assigned to a parent\n");
+				}
+				$self->_parent($c, $model);
+				$self->_child($model, $c);
+				# stringify $self ref
+				#my $str_ref = "$self";
+				#$c->_grandparent($str_ref);
+			}
+		}
+		elsif ( $chain->isa('Bio::Structure::Chain') ) { 
+			if ( $self->_parent($chain) ) { # already assigned to parent
+				$self->throw("$chain already assigned to a parent\n");
+			}
+			$self->_parent($chain,$model);
+			$self->_child($model, $chain);
+			# stringify $self ref
+			#my $str_ref = "$self";
+			#$chain->_grandparent($str_ref);
+		}
+		else {
+			$self->throw("Supplied a $chain to add_chain, we want a Chain or list of Chains\n");
+		}
+	}
+	my $array_ref = $self->_child($model);
+	return $array_ref ? @{$array_ref} : ();
+}
+
+
+=head2 get_chains()
+
+ Title   : get_chains
+ Usage   : $entry->get_chains($model);
+ Function: general get method for chains attached to a Model
+ Returns : a list of chains attached to this model
+ Args    : a Model
+
+=cut
+
+sub get_chains {
+	my ($self, $model) = @_;
+
+	if (! defined $model) {
+		$self->throw("You need to supply a model the get_chains\n");
+	}
+	# pass through to add_chain
+	$self->add_chain($model);
+}
+
+
+=head2 residue()
+
+ Title   : residue
+ Usage   : @residues  = $structure->residue($residue);
+ Function: Connects a (or a list of) Residue objects to a Bio::Structure::Entry.
+ Returns : list of Bio::Structure::Residue objects
+ Args    : One Residue or a reference to an array of Residue objects
+
+=cut
+
+sub residue {
+	my ($self, $residue) = @_;
+
+	if ( ! $self->model ) {
+		my $m = $self->_create_default_model;
+		$self->add_model($self,$m);
+	}
+	my @models = $self->model;
+	my $first_model = $models[0];
+	
+	if ( ! $self->get_chains($first_model) ) {
+		my $c = $self->_create_default_chain;
+		$self->add_chain($first_model, $c);
+	}
+	my @chains = $self->get_chains($first_model);
+	my $first_chain = $chains[0];
+
+	if( defined $residue) {
+		if( (ref($residue) eq "ARRAY") ||
+		      ($residue->isa('Bio::Structure::Residue')) ) {
+			# remove existing ones, tell they've become orphan
+			my @obj = $self->get_residues($first_chain);
+			if (@obj) {
+				for my $r (@obj) {
+					$self->_remove_from_graph($r);
+				}
+			}
+			# add the new ones
+			$self->add_residue($first_chain,$residue);
+		}
+		else {
+			$self->throw("Supplied a $residue to residue, we want a Bio::Structure::Residue or a list of these\n");
+		}
+   	}
+	$self->get_residues($first_chain);
+}
+
+
+=head2 add_residue()
+
+ Title   : add_residue
+ Usage   : @residues  = $structure->add_residue($residue);
+ Function: Adds a (or a list of) Residue objects to a Bio::Structure::Entry.
+ Returns : list of Bio::Structure::Residue objects
+ Args    : One Residue or a reference to an array of Residue objects
+
+=cut
+
+sub add_residue {
+	my($self,$chain,$residue) = @_;
+
+	if (ref($chain) !~ /^Bio::Structure::Chain/) {
+		$self->throw("add_residue: first argument needs to be a Chain object\n");
+	}
+	if (defined $residue) {
+		if (ref($residue) eq "ARRAY") {
+    			# if the user passed in a reference to an array
+			for my $r ( @{$residue} ) {
+				if( ! $r->isa('Bio::Structure::Residue') ) {
+					$self->throw("$r is not a Residue\n");
+				}
+				if ( $self->_parent($r) ) {
+					$self->throw("$r already belongs to a parent\n");
+				}
+				$self->_parent($r, $chain);
+				$self->_child($chain, $r);
+				# stringify
+				my $str_ref = "$self";
+				$r->_grandparent($str_ref);
+			}
+		}
+		elsif ( $residue->isa('Bio::Structure::Residue') ) { 
+			if ( $self->_parent($residue) ) {
+				$self->throw("$residue already belongs to a parent\n");
+			}
+			$self->_parent($residue, $chain);
+			$self->_child($chain, $residue);
+			# stringify
+			my $str_ref = "$self";
+			$residue->_grandparent($str_ref);
+		}
+		else {
+			$self->throw("Supplied a $residue to add_residue, we want a Residue or list of Residues\n");
+		}
+	}
+	my $array_ref = $self->_child($chain);
+	return $array_ref ? @{$array_ref} : ();
+}
+
+
+=head2 get_residues()
+
+ Title   : get_residues
+ Usage   : $structure->get_residues($chain);
+ Function: general get method for residues attached to a Chain
+ Returns : a list of residues attached to this chain
+ Args    : a chain
+
+=cut
+
+sub get_residues {
+	my ($self, $chain) = @_;
+
+	if ( !defined $chain) {
+		$self->throw("get_residues needs a Chain as argument");
+	}
+	# pass through to add_residue
+	$self->add_residue($chain);
+}
+
+
+=head2 add_atom()
+
+ Title   : add_atom
+ Usage   : @atoms  = $structure->add_atom($residue,$atom);
+ Function: Adds a (or a list of) Atom objects to a Bio::Structure::Residue.
+ Returns : list of Bio::Structure::Atom objects
+ Args    : a residue and an atom
+
+=cut
+
+sub add_atom {
+	my($self,$residue,$atom) = @_;
+
+	if (ref($residue) !~ /^Bio::Structure::Residue/) {
+		$self->throw("add_atom: first argument needs to be a Residue object\n");
+	}
+	if (defined $atom) {
+		if (ref($atom) eq "ARRAY") {
+    			# if the user passed in a reference to an array
+			for my $a ( @{$atom} ) {
+				if( ! $a->isa('Bio::Structure::Atom') ) {
+					$self->throw("$a is not an Atom\n");
+				}
+				if ( $self->_parent($a) ) {
+					$self->throw("$a already belongs to a parent\n");
+				}
+				$self->_parent($a, $residue);
+				$self->_child($residue, $a);
+				# stringify
+				#my $str_ref = "$self";
+				#$r->_grandparent($str_ref);
+			}
+		}
+		elsif ( $atom->isa('Bio::Structure::Atom') ) { 
+			if ( $self->_parent($atom) ) {
+				$self->throw("$atom already belongs to a parent\n");
+			}
+			$self->_parent($atom, $residue);
+			$self->_child($residue, $atom);
+			# stringify
+			#my $str_ref = "$self";
+			#$atom->_grandparent($str_ref);
+		}
+	}
+	my $array_ref = $self->_child($residue);
+	return $array_ref ? @{$array_ref} : ();
+}
+
+
+=head2 get_atoms()
+
+ Title   : get_atoms
+ Usage   : $structure->get_atoms($residue);
+ Function: general get method for atoms attached to a Residue
+ Returns : a list of atoms attached to this residue
+ Args    : a residue
+
+=cut
+
+sub get_atoms {
+	my ($self, $residue) = @_;
+
+	if ( !defined $residue) {
+		$self->throw("get_atoms needs a Residue as argument");
+	}
+	# pass through to add_atom
+	$self->add_atom($residue);
+}
+
+
+=head2 parent()
+
+ Title   : parent
+ Usage   : $structure->parent($residue);
+ Function: returns the parent of the argument
+ Returns : the parent of the argument
+ Args    : a Bio::Structure object
+
+=cut
+
+sub parent {
+	my ($self, $obj) = @_;
+	
+	if ( !defined $obj) {
+		$self->throw("parent: you need to supply an argument to get the parent from\n");
+	}
+
+	# for now we pass on to _parent, untill we get the symbolic ref thing working.
+	$self->_parent($obj);
+}
+
 sub DESTROY {
 	my $self = shift;
 
-	for my $model ($self->model) {
-		next unless (defined $model);
-		$model->DESTROY;
+	for my $pc (keys %{ $self->{'p_c'} } ) {
+		next unless ( defined ${ $self->{'p_c'} }{$pc} );
+		delete ${$self->{'p_c'}}{$pc};
 	}
-	$self->{'model'} = [];
+	for my $cp (keys %{ $self->{'c_p'} } ) {
+		next unless ( defined ${ $self->{'c_p'} }{$cp} );
+		delete ${$self->{'c_p'}}{$cp};
+	}
 }
+
+# copied from Bio::Seq.pm
+#
+=head2 annotation
+
+ Title   : annotation
+ Usage   : $obj->annotation($seq_obj)
+ Function:
+ Example :
+ Returns : value of annotation
+ Args    : newvalue (optional)
+
+
+=cut
+
+sub annotation {
+   my ($obj,$value) = @_;
+   if( defined $value) {
+      $obj->{'annotation'} = $value;
+    }
+    return $obj->{'annotation'};
+
+}
+
 
 #
 # from here on only private methods
@@ -241,12 +653,170 @@ sub DESTROY {
 sub _remove_models {
 	my ($self) = shift;
 
-	for my $model ( $self->model ) {
-		$model->_remove_entry;
-	}
-	$self->{'model'} = [];
+	;
 }
 
+
+=HEAD2 _create_default_model()
+
+ Title   : _create_default_model
+ Usage   : 
+ Function: Creates a default Model for this Entry. Typical situation
+ 	in an X-ray structure where there is only one model
+ Returns : 
+ Args    : 
+
+=cut
+
+sub _create_default_model {
+	my ($self) = shift;
+
+	my $model = Bio::Structure::Model->new(-id => "default");
+	return $model;
+}
+
+
+=head2 _create_default_chain()
+
+ Title   : _create_default_chain
+ Usage   : 
+ Function: Creates a default Chain for this Model. Typical situation
+ 	in an X-ray structure where there is only one chain
+ Returns : 
+ Args    : 
+
+=cut
+
+sub _create_default_chain {
+	my ($self) = shift;
+
+	my $chain = Bio::Structure::Chain->new(-id => "default");
+	return $chain;
+}
+
+
+
+=HEAD2 _parent()
+
+ Title   : _parent
+ Usage   : This is an internal function only. It is used to have one 
+ 	place that keeps track of which object has which other object 
+	as parent. Thus allowing the underlying modules (Atom, Residue,...)
+	to have no knowledge about all this (and thus removing the possibility
+	of reference cycles).
+	This method hides the details of manipulating references to an anonymous
+	hash.
+ Function: To get/set an object's parent 
+ Returns : a reference to the parent if it exist, undef otherwise. In the 
+ 	current implementation each node should have a parent (except Entry).
+ Args    : 
+
+=cut
+
+# manipulating the c_p hash
+sub _parent {
+	no strict "refs";
+	my ($self, $key, $value) = @_;
+	
+	my $tref = \%{$self};
+	bless $tref, "Bio::Structure::Entry";
+#print STDERR "_parent $self k ", $key ? $key : "", " v  ", $value ? $value : "","\n";
+#print STDERR "_parent key is ref: ", ref($key) ? "yes" : "no","\n";
+#print STDERR "_parent self is ref: ", ref($self) ? "yes" : "no","\n";
+#print STDERR "_parent tref is ref: ", ref($tref) ? "yes" : "no","\n";
+	if ( (!defined $key) || (ref($key) !~ /^Bio::/) ) {
+		$self->throw("First argument to _parent needs to be a reference to a Bio:: object ($key)\n");
+	}
+	if ( (defined $value) && (ref($value) !~ /^Bio::/) ) {
+		$self->throw("Second argument to _parent needs to be a reference to a Bio:: object\n");
+	}
+	# no checking here for consistency of key and value, needs to happen in caller
+	
+	if (defined $value) {
+#print STDERR "_parent in setter\n";
+		# is this value already in, shout
+		if (exists( ${ $self->{'c_p'} }{$key} ) ) {
+			$self->throw("_parent: $key already has a parent ${$self->{'c_p'}}{$key}\n");
+		}
+		${$self->{'c_p'}}{$key} = $value;
+	}
+#print STDERR "_parent before return $key\n";
+#print STDERR "_parent $tref->{'c_p'}\n";
+	return ${$self->{'c_p'}}{$key}; 
+}
+
+
+=HEAD2 _child()
+
+ Title   : _child
+ Usage   : This is an internal function only. It is used to have one 
+ 	place that keeps track of which object has which other object 
+	as child. Thus allowing the underlying modules (Atom, Residue,...)
+	to have no knowledge about all this (and thus removing the possibility
+	to have no knowledge about all this (and thus removing the possibility
+	of reference cycles).
+	This method hides the details of manipulating references to an anonymous
+	hash.
+ Function: To get/set an object's child(ren) 
+ Returns : a reference to an array of child(ren) if it exist, undef otherwise. 
+ Args    : 
+
+=cut
+
+# manipulating the p_c hash
+sub _child {
+	my ($self, $key, $value) = @_;
+	
+	if ( (!defined $key) || (ref($key) !~ /^Bio::/) ) {
+		$self->throw("First argument to _child needs to be a reference to a Bio:: object\n");
+	}
+	if ( (defined $value) && (ref($value) !~ /^Bio::/) ) {
+		$self->throw("Second argument to _child needs to be a reference to a Bio:: object\n");
+	}
+	# no checking here for consistency of key and value, needs to happen in caller
+	
+	if (defined $value) {
+		if ( !exists(${$self->{'p_c'}}{$key}) || ref(${$self->{'p_c'}}{$key}) !~ /^ARRAY/ ) {
+			${$self->{'p_c'}}{$key} = [];
+		}
+		push @{ ${$self->{'p_c'}}{$key} }, $value;
+	}
+	return  ${$self->{'p_c'}}{$key}; 
+}
+
+
+
+=HEAD2 _remove_from_graph()
+
+ Title   : _remove_from_graph
+ Usage   : This is an internal function only. It is used to remove from
+ 	the parent/child graph. We only remove the links from object to
+	his parent. Not the ones from object to its children.
+ Function: To remove an object from the parent/child graph
+ Returns : 
+ Args    : the object to be orphaned
+
+=cut
+
+sub _remove_from_graph {
+	my ($self, $object) = @_;
+	
+	if ( !defined($object) && ref($object) !~ /^Bio::/) {
+		$self->throw("_remove_from_graph needs a Bio object as argument");
+	}
+	if ( $self->_parent($object) ) {
+		my $dad = $self->_parent($object);
+		# if we have a parent, remove me as being a child
+		for my $k (0 .. $#{$self->_child($dad)}) {
+			if ($object eq ${$self->{'p_c'}{$dad}}[$k]) {
+				splice(@{$self->{'p_c'}{$dad}}, $k,1);
+			}
+		}
+		delete( $self->{'c_p'}{$object});
+	}
+}
+
+			
 
 
 1;

@@ -1,4 +1,4 @@
-# $Id $
+# $Id$
 #
 # bioperl module for Bio::Structure::Chain
 #
@@ -96,7 +96,7 @@ sub new {
 
     # the 'smallest' item that can be added to a chain is a residue. 
 
-    $residue  && $self->residue($residue);
+    $residue && $self->throw("use a method based on an Entry object for now");
 
     return $self;
 }
@@ -106,92 +106,50 @@ sub new {
 =head2 residue()
 
  Title   : residue 
- Usage   : @residues  = $chain->residue($residue);
- Function: Connects a (or a list of) Residue objects to a Bio::Structure::Chain.
- 	To add a chain (and keep the existing ones) use add_residue
- 	It returns a list of Residue objects.
- Returns : list of Bio::Structure::Residue objects
- Args    : One Residue or a reference to an array of Residue objects
+ Usage   : 
+ Function:  nothing usefull untill I get symbolic references to do what I want
+ Returns : 
+ Args    : 
 
 =cut
 
 sub residue {
 	my ($self,$value) = @_;
-	if( defined $value) {
-                if( (ref($value) eq "ARRAY") ||
-                      ($value->isa('Bio::Structure::Residue')) ) {
-                        # remove existing ones, tell they've become orphan
-		        $self->_remove_residues;
-			# add the new ones
-			$self->add_residue($value);
-                }
-		else {
-			$self->throw("Supplied a $value to residue , we want a Bio::Structure::Residue or a list of these\n");
-		}
-   	}
-	return @{ $self->{'residue'} };
+
+	$self->throw("use a method on an Entry object to do what you want");
 }
 
 
 =head2 add_residue()
 
  Title   : add_residue
- Usage   : $chain->add_residue($residue);
- Function: Adds a (or a list of) Residue objects to a Bio::Structure::Chain.
+ Usage   : 
+ Function: nothing usefull untill I get symbolic references to do what I want
  Returns : 
- Args    : One Residue or a reference to an array of Residue objects
+ Args    : 
 
 =cut
 
 sub add_residue {
 	my($self,$value) = @_;
-	if (defined $value) {
-		if (ref($value) eq "ARRAY") {
-    			# if the user passed in a reference to an array
-			for my $r ( @{$value} ) {
-				if( ! $r->isa('Bio::Structure::Residue') ) {
-					$self->throw("$r is not a Residue\n");
-				}
-				push @{$self->{'residue'}}, $r;
-				# tell the child who his parent is
-				$r->chain($self);
-			}
-		}
-		elsif ( $value->isa('Bio::Structure::Residue') ) { 
-			push @{$self->{'residue'}}, $value;
-			$value->chain($self);
-		}
-		else {
-			$self->throw("Supplied a $value to add_chain, we want a Residue or list of Residues\n");
-		}
-	}
-	else {
-		$self->warn("You need to supply an argument of type Residue to add_residue\n");
-	}
+
+	$self->throw("you want entry->add_residue(chain, residue)\n");
 }
 
 =head2 model()
 
  Title   : model
- Usage   : $model = $chain->model($model)
- Function: Sets the Model this Chain belongs to
- Returns : Returns the Model this Chain belongs to
- Args    : reference to a Model
+ Usage   : 
+ Function: nothing usefull untill I get symbolic references to do what I want
+ Returns : 
+ Args    : 
 
 =cut
 
 sub model {
 	my($self, $value) = @_;
 
-	if (defined $value) {
-		if (! $value->isa('Bio::Structure::Model') ) {
-			$self->throw("Need to supply a Bio::Structure::Model
-				to model(), not a $value\n");
-		}
-		$self->{'model'} = $value;
-	}
-
-	return $self->{'model'};
+	$self->throw("go via a Entry object please\n");
 }
 
 
@@ -217,12 +175,7 @@ sub id {
 sub DESTROY {
 	my $self = shift;
 	
-	# get rid of circular references
-	for my $res ($self->residue) {
-		next unless (defined $res);
-		$res->DESTROY;
-	}
-	$self->{'residue'} = [];
+	# no specific destruction for now
 }
 
 
@@ -234,8 +187,7 @@ sub DESTROY {
 
  Title   : _remove_residues
  Usage   : 
- Function: Removes the residues attached to an Chain. Tells the residues they
- 	don't belong to this Chain any more
+ Function: 
  Returns : 
  Args    : 
 
@@ -244,10 +196,7 @@ sub DESTROY {
 sub _remove_residues {
 	my ($self) = shift;
 
-	for my $residue ( $self->residue ) {
-		$residue->_remove_chain;
-	}
-	$self->{'residue'} = [];
+	$self->throw("nothing usefull in here, go see Entry\n");
 }
 
 
@@ -264,7 +213,30 @@ sub _remove_residues {
 sub _remove_model {
 	my ($self) = shift;
 
-	$self->{'model'} = undef;
+	$self->throw("go see an Entry object, nothing here\n");
+}
+
+
+=head2 _grandparent()
+
+ Title   : _grandparent
+ Usage   : 
+ Function: get/set a symbolic reference to our grandparent
+ Returns : 
+ Args    : 
+
+=cut
+
+sub _grandparent {
+	my($self,$symref) = @_;
+
+	if (ref($symref)) {
+		$self->throw("Thou shall only pass strings in here, no references $symref\n");
+	}
+	if (defined $symref) {
+		$self->{'grandparent'} = $symref;
+	}
+	return $self->{'grandparent'};
 }
 
 

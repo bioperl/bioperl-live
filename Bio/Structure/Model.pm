@@ -1,4 +1,4 @@
-# $Id $
+# $Id$
 #
 # bioperl module for Bio::Structure::Model
 #
@@ -68,7 +68,6 @@ use Bio::Structure::Chain;
  Title   : new()
  Usage   : $struc = Bio::Structure::Model->new( 
                                            -id  => 'human_id',
-                                           -accession_number => 'AL000012',
                                            );
 
  Function: Returns a new Bio::Structure::Model object from basic 
@@ -93,19 +92,9 @@ sub new {
 
     $id      && $self->id($id);
 
-    $self->{'chain'} = [];
+    $chain && $self->throw("you have to add chain via an Entry object\n");
 
-    # the 'smallest' item that can be added to a model is a chain. If
-    # chain is not present, a default is taken
-
-    if($chain) {
-	    $self->chain($chain);
-    } else {  # create first chain
-	    $chain = Bio::Structure::Chain->new();
-	    $self->chain($chain);
-    }
-
-    $residue  && $self->residue($residue);
+    $residue && $self->throw("you have to add residues via an Entry object\n");
 
     return $self;
 }
@@ -115,92 +104,50 @@ sub new {
 =head2 chain()
 
  Title   : chain
- Usage   : @chains  = $model->chain($chain);
- Function: Connects a (or a list of) Chain objects to a Bio::Structure::Model.
- 	To add a Chain (and keep the existing ones) use add_chain()
- 	It returns a list of Chain objects.
- Returns : list of Bio::Structure::Chain objects
- Args    : One Chain or a reference to an array of Chain objects
+ Usage   : 
+ Function: will eventually allow parent/child navigation not via an Entry object
+ Returns : 
+ Args    : 
 
 =cut
 
 sub chain {
 	my ($self,$value) = @_;
-	if( defined $value) {
-                if( (ref($value) eq "ARRAY") ||
-                      ($value->isa('Bio::Structure::Chain')) ) {
-                        # remove existing ones, tell they've become orphan
-                        $self->_remove_chains;
-                        # add the new ones
-                        $self->add_chain($value);
-		}
-		else {
-			$self->throw("Supplied a $value to chain , we want a Bio::Structure::Chain or a list of these\n");
-		}
-   	}
-	return @{ $self->{'chain'} };
+
+	$self->throw("go via an Entry object\n");
 }
 
 
 =head2 add_chain()
 
  Title   : add_chain
- Usage   : $model->add_chain($chain);
- Function: Adds a (or a list of) Chain objects to a Bio::Structure::Model.
+ Usage   : 
+ Function:  will eventually allow parent/child navigation not via an Entry object
  Returns : 
- Args    : One Chain or a reference to an array of Chain objects
+ Args    : 
 
 =cut
 
 sub add_chain {
-	my($self,$value) = @_;
-	if (defined $value) {
-		if (ref($value) eq "ARRAY") {
-    			# if the user passed in a reference to an array
-			for my $c ( @{$value} ) {
-				if( ! $c->isa('Bio::Structure::Chain') ) {
-					$self->throw("$c is not a Model\n");
-				}
-				push @{$self->{'chain'}}, $c;
-				# tell the child who his parent is
-				$c->model($self);
-			}
-		}
-		elsif ( $value->isa('Bio::Structure::Chain') ) { 
-			push @{$self->{'chain'}}, $value;
-			$value->model($self);
-		}
-		else {
-			$self->throw("Supplied a $value to add_chain, we want a Chain or list of Chains\n");
-		}
-	}
-	else {
-		$self->warn("You need to supply an argument of type Chain to add_chain\n");
-	}
+	my ($self,$value) = @_;
+
+	$self->throw("go via an Entry object for now\n");
 }
 
 =head2 entry()
 
  Title   : entry
- Usage   : $entry = $model->entry($entry)
- Function: Sets the Entry this Model belongs to
- Returns : Returns the Entry this Model belongs to
- Args    : reference to an Entry
+ Usage   : 
+ Function:  will eventually allow parent/child navigation not via an Entry object
+ Returns : 
+ Args    : 
 
 =cut
 
 sub entry {
-	my($self, $value) = @_;
+	my($self) = @_;
 
-	if (defined $value) {
-		if (! $value->isa('Bio::Structure::Entry') ) {
-			$self->throw("Need to supply a Bio::Structure::Entry
-				to entry(), not a $value\n");
-		}
-		$self->{'entry'} = $value;
-	}
-
-	return $self->{'entry'};
+	$self->throw("Model::entry go via an Entry object please\n");
 }
 
 
@@ -222,16 +169,45 @@ sub id {
 	return $self->{'id'};
 }
 
+=head2 residue()
+
+ Title   : residue
+ Usage   : 
+ Function:  will eventually allow parent/child navigation not via an Entry object
+ Returns : 
+ Args    : 
+
+=cut
+
+sub residue {
+	my ($self, @args) = @_;
+
+	$self->throw("need to go via Entry object or learn symbolic refs\n");
+}
+
+
+=head2 add_residue()
+
+ Title   : add_residue
+ Usage   : 
+ Function:  will eventually allow parent/child navigation not via an Entry object
+ Returns : 
+ Args    : 
+
+=cut
+
+sub add_residue {
+	my ($self, @args) = @_;
+
+	$self->throw("go via entry->add_residue(chain, residue)\n");
+}
+
+
 
 sub DESTROY {
 	my $self = shift;
 
-	for my $chain ($self->chain) {
-		# if someone shoots our children faster then we can
-		next unless (defined $chain);
-		$chain->DESTROY;
-	}
-	$self->{'chain'} = [];
+	# no specific DESTROY for now
 }
 
 #
@@ -253,10 +229,7 @@ sub DESTROY {
 sub _remove_chains {
 	my ($self) = shift;
 
-	for my $chain ( $self->chain ) {
-		$chain->_remove_model;
-	}
-	$self->{'chain'} = [];
+	$self->throw("use Entry methods pleae\n");
 }
 
 
@@ -273,7 +246,48 @@ sub _remove_chains {
 sub _remove_entry {
 	my ($self) = shift;
 
-	$self->{'entry'} = undef;
+	$self->throw("use a method based on an Entry object\n");
+}
+
+
+=head2 _create_default_chain()
+
+ Title   : _create_default_chain
+ Usage   : 
+ Function: Creates a default Chain for this Model. Typical situation
+ 	in an X-ray structure where there is only one chain
+ Returns : 
+ Args    : 
+
+=cut
+
+sub _create_default_chain {
+	my ($self) = shift;
+
+	my $chain = Bio::Structure::Chain->new(-id => "default");
+}
+
+
+=head2 _grandparent()
+
+ Title   : _grandparent
+ Usage   : 
+ Function: get/set a symbolic reference to our grandparent
+ Returns : 
+ Args    : 
+
+=cut
+
+sub _grandparent {
+	my($self,$symref) = @_;
+
+	if (ref($symref)) {
+		$self->throw("Thou shall only pass strings in here, no references $symref\n");
+	}
+	if (defined $symref) {
+		$self->{'grandparent'} = $symref;
+	}
+	return $self->{'grandparent'};
 }
 
 1;

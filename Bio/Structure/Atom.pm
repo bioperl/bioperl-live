@@ -1,4 +1,4 @@
-# $Id $
+# $Id$
 #
 # bioperl module for Bio::Structure::Atom
 #
@@ -182,24 +182,117 @@ sub xyz {
 =head2 residue()
 
  Title   : residue
- Usage   : $residue = $atom->residue($residue)
- Function: Sets the Residue this Atom belongs to
- Returns : Returns the Residue this Atom belongs to
- Args    : reference to a Residue
+ Usage   : 
+ Function:  No code here, all parent/child stuff via Entry
+ Returns : 
+ Args    : 
 
 =cut
 
 sub residue {
 	my($self, $value) = @_;
 
+	$self->throw("all parent/child stuff via Entry\n");
+}
+
+
+=head2 icode()
+
+ Title   : icode
+ Usage   : $icode = $atom->icode($icode)
+ Function: Sets/gets the icode
+ Returns : Returns the icode for this atom
+ Args    : reference to an Atom
+
+=cut
+
+sub icode {
+	my($self, $value) = @_;
+
 	if (defined $value) {
-		if (! $value->isa('Bio::Structure::Residue') ) {
-			$self->throw("Need to supply a Bio::Structure::Residue
-				to residue(), not a $value\n");
-		}
-		$self->{'residue'} = $value;
+		$self->{'icode'} = $value;
 	}
-	return $self->{'residue'};
+	return $self->{'icode'};
+}
+
+
+=head2 occupancy()
+
+ Title   : occupancy
+ Usage   : $occupancy = $atom->occupancy($occupancy)
+ Function: Sets/gets the occupancy
+ Returns : Returns the occupancy for this atom
+ Args    : reference to an Atom
+
+=cut
+
+sub occupancy {
+	my($self, $value) = @_;
+
+	if (defined $value) {
+		$self->{'occupancy'} = $value;
+	}
+	return $self->{'occupancy'};
+}
+
+
+=head2 tempfactor()
+
+ Title   : tempfactor
+ Usage   : $tempfactor = $atom->tempfactor($tempfactor)
+ Function: Sets/gets the tempfactor
+ Returns : Returns the tempfactor for this atom
+ Args    : reference to an Atom
+
+=cut
+
+sub tempfactor {
+	my($self, $value) = @_;
+
+	if (defined $value) {
+		$self->{'tempfactor'} = $value;
+	}
+	return $self->{'tempfactor'};
+}
+
+
+=head2 element()
+
+ Title   : element
+ Usage   : $element = $atom->element($element)
+ Function: Sets/gets the element
+ Returns : Returns the element for this atom
+ Args    : reference to an Atom
+
+=cut
+
+sub element {
+	my($self, $value) = @_;
+
+	if (defined $value) {
+		$self->{'element'} = $value;
+	}
+	return $self->{'element'};
+}
+
+
+=head2 charge()
+
+ Title   : charge
+ Usage   : $charge = $atom->charge($charge)
+ Function: Sets/gets the charge
+ Returns : Returns the charge for this atom
+ Args    : reference to an Atom
+
+=cut
+
+sub charge {
+	my($self, $value) = @_;
+
+	if (defined $value) {
+		$self->{'charge'} = $value;
+	}
+	return $self->{'charge'};
 }
 
 
@@ -244,7 +337,30 @@ sub DESTROY {
 sub _remove_residue {
 	my ($self) = shift;
 
-	$self->{'residue'} = undef;
+	$self->throw("no code here at the moment\n");
+}
+
+
+=head2 _grandparent()
+
+ Title   : _grandparent
+ Usage   : 
+ Function: get/set a symbolic reference to our grandparent
+ Returns : 
+ Args    : 
+
+=cut
+
+sub _grandparent {
+	my($self,$symref) = @_;
+
+	if (ref($symref)) {
+		$self->throw("Thou shall only pass strings in here, no references $symref\n");
+	}
+	if (defined $symref) {
+		$self->{'grandparent'} = $symref;
+	}
+	return $self->{'grandparent'};
 }
 
 

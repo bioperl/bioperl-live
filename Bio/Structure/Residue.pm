@@ -1,4 +1,4 @@
-# $Id $
+# $Id$
 #
 # bioperl module for Bio::Structure::Residue
 #
@@ -94,7 +94,7 @@ sub new {
 
     # the 'smallest' (and only) item that can be added to a residue is an atom 
 
-    $atom  && $self->atom($atom);
+    $atom && $self->throw("add atoms via an Entry object entry->add_atom(residue,atom)\n");
 
     return $self;
 }
@@ -104,68 +104,34 @@ sub new {
 =head2 atom()
 
  Title   : atom 
- Usage   : @atoms  = $residue->atom($atom);
- Function: Connects an (or a list of) Atom objects to a Bio::Structure::Residue.
- 	To add an atom (and keep the existing ones) use add_atom()
- 	It returns a list of Atom objects.
- Returns : list of Bio::Structure::Atom objects
- Args    : One Atom or a reference to an array of Atom objects
+ Usage   : 
+ Function:  nothing usefull untill I get symbolic references to do what I want
+ Returns : 
+ Args    : 
 
 =cut
 
 sub atom {
 	my ($self,$value) = @_;
-	if( defined $value) {
-                if( (ref($value) eq "ARRAY") ||
-                      ($value->isa('Bio::Structure::Atom')) ) {
-                        # remove existing ones, tell they've become orphan
-		        $self->_remove_atoms;
-			# add the new ones
-			$self->add_atom($value);
-                }
-		else {
-			$self->throw("Supplied a $value to atom , we want a Bio::Structure::Atom or a list of these\n");
-		}
-   	}
-	return @{ $self->{'atom'} };
+
+	$self->throw("no code down here, go see an Entry object nearby\n");
 }
 
 
 =head2 add_atom()
 
  Title   : add_atom
- Usage   : $atom->add_atom($atom);
- Function: Adds a (or a list of) Atom objects to a Bio::Structure::Atom.
+ Usage   : 
+ Function:  nothing usefull untill I get symbolic references to do what I want
  Returns : 
- Args    : One Atom or a reference to an array of Atom objects
+ Args    : 
 
 =cut
 
 sub add_atom {
 	my($self,$value) = @_;
-	if (defined $value) {
-		if (ref($value) eq "ARRAY") {
-    			# if the user passed in a reference to an array
-			for my $a ( @{$value} ) {
-				if( ! $a->isa('Bio::Structure::Atom') ) {
-					$self->throw("$a is not a Atom\n");
-				}
-				push @{$self->{'atom'}}, $a;
-				# tell the child who his parent is
-				$a->residue($self);
-			}
-		}
-		elsif ( $value->isa('Bio::Structure::Atom') ) { 
-			push @{$self->{'atom'}}, $value;
-			$value->residue($self);
-		}
-		else {
-			$self->throw("Supplied a $value to add_atom, we want a Atom or list of Atoms\n");
-		}
-	}
-	else {
-		$self->warn("You need to supply an argument of type Atom to add_atom\n");
-	}
+
+	$self->throw("nothing here, use a method on an Entry object\n");
 }
 
 
@@ -182,15 +148,7 @@ sub add_atom {
 sub chain {
 	my($self, $value) = @_;
 
-	if (defined $value) {
-		if (! $value->isa('Bio::Structure::Chain') ) {
-			$self->throw("Need to supply a Bio::Structure::Chain
-				to chain(), not a $value\n");
-		}
-		$self->{'chain'} = $value;
-	}
-
-	return $self->{'chain'};
+	$self->throw("use an Entry based method please\n");
 }
 
 
@@ -226,9 +184,7 @@ sub id {
 sub DESTROY {
 	my $self = shift;
 
-	# no need to explicitely call Atom destructor as it's the lowest level
-	$self->{'atom'} = [];
-
+	# no specific destruction for now
 }
 
 
@@ -250,10 +206,7 @@ sub DESTROY {
 sub _remove_atoms {
 	my ($self) = shift;
 
-	for my $atom ( $self->atom ) {
-		$atom->_remove_residue;
-	}
-	$self->{'atom'} = [];
+	$self->throw("no code here\n");
 }
 
 
@@ -273,5 +226,27 @@ sub _remove_chain {
 	$self->{'chain'} = undef;
 }
 
+
+=head2 _grandparent()
+
+ Title   : _grandparent
+ Usage   : 
+ Function: get/set a symbolic reference to our grandparent
+ Returns : 
+ Args    : 
+
+=cut
+
+sub _grandparent {
+	my($self,$symref) = @_;
+
+	if (ref($symref)) {
+		$self->throw("Thou shall only pass strings in here, no references $symref\n");
+	}
+	if (defined $symref) {
+		$self->{'grandparent'} = $symref;
+	}
+	return $self->{'grandparent'};
+}
 
 1;
