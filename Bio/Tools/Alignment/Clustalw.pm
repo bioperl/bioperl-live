@@ -308,22 +308,13 @@ Function: Determine whether clustalw program can be found on current host
  Example :
  Returns : 1 if clustalw program found at expected location, 0 otherwise.
  Args    :  none
-
-
 =cut
 
-# purpose of this method is to enable a script to determine whether the clustalw
-# is properly installed on the system and can be found. This implementation
-# is a little kludgy; there's probably a better way...
 
 sub exists_clustal {
-    my $commandstring = "$program".' -options >/dev/null 2>&1';
-    eval {my $status = system($commandstring); } ;
-    if ($@ || ($? != 0))  {
-	return 0;
-    }
-    return 1;
+my $returnvalue = (-e "$program") ;
 }
+
 
 =head2  align
 

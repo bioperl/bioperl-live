@@ -30,8 +30,10 @@
 #  Before we can do any tests, we need to set up the environment, create the factory
 #  and read in the (unaligned) sequences.
 
-# Modify following line as required to point to clustalw program directory on your system
-BEGIN {$ENV{CLUSTALDIR} = '/home/peter/clustalw1.8/'; }
+# Modify (and un-comment) the following line as required to point to clustalw program directory on your system
+BEGIN {
+#	$ENV{CLUSTALDIR} = '/home/peter/clustalw1.8/';
+}
 
 use Getopt::Long;
 use Bio::Tools::Alignment::Clustalw;
