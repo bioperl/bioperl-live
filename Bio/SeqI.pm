@@ -99,9 +99,10 @@ use Bio::PrimarySeqI;
  Title   : top_SeqFeatures
  Usage   : my @feats = $seq->top_SeqFeatures();
  Function: retrieve just the toplevel sequence features attached to this seq
- Returns : array of L<Bio::SeqFeatureI> objects
+ Returns : array of Bio::SeqFeatureI objects
  Args    : none
 
+See L<Bio::SeqFeatureI> for more information
 
 =cut
 
@@ -116,9 +117,10 @@ sub top_SeqFeatures{
  Title   : all_SeqFeatures
  Usage   : @features = $annseq->all_SeqFeatures()
  Function: returns all SeqFeatures, included sub SeqFeatures
- Returns : an array of L<Bio::SeqFeatureI> objects
+ Returns : an array of Bio::SeqFeatureI objects
  Args    : none
 
+See L<Bio::SeqFeatureI> for more information
 
 =cut
 
@@ -171,7 +173,7 @@ sub write_GFF{
  Title   : annotation
  Usage   : $obj->annotation($seq_obj)
  Function: retrieve the attatched annotation object
- Returns :  L<Bio::AnnotationCollectionI> or none;
+ Returns : Bio::AnnotationCollectionI or none;
 
 See L<Bio::AnnotationCollectionI> and L<Bio::Annotation::Collection>
 for more information
@@ -205,9 +207,10 @@ sub feature_count {
  Usage   : 
  Function: Gets or sets the species
  Example : $species = $self->species();
- Returns : L<Bio::Species> object
- Args    : L<Bio::Species> object or none;
+ Returns : Bio::Species object
+ Args    : Bio::Species object or none;
 
+See L<Bio::Species> for more information
 
 =cut
 
@@ -220,13 +223,14 @@ sub species {
 
  Title   : primary_seq
  Usage   : $obj->primary_seq($newval)
- Function: Retrieve the underlying L<Bio::PrimarySeqI> object if available.
+ Function: Retrieve the underlying Bio::PrimarySeqI object if available.
            This is in the event one has a sequence with lots of features
            but want to be able to narrow the object to just one with
            the basics of a sequence (no features or annotations).
- Returns : L<Bio::PrimarySeqI>
- Args    : L<Bio::PrimarySeqI> or none;
+ Returns : Bio::PrimarySeqI
+ Args    : Bio::PrimarySeqI or none;
 
+See L<Bio::PrimarySeqI> for more information
 
 =cut
 

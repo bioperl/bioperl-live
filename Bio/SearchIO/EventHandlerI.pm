@@ -179,7 +179,9 @@ sub end_hit {
  Function: Register a specific factory for a object type class
  Returns : none
  Args    : string representing the class and
-           L<Bio::Factory::ObjectFactoryI>
+           Bio::Factory::ObjectFactoryI
+
+See L<Bio::Factory::ObjectFactoryI> for more information
 
 =cut
 
@@ -194,9 +196,10 @@ sub register_factory{
  Title   : factory
  Usage   : my $f = $handler->factory('TYPE');
  Function: Retrieves the associated factory for requested 'TYPE'
- Returns : a L<Bio::Factory::ObjectFactoryI> or undef if none registered
+ Returns : a Bio::Factory::ObjectFactoryI or undef if none registered
  Args    : name of factory class to retrieve
 
+See L<Bio::Factory::ObjectFactoryI> for more information
 
 =cut
 

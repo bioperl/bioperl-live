@@ -100,7 +100,7 @@ sub location_type {
             equal to one or neither of both.
 
             We override this here from RangeI in order to delegate
-            'get' to a L<Bio::Location::CoordinatePolicy> implementing
+            'get' to a Bio::Location::CoordinatePolicy implementing
             object.  Implementing classes may also wish to provide
             'set' functionality, in which case they *must* override
             this method. The implementation provided here will throw
@@ -108,6 +108,8 @@ sub location_type {
 
   Returns : A positive integer value.
   Args    : none
+
+See L<Bio::Location::CoordinatePolicy> for more information
 
 =cut
 
@@ -132,8 +134,8 @@ sub start {
             in more ambiguous cases like fuzzy locations the number may be
             equal to one or neither of both.
 
-            We override this here from L<Bio::RangeI> in order to delegate
-            'get' to a L<Bio::Location::CoordinatePolicy> implementing
+            We override this here from Bio::RangeI in order to delegate
+            'get' to a Bio::Location::CoordinatePolicy implementing
             object. Implementing classes may also wish to provide
             'set' functionality, in which case they *must* override
             this method. The implementation provided here will throw
@@ -141,6 +143,9 @@ sub start {
 
   Returns : A positive integer value.
   Args    : none
+
+See L<Bio::Location::CoordinatePolicy> and L<Bio::RangeI> for more
+information
 
 =cut
 
@@ -308,15 +313,18 @@ sub seq_id {
 
             Implementors of this interface are expected to initialize
             every new instance with a
-            L<Bio::Location::CoordinatePolicyI> object. The
+            Bio::Location::CoordinatePolicyI object. The
             implementation provided here will return a default policy
             object if none has been set yet. To change this default
             policy object call this method as a class method with an
             appropriate argument. Note that in this case only
             subsequently created Location objects will be affected.
 
-  Returns : A L<Bio::Location::CoordinatePolicyI> implementing object.
-  Args    : On set, a L<Bio::Location::CoordinatePolicyI> implementing object.
+  Returns : A Bio::Location::CoordinatePolicyI implementing object.
+  Args    : On set, a Bio::Location::CoordinatePolicyI implementing object.
+
+See L<Bio::Location::CoordinatePolicy> for more information
+
 
 =cut
 
