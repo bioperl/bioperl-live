@@ -150,7 +150,6 @@ sub next_aln {
     $aln_name =~ s/\s/_/g and $aln->id($aln_name) if $aln_name;
 
     # data and taxa blocks
-    my $taxlabels;
     my $incomment;
     while ($entry = $self->_readline) {
 	local ($_) =  $entry;
@@ -164,25 +163,20 @@ sub next_aln {
 	    } else { 
 		next;
 	    }
-	}
-	# read in seq names if in taxa block
-	$taxlabels = 1 if /taxlabels/i;
-
-	if ($taxlabels) {
+	} elsif( /taxlabels/i ) {
 	    @names = $self->_read_taxlabels;
-	    $taxlabels = 0;
+	} else { 
+
+	    /ntax\s*=\s*(\d+)/i        and $seqcount = $1;
+	    /nchar\s*=\s*(\d+)/i       and $residuecount = $1;
+	    /matchchar\s*=\s*(.)/i     and $match = $1;
+	    /gap\s*=\s*(.)/i           and $gap = $1;
+	    /missing\s*=\s*(.)/i       and $missing = $1;
+	    /equate\s*=\s*\"([^\"]+)/i and $equate = $1;  # "e.g. equate="T=C G=A";
+	    /datatype\s*=\s*(\w+)/i    and $alphabet = lc $1;
+	    /interleave/i              and $interleave = 1 ;
+	    last if /matrix/io;
 	}
-
-	/ntax\s*=\s*(\d+)/i        and $seqcount = $1;
-	/nchar\s*=\s*(\d+)/i       and $residuecount = $1;
-	/matchchar\s*=\s*(.)/i     and $match = $1;
-	/gap\s*=\s*(.)/i           and $gap = $1;
-	/missing\s*=\s*(.)/i       and $missing = $1;
-	/equate\s*=\s*\"([^\"]+)/i and $equate = $1;  # "e.g. equate="T=C G=A";
-	/datatype\s*=\s*(\w+)/i    and $alphabet = lc $1;
-	/interleave/i              and $interleave = 1 ;
-
-	last if /matrix/io;
     }
     $self->throw("Not a valid NEXUS sequence file. Datatype not specified")
 	unless $alphabet;
@@ -306,11 +300,13 @@ sub _read_taxlabels {
     my ($self) = @_;
     my ($name, @names);
     while (my $entry = $self->_readline) {
-	($name) = $entry =~ /\s*(\S+)\s+/;
-	$name =~ s/\[[^\[]+\]//g;
-	$name =~ s/\W/_/g;
-	push @names, $name;
-	last if /^\s*;/;
+	last if $entry =~ m/^\s*(END)?;/i;
+	if( $entry =~ m/\s*(\S+)\s+/ ) {
+	    ($name) = ($1);
+	    $name =~ s/\[[^\[]+\]//g;
+	    $name =~ s/\W/_/g;
+	    push @names, $name;
+	}
     }
     return @names;
 }
