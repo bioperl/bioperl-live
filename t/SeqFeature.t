@@ -12,7 +12,7 @@
 use Test;
 use strict;
 
-BEGIN { plan tests => 27 }
+BEGIN { plan tests => 29 }
 
 use Bio::Seq;
 use Bio::SeqFeature::Generic;

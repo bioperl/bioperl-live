@@ -11,7 +11,7 @@
 ## We start with some black magic to print on failure.
 use Test;
 use strict;
-BEGIN { plan tests => 9 }
+BEGIN { plan tests => 10 }
 use Bio::Index::Fasta;
 use Bio::Index::SwissPfam;
 use Bio::Index::EMBL;
