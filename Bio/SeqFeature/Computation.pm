@@ -41,8 +41,9 @@ subseqfeatures is now a hash which contains arrays of seqfeatures
 Both the score and subSeqfeature methods can be called in exactly the same
 way, the value's will be stored as a 'default' score or subseqfeature.
 
-#'
+=cut
 
+#'
 
 =head1 FEEDBACK
 
@@ -71,10 +72,10 @@ Mark Fiers <m.w.e.j.fiers@plant.wag-ur.nl>
 
 =head1 DEVELOPERS
 
-This class has been written with an eye out of inheritence. The fields
+This class has been written with an eye out of inheritance. The fields
 the actual object hash are:
 
-   _gsf_sub_hash  = reference to an hash containing sets of sub arrays
+   _gsf_sub_hash  = reference to a hash containing sets of sub arrays
    _gsf_score_hash= reference to a hash for the score values
 
 =head1 APPENDIX
@@ -140,7 +141,7 @@ sub new {
 
  Title   : has_score
  Usage   : $value = $self->has_score('some_score')
- Function: Tests wether a feature contaings a score
+ Function: Tests wether a feature contains a score
  Returns : TRUE if the SeqFeature has the score,
            and FALSE otherwise.
  Args    : The name of a score
@@ -422,7 +423,7 @@ sub database_version {
            a sub_computation (sub_SeqFeature) to a computation object
  Returns : sub_SeqFeature_type (string)
  Args    : none if get, the new value if set
-	   
+
 =cut
 
 sub sub_SeqFeature_type {
@@ -486,7 +487,7 @@ sub sub_SeqFeature {
            $feat->add_sub_SeqFeature($subfeat,'sub_seqfeature_type')
            $feat->add_sub_SeqFeature($subfeat,'EXPAND')
            $feat->add_sub_SeqFeature($subfeat,'EXPAND','sub_seqfeature_type')
- Function: adds a SeqFeature into the a specific subSeqFeature array.
+ Function: adds a SeqFeature into a specific subSeqFeature array.
            with no 'EXPAND' qualifer, subfeat will be tested
            as to whether it lies inside the parent, and throw
            an exception if not.
