@@ -1,0 +1,329 @@
+<!DOCTYPE article  PUBLIC "-//OASIS//DTD DocBook V4.1//EN">
+  <article lang="en">
+    <articleinfo>
+      <title>Flat Databases HOWTO</title>
+
+    <author>
+      <firstname>Lincoln</firstname>
+      <surname>Stein</surname>
+      <affiliation>
+	<orgname>
+	  <ulink url="http://www.cshl.org">Cold Spring Harbor Laboratory</ulink>
+	</orgname>
+	<address>
+	  <email>lstein-at-cshl.org</email>
+	</address>
+      </affiliation>
+    </author>
+    <author>
+      <firstname>Brian</firstname>
+      <surname>Osborne</surname>
+      <authorblurb>
+        <para>Bioperl contributor</para>
+      </authorblurb>
+      <affiliation>
+        <orgname><ulink url="http://www.cognia.com">Cognia Corporation</ulink></orgname>
+        <address>
+          <email>brian-at-cognia.com</email>
+        </address>
+      </affiliation>
+    </author>
+    <author>
+      <firstname>Heikki</firstname>
+      <surname>Lehväslaiho</surname>
+      <authorblurb>
+        <para>Bioperl contributor</para>
+      </authorblurb>
+      <affiliation>
+        <orgname>
+          <ulink url="http://www.ebi.ac.uk">European Bioinformatics Institute</ulink>
+        </orgname>
+        <address>
+          <email>heikki-at-ebi.co.uk</email>
+        </address>
+      </affiliation>
+    </author>
+
+    <pubdate>2003-02-26</pubdate>
+
+      <revhistory>
+	<revision>
+	  <revnumber>1.0</revnumber>
+	  <date>2003-02-26</date>
+	  <authorinitials>LS</authorinitials>
+	  <revremark>First version</revremark>
+	</revision>
+	<revision>
+	  <revnumber>1.1</revnumber>
+	  <date>2003-10-17</date>
+	  <authorinitials>BS</authorinitials>
+	  <revremark>fom text into howto</revremark>
+	</revision>
+	<revision>
+	  <revnumber>1.2</revnumber>
+	  <date>2003-10-17</date>
+	  <authorinitials>HL</authorinitials>
+	  <revremark>fom txt reformatted into SGML</revremark>
+	</revision>
+       </revhistory>
+
+       <legalnotice>
+         <para>This document is copyright Lincoln Stein, 2002.  For
+           reproduction other than personal use please contact lstein at cshl.org
+         </para>
+       </legalnotice>
+
+      <abstract>
+	<para>
+	  The Open Biological Database Access (OBDA) standard
+	  specifies a way of generating indexes for entry-based
+	  sequence files (e.g. FASTA, EMBL) so that the entries can be
+	  looked up and retrieved quickly.  These indexes are created
+	  and accessed using the <classname>Bio::DB::Flat</classname>
+	  module.
+	</para>
+      </abstract>
+    </articleinfo>
+
+
+<section id="intro">
+<title>Creating OBDA-Compliant Indexed Sequence Files</title>
+
+  <para>
+    <classname>Bio::DB::Flat</classname> has the same functionality as
+    the various <classname>Bio::Index</classname> modules.  The main
+    reason to use it is if you want to use the BioSequence Registry
+    system (see the OBDA Access HOWTO at <ulink
+    url="http://bioperl.org/HOWTOs">http://bioperl.org/HOWTOs</ulink>),
+    or if you want to share the same indexed files among scripts
+    written in other languages, such as those written with BioJava or
+    BioPython.
+  </para>
+
+
+  <para>
+    There are four steps to creating a
+    <classname>Bio::DB::Flat</classname> database:
+  </para>
+
+  <orderedlist>
+    <listitem>
+      <para>Select a Root Directory</para>
+
+  <para>
+    Select a directory in which the flat file indexes will be stored.
+    This directory should be writable by you, and readable by everyone
+    who will be running applications that access the sequence data.
+  </para>
+    </listitem>
+    <listitem><para>Move the Flat Files Into a Good Location</para>
+
+  <para>
+    The indexer records the path to the source files (e.g. FASTA, or
+    local copies of GenBank, Embl or SwissProt).  This means that you
+    must not change the location or name of the source files after
+    running the indexer.  Pick a good stable location for the source
+    files and move them there.
+  </para>
+    </listitem>
+
+    <listitem><para>Choose a Symbolic Name for the Database</para>
+
+  <para>
+    Choose a good symbolic name for the database.  For example, if you
+    are mirroring GenBank, "genbank" might be a good choice.  The
+    indexer will create files in a subdirectory by this name located
+    underneath the root directory.
+  </para>
+    </listitem>
+    <listitem><para>Run the bioflat_index.pl script to load the
+        sequence files into the database.</para>
+
+  <para>
+     The final step is to run the bioflat_index.pl script.  This
+     script is located in the BioPerl distribution, under scripts/db.
+     For convenience, you may want to copy it to /usr/bin or another
+     system-wide directory.
+  </para>
+    </listitem>
+ </orderedlist>
+
+ </section>
+
+ <section id="options">
+      <title>Choosing Your Options</title>
+
+  <para>
+     The first time you run the script, the typical usage is as
+     follows:
+    <programlisting>
+     bioflat_index.pl -c -l /usr/share/biodb -d genbank -i bdb -f fasta data/*.fa
+    </programlisting>
+
+     The following command line options are required:
+
+       <table>
+        <title></title>
+        <tgroup cols="2">
+          <thead>
+             <row>
+                <entry>Option</entry>
+                <entry>Describtion</entry>
+             </row>
+         </thead>
+         <tbody>
+              <row>
+                 <entry>-c</entry>
+                 <entry>create a new index</entry>
+              </row>
+              <row>
+                 <entry>-l</entry>
+                 <entry>path to the root directory</entry>
+              </row>
+              <row>
+                 <entry>-d</entry>
+                 <entry>symbolic name for the new database</entry>
+              </row>
+              <row>
+                 <entry>-i</entry>
+                 <entry>indexing scheme (discussed below)</entry>
+              </row>
+              <row>
+                 <entry>-f</entry>
+                  <entry>source file format</entry>
+              </row>
+          </tbody>
+         </tgroup>
+        </table>
+
+  </para>
+
+  <para>
+    The <parameter>-c</parameter> option must be present to create the
+    database.  If the database already exists,
+    <parameter>-c</parameter> will reinitialize the index, wiping out
+    its current contents.
+  </para>
+
+  <para>
+    The <parameter>-l</parameter> option specifies the root directory
+    for the database indexes.
+  </para>
+
+  <para>
+    The <parameter>-d</parameter> option chooses the symbolic name for
+    the new database.  If the <parameter>-c</parameter> option is
+    specified, this will cause a new directory to be created
+    underneath the root directory.
+  </para>
+
+  <para>
+    The <parameter>-i</parameter> option selects the indexing scheme.  Currently there are
+    two indexing schemes supported: "bdb" and "flat."  "bdb" selects
+    an index based on the BerkeleyDB library.  It is generally the
+    faster of the two, but it requires both the BerkeleyDB library and
+    the Perl DB_File module to be installed on your system.  "flat" is
+    a sorted text-based index that uses a binary search algorithm to
+    rapidly search for entries.  Although not as fast as bdb, the flat
+    indexing system has good performance for even large databases, and
+    it has no requirements beyond Perl itself.  Once an indexing
+    scheme has been selected there is no way to change it other than
+    recreating the index from scratch using the
+    <parameter>-c</parameter> option.
+  </para>
+
+  <para>
+    The <parameter>-f</parameter> option specifies the format of the
+    source database files.  It must be one of the formats that BioPerl
+    supports, including "genbank", "swiss", "embl" or "fasta".
+    Consult the <classname>Bio::SeqIO</classname> documentation for
+    the complete list.  All files placed in the index must share the
+    same format.
+  </para>
+
+  <para>
+    The indexing script will print out a progress message every 1000
+    entries, and will report the number of entries successfully
+    indexed at the end of its run.
+  </para>
+
+  <para>
+    To update an existing index run bioflat_index.pl without the
+    <parameter>-c</parameter> option and list the files to be added or
+    reindexed.  The <parameter>-l</parameter> and
+    <parameter>-d</parameter> options are required, but the indexing
+    scheme and source file format do not have to be specified for
+    updating as they will be read from the existing index.
+  </para>
+
+  <para>
+    For your convenience, bioflat_index.pl will take default values
+    from the following environment variables:
+
+       <table>
+        <title></title>
+        <tgroup cols="2">
+          <thead>
+             <row>
+                <entry>ENV variable</entry>
+                <entry>describtion</entry>
+             </row>
+         </thead>
+         <tbody>
+              <row>
+                 <entry>OBDA_FORMAT</entry>
+                 <entry>format of sequence file (<parameter>-f</parameter>)
+                 </entry>
+              </row>
+              <row>
+                 <entry>OBDA_LOCATION</entry> <entry>path to directory
+                 in which index files are stored
+                 (<parameter>-l</parameter>)
+                 </entry>
+              </row>
+              <row>
+                 <entry>OBDA_DBNAME</entry>
+                 <entry>name of database (-d)</entry>
+              </row>
+              <row>
+                 <entry>OBDA_INDEX</entry>
+                 <entry>type of index to create (<parameter>-i</parameter>)</entry>
+              </row>
+          </tbody>
+         </tgroup>
+        </table>
+  </para>
+ </section>
+
+
+  <section id="files">
+      <title>Moving Database Files</title>
+  
+  <para>
+    If you must change the location of the source sequence files after
+    you create the index, there is a way to do so.  Inside the root
+    directory you will find a subdirectory named after the database,
+    and inside that you will find a text file named "config.dat."  An
+    example config.dat is shown here:
+    <programlisting>
+     index	flat/1
+     fileid_0	/share/data/alnfile.fasta	294
+     fileid_1	/share/data/genomic-seq.fasta	171524
+     fileid_2	/share/data/hs_owlmonkey.fasta	416
+     fileid_3	/share/data/test.fasta	804
+     fileid_4	/share/data/testaln.fasta	4620
+     primary_namespace	ACC
+     secondary_namespaces	ID
+     format	URN:LSID:open-bio.org:fasta
+    </programlisting>
+  </para>
+
+
+  <para>
+    For each source file you have moved, find its corresponding
+    "fileid" line and change the path.  Be careful not to change
+    anything else in the file or to inadvertently replace tab
+    characters with spaces.
+  </para>
+ </section>
+</article>
