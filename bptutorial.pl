@@ -874,12 +874,12 @@ sequence data among the many widely used data formats.  Bioperl's
 SeqIO object, however, makes this chore a breeze.  SeqIO can
 read a stream of sequences - located in a single or in multiple files -
 in a number of formats: Fasta, EMBL, GenBank, Swissprot, PIR, GCG, SCF,
-phd/phred, Ace, fastq, exp, or raw (plain sequence). SeqIO can also parse tracefiles 
-in alf, ztr, abi, ctf, and ctr format Once the sequence data
-has been read in with SeqIO, it is available to bioperl in the form of
-Seq objects.  Moreover, the Seq objects can then be written to another
-file (again using SeqIO) in any of the supported data formats making
-data converters simple to implement, for example:
+phd/phred, Ace, fastq, exp, chado, or raw (plain sequence). SeqIO can 
+also parse tracefiles in alf, ztr, abi, ctf, and ctr format Once the 
+sequence data has been read in with SeqIO, it is available to bioperl 
+in the form of Seq objects.  Moreover, the Seq objects can then be 
+written to another file (again using SeqIO) in any of the supported 
+data formats making data converters simple to implement, for example:
 
   use Bio::SeqIO;
   $in  = Bio::SeqIO->new('-file' => "inputfilename",
@@ -916,6 +916,7 @@ current interpretations:
    phd      phd|phred
    fastq    fastq
    qual
+   chado
    abi*
    alf*
    ctf*
