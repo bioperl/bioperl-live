@@ -1,0 +1,261 @@
+!!SEQUENCE_LIST 1.0
+
+
+(Peptide) FASTA of: test.gcg  from: 1 to: 146  August 25, 2003 13:25
+
+ REFORMAT of: b124_sp.pep  check: -1  from: 1  to: 146  January 28, 1999 16:22
+ (No documentation)
+
+ TO: PIR:*  Sequences:    283,308  Symbols:    96,168,669  Word Size: 2
+
+ Databases searched:
+   NBRF, Release 76.0, Released on 31Mar2003, Formatted on 7Apr2003
+
+ Scoring matrix: GenRunData:blosum50.cmp
+ Variable pamfactor used
+ Gap creation penalty: 12  Gap extension penalty: 2
+
+
+
+Histogram Key:
+ Each histogram symbol represents 474 search set sequences
+ Each inset symbol represents 4 search set sequences
+ z-scores computed from opt scores
+
+z-score obs    exp
+        (=)    (*)
+
+< 20    789      0:==
+  22      0      0:
+  24      4      0:=
+  26      8      6:*
+  28      9     64:*
+  30    101    390:*
+  32    407   1509:=  *
+  34   2185   4092:=====   *
+  36   7555   8404:================ *
+  38  16600  13889:=============================*======
+  40  25000  19373:========================================*============
+  42  27813  23681:=================================================*=========
+  44  28394  26123:=======================================================*====
+  46  26152  26607:========================================================*
+  48  23191  25473:=================================================    *
+  50  20419  23244:============================================     *
+  52  18108  20435:=======================================    *
+  54  15701  17455:==================================  *
+  56  13874  14581:==============================*
+  58  11026  11970:======================== *
+  60   9392   9697:====================*
+  62   7678   7774:================*
+  64   6295   6183:=============*
+  66   4986   4887:==========*
+  68   3909   3844:========*
+  70   3131   3012:======*
+  72   2497   2354:====*=
+  74   1858   1835:===*
+  76   1469   1428:===*
+  78   1160   1110:==*
+  80    845    862:=*
+  82    665    659:=*
+  84    515    522:=*
+  86    376    404:*
+  88    261    313:*
+  90    225    242:*
+  92    157    187:*         :=======================================*
+  94    132    145:*         :=================================   *
+  96     93    112:*         :========================   *
+  98     63     87:*         :================     *
+ 100     73     67:*         :================*==
+ 102     44     52:*         :=========== *
+ 104     32     40:*         :======== *
+ 106     27     31:*         :=======*
+ 108     18     24:*         :=====*
+ 110     18     19:*         :====*
+ 112     11     14:*         :===*
+ 114     11     11:*         :==*
+ 116     10      9:*         :==*
+ 118      8      7:*         :=*
+>120     13      5:*         :=*==
+
+Joining threshold: 36, opt. threshold: 24, opt. width:  16, reg.-scaled
+
+
+The best scores are:                    init1 initn   opt    z-sc E(283250)..
+
+PIR2:S44629    Begin: 342  End: 470
+! F22B7.10 protein - Caenorhabditis e...  108   143   241   304.1  1.1e-09
+PIR1:WMBELM    Begin: 307  End: 385
+! membrane protein LMP-2A - human her...   59    91    99   130.6     5.1
+PIR2:AG0762    Begin: 63  End: 144
+! probable membrane protein STY2265 [...   65    65    96   128.9     6.4
+PIR2:B83179    Begin: 9  End: 86
+! hypothetical protein PA3730 [import...   40    40    92   127.0     8.2
+\\End of List
+
+
+test.gcg
+PIR2:S44629
+
+P1;S44629 - F22B7.10 protein - Caenorhabditis elegans
+C;Species: Caenorhabditis elegans
+C;Date: 20-Feb-1995 #sequence_revision 20-Feb-1995 #text_change 04-Mar-2000
+C;Accession: S44629
+R;Anderson, K.
+submitted to the EMBL Data Library, March 1993 . . . 
+
+
+SCORES   Init1: 108   Initn: 143   Opt: 241   z-score: 304.1 E(): 1.1e-09
+>>PIR2:S44629                                             (628 aa)
+ initn: 143 init1: 108 opt: 241 Z-score: 304.1 expect(): 1.1e-09
+Smith-Waterman score: 241;    32.6% identity in 135 aa overlap
+ (3-135:342-470)
+
+                                                 10        20        30  
+test.gcg                                 VXCAAEFDFMEKETPLRYTKTLLLPVVLVVFV
+                                           |:|||||::  |  :   |||:|::|: :|
+S44629       GLGIEDDAHIFDILRSKFTSFANFHTRLYTCSAEFDFIQYSTIEKLCGTLLIPLALISLV
+                   320       330       340       350       360       370 
+
+                   40        50        60        70        80        90  
+test.gcg     AIVRKIISDMWGVLAKQQTHVRKHQFDHGELVYHALQLLAYTALGILIMRLKLFLTPYMC
+             ::| :::::  ::| ::: ::     ::||::|:::||   |::::||||||||:||::|
+S44629       TFVFNFVKNT-NLLWRNSEEIG----ENGEILYNVVQLCCSTVMAFLIMRLKLFMTPHLC
+                   380        390           400       410       420      
+
+                  100         110       120       130       140          
+test.gcg     VMASLICSRQLFG--WLFCKVHPGAIVFVILAAMSIQGSANLQTQWKSTASLALET    
+             ::|:|: : :|:|   :   :: :|:| || | :  :|  |:: |               
+S44629       IVAALFANSKLLGGDRISKTIRVSALVGVI-AILFYRGIPNIRQQLNVKGEYSNPDQEML
+              430       440       450        460       470       480     
+
+S44629       FDWIQHNTKQDAVFAGTMPVMANVKLTTLRPIVNHPHYEHVGIRERTLKVYSMFSKKPIA
+               490       500       510       520       530       540     
+
+
+test.gcg
+PIR1:WMBELM
+
+P1;WMBELM - membrane protein LMP-2A - human herpesvirus 4
+N;Contains: membrane protein LMP-2B
+C;Species: human herpesvirus 4, Epstein-Barr virus
+A;Note: host Homo sapiens (man)
+C;Date: 31-Dec-1989 #sequence_revision 31-Dec-1989 #text_change 16-Jul-1999
+C;Accession: A30178; B30178; S00392 . . . 
+
+
+SCORES   Init1: 59    Initn: 91    Opt: 99    z-score: 130.6 E(): 5.1   
+>>PIR1:WMBELM                                             (497 aa)
+ initn:  91 init1:  59 opt:  99 Z-score: 130.6 expect():  5.1
+Smith-Waterman score: 99;    32.9% identity in 79 aa overlap
+ (67-141:307-385)
+
+               40        50        60        70        80        90      
+test.gcg     KIISDMWGVLAKQQTHVRKHQFDHGELVYHALQLLAYTALGILIMRLKLFLTPYMCVMAS
+                                           || |||   || | :   ::|     ::: 
+WMBELM       MTLLLLAFVLWLSSPGGLGTLGAALLTLAAALALLASLILGTLNLTTMFLLMLLWTLVVL
+              280       290       300       310       320       330      
+
+              100           110       120       130       140            
+test.gcg     LICSR----QLFGWLFCKVHPGAIVFVILAAMSIQGSANLQTQWKSTASLALET      
+             ||||      |   |: ::   |:::::||:  | |:: |||::|| :|           
+WMBELM       LICSSCSSCPLSKILLARLFLYALALLLLASALIAGGSILQTNFKSLSSTEFIPNLFCML
+              340       350       360       370       380       390      
+
+WMBELM       LLIVAGILFILAILTEWGSGNRTYGPVFMCLGGLLTMVAGAVWLTVMSNTLLSAWILTAG
+              400       410       420       430       440       450      
+
+
+test.gcg
+PIR2:AG0762
+
+P1;AG0762 - probable membrane protein STY2265 [imported] - Salmonella enterica 
+ subsp. enterica serovar Typhi (strain CT18)
+C;Species: Salmonella enterica subsp. enterica serovar Typhi
+A;Note: this species has also been called Salmonella typhi
+C;Date: 09-Nov-2001 #sequence_revision 09-Nov-2001 #text_change 18-Nov-2002
+C;Accession: AG0762
+R;Parkhill, J.; Dougan, G.; James, K.D.; Thomson, N.R.; Pickard, D.; Wain, J.; 
+ Churcher, C.; Mungall, K.L.; Bentley, S.D.; Holden, M.T.G.; Sebaihia, M.; 
+ Baker, S.; Basham, D.; Brooks, K.; Chillingworth, T.; Connerton, P.; Cronin, 
+ A.; Davis, P.; Davies, R.M.; Dowd, L.; White, N.; Farrar, J.; Feltwell, T.; 
+ Hamlin, N.; Haque, A.; Hien, T.T.; Holroyd, S.; Jagels, K.; Krogh, A.; Larsen, 
+ T.S.; Leather, S.; Moule, S.; O'Gaora, P
+
+
+SCORES   Init1: 65    Initn: 65    Opt: 96    z-score: 128.9 E(): 6.4   
+>>PIR2:AG0762                                             (352 aa)
+ initn:  65 init1:  65 opt:  96 Z-score: 128.9 expect():  6.4
+Smith-Waterman score: 96;    27.6% identity in 87 aa overlap
+ (61-137:63-144)
+
+                     40        50        60        70            80      
+test.gcg     FVAIVRKIISDMWGVLAKQQTHVRKHQFDHGELVYHALQLLAYT----ALGILIMRLKLF
+                                           |::| :|:: :: |    |||:: :||:||
+AG0762       TFLLVRLFSIPEGTWPLITLVVIMGPISFWGNVVPRAFERIGGTILGAALGLVALRLELF
+                   40        50        60        70        80        90  
+
+               90          100       110         120       130        140
+test.gcg     LTPYM---CVMASLICSRQLFGWLFCKVHP--GAIVFVILAAMSIQGSANLQTQ-WKSTA
+               | |   |::| ::|     |||    :|  : :: : ||::    :::::|  |::  
+AG0762       SLPLMLVWCAIAMFLC-----GWLALGKKPYQALLIGITLAVVVGAPAGDMNTALWRGGD
+                  100            110       120       130       140       
+
+                                                                         
+test.gcg     SLALET                                                      
+                                                                         
+AG0762       VILGALLAMLFTGIWPQRAFLHWRIQLAHCVTAYNRVYQAALSPNLLERPRLDKYLQRLL
+             150       160       170       180       190       200       
+
+
+test.gcg
+PIR2:B83179
+
+P1;B83179 - hypothetical protein PA3730 [imported] - Pseudomonas aeruginosa 
+ (strain PAO1)
+C;Species: Pseudomonas aeruginosa
+C;Date: 15-Sep-2000 #sequence_revision 15-Sep-2000 #text_change 31-Dec-2000
+C;Accession: B83179
+R;Stover, C.K.; Pham, X.Q.; Erwin, A.L.; Mizoguchi, S.D.; Warrener, P.; Hickey, 
+ M.J.; Brinkman, F.S.L.; Hufnagle, W.O.; Kowalik, D.J.; Lagrou, M.; Garber, 
+ R.L.; Goltry, L.; Tolentino, E.; Westbrook-Wadman, S.; Yuan, Y.; Brody, L.L.; 
+ Coulter, S.N.; Folger, K.R.; Kas, A.; Larbig, K.; Lim, R.M.; Smith, K.A.; 
+ Spencer, D.H.; Wong, G.K.S.; Wu, Z.; Paulsen, I.T.; Reizer, J.; Saier, M.H.; 
+ Hancock, R.E.W.; Lory, S.; Olson, M.V.
+Nature 406, 959-964, 2000 . . . 
+
+
+SCORES   Init1: 40    Initn: 40    Opt: 92    z-score: 127.0 E(): 8.2   
+>>PIR2:B83179                                             (213 aa)
+ initn:  40 init1:  40 opt:  92 Z-score: 127.0 expect():  8.2
+Smith-Waterman score: 92;    28.4% identity in 88 aa overlap
+ (22-109:9-86)
+
+                     10        20        30        40        50        60
+test.gcg     VXCAAEFDFMEKETPLRYTKTLLLPVVLVVFVAIVRKIISDMWGVLAKQQTHVRKHQFDH
+                                  | :|:||  |: |:  |   :||::|  ::::   ::| 
+B83179                    MEGFLQTALSFPTVLFSFLLILAII---YWGIVALGMVEIDVLDLDA
+                                  10        20           30        40    
+
+                     70        80        90       100       110       120
+test.gcg     GELVYHALQLLAYTALGILIMRLKLFLTPYMCVMASLICSRQLFGWLFCKVHPGAIVFVI
+               :|  | |     :|: |: :|||  :|   |:: |    ::|:|::|           
+B83179       ESVVDGAGQA---EGLAALLAKLKLNGVPVTLVLTLL----SFFAWFLCYFVQLWLLSAL
+                 50           60        70            80        90       
+
+                    130       140                                        
+test.gcg     LAAMSIQGSANLQTQWKSTASLALET                                  
+                                                                         
+B83179       PLGWLRYPLGAVVAVGALFLAAPLAATLCRPLRPLFRKLESTSSKSVLGQVAVVRSGRVT
+             100       110       120       130       140       150       
+
+
+
+! Distributed over 1 thread.
+!      Start time: Mon Aug 25 13:23:54 2003
+! Completion time: Mon Aug 25 13:25:12 2003
+
+! CPU time used:
+!        Database scan:  0:01:34.1
+! Post-scan processing:  0:00:00.6
+!       Total CPU time:  0:01:34.7
+! Output File: test.fasta
