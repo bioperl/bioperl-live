@@ -1,4 +1,4 @@
-
+# $Id$
 #
 # BioPerl module for Bio::Annotation::SimpleValue
 #
@@ -70,6 +70,7 @@ use strict;
 # Object preamble - inherits from Bio::Root::Root
 
 use Bio::AnnotationI;
+#use Bio::Ontology::TermI;
 use Bio::Root::Root;
 
 @ISA = qw(Bio::Root::Root Bio::AnnotationI);
@@ -95,7 +96,7 @@ sub new{
 }
 
 
-=head2 AnnotationI implementing functions
+=head1 AnnotationI implementing functions
 
 =cut
 
@@ -135,7 +136,7 @@ sub hash_tree{
    $h->{'value'} = $self->value;
 }
 
-=head2 Specific accessors for SimpleValue
+=head1 Specific accessors for SimpleValue
 
 =cut
 
@@ -158,5 +159,6 @@ sub value{
     }
     return $self->{'value'};
 }
+
 
 1;

@@ -193,11 +193,19 @@ sub add_Annotation{
    }
 
    if( !ref $object ) {
-       $self->throw("Must add an object. Use Bio::Annotation::Comment, SimpleValue or ControledVocabTerm for simple text additions");
+       $self->throw("Must add an object. Use Bio::Annotation::Comment, SimpleValue or OntologyTerm for simple text additions");
    }
 
    if( !$object->isa("Bio::AnnotationI") ) {
        $self->throw("object must be AnnotationI compliant, otherwise we wont add it!");
+   }
+
+   # if there's no key, and the object is an Ontology::TermI, we use the
+   # category as key
+   if(ref($key) && $key->isa("Bio::Ontology::TermI") &&
+      (! ($object && $object->isa("Bio::Ontology::TermI")))) {
+       $key = $object->category();
+       $self->throw("term must have a category if key omitted") unless $key;
    }
 
    # ok, now we are ready! If we don't have an archytype, set it

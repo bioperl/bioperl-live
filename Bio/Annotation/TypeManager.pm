@@ -1,4 +1,4 @@
-
+# $Id$
 #
 # BioPerl module for Bio::Annotation::TypeManager
 #
@@ -16,10 +16,11 @@ Bio::Annotation::TypeManager - Manages types for annotation collections
 
 =head1 SYNOPSIS
 
-   # default type manager
+    # default type manager
 
     $tm = Bio::Annotation::TypeManager->new();
 
+    # $key is a string or a Bio::Ontology::TermI compliant object
     print "The type for $key is ",$tm->type_for_key($key),"\n";
 
     if( !$tm->is_valid($key,$object) ) {
@@ -28,7 +29,7 @@ Bio::Annotation::TypeManager - Manages types for annotation collections
 
 =head1 DESCRIPTION
 
-Manages types for annotation collections
+Manages types for annotation collections.
 
 =head1 FEEDBACK
 
@@ -120,6 +121,7 @@ sub new{
 sub type_for_key{
    my ($self,$key) = @_;
 
+   $key = $key->name() if ref($key) && $key->isa("Bio::Ontology::TermI");
    return $self->{'_type'}->{$key};
 }
 
@@ -166,6 +168,7 @@ sub is_valid{
 sub _add_type_map{
    my ($self,$key,$type) = @_;
    
+   $key = $key->name() if ref($key) && $key->isa("Bio::Ontology::TermI");
    $self->{'_type'}->{$key} = $type;
 }
 

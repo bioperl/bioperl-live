@@ -109,6 +109,8 @@ use Bio::Annotation::Collection;
 use Bio::Annotation::Comment;
 use Bio::Annotation::Reference;
 use Bio::Annotation::DBLink;
+use Bio::Annotation::OntologyTerm;
+use Bio::Annotation::SimpleValue;
 
 @ISA = qw(Bio::SeqIO);
 
