@@ -303,15 +303,15 @@ sub aggregate {
 
   ## TODO: ERE I AM.. Why isn't it aggregating?  See below..
   ## TODO: REMOVE
-  warn "aggregating..";
+  #warn "aggregating.. main_method is $main_method.";
 
   my (%aggregates,@result,$changed);
   for my $feature (@$features) {
-    if ($feature->group && $matchsub->($feature)) {
+    if ($feature->group ) {#&& $matchsub->($feature)) {
       if ($main_method && lc $feature->method eq lc $main_method) {
 	$aggregates{$feature->group,$feature->refseq}{base} ||= $feature->new_from_feature();
       } else {
-	push @{$aggregates{$feature->group,$feature->refseq}{subparts}},$feature;
+	push @{$aggregates{$feature->group,$feature->seq_id}{subparts}},$feature;
       }
       if( $passthru && $passthru->($feature) ) {
         push @result,$feature;
@@ -322,7 +322,7 @@ sub aggregate {
       ## TODO: ERE I AM.  The matchsub is returning false for some reason..
 
       ## TODO: REMOVE
-      warn "Not aggregating feature $feature because either \$feature->group is false (it is ".$feature->group().") or because \$matchsub->(\$feature) returns false (it returns ".$matchsub->($feature).").";
+      #warn "Not aggregating feature $feature because either \$feature->group is false (it is ".$feature->group().") or because \$matchsub->(\$feature) returns false (it returns ".$matchsub->($feature).").";
       push @result,$feature;
     }
   }
@@ -340,23 +340,38 @@ sub aggregate {
       $base = $first->new_from_feature();     # to inherit parent coordinate system, etc
         #$first->clone();     # to inherit parent coordinate system, etc
       $base->score(undef);
-      $base->phase(undef);
+      $base->frame(undef);
+      ## TODO: REMOVE.  We shouldn't have to do this.
+      ## TODO: REMOVE
+      #warn "The first feature's seq_id is ".$first->seq_id().".";
+      $base->seq_id( $first->seq_id() );
+    }
+    my $source;
+    if( $base->can( 'source' ) ) {
+      $source = $base->source();
+    } elsif( ( $source = $base->type() ) && ref( $source ) && $source->can( 'source' ) ) {
+      $source = $source->source();
     }
     $base->type(
-      Bio::DB::GFF::Typename->new( $pseudo_method, $base->source() )
+      Bio::DB::GFF::Typename->new( $pseudo_method, $source )
     );
     if( $aggregates{$aggregate}{subparts} ) {
       ## TODO: REMOVE
-      warn "subparts are ( ".join( ', ', @{ $aggregates{$aggregate}{subparts}}  )." )";
+      #warn "subparts are ( ".join( ', ', @{ $aggregates{$aggregate}{subparts}}  )." )";
       $base->add_features( @{$aggregates{$aggregate}{subparts}} );
       ## TODO: REMOVE
-      warn "aggregate $aggregate: about to adjust_bounds of $base.\n";
+      #warn "aggregate $aggregate: about to adjust_bounds of $base.\n";
       $base->adjust_bounds( 0 );
       ## TODO: REMOVE
-      warn "aggregate $aggregate: now it is                 $base.\n";
+      #warn "aggregate $aggregate: now it is                 $base.\n";
     }
-    $base->compound(1);  # set the compound flag
+    if( $base->can( 'compound' ) ) {
+      ## TODO: Make all SeqFeatureI objects have a compound flag?  What is this used for?
+      $base->compound(1);  # set the compound flag
+    }
     $changed = 1;
+    ## TODO: REMOVE
+    #warn "Putting the new feature in the list.  its type is ".$base->type().".";
     push @result,$base;
   }
   @$features = @result;

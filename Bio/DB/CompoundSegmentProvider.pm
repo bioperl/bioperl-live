@@ -257,7 +257,7 @@ sub get_collection {
   my $self = shift;
 
   ## TODO: REMOVE
-  warn $self.'::get_collection( '.join( ', ', @_ )." )";
+  #warn $self.'::get_collection( '.join( ', ', @_ )." )";
 
   ## NOTE/TODO: Sorry about this, but I can't figure out how to design
   ## the ISA hierarchy so that this is automatic.  When I'm a
@@ -279,7 +279,7 @@ sub get_collection {
       return $segment;
     }
     ## TODO: REMOVE
-    warn "From self, got $segment, on ".$segment->abs_seq_id().".";
+    #warn "From self, got $segment, on ".$segment->abs_seq_id().".";
     ## TODO: REMOVE.  Testing.
     #unless( $segment->seq_id() ) {
     #  warn "Oh, mang, shoot.  the args were ( ".join( ', ', @_ )." ).  Types were [ ".join( ', ', @{ $_[ 1 ] } )." ].  self is $self, a ".ref( $self ).".";
@@ -287,7 +287,7 @@ sub get_collection {
     #next unless( $segment->feature_count() );
     unless( $segment->feature_count() ) {
       ## TODO: REMOVE
-      warn "..but there's no features on this one.";
+      #warn "..but there's no features on this one.";
       next;
     }
     $seq_ids{ $segment->abs_seq_id() } = $segment;
@@ -295,22 +295,22 @@ sub get_collection {
   foreach my $next_provider ( $self->get_next_providers() ) {
     @segments = $next_provider->get_collection( @_ );
     ## TODO: REMOVE
-    warn "from $next_provider, got ( " . join( ', ', @segments ) . " )";
+    #warn "from $next_provider, got ( " . join( ', ', @segments ) . " )";
     foreach my $segment ( @segments ) {
       ## TODO: REMOVE
-      warn "From $next_provider, got $segment, a ".ref( $segment ).", on ".$segment->abs_seq_id().".";
+      #warn "From $next_provider, got $segment, a ".ref( $segment ).", on ".$segment->abs_seq_id().".";
       if( exists $seq_ids{ $segment->abs_seq_id() } ) {
         ## TODO: REMOVE
-        warn "Yes, we already know about ".$segment->abs_seq_id().".";
+        #warn "Yes, we already know about ".$segment->abs_seq_id().".";
         #next unless( $segment->feature_count() );
         unless( $segment->feature_count() ) {
           ## TODO: REMOVE
-          warn "..but there's no features on this one.";
+          #warn "..but there's no features on this one.";
           next;
         }
         # Merge them.
         ## TODO: REMOVE
-        warn "Merging the two segments now...";
+        #warn "Merging the two segments now...";
         my $existing_segment = $seq_ids{ $segment->abs_seq_id() };
         my $abs_range = $existing_segment->abs_range();
         if( !ref( $abs_range ) ||
@@ -319,10 +319,10 @@ sub get_collection {
           ) {
           $abs_range = $segment->abs_range();
           ## TODO: REMOVE
-          warn "Okay, so the new abs_range is $abs_range, a ".ref( $abs_range )."; we got it from $next_provider.";
+          #warn "Okay, so the new abs_range is $abs_range, a ".ref( $abs_range )."; we got it from $next_provider.";
         } else {
           ## TODO: REMOVE
-          warn "Okay, so the new abs_range is $abs_range, a ".ref( $abs_range )."; we got it from the existing segment.";
+          #warn "Okay, so the new abs_range is $abs_range, a ".ref( $abs_range )."; we got it from the existing segment.";
         }
         my $union_strand = $existing_segment->strand();
         if( defined( $union_strand ) ) {
@@ -347,8 +347,8 @@ sub get_collection {
           $existing_segment->end( $high );
           $existing_segment->add_next_segment( $segment );
           ## TODO: REMOVE
-          warn "Using existing compound segment $existing_segment";
-          warn $self->stack_trace_dump();
+          #warn "Using existing compound segment $existing_segment";
+          #warn $self->stack_trace_dump();
         } else {
           my $compound_segment =
             Bio::SeqFeature::CompoundSegment->new(
@@ -365,14 +365,14 @@ sub get_collection {
         }
       } else {
         ## TODO: REMOVE
-        warn "got $segment from $next_provider, on ".$segment->abs_seq_id().", using these args: ( ".join( ', ', @_ )." )";
+        #warn "got $segment from $next_provider, on ".$segment->abs_seq_id().", using these args: ( ".join( ', ', @_ )." )";
         $seq_ids{ $segment->abs_seq_id() } = $segment;
       }
     }
   }
   @segments = values %seq_ids;
   ## TODO: REMOVE
-  warn "CompoundSegmentProvider::get_collection(..): done.";
+  #warn "CompoundSegmentProvider::get_collection(..): done.";
   if( wantarray ) {
     return @segments;
   } elsif( scalar( @segments ) > 1 ) {

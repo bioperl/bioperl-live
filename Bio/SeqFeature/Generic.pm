@@ -312,7 +312,12 @@ sub new_from_feature {
     );
   foreach my $key ( grep { /^_gsf_/ } keys %$feature ) {
     next if( $key eq '_gsf_unique_id' );
+    next if( $key eq '_gsf_tag_hash' );
     $new_feature->{ $key } = $feature->{ $key };
+  }
+  foreach my $key ( keys %{ $feature->{ '_gsf_tag_hash' } } ) {
+    $new_feature->{ '_gsf_tag_hash' }->{ $key } =
+      $feature->{ '_gsf_tag_hash' }->{ $key };
   }
   return bless $new_feature, __PACKAGE__;
 } # new_from_feature(..)
