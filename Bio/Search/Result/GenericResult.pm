@@ -118,8 +118,9 @@ use strict;
 use Bio::Root::Root;
 use Bio::Search::Result::ResultI;
 
-use overload 
-    '""' => \&to_string;
+# bug #1420
+#use overload 
+#    '""' => \&to_string;
 
 @ISA = qw(Bio::Root::Root Bio::Search::Result::ResultI);
 
