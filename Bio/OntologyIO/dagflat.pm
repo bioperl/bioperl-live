@@ -575,7 +575,6 @@ sub _get_name {
 	    $self->ontology_name(join(" ",split(/_/,$name))) 
 		unless $self->ontology_name();
 	}
-warn $name;
         return $name;
     }
     else {
