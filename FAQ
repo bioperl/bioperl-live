@@ -88,6 +88,8 @@ Contents
 	 protein gi number?
    Q5.5: How do I get the complete spliced nucleotide sequence from the CDS
 	 section?
+   Q5.6: How do I get the reverse-complement of a sequence using the
+	 subseq() method?
 
 6. Running external programs
 
@@ -685,6 +687,23 @@ Contents
 	       print "CDS sequence is ",$cds_obj->seq,"\n";
 	    }
 	 }
+
+
+   Q5.6: How do I get the reverse-complement of a sequence using the
+	 subseq() method?
+
+      A: One way is to pass the location to subseq() in the form of a
+	 Bio::Location object. This object holds strand information as well
+	 as coordinates.
+
+	 
+	 use Bio::Location::Simple;
+	 
+	 my $location = new Bio::Location::Simple(-start  => $start,
+						  -end	  => $end,
+						  -strand => "-" );
+	 # assume we already have a sequence object
+	 my $rev_comp_substr = $seq_obj->subseq($location);
 
 
 ---------------------------------------------------------------------------

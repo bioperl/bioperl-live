@@ -398,6 +398,21 @@ foreach my $feat ( $seq_obj->top_SeqFeatures ) {
       </code>
        </answer>
       </q>
+     <q id="6">
+      <question>How do I get the reverse-complement of a sequence using the subseq() method?</question>
+      <answer>
+<p>One way is to pass the location to subseq() in the form of a Bio::Location object. This object holds strand information as well as coordinates.</p>
+<code>
+use Bio::Location::Simple;
+
+my $location = new Bio::Location::Simple(-start  => $start,
+                                         -end    => $end,
+                                         -strand => "-" );
+# assume we already have a sequence object
+my $rev_comp_substr = $seq_obj->subseq($location);
+</code>
+	</answer>
+</q>
    </section>
    <section id="6">
    <section_name>Running external programs</section_name>
