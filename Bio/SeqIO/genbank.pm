@@ -692,29 +692,23 @@ sub _read_GenBank_Species {
     $_ = $$buffer;
     
     my( $sub_species, $species, $genus, $common, @class );
-    while (defined( $_ = $self->_readline )) {
-
+    while (defined($_) || (defined($_ = $self->_readline))) {
         if (/^SOURCE\s+(.*)/) {
+	    # FIXME this is probably mostly wrong (e.g., it yields things like
+	    # Homo sapiens adult placenta cDNA to mRNA
+	    # which is certainly not what you want)
 	    $common = $1;
-	    $common =~ s/\.//;
+	    $common =~ s/\.$//;
 	}
-	if (/^  ORGANISM\s+(\S+)\s+(\S+)\s+?(\S+)?/) {
-            $genus = $1 if $1;
-	    $genus = "None" unless $1;
-	    if ($2) {
-		$species = $2;
-	    }
-	    else {
-		$species = "sp.";
-	    }
-	    $sub_species = $3 if $3;
-        }
-        elsif ($_ !~ /^REFERENCE/) {
-	    $_ =~ s/\s+//;
-	    $_ =~ s/^SOURCE\S+//;
-            push(@class, split /[\;]+/, $_);
-        }
-        else {
+	if (/^\s*ORGANISM/) {
+	    s/\s*ORGANISM\s*//;
+	    ($genus,$species,$sub_species) = split(/\s+/, $_);
+        } elsif (/^\s+/ || /^SOURCE/) {
+	    s/\s+//g;
+	    s/^SOURCE\S+//;
+	    s/\.$//;
+            push(@class, split /[\s;]+/, $_);
+        } else {
             last;
         }
         
@@ -724,16 +718,21 @@ sub _read_GenBank_Species {
     $$buffer = $_;
     
     # Don't make a species object if it's "Unknown" or "None"
-    return if $genus =~ /^(Unknown|None)$/i;
-    
+    if(($genus =~ /^(Unknown|None)$/i) || (length($genus) == 0)) {
+	return;
+    }
+
+    if(! defined($sub_species)) {
+	$sub_species = "";
+    }
+    # make sure that genus is not duplicated
+    if((scalar(@class) > 0) && ($genus eq $class[scalar(@class)-1])) {
+	push( @class, $species, $sub_species);
+    } else {
+	push( @class, $genus, $species, $sub_species);
+    }
     # Bio::Species array needs array in Species -> Kingdom direction
-    if ($sub_species) {
-	push( @class, $genus, $species, $sub_species );
-    }
-    else {
-	push( @class, $genus, $species, "");
-    }
-    @class = reverse @class;
+    @class = CORE::reverse @class;
     
     my $make = Bio::Species->new();
     $make->classification( @class );
@@ -835,7 +834,7 @@ sub _read_FTHelper_GenBank {
 	   push(@{$out->field->{$key}},$value);
        }
        # Field with no quoted value
-       elsif (/^\s+\/(\S+)=?(\S+)?/) {
+       elsif (/^\s+\/([^\s=]+)=?(\S+)?/) {
 	   my $key = $1;
 	   my $value = $2 if $2;
 	   $value = "_no_value" unless $2;

@@ -629,6 +629,7 @@ sub _print_EMBL_FTHelper {
    }
 }
 
+#'
 =head2 _read_EMBL_References
 
  Title   : _read_EMBL_References

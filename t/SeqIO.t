@@ -19,7 +19,7 @@
 
 
 ## We start with some black magic to print on failure.
-BEGIN { $| = 1; print "1..25\n";
+BEGIN { $| = 1; print "1..30\n";
 	use vars qw($loaded); }
 
 END {print "not ok 1\n" unless $loaded;}
@@ -295,9 +295,53 @@ if ( $out->write_seq($seq) ) {
     }
 }
 
-
-
-
-
-
-
+#
+# Tests for feature-rich GenBank-entries. Added by HL <hlapp@gmx.net> 07/05/00
+#
+my $stream = Bio::SeqIO->new('-file' => 't/test.genbank',
+			     '-format' => 'GenBank');
+my $seqnum = 0;
+my $species;
+my @cl;
+while($seq = $stream->next_seq()) {
+    $seqnum++;
+    if($seqnum == 3) {
+	if($seq->display_id() eq "HUMBDNF") {
+	    # more than 1 feature
+	    print "ok 26\n";
+	} else {
+	    print "not ok 26\n";
+	}
+	# check for correct recognition of species
+	$species = $seq->species();
+	@cl = $species->classification();
+	if($species->binomial() eq "Homo sapiens") {
+	    print "ok 27\n";
+	} else {
+	    print "not ok 27 , species parsing incorrect for genbank\n";
+	}
+	if($cl[3] eq $species->genus()) {
+	    print "not ok 28 , genus duplicated in genbank parsing\n";
+	} else {
+	    print "ok 28\n";
+	}
+    }
+    if($seq->display_id() eq "HUMBETGLOA") {
+	# features which used to screw up the genbank/feature table parser
+	print "ok 29\n";
+    }
+}
+$stream->close();
+#
+# we add a test regarding duplication of genus for EMBL as well.
+#
+$ent = Bio::SeqIO->new( -FILE => 't/test.embl', -FORMAT => 'embl');
+$seq = $ent->next_seq();
+$species = $seq->species();
+@cl = $species->classification();
+if($cl[3] eq $species->genus()) {
+    print "not ok 30 , genus duplicated in EMBL parsing\n";
+} else {
+    print "ok 30\n";
+}
+$ent->close();
