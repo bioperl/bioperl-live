@@ -35,6 +35,11 @@ BEGIN {
     }
 }
 
+END {
+    # clean up after oneself
+    unlink (  'Perltmp' );
+}
+
 use Bio::Perl qw( read_sequence 
 		  read_all_sequences 
 		  write_sequence 
