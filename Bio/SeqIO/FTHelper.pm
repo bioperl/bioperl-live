@@ -199,7 +199,7 @@ sub _parse_loc {
 #    my %compl_of = ("5" => "3", "3" => "5");
     my ($fea_type, $tagval) = ('','');
     my ($strand,$start,$end) = (1);
-    print STDERR "Processing $locstr\n" if( $self->verbose > 0 );
+    $self->debug( "Processing $locstr\n");
 
     # Two numbers separated by anything of '.', '^', and spaces (SRS puts a
     # space between the two dots), optionally surrounded by parentheses and a
@@ -237,7 +237,7 @@ sub _parse_loc {
 	$strand = -1;
     }
     my ($delim) = '';
-    if($locstr =~ /^\s*(\w+[A-Za-z])?\({0,2}([\<\>\?]?\d+[\<\>\?]?([\.\^]\d+)?)\)?([\.\^\s]{1,3})\(?([\<\>\?]?\d+[\<\>\?]?([\.\^]\d+)?)\){0,2}[,;\" ]*([A-Za-z]\w*)?\"?\)?\s*$/) {
+    if($locstr =~ /^\s*(\w+[A-Za-z])?\({0,2}([\<\>\?]?\d*[\<\>\?]?([\.\^]\d+)?)\)?([\.\^\s]{1,3})\(?([\<\>\?]?\d*[\<\>\?]?([\.\^]\d+)?)\){0,2}[,;\" ]*([A-Za-z]\w*)?\"?\)?\s*$/) {
 #	print "1 = \"$1\", 2 = \"$2\", 3 = \"$3\", 4 = \"$4\", 5 = \"$5\", 6 = \"$6\", 7 = \"$7\"\n";
 	$fea_type = $1 if $1;
 	$start = $2;
@@ -246,7 +246,7 @@ sub _parse_loc {
 	$tagval = $7 if $7;
     } 
     # like before, but only one number
-    elsif($locstr =~ /^\s*(\w+[A-Za-z])?\(?([\<\>\?]?\d+[\<\>\?]?([\.\^]\d+)?)\)?[,;\" ]*([A-Za-z]\w*)?\"?\)?\s*$/) {
+    elsif($locstr =~ /^\s*(\w+[A-Za-z])?\(?([\<\>\?]?\d*[\<\>\?]?([\.\^]\d+)?)\)?[,;\" ]*([A-Za-z]\w*)?\"?\)?\s*$/) {
 #	print "1 = \"$1\", 2 = \"$2\", 3 = \"$3\"\n";	
 	$fea_type = $1 if $1;
 	$start = $end = $2;

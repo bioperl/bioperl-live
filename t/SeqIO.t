@@ -8,7 +8,7 @@ BEGIN {
 	use lib 't';
     }
     use Test;
-    plan tests => 82;
+    plan tests => 89;
 }
 
 use Bio::Seq;
@@ -285,6 +285,23 @@ foreach my $gn ( $seq->annotation->get_Annotations('gene_name') ) {
 }
 
 ok $seen;
+# test for feature locations like ?..N
+ok(defined( $seq = $seqio->next_seq));
+
+ok($seq->primary_id, 'ACON');
+ok($seq->display_id, 'ACON_CAEEL');
+ok($seq->length, 788);
+ok($seq->division, 'CAEEL');
+ok($seq->alphabet, 'protein');
+ok(scalar $seq->all_SeqFeatures(), 5);
+
+$seen = 0;
+foreach my $gn ( $seq->annotation->get_Annotations('gene_name') ) {
+    if( $gn->value =~ /F54H12/ ) {
+	$seen = 1;
+    }	       
+}
+ok($seen);
 
 # test dos Linefeeds in gcg parser
 $str = Bio::SeqIO->new('-file' => Bio::Root::IO->catfile("t","data","test_badlf.gcg"), 

@@ -76,3 +76,86 @@ SQ   SEQUENCE   282 AA;  31362 MW;  2F747FA73BB1314B CRC64;
      ALVLDCHYPE DEVGQEDEAE SDIFSIREVS FQSTGESEWK DTNYTLNTDS LDWALYDHLM
      DFLADRGVDN TFADELVELS TALEHQEYIT FLEDLKSFVK SQ
 //
+ID   ACON_CAEEL     STANDARD;      PRT;   788 AA.
+AC   P34455;
+DT   01-FEB-1994 (Rel. 28, Created)
+DT   01-FEB-1994 (Rel. 28, Last sequence update)
+DT   15-JUL-1999 (Rel. 38, Last annotation update)
+DE   Probable aconitate hydratase, mitochondrial precursor (EC 4.2.1.3)
+DE   (Citrate hydro-lyase) (Aconitase).
+GN   F54H12.1.
+OS   Caenorhabditis elegans.
+OC   Eukaryota; Metazoa; Nematoda; Chromadorea; Rhabditida; Rhabditoidea;
+OC   Rhabditidae; Peloderinae; Caenorhabditis.
+OX   NCBI_TaxID=6239;
+RN   [1]
+RP   SEQUENCE FROM N.A.
+RC   STRAIN=BRISTOL N2;
+RX   MEDLINE=94150718; PubMed=7906398;
+RA   Wilson R., Ainscough R., Anderson K., Baynes C., Berks M.,
+RA   Bonfield J., Burton J., Connell M., Copsey T., Cooper J., Coulson A.,
+RA   Craxton M., Dear S., Du Z., Durbin R., Favello A., Fraser A.,
+RA   Fulton L., Gardner A., Green P., Hawkins T., Hillier L., Jier M.,
+RA   Johnston L., Jones M., Kershaw J., Kirsten J., Laisster N.,
+RA   Latreille P., Lightning J., Lloyd C., Mortimore B., O'Callaghan M.,
+RA   Parsons J., Percy C., Rifken L., Roopra A., Saunders D., Shownkeen R.,
+RA   Sims M., Smaldon N., Smith A., Smith M., Sonnhammer E., Staden R.,
+RA   Sulston J., Thierry-Mieg J., Thomas K., Vaudin M., Vaughan K.,
+RA   Waterson R., Watson A., Weinstock L., Wilkinson-Sproat J.,
+RA   Wohldman P.;
+RT   "2.2 Mb of contiguous nucleotide sequence from chromosome III of C.
+RT   elegans.";
+RL   Nature 368:32-38(1994).
+CC   -!- CATALYTIC ACTIVITY: Citrate = cis-aconitate + H(2)O.
+CC   -!- COFACTOR: ACONITASE HAS AN ACTIVE (4FE-4S) AND AN INACTIVE (3FE-
+CC       4S) FORMS. THE ACTIVE (4FE-4S) CLUSTER IS PART OF THE CATALYTIC
+CC       SITE THAT INTERCONVERTS CITRATE, CIS-ACONITASE, AND ISOCITRATE (BY
+CC       SIMILARITY).
+CC   -!- PATHWAY: TRICARBOXYLIC ACID CYCLE.
+CC   -!- SUBUNIT: MONOMER (BY SIMILARITY).
+CC   -!- SUBCELLULAR LOCATION: Mitochondrial (By similarity).
+CC   -!- SIMILARITY: BELONGS TO THE ACONITASE/IPM ISOMERASE FAMILY.
+CC   --------------------------------------------------------------------------
+CC   This SWISS-PROT entry is copyright. It is produced through a collaboration
+CC   between  the Swiss Institute of Bioinformatics  and the  EMBL outstation -
+CC   the European Bioinformatics Institute.  There are no  restrictions on  its
+CC   use  by  non-profit  institutions as long  as its content  is  in  no  way
+CC   modified and this statement is not removed.  Usage  by  and for commercial
+CC   entities requires a license agreement (See http://www.isb-sib.ch/announce/
+CC   or send an email to license@isb-sib.ch).
+CC   --------------------------------------------------------------------------
+DR   EMBL; L25599; AAA28050.1; -.
+DR   PIR; S44831; S44831.
+DR   HSSP; P20004; 1AMJ.
+DR   WormPep; F54H12.1; CE00516.
+DR   InterPro; IPR001030; Aconitase.
+DR   InterPro; IPR000573; Aconitase_C.
+DR   Pfam; PF00330; aconitase; 1.
+DR   Pfam; PF00694; Aconitase_C; 1.
+DR   PRINTS; PR00415; ACONITASE.
+DR   ProDom; PD000511; Aconitase; 1.
+DR   PROSITE; PS00450; ACONITASE_1; 1.
+DR   PROSITE; PS01244; ACONITASE_2; 1.
+KW   Hypothetical protein; Lyase; Tricarboxylic acid cycle; Iron-sulfur;
+KW   Mitochondrion; Transit peptide; 4Fe-4S.
+FT   TRANSIT       1      ?       MITOCHONDRION (POTENTIAL).
+FT   CHAIN         ?    788       PROBABLE ACONITATE HYDRATASE.
+FT   METAL       393    393       IRON-SULFUR (4FE-4S) (BY SIMILARITY).
+FT   METAL       456    456       IRON-SULFUR (4FE-4S) (BY SIMILARITY).
+FT   METAL       459    459       IRON-SULFUR (4FE-4S) (BY SIMILARITY).
+SQ   SEQUENCE   788 AA;  85712 MW;  8861E6FC198B70D9 CRC64;
+     MRYHFLFGSL RNHLFSFRGV IYCREKLFNC SKLSFRPSKV AISKFEPKSY LPYEKLSQTV
+     KIVKDRLKRP LTLSEKILYG HLDQPKTQDI ERGVSYLRLR PDRVAMQDAT AQMAMLQFIS
+     SGLPKTAVPS TIHCDHLIEA QKGGAQDLAR AKDLNKEVFN FLATAGSKYG VGFWKPGSGI
+     IHQIILENYA FPGLLLIGTD SHTPNGGGLG GLCIGVGGAD AVDVMADIPW ELKCPKVIGI
+     KLTGKLNGWT SAKDVILKVA DILTVKGGTG AIVEYFGPGV DSISATGMGT ICNMGAEIGA
+     TTSVFPYNES MYKYLEATGR KEIAEEARKY KDLLTADDGA NYDQIIEINL DTLTPHVNGP
+     FTPDLASSID KLGENAKKNG WPLDVKVSLI GSCTNSSYED MTRAASIAKQ ALDKGLKAKT
+     IFTITPGSEQ VRATIERDGL SKIFADFGGM VLANACGPCI GQWDRQDVKK GEKNTIVTSY
+     NRNFTGRNDA NPATHGFVTS PDITTAMAIS GRLDFNPLTD ELTAADGSKF KLQAPTGLDL
+     PPKGYDPGED TFQAPSGSGQ VDVSPSSDRL QLLSPFDKWD GKDLEDMKIL IKVTGKCTTD
+     HISAAGPWLK YRGHLDNISN NLFLTAINAD NGEMNKVKNQ VTGEYGAVPA TARKYKADGV
+     RWVAIGDENY GEGSSREHAA LEPRHLGGRA IIVKSFARIH ETNLKKQGML PLTFANPADY
+     DKIDPSDNVS IVGLSSFAPG KPLTAIFKKT NGSKVEVTLN HTFNEQQIEW FKAGSALNRM
+     KEVFAKSK
+//
