@@ -451,7 +451,7 @@ sub _register_for_cleanup {
  Title   : _unregister_for_cleanup
  Usage   : -- internal --
  Function: Remove a method that has previously been registered to be called
-           at DESTROY time.  If called with a methoda method to be called at DESTROY time.
+           at DESTROY time.  If called with a method to be called at DESTROY time.
            Has no effect if the code reference has not previously been registered.
  Returns : nothing
  Args    : a code reference
