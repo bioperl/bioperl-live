@@ -117,10 +117,11 @@ See L<Bio::SearchIO::SearchResultEventBuilder> for more information
 sub new { 
     my ($class,@args) = @_;
     my $self = $class->SUPER::new(@args);
-    my ($hitF, $resultF, $iterationF) =
+    my ($hitF, $resultF, $hspF, $iterationF) =
         $self->_rearrange([qw(
                               HIT_FACTORY
                               RESULT_FACTORY
+			      HSP_FACTORY
                               ITERATION_FACTORY
                              )],@args);
 
@@ -137,6 +138,11 @@ sub new {
                             Bio::Factory::ObjectFactory->new(
                                  -type      => 'Bio::Search::Hit::BlastHit',
                                  -interface => 'Bio::Search::Hit::HitI'));
+
+    $self->register_factory('hsp', $hspF || 
+                            Bio::Factory::ObjectFactory->new(
+                                 -type      => 'Bio::Search::HSP::GenericHSP',
+                                 -interface => 'Bio::Search::HSP::HSPI'));
 
     # TODO: Change this to BlastIteration (maybe)
     $self->register_factory('iteration', $iterationF || 
