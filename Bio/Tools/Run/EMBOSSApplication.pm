@@ -51,9 +51,14 @@ Bio::Tools::Run::EMBOSSApplication -  class for EMBOSS Applications
 =head1 DESCRIPTION
 
 The EMBOSSApplication class can represent EMBOSS any program. It is
-created by a Bio::Factory::EMBOSS object which primes it by reading
-in the ADC description of the command line options. See also
-L<Bio::Factory::EMBOSS>.
+created by a Bio::Factory::EMBOSS object.
+
+If you want to check command line options before sending them to the
+program set $prog-E<gt>verbose to positive integer. The ADC
+description of the available command line options is then parsed in
+and compared to input.
+
+See also L<Bio::Factory::EMBOSS> and L<Bio::Tools::Run::EMBOSSacd>.
 
 =head1 FEEDBACK
 
@@ -103,23 +108,18 @@ use strict;
 use Data::Dumper;
 use Bio::Root::Root;
 use Bio::Root::IO;
+use Bio::Tools::Run::EMBOSSacd;
 
 @ISA = qw(Bio::Root::Root);
 
-
 sub new {
   my($class, $args) = @_;
-  my $self = $class->SUPER::new();  
-  $self->{ '_attributes' } = $args;
+  my $self = $class->SUPER::new();
 
-  $self->name($self->{ '_attributes' }->{'name'});
-  delete $self->{ '_attributes' }->{'name'};
+  $self->name($args->{'name'});
+  $self->verbose($args->{'verbose'});
 
-  $self->descr($self->{ '_attributes' }->{'documentation'});
-  delete $self->{ '_attributes' }->{'documentation'};
-
-  $self->group($self->{ '_attributes' }->{'groups'});
-  delete $self->{ '_attributes' }->{'groups'};
+  $self->acd if $self->verbose > 0;
 
   $self->{'_io'} = new Bio::Root::IO('-verbose' => $self->verbose);
   return $self;
@@ -140,19 +140,21 @@ sub run {
     $self->{'_io'}->_io_cleanup();
     # test input
     print Dumper($input) if $self->verbose > 0;
-    $self->_acd2input($input);
 
-    # collect the options into a string 
+    #parse ACD information
+    $self->acd if $self->verbose > 0;
+
+    # collect the options into a string
     my $option_string = '';
     foreach my $attr (keys %{$input}) {
 	my $attr_name = substr($attr, 1) if substr($attr, 0, 1) =~ /\W/;
-	
+
 	my $array = 0;
-	
+
 	if( defined $input->{$attr} && ref($input->{$attr}) ) {
 
 	    my (@pieces);
-	    
+
 	    if( $array = (ref($input->{$attr}) =~ /array/i) ) {
 		foreach my $s ( @{$input->{$attr}} ) {
 		    @pieces = @{$input->{$attr}};
@@ -186,8 +188,17 @@ sub run {
 		$input->{$attr} = $tempfile;
 	    }
 	}
-	# ADD: validate the values against acd
-	
+
+	# check each argument against ACD
+	if ($self->verbose > 0) {
+
+	    last unless defined $self->acd; # might not have the parser
+
+	    $self->throw("Attribute [$attr] not recognized!\n")
+		unless $self->acd->qualifier($attr);
+	}
+
+	# print out debugging info
 	$self->debug("Input attr: ". $attr_name. " => ". 
 		     %{$input}->{$attr}. "\n"); 
 	$option_string .= " " . $attr;
@@ -195,9 +206,50 @@ sub run {
 	   if %{$input}->{$attr};
     }
 
+    #check mandatory attributes against given ones
+    if ($self->verbose > 0) {
+	last unless defined $self->acd; # might not have the parser
+#	$self->acd->mandatory->print;
+	if ($self->name eq 'water') {
+	    print Dumper($self->acd->mandatory);
+	}
+	foreach my $attr (keys %{$self->acd->mandatory} ) {
+	    last unless defined $self->acd; # might not have the parser
+	    unless ($input->{$attr}) {
+		print "-" x 38, "\n", "MISSING MANDATORY ATTRIBUTE: $attr\n", 
+		    "-" x 38, "\n";
+		$self->acd->print($attr) and
+		$self->throw("Program ". $self->name.
+			 " needs attribute [$attr]!\n")
+	    }
+	}
+    }
+
     my $runstring = join (' ', $self->name, $option_string, '-auto');
     print STDERR "Command line: ", $runstring, "\n" if $self->verbose > 0;
     return `$runstring`;
+}
+
+=head2 acd
+
+ Title   : acd
+ Usage   : $embossprogram->acd
+ Function: finds out all the possible qualifiers for this
+           EMBOSS application. They can be used to debug the
+           options given.
+ Throws  : 
+ Returns : boolean
+ Args    : 
+
+=cut
+
+sub acd {
+    my ($self) = @_;
+    unless ( $self->{'_acd'} ) {
+	$self->{'_acd'} =
+	    Bio::Tools::Run::EMBOSSacd->new($self->name);
+    }
+    return $self->{'_acd'};
 }
 
 =head2 name
@@ -289,7 +341,6 @@ sub subgroup {
     my ($self) = @_;
     return $self->{'_subgroup'};
 }
-
 
 
 

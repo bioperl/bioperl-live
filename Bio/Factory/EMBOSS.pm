@@ -47,8 +47,15 @@ Bio::Factory::EMBOSS - EMBOSS appliaction factory class
 =head1 DESCRIPTION
 
 The EMBOSS factory class encapsulates access to EMBOSS programs.  A
-factory object allows creation of only known applications and
-populates it with information of input options from ACD files.
+factory object allows creation of only known applications.
+
+If you want to check command line options before sending them to the
+program set $factory-E<gt>verbose to positive integer. The value is
+passed on to programs objects and the ADC description of the available
+command line options is parsed and compared to input.
+
+See also L<Bio::Tools::Run::EMBOSSApplication> and
+L<Bio::Tools::Run::EMBOSSacd>.
 
 =head1 FEEDBACK
 
@@ -107,7 +114,7 @@ sub new {
   my($location) =
       $self->_rearrange([qw(LOCATION )],
 			@args);
-  
+
   $self->{ '_programs' } = {};
   $self->{ '_programgroup' } = {};
   $self->{ '_groups' } = {};
@@ -141,7 +148,8 @@ sub location {
 	if ($location{$value}) {
 	    $self->{'_location'} = $value;
 	} else {
-	    $self->warn("Value [$value] not a valid value for location(). Defaulting to [local]");
+	    $self->warn("Value [$value] not a valid value for ".
+			"location(). Defaulting to [local]");
 	    $self->{'_location'} = 'local';
 	}
     }
@@ -162,16 +170,16 @@ sub location {
 
 sub program {
     my ($self, $value) = @_;
-    
+
     unless( $self->{'_programs'}->{$value} ) {
 	$self->warn('Application [$value] is not available!');
 	return undef;
     }
-    my $attributes = $self->_attribute_list($value);
-    use Data::Dumper;
-    $self->debug( Dumper($attributes));
-    my $appl = Bio::Tools::Run::EMBOSSApplication ->new($attributes);
-    $appl->verbose($self->verbose);
+    my $attr = {};
+    $attr->{name} = $value;
+    $attr->{verbose} = $self->verbose;
+
+    my $appl = Bio::Tools::Run::EMBOSSApplication ->new($attr);
     return $appl;
 }
 
@@ -259,70 +267,18 @@ sub _program_list {
     }
     local $/ = "\n\n";
     while(<WOSSOUT> ) {	
-	my ($groupname) = (/^([A-Z][A-Z0-9 ]+)$/m); 
+	my ($groupname) = (/^([A-Z][A-Z0-9 ]+)$/m);
 	#print $groupname, "\n" if $groupname;
-	$self->{'_groups'}->{$groupname} = [] if $groupname; 
-	while ( /^([a-z]\w+) +(.+)$/mg ) {  
+	$self->{'_groups'}->{$groupname} = [] if $groupname;
+	while ( /^([a-z]\w+) +(.+)$/mg ) {
 	    #print "$1\t$2 \n" if $1;
 	    $self->{'_programs'}->{$1} = $2 if $1; 
-	    $self->{'_programgroup'}->{$1} = $groupname if $1; 
+	    $self->{'_programgroup'}->{$1} = $groupname if $1;
 	    push @{$self->{'_groups'}->{$groupname}}, $1 if $1;
 	}
-    }	
+    }
     close(WOSSOUT);
 
-}
-
-
-=head2 _attribute_list
-
- Title   : _attribute_list
- Usage   : $embossfactory->_attribute_list($program_name)
- Function: Finds out what attributes are available for a
-           program and writes values parsed in from ACD file into a hash.
- Returns : a hash
- Args    : string, program name
-
-=cut
-
-sub _attribute_list {
-    my ($self, $value) = @_;
-    `$value -acdpretty`; #writes into ./$value.acdpretty
-    my $acd = "$value.acdpretty";
-    open ACD, $acd or die "Can't find file $acd: $!\n", print `pwd`;
-
-    my $attr = {};
-    $attr->{name} = $value;
-    while (<ACD>) { # first line
-	next if /^#/;
-	$self->throw("not a valid acd file [$acd]") unless /^appl:/;
-#	print $_;
-	last;
-    }
-
-    while (<ACD>) { 
-	next if /^#/;
-	last if /^\n/; #until end of the first block
-	/ +([^:]+): "([^"]+)/;
-        $attr->{$1} = $2 if $1;
-#	print $_;
-    }
-    my ($attr_name);
-    while (<ACD>) { 
-	next if /^#/;
-	$attr_name = $1, $attr->{$1}->{'type'} = $2, next 
-            if /^(\w+): (\w+)/; 
-	/ +([^:]+): "([^"]+)/;
-        $attr->{$attr_name}->{$1} = $2 if $1;
-#	print $_;
-    }
-
-#print $attr, " ";
-#use Data::Dumper;
-#print Dumper($attr);
-
-    unlink "$value.acdpretty";
-    return $attr;
 }
 
 1;
