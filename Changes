@@ -36,6 +36,11 @@ Revision history for Bioperl core modules
      o Bio::DB::GFF
       - Update for GFF3 compatibility.
       - Added scripts for importing from UCSC and GenBank.
+      - Added a 1.2003 version number.
+     o Bio::Graphics
+      - Updated tutorial.
+      - Added a 1.2003 version number.
+
      
 1.2.2 Stable release update
 
