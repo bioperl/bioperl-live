@@ -28,8 +28,8 @@ my @exons = $exonset->sub_SeqFeature();
 
 ok @exons, 10;
 my $exon = 1;
-ok $exons[$exon]->est_hit()->seqname(), 'HSHNCPA1';
-ok $exons[$exon]->seqname() =~ /human/;
+ok $exons[$exon]->est_hit()->seq_id(), 'HSHNCPA1';
+ok $exons[$exon]->seq_id() =~ /human/;
 ok $exons[$exon]->strand(), -1;
 ok $exons[$exon]->start(), 1048;
 ok $exons[$exon]->end(), 1117;

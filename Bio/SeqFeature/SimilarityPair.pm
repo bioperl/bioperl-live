@@ -178,7 +178,7 @@ sub query {
 					   -strand  => $f->strand(),
 					   -primary => $f->primary_tag(),
 					   -source  => $f->source_tag(),
-					   -seqname => $f->seqname(),
+					   -seqname => $f->seq_id(),
 					   -score   => $f->score(),
 					   -frame   => $f->frame(),
 					   );
@@ -241,7 +241,7 @@ sub hit {
 					   -strand  => $f->strand(),
 					   -primary => $f->primary_tag(),
 					   -source  => $f->source_tag(),
-					   -seqname => $f->seqname(),
+					   -seqname => $f->seq_id(),
 					   -score   => $f->score(),
 					   -frame   => $f->frame(),
 					   );

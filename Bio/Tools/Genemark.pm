@@ -281,7 +281,7 @@ sub _parse_predictions {
 	    if($prednr != $current_gene_no) {
  	        # a new gene, store the old one if it exists
 		if (defined ($gene)) {
-		    $gene->seqname($seqname);
+		    $gene->seq_id($seqname);
 		    $self->_add_prediction($gene);	    
 		    $gene = undef ;
 		}

@@ -120,7 +120,7 @@ sub new {
   my ($hmmst) = $self->_rearrange([qw(HMMSTATE_SEQ)],@args);
   defined $hmmst && $self->hmmstate_string($hmmst);
   
-  $self->add_tag_value('Target' , join(" ","Sequence:".$self->hit->seqname, 
+  $self->add_tag_value('Target' , join(" ","Sequence:".$self->hit->seq_id, 
 				       $self->hit->start, $self->hit->end));
 
   return $self;

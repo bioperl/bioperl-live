@@ -243,8 +243,8 @@ sub new {
 
 
     # name the sequences
-    $self->query->seqname($qname); # query
-    $self->hit->seqname($hname); # subject
+    $self->query->seq_id($qname); # query
+    $self->hit->seq_id($hname); # subject
 
     # set lengths
     $self->query->seqlength($qlen); # query

@@ -18,7 +18,7 @@ Bio::SeqFeature::Gene::Exon - a feature representing an exon
 
     # obtain an exon instance $exon somehow
     print "exon from ", $exon->start(), " to ", $exon->end(),
-          " on seq ", $exon->seqname(), ", strand ", $exon->strand(),
+          " on seq ", $exon->seq_id(), ", strand ", $exon->strand(),
           ", encodes the peptide sequence ", 
           $exon->cds()->translate()->seq(), "\n";
 

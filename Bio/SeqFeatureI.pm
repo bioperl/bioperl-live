@@ -109,20 +109,18 @@ sub sub_SeqFeature{
    $self->throw_not_implemented();
 }
 
-=head2 display_id
+=head2 display_name
 
- Title   : display_id
- Usage   : $name = $feat->display_id()
- Function: Returns the human-readable ID of the
-           feature for displays.
+ Title   : display_name
+ Usage   : $name = $feat->display_name()
+ Function: Returns the human-readable name of the feature for displays.
  Returns : a string
  Args    : none
 
 =cut
 
-sub display_id { 
-  my ($self,@args) = @_;
-  $self->throw_not_implemented();
+sub display_name { 
+    shift->throw_not_implemented();
 }
 
 =head2 primary_tag
@@ -180,10 +178,10 @@ sub has_tag{
 
 }
 
-=head2 each_tag_value
+=head2 get_tag_values
 
- Title   : each_tag_value
- Usage   : @values = $self->each_tag_value('some_tag')
+ Title   : get_tag_values
+ Usage   : @values = $self->get_tag_values('some_tag')
  Function: 
  Returns : An array comprising the values of the specified tag.
  Args    :
@@ -191,16 +189,14 @@ sub has_tag{
 
 =cut
 
-sub each_tag_value {
-   my ($self,@args) = @_;
-
-   $self->throw_not_implemented();
+sub get_tag_values {
+    shift->throw_not_implemented();
 }
 
-=head2 all_tags
+=head2 get_all_tags
 
- Title   : all_tags
- Usage   : @tags = $feat->all_tags()
+ Title   : get_all_tags
+ Usage   : @tags = $feat->get_all_tags()
  Function: gives all tags for this feature
  Returns : an array of strings
  Args    : none
@@ -208,10 +204,8 @@ sub each_tag_value {
 
 =cut
 
-sub all_tags{
-   my ($self,@args) = @_;
-
-   $self->throw_not_implemented();
+sub get_all_tags{
+    shift->throw_not_implemented();
 }
 
 =head2 attach_seq
@@ -283,25 +277,25 @@ sub entire_seq {
 }
 
 
-=head2 seqname
+=head2 seq_id
 
- Title   : seqname
- Usage   : $obj->seqname($newval)
+ Title   : seq_id
+ Usage   : $obj->seq_id($newval)
  Function: There are many cases when you make a feature that you
            do know the sequence name, but do not know its actual
            sequence. This is an attribute such that you can store
-           the seqname.
+           the ID (e.g., display_id) of the sequence.
 
            This attribute should *not* be used in GFF dumping, as
            that should come from the collection in which the seq
            feature was found.
- Returns : value of seqname
+ Returns : value of seq_id
  Args    : newvalue (optional)
 
 
 =cut
 
-sub seqname {
+sub seq_id {
     shift->throw_not_implemented();
 }
 

@@ -339,7 +339,7 @@ sub _parse_predictions {
 	}
 	if(/^\s*$/ && defined($gene)) {
 	    # current gene is completed
-	    $gene->seqname($seqname);
+	    $gene->seq_id($seqname);
 	    $self->_add_prediction($gene);
 	    $gene = undef;
 	    next;

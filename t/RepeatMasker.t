@@ -34,7 +34,7 @@ ok ($rpt[0]->feature1->end, 1407);
 ok ($rpt[0]->feature1->strand, 1);
 ok ($rpt[0]->feature1->primary_tag, "Simple_repeat");
 ok ($rpt[0]->feature1->source_tag, "RepeatMasker");
-ok ($rpt[0]->feature2->seqname, "(TTAGGG)n");
+ok ($rpt[0]->feature2->seq_id, "(TTAGGG)n");
 
 
 

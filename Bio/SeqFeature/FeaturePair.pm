@@ -294,7 +294,7 @@ sub source_tag{
 =head2 seqname
 
  Title   : seqname
- Usage   : $obj->seqname($newval)
+ Usage   : $obj->seq_id($newval)
  Function: There are many cases when you make a feature that you
            do know the sequence name, but do not know its actual
            sequence. This is an attribute such that you can store 
@@ -311,7 +311,7 @@ sub source_tag{
 
 sub seqname{
     my ($self,$arg) = @_;
-    return $self->feature1->seqname($arg);    
+    return $self->feature1->seq_id($arg);    
 }
 
 =head2 hseqname
@@ -320,7 +320,7 @@ sub seqname{
  Usage   : $featpair->hseqname($newval)
  Function: Get/set method for the name of
            feature2.
- Returns : value of $feature2->seqname
+ Returns : value of $feature2->seq_id
  Args    : newvalue (optional)
 
 
@@ -328,7 +328,7 @@ sub seqname{
 
 sub hseqname {
     my ($self,$arg) = @_;
-    return $self->feature2->seqname($arg);
+    return $self->feature2->seq_id($arg);
 }
 
 

@@ -42,7 +42,7 @@ alignment using the BLAST algorithm.
 	 $hsp->query->end;
 	 $hsp->sbjct->start;
 	 $hsp->sbjct->end;
-	 $hsp->sbjct->seqname;
+	 $hsp->sbjct->seq_id;
 	 $hsp->sbjct->overlaps($exon);
  }
 

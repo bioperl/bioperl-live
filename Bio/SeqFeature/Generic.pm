@@ -198,7 +198,7 @@ sub set_attributes {
     defined $strand && $self->strand($strand);
     defined $frame  && $self->frame($frame);
     $score          && $self->score($score);
-    $seqname        && $self->seqname($seqname);
+    $seqname        && $self->seq_id($seqname);
     $annot          && $self->annotation($annot);
     $tag            && do {
 	foreach my $t ( keys %$tag ) {
@@ -545,10 +545,10 @@ sub add_tag_value {
 }
 
 
-=head2 each_tag_value
+=head2 get_tag_values
 
- Title   : each_tag_value
- Usage   : @values = $gsf->each_tag_value('note');
+ Title   : get_tag_values
+ Usage   : @values = $gsf->get_tag_values('note');
  Function: Returns a list of all the values stored
            under a particular tag.
  Returns : A list of scalars
@@ -557,21 +557,21 @@ sub add_tag_value {
 
 =cut
 
-sub each_tag_value {
+sub get_tag_values {
    my ($self, $tag) = @_;
+
    if( ! defined $tag ) { return (); }
    if ( ! exists $self->{'_gsf_tag_hash'}->{$tag} ) {
        $self->throw("asking for tag value that does not exist $tag");
    }
-
    return @{$self->{'_gsf_tag_hash'}->{$tag}};
 }
 
 
-=head2 all_tags
+=head2 get_all_tags
 
- Title   : all_tags
- Usage   : @tags = $feat->all_tags()
+ Title   : get_all_tags
+ Usage   : @tags = $feat->get_all_tags()
  Function: Get a list of all the tags in a feature
  Returns : An array of tag names
  Args    : none
@@ -579,11 +579,10 @@ sub each_tag_value {
 
 =cut
 
-sub all_tags {
+sub get_all_tags {
    my ($self, @args) = @_;   
    return keys %{ $self->{'_gsf_tag_hash'}};
 }
-
 
 =head2 remove_tag
 
@@ -699,44 +698,61 @@ sub entire_seq {
 }
 
 
-=head2 seqname
+=head2 seq_id
 
- Title   : seqname
- Usage   : $obj->seqname($newval)
+ Title   : seq_id
+ Usage   : $obj->seq_id($newval)
  Function: There are many cases when you make a feature that you
            do know the sequence name, but do not know its actual
            sequence. This is an attribute such that you can store
-           the seqname.
+           the ID (e.g., display_id) of the sequence.
 
            This attribute should *not* be used in GFF dumping, as
            that should come from the collection in which the seq
            feature was found.
- Returns : value of seqname
+ Returns : value of seq_id
  Args    : newvalue (optional)
 
 
 =cut
 
-sub seqname {
+sub seq_id {
     my ($obj,$value) = @_;
     if ( defined $value ) {
-	$obj->{'_gsf_seqname'} = $value;
+	$obj->{'_gsf_seq_id'} = $value;
     }
-    return $obj->{'_gsf_seqname'};
+    return $obj->{'_gsf_seq_id'};
 }
 
-=head2 display_id
+=head2 display_name
 
- Title   : display_id
- Usage   : $obj->display_id
- Function: Implements the display_id() method, which is a human-readable
-           name.  This is the same value as returned by seqname().
- Returns : value of display_id
- Args    :
+ Title   : display_name
+ Usage   : $featname = $obj->display_name
+ Function: Implements the display_name() method, which is a human-readable
+           name for the feature. 
+ Returns : value of display_name (a string)
+ Args    : Optionally, on set the new value or undef 
 
 =cut
 
-sub display_id {shift->seqname}
+=head2 display_name
+
+ Title   : display_name
+ Usage   : $obj->display_name($newval)
+ Function: 
+ Example : 
+ Returns : value of display_name (a scalar)
+ Args    : on set, new value (a scalar or undef, optional)
+
+
+=cut
+
+sub display_name{
+    my $self = shift;
+
+    return $self->{'display_name'} = shift if @_;
+    return $self->{'display_name'};
+}
 
 
 =head2 annotation
@@ -953,5 +969,26 @@ sub _tag_value {
     }
     return ($self->each_tag_value($tag))[0];
 }
+
+#######################################################################
+# aliases for methods that changed their names in an attempt to make  #
+# bioperl names more consistent                                       #
+#######################################################################
+
+sub seqname {
+    my $self = shift;
+    $self->warn("SeqFeatureI::seqname() is deprecated. Please use seq_id() instead.");
+    return $self->seq_id(@_);
+}
+
+sub display_id {
+    my $self = shift;
+    $self->warn("SeqFeatureI::display_id() is deprecated. Please use display_name() instead.");
+    return $self->display_name(@_);
+}
+
+# this is towards consistent naming
+sub each_tag_value { return shift->get_tag_values(@_); }
+sub all_tags { return shift->get_all_tags(@_); }
 
 1;

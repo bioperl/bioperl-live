@@ -101,8 +101,8 @@ while( my $result = $searchio->next_result ) {
     ok($hsp->query->end, 89);
     ok($hsp->hit->start, 1);
     ok($hsp->hit->end, 77);
-    ok($hsp->query->seqname(), 'SEED');
-    ok($hsp->hit->seqname(), 'Q91581');   
+    ok($hsp->query->seq_id(), 'SEED');
+    ok($hsp->hit->seq_id(), 'Q91581');   
 }
 
 $searchio = new Bio::SearchIO(-format => 'hmmer',
@@ -130,8 +130,8 @@ while( my $result = $searchio->next_result ) {
     ok($hsp->query->end, 481);
     ok($hsp->hit->start, 1);
     ok($hsp->hit->end, 279);
-    ok($hsp->query->seqname(), 'gi|1522636|gb|AAC37060.1|');
-    ok($hsp->hit->seqname(), 'Methylase_M');
+    ok($hsp->query->seq_id(), 'gi|1522636|gb|AAC37060.1|');
+    ok($hsp->hit->seq_id(), 'Methylase_M');
     ok($hsp->hit_string, 'lrnELentLWavADkLRGsmDaseYKdyVLGLlFlKYiSdkFlerrieieerktdtesepsldyakledqyeqlededlekedfyqkkGvFilPsqlFwdfikeaeknkldedigtdldkifseledqialgypaSeedfkGlfpdldfnsnkLgskaqarnetLtelidlfselelgtPmHNG.dfeelgikDlfGDaYEYLLgkFAeneGKsGGeFYTPqeVSkLiaeiLtigqpsegdfsIYDPAcGSGSLllqaskflgehdgkrnaisyYGQEsn');
     ok($hsp->query_string, 'NTSELDKKKFAVLLMNR--------------LIFIKFLEDK------GIV---------PRDLLRRTYEDY---KKSNVLI-NYYDAY-L----KPLFYEVLNTPEDER--KENIRT-NPYYKDIPYL---N-G-------GLFRSNNV--PNELSFTIKDNEIIGEVINFLERYKFTLSTSEGsEEVELNP-DILGYVYEKLINILAEKGQKGLGAYYTPDEITSYIAKNT-IEPIVVE----------------RFKEIIK--NWKINDINF----ST');
     ok($hsp->homology_string, ' ++EL+++  av+   R              L+F K++ dk      +i+         p +   + +++y   ++   ++ ++y ++      + lF++++   e ++  ++++ + +    ++      + +       Glf ++++  ++ +s+   +ne ++e+i+ +++ +++     G++ +el   D++G +YE L+   Ae   K+ G +YTP e++  ia+ + i+  ++                  +++ ++    k+n+i +    s+');
@@ -166,8 +166,8 @@ while( my $result = $searchio->next_result ) {
     ok($hsp->query->end, 337);
     ok($hsp->hit->start, 114);
     ok($hsp->hit->end, 332);
-    ok($hsp->query->seqname(), 'Peptidase_C1');
-    ok($hsp->hit->seqname(), 'CATL_RAT');
+    ok($hsp->query->seq_id(), 'Peptidase_C1');
+    ok($hsp->hit->seq_id(), 'CATL_RAT');
     ok($hsp->hit_string, 'IPKTVDWRE-KG-CVTPVKNQG-QCGSCWAFSASGCLEGQMFLKT------GKLISLSEQNLVDCSH-DQGNQ------GCNG-GLMDFAFQYIKE-----NGGLDSEESY-----PYE----AKD-------------------GSCKYR-AEYAV-----ANDTGFVDIPQQ-----EKALMKAVATVGPISVAMDASHPS---LQFYSSG-------IYYEP---NCSSK---DLDHGVLVVGYGYEG-T------------------------------------DSNKDKYWLVKNSWGKEWGMDGYIKIAKDRN----NHCGLATAASYPI');
     ok($hsp->homology_string, '+P+++DWRe kg  VtpVK+QG qCGSCWAFSa g lEg+ ++kt      gkl+sLSEQ+LvDC++ d gn+      GCnG Glmd Af+Yik+     NgGl++E++Y     PY+    +kd                   g+Cky+  + ++     a+++g++d+p++     E+al+ka+a++GP+sVa+das+ s    q+Y+sG       +Y+++    C+++   +LdH+Vl+VGYG e+                                      ++++ +YW+VKNSWG++WG++GY++ia+++n    n+CG+a+ asypi');
     ok($hsp->query_string, 'lPesfDWReWkggaVtpVKdQGiqCGSCWAFSavgalEgryciktgtkawggklvsLSEQqLvDCdgedygnngesCGyGCnGGGlmdnAfeYikkeqIsnNgGlvtEsdYekgCkPYtdfPCgkdggndtyypCpgkaydpndTgtCkynckknskypktyakikgygdvpynvsTydEealqkalaknGPvsVaidasedskgDFqlYksGendvgyGvYkhtsageCggtpfteLdHAVliVGYGteneggtfdetssskksesgiqvssgsngssgSSgssgapiedkgkdYWIVKNSWGtdWGEnGYfriaRgknksgkneCGIaseasypi');
@@ -190,7 +190,7 @@ $domain->hend(100);
 $domain->seqbits(50);
 $domain->bits(20);
 $domain->evalue(0.0001);
-$domain->seqname('silly');
+$domain->seq_id('silly');
 
 
 # test that we can get out forward and reverse homol_SeqFeatures
@@ -228,7 +228,7 @@ ok $res->seqfile, "HMM.dbtemp.29591";
 my $first = 0;
 foreach $set ( $res->each_Set) {
     foreach $domain ( $set->each_Domain ) {
-    #print STDERR "Got domain ",$domain->seqname," start ",$domain->start," end ",$domain->end,"\n";
+    #print STDERR "Got domain ",$domain->seq_id," start ",$domain->start," end ",$domain->end,"\n";
     # do nothing for the moment
       $seen = 1;
   }
@@ -260,7 +260,7 @@ foreach $set ( $res->each_Set) {
     ok($set->desc, 'M. jannaschii predicted coding region MJECS02 [Methanococcus jannaschii]');
     ok($set->accession, '[none]');
     foreach $domain ( $set->each_Domain ) {
-	#print STDERR "Got domain ",$domain->seqname," start ",$domain->start," end ",$domain->end,"\n";
+	#print STDERR "Got domain ",$domain->seq_id," start ",$domain->start," end ",$domain->end,"\n";
     # do nothing for the moment
 	ok($domain->start, 280);
 	ok($domain->end, 481);

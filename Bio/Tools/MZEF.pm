@@ -279,7 +279,7 @@ sub _parse_predictions {
 	    next;
 	}
     }
-    # $gene->seqname($seqname);
+    # $gene->seq_id($seqname);
     $self->_add_prediction($gene) if defined($gene);
     $self->_predictions_parsed(1);
 }

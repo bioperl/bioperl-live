@@ -65,7 +65,7 @@ ok $hsp->query->start, 121, "wrong query start";
 ok $hsp->query->end, 469, "wrong query end";
 ok $hsp->hit->start, 1, "wrong hit start ";
 ok $hsp->hit->end, 469, "wrong hit end";
-ok $hsp->hit->seqname =~ /gi|4507985/;# "wrong hit name";
+ok $hsp->hit->seq_id =~ /gi|4507985/;# "wrong hit name";
 ok $hsp->gaps, 120;
 
 $hsp = $report->next_feature;
@@ -86,7 +86,7 @@ ok $hsp->query->start, 6, "wrong query start";
 ok $hsp->query->end, 420, "wrong query end";
 ok $hsp->hit->start, 22, "wrong hit start ";
 ok $hsp->hit->end, 464, "wrong hit end";
-ok $hsp->hit->seqname =~ /gi|4507985/;# "wrong hit name";
+ok $hsp->hit->seq_id =~ /gi|4507985/;# "wrong hit name";
 ok $hsp->gaps, 30;
 
 $report = new Bio::Tools::BPbl2seq(-file =>  Bio::Root::IO->catfile("t","data","empty.bl2seq"));

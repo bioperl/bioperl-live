@@ -318,7 +318,7 @@ sub introns {
 						     '-source'  => ref($self));
 	my $seq = $self->entire_seq();
 	$intron->attach_seq($seq) if $seq;
-	$intron->seqname($self->seqname());
+	$intron->seq_id($self->seq_id());
 	push(@introns, $intron);
     }
     return @introns;
@@ -525,7 +525,7 @@ sub cds {
     }
     my $cds = $self->_make_cds(@exons);
     return undef unless $cds;
-    return Bio::PrimarySeq->new('-id' => $self->seqname(),
+    return Bio::PrimarySeq->new('-id' => $self->seq_id(),
 				'-seq' => $cds,
 				'-alphabet' => "dna");
 }
@@ -579,7 +579,7 @@ sub mrna {
     # get the coding part
     $seq = $self->cds();
     if(! $seq) {
-	$seq = Bio::PrimarySeq->new('-id' => $self->seqname(),
+	$seq = Bio::PrimarySeq->new('-id' => $self->seq_id(),
 				    '-alphabet' => "rna",
 				    '-seq' => "");
     }

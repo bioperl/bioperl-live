@@ -201,7 +201,7 @@ sub _from_gff1_string {
        $feat->throw("[$string] does not look like GFF to me");
    }
    $frame = 0 unless( $frame =~ /^\d+$/);
-   $feat->seqname($seqname);
+   $feat->seq_id($seqname);
    $feat->source_tag($source);
    $feat->primary_tag($primary);
    $feat->start($start);
@@ -250,7 +250,7 @@ sub _from_gff2_string {
    if ( !defined $frame ) {
        $feat->throw("[$string] does not look like GFF2 to me");
    }
-   $feat->seqname($seqname);
+   $feat->seq_id($seqname);
    $feat->source_tag($source);
    $feat->primary_tag($primary);
    $feat->start($start);
@@ -409,7 +409,7 @@ sub _gff1_string{
    }
    
    if( $feat->can('seqname') ) {
-       $name = $feat->seqname();
+       $name = $feat->seq_id();
        $name ||= 'SEQ';
    } else {
        $name = 'SEQ';
@@ -471,7 +471,7 @@ sub _gff2_string{
    }
 
    if( $feat->can('seqname') ) {
-       $name = $feat->seqname();
+       $name = $feat->seq_id();
        $name ||= 'SEQ';
    } else {
        $name = 'SEQ';

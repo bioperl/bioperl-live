@@ -29,7 +29,7 @@ Bio::Tools::HMMER::Results - Object representing HMMER output results
 
    # alternative way of getting out all domains directly
    foreach $domain ( $res->each_Domain ) {
-       print "Domain on ",$domain->seqname," with score ",
+       print "Domain on ",$domain->seq_id," with score ",
        $domain->bits," evalue ",$domain->evalue,"\n";
    }
 
@@ -236,7 +236,7 @@ sub add_Domain {
     my $unit = shift;
     my $name;
 
-    $name = $unit->seqname();
+    $name = $unit->seq_id();
 
     if( ! exists $self->{'seq'}->{$name} ) {
 	$self->warn("Adding a domain of $name but with no HMMSequence. Will be kept in domain array but not added to a HMMSequence");
@@ -430,7 +430,7 @@ sub write_ascii_out {
 
     foreach $seq ( $self->each_Set()) {
 	foreach $unit ( $seq->each_Domain()) {
-	    print $fh sprintf("%s %4d %4d %s %4d %4d %4.2f %4.2g %s\n",$unit->seqname(),$unit->start(),$unit->end(),$unit->hmmacc,$unit->hstart,$unit->hend,$unit->bits,$unit->evalue,$unit->hmmname);
+	    print $fh sprintf("%s %4d %4d %s %4d %4d %4.2f %4.2g %s\n",$unit->seq_id(),$unit->start(),$unit->end(),$unit->hmmacc,$unit->hstart,$unit->hend,$unit->bits,$unit->evalue,$unit->hmmname);
 	}
     }
 	    
@@ -476,8 +476,8 @@ sub write_GDF_bits {
     }
 
     @narray = sort { my ($aa,$bb,$st_a,$st_b); 
-		     $aa = $a->seqname(); 
-		     $bb = $b->seqname(); 
+		     $aa = $a->seq_id(); 
+		     $bb = $b->seq_id(); 
 		     if ( $aa eq $bb) {
 			 $st_a = $a->start();
 			 $st_b = $b->start();
@@ -488,7 +488,7 @@ sub write_GDF_bits {
 		     } } @array;
 
     foreach $unit ( @narray ) {
-	print $file sprintf("%-24s\t%6d\t%6d\t%15s\t%.1f\t%g\n",$unit->get_nse(),$unit->start(),$unit->end(),$unit->seqname(),$unit->bits(),$unit->evalue);
+	print $file sprintf("%-24s\t%6d\t%6d\t%15s\t%.1f\t%g\n",$unit->get_nse(),$unit->start(),$unit->end(),$unit->seq_id(),$unit->bits(),$unit->evalue);
     }
 
 }
@@ -545,7 +545,7 @@ sub write_GDF {
 
 
     foreach $unit ( $self->eachHMMUnit() ) {
-	print $file sprintf("%-24s\t%6d\t%6d\t%15s\t%.1f\t%g\n",$unit->get_nse(),$unit->start(),$unit->end(),$unit->seqname(),$unit->bits(),$unit->evalue);
+	print $file sprintf("%-24s\t%6d\t%6d\t%15s\t%.1f\t%g\n",$unit->get_nse(),$unit->start(),$unit->end(),$unit->seq_id(),$unit->bits(),$unit->evalue);
     }
     
 }
@@ -750,7 +750,7 @@ sub _parse_hmmpfam {
 		if( (($id, $sqfrom, $sqto, $hmmf,$hmmt,$sc, $ev) = 
 		     /(\S+)\s+\S+\s+(\d+)\s+(\d+).+?(\d+)\s+(\d+)\s+\S+\s+(\S+)\s+(\S+)\s*$/)) {
 		    $unit = Bio::Tools::HMMER::Domain->new();
-		    $unit->seqname  ($seqname);
+		    $unit->seq_id  ($seqname);
 		    $unit->hmmname  ($id);
 		    $unit->start    ($sqfrom);
 		    $unit->end      ($sqto);
@@ -882,7 +882,7 @@ sub _parse_hmmsearch {
 	if( (($id, $sqfrom, $sqto, $hmmf, $hmmt, $sc, $ev) = /(\S+)\s+\S+\s+(\d+)\s+(\d+).+?(\d+)\s+(\d+)\s+\S+\s+(\S+)\s+(\S+)\s*$/)) {
 	    $unit = Bio::Tools::HMMER::Domain->new();
 
-	    $unit->seqname($id);
+	    $unit->seq_id($id);
 	    $unit->hmmname($hmmfname);
 	    $unit->start($sqfrom);
 	    $unit->end($sqto);

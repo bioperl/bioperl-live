@@ -68,7 +68,7 @@ sub _label {
   my $f = $self->feature;
   return $f->info       if $f->can('info');
   return $f->display_id if $f->can('display_id');
-  return eval {$f->seqname} || eval{$f->primary_tag};
+  return eval {$f->seq_id} || eval{$f->primary_tag};
 }
 sub _description {
   my $self = shift;

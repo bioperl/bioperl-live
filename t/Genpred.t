@@ -98,7 +98,7 @@ ok($gene->exons, 23);
 my $genemark = Bio::Tools::Genemark->new('-file' => Bio::Root::IO->catfile("t", "data", "genemark.out"));
 
 my $gmgene = $genemark->next_prediction();
-ok $gmgene->seqname(), "Hvrn.contig8";
+ok $gmgene->seq_id(), "Hvrn.contig8";
 ok $genemark->analysis_date(), "Thu Mar 22 10:25:00 2001";
 
 my $i = 0;

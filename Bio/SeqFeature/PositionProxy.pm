@@ -328,7 +328,7 @@ sub entire_seq {
 =head2 seqname
 
  Title   : seqname
- Usage   : $obj->seqname($newval)
+ Usage   : $obj->seq_id($newval)
  Function: There are many cases when you make a feature that you
            do know the sequence name, but do not know its actual
            sequence. This is an attribute such that you can store

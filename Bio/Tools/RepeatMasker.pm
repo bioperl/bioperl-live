@@ -131,7 +131,7 @@ sub next_result{
             $strand = -1;
           }
           my $rf = Bio::SeqFeature::Generic->new;
-          $rf->seqname          ($query_name);
+          $rf->seq_id          ($query_name);
           $rf->score            ($score);
           $rf->start            ($query_start);
           $rf->end              ($query_end);
@@ -139,7 +139,7 @@ sub next_result{
           $rf->source_tag       ("RepeatMasker");
           $rf->primary_tag      ($repeat_class);
           my $rf2 = Bio::SeqFeature::Generic->new;
-          $rf2->seqname         ($repeat_name);
+          $rf2->seq_id         ($repeat_name);
           $rf2->score           ($score);
           $rf2->start           ($hit_start);
           $rf2->end             ($hit_end);

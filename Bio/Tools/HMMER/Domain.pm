@@ -135,7 +135,7 @@ sub get_nse {
 	$sep1 = "/";
     }
 
-    return sprintf("%s%s%d%s%d",$self->seqname,$sep1,$self->start,$sep2,$self->end);
+    return sprintf("%s%s%d%s%d",$self->seq_id,$sep1,$self->start,$sep2,$self->end);
 }
 
 

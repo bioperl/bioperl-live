@@ -740,8 +740,8 @@ sub get_aln {
 
     my $seqonly = $qs;
     $seqonly =~ s/[\-\s]//g;
-    my ($q_nm,$s_nm) = ($self->query->seqname(),
-			$self->hit->seqname());
+    my ($q_nm,$s_nm) = ($self->query->seq_id(),
+			$self->hit->seq_id());
     unless( defined $q_nm && CORE::length ($q_nm) ) {
 	$q_nm = 'query';
     }

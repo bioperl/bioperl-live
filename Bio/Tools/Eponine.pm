@@ -31,7 +31,7 @@ Bio::Tools::Eponine - Results of one Eponinerun
        while (my $feat = $parser->next_prediction){
                 #$feat contains array of SeqFeature
                foreach my $orf($feat) {
-                   print $orf->seqname. "\n";
+                   print $orf->seq_id. "\n";
                }
        }
 

@@ -37,7 +37,7 @@ Bio::Tools::BPlite - Lightweight BLAST parser
 	    $hsp->query->end;
 	    $hsp->hit->start;
 	    $hsp->hit->end;
-	    $hsp->hit->seqname;
+	    $hsp->hit->seq_id;
 	    $hsp->hit->overlaps($exon);
 	}
     }
@@ -118,7 +118,7 @@ contain the alignment sequences from the blast report.
  $hsp->homologySeq;   $hsp->hs;
  $hsp->query->start;
  $hsp->query->end;
- $hsp->query->seqname;
+ $hsp->query->seq_id;
  $hsp->hit->primary_tag; # "similarity"
  $hsp->hit->source_tag;  # "BLAST"
  $hsp->hit->start;
