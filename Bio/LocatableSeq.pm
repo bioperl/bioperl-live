@@ -176,7 +176,7 @@ sub strand{
     return $self->{'strand'};
 }
 
-=head2 get_xbnse
+=head2 get_nse
 
  Title   : get_nse
  Usage   :
