@@ -1,0 +1,155 @@
+
+Exception handling demo for Bio::Root::Object.pm
+---------------------------------------------------
+
+-------------------------------------------------------------
+Nonfatal Error Demo ("Warning")
+-------------------------------------------------------------
+
+
+-------------------- WARNING --------------------
+MSG: Color not defined.
+NOTE: All Foo objects must have a color.
+Setting to gray
+-------------------------------------------------
+
+STATS FOR Foo "foo1"
+------------------------------------------------------------
+NAME           : foo1
+MAKE           : default
+ERRORS         : 0
+ERR STATE      : OKAY
+DATA           : 150
+COLOR          : gray
+
+STATS FOR Bar "BAR_150"
+------------------------------------------------------------
+NAME           : BAR_150
+MAKE           : default
+PARENT         : Object Foo "foo1"
+ERRORS         : 0
+ERR STATE      : OKAY
+DATA           : 250
+FLAVOR         : lemon-lime
+
+
+FULL ERROR REPORT:
+--------------------
+
+fooObj foo okay.
+
+-------------------------------------------------------------
+Fatal Error Demo
+-------------------------------------------------------------
+
+Use of uninitialized value at Foo.pm line 64.
+
+
+OOPS! Something really bad happened!
+Can't use Foo object. Sorry.
+
+
+-------------------- EXCEPTION --------------------
+MSG: Undefined or invalid foo data: 
+NOTE: All Foo objects must be initialized with numeric data.
+CONTEXT: Error in object Foo "foo1"
+STACK: 
+Foo::set_data(64)
+Foo::_initialize(40)
+Bio::Root::Object::new(443)
+main::fatal_error(85)
+main::./err.pl(37)
+---------------------------------------------------
+
+
+
+Reconstructing the Err.pm object from the $@ string:
+------------------------------------------------------------
+MESSAGE AND NOTE: 
+
+-------------------- EXCEPTION --------------------
+MSG: Undefined or invalid foo data: 
+NOTE: All Foo objects must be initialized with numeric data.
+---------------------------------------------------
+
+
+CONTEXT: Error in object Foo "foo1"
+STACK STRING: Foo::set_data(64)	Foo::_initialize(40)	Bio::Root::Object::new(443)	main::fatal_error(85)	main::./err.pl(37)
+
+-------------------------------------------------------------
+Contained Error Demo
+-------------------------------------------------------------
+
+Setting record_err to true
+
+
+-------------------- WARNING --------------------
+MSG: Bar data not defined or not an integer: 23.1
+NOTE: foo2 can't build Bar object "BAR_150": Invalid object.
+-------------------------------------------------
+
+STATS FOR Outer "outer1"
+------------------------------------------------------------
+NAME           : outer1
+MAKE           : default
+ERRORS         : 0
+ERR STATE      : OKAY
+
+STATS FOR Foo "foo2"
+------------------------------------------------------------
+NAME           : foo2
+MAKE           : default
+PARENT         : Object Outer "outer1"
+ERRORS         : 1
+ERR STATE      : OKAY
+ERROR:
+
+1 error in Foo "foo2"
+
+-------------------- WARNING --------------------
+MSG: Bar data not defined or not an integer: 23.1
+NOTE: foo2 can't build Bar object "BAR_150": Invalid object.
+CONTEXT: Error in object Bar "BAR_150"
+ Contained in Object Foo "foo2"
+  Contained in Object Outer "outer1"
+STACK: 
+Bar::_set_data(46)
+Bar::_initialize(34)
+Bio::Root::Object::new(443)
+Foo::set_bar(109)
+Foo::_initialize(42)
+Bio::Root::Object::new(443)
+Outer::set_foo(64)
+Outer::_initialize(37)
+Bio::Root::Object::new(443)
+main::contained_error(117)
+main::./err.pl(38)
+-------------------------------------------------
+DATA           : 150
+COLOR          : mauve
+BAR            : undefined
+
+
+
+
+---------------------------------
+Testing err_string:
+---------------------------------
+
+No errors in Outer "outer1"
+
+-------------------------------------------------------------
+Throw Error Demo
+-------------------------------------------------------------
+
+
+-------------------- EXCEPTION --------------------
+MSG: Invalid or unspecified color = brown
+NOTE: Color not changed (green).
+Acceptable colors: 'red' 'green' 'blue' 'gray'
+CONTEXT: Error in object Foo "foo1"
+STACK: 
+Foo::change_color(89)
+main::throw_error(153)
+main::./err.pl(39)
+---------------------------------------------------
