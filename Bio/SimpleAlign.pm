@@ -1485,10 +1485,17 @@ sub no_sequences {
     return scalar($self->each_seq);
 }
 
-=head2 percentage_identity
 
- Title   : percentage_identity
- Usage   : $id = $align->percentage_identity
+# This method implemented by Kevin Howe calculates a figure that is 
+# designed to be similar to the average pairwise identity of the 
+# alignment (identical in the absence of gaps), without having to
+# explicitly calculate pairwise idenities proposed by Richard Durbin.
+# Validated by Ewan Birney ad Alex Bateman.
+
+=head2 average_percentage_identity
+
+ Title   : average_percentage_identity
+ Usage   : $id = $align->average_percentage_identity
  Function: The function uses a fast method to calculate the average 
            percentage identity of the alignment
  Returns : The average percentage identity of the alignment
@@ -1496,7 +1503,80 @@ sub no_sequences {
 
 =cut
 
-sub percentage_identity{
+sub average_percentage_identity{
+   my ($self,@args) = @_;
+
+   my @alphabet = ('A','B','C','D','E','F','G','H','I','J','K','L','M',
+                   'N','O','P','Q','R','S','T','U','V','W','X','Y','Z');
+
+   my ($len, $total, $subtotal, $divisor, $subdivisor, @seqs, @countHashes);
+
+   if (! $self->is_flush()) {
+       $self->throw("All sequences in the alignment must be the same length");
+   }
+
+   @seqs = $self->each_seq();
+   $len = $self->length();
+
+   # load the each hash with correct keys for existence checks
+
+   for( my $index=0; $index < $len; $index++) {
+       foreach my $letter (@alphabet) {
+	   $countHashes[$index]->{$letter} = 0;
+       }
+   }
+   foreach my $seq (@seqs)  {
+       my @seqChars = split //, $seq->seq();
+       for( my $column=0; $column < @seqChars; $column++ ) {
+	   my $char = uc($seqChars[$column]);
+	   if (exists $countHashes[$column]->{$char}) {
+	       $countHashes[$column]->{$char}++;
+	   }
+       }
+   }
+
+   $total = 0;
+   $divisor = 0;
+   for(my $column =0; $column < $len; $column++) {
+       my %hash = %{$countHashes[$column]};
+       $subdivisor = 0;
+       foreach my $res (keys %hash) {
+	   $total += $hash{$res}*($hash{$res} - 1);
+	   $subdivisor += $hash{$res};
+       }
+       $divisor += $subdivisor * ($subdivisor - 1);
+   }
+   return $divisor > 0 ? ($total / $divisor )*100.0 : 0;
+}
+
+=head2 percentage_identity
+
+ Title   : percentage_identity
+ Usage   : $id = $align->percentage_identity
+ Function: The function calculates the average percentage identity
+           (aliased for average_percentage_identity)
+ Returns : The average percentage identity 
+ Args    : None
+
+=cut
+
+sub percentage_identity { 
+    my $self = shift;
+    return $self->average_percentage_identity();
+}
+
+=head2 overall_percentage_identity
+
+ Title   : percentage_identity
+ Usage   : $id = $align->percentage_identity
+ Function: The function calculates the percentage identity of 
+           the conserved columns
+ Returns : The percentage identity of the conserved columns
+ Args    : None
+
+=cut
+
+sub overall_percentage_identity{
    my ($self,@args) = @_;
    
    my @alphabet = ('A','B','C','D','E','F','G','H','I','J','K','L','M',

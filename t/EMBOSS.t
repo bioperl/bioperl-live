@@ -17,7 +17,7 @@ BEGIN {
 	use lib 't';
     }
     use Test;
-    $NTESTS = 16;
+    $NTESTS = 18;
     plan tests => $NTESTS }
 
 use Bio::Factory::EMBOSS;
@@ -102,13 +102,16 @@ ok( $alnin);
 my $aln = $alnin->next_aln;
 ok($aln);
 ok($aln->length, 43);
-ok($aln->percentage_identity, 100);
+ok($aln->overall_percentage_identity, 100);
+ok($aln->average_percentage_identity, 100);
+
 my ($first) = $aln->each_seq();
 ok($first->seq(), 'SCWSFSTTGNVEGQHFISQNKLVSLSEQNLVDCDHECMEYEGE');
 $aln = $alnin->next_aln;
 ok($aln);
 ok($aln->length, 339);
-ok(sprintf("%.2f",$aln->percentage_identity), 33.04);
+ok(sprintf("%.2f",$aln->overall_percentage_identity), 33.04);
+ok(sprintf("%.2f",$aln->average_percentage_identity), 40.58);
 
 my $cons = $factory->program('cons');
 $cons->verbose(0);
