@@ -33,7 +33,7 @@ END {
     }
     unlink($compseqoutfile);
     unlink($wateroutfile);
-#    unlink($consoutfile);
+    unlink($consoutfile);
 }
 
     
