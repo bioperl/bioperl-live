@@ -28,7 +28,7 @@ Bio::Perl - Functional access to BioPerl for people who don't know objects
   @seq_object_array = read_all_sequences($filename,'fasta');
 
   # sequences are Bio::Seq objects, so the following methods work
-  # for more info see L<Bio::Seq>, or do 'perldoc Bio/Seq.pm'
+  # for more info see Bio::Seq, or do 'perldoc Bio/Seq.pm'
 
   print "Sequence name is ",$seq_object->display_id,"\n";
   print "Sequence acc  is ",$seq_object->accession_number,"\n";
@@ -44,12 +44,10 @@ Bio::Perl - Functional access to BioPerl for people who don't know objects
 
   write_sequence(">$filename",'genbank',@seq_object_array);
 
-  # making a new sequence from just strings you have
-  # from something else
+  # making a new sequence from just a string
 
   $seq_object = new_sequence("ATTGGTTTGGGGACCCAATTTGTGTGTTATATGTA",
       "myname","AL12232");
-
 
   # getting a sequence from a database (assumes internet connection)
 
@@ -334,10 +332,10 @@ sub new_sequence{
  Function: If the computer has Internet accessibility, blasts
            the sequence using the NCBI BLAST server against nrdb.
 
-           It choose the flavour of BLAST on the basis of the sequence.
+           It chooses the flavour of BLAST on the basis of the sequence.
 
            This function uses Bio::Tools::Run::RemoteBlast, which itself
-           use Bio::SearchIO - as soon as you want to more, check out
+           use Bio::SearchIO - as soon as you want to know more, check out
            these modules
  Returns : Bio::Search::Result::GenericResult.pm
 
@@ -588,7 +586,7 @@ sub translate_as_string {
  Title   : reverse_complement
  Usage   : $seqobj = reverse_complement($seq_or_string_scalar)
 
- Function: reverse complements a string or sequnce argument
+ Function: reverse complements a string or sequence argument
            producing a Bio::Seq - if you want a string, you
            can use reverse_complement_as_string
  Returns : A Bio::Seq object
@@ -631,7 +629,7 @@ sub reverse_complement {
  Title   : revcom
  Usage   : $seqobj = revcom($seq_or_string_scalar)
 
- Function: reverse complements a string or sequnce argument
+ Function: reverse complements a string or sequence argument
            producing a Bio::Seq - if you want a string, you
            can use reverse_complement_as_string
 
@@ -653,7 +651,7 @@ sub revcom {
  Title   : reverse_complement_as_string
  Usage   : $string = reverse_complement_as_string($seq_or_string_scalar)
 
- Function: reverse complements a string or sequnce argument
+ Function: reverse complements a string or sequence argument
            producing a string
  Returns : A string of DNA letters
 
@@ -676,7 +674,7 @@ sub reverse_complement_as_string {
  Title   : revcom_as_string
  Usage   : $string = revcom_as_string($seq_or_string_scalar)
 
- Function: reverse complements a string or sequnce argument
+ Function: reverse complements a string or sequence argument
            producing a string
  Returns : A string of DNA letters
 
