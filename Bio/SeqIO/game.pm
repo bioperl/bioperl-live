@@ -27,21 +27,21 @@ Do not use this module directly.  Use it via the Bio::SeqIO class.
 =head1 DESCRIPTION
 
 This object can transform Bio::Seq objects to and from bioxml seq,
-computation, feature and annotation dtds,versions 0.1 and higher.  
-These can be found at http://www.bioxml.org/dtds/current.
-It does this using the idHandler, seqHandler and featureHandler  modules
- you should have gotten with this one.
+computation, feature and annotation dtds,versions 0.1 and higher.
+These can be found at http://www.bioxml.org/dtds/current.  It does
+this using the idHandler, seqHandler and featureHandler modules you
+should have gotten with this one.
 
-The idea is that any bioxml features can be turned into bioperl annotations.  
-When Annotations and computations are parsed in, they gain additional info
-in the bioperl SeqFeature tag attribute.  These can be used to reconstitute a 
-computation or annotation by the bioxml with the bx-handler module when write_seq
-is called.
+The idea is that any bioxml features can be turned into bioperl
+annotations.  When Annotations and computations are parsed in, they
+gain additional info in the bioperl SeqFeature tag attribute.  These
+can be used to reconstitute a computation or annotation by the bioxml
+with the bx-handler module when write_seq is called.
 
-If you use this to write SeqFeatures that were not generated from computations
-or annotations, it will output a list of bioxml features.  Some data may be lost 
-in this step, since bioxml features just have a span, type and description - nothing
-about the anlysis performed.  
+If you use this to write SeqFeatures that were not generated from
+computations or annotations, it will output a list of bioxml features.
+Some data may be lost in this step, since bioxml features just have a
+span, type and description - nothing about the anlysis performed.
 
 =head1 FEEDBACK
 
