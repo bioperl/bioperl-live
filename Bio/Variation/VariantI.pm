@@ -459,7 +459,7 @@ sub status {
  Function: 
 
            Returns the proof of the sequence change object.
-           Valid values are: 'suspected' and 'proven'
+           Valid values are: 'computed' and 'experimental'.
 
  Example : $obj->proof('computed');
  Returns : scalar
