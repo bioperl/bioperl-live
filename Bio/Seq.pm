@@ -110,9 +110,9 @@ L<Bio::SeqFeatureI> for more information.
 
 Ian Korf really helped in the design of the Seq and SeqFeature system.
 
-=head1 EXAMPLES
+=head2 Examples
 
-A simple and fundamental block of code
+A simple and fundamental block of code:
 
   use Bio::SeqIO;
 
@@ -120,7 +120,7 @@ A simple and fundamental block of code
   my $seqobj = $seqIOobj->next_seq;              # get a Seq object
 
 With the Seq object in hand one has access to a powerful set of Bioperl
-methods and Bioperl objects. This next script will take a file of sequences
+methods and related Bioperl objects. This next script will take a file of sequences
 in EMBL format and create a file of the reverse-complemented sequences
 in Fasta format using Seq objects. It also prints out details about the
 exons it finds as sequence features in Genbank Flat File format.
@@ -254,7 +254,7 @@ more information).
   $seqobj->seq();              # string of sequence
   $seqobj->subseq(5,10);       # part of the sequence as a string
   $seqobj->accession_number(); # when there, the accession number
-  $seqobj->alphabet();          # one of 'dna','rna',or 'protein'
+  $seqobj->alphabet();         # one of 'dna','rna',or 'protein'
   $seqobj->seq_version()       # when there, the version
   $seqobj->keywords();         # when there, the Keywords line
   $seqobj->length()            # length
