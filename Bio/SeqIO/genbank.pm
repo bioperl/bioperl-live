@@ -34,6 +34,23 @@ file databases.
 There is alot of flexibility here about how to dump things which I need
 to document fully.
 
+=head2 Mapping of record properties to object properties
+
+This section is supposed to document which sections and properties of
+a GenBank databank record end up where in the Bioperl object model. It
+is far from complete and presently focuses only on those mappings
+which may be non-obvious. $seq in the text refers to the
+Bio::Seq::RichSeqI implementing object returned by the parser for each
+record.
+
+=over 4
+
+=item GI number
+
+$seq-E<gt>primary_id
+
+=back
+
 =head2 Optional functions
 
 =over 3
@@ -84,7 +101,7 @@ the top level object which defines a function called NAME() which
 stores this information.
 
 Items listed as Annotation 'NAME' tell you the data is stored the
-associated Bio::AnnotationCollectionI object which is associated with
+associated Bio::Annotation::Colection object which is associated with
 Bio::Seq objects.  If it is explictly requested that no annotations
 should be stored when parsing a record of course they won't be
 available when you try and get them.  If you are having this problem
@@ -98,9 +115,7 @@ Origin               Annotation 'origin'
 
 Accessions           PrimarySeq accession_number()
 Secondary accessions RichSeq get_secondary_accessions()
-GI number            PrimarySeq primary_id()
-LOCUS                PrimarySeq display_id()
-Keywords             RichSeq get_keywords()
+Keywords             RichSeq keywords()
 Dates                RichSeq get_dates()
 Molecule             RichSeq molecule()
 Seq Version          RichSeq seq_version()
@@ -140,13 +155,13 @@ Email elia@tll.org.sg
 
 =head1 CONTRIBUTORS
 
-Ewan Birney birney at ebi.ac.uk
-Jason Stajich jason at bioperl.org
-Chris Mungall cjm at fruitfly.bdgp.berkeley.edu
-Lincoln Stein lstein at cshl.org
-Heikki Lehvaslaiho, heikki at ebi.ac.uk
-Hilmar Lapp, hlapp at gmx.net
-Donald G. Jackson, donald.jackson at bms.com
+Ewan Birney birney@ebi.ac.uk
+Jason Stajich jason@bioperl.org
+Chris Mungall cjm@fruitfly.bdgp.berkeley.edu
+Lincoln Stein lstein@cshl.org
+Heikki Lehvaslaiho, heikki@ebi.ac.uk
+Hilmar Lapp, hlapp@gmx.net
+Donald G. Jackson, donald.jackson@bms.com
 
 =head1 APPENDIX
 
@@ -492,7 +507,6 @@ sub next_seq {
 		  foreach my $tagval ($feat->get_tag_values('db_xref')) {
 		      if(index($tagval,"taxon:") == 0) {
 			  $species->ncbi_taxid(substr($tagval,6));
-                          last;
 		      }
 		  }
 	      }
@@ -526,7 +540,7 @@ sub next_seq {
       if($builder->want_slot('seq')) {
 	  # the fact that we want a sequence does not necessarily mean that
 	  # there also is a sequence ...
-	  if(defined($_) && s/^ORIGIN\s+//) {
+	  if(defined($_) && s/^ORIGIN//) {
 	      chomp;
 	      if( $annotation && length($_) > 0 ) {
 		  $annotation->add_Annotation('origin',
@@ -724,12 +738,12 @@ sub write_seq {
 						 $ref->medline, "\\s\+\|\$",80);
 		# I am assuming that pubmed entries only exist when there
 		# are also MEDLINE entries due to the indentation
-	    }
-	    # This could be a wrong assumption
-	    if( $ref->pubmed ) {
-		$self->_write_line_GenBank_regex("   PUBMED   "," "x12,
-						 $ref->pubmed, "\\s\+\|\$",
-						 80);
+		# This could be a wrong assumption
+		if( $ref->pubmed ) {
+		    $self->_write_line_GenBank_regex("   PUBMED   "," "x12,
+						     $ref->pubmed, "\\s\+\|\$",
+						     80);
+		}
 	    }
 	    $count++;
 	}
@@ -802,8 +816,7 @@ sub write_seq {
 	}
 
 	my ($o) = $seq->annotation->get_Annotations('origin');
-	$self->_print(sprintf("%-12s%s\n",
-			      'ORIGIN', $o ? $o->value : ''));
+	$self->_print(sprintf("%-6s%s\n",'ORIGIN',$o ? $o->value : ''));
         # print out the sequence
 	my $nuc = 60;		# Number of nucleotides per line
 	my $whole_pat = 'a10' x 6; # Pattern for unpacking a whole line
@@ -943,11 +956,8 @@ sub _read_GenBank_References{
        if (/^\s{2}JOURNAL\s+(.*)/o) { 
 	   push(@loc, $1);
 	   while ( defined($_ = $self->_readline) ) {
-	       # we only match when there are at least 4 spaces
-	       # there is probably a better way to match this
-	       # as it assumes that the describing tag is short enough 
-	       /^\s{4,}(.*)/o && do { push(@loc, $1);
-				      next;
+	       /^\s{3,}(.*)/o && do { push(@loc, $1);
+				     next;
 				 };
 	       last;
 	   }
@@ -1054,7 +1064,17 @@ sub _add_ref_to_array {
  Usage   :
  Function: Reads the GenBank Organism species and classification
            lines.
- Example :
+		   Able to deal with unconvential Organism naming formats,
+		   and varietas in plants
+ Example : ORGANISM  unknown marine gamma proteobacterium NOR5
+           $genus = undef; $species = unknown marine gamma proteobacterium NOR5
+		   
+		   ORGANISM  Drosophila sp. 'white tip scutellum'
+		   $genus = Drosophila; $species = sp.; $subspecies = 'white tip scutellum'
+		   
+		   ORGANISM  Ajellomyces capsulatus var. farciminosus
+		   $genus = Ajellomyces; $species = capsulatus var.; $subspecies = farciminosus
+		    
  Returns : A Bio::Species object
  Args    : a reference to the current line buffer
 
@@ -1064,8 +1084,13 @@ sub _read_GenBank_Species {
     my( $self,$buffer) = @_;
     my @organell_names = ("chloroplast", "mitochondr"); 
     # only those carrying DNA, apart from the nucleus
-
-    $_ = $$buffer;
+	
+	my @unkn_names=("other", 'unknown organism', 'not specified', 'not shown', 'Unspecified', 'Unknown', 'None', 'unclassified', 'unidentified organism');
+	#dictionary of synonyms for taxid 32644
+	my @unkn_genus=('unknown','unclassified','uncultured','unidentified');
+	#all above can be part of valid species name
+    
+	$_ = $$buffer;
     
     my( $sub_species, $species, $genus, $common, $organelle, @class, $ns_name );
     # upon first entering the loop, we must not read a new line -- the SOURCE
@@ -1084,17 +1109,42 @@ sub _read_GenBank_Species {
 	    my @spflds = split(' ', $_);
             ($ns_name) = $_ =~ /\w+\s+(.*)/o;
 	    shift(@spflds); # ORGANISM
-	    if(grep { $_ =~ /^$spflds[0]/i; } @organell_names) {
-		$organelle = shift(@spflds);
-	    }
-            $genus = shift(@spflds);
-	    if(@spflds) {
-		$species = shift(@spflds);
-	    } else {
-		$species = "sp.";
-	    }
-	    $sub_species = shift(@spflds) if(@spflds);
-        } elsif (/^\s+(.+)/o) {
+	   #does the next term start with uppercase?
+		#yes: valid genus; no then unconventional
+		#e.g. leaf litter basidiomycete sp. Collb2-39
+		if ($spflds[0]=~m/[A-Z]/)	{
+			$genus=shift(@spflds);
+		} else { undef $genus; }
+		#populate species tag
+		if (@spflds)	{
+			#my $size=scalar @spflds;
+			while (my $fld = shift @spflds)	{
+				$species .= "$fld ";
+				#does it have subspecies or varietas?
+				last if ($fld =~ m/(sp\.|var\.)/);
+			}
+			chop $species;	#last space
+			$sub_species = join ' ',@spflds if(@spflds);
+		}
+		else { $species = 'sp.'; }
+		
+		#does ORGANISM start with any words which make its genus undefined?
+		#these are in @unkn_genus	
+		#this in case species starts with uppercase so isn't caught above. 
+		#alter common name if required
+		if ( $genus && grep { $_ =~ /^$genus/i; } @unkn_genus )	{
+			$species = $genus." ".$species; undef $genus; 
+		}
+		#need to extract subspecies from conventional ORGANISM format.  
+		#Will the 'word' in a two element species name
+		#e.g. $species = 'thummi thummi' => $species='thummi' & $sub_species='thummi' 
+		else	{
+			if (!$sub_species && $species =~s/^(\w+)\s(\w+)$/$1/)	{
+				$sub_species = $2;
+			}
+		}
+		
+	} elsif (/^\s+(.+)/o) {
 	    # only split on ';' or '.' so that 
 	    # classification that is 2 words will 
 	    # still get matched
@@ -1107,16 +1157,20 @@ sub _read_GenBank_Species {
         $_ = undef; # Empty $_ to trigger read of next line
     }
     
-    $$buffer = $_;
+	 $$buffer = $_;
     
     # Don't make a species object if it's empty or "Unknown" or "None"
-    return unless $genus and  $genus !~ /^(Unknown|None)$/oi;
+    #return unless $genus and  $genus !~ /^(Unknown|None)$/oi;
     
+	 # Don't make a species object if it belongs to taxid 32644
+	 my $unkn = grep { $_ =~ /$common/i; } @unkn_names;
+	 return unless ($species||$genus) and $unkn==0;
+			
     # Bio::Species array needs array in Species -> Kingdom direction
     if ($class[0] eq 'Viruses') {
         push( @class, $ns_name );
     }
-    elsif ($class[$#class] eq $genus) {
+    elsif ($genus && $class[$#class] eq $genus) {
         push( @class, $species );
     } else {
         push( @class, $genus, $species );
