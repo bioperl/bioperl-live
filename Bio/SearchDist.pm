@@ -31,7 +31,6 @@ Bio::SearchDist - A perl wrapper around Sean Eddy's histogram object
     warn("Could not fit histogram to an EVD!");
   }
 
-
 =head1 DESCRIPTION
 
 The Bio::SearchDist object is a wrapper around Sean Eddy's excellent
@@ -137,9 +136,9 @@ sub new {
     $lump = 50;
   }
 
-  $self->_engine(&Bio::Ext::new_Histogram($min,$max,$lump));
+  $self->_engine(&Bio::Ext::Align::new_Histogram($min,$max,$lump));
 
-  return $make; # success - we hope!
+  return $self;
 }
 
 =head2 add_score
@@ -157,8 +156,8 @@ sub add_score{
    my ($self,$score) = @_;
    my ($eng);
    $eng = $self->_engine();
-   $eng->AddToHistogram($score);
-
+   #$eng->AddToHistogram($score);
+   $eng->add($score);
 }
 
 =head2 fit_evd
@@ -175,8 +174,8 @@ sub add_score{
 sub fit_evd{
    my ($self,@args) = @_;
 
-   return $self->_engine()->ExtremeValueFitHistogram(10000);
-   
+   #return $self->_engine()->ExtremeValueFitHistogram(10000);
+   return $self->_engine()->fit_EVD(10000);
 }
 
 =head2 evalue
@@ -211,12 +210,11 @@ sub evalue{
 =cut
 
 sub _engine{
-   my ($self,$value) = @_;
-   if( defined $value) {
-      $obj->{'_engine'} = $value;
+    my ($self,$value) = @_;
+    if( defined $value) {
+	$self->{'_engine'} = $value;
     }
-    return $obj->{'_engine'};
-
+    return $self->{'_engine'};
 }
 
 
