@@ -76,7 +76,7 @@ package Bio::SearchIO::Writer::HTMLResultWriter;
 use vars qw(@ISA %RemoteURLDefault
             $MaxDescLen $DATE $AlignmentLineWidth $Revision);
 use strict;
-$Revision = '$Id';
+$Revision = '$Id$'; #'
 
 # Object preamble - inherits from Bio::Root::RootI
 
