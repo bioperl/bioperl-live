@@ -6,7 +6,7 @@
 
 =head1 NAME
 
-Bio::SeqIO::Bioxml  Parses bioxml 0.3 and higher into Bio::Seq objects. - 
+Bio::SeqIO::GAMEHandler  Parses bioxml 0.3 and higher into Bio::Seq objects. - 
 Sorry, no namespaces yet!
 
 =head1 SYNOPSIS
