@@ -6,6 +6,14 @@ use vars '@ISA';
 use Bio::Graphics::Glyph::generic;
 @ISA = 'Bio::Graphics::Glyph::generic';
 
+# treat like one big component
+sub draw {
+  my $self = shift;
+  $self->draw_component(@_);
+  $self->draw_label(@_)       if $self->option('label');
+  $self->draw_description(@_) if $self->option('description');
+}
+
 sub subseq {
   return ();
 }
@@ -26,7 +34,7 @@ Bio::Graphics::Glyph::box - The "box" glyph
 
 This is the most basic glyph.  It draws a filled box and optionally a
 label.  It does *NOT* draw subparts, and so is useful for semantic
-zooming when one is zoomed out to far to see substructure.
+zooming when one is zoomed out too far to see substructure.
 
 =head2 OPTIONS
 

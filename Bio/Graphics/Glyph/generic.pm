@@ -201,8 +201,10 @@ Bio::Graphics::Glyph::generic - The "generic" glyph
 
 =head1 DESCRIPTION
 
-This is identical to the "box" glyph.  It is the default glyph used
-when not otherwise specified.
+This is identical to the "box" glyph except that it will draw the
+subparts of features that contain subfeatures.  The subparts are not
+connected -- use the "segments" glyph for that.  "Generic" is the
+default glyph used when not otherwise specified.
 
 =head2 OPTIONS
 
