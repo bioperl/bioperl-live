@@ -13,8 +13,9 @@ BEGIN {
     }
     use Test;
 
-    plan tests => 42;
+    plan tests => 46;
 }
+
 use Bio::Matrix::PSM::IO;
 
 ok(1);
@@ -42,6 +43,32 @@ ok $psmIO->version,'3.0';
 
 my $psm = $psmIO->next_psm;
 ok $psm;
+
+#Lets try to compress and uncompress the log odds and the frequencies, see if there is no
+#considerable loss of data.
+my $fA=$psm->get_compressed_freq('A');
+my @check=Bio::Matrix::PSM::SiteMatrix::_uncompress_string($fA,1,1);
+my @A=$psm->get_array('A');
+my ($var,$max);
+for (my $i;$i<@check;$i++) {
+  my $diff=abs(abs($check[$i])-abs($A[$i]));
+  $var += $diff;
+  $max=$diff if ($diff>$max);
+}
+my $avg=$var/@check;
+ok $avg<0.01; #Loss of data under 1 percent
+
+my $lA=$psm->get_compressed_logs('A');
+my @check=Bio::Matrix::PSM::SiteMatrix::_uncompress_string($lA,1000,2);
+my @A=$psm->get_logs_array('A');
+my ($var,$max);
+for (my $i;$i<@check;$i++) {
+  my $diff=abs(abs($check[$i])-abs($A[$i]));
+  $var += $diff;
+  $max=$diff if ($diff>$max);
+}
+my $avg=$var/@check;
+ok $avg<10; #Loss of data under 1 percent
 
 my $matrix=$psm->matrix;
 ok $matrix;
@@ -90,6 +117,32 @@ ok @ids, '1';
 
 $psm     = $psmIO->next_psm;
 ok $psm;
+
+#Lets try to compress and uncompress the log odds and the frequencies, see if there is no
+#considerable loss of data.
+my $fA=$psm->get_compressed_freq('A');
+my @check=Bio::Matrix::PSM::SiteMatrix::_uncompress_string($fA,1,1);
+my @A=$psm->get_array('A');
+my ($var,$max);
+for (my $i;$i<@check;$i++) {
+  my $diff=abs(abs($check[$i])-abs($A[$i]));
+  $var += $diff;
+  $max=$diff if ($diff>$max);
+}
+my $avg=$var/@check;
+ok $avg<0.01; #Loss of data under 1 percent
+
+my $lA=$psm->get_compressed_logs('A');
+my @check=Bio::Matrix::PSM::SiteMatrix::_uncompress_string($lA,1000,2);
+my @A=$psm->get_logs_array('A');
+my ($var,$max);
+for (my $i;$i<@check;$i++) {
+  my $diff=abs(abs($check[$i])-abs($A[$i]));
+  $var += $diff;
+  $max=$diff if ($diff>$max);
+}
+my $avg=$var/@check;
+ok $avg<10; #Loss of data under 1 percent
 
 %weights = $psmIO->weight;
 ok !$weights{''};
