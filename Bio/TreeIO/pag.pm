@@ -71,10 +71,11 @@ Internal methods are usually preceded with a _
 
 
 package Bio::TreeIO::pag;
-use vars qw(@ISA);
+use vars qw(@ISA $TaxonNameLen);
 use strict;
-
 use Bio::TreeIO;
+
+$TaxonNameLen = 10;
 
 @ISA = qw(Bio::TreeIO );
 
@@ -94,30 +95,123 @@ use Bio::TreeIO;
 
  Title   : write_tree
  Usage   :
- Function:
- Example :
- Returns : 
- Args    :
+ Function: Write a tree out in Pagel format
+           Some options are only appropriate for bayesianmultistate and
+           the simpler output is only proper for discrete
+ Returns : none
+ Args    : -no_outgroups => (number)
+           -print_header => 0/1 (leave 0 for discrete, 1 for bayesianms)
+           -special_node => special node - not sure what they wanted to do here
+           -keep_outgroup => 0/1 (keep the outgroup node in the output)
+           -outgroup_ancestor => Bio::Tree::Node (if we want to exclude or include the outgroup this is what we operate on)
+           -tree_no       => a tree number label - only useful for BayesianMultistate
 
 
 =cut
 
-sub write_tree{
-   my ($self,@args) = @_;
-   for my $t ( @args ) {
-       for my $node ( $t->get_nodes ) {
-	   next unless defined $node->ancestor; #skip root
-	   # for now assumes that characters have been stored
-	   # as tag-values
-	   my @tags = sort $node->get_all_tags;
-	   my @charstates = map { ($node->get_tag_values($_))[0] } @tags;
-	   $self->_print(join(", ", ($node->id || 
-				     sprintf("node%d",$node->internal_id)),
-			      sprintf("node%d",$node->ancestor->internal_id),
-			      sprintf("%.6f",$node->branch_length),
-			      @charstates),"\n");
-       }
-   }
+sub write_tree {
+    my ($self,$tree,@args) = @_;
+    my ($keep_outgroup,
+	$print_header,
+	$no_outgroups,
+	$special_node, 
+	$outgroup_ancestor,
+	$tree_no) = (0,0);
+    if( @args ) {
+	($no_outgroups,
+	 $print_header,
+	 $special_node, 
+	 $outgroup_ancestor,
+	 $tree_no,
+	 $keep_outgroup) = $self->_rearrange([qw(NO_OUTGROUPS
+						 PRINT_HEADER
+						 SPECIAL_NODE
+						 OUTGROUP_ANCESTOR
+						 TREE_NO
+						 KEEP_OUTGROUP)],@args);
+    }
+    my $newname_base = 1;
+
+    my $root = $tree->get_root_node;
+    my $eps = 0.0001;
+    my (%chars,%names);
+    my @nodes = $tree->get_nodes;
+    my $species_ct;
+    for my $node ( @nodes ) {
+	if ((defined $special_node) && ($node eq $special_node)) {
+	    my $no_of_tree_nodes = scalar(@nodes);
+	    my $node_name = sprintf("N%d",$no_of_tree_nodes+1);
+	    $names{$node->internal_id} = $node_name;
+
+	} elsif ($node->is_Leaf) {
+	    $species_ct++;
+
+	    my $node_name = $node->id;
+	    if( length($node_name)> $TaxonNameLen ) {
+		$self->warn( "Found a taxon name longer than $TaxonNameLen letters, \n",
+			     "name will be abbreviated.\n");
+		$node_name = substr($node_name, 0,$TaxonNameLen);
+	    } else { 
+		# $node_name = sprintf("%-".$TaxonNameLen."s",$node_name);
+	    }
+	    $names{$node->internal_id} = $node_name;
+	    my @tags = sort $node->get_all_tags;
+	    my @charstates = map { ($node->get_tag_values($_))[0] } @tags;
+	    $chars{$node->internal_id} = [@charstates];
+	} else {
+	    $names{$node->internal_id} = sprintf("N%d", $newname_base++);
+	}
+    }
+
+    # generate PAG representation
+    if( $print_header ) { 
+	if ($keep_outgroup) {
+	    $self->_print(sprintf("%d 1\n",$species_ct));
+	} else {
+	    $self->_print( sprintf("%d 1\n",$species_ct-$no_outgroups));
+	}
+    }
+
+    my @ancestors = ();
+    if ($keep_outgroup) {
+        push @ancestors, $root;
+    } else {
+	push @ancestors, ( $root, $outgroup_ancestor);
+    }
+    my @rest;
+    foreach my $node (@nodes) {
+        my $i = 0;
+        foreach my $anc (@ancestors) {
+            if ($node eq $anc) { $i = 1; last }
+        }
+        unless ($i > 0) {       # root not given in PAG
+            my $current_name = $names{$node->internal_id};
+	    my $branch_length_to_output;
+            if ($node->branch_length < $eps) {
+                my $msg_nodename = $current_name;
+                $msg_nodename =~ s/\s+$//;
+                warn( "TREE $tree_no, node \"$msg_nodename\": branch too ",
+		      "short (", $node->branch_length, "): increasing length to ",
+		      "$eps\n");
+                $branch_length_to_output = $eps;
+            } else {
+                $branch_length_to_output = $node->branch_length;
+            }
+	    my @line = ( $current_name,
+			 $names{$node->ancestor->internal_id},
+			 $branch_length_to_output);
+	    
+	    if ($node->is_Leaf) {		
+		push @line, @{$chars{$node->internal_id}};
+		$self->_print(join(',', @line),"\n");
+	    } else { 
+		push @rest, \@line;
+	    }
+        }
+    }
+    for ( @rest ) { 
+	$self->_print(join(',', @$_),"\n");
+    }
 }
 
 =head2 next_tree
