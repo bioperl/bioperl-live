@@ -85,12 +85,14 @@ my $FTYPEID = 1;
 my %GROUPID = ();
 my %FTYPEID = ();
 my %DONE    = ();
+my $FEATURES = 0;
 
 my $count;
 while (<>) {
   chomp;
   next if /^\#/;
   my ($ref,$source,$method,$start,$stop,$score,$strand,$phase,$group) = split "\t";
+  $FEATURES++;
 
   $source = '\N' unless defined $source;
   $score  = '\N' if $score  eq '.';
@@ -131,6 +133,7 @@ $_->close foreach values %FH;
 
 warn "Loading data.  You may see duplicate key warnings here...\n";
 
+my $success = 1;
 foreach (FDATA,FGROUP,FTYPE,FNOTE) {
   my $command =<<END;
 ${\MYSQL} $AUTH
@@ -138,11 +141,18 @@ ${\MYSQL} $AUTH
 $DSN
 END
 ;
-    $command =~ s/\n/ /g;
-    system $command;
-    unlink "$tmpdir/$_";
+  $command =~ s/\n/ /g;
+  $success &&= system($command) == 0;
+  unlink "$tmpdir/$_";
 }
 warn "done...\n";
+if ($success) {
+  print "SUCCESS: $FEATURES features successfully loaded\n";
+  exit 0;
+} else {
+  print "FAILURE: Please see standard error for details\n";
+  exit -1;
+}
 
 sub split_group {
   my ($gclass,$gname,$tstart,$tstop,@notes);
