@@ -289,7 +289,7 @@ sub Bio::SearchIO::blast::_readline {
   return $hs->parse($self->SUPER::_readline(@args));
 }
 
-$io = new Bio::SearchIO -file => "etc", -format => "blast";
+$io = new Bio::SearchIO(-file => "etc.bls", -format => "blast");
 # etc ...
 </code>
 </answer>
