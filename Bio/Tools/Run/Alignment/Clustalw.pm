@@ -387,6 +387,7 @@ sub new {
 	    warn "Clustalw program not found as ".$self->program." or not executable. \n  Clustalw can be obtained from eg- http://corba.ebi.ac.uk/Biocatalog/Alignment_Search_software.html/ \n";
 	}
     }
+  
     return $self;
 }
 

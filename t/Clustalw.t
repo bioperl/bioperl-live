@@ -50,7 +50,7 @@ $factory->quiet($bequiet);  # Suppress clustal messages to terminal
 my $inputfilename = Bio::Root::IO->catfile("t","data","cysprot.fa");
 my $aln;
 
-my $clustal_present = Bio::Tools::Run::Alignment::Clustalw->exists_clustal();
+my $clustal_present = $factory->exists_clustal();
 
 unless ($clustal_present) {
     warn("Clustalw program not found. Skipping tests $Test::ntest to $NTESTS.\n");    
