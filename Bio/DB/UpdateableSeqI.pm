@@ -50,7 +50,7 @@ Report bugs to the Bioperl bug tracking system to help us keep track the bugs an
 their resolution. Bug reports can be submitted via email or the web:
 
     bioperl-bugs@bioperl.org                   
-    http://www.bioperl.org/bioperl-bugs/           
+    http://www.bugzilla.bioperl.org/           
 
 =head1 APPENDIX
 

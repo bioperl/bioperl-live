@@ -39,7 +39,7 @@ Bio::Tools::Profile - parse Profile output
  email or the web:
 
  bioperl-bugs@bioperl.org
- http://bioperl.org/bioperl-bugs/
+ http://bugzilla.bioperl.org/
 =head1 AUTHOR - Balamurugan Kumarasamy
 
  Email: fugui@worf.fugu-sg.org

@@ -43,7 +43,7 @@ Bio::Tools::Prints - Parser for FingerPRINTScanII program
  email or the web:
 
  bioperl-bugs@bioperl.org
- http://bioperl.org/bioperl-bugs/
+ http://bugzilla.bioperl.org/
 
 =head1 AUTHOR - Balamurugan Kumarasamy
 

@@ -112,7 +112,7 @@ the bugs and their resolution.  Bug reports can be submitted via email
 or the web:
 
   bioperl-bugs@bioperl.org
-  http://www.bioperl.org/bioperl-bugs/
+  http://www.bugzilla.bioperl.org/
 
 =head1 AUTHOR - Aaron Mackey
 
