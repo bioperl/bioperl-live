@@ -89,13 +89,13 @@ BEGIN {
     else { $HasInMemory = 1 }
 }
 
-use Bio::AnnotationCollectionI;
+use Bio::AnnotatableI;
 use Bio::RangeI;
 use Bio::Seq;
 
 use Carp;
 
-@ISA = qw(Bio::RangeI Bio::AnnotationCollectionI);
+@ISA = qw(Bio::RangeI Bio::AnnotatableI);
 
 =head1 Bio::SeqFeatureI specific methods
 
@@ -571,36 +571,34 @@ can use a feature ($r in the below documentation).
 
  See L<Bio::RangeI>
 
-=head1 Bio::AnnotationCollectionI methods
+=head1 Bio::AnnotatableI methods
 
 =cut
 
 =head2 has_tag()
 
- B<Deprecated>.  See L<Bio::AnnotationCollectionI>
+ B<Deprecated>.  See L<Bio::AnnotatableI>
 
 =head2 remove_tag()
 
- B<Deprecated>.  See L<Bio::AnnotationCollectionI>
+ B<Deprecated>.  See L<Bio::AnnotatableI>
 
 =head2 add_tag_value()
 
- B<Deprecated>.  See L<Bio::AnnotationCollectionI>
+ B<Deprecated>.  See L<Bio::AnnotatableI>
 
 =head2 get_tag_values()
 
- B<Deprecated>.  See L<Bio::AnnotationCollectionI>
+ B<Deprecated>.  See L<Bio::AnnotatableI>
 
 =head2 get_tagset_values()
 
- B<Deprecated>.  See L<Bio::AnnotationCollectionI>
+ B<Deprecated>.  See L<Bio::AnnotatableI>
 
 =head2 get_all_tags()
 
- B<Deprecated>.  See L<Bio::AnnotationCollectionI>
+ B<Deprecated>.  See L<Bio::AnnotatableI>
 
 =cut
-
-
 
 1;

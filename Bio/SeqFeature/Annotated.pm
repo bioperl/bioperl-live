@@ -344,8 +344,10 @@ sub remove_Annotations {
 
 sub display_name {
   my $self = shift;
-warn caller();
-  $self->warn('display_name() is deprecated, use name()');
+
+  #1.6
+  #$self->warn('display_name() is deprecated, use name()');
+
   return $self->name(@_);
 }
 
@@ -357,7 +359,10 @@ warn caller();
 
 sub seq_id {
   my $self = shift;
-  $self->warn('seq_id() is deprecated, use id()');
+
+  #1.6
+  #$self->warn('seq_id() is deprecated, use id()');
+
   return $self->id(@_);
 }
 
@@ -369,7 +374,10 @@ sub seq_id {
 
 sub primary_tag {
   my $self = shift;
-  $self->warn('primary_tag() is deprecated, use type()');
+
+  #1.6
+  #$self->warn('primary_tag() is deprecated, use type()');
+
   return $self->type(@_);
 }
 
@@ -381,7 +389,10 @@ sub primary_tag {
 
 sub source_tag {
   my $self = shift;
-  $self->warn('source_tag() is deprecated, use source()');
+
+  #1.6
+  #$self->warn('source_tag() is deprecated, use source()');
+
   return $self->source(@_);
 }
 
