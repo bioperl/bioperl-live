@@ -411,112 +411,116 @@ o DEPENDENCIES AND Bundle::BioPerl
  Module			  Where it is Used
  ------------------------------------------------------------------
  HTTP::Request::Common    GenBank+GenPept sequence retrieval, 
-	 		  remote http Blast jobs
-		 	  Bio::DB::*
-			  Bio::Tools::Run::RemoteBlast
+               	 		  remote http Blast jobs
+		 	                 Bio::DB::*
+			                 Bio::Tools::Run::RemoteBlast
 
  LWP::UserAgent           GenBank+GenPept sequence retrieval, 
-	 		  remote http Blast jobs
-			  Bio::DB::*
-			  Bio::Tools::Run::RemoteBlast
+	 		                 remote http Blast jobs
+			                 Bio::DB::*
+			                 Bio::Tools::Run::RemoteBlast
 
- AcePerl	          Access to ACeDB databases
-			  Bio::DB::Ace
-			  Available at http://stein.cshl.org
+ AcePerl	                 Access to ACeDB databases
+			                 Bio::DB::Ace
+
+ Available at http://stein.cshl.org
 			 
  IO::String               IO handle to read or write to a string
-			  Bio::SeqIO
-			  Bio::Variation::*
-			  Bio::DB::*
-			  Bio::Index::Blast
-			  Bio::Tools::*
-			  Bio::Biblio::IO
-			  Bio::Structure::IO
+               			  Bio::SeqIO
+			                 Bio::Variation::*
+			                 Bio::DB::*
+			                 Bio::Index::Blast
+			                 Bio::Tools::*
+			                 Bio::Biblio::IO
+			                 Bio::Structure::IO
 
  XML::Parser              Parsing of XML documents
-			  Bio::SeqIO::game
-			  Bio::Variation::* 
-			  Bio::SearchIO::blastxml
-			  Bio::Biblio::IO::medlinexml
-			  Requires expat from
-			  http://sourceforge.net/projects/expat/
+			                 Bio::SeqIO::game
+			                 Bio::Variation::* 
+			                 Bio::SearchIO::blastxml
+			                 Bio::Biblio::IO::medlinexml
+
+ Requires expat from http://sourceforge.net/projects/expat/
 			 			 
  XML::Writer              Parsing + writing of XML documents
-			  Bio::SeqIO::game
-			  Bio::Variation::*
+	               		  Bio::SeqIO::game
+			                 Bio::Variation::*
 
  XML::Parser::PerlSAX     Parsing of XML documents
-			  Bio::SeqIO::game
-			  Bio::Variation::*
-			  Bio::SearchIO::blastxml
-			  Bio::Biblio::IO::medlinexml
+			                 Bio::SeqIO::game
+			                 Bio::Variation::*
+			                 Bio::SearchIO::blastxml
+			                 Bio::Biblio::IO::medlinexml
 
- XML::Twig        	  Parsing of XML documents
-			  Bio::Variation::IO::xml
+ XML::Twig        	     Parsing of XML documents
+			                 Bio::Variation::IO::xml
 
  File::Temp               Temporary File creation
-			  Bio::DB::FileCache
-			  Bio::DB::XEMBL
+			                 Bio::DB::FileCache
+			                 Bio::DB::XEMBL
 
  SOAP::Lite               SOAP protocol, XEMBL Services
-			  Bio::Biblio::*
-			  Bio::DB::XEMBLService
+			                 Bio::Biblio::*
+			                 Bio::DB::XEMBLService
 
  HTML::Parser             HTML parsing of GDB page
-			  Bio::DB::GDB
+			                 Bio::DB::GDB
 
  DBD::mysql               Mysql API for loading and querying of Mysql-based 
-			  GFF feature and BioSQL databases
-			  Bio::DB::GFF
-			  bioperl-db external package
-			  bioperl-pipeline external package
-			  Mysql DB free from www.mysql.org
+			                 GFF feature and BioSQL databases
+			                 Bio::DB::GFF
+			                 bioperl-db external package
+			                 bioperl-pipeline external package
 
- GD			  GD graphical drawing library
-			  Bio::Graphics
-                          Requires GD library from www.boutell.com/gd
+ Mysql DB free from www.mysql.org
 
- srsperl		  Sequence Retrieval System (SRS) 
-			  alternative way of retrieving 
-			  sequences
-			  Bio::LiveSeq::IO::SRS.pm
-			  See README in Bio/LiveSeq/IO
+ GD			              GD graphical drawing library
+			                 Bio::Graphics
 
- Storable		  Persistent object storage & retrieval 
-			  Bio::DB::FileCache
+ Requires GD library from www.boutell.com/gd
+
+ srsperl		              Sequence Retrieval System (SRS) 
+			                 alternative way of retrieving sequences
+			                 Bio::LiveSeq::IO::SRS.pm
+			  
+ See README in Bio/LiveSeq/IO
+
+ Storable		           Persistent object storage & retrieval 
+			                 Bio::DB::FileCache
 
  Text::Shellwords         Text parser
                           Bio::Graphics::FeatureFile
 
- XML::DOM		  XML parser
-			  Bio::SeqIO::bsml.pm
+ XML::DOM		           XML parser
+			                 Bio::SeqIO::bsml
+                          Bio::SeqIO::interpro
 
  DB_File                  Perl access to Berkeley DB
                           Bio::DB::Flat
-			  Bio::DB::Fasta,
-			  Bio::SeqFeature::Collection,
-			  Bio::Index::*
-                          Requires Berkeley DB, from Linux RPM
-			  or from www.sleepycat.com
+			                 Bio::DB::Fasta
+                          Bio::SeqFeature::Collection
+			                 Bio::Index::*
+
+ Requires Berkeley DB, from Linux RPM or from www.sleepycat.com
 
  Graph::Directed          Generic graph data and algorithms
                           Bio::Ontology::SimpleOntologyEngine
 
  Data::Stag::ITextWriter  Structured Tags datastructures
-			  Bio::SeqIO::chadoitext
+			                 Bio::SeqIO::chadoitext
 
  Data::Stag::SxprWriter   Structured Tags datastructures
-			  Bio::SeqIO::chadosxpr
+			                 Bio::SeqIO::chadosxpr
 
  Data::Stag::XMLWriter    Structured Tags datastructures
-			  Bio::SeqIO::chadoxml
+			                 Bio::SeqIO::chadoxml
  
  Text::Wrap               Very optional
                           Bio::SearchIO::Writer::TextResultWriter
  
  HTML::Entities           If you want to run Web analysis modules
-			  Bio::Tools::Analysis::DNA::*
-			  Bio::Tools::Analysis::Protein::*
+			                 Bio::Tools::Analysis::DNA::*
+			                 Bio::Tools::Analysis::Protein::*
 
  Class::AutoClass         Used to create objects
                           Bio::Graph::SimpleGraph*
@@ -524,6 +528,10 @@ o DEPENDENCIES AND Bundle::BioPerl
  Clone                    Used to clone objects
                           Bio::Graph::ProteinGraph
 
-XML::SAX		  New style SAX parser for Bio::SeqIO::bsml_sax
-XML::SAX::Base		  Bio::SeqIO::tigrxml
-XML::SAX::Writer
+ XML::SAX		           New style SAX parser
+                          Bio::SeqIO::bsml_sax
+ 
+ XML::SAX::Base		     New style SAX parser
+                          Bio::SeqIO::tigrxml
+                  
+ XML::SAX::Writer
