@@ -415,7 +415,7 @@ sequences. See L<Bio::Seq> for more information.
 Eeturn reverse complement sequences of all sequences in the current
 directory and save them in the same directory.
 
-=head2 examples/rnai_finder.cgi
+=head2 examples/sirna/rnai_finder.cgi
 
 CGI script for RNAi reagent design. See L<Bio::Tools::SiRNA> for more
 information.
