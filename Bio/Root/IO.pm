@@ -297,14 +297,18 @@ sub _fh {
            'r' for readable
            'w' for writeable
            '?' if mode could not be determined
- Args    : none, readonly function
+ Args    : -force (optional), see notes.
+ Notes   : once mode() has been called, the filehandle's mode is cached
+           for further calls to mode().  to override this behavior so
+           that mode() re-checks the filehandle's mode, call with arg
+           -force
 
 =cut
 
 sub mode {
-    my ($obj, $value) = @_;
-    $obj->throw(__PACKAGE__ . "mode() is not settable") if defined $value;
-    return $obj->{'_mode'} if defined $obj->{'_mode'};
+    my ($obj, @arg) = @_;
+	my %param = @arg;
+    return $obj->{'_mode'} if defined $obj->{'_mode'} and !$param{-force};
 
     print STDERR "testing mode... " if $obj->verbose;
 
@@ -404,15 +408,10 @@ sub _readline {
 
     my $fh = $self->_fh || \*STDIN;
     my $line;
-    
+
     # if the buffer been filled by _pushback then return the buffer
     # contents, rather than read from the filehandle
-    if(exists($self->{'_readbuffer'})) {
-	$line = $self->{'_readbuffer'};
-	delete $self->{'_readbuffer'};	
-    } else {
-	$line = <$fh>;
-    }
+	$line = shift @{$self->{'_readbuffer'}} || <$fh>;
 
     #don't stip line endings if -raw is specified
     $line =~ s/\r\n/\n/g if( (!$param{-raw}) && (defined $line) );
@@ -424,7 +423,8 @@ sub _readline {
 
  Title   : _pushback
  Usage   : $obj->_pushback($newvalue)
- Function: puts a line previously read with _readline back into a buffer
+ Function: puts a line previously read with _readline back into a buffer.
+           buffer can hold as many lines as system memory permits.
  Example :
  Returns :
  Args    : newvalue
@@ -433,8 +433,9 @@ sub _readline {
 
 sub _pushback {
     my ($obj, $value) = @_;
-    $value .= $obj->{'_readbuffer'} if(exists($obj->{'_readbuffer'}));
-    $obj->{'_readbuffer'} = $value;
+
+	$obj->{'_readbuffer'} ||= [];
+	push @{$obj->{'_readbuffer'}}, $value;
 }
 
 =head2 close

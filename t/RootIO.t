@@ -16,8 +16,11 @@ BEGIN {
 	use lib 't', '.';
     }
     use Test;    
-    plan tests => 14;
+    plan tests => 24;
+
 }
+
+$| = 1;
 
 use Bio::Root::IO;
 
@@ -46,30 +49,55 @@ ok $verbobj->verbose(), 1;
 
 ok $obj->verbose(-1);
 
-#<tests for handle read and write abilities>
-my($handle1,$file1) = $obj->tempfile;
-my($handle2,$file2) = $obj->tempfile;
+#############################################
+# <tests for handle read and write abilities>
+#############################################
+my($handle,$file) = $obj->tempfile;
 
-ok open(I,"$file1");
-ok open(O,">$file2");
+ok open(I,"t/data/test.waba");
+ok open(O,">$file");
 
-my $iotest;
+my $rio;
+my $wio;
 
-$iotest = Bio::Root::IO->new(-file=>$file1);
-ok $iotest->mode eq 'r';
+#test with files
+ok $rio = Bio::Root::IO->new(-file=>"$file");
+ok $wio = Bio::Root::IO->new(-file=>">$file");
+ok $rio->mode eq 'r';
+ok $wio->mode eq 'w';
 
-$iotest = Bio::Root::IO->new(-fh=>\*I);
-ok $iotest->mode eq 'r';
+#test with handles
+ok $rio = Bio::Root::IO->new(-fh=>\*I);
+ok $wio = Bio::Root::IO->new(-fh=>\*O);
+ok $rio->mode eq 'r';
+ok $wio->mode eq 'w';
 
-$iotest = Bio::Root::IO->new(-file=>">$file2");
-ok(1);
-#ok $iotest->mode eq 'w';
+##############################################
+# </tests for handle read and write abilities>
+##############################################
 
-$iotest = Bio::Root::IO->new(-fh=>\*O);
-ok(1);
-#ok $iotest->mode eq 'w';
-#</tests for handle read and write abilities>
+##############################################
+# <tests _pushback for multi-line buffering>
+##############################################
+
+my $line1 = $rio->_readline;
+my $line2 = $rio->_readline;
+
+ok $rio->_pushback($line1);
+ok $rio->_pushback($line2);
+
+my $line3 = $rio->_readline;
+my $line4 = $rio->_readline;
+
+ok $line1 eq $line3;
+ok $line2 eq $line4;
+
+##############################################
+# </tests _pushback for multi-line buffering>
+##############################################
+
+ok close(I);
+ok close(O);
+
 
 1;
-
-
