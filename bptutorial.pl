@@ -3402,7 +3402,7 @@ $run_clustalw_tcoffee = sub {
 	# where @seq_array is an array of Bio::Seq objects
 	@params = ('ktuple' => 2, 'matrix' => 'BLOSUM', 'quiet' => 1);
 	$factory = Bio::Tools::Run::Alignment::Clustalw->new(@params);
-	unless( $factory->executable ) {
+	unless( !$factory->executable ) {
 	    $ktuple = 3;
 	    $factory->ktuple($ktuple);  # change the parameter before executing
 	    $aln = $factory->align($seq_array_ref);
@@ -3426,7 +3426,7 @@ $run_clustalw_tcoffee = sub {
     }
     @params = ('ktuple' => 2, 'matrix' => 'BLOSUM', 'quiet' => 1);
     $factory = Bio::Tools::Run::Alignment::TCoffee->new(@params);
-    unless( $factory->executable ) {
+    unless( !$factory->executable ) {
 	$ktuple = 3;
         $factory->ktuple($ktuple);  # change the parameter before executing
         $aln = $factory->align($seq_array_ref);
