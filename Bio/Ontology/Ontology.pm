@@ -108,6 +108,7 @@ use strict;
 use Bio::Root::Root;
 use Bio::Ontology::OntologyI;
 use Bio::Ontology::SimpleOntologyEngine;
+use Bio::Ontology::SimpleGOEngine;
 
 @ISA = qw(Bio::Root::Root Bio::Ontology::OntologyI);
 
@@ -123,25 +124,25 @@ use Bio::Ontology::SimpleOntologyEngine;
 =cut
 
 sub new {
-    my($class,@args) = @_;
+  my($class,@args) = @_;
 
-    my $self = $class->SUPER::new(@args);
-    my ($name,$auth,$def,$id,$engine) =
+  my $self = $class->SUPER::new(@args);
+  my ($name,$auth,$def,$id,$engine) =
 	$self->_rearrange([qw(NAME
-			      AUTHORITY
-			      DEFINITION
-			      IDENTIFIER
-			      ENGINE)
-			   ],
-			  @args);
-    defined($name) && $self->name($name);
-    defined($auth) && $self->authority($auth);
-    defined($def) && $self->definition($def);
-    defined($id) && $self->identifier($id);
-    $engine = Bio::Ontology::SimpleOntologyEngine->new() unless $engine;
-    $self->engine($engine);
+                          AUTHORITY
+                          DEFINITION
+                          IDENTIFIER
+                          ENGINE)
+                      ],
+                      @args);
+  defined($name) && $self->name($name);
+  defined($auth) && $self->authority($auth);
+  defined($def) && $self->definition($def);
+  defined($id) && $self->identifier($id);
+  $engine = Bio::Ontology::SimpleOntologyEngine->new() unless $engine;
+  $self->engine($engine);
 
-    return $self;
+  return $self;
 }
 
 =head1 Methods from L<Bio::Ontology::OntologyI>

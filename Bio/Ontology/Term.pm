@@ -182,7 +182,7 @@ sub new {
     ref($dblinks)          && $self->add_dblink(@$dblinks);
     ref($references)       && $self->add_reference(@$references);
 
-return $self;
+    return $self;
 } # new
 
 

@@ -75,11 +75,11 @@ the web:
 
 =head1 AUTHOR - Hilmar Lapp
 
-Email hlapp at gmx.net
+  Hilmar Lapp E<lt>hlapp@gmx.netE<gt>
+  Allen Day E<lt>allenday@ucla.eduE<gt>
 
 =head1 CONTRIBUTORS
 
-  Allen Day <allenday@ucla.edu>
 
 =head1 APPENDIX
 
@@ -101,9 +101,11 @@ use strict;
 use Bio::Root::Root;
 use Bio::Ontology::DocumentRegistry;
 use Bio::OntologyIO;
+use FileHandle;
+use File::Spec::Functions;
 
 
-@ISA = qw(Bio::Root::Root );
+@ISA = qw(Bio::Root::Root);
 
 # these are the static ontology stores by name and by identifier - there is
 # only one of each in any application
@@ -206,6 +208,7 @@ sub get_ontology{
     $ont = $ont_store_by_id{$id};
     return unless $ont; # no AND can be satisfied in this case
   }
+
   if($name) {
     my $o = $ont_store_by_name{$name};
 
@@ -214,16 +217,16 @@ sub get_ontology{
       my($url,$def,$fmt) = $doc_registry->documents($name);
 
       if(ref($url) eq 'ARRAY'){
-        my $io = Bio::OntologyIO->new(-url      => $url,
-                                      -defs_url => $def,
+        my $io = Bio::OntologyIO->new(-files      => $url,
+                                      -defs_file => $def,
                                       -format   => $fmt,
                                      );
 
         $o = $io->next_ontology();
         $ont_store_by_name{$name} = $o;
       } elsif($url){
-        my $io = Bio::OntologyIO->new(-url      => $url,
-                                      -defs_url => $def,
+        my $io = Bio::OntologyIO->new(-file      => $url,
+                                      -defs_file => $def,
                                       -format   => $fmt,
                                      );
         $o = $io->next_ontology;
@@ -237,6 +240,7 @@ sub get_ontology{
       $ont = undef;
     }
   }
+  
   return $ont;
 }
 
