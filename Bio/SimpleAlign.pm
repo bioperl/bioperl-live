@@ -1,7 +1,7 @@
 # $Id$
 # BioPerl module for SimpleAlign
 #
-# Cared for by Ewan Birney <birney@sanger.ac.uk>
+# Cared for by Heikki Lehvaslaiho <heikki@ebi.ac.uk>
 #
 # Copyright Ewan Birney
 #
@@ -113,6 +113,10 @@ or the web:
 =head1 AUTHOR
 
 Ewan Birney, birney@sanger.ac.uk
+
+=head1 CONTRIBUTORS
+
+David J. Evans, David.Evans@vir.gla.ac.uk
 
 =head1 SEE ALSO
 
@@ -890,14 +894,14 @@ sub gap_char {
 
 =head1 Alignment descriptors
 
-These read only methods describe the MSE in various ways.
+These read only methods describe the MSE in various ways. 
 
 
 =head2 consensus_string
 
  Title     : consensus_string
  Usage     : $str = $ali->consensus_string($threshold_percent)
- Function  : Makes a consensus
+ Function  : Makes a strict consensus 
  Returns   : 
  Argument  : Optional treshold ranging from 0 to 100.  
                 If consensus residue appears in fewer than threshold %
@@ -915,30 +919,15 @@ sub consensus_string {
 
     $out = "";
 
-    $len = $self->length;
+    $len = $self->length - 1;
 
     foreach $count ( 0 .. $len ) {
-	$out .= $self->consensus_aa($count,$threshold);
+	$out .= $self->_consensus_aa($count,$threshold);
     }
     return $out;
 }
 
-
-=head2 consensus_aa
-
- Title     : consensus_aa
- Usage     : $consensus_residue = $ali->consensus_aa($residue_number, $threshold_percent)
- Function  : Makes a consensus
- Returns   :
- Argument  : Optional treshold ranging from 0 to 100.  
-                If consensus residue appears in fewer than threshold %
-		of the sequences at a given location, consensus_string
-		will return a "?" at that location rather than the
-		consensus letter. (Default value = 0%)
-
-=cut
-
-sub consensus_aa {
+sub _consensus_aa {
     my $self = shift;
     my $point = shift;
     my $threshold_percent = shift || -1 ;
@@ -946,6 +935,7 @@ sub consensus_aa {
 
     foreach $seq ( $self->each_seq() ) {
 	$letter = substr($seq->seq,$point,1);
+	$self->throw("--$point-----------") if $letter eq '';
 	($letter =~ /\./) && next;
 	# print "Looking at $letter\n";
 	$hash{$letter}++;
@@ -965,6 +955,134 @@ sub consensus_aa {
     return $letter;
 }
 
+
+=head2 consensus_iupac
+
+ Title     : consensus_iupac
+ Usage     : $str = $ali->consensus_iupac()
+ Function  : 
+
+             Makes a consensus using IUPAC ambiguity codes from DNA
+             and RNA. The output is in upper case except when gaps in
+             a column force output to be in lower case.
+
+             Note that if your alignment sequences contain a lot if
+             IUPAC ambiquity codes you often have to manually set
+             moltype.  L<Bio::PrimarySeq::_guess_type> thinks they
+             indicate a protein sequence.
+
+ Returns   : consensus string
+ Argument  : none
+ Throws    : on protein sequences
+
+=cut
+
+sub consensus_iupac {
+    my $self = shift;
+    my $out = "";
+    my $len = $self->length-1;
+
+    # only DNA and RNA sequences are valid 
+    foreach my $seq ( $self->each_seq() ) {
+	$self->throw("Seq [". $seq->get_nse. "] is a protein") 
+	    if $seq->moltype eq 'protein';
+    }
+    # loop over the alignment columns
+    foreach my $count ( 0 .. $len ) {
+	$out .= $self->_consensus_iupac($count);
+    }
+    return $out;
+}
+
+sub _consensus_iupac {
+    my ($self, $column) = @_; 
+    my ($string, $char, $rna);    
+
+    #determine all residues in a column 
+    foreach my $seq ( $self->each_seq() ) {
+	$string .= substr($seq->seq, $column, 1);
+    }
+    $string = uc $string;
+
+    # quick exit if there's an N in the string
+    if ($string =~ /N/) {	
+	$string =~ /\W/ ? return 'n' : return 'N';
+    }
+    # ... or if there are only gap characters
+    return '-' if $string =~ /^\W+$/;
+
+    # treat RNA as DNA in regexps
+    if ($string =~ /U/) {	
+	$string =~ s/U/T/;
+	$rna = 1;
+    }
+
+    # the following s///'s only need to be done to the _first_ ambiguity code
+    # as we only need to see the _range_ of characters in $string
+    
+    if ($string =~ /[VDHB]/) {
+	$string =~ s/V/AGC/;
+	$string =~ s/D/AGT/;
+	$string =~ s/H/ACT/;
+	$string =~ s/B/CTG/;
+    }
+    
+    if ($string =~ /[SKYWM]/) {
+	$string =~ s/S/GC/;
+	$string =~ s/K/GT/;
+	$string =~ s/Y/CT/;
+	$string =~ s/W/AT/;
+	$string =~ s/M/AC/;
+    }
+
+    # and now the guts of the thing
+
+    if ($string =~ /A/) {
+        $char = 'A';                     # A                      A
+        if ($string =~ /G/) {					  
+            $char = 'R';                 # A and G (purines)      R
+            if ($string =~ /C/) {				  
+                $char = 'V';             # A and G and C          V
+                if ($string =~ /T/) {				  
+                    $char = 'N';         # A and G and C and T    N
+                }						  
+            } elsif ($string =~ /T/) {				  
+                $char = 'D';             # A and G and T          D
+            }							  
+        } elsif ($string =~ /C/) {				  
+            $char = 'M';                 # A and C                M
+            if ($string =~ /T/) {				  
+                $char = 'H';             # A and C and T          H
+            }							  
+        } elsif ($string =~ /T/) {				  
+            $char = 'W';                 # A and T                W
+        }							  
+    } elsif ($string =~ /C/) {					  
+        $char = 'C';                     # C                      C
+        if ($string =~ /T/) {					  
+            $char = 'Y';                 # C and T (pyrimidines)  Y
+            if ($string =~ /G/) {				  
+                $char = 'B';             # C and T and G          B
+            }							  
+        } elsif ($string =~ /G/) {				  
+            $char = 'S';                 # C and G                S
+        }							  
+    } elsif ($string =~ /G/) {					  
+        $char = 'G';                     # G                      G
+        if ($string =~ /C/) {					  
+            $char = 'S';                 # G and C                S
+        } elsif ($string =~ /T/) {				  
+            $char = 'K';                 # G and T                K
+        }							  
+    } elsif ($string =~ /T/) {					  
+        $char = 'T';                     # T                      T
+    }
+
+    $char = 'U' if $rna and $char eq 'T';
+    $char = lc $char if $string =~ /\W/;
+
+    return $char;
+}
 
 =head2 is_flush
 
