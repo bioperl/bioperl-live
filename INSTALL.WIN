@@ -16,7 +16,7 @@ BioPerl on Windows
 3.0 BioPerl in Cygwin
 
 This introduction was written by Paul Boutros. Please report problems
-and/or fixes to the bioperl mailing, bioperl-l@bioperl.org
+and/or fixes to the bioperl mailing list, bioperl-l@bioperl.org
 
 
 1.0 Installation
@@ -32,23 +32,24 @@ I'll quickly summarize my findings on each of those below.
 1.1 PERL on Windows
 ===================
 
-There are lots of ways of installing PERL on a Windows machine.  Probably
-the easiest and most common is to get the most recent build from
+There are a lot of ways of installing PERL on a Windows machine.
+The most common is to get the most recent build from
 ActiveState.  You can also build PERL yourself (which requires a C
-compiler) or download one of the other binary distributions.  Regardless
-of which way you choose to go, if have a functioning PERL build higher
-than version 5 or so you can procede to the next step.
+compiler) or download one of the other binary distributions. Or, you
+can use Cygwin and its Perl and run Bioperl in this environment. All these
+approaches have worked.
 
 The PERL source for building it yourself is available from CPAN
 (http://www.cpan.org), as are a few binary distributions.
 
 ActiveState is a software company (http://www.activestate.com) that
-provides free builds of PERL for windows users.  They are currently
-(December 2002) providing a very stable build of PERL 5.6.1 while a beta
+provides free builds of PERL for Windows users.  They are currently
+(October 2003) providing a very stable build of PERL 5.6.1, and a
 version of PERL 5.8.0 is also available.  I suggest that you stick to the
-production version of 5.6.1 because: a) it is easier to install the
-external modules for 5.6.1 and b) I find 5.8.0 beta a bit unstable at the
-moment.
+production version of 5.6.1 because it is easier to install the
+external modules for 5.6.1.
+
+See section 3.0 for information on Cygwin and Bioperl.
 
 1.2 External Modules
 ====================
@@ -56,8 +57,7 @@ moment.
 The installation documents supply a very comprehensive list of external
 dependencies (i.e. see http://www.bioperl.org/Core/external.shtml).  You
 do not need to install external modules for the parts of BioPerl that you
-do not intend using.  That being said, if you don't know what to install,
-try to install all externals.
+do not intend using.
 
 If you are using ActiveState, I recommend first attempting to download
 your external modules via the ActiveState Perl Package Manager (PPM).  To
@@ -70,7 +70,7 @@ If you are using ActiveState 5.8.0, you will find that some external
 modules are not yet available via ppm.  In that case you will have to
 download them directly from cpan (http://www.cpan.org) and follow the
 specific build procedures for each module.  This is one major reason for
-avoiding the ActiveState 5.8.0 beta version.
+avoiding the ActiveState 5.8.0 version.
 
 1.3 Installing BioPerl
 ======================
@@ -110,7 +110,7 @@ only one file!  Extract and decompress?".  This is just a variation in how
 UNIX and Windows software likes to compress files.  Choose yes, and all
 will be well.
 
-You will need access to a make utility to utilize this approach.
+You will need use nmake, not make, to utilize this approach.
 
 1.3.4. If All Else Fails....
 ============================
@@ -199,8 +199,7 @@ in the upper left of the installer enables you to see details on the
 various packages. Then follow the BioPerl installation instructions
 for Unix in BioPerl's INSTALL file.
 
+One advantage of using Cygwin and Bioperl is that all the external 
+modules are available - the same cannot be said of ActiveState's Perl.
+
 =========================================================================
-
-
-
-
