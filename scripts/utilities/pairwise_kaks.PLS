@@ -1,5 +1,5 @@
 #!perl -w
-# $Id: pairwise_kaks.PLS,v 1.2 2003-01-10 20:04:12 jason Exp $
+# $Id: pairwise_kaks.PLS,v 1.3 2003-01-22 15:17:54 jason Exp $
 use strict;
 # Author Jason Stajich <jason@bioperl.org>
 
@@ -71,11 +71,12 @@ use Bio::AlignIO;
 # for the command line argument parsing
 use Getopt::Long;
 
-my ($aln_prog, $kaks_prog,$format,
+my ($aln_prog, $kaks_prog,$format, $output,
     $cdna,$verbose,$help) = qw(clustalw codeml fasta);
 
 GetOptions(
 	   'i|input:s'      => \$cdna,
+	   'o|output:s'     => \$output,
 	   'f|format:s'     => \$format,
 	   'msa:s'          => \$aln_prog,
 	   'kaks:s'         => \$kaks_prog,
@@ -142,23 +143,53 @@ while( my $seq = $seqin->next_seq ) {
     $protein->seq($pseq);
     push @prots, $protein;
 }
+if( @prots < 2 ) {
+    warn("Need at least 2 cDNA sequences to proceed");
+    exit(0);
+}
+
+local * OUT;
+if( $output ) {
+    open(OUT, ">$output") || die("cannot open output $output for writing");
+} else { 
+    OUT = \*STDOUT;
+}
 
 my $aa_aln = $aln_factory->align(\@prots);
 my $dna_aln = &aa_to_dna_aln($aa_aln, \%seqs);
 
+my @each = $dna_aln->each_seq();
+
+
 $kaks_factory->alignment($dna_aln);
+
 my ($rc,$parser) = $kaks_factory->run();
 my $result = $parser->next_result;
 my $MLmatrix = $result->get_MLmatrix();
 
 my @otus = $result->get_seqs();
-print join("\t", qw(SEQ1 SEQ2 Ka Ks Ka/Ks)), "\n";
+
+my @pos = map { 
+    my $c= 1;
+    foreach my $s ( @each ) {
+	last if( $s->display_id eq $_->display_id );
+	$c++;
+    }
+    $c; 
+} @otus; 
+
+print OUT join("\t", qw(SEQ1 SEQ2 Ka Ks Ka/Ks PROT_PERCENTID CDNA_PERCENTID)), "\n";
 for( my $i = 0; $i < (scalar @otus -1) ; $i++) {
-    for( my $j = $i+1; $j < scalar @otus; $j++ ) {
-	print join("\t",  
-		   $otus[$i]->display_id,
-		   $otus[$j]->display_id,$MLmatrix->[$i]->[$j]->{'dN'},
-		   $MLmatrix->[$i]->[$j]->{'dS'},
-		   $MLmatrix->[$i]->[$j]->{'omega'}), "\n";
+    for( my $j = $i+1; $j < (scalar @otus); $j++ ) {
+	my $sub_aa_aln = $aa_aln->select_noncont($pos[$i],$pos[$j]);
+	my $sub_dna_aln = $dna_aln->select_noncont($pos[$i],$pos[$j]);
+	print OUT join("\t",  
+		       $otus[$i]->display_id,
+		       $otus[$j]->display_id,$MLmatrix->[$i]->[$j]->{'dN'},
+		       $MLmatrix->[$i]->[$j]->{'dS'},
+		       $MLmatrix->[$i]->[$j]->{'omega'},
+		       sprintf("%.2f",$sub_aa_aln->percentage_identity),
+		       sprintf("%.2f",$sub_dna_aln->percentage_identity),
+		       ), "\n";
     }
 }
