@@ -18,12 +18,13 @@
 
 
 ## We start with some black magic to print on failure.
-BEGIN { $| = 1; print "1..10\n"; 
+BEGIN { $| = 1; print "1..11\n"; 
 	use vars qw($loaded); }
 END {print "not ok 1\n" unless $loaded;}
 
 use lib '../';
 use Bio::Seq;
+use Bio::SeqFeature::Generic;
 
 $loaded = 1;
 print "ok 1\n";    # 1st test passes.
@@ -99,3 +100,13 @@ if( $seq->subseq(5, 9) ne 'tggcg') {
 } else {
   print "ok 10\n";
 }
+
+my $newfeat = Bio::SeqFeature::Generic->new( -start => 10,
+					     -end => 12,
+						-primary => 'silly',
+						-source => 'stuff');
+
+
+$seq->add_SeqFeature($newfeat);
+
+print "ok 11\n";
