@@ -37,7 +37,7 @@ BEGIN {
 
 END { 
     foreach ( $Test::ntest..$NUMTESTS) {
-	skip('unable to run all of the Biblio_biofetch tests',1);
+	skip('unable to run all of the DB tests',1);
     }
 }
 
@@ -128,10 +128,13 @@ eval {
     ok(defined($seq = $gb->get_Seq_by_id('YNB3_YEAST')));
     ok( $seq->length, 125);
     ok($seq->division, 'YEAST');
+    
     ok(defined($seq = $gb->get_Seq_by_acc('P43780')));
     ok( $seq->length, 103); 
+    
     ok( defined( $seq = $gb->get_Seq_by_acc('O39869')));
     ok( $seq->length, 56);
+    
     ok($seq->primary_id, 'O39869');
     ok($seq->division, 'UNK');
  
