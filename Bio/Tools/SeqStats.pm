@@ -12,32 +12,35 @@
 
 =head1 NAME
 
-Bio::Tools::SeqStats - Object holding statistics for one particular sequence
+Bio::Tools::SeqStats - Object holding statistics for one 
+particular sequence
 
 =head1 SYNOPSIS
 
   # build a primary nucleic acid or protein sequence object somehow
   # then build a statistics object from the sequence object
 
-  $seqobj = Bio::PrimarySeq->new(-seq=>'ACTGTGGCGTCAACTG',
-                                 -alphabet=>'dna',
-                                 -id=>'test');
-  $seq_stats  =  Bio::Tools::SeqStats->new(-seq=>$seqobj);
+  $seqobj = Bio::PrimarySeq->new(-seq      => 'ACTGTGGCGTCAACTG',
+                                 -alphabet => 'dna',
+                                 -id       => 'test');
+  $seq_stats  =  Bio::Tools::SeqStats->new(-seq => $seqobj);
 
   # obtain a hash of counts of each type of monomer
-  # (ie amino or nucleic acid)
+  # (i.e. amino or nucleic acid)
   print "\nMonomer counts using statistics object\n";
   $seq_stats  =  Bio::Tools::SeqStats->new(-seq=>$seqobj);
-  $hash_ref = $seq_stats->count_monomers();  # eg for DNA sequence
+  $hash_ref = $seq_stats->count_monomers();  # e.g. for DNA sequence
   foreach $base (sort keys %$hash_ref) {
-      print "Number of bases of type ", $base, "= ", %$hash_ref->{$base},"\n";
+      print "Number of bases of type ", $base, "= ", 
+         %$hash_ref->{$base},"\n";
   }
 
-  # or obtain the count directly without creating a new statistics object
+  # obtain the count directly without creating a new statistics object
   print "\nMonomer counts without statistics object\n";
   $hash_ref = Bio::Tools::SeqStats->count_monomers($seqobj);
   foreach $base (sort keys %$hash_ref) {
-      print "Number of bases of type ", $base, "= ", %$hash_ref->{$base},"\n";
+      print "Number of bases of type ", $base, "= ", 
+         %$hash_ref->{$base},"\n";
   }
 
 
@@ -45,30 +48,32 @@ Bio::Tools::SeqStats - Object holding statistics for one particular sequence
   print "\nCodon counts using statistics object\n";
   $hash_ref = $seq_stats-> count_codons();  # for nucleic acid sequence
   foreach $base (sort keys %$hash_ref) {
-      print "Number of codons of type ", $base, "= ", %$hash_ref->{$base},"\n";
+      print "Number of codons of type ", $base, "= ", 
+         %$hash_ref->{$base},"\n";
   }
 
   #  or
   print "\nCodon counts without statistics object\n";
   $hash_ref = Bio::Tools::SeqStats->count_codons($seqobj);
   foreach $base (sort keys %$hash_ref) {
-      print "Number of codons of type ", $base, "= ", %$hash_ref->{$base},"\n";
+      print "Number of codons of type ", $base, "= ", 
+         %$hash_ref->{$base},"\n";
   }
 
-  # Obtain the molecular weight of a sequence. Since the sequence may contain
-  # ambiguous monomers, the molecular weight is returned as a (reference to) a
-  # two element array containing greatest lower bound (GLB) and least upper bound
-  # (LUB) of the molecular weight
+  # Obtain the molecular weight of a sequence. Since the sequence 
+  # may contain ambiguous monomers, the molecular weight is returned 
+  # as a (reference to) a two element array containing greatest lower 
+  #  bound (GLB) and least upper bound (LUB) of the molecular weight
   $weight = $seq_stats->get_mol_wt();
-  print "\nMolecular weight (using statistics object) of sequence ", $seqobj->id(),
-       " is between ", $$weight[0], " and " ,
-       $$weight[1], "\n";
+  print "\nMolecular weight (using statistics object) of sequence ", 
+          $seqobj->id(), " is between ", $$weight[0], " and " ,
+          $$weight[1], "\n";
 
   #  or
   $weight = Bio::Tools::SeqStats->get_mol_wt($seqobj);
-  print "\nMolecular weight (without statistics object) of sequence ", $seqobj->id(),
-       " is between ", $$weight[0], " and " ,
-       $$weight[1], "\n";
+  print "\nMolecular weight (without statistics object) of sequence ", 
+        $seqobj->id(), " is between ", $$weight[0], " and " ,
+        $$weight[1], "\n";
 
 
 =head1 DESCRIPTION
@@ -84,7 +89,7 @@ script needs to create that sequence and pass it to the SeqStats
 object.
 
 Nota that nucleotide sequences in bioperl do not strictly separate RNA
-and DNA sequences. By convension, sequences from RNA molecules are
+and DNA sequences. By convention, sequences from RNA molecules are
 shown as is they were DNA. Objects are supposed to make the
 distinction when needed. This class is one of the few where this
 distinctions needs to be made. Internally, it changes all Ts into Us
@@ -165,10 +170,8 @@ of the Bioperl mailing lists.  Your participation is much appreciated.
 =head2 Reporting Bugs
 
 Report bugs to the Bioperl bug tracking system to help us keep track
-the bugs and their resolution.  Bug reports can be submitted via email
-or the web:
+the bugs and their resolution.  Bug reports can be submitted the web:
 
-  bioperl-bugs@bio.perl.org
   http://bugzilla.bioperl.org/
 
 =head1 AUTHOR -  Peter Schattner
@@ -192,12 +195,12 @@ use Bio::Root::Root;
 @ISA = qw(Bio::Root::Root);
 
 BEGIN {
-    %Alphabets =   (
-		    'dna'     => [ qw(A C G T R Y M K S W H B V D X N) ],
+	%Alphabets =   (
+			 'dna'     => [ qw(A C G T R Y M K S W H B V D X N) ],
 		    'rna'     => [ qw(A C G U R Y M K S W H B V D X N) ],
 		    'protein' => [ qw(A R N D C Q E G H I L K M F U
 				      P S T W X Y V B Z *) ], # sac: added B, Z
-		    );
+						);
 
 # SAC: new strict alphabet: doesn't allow any ambiguity characters.
     %Alphabets_strict = (
@@ -288,7 +291,8 @@ BEGIN {
     $thymine = 5 * $C + 2 * $N + 2 * $O + 6 * $H;
     $uracil = 4 * $C + 2 * $N + 2 * $O + 4 * $H;
 
-    $ribose_phosphate = 5 * $C + 7 * $O + 9 * $H + 1 * $P;      #neutral (unionized) form
+    $ribose_phosphate = 5 * $C + 7 * $O + 9 * $H + 1 * $P;
+    # neutral (unionized) form
     $deoxyribose_phosphate = 5 * $C + 6 * $O + 9 * $H + 1 * $P;
 
     # the following are single strand molecular weights / base
@@ -348,30 +352,31 @@ BEGIN {
 }
 
 sub new {
-    my($class,@args) = @_;
-    my $self = $class->SUPER::new(@args);
+	my($class,@args) = @_;
+	my $self = $class->SUPER::new(@args);
 
-    my ($seqobj) = $self->_rearrange([qw(SEQ)],@args);
-    unless  ($seqobj->isa("Bio::PrimarySeqI")) {
-	$self->throw(" SeqStats works only on PrimarySeqI objects  \n");
-    }
-    if ( !defined $seqobj->alphabet || ! defined $Alphabets{$seqobj->alphabet}) {
-	$self->throw("Must have a valid alphabet defined for seq (".
-		     join(",",keys %Alphabets));
-    }
-    $self->{'_seqref'} = $seqobj;
-    # check the letters in the sequence
-    $self->{'_is_strict'} = _is_alphabet_strict($seqobj); 
-    return $self;
+	my ($seqobj) = $self->_rearrange([qw(SEQ)],@args);
+	unless  ($seqobj->isa("Bio::PrimarySeqI")) {
+		$self->throw(" SeqStats works only on PrimarySeqI objects  \n");
+	}
+	if ( !defined $seqobj->alphabet || 
+		  !defined $Alphabets{$seqobj->alphabet}) {
+		$self->throw("Must have a valid alphabet defined for seq (".
+						 join(",",keys %Alphabets));
+	}
+	$self->{'_seqref'} = $seqobj;
+	# check the letters in the sequence
+	$self->{'_is_strict'} = _is_alphabet_strict($seqobj); 
+	return $self;
 }
 
 =head2 count_monomers
 
  Title   : count_monomers
  Usage   : $rcount = $seq_stats->count_monomers();
-        or $rcount = $seq_stats->Bio::Tools::SeqStats->($seqobj);
+           or $rcount = $seq_stats->Bio::Tools::SeqStats->($seqobj);
  Function: Counts the number of each type of monomer (amino acid or
-	   base) in the sequence.
+	        base) in the sequence.
            Ts are counted as Us in RNA sequences.
  Example :
  Returns : Reference to a hash in which keys are letters of the
@@ -385,62 +390,62 @@ sub new {
 =cut
 
 sub count_monomers{
-    my %count  = ();
-    my $seqobj;
-    my $_is_strict;
-    my $element = '';
-    my $_is_instance = 1 ;
-    my $self = shift @_;
-    my $object_argument = shift @_;
+	my %count  = ();
+	my $seqobj;
+	my $_is_strict;
+	my $element = '';
+	my $_is_instance = 1 ;
+	my $self = shift @_;
+	my $object_argument = shift @_;
 
-    # First we need to determine if the present object is an instance
-    # object or if the sequence object has been passed as an argument
+	# First we need to determine if the present object is an instance
+	# object or if the sequence object has been passed as an argument
 
-    if (defined $object_argument) {
-	$_is_instance = 0;
-    }
-
-    # If we are using an instance object...
-    if ($_is_instance) {
-	if ($self->{'_monomer_count'}) {
-	    return $self->{'_monomer_count'}; # return count if previously calculated
+	if (defined $object_argument) {
+		$_is_instance = 0;
 	}
-	$_is_strict =  $self->{'_is_strict'}; # retrieve "strictness"
-        $seqobj =  $self->{'_seqref'};
-    } else {
-         #  otherwise...
-	$seqobj =  $object_argument;
 
-    #  Following two lines lead to error in "throw" routine
-	$seqobj->isa("Bio::PrimarySeqI") ||
-	    $self->throw(" SeqStats works only on PrimarySeqI objects  \n");
-        # is alphabet OK? Is it strict?
-	$_is_strict =  _is_alphabet_strict($seqobj);
-    }
+	# If we are using an instance object...
+	if ($_is_instance) {
+		if ($self->{'_monomer_count'}) {
+			return $self->{'_monomer_count'}; # return count if previously calculated
+		}
+		$_is_strict =  $self->{'_is_strict'}; # retrieve "strictness"
+		$seqobj =  $self->{'_seqref'};
+	} else {
+		#  otherwise...
+		$seqobj =  $object_argument;
 
-    my $alphabet =  $_is_strict ? $Alphabets_strict{$seqobj->alphabet} :
-	$Alphabets{$seqobj->alphabet}  ; # get array of allowed letters
+		#  Following two lines lead to error in "throw" routine
+		$seqobj->isa("Bio::PrimarySeqI") ||
+		  $self->throw(" SeqStats works only on PrimarySeqI objects  \n");
+		# is alphabet OK? Is it strict?
+		$_is_strict =  _is_alphabet_strict($seqobj);
+	}
 
-    # convert everything to upper case to be safe
-    my $seqstring = uc $seqobj->seq();
+	my $alphabet =  $_is_strict ? $Alphabets_strict{$seqobj->alphabet} :
+	  $Alphabets{$seqobj->alphabet}  ; # get array of allowed letters
 
-    # Since T is used in RichSeq RNA sequences, do conversion locally
-    $seqstring =~ s/T/U/g if $seqobj->alphabet eq 'rna';
+	# convert everything to upper case to be safe
+	my $seqstring = uc $seqobj->seq();
 
-    #  For each letter, count the number of times it appears in
-    #  the sequence
-  LETTER:
-    foreach $element (@$alphabet) {
-        # skip terminator symbol which may confuse regex
-	next LETTER if $element eq '*';
-	$count{$element} = ( $seqstring =~ s/$element/$element/g);
-    }
+	# Since T is used in RichSeq RNA sequences, do conversion locally
+	$seqstring =~ s/T/U/g if $seqobj->alphabet eq 'rna';
 
-    if ($_is_instance) {
-	$self->{'_monomer_count'} = \%count;  # Save in case called again later
-    }
+	#  For each letter, count the number of times it appears in
+	#  the sequence
+ LETTER:
+	foreach $element (@$alphabet) {
+		# skip terminator symbol which may confuse regex
+		next LETTER if $element eq '*';
+		$count{$element} = ( $seqstring =~ s/$element/$element/g);
+	}
 
-    return \%count;
+	if ($_is_instance) {
+		$self->{'_monomer_count'} = \%count;  # Save in case called again later
+	}
+
+	return \%count;
 }
 
 =head2  get_mol_wt
@@ -465,76 +470,75 @@ sub count_monomers{
 =cut
 
 sub get_mol_wt {
+	my $seqobj;
+	my $_is_strict;
+	my $element = '';
+	my $_is_instance = 1 ;
+	my $self = shift @_;
+	my $object_argument = shift @_;
+	my ($weight_array, $rcount);
 
-    my $seqobj;
-    my $_is_strict;
-    my $element = '';
-    my $_is_instance = 1 ;
-    my $self = shift @_;
-    my $object_argument = shift @_;
-    my ($weight_array, $rcount);
-
-    if (defined $object_argument) {
-	$_is_instance = 0;
-    }
-
-    if ($_is_instance) {
-	if ($weight_array = $self->{'_mol_wt'}) {
-            # return mol. weight if previously calculated
-	    return $weight_array;
+	if (defined $object_argument) {
+		$_is_instance = 0;
 	}
-        $seqobj =  $self->{'_seqref'};
-        $rcount = $self->count_monomers();
-    } else {
-	$seqobj =  $object_argument;
-	$seqobj->isa("Bio::PrimarySeqI") ||
-	    die("Error: SeqStats works only on PrimarySeqI objects  \n");
-	$_is_strict =  _is_alphabet_strict($seqobj); # is alphabet OK?
-        $rcount =  $self->count_monomers($seqobj);
-    }
 
-    # We will also need to know what type of monomer we are dealing with
-    my $moltype = $seqobj->alphabet();
+	if ($_is_instance) {
+		if ($weight_array = $self->{'_mol_wt'}) {
+			# return mol. weight if previously calculated
+			return $weight_array;
+		}
+		$seqobj =  $self->{'_seqref'};
+		$rcount = $self->count_monomers();
+	} else {
+		$seqobj =  $object_argument;
+		$seqobj->isa("Bio::PrimarySeqI") ||
+		  die("Error: SeqStats works only on PrimarySeqI objects  \n");
+		$_is_strict =  _is_alphabet_strict($seqobj); # is alphabet OK?
+		$rcount =  $self->count_monomers($seqobj);
+	}
 
-    # In general,the molecular weight is bounded below by the sum of the
-    # weights of lower bounds of each alphabet symbol times the number of
-    # occurrences of the symbol in the sequence. A similar upper bound on
-    # the weight is also calculated.
+	# We will also need to know what type of monomer we are dealing with
+	my $moltype = $seqobj->alphabet();
 
-    # Note that for "strict" (i.e. unambiguous) sequences there is an
-    # inefficiency since the upper bound = the lower bound and there are
-    # two calculations.  However, this decrease in performance will be
-    # minor and leads to significantly more readable code.
+	# In general,the molecular weight is bounded below by the sum of the
+	# weights of lower bounds of each alphabet symbol times the number of
+	# occurrences of the symbol in the sequence. A similar upper bound on
+	# the weight is also calculated.
 
-    my $weight_lower_bound = 0;
-    my $weight_upper_bound = 0;
-    my $weight_table =  $Weights{$moltype};
+	# Note that for "strict" (i.e. unambiguous) sequences there is an
+	# inefficiency since the upper bound = the lower bound and there are
+	# two calculations.  However, this decrease in performance will be
+	# minor and leads to significantly more readable code.
 
-    # compute weight of all the residues
-    foreach $element (keys %$rcount) {
-	$weight_lower_bound += $$rcount{$element} * $$weight_table{$element}->[0];
-	$weight_upper_bound += $$rcount{$element} * $$weight_table{$element}->[1];
-    }
-    if ($moltype =~ /protein/) {
+	my $weight_lower_bound = 0;
+	my $weight_upper_bound = 0;
+	my $weight_table =  $Weights{$moltype};
+
+	# compute weight of all the residues
+	foreach $element (keys %$rcount) {
+		$weight_lower_bound += $$rcount{$element} * $$weight_table{$element}->[0];
+		$weight_upper_bound += $$rcount{$element} * $$weight_table{$element}->[1];
+	}
+	if ($moltype =~ /protein/) {
     	# remove H2O during peptide bond formation.
     	$weight_lower_bound -= $water * ($seqobj->length - 1);
     	$weight_upper_bound -= $water * ($seqobj->length - 1);
-    } else {
+	} else {
     	# Correction because phosphate of 5' residue has additional OH and
     	# sugar ring of 3' residue has additional H
     	$weight_lower_bound += $water;
     	$weight_upper_bound += $water;
-    }
+	}
 
-    $weight_lower_bound = sprintf("%.1f", $weight_lower_bound);
-    $weight_upper_bound = sprintf("%.1f", $weight_upper_bound);
+	$weight_lower_bound = sprintf("%.1f", $weight_lower_bound);
+	$weight_upper_bound = sprintf("%.1f", $weight_upper_bound);
 
-    $weight_array = [$weight_lower_bound, $weight_upper_bound];
+	$weight_array = [$weight_lower_bound, $weight_upper_bound];
 
-    if ($_is_instance) {
-	$self->{'_mol_wt'} = $weight_array;  # Save in case called again later
-    }
-    return $weight_array;
+	if ($_is_instance) {
+		$self->{'_mol_wt'} = $weight_array;  # Save in case called again later
+	}
+	return $weight_array;
 }
 
 
@@ -558,73 +562,72 @@ sub get_mol_wt {
 =cut
 
 sub count_codons {
-    my $rcount = {};
-    my $codon ;
-    my $seqobj;
-    my $_is_strict;
-    my $element = '';
-    my $_is_instance = 1 ;
-    my $self = shift @_;
-    my $object_argument = shift @_;
+	my $rcount = {};
+	my $codon ;
+	my $seqobj;
+	my $_is_strict;
+	my $element = '';
+	my $_is_instance = 1 ;
+	my $self = shift @_;
+	my $object_argument = shift @_;
 
-    if (defined $object_argument) {
-	$_is_instance = 0;
-    }
-
-    if ($_is_instance) {
-	if ($rcount = $self->{'_codon_count'}) {
-	    return $rcount;        # return count if previously calculated
+	if (defined $object_argument) {
+		$_is_instance = 0;
 	}
- 	$_is_strict =  $self->{'_is_strict'}; # retrieve "strictness"
-        $seqobj =  $self->{'_seqref'};
-    } else {
-	$seqobj =  $object_argument;
-	$seqobj->isa("Bio::PrimarySeqI") ||
-	    die(" Error: SeqStats works only on PrimarySeqI objects  \n");
-	$_is_strict =  _is_alphabet_strict($seqobj);
-    }
 
-    # Codon counts only make sense for nucleic acid sequences
-    my $alphabet = $seqobj->alphabet();
-
-    unless ($alphabet =~ /[dr]na/) {
-	$seqobj->throw(" Codon counts only meaningful for dna or rna, ".
-                       "not for $alphabet sequences. \n");
-    }
-
-    # If sequence contains ambiguous bases, warn that codons
-    # containing them will all be lumped together in the count.
-
-    if (!$_is_strict ) {
-	$seqobj->warn(" Sequence $seqobj contains ambiguous bases.  \n".
-                      " All codons with ambiguous bases will be added together in count.  \n");
-    }
-
-    my $seq = $seqobj->seq();
-
-    # Now step through the string by threes and count the codons
-
-  CODON:
-    while (length($seq) > 2) {
-	$codon = substr($seq,0,3);
-	$seq = substr($seq,3);
-	if ($codon =~ /[^ACTGU]/) {
-	    $$rcount{'ambiguous'}++; #lump together ambiguous codons
-	    next CODON;
+	if ($_is_instance) {
+		if ($rcount = $self->{'_codon_count'}) {
+			return $rcount;        # return count if previously calculated
+		}
+		$_is_strict =  $self->{'_is_strict'}; # retrieve "strictness"
+		$seqobj =  $self->{'_seqref'};
+	} else {
+		$seqobj =  $object_argument;
+		$seqobj->isa("Bio::PrimarySeqI") ||
+		  die(" Error: SeqStats works only on PrimarySeqI objects  \n");
+		$_is_strict =  _is_alphabet_strict($seqobj);
 	}
-	if (!defined $$rcount{$codon}) {
-	    $$rcount{$codon}= 1 ;
-	    next CODON;
+
+	# Codon counts only make sense for nucleic acid sequences
+	my $alphabet = $seqobj->alphabet();
+
+	unless ($alphabet =~ /[dr]na/i) {
+		$seqobj->throw(" Codon counts only meaningful for dna or rna, ".
+							"not for $alphabet sequences. \n");
 	}
-	$$rcount{$codon}++;  # default
-    }
 
+	# If sequence contains ambiguous bases, warn that codons
+	# containing them will all be lumped together in the count.
 
-    if ($_is_instance) {
-	$self->{'_codon_count'} = $rcount;  # Save in case called again later
-    }
+	if (!$_is_strict ) {
+		$seqobj->warn(" Sequence $seqobj contains ambiguous bases.\n".
+		" All codons with ambiguous bases will be added together in count.\n");
+	}
 
-    return $rcount;
+	my $seq = $seqobj->seq();
+
+	# Now step through the string by threes and count the codons
+
+ CODON:
+	while (length($seq) > 2) {
+		$codon = substr($seq,0,3);
+		$seq = substr($seq,3);
+		if ($codon =~ /[^ACTGU]/i) {
+			$$rcount{'ambiguous'}++; #lump together ambiguous codons
+			next CODON;
+		}
+		if (!defined $$rcount{$codon}) {
+			$$rcount{$codon}= 1 ;
+			next CODON;
+		}
+		$$rcount{$codon}++;  # default
+	}
+
+	if ($_is_instance) {
+		$self->{'_codon_count'} = $rcount;  # Save in case called again later
+	}
+
+	return $rcount;
 }
 
 
@@ -647,40 +650,39 @@ sub count_codons {
 
 sub _is_alphabet_strict {
 
-    my ($seqobj) = @_;
-    my $moltype = $seqobj->alphabet();
+	my ($seqobj) = @_;
+	my $moltype = $seqobj->alphabet();
 
-    # convert everything to upper case to be safe
-    my $seqstring = uc $seqobj->seq();
+	# convert everything to upper case to be safe
+	my $seqstring = uc $seqobj->seq();
 
-    # Since T is used in RichSeq RNA sequences, do conversion locally
-    $seqstring =~ s/T/U/g if $seqobj->alphabet eq 'rna';
+	# Since T is used in RichSeq RNA sequences, do conversion locally
+	$seqstring =~ s/T/U/g if $seqobj->alphabet eq 'rna';
 
-    # First we check if only the 'strict' letters are present in the
-    # sequence string If not, we check whether the remaining letters
-    # are ambiguous monomers or whether there are illegal letters in
-    # the string
+	# First we check if only the 'strict' letters are present in the
+	# sequence string If not, we check whether the remaining letters
+	# are ambiguous monomers or whether there are illegal letters in
+	# the string
 
-    # $alpha_array is a ref to an array of the 'strictly' allowed letters
-    my $alpha_array =   $Alphabets_strict{$moltype} ;
+	# $alpha_array is a ref to an array of the 'strictly' allowed letters
+	my $alpha_array =   $Alphabets_strict{$moltype} ;
 
-    # $alphabet contains the allowed letters in string form
-    my $alphabet = join ('', @$alpha_array) ;
-    unless ($seqstring =~ /[^$alphabet]/)  {
-	return 1 ;
-    }
+	# $alphabet contains the allowed letters in string form
+	my $alphabet = join ('', @$alpha_array) ;
+	unless ($seqstring =~ /[^$alphabet]/)  {
+		return 1 ;
+	}
 
-    # Next try to match with the alphabet's ambiguous letters
-    $alpha_array =   $Alphabets{$moltype} ;
-    $alphabet = join ('', @$alpha_array) ;
+	# Next try to match with the alphabet's ambiguous letters
+	$alpha_array =   $Alphabets{$moltype} ;
+	$alphabet = join ('', @$alpha_array) ;
 
-    unless ($seqstring =~ /[^$alphabet]/)  {
-	return 0 ;
-    }
+	unless ($seqstring =~ /[^$alphabet]/)  {
+		return 0 ;
+	}
 
-    # If we got here there is an illegal letter in the sequence
-    $seqobj->throw(" Alphabet not OK for $seqobj \n");
-
+	# If we got here there is an illegal letter in the sequence
+	$seqobj->throw(" Alphabet not OK for $seqobj \n");
 }
 
 =head2   _print_data
