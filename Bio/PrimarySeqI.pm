@@ -573,7 +573,8 @@ sub translate {
       if ($codonTable->is_start_codon(substr($seq, 0, 3)) ) {
 	  $output = 'M'. substr($output,1);
       } else {
-	  $self->warn('Not using a valid initiator codon!') if $self->verbose;
+	  my $id = $self->display_id;
+	  $self->warn("Seq [$id]: Not using a valid initiator codon!") if $self->verbose;
       }      
   }
 
