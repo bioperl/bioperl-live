@@ -1055,7 +1055,9 @@ sub length {
 
 sub description  { 
     my $self = shift;
-    return '';
+    my $header = $self->{'db'}->header($self->{id});
+    # remove the id from the header
+    return (split(/\s+/,$header,2))[2];
 }
 
 *desc = \&description;
