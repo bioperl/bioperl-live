@@ -95,6 +95,7 @@ if (!$XML_ERROR){
 }
 
 
+
 ##### now lets test some graph properties.....##
 ## basic properties from SImpleGraph.
 
@@ -127,17 +128,10 @@ ok scalar @n1,1;
 ##check no undefs left after node removal ##
 
 ok map {$_->object_id}$g2->edges;
-my $i = 0;
-for my $n ($g2->nodes) {
- if ( ref($n) !~ /Bio/) {
-		print "-$i- - heere";
-		}
-$i++;
-};
 
 ## count all edges
 my $count = 0;
-ok scalar keys %{$g2->_edges}, 71;
+ok $g2->edge_count, 71;
 
 my @n = $g2->neighbors($g2->nodes_by_id('3075N'));
 ok scalar @n, 13;
@@ -145,7 +139,7 @@ ok scalar @n, 13;
 ok $g2->remove_nodes($g2->nodes_by_id('3075N'));
 
 ## should be 13  less interactions in graph.  
-ok scalar keys %{$g2->_edges}, 58;
+ok scalar $g2->edge_count, 58;
 
 ## many more subgraphs now
 @components = $g2->components();
@@ -177,4 +171,67 @@ ok $g2->remove_dup_edges();
 ## should now be no duplicates
 my @dupids = map{$_->object_id()} $g2->dup_edges();
 ok $dupids[0], undef;
+
+########### now we test the 'union()' method to see it conforms to 
+## the rules described in its documentation:
+
+$io = Bio::Graph::IO->new(-format => 'dip',
+                          -file   => Bio::Root::IO->catfile("t","data","tab1part.mif"));
+$gr = $io->next_network();
+$io2 = Bio::Graph::IO->new(-format => 'dip',
+                           -file   => Bio::Root::IO->catfile("t","data","tab1part.mif"));
+
+$g2 = $io2->next_network();
+
+# First of all we put the same graph into both variables. After a union
+# graph 1 should be unaffected. Because all edge ids are the same, 
+# all duplicates will be redundant. 
+# therea re 3 duplicates in dataset. 
+my @dups = $gr->dup_edges();
+ok scalar @dups, 3;
+$gr->union($g2);
+@dups = $gr->dup_edges();
+ok scalar @dups, 3;
+my @redundant = $gr->redundant_edge();
+ok scalar @redundant, 72; 
+
+## now lets do a union with a graph that has some new edges, using existing nodes ###
+
+ ##read in graph data
+$gr = undef;
+$g2 = undef;
+$io = Bio::Graph::IO->new(-format => 'dip',
+                         -file   => Bio::Root::IO->catfile("t","data","tab1part.mif"));
+$gr = $io->next_network();
+$io2 = Bio::Graph::IO->new(-format => 'dip',
+                          -file   => Bio::Root::IO->catfile("t","data","tab2part.mif"));
+
+$g2 = $io2->next_network();
+ok $gr->edge_count, 72;
+ok $gr->node_count, 74;
+ $gr->union($g2);
+#there should be 1 more edge in the graph $gr now, with no new nodes. $g2 is unaffected.  
+ok $gr->edge_count, 73;
+ok $gr->node_count, 74;
+
+## now lets test a union that has new nodes in $g2 
+$gr = undef;
+$g2 = undef;
+$io = Bio::Graph::IO->new(-format => 'dip',
+                         -file   => Bio::Root::IO->catfile("t","data","tab1part.mif"));
+$gr = $io->next_network();
+$io2 = Bio::Graph::IO->new(-format => 'dip',
+                          -file   => Bio::Root::IO->catfile("t","data","tab3part.mif"));
+
+$g2 = $io2->next_network();
+ok $gr->edge_count, 72;
+ok $gr->node_count, 74;
+ $gr->union($g2);
+#there should be 2 more edge in the graph $gr now and 2 more nodes. $g2 is unaffected.  
+ok $gr->edge_count, 74;
+ok $gr->node_count, 76;
+
+
+
+
 
