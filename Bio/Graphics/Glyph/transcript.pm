@@ -3,7 +3,6 @@ package Bio::Graphics::Glyph::transcript;
 
 use strict;
 use Bio::Graphics::Glyph::segments;
-use Bio::Location::Simple;
 use vars '@ISA';
 @ISA = qw( Bio::Graphics::Glyph::segments);
 

@@ -1,6 +1,7 @@
 package Bio::Graphics::Glyph::segments;
 
 use strict;
+use Bio::Location::Simple;
 use Bio::Graphics::Glyph::generic;
 use Bio::Graphics::Glyph::segmented_keyglyph;
 use vars '@ISA';
