@@ -79,7 +79,7 @@ my $HTML_VERS_ERR = "MEME output file must be generated with the -text option";
  Title   : next_aln
  Usage   : $aln = $stream->next_aln()
  Function: returns the next alignment in the stream
- Returns : SimpleAlign object
+ Returns : Bio::SimpleAlign object
  Args    : NONE
 
 =cut
