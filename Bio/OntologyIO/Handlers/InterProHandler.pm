@@ -428,6 +428,14 @@ sub start_element {
 					-name => "Repeat") );
     $ont->add_term($fact->create_object(-identifier => "PTM",
 				 -name => "post-translational modification"));
+    $ont->add_term($fact->create_object(
+        -identifier => "Active_site",
+        -name => 'Active_site'
+    ));
+    $ont->add_term($fact->create_object(
+        -identifier => "Binding_site",
+        -name => 'Binding_site'
+    ));
   } elsif ($element->{Name} eq 'interpro') {
     my %record_args = %{$element->{Attributes}};
     my $id = $record_args{"id"};
