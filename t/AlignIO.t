@@ -37,7 +37,6 @@ $strout = Bio::AlignIO->new(-file=> '>t/testout.pfam', '-format' => 'pfam');
 $status = $strout->write_aln($aln);
 ok $status, 1, " failed pfam output test";
 
-
 ## Now we test Bio::AlignIO::msf
 
 $str = Bio::AlignIO->new(-file=> 't/testaln.msf');
@@ -82,7 +81,8 @@ $aln = $str->next_aln();
 ok $aln->{order}->{'0'}, 'P04777-1-33', " failed prodom input test ";
 
 ## Now we test Bio::AlignIO::clustalw output writing
-$strout = Bio::AlignIO->new(-file=> '>t/testaln.clustal', '-format' => 'clustalw');
+$strout = Bio::AlignIO->new(-file=> '>t/testaln.clustal', 
+			    '-format' => 'clustalw');
 $status = $strout->write_aln($aln);
 ok $status, 1, "  failed clustalw (.aln) output test";
 undef $strout;
@@ -110,3 +110,6 @@ $aln = $str->next_aln();
 ok ($aln->{order}->{'1'}, 'ALEU_HORVU -60-360', 
     "failed BLAST bl2seq format test");
 
+unlink('t/testout2.pfam','t/testout.selex',
+       't/testout.pfam','t/testout.msf',
+       't/testout.fasta');
