@@ -43,8 +43,7 @@ This algorithm is based on the make_tree algorithm from Richard Hudson 1990.
 Hudson, R. R. 1990. Gene genealogies and the coalescent
        process. Pp. 1-44 in D. Futuyma and J.  Antonovics, eds. Oxford
        surveys in evolutionary biology. Vol. 7. Oxford University
-       Press, New York
-
+       Press, New York.
 
 This module was previously named Bio::Tree::RandomTree
 
