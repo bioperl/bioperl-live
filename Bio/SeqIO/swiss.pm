@@ -240,19 +240,17 @@ sub next_seq {
 	   next;
        }
        #DBLinks
-       elsif (/^DR\s+(\S+)\; (\S+)\; (\S+)[\;\.] (\S+)\./) {
+       elsif (/^DR\s+(\S+)\; (\S+)\; (\S+)[\;\.](.*)$/) {
 	   my $dblinkobj =  Bio::Annotation::DBLink->new();
 	   $dblinkobj->database($1);
 	   $dblinkobj->primary_id($2);
 	   $dblinkobj->optional_id($3);
-	   $dblinkobj->comment($4);
-	   $seq->annotation->add_DBLink($dblinkobj);
-       }
-       elsif (/^DR\s+(\S+)\; (\S+)\; (\S+)\./) {
-	   my $dblinkobj =  Bio::Annotation::DBLink->new();
-	   $dblinkobj->database($1);
-	   $dblinkobj->primary_id($2);
-	   $dblinkobj->optional_id($3);
+	   my $comment = $4;
+	   if(length($comment) > 0) {
+	       # edit comment to get rid of leading space and trailing dot
+	       $comment = s/^\s*(\S+)\..*/$1/;
+	       $dblinkobj->comment($comment);
+	   }
 	   $seq->annotation->add_DBLink($dblinkobj);
        }
        #keywords
