@@ -20,7 +20,7 @@ BEGIN {
     }
     use Test;
 
-    plan tests => 25;
+    plan tests => 31;
 }
 
 use Bio::Seq;
@@ -141,3 +141,29 @@ ok $pair->end, 440;
     my $sf_seq2 = $sf2->seq->seq;
     ok $sf_seq2, 'acccct';
 }
+
+
+# some tests for bug #947
+
+my $sfeat = new Bio::SeqFeature::Generic(-primary => 'test');
+
+$sfeat->add_sub_SeqFeature(new Bio::SeqFeature::Generic(-start => 2,
+							-end   => 4,
+							-primary => 'sub1'),
+			   'EXPAND');
+
+$sfeat->add_sub_SeqFeature(new Bio::SeqFeature::Generic(-start => 6,
+							-end   => 8,
+							-primary => 'sub2'),
+			   'EXPAND');
+
+ok($sfeat->start, 2);
+ok($sfeat->end, 8);
+
+# some tests to see if we can set a feature to start at 0
+$sfeat = new Bio::SeqFeature::Generic(-start => 0, -end => 0 );
+
+ok(defined $sfeat->start);
+ok($sfeat->start,0);
+ok(defined $sfeat->end);
+ok($sfeat->end,0);
