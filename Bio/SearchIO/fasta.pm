@@ -76,6 +76,7 @@ use strict;
 # Object preamble - inherits from Bio::Root::RootI
 
 use Bio::SearchIO;
+use Bio::Factory::ObjectFactory;
 use POSIX;
 
 BEGIN { 
@@ -175,8 +176,10 @@ sub _initialize {
   return unless @args;
   my ($idlength) = $self->_rearrange([qw(IDLENGTH)],@args);
   $self->idlength($idlength || $IDLENGTH);
-  $self->_eventHandler->register_factory('hsp', Bio::Search::HSP::HSPFactory->new(-type => 'Bio::Search::HSP::FastaHSP'));
-
+  $self->_eventHandler->register_factory('hsp', 
+                                         Bio::Factory::ObjectFactory->new(
+                                            -type      => 'Bio::Search::HSP::FastaHSP',
+                                            -interface => 'Bio::Search::HSP::HSPI'));
   return 1;
 }
 
