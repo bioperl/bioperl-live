@@ -298,20 +298,20 @@ sub _set_row_data_func {
     }
     my $code = join( ",", @data);
 
-## Begin Debugging
-    $self->debug( "Data to print:\n");
     if( $self->verbose > 0 ) {
-	foreach( 0..$#data) { $self->debug( " [". $_+1 . "] $data[$_]\n");   }
-    }
-    $self->debug( "CODE:\n$code\n");
-    $self->debug( "Printf format: ". $self->printf_fmt. "\n");
+## Begin Debugging	
+	$self->debug( "Data to print:\n");
+	foreach( 0..$#data) { $self->debug( " [". ($_+ 1) . "] $data[$_]\n");}
+	$self->debug( "CODE:\n$code\n");
+	$self->debug("Printf format: ". $self->printf_fmt. "\n");
 ## End Debugging
+    }
 
     my $func = sub {
         my ($result, $hit, $hsp) = @_;
-        my $r = eval ($code);
+        my @r = eval $code;
 	if( $@ ) { $self->debug($@); }
-	return $r;
+	return @r;
     };
     $self->{'_row_data_func'} = $func;
 }
@@ -347,6 +347,7 @@ sub to_string {
     my $str = $include_labels ? $self->column_labels() : '';
 
     my @row_data  = &{$self->{'_row_data_func'}}( $result );
+
     $str .= sprintf "$self->{'_printf_fmt'}\n", @row_data;
 
     $str =~ s/\t\n/\n/gs;
