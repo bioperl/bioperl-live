@@ -161,17 +161,24 @@ sub _initialize {
   $self->ext(2);
 
   #I'm pretty sure I am not doing this right... ho hum...
-
-  if( $gap ) {
-      $gap =~ /^\d+$/ || $self->throw("Gap penalty must be a number, not [$gap]");
+  # This was not roght ($gap and $ext could not be 0) It is fixed now /AE
+  if(  $gap =~ /^\d+$/ ) 
+  {
       $self->gap($gap);
   }
-
-  if( $ext ) {
-      $ext =~ /^\d+$/ || $self->throw("Extension penalty must be a number, not [$ext]");
+  else
+  {
+      $self->throw("Gap penalty must be a number, not [$gap]");
+  }
+  if( $ext =~ /^\d+$/ ) 
+  {
       $self->ext($ext);
   }
-
+  else
+  {
+      $self->throw("Extension penalty must be a number, not [$ext]");
+  }
+ 
   return $make; # success - we hope!
 }
 
