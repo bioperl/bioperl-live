@@ -91,7 +91,7 @@ sub new {
     my ($class, @args) = @_;
 
     my $self = bless {}, $class;
-    my($seq,$id,$acc,$pid,$desc,$moltype,$given_id) =
+    my($seq,$disp_id,$acc,$pid,$desc,$moltype,$given_id) =
 	$self->_rearrange([qw(SEQ
 			      DISPLAY_ID
 			      ACCESSION_NUMBER
@@ -110,11 +110,11 @@ sub new {
 	$self->throw("Unable to make file $file $!");
     }
     $acc = 'unknown' unless ( defined $acc );
-    $id  = 'no_id'   unless ( defined $id  );
+    $disp_id  = 'no_id'   unless ( defined $disp_id  );
     $pid = "pid$$"   unless ( defined $pid );
     
     $seq     && $self->add_sequence_as_string($seq);
-    $id      && $self->display_id($id);
+    $disp_id && $self->display_id($disp_id);
     $acc     && $self->accession_number($acc);
     $pid     && $self->primary_id($pid);
     $desc    && $self->desc($desc);
@@ -361,7 +361,6 @@ sub desc {
 
 sub add_sequence_as_string{
    my ($self,$str) = @_;
-
    my $len = $self->length + CORE::length($str);
    $self->_fh->seek(0,2);
    $self->_fh->print($str);
