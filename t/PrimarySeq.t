@@ -15,7 +15,7 @@ BEGIN {
 	use lib 't';
     }
     use Test;
-    plan tests => 33;
+    plan tests => 35;
 }
 use Bio::PrimarySeq;
 use Bio::Location::Simple;
@@ -26,7 +26,7 @@ ok(1);
 
 my $seq = Bio::PrimarySeq->new('-seq'              =>'TTGGTGGCGTCAACT',
 			       '-display_id'       => 'new-id',
-			       '-alphabet'          => 'dna',
+			       '-alphabet'         => 'dna',
 			       '-accession_number' => 'X677667',
 			       '-desc'             =>'Sample Bio::Seq object');
 ok defined $seq;
@@ -104,3 +104,9 @@ ok $aa->seq, 'MVAST', "Translation: ". $aa->seq;
 
 # test for character '?' in the sequence string
 ok $seq->seq('TTGGTGGCG?CAACT'), 'TTGGTGGCG?CAACT';
+
+# test for some aliases
+$seq = Bio::PrimarySeq->new('-id'               =>'aliasid',
+			    '-description'      =>'Alias desc');
+ok($seq->description, 'Alias desc');
+ok($seq->display_id, 'aliasid');
