@@ -191,17 +191,23 @@ qq{<HTML>
 	my $id_parser = $self->id_parser;
 	print STDERR "no $nm for name (",$hit->description(), "\n" unless $nm;
 	my ($gi,$acc) = &$id_parser($nm);
-	my $descsub = substr($hit->description,0,$MaxDescLen);
-	$descsub .= " ..." if length($descsub) < length($hit->description);
+	my $p = "%-$MaxDescLen". "s";
+	my $descsub;
+	if( length($hit->description) > ($MaxDescLen - 3) ) {
+	    $descsub = sprintf($p,
+		substr($hit->description,0,$MaxDescLen-3) . "...");
+	} else { 
+	    $descsub = sprintf($p,$hit->description);
+	}
 	my $url = length($self->remote_database_url($type)) > 0 ? 
 	    sprintf('<a href="%s">%s</a>',$gi || $acc, $hit->name()) : 
 		$hit->name();
 	
 	$str .= sprintf('<tr><td>%s %s</td><td>%s</td><td><a href="#%s">%s</a></td></tr>'."\n",
 			$url, $descsub, 
-			defined $hit->raw_score ? $hit->raw_score : '?',
+			defined $hit->raw_score ? $hit->raw_score : ' ',
 			$acc,
-			defined $hit->significance ? $hit->significance : '?');
+			defined $hit->significance ? $hit->significance : ' ');
 
 	$hspstr .= "<a name=\"$acc\"><pre>\n".
 	    sprintf("><b>%s</b> %s\n<dd>Length = %d</dd><p>\n\n", $hit->name, 
@@ -215,7 +221,7 @@ qq{<HTML>
 		$hspstr .= ", P = ".$hsp->pvalue;
 	    }
 	    $hspstr .= "<br>\n";
-	    $hspstr .= sprintf(" Identities = %d / %d (%d%%)",
+	    $hspstr .= sprintf(" Identities = %d/%d (%d%%)",
 			         ( $hsp->frac_identical('total') * 
 				   $hsp->length('total')),
 			       $hsp->length('total'),
@@ -226,7 +232,7 @@ qq{<HTML>
 		$hit->algorithm eq 'TBLASTN' ||
 		$hit->algorithm eq 'TFASTN' 
 		) {
-		$hspstr .= sprintf(", Positives = %d / %d (%d%%)",
+		$hspstr .= sprintf(", Positives = %d/%d (%d%%)",
 				   ( $hsp->frac_conserved('total') * 
 				     $hsp->length('total')),
 				   $hsp->length('total'),
@@ -234,7 +240,7 @@ qq{<HTML>
 		
 	    }
 	    if( $hsp->gaps ) {
-		$hspstr .= sprintf(", Gaps = %d / %d (%d%%)",
+		$hspstr .= sprintf(", Gaps = %d/%d (%d%%)",
 				   $hsp->gaps('total'),
 				   $hsp->length('total'),
 				   (100 * $hsp->gaps('total') / 
@@ -256,10 +262,10 @@ qq{<HTML>
 	    
 	    my @hspvals = ( {'name' => 'Query:',
 			     'seq'  => $hsp->query_string,
-			     'start' => $hsp->query->strand > 0 ? $hsp->query->start : $hsp->query->end,
-			     'end'   => $hsp->query->strand > 0 ? $hsp->query->end : $hsp->query->start,
+			     'start' => $hsp->query->strand >= 0 ? $hsp->query->start : $hsp->query->end,
+			     'end'   => $hsp->query->strand >= 0 ? $hsp->query->end : $hsp->query->start,
 			     'index' => 0,
-			     'direction' => $hsp->query->strand
+			     'direction' => $hsp->query->strand || 1
 			     },
 			    { 'name' => ' 'x6,
 			      'seq'  => $hsp->homology_string,
@@ -270,10 +276,10 @@ qq{<HTML>
 			      },
 			    { 'name'  => 'Sbjct:',
 			      'seq'   => $hsp->hit_string,
-			      'start' => $hsp->hit->strand > 0 ? $hsp->hit->start : $hsp->hit->end,
-			      'end'   => $hsp->hit->strand > 0 ? $hsp->hit->end : $hsp->hit->start,
-			      'index' => 0,
-			      'direction' => $hsp->query->strand
+			      'start' => $hsp->hit->strand >= 0 ? $hsp->hit->start : $hsp->hit->end,
+			      'end'   => $hsp->hit->strand >= 0 ? $hsp->hit->end : $hsp->hit->start,
+			      'index' => 0, 
+			      'direction' => $hsp->hit->strand || 1
 			      }
 			    );	    
 	    
@@ -289,7 +295,7 @@ qq{<HTML>
 	    my $count = 0;
 	    while ( $count <= $hsp->length('total') ) {
 		foreach my $v ( @hspvals ) {
-		    my $piece = substr($v->{'seq'}, $v->{'index'},
+		    my $piece = substr($v->{'seq'}, $v->{'index'} + $count,
 				       $AlignmentLineWidth);
 		    my $cp = $piece;
 		    my $plen = scalar ( $cp =~ tr/\-//);
@@ -298,16 +304,22 @@ qq{<HTML>
 			$start = $v->{'start'};
 			# since strand can be + or - use the direction
 			# to signify which whether to add or substract from end
-			$end   = $v->{'start'} + ( ( $v->{'direction'} ) * 
-					   ( $AlignmentLineWidth - $plen ));
-			$v->{'start'} += $AlignmentLineWidth;
+			my $d = ( ( $v->{'direction'} ) * 
+				  ( $AlignmentLineWidth - $plen ));
+			if( length($piece) < $AlignmentLineWidth ) {
+			    $d = (length($piece) - $plen) * $v->{'direction'};
+			}
+			$end   = $v->{'start'} + $d - 1;
+
+
+			$v->{'start'} += $d;
 		    }
 		    $hspstr .= sprintf("%s %-".$numwidth."s %s %s\n",
 				       $v->{'name'},
 				       $start,
 				       $piece,
 				       $end
-				       );		    
+				       );
 		}
 		$count += $AlignmentLineWidth;
 		$hspstr .= "\n\n";
@@ -404,11 +416,11 @@ sub footer {
 =head2 algorithm_reference
 
  Title   : algorithm_reference
- Usage   :
- Function:
- Example :
- Returns : 
- Args    :
+ Usage   : my $reference = $writer->algorithm_reference($result);
+ Function: Returns the appropriate Bibliographic reference for the 
+           algorithm format being produced
+ Returns : String
+ Args    : L<Bio::Search::Result::ResultI> to reference
 
 
 =cut
