@@ -175,7 +175,7 @@ sub write_seq {
 	    unless defined $seq && ref($seq) && $seq->isa('Bio::PrimarySeqI');
 
 	my $str         = $seq->seq;
-	my $comment     = $seq->desc; 
+	my $comment     = $seq->desc || ''; 
 	my $id          = $seq->id;
 	my $type        = ( $seq->alphabet() =~ /[dr]na/i ) ? 'N' : 'P';
 	my $timestamp;
