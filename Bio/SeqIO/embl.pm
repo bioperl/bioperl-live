@@ -240,7 +240,8 @@ sub next_seq {
        
        #keywords
        if( /^KW   (.*)\S*$/ ) {
-	   my @kw = split(/\s*\;\s+/,$1);
+	   my @kw = split(/\s*\;\s*/,$1);
+	   
 	   push @{$params{'-keywords'}}, @kw;
        }
 
@@ -478,8 +479,8 @@ sub write_seq {
 		$kw = $seq->keywords;
 	    }
 	    if (defined $kw) {
-		$self->_print( "KW   $kw\n",
-			       "XX\n");
+		$self->_write_line_EMBL_regex("KW   ", "KW   ", $kw, '\s+|$', 80); #'
+		$self->_print( "XX\n");
 	    }
 	}
 
