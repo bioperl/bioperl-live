@@ -219,7 +219,7 @@ sub init {
     $self->edited( "" );
     $self->contributors( "" );
     $self->additional_references( "" );
-    $self->clinical_symptoms( "" );
+    $self->clinical_symptoms( {} );
     $self->remove_Correlates();
     $self->remove_References();
     $self->remove_AllelicVariants();
@@ -534,6 +534,9 @@ sub clinical_symptoms {
     my ( $self, $value ) = @_;
 
     if ( defined $value ) {
+        unless(ref($value) eq 'HASH'){
+            $self->throw('a hash referenced needed');
+        }
         $self->{ "_clinical_symptoms" } = $value;
     }
 
@@ -541,8 +544,44 @@ sub clinical_symptoms {
 
 } # clinical_symptoms
 
+sub clinical_symptoms_raw {
+    my $self = shift;
+    return $self->{_clinical_symptoms_raw} = shift if @_;
+    return $self->{_clinical_symptoms_raw};
+}
 
+=head2 add_clinical_symptoms
 
+  Title     : add_clinical_symptoms
+  Usage     : $entry->add_clinical_symptoms('Ears', 'Floppy ears', 'Lop-ears');
+  Function  : add one or more symptoms on one part of body.
+  Returns   : [none]
+  Args      : ($part, @symptoms)
+              $part, the text name of part/organism of human
+              @symptoms, an array of text description
+
+=cut
+
+sub add_clinical_symptoms {
+    my ($self, $part, @symptoms) = @_;
+    unless(defined $part){
+        $self->throw('a part/organism must be assigned');
+    }
+    $self->{_clinical_symptoms} = {} unless $self->{_clinical_symptoms};
+    $self->{_clinical_symptoms}->{$part} = [] 
+        unless $self->{_clinical_symptoms}->{$part};
+    push @{$self->{_clinical_symptoms}->{$part}}, @symptoms;
+}
+
+=head2 get_clinical_symptoms
+
+  Title     : get_clinical_symptoms
+  Usage     : @symptoms = $self->get_clinical_symptoms('Ears');
+  Function  : get all symptoms specific to one part/organism.
+  Returns   : an array of text
+  Args      : $part
+
+=cut
 
 
 =head2 created
