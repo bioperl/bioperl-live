@@ -95,6 +95,8 @@ use Bio::Variation::Allele;
  mrna
  protein
  functional_class
+
+
 =cut
 
 
