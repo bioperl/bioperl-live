@@ -114,6 +114,7 @@ Bio/DB/XEMBLService.pm
 Bio/DBLinkContainerI.pm
 Bio/DasI.pm
 Bio/Das/SegmentI.pm
+Bio/Das/FeatureTypeI.pm
 Bio/Event/EventGeneratorI.pm
 Bio/Event/EventHandlerI.pm
 Bio/Factory/ApplicationFactoryI.pm

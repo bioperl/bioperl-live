@@ -1,6 +1,6 @@
 # $Id$
 #
-# BioPerl module for Bio::DasI
+# BioPerl module for Bio::Das::SegmentI
 #
 # Cared for by Lincoln Stein <lstein@cshl.org>
 #
@@ -103,7 +103,7 @@ use strict;
 use vars qw(@ISA);
 use Bio::Root::RootI;
 
-# Object preamble - inherits from Bio::Root::Root;
+# Object preamble - inherits from Bio::Root::RootI;
 @ISA = qw(Bio::Root::RootI);
 
 =head2 seq_id

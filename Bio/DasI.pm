@@ -65,9 +65,9 @@ In addition to a name, each feature has a "class", which is
 essentially a namespace qualifier and a "type", which describes what
 type of feature it is.  Das uses the GO consortium's ontology of
 feature types, and so the type is actually an object of class
-Bio::DasFeatureTypeI (see L<Bio::DasFeatureTypeI>). Bio::DasI provides
-methods for interrogating the database for the types it contains and
-the counts of each type.
+Bio::Das::FeatureTypeI (see L<Bio::Das::FeatureTypeI>). Bio::DasI
+provides methods for interrogating the database for the types it
+contains and the counts of each type.
 
 =head1 FEEDBACK
 
@@ -94,7 +94,8 @@ Email lstein@cshl.org
 
 =head1 APPENDIX
 
-The rest of the documentation details each of the object methods. Internal methods are usually preceded with a _
+The rest of the documentation details each of the object
+methods. Internal methods are usually preceded with a _
 
 =cut
 
@@ -144,7 +145,7 @@ sub new {shift->throw_not_implemented}
  Title   : types
  Usage   : $db->types(@args)
  Function: return list of feature types in database
- Returns : a list of Bio::DasFeatureTypeI objects
+ Returns : a list of Bio::Das::FeatureTypeI objects
  Args    : see below
 
 This routine returns a list of feature types known to the database. It
@@ -154,12 +155,12 @@ Arguments are -option=E<gt>value pairs as follows:
 
   -enumerate  if true, count the features
 
-The returned value will be a list of Bio::DasFeatureTypeI objects (see
-L<Bio::DasFeatureTypeI>.
+The returned value will be a list of Bio::Das::FeatureTypeI objects
+(see L<Bio::Das::FeatureTypeI>.
 
 If -enumerate is true, then the function returns a hash (not a hash
 reference) in which the keys are the stringified versions of
-Bio::DasFeatureTypeI and the values are the number of times each
+Bio::Das::FeatureTypeI and the values are the number of times each
 feature appears in the database.
 
 =cut
@@ -230,7 +231,8 @@ their type
 Arguments are -option=E<gt>value pairs as follows:
 
   -types     List of feature types to return.  Argument is an array
-             of Bio::DasFeatureTypeI objects.
+             of Bio::Das::FeatureTypeI objects or a set of strings
+             that can be converted into FeatureTypeI objects.
 
   -callback   A callback to invoke on each feature.  The subroutine
               will be passed each Bio::SeqFeatureI object in turn.
