@@ -247,6 +247,7 @@ sub end_hsp {
 	 '-hit_gaps'      => $data->{'hitgaps'},
 	 '-query_gaps'    => $data->{'querygaps'},
 	 '-evalue'        => $data->{'evalue'},
+	 '-pvalue'        => $data->{'pvalue'},
 	 '-query_start'   => $data->{'querystart'},
 	 '-query_end'     => $data->{'queryend'},
 	 '-hit_start'     => $data->{'hitstart'},
