@@ -641,7 +641,7 @@ sub ticks {
   return ($interval,$interval/10);
 }
 
-# reverse of translate(); given index, return rgb tripler
+# reverse of translate(); given index, return rgb triplet
 sub rgb {
   my $self = shift;
   my $idx  = shift;
