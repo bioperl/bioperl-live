@@ -2,7 +2,7 @@
 
 use lib '.';
 
-# $Id: bp_genbank2gff.PLS,v 1.3 2003-07-30 13:55:17 mwilkinson Exp $
+# $Id: bp_genbank2gff.PLS,v 1.4 2003-07-30 14:42:15 mwilkinson Exp $
 use strict;
 use Bio::DB::GFF;
 use Getopt::Long;
@@ -169,6 +169,7 @@ GetOptions (
             'dsn:s'       => \$DSN,
             'user:s'      => \$USER,
             'password:s'  => \$PASSWORD,
+            'adaptor:s'   => \$ADAPTOR,
             'accession'   => \$ACC,
             'file'        => \$FILE,
             'acc_file'    => \$accFILE,
