@@ -72,7 +72,7 @@ while (@ARGV && $ARGV[0] =~ /^--?(\w+)/) {
 
 
 foreach (@images) {
-  if ($write) { warn "$_...\n"; do_write($_) } else { eval { do_compare($_) } }
+  if ($write) { warn "$_...\n"; do_write($_) } else { eval { do_compare($_) }; warn $@ if $@}
 }
 
 my $data  = Bio::Graphics::FeatureFile->new(-file => FILES . "/feature_data.txt") or die;

@@ -4,7 +4,7 @@ use GD;
 use strict;
 use Carp 'croak';
 use constant BUMP_SPACING => 2; # vertical distance between bumped glyphs
-
+use Bio::Root::Root;
 
 my %LAYOUT_COUNT;
 
@@ -327,6 +327,14 @@ sub option {
   $factory->option($self,$option_name,@{$self}{qw(partno total_parts)});
 }
 
+# get an option that might be a code reference
+sub code_option {
+  my $self = shift;
+  my $option_name = shift;
+  my $factory = $self->factory or return;
+  $factory->get_option($option_name);
+}
+
 # set an option globally
 sub configure {
   my $self = shift;
@@ -423,15 +431,16 @@ sub connector_color {
 }
 
 sub layout_sort {
-
     my $self = shift;
     my $sortfunc;
 
-    my $opt = $self->option("sort_order");
+    my $opt = $self->code_option("sort_order");
+
     if (!$opt) {
-       $sortfunc = eval 'sub { $a->left <=> $b->left }';
+       $sortfunc = sub { $a->left <=> $b->left };
     } elsif (ref $opt eq 'CODE') {
-       $sortfunc = $opt;
+      Bio::Root::Root->throw('sort_order subroutines must use the $$ prototype') unless prototype($opt) eq '$$';
+      $sortfunc = $opt;
     } elsif ($opt =~ /^sub\s+\{/o) {
        $sortfunc = eval $opt;
     } else {
@@ -440,7 +449,7 @@ sub layout_sort {
        $sortfunc = 'sub { ';
        my $sawleft = 0;
 
-       # not sure I can make this schwartzian transfored
+       # not sure I can make this schwartzian transformed
        for my $sortby (@sortbys) {
 	 if ($sortby eq "left" || $sortby eq "default") {
 	   $sortfunc .= '($a->left <=> $b->left) || ';
@@ -662,6 +671,26 @@ sub draw_connectors {
     $self->_connector($gd,$dx,$dy,$parts[-1]->bounds,$x2,$xt2,$x2,$xb2) if $x2 > $xr;
   }
 
+}
+
+# return true if this feature should be highlited
+sub hilite_color {
+  my $self         = shift;
+  return     if $self->level; # only highlite top level glyphs
+  my $index   = $self->option('hilite') or return;
+  $self->factory->translate_color($index);
+}
+
+sub draw_highlight {
+  my $self              = shift;
+  my ($gd,$left,$top)   = @_;
+  my $color  = $self->hilite_color or return;
+  my @bounds = $self->bounds;
+  $gd->filledRectangle($bounds[0]+$left - 3,
+		       $bounds[1]+$top  - 3,
+		       $bounds[2]+$left + 3,
+		       $bounds[3]+$top  + 3,
+		       $color);
 }
 
 sub _connector {
@@ -1315,6 +1344,8 @@ glyph pages for more options.
 
   -bump_limit   Maximum number of levels to bump undef (unlimited)
 
+  -hilite       Highlight color                undef (no color)
+
 For glyphs that consist of multiple segments, the B<-connector> option
 controls what's drawn between the segments.  The default is undef (no
 connector).  Options include:
@@ -1354,7 +1385,7 @@ which strand it is on, usually by drawing an arrowhead.  Not all
 glyphs will respond to this request.  For historical reasons,
 B<-stranded> is a synonym for this option.
 
-By default, features are drawn with a layout based only on the
+B<sort_order>: By default, features are drawn with a layout based only on the
 position of the feature, assuring a maximal "packing" of the glyphs
 when bumped.  In some cases, however, it makes sense to display the
 glyphs sorted by score or some other comparison, e.g. such that more
@@ -1367,34 +1398,50 @@ features to be sorted from lowest to highest score (or vice versa).
 sorted by their position in the sequence.  "longer" (or "shorter")
 will cause the longest (or shortest) features to be sorted first, and
 "strand" will cause the features to be sorted by strand: "+1"
-(forward) then "0" (unknown, or NA) then "-1" (reverse).  Lastly,
-"name" will sort features alphabetically by their display_name()
-attribute.
+(forward) then "0" (unknown, or NA) then "-1" (reverse).
 
 In all cases, the "left" position will be used to break any ties.  To
 break ties using another field, options may be strung together using a
 "|" character; e.g. "strand|low_score|right" would cause the features
 to be sorted first by strand, then score (lowest to highest), then by
-"right" position in the sequence.  Finally, a subroutine coderef can
-be provided, which should expect to receive two feature objects (via
-the special sort variables $a and $b), and should return -1, 0 or 1
-(see Perl's sort() function for more information); this subroutine
-will be used without further modification for sorting.  For example,
-to sort a set of database search hits by bits (stored in the features'
+"right" position in the sequence.
+
+Finally, a subroutine coderef with a $$ prototype can be provided.  It
+will receive two B<glyph> as arguments and should return -1, 0 or 1
+(see Perl's sort() function for more information).  For example, to
+sort a set of database search hits by bits (stored in the features'
 "score" fields), scaled by the log of the alignment length (with
-"left" position breaking any ties):
+"start" position breaking any ties):
 
-  sort_order = sub { ( $b->score/log($b->length)
-                                      <=>
-                       $a->score/log($a->length) )
-                                      ||
-                     ( $a->start <=> $b->start )
-                   }
+  sort_order = sub ($$) {
+    my ($glyph1,$glyph2) = @_;
+    my $a = $glyph1->feature;
+    my $b = $glyph2->feature;
+    ( $b->score/log($b->length)
+          <=>
+      $a->score/log($a->length) )
+          ||
+    ( $a->start <=> $b->start )
+  }
 
-The -always_sort option, if true, will sort features even if bumping
+It is important to remember to use the $$ prototype as shown in the
+example.  Otherwise Bio::Graphics will quit with an exception. The
+arguments are subclasses of Bio::Graphics::Glyph, not the features
+themselves.  While glyphs implement some, but not all, of the feature
+methods, to be safe call the two glyphs' feature() methods in order to
+convert them into the actual features.
+
+The <-always_sort> option, if true, will sort features even if bumping
 is turned off.  This is useful if you would like overlapping features
 to stack in a particular order.  Features towards the end of the list
 will overlay those towards the beginning of the sort order.
+
+The B<-hilite> option draws a colored box behind each feature using the
+indicated color. Typically you will pass it a code ref that returns a
+color name.  For example:
+
+  -hilite => sub { my $name = shift->display_name; 
+                   return 'yellow' if $name =~ /XYZ/ }
 
 =head1 SUBCLASSING Bio::Graphics::Glyph
 
@@ -1460,6 +1507,7 @@ L<Bio::Graphics::Glyph::toomany>,
 L<Bio::Graphics::Glyph::transcript>,
 L<Bio::Graphics::Glyph::transcript2>,
 L<Bio::Graphics::Glyph::wormbase_transcript>
+L<Bio::Graphics::Glyph::xyplot>
 
 =head1 AUTHOR
 
