@@ -51,7 +51,6 @@ use strict;
 
 use Bio::Root::Object;
 
-use AutoLoader;
 @ISA = qw(Bio::Root::Object Exporter);
 @EXPORT_OK = qw();
 # new() is inherited from Bio::Root::Object
@@ -109,5 +108,6 @@ sub get_Seq_by_acc{
 ## End of Package
 
 1;
+
 __END__
 

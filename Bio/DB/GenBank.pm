@@ -9,7 +9,6 @@ use Bio::Seq;              # to return a Seq object
 use Bio::Tools::WWW qw(:obj);       # to get url information
 use LWP::Simple qw(get);           # to access the internet
 
-use AutoLoader;
 @ISA = qw(Bio::DB::Abstract Exporter);
 @EXPORT_OK = qw();
 
@@ -26,7 +25,7 @@ sub get_Seq_by_id {
 
   my $seq = new Bio::Seq;
   my $data = get($entrez);
-  print STDOUT $data;
+  print STDOUT $data; # debugging only AJM
   $seq->parse($data, 'genbank');
 
   return $seq;
