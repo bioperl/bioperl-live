@@ -368,8 +368,8 @@ sub _parseHeader {
 
   $self->{'REPORT_DONE'} = 0;  # reset this bit for a new report
   while(defined($_ = $self->_readline() ) ) {
-      s/\(\s*\)//;
-      if ($_ =~ /^Query=(?:\s+([^\(]+))?/) {
+      s/\(\s*\)//;      
+      if ($_ =~ /^Query=(?:\s+(.+))?/s) {
 	  $header_flag = 1;	# valid header element found
 	  my $query = $1;
 	  while( defined($_ = $self->_readline() ) ) {
@@ -384,6 +384,7 @@ sub _parseHeader {
 	      $query .= $_;
 	  }
 	  $query =~ s/\s+/ /g;
+	  $query =~ s/\s+$//;
 	  $query =~ s/^>//;
 
 	  my $length = 0;

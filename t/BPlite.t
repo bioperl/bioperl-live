@@ -41,7 +41,7 @@ ok defined $sbjct;
 my $hsp = $sbjct->nextHSP;
 ok defined $hsp;
 
-ok $report->query, "gi|1401126 (504 letters) ";
+ok $report->query, "gi|1401126 (504 letters)";
 ok $report->database, 'Non-redundant GenBank+EMBL+DDBJ+PDB sequences';
 ok $sbjct->name, 'gb|U49928|HSU49928 Homo sapiens TAK1 binding protein (TAB1) mRNA, complete cds. ';
 ok $hsp->bits, 1009;
