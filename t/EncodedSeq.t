@@ -3,7 +3,7 @@
 ## Bioperl Test Harness Script for Modules
 ## $Id$
 use strict;
-use constant NUMTESTS => 31;
+use constant NUMTESTS => 37;
 
 BEGIN {     
     eval { require Test; };
@@ -34,13 +34,16 @@ ok $seq->end, 6;
 ok $seq->strand, 1;
 ok $seq->no_gaps, 1;
 ok $seq->column_from_residue_number(4), 9;
-$@ = undef;
-eval { $seq->column_from_residue_number(8) };
+
+# this should fail
+eval {
+    $seq->column_from_residue_number(8);
+};
 ok $@;
 
 ok $loc = $seq->location_from_column(4);
 ok $loc->isa('Bio::Location::Simple');
-ok $loc->to_FTstring, 2;
+ok $loc->to_FTstring, "2";
 
 ok $loc = $seq->location_from_column(6);
 ok $loc->isa('Bio::Location::Simple');

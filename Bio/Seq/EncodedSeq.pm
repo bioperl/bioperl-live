@@ -211,6 +211,8 @@ use Bio::LocatableSeq;
 
 =cut
 
+#'
+
 sub new {
 
     my ($self, @args) = @_;
@@ -330,7 +332,8 @@ sub encoding {
                                                          /x;
 		$in =~ s/[\.\-]+//g;
 		$currseq = $before . $in . $after;
-		$self->seq($currseq);
+		# change seq without changing the alphabet
+		$self->seq($currseq,$self->alphabet());
 	    }
 
 	    $currenc = reverse $currenc if $self->strand < 0;
