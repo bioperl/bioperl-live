@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-# $Id: bulk_load_gff.PLS,v 1.27 2005-03-21 15:06:18 lstein Exp $
+# $Id: bulk_load_gff.PLS,v 1.28 2005-03-21 16:25:32 lstein Exp $
 
 
 use strict;
@@ -321,7 +321,7 @@ foreach (@ARGV) {
 
 my (@gff,@fasta);
 foreach (@ARGV) {
-  if (/\.(fa|fasta|dna|seq|fast)$/i) {
+  if (/\.(fa|fasta|dna|seq|fast)(?:\.|$)/i) {
     push @fasta,$_;
   } else {
     push @gff,$_;
