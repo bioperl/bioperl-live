@@ -567,6 +567,7 @@ sub seq {
     return shift->primary_seq()->seq(@_);
 }
 
+
 =head2 validate_seq
 
  Title   : validate_seq
@@ -795,6 +796,21 @@ sub alphabet {
    return $self->primary_seq->alphabet(@_) if @_ && defined $_[0];
    return $self->primary_seq->alphabet();
 }
+
+=head2 is_circular
+
+ Title   : is_circular
+ Usage   : if( $obj->is_circular) { /Do Something/ }
+ Function: Returns true if the molecule is circular
+ Returns : Boolean value
+ Args    : none
+
+=cut
+
+sub is_circular {
+    return shift->primary_seq()->is_circular(@_);
+}
+
 
 =head1 Methods for Bio::IdentifiableI compliance
 

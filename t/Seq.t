@@ -14,7 +14,7 @@ BEGIN {
     }
     use Test;
 
-    plan tests => 50;
+    plan tests => 53;
 }
 
 use Bio::Seq;
@@ -25,10 +25,15 @@ use Bio::Annotation::SimpleValue;
 
 ok(1);
 
-my $seq = Bio::Seq->new(-seq=>'ACTGTGGCGTCAACT',
+ok my $seq = Bio::Seq->new(-seq=>'ACTGTGGCGTCAACT',
                         -desc=>'Sample Bio::Seq object',
-			-alphabet => 'dna' );
-ok $seq;
+			-alphabet => 'dna',
+                        -is_circular => 1
+                       );
+
+ok $seq->is_circular;
+ok not $seq->is_circular(0);
+ok not $seq->is_circular;
 
 my $trunc = $seq->trunc(1,4);
 ok $trunc->length,  4, 'truncated sequence was not of length 4';
