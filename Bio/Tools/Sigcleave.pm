@@ -4,7 +4,7 @@
 # CREATED : Jan 28 1999
 # REVISION: $Id$
 #            
-# Copyright (c) 1997-9 Chris Dagdigian and others. All Rights Reserved.
+# Copyright (c) 1997-9 bioperl, Chris Dagdigian and others. All Rights Reserved.
 #           This module is free software; you can redistribute it and/or 
 #           modify it under the same terms as Perl itself.
 #
@@ -229,8 +229,8 @@ preceded by an underscore ("_").
 ##
 ## yeah yeah yeah there is lots of math here that gets repeated
 ## every single time a sigcleave object gets created. This is
-## just a quick and dirty hack to make sure that we get the scores
-## as accurate as possible. Need all those significant digits....
+## a quick hack to make sure that we get the scores as accurate as 
+## possible. Need all those significant digits....
 ##
 ## suggestions for speedup aproaches welcome
 ##
