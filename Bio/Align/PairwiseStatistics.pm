@@ -16,8 +16,10 @@ Bio::Align::PairwiseStatistics - Base statistic object for Pairwise Alignments
 
 =head1 SYNOPSIS
 
-Give standard usage here
-
+  use strict;
+  my $stats = Bio::Align::DNAStatistics->new();
+  print $stats>number_of_comparable_bases($pwaln);
+  
 =head1 DESCRIPTION
 
 Calculate pairwise statistics.
@@ -81,7 +83,7 @@ BEGIN { $GapChars = '(\.|\-)'; }
  Function: Returns the count of the number of bases that can be
            compared (L) in this alignment ( length - gaps)
  Returns : integer
- Args    : Bio::Align::AlignI
+ Args    : L<Bio::Align::AlignI>
 
 
 =cut
@@ -92,7 +94,7 @@ sub number_of_comparable_bases{
        $self->warn("Must provide a Bio::Align::AlignI compliant object to Bio::Align::PairwiseStatistics");
        return 0;
    } elsif( $aln->no_sequences != 2 ) { 
-       $self->warn("only pairwise calculations currently supported");
+       $self->warn("only pairwise calculations currently supported ". $aln->no_sequences."\n");
    }
    my $L = $aln->length - $self->number_of_gaps($aln);
    return $L;
@@ -104,7 +106,7 @@ sub number_of_comparable_bases{
  Usage   : my $nd = $stat->number_of_distances($aln);
  Function: Returns the number of differences between two  
  Returns : integer
- Args    : Bio::Align::AlignI
+ Args    : L<Bio::Align::AlignI>
 
 
 =cut
@@ -140,10 +142,9 @@ sub number_of_differences{
 
  Title   : number_of_gaps
  Usage   : my $nd = $stat->number_of_gaps($aln);
- Function: Returns the number of differences between two  
- Example :
- Returns : 
- Args    :
+ Function: Returns the number of gaps between two  
+ Returns : integer
+ Args    : L<Bio::Align::AlignI>
 
 
 =cut
@@ -154,7 +155,7 @@ sub number_of_gaps{
 	$self->warn("Must provide a Bio::Align::AlignI compliant object to Bio::Align::PairwiseStatistics");
 	return 0;
     } elsif( $aln->no_sequences != 2 ) { 
-	$self->warn("only pairwise calculations currently supported");
+       $self->warn("only pairwise calculations currently supported ". $aln->no_sequences."\n");
     }
     my (@seqs);
     foreach my $seq ( $aln->each_seq) {
