@@ -548,6 +548,7 @@ sub index_dir {
   for my $suffix('','.pag','.dir') {
     $indextime ||= (stat("${index}${suffix}"))[9];
   }
+  $indextime ||= 0;  # prevent some uninit variable warnings
 
   # get the most recent modification time of any of the contents
   my $modtime = 0;
@@ -555,10 +556,10 @@ sub index_dir {
   foreach (@files) {
     my $m = (stat($_))[9];
     $modtime{$_} = $m;
-    $modtime = $m if $modtime < $m;
+    $modtime = $m if defined $m && $modtime < $m;
   }
 
-  my $reindex = $force_reindex || $indextime < $modtime;
+  my $reindex      = $force_reindex || $indextime < $modtime;
   $self->{offsets} = $self->_open_index($index,$reindex) or return;
 
   # no indexing needed
