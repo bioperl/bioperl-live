@@ -21,7 +21,7 @@ which has unclear start and/or end locations
 						 -loc_type => '.');
 
     print "location string is ", $fuzzylocation->to_FTstring(), "\n";
-    print "location is of the type ", $fuzzylocation->loc_type, "\n";
+    print "location is of the type ", $fuzzylocation->location_type, "\n";
 
 =head1 DESCRIPTION
 
@@ -142,7 +142,7 @@ sub new {
 			       END_EXT END_FUZ )
 			    ], @args);
 
-    $loc_type  && $self->loc_type($loc_type);
+    $loc_type  && $self->location_type($loc_type);
     $start_ext && $self->max_start($self->min_start + $start_ext);
     $end_ext   && $self->max_end($self->min_end + $end_ext);
     $start_fuz && $self->start_pos_type($start_fuz);
@@ -151,17 +151,17 @@ sub new {
     return $self;
 }
 
-=head2 loc_type
+=head2 location_type
 
-  Title   : loc_type
-  Usage   : my $location_type = $location->loc_type();
+  Title   : location_type
+  Usage   : my $location_type = $location->location_type();
   Function: Get location type encoded as text
   Returns : string ('EXACT', 'WITHIN', 'BETWEEN')
   Args    : none
 
 =cut
 
-sub loc_type {
+sub location_type {
     my ($self,$value) = @_;
     if( defined $value || ! defined $self->{'_location_type'} ) {
 	$value = 'EXACT' unless defined $value;
@@ -446,7 +446,7 @@ sub to_FTstring {
     
     my (%strs) = ( 'start' => '',
 		   'end'   => '');
-    my ($delimiter) = $FUZZYCODES{$self->loc_type};
+    my ($delimiter) = $FUZZYCODES{$self->location_type};
     # I'm lazy, lets do this in a loop since behaviour will be the same for 
     # start and end
     foreach my $point ( qw(start end) ) {

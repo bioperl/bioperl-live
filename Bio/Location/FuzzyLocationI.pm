@@ -88,22 +88,23 @@ sub _abstractDeath {
   }
 }
 
-=head2 loc_type
+=head1 LocationI methods
+
+=head2 location_type
 
   Title   : loc_type
-  Usage   : my $location_type = $location->loc_type();
+  Usage   : my $location_type = $location->location_type();
   Function: Get location type encoded as text
-  Returns : string ('EXACT', 'WITHIN', 'BETWEEN')
+  Returns : stri
+ng ('EXACT', 'WITHIN', 'BETWEEN')
   Args    : none
 
 =cut
 
-sub loc_type {
+sub location_type {
     my ($self) = @_;
     $self->_abstractDeath();
 }
-
-=head1 LocationI methods
 
 =head2 min_start
 

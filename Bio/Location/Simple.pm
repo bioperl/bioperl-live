@@ -285,7 +285,6 @@ sub end_pos_type {
     return 'EXACT';
 }
 
-
 =head2 location_type
 
   Title   : location_type
