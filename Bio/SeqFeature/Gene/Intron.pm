@@ -262,9 +262,8 @@ sub location {
         # Get the PrimarySeqs attached to both and check it is the same sequence
         my $up_seq   = $up_exon  ->entire_seq;
         my $down_seq = $down_exon->entire_seq;
-        unless ($up_seq == $down_seq) {
-            $self->throw("upstream and downstream exons are attached to different sequences\n"
-                . "'$up_seq' and '$down_seq'");
+        unless (ref($up_seq) eq ref($down_seq) ) {
+            $self->throw("upstream and downstream exons are attached to different sequences\n'$up_seq' and '$down_seq'");
         }
         
         # Check that the exons are on the same strand.  (Do I need to bother?)
