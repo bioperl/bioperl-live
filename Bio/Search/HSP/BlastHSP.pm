@@ -1428,8 +1428,8 @@ sub strand {
             $hstr = 0;
         }
         else {
-            $qstr = $STRAND_SYMBOL{$self->{'_queryStrand'}};
-            $hstr = $STRAND_SYMBOL{$self->{'_sbjctStrand'}};
+            $qstr = $STRAND_SYMBOL{$self->{'_queryStrand'}} if defined $self->{'_queryStrand'};
+            $hstr = $STRAND_SYMBOL{$self->{'_sbjctStrand'}} if defined $self->{'_sbjctStrand'};
         }
 	return ($qstr, $hstr);
 	return ($qstr, $hstr);
