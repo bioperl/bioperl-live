@@ -19,10 +19,11 @@ Bio::SeqIO::GenBank - GenBank sequence input/output stream
 It is probably best not to use this object directly, but
 rather go through the SeqIO handler system. Go:
 
-    $stream = Bio::SeqIO->new(-file => $filename, -format => 'GenBank');
+    $stream = Bio::SeqIO->new(-file => $filename,
+                              -format => 'GenBank');
 
     while ( my $seq = $stream->next_seq() ) {
-	# do something with $seq
+	    # do something with $seq
     }
 
 
@@ -56,17 +57,16 @@ This is function which is called as
 To generate the ID line. If it is not there, it generates a sensible ID
 line using a number of tools.
 
-
-If you want to output annotations in genbank format they need to be
+If you want to output annotations in Genbank format they need to be
 stored in a Bio::Annotation::Collection object which is accessible
-through the Bio::SeqI interface method L<annotation()|annotation>.  
+through the Bio::SeqI interface method L<annotation()|annotation>.
 
 The following are the names of the keys which are polled from a
-L<Bio::Annotation::Collection> object.
+L<Bio::Annotation::Collection> object:
 
  reference       - Should contain Bio::Annotation::Reference objects
  comment         - Should contain Bio::Annotation::Comment objects
-
+ dblink          - Should contain a Bio::Annotation::DBLink object
  segment         - Should contain a Bio::Annotation::SimpleValue object
  origin          - Should contain a Bio::Annotation::SimpleValue object
  wgs             - Should contain a Bio::Annotation::SimpleValue object
@@ -96,6 +96,7 @@ sequence object.
  References           Annotation 'reference'
  Segment              Annotation 'segment'
  Origin               Annotation 'origin'
+ Dbsource             Annotation 'dblink'
 
  Accessions           PrimarySeq accession_number()
  Secondary accessions RichSeq get_secondary_accessions()
@@ -119,8 +120,9 @@ sequence object.
 =head2 Mailing Lists
 
 User feedback is an integral part of the evolution of this
-and other Bioperl modules. Send your comments and suggestions preferably
- to one of the Bioperl mailing lists.
+and other Bioperl modules. Send your comments and suggestions 
+preferably to one of the Bioperl mailing lists.
+
 Your participation is much appreciated.
 
   bioperl-l@bioperl.org                  - General discussion
@@ -129,10 +131,9 @@ Your participation is much appreciated.
 =head2 Reporting Bugs
 
 Report bugs to the Bioperl bug tracking system to help us keep track
- the bugs and their resolution.
- Bug reports can be submitted via email or the web:
+the bugs and their resolution.
+Bug reports can be submitted via email or the web:
 
-  bioperl-bugs@bio.perl.org
   http://bugzilla.bioperl.org/
 
 =head1 AUTHOR - Elia Stupka
@@ -149,6 +150,7 @@ Heikki Lehvaslaiho, heikki at ebi.ac.uk
 Hilmar Lapp, hlapp at gmx.net
 Donald G. Jackson, donald.jackson at bms.com
 James Wasmuth, james.wasmuth at ed.ac.uk
+Brian Osborne, brian at cognia.com
 
 =head1 APPENDIX
 
@@ -194,17 +196,17 @@ use Bio::Annotation::DBLink;
 		  );
 
 sub _initialize {
-    my($self,@args) = @_;
-    
-    $self->SUPER::_initialize(@args); 
-    # hash for functions for decoding keys.
-    $self->{'_func_ftunit_hash'} = {}; 
-    $self->_show_dna(1); # sets this to one by default. People can change it
-    if( ! defined $self->sequence_factory ) {
-	$self->sequence_factory(new Bio::Seq::SeqFactory
-				(-verbose => $self->verbose(), 
-				 -type => 'Bio::Seq::RichSeq'));
-    }
+	my($self,@args) = @_;
+
+	$self->SUPER::_initialize(@args);
+	# hash for functions for decoding keys.
+	$self->{'_func_ftunit_hash'} = {}; 
+	$self->_show_dna(1); # sets this to one by default. People can change it
+	if( ! defined $self->sequence_factory ) {
+		$self->sequence_factory(new Bio::Seq::SeqFactory
+										(-verbose => $self->verbose(), 
+										 -type => 'Bio::Seq::RichSeq'));
+	}
 }
 
 =head2 next_seq
@@ -218,12 +220,13 @@ sub _initialize {
 =cut
 
 sub next_seq {
-    my ($self,@args) = @_;
-    my $builder = $self->sequence_builder();
-    my $seq;
-    my %params;
+	my ($self,@args) = @_;
+	my $builder = $self->sequence_builder();
+	my $seq;
+	my %params;
 
-  RECORDSTART: while (1) {
+ RECORDSTART:
+	while (1) {
       my $buffer;
       my (@acc, @features);
       my ($display_id, $annotation);
@@ -237,12 +240,12 @@ sub next_seq {
       %params = (-verbose => $self->verbose); # reset hash
       local($/) = "\n";
       while(defined($buffer = $self->_readline())) {
-	  last if index($buffer,'LOCUS       ') == 0;
+			last if index($buffer,'LOCUS       ') == 0;
       }
       return undef if( !defined $buffer ); # end of file
       $buffer =~ /^LOCUS\s+(\S.*)$/o ||
-	  $self->throw("GenBank stream with bad LOCUS line. Not GenBank in my book. Got '$buffer'");
-      
+		  $self->throw("GenBank stream with bad LOCUS line. Not GenBank in my book. Got '$buffer'");
+
       my @tokens = split(' ', $1);
 
       # this is important to have the id for display in e.g. FTHelper,
@@ -254,20 +257,20 @@ sub next_seq {
       # the alphabet of the entry
       $params{'-alphabet'} = (lc(shift @tokens) eq 'bp') ? 'dna' : 'protein';
       # for aa there is usually no 'molecule' (mRNA etc)
-      if (($params{'-alphabet'} eq 'dna') || (@tokens > 2)) {	
-	  $params{'-molecule'} = shift(@tokens);
-	  my $circ = shift(@tokens);
-	  if ($circ eq 'circular') {
-	      $params{'-is_circular'} = 1;
-	      $params{'-division'} = shift(@tokens);
-	  } else {
-	      # 'linear' or 'circular' may actually be omitted altogether
-	      $params{'-division'} =
-		  (CORE::length($circ) == 3 ) ? $circ : shift(@tokens);
-	  }
+      if (($params{'-alphabet'} eq 'dna') || (@tokens > 2)) {
+			$params{'-molecule'} = shift(@tokens);
+			my $circ = shift(@tokens);
+			if ($circ eq 'circular') {
+				$params{'-is_circular'} = 1;
+				$params{'-division'} = shift(@tokens);
+			} else {
+				# 'linear' or 'circular' may actually be omitted altogether
+				$params{'-division'} =
+				  (CORE::length($circ) == 3 ) ? $circ : shift(@tokens);
+			}
       } else {
-	  $params{'-molecule'} = 'PRT' if($params{'-alphabet'} eq 'aa');
-	  $params{'-division'} = shift(@tokens);
+			$params{'-molecule'} = 'PRT' if($params{'-alphabet'} eq 'aa');
+			$params{'-division'} = shift(@tokens);
       }
       my $date = join(' ', @tokens); # we lump together the rest
 
@@ -275,28 +278,29 @@ sub next_seq {
       # we can handle
       # 9-10-2003
       # 9-10-03
-      #09-10-2003
-      #09-10-03
+      # 09-10-2003
+      # 09-10-03
       if($date =~ s/\s*((\d{1,2})-(\w{3})-(\d{2,4})).*/$1/) {
-	  if( length($date) < 11 ) { # improperly formatted date
-	                             # But we'll be nice and fix it for them
-	      my ($d,$m,$y) = ($2,$3,$4);
-	      if( length($d) == 1 ) {
-		  $d = "0$d";
-	      }
-	      # guess the century here
-	      if( length($y) == 2 ) {
-		  if( $y > 60 ) {  # arbitrarily guess that '60' means 1960
-		      $y = "19$y";
-		  } else { 
-		      $y = "20$y";
-		  }
-		  $self->warn("Date was malformed, guessing the century for $date to be $y\n");
-	      }
-	      $params{'-dates'} = [join('-',$d,$m,$y)];
-	  } else { 
-	      $params{'-dates'} = [$date];
-	  }
+			if( length($date) < 11 ) {
+				# improperly formatted date
+				# But we'll be nice and fix it for them
+				my ($d,$m,$y) = ($2,$3,$4);
+				if( length($d) == 1 ) {
+					$d = "0$d";
+				}
+				# guess the century here
+				if( length($y) == 2 ) {
+					if( $y > 60 ) {  # arbitrarily guess that '60' means 1960
+						$y = "19$y";
+					} else { 
+						$y = "20$y";
+					}
+					$self->warn("Date was malformed, guessing the century for $date to be $y\n");
+				}
+				$params{'-dates'} = [join('-',$d,$m,$y)];
+			} else { 
+				$params{'-dates'} = [$date];
+			}
       }
       # set them all at once
       $builder->add_slot_value(%params);
@@ -304,256 +308,254 @@ sub next_seq {
 
       # parse the rest if desired, otherwise start over
       if(! $builder->want_object()) {
-	  $builder->make_object();
-	  next RECORDSTART;
+			$builder->make_object();
+			next RECORDSTART;
       }
-      
+
       # set up annotation depending on what the builder wants
       if($builder->want_slot('annotation')) {
-	  $annotation = new Bio::Annotation::Collection;
+			$annotation = new Bio::Annotation::Collection;
       }
       $buffer = $self->_readline();
       until( !defined ($buffer) ) {
-	  $_ = $buffer;
-	  
-	  # Description line(s)
-	  if (/^DEFINITION\s+(\S.*\S)/) {
-	      my @desc = ($1);
-	      while ( defined($_ = $self->_readline) ) { 
-		  if( /^\s+(.*)/ ) { push (@desc, $1); next };		  
-		  last;
-	      }
-	      $builder->add_slot_value(-desc => join(' ', @desc));
-	      # we'll continue right here because DEFINITION always comes
-	      # at the top of the entry
-	      $buffer= $_;
-	  }
-	  # accession number (there can be multiple accessions)
-	  if( /^ACCESSION\s+(\S.*\S)/ ) {
-	      push(@acc, split(/\s+/,$1));
-	      while( defined($_ = $self->_readline) ) { 
-		  /^\s+(.*)/ && do { push (@acc, split(/\s+/,$1)); next };
-		  last;
-	      }
-	      $buffer = $_;
-	      next;
-	  }
-	  # PID
-	  elsif( /^PID\s+(\S+)/ ) {
-	      $params{'-pid'} = $1;
-	  }
-	  #Version number
-	  elsif( /^VERSION\s+(.+)$/ ) {
-	      my ($acc,$gi) = split(' ',$1);
-	      if($acc =~ /^\w+\.(\d+)/) {
-		  $params{'-version'} = $1;
-		  $params{'-seq_version'} = $1;
-	      }
-	      if($gi && (index($gi,"GI:") == 0)) {
-		  $params{'-primary_id'} = substr($gi,3);
-	      }
-	  }
-	  #Keywords
-	  elsif( /^KEYWORDS\s+(.*)/ ) {
-	      my @kw = split(/\s*\;\s*/,$1);
-	      while( defined($_ = $self->_readline) ) { 
-		  chomp;
-		  /^\s+(.*)/ && do { push (@kw, split(/\s*\;\s*/,$1)); next };
-		  last;
-	      }
-	      
-	      @kw && $kw[-1] =~ s/\.$//;
-	      $params{'-keywords'} = \@kw;
-	      $buffer = $_;
-	      next;
-	  }
-	  # Organism name and phylogenetic information
-	  elsif (/^SOURCE/) {
-	      if($builder->want_slot('species')) {
-		  $species = $self->_read_GenBank_Species(\$buffer);
-		  $builder->add_slot_value(-species => $species);
+			$_ = $buffer;
+			# Description line(s)
+			if (/^DEFINITION\s+(\S.*\S)/) {
+				my @desc = ($1);
+				while ( defined($_ = $self->_readline) ) {
+					if( /^\s+(.*)/ ) { push (@desc, $1); next };
+					last;
+				}
+				$builder->add_slot_value(-desc => join(' ', @desc));
+				# we'll continue right here because DEFINITION always comes
+				# at the top of the entry
+				$buffer= $_;
+			}
+			# accession number (there can be multiple accessions)
+			if( /^ACCESSION\s+(\S.*\S)/ ) {
+				push(@acc, split(/\s+/,$1));
+				while( defined($_ = $self->_readline) ) { 
+					/^\s+(.*)/ && do { push (@acc, split(/\s+/,$1)); next };
+					last;
+				}
+				$buffer = $_;
+				next;
+			}
+			# PID
+			elsif( /^PID\s+(\S+)/ ) {
+				$params{'-pid'} = $1;
+			}
+			# Version number
+			elsif( /^VERSION\s+(.+)$/ ) {
+				my ($acc,$gi) = split(' ',$1);
+				if($acc =~ /^\w+\.(\d+)/) {
+					$params{'-version'} = $1;
+					$params{'-seq_version'} = $1;
+				}
+				if($gi && (index($gi,"GI:") == 0)) {
+					$params{'-primary_id'} = substr($gi,3);
+				}
+			}
+			# Keywords
+			elsif( /^KEYWORDS\s+(.*)/ ) {
+				my @kw = split(/\s*\;\s*/,$1);
+				while( defined($_ = $self->_readline) ) { 
+					chomp;
+					/^\s+(.*)/ && do { push (@kw, split(/\s*\;\s*/,$1)); next };
+					last;
+				}
+
+				@kw && $kw[-1] =~ s/\.$//;
+				$params{'-keywords'} = \@kw;
+				$buffer = $_;
+				next;
+			}
+			# Organism name and phylogenetic information
+			elsif (/^SOURCE/) {
+				if($builder->want_slot('species')) {
+					$species = $self->_read_GenBank_Species(\$buffer);
+					$builder->add_slot_value(-species => $species);
+				} else {
+					while(defined($buffer = $self->_readline())) {
+						last if substr($buffer,0,1) ne ' ';
+					}
+				}
+				next;
+			}
+			# References
+			elsif (/^REFERENCE/) {
+				if($annotation) {
+					my @refs = $self->_read_GenBank_References(\$buffer);
+					foreach my $ref ( @refs ) {
+						$annotation->add_Annotation('reference',$ref);
+					}
+				} else {
+					while(defined($buffer = $self->_readline())) {
+						last if substr($buffer,0,1) ne ' ';
+					}
+				}
+				next;
+			}
+			# Comments
+			elsif (/^COMMENT\s+(.*)/) {
+				if($annotation) {
+					my $comment = $1;
+					while (defined($_ = $self->_readline)) {
+						last if (/^\S/);
+						$comment .= $_; 
+					}
+					$comment =~ s/\n/ /g;
+					$comment =~ s/  +/ /g;
+					$annotation->add_Annotation('comment',
+						 Bio::Annotation::Comment->new(-text => $comment));
+					$buffer = $_;
 	      } else {
-		  while(defined($buffer = $self->_readline())) {
-		      last if substr($buffer,0,1) ne ' ';
-		  }
+				while(defined($buffer = $self->_readline())) {
+					last if substr($buffer,0,1) ne ' ';
+				}
 	      }
-	      next;
-	  }
-	  #References
-	  elsif (/^REFERENCE/) {
-	      if($annotation) {
-		  my @refs = $self->_read_GenBank_References(\$buffer);
-		  foreach my $ref ( @refs ) {
-		      $annotation->add_Annotation('reference',$ref);
-		  }
-	      } else {
-		  while(defined($buffer = $self->_readline())) {
-		      last if substr($buffer,0,1) ne ' ';
-		  }
-	      }
-	      next;
-	  }
-	  #Comments
-	  elsif (/^COMMENT\s+(.*)/) {
-	      if($annotation) {
-		  my $comment = $1;
-		  while (defined($_ = $self->_readline)) {
-		      last if (/^\S/);
-		      $comment .= $_; 
-		  }
-		  $comment =~ s/\n/ /g;
-		  $comment =~ s/  +/ /g;
-		  $annotation->add_Annotation(
-			    'comment',
-			    Bio::Annotation::Comment->new(-text => $comment));
-		  $buffer = $_;
-	      } else {
-		  while(defined($buffer = $self->_readline())) {
-		      last if substr($buffer,0,1) ne ' ';
-		  }
-	      }
-	      next;
-	  } elsif( /^SEGMENT\s+(.+)/ ) {
-	      if($annotation) {
-		  my $segment = $1;
-		  while (defined($_ = $self->_readline)) {
-		      last if (/^\S/);
-		      $segment .= $_; 
-		  }
-		  $segment =~ s/\n/ /og;
-		  $segment =~ s/ {2,}/ /og;
-		  $annotation->add_Annotation(
-					      'segment',
-					      Bio::Annotation::SimpleValue->new(-value => $segment));
-		  $buffer = $_;
-	      } else {
-		  while(defined($buffer = $self->_readline())) {
-		      last if substr($buffer,0,1) ne ' ';
-		  }
-	      }
-	      next;
-	  }
-	  # Exit at start of Feature table, or start of sequence
-	  last if( /^(FEATURES|ORIGIN)/ );
-	  # Get next line and loop again
-	  $buffer = $self->_readline;
+				next;
+			}
+			# Corresponding Genbank nucleotide id, Genpept only
+			elsif( /^DBSOURCE\s+(.+)/ ) {
+				if ($annotation) {
+					my $dbsource = $1;
+					while (defined($_ = $self->_readline)) {
+						last if (/^\S/);
+						$dbsource .= $_;
+					}
+					my ($id,$version) = $dbsource =~ /(\S+)\.(\d+)$/;
+					$annotation->add_Annotation('dblink',
+		 Bio::Annotation::DBLink->new(-primary_id => $id . "." . $version,
+												-version => $version,
+												-database => "GenBank",
+												-tagname => 'dblink'));
+					$buffer = $_;
+				} else {
+					while(defined($buffer = $self->_readline())) {
+						last if substr($buffer,0,1) ne ' ';
+					}
+				}
+				next;
+			}
+			# Exit at start of Feature table, or start of sequence
+			last if( /^(FEATURES|ORIGIN)/ );
+			# Get next line and loop again
+			$buffer = $self->_readline;
       }
       return undef if(! defined($buffer));
 
       # add them all at once for efficiency
       $builder->add_slot_value(-accession_number => shift(@acc),
-			       -secondary_accessions => \@acc,
-			       %params);
+										 -secondary_accessions => \@acc,
+										 %params);
       $builder->add_slot_value(-annotation => $annotation) if $annotation;
       %params = (); # reset before possible re-use to avoid setting twice
 
       # start over if we don't want to continue with this entry
       if(! $builder->want_object()) {
-	  $builder->make_object();
-	  next RECORDSTART;
-      }      
-      
+			$builder->make_object();
+			next RECORDSTART;
+      }
       # some "minimal" formats may not necessarily have a feature table
       if($builder->want_slot('features') && defined($_) && /^FEATURES/o) {
-	  # need to read the first line of the feature table
-	  $buffer = $self->_readline;
-	  
-	  # DO NOT read lines in the while condition -- this is done as a side
-	  # effect in _read_FTHelper_GenBank!
-	  while( defined($buffer) ) {
-	      # check immediately -- not at the end of the loop
-	      # note: GenPept entries obviously do not have a BASE line
-	      last if( $buffer =~ /^BASE|ORIGIN|CONTIG|WGS/o);
+			# need to read the first line of the feature table
+			$buffer = $self->_readline;
+			# DO NOT read lines in the while condition -- this is done as a side
+			# effect in _read_FTHelper_GenBank!
+			while( defined($buffer) ) {
+				# check immediately -- not at the end of the loop
+				# note: GenPept entries obviously do not have a BASE line
+				last if( $buffer =~ /^BASE|ORIGIN|CONTIG|WGS/o);
 
-	      # slurp in one feature at a time -- at return, the start of
-	      # the next feature will have been read already, so we need
-	      # to pass a reference, and the called method must set this
-	      # to the last line read before returning 
-	      
-	      my $ftunit = $self->_read_FTHelper_GenBank(\$buffer);
-	      
-	      # fix suggested by James Diggans
+				# slurp in one feature at a time -- at return, the start of
+				# the next feature will have been read already, so we need
+				# to pass a reference, and the called method must set this
+				# to the last line read before returning 
 
-	      if( !defined $ftunit ) {
-		  # GRRRR. We have fallen over. Try to recover
-		  $self->warn("Unexpected error in feature table for ".$params{'-display_id'}." Skipping feature, attempting to recover");
-		  unless( ($buffer =~ /^\s{5,5}\S+/o) or 
-			  ($buffer =~ /^\S+/o)) {
-		      $buffer = $self->_readline();
-		  }
-		  next; # back to reading FTHelpers
-	      }
-		
-	      # process ftunit
-	      my $feat =
-		  $ftunit->_generic_seqfeature($self->location_factory(),
-					       $display_id);
-	      # add taxon_id from source if available
-	      if($species && ($feat->primary_tag eq 'source') &&
-		 $feat->has_tag('db_xref') && (! $species->ncbi_taxid())) {
-		  foreach my $tagval ($feat->get_tag_values('db_xref')) {
-		      if(index($tagval,"taxon:") == 0) {
-			  $species->ncbi_taxid(substr($tagval,6));
-                          last;
-		      }
-		  }
-	      }
-	      # add feature to list of features
-	      push(@features, $feat);
-	  }
-	  $builder->add_slot_value(-features => \@features);
-	  $_ = $buffer;
+				my $ftunit = $self->_read_FTHelper_GenBank(\$buffer);
+
+				# fix suggested by James Diggans
+
+				if( !defined $ftunit ) {
+					# GRRRR. We have fallen over. Try to recover
+					$self->warn("Unexpected error in feature table for ".$params{'-display_id'}." Skipping feature, attempting to recover");
+					unless( ($buffer =~ /^\s{5,5}\S+/o) or 
+							  ($buffer =~ /^\S+/o)) {
+						$buffer = $self->_readline();
+					}
+					next; # back to reading FTHelpers
+				}
+
+				# process ftunit
+				my $feat =
+				  $ftunit->_generic_seqfeature($self->location_factory(),
+														 $display_id);
+				# add taxon_id from source if available
+				if($species && ($feat->primary_tag eq 'source') &&
+					$feat->has_tag('db_xref') && (! $species->ncbi_taxid())) {
+					foreach my $tagval ($feat->get_tag_values('db_xref')) {
+						if(index($tagval,"taxon:") == 0) {
+							$species->ncbi_taxid(substr($tagval,6));
+							last;
+						}
+					}
+				}
+				# add feature to list of features
+				push(@features, $feat);
+			}
+			$builder->add_slot_value(-features => \@features);
+			$_ = $buffer;
       }
       if( defined ($_) ) {
-	  if( /^CONTIG/o && $builder->want_slot('features')) {
-	      $b = "     $_"; # need 5 spaces to treat it like a feature
-	      my $ftunit = $self->_read_FTHelper_GenBank(\$b);
-	      if( ! defined $ftunit ) {
-		  $self->warn("unable to parse the CONTIG feature\n");
-	      } else { 
-		  push(@features,
-		       $ftunit->_generic_seqfeature($self->location_factory(),
-						    $display_id));
-	      }	
-	  } elsif( s/^WGS\s+// ) {
-	      chomp;
-	      $annotation->add_Annotation(
-		  'wgs',
-		  Bio::Annotation::SimpleValue->new(-value => $_));
-	  } elsif(! /^(ORIGIN|\/\/)/ ) {    # advance to the sequence, if any
-	      while (defined( $_ = $self->_readline) ) {
-		  last if /^(ORIGIN|\/\/)/;
-	      }
-	  }
+			if( /^CONTIG/o && $builder->want_slot('features')) {
+				$b = "     $_"; # need 5 spaces to treat it like a feature
+				my $ftunit = $self->_read_FTHelper_GenBank(\$b);
+				if( ! defined $ftunit ) {
+					$self->warn("unable to parse the CONTIG feature\n");
+				} else { 
+					push(@features,
+						  $ftunit->_generic_seqfeature($self->location_factory(),
+																 $display_id));
+				}
+			} elsif( s/^WGS\s+// ) {
+				chomp;
+				$annotation->add_Annotation('wgs',
+		         Bio::Annotation::SimpleValue->new(-value => $_));
+			} elsif(! /^(ORIGIN|\/\/)/ ) {    # advance to the sequence, if any
+				while (defined( $_ = $self->_readline) ) {
+					last if /^(ORIGIN|\/\/)/;
+				}
+			}
       }
       if(! $builder->want_object()) {
-	  $builder->make_object(); # implicit end-of-object
-	  next RECORDSTART;
+			$builder->make_object(); # implicit end-of-object
+			next RECORDSTART;
       }
       if($builder->want_slot('seq')) {
-	  # the fact that we want a sequence does not necessarily mean that
-	  # there also is a sequence ...
-	  if(defined($_) && s/^ORIGIN\s+//) {
-	      chomp;
-	      if( $annotation && length($_) > 0 ) {
-		  $annotation->add_Annotation('origin',
-					      Bio::Annotation::SimpleValue->new(-value => $_));
-	      }
-	      my $seqc = '';
-	      while( defined($_ = $self->_readline) ) {
-		  /^\/\// && last;
-		  $_ = uc($_);
-		  s/[^A-Za-z]//g;
-		  $seqc .= $_;
-	      }
-	      $self->debug("sequence length is ". length($seqc) ."\n");
-	      $builder->add_slot_value(-seq => $seqc);
-	  }
+			# the fact that we want a sequence does not necessarily mean that
+			# there also is a sequence ...
+			if(defined($_) && s/^ORIGIN\s+//) {
+				chomp;
+				if( $annotation && length($_) > 0 ) {
+					$annotation->add_Annotation('origin',
+					  Bio::Annotation::SimpleValue->new(-value => $_));
+				}
+				my $seqc = '';
+				while( defined($_ = $self->_readline) ) {
+					/^\/\// && last;
+					$_ = uc($_);
+					s/[^A-Za-z]//g;
+					$seqc .= $_;
+				}
+				$self->debug("sequence length is ". length($seqc) ."\n");
+				$builder->add_slot_value(-seq => $seqc);
+			}
       } elsif ( defined($_) && (substr($_,0,2) ne '//')) {
-	  # advance to the end of the record
-	  while( defined($_ = $self->_readline) ) {
-	      last if substr($_,0,2) eq '//';
-	  }
+			# advance to the end of the record
+			while( defined($_ = $self->_readline) ) {
+				last if substr($_,0,2) eq '//';
+			}
       }
       # Unlikely, but maybe the sequence is so weird that we don't want it
       # anymore. We don't want to return undef if the stream's not exhausted
@@ -561,7 +563,7 @@ sub next_seq {
       $seq = $builder->make_object();
       next RECORDSTART unless $seq;
       last RECORDSTART;
-  } # end while RECORDSTART
+	} # end while RECORDSTART
 
     return $seq;
 }
@@ -578,280 +580,289 @@ sub next_seq {
 =cut
 
 sub write_seq {
-    my ($self,@seqs) = @_;
+	my ($self,@seqs) = @_;
 
-    foreach my $seq ( @seqs ) {
-	$self->throw("Attempting to write with no seq!") unless defined $seq;
+	foreach my $seq ( @seqs ) {
+		$self->throw("Attempting to write with no seq!") unless defined $seq;
 
-	if( ! ref $seq || ! $seq->isa('Bio::SeqI') ) {
-	    $self->warn(" $seq is not a SeqI compliant module. Attempting to dump, but may fail!");
-	}
-
-	my $str = $seq->seq;
-
-	my ($div, $mol);
-	my $len = $seq->length();
-
-	if ( $seq->can('division') ) {
-	    $div=$seq->division;
-	} 
-	if( !defined $div || ! $div ) { $div = 'UNK'; }
-	my $alpha = $seq->alphabet;
-	if( !$seq->can('molecule') || ! defined ($mol = $seq->molecule()) ) {
-	    $mol =  $alpha || 'DNA';
-	}
-
-	my $circular = 'linear  ';
-	$circular = 'circular' if $seq->is_circular;
-
-	local($^W) = 0;	# supressing warnings about uninitialized fields.
-
-	my $temp_line;
-	if( $self->_id_generation_func ) {
-	    $temp_line = &{$self->_id_generation_func}($seq);
-	} else {
-	    my $date = '';
-	    if( $seq->can('get_dates') ) { 	    
-		($date) = $seq->get_dates();
-	    }
-
-            $self->warn("No whitespace allowed in GenBank display id [". $seq->display_id. "]")
-                if $seq->display_id =~ /\s/;
-
-	    $temp_line = sprintf ("%-12s%-15s%13s %s%4s%-8s%-8s %3s %-s", 
-				  'LOCUS', $seq->id(),$len,
-				  (lc($alpha) eq 'protein') ? ('aa','', '') : 
-				  ('bp', '',$mol),$circular,
-				  $div,$date);
-	} 
-
-	$self->_print("$temp_line\n");
-	$self->_write_line_GenBank_regex("DEFINITION  ", "            ",
-					 $seq->desc(),"\\s\+\|\$",80);
-
-	# if there, write the accession line
-
-	if( $self->_ac_generation_func ) {
-	    $temp_line = &{$self->_ac_generation_func}($seq);
-	    $self->_print("ACCESSION   $temp_line\n");   
-	} else {
-	    my @acc = ();
-	    push(@acc, $seq->accession_number());
-	    if( $seq->isa('Bio::Seq::RichSeqI') ) {
-		push(@acc, $seq->get_secondary_accessions());
-	    }
-	    $self->_print("ACCESSION   ", join(" ", @acc), "\n");
-	    # otherwise - cannot print <sigh>
-	} 
-
-	# if PID defined, print it
-	if($seq->isa('Bio::Seq::RichSeqI') && $seq->pid()) {
-	    $self->_print("PID         ", $seq->pid(), "\n");
-	}
-
-	# if there, write the version line
-
-	if( defined $self->_sv_generation_func() ) {
-	    $temp_line = &{$self->_sv_generation_func}($seq);
-	    if( $temp_line ) {
-		$self->_print("VERSION     $temp_line\n");   
-	    }
-	} else {
-	    if($seq->isa('Bio::Seq::RichSeqI') && defined($seq->seq_version)) {
-		my $id = $seq->primary_id(); # this may be a GI number
-		$self->_print("VERSION     ",
-			      $seq->accession_number(), ".", $seq->seq_version,
-			      ($id && ($id =~ /^\d+$/) ? "  GI:".$id : ""),
-			      "\n");
-	    }
-	} 
-
-	# if there, write the keywords line
-
-	if( defined $self->_kw_generation_func() ) {
-	    $temp_line = &{$self->_kw_generation_func}($seq);
-	    $self->_print("KEYWORDS    $temp_line\n");   
-	} else {
-	    if( $seq->can('keywords') ) {
-		my $kw = $seq->keywords;
-		$kw .= '.' if( $kw !~ /\.$/ );
-		$self->_print("KEYWORDS    $kw\n");
-	    }
-	} 
-
-	# SEGMENT if it exists
-	foreach my $ref ( $seq->annotation->get_Annotations('segment') ) {
-	    $self->_print(sprintf ("%-11s %s\n",'SEGMENT',
-				  $ref->value));
-	}
-
-	# Organism lines
-	if (my $spec = $seq->species) {
-	    my ($species, $genus, @class) = $spec->classification();
-	    my $OS;
-	    if( $spec->common_name ) {
-		$OS = $spec->common_name;
-	    } else { 
-		$OS = "$genus $species";
-	    }
-	    if (my $ssp = $spec->sub_species) {
-		$OS .= " $ssp";
-	    }
-	    $self->_print("SOURCE      $OS\n");
-	    $self->_print("  ORGANISM  ",
-			  ($spec->organelle() ? $spec->organelle()." " : ""),
-			  "$genus $species", "\n");
-	    my $OC = join('; ', (reverse(@class), $genus)) .'.';
-	    $self->_write_line_GenBank_regex(' 'x12,' 'x12,
-					     $OC,"\\s\+\|\$",80);
-	}
-
-	# Reference lines
-	my $count = 1;
-	foreach my $ref ( $seq->annotation->get_Annotations('reference') ) {
-            $temp_line = "REFERENCE   $count";
-	    $temp_line .= sprintf ("  (%s %d to %d)",
-				  ($seq->alphabet() eq "protein" ?
-				   "residues" : "bases"),
-				  $ref->start,$ref->end)
-                if $ref->start;
-	    $self->_print("$temp_line\n");
-	    $self->_write_line_GenBank_regex("  AUTHORS   ",' 'x12,
-					     $ref->authors,"\\s\+\|\$",80);
-	    $self->_write_line_GenBank_regex("  TITLE     "," "x12,
-					     $ref->title,"\\s\+\|\$",80);
-	    $self->_write_line_GenBank_regex("  JOURNAL   "," "x12,
-					     $ref->location,"\\s\+\|\$",80);
-	    if ($ref->comment) {
-		$self->_write_line_GenBank_regex("  REMARK    "," "x12,
-						 $ref->comment,"\\s\+\|\$",80);
-	    }
-	    if( $ref->medline) {
-		$self->_write_line_GenBank_regex("  MEDLINE   "," "x12,
-						 $ref->medline, "\\s\+\|\$",80);
-		# I am assuming that pubmed entries only exist when there
-		# are also MEDLINE entries due to the indentation
-	    }
-	    # This could be a wrong assumption
-	    if( $ref->pubmed ) {
-		$self->_write_line_GenBank_regex("   PUBMED   "," "x12,
-						 $ref->pubmed, "\\s\+\|\$",
-						 80);
-	    }
-	    $count++;
-	}
-	# Comment lines
-
-	foreach my $comment ( $seq->annotation->get_Annotations('comment') ) {
-	    $self->_write_line_GenBank_regex("COMMENT     "," "x12,
-					     $comment->text,"\\s\+\|\$",80);
-	}
-	$self->_print("FEATURES             Location/Qualifiers\n");
-
-	if( defined $self->_post_sort ) {
-	    # we need to read things into an array. Process. Sort them. Print 'em
-
-	    my $post_sort_func = $self->_post_sort();
-	    my @fth;
-
-	    foreach my $sf ( $seq->top_SeqFeatures ) {
-		push(@fth,Bio::SeqIO::FTHelper::from_SeqFeature($sf,$seq));
-	    }
-
-	    @fth = sort { &$post_sort_func($a,$b) } @fth;
-
-	    foreach my $fth ( @fth ) {
-		$self->_print_GenBank_FTHelper($fth);
-	    }
-	} else {
-	    # not post sorted. And so we can print as we get them.
-	    # lower memory load...
-
-	    foreach my $sf ( $seq->top_SeqFeatures ) {
-		my @fth = Bio::SeqIO::FTHelper::from_SeqFeature($sf,$seq);
-		foreach my $fth ( @fth ) {
-		    if( ! $fth->isa('Bio::SeqIO::FTHelper') ) {
-			$sf->throw("Cannot process FTHelper... $fth");
-		    }		
-
-		    $self->_print_GenBank_FTHelper($fth);
+		if( ! ref $seq || ! $seq->isa('Bio::SeqI') ) {
+			$self->warn(" $seq is not a SeqI compliant module. Attempting to dump, but may fail!");
 		}
-	    }
+
+		my $str = $seq->seq;
+
+		my ($div, $mol);
+		my $len = $seq->length();
+
+		if ( $seq->can('division') ) {
+			$div=$seq->division;
+		}
+		if( !defined $div || ! $div ) { $div = 'UNK'; }
+		my $alpha = $seq->alphabet;
+		if( !$seq->can('molecule') || ! defined ($mol = $seq->molecule()) ) {
+			$mol =  $alpha || 'DNA';
+		}
+
+		my $circular = 'linear  ';
+		$circular = 'circular' if $seq->is_circular;
+
+		local($^W) = 0;	# supressing warnings about uninitialized fields.
+
+		my $temp_line;
+		if( $self->_id_generation_func ) {
+			$temp_line = &{$self->_id_generation_func}($seq);
+		} else {
+			my $date = '';
+			if( $seq->can('get_dates') ) {
+				($date) = $seq->get_dates();
+			}
+
+			$self->warn("No whitespace allowed in GenBank display id [". $seq->display_id. "]")
+			  if $seq->display_id =~ /\s/;
+
+			$temp_line = sprintf ("%-12s%-15s%13s %s%4s%-8s%-8s %3s %-s", 
+										 'LOCUS', $seq->id(),$len,
+										 (lc($alpha) eq 'protein') ? ('aa','', '') : 
+										 ('bp', '',$mol),$circular,
+										 $div,$date);
+		}
+
+		$self->_print("$temp_line\n");
+		$self->_write_line_GenBank_regex("DEFINITION  ", "            ",
+													$seq->desc(),"\\s\+\|\$",80);
+
+		# if there, write the accession line
+
+		if( $self->_ac_generation_func ) {
+			$temp_line = &{$self->_ac_generation_func}($seq);
+			$self->_print("ACCESSION   $temp_line\n");
+		} else {
+			my @acc = ();
+			push(@acc, $seq->accession_number());
+			if( $seq->isa('Bio::Seq::RichSeqI') ) {
+				push(@acc, $seq->get_secondary_accessions());
+			}
+			$self->_print("ACCESSION   ", join(" ", @acc), "\n");
+			# otherwise - cannot print <sigh>
+		}
+
+		# if PID defined, print it
+		if($seq->isa('Bio::Seq::RichSeqI') && $seq->pid()) {
+			$self->_print("PID         ", $seq->pid(), "\n");
+		}
+
+		# if there, write the version line
+
+		if( defined $self->_sv_generation_func() ) {
+			$temp_line = &{$self->_sv_generation_func}($seq);
+			if( $temp_line ) {
+				$self->_print("VERSION     $temp_line\n");   
+			}
+		} else {
+			if($seq->isa('Bio::Seq::RichSeqI') && defined($seq->seq_version)) {
+				my $id = $seq->primary_id(); # this may be a GI number
+				$self->_print("VERSION     ",
+								  $seq->accession_number(), ".", $seq->seq_version,
+								  ($id && ($id =~ /^\d+$/) ? "  GI:".$id : ""),
+								  "\n");
+			}
+		}
+
+		# if there, write the DBSOURCE line
+		foreach my $ref ( $seq->annotation->get_Annotations('dblink') ) {
+			# if ($ref->comment eq 'DBSOURCE') {
+				$self->_print('DBSOURCE    accession ',
+								  $ref->primary_id, "\n");
+			# }
+		}
+
+		# if there, write the keywords line
+		if( defined $self->_kw_generation_func() ) {
+			$temp_line = &{$self->_kw_generation_func}($seq);
+			$self->_print("KEYWORDS    $temp_line\n");
+		} else {
+			if( $seq->can('keywords') ) {
+				my $kw = $seq->keywords;
+				$kw .= '.' if( $kw !~ /\.$/ );
+				$self->_print("KEYWORDS    $kw\n");
+			}
+		}
+
+		# SEGMENT if it exists
+		foreach my $ref ( $seq->annotation->get_Annotations('segment') ) {
+			$self->_print(sprintf ("%-11s %s\n",'SEGMENT',
+										  $ref->value));
+		}
+
+		# Organism lines
+		if (my $spec = $seq->species) {
+			my ($species, $genus, @class) = $spec->classification();
+			my $OS;
+			if( $spec->common_name ) {
+				$OS = $spec->common_name;
+			} else { 
+				$OS = "$genus $species";
+			}
+			if (my $ssp = $spec->sub_species) {
+				$OS .= " $ssp";
+			}
+			$self->_print("SOURCE      $OS\n");
+			$self->_print("  ORGANISM  ",
+							  ($spec->organelle() ? $spec->organelle()." " : ""),
+							  "$genus $species", "\n");
+			my $OC = join('; ', (reverse(@class), $genus)) .'.';
+			$self->_write_line_GenBank_regex(' 'x12,' 'x12,
+														$OC,"\\s\+\|\$",80);
+		}
+
+		# Reference lines
+		my $count = 1;
+		foreach my $ref ( $seq->annotation->get_Annotations('reference') ) {
+			$temp_line = "REFERENCE   $count";
+			$temp_line .= sprintf ("  (%s %d to %d)",
+										  ($seq->alphabet() eq "protein" ?
+											"residues" : "bases"),
+										  $ref->start,$ref->end)
+			  if $ref->start;
+			$self->_print("$temp_line\n");
+			$self->_write_line_GenBank_regex("  AUTHORS   ",' 'x12,
+														$ref->authors,"\\s\+\|\$",80);
+			$self->_write_line_GenBank_regex("  TITLE     "," "x12,
+														$ref->title,"\\s\+\|\$",80);
+			$self->_write_line_GenBank_regex("  JOURNAL   "," "x12,
+														$ref->location,"\\s\+\|\$",80);
+			if ($ref->comment) {
+				$self->_write_line_GenBank_regex("  REMARK    "," "x12,
+															$ref->comment,"\\s\+\|\$",80);
+			}
+			if( $ref->medline) {
+				$self->_write_line_GenBank_regex("  MEDLINE   "," "x12,
+															$ref->medline, "\\s\+\|\$",80);
+				# I am assuming that pubmed entries only exist when there
+				# are also MEDLINE entries due to the indentation
+			}
+			# This could be a wrong assumption
+			if( $ref->pubmed ) {
+				$self->_write_line_GenBank_regex("   PUBMED   "," "x12,
+															$ref->pubmed, "\\s\+\|\$",
+															80);
+			}
+			$count++;
+		}
+
+		# Comment lines
+		foreach my $comment ( $seq->annotation->get_Annotations('comment') ) {
+			$self->_write_line_GenBank_regex("COMMENT     "," "x12,
+														$comment->text,"\\s\+\|\$",80);
+		}
+		$self->_print("FEATURES             Location/Qualifiers\n");
+
+		if( defined $self->_post_sort ) {
+			# we need to read things into an array. Process. Sort them. Print 'em
+
+			my $post_sort_func = $self->_post_sort();
+			my @fth;
+
+			foreach my $sf ( $seq->top_SeqFeatures ) {
+				push(@fth,Bio::SeqIO::FTHelper::from_SeqFeature($sf,$seq));
+			}
+
+			@fth = sort { &$post_sort_func($a,$b) } @fth;
+
+			foreach my $fth ( @fth ) {
+				$self->_print_GenBank_FTHelper($fth);
+			}
+		} else {
+			# not post sorted. And so we can print as we get them.
+			# lower memory load...
+
+			foreach my $sf ( $seq->top_SeqFeatures ) {
+				my @fth = Bio::SeqIO::FTHelper::from_SeqFeature($sf,$seq);
+				foreach my $fth ( @fth ) {
+					if( ! $fth->isa('Bio::SeqIO::FTHelper') ) {
+						$sf->throw("Cannot process FTHelper... $fth");
+					}
+					$self->_print_GenBank_FTHelper($fth);
+				}
+			}
+		}
+
+		# deal with WGS
+		foreach my $wgs ( $seq->annotation->get_Annotations('wgs') ) {
+			$self->_print(sprintf ("%-11s %s\n",'WGS',
+										  $wgs->value));
+			$self->_show_dna(0);
+		}
+
+		if( $seq->length == 0 ) { $self->_show_dna(0) }
+
+		if( $self->_show_dna() == 0 ) {
+			$self->_print("\n//\n");
+			return;
+		}
+
+		# finished printing features.
+
+		$str =~ tr/A-Z/a-z/;
+
+		# Count each nucleotide
+		unless(  $mol eq 'protein' ) {
+			my $alen = $str =~ tr/a/a/;
+			my $clen = $str =~ tr/c/c/;
+			my $glen = $str =~ tr/g/g/;
+			my $tlen = $str =~ tr/t/t/;
+
+			my $olen = $len - ($alen + $tlen + $clen + $glen);
+			if( $olen < 0 ) {
+				$self->warn("Weird. More atgc than bases. Problem!");
+			}
+
+			my $base_count = sprintf("BASE COUNT %8s a %6s c %6s g %6s t%s\n",
+											 $alen,$clen,$glen,$tlen,
+											 ( $olen > 0 ) ? 
+											 sprintf("%6s others",$olen) : '');
+			$self->_print($base_count);
+		}
+
+		my ($o) = $seq->annotation->get_Annotations('origin');
+		$self->_print(sprintf("%-12s%s\n",
+									 'ORIGIN', $o ? $o->value : ''));
+		# print out the sequence
+		my $nuc = 60;		# Number of nucleotides per line
+		my $whole_pat = 'a10' x 6; # Pattern for unpacking a whole line
+		my $out_pat   = 'A11' x 6; # Pattern for packing a line
+		my $length = length($str);
+
+		# Calculate the number of nucleotides which fit on whole lines
+		my $whole = int($length / $nuc) * $nuc;
+
+		# Print the whole lines
+		my $i;
+		for ($i = 0; $i < $whole; $i += $nuc) {
+			my $blocks = pack $out_pat,
+			  unpack $whole_pat,
+				 substr($str, $i, $nuc);
+			chop $blocks;
+			$self->_print(sprintf("%9d $blocks\n", $i + $nuc - 59));
+		}
+
+		# Print the last line
+		if (my $last = substr($str, $i)) {
+			my $last_len = length($last);
+			my $last_pat = 'a10' x int($last_len / 10) .
+			  'a'. $last_len % 10;
+			my $blocks = pack $out_pat,
+			  unpack($last_pat, $last);
+			$blocks =~ s/ +$//;
+			$self->_print(sprintf("%9d $blocks\n", 
+										 $length - $last_len + 1));
+		}
+
+		$self->_print("//\n");
+
+		$self->flush if $self->_flush_on_write && defined $self->_fh;
+		return 1;
 	}
-	# deal with WGS
-	foreach my $wgs ( $seq->annotation->get_Annotations('wgs') ) {
-	    $self->_print(sprintf ("%-11s %s\n",'WGS',
-				   $wgs->value));
-	    $self->_show_dna(0);
-	}
-
-	if( $seq->length == 0 ) { $self->_show_dna(0) }
-
-	if( $self->_show_dna() == 0 ) {
-	    $self->_print("\n//\n");
-	    return;
-	}
-
-# finished printing features.
-
-	$str =~ tr/A-Z/a-z/;
-
-# Count each nucleotide
-	unless(  $mol eq 'protein' ) {
-	    my $alen = $str =~ tr/a/a/;
-	    my $clen = $str =~ tr/c/c/;
-	    my $glen = $str =~ tr/g/g/;
-	    my $tlen = $str =~ tr/t/t/;
-
-	    my $olen = $len - ($alen + $tlen + $clen + $glen);
-	    if( $olen < 0 ) {
-		$self->warn("Weird. More atgc than bases. Problem!");
-	    }
-
-	    my $base_count = sprintf("BASE COUNT %8s a %6s c %6s g %6s t%s\n",
-				     $alen,$clen,$glen,$tlen,
-				     ( $olen > 0 ) ? 
-				     sprintf("%6s others",$olen) : '');
-	    $self->_print($base_count); 
-	}
-
-	my ($o) = $seq->annotation->get_Annotations('origin');
-	$self->_print(sprintf("%-12s%s\n",
-			      'ORIGIN', $o ? $o->value : ''));
-        # print out the sequence
-	my $nuc = 60;		# Number of nucleotides per line
-	my $whole_pat = 'a10' x 6; # Pattern for unpacking a whole line
-	my $out_pat   = 'A11' x 6; # Pattern for packing a line
-	my $length = length($str);
-
-	# Calculate the number of nucleotides which fit on whole lines
-	my $whole = int($length / $nuc) * $nuc;
-
-	# Print the whole lines
-	my $i;
-	for ($i = 0; $i < $whole; $i += $nuc) {
-	    my $blocks = pack $out_pat,
-	    unpack $whole_pat,
-	    substr($str, $i, $nuc);
-            chop $blocks;
-	    $self->_print(sprintf("%9d $blocks\n", $i + $nuc - 59));
-	}
-
-	# Print the last line
-	if (my $last = substr($str, $i)) {
-	    my $last_len = length($last);
-	    my $last_pat = 'a10' x int($last_len / 10) .'a'. $last_len % 10;
-	    my $blocks = pack $out_pat,
-	    unpack($last_pat, $last);
-            $blocks =~ s/ +$//;
-	    $self->_print(sprintf("%9d $blocks\n", $length - $last_len + 1));
-	}
-
-	$self->_print("//\n");
-
-	$self->flush if $self->_flush_on_write && defined $self->_fh;
-	return 1;
-    }
 }
 
 =head2 _print_GenBank_FTHelper
