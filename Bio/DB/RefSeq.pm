@@ -16,25 +16,24 @@
 Bio::DB::RefSeq - Database object interface for RefSeq retrieval
 
 =head1 SYNOPSIS
-
   use Bio::DB::RefSeq;
 
   $db = new Bio::DB::RefSeq;
 
   # most of the time RefSeq_ID eq RefSeq acc
   $seq = $db->get_Seq_by_id('NM_006732'); # RefSeq ID
- 	print "accession is ", $seq->accession_number, "\n";
+  print "accession is ", $seq->accession_number, "\n";
 
   # or changeing to accession number and Fasta format ...
   $db->request_format('fasta');
   $seq = $db->get_Seq_by_acc('NM_006732'); # RefSeq ACC
- 	print "seq is ", $seq->seq, "\n";
+  print "seq is ", $seq->seq, "\n";
 
   # especially when using versions, you better be prepared
   # in not getting what what want
   eval {
       $seq = $db->get_Seq_by_version('NM_006732.1'); # RefSeq VERSION
-  }
+  };
   print "accesion is ", $seq->accession_number, "\n" unless $@;
 
   # or ... best when downloading very large files, prevents
@@ -44,13 +43,12 @@ Bio::DB::RefSeq - Database object interface for RefSeq retrieval
   # and request Fasta sequence
   $db = new Bio::DB::RefSeq(-retrievaltype => 'tempfile' ,
  			       -format => 'fasta');
-   my $seqio = $embl->get_Stream_by_batch(['NM_006732', 'NM_005252'] );
+  my $seqio = $db->get_Stream_by_batch(['NM_006732', 'NM_005252'] );
   while( my $seq  =  $seqio->next_seq ) {
- 	print "seqid is ", $clone->id, "\n";
+ 	print "seqid is ", $seq->id, "\n";
   }
 
 =head1 DESCRIPTION
-
 
 Allows the dynamic retrieval of sequence objects L<Bio::Seq> from the
 RefSeq database using the dbfetch script at EBI:
