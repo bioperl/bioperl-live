@@ -210,7 +210,7 @@ sub next_feature {
 
   return undef unless $gff_string;
 
-  if($gff_string =~ /^##/){
+  if($gff_string =~ /^##/ or $gff_string =~ /^>/){
     $self->_handle_directive($gff_string);
     return $self->next_feature();
   } else {
@@ -247,10 +247,21 @@ sub _handle_directive {
     $self->warn("'##$directive' directive handling not yet implemented");    
   }
 
-  elsif($directive eq 'FASTA'){
+  elsif($directive eq 'FASTA' or $directive =~ /^>(.+)/){
+    my $fasta_directive_id = $1 if $1;
     $self->warn("'##$directive' directive handling not yet implemented");
-    while($self->_readline()){
-      #suck up the rest of the file
+    local $/ = '>';
+    while(my $read = $self->_readline()){
+       chomp $read;
+       my $fasta_id;
+       my @seqarray = split /\n/, $read;
+       if ($fasta_directive_id) {
+         $fasta_id = $fasta_directive_id;
+         $fasta_directive_id = '';
+       } else {
+         $fasta_id = shift @seqarray;
+       }
+       my $seq = join '', @seqarray;
     }
   }
 
@@ -356,9 +367,9 @@ sub _handle_feature {
           -end    => $tend,
       ); 
 
-      if ($strand eq '+') {
+      if ($strand && $strand eq '+') {
         $strand = 1;
-      } elsif ($strand eq '-') {
+      } elsif ($strand && $strand eq '-') {
         $strand = -1;
       }
       $target_loc->strand($strand) if $strand;
