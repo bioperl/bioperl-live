@@ -224,7 +224,7 @@ sub length {
    my ($len ) = 0;
 
    foreach my $marker ($self->each_element) {
-       $len = $marker->position->numeric if  $marker->postion->numeric > $len;
+       $len = $marker->position->numeric if  $marker->position->numeric > $len;
    }
    return $len;
 }
