@@ -16,7 +16,7 @@ BEGIN {
 	use lib 't';
     }
     use Test;
-    plan tests => 24;
+    plan tests => 25;
 }
 use Bio::Variation::Allele;
 use Bio::Variation::AAChange;
@@ -64,13 +64,15 @@ $obj->add_Allele($a2);
 
 ok $obj->allele_mut->seq, 'A';
 
+ok $obj->similarity_score, 0;
+
 $obj->upStreamSeq('upStreamSeq'); 
 ok $obj->upStreamSeq, 'upStreamSeq';
 
 $obj->dnStreamSeq('dnStreamSeq'); 
 ok $obj->dnStreamSeq, 'dnStreamSeq' ;
 
-ok $obj->label, 'substitution';
+ok $obj->label, 'substitution, conservative';
 
 $obj->status('proven'); 
 ok $obj->status, 'proven';
