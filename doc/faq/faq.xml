@@ -300,29 +300,6 @@ href="http://bioperl.org/pipermail/bioperl-l/2003-December/014406.html">http://b
       </answer>
     </q>
     <q id="7">
-      <question>Does SearchIO parse the HTML output file that BLAST can create?</question>
-      <answer><p>Yes, with a twist. You can modify SearchIO's _readline() method such that it reads in the HTML and strips it of tags using the StripHTML module:</p>
-	<code>
-	  use Bio::SearchIO;
-	  use Bio::SearchIO::blast;
-	  use HTML::Strip;
-	  
-	  my $hs = new HTML::Strip;
-	  
-	  # replace the blast parser's _readline method with one that
-	  # auto-strips HTML:
-	  
-	  sub Bio::SearchIO::blast::_readline {
-	    my ($self, @args) = @_;
-	    return $hs->parse($self->SUPER::_readline(@args));
-	  }
-	  
-	  $io = new Bio::SearchIO(-file => "etc.bls", -format => "blast");
-	  # etc ...
-	</code>
-      </answer>
-    </q>
-    <q id="8">
       <question><p>Can I get domain number from hmmpfam or hmmsearch output? E.g.</p>
 	<code>
 	  SH2_5: domain 2 of 2, from 349 to 432: score 104.4, E = 1.9e-26
