@@ -1,6 +1,6 @@
 # $Id$
 #
-# BioPerl module for Bio::SeqAnalysisParserFactoryI
+# BioPerl module for Bio::Factory::SeqAnalysisParserFactoryI
 #
 # Cared for by Jason Stajich <jason@chg.mc.duke.edu>,
 # and Hilmar Lapp <hlapp@gmx.net>
@@ -13,8 +13,8 @@
 
 =head1 NAME
 
-Bio::SeqAnalysisParserFactoryI - interface describing objects capable of
-              creating SeqAnalysisParserI compliant parsers
+Bio::Factory::SeqAnalysisParserFactoryI - interface describing objects capable
+              of creating SeqAnalysisParserI compliant parsers
 
 =head1 SYNOPSIS
 
@@ -32,6 +32,12 @@ Bio::SeqAnalysisParserFactoryI - interface describing objects capable of
 
 =head1 DESCRIPTION
 
+This is an interface for factory classes capable of instantiating
+SeqAnalysisParserI implementing parsers.
+
+The concept behind the interface is a generic analysis result parsing
+in high-throughput automated sequence annotation pipelines. See
+Bio::SeqAnalysisParserI for more documentation of this concept.
 
 =head1 FEEDBACK
 
@@ -67,11 +73,11 @@ The rest of the documentation details each of the object methods. Internal metho
 package Bio::Factory::SeqAnalysisParserFactoryI;
 use strict;
 
-use Bio::Root::RootI;
+#use Bio::Root::RootI;
 use Carp;
 
 use vars qw(@ISA );
-@ISA = qw(Bio::Root::RootI); 
+#@ISA = qw(Bio::Root::RootI); 
 
 =head2 get_parser
 
@@ -85,7 +91,7 @@ use vars qw(@ISA );
            streams (filehandles).
 
            A particular implementation may not be able to create a parser for
-           the requested method. In this case undef it shall return undef.
+           the requested method. In this case it shall return undef.
 
            Parameters (-params argument) are passed on to the parser object
            and therefore are specific to the parser to be created. An
