@@ -80,7 +80,7 @@ use Bio::Root::RootI;
 
 =head2 next_map
 
- Title   : next_tree
+ Title   : next_map
  Usage   : my $map = $factory->next_map;
  Function: Get a map from the factory
  Returns : Bio::Map::MapI
@@ -95,7 +95,7 @@ sub next_map{
 
 =head2 write_map
 
- Title   : write_tree
+ Title   : write_map
  Usage   : $factory->write_map($map);
  Function: Write a map out through the factory
  Returns : none
