@@ -167,7 +167,7 @@ ok($aln->get_seq_by_pos(1)->get_nse,'PAPA_CARPA/1-345');
 ok($aln->get_seq_by_pos(2)->get_nse,'CATL_HUMAN/1-333');
 
 
-# EMBOSS needle
+# EMBOSS water 2.2.x
 
 $str = new Bio::AlignIO('-format' => 'emboss',
 			'-file'   => Bio::Root::IO->catfile("t", "data", 'cys1_dicdi.water'));

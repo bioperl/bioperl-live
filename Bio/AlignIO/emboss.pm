@@ -72,13 +72,17 @@ Internal methods are usually preceded with a _
 
 
 package Bio::AlignIO::emboss;
-use vars qw(@ISA);
+use vars qw(@ISA $EMBOSSTitleLen);
 use strict;
 
 use Bio::AlignIO;
 use Bio::LocatableSeq;
 
 @ISA = qw(Bio::AlignIO );
+
+BEGIN { 
+    $EMBOSSTitleLen    = 13;
+}
 
 sub _initialize {
     my($self,@args) = @_;
@@ -138,6 +142,7 @@ sub next_aln {
 	    $data{'score'} = $1;		
 	} elsif( /^\#\s+(1|2):\s+(\S+)/ && !  $data{"seq$1"}->{'name'} ) {
 	    my $nm = $2;
+	    $nm = substr($nm,0,$EMBOSSTitleLen); # emboss has a max seq length
 	    if( $names{$nm} ) {
 		$nm .= "-". $names{$nm};
 	    }
