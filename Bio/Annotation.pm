@@ -42,7 +42,7 @@ Bio::Annotation - A generic object for annotations
     # Making an annotation object from scratch
     #
 
-    $ann = Bio::Pfam::Annotation->new();
+    $ann = Bio::Annotation->new();
 
     $ann->description("Description text");
     print "Annotation description is ", $ann->description, "\n";
