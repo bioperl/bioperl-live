@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 
-# file: render_blast1.pl
+# file: render1.pl
 # This is code example 1 in the Graphics-HOWTO
 # Author: Lincoln Stein
 
