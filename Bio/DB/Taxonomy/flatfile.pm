@@ -165,8 +165,7 @@ sub get_Taxonomy_Node{
    my (%item,$taxonid,$name);
 
    if( @_ > 1 ) {
-       ($taxonid,$name) = $self->_rearrange([qw(TAXONID
-							NAME)],@_);
+       ($taxonid,$name) = $self->_rearrange([qw(TAXONID NAME)],@_);
        if( $name ) {
 	   ($taxonid) = $self->get_taxonid($name);
        }
@@ -178,12 +177,9 @@ sub get_Taxonomy_Node{
    my $first = 1;
    my @classification;
    while( defined ($node = $self->{'_nodes'}->[$taxonid]) ) {
-
        my ($taxid,$parent,$rank,$code,$divid) = split(SEPARATOR,$node);
        my ($taxon_name) = $self->{'_id2name'}->[$taxid];
-       
-       push @fields, $taxon_name if ($rank && $rank ne 'no rank') ;
-       if( $first ) {	   
+       if( $first ) {
 	   $taxonnode = new Bio::Taxonomy::Node(-dbh       => $self,
 						-name      => $taxon_name,
 						-object_id => $taxid,
@@ -192,8 +188,16 @@ sub get_Taxonomy_Node{
 						-division  => $DIVISIONS[$divid]->[0]);
 	   $first = 0;
        }
+       if( $rank eq 'species' ) { 
+	   # get rid of genus from species name
+	   (undef,$taxon_name) = split(/\s+/,$taxon_name,2);
+       }
+       push @fields, $taxon_name if ($rank && $rank ne 'no rank');
        last if $parent == 1 || ! $parent || ! $taxid;
        $taxonid = $parent;
+   }
+   while( @fields < 8 ) {
+       unshift @fields, '';
    }
    $taxonnode->classification(@fields);
    return $taxonnode;
