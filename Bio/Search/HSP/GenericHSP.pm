@@ -681,8 +681,31 @@ sub get_aln {
     my $aln = new Bio::SimpleAlign;
     my $hs = $self->hit_string();
     my $qs = $self->query_string();
-    $hs =~ s/[\/\\]/\-/g;
-    $qs =~ s/[\/\\]/\-/g;
+    
+    if( $self->algorithm  =~ /FAST/i ) {
+	# fasta reports some extra 'regional' sequence information
+	# we need to clear out first
+	# this seemed a bit insane to me at first, but it appears to 
+	# work --jason
+	
+	# we infer the end of the regional sequence where the first
+	# non space is in the homology string
+	# then we use the HSP->length to tell us how far to read
+	# to cut off the end of the sequence
+
+	# one possible problem is the sequence which 
+	
+	my ($start) = 0;
+	if( $self->homology_string() =~ /^(\s+)/ ) {
+	    $start = CORE::length($1);
+	}
+	$hs =~ s![\\\/]!!g;
+	$qs =~ s![\\\/]!!g;
+
+	$hs = substr($hs, $start,$self->length('total'));
+	$qs = substr($qs, $start,$self->length('total'));
+    }
+
     my $seqonly = $qs;
     $seqonly =~ s/\-//g;
     
@@ -958,10 +981,12 @@ sub _calculate_seq_positions {
 
 	# one possible problem is the sequence which 
 	
-	my ($start);
+	my ($start) = (0);
 	if( $seqString =~ /^(\s+)/ ) {
 	    $start = CORE::length($1);
 	}
+	$qseq =~ s![\\\/]!!g;
+	$sseq =~ s![\\\/]!!g;
 	$seqString = substr($seqString, $start,$self->length('total'));
 	$qseq = substr($qseq, $start,$self->length('total'));
 	$sseq = substr($sseq, $start,$self->length('total'));
