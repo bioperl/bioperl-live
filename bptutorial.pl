@@ -671,12 +671,23 @@ follows:
   $seqio = $gb->get_Stream_by_batch([ qw(J00522 AF303112 2981014)]));
 
 Bioperl currently supports sequence data retrieval from the genbank,
-genpept, swissprot, EMBL and gdb databases. See L<Bio::DB::GenBank>,
-L<Bio::DB::GenPept>, L<Bio::DB::SwissProt>, L<Bio::DB::EMBL> and
-L<Bio::DB::GDB> for more information. Bioperl also supports retrieval
-from a remote Ace database. This capability requires the presence of the
-external AcePerl module. You need to download and install the aceperl
-module from http://stein.cshl.org/AcePerl/.
+genpept, swissprot, EMBL databases. See L<Bio::DB::GenBank>,
+L<Bio::DB::GenPept>, L<Bio::DB::SwissProt>, and L<Bio::DB::EMBL> for
+more information. A user can also specify a different database mirror
+for a database - this especially relavent for the SwissProt resource
+where there are many ExPaSy mirror.  There are also configuration
+options for specifying local proxy servers for those behind firewalls.
+
+Retrieving NCBI RefSeqs sequences are supported through a special
+module called L<Bio::DB::RefSeq> which actually queries an EBI server.
+Please read the documentation for this module before using it as there
+are some caveats with RefSeq retrieval.
+
+ 
+Bioperl also supports retrieval from a remote Ace database. This
+capability requires the presence of the external AcePerl module. You
+need to download and install the aceperl module from
+http://stein.cshl.org/AcePerl/.
 
 =head2  III.1.2 Indexing and accessing local databases (Bio::Index::*, bpindex.pl, bpfetch.pl)
 
@@ -1224,7 +1235,7 @@ is intended to replace.  Sample code to read a BLAST report might look like this
 
   # Get the report
   searchio = new Bio::SearchIO ('-format' => 'blast',
-  				    '-file'   => $blast_report);
+  				'-file'   => $blast_report);
   $result = $searchio->next_result;
 
   # Get info about the entire report
@@ -1245,7 +1256,9 @@ the Search and SearchIO documentation: L<Bio::SearchIO::blast>
 L<Bio::SearchIO::psiblast> L<Bio::SearchIO::blastxml> 
 L<Bio::SearchIO::fasta> L<Bio::SearchIO>
 
-There is also sample code is the searchio subdirectory of the Bio::examples directory which illustrates the use of the Search parser.
+There is also sample code is the searchio subdirectory of the
+Bio::examples directory which illustrates the use of the Search
+parser.
 
 =head2 III.4.4 Parsing BLAST reports with BPlite, BPpsilite, BPbl2seq and Blast.pm
 
@@ -1476,6 +1489,13 @@ Bioperl comes standard with blosum62 and gonnet250 matrices.  Others
 can be added by the user.  For additional information on accessing the
 SW algorithm via pSW see the script psw.pl in the examples/ directory and
 the documentation in L<Bio::Tools::pSW>.
+
+An alterative way to get Smith-Waterman alignments can come from the EMBOSS program 'water'.  This can produce an output file that bioperl can read in with the AlignIO system
+
+  use Bio::AlignIO;
+  my $in = new Bio::AlignIO(-format => 'emboss', -file => 'filename');
+  my $aln = $in->next_aln();  
+
 
 =head2   III.5.2 Aligning 2 sequences with Blast using bl2seq and AlignIO
 
@@ -1889,7 +1909,7 @@ data. Syntax for using SeqWithQuality objects is as follows:
   $swqobj->qual(); # the quality of the SeqWithQuality object
 
 
-=head2 III.7.5 Sequence XML representations - generation and parsing (SeqIO::game)
+=head2 III.7.5 Sequence XML representations - generation and parsing (SeqIO::game, SeqIO::bsml)
 
 The previous subsections have described tools for automated sequence
 annotation by the creation of an "object layer" on top of a
@@ -1912,6 +1932,19 @@ Seq objects.
 
   $str = Bio::SeqIO->new('-file'=> 't/data/test.game',
   			 '-format' => 'game');
+  $seq = $str->next_primary_seq();
+  $id = $seq->id;
+  @feats = $seq->all_SeqFeatures();
+  $first_primary_tag = $feats[0]->primary_tag;
+
+Additional XML formats to describe sequences and their annotations
+have been created.  BSML and AGAVE are two additional formats that
+have been created in the last year.  Bioperl currently only supports
+BSML through the SeqIO system at this time.  Usage is similar to other
+SeqIO parsing.
+
+  $str = Bio::SeqIO->new('-file'=> 'bsmlfile.xml',
+  			 '-format' => 'bsml');
   $seq = $str->next_primary_seq();
   $id = $seq->id;
   @feats = $seq->all_SeqFeatures();
