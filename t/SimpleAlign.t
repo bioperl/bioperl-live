@@ -2,7 +2,7 @@
 ## Bioperl Test Harness Script for Modules
 ## $Id$
 use strict;
-use constant NUMTESTS => 46;
+use constant NUMTESTS => 48;
 
 BEGIN {     
     eval { require Test; };
@@ -42,7 +42,11 @@ ok $aln->column_from_residue_number('1433_LYCES', 10), 2;
 ok $aln->displayname('1433_LYCES/9-246', 'my_seq'), 'my_seq';
 ok $aln->displayname('1433_LYCES/9-246'), 'my_seq';
 ok substr ($aln->consensus_string(50), 0, 60), 
-    "RE??VY?AKLAEQAERYEEMV??MK?V????????ELS?EERNLLSVAYKNVIGARRASW";
+    "RE??VY?AKLAEQAERYEEMV??MK?VAE??????ELSVEERNLLSVAYKNVIGARRASW";
+ok substr ($aln->consensus_string(100), 0, 60), 
+    "?????????L????E????M???M????????????L??E?RNL?SV?YKN??G??R??W";
+ok substr ($aln->consensus_string(0), 0, 60), 
+    "REDLVYLAKLAEQAERYEEMVEFMKKVAESGAPAEELSVEERNLLSVAYKNVIGARRASW";
 
 ok (@seqs = $aln->each_seq_with_id('143T_HUMAN'));
 ok scalar @seqs, 1;

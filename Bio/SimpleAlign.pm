@@ -1010,11 +1010,11 @@ These read only methods describe the MSE in various ways.
  Usage     : $str = $ali->consensus_string($threshold_percent)
  Function  : Makes a strict consensus 
  Returns   : 
- Argument  : Optional treshold ranging from 0 to 100.  
-             If consensus residue appears in fewer than threshold %
-	     of the sequences at a given location, consensus_string
-	     will return a "?" at that location rather than the
-	     consensus letter. (Default value = 0%)
+ Argument  : Optional treshold ranging from 0 to 100.
+             The consensus residue has to appear at least threshold %
+             of the sequences at a given location, otherwise a '?'
+             character will be placed at that location.
+             (Default value = 0%)
 
 =cut
 
@@ -1054,7 +1054,7 @@ sub _consensus_aa {
 
     foreach $key ( keys %hash ) {
 	# print "Now at $key $hash{$key}\n";
-	if( $hash{$key} > $count && $hash{$key} > $threshold) {
+	if( $hash{$key} > $count && $hash{$key} >= $threshold) {
 	    $letter = $key;
 	    $count = $hash{$key};
 	}
@@ -1073,7 +1073,7 @@ sub _consensus_aa {
              and RNA. The output is in upper case except when gaps in
              a column force output to be in lower case.
 
-             Note that if your alignment sequences contain a lot if
+             Note that if your alignment sequences contain a lot of
              IUPAC ambiquity codes you often have to manually set
              alphabet.  L<Bio::PrimarySeq::_guess_type> thinks they
              indicate a protein sequence.
