@@ -164,6 +164,27 @@ If you are skeptical of magic, or you wish to exact fine grained
 control over how the entry is unflattened, or you simply wish to
 understand more about how this crazy stuff works, then read on!
 
+=head1 PROBLEMS
+
+Occasionally the Unflattener will have problems with certain
+records. For example, the record may contain inconsistent data - maybe
+there is an B<exon> entry that has no corresponding B<mRNA> location.
+
+The default behaviour is to throw an exception reporting the problem,
+if the problem is relatively serious - for example, inconsistent data.
+
+You can exert more fine grained control over this - perhaps you want
+the Unflattener to do the best it can, and report any problems. This
+can be done - refer to the methods.
+
+  error_threshold()
+
+  get_problems()
+
+  report_problems()
+
+  ignore_problems()
+
 =head1 ALGORITHM
 
 This is the default algorithm; you should be able to override any part
@@ -506,6 +527,12 @@ NOT YET DONE - IN PROGRESS!!!
 
 Open question - what would these look like?
 
+Ideally we would like a way of combining a mRNA record with the
+corresponding SeFeature entry from the appropriate genomic DNA
+record. This could be problemmatic in some cases - for example, the
+mRNA sequences may not match 100% (due to differences in strain,
+assembly problems, sequencing problems, etc). What then...?
+
 =head1 SEE ALSO
 
 Feature table description
@@ -595,6 +622,19 @@ sub new {
     return $self; # success - we hope!
 }
 
+sub DESTROY {
+    my $self = shift;
+    return if $self->{_reported_problems};
+    return if $self->{_ignore_problems};
+    my @probs = $self->get_problems;
+    if (@probs) {
+	print STDERR 
+	  "WARNING: There are UNREPORTED PROBLEMS.\n".
+	    "You may wish to use the method report_problems(), \n",
+	      "or ignore_problems() on the Unflattener object\n";
+    }
+    return;
+}
 
 =head2 seq
 
@@ -775,6 +815,138 @@ sub structure_type{
     return $self->{'structure_type'} = shift if @_;
     return $self->{'structure_type'};
 }
+
+=head2 get_problems
+
+ Title   : get_problems
+ Usage   : @probs = get_problems()
+ Function: Get the list of problem(s) for this object.
+ Example :
+ Returns : An array of [severity, description] pairs
+ Args    :
+
+In the course of unflattening a record, problems may occur. Some of
+these problems are non-fatal, and can be ignored.
+
+Problems are represented as arrayrefs containing a pair [severity,
+description]
+
+severity is a number, the higher, the more severe the problem
+
+the description is a text string
+
+=cut
+
+sub get_problems{
+    my $self = shift;
+
+    return @{$self->{'_problems'}} if exists($self->{'_problems'});
+    return ();
+}
+
+# PRIVATE
+# see get_problems
+sub add_problem{
+    my $self = shift;
+
+    $self->{'_problems'} = [] unless exists($self->{'_problems'});
+    push(@{$self->{'_problems'}}, @_);
+}
+
+# PRIVATE
+# see get_problems
+sub problem {
+    my $self = shift;
+    my ($severity, $desc) = @_;
+    my $thresh = $self->error_threshold;
+    if ($severity > $thresh) {
+	$self->{_problems_reported} = 1;
+	$self->throw("PROBLEM, SEVERITY==$severity\n$desc");
+    }
+    $self->add_problem([$severity, $desc]);
+    return;
+}
+
+=head2 report_problems
+
+ Title   : report_problems
+ Usage   : $unflattener->report_problems(\*STDERR);
+ Function:
+ Example :
+ Returns : 
+ Args    : FileHandle (defaults to STDERR)
+
+
+=cut
+
+sub report_problems{
+   my ($self, $fh) = @_;
+
+   if (!$fh) {
+       $fh = \*STDERR;
+   }
+   foreach my $problem ($self->get_problems) {
+       my ($sev, $desc) = @$problem;
+       printf $fh "PROBLEM, SEVERITY==$sev\n$desc\n";
+   }
+   $self->{_problems_reported} = 1;
+   return;
+}
+
+=head2 ignore_problems
+
+ Title   : ignore_problems
+ Usage   : $obj->ignore_problems();
+ Function:
+ Example :
+ Returns : 
+ Args    :
+
+Unflattener is very particular about problems it finds along the
+way. If you have set the error_threshold such that less severe
+problems do not cause exceptions, Unflattener still expects you to
+report_problems() at the end, so that the user of the module is aware
+of any inconsistencies or problems with the data. In fact, a warning
+will be produced if there are unreported problems. To silence, this
+warning, call the ignore_problems() method before the Unflattener
+object is destroyed.
+
+=cut
+
+sub ignore_problems{
+   my ($self) = @_;
+   $self->{_ignore_problems} = 1;
+   return;
+}
+
+
+=head2 error_threshold
+
+ Title   : error_threshold
+ Usage   : $obj->error_threshold($severity)
+ Function: 
+ Example : 
+ Returns : value of error_threshold (a scalar)
+ Args    : on set, new value (an integer)
+
+Sets the threshold above which errors cause this module to throw an
+exception. The default is 0; all problems with a severity > 0 will
+cause an exception.
+
+If you raise the threshold to 1, then the unflattening process will be
+more lax; problems of severity==1 are generally non-fatal, but may
+indicate that the results should be inspected, for example, to make
+sure there is no data loss.
+
+=cut
+
+sub error_threshold{
+    my $self = shift;
+
+    return $self->{'error_threshold'} = shift if @_;
+    return $self->{'error_threshold'} || 0;
+}
+
 
 
 # PRIVATE
@@ -964,8 +1136,9 @@ sub unflatten_seq{
            if (@group_tagvals > 1) {
 	       # sanity check:
                # currently something can only belong to one group
-               $self->throw(">1 value for /$group_tag: @group_tagvals\n".
-                            "At this time this module is not equipped to handle this");
+               $self->problem(2,
+			      ">1 value for /$group_tag: @group_tagvals\n".
+			      "At this time this module is not equipped to handle this adequately");
            }
 	   # get value of group tag
            my $gtv = shift @group_tagvals;
@@ -1178,6 +1351,9 @@ sub unflatten_seq{
 	   # there can be >1 exon at a location; we represent these redundantly
 	   # (ie as a tree, not a graph)
 	   push(@{$exon_h{$self->_locstr($_)}}, $_) foreach @exons;
+	   my @problems = ();      # list of problems;
+	                           # each problem is a 
+	                           # [$severity, $description] pair
 	   my $problem = '';
 	   my ($n_exons, $n_removed_exons) =
 	     (scalar(keys %exon_h), scalar(@removed_exons));
@@ -1203,29 +1379,37 @@ sub unflatten_seq{
 		       }
 		   }
 	       } else {
-		   $problem .= 
-		     "there is a conflict with exons; there was an explicitly ".
-		       "stated exon with location $locstr, yet I cannot generate ".
-			 "this exon from the supplied mRNA locations\n";
+		   push(@problems,
+			[1, 
+			 "there is a conflict with exons; there was an explicitly ".
+			 "stated exon with location $locstr, yet I cannot generate ".
+			 "this exon from the supplied mRNA locations\n"]);
 	       }
 	   }
 	   # do we have any inferred exons left over, that were not
 	   # covered in the explicit exons?
 	   if (keys %exon_h) {
 	       # TODO - we ignore this problem for now
-	       if (0) {
-		   $problem .=
+	       push(@problems,
+		    [1,
 		     sprintf("There are some inferred exons that are not in the ".
 			     "explicit exon list; they are the exons at locations:\n".
-			     join("\n", keys %exon_h)."\n");
-	       }
+			     join("\n", keys %exon_h)."\n")]);
 	   }
 
 	   # report any problems
-	   if ($problem) {
-	       $self->_write_hier(\@top_sfs);
-	       # TODO - allow more fine grained control over this
-	       $self->throw($problem);
+	   if (@problems) {
+	       my $thresh = $self->error_threshold;
+	       my @bad_problems = grep {$_->[0] > $thresh} @problems;
+	       if (@bad_problems) {
+		   print STDERR "PROBLEM:\n";
+		   $self->_write_hier(\@top_sfs);
+		   # TODO - allow more fine grained control over this
+		   $self->{_problems_reported} = 1;
+		   $self->throw(join("\n",
+				     map {"@$_"} @bad_problems));
+	       }
+	       $self->problem($_) foreach @problems;
 	   }
        }
    }    
@@ -1724,7 +1908,8 @@ sub feature_from_splitloc{
    }
    my @exons = grep {$_->primary_tag eq 'exon'} @sfs;
    if (@exons) {
-       $self->throw("There are already exons, so I will not infer exons");
+       $self->problem(2,
+		      "There are already exons, so I will not infer exons");
    }
    # infer for every feature
    foreach my $sf (@sfs) {
@@ -1757,7 +1942,7 @@ sub feature_from_splitloc{
        if (!$ok) {
 	   print "Unordered features:\n";
 	   $self->_write_sf_detail($_) foreach @subsfs;
-	   $self->throw("inconsistent order");
+	   $self->throw("ASSERTION ERROR: inconsistent order");
        }
        #----
 
@@ -1822,7 +2007,8 @@ sub infer_mRNA_from_CDS{
        $sf->isa("Bio::FeatureHolderI") || $self->throw("$sf NOT A FeatureHolderI");
 
        if ($sf->primary_tag eq 'mRNA') {
-	   $self->throw("you cannot infer mRNAs if there are already mRNAs present");
+	   $self->problem(3,
+			  "you cannot infer mRNAs if there are already mRNAs present");
        }
 
        my @cdsl = grep {$_->primary_tag eq 'CDS' } $sf->get_SeqFeatures;
