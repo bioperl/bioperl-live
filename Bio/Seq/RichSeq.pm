@@ -96,8 +96,8 @@ sub new {
     my($caller,@args) = @_;
     my $self = $caller->SUPER::new(@args);
 
-    $self->{'date'} = [];
-    $self->{'secondary_accession'} = [];
+    $self->{'_dates'} = [];
+    $self->{'_secondary_accession'} = [];
 
     return $self;
 }
@@ -118,9 +118,9 @@ sub division {
    my $obj = shift;
    if( @_ ) {
       my $value = shift;
-      $obj->{'division'} = $value;
+      $obj->{'_division'} = $value;
     }
-    return $obj->{'division'};
+    return $obj->{'_division'};
 
 }
 
@@ -139,9 +139,9 @@ sub molecule {
    my $obj = shift;
    if( @_ ) {
       my $value = shift;
-      $obj->{'molecule'} = $value;
+      $obj->{'_molecule'} = $value;
     }
-    return $obj->{'molecule'};
+    return $obj->{'_molecule'};
 
 }
 
@@ -158,9 +158,9 @@ sub molecule {
 =cut
 
 sub add_date {
-   my ($self) = shift;
-   foreach my $dt ( @_ ) {
-       push(@{$self->{'date'}},$dt);
+   my ($self,@dates) = @_;
+   foreach my $dt ( @dates ) {
+       push(@{$self->{'_dates'}},$dt);
    }
 }
 
@@ -177,9 +177,8 @@ sub add_date {
 =cut
 
 sub get_dates{
-   my ($self,@args) = @_;
-   return @{$self->{'date'}}; 
-
+   my ($self) = @_;
+   return @{$self->{'_dates'}}; 
 }
 
 
@@ -200,9 +199,9 @@ sub pid {
     my ($self,$pid) = @_;
     
     if(defined($pid)) {
-	$self->{'pid'} = $pid;
+	$self->{'_pid'} = $pid;
     }
-    return $self->{'pid'};
+    return $self->{'_pid'};
 }
 
 
@@ -242,7 +241,7 @@ sub accession {
 sub add_secondary_accession {
    my ($self) = shift;
    foreach my $dt ( @_ ) {
-       push(@{$self->{'secondary_accession'}},$dt);
+       push(@{$self->{'_secondary_accession'}},$dt);
    }
 }
 
@@ -260,7 +259,7 @@ sub add_secondary_accession {
 
 sub get_secondary_accessions{
    my ($self,@args) = @_;
-   return @{$self->{'secondary_accession'}}; 
+   return @{$self->{'_secondary_accession'}}; 
 }
 
 =head2 seq_version
@@ -278,9 +277,9 @@ sub get_secondary_accessions{
 sub seq_version{
    my ($obj,$value) = @_;
    if( defined $value) {
-      $obj->{'seq_version'} = $value;
+      $obj->{'_seq_version'} = $value;
     }
-    return $obj->{'seq_version'};
+    return $obj->{'_seq_version'};
 
 }
 
@@ -300,9 +299,9 @@ sub keywords {
    my $obj = shift;
    if( @_ ) {
       my $value = shift;
-      $obj->{'keywords'} = $value;
+      $obj->{'_keywords'} = $value;
     }
-    return $obj->{'keywords'};
+    return $obj->{'_keywords'};
 
 }
 
