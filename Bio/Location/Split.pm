@@ -228,7 +228,7 @@ sub add_sub_Location {
 =head2 splittype
 
   Title   : splittype
-  Usage   : $splittype = $fuzzy->splittype();
+  Usage   : $splittype = $location->splittype();
   Function: get/set the split splittype
   Returns : the splittype of split feature (join, order)
   Args    : splittype to set
