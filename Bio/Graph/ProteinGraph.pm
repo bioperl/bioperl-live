@@ -662,17 +662,18 @@ sub articulation_points {
  map{$self->{'_single'}{$_} = undef}
        grep{scalar @{$nbors->{$_}} == 1 }keys %$nbors;
 
- ##create DS to cahe found APs
+ ##create DS to cache found APs
  $self->{'_aps'}   = {} unless exists ($self->{'_aps'});
  $self->{'_verts'} = {} unless exists ($self->{'_verts'});
- my $aps = $self->{'_aps'};
-
+ my $aps     = $self->{'_aps'};
+ my $apverts = $self->{'_verts'};
+my %sub_graph_nodes;
  for my $node (keys %$nodes) {
 	if ($i++ % 10 == 0) {print STDERR ".";}
 	 ## skip if only has 1 neighbor
 	 next if exists($self->{'_single'}{$node});
 
-     my %unique;
+    $self->{'_unique'} = {}; 
      my %node_sets;
 	my @neighbors = @{$nbors->{$node}};
 	for my $nbor(@neighbors) {
@@ -680,21 +681,28 @@ sub articulation_points {
         ## skip if neighbor is an external node
 	    next if exists($self->{'_single'}{$nbor});
 
-
+		## make traversal from each neighbor
 		my $t   = $self->traversal($nbor);
 		my @all = $t->get_all($node);
-		map {$unique{$_}++}@all;
+  
+        ## count how many times a node has been seen in DFS
+		map {$self->{'_unique'}{$_}++}@all;
+	#	next if grep{$self->{'_unique'}{$_} >1}@all;
 		$node_sets{$nbor} =   \@all;
 		}
+
+    ## if there is one set of unique nodes, then there is an AP. 
 	for my $nset (keys %node_sets) {
 		next unless defined( $node_sets{$nset}->[0]) ;
 		my $isapt = 1;
+        
 		for my $test (@{$node_sets{$nset}}) {
-			if($unique{$test} >1) {
+			if($self->{'_unique'}{$test} >1) {
 				$isapt = 0;
 				last;
 			}
 		}
+        ## make new AP if one not existing already. 
 		if ($isapt) {
 			  my ($m,$n)  = ($node, $nset);
 			 ($m, $n)     = ($n, $m) if $n lt $m;
@@ -702,9 +710,13 @@ sub articulation_points {
 				$aps->{$m,$n} = [$nodes->{$node}, $nodes->{$nset}] ;
 				map{$self->{'_verts'}{$_} = undef}($m,$n);
 				}
+			## now make subgraph of RT nodes, and amke lookuphash for them
+            #push @sub_graphs, $self->subgraph(@{$node_sets{$nset}}, $node);
+			#map {$sub_graph_nodes{$_} = undef} @{$node_sets{$nset}};
 		}
 	}	
  }
+	## now we have list of subgraphs
 	return $aps;
 }
 
