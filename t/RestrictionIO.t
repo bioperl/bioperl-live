@@ -5,7 +5,7 @@
 # written by Rob Edwards
 
 use strict;
-use constant NUMTESTS => 74;
+use constant NUMTESTS => 14;
 
 BEGIN {
     eval { require Test; };
