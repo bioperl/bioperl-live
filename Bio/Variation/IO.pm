@@ -268,7 +268,7 @@ sub new {
        return undef;
    }
 
-   $stream = "Bio::Variation::IO::$format"->_new(%param);
+   $stream = "Bio::Variation::IO::$format"->new(%param);
    return $stream;
 }
 

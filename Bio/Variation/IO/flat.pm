@@ -84,12 +84,17 @@ use Bio::Variation::Allele;
 
 
 @ISA = qw(Bio::Variation::IO);
-# new() is inherited from Bio::Root::Object
 
-# _initialize is where the heavy stuff will happen when new is called
+sub new {
+    my($class, @args) = @_;
+    my $self = bless {}, $class;
+    $self->_initialize(@args);
+    return $self;
+}
+
 sub _initialize {
   my($self,@args) = @_;
-  return unless my $make = $self->SUPER::_initialize(@args);
+  return unless $self->SUPER::_initialize(@args);
 }
 
 =head2 next
