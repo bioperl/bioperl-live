@@ -133,17 +133,19 @@ sub make_object {
   my ($class,$name,$start,$stop) = @_;
 
   if (my $db = $self->acedb) {
-    my $class = $db->class;
 
     # for Notes we just return a text, no database associated
     return $class->new(Text=>$name) if $class eq 'Note';
 
     # for homols, we create the indicated Protein or Sequence object
     # then generate a bogus Homology object (for future compatability??)
-    return Ace::Sequence::Homol->new($class,$name,$db,$start,$stop) if defined $start;
+    if ($start ne '') {
+      require Ace::Sequence::Homol;
+      return Ace::Sequence::Homol->new($class,$name,$db,$start,$stop);
+    }
 
     # General case:
-    my $obj = $class->new($class=>$name,$self->acedb);
+    my $obj = $db->class->new($class=>$name,$self->acedb);
 
     return $obj if defined $obj;
 
@@ -234,7 +236,7 @@ sub load_gff_line {
 
 sub finish_load {
   my $self = shift;
-  $self->{load_stuff}{insert_note}->finish;
+  $self->{load_stuff}{insert_note}->finish if $self->{load_stuff}{insert_note};
   $self->SUPER::finish_load;
 }
 

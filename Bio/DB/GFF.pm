@@ -1648,15 +1648,20 @@ sub _split_group {
 
   for (@groups) {
 
-    my ($tag,$value) = /(\S+)(?:\s+\"([^\"]+)\")?/;
+    my ($tag,$value) = /^(\S+)(?:\s+(.+))?/;
+    if ($value =~ /^\"(.+)\"$/) {  #remove quotes
+      $value = $1;
+    }
     $value =~ s/\\t/\t/g;
     $value =~ s/\\r/\r/g;
 
     # if the tag is "Note", then we add this to the
-    # notes array
-   if ($tag eq 'Note') {  # just a note, not a group!
-     push @notes,$value;
-   }
+    # notes array. Do the same thing with
+    # additional groups, since we don't handle
+    # complex groupings (yet)
+    if ($tag eq 'Note' or ($gclass && $gname)) {
+      push @notes,$value;
+    }
 
     # if the tag eq 'Target' then the class name is embedded in the ID
     # (the GFF format is obviously screwed up here)
