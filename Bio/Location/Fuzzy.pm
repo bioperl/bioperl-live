@@ -19,17 +19,18 @@ which has unclear start and/or end locations
 						 -end   => 90,
 						 -loc_type => '.');
 
+    print "location string is ", $fuzzylocation->to_FTstring();
+
 =head1 DESCRIPTION
 
-This module implements the necessary methods for representing a Fuzzy
-Location, one that does not have clear start and/or end points.  This
-will initially serve to handle features from Genbank/EMBL feature
+This module contains the necessary methods for representing a
+Fuzzy Location, one that does not have clear start and/or end points.
+This will initially serve to handle features from Genbank/EMBL feature
 tables that are written as 1^100 meaning between bases 1 and 100 or
-<100..300 meaning the feature starts somewhere before 100.  Advanced
+<100..300 meaning it starts somewhere before 100.  Advanced
 implementations of this interface may be able to handle the necessary
-logic of overlaps/intersection/contains/union, but initially this will
-be just a holder for the Genbank/EMBL fuzzy location parsing and
-producing.
+logic of overlaps/intersection/contains/union.  It was constructed to
+handle fuzzy locations that can be represented in Genbank/EMBL.
 
 =head1 FEEDBACK
 
@@ -61,7 +62,6 @@ methods. Internal methods are usually preceded with a _
 =cut
 
 # Let the code begin...
-
 
 package Bio::Location::Fuzzy;
 use vars qw(@ISA %FUZZYCODES  %FUZZYPOINTENCODE %FUZZYRANGEENCODE);
@@ -113,6 +113,38 @@ sub new {
 
     return $self;
 }
+
+=head2 loc_type
+
+  Title   : loc_type
+  Usage   : my $location_type = $location->loc_type();
+  Function: Get location type encoded as text
+  Returns : string ('EXACT', 'WITHIN', 'BETWEEN')
+  Args    : none
+
+=cut
+
+sub loc_type {
+    my ($self,$value) = @_;
+    if( defined $value || ! defined $self->{'_location_type'} ) {
+	$value = 'EXACT' unless defined $value;
+	$value = uc($value);
+	if( $value =~ /\.\./ ) {
+	    $value = 'EXACT';
+	} elsif( $value =~ /^\.$/ ) {
+	    $value = 'WITHIN';
+	} elsif( $value =~ /\^/ ) {
+	    $value = 'BETWEEN';
+	} elsif( $value ne 'EXACT' && $value ne 'WITHIN' && 
+		 $value ne 'BETWEEN' ) {
+	    $self->throw("Did not specify a valid location type");
+	}
+	$self->{'_location_type'} = $value;
+    }
+    return $self->{'_location_type'};
+}
+
+=head2 LocationI methods
 
 =head2 length
 
@@ -177,8 +209,6 @@ sub end {
     }
     return $self->SUPER::end();
 }
-
-=head2 LocationI methods
 
 =head2 min_start
 
@@ -296,35 +326,42 @@ sub end_pos_type {
     return $self->{'_end_pos_type'};
 }
 
-=head2 loc_type
+=head2 seq_id
 
-  Title   : loc_type
-  Usage   : my $location_type = $location->loc_type();
-  Function: Get location type encoded as text
-  Returns : string ('EXACT', 'WITHIN', 'BETWEEN')
-  Args    : none
+  Title   : seq_id
+  Usage   : my $seqid = $location->seq_id();
+  Function: Get/Set seq_id that location refers to
+  Returns : seq_id
+  Args    : [optional] seq_id value to set
 
 =cut
 
-sub loc_type {
-    my ($self,$value) = @_;
-    if( defined $value || ! defined $self->{'_location_type'} ) {
-	$value = 'EXACT' unless defined $value;
-	$value = uc($value);
-	if( $value =~ /\.\./ ) {
-	    $value = 'EXACT';
-	} elsif( $value =~ /^\.$/ ) {
-	    $value = 'WITHIN';
-	} elsif( $value =~ /\^/ ) {
-	    $value = 'BETWEEN';
-	} elsif( $value ne 'EXACT' && $value ne 'WITHIN' && 
-		 $value ne 'BETWEEN' ) {
-	    $self->throw("Did not specify a valid location type");
-	}
-	$self->{'_location_type'} = $value;
-    }
-    return $self->{'_location_type'};
-}
+=head2 coordinate_policy
+
+  Title   : coordinate_policy
+  Usage   : $policy = $location->coordinate_policy();
+            $location->coordinate_policy($mypolicy); # set may not be possible
+  Function: Get the coordinate computing policy employed by this object.
+
+            See Bio::Location::CoordinatePolicyI for documentation about
+            the policy object and its use.
+
+            The interface *does not* require implementing classes to accept
+            setting of a different policy. The implementation provided here
+            does, however, allow to do so.
+
+            Implementors of this interface are expected to initialize every
+            new instance with a CoordinatePolicyI object. The implementation
+            provided here will return a default policy object if none has
+            been set yet. To change this default policy object call this
+            method as a class method with an appropriate argument. Note that
+            in this case only subsequently created Location objects will be
+            affected.
+            
+  Returns : A Bio::Location::CoordinatePolicyI implementing object.
+  Args    : On set, a Bio::Location::CoordinatePolicyI implementing object.
+
+=cut
 
 =head2 to_FTstring
 

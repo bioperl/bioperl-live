@@ -399,13 +399,47 @@ sub end_pos_type {
     return ( @locs ) ? $locs[0]->end_pos_type() : undef;    
 }
 
+
+=head2 seq_id
+
+  Title   : seq_id
+  Usage   : my $seqid = $location->seq_id();
+  Function: Get/Set seq_id that location refers to
+  Returns : seq_id
+  Args    : [optional] seq_id value to set
+
+=head2 coordinate_policy
+
+  Title   : coordinate_policy
+  Usage   : $policy = $location->coordinate_policy();
+            $location->coordinate_policy($mypolicy); # set may not be possible
+  Function: Get the coordinate computing policy employed by this object.
+
+            See Bio::Location::CoordinatePolicyI for documentation about
+            the policy object and its use.
+
+            The interface *does not* require implementing classes to accept
+            setting of a different policy. The implementation provided here
+            does, however, allow to do so.
+
+            Implementors of this interface are expected to initialize every
+            new instance with a CoordinatePolicyI object. The implementation
+            provided here will return a default policy object if none has
+            been set yet. To change this default policy object call this
+            method as a class method with an appropriate argument. Note that
+            in this case only subsequently created Location objects will be
+            affected.
+            
+  Returns : A Bio::Location::CoordinatePolicyI implementing object.
+  Args    : On set, a Bio::Location::CoordinatePolicyI implementing object.
+
 =head2 to_FTstring
 
   Title   : to_FTstring
   Usage   : my $locstr = $location->to_FTstring()
-  Function: Get/Set seq_id that location refers to
-  Returns : seq_id
-  Args    : [optional] seq_id value to set
+  Function: returns the FeatureTable string of this location
+  Returns : string
+  Args    : none
 
 =cut
 

@@ -16,10 +16,8 @@ which has unclear start/end location
 =head1 SYNOPSIS
 
     # Get a FuzzyLocationI object somehow
-    my $fuzzy_start = $loc->fuzzy_start();
-    my $fuzzy_end = $loc->fuzzy_end();
-    print $fuzzy_start, $loc->range_fuzzy ? "." : "..",
-          $fuzzy_end, "\n";
+    print "Fuzzy FT location string is ", $location->to_FTstring();
+    print "location is of the type ", $location->loc_type, "\n";
 
 =head1 DESCRIPTION
 
@@ -29,9 +27,8 @@ This will initially serve to handle features from Genbank/EMBL feature
 tables that are written as 1^100 meaning between bases 1 and 100 or
 <100..300 meaning it starts somewhere before 100.  Advanced
 implementations of this interface may be able to handle the necessary
-logic of overlaps/intersection/contains/union, but initially this will
-be just a holder for the Genbank/EMBL fuzzy location parsing and
-producing.
+logic of overlaps/intersection/contains/union.  It was constructed to
+handle fuzzy locations that can be represented in Genbank/EMBL.
 
 =head1 FEEDBACK
 
@@ -91,6 +88,22 @@ sub _abstractDeath {
   }
 }
 
+=head2 loc_type
+
+  Title   : loc_type
+  Usage   : my $location_type = $location->loc_type();
+  Function: Get location type encoded as text
+  Returns : string ('EXACT', 'WITHIN', 'BETWEEN')
+  Args    : none
+
+=cut
+
+sub loc_type {
+    my ($self) = @_;
+    $self->_abstractDeath();
+}
+
+=head2 LocationI methods
 
 =head2 min_start
 
@@ -154,20 +167,42 @@ sub _abstractDeath {
 
 =cut
 
-=head2 loc_type
+=head2 seq_id
 
-  Title   : loc_type
-  Usage   : my $location_type = $location->loc_type();
-  Function: Get location type encoded as text
-  Returns : string ('EXACT', 'WITHIN', 'BETWEEN')
-  Args    : none
+  Title   : seq_id
+  Usage   : my $seqid = $location->seq_id();
+  Function: Get/Set seq_id that location refers to
+  Returns : seq_id
+  Args    : [optional] seq_id value to set
 
 =cut
 
-sub loc_type {
-    my ($self) = @_;
-    $self->_abstractDeath();
-}
+=head2 coordinate_policy
+
+  Title   : coordinate_policy
+  Usage   : $policy = $location->coordinate_policy();
+            $location->coordinate_policy($mypolicy); # set may not be possible
+  Function: Get the coordinate computing policy employed by this object.
+
+            See Bio::Location::CoordinatePolicyI for documentation about
+            the policy object and its use.
+
+            The interface *does not* require implementing classes to accept
+            setting of a different policy. The implementation provided here
+            does, however, allow to do so.
+
+            Implementors of this interface are expected to initialize every
+            new instance with a CoordinatePolicyI object. The implementation
+            provided here will return a default policy object if none has
+            been set yet. To change this default policy object call this
+            method as a class method with an appropriate argument. Note that
+            in this case only subsequently created Location objects will be
+            affected.
+            
+  Returns : A Bio::Location::CoordinatePolicyI implementing object.
+  Args    : On set, a Bio::Location::CoordinatePolicyI implementing object.
+
+=cut
 
 =head2 to_FTstring
 
@@ -176,16 +211,6 @@ sub loc_type {
   Function: returns the FeatureTable string of this location
   Returns : string
   Args    : none
-
-=cut
-
-=head2 seq_id
-
-  Title   : seq_id
-  Usage   : my $seqid = $location->seq_id();
-  Function: Get/Set seq_id that location refers to
-  Returns : seq_id
-  Args    : [optional] seq_id value to set
 
 =cut
 

@@ -15,14 +15,19 @@ Bio::LocationI - Abstract interface of a Location on a Sequence
 =head1 SYNOPSIS
 
     # get a LocationI somehow
-    if( $location->strand == -1 ) {
-	printf "complement(%d..%d)\n", $location->start, $location->end;
-    } else {
-	printf "%d..%d\n", $location->start, $location->end;
-    }
+    printf( "start = %d, end = %d, strand = %s, seq_id = %s\n", 
+	    $location->start, $location->end, $location->strand,
+	    $location->seq_id);
+    print "location str is ", $location->to_FTstring(), "\n"; 
+
 
 =head1 DESCRIPTION
 
+This Interface defines the methods for a Bio::LocationI, an object
+which encapsulates a location on a biological sequence.  Locations
+need not be attached to actual sequences as they are stand alone
+objects.  LocationI objects are used by Bio::SeqFeatureI objects to
+manage and represent locations for a Sequence Feature.
 
 =head1 FEEDBACK
 
@@ -54,7 +59,6 @@ methods. Internal methods are usually preceded with a _
 =cut
 
 # Let the code begin...
-
 
 package Bio::LocationI;
 use vars qw(@ISA $coord_policy);

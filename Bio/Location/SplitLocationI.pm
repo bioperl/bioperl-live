@@ -217,8 +217,42 @@ sub is_single_sequence {
 
 =cut
 
-# we'll need to override the RangeI methods since our locations will
-# not be contiguous.
+=head2 coordinate_policy
+
+  Title   : coordinate_policy
+  Usage   : $policy = $location->coordinate_policy();
+            $location->coordinate_policy($mypolicy); # set may not be possible
+  Function: Get the coordinate computing policy employed by this object.
+
+            See Bio::Location::CoordinatePolicyI for documentation about
+            the policy object and its use.
+
+            The interface *does not* require implementing classes to accept
+            setting of a different policy. The implementation provided here
+            does, however, allow to do so.
+
+            Implementors of this interface are expected to initialize every
+            new instance with a CoordinatePolicyI object. The implementation
+            provided here will return a default policy object if none has
+            been set yet. To change this default policy object call this
+            method as a class method with an appropriate argument. Note that
+            in this case only subsequently created Location objects will be
+            affected.
+            
+  Returns : A Bio::Location::CoordinatePolicyI implementing object.
+  Args    : On set, a Bio::Location::CoordinatePolicyI implementing object.
+
+=cut
+
+=head2 to_FTstring
+
+  Title   : to_FTstring
+  Usage   : my $locstr = $location->to_FTstring()
+  Function: returns the FeatureTable string of this location
+  Returns : string
+  Args    : none
+
+=cut
 
 1;
 
