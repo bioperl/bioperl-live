@@ -12,31 +12,32 @@
 
 =head1     NAME
  
- Bio::Tools::Analysis::Protein::ELM
+Bio::Tools::Analysis::Protein::ELM
 
 =head1     SYNOPSIS
-		## get a Bio::Seq object to start with, or a Bio::PrimaryI object.
 
-       my $tool = Bio::Tools::Analysis::Protein::ELM->new(
-                                     seq => $seqobj->primary_seq() );	
-		  $tool->compartment(['ER', 'Golgi']);
-		  $tool->species(9606);
-		  $tool->run;
-		 my @fts = $tool->Result('Bio::SeqFeatureI');
-		$seqobj->addSeqFeature(@fts);
+  # get a Bio::Seq object to start with, or a Bio::PrimaryI object.
+
+  my $tool = Bio::Tools::Analysis::Protein::ELM->
+      new(seq => $seqobj->primary_seq() );	
+  $tool->compartment(['ER', 'Golgi']);
+  $tool->species(9606);
+  $tool->run;
+  my @fts = $tool->Result('Bio::SeqFeatureI');
+  $seqobj->addSeqFeature(@fts);
 
 =head1    DESCRIPTION
 
- This module  is a wrapper around the ELM server (http://elm.eu.org/)
- which predicts short functional motifs on amino acid sequences. 
-   Two filters can be applied to help limit the rate of false positives:
- species and cellular compartment of the protein if known. 
-   The modules supply methods for setting these attributes. To set species
- attribute, use either a Bio::Species object or an NCBI taxon ID number.
-   To set the cell compartment attribute (any number of compartments can be
- chosen) use an array reference to a list of compartment names.   
- Results can be obtained either as raw text output, as parsed into a data
- structure, or as Bio::SeqFeature::Generic objects. 
+This module is a wrapper around the ELM server (http://elm.eu.org/)
+which predicts short functional motifs on amino acid sequences.  Two
+filters can be applied to help limit the rate of false positives:
+species and cellular compartment of the protein if known.  The modules
+supply methods for setting these attributes. To set species attribute,
+use either a Bio::Species object or an NCBI taxon ID number.  To set
+the cell compartment attribute (any number of compartments can be
+chosen) use an array reference to a list of compartment names.
+Results can be obtained either as raw text output, as parsed into a
+data structure, or as Bio::SeqFeature::Generic objects.
 
 =head1 SEE ALSO
 
@@ -128,11 +129,10 @@ my  $RESULT_SPEC =
      ''                 => 'bulk',              # same as undef
      'Bio::SeqFeatureI' => 'ARRAY of Bio::SeqFeature::Generic',
      'parsed'           => '{motif1_name=>{locus=>[],
-										   peptide=>[],
-										   regexp=>[]
-											},
-							}',
-														
+					   peptide=>[],
+					   regexp=>[]
+					  },
+			    }',
     };
 my $ANALYSIS_SPEC= {name        => 'ELM',
 				    type        => 'Protein',
@@ -167,28 +167,27 @@ sub _init {
 
 sub compartment {
 
- my ($self, $arg) = @_;
- if ($arg) {
+    my ($self, $arg) = @_;
+    if ($arg) {
 
-    # convert to array ref if not one already
+        # convert to array ref if not one already
 	if (ref ($arg) ne 'ARRAY') {
-		$arg = [$arg];
+            $arg = [$arg];
 	}
  
-    ## now add params if valid
-	for my $param(@$arg) {
-		if (exists($cc{lc($param)})){
-	       push @{$self->{'_compartment'}} , $cc{$param};
-			}
-	    else {
-	      $self->warn("invalid argument ! Must be one of " .
-                join "\n", keys %cc );
-			}
-	   }#end of for loop
+        ## now add params if valid
+	for my $param (@$arg) {
+            if (exists($cc{lc($param)})) {
+                push @{$self->{'_compartment'}} , $cc{$param};
+            } else {
+                $self->warn("invalid argument ! Must be one of " .
+                            join "\n", keys %cc );
+            }
+        }                       #end of for loop
 			
-  }#endif $arg
- return defined($self->{'_compartment'})? $self->{'_compartment'}
- 									    : $self->input_spec()->[2]{'default'};
+    }                           #endif $arg
+    return defined($self->{'_compartment'})? $self->{'_compartment'}
+        : $self->input_spec()->[2]{'default'};
 
 }
 
@@ -203,26 +202,22 @@ sub compartment {
 =cut
 
 sub species {
-	
-  my ($self, $arg) = @_;
-  if ($arg) {
-		if (ref($arg) && $arg->isa('Bio::Species')) {
-			$self->{'_species'} = $arg->ncbi_taxid();
-			}	
-		elsif ($arg =~ /^\d+$/) {
-			$self->{'_species'} = $arg;
-			}
-		else {
-			$self->warn("Argument must be a Bio::Species object or ". 
-                         " an integer NCBI taxon id. ");
-			}
-	}#end if $arg
- return defined($self->{'_species'})?$self->{'_species'}
- 									  :$self->input_spec()->[1]{'default'};
+    my ($self, $arg) = @_;
+
+    if ($arg) {
+        if (ref($arg) && $arg->isa('Bio::Species')) {
+            $self->{'_species'} = $arg->ncbi_taxid();
+        } elsif ($arg =~ /^\d+$/) {
+            $self->{'_species'} = $arg;
+        } else {
+            $self->warn("Argument must be a Bio::Species object or ". 
+                        " an integer NCBI taxon id. ");
+        }
+    }                           #end if $arg
+    return defined($self->{'_species'})?$self->{'_species'}
+        :$self->input_spec()->[1]{'default'};
 	
 }
-				
- 
 
 sub  _run {
     my $self  = shift;
@@ -231,29 +226,29 @@ sub  _run {
     #$self->sleep;
     $self->status('TERMINATED_BY_ERROR');
 	
-	#### this deals with being able to submit multiple checkboxed
+    #### this deals with being able to submit multiple checkboxed
     #### slections
 
     #1st of all make param array
-	my @cc_str;
-	my @cmpts = @{$self->compartment()};
-	for (my $i = 0; $i <= $#cmpts ; $i++) {
-		splice @cc_str, @cc_str, 0,   'userCC',$cmpts[$i];
-	}
-	my %h = (swissprotId      => "",
+    my @cc_str;
+    my @cmpts = @{$self->compartment()};
+    for (my $i = 0; $i <= $#cmpts ; $i++) {
+        splice @cc_str, @cc_str, 0,   'userCC',$cmpts[$i];
+    }
+    my %h = (swissprotId      => "",
              sequence         => $self->seq->seq,
-			 userSpecies      => '',
+             userSpecies      => '',
              typedUserSpecies => $self->species(),
-			 fun              => "Submit");
-	 splice (@cc_str, @cc_str,0, ( map{$_, $h{$_}} keys %h));
+             fun              => "Submit");
+    splice (@cc_str, @cc_str,0, ( map{$_, $h{$_}} keys %h));
 
 		
     my $request = POST $self->url(),
         Content_Type => 'form-data',
             Content  => \@cc_str;
-	$self->debug( $request->as_string);
+    $self->debug( $request->as_string);
     my $r1 = $self->request($request);
-    if( $r1->is_error  ) {
+    if ( $r1->is_error  ) {
 	$self->warn(ref($self)." Request Error:\n".$r1->as_string);
 	return;
     }
@@ -265,7 +260,7 @@ sub  _run {
     while (1) {
 	my $req2 = HTTP::Request->new(GET=>$url);
 	my $r2 = $self->request ($req2);
-	if( $r2->is_error ) {
+	if ( $r2->is_error ) {
 	    $self->warn(ref($self)." Request Error:\n".$r2->as_string);	    
 	    return;
 	} 
@@ -276,8 +271,7 @@ sub  _run {
 	    $resp2=~ s/<[^>]+>/ /sg;
             $self->{'_result'} = $resp2;
 	    return;
-	}
-	else {
+	} else {
 	    print "." if $self->verbose > 0;
 	    $self->sleep();
 	}
@@ -301,83 +295,80 @@ sub  _run {
 =cut
 
 sub result {
-	my ($self, $val) = @_;
-	if ($val) {
-		if (!exists($self->{'_parsed'}) ) {
-			$self->_parse_raw();
+    my ($self, $val) = @_;
+    if ($val) {
+        if (!exists($self->{'_parsed'}) ) {
+            $self->_parse_raw();
+        }
+        if ($val eq 'Bio::SeqFeatureI') {
+            my @fts;
+            for my $motif (keys %{$self->{'_parsed'}}) {
+                for (my $i = 0; $i< scalar @{$self->{'_parsed'}{$motif}{'locus'}};$i++) {
+                    my ($st, $end) = split /\-/, $self->{'_parsed'}{$motif}{'locus'}[$i];
+                    push @fts, Bio::SeqFeature::Generic->new 
+                        (
+                         -start       => $st,
+                         -end         => $end,
+                         -primary_tag => 'Domain',
+                         -source      => 'ELM',
+                         -tag   => {
+                                    method    => 'ELM',
+                                    motif     => $motif,
+                                    peptide   => $self->{'_parsed'}{$motif}{'peptide'}[$i],
+                                    concensus => $self->{'_parsed'}{$motif}{'regexp'}[0],
+                                   });
+                }
             }
-		if ($val eq 'Bio::SeqFeatureI') {
-			my @fts;
-			for my $motif(keys %{$self->{'_parsed'}}) {
-				for (my $i = 0; $i< scalar @{$self->{'_parsed'}{$motif}{'locus'}};$i++){
-					my ($st, $end) = split /\-/, $self->{'_parsed'}{$motif}{'locus'}[$i];
-					push @fts, Bio::SeqFeature::Generic->new (
-						-start       => $st,
-						-end         => $end,
-						-primary_tag => 'Domain',
-						-source      => 'ELM',
-						-tag   => {
-							method    => 'ELM',
-							motif     => $motif,
-							peptide   => $self->{'_parsed'}{$motif}{'peptide'}[$i],
-							concensus => $self->{'_parsed'}{$motif}{'regexp'}[0],
-								});
-					}
-				
-			}
-			return @fts;
-		}#end if BioSeqFeature
-		return $self->{'_parsed'};
-     }#endif ($val)
-  return $self->{'_result'};
+            return @fts;
+        }                       #end if BioSeqFeature
+        return $self->{'_parsed'};
+    }                           #endif ($val)
+    return $self->{'_result'};
 }
 
 ## internal sub to parse raw data into internal data structure which is cached.
 sub _parse_raw {
-	my $self = shift;
-	my $result = IO::String->new($self->{'_result'});
-	my $in_results = 0;
+    my $self = shift;
+    my $result = IO::String->new($self->{'_result'});
+    my $in_results = 0;
     my $name;
     my %results;
-	my $last;
+    my $last;
     while (my $l = <$result>) {
-	    next unless  $in_results > 0 ||$l =~ /^\s+Elm\s+Name\s+Instances/;
-   	    $in_results++;#will be set whnstart of results reached.
+        next unless  $in_results > 0 ||$l =~ /^\s+Elm\s+Name\s+Instances/;
+        $in_results++;          #will be set whnstart of results reached.
         last if $l =~ /List of excluded/;
-		next unless $in_results >1;
+        next unless $in_results >1;
 
         my @line_parts = split /\s+/, $l;
         shift @line_parts;
-		## if result has motif name on 1 line
-		if (scalar @line_parts == 1 && $line_parts[0]=~ /^\s*(\w+_\w+)/){
+        ## if result has motif name on 1 line
+        if (scalar @line_parts == 1 && $line_parts[0]=~ /^\s*(\w+_\w+)/) {
             $name = $1;
-			next;
-		}
+            next;
+        }
         ## else if is line with loci /seq matches
-        elsif(@line_parts > 1) {
-         my $index = 0;     ## array index
-        my $read_loci = 0; ## flag to know that loci are being read
-        while ($index <= $#line_parts) {
-             my $word = $line_parts[$index++];
-			if ($read_loci ==0 && $word =~/_/){
-				$name = $word;
-				}
-             elsif ($read_loci == 0 && $word =~ /^\w+$/ ) {
+        elsif (@line_parts > 1) {
+            my $index = 0;      ## array index
+            my $read_loci = 0;  ## flag to know that loci are being read
+            while ($index <= $#line_parts) {
+                my $word = $line_parts[$index++];
+                if ($read_loci ==0 && $word =~/_/) {
+                    $name = $word;
+                } elsif ($read_loci == 0 && $word =~ /^\w+$/ ) {
 	            push @{$results{$name}{'peptide'}}, $word;
-             }
-             elsif($word =~ /\d+\-\d+/) {
-                $read_loci = 1;
-                push @{$results{$name}{'locus'}}, $word;
-	              	}
-             else { ## only get here if there are elements
-				    last;
-				  }
-	     }#end of while
-		push @{$results{$name}{'regexp'}}, $line_parts[$#line_parts];
-       }#end of elsif
+                } elsif ($word =~ /\d+\-\d+/) {
+                    $read_loci = 1;
+                    push @{$results{$name}{'locus'}}, $word;
+                } else {        ## only get here if there are elements
+                    last;
+                }
+            }                   #end of while
+            push @{$results{$name}{'regexp'}}, $line_parts[$#line_parts];
+        }                       #end of elsif
 
-    }#end of while
+    }                           #end of while
 
-   $self->{'_parsed'} = 	\%results;
+    $self->{'_parsed'} = 	\%results;
 }
 1;
