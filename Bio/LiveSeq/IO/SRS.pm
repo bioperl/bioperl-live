@@ -63,11 +63,16 @@ methods. Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::LiveSeq::IO::SRS;
+
+BEGIN {
+  eval "require srsperl;";
+  die "couldn't load srsperl: $@" if $@;
+}
+
 use strict;
 use Carp qw(cluck croak carp);
 use vars qw(@ISA);
 use lib $ENV{SRSEXE};
-use srsperl;
 use Bio::Tools::CodonTable; # for novelaasequence2gene
 
 use Bio::LiveSeq::IO::Loader;
