@@ -637,9 +637,11 @@ sub draw_connectors {
   if (@parts) {
     my($x1,$y1,$x2,$y2) = $self->bounds(0,0);
     my($xl,$xt,$xr,$xb) = $parts[0]->bounds;
-    $self->_connector($gd,$dx,$dy,$x1,$xt,$x1,$xb,$xl,$xt,$xr,$xb)      if $x1 <= $self->panel->left;
+#    $self->_connector($gd,$dx,$dy,$x1,$xt,$x1,$xb,$xl,$xt,$xr,$xb)      if $x1 <= $self->panel->left;
+    $self->_connector($gd,$dx,$dy,$x1,$xt,$x1,$xb,$xl,$xt,$xr,$xb)      if $x1 < $xl;
     my ($xl2,$xt2,$xr2,$xb2) = $parts[-1]->bounds;
-    $self->_connector($gd,$dx,$dy,$parts[-1]->bounds,$x2,$xt2,$x2,$xb2) if $x2 >= $self->panel->right;
+#    $self->_connector($gd,$dx,$dy,$parts[-1]->bounds,$x2,$xt2,$x2,$xb2) if $x2 >= $self->panel->right;
+    $self->_connector($gd,$dx,$dy,$parts[-1]->bounds,$x2,$xt2,$x2,$xb2) if $x2 > $xr;
   }
 
 }

@@ -152,8 +152,8 @@ sub map_no_trunc {
 
 sub scale {
   my $self = shift;
-  $self->{scale} ||= ($self->{width}-$self->pad_left-$self->pad_right-1)/($self->length-1);  # wrong!
-#  $self->{scale} ||= ($self->{width}-$self->pad_left-$self->pad_right-1)/($self->length);   # right, but I don't want to fix regression tests!
+#  $self->{scale} ||= ($self->{width}-$self->pad_left-$self->pad_right-1)/($self->length-1);  # wrong!
+  $self->{scale} ||= ($self->{width}-$self->pad_left-$self->pad_right)/($self->length);   # right, but I don't want to fix regression tests!
 }
 
 sub start { shift->{offset}+1}
