@@ -8,6 +8,9 @@
 #
 # You may distribute this module under the same terms as perl itself
 
+# Changes 2003-07-31 (jason)
+# Gary has cleaned up the code a lot to produce better looking
+# HTML
 # POD documentation - main docs before the code
 
 =head1 NAME
@@ -26,10 +29,68 @@ Bio::SearchIO::Writer::HTMLResultWriter - Object to implement writing a Bio::Sea
   my $out = new Bio::SearchIO(-writer => $writer);
   $out->write_result($in->next_result);
 
+
+  # to filter your output
+  my $MinLength = 100; # need a variable with scope outside the method
+  sub hsp_filter { 
+      my $hsp = shift;
+      return 1 if $hsp->length('total') > $MinLength;
+  }
+  sub result_filter { 
+      my $result = shift;
+      return $hsp->num_hits > 0;
+  }
+
+  my $writer = new Bio::SearchIO::Writer::HTMLResultWriter
+                     (-filters => { 'HSP' => \&hsp_filter} );
+  my $out = new Bio::SearchIO(-writer => $writer);
+  $out->write_result($in->next_result);
+
+  # can also set the filter via the writer object
+  $writer->filter('RESULT', \&result_filter);
+
 =head1 DESCRIPTION
 
 This object implements the SearchWriterI interface which will produce
 a set of HTML for a specific Bio::Search::Report::ReportI interface.
+
+
+You can also provide the argument -filters => \%hash to filter the at
+the hsp, hit, or result level.  %hash is an associative array which
+contains any or all of the keys (HSP, HIT, RESULT).  The values
+pointed to by these keys would be references to a subroutine which
+expects to be passed an object - one of Bio::Search::HSP::HSPI,
+Bio::Search::Hit::HitI, and Bio::Search::Result::ResultI respectively.
+Each function needs to return a boolean value as to whether or not the
+passed element should be included in the output report - true if it is to be included, false if it to be omitted.
+
+For example to filter on sequences in the database which are too short
+for your criteria you would do the following.
+
+Define a hit filter method 
+
+  sub hit_filter { 
+      my $hit = shift;
+      return $hit->length E<gt> 100; # test if length of the hit sequence
+                                     # long enough    
+  }
+  my $writer = new Bio::SearchIO::Writer::TextResultWriter(
+       -filters => { 'HIT' =E<gt> \&hit_filter }  
+      );
+
+Another example would be to filter HSPs on percent identity, let's
+only include HSPs which are 75% identical or better.
+
+   sub hsp_filter {
+       my $hsp = shift;
+       return $hsp->percent_identity E<gt> 75;
+   }
+   my $writer = new Bio::SearchIO::Writer::TextResultWriter(
+       -filters => { 'HSP' =E<gt> \&hsp_filter }  
+      );
+
+See L<Bio::SearchIO::SearchWriterI> for more info on the filter method.
+
 
 =head1 FEEDBACK
 
@@ -53,13 +114,11 @@ email or the web:
 
 =head1 AUTHOR - Jason Stajich
 
-Email jason@bioperl.org
-
-Describe contact details here
+Email jason-at-bioperl-dot-org
 
 =head1 CONTRIBUTORS
 
-Additional contributors names and emails here
+Gary Williams G.Williams@hgmp.mrc.ac.uk
 
 =head1 APPENDIX
 
@@ -69,12 +128,12 @@ Internal methods are usually preceded with a _
 =cut
 
 
-# Let the code begin...
-
 
 package Bio::SearchIO::Writer::HTMLResultWriter;
-use vars qw(@ISA %RemoteURLDefault $MaxDescLen $DATE $AlignmentLineWidth);
+use vars qw(@ISA %RemoteURLDefault
+            $MaxDescLen $DATE $AlignmentLineWidth $Revision);
 use strict;
+$Revision = '$Id$'; #'
 
 # Object preamble - inherits from Bio::Root::RootI
 
@@ -99,8 +158,9 @@ use Bio::SearchIO::SearchWriterI;
  Usage   : my $obj = new Bio::SearchIO::Writer::HTMLResultWriter();
  Function: Builds a new Bio::SearchIO::Writer::HTMLResultWriter object 
  Returns : Bio::SearchIO::Writer::HTMLResultWriter
- Args    :
-
+ Args    : -filters => hashref with any or all of the keys (HSP HIT RESULT)
+           which have values pointing to a subroutine reference
+           which will expect to get a 
 
 =cut
 
@@ -178,9 +238,10 @@ sub to_string {
 						  $self->filter('HSP') );
     return '' if( defined $resultfilter && ! &{$resultfilter}($result) );    
 
-
     my ($qtype,$dbtype,$dbseqtype,$type);
     my $alg = $result->algorithm;
+
+    # This is actually wrong for the FASTAs I think
     if(  $alg =~ /T(FAST|BLAST)([XY])/i ) {
 	$qtype      = $dbtype = 'translated';
 	$dbseqtype = $type       = 'PROTEIN';
@@ -192,61 +253,48 @@ sub to_string {
     } elsif( $alg =~ /(FAST|BLAST)N/i || 
 	     $alg =~ /(WABA|EXONERATE)/i ) {
 	$qtype      = $dbtype = '';
-	$type       = 'NUCLEOTIDE';
+	$type = $dbseqtype  = 'NUCLEOTIDE';
     } elsif( $alg =~ /(FAST|BLAST)P/  || $alg =~ /SSEARCH/i ) {
 	$qtype      = $dbtype = '';
 	$type = $dbseqtype  = 'PROTEIN';
+    } elsif( $alg =~ /(FAST|BLAST)[XY]/i ) {
+	$qtype      = 'translated';
+        $dbtype     = 'PROTEIN';
+	$dbseqtype  = $type      = 'PROTEIN';
     } else { 
 	print STDERR "algorithm was ", $result->algorithm, " couldn't match\n";
     }
     
     
     my %baselens = ( 'Sbjct:'   => ( $dbtype eq 'translated' )  ? 3 : 1,
-		     'Query:'   => ( $qtype    eq 'translated' )  ? 3 : 1);
+		     'Query:'   => ( $qtype  eq 'translated' )  ? 3 : 1);
 
-    my $reference = $result->algorithm_reference || $self->algorithm_reference($result);    
-    $reference =~ s/\~/\n/g;
     my $str;
-    if( $num <= 1 ) { 
-	$str = sprintf(
-qq{<HTML>
-    <HEAD><CENTER><TITLE>Bioperl Reformatted HTML of %s Search output with Bioperl Bio::SearchIO system</TITLE></CENTER></HEAD>
-    <BODY BGCOLOR="WHITE">
-},$result->algorithm);
-
+    if( ! defined $num || $num <= 1 ) { 
+	$str = &{$self->start_report}($result);
     }
-    $str .= sprintf(	    
-qq{
-    <CENTER><H1>Bioperl Reformatted HTML of %s Search Report<br> for %s</H1></CENTER>
-    <hr>
-	<pre>%s</pre>
-    <b>Query=</b>%s %s<br><dd>(%s letters)</dd>
-    <p>
-    <b>Database:</b> %s<br><dd>%d sequences; %d total letters<p></dd>
-    <p>
-    <table border=0>
-    <tr><th>Sequences producing significant alignments:</th>
-	<th>Score<br>(bits)</th><th>E<br>value</th></tr>
-  }, 
-		    $result->algorithm,		      
-		    $result->query_name(), 
-		    $reference,
-		    $result->query_name, 
-		    $result->query_description, $result->query_length, 
-		    $result->database_name(),
-		    $result->database_entries(),$result->database_letters(),
-		    );
+
+    $str .= &{$self->title}($result);
+
+    $str .= $result->algorithm_reference || $self->algorithm_reference($result);
+    $str .= &{$self->introduction}($result);
+
+    $str .= "<table border=0>
+            <tr><th>Sequences producing significant alignments:</th>
+            <th>Score<br>(bits)</th><th>E<br>value</th></tr>";
+
     my $hspstr = '<p><p>';
     if( $result->can('rewind')) {
         $result->rewind(); # support stream based parsing routines
     }
-    
+
     while( my $hit = $result->next_hit ) {
 	next if( $hitfilter && ! &{$hitfilter}($hit) );
 	my $nm = $hit->name();
-	my $id_parser = $self->id_parser;
-	print STDERR "no $nm for name (",$hit->description(), "\n" unless $nm;
-	my ($gi,$acc) = &$id_parser($nm);
+	
+	$self->debug( "no $nm for name (".$hit->description(). "\n") 
+	    unless $nm;
+	my ($gi,$acc) = &{$self->id_parser}($nm);
 	my $p = "%-$MaxDescLen". "s";
 	my $descsub;
 	if( length($hit->description) > ($MaxDescLen - 3) ) {
@@ -255,11 +303,9 @@ qq{
 	} else { 
 	    $descsub = sprintf($p,$hit->description);
 	}
-	
-	my $url = length($self->remote_database_url($dbseqtype)) > 0 ? 
-	    sprintf('<a href="%s">%s</a>',
-		    sprintf($self->remote_database_url($dbseqtype),$gi || $acc), 
-		    $hit->name()) :  $hit->name();
+
+	my $url_desc  = &{$self->hit_link_desc()}($self,$hit, $result);
+	my $url_align = &{$self->hit_link_align()}($self,$hit, $result);
 
 	my @hsps = $hit->hsps;
 	
@@ -267,7 +313,7 @@ qq{
 	# bitscore/significance value for the Hit (NCBI XML data for one)
 	
 	$str .= sprintf('<tr><td>%s %s</td><td>%s</td><td><a href="#%s">%.2g</a></td></tr>'."\n",
-			$url, $descsub, 
+			$url_desc, $descsub, 
 			($hit->raw_score ? $hit->raw_score : 
 			(defined $hsps[0] ? $hsps[0]->score : ' ')),
 			$acc,
@@ -275,22 +321,22 @@ qq{
 			 (defined $hsps[0] ? $hsps[0]->evalue : ' ')) 
 			);
 
-	$hspstr .= "<a name=\"$acc\"><pre>\n".
-	    sprintf("><b>%s</b> %s\n<dd>Length = %d</dd><p>\n\n", $hit->name, 
+	$hspstr .= "<a name=\"$acc\">\n".
+	    sprintf("><b>%s</b> %s\n<dd>Length = %s</dd><p>\n\n", $url_align, 
 			defined $hit->description ? $hit->description : '', 
-		    $hit->length);
-	
+		    &_numwithcommas($hit->length));
+	my $ct = 0;
 	foreach my $hsp (@hsps ) {
 	    next if( $hspfilter && ! &{$hspfilter}($hsp) );
 	    $hspstr .= sprintf(" Score = %s bits (%s), Expect = %s",
 			       $hsp->bits, $hsp->score, $hsp->evalue);
-	    if( $hsp->pvalue ) {
+	    if( defined $hsp->pvalue ) {
 		$hspstr .= ", P = ".$hsp->pvalue;
 	    }
 	    $hspstr .= "<br>\n";
 	    $hspstr .= sprintf(" Identities = %d/%d (%d%%)",
-			         ( $hsp->frac_identical('total') * 
-				   $hsp->length('total')),
+			       ( $hsp->frac_identical('total') * 
+				 $hsp->length('total')),
 			       $hsp->length('total'),
 			       $hsp->frac_identical('total') * 100);
 
@@ -306,30 +352,56 @@ qq{
 				   $hsp->gaps('total'),
 				   $hsp->length('total'),
 				   (100 * $hsp->gaps('total') / 
-				    $hsp->length('total')));
+				   $hsp->length('total')));
 	    }
 	    
-	    my ($h,$q) = ( $hsp->hit->frame, $hsp->query->frame);
-		
-	    if( $h || $q ) {
-		$hspstr .= " Frame = ";
-		
-		if( $h && ! $q) {  $hspstr .= $h }
-		elsif( $q && ! $h) {  $hspstr .= $q }
-		else { 
-		    $hspstr .= " $h / $q ";
+	    my ($hframe,$qframe)   = ( $hsp->hit->frame, $hsp->query->frame);
+	    my ($hstrand,$qstrand) = ($hsp->hit->strand,$hsp->query->strand);
+	    # so TBLASTX will have Query/Hit frames
+	    #    BLASTX  will have Query frame
+	    #    TBLASTN will have Hit frame
+	    if( $hstrand || $qstrand ) {
+		$hspstr .= ", Frame = ";
+		my ($signq, $signh);
+		unless( $hstrand ) {
+		    $hframe = undef;
+		    # if strand is null or 0 then it is protein
+		    # and this no frame
+		} else { 
+		    $signh = $hstrand < 0 ? '-' : '+';
+		}
+		unless( $qstrand  ) {
+		    $qframe = undef;
+		    # if strand is null or 0 then it is protein
+		} else { 
+		    $signq =$qstrand < 0 ? '-' : '+';
+		}
+		# remember bioperl stores frames as 0,1,2 (GFF way)
+		# BLAST reports reports as 1,2,3 so
+		# we have to add 1 to the frame values
+		if( defined $hframe && ! defined $qframe) {  
+		    $hspstr .= "$signh".($hframe+1);
+		} elsif( defined $qframe && ! defined $hframe) {  
+		    $hspstr .= "$signq".($qframe+1);
+		} else { 
+		    $hspstr .= sprintf(" %s%d / %s%d",
+				       $signq,$qframe+1,
+				       $signh, $hframe+1);
 		}
 	    }
-	    $hspstr .= "</pre></a><p>\n<pre>";
+#	    $hspstr .= "</pre></a><p>\n<pre>";
+	    $hspstr .= "</a><p>\n<pre>";
 	    
 	    my @hspvals = ( {'name' => 'Query:',
 			     'seq'  => $hsp->query_string,
-			     'start' => $hsp->query->strand >= 0 ? 
-				 $hsp->query->start : $hsp->query->end,
-			     'end'   => $hsp->query->strand >= 0 ? 
-			         $hsp->query->end : $hsp->query->start,
+			     'start' => ($qstrand >= 0 ? 
+					 $hsp->query->start : 
+					 $hsp->query->end),
+			     'end'   => ($qstrand >= 0 ? 
+					 $hsp->query->end : 
+					 $hsp->query->start),
 			     'index' => 0,
-			     'direction' => $hsp->query->strand || 1
+			     'direction' => $qstrand || 1
 			     },
 			    { 'name' => ' 'x6,
 			      'seq'  => $hsp->homology_string,
@@ -340,12 +412,14 @@ qq{
 			      },
 			    { 'name'  => 'Sbjct:',
 			      'seq'   => $hsp->hit_string,
-			      'start' => $hsp->hit->strand >= 0 ? 
-				  $hsp->hit->start : $hsp->hit->end,
-			      'end'   => $hsp->hit->strand >= 0 ? 
-			          $hsp->hit->end : $hsp->hit->start,
+			      'start' => ($hstrand >= 0 ? 
+					  $hsp->hit->start : 
+					  $hsp->hit->end),
+			      'end'   => ($hstrand >= 0 ? 
+					  $hsp->hit->end : 
+					  $hsp->hit->start),
 			      'index' => 0, 
-			      'direction' => $hsp->hit->strand || 1
+			      'direction' => $hstrand || 1
 			      }
 			    );	    
 	    
@@ -389,23 +463,274 @@ qq{
 		$count += $AlignmentLineWidth;
 		$hspstr .= "\n\n";
 	    }
+	    $hspstr .= "</pre>\n";
 	}
-	$hspstr .= "</pre>\n";
+#	$hspstr .= "</pre>\n";
     }
+
+
+    # make table of search statistics and end the web page
     $str .= "</table><p>\n".$hspstr."<p><p><hr><h2>Search Parameters</h2><table border=1><tr><th>Parameter</th><th>Value</th>\n";
-    
-    
+        
     foreach my $param ( $result->available_parameters ) {
 	$str .= "<tr><td>$param</td><td>". $result->get_parameter($param) ."</td></tr>\n";
 	
     }
     $str .= "</table><p><h2>Search Statistics</h2><table border=1><tr><th>Statistic</th><th>Value</th></tr>\n";
-   foreach my $stat ( sort $result->available_statistics ) {
+    foreach my $stat ( sort $result->available_statistics ) {
 	$str .= "<tr><td>$stat</td><td>". $result->get_statistic($stat). "</td></th>\n";
     }
-    $str .=  "</table>".$self->footer() . "</BODY>\n</HTML>\n";
-    
+    $str .=  "</table><P>".$self->footer() . "<P>\n";
     return $str;
+}
+
+=head2 hit_link_desc
+
+ Title   : hit_link_desc
+ Usage   : $self->hit_link_desc(\&link_function);
+ Function: Get/Set the function which provides an HTML 
+           link(s) for the given hit to be used
+           within the description section at the top of the BLAST report.
+           This allows a person reading the report within
+           a web browser to go to one or more database entries for
+           the given hit from the description section.
+ Returns : Function reference
+ Args    : Function reference
+ See Also: L<default_hit_link_desc()>
+
+=cut
+
+sub hit_link_desc{
+    my( $self, $code ) = @_; 
+    if ($code) {
+        $self->{'_hit_link_desc'} = $code;
+    }
+    return $self->{'_hit_link_desc'} || \&default_hit_link_desc;
+}
+
+=head2 default_hit_link_desc
+
+ Title   : defaulthit_link_desc
+ Usage   : $self->default_hit_link_desc($hit, $result)
+ Function: Provides an HTML link(s) for the given hit to be used
+           within the description section at the top of the BLAST report.
+           This allows a person reading the report within
+           a web browser to go to one or more database entries for
+           the given hit from the description section.
+ Returns : string containing HTML markup "<a href...")
+
+           The default implementation returns an HTML link to the
+           URL supplied by the remote_database_url() method
+           and using the identifier supplied by the id_parser() method.
+           It will use the NCBI GI if present, and the accession if not.
+
+ Args    : First argument is a Bio::Search::Hit::HitI
+           Second argument is a Bio::Search::Result::ResultI
+
+See Also: L<hit_link_align>, L<remote_database>, L<id_parser>
+
+=cut
+
+sub default_hit_link_desc {
+    my($self, $hit, $result) = @_;
+    my $type = ( $result->algorithm =~ /(P|X|Y)$/i ) ? 'PROTEIN' : 'NUCLEOTIDE';
+    my ($gi,$acc) = &{$self->id_parser}($hit->name);
+
+    my $url = length($self->remote_database_url($type)) > 0 ? 
+              sprintf('<a href="%s">%s</a>',
+                      sprintf($self->remote_database_url($type),$gi || $acc), 
+                      $hit->name()) :  $hit->name();
+
+    return $url;
+}
+
+
+=head2 hit_link_align
+
+ Title   : hit_link_align
+ Usage   : $self->hit_link_align(\&link_function);
+ Function: Get/Set the function which provides an HTML link(s) 
+           for the given hit to be used
+           within the HSP alignment section of the BLAST report.
+           This allows a person reading the report within
+           a web browser to go to one or more database entries for
+           the given hit from the alignment section.
+ Returns : string containing HTML markup "<a href...")
+
+           The default implementation delegates to hit_link_desc().
+
+ Args    : First argument is a Bio::Search::Hit::HitI
+           Second argument is a Bio::Search::Result::ResultI
+
+See Also: L<hit_link_desc>, L<remote_database>, L<id_parser>
+
+=cut
+
+sub hit_link_align {
+    my ($self,$code) = @_;
+    if ($code) {
+        $self->{'_hit_link_align'} = $code;
+    }
+    return $self->{'_hit_link_align'} || \&default_hit_link_desc;
+}
+
+=head2 start_report
+
+  Title   : start_report
+  Usage   : $index->start_report( CODE )
+  Function: Stores or returns the code to
+            write the start of the <HTML> block, the <TITLE> block
+            and the start of the <BODY> block of HTML.   Useful
+            for (for instance) specifying alternative
+            HTML if you are embedding the output in
+            an HTML page which you have already started.
+            (For example a routine returning a null string).
+            Returns \&default_start_report (see below) if not
+            set. 
+  Example : $index->start_report( \&my_start_report )
+  Returns : ref to CODE if called without arguments
+  Args    : CODE
+
+=cut
+
+sub start_report {
+    my( $self, $code ) = @_; 
+    if ($code) {
+        $self->{'_start_report'} = $code;
+    }
+    return $self->{'_start_report'} || \&default_start_report;
+}
+
+=head2 default_start_report
+
+ Title   : default_start_report
+ Usage   : $self->default_start_report($result)
+ Function: The default method to call when starting a report.
+ Returns : sting
+ Args    : First argument is a Bio::Search::Result::ResultI
+
+=cut
+
+sub default_start_report {
+    my ($result) = @_;
+    return sprintf(
+    qq{<HTML>
+      <HEAD> <CENTER><TITLE>Bioperl Reformatted HTML of %s output with Bioperl Bio::SearchIO system</TITLE></CENTER></HEAD>
+      <!------------------------------------------------------------------->
+      <!-- Generated by Bio::SearchIO::Writer::HTMLResultWriter          -->
+      <!-- %s -->
+      <!-- http://bioperl.org                                            -->
+      <!------------------------------------------------------------------->
+      <BODY BGCOLOR="WHITE">
+    },$result->algorithm,$Revision);
+    
+}
+
+=head2 title
+
+ Title   : title
+ Usage   : $self->title($CODE)
+
+  Function: Stores or returns the code to provide HTML for the given
+            BLAST report that will appear at the top of the BLAST report
+            HTML output.  Useful for (for instance) specifying
+            alternative routines to write your own titles.
+            Returns \&default_title (see below) if not
+            set. 
+  Example : $index->title( \&my_title )
+  Returns : ref to CODE if called without arguments
+  Args    : CODE
+
+=cut
+
+sub title {
+    my( $self, $code ) = @_; 
+    if ($code) {
+        $self->{'_title'} = $code;
+    }
+    return $self->{'_title'} || \&default_title;
+}
+
+=head2 default_title
+
+ Title   : default_title
+ Usage   : $self->default_title($result)
+ Function: Provides HTML for the given BLAST report that will appear
+           at the top of the BLAST report HTML output.
+ Returns : string containing HTML markup
+           The default implementation returns <CENTER> <H1> HTML
+           containing text such as:
+           "Bioperl Reformatted HTML of BLASTP Search Report
+                     for gi|1786183|gb|AAC73113.1|"
+ Args    : First argument is a Bio::Search::Result::ResultI
+
+=cut
+
+sub default_title {
+    my ($result) = @_;
+
+    return sprintf(
+        qq{<CENTER><H1><a href="http://bioperl.org">Bioperl</a> Reformatted HTML of %s Search Report<br> for %s</H1></CENTER>},
+		    $result->algorithm,
+		    $result->query_name());
+}
+
+
+=head2 introduction
+
+ Title   : introduction
+ Usage   : $self->introduction($CODE)
+
+  Function: Stores or returns the code to provide HTML for the given
+            BLAST report detailing the query and the
+            database information.
+            Useful for (for instance) specifying
+            routines returning alternative introductions.
+            Returns \&default_introduction (see below) if not
+            set. 
+  Example : $index->introduction( \&my_introduction )
+  Returns : ref to CODE if called without arguments
+  Args    : CODE
+
+=cut
+
+sub introduction {
+    my( $self, $code ) = @_; 
+    if ($code) {
+        $self->{'_introduction'} = $code;
+    }
+    return $self->{'_introduction'} || \&default_introduction;
+}
+
+=head2 default_introduction
+
+ Title   : default_introduction
+ Usage   : $self->default_introduction($result)
+ Function: Outputs HTML to provide the query
+           and the database information
+ Returns : string containing HTML
+ Args    : First argument is a Bio::Search::Result::ResultI
+           Second argument is string holding literature citation
+
+=cut
+
+sub default_introduction {
+    my ($result) = @_;
+
+    return sprintf(
+    qq{
+    <b>Query=</b> %s %s<br><dd>(%s letters)</dd>
+    <p>
+    <b>Database:</b> %s<br><dd>%s sequences; %s total letters<p></dd>
+    <p>
+  }, 
+		   $result->query_name, 
+		   $result->query_description, 
+		   &_numwithcommas($result->query_length), 
+		   $result->database_name(),
+		   &_numwithcommas($result->database_entries()), 
+		   &_numwithcommas($result->database_letters()),
+		   );
 }
 
 =head2 end_report
@@ -466,6 +791,10 @@ sub id_parser {
             Returns $1 from applying the regexp /^>\s*(\S+)/
             to $header.
   Returns : ID string
+            The default implementation checks for NCBI-style
+            identifiers in the given string ('gi|12345|AA54321').
+            For these IDs, it extracts the GI and accession and
+            returns a two-element list of strings (GI, acc).
   Args    : a fasta header line string
 
 =cut
@@ -491,7 +820,7 @@ sub MAX { $a <=> $b ? $b : $a; }
 
 sub footer { 
     my ($self) = @_;
-    return "<hr><h5>Produced by Bioperl module ".ref($self)." on $DATE</h5>\n"
+    return "<hr><h5>Produced by Bioperl module ".ref($self)." on $DATE<br>Revision: $Revision</h5>\n"
     
 }
 
@@ -507,33 +836,43 @@ sub footer {
 
 =cut
 
-sub algorithm_reference{
+sub algorithm_reference {
    my ($self,$result) = @_;
    return '' if( ! defined $result || !ref($result) ||
 		 ! $result->isa('Bio::Search::Result::ResultI')) ;   
    if( $result->algorithm =~ /BLAST/i ) {
-       my $res = $result->algorithm . ' '. $result->algorithm_version. "\n";
+       my $res = $result->algorithm . ' ' . $result->algorithm_version . "<p>";
        if( $result->algorithm_version =~ /WashU/i ) {
 	   return $res .
-"Copyright (C) 1996-2000 Washington University, Saint Louis, Missouri USA.\n
-All Rights Reserved.\n
-\n 
-Reference:  Gish, W. (1996-2000) <a href=\"http://blast.wustl.edu\">http://blast.wustl.edu</a>\n";	   
+"Copyright (C) 1996-2000 Washington University, Saint Louis, Missouri USA.<br>
+All Rights Reserved.<p>
+<b>Reference:</b>  Gish, W. (1996-2000) <a href=\"http://blast.wustl.edu\">http://blast.wustl.edu</a><p>";	   
        } else {
 	   return $res . 
-"Reference: Altschul, Stephen F., Thomas L. Madden, Alejandro A. Schaffer,\n
-Jinghui Zhang, Zheng Zhang, Webb Miller, and David J. Lipman (1997),\n
-\"Gapped BLAST and PSI-BLAST: a new generation of protein database search\n
-programs\",  Nucleic Acids Res. 25:3389-3402.\n";
+"<b>Reference:</b> Altschul, Stephen F., Thomas L. Madden, Alejandro A. Schaffer,<br>
+Jinghui Zhang, Zheng Zhang, Webb Miller, and David J. Lipman (1997),<br>
+\"Gapped BLAST and PSI-BLAST: a new generation of protein database search<br>
+programs\",  Nucleic Acids Res. 25:3389-3402.<p>";
 
        }       
    } elsif( $result->algorithm =~ /FAST/i ) {
-       return $result->algorithm. " ". $result->algorithm_version . "\n".
-	   "\nReference: Pearson et al, Genomics (1997) 46:24-36\n";
+       return $result->algorithm . " " . $result->algorithm_version . "<br>" .
+	   "\n<b>Reference:</b> Pearson et al, Genomics (1997) 46:24-36<p>";
    } else { 
        return '';
    }
 }
+
+# from Perl Cookbook 2.17
+sub _numwithcommas {
+    my $num = reverse( $_[0] );
+    $num =~ s/(\d{3})(?=\d)(?!\d*\.)/$1,/g;
+    return scalar reverse $num;
+}
+
+=head2 Methods Bio::SearchIO::SearchWriterI
+
+L<Bio::SearchIO::SearchWriterI> inherited methods.
 
 =head2 filter
 
