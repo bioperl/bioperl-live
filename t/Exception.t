@@ -96,7 +96,7 @@ catch Bio::Root::Exception with {
 # within a try block, the Error module will create a Error::Simple to
 # capture it. Handy eh?
 
-if( defined $^V && $^V ge 5.6.1 ) {
+if( $] >= 5.006001 ) {
     try {
 	$test->foobar();
     }
