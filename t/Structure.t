@@ -121,8 +121,9 @@ ok $atom->y, $y;
 my $z = $atom->x - $y;
 $atom->z($z);
 ok $atom->z, -2.111;
-ok ($atom->xyz, 3);
 my @xyz = $atom->xyz;
+ok (scalar (@xyz), 3);
+
 ok $xyz[0], 10.234;
 ok $xyz[1], 12.345;
 ok $xyz[2], -2.111;
