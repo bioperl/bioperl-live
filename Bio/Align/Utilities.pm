@@ -141,23 +141,15 @@ sub aa_to_dna_aln {
 	my $dnalen = $dnaseqs->{$id}->length;
 	my $nt_seqstr;
 	my $j = 0;
-	
 	for( my $i = 0; $i < $alnlen; $i++ ) {
 	    my $char = substr($aa_seqstr,$i + $start_offset,1);	    
-	    if ( $char eq $GAP )  { 
+	    if ( $char eq $GAP || $j >= $dnalen )  { 
 		$nt_seqstr .= $CODONGAP;
-	    } else { 
-		if( $j > $dnalen ) { 
-		    $aln->warn("codons can't match up for $id, we've gone beyond the end of the DNA sequence\n");
-		    next;
-		}
+	    } else {
 		$nt_seqstr .= substr($dnaseq,$j,CODONSIZE);
 		$j += CODONSIZE;
 	    }
 	}
-	
-        # funky looking math is to readjust to codon boundaries and deal
-	# with fact that sequence start with 1
 	my $newdna = new Bio::LocatableSeq(-display_id  => $id,
 					   -alphabet    => 'dna',
 					   -start       => $start_offset+1,
