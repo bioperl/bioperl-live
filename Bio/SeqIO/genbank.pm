@@ -565,7 +565,9 @@ sub write_seq {
 	    $self->_print("KEYWORDS    $temp_line\n");   
 	} else {
 	    if( $seq->can('keywords') ) {
-		$self->_print("KEYWORDS    ",$seq->keywords,".\n");
+		my $kw = $seq->keywords;
+		$kw .= '.' if( $kw !~ /\.$/ );
+		$self->_print("KEYWORDS    $kw\n");
 	    }
 	} 
 
@@ -582,7 +584,7 @@ sub write_seq {
 	    if (my $ssp = $spec->sub_species) {
 		$OS .= " $ssp";
 	    }
-	    $self->_print("SOURCE      $OS.\n");
+	    $self->_print("SOURCE      $OS\n");
 	    $self->_print("  ORGANISM  ",
 			  ($spec->organelle() ? $spec->organelle()." " : ""),
 			  "$genus $species", "\n");
