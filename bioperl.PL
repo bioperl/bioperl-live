@@ -69,13 +69,17 @@ useful code ideas and contribute your own if possible.
 
 =head1 DOCUMENTATION
 
-We have a cookbook tutorial in bptutorial.pl which has embedded
-documentation. Start there if learning-by-example suits you most, or
-examine the Bioperl online course at
-http://www.pasteur.fr/recherche/unites/sis/formation/bioperl. Make sure
-to check the documentation in the modules as well - there are over 500
-modules in Bioperl, and counting, and there's detail in the modules'
-documentation that will not appear in the general documentation.
+The Bio::Perl module is designed to flatten the learning curver for
+newcomers to Perl/Bioperl. This is a good place to start if you want
+some simple functionality. We have a cookbook tutorial in
+bptutorial.pl which has embedded documentation. Start there if
+learning-by-example suits you most, or examine the Bioperl online
+course at
+http://www.pasteur.fr/recherche/unites/sis/formation/bioperl. Make
+sure to check the documentation in the modules as well - there are
+over 500 modules in Bioperl, and counting, and there's detail in the
+modules' documentation that will not appear in the general
+documentation.
 
 
 =head1 INSTALLATION

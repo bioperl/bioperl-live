@@ -16,7 +16,7 @@ Bio::Perl - Functional access to BioPerl for people who don't know objects
 
 =head1 SYNOPSIS
 
-  use Bio::Perl qw(read_sequence read_all_sequences write_sequence new_sequence get_sequence);
+  use Bio::Perl;
 
   # will guess file format from extension
   $seq_object = read_sequence($filename);
@@ -58,6 +58,12 @@ Bio::Perl - Functional access to BioPerl for people who don't know objects
   $seq_object = get_sequence('embl',"AI129902");
 
   $seq_object = get_sequence('genbank',"AI129902");
+
+  # BLAST a sequence (assummes an internet connection)
+
+  $blast_report = blast_sequence($seq_object);
+  
+  write_blast(">blast.out",$blast_report);
 
 
 =head1 DESCRIPTION

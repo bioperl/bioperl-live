@@ -37,12 +37,13 @@ BioPerlTutorial - a tutorial for bioperl
 
   I. Introduction
   I.1 Overview
-  I.2 Software requirements
-    I.2.1 For minimal bioperl installation
-    I.2.2 For complete installation
-  I.3 Installation procedures
-  I.4 Additional comments for non-unix users
-  I.5 Places to look for additional documentation
+  I.2 Quick getting started scripts
+  I.3 Software requirements
+    I.3.1 For minimal bioperl installation
+    I.3.2 For complete installation
+  I.4 Installation procedures
+  I.5 Additional comments for non-unix users
+  I.6 Places to look for additional documentation
 
   II. Brief overview to bioperl's objects
   II.1 Sequence objects:
@@ -193,11 +194,69 @@ bioperl auxilliary libraries and/or external programs.  These demos
 should be skipped if the demos are run and the required auxilliary
 programs are not found.)
 
-=head2 I.2 Software requirements
+=head2 I.2 Quick getting started scripts
+
+For newcomers and people who want to quickly evaluate whether this package
+is worth using in the first place, we have a very simple module which allows
+easy access to a small number of Bioperl's functionality in an easy to use 
+manner. The Bio::Perl module provides some simple access functions,
+for example, this script will retrieve a swissprot sequence and write
+it out in fasta format
+
+  use Bio::Perl;
+  
+  # this script will only work with an internet connection
+  # on the computer it is run on
+  $seq_object = get_sequence('swissprot',"ROA1_HUMAN");
+
+  write_sequence(">roa1.fasta",'fasta',$seq_object);
+
+Another example is the ability to blast a sequence using the facilities
+as NCBI. (Please be careful not to abuse the compute that NCBI provides
+and so use this only for individual searches. If you want to do a large
+number of BLAST searches, please download the blast package locally).
+
+  use Bio::Perl;
+  
+  # this script will only work with an internet connection
+  # on the computer it is run on
+
+  $seq_object = get_sequence('swissprot',"ROA1_HUMAN");
+
+  # uses the default database - nr in this case
+  $blast_result = blast_sequence($seq);
+
+  write_blast(">roa1.blast",$blast_report);
+  
+Bio::Perl has a number of other "easy to use" functions, including
+
+  get_sequence        - gets a sequence from standard, internet accessible
+                        databases
+  read_sequence       - reads a seqeunce from a file
+  read_all_sequences  - reads all sequences from a file 
+  new_sequence        - makes a bioperl sequence just from a string
+  write_sequence      - writes a single or an array of sequence to a file
+  translate           - provides a translation of a sequence
+  translate_as_string - provides a translation of a sequence, returning back 
+                        just the sequence as a string
+  blast_sequence      - BLASTs a sequence against standard databases at  
+                        NCBI
+  write_blast         - writes a blast report out to a file
+
+Look at the documentation for Bio::Perl by going perldoc Bio::Perl to learn
+more about these functions. In all these cases, Bio::Perl is access the 
+underlying Bioperl functions (for example, translation in Bioperl can handle
+many different translation tables and provides different options for 
+stop codon processing) - in most cases, most users will migrate to using the
+underlying bioperl objects as their sophistication level increases, but 
+Bio::Perl provides an easy on-ramp for newcomers and lazy programmers.
+
+
+=head2 I.3 Software requirements
 
 =cut
 
-=head2   I.2.1 Minimal bioperl installation (Bioperl "core" installation)
+=head2   I.3.1 Minimal bioperl installation (Bioperl "core" installation)
 
 For a "minimal" installation of bioperl, you will need to have perl
 itself installed as well as the bioperl "core modules".  Bioperl has
@@ -225,7 +284,7 @@ Perl tool Data::Dumper used with the syntax:
 
 can also be helpful for obtaining debugging information on perl objects.
 
-=head2     I.2.2 Complete installation
+=head2     I.3.2 Complete installation
 
 Some of the capabilities of bioperl require software beyond that of
 the minimal installation.  This additional software includes perl
@@ -266,7 +325,7 @@ for EMBOSS applications - http://www.hgmp.mrc.ac.uk/Software/EMBOSS/download.htm
 
 =for html <A NAME ="i.3"></A>
 
-=head2  I.3 Installation
+=head2  I.4 Installation
 
 The actual installation of the various system components is
 accomplished in the standard manner:
@@ -344,7 +403,7 @@ the bioperl distribution as well as the README files in the external
 programs you want to use (eg bioperl-ext, clustalw, TCoffee,
 NCBI-blast).
 
-=head2 I.4 Additional comments for non-unix users
+=head2 I.5 Additional comments for non-unix users
 
 Bioperl has mainly been developed and tested under various unix
 environments (including Linux and MacOSX).  In addition, this tutorial
@@ -371,7 +430,7 @@ available.  However, since the testing of bioperl in these
 environments has been limited, the script may well crash in a less
 "graceful" manner.
 
-=head2 I.5 Places to look for additional documentation
+=head2 I.6 Places to look for additional documentation
 
 This tutorial does not intend to be a comprehensive description of all
 the objects and methods available in bioperl.  For that the reader is

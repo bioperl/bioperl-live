@@ -101,7 +101,7 @@ thing here is not to work in a vacuum. Providing the main list with
 a good proposal before you start about what you are going to do (and listen
 to the responses) is a must. We have been pulled up so many times by other
 people looking at our designs that we can't imagine coding stuff now without
-feedback, first.
+feedback.
 
 =head2 Designing good tests
 

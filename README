@@ -15,6 +15,10 @@ o Getting Started
  also gives a overview of the history and purpose of Bioperl. The FAQ
  may also be useful if you have a particular question.
 
+ For people starting out with Perl and Bioperl, look at the Bio::Perl
+ module (go perldoc Bio::Perl from the directory you are reading this file
+ in). This module is designed to flatten the learning curve for newcomers.
+
  For a discussion of issues in design and development please see
  biodesign.pod, recommended for those who want to contribute code. And for
  a list of OS's and versions that are known to support Bioperl see the
@@ -30,23 +34,6 @@ o About Bioperl
  Our website http://bioperl.org provides an online resource for
  modules, scripts, and web links for developers of Perl-based software
  for life science research.
-
-o Survey
-
- We'd like to hear your feedback.  If you are using this toolkit for
- the first time or you are bioperl guru or somewhere in between,
- please consider filling out the survey to help us generate user
- statistics.  We will post the tabulated results on the website as
- soon as we are able to process them and recieve enough responses.
- All individual responses including comments and optional email name
- and organization will be keep confidential for use only by the Open
- Bioinformatics Foundation.  You responses will greatly assist the
- bioperl project and its ability to expand towards new problems in
- bioinformatics and computational biology.  
-
- You can access the survey at http://www.bioperl.org/survey.html
- or follow the links to the Bioperl Survey from the bioperl website at
- http://bioperl.org.
 
 o Contact info
 
@@ -146,8 +133,20 @@ o Releases
  file.  See the Changes file for a listing of what features have been
  added or what APIs have changed between releases.
 
- All odd numbered point releases will be developer releases and
- even point releases are stable releases.
+ Like many internet projects, Bioperl now has a consistent numbering
+ scheme to indicate stable release series vs development release series.
+ A release number is a three digit number like 1.2.0 - the first digit
+ indicates the major release - the idea being that all the API calls in a
+ major release are reasonably consistent. The second number is the
+ release series. This is probably the most important number. Even
+ numbers here (1.0, 1.2 etc) indicate stable releases. Stable releases
+ are well tested and recommended for most uses. Odd numbers (1.1, 1.3
+ etc) are development releases which one should only use if you are
+ interested in the latest and greatest features. The final number (eg,
+ 1.2.0, 1.2.1 etc) is the bug fix release. The higher the number the
+ more bug fixes has been incorportated. In theory you can upgrade from one
+ bug fix release to the next with no changes to your own code (for production
+ cases, obviously check things out carefully before you switch over).
 
 o Caveats, warnings, etc
 
@@ -185,6 +184,8 @@ o A simple module summary
  toolkit is laid out:
 
  All modules are in the Bio/ namespace, 
+  - Perl is for newbies and gives a functional interface to the main
+    parts of the package
   - Seq is for Sequences (protein and DNA).
     o Bio::PrimarySeq is a plain sequence (sequence data + identifiers)
     o Bio::Seq is a PrimarySeq plus it has a Bio::Annotation::Collection 
@@ -213,6 +214,8 @@ o A simple module summary
  - SimpleAlign is for multiple sequence alignments
  - AlignIO is for reading and writing multiple sequence alignment
    formats
+ - Assembly provides the start of an infrastructure for assemblies
+   and Assembly::IO IO converters for them
  - DB is the namespace for all the database query objects
    o Bio::DB::GenBank/GenPept are two modules which query NCBI entrez
      for sequences

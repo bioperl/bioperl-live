@@ -2,6 +2,8 @@ $Id$
 Revision history for Bioperl core modules
 
 1.2  Stable major release
+ 
+    o More functionality added to Bio::Perl, the newbie module
 
     o Bug fixes in Bio::TreeIO::newick fixes bug introduced in 1.0.2
       Support for New Hampshire Extended (NHX) format parsing.
