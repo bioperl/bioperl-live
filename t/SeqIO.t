@@ -2,7 +2,7 @@
 # $Id$
 
 use strict;
-use vars qw($DEBUG $TESTCOUNT $NODOM);
+use vars qw($DEBUG $TESTCOUNT $NODOM $NOSAX);
 $DEBUG = $ENV{'BIOPERLDEBUG'} || 0;
 
 BEGIN {
@@ -11,13 +11,24 @@ BEGIN {
         use lib 't';
     }
     use Test;
-    $TESTCOUNT = 270;
+    $TESTCOUNT = 284;
     # interpro uses XML::DOM
     eval {require XML::DOM::XPath};
     if ($@) {
-       $TESTCOUNT -= 8;
-       $NODOM = 1;
-       print STDERR "XML::DOM::XPath not found - skipping interpro tests\n";
+	$TESTCOUNT -= 8;
+	$NODOM = 1;
+	print STDERR "XML::DOM::XPath not found - skipping interpro tests\n";
+    }
+    # BSML_SAX uses XML::SAX
+    eval {require XML::SAX; 
+	  require XML::SAX::Writer; 
+	  require XML::SAX::Base;
+	  1;
+      };
+    if( $@ ) {
+	$TESTCOUNT -= 14;
+	$NOSAX = 1;
+	warn "XML::SAX::Base or XML::SAX or XML::SAX::Writer not found - skipping BSML_SAX tests\n";
     }
     plan tests => $TESTCOUNT;
 }
@@ -685,7 +696,6 @@ ok($refs[20]->rp, 'VARIANTS X-ALD LEU-98; ASP-99; GLU-217; GLN-518; ASP-608; ILE
 
 
 # test bug #1673 , RDB-II genbank files
-
 $str = Bio::SeqIO->new(-format => 'genbank', 
                        -file => Bio::Root::IO->catfile(qw(t data Mcjanrna_rdbII.gbk) )
 		      );
@@ -694,3 +704,29 @@ ok($seq = $str->next_seq);
 ok(@refs, 1);
 ok($seq->display_id,'Mc.janrrnA');
 ok($seq->molecule ,'RNA');
+
+
+# test BSML-SAX
+unless( $NOSAX ) 
+{
+    $str = Bio::SeqIO->new(-format => 'bsml_sax', 
+			   -file => Bio::Root::IO->catfile(qw(t data 
+							      U83300.bsml) )
+			   );
+    ok($seq = $str->next_seq);
+    @refs = $seq->annotation->get_Annotations('reference');
+    ok(@refs, 2);
+    ok($seq->display_id,'MIVN83300');
+    ok($seq->molecule ,'dna');
+    ok(! $seq->is_circular);
+    ok($seq->get_dates,2);
+    ok($seq->accession_number, 'U83300');
+    ok($seq->seq_version,1);
+    my @feats = $seq->get_SeqFeatures;
+    ok(@feats, 2);
+    ok($feats[1]->start, 1);
+    ok($feats[1]->end, 946);
+    ok($feats[1]->get_tag_values('db_xref'), 3);
+    ok($seq->annotation->get_Annotations('reference'),2);
+    ok($seq->annotation->get_Annotations('dblink'),2);
+}
