@@ -572,6 +572,15 @@ sub read_colors {
   }
 }
 
+sub color_name_to_rgb {
+  my $class = shift;
+  my $color_name  = shift;
+  $class->read_colors() unless %COLORS;
+  return unless $COLORS{$color_name};
+  return wantarray ? @{$COLORS{$color_name}}
+                   : $COLORS{$color_name};
+}
+
 sub color_names {
     my $class = shift;
     $class->read_colors unless %COLORS;
@@ -1300,7 +1309,7 @@ and then caches the result.
    pad_bottom()	      Get/set bottom padding
    pad_right()	      Get/set right padding
 
-=head2 INTERNAL METHODS
+=head2 COLOR METHODS
 
 The following methods are used internally, but may be useful for those
 implementing new glyph types.
@@ -1311,6 +1320,12 @@ implementing new glyph types.
 
 Return the symbolic names of the colors recognized by the panel
 object.  In a scalar context, returns an array reference.
+
+=item ($red,$green,$blue) = Bio::Graphics::Panel-E<gt>color_name_to_rgb($color)
+
+Given a symbolic color name, returns the red, green, blue components
+of the color.  In a scalar context, returns an array reference to the
+rgb triplet.  Returns undef for an invalid color name.
 
 =item @rgb = $panel-E<gt>rgb($index)
 
