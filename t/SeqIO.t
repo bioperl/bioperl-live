@@ -9,7 +9,7 @@ BEGIN {
 	use lib 't';
     }
     use Test;
-    $TESTCOUNT = 142;
+    $TESTCOUNT = 146;
     plan tests => $TESTCOUNT;
 }
 
@@ -421,3 +421,16 @@ ok(! -z "tmp_revcomp_mrna.gb");
 # INSERT DIFFING CODE HERE
 
 unlink("tmp_revcomp_mrna.gb");
+
+
+# test secondary accessions in EMBL (bug #1332)
+
+$seqio = new Bio::SeqIO(-format =>'embl', -file => Bio::Root::IO->catfile
+			( qw(t data ECAPAH02.embl)));
+$seq = $seqio->next_seq;
+
+ok($seq->accession_number, 'D10483');
+ok($seq->seq_version, 2);
+my @accs = $seq->get_secondary_accessions();
+ok($accs[0], 'J01597');
+ok($accs[-1], 'X56742');
