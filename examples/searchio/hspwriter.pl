@@ -28,11 +28,12 @@
 # For more documentation about working with Blast result objects,
 # see docs for these modules:
 #   Bio::Search::Result::BlastResult
+#   Bio::Search::Iteration::IterationI
 #   Bio::Search::Hit::BlastHit
 #   Bio::Search::HSP::BlastHSP
 #
-# For more documentation about the PSI-Blast parser, see docs for
-#   Bio::SearchIO::psiblast
+# For more documentation about the Blast parser, see docs for
+#   Bio::SearchIO
 #
 # Author: Steve Chervitz <sac@bioperl.org>
 # Revision: $Id$
@@ -64,9 +65,9 @@ print STDERR "\nUsing SearchIO->new()\n";
 # Note that all parameters for the $in, $out, and $writer objects are optional.
 # Default in = STDIN; Default out = STDOUT; Default writer = all columns 
 # In this example, we're reading from STDIN and  writing to a STDOUT
-my $in     = Bio::SearchIO->new( -format => 'psiblast' );
+my $in     = Bio::SearchIO->new( -format => 'blast' );
 my $writer = Bio::SearchIO::Writer::HSPTableWriter->new( -columns => \@columns );
-my $out    = Bio::SearchIO->new( -format => 'psiblast', 
+my $out    = Bio::SearchIO->new( -format => 'blast', 
 				 -writer => $writer,
 				 -file   => ">hspwriter.out" );
 

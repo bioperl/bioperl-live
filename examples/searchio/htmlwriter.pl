@@ -16,11 +16,12 @@
 # For more documentation about working with Blast result objects,
 # see docs for these modules:
 #   Bio::Search::Result::BlastResult
+#   Bio::Search::Iteration::IterationI
 #   Bio::Search::Hit::BlastHit
 #   Bio::Search::HSP::BlastHSP
 #
-# For more documentation about the PSI-Blast parser, see docs for
-#   Bio::SearchIO::psiblast
+# For more documentation about the Blast parser, see docs for
+#   Bio::SearchIO
 #
 # Author: Steve Chervitz <sac@bioperl.org>
 # Revision: $Id$

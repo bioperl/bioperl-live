@@ -26,11 +26,12 @@
 # For more documentation about working with Blast result objects,
 # see docs for these modules:
 #   Bio::Search::Result::BlastResult
+#   Bio::Search::Iteration::IterationI
 #   Bio::Search::Hit::BlastHit
 #   Bio::Search::HSP::BlastHSP
 #
-# For more documentation about the PSI-Blast parser, see docs for
-#   Bio::SearchIO::psiblast
+# For more documentation about the Blast parser, see docs for
+#   Bio::SearchIO
 #
 # Author: Steve Chervitz <sac@bioperl.org>
 # Revision: $Id$
@@ -53,13 +54,13 @@ print "\nUsing SearchIO->new()\n";
 # We're also telling the script to timeout if input isn't received
 # within 10 sec. (Note the clock is still ticking when you background the job.)
 # Setting verbose to 1 is useful for debugging.
-my $in = Bio::SearchIO->new( -format => 'psiblast', 
+my $in = Bio::SearchIO->new( -format => 'blast', 
                              -signif => 0.1, 
                              -verbose => 0, 
                              -timeout_sec => 10 );
 # not specifying any columns to get the default.
 my $writer = Bio::SearchIO::Writer::ResultTableWriter->new();
-my $out    = Bio::SearchIO->new( -format => 'psiblast', 
+my $out    = Bio::SearchIO->new( -format => 'blast', 
                                  -writer => $writer,
                                  -file => ">resultwriter.out");
 

@@ -30,11 +30,12 @@
 # For more documentation about working with Blast result objects,
 # see docs for these modules:
 #   Bio::Search::Result::BlastResult
+#   Bio::Search::Iteration::IterationI
 #   Bio::Search::Hit::BlastHit
 #   Bio::Search::HSP::BlastHSP
 #
-# For more documentation about the PSI-Blast parser, see docs for
-#   Bio::SearchIO::psiblast
+# For more documentation about the Blast parser, see docs for
+#   Bio::SearchIO
 #
 # Author: Steve Chervitz <sac@bioperl.org>
 # Revision: $Id$
@@ -67,12 +68,12 @@ print STDERR "\nUsing SearchIO->new()\n";
 # In this example, we're reading from STDIN and  writing to a file 
 # called "hitwriter.out"
 # TODO: write hitless reports to STDERR and note if filtered.
-my $in     = Bio::SearchIO->new( -format => 'psiblast', 
+my $in     = Bio::SearchIO->new( -format => 'blast', 
 				 -signif => 0.1, 
 				 -verbose=> 0 );
 my $writer = Bio::SearchIO::Writer::HitTableWriter->new( -columns => \@columns
 						       );
-my $out    = Bio::SearchIO->new( -format => 'psiblast',
+my $out    = Bio::SearchIO->new( -format => 'blast',
 				 -writer => $writer,
 				 -file   => ">hitwriter.out" );
 # Need to keep a separate count of reports with hits
