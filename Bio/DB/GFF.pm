@@ -491,6 +491,12 @@ These are the arguments:
                to apply to the database.  If none provided,
 	       defaults to ['processed_transcript','alignment'].
 
+  -preferred_groups  When interpreteting the 9th column of a GFF2 file,
+                 the indicated group names will have preference over
+                 other attributes, even if they do not come first in
+                 the list of attributes.  This can be a scalar value
+                 or an array reference.
+
   <other>      Any other named argument pairs are passed to
                the adaptor for processing.
 
@@ -525,6 +531,14 @@ this way:
 
 See L<Bio::DB::GFF::Aggregator> for more details.
 
+The B<-preferred_groups> argument is used to change the default
+processing of the 9th column of GFF version 2 files.  By default, the
+first tag/value pair is used to establish the group class and name.
+If you pass -preferred_groups a scalar, the parser will look for a tag
+of the indicated type and use it as the group even if it is not first
+in the file.  If you pass this argument a list of group classes as an
+array ref, then the list will establish the precedence for searching.
+
 The commonly used 'dbi::mysql' adaptor recognizes the following
 adaptor-specific arguments:
 
@@ -540,6 +554,7 @@ adaptor-specific arguments:
   -pass          the password for authentication
 
   -refclass      landmark Class; defaults to "Sequence"
+
 
 The commonly used 'dbi::mysqlopt' adaptor also recogizes the following
 arguments.
@@ -559,17 +574,18 @@ arguments.
 
 sub new {
   my $package   = shift;
-  my ($adaptor,$aggregators,$args,$refclass);
+  my ($adaptor,$aggregators,$args,$refclass,$preferred_groups);
 
   if (@_ == 1) {  # special case, default to dbi::mysqlopt
     $adaptor = 'dbi::mysqlopt';
     $args = {DSN => shift};
   } else {
-    ($adaptor,$aggregators,$refclass,$args) = rearrange([
-							 [qw(ADAPTOR FACTORY)],
-							 [qw(AGGREGATOR AGGREGATORS)],
-							 'REFCLASS',
-							],@_);
+    ($adaptor,$aggregators,$refclass,$preferred_groups,$args) = rearrange([
+									   [qw(ADAPTOR FACTORY)],
+									   [qw(AGGREGATOR AGGREGATORS)],
+									   'REFCLASS',
+									   'PREFERRED_GROUPS'
+									  ],@_);
   }
 
   $adaptor    ||= 'dbi::mysqlopt';
@@ -577,7 +593,13 @@ sub new {
   eval "require $class" unless $class->can('new');
   $package->throw("Unable to load $adaptor adaptor: $@") if $@;
 
+  # this hack saves the memory adaptor, which loads the GFF file in new()
+  $args->{PREFERRED_GROUPS} = $preferred_groups if defined $preferred_groups;
+
   my $self = $class->new($args);
+
+  # handle preferred groups
+  $self->preferred_groups($preferred_groups) if defined $preferred_groups;
   $self->default_class($refclass || 'Sequence');
 
   # handle the aggregators.
@@ -2041,6 +2063,28 @@ Use aggregators() or add_aggregator() to add some back.
 
 sub clear_aggregators { shift->{aggregators} = [] }
 
+=head2 preferred_groups
+
+ Title   : preferred_groups
+ Usage   : $db->preferred_groups([$group_name_or_arrayref])
+ Function: get/set list of groups for altering GFF2 parsing
+ Returns : a list of classes
+ Args    : new list (scalar or array ref)
+ Status  : public
+
+=cut
+
+sub preferred_groups {
+  my $self = shift;
+  my $d    = $self->{preferred_groups};
+  if (@_) {
+     my $v = shift;
+     $self->{preferred_groups}= ref($v) eq 'ARRAY' ? $v : [$v];
+  }
+  return unless $d;
+  return @$d;
+}
+
 =head1 Methods for use by Subclasses
 
 The following methods are chiefly of interest to subclasses and are
@@ -3247,7 +3291,7 @@ sub _split_gff2_group {
       push @attributes, [$tag => $value];
     }
   }
-  
+
   # group assignment
   if ( @attributes && !($gclass && $gname)) {
     last if $gclass && $gname;    
@@ -3257,15 +3301,18 @@ sub _split_gff2_group {
       if ( $k =~ /Sequence|Transcript/ && !$gclass) {
         ($gclass, $gname) = ($k, $v);
       }
-      # otherwise look for a gene name (in order of preference)
+
+      # otherwise look for the preferred groups
       else {
-        for ( qw/standard_name gene locus_tag/ ) {
-	  if (uc $k eq uc $_ && !$gclass) {
+        for ($self->preferred_groups) {
+	  if (uc $k eq uc $_) {
 	    ($gclass, $gname) = ($k, $v);
+	    last;
           }
         }
-      } 
-    }  
+      }
+    }
+
     # use the first tag/value if no group is assigned
     unless ($gclass && $gname) {
       my $grp = shift @attributes;

@@ -1094,10 +1094,10 @@ sub name {
 sub gff_string {
   my $self = shift;
   my $version = $self->version;
-  
+
   # gff3_string and gff_string are synonymous if the version is set to 3
   return $self->gff3_string(@_) if $version == 3;
-  
+
   my ($start,$stop) = ($self->start,$self->stop);
 
   # the defined() tests prevent uninitialized variable warnings, when dealing with clone objects
@@ -1118,7 +1118,7 @@ sub gff_string {
     $name  = $g->name  || '';
     push @group,"$class $name";
   }
-  
+
   # add exhaustive list of attributes
   my $att = $self->attributes;
   for ( keys %$att ) {

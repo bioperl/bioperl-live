@@ -85,14 +85,16 @@ use constant MAX_SEGMENT => 100_000_000;  # the largest a segment can get
 
 sub new {
   my $class = shift ;
-  my ($file,$fasta,$dbdir) = rearrange([
-					[qw(GFF FILE)],
-					'FASTA',
-					[qw(DSN DB DIR DIRECTORY)],
-				],@_);
+  my ($file,$fasta,$dbdir,$preferred_groups) = rearrange([
+							  [qw(GFF FILE)],
+							  'FASTA',
+							  [qw(DSN DB DIR DIRECTORY)],
+							  'PREFERRED_GROUPS',
+							 ],@_);
 
   # fill in object
   my $self = bless{ data => [] },$class;
+  $self->preferred_groups($preferred_groups) if defined $preferred_groups;
   $file  ||= $dbdir;
   $fasta ||= $dbdir;
   $self->load_gff($file)             if $file;
