@@ -1,3 +1,4 @@
+# $Id$
 # POD documentation - main docs before the code
 #
 #
@@ -184,6 +185,11 @@ sub _load_Seq {
     $seq = $self->seqdb->get_Seq_by_acc($id);
   } else {
     $self->throw("Bad internal error. Don't understand $type");
+  }
+  if( ! $seq ) { 
+      # warding off bug #1628
+      $self->debug("could not find seq $id in seqdb\n");
+      return;
   }
 
   if( $self->agr() ) {

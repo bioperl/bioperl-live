@@ -287,6 +287,11 @@ sub _get {
 sub _store {
   my $self = shift;
   my ($type,$id,$obj) = @_;
+  if( ! defined $obj ) { 
+      # bug #1628
+      $self->debug("tried to store an undefined value for $id, skipping");
+      return;
+  }
   my $serialized = freeze($obj);
   $self->db->{"${type}_${id}"} = $serialized;
 }
