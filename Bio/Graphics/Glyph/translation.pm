@@ -152,7 +152,11 @@ sub draw_frame {
   return unless $realseq;
   my $protein = $realseq->translate(undef,undef,$base_offset,$codon_table)->seq;
 
-  my $k       = $strand>=0 ? 'f' : 'r';
+  my $str     = $strand;
+
+  $str *= -1  if $self->{flip};
+
+  my $k       = $str>=0 ? 'f' : 'r';
   my $color   = $self->color("frame$frame$k") ||
                 $self->color("frame$frame") ||
                 $self->default_color("frame$frame$k") || $self->fgcolor;
