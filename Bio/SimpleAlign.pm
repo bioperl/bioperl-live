@@ -524,6 +524,7 @@ sub each_seq_with_id {
 =cut
 
 sub get_seq_by_pos {
+
     my $self = shift;
     my ($pos) = @_;
 
@@ -540,7 +541,6 @@ sub get_seq_by_pos {
 
 The result of these methods are horizontal or vertical subsets of the
 current MSE.
-
 
 =head2 select
 
@@ -715,6 +715,43 @@ sub uppercase {
     return 1;
 }
 
+=head2 match_line
+
+ Title    : match_line()
+ Usage    : $align->match_line()
+ Function : Generates a match line - much like consensus string
+            except that a line indicating the '*' for a match.
+ Args     : (optional) Match line characters ('*' by default)
+=cut
+
+sub match_line {
+    my ($self,$matchlinechar, $hydro, $charge) = @_;
+
+    $matchlinechar ||= '*';
+    $hydro  ||= '.';
+    $charge ||= ':';
+    
+    my @seqchars;
+    my $seqcount = 0;
+    foreach my $seq ( $self->each_seq ) {
+	push @seqchars, [ split(//, uc ($seq->seq)) ];
+    }
+    my $refseq = shift @seqchars;
+    # let's just march down the columns
+    my $matchline;
+    POS: foreach my $pos ( 0..$self->length ) {
+	my $refchar = $refseq->[$pos];
+	next unless $refchar; # skip '' 
+      SEQ: foreach my $seq ( @seqchars ) {
+	    if( $seq->[$pos] ne $refchar ) {
+		$matchline .= ' ';
+		next POS;
+	    }
+	}
+	$matchline .= $matchlinechar;
+    }
+    return $matchline;
+}
 
 =head2 match
 
@@ -904,10 +941,10 @@ These read only methods describe the MSE in various ways.
  Function  : Makes a strict consensus 
  Returns   : 
  Argument  : Optional treshold ranging from 0 to 100.  
-                If consensus residue appears in fewer than threshold %
-		of the sequences at a given location, consensus_string
-		will return a "?" at that location rather than the
-		consensus letter. (Default value = 0%)
+             If consensus residue appears in fewer than threshold %
+	     of the sequences at a given location, consensus_string
+	     will return a "?" at that location rather than the
+	     consensus letter. (Default value = 0%)
 
 =cut
 
@@ -1296,11 +1333,12 @@ sub percentage_identity{
 =head1 Alignment positions
 
 Methods to map a sequence position into an alignment column and back.
-column_from_residue_number() does the former. The latter is really a property
-of the sequence object and can done using L<Bio::LocatableSeq::location_from_column>: 
+column_from_residue_number() does the former. The latter is really a
+property of the sequence object and can done using
+L<Bio::LocatableSeq::location_from_column>:
 
     # select somehow a sequence from the alignment, e.g.
-    $my seq = $aln->get_seq_by_pos(1);
+    my $seq = $aln->get_seq_by_pos(1);
     #$loc is undef or Bio::LocationI object
     my $loc = $seq->location_from_column(5);
 
