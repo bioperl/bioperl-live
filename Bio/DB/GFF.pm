@@ -1537,21 +1537,22 @@ sub finish_load {
  Status  : abstract
 
 This abstract method is called once per line of the GFF and passed a
-series of parsed data items.  The items are:
+hashref containing parsed GFF fields.  The fields are:
 
- $ref          reference sequence
- $source       annotation source
- $method       annotation method
- $start        annotation start
- $stop         annotation stop
- $score        annotation score (may be undef)
- $strand       annotation strand (may be undef)
- $phase        annotation phase (may be undef)
- $group_class  class of annotation's group (may be undef)
- $group_name   ID of annotation's group (may be undef)
- $target_start start of target of a similarity hit
- $target_stop  stop of target of a similarity hit
- $notes        array reference of text items to be attached
+ {ref    => $ref,
+  class  => $class,
+  source => $source,
+  method => $method,
+  start  => $start,
+  stop   => $stop,
+  score  => $score,
+  strand => $strand,
+  phase  => $phase,
+  gclass => $gclass,
+  gname  => $gname,
+  tstart => $tstart,
+  tstop  => $tstop,
+  notes  => $notes}
 
 =cut
 
@@ -1611,7 +1612,7 @@ sub get_dna {
 
 Arguments are as follows:
 
-   $rangetype One of "overlaps", "contains" or "contains_in".  Indicates
+   $rangetype One of "overlaps", "contains" or "contained_in".  Indicates
               the type of range query requested.
 
    $refseq    ID of the landmark that establishes the absolute 
@@ -1985,7 +1986,7 @@ This is an internal method that is called by overlapping_features(),
 contained_features() and features() to do the actual work.  It takes
 nine positional arguments:
 
-  $rangetype     One of "overlaps", "contains" or "contains_in".  Indicates
+  $rangetype     One of "overlaps", "contains" or "contained_in".  Indicates
                  the type of range query requested.
   $refseq        reference sequence ID
   $class	 reference sequence class
