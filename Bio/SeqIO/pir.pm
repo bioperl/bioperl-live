@@ -26,9 +26,9 @@ Do not use this module directly.  Use it via the Bio::SeqIO class.
 This object can transform Bio::Seq objects to and from pir flat
 file databases.
 
-Note: This does not completely preserve the PIR format - quality 
-information about sequence is currently discarded since bioperl 
-does not have a mechanism for handling these encodings in sequence 
+Note: This does not completely preserve the PIR format - quality
+information about sequence is currently discarded since bioperl
+does not have a mechanism for handling these encodings in sequence
 data.
 
 =head1 FEEDBACK
@@ -77,11 +77,11 @@ use Bio::Seq::SeqFactory;
 
 sub _initialize {
   my($self,@args) = @_;
-  $self->SUPER::_initialize(@args);    
+  $self->SUPER::_initialize(@args);
   if( ! defined $self->sequence_factory ) {
       $self->sequence_factory(new Bio::Seq::SeqFactory
-			      (-verbose => $self->verbose(), 
-			       -type => 'Bio::Seq'));      
+			      (-verbose => $self->verbose(),
+			       -type => 'Bio::Seq'));
   }
 }
 
@@ -111,7 +111,7 @@ sub next_seq {
 
     # P - indicates complete protein
     # F - indicates protein fragment
-    # not sure how to stuff these into a Bio object 
+    # not sure how to stuff these into a Bio object
     # suitable for writing out.
     $seq =~ s/\*//g;
     $seq =~ s/[\(\)\.\/\=\,]//g;
@@ -122,9 +122,9 @@ sub next_seq {
     return $self->sequence_factory->create
 	(-seq        => $seq,
 	 -primary_id => $id,
-	 -id         => $type. '1;' . $id,
+	 -id         => $id,
 	 -desc       => $desc,
-	 -alphabet    => $alphabet
+	 -alphabet   => $alphabet
 	 );
 }
 
@@ -142,11 +142,11 @@ sub next_seq {
 sub write_seq {
     my ($self, @seq) = @_;
     for my $seq (@seq) {
-	$self->throw("Did not provide a valid Bio::PrimarySeqI object") 
+	$self->throw("Did not provide a valid Bio::PrimarySeqI object")
 	    unless defined $seq && ref($seq) && $seq->isa('Bio::PrimarySeqI');
 	my $str = $seq->seq();
-	return unless $self->_print(">".$seq->id(), 
-				    "\n", $seq->desc(), "\n", 
+	return unless $self->_print(">P1;".$seq->id(),
+				    "\n", $seq->desc(), "\n",
 				    $str, "*\n");
     }
 
