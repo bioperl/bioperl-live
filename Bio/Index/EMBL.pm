@@ -203,8 +203,9 @@ sub _index_file {
 
 sub fetch {
     my( $self, $id ) = @_;
-    my $desc;
+    my ($desc,$acc);
     my $db = $self->db();
+
     if (my $rec = $db->{ $id }) {
         my( @record );
         
@@ -223,6 +224,7 @@ sub fetch {
 	    /^SQ\s/ && last;
 	    /^ID\s+(\S+)/ && do { $id = $1; };
 	    /^DE\s+(.*?)\s+$/ && do { $desc .= $1; }; 
+	    /^AC\s+(\S+?);?\s+$/ && do { $acc .= $1; }; 
 	    # accession numbers???
         }
 
@@ -238,9 +240,10 @@ sub fetch {
             unless @record;
         
         # Return a shiny Bio::Seq object
-        return Bio::Seq->new( -ID   => $id,
+        $out = Bio::Seq->new( -ID   => $id,
                               -DESC => $desc,
-                              -SEQ  => uc(join('', @record)) );
+			      -SEQ  => uc(join('', @record)) );
+	$out->names()->{'acc'} = $acc if $acc;
     } else {
 	$self->throw("Unable to find a record for $id in EMBL flat file index");
     }

@@ -1,4 +1,4 @@
-## $Id: bioback.pod,v 1.1 1999-03-07 18:07:26 birney Exp $
+## $Id: bioback.pod,v 1.2 1999-04-08 10:17:30 birney Exp $
 
 #
 # Documentation about the backend of bioperl
@@ -27,6 +27,21 @@ the web or via flat file indexing, or - if you have the time to
 do so, you can write your own interface to an in-house RDB. Using
 DBI this should be quite simple.
 
+Two scripts are provided to get you started with the bioperl backend:
+
+=over
+
+=item bpfetch 
+
+Fetches sequences from a Database
+
+=item bpindex
+
+Builds indexes for flat files databases which are easily accessible
+by bpfetch
+
+=end
+
 The core of the backend system is found in following modules
 
 =over
@@ -37,12 +52,22 @@ generic access to databases, whether flat file, web or rdb. At the moment,
 this provides random access retrieval, on the basis of ids or accession
 numbers, but does not provide the ability to loop over the entire database,
 nor does it provide any complex querying ability.
+
+Bio::DB::BioSeqI is the abstract interface (hence the I) for the
+databases.  Bio::DB::GenBank and Bio::DB::GenPept are concrete
+implementations for network access to the GenBank and GenPept databases
+held at NCBI, using http as a protocol.
+
+
  
 =item Bio::Index::*
 
 flat file indexing system, for read-only, flat file distributions. These
 provide for specific instances generic type access, but the underlying
 machinery can be customised for any number of different flat file systems.
+
+The Index modules EMBL and Fasta, as they are designed as Sequence databases
+conform to the Bio::DB::BioSeqI interface, meaning they can be used where
 
 =item Bio::SeqIO::*
 
@@ -51,6 +76,7 @@ streams. The move of things into SeqIO prevents the Bio::Seq object
 bloating up with format code.
 
 =end
+
 
 Stuff about customisation on a new system to be written here.
 

@@ -132,9 +132,9 @@ BEGIN {
 # Start processing the command line
 #
 
-my $ret = GetOptions('dir=s' => \$dir,'fmt=s' => \$fmt );
 my $dir = $ENV{'BIOPERL_INDEX'};
 my $fmt = 'Fasta';
+my $ret = GetOptions('dir=s' => \$dir,'fmt=s' => \$fmt );
 
 #
 # print pod documentation if we have no arguments

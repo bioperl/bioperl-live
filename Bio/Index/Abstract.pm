@@ -111,9 +111,11 @@ sub _initialize {
     
     # Open database
     $self->_open_dbm($write_flag);
-    
-    if( $ISA[0] eq "Bio::Index::Abstract" ) { 
+
+    # scary up-cast for abstract databases.
+    if( ref $self eq "Bio::Index::Abstract" ) { 
 	my $type = $self->_code_base();
+	print STDERR "Got $type as type..\n";
 	bless $self, $type;
     }
 	
@@ -282,7 +284,12 @@ sub _type_stamp {
 sub _code_base{
    my ($self) = @_;
    my $code_key    = '__CODE_BASE';
-   my($code,$version) = $self->unpack_record( $self->db->{$code_key} );
+   my $record;
+
+   $record = $self->db->{$code_key};
+   print STDERR "Got $record...\n";
+
+   my($code,$version) = $self->unpack_record($record);
    if( wantarray ) {
        return ($code,$version);
    } else {
@@ -322,7 +329,7 @@ sub _type_and_version {
     } else {
         $self->add_record( $key, $type, $version )
             or $self->throw("Can't add Type and Version record");
-        $self->add_record( $key2, $ISA[0], $version )
+        $self->add_record( $key2, ref $self, $version )
             or $self->throw("Can't add Type and Version record");
     }
     return 1;
