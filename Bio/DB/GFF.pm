@@ -768,19 +768,25 @@ sub segment {
     $_->absolute(1) if $self->absolute;
   }
 
-  # handle expectations of caller
-  if (@segments == 0) {
+  $self->_multiple_return_args(@segments);
+}
+
+sub _multiple_return_args {
+  my $self = shift;
+  my @args = @_;
+  if (@args == 0) {
     return;
-  } elsif (@segments == 1) {
-    return $segments[0];
+  } elsif (@args == 1) {
+    return $args[0];
   } elsif (wantarray) { # more than one reference sequence
-    return @segments;
+    return @args;
   } else {
-    $self->error($segments[0]->name,
+    $self->error($args[0]->name,
 		 " has more than one reference sequence in database.  Please call in a list context to retrieve them all.");
     $self->throw('multiple segment exception');
     return;
   }
+
 }
 
 # backward compatibility -- don't use!
@@ -1445,6 +1451,26 @@ sub load_fasta {
   my $result = $self->load_sequence();
   open STDIN,"<&SAVEIN";  # restore STDIN
   return $result;
+}
+
+=head2 load_sequence_string
+
+ Title   : load_sequence_string
+ Usage   : $db->load_sequence_string($id,$dna)
+ Function: load a single DNA entry
+ Returns : true if successfully loaded
+ Args    : a raw sequence string (DNA, RNA, protein)
+ Status  : Public
+
+=cut
+
+sub load_sequence_string {
+  my $self = shift;
+  my ($acc,$seq)  = @_;
+  my $offset = 0;
+  $self->insert_sequence_chunk($acc,\$offset,\$seq) or return;
+  $self->insert_sequence($acc,$offset,$seq) or return;
+  1;
 }
 
 sub setup_argv {

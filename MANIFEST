@@ -76,6 +76,7 @@ Bio/DB/Flat/OBDAIndex.pm
 Bio/DB/GDB.pm
 Bio/DB/GFF.pm
 Bio/DB/GFF/Adaptor/dbi.pm
+Bio/DB/GFF/Adaptor/biofetch.pm
 Bio/DB/GFF/Adaptor/dbi/caching_handle.pm
 Bio/DB/GFF/Adaptor/dbi/iterator.pm
 Bio/DB/GFF/Adaptor/dbi/mysql.pm
