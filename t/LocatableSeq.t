@@ -40,9 +40,9 @@ ok $loc->isa('Bio::Location::Simple');
 ok $loc->to_FTstring, 2;
 
 ok $loc = $seq->location_from_column(6);
-ok $loc->isa('Bio::Location::Fuzzy');
+ok $loc->isa('Bio::Location::Simple');
 ok $loc->start, 3;
-ok $loc->location_type, 'BETWEEN';
+ok $loc->location_type, 'IN-BETWEEN';
 ok $loc->to_FTstring, '3^4';
 
 

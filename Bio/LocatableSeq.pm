@@ -363,11 +363,11 @@ sub location_from_column {
     }
     elsif ($pos == 0 and $self->start == 1) {
     } else {
-	$loc = new Bio::Location::Fuzzy 
+	$loc = new Bio::Location::Simple 
 	    (-start => $pos + $self->start - 1,
 	     -end => $pos +1 + $self->start - 1,
 	     -strand => 1,
-	     -loc_type => '^'
+	     -location_type => 'IN-BETWEEN'
 	     );
     }
     return $loc;

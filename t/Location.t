@@ -15,7 +15,7 @@ BEGIN {
 	use lib 't';
     }
     use Test;
-    plan tests => 50;
+    plan tests => 67;
 }
 
 use Bio::Location::Simple;
@@ -67,7 +67,7 @@ ok($generic->overlaps($simple));
 ok($generic->contains($simple));
 
 # fuzzy location tests
-my $fuzzy = new Bio::Location::Fuzzy('-start' =>'<10', '-end' => 20, 
+my $fuzzy = new Bio::Location::Fuzzy('-start' =>'<10', '-end' => 20,
 				     -strand=>1, -seq_id=>'my2');
 
 ok($fuzzy->strand, 1);
@@ -132,15 +132,18 @@ ok($fuzzy->to_FTstring(), 'complement(<10..20)');
 ok($simple->to_FTstring(), '10..20');
 $simple->strand(-1);
 ok($simple->to_FTstring(), 'complement(10..20)');
-ok( $splitlocation->to_FTstring(), 'join(13..30,30..90,18..22,19..20,<50..61)');
+ok( $splitlocation->to_FTstring(), 
+    'join(13..30,30..90,18..22,19..20,<50..61)');
 # test for bug #1074
 $f = new Bio::Location::Simple(-start => 5,
 			       -end   => 12,
 			       -strand => -1);
 $splitlocation->add_sub_Location($f);
-ok( $splitlocation->to_FTstring(), 'join(13..30,30..90,18..22,19..20,<50..61,complement(5..12))');
+ok( $splitlocation->to_FTstring(), 
+    'join(13..30,30..90,18..22,19..20,<50..61,complement(5..12))');
 $splitlocation->strand(-1);
-ok( $splitlocation->to_FTstring(), 'join(13..30,30..90,18..22,19..20,<50..61,complement(5..12))');
+ok( $splitlocation->to_FTstring(), 
+    'join(13..30,30..90,18..22,19..20,<50..61,complement(5..12))');
 
 $f = new Bio::Location::Fuzzy(-start => '45.60',
 			      -end   => '75^80');
@@ -161,3 +164,58 @@ ok($f->strand,-1);
 $splitlocation = new Bio::Location::Split(-seq_id => 'mysplit1');
 ok $splitlocation->seq_id,'mysplit1';
 ok $splitlocation->seq_id('mysplit2'),'mysplit2';
+
+
+# Test Bio::Location::Exact
+
+ok my $exact = new Bio::Location::Simple('-start' => 10, '-end' => 20,
+					 '-strand' => 1, -seq_id => 'my1');
+ok $exact->isa('Bio::LocationI') && $exact->isa('Bio::RangeI');
+
+ok $exact->start, 10;
+ok $exact->end, 20;
+ok $exact->seq_id, 'my1';
+ok $exact->length, 11;
+ok $exact->location_type, 'EXACT';
+
+ok $exact = new Bio::Location::Simple('-start' => 10, '-end' => 11,
+				      -location_type => 'IN-BETWEEN',
+				      '-strand' => 1, -seq_id => 'my2');
+
+ok $exact->start, 10;
+ok $exact->end, 11;
+ok $exact->seq_id, 'my2';
+ok $exact->length, 0;
+ok $exact->location_type, 'IN-BETWEEN';
+
+eval {
+    $exact = new Bio::Location::Simple('-start' => 10, '-end' => 12,
+				       -location_type => 'IN-BETWEEN');
+};
+ok 1 if $@;
+
+# testing error when assigning 10^11 simple location into fuzzy
+eval {
+    ok $fuzzy = new Bio::Location::Fuzzy('-start' =>'10', '-end' => 11,
+					 -location_type => '^',
+					 -strand=>1, -seq_id=>'my2');
+};
+ok 1 if $@;
+
+$fuzzy = new Bio::Location::Fuzzy(-location_type => '^',
+				     -strand=>1, -seq_id=>'my2');
+
+$fuzzy->start(10);
+eval {
+    $fuzzy->end(11);
+};
+ok 1 if $@;
+
+$fuzzy = new Bio::Location::Fuzzy(-location_type => '^',
+				     -strand=>1, -seq_id=>'my2');
+
+$fuzzy->end(11);
+eval {
+    $fuzzy->start(10);
+};
+ok 1 if $@;

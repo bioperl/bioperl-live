@@ -78,9 +78,9 @@ use strict;
 
 use Bio::Root::Root;
 use Bio::Location::SplitLocationI;
-use Bio::Location::Simple;
+use Bio::Location::Atomic;
 
-@ISA = qw(Bio::Location::Simple Bio::Location::SplitLocationI );
+@ISA = qw(Bio::Location::Atomic Bio::Location::SplitLocationI );
 
 BEGIN { 
     # as defined by BSANE 0.03

@@ -70,9 +70,9 @@ use vars qw(@ISA );
 use strict;
 
 use Bio::Location::FuzzyLocationI;
-use Bio::Location::Simple;
+use Bio::Location::Atomic;
 
-@ISA = qw(Bio::Location::Simple Bio::Location::FuzzyLocationI );
+@ISA = qw(Bio::Location::Atomic Bio::Location::FuzzyLocationI );
 
 BEGIN {
     use vars qw( %FUZZYCODES %FUZZYPOINTENCODE %FUZZYRANGEENCODE 
@@ -173,6 +173,12 @@ sub location_type {
 		$value = 'WITHIN';
 	    } elsif( $value =~ /\^/ ) {
 		$value = 'BETWEEN';
+
+
+		$self->throw("Use Bio::Location::Simple for IN-BETWEEN locations [". $self->start. "] and [". $self->end. "]")
+		    if defined $self->start && defined $self->end && ($self->end - 1 == $self->start);
+
+
 	    } elsif( $value ne 'EXACT' && $value ne 'WITHIN' && 
 		     $value ne 'BETWEEN' ) {
 		$self->throw("Did not specify a valid location type");
@@ -220,11 +226,15 @@ sub location_type {
 sub start {
     my($self,$value) = @_;
     if( defined $value ) {
-	my ($encode,$min,$max) = $self->_fuzzypointdecode($value);	
+	my ($encode,$min,$max) = $self->_fuzzypointdecode($value);
 	$self->start_pos_type($encode);
 	$self->min_start($min);
 	$self->max_start($max);
     }
+
+    $self->throw("Use Bio::Location::Simple for IN-BETWEEN locations [". $self->SUPER::start. "] and [". $self->SUPER::end. "]")
+	if $self->location_type eq 'BETWEEN'  && defined $self->SUPER::end && ($self->SUPER::end - 1 == $self->SUPER::start);
+
     return $self->SUPER::start();
 }
 
@@ -246,6 +256,10 @@ sub end {
 	$self->min_end($min);
 	$self->max_end($max);
     }
+
+    $self->throw("Use Bio::Location::Simple for IN-BETWEEN locations [". $self->SUPER::start. "] and [". $self->SUPER::end. "]")
+	if $self->location_type eq 'BETWEEN' && defined $self->SUPER::start && ($self->SUPER::end - 1 == $self->SUPER::start);
+
     return $self->SUPER::end();
 }
 
