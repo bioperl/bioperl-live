@@ -121,7 +121,12 @@ sub new_from_parent {
   my $class = $group ? $group->class : $parent->class;
 
   my $self =  bless {
-		     %$parent,
+		     factory   => $parent->{factory},
+		     sourceseq => $parent->{sourceseq},
+		     strand    => $parent->{strand},
+		     ref       => $parent->{ref},
+		     refstart  => $parent->{refstart},
+		     refstrand => $parent->{refstrand},
 		     start  => $start,
 		     stop   => $stop,
 		     type   => Bio::DB::GFF::Typename->new($method,$source),
@@ -132,8 +137,6 @@ sub new_from_parent {
 		     db_id  => $db_id,
 		     class  => $class,
 		    },$package;
-  delete $self->{merged_segs};  # do not inherit merged segments from parent!
-  delete $self->{whole};        # a feature is never whole (sorry)
   $self;
 }
 
