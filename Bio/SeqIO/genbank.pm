@@ -84,7 +84,49 @@ L<Bio::Annotation::Collection> object.
 reference       - Should contain Bio::Annotation::Reference objects
 comment         - Should contain Bio::Annotation::Comment objects
 
+segment         - Should contain a Bio::Annotation::SimpleValue object
+origin          - Should contain a Bio::Annotation::SimpleValue object
+
 =back
+
+=head1 Where does the data go?
+
+Data parsed in Bio::SeqIO::genbank is stored in a variety of data
+fields in the sequence object that is returned.  More information in
+the HOWTOs about exactly what each field means and where it goes.
+Here is a partial list of fields.
+
+Items listed as RichSeq or Seq or PrimarySeq and then NAME() tell you
+the top level object which defines a function called NAME() which
+stores this information.
+
+Items listed as Annotation 'NAME' tell you the data is stored the
+associated Bio::Annotation::Colection object which is associated with
+Bio::Seq objects.  If it is explictly requested that no annotations
+should be stored when parsing a record of course they won't be
+available when you try and get them.  If you are having this problem
+look at the type of SeqBuilder that is being used to contruct your
+sequence object.
+
+Comments             Annotation 'comment'
+References           Annotation 'reference'
+Segment              Annotation 'segment'
+Origin               Annotation 'origin'
+
+Accessions           PrimarySeq accession_number()
+Secondary accessions RichSeq get_secondary_accessions()
+Keywords             RichSeq keywords()
+Dates                RichSeq get_dates()
+Molecule             RichSeq molecule()
+Seq Version          RichSeq seq_version()
+PID                  RichSeq pid()
+Division             RichSeq division()
+Features             Seq get_SeqFeatures()
+Alphabet             PrimarySeq alphabet()
+Definition           PrimarySeq description() or desc()
+Version              PrimarySeq version()
+
+Sequence             PrimarySeq seq()
 
 =head1 FEEDBACK
 
@@ -479,7 +521,12 @@ sub next_seq {
       if($builder->want_slot('seq')) {
 	  # the fact that we want a sequence does not necessarily mean that
 	  # there also is a sequence ...
-	  if(defined($_) && /^ORIGIN/) {
+	  if(defined($_) && s/^ORIGIN//) {
+	      chomp;
+	      if( $annotation && length($_) > 0 ) {
+		  $annotation->add_Annotation('origin',
+					      Bio::Annotation::SimpleValue->new(-value => $_));
+	      }
 	      my $seqc = '';
 	      while( defined($_ = $self->_readline) ) {
 		  /^\/\// && last;
@@ -738,12 +785,14 @@ sub write_seq {
 
 	    my $base_count = sprintf("BASE COUNT %8s a %6s c %6s g %6s t%s\n",
 				     $alen,$clen,$glen,$tlen,
-				     ( $olen > 0 ) ? sprintf("%6s others",$olen) : '');
+				     ( $olen > 0 ) ? 
+				     sprintf("%6s others",$olen) : '');
 	    $self->_print($base_count); 
 	}
-	$self->_print(sprintf("ORIGIN%6s\n",''));
 
-# print out the sequence
+	my ($o) = $seq->annotation->get_Annotations('origin');
+	$self->_print(sprintf("%-6s%s\n",'ORIGIN',$o ? $o->value : ''));
+        # print out the sequence
 	my $nuc = 60;		# Number of nucleotides per line
 	my $whole_pat = 'a10' x 6; # Pattern for unpacking a whole line
 	my $out_pat   = 'A11' x 6; # Pattern for packing a line
