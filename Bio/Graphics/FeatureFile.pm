@@ -223,21 +223,59 @@ sub parse_line {
   if (my $feature = $self->{seenit}{$type,$name}) {
     $feature->add_segment(@parts);
   } else {
-    $feature = $self->{seenit}{$type,$name} = Bio::Graphics::Feature->new(-name     => $name,
-									  -type     => $type,
-									  $strand ? (-strand   => make_strand($strand))
-                                                                                  : (),
-									  -segments => \@parts,
-									  -source   => $description,
-									  -ref      => $ref,
-									  -url      => $url,
-									 );
+    $feature = $self->{seenit}{$type,$name} = 
+      Bio::Graphics::Feature->new(-name     => $name,
+				  -type     => $type,
+				  $strand ? (-strand   => make_strand($strand)) : (),
+				  -segments => \@parts,
+				  -source   => $description,
+				  -ref      => $ref,
+				  -url      => $url,
+				 );
     $feature->configurator($self) if $self->smart_features;
     if ($self->{grouptype}) {
       push @{$self->{groups}{$self->{grouptype}}{$self->{groupname}}},$feature;
     } else {
-      push @{$self->{features}{$type}},$feature;
+      push @{$self->{features}{$type}},$feature;  # for speed; should use add_feature() instead
     }
+  }
+}
+
+# add a feature of given type to our list
+# we use the primary_tag() method
+sub add_feature {
+  my $self = shift;
+  my ($feature,$type) = @_;
+  $type = $feature->primary_tag unless defined $type;
+  push @{$self->{features}{$type}},$feature;
+}
+
+# Add a type to the list.  Hash values are used for key/value pairs
+# in the configuration.  Call as add_type($type,$configuration) where
+# $configuration is a hashref.
+sub add_type {
+  my $self = shift;
+  my ($type,$type_configuration) = @_;
+  my $cc = $type =~ /^(general|default)$/i ? 'general' : $type;  # normalize
+  push @{$self->{types}},$cc unless $cc eq 'general' or $self->{config}{$cc};
+  if (defined $type_configuration) {
+    for my $tag (keys %$type_configuration) {
+      $self->{config}{$cc}{lc $tag} = $type_configuration->{$tag};
+    }
+  }
+}
+
+# change configuration of a type.  Call as set($type,$tag,$value)
+# $type will be added if not already there.
+sub set {
+  my $self = shift;
+  croak("Usage: \$featurefile->set(\$type,\$tag,\$value\n")
+    unless @_ == 3;
+  my ($type,$tag,$value) = @_;
+  unless ($self->{config}{$type}) {
+    return $self->add_type($type,{$tag=>$value});
+  } else {
+    $self->{config}{$type}{lc $tag} = $value;
   }
 }
 
@@ -248,9 +286,11 @@ sub destroy {
 }
 
 # return configuration information
+# arguments are ($type) => returns tags for type
+#               ($type=>$tag) => returns values of tag on type
 sub setting {
   my $self = shift;
-  my $config = $self->{config} or return; 
+  my $config = $self->{config} or return;
   return keys %{$config} unless @_;
   return keys %{$config->{$_[0]}} if @_ == 1;
   return $config->{$_[0]}{$_[1]}  if @_ > 1;
@@ -473,7 +513,12 @@ sub _stat {
   $self->{stat} = [stat($fh)];
 }
 
-sub mtime { shift->{stat}->[9];  }
+sub mtime {
+  my $self = shift;
+  my $d = $self->{m_time} || $self->{stat}->[9];
+  $self->{m_time} = shift if @_;
+  $d;
+}
 sub atime { shift->{stat}->[8];  }
 sub ctime { shift->{stat}->[10]; }
 sub size  { shift->{stat}->[7];  }
