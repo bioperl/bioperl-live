@@ -66,14 +66,7 @@ $homol = new Bio::SeqFeature::Homol ( -start => 400,
 				      -source => 'somewhere'
 				      );
 
-$homol2 = new Bio::SeqFeature::Homol ( -start => 400,
-				      -end => 430,
-				      -strand => 1,
-				      -primary => 'match',
-				      -source => 'somewhere'
-				      );
-
-$homol->homol_SeqFeature($homol2);
+$homol->homol_SeqFeature($feat);
 
 $sf = $homol->homol_SeqFeature();
 $sf->isa("Bio::SeqFeatureI") || die "Not a seqfeatureI $sf!";

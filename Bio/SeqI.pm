@@ -450,17 +450,17 @@ sub revcom{
    my $out;
 
    if( $self->can_call_new == 1  ) {
-       $out = $self->new( '-seq' => $revseq,
-			  '-id'  => $self->id,
-			  '-accession' => $self->accession,
-			  '-moltype' => $self->moltype
+       $out = $self->new( -seq => $revseq,
+			  -id  => $self->id,
+			  -accession => $self->accession,
+			  -moltype => $self->moltype
 			  );
    } else {
        $self->_attempt_to_load_Seq();
-       $out = Bio::Seq->new('-seq' => $revseq,
-			  '-id'  => $self->id,
-			  '-accession' => $self->accession,
-			  '-moltype' => $self->moltype
+       $out = Bio::Seq->new(-seq => $revseq,
+			  -id  => $self->id,
+			  -accession => $self->accession,
+			  -moltype => $self->moltype
 			  );
    }
 
@@ -504,17 +504,17 @@ sub trunc{
 
    my $out;
    if( $self->can_call_new == 1  ) {
-       $out = $self->new( '-seq' => $str,
-			  '-id'  => $self->id,
-			  '-accession' => $self->accession,
-			  '-moltype' => $self->moltype
+       $out = $self->new( -seq => $str,
+			  -id  => $self->id,
+			  -accession => $self->accession,
+			  -moltype => $self->moltype
 			  );
    } else {
        $self->_attempt_to_load_Seq();
-       $out = Bio::Seq->new('-seq' => $str,
-			    '-id'  => $self->id,
-			    '-accession' => $self->accession,
-			    '-moltype' => $self->moltype
+       $out = Bio::Seq->new(-seq => $str,
+			    -id  => $self->id,
+			    -accession => $self->accession,
+			    -moltype => $self->moltype
 			    );
    }
    

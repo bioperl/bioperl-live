@@ -74,7 +74,7 @@ Report bugs to the Bioperl bug tracking system to help us keep track
   bioperl-bugs@bio.perl.org
   http://bio.perl.org/bioperl-bugs/
 
-=head1 AUTHOR - Ewan Birney, inspired by Ian Korf objects
+=head1 AUTHOR - Ewan Birney, inspired by Ian Korf's objects
 
 Email birney@sanger.ac.uk
 
@@ -111,8 +111,6 @@ sub _initialize {
   my($ann);
   my $make = $self->SUPER::_initialize;
   $self->{'_as_feat'} = [];
-  $self->{'date'} = [];
-  $self->{'secondary_accession'} = [];
   $ann = new Bio::Annotation;
   $self->annotation($ann);
 
@@ -308,28 +306,6 @@ sub species {
     }
 }
 
-=head2 sub_species
-
- Title   : sub_species
- Usage   : 
- Function: Gets or sets the sub_species
- Example : $sub_species = $self->sub_species();
- Returns : Bio::Species object
- Args    : Bio::Species object or none;
-
-
-=cut
-
-sub sub_species {
-    my ($self, $sub_species) = @_;
-
-    if ($sub_species) {
-        $self->{'sub_species'} = $sub_species;
-    } else {
-        return $self->{'sub_species'}
-    }
-}
-
 =head1 EMBL/GenBank/DDBJ methods
 
 These methods are here to support the EMBL/GenBank/DDBJ format.
@@ -364,63 +340,6 @@ sub division{
 
 }
 
-=head2 molecule
-
- Title   : molecule
- Usage   : $obj->molecule($newval)
- Function: 
- Returns : type of molecule (DNA, mRNA)
- Args    : newvalue (optional)
-
-
-=cut
-
-sub molecule{
-   my $obj = shift;
-   if( @_ ) {
-      my $value = shift;
-      $obj->{'molecule'} = $value;
-    }
-    return $obj->{'molecule'};
-
-}
-
-=head2 add_date
-
- Title   : add_date
- Usage   : $self->add_domment($ref)
- Function: adds a date
- Example :
- Returns : 
- Args    :
-
-
-=cut
-
-sub add_date{
-   my ($self) = shift;
-   foreach my $dt ( @_ ) {
-       push(@{$self->{'date'}},$dt);
-   }
-}
-
-=head2 each_Comment
-
- Title   : each_date
- Usage   : foreach $dt ( $self->each_date() )
- Function: gets an array of dates
- Example :
- Returns : 
- Args    :
-
-
-=cut
-
-sub each_date{
-   my ($self) = @_;
-   return @{$self->{'date'}}; 
-}
-
 =head2 accession
 
  Title   : accession
@@ -442,42 +361,6 @@ sub accession{
     }
     return $obj->{'accession'};
 
-}
-
-=head2 add_secondary_accession
-
- Title   : add_secondary_accession
- Usage   : $self->add_domment($ref)
- Function: adds a secondary_accession
- Example :
- Returns : 
- Args    :
-
-
-=cut
-
-sub add_secondary_accession{
-   my ($self) = shift;
-   foreach my $dt ( @_ ) {
-       push(@{$self->{'secondary_accession'}},$dt);
-   }
-}
-
-=head2 each_Comment
-
- Title   : each_secondary_accession
- Usage   : foreach $dt ( $self->each_secondary_accession() )
- Function: gets an array of secondary_accessions
- Example :
- Returns : 
- Args    :
-
-
-=cut
-
-sub each_secondary_accession{
-   my ($self) = @_;
-   return @{$self->{'secondary_accession'}}; 
 }
 
 =head2 sv
@@ -521,6 +404,8 @@ sub keywords{
     return $obj->{'keywords'};
 
 }
+
+
 
 
 
