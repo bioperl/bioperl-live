@@ -323,8 +323,8 @@ XML::Parser::PerlSAX     Parsing of XML documents
 			 Bio::SearchIO::blastxml
 			 Bio::Biblio::IO::medlinexml
 
-XML::Twig        	 Pxarsing of XML documents
-			 Module Bio::Variation::IO::xml.pm
+XML::Twig        	 Parsing of XML documents
+			 Module Bio::Variation::IO::xml
 
 File::Temp               Temporary File creation
 			 Bio::DB::WebDBSeqI, Bio::Seq::LargePrimarySeq
