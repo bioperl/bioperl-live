@@ -16,11 +16,13 @@ Bio::SeqIO::asciitree - asciitree sequence input/output stream
 
 =head1 SYNOPSIS
 
-It is probably best not to use this object directly, but
-rather go through the SeqIO handler system. Go:
+  # It is probably best not to use this object directly, but
+  # rather go through the SeqIO handler system. Go:
 
-    $instream  = Bio::SeqIO->new(-file => $filename, -format => 'chadoxml');
-    $outstream = Bio::SeqIO->new(-file => $filename, -format => 'asciitree');
+    $instream  = Bio::SeqIO->new(-file => $filename,
+                                 -format => 'chadoxml');
+    $outstream = Bio::SeqIO->new(-file => $filename,
+                                 -format => 'asciitree');
 
     while ( my $seq = $instream->next_seq() ) {
 	$outstream->write_seq();
@@ -38,10 +40,9 @@ containment hierarchy is visible as a tree structure
 
 =head2 Mailing Lists
 
-User feedback is an integral part of the evolution of this
-and other Bioperl modules. Send your comments and suggestions preferably
- to one of the Bioperl mailing lists.
-Your participation is much appreciated.
+User feedback is an integral part of the evolution of this and other
+Bioperl modules. Send your comments and suggestions preferably to one
+of the Bioperl mailing lists.  Your participation is much appreciated.
 
   bioperl-l@bioperl.org                  - General discussion
   http://www.bioperl.org/MailList.shtml  - About the mailing lists
@@ -49,8 +50,8 @@ Your participation is much appreciated.
 =head2 Reporting Bugs
 
 Report bugs to the Bioperl bug tracking system to help us keep track
- the bugs and their resolution.
- Bug reports can be submitted via email or the web:
+the bugs and their resolution.  Bug reports can be submitted via email
+or the web:
 
   bioperl-bugs@bio.perl.org
   http://bugzilla.bioperl.org/
@@ -75,7 +76,7 @@ use strict;
 use Bio::SeqIO;
 
 @ISA = qw(Bio::SeqIO);
- 
+
 sub _initialize {
     my($self,@args) = @_;
     
