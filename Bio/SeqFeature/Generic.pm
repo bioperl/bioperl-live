@@ -374,9 +374,8 @@ sub score {
 
   if (@_) {
       my $value = shift;
-      
-      if ( defined $value &&
-	   $value != 0 and $value !~ /^[+-]?\d+\.?\d*(e-\d+)?/ ) {
+      if ( defined $value && $value &&
+	   $value !~ /^[+-]?\d+\.?\d*(e-\d+)?/ and $value != 0) {
 	  $self->throw(-class=>'Bio::Root::BadParameter',
 		       -text=>"'$value' is not a valid score",
 		       -value=>$value);
