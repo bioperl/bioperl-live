@@ -486,7 +486,7 @@ sub labelsubseq {
 	$seq = $startexon->labelsubseq($start,undef,undef,"unsecuremoderequested");
       }
     }
-    unless ($exon eq $startexon) {
+    if (($startexon)&&($exon ne $startexon)) {
       if (defined($endexon)) { # we arrived to the last exon
 	$seq .= $endexon->labelsubseq(undef,undef,$end,"unsecuremoderequested"); # get from the start of the exon
 	last EXONCHECK;
@@ -495,7 +495,7 @@ sub labelsubseq {
 	  $seq .= $exon->seq; # we add it completely to the seq
       } # else, we still have to reach the start point, exon useless, we move on
       if ($length) { # if length argument specified
-	if (CORE::length($seq) >= $length) {
+	if (($seq && (CORE::length($seq) >= $length))) {
 	  last EXONCHECK;
 	}
       }

@@ -43,7 +43,7 @@ sub test ($$;$) {
     print($true ? "ok $num\n" : "not ok $num $msg\n");
 }
 
-my $loader=Bio::LiveSeq::IO::BioPerl->load(-db=>"EMBL", -file=>"factor7.embl");
+my $loader=Bio::LiveSeq::IO::BioPerl->load(-db=>"EMBL", -file=>"t/factor7.embl");
 test 2, $loader;
 my $gene=$loader->gene2liveseq(-gene_name => "factor7");
 test 3, $gene->name eq "factor7";
