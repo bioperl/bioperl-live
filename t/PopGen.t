@@ -19,7 +19,7 @@ BEGIN {
 	use lib 't';
     }
     use vars qw($NTESTS);
-    $NTESTS = 72;
+    $NTESTS = 74;
     $error = 0;
 
     use Test;
@@ -370,5 +370,5 @@ $pop = $io->next_population;
 
 %LD = $stats->composite_LD($pop);
 
-ok(sprintf("%.4f",$LD{'ProcR2973EA'}->{'ProC9198EA'}->[0]), -0.0375);
-ok(sprintf("%.2f",$LD{'ProcR2973EA'}->{'ProC9198EA'}->[1]), 2.56);
+ok(sprintf("%.4f",$LD{'ProC9198EA'}->{'ProcR2973EA'}->[0]), -0.0375);
+ok(sprintf("%.2f",$LD{'ProC9198EA'}->{'ProcR2973EA'}->[1]), 2.56);
