@@ -24,7 +24,6 @@ BEGIN {
 if( $error ==  1 ) {
     exit(0);
 }
-warn("error is $error\n");
 END {
     foreach ( $Test::ntest..NUMTESTS) {
         skip('Graph not installed',1);
