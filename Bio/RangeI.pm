@@ -102,17 +102,15 @@ sub _strong {
   my ($r1, $r2) = @_;
   my ($s1, $s2) = ($r1->strand(), $r2->strand());
 
-  return $s1 != 0 and $s2 != 0 and
-         $s1 == $s2;
+  return $s1 != 0 && $s2 != 0 && $s1 == $s2;
 }
 
 # returns true if strands are equal or either is zero
 sub _weak {
   my ($r1, $r2) = @_;
   my ($s1, $s2) = ($r1->strand(), $r2->strand());
-
-  return $s1 == 0 or $s2 == 0 or
-         $s1 == $s2;
+  
+  return $s1 == 0 || $s2 == 0 || $s1 == $s2;
 }
 
 # returns true for any strandedness
@@ -233,7 +231,8 @@ sub overlaps {
   $other->throw("not a Bio::RangeI object") unless  $other->isa('Bio::RangeI');
   $other->throw("start is undefined") unless defined $other->start;
   $other->throw("end is undefined") unless defined $other->end;
-
+  my $tmp = $self->_testStrand($other, $so);
+  
   return
     ($self->_testStrand($other, $so) and
     not (
@@ -345,7 +344,7 @@ sub intersection {
   if($start > $end) {
     return undef;
   } else {
-      return $self->new('-start' => $start,
+      return ref($self)->new('-start' => $start,
 			'-end' => $end,
 			'-strand' => $union_strand
 			);
