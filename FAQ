@@ -45,6 +45,10 @@ Contents
    Q2.3: How can I get NT_ or NM_ or NP_ accessions from NCBI
 	 (Reference Sequences)?
    Q2.4: How can I use SeqIO to parse sequence data to or from a string?
+   Q2.5: I'm using Bio::Index::Fasta in order to retrieve sequences from my
+	 indexed fasta file but I keep seeing ">> MSG: Did not provide a
+	 valid Bio::PrimarySeqI object" when I call fetch() followed by
+	 SeqIO::write_seq(). Why?
 
 3. Report parsing
 
@@ -361,9 +365,41 @@ Contents
 	 use Bio::SeqIO;
 	 my $s;
 	 my $io = IO::String->new(\$s);
-	 my $seqOut = new Bio::SeqIO(-format=>'swiss', -fh => $io);
+	 my $seqOut = new Bio::SeqIO(-format =>'swiss', -fh => $io);
 	 $seqOut->write_seq($seq1);
 	 print $s; # $s contains the record
+
+
+   Q2.5: I'm using Bio::Index::Fasta in order to retrieve sequences from my
+	 indexed fasta file but I keep seeing ">> MSG: Did not provide a
+	 valid Bio::PrimarySeqI object" when I call fetch() followed by
+	 SeqIO::write_seq(). Why?
+
+      A: It's likely that fetch() didn't retrieve a Bio::Seq object. There
+	 are few possible explanations but the most common cause is that
+	 the id you're passing to fetch() is not the key to that sequence
+	 in the index. For example, if the fasta header is ">gi|12366" and
+	 your id is "12366" fetch() won't find the sequence, it expects to
+	 see "gi|12366". You need to use the get_id() method to specify the
+	 key, like this:
+
+	 
+	 $inx = Bio::Index::Fasta->new(-filename =>$indexname);
+	 $inx = id_parser(\&get_id);
+	 $inx->make_index($fastaname);
+	 
+	 sub get_id {
+	     my $header = shift;
+	     $header =~ /^>gi\|(\d+)/;
+	     $1;
+	 }
+
+	 
+	 The same issue arises when you use Bio::DB::Fasta, but in that
+	 case the usage looks like this:
+
+	 
+	   $inx = Bio::DB::Fasta->new($fastaname,-makeid =>\&get_id);
 
 
 ---------------------------------------------------------------------------
