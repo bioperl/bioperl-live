@@ -13,7 +13,8 @@
 =head1 NAME
 
 Bio::Tools::Run::StandAloneBlast - Object for the local execution of the
-NCBI Blast program suite (blastall, blastpgp, bl2seq)
+NCBI Blast program suite (blastall, blastpgp, bl2seq). There is experimental
+support for WU-Blast.
 
 =head1 SYNOPSIS
 
@@ -43,6 +44,12 @@ NCBI Blast program suite (blastall, blastpgp, bl2seq)
 
  $factory = Bio::Tools::Run::StandAloneBlast->new('outfile' => 'bl2seq.out');
  $factory->bl2seq($input, $input2);
+
+  #experimental support for WU-Blast 2.0
+  my $factory= Bio::Tools::Run::StandAloneBlast->new('program'=>"wublastp",
+                                                     'database'=>"swissprot",
+                                                     'E'=>1e-20); 
+  my $blast_report = $factory->wublast($seq);
 
  # Various additional options and input formats are available.  See
  # the DESCRIPTION section for details.
@@ -229,8 +236,8 @@ methods. Internal methods are usually preceded with a _
 
 package Bio::Tools::Run::StandAloneBlast;
 
-use vars qw($AUTOLOAD @ISA $PROGRAMDIR  $DATADIR 
-	    @BLASTALL_PARAMS @BLASTPGP_PARAMS 
+use vars qw($AUTOLOAD @ISA $PROGRAMDIR  $DATADIR $BLASTTYPE
+	    @BLASTALL_PARAMS @BLASTPGP_PARAMS @WUBLAST_PARAMS
 	    @BL2SEQ_PARAMS @OTHER_PARAMS %OK_FIELD 
 	    $DEFAULTREADMETHOD
 	    );
@@ -253,6 +260,15 @@ BEGIN {
 			   j J Z O M v b C R W z K L Y p k T Q B l U);
      @BL2SEQ_PARAMS = qw(i j p g o d a G E X W M q r F e S T m);
      $DEFAULTREADMETHOD = 'BLAST';
+     $BLASTTYPE = 'ncbi';
+     @WUBLAST_PARAMS = qw( E S E2 S2 W T X M Y Z L K H V  B
+                          matrix Q R kap sump poissonp top bottom filter wordmask filter maskextra lcfilter lcmask echofilter 
+                          hitdist wink stats ctxfactor nogap gapall gapE gapS gapE2 gapS2 gapW gapX pingpong nosegs olf golf 
+                          olmax golmax gapdecayrate span2 span1 span prune consistency links topcomboN topcomboE sumstatsmethod 
+                          hspsepqmax hspsepsmax gapsepqmax gapsepsmax altscore hspmax gspmax qoffset nwstart nwlen qrecmin qrecmax 
+                          dbrecmin dbrecmax ucdb vdbdescmax dbchunks gi noseqs qtype qres sort_by_pvalue sort_by_count sort_by_highscore 
+                          sort_by_totalscore sort_by_subjectlength cpus mmio nonnegok novalidctxok shortqueryok notes warnings errors putenv 
+                          endputenv getenv endgetenv compat1 compat1 abortonerror abortonfatal progress o database input);
 
 # Non BLAST parameters start with underscore to differentiate them
 # from BLAST parameters
@@ -264,7 +280,7 @@ BEGIN {
 
 # Authorize attribute fields
      foreach my $attr (@BLASTALL_PARAMS,  @BLASTPGP_PARAMS, 
-		       @BL2SEQ_PARAMS, @OTHER_PARAMS )
+		       @BL2SEQ_PARAMS, @OTHER_PARAMS ,@WUBLAST_PARAMS )
      { $OK_FIELD{$attr}++; }
 
 # You will need to enable Blast to find the Blast program. This can be done
@@ -274,7 +290,7 @@ BEGIN {
 #  2. include a definition of an environmental variable BLASTDIR in every script that will
 #     use StandAloneBlast.pm.
 #	BEGIN {$ENV{BLASTDIR} = '/home/peter/blast/'; }
-     $PROGRAMDIR = $ENV{'BLASTDIR'} || '';
+     $PROGRAMDIR = $BLASTTYPE eq 'ncbi' ? $ENV{'BLASTDIR'}: $ENV{'WUBLASTIDR'};
      
 # If local BLAST databases are not stored in the standard
 # /data directory, the variable BLASTDATADIR will need to be set explicitly 
@@ -331,6 +347,20 @@ program with the option "-" as in blastall -
   -S  Query strands to search against database (blastn only).  3 is both, 1 is top, 2 is bottom [Integer]
     default = 3
 
+=head2 WU-Blast
+  -p Program Name [String] 
+        Input should be one of "wublastp", "wublastn", "wublastx", 
+        "wutblastn", or "wutblastx".
+  -d  Database [String] default = nr
+        The database specified must first be formatted with xdformat.
+  -i  Query File [File In]   Set by StandAloneBlast.pm from script.
+    default = stdin. The query should be in FASTA format.  If multiple FASTA entries are in the input
+        file, all queries will be searched.
+  -E  Expectation value (E) [Real] default = 10.0
+  -o  BLAST report Output File [File Out]  Optional,
+	default = ./blastreport.out ; set by StandAloneBlast.pm		
+
+
 =cut
 
 sub new {
@@ -341,15 +371,24 @@ sub new {
     # to facilitiate tempfile cleanup
     my ($tfh,$tempfile) = $self->io->tempfile();
     close($tfh); # we don't want the filehandle, just a temporary name
-    $self->outfile($tempfile);
+    $self->o($tempfile) unless $self->o;
     $self->_READMETHOD($DEFAULTREADMETHOD);
     while (@args)  {
-	my $attr =   shift @args;
-	my $value =  shift @args;
-	next if( $attr eq '-verbose');
-	# the workaround to deal with initializing
-	$attr = 'p' if $attr =~ /^\s*program\s*$/;
-	$self->$attr($value);
+	    my $attr =   shift @args;
+    	my $value =  shift @args;
+    	next if( $attr eq '-verbose');
+    	# the workaround to deal with initializing
+      if($attr =~/^\s*program\s*$|^p$/){
+        if($value =~/^wu*/){
+          $BLASTTYPE="wublast";
+        }
+      	$attr = 'p';
+      }
+      if($attr =~/outfile/){
+        $attr = 'o';
+      }
+    
+    	$self->$attr($value);
     }
     return $self;
 }
@@ -358,7 +397,7 @@ sub AUTOLOAD {
     my $self = shift;
     my $attr = $AUTOLOAD;
     $attr =~ s/.*:://;    
-    my $attr_letter = substr($attr, 0, 1) ; 
+    my $attr_letter = $BLASTTYPE eq 'ncbi' ? substr($attr, 0, 1) : $attr;
 
     # actual key is first letter of $attr unless first attribute
     # letter is underscore (as in _READMETHOD), the $attr is a BLAST
@@ -386,7 +425,7 @@ sub AUTOLOAD {
 
 sub executable {
    my ($self, $exename, $exe,$warn) = @_;
-   $exename = 'blastall' unless defined $exename;
+   $exename = 'blastall' unless (defined $exename || $BLASTTYPE ne'ncbi');
 
    if( defined $exe && -x $exe ) {
      $self->{'_pathtoexe'}->{$exename} = $exe;
@@ -490,6 +529,38 @@ sub blastall {
     
     my $blast_report = &_generic_local_blast($self, $executable, 
 					     $input1, $input2);
+}
+
+=head2  wublast
+
+ Title   : wublast
+ Usage   :  $blast_report = $factory->wublast('t/testquery.fa');
+	or
+	       $input = Bio::Seq->new(-id=>"test query",
+				      -seq=>"ACTACCCTTTAAATCAGTGGGGG");
+	       $blast_report = $factory->wublast($input);
+	or 
+	      $seq_array_ref = \@seq_array;  # where @seq_array is an array of Bio::Seq objects
+	      $blast_report = $factory->wublast(\@seq_array);
+ Returns :  Reference to a Blast object 
+ Args    : Name of a file or Bio::Seq object or an array of 
+           Bio::Seq object containing the query sequence(s). 
+           Throws an exception if argument is not either a string 
+           (eg a filename) or a reference to a Bio::Seq object 
+           (or to an array of Seq objects).  If argument is string, 
+           throws exception if file corresponding to string name can 
+           not be found.
+
+=cut
+
+sub wublast {
+  my ($self,$input1) = @_;
+  $self->io->_io_cleanup();
+  my $executable = 'wublast';
+  my $infilename1 = $self->_setinput($executable, $input1);
+  if (! $infilename1) {$self->throw(" $input1 ($infilename1) not Bio::Seq object or array of Bio::Seq objects or file name!");}
+  $self->input($infilename1);	# set file name of sequence to be blasted to inputfilename1 (-i param of blastall)
+  my $blast_report = &_generic_local_wublast($self, $executable, $input1);
 }
 
 =head2  blastpgp
@@ -605,6 +676,27 @@ sub _generic_local_blast {
 }
 
 
+=head2  _generic_local_wublast
+
+ Title   : _generic_local_wublast
+ Usage   :  internal function not called directly
+ Returns :  Blast object
+ Args    :   Reference to calling object and name of BLAST executable 
+
+=cut
+
+sub _generic_local_wublast {
+    my $self = shift;
+    my $executable = shift;
+
+    # Create parameter string to pass to Blast program
+    my $param_string = $self->_setparams($executable);
+    $param_string = " ".$self->database." ".$self->input." ".$param_string;
+
+    # run Blast
+    my $blast_report = &_runwublast($self, $executable, $param_string);
+}
+
 =head2  _runblast
 
  Title   :  _runblast
@@ -671,6 +763,39 @@ sub _runblast {
     } else {
 	$self->warn("Unrecognized readmethod ".$self->_READMETHOD);
     }
+    return $blast_obj;
+}
+
+=head2  _runwublast
+
+ Title   :  _runwublast
+ Usage   :  Internal function, not to be called directly	
+ Function:   makes actual system call to WU-Blast program
+ Example :
+ Returns : Report Blast object
+ Args    : Reference to calling object, name of BLAST executable, 
+           and parameter string for executable 
+
+=cut
+
+sub _runwublast {
+    my ($self,$executable,$param_string) = @_;
+    my ($blast_obj,$exe);
+    if( ! ($exe = $self->executable($self->p))){
+    	$self->warn("cannot find path to $executable");
+      return undef;    
+    }
+    my $commandstring = $exe.  " ".$param_string;
+   
+    # next line for debugging
+    $self->debug( "$commandstring \n");
+
+    my $status = system($commandstring);
+
+    $self->throw("$executable call crashed: $? $commandstring\n")  unless ($status==0) ;
+    my $outfile = $self->o() ;	# get outputfilename
+	  $blast_obj = Bio::SearchIO->new(-file=>$outfile,
+		                          			-format => 'blast') ;
     return $blast_obj;
 }
 
@@ -801,12 +926,19 @@ sub _setparams {
     if ($executable eq 'blastall') {@execparams = @BLASTALL_PARAMS; }
     if ($executable eq 'blastpgp') {@execparams = @BLASTPGP_PARAMS; }
     if ($executable eq 'bl2seq') {@execparams = @BL2SEQ_PARAMS; }
+    if($executable eq 'wublast') { @execparams = @WUBLAST_PARAMS; }
 
     my $param_string = "";
     for $attr ( @execparams ) {
-	$value = $self->$attr();
-	next unless (defined $value);
-# Need to prepend datadirectory to database name
+	    $value = $self->$attr();
+    	next unless (defined $value);
+      # Need to prepend datadirectory to database name
+      if($executable eq 'wublast'){
+        next if $attr =~ /database|^d$/;
+        next if $attr =~ /input|^i$/;
+        $attr = 'o' if ($attr =~/outfile/);
+      }
+
 	if ($attr  eq 'd' && ($executable ne 'bl2seq')) { 
 # This is added so that you can specify a DB with a full path
 	  if (! (-e $value.".nin" || -e $value.".pin")){ 
