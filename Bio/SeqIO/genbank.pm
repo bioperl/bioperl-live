@@ -621,6 +621,10 @@ sub write_seq {
 	    if( $seq->can('get_dates') ) { 	    
 		($date) = $seq->get_dates();
 	    }
+
+            $self->warn("No whitespace allowed in GenBank display id [". $seq->display_id. "]")
+                if $seq->display_id =~ /\s/;
+
 	    $temp_line = sprintf ("%-12s%-15s%13s %s%4s%-8s%-8s %3s %-s", 
 				  'LOCUS', $seq->id(),$len,
 				  (lc($alpha) eq 'protein') ? ('aa','', '') : 

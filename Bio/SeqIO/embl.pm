@@ -433,6 +433,10 @@ sub write_seq {
 	if( $self->_id_generation_func ) {
 	    $temp_line = &{$self->_id_generation_func}($seq);
 	} else {
+
+            $self->warn("No whitespace allowed in EMBL display id [". $seq->display_id. "]")
+                if $seq->display_id =~ /\s/;
+
 	    $temp_line = sprintf("%-11sstandard; $mol; $div; %d BP.", $seq->id(), $len);
 	} 
 

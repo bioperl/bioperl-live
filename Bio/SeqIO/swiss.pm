@@ -398,6 +398,9 @@ sub write_seq {
 	    $mol = 'XXX';
 	}
 
+        $self->warn("No whitespace allowed in SWISS-PROT display id [". $seq->display_id. "]")
+            if $seq->display_id =~ /\s/;
+
 	my $temp_line;
 	if( $self->_id_generation_func ) {
 	    $temp_line = &{$self->_id_generation_func}($seq);

@@ -174,6 +174,9 @@ sub write_seq {
 	$self->throw("Did not provide a valid Bio::PrimarySeqI object") 
 	    unless defined $seq && ref($seq) && $seq->isa('Bio::PrimarySeqI');
 
+        $self->warn("No whitespace allowed in GCG ID [". $seq->display_id. "]")
+            if $seq->display_id =~ /\s/;
+
 	my $str         = $seq->seq;
 	my $comment     = $seq->desc || ''; 
 	my $id          = $seq->id;

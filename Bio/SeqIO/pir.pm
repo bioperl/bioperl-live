@@ -144,6 +144,10 @@ sub write_seq {
     for my $seq (@seq) {
 	$self->throw("Did not provide a valid Bio::PrimarySeqI object")
 	    unless defined $seq && ref($seq) && $seq->isa('Bio::PrimarySeqI');
+
+        $self->warn("No whitespace allowed in PIR ID [". $seq->display_id. "]")
+            if $seq->display_id =~ /\s/;
+
 	my $str = $seq->seq();
 	return unless $self->_print(">P1;".$seq->id(),
 				    "\n", $seq->desc(), "\n",
