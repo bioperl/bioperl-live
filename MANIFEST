@@ -1,4 +1,4 @@
-## $Id: MANIFEST,v 1.43 2001-08-10 03:05:27 jason Exp $
+## $Id: MANIFEST,v 1.44 2001-08-10 14:42:31 jason Exp $
 ##
 ## This is the file listing for everything that
 ## comes with the bioperl distribution. The perl
@@ -58,8 +58,6 @@ Bio/DB/GFF/Util/Rearrange.pm
 Bio/DB/GFF.pm
 Bio/DB/GenBank.pm
 Bio/DB/GenPept.pm
-Bio/DB/MANIFEST
-Bio/DB/Makefile.PL
 Bio/DB/NCBIHelper.pm
 Bio/DB/RandomAccessI.pm
 Bio/DB/SeqI.pm
@@ -78,7 +76,6 @@ Bio/Index/AbstractSeq.pm
 Bio/Index/EMBL.pm
 Bio/Index/Fasta.pm
 Bio/Index/GenBank.pm
-Bio/Index/SwissPfam.pm
 Bio/Index/Swissprot.pm
 Bio/LiveSeq/AARange.pm
 Bio/LiveSeq/Chain.pm
@@ -123,13 +120,6 @@ Bio/Root/RootI.pm
 Bio/Root/Utilities.pm
 Bio/Root/Vector.pm
 Bio/Root/Xref.pm
-Bio/Search/Hit/Fasta.pm
-Bio/Search/Hit/HitI.pm
-Bio/Search/Processor/Fasta.pm
-Bio/Search/Processor/ProcessorI.pm
-Bio/Search/Processor.pm
-Bio/Search/Result/Fasta.pm
-Bio/Search/Result/ResultI.pm
 Bio/SearchDist.pm
 Bio/Seq/LargePrimarySeq.pm
 Bio/Seq/LargeSeq.pm
@@ -208,9 +198,6 @@ Bio/Tools/HMMER/Set.pm
 Bio/Tools/IUPAC.pm
 Bio/Tools/MZEF.pm
 Bio/Tools/OddCodes.pm
-Bio/Tools/PPSEARCH/Parse.pm
-Bio/Tools/PRFSCAN/Parse.pm
-Bio/Tools/PRINTS/Parse.pm
 Bio/Tools/Prediction/Exon.pm
 Bio/Tools/Prediction/Gene.pm
 Bio/Tools/RestrictionEnzyme.pm
