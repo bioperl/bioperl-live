@@ -236,10 +236,11 @@ use strict;
 use vars '@ISA';
 
 use Bio::Root::RootI;
+use Bio::Root::IO;
 use Bio::PrimarySeq;
 use Symbol();
 
-@ISA = qw(Bio::Root::RootI);
+@ISA = qw(Bio::Root::RootI Bio::Root::IO);
 
 =head2 new
 
@@ -330,29 +331,13 @@ sub fh {
 # _initialize is chained for all SeqIO classes
 
 sub _initialize {
-  my($self, @args) = @_;
-
-  # not really necessary unless we put more in RootI
-  $self->SUPER::_initialize(@args);
-
-  my ($file, $fh) = $self->_rearrange([qw(
-					 FILE
-					 FH
-					)],
-				     @args,
-				     );
-
-  $self->{'readbuffer'} = undef; # buffer for storing lines from _readline
-
-  if ( defined $file and defined $fh ) {
-      $self->throw("Providing both a file and a filehandle for reading from - only one please!");
-  }
-
-  if ( defined $file and $file ne '' ) {
-    $fh = Symbol::gensym();
-    open ($fh,$file) || $self->throw("Could not open $file for Fasta stream reading $!");
-  }
-  $self->_filehandle($fh) if( defined $fh);
+    my($self, @args) = @_;
+    
+    # not really necessary unless we put more in RootI
+    $self->SUPER::_initialize(@args);
+    
+    # initialize the IO part
+    $self->_initialize_io(@args);
 }
 
 =head2 next_seq
@@ -447,23 +432,6 @@ sub moltype {
    return $self->{'moltype'};
 }
 
-=head2 close
-
- Title   : close
- Usage   : $seqio->close()
- Function: Closes the file handle associated with this seqio system
- Example :
- Returns :
- Args    :
-
-=cut
-
-sub close {
-   my ($self, @args) = @_;
-
-   $self->{'_filehandle'} = undef;
-}
-
 =head2 _load_format_module
 
  Title   : _load_format_module
@@ -499,72 +467,6 @@ END
   return 1;
 }
 
-=head2 _print
-
- Title   : _print
- Usage   : $obj->_print(@lines)
- Function:
- Example :
- Returns : writes output
-
-=cut
-
-sub _print {
-  my $self = shift;
-  my $fh = $self->_filehandle || \*STDOUT;
-  print $fh @_;
-}
-
-=head2 _readline
-
- Title   : _readline
- Usage   : $obj->_readline
- Function: Reads a line of input.
-
-           Note that this method implicitely uses the value of $/ that is
-           in effect when called.
-
-           Note also that the current implementation does not handle pushed
-           back input correctly unless the pushed back input ends with the
-           value of $/.
- Example :
- Returns : 
-
-=cut
-
-sub _readline {
-  my $self = shift;
-  my $fh = $self->_filehandle;
-  my $line;
-
-  # if the buffer been filled by _pushback then return the buffer
-  # contents, rather than read from the filehandle
-  if ( defined $self->{'readbuffer'} ) {
-    $line = $self->{'readbuffer'};
-    undef $self->{'readbuffer'};
-  }
-  else {
-    $line = defined($fh) ? <$fh> : <>;
-  }
-  return $line;
-}
-
-=head2 _pushback
-
- Title   : _pushback
- Usage   : $obj->_pushback($newvalue)
- Function: puts a line previously read with _readline back into a buffer
- Example :
- Returns :
- Args    : newvalue
-
-=cut
-
-sub _pushback {
-  my ($obj, $value) = @_;
-  $obj->{'readbuffer'} .= $value;
-}
-
 =head2 _concatenate_lines
 
  Title   : _concatenate_lines
@@ -591,7 +493,7 @@ sub _concatenate_lines {
 
  Title   : _filehandle
  Usage   : $obj->_filehandle($newval)
- Function:
+ Function: This method is deprecated. Call _fh() instead.
  Example :
  Returns : value of _filehandle
  Args    : newvalue (optional)
@@ -600,11 +502,8 @@ sub _concatenate_lines {
 =cut
 
 sub _filehandle {
-   my ($obj, $value) = @_;
-   if ( defined $value) {
-      $obj->{'_filehandle'} = $value;
-    }
-    return $obj->{'_filehandle'};
+    my ($self,@args) = @_;
+    return $self->_fh(@args);
 }
 
 =head2 _guess_format
