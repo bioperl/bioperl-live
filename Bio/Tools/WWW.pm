@@ -50,14 +50,18 @@ Bio::Tools::WWW.pm - Bioperl manager for web resources related to biology.
 
 =head2 Object Creation
 
-There is no need to create a new Bio::Tools::WWW.pm object
-when the C<:obj> tag is used since allows you to access the
-default $BioWWW object created for you by Bio::Tools::WWW.pm.
-
     use Bio::Tools qw(:obj);
 
     $pdb = $BioWWW->home_url('pdb');
 
+There is no need to create a new Bio::Tools::WWW.pm object when the
+C<:obj> tag is used. This tag will import the static $BioWWW object
+created by Bio::Tools::WWW.pm into your name space. This saves you
+from having to call C<new Bio::Tools::WWW>.
+
+You are free to not use the :obj tag and create the object as you
+like, but a Bio::Tools::WWW object is not configurable; any given
+script only needs a single copy.
 
 =head1 INSTALLATION
 

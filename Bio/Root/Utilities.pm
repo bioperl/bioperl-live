@@ -74,7 +74,16 @@ Bio::Root::Utilities - General-purpose utility module
 =head2 Object Creation
 
     use Bio::Root::Utilities qw(:obj);
- 
+
+There is no need to create a new Bio::Root::Utilities.pm object when
+the C<:obj> tag is used. This tag will import the static $Util
+object created by Bio::Root::Utilities.pm into your name space. This
+saves you from having to call C<new Bio::Root::Utilities>.
+
+You are free to not use the :obj tag and create the object as you
+like, but a Bio::Root::Utilities object is not configurable; any given
+script only needs a single copy.
+
     $date_stamp = $Util->date_format('yyy-mm-dd');
 
     $clean = $Util->untaint($dirty);
