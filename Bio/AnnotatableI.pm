@@ -30,7 +30,9 @@ Bio::AnnotatableI - the base interface an annotatable object must implement
 
 =head1 DESCRIPTION
 
-This is the base interface that all annotatable objects must implement.
+This is the base interface that all annotatable objects must implement. A good
+example is Bio::Seq which is an AnnotableI object; if you are a little confused
+about what this module does, start a Bio::Seq.
 
 =head1 FEEDBACK
 
@@ -99,5 +101,7 @@ use Bio::Root::RootI;
 sub annotation{
     shift->throw_not_implemented();
 }
+
+
 
 1;

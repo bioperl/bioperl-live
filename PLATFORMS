@@ -1,8 +1,10 @@
-# $Id: PLATFORMS,v 1.19 2002-08-14 18:20:53 bosborne Exp $
+# $Id: PLATFORMS,v 1.20 2002-12-31 13:09:05 birney Exp $
 
 Perl general comments:
 
-	o Perl 5.00404 and lower often have problems with GDB.t
+	o Perl must be 5.005 or higher. We tend to test on
+          5.6 Perl. Perl 5.8 definitely works, but might have
+          small errors
 
 	o Perl on Digital Unix, WindowsNT, and MacOS has been reported
           to have problems with the Bio::DB::GDB on module (and
@@ -13,7 +15,7 @@ Perl general comments:
 	  likely cause tests 3 and/or 27 to fail).
 
 	o Index.t will fail if you have an out-of-date DBM file
-	  installation.
+	  installation or a bad DB_File installation
 
 
 Tested systems & OS Specific Comments or Warnings
@@ -58,28 +60,33 @@ Comments: Some warnings about <HANDLE> which can be safely
 	  IO::String cannot be installed on 5.004.  Bio::DB::GDB will
 	  not work on pre 5.005 versions of perl.
 
+          The makefile's should now work without shell modifications.
+          Let us know if that's an issue
+
 Machine : Win32, WinNT i386
 Compiler: --
 Perl    : ActiveState Perl 5.6, 5.5.1
 Comments: Be sure that the module DB_File is installed and up-to-date 
 	  to allow Bio::Index modules to work properly. 
-          File::Temp potentially broken (causing at least BPpsilite to fail)
 	  Installing ppm's IO-stringy and IO-String and File-Temp are 
 	  necessary as well.
-	  See http://bioperl.org/Core/windows-bioperl.html for more info on 
-	  installing on Windows.
+  
+          See INSTALL.WIN for more information
 	
 Machine : CygWin NT_5 v. 1.3.10 on Windows 2000 5.00
 Compiler: gcc
 Perl    : 5.6.1
 Comments: Recommend that blastall app be obtained from NCBI
           (blast/executables/blastz.exe). expat is part of Cygwin.
+          Cygwin has an error in the SearchIO test, possibly due to some
+          temporary file issues
         
 Machine : MacOS
 Compiler: --
 Perl    : MacPerl
 Comments: Issues and possible ways to fix them summarized by Todd Richmond
-          on the bioperl.org Wiki.
+          on the bioperl.org Wiki. We don't recommend using Bioperl on
+          MacOS 9 systems
 
 Machine : MacOS X
 Compiler: gcc
@@ -106,3 +113,6 @@ Comments: Tested by (dag@sonsorol.org) on a barebones 4-cpu system without the
           working on getting 100% pass rate. Thanks due to HP for providing 
           the OBF with an Itanium workstation plus internet access to other 
           HP test platforms. Feedback from HP-UX users is appreciated.
+
+
+

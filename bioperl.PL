@@ -86,16 +86,18 @@ documentation.
 
 The Bioperl modules are distributed as a tar file that expands into a
 standard perl CPAN distribution.  Detailed installation directions 
-can be found in the distribution INSTALL file.
+can be found in the distribution INSTALL file. Installing on windows
+using ActiveState Perl is covered in the INSTALL.WIN file.
 
 The Bioperl modules can now interact with local flat file and relational
 databases. To learn how to set this up, look at the biodatabases.pod
 documentation ('perldoc biodatabases.pod' should work once Bioperl has
 been installed).
 
-The bioperl-db, bioperl-gui, corba-server, bioperl-pipeline and 
-corba-client packages are installed separately from Bioperl. Please
-refer to their respective documentation for more information.
+The bioperl-db, bioperl-run, bioperl-gui, corba-server,
+bioperl-pipeline and corba-client packages are installed separately
+from Bioperl. Please refer to their respective documentation for more
+information.
 
 
 =head1 GETTING STARTED
@@ -211,16 +213,18 @@ part of 2002. We also participated in the 1st Bio-Hackathon that
 February which drew developers from several Open-Bio projects to
 lovely Cape Town, South Africa and the hospitality of the co-sponsor
 Electric Genetics (O'Reilly and Associates also co-sponsored the
-event).  In early May we released bioperl 1.0 as an effort to put a
-stamp of completeness on the toolkit and submitted a paper detailing
-the efforts thus far (see the FAQ).  In late 2002 we released a
-developer release 1.1 for testing purposes and released bioperl 1.2 at
-the beginning of 2003.
+event, and AstraZeneca contributed to the sponorship).  In early May
+we released bioperl 1.0 as an effort to put a stamp of completeness on
+the toolkit and submitted a paper detailing the efforts thus far (see
+the FAQ).  In late 2002 we released a developer release 1.1 for
+testing purposes and released bioperl 1.2 at the beginning of 2003.
+
 
 Current server hardware for bioperl.org (and other open-bio.org hosted
-projects) was provided by Compaq Computer Corporation.  The donation 
-was facilitated by both the Pharmaceutical Sales and High Performance 
-Technical Computing (HPTC) groups.
+projects) is provided by Sun. A previous server was provided by Compaq
+Computer Corporation.  The compaq donation was facilitated by both the
+Pharmaceutical Sales and High Performance Technical Computing (HPTC)
+groups. 
 
 The Bioperl servers reside in Cambridge, Massachusetts USA with
 colocation facilities and Internet bandwidth donated by Genetics

@@ -54,7 +54,7 @@ PrimarySeq is a lightweight Sequence object, storing little more than
 the sequence, its name, a computer useful unique name. It does not
 contain sequence features or other information.  To have a sequence
 with sequence features you should use the Seq object which uses this
-object.
+object - go perldoc Bio::Seq
 
 Although newusers will use Bio::PrimarySeq alot, in general you will
 be using it from the Bio::Seq object. For more information on Bio::Seq

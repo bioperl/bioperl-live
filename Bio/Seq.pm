@@ -73,7 +73,7 @@ Bio::Seq - Sequence object, with features
     my $trunc = $seqobj->trunc(100,200);
     my $rev   = $seqobj->revcom();
 
-    # there are many options to translate
+    # there are many options to translate - check out the docs
     my $trans = $seqobj->translate();
 
     # these functions can be chained together
