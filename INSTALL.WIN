@@ -1,0 +1,188 @@
+=========================================================================
+BioPerl on Windows
+==================
+
+1.0 Installation
+1.1 PERL on Windows
+1.2 External Modules
+1.3 Installing Bioperl
+1.3.1 ActiveState for PERL 5.6.1
+1.3.2 ActiveState for PERL 5.8.0
+1.3.3 Download Archive
+1.3.4 If All Else Fails...
+2.0 Windows Specific Behaviour
+2.1 Subroutine <name> redefined at location <location> warnings
+2.2 Consed
+
+
+This introduction was written by Paul Boutros. Please report problems
+and/or fixes to the bioperl mailing, bioperl-l@bioperl.org
+
+
+1.0 Installation
+================
+
+Windows installation of BioPerl requires three steps:
+i)   installation of PERL
+ii)  installation of external modules
+iii) installation of BioPerl itself
+
+I'll quickly summarize my findings on each of those below.
+
+1.1 PERL on Windows
+===================
+
+There are lots of ways of installing PERL on a Windows machine.  Probably
+the easiest and most common is to get the most recent build from
+ActiveState.  You can also build PERL yourself (which requires a C
+compiler) or download one of the other binary distributions.  Regardless
+of which way you choose to go, if have a functioning PERL build higher
+than version 5 or so you can procede to the next step.
+
+The PERL source for building it yourself is available from CPAN
+(http://www.cpan.org), as are a few binary distributions.
+
+ActiveState is a software company (http://www.activestate.com) that
+provides free builds of PERL for windows users.  They are currently
+(December 2002) providing a very stable build of PERL 5.6.1 while a beta
+version of PERL 5.8.0 is also available.  I suggest that you stick to the
+production version of 5.6.1 because: a) it is easier to install the
+external modules for 5.6.1 and b) I find 5.8.0 beta a bit unstable at the
+moment.
+
+1.2 External Modules
+====================
+
+The installation documents supply a very comprehensive list of external
+dependencies (i.e. see http://www.bioperl.org/Core/external.shtml).  You
+do not need to install external modules for the parts of BioPerl that you
+do not intend using.  That being said, if you don't know what to install,
+try to install all externals.
+
+If you are using ActiveState, I recommend first attempting to download
+your external modules via the ActiveState Perl Package Manager (PPM).  To
+use it, just go to a command-prompt and type ppm while connected to the
+internet.  The software will connect to a repository of available modules
+that you can install.  For example, to install IO::String you would type:
+"install IO::String"
+
+If you are using ActiveState 5.8.0, you will find that some external
+modules are not yet available via ppm.  In that case you will have to
+download them directly from cpan (http://www.cpan.org) and follow the
+specific build procedures for each module.  This is one major reason for
+avoiding the ActiveState 5.8.0 beta version.
+
+1.3 Installing BioPerl
+======================
+
+You have two main choices for installing BioPerl.  If you are using
+ActiveState you can use ppm to install with the commands:
+
+1.3.1 ActiveState For PERL 5.6.1
+================================
+
+PPM> set repository bioperl http://bioperl.org/DIST/
+PPM> search bioperl             (shows available bioperl versions)
+PPM> install bioperl		(will install the default version)
+
+1.3.2 ActiveState For PERL 5.8.0
+================================
+
+ppm> repository add bioperl http://bioperl.org/DIST
+ppm> search bioperl		(shows available bioperl versions)
+
+This last command returns a numbered list of the available bioperl
+versions.
+Select the number of the version you wish to install and type:
+
+ppm> install <number>
+
+1.3.3 Download Archive
+======================
+
+You can download BioPerl as a compressed archive from:
+http://www.bioperl.org/Core/Latest/index.shtml
+This archive can be uncompressed with WinZip (or most other Zip
+utilities).
+
+Don't worry if you get a warning saying something like "Archive contains
+only one file!  Extract and decompress?".  This is just a variation in how
+UNIX and Windows software likes to compress files.  Choose yes, and all
+will be well.
+
+You will need access to a make utility to utilize this approach.
+
+1.3.4. If All Else Fails....
+============================
+
+The BioPerl directory tree should be extracted intact (i.e. ensure "Use
+Folder Names" is selected in WinZip) and must be placed so that it is in
+your @INC path.  It may be easier to extract the directory tree to another
+location and moving the \Bio directory to \perl\site\lib
+
+This approach will not install compiled versions of any modules in the
+package, and isn't recommended.
+
+1.4 Testing Installation
+========================
+
+It is possible to test your BioPerl installation on windows with "make
+test", although this requires having a copy of make utility available on
+your system.  If you used ppm to install, this step will not be possible
+as activestate doesn't install this information.
+
+2.0 Windows-Specific Behaviour
+==============================
+
+Items of windows-specific behaviour are listed below.
+
+2.1 Subroutine <name> redefined at <location> Warnings
+======================================================
+
+BioPerl does not get along particularly nicely with the PERL -w flag on
+windows systems.  The sample script below shows what happens with many
+scripts:
+
+test.pl
+###############################################
+use Bio::ClusterIO;
+my $stream = Bio::ClusterIO->new(
+		'-file'		=> $ARGV[0],
+		'-format'	=> 'UniGene',
+		);
+###############################################
+
+c:\> perl -w test.pl Hs.Data
+Subroutine new redefined at C:/Perl/site/lib/Bio\Cluster\UniGene.pm line
+222.
+Subroutine unigene_id redefined at C:/Perl/site/lib/Bio\Cluster\UniGene.pm
+line 284.
+Subroutine title redefined at C:/Perl/site/lib/Bio\Cluster\UniGene.pm line
+306.
+Subroutine gene redefined at C:/Perl/site/lib/Bio\Cluster\UniGene.pm line
+327.
+Subroutine cytoband redefined at C:/Perl/site/lib/Bio\Cluster\UniGene.pm
+line 345.
+Subroutine mgi redefined at C:/Perl/site/lib/Bio\Cluster\UniGene.pm line
+362.
+Subroutine locuslink redefined at C:/Perl/site/lib/Bio\Cluster\UniGene.pm
+line 390.
+Subroutine gnm_terminus redefined at
+C:/Perl/site/lib/Bio\Cluster\UniGene.pm line 420.
+Subroutine scount redefined at C:/Perl/site/lib/Bio\Cluster\UniGene.pm
+line 436.
+<and many more like this>
+
+These warnings messages are basically the result of the windows version of
+PERL being more cautious than other versions.  These are only warnings
+messages, and can safely be ignored.  For production code, you can remove
+the -w flag and you will not receive these warnings.
+
+2.2 Consed
+==========
+The consed module cannot be run under Windows.
+=========================================================================
+
+
+
+
