@@ -1025,8 +1025,6 @@ sub derived_mutations{
 
 =cut
 
-    use Data::Dumper;
-
 sub composite_LD {
     my ($self,$pop) = @_;
     if( ref($pop) =~ /ARRAY/i ) {
