@@ -663,8 +663,8 @@ sub write_seq {
                $samples_size + $bases_size + 
                $writer_fodder->{'header'}->{'comments_size'};
           $writer_fodder->{'header'}->{'binary'} = 
-               $self->_get_binary_header($writer_fodder->{header});
-          $dumper->dumpValue($writer_fodder);
+	      $self->_get_binary_header($writer_fodder->{header});
+          $dumper->dumpValue($writer_fodder) if $self->verbose > 0;
 	     $self->_print ($writer_fodder->{'header'}->{'binary'}) 
                or print("Could not write binary header...\n"); 
 	     $self->_print ($writer_fodder->{'traces'}->{'binary'}) 
