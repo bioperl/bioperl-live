@@ -104,7 +104,6 @@ require Bio::SeqFeature::Generic;
 require Bio::SeqFeature::SimpleIterator;
 use Bio::SeqFeature::SimpleCollectionProvider;
 use Bio::SeqFeature::CollectionI;
-use Bio::Location::Simple;
 
 $VERSION = '0.01';
 @ISA = qw( Bio::SeqFeature::SimpleCollectionProvider

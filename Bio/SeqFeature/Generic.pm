@@ -317,6 +317,11 @@ sub new_from_feature {
   }
   foreach my $key ( keys %{ $feature->{ '_gsf_tag_hash' } } ) {
     next unless $feature->{ '_gsf_tag_hash' }->{ $key };
+    ## TODO: REMOVE.  This hack supports Nat Goodman's gdbm hack to Das.pm.
+    unless( ref( $feature->{ '_gsf_tag_hash' }->{ $key } ) eq 'ARRAY' ) {
+      push( @{ $new_feature->{ '_gsf_tag_hash' }->{ $key } }, $feature->{ '_gsf_tag_hash' }->{ $key } );
+      next;
+    }
     foreach my $value ( @{ $feature->{ '_gsf_tag_hash' }->{ $key } } ) {
       push( @{ $new_feature->{ '_gsf_tag_hash' }->{ $key } }, $value );
     }

@@ -346,7 +346,7 @@ sub aggregate {
       }
     } else {
       ## TODO: REMOVE
-      warn "Not aggregating feature $feature because either \$feature->group is false (it is ".$feature->group().") or because \$matchsub->(\$feature) returns false (it returns ".$matchsub->($feature).").";
+      #warn "Not aggregating feature $feature because either \$feature->group is false (it is ".$feature->group().") or because \$matchsub->(\$feature) returns false (it returns ".$matchsub->($feature).").";
       push @result,$feature;
     }
   }
