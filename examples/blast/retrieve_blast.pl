@@ -1,4 +1,4 @@
-#!/usr/local/bin/perl -w
+#!/usr/bin/perl -w
 
 # Installation: 
 # 1. Move this script into the same location as run_blast_remote.pl.
