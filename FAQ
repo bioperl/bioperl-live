@@ -1,7 +1,7 @@
 
 Bioperl FAQ
 -----------
-v. 1.2.2
+v. 1.4.0
 
 This FAQ maintained by:
 * Jason Stajich <jason@bioperl.org>
@@ -37,13 +37,14 @@ Contents
   Q1.11: I've got an idea for a module how do I contribute it?
   Q1.12: Why can't I easily get a list of all the methods a object can
 	 call?
+  Q1.13: Can you explain the Object Model design and rationale?
 
 2. Sequences
 
    Q2.1: How do I parse a sequence file?
    Q2.2: I can't get sequences with Bio::DB::GenBank any more, why not?
    Q2.3: How can I get NT_ or NM_ or NP_ accessions from NCBI
-	 (Reference Sequences)?
+		 (Reference Sequences)?
    Q2.4: How can I use SeqIO to parse sequence data to or from a string?
    Q2.5: I'm using Bio::Index::Fasta in order to retrieve sequences from my
 	 indexed fasta file but I keep seeing ">> MSG: Did not provide a
@@ -68,7 +69,8 @@ Contents
 	 Bio::Tools::Run::StandAloneBlast?
    Q3.7: Does SearchIO parse the HTML output file that BLAST can create?
    Q3.8: Can I get domain number from hmmpfam or hmmsearch output? E.g.
-	 SH2_5: domain 2 of 2, from 349 to 432: score 104.4, E = 1.9e-26
+		   SH2_5: domain 2 of 2, from 349 to 432: score 104.4, E =
+	 1.9e-26
 
 4. Utilities
 
@@ -255,13 +257,15 @@ Contents
       A: Please cite it as:
 
 	 
-	 Stajich JE, Block D, Boulez K, Brenner SE, Chervitz SA,  
-	 Dagdigian C, Fuellen G, Gilbert JGR, Korf I, Lapp H, 
-	 Lehvaslaiho H, Matsalla C, Mungall CJ, Osborne BI,
-	 Pocock MR, Schattner P, Senger M, Stein LD, Stupka ED, 
-	 Wilkinson M, Birney E.
-	 The Bioperl Toolkit: Perl modules for the life sciences. 
-	 Genome Research. 2002 Oct;12(10):1161-8.
+		   Stajich JE, Block D, Boulez K, Brenner SE, Chervitz SA, 
+	 
+		   Dagdigian C, Fuellen G, Gilbert JGR, Korf I, Lapp H, 
+		   Lehvaslaiho H, Matsalla C, Mungall CJ, Osborne BI,
+		   Pocock MR, Schattner P, Senger M, Stein LD, Stupka ED, 
+		   Wilkinson M, Birney E.
+		   The Bioperl Toolkit: Perl modules for the life sciences.
+	 
+		   Genome Research. 2002 Oct;12(10):1161-8.
 
 
    Q1.9: What are the license terms for Bioperl?
@@ -313,13 +317,61 @@ Contents
 	 Bio::Seq.
 
 	 
-	 #!/usr/bin/perl -w
-	 use Class::Inspector;
-	 $class = shift || die "Usage: methods perl_class_name\n";
-	 eval "require $class";
-	 print join ("\n", sort
+		   #!/usr/bin/perl -w
+		   use Class::Inspector;
+		   $class = shift || die "Usage: methods
+	 perl_class_name\n";
+		   eval "require $class";
+		   print join ("\n", sort
 	 @{Class::Inspector->methods($class,'full','public')}),
-		     "\n";
+		   "\n";
+
+
+  Q1.13: Can you explain the Object Model design and rationale?
+
+      A: 
+	 There is complicated answer to these questions.  Simply put, this
+	 is a toolkit which has grown organically.  The goals and user
+	 audience has evolved.	Some decisions have been made and we have
+	 been forced to live by them rather than destroy backwards
+	 compatability.  In addition there are different philosophies of
+	 software development.	The major developers on the project have
+	 tried to impose a set of standards on the code so that the project
+	 can be coordinated without every commit being cleared by a few key
+	 individuals.  See Eric S Raymond's "The Cathedral and the Bazaar"
+	 for different styles of running an open-source project - we are
+	 clearly on the Bazaar end.  The biodesign.pod document in the
+	 bioperl distribution and available on the website
+	 http://bioperl.org/Core/Lates/biodesign.html should detail more
+	 about specific design goals.
+
+	 
+	 The clear consensus of the project developers is that Bioperl
+	 should be consistent.	This may cause us to pay the price of some
+	 copy+paste of code (the Get/Set accessor methods being a sore spot
+	 for some) and the lack of using AUTOLOAD.  By being consistent we
+	 hope that someone can grok the gist of a module from the basic
+	 documentation, see example code, and get a set of methods from the
+	 API documetation.  We aim to make the core object design easy to
+	 understand.  This has not been realized by any stretch of the
+	 imagination as the toolkit has well over 1000 modules in
+	 bioperl-live and bioperl-run alone.
+
+	 
+	 That said we do want to improve things.  We want to experiment
+	 with newer modules which made Perl more Object-Oriented.  We have
+	 high hopes for some of the promises of Perl6.	To try and realize
+	 this goal we are encouraging developers to play with new object
+	 models in a bioperl-experimental project.  
+
+	 
+	 Some useful discussion on the mailing list can be found at this
+	 node
+	 http://bioperl.org/pipermail/bioperl-l/2003-December/014406.html. 
+	  We encourage you to participate in the discussion and to join in
+	 the development process either on existing Bioperl code or the
+	 bioperl-experimental code if you have a particular interest in
+	 making the toolkit more Object-Oriented.
 
 
 ---------------------------------------------------------------------------
@@ -346,7 +398,7 @@ Contents
 
 
    Q2.3: How can I get NT_ or NM_ or NP_ accessions from NCBI
-	 (Reference Sequences)?
+		 (Reference Sequences)?
 
       A: Use Bio::DB::RefSeq not Bio::DB::GenBank or Bio::DB::GenPept when
 	 you are retrieving these accessions. This is still an area of
@@ -362,26 +414,27 @@ Contents
       A: From a string:
 
 	 
-	   use IO::String;
-	   use Bio::SeqIO;
-	   my $stringfh = new IO::String($string);
-	 
-	   my $seqio = new Bio::SeqIO(-fh => $stringfh, 
-				      -format => 'fasta');
-	   while( my $seq = $seqio->next_seq ) { 
-	       # process each seq
-	   }
+		   use IO::String;
+		   use Bio::SeqIO;
+		   my $stringfh = new IO::String($string);
+		   
+		   my $seqio = new Bio::SeqIO(-fh => $stringfh, 
+					      -format => 'fasta');
+		   while( my $seq = $seqio->next_seq ) { 
+		     # process each seq
+		   }
 
 	 And here is how to write to a string:
 
 	 
-	 use IO::String;
-	 use Bio::SeqIO;
-	 my $s;
-	 my $io = IO::String->new(\$s);
-	 my $seqOut = new Bio::SeqIO(-format =>'swiss', -fh => $io);
-	 $seqOut->write_seq($seq1);
-	 print $s; # $s contains the record
+		   use IO::String;
+		   use Bio::SeqIO;
+		   my $s;
+		   my $io = IO::String->new(\$s);
+		   my $seqOut = new Bio::SeqIO(-format =>'swiss', -fh =>
+	 $io);
+		   $seqOut->write_seq($seq1);
+		   print $s; # $s contains the record
 
 
    Q2.5: I'm using Bio::Index::Fasta in order to retrieve sequences from my
@@ -398,22 +451,23 @@ Contents
 	 key, like this:
 
 	 
-	 $inx = Bio::Index::Fasta->new(-filename =>$indexname);
-	 $inx = id_parser(\&get_id);
-	 $inx->make_index($fastaname);
-	 
-	 sub get_id {
-	     my $header = shift;
-	     $header =~ /^>gi\|(\d+)/;
-	     $1;
-	 }
+		   $inx = Bio::Index::Fasta->new(-filename =>$indexname);
+		   $inx = id_parser(\&get_id);
+		   $inx->make_index($fastaname);
+		   
+		   sub get_id {
+		   my $header = shift;
+		   $header =~ /^>gi\|(\d+)/;
+		   $1;
+		   }
 
 	 
-	 The same issue arises when you use Bio::DB::Fasta, but in that
-	 case the code might look like this:
+		 The same issue arises when you use Bio::DB::Fasta, but in
+	 that case the code might look like this:
 
 	 
-	   $inx = Bio::DB::Fasta->new($fastaname,-makeid =>\&get_id);
+		   $inx = Bio::DB::Fasta->new($fastaname,-makeid
+	 =>\&get_id);
 
 
    Q2.6: I'm using Bio::DB::GenBank to query Genbank and I'm certain that
@@ -493,12 +547,12 @@ Contents
 	 query it based on sequence you are interested in:
 
 	 $hsp->hit->strand();
-	 $hsp->hit->frame();
+		   $hsp->hit->frame();
 
 	 or
 
 	 $hsp->query->strand();
-	 $hsp->query->frame();
+		   $hsp->query->frame();
 
 	 So the value according to a blast report of -3 can be constructed
 	 as:
@@ -512,17 +566,18 @@ Contents
       A: Put the names of the databases in a variable. like so:
 
 	 
-	 my $dbs = '"/dba/BMC.fsa /dba/ALC.fsa /dba/HCC.fsa"';
-	 my @params = ( d	    => "$dbs",
-			    program	=> "BLASTN",
-			    _READMETHOD => "Blast",
-			    outfile	=> "$dir/est.bls" );
-	 
-	 my $factory = Bio::Tools::Run::StandAloneBlast->new(@params);
-	 my $seqio = Bio::SeqIO->new(-file=>'t/amino.fa',-format => 'Fasta'
-	 );
-	 my $seqobj = $seqio->next_seq();
-	 $factory->blastall($seqobj);
+		   my $dbs = '"/dba/BMC.fsa /dba/ALC.fsa /dba/HCC.fsa"';
+		   my @params = ( d	      => "$dbs",
+		   program     => "BLASTN",
+		   _READMETHOD => "Blast",
+		   outfile     => "$dir/est.bls" );
+		   
+		   my $factory =
+	 Bio::Tools::Run::StandAloneBlast->new(@params);
+		   my $seqio = Bio::SeqIO->new(-file=>'t/amino.fa',-format
+	 => 'Fasta' );
+		   my $seqobj = $seqio->next_seq();
+		   $factory->blastall($seqobj);
 
 
    Q3.7: Does SearchIO parse the HTML output file that BLAST can create?
@@ -532,39 +587,42 @@ Contents
 	 StripHTML module:
 
 	 
-	 use Bio::SearchIO;
-	 use Bio::SearchIO::blast;
-	 use HTML::Strip;
-	 
-	 my $hs = new HTML::Strip;
-	 
-	 # replace the blast parser's _readline method with one that
-	 # auto-strips HTML:
-	 
-	 sub Bio::SearchIO::blast::_readline {
-	   my ($self, @args) = @_;
-	   return $hs->parse($self->SUPER::_readline(@args));
-	 }
-	 
-	 $io = new Bio::SearchIO(-file => "etc.bls", -format => "blast");
-	 # etc ...
+		   use Bio::SearchIO;
+		   use Bio::SearchIO::blast;
+		   use HTML::Strip;
+		   
+		   my $hs = new HTML::Strip;
+		   
+		   # replace the blast parser's _readline method with one
+	 that
+		   # auto-strips HTML:
+		   
+		   sub Bio::SearchIO::blast::_readline {
+		     my ($self, @args) = @_;
+		     return $hs->parse($self->SUPER::_readline(@args));
+		   }
+		   
+		   $io = new Bio::SearchIO(-file => "etc.bls", -format =>
+	 "blast");
+		   # etc ...
 
 
    Q3.8: Can I get domain number from hmmpfam or hmmsearch output? E.g.
-	 SH2_5: domain 2 of 2, from 349 to 432: score 104.4, E = 1.9e-26
+		   SH2_5: domain 2 of 2, from 349 to 432: score 104.4, E =
+	 1.9e-26
 
       A: Not directly but you can compute it since the domains are numbered
 	 by their order on the protein:
 
 	 
-	 my @domains = $hit->domains;
-	 my $domainnum = 1;
-	 my $total = scalar @domains;
-	 foreach my $domain ( sort { $a->start <=> $b->start }
+		     my @domains = $hit->domains;
+		     my $domainnum = 1;
+		     my $total = scalar @domains;
+		     foreach my $domain ( sort { $a->start <=> $b->start }
 	 $hit->domains ) {
-	    print "domain $domainnum of $total,\n";
-	    $domainnum++;
-	 }
+		       print "domain $domainnum of $total,\n";
+		       $domainnum++;
+		     }
 
 
 ---------------------------------------------------------------------------
@@ -665,17 +723,18 @@ Contents
 	 primary tag 'exon'.
 
 	 my @genes = grep { $_->primary_tag eq 'exon'} 
-		       $seq->all_SeqFeatures();
+		   $seq->all_SeqFeatures();
 
 	 To get all the features filtering on this which have the tag
 	 'note' and within the note field contain the requested string
 	 $noteval.
 
-	 my @f_with_note = grep { 
-				    my @a = $_->has_tag('note') ?
-				    $_->each_tag_value('note') : (); 
-				    grep { /$noteval/ } @a; 
-				  }  $seq->all_SeqFeatures(); 
+	 
+		   my @f_with_note = grep { 
+		   my @a = $_->has_tag('note') ?
+		   $_->each_tag_value('note') : (); 
+		   grep { /$noteval/ } @a; 
+		   }  $seq->all_SeqFeatures(); 
 
 
    Q5.3: How do I parse the CDS join() or complement() statements in
@@ -686,14 +745,17 @@ Contents
 	 Location::SplitLocationI object to get the coordinates:
 
 	 
-	 foreach my $feature ($seqobj->top_SeqFeatures){
-	   if ( $feature->location->isa('Bio::Location::SplitLocationI') 
-			  && $feature->primary_tag eq 'CDS' )  {
-	     foreach my $location ( $feature->location->sub_Location ) {
-	       print $location->start . ".." . $location->end . "\n";
-	     }
-	   }
-	 }  
+		   foreach my $feature ($seqobj->top_SeqFeatures){
+		     if (
+	 $feature->location->isa('Bio::Location::SplitLocationI') 
+		   && $feature->primary_tag eq 'CDS' )	{
+		       foreach my $location (
+	 $feature->location->sub_Location ) {
+			 print $location->start . ".." . $location->end .
+	 "\n";
+		       }
+		     }
+		   }  
 
 
    Q5.4: How do I retrieve a nucleotide coding sequence when I have a
@@ -705,30 +767,31 @@ Contents
 	 retrieve using the accession number from the same feature.
 
 	 
-	 my $gp = new Bio::DB::GenPept;
-	 my $gb = new Bio::DB::GenBank;
-	 # factory to turn strings into Bio::Location objects
-	 my $loc_factory = new Bio::Factory::FTLocationFactory;
-	 
-	 my $prot_obj = $gp->get_Seq_by_id($protein_gi);
-	 foreach my $feat ( $prot_obj->top_SeqFeatures ) {
-	    if ( $feat->primary_tag eq 'CDS' ) {
-	       # example: 'coded_by="U05729.1:1..122"'
-	       my @coded_by = $feat->each_tag_value('coded_by');
-	       my ($nuc_acc,$loc_str) = split /\:/, $coded_by[0];
-	       my $nuc_obj = $gb->get_Seq_by_acc($nuc_acc);
-	       # create Bio::Location object from a string
-	       my $loc_object = $loc_factory->from_string($loc_str);
-	       # create a Feature object by using a Location
-	       my $feat_obj = new Bio::SeqFeature::Generic(-location
-	 =>$loc_object);
-	       # associate the Feature object with the nucleotide Seq
+		   my $gp = new Bio::DB::GenPept;
+		   my $gb = new Bio::DB::GenBank;
+		   # factory to turn strings into Bio::Location objects
+		   my $loc_factory = new Bio::Factory::FTLocationFactory;
+		   
+		   my $prot_obj = $gp->get_Seq_by_id($protein_gi);
+		   foreach my $feat ( $prot_obj->top_SeqFeatures ) {
+		     if ( $feat->primary_tag eq 'CDS' ) {
+		     # example: 'coded_by="U05729.1:1..122"'
+		       my @coded_by = $feat->each_tag_value('coded_by');
+		       my ($nuc_acc,$loc_str) = split /\:/, $coded_by[0];
+		       my $nuc_obj = $gb->get_Seq_by_acc($nuc_acc);
+		     # create Bio::Location object from a string
+		       my $loc_object =
+	 $loc_factory->from_string($loc_str);
+		     # create a Feature object by using a Location
+		       my $feat_obj = new
+	 Bio::SeqFeature::Generic(-location =>$loc_object);
+		     # associate the Feature object with the nucleotide Seq
 	 object
-	       $nuc_obj->add_SeqFeature($feat_obj);
-	       my $cds_obj = $feat_obj->spliced_seq;
-	       print "CDS sequence is ",$cds_obj->seq,"\n";
-	    }
-	 }
+		     $nuc_obj->add_SeqFeature($feat_obj);
+		     my $cds_obj = $feat_obj->spliced_seq;
+		     print "CDS sequence is ",$cds_obj->seq,"\n";
+		     }
+		   }
 
 
    Q5.5: How do I get the complete spliced nucleotide sequence from the CDS
@@ -737,13 +800,13 @@ Contents
       A: You can use the spliced_seq() method. For example:
 
 	 
-	 my $seq_obj = $db->get_Seq_by_id($gi);
-	 foreach my $feat ( $seq_obj->top_SeqFeatures ) {
-	    if ( $feat->primary_tag eq 'CDS' ) {
-	       my $cds_obj = $feat->spliced_seq;
-	       print "CDS sequence is ",$cds_obj->seq,"\n";
-	    }
-	 }
+		   my $seq_obj = $db->get_Seq_by_id($gi);
+		   foreach my $feat ( $seq_obj->top_SeqFeatures ) {
+		     if ( $feat->primary_tag eq 'CDS' ) {
+		       my $cds_obj = $feat->spliced_seq;
+		       print "CDS sequence is ",$cds_obj->seq,"\n";
+		     }
+		   }
 
 
    Q5.6: How do I get the reverse-complement of a sequence using the
@@ -754,13 +817,16 @@ Contents
 	 as coordinates.
 
 	 
-	 use Bio::Location::Simple;
-	 
-	 my $location = new Bio::Location::Simple(-start  => $start,
-						  -end	  => $end,
-						  -strand => "-" );
-	 # assume we already have a sequence object
-	 my $rev_comp_substr = $seq_obj->subseq($location);
+		   use Bio::Location::Simple;
+		   
+		   my $location = new Bio::Location::Simple(-start  =>
+	 $start,
+							    -end    =>
+	 $end,
+							    -strand => "-"
+	 );
+		   # assume we already have a sequence object
+		   my $rev_comp_substr = $seq_obj->subseq($location);
 
 
 ---------------------------------------------------------------------------
@@ -777,14 +843,18 @@ Contents
 	 you access to many of the search tools in the NCBI blast suite
 	 including blastll, bl2seq, blastpgp.  The basic structure is like
 	 this.
-	 
-	 use Bio::Tools::Run::StandAloneBlast;
-	 my $factory = Bio::Tools::Run::StandAloneBlast->new(p => 'blastn',
-							     d => 'nt',
-							     e => '1e-5');
-	 my $seq = new Bio::PrimarySeq(-id => 'test1',
-				       -seq => 'AGATCAGTAGATGATAGGGGTAGA');
-	 my $report = $factory->blastall($seq);
+		 
+		 use Bio::Tools::Run::StandAloneBlast;
+		   my $factory = Bio::Tools::Run::StandAloneBlast->new(p =>
+	 'blastn',
+								       d =>
+	 'nt',
+								       e =>
+	 '1e-5');
+		   my $seq = new Bio::PrimarySeq(-id => 'test1',
+						 -seq =>
+	 'AGATCAGTAGATGATAGGGGTAGA');
+		   my $report = $factory->blastall($seq);
 
 
    Q6.2: Hey, I want to run clustalw within Bioperl, I used
@@ -826,6 +896,6 @@ Contents
 	 http://bio.perl.org/Bugs.
 
 ---------------------------------------------------------------------------
-Copyright (c)2002-2003 Open Bioinformatics Foundation. You may distribute
+Copyright (c)2002-2004 Open Bioinformatics Foundation. You may distribute
 this FAQ under the same terms as perl itself.
 
