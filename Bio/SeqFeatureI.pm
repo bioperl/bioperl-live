@@ -41,7 +41,7 @@ Bio::SeqFeatureI - Abstract interface of a Sequence Feature
 =head1 DESCRIPTION
 
 This interface is the functions one can expect for any Sequence
-Feature, whatever its implemtation or whether it is a more complex
+Feature, whatever its implementation or whether it is a more complex
 type (eg, a Gene). This object doesn\'t actually provide any
 implemention, it just provides the definitions of what methods one can
 call. See Bio::SeqFeature::Generic for a good standard implementation
