@@ -21,9 +21,11 @@ Bio::Search::Result::GenericResult - Generic Implementation of Bio::Search::Resu
     use Bio::SearchIO;
     my $io = new Bio::SearchIO(-format => 'blast',
  			       -file   => 't/data/HUMBETGLOA.tblastx');
-    my $result = $io->next_result;
-    while( $hit = $result->next_hits()) {  
-    # insert code here for hit processing
+    while( my $result = $io->next_result) {
+        # process all search results within the input stream
+        while( my $hit = $result->next_hits()) {  
+        # insert code here for hit processing
+        }
     }
 
     use Bio::Search::Result::GenericResult;
@@ -40,7 +42,7 @@ Bio::Search::Result::GenericResult - Generic Implementation of Bio::Search::Resu
 	  -parameters        => { 'e' => '0.001' },
 	  -statistics        => { 'kappa' => 0.731 },
 	  -algorithm         => 'blastp',
-           -algorithm_version => '2.1.2',
+          -algorithm_version => '2.1.2',
 	  );
 
     my $id = $result->query_name();
