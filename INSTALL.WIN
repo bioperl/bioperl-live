@@ -237,7 +237,7 @@ but the external resource may want 'E:/cygwin/home/jacky'. So your
 depending.
 
 If you can, install Cygwin on a drive or partition that's
-NTFS-formatted, not FAT32-formatted. When Cygwin you install on a FAT32
+NTFS-formatted, not FAT32-formatted. When you install Cygwin on a FAT32
 partition you will not be able to set permissions and ownership
 correctly. In most situations this probably won't make any difference 
 but there may be occasions where this is a problem.
