@@ -92,11 +92,15 @@ sub new {
     my $self = $class->SUPER::new(@args);
     # initialize
     $self->{'_sublocations'} = [];
-    my ( $type, $locations ) = $self->_rearrange([qw(SPLITTYPE 
-						     LOCATIONS)], @args);
+    my ( $type, $seqid, $locations ) = 
+	$self->_rearrange([qw(SPLITTYPE
+                              SEQ_ID
+			      LOCATIONS
+                              )], @args);
     if( defined $locations && ref($locations) =~ /array/i ) {
 	$self->add_sub_Location(@$locations);
     }
+    $seqid  && $self->seq_id($seqid);
     $type = lc ($type);    
     $self->splittype($type || 'JOIN');
     return $self;
