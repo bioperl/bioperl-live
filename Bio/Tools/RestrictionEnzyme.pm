@@ -496,7 +496,10 @@ sub site {
 #---------
     my $self = shift;
     my $seq = $self->seq;
-    return $seq->subseq(1, $self->cuts_after).'^'.$seq->subseq($self->cuts_after+1, $seq->length); 
+    my $cuts_after = $self->cuts_after;
+    if    (!$cuts_after)                { return '^' . $seq->subseq(1, $seq->length); }
+    elsif ($cuts_after == $seq->length) { return $seq->subseq(1, $seq->length) . '^'; }
+    else                                { return $seq->subseq(1, $cuts_after) . '^' . $seq->subseq($cuts_after + 1, $seq->length); }
 }
     
 

@@ -380,6 +380,7 @@ sub _parseHeader {
       $self->{'QUERY'} = $query;
       $self->{'LENGTH'} = $length;
     }
+    elsif ($_ =~ /^(<b>)?(T)?BLAST([NPX])\s+([\d\.]+)\s+(\[\w-\])/) { $self->{'BLAST_TYPE'} = "$1BLAST$2"}   # BLAST report type - not a valid header element
     elsif ($_ =~ /^Database:\s+(.+)/) {$header_flag = 1;$self->{'DATABASE'} = $1}   # valid header element found
     elsif ($_ =~ /^\s*pattern\s+(\S+).*position\s+(\d+)\D/) {   
 # For PHIBLAST reports
