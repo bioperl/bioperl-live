@@ -69,7 +69,7 @@ BioPerlTutorial - a tutorial for bioperl
      III.4.2 Running BLAST remotely (using RemoteBlast.pm)
      III.4.3 Parsing BLAST and FASTA reports with Search and SearchIO
      III.4.4 Parsing BLAST reports with BPlite, BPpsilite, BPbl2seq and Blast.pm
-     III.4.5 Parsing HMM reports (HMMER::Results)
+     III.4.5 Parsing HMM reports (HMMER::Results, SearchIO)
   III.5 Creating and manipulating sequence alignments
      III.5.1 Aligning 2 sequences with Smith-Waterman (pSW)
      III.5.2 Aligning 2 sequences with Blast using  bl2seq and AlignIO
@@ -1447,14 +1447,15 @@ are recommended for most blast parsing within bioperl.
 See L<Bio::Tools::Blast> for more information.
 
 
-=head2 III.4.5 Parsing HMM reports (HMMER::Results)
+=head2 III.4.5 Parsing HMM reports (HMMER::Results, SearchIO)
 
 Blast is not the only sequence-similarity-searching program supported
 by bioperl. HMMER is a Hidden Markov Model (HMM) program that
 (among other capabilities) enables sequence similarity searching, from
 http://hmmer.wustl.edu. Bioperl does not currently provide a perl interface
-for running HMMER.  However, bioperl does provide a HMMER report parser
-with the (perhaps not too descriptive) name of Results.
+for running HMMER.  However, bioperl does provide HMMER report parsers,
+one with the (perhaps not too descriptive) name of Results, the other
+within the SearchIO framework.
 
 Results can parse reports generated both by the HMMER program
 hmmsearch - which searches a sequence database for sequences similar
@@ -1476,6 +1477,28 @@ object is made. Sample usage for parsing a hmmsearch report might be:
   }
 
 Additional methods are described in L<Bio::Tools::HMMER::Results>.
+
+In addition one can parse HMMER output files using Bio::SearchIO. This
+approach is the approved and supported Bioperl method. An example:
+
+  use Bio::SearchIO;
+
+  $in = new Bio::SearchIO(-format => 'hmmer',-file => '123.hmmsearch');
+  while ( $res = $in->next_result ){
+    # get a Bio::Search::Result::HMMERResult object
+    print $res->query_name, " for HMM ", $res->hmm_name, "\n";
+    while ( $hit = $res->next_hit ){
+      print $hit->name, "\n";
+      while ( $hsp = $hit->next_hsp ){
+        print "length is ", $hsp->length, "\n";
+      }
+    }
+  }
+
+Purists may insist that the term "hsp" is not applicable to hmmsearch or
+hmmpfam results and they may be correct - this is an unintended 
+consequence of using the flexible and extensible SearchIO approach. See
+L<Bio::Search::Result::HMMERResult> for more information.
 
 
 =head2 III.5 Creating and manipulating sequence alignments
