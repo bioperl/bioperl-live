@@ -86,6 +86,8 @@ ok ($obj->codon_pos, 1 );
 my $obj3 = Bio::Variation::AAChange -> new;
 $obj3->start(2);
 $obj->AAChange($obj3);
+$obj3->allele_ori($a1);
+$obj3->allele_mut($a2);
 
 ok ($obj->label, 'missense' , "label is". $obj->label);
 

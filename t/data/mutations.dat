@@ -153,7 +153,7 @@ Feature        /codon_table: 1
 Feature        /codon: atc>-; 2
 Feature        /region: coding
 Feature      AA; 1
-Feature        /label: insertion
+Feature        /label: insertion, complex
 Feature        /proof: computed
 Feature        /location: 34
 Feature        /change: I>RAL
