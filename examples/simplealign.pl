@@ -15,7 +15,9 @@
 #    containing your Bioperl modules.
 #
 
-use lib "/nfs/disk21/birney/prog/bioperl/";
+#use lib "/nfs/disk21/birney/prog/bioperl/";
+
+# Modified 3/5/01 to use AlignIO by Peter Schattner schattner@alum.mit.edu
 
 #
 # This uses the internal DATA stream (past the end of this
@@ -39,26 +41,24 @@ use lib "/nfs/disk21/birney/prog/bioperl/";
 # into this.
 #
 
-
+use strict;
 use Bio::SimpleAlign;
-
-$al = Bio::SimpleAlign->new(); # simple constructor
+use Bio::AlignIO;
 
 # read from a stream
-
-$al->read_Pfam(\*DATA);
+my $str = Bio::AlignIO->newFh('-fh'=> \*DATA, '-format' => 'pfam' );
+my $al = <$str>;
 
 # write out a MSF file
-
-$al->write_MSF(\*STDOUT);
+my $out = Bio::AlignIO->newFh('-fh'=> \*STDOUT,  '-format' => 'msf');
+my $status = print $out $al;
 
 # order by alphabetically then start end
-
 $al->sort_alphabetically();
 
 # write in Pfam format now...
-
-$al->write_Pfam(\*STDOUT);
+my $out2=Bio::AlignIO->newFh( '-fh'=> \*STDOUT, '-format' => 'pfam');
+$status = print $out2 $al;
 
 # now set the display name to be 
 # name_# like roa1_human_1, roa1_human_2 etc
@@ -69,14 +69,16 @@ $al->set_displayname_count();
 
 # dump again... bored of this yet?
 
-$al->write_Pfam(\*STDOUT);
+$status = print $out2 $al;
 
 # get into the alignment and get things out
 # we just want to see how many unique names
 # there are in this alignment
 
+my ($seq, $id, %hash) ;
+
 # loop over the alignment
-foreach $seq ( $al->eachSeq() ) {
+foreach  $seq ( $al->eachSeq() ) {
     # increment a hash on the name by one each time
     $hash{$seq->id()}++;
 }
