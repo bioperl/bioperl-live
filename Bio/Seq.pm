@@ -1049,12 +1049,8 @@ sub primary_seq {
 
 sub add_SeqFeature {
    my ($self,@feat) = @_;
-   my ($fseq,$aseq);
 
-   if( !defined $self->{'_as_feat'} ) {
-       $self->{'_as_feat'} = [];
-   }
-
+   $self->{'_as_feat'} = [] unless $self->{'_as_feat'};
 
    foreach my $feat ( @feat ) {
        if( !$feat->isa("Bio::SeqFeatureI") ) {
@@ -1086,8 +1082,9 @@ sub add_SeqFeature {
 =cut
 
 sub flush_SeqFeatures {
-    my ($self) = @_;
+    my $self = shift;
     
+    return () unless $self->{'_as_feat'};
     my @feats = @{$self->{'_as_feat'}};
     $self->{'_as_feat'} = [];
     return @feats;

@@ -187,39 +187,49 @@ ORIGIN
       241 tgtagccctt acccttgtcg caccattagc cattaataaa aataaaaaat tatataaaaa
       301 ttacacccat 
 //
-LOCUS       HUMBETGLOA   3002 bp    DNA             PRI       26-AUG-1994
+LOCUS       HUMBETGLOA              3002 bp    DNA     linear   PRI 26-AUG-1994
 DEFINITION  Human haplotype C4 beta-globin gene, complete cds.
 ACCESSION   L26462
 VERSION     L26462.1  GI:432453
 KEYWORDS    beta-globin.
 SOURCE      Homo sapiens DNA.
   ORGANISM  Homo sapiens
-            Eukaryota; Metazoa; Chordata; Craniata; Vertebrata; Mammalia;
-            Eutheria; Primates; Catarrhini; Hominidae; Homo.
+            Eukaryota; Metazoa; Chordata; Craniata; Vertebrata; Euteleostomi;
+            Mammalia; Eutheria; Primates; Catarrhini; Hominidae; Homo.
 REFERENCE   1  (bases 1 to 3002)
   AUTHORS   Fullerton,S.M., Harding,R.M., Boyce,A.J. and Clegg,J.B.
   TITLE     Molecular and population genetic analysis of allelic sequence
             diversity at the human beta-globin locus
   JOURNAL   Proc. Natl. Acad. Sci. U.S.A. 91 (5), 1805-1809 (1994)
   MEDLINE   94173918
+   PUBMED   7907422
 FEATURES             Location/Qualifiers
      source          1..3002
                      /organism="Homo sapiens"
                      /db_xref="taxon:9606"
                      /haplotype="C4"
                      /note="sequence found in a Melanesian population"
-     variation       replace(111,"t")
-     variation       replace(263,"t")
+     variation       111
+                     /replace="t"
+     variation       263
                      /note="Rsa I polymorphism"
-     variation       replace(273,"c")
-     variation       replace(286..287,"")
+                     /replace="t"
+     variation       273
+                     /replace="c"
+     variation       286..287
                      /note="2 bp insertion of AT"
-     variation       replace(288,"t")
-     variation       replace(295..296,"")
+                     /replace=""
+     variation       288
+                     /replace="t"
+     variation       295..296
                      /note="1 bp deletion of C or 2 bp deletion of CT"
-     variation       replace(347,"c")
-     variation       replace(476,"t")
-     variation       replace(500,"c")
+                     /replace=""
+     variation       347
+                     /replace="c"
+     variation       476
+                     /replace="t"
+     variation       500
+                     /replace="c"
      CDS             join(866..957,1088..1310,2161..2289)
                      /codon_start=1
                      /product="beta-globin"
@@ -230,28 +240,38 @@ FEATURES             Location/Qualifiers
                      NFRLLGNVLVCVLAHHFGKEFTPPVQAAYQKVVAGVANALAHKYH"
      exon            <866..957
                      /number=1
-     variation       replace(874,"c")
+     variation       874
+                     /replace="c"
      intron          958..1087
                      /number=1
      exon            1088..1310
                      /number=2
      intron          1311..2160
                      /number=2
-     variation       replace(1326,"g")
+     variation       1326
                      /note="Ava II polymorphism"
-     variation       replace(1384,"g")
-     variation       replace(1391,"t")
-     variation       replace(1976,"t")
+                     /replace="g"
+     variation       1384
+                     /replace="g"
+     variation       1391
+                     /replace="t"
+     variation       1976
+                     /replace="t"
      exon            2161..>2289
                      /number=3
-     variation       replace(2522,"c")
-     variation       replace(2602,"a")
-     variation       replace(2604,"c")
-     variation       replace(2760,"t")
+     variation       2522
+                     /replace="c"
+     variation       2602
+                     /replace="a"
+     variation       2604
+                     /replace="c"
+     variation       2760
                      /note="Hinf I polymorphism"
-     variation       replace(2913,"g")
+                     /replace="t"
+     variation       2913
+                     /replace="g"
 BASE COUNT      810 a    601 c    599 g    992 t
-ORIGIN
+ORIGIN      
         1 acctcctatt tgacaccact gattacccca ttgatagtca cactttgggt tgtaagtgac
        61 tttttattta tttgtatttt tgactgcatt aagaggtctc tagtttttta cctcttgttt
       121 cccaaaacct aataagtaac taatgcacag agcacattga tttgtattta ttctattttt
@@ -304,4 +324,3 @@ ORIGIN
      2941 cttccctgcc tcccccactc acagtgaccc ggaatctgca gtgctagtct cccggaacta
      3001 tc
 //
-

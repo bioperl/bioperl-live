@@ -14,7 +14,7 @@ BEGIN {
     }
     use Test;
 
-    plan tests => 48;
+    plan tests => 50;
 }
 
 use Bio::Seq;
@@ -63,6 +63,10 @@ ok $seq->lsid_string(), "bioperl.org:t:accnum";
 ok $seq->namespace_string(), "t:accnum.0";
 ok $seq->description(), 'Sample Bio::Seq object';
 ok $seq->display_name(), "something";
+
+# check that feature accession works regardless of lazy things going on
+ok scalar($seq->top_SeqFeatures()), 0;
+ok scalar($seq->flush_SeqFeatures()), 0;
 
 my $newfeat = Bio::SeqFeature::Generic->new( -start => 10,
 					     -end => 12,
