@@ -2,7 +2,19 @@ $Id$
 Revision history for Bioperl core modules
 
 (fixes and improvements on main trunk not on 1.2 branch)
-   
+
+   o New Modules
+     - Bio::Tools::Glimmer - parsing Glimmer/GlimmerM output
+     - Bio::SeqIO::kegg - parsing KEGG sequence input and output
+     - Bio::SeqFeature::Tools::Unflattener - mapping features and 
+         feature relationships to SO term  
+
+   o Chado support
+     - Bio::SeqIO::chadoxml - cleaned up implementation
+     - Bio::SeqFeature::Tools::Unflattener - deal with mapping GenBank  
+                  feature collections into Chado/GFF3 processable 
+                  feature sets (with SO term mappings)
+
    o DB::Registry bugs fixed
      - BerkeleyDB-indexed flat files can be used by the OBDA system
      - Multiple seqdatabase.ini locations in OBDA_SEARCH_PATH are all
@@ -47,15 +59,34 @@ Revision history for Bioperl core modules
      respectively.  A generic matrix implementation for general use was
      added in Bio::Matrix::Generic.
 
-1.2 branch stuff goes here
+1.2 Branch
 
-1.2.3 Stable release update (if we do it)
-
-(bugs that have been fixed on the main trunk and the branch)
+1.2.3 Stable release update
+    o Bug #1475 - Fix and add speedup to spliced_seq for remote location
+                  handling.
+    o Bug #1477 - Sel --> Sec abbreviation fixed
+    o Fix bug #1487 where paring in-between locations when 
+      end < start caused the FTLocationFactory logic to fail.
+    o Fix bug #1489 which was not dealing with keywords as an
+      arrayref properly (this is fixed on the main trunk because
+      keywords returns a string and the array is accessible via
+      get_keywords).
+    o Bio::Tree::Tree memory leak (bug #1480) fixed
+      Added a new initialization option -nodelete which
+      won't try and cleanup the containing nodes if this
+      is true.
+     o Bug with parsing labeled nodes with Bio::TreeIO::newick fixed
+       this was only present on the branch for the 1.2.1 and 1.2.2 series
+       - Also merged main trunk changes to the branch which make
+         newick -> nhx round tripping more effective (storing branch length
+         and bootstrap values in same locate for NodeNHX and Node 
+         implementations.)  Fixes to TreeIO parsing for labeled internal
+         also required small changes to TreeIO::nhx.  Improved
+         tests for this module as well.
     o Bio::SearchIO
       - Fixed bugs in BLAST parsing which couldn't parse NCBI
         gapped blast properly (was losing hit significance values due to
-        the extra unexpeted column).
+        the extra unexpeted column).    
       - Parsing of blastcl3 (netblast from NCBI) now can handle case of
         integer overflow (# of letters in nt seq dbs is > MAX_INT)
         although doesn't try to correct it - will get the negative
@@ -63,9 +94,37 @@ Revision history for Bioperl core modules
       - Fixed HMMER parsing bug which prevented parsing when a hmmpfam report
         has no top-level family classification scores but does have scores and
         alignments for individual domains.
-     o Fix small error which made Bio::Graphics tests fail on certain
-       platforms (these could be safely ignored, but the testfiles just
-       needed  to be updated to handle it).
+      - Parsing FASTA reports where ungapped percent ID is < 10 and the 
+        regular expression to match the line was missing the possibility of
+        an extra space.  This is rare, which is why we probably did not 
+        catch it before.
+      - BLAST parsing picks up more of the statistics/parameter fields
+        at the bottom of reports.  Still not fully complete.
+      - SearchIO::Writer::HTMLResultWriter and TextResultWriter
+        were fixed to include many improvements and added flexiblity
+        in outputting the files.  Bug #1495 was also fixed in the process.
+     o Bio::DB::GFF
+      - Update for GFF3 compatibility.
+      - Added scripts for importing from UCSC and GenBank.
+      - Added a 1.2003 version number.
+     o Bio::Graphics
+      - Updated tutorial.
+      - Added a 1.2003 version number.
+     o SeqIO::swiss Bug #1504 fixed with swiss writing which was not
+       properly writing keywords out.
+     o Bio::SeqIO::genbank 
+      - Fixed bug/enhancement #1513 where dates of
+        the form D-MMM-YYYY were not parsed.  Even though this is
+        invalid format we can handle it - and also cleanup the date
+        string so it is properly formatted.
+      - Bug/enhancement #1517 fixed so that SEGMENT line can be parsed 
+        and written with Genbank format.  Similarly bug #1515 is fixed to
+        parse in the ORIGIN text.
+     o Bio::SeqIO::fasta, a new method called preferred_id_type allows you
+       to specify the ID type, one of (accession accession.version 
+       display primary).  See Bio::SeqIO::preferred_id_type method
+       documentation for more information.
+     o Unigene parsing updated to handle file format changes by NCBI
 
 1.2.2 Stable release update
 
