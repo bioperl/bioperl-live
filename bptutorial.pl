@@ -137,9 +137,9 @@ In order to take advantage of bioperl, the user needs a basic
 understanding of the perl programming language including an
 understanding of how to use perl references, modules, objects and
 methods. If these concepts are unfamiliar the user is referred to any
-of the various introductory / intermediate books on perl. (I've liked
+of the various introductory / intermediate books on perl. We've liked
 S. Holzmer's Perl Core Language, Coriolis Technology Press, for
-example).  This tutorial is not intended to teach the fundamentals of
+example.  This tutorial is not intended to teach the fundamentals of
 perl to those with little or no experience in the perl language.  On
 the other hand, advanced knowledge of perl - such as how to write a
 perl object - is not required for successfully using bioperl.
@@ -177,12 +177,12 @@ Recommendations on where to go for additional information.
 =item *
 
 A runnable script, bptutorial.pl, which demonstrates many of the
-capabilities of Bioperl. (Runnable example code can also be found in
-the scripts/ and examples/ directories. Summary descriptions of many
+capabilities of Bioperl. Runnable example code can also be found in
+the scripts/ and examples/ directories. Summary descriptions of all
 of these scripts can be found in the file bioscripts.pod.  In
-addition, the POD documentation for each Bioperl module should contain
+addition, the POD documentation for many Bioperl modules should contain
 runnable code in the SYNOPSIS section which is meant to illustrate the
-use of a module and its methods.)
+use of a module and its methods.
 
 =back
 
@@ -250,7 +250,7 @@ Bio::Perl has a number of other "easy to use" functions, including
 Using the Bio::Perl.pm module, it is possible to manipulate sequence
 data in Bioperl without explicitly creating Seq or SeqIO objects 
 described later in this tutorial. However, only limited
-data manipulation is supported in this mode.  
+data manipulation is supported in this mode.
 
 Look at the documentation in L<Bio::Perl> by going 'perldoc Bio::Perl' to
 learn more about these functions. In all these cases, Bio::Perl
@@ -259,10 +259,12 @@ translation in Bioperl can handle many different translation tables
 and provides different options for stop codon processing) - in most
 cases, most users will migrate to using the underlying bioperl objects
 as their sophistication level increases, but L<Bio::Perl> provides an
-easy on-ramp for newcomers and lazy programmers. Also see scripts/bioperl.pl
+easy on-ramp for newcomers and lazy programmers. Also see examples/bioperl.pl
 for more examples of usage of this module.
 
 =head2 I.3 Software requirements
+
+What's required to run bioperl.
 
 =head2 I.3.1 Minimal bioperl installation (Bioperl "core" installation)
 
@@ -284,8 +286,9 @@ complex software system - especially when the software is not behaving
 in the way that you expect.  The free graphical debugger ptkdb
 (available as Devel::ptkdb from CPAN) is highly recommended.  The
 standard perl distribution also contains a powerful interactive
-debugger - though with a more cumbersome command-line interface. The
-Perl tool Data::Dumper used with the syntax:
+debugger - though with a more cumbersome command-line interface (use
+it like "perl -d <script>). The Perl tool Data::Dumper used with the 
+syntax:
 
   use Data::Dumper;
   printer Dumper($seq);
@@ -364,7 +367,7 @@ supplied "install" or "configure" program for non-perl program
 
 =item *
 
-Run "make", "make test" and "make install" This procedure must be
+Run "make", "make test" and "make install". This procedure must be
 repeated for every CPAN module, bioperl-extension and external
 module to be installed. A helper module CPAN.pm is available from
 CPAN which automates the process for installing the perl modules.
@@ -398,11 +401,11 @@ extra step:
 
 Set the relevant environmental variable (CLUSTALDIR, TCOFFEEDIR or
 BLASTDIR) to the directory holding the executable in your startup
-file - eg in .bashrc. (For running local blasts, it is also
+file - eg in .bashrc or .tcshrc. For running local blasts, it is also
 necessary that the name of local-blast database directory is known
 to bioperl.  This will typically happen automatically, but in case
 of difficulty, refer to the documentation in
-L<Bio::Tools::Run::StandAloneBlast>)
+L<Bio::Tools::Run::StandAloneBlast>.
 
 =back
 
@@ -417,7 +420,7 @@ NCBI-blast).
 =head2 I.5 Additional comments for non-unix users
 
 Bioperl has mainly been developed and tested under various unix
-environments (including Linux and MacOSX).  In addition, this tutorial
+environments (including Linux and MacOS X).  In addition, this tutorial
 has been written largely from a Unix perspective.
 
 Mac users may find Steve Cannon's installation notes and suggestions
@@ -456,10 +459,10 @@ top-level directory of the bioperl distribution.
 
 One potential problem in locating the correct documentation is that
 multiple methods in different modules may all share the same name.
-Moreover, because of perl's complex method of "inheritance",
+Moreover, because of perl's complex method of inheritance
 it is not often clear which of the identically named methods is being
 called by a given object. One way to resolve this question is by using
-the software described in Appendix V.1.
+the software described in Appendix L<"V.1">.
 
 For those who prefer more visual descriptions,
 http://bioperl.org/Core/Latest/modules.html also offers links to
@@ -469,7 +472,8 @@ objects related to one another.
 In addition, a bioperl online course is available on the web at
 http://www.pasteur.fr/recherche/unites/sis/formation/bioperl. The
 user is also referred to numerous bioperl scripts in the scripts/
-directory (see bioscripts.pod for a description of these scripts).
+and examples/ directories (see bioscripts.pod for a description of 
+these scripts).
 
 
 =head1 II. Brief introduction to bioperl's objects
@@ -786,7 +790,7 @@ retrieve one file, one could write scripts like:
 
 To facilitate the creation and use of more complex or flexible
 indexing systems, the bioperl distribution includes two sample scripts
-in the scripts/ directory, bpindex.pl and bpfetch.pl.  These scripts
+in the scripts/index directory, bpindex.PLS and bpfetch.PLS.  These scripts
 can be used as templates to develop customized local data-file indexing
 systems.
 
@@ -1039,7 +1043,7 @@ object can be found in L<Bio::SeqFeature::Generic>, and a description
 of related, top-level "annotation" is found in L<Bio::Annotation::Collection>.
 
 Additional sample code for obtaining sequence features can be found in
-the script gb2features.pl in the subdirectory scripts/DB/.
+the script gb2features.pl in the subdirectory examples/DB.
 
 The following methods returns new sequence objects, but do not transfer
 features across:
@@ -1256,7 +1260,7 @@ regular expressions.  This capability leads to significant performance
 gains when pattern matching on both the sense and anti-sense strands
 of a query sequence are required. Typical syntax for using SeqPattern
 is shown below.  For more information, there are several interesting
-examples in the script seq_pattern.pl in the scripts/tools directory.
+examples in the script seq_pattern.pl in the examples/tools directory.
 
   Use Bio::Tools::SeqPattern;
   $pattern     = '(CCCCT)N{1,200}(agggg)N{1,200}(agggg)';
@@ -1462,7 +1466,7 @@ or in the docs/ subdirectory of the distribution. Additional
 documentation can be found in: L<Bio::SearchIO::blast>,
 L<Bio::SearchIO::psiblast>, L<Bio::SearchIO::blastxml>,
 L<Bio::SearchIO::fasta>, and L<Bio::SearchIO>.  There is also sample
-code in the Bio/scripts/searchio directory which illustrates how to
+code in the Bio/examples/searchio directory which illustrates how to
 use SearchIO.
 
 =for html <A NAME ="iii.4.3"></A>
@@ -1635,7 +1639,7 @@ search.  The "raw" blast report is also available.
 The syntax for running PHIBLAST, PSIBLAST and bl2seq searches via
 StandAloneBlast is also straightforward.  See
 L<Bio::Tools::Run::StandAloneBlast> documentation for details. In
-addition, the script standaloneblast.pl in the scripts/tools directory
+addition, the script standaloneblast.pl in the examples/tools directory
 contains descriptions of various possible applications of the
 StandAloneBlast object. This script shows how the blast report object
 can access a blast parser directly, eg
@@ -1648,7 +1652,7 @@ can access a blast parser directly, eg
 
 See the sections L<"III.4.2"> and L<"III.4.3"> on for more details on
 parsing BLAST reports. Also see the script standaloneblast.pl in the
-scripts/tools/ subdirectory for more detailed working examples of code
+examples/tools/ subdirectory for more detailed working examples of code
 using this module.
 
 =for html <A NAME ="iii.5"></A>
@@ -1665,7 +1669,7 @@ and are therefore described in section IV. Here we describe only the
 module within the bioperl core package for manipulating previously
 created alignments, namely the SimpleAlign module.
 
-The script aligntutorial.pl in the scripts/align/ subdirectory is
+The script aligntutorial.pl in the examples/align/ subdirectory is
 another good source of information of ways to create and manipulate
 sequence alignments within bioperl.
 
@@ -1708,8 +1712,8 @@ DNA and RNA.
 =back
 
 Skeleton code for using some of these features is shown below.  More detailed,
-working code is in bptutorial.pl example 13 and in align_on_codons.pl in the scripts
-directory. Additional documentation on methods can be found in
+working code is in bptutorial.pl example 13 and in align_on_codons.pl in the
+examples/align directory. Additional documentation on methods can be found in
 L<Bio::SimpleAlign> and L<Bio::LocatableSeq>.
 
   use Bio::SimpleAlign;
@@ -1851,8 +1855,8 @@ with methods including:
   $feat->sub_SeqFeatures  # create/access an array of subsequence features
 
 See L<Bio::Annotation::Collection> and L<Bio::SeqFeature::Generic> as starting
-points for further exploration, and see the scripts/tools/gff2ps.pl
-and scripts/tools/gb_to_gff.pl scripts.
+points for further exploration, and see the examples/tools/gff2ps.pl
+and examples/tools/gb_to_gff.pl scripts.
 
 It is worth mentioning that one can also retrieve the start and end
 positions of a feature using a Bio::LocationI object:
@@ -1987,7 +1991,7 @@ mutation are exactly the same in DNA and RNA sequences, we can write:
   $DNA_re_changes eq $RNA_re_changes or print "Different!\n";
 
 For a complete working script, see the change_gene.pl script
-in the scripts/liveseq directory. For more details on the use of these objects
+in the examples/liveseq directory. For more details on the use of these objects
 see L<Bio::LiveSeq::Mutator> and L<Bio::LiveSeq::Mutation> as well as
 the original documentation for the "Computational Mutation Expression
 Toolkit" project at http://www.ebi.ac.uk/mutations/toolkit/.
@@ -2088,9 +2092,10 @@ Typical syntax looks like:
   $gffio->close();
 
 Further information can be found at L<Bio::Tools::GFF>. Also see the
-scripts/tools/gff2ps.pl and scripts/tools/gb_to_gff.pl scripts.
-(Note: this module shouldn\'t be confused with the module Bio::DB::GFF
-which is for implementing relational databases when using bioperl-db.)
+examples/tools/gff2ps.pl, examples/tools/gb_to_gff.pl, and the
+scripts in scripts/Bio-DB-GFF. Note: this module shouldn't be confused 
+with the module Bio::DB::GFF which is for implementing relational 
+databases when using bioperl-db.
 
 =head2  III.8 Manipulating clusters of sequences (Cluster, ClusterIO)
 
@@ -2146,7 +2151,7 @@ wealth of methods, here are just a few:
 
 These lines show how one has access to a number of related objects and methods.
 For examples of typical usage of these modules, see the scripts in the
-scripts/structure subdirectory. Also see L<Bio::Structure::IO>, 
+examples/structure subdirectory. Also see L<Bio::Structure::IO>, 
 L<Bio::Structure::Entry>, L<Bio::Structure::Model>,
 L<Bio::Structure::Chain>, L<Bio::Structure::Residue>, and
 L<Bio::Structure::Atom> for more information.
@@ -2203,7 +2208,7 @@ like:
       print $collection->get_next;
   }
 
-See L<Bio::Biblio> or the scripts/biblio/biblio.pl script for details.
+See L<Bio::Biblio> or the scripts/biblio/biblio.PLS script for details.
 
 
 =for html <A NAME ="iii.9.5"></A>
@@ -2218,7 +2223,8 @@ These modules contain numerous methods to dictate the sizes, colors,
 labels, and line formats within the image. For information see the
 excellent Graphics-HOWTO at www.bioperl.org/HOWTOs/ or in the docs/howto 
 subdirectory. Additional documentation can be found at L<Bio::Graphics>, 
-L<Bio::Graphics::Panel>, and in the scripts/graphics/render_sequence.pl script.
+L<Bio::Graphics::Panel>, and in the examples/graphics/render_sequence.pl 
+script.
 
 =head2 III.10 Bioperl alphabets
 
@@ -2513,7 +2519,8 @@ profile_align method. For further details on the required syntax and
 options for the profile_align method, the user is referred to
 L<Bio::Tools::Run::Alignment::Clustalw> and
 L<Bio::Tools::Run::Alignment::TCoffee>. The user is also
-encouraged to examine the script clustalw.pl in the scripts/align directory.
+encouraged to examine the script clustalw.pl in the examples/align 
+directory.
 
 =for html <A NAME ="iv.2.4"></A>
 
@@ -2543,7 +2550,7 @@ to) a SimpleAlign object.
 SW matrix, gap and extension parameters can be adjusted as shown.
 Bioperl comes standard with blosum62 and gonnet250 matrices.  Others
 can be added by the user.  For additional information on accessing the
-SW algorithm via pSW see the script psw.pl in the scripts/tools
+SW algorithm via pSW see the script psw.pl in the examples/tools
 directory and the documentation in L<Bio::Tools::pSW>.
 
 =for html <A NAME ="iv.3"></A>
@@ -2585,6 +2592,8 @@ you have a need for any of these capabailities, it is easy to take a
 look at them at:
 http://cvs.bioperl.org/cgi-bin/viewcvs/viewcvs.cgi/?cvsroot=bioperl
 and see if they might be of use to you.
+
+=for html <A NAME ="v.1"></A>
 
 =head2 V.1 Appendix: Finding out which methods are used by which
 Bioperl Objects
