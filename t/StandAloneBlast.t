@@ -19,25 +19,24 @@ BEGIN {
 
 END { unlink('blastreport.out') }
 
-use Bio::Tools::Blast;
 use Bio::Tools::BPlite;
 use Bio::Tools::Run::StandAloneBlast;
 use Bio::SeqIO;
 use Bio::AlignIO;
 use Bio::Seq;
 use Bio::Root::IO;
+use Bio::SearchIO;
 
 ok(1);
-
+my $verbose = -1;
 my ($blast_report, $hsp, @testresults);
-
 
 my $nt_database = 'ecoli.nt';
 my $amino_database = 'swissprot';
 
 my @params = ('program' => 'blastn', 'database' => $nt_database , 
-	      '_READMETHOD' => 'Blast', 'output' => 'blastreport.out');
-my  $factory = Bio::Tools::Run::StandAloneBlast->new('-verbose' => -1,
+	      '_READMETHOD' => 'SearchIO', 'output' => 'blastreport.out');
+my  $factory = Bio::Tools::Run::StandAloneBlast->new('-verbose' => $verbose,
 						     @params);
 
 ok $factory;
@@ -52,7 +51,6 @@ my $amino_database_file = Bio::Root::IO->catfile($Bio::Tools::Run::StandAloneBla
 
 my $file_present = -e $nt_database_file;
 my $file_present2 = -e $amino_database_file;
-
 unless ($blast_present && $file_present && $file_present2) {
     warn "blast program or databases [$nt_database,$amino_database] not found. Skipping tests $Test::ntest to $NUMTESTS\n";
     foreach ($Test::ntest..$NUMTESTS) {
@@ -60,8 +58,6 @@ unless ($blast_present && $file_present && $file_present2) {
     }
     exit 0;
 }
-
-
 
 if ($nt_database eq 'ecoli.nt') {	
 	$testresults[3] = '$blast_report->num_hits == 1' ;
@@ -101,7 +97,8 @@ my $BPlite_report2 = $factory->blastall(\@seq_array);
  $hsp = $sbjct->nextHSP;
 ok $testresults[5];
 
-@params = ('program' => 'blastp'); # This used to be blastp but atleast on my implementation it should be T
+@params = ('-verbose' => $verbose,
+	   'program' => 'blastp'); # This used to be blastp but atleast on my implementation it should be T
 $factory = Bio::Tools::Run::StandAloneBlast->new(@params);
 
 $str = Bio::SeqIO->new(-file=>Bio::Root::IO->catfile("t","data","amino.fa") , '-format' => 'Fasta', );
