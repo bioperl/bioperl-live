@@ -104,13 +104,14 @@ sub new {
   my($class,@args) = @_;
 
   my $self = $class->SUPER::new(@args);
-  my ($hsps, $name,$query_len,$desc, $acc, $length,
+  my ($hsps, $name,$query_len,$desc, $acc, $locus, $length,
       $score,$algo,$signif,$bits,
       $iter,$rank) = $self->_rearrange([qw(HSPS 
 				     NAME 
 				     QUERY_LEN
 				     DESCRIPTION
 				     ACCESSION
+				     LOCUS
 				     LENGTH SCORE ALGORITHM 
 				     SIGNIFICANCE BITS ITERATION
 				     RANK )], @args);
@@ -124,6 +125,7 @@ sub new {
   }  
 
   defined $acc    && $self->accession($acc);
+  defined $locus  && $self->locus($locus);
   defined $desc   && $self->description($desc);
   defined $length && $self->length($length);
   defined $algo   && $self->algorithm($algo);
@@ -211,7 +213,7 @@ sub accession {
 	$value = $previous = '' unless defined $value;
 	$self->{'_accession'} = $value;
     } 
-    return $previous;
+	return $previous;
 }
 
 =head2 description
@@ -1381,6 +1383,82 @@ sub rank{
     my $self = shift;
     return $self->{'_rank'} = shift if @_;
     return $self->{'_rank'} || 1;
+}
+
+=head2 locus
+
+ Title   : locus
+ Usage   : $locus = $hit->locus();
+ Function: Retrieve the locus (if available) for the hit
+ Returns : a scalar string (empty string if not set)
+ Args    : none
+
+=cut
+
+sub locus {
+    my ($self,$value) = @_;
+    my $previous = $self->{'_locus'};
+    if( defined $value || ! defined $previous ) { 
+      unless (defined $value) {
+        if ($self->{'_name'} =~/(gb|emb|dbj|ref)\|(.*)\|(.*)/) {
+		  $value = $previous = $3;
+		} else {
+          $value = $previous = '';
+        }
+      }
+	  $self->{'_locus'} = $value;
+    } 
+	return $previous;
+}
+
+=head2 each_accession_number
+
+ Title   : each_accession_number
+ Usage   : @each_accession_number = $hit->each_accession_number();
+ Function: Get each accession number listed in the description of the hit.
+           If there are no alternatives, then only the primary accession will 
+           be given
+ Returns : list of all accession numbers in the description
+ Args    : none
+
+=cut
+
+sub each_accession_number {
+    my ($self,$value) = @_;
+    my $desc = $self->{'_description'};
+    #put primary accnum on the list
+    my @accnums;
+    push (@accnums,$self->{'_accession'});
+    if( defined $desc )  { 
+      while ($desc =~ /(\b\S+\|\S*\|\S*\s?)/g) {
+        my $id = $1;
+        my ($acc, $version);
+	    if ($id =~ /(gb|emb|dbj|sp|pdb|bbs|ref|lcl)\|(.*)\|(.*)/) {
+	      ($acc, $version) = split /\./, $2; 
+	    } elsif ($id =~ /(pir|prf|pat|gnl)\|(.*)\|(.*)/) {
+	      ($acc, $version) = split /\./, $3;  
+	    } else {
+	   	  #punt, not matching the db's at ftp://ftp.ncbi.nih.gov/blast/db/README
+	   	  #Database Name                     Identifier Syntax
+          #============================      ========================
+          #GenBank                           gb|accession|locus
+          #EMBL Data Library                 emb|accession|locus
+          #DDBJ, DNA Database of Japan       dbj|accession|locus
+          #NBRF PIR                          pir||entry
+          #Protein Research Foundation       prf||name
+          #SWISS-PROT                        sp|accession|entry name
+          #Brookhaven Protein Data Bank      pdb|entry|chain
+          #Patents                           pat|country|number 
+          #GenInfo Backbone Id               bbs|number 
+          #General database identifier	   gnl|database|identifier
+          #NCBI Reference Sequence           ref|accession|locus
+          #Local Sequence identifier         lcl|identifier
+	      $acc=$id;
+	    }
+	    push(@accnums, $acc);
+	  }
+    }  
+    return @accnums;
 }
 
 1;
