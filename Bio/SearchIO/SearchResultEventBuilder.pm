@@ -257,8 +257,11 @@ sub end_hsp {
     $data->{'HSP-query_frame'} ||= 0;
     $data->{'HSP-hit_frame'} ||= 0;
     # handle Blast 2.1.2 which did not support data member: hsp_align-len
+    $data->{'HSP-query_length'} ||= $data->{'RESULT-query_length'};
     $data->{'HSP-query_length'} ||= length ($data->{'HSP-query_seq'} || '');
+    $data->{'HSP-hit_length'}   ||= $data->{'HIT-length'};
     $data->{'HSP-hit_length'}   ||= length ($data->{'HSP-hit_seq'} || '');
+    
     $data->{'HSP-hsp_length'}   ||= length ($data->{'HSP-homology_seq'} || '');
     
     my %args = map { my $v = $data->{$_}; s/HSP//; ($_ => $v) } 
