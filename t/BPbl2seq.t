@@ -11,8 +11,8 @@ BEGIN {
     if( $@ ) { 
 	use lib 't';
     }
-    use Test;
-    plan tests => 61; 
+    require Test;
+    plan tests => 108; 
 }
 
 use Bio::Tools::BPbl2seq;
@@ -20,7 +20,8 @@ use Bio::Tools::BPbl2seq;
 use Bio::Root::IO;
 ok(1);
 
-my $report = new Bio::Tools::BPbl2seq(-file => Bio::Root::IO->catfile("t","data","bl2seq.out"));
+my $report = new Bio::Tools::BPbl2seq(-file => Bio::Root::IO->catfile("t","data","bl2seq.out"),
+				      -report_type => 'blastp');
 $report->verbose(2);
 ok $report->isa('Bio::Tools::BPbl2seq');# " no report";
 ok defined($report->sbjctName),1, " no hit";
@@ -43,7 +44,8 @@ ok $hsp->hit->start, 60, "wrong hit start ";
 ok $hsp->hit->end, 360, "wrong hit end";
 ok $report->sbjctName =~ /ALEU_HORVU/;# "wrong hit name";
 
-$report = new Bio::Tools::BPbl2seq(-file => Bio::Root::IO->catfile("t","data","bl2seq.bug940.out"));
+$report = new Bio::Tools::BPbl2seq(-file => Bio::Root::IO->catfile("t","data","bl2seq.bug940.out"),
+				   -report_type => 'blastp');
 
 $report->verbose(2);
 ok $report->isa('Bio::Tools::BPbl2seq');# " no report";
@@ -89,7 +91,71 @@ ok $hsp->hit->end, 464, "wrong hit end";
 ok $hsp->hit->seq_id =~ /gi|4507985/;# "wrong hit name";
 ok $hsp->gaps, 30;
 
-$report = new Bio::Tools::BPbl2seq(-file =>  Bio::Root::IO->catfile("t","data","empty.bl2seq"));
+$report = new Bio::Tools::BPbl2seq(-file =>  Bio::Root::IO->catfile("t","data","empty.bl2seq"),
+				   -report_type => 'blastp');
 $report->verbose(2);
 ok( $report->isa('Bio::Tools::BPbl2seq'),1, " no report found");
-ok $report->sbjctName, '',"query found where none expected";
+ok $report->sbjctName, '',"subject found where none expected";
+
+
+
+
+# test for strandedness on dna alignment reports
+
+$report = new Bio::Tools::BPbl2seq(-file => Bio::Root::IO->catfile(qw(t data bl2seq.blastn)),
+				   -report_type => 'blastn');
+ok $report->isa('Bio::Tools::BPbl2seq');# " no report";
+ok $report->sbjctName,'human', " no subject";
+$hsp = $report->next_feature;
+ok $hsp->score, 27, "wrong score";
+ok $hsp->bits, '54.0', "wrong score in bits ";
+ok int $hsp->percent, 88, "wrong match percent";
+ok $hsp->P, '2e-12';# "wrong expectation value ";
+ok $hsp->match, 83, "wrong number of matches ";
+ok $hsp->positive, 83, "wrong number of positives";
+ok $hsp->start, 94, 'wrong starting position';
+ok $hsp->end, 180, 'wrong ending position';
+ok $hsp->strand, 1, "wrong query strand";
+ok $hsp->length, 87, "wrong length";
+ok $hsp->querySeq =~ /^gtggc/; #"bad query sequence";
+ok $hsp->sbjctSeq =~ /^gtggc/;#"bad hit sequence";
+ok $hsp->homologySeq =~ /^\|\|\|\|/;# , "bad homology sequence";
+ok $hsp->query->start, 94, "wrong query start";
+ok $hsp->query->end, 180, "wrong query end";
+ok $hsp->query->strand, 1, "wrong query strand";
+ok $hsp->hit->start, 86, "wrong hit start ";
+ok $hsp->hit->end, 179, "wrong hit end";
+ok $hsp->hit->strand,1, "wrong hit strand";
+ok $hsp->hit->seq_id =~ /human/;# "wrong hit name";
+ok $hsp->gaps, 7;
+
+$report = new Bio::Tools::BPbl2seq(-file => Bio::Root::IO->catfile(qw(t data bl2seq.blastn.rev)),
+				   -report_type => 'blastn');
+
+ok $report->isa('Bio::Tools::BPbl2seq');# " no report";
+ok $report->sbjctName,'human', " no subject";
+$hsp = $report->next_feature;
+
+ok($hsp);
+ok $hsp->score, 27, "wrong score";
+ok $hsp->bits, '54.0', "wrong score in bits ";
+ok int $hsp->percent, 88, "wrong match percent";
+ok $hsp->P, '2e-12';# "wrong expectation value ";
+ok $hsp->match, 83, "wrong number of matches ";
+ok $hsp->positive, 83, "wrong number of positives";
+ok $hsp->start, 94, 'wrong starting position';
+ok $hsp->end, 180, 'wrong ending position';
+ok $hsp->strand, 1, "wrong query strand";
+ok $hsp->length, 87, "wrong length";
+ok $hsp->querySeq =~ /^gtggc/; #"bad query sequence";
+ok $hsp->sbjctSeq =~ /^gtggc/;#"bad hit sequence";
+ok $hsp->homologySeq =~ /^\|\|\|\|/;# , "bad homology sequence";
+ok $hsp->query->start,94, "wrong query start";
+ok $hsp->query->end, 180, "wrong query end";
+ok $hsp->query->strand, 1, "wrong query strand";
+ok $hsp->hit->start, 1, "wrong hit start ";
+ok $hsp->hit->end, 94, "wrong hit end";
+ok $hsp->hit->strand,-1, "wrong hit strand";
+ok $hsp->hit->seq_id =~ /human/;# "wrong hit name";
+ok $hsp->gaps, 7;
+
