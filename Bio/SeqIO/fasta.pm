@@ -87,8 +87,8 @@ sub next_seq {
 
 =head2 next_primary_seq
 
- Title   : next_seq
- Usage   : $seq = $stream->next_seq()
+ Title   : next_primary_seq
+ Usage   : $seq = $stream->next_primary_seq()
  Function: returns the next sequence in the stream
  Returns : Bio::PrimarySeq object
  Args    : NONE

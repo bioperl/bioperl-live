@@ -200,9 +200,9 @@ sub display_id {
    my ($self) = @_;
 
    if( $self->can('throw') ) {
-       $self->throw("Bio::PrimarySeqI definition of id - implementing class did not provide this method");
+       $self->throw("Bio::PrimarySeqI definition of display_id - implementing class did not provide this method");
    } else {
-       confess("Bio::PrimarySeqI definition of id - implementing class did not provide this method");
+       confess("Bio::PrimarySeqI definition of display_id - implementing class did not provide this method");
    }
 
 }
