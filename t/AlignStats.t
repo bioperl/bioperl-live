@@ -18,7 +18,7 @@ BEGIN {
     }
 
     use Test;
-    plan tests => 27; 
+    plan tests => 32; 
 }
 
 if( $error == 1 ) {
@@ -28,6 +28,7 @@ if( $error == 1 ) {
 my $debug = -1;
 
 use Bio::Align::DNAStatistics;
+use Bio::Align::ProteinStatistics;
 use Bio::AlignIO;
 use Bio::Root::IO;
 
@@ -105,8 +106,8 @@ ok( $d->get_entry('human','owlmonkey'), 0.18333);
 
 ### now test Nei_gojobori methods ##
 $in = Bio::AlignIO->new(-format => 'fasta',
-		       -file   => Bio::Root::IO->catfile('t','data',
-							 'nei_gojobori_test.aln'));
+			-file   => Bio::Root::IO->catfile('t','data',
+							  'nei_gojobori_test.aln'));
 my $alnobj = $in->next_aln();
 ok($alnobj);
 my $result = $stats->calc_KaKs_pair($alnobj, 'seq1', 'seq2');
@@ -117,5 +118,21 @@ ok (int( $result->[1]{'S'}), 41);
 ok (int( $result->[1]{'z_score'}), 4);
 $result = $stats->calc_average_KaKs($alnobj, 100);
 ok (sprintf ("%.4f", $result->{'D_n'}), 0.1628);
+
+
+# now test Protein Distances
+my $pstats = Bio::Align::ProteinStatistics->new();
+$in = Bio::AlignIO->new(-format => 'clustalw',
+			-file   => Bio::Root::IO->catfile('t','data',
+							  'testaln.aln'));
+$alnobj = $in->next_aln();
+ok($alnobj);
+$result = $pstats->distance(-method => 'Kimura',
+			    -align  => $alnobj);
+ok($result);
+
+ok ($result->get_entry('P84139','P814153'),   '0.01443');
+ok ($result->get_entry('P841414','P851414'),  '0.01686');
+ok ($result->get_entry('P84139','P851414'),   '3.58352');
 
 
