@@ -31,9 +31,9 @@ use Bio::Root::IO;
 # test SimilarityPair
 
 my $seq = (new Bio::SeqIO('-format' => 'fasta',
-			  '-file' => Bio::Root::IO->catfile("t","AAC12660.fa")))->next_seq();
+			  '-file' => Bio::Root::IO->catfile("t","data","AAC12660.fa")))->next_seq();
 ok defined( $seq) && $seq->isa('Bio::SeqI');
-my $blast = new Bio::Tools::Blast('-file'=>Bio::Root::IO->catfile("t","blast.report"), '-parse'=>1);
+my $blast = new Bio::Tools::Blast('-file'=>Bio::Root::IO->catfile("t","data","blast.report"), '-parse'=>1);
 ok defined ($blast) && $blast->isa('Bio::Tools::Blast');
 my $hit = $blast->hit;
 ok defined ($hit) && $hit->isa('Bio::Tools::Blast::Sbjct'), 1, ' hit is ' . ref($hit);

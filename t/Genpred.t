@@ -25,11 +25,11 @@ use Bio::SeqIO;
 use Bio::Root::IO;
 
 # Genscan report
-my $genscan = Bio::Tools::Genscan->new('-file' => Bio::Root::IO->catfile("t","genomic-seq.genscan"));
+my $genscan = Bio::Tools::Genscan->new('-file' => Bio::Root::IO->catfile("t","data","genomic-seq.genscan"));
 ok $genscan;
 
 # original sequence
-my $seqin = Bio::SeqIO->new('-file' => Bio::Root::IO->catfile("t","genomic-seq.fasta"),
+my $seqin = Bio::SeqIO->new('-file' => Bio::Root::IO->catfile("t","data","genomic-seq.fasta"),
 			    '-format' => "fasta");
 ok $seqin;
 my $seq = $seqin->next_seq();
@@ -79,7 +79,7 @@ while(my $gene = $genscan->next_prediction()) {
 }
 
 # MZEF report
-my $mzef = Bio::Tools::MZEF->new('-file' => Bio::Root::IO->catfile("t","genomic-seq.mzef"));
+my $mzef = Bio::Tools::MZEF->new('-file' => Bio::Root::IO->catfile("t","data","genomic-seq.mzef"));
 ok $mzef;
 
 my $exon_num = 0;
@@ -88,7 +88,7 @@ my $gene = $mzef->next_prediction();
 ok($gene->exons, 23);
 
 # Genemark testing:
-my $genemark = Bio::Tools::Genemark->new('-file' => 't/genemark.out');
+my $genemark = Bio::Tools::Genemark->new('-file' => Bio::Root::IO->catfile("t", "data", "genemark.out"));
 
 my $gmgene = $genemark->next_prediction();
 ok $gmgene->seqname(), "Hvrn.contig8";

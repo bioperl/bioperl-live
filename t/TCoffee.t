@@ -44,7 +44,7 @@ ok $what_matrix, 'BLOSUM', "couldn't get factory parameter";
 my $bequiet = 1;
 $factory->quiet($bequiet);  # Suppress tcoffee messages to terminal
 
-my $inputfilename = Bio::Root::IO->catfile("t","cysprot.fa");
+my $inputfilename = Bio::Root::IO->catfile("t","data","cysprot.fa");
 my $aln;
 
 
@@ -61,7 +61,7 @@ $aln = $factory->align($inputfilename);
 ok ($aln->{order}->{'0'}, 'CYS1_DICDI-1-343', 
     "failed tcoffee alignment using input file");
 
-my $str = Bio::SeqIO->new(-file=> Bio::Root::IO->catfile("t","cysprot.fa"), '-format' => 'Fasta');
+my $str = Bio::SeqIO->new(-file=> Bio::Root::IO->catfile("t","data","cysprot.fa"), '-format' => 'Fasta');
 my @seq_array =();
 
 while ( my $seq = $str->next_seq() ) {
@@ -77,8 +77,8 @@ ok($aln->{order}->{'0'}, 'CYS1_DICDI-1-343',
 
 
 	
-my $profile1 = Bio::Root::IO->catfile("t","cysprot1a.msf");
-my $profile2 = Bio::Root::IO->catfile("t","cysprot1b.msf");
+my $profile1 = Bio::Root::IO->catfile("t","data","cysprot1a.msf");
+my $profile2 = Bio::Root::IO->catfile("t","data","cysprot1b.msf");
 $aln = $factory->profile_align($profile1,$profile2);
 
 ok( $aln->{order}->{'1'}, 'CATL_HUMAN-1-333', 
@@ -86,9 +86,9 @@ ok( $aln->{order}->{'1'}, 'CATL_HUMAN-1-333',
     $aln->{order}->{'1'} );
 
 
-my $str1 = Bio::AlignIO->new(-file=> Bio::Root::IO->catfile("t","cysprot1a.msf"));
+my $str1 = Bio::AlignIO->new(-file=> Bio::Root::IO->catfile("t","data","cysprot1a.msf"));
 my $aln1 = $str1->next_aln();
-my $str2 = Bio::AlignIO->new(-file=> Bio::Root::IO->catfile("t","cysprot1b.msf"));
+my $str2 = Bio::AlignIO->new(-file=> Bio::Root::IO->catfile("t","data","cysprot1b.msf"));
 my $aln2 = $str2->next_aln();
 
 $aln = $factory->profile_align($aln1,$aln2);
@@ -97,9 +97,9 @@ ok ( $aln->{order}->{'1'}, 'CATL_HUMAN-1-333',
      $aln->{order}->{'1'});
 
 
-$str1 = Bio::AlignIO->new(-file=> Bio::Root::IO->catfile("t","cysprot1a.msf"));
+$str1 = Bio::AlignIO->new(-file=> Bio::Root::IO->catfile("t","data","cysprot1a.msf"));
 $aln1 = $str1->next_aln();
-$str2 = Bio::SeqIO->new(-file=> Bio::Root::IO->catfile("t","cysprot1b.fa"));
+$str2 = Bio::SeqIO->new(-file=> Bio::Root::IO->catfile("t","data","cysprot1b.fa"));
 my $seq = $str2->next_seq();
 $aln = $factory->profile_align($aln1,$seq);
 

@@ -27,7 +27,7 @@ use Bio::Tools::SeqStats;
 use Bio::Root::IO;
 
 ok(1);
-my $str = Bio::SeqIO->new(-file=> Bio::Root::IO->catfile("t","multifa.seq"), '-format' => 'Fasta');
+my $str = Bio::SeqIO->new(-file=> Bio::Root::IO->catfile("t","data","multifa.seq"), '-format' => 'Fasta');
 my $seqobj= $str->next_seq();
 ok $seqobj;
 

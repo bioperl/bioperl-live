@@ -44,7 +44,7 @@ my  $remote_blast = Bio::Tools::Run::RemoteBlast->new('-verbose' => $v,
 						      '-data' => $db,
 						      '-expect' => $e_val,
 						      );
-my $inputfilename = Bio::Root::IO->catfile("t","ecolitst.fa");
+my $inputfilename = Bio::Root::IO->catfile("t","data","ecolitst.fa");
 ok( -e $inputfilename);
 my $r = $remote_blast->submit_blast($inputfilename);
 ok($r);

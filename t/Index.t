@@ -26,9 +26,9 @@ chomp( $dir );
     my $ind = Bio::Index::Fasta->new(-filename => 'Wibbl', 
 				     -write_flag => 1,
 				     -verbose => 0);
-    $ind->make_index(Bio::Root::IO->catfile($dir,"t","multifa.seq"));
-    $ind->make_index(Bio::Root::IO->catfile($dir,"t","seqs.fas"));
-    $ind->make_index(Bio::Root::IO->catfile($dir,"t","multi_1.fa"));
+    $ind->make_index(Bio::Root::IO->catfile($dir,"t","data","multifa.seq"));
+    $ind->make_index(Bio::Root::IO->catfile($dir,"t","data","seqs.fas"));
+    $ind->make_index(Bio::Root::IO->catfile($dir,"t","data","multi_1.fa"));
 }
 
 ok ( -e "Wibbl" );
@@ -73,14 +73,14 @@ ok ( -e "Wibbl" );
 {
     my $ind = Bio::Index::SwissPfam->new(-filename=>'Wibbl2', 
 					 -write_flag=>1);
-    $ind->make_index(Bio::Root::IO->catfile($dir,"t","swisspfam.data"));
+    $ind->make_index(Bio::Root::IO->catfile($dir,"t","data","swisspfam.data"));
     ok ( -e "Wibbl2" );
 }
 
 {
     my $ind = Bio::Index::EMBL->new(-filename=>'Wibbl3', 
 				    -write_flag=>1);
-    $ind->make_index(Bio::Root::IO->catfile($dir,"t","test.embl"));
+    $ind->make_index(Bio::Root::IO->catfile($dir,"t","data","test.embl"));
     ok ( -e "Wibbl3" );
     ok $ind->fetch('AL031232')->length, 4870;
 }
@@ -88,7 +88,7 @@ ok ( -e "Wibbl" );
 {
     my $ind = Bio::Index::Swissprot->new(-filename=>'Wibbl4', 
 				    -write_flag=>1);
-    $ind->make_index(Bio::Root::IO->catfile($dir,"t","roa1.swiss"));
+    $ind->make_index(Bio::Root::IO->catfile($dir,"t","data","roa1.swiss"));
     ok ( -e "Wibbl4" );
     ok ($ind->fetch('P09651')->display_id(), 'ROA1_HUMAN');
 }
@@ -97,7 +97,7 @@ ok ( -e "Wibbl" );
     my $ind = Bio::Index::GenBank->new(-filename=>'Wibbl5', 
 				       -write_flag=>1, 
 				       -verbose => 0);
-    $ind->make_index(Bio::Root::IO->catfile($dir,"t","roa1.genbank"));
+    $ind->make_index(Bio::Root::IO->catfile($dir,"t","data","roa1.genbank"));
     ok ( -e "Wibbl5" );
     ok ($ind->fetch('AI129902')->length, 37);
 }

@@ -19,7 +19,7 @@ use Bio::Tools::BPbl2seq;
 use Bio::Root::IO;
 ok(1);
 
-my $report = new Bio::Tools::BPbl2seq(-file => Bio::Root::IO->catfile("t","bl2seq.out"));
+my $report = new Bio::Tools::BPbl2seq(-file => Bio::Root::IO->catfile("t","data","bl2seq.out"));
 $report->verbose(2);
 ok $report->isa('Bio::Tools::BPbl2seq');# " no report";
 ok defined($report->query),1, " no query";

@@ -55,14 +55,14 @@ my $featpair = new Bio::SeqFeature::FeaturePair('-feature1' => $feat1,
 my $feat3 = new Bio::SeqFeature::Generic('-start' => 35, '-end' => 50, 
 					 '-strand' => -1);
 
-ok $featpair->start, 30;
-ok $featpair->end,  43;
+ok($featpair->start, 30);
+ok($featpair->end,  43);
 
-ok $featpair->length, 14;
+ok($featpair->length, 14);
 
-ok $featpair->overlaps($feat3);
-ok $generic->overlaps($simple);
-ok $generic->contains($simple);
+ok($featpair->overlaps($feat3));
+ok($generic->overlaps($simple));
+ok($generic->contains($simple));
 
 # fuzzy location tests
 my $fuzzy = new Bio::Location::Fuzzy('-start' =>'<10', '-end' => 20, 
@@ -71,7 +71,7 @@ my $fuzzy = new Bio::Location::Fuzzy('-start' =>'<10', '-end' => 20,
 ok($fuzzy->strand, 1);
 ok($fuzzy->start, 10);
 ok($fuzzy->end,20);
-ok($fuzzy->min_start, undef);
+ok(! defined $fuzzy->min_start);
 ok($fuzzy->max_start, 10);
 ok($fuzzy->min_end, 20);
 ok($fuzzy->max_end, 20);
@@ -109,7 +109,7 @@ $f = new Bio::Location::Fuzzy('-start'=>"<50",
 			      '-end'=>61,
 			      '-strand'=>1);
 ok($f->start, 50);
-ok($f->min_start, undef);
+ok(! defined $f->min_start);
 ok($f->max_start, 50);
 
 $splitlocation->add_sub_Location($f);

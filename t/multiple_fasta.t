@@ -14,7 +14,8 @@ BEGIN {
 use Bio::SeqIO;
 use Bio::Root::IO;
 
-my $in = Bio::SeqIO->new(-file => "<".Bio::Root::IO->catfile("t","multifa.seq") , '-format' => 'Fasta');
+my $in = Bio::SeqIO->new(-file => "<".Bio::Root::IO->catfile("t","data", 
+	"multifa.seq") , '-format' => 'Fasta');
 ok $in;
 my $c=0;
 while ( my $seq = $in->next_seq() ) {

@@ -11,7 +11,7 @@ BEGIN {
     plan tests => 29;
     use vars qw($loaded $testout $expectedout);
     $testout = "blast.t.out";  # output from this script.
-    $expectedout = Bio::Root::IO->catfile("t","expected.blast.out");
+    $expectedout = Bio::Root::IO->catfile("t","data","expected.blast.out");
     unlink $testout;
     $^W = 0; 
 }
@@ -27,7 +27,7 @@ my($blast,@hits,@inds,$cfile,$ufile);
 
 open (OUT,">$testout");
 
-ok $blast = Bio::Tools::Blast->new(-file   =>Bio::Root::IO->catfile("t","blast.report"),
+ok $blast = Bio::Tools::Blast->new(-file   =>Bio::Root::IO->catfile("t","data","blast.report"),
 					-signif => 1e-5,
 					-parse  => 1,
 					-stats  => 1,

@@ -15,9 +15,9 @@ use vars qw($tmpfile);
 use Bio::Root::IO;
 END { unlink $tmpfile; }
 
-$tmpfile = Bio::Root::IO->catfile("t","largefastatest.out");
+$tmpfile = Bio::Root::IO->catfile("t","data","largefastatest.out");
 my $seqio = new Bio::SeqIO('-format'=>'largefasta',
-			   '-file'  =>Bio::Root::IO->catfile("t","genomic-seq.fasta"));
+			   '-file'  =>Bio::Root::IO->catfile("t","data","genomic-seq.fasta"));
 ok defined $seqio, 1, 'cannot instantiate Bio::SeqIO::largefasta';
 
 my $pseq = $seqio->next_seq();

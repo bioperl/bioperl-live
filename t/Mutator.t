@@ -55,7 +55,7 @@ my @each = $a->each_Mutation;
 ok( (scalar @each), 1 );
 my $mt_b = pop @each;
 ok($mt_b->seq, 'g');
-my $filename=Bio::Root::IO->catfile("t","ar.embl");
+my $filename=Bio::Root::IO->catfile("t","data","ar.embl");
 my $loader=Bio::LiveSeq::IO::BioPerl->load('-file' => "$filename");
 my $gene_name='AR'; # was G6PD
 

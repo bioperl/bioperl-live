@@ -53,7 +53,7 @@ require XML::Parser::PerlSAX;
 use vars qw($DEBUG);
 use Bio::Root::IO;
 
-my $str = Bio::SeqIO->new('-file'=> Bio::Root::IO->catfile("t","test.game"), 
+my $str = Bio::SeqIO->new('-file'=> Bio::Root::IO->catfile("t","data","test.game"), 
 		       '-format' => 'game');
 ok ($str);
 my $seq = $str->next_primary_seq();
@@ -62,7 +62,7 @@ ok($seq);
 ok ($seq->display_id(), 'AE003417' );
 ok ($seq->id(), 'AE003417' );
 
-my $str2 = Bio::SeqIO->new(-file=> Bio::Root::IO->catfile("t","test.game"), '-format' => 'game');
+my $str2 = Bio::SeqIO->new(-file=> Bio::Root::IO->catfile("t","data","test.game"), '-format' => 'game');
 ok ($str2);
 
 $seq = $str2->next_seq();

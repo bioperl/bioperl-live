@@ -17,7 +17,7 @@ use Bio::Tools::BPlite::Iteration;
 use Bio::Tools::BPpsilite;
 use Bio::Root::IO;
 
-my $report = Bio::Tools::BPpsilite->new(-file=>Bio::Root::IO->catfile("t", "psiblastreport.out"));
+my $report = Bio::Tools::BPpsilite->new(-file=>Bio::Root::IO->catfile("t","data", "psiblastreport.out"));
 ok $report;
 ok $report->query =~ /DICDI/;# " query not found";
 ok $report->database =~ /swissprot/i;# " database name not found";
@@ -42,7 +42,7 @@ $report->close();
 close FH;
 
 # Verify parsing of PHI-PSI Blast reports
-open FH, Bio::Root::IO->catfile("t","phipsi.out");
+open FH, Bio::Root::IO->catfile("t","data","phipsi.out");
 my $report2 = Bio::Tools::BPpsilite->new(-fh=>\*FH);
 
 ok $report2;

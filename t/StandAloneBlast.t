@@ -37,7 +37,7 @@ my  $factory = Bio::Tools::Run::StandAloneBlast->new(@params);
 
 ok $factory;
 
-my $inputfilename = Bio::Root::IO->catfile("t","test.txt");
+my $inputfilename = Bio::Root::IO->catfile("t","data","test.txt");
 my $program = 'blastn';
 
 
@@ -72,7 +72,7 @@ ok $testresults[3];
 
 $factory->_READMETHOD('BPlite');    # Note required leading underscore in _READMETHOD
 
-my $str = Bio::SeqIO->new(-file=>Bio::Root::IO->catfile("t","dna2.fa") , '-format' => 'Fasta', );
+my $str = Bio::SeqIO->new(-file=>Bio::Root::IO->catfile("t","data","dna2.fa") , '-format' => 'Fasta', );
 my $seq1 = $str->next_seq();
 my $seq2 = $str->next_seq();
 
@@ -93,7 +93,7 @@ ok $testresults[5];
 @params = ('program' => 'blastp');
 $factory = Bio::Tools::Run::StandAloneBlast->new(@params);
 
-$str = Bio::SeqIO->new(-file=>Bio::Root::IO->catfile("t","amino.fa") , '-format' => 'Fasta', );
+$str = Bio::SeqIO->new(-file=>Bio::Root::IO->catfile("t","data","amino.fa") , '-format' => 'Fasta', );
 my $seq3 = $str->next_seq();
 my $seq4 = $str->next_seq();
 
