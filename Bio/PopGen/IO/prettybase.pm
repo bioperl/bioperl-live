@@ -191,8 +191,12 @@ sub _parse_prettybase {
     my $convert_indels = $self->flag('convert_indel');
     while( defined( $_ = $self->_readline) ) {
 	next if( /^\s*\#/ || /^\s+$/ || ! length($_) );
-
+	
 	my ($site,$sample,@alleles) = split($self->flag('field_delimiter'),$_);
+	if( ! defined $sample ) { 
+	    warn("sample id is undefined for $_");
+	    next;
+	}
 	for my $allele ( @alleles ) {
 	    $allele =~ s/^\s+//;
 	    $allele =~ s/\s+$//;
@@ -210,6 +214,8 @@ sub _parse_prettybase {
 	my $g = new Bio::PopGen::Genotype(-alleles      => \@alleles,
 					  -marker_name  => $site,
 					  -individual_id=> $sample); 
+	
+
 	if( ! defined $inds{$sample} ) {
 	    $inds{$sample} = Bio::PopGen::Individual->new(-unique_id => $sample);
 	}
