@@ -1152,7 +1152,7 @@ sub match_line {
     POS: foreach my $pos ( 0..$self->length ) {
 	my $refchar = $refseq->[$pos];
 	my $char = $matchchars{'mismatch'};
-	unless( $refchar ) {  
+	unless( defined $refchar ) {  
 	    last if $pos == $self->length; # short circuit on last residue
 	    # this in place to handle jason's soon-to-be-committed
 	    # intron mapping code
