@@ -28,6 +28,8 @@ Bio::DB::GenBank - Database object interface to GenBank
     # or ...
 
     $seq = $gb->get_Seq_by_acc('J00522'); # Accession Number
+    $seq = $gb->get_Seq_by_version('J00522.1'); # Accession.version
+    $seq = $gb->get_Seq_by_gi('405830'); # GI Number
 
     # or ... best when downloading very large files, prevents
     # keeping all of the file in memory
@@ -41,6 +43,7 @@ Bio::DB::GenBank - Database object interface to GenBank
       print "cloneid is ", $clone->display_id, " ", 
              $clone->accession_number, "\n";
     }
+    # note that get_Stream_by_version is not implemented
 
 =head1 DESCRIPTION
 
@@ -106,8 +109,14 @@ BEGIN {
 				 'NOHEADER'    => 'TRUE' },
 		     'single'=> { 'db'    => 'n',
 				  'form'  => '6',			     
-				  'title' => 'no',			     
-			     }
+				  'title' => 'no'},
+		     'version'=> { 'pg'   => 'hist',
+				   'type' => 'acc'},
+		     'gi' => {  'cmd'    => 'Retrieve',
+				'db' => 'Nucleotide',
+				'dopt' => 'GenBank'
+			 
+		     }
 		     );
 }
 
@@ -154,6 +163,24 @@ sub get_params {
   Note    : For GenBank, this just calls the same code for get_Seq_by_id()
   Throws  : "id does not exist" exception
 
+=head2 get_Seq_by_gi
+
+ Title   : get_Seq_by_gi
+ Usage   : $seq = $db->get_Seq_by_gi('405830');
+ Function: Gets a Bio::Seq object by gi number
+ Returns : A Bio::Seq object
+ Args    : gi number (as a string)
+ Throws  : "gi does not exist" exception
+
+=head2 get_Seq_by_version
+
+ Title   : get_Seq_by_version
+ Usage   : $seq = $db->get_Seq_by_version('X77802.1');
+ Function: Gets a Bio::Seq object by sequence version
+ Returns : A Bio::Seq object
+ Args    : accession.version (as a string)
+ Throws  : "acc.version does not exist" exception
+
 =head1 Routines implemented by Bio::DB::NCBIHelper
 
 =head2 get_request
@@ -196,6 +223,16 @@ sub get_params {
   Note    : For GenBank, this just calls the same code for get_Stream_by_id()
 
 =cut
+
+=head2 get_Stream_by_gi
+
+  Title   : get_Stream_by_gi
+  Usage   : $seq = $db->get_Seq_by_gi([$gi1, $gi2]);
+  Function: Gets a series of Seq objects by gi numbers
+  Returns : a Bio::SeqIO stream object
+  Args    : $ref : a reference to an array of gi numbers for
+                   the desired sequence entries
+  Note    : For GenBank, this just calls the same code for get_Stream_by_id()
 
 1;
 __END__

@@ -86,7 +86,10 @@ use HTTP::Request::Common;
 BEGIN { 	    
     $HOSTBASE = 'http://www.ncbi.nlm.nih.gov';
     %CGILOCATION = ( 'batch' => '/cgi-bin/Entrez/qserver.cgi',
-		     'single'=> '/entrez/utils/qmap.cgi' );
+		     'single'=> '/entrez/utils/qmap.cgi',
+		     'version'=> '/htbin-post/Entrez/girevhist',
+		     'gi'=> '/entrez/query.fcg');
+
     %FORMATMAP = ( 'genbank' => 'genbank',
 		   'genpept' => 'genbank',
 		   'fasta'   => 'fasta' );
@@ -155,15 +158,20 @@ sub get_request {
 	$self->throw("must specify a valid retrival mode 'single' or 'batch' not '$mode'") 
     }
     my $url = $HOSTBASE . $CGILOCATION{$mode};
-
+#    print $url, "\t($mode)\n"; exit;
     if( !defined $uids ) {
 	$self->throw("Must specify a value for uids to query");
     }
 
-    if( ref($uids) =~ /array/i ) {
-	$uids = join(",", @$uids);
+    if ($mode eq 'version') {
+	$params{'val'} = $uids;
+    } else {
+	if( ref($uids) =~ /array/i ) {
+	    $uids = join(",", @$uids);
+	}
+	$params{'uid'} = $uids;
     }
-    $params{'uid'} = $uids;
+
     if( $mode eq 'batch' ) {
 	# has to be genbank at this point in time
 	my $sformat = $format;
@@ -179,8 +187,13 @@ sub get_request {
 	    $CGILOCATION{$mode} . $querystr, "\n"
 	    unless ( $self->verbose == 0 ); 	
 	return POST ( $url, \%params );
-    } elsif( $mode eq 'single' ) {
+    } elsif( $mode eq 'single' || $mode eq 'gi') {
 	$params{'dopt'} = $format;
+	my $querystr = '?' . join("&", map { "$_=$params{$_}" } keys %params);
+	print STDERR "url is ", $url . $querystr, "\n"
+	    unless ( $self->verbose == 0 );	
+	return GET $url . $querystr;
+    } elsif( $mode eq 'version') {
 	my $querystr = '?' . join("&", map { "$_=$params{$_}" } keys %params);
 	print STDERR "url is ", $url . $querystr, "\n"
 	    unless ( $self->verbose == 0 );	
@@ -189,6 +202,7 @@ sub get_request {
 	return undef;
     }
 }
+
 
 =head2 get_Stream_by_batch
 
@@ -352,6 +366,69 @@ sub request_format {
 	}
     }
     return @{$self->{'_format'}};
+}
+
+
+=head2 get_Seq_by_version
+
+ Title   : get_Seq_by_version
+ Usage   : $seq = $db->get_Seq_by_version('X77802.1');
+ Function: Gets a Bio::Seq object by sequence version
+ Returns : A Bio::Seq object
+ Args    : accession.version (as a string)
+ Throws  : "acc.version does not exist" exception
+
+=cut 
+
+sub get_Seq_by_version {
+    my ($self,$seqid) = @_;  
+    my ($acc, $version) =  $seqid =~ /(\w+).(\d+)/; 
+    $self->throw("Use accesion.version notation, not[$seqid]") if( !defined $version );
+    my $request = $self->get_Stream_by_version($acc);
+    $self->throw("accession [$acc] does not exist") if( !defined $request );
+    my $res = $self->ua->request($request);
+    
+    my $data  = $res->content;
+    $data =~ s/<.*?>/ /gs;
+    my($gi) = $data =~ /\s+(\d+)\s+$version\s+[A-Z][a-z]/;
+    $self->throw("Version number [$version] does not exist for sequence [$acc]") unless $gi;
+    return $self->get_Seq_by_gi($gi);
+}
+
+=head2 get_Stream_by_version
+
+  Title   : get_Stream_by_version
+  Usage   : 
+  Function: DO NOT USE. HACK.
+            Reuses the method defined by the interface file to retrieve
+            a HTML table with all GIs (versions) for a accession number.
+  Returns : a HTTP::Request object
+  Args    : $ref : a reference to an array of accession.version strings for
+                   the desired sequence entries
+
+=cut
+
+sub get_Stream_by_version {
+    my ($self, $ids ) = @_;
+    return $self->_get_version_request('-uids' => $ids, '-mode' => 'version');
+}
+
+
+sub _get_version_request{	# internal method to format a request 
+                                # for a sequence version table
+    my ($self, %qualifiers) = @_;
+    my ($rformat, $ioformat) = $self->request_format();
+    my $seen = 0;
+    foreach my $key ( keys %qualifiers ) {
+	if( $key =~ /format/i ) {
+	    $rformat = $qualifiers{$key};
+	    $seen = 1;
+	}
+    }
+    $qualifiers{'-format'} = $rformat if( !$seen);
+    ($rformat, $ioformat) = $self->request_format($rformat);
+    
+    my $request = $self->get_request(%qualifiers);
 }
 
 1;

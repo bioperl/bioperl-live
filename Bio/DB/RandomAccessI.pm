@@ -102,6 +102,26 @@ sub get_Seq_by_acc{
 }
 
 
+=head2 get_Seq_by_version
+
+ Title   : get_Seq_by_version
+ Usage   : $seq = $db->get_Seq_by_version('X77802.1');
+ Function: Gets a Bio::Seq object by sequence version
+ Returns : A Bio::Seq object
+ Args    : accession.version (as a string)
+ Throws  : "acc.version does not exist" exception
+
+=cut
+
+
+sub get_Seq_by_version{
+   my ($self,@args) = @_;
+
+   $self->throw("Abstract database call of get_Seq_by_version. Your database has not implemented this method!");
+}
+
+
+
 ## End of Package
 
 1;

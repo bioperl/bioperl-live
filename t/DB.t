@@ -22,7 +22,7 @@ BEGIN {
     }
     use Test;
 
-    $NUMTESTS = 47;
+    $NUMTESTS = 51;
     plan tests => $NUMTESTS;
     eval { require 'IO/String.pm' };
     if( $@ ) {
@@ -54,12 +54,19 @@ my $verbose = 0;
 
 my ($gb,$seq,$seqio);
 # get a single seq
+
+
+
 eval {         
     ok defined ( $gb = new Bio::DB::GenBank('-verbose'=>$verbose) );     
     ok( defined ($seq = $gb->get_Seq_by_id('MUSIGHBA1')));
     ok( $seq->length, 408); 
     ok( defined ($seq = $gb->get_Seq_by_acc('AF303112'))); 
     ok($seq->length, 1611);
+    ok( defined ($seq = $gb->get_Seq_by_version('AF303112.1'))); 
+    ok($seq->length, 1611);
+    ok( defined ($seq = $gb->get_Seq_by_gi('405830'))); 
+    ok($seq->length, 1743);
 };
 if ($@) {
     warn "Warning: Couldn't connect to Genbank with Bio::DB::GenBank.pm!\nError: $@\nDo you have network access? Skipping all other tests";
