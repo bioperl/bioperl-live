@@ -31,6 +31,11 @@ Bio/Tools/pSW.pm
 Bio/Tools/Sigcleave.pm
 Bio/Tools/RestrictionEnzyme.pm
 Bio/DB/Abstract.pm
+Bio/SeqIO.pm
+Bio/SeqIO/handler.pm
+Bio/SeqIO/EMBL.pm
+Bio/SeqIO/Fasta.pm
+Bio/SeqIO/Raw.pm
 t/Seq.t
 t/SimpleAlign.t
 t/Blast.t              
@@ -44,6 +49,9 @@ t/SeqAnal.t
 t/HSP.t                
 t/Sbjct.t              
 t/SimpleAlign.t
+t/SeqIO.t
+t/test.fasta
+t/test.raw
 examples/restriction.pl
 examples/rev_and_trans.pl
 examples/root_object/Bar.pm
