@@ -19,7 +19,7 @@
 
 
 ## We start with some black magic to print on failure.
-BEGIN { $| = 1; print "1..15\n";
+BEGIN { $| = 1; print "1..18\n";
 	use vars qw($loaded); }
 END {print "not ok 1\n" unless $loaded;}
 
@@ -42,27 +42,29 @@ sub test ($$;$) {
 }
 
 my $a = Bio::LiveSeq::Mutation->new();
-test 2, $a;
-test 3, $a->seq('aaa');
-test 4, $a->seqori('ggg');
-test 5, $a->pos(-4);
-test 6, $a->pos(5);
+test 2, defined $a;
+test 3, $a->seq('aaa') && $a->seq eq 'aaa';
+test 4, $a->seqori('ggg') && $a->seqori eq 'ggg';
+test 5, $a->pos(-4) && $a->pos == -4;
+test 6, $a->pos(5) && $a->pos == 5;
 test 7, ($a->len == 3);
-test 8, $a->len(9);
-test 9, $a->transpos(55);
-test 10, $a->issue(1);
-test 11, $a->label(57);
-test 12, $a->prelabel(57);
-test 13, $a->postlabel(57);
-test 14, $a->lastlabel(57);
+test 8, $a->len(9) && ($a->len == 9);
+test 9, $a->transpos(55) && $a->transpos == 55;
+test 10, $a->issue(1) && $a->issue == 1;
+test 11, $a->label(57) && $a->label eq '57';
+test 12, $a->prelabel(57) && $a->prelabel eq '57';
+test 13, $a->postlabel(57) && $a->postlabel eq '57';
+test 14, $a->lastlabel(57) && $a->lastlabel eq '57';
 
 #constuctor test
 $b = Bio::LiveSeq::Mutation->new(-seq=>'AC',
-				 -seqori => 'GG'
+				 -seqori => 'GG',
 				 -pos => 5,
-				 -len => 2
+				 -len => 2,
 				 );
-test 15,  $b;
-
+test 15,  defined $b;
+test 16, $b->seqori eq 'GG';
+test 17, $b->len == 2 && $b->seq eq 'AC';
+test 18, $b->pos == 5;
 
 
