@@ -132,7 +132,7 @@ sub _initialize {
 sub next_seq{
     my ($self,@args) = @_;
     my ($pseq,$c,$line,$name,$desc,$acc,$seqc,$mol,$div,$date);
-    my $seq = Bio::Seq->new();
+    my $seq = Bio::Seq->new(-verbose =>$self->verbose());
 
     $line = $self->_readline;
     

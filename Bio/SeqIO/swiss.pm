@@ -133,7 +133,7 @@ sub next_seq {
    my ($pseq,$c,$line,$name,$desc,$acc,$seqc,$mol,$div,
        $date,$comment,@date_arr, @sec);
    my ($keywords,$acc_string);
-   my $seq = Bio::Seq->new();
+   my $seq = Bio::Seq->new(-verbose =>$self->verbose());
    $line = $self->_readline;
 
    if( !defined $line) {
@@ -865,7 +865,7 @@ sub _read_FTHelper_swissprot {
     $$buffer = $_;
 
     # Make the new FTHelper object
-    my $out = new Bio::SeqIO::FTHelper();
+    my $out = new Bio::SeqIO::FTHelper(-verbose => $self->verbose());
     $out->key($key);
     $out->loc($loc);
     

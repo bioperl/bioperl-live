@@ -132,8 +132,9 @@ sub _initialize {
 
 sub next_seq {
    my ($self,@args) = @_;
-   my ($pseq,$c,$line,$name,$desc,$acc,$seqc,$mol,$div, $date, $comment, @date_arr);
-   my $seq = Bio::Seq->new();
+   my ($pseq,$c,$line,$name,$desc,$acc,$seqc,$mol,$div, 
+       $date, $comment, @date_arr);
+   my $seq = Bio::Seq->new(-verbose =>$self->verbose());
 
 
    $line = $self->_readline;   # This needs to be before the first eof() test
@@ -850,7 +851,7 @@ sub _read_FTHelper_EMBL {
     $$buffer = $_;
 
     # Make the new FTHelper object
-    my $out = new Bio::SeqIO::FTHelper();
+    my $out = new Bio::SeqIO::FTHelper(-verbose => $self->verbose());
     $out->key($key);
     $out->loc($loc);
 
