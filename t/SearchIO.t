@@ -786,18 +786,18 @@ $hit = $result->next_hit;
 ok($hit->accession, 'AE000208');
 $hsp = $hit->next_hsp;
 ok($hsp->get_aln->isa('Bio::Align::AlignI'));
-my $writer = Bio::SearchIO::Writer::HitTableWriter->new( 
-                                  -columns => [qw(
-                                                  query_name
-                                                  query_length
-                                                  hit_name
-                                                  hit_length
-                                                  frac_identical_query
-                                                  expect
-                                                  )]  );
+my $writer = Bio::SearchIO::Writer::HitTableWriter->new
+( 
+  -columns => [qw(
+		  query_name
+		  query_length
+		  hit_name
+		  hit_length
+		  expect
+		  )]  
+  );
 
-my $out = new Bio::SearchIO(-verbose => 1,
-			    -writer => $writer,
+my $out = new Bio::SearchIO(-writer => $writer,
 			    -file   => ">searchio.out");
 
 $out->write_result($keepmulti, 1);
