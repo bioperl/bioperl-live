@@ -142,11 +142,11 @@ sub new {
          $contributors,
          $additional_references,     
          $clinical_symptoms,       
-         $correlates,        
-         $references,
-         $allelic_variants,
-         $cyto_positions,
-         $gene_symbols,
+         @correlates,        
+         @references,
+         @allelic_variants,
+         @cyto_positions,
+         @gene_symbols,
          $miniMIM )
     = $self->_rearrange( [ qw( MIM_NUMBER
                                TITLE
@@ -187,16 +187,16 @@ sub new {
     $contributors                   && $self->contributors( $contributors );
     $additional_references          && $self->additional_references( $additional_references );     
     $clinical_symptoms              && $self->clinical_symptoms( $clinical_symptoms );       
-    $correlates                     && $self->add_Correlates( $correlates );        
-    $references                     && $self->add_References( $references );
-    $allelic_variants               && $self->add_AllelicVariants( $allelic_variants );
-    $cyto_positions                 && $self->add_CytoPositions( $cyto_positions );
-    $gene_symbols                   && $self->add_gene_symbols( $gene_symbols );
+    @correlates                     && $self->add_Correlates( @correlates );        
+    @references                     && $self->add_References( @references );
+    @allelic_variants               && $self->add_AllelicVariants( @allelic_variants );
+    @cyto_positions                 && $self->add_CytoPositions( @cyto_positions );
+    @gene_symbols                   && $self->add_gene_symbols( @gene_symbols );
     $miniMIM                        && $self->miniMIM( $miniMIM );
-    
                                                     
     return $self;
-}
+    
+} # new
 
 
 
@@ -238,7 +238,8 @@ sub init {
     $self->remove_gene_symbols();
     $self->miniMIM( Bio::Phenotype::OMIM::MiniMIMentry->new() );
   
-}
+} # init
+
 
 
 sub to_string {
@@ -292,7 +293,7 @@ sub to_string {
     return $s;
     
 
-}
+} # to_string
 
 
 
