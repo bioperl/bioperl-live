@@ -174,11 +174,25 @@ BEGIN {
 }
 @ISA = qw(Bio::Root::Root Bio::Align::AlignI);
 
+=head2 new
+
+ Title     : new
+ Usage     : my $aln = new Bio::SimpleAlign();
+ Function  : Creates a new simple align object
+ Returns   : Bio::SimpleAlign
+ Args      : -source => string representing the source program 
+                        where this alignment came from
+
+=cut
+
+
 sub new {
   my($class,@args) = @_;
 
   my $self = $class->SUPER::new(@args);
 
+  my ($src) = $self->_rearrange([qw(SOURCE)], @args);
+  $src && $self->source($src);
   # we need to set up internal hashs first!
 
   $self->{'_seq'} = {};
@@ -1635,6 +1649,26 @@ sub set_displayname_normal {
 	$self->displayname($nse,$nse);
     }
     return 1;
+}
+
+=head2 source
+
+ Title   : source
+ Usage   : $obj->source($newval)
+ Function: sets the Alignment source program
+ Example : 
+ Returns : value of source
+ Args    : newvalue (optional)
+
+
+=cut
+
+sub source{
+   my ($self,$value) = @_;
+   if( defined $value) {
+      $self->{'_source'} = $value;
+    }
+    return $self->{'_source'};
 }
 
 1;
