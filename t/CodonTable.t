@@ -17,7 +17,7 @@ BEGIN {
     }
     use Test;
 
-    plan tests => 40;
+    plan tests => 44;
 }
 use Bio::Tools::CodonTable;
 use vars qw($DEBUG);
