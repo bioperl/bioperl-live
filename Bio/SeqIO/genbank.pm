@@ -325,6 +325,7 @@ sub next_seq {
 	      $builder->add_slot_value(-desc => join(' ', @desc));
 	      # we'll continue right here because DEFINITION always comes
 	      # at the top of the entry
+	      $buffer= $_;
 	  }
 	  # accession number (there can be multiple accessions)
 	  if( /^ACCESSION\s+(\S.*\S)/ ) {
