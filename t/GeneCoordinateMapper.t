@@ -127,20 +127,17 @@ ok my $m = new Bio::Coordinate::GeneMapper(-in => 'propeptide',
 
 ok $m->peptide_offset(5), 5;
 
-use Data::Dumper; #print Dumper $m;
 
 # match within
 $pos = Bio::Location::Simple->new 
     (-start => 25, -end => 25, -strand=> 1 );
 $res = $m->map($pos);
-#use Data::Dumper; print Dumper $res;
 ok $res->start, 20;
 ok $res->end, 20;
 ok $res->strand, 1;
 ok $res->seq_id, 'peptide';
 
 ok $m->swap;
-#use Data::Dumper; print Dumper $m;
 $pos = Bio::Location::Simple->new 
     (-start => 5, -end => 5, -strand=> 1 );
 $res = $m->map($pos);
@@ -150,15 +147,10 @@ ok $res->start, 10;
 ok $m->in('cds'), 'cds';
 ok $m->out('propeptide'), 'propeptide';
 
-#print Dumper $m;
 $res = $m->map($pos);
-#print Dumper $m;
 ok $res->start, 2;
-#print Dumper $res;
 ok $res = $m->_translate($pos);
-#print Dumper $res;
 ok $res = $m->_reverse_translate($pos);
-#print Dumper $res;
 
 
 $pos = Bio::Location::Simple->new 
@@ -189,22 +181,17 @@ my $e2 = Bio::Location::Simple->new
 my $e3 = Bio::Location::Simple->new 
     (-seq_id => 'gene', -start => 25, -end => 29, -strand=>1 );
 my $genestruct = [$e1, $e2, $e3];
-#use Data::Dumper; print Dumper $genestruct;
-#print ref ($genestruct), "\n";
 $m->exons($genestruct);
 
 $m->in('chr');
 ok $m->gene_offset(7), 7;
 ok $res = $m->map($pos);
 ok $res->start, -3;
-#use Data::Dumper; print Dumper $m;
 
 ok $m->gene_offset(3);
-#use Data::Dumper; print Dumper $m;
 ok $res = $m->map($pos), undef;
-#use Data::Dumper; print Dumper $m;
 
-#$m->dump;
+#$m->to_string;
 
 # testing parameter handling in the constructor
 ok $m = new Bio::Coordinate::GeneMapper(-in => 'gene',
@@ -215,4 +202,106 @@ ok $m = new Bio::Coordinate::GeneMapper(-in => 'gene',
 					-peptide_offset => 5
 				       );
 
-#$m->dump;
+#$m->to_string;
+
+#
+# Real life data
+# Mapping SNPs into  human serum protein MSE55 and
+# human galecting LGALS2 from Ensembl:
+#
+
+#Ensembl Gene ID	Exon Start (Chr bp)	Exon End (Chr bp)	Exon Coding Start (Chr bp)
+#	Exon Coding End (Chr bp)	Strand
+
+my @gene1_dump = split ( /\n/, qq {
+ENSG00000128283	34571058	34571126			1
+ENSG00000128283	34576610	34577350	34576888	34577350	1
+ENSG00000128283	34578646	34579858	34578646	34579355	1
+});
+
+#exon1 :-5829 -  -5761
+#exon2 : -277 -   463
+
+my @gene2_dump = split ( /\n/, qq {
+ENSG00000100079	34590438	34590464			-1
+ENSG00000100079	34582387	34582469	34582387	34582469	-1
+ENSG00000100079	34581114	34581273	34581114	34581273	-1
+ENSG00000100079	34580784	34580950	34580804	34580950	-1
+});
+
+#Chromosome Name	Location (bp)	Strand	Reference ID
+my @snp_dump = split ( /\n/, qq {
+22	34572694	1	2235335
+22	34572799	1	2235336
+22	34572843	1	2235337
+22	34574896	1	2076087
+22	34575256	1	2076088
+22	34578830	1	2281098
+22	34579111	1	2281099
+22	34580411	1	2235338
+22	34580591	1	2281097
+22	34580845	1	2235339
+22	34581963	1	2281100
+22	34583722	1	140057
+22	34585003	1	140058
+22	34587726	1	968725
+22	34588207	1	2284055
+22	34591507	1	1969639
+22	34591949	1	140059
+});
+
+
+ok my $g1 = new Bio::Coordinate::GeneMapper(-in=>'chr', -out=>'gene');
+
+my ($gene1, $gene2);
+my ($gene_offset, $cds_start, $cds_end, $strand, @exons);
+
+#one line per exon
+my ($first, $first_line);
+for my $line ( @gene1_dump ) {
+    unless ($first) {$first = 1; next;}
+
+    my ($geneid, $exon_start, $exon_end, $exon_cstart,
+	$exon_cend, $exon_strand) = split /\t/, $line;
+
+#    print join (' ', $geneid, $exon_start, $exon_strand), "\n";
+
+    # first line has gene_offset;
+    unless ($first_line) {
+	# gene coordinate start is defined by the start of the first exon;
+	$gene_offset =
+	$gene_offset = $exon_start - $exon_strand;
+	$strand = $exon_strand;
+	$first_line = 1;
+    }
+
+    # CDS location in chromosome coordinates
+    $cds_start = $exon_cstart if !$cds_start and $exon_cstart;
+    $cds_end = $exon_cend if !$cds_end and $exon_cend;
+
+    my $exon = Bio::Location::Simple->new
+	(-seq_id => 'gene', -start => $exon_start, -end => $exon_end, -strand=>$strand );
+    push @exons, $exon;
+}
+
+
+$g1->gene_offset($cds_start - $strand);
+my @gene_exons = map {$g1->map($_)} @exons;
+$g1->exons(\@gene_exons);
+
+
+# map CDS location into transcript coordinates
+my $cds_in_chr = Bio::Location::Simple->new
+    (-seq_id => 'gene', -start => $cds_start, -end => $cds_end, -strand=>$strand );
+$g1->out('transcript');
+my $cds_in_transctipt = $g1->map($cds_in_chr);
+
+#$g1->utr($cds_in_transctipt->start - 1); #pass it aither a scalar or a Bio::Location!!
+
+#print Dumper $g1, $cds_in_transctipt, \@exons, \@gene_exons;
+
+#$g1->to_string;
+
+# =strict(1);
+# transcript($trloc = start of first exon, end of last exon)
+# cds ($trloc = start of first exon, end of last exon);
