@@ -58,7 +58,7 @@ if ($CREATE) {
   warn qq(expect to see several "table already exists" messages\n);
   $db->initialize(0);
   my $dbi = $db->dbh;  # get the raw database handle
-  my ($count) = $dbi->selectrow_array('SELECT COUNT(*) FROM FNOTE');
+  my ($count) = $dbi->selectrow_array('SELECT COUNT(*) FROM fnote');
   if (defined($count) && $count > 0) {
     warn qq(fnote table detected.  Translating into fattribute table.  This may take a while.\n);
     $dbi->do("INSERT INTO fattribute VALUES (1,'Note')") or die "failed: ",$dbi->errstr;
