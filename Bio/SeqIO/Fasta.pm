@@ -160,7 +160,6 @@ sub next_seq{
      GETC:
        $fh->eof && last;
        $c = $fh->getc();
-       print ord($c) . "\t$c\n";
        if( $c eq '>' ) {
 	   last;
        } elsif( $c eq $/ ) { # don't slurp past newlines.
