@@ -500,7 +500,11 @@ sub tempfile {
 	    $self->throw("Could not open tempfile $file: $!\n");
 	}
     }
-    push @{$self->{'_rootio_tempfiles'}}, $file;
+    unless (!exists $params{UNLINK} || !$params{UNLINK}) {
+      warn $params{UNLINK};
+      push @{$self->{'_rootio_tempfiles'}}, $file;
+    }
+
     return ($tfh,$file);
 }
 
