@@ -443,7 +443,7 @@ sub add_sub_SeqFeature{
  Title   : flush_sub_SeqFeature
  Usage   : $sf->flush_sub_SeqFeature
  Function: Removes all sub SeqFeature
- 
+
            If you want to remove only a subset, remove that subset from the
            returned array, and add back the rest.
 

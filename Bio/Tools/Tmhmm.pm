@@ -1,62 +1,63 @@
-#BioPerl module for Bio::Tools::Tmhmm
 
-=head1
+# BioPerl module for Bio::Tools::Tmhmm
+#
+# Copyright Balamurugan Kumarasamy
+#
+# You may distribute this module under the same terms as perl itself
+#
+# POD documentation - main docs before the code
+#
+# Copyright 
+#
+# You may distribute this module under the same terms as perl itself
 
- Copyright Balamurugan Kumarasamy
+=head1 NAME
 
- You may distribute this module under the same terms as perl itself
- POD documentation - main docs before the code
- 
-head1 NAME
-
- Bio::Tools::Tmhmm
+Bio::Tools::Tmhmm
 
 =head1 SYNOPSIS
 
- use Bio::Tools::Tmhmm;
- my $parser = new Bio::Tools::Tmhmm(-fh =>$filehandle );
- while( my $tmhmm_feat = $parser->next_result ) {
-    #do something
-    #eg
-    push @tmhmm_feat, $tmhmm_feat;
- }
+  use Bio::Tools::Tmhmm;
+  my $parser = new Bio::Tools::Tmhmm(-fh =>$filehandle );
+  while( my $tmhmm_feat = $parser->next_result ) {
+     #do something
+     #eg
+     push @tmhmm_feat, $tmhmm_feat;
+  }
 
 =head1 DESCRIPTION
- 
- Parser for Tmhmm output
+
+Parser for Tmhmm output
 
 =head1 FEEDBACK
 
 =head2 Mailing Lists
- user feedback is an integral part of the evolution of this and other
- Bioperl modules. Send your comments and suggestions preferably to
- the Bioperl mailing list.  Your participation is much appreciated.
 
- bioperl-l@bioperl.org              - General discussion
- http://bioperl.org/MailList.shtml  - About the mailing lists
+user feedback is an integral part of the evolution of this and other
+Bioperl modules. Send your comments and suggestions preferably to
+the Bioperl mailing list.  Your participation is much appreciated.
+
+  bioperl-l@bioperl.org              - General discussion
+  http://bioperl.org/MailList.shtml  - About the mailing lists
 
 =head2 Reporting Bugs
 
- Report bugs to the Bioperl bug tracking system to help us keep track
- of the bugs and their resolution. Bug reports can be submitted via
- email or the web:
+Report bugs to the Bioperl bug tracking system to help us keep track
+of the bugs and their resolution. Bug reports can be submitted via
+email or the web:
 
- bioperl-bugs@bioperl.org
- http://bioperl.org/bioperl-bugs/
+  bioperl-bugs@bioperl.org
+  http://bioperl.org/bioperl-bugs/
 
 =head1 AUTHOR - Bala
 
- Email savikalpa@fugu-sg.org
+Email savikalpa@fugu-sg.org
 
- Describe contact details here
-
-=head1 CONTRIBUTORS
 
 =head1 APPENDIX
 
- The rest of the documentation details each of the object methods.
- Internal methods are usually preceded with a _
-
+The rest of the documentation details each of the object methods.
+Internal methods are usually preceded with a _
 
 =cut
 
@@ -83,6 +84,7 @@ use Bio::SeqFeature::Generic;
 
 
 =cut
+
 sub new {
       my($class,@args) = @_;
 
@@ -103,40 +105,41 @@ sub new {
 
 
 =cut
+
 sub next_result {
         my ($self) = @_;
-        
+
         my $line;
-       
+
         # parse
         my $id;
         while ($_=$self->_readline()) { 
            $line = $_;
            chomp $line;
-           
-           
+
+
            next if /^$/;
            if ($line=~/^#\s+(\S+)/) { 
                    #if the line starts with a '#' for example in # 13 Length: 522 
                    #assign 13 as the id.
-               
+
                     $id = $1;
                     my ($junk, $values) = split /:/;
                    $self->seqname($id);
                     next;
            }
-             
+
            elsif ($line=~/^(\S+)\s+(\S+)\s+(\w+)\s+(\d+)\s+(\d+)/) {
-                    
+
                     # Example :-  13      TMHMM2.0        inside       1   120
                     # assign $orien(inside) $start(1) and $end(120)
-                    
-                    
+
+
                     my $orien = $3;
                     my $start = $4;
                     my $end = $5;
                     $orien = uc ($orien);
-                  
+
                     if ($orien eq "TMHELIX") {
                          my (%feature);
                          $feature{name} = $self->seqname;
@@ -163,7 +166,6 @@ sub next_result {
  Returns : A Bio::SeqFeature::Generic object
  Args    :
 
-
 =cut
 
 sub create_feature {
@@ -179,11 +181,9 @@ sub create_feature {
                                                  -primary     => $feat->{primary},
                                                  -logic_name  => $feat->{logic_name}, 
                                                );
- 
-                        
-       return $feature;                 
-                        
-                                                                                                                                           }
+       return $feature;
+   }
+
 =head2 seqname
 
  Title   :   seqname
@@ -205,8 +205,6 @@ sub seqname{
     return $self->{'seqname'};
 
 }
-
-
 
 
 1;

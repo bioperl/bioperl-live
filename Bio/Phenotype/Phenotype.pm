@@ -137,21 +137,22 @@ use Bio::Range;
 
  Title   : new
  Usage   : $obj = Bio::Phenotype::Phenotype->new( -name         => "XY",
-                                                  -description  => "This is ..." );                      
+                                                  -description  => "This is ..." );
  Function: Creates a new Phenotype object.
  Returns : A new Phenotype object.
  Args    : -name                           => the name
            -description                    => the description of this phenotype
            -species                        => ref to the the species
            -comment                        => a comment 
+
 =cut
 
 sub new {
 
     my( $class,@args ) = @_;
-    
+
     my $self = $class->SUPER::new( @args );
-   
+
     my ( $name,
          $description,
          $species,
@@ -160,18 +161,17 @@ sub new {
                                DESCRIPTION
                                SPECIES 
                                COMMENT ) ], @args );
-   
+
     $self->init(); 
-    
+
     $name                           && $self->name( $name );
     $description                    && $self->description( $description );
     $species                        && $self->species( $species );
-    $comment                        && $self->comment( $comment );  
-                                                    
-    return $self;
-    
-} # new
+    $comment                        && $self->comment( $comment );
 
+    return $self;
+
+} # new
 
 
 =head2 init
@@ -188,7 +188,7 @@ sub init {
 
     my( $self ) = @_;
 
-   
+
     $self->name( "" );
     $self->description( "" );
     my $species = Bio::Species->new();
@@ -204,7 +204,7 @@ sub init {
     $self->remove_keywords();
     $self->remove_Variants();
     $self->remove_Measures();
-  
+
 } # init
 
 
@@ -230,8 +230,6 @@ sub name {
     return $self->{ "_name" };
 
 } # name
-
-
 
 
 =head2 description
@@ -316,7 +314,7 @@ sub comment {
 =head2 each_gene_symbol
 
  Title   : each_gene_symbol()
- Usage   : @gs = $obj->each_gene_symbol();                 
+ Usage   : @gs = $obj->each_gene_symbol();
  Function: Returns a list of gene symbols [scalars, most likely Strings]
            associated with this phenotype.
  Returns : A list of scalars.
@@ -326,7 +324,7 @@ sub comment {
 
 sub each_gene_symbol {
     my ( $self ) = @_;
-    
+
     if ( $self->{ "_gene_symbols" } ) {
         return @{ $self->{ "_gene_symbols" } };
     }
@@ -342,7 +340,7 @@ sub each_gene_symbol {
  Title   : add_gene_symbols
  Usage   : $obj->add_gene_symbols( @gs );
            or
-           $obj->add_gene_symbols( $gs );                  
+           $obj->add_gene_symbols( $gs );
  Function: Pushes one or more gene symbols [scalars, most likely Strings]
            into the list of gene symbols.
  Returns : 
@@ -352,11 +350,11 @@ sub each_gene_symbol {
 
 sub add_gene_symbols {
     my ( $self, @values ) = @_;
-        
+
     return unless( @values );
-            
+
     push( @{ $self->{ "_gene_symbols" } }, @values );
-    
+
 } # add_gene_symbols
 
 
@@ -372,7 +370,7 @@ sub add_gene_symbols {
 
 sub remove_gene_symbols {
     my ( $self ) = @_;
-     
+
     my @a = $self->each_gene_symbol();
     $self->{ "_gene_symbols" } = [];
     return @a;
@@ -385,7 +383,7 @@ sub remove_gene_symbols {
 =head2 each_Variant
 
  Title   : each_Variant()
- Usage   : @vs = $obj->each_Variant();                 
+ Usage   : @vs = $obj->each_Variant();
  Function: Returns a list of Bio::Variation::VariantI implementing objects
            associated with this phenotype.
            This is for representing the actual mutation(s) causing this 
@@ -399,7 +397,7 @@ sub remove_gene_symbols {
 
 sub each_Variant {
      my ( $self ) = @_;
-    
+
     if ( $self->{ "_variants" } ) {
         return @{ $self->{ "_variants" } };
     }
@@ -414,7 +412,7 @@ sub each_Variant {
 
  Usage   : $obj->add_Variants( @vs );
            or
-           $obj->add_Variants( $v );                  
+           $obj->add_Variants( $v );
  Function: Pushes one or more Bio::Variation::VariantI implementing objects
            into the list of Variants.
  Returns : 
@@ -424,15 +422,15 @@ sub each_Variant {
 
 sub add_Variants {
     my ( $self, @values ) = @_;
-    
+
     return unless( @values );
 
     foreach my $value ( @values ) {  
         $self->_check_ref_type( $value, "Bio::Variation::VariantI" );
     }
-        
+
     push( @{ $self->{ "_variants" } }, @values );
-    
+
 } # add_Variants
 
 

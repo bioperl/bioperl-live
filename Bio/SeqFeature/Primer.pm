@@ -19,7 +19,7 @@ Bio::SeqFeature::Primer - Primer Generic SeqFeature
      A synopsis does not yet exist for this module.
 
 =head1 DESCRIPTION
-     
+
      A description does not yet exist for this module.
 
 =head1 FEEDBACK

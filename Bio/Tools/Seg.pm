@@ -1,68 +1,70 @@
-#BioPerl module for Bio::Tools::Seg
 
-=head1
-
- Copyright Balamurugan Kumarasamy
-
- You may distribute this module under the same terms as perl itself
- POD documentation - main docs before the code
-
+# BioPerl module for Bio::Tools::Seg
+#
+# Copyright Balamurugan Kumarasamy
+#
+# You may distribute this module under the same terms as perl itself
+#
+# POD documentation - main docs before the code
+#
+# Copyright 
+#
+# You may distribute this module under the same terms as perl itself
+# POD documentation - main docs before the code
 
 =head1 NAME
 
- Bio::Tools::Seg 
+Bio::Tools::Seg
 
 =head1 SYNOPSIS
 
- use Bio::Tools::Seg;
- my $parser = new Bio::Tools::Seg(-fh =>$filehandle );
- while( my $seg_feat = $parser->next_result ) {
-       #do something
-       #eg
-       push @seg_feat, $seg_feat;
- }
+  use Bio::Tools::Seg;
+  my $parser = new Bio::Tools::Seg(-fh =>$filehandle );
+  while( my $seg_feat = $parser->next_result ) {
+        #do something
+        #eg
+        push @seg_feat, $seg_feat;
+  }
 
 =head1 DESCRIPTION
- 
- Parser for Seg output
+
+Parser for Seg output
 
 =head1 FEEDBACK
 
 =head2 Mailing Lists
 
- User feedback is an integral part of the evolution of this and other
- Bioperl modules. Send your comments and suggestions preferably to
- the Bioperl mailing list.  Your participation is much appreciated.
+User feedback is an integral part of the evolution of this and other
+Bioperl modules. Send your comments and suggestions preferably to
+the Bioperl mailing list.  Your participation is much appreciated.
 
- bioperl-l@bioperl.org              - General discussion
- http://bioperl.org/MailList.shtml  - About the mailing lists
+  bioperl-l@bioperl.org              - General discussion
+  http://bioperl.org/MailList.shtml  - About the mailing lists
 
 =head2 Reporting Bugs
- 
- Report bugs to the Bioperl bug tracking system to help us keep track
- of the bugs and their resolution. Bug reports can be submitted via
- email or the web:
+
+Report bugs to the Bioperl bug tracking system to help us keep track
+of the bugs and their resolution. Bug reports can be submitted via
+email or the web:
 
  bioperl-bugs@bioperl.org
  http://bioperl.org/bioperl-bugs/
 
 =head1 AUTHOR - Bala
 
- Email savikalpa@fugu-sg.org
+Email savikalpa@fugu-sg.org
 
- Describe contact details here
 
 =head1 CONTRIBUTORS
 
- Additional contributors names and emails here
+Additional contributors names and emails here
 
 =head1 APPENDIX
 
- The rest of the documentation details each of the object methods.
- Internal methods are usually preceded with a _
-    
+The rest of the documentation details each of the object methods.
+Internal methods are usually preceded with a _
 
-=cut                 
+=cut
 
 package Bio::Tools::Seg;
 use vars qw(@ISA);
@@ -109,18 +111,17 @@ sub new {
 
 
 =cut
-     
 
 sub next_result {
         my ($self) = @_;
-        
+
         my $line;
         # parse
         my $id;
         while ($_=$self->_readline()) {
          $line = $_;
          chomp $line;
-           
+
           next if /^$/;
            if ($line=~/^\>/) { #if it is a line starting with a ">"
                $line=~/^\>\s*(\S+)\s*\((\d+)\-(\d+)\)\s*complexity=(\S+)/;
@@ -128,7 +129,7 @@ sub next_result {
                my $start = $2;
                my $end = $3;
                my $score = $4;
-               
+
                #for example in this line test_prot(214-226) complexity=2.26 (12/2.20/2.50)
                #$1 is test_prot  $2 is 214 $3 is 226 and $4 is 2.26
 
@@ -146,7 +147,7 @@ sub next_result {
             }
           next;
         }
-        
+
 }
 
 
@@ -160,6 +161,7 @@ sub next_result {
 
 
 =cut
+
 sub create_feature {
        my ($self, $feat) = @_;
 
@@ -173,11 +175,11 @@ sub create_feature {
                                                    -primary     => $feat->{primary},
                                                    -logic_name  => $feat->{logic_name}, 
                                                );
-          
- 
+
           return $feature;
 
 }
+
 1;
 
 

@@ -873,7 +873,8 @@ sub matches {
            : normalized so that start < end. Strand information can be
            : obtained by calling $hit->strand().
 
-See Also   : L<end()|end>, L<range()|range>, L<strand()|strand>, L<HSP Tiling and Ambiguous Alignments>, L<Bio::Search::HSP::BlastHSP::start|Bio::Search::HSP::BlastHSP>
+See Also   : L<end()|end>, L<range()|range>, L<strand()|strand>, 
+             L<Bio::Search::HSP::BlastHSP::start|Bio::Search::HSP::BlastHSP>
 
 =cut
 

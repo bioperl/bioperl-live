@@ -12,18 +12,18 @@ Bio::Tools::Genewise - Results of one Genewise run
 
 =head1 SYNOPSIS
 
-use Bio::Tools::Genewise;
-my $gw = Bio::Tools::Genewise(-file=>"genewise.out");
+  use Bio::Tools::Genewise;
+  my $gw = Bio::Tools::Genewise(-file=>"genewise.out");
 
-while (my $gene = $gw->next_prediction){
-    my @transcripts = $g->transcripts;
-    foreach my $t(@transcripts){
-      my @exons =  $t->exons;
-      foreach my $e(@exons){
-          print $e->start." ".$e->end."\n";
+  while (my $gene = $gw->next_prediction){
+      my @transcripts = $g->transcripts;
+      foreach my $t(@transcripts){
+        my @exons =  $t->exons;
+        foreach my $e(@exons){
+            print $e->start." ".$e->end."\n";
+        }
       }
-    }
-}
+  }
 
 =head1 DESCRIPTION
 

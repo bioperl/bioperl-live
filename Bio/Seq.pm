@@ -1066,7 +1066,7 @@ sub add_SeqFeature {
  Title   : flush_SeqFeatures
  Usage   : $seq->flush_SeqFeatures();
  Function: Flushes all attached SeqFeatureI objects.
-    
+
            To remove individual feature objects, delete those from the returned
            array and re-add the rest.
  Example :

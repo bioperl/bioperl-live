@@ -28,17 +28,16 @@ Term - interface for ontology terms
 =head1 SYNOPSIS
 
 #get Bio::Ontology::TermI somehow.
-  
+
   print $term->identifier(), "\n";
   print $term->name(), "\n";
   print $term->definition(), "\n";
   print $term->is_obsolete(), "\n";
   print $term->comment(), "\n";
-  
+
   foreach my $synonym ( $term->each_synonym() ) {
       print $synonym, "\n";
   }
-    
 
 =head1 DESCRIPTION
 
