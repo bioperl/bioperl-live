@@ -277,21 +277,24 @@ sub next_seq {
        # Get next line.
        $buffer = $self->_readline;
    }
+    $seq->desc($desc);
 
    while( defined ($_ = $self->_readline) ) {
-       /FT   \w/ && last;
+       /^FT   \w/ && last;
+       /^SQ / && last;
    }
    $buffer = $_;
       
-   FEATURE_TABLE :   
-   until( !defined ($buffer) ) {
-       my $ftunit = $self->_read_FTHelper_EMBL(\$buffer);
-       # process ftunit
-       $ftunit->_generic_seqfeature($seq);
+   if (defined($buffer) && $buffer =~ /^FT /) {
+     until( !defined ($buffer) ) {
+	 my $ftunit = $self->_read_FTHelper_EMBL(\$buffer);
+	 # process ftunit
+	 $ftunit->_generic_seqfeature($seq);
 
-       if( $buffer !~ /^FT/ ) {
-	   last;
-       }
+	 if( $buffer !~ /^FT/ ) {
+	     last;
+	 }
+     }
    }
 	
    if( $buffer !~ /^SQ/  ) {
