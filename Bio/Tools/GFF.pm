@@ -122,6 +122,7 @@ Email mrp@sanger.ac.uk
 
 Jason Stajich, jason-at-biperl-dot-org
 Chris Mungall, cjm-at-fruitfly-dot-org
+Steffen Grossmann [SG], grossman at molgen.mpg.de
 
 =head1 APPENDIX
 
@@ -957,7 +958,7 @@ sub _gff25_string {
   Function: 
   Example :
   Returns : A GFF3-formatted string representation of the SeqFeature
-  Args    : A Bio::SeqFeatureI implementing object to be GFF2-stringified
+  Args    : A Bio::SeqFeatureI implementing object to be GFF3-stringified
 
     
 =cut
@@ -1052,7 +1053,7 @@ sub _gff3_string {
 	foreach my $loc (@locs) {
 	    $gff_string .= join("\t",
 				$name,
-				$feat->source_tag(),
+				$feat->source_tag() || '.',
 				$feat->primary_tag(),
 				$loc->start(),
 				$loc->end(),
@@ -1066,7 +1067,7 @@ sub _gff3_string {
     } else {
 	$gff_string = join("\t",
 			   $name,
-			   $feat->source_tag() || '',
+			   $feat->source_tag() || '.',
 			   $feat->primary_tag(),
 			   $feat->start(),
 			   $feat->end(),
