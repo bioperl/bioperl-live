@@ -26,15 +26,20 @@
 
 =head1 NAME
 
-Bio::Factory::LocationFactoryI - DESCRIPTION of Interface
+Bio::Factory::LocationFactoryI - A factory interface for generating locations from a string
 
 =head1 SYNOPSIS
 
-Give standard usage here
+ # Do not use directly, see Bio::Factory::LocationFactory for example
+ use Bio::Factory::FTLocationFactory;
+ my $locfact = Bio::Factory::FTLocationFactory->new();
+ my $location = $locfact->from_string("1..200");
+ print $location->start(), " ", $location->end(), " ", $location->strand,"\n";
 
-=head1 DESCRIPTION
+=Head1 DESCRIPTION
 
-Describe the interface here
+An interface for Location Factories which generate Bio::LocationI
+objects from a string.
 
 =head1 FEEDBACK
 
