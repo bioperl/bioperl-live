@@ -20,7 +20,7 @@ BEGIN {
 	use lib 't';
     }
     use vars qw($NTESTS);
-    $NTESTS = 720;
+    $NTESTS = 785;
     $LASTXMLTEST = 54;
     $error = 0;
 
@@ -46,6 +46,11 @@ use Bio::SearchIO;
 use Bio::Root::IO;
 use Bio::SearchIO::Writer::HitTableWriter;
 use Bio::SearchIO::Writer::HTMLResultWriter;
+
+END { 
+    unlink 'searchio.out';
+    unlink 'searchio.html';
+}
 
 ok(1);
 my ($searchio, $result,$hit,$hsp);
@@ -892,7 +897,6 @@ ok($result->algorithm_version, '2.2.1 [Apr-13-2001]');
 ok($result->database_name, 'pir');
 ok($result->database_entries, 274514);
 ok($result->database_letters, 93460074);
-ok($result->database_letters, 93460074);
 $hit = $result->next_hit;
 ok($hit->name, 'PIR2:S44629');
 ok($hit->length, 628);
@@ -1031,7 +1035,49 @@ while( $hit = $result->next_hit ) {
     ok($hit->name, shift @$d);
     ok($hit->accession, shift @$d);
 }
-END { 
-    unlink 'searchio.out';
-    unlink 'searchio.html';
+
+# Parse MEGABLAST
+
+# parse the BLAST-like output
+my $infile = Bio::Root::IO->catfile(qw(t data 503384.MEGABLAST.2));
+my $in = new Bio::SearchIO(-file => $infile,
+			   -format => 'blast'); # this is megablast 
+                                                # blast-like output
+my $r = $in->next_result;
+my @dcompare = ( ['Contig3700', 5631, 785, '0.0', 785, '0.0', 396, 639, 12, 
+		  8723,9434, 1, 4083, 4794, -1],
+                 ['Contig3997', 12734, 664, '0.0', 664, '0.0', 335, 401, 0, 
+		  1282, 1704, 1, 1546, 1968,-1 ],
+                 ['Contig634', 858, 486, 'e-136', 486, 'e-136', 245, 304, 3, 
+		  7620, 7941, 1, 1, 321, -1],
+                 ['Contig1853', 2314, 339, '1e-91',339, '1e-91', 171, 204, 0,
+		  6406, 6620, 1, 1691, 1905, 1]
+    );
+
+ok($r->query_name, '503384');
+ok($r->query_description, '11337 bp 2 contigs');
+ok($r->query_length, 11337);
+ok($r->database_name, 'cneoA.nt ');
+ok($r->database_letters, 17206226);
+ok($r->database_entries, 4935);
+
+while( my $hit = $r->next_hit ) {
+    my $d = shift @dcompare;
+    ok($hit->name, shift @$d);
+    ok($hit->length, shift @$d);
+    ok($hit->raw_score, shift @$d);
+    ok($hit->significance, shift @$d);
+    
+    my $hsp = $hit->next_hsp;
+    ok($hsp->bits, shift @$d);
+    ok($hsp->evalue, shift @$d);
+    ok($hsp->score, shift @$d);
+    ok($hsp->num_identical, shift @$d);
+    ok($hsp->gaps('total'), shift @$d);
+    ok($hsp->query->start, shift @$d);
+    ok($hsp->query->end, shift @$d);
+    ok($hsp->query->strand, shift @$d);
+    ok($hsp->hit->start, shift @$d);
+    ok($hsp->hit->end, shift @$d);
+    ok($hsp->hit->strand, shift @$d);       
 }
