@@ -21,7 +21,7 @@
 
 
 ## We start with some black magic to print on failure.
-BEGIN { $| = 1; print "1..6\n"; 
+BEGIN { $| = 1; print "1..8\n"; 
 	use vars qw($loaded); }
 
 END {print "not ok 1\n" unless $loaded;}
@@ -30,6 +30,7 @@ use Bio::SeqIO;
 use Bio::SeqIO::Fasta;
 use Bio::SeqIO::EMBL;
 use Bio::SeqIO::Raw;
+use Bio::SeqIO::GCG;
 
 $loaded = 1;
 print "ok 1\n";    # 1st test passes.
@@ -59,7 +60,7 @@ if( $seq->id eq 'roa1_drome' ) {
 
 
 #####
-## ChrisDag -- testing out Bio::SeqIO::Raw
+## ChrisDag -- testing out Bio::SeqIO::Raw & SeqIO::GCG
 ##
 ## We open a file, test.raw which has 2 raw lines of
 ## sequence. No formatting at all. Raw sequences are delimited
@@ -68,7 +69,8 @@ if( $seq->id eq 'roa1_drome' ) {
 ## breaking or getting confused.
 ##
 ## Not tested yet: ability to write a raw formatted stream
-##
+## Not tested yet: ability to write a GCG formatted stream
+
 $str = Bio::SeqIO->new(-file=> 't/test.raw', '-format' => 'Raw');
 
 if( $str ) {
@@ -89,7 +91,26 @@ print "Sequence 2 of 2 from Raw stream:\n", $seq->seq;
 print $seq->seq;
 print "\n";
 
+
+## Now we test Bio::SeqIO::GCG
+
+$str = Bio::SeqIO->new(-file=> 't/test.gcg', '-format' => 'GCG');
+
+if( $str ) {
+    print "ok 7\n";
+} else {
+    print "not ok 7 , unable to open stream from GCG sequence file\n";	
+}
+
+if($seq = $str->next_seq()) { print "ok 8\n";
+ } else { print "not ok 8 , failed to read GCG sequence from stream,\n"; }
+print "Sequence 1 of 1 from GCG stream:\n", $seq->seq, "\n";
+
+
 #####
-## done with tests of Bio::SeqIO::Raw
+## End of ChrisDag's SeqIO tests.
 #####
+
+
+
 
