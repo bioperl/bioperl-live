@@ -65,6 +65,11 @@ $usage = 'Usage: postclient.pl {-h} [-u URL]
     [-f FieldName=FieldValue FieldName=FieldValue FieldName=FieldValue ...]
 ';
 
+# This script implements its own version of Getopt::Std (sub MyGetOpts)
+my $opt_h = 0;  # Usage info
+my $opt_u = 0;  # URL
+my @opt_f = 0;  # Name-value pairs
+
 &MyGetOpts('hu:f@');
 $ENV{'PATH'} = "/usr/ucb:" . $ENV{'PATH'};
 
