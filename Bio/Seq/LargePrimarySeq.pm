@@ -1,4 +1,4 @@
-
+# $Id$
 #
 # BioPerl module for Bio::LargePrimarySeq
 #
@@ -7,12 +7,14 @@
 # Copyright Ewan Birney
 #
 # You may distribute this module under the same terms as perl itself
-
+#
+# updated to utilize File::Temp - jason 2000-12-12
 # POD documentation - main docs before the code
 
 =head1 NAME
 
-Bio::Seq::LargePrimarySeq - PrimarySeq object that stores sequence as files in /tmp 
+Bio::Seq::LargePrimarySeq - PrimarySeq object that stores sequence as
+files in the tempdir (as found by File::Temp)
 
 =head1 SYNOPSIS
 
@@ -40,28 +42,27 @@ and other Bioperl modules. Send your comments and suggestions preferably
  to one of the Bioperl mailing lists.
 Your participation is much appreciated.
 
-  vsns-bcd-perl@lists.uni-bielefeld.de          - General discussion
-  vsns-bcd-perl-guts@lists.uni-bielefeld.de     - Technically-oriented discussion
-  http://bio.perl.org/MailList.html             - About the mailing lists
+  bioperl-l@bioperl.org               - General discussion
+  http://bio.perl.org/MailList.html   - About the mailing lists
 
 =head2 Reporting Bugs
 
 Report bugs to the Bioperl bug tracking system to help us keep track
- the bugs and their resolution.
- Bug reports can be submitted via email or the web:
+the bugs and their resolution.  Bug reports can be submitted via email
+or the web:
 
   bioperl-bugs@bio.perl.org
   http://bio.perl.org/bioperl-bugs/
 
-=head1 AUTHOR - Ewan Birney
+=head1 AUTHOR - Ewan Birney, Jason Stajich
 
 Email birney@ebi.ac.uk
-
-Describe contact details here
+Email jason@chg.mc.duke.edu
 
 =head1 APPENDIX
 
-The rest of the documentation details each of the object methods. Internal methods are usually preceded with a _
+The rest of the documentation details each of the object
+methods. Internal methods are usually preceded with a _
 
 =cut
 
@@ -70,35 +71,18 @@ The rest of the documentation details each of the object methods. Internal metho
 
 
 package Bio::Seq::LargePrimarySeq;
-use vars qw($AUTOLOAD $COUNTER $DEFAULT_TEMP_DIR @ISA);
+use vars qw($AUTOLOAD @ISA);
 use strict;
 
 # Object preamble - inherits from Bio::Root::Objecttest 8, 
 
 use Bio::Root::RootI;
 use Bio::PrimarySeqI;
+use File::Temp qw(tempfile tempdir);
 
 use POSIX;
 use FileHandle;
 @ISA = qw(Bio::PrimarySeqI Bio::Root::RootI);
-
-BEGIN { 
-    eval { 
-	use File::Spec;
-	$DEFAULT_TEMP_DIR = File::Spec->tmpdir();
-    };
-    if( $@ ) {
-	print STDERR "error was $@\n";
-	if( defined $ENV{TMPDIR} && -w $ENV{TMPDIR} ) {
-	    $DEFAULT_TEMP_DIR = $ENV{TMPDIR};
-	} else {
-	    $DEFAULT_TEMP_DIR = '/tmp';
-	}
-    }
-    $COUNTER = 0;
-}
-
-
 
 sub new {
     my ($class, @args) = @_;
@@ -139,14 +123,8 @@ sub _initialize {
     $desc    && $self->desc($desc);
     $moltype && $self->moltype($moltype);
 
-    my $fid = POSIX::cuserid() . "$$-" . $COUNTER++;
-    my $file = "$DEFAULT_TEMP_DIR/$fid";
-
-    system("touch $file");
-    my $fh = new FileHandle $file,"+>"; 
-    if( !defined $fh ) {
-	$self->throw("Unable to make file $file $!");
-    }
+    my $tempdir = tempdir( CLEANUP => 1);
+    my ($fh,$file) = tempfile( DIR => $tempdir );
 
     $fh      && $self->_fh($fh);
     $file    && $self->_filename($file);
@@ -449,3 +427,7 @@ sub DESTROY {
     my $self = shift;
     if( defined  $self->_fh ) {
 	$self->_fh->close();
+    }
+}
+
+1;
