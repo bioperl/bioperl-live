@@ -1,16 +1,14 @@
 ## --Makefile.PL for Bioperl core module distribution--##
 ## ----------------------------------------------------##
-
+## $Id$
+##----------------------------------------------------
 
 #
 # Basically this is a standard Makefile with a hash of
 # needed packages which are tested at the start
 #
 # If you want help with this Makefile get in touch with
-# the bioperl core by sending a message to bioperl-bugs@bio.perl.org
-# for real bugs or vsns-bcd-perl-guts@lists.uni-bielefeld.de
-# to send a mail to all the bioperl core developpers.
-#
+# the developers by sending a message to bioperl-l@bioperl.org.
 
 
 %packages = (
@@ -83,12 +81,7 @@ if( $do_autoload_finesse == 1 ) {
     fatal("Autoload finessing does not work at the moment!");
 }
 
-# don't catch signals - it is very boring!
 
-#BEGIN {
-##Catch signals and invoke a cleanup function
-#$SIG{__WARN__} = $SIG{INT} = $SIG{QUIT} =\&cleanup;
-#}
 
 @BACKUP_FILES = qw(./Seq.pm.bak);
 
@@ -122,11 +115,11 @@ Warning:
    The installation of these external packages is very simple. You
    can read more about the external packages at
 
-   http://bio.perl.org/Core/external.shtml
+   http://bioperl.org/Core/external.shtml
 
    The ftp site
 
-   ftp://bio.perl.org/pub/external/
+   ftp://bioperl.org/pub/external/
 
    has all the external packages for easy retrieval, or you can use CPAN
 
@@ -147,15 +140,6 @@ WriteMakefile(
    'realclean'  => {  FILES        => join(' ',@BACKUP_FILES) }
 );
 
-
-sub cleanup {
-my $sig = @_;
-print "\n** [$0] Caught a SIG$sig -- cleaning up and shutting down.\n";
-
-## Try to keep module pristine & recover from any inplace edits
-if(-e "./Seq.pm.bak")    { `cp ./Seq.pm.bak ./Seq.pm.dist`; `mv ./Seq.pm.bak ./Seq.pm`;  }
-exit(0);
-}
 
 
 
