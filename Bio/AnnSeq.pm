@@ -16,7 +16,7 @@ Bio::AnnSeq - Annotated Sequence
 
 =head1 SYNOPSIS
 
-    $stream = Bio::AnnSeqIO->new(-file 'my.embl',-format => 'EMBL')
+    $stream = Bio::AnnSeqIO->new(-file => 'my.embl',-format => 'EMBL')
 
     foreach $annseq ( $stream->next_annseq() ) {
 	foreach $feat ( $annseq->all_SeqFeatures() ) {
@@ -26,7 +26,31 @@ Bio::AnnSeq - Annotated Sequence
 
 =head1 DESCRIPTION
 
-An AnnSeq is a sequence with sequence features placed on them
+An AnnSeq is a sequence with sequence features placed on them. The
+AnnSeq object is not a Bio::Seq object, but contains one. This is an
+important distinction from other packages which tend to have either a
+single sequence object with features, or an inheritence relationship
+between a "large" and "small" sequence object. In bioperl we have 3
+main players:
+
+  Bio::Seq - just the sequence, nothing else.
+  Bio::SeqFeature - a location on a sequence, potentially with a sequence.
+                    and annotation
+  Bio::AnnSeq - A sequence and a collection of seqfeatures (an aggregate) with
+                its own annotation.
+
+Although bioperl is not tied to file formats heavily, these distrinctions do map to file formats
+sensibly and for some bioinformaticians this might help you:
+
+  Bio::Seq - Fasta file of a sequence
+  Bio::SeqFeature - A single entry in an EMBL/GenBank/DDBJ feature table
+  Bio::AnnSeq - A single EMBL/GenBank/DDBJ entry
+
+By having this split we avoid alot of nasty ciricular references
+(seqfeatures can hold a reference to a sequence without the sequence
+holding a reference to the seqfeature).
+
+Ian Korf really helped in the design of the AnnSeq and SeqFeature system.
 
 =head1 FEEDBACK
 
@@ -50,7 +74,7 @@ Report bugs to the Bioperl bug tracking system to help us keep track
   bioperl-bugs@bio.perl.org
   http://bio.perl.org/bioperl-bugs/
 
-=head1 AUTHOR - Ewan Birney
+=head1 AUTHOR - Ewan Birney, inspired by Ian Korf's objects
 
 Email birney@sanger.ac.uk
 
@@ -320,7 +344,9 @@ sub division{
 
  Title   : accession
  Usage   : $obj->accession($newval)
- Function: 
+ Function: Whilst the underlying sequence object does not 
+           have an accession, so we need one here. Wont stay
+           when we do the reimplementation.
  Example : 
  Returns : value of accession
  Args    : newvalue (optional)

@@ -31,6 +31,10 @@ rather go through the AnnSeqIO handler system. Go:
 This object can transform Bio::AnnSeq objects to and from EMBL flat
 file databases.
 
+There is alot of flexibility here about how to dump things which I need
+to document fully.
+
+
 =head2 Optional functions
 
 =over
