@@ -209,12 +209,19 @@ sub _parse_location {
 	    $end = $start;
 	}
     }
+    # start_num and end_num are for the numeric only versions of 
+    # start and end so they can be compared
+    # in a few lines
+    my ($start_num, $end_num) = ($start,$end);
     if ( ($start =~ /[\>\<\?\.\^]/) || ($end   =~ /[\>\<\?\.\^]/) ) {
 	$locclass = 'Bio::Location::Fuzzy';
+	($start_num) = ($start =~ /(\d+)/);
+	($end_num)   = ($end =~ /(\d+)/);
+	
     } 
     my $strand = 1;
 
-    if( $start > $end ) {
+    if( $start_num > $end_num ) {
 	($start,$end,$strand) = ($end,$start,-1);
     }
     # instantiate location and initialize
