@@ -49,8 +49,9 @@ locuslink entries cannot be round-tripped, because the parser loses
 certain information. For instance, most of the alternative transcript
 descriptions are not retained. The parser also misses any element
 that deals with visual representation (e.g., 'button') except for the
-URLs. Almost all of the pieces of the annotation are kept in the
-L<Bio::Annotation::Collection> object.
+URLs. Almost all of the pieces of the annotation are kept in a
+Bio::Annotation::Collection object, see L<Bio::Annotation::Collection>
+for more information.
 
 =head1 FEEDBACK
 
