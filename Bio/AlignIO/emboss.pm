@@ -122,11 +122,15 @@ sub next_aln {
     my %names;
     while( defined($_ = $self->_readline) ) {
 	next if( /^\#?\s+$/ || /^\#+\s*$/ );
-	if( /^\#(\=|\-)+\s*$/) {
+	if( /^\#(\=|\-)+\s*$/ || (/^Overall/) ) {
 	    last if( $seenbegin);
 	} elsif( /(Local|Global):\s*(\S+)\s+vs\s+(\S+)/ ||
 		 /^\#\s+Program:\s+(\S+)/ )
 	{
+	    if( $seenbegin ) {
+		$self->_pushback($_);
+		last;
+	    }
 	    my ($name1,$name2) = ($2,$3);
 	    if( ! defined $name1 ) { # Handle EMBOSS 2.2.X
 		$data{'type'} = $1;
