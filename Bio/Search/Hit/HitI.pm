@@ -26,7 +26,7 @@ you can do the following things with it:
 
     $hit_name = $hit->name();
 
-    $desc = $hit->get_hit_desc();
+    $desc = $hit->description();
 
     $len = $hit->length
 
