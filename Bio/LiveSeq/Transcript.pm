@@ -77,11 +77,12 @@ $VERSION=5.1;
 # Sat Jun 24 00:49:55 BST 2000 v 4.5 new subseq() that exploits the new fast labelsubseq
 # Thu Jun 29 16:31:19 BST 2000 v 5.0 downsream_seq and upstream_seq recoded so that if entry is RNA it will return sequences up to the entry limits -> it should be properly debugged, expecially the upstream_seq one
 # Wed Jul 12 04:01:53 BST 2000 v 5.1 croak -> carp+return(-1)
+# Wed Mar 28 15:16:21 BST 2001 v 5.2 carp -> warn,throw (coded methods in SeqI)
 
 use strict;
-use Carp qw(carp cluck);
+# use Carp qw(carp cluck);
 use vars qw($VERSION @ISA);
-use Bio::LiveSeq::SeqI 2.11; # uses SeqI, inherits from it
+use Bio::LiveSeq::SeqI 3.2; # uses SeqI, inherits from it
 use Bio::LiveSeq::Exon 1.0; # uses Exon to create new exon in case of deletion
 @ISA=qw(Bio::LiveSeq::SeqI);
 
@@ -104,9 +105,12 @@ sub new {
 
   my @exons=@{$args{-exons}};
 
+  $obj = \%transcript;
+  $obj = bless $obj, $class;
+
   unless (@exons) {
-    carp "$class not initialised because exons array empty";
-    return (-1);
+    $obj->warn("$class not initialised because exons array empty");
+    return(-1);
   }
 
   # now useless, after start and end methods have been overridden here
@@ -118,12 +122,13 @@ sub new {
   my $seq = $firstexon->{'seq'};
 
   unless (_checkexons(\@exons)) {
-    carp "$class not initialised because of problems in the exon structure";
-    return (-1);
+    $obj->warn("$class not initialised because of problems in the exon structure");
+    return(-1);
   }
-  %transcript = (strand => $strand, exons => \@exons, seq => $seq);
-  $obj = \%transcript;
-  $obj = bless $obj, $class;
+  $obj->{'strand'}=$strand;
+  $obj->{'exons'}=\@exons;
+  $obj->{'seq'}=$seq;
+
   # set Transcript into each Exon
   my $exon;
   foreach $exon (@exons) {
@@ -152,7 +157,7 @@ sub all_Exons {
   my $exon;
   foreach $exon (@exons) {
     unless ($exon->obj_valid) {
-      carp "$exon no more valid, start or end label lost, skipping....";
+      $self->warn("$exon no more valid, start or end label lost, skipping....",1); # ignorable
     } else {
       push(@newexons,$exon);
     }
@@ -187,7 +192,7 @@ sub downstream_seq {
   my $str;
   if (defined ($howmany)) {
     unless ($howmany > 0) {
-      cluck "No sense in asking less than 1 downstream nucleotides!";
+      $self->throw("No sense in asking less than 1 downstream nucleotides!");
     }
   } else {
     unless ($self->{'seq'}->moltype eq 'rna') { # if rna retrieve until the end
@@ -241,7 +246,7 @@ sub upstream_seq {
   my ($self,$howmany)=@_;
   if (defined ($howmany)) {
     unless ($howmany > 0) {
-      cluck "No sense in asking less than 1 upstream nucleotides!";
+      $self->throw("No sense in asking less than 1 upstream nucleotides!");
     }
   } else {
     unless ($self->{'seq'}->moltype eq 'rna') { # if rna retrieve from the start
@@ -295,7 +300,7 @@ sub upstream_seq {
 sub label {
   my ($self,$position,$firstlabel)=@_;
   unless ($position) {  # if position = 0 complain ?
-    carp "Position not given or position 0";
+    $self->warn("Position not given or position 0");
     return (-1);
   }
   my ($start,$end,$strand)=($self->start(),$self->end(),$self->strand());
@@ -330,7 +335,7 @@ sub label {
 sub position {
   my ($self,$label,$firstlabel)=@_;
   unless ($self->{'seq'}->valid($label)) {
-    carp "label is not valid";
+    $self->warn("label is not valid");
     return (0);
   }
   unless (defined ($firstlabel)) {
@@ -359,7 +364,7 @@ sub position {
       $out_pos=$self->{'seq'}->position($label,$start,$strand);
       $position=$out_pos-$coord_pos+1;
     } else { # label is in intron (not valid, not after, not before)!
-      #carp "Cannot give position of label pointing to intron according to CDS numbering!";
+      $self->warn("Cannot give position of label pointing to intron according to CDS numbering!",1);
       return (0);
     }
   }
@@ -410,7 +415,7 @@ sub old_labelsubseq {
   my ($pos1,$pos2);
   if ($start) {
     unless ($self->valid($start)) {
-      carp "Start label not valid"; return (-1);
+      $self->warn("Start label not valid"); return (-1);
     }
     $pos1=$self->position($start);
   }
@@ -419,10 +424,10 @@ sub old_labelsubseq {
       $length=1;
     } else {
       unless ($self->valid($end)) {
-	carp "End label not valid"; return (-1);
+	$self->warn("End label not valid"); return (-1);
       }
       unless ($self->follows($start,$end) == 1) {
-	carp "End label does not follow Start label!"; return (-1);
+	$self->warn("End label does not follow Start label!"); return (-1);
       }
       $pos2=$self->position($end);
       undef $length;
@@ -440,7 +445,7 @@ sub labelsubseq {
   { # to skip security checks (faster)
     if ($start) {
       unless ($self->valid($start)) {
-	carp "Start label not valid"; return (-1);
+	$self->warn("Start label not valid"); return (-1);
       }
     } else {
       $start=$self->start;
@@ -452,10 +457,10 @@ sub labelsubseq {
       } else {
 	undef $length; # end argument overrides length argument
 	unless ($self->valid($end)) {
-	  carp "End label not valid"; return (-1);
+	  $self->warn("End label not valid"); return (-1);
 	}
 	unless ($self->follows($start,$end) == 1) {
-	  carp "End label does not follow Start label!"; return (-1);
+	  $self->warn("End label does not follow Start label!"); return (-1);
 	}
       }
     } else {
@@ -533,35 +538,35 @@ sub subseq {
   my ($str,$startlabel,$endlabel);
   if (defined ($pos1)) {
     if ($pos1 == 0) {  # if position = 0 complain
-      carp "Position cannot be 0!"; return (-1);
+      $self->warn("Position cannot be 0!"); return (-1);
     }
     if ((defined ($pos2))&&($pos1>$pos2)) {
-      carp "1st position($pos1) cannot be > 2nd position($pos2)!"; return (-1);
+      $self->warn("1st position($pos1) cannot be > 2nd position($pos2)!"); return (-1);
     }
     $startlabel=$self->label($pos1);
     unless ($self->valid($startlabel)) {
-      carp "Start label not valid"; return (-1);
+      $self->warn("Start label not valid"); return (-1);
     }
     if ($startlabel < 1) {
-      carp "position $pos1 not valid as start of subseq!"; return (-1);
+      $self->warn("position $pos1 not valid as start of subseq!"); return (-1);
     }
   } else {
     $startlabel=$self->start;
   }
   if (defined ($pos2)) {
     if ($pos2 == 0) {  # if position = 0 complain
-      carp "Position cannot be 0!"; return (-1);
+      $self->warn("Position cannot be 0!"); return (-1);
     }
     undef $length;
     if ((defined ($pos1))&&($pos1>$pos2)) {
-      carp "1st position($pos1) cannot be > 2nd position($pos2)!"; return (-1);
+      $self->warn("1st position($pos1) cannot be > 2nd position($pos2)!"); return (-1);
     }
     $endlabel=$self->label($pos2);
     unless ($self->valid($endlabel)) {
-      carp "End label not valid"; return (-1);
+      $self->warn("End label not valid"); return (-1);
     }
     if ($endlabel < 1) {
-      carp "position $pos2 not valid as end of subseq!"; return (-1);
+      $self->warn("position $pos2 not valid as end of subseq!"); return (-1);
     }
   } else {
     unless (defined ($length)) {
@@ -577,7 +582,7 @@ sub old_subseq {
   my ($str,$startcount,$endcount,$seq,$seqlength);
   if (defined ($length)) {
     if ($length < 1) {
-      carp "No sense asking for a subseq of length < 1";
+      $self->warn("No sense asking for a subseq of length < 1");
       return (-1);
     }
   }
@@ -589,12 +594,12 @@ sub old_subseq {
     $startcount=1+$coord_pos-1; # i.e. coord_pos
   } else {
     if ($pos1 == 0) {  # if position = 0 complain
-      carp "Position cannot be 0!"; return (-1);
+      $self->warn("Position cannot be 0!"); return (-1);
     } elsif ($pos1 < 0) {
       $pos1++;
     }
     if ((defined ($pos2))&&($pos1>$pos2)) {
-      carp "1st position ($pos1) cannot be > 2nd position ($pos2)!";
+      $self->warn("1st position ($pos1) cannot be > 2nd position ($pos2)!");
       return (-1);
     }
     $startcount=$pos1+$coord_pos-1;
@@ -603,18 +608,18 @@ sub old_subseq {
   ;
   } else {
     if ($pos2 == 0) {  # if position = 0 complain
-      carp "Position cannot be 0!"; return (-1);
+      $self->warn("Position cannot be 0!"); return (-1);
     } elsif ($pos2 < 0) {
       $pos2++;
     }
     if ((defined ($pos1))&&($pos1>$pos2)) {
-      carp "1st position ($pos1) cannot be > 2nd position ($pos2)!";
+      $self->warn("1st position ($pos1) cannot be > 2nd position ($pos2)!");
       return (-1);
     }
     $endcount=$pos2+$coord_pos-1;
     if ($endcount > $seqlength) {
       #print "\n###DEBUG###: pos1 $pos1 pos2 $pos2 coordpos $coord_pos endcount $endcount seqln $seqlength\n";
-      carp "Cannot access end position after the end of Transcript";
+      $self->warn("Cannot access end position after the end of Transcript");
       return (-1);
     }
     $length=$endcount-$startcount+1;
@@ -622,15 +627,15 @@ sub old_subseq {
   #print "\n###DEBUG pos1 $pos1 pos2 $pos2 start $startcount end $endcount length $length coordpos $coord_pos\n";
   my $offset=$startcount-1;
   if ($offset < 0) {
-    carp "Cannot access startposition before the beginning of Transcript, returning from start";
+    $self->warn("Cannot access startposition before the beginning of Transcript, returning from start",1); # ignorable
     return (substr($seq,0,$length));
   } elsif ($offset >= $seqlength) {
-    carp "Cannot access startposition after the end of Transcript";
+    $self->warn("Cannot access startposition after the end of Transcript");
     return (-1);
   } else {
     $str=substr($seq,$offset,$length);
     if (CORE::length($str) < $length) {
-      carp "Attention, cannot return the length requested for subseq";
+      $self->warn("Attention, cannot return the length requested for subseq",1); # ignorable
     }
     return $str;
   }
@@ -677,13 +682,14 @@ sub _inside_position {
 # arguments: reference to array of Exon object references
 sub _checkexons {
   my ($exon,$thisstart);
+  my $self=$exon;
   my $exonsref=$_[0];
   my @exons=@{$exonsref};
 
   my $firstexon = $exons[0];
 
   unless (ref($firstexon) eq "Bio::LiveSeq::Exon") {
-    carp "Object not of class Exon";
+    $self->warn("Object not of class Exon");
     return (0);
   }
   my $strand = $firstexon->strand;
@@ -692,16 +698,16 @@ sub _checkexons {
   shift @exons; # skip first one
   foreach $exon (@exons) {
     unless (ref($exon) eq "Bio::LiveSeq::Exon") { # object class check
-      carp "Object not of class Exon";
+      $self->warn("Object not of class Exon");
       return (0);
     }
     if ($exon->strand != $strand) { # strand consistency check
-      carp "Exons' strands not consistent when trying to create Transcript";
+      $self->warn("Exons' strands not consistent when trying to create Transcript");
       return (0);
     }
     $thisstart = $exon->start;
     unless ($exon->{'seq'}->follows($prevend,$thisstart,$strand)) {
-      carp "Exons not in correct order when trying to create Transcript";
+      $self->warn("Exons not in correct order when trying to create Transcript");
       return (0);
     }
     $prevend = $exon->end;

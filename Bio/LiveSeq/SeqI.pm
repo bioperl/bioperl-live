@@ -83,7 +83,7 @@ Some note on the terminology/notation of method names:
 # Let the code begin...
 
 package Bio::LiveSeq::SeqI;
-$VERSION=3.1;
+$VERSION=3.2;
 # Version history:
 # Thu Mar 16 18:11:18 GMT 2000 v.1.0 Started implementation, interface/inheritance from ChainI.pm
 # Thu Mar 16 20:05:51 GMT 2000 v 1.2 implemented up to splice_out
@@ -118,6 +118,7 @@ $VERSION=3.1;
 # Sat Jun 24 00:10:31 BST 2000 v 2.92 unsecure is an option of labelsubseq() now
 # Thu Jun 29 16:38:45 BST 2000 v 3.0 labelchange() now calls itself again for the DNAobj if the label for the change is not valid for the object requested but valid for the DNAobj
 # Tue Jan 30 14:16:22 EST 2001 v 3.1 delete_Obj added, to flush circular references
+# Wed Mar 28 15:16:38 BST 2001 v 3.2 functions warn, verbose, throw, stack_trace, stack_trace_dump added
 
 use strict;
 use Carp qw(cluck croak carp);
@@ -1225,6 +1226,179 @@ sub delete_Obj {
   return(1);
 }
 
+=head2 verbose
+
+ Title   : verbose
+ Usage   : $self->verbose(0)
+ Function: Sets verbose level for how ->warn behaves
+           -1 = silent: no warning
+            0 = reduced: minimal warnings
+            1 = default: all warnings
+            2 = extended: all warnings + stack trace dump
+            3 = paranoid: a warning becomes a throw and the program dies
+
+           Note: a quick way to set all LiveSeq objects at the same verbosity
+           level is to change the DNA level object, since they all look to
+           that one if their verbosity_level attribute is not set.
+           But the method offers fine tuning possibility by changing the
+           verbose level of each object in a different way.
+ Returns : the current verbosity level
+ Args    : -1,0,1,2 or 3
+
+=cut
+
+
+sub verbose {
+  my ($self,$value) = @_;
+  my %valid_values= map {$_, 1} qw(3 2 1 0 -1 );
+  if (defined $value) {
+    if ($valid_values{$value}) {
+      $self->{'verbosity_level'} = $value;
+    } else {
+      $self->warn("LIVESEQ: the verbosity level you are trying to set is not a recognized value. Recognized values: -1 0 1 2 3....");
+    }
+  }
+  unless (exists $self->{'verbosity_level'}) {
+    unless (exists $self->{'seq'}->{'verbosity_level'}) {
+      return (1); # the default verbosity level
+    } else {
+      return $self->{'seq'}->{'verbosity_level'};
+    }
+  } else {
+    return $self->{'verbosity_level'};
+  }
+}
+
+=head2 warn
+
+ Title   : warn
+ Usage   : $object->warn("Warning message",$ignorable);
+ Function: Places a warning. What happens now is down to the
+           verbosity of the object  (value of $obj->verbose) 
+            -1 = silent: no warning
+             0 = reduced: minimal warnings
+             1 = default: all warnings
+             2 = extended: all warnings + stack trace dump
+             3 = paranoid: a warning becomes a throw and the program dies
+
+           If a second argument is given and is 1, then the warning becomes
+           a relatively ignorable one. I.e. it means that warning is one
+           the program can cope with, so at verbose level "0", it wouldn't
+           be printed. At verbose level >1 it will be printed with the rest.
+ Example : $obj->warn("Label not found");
+ Example : $obj->warn("Starting position not specified, using default start",1);
+ Returns : nothing
+ Args    : string, boolean
+ 
+=cut
+
+
+sub warn{
+  my ($self,$string,$ignorable) = @_;
+
+  my $verbose = $self->verbose;
+
+  if( $verbose == 3 ) {
+    $self->throw($string);
+  } elsif( $verbose == -1 ) { # ignore all warnings
+    return;
+  } elsif( $verbose == 2 ) {
+    my $out = "---------------- LIVESEQ WARNING -----------------\n".
+    "MSG: ".$string."\n";
+    $out .= $self->stack_trace_dump;
+    
+    print STDERR $out;
+    return;
+  } elsif( $verbose == 1 ) {
+    my $out = "---------------- LIVESEQ WARNING -----------------\n".
+    "MSG: ".$string."\n".
+    "---------------------------------------------------\n";
+    print STDERR $out;
+  } else { # i.e. if verbose == 0, we have to filter some warnings
+
+    if ($ignorable == 1) {
+      return;
+    } else {
+      my $out = "---------------- LIVESEQ WARNING -----------------\n".
+      "MSG: ".$string."\n".
+      "---------------------------------------------------\n";
+      print STDERR $out;
+    }
+  }
+}
+
+=head2 throw
+
+ Title   : throw
+ Usage   : $obj->throw("throwing exception message")
+ Function: Throws an exception, which, if not caught with an eval brace
+           will print the error message, a stack trace dump, and die.
+ Returns : nothing
+ Args    : A string giving a descriptive error message
+
+=cut
+
+
+sub throw{
+  my ($self,$string) = @_;
+
+  my $std = $self->stack_trace_dump();
+
+  my $out = "---------------- LIVESEQ EXCEPTION ----------------\n".
+   "MSG: ".$string."\n".$std."-------------------------------------------\n";
+  die $out;
+}
+
+sub stack_trace_dump{ # taken from BioPerl's RootI
+  my ($self) = @_;
+
+  my @stack = $self->stack_trace();
+
+  shift @stack;
+  shift @stack;
+  shift @stack;
+
+  my $out;
+  my ($module,$function,$file,$position);
+   
+
+  foreach my $stack ( @stack) {
+    ($module,$file,$position,$function) = @{$stack};
+    $out .= "STACK $function $file:$position\n";
+  }
+
+  return $out;
+}
+
+=head2 stack_trace
+
+ Title   : stack_trace
+ Usage   : @stack_array_ref= $self->stack_trace
+ Function: gives an array to a reference of arrays with stack trace info
+           each coming from the caller(stack_number) call
+ Returns : array containing a reference of arrays
+ Args    : none
+
+
+=cut
+
+sub stack_trace{ # taken from BioPerl's RootI
+  my ($self) = @_;
+
+  my $i = 0;
+  my @out;
+  my $prev;
+  while( my @call = caller($i++)) {
+    # major annoyance that caller puts caller context as
+    # function name. Hence some monkeying around...
+    $prev->[3] = $call[3];
+    push(@out,$prev);
+    $prev = \@call;
+  }
+  $prev->[3] = 'toplevel';
+  push(@out,$prev);
+  return @out;
+}
 
 1;
 
