@@ -432,13 +432,12 @@
     <title>Acknowledgments</title>
     <para>
       These modules depend on several recently developed modules and wouldn't
-      work at all without them. 
-      Bio::Seq::Meta:: modules:
-      Chad Matsalla, Aaron Mackey and Heikki Lehvaslaiho
-      Bio::WebAgent:
-      Heikki Lehvaslaiho
-      Bio::SimpleAnalysisI:
-      Martin Senger  
+      work at all without them: Bio::Seq::Meta modules by
+      Chad Matsalla, Aaron Mackey and Heikki Lehvaslaiho,
+      Bio::WebAgent by
+      Heikki Lehvaslaiho, and 
+      Bio::SimpleAnalysisI by
+      Martin Senger.
     </para>
   </section>
 
