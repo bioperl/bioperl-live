@@ -427,4 +427,60 @@ sub strand {
     return 0;
 }
 
+=head2 start
+
+ Title   : start
+ Usage   : $hsp->start('query')
+ Function: Retrieves the start for the HSP component requested
+ Returns : integer
+ Args    : 'hit' or 'subject' or 'sbjct' to retrieve the start of the subject
+           'query' to retrieve the query start (default)
+      
+
+=cut
+
+sub start {
+    my $self = shift;
+    my $val = shift;
+    $val = 'query' unless defined $val;
+    $val =~ s/^\s+//;
+
+    if( $val =~ /^q/i ) { 
+	return $self->query->start(shift);
+    } elsif( $val =~ /^(h|s)/i ) {
+	return $self->hit->start(shift);
+    } else { 
+	$self->warn("unrecognized component $val requested\n");
+    }
+    return 0;
+}
+
+=head2 end
+
+ Title   : end
+ Usage   : $hsp->end('query')
+ Function: Retrieves the end for the HSP component requested
+ Returns : integer
+ Args    : 'hit' or 'subject' or 'sbjct' to retrieve the end of the subject
+           'query' to retrieve the query end (default)
+      
+
+=cut
+
+sub end {
+    my $self = shift;
+    my $val = shift;
+    $val = 'query' unless defined $val;
+    $val =~ s/^\s+//;
+
+    if( $val =~ /^q/i ) { 
+	return $self->query->end(shift);
+    } elsif( $val =~ /^(h|s)/i ) {
+	return $self->hit->end(shift);
+    } else { 
+	$self->warn("unrecognized component $val requested\n");
+    }
+    return 0;
+}
+
 1;

@@ -20,7 +20,7 @@ BEGIN {
 	use lib 't';
     }
     use vars qw($NTESTS);
-    $NTESTS = 618;
+    $NTESTS = 621;
     $LASTXMLTEST = 54;
     $error = 0;
 
@@ -168,7 +168,9 @@ while( $hit = $result->next_hit ) {
 	    ok($hsp->hit->start, 1);
 	    ok($hsp->hit->end, 820);
 	    ok($hsp->length('hsp'), 820);
-	    
+	    ok($hsp->start('hit'), $hsp->hit->start);
+	    ok($hsp->end('query'), $hsp->query->end);
+	    ok($hsp->strand('sbjct'), $hsp->subject->strand);# alias for hit
 	    ok($hsp->evalue == 0.0);
 	    ok($hsp->score, 4058);
 	    ok($hsp->bits,1567);	    	    
