@@ -21,7 +21,7 @@ Bio::Restriction::IO - Handler for sequence variation IO Formats
     $in  = Bio::Restriction::IO->new(-file => "inputfilename" ,
                                      -format => 'withrefm');
     $out = Bio::Restriction::IO->new(-file => ">outputfilename" ,
-                                     -format => 'withrefm');
+                                     -format => 'bairoch');
     my $res = $in->read; # a Bio::Restriction::EnzymeCollection
     $out->write($res);
 
@@ -111,13 +111,16 @@ use Bio::SeqIO;
 @ISA = 'Bio::SeqIO';
 
 %FORMAT = (
-            'itype2' => 'itype2',
-            '8' => 'itype2',
-            'withrefm' => 'withrefm',
-            '31' => 'withrefm',
-            'base' => 'base',
-            '0' => 'base'
-
+            'itype2'    => 'itype2',
+            '8'         => 'itype2',
+            'withrefm'  => 'withrefm',
+            '31'        => 'withrefm',
+            'base'      => 'base',
+            '0'         => 'base',
+	    'bairoch'   => 'bairoch',
+	    '19'        => 'bairoch',
+	    'macvector' => 'bairoch',
+	    'vectorNTI' => 'bairoch'
 );
 
 =head2 new

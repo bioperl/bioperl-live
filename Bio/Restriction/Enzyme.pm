@@ -194,20 +194,14 @@ Convert vendors touse full names of companies instead of code
 
 Add regular expression based matching to vendors
 
+=item *
+
+Move away from the archaic ^ notation for cut sites. Ideally
+I'd totally like to remove this altogether, or add a method
+that adds it in if someone really wants it. We should be
+fixed on a sequence, number notation.
+
 =back
-
-=head1 COMMENTS ON COMPATIBILITY
-
-These are things that are likely to break compatibility at the
-moment. I am especially trying to make note of routines that are not
-in this version of Restriction::Enzyme, versus those that are in the
-old version. Note, some of these may be covered in the other modules
-that I haven't written yet.
-
- 1. _make_custom and _make_standard
-
-Because I have removed the demand that the sequence be extant, these
-are no longer applicable.  Everything is a custom enzyme.
 
 =head1 FEEDBACK
 
@@ -364,7 +358,7 @@ sub new {
     return $self;
 }
 
-=head2 Essential methods
+=head1 Essential methods
 
 =cut
 
@@ -638,7 +632,7 @@ sub complementary_cut {
 }
 
 
-=head2 Read only (usually) recognition site descriptive methods
+=head1 Read only (usually) recognition site descriptive methods
 
 =cut
 

@@ -164,7 +164,6 @@ class. (They are 'protected' in the sense the word is used in Java.)
 
 sub _cuts_from_site {
     my ($self, $site) = @_;
-
     my ($cut, $comp_cut) = $site =~ /\((-?\d+)\/(-?\d+)\)/;
     $site =~ s/\(.*\)$//;
     return ($site, $cut, $comp_cut);
@@ -225,7 +224,7 @@ sub _coordinate_shift_to_cut {
            the collection object) into
            Bio::Restriction::Enzyme::MultiSite and clone it as many
            times as there are alternative sites. The new objects are
-           added into the collection and into the others list of 
+           added into the collection and into others list of sister
            objects.
 
  Returns : nothing, does in place editing
@@ -263,11 +262,6 @@ sub _make_multisites {
             $re2->purge_methylation_sites;
             $re2->methylation_sites($self->_meth($re2, @{$meths}[$count]));
         }
-        $renzs->enzymes($re2);
-
-#        print Dumper $re2; exit;
-        #print Dumper $re2->string;
-        #print Dumper $re2->methylation_sites;
 
         $re->others($re2);
         $count++;
@@ -294,9 +288,9 @@ sub _make_multisites {
            Bless a Bio::Restriction::Enzyme (which is already part of
            the collection object) into
            Bio::Restriction::Enzyme::MultiCut and clone it. The precut
-           string is processed to replace the cut sites in the cloned
-           object which is added into the collection. Both objects
-           refer to each other through others() method.
+           string is processed to replase the cut sites in the cloned
+           object which is added into the collection. Both object
+           refere to each other through others() method.
 
  Returns : nothing, does in place editing
  Args    : 1. a Bio::Restriction::EnzymeCollection
@@ -305,7 +299,7 @@ sub _make_multisites {
 
 
 The examples we have of multiply cutting enzymes cut only four
-times. This protected method deals only with a string of two positive
+times. This protected method deals only with a string of two
 integers separated with a slash, e.g. '12/7'. The numbers represent the postions
 BEFORE the start of the recognition site, i.e. negative positions.
 
@@ -315,23 +309,20 @@ sub _make_multicuts {
     my ($self, $renzs, $re, $precut) = @_;
 
     bless $re, 'Bio::Restriction::Enzyme::MultiCut';
-#    print Dumper $re, $cut;
+
+    my ($cut, $comp_cut) = $precut =~ /(-?\d+)\/(-?\d+)/;
+    
+    # Pads the front to prevent detection of sites when the 1st
+    # cut is off the end of the sequence.
+    my $site = $re->site;
+    $re->site(('N' x abs($cut)) . $site);
 
     my $re2 = $re->clone;
 
-    my ($cut, $comp_cut) = $precut =~ /(-?\d+)\/(-?\d+)/;
-
     $re2->cut("-$cut");
     $re2->complementary_cut("-$comp_cut");
-    $re2->site($re->seq->seq);
 
     $re->others($re2);
-    $re2->others($re);
-
-
-    #print Dumper $re;
-
-    $renzs->enzymes($re2);
 
     1;
 }

@@ -15,7 +15,7 @@ BEGIN {
         use lib 't','..';
     }
     use Test;
-    $NUMTESTS = 111;
+    $NUMTESTS = 150;
     $error  = 0;
 
     plan tests => $NUMTESTS;
@@ -25,7 +25,6 @@ BEGIN {
 if( $error ==  1 ) {
     exit(0);
 }
-
 
 require Bio::Restriction::Enzyme;
 require Bio::Restriction::Enzyme::MultiCut;
@@ -66,13 +65,6 @@ ok $re->is_ambiguous, 0;
 
 ok $re->compatible_ends($re);
 
-# tests for cut position 0
-ok $re=new Bio::Restriction::Enzyme(-enzyme=>'MboI', -site=>'^GATC');
-ok $re->site,'^GATC';
-ok $re->cut, 0;
-ok $re->complementary_cut, 4;
-
-
 ok $re->isoschizomers('BamHI', 'AvaI'); # not really true :)
 ok my @isos=$re->isoschizomers, 2;
 ok $isos[0] eq 'BamHI';
@@ -110,7 +102,8 @@ ok ! $re->is_prototype(0);
 ok $re->prototype_name('XxxI'), 'XxxI';
 ok $re->prototype_name, 'XxxI';
 
-ok $re->cutter, 4;
+
+ok $re->cutter, 6;
 $re->seq->seq('RCATGY');
 ok $re->cutter, 5;
 
@@ -179,13 +172,13 @@ ok $collection = new Bio::Restriction::EnzymeCollection(-empty=>1);
 ok $collection->each_enzyme, 0;
 # default set
 ok $collection = new Bio::Restriction::EnzymeCollection;
-ok $collection->each_enzyme, 530;
+ok $collection->each_enzyme, 532;
 ok $collection = new Bio::Restriction::EnzymeCollection;
-ok $collection->each_enzyme, 530;
+ok $collection->each_enzyme, 532;
 
 ok $enz=$collection->get_enzyme('AclI');
 ok $enz->isa('Bio::Restriction::Enzyme');
-ok my @enzymes=$collection->available_list, 530;
+ok my @enzymes=$collection->available_list, 532;
 
 ok $new_set=$collection->blunt_enzymes;
 ok $new_set->each_enzyme, 114;
@@ -215,28 +208,71 @@ my $seqio=new Bio::SeqIO(-file=>Bio::Root::IO->catfile("t","data","dna1.fa"),
 $seq=$seqio->next_seq;
 
 ok my $ra=Bio::Restriction::Analysis->new(-seq=>$seq);
-ok my $uniq = $ra->cut->unique_cutters;
+ok my $uniq = $ra->unique_cutters;
 
-ok $ra->cut->unique_cutters->each_enzyme, 42, 'wrong number of unique cutters';
-ok $ra->cut->unique_cutters->each_enzyme, 42, 'wrong number of unique cutters';
-#ok $ra->cut('original')->unique_cutters->each_enzyme, 42, 'wrong number of unique cutters';
-
-ok $ra->fragments('RsaI'), 2;
-ok $ra->max_cuts, 3;
-ok $ra->zero_cutters->each_enzyme, 476, 'wrong number of zero cutters';
-ok $ra->cutters->each_enzyme, 54, 'wrong number of zero cutters';
+# test most objects
+ok $ra->unique_cutters->each_enzyme, 42, 'wrong number of unique cutters';
+ok $ra->fragments('RsaI'), 2, 'wrong number of RsaI fragments';
+ok $ra->max_cuts, 9, 'wrong number of maximum cutters';
+ok $ra->zero_cutters->each_enzyme, 477, 'wrong number of zero cutters';
+ok $ra->cutters->each_enzyme, 55, 'wrong number of cutters';
 ok $ra->cutters(3)->each_enzyme, 8, 'wrong number of 3x cutters';
-ok $ra->fragments('MseI'), 4;
-ok $ra->cuts_by_enzyme('MseI'), 3;
+ok $ra->fragments('MseI'), 4, 'expected 4 MseI fragments';
+ok $ra->cuts_by_enzyme('MseI'), 3, 'expected 3 MseI cut sites';
 
 #my $z = $ra->cutters(3);
 #my $out=Bio::Restriction::IO->new;
 #$out->write($z);
 
 
-ok $ra->fragments('PspEI'), 2;
+ok $ra->fragments('PspEI'), 2, 'expected 2 PspEI fragments';
 ok $ra->cuts_by_enzyme('PspEI'), 1;
 ok $ra->cuts_by_enzyme('XxxI'), undef;
 
-ok my @ss = $ra->sizes('PspEI'), 2;
+
+ok my @ss = $ra->sizes('PspEI'), 2, 'expected 2 sizes for PspEI';
 ok $ss[0] + $ss[1], $seq->length;
+
+ok $ra->fragments('MwoI'), 1, 'not circular expected 1 fragments for MwoI as it doesnt cut';
+
+# circularise the sequence, regenerate the cuts and test again
+# note that there is one less fragment now!
+$seq->is_circular(1);
+
+# we need to regenerate all the cuts
+ok $ra->cut;
+
+ok $ra->fragments('RsaI'), 1, 'wrong number of RsaI fragments';
+ok $ra->fragments('MseI'), 3, 'expected 3 circular MseI fragments';
+ok $ra->cuts_by_enzyme('MseI'), 3, 'expected 3 circular MseI cut sites';
+ok $ra->fragments('AciI'), 1, 'wrong number for AciI a non-palindromic enzyme';
+
+ok $ra->fragments('MwoI'), 1, 'expected 1 fragments for MwoI as it cuts across the circ point';
+
+ok my @rb=($collection->get_enzyme("AluI"), $collection->get_enzyme("MseI"), $collection->get_enzyme("MaeIII"));
+
+# test multiple digests
+ok my $rbc=Bio::Restriction::EnzymeCollection->new(-empty=>1);
+ok $rbc->enzymes(@rb);
+ok $ra->cut('multiple', $rbc);
+ok $ra->fragments('multiple_digest'),7, 'expected 7 fragments in the multiple digest';
+ok my @pos=$ra->positions('multiple_digest'),7, 'expected 7 positions in the multiple digest';
+ok my @ssm = $ra->sizes('multiple_digest'),7, 'expected 7 sizes in the multiple digest';
+my $check_len;
+map {$check_len+=$_}@ssm;
+ok $check_len == $seq->length;
+
+# now test the non-palindromic part
+# HindI is a non palindromic enzyme that cuts 9 times
+ok $ra->positions('HindI'), 9, ' expected 9 cuts for HindI';
+
+# now we need to test the fragment maps
+# lets do this for HindI
+ok my @fm=$ra->fragment_maps('HindI'), 9, 'expect 9 fragment maps for HindI';
+foreach my $fm (@fm) {
+ ok exists $fm->{'seq'}, '1', "no sequence for $fm";
+ ok exists $fm->{'start'}, '1', "wrong start at ".$fm->{'start'};
+ ok exists $fm->{'end'}, 1, "wrong end at ".$fm->{'end'};
+}
+
+
