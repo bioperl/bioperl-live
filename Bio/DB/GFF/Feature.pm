@@ -494,7 +494,7 @@ sub clone {
 
  Title   : compound
  Usage   : $flag = $f->compound([$newflag])
- Function: get or set the compound flat
+ Function: get or set the compound flag
  Returns : a boolean
  Args    : a new flag (optional)
  Status  : Public
@@ -504,10 +504,10 @@ primary one from the database, but the result of aggregation.
 
 =cut
 
-sub score  {
+sub compound  {
   my $self = shift;
-  my $d    = $self->{score};
-  $self->{score} = shift if @_;
+  my $d    = $self->{compound};
+  $self->{compound} = shift if @_;
   $d;
 }
 
@@ -887,13 +887,6 @@ sub adjust_bounds {
   }
 
   ($self->{start},$self->{stop},$self->strand);
-}
-
-sub compound {
-  my $self = shift;
-  my $d = $self->{compound};
-  $self->{compound} = shift if @_;
-  $d;
 }
 
 =head2 sort_features
