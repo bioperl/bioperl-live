@@ -95,6 +95,7 @@ use Bio::Factory::TreeFactoryI;
 use Bio::Root::Root;
 use Bio::Tree::AlleleNode;
 use Bio::PopGen::Genotype;
+use Bio::Tree::Tree;
 
 @ISA = qw(Bio::Root::Root Bio::Factory::TreeFactoryI );
 
@@ -222,7 +223,7 @@ sub next_tree{
 	   $node->add_Descendent($nodes[$n->{'desc2'}]);
        }
    }   
-   my $T = new Bio::Tree::Tree(-root => pop @nodes );
+   my $T = Bio::Tree::Tree->new(-root => pop @nodes );
    return $T;
 }
 
