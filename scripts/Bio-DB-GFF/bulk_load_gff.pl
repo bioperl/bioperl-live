@@ -31,6 +31,11 @@ sub insert_sequence {
 
 package main;
 
+my $bWINDOWS = 0;    # Boolean: is this a MSWindows operating system?
+if ($^O =~ /Win/i) {
+    $bWINDOWS = 1;
+}
+
 my ($DSN,$FORCE,$USER,$PASSWORD,$FASTA);
 
 GetOptions ('database:s'    => \$DSN,
@@ -71,11 +76,11 @@ USAGE
 $DSN ||= 'test';
 
 unless ($FORCE) {
-  open (TTY,"/dev/tty") or die "/dev/tty: $!\n";
+  #open (TTY,"/dev/tty") or die "/dev/tty: $!\n";  #TTY use removed for win compatability
   print STDERR "This operation will delete all existing data in database $DSN.  Continue? ";
-  my $f = <TTY>;
+  my $f = <STDIN>;
   die "Aborted\n" unless $f =~ /^[yY]/;
-  close TTY;
+  #close TTY;
 }
 
 my (@auth,$AUTH);
@@ -102,6 +107,7 @@ foreach (@ARGV) {
 # drop everything that was there before
 my %FH;
 my $tmpdir = $ENV{TMPDIR} || $ENV{TMP} || '/usr/tmp';
+$tmpdir =~ s!\\!\\\\!g if $bWINDOWS; #eliminates backslash mis-interpretation
 my @files = (FDATA,FTYPE,FGROUP,FDNA,FATTRIBUTE,FATTRIBUTE_TO_FEATURE);
 foreach (@files) {
   $FH{$_} = IO::File->new("$tmpdir/$_.$$",">") or die $_,": $!";
@@ -121,16 +127,8 @@ my $FEATURES    = 0;
 my $count;
 while (<>) {
   chomp;
-  my ($ref,$source,$method,$start,$stop,$score,$strand,$phase,$group);
-  if (/^\#\#\s*sequence-region\s+(\S+)\s+(\d+)\s+(\d+)/i) { # header line
-    ($ref,$source,$method,$start,$stop,$score,$strand,$phase,$group) = 
-      ($1,'reference','Component',$2,$3,'.','.','.',qq(Sequence "$1"));
-  } elsif (/^\#/) {
-    next;
-  } else {
-    ($ref,$source,$method,$start,$stop,$score,$strand,$phase,$group) = split "\t";
-  }
-  next unless defined $ref;
+  next if /^\#/;
+  my ($ref,$source,$method,$start,$stop,$score,$strand,$phase,$group) = split "\t";
   $FEATURES++;
 
   $source = '\N' unless defined $source;
@@ -188,10 +186,11 @@ $_->close foreach values %FH;
 warn "Loading feature data.  You may see duplicate key warnings here...\n";
 
 my $success = 1;
+my $TERMINATEDBY = $bWINDOWS ? " LINES TERMINATED BY '\r\l'" : ''; 
 foreach (@files) {
   my $command =<<END;
 ${\MYSQL} $AUTH
--e "lock tables $_ write; delete from $_; load data infile '$tmpdir/$_.$$' replace into table $_; unlock tables"
+-e "lock tables $_ write; delete from $_; load data infile '$tmpdir/$_.$$' replace into table $_  $TERMINATEDBY; unlock tables"
 $DSN
 END
 ;
