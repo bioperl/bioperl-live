@@ -4,13 +4,17 @@ Bio::Factory::Pise
 
 =head1 SYNOPSIS
 
+  #
+
 =head1 DESCRIPTION
 
     A class to create Pise application objects.
 
        my $factory = new Bio::Factory::Pise(-email => 'me@myhome');
 
-    Then you can create an application object (Pise::Run::Tools::PiseApplication):
+    Then you can create an application object 
+    (Pise::Run::Tools::PiseApplication):
+
        my $program = $factory->program('genscan');
 
     The email is mandatory, as in the Web interface. This is due to
@@ -26,18 +30,21 @@ Bio::Factory::Pise
 
     You can either set remote:
        1) at factory creation
-           my $factory = Bio::Factory::Pise->new(-remote => 'http://somewhere/Pise/cgi-bin',
-						 -email => 'me@myhome');
+           my $factory = Bio::Factory::Pise->
+              new(-remote => 'http://somewhere/Pise/cgi-bin',
+		   -email => 'me@myhome');
        2) at program creation:
-           my $program = $factory->program('water', 
-					   -remote => 'http://somewhere/Pise/cgi-bin/water.pl'
-					   )
+           my $program = $factory->
+              program('water', -remote => 
+                       'http://somewhere/Pise/cgi-bin/water.pl'
+	      	     );
        3) at any time before running:
            $program->remote('http://somewhere/Pise/cgi-bin/water.pl');
            $job = $program->run();
 
        3) when running:
-           $job = $program->run(-remote => 'http://somewhere/Pise/cgi-bin/water.pl');
+           $job = $program->run(-remote => 
+                     'http://somewhere/Pise/cgi-bin/water.pl');
 
 
     You can also retrieve a previous job results by providing its url:
@@ -113,7 +120,9 @@ sub new {
 =head2 program
 
  Title   : program()
- Usage   : my $program = Bio::Factory::Pise->program($program, -remote => 'http://somewhere/cgi-bin/Pise', -email -> $email, @params);
+ Usage   : my $program = Bio::Factory::Pise->program
+             ($program, -remote => 'http://somewhere/cgi-bin/Pise', 
+                        -email -> $email, @params);
  Function: Creates a representation of a single Pise program.
  Example :
  Returns : An instance of Bio::Tools::Run::PiseApplication::$program.
@@ -188,8 +197,10 @@ sub program {
 =head2 job
 
  Title   : job(url)
- Usage   : my $job = Bio::Factory::Pise->job('http://somewhere/cgi-bin/Pise/tmp/dnapars/A3459687595869098');
- Function: Creates a previously run job by providing its jobid (url of results).
+ Usage   : my $job = Bio::Factory::Pise->
+             job('http://somewhere/cgi-bin/Pise/tmp/dnapars/A345965869098');
+ Function: Creates a previously run job by providing 
+           its jobid (url of results).
  Example :
  Returns : An instance of Bio::Tools::Run::PiseJob.
 

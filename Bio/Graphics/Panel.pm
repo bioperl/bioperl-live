@@ -729,12 +729,6 @@ Bio::Graphics::Panel - Generate GD images of Bio::Seq objects
 
 =head1 SYNOPSIS
 
-=head1 NAME
-
-Bio::Graphics - Generate GD images of Bio::Seq objects
-
-=head1 SYNOPSIS
-
   use Bio::Graphics;
   use Bio::DB::BioFetch;  # or some other Bio::SeqI generator
 

@@ -7,83 +7,99 @@ Bio::Tools::Run::PiseApplication
 
 =head1 SYNOPSIS
 
+  #
+
 =head1 DESCRIPTION
 
-  A class to manage Pise programs information, configuring parameters
-  and submit jobs. It is the super-class of all the 
-  Bio::Tools::Run::PiseApplication::program classes.
+A class to manage Pise programs information, configuring parameters
+and submit jobs. It is the super-class of all the 
+Bio::Tools::Run::PiseApplication::program classes.
 
-  This class is preferably created through the Bio::Factory::Pise factory:
+This class is preferably created through the Bio::Factory::Pise factory:
 
-    my $factory = Bio::Factory::Pise->new(-email => 'me@myhome');
-    my $program = $factory->program('mfold');
+  my $factory = Bio::Factory::Pise->new(-email => 'me@myhome');
+  my $program = $factory->program('mfold');
 
-  By submitting a job, you create a Bio::Tools::Run::PiseJob instance with 
-  the parameters you have just set. Bio::Tools::Run::PiseJob class handles 
-  a specific job state and results.
+By submitting a job, you create a Bio::Tools::Run::PiseJob instance with 
+the parameters you have just set. Bio::Tools::Run::PiseJob class handles 
+a specific job state and results.
 
-    my $factory = Bio::Factory::Pise->new(-email => 'me@myhome');
-    my $program = $factory->program('water', 
+  my $factory = Bio::Factory::Pise->new(-email => 'me@myhome');
+  my $program = $factory->program('water', 
 				    -sequencea => $seqa,
 				    -seqall => $seqb);
 
-    # run: submit and waits for completion
-    my $job = $program->run();
+  # run: submit and waits for completion
+  my $job = $program->run();
 
-    # for long jobs
-    my $job = $program->submit(); # only submit the request
-    my $jobid = $job->jobid;
-    # later, from another script
-    my $job = Bio::Tools::Run::PiseJob->fromUrl($jobid);
-    if ($job->terminated) {
-       print $job->stdout;
-    }
+  # for long jobs
+  my $job = $program->submit(); # only submit the request
+  my $jobid = $job->jobid;
+  # later, from another script
+  my $job = Bio::Tools::Run::PiseJob->fromUrl($jobid);
+  if ($job->terminated) {
+      print $job->stdout;
+  }
 
 
-  Pise parameters setting.
+=head2 Pise parameters setting.
 
-    The @params list should contain a list of -parameter => value pairs.
-      my @params = (-query => $file, -protein_db => "genpept");
-      my $program = $factory->program('blast2', @params);
-    or directly :
-      my $program = $factory->program('blast2', query => $file, protein_db => "genpept");
-    
-    Each program parameter is described in the documentation of the
-    corresponding Bio::Tools::Run::PiseApplication::program documentation.
+The @params list should contain a list of -parameter =E<gt> value pairs.
 
-    You can change parameters at any time by calling the corresponding
-    method, e.g, changing the parameter E in blast2:
-         my $program = $factory->program('blast2', 
-					 -protein_db => "genpept");
-         $program->query($seq);
-         $program->Expect($value);
+  my @params = (-query => $file, -protein_db => "genpept");
+  my $program = $factory->program('blast2', @params);
 
-    Parameter of Pise type "Sequence" and "InFile" may be given as string,
-    filename, or filehandle.
-    Parameter of type "Sequence" may also be given as Bio::Seq or 
-    Bio::SimpleAlign objects.
+or directly :
 
-    Job output:
-    See Bio::Tools::Run::PiseJob for how to fetch results and chain programs.
+  my $program = $factory->program('blast2', query => $file, 
+     protein_db => "genpept");
 
-    remote and email parameters:
+Each program parameter is described in the documentation of the
+corresponding Bio::Tools::Run::PiseApplication::program documentation.
 
-    Email must be set at factory creation.
+You can change parameters at any time by calling the corresponding
+method, e.g, changing the parameter E in blast2:
 
-    The remote parameter stands for the actual CGI location. 
-    There are default values for most of Pise programs.
+  my $program = $factory->program('blast2', -protein_db => "genpept");
+  $program->query($seq);
+  $program->Expect($value);
 
-    You can either set remote:
-       1) at factory creation
-           my $factory = Bio::Factory::Pise->new(-remote = 'http://somewhere/Pise/cgi-bin',
-						 -email => 'me@myhome');
-       2) at program creation:
-           my $program = $factory->program('water', 
-					   -remote = 'http://somewhere/Pise/cgi-bin/water.pl'
-					   )
-       3) at any time before running:
-           $program->remote('http://somewhere/Pise/cgi-bin/water.pl');
-           $program->run();
+Parameter of Pise type "Sequence" and "InFile" may be given as string,
+filename, or filehandle.  Parameter of type "Sequence" may also be
+given as Bio::Seq or Bio::SimpleAlign objects.
+
+=head2 Job output
+
+See Bio::Tools::Run::PiseJob for how to fetch results and chain programs.
+
+=head2 Remote and email parameters:
+
+Email must be set at factory creation.
+
+The remote parameter stands for the actual CGI location.  There are
+default values for most of Pise programs.
+
+You can either set remote at:
+
+=over 3
+
+=item 1 factory creation
+
+  my $factory = Bio::Factory::Pise->new(
+         -remote = 'http://somewhere/Pise/cgi-bin',
+	 -email => 'me@myhome');
+
+=item 2 program creation
+
+  my $program = $factory->program('water',
+	  -remote = 'http://somewhere/Pise/cgi-bin/water.pl');
+
+=item 3 any time before running:
+
+  $program->remote('http://somewhere/Pise/cgi-bin/water.pl');
+  $program->run();
+
+=back
 
 =cut
 

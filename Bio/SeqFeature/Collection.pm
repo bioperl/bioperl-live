@@ -18,41 +18,41 @@ range, that match a certain feature type, etc.
 
 =head1 SYNOPSIS
 
-use Bio::SeqFeature::Collection;
-use Bio::Location::Simple;
-use Bio::Tools::GFF;
-use Bio::Root::IO;
-# let's first input some features
-my $gffio = Bio::Tools::GFF->new(-file => Bio::Root::IO->catfile
-				 ("t","data","myco_sites.gff"), 
-				 -gff_version => 2);
-my @features = ();
-# loop over the input stream
-while(my $feature = $gffio->next_feature()) {
-    # do something with feature
-    push @features, $feature;
-}
-$gffio->close();
-# build the Collection object
-my $col = new Bio::SeqFeature::Collection();
-# add these features to the object
-my $totaladded = $col->add_features(\@features);
+  use Bio::SeqFeature::Collection;
+  use Bio::Location::Simple;
+  use Bio::Tools::GFF;
+  use Bio::Root::IO;
+  # let's first input some features
+  my $gffio = Bio::Tools::GFF->new(-file => Bio::Root::IO->catfile
+  				 ("t","data","myco_sites.gff"), 
+  				 -gff_version => 2);
+  my @features = ();
+  # loop over the input stream
+  while(my $feature = $gffio->next_feature()) {
+      # do something with feature
+      push @features, $feature;
+  }
+  $gffio->close();
+  # build the Collection object
+  my $col = new Bio::SeqFeature::Collection();
+  # add these features to the object
+  my $totaladded = $col->add_features(\@features);
 
-my @subset = $col->features_in_range(-start => 1,
-				     -end => 25000,
-				     -strand => 1,
-				     -contain => 0);
-# subset should have 18 entries for this dataset
-print "size is ", scalar @subset, "\n";
-@subset = $col->features_in_range(-range => Bio::Location::Simple->new
-				  (-start => 70000,
-				   -end => 150000,
-				   -strand => -1),
-				  -contain => 1,
-				  -strandmatch => 'strong');
+  my @subset = $col->features_in_range(-start => 1,
+  				     -end => 25000,
+  				     -strand => 1,
+  				     -contain => 0);
+  # subset should have 18 entries for this dataset
+  print "size is ", scalar @subset, "\n";
+  @subset = $col->features_in_range(-range => Bio::Location::Simple->new
+  				  (-start => 70000,
+  				   -end => 150000,
+  				   -strand => -1),
+  				  -contain => 1,
+  				  -strandmatch => 'strong');
 
-# subset should have 22 entries for this dataset
-print "size is ", scalar @subset, "\n";
+  # subset should have 22 entries for this dataset
+  print "size is ", scalar @subset, "\n";
 
 =head1 DESCRIPTION
 
@@ -149,6 +149,7 @@ use constant MIN_BIN    => 1_000;
                           (default is false or in-memory).
 
            -features      Array ref of features to add initially
+
 =cut
 
 sub new {
@@ -161,10 +162,9 @@ sub new {
 
   defined $maxbin && $self->max_bin($maxbin);
   defined $minbin && $self->min_bin($minbin);
- 
 
   defined $features &&  $self->add_features($features);
- 
+
   my $tmpname = undef;
   if( $usefile ) { 
       $self->{'_io'} = new Bio::Root::IO;
@@ -175,7 +175,8 @@ sub new {
   $DB_BTREE->{'flags'} = R_DUP ;
   $DB_BTREE->{'compare'} = \&_compare;
   $self->{'_btreehash'} = {};
-  $self->{'_btree'} = tie %{$self->{'_btreehash'}}, 'DB_File', $tmpname, O_RDWR|O_CREAT, 0640, $DB_BTREE;
+  $self->{'_btree'} = tie %{$self->{'_btreehash'}}, 
+      'DB_File', $tmpname, O_RDWR|O_CREAT, 0640, $DB_BTREE;
 
 #  possibly storing/retrieving as floats for speed improvement?
 #  $self->{'_btree'}->filter_store_key  ( sub { $_ = pack ("f", $_) } );
@@ -233,7 +234,6 @@ sub add_features{
            -end    => end,
            -strand  => strand
 
-    
            -contain => boolean - true if feature must be completely 
                        contained with range
                        OR false if should include features that simply overlap
@@ -245,7 +245,7 @@ sub add_features{
                            Default. 'ignore'.
 
 =cut
-    
+
 sub features_in_range{
    my $self = shift;
    my (@args) = @_;

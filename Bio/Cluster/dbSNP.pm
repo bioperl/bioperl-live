@@ -11,7 +11,11 @@ Bio::Cluster::dbSNP - create Bio::Variation::SNP objects from dbSNP entry
 
 =head1 SYNOPSIS
 
+  #
+
 =head1 DESCRIPTION
+
+  #
 
 =head1 FEEDBACK
 
@@ -35,7 +39,7 @@ or the web:
 
 =head1 AUTHOR
 
-Allen Day <allenday@ucla.edu>
+Allen Day E<lt>allenday@ucla.eduE<gt>
 
 =head1 APPENDIX
 

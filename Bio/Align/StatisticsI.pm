@@ -82,6 +82,7 @@ use Bio::Root::RootI;
  Args    : -align  => Bio::Align::AlignI object
            -method => String specifying specific distance method 
                       (implementing class may assume a default)
+
 =cut
 
 sub distance{

@@ -122,7 +122,7 @@ use Bio::Das::SegmentI;
 
 The new() method creates a new object.  The argument list is either a
 single argument consisting of a connection string, or the following
-list of -name=>value arguments:
+list of -name=E<gt>value arguments:
 
    Argument        Description
    --------        -----------

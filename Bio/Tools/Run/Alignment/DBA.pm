@@ -9,18 +9,19 @@
 
 =head1 NAME
 
-Bio::Tools::Run::Alignment::DBA - Object for the alignment of two sequences using
-the DNA Block Aligner program developed by Ewan Birney. DBA is part of the Wise
-package available at http://www.sanger.ac.uk/software/wise2.i
+Bio::Tools::Run::Alignment::DBA - Object for the alignment of two
+sequences using the DNA Block Aligner program.
 
 =head1 SYNOPSIS
+
   #  Build a dba alignment factory
   my @params = ('matchA' => 0.75, 'matchB' => '0.55','dymem'=>'linear');
   my  $factory = Bio::Tools::Run::Alignment::DBA->new(@params);
 
   #  Pass the factory a filename with 2 sequences to be aligned.
   $inputfilename = 't/data/dbaseq.fa';
-  my @hsps = $factory->align($inputfilename); #@hsps is an array of GenericHSP objects
+  #@hsps is an array of GenericHSP objects
+  my @hsps = $factory->align($inputfilename); 
 
   # or
   $seq_array_ref = \@seq_array;
@@ -36,6 +37,10 @@ There are various additional options and input formats available.  See
 the DESCRIPTION section that follows for additional details.
 
 =head1 DESCRIPTION
+
+DNA Block Aligner program (DBA) is developed by Ewan Birney. DBA is
+part of the Wise package available at
+http://www.sanger.ac.uk/software/wise2.
 
 =head1 FEEDBACK
 
@@ -223,23 +228,23 @@ sub version {
 
  Title   : align
  Usage   :
-  $inputfilename = 't/data/seq.fa';
-  @hsps = $factory->align($inputfilename);
-or
-  $seq_array_ref = \@seq_array; @seq_array is array of Seq objs
-  @hsps = $factory->align($seq_array_ref);
-
-or 
-  my @files = ('t/data/seq1.fa','t/data/seq2.fa');
-  @hsps = $factory->align(\@files);
-
+            $inputfilename = 't/data/seq.fa';
+            @hsps = $factory->align($inputfilename);
+          or
+            #@seq_array is array of Seq objs
+            $seq_array_ref = \@seq_array; 
+            @hsps = $factory->align($seq_array_ref);
+          or
+            my @files = ('t/data/seq1.fa','t/data/seq2.fa');
+            @hsps = $factory->align(\@files);
  Function: Perform a DBA  alignment
 
 
  Returns : An array of Bio::Search::HSP::GenericHSP objects 
  Args    : Name of a file containing a set of 2 fasta sequences
            or else a reference to an array  to 2  Bio::Seq objects.
-           or else a reference to an array of 2 file names containing 1 fasta sequence each
+           or else a reference to an array of 2 file
+              names containing 1 fasta sequence each
 
  Throws an exception if argument is not either a string (eg a
  filename) or a reference to an array of 2 Bio::Seq objects.  If
@@ -298,7 +303,7 @@ sub _run {
     return @{$hsps};
 }
 
-=head2  __parse_results
+=head2  _parse_results
 
  Title   :  __parse_results
  Usage   :  Internal function, not to be called directly
@@ -306,7 +311,7 @@ sub _run {
  Example :
  Returns : an reference to an array of GenericHSPs
  Args    : the name of the output file 
- 
+
 =cut
 
 sub _parse_results {
@@ -552,7 +557,6 @@ sub _setparams {
  Function:  get/set for the query sequence 
  Example :
  Returns : 
-          
  Args    : 
 
 =cut

@@ -322,15 +322,14 @@ sub subseq {
 	       }
 	       $seq .= $piece;
 	   }
-       } else { 
+       } else {
 	   $seq = substr( $self->seq(), $loc->start - 1, $loc->length);
-			  
        }
        if( $loc->strand < 0 ) { 
 	   $seq = Bio::PrimarySeq->new('-seq' => $seq)->revcom()->seq();
        }
        return $seq;
-   } 
+   }
    elsif(  defined  $start && defined $end ) {
        if( $start > $end ){
 	   $self->throw("in subseq, start [$start] has to be ".
@@ -349,7 +348,6 @@ sub subseq {
        } else {
 	   return substr( $self->seq(), $start, ($end-$start));
        }
-	   
    } else {
        $self->warn("Incorrect parameters to subseq - must be two integers ".
 		   "or a Bio::LocationI object not ($start,$end)");

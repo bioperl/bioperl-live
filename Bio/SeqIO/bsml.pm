@@ -148,7 +148,8 @@ my $nvtoken = ": ";  # The token used if a name/value pair has to be stuffed
                      # into a single line
 
 =head1 METHODS
-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-
+
+=cut
 
 sub _initialize {
   my($self,@args) = @_;

@@ -14,20 +14,21 @@ Bio::Tools::Alignment::Consed - A module to work with objects from consed .ace f
 
 =head1 SYNOPSIS
 
-        # a report for sequencing stuff
-my $o_consed = new Bio::Tools::Alignment::Consed( -acefile => "/path/to/an/acefile.ace.1",
-				-verbose => 1);
-my $foo = $o_consed->set_reverse_designator("r");
-my $bar = $o_consed->set_forward_designator("f");
+  # a report for sequencing stuff
+  my $o_consed = new Bio::Tools::Alignment::Consed( 
+      -acefile => "/path/to/an/acefile.ace.1",
+      -verbose => 1);
+  my $foo = $o_consed->set_reverse_designator("r");
+  my $bar = $o_consed->set_forward_designator("f");
 
-        # get the contig numbers
-my @keys = $o_consed->get_contigs();
+  # get the contig numbers
+  my @keys = $o_consed->get_contigs();
 
-        # construct the doublets
-my $setter_doublets = $o_consed->choose_doublets();
+  # construct the doublets
+  my $setter_doublets = $o_consed->choose_doublets();
 
-        # get the doublets
-my @doublets = $o_consed->get_doublets();
+  # get the doublets
+  my @doublets = $o_consed->get_doublets();
 
 =head1 DESCRIPTION
 
@@ -214,7 +215,7 @@ sub get_filename {
 
            This method was reimplemented to be platform independent with a 
            pure perl implementation.  The above note can be ignored.
-          
+
 =cut
 
 sub count_sequences_with_grep {
@@ -223,7 +224,7 @@ sub count_sequences_with_grep {
     # this should be migrated to a pure perl implementation ala
     # Tom Christiansen's 'tcgrep'
     # http://www.perl.com/language/ppt/src/grep/tcgrep
-    
+
     open(FILE, $self->{'filename'}) or do { $self->warn("cannot open file ".$self->{'filename'}. " for grepping"); return}; 
     my $counter =0;
     while(<FILE>) { $counter++ if(/^AF/); }
@@ -245,7 +246,7 @@ sub count_sequences_with_grep {
 #	if (!($^O =~ /dec_osf|linux|unix|bsd|solaris|darwin/i)) {
 #	$self->warn("Bio::Tools::Alignment::Consed::count_sequences_with_grep: This sub uses grep which is doesn't run on this operating system, AFAIK. Sorry   .".$^O);
 #	return 1;
-#    }    
+#    }
 #    $grep_cli = `which grep`;
 #    if (!$grep_cli) {
 #	$self->warn("I couldn't see to find grep on this system, or the which command is broken. Bio::Tools::Alignment::Consed::count_sequences_with_grep requires grep and which to find grep.");
@@ -315,7 +316,8 @@ See L<get_quality_scalar()|get_quality_scalar>
 
 sub get_quality_array {
     my ($self,$contig) = @_;
-    my @qualities = split(' ',($self->{'contigs'}->{$contig}->{'quality'}=~s/\s+//));
+    my @qualities = split
+	(' ',($self->{'contigs'}->{$contig}->{'quality'}=~s/\s+//));
     return @qualities;
 }
 
@@ -455,7 +457,8 @@ See L<get_contigs()|get_contigs>
 sub get_contig_number_by_name {
     my ($self,$name) = @_;
     foreach my $currkey (sort keys %{$self->{'contigs'}}) {
-	if ($self->{'contigs'}->{$currkey}->{'name'} && $self->{'contigs'}->{$currkey}->{'name'} eq "$name") {
+	if ($self->{'contigs'}->{$currkey}->{'name'} && 
+	    $self->{'contigs'}->{$currkey}->{'name'} eq "$name") {
 	    return $currkey;
 	}
     }

@@ -7,6 +7,8 @@ Bio::Tools::Run::PiseJobParser
 
 =head1 SYNOPSIS
 
+  #
+
 =head1 DESCRIPTION
 
    Parsing of Pise XHTML output to extract results files and piping menus.

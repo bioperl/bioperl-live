@@ -7,51 +7,54 @@ Bio::Tools::Run::PiseJob
 
 =head1 SYNOPSIS
 
+  #
+
 =head1 DESCRIPTION
 
-  Bio::Tools::Run::PiseJob class handles a specific job state and results.
-  A Bio::Tools::Run::PiseJob instance should be created by a subclass of 
-  Bio::Tools::Run::PiseApplication  class, e.g
-  Bio::Tools::Run::PiseApplication::genscan or 
-  Bio::Tools::Run::PiseApplication::dnapars, ... (see 
-  Bio::Tools::Run::PiseApplication class) :
+Bio::Tools::Run::PiseJob class handles a specific job state and results.
+A Bio::Tools::Run::PiseJob instance should be created by a subclass of 
+Bio::Tools::Run::PiseApplication  class, e.g
+Bio::Tools::Run::PiseApplication::genscan or 
+Bio::Tools::Run::PiseApplication::dnapars, ... (see 
+Bio::Tools::Run::PiseApplication class) :
 
-    my $job = Bio::Tools::Run::PiseJob->new($self, $self->{VERBOSE});
+  my $job = Bio::Tools::Run::PiseJob->new($self, $self->{VERBOSE});
 
-  This class may also be used as a mean to get informations
-  about a running job, or to get results after a long computation:
+This class may also be used as a mean to get informations
+about a running job, or to get results after a long computation:
 
-    my $job = Bio::Factory::Pise->job($url);
-    print $job->content('infile.aln');
+  my $job = Bio::Factory::Pise->job($url);
+  print $job->content('infile.aln');
 
-  Once the job is created, you can get results:
+Once the job is created, you can get results:
 
-    foreach my $result ($job->get_results) {
-	print $job->content($result);
-	$job->save($result, "myfile"); # $job->save($result) keeps the name
-	print $job->stdout;            # print job standard output
-	print $job->stderr;            # print job standard error
-    }
+  foreach my $result ($job->get_results) {
+    print $job->content($result);
+    $job->save($result, "myfile"); # $job->save($result) keeps the name
+    print $job->stdout;            # print job standard output
+    print $job->stderr;            # print job standard error
+  }
 
-  You can feed a result file as a filehandle to a bioperl parser :
+You can feed a result file as a filehandle to a bioperl parser :
 
-     my $parser = Bio::Tools:Genscan->new (-fh => $job->fh('genscan.out'));
-     my $parser = Bio::Tools:BPlite->new (-fh => $job->fh('blast2.txt'));
+  my $parser = Bio::Tools:Genscan->new (-fh => $job->fh('genscan.out'));
+  my $parser = Bio::Tools:BPlite->new (-fh => $job->fh('blast2.txt'));
 
-   ... or to another pise job:
+... or to another pise job:
 
-     my $neighbor = $factory->program ('neighbor',
-					infile => $job->fh('outfile'));
+   my $neighbor = $factory->program ('neighbor',
+				     infile => $job->fh('outfile'));
 
-  You can lookup up for a type of result that could be piped to another
-  Pise program:
+You can lookup up for a type of result that could be piped to another
+Pise program:
 
-     my $matrix = $job->lookup_piped_file('phylip_dist');
+  my $matrix = $job->lookup_piped_file('phylip_dist');
 
-  returns the url of the just calculated Phylip distances matrix file, 
-  produced by e.g DNADIST or PROTDIST.
+returns the url of the just calculated Phylip distances matrix file, 
+produced by e.g DNADIST or PROTDIST.
 
-  All the available pipe types may be obtained by:
+All the available pipe types may be obtained by:
+
     $job->lookup_piped_files;
 
 =cut

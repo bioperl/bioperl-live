@@ -22,18 +22,16 @@ Bio::Cluster::UniGene - UniGene object
 
 	use Bio::Cluster::UniGene;
 	use Bio::ClusterIO;
-	
-	$stream  = Bio::ClusterIO->new('-file' => "Hs.data", '-format' => "unigene");
+
+	$stream  = Bio::ClusterIO->new('-file' => "Hs.data", 
+                                       '-format' => "unigene");
 	# note: we quote -format to keep older perl's from complaining.
 
-	
 	while ( my $in = $stream->next_unigene() ) {
-		
 		print $in->unigene_id() . "\n";
-
 		while ( my $sequence = $in->next_seq() ) {
 			print $sequence->accession_number() . "\n";
-		}	
+		}
 
 =head1 DESCRIPTION
 
@@ -58,29 +56,40 @@ gnm_terminus() - set/get gnm_terminus
 
 scount() - set/get scount
 
-express() - set/get express, currently takes/returns a reference to an array of expressed tissues
+express() - set/get express, currently takes/returns a reference to an
+array of expressed tissues
 
-next_express() - returns the next tissue expression from the expressed tissue array
+next_express() - returns the next tissue expression from the expressed
+tissue array
 
-chromosome() - set/get chromosome, currently takes/returns a reference to an array of chromosome lines
+chromosome() - set/get chromosome, currently takes/returns a reference
+to an array of chromosome lines
 
-next_chromosome() - returns the next chromosome line from the array of chromosome lines
+next_chromosome() - returns the next chromosome line from the array of
+chromosome lines
 
-sts() - set/get sts, currently takes/returns a reference to an array of sts lines
+sts() - set/get sts, currently takes/returns a reference to an array
+of sts lines
 
 next_sts() - returns the next sts line from the array of sts lines
 
-txmap() - set/get txmap, currently takes/returns a reference to an array of txmap lines
+txmap() - set/get txmap, currently takes/returns a reference to an
+array of txmap lines
 
-next_txmap() - returns the next txmap line from the array of txmap lines
+next_txmap() - returns the next txmap line from the array of txmap
+lines
 
-protsim() - set/get protsim, currently takes/returns a reference to an array of protsim lines
+protsim() - set/get protsim, currently takes/returns a reference to an
+array of protsim lines
 
-next_protsim() - returns the next protsim line from the array of protsim lines
+next_protsim() - returns the next protsim line from the array of
+protsim lines
 
-sequence() - set/get sequence, currently takes/returns a reference to an array of references to seq info
+sequence() - set/get sequence, currently takes/returns a reference to
+an array of references to seq info
 
-next_seq() - returns a Seq object that currently only contains an accession number
+next_seq() - returns a Seq object that currently only contains an
+accession number
 
 
 =head1 FEEDBACK
@@ -288,7 +297,8 @@ sub locuslink {
  Title   : gnm_terminus
  Usage   : gnm_terminus();
  Function: Returns the gnm_terminus associated with the object.
- Example : $gnm_terminus = $unigene->gnm_terminus or $unigene->gnm_terminus($gnm_terminus)
+ Example : $gnm_terminus = $unigene->gnm_terminus or 
+           $unigene->gnm_terminus($gnm_terminus)
  Returns : A string
  Args    : None or a gnm_terminus
 
@@ -312,7 +322,8 @@ sub gnm_terminus {
  Title   : chromosome
  Usage   : chromosome();
  Function: Returns the chromosome associated with the object.
- Example : $chromosome = $unigene->chromosome or $unigene->chromosome($chromosome)
+ Example : $chromosome = $unigene->chromosome or 
+           $unigene->chromosome($chromosome)
  Returns : A string
  Args    : None or a chromosome
 
@@ -360,8 +371,9 @@ sub scount {
 
  Title   : express
  Usage   : express();
- Function: Returns or stores a reference to an array containing tissue expression data
- 		   This should really only be used by ClusterIO, not directly
+ Function: Returns or stores a reference to an array containing 
+           tissue expression data
+ 	   This should really only be used by ClusterIO, not directly
  Returns : An array reference
  Args    : None or an array reference
 
@@ -384,7 +396,8 @@ sub express {
 
  Title   : next_express
  Usage   : next_express();
- Function: Returns the next tissue from an array referred to using $obj->{'express'}
+ Function: Returns the next tissue from an array referred 
+           to using $obj->{'express'}
  Example : 	while ( my $express = $in->next_express() ) {
 				print "$express\n";
 			}
@@ -448,7 +461,7 @@ sub next_chromosome {
  Title   : sts
  Usage   : sts();
  Function: Returns or stores a reference to an array containing sts lines
- 		   This should really only be used by ClusterIO, not directly
+ 	   This should really only be used by ClusterIO, not directly
  Returns : An array reference
  Args    : None or an array reference
 
@@ -471,7 +484,8 @@ sub sts {
 
  Title   : next_sts
  Usage   : next_sts();
- Function: Returns the next sts line from an array referred to using $obj->{'sts'}
+ Function: Returns the next sts line from an array referred 
+           to using $obj->{'sts'}
  Example : 	while ( my $sts = $in->next_sts() ) {
 				print "$sts\n";
 			}
@@ -491,7 +505,7 @@ sub next_sts {
  Title   : txmap
  Usage   : txmap();
  Function: Returns or stores a reference to an array containing txmap lines
- 		   This should really only be used by ClusterIO, not directly
+	   This should really only be used by ClusterIO, not directly
  Returns : An array reference
  Args    : None or an array reference
 
@@ -514,7 +528,8 @@ sub txmap {
 
  Title   : next_txmap
  Usage   : next_txmap();
- Function: Returns the next txmap line from an array referred to using $obj->{'txmap'}
+ Function: Returns the next txmap line from an array 
+           referred to using $obj->{'txmap'}
  Example : 	while ( my $tsmap = $in->next_txmap() ) {
 				print "$txmap\n";
 			}
@@ -534,7 +549,7 @@ sub next_txmap {
  Title   : protsim
  Usage   : protsim();
  Function: Returns or stores a reference to an array containing protsim lines
- 		   This should really only be used by ClusterIO, not directly
+	   This should really only be used by ClusterIO, not directly
  Returns : An array reference
  Args    : None or an array reference
 
@@ -557,7 +572,8 @@ sub protsim {
 
  Title   : next_protsim
  Usage   : next_protsim();
- Function: Returns the next protsim line from an array referred to using $obj->{'protsim'}
+ Function: Returns the next protsim line from an array referred 
+           to using $obj->{'protsim'}
  Example : 	while ( my $protsim = $in->next_protsim() ) {
 				print "$protsim\n";
 			}
@@ -578,7 +594,7 @@ sub next_protsim {
  Title   : sequence
  Usage   : sequence();
  Function: Returns or stores a reference to an array containing sequence data
- 		   This should really only be used by ClusterIO, not directly
+ 	   This should really only be used by ClusterIO, not directly
  Returns : An array reference
  Args    : None or an array reference
 
@@ -612,7 +628,7 @@ sub sequence {
  Args    : None
 
 =cut
-    
+
 sub next_seq {
     my ($obj) = @_;
     return unless (my $seq = shift @{$obj->{'sequence'}});

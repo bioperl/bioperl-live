@@ -49,8 +49,8 @@ landmark.  A segment is created using the Bio::DasI segment() method.
 
 Features can be filtered by the following attributes:
 
-  1) their location relative to the segment (whether overlapping, contained
-          within, or completely containing)
+  1) their location relative to the segment (whether overlapping,
+          contained within, or completely containing)
 
   2) their type
 
@@ -68,18 +68,17 @@ Access to the feature list uses three distinct APIs:
 
 =head2 Mailing Lists
 
-User feedback is an integral part of the evolution of this
-and other Bioperl modules. Send your comments and suggestions preferably
- to one of the Bioperl mailing lists.
-Your participation is much appreciated.
+User feedback is an integral part of the evolution of this and other
+Bioperl modules. Send your comments and suggestions preferably to one
+of the Bioperl mailing lists.  Your participation is much appreciated.
 
   bioperl-l@bio.perl.org
 
 =head2 Reporting Bugs
 
 Report bugs to the Bioperl bug tracking system to help us keep track
- the bugs and their resolution.
- Bug reports can be submitted via email or the web:
+the bugs and their resolution.  Bug reports can be submitted via email
+or the web:
 
   bioperl-bugs@bio.perl.org
   http://bio.perl.org/bioperl-bugs/
@@ -90,7 +89,8 @@ Email lstein@cshl.org
 
 =head1 APPENDIX
 
-The rest of the documentation details each of the object methods. Internal methods are usually preceded with a _
+The rest of the documentation details each of the object
+methods. Internal methods are usually preceded with a _
 
 =cut
 
@@ -235,7 +235,7 @@ range intersection modes.  Types of range intersection are one of:
 
 Two types of argument lists are accepted.  In the positional argument
 form, the arguments are treated as a list of feature types.  In the
-named parameter form, the arguments are a series of -name=>value
+named parameter form, the arguments are a series of -name=E<gt>value
 pairs.
 
   Argument    Description

@@ -14,17 +14,17 @@ Bio::DB::Registry - Access to the Open Bio Database Access registry scheme
     $registry = new Bio::DB::Registry();
 
     @available_services = $registry->services;
-    
-    $db = $registry->get_database('embl'); 
+
+    $db = $registry->get_database('embl');
     # $db is a Bio::DB::SeqI implementing class
 
-    $seq = $db->get_Seq_by_acc("J02231");    
+    $seq = $db->get_Seq_by_acc("J02231");
 
 =head1 DESCRIPTION
 
 This module provides access to the Open Bio Database Access scheme,
 which provides a cross language and cross platform specification of how
-to get to databases. 
+to get to databases.
 
 
 =head1 CONTACT
@@ -37,8 +37,8 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 the bugs and their resolution. Bug reports can be submitted via email
 or the web:
 
-    bioperl-bugs@bio.perl.org                   
-    http://bio.perl.org/bioperl-bugs/           
+    bioperl-bugs@bio.perl.org
+    http://bio.perl.org/bioperl-bugs/
 
 =head1 APPENDIX
 
@@ -167,9 +167,8 @@ sub _load_registry {
  Returns : Bio::DB::SeqI object
  Args    : string describing the name of the database
 
-
 =cut
-	
+
 sub get_database {
     my ($self,$dbname) = @_;
 

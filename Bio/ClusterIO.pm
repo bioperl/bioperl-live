@@ -12,7 +12,8 @@
 #
 # _history
 #
-# May 7, 2002 - changed from UniGene.pm to more generic ClusterIO.pm by Andrew Macgregor
+# May 7, 2002 - changed from UniGene.pm to more generic ClusterIO.pm
+# by Andrew Macgregor
 #
 # April 17, 2002 - Initial implementation by Andrew Macgregor
 # POD documentation - main docs before the code
@@ -23,39 +24,38 @@ Bio::ClusterIO - Handler for Cluster Formats
 
 =head1 SYNOPSIS
 
-	NB: This example is unigene specific
-	
-	use Bio::Cluster::UniGene;
-    use Bio::ClusterIO;
-	
-	$stream  = Bio::ClusterIO->new('-file' => "Hs.data", '-format' => "unigene");
-    # note: we quote -format to keep older perl's from complaining.
+  #NB: This example is unigene specific
 
-	
-	while ( my $in = $stream->next_cluster() ) {
-		
-		print $in->unigene_id() . "\n";
+  use Bio::Cluster::UniGene;
+  use Bio::ClusterIO;
 
-		while ( my $sequence = $in->next_seq() ) {
-			print $sequence->accession_number() . "\n";
-		}	
+  $stream  = Bio::ClusterIO->new('-file' => "Hs.data", 
+                                 '-format' => "unigene");
+  # note: we quote -format to keep older perl's from complaining.
 
-	Parsing errors are printed to STDERR.
+  while ( my $in = $stream->next_cluster() ) {
+      print $in->unigene_id() . "\n";
+      while ( my $sequence = $in->next_seq() ) {
+          print $sequence->accession_number() . "\n";
+      }
+  # Parsing errors are printed to STDERR.
 
 =head1 DESCRIPTION
 
-The ClusterIO module works with the ClusterIO format module to read various cluster formats such as NCBI UniGene.
+The ClusterIO module works with the ClusterIO format module to read
+various cluster formats such as NCBI UniGene.
 
 
 =head1 CONSTRUCTORS
 
-=head2 Bio::ClusterIO->new()
+=head2 Bio::ClusterIO-E<gt>new()
 
-   $str = Bio::ClusterIO->new(-file => 'filename',   -format=>$format);
+   $str = Bio::ClusterIO->new(-file => 'filename',
+                              -format=>$format);
 
 The new() class method constructs a new Bio::ClusterIO object.  The
-returned object can be used to retrieve or print cluster objects. new()
-accepts the following parameters:
+returned object can be used to retrieve or print cluster
+objects. new() accepts the following parameters:
 
 =over 4
 
@@ -73,8 +73,8 @@ If no format is specified and a filename is given, then the module
 will attempt to deduce it from the filename.  If this is unsuccessful,
 the main UniGene build format is assumed.
 
-The format name is case insensitive.  'UNIGENE', 'UniGene' and 'unigene' are
-all supported.
+The format name is case insensitive.  'UNIGENE', 'UniGene' and
+'unigene' are all supported.
 
 =back
 
@@ -82,14 +82,16 @@ all supported.
 
 See below for more detailed summaries.  The main methods are:
 
-=head2 $cluster = $str->next_cluster()
+=head2 $cluster = $str-E<gt>next_cluster()
 
 Fetch the next cluster from the stream.
 
 
 =head2 TIEHANDLE(), READLINE(), PRINT()
 
-These I've left in here because they were in the SeqIO module. Feedback appreciated. There they provide the tie interface.  See L<perltie> for more details.
+These I've left in here because they were in the SeqIO
+module. Feedback appreciated. There they provide the tie interface.
+See L<perltie> for more details.
 
 =head1 FEEDBACK
 
@@ -122,6 +124,7 @@ The rest of the documentation details each of the object
 methods. Internal methods are usually preceded with a _
 
 =cut
+
 #'
 # Let the code begin...
 

@@ -16,15 +16,17 @@ Bio::Factory::SequenceStreamI - Interface describing the basics of a Sequence St
 
 =head1 SYNOPSIS
 
-# get a SequenceStreamI object somehow like with SeqIO
-    use Bio::SeqIO;
-    my $in = new Bio::SeqIO(-file => '< fastafile');
-    while( my $seq = $in->next_seq ) {
-    }
+  # get a SequenceStreamI object somehow like with SeqIO
+  use Bio::SeqIO;
+  my $in = new Bio::SeqIO(-file => '< fastafile');
+  while( my $seq = $in->next_seq ) {
+  }
 
 =head1 DESCRIPTION
 
-This interface is for describing objects which produces Bio::PrimarySeqI objects or processes Bio::PrimarySeqI objects to a data stream.
+This interface is for describing objects which produces
+Bio::PrimarySeqI objects or processes Bio::PrimarySeqI objects to a
+data stream.
 
 =head1 FEEDBACK
 

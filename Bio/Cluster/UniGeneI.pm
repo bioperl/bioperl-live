@@ -20,12 +20,15 @@ Bio::Cluster::UniGeneI - abstract interface of UniGene object
 
 =head1 SYNOPSIS
 
+  #
 
 =head1 DESCRIPTION
 
+  #
 
 =head1 FEEDBACK
 
+  #
 
 =head2 Mailing Lists
 
