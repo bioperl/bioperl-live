@@ -24,7 +24,7 @@ use Bio::Root::IO;
 
 my $compseqoutfile = '/tmp/dna1.4.compseq';
 END { 
-    foreach ( $Test::ntest..$NTESTS ) { skip(1,1,"EMBOSS not installed locally");}
+    foreach ( $Test::ntest..$NTESTS ) { skip("EMBOSS not installed locally",1);}
     unlink($compseqoutfile) }
 my $verbose = $ENV{'BIOPERLDEBUG'} || -1;
 ok(1);
