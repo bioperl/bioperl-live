@@ -110,7 +110,7 @@ sub _initialize {
 sub _tag_value {
     my ($self, $tag, $value) = @_;
 
-    if(defined($value)) {
+    if(defined($value) || (! $self->has_tag($tag))) {
 	$self->remove_tag($tag) if($self->has_tag($tag));
 	$self->add_tag_value($tag, $value);
     }

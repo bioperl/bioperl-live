@@ -83,7 +83,7 @@ sub _initialize {
 			      SEQLENGTH
 			      )],@args);
 
-    $evalue && $self->expect($evalue);
+    $evalue && $self->significance($evalue);
     $seqlen && $self->seqlength($seqlen);
     $self->primary_tag('similarity') if(! defined($self->primary_tag()));
     $self->strand(0) if(! defined($self->strand()));
@@ -109,7 +109,7 @@ sub _initialize {
 sub _tag_value {
     my ($self, $tag, $value) = @_;
 
-    if(defined($value)) {
+    if(defined($value) || (! $self->has_tag($tag))) {
 	$self->remove_tag($tag) if($self->has_tag($tag));
 	$self->add_tag_value($tag, $value);
     }
