@@ -121,7 +121,6 @@ sub next_primary_qual {
 	# print("CSM next_primary_qual!\n");
   my( $self, $as_next_qual ) = @_;
   my ($qual,$seq);
-  my $alphabet;
   local $/ = "\n>";
 
   return unless my $entry = $self->_readline;
@@ -129,34 +128,15 @@ sub next_primary_qual {
   if ($entry eq '>')  {  # very first one
     return unless $entry = $self->_readline;
   }
-
-  	# original: my ($top,$sequence) = $entry =~ /^(.+?)\n([^>]*)/s
+  
   my ($top,$sequence) = $entry =~ /^(.+?)\n([^>]*)/s
-    or $self->throw("Can't parse entry [$entry]");
+      or $self->throw("Can't parse entry [$entry]");
   my ($id,$fulldesc) = $top =~ /^\s*(\S+)\s*(.*)/
-    or $self->throw("Can't parse fasta header");
+      or $self->throw("Can't parse fasta header");
   $id =~ s/^>//;
-  	# $sequence =~ s/\s//g; # Remove whitespace
-  # for empty sequences we need to know the mol.type
-	# no we don't, not for PrimaryQuals because... well just because.
-	# $alphabet = $self->alphabet();
-	# print("CSM \$alphabet is $alphabet\n");
-  if(length($sequence) == 0) {
-      if(! defined($alphabet)) {
-          # let's default to dna
-		# lets not.
-		# $alphabet = "dna";
-      }
-  } else {
-      # we don't need it really, so disable
-	# you bet we don't need it because PrimaryQual doesn't pay it any mind anyway
-	# $alphabet = undef;
-  }
-
   # create the seq object
-	$sequence =~ s/\n//g;
+  $sequence =~ s/\n+/ /g;
   if ($as_next_qual) {
-	# print("CSM qual.pm: creating a primaryqual object with $sequence\n");
       $qual = Bio::Seq::PrimaryQual->new(-qual        => $sequence,
 					 -id         => $id,
 					 -primary_id => $id,
@@ -164,10 +144,6 @@ sub next_primary_qual {
 					 -desc       => $fulldesc
 					 );
   }
-  # if there wasn't one before, set the guessed type
-	# no, don't.
-  	# $self->alphabet($qual->alphabet());
-  	# print("CSM next_primary_qual: returning $qual.\n");
   return $qual;
 }
 
