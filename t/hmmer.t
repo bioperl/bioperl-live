@@ -16,7 +16,7 @@ BEGIN {
 	use lib 't';
     }
     use Test;
-    plan test => 10;
+    plan test => 16;
 }
 
 use Bio::Tools::HMMER::Domain;
@@ -78,4 +78,22 @@ ok $res->number, 1215, "\nBad number of domains. Expecting 1215. Got" . $res->nu
 $res = Bio::Tools::HMMER::Results->new( -file => Bio::Root::IO->catfile("t","data","hmmpfam.out") , 
 					-type => 'hmmpfam');
 
-ok $res->number, 2, "\nBad number of domains. Expecting 2. Got".$res->number;
+ok ($res->number, 2);
+
+# parse HMM 2.2 files
+
+$res = Bio::Tools::HMMER::Results->new( -file => Bio::Root::IO->catfile("t","data","L77119.hmmer") , -type => 'hmmpfam');
+$seen =0;
+foreach $set ( $res->each_Set) {
+    # only one set anyways
+    ok($set->name, 'gi|1522636|gb|AAC37060.1|');
+    foreach $domain ( $set->each_Domain ) {
+	#print STDERR "Got domain ",$domain->seqname," start ",$domain->start," end ",$domain->end,"\n";
+    # do nothing for the moment
+	ok($domain->start, 280);
+	ok($domain->end, 481);
+	ok($domain->bits, -105.2);
+	ok($domain->evalue, 0.0022 );
+    }
+}
+ok ($res->number, 1);
