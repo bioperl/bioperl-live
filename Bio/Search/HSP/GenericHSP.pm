@@ -276,12 +276,12 @@ sub new {
 	$self->frac_conserved( 'total', $conserved / $self->length('total'));
     }
     if( $hit_len ) {
-	$self->length('hit', $hit_len);
+	$self->length('hit', $self->hit->length);
 	$self->frac_identical( 'hit', $identical / $self->length('hit'));
 	$self->frac_conserved( 'hit', $conserved / $self->length('hit'));
     }
     if( $query_len ) {
-	$self->length('query', $query_len);	
+	$self->length('query', $self->query->length);	
 	$self->frac_identical( 'query', $identical / $self->length('query')) ;
 	$self->frac_conserved( 'query', $conserved / $self->length('query'));
     }
