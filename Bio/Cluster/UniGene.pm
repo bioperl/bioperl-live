@@ -6,7 +6,7 @@
 #
 # Copyright Andrew Macgregor, Jo-Ann Stanton, David Green
 # Molecular Embryology Group, Anatomy & Structural Biology, University of Otago
-# http://anatomy.otago.ac.nz/meg
+# http://meg.otago.ac.nz/
 #
 # You may distribute this module under the same terms as perl itself
 #
@@ -170,7 +170,7 @@ methods. Internal methods are usually preceded with a "_".
 
 
 package Bio::Cluster::UniGene;
-use vars qw(@ISA $VERSION);
+use vars qw(@ISA);
 use strict;
 
 
@@ -186,7 +186,6 @@ use Bio::Factory::SequenceStreamI;
 use Bio::Seq::SeqFactory;
 use Bio::Cluster::UniGeneI;
 
-$VERSION = '1.1';
 @ISA = qw(Bio::Root::Root Bio::Cluster::UniGeneI
 	  Bio::IdentifiableI Bio::DescribableI Bio::AnnotatableI
 	  Bio::Factory::SequenceStreamI);
@@ -197,6 +196,8 @@ my %species_map = (
 		   'Bt'  => "Bos taurus",
 		   'Cel' => "Caenorhabditis elegans",
 		   'Cin' => "Ciona intestinalis",
+		   'Cre' => "Chlamydomonas reinhardtii",
+		   'Ddi'  => "Dictyostelium discoideum",
 		   'Dr'  => "Danio rerio",
 		   'Dm'  => "Drosophila melanogaster",
 		   'Gga' => "Gallus gallus",
@@ -1192,7 +1193,7 @@ sub next_seq {
     # assemble the annotation collection
     my $ac = Bio::Annotation::Collection->new();
     foreach my $k (keys %$seq_h) {
-	next if $k =~ /acc|pid|nid/;
+	next if $k =~ /acc|pid|nid|version/;
 	my $ann = Bio::Annotation::SimpleValue->new(-tagname => $k,
 						    -value   => $seq_h->{$k});
 	$ac->add_Annotation($ann);
@@ -1205,6 +1206,7 @@ sub next_seq {
 	  -primary_id       => $seq_h->{nid} && $seq_h->{nid} =~ /^g\d+$/ ?
 				     substr($seq_h->{nid},1) : $seq_h->{nid},
 	  -display_id       => $seq_h->{acc},
+	  -seq_version		=> $seq_h->{version},
 	  -alphabet         => $obj->{'_alphabet'},
 	  -namespace        => $seq_h->{acc} =~ /^NM_/ ? 'RefSeq' : 'GenBank',
 	  -authority        => $obj->authority(), # default is NCBI
