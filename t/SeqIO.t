@@ -6,31 +6,31 @@ use vars qw($DEBUG $TESTCOUNT $NODOM $NOSAX);
 $DEBUG = $ENV{'BIOPERLDEBUG'} || 0;
 
 BEGIN {
-    eval { require Test; };
-    if( $@ ) {
-        use lib 't';
-    }
-    use Test;
-    $TESTCOUNT = 353;
-    # interpro uses XML::DOM
-    eval {require XML::DOM::XPath};
-    if ($@) {
-	$TESTCOUNT -= 8;
-	$NODOM = 1;
-	print STDERR "XML::DOM::XPath not found - skipping interpro tests\n";
-    }
-    # BSML_SAX uses XML::SAX
-    eval {require XML::SAX; 
-	  require XML::SAX::Writer; 
-	  require XML::SAX::Base;
-	  1;
+	eval { require Test; };
+	if( $@ ) {
+		use lib 't';
+	}
+	use Test;
+	$TESTCOUNT = 358;
+	# interpro uses XML::DOM
+	eval {require XML::DOM::XPath};
+	if ($@) {
+		$TESTCOUNT -= 8;
+		$NODOM = 1;
+		print STDERR "XML::DOM::XPath not found - skipping interpro tests\n";
+	}
+	# BSML_SAX uses XML::SAX
+	eval {require XML::SAX;
+			require XML::SAX::Writer;
+			require XML::SAX::Base;
+			1;
       };
-    if( $@ ) {
-	$TESTCOUNT -= 14;
-	$NOSAX = 1;
-	warn "XML::SAX::Base or XML::SAX or XML::SAX::Writer not found - skipping BSML_SAX tests\n";
-    }
-    plan tests => $TESTCOUNT;
+	if( $@ ) {
+		$TESTCOUNT -= 14;
+		$NOSAX = 1;
+		warn "XML::SAX::Base or XML::SAX or XML::SAX::Writer not found - skipping BSML_SAX tests\n";
+	}
+	plan tests => $TESTCOUNT;
 }
 
 use Bio::Seq;
@@ -50,50 +50,46 @@ my $verbosity = $DEBUG ? 1 : -1;
 
 
 sub read_write {
-    my $format = shift;
-    my $seq;
+	my $format = shift;
+	my $seq;
 
-    my $str = Bio::SeqIO->new(-file=> Bio::Root::IO->catfile("t","data","test.$format"),
-                              '-format' => $format);
-    ok $seq = $str->next_seq();
-    print "Sequence 1 of 2 from $format stream:\n", $seq->seq, "\n\n" if  $DEBUG;
+	my $str = Bio::SeqIO->new(-file=> Bio::Root::IO->catfile("t","data","test.$format"),
+									  '-format' => $format);
+	ok $seq = $str->next_seq();
+	print "Sequence 1 of 2 from $format stream:\n", $seq->seq, "\n\n" if  $DEBUG;
+	unless ($format eq 'raw') {
+		ok $seq->id, 'roa1_drome',"ID for format $format";
+		ok $seq->length, 358;
+	}
 
-    unless ($format eq 'raw') {
-        ok $seq->id, 'roa1_drome',"ID for format $format";
-        ok $seq->length, 358;
-    }
+	unless ($format eq 'gcg') { # GCG file can contain only one sequence
+		ok $seq = $str->next_seq();
+		print "Sequence 2 of 2 from $format stream:\n", $seq->seq, $seq->seq, "\n" if $DEBUG;
+	}
 
-    unless ($format eq 'gcg') { # GCG file can contain only one sequence
-        ok $seq = $str->next_seq();
-        print "Sequence 2 of 2 from $format stream:\n", $seq->seq, $seq->seq, "\n" if $DEBUG;
-    }
-
-    my $out = Bio::SeqIO->new('-file'=> ">". Bio::Root::IO->catfile("t","data","$format.out"),
-                           '-format' => $format);
-    ok $out->write_seq($seq);
-    if ($format eq 'fasta') {
-        my $id_type;
-        ok($id_type = $out->preferred_id_type('accession.version'), 'accession.version');
-    }
-
+	my $out = Bio::SeqIO->new('-file'=> ">". Bio::Root::IO->catfile("t","data","$format.out"),
+									  '-format' => $format);
+	ok $out->write_seq($seq);
+	if ($format eq 'fasta') {
+		my $id_type;
+		ok($id_type = $out->preferred_id_type('accession.version'), 'accession.version');
+	}
 }
 
 my @formats = qw(gcg fasta raw pir tab);
 
 foreach my $format (@formats) {
-    print "======== $format ========\n" if $DEBUG;
-    read_write($format);
+	print "======== $format ========\n" if $DEBUG;
+	read_write($format);
 }
 
 END {
-
-    map { unlink Bio::Root::IO->catfile("t","data","$_.out") } @formats
-
+	map { unlink Bio::Root::IO->catfile("t","data","$_.out") } @formats
 }
 
 my ($str, $seq,$ast,$temp,$mf,$ent,$out); # predeclare variables for strict
-# PIR testing
 
+# PIR testing
 $str = Bio::SeqIO->new('-file' => Bio::Root::IO->catfile("t","data",
                                                          "seqfile.pir"),
                        '-format' => 'pir');
@@ -106,6 +102,8 @@ while( $seq = $str->next_seq()) {
     $out->write_seq($seq) if $verbosity > 0;
 }
 $out = undef;
+
+# Genbank
 $ast = Bio::SeqIO->new( '-format' => 'GenBank' ,
                         '-file' => Bio::Root::IO->catfile("t","data",
                                                           "roa1.genbank"));
@@ -129,6 +127,21 @@ ok($as->accession_number, 'NT_021877');
 my ($cds) = grep { $_->primary_tag eq 'CDS' } $as->get_SeqFeatures();
 ok(($cds->get_tag_values('transl_except'))[1],
    '(pos:complement(4224..4226),aa:OTHER)');
+
+# This file has a DBSOURCE line, let's see if we can parse it
+$ast = Bio::SeqIO->new(-format => 'genbank' ,
+                       -file => Bio::Root::IO->catfile("t","data",
+																		 "BAB68554.gb"));
+$ast->verbose($verbosity);
+$as = $ast->next_seq();
+ok $as->molecule, 'linear';
+ok $as->alphabet, 'protein';
+ok($as->primary_id, 15824047);
+my $ac = $as->annotation;
+ok defined $ac;
+my @dblinks = $ac->get_Annotations('dblink');
+ok(scalar @dblinks,1);
+
 # embl
 $ast = Bio::SeqIO->new( '-format' => 'embl' ,
                         '-file' => Bio::Root::IO->catfile("t","data",
@@ -535,7 +548,7 @@ my @locs = (
 );
 
 my @positions = (
-    undef, undef,
+	 undef, undef,
     undef, undef,
     undef, undef,
     undef, undef,
@@ -755,8 +768,8 @@ unlink($testfile);
 $str = new Bio::SeqIO(-verbose => $verbosity,
       -file    => Bio::Root::IO->catfile
       (qw(t data D12555.gbk)));
-eval { 
-    $seq = $str->next_seq;    
+eval {
+    $seq = $str->next_seq;
 };
 
 ok(! $@ );
@@ -785,26 +798,25 @@ ok($seq->molecule ,'RNA');
 
 
 # test BSML-SAX
-unless( $NOSAX ) 
-{
-    $str = Bio::SeqIO->new(-format => 'bsml_sax', 
-			   -file => Bio::Root::IO->catfile(qw(t data 
+unless( $NOSAX ){
+	$str = Bio::SeqIO->new(-format => 'bsml_sax', 
+								  -file => Bio::Root::IO->catfile(qw(t data 
 							      U83300.bsml) )
-			   );
-    ok($seq = $str->next_seq);
-    @refs = $seq->annotation->get_Annotations('reference');
-    ok(@refs, 2);
-    ok($seq->display_id,'MIVN83300');
-    ok($seq->molecule ,'dna');
-    ok(! $seq->is_circular);
-    ok($seq->get_dates,2);
-    ok($seq->accession_number, 'U83300');
-    ok($seq->seq_version,1);
-    my @feats = $seq->get_SeqFeatures;
-    ok(@feats, 2);
-    ok($feats[1]->start, 1);
-    ok($feats[1]->end, 946);
-    ok($feats[1]->get_tag_values('db_xref'), 3);
-    ok($seq->annotation->get_Annotations('reference'),2);
-    ok($seq->annotation->get_Annotations('dblink'),2);
+								 );
+	ok($seq = $str->next_seq);
+	@refs = $seq->annotation->get_Annotations('reference');
+	ok(@refs, 2);
+	ok($seq->display_id,'MIVN83300');
+	ok($seq->molecule ,'dna');
+	ok(! $seq->is_circular);
+	ok($seq->get_dates,2);
+	ok($seq->accession_number, 'U83300');
+	ok($seq->seq_version,1);
+	my @feats = $seq->get_SeqFeatures;
+	ok(@feats, 2);
+	ok($feats[1]->start, 1);
+	ok($feats[1]->end, 946);
+	ok($feats[1]->get_tag_values('db_xref'), 3);
+	ok($seq->annotation->get_Annotations('reference'),2);
+	ok($seq->annotation->get_Annotations('dblink'),2);
 }
