@@ -158,7 +158,7 @@ while (<>) {
 
 }
 
-if ($FASTA && -e $FASTA) {
+if ($FASTA) {
   warn "Preparing DNA files....\n";
   my $old = select($FH{FDNA()});
   $db->load_fasta($FASTA);
