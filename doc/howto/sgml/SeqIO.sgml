@@ -74,10 +74,12 @@ my $seq_object = $seqio_object->next_seq;
     </para>
     <para>
       Why use Bio::SeqIO? In part because SeqIO understands the many different
-      sequence file formats and creates the proper Bioperl object for each format. Some
+      sequence file formats and creates the proper Bioperl 
+      object for each format. Some
       formats, like "fasta", are minimal. The fasta format contains a
       sequence and some kind of identifier, but nothing else is required
-      nor does the format inherently allow for much more detail, like a feature (a
+      nor does the format inherently allow for much more detail, 
+      like a feature (a
       sub-sequence, usually with some biological property - 
       see the <ulink
 	url="http://bioperl.org/HOWTOs/Feature-Annotation/index.html">
@@ -95,40 +97,62 @@ my $seq_object = $seqio_object->next_seq;
   <section id="overview">
     <title>10 second overview</title>
     <para>
-      Lots of bioinformatics involves processing sequence information in different formats - indeed,
-      there often seems to be about as many formats as there are programs for
-      processing them. The Bio::SeqIO system handles sequences of many different formats
-      and is the way Bioperl pushes sequences in and out of objects. You can
-      think of the Bio::SeqIO system as "a smart filehandle for sequences".
+      Lots of bioinformatics involves processing sequence 
+      information in different formats - indeed,
+      there often seems to be about as many formats as there 
+      are programs for
+      processing them. The Bio::SeqIO system handles sequences 
+      of many different formats
+      and is the way Bioperl pushes sequences in and out of 
+      objects. You can think of the Bio::SeqIO system as 
+      "a smart filehandle for sequences".
     </para>
   </section>
     
     <section id="background">
     <title>Background Information</title>
     <para>
-      The SeqIO system handles all of the complexity of parsing sequences of many
-      standard formats that scripters have wrestled with over the years. Given some 
-      way of accessing some sequences (flat files, STDIN and STDOUT, variables, etc.), and a format description,
-      it provides access to a stream of SeqI objects tailored to the information provided 
-      by the format. The format description is, technically, optional.  SeqIO can try to 
-      guess based on known file extensions or content, but if your source doesn't have a standard file 
-      extension or comprehensible content, or isn't even a file at all, it throws up its hands and tries fasta.
-      Unless you are always working with FASTA files, it is a good idea to get into the
+      The SeqIO system handles all of the complexity of parsing 
+      sequences of many
+      standard formats that scripters have wrestled with over the 
+      years. Given some 
+      way of accessing some sequences (flat files, STDIN and 
+      STDOUT, variables, etc.), and a format description,
+      it provides access to a stream of SeqI objects tailored 
+      to the information provided 
+      by the format. The format description is, technically, 
+      optional. SeqIO can try to 
+      guess based on known file extensions or content, but if your 
+      source doesn't have a standard file 
+      extension or comprehensible content, or isn't even a file at 
+      all, it throws up its hands and tries fasta.
+      Unless you are always working with FASTA files, it is a 
+      good idea to get into the
       practice of always specifying the format.
     </para>
       
     <para>
-      Sequences can be fed into the SeqIO system in a variety of ways.  The only 
-      requirement is that the sequence be contained in some kind of standard perl 'Handle'.  
-      Most people will make use of the traditional handles: file handles, and STDIN/STDOUT.
-      However, perl provides ways of turning the contents of a string into a Handle as 
-      well (more on this below), so just about anything can be fed into SeqIO to get at 
-      the sequence information contained within it. What SeqIO does is create a Handle, 
-      or take a given Handle, and parse it into SeqI compliant objects, one for each 
-      entry at a time. It also knows, for each of the supported formats, things like 
+      Sequences can be fed into the SeqIO system in a variety 
+      of ways.  The only 
+      requirement is that the sequence be contained in some 
+      kind of standard perl 'Handle'.  
+      Most people will make use of the traditional handles: 
+      file handles, and STDIN/STDOUT.
+      However, perl provides ways of turning the contents of 
+      a string into a Handle as 
+      well (more on this below), so just about anything can be 
+      fed into SeqIO to get at 
+      the sequence information contained within it. What 
+      SeqIO does is create a Handle, 
+      or take a given Handle, and parse it into SeqI compliant 
+      objects, one for each 
+      entry at a time. It also knows, for each of the supported 
+      formats, things like 
       which record-separator (e.g. "//" for Genbank, ">header" for fasta,
-      etc.) to use, and most importantly, how to parse their key-value based information. SeqIO does all 
-      of this for you, so that you can focus on the things you want to do with the 
+      etc.) to use, and most importantly, how to parse their 
+      key-value based information. SeqIO does all 
+      of this for you, so that you can focus on the things you 
+      want to do with the 
       information, rather than worrying about how to get the information.
     </para>
   </section>
@@ -552,7 +576,7 @@ my $seq_object = $seqio_object->next_seq;
                              
      # create one SeqIO object to read in, and another to write out
      # *STDIN is a 'globbed' filehandle with the contents of Standard In
-     my $seqin = Bio::SeqIO->new(-fh     => *STDIN,
+     my $seqin = Bio::SeqIO->new(-fh     => \*STDIN,
                                  -format => $informat);
      my $seqout = Bio::SeqIO->new(-file   => ">$outfile",
                                   -format => $outformat);
@@ -586,9 +610,9 @@ my $seq_object = $seqio_object->next_seq;
      my $outformat = shift or die $usage;
      
      # create one SeqIO object to read in, and another to write out
-     my $seqin = Bio::SeqIO->new(-fh     => *STDIN,
+     my $seqin = Bio::SeqIO->new(-fh     => \*STDIN,
                                  -format => $informat);
-     my $outseq = Bio::SeqIO->new(-fh     => *STDOUT,
+     my $outseq = Bio::SeqIO->new(-fh     => \*STDOUT,
                                   -format => $outformat);
 
      # write each entry in the input to the output
