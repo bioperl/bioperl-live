@@ -119,8 +119,9 @@ use Bio::Seq::QualI;
 sub new {
     my ($class, @args) = @_;
     my $self = $class->SUPER::new(@args);
-        # default: turn OFF the warnings (duh)
+        # default: turn ON the warnings (duh)
 	$self->{supress_warnings} = 1;
+	my $quiet = 1;
     my($qual,$id,$acc,$pid,$desc,$given_id) =
         $self->_rearrange([qw(QUAL
                               DISPLAY_ID
@@ -128,9 +129,14 @@ sub new {
                               PRIMARY_ID
                               DESC
                               ID
+				QUIET
                               )],
                           @args);
- 
+	if (defined($quiet)) {
+		print("Setting some sort of quiet mode.\n");
+		 $self->quiet($quiet);
+	}
+
     if( defined $id && defined $given_id ) {
         if( $id ne $given_id ) {
             $self->throw("Provided both id and display_id constructor functions. [$id] [$given_id]");   
@@ -491,5 +497,22 @@ sub to_string_automatic {
 	}
 	return $out;
 } 
+
+=head2 quiet($mode)
+
+ Title   : quiet($mode)
+ Usage   : $obj->quiet(1);
+ Function: Shuit off warnings. Used pretty much exclusively so that make
+        test doesn't spill out warnings. I wouldn't advise you turn these off
+        because they are there for your own good.
+ Returns : Nothing
+ Args    : "1" for supression of warnings, "0" for normal mode.
+
+=cut
+
+sub quiet {
+        my ($self,$mode) = @_;
+        $self->{supress_warnings} = $mode;
+}
 
 1;

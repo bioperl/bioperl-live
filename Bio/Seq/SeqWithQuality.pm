@@ -20,44 +20,53 @@ Bio::Seq::SeqWithQuality - Bioperl object packaging a sequence with its quality
 	use Bio::Seq::PrimaryQual;
 
 		# make from memory
-	my $qual = Bio::Seq::SeqWithQuality->new( -qual => '10 20 30 40 50 50 20 10',
-						-seq => 'ATCGATCG',
-						-id  => 'human_id',
-						-accession_number => 'AL000012',
-						);
+	my $qual = Bio::Seq::SeqWithQuality->new
+		( -qual => '10 20 30 40 50 50 20 10',
+		  -seq => 'ATCGATCG',
+		  -id  => 'human_id',
+		  -accession_number => 'AL000012',
+		);
+
 		# make from objects
 		# first, make a PrimarySeq object
-	my $seqobj = Bio::PrimarySeq->new ( 	-seq => 'atcgatcg',
-						-id  => 'GeneFragment-12',
-						-accession_number => 'X78121',
-						-alphabet => 'dna'
-						);
+	my $seqobj = Bio::PrimarySeq->new
+		( -seq => 'atcgatcg',
+		  -id  => 'GeneFragment-12',
+		  -accession_number => 'X78121',
+		  -alphabet => 'dna'
+		);
+
 		# now make a PrimaryQual object
-	my $qualobj = Bio::Seq::PrimaryQual->new( -qual => '10 20 30 40 50 50 20 10',
-						-id  => 'GeneFragment-12',
-						-accession_number => 'X78121',
-						-alphabet => 'dna'
-						);
-		# now make the SeqWithQuality object						
-	my $swqobj = Bio::Seq::SeqQithQuality->new( -seq  => $seqobj,
-						    -qual => $qualobj
-						);
+	my $qualobj = Bio::Seq::PrimaryQual->new
+		( -qual => '10 20 30 40 50 50 20 10',
+		  -id  => 'GeneFragment-12',
+		  -accession_number => 'X78121',
+		  -alphabet => 'dna'
+		);
+
+		# now make the SeqWithQuality object
+	my $swqobj = Bio::Seq::SeqQithQuality->new
+		( -seq  => $seqobj,
+		  -qual => $qualobj
+		);
 		# done!
 
 	$swqobj->id(); # the id of the SeqWithQuality object
-			# may not match the the id of the sequence or of the quality (check the pod, luke)
+			# may not match the the id of the sequence or
+			# of the quality (check the pod, luke)
 	$swqobj->seq(); # the sequence of the SeqWithQuality object
 	$swqobj->qual(); # the quality of the SeqWithQuality object
 
          # to get out parts of the sequence.
 
-         print "Sequence ", $seqobj->id(), " with accession ", $seqobj->accession, " and desc ", $seqobj->desc, "\n";
+         print "Sequence ", $seqobj->id(), " with accession ",
+		$seqobj->accession, " and desc ", $seqobj->desc, "\n";
 
          $string2 = $seqobj->subseq(1,40);
 
 =head1 DESCRIPTION
 
-This class stores base quality values together with the sequence string.
+This object stores base quality values together with the sequence string.
 
 =head1 FEEDBACK
 
@@ -106,10 +115,11 @@ use Bio::PrimarySeqI;
 =head2 new()
 
  Title   : new()
- Usage   : $qual = Bio::Seq::SeqWithQuality ->new( -qual => '10 20 30 40 50 50 20 10',
-			-seq => 'ATCGATCG',
-			-id  => 'human_id',
-			-accession_number => 'AL000012',
+ Usage   : $qual = Bio::Seq::SeqWithQuality ->new
+		( -qual => '10 20 30 40 50 50 20 10',
+		  -seq => 'ATCGATCG',
+		  -id  => 'human_id',
+		  -accession_number => 'AL000012',
 		);
  Function: Returns a new Bio::Seq::SeqWithQual object from basic
         constructors.
@@ -129,22 +139,22 @@ use Bio::PrimarySeqI;
 	  the -qual object have the same descriptors. These common
 	  descriptors will then become the descriptors for the
 	  Bio::Seq::SeqWithQual object.
-	b) the descriptors are manually set using the seq(), id(), desc(),
-	  or accession_number(), primary_id(),
-	2. if no descriptors are provided, the new() constructor will see if
-		the descriptor used in the PrimarySeq and in the PrimaryQual
-		objects match. If they do, they will become the descriptors
-		for the SeqWithQuality object.
+	b) the descriptors are manually set using the seq(), id(),
+		desc(), or accession_number(), primary_id(),
+	2. if no descriptors are provided, the new() constructor will see
+		if the descriptor used in the PrimarySeq and in the
+		PrimaryQual objects match. If they do, they will become
+		the descriptors for the SeqWithQuality object.
 
-	To eliminate ambiguity, I strongly suggest you set the descriptors
-	manually on constructtion of the object. Really.
+	To eliminate ambiguity, I strongly suggest you set the
+	descriptors manually on construction of the object. Really.
 
 =cut
 
 sub new {
     my ($class, @args) = @_;
     my $self = $class->SUPER::new(@args);
-	# default: turn OFF the warnings (duh)
+	# default: turn OFF the warnings
 	$self->{supress_warnings} = 1;
     my($qual,$seq,$id,$acc,$pid,$desc,$given_id,$alphabet) =
 	$self->_rearrange([qw(
@@ -156,13 +166,10 @@ sub new {
 			      DESC
 			      ID
 			      ALPHABET
+				QUIET
 			      )],
 			  @args);
     # first, deal with the sequence and quality information
-    # i am going CRAZY here....
-    # if ( defined $id ) { print("CSM id \n"); }
-    # if (defined $given_id) { print("CSM given_id\n"); }
-
     if ( defined $id && defined $given_id ) {
 	if( $id ne $given_id ) {
 	    $self->throw("Provided both id and display_id constructor functions. [$id] [$given_id]");
@@ -171,10 +178,7 @@ sub new {
     if( defined $given_id ) {
 	$self->display_id($given_id);
 	$id = $given_id;
-	#print("Setting id to display_id's value ($given_id).\n");
     } 
-    # if (!$id) { print("No id, just before (\!seq)\n"); }
-    # else { print("just before (\!seq) id is $id\n"); }
     if (!$seq) {
 	my $id;
 	unless ($self->{supress_warnings} == 1) {
@@ -183,12 +187,6 @@ sub new {
 	if (!$alphabet) {
 	    $self->throw("If you want me to create a PrimarySeq object for your empty sequence <boggle> you must specify a -alphabet to satisfy the constructor requirements for a Bio::PrimarySeq object with no sequence. Read the POD for it, luke.");		
 	}
-	# if (!$self->display_id()) {
-	# my $id;
-	# if ($qual && (ref($qual) eq "Bio::Seq::PrimaryQual") && ($id = $qual->id())) {
-	#	$self->warn("You didn't provide an ID either. The PrimarySeq object needs an ID to be created. I got an id from the quality object that you passed into the constructor for the Bio::Seq::SeqWithQuality");
-	#}
-	# }
 	$self->{seq_ref} = Bio::PrimarySeq->new
 	    (
 	     -seq		=>	"",
@@ -214,20 +212,8 @@ sub new {
 	     );
 	$self->{seq_ref} = $seqobj;
     }
-    # if ($id) { print("just before if(!qual) \$id is $id\n"); }
-    # else { print("just before if(!qual) \$id was null\n"); }
 
     if (!$qual) {
-	# $self->warn("You did not provide quality information during the construction of a Bio::Seq::SeqWithQuality object. Quality componenets for this object will be empty.");
-	# my $id;
-	# if (!$self->display_id()) {
-	#	if ($id = $self->{seq_ref}->display_id()) {
-	#		$self->warn("You didn't provide an ID either. The PrimaryQual object needs an id to be created. I got one from the PrimarySeq object you passed into the Bio::Seq::SeqWithQuality->new() constructor.");
-	#	}
-	#	else {
-	#		$self->throw("Can't find an ID anywhere. Bah. Giving up. You should be more careful when constructing these objects.\n");
-	#	}
-	# }
 	$self->{qual_ref} = Bio::Seq::PrimaryQual->new
 	    (
 	     -qual		=>	"",
@@ -253,9 +239,9 @@ sub new {
     }
 
     # now try to set the descriptors for this object
-    # print("Done with the sequence and quality. Dealing with descriptors now.\n");
     $self->_set_descriptors($qual,$seq,$id,$acc,$pid,$desc,$given_id,$alphabet);
     $self->length();
+
     return $self;
 }
 
@@ -368,10 +354,10 @@ sub _common_desc {
 
  Title   : set_common_descriptors()
  Usage   : $self->set_common_descriptors();
- Function: Compare the descriptors (id,accession_number,display_id,primary_id,
-	desc) for the PrimarySeq and PrimaryQual objects within the
-	SeqWithQuality object. If they match, make that descriptor the
-	descriptor for the SeqWithQuality object.
+ Function: Compare the descriptors (id,accession_number,display_id,
+	primary_id, desc) for the PrimarySeq and PrimaryQual objects
+	within the SeqWithQuality object. If they match, make that
+	descriptor the descriptor for the SeqWithQuality object.
  Returns : Nothing.
  Args    : None.
 
@@ -415,14 +401,14 @@ sub alphabet {
         database. In fasta format, the >(\S+) is presumed to be the id,
         though some people overload the id to embed other information.
         Bioperl does not use any embedded information in the ID field,
-        and people are encouraged to use other mechanisms (accession field
-        for example, or extending the sequence object) to solve this.
-        Notice that $seq->id() maps to this function, mainly for
-        legacy/convience issues
+        and people are encouraged to use other mechanisms (accession
+	field for example, or extending the sequence object) to solve
+	this. Notice that $seq->id() maps to this function, mainly for
+        legacy/convience issues.
 	This method sets the display_id for the SeqWithQuality object.
  Returns : A string
- Args    : If a scalar is provided, it is set as the new display_id for the
-	SeqWithQuality object.
+ Args    : If a scalar is provided, it is set as the new display_id for
+	the SeqWithQuality object.
  Status  : Virtual
 
 =cut
@@ -450,8 +436,8 @@ sub display_id {
 	This method sets the accession_number for the SeqWithQuality
 	object. 
  Returns : A string (the value of accession_number)
- Args    : If a scalar is provided, it is set as the new accession_number for
-	the SeqWithQuality object.
+ Args    : If a scalar is provided, it is set as the new accession_number
+	for the SeqWithQuality object.
  Status  : Virtual
 
 
@@ -481,8 +467,8 @@ sub accession_number {
 	This method sets the primary_id for the SeqWithQuality
 	object.
  Returns : A string. (the value of primary_id)
- Args    : If a scalar is provided, it is set as the new primary_id for the
-	SeqWithQuality object.
+ Args    : If a scalar is provided, it is set as the new primary_id for
+	the SeqWithQuality object.
 
 =cut
 
@@ -547,14 +533,16 @@ sub id {
  Function: Returns the sequence that is contained in the imbedded in the
 	PrimarySeq object within the SeqWithQuality object
  Returns : A scalar (the seq() value for the imbedded PrimarySeq object.)
- Args    : If a scalar is provided, the SeqWithQuality object will attempt
-	to set that as the sequence for the imbedded PrimarySeq object.
-	Otherwise, the value of seq() for the PrimarySeq object is returned.
+ Args    : If a scalar is provided, the SeqWithQuality object will
+	attempt to set that as the sequence for the imbedded PrimarySeq
+	object. Otherwise, the value of seq() for the PrimarySeq object
+	is returned.
  Notes   : This is probably not a good idea because you then should call
-	length() to make sure that the sequence and quality are of the same
-	length. Even then, how can you make sure that this sequence belongs
-	with that quality? I provided this to give you rope to hang yourself
-	with. Tie it to a strong device and use a good knot.
+	length() to make sure that the sequence and quality are of the
+	same length. Even then, how can you make sure that this sequence
+	belongs with that quality? I provided this to give you rope to
+	hang yourself with. Tie it to a strong device and use a good
+	knot.
 
 =cut
 
@@ -576,14 +564,15 @@ sub seq {
 	within the SeqWithQuality object.
  Returns : A reference to an array containing the quality values in the 
 	PrimaryQual object.
- Args    : If a scalar is provided, the SeqWithQuality object will attempt
-	to set that as the quality for the imbedded PrimaryQual object.
-	Otherwise, the value of qual() for the PrimaryQual object is returned.
+ Args    : If a scalar is provided, the SeqWithQuality object will
+	attempt to set that as the quality for the imbedded PrimaryQual
+	object. Otherwise, the value of qual() for the PrimaryQual
+	object is returned.
  Notes   : This is probably not a good idea because you then should call
-	length() to make sure that the sequence and quality are of the same
-	length. Even then, how can you make sure that this sequence belongs
-	with that quality? I provided this to give you a strong board with
-	which to flagellate yourself. 
+	length() to make sure that the sequence and quality are of the
+	same length. Even then, how can you make sure that this sequence
+	belongs with that quality? I provided this to give you a strong
+	board with which to flagellate yourself. 
 
 =cut
 
@@ -603,8 +592,8 @@ sub qual {
  Title   : length()
  Usage   : $length = $seqWqual->length();
  Function: Get the length of the SeqWithQuality sequence/quality.
- Returns : Returns the length of the sequence and quality if they are both
-	the same. Returns "DIFFERENT" if they differ.
+ Returns : Returns the length of the sequence and quality if they are
+	both the same. Returns "DIFFERENT" if they differ.
  Args    : None.
 
 =cut
@@ -644,8 +633,8 @@ sub length {
  Usage   : $qualobj = $seqWqual->qual_obj(); _or_
 	$qualobj = $seqWqual->qual_obj($ref_to_primaryqual_obj);
  Function: Get the PrimaryQual object that is imbedded in the
-	SeqWithQuality object or if a reference to a PrimaryQual object is
-	provided, set this as the PrimaryQual object imbedded in the
+	SeqWithQuality object or if a reference to a PrimaryQual object
+	is provided, set this as the PrimaryQual object imbedded in the
 	SeqWithQuality object.
  Returns : A reference to a Bio::Seq::SeqWithQuality object.
 
@@ -703,15 +692,18 @@ sub seq_obj {
 =head2 _set_descriptors
 
  Title   : _set_descriptors()
- Usage   : $seqWqual->_qual_obj($qual,$seq,$id,$acc,$pid,$desc,$given_id,$alphabet);
- Function: Set the descriptors for the SeqWithQuality object. Try to match the
-	descriptors in the PrimarySeq object and in the PrimaryQual object if 
-	descriptors were not provided with construction.
+ Usage   : $seqWqual->_qual_obj($qual,$seq,$id,$acc,$pid,$desc,$given_id,
+	$alphabet);
+ Function: Set the descriptors for the SeqWithQuality object. Try to
+	match the descriptors in the PrimarySeq object and in the
+	PrimaryQual object if descriptors were not provided with
+	construction.
  Returns : Nothing.
- Args    : $qual,$seq,$id,$acc,$pid,$desc,$given_id,$alphabet as found in the
-	new() method.
- Notes   : Really only intended to be called by the new() method. If you want
-	to invoke a similar function try set_common_descriptors().
+ Args    : $qual,$seq,$id,$acc,$pid,$desc,$given_id,$alphabet as found
+	in the new() method.
+ Notes   : Really only intended to be called by the new() method. If
+	you want to invoke a similar function try
+	set_common_descriptors().
 
 =cut
 
@@ -762,9 +754,9 @@ sub subseq {
 
  Title   : baseat($position)
  Usage   : $base_at_position_6 = $obj->baseat("6");
- Function: Returns a single base at the given position, where the first base
-           is 1 and the number is inclusive, ie 1-2 are the first two
-           bases of the sequence.
+ Function: Returns a single base at the given position, where the first
+	base is 1 and the number is inclusive, ie 1-2 are the first two
+	bases of the sequence.
  Returns : A scalar.
  Args    : A position.
 
@@ -780,9 +772,9 @@ sub baseat {
  Title   : subqual($start,$end)
  Usage   : @qualities = @{$obj->subqual(10,20);
  Function: returns the quality values from $start to $end, where the
-        first value is 1 and the number is inclusive, ie 1-2 are the first
-        two bases of the sequence. Start cannot be larger than end but can
-        be equal.
+        first value is 1 and the number is inclusive, ie 1-2 are the
+	first two bases of the sequence. Start cannot be larger than
+	end but can be equal.
  Returns : A reference to an array.
  Args    : a start position and an end position
 
@@ -799,9 +791,9 @@ sub subqual {
  Title   : qualat($position)
  Usage   : $quality = $obj->qualat(10);
  Function: Return the quality value at the given location, where the
-        first value is 1 and the number is inclusive, ie 1-2 are the first
-        two bases of the sequence. Start cannot be larger than end but can
-        be equal.
+        first value is 1 and the number is inclusive, ie 1-2 are the
+	first two bases of the sequence. Start cannot be larger than
+	end but can be equal.
  Returns : A scalar.
  Args    : A position.
 
@@ -816,8 +808,8 @@ sub qualat {
 
  Title   : quiet($mode)
  Usage   : $obj->quiet(1);
- Function: Shuit off warnings. Used pretty much exclusively so that make test
-	doesn't spill out warnings. I wouldn't advise you turn these off
+ Function: Shuit off warnings. Used pretty much exclusively so that make
+	test doesn't spill out warnings. I wouldn't advise you turn these off
 	because they are there for your own good.
  Returns : Nothing
  Args    : "1" for supression of warnings, "0" for normal mode.
@@ -833,8 +825,8 @@ sub quiet {
 
  Title   : to_string()
  Usage   : $quality = $obj->to_string();
- Function: Return a textual representation of what the object contains. For
-        this module, this function will return:
+ Function: Return a textual representation of what the object contains.
+	For this module, this function will return:
                 qual
 		seq
                 display_id

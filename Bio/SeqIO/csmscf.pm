@@ -86,11 +86,12 @@ BEGIN {
  Returns : Bio::Seq::SeqWithQuality object
  Args    : NONE (huh?)
  Notes   : Fills the interface specification for SeqIO.
-	   The SCF specification does not provide for having more then
-           one sequence in a given scf. So once the filehandle has been open
-           and passed to SeqIO don\'t expect to run this function more then
-           once on a given scf unless you embraced and extended the SCF
-  	   standard. (But that\'s just C R A Z Y talk, isn\'t it.)
+	The SCF specification does not provide for having more then
+	one sequence in a given scf. So once the filehandle has been
+	open and passed to SeqIO don\'t expect to run this function
+	more then once on a given scf unless you embraced and
+	extended the SCF standard. (But that\'s just C R A Z Y talk,
+	isn\'t it.)
 
 =cut
 
@@ -279,8 +280,8 @@ sub _set_v3_base_accuracies {
 	   components.
  Returns : Nothing. Modifies $self.
  Args    : The buffer. It is expected that the buffer contains a binary
-	   string for the comments section of an scf file according to the
-	   scf file specifications.
+	string for the comments section of an scf file according to
+	the scf file specifications.
  Notes   : None. Works like Jello.
 
 =cut
@@ -423,8 +424,8 @@ sub _set_v2_traces {
  Title   : get_trace($base_channel)
  Usage   : @a_trace = @{$obj->get_trace("A")};
  Function: Return the trace data for the given base.
- Returns : A reference to an array containing the trace data for the given
-        base.
+ Returns : A reference to an array containing the trace data for the
+	given base.
  Args    : A,C,G, or T. Any other input throws.
  Notes   :
 
@@ -449,9 +450,9 @@ sub get_trace {
  Args    : References to the arrays containing the traces for A,C,G,T.
  Notes   : Beats using dumpValue, I\'ll tell ya. Much better then using
            join' ' too.
-	- if a scalar is included as an argument (any scalar), this procedure
-	  will dump the _delta'd trace. If you don't know what that means you
-	  should not be using this.
+	- if a scalar is included as an argument (any scalar), this
+	procedure will dump the _delta'd trace. If you don't know what
+	that means you should not be using this.
 
 =cut
 
@@ -478,9 +479,9 @@ sub _dump_traces_incoming {
  Args    : References to the arrays containing the traces for A,C,G,T.
  Notes   : Beats using dumpValue, I\'ll tell ya. Much better then using
            join' ' too.
-	- if a scalar is included as an argument (any scalar), this procedure
-	  will dump the _delta'd trace. If you don't know what that means you
-	  should not be using this.
+	- if a scalar is included as an argument (any scalar), this
+	procedur will dump the _delta'd trace. If you don't know what
+	that means you should not be using this.
 
 =cut
 
@@ -510,8 +511,8 @@ sub _dump_traces_outgoing {
 
  Title   : write_seq(-SeqWithQuality => $swq, <comments>)
  Usage   : $obj->write_seq(	-SeqWithQuality => $swq,
-				-version => 2,
-				-CONV => "Bioperl-Chads Mighty SCF writer.");
+			-version => 2,
+			-CONV => "Bioperl-Chads Mighty SCF writer.");
  Function: Write out an scf.
  Returns : Nothing.
  Args    : Requires: a reference to a SeqWithQuality object to form the
@@ -666,11 +667,11 @@ sub write_seq {
 
  Title   : _set_binary_header();
  Usage   : $self->_set_binary_header();
- Function: Provide the binary string that will be used as the header for a
-   	   scfv2 document.
+ Function: Provide the binary string that will be used as the header for
+	a scfv2 document.
  Returns : A binary string.
- Args    : None. Uses the entries in the $self->{'header'} hash. These are set
-	   on construction of the object (hopefully correctly!).
+ Args    : None. Uses the entries in the $self->{'header'} hash. These
+	are set on construction of the object (hopefully correctly!).
  Notes   : 
 
 =cut
@@ -698,12 +699,14 @@ sub _set_binary_header {
 =head2 _set_binary_tracesbases($version,$sequence,$ref_quality)
 
  Title   : _set_binary_tracesbases($version,$sequence,$ref_quality)
- Usage   : $self->_set_binary_tracesbases($version,$sequence,$ref_quality);
+ Usage   : $self->_set_binary_tracesbases($version,$sequence,
+	$ref_quality);
  Function: Constructs the trace and base strings for all scfs
  Returns : Nothing. Alters self.
  Args    : $version - "2" or "3"
 	   $sequence - a scalar containing arbitrary sequence data
-	   $ref_quality - a reference to an array containing quality values
+	   $ref_quality - a reference to an array containing quality
+		values
  Notes   : This is a really complicated thing.
 
 =cut
@@ -920,9 +923,9 @@ sub _make_trace_string {
 
  Title   : _set_binary_comments(\@comments)
  Usage   : $self->_set_binary_comments(\@comments);
- Function: Provide a binary string that will be the comments section of the
-	scf file. See the scf specifications for detailed specifications for
-	the comments section of an scf file. Hint:
+ Function: Provide a binary string that will be the comments section of
+	the scf file. See the scf specifications for detailed
+	specifications for the comments section of an scf file. Hint:
 		CODE=something\nBODE=something\n\0
  Returns : Nothing. Alters self.
  Args    : A reference to an array containing comments.
@@ -949,9 +952,11 @@ sub _set_binary_comments {
 
  Title   : _fill_missing_data($swq)
  Usage   : $self->_fill_missing_data($swq);
- Function: If the $swq with quality has no qualities, set all qualities to 0.
-	   If the $swq has no sequence, set the sequence to N\'s.
- Returns : Nothing. Modifies the SeqWithQuality that was passed as an argument.
+ Function: If the $swq with quality has no qualities, set all qualities
+	to 0.
+	If the $swq has no sequence, set the sequence to N\'s.
+ Returns : Nothing. Modifies the SeqWithQuality that was passed as an
+	argument.
  Args    : A reference to a Bio::Seq::SeqWithQuality
  Notes   : None.
 
@@ -978,7 +983,8 @@ sub _fill_missing_data {
  Function: 
  Returns : A reference to an array containing modified trace values.
  Args    : A reference to an array containing trace data and a string
-	indicating the direction of conversion. ("forward" or "backward").
+	indicating the direction of conversion. ("forward" or
+	"backward").
  Notes   : This code is taken from the specification for SCF3.2.
 	http://www.mrc-lmb.cam.ac.uk/pubseq/manual/formats_unix_4.html
 
@@ -1042,8 +1048,8 @@ sub _delta {
  Function: What unpack specification should be used? Try them all.
  Returns : Nothing.
  Args    : A buffer containing arbitrary binary data.
- Notes   : Eliminate the ambiguity and the guesswork. Used in the adaptation
-	of _delta(), mostly.
+ Notes   : Eliminate the ambiguity and the guesswork. Used in the
+	adaptation of _delta(), mostly.
 
 =cut
 
@@ -1067,8 +1073,8 @@ sub _unpack_magik {
  Function: Read from the buffer.
  Returns : $buffer, containing a read of $length
  Args    : a filehandle, a buffer, and a read length
- Notes   : I just got tired of typing "unless (length($buffer) == $length)"
-	so I put it here.
+ Notes   : I just got tired of typing
+	"unless (length($buffer) == $length)" so I put it here.
 
 =cut
 
