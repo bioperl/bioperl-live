@@ -127,9 +127,9 @@ sub _parse {
        } elsif( /^\s*Translate/i ) { 
 	   $state = 3;
        } elsif( $state == 3 ) {
-	   if( /^\s+(\S+)\s+(\S+)\s*([\,\;])\s*$/ ) {
+	   if( /^\s+(\S+)\s+([^\s\,\;]+)\s*([\,\;])?\s*$/ ) {
 	       $translate{$1} = $2;
-	       $state = 1 if( $3 eq ';' );
+	       $state = 1 if( defined $3 && $3 eq ';' );
 	   } elsif( /^\s+;/) {
 	       $state = 1;
 	   }
