@@ -56,8 +56,8 @@
 	<revision>
 	  <revnumber>1.1</revnumber>
 	  <date>2003-10-17</date>
-	  <authorinitials>BS</authorinitials>
-	  <revremark>fom text into howto</revremark>
+	  <authorinitials>BIO</authorinitials>
+	  <revremark></revremark>
 	</revision>
 	<revision>
 	  <revnumber>1.2</revnumber>
@@ -161,12 +161,12 @@
      The following command line options are required:
 
        <table>
-        <title></title>
+        <title>bioflat_index command-line options</title>
         <tgroup cols="2">
           <thead>
              <row>
                 <entry>Option</entry>
-                <entry>Describtion</entry>
+                <entry>Description</entry>
              </row>
          </thead>
          <tbody>
@@ -220,7 +220,8 @@
       Currently there are two indexing schemes supported: "bdb" and
       "flat."  "bdb" selects an index based on the Berkeley DB library.  
       It is generally the faster of the two, but it requires that the
-      Berkeley DB library (from Linux RPM or from www.sleepycat.com, 
+      Berkeley DB library (from Linux RPM or from <ulink
+      url="http://www.sleepycat.com">www.sleepycat.com</ulink>, 
       version 2 or higher) and the Perl BerkeleyDB module be installed 
       on your system. The Perl DB_File module will not work.
     </para>
@@ -263,7 +264,7 @@
     from the following environment variables:
 
        <table>
-        <title></title>
+        <title>Environmental variables</title>
         <tgroup cols="2">
           <thead>
              <row>
@@ -324,13 +325,14 @@
     anything else in the file or to inadvertently replace tab
     characters with spaces.
   </para>
- </section id="more">
-  <title>More information</title>
-  <section>
+ </section>
+
+  <section id="more">
+    <title>More information</title>
     <para>
       For more information on using your indexed flat files please see the 
       <ulink url="http://bioperl.org/HOWTOs/html/OBDA_Access.html">
       OBDA Access HOWTO</ulink>.
-     </para>
+    </para>
   </section>
 </article>
