@@ -341,7 +341,7 @@ Describe contact details here
 The rest of the documentation details each of the object methods. Internal methods are usually preceded with a "_".
 
 =cut
-
+#'
 
 # Let the code begin...
 
@@ -1055,7 +1055,6 @@ sub annotation {
     return $obj->{'annotation'};
 
 }
-
 
 # keep AUTOLOAD happy
 sub DESTROY {

@@ -99,22 +99,6 @@ For writing files, a similar system is used
      $outputstream = Bio::SeqIO->new( -fh => \*OUTPUT, -format => 'Fasta');
      $outputstream->write_seq($seqobj);
 
-=head2 Deprecated methods
-
-A number of methods which were present in the old 0.04/0.05 series
-have been deprecated.  Most of these methods work as before, but
-provide a warning that someone has called a deprecated method.
-
-=over 4
-
-=item getseq - use seq/subseq instead
-
-=item str - use seq/subseq instead
-
-=item ary - use seq/subseq with your own split afterwards
-
-=item type - use alphabet, but notice that alphabet returns different values (lowercase)
-
 =back
 
 =head1 FEEDBACK
