@@ -76,7 +76,7 @@ sub draw_connectors {
 
   my $part;
   if (my @parts  = $self->parts) {
-    $part   = $self->feature->strand > 0 ? $parts[-1] : $parts[0];
+    $part   = $self->feature->strand >= 0 ? $parts[-1] : $parts[0];
   } else {
     # no parts -- so draw an intron spanning whole thing
     my($x1,$y1,$x2,$y2) = $self->bounds(0,0);

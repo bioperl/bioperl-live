@@ -15,7 +15,7 @@ $VERSION = '1.00';
 sub connector {
   my $self = shift;
   return $self->SUPER::connector(@_) if $self->all_callbacks;
-  return $self->SUPER::connector(@_) || 'solid';
+  return ($self->SUPER::connector(@_) || 'solid');
 }
 # never allow our components to bump
 sub bump {

@@ -1303,16 +1303,20 @@ color of the connector, if any.
 
 The label is printed above the glyph.  You may pass an anonymous
 subroutine to -label, in which case the subroutine will be invoked
-with the feature as its single argument.  The subroutine must return a
-string to render as the label.  Otherwise, you may return the number
-"1", in which case the feature's info(), seqname() and primary_tag()
-methods will be called (in that order) until a suitable name is found.
+with the feature as its single argument.  and is expected to return
+the string to use as the description.  If you provide the numeric
+value "1" to -description, the description will be read off the
+feature's seqname(), info() and primary_tag() methods will be called
+until a suitable name is found.  To create a label with the
+text "1", pass the string "1 ".  (A 1 followed by a space).
 
 The description is printed below the glyph.  You may pass an anonymous
-subroutine to -label, in which case the subroutine will be invoked
-with the feature as its single argument.  The subroutine must return a
-string to render as the label.  Otherwise, you may return the number
-"1", in which case the feature's source_tag() method will be invoked.
+subroutine to -description, in which case the subroutine will be
+invoked with the feature as its single argument and is expected to
+return the string to use as the description.  If you provide the
+numeric value "1" to -description, the description will be read off
+the feature's source_tag() method.  To create a description with the
+text "1", pass the string "1 ".  (A 1 followed by a space).
 
 In the case of ACEDB Ace::Sequence feature objects, the feature's
 info(), Brief_identification() and Locus() methods will be called to

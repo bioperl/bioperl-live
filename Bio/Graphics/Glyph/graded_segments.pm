@@ -2,9 +2,9 @@ package Bio::Graphics::Glyph::graded_segments;
 #$Id$
 
 use strict;
-use Bio::Graphics::Glyph::generic;
+use Bio::Graphics::Glyph::segments;
 use vars '@ISA','$VERSION';
-@ISA = 'Bio::Graphics::Glyph::generic';
+@ISA = 'Bio::Graphics::Glyph::segments';
 $VERSION = 1.01;
 
 # override draw method to calculate the min and max values for the components
@@ -100,33 +100,6 @@ sub draw_component {
   my $color = $self->{partcolor};
   my @rect = $self->bounds(@_);
   $self->filled_box($gd,@rect,$color,$color);
-}
-
-# group sets connector to 'solid'
-sub connector {
-  my $self = shift;
-  return $self->SUPER::connector(@_) if $self->all_callbacks;
-  return 'solid';
-}
-# group sets connector to 'solid'
-sub bump {
-  my $self = shift;
-  return $self->SUPER::bump(@_) if $self->all_callbacks;
-  return 0;
-}
-# turn off labels
-sub label {
-  my $self = shift;
-#  return unless (my @a = $self->feature->sub_SeqFeature) > 0;
-  return unless $self->{level} == 0;
-  $self->SUPER::label(@_);
-}
-# turn off and descriptions
-sub description {
-  my $self = shift;
-  return unless $self->{level} == 0;
-#  return unless (my @a = $self->feature->sub_SeqFeature) > 0;
-  $self->SUPER::description(@_);
 }
 
 1;
