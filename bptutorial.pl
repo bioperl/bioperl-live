@@ -11,10 +11,10 @@
    and "t" test scripts. You may distribute this tutorial under the
    same terms as perl itself.
 
-   This document is written in Perl POD (plain old documentation) format. 
-   You can run this file through your favorite pod translator (pod2html, pod2man, 
-   pod2text, etc.) if you would like a more convenient formatting.
-   
+   This document is written in Perl POD (plain old documentation)
+   format.  You can run this file through your favorite pod translator
+   (pod2html, pod2man, pod2text, etc.) if you would like a more
+   convenient formatting.
 
   Table of Contents
 
@@ -25,7 +25,7 @@
     I.2.2 For complete installation
   I.3 Installation procedures
   I.4 Additional comments for non-unix users
-
+  	
   II. Brief overview to bioperl's objects
   II.1 Sequence objects: (Seq, PrimarySeq, LocatableSeq, LiveSeq, LargeSeq, SeqI)
   II.2 Alignment objects (SimpleAlign, UnivAln)	
@@ -183,7 +183,7 @@ minimal installation.  This additional software includes perl modules
 from CPAN, bioperl perl extensions, a bioperl xs-extension, and
 several standard compiled bioinformatics programs.
 
-          Perl - extensions
+B<Perl - extensions>
 
 The following perl modules are available from bioperl
 (http://bioperl.org/Core/external.shtml)or from CPAN
@@ -223,32 +223,31 @@ For remote blast searches you will need:
 
 =item *
 
-  libwww-perl-5.48
+libwww-perl-5.48
 
 =item *
 
-  Digest-MD5-2.12.
+Digest-MD5-2.12.
 
 =item *
 
-  HTML-Parser-3.13
-=item *
+HTML-Parser-3.13
 
 =item *
 
-  libnet-1.0703
+libnet-1.0703
 
 =item *
 
-  MIME-Base64-2.11
+MIME-Base64-2.11
 
 =item *
 
-  URI-1.09
+URI-1.09
 
 =item *
 
-  IO-stringy-1.216
+IO-stringy-1.216
 
 =back
 
@@ -281,7 +280,7 @@ expat-1.95.1 from http://sourceforge.net/projects/expat/
 For more current and additional information on external modules
 required by bioperl, check http://bioperl.org/Core/external.shtml
 
-         Bioperl c \extensions & external bio-informatics programs
+B<Bioperl c extensions & external bio-informatics programs>
 
 Bioperl also uses several c-programs for sequence alignment and local
 blast searching. To use these features of bioperl you will need an
@@ -292,7 +291,7 @@ for smith-waterman alignments- bioperl-ext-0.6 from
 http://bioperl.org/Core/external.shtml
 
 for clustalw alignments-
-http://corba.ebi.ac.uk/Biocatalog/Alignment_Search_software.html
+http://corba.ebi.ac.uk/Biocatalog/Alignment_Search_software.html/
 
 for tcoffee alignments-
   http://igs-server.cnrs-mrs.fr/~cnotred/Projects_home_page/t_coffee_home_page.html
@@ -316,7 +315,7 @@ Download
 
 =item *
 
-Decompress (with gunzip or a simliar utility)
+Decompress (with gunzip or a similiar utility)
 
 =item *
 
@@ -702,13 +701,9 @@ can mean two slightly different things:
 
 =over 2
 
-=item 1.
+=item 1 Translating a nucleotide sequence from start to end.
 
-Translating a nucleotide sequence from start to end.
-
-=item 2.
-
-Taking into account the constraints of real coding regions in mRNAs.
+=item 2 Taking into account the constraints of real coding regions in mRNAs.
 
 =back
 
@@ -1306,22 +1301,22 @@ documentation in the Bio::Tools directory.
 
   use Bio::Tools::Genscan;
   $genscan = Bio::Tools::Genscan->new(-file => 'result.genscan');
-# $gene is an instance of Bio::Tools::Prediction::Gene
-# $gene->exons() returns an array of Bio::Tools::Prediction::Exon objects
+  # $gene is an instance of Bio::Tools::Prediction::Gene
+  # $gene->exons() returns an array of Bio::Tools::Prediction::Exon objects
   while($gene = $genscan->next_prediction())
       { @exon_arr = $gene->exons(); }
   $genscan->close();
 
   use Bio::Tools::Sim4::Results;
-   $sim4 = new Bio::Tools::Sim4::Results(-file=> 't/sim4.rev', -estisfirst=>0);
- # $exonset is-a Bio::SeqFeature::Generic with Bio::Tools::Sim4::Exons
- # as sub features
-   $exonset = $sim4->next_exonset;
-   @exons = $exonset->sub_SeqFeature();
-# $exon is-a Bio::SeqFeature::FeaturePair
-   $exon = 1;
-   $exonstart = $exons[$exon]->start();
-   $estname = $exons[$exon]->est_hit()->seqname();
+  $sim4 = new Bio::Tools::Sim4::Results(-file=> 't/sim4.rev', -estisfirst=>0);
+  # $exonset is-a Bio::SeqFeature::Generic with Bio::Tools::Sim4::Exons
+  # as sub features
+  $exonset = $sim4->next_exonset;
+  @exons = $exonset->sub_SeqFeature();
+  # $exon is-a Bio::SeqFeature::FeaturePair
+  $exon = 1;
+  $exonstart = $exons[$exon]->start();
+  $estname = $exons[$exon]->est_hit()->seqname();
   $sim4->close();
 
 =head2 III.7 Developing machine readable sequence annotations
@@ -1588,418 +1583,472 @@ designed to be an integrated suite of tools for examining a sequence,
 predicting gene structure, and creating annotations. The workbench
 features a graphical user interface and is implemented completely in
 perl.  Information about the AW is available at
-http://bioinfo.pbi.nrc.ca/dblock/wiki/html/Bioinfo/AnnotationWorkbench.htm A
+http://bioinfo.pbi.nrc.ca/dblock/wiki/html/Bioinfo/AnnotationWorkbench.htm . A
 goal of the AW team is to port much of the functionality of the AW to
 bioperl.  The porting process has begun and displaying a Seq object
 graphically is now possible.  You can download the current version of
 the gui software from the bioperl bioperl-gui CVS directory at
 http://cvs.bioperl.org/cgi-bin/viewcvs/viewcvs.cgi/bioperl-gui/?cvsroot=bioperl
-
+ .
 
 
 =head2 V.1 Appendix: Public Methods of Bioperl Objects
 
-Appendix V.1 lists the public methods for the principal bioperl objects.
-The methods are grouped together under the name of the "ancestor" object from
-which the object inherits the method. Knowing the name of the ancestor
-object is useful since the ancestor module will contain the documentation
-describing the method.
+Appendix V.1 lists the public methods for the principal bioperl
+objects.  The methods are grouped together under the name of the
+"ancestor" object from which the object inherits the method. Knowing
+the name of the ancestor object is useful since the ancestor module
+will contain the documentation describing the method.
 
-Since nearly all bioperl objects inherit from Bio::Root::RootI, the methods
-inherited from Bio::Root::RootI are listed separately - and only once.
+Since nearly all bioperl objects inherit from Bio::Root::RootI, the
+methods inherited from Bio::Root::RootI are listed separately - and
+only once.
 
-If a listing of public methods for a bioperl object not listed in this appendix
-is required, the listing can be obtained by running the bptutorial.pl
-script using with command number 100 as in:
-	perl -w  bptutorial.pl 100 Bio::Tools::SeqStats
+If a listing of public methods for a bioperl object not listed in this
+appendix is required, the listing can be obtained by running the
+bptutorial.pl script using with command number 100 as in:
+
+  perl -w  bptutorial.pl 100 Bio::Tools::SeqStats
+
 (where Bio::Tools::SeqStats would be replaced with the name of the
-bioperl object for which the methods list is needed - see Appendix V.2 for details)
+bioperl object for which the methods list is needed - see Appendix V.2
+for details)
 
- ***Methods for Object Bio::Root::RootI ********
+B<Methods for Object Bio::Root::RootI>
 
-Methods taken from package Bio::Root::RootI
- DESTROY   gensym   new   qualify   qualify_to_ref   stack_trace
- stack_trace_dump   tempdir   tempfile   throw   ungensym   verbose
- warn
+I<Methods taken from package Bio::Root::RootI>
 
- ***Methods for Object Bio::AlignIO ********
+ DESTROY gensym new qualify qualify_to_ref stack_trace
+ stack_trace_dump tempdir tempfile throw ungensym verbose warn
 
- Methods taken from package Bio::AlignIO
- PRINT   READLINE   TIEHANDLE   close   fh   newFh
- next_aln   write_aln
+B<Methods for Object Bio::AlignIO>
 
- ***Methods for Object Bio::DB::GenBank ********
+I<Methods taken from package Bio::AlignIO>
 
- Methods taken from package Bio::DB::NCBIHelper
- get_Stream_by_batch   get_params
+ PRINT READLINE TIEHANDLE close fh newFh next_aln write_aln
 
- Methods taken from package Bio::DB::RandomAccessI
- get_Seq_by_acc   get_Seq_by_id
+B<Methods for Object Bio::DB::GenBank>
 
- Methods taken from package Bio::DB::WebDBSeqI
- GET   HEAD   POST   PUT   default_format   get_Stream_by_acc
- get_Stream_by_id   get_request   get_seq_stream   postprocess_data   proxy   request_format
- retrieval_type   ua   url_base_address   url_params
+I<Methods taken from package Bio::DB::NCBIHelper>
 
- ***Methods for Object Bio::Index::Fasta ********
+ get_Stream_by_batch get_params
 
- Methods taken from package Bio::DB::RandomAccessI
- get_Seq_by_acc   get_Seq_by_id
+I<Methods taken from package Bio::DB::RandomAccessI>
 
- Methods taken from package Bio::DB::SeqI
- get_PrimarySeq_stream   get_Seq_by_primary_id   get_all_primary_ids
+ get_Seq_by_acc get_Seq_by_id
 
- Methods taken from package Bio::Index::Abstract
- O_CREAT   O_RDWR   add_record   db   dbm_package   filename
- get_stream   make_index   open_dbm   pack_record   unpack_record   write_flag
+I<Methods taken from package Bio::DB::WebDBSeqI>
 
- Methods taken from package Bio::Index::AbstractSeq
+ GET HEAD POST PUT default_format get_Stream_by_acc get_Stream_by_id
+ get_request get_seq_stream postprocess_data proxy request_format
+ retrieval_type ua url_base_address url_params
+
+B<Methods for Object Bio::Index::Fasta>
+
+I<Methods taken from package Bio::DB::RandomAccessI>
+
+ get_Seq_by_acc get_Seq_by_id
+
+I<Methods taken from package Bio::DB::SeqI>
+
+ get_PrimarySeq_stream get_Seq_by_primary_id get_all_primary_ids
+
+I<Methods taken from package Bio::Index::Abstract>
+
+ O_CREAT O_RDWR add_record db dbm_package filename get_stream
+ make_index open_dbm pack_record unpack_record write_flag
+
+I<Methods taken from package Bio::Index::AbstractSeq>
+
  fetch
 
- Methods taken from package Bio::Index::Fasta
- default_id_parser   id_parser
+I<Methods taken from package Bio::Index::Fasta>
 
- ***Methods for Object Bio::LocatableSeq ********
+ default_id_parser id_parser
 
- Methods taken from package Bio::LocatableSeq
+B<Methods for Object Bio::LocatableSeq>
+
+I<Methods taken from package Bio::LocatableSeq>
+
  get_nse
 
- Methods taken from package Bio::PrimarySeqI
- GCG_checksum   accession_number   ary   can_call_new   desc   display_id
- getseq   id   moltype   out_fasta   primary_id   revcom
- seq   seq_len   setseq   str   subseq   translate
- translate_old   trunc   type
+I<Methods taken from package Bio::PrimarySeqI>
 
- Methods taken from package Bio::RangeI
- carp   confess   contains   croak   end   equals
- intersection   length   new   overlap_extent   overlaps   start
- strand   union
+ GCG_checksum accession_number ary can_call_new desc display_id getseq
+ id moltype out_fasta primary_id revcom seq seq_len setseq str subseq
+ translate translate_old trunc type
 
- Methods taken from package Bio::Seq
- accession   add_SeqFeature   add_date   add_secondary_accession   annotation   division
- each_date   each_secondary_accession   feature_count   keywords   molecule   primary_seq
- species   sv
+I<Methods taken from package Bio::RangeI>
 
- Methods taken from package Bio::SeqI
- all_SeqFeatures   top_SeqFeatures   write_GFF
+ carp confess contains croak end equals intersection length new
+ overlap_extent overlaps start strand union
 
- ***Methods for Object Bio::Seq ********
+I<Methods taken from package Bio::Seq>
 
- Methods taken from package Bio::PrimarySeqI
- GCG_checksum   accession_number   ary   can_call_new   carp   confess
- croak   desc   display_id   getseq   id   length
- moltype   out_fasta   primary_id   revcom   seq   seq_len
- setseq   str   subseq   translate   translate_old   trunc
- type
+ accession add_SeqFeature add_date add_secondary_accession annotation
+ division each_date each_secondary_accession feature_count keywords
+ molecule primary_seq species sv
 
- Methods taken from package Bio::Seq
- accession   add_SeqFeature   add_date   add_secondary_accession   annotation   division
- each_date   each_secondary_accession   feature_count   keywords   molecule   primary_seq
- species   sv
+I<Methods taken from package Bio::SeqI>
 
- Methods taken from package Bio::SeqI
- all_SeqFeatures   top_SeqFeatures   write_GFF
+ all_SeqFeatures top_SeqFeatures write_GFF
 
- ***Methods for Object Bio::SeqIO ********
+B<Methods for Object Bio::Seq>
 
- Methods taken from package Bio::SeqIO
- PRINT   READLINE   TIEHANDLE   close   fh   moltype
- newFh   next_primary_seq   next_seq   write_seq
+I<Methods taken from package Bio::PrimarySeqI>
 
- ***Methods for Object Bio::SimpleAlign ********
+ GCG_checksum accession_number ary can_call_new carp confess croak
+ desc display_id getseq id length moltype out_fasta primary_id revcom
+ seq seq_len setseq str subseq translate translate_old trunc type
 
- Methods taken from package Bio::SimpleAlign
- addSeq   alpha_startend   column_from_residue_number   consensus_aa   consensus_string   eachSeq
- eachSeqWithId   each_alphabetically   get_displayname   id   is_flush   length_aln
- map_chars   maxdisplayname_length   maxname_length   maxnse_length   no_residues   no_sequences
- percentage_identity   purge   read_MSF   read_Pfam   read_Pfam_file   read_Prodom
- read_fasta   read_mase   read_selex   read_stockholm   removeSeq   set_displayname
- set_displayname_count   set_displayname_flat   set_displayname_normal   sort_alphabetically   uppercase   write_MSF
- write_Pfam   write_clustalw   write_fasta   write_selex
+I<Methods taken from package Bio::Seq>
 
- ***Methods for Object Bio::Tools::BPbl2seq ********
+ accession add_SeqFeature add_date add_secondary_accession annotation
+ division each_date each_secondary_accession feature_count keywords
+ molecule primary_seq species sv
 
- Methods taken from package Bio::RangeI
- carp   confess   contains   croak   end   equals
- intersection   length   new   overlap_extent   overlaps   start
- strand   union
+I<Methods taken from package Bio::SeqI>
 
- Methods taken from package Bio::SeqFeature::FeaturePair
- feature1   feature2   hend   hframe   hprimary_tag   hscore
- hseqname   hsource_tag   hstart   hstrand   invert
+ all_SeqFeatures top_SeqFeatures write_GFF
 
- Methods taken from package Bio::SeqFeature::Generic
- add_sub_SeqFeature   add_tag_value   annotation   attach_seq   entire_seq   flush_sub_SeqFeature
- frame   remove_tag   score   seq   seqname   slurp_gff_file
+B<Methods for Object Bio::SeqIO>
 
- Methods taken from package Bio::SeqFeature::SimilarityPair
- bits   from_searchResult   query   significance   subject
+I<Methods taken from package Bio::SeqIO>
 
- Methods taken from package Bio::SeqFeatureI
- all_tags   each_tag_value   gff2_string   gff_string   has_tag   primary_tag
- source_tag   sub_SeqFeature
+ PRINT READLINE TIEHANDLE close fh moltype newFh next_primary_seq
+ next_seq write_seq
 
- Methods taken from package Bio::Tools::BPbl2seq
- P   homologySeq   hs   match   percent   positive
- qs   querySeq   sbjctSeq   ss
+B<Methods for Object Bio::SimpleAlign>
 
- ***Methods for Object Bio::Tools::BPlite ********
+I<Methods taken from package Bio::SimpleAlign>
 
- Methods taken from package Bio::Tools::BPlite
- database   fh   nextSbjct   pattern   qlength   query
- query_pattern_location
+ addSeq alpha_startend column_from_residue_number consensus_aa
+ consensus_string eachSeq eachSeqWithId each_alphabetically
+ get_displayname id is_flush length_aln map_chars
+ maxdisplayname_length maxname_length maxnse_length no_residues
+ no_sequences percentage_identity purge read_MSF read_Pfam
+ read_Pfam_file read_Prodom read_fasta read_mase read_selex
+ read_stockholm removeSeq set_displayname set_displayname_count
+ set_displayname_flat set_displayname_normal sort_alphabetically
+ uppercase write_MSF write_Pfam write_clustalw write_fasta write_selex
 
- ***Methods for Object Bio::Tools::BPpsilite ********
+B<Methods for Object Bio::Tools::BPbl2seq>
 
- Methods taken from package Bio::Tools::BPpsilite
- database   fh   number_of_iterations   pattern   qlength   query
- query_pattern_location   round
+I<Methods taken from package Bio::RangeI>
 
- ***Methods for Object Bio::Tools::Blast ********
+ carp confess contains croak end equals intersection length new
+ overlap_extent overlaps start strand union
 
- Methods taken from package Bio::Root::Object
- clear_err   clone   compress_file   containment   debug   delete_file
- destroy   display   dont_warn   err   err_state   err_string
- fatal_on_warn   fh   file   file_date   find_object   has_name
- has_warning   index   make   monitor   name   parent
- print_err   read   record_err   set_display   set_err_data   set_log_err
- set_read   set_stats   show   src_obj   strict   strictness
- terse   testing   to_string   uncompress_file   verbosity   warn_on_fatal
- xref
+I<Methods taken from package Bio::SeqFeature::FeaturePair>
 
- Methods taken from package Bio::Tools::Blast
- ambiguous_aln   carp   confess   croak   db_local   db_remote
- expect   filter   gap_creation   gap_extension   gapped   highest_expect
- highest_p   highest_signif   hit   hits   homol_data   is_signif
- karlin_altschul   lowest_expect   lowest_p   lowest_signif   matrix   min_length
- num_hits   overlap   s   signif   signif_fmt   table
- table_labels   table_labels_tiled   table_tiled   to_html   word_size
+ feature1 feature2 hend hframe hprimary_tag hscore hseqname
+ hsource_tag hstart hstrand invert
 
- Methods taken from package Bio::Tools::SeqAnal
- best   database   database_letters   database_release   database_seqs   date
- length   parse   program   program_version   query   query_desc
- roman2int   run   set_date
+I<Methods taken from package Bio::SeqFeature::Generic>
 
- Methods taken from package Exporter
- export   export_fail   export_ok_tags   export_tags   export_to_level   import
+ add_sub_SeqFeature add_tag_value annotation attach_seq entire_seq
+ flush_sub_SeqFeature frame remove_tag score seq seqname
+ slurp_gff_file
+
+I<Methods taken from package Bio::SeqFeature::SimilarityPair>
+
+ bits from_searchResult query significance subject
+
+I<Methods taken from package Bio::SeqFeatureI>
+
+ all_tags each_tag_value gff2_string gff_string has_tag primary_tag
+ source_tag sub_SeqFeature
+
+I<Methods taken from package Bio::Tools::BPbl2seq>
+
+ P homologySeq hs match percent positive qs querySeq sbjctSeq ss
+
+B<Methods for Object Bio::Tools::BPlite>
+
+I<Methods taken from package Bio::Tools::BPlite>
+
+ database fh nextSbjct pattern qlength query query_pattern_location
+
+B<Methods for Object Bio::Tools::BPpsilite>
+
+I<Methods taken from package Bio::Tools::BPpsilite>
+
+ database fh number_of_iterations pattern qlength query
+ query_pattern_location round
+
+B<Methods for Object Bio::Tools::Blast>
+
+I<Methods taken from package Bio::Root::Object>
+
+ clear_err clone compress_file containment debug delete_file destroy
+ display dont_warn err err_state err_string fatal_on_warn fh file
+ file_date find_object has_name has_warning index make monitor name
+ parent print_err read record_err set_display set_err_data set_log_err
+ set_read set_stats show src_obj strict strictness terse testing
+ to_string uncompress_file verbosity warn_on_fatal xref
+
+I<Methods taken from package Bio::Tools::Blast>
+
+ ambiguous_aln carp confess croak db_local db_remote expect filter
+ gap_creation gap_extension gapped highest_expect highest_p
+ highest_signif hit hits homol_data is_signif karlin_altschul
+ lowest_expect lowest_p lowest_signif matrix min_length num_hits
+ overlap s signif signif_fmt table table_labels table_labels_tiled
+ table_tiled to_html word_size
+
+I<Methods taken from package Bio::Tools::SeqAnal>
+
+ best database database_letters database_release database_seqs date
+ length parse program program_version query query_desc roman2int run
+ set_date
+
+I<Methods taken from package Exporter>
+
+ export export_fail export_ok_tags export_tags export_to_level import
  require_version
 
- ***Methods for Object Bio::Tools::CodonTable ********
+B<Methods for Object Bio::Tools::CodonTable>
 
- Methods taken from package Bio::Root::RootI
- DESTROY   gensym   new   qualify   qualify_to_ref   stack_trace
- stack_trace_dump   tempdir   tempfile   throw   ungensym   verbose
- warn
+I<Methods taken from package Bio::Root::RootI>
 
- Methods taken from package Bio::Tools::CodonTable
- id   is_start_codon   is_ter_codon   is_unknown_codon   name   revtranslate
- translate   translate_strict
+ DESTROY gensym new qualify qualify_to_ref stack_trace
+ stack_trace_dump tempdir tempfile throw ungensym verbose warn
 
- ***Methods for Object Bio::Tools::Genscan ********
+I<Methods taken from package Bio::Tools::CodonTable>
 
- Methods taken from package Bio::SeqAnalysisParserI
- carp   confess   croak   next_feature   parse
+ id is_start_codon is_ter_codon is_unknown_codon name revtranslate
+ translate translate_strict
 
- Methods taken from package Bio::Tools::AnalysisResult
- analysis_date   analysis_method   analysis_method_version   analysis_query   analysis_subject   close
+B<Methods for Object Bio::Tools::Genscan>
 
- Methods taken from package Bio::Tools::Genscan
+I<Methods taken from package Bio::SeqAnalysisParserI>
+
+ carp confess croak next_feature parse
+
+I<Methods taken from package Bio::Tools::AnalysisResult>
+
+ analysis_date analysis_method analysis_method_version analysis_query
+ analysis_subject close
+
+I<Methods taken from package Bio::Tools::Genscan>
+
  next_prediction
 
- ***Methods for Object Bio::Tools::HMMER::Results ********
+B<Methods for Object Bio::Tools::HMMER::Results>
 
- Methods taken from package Bio::Tools::HMMER::Results
- add_Domain   add_Set   carp   confess   croak   dictate_hmm_acc
- domain_bits_cutoff_from_evalue   each_Domain   each_Set   filter_on_cutoff   get_Set   get_unit_nse
- highest_noise   lowest_true   number   write_FT_output   write_GDF   write_GDF_bits
- write_ascii_out   write_scores_bits
+I<Methods taken from package Bio::Tools::HMMER::Results>
 
- ***Methods for Object Bio::Tools::OddCodes ********
+ add_Domain add_Set carp confess croak dictate_hmm_acc
+ domain_bits_cutoff_from_evalue each_Domain each_Set filter_on_cutoff
+ get_Set get_unit_nse highest_noise lowest_true number write_FT_output
+ write_GDF write_GDF_bits write_ascii_out write_scores_bits
 
- Methods taken from package Bio::Tools::OddCodes
- Dayhoff   Sneath   Stanfel   charge   chemical   functional
- hydrophobic   structural
+B<Methods for Object Bio::Tools::OddCodes>
 
- ***Methods for Object Bio::Tools::RestrictionEnzyme ********
+I<Methods taken from package Bio::Tools::OddCodes>
 
- Methods taken from package Bio::Tools::RestrictionEnzyme
- annotate_seq   available   available_list   cut_locations   cut_seq   cuts_after
- is_available   name   palindromic   revcom   seq   site
- string
+ Dayhoff Sneath Stanfel charge chemical functional hydrophobic
+ structural
 
- Methods taken from package Exporter
+B<Methods for Object Bio::Tools::RestrictionEnzyme>
+
+I<Methods taken from package Bio::Tools::RestrictionEnzyme>
+
+ annotate_seq available available_list cut_locations cut_seq
+ cuts_after is_available name palindromic revcom seq site string
+
+I<Methods taken from package Exporter>
+
  export   export_fail   export_ok_tags   export_tags   export_to_level   import
  require_version
 
- ***Methods for Object Bio::Tools::Run::Alignment::Clustalw ********
+B<Methods for Object Bio::Tools::Run::Alignment::Clustalw>
 
- Methods taken from package Bio::Tools::Run::Alignment::Clustalw
- AUTOLOAD   align   exists_clustal   profile_align
+I<Methods taken from package Bio::Tools::Run::Alignment::Clustalw>
 
- ***Methods for Object Bio::Tools::Run::Alignment::TCoffee ********
+ AUTOLOAD align exists_clustal profile_align
 
- Methods taken from package Bio::Tools::Run::Alignment::TCoffee
- AUTOLOAD   align   exists_tcoffee   profile_align
+B<Methods for Object Bio::Tools::Run::Alignment::TCoffee>
 
- ***Methods for Object Bio::Tools::Run::StandAloneBlast ********
+I<Methods taken from package Bio::Tools::Run::Alignment::TCoffee>
 
- Methods taken from package Bio::Tools::Run::StandAloneBlast
- AUTOLOAD   bl2seq   blastall   blastpgp   exists_blast
+ AUTOLOAD align exists_tcoffee profile_align
 
- ***Methods for Object Bio::Tools::SeqPattern ********
+B<Methods for Object Bio::Tools::Run::StandAloneBlast>
 
- Methods taken from package Bio::Root::Object
- clear_err   clone   compress_file   containment   debug   delete_file
- destroy   display   dont_warn   err   err_state   err_string
- fatal_on_warn   fh   file   file_date   find_object   has_name
- has_warning   index   make   monitor   name   parent
- print_err   read   record_err   set_display   set_err_data   set_log_err
- set_read   set_stats   show   src_obj   strict   strictness
- terse   testing   to_string   uncompress_file   verbosity   warn_on_fatal
- xref
+I<Methods taken from package Bio::Tools::Run::StandAloneBlast>
 
- Methods taken from package Bio::Tools::SeqPattern
- alphabet_ok   expand   revcom   str   type
+ AUTOLOAD bl2seq blastall blastpgp exists_blast
 
- ***Methods for Object Bio::Tools::SeqStats ********
+B<Methods for Object Bio::Tools::SeqPattern>
 
- Methods taken from package Bio::Tools::SeqStats
- count_codons   count_monomers   get_mol_wt
+I<Methods taken from package Bio::Root::Object>
 
- ***Methods for Object Bio::Tools::SeqWords ********
+ clear_err clone compress_file containment debug delete_file destroy
+ display dont_warn err err_state err_string fatal_on_warn fh file
+ file_date find_object has_name has_warning index make monitor name
+ parent print_err read record_err set_display set_err_data set_log_err
+ set_read set_stats show src_obj strict strictness terse testing
+ to_string uncompress_file verbosity warn_on_fatal xref
 
- Methods taken from package Bio::Root::Object
- clear_err   clone   compress_file   containment   debug   delete_file
- destroy   display   dont_warn   err   err_state   err_string
- fatal_on_warn   fh   file   file_date   find_object   has_name
- has_warning   index   make   monitor   name   parent
- print_err   read   record_err   set_display   set_err_data   set_log_err
- set_read   set_stats   show   src_obj   strict   strictness
- terse   testing   to_string   uncompress_file   verbosity   warn_on_fatal
- xref
+I<Methods taken from package Bio::Tools::SeqPattern>
 
- Methods taken from package Bio::Tools::SeqWords
+ alphabet_ok expand revcom str type
+
+B<Methods for Object Bio::Tools::SeqStats>
+
+I<Methods taken from package Bio::Tools::SeqStats>
+
+ count_codons count_monomers get_mol_wt
+
+B<Methods for Object Bio::Tools::SeqWords>
+
+I<Methods taken from package Bio::Root::Object>
+
+ clear_err clone compress_file containment debug delete_file destroy
+ display dont_warn err err_state err_string fatal_on_warn fh file
+ file_date find_object has_name has_warning index make monitor name
+ parent print_err read record_err set_display set_err_data set_log_err
+ set_read set_stats show src_obj strict strictness terse testing
+ to_string uncompress_file verbosity warn_on_fatal xref
+
+I<Methods taken from package Bio::Tools::SeqWords>
+
  count_words
 
- ***Methods for Object Bio::Tools::Sigcleave ********
+B<Methods for Object Bio::Tools::Sigcleave>
 
- Methods taken from package Bio::PrimarySeqI
- GCG_checksum   accession_number   ary   can_call_new   carp   confess
- croak   desc   display_id   getseq   id   length
- moltype   out_fasta   primary_id   revcom   seq   seq_len
- setseq   str   subseq   translate   translate_old   trunc
- type
+I<Methods taken from package Bio::PrimarySeqI>
 
- Methods taken from package Bio::Seq
- accession   add_SeqFeature   add_date   add_secondary_accession   annotation   division
- each_date   each_secondary_accession   feature_count   keywords   molecule   primary_seq
- species   sv
+ GCG_checksum accession_number ary can_call_new carp confess croak
+ desc display_id getseq id length moltype out_fasta primary_id revcom
+ seq seq_len setseq str subseq translate translate_old trunc type
 
- Methods taken from package Bio::SeqI
+I<Methods taken from package Bio::Seq
+
+ accession add_SeqFeature add_date add_secondary_accession annotation
+ division each_date each_secondary_accession feature_count keywords
+ molecule primary_seq species sv
+
+I<Methods taken from package Bio::SeqI>
+
  all_SeqFeatures   top_SeqFeatures   write_GFF
 
- Methods taken from package Bio::Tools::Sigcleave
- debug   dont_warn   fatal_on_warn   monitor   pretty_print   signals
- strictness   testing   threshold   verbosity   warn_on_fatal
+I<Methods taken from package Bio::Tools::Sigcleave>
 
- ***Methods for Object Bio::Tools::Sim4::Results ********
+ debug dont_warn fatal_on_warn monitor pretty_print signals strictness
+ testing threshold verbosity warn_on_fatal
 
- Methods taken from package Bio::SeqAnalysisParserI
- carp   confess   croak   next_feature   parse
+B<Methods for Object Bio::Tools::Sim4::Results>
 
- Methods taken from package Bio::Tools::AnalysisResult
- analysis_date   analysis_method   analysis_method_version   analysis_query   analysis_subject   close
+I<Methods taken from package Bio::SeqAnalysisParserI>
 
+ carp confess croak next_feature parse
 
- Methods taken from package Bio::Tools::Sim4::Results
- basename   dirname   fileparse   fileparse_set_fstype   next_exonset   parse_next_alignment
+I<Methods taken from package Bio::Tools::AnalysisResult>
 
- ***Methods for Object Bio::Tools::pSW ********
+ analysis_date analysis_method analysis_method_version analysis_query
+ analysis_subject close
 
- Methods taken from package Bio::Tools::AlignFactory
- kbyte   report   set_memory_and_report
+I<Methods taken from package Bio::Tools::Sim4::Results>
 
- Methods taken from package Bio::Tools::pSW
- align_and_show   ext   gap   matrix   pairwise_alignment
+ basename dirname fileparse fileparse_set_fstype next_exonset
+ parse_next_alignment
 
- ***Methods for Object Bio::UnivAln ********
+B<Methods for Object Bio::Tools::pSW>
 
- Methods taken from package Bio::UnivAln
- abort   access   acos   aln   alphabet_check   asctime
- asin   atan   basename   carp   catch   ceil
- clock   col_descs   col_ids   complement   confess   consensus
- copy   cosh   croak   ctermid   ctime   cuserid
- desc   descffmt   difftime   dirname   dup   dup2
- equal_nogaps   equalize_lengths   ffmt   fileparse   fileparse_set_fstype   floor
- fmod   fpathconf   frexp   gap_free_cols   gap_free_inds   gap_free_sites
- height   id   inplace   invar_inds   invar_sites   isalnum
- isalpha   iscntrl   isdigit   isgraph   islower   isprint
- ispunct   isspace   isupper   isxdigit   layout   ldexp
- localeconv   log10   lseek   map_c   map_r   mblen
- mbstowcs   mbtowc   mkfifo   mktime   modf   names
- new   no_allgap_inds   no_allgap_sites   numbering   out_bad   out_fasta
- out_fasta2   out_raw   out_raw2   out_readseq   parse   parse_bad
- parse_fasta   parse_raw   parse_unknown   pathconf   pause   remove_gaps
- revcom   reverse   row_descs   row_ids   samelength   seqs
- setlocale   setpgid   setsid   sigaction   sigpending   sigprocmask
- sigsuspend   sinh   special_free_inds   special_free_sites   strcoll   strftime
- strtod   strtol   strtoul   strxfrm   sysconf   tan
- tanh   tcdrain   tcflow   tcflush   tcgetpgrp   tcsendbreak
- tcsetpgrp   tmpnam   ttyname   type   tzname   tzset
- uname   unknown_free_inds   unknown_free_sites   var_inds   var_sites   wcstombs
- wctomb   width
+I<Methods taken from package Bio::Tools::AlignFactory>
 
- Methods taken from package Exporter
- export   export_fail   export_ok_tags   export_tags   export_to_level   import
+ kbyte report set_memory_and_report
+
+I<Methods taken from package Bio::Tools::pSW>
+
+ align_and_show ext gap matrix pairwise_alignment
+
+B<Methods for Object Bio::UnivAln>
+
+I<Methods taken from package Bio::UnivAln>
+
+ abort access acos aln alphabet_check asctime asin atan basename carp
+ catch ceil clock col_descs col_ids complement confess consensus copy
+ cosh croak ctermid ctime cuserid desc descffmt difftime dirname dup
+ dup2 equal_nogaps equalize_lengths ffmt fileparse
+ fileparse_set_fstype floor fmod fpathconf frexp gap_free_cols
+ gap_free_inds gap_free_sites height id inplace invar_inds invar_sites
+ isalnum isalpha iscntrl isdigit isgraph islower isprint ispunct
+ isspace isupper isxdigit layout ldexp localeconv log10 lseek map_c
+ map_r mblen mbstowcs mbtowc mkfifo mktime modf names new
+ no_allgap_inds no_allgap_sites numbering out_bad out_fasta out_fasta2
+ out_raw out_raw2 out_readseq parse parse_bad parse_fasta parse_raw
+ parse_unknown pathconf pause remove_gaps revcom reverse row_descs
+ row_ids samelength seqs setlocale setpgid setsid sigaction sigpending
+ sigprocmask sigsuspend sinh special_free_inds special_free_sites
+ strcoll strftime strtod strtol strtoul strxfrm sysconf tan tanh
+ tcdrain tcflow tcflush tcgetpgrp tcsendbreak tcsetpgrp tmpnam ttyname
+ type tzname tzset uname unknown_free_inds unknown_free_sites var_inds
+ var_sites wcstombs wctomb width
+
+I<Methods taken from package Exporter>
+
+ export export_fail export_ok_tags export_tags export_to_level import
  require_version
 
- ***Methods for Object Bio::Variation::Allele ********
+B<Methods for Object Bio::Variation::Allele>
 
- Methods taken from package Bio::DBLinkContainerI
- carp   confess   croak   each_DBLink
+I<Methods taken from package Bio::DBLinkContainerI>
 
- Methods taken from package Bio::PrimarySeqI
- GCG_checksum   accession_number   ary   can_call_new   desc   display_id
- getseq   id   length   moltype   out_fasta   primary_id
- revcom   seq   seq_len   setseq   str   subseq
- translate   translate_old   trunc   type
+ carp confess croak each_DBLink
 
- Methods taken from package Bio::Variation::Allele
- add_DBLink   is_reference   repeat_count   repeat_unit
+I<Methods taken from package Bio::PrimarySeqI>
 
- ***Methods for Object Bio::Variation::DNAMutation ********
+ GCG_checksum accession_number ary can_call_new desc display_id getseq
+ id length moltype out_fasta primary_id revcom seq seq_len setseq str
+ subseq translate translate_old trunc type
 
- Methods taken from package Bio::DBLinkContainerI
- carp   confess   croak   each_DBLink
+I<Methods taken from package Bio::Variation::Allele>
 
- Methods taken from package Bio::RangeI
- contains   end   equals   intersection   length   new
- overlap_extent   overlaps   start   strand   union
+ add_DBLink is_reference repeat_count repeat_unit
 
- Methods taken from package Bio::SeqFeature::Generic
- add_sub_SeqFeature   add_tag_value   annotation   attach_seq   entire_seq   flush_sub_SeqFeature
- frame   remove_tag   score   seq   seqname   slurp_gff_file
+B<Methods for Object Bio::Variation::DNAMutation>
 
- Methods taken from package Bio::SeqFeatureI
- all_tags   each_tag_value   gff2_string   gff_string   has_tag   primary_tag
- source_tag   sub_SeqFeature
+I<Methods taken from package Bio::DBLinkContainerI>
 
- Methods taken from package Bio::Variation::DNAMutation
- CpG   RNAChange   sysname
+ carp confess croak each_DBLink
 
- Methods taken from package Bio::Variation::VariantI
- SeqDiff   add_Allele   add_DBLink   allele_mut   allele_ori   dnStreamSeq
- each_Allele   id   isMutation   label   mut_number   numbering
- proof   region   region_value   restriction_changes   status   upStreamSeq
+I<Methods taken from package Bio::RangeI>
 
- ***Methods for Object Bio::Variation::SeqDiff ********
+ contains end equals intersection length new overlap_extent overlaps
+ start strand union
 
- Methods taken from package Bio::Variation::SeqDiff
- aa_mut   aa_ori   add_Gene   add_Variant   alignment   cds_end
- cds_start   chromosome   description   dna_mut   dna_ori   each_Gene
- each_Variant   gene_symbol   id   moltype   numbering   offset
- rna_id   rna_mut   rna_offset   rna_ori   seqobj   sysname
- trivname
+I<Methods taken from package Bio::SeqFeature::Generic>
+
+ add_sub_SeqFeature add_tag_value annotation attach_seq entire_seq
+ flush_sub_SeqFeature frame remove_tag score seq seqname
+ slurp_gff_file
+
+I<Methods taken from package Bio::SeqFeatureI>
+
+ all_tags each_tag_value gff2_string gff_string has_tag primary_tag
+ source_tag sub_SeqFeature
+
+I<Methods taken from package Bio::Variation::DNAMutation>
+
+ CpG RNAChange sysname
+
+I<Methods taken from package Bio::Variation::VariantI>
+
+ SeqDiff add_Allele add_DBLink allele_mut allele_ori dnStreamSeq
+ each_Allele id isMutation label mut_number numbering proof region
+ region_value restriction_changes status upStreamSeq
+
+B<Methods for Object Bio::Variation::SeqDiff>
+
+I<Methods taken from package Bio::Variation::SeqDiff>
+
+ aa_mut aa_ori add_Gene add_Variant alignment cds_end cds_start
+ chromosome description dna_mut dna_ori each_Gene each_Variant
+ gene_symbol id moltype numbering offset rna_id rna_mut rna_offset
+ rna_ori seqobj sysname trivname
 
 =head2 V.2 Appendix: Tutorial demo scripts
 
