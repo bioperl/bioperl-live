@@ -4,7 +4,7 @@
 #
 # Cared for by Matthew Pocock <mrp@sanger.ac.uk>
 #
-# Copywright Matthew Pocock
+# Copyright Matthew Pocock
 #
 # You may distribute this module under the same terms as perl itself
 #
@@ -247,7 +247,7 @@ sub overlaps {
 
 sub contains {
   my ($self, $other, $so) = @_;
-  if(ref $other) { # a range object?
+  if(defined $other && ref $other) { # a range object?
     return ($self->_testStrand($other, $so)      and
       $other->start() >= $self->start() and
       $other->end() <= $self->end());
