@@ -260,7 +260,7 @@ sub seq {
        $obj->{'seq'} = $value;
        if(($is_changed_seq && (CORE::length($value) > 0)) ||
 	  (! defined($obj->alphabet()))) {
-	   $obj->_guess_type();
+	   $obj->_guess_alphabet();
        }
     }
    return $obj->{'seq'};
@@ -612,9 +612,9 @@ These are internal methods to PrimarySeq
 
 =cut
 
-=head2 _guess_type
+=head2 _guess_alphabet
 
- Title   : _guess_type
+ Title   : _guess_alphabet
  Usage   :
  Function:
  Example :
@@ -624,7 +624,7 @@ These are internal methods to PrimarySeq
 
 =cut
 
-sub _guess_type {
+sub _guess_alphabet {
    my ($self) = @_;
    my ($str,$str2,$total,$atgc,$u,$type);
 
@@ -633,7 +633,7 @@ sub _guess_type {
 
    $total = CORE::length($str);
    if( $total == 0 ) {
-       $self->throw("Got a sequence with no letters in - cannot guess type [$str]");
+       $self->throw("Got a sequence with no letters in - cannot guess alphabet [$str]");
    }
 
    $str2 = $str;
