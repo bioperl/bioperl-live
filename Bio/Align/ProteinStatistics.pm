@@ -216,12 +216,26 @@ sub D_Kimura{
 		   $scored++;
 	       }
 	   }
+	   # From Felsenstein's PHYLIP documentation:
+	   # This is very quick to do but has some obvious
+	   # limitations. It does not take into account which amino
+	   # acids differ or to what amino acids they change, so some
+	   # information is lost. The units of the distance measure
+	   # are fraction of amino acids differing, as also in the
+	   # case of the PAM distance. If the fraction of amino acids
+	   # differing gets larger than 0.8541 the distance becomes
+	   # infinite.
+
 	   my $D = 1 - ( $match / $scored );
-	   $D = - log ( 1 - $D - (0.2 * ($D ** 2)));
+	   if( $D < 0.8541 ) {
+	       $D = - log ( 1 - $D - (0.2 * ($D ** 2)));
+	       $values[$j][$i] = $values[$i][$j] = sprintf($precisionstr,$D);
+	   } else { 
+	       $values[$j][$i] = $values[$i][$j] = '    NaN';
+	   }
 	   # fwd and rev lookup
 	   $dist{$names[$i]}->{$names[$j]} = [$i,$j];
 	   $dist{$names[$j]}->{$names[$i]} = [$i,$j];	   
-	   $values[$j][$i] = $values[$i][$j] = sprintf($precisionstr,$D);
 
            # (diagonals) distance is 0 for same sequence
 	   $dist{$names[$j]}->{$names[$j]} = [$j,$j];	   
@@ -288,7 +302,7 @@ sub _check_arg {
 	$self->warn("Must provide a Bio::Align::AlignI compliant object to Bio::Align::DNAStatistics");
 	return 0;
     } elsif( $aln->get_seq_by_pos(1)->alphabet ne 'protein' ) { 
-	$self->warn("Must provide a DNA alignment to Bio::Align::DNAStatistics, you provided a " . $aln->get_seq_by_pos(1)->alphabet);
+	$self->warn("Must provide a protein alignment to Bio::Align::ProteinStatistics, you provided a " . $aln->get_seq_by_pos(1)->alphabet);
 	return 0;
     }
     return 1;
