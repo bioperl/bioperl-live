@@ -69,7 +69,7 @@ use Bio::Annotation::DBLink;
 sub _initialize {
   my($self,@args) = @_;
 
-  my $make = $self->SUPER::_initialize;
+  my $make = $self->SUPER::_initialize(@args);
 
 # set stuff in self from @args
  return $make; # success - we hope!
@@ -155,26 +155,6 @@ sub medline{
 
 }
 
-=head2 comment
-
- Title   : comment
- Usage   : $obj->comment($newval)
- Function: 
- Example : 
- Returns : value of comment
- Args    : newvalue (optional)
-
-=cut
-
-sub comment{
-   my ($obj,$value) = @_;
-   if( defined $value) {
-      $obj->{'comment'} = $value;
-    }
-    return $obj->{'comment'};
-
-}
-
 =head2 database
 
  Title   : database
@@ -204,9 +184,9 @@ sub database{
 =cut
 
 sub primary_id{
-   my ($self) = @_;
+   my ($self, @args) = @_;
 
-   return $self->medline();
+   return $self->medline(@args);
 }
 
 =head2 start
@@ -252,8 +232,7 @@ sub end{
 
  Title   : rp
  Usage   : $self->rp($newval)
- Function: Gives the RP line. No attempt is made to parse this line, unless it indicates
-           start and end reference bases
+ Function: Gives the RP line. No attempt is made to parse this line.
  Example : 
  Returns : value of rp
  Args    : newvalue (optional)
