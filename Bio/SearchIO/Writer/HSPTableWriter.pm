@@ -225,6 +225,7 @@ L<the SYNOPSIS section | SYNOPSIS>.
            : in each Hit of the supplied ResultI object. 
            :
  Throws    : n/a
+
 =cut
 
 sub to_string {
