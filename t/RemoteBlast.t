@@ -72,16 +72,17 @@ if( $actually_submit == 0 ) {
 	    } else { 
 		ok(1);
 		$remote_blast->remove_rid($rid);
-		ok($rc->database, qr/E. coli/);
+		my $result = $rc->next_result;
+		ok($result->database_name, qr/E. coli/);
 		my $count = 0;
-		while( my $sbjct = $rc->nextSbjct ) {		
-		$count++;
-		next unless ( $v > 0);
-		print "sbjct name is ", $sbjct->name, "\n";
-		while( my $hsp = $sbjct->nextHSP ) {
-		    print "score is ", $hsp->score, "\n";
-		} 
-	    }
+		while( my $hit = $result->next_hit ) {		
+		    $count++;
+		    next unless ( $v > 0);
+		    print "sbjct name is ", $hit->name, "\n";
+		    while( my $hsp = $hit->next_hsp ) {
+			print "score is ", $hsp->score, "\n";
+		    } 
+		}
 		ok($count, 3);
 	    }
 	}
