@@ -170,17 +170,20 @@ sub next_seq {
 	    $seq->molecule($3);
 	    $seq->is_circular($4);
 	    $seq->division($5);
-	    ($date) = ($line =~ /.*(\d\d-\w\w\w-\d\d\d\d)/);
 	} else {
 	    $seq->molecule($3);
-	    $seq->division($4);
-	    $date = $5;
-	}
+	    if (CORE::length($4) == 3 ) { 
+		$seq->division($4);
+	    } else {
+		$seq->division($5);
+	    }
+      	}
     } else {
 	$seq->molecule('PRT') if($2 eq 'aa');
 	$seq->division($3);
 	$date = $4;
     }
+    ($date) = ($line =~ /.*(\d\d-\w\w\w-\d\d\d\d)/);
     if ($date) {
 	$seq->add_date($date);
     }
@@ -362,7 +365,7 @@ sub write_seq {
 	$mol = $seq->alphabet || 'DNA';
     }
     
-    my $circular = '';
+    my $circular = 'linear  ';
     $circular = 'circular' if $seq->is_circular;
 
     local($^W) = 0;   # supressing warnings about uninitialized fields.
@@ -375,11 +378,11 @@ sub write_seq {
 	if( $seq->can('get_dates') ) { 	    
 	    ($date) = $seq->get_dates();
 	}
-	$temp_line = sprintf ("%-12s%-10s%7s %s%4s%-6s%-10s%-3s%7s%-s", 
+	$temp_line = sprintf ("%-12s%-15s%13s %s%4s%-8s%-8s %3s %-s", 
 			      'LOCUS', $seq->id(),$len,
 			      (lc($mol) eq 'protein') ? ('aa','', '') : 
 			      ('bp', '',$mol),$circular,
-			      $div,'',$date);
+			      $div,$date);
     } 
     
     $self->_print("$temp_line\n");
