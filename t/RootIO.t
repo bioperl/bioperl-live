@@ -7,7 +7,9 @@
 
 use strict;
 
+
 BEGIN {
+    my $NUMTESTS = 26;
     # to handle systems with no installed Test module
     # we include the t dir (where a copy of Test.pm is located)
     # as a fallback
@@ -16,7 +18,7 @@ BEGIN {
 	use lib 't', '.';
     }
     use Test;    
-    plan tests => 25;
+    plan tests => $NUMTESTS;
 
 }
 
@@ -102,6 +104,24 @@ ok $line5 ne $line4;
 
 ok close(I);
 ok close(O);
+
+##############################################
+# <tests http retrieval>
+##############################################
+
+eval {
+  $rio = Bio::Root::IO->new(-file=>'http://www.google.com/index.html');
+};
+
+if($@){
+  skip("couldn't get google.com, network down?",1);  
+} else {
+  ok(1);
+}
+
+##############################################
+# </tests http retrieval>
+##############################################
 
 
 1;

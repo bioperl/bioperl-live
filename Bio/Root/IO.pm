@@ -107,6 +107,7 @@ use Symbol;
 use POSIX qw(dup);
 use IO::Handle;
 use Bio::Root::Root;
+use LWP::Simple;
 
 @ISA = qw(Bio::Root::Root);
 
@@ -243,7 +244,40 @@ sub _initialize_io {
 							    NOCLOSE
 							    FILE FH 
 							    FLUSH)], @args);
-    
+
+    if($input =~ m!^(http|https|ftp)://! or $file =~ m!^(http|https|ftp)://!){ #looks like a file on the 'net.
+      # why is it sometimes in $input and sometimes in $file ???
+      # i don't know...
+      my $trymax = 5;
+      my $http_result;
+      if(defined($input) && ! -f $input){
+        my($handle,$tempfile) = $self->tempfile();
+        close($handle);
+
+        for(my $try = 1 ; $try <= $trymax ; $try++){
+          $http_result = getstore($input, $tempfile);
+          $self->warn("[$try/$trymax] tried to fetch $input, but server threw $http_result.  retrying...") if $http_result != 200;
+          last if $http_result == 200;
+        }
+        $self->throw("failed to fetch $input, server threw $http_result") if $http_result != 200;
+
+        $input = $tempfile;
+      }
+      if(defined($file) && ! -f $file){
+        my($handle,$tempfile) = $self->tempfile();
+        close($handle);
+
+        for(my $try = 1 ; $try <= $trymax ; $try++){
+          $http_result = getstore($file, $tempfile);
+          $self->warn("[$try/$trymax] tried to fetch $input, but server threw $http_result.  retrying...") if $http_result != 200;
+          last if $http_result == 200;
+        }
+        $self->throw("failed to fetch $file, server threw $http_result") if $http_result != 200;
+
+        $file  = $tempfile;
+      }
+    }
+
     delete $self->{'_readbuffer'};
     delete $self->{'_filehandle'};
     $self->noclose( $noclose) if defined $noclose;
