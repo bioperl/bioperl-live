@@ -61,7 +61,7 @@ use Bio::SeqIO::MultiFile;
 use Getopt::Long;
 my $dbsize = 100;
 my $prefix;
-my ($informat,$outformat,$infile);
+my ($informat,$outformat,$infile) = ( 'fasta', 'fasta');
 
 GetOptions (
 	    's|size:s'     => \$dbsize,
