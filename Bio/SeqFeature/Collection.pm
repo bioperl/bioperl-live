@@ -164,22 +164,21 @@ sub new {
   defined $minbin && $self->min_bin($minbin);
 
   defined $features &&  $self->add_features($features);
+  $DB_BTREE->{'flags'} = R_DUP ;
+  $DB_BTREE->{'compare'} = \&_compare;
+#  $DB_BTREE->{'compare'} = \&_comparepack;
+  $self->{'_btreehash'} = {};
 
   my $tmpname = undef;
   if( $usefile ) { 
       $self->{'_io'} = new Bio::Root::IO;
-      $tmpname = $self->{'_io'}->tempfile();
+      (undef,$tmpname) = $self->{'_io'}->tempfile();
       unlink($tmpname);
       $self->debug("tmpfile is $tmpname");
-  }
-  $DB_BTREE->{'flags'} = R_DUP ;
-  $DB_BTREE->{'compare'} = \&_compare;
-#  $DB_BTREE->{'compare'} = \&_comparepack;
-
-  $self->{'_btreehash'} = {};
+  } 
   $self->{'_btree'} = tie %{$self->{'_btreehash'}}, 
-      'DB_File', $tmpname, O_RDWR|O_CREAT, 0640, $DB_BTREE;
-
+  'DB_File', $tmpname, O_RDWR|O_CREAT, 0640, $DB_BTREE;
+  
 #  possibly storing/retrieving as floats for speed improvement?
 #  $self->{'_btree'}->filter_store_key  ( sub { $_ = pack ("d", $_) } );
 #  $self->{'_btree'}->filter_fetch_key  ( sub { $_ = unpack("d", $_) } );
@@ -357,6 +356,7 @@ sub DESTROY {
 	$self->{'_io'}->_io_cleanup();    
 	$self->{'_io'} = undef;
     }
+    $self->{'_btree'} = undef; 
 }
 
 1;
