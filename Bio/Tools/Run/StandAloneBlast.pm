@@ -479,8 +479,7 @@ sub program_path {
 
  Title   : program_dir
  Usage   : my $dir = $factory->program_dir();
- Function: Abstract get method for dir of program. To be implemented
-           by wrapper.
+ Function: Abstract get method for dir of program. 
  Returns : string representing program directory 
  Args    : none 
 
