@@ -103,10 +103,11 @@ use Bio::Root::IO;
 # Maps from format name to driver suitable for the format.
 #
 my %format_driver_map = (
-			 "go"       => "goflat",
-			 "so"       => "soflat",
-			 "interpro" => "InterProParser",
-			 "evoc"     => "simplehierarchy",
+			 "go"          => "goflat",
+			 "so"          => "soflat",
+			 "interpro"    => "InterProParser",
+                         "interprosax" => "Handlers::InterPro_BioSQL_Handler",
+			 "evoc"        => "simplehierarchy",
 			 );
 
 =head2 new
@@ -119,9 +120,20 @@ my %format_driver_map = (
            for the specified format.
  Args    : Named parameters. Common parameters are
 
-              -format    - the format of the input; supported right now are
-                          'go' (synonymous with goflat), 'so' (synonymous
-                          with soflat), and 'interpro'
+              -format    - the format of the input; the following are
+                           presently supported:
+                  goflat: DAG-Edit Gene Ontology flat files
+                  go    : synonymous to goflat
+                  soflat: DAG-Edit Sequence Ontology flat files
+                  so    : synonymous to soflat
+                  simplehierarchy: text format with one term per line
+                          and indentation giving the hierarchy
+                  evoc  : synonymous to simplehierarchy
+                  interpro: InterPro XML
+                  interprosax: InterPro XML - this is actually not a
+                          Bio::OntologyIO compliant parser; instead it
+                          persists terms as they are encountered.
+                          L<Bio::OntologyIO::Handlers::InterPro_BioSQL_Handler>
               -file      - the file holding the data
               -fh        - the stream providing the data (-file and -fh are
                           mutually exclusive)

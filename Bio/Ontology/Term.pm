@@ -581,8 +581,9 @@ sub get_references {
 sub add_reference {
     my ($self, @values) =@_;
     return unless @values;
-    # Avoid duplicates
+    # avoid duplicates and undefs
     foreach my $reference (@values){
+        next unless $reference;
         next if grep{$_ eq $reference} @{$self->{_references}};
         push @{$self->{_references}}, $reference;
     }

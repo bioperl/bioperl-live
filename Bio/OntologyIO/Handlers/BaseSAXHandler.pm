@@ -1,6 +1,14 @@
+# $Id$
 #
+# BioPerl module for BaseSAXHandler
 #
+# Cared for by Juguang Xiao, juguang@tll.org.sg
 #
+# Copyright Juguang Xiao 
+#
+# You may distribute this module under the same terms as perl itself
+
+# POD documentation - main docs before the code
 
 =head1 NAME
 
@@ -23,7 +31,7 @@ the following suggestions.
      my %args=%{$_[0]->{Attributes}};
      # Your code here.
 
-     # Before you enclose this method, write these 2 line.
+     # Before you conclude the method, write these 2 line.
      $self->_visited_count_inc($tag);
      $self->_push_tag($tag);
  }
@@ -35,12 +43,12 @@ the following suggestions.
      my $tag=shift->{Name};
      # Your code here.
 
-     # Before you enclode this method, wirte these 2 lines.
+     # Before you conclude the method, write these 2 lines.
      $self->_visited_count_dec($tag);
      $self->_pop_tag;
  }
 
-3) In characters, or any other methods where you may used the tag
+3) In characters, or any other methods where you may use the tag
 stack or count
 
  sub characters {
