@@ -234,7 +234,7 @@ debugger is a very helpful way of seeing what is happening in such a
 complex software system - especially when the software is not behaving
 in the way that you expect.  The free graphical debugger ptkdb
 (available as Devel::ptkdb from CPAN) is highly recommended.  Active
-State, from http://www.activestate.com, offers a commercial graphical
+State, from http://www.activestate.com , offers a commercial graphical
 debugger for windows systems.  The standard perl distribution also
 contains a powerful interactive debugger - though with a more cumbersome
 command-line interface. The Perl tool Data::Dumper used with the
