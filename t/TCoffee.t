@@ -11,7 +11,7 @@ BEGIN {
     }
     use Test;
 
-    $NUMTESTS = 14; 
+    $NUMTESTS = 15; 
     plan tests => $NUMTESTS; 
 }
 
@@ -60,6 +60,8 @@ unless ($coffee_present) {
     warn "tcoffee program not found. Skipping tests $Test::ntest to $NUMTESTS.\n";
     exit(0);
 }
+
+ok ($factory->version >= 1.3, 1, "Code tested only on t_coffee versions > 1.3" );
 
 $aln = $factory->align($inputfilename);
 ok $aln->no_sequences, 7;
