@@ -17,7 +17,8 @@ Bio::SeqIO::chadoxml - chadoxml sequence input/output stream
 It is probably best not to use this object directly, but
 rather go through the SeqIO handler system. Go:
 
-    $stream = Bio::SeqIO->new(-file => $filename, -format => 'chadoxml');
+    $stream = Bio::SeqIO->new(-file => $filename, 
+                              -format => 'chadoxml');
 
     while ( my $seq = $stream->next_seq() ) {
         # do something with $seq
@@ -30,18 +31,23 @@ file databases (for chadoxml DTD, see
 http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/gmod/schema/chado/dat/chado.dtd).
  CURRENTLY ONLY TO
 
-    $seqio = Bio::SeqIO->new(-file => '>outfile.xml', -format => 'chadoxml');
+    $seqio = Bio::SeqIO->new(-file => '>outfile.xml', 
+                             -format => 'chadoxml');
 
-    #we have a Bio::Seq object $seq which is a gene located on chromosome arm 'X', to be 
-    #written out to chadoxml
-    #before converting to chadoxml, $seq object B<must> be transformed so that
-    #all the coordinates in $seq are against the source feature to be passed 
-    #into Bio::SeqIO::chadoxml->write_seq() -- chromosome arm X in the example
-    #below.
+    # we have a Bio::Seq object $seq which is a gene located on 
+    # chromosome arm 'X', to be written out to chadoxml
+    # before converting to chadoxml, $seq object B<must> be transformed 
+    # so that all the coordinates in $seq are against the source 
+    # feature to be passed into Bio::SeqIO::chadoxml->write_seq() 
+    # -- chromosome arm X in the example below.
 
-    $seqio->write_seq(-seq=>$seq, -seq_so_type=>'gene',
-                      -src_feature=>'X', -src_feat_type=>'chromosome_arm',
-		      -nounflatten=>1, -is_analysis=>'true', -data_source=>'GenBank');
+    $seqio->write_seq(-seq=>$seq, 
+                      -seq_so_type=>'gene',
+                      -src_feature=>'X', 
+                      -src_feat_type=>'chromosome_arm',
+		                -nounflatten=>1, 
+                      -is_analysis=>'true', 
+                      -data_source=>'GenBank');
 
 The chadoxml output of Bio::SeqIO::chadoxml-E<gt>write_seq() method can be
 passed to the loader utility in XORT package

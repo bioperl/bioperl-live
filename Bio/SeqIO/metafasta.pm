@@ -22,7 +22,7 @@ Do not use this module directly.  Use it via the Bio::SeqIO class.
 This object can transform Bio::Seq::Meta objects to and from metafasta
 flat file databases.
 
-For sequence part the code is an excat copy of Bio::SeqIO::fasta
+For sequence part the code is an exact copy of Bio::SeqIO::fasta
 module. The only added bits deal with meta data IO.
 
 The format of a metafasta file is
