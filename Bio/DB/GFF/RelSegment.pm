@@ -115,7 +115,7 @@ use Bio::RangeI;
 
 use vars qw($VERSION @ISA);
 @ISA = qw(Bio::DB::GFF::Segment);
-$VERSION = '0.30';
+$VERSION = '0.40';
 
 use overload '""' => 'asString',
              'bool' => sub { overload::StrVal(shift) },
@@ -711,7 +711,7 @@ sub contained_features {
   return $self->factory->contained_features(@args);
 }
 
-*contains = \&contained_features;
+# *contains = \&contained_features;
 
 =head2 contained_in
 
@@ -992,6 +992,26 @@ sub intersection {
 	     -seq    => $ref,
 	     -start  => $low,
 	     -stop   => $high);
+}
+
+sub overlaps {
+  my $self = shift;
+  my($other,$so) = @_;
+  $self->SUPER::overlaps(@_) unless $other->isa('Bio::DB::GFF::RelSegment');
+  return if $self->abs_ref ne $other->abs_ref;
+  return if $self->abs_start > $other->abs_end;
+  return if $self->abs_stop  < $other->abs_start;
+  1;
+}
+
+sub contains {
+  my $self = shift;
+  my($other,$so) = @_;
+  $self->SUPER::overlaps(@_) unless $other->isa('Bio::DB::GFF::RelSegment');
+  return if $self->abs_ref ne $other->abs_ref;
+  return unless $self->abs_start <= $other->abs_start;
+  return unless $self->abs_stop  >= $other->abs_start;
+  1;
 }
 
 sub union {
