@@ -16,11 +16,16 @@ Bio::Tools::Sim4::Exon - A single
 
 =head1 SYNOPSIS
 
-Give standard usage here
+See Bio::Tools::Sim4::Results for a description of the context.     
 
 =head1 DESCRIPTION
 
-Describe the object here
+This class inherits from Bio::SeqFeature::FeaturePair. Feature1 refers
+to the 'exon' on the genomic sequence, so that $exon->start(), $exon->end()
+etc will always return what you expect. To get the match to this exon (as
+aligned by sim4) as a Generic feature, use
+     $esthit = $exon->est_hit()
+which is the same as referring to $exon->feature2().
 
 =head1 FEEDBACK
 
@@ -47,6 +52,8 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 =head1 AUTHOR - Ewan Birney
 
 Email birney@sanger.ac.uk
+Bug fixes and enhancements (doc & code) by Hilmar Lapp <hlapp@gmx.net> or
+<hilmar.lapp@pharma.novartis.com>.
 
 Describe contact details here
 
@@ -67,7 +74,7 @@ use strict;
 # Object preamble - inherits from Bio::Root::Object
 
 use Bio::SeqFeature::FeaturePair;
-
+use Bio::SeqFeature::Generic;
 
 @ISA = qw(Bio::SeqFeature::FeaturePair);
 # new() is inherited from Bio::Root::Object
@@ -75,15 +82,25 @@ use Bio::SeqFeature::FeaturePair;
 # _initialize is where the heavy stuff will happen when new is called
 
 sub _initialize {
-  my($self,@args) = @_;
+    my ($self,@args) = @_;
+    my $make = $self->SUPER::_initialize(@args);
 
-  my $make = $self->SUPER::_initialize;
-
-  $self->primary_tag('exon'); # set 
-  $self->source_tag('Sim4');
-  $self->strand(0);
-# set stuff in self from @args
-  return $make; # success - we hope!
+    # If the caller didn't specify a -feature1 object (and he/she isn't
+    # supposed to know about that), we create it here, passing all arguments
+    # to it for proper initialization (i.e., we pretend to be a Generic
+    # feature to allow for arguments like -start, -end, etc). Apart from that,
+    # because calling things like primary_tag() actually refer to the feature1
+    # object (as implemented by FeaturePair), we need to have it defined
+    # anyway.
+    if(! defined($self->feature1())) {
+	my $fea1 = Bio::SeqFeature::Generic->new(@args);
+	$self->feature1($fea1);
+    }
+    $self->primary_tag('exon'); # set 
+    $self->source_tag('Sim4');
+    $self->strand(0) unless defined($self->strand());
+    # set stuff in self from @args
+    return $make; # success - we hope!
 }
 
 #
@@ -101,14 +118,32 @@ sub _initialize {
 
 =cut
 
-sub percentage_id{
-   my $obj = shift;
-   if( @_ ) {
-      my $value = shift;
-      $obj->{'percentage_id'} = $value;
+sub percentage_id {
+    my $obj = shift;
+    if( @_ ) {
+	my $value = shift;
+	$obj->{'percentage_id'} = $value;
     }
     return $obj->{'percentage_id'};
 
+}
+
+=head2 est_hit
+
+ Title   : est_hit
+ Usage   : $est_feature = $obj->est_hit();
+ Function: Returns the EST hit pointing to (i.e., aligned to by Sim4) this
+           exon (i.e., genomic region). At present, merely a synonym for
+           $obj->feature2().
+ Returns : An Bio::SeqFeatureI implementing object.
+ Args    : 
+
+
+=cut
+
+sub est_hit {
+    my $self = shift;
+    return $self->feature2();
 }
 
 1;
