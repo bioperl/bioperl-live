@@ -61,7 +61,9 @@ sub new {
   if (@subglyphs) {
       my $l            = $subglyphs[0]->left;
       $self->{left}    = $l if !defined($self->{left}) || $l < $self->{left};
-      my $right        = (sort { $b<=>$a } map {$_->right} @subglyphs)[0];
+      my $right        = (
+			  sort { $b<=>$a } 
+			  map {$_->right} @subglyphs)[0];
       my $w            = $right - $self->{left} + 1;
       $self->{width}   = $w if !defined($self->{width}) || $w > $self->{width};
   }
@@ -425,22 +427,24 @@ sub layout_sort {
 
        # not sure I can make this schwartzian transfored
        for my $sortby (@sortbys) {
-           if ($sortby eq "left" || $sortby eq "default") {
-               $sortfunc .= '($a->left <=> $b->left) || ';
-               $sawleft++;
-           } elsif ($sortby eq "right") {
-               $sortfunc .= '($a->right <=> $b->right) || ';
-           } elsif ($sortby eq "low_score") {
-               $sortfunc .= '($a->score <=> $b->score) || ';
-           } elsif ($sortby eq "high_score") {
-               $sortfunc .= '($b->score <=> $a->score) || ';
-           } elsif ($sortby eq "longest") {
-               $sortfunc .= '(($b->length) <=> ($a->length)) || ';
-           } elsif ($sortby eq "shortest") {
-               $sortfunc .= '(($a->length) <=> ($b->length)) || ';
-           } elsif ($sortby eq "strand") {
-               $sortfunc .= '($b->strand <=> $a->strand) || ';
-           }
+	 if ($sortby eq "left" || $sortby eq "default") {
+	   $sortfunc .= '($a->left <=> $b->left) || ';
+	   $sawleft++;
+	 } elsif ($sortby eq "right") {
+	   $sortfunc .= '($a->right <=> $b->right) || ';
+	 } elsif ($sortby eq "low_score") {
+	   $sortfunc .= '($a->score <=> $b->score) || ';
+	 } elsif ($sortby eq "high_score") {
+	   $sortfunc .= '($b->score <=> $a->score) || ';
+	 } elsif ($sortby eq "longest") {
+	   $sortfunc .= '(($b->length) <=> ($a->length)) || ';
+	 } elsif ($sortby eq "shortest") {
+	   $sortfunc .= '(($a->length) <=> ($b->length)) || ';
+	 } elsif ($sortby eq "strand") {
+	   $sortfunc .= '($b->strand <=> $a->strand) || ';
+	 } elsif ($sortby eq "name") {
+	   $sortfunc .= '($a->feature->display_name cmp $b->feature->display_name) || ';
+	 }
        }
        unless ($sawleft) {
            $sortfunc .= ' ($a->left <=> $b->left) ';
@@ -451,8 +455,7 @@ sub layout_sort {
        $sortfunc = eval $sortfunc;
     }
 
-    # would be nice to cache this somehow, but won't this override the
-    # settings for other tracks?
+    # cache this
     # $self->factory->set_option(sort_order => $sortfunc);
 
     return sort $sortfunc @_;
@@ -1302,7 +1305,9 @@ features to be sorted from lowest to highest score (or vice versa).
 sorted by their position in the sequence.  "longer" (or "shorter")
 will cause the longest (or shortest) features to be sorted first, and
 "strand" will cause the features to be sorted by strand: "+1"
-(forward) then "0" (unknown, or NA) then "-1" (reverse).
+(forward) then "0" (unknown, or NA) then "-1" (reverse).  Lastly,
+"name" will sort features alphabetically by their display_name()
+attribute.
 
 In all cases, the "left" position will be used to break any ties.  To
 break ties using another field, options may be strung together using a
