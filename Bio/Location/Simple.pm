@@ -80,9 +80,18 @@ sub new {
 							    END 
 							    STRAND
 							    SEQID)],@args);
+    defined $strand && $self->strand($strand);
     defined $start  && $self->start($start);
     defined $end    && $self->end($end);
-    defined $strand && $self->strand($strand);
+    if( defined $self->start && defined $self->end &&
+	$self->start > $self->end ) {
+	$self->warn("When building a location start ($start) is expected to be less than end ($end) - it was not was not. Switching start and end and setting strand to -1");
+	$self->strand(-1);
+	my $e = $self->end;
+	my $s = $self->start;
+	$self->start($e);
+	$self->end($s);
+    }
     $seqid          && $self->seq_id($seqid);
 
     return $self;
@@ -170,7 +179,7 @@ sub strand {
 
 sub length {
    my ($self) = @_;
-   return abs($self->end() - $self->start()) + 1;
+   return $self->end() - $self->start() + 1;
 }
 
 =head2 min_start
