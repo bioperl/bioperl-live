@@ -71,10 +71,9 @@ use strict;
 
 use Bio::Root::Root;
 use Bio::SearchIO::EventHandlerI;
-use Bio::Search::Result::GenericResult;
-use Bio::Search::Hit::GenericHit;
-use Bio::Search::HSP::GenericHSP;
-
+use Bio::Search::HSP::HSPFactory;
+use Bio::Search::Hit::HitFactory;
+use Bio::Search::Result::ResultFactory;
 
 @ISA = qw(Bio::Root::Root Bio::SearchIO::EventHandlerI);
 
@@ -84,10 +83,25 @@ use Bio::Search::HSP::GenericHSP;
  Usage   : my $obj = new Bio::SearchIO::SearchResultEventBuilder();
  Function: Builds a new Bio::SearchIO::SearchResultEventBuilder object 
  Returns : Bio::SearchIO::SearchResultEventBuilder
- Args    :
+ Args    : -hsp_factory    => L<Bio::Factory::ObjectFactoryI>
+           -hit_factory    => L<Bio::Factory::ObjectFactory>I
+           -result_factory => L<Bio::Factory::ObjectFactoryI>
 
 
 =cut
+
+sub new { 
+    my ($class,@args) = @_;
+    my $self = $class->SUPER::new(@args);
+    my ($hspF,$hitF,$resultF) = $self->_rearrange([qw(HSP_FACTORY
+						      HIT_FACTORY
+						      RESULT_FACTORY)],@args);
+    $self->register_factory('hsp', $hspF || Bio::Search::HSP::HSPFactory->new());
+    $self->register_factory('hit', $hitF || Bio::Search::Hit::HitFactory->new());
+    $self->register_factory('result', $resultF || Bio::Search::Result::ResultFactory->new());
+
+    return $self;
+}
 
 # new comes from the superclass
 
@@ -157,10 +171,12 @@ sub end_result {
 	}
 	delete $data->{'runid'};
     }
-    my %args = map { my $v = $data->{$_}; s/RESULT//; ($_ => $v) } grep { '^RESULT' } keys %{$data};
+    my %args = map { my $v = $data->{$_}; s/RESULT//; ($_ => $v); } 
+               grep { /^RESULT/ } keys %{$data};
+    
     $args{'-algorithm'} =  $type;
     $args{'-hits'}      =  $self->{'_hits'};
-    my $result = new Bio::Search::Result::GenericResult(%args);
+    my $result = $self->factory('result')->create(%args);
     $self->{'_hits'} = [];
     return $result;
 }
@@ -233,12 +249,12 @@ sub end_hsp {
     $data->{'HSP-hit_length'}   ||= length $data->{'HSP-hit_seq'};
     $data->{'HSP-hsp_length'}   ||= length $data->{'HSP-homology_seq'};
     
-    my %args = map { my $v = $data->{$_}; s/HSP//; ($_ => $v) } grep { '^HSP' } keys %{$data};
+    my %args = map { my $v = $data->{$_}; s/HSP//; ($_ => $v) } grep { /^HSP/ } keys %{$data};
     $args{'-algorithm'} = $type;
     # copy this over from result
     $args{'-query_name'} = $data->{'RESULT-query_name'};
     $args{'-hit_name'} = $data->{'HIT-name'};
-    my $hsp = new Bio::Search::HSP::GenericHSP(%args);
+    my $hsp = $self->factory('hsp')->create(%args);
     push @{$self->{'_hsps'}}, $hsp;
     return $hsp;
 }
@@ -275,13 +291,55 @@ sub start_hit{
 
 sub end_hit{
     my ($self,$type,$data) = @_;   
-    my %args = map { my $v = $_; s/HIT//; ($_ => $data->{$v}) } grep { '^HIT' } keys %{$data};
+    my %args = map { my $v = $data->{$_}; s/HIT//; ($_ => $v); } grep { /^HIT/ } keys %{$data};
     $args{'-algorithm'} = $type;
     $args{'-hsps'}      = $self->{'_hsps'};
-    my $hit = new Bio::Search::Hit::GenericHit(%args);
-   push @{$self->{'_hits'}}, $hit;
-   $self->{'_hsps'} = [];
-   return $hit;
+    my $hit = $self->factory('hit')->create(%args);
+    push @{$self->{'_hits'}}, $hit;
+    $self->{'_hsps'} = [];
+    return $hit;
 }
+
+=head2 Factory methods
+
+=cut
+
+=head2 register_factory
+
+ Title   : register_factory
+ Usage   : $handler->register_factory('TYPE',$factory);
+ Function: Register a specific factory for a object type class
+ Returns : none
+ Args    : string representing the class and
+           L<Bio::Factory::ObjectFactoryI>
+
+=cut
+
+sub register_factory{
+   my ($self, $type,$f) = @_;
+   if( ! defined $f || ! ref($f) || 
+       ! $f->isa('Bio::Factory::ObjectFactoryI') ) { 
+       $self->throw("Cannot set factory to value $f".ref($f)."\n");
+   }
+   $self->{'_factories'}->{lc($type)} = $f;
+}
+
+
+=head2 factory
+
+ Title   : factory
+ Usage   : my $f = $handler->factory('TYPE');
+ Function: Retrieves the associated factory for requested 'TYPE'
+ Returns : a L<Bio::Factory::ObjectFactoryI> or undef if none registered
+ Args    : name of factory class to retrieve
+
+
+=cut
+
+sub factory{
+   my ($self,$type) = @_;
+   return $self->{'_factories'}->{lc($type)} || $self->throw("No factory registered for $type");
+}
+
 
 1;

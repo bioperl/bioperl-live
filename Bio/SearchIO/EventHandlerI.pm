@@ -171,6 +171,40 @@ sub end_hit {
    $self->throw_not_implemented();
 }
 
+
+=head2 register_factory
+
+ Title   : register_factory
+ Usage   : $handler->register_factory('TYPE',$factory);
+ Function: Register a specific factory for a object type class
+ Returns : none
+ Args    : string representing the class and
+           L<Bio::Factory::ObjectFactoryI>
+
+=cut
+
+sub register_factory{
+   my ($self,@args) = @_;
+   $self->throw_not_implemented();
+}
+
+
+=head2 factory
+
+ Title   : factory
+ Usage   : my $f = $handler->factory('TYPE');
+ Function: Retrieves the associated factory for requested 'TYPE'
+ Returns : a L<Bio::Factory::ObjectFactoryI> or undef if none registered
+ Args    : name of factory class to retrieve
+
+
+=cut
+
+sub factory{
+   my ($self,@args) = @_;
+   $self->throw_not_implemented();
+}
+
 =head2 Bio::Event::EventHandlerI methods
 
 =cut
