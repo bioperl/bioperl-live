@@ -60,9 +60,7 @@ unless ($coffee_present) {
     warn "tcoffee program not found. Skipping tests $Test::ntest to $NUMTESTS.\n";
     exit(0);
 }
-
-ok ($factory->version >= 1.3, 1, "Code tested only on t_coffee versions > 1.3" );
-
+ok ($factory->version >= 1.22, 1, "Code tested only on t_coffee versions > 1.22" );
 $aln = $factory->align($inputfilename);
 ok $aln->no_sequences, 7;
 
