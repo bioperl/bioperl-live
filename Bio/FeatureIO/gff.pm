@@ -6,6 +6,7 @@ use Bio::SeqFeature::Generic;
 use Bio::OntologyIO;
 
 use Bio::Annotation::OntologyTerm;
+use Bio::Ontology::OntologyStore;
 
 =pod
 
@@ -24,10 +25,44 @@ sub _initialize {
   }
   $self->_pushback($directive);
 
-  $self->_setup_ontology('Sequence Ontology',
-                         "http://cvs.sourceforge.net/viewcvs.py/*checkout*/song/ontology/so.ontology?rev=HEAD",
-                         "http://cvs.sourceforge.net/viewcvs.py/*checkout*/song/ontology/so.definition?rev=HEAD",
-                        );
+  $self->so(
+            Bio::Ontology::OntologyStore->get_ontology('Sequence Ontology')
+           );
+}
+
+sub write_feature {
+  my($self,$feature) = @_;
+  $self->throw("only Bio::SeqFeature::Annotated objects are writeable") unless $feature->isa('Bio::SeqFeature::Annotated');
+
+  my $seq    = $feature->seq_id || '.';
+  my $source = ($feature->annotation->get_Annotations('source'))[0]->value;
+  my $type   = ($feature->annotation->get_Annotations('feature_type'))[0]->name;
+  my $min    = $feature->start   || '.';
+  my $max    = $feature->end     || '.';
+  my $strand = $feature->strand == 1 ? '+' : $feature->strand == -1 ? '-' : '.';
+  my $score  = $feature->score   || '.';
+  my $phase  = $feature->frame   || '.';
+
+  my @attr;
+  if(my @v = ($feature->annotation->get_Annotations('Name'))){
+    my $vstring = join ',', map {$_->value} @v;
+    push @attr, "Name=$vstring";
+  }
+  if(my @v = ($feature->annotation->get_Annotations('ID'))){
+    my $vstring = join ',', map {$_->value} @v;
+    push @attr, "ID=$vstring";
+  }
+
+  my $attr = join ';', @attr;
+
+  my $outstring = sprintf("%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n",
+                          $seq,$source,$type,$min,$max,$score,$strand,$phase,$attr);
+
+  $self->_print($outstring);
+
+  foreach my $subfeat ($feature->get_SeqFeatures){
+    $self->write_feature($subfeat);
+  }
 }
 
 sub next_feature {
@@ -98,6 +133,7 @@ sub _handle_directive {
 sub _handle_feature {
   my($self,$feature_string) = @_;
 
+  $self->warn('FIXME, use Bio::SeqFeature::Annotated instead of Bio::SeqFeature::Generic');
   my $feat = Bio::SeqFeature::Generic->new();
   my $ac = $feat->annotation(); #initialize Bio::Annotation::Collection
 
@@ -124,18 +160,6 @@ sub _handle_feature {
   $ac->add_Annotation('feature_type',$fta);
 
   return $feat;  
-}
-
-sub _setup_ontology {
-  my($self,$name,$ont_url,$def_url) = @_;
-
-  my $ont_parser = Bio::OntologyIO->new(
-                     -format       => 'so',
-                     -defs_file    => $def_url,
-                     -file         => $ont_url,
-                   );
-  my $so = $ont_parser->next_ontology();
-  $self->so($so);
 }
 
 sub so {
