@@ -28,10 +28,10 @@ $ascii =    'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
 $ascii_aa = 'ABCDEFGHIXKLMNXPQRSTUVWXYZ';
 
 $ascii3 = 
-    'AlaAsxCysAspGluPheGlyHisIleXaaLysLeuMetAsnXaaProGlnArgSerThrSelValTrpXaaTyrGlx';
+    'AlaAsxCysAspGluPheGlyHisIleXaaLysLeuMetAsnXaaProGlnArgSerThrSecValTrpXaaTyrGlx';
 
 $seq = Bio::PrimarySeq->new('-seq'=> $ascii,
-			       '-alphabet'=>'protein', 
+			    '-alphabet'=>'protein', 
 			       '-id'=>'test');
 
 # one letter amino acid code to three letter code
@@ -42,7 +42,7 @@ ok $util->seq3($seq), $ascii3;
 ok (Bio::SeqUtils->seq3($seq), $ascii3); 
 ok (Bio::SeqUtils->seq3($seq, undef, ','), 
     'Ala,Asx,Cys,Asp,Glu,Phe,Gly,His,Ile,Xaa,Lys,'.
-    'Leu,Met,Asn,Xaa,Pro,Gln,Arg,Ser,Thr,Sel,Val,Trp,Xaa,Tyr,Glx');
+    'Leu,Met,Asn,Xaa,Pro,Gln,Arg,Ser,Thr,Sec,Val,Trp,Xaa,Tyr,Glx');
 
 $seq->seq('asd-KJJK-');
 ok (Bio::SeqUtils->seq3($seq, '-', ':'), 
