@@ -32,8 +32,19 @@ use Bio::DB::GFF::Adaptor::dbi::mysql;
 use Bio::DB::BioFetch;
 use Bio::SeqIO;
 
-use vars qw(@ISA);
+use vars qw(@ISA %preferred_tags);
 @ISA = qw(Bio::DB::GFF::Adaptor::dbi::mysql);
+
+# priority for choosing names of CDS tags, higher is higher priority
+%preferred_tags = (
+		      strain        => 10,
+		      organism      => 20,
+		      protein_id    => 40,
+		      locus_tag     => 50,
+		      locus         => 60,
+		      gene          => 70,
+		      standard_name => 80,
+		      );
 
 =head2 new
 
@@ -129,7 +140,9 @@ sub load_from_file {
   my $self = shift;
   my $file = shift;
 
-  my $seqio = Bio::SeqIO->new( '-format' => 'embl', -file => $file);
+  my $format = $file =~ /\.(gb|genbank|gbk)$/i ? 'genbank' : 'embl';
+
+  my $seqio = Bio::SeqIO->new( '-format' => $format, -file => $file);
   my $seq   = $seqio->next_seq;
 
   $self->_load_embl($seq->accession,$seq);
@@ -172,7 +185,7 @@ sub _load_embl {
   # now load each feature in turn
   for my $feat ($seq->all_SeqFeatures) {
     my $attributes = $self->get_attributes($feat);
-    my $first = (shift @$attributes);
+    my $name = $self->guess_name($attributes);
 
     my $location = $feat->location;
     my @segments = map {[$_->start,$_->end]} 
@@ -190,8 +203,8 @@ sub _load_embl {
 			     score  => $feat->score || undef,
 			     strand => $feat->strand > 0 ? '+' : ($feat->strand < 0 ? '-' : '.'),
 			     phase  => $feat->frame || '.',
-			     gclass => $first->[0],
-			     gname  => $first->[1],
+			     gclass => $name->[0],
+			     gname  => $name->[1],
 			     tstart => undef,
 			     tstop  => undef,
 			     attributes  => $attributes,
@@ -221,6 +234,15 @@ sub get_attributes {
     }
   }
   \@result;
+}
+
+sub guess_name {
+  my $self = shift;
+  my $attributes = shift;
+  my @ordered_attributes = sort {($preferred_tags{$a->[0]} || 0) <=> ($preferred_tags{$b->[0]} || 0)} @$attributes;
+  my $best = pop @ordered_attributes;
+  @$attributes = @ordered_attributes;
+  return $best;
 }
 
 
