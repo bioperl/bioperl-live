@@ -10,7 +10,7 @@
 #
 # _History_
 #
-# Ewan Birney <birney@sanger.ac.uk> developed the SeqIO 
+# Ewan Birney <birney@ebi.ac.uk> developed the SeqIO 
 # schema and the first prototype modules.
 #
 # This code is based on his Bio::SeqIO::Fasta module with
@@ -48,9 +48,9 @@ and other Bioperl modules. Send your comments and suggestions preferably
  to one of the Bioperl mailing lists.
 Your participation is much appreciated.
 
-  vsns-bcd-perl@lists.uni-bielefeld.de          - General discussion
-  vsns-bcd-perl-guts@lists.uni-bielefeld.de     - Technically-oriented discussion
-  http://bio.perl.org/MailList.html             - About the mailing lists
+  bioperl-l@bioperl.org                 - General discussion
+  bioperl-guts-l@bioperl.org            - Technically-oriented discussion
+  http://www.bioperl.org/MailList.shtml - About the mailing lists
 
 =head2 Reporting Bugs
 

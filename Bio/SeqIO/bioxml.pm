@@ -1,7 +1,7 @@
 #
 # BioPerl module for Bio::SeqIO::fasta
 #
-# Cared for by Ewan Birney <birney@sanger.ac.uk>
+# Cared for by Ewan Birney <birney@ebi.ac.uk>
 #          and Lincoln Stein <lstein@cshl.org>
 #
 # Copyright Ewan Birney & Lincoln Stein
@@ -39,11 +39,11 @@ and other Bioperl modules. Send your comments and suggestions preferably
  to the bioxml developer's mailing list.
 Your participation is much appreciated.
 
-  bioxml-dev@bioxml.org                         - the bioxml list.
-  vsns-bcd-perl@lists.uni-bielefeld.de          - General bioperl discussion
-  vsns-bcd-perl-guts@lists.uni-bielefeld.de     - Technically-oriented bioperl discussion
-  http://www.bioxml.org/MailList.html           - ABout the mailing lists
-  http://bio.perl.org/MailList.html             - About the bioperl mailing lists
+  bioxml-dev@bioxml.org                 the bioxml list.
+  bioperl-l@bioperl.org                - General bioperl discussion
+  bioperl-guts-l@bioperl.org           - Technically-oriented bioperl discussion
+  http://www.bioxml.org/MailList.html  - About the bioxml mailing list
+  http://www.bioperl.org/MailList.html - About the bioperl mailing lists
 
 =head2 Reporting Bugs
 
@@ -52,7 +52,7 @@ For now send bug reports to the bioxml list above.
 =head1 AUTHORS - Brad Marshall, Ewan Birney, Lincoln Stein
 
 Email: bradmars@yahoo.com
-       birney@sanger.ac.uk
+       birney@ebi.ac.uk
        lstein@cshl.org
 
 

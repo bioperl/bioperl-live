@@ -3,7 +3,7 @@
 #
 # BioPerl module for Bio::SeqIO::EMBL
 #
-# Cared for by Ewan Birney <birney@sanger.ac.uk>
+# Cared for by Ewan Birney <birney@ebi.ac.uk>
 #
 # Copyright Ewan Birney
 #
@@ -71,9 +71,9 @@ and other Bioperl modules. Send your comments and suggestions preferably
  to one of the Bioperl mailing lists.
 Your participation is much appreciated.
 
-  vsns-bcd-perl@lists.uni-bielefeld.de          - General discussion
-  vsns-bcd-perl-guts@lists.uni-bielefeld.de     - Technically-oriented discussion
-  http://bio.perl.org/MailList.html             - About the mailing lists
+  bioperl-l@bioperl.org                 - General discussion
+  bioperl-guts-l@bioperl.org            - Technically-oriented discussion
+  http://www.bioperl.org/MailList.shtml - About the mailing lists
 
 =head2 Reporting Bugs
 
@@ -86,7 +86,7 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 
 =head1 AUTHOR - Ewan Birney
 
-Email birney@sanger.ac.uk
+Email birney@ebi.ac.uk
 
 Describe contact details here
 

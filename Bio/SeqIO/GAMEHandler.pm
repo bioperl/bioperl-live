@@ -31,10 +31,14 @@ Your participation is much appreciated.
   bioxml-announce@bioxml.org   - General Announcements - Pretty dead
   http://www.bioxml.org/MailingLists/         - About the mailing lists
 
+  bioperl-l@bioperl.org        - Bioperl general mailing list
+  bioperl-guts-l@bioperl.org   - Bioperl Technically oriented mailing list
+  http://www.bioperl.org/MailingList.shtml - About the bioperl mailing lists
+
 =head1 AUTHORS - Brad Marshall & Ewan Birney & Lincoln Stein
 
 Email: bradmars@yahoo.com
-       birney@sanger.ac.uk
+       birney@ebi.ac.uk
        lstein@cshl.org
 
 

@@ -1,7 +1,7 @@
 #
 # BioPerl module for Bio::SeqIO::fasta
 #
-# Cared for by Ewan Birney <birney@sanger.ac.uk>
+# Cared for by Ewan Birney <birney@ebi.ac.uk>
 #          and Lincoln Stein <lstein@cshl.org>
 #
 # Copyright Ewan Birney & Lincoln Stein
@@ -49,7 +49,7 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 
 =head1 AUTHORS - Ewan Birney & Lincoln Stein
 
-Email: birney@sanger.ac.uk
+Email: birney@ebi.ac.uk
        lstein@cshl.org
 
 
