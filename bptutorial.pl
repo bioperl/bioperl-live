@@ -702,22 +702,31 @@ For retrieving data from genbank, for example, the code could be as
 follows:
 
   $gb = new Bio::DB::GenBank();
+  # this returns a Seq object :
   $seq1 = $gb->get_Seq_by_id('MUSIGHBA1');
+  # this returns a Seq object :
   $seq2 = $gb->get_Seq_by_acc('AF303112'))
+  # this returns a SeqIO object :
   $seqio = $gb->get_Stream_by_batch([ qw(J00522 AF303112 2981014)]));
 
 Bioperl currently supports sequence data retrieval from the genbank,
-genpept, swissprot, EMBL databases. See L<Bio::DB::GenBank>,
-L<Bio::DB::GenPept>, L<Bio::DB::SwissProt>, and L<Bio::DB::EMBL> for
-more information. A user can also specify a different database mirror
-for a database - this especially relavent for the SwissProt resource
-where there are many ExPaSy mirror.  There are also configuration
+genpept, RefSeq, swissprot, and EMBL databases. See L<Bio::DB::GenBank>,
+L<Bio::DB::GenPept>, L<Bio::DB::SwissProt>, L<Bio::DB::RefSeq> and
+L<Bio::DB::EMBL> for more information. A user can also specify a different
+database mirror for a database - this is especially relevent for the SwissProt
+resource where there are many ExPaSy mirrors.  There are also configuration
 options for specifying local proxy servers for those behind firewalls.
 
 The retrieval of NCBI RefSeqs sequences is supported through a special
 module called Bio::DB::RefSeq which actually queries an EBI server.
 Please see L<Bio::DB::RefSeq> before using it as there are some caveats
-with RefSeq retrieval. RefSeq ids in Genbank typically begin with "NT_".
+with RefSeq retrieval. RefSeq ids in Genbank begin with "NT_", "NC_",
+"NG_", "NM_", "NP_", "XM_", "XR_", or "XP_" (for more information see
+http://www.ncbi.nlm.nih.gov/LocusLink/refseq.html). Bio::DB::GenBank
+can be used to retrieve entries corresponding to these ids but bear in
+mind that these are not Genbank entries, strictly speaking. See
+L<Bio::DB::GenBank> for special details on retrieving entries beginning
+with "NT_", these are specially formatted "CONTIG" entries.
 
 Bioperl also supports retrieval from a remote Ace database. This
 capability requires the presence of the external AcePerl module. You
@@ -2248,12 +2257,12 @@ http://biopython.org/ websites.
 =head2 IV.3 EMBOSS
 
 EMBOSS is another open source project with similar goals
-to bioperl.  However EMBOSS code is implemented in "C" and has been
+to bioperl.  However EMBOSS code is implemented in C and has been
 designed for standalone execution on the Unix command line, rather
 than for incorporation into a user script or program.  EMBOSS includes
 a wide array of useful bioinformatics functions similar to those of
 the GCG package after which it was designed.  A bioperl interface
-to the EMBOSS functions is under development.  When this
+to the EMBOSS functions has been partially completed.  When this
 interface is complete, it will be possible to access EMBOSS functions
 as though they were bioperl objects (in a manner similar to how the
 StandAloneBlast bioperl module enables access to performing Blast
@@ -2275,7 +2284,7 @@ at http://www.ensembl.org/.
 
 Bioperl-db is a relatively new project intended to transfer some of
 Ensembl's capability of integrating bioperl syntax with a standalone
-Mysql database to the core bioperl code-base. More details
+Mysql database (http://www.mysql.com) to the bioperl code-base. More details
 on bioperl-db can be found in the bioperl-db CVS directory at
 http://cvs.bioperl.org/cgi-bin/viewcvs/viewcvs.cgi/bioperl-db/?cvsroot=bioperl.
 It is worth mentioning that most of the bioperl objects mentioned above
@@ -2296,7 +2305,8 @@ The Bio::DB::GFF module provides access to relational databases constructed
 from data files in GFF format. This file type is well suited to sequence
 annotation because it allows the ability to describe entries in terms of
 parent-child relationships (see http://www.sanger.ac.uk/software/GFF for
-details).
+details). Like bioperl-db, above, the current implementation uses mysql
+(http://www.mysql.com).
 
 The module accesses not only by id but by annotation type and position or
 range. Those who would like to explore bioperl as a means to overlay nucleotide
