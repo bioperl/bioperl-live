@@ -9,10 +9,10 @@ use strict;
 		    _past _present _future);
 @OTHER_ATTRIBUTES=qw();
 %SYNONYMS=();
-%DEFAULTS=(order=>'dfs',
-	   what=>'node',
-	   _past=>{},
-	   _future=>[]);
+%DEFAULTS=(order   => 'dfs',
+	        what   => 'node',
+	       _past   => {},
+	      _future  => []);
 Class::AutoClass::declare(__PACKAGE__);
 
 sub _init_self {
@@ -53,26 +53,27 @@ sub get_all {
   my($self, $val)   = @_;
   $self->reset unless $self->is_initialized;
   my $past    = $self->_past;
-  $past->{$val} = 1 if $val;
   my $future  = $self->_future;
+  my $i = 0; 
   my $present;
   my $graph   = $self->graph;
+  my $nodes   = $graph->_nodes;
+ map {$nodes->{$_}{'_node_id'} = undef}keys %$nodes;
   my $results =[];
   while (@$future) {
     $present = shift @$future;
      if(!$past->{$present}) {	# this is a new node
          $past->{$present} = 1;
+		
          push(@$results,$present);
-	    #last if defined($graph->{'_unique'}{$present});
+		 $nodes->{$present}{'_node_id'} = $i;
+		 $i++;
          if ($self->order =~ /^d/i) {
 		    unshift(@$future,$graph->neighbors($present,$self->what));
              } else {
 			push(@$future,$graph->neighbors($present,$self->what));
            }
         }
-	else{# we have back edge, mark as 
-		}
-	
   }
   $self->_present(undef);
   wantarray? @$results: $results;
@@ -86,6 +87,7 @@ sub get_this {
 sub reset {
   my($self)= @_;
   $self->_past({});
+  $self->order('d');
   $self->_present(undef);
   $self->_future([]);
   $self->is_initialized(1);
