@@ -336,10 +336,10 @@ sub _print {
            value of $/.
 
  Example :
- Args    : Accepts a hash of arguments, currently only -strip is recognized
-           passing (-strip => 0) prevents \r\n sequences from being changed
-           to \n.  The default value of -strip is 1, allowing \r\n to be
-           converted.
+ Args    : Accepts a hash of arguments, currently only -raw is recognized
+           passing (-raw => 1) prevents \r\n sequences from being changed
+           to \n.  The default value of -raw is undef, allowing \r\n to be
+           converted to \n.
  Returns : 
 
 =cut
@@ -347,7 +347,6 @@ sub _print {
 sub _readline {
     my $self = shift;
     my %param =@_;
-    $param{-strip} = 1 unless defined $param{-strip};
 
     my $fh = $self->_fh || \*STDIN;
     my $line;
@@ -360,7 +359,7 @@ sub _readline {
     } else {
 	$line = <$fh>;
     }
-    $line =~ s/\r\n/\n/g if $param{-strip} and defined $line;
+    $line =~ s/\r\n/\n/g if( (!$param{-raw}) && (defined $line) );
     return $line;
 }
 
