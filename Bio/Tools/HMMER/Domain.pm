@@ -47,7 +47,7 @@ use Bio::SeqFeature::Generic;
 use strict;
 
 
-@ISA = ( 'Bio::SeqFeature::FeaturePair','Bio::SeqFeature::Generic');
+@ISA = qw(Bio::SeqFeature::FeaturePair);
 
 sub _initialize { 
   my($self,@args) = @_;
