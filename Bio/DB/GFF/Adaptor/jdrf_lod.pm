@@ -259,7 +259,7 @@ sub get_features {
 
   if( $chr =~ /\:/ ) {
     my ( $ref_chr, $ref_start, $ref_end ) =
-      ( $chr =~ /^(.+)\:(\d+)\,(\d+)$/ );
+      ( $chr =~ /^[^\d]*(\d+)\:(\d+)\,(\d+)$/ );
     $chr = $ref_chr;
     ## TODO: Adjust the given start..
     if( $start ) {
@@ -267,6 +267,14 @@ sub get_features {
     }
     $start = $ref_start;
     $end = $ref_end;
+  } elsif( $chr =~ /[^\d]/ ) {
+    my ( $just_the_digits ) = ( $chr =~ /^[^\d]+(\d+)$/ );
+    unless( $just_the_digits ) {
+      warn "Unable to parse out the digits from this chromosome id: '$chr'; expecting digits at the end of the string, preceded by non-digits, such as 'chr4'";
+      return;
+    } else {
+      $chr = $just_the_digits;
+    }
   }
   my $query_range =
     Bio::Range->new( '-seq_id' => $chr, '-start' => $start, '-end' => $end );
@@ -277,87 +285,49 @@ sub get_features {
     warn $self->stack_trace_dump();
     return 0;
   }
-  my $total_feature_count = 0;
+  ## Note that for now we only really have one type, so we'll return
+  ## after returning the lod features, even if multiple of the
+  ## arguments have 'lod' in them.
   for( my $type_i; $type_i < @$types; $type_i++ ) {
-    ## We're expecting something like 'lod:12', where the number is the str_id.
-    my ( $method, $str_id ) = @{ $types->[ $type_i ] };
-    #( $types->[ 0 ] =~ /^(.*)\:?(\d+)$/ );# || ( undef, $types->[ 0 ] );
-    next unless ( ( $method eq 'lod' ) && ( $str_id =~ /^\d+$/ ) );
+    my ( $method, $source ) = @{ $types->[ $type_i ] };
+    ## TODO: REMOVE
+    #warn "Got type $method:$source";
+    next unless ( $method eq 'lod' );
 
     ## TODO: REMOVE
-    #warn "Hey.  Gonna do chr $chr, start $start, end $end, str_id $str_id.  method is $method.";
-    
-    ## TODO: REMOVE.  Testing.
-    #$start = 65695316;
-    #$end = 65695650;
-    
+    #warn "Hey.  Gonna do chr $chr, start $start, end $end.";
+
     my $dbh = $self->dbh();
-    ## This stuff will be used later on.
-#    my ( $loc_id ) =
-#      $dbh->selectrow_array("
-#          SELECT	locus_id
-#          FROM		locus
-#          WHERE		chromosome = '$chr'
-#                  AND (	(locus_start BETWEEN '$start' AND '$end')
-#                          OR ( locus_end BETWEEN '$start' AND '$end') 
-#                          OR ( ( locus_start <= '$start' ) AND ( locus_end >= '$end') )
-#                          OR ( ( locus_start >= '$start' ) AND ( locus_end <= '$end') ) )
-#    
-#    
-#    
-#                  AND 	record_status_id <> 'D'
-#      ");
-    
-    ## TODO: REMOVE
-    #warn "Hey.  str_id is $str_id, loc_id is $loc_id.";
+    # First get the locus id.
+    ## TODO: Also consider the rangetype...
+    my ( $loc_id ) = $dbh->selectrow_array("
+        SELECT	locus_id
+        FROM		locus
+        WHERE		chromosome = '$chr'
+                AND (	(locus_start BETWEEN '$start' AND '$end')
+                        OR ( locus_end BETWEEN '$start' AND '$end') 
+                        OR ( ( locus_start <= '$start' ) AND ( locus_end >= '$end') ) )
+                AND 	record_status_id <> 'D'
+    ");
+    unless( $loc_id ) {
+      ## Ain't no lod data if we're not in a locus of some sort.
+      return undef;
+    }
+    # Now get the strat ids
+    my @str_ids = $self->_get_str_ids_for_segment( $loc_id );
+    unless( @str_ids ) {
+      ## Ain't no lod data if there ain't no str_id.
+      return undef;
+    }
+    ## TODO: Deal with the fact that there will often be multiple str_ids.
+    my $str_id = shift @str_ids; 
+    ## TODO: REMOVE when we figure out what to do if there's multiple str_ids.
+    if( @str_ids ) {
+      warn "Oop.  There's multiple str_ids in this region: $chr:$start-$end.  Using only the first ($str_id), and ignoring these: ( ".join( ', ', @str_ids )." )";
+    }
 
-    ## This stuff will be removed.
-#    my $sth =
-#      $dbh->prepare("
-#          SELECT	mrk.marker_name,
-#                                  strmrk.lod
-#          FROM		stratification_marker_linkage strmrk,
-#                                  marker mrk
-#          WHERE		strmrk.stratification_id = '$str_id'
-#                  AND	mrk.locus_id = '$loc_id'
-#                  AND	strmrk.marker_id = mrk.marker_id
-#                  AND	strmrk.record_status_id <> 'D'
-#                  AND	mrk.record_status_id <> 'D'
-#          ORDER BY	strmrk.stratification_marker_linkage_id
-#      ");
-#    $sth->execute() ||
-#      warn "The statement failed!  errstr is ".$dbh->errstr;
-#    ## TODO: REMOVE
-#    #warn "FYI, errstr is ".$dbh->errstr;
-#    
-#    my %markers;
-#    my @last_fuzzy;
-#    my $last_end;
-#    my $marker_order = 1;
-#    while( my ( $mrk_name, $mrk_lod ) = $sth->fetchrow_array() ) {
-#    
-#      ## TODO: REMOVE
-#      #if( $marker_order == 1 ) {
-#      #  warn "Hey.  mrk_name is $mrk_name, mrk_lod is $mrk_lod.";
-#      #}
-#          
-#      my ( $ident_no, $true_name ) =
-#        $dbh->selectrow_array("
-#                  SELECT	identNo,
-#                                          trueName
-#                  FROM		stsAlias
-#                  WHERE		alias = '$mrk_name'
-#                                  OR	trueName = '$mrk_name'
-#        ");
-#    
-#      my ( $chrom, $chrom_start, $chrom_end ) =
-#        $dbh->selectrow_array("
-#                  SELECT	chrom,
-#                                          chromStart,
-#                                          chromEnd
-#                  FROM		stsMap
-#                  WHERE		identNo = '$ident_no'
-#        ");
+    ## TODO: REMOVE
+    #warn "Hello again.  str_id is $str_id, loc_id is $loc_id.";
     
     my $sth =
       $dbh->prepare("
@@ -436,9 +406,12 @@ sub get_features {
       $count++;
       last unless( $overlaps );
     }
-    $total_feature_count += $count;
+
+    # We can return now, because we're only capable of returning
+    # features of type 'lod', and we just did that...
+    return $count;
   } # End for each of the given types..
-  return $total_feature_count;
+  return 0;
 } # get_features(..)
 
 sub _do_callback {
@@ -547,42 +520,37 @@ Not Implemented (yet)
 =cut
 
 sub get_types {
-  ## TODO: Incorporate this stuff:
-  ##### GET STRATIFICATION IDS FOR A SEGMENT
-  #
-  #my ($chr, $start, $end)	= @args;
-  #
-  #my ($loc_id)	= $dbh->selectrow_array("
-  #        SELECT	locus_id
-  #        FROM		locus
-  #        WHERE		chromosome = '$chr'
-  #                AND (	(locus_start BETWEEN '$start' AND '$end')
-  #                        OR ( locus_end BETWEEN '$start' AND '$end') 
-  #                        OR ( ( locus_start <= '$start' ) AND ( locus_end >= '$end') ) )
-  #                AND 	record_status_id <> 'D'
-  #");
-  #
-  #my $sth	= $dbh->prepare("
-  #        SELECT	DISTINCT str.stratification_id
-  #        FROM		stratification str,
-  #                                stratification_marker_linkage strmrk,
-  #                                marker mrk
-  #        WHERE		strmrk.stratification_id = str.stratification_id
-  #                AND	strmrk.marker_id = mrk.marker_id
-  #                AND	mrk.locus_id = '$loc_id'
-  #                AND	mrk.record_status_id <> 'D'
-  #                AND	strmrk.record_status_id <> 'D'
-  #                AND	str.record_status_id <> 'D'
-  #");
-  #$sth->execute();
-  #
-  #my @str_ids;
-  #
-  #while (my ($str_id)	= $sth->fetchrow_array() ) {
-  #        push (@str_ids, $str_id);
-  #}
-  return { 'lod6' => 14 }; ## TODO: REMOVE!
-}
+  return { 'lod:6' => 14 }; ## TODO: REMOVE!
+} # get_types(..)
+
+##### GET STRATIFICATION IDS FOR A SEGMENT
+sub _get_str_ids_for_segment {
+  my $self = shift;
+  my ( $loc_id ) = @_;
+
+  my $dbh = $self->dbh();
+  my $sth = $dbh->prepare("
+          SELECT	DISTINCT str.stratification_id
+          FROM		stratification str,
+                                  stratification_marker_linkage strmrk,
+                                  marker mrk
+          WHERE		strmrk.stratification_id = str.stratification_id
+                  AND	strmrk.marker_id = mrk.marker_id
+                  AND	mrk.locus_id = '$loc_id'
+                  AND	mrk.record_status_id <> 'D'
+                  AND	strmrk.record_status_id <> 'D'
+                  AND	str.record_status_id <> 'D'
+  ");
+  $sth->execute() ||
+      warn "The statement failed!  errstr is ".$dbh->errstr;
+  
+  my @str_ids;
+  my $str_id;
+  while( ( $str_id ) = $sth->fetchrow_array() ) {
+    push( @str_ids, $str_id );
+  }
+  return @str_ids;
+} # _get_str_ids_for_segment(..)
 
 =head2 meta
 

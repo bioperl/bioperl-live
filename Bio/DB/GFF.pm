@@ -3584,18 +3584,18 @@ sub _features {
   my $features = [];
 
   ## TODO: Put back
-  #my $callback = sub { push @$features,$self->make_feature($parent,\%groups,@_) };
+  my $callback = sub { push @$features,$self->make_feature($parent,\%groups,@_) };
   ## TODO: REMOVE.  Testing.
-  my $callback = sub {
-    my $new_feature = $self->make_feature($parent,\%groups,@_);
-    unless( $new_feature->isa( 'Bio::DB::GFF::Feature' ) ) {
-      $self->throw( "Internal error: $self->make_feature( $parent, \\\%groups, ".join( ", ", @_ )." ) has returned $new_feature, a ".ref( $new_feature ).".  Expecting a Bio::DB::GFF::Feature." );
-    } else {
-      ## TODO: REMOVE
-      print STDERR "Hey, got $new_feature.  Its abs range is ".$new_feature->toRelRangeString( 1 ).".\n";
-    }
-    push( @$features, $new_feature );
-  };
+  #my $callback = sub {
+  #  my $new_feature = $self->make_feature($parent,\%groups,@_);
+  #  unless( $new_feature->isa( 'Bio::DB::GFF::Feature' ) ) {
+  #    $self->throw( "Internal error: $self->make_feature( $parent, \\\%groups, ".join( ", ", @_ )." ) has returned $new_feature, a ".ref( $new_feature ).".  Expecting a Bio::DB::GFF::Feature." );
+  #  } else {
+  #    ## TODO: REMOVE
+  #    print STDERR "Hey, got $new_feature.  Its abs range is ".$new_feature->toRelRangeString( 1 ).".\n";
+  #  }
+  #  push( @$features, $new_feature );
+  #};
   $self->get_features({ %$search,
 			types  => \@aggregated_types },
 		        $options,

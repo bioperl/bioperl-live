@@ -97,11 +97,7 @@ sub draw {
     for( my $part_i = 0; $part_i < scalar( @parts ); $part_i++ ) {
       ## Don't draw the offscreen ones.
       next if( ( ( $parts[ $part_i ]->{left} + $parts[ $part_i ]->{width} ) < $left ) || ( $parts[ $part_i ]->{left} > $right ) );
-      ## TODO: REMOVE.  Debugging infinite loop.
-      warn "before draw_component $part_i..";
       $parts[ $part_i ]->draw_component( $gd, $dx, $dy, 0, 1 );
-      ## TODO: REMOVE.  Debugging infinite loop.
-      warn "after draw_component $part_i..";
     } # End for each part, draw it.
   } else {
     $self->throw( "lod::draw(..) should only be called on the track level (-1).  It was called on a glyph with level ".$self->level()."." );
@@ -133,7 +129,7 @@ sub draw_component {
   my ( $x1, $y1, $x2, $y2 ) = $self->calculate_boundaries( @_ );
 
   ## TODO: REMOVE
-  warn "lod::draw_component(..): level is ".$self->level()." feature is ".$self->feature().", and its subfeatures are ( ".join( ', ', $self->feature()->features() )." )";
+  #warn "lod::draw_component(..): level is ".$self->level()." feature is ".$self->feature().", and its subfeatures are ( ".join( ', ', $self->feature()->features() )." )";
 
   my $y = $self->{ '_y_position' };
   $self->draw_microsatellite($gd,$x1,$y,$x2,$y);
@@ -231,7 +227,7 @@ sub draw_lod_graph {
   my ( $x, $y );
   for my $part (sort { $a->left <=> $b->left } @parts) {
     ## TODO: REMOVE
-    warn "Part is at ".$part->feature->toRelRangeString( 1 );
+    #warn "Part is at ".$part->feature->toRelRangeString( 1 );
     $x = $part->left + ( $part->width / 2 );
     $y = $part->{'_y_position'};
     ## Why do we need this next line?
@@ -246,7 +242,7 @@ sub draw_lod_graph {
     $last_y = $y;
   }
   ## TODO: REMOVE
-  warn "Done with draw_lod_graph(..)";
+  #warn "Done with draw_lod_graph(..)";
 } # draw_lod_graph(..)
 
 sub draw_microsatellite {
@@ -297,8 +293,10 @@ sub draw_microsatellite {
   ## TODO: Make the fuzzy & regular fillcolors options from the .conf file.
 
   my $fill_color;
+  my @fuzzy;
   if( $self->feature->has_tag( 'fuzzy' ) &&
-      $self->feature->get_tag_values( 'fuzzy' ) ) {
+      ( @fuzzy = $self->feature->get_tag_values( 'fuzzy' ) ) &&
+      $fuzzy[ 0 ] ) {
     $fill_color = $self->factory->translate_color('white');
   } else {
     $fill_color = $self->factory->translate_color('red'); #= $self->bgcolor;
