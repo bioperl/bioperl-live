@@ -27,7 +27,7 @@ Bio::DB::GenBank - Database object interface to GenBank
     # or ...
 
     $seq = $gb->get_Seq_by_acc('J00522'); # Accession Number
-   
+
     # or ... best when downloading very large files, prevents
     # keeping all of the file in memory
 
@@ -48,6 +48,12 @@ database at NCBI, via an Entrez query.
 WARNING: Please do NOT spam the Entrez web server with multiple requests.
 NCBI offers Batch Entrez for this purpose.  Batch Entrez support will likely
 be supported in a future version of DB::GenBank.
+
+Note that when querying for GenBank accessions starting with 'NT_' you
+will need to call $gb->request_format('fasta') beforehand, because in
+GenBank format (the default) the sequence part will be left out (the
+reason is that NT contigs are rather annotation with references to
+clones).
 
 =head1 FEEDBACK
 
@@ -128,7 +134,7 @@ sub get_params {
 
 # from Bio::DB::WebDBSeqI from Bio::DB::RandomAccessI
 
-=head2 Routines Bio::DB::WebDBSeqI from Bio::DB::RandomAccessI
+=head1 Routines Bio::DB::WebDBSeqI from Bio::DB::RandomAccessI
 
 =head2 get_Seq_by_id
 
@@ -149,7 +155,7 @@ sub get_params {
   Note    : For GenBank, this just calls the same code for get_Seq_by_id()
   Throws  : "id does not exist" exception
 
-=head2 Routines implemented by Bio::DB::NCBIHelper
+=head1 Routines implemented by Bio::DB::NCBIHelper
 
 =head2 get_request
 

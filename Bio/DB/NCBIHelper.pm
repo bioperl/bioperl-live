@@ -29,9 +29,13 @@ NCBI databases.
 =head1 DESCRIPTION
 
 Provides a single place to setup some common methods for querying NCBI
-web databases.  This module is just centralizes the methods for
+web databases.  This module just centralizes the methods for
 constructing a URL for querying NCBI GenBank and NCBI GenPept and the
 common HTML stripping done in L<postprocess_data>().
+
+The NCBI query URLs used are http://www.ncbi.nlm.nih.gov as the base URL,
+/cgi-bin/Entrez/qserver.cgi as the query interface for batch mode, and 
+/entrez/utils/qmap.cgi for single-query mode.
 
 =head1 FEEDBACK
 
