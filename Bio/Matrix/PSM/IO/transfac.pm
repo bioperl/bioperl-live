@@ -191,7 +191,7 @@ sub _make_matrix {
 	}
     }
 
-    for (my $i=0; $i<$#a;$i++) {
+    for (my $i=0; $i<@a;$i++) {
 	my $zero=($a[$i]+$c[$i]+$g[$i]+$t[$i]);
 	next if ($zero==0);
 	push @fa, $a[$i];
