@@ -7,9 +7,18 @@ use Bio::Graphics::Glyph::generic;
 use Bio::Graphics::Glyph::segmented_keyglyph;
 use vars '@ISA';
 
+use constant INSERTION_CHARACTER => '!'; # what to draw to show an insertion
 use constant RAGGED_START_FUZZ => 25;  # will show ragged ends of alignments
                                        # up to this many bp.
+
 use constant DEBUG => 0;
+
+# These are just offsets into an array data structure
+use constant TARGET    => 0;
+use constant SRC_START => 1;
+use constant SRC_END   => 2;
+use constant TGT_START => 3;
+use constant TGT_END   => 4;
 
 @ISA = qw( Bio::Graphics::Glyph::segmented_keyglyph
 	   Bio::Graphics::Glyph::generic
@@ -20,19 +29,29 @@ my %complement = (g=>'c',a=>'t',t=>'a',c=>'g',n=>'n',
 
 sub pad_left {
   my $self = shift;
-  return $self->SUPER::pad_left unless $self->option('draw_target') && $self->option('ragged_start') && $self->dna_fits;
   return $self->SUPER::pad_left unless $self->level > 0;
+  my $ragged = $self->option('ragged_start') 
+    ? RAGGED_START_FUZZ 
+    : $self->option('ragged_extra');
+
+  return $self->SUPER::pad_left 
+    unless $self->option('draw_target') && $ragged && $self->dna_fits;
   my $target = eval {$self->feature->hit} or return $self->SUPER::pad_left;
-  return $self->SUPER::pad_left unless $target->start<$target->end && $target->start < RAGGED_START_FUZZ;
+
+  return $self->SUPER::pad_left unless $target->start<$target->end && $target->start < $ragged;
   return ($target->start-1) * $self->scale;
 }
 
 sub pad_right {
   my $self = shift;
   return $self->SUPER::pad_right unless $self->level > 0;
-  return $self->SUPER::pad_right unless $self->option('draw_target') && $self->option('ragged_start') && $self->dna_fits;
+  my $ragged = $self->option('ragged_start') 
+    ? RAGGED_START_FUZZ 
+    : $self->option('ragged_extra');
+  return $self->SUPER::pad_right 
+    unless $self->option('draw_target') && $ragged && $self->dna_fits;
   my $target = eval {$self->feature->hit} or return $self->SUPER::pad_right;
-  return $self->SUPER::pad_right unless $target->end < $target->start && $target->start < RAGGED_START_FUZZ;
+  return $self->SUPER::pad_right unless $target->end < $target->start && $target->start < $ragged;
   return ($target->end-1) * $self->scale;
 }
 
@@ -57,160 +76,382 @@ sub fontcolor {
   return $self->bgcolor;
 }
 
-sub draw_component {
+sub draw {
   my $self = shift;
   my ($draw_dna,$draw_target) = ($self->option('draw_dna'),$self->option('draw_target'));
-  return $self->SUPER::draw_component(@_)
-    unless $draw_dna || $draw_target;
-  return $self->SUPER::draw_component(@_) unless $self->dna_fits;
+  return $self->SUPER::draw(@_) unless $draw_dna || $draw_target;
+  return $self->SUPER::draw(@_) unless $self->dna_fits;
 
-  my $dna = $draw_target ? eval {$self->feature->hit->seq}
-                         : eval {$self->feature->seq};
-  return $self->SUPER::draw_component(@_) unless length $dna > 0;  # safety
+  $self->draw_label(@_)       if $self->option('label');
+  $self->draw_description(@_) if $self->option('description');
 
-  my $show_mismatch = $draw_target && $self->option('show_mismatch');
-  my $genomic       = eval {$self->feature->seq} if $show_mismatch;
-
-  my $gd = shift;
-  my ($x1,$y1,$x2,$y2) = $self->bounds(@_);
-
-  # adjust for nonaligned left end (for ESTs...)  The size given here is roughly sufficient
-  # to show a polyA end or a C. elegans trans-spliced leader.
-  my $offset = 0;
-  eval {  # protect against data structures that don't implement the target() method.
-    if ($draw_target && $self->option('ragged_start')){
-      my $target = $self->feature->hit;
-      if ($target->start < $target->end && $target->start < RAGGED_START_FUZZ  
-	  && $self->{partno} == 0) {
-	$offset = $target->start - 1;
-	if ($offset > 0) {
-	  $dna       = $target->subseq(1-$offset,0)->seq        . $dna;
-	  $genomic   = $self->feature->subseq(1-$offset,0)->seq . $genomic;
-	  $x1        -= $offset * $self->scale;
-	}
-      }
-      elsif ($target->end < $target->start && 
-	     $target->end < RAGGED_START_FUZZ && $self->{partno} == $self->{total_parts}) {
-	$offset = $target->end - 1;
-	if ($offset > 0) {
-	  $dna       .= $target->factory->get_dna($target,$offset,1);
-	  $genomic    = $self->feature->subseq(-$offset,0)->seq . $genomic;
-	  $x2        += $offset * $self->scale;
-	  $offset = 0;
-	}
-      }
-    }
-  };
-
-  $self->draw_dna($gd,$offset,lc $dna,lc $genomic,$x1,$y1,$x2,$y2);
+  if ($self->option('draw_target')) {
+    return $self->SUPER::draw(@_) unless eval {$self->feature->hit->seq};
+    return $self->draw_multiple_alignment(@_);
+  }
+      
+  if ($self->option('draw_dna')) {
+    return $self->SUPER::draw(@_) unless eval {$self->feature->seq};
+    return $self->draw_dna(@_);
+  }
 }
 
 sub draw_dna {
   my $self = shift;
+  my $gd   = shift;
+  my ($left,$top,$partno,$total_parts) = @_;
+  my $flipped              = $self->flip;
+  my $pixels_per_base      = $self->scale;
+  my $feature              = $self->feature;
+  my $panel                = $self->panel;
+  my ($abs_start,$abs_end)     = ($feature->start,$feature->end);
+  my ($tgt_start,$tgt_end)     = ($feature->hit->start,$feature->hit->end);
+  my ($panel_start,$panel_end) = ($self->panel->start,$self->panel->end);
+  my $strand               = $feature->strand;
+  my $panel_left           = $self->panel->left;
+  my $panel_right          = $self->panel->right;
+  my $true_target          = $self->option('true_target');
 
-  my ($gd,$start_offset,$dna,$genomic,$x1,$y1,$x2,$y2) = @_;
-  my $pixels_per_base = $self->scale;
-  my $feature         = $self->feature;
-  my $target          = $feature->target;
-  my $strand          = $feature->strand;
+  my ($bl,$bt,$br,$bb)     = $self->bounds($left,$top);
+  $top = $bt;
 
-  my @segs;
-
-  if ($strand < 0) {
-    $dna     = $self->reversec($dna);
-    $genomic = $self->reversec($genomic);
-    $strand  = 1;
+  my @s                    = $feature->get_SeqFeatures;
+  @s                       = $feature unless @s;
+  my (@segments,%strands);
+  for my $s (@s) {
+    my ($src_start,$src_end) = ($s->start,$s->end);
+    push @segments,[$s,$src_start,$src_end];
   }
-  my $complement      = $strand < 0;
 
-  # oh dear, undoing what we just did!
-  if ($self->{flip}) {
-    $dna     = $self->reversec($dna);
-    $genomic = $self->reversec($genomic);
-    $strand            *= -1;
-  }
+  my $ref_dna = lc $feature->seq;
+  $ref_dna    = $self->reversec($ref_dna) if $strand < 0;
 
-  warn "strand = $strand, complement = $complement" if DEBUG;
-
-  warn "feature = $feature: length(dna) = ",length($dna)," length(genomic) = ",length($genomic), 
-    " target = ",$feature->target->start,'..',$feature->target->end if DEBUG;
-
-  my $realign = !defined($self->option('realign')) || $self->option('realign');
-
-  if ($realign && eval { require Bio::Graphics::Browser::Realign}) {
-    warn "$genomic\n$dna\n" if DEBUG;
-    warn "strand = $strand" if DEBUG;
-    @segs = Bio::Graphics::Browser::Realign::align_segs($genomic,$dna);
-    for my $seg (@segs) {
-      my $src = substr($genomic,$seg->[0],$seg->[1]-$seg->[0]+1);
-      my $tgt = substr($dna,    $seg->[2],$seg->[3]-$seg->[2]+1);
-      warn "@$seg\n$src\n$tgt" if DEBUG;
+  for my $seg (@segments) {
+    # left clipping
+    if ( (my $delta = $seg->[SRC_START] - $panel_start) < 0 ) {
+      $seg->[SRC_START] = $panel_start;
     }
-  } else {
-    @segs = [0,length($genomic)-1,0,length($dna)-1];
+
+    # right clipping
+    if ( (my $delta = $panel_end - $seg->[SRC_END]) < 0) {
+      $seg->[SRC_END] = $panel_end;
+    }
+    warn "Clipping gives [@$seg]\n"if DEBUG;
+
+    $seg->[SRC_START] -= $abs_start - 1;
+    $seg->[SRC_END]   -= $abs_start - 1;
   }
 
+  # draw
   my $color = $self->fgcolor;
   my $font  = $self->font;
   my $lineheight = $font->height;
   my $fontwidth  = $font->width;
-  $y1 -= $lineheight/2 - 3;
+
   my $pink = $self->factory->translate_color('lightpink');
-  my $panel_end = $self->panel->right;
+  my $grey  = $self->factory->translate_color('gray');
 
-  my $start       = $self->map_no_trunc($self->feature->start- $start_offset);
-  my $end         = $self->map_no_trunc($self->feature->end  - $start_offset);
-  my $true_target = $self->option('true_target');
-  my $show_complement  = $true_target && $feature->strand < 0;
+  my $base2pixel = 
+    $self->flip ?
+      sub {
+	my ($src,$tgt) = @_;
+	my $a = $fontwidth + ($abs_start + $src-$panel_start-1 + $tgt) * $pixels_per_base - 1;    
+	$panel_right - $a;
+      }
+      : sub {
+	my ($src,$tgt) = @_;
+	$fontwidth/2 + $left + ($abs_start + $src-$panel_start-1 + $tgt) * $pixels_per_base - 1;    
+      };
 
+  my $src_last_end;
+  for my $seg (@segments) {
 
-  my ($last,$tlast);
-  for my $seg (@segs) {
+    my $y = $top - $lineheight/4; 
 
-    # fill in misaligned bits with dashes and bases
-    if (defined $last) {
-      my $delta  = $seg->[0] - $last  - 1;
-      my $tdelta = $seg->[2] - $tlast - 1;
-      warn "src gap [$last,$seg->[0]], tgt gap [$tlast,$seg->[2]], delta = $delta, tdelta = $tdelta\n" if DEBUG;
+    for (my $i=0; $i<$seg->[SRC_END]-$seg->[SRC_START]+1; $i++) {
 
-      my $gaps   = $delta - $tdelta;
-      my @fill_in = split '',substr($dna,$tlast+1,$tdelta) if $tdelta > 0;
-      unshift @fill_in,('-')x$gaps if $gaps > 0;
+      my $src_base = $self->_subsequence($ref_dna,$seg->[SRC_START]+$i,$seg->[SRC_START]+$i);
+      my $x = $base2pixel->($seg->[SRC_START],$i);
+      $gd->char($font,$x,$y,$src_base,$src_base =~ /[nN]/ ? $grey : $color);
+    }
 
-      warn "gaps = $gaps, fill_in = @fill_in\n" if DEBUG;
-
-      my $distance          = $pixels_per_base * ($delta+1);
-      my $pixels_per_target = $gaps >= 0 ? $pixels_per_base : $distance/(@fill_in+1);
-
-      warn "pixels_per_base = $pixels_per_base, pixels_per_target=$pixels_per_target\n" if DEBUG;
-      my $offset = $self->{flip} ?  $end + ($last-1)*$pixels_per_base : $start + $last*$pixels_per_base;
-
-      for (my $i=0; $i<@fill_in; $i++) {
-
-	my $x = $self->{flip} ? int($offset + ($i+1)*$pixels_per_target + 0.5)
-                              : int($offset + ($i+1)*$pixels_per_target + 0.5);
-
-	$self->filled_box($gd,$x,$y1+3,$x+$fontwidth,$y1+$lineheight-3,$pink,$pink) unless $gaps;
-	$gd->char($font,$x,$y1,$show_complement ? $complement{$fill_in[$i]} : $fill_in[$i],$color);
+    # add dashes to fill src alignment gaps
+    if ( defined $src_last_end && (my $delta = $seg->[SRC_START] - $src_last_end) > 1) {
+      for (my $i=0;$i<$delta-1;$i++) {
+	my $x = $base2pixel->($src_last_end,$i+1);
+	$gd->char($font,$x,$y,'-',$color);
       }
     }
 
-    my @genomic = split '',substr($genomic,$seg->[0],$seg->[1]-$seg->[0]+1);
-    my @bases   = split '',substr($dna,    $seg->[2],$seg->[3]-$seg->[2]+1);
-    for (my $i = 0; $i<@bases; $i++) {
-      my $x = $self->{flip} ? int($end   + ($seg->[0] + $i - 1)*$pixels_per_base + 0.5)
-                            : int($start + ($seg->[0] + $i)    *$pixels_per_base + 0.5);
-      next if $x+1 < $x1;
-      last if $x+1 > $x2;
-      if ($genomic[$i] && lc($bases[$i]) ne lc($complement ? $complement{$genomic[@genomic - $i - 1]} : $genomic[$i])) {
-	$self->filled_box($gd,$x,$y1+3,$x+$fontwidth,$y1+$lineheight-3,$pink,$pink);
-      }
-      $gd->char($font,$x,$y1,$show_complement ? $complement{$bases[$i]} || $bases[$i] : $bases[$i],$color);
-    }
-    $last  = $seg->[1];
-    $tlast = $seg->[3];
+    $src_last_end  = $seg->[SRC_END];
   }
 
+  return;
+}
+
+sub draw_multiple_alignment {
+  my $self = shift;
+  my $gd   = shift;
+  my ($left,$top,$partno,$total_parts) = @_;
+
+  my $flipped              = $self->flip;
+  my $ragged_extra         = $self->option('ragged_start') 
+                               ? RAGGED_START_FUZZ : $self->option('ragged_extra');
+  my $true_target          = $self->option('true_target');
+  my $show_mismatch        = $self->option('show_mismatch');
+
+  my $pixels_per_base      = $self->scale;
+  my $feature              = $self->feature;
+  my $panel                = $self->panel;
+  my ($abs_start,$abs_end)     = ($feature->start,$feature->end);
+  my ($tgt_start,$tgt_end)     = ($feature->hit->start,$feature->hit->end);
+  my ($panel_start,$panel_end) = ($self->panel->start,$self->panel->end);
+  my $strand               = $feature->strand;
+  my $panel_left           = $self->panel->left;
+  my $panel_right          = $self->panel->right;
+
+  my ($bl,$bt,$br,$bb)     = $self->bounds($left,$top);
+  $top = $bt;
+
+  my @s                    = $feature->get_SeqFeatures;
+  @s                       = $feature unless @s;
+
+  my $can_realign = eval { require Bio::Graphics::Browser::Realign; 1 };
+
+  my (@segments,%strands);
+  for my $s (@s) {
+    my $target = $s->hit;
+    my ($src_start,$src_end) = ($s->start,$s->end);
+    my ($tgt_start,$tgt_end) = ($target->start,$target->end);
+    unless (exists $strands{$target}) {
+      my $strand = $feature->strand;
+      if ($tgt_start > $tgt_end) { #correct for data problems
+	$strand    = -1;
+	($tgt_start,$tgt_end) = ($tgt_end,$tgt_start);
+      }
+      $strands{$target} = $strand;
+    }
+
+    # If the source and target length match, then we are home free
+    if ($s->length == $target->length || !$can_realign) {
+      push @segments,[$target,$src_start,$src_end,$tgt_start,$tgt_end];
+    }
+    
+    else {  # unfortunately if this isn't the case, then we have to realign the segment a bit
+      warn   "Realigning [$target,$src_start,$src_end,$tgt_start,$tgt_end].\n"; # if DEBUG;
+      my ($sdna,$tdna) = ($s->dna,$target->dna);
+      warn   $sdna,"\n",$tdna,"\n" if DEBUG;
+      my @result = $self->realign($sdna,$tdna);
+      foreach (@result) {
+	next unless $_->[1]+$src_start >= $abs_start && $_->[0]+$src_start <= $abs_end;
+	warn "=========> [$target,@$_]\n" if DEBUG;
+	my $a = $strands{$target} >= 0
+	  ? [$target,$_->[0]+$src_start,$_->[1]+$src_start,$_->[2]+$tgt_start,$_->[3]+$tgt_start]
+	  : [$target,$_->[0]+$src_start,$_->[1]+$src_start,$tgt_end-$_->[3],$tgt_end-$_->[2]];
+	warn "=========> [@$a]\n" if DEBUG;
+	warn substr($sdna,     $_->[0],$_->[1]-$_->[0]+1),"\n";# if DEBUG;
+	warn substr($tdna,$_->[2],$_->[3]-$_->[2]+1),"\n";# if DEBUG;
+	push @segments,$a;
+      }
+    }
+  }
+
+  # get 'em in the right order so that we don't have to worry about
+  # where the beginning and end are.
+  @segments = sort {$a->[TGT_START]<=>$b->[TGT_START]} @segments;
+
+  # adjust for ragged (nonaligned) ends
+  my ($offset_left,$offset_right) = (0,0);
+  if ($ragged_extra && $ragged_extra > 0) {
+
+    # add a little rag to the left end
+    $offset_left = $segments[0]->[TGT_START] > $ragged_extra ? $ragged_extra : $segments[0]->[TGT_START]-1;
+    if ($strand >= 0) {
+      $offset_left     = $segments[0]->[SRC_START]-1 if $segments[0]->[SRC_START] - $offset_left < 1;
+      $abs_start                -= $offset_left;
+      $tgt_start                -= $offset_left;
+      $segments[0]->[SRC_START] -= $offset_left;
+      $segments[0]->[TGT_START] -= $offset_left;
+    } else {
+      $abs_end                  += $offset_left;
+      $tgt_start                -= $offset_left;
+      $segments[0]->[SRC_END]   += $offset_left;
+      $segments[0]->[TGT_START] -= $offset_left;
+    }
+
+    # add a little rag to the right end - this is complicated because
+    # we don't know what the length of the underlying dna is, so we
+    # use the subseq method to find out
+    my $current_end     = $segments[-1]->[TGT_END];
+    $offset_right          = length $segments[-1]->[TARGET]->subseq($current_end+1,$current_end+$ragged_extra)->seq;
+    if ($strand >= 0) {
+      $abs_end                 += $offset_right;
+      $tgt_end                 += $offset_left;
+      $segments[-1]->[TGT_END] += $offset_right;
+      $segments[-1]->[SRC_END] += $offset_right;
+    } else {
+      $abs_start                 -= $offset_right;
+      $tgt_end                   += $offset_left;
+      $segments[-1]->[TGT_END]   += $offset_right;
+      $segments[-1]->[SRC_START] -= $offset_right;
+    }
+  }
+
+  # get the DNAs now - a little complicated by the necessity of using
+  # the subseq() method
+  my $ref_dna = lc $feature->subseq(1-$offset_left,$feature->length+$offset_right)->seq;
+  my $tgt_dna = lc $feature->hit->subseq(1-$offset_left,$feature->length+$offset_right)->seq;
+  
+  # sanity check.  Let's see if they look like they're lining up
+  warn "dna sanity check:\n$ref_dna\n$tgt_dna\n" if DEBUG;
+
+  # now we're all lined up, and we're going to adjust everything to fall within the bounds
+  # of the left and right panel coordinates
+  my %clip;
+  for my $seg (@segments) {
+    my $target = $seg->[TARGET];
+    warn "preclip [@$seg]\n" if DEBUG;
+
+    # left clipping
+    if ( (my $delta = $seg->[SRC_START] - $panel_start) < 0 ) {
+      warn "clip left $delta" if DEBUG;
+      $seg->[SRC_START] = $panel_start;
+      if ($strand >= 0) {
+	$seg->[TGT_START] -= $delta;
+      } else {
+	$seg->[TGT_END]  +=  $delta;
+      }
+    }
+
+    # right clipping
+    if ( (my $delta = $panel_end - $seg->[SRC_END]) < 0) {
+      warn "clip right $delta" if DEBUG;
+      $seg->[SRC_END] = $panel_end;
+      if ($strand >= 0) {
+	$seg->[TGT_END]   += $delta;
+      } else {
+	$seg->[TGT_START] -= $delta;
+      }
+    }
+
+    warn "Clipping gives [@$seg]\n"if DEBUG;
+  }
+
+  # relativize coordinates
+  if ($strand < 0) {
+    $ref_dna = $self->reversec($ref_dna);
+    $tgt_dna = $self->reversec($tgt_dna);
+  }
+
+  for my $seg (@segments) {
+    $seg->[SRC_START] -= $abs_start - 1;
+    $seg->[SRC_END]   -= $abs_start - 1;
+    $seg->[TGT_START] -= $tgt_start - 1;
+    $seg->[TGT_END]   -= $tgt_start - 1;
+    if ($strand < 0) {
+      ($seg->[TGT_START],$seg->[TGT_END]) = (length($tgt_dna)-$seg->[TGT_END]+1,length($tgt_dna)-$seg->[TGT_START]+1);
+    }
+    if (DEBUG) {
+      warn "$feature: relativized coordinates = [@$seg]\n";
+      warn $self->_subsequence($ref_dna,$seg->[SRC_START],$seg->[SRC_END]),"\n";
+      warn $self->_subsequence($tgt_dna,$seg->[TGT_START],$seg->[TGT_END]),"\n";
+    }
+  }
+
+  # draw
+  my $color = $self->fgcolor;
+  my $font  = $self->font;
+  my $lineheight = $font->height;
+  my $fontwidth  = $font->width;
+
+  my $pink = $self->factory->translate_color('lightpink');
+  my $grey  = $self->factory->translate_color('gray');
+
+  my $base2pixel = 
+    $self->flip ?
+      sub {
+	my ($src,$tgt) = @_;
+	my $a = $fontwidth + ($abs_start + $src-$panel_start-1 + $tgt) * $pixels_per_base - 1;    
+	$panel_right - $a;
+      }
+      : sub {
+	my ($src,$tgt) = @_;
+	$fontwidth/2 + $left + ($abs_start + $src-$panel_start-1 + $tgt) * $pixels_per_base - 1;    
+      };
+
+  my ($tgt_last_end,$src_last_end);
+  for my $seg (sort {$a->[TGT_START]<=>$b->[TGT_START]} @segments) {
+
+    my $y = $top - $lineheight/4; 
+
+    for (my $i=0; $i<$seg->[SRC_END]-$seg->[SRC_START]+1; $i++) {
+
+      my $src_base = $self->_subsequence($ref_dna,$seg->[SRC_START]+$i,$seg->[SRC_START]+$i);
+      my $tgt_base = $self->_subsequence($tgt_dna,$seg->[TGT_START]+$i,$seg->[TGT_START]+$i);
+      my $x = $base2pixel->($seg->[SRC_START],$i);
+      $self->filled_box($gd,$x,$y+3,$x+$fontwidth-1,$y+$lineheight-2,$pink,$pink) 
+	if $show_mismatch && $tgt_base && $src_base ne $tgt_base && $tgt_base !~ /[nN]/;
+      $tgt_base = $complement{$tgt_base} if $true_target && $strand < 0;
+      $gd->char($font,$x,$y,$tgt_base,$tgt_base =~ /[nN]/ ? $grey : $color);
+    }
+
+    # indicate the presence of insertions in the target
+    if (defined $tgt_last_end) {
+      my $delta = $seg->[TGT_START] - $tgt_last_end;
+      if ($delta > 1) {  # an insertion in the target relative to the source
+	my $gap_left  = $fontwidth + $base2pixel->($src_last_end,0);
+	my $gap_right = $base2pixel->($seg->[SRC_START],0);
+	($gap_left,$gap_right) = ($gap_right+$fontwidth,$gap_left-$fontwidth) if $self->flip;
+	warn "delta=$delta, gap_left=$gap_left, gap_right=$gap_right"  if DEBUG;
+
+	my $gap_distance             = $gap_right - $gap_left + 1;
+	my $pixels_per_inserted_base = $gap_distance/($delta-1);
+
+ 	if ($pixels_per_inserted_base >= $fontwidth) {  # Squeeze the insertion in
+ 	  for (my $i = 0; $i<$delta-1; $i++) {
+ 	    my $x = $gap_left + (1 + $pixels_per_inserted_base-$fontwidth)/2 + $pixels_per_inserted_base * $i;
+ 	    my $bp = $self->_subsequence($tgt_dna,$tgt_last_end+$i+1,$tgt_last_end+$i+1);
+ 	    $gd->char($font,$x,$y,$bp,$grey);
+ 	  }
+ 	} else {  # doesn't fit, so stick in a blob
+	  $self->_draw_insertion_point($gd,($gap_left+$gap_right)/2,$y+3,$color);
+ 	}
+      } 
+      # deal with gaps in the alignment
+      elsif ( (my $delta = $seg->[SRC_START] - $src_last_end) > 1) {
+	for (my $i=0;$i<$delta-1;$i++) {
+	  my $x = $base2pixel->($src_last_end,$i+1);
+	  $gd->char($font,$x,$y,'-',$color);
+	}
+	
+      }
+
+    }
+
+    $tgt_last_end  = $seg->[TGT_END];
+    $src_last_end  = $seg->[SRC_END];
+  }
+
+  return;
+}
+
+sub _subsequence {
+  my $self = shift;
+  my ($seq,$start,$end,$strand) = @_;
+  my $sub;
+  if ((defined $strand && $strand < 0)) {
+    my $piece = substr($seq,length($seq)-$end,$end-$start+1);
+    $sub = $self->reversec($piece);
+  } else {
+    $sub = substr($seq,$start-1,$end-$start+1);
+  }
+  return $self->flip ? $complement{$sub} : $sub;
+}
+
+sub realign {
+  my $self = shift;
+  my ($src,$tgt) = @_;
+  return Bio::Graphics::Browser::Realign::align_segs($src,$tgt);
 }
 
 # Override _subseq() method to make it appear that a top-level feature that
@@ -232,6 +473,26 @@ sub _subseq {
   } else {
     return;
   }
+}
+
+# draw the classic "i-beam" icon to indicate that an insertion fits between
+# two bases
+sub _draw_insertion_point {
+  my $self = shift;
+  my ($gd,$x,$y,$color) = @_;
+  my $top    = $y;
+  $x--;
+  my $bottom = $y + $self->font->height - 4;
+  $gd->line($x,$top+2, $x,$bottom-2,$color);
+  $gd->setPixel($x+1,  $top+1,$color);
+  $gd->setPixel($x+$_, $top,$color) for (2..3);
+  $gd->setPixel($x-1,  $top+1,$color);
+  $gd->setPixel($x-$_, $top,$color) for (2..3);
+
+  $gd->setPixel($x+1,  $bottom-1,$color);
+  $gd->setPixel($x+$_, $bottom,  $color) for (2..3);
+  $gd->setPixel($x-1,  $bottom-1,$color);
+  $gd->setPixel($x-$_, $bottom,  $color) for (2..3);
 }
 
 1;
@@ -299,9 +560,15 @@ In addition, the following glyph-specific options are recognized:
                  magnification level allows.
                  See "Displaying Alignments".
 
-  -ragged_start When combined with -draw_target, 0 (false)
-                 draw a few bases beyond the end
-                 of the alignment. See "Displaying Alignments".
+  -ragged_extra When combined with -draw_target, 0 (false)
+                draw extra bases beyond the end
+                of the alignment. The value is
+                the maximum number of extra
+                bases.
+                See "Displaying Alignments".
+
+  -ragged_start  Deprecated option.  Use
+                 -ragged_extra instead
 
   -show_mismatch When combined with -draw_target, 0 (false)
                  highlights mismatched bases in
@@ -314,13 +581,19 @@ In addition, the following glyph-specific options are recognized:
   -realign       Attempt to realign sequences at  1 (true)
                  high mag to account for indels. See "Displaying Alignments".
 
-The -draw_target and -ragged_start options only work with seqfeatures
-that implement the hit() method (Bio::SeqFeature::SimilarityPair).
-The -ragged_start option is mostly useful for looking for polyAs and
-cloning sites at the beginning of ESTs and cDNAs.  Currently there is
-no way of activating ragged ends.  The length of the ragged starts is
-hard-coded at 25 bp, and the color of mismatches is hard-coded as
-light pink.
+If the -draw_dna flag is set to a true value, then when the
+magnification is high enough, the underlying DNA sequence will be
+shown.  This option is mutually exclusive with -draw_target.
+
+The -draw_target, -ragged_extra, and -show_mismatch options only work
+with seqfeatures that implement the hit() method
+(Bio::SeqFeature::SimilarityPair). -draw_target will cause the DNA of
+the hit sequence to be displayed when the magnification is high enough
+to allow individual bases to be drawn. The -ragged_extra option will
+cause the alignment to be extended at the extreme ends by the
+indicated number of bases, and is useful for looking for polyAs and
+cloning sites at the ends of ESTs and cDNAs. -show_mismatch will cause
+mismatched bases to be highlighted in pink.
 
 At high magnifications, minus strand matches will automatically be
 shown as their reverse complement (so that the match has the same
@@ -357,7 +630,7 @@ compiles a C-based DP algorithm that both gbrowse and gbrowse_details
 will use if they can.  If DO_XS is not set, then the scripts will use
 a Perl-based version of the algorithm that is 10-100 times slower.
 
-The display of alignments can be tweaked using the -ragged_start,
+The display of alignments can be tweaked using the -ragged_extra,
 -show_mismatch, -true_target and -realign options.  See the options
 section for further details.
 
