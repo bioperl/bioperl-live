@@ -1,6 +1,8 @@
 $Id$
 Revision history for Bioperl core modules
 
+    o brought the OBDA Registry code up to latest specs 
+
     o eutils URL change in Bio::DB::GenBank
 
 1.2.1 Stable release update
