@@ -238,7 +238,7 @@ See L<Bio::LocatableSeq> for more information
 
 sub addSeq {
     my $self = shift;
-    $self->warn(ref($self). "::addSeq - deprecated method. Use add_seq() instead.");
+    $self->deprecated("addSeq - deprecated method. Use add_seq() instead.");
     $self->add_seq(@_);
 }
 
@@ -298,7 +298,7 @@ sub add_seq {
 
 sub removeSeq {
     my $self = shift;
-    $self->warn(ref($self). "::removeSeq - deprecated method. Use remove_seq() instead.");
+    $self->deprecated("removeSeq - deprecated method. Use remove_seq() instead.");
     $self->remove_seq(@_);
 }
 
@@ -470,7 +470,7 @@ Methods returning one or more sequences objects.
 
 sub eachSeq {
     my $self = shift;
-    $self->warn(ref($self). "::eachSeq - deprecated method. Use each_seq() instead.");
+    $self->deprecated("eachSeq - deprecated method. Use each_seq() instead.");
     $self->each_seq();
 }
 
@@ -545,7 +545,7 @@ sub _alpha_startend {
 
 sub eachSeqWithId {
     my $self = shift;
-    $self->warn(ref($self). "::eachSeqWithId - deprecated method. Use each_seq_with_id() instead.");
+    $self->deprecated("eachSeqWithId - deprecated method. Use each_seq_with_id() instead.");
     $self->each_seq_with_id(@_);
 }
 
@@ -1151,7 +1151,13 @@ sub match_line {
     my $matchline;
     POS: foreach my $pos ( 0..$self->length ) {
 	my $refchar = $refseq->[$pos];
-	next unless $refchar; # skip '' 
+	my $char = $matchchars{'mismatch'};
+	unless( $refchar ) {  
+	    last if $pos == $self->length; # short circuit on last residue
+	    # this in place to handle jason's soon-to-be-committed
+	    # intron mapping code
+	    goto bottom;
+	}
 	my %col = ($refchar => 1);
 	my $dash = ($refchar eq '-' || $refchar eq '.' || $refchar eq ' ');
 	foreach my $seq ( @seqchars ) {
@@ -1161,7 +1167,7 @@ sub match_line {
 	    $col{$seq->[$pos]}++ if defined $seq->[$pos];
 	}
 	my @colresidues = sort keys %col;
-	my $char = $matchchars{'mismatch'};
+
 	# if all the values are the same
 	if( $dash ) { $char =  $matchchars{'mismatch'} }
 	elsif( @colresidues == 1 ) { $char = $matchchars{'match'} }
@@ -1173,7 +1179,8 @@ sub match_line {
 		# iterate through each of the aa in the col
 		# look to see which groups it is in
 		foreach my $c ( @colresidues ) {
-		    foreach my $f ( grep /\Q$c/, @{$CONSERVATION_GROUPS{$type}} ) {
+		    foreach my $f ( grep /\Q$c/, 
+				    @{$CONSERVATION_GROUPS{$type}} ) {
 			push @{$groups{$f}},$c;
 		    }
 		}
@@ -1193,6 +1200,7 @@ sub match_line {
 		}
 	    }
 	  }
+      bottom:
 	$matchline .= $char;
     }
     return $matchline;
@@ -1714,7 +1722,7 @@ sub is_flush {
 
 sub length_aln {
     my $self = shift;
-    $self->warn(ref($self). "::length_aln - deprecated method. Use length() instead.");
+    $self->deprecated("length_aln - deprecated method. Use length() instead.");
     $self->length(@_);
 }
 
@@ -1752,15 +1760,15 @@ sub length {
 
 sub maxname_length {
     my $self = shift;
-    $self->warn(ref($self). "::maxname_length - deprecated method.".
-		" Use maxdisplayname_length() instead.");
+    $self->deprecated("maxname_length - deprecated method.".
+		      " Use maxdisplayname_length() instead.");
     $self->maxdisplayname_length();
 }
 
 sub maxnse_length {
     my $self = shift;
-    $self->warn(ref($self). "::maxnse_length - deprecated method.".
-		" Use maxnse_length() instead.");
+    $self->deprecated("maxnse_length - deprecated method.".
+		      " Use maxnse_length() instead.");
     $self->maxdisplayname_length();
 }
 
@@ -2037,13 +2045,13 @@ ways.
 
 sub get_displayname {
     my $self = shift;
-    $self->warn(ref($self). "::get_displayname - deprecated method. Use displayname() instead.");
+    $self->deprecated("get_displayname - deprecated method. Use displayname() instead.");
     $self->displayname(@_);
 }
 
 sub set_displayname {
     my $self = shift;
-    $self->warn(ref($self). "::set_displayname - deprecated method. Use displayname() instead.");
+    $self->deprecated("set_displayname - deprecated method. Use displayname() instead.");
     $self->displayname(@_);
 }
 
