@@ -381,7 +381,7 @@ sub _parseHeader {
       $self->{'QUERY'} = $query;
       $self->{'LENGTH'} = $length;
     }
-    elsif ($_ =~ /^(<b>)?(T?BLAST[NPX])\s+([\w-\.]+)\s+(\[[\w-]*\])/) { 
+    elsif ($_ =~ /^(<b>)?(T?BLAST[NPX])\s+([\w\.-]+)\s+(\[[\w-]*\])/) { 
 		$self->{'BLAST_TYPE'} = $2; 
 		$self->{'BLAST_VERSION'} = $3;
     }   # BLAST report type - not a valid header element # JB949
