@@ -314,9 +314,10 @@ sub to_FTstring {
 
     my $str;
     if( $self->start == $self->end ) {
-	return $self->start;
+	$str =  $self->start;
+    } else {
+        $str = $self->start . $RANGEDECODE{$self->location_type} . $self->end;
     }
-    $str = $self->start . $RANGEDECODE{$self->location_type} . $self->end;
     if($self->is_remote() && $self->seq_id()) {
 	$str = $self->seq_id() . ":" . $str;
     }
