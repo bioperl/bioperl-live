@@ -111,7 +111,7 @@
       <para>
 		  This HOWTO does not discuss a very nice module that's designed for
 		  beginners, 
-		  <ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Perl">Bio::Perl</ulink>. The reason is that though this is an
+		  <ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Perl.html">Bio::Perl</ulink>. The reason is that though this is an
 			 excellent introductory tool, it can't be extended. What we're
 		  attempting here is to introduce Bioperl and suggest
 		  ways to expand your new-found skills.
@@ -394,9 +394,15 @@ Internet, point your browser at http://www.perl.com/, the Perl Home Page.
 	 <para>
 		This line says that there's a module file on your machine called
 		"Bio/Seq.pm".
-		We will "use" this Bio::Seq module to create a Bio::Seq object.
-		The Bio::Seq module is one of the central modules in
-		Bioperl. The analogous Bio::Seq object, or "Sequence object", or
+		We will "use" this 
+		<ulink
+		url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Seq.html">Bio::Seq</ulink>
+		module to create a 
+<ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Seq.html>Bio::Seq</ulink> object.
+		The 
+<ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Seq.html>Bio::Seq</ulink> module is one of the central modules in
+		Bioperl. The analogous 
+<ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Seq.html>Bio::Seq</ulink> object, or "Sequence object", or
 		"Seq object", is ubiquitous in Bioperl, it contains 
 		a single sequence and associated names, identifiers, and
 		properties. Let's create a very simple sequence object at
@@ -418,7 +424,7 @@ Internet, point your browser at http://www.perl.com/, the Perl Home Page.
 	 <para>
       <note>
 		  <para>
-			 Bio::Seq objects can be created manually, as above, but
+			 <ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Seq.html>Bio::Seq</ulink> objects can be created manually, as above, but
 			 they're also create automatically in many operations
 			 in Bioperl, for example when alignment files or
 			 BLAST reports are parsed.
@@ -448,10 +454,12 @@ Internet, point your browser at http://www.perl.com/, the Perl Home Page.
 		The object was described as a data container, but it is more
 		than that. It can also do work, it can call
 		specific methods taken from the module or modules that were used
-		to create it. For example, the <classname>Bio::Seq</classname> 
+		to create it. For example, the 
+<ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Seq.html>Bio::Seq</ulink>
 		module has a method
 		called <function>seq()</function> that will print out the
-		sequence of Bio::Seq objects. You could use it like this:
+		sequence of 
+<ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Seq.html>Bio::Seq</ulink> objects. You could use it like this:
 	 </para>
 	 <para>
 		<programlisting>
@@ -508,16 +516,19 @@ Internet, point your browser at http://www.perl.com/, the Perl Home Page.
 		We already have a sequence object, <varname>$seq_obj</varname>, 
 		and we will create an
 		additional object whose responsibility it is to read from and write
-		to files. This object is the <classname>Bio::SeqIO</classname> object, 
+		to files. This object is the 
+<ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqIO.html>Bio::SeqIO</ulink> object, 
 		where IO stands for 
 		<emphasis>I</emphasis>nput-<emphasis>O</emphasis>utput.
-		By using Bio::SeqIO in this manner you will be able to get input
+		By using 
+<ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqIO.html>Bio::SeqIO</ulink> in this manner you will be able to get input
 		and output from all of the sequence file formats supported by Bioperl
 		(the <ulink url="http://bioperl.org/HOWTOs/SeqIO/index.html">
 		  SeqIO HOWTO</ulink> has a complete list of supported formats).
 		The way you create <classname>Bio::SeqIO</classname> objects is 
 		very similar to the way we used <function>new()</function> to
-		create a <classname>Bio::Seq</classname>, or sequence, object:
+		create a 
+<ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Seq.html>Bio::Seq</ulink>, or sequence, object:
 	 </para>    
 	 <para>
 		<programlisting>
@@ -562,7 +573,7 @@ Internet, point your browser at http://www.perl.com/, the Perl Home Page.
 		line we handed or passed the Sequence object to the SeqIO object as an
 		argument to its <function>write_seq</function> method. Another
 		way to think about this is that the SeqIO object understands how
-		to take the information from the Sequence object and write to a file
+		to take information from the Sequence object and write to a file
 		using that information, in this case in fasta format. If you
 		run this script like this:
 	 </para>
@@ -604,7 +615,7 @@ ORIGIN
 	 <title>Retrieving a sequence from a file</title>
 	 <para>
 		A common beginner's mistake is to not use
-		<classname>Bio::SeqIO</classname> when working with sequence
+		<ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqIO.html">Bio::SeqIO</ulink> when working with sequence
 		files. This is understandable in some respects. You
 		may have read about Perl's <function>open</function>
 		function, and Bioperl's way of retrieving sequences may look odd
@@ -651,7 +662,7 @@ ORIGIN
 	 </para>
 	 <para>
 		Here we've used the <function>next_seq()</function> method of the
-		Bio::SeqIO object. When you use, or call, 
+		<ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqIO.html">Bio::SeqIO</ulink> object. When you use, or call, 
 		<function>next_seq()</function> the
 		SeqIO	object will get the next available sequence, in this case
 		the first sequence in the file that was just opened. The
@@ -692,7 +703,7 @@ ORIGIN
 		sequences from all sorts of sources, files, remote databases,
 		local databases, regardless of their format. Let's use this 
 		capability to get a entry from Genbank. What will we retrieve?
-		Again, a Sequence object. Here's the relevant line of the script:
+		Again, a Sequence object. Let's choose our module:
 	 </para>
 	 <para>
 		<programlisting>
@@ -737,7 +748,8 @@ ORIGIN
 	 <para>
 		There are more sophisticated ways to query Genbank than
 		this. This next example attempts to do something "biological",
-		using the module Bio::DB::Query::GenBank. Want all Arabidopsis
+		using the module 
+<ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/DB/Query/Genbank.html">Bio::DB::Query::GenBank</ulink>. Want all Arabidopsis
 		topoisomerases from Genbank Nucleotide?
 	 </para>
 	  <para>
@@ -778,7 +790,7 @@ ORIGIN
 	 </para>
 	 <warning>
 		<para>
-		  Be careful what you ask for, many of today's public database
+		  Be careful what you ask for, many of today's nucleotide database
 		  entries are genome-size, and you will run out of memory
 		  if you attempt to access them this way.
 		</para>
@@ -806,24 +818,141 @@ while( my $seq = $seq_in->next_seq() ) {
     </para>
   </section>
 
-  <section id="blank1">
-    <title></title>
+  <section id="seq_obj">
+    <title>The Sequence object</title>
     <para>
+		There's been a lot of discussion around the Sequence object, 
+		and we've created this object in a few different ways, but we
+		haven't shown what it's capable of doing. The table below
+		lists the methods available to you if you have a Sequence
+		object in hand. "Returns" means what the object will give
+		you if you use or call the method without an argument. Recall that
+		the <functionname>seq</functionname> method can either 
+		<emphasis>get</emphasis> or <emphasis>return</emphasis> a value,
+		like so:
     </para>
     <para>
+      <programlisting>
+		  $seq_obj->seq;
+      </programlisting>
+	 </para>
+	 <para>
+		Or <emphasis>set</emphasis> or be used to assign a value, like
+		so:
+	 </para>
+	 <para>
+		<programlisting>
+		  $seq_obj->seq("MMTYDFFFFVVNNNNPPPPAAAW");
+      </programlisting>
+	 </para>
+	 <para>
 		<table>
-		  <title></title>
+		  <title>Sequence Object Methods</title>
 		  <tgroup cols="3">
 			 <thead>
 				<row>
-				  <entry></entry>
-				  <entry></entry>
-				  <entry></entry>
+				  <entry>Name</entry>
+				  <entry>Returns</entry>
+				  <entry>Note</entry>
 				</row>
 			 </thead>
 			 <tbody>
 				<row>
+				  <entry>new</entry>
+				  <entry>Sequence object</entry>
 				  <entry></entry>
+				</row>
+				  <entry>seq</entry>
+				  <entry>sequence string</entry>
+				  <entry>get or set</entry>
+				</row>
+				<row>
+				  <entry>display_id</entry>
+				  <entry></entry>
+				  <entry></entry>
+				</row>
+				<row>
+				  <entry>display_name</entry>
+				  <entry></entry>
+				  <entry></entry>
+				</row>
+				<row>
+				  <entry>primary_id</entry>
+				  <entry></entry>
+				  <entry></entry>
+				</row>
+				<row>
+				  <entry>desc</entry>
+				  <entry></entry>
+				  <entry></entry>
+				</row>
+				<row>
+				  <entry>accession</entry>
+				  <entry></entry>
+				  <entry></entry>
+				</row>
+				<row>
+				  <entry>length</entry>
+				  <entry></entry>
+				  <entry></entry>
+				</row>
+				<row>
+				  <entry>alphabet</entry>
+				  <entry></entry>
+				  <entry></entry>
+				</row>
+				<row>
+				  <entry>subseq</entry>
+				  <entry></entry>
+				  <entry></entry>
+				</row>
+				<row>
+				  <entry>trunc</entry>
+				  <entry>Sequence object</entry>
+				  <entry></entry>
+				</row>
+				<row>
+				  <entry>revcom</entry>
+				  <entry>Sequence object</entry>
+				  <entry></entry>
+				</row>
+				<row>
+				  <entry>translate</entry>
+				  <entry>Sequence object</entry>
+				  <entry></entry>
+				</row>
+				<row>
+				  <entry>species</entry>
+				  <entry>Bio::Species object</entry>
+				  <entry>get or set</entry>
+				</row>
+				<row>
+				  <entry>seq_version</entry>
+				  <entry></entry>
+				  <entry></entry>
+				</row>
+				<row>
+				  <entry>keywords</entry>
+				  <entry></entry>
+				  <entry></entry>
+				</row>
+				<row>
+				  <entry>namespace</entry>
+				  <entry></entry>
+				  <entry></entry>
+				</row>
+				<row>
+				  <entry>authority</entry>
+				  <entry></entry>
+				  <entry></entry>
+				</row>
+				<row>
+				  <entry>is_circular</entry>
+				  <entry></entry>
+				  <entry></entry>
+				</row>
+				<row>
+				  <entry>validate_seq</entry>
 				  <entry></entry>
 				  <entry></entry>
 				</row>
@@ -831,6 +960,63 @@ while( my $seq = $seq_in->next_seq() ) {
 		  </tgroup>
       </table>
     </para>
+	 <para>
+		The table above shows the methods you're likely to use that
+		concern the Sequence object directly. There are also a number
+		of methods that are concerned the Features and Annotations
+		associated with the Sequence object. This is something of a 
+		tangent but if you'd like to learn about Features and Annotations
+		see the relevant 
+<ulink url="http://bioperl.org/HOWTOs/Feature-Annotation/index.html">HOWTO</ulink>.
+		The methods related to this topic are shown below.
+	 </para>
+	 <para>
+		<table>
+		  <title>Feature and Annotation Methods</title>
+		  <tgroup cols="3">
+			 <thead>
+				<row>
+				  <entry>Name</entry>
+				  <entry>Returns</entry>
+				  <entry>Note</entry>
+				</row>
+			 </thead>
+			 <tbody>
+				<row>
+				  <entry>get_SeqFeatures</entry>
+				  <entry>array of SeqFeature objects</entry>
+				  <entry></entry>
+				</row>
+				<row>
+				  <entry>get_all_SeqFeatures</entry>
+				  <entry>array of SeqFeature objects</entry>
+				  <entry>array includes sub-features</entry>
+				</row>
+				<row>
+				  <entry>remove_SeqFeatures</entry>
+				  <entry>array of SeqFeatures removed</entry>
+				  <entry></entry>
+				</row>
+				<row>
+				  <entry>feature_count</entry>
+				  <entry>number of SeqFeature objects</entry>
+				  <entry></entry>
+				</row>
+				<row>
+				  <entry>add_SeqFeature</entry>
+				  <entry></entry>
+				  <entry></entry>
+				</row>
+				<row>
+				  <entry>annotation</entry>
+				  <entry>array of Annotation objects</entry>
+				  <entry>get or set</entry>
+				</row>
+			 </tbody>
+		  </tgroup>
+      </table>
+    </para>
+
   </section>
 
   <section id="regexp">
@@ -898,42 +1084,43 @@ while( my $seq = $seq_in->next_seq() ) {
 
   <section id="objects">
 	 <title>The Basics of Perl Objects</title>
-		  <para>
-			 Object-oriented programming (OOP) is software engineering
-			 technique for modularizing code. The difference between
-			 object-oriented programming and procedural programming can be
-			 simply illustrated.
-		  </para>
+	 <para>
+		Object-oriented programming (OOP) is a software engineering
+		technique for modularizing code. The difference between
+		object-oriented programming and procedural programming can be
+		simply illustrated.
+	 </para>
+	 
+	 <para>
+		<emphasis>A Simple Example</emphasis>
+		Assume that we have a DNA sequence stored in the scalar variable
+		$sequence. We'd like to generate the reverse complement of this 
+		sequence and store it in $reverse_complement. Shown below is the
+		procedural Perl technique of using a subroutine to operate on
+		this scalar data:
+	 </para>
+	 <para>
+		Example 1: 
+		<programlisting>
+		  $reverse_complement = &amp;rev_com( $sequence );
+		</programlisting>
+	 </para>
+	 
+	 <para>
+		The hallmark of a procedural program is that data and 
+		functions to operate on that data are kept separate. In order 
+		to generate the reverse
+		complement of a DNA sequence, we need to call a function that operates
+		on that DNA sequence.
+	 </para>
+	 
+	 <para>
+		Shown below is the object-oriented way of generating the reverse 
+		complement of a DNA sequence:
+	 </para>
 
-		  <para>
-			 <emphasis>A Simple Example</emphasis>
-			 Assume that we have a DNA sequence stored in the scalar variable
-			 $sequence. We'd like to generate the reverse complement of this 
-			 sequence and store it in $reverse_complement. Shown below is the
-			 procedural Perl technique of using a subroutine to operate on
-			 this scalar data:
-		  </para>
-		  <para>
-		  Example 1: 
-		  <programlisting>
-			 my $reverse_complement = &amp;rev_com( $sequence );
-		  </programlisting>
-		</para>
-		  
-		  <para>
-			 The hallmark of a procedural program is that data and functions to
-			 operate on that data are kept separate. In order to generate the reverse
-			 complement of a DNA sequence, we need to call a function that operates
-			 on that DNA sequence.
-		  </para>
-               
-		  <para>
-			 Shown below is the object-oriented way of generating the reverse 
-			 complement of a DNA sequence:
-		  </para>
-
-		  <para>
-			 Example 2:
+	 <para>
+		Example 2:
 			 <programlisting>
 				my $reverse_complement = $sequence->revcom;
 			 </programlisting>
