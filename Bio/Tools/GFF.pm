@@ -779,8 +779,26 @@ sub _gff3_string {
 				      $feat->feature2->end) 
 				));
     }
-    
-    return join("\t",
+
+    my $gff_string = "";
+    if ($feat->location->isa("Bio::Location::SplitLocationI")) {
+        my @locs = $feat->location->each_Location;
+        foreach my $loc (@locs) {
+            $gff_string .= join("\t",
+                $name,
+                $feat->source_tag(),
+                $feat->primary_tag(),
+                $loc->start(),
+                $loc->end(),
+                $score,
+                $strand,
+                $frame,
+                join(';', @groups)) . "\n";
+        }
+        chop $gff_string;
+        return $gff_string;
+    } else {
+        $gff_string = join("\t",
 		$name,
 		$feat->source_tag(),
 		$feat->primary_tag(),
@@ -790,6 +808,8 @@ sub _gff3_string {
 		$strand,
 		$frame, 
 		join(';', @groups));
+    }
+    return $gff_string;
 }
 
 =head2 gff_version
