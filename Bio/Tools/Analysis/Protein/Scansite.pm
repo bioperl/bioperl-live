@@ -366,7 +366,7 @@ sub _add_data {
 			}
 		$outstr .= $hit->{'sequence'}. "\n" if $hit->{'sequence'};
 	}
-	return $outstr;y
+	return $outstr;
 
 
 }
