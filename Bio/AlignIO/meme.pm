@@ -86,7 +86,7 @@ my $HTML_VERS_ERR = "MEME output file must be generated with the -text option";
 
 sub next_aln {
     my ($self) = @_;
-    my $aln =  Bio::SimpleAlign->new();
+    my $aln =  Bio::SimpleAlign->new(-source => 'meme');
     my $line;
     my $good_align_sec = 0;
     my $in_align_sec = 0;

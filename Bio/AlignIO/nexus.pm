@@ -91,7 +91,7 @@ sub next_aln {
 	$match, $gap, $missing, $equate, $interleave,
 	$name,$str,@names,$seqname,$start,$end,$count,$seq);
     
-    my $aln =  Bio::SimpleAlign->new();
+    my $aln =  Bio::SimpleAlign->new(-source => 'nexus');
 
     # file starts with #NEXUS
     $entry = $self->_readline; 

@@ -115,7 +115,7 @@ use Bio::Tools::BPbl2seq;
 sub next_aln {
     my $self = shift;
     my ($start,$end,$name,$seqname,$seq,$seqchar);
-    my $aln =  Bio::SimpleAlign->new();
+    my $aln =  Bio::SimpleAlign->new(-source => 'bl2seq');
     $self->{'bl2seqobj'} =
     	$self->{'bl2seqobj'} || Bio::Tools::BPbl2seq->new(-fh => $self->_fh);
     my $bl2seqobj = $self->{'bl2seqobj'};

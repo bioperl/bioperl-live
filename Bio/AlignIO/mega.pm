@@ -112,7 +112,7 @@ sub next_aln{
    my $entry;
    my ($alphabet,%seqs);
    
-   my $aln = Bio::SimpleAlign->new();
+   my $aln = Bio::SimpleAlign->new(-source => 'mega');
    
    while( defined($entry = $self->_readline()) && ($entry =~ /^\s+$/) ) {}
    

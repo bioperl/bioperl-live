@@ -85,7 +85,7 @@ sub next_aln {
     my $entry;
     my (%hash,$name,$str,@names,$seqname,$start,$end,$count,$seq);
 
-    my $aln =  Bio::SimpleAlign->new();
+    my $aln =  Bio::SimpleAlign->new(-source => 'gcg' );
 
 
     while( $entry = $self->_readline) {
@@ -129,10 +129,10 @@ sub next_aln {
        }
 
        $seq = new Bio::LocatableSeq('-seq'=>$hash{$name},
-			   '-id'=>$seqname,
-			   '-start'=>$start,
-			   '-end'=>$end,
-			   );
+				    '-id'=>$seqname,
+				    '-start'=>$start,
+				    '-end'=>$end,
+				    );
 
        $aln->add_seq($seq);
 

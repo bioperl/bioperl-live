@@ -83,7 +83,7 @@ sub next_aln {
     # Of particular interest are the '#=GF <name/st-ed> AC <accession>'
     # lines, which give accession numbers for each segment
 
-    my $aln =  Bio::SimpleAlign->new();
+    my $aln =  Bio::SimpleAlign->new(-source => 'stockholm');
 
     while( defined($entry = $self->_readline) ) {
         $entry !~ /\w+/ && next;

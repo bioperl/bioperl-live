@@ -110,7 +110,7 @@ sub next_aln {
     my ($seqcount, $residuecount, %hash, $name,$str,
 	@names,$seqname,$start,$end,$count,$seq);
     
-    my $aln =  Bio::SimpleAlign->new();
+    my $aln =  Bio::SimpleAlign->new(-source => 'phylip');
     $entry = $self->_readline and 
         ($seqcount, $residuecount) = $entry =~ /\s*(\d+)\s+(\d+)/;
     return 0 unless $seqcount and $residuecount;

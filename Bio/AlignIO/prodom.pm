@@ -76,10 +76,7 @@ sub next_aln {
     my $entry;
     my ($acc, $fake_id, $start, $end, $seq, $add, %names);
 
-
-
-    my $aln =  Bio::SimpleAlign->new();
-
+    my $aln =  Bio::SimpleAlign->new(-source => 'prodom');
 
     while( $entry = $self->_readline) {
 

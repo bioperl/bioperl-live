@@ -82,7 +82,7 @@ sub next_aln {
     my $acc;
     my %names;
 
-    my $aln =  Bio::SimpleAlign->new();
+    my $aln =  Bio::SimpleAlign->new(-source => 'pfam');
 
     while( $entry = $self->_readline) {
 	chomp $entry;

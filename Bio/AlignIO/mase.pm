@@ -83,7 +83,7 @@ sub next_aln {
     my $count = 0;
     my $seq_residues;
 
-    my $aln =  Bio::SimpleAlign->new();
+    my $aln =  Bio::SimpleAlign->new(-source => 'mase');
 
 
     while( $entry = $self->_readline) {

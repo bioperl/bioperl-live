@@ -77,7 +77,7 @@ sub next_aln {
     my $self = shift;
     my $entry;
     my ($start,$end,%align,$name,$seqname,$seq,$count,%hash,%c2name, %accession, $no);
-    my $aln =  Bio::SimpleAlign->new();
+    my $aln =  Bio::SimpleAlign->new(-source => 'selex');
 
     # in selex format, every non-blank line that does not start
     # with '#=' is an alignment segment; the '#=' lines are mark up lines.

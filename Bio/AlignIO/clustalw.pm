@@ -100,7 +100,6 @@ sub _initialize {
     $self->SUPER::_initialize(@args);
     my ($percentages) = $self->_rearrange([qw(PERCENTAGES)], @args);
     defined $percentages && $self->percentages($percentages);
-
 }
 
 =head2 next_aln
@@ -122,7 +121,7 @@ sub next_aln {
 	$self->warn("trying to parse a file which does not start with a CLUSTAL header");
     }
     my %alignments;
-    my $aln =  Bio::SimpleAlign->new();
+    my $aln =  Bio::SimpleAlign->new(-source => 'clustalw');
     my $order = 0;
     my %order;
     $self->{_lastline} = '';
