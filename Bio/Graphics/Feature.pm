@@ -202,6 +202,7 @@ sub make_link {
   }
 }
 
+sub DESTROY { }
 
 1;
 
