@@ -2588,7 +2588,7 @@ sub infer_mRNA_from_CDS{
 
        $sf->isa("Bio::SeqFeatureI") || $self->throw("$sf NOT A SeqFeatureI");
        $sf->isa("Bio::FeatureHolderI") || $self->throw("$sf NOT A FeatureHolderI");
-       if ($self->verbose) {
+       if ($self->verbose > 0) {
            printf STDERR "    Checking $sf %s\n", $sf->primary_tag;
        }
        
