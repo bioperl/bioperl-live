@@ -244,11 +244,12 @@ foreach my $arg ( @ARGV ) {
 		# db is server,port
 		my ($server,$port);
 
-		$db =~ /(\S+),(\d+)/ || die "$db is not server.name,port for acedb database";
+		$db =~ /(\S+)\,(\d+)/ || die "$db is not server.name,port for acedb database";
 		$server = $1;
 		$port = $2;
+		print STDERR "Connecting to $server,$port\n";
 
-		$dbobj = Bio::DB::Ace->new(-server => $server, -port => $port);
+		$dbobj = Bio::DB::Ace->new(-host => $server, -port => $port);
 		last SWITCH;
 	    };
 	    /^local$/ && do {

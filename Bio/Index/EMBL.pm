@@ -225,7 +225,7 @@ sub fetch {
 	    /^SQ\s/ && last;
 	    /^ID\s+(\S+)/ && do { $id = $1; };
 	    /^DE\s+(.*?)\s+$/ && do { $desc .= $1; }; 
-	    /^AC\s+(\S+?);?\s+$/ && do { $acc .= $1; }; 
+	    /^AC\s+(\S+?);/ && do { $acc .= $1; }; 
 	    # accession numbers???
         }
 
@@ -245,7 +245,6 @@ sub fetch {
                               -DESC => $desc,
 			      -SEQ  => uc(join('', @record)) );
 	$out->names()->{'acc'} = $acc if $acc;
-
 	return $out;
     } else {
 	$self->throw("Unable to find a record for $id in EMBL flat file index");

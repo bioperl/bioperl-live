@@ -1026,7 +1026,7 @@ sub write_Pfam {
     my ($maxn);
 
     $maxn = $self->maxdisplayname_length();
-
+    
     foreach $seq ( $self->eachSeq() ) {
 	$namestr = $self->get_displayname($seq->get_nse());
 	$add = $maxn - length($namestr) + 2;
