@@ -1,4 +1,6 @@
 
+   BioPerl DocBook
+
 Bio::SearchIO HOWTO
 
 Jason Stajich
@@ -7,17 +9,25 @@ Jason Stajich
    [2]University Program in Genetics
    [3]Center for Genome Technology
 
-   Duke University Medical Center Box 3568 Durham, North Carolina
-   27710-3568 USA <[4]jason-at-bioperl.org>
+     Duke University Medical Center
+     Box 3568
+     Durham,
+     North Carolina
+     27710-3568
+     USA
+     <[4]jason-at-bioperl.org>
 
 Brian Osborne
 
    [5]Cognia Corporation
 
-   NYC, NY 10022 USA <[6]brian-at-cognia.com>
+     NYC, NY 10022
+     USA
+     <[6]brian-at-cognia.com>
 
-   This document is copyright Jason Stajich, 2002. For reproduction other
-   than personal use please contact jason-at-bioperl.org
+   This document is copyright Jason Stajich, Brian Osborne, 2002-2004. It
+   can be copied and distributed under the terms of the Perl Artistic
+   License.
 
    2002-07-14
    Revision History
@@ -29,6 +39,10 @@ Brian Osborne
    added table and text to Parsing section
    Revision 0.4 2003-09-10 BIO
    updated Parsing section
+   Revision 0.5 2004-01-30 JES and BIO
+   Fixed some missing table entries for Hit functions, typo fixes.
+   Revision 0.6 2004-06-21 JES
+   Made document redistributable under Perl Artistic.
 
    Abstract
 
@@ -43,12 +57,12 @@ Brian Osborne
 
    1. [7]Background
    2. [8]Design
-   3. [9]New Functionality
-   4. [10]Parsing with Bio::SearchIO
-   5. [11]Creating Reports for SearchIO
-   6. [12]Implementation
-   7. [13]Writing and formatting output
-   8. [14]Extending SearchIO
+   3. [9]Parsing with Bio::SearchIO
+   4. [10]Creating Reports for SearchIO
+   5. [11]Implementation
+   6. [12]Writing and formatting output
+   7. [13]Extending SearchIO
+   8. [14]Useful links
 
 1. Background
 
@@ -97,20 +111,19 @@ Brian Osborne
    A design pattern, called Factory, is utilized in object oriented
    programming to separate the entity which process data from objects
    which will hold the information produced. In the same manner that the
-   Bio::SeqIO module is used to parse different file formats and produces
-   objects which are Bio::PrimarySeqI compliant, we have written
-   Bio::SearchIO to produce the Bio::Search objects. Sequences are a
-   little less complicated so there is only one primary object
-   (Bio::PrimarySeqI) which Search results need three main components to
-   represent the data processed in a file: Bio::Search::Result::ResultI
-   (top level results), Bio::Search::Hit::HitI (hits) and
-   Bio::Search::HSP::HSPI (HSPs). The Bio::SearchIO object is then a
-   factory which produces Bio::Search::Result::ResultI objects and the
-   Bio::Search::Result::ResultI objects contain information about the
+   [15]Bio::SeqIO module is used to parse different file formats and
+   produces objects which are [16]Bio::PrimarySeqI compliant, we have
+   written [17]Bio::SearchIO to produce the Bio::Search objects.
+   Sequences are a little less complicated so there is only one primary
+   object (Bio::PrimarySeqI) which Search results need three main
+   components to represent the data processed in a file:
+   [18]Bio::Search::Result::ResultI (top level results),
+   [19]Bio::Search::Hit::HitI (hits) and [20]Bio::Search::HSP::HSPI
+   (HSPs). The [21]Bio::SearchIO object is then a factory which produces
+   [22]Bio::Search::Result::ResultI objects and the
+   [23]Bio::Search::Result::ResultI objects contain information about the
    query, the database searched, and the full collection of Hits found
    for the query.
-
-3. New Functionality
 
    The generality of the SearchIO approach is demonstrated by large
    number of report formats that have appeared since its introduction.
@@ -120,7 +133,7 @@ Brian Osborne
    megablast output, PSL format output (BLAT), sim4 output, WABA output,
    and output from Wise.
 
-4. Parsing with Bio::SearchIO
+3. Parsing with Bio::SearchIO
 
    This section is going to describe how to use the SearchIO system to
    process reports. We'll describe BLAST reports but the idea is that
@@ -178,82 +191,84 @@ Brian Osborne
    SearchIO. In order to display all these methods and what they return
    let's use a report as input, a simple BLASTX result:
 
- BLASTX 2.2.4 [Aug-26-2002]
+
+BLASTX 2.2.4 [Aug-26-2002]
 
 
- Reference: Altschul, Stephen F., Thomas L. Madden, Alejandro A. Schaffer,
- Jinghui Zhang, Zheng Zhang, Webb Miller, and David J. Lipman (1997),
- "Gapped BLAST and PSI-BLAST: a new generation of protein database search
- programs",  Nucleic Acids Res. 25:3389-3402.
+Reference: Altschul, Stephen F., Thomas L. Madden, Alejandro A. Schaffer,
+Jinghui Zhang, Zheng Zhang, Webb Miller, and David J. Lipman (1997),
+"Gapped BLAST and PSI-BLAST: a new generation of protein database search
+programs",  Nucleic Acids Res. 25:3389-3402.
 
- Query= gi|20521485|dbj|AP004641.2 Oryza sativa (japonica
- cultivar-group) genomic DNA, chromosome 1, BAC clone:B1147B04, 3785
- bases, 977CE9AF checksum.
-          (3059 letters)
+Query= gi|20521485|dbj|AP004641.2 Oryza sativa (japonica
+cultivar-group) genomic DNA, chromosome 1, BAC clone:B1147B04, 3785
+bases, 977CE9AF checksum.
+         (3059 letters)
 
- Database: test.fa
-            5 sequences; 1291 total letters
-
-
-
-                                                                 Score    E
- Sequences producing significant alignments:                      (bits) Value
-
- gb|443893|124775 LaForas sequence                                 92   2e-022
-
- >gb|443893|124775 LaForas sequence
-           Length = 331
-
-  Score = 92.0 bits (227), Expect = 2e-022
-  Identities = 46/52 (88%), Positives = 48/52 (91%)
-  Frame = +1
-
- Query: 2896 DMGRCSSGCNRYPEPMTPDTMIKLYREKEGLGAYIWMPTPDMSTEGRVQMLP 3051
-             D+ + SSGCNRYPEPMTPDTMIKLYRE EGL AYIWMPTPDMSTEGRVQMLP
- Sbjct: 197  DIVQNSSGCNRYPEPMTPDTMIKLYRE-EGL-AYIWMPTPDMSTEGRVQMLP 246
+Database: test.fa
+           5 sequences; 1291 total letters
 
 
-   Database: test.fa
-     Posted date:  Feb 12, 2003  9:51 AM
-   Number of letters in database: 1291
-   Number of sequences in database:  5
 
- Lambda     K      H
-    0.318    0.135    0.401
+                                                                Score    E
+Sequences producing significant alignments:                     (bits) Value
 
- Gapped
- Lambda     K      H
-    0.267   0.0410    0.140
+gb|443893|124775 LaForas sequence                                 92   2e-022
+
+>gb|443893|124775 LaForas sequence
+          Length = 331
+
+ Score = 92.0 bits (227), Expect = 2e-022
+ Identities = 46/52 (88%), Positives = 48/52 (91%)
+ Frame = +1
+
+Query: 2896 DMGRCSSGCNRYPEPMTPDTMIKLYREKEGLGAYIWMPTPDMSTEGRVQMLP 3051
+            D+ + SSGCNRYPEPMTPDTMIKLYRE EGL AYIWMPTPDMSTEGRVQMLP
+Sbjct: 197  DIVQNSSGCNRYPEPMTPDTMIKLYRE-EGL-AYIWMPTPDMSTEGRVQMLP 246
 
 
- Matrix: BLOSUM62
- Gap Penalties: Existence: 11, Extension: 1
- Number of Hits to DB: 7140
- Number of Sequences: 5
- Number of extensions: 180
- Number of successful extensions: 2
- Number of sequences better than 10.0: 2
- Number of HSP's better than 10.0 without gapping: 1
- Number of HSP's successfully gapped in prelim test: 0
- Number of HSP's that attempted gapping in prelim test: 0
- Number of HSP's gapped (non-prelim): 1
- length of database: 1291
- effective HSP length: 46
- effective length of database: 1061
- effective search space used:  1032353
- frameshift window, decay const: 50,  0.1
- T: 12
- A: 40
- X1: 16 ( 7.3 bits)
- X2: 38 (14.6 bits)
- X3: 64 (24.7 bits)
- S1: 32 (17.6 bits)
+  Database: test.fa
+    Posted date:  Feb 12, 2003  9:51 AM
+  Number of letters in database: 1291
+  Number of sequences in database:  5
+
+Lambda     K      H
+   0.318    0.135    0.401
+
+Gapped
+Lambda     K      H
+   0.267   0.0410    0.140
+
+
+Matrix: BLOSUM62
+Gap Penalties: Existence: 11, Extension: 1
+Number of Hits to DB: 7140
+Number of Sequences: 5
+Number of extensions: 180
+Number of successful extensions: 2
+Number of sequences better than 10.0: 2
+Number of HSP's better than 10.0 without gapping: 1
+Number of HSP's successfully gapped in prelim test: 0
+Number of HSP's that attempted gapping in prelim test: 0
+Number of HSP's gapped (non-prelim): 1
+length of database: 1291
+effective HSP length: 46
+effective length of database: 1061
+effective search space used:  1032353
+frameshift window, decay const: 50,  0.1
+T: 12
+A: 40
+X1: 16 ( 7.3 bits)
+X2: 38 (14.6 bits)
+X3: 64 (24.7 bits)
+S1: 32 (17.6 bits)
 
 
    Table 1 shows all the data returned by methods used by the Result,
    Hit, and HSP objects when the report shown above is used as input.
    Note that many of the methods shown can be used to either get or set
    values, but we're just showing what they get.
+
    Object Method Example Description
    Result algorithm BLASTX algorithm
    Result algorithm_version 2.2.4 [Aug-26-2002] algorithm version
@@ -272,6 +287,7 @@ Brian Osborne
    Result num_hits 1 number of hits
    Result hits   Search::Hit::GenericHit object
    Hit name gb|443893|124775 hit name
+   Hit length 331 Length of the Hit sequence
    Hit accession 443893 accession
    Hit description LaForas sequence hit description
    Hit algorithm BLASTX algorithm
@@ -291,11 +307,14 @@ Brian Osborne
    HSP query_string DMGRCSSG ... string from alignment
    HSP hit_string DIVQNSS ... string from alignment
    HSP homology_string D+ + SSGCN ... string from alignment
-   HSP length('total') 52 length of HSP
-   HSP length('hit') 50 length of hit minus gaps
-   HSP length('query') 156 length of query minus gaps
-   HSP hsp_length 52 desc
-   HSP frame 0 frame, GFF convention
+   HSP length('total') 52 length of HSP (including gaps)
+   HSP length('hit') 50 length of hit participating in alignment minus
+   gaps
+   HSP length('query') 156 length of query participating in alignment
+   minus gaps
+   HSP hsp_length 52 Length of the HSP (including gaps) alias for
+   length('total')
+   HSP frame 0 $hsp->query->frame,$hsp->hit->frame
    HSP num_conserved 48 number of conserved residues
    HSP num_identical 46 number of identical residues
    HSP rank 1 rank of HSP
@@ -321,6 +340,10 @@ Brian Osborne
    HSP matches('query') (46,48) number of identical and conserved as
    array
    HSP alignment   Bio::SimpleAlign object
+   HSP hsp_group   Group field from WU-BLAST reports run with -topcomboN
+   or -topcomboE specified
+   HSP links   Links field from WU-BLAST reports run with -links showing
+   consistent HSP linking
 
    Table 1. SearchIO Methods
 
@@ -328,8 +351,8 @@ Brian Osborne
    object. When an object is returned some additional code will probably
    be needed to get the data of interest. For example, if you wanted a
    printable alignment after you'd parsed BLAST output you could use the
-   get_aln() method, retrieve a Bio::SimpleAlign object and use it like
-   this:
+   get_aln() method, retrieve a [24]Bio::SimpleAlign object and use it
+   like this:
         use Bio::AlignIO;
         # $aln will be a Bio::SimpleAlign object
         my $aln = $hsp->get_aln;
@@ -362,11 +385,16 @@ Brian Osborne
    positions are of all the identical or conserved residues in an
    alignment, query or hit. It could be used like this:
         # put all the conserved matches in query strand into an array
-        my @str_array = split "",$hsp->query_strand;
+        my @str_array = split "",$hsp->query_string;
         foreach ( $hsp->seq_inds('query','conserved') ){
            push @conserved,$str_array[$_ - 1];
         }
 
+
+   seq_inds() can be very useful for extracting the mismatch bases in an
+   alignment If you wanted to figure out which bases are not matching in
+   an alignment you could use seq_inds to get these positions and then
+   extract out these specific bases from the alignment.
 
    In most cases the SearchIO methods extract data directly from output
    but there's one important exception, the frame() method of the HSP
@@ -374,7 +402,7 @@ Brian Osborne
    them to values according to the GFF specification, which is a format
    used by many Bioperl modules involved in gene annotation (for more on
    GFF see
-   [15]http://www.sanger.ac.uk/Software/formats/GFF/GFF_Spec.shtml).
+   [25]http://www.sanger.ac.uk/Software/formats/GFF/GFF_Spec.shtml).
 
    Specifically, the frame() method returns 0, 1, or 2 instead of the
    expected -3, -2, -1, +1, +2, or +3 in BLAST. GFF frame values are
@@ -386,13 +414,14 @@ Brian Osborne
 
    Our simple table of methods does not show all available arguments or
    returned values for all the SearchIO methods. The best place to
-   explore any method in detail is [16]http://doc.bioperl.org which
+   explore any method in detail is [26]http://doc.bioperl.org which
    provides the HTML versions of the Perl POD (Plain Old Documentation)
-   that is embedded in every well-written Perl module. Another sources of
-   code are the examples/searchio/ and scripts/searchio directories in
-   the Bioperl package.
+   that is embedded in every well-written Perl module - there's also a
+   list of modules at the bottom of this HOWTO. Other sources of code are
+   the examples/searchio/ and scripts/searchio directories in the Bioperl
+   package.
 
-5. Creating Reports for SearchIO
+4. Creating Reports for SearchIO
 
    One note on creating reports that can be parsed by SearchIO: the
    developers haven't attempted to parse all the possible reports that
@@ -408,7 +437,7 @@ Brian Osborne
    reports but it's still possible to find sets of options that SearchIO
    can't parse.
 
-6. Implementation
+5. Implementation
 
    This section is going to describe how the SearchIO system was
    implemented, it is probably not necessary to understand all of this
@@ -457,7 +486,7 @@ Brian Osborne
    one only needs to write a module that produces the appropriate start
    and end events and the existing framework will do the work of creating
    the objects for you. Here's how we've implemented event-based parsing
-   for Bio::SearchIO. The Bio::SearchIO is just the front-end to this
+   for [27]Bio::SearchIO. The Bio::SearchIO is just the front-end to this
    process, in fact the processing of these reports is done by different
    modules in the Bio/SearchIO directory. So if you look at your bioperl
    distribution and the modules in Bio/SearchIO you'll see modules in
@@ -466,7 +495,7 @@ Brian Osborne
    version of the toolkit there may be more modules in there). There is
    also a SearchWriterI.pm and Writer directory in there but we'll save
    that for later. If you don't have the distribution handy you can
-   navigate this at the bioperl [17]CVS web page.
+   navigate this at the bioperl [28]CVS web page.
 
    Let's use the blast.pm module as an example to describe the
    relationship of the modules in this dir (could have substituted any of
@@ -489,14 +518,14 @@ Brian Osborne
    to pass in two values. It also easy for someone to quickly read the
    list of events and know which ones are related to Hits and which ones
    are related to HSPs. The listener in our architecture is the
-   Bio::SearchIO::SearchResultEventBuilder. This object is attached as a
-   listener through the Bio::SearchIO method add_EventListener. In fact
-   you could have multiple event listeners and they could do different
-   things. In our case we want to create Bio::Search objects, but an
-   event listener could just as easily be propagating data directly into
-   a database based on the events. The SearchResultEventBuilder takes the
-   events thrown by the SearchIO classes and builds the appropriate
-   Bio::Search::HSP object from it.
+   [29]Bio::SearchIO::SearchResultEventBuilder. This object is attached
+   as a listener through the [30]Bio::SearchIO method add_EventListener.
+   In fact you could have multiple event listeners and they could do
+   different things. In our case we want to create Bio::Search objects,
+   but an event listener could just as easily be propagating data
+   directly into a database based on the events. The
+   SearchResultEventBuilder takes the events thrown by the SearchIO
+   classes and builds the appropriate Bio::Search::HSP object from it.
 
    Sometimes special objects are needed that are extensions beyond what
    the GenericHSP or GenericHit objects are meant to represent. For this
@@ -505,15 +534,20 @@ Brian Osborne
    objects - see the Bio::SearchIO::hmmer::_initialize method for an
    example of how this can be set.
 
-7. Writing and formatting output
+6. Writing and formatting output
 
    Often people want to write back out a BLAST report for users who are
    most comfortable with that output or if you want to visualize the
    context of a weakly aligned region to use human intuition to score the
-   confidence of a putative homologue. Bio::SearchIO is for parsing in
-   the data but Bio::SearchIO::Writer is for outputting the information.
-   The simplest way to output data as a pseudo-BLAST HTML format is as
-   follows.
+   confidence of a putative homologue. The Bio::SearchIO::Writer modules
+   are for outputting the information.
+
+   Bio::SearchIO::Writer currently creates output in 4 formats: text
+   (recreating something like the BLAST report itself, in part or
+   entirely), HTML, BSML, and "ResultTable", which is a tab-delimited
+   format.
+
+   The simplest way to output data in HTML format is as follows.
 
    my $writerhtml = new Bio::SearchIO::Writer::HTMLResultWriter();
    my $outhtml = new Bio::SearchIO(-writer => $writerhtml,
@@ -540,18 +574,16 @@ Brian Osborne
 
    If your data is instead stored in a database you could build the
    Bio::Search objects up in memory directly from your database and then
-   use the Writer object to output the data. Currently there is also a
-   Bio::SearchIO::Writer::TextResultWriter which supports writing BLAST
-   text file output.
+   use the Writer object to output the data.
 
-8. Extending SearchIO
+7. Extending SearchIO
 
-   The framework for Bio::SearchIO is just a starting point for parsing
-   these reports and creating objects which represent the information. If
-   you would like to create your own set of objects which extend the
-   current functionality we have built the system so that it will support
-   this. For example, you may have built your own HSP object which
-   supports a special operation like realign_with_sw(), which might
+   The framework for [31]Bio::SearchIO is just a starting point for
+   parsing these reports and creating objects which represent the
+   information. If you would like to create your own set of objects which
+   extend the current functionality we have built the system so that it
+   will support this. For example, you may have built your own HSP object
+   which supports a special operation like realign_with_sw(), which might
    realign the HSP via a Smith-Waterman algorithm, pulling extra bases
    from the flanking sequence. You might call your module
    Bio::Search::HSP::RealignHSP and put it in a file called
@@ -568,10 +600,10 @@ Brian Osborne
    might easily integrated with existing modules).
 
    So, you're going to write your new special module, you do need to make
-   sure it inherits from the base Bio::Search::HSP::HSPI object.
+   sure it inherits from the base [32]Bio::Search::HSP::HSPI object.
    Additionally unless you want to reimplement all the initialization
-   state in the current Bio::Search::HSP::GenericHSP you should just plan
-   to extend that object. You need to follow the chained constructor
+   state in the current [33]Bio::Search::HSP::GenericHSP you should just
+   plan to extend that object. You need to follow the chained constructor
    system that we have set up so that the arguments are properly
    processed. Here is a sample of what your code might look like (don't
    forget to write your own POD so that it will be documented, we've left
@@ -636,6 +668,69 @@ $searchio->_eventHandler->register_factory('hit', $hitfact);
    memory issues with this parser. Volunteers and improvement code are
    always welcome.
 
+8. Useful links
+
+   SearchIO Modules
+   [34]SearchIO.pm
+   [35]SearchIO/axt.pm
+   [36]SearchIO/blast.pm
+   [37]SearchIO/blasttable.pm
+   [38]SearchIO/blastxml.pm
+   [39]SearchIO/EventHandlerI.pm
+   [40]SearchIO/exonerate.pm
+   [41]SearchIO/fasta.pm
+   [42]SearchIO/FastHitEventBuilder.pm
+   [43]SearchIO/hmmer.pm
+   [44]SearchIO/IteratedSearchResultEventBuilder.pm
+   [45]SearchIO/megablast.pm
+   [46]SearchIO/psl.pm
+   [47]SearchIO/SearchResultEventBuilder.pm
+   [48]SearchIO/SearchWriterI.pm
+   [49]SearchIO/sim4.pm
+   [50]SearchIO/waba.pm
+   [51]SearchIO/wise.pm
+   [52]SearchIO/Writer/BSMLResultWriter.pm
+   [53]SearchIO/Writer/GbrowseGFF.pm
+   [54]SearchIO/Writer/HitTableWriter.pm
+   [55]SearchIO/Writer/HSPTableWriter.pm
+   [56]SearchIO/Writer/HTMLResultWriter.pm
+   [57]SearchIO/Writer/ResultTableWriter.pm
+   [58]SearchIO/Writer/TextResultWriter.pm
+   [59]Search/BlastUtils.pm
+   [60]Search/DatabaseI.pm
+   [61]Search/GenericDatabase.pm
+   [62]Search/Hit/BlastHit.pm
+   [63]Search/Hit/Fasta.pm
+   [64]Search/Hit/GenericHit.html">Search/Hit/GenericHit.pm
+   [65]Search/Hit/HitFactory.pm
+   [66]Search/Hit/HitI.pm
+   [67]Search/Hit/HMMERHit.pm
+   [68]Search/Hit/PsiBlastHit.pm
+   [69]Search/HSP/BlastHSP.pm
+   [70]Search/HSP/FastaHSP.pm
+   [71]Search/HSP/GenericHSP.pm
+   [72]Search/HSP/HMMERHSP.pm
+   [73]Search/HSP/HSPFactory.pm
+   [74]Search/HSP/HSPI.pm
+   [75]Search/HSP/PsiBlastHSP.pm
+   [76]Search/HSP/PSLHSP.pm
+   [77]Search/HSP/WABAHSP.pm
+   [78]Search/Iteration/GenericIteration.pm
+   [79]Search/Iteration/IterationI
+   [80]Search/Processor.pm
+   [81]Search/Result/BlastResult.pm
+   [82]Search/Result/GenericResult.pm
+   [83]Search/Result/HMMERResult.pm
+   [84]Search/Result/ResultFactory.pm
+   [85]Search/Result/ResultI.pm
+   [86]Search/Result/WABAResult.pm
+   [87]Search/SearchUtils.pm
+   [88]Search/BlastStatistics.pm
+   [89]Search/GenericStatistics.pm
+   [90]Search/StatisticsI.pm
+
+   BioPerl DocBook
+
 References
 
    1. http://www.duke.edu/
@@ -644,14 +739,87 @@ References
    4. mailto:jason-at-bioperl.org
    5. http://www.cognia.com/
    6. mailto:brian-at-cognia.com
-   7. file://localhost/home/bosborne/bioperl-live/doc/howto/html/SearchIO.html#background
-   8. file://localhost/home/bosborne/bioperl-live/doc/howto/html/SearchIO.html#design
-   9. file://localhost/home/bosborne/bioperl-live/doc/howto/html/SearchIO.html#functionality
-  10. file://localhost/home/bosborne/bioperl-live/doc/howto/html/SearchIO.html#use
-  11. file://localhost/home/bosborne/bioperl-live/doc/howto/html/SearchIO.html#creating_reports
-  12. file://localhost/home/bosborne/bioperl-live/doc/howto/html/SearchIO.html#implementation
-  13. file://localhost/home/bosborne/bioperl-live/doc/howto/html/SearchIO.html#outputting
-  14. file://localhost/home/bosborne/bioperl-live/doc/howto/html/SearchIO.html#extending
-  15. http://www.sanger.ac.uk/Software/formats/GFF/GFF_Spec.shtml
-  16. http://doc.bioperl.org/
-  17. http://cvs.open-bio.org/cgi-bin/viewcvs/viewcvs.cgi/bioperl-live/Bio/SearchIO/?cvsroot=bioperl
+   7. file://localhost/cygdrive/c/docbook/deploy/SearchIO/SearchIO.html#background
+   8. file://localhost/cygdrive/c/docbook/deploy/SearchIO/SearchIO.html#design
+   9. file://localhost/cygdrive/c/docbook/deploy/SearchIO/SearchIO.html#use
+  10. file://localhost/cygdrive/c/docbook/deploy/SearchIO/SearchIO.html#creating-reports
+  11. file://localhost/cygdrive/c/docbook/deploy/SearchIO/SearchIO.html#implementation
+  12. file://localhost/cygdrive/c/docbook/deploy/SearchIO/SearchIO.html#outputting
+  13. file://localhost/cygdrive/c/docbook/deploy/SearchIO/SearchIO.html#extending
+  14. file://localhost/cygdrive/c/docbook/deploy/SearchIO/SearchIO.html#links
+  15. http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqIO.html
+  16. http://doc.bioperl.org/releases/bioperl-1.4/Bio/PrimarySeq.html
+  17. http://doc.bioperl.org/releases/bioperl-1.4/Bio/SearchIO.html
+  18. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/Result/ResultI.html
+  19. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/Hit/HitI.html
+  20. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/HSP/HSPI.html
+  21. http://doc.bioperl.org/releases/bioperl-1.4/Bio/SearchIO.html
+  22. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/Result/ResultI.html
+  23. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/Result/ResultI.html
+  24. http://doc.bioperl.org/releases/bioperl-1.4/Bio/SimpleAlign.html
+  25. http://www.sanger.ac.uk/Software/formats/GFF/GFF_Spec.shtml
+  26. http://doc.bioperl.org/
+  27. http://doc.bioperl.org/releases/bioperl-1.4/Bio/SearchIO.html
+  28. http://cvs.open-bio.org/cgi-bin/viewcvs/viewcvs.cgi/bioperl-live/Bio/SearchIO/?cvsroot=bioperl
+  29. http://doc.bioperl.org/releases/bioperl-1.4/Bio/SearchIO/SearchResultEventBuilder.html
+  30. http://doc.bioperl.org/releases/bioperl-1.4/Bio/SearchIO.html
+  31. http://doc.bioperl.org/releases/bioperl-1.4/Bio/SearchIO.html
+  32. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/HSP/HSPI.html
+  33. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/HSP/GenericHSP.html
+  34. http://doc.bioperl.org/releases/bioperl-1.4/Bio/SearchIO.html
+  35. http://doc.bioperl.org/releases/bioperl-1.4/Bio/SearchIO/axt.html
+  36. http://doc.bioperl.org/releases/bioperl-1.4/Bio/SearchIO/blast.html
+  37. http://doc.bioperl.org/releases/bioperl-1.4/Bio/SearchIO/blasttable.html
+  38. http://doc.bioperl.org/releases/bioperl-1.4/Bio/SearchIO/blastxml.html
+  39. http://doc.bioperl.org/releases/bioperl-1.4/Bio/SearchIO/EventHandlerI.html
+  40. http://doc.bioperl.org/releases/bioperl-1.4/Bio/SearchIO/exonerate.html
+  41. http://doc.bioperl.org/releases/bioperl-1.4/Bio/SearchIO/fasta.html
+  42. http://doc.bioperl.org/releases/bioperl-1.4/Bio/SearchIO/FastHitEventBuilder.html
+  43. http://doc.bioperl.org/releases/bioperl-1.4/Bio/SearchIO/hmmer.html
+  44. http://doc.bioperl.org/releases/bioperl-1.4/Bio/SearchIO/IteratedSearchResultEventBuilder.html
+  45. http://doc.bioperl.org/releases/bioperl-1.4/Bio/SearchIO/megablast.html
+  46. http://doc.bioperl.org/releases/bioperl-1.4/Bio/SearchIO/psl.html
+  47. http://doc.bioperl.org/releases/bioperl-1.4/Bio/SearchIO/SearchResultEventBuilder.html
+  48. http://doc.bioperl.org/releases/bioperl-1.4/Bio/SearchIO/SearchWriterI.html
+  49. http://doc.bioperl.org/releases/bioperl-1.4/Bio/SearchIO/sim4.html
+  50. http://doc.bioperl.org/releases/bioperl-1.4/Bio/SearchIO/waba.html
+  51. http://doc.bioperl.org/releases/bioperl-1.4/Bio/SearchIO/wise.html
+  52. http://doc.bioperl.org/releases/bioperl-1.4/Bio/SearchIO/Writer/BSMLResultWriter.html
+  53. http://doc.bioperl.org/releases/bioperl-1.4/Bio/SearchIO/Writer/GbrowseGFF.html
+  54. http://doc.bioperl.org/releases/bioperl-1.4/Bio/SearchIO/Writer/HitTableWriter.html
+  55. http://doc.bioperl.org/releases/bioperl-1.4/Bio/SearchIO/Writer/HSPTableWriter.html
+  56. http://doc.bioperl.org/releases/bioperl-1.4/Bio/SearchIO/Writer/HTMLResultWriter.html
+  57. http://doc.bioperl.org/releases/bioperl-1.4/Bio/SearchIO/Writer/ResultTableWriter.html
+  58. http://doc.bioperl.org/releases/bioperl-1.4/Bio/SearchIO/Writer/TextResultWriter.html
+  59. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/BlastUtils.html
+  60. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/DatabaseI.html
+  61. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/GenericDatabase.html
+  62. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/Hit/BlastHit.html
+  63. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/Hit/Fasta.html
+  64. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/Hit/GenericHit.html
+  65. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/Hit/HitFactory.html
+  66. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/Hit/HitI.html
+  67. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/Hit/HMMERHit.html
+  68. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/Hit/PsiBlastHit.html
+  69. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/HSP/BlastHSP.html
+  70. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/HSP/FastaHSP.html
+  71. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/HSP/GenericHSP.html
+  72. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/HSP/HMMERHSP.html
+  73. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/HSP/HSPFactory.html
+  74. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/HSP/HSPI.html
+  75. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/HSP/PsiBlastHSP.html
+  76. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/HSP/PSLHSP.html
+  77. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/HSP/WABAHSP.html
+  78. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/Iteration/GenericIteration.html
+  79. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/Iteration/IterationI.html
+  80. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/Processor.html
+  81. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/Result/BlastResult.html
+  82. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/Result/GenericResult.html
+  83. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/Result/HMMERResult.html
+  84. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/Result/ResultFactory.html
+  85. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/Result/ResultI.html
+  86. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/Result/WABAResult.html
+  87. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/SearchUtils.html
+  88. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/BlastStatistics.html
+  89. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/GenericStatistics.html
+  90. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/StatisticsI.html

@@ -1,11 +1,13 @@
 
+   BioPerl DocBook
+
 Bio::Tools::Phylo::PAML HOWTO
 
 Aaron Mackey
 
    [1]University of Virginia
 
-   <[2]amackey@virginia.edu>
+     <[2]amackey@virginia.edu>
 
 Jason Stajich
 
@@ -13,8 +15,13 @@ Jason Stajich
    [4]University Program in Genetics
    [5]Center for Genome Technology
 
-   Duke University Medical Center Box 3568 Durham, North Carolina
-   27710-3568 USA <[6]jason-at-bioperl.org>
+     Duke University Medical Center
+     Box 3568
+     Durham,
+     North Carolina
+     27710-3568
+     USA
+     <[6]jason-at-bioperl.org>
 
    This document is copyright Aaron Mackey, 2002. For reproduction other
    than personal use please contact me at amackey@virginia.edu
@@ -146,7 +153,6 @@ while(my $result = $parser->next_result) {
    aa_to_dna_aln. Finally the cDNA alignment is provided to a paml
    executing module which sets up the running parameters and converts the
    alignment to the appropriate format.
-
 use Bio::Tools::Run::Phylo::PAML::Codeml;
 use Bio::Tools::Run::Alignment::Clustalw;
 
@@ -161,12 +167,12 @@ my $aln_factory = new Bio::Tools::Run::Alignment::Clustalw();
 
 my $seqdata = 'cdna.fa';
 
-my $seqIO = new Bio::SeqIO(-file   => $seqdata,
+my $seqio = new Bio::SeqIO(-file   => $seqdata,
                            -format => 'fasta');
 my %seqs;
 my @prots;
 # process each sequence
-while( my $seq = $seqin->next_seq ) {
+while ( my $seq = $seqio->next_seq ) {
     $seqs{$seq->display_id} = $seq;
     # translate them into protein
     my $protein = $seq->translate();
@@ -239,6 +245,9 @@ for( my $i = 0; $i < (scalar @otus -1) ; $i++) {
     }
 }
 
+
+   BioPerl DocBook
+
 References
 
    1. http://www.virginia.edu/
@@ -247,6 +256,6 @@ References
    4. http://upg.duke.edu/
    5. http://cgt.genetics.duke.edu/
    6. mailto:jason-at-bioperl.org
-   7. file://localhost/home/bosborne/bioperl-live/doc/howto/html/PAML.html#background
-   8. file://localhost/home/bosborne/bioperl-live/doc/howto/html/PAML.html#results
-   9. file://localhost/home/bosborne/bioperl-live/doc/howto/html/PAML.html#running
+   7. file://localhost/cygdrive/c/docbook/deploy/PAML/PAML.html#background
+   8. file://localhost/cygdrive/c/docbook/deploy/PAML/PAML.html#results
+   9. file://localhost/cygdrive/c/docbook/deploy/PAML/PAML.html#running

@@ -1,4 +1,6 @@
 
+   BioPerl DocBook
+
 Phylogenetic Tree HOWTO
 
 Jason Stajich
@@ -33,8 +35,9 @@ Jason Stajich
    4. [5]Example Code
    5. [6]Bio::Tree::TreeI methods
    6. [7]Bio::Tree::TreeFunctionsI
-   7. [8]Advanced Topics
-   8. [9]References and More Reading
+   7. [8]Constructing Trees
+   8. [9]Advanced Topics
+   9. [10]References and More Reading
 
 1. Introduction
 
@@ -98,7 +101,10 @@ Jason Stajich
 
    Here is some code which will read in a Tree from a file called
    "tree.tre" and produce a Bio::Tree::Tree object which is stored in the
-   variable $tree.
+   variable
+$tree
+
+   .
 
    Like most modules which do input/output you can also specify the
    argument -fh in place of -file to provide a glob or filehandle in
@@ -127,6 +133,7 @@ my $root = $tree->get_root_node;
    stored, of course.
 my $total_length = $tree->total_branch_length;
 
+
 6. Bio::Tree::TreeFunctionsI
 
    An additional interface was written which implements utility functions
@@ -151,6 +158,7 @@ my $total_length = $tree->total_branch_length;
 
    Remove a Node from the Tree and update the children/ancestor links
    where the Node is an intervening one.
+
    # provide the node object to remove from the Tree
    $tree->remove_Node($node);
    # or specify the node Name to remove
@@ -184,11 +192,11 @@ my $total_length = $tree->total_branch_length;
 
    Perform a test of paraphyly for a set of nodes and a given outgroup
    node. This means that a common ancestor 'A' for the members of the
-   group is more recent than a common ancestor 'B' that they share with
+   ingroup is more recent than a common ancestor 'B' that they share with
    the outgroup node and that there are no other nodes in the tree which
    have 'A' as a common ancestor before 'B'.
    if( $tree->is_paraphyletic(-nodes    => \@internal_nodes,
-                              -outgroup => $outgroup) ) {
+                              -outgroup => $outgroup) > 0 ) {
      print "these nodes are monophyletic: ",
           join(",",map { $_->id } @internal_nodes ), "\n";
    }
@@ -203,7 +211,62 @@ my $total_length = $tree->total_branch_length;
    $tree->reroot($node);
 
 
-7. Advanced Topics
+7. Constructing Trees
+
+   Pairwise distances for all sequences in an alignment can be computed
+   with Bio::Align::DNAStatistics and (for DNA) and
+   Bio::Align::ProteinStatistics. There are several different methods
+   implemented. For DNA alignments, Jukes-Cantor (1969), Juke-Cantor
+   uncorrected, Kimura 2-parameter (1980), Felsenstein (1981), Tajima-Nei
+   (1984), and Tamura (1992) are currently implemented. In addition, for
+   coding sequences, synonymous and non-synonymous counts can be computed
+   with the calc_KaKs_pair. For Protein sequences alignments only Kimura
+   (1983) is currently supported although other methods will be added.
+
+   To use these methods simply initialize a statistics module, and pass
+   in an alignment object (Bio::SimpleAlign) and the type of distance
+   method to use and the module will return a Bio::Matrix::PhylipDist
+   matrix object of pairwise distances. The code example below shows how
+   this should be done.
+
+   Given the matrix of pairwise distances one can build a phylogenetic
+   tree using 2 simple methods provided in the
+   Bio::Tree::DistanceFactory. Simple request either Neighbor-Joining
+   (NJ) trees or Unweighted Pair Group Method with Arithmatic Mean
+   (UPGMA) clusters. There are caveats with these methods and whether or
+   not the distances are additive. The method check_additivity in
+   Bio::Tree::DistanceFactory is provided to calculate whether or not
+   additivity holds for the data.
+
+   The following is a basic code snippet which describes how to use the
+   pairwise distance and tree building modules in Bioperl.
+
+   use Bio::AlignIO;
+   use Bio::Align::DNAStatistics;
+   use Bio::Tree::DistanceFactory;
+   # for a dna alignment
+   # can also use ProteinStatistics
+   my $aln = Bio::AlignIO->new(-file => 'filename', -format=>'clustalw');
+   my $stats = Bio::Align::DNAStatistics->new;
+   my $mat = $stats->distance(-method => 'Kimura',
+                              -align  => $aln);
+   my $dfactory = Bio::Tree::DistanceFactory->new(-method => 'NJ');
+   my $tree = $dfactory->make_tree($mat);
+
+
+   TODO: Using external programs: phylip,MrBayes,paup,puzzle,protml
+
+   Non-parametric bootstrapping is one method to test the consistency of
+   the data with the optimal tree. A set of subreplicates are generated
+   from the alignment using the method from Bio::Align::Utilities called
+   bootstrap_replicates. One passes in an alignment object and the count
+   of the number of replicates to generate.
+
+   use Bio::Align::Utilities qw(:all);
+   my $replicates = bootstrap_replicates($aln,$count);
+
+
+8. Advanced Topics
 
    It is possible to generate random tree topologies with a Bioperl
    object called Bio::Tree::RandomFactory. The factory only requires the
@@ -246,19 +309,28 @@ my $total_length = $tree->total_branch_length;
    to trees that you would like to see included in the toolkit we
    encourage you to send details to the Bioperl list.
 
-8. References and More Reading
+9. References and More Reading
 
    For more reading and some references for the techniques above see
    these titles.
 
+   J. Felsenstein, "Infering Phylogenies" 2003. Sinuar and Associates.
+   D. Swoffrod, Olsen, Waddell and D. Hillis, "Phylogenetic Inference"
+   1996. in Mol. Systematics, 2nd ed, 1996, Ch 11.
+   Eddy SR, Durbin R, Krogh A, Mitchison G, "Biological Sequence
+   Analysis" 1998. Cambridge Univ Press, Cambridge, UK.
+
+   BioPerl DocBook
+
 References
 
    1. mailto:jason AT bioperl.org
-   2. file://localhost/home/bosborne/bioperl-live/doc/howto/html/Trees.html#introduction
-   3. file://localhost/home/bosborne/bioperl-live/doc/howto/html/Trees.html#simple_usage
-   4. file://localhost/home/bosborne/bioperl-live/doc/howto/html/Trees.html#IO
-   5. file://localhost/home/bosborne/bioperl-live/doc/howto/html/Trees.html#d3e48
-   6. file://localhost/home/bosborne/bioperl-live/doc/howto/html/Trees.html#TreeI
-   7. file://localhost/home/bosborne/bioperl-live/doc/howto/html/Trees.html#TreeFunctionsI
-   8. file://localhost/home/bosborne/bioperl-live/doc/howto/html/Trees.html#advanced_topics
-   9. file://localhost/home/bosborne/bioperl-live/doc/howto/html/Trees.html#References
+   2. file://localhost/cygdrive/c/docbook/deploy/Trees/Trees.html#introduction
+   3. file://localhost/cygdrive/c/docbook/deploy/Trees/Trees.html#simple_usage
+   4. file://localhost/cygdrive/c/docbook/deploy/Trees/Trees.html#IO
+   5. file://localhost/cygdrive/c/docbook/deploy/Trees/Trees.html#d3e48
+   6. file://localhost/cygdrive/c/docbook/deploy/Trees/Trees.html#TreeI
+   7. file://localhost/cygdrive/c/docbook/deploy/Trees/Trees.html#TreeFunctionsI
+   8. file://localhost/cygdrive/c/docbook/deploy/Trees/Trees.html#tree_building
+   9. file://localhost/cygdrive/c/docbook/deploy/Trees/Trees.html#advanced_topics
+  10. file://localhost/cygdrive/c/docbook/deploy/Trees/Trees.html#References

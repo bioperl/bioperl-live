@@ -1,35 +1,37 @@
 
+   BioPerl DocBook
+
 OBDA Access HOWTO
 
 Aaron Mackey
 
    [1]University of Virginia
 
-   <[2]amackey@virginia.edu>
+     <[2]amackey@virginia.edu>
 
 Brian Osborne
 
    [3]Cognia Corporation
 
-   <[4]brian-at-cognia.com>
+     <[4]brian-at-cognia.com>
 
 Peter Schattner
 
    [5]UCSC
 
-   <[6]schattner@alum.mit.edu>
+     <[6]schattner@alum.mit.edu>
 
 Heikki Lehvaslaiho
 
    [7]EBI
 
-   <[8]heikki@ebi.ac.uk>
+     <[8]heikki@ebi.ac.uk>
 
 Lincoln Stein
 
    [9]Cold Spring Harbor Laboratory
 
-   <[10]lstein@cshl.org>
+     <[10]lstein@cshl.org>
 
    This document is copyright Lincoln Stein, 2002. For reproduction other
    than personal use please contact lstein at cshl.org
@@ -94,17 +96,18 @@ Lincoln Stein
    well as from the command line. The Web site for OBDA is
    [22]obda.open-bio.org.
    [Note] Note
+
    Accessing data via the OBDA system is optional in Bioperl. It is still
-   possible, though probably not advantageous, to access sequence data
-   via the old database-format-specific modules such as Bio::Index::Fasta
-   or Bio::DB::Fasta.
+   possible to access sequence data via the old database-format-specific
+   modules such as Bio::Index::Fasta or Bio::DB::Fasta.
 
 2. Using the OBDA Registry System
 
    The OBDA BioDirectory Registry is a platform-independent system for
-   specifying how BioPerl programs find sequence databases. It uses a
-   site-wide configuration file, known as the registry, which defines one
-   or more databases and the access methods to use to access them.
+   specifying how BioPerl programs find sequence databases. It uses both
+   local and site-wide configuration files, known as the registry, which
+   define one or more databases and the access methods to use to access
+   them.
 
    For instance, you might start out by accessing sequence data over the
    web, and later decide to install a locally mirrored copy of GenBank.
@@ -116,8 +119,8 @@ Lincoln Stein
 
    The registry file should be named seqdatabase.ini. By default, it
    should be installed in one or more of the following locations:
-   $HOME/.bioinformatics/seqdatabase.ini
-   /etc/bioinformatics/seqdatabase.ini
+        $HOME/.bioinformatics/seqdatabase.ini
+        /etc/bioinformatics/seqdatabase.ini
 
 
    The Bio{Perl,Java,Python,Ruby} registry-handling code will initialize
@@ -130,7 +133,7 @@ Lincoln Stein
    If a local registry file cannot be found, the registry-handling code
    will attempt to copy the file located at this URL to a
    $HOME/.bioinformatics directory:
-   http://www.open-bio.org/registry/seqdatabase.ini
+        http://www.open-bio.org/registry/seqdatabase.ini
 
 
 4. Modifying the Search Path
@@ -141,6 +144,7 @@ Lincoln Stein
  OBDA_SEARCH_PATH=/home/lstein/;http://foo.org/
 
    [Important] Important
+
    Note that the fact that the search path is for an entire file
    (seqdatabase.ini) rather than for single entry (e.g. 'genbank') means
    that you have to copy any default values you want to keep from the
@@ -186,7 +190,7 @@ Lincoln Stein
 
 
    Each section starts with a symbolic database service name enclosed in
-   square brackets. Service names are case insensitive. The remainder of
+   square brackets. Service names are case-insensitive. The remainder of
    the section is followed by a series of tag=value pairs that configure
    access to the service.
 
@@ -219,6 +223,11 @@ Lincoln Stein
    you will need to have an instantiated relational database conforming
    to the BioSQL schema, and install the bioperl-db distribution.
 
+   [Important] Important
+
+   Support for the biosql protocol is disabled as of Bioperl version 1.4.
+   We hope to remedy this in a subsequent release.
+
 7. The Location Tag
 
    The location tag tells the bioperl sequence fetching code where the
@@ -231,6 +240,7 @@ Lincoln Stein
    Any number of additional tag values are allowed. The number and nature
    of these tags depends on the access protocol selected. Some protocols
    require no additional tags, whereas others will require several.
+
    Protocol Tag Description
    flat location Directory in which the index is stored. The "config.dat"
    file generated during indexing must be found in this location
@@ -253,8 +263,8 @@ Lincoln Stein
 9. Installing Local Databases
 
    If you are using the biofetch protocol, you're all set. You can start
-   reading sequences immediately. For the flat and biosql protocols, you
-   will need to create and initialize local databases. See the following
+   reading sequences immediately. For the flat protocol, you will need to
+   create and initialize a local database. See the following
    documentation on how to do this:
 
    flat protocol:[23]Flat Databases HOWTO
@@ -262,6 +272,26 @@ Lincoln Stein
    biosql protocol: BioSQL INSTALL (from the biosql-schema package,
    available at [24]obda.open-bio.org). Download the Biosql tar file to
    view all the documentation.
+
+   [Important] Important
+
+   Support for the biosql protocol in OBDA is disabled as of Bioperl
+   version 1.4. We hope to remedy this in a subsequent release.
+
+   Once the flat database is created you can configure your
+   seqdatabase.ini file. Let's say that you have used the
+   bioflat_index.pl script to create the flat database and a new
+   directory called "ppp" has been created in your /home/sally/bioinf/
+   directory (and the ppp/ directory contains the config.dat file). Your
+   sequence.ini entry should contain these lines:
+        protocol=flat
+        location=/home/sally/bioinf
+        dbname=ppp
+
+
+   The "database-name" can be any useful name, it does not have to refer
+   to existing files or directories, but the "dbname" should be the name
+   of the newly created directory.
 
 10. Writing code to use the Registry
 
@@ -302,11 +332,11 @@ Lincoln Stein
 
    As a convenience, the Bioperl distribution includes the script
    biogetseq.PLS that enables one to have OBDA access to sequence data
-   from the command line.
-
-   The script 'biogetseq' is located in the scripts/DB directory of the
-   bioperl distribution. Move or add it into your path to run it. You can
-   get to help by running it with no arguments:
+   from the command line. It's located in the scripts/DB directory of the
+   bioperl distribution (it may also have been installed in your system
+   if you you asked for a script installation after 'make install'. Move
+   or add it into your path to run it. You can get this help text by
+   running it with no arguments:
 Usage: biogetseq --dbname embl --format embl --namespace acc id [ id ... ]*
        dbname defaults to embl
        format defaults to embl
@@ -315,14 +345,17 @@ Usage: biogetseq --dbname embl --format embl --namespace acc id [ id ... ]*
 
 
    If you have a set of ids you want to fetch from EMBL database, you
-   just give them as space separated parameters:
+   just give them as space-separated parameters:
   % biogetseq J02231 A21530 A10516
 
 
    The output is directed to STDOUT, so it can be redirected to a file.
-   The options can be given in long "double hyphen" format or abbreviated
-   to one letter format:
-  % biogetseq -f fasta -n acc J02231 A21530 A10516 > filed.seq
+   The options can be given in the long "double hyphen" format or
+   abbreviated to one-letter format ("--fasta" or "-f"):
+        % biogetseq -f fasta -n acc J02231 A21530 A10516 > filed.seq
+
+
+   BioPerl DocBook
 
 References
 
@@ -336,18 +369,18 @@ References
    8. mailto:heikki@ebi.ac.uk
    9. http://www.cshl.org/
   10. mailto:lstein@cshl.org
-  11. file://localhost/home/bosborne/bioperl-live/doc/howto/html/OBDA_Access.html#introduction
-  12. file://localhost/home/bosborne/bioperl-live/doc/howto/html/OBDA_Access.html#registry
-  13. file://localhost/home/bosborne/bioperl-live/doc/howto/html/OBDA_Access.html#installation
-  14. file://localhost/home/bosborne/bioperl-live/doc/howto/html/OBDA_Access.html#modifying
-  15. file://localhost/home/bosborne/bioperl-live/doc/howto/html/OBDA_Access.html#format
-  16. file://localhost/home/bosborne/bioperl-live/doc/howto/html/OBDA_Access.html#protocol
-  17. file://localhost/home/bosborne/bioperl-live/doc/howto/html/OBDA_Access.html#location
-  18. file://localhost/home/bosborne/bioperl-live/doc/howto/html/OBDA_Access.html#others
-  19. file://localhost/home/bosborne/bioperl-live/doc/howto/html/OBDA_Access.html#local
-  20. file://localhost/home/bosborne/bioperl-live/doc/howto/html/OBDA_Access.html#code
-  21. file://localhost/home/bosborne/bioperl-live/doc/howto/html/OBDA_Access.html#biogetseq
+  11. file://localhost/cygdrive/c/docbook/deploy/OBDA_Access/OBDA_Access.html#introduction
+  12. file://localhost/cygdrive/c/docbook/deploy/OBDA_Access/OBDA_Access.html#registry
+  13. file://localhost/cygdrive/c/docbook/deploy/OBDA_Access/OBDA_Access.html#installation
+  14. file://localhost/cygdrive/c/docbook/deploy/OBDA_Access/OBDA_Access.html#modifying
+  15. file://localhost/cygdrive/c/docbook/deploy/OBDA_Access/OBDA_Access.html#format
+  16. file://localhost/cygdrive/c/docbook/deploy/OBDA_Access/OBDA_Access.html#protocol
+  17. file://localhost/cygdrive/c/docbook/deploy/OBDA_Access/OBDA_Access.html#location
+  18. file://localhost/cygdrive/c/docbook/deploy/OBDA_Access/OBDA_Access.html#others
+  19. file://localhost/cygdrive/c/docbook/deploy/OBDA_Access/OBDA_Access.html#local
+  20. file://localhost/cygdrive/c/docbook/deploy/OBDA_Access/OBDA_Access.html#code
+  21. file://localhost/cygdrive/c/docbook/deploy/OBDA_Access/OBDA_Access.html#biogetseq
   22. http://obda.open-bio.org/
-  23. http://bioperl.org/HOWTOs/html/Flat_Databases.html
+  23. http://bioperl.org/HOWTOs/Flat_Databases/index.html
   24. http://obda.open-bio.org/
   25. http://doc.bioperl.org/

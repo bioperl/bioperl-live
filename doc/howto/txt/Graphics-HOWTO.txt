@@ -1,11 +1,13 @@
 
+   BioPerl DocBook
+
 Bio::Graphics HOWTO
 
 Lincoln Stein
 
    [1]Cold Spring Harbor Laboratory
 
-   <[2]lstein@cshl.org>
+     <[2]lstein@cshl.org>
 
    This document is copyright Lincoln Stein, 2002. It can be copied and
    distributed under the terms of the Perl Artistic License.
@@ -74,6 +76,7 @@ Lincoln Stein
    verify, run the following command:
 
  % perl -MGD -e 'print $GD::VERSION';
+
 
    If the program prints out a version number, you are in luck.
    Otherwise, if you get a "Can't locate GD.pm" error, you'll have to
@@ -179,6 +182,7 @@ PRES1           127     310     700
    contents of which are printed to standard output. We can now view the
    result by piping it to our favorite image display program.
    [Important] Important
+
    If you are on a Windows platform, you need to put STDOUT into binary
    mode so that the PNG file does not go through Window's carriage
    return/linefeed transformations. Before the final print statement, put
@@ -189,7 +193,7 @@ PRES1           127     310     700
 
 % render_blast1.pl data1.txt | display -
 
-   [fig1.png]
+   Rendering BLAST hits
 
    Figure 2. Rendering BLAST hits
 
@@ -282,10 +286,11 @@ PRES1           127     310     700
 
    When we run the modified script, we get this image.
 
-   [fig2.png]
+   The improved image
 
    Figure 3. The improved image
    [Important] Important
+
    Remember that if you are on a Windows platform, you need to put STDOUT
    into binary mode so that the PNG file does not go through Window's
    carriage return/linefeed transformations. Before the final print
@@ -373,7 +378,7 @@ PRES1           127     310     700
    sets the color used for the description strings. Figure 3 shows the
    effect of these changes.
 
-   [fig3.png]
+   The image with descriptions and sorted hits
 
    Figure 4. The image with descriptions and sorted hits
 
@@ -496,13 +501,14 @@ $hit->description
 
    Figure 4 shows the output from a sample BLAST hit file.
 
-   [fig4.png]
+   Output from the BLAST parsing and rendering script
 
    Figure 5. Output from the BLAST parsing and rendering script
 
    The next section will demonstrate how to parse and display feature
    tables from GenBank and EMBL.
    [Important] Important
+
    Remember that if you are on a Windows platform, you need to put STDOUT
    into binary mode so that the PNG file does not go through Window's
    carriage return/linefeed transformations. Before the final print
@@ -513,8 +519,10 @@ $hit->description
    With Bio::Graphics you can render the feature table of a GenBank or
    EMBL file quite easily. The trick is to use Bio::SeqIO to generate a
    set of Bio::SeqFeatureI objects, and to use those features to populate
-   tracks. For simplicity's sake, we will sort each feature by its
-   primary tag (such as "exon") and create a new track for each tag type.
+   tracks (see the [13]Feature-Annotation HOWTO for more information on
+   features). The documentation for each of the individual. For
+   simplicity's sake, we will sort each feature by its primary tag (such
+   as "exon") and create a new track for each tag type.
 
    Code example 5 shows the code for rendering an EMBL or GenBank entry.
 
@@ -635,7 +643,7 @@ ua);
 
    Figure 5 shows an example of the output of this script.
 
-   [fig5.png]
+   The embl2picture.pl script
 
    Figure 6. The embl2picture.pl script
 
@@ -844,6 +852,7 @@ ua);
                    /organism="Homo sapiens"
                    /map="13q34"
 
+
    will be turned into the description string "db_xref=taxon:9606;
    organism=Homo Sapiens; map=13q34".
 
@@ -852,7 +861,7 @@ ua);
 
    Figure 6 shows an example of the output of this script.
 
-   [fig6.png]
+   The embl2picture.pl script
 
    Figure 7. The embl2picture.pl script
 
@@ -873,7 +882,7 @@ ua);
    restriction maps, and much more.
 
    Although we haven't shown it, Bio::Graphics provides support for
-   generating HTML image maps. The [13]Generic Genome Browser uses this
+   generating HTML image maps. The [14]Generic Genome Browser uses this
    facility to generate clickable, browsable images of the genome from a
    variety of genome databases.
 
@@ -890,24 +899,27 @@ ua);
    in the Bioperl distribution.
    _________________________________________________________________
 
-   [[14]1] Obtain the list of glyphs by running perldoc on
+   [[15]1] Obtain the list of glyphs by running perldoc on
    Bio::Graphics::Glyph. Obtain a description of the glyph options by
    running perldoc on individual glyphs, for example "perldoc
    Bio::Graphics::Glyph::arrow."
+
+   BioPerl DocBook
 
 References
 
    1. http://www.cshl.org/
    2. mailto:lstein@cshl.org
-   3. file://localhost/home/bosborne/bioperl-live/doc/howto/html/Graphics-HOWTO.html#intro
-   4. file://localhost/home/bosborne/bioperl-live/doc/howto/html/Graphics-HOWTO.html#prelim
-   5. file://localhost/home/bosborne/bioperl-live/doc/howto/html/Graphics-HOWTO.html#gettingStarted
-   6. file://localhost/home/bosborne/bioperl-live/doc/howto/html/Graphics-HOWTO.html#addingscale
-   7. file://localhost/home/bosborne/bioperl-live/doc/howto/html/Graphics-HOWTO.html#improving
-   8. file://localhost/home/bosborne/bioperl-live/doc/howto/html/Graphics-HOWTO.html#parsing-blast
-   9. file://localhost/home/bosborne/bioperl-live/doc/howto/html/Graphics-HOWTO.html#rendering-features
-  10. file://localhost/home/bosborne/bioperl-live/doc/howto/html/Graphics-HOWTO.html#rendering-features-better
-  11. file://localhost/home/bosborne/bioperl-live/doc/howto/html/Graphics-HOWTO.html#summary
-  12. file://localhost/home/bosborne/bioperl-live/doc/howto/html/Graphics-HOWTO.html#ftn.d3e92
-  13. http://www.gmod.org/
-  14. file://localhost/home/bosborne/bioperl-live/doc/howto/html/Graphics-HOWTO.html#d3e92
+   3. file://localhost/cygdrive/c/docbook/deploy/Graphics-HOWTO/Graphics-HOWTO.html#intro
+   4. file://localhost/cygdrive/c/docbook/deploy/Graphics-HOWTO/Graphics-HOWTO.html#prelim
+   5. file://localhost/cygdrive/c/docbook/deploy/Graphics-HOWTO/Graphics-HOWTO.html#gettingStarted
+   6. file://localhost/cygdrive/c/docbook/deploy/Graphics-HOWTO/Graphics-HOWTO.html#addingscale
+   7. file://localhost/cygdrive/c/docbook/deploy/Graphics-HOWTO/Graphics-HOWTO.html#improving
+   8. file://localhost/cygdrive/c/docbook/deploy/Graphics-HOWTO/Graphics-HOWTO.html#parsing-blast
+   9. file://localhost/cygdrive/c/docbook/deploy/Graphics-HOWTO/Graphics-HOWTO.html#rendering-features
+  10. file://localhost/cygdrive/c/docbook/deploy/Graphics-HOWTO/Graphics-HOWTO.html#rendering-features-better
+  11. file://localhost/cygdrive/c/docbook/deploy/Graphics-HOWTO/Graphics-HOWTO.html#summary
+  12. file://localhost/cygdrive/c/docbook/deploy/Graphics-HOWTO/Graphics-HOWTO.html#ftn.d3e93
+  13. http://bioperl.org/HOWTOs/Feature-Annotation/index.html
+  14. http://www.gmod.org/
+  15. file://localhost/cygdrive/c/docbook/deploy/Graphics-HOWTO/Graphics-HOWTO.html#d3e93

@@ -1,4 +1,6 @@
 
+   BioPerl DocBook
+
 Bio::SeqIO HOWTO
 
 Ewan Birney
@@ -30,35 +32,73 @@ Brian Osborne
 
    Table of Contents
 
-   1. [4]10 second overview
-   2. [5]Background Information
-   3. [6]Formats
-   4. [7]Working Examples
-   5. [8]Caveats
-   6. [9]Error Handling
+   1. [4]The basics
+   2. [5]10 second overview
+   3. [6]Background Information
+   4. [7]Formats
+   5. [8]Working Examples
+   6. [9]To and from a string
+   7. [10]And more examples...
+   8. [11]Caveats
+   9. [12]Error Handling
 
-1. 10 second overview
+1. The basics
+
+   This section assumes you've never seen Bioperl before, perhaps you're
+   a biologist trying to get some information about some sequences or
+   you're some kind of IT expert interested in learning something about
+   this hot topic, "bioinformatics". Your first script may want to get
+   some information from a file containing 1 or more sequences.
+
+   A piece of advice: always use the module Bio::SeqIO! Here's what the
+   first lines of your script might look like:
+
+#!/bin/perl
+
+use Bio::SeqIO;
+my $file = shift; # get the file name, somehow
+my $seqio_object = Bio::SeqIO->new(-file => $file);
+my $seq_object = $seqio_object->next_seq;
+
+
+   Why use Bio::SeqIO? In part because SeqIO understands the many
+   different sequence file formats and creates the proper Bioperl object
+   for each format. Some formats, like "fasta", are minimal. The fasta
+   format contains a sequence and some kind of identifier, but nothing
+   else is required nor does the format inherently allow for much more
+   detail, like a feature (a sub-sequence, usually with some biological
+   property - see the [13]Feature-Annotation HOWTO for more information).
+   When given fasta SeqIO creates a Bio::Seq object, a more spare object
+   than the Bio::Seq::RichSeq object that's created when SeqIO is given
+   formats like Genbank or EMBL, which may contain features and
+   annotations.
+
+   Now, should you care what kind of Bioperl object is created by SeqIO?
+   For the most part no, let SeqIO take care of these details.
+
+2. 10 second overview
 
    Lots of bioinformatics involves processing sequence information in
    different formats - indeed, there often seems to be about as many
    formats as there are programs for processing them. The Bio::SeqIO
-   systems handles sequences of many different formats and is the way
+   system handles sequences of many different formats and is the way
    Bioperl pushes sequences in and out of objects. You can think of the
    Bio::SeqIO system as "a smart filehandle for sequences".
 
-2. Background Information
+3. Background Information
 
    The SeqIO system handles all of the complexity of parsing sequences of
    many standard formats that scripters have wrestled with over the
-   years. Given some way of accessing some sequences (flat files, STDIN,
-   variable, etc.), and a format description, it provides access to a
-   stream of SeqI objects tailored to the information provided by the
-   format. The format description is, technically, optional. SeqIO can
-   try to guess based on known file extensions, but if your source
-   doesn't have a standard file extension, or isn't even a file at all,
-   it throws up its hands and tries fasta. Unless you are always working
-   with FASTA files, it is a good idea to get into the practice of always
-   specifying the format.
+   years. Given some way of accessing some sequences (flat files, STDIN
+   and STDOUT, variables, etc.), and a format description, it provides
+   access to a stream of SeqI objects tailored to the information
+   provided by the format. The format description is, technically,
+   optional. SeqIO can try to guess based on known file extensions or
+   content, but if your source doesn't have a standard file extension or
+   comprehensible content, or isn't even a file at all, it throws up its
+   hands and tries fasta. Unless you are always working with FASTA files,
+   it is a good idea to get into the practice of always specifying the
+   format.
 
    Sequences can be fed into the SeqIO system in a variety of ways. The
    only requirement is that the sequence be contained in some kind of
@@ -68,29 +108,29 @@ Brian Osborne
    this below), so just about anything can be fed into SeqIO to get at
    the sequence information contained within it. What SeqIO does is
    create a Handle, or take a given Handle, and parse it into SeqI
-   compliant objects, one for each entry at a time. It knows which SeqI
-   object to use for a particular format, e.g. it uses a PrimarySeq for
-   fasta formats, Seq for most other formats, and RichSeq for
-   Genbank/EMBL. It also knows, for each of the supported formats, things
-   like which record-separator (e.g. "||" for Genbank, ">header" for
-   fasta, etc.) to use, and most importantly, how to parse their
-   key-value based information. SeqIO does all of this for you, so that
-   you can focus on the things you want to do with the information,
-   rather than worrying about how to get the information.
+   compliant objects, one for each entry at a time. It also knows, for
+   each of the supported formats, things like which record-separator
+   (e.g. "//" for Genbank, ">header" for fasta, etc.) to use, and most
+   importantly, how to parse their key-value based information. SeqIO
+   does all of this for you, so that you can focus on the things you want
+   to do with the information, rather than worrying about how to get the
+   information.
 
-3. Formats
+4. Formats
 
-   Bioperl's SeqIO system understands a large number of sequence formats.
-   Here is a current listing of formats, as of version 1.4.
-      Name            Description                File Extension
-   abi        ABI tracefile               
+   Bioperl's SeqIO system understands lot of formats and can interconvert
+   all of them. Here is a current listing of formats, as of version 1.4.
+
+      Name            Description                  extensions
+   abi        ABI tracefile                ab[i1]
    ace        Ace database                 ace
-   alf        ALF tracefile               
+   agave      AGAVE XML                   
+   alf        ALF tracefile                alf
    bsml                                    bsm|bsml
    chado      Chado                       
-   ctf        CTF tracefile               
+   ctf        CTF tracefile                ctf
    embl       EMBL database                embl|ebl|emb|dat
-   exp        EXP format                  
+   exp        EXP format                   exp
    fasta      FASTA                        fasta|fast|seq|fa|fsa|nt|aa
    fastq                                   fastq
    game       GAME XML                    
@@ -100,35 +140,33 @@ Brian Osborne
    largefasta                           
    phd        Phred                        phd|phred
    pir        PIR database                 pir
-   pln        PLN tracefile               
+   pln        PLN tracefile                pln
    qual       Phred                       
    raw        plain text                   txt
    scf        Standard Chromatogram Format scf
    swiss      SwissProt                    swiss|sp
    tab        tab-delimited               
    tigr       TIGR XML                    
-   ztr        ZTR tracefile               
+   tinyseq    NCBI TinySeq XML            
+   ztr        ZTR tracefile                ztr
 
    Table 1. Formats
    [Note] Note
+
    SeqIO needs the bioperl-ext package to read the scf, abi, alf, pln,
    exp, ctf, and ztr formats.
 
    For some one of the initial perplexities of Bioperl is the variety of
    different sequence objects, and this gives rise to questions like "How
-   do I convert a PrimarySeq object into a RichSeq object?". The basic
-   answer is that one should never have to do this, SeqIO takes care of
-   all these conversions. The reason for these different objects in the
-   first place has to with the information, or lack of information,
-   inherent to the different file formats. For example, the fasta format
-   has no place for sequence features, and its contents end up in
-   Bio::Seq objects, whereas the Genbank format is designed to handle
-   sequence features so its contents are transformed into Bio::RichSeq
-   objects. Though we just said that the conversions are done
-   automatically we offer this table that shows some common formats and
-   their object types, just to satisfy the curious. If you'd like to
-   learn more about sequence features you can look at the
-   [10]Feature-Annotation HOWTO.
+   do I convert a PrimarySeq object into a RichSeq object?". The answer
+   is that one should never have to do this, SeqIO takes care of all
+   these conversions. The reason for these different objects in the first
+   place has to with the information, or lack of information, inherent to
+   the different file formats. Though we just said that the conversions
+   are done automatically we offer this table that shows some common
+   formats and their corresponding object types, just to satisfy the
+   curious.
+
    Format     Object type
    fasta   Bio::Seq
    genbank Bio::Seq::RichSeq
@@ -141,10 +179,11 @@ Brian Osborne
 
    Table 2. Formats and Object
 
-4. Working Examples
+5. Working Examples
 
    The simplest script for parsing sequence files is written out below.
    It prints out the accession number for each entry in the file.
+
      # first, bring in the SeqIO module
 
      use Bio::SeqIO;
@@ -174,22 +213,22 @@ Brian Osborne
      # code understand the function of the SeqIO object.
 
      my $inseq = Bio::SeqIO->new('-file'   => "<$file",
-                                '-format' => $format );
+                                 '-format' => $format );
      # Now that we have a seq stream,
      # we need to tell it to give us a $seq.
      # We do this using the 'next_seq' method of SeqIO.
 
      while (my $seq = $inseq->next_seq) {
-           print $seq->accession_no."\n";
+           print $seq->accession_number,"\n";
      }
      exit;
 
 
    This script takes two arguments on the commandline, and input filename
    and the format of the input file. This is the basic way to access the
-   data in a Genbank file. It is the same for fasta, swissprot, aceDB,
-   and all the others as well, provided that the correct
-   Bioperl-format-label is provided.
+   data in a Genbank file. It is the same for fasta, swissprot, ace, and
+   all the others as well, provided that the correct Bioperl-format-label
+   is provided.
 
    Notice that SeqIO naturally works over sets of sequences in files, not
    just one sequence. Each call to next_seq will return the next sequence
@@ -200,6 +239,7 @@ Brian Osborne
    file/stream is important, as it allows you to wrap successive calls to
    next_seq in a while loop. This code snippet would load up all the
    sequences in a EMBL file into an array:
+
      use strict;
      use Bio::SeqIO;
 
@@ -213,7 +253,7 @@ Brian Osborne
      # use a lot of memory
 
      my $seq;
-     my @seq_array();
+     my @seq_array;
      while( $seq = $seq_in->next_seq() ) {
         push(@seq_array,$seq);
      }
@@ -233,7 +273,7 @@ Brian Osborne
      print "Mean length ",$total/$count," Median ",$seq_array[$count/2],"\n";
 
 
-   Now, what if we want to convert one format to another. When you create
+   Now, what if we want to convert one format to another? When you create
    a Bio::SeqIO object to read in a flat file, the magic behind the
    curtains is that each call to 'next_seq' is a complex parsing of the
    next sequence record into a SeqI object - not a single line, but the
@@ -247,6 +287,7 @@ Brian Osborne
    object into the right places, with the correct labels, for any of the
    supported formats. Let's make this more concrete by writing a
    universal format translator:
+
 
           use Bio::SeqIO;
           # get command-line arguments, or die with a usage statement
@@ -263,8 +304,8 @@ Brian Osborne
                                         '-format' => $outfileformat);
 
           # write each entry in the input file to the output file
-          while (my $inseq = $seqin->next_seq) {
-             $seqout->write_seq($inseq);
+          while (my $inseq = $seq_in->next_seq) {
+             $seq_out->write_seq($inseq);
           }
           exit;
 
@@ -274,12 +315,13 @@ Brian Osborne
    sequence formats. However, rather than using the <F> operator to read
    files you use the $seqio->next_seq() method and rather than saying
    "print F $line" you say $seqio->write_seq($seq_object).
+   [Note] Note
 
-   An aside: Bio::SeqIO actually allows you to make use of a rather
-   scary/clever part of Perl that can "mimic" filehandles, so that the
-   <F> operator returns sequences and the print F operator writes
-   sequences. However, for most people, including myself, this looks
-   really really weird and leads to probably more confusion.
+   Bio::SeqIO actually allows you to make use of a rather scary/clever
+   part of Perl that can "mimic" filehandles, so that the <F> operator
+   returns sequences and the print F operator writes sequences. However,
+   for most people, including myself, this looks really really weird and
+   leads to probably more confusion.
 
    Notice that the universal formatter only required a few more lines of
    code than the accession number lister and mean sequence length
@@ -289,19 +331,22 @@ Brian Osborne
 
    Now, let's play around with the previous code, changing aspects of it
    to exploit the functionality of the SeqIO system. Let's take a stream
-   from standard in, so that we can use other programs to stream data of
-   a particular format into the program, and write out a file of a
+   from STDIN, so that we can use other programs to stream data of a
+   particular format into the program, and write out a file of a
    particular format. Here we have to make use of two new things: one
-   perl specific, and one SeqIO specific. Perl allows you to 'GLOB' a
+   perl-specific, and one SeqIO-specific. Perl allows you to 'GLOB' a
    filehandle by placing a '*' in front of the handle name, making it
    available for use as a variable, or as in this case, as an argument to
    a function. In concert, SeqIO allows you to pass a GLOB'ed filehandle
    to it using the '-fh' parameter in place of the '-file' parameter.
    Here is a program that takes a stream of sequences in a given format
    from STDIN, meaning it could be used like this:
+
      >cat myseqs.fa | all2y.pl fasta newseqs.gb genbank
 
+
    The code for all2y.pl is:
+
      use Bio::SeqIO;
      # get command-line arguments, or die with a usage statement
      my $usage = "all2y.pl informat outfile outfileformat\n";
@@ -311,23 +356,26 @@ Brian Osborne
 
      # create one SeqIO object to read in, and another to write out
      # *STDIN is a 'globbed' filehandle with the contents of Standard In
-     my $seqin = Bio::SeqIO->new('-fh' => *STDIN,
-                                 '-format' => $informat);
-     my $seqout = Bio::SeqIO->new('-file' => ">$outfile",
-                                  '-format' => $outformat);
+     my $seqin = Bio::SeqIO->new(-fh     => \*STDIN,
+                                 -format => $informat);
+     my $seqout = Bio::SeqIO->new(-file   => ">$outfile",
+                                  -format => $outformat);
 
      # write each entry in the input file to the output file
      while (my $inseq = $seqin->next_seq) {
-          $outseq->write_seq($inseq);
+          $seqout->write_seq($inseq);
      }
      exit;
 
 
-   Why use files at all, we can pipe STDIN to STDOUT, which could allow
+   Why use files at all? We can pipe STDIN to STDOUT, which could allow
    us to plug this into some other pipeline, something like:
+
      >cat *.seq | in2out.pl EMBL Genbank | someother program
 
+
    The code for in2out.pl could be:
+
      use Bio::SeqIO;
      # get command-line arguments, or die with a usage statement
      my $usage = "in2out.pl informat outformat\n";
@@ -335,10 +383,10 @@ Brian Osborne
      my $outformat = shift or die $usage;
 
      # create one SeqIO object to read in, and another to write out
-     my $seqin = Bio::SeqIO->new('-fh' => *STDIN,
-                                 '-format' => $informat);
-     my $seqout = Bio::SeqIO->new('-fh' => *STDOUT,
-                                  '-format' => $outformat);
+     my $seqin = Bio::SeqIO->new(-fh     => \*STDIN,
+                                 -format => $informat);
+     my $outseq = Bio::SeqIO->new(-fh     => \*STDOUT,
+                                  -format => $outformat);
 
      # write each entry in the input to the output
      while (my $inseq = $seqin->next_seq) {
@@ -347,17 +395,20 @@ Brian Osborne
      exit;
 
 
+6. To and from a string
+
    A popular question many people have asked is "What if I have a string
    that has a series of sequence records in some format, and I want to
-   make it a Seq object?" You might do this if you allow users to paste
-   in sequence data into a web form, and then do something with that
-   sequence data. This can be accomplished using the -fh parameter, along
-   with perl's IO::String module that allows you to turn the contents of
-   a string into a standard globbed perl handle. This isn't a complete
-   program, but gives you the most relevant bits. Assume that there is
-   some type of CGI form processing, or some such business, that pulls a
-   group of sequences into a variable, and also pulls the format
+   make it a Seq object?" You might want to do this if you allow users to
+   paste in sequence data into a web form, and then do something with
+   that sequence data. This can be accomplished using the -fh parameter,
+   along with perl's IO::String module that allows you to turn the
+   contents of a string into a standard globbed perl handle. This isn't a
+   complete program, but gives you the most relevant bits. Assume that
+   there is some type of CGI form processing, or some such business, that
+   pulls a group of sequences into a variable, and also pulls the format
    definition into another variable.
+
 
         use IO::String;
         use Bio::SeqIO;
@@ -365,14 +416,30 @@ Brian Osborne
         # get a string into $string somehow, with its format in
         # $format, say from a web form
         my $stringfh = new IO::String($string);
-        my $seqio = new Bio::SeqIO(-fh => $stringfh,
-                                   -format => $format);
+        my $seqio = Bio::SeqIO-> new(-fh     => $stringfh,
+                                     -format => $format);
 
         while( my $seq = $seqio->next_seq ) {
              # process each seq
         }
         exit;
 
+
+   Naturally you can also take a sequence object and write it, in some
+   format, to a string. The code would look something like this:
+
+       use IO::String;
+       use Bio::SeqIO;
+
+       my $str;
+       my $io = IO::String->new(\$str);
+       my $seqOut = Bio::SeqIO->new(-format => 'swiss',
+                                    -fh     => $io );
+       $seqOut->write_seq($seq_obj);
+       print $str;
+
+
+7. And more examples...
 
    The -file parameter in SeqIO can take more than a filename. It can
    also take a string that tells it to 'pipe' something else into it.
@@ -382,16 +449,19 @@ Brian Osborne
    enough disk space to unzip them (e.g. a Genbank full release file),
    but can make fasta files from them. Here is a program that takes a
    gzipped file of a given format and writes out a FASTA file, used like:
+
       >gzip2fasta.pl gbpri1.seq.gz Genbank gbpri1.fa
 
-   Let code begin...
+
+   Let the the code begin...
+
 
       use Bio::SeqIO;
       # get command-line arguments, or die with a usage statement
       my $usage = "gzip2fasta.pl infile informat outfile\n";
       my $infile = shift or die $usage;
       my $informat = shift or die $usage;
-      my $outformat = shift or die $usage;
+      my $outfile = shift or die $usage;
 
       # create one SeqIO object to read in, and another to write out
       my $seqin = Bio::SeqIO->new(-file   => "/usr/local/bin/gunzip -c $infile
@@ -403,7 +473,7 @@ Brian Osborne
 
       # write each entry in the input to the output file
       while (my $inseq = $seqin->next_seq) {
-            $outseq->write_seq($inseq);
+            $seqout->write_seq($inseq);
       }
       exit;
 
@@ -414,9 +484,12 @@ Brian Osborne
    write a program to take an input file, and write it directly to a
    WashU Blastable Database, without ever writing out a fasta file, like:
 
+
      >any2wublastable.pl myfile.gb Genbank mywublastable p
 
+
    And the code for any2wublastable.pl is:
+
      use Bio::SeqIO;
 
      # get command-line arguments, or die with a usage statement
@@ -427,29 +500,33 @@ Brian Osborne
      my $outdbtype = shift or die $usage;
 
      # create one SeqIO object to read in, and another to write out
-     my $seqin = Bio::SeqIO->new('-file' => "<$infile",
-                                 '-format' => $informat);
-     my $seqout = Bio::SeqIO->new('-file' =>
+     my $seqin = Bio::SeqIO->new(-file   => "<$infile",
+                                 -format => $informat);
+     my $seqout = Bio::SeqIO->new(-file =>
         "| /usr/local/bin/xdformat -o $outdbname -${outdbtype} -- -",
-                                  '-format' => 'Fasta');
+                                  -format => 'Fasta');
 
      # write each entry in the input to the output
      while (my $inseq = $seqin->next_seq) {
-            $outseq->write_seq($inseq);
+            $seqout->write_seq($inseq);
      }
      exit;
+
 
    Some of the more seasoned perl hackers may have noticed that the 'new'
    method returns a reference, which can be placed into any of the data
    structures used in perl. For instance, let's say you wanted to take a
    genbank file with multiple sequences, and split the human sequences
    out into a human.gb file, and all the rest of the sequences into the
-   other.gb file. In this case, I will use a hash to store the two
+   other.gb file. In this case, we will use a hash to store the two
    handles where 'human' is the key for the human output, and 'other' is
    the key to other, so the usage would be:
+
       >splitgb.pl inseq.gb
 
+
    Here's what splitgb.pl looks like:
+
 
       use Bio::SeqIO;
 
@@ -481,6 +558,7 @@ Brian Osborne
 
    Now, let's use a multidimensional hash to hold a genbank output and a
    fasta output for both splits.
+
 
      use Bio::SeqIO;
      # get command-line argument, or die with a usage statement
@@ -537,17 +615,18 @@ n);
    string to -e, you also have to make use of perl's string modifier
    'q(string)' to single quote a string without confusing the shell.
    Let's find out how many GSS sequences are in gbpri1.seq.gz. Note that
-   I have placed new-line characters in this to make it easier to read,
+   we have placed new-line characters in this to make it easier to read,
    but in practice you wouldn't actually hit the return key until you
    were ready to run the program.
-      perl -MBio::SeqIO -e 'my $gss = 0; my $in =  Bio::SeqIO->new(q(-file) =>
-q(/usr/local/bin/gunzip -c gbpri1.seq.gz |),
+
+      >perl -MBio::SeqIO -e 'my $gss = 0; my $in =  Bio::SeqIO->new(q(-file) =>
+ q(/usr/local/bin/gunzip -c gbpri1.seq.gz |),
       q(-format) => q(Genbank)); while (my $seq = $in->next_seq) { $gss++ if ($
 seq->keywords =~ m/GSS/);}
       print "There are $gss GSS sequences in gbpri1.seq.gz\n";'
 
 
-5. Caveats
+8. Caveats
 
    Because Bioperl uses a single, generalized data structure to hold
    sequences from all formats, it does impose its own structure on the
@@ -555,19 +634,19 @@ seq->keywords =~ m/GSS/);}
    the system. For example, a person who takes a flat file pulled
    directly from Genbank, and converts it to another Genbank file with
    Bioperl, will be surprised to find subtle differences between the two
-   files (try "diff origfile newfile" to see what I am talking about).
+   files - try "diff origfile newfile" to see what we are talking about.
    Just remember when using Bioperl that it was never designed to "round
    trip" your favorite formats. Rather, it was designed to store sequence
-   data from many widely different formats into a common framework, and
-   make that framework available to other sequence manipulation tasks in
-   a programmatic fashion.
+   data from many widely different formats into a common object framework
+   and make that framework available to other sequence manipulation tasks
+   in a programmatic fashion.
 
-6. Error Handling
+9. Error Handling
 
    If you gave an impossible filename to the first script, it would have
-   in fact died with an informative error message. In object-oriented
-   jargon, this is called "throwing an exception". An example would look
-   like:
+   in fact died with an informative error message. In programming jargon,
+   this is called "throwing an exception". An example would look like:
+
        [localhost:~/src/Bioperl-live] birney% perl t.pl bollocks silly
 
        ------------- EXCEPTION  -------------
@@ -581,15 +660,17 @@ seq->keywords =~ m/GSS/);}
 
        --------------------------------------
 
+
    These exceptions are very useful when errors occur because you can see
    the full route, or "stack trace", of where the error occurred and
    right at the end of this is the line number of the script which caused
-   the error, which in this case I called t.pl.
+   the error, which in this case we called t.pl.
 
    The fact that these sorts of errors are automatically detected and by
    default cause the script to stop is a good thing, but you might want
    to handle these yourself. To do this you need to "catch the exception"
    as follows:
+
     use strict;
     use Bio::SeqIO;
 
@@ -630,15 +711,20 @@ seq->keywords =~ m/GSS/);}
    error will be caught. And, of course, you are going to "use strict"
    right?
 
+   BioPerl DocBook
+
 References
 
    1. mailto:birney-at-ebi.ac.uk
    2. mailto:dlondon-at-ebi.ac.uk
    3. mailto:brian-at-cognia.com
-   4. file://localhost/home/bosborne/bioperl-live/doc/howto/html/SeqIO.html#overview
-   5. file://localhost/home/bosborne/bioperl-live/doc/howto/html/SeqIO.html#background
-   6. file://localhost/home/bosborne/bioperl-live/doc/howto/html/SeqIO.html#formats
-   7. file://localhost/home/bosborne/bioperl-live/doc/howto/html/SeqIO.html#working
-   8. file://localhost/home/bosborne/bioperl-live/doc/howto/html/SeqIO.html#caveats
-   9. file://localhost/home/bosborne/bioperl-live/doc/howto/html/SeqIO.html#errors
-  10. http://bioperl.org/HOWTOs/html/Feature-Annotation.html
+   4. file://localhost/cygdrive/c/docbook/deploy/SeqIO/SeqIO.html#basics
+   5. file://localhost/cygdrive/c/docbook/deploy/SeqIO/SeqIO.html#overview
+   6. file://localhost/cygdrive/c/docbook/deploy/SeqIO/SeqIO.html#background
+   7. file://localhost/cygdrive/c/docbook/deploy/SeqIO/SeqIO.html#formats
+   8. file://localhost/cygdrive/c/docbook/deploy/SeqIO/SeqIO.html#working
+   9. file://localhost/cygdrive/c/docbook/deploy/SeqIO/SeqIO.html#string
+  10. file://localhost/cygdrive/c/docbook/deploy/SeqIO/SeqIO.html#and_more
+  11. file://localhost/cygdrive/c/docbook/deploy/SeqIO/SeqIO.html#caveats
+  12. file://localhost/cygdrive/c/docbook/deploy/SeqIO/SeqIO.html#errors
+  13. http://bioperl.org/HOWTOs/Feature-Annotation/index.html
