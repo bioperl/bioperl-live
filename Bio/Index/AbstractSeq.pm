@@ -12,7 +12,7 @@
 
 =head1 NAME
 
-Bio::Index::AbstractSeq - Base class for AbstractSeq's
+Bio::Index::AbstractSeq - Base class for AbstractSeq's 
 
 =head1 SYNOPSIS
 
@@ -73,6 +73,7 @@ not necessarily sequence files).
 
 =cut
 
+#'
 
 # Let's begin the code ...
 
@@ -161,7 +162,7 @@ sub fetch {
 
 =head2 _get_SeqIO_object
 
-  Title   : fetch
+  Title   : _get_SeqIO_object
   Usage   : $index->_get_SeqIO_object( $file )
   Function: Returns a Bio::SeqIO object for the file
   Example : $seq = $index->_get_SeqIO_object( 0 )

@@ -195,7 +195,7 @@ sub get_Stream_by_acc {
   Example :
   Returns : a Bio::SeqIO stream object
   Args    : $ref : either an array reference, a filename, or a filehandle
-            from which to get the list of unique id's/accession numbers.
+            from which to get the list of unique id's/accession numbers. #'
 
 =cut
 
