@@ -175,7 +175,7 @@ sub new {
     $region  && $self->region($region);
     $numbering && $self->SUPER::numbering($numbering);
     $mut_number && $self->SUPER::mut_number($mut_number);
-    $isMutation && SUPER::isMutation($isMutation);
+    $isMutation && $self->SUPER::isMutation($isMutation);
     
     $codon_ori  && $self->codon_ori($codon_ori);
     $codon_mut  && $self->codon_mut($codon_mut);
