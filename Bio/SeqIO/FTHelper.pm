@@ -72,13 +72,18 @@ use Bio::Location::Simple;
 use Bio::Location::Fuzzy;
 use Bio::Location::Split;
 
+
 use Bio::Root::Root;
 
 @ISA = qw(Bio::Root::Root);
 
 sub new {
     my ($class, @args) = @_;
-    my $self = $class->SUPER::new(@args);
+
+    # no chained new because we make lots and lots of these. 
+    my $self = {};
+    bless $self,$class;
+
     $self->{'_field'} = {};
     return $self; 
 }
@@ -98,6 +103,7 @@ sub _generic_seqfeature {
     my ($fth, $annseq, $source) = @_;
     my ($sf);
 
+
     # print "Converting from", $fth->key, "\n";
 
     # set a default if not specified
@@ -105,12 +111,16 @@ sub _generic_seqfeature {
 	$source = "EMBL/GenBank/SwissProt";
     }
 
-    $sf = new Bio::SeqFeature::Generic;
+    $sf = Bio::SeqFeature::Generic->direct_new();
+
     my $strand = ( $fth->loc =~ /complement/ ) ? -1 : 1;    
     $sf->strand($strand);
+
+
         # Parse compound features
     if ( $fth->loc =~ /(join)/i || $fth->loc =~ /(order)/i  || 
 	 $fth->loc =~ /(bond)/i ) {
+
 	my $combotype=$1;
 	$sf->primary_tag($fth->key);
 	$sf->source_tag($source);
@@ -149,37 +159,73 @@ sub _generic_seqfeature {
 	# see bug #930
         # we'll skip this SeqFeature if we can't parse the location 
 	$sf->location($splitlocation) if( defined $sf);
+
+
     }     
     # Parse simple locations and fuzzy locations
     else {
-	$sf->source_tag($source);
-	$sf->primary_tag($fth->key);	
-	my $loc = $fth->loc();
-	my $seqid;
+
+      $sf->source_tag($source);
+      $sf->primary_tag($fth->key);	
+      my $loc = $fth->loc();
+      my $seqid;
+      if( $loc =~ /^(\d+)\.\.(\d+)$/ ) {
+	my $start = $1;
+	my $end   = $2;
+
+
+	# hard core object building to accelerate time
+	my $location = {};
+	bless $location,'Bio::Location::Simple';
+	$location->{'_start'}  = $start;
+	$location->{'_end'}    = $end;
+	$location->{'_strand'} = 1;
+
+	$sf->location($location) 
+      } elsif ( $loc =~ /^complement\((\d+)\.\.(\d+)\)$/ ) {
+	my $start = $1;
+	my $end   = $2;
+
+	# hard core object building to accelerate time
+	my $location = {};
+	bless $location,'Bio::Location::Simple';
+	$location->{'_start'}  = $start;
+	$location->{'_end'}    = $end;
+	$location->{'_strand'} = -1;
+
+      } else {
+	
 	if ( $loc =~ s/\(?\s*([A-Za-z\d\_]+(\.\d+)?):// ) {
-	    ($seqid) = $1; 
+	  ($seqid) = $1; 
 	}
 	
+	
 	if( my $location = $fth->_parse_loc($sf,$loc) ) {
-	    $location->seq_id($seqid) if ( $seqid);
-	    $sf->location($location);
+	  $location->seq_id($seqid) if ( $seqid);
+	  $sf->location($location);
 	} else {
-	    $annseq->warn("unexpected location line [" . $loc .
-			  "] in reading $source, ignoring feature " .
-			  $fth->key() . " (seqid=" . $annseq->id() . ")");
-	    $sf = undef;
+	  $annseq->warn("unexpected location line [" . $loc .
+			"] in reading $source, ignoring feature " .
+			$fth->key() . " (seqid=" . $annseq->id() . ")");
+	  $sf = undef;
 	}
+
+      }
+
     }
     #print "Adding B4 ", $sf->primary_tag , "\n";
 
     if(defined($sf)) {
+
 	#print "dogfood location is ", $sf->location->to_FTstring(), "\n";
 	foreach my $key ( keys %{$fth->field} ){
 	    foreach my $value ( @{$fth->field->{$key}} ) {
 		$sf->add_tag_value($key,$value);
 	    }
 	}
+
 	$annseq->add_SeqFeature($sf);
+
 	return 1;
     } else {
 	$fth->warn("unable to parse feature " . $fth->key() .
@@ -208,6 +254,8 @@ sub _parse_loc {
 #    my %compl_of = ("5" => "3", "3" => "5");
     my ($fea_type, $tagval) = ('','');
     my ($strand,$start,$end) = (1);
+
+
     $self->debug( "Location parse, processing $locstr\n");
 
     # Two numbers separated by anything of '.', '^', and spaces (SRS puts a
@@ -282,6 +330,8 @@ sub _parse_loc {
 	}
 	$sf->add_tag_value($fea_type, $tagval);
     }
+
+
     return $location;
 }
 

@@ -105,6 +105,9 @@ use Bio::SeqIO::FTHelper;
 use Bio::SeqFeature::Generic;
 use Bio::Species;
 
+
+
+
 @ISA = qw(Bio::SeqIO);
 
 sub _initialize {
@@ -143,7 +146,7 @@ sub next_seq {
 
    if( $line =~ /^\s+$/ ) {
        while( defined ($line = $self->_readline) ) {
-	   $line =~/\S/ && last;
+	   $line =~/^\S/ && last;
        }
    }   
    if( !defined $line ) {
@@ -286,11 +289,12 @@ sub next_seq {
        /^CO / && last;
    }
    $buffer = $_;
-      
+
    if (defined($buffer) && $buffer =~ /^FT /) {
      until( !defined ($buffer) ) {
 	 my $ftunit = $self->_read_FTHelper_EMBL(\$buffer);
 	 # process ftunit
+
 	 $ftunit->_generic_seqfeature($seq);
 
 	 if( $buffer !~ /^FT/ ) {
@@ -298,6 +302,8 @@ sub next_seq {
 	 }
      }
    }
+
+
    # skip comments
    while( defined ($buffer) && $buffer =~ /^XX/ ) { 
        $buffer = $self->_readline();
@@ -329,6 +335,7 @@ sub next_seq {
    }
 
    $seq->seq($seqc);
+
    return $seq;
 }
 

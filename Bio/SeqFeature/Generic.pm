@@ -171,6 +171,16 @@ sub new {
     return $self;
 }
 
+
+sub direct_new {
+    my ( $class) = @_;   
+    my ($self) = {};
+
+    bless $self,$class;
+
+    return $self;
+}
+
 =head2 location
 
  Title   : location
