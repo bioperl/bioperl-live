@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <!DOCTYPE html
   PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml"><head><title>Bio::SeqIO HOWTO</title><link rel="stylesheet" href="e-novative.css" type="text/css"/><meta name="description" content="&#xA;	  This HOWTO tries to teach you about the SeqIO system for reading and &#xA;	  writing sequences of various formats&#xA;	"/></head><body><div class="article"><div class="titlepage"><div><h1 class="title"><a id="d3e1"/>Bio::SeqIO HOWTO</h1></div><div><div class="author"><h3 class="author">Ewan Birney</h3><div class="affiliation"><span class="orgname">EBI<br/></span><div class="address"><p><tt>&lt;<a href="mailto:birney-at-ebi.ac.uk">birney-at-ebi.ac.uk</a>&gt;</tt></p></div></div></div></div><div><div class="author"><h3 class="author">Darinn London</h3><div class="affiliation"><span class="orgname">EBI<br/></span><div class="address"><p><tt>&lt;<a href="mailto:dlondon-at-ebi.ac.uk">dlondon-at-ebi.ac.uk</a>&gt;</tt></p></div></div></div></div><div><div class="author"><h3 class="author">Brian Osborne</h3><div class="affiliation"><span class="orgname">Cognia Corpoation<br/></span><div class="address"><p><tt>&lt;<a href="mailto:brian-at-cognia.com">brian-at-cognia.com</a>&gt;</tt></p></div></div></div></div><div><div class="legalnotice"><p>This document is copyright Ewan Birney, 2002.  For 
+<html xmlns="http://www.w3.org/1999/xhtml"><head><title>Bio::SeqIO HOWTO</title><link rel="stylesheet" href="e-novative.css" type="text/css"/><meta name="generator" content="DocBook XSL Stylesheets V1.55.0"/><meta name="description" content="&#xA;	  This HOWTO tries to teach you about the SeqIO system for reading and &#xA;	  writing sequences of various formats&#xA;	"/></head><body><div xmlns="" id="customheader"><span class="logo">&gt;e-novative&gt;</span>
+    e-Business Software &amp; Solutions
+    </div><div class="article"><div class="titlepage"><div><h1 class="title"><a id="d3e1"/>Bio::SeqIO HOWTO</h1></div><div><div class="author"><h3 class="author">Ewan Birney</h3><div class="affiliation"><span class="orgname">EBI<br/></span><div class="address"><p><tt>&lt;<a href="mailto:birney-at-ebi.ac.uk">birney-at-ebi.ac.uk</a>&gt;</tt></p></div></div></div></div><div><div class="author"><h3 class="author">Darinn London</h3><div class="affiliation"><span class="orgname">EBI<br/></span><div class="address"><p><tt>&lt;<a href="mailto:dlondon-at-ebi.ac.uk">dlondon-at-ebi.ac.uk</a>&gt;</tt></p></div></div></div></div><div><div class="author"><h3 class="author">Brian Osborne</h3><div class="affiliation"><span class="orgname">Cognia Corpoation<br/></span><div class="address"><p><tt>&lt;<a href="mailto:brian-at-cognia.com">brian-at-cognia.com</a>&gt;</tt></p></div></div></div></div><div><div class="legalnotice"><p>This document is copyright Ewan Birney, 2002.  For 
 	  reproduction other than personal use please contact me at 
 	  birney-at-ebi.ac.uk
 	</p></div></div><div><div class="abstract"><p class="title"><b>Abstract</b></p><p>
@@ -41,7 +43,7 @@ information, rather than worrying about how to get the information.
 </p></div><div class="section"><div class="titlepage"><div><h2 class="title" style="clear: both"><a id="formats"/>3. Formats</h2></div></div><p>
      Bioperl's SeqIO system has a lot of formats to interconvert sequences.
 Here is a current listing of formats, as of version 1.2.
-	<div class="table"><a id="d3e41"/><table summary="Formats" border="1"><colgroup><col/><col/><col/></colgroup><thead><tr><th>Name</th><th>Description</th><th>extensions</th></tr></thead><tbody><tr><td>abi</td><td>ABI tracefile</td><td> </td></tr><tr><td>ace</td><td>Ace database</td><td>ace</td></tr><tr><td>alf</td><td>ALF tracefile</td><td> </td></tr><tr><td>bsml</td><td> </td><td>bsm|bsml</td></tr><tr><td>ctf</td><td>CTF tracefile</td><td> </td></tr><tr><td>embl</td><td>EMBL database</td><td>embl|ebl|emb|dat</td></tr><tr><td>exp</td><td>EXP format</td><td> </td></tr><tr><td>fasta</td><td>FASTA</td><td>fasta|fast|seq|fa|fsa|nt|aa</td></tr><tr><td>fastq</td><td> </td><td>fastq</td></tr><tr><td>game</td><td>GAME XML</td><td> </td></tr><tr><td>gcg</td><td>GCG</td><td>gcg</td></tr><tr><td>genbank</td><td>GenBank</td><td>gb|gbank|genbank</td></tr><tr><td>largefasta</td><td> </td><td> </td></tr><tr><td>phd</td><td>Phred</td><td>phd|phred</td></tr><tr><td>pir</td><td>PIR database</td><td>pir</td></tr><tr><td>pln</td><td>PLN tracefile</td><td> </td></tr><tr><td>qual</td><td>Phred</td><td> </td></tr><tr><td>raw</td><td>plain text</td><td>txt</td></tr><tr><td>scf</td><td>Standard Chromatogram Format</td><td>scf</td></tr><tr><td>swiss</td><td>SwissProt</td><td>swiss|sp</td></tr><tr><td>ztr</td><td>ZTR tracefile</td><td> </td></tr></tbody></table><p class="title"><b>Table 1. Formats</b></p></div>
+	<div class="table"><a id="d3e41"/><table summary="Formats" border="1"><colgroup><col/><col/><col/></colgroup><thead><tr><th>Name</th><th>Description</th><th>extensions</th></tr></thead><tbody><tr><td>abi</td><td>ABI tracefile</td><td> </td></tr><tr><td>ace</td><td>Ace database</td><td>ace</td></tr><tr><td>alf</td><td>ALF tracefile</td><td> </td></tr><tr><td>bsml</td><td> </td><td>bsm|bsml</td></tr><tr><td>ctf</td><td>CTF tracefile</td><td> </td></tr><tr><td>chado</td><td>Chado formats</td><td> </td></tr><tr><td>embl</td><td>EMBL database</td><td>embl|ebl|emb|dat</td></tr><tr><td>exp</td><td>EXP format</td><td> </td></tr><tr><td>fasta</td><td>FASTA</td><td>fasta|fast|seq|fa|fsa|nt|aa</td></tr><tr><td>fastq</td><td> </td><td>fastq</td></tr><tr><td>game</td><td>GAME XML</td><td> </td></tr><tr><td>gcg</td><td>GCG</td><td>gcg</td></tr><tr><td>genbank</td><td>GenBank</td><td>gb|gbank|genbank</td></tr><tr><td>largefasta</td><td> </td><td> </td></tr><tr><td>phd</td><td>Phred</td><td>phd|phred</td></tr><tr><td>pir</td><td>PIR database</td><td>pir</td></tr><tr><td>pln</td><td>PLN tracefile</td><td> </td></tr><tr><td>qual</td><td>Phred</td><td> </td></tr><tr><td>raw</td><td>plain text</td><td>txt</td></tr><tr><td>scf</td><td>Standard Chromatogram Format</td><td>scf</td></tr><tr><td>swiss</td><td>SwissProt</td><td>swiss|sp</td></tr><tr><td>ztr</td><td>ZTR tracefile</td><td> </td></tr></tbody></table><p class="title"><b>Table 1. Formats</b></p></div>
 Note: SeqIO needs the bioperl-ext package to read the scf, abi, alf, pln, exp, ctf, and ztr formats.
   </p></div><div class="section"><div class="titlepage"><div><h2 class="title" style="clear: both"><a id="working"/>4. Working Examples</h2></div></div><p>
     The simplest script for parsing sequence files is written out
@@ -133,7 +135,17 @@ file into an array:
 
      print "Mean length ",$total/$count," Median ",$seq_array[$count/2],"\n";
      </pre>
-   </p><p>
+    </p><p>
+      It's just as straightforward to use many files as input, simply
+      use the SeqIO::MultiFile module, like this:
+      <pre class="programlisting">
+	$seq_in = Bio::SeqIO::MultiFile( -format =&gt; 'Fasta',
+	                                 -files  =&gt; ['file1','file2'] );
+	while ( my $seqobj = $seq_in-&gt;next_seq ) {
+	   # do something with the Seq object
+	}
+      </pre>
+    </p><p>
 	Now, what if we want to convert one format to another. When you create a 
 	Bio::SeqIO object to read in a flat file, the magic behind the curtains is that 
 	each call to 'next_seq' is a complex parsing of the next
@@ -516,4 +528,8 @@ to declare $seq_in and $seq_out using "my" before the eval block - a common
 gotcha is to wrap a eval block around some "my" variables inside the block - and
 now "my" localizes those variables only to that block. If you "use strict" this
 error will be caught. And, of course, you are going to "use strict" right?
-</p></body></html>
+</p></div></div><div xmlns="" id="customfooter">
+      Copyright © 2002 e-novative GmbH.
+      All rights reserved.
+      e-novative® is a registered trademark of e-novative GmbH.
+    </div></body></html>

@@ -1,10 +1,5 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
 
-<!-- e-novative DocBook environment -->
-<!-- article template               -->
-<!-- (c) 2002 e-novative GmbH       -->
-<!-- http://www.e-novative.de       -->
-
 <!DOCTYPE article
   PUBLIC "-//OASIS//DTD DocBook XML V4.2//EN" "../../dtd/docbookx.dtd"
   [
@@ -144,6 +139,11 @@ Here is a current listing of formats, as of version 1.2.
 	      <row>
 		<entry>ctf</entry>
 		<entry>CTF tracefile</entry>
+		<entry> </entry>
+	      </row>
+	      <row>
+		<entry>chado</entry>
+		<entry>Chado formats</entry>
 		<entry> </entry>
 	      </row>
 	      <row>
@@ -326,7 +326,18 @@ file into an array:
 
      print "Mean length ",$total/$count," Median ",$seq_array[$count/2],"\n";
      </programlisting>
-   </para>
+    </para>
+    <para>
+      It's just as straightforward to use many files as input, simply
+      use the SeqIO::MultiFile module, like this:
+      <programlisting>
+	$seq_in = Bio::SeqIO::MultiFile( -format => 'Fasta',
+	                                 -files  => ['file1','file2'] );
+	while ( my $seqobj = $seq_in->next_seq ) {
+	   # do something with the Seq object
+	}
+      </programlisting>
+    </para>
       <para>
 	Now, what if we want to convert one format to another. When you create a 
 	Bio::SeqIO object to read in a flat file, the magic behind the curtains is that 
