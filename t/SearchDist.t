@@ -4,17 +4,16 @@
 
 use Test;
 use strict;
-use vars qw($skip);
+use vars qw($tests);
 BEGIN { 
-    local * STDERR;
-    eval { require Bio::Ext::Align };
+    eval { local * STDERR; require Bio::Ext::Align };
     if ( $@ ) {
-	plan tests => 1;
-	skip(1, 'Bio::Ext::Align no loaded', 'Bio::Ext::Align no loaded', 
-	     'Bio::Ext::Align no loaded');
+	plan test => 1;
+	skip(1, 1, 1,'Bio::Ext::Align not loaded');
+	print STDERR "\tBio::Ext::Align not loaded\n";
 	exit(0);
     }
-    plan tests => 3; 
+    plan tests => 3;
 }
 use Bio::SearchDist;
 ok(1);

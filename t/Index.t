@@ -8,60 +8,34 @@
 # Before `make install' is performed this script should be runnable with
 # `make test'. After `make install' it should work as `perl test.t'
 
-#-----------------------------------------------------------------------
-## perl test harness expects the following output syntax only!
-## 1..3
-## ok 1  [not ok 1 (if test fails)]
-## 2..3
-## ok 2  [not ok 2 (if test fails)]
-## 3..3
-## ok 3  [not ok 3 (if test fails)]
-##
-## etc. etc. etc. (continue on for each tested function in the .t file)
-#-----------------------------------------------------------------------
-
-
 ## We start with some black magic to print on failure.
-BEGIN { $| = 1; print "1..8\n"; 
-	use vars qw($loaded); }
-
-END {print "not ok 1\n" unless $loaded;}
-
+use Test;
 use strict;
+BEGIN { plan tests => 9 }
 use Bio::Index::Fasta;
 use Bio::Index::SwissPfam;
 use Bio::Index::EMBL;
 use Bio::Index::GenBank;
 use Bio::Index::Swissprot;
-
-my $dir;
-eval {
-    use Cwd;
-    $dir = cwd;
-};
-if( $@) {
-    # CWD not installed, revert to unix behavior, best we can do
-    $dir = `pwd`;
-}
-
-$loaded = 1;
-print "ok 1\n";    # 1st test passes.
-
-sub test ($$;$) {
-    my($num, $true,$msg) = @_;
-    print($true ? "ok $num\n" : "not ok $num $msg\n");
-}
+use vars qw ($dir);
+eval { require Cwd; $dir = &cwd; };
+    
+# CWD must not be installed, revert to unix behavior, best we can do
+if( $@) { $dir = `pwd`; }
+ 
+END {  unlink qw( Wibbl Wibbl2 Wibbl3 Wibbl4 Wibbl5); }
 
 chomp( $dir );
 {
-    my $ind = Bio::Index::Fasta->new(-filename => 'Wibbl', -write_flag => 1,
+    my $ind = Bio::Index::Fasta->new(-filename => 'Wibbl', 
+				     -write_flag => 1,
 				     -verbose => 0);
     $ind->make_index("$dir/t/multifa.seq");
     $ind->make_index("$dir/t/seqs.fas");
     $ind->make_index("$dir/t/multi_1.fa");
 }
 
-test 2, ( -e "Wibbl" );
+ok ( -e "Wibbl" );
 
 # Test that the sequences we've indexed
 # are all retrievable, and the correct length
@@ -90,7 +64,7 @@ test 2, ( -e "Wibbl" );
             $ok_3 = 0;
         }
     }
-    test 3, $ok_3;
+    ok $ok_3;
 
     my $stream = $ind->get_PrimarySeq_stream();
     my $ok_4 = 1;
@@ -100,28 +74,30 @@ test 2, ( -e "Wibbl" );
 	    last; # no point continuing...
 	}
     }
-    test 4, $ok_4;
+    ok $ok_4;
 }
 
 {
     my $ind = Bio::Index::SwissPfam->new(-filename=>'Wibbl2', 
 					 -write_flag=>1);
     $ind->make_index("$dir/t/swisspfam.data");
-    test 5, ( -e "Wibbl2" );
+    ok ( -e "Wibbl2" );
 }
 
 {
     my $ind = Bio::Index::EMBL->new(-filename=>'Wibbl3', 
 				    -write_flag=>1);
     $ind->make_index("$dir/t/test.embl");
-    test 6, ( -e "Wibbl3" ) && $ind->fetch('AL031232')->length == 4870;
+    ok ( -e "Wibbl3" );
+    ok $ind->fetch('AL031232')->length, 4870;
 }
 
 {
     my $ind = Bio::Index::Swissprot->new(-filename=>'Wibbl4', 
 				    -write_flag=>1);
     $ind->make_index("$dir/t/roa1.swiss");
-    test 7, ( -e "Wibbl4" ) && ($ind->fetch('P09651')->display_id() eq 'ROA1_HUMAN');
+    ok ( -e "Wibbl4" );
+    ok ($ind->fetch('P09651')->display_id(), 'ROA1_HUMAN');
 }
 
 {
@@ -129,11 +105,8 @@ test 2, ( -e "Wibbl" );
 				       -write_flag=>1, 
 				       -verbose => 0);
     $ind->make_index("$dir/t/roa1.genbank");
-    test 8, ( -e "Wibbl5" ) && $ind->fetch('AI129902')->length == 37;
-}
-
-END { 
-    unlink qw( Wibbl Wibbl2 Wibbl3 Wibbl4 Wibbl5);
+    ok ( -e "Wibbl5" );
+    ok ($ind->fetch('AI129902')->length, 37);
 }
 
 

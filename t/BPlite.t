@@ -4,43 +4,18 @@
 
 # Before `make install' is performed this script should be runnable with
 # `make test'. After `make install' it should work as `perl test.t'
+use Test;
+use strict;
+BEGIN { plan tests => 28 }
 
-#-----------------------------------------------------------------------
-## perl test harness expects the following output syntax only!
-## 1..3
-## ok 1  [not ok 1 (if test fails)]
-## 2..3
-## ok 2  [not ok 2 (if test fails)]
-## 3..3
-## ok 3  [not ok 3 (if test fails)]
-##
-## etc. etc. etc. (continue on for each tested function in the .t file)
-#-----------------------------------------------------------------------
-
-
-## We start with some black magic to print on failure.
-BEGIN { $| = 1; print "1..29\n";
-	use vars qw($loaded); }
-END {print "not ok 1\n" unless $loaded;}
-
-use lib '../';
 use Bio::Tools::BPlite;
-
-$loaded = 1;
-print "ok 1\n";    # 1st test passes.
-
-
+ok(1);
 ## End of black magic.
 ##
 ## Insert additional test code below but remember to change
 ## the print "1..x\n" in the BEGIN block to reflect the
 ## total number of tests that will be run. 
 
-
-sub test ($$;$) {
-    my($num, $true,$msg) = @_;
-    print($true ? "ok $num\n" : "not ok $num $msg\n");
-}
 
 my $seq =
     "MAAQRRSLLQSEQQPSWTDDLPLCHLSGVGSASNRSYSADGKGTESHPPEDSWLKFRSENN".
@@ -55,31 +30,31 @@ my $seq =
 
 open FH, "t/blast.report";
 my $report = Bio::Tools::BPlite->new(-fh=>\*FH);
-test 2, $report;
+ok ref($report), qr/Bio::Tools::BPlite/;
 my $sbjct = $report->nextSbjct;
-test 3, $sbjct;
+ok defined $sbjct;
 my $hsp = $sbjct->nextHSP;
-test 4, $hsp;
+ok defined $hsp;
 
-test 5, $report->query eq "gi|1401126 (504 letters) ";
-test 6, $report->database eq 'Non-redundant GenBank+EMBL+DDBJ+PDB sequences';
-test 7, $sbjct->name eq 'gb|U49928|HSU49928 Homo sapiens TAK1 binding protein (TAB1) mRNA, complete cds. ';
-test 8, $hsp->bits == 1009;
-test 9, $hsp->score == 2580;
-test 10, $hsp->percent == 100;
-test 11, $hsp->P == 0.0;
-test 12, $hsp->match == 504;
-test 13, $hsp->positive == 504;
-test 14, $hsp->length == 504;
-test 15, $hsp->querySeq eq $seq;
-test 16, $hsp->sbjctSeq eq $seq;
-test 17, $hsp->homologySeq eq $seq;
-test 18, $hsp->query->start == 1;
-test 19, $hsp->query->end == 504;
-test 20, $hsp->query->seqname eq $report->query;
-test 21, $hsp->query->primary_tag eq "similarity";
-test 22, $hsp->query->source_tag eq "BLAST";
-test 23, $hsp->subject->length == 1512;
+ok $report->query, "gi|1401126 (504 letters) ";
+ok $report->database, 'Non-redundant GenBank+EMBL+DDBJ+PDB sequences';
+ok $sbjct->name, 'gb|U49928|HSU49928 Homo sapiens TAK1 binding protein (TAB1) mRNA, complete cds. ';
+ok $hsp->bits, 1009;
+ok $hsp->score, 2580;
+ok $hsp->percent, 100;
+ok $hsp->P, '0.0';
+ok $hsp->match, 504;
+ok $hsp->positive, 504;
+ok $hsp->length, 504;
+ok $hsp->querySeq, $seq;
+ok $hsp->sbjctSeq, $seq;
+ok $hsp->homologySeq, $seq;
+ok $hsp->query->start, 1;
+ok $hsp->query->end, 504;
+ok $hsp->query->seqname, $report->query;
+ok $hsp->query->primary_tag, "similarity";
+ok $hsp->query->source_tag, "BLAST";
+ok $hsp->subject->length, 1512;
 
 close FH;
 
@@ -88,17 +63,15 @@ close FH;
 open FH, "t/phi.out";
 my $report2 = Bio::Tools::BPlite->new(-fh=>\*FH);
 
-test 24, $report2->pattern eq "P-E-E-Q";
-test 25, $report2->query_pattern_location->[0] == 23;
-test 26, $report2->query_pattern_location->[1] == 120;
+ok $report2->pattern, "P-E-E-Q";
+ok $report2->query_pattern_location->[0], 23;
+ok $report2->query_pattern_location->[1], 120;
 my $sbjct2 = $report2->nextSbjct;
-test 27, $sbjct2->name =~ /4988/;
+ok $sbjct2->name, qr/4988/;
 my $hsp2 = $sbjct2->nextHSP;
-test 28, $hsp2->subject->end == 343;
+ok $hsp2->subject->end, 343;
 
 close FH;
-
-test 29, "everything fine";
 
 
 
