@@ -1,3 +1,4 @@
+# -*-Perl-*-
 ## Bioperl Test Harness Script for Modules
 ##
 
@@ -38,6 +39,11 @@ print "ok 1\n";    # 1st test passes.
 ## the print "1..x\n" in the BEGIN block to reflect the
 ## total number of tests that will be run. 
 
+sub test ($$;$) {
+    my($num, $true,$msg) = @_;
+    print($true ? "ok $num\n" : "not ok $num $msg\n");
+}
+
 $domain = Bio::Tools::HMMER::Domain->new();
 
 $domain->start(50);
@@ -49,42 +55,28 @@ $domain->bits(20);
 $domain->evalue(0.0001);
 $domain->seqname('silly');
 
-print "ok 2\n";
+test 2, 1;
 
 # test that we can get out forward and reverse homol_SeqFeatures
 $homol = $domain->feature2();
-if( $homol->start() == 10 ) {
-    print "ok 3\n";
-} else {
-   print "not ok 3\n";
-}
-
+test 3, ( $homol->start() == 10 );
 
 $rev = $domain;
 
-if( $rev->start() == 50 ) {
-    print "ok 4\n"
-}else {
-   print "not ok 4\n";
-}
-
+test 4, ( $rev->start() == 50 );
 
 $set = Bio::Tools::HMMER::Set->new();
 $set->add_Domain($domain);
 
 @doms = $set->each_Domain();
 $dom = shift @doms;
-if( $dom->start() == 50 ) {
-   print "ok 5\n";
-} else {
-   print "not ok 5\n";
-}
+
+test 5, ( $dom->start() == 50 );
 
 $set->bits(300);
 $set->evalue(0.0001);
 $set->name('sillyname');
-
-print "ok 6\n";
+test 6, 1;
 
 $res = Bio::Tools::HMMER::Results->new( -file => 't/hmmsearch.out' , -type => 'hmmsearch');
 foreach $set ( $res->each_Set) {
@@ -93,28 +85,12 @@ foreach $set ( $res->each_Set) {
     # do nothing for the moment
   }
 }
+test 7, 1;
 
-print "ok 7\n";
+test 8, ( $res->number == 1215 ), "\nBad number of domains. Expecting 1215. Got" . $res->number;
 
-if( $res->number != 1215 ) {
-   print STDERR "\nBad number of domains. Expecting 1215. Got",$res->number,"\n";
-   print "not ok 8\n";
-} else {
-   print "ok 8\n";
-}
+$res = Bio::Tools::HMMER::Results->new( -file => 't/hmmpfam.out' , 
+					-type => 'hmmpfam');
 
-$res = Bio::Tools::HMMER::Results->new( -file => 't/hmmpfam.out' , -type => 'hmmpfam');
-if( $res->number != 2 ) {
-   print STDERR "\nBad number of domains. Expecting 2. Got",$res->number,"\n";
-   print "not ok 9\n";
-} else {
-   print "ok 9\n";
-}
-
-
-
-
-
-
-
-
+test 9,( $res->number == 2 ), "\nBad number of domains. Expecting 2. Got".
+    $res->number;

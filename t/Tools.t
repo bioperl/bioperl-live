@@ -1,3 +1,4 @@
+# -*-Perl-*-
 ## Bioperl Test Harness Script for Modules
 ##
 
@@ -31,6 +32,11 @@ use Bio::Tools::SeqStats;
 $loaded = 1;
 print "ok 1\n";    # 1st test passes.
 
+sub test ($$;$) {
+    my($num, $true,$msg) = @_;
+    print($true ? "ok $num\n" : "not ok $num $msg\n");
+}
+
 
 $str = Bio::SeqIO->new(-file=> 't/multifa.seq', '-format' => 'Fasta');
 $seqobj= $str->next_seq();
@@ -38,25 +44,20 @@ $seqobj= $str->next_seq();
 $words = Bio::Tools::SeqWords->new($seqobj);
 $hash = $words->count_words(6);
 $hash = undef; # shut warn up
-print "ok 2\n";
+test 2,1;
 
 $seq_stats  =  Bio::Tools::SeqStats->new($seqobj);
 
-print "ok 3\n";
+test 3,1;
 
 $hash_ref = $seq_stats->count_monomers();  # eg for DNA sequence
 
-if( $hash_ref->{'A'} != 80 ) {
-  print "not ok 4\n";
-} else {
-  print "ok 4\n";
-}
+test 4, ( $hash_ref->{'A'} == 80 );
 
 $hash_ref = $seq_stats-> count_codons();  
 
-print "ok 5\n";
+test 5, 1;
 
 $weight = $seq_stats->get_mol_wt();
 $weight = 0; # shut warn up
-print "ok 6\n";
-
+test 6, 1;

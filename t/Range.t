@@ -1,3 +1,4 @@
+# -*-Perl-*-
 ## Bioperl Test Harness Script for Modules
 ## $Id$
 
@@ -35,31 +36,27 @@ print "ok 1\n";    # 1st test passes.
 ## the print "1..x\n" in the BEGIN block to reflect the
 ## total number of tests that will be run. 
 
+sub test ($$;$) {
+    my($num, $true,$msg) = @_;
+    print($true ? "ok $num\n" : "not ok $num $msg\n");
+}
 
 my $range = Bio::Range->new(-start=>10,
                             -end=>20,
 			    -strand=>1);
-print "ok 2\n"; 
+test 2, defined $range;
 
 my $range2 = Bio::Range->new(-start=>15,
                              -end=>25,
 			     -strand=>1);
 
-print "ok 3\n";
+test 3, defined $range2;
 
 my ($start, $stop);
 
 ($start, $stop) = $range->union($range2);
-if( $start == 10 && $stop == 25 ) {
-   print "ok 4\n";
-} else {
-   print "not ok 4\n";
-}
+test 4, ( $start == 10 && $stop == 25 );
 
 ($start, $stop) = $range->intersection($range2);
-if( $start == 15 && $stop == 20 ) {
-   print "ok 5\n";
-} else {
-   print "not ok 5\n";
-}
+test 5, ( $start == 15 && $stop == 20 );
 

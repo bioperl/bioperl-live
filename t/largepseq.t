@@ -1,3 +1,4 @@
+# -*-Perl-*-
 ## Bioperl Test Harness Script for Modules
 ## $Id$
 
@@ -27,7 +28,10 @@ use lib '../';
 
 use Bio::Seq::LargePrimarySeq;
 
-
+sub test ($$;$) {
+    my($num, $true,$msg) = @_;
+    print($true ? "ok $num\n" : "not ok $num $msg\n");
+}
 $pseq = Bio::Seq::LargePrimarySeq->new();
 
 $pseq->add_sequence_as_string('ATGGGGTGGGGTGAAACCCTTTGGGGGTGGGGTAAAT');
@@ -35,28 +39,6 @@ $pseq->add_sequence_as_string('GTTTGGGGTTAAACCCCTTTGGGGGGT');
 
 $pseq->display_id('hello');
 
-if( $pseq->seq ne 'ATGGGGTGGGGTGAAACCCTTTGGGGGTGGGGTAAATGTTTGGGGTTAAACCCCTTTGGGGGGT' ) {
-	print "not ok 2\n";
-	print STDERR "Sequence is ",$pseq->seq,"\n";
+test 2, ( $pseq->seq eq 'ATGGGGTGGGGTGAAACCCTTTGGGGGTGGGGTAAATGTTTGGGGTTAAACCCCTTTGGGGGGT' ), "Sequence is " . $pseq->seq;
 
-} else {
-	print "ok 2\n";
-}
-
-if( $pseq->subseq(3,7) ne 'GGGGT' ) {
-	print "not ok 3\n";
-	print STDERR "Subseq is ",$pseq->subseq(3,7),"\n";
-} else {
-	print "ok 3\n";
-}
-
-
-
-
-
-
-
-
-
-
-
+test 3, ( $pseq->subseq(3,7) eq 'GGGGT' ), "Subseq is ".$pseq->subseq(3,7);

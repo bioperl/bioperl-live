@@ -1,3 +1,4 @@
+# -*-Perl-*-
 ## Bioperl Test Harness Script for Modules
 ##
 
@@ -124,10 +125,5 @@ test 15, $status, "  failed filehandle output test";
 ## Now we test Bio::AlignIO::bl2seq input
 $str = Bio::AlignIO->new(-file=> 't/bl2seq.out','-format' => 'bl2seq');
 $aln = $str->next_aln();
-
-if( $aln->{order}->{'1'} eq 'ALEU_HORVU -60-360' ) {
-    print "ok 16\n";
-} else {
-    print "not ok 16 , failed BLAST bl2seq format test \n";	
-}
+test 16, ( $aln->{order}->{'1'} eq 'ALEU_HORVU -60-360' ), "failed BLAST bl2seq format test";
 

@@ -1,3 +1,4 @@
+# -*-Perl-*-
 ## Bioperl Test Harness Script for Modules
 ##
 # CVS Version
@@ -31,15 +32,17 @@ use Bio::SeqIO;
 
 $loaded = 1;
 print "ok 1\n";    # 1st test passes.
+
+sub test ($$;$) {
+    my($num, $true,$msg) = @_;
+    print($true ? "ok $num\n" : "not ok $num $msg\n");
+}
+
+
 my $in = Bio::SeqIO->new(-file => "<t/multifa.seq" , '-format' => 'Fasta');
-print "ok 2\n";
+test 2, defined $in;
 my $c=0;
 while ( my $seq = $in->next_seq() ) {
     $c++;
 }
-if ($c == 3) {
-    print "ok 3\n";
-}
-else {
-    print "not ok 3\n";
-}
+test 3, ($c == 3), " missing sequences in the file";

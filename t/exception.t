@@ -1,3 +1,4 @@
+# -*-Perl-*-
 ## Bioperl Test Harness Script for Modules
 ##
 
@@ -29,30 +30,20 @@ use Bio::Root::RootI;
 print "ok 1\n";
 $loaded = 1;
 
+sub test ($$;$) {
+    my($num, $true,$msg) = @_;
+    print($true ? "ok $num\n" : "not ok $num $msg\n");
+}
+
 package MyObject;
 @ISA = qw (Bio::Root::RootI);
-
-sub new {
-    my ($class) = shift;
-    my $self = {};
-
-    bless $self, $class;
-    return $self;
-}
 
 package main;
 
 $obj = MyObject->new();
 
-
 eval {
      $obj->throw('an exception');
 };
 
-if( $@ =~ /an exception/ ) {
-     print "ok 2\n";
-} else {
-  print "not ok 2\n";
-  print STDERR "Exception $@\n";
-}
-
+test 2, ( $@ =~ /an exception/ ), "Exception $@\n";

@@ -1,3 +1,4 @@
+# -*-Perl-*-
 ## Bioperl Test Harness Script for Modules
 ## $Id$
 
@@ -36,70 +37,54 @@ print "ok 1\n";    # 1st test passes.
 ## the print "1..x\n" in the BEGIN block to reflect the
 ## total number of tests that will be run. 
 
+sub test ($$;$) {
+    my($num, $true,$msg) = @_;
+    $msg = '' if ( !defined $msg );
+    print($true ? "ok $num\n" : "not ok $num $msg\n");
+}
 
 my $seq = Bio::Seq->new(-seq=>'ACTGTGGCGTCAACT',
                         -desc=>'Sample Bio::Seq object',
 			-moltype => 'dna' );
-print "ok 2\n"; 
+test 2, 1;
 
 $trunc = $seq->trunc(1,4);
 
-print "ok 3\n";
+test 3, 1;
 
-if( $trunc->seq() ne 'ACTG' ) {
-   print "not ok 4\n";
-} else {
-   print "ok 4\n";
-}
+test 4, ( $trunc->seq() eq 'ACTG' );
 
 $trans = $seq->translate();
 
-if( $trans->seq() ne 'TVAST' ) {
-   print "not ok 5\n";
-} else {
-   print "ok 5\n";
-}
+test 5, ( $trans->seq() eq 'TVAST' );
 
 # test ability to get str function
 
 $t = $seq->seq();
-if( $t eq 'ACTGTGGCGTCAACT' ) {
-  print "ok 6\n";
-}
+test 6, ( $t eq 'ACTGTGGCGTCAACT' );
 
 $seq = Bio::Seq->new(-seq=>'actgtggcgtcaact',
 		     -desc=>'Sample Bio::Seq object',
 		     -display_id => 'something',
 		     -accession_number => 'accnum',
 		     -moltype => 'dna' );
-print "ok 7\n"; 
+test 7, defined $seq;
 
 
 $trans = $seq->translate();
 
-if( $trans->seq() ne 'TVAST' ) {
-   print "not ok 8\n";
-} else {
-   print "ok 8\n";
-}
+test 8, ( $trans->seq() eq 'TVAST' );
 
 # basic methods
 
-if( $seq->id() ne 'something' || $seq->accession_number ne 'accnum' ) {
-    print "not ok 9\n";
-    print "saw ",$seq->id,":",$seq->accession_number,":",$seq->primary_id,"\n";
-} else {
-  print "ok 9\n";
-}
+test 9, ( $seq->id() eq 'something' && 
+	$seq->accession_number eq 'accnum' ), "saw ".$seq->id.":".
+	$seq->accession_number.":".$seq->primary_id;
 
 my $subseq = $seq->subseq(5, 9);
 
-if( $seq->subseq(5, 9) ne 'tggcg') {
-    print "not ok 10\n";
-    print "subseq(5,9) was ",$seq->subseq(5,9), " when I expected tggcg\n";
-} else {
-  print "ok 10\n";
-}
+test 10, ( $seq->subseq(5, 9) eq 'tggcg'), "subseq(5,9) was ".
+    $seq->subseq(5,9). " when I expected tggcg\n";
 
 my $newfeat = Bio::SeqFeature::Generic->new( -start => 10,
 					     -end => 12,
@@ -108,5 +93,4 @@ my $newfeat = Bio::SeqFeature::Generic->new( -start => 10,
 
 
 $seq->add_SeqFeature($newfeat);
-
-print "ok 11\n";
+test 11, 1;

@@ -1,3 +1,4 @@
+# -*-Perl-*-
 ## Bioperl Test Harness Script for Modules
 ## $Id$
 
@@ -34,50 +35,40 @@ print "ok 1\n";    # 1st test passes.
 ## the print "1..x\n" in the BEGIN block to reflect the
 ## total number of tests that will be run. 
 
+sub test ($$;$) {
+    my($num, $true,$msg) = @_;
+    print($true ? "ok $num\n" : "not ok $num $msg\n");
+}
+
 open(FH,"t/test.mase") || die "Could not open test.mase $!";
 $aln = Bio::SimpleAlign->new();
 $aln->read_mase(\*FH);
 close(FH);
 
-if( $aln ) {
-	print "ok 2\n";
-} else {
-	print "not ok 2\n";
-}	
-
+test 2, ( $aln );
 open(OUT,">t/out.aln_fasta"); 
 $aln->write_fasta(\*OUT);
 close(OUT);
-print "ok 3\n";
-
+test 3, 1;
 
 $aln = Bio::SimpleAlign->new();
 open(FH,"t/test.pfam");
 $aln->read_Pfam(\*FH);
 close(FH);
 
-if( $aln ) {
-	print "ok 4\n";
-} else {
-	print "not ok 4\n";
-}	
+test 4, ( $aln );
 
 open(OUT,">t/out.pfam"); 
 $aln->write_Pfam(\*OUT);
 close(OUT);
-print "ok 5\n";
-
+test 5, 1;
 
 $aln = Bio::SimpleAlign->new();
 open(IN,"t/out.pfam");
 $aln->read_Pfam(\*IN);
 close(IN);
 
-if( $aln ) {
-	print "ok 6\n";
-} else {
-	print "not ok 6\n";
-}	
+test 6, ( $aln );
 
 
 

@@ -29,13 +29,13 @@ BEGIN {
     $^W = 0; 
 }
 END {
-#   print "not ok 1\n" unless $loaded;
-#   unlink $testout;  # commented out since you may want to check it...
+   print "not ok 1\n" unless $loaded;
+   unlink $testout;  # commented out since you may want to check it...
 }
 
 use lib '../';
 use Bio::Tools::Blast;
-
+$loaded = 1;
 sub test ($$;$) {
     my($num, $true,$msg) = @_;
     print($true ? "ok $num\n" : "not ok $num $msg\n");

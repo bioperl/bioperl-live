@@ -22,13 +22,14 @@
 ## We start with some black magic to print on failure.
 BEGIN { $| = 1; print "1..9\n";
 	use vars qw($loaded); }
-# Modify following line as required to point to clustalw program directory on your system
+# Modify following line as required to point to tcoffee program directory on your system
 BEGIN { 
+	
 }
 
 END {print "not ok 1\n" unless $loaded;}
 
-use Bio::Tools::Alignment::Clustalw;
+use Bio::Tools::Alignment::TCoffee;
 use Bio::SimpleAlign;
 use Bio::AlignIO;
 use Bio::SeqIO;
@@ -50,9 +51,9 @@ sub test ($$;$) {
     print($true ? "ok $num\n" : "not ok $num $msg\n");
 }
 
-## Create clustalw alignment factory
+## Create tcoffee alignment factory
 my @params = ('ktuple' => 2, 'matrix' => 'BLOSUM');
-my  $factory = Bio::Tools::Alignment::Clustalw->new(@params);
+my  $factory = Bio::Tools::Alignment::TCoffee->new(@params);
 
 test 2, $factory, " couldn't create alignment factory";
 
@@ -71,39 +72,37 @@ test 4, $what_matrix eq 'BLOSUM', "couldn't get factory parameter";
 
 ## Alignment test (from fasta file)
 my $bequiet = 1;
-$factory->quiet($bequiet);  # Suppress clustal messages to terminal
+$factory->quiet($bequiet);  # Suppress tcoffee messages to terminal
 
 my $inputfilename = 't/cysprot.fa';
 my $aln;
 
-# If the clustalw program isn't found and executable at the expected location,
+# If the tcoffee program isn't found and executable at the expected location,
 # there is no point in executing the remaining tests...
 
-my $clustal_present = Bio::Tools::Alignment::Clustalw->exists_clustal();
-unless ($clustal_present) {
-	warn "Clustalw program not found. Skipping tests 5 to 9.\n";
+my $coffee_present = Bio::Tools::Alignment::TCoffee->exists_tcoffee();
+unless ($coffee_present) {
+	warn "tcoffee program not found. Skipping tests 5 to 9.\n";
     	print "ok 5\n", "ok 6\n", "ok 7\n", "ok 8\n", "ok 9\n";
 	exit 0;
 }
 $aln = $factory->align($inputfilename);
 
-test 5, $aln->{order}->{'0'} eq 'CATH_HUMAN-1-335', "failed clustalw alignment using input file";
-
+test 5, $aln->{order}->{'0'} eq 'CYS1_DICDI-1-343', "failed tcoffee alignment using input file";
 ## Alignment test (from BioSeq array)
 
 my $str = Bio::SeqIO->new(-file=> 't/cysprot.fa', '-format' => 'Fasta');
 my @seq_array =();
 
 while ( my $seq = $str->next_seq() ) {
-	push (@seq_array, $seq) ;
-    }
+    push (@seq_array, $seq) ;
+}
 
 my $seq_array_ref = \@seq_array;
 
 $aln = $factory->align($seq_array_ref);
 	
-test 6,$aln->{order}->{'0'} eq 'CATH_HUMAN-1-335', "failed clustalw alignment using BioSeq array ";
-
+test 6,$aln->{order}->{'0'} eq 'CYS1_DICDI-1-343', "failed tcoffee alignment using BioSeq array ";
 
 ## Profile alignment test (from alignment files)
 
@@ -112,7 +111,7 @@ my $profile1 = 't/cysprot1a.msf';
 my $profile2 = 't/cysprot1b.msf';
 $aln = $factory->profile_align($profile1,$profile2);
 
-test 7, $aln->{order}->{'1'} eq 'CATH_HUMAN-1-335', " failed clustalw profile alignment using input file" ;
+test 7, $aln->{order}->{'1'} eq 'CATL_HUMAN-1-333', " failed tcoffee profile alignment using input file ". $aln->{order}->{'1'} ;
 
 ## Profile alignment test (from SimpleAlign objects)
 
@@ -122,8 +121,7 @@ my $str2 = Bio::AlignIO->new(-file=> 't/cysprot1b.msf');
 my $aln2 = $str2->next_aln();
 
 $aln = $factory->profile_align($aln1,$aln2);
-test 8, $aln->{order}->{'1'} eq 'CATH_HUMAN-1-335', "failed clustalw profile alignment using SimpleAlign input ";
-
+test 8, $aln->{order}->{'1'} eq 'CATL_HUMAN-1-333', "failed tcoffee profile alignment using SimpleAlign input ". $aln->{order}->{'1'};
 
 ## Test aligning (single) new sequence to an alignment
 
@@ -133,4 +131,4 @@ $str2 = Bio::SeqIO->new(-file=> 't/cysprot1b.fa');
 my $seq = $str2->next_seq();
 $aln = $factory->profile_align($aln1,$seq);
 
-test 9, $aln->{order}->{'1'} eq 'CATH_HUMAN-1-335', "failed adding new sequence to alignment";
+test 9, $aln->{order}->{'1'} eq 'CATH_RAT-1-333', "failed adding new sequence to alignment ". $aln->{order}->{'1'};

@@ -1,3 +1,4 @@
+# -*-Perl-*-
 ## Bioperl Test Harness Script for Modules
 ## $Id$
 
@@ -33,10 +34,5 @@ print "ok 1\n";    # 1st test passes.
 ## Insert additional test code below but remember to change
 ## the print "1..x\n" in the BEGIN block to reflect the
 ## total number of tests that will be run. 
-
-
-
-
-
 
 

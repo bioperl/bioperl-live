@@ -1,3 +1,4 @@
+# -*-Perl-*-
 ## Bioperl Test Harness Script for Modules
 ##
 # CVS Version
@@ -33,6 +34,11 @@ use Bio::SeqFeature::FeaturePair;
 $loaded = 1;
 print "ok 1\n";    # 1st test passes.
 
+sub test ($$;$) {
+    my($num, $true,$msg) = @_;
+    print($true ? "ok $num\n" : "not ok $num $msg\n");
+}
+
 $feat = new Bio::SeqFeature::Generic ( -start => 40,
 				       -end => 80,
 				       -strand => 1,
@@ -44,34 +50,14 @@ $feat = new Bio::SeqFeature::Generic ( -start => 40,
 					   }
 				       );
 
-if( $feat->start == 40 ) { 
-    print "ok 2\n";
-} else {
-    print "not ok 2\n";
-}
+test 2, ( $feat->start == 40 );
+
+test 3, ( $feat->end == 80 );
+
+test 4, ( $feat->primary_tag eq 'exon' );
 
 
-if( $feat->end == 80 ) { 
-    print "ok 3\n";
-} else {
-    print "not ok 3\n";
-}
-
-
-if( $feat->primary_tag eq 'exon' ) { 
-    print "ok 4\n";
-} else {
-    print "not ok 4\n";
-}
-
-
-if( $feat->source_tag eq 'internal' ) { 
-    print "ok 5\n";
-} else {
-    print "not ok 5\n";
-}
-
-
+test 5, ( $feat->source_tag eq 'internal' );
 
 
 $str = $feat->gff_string();
@@ -86,11 +72,11 @@ $str = ""; # shut up -w
 #    print "ok 3\n";
 #}
 
-print "ok 6\n";
+test 6, 1;
 
 $pair = new Bio::SeqFeature::FeaturePair();
 
-print "ok 7\n";
+test 7, 1;
 
 $feat2 = new Bio::SeqFeature::Generic ( -start => 400,
 				       -end => 440,
@@ -106,71 +92,28 @@ $feat2 = new Bio::SeqFeature::Generic ( -start => 400,
 $pair->feature1($feat);
 $pair->feature2($feat2);
 
-print "ok 8\n";
+test 8, 1;
 
-if( $pair->start == 40 ) { 
-    print "ok 9\n";
-} else {
-    print "not ok 9\n";
-}
+test 9, ( $pair->start == 40 );
+
+test 10, ( $pair->end == 80 );
 
 
-if( $pair->end == 80 ) { 
-    print "ok 10\n";
-} else {
-    print "not ok 10\n";
-}
+test 11, ( $pair->primary_tag eq 'exon' );
 
+test 12, ( $pair->source_tag eq 'internal' );
 
-if( $pair->primary_tag eq 'exon' ) { 
-    print "ok 11\n";
-} else {
-    print "not ok 11\n";
-}
+test 13, ( $pair->hstart == 400 );
 
+test 14, ( $pair->hend == 440 );
 
-if( $pair->source_tag eq 'internal' ) { 
-    print "ok 12\n";
-} else {
-    print "not ok 12\n";
-}
+test 15, ( $pair->hprimary_tag eq 'other' );
 
-
-
-if( $pair->hstart == 400 ) { 
-    print "ok 13\n";
-} else {
-    print "not ok 13\n";
-}
-
-
-if( $pair->hend == 440 ) { 
-    print "ok 14\n";
-} else {
-    print "not ok 14\n";
-}
-
-
-if( $pair->hprimary_tag eq 'other' ) { 
-    print "ok 15\n";
-} else {
-    print "not ok 15\n";
-}
-
-
-if( $pair->hsource_tag eq 'program_a' ) { 
-    print "ok 16\n";
-} else {
-    print "not ok 16\n";
-}
+test 16, ( $pair->hsource_tag eq 'program_a' );
 
 $pair->invert;
 
-if( $pair->end == 440 ) {
-    print "ok 17\n";
-} else {
-    print "not ok 17\n";
-}
+test 17, ( $pair->end == 440 );
 
 # Test attaching a SeqFeature::Generic to a Bio::Seq
 {
@@ -189,19 +132,11 @@ if( $pair->end == 440 ) {
         );
     
     # Add the SeqFeature to the parent
-    if ($seq->add_SeqFeature($sf1)) {
-        print "ok 18\n";
-    } else {
-        print "not ok 18\n";
-    }
+    test 18, ($seq->add_SeqFeature($sf1));
     
     # Test that it gives the correct sequence
     my $sf_seq1 = $sf1->seq->seq;
-    if ($sf_seq1 eq 'aggggt') {
-        print "ok 19\n";
-    } else {
-        print "not ok 19\n";
-    }
+    test 19, ($sf_seq1 eq 'aggggt');
     
     # Make a second seqfeature on the opposite strand
     my $sf2 = Bio::SeqFeature::Generic->new(
@@ -212,20 +147,12 @@ if( $pair->end == 440 ) {
     
     # This time add the PrimarySeq to the seqfeature
     # before adding it to the parent
-    if ($sf2->attach_seq($seq->primary_seq)) {
-        print "ok 20\n";
-    } else {
-        print "not ok 20\n";
-    }
+    test 20, ($sf2->attach_seq($seq->primary_seq));
     $seq->add_SeqFeature($sf2);
     
     # Test again that we have the correct sequence
     my $sf_seq2 = $sf2->seq->seq;
-    if ($sf_seq2 eq 'acccct') {
-        print "ok 21\n";
-    } else {
-        print "not ok 21\n";
-    }
+    test 21, ($sf_seq2 eq 'acccct');
 }
 
 

@@ -1,3 +1,4 @@
+# -*-Perl-*-
 ## Bioperl Test Harness Script for Modules
 ##
 
@@ -132,7 +133,6 @@ $factory = Bio::Tools::StandAloneBlast->new(@params);
 $str = Bio::SeqIO->new(-file=>'t/amino.fa' , '-format' => 'Fasta', );
 my $seq3 = $str->next_seq();
 my $seq4 = $str->next_seq();
-
 
 my $bl2seq_report = $factory->bl2seq($seq3, $seq4);
 test 6, $bl2seq_report->subject->start == 167, " failed creating or parsing bl2seq report object";

@@ -1,3 +1,4 @@
+#-*-Perl-*-
 ## Bioperl Test Harness Script for Modules
 
 # Before `make install' is performed this script should be runnable with
@@ -34,20 +35,25 @@ print "ok 1\n";    # 1st test passes.
 ## the print "1..x\n" in the BEGIN block to reflect the
 ## total number of tests that will be run. 
 
+sub test ($$;$) {
+    my($num, $true,$msg) = @_;
+    print($true ? "ok $num\n" : "not ok $num $msg\n");
+}
+
 # test IUPAC
 
 my $ambiseq = new Bio::Seq (-seq => 'ARTCGTTGR', -type =>
 			    'Dna'); 
 
 my $stream  = new Bio::Tools::IUPAC($ambiseq);
- 
+
+my $b = 1; 
 while ($uniqueseq = $stream->next_seq()) {
     if( !$uniqueseq->isa('Bio::Seq') ) {
-	print "not ok 2\n";
+	$b =0;
     }
 }
-
-print "ok 2\n"     
+test 2, $b;
 
 
 

@@ -1,3 +1,4 @@
+# -*-Perl-*-
 ## Bioperl Test Harness Script for Modules
 ## $Id$
 
@@ -36,121 +37,68 @@ print "ok 1\n";    # 1st test passes.
 ## the print "1..x\n" in the BEGIN block to reflect the
 ## total number of tests that will be run. 
 
+sub test ($$;$) {
+    my($num, $true,$msg) = @_;
+    print($true ? "ok $num\n" : "not ok $num $msg\n");
+}
 
 $obj = Bio::Variation::SeqDiff -> new;
 
-print "ok 2\n";  
+test 2, 1;
 
 $obj->id('id');           
-if ($obj->id eq 'id' ) {
-    print "ok 3\n";  
-} else {
-    print "not ok 3\n";
-} 
+test 3, ($obj->id eq 'id' );
 
 
 $obj->sysname('sysname'); 
-if ($obj->sysname eq 'sysname' ) {
-    print "ok 4\n";  
-} else {
-    print "not ok 4\n";
-} 
+test 4, ($obj->sysname eq 'sysname' );
 
 $obj->trivname('trivname');
 
-if ($obj->trivname eq 'trivname' ) {
-    print "ok 5\n";  
-} else {
-    print "not ok 5\n";
-} 
+test 5, ($obj->trivname eq 'trivname' );
 
 $obj->chromosome('chr');  
 
-if ($obj->chromosome eq 'chr' ) {
-    print "ok 6\n";  
-} else {
-    print "not ok 6\n";
-} 
+test 6, ($obj->chromosome eq 'chr' );
 
 $obj->description('desc');
-if ($obj->description eq 'desc' ) {
-    print "ok 7\n";  
-} else {
-    print "not ok 7\n";
-} 
+test 7, ($obj->description eq 'desc' );
 
 $obj->numbering('numbering');
-if ($obj->numbering eq 'numbering' ) {
-    print "ok 8\n";  
-} else {
-    print "not ok 8\n";
-} 
+test 8, ($obj->numbering eq 'numbering' );
 
 $obj->offset(100);   
-if ($obj->offset == 100 ) {
-    print "ok 9\n";  
-} else {
-    print "not ok 9\n";
-} 
+test 9, ($obj->offset == 100 );
 
 $obj->dna_ori('dna_ori'); 
-if ($obj->dna_ori eq 'dna_ori' ) {
-    print "ok 10\n";  
-} else {
-    print "not ok 10\n";
-} 
+test 10, ($obj->dna_ori eq 'dna_ori' );
 
 $obj->dna_mut('dna_mut'); 
-if ($obj->dna_mut eq 'dna_mut' ) {
-    print "ok 11\n";  
-} else {
-    print "not ok 11\n";
-} 
+test 11, ($obj->dna_mut eq 'dna_mut' );
 
 $obj->rna_ori('rna_ori'); 
-if ($obj->rna_ori eq 'rna_ori' ) {
-    print "ok 12\n";  
-} else {
-    print "not ok 12\n";
-} 
+test 12, ($obj->rna_ori eq 'rna_ori' );
 
 $obj->rna_mut('rna_mut'); 
-if ($obj->rna_mut eq 'rna_mut' ) {
-    print "ok 13\n";  
-} else {
-    print "not ok 13\n";
-}
+test 13, ($obj->rna_mut eq 'rna_mut' );
 
 $obj->aa_ori('aa_ori'); 
-if ($obj->aa_ori eq 'aa_ori' ) {
-    print "ok 14\n";  
-} else {
-    print "not ok 14\n";
-} 
+test 14, ($obj->aa_ori eq 'aa_ori' );
 
 $obj->aa_mut('aa_mut'); 
-if ($obj->aa_mut eq 'aa_mut' ) {
-    print "ok 15\n";  
-} else {
-    print "not ok 15\n";
-} 
+test 15, ($obj->aa_mut eq 'aa_mut' );
 
 $m = Bio::Variation::DNAMutation->new;
 
-print "ok 16\n";  
+test 16, 1;
 
 $obj->add_Variant($m);
-print "ok 17\n";  
+test 17, 1;
 
 foreach $mm ( $obj->each_Variant ) {
-    $mm->primary_tag('a');
-    
+    $mm->primary_tag('a');    
 }
-print  "ok 18\n";       
+test 18, 1;
 
 $obj->gene_symbol('fos');
-if ($obj->gene_symbol eq 'fos' ) {
-    print "ok 19\n";  
-} else {
-    print "not ok 19\n";
-} 
+test 19, ($obj->gene_symbol eq 'fos' );

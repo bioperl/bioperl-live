@@ -1,3 +1,4 @@
+# -*-Perl-*-
 ## Bioperl Test Harness Script for Modules
 ## $Id$
 
@@ -35,41 +36,33 @@ print "ok 1\n";    # 1st test passes.
 ## the print "1..x\n" in the BEGIN block to reflect the
 ## total number of tests that will be run. 
 
+sub test ($$;$) {
+    my($num, $true,$msg) = @_;
+    print($true ? "ok $num\n" : "not ok $num $msg\n");
+}
+
 
 my $seq = Bio::PrimarySeq->new(-seq=>'TTGGTGGCGTCAACT',
 			-display_id => 'new-id',
 			-moltype => 'dna',
 			-accession_number => 'X677667',
                         -desc=>'Sample Bio::Seq object');
-print "ok 2\n";  
+test 2, defined $seq;
 
 $seq->accession_number();
 $seq->seq();
 $seq->display_id();
 
-print "ok 3\n";
+test 3, $seq->display_id() eq 'new-id';
 
 $trunc = $seq->trunc(1,4);
-
-print "ok 4\n";
-
-if( $trunc->seq() ne 'TTGG' ) {
-   print "not ok 5\n";
-   $s = $trunc->seq();
-   print STDERR "Expecting TTGG. Got $s\n";
-} else {
-   print "ok 5\n";
-}
+test 4, defined $trunc;
+test 5, ( $trunc->seq() eq 'TTGG' ), "Expecting TTGG. Got ".$trunc->seq();
 
 $rev = $seq->revcom();
+test 6, defined $rev; 
 
-print "ok 6\n";
-
-if( $rev->seq() ne 'AGTTGACGCCACCAA' ) {
-   print "not ok 7\n";
-} else {
-   print "ok 7\n";
-}
+test 7, ( $rev->seq() eq 'AGTTGACGCCACCAA' );
 
 #
 # Translate
@@ -80,12 +73,7 @@ $aa = $seq->translate();
 #print $seq->seq, "ok 8\n"; # you cannot simply comment out tests -- they
                             # will be treated as failed!
 
-if( $aa->seq ne 'LVAST' ) {
-    print STDERR "Translation: ", $aa->seq, "\n";
-    print "not ok 8\n";
-} else {
-    print "ok 8\n";
-}
+test 8, ( $aa->seq eq 'LVAST' ), "Translation: ". $aa->seq;
 
 $seq->seq('TTGGTGGCGTCAACTTAA');
 
@@ -93,10 +81,4 @@ $seq->seq('TTGGTGGCGTCAACTTAA');
 $aa = $seq->translate(undef, undef, undef, undef, 1);
 
 # tests for non-Methionin initiator codon (AGT) coding for M
-if( $aa->seq ne 'MVAST' ) {
-    print STDERR "Translation: ", $aa->seq, "\n";
-    print "not ok 9\n";
-} else {
-    print "ok 9\n";
-}
-
+test 9, ( $aa->seq eq 'MVAST' ), "Translation: ". $aa->seq;

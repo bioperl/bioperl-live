@@ -1,3 +1,4 @@
+# -*-Perl-*-
 ## Bioperl Test Harness Script for Modules
 ## $Id$
 
@@ -36,67 +37,39 @@ print "ok 1\n";    # 1st test passes.
 ## Insert additional test code below but remember to change
 ## the print "1..x\n" in the BEGIN block to reflect the
 ## total number of tests that will be run. 
+
+sub test ($$;$) {
+    my($num, $true,$msg) = @_;
+    print($true ? "ok $num\n" : "not ok $num $msg\n");
+}
  
 $obj = Bio::Variation::RNAChange -> new;
 
-print "ok 2\n";  
+test 2, defined $obj;
 
 $obj->start(4);           
-if ($obj->start == 4 ) {
-    print "ok 3\n";  
-} else {
-    print "not ok 3\n";
-} 
-
+test 3, ($obj->start == 4 );
 
 $obj->end(4); 
-if ($obj->end == 4 ) {
-    print "ok 4\n";  
-} else {
-    print "not ok 4\n";
-} 
+test 4, ($obj->end == 4 );
 
 $obj->length(1);
 
-if ($obj->length == 1 ) {
-    print "ok 5\n";  
-} else {
-    print "not ok 5\n";
-} 
+test 5, ($obj->length == 1 );
 
 $obj->strand('1');  
-if ($obj->strand eq '1' ) {
-    print "ok 6\n";  
-} else {
-    print "not ok 6\n";
-} 
+test 6, ($obj->strand eq '1' );
 
-if ($obj->primary_tag eq 'Variation' ) {
-    print "ok 7\n";
-} else {
-    print "not ok 7\n";
-} 
+test 7, ($obj->primary_tag eq 'Variation' );
 
 $obj->source_tag('source');
-if ($obj->source_tag eq 'source' ) {
-    print "ok 8\n";  
-} else {
-    print "not ok 8\n";
-} 
+test 8, ($obj->source_tag eq 'source' );
 
 $obj->frame(2);   
-if ($obj->frame ==2 ) {
-    print "ok 9\n";  
-} else {
-    print "not ok 9\n";
-} 
+test 9, ($obj->frame ==2 );
 
 $obj->score(2);   
-if ($obj->score ==2 ) {
-    print "ok 10\n";  
-} else {
-    print "not ok 10\n";
-} 
+test 10, ($obj->score ==2 );
 
 #test gff string
 #$obj->dna_mut('dna_mut'); 
@@ -105,152 +78,65 @@ if ($obj->score ==2 ) {
 #} else {
 #    print "not ok 11\n";
 #} 
-print "ok 11\n";  
+test 11, 1;
 
 $a1 = Bio::Variation::Allele->new(-seq => 'g');
 $obj->allele_ori($a1);
 
-if ($obj->allele_ori->seq eq 'g' ) {
-    print "ok 12\n";  
-} else {
-    print "not ok 12\n";
-} 
+test 12, ($obj->allele_ori->seq eq 'g' );
 
 $a2 = Bio::Variation::Allele->new('-seq' => 'a');
 $obj->allele_mut($a2);
 
-if ($obj->allele_mut->seq eq 'a' ) {
-    print "ok 13\n";  
-} else {
-    print "not ok 13\n";
-}
+test 13, ($obj->allele_mut->seq eq 'a' );
 
 $obj->upStreamSeq('gaagattcagccaagctcaaggatg'); 
-if ($obj->upStreamSeq eq 'gaagattcagccaagctcaaggatg' ) {
-    print "ok 14\n";  
-} else {
-    print "not ok 14\n";
-} 
-
+test 14, ($obj->upStreamSeq eq 'gaagattcagccaagctcaaggatg' );
 
 $obj->cds_end(1000); 
-if ($obj->cds_end == 1000 ) {
-    print "ok 15\n";  
-} else {
-    print "not ok 15\n";
-} 
-
+test 15, ($obj->cds_end == 1000 );
 
 $obj->dnStreamSeq('aagtgcagttagggctgggaagggt'); 
-if ($obj->dnStreamSeq eq 'aagtgcagttagggctgggaagggt' ) {
-    print "ok 16\n";  
-} else {
-    print "not ok 16\n";
-} 
+test 16, ($obj->dnStreamSeq eq 'aagtgcagttagggctgggaagggt' );
 
 $obj->codon_pos(1); 
-if ($obj->codon_pos == 1 ) {
-    print "ok 17\n";  
-} else {
-    print "not ok 17\n";
-} 
+test 17, ($obj->codon_pos == 1 );
 
 $obj3 = Bio::Variation::AAChange -> new;
 $obj3->start(2);
 $obj->AAChange($obj3);
 
-if ($obj->label eq 'missense' ) {
-    print "ok 18\n";  
-} else {
-    print "label is", $obj->label, "\n";
-    print "not ok 18\n" ;
-} 
+test 18, ($obj->label eq 'missense' ), "label is". $obj->label;
 
 
 $obj->status('proven'); 
-if ($obj->status eq 'proven' ) {
-    print "ok 19\n";  
-} else {
-    print "not ok 19\n";
-} 
-
+test 19, ($obj->status eq 'proven' );
 
 $obj->proof('experimental'); 
-if ($obj->proof eq 'experimental' ) {
-    print "ok 20\n";  
-} else {
-    print "not ok 20\n";
-} 
-
-
-if ($obj->restriction_changes eq '-BccI' ) {
-    print "ok 21\n";  
-} else {
-    print "not ok 21\n";
-}
-
+test 20, ($obj->proof eq 'experimental' );
+test 21, ($obj->restriction_changes eq '-BccI' );
 
 $obj->region('coding'); 
-if ($obj->region eq 'coding' ) {
-    print "ok 22\n";  
-} else {
-    print "not ok 22\n";
-}
-
+test 22, ($obj->region eq 'coding' );
 $obj->numbering('coding'); 
-if ($obj->numbering eq 'coding' ) {
-    print "ok 23\n";  
-} else {
-    print "not ok 23\n";
-} 
+test 23, ($obj->numbering eq 'coding' );
 
-if ($obj->codon_ori eq 'gaa' ) {
-    print "ok 24\n";  
-} else {
-    print "Codon_ori is |", $obj->codon_ori, "|\n";
-    print "not ok 24\n";
-} 
+test 24, ($obj->codon_ori eq 'gaa' ), "Codon_ori is |". $obj->codon_ori. "|";
 
-if ($obj->codon_mut eq 'aaa' ) {
-    print "ok 25\n";  
-} else {
-    print "Codon_mut is |", $obj->codon_mut, "|\n";
-    print "not ok 25\n";
-}
+test 25, ($obj->codon_mut eq 'aaa' ), "Codon_mut is |". $obj->codon_mut. "|";
 
 
 $obj->codon_pos(1); 
-if ($obj->codon_pos == 1 ) {
-    print "ok 26\n";  
-} else {
-    print "not ok 26\n";
-} 
-
-if ( $obj->codon_table == 1 ) {
-    print "ok 27\n";  
-} else {
-    print "not ok 27\n";
-} 
+test 26, ($obj->codon_pos == 1 );
+test 27, ( $obj->codon_table == 1 );
 
 $obj->codon_table(3);
-if ( $obj->codon_table == 3 ) {
-    print "ok 28\n";  
-} else {
-    print "not ok 28\n";
-} 
+test 28, ( $obj->codon_table == 3 );
 
 $obj->mut_number(2);
-if ( $obj->mut_number == 2 ) {
-    print "ok 29\n";  
-} else {
-    print "not ok 29\n";
-} 
+test 29, ( $obj->mut_number == 2 );
 
 $obj->verbose(2);
-if ( $obj->verbose ) {
-    print "ok 30\n";  
-} else {
-    print "not ok 30\n";
-} 
+test 30, ( $obj->verbose == 2 );
 
 

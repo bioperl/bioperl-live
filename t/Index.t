@@ -1,3 +1,4 @@
+# -*-Perl-*-
 ## Bioperl Test Harness Script for Modules
 ##
 # CVS Version
@@ -43,6 +44,11 @@ if( $@) {
 $loaded = 1;
 print "ok 1\n";    # 1st test passes.
 
+sub test ($$;$) {
+    my($num, $true,$msg) = @_;
+    print($true ? "ok $num\n" : "not ok $num $msg\n");
+}
+
 chomp( $dir );
 {
     my $ind = Bio::Index::Fasta->new(-filename => 'Wibbl', -write_flag => 1, -verbose => 0);
@@ -51,7 +57,7 @@ chomp( $dir );
     $ind->make_index("$dir/t/multi_1.fa");
 }
 
-print "ok 2\n";
+test 2, ( -e "Wibbl" );
 
 # Test that the sequences we've indexed
 # are all retrievable, and the correct length
@@ -80,7 +86,7 @@ print "ok 2\n";
             $ok_3 = 0;
         }
     }
-    print $ok_3 ? "ok 3\n" : "not ok 3\n";
+    test 3, $ok_3;
 
     my $stream = $ind->get_PrimarySeq_stream();
     my $ok_4 = 1;
@@ -89,19 +95,18 @@ print "ok 2\n";
 	    $ok_4 = 0;
 	}
     }
-    print $ok_4 ? "ok 4\n" : "not ok 4\n";
+    test 4, $ok_4;
 }
 
 
 {
     my $ind = Bio::Index::SwissPfam->new('Wibbl2', 'WRITE');
     $ind->make_index("$dir/t/swisspfam.data");
-    print "ok 5\n";
+    test 5, ( -e "Wibbl2" );
 }
 
 # don't test EMBL yet. Bad...
-
-system("rm -f Wibbl*");
+unlink qw( Wibbl2 Wibbl);
 
 
 

@@ -20,7 +20,7 @@
 
 
 ## We start with some black magic to print on failure.
-BEGIN { $| = 1; print "1..5\n"; 
+BEGIN { $| = 1; print "1..4\n"; 
 	use vars qw($loaded); }
 
 END {print "not ok 1\n" unless $loaded;}
@@ -39,6 +39,12 @@ print "ok 1\n";    # 1st test passes.
 ## the print "1..x\n" in the BEGIN block to reflect the
 ## total number of tests that will be run. 
 
+
+sub test ($$;$) {
+    my($num, $true,$msg) = @_;
+    print($true ? "ok $num\n" : "not ok $num $msg\n");
+}
+
 my $seq;
 
 eval { 
@@ -49,13 +55,9 @@ eval {
 if ($@) {
     warn "Warning: Couldn't connect to Genbank with Bio::DB::GenBank.pm!\n{Probably no network access.\n Skipping Test\n";
     warn $@;
-    print "ok 2\n";
+    test 2, 1;
 } else {
-    if( $seq->length == 408 ) {
-	print "ok 2\n";
-    } else {
-	print "not ok 2\n";
-    }
+    test 2, ( $seq->length == 408 );
 }
 $seq = undef;
 
@@ -66,13 +68,9 @@ eval {
 
 if ($@) {
     warn "Warning: Couldn't connect to Genbank with Bio::DB::GenPept.pm!\nProbably no network access\n";
-    print "ok 3\n";
+    test 3, 1;
 } else {
-    if( $seq->length == 136 ) {
-	print "ok 3\n";
-    } else {
-	print "not ok 3\n";
-    }
+    test 3, ( $seq->length == 136 );
 }
 
 $seq = undef;
@@ -85,16 +83,10 @@ eval {
 if ($@) {
     warn ($@);
     warn "Warning: Couldn't connect to Genbank with Bio::DB::Swiss.pm!\nProbably no network access\n";
-    print "ok 4\n";
+    test 4, 1;
 } else {
-    if( $seq->length == 103 ) {
-	print "ok 4\n";
-    } else {
-	print "not ok 4\n";
-    }
+    test 4, ( $seq->length == 103 );    
 }
-
-print "ok 5\n";
 
 
 
