@@ -62,16 +62,17 @@
   <section id="introduction">
     <title>Introduction</title>
     <para>
-		If you're a molecular biologist of some sort it's likely that
+		If you're a molecular biologist it's likely that
 		you're interested in gene and protein sequences, and you study them
 		in some way on a regular basis. Perhaps you'd like to try your
 		hand at automating some of these tasks, or you're just curious
 		about learning more about the programming side of bioinformatics.
-		In this HOWTO you'll see discussion of some of the common tasks, 
+		In this HOWTO you'll see discussions of some of the common uses
+		of Bioperl, 
 		like sequence analysis with BLAST, retrieving sequences from 
 		public databases, and making alignments. You'll also see how to
 		write Bioperl scripts that chain these tasks together, that's
-		how you're able to do really powerful things with Bioperl.
+		how you'll be able to do really powerful things with Bioperl.
     </para>
     <para>
 		You will also see some discussions of software concepts, it
@@ -182,10 +183,11 @@
     </para>
     <para>
 		The instructions for Unix and Windows installations are found
-		on the <ulink url="http://bioperl.org/Core/Latest/index.shtml">download page</ulink>.
+		on the 
+		<ulink url="http://bioperl.org/Core/Latest/index.shtml">download page</ulink>.
 		If you do run into problems then mail bioperl-l@bioperl.org,
-		this is the main mailing list, installation issues are
-		frequently discussed.
+		this is the main mailing list, and installation issues are
+		discussed frequently.
 	 </para>
   </section>
   
@@ -264,7 +266,7 @@
 		In Unix when you're ready to work you're usually in the
 		command-line or "shell" environment. People have their own
 		choices as to shell, usually bash or tcsh, sometimes zsh, csh,
-		and so on. First find out Perl's version by typing:
+		and so on. First find out Perl's version by typing this command:
 	 </para>		
 	 <para>
 		<programlisting>
@@ -318,7 +320,7 @@ Internet, point your browser at http://www.perl.com/, the Perl Home Page.
 		</programlisting>
 	 </para>
 	 <para>
-	 And make this the first line:
+	 And make this the first line of the script:
 	 </para>
 	 <para>
 		<programlisting>
@@ -326,7 +328,7 @@ Internet, point your browser at http://www.perl.com/, the Perl Home Page.
 		</programlisting>
 	 </para>
 	 <para>
-		The "-w" flag tells Perl to warn you if various common errors
+		The "-w" flag tells Perl to warn you if and when various common errors
 		are encountered.
 	 </para>
   </section>
@@ -348,7 +350,8 @@ Internet, point your browser at http://www.perl.com/, the Perl Home Page.
 	 <para>
 		One way to think about an object in software is that it is a container
 		for data. The typical sequence entry contains
-		differents sorts of data as well, so it will serve as a nice example of what
+		differents sorts of data as well (sequence, identifiers, etc.)
+		so it will serve as a nice example of what
 		an object can be. All objects in Bioperl are associated with specific
 		Bioperl modules, so if you want to create an object you're also going
 		to have to tell Perl which module to use. Let's add another line:
@@ -361,6 +364,8 @@ Internet, point your browser at http://www.perl.com/, the Perl Home Page.
 		</programlisting>
     </para>
 	 <para>
+		This line says that there's module file on your machine called
+		"Seq.pm", and it's in the Bio/ directory.
 		We will "use" the Bio::Seq module in order to create a Bio::Seq object.
 		The Bio::Seq module is one of the central modules in
 		Bioperl. The analogous Bio::Seq object, or "sequence object", or
@@ -378,11 +383,11 @@ Internet, point your browser at http://www.perl.com/, the Perl Home Page.
 		  $seq_obj = Bio::Seq->new(-seq => "aaaatgggggggggggccccgtt");
 		</programlisting>
     </para>
-		<para>
-		  When you assign a value to an object it's said that you that 
-		  you have <emphasis>set</emphasis> a value. When you ask an object for
-		  a value it's said that you <emphasis>get</emphasis> a value.
-		</para>
+	 <para>
+		When you assign a value to an object, as we just did, it's
+		said that you that 
+		you have <emphasis>set</emphasis> a value.
+	 </para>
 	 <para>
       <note>
 		  <para>
@@ -437,12 +442,15 @@ Internet, point your browser at http://www.perl.com/, the Perl Home Page.
 		As you'd expect, this script will print out <emphasis>
 		  aaaatgggggggggggccccgtt</emphasis>. That <emphasis>->
 		</emphasis> symbol is used when an object calls or accesses
-		its methods. When you obtain a value from an object it's said 
-		that you that you <emphasis>get</emphasis> that value.
+		its methods. When you obtain a value from an object, as we just
+		did, it's said 
+		that you that you <emphasis>get</emphasis> that value. Yes, the
+		same method, <function>seq()</function>, can be used to 
+		<emphasis>get</emphasis> or <emphasis>set</emphasis> values.
 	 </para>
 	 <para>
 		Let's make our example a bit more true-to-life, since a typical
-		sequence needs a name, perhaps an identifier, in addition to
+		sequence needs a name, perhaps a description, in addition to
 		its sequence.
 	 </para>
 	 <para>
@@ -452,11 +460,17 @@ Internet, point your browser at http://www.perl.com/, the Perl Home Page.
 		  use Bio::Seq;
 		
 		  $seq_obj = Bio::Seq->new(-seq => "aaaatgggggggggggccccgtt",
-		                           -id => "#12345"
-		                           -display_name => "example 1" );
+		                           -display_id => "#12345",
+		                           -desc => "example 1" );
 
 		  print $seq_obj->seq();
 		</programlisting>
+	 </para>
+	 <para>
+		"aaaatgggggggggggccccgtt", "#12345", and "example 1" are called
+		"arguments" in programming jargon. You could say that
+		this example shows how to pass arguments to the
+		<function>new()</function> method.
 	 </para>
   </section>
 
@@ -465,7 +479,7 @@ Internet, point your browser at http://www.perl.com/, the Perl Home Page.
 	 <para>
 		This next example will show how two objects can work together
 		to create a sequence file.
-		We already have a sequence object, and we will create an
+		We already have a sequence object, $seq_obj, and we will create an
 		additional object whose responsibility it is to read from and write
 		to files. This object is the <classname>Bio::SeqIO</classname> object, 
 		where IO stands for <emphasis>I</emphasis>nput-<emphasis>O</emphasis>utput.
@@ -481,18 +495,64 @@ Internet, point your browser at http://www.perl.com/, the Perl Home Page.
 		<programlisting>
 		  use Bio::SeqIO;
 
-		  my $seq_io = Bio::SeqIO->new(-file => '>sequence.fasta', 
-		                               -format => 'fasta' );
+		  $seq_io = Bio::SeqIO->new(-file => '>sequence.fasta', 
+		                            -format => 'fasta' );
 		</programlisting> 
 	 </para> 
 	 <para>
-	   Note that <emphasis>&gt;</emphasis> character in the -file argument.
-	       This indicates that we're going to
-	       <emphasis>write</emphasis> to the file named
-	       "sequence.fasta", the same character we'd use if we were using Perl's
-	       <function>open()</function> function to write to a file.
+	   Note that <emphasis>&gt;</emphasis> in the -file argument.
+		This character indicates that we're going to
+		<emphasis>write</emphasis> to the file named
+		"sequence.fasta", the same character we'd use if we were using Perl's
+		<function>open()</function> function to write to a file. The
+		"-format" argument, "fasta", tells the SeqIO object that is
+		should create a file in fasta format.
     </para>
-    <para/>
+    <para>
+		Let's put our 2 examples together:
+	 </para>
+	 <para>
+		<programlisting>
+		  #!/bin/perl -w
+
+		  use Bio::Seq;
+		  use Bio::SeqIO;
+
+		  $seq_obj = Bio::Seq->new(-seq => "aaaatgggggggggggccccgtt",
+		                           -display_id => "#12345",
+		                           -desc => "example 1" );
+
+		  $seq_io = Bio::SeqIO->new(-file => '>sequence.fasta', 
+		                            -format => 'fasta' );
+
+		  $seq_io->write_seq($seq_obj);
+		</programlisting> 
+	 </para> 
+	 <para>
+		Let's consider that last line, since this is where some of the 
+		neophytes start to get a bit nervous. What does it mean? In that
+		line we handed or passed the Sequence object to the SeqIO object as an
+		argument to its <function>write_seq</function> method. Another
+		way to think about this is that the SeqIO object understands how
+		to take the information in the Sequence object and create a file
+		using that information, in this case in fasta format. If you
+		run this script like this:
+	 </para>
+	 <para>
+		<programlisting>
+>perl seqio.pl
+		</programlisting>
+	 </para>
+	 <para>
+		You should create a file called "sequence.fasta" that looks like
+		this:
+	 </para>
+	 <para>
+		<programlisting>
+>#12345 example 1
+aaaatgggggggggggccccgtt
+		</programlisting>
+	 </para>
   </section>
 
   <section id="retrieving_gb">
@@ -512,17 +572,44 @@ Internet, point your browser at http://www.perl.com/, the Perl Home Page.
 		and it's built to operate with all the other Bioperl 
 		modules that you will want to use. 
 	 </para>
-
 	 <para>
-		
+		Let's read the file we created previously, "sequence.fasta",
+		using SeqIO. The initial syntax will look somewhat familiar:
 	 </para>
-		  
 	 <para>
 		<programlisting>
+		  #!/bin/perl -w
+
 		  use Bio::SeqIO;
+
+		  $seqio = Bio::SeqIO->new(-file => "sequence.fasta");
 		</programlisting>
 	 </para>
+	 <para>
+		One difference is immediately apparent: there is no <emphasis>
+		  &gt;</emphasis> character. Just as with with the <function>
+		  open()</function> function this means we'll be reading from
+		the "sequence.fasta" file. Let's add the key line:
+	 </para>
+	 <para>
+		<programlisting>
+		  #!/bin/perl -w
+
+		  use Bio::SeqIO;
+
+		  $seqio = Bio::SeqIO->new(-file => "sequence.fasta");
 		  
+		  $seq_obj = $seqio->next_seq;
+		</programlisting>
+	 </para>
+	 <para>
+		Here we've called the <function>next_seq()</function> of the
+		Bio::SeqIO object. <function>next_seq()</function> tells the
+		SeqIO	object to get the next available sequence, in this case
+		the first sequence in the file that was just opened. The
+		Sequence object, $seq_obj, that's created will be identical to
+		to the Sequence object we created manually in our first example.
+	 </para>
   </section>
 
   <section id="retrieving_gb">
