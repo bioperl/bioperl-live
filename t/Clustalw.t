@@ -27,9 +27,9 @@ END {
 }
 
 ok(1);
-
+my $verbose = -1;
 my @params = ('ktuple' => 2, 'matrix' => 'BLOSUM', 
-	      -verbose => -1);
+	      -verbose => $verbose);
 my  $factory = Bio::Tools::Run::Alignment::Clustalw->new(@params);
 
 ok $factory->isa('Bio::Tools::Run::Alignment::Clustalw');
