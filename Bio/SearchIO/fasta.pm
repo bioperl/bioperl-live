@@ -255,16 +255,16 @@ sub next_result{
 	       }
 	       $last = $_;
 	   }
-
+	   
 	   if( $self->{'_reporttype'} &&
-	       $self->{'_reporttype'} eq 'FASTA' ) {
+	       $self->{'_reporttype'} eq 'FASTA'
+	       ) {
 	       if( $querytype eq 'nt') {
 		   $self->{'_reporttype'} = 'FASTN' ;
 	       } elsif( $querytype eq 'aa' ) {
 		   $self->{'_reporttype'} = 'FASTP' ;
 	       }
 	   }
-	   
 	   my ($name, $descr) = $querydef =~ m/^(\S+)\s*(.*?)\s*$/o;
 	   $self->element({'Name' => 'FastaOutput_query-def',
 			   'Data' => $name});
@@ -687,15 +687,15 @@ sub next_result{
 	       }
 
 	       if( $self->{'_reporttype'} &&
-		   $self->{'_reporttype'} eq 'FASTA' ) {
+		   $self->{'_reporttype'} eq 'FASTA' 
+		   ) {
 		   if( $querytype eq 'nt') {
 		       $self->{'_reporttype'} = 'FASTN' ;
 		   } elsif( $querytype eq 'aa' ) {
 		       $self->{'_reporttype'} = 'FASTP' ;
 		   }
 	       }
-		   	
-	       my ($name, $descr) = $querydef =~ m/^(\S+)\s+(.*?)\s*$/o;
+	       my ($name,$junk,$descr) = ($querydef =~ m/^(\S+)(\s+(.*))?\s*$/o);
 	       $self->element({'Name' => 'FastaOutput_query-def',
 			       'Data' => $name});
 	       $self->element({'Name' => 'FastaOutput_querydesc',
