@@ -1,30 +1,39 @@
 #
 # $Id$
 #
+# BioPerl module for Bio::SeqFeature::UTR5
+#
+# Cared for by Mark Wilkinson <mwilkinson@gene.pbi.nrc.ca>
+#
+# Copyright Mark Wilkinson
+#
+# You may distribute this module under the same terms as perl itself
+
+# POD documentation - main docs before the code
 
 =head1 NAME
 
-Bio::SeqFeature::UTR5
+Bio::SeqFeature::UTR5 - 5\' UTR
 
 =head1 SYNOPSIS
 
   use Bio::SeqFeature::UTR5;
-  my $Exon = Bio::SeqFeature::UTR5->new( # takes same args as SeqFeature::Generic
-      -start => 10,
-      -end => 100,
-      -frame => '.',
+  my $Exon = Bio::SeqFeature::UTR5->new( 
+     # takes same args as SeqFeature::Generic
+      -start   => 10,
+      -end     => 100,
+      -frame   => '.',
       -primary => 'untranslated',
-      -strand => '1',
-      -source => 'cDNA_alignment',
-      -score => '100',
-      type => 'unknown');   # Descr. of the UTR5 type; *not* Cont.Vocab.
-
+      -strand  => '1',
+      -source  => 'cDNA_alignment',
+      -score   => '100',
+      type     => 'unknown');   # Descr. of the UTR5 type; *not* Cont.Vocab.
 
 =head1 DESCRIPTION
 
-Creates UTR5 type sequence features.  These are essentially SeaFeature::Generic
-features, but report themselves as "Bio::SeqFeature::UTR5" when you query them
-with a $Feature-E<gt>isa.
+Creates UTR5 type sequence features.  These are essentially
+SeaFeature::Generic features, but report themselves as
+"Bio::SeqFeature::UTR5" when you query them with a $Feature-E<gt>isa.
 
 =head1 AUTHORS
 
@@ -34,13 +43,14 @@ Copyright (c) National Research Council of Canada, April, 2001.
 
 =head1 DISCLAIMER
 
-Anyone who intends to use and uses this software and code acknowledges and
-agrees to the following: The National Research Council of Canada (herein "NRC")
-disclaims any warranties, expressed, implied, or statutory, of any kind or
-nature with respect to the software, including without limitation any warranty
-or merchantability or fitness for a particular purpose.  NRC shall not be liable
-in any event for any damages, whether direct or indirect,
-consequential or incidental, arising from the use of the software.
+Anyone who intends to use and uses this software and code acknowledges
+and agrees to the following: The National Research Council of Canada
+(herein "NRC") disclaims any warranties, expressed, implied, or
+statutory, of any kind or nature with respect to the software,
+including without limitation any warranty or merchantability or
+fitness for a particular purpose.  NRC shall not be liable in any
+event for any damages, whether direct or indirect, consequential or
+incidental, arising from the use of the software.
 
 =head1 CONTACT
 
@@ -55,7 +65,6 @@ identical to SeqFeature::Generic except for:
   Usage:  $UTR5->type($type);
   Args:   optional string indicating new type
   Returns: current or newly set type
-
 
 =cut
 

@@ -1,30 +1,41 @@
 #
 # $Id$
 #
+# 
+# BioPerl module for Bio::SeqFeature::Promotor
+#
+# Cared for by Mark Wilkinson <mwilkinson@gene.pbi.nrc.ca>
+#
+# Copyright Mark Wilkinson
+#
+# You may distribute this module under the same terms as perl itself
+
+# POD documentation - main docs before the code
 
 =head1 NAME
 
-Bio::SeqFeature::Promoter
+Bio::SeqFeature::Promoter - Encapsulate a promotor object
 
 =head1 SYNOPSIS
 
   use Bio::SeqFeature::Promoter;
-  my $Exon = Bio::SeqFeature::Promoter->new( # takes same args as SeqFeature::Generic
-      -start => 10,
-      -end => 100,
-      -frame => '.',
+  my $Exon = Bio::SeqFeature::Promoter->new( 
+     # takes same args as SeqFeature::Generic
+      -start   => 10,
+      -end     => 100,
+      -frame   => '.',
       -primary => 'promoter',
-      -strand => '1',
-      -source => 'genscan',
-      -score => '100',
-      type => 'S35');   # Descr. of the Promoter type; *not* Cont.Vocab.
-
+      -strand  => '1',
+      -source  => 'genscan',
+      -score   => '100',
+      type     => 'S35');   # Descr. of the Promoter type; *not* Cont.Vocab.
 
 =head1 DESCRIPTION
 
-Creates Promoter type sequence features.  These are essentially SeaFeature::Generic
-features, but report themselves as "Bio::SeqFeature::Promoter" when you query them
-with a $Feature-E<gt>isa.
+Creates Promoter type sequence features.  These are essentially
+SeaFeature::Generic features, but report themselves as
+"Bio::SeqFeature::Promoter" when you query them with a
+$Feature-E<gt>isa.
 
 =head1 AUTHORS
 
@@ -34,13 +45,14 @@ Copyright (c) National Research Council of Canada, April, 2001.
 
 =head1 DISCLAIMER
 
-Anyone who intends to use and uses this software and code acknowledges and
-agrees to the following: The National Research Council of Canada (herein "NRC")
-disclaims any warranties, expressed, implied, or statutory, of any kind or
-nature with respect to the software, including without limitation any warranty
-or merchantability or fitness for a particular purpose.  NRC shall not be liable
-in any event for any damages, whether direct or indirect,
-consequential or incidental, arising from the use of the software.
+Anyone who intends to use and uses this software and code acknowledges
+and agrees to the following: The National Research Council of Canada
+(herein "NRC") disclaims any warranties, expressed, implied, or
+statutory, of any kind or nature with respect to the software,
+including without limitation any warranty or merchantability or
+fitness for a particular purpose.  NRC shall not be liable in any
+event for any damages, whether direct or indirect, consequential or
+incidental, arising from the use of the software.
 
 =head1 CONTACT
 

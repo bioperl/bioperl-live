@@ -1,10 +1,16 @@
 # $Id$
 
-=head1  BioPerl Tutorial
+=head1 NAME
+
+BioPerlTutorial - a tutorial for bioperl
+
+=head1 AUTHOR
 
   Cared for by Peter Schattner <schattner@alum.mit.edu>
 
   Copyright Peter Schattner
+
+=head1 DESCRIPTION
 
    This tutorial includes "snippets" of code and text from various
    Bioperl documents including module documentation, example scripts
@@ -26,7 +32,7 @@
   I.3 Installation procedures
   I.4 Additional comments for non-unix users
 
-  II. Brief overview to bioperl's objects
+  II. Brief overview to bioperl\'s objects
   II.1 Sequence objects: (Seq, PrimarySeq, LocatableSeq, LiveSeq, LargeSeq, SeqI)
   II.2 Alignment objects (SimpleAlign, UnivAln)	
   II.3  Interface objects and implementation objects
@@ -143,7 +149,7 @@ better yet, stepping through it with an interactive debugger - is a
 good way of learning bioperl.  The tutorial script is also a good
 place from which to cut-and-paste code for your scripts(rather than
 using the code snippets in this tutorial). The tutorial script should
-work on your machine - and if it doesn't it would probably be a good
+work on your machine - and if it doesn\'t it would probably be a good
 idea to find out why, before getting too involved with bioperl!
 
 This tutorial does not intend to be a comprehensive description of all
@@ -378,7 +384,7 @@ less "graceful" manner.
 Todd Richmond has written of his experiences with BioPerl on MacOs
 at http://bioperl.org/Core/mac-bioperl.html
 
-=head1 II. Brief introduction to bioperl's objects
+=head1 II. Brief introduction to bioperl\'s objects
 
 The purpose of this tutorial is to get you using bioperl to solve
 real-life bioinformatics problems as quickly as possible.  The aim is
@@ -427,7 +433,7 @@ amount of RAM the program requires.
 The LocatableSeq object is just a Seq object which has "start" and
 "end" positions associated with it.  It is used by the alignment
 object SimpleAlign and other modules that use SimpleAlign objects (eg
-AlignIO, pSW).  In general you don't have to worry about creating
+AlignIO, pSW).  In general you don\'t have to worry about creating
 LocatableSeq objects because they will be made for you automatically
 when you create an alignment (using pSW, Clustalw, Tcoffee or bl2seq)
 or when input an alignment data file using AlignIO.  However if you
@@ -602,7 +608,7 @@ develop customized local data-file indexing systems.
 =head2   III.2.1 Transforming sequence files (SeqIO)
 
 A common - and tedious - bioinformatics task is that of converting
-sequence data among the many widely used data formats.  Bioperl's
+sequence data among the many widely used data formats.  Bioperl\'s
 SeqIO object, however, makes this chore a breeze.  SeqIO can read a
 stream of sequences - located in a single or in multiple files - in
 any of six formats: Fasta, EMBL. GenBank, Swissprot, PIR and GCG.
@@ -633,7 +639,7 @@ write sequence objects, eg:
 Data files storing multiple sequence alignments also appear in varied
 formats.  AlignIO is the bioperl object for data conversion of
 alignment files. AlignIO is patterned on the SeqIO object and shares
-most of SeqIO's features.  AlignIO currently supports input in the
+most of SeqIO\'s features.  AlignIO currently supports input in the
 following formats: fasta, mase, stockholm, prodom, selex, bl2seq,
 msf/gcg and output in these formats: : fasta, mase, selex, clustalw,
 msf/gcg.  One significant difference between AlignIO and SeqIO is that
@@ -660,7 +666,7 @@ in fasta data format.)
 =head2 III.3.1  Manipulating sequence data with Seq methods
 
 OK, so we know how to retrieve sequences and access them as Seq
-objects.  Let's see how we can use the Seq objects to manipulate our
+objects.  Let\'s see how we can use the Seq objects to manipulate our
 sequence data and retrieve information.  Seq provides multiple methods
 for performing many common (and some not-so-common) tasks of sequence
 manipulation and data retrieval.  Here are some of the most useful:
@@ -690,12 +696,12 @@ The following methods returns new sequence objects, but do not transfer features
   $seqobj->revcom       # reverse complements sequence
   $seqobj->translate    # translation of the sequence
 
-Note that some methods return strings, some return arrays and some return
-references to objects.  Here (as elsewhere in perl and bioperl) it is the user's
-responsibility to check the relevant documentation so they know the
-format of the data being returned.
+Note that some methods return strings, some return arrays and some
+return references to objects.  Here (as elsewhere in perl and bioperl)
+it is the user\'s responsibility to check the relevant documentation so
+they know the format of the data being returned.
 
-Many of these methods are self-explanatory. However, bioperl's flexible
+Many of these methods are self-explanatory. However, bioperl\'s flexible
 translation methods warrant further comment. Translation in bioinformatics
 can mean two slightly different things:
 
@@ -714,36 +720,38 @@ a protein sequence object:
 
   $translation1 = $my_seq_object->translate;
 
-However, the translate method can also be passed several optional parameters
-to modify its behavior. For example, the first two arguments to "translate"
-can be used to modify the characters used to represent stop (default '*')
-and unknown amino acid ('X'). (These are normally best left untouched.)
-The third argument determines the frame of the translation. The default
-frame is "0".  To get translations in the other two forward frames,
-we would write:
+However, the translate method can also be passed several optional
+parameters to modify its behavior. For example, the first two
+arguments to "translate" can be used to modify the characters used to
+represent stop (default '*') and unknown amino acid ('X'). (These are
+normally best left untouched.)  The third argument determines the
+frame of the translation. The default frame is "0".  To get
+translations in the other two forward frames, we would write:
 
   $translation2 = $my_seq_object->translate(undef,undef,1);
   $translation3 = $my_seq_object->translate(undef,undef,2);
 
-The fourth argument to "translate" makes it possible to use alternative
-genetic codes. There are currently 16 codon tables defined, including tables for
-'Verterbate Mitochondrial', 'Bacterial', 'Alternative Yeast Nuclear'
-and 'Ciliate, Dasycladacean and Hexamita Nuclear' translation. These
-tables are located in the object Bio::Tools::CodonTable which is used
-by the translate method. For example, for mitochondrial translation:
+The fourth argument to "translate" makes it possible to use
+alternative genetic codes. There are currently 16 codon tables
+defined, including tables for 'Verterbate Mitochondrial', 'Bacterial',
+'Alternative Yeast Nuclear' and 'Ciliate, Dasycladacean and Hexamita
+Nuclear' translation. These tables are located in the object
+Bio::Tools::CodonTable which is used by the translate method. For
+example, for mitochondrial translation:
 
   $human_mitochondrial_translation =
       $my_seq_object->translate(undef,undef,undef, 2);
 
 If we want to translate full coding regions (CDS) the way major
 nucleotide databanks EMBL, GenBank and DDBJ do it, the translate
-method has to perform more tricks. Specifically, 'translate' needs
-to confirm that the sequence has appropriate start and terminator codons
-at the beginning and the end of the sequence and that there are no terminator
-codons present within the sequence.  In addition, if the genetic code being used has
-an atypical (non-ATG) start codon, the translate method needs to convert
-the initial amino acid to methionine.  These checks and conversions are triggered by
-setting the fifth argument of the translate method to evaluate to "true".
+method has to perform more tricks. Specifically, 'translate' needs to
+confirm that the sequence has appropriate start and terminator codons
+at the beginning and the end of the sequence and that there are no
+terminator codons present within the sequence.  In addition, if the
+genetic code being used has an atypical (non-ATG) start codon, the
+translate method needs to convert the initial amino acid to
+methionine.  These checks and conversions are triggered by setting the
+fifth argument of the translate method to evaluate to "true".
 
 If argument 5 is set to true and the criteria for a proper CDS are
 not met, the method, by default, issues a warning. By setting the
@@ -784,7 +792,7 @@ the sequence.
 
 Another common sequence manipulation task for nucleic acid sequences
 is locating restriction enzyme cutting sites.  Bioperl provides the
-RestrictionEnzyme object for this purpose. Bioperl's standard
+RestrictionEnzyme object for this purpose. Bioperl\'s standard
 RestrictionEnzyme object comes with data for XXX different restriction
 enzymes. A list of the available enzymes can be accessed using the
 available_list() method.  For example to select all available enzymes
@@ -848,7 +856,7 @@ object it is "protein".
 
 OddCodes:
 
-For some purposes it's useful to have a listing of an amino acid
+For some purposes it\'s useful to have a listing of an amino acid
 sequence showing where the hydrophobic amino acids are located or
 where the positively charged ones are.  Bioperl provides this
 capability via the module OddCodes.pm.
@@ -875,7 +883,7 @@ In this case the sample sequence ACDEFGH would become LSAARAC.
 
 OddCodes also offers translation into alphabets showing alternate
 characteristics of the amino acid sequence such as hydrophobicity,
-"functionality" or grouping using Dayhoff's definitions.  See the
+"functionality" or grouping using Dayhoff\'s definitions.  See the
 documentation for OddCodes.pm for further details.
 
 SeqPattern:
@@ -1036,7 +1044,7 @@ and use it like this:
 
 Unfortunately the flexibility of the Blast.pm parser comes at a cost
 of complexity.  As a result of this complexity and the fact that
-Blast.pm's original developer is no longer actively supporting the
+Blast.pm\'s original developer is no longer actively supporting the
 module, the Blast.pm parser has been difficult to maintain and has not
 been upgraded to handle the output of the newer blast options such as
 PSIBLAST and BL2SEQ.  Consequently, the BPlite parser (described in
@@ -1045,7 +1053,7 @@ bioperl.
 
 =head2 III.4.4 Parsing BLAST reports with BPlite, BPpsilite and BPbl2seq
 
-Because of the issues with Blast.pm discussed above, Ian Korf's BPlite
+Because of the issues with Blast.pm discussed above, Ian Korf\'s BPlite
 parser has been recently ported to Bioperl.  BPlite is less complex
 and easier to maintain than Blast.pm.  Although it has fewer options
 and display modes than Blast.pm, you will probably find that it
@@ -1094,7 +1102,7 @@ BLAST bl2seq is a program for comparing and aligning two sequences
 using BLAST.  Although the report format is similar to that of a
 conventional BLAST, there are a few differences.  Consequently, the
 standard bioperl parsers Blast.pm and BPlite are unable to read bl2seq
-reports directly.  From the user's perspective, one difference
+reports directly.  From the user\'s perspective, one difference
 between bl2seq and other blast reports is that the bl2seq report does
 not print out the name of the first of the two aligned sequences.
 Consequently, BPbl2seq has no way of identifying the name of one of
@@ -1205,7 +1213,7 @@ the directories containg the executables.  See section I.3 and the
 Clustalw.pm and TCoffee.pm module documentation for information on
 downloading and installing these programs.
 
-From the user's perspective, the bioperl syntax for calling
+From the user\'s perspective, the bioperl syntax for calling
 Clustalw.pm or TCoffee.pm is almost identical.  The only differences
 are the names of the modules themselves appearing in the initial "use"
 and constructor statements and the names of the some of the individual
@@ -1215,7 +1223,7 @@ In either case, initially, a "factory object" must be created. The
 factory may be passed most of the parameters or switches of the
 relevant program.  In addition, alignment parameters can be changed
 and/or examined after the factory has been created.  Any parameters
-not explicitly set will remain as the underlying program's
+not explicitly set will remain as the underlying program\'s
 defaults. Clustalw.pm/TCoffee.pm output is returned in the form of a
 SimpleAlign object.  It should be noted that some Clustalw and TCoffee
 parameters and features (such as those corresponding to tree
@@ -1282,7 +1290,7 @@ entire alignment or a sub-alignment.  Typical usage is:
        # 60% majority, columns 1+3 only
 
 Many additional - and more intricate - methods exist.  See the UnivAln
-documentation.  Note that if you do want to use UnivAln's methods on
+documentation.  Note that if you do want to use UnivAln\'s methods on
 an alignment, you will first need to convert the alignment into fasta
 format (which can be done via the SimpleAlign and AlignIO objects
 discussed above.)
@@ -1328,7 +1336,7 @@ documentation in the Bio::Tools directory.
 
 Historically, annotations for sequence data have been entered and read
 manually in flat-file or relational databases with relatively little
-concern for machine readability.  More recent projects - such as EBI's
+concern for machine readability.  More recent projects - such as EBI\'s
 Ensembl project and the efforts to develop an XML molecular biology
 data specification - have begun to address this limitation.  Because
 of its strengths in text processing and regular-expression handling,
@@ -1392,7 +1400,7 @@ with methods including:
 
 Very large sequences and/or data files with sequences that are
 frequently being updated present special problems to automated
-sequence-annotation storage and retrieval projects.  Bioperl's
+sequence-annotation storage and retrieval projects.  Bioperl\'s
 LargeSeq and LiveSeq objects are designed to address these two
 situations.
 
@@ -1429,10 +1437,10 @@ object internally as a "double linked chain." Each element of the
 chain is connected to other two elements (the PREVious and the NEXT
 one). There is no absolute position (like in an array), hence if
 positions are important, they need to be computed (methods are
-provided). Otherwise it's easy to keep track of the elements with
+provided). Otherwise it\'s easy to keep track of the elements with
 their "LABELs". There is one LABEL (think of it as a pointer) to each
-ELEMENT. The labels won't change after insertions or deletions of the
-chain. So it's always possible to retrieve an element even if the
+ELEMENT. The labels won\'t change after insertions or deletions of the
+chain. So it\'s always possible to retrieve an element even if the
 chain has been modified by successive insertions or deletions.
 
 Although the implementation of the LiveSeq object is novel, its
@@ -1570,7 +1578,7 @@ http://biopython.org/ websites.
 =head2 IV.3  Ensembl
 
 Ensembl is an ambitious automated-genome-annotation project at EBI.
-Much of Ensembl's code is based on bioperl and Ensembl developers, in
+Much of Ensembl\'s code is based on bioperl and Ensembl developers, in
 turn, have contributed significant pieces of code to bioperl.  In
 particular, the bioperl code for automated sequence annotation has
 been largely contributed by Ensembl developers. (The close association

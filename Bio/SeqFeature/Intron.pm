@@ -4,7 +4,7 @@
 
 =head1 NAME
 
-Bio::SeqFeature::Intron
+Bio::SeqFeature::Intron - Intron model
 
 =head1 SYNOPSIS
 

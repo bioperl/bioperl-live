@@ -1,30 +1,40 @@
 #
 # $Id$
 #
+#
+# BioPerl module for Bio::SeqFeature::UTR3
+#
+# Cared for by Mark Wilkinson <mwilkinson@gene.pbi.nrc.ca>
+#
+# Copyright Mark Wilkinson
+#
+# You may distribute this module under the same terms as perl itself
+
+# POD documentation - main docs before the code
 
 =head1 NAME
 
-Bio::SeqFeature::UTR3
+Bio::SeqFeature::UTR3 - 3\' UTR
 
 =head1 SYNOPSIS
 
   use Bio::SeqFeature::UTR3;
-  my $Exon = Bio::SeqFeature::UTR3->new( # takes same args as SeqFeature::Generic
-      -start => 10,
-      -end => 100,
-      -frame => '.',
+  my $Exon = Bio::SeqFeature::UTR3->new( 
+     # takes same args as SeqFeature::Generic
+      -start   => 10,
+      -end     => 100,
+      -frame   => '.',
       -primary => 'untranslated',
-      -strand => '1',
-      -source => 'cDNA_alignment',
-      -score => '100',
-      type => 'unknown');   # Descr. of the UTR3 type; *not* Cont.Vocab.
+      -strand  => '1',
+      -source  => 'cDNA_alignment',
+      -score   => '100',
+      type    => 'unknown');   # Descr. of the UTR3 type; *not* Cont.Vocab.
 
+=head1 DESCRIPTION
 
-=head1 DESCRIPTION and ACKNOWLEDGEMENTS
-
-Creates UTR3 type sequence features.  These are essentially SeaFeature::Generic
-features, but report themselves as "Bio::SeqFeature::UTR3" when you query them
-with a $Feature-E<gt>isa.
+Creates UTR3 type sequence features.  These are essentially
+SeaFeature::Generic features, but report themselves as
+"Bio::SeqFeature::UTR3" when you query them with a $Feature-E<gt>isa.
 
 =head1 AUTHORS
 
@@ -34,13 +44,14 @@ Copyright (c) National Research Council of Canada, April, 2001.
 
 =head1 DISCLAIMER
 
-Anyone who intends to use and uses this software and code acknowledges and
-agrees to the following: The National Research Council of Canada (herein "NRC")
-disclaims any warranties, expressed, implied, or statutory, of any kind or
-nature with respect to the software, including without limitation any warranty
-or merchantability or fitness for a particular purpose.  NRC shall not be liable
-in any event for any damages, whether direct or indirect,
-consequential or incidental, arising from the use of the software.
+Anyone who intends to use and uses this software and code acknowledges
+and agrees to the following: The National Research Council of Canada
+(herein "NRC") disclaims any warranties, expressed, implied, or
+statutory, of any kind or nature with respect to the software,
+including without limitation any warranty or merchantability or
+fitness for a particular purpose.  NRC shall not be liable in any
+event for any damages, whether direct or indirect, consequential or
+incidental, arising from the use of the software.
 
 =head1 CONTACT
 
@@ -100,22 +111,22 @@ use Bio::SeqFeature::Generic;
 }
 
 sub new {
-	my ($caller, %args) = @_;
-	
-	#create a generic feature based on %args
-	# is this a call to duplicate an object?
-	my $caller_is_obj = ref($caller);
+    my ($caller, %args) = @_;
+
+    #create a generic feature based on %args
+    # is this a call to duplicate an object?
+    my $caller_is_obj = ref($caller);
     my $class = $caller_is_obj || $caller;
 
     my $self = $caller->SUPER::new(%args);
 
     foreach my $attrname ( $self->_standard_keys ) {
     	if (exists $args{$attrname}) {
-		$self->{$attrname} = $args{$attrname} }
-    elsif ($caller_is_obj) {
-		$self->{$attrname} = $caller->{$attrname} }
-    else {
-		$self->{$attrname} = $self->_default_for($attrname) }
+	    $self->{$attrname} = $args{$attrname} }
+	elsif ($caller_is_obj) {
+	    $self->{$attrname} = $caller->{$attrname} }
+	else {
+	    $self->{$attrname} = $self->_default_for($attrname) }
     }   	
 
     return $self;
