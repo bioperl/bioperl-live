@@ -155,10 +155,10 @@ sub to_string {
         next unless (scalar(@plus_hsps) + scalar(@minus_hsps));  # next if no hsps (??)
         # okay, write out the index line for the entire hit before processing HSP's
         if (scalar(@plus_hsps)){
-            $GFF .= "$refseq\t$source\tmatch\t$spmin\t$spmax\t$score\t+\t.\tTarget EST:$seqname $qpmin $qpmax\n";
+            $GFF .= "$refseq\t$source\tmatch\t$spmin\t$spmax\t$score\t+\t.\tTarget EST:$seqname ; tstart $qpmin ; tend $qpmax\n";
         }
         if (scalar(@minus_hsps)){
-            $GFF .= "$refseq\t$source\tmatch\t$smmin\t$smmax\t$score\t-\t.\tTarget EST:$seqname $qmmax $qmmin\n";  # note reversal of max and min in column 9, as per the spec
+            $GFF .= "$refseq\t$source\tmatch\t$smmin\t$smmax\t$score\t-\t.\tTarget EST:$seqname ; tstart $qmmax ; tend $qmmin\n";  # note reversal of max and min in column 9, as per the spec
         }
         # process + strand hsps
         my $strand = "+";
@@ -168,7 +168,7 @@ sub to_string {
             my $sstart = $hsp->start('subject');
             my $send = $hsp->end('subject');
             my $score = $hsp->score;
-            $GFF .= "$refseq\t$source\tHSP\t$sstart\t$send\t$score\t+\t.\tTarget EST:$seqname $qstart $qend\n";
+            $GFF .= "$refseq\t$source\tHSP\t$sstart\t$send\t$score\t+\t.\tTarget EST:$seqname ; tstart $qstart ; tend $qend\n";
         }
         foreach my $hsp(@minus_hsps){
             my $qstart = $hsp->start('query');
@@ -176,7 +176,7 @@ sub to_string {
             my $sstart = $hsp->start('subject');
             my $send = $hsp->end('subject');
             my $score = $hsp->score;
-            $GFF .= "$refseq\t$source\tHSP\t$sstart\t$send\t$score\t-\t.\tTarget EST:$seqname $qend $qstart\n";  # note reversal of qstart/qend as per spec
+            $GFF .= "$refseq\t$source\tHSP\t$sstart\t$send\t$score\t-\t.\tTarget EST:$seqname ; tstart $qend ; tend $qstart\n";  # note reversal of qstart/qend as per spec
         }
     }
     return $GFF;
