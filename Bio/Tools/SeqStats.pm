@@ -84,7 +84,14 @@ As currently implemented the object can return the following values from a seque
 	* The number of each type of monomer present: count_monomers()
 	* The number of each codon present in a nucleic acid sequence: count_codons()
 
-For dna (and rna) sequences, single-stranded weights are returned.
+For dna (and rna) sequences, single-stranded weights are returned. The molecular weights
+are calculated for neutral - ie not ionized - nucleic acids. The returned weight is
+the sum of the base-sugar-phosphate residues of the chain plus one weight of water to
+to account for the additional OH on the phosphate of the 5' residue and the additional H on
+the sugar ring of the 3' residue.  Note that this leads to a difference of 18 in calculated
+molecular weights compared to some other available programs (eg Informax VectorNTI).
+
+
 Note that since sequences may contain ambiguous monomers (eg "M" meaning "A" or "C"
 in a nucleic acid sequence), the method get_mol_wt returns a two-element array containing
 the greatest lower bound and least upper bound of the molecule. (For a sequence with no
@@ -222,18 +229,7 @@ my $amino_weights = {
 };
 
 # Extended Dna / Rna alphabet
-
-# I haven't found a good reference for dna and rna weights / base, so I
-# calculate them.  If someone does have a good reference with precise weights,
-# feel free to replace these calculations with them.
-#  my ( $N, $H, $P, $water);
-#  my ($C, $O);
-#   use vars ('$C', '$O');
    use vars ( qw($C $O $N $H $P $water) );
-#   my ($adenine, $guanine, $cytosine, $thymine, $uracil);
-#   my ($ribose_phosphate, $deoxyribose_phosphate, $ppi);
-#   my ($dna_A_wt, $dna_C_wt, $dna_G_wt,$dna_T_wt, $rna_A_wt, $rna_C_wt, $rna_G_wt, $rna_U_wt);
-#   my ($dna_weights, $rna_weights, %Weights);
    use vars ( qw($adenine   $guanine   $cytosine   $thymine   $uracil));
    use vars ( qw($ribose_phosphate   $deoxyribose_phosphate   $ppi));
    use vars ( qw($dna_A_wt   $dna_C_wt   $dna_G_wt  $dna_T_wt   $rna_A_wt   $rna_C_wt   $rna_G_wt   $rna_U_wt));
@@ -252,9 +248,8 @@ my $amino_weights = {
    $thymine = 5 * $C + 2 * $N + 2 * $O + 6 * $H;
    $uracil = 4 * $C + 2 * $N + 2 * $O + 4 * $H;
 
-   $ribose_phosphate = 5 * $C + 7 * $O + 8 * $H + 1 * $P;
-   $deoxyribose_phosphate = 5 * $C + 6 * $O + 8 * $H + 1 * $P;
-   $ppi = 7 * $O + 2 * $P;
+   $ribose_phosphate = 5 * $C + 7 * $O + 9 * $H + 1 * $P;      #neutral (unionized) form
+   $deoxyribose_phosphate = 5 * $C + 6 * $O + 9 * $H + 1 * $P;
 
 # the following are single strand molecular weights / base
    $dna_A_wt = $adenine + $deoxyribose_phosphate - $water;
@@ -277,18 +272,13 @@ my $amino_weights = {
    'W'             => [$dna_T_wt,$dna_A_wt],            # A or T
    'S'             => [$dna_C_wt,$dna_G_wt],            # C or G
    'Y'             => [$dna_C_wt,$dna_T_wt],            # C or T
-#   'Y'             => [$dna_T_wt,$dna_C_wt],            # C or T
    'K'             => [$dna_T_wt,$dna_G_wt],            # G or T
    'V'             => [$dna_C_wt,$dna_G_wt],            # A or C or G
-#   'H'             => [$dna_T_wt,$dna_A_wt],            # A or C or T
    'H'             => [$dna_C_wt,$dna_A_wt],            # A or C or T
    'D'             => [$dna_T_wt,$dna_G_wt],            # A or G or T
    'B'             => [$dna_C_wt,$dna_G_wt],            # C or G or T
    'X'             => [$dna_C_wt,$dna_G_wt],            # G or A or T or C
    'N'             => [$dna_C_wt,$dna_G_wt],            # G or A or T or C
-#   'B'             => [$dna_T_wt,$dna_G_wt],            # C or G or T
-#   'X'             => [$dna_T_wt,$dna_G_wt],            # G or A or T or C
-#   'N'             => [$dna_T_wt,$dna_G_wt],            # G or A or T or C
   };
 
    $rna_weights =  {
@@ -485,9 +475,10 @@ sub get_mol_wt {
     	$weight_lower_bound -= $water * ($seqobj->length - 1);
     	$weight_upper_bound -= $water * ($seqobj->length - 1);
     } else {
-    	# Correction for nucleic acids because initial base has additional diphosphate attached
-    	$weight_lower_bound += $ppi;
-    	$weight_upper_bound += $ppi;
+    	# Correction because phosphate of 5' residue has additional OH and
+    	# sugar ring of 3' residue has additional H
+    	$weight_lower_bound += $water;
+    	$weight_upper_bound += $water;
     }
 
     $weight_lower_bound = sprintf("%.0f", $weight_lower_bound);

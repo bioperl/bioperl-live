@@ -36,13 +36,13 @@ $seqobj = Bio::PrimarySeq->new(-seq=>'ACTACTTCA', -moltype=>'dna',
 			       -id=>'test');
 $seqobj_stats  =  Bio::Tools::SeqStats->new($seqobj);
 $wt = $seqobj_stats->get_mol_wt();  # for DNA sequence
-ok $$wt[0], 2885 ;
+ok $$wt[0], 2738 ;
 
 $seqobj = Bio::PrimarySeq->new(-seq=>'ACXACNNCA', 
 			       -moltype=>'dna', -id=>'test');
 $wt = Bio::Tools::SeqStats->get_mol_wt($seqobj);
-ok $$wt[0], 2840;
-ok $$wt[1], 2960;
+ok $$wt[0], 2693;
+ok $$wt[1], 2813;
 
 
 $seqobj = Bio::PrimarySeq->new(-seq=>'ACTGTGGCGTCAACTG', 
@@ -66,6 +66,6 @@ ok $$wt[1], 2896;
 
 $seqobj = Bio::PrimarySeq->new(-seq=>'UYXUYNNYU', -moltype=>'rna');
 $wt = Bio::Tools::SeqStats->get_mol_wt($seqobj);
-ok $$wt[0], 2915;
-ok $$wt[1], 3038;
+ok $$wt[0], 2768;
+ok $$wt[1], 2891;
 
