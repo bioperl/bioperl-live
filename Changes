@@ -11,6 +11,9 @@ Revision history for Bioperl core modules
           CORE::reverse, avoiding Perl warnings.
         - Bug fixes in Bio::Tools::Blast modules, version 0.074
           (see Bio::Tools::Blast::CHANGES).
+        - examples/seq/seqtools.pl no longer always warns about using 
+          -prot or -nucl command-line arguments; only when using the 
+          -debug argument.
 
 0.04.2  Wed Dec 30 02:27:36 1998
         - Bug fixes in Bio::Tools::Blast modules, version 0.073
