@@ -7,7 +7,7 @@
 use strict;
 use ExtUtils::MakeMaker;
 use Bio::Root::IO;
-use constant TEST_COUNT => 133;
+use constant TEST_COUNT => 138;
 use constant FASTA_FILES => Bio::Root::IO->catfile('t','data','dbfa');
 use constant GFF_FILE    => Bio::Root::IO->catfile('t','data',
 						   'biodbgff','test.gff');
@@ -64,6 +64,12 @@ fail(TEST_COUNT - 1) unless $db;
 
 $db->debug(0);
 
+# set the preferred groups
+$db->preferred_groups( [ 'gene', 'mRNA' ] );
+my @pg = $db->preferred_groups;
+ok(scalar(@pg), 2);
+ok($pg[1], 'mRNA'); 
+
 # exercise the loader
 ok($db->initialize(1));
 ok($db->load_gff(GFF_FILE));
@@ -71,7 +77,7 @@ ok($db->load_fasta(FASTA_FILES));
 
 # exercise db->types
 my @types = sort $db->types;
-ok(scalar @types,10);
+ok(scalar @types,11);
 ok($types[0],'CDS:confirmed');
 ok($types[-1],'transposon:tc1');
 my %types = $db->types('-enumerate'=>1);
@@ -328,6 +334,13 @@ ok($overlap[1]->strand,-1);
 @overlap = sort {$a->start <=> $b->start} $segment1->features('Component');
 ok($overlap[0]->strand,0);
 
+# test preferred group assignments
+my @gene = $db->get_feature_by_name( gene => 'gene-9' );
+my @mrna = $db->get_feature_by_name( mRNA => 'trans-9' );
+ok($gene[0]->ref, 'Contig4');
+ok(scalar(@gene), 2);
+ok(scalar(@mrna), 1);
+
 # test iterator across a segment
 $segment1 = $db->segment('Contig1');
 my $i = $segment1->features('-automerge'=>0,'-iterator'=>1);
@@ -390,7 +403,7 @@ ok(scalar $clone->delete(-range_type=>'contains'),$contained_feature_count);
 ok(scalar $clone->features,$overlapping_feature_count - $contained_feature_count);
 
 # database delete() method
-ok($db->delete(-type=>['mRNA:confirmed','transposon:tc1']),3);
+ok($db->delete(-type=>['mRNA:confirmed','transposon:tc1']),4);
 ok($db->delete(-type=>'UTR',-ref=>'Contig29'),undef);
 ok($db->delete(-type=>'CDS',-ref=>'AL12345.2',-class=>'Clone'),3);
 ok($db->delete_features(1,2,3),3);

@@ -33,3 +33,10 @@ Contig3	confirmed	CDS	32101	33000	.	+	.	mRNA trans-8
 Contig3	confirmed	CDS	34000	34500	.	+	.	mRNA trans-8
 Contig3	confirmed	CDS	34600	34900	.	+	.	mRNA trans-8
 Contig3	confirmed	UTR	34901	35000	.	+	.	mRNA trans-8
+
+## preferred group assignments
+Contig4	clone	Component	1	50000	.	.	.	Clone ABC123
+Contig4	confirmed	gene	32000	35000	.	+	.	Misc thing1 ; gene gene-9
+Contig4	confirmed	mRNA	32000	35000	.	+	.	Misc thing2 ; mRNA trans-9 ; gene gene-9
+Contig4	confirmed	CDS	32000	35000	.	+	.	Misc thing3 ; mRNA trans-9
+
