@@ -1,6 +1,6 @@
 # $Id$
 #
-# BioPerl module for Bio::SearchIO::EventHandlerI
+# BioPerl module for Bio::Event::EventGeneratorI
 #
 # Cared for by Jason Stajich <jason@bioperl.org>
 #
@@ -12,7 +12,7 @@
 
 =head1 NAME
 
-Bio::SearchIO::EventHandlerI - An abstract Event Handler
+Bio::Event::EventGeneratorI - DESCRIPTION of Interface
 
 =head1 SYNOPSIS
 
@@ -63,134 +63,18 @@ Internal methods are usually preceded with a _
 # Let the code begin...
 
 
-package Bio::SearchIO::EventHandlerI;
+package Bio::Event::EventGeneratorI;
 use vars qw(@ISA);
 use strict;
 use Carp;
-
-use Bio::Event::EventHandlerI;
-
-@ISA = qw (Bio::Event::EventHandlerI);
 
 sub _abstractDeath {
   my $self = shift;
   my $package = ref $self;
   my $caller = (caller)[1];
-  confess "Abstract method '$caller' defined in interface Bio::SearchIO::EventHandlerI not implemented by package $package. Not your fault - author of $package should be blamed!";
+  confess "Abstract method '$caller' defined in interface Bio::Event::EventGeneratorI not implemented by package $package. Not your fault - author of $package should be blamed!";
 }
 
-=head2 start_report
-
- Title   : start_report
- Usage   : $handler->start_report($data)
- Function: Begins a report event cycle
- Returns : none 
- Args    : Type of Report
-
-=cut
-
-sub start_report {
-    my ($self) = @_;
-    $self->_abstractDeath;
-}
-
-=head2 end_report
-
- Title   : end_report
- Usage   :
- Function:
- Example :
- Returns : 
- Args    :
-
-
-=cut
-
-sub end_report{
-   my ($self,@args) = @_;
-   $self->_abstractDeath;
-}
-
-=head2 start_hsp
-
- Title   : start_hsp
- Usage   :
- Function:
- Example :
- Returns : 
- Args    :
-
-
-=cut
-
-sub start_hsp{
-   my ($self,@args) = @_;
-   $self->_abstractDeath;
-}
-
-=head2 end_hsp
-
- Title   : end_hsp
- Usage   :
- Function:
- Example :
- Returns : 
- Args    :
-
-
-=cut
-
-sub end_hsp{
-   my ($self,@args) = @_;
-   $self->_abstractDeath;
-}
-
-=head2 start_subject
-
- Title   : start_subject
- Usage   :
- Function:
- Example :
- Returns : 
- Args    :
-
-
-=cut
-
-sub start_subject{
-   my ($self,@args) = @_;
-   $self->_abstractDeath;
-}
-
-=head2 end_subject
-
- Title   : end_subject
- Usage   :
- Function:
- Example :
- Returns : 
- Args    :
-
-
-=cut
-
-sub end_subject{
-   my ($self,@args) = @_;
-   $self->_abstractDeath;
-}
-
-=head2 Bio::Event::EventHandlerI methods
-
-=head2 will_handle
-
- Title   : will_handle
- Usage   : if( $handler->will_handle($event_type) ) { ... }
- Function: Tests if this event builder knows how to process a specific event
- Returns : boolean
- Args    : event type name
-
-
-=cut
 
 =head2 SAX methods
 

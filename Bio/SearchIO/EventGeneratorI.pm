@@ -63,10 +63,13 @@ Internal methods are usually preceded with a _
 # Let the code begin...
 
 
-package Bio::SearchIO::EventGeneratorI;
+package Bio::Event::EventGeneratorI;
 use vars qw(@ISA);
 use strict;
 use Carp;
+#use Bio::Event::EventGeneratorI;
+
+#@ISA = qw(Bio::Event::EventGeneratorI);
 
 sub _abstractDeath {
   my $self = shift;
