@@ -108,7 +108,7 @@ sub run {
 
  Title   : error_string
  Usage   : $obj->error_string($newval)
- Function: Where the output from the last analysus run is stored.
+ Function: Where the output from the last analysis run is stored.
  Returns : value of error_string
  Args    : newvalue (optional)
 
@@ -129,7 +129,7 @@ sub error_string{
  Title   : no_param_checks
  Usage   : $obj->no_param_checks($newval)
  Function: Boolean flag as to whether or not we should
-           trust the sanity checks for parameter values  
+           trust the sanity checks for parameter values
  Returns : value of no_param_checks
  Args    : newvalue (optional)
 

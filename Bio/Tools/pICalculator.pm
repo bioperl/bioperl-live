@@ -94,7 +94,6 @@ Private methods are usually preceded by a _.
 package Bio::Tools::pICalculator;
 use vars qw(@ISA);
 use strict;
-use warnings;
 
 use Bio::Root::Root;
 

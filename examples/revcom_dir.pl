@@ -1,4 +1,6 @@
-###############################################################################
+#!/usr/bin/perl -w
+#
+################################################################################
 #11-17-2001
 #Jianwen Fang (jwfang1999@yahoo.com)
 #
@@ -6,11 +8,10 @@
 #and save them in the same directory, using the same name with extension ".rev"
 ###############################################################################
 
-#!/usr/bin/perl
+
 use strict;
 use Bio::Seq;
 use Bio::SeqIO;
-use warnings;
 
 my @files = ();
 my $folder = '.';

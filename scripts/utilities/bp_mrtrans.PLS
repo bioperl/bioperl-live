@@ -1,7 +1,6 @@
 #!perl
-# $Id: bp_mrtrans.PLS,v 1.3 2003-03-26 09:20:02 heikki Exp $
+# $Id: bp_mrtrans.PLS,v 1.4 2003-03-26 13:55:08 heikki Exp $
 use strict;
-use warnings;
 
 # Author:      Jason Stajich <jason@bioperl.org>
 # Description: Perl implementation of Bill Pearson's mrtrans
