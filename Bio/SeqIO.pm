@@ -282,9 +282,10 @@ use vars qw(@ISA);
 
 use Bio::Root::Root;
 use Bio::Root::IO;
+use Bio::Factory::SequenceStreamI;
 use Symbol();
 
-@ISA = qw(Bio::Root::Root Bio::Root::IO);
+@ISA = qw(Bio::Root::Root Bio::Root::IO Bio::Factory::SequenceStreamI);
 
 =head2 new
 
@@ -400,36 +401,13 @@ sub _initialize {
  Returns : a Bio::Seq sequence object
  Args    : none
 
-See L<Bio::Root::RootI>
+See L<Bio::Root::RootI>, L<Bio::Factory::SeqStreamI>
 
 =cut
 
 sub next_seq {
    my ($self, $seq) = @_;
    $self->throw("Sorry, you cannot read from a generic Bio::SeqIO object.");
-}
-
-=head2 next_primary_seq
-
- Title   : next_primary_seq
- Usage   : $seq = $stream->next_primary_seq
- Function: Provides a primaryseq type of sequence object
- Returns : A Bio::PrimarySeqI object
- Args    : none
-
-See L<Bio::PrimarySeqI>
-
-=cut
-
-sub next_primary_seq {
-   my ($self) = @_;
-
-   # in this case, we default to next_seq. This is because
-   # Bio::Seq's are Bio::PrimarySeqI objects. However we
-   # expect certain sub classes to override this method to provide
-   # less parsing heavy methods to retrieving the objects
-
-   return $self->next_seq();
 }
 
 =head2 write_seq
@@ -625,7 +603,7 @@ sub sequence_factory{
        }
        $self->{'_seqio_seqfactory'} = $obj;
    }
-   return $self->{'_seqio_seqfactory'};
+   $self->{'_seqio_seqfactory'};
 }
 
 1;
