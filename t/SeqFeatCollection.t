@@ -22,7 +22,7 @@ BEGIN {
     }
     use Test;
 
-    $NUMTESTS = 428;
+    $NUMTESTS = 432;
     plan tests => $NUMTESTS;
 
     eval { require DB_File; };
