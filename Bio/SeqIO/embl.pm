@@ -577,7 +577,7 @@ sub write_seq {
 	$self->_print("FH   Key             Location/Qualifiers\n");
 	$self->_print("FH\n");
 
-	my @feats = $seq->can('top_SeqFeatures') ? $self->top_SeqFeatures : ();
+	my @feats = $seq->can('top_SeqFeatures') ? $seq->top_SeqFeatures : ();
 	if ($feats[0]) {
 	    if( defined $self->_post_sort ) {
 		# we need to read things into an array. 
