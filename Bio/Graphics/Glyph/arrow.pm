@@ -2,11 +2,17 @@ package Bio::Graphics::Glyph::arrow;
 # package to use for drawing an arrow
 
 use strict;
-use vars '@ISA';
+use vars '@ISA','$VERSION';
 use Bio::Graphics::Glyph::generic;
+$VERSION = 1.02;
 @ISA = 'Bio::Graphics::Glyph::generic';
 
-my %UNITS = (K => 1000,
+my %UNITS = (n => 1e-12,
+	     n => 1e-9,
+	     u => 1e-6,
+	     m => 0.001,
+	     c => 0.01,
+	     K => 1000,
 	     M => 1_000_000,
 	     G => 1_000_000_000);
 
@@ -94,17 +100,23 @@ sub draw_parallel {
     my $offset   = $relative ? $self->feature->start-1 : 0;
     my $reversed = $relative && $self->feature->strand < 0;
 
-    my $units    = $self->option('units') || $self->calculate_units($start,$self->feature->length);
-    my $divisor  = $UNITS{$units} || 1;
-    my $format   = min($self->feature->length,$self->panel->length)/$divisor > 10
-      ? "%d$units" : "%.6g$units";
+    my $unit_label   = $self->option('units') || '';
+    my $unit_divider = $self->option('unit_divider') || 1;
+
+    my $units      = $self->calculate_units($start/$unit_divider,$self->feature->length/$unit_divider);
+    my $divisor    = $UNITS{$units} || 1;
+
+    $divisor *= $unit_divider;
+
+    my $format     = min($self->feature->length,$self->panel->length)/$divisor > 10
+      ? "%d$units%s" : "%.6g$units%s";
 
     my $scale  = $self->option('scale') || 1;  ## Does the user want to override the internal scale?
 
-    my $model  = sprintf("$format ",$stop/($divisor*$scale));
+    my $model  = sprintf("$format ",$stop/($divisor*$scale),$unit_label);
     my $minlen = $width * length($model);
 
-    my ($major_interval,$minor_interval) = $self->panel->ticks($stop-$start+1,$minlen);
+    my ($major_interval,$minor_interval) = $self->panel->ticks(($stop-$start+1)/$unit_divider,$minlen);
 
     my $left  = $sw ? $x1+$height : $x1;
     my $right = $ne ? $x2-$height : $x2;
@@ -126,10 +138,9 @@ sub draw_parallel {
 
       $gd->line($tickpos,$center-$a2,$tickpos,$center+$a2,$fg);
       my $label = $scale ? $i / $scale : $i;
-      if ($units) {
-	my $scaled = $label/$divisor;
-	$label = sprintf($format,$scaled);
-      }
+      my $scaled = $label/$divisor;
+      $label = sprintf($format,$scaled,$unit_label);
+
       my $middle = $tickpos - (length($label) * $width)/2;
       next if $middle < $left or $middle > $right;
 
@@ -182,10 +193,15 @@ sub arrowheads {
 sub calculate_units {
   my $self   = shift;
   my ($start,$length) = @_;
-  return ''  if $length <= 1e3;
-  return 'G' if $start >= 1e8 || $length >= 1e9;
-  return 'M' if $start >= 1e7 || $length >= 1e6;
-  return 'K';
+  return 'G' if $length >= 1e9;
+  return 'M' if $length >= 1e6;
+  return 'K' if $length >= 1e3;
+  return ''  if $length >= 1;
+  return 'c' if $length >= 1e-2;
+  return 'm' if $length >= 1e-3;
+  return 'u' if $length >= 1e-6;
+  return 'n' if $length >= 1e-9;
+  return 'p';
 }
 
 sub min { $_[0]<$_[1] ? $_[0] : $_[1] }
@@ -245,39 +261,50 @@ options are recognized:
   Option      Description               Default
   ------      -----------               -------
 
-  -tick       Whether to draw major         0
+  -tick       Whether to draw major             0
               and minor ticks.
 	      0 = no ticks
 	      1 = major ticks
 	      2 = minor ticks
 
-  -parallel   Whether to draw the arrow     true
+  -parallel   Whether to draw the arrow         true
 	      parallel to the sequence
 	      or perpendicular to it.
 
-  -northeast  Force a north or east         true
+  -northeast  Force a north or east             true
 	      arrowhead(depending 
 	      on orientation)
 
   -east       synonym of above
 
-  -southwest  Force a south or west         true
+  -southwest  Force a south or west             true
 	      arrowhead(depending 
 	      on orientation)
 
   -west       synonym of above
 
-  -double     force-doubleheaded arrow
+  -double     force-doubleheaded arrow          false
 
-  -base       Draw a vertical base at the   false
+  -base       Draw a vertical base at the       false
               non-arrowhead side
 
-  -scale      Reset the labels on the arrow false
+  -scale      Reset the labels on the arrow     false
               to reflect an externally 
               established scale.
 
-  -arrowstyle "regular" to create a simple arrowhead ->
-              "filled" to create a thick filled arrowhead
+  -arrowstyle "regular" to create a simple      regular
+              arrowhead.  "filled" to create
+              a thick filled arrowhead
+
+  -units      add units to the tick labels      none
+              e.g. bp
+
+  -unit_divider                                 1
+              divide tick labels by the
+              indicated amount prior to
+              displaying (use, for example
+              if you want to display in
+              cR units)
 
 Set -parallel to false to display a point-like feature such as a
 polymorphism, or to indicate an important location.  If the feature

@@ -256,49 +256,52 @@ CLASS="PROGRAMLISTING"
   1  # This is code example 1 in the Graphics-HOWTO
   2  use strict;
   3  use Bio::Graphics;
+  4  use Bio::SeqFeature::Generic;
 
-  4  my $panel = Bio::Graphics::Panel-&#62;new(-length =&#62; 1000,-width  =&#62; 800);
-  5  my $track = $panel-&#62;add_track(-glyph =&#62; 'generic',-label  =&#62; 1);
+  5  my $panel = Bio::Graphics::Panel-&gt;new(-length =&gt; 1000,-width  =&gt; 800);
+  6  my $track = $panel-&gt;add_track(-glyph =&gt; 'generic',-label  =&gt; 1);
 
-  6  while (&lt;&gt;) { # read blast file
-  7    chomp;
-  8    next if /^\#/;  # ignore comments
-  9    my($name,$score,$start,$end) = split /\t+/;
- 10    my $feature = Bio::Graphics::Feature-&#62;new(-name=&#62;$name,  -score=&#62;$score,
- 11                                              -start=&#62;$start,-end=&#62;$end);
- 12    $track-&#62;add_feature($feature);
- 13  }
+  7  while (&lt;&gt;) { # read blast file
+  8    chomp;
+  9    next if /^\#/;  # ignore comments
+ 10    my($name,$score,$start,$end) = split /\t+/;
+ 11    my $feature = Bio::SeqFeature::Generic-&gt;new(-seqname=&gt;$name,-score=&gt;$score,
+ 12                                                -start=&gt;$start,-end=&gt;$end);
+ 13    $track-&gt;add_feature($feature);
+ 14  }
 
- 14  print $panel-&#62;png;</PRE
+ 15  print $panel-&gt;png;</PRE
 ></DIV
 ></P
 ><P
 >The script begins by loading the Bio::Graphics module (line 3), which
-in turn brings in a number of other modules that we'll use later. We
-then create a Bio::Graphics::Panel object by calling its new() method,
-specifying that the panel is to correspond to a sequence that is 1000
-residues long, and has a physical width of 800 bp (line 4).  The Panel
-can contain multiple horizontal tracks, each of which has its own way
-of rendering features (called a "glyph"), color, labeling convention,
-and so forth.  In this simple example, we create a single track by
-calling the panel object's add_track() method (line 5), specify
-a glyph type of "generic", and ask that the objects in the track be
-labeled by providing a true value to the -label argument.  This gives
-us a track object that we can add our hits to.</P
+in turn brings in a number of other modules that we'll use later.  We
+also load Bio::SeqFeature::Generic in order to create a series of
+Bio::SeqFeatureI objects for rendering.  We then create a
+Bio::Graphics::Panel object by calling its new() method, specifying
+that the panel is to correspond to a sequence that is 1000 residues
+long, and has a physical width of 800 bp (line 5).  The Panel can
+contain multiple horizontal tracks, each of which has its own way of
+rendering features (called a "glyph"), color, labeling convention, and
+so forth.  In this simple example, we create a single track by calling
+the panel object's add_track() method (line 6), specify a glyph type
+of "generic", and ask that the objects in the track be labeled by
+providing a true value to the -label argument.  This gives us a track
+object that we can add our hits to.</P
 ><P
 >We're now ready to render the blast hit file.  We loop through it
-(line 6-13), stripping off the comments, and parsing out the name,
-score and range (line 9).  We now need a Bio::SeqI object to place in
+(line 7-14), stripping off the comments, and parsing out the name,
+score and range (line 10).  We now need a Bio::SeqI object to place in
 the track.  The easiest way to do this is to create a
-Bio::Graphics::Feature object, which is similar to Bio::PrimarySeq,
+Bio::SeqFeature::Generic object, which is similar to Bio::PrimarySeq,
 except that it provides a way of attaching start and end positions to
 the sequence, as well as such nebulous but useful attributes as the
-"score" and "method".  The Bio::Graphics::Feature-&#62;new() method,
-invoked in line 10, takes arguments corresponding to the name of each
+"score" and "source".  The Bio::SeqFeature::Generic-&#62;new() method,
+invoked in line 11, takes arguments corresponding to the name of each
 hit, its start and end coordinates, and its score.</P
 ><P
 >After creating the feature object, we add it to the track by calling
-the track's add_feature() method (line 12).</P
+the track's add_feature() method (line 13).</P
 ><P
 >After processing all the hits, we call the panel's png() method to
 render them and convert it into a Portable Network Graphics file, the
@@ -312,11 +315,11 @@ NAME="AEN63"
 ></A
 ><P
 ><B
->Figure 2. </B
+>Figure 2. Rendering BLAST hits</B
 ></P
 ><PRE
 CLASS="PROGRAMLISTING"
->% render1.pl data1.txt | xv -</PRE
+>% render1.pl data1.txt | display -</PRE
 ><DIV
 CLASS="MEDIAOBJECT"
 ><P
@@ -375,36 +378,37 @@ CLASS="PROGRAMLISTING"
   2  use strict;
   3  use lib '/home/lstein/projects/bioperl-live';
   4  use Bio::Graphics;
+  5  use Bio::SeqFeature::Generic;
 
-  5  my $panel = Bio::Graphics::Panel-&#62;new(-length =&#62; 1000,
-  6                                        -width  =&#62; 800,
-  7                                        -pad_left =&#62; 10,
-  8                                        -pad_right =&#62; 10,
-  9                                       );
- 10  my $full_length = Bio::Graphics::Feature-&#62;new(-start=&#62;1,-end=&#62;1000);
- 11  $panel-&#62;add_track($full_length,
- 12                    -glyph   =&#62; 'arrow',
- 13                    -tick    =&#62; 2,
- 14                    -fgcolor =&#62; 'black',
- 15                    -double  =&#62; 1,
- 16                   );
+  6  my $panel = Bio::Graphics::Panel-&gt;new(-length =&gt; 1000,
+  7                                        -width  =&gt; 800,
+  8                                        -pad_left =&gt; 10,
+  9                                        -pad_right =&gt; 10,
+ 10                                       );
+ 11  my $full_length = Bio::SeqFeature::Generic-&gt;new(-start=&gt;1,-end=&gt;1000);
+ 12  $panel-&gt;add_track($full_length,
+ 13                    -glyph   =&gt; 'arrow',
+ 14                    -tick    =&gt; 2,
+ 15                    -fgcolor =&gt; 'black',
+ 16                    -double  =&gt; 1,
+ 17                   );
 
- 17  my $track = $panel-&#62;add_track(-glyph =&#62; 'graded_segments',
- 18                                -label  =&#62; 1,
- 19                                -bgcolor =&#62; 'blue',
- 20                                -min_score =&#62; 0,
- 21                                -max_score =&#62; 1000);
+ 18  my $track = $panel-&gt;add_track(-glyph =&gt; 'graded_segments',
+ 19                                -label  =&gt; 1,
+ 20                                -bgcolor =&gt; 'blue',
+ 21                                -min_score =&gt; 0,
+ 22                                -max_score =&gt; 1000);
 
- 22  while (&lt;&gt;) { # read blast file
- 23    chomp;
- 24    next if /^\#/;  # ignore comments
- 25    my($name,$score,$start,$end) = split /\t+/;
- 26    my $feature = Bio::Graphics::Feature-&#62;new(-name=&#62;$name,-score=&#62;$score,
- 27                                              -start=&#62;$start,-end=&#62;$end);
- 28    $track-&#62;add_feature($feature);
- 29  }
+ 23  while (&lt;&gt;) { # read blast file
+ 24    chomp;
+ 25    next if /^\#/;  # ignore comments
+ 26    my($name,$score,$start,$end) = split /\t+/;
+ 27    my $feature = Bio::SeqFeature::Generic-&gt;new(-seqname=&gt;$name,-score=&gt;$score,
+ 28                                                -start=&gt;$start,-end=&gt;$end);
+ 29    $track-&gt;add_feature($feature);
+ 30  }
 
- 30  print $panel-&#62;png;</PRE
+ 31  print $panel-&gt;png;</PRE
 ></DIV
 ></P
 ><P
@@ -415,9 +419,9 @@ pixel leeway with the -pad_left and -pad_right arguments in line 5.</P
 ><P
 >The next change is more subtle.  We want to draw a scale all the way
 across the image.  To do this, we create a track to contain the scale,
-and a feature that spans the track from the start to the end.  Line 10
+and a feature that spans the track from the start to the end.  Line 11
 creates the feature, giving its start and end coordinates.  Lines
-11-16 create a new track containing this feature.  Unlike the previous
+12-17 create a new track containing this feature.  Unlike the previous
 example, in which we created the track first and then added features
 one at a time with add_feature(), we show here how to add feature(s)
 directly in the call to add_track().  If the first argument to
@@ -435,7 +439,7 @@ HREF="#FTN.AEN85"
 >[1]</A
 ></P
 ><P
->In lines 17-21, we get a bit fancier with the blast hit track.  Now,
+>In lines 18-22, we get a bit fancier with the blast hit track.  Now,
 instead of creating a generic glyph, we use the "graded_segments"
 glyph.  This glyph takes the specified background color for the
 feature, and either darkens or lightens it according to its score.  We
@@ -461,6 +465,127 @@ CLASS="MEDIAOBJECT"
 ><P
 ><IMG
 SRC="graphics/figs/fig2.png"
+></IMG
+></P
+></DIV
+></DIV
+></P
+></DIV
+><DIV
+CLASS="SECTION"
+><HR><H1
+CLASS="SECTION"
+><A
+NAME="IMPROVING"
+>Improving the Image</A
+></H1
+><P
+>Before we move into displaying gapped alignments, let's tweak the
+image slightly so that higher scoring hits appear at the top of the
+image, and the score itself is printed in red underneath each hit.
+The changes are shown in Example 3.</P
+><P
+><DIV
+CLASS="EXAMPLE"
+><A
+NAME="CODE3"
+></A
+><P
+><B
+>Example 3. Rendering the blast hit file with scores and scale</B
+></P
+><PRE
+CLASS="PROGRAMLISTING"
+>  0  #!/usr/bin/perl
+
+  1  # This is code example 3 in the Graphics-HOWTO
+  2  use strict;
+  3  use lib '/home/lstein/projects/bioperl-live';
+  4  use Bio::Graphics;
+  5  use Bio::SeqFeature::Generic;
+
+  6  my $panel = Bio::Graphics::Panel-&gt;new(-length =&gt; 1000,
+  7                                        -width  =&gt; 800,
+  8                                        -pad_left =&gt; 10,
+  9                                        -pad_right =&gt; 10,
+ 10                                       );
+ 11  my $full_length = Bio::SeqFeature::Generic-&gt;new(-start=&gt;1,-end=&gt;1000);
+ 12  $panel-&gt;add_track($full_length,
+ 13                    -glyph   =&gt; 'arrow',
+ 14                    -tick    =&gt; 2,
+ 15                    -fgcolor =&gt; 'black',
+ 16                    -double  =&gt; 1,
+ 17                   );
+
+ 18  my $track = $panel-&gt;add_track(-glyph =&gt; 'graded_segments',
+ 19                                -label  =&gt; 1,
+ 20                                -bgcolor =&gt; 'blue',
+ 21                                -min_score =&gt; 0,
+ 22                                -max_score =&gt; 1000,
+ 23                                -font2color     =&gt; 'red',
+ 24                                -sort_order     =&gt; 'high_score',
+ 25                                -description =&gt; sub {
+ 26                                  my $feature = shift;
+ 27                                  my $score   = $feature-&gt;score;
+ 28                                  return "score=$score";
+ 29                                 });
+
+ 30  while (&lt;&gt;) { # read blast file
+ 31    chomp;
+ 32    next if /^\#/;  # ignore comments
+ 33    my($name,$score,$start,$end) = split /\t+/;
+ 34    my $feature = Bio::SeqFeature::Generic-&gt;new(-score=&gt;$score,
+ 35                                                -seqname=&gt;$name,
+ 36                                                -start=&gt;$start,-end=&gt;$end);
+ 37    $track-&gt;add_feature($feature);
+ 38  }
+
+ 39  print $panel-&gt;png;</PRE
+></DIV
+></P
+><P
+>There are two changes to look at.  The first appears in line 24, where
+we pass the -sort_order option to the call that creates the blast hit
+track.  -sort_order changes the way that features sort from top to
+bottom, and will accept a number of prepackaged sort orders or a
+coderef for custom sorting.  In this case, we pass a prepackaged sort
+order of "high_score", which sorts the hits from top to bottom in
+reverse order of their score.</P
+><P
+>The second change is more complicated, and involves the -description
+option that appears in the add_track() call on lines 25-28.  The value
+of -description will be printed beneath each feature.  We could pass
+-description a constant string, but that would simply print the same
+string under each feature.  Instead we pass -description a code
+reference to a subroutine that will be invoked while the picture is
+being rendered.  This subroutine will be passed the current feature,
+and must return the string to use as the value of the description.  In
+our code, we simply fetch out the BLAST hit's score using its score()
+method, and incorporate that into the description string.</P
+><P
+>The ability to use a code reference as a configuration option isn't
+unique to -description.  In fact, you can use a code reference for any
+of the options passed to add_track().</P
+><P
+>Another minor change is the use of -font2color in line 23. This simply
+sets the color used for the description strings.</P
+><P
+>Figure 4 shows the effect of these changes.</P
+><P
+><DIV
+CLASS="FIGURE"
+><A
+NAME="AEN108"
+></A
+><P
+><B
+>Figure 4. The image with descriptions and sorted hits</B
+></P
+><DIV
+CLASS="MEDIAOBJECT"
+><P
+><IMG
+SRC="graphics/figs/fig3.png"
 ></IMG
 ></P
 ></DIV

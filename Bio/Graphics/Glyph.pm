@@ -9,6 +9,13 @@ $VERSION = '1.02';
 
 my %LAYOUT_COUNT;
 
+# the CM1 and CM2 constants control the size of the hash used to
+# detect collisions.
+use constant CM1 => 200; # big bin, x axis
+use constant CM2 => 50;  # big bin, y axis
+use constant CM3 => 50;  # small bin, x axis
+use constant CM4 => 50;  # small bin, y axis
+
 # a bumpable graphical object that has bumpable graphical subparts
 
 # args:  -feature => $feature_object (may contain subsequences)
@@ -212,13 +219,19 @@ sub box {
 sub unfilled_box {
   my $self = shift;
   my $gd   = shift;
-  my ($x1,$y1,$x2,$y2) = @_;
+  my ($x1,$y1,$x2,$y2,$fg,$bg) = @_;
 
-  my $fg = $self->fgcolor;
-  my $bg = $self->bgcolor;
   my $linewidth = $self->option('linewidth') || 1;
 
+  unless ($fg) {
+      $fg ||= $self->fgcolor;
   $fg = $self->set_pen($linewidth,$fg) if $linewidth > 1;
+  }
+
+  unless ($bg) {
+      $bg ||= $self->bgcolor;
+      $bg = $self->set_pen($linewidth,$bg) if $linewidth > 1;
+  }
 
   # draw a box
   $gd->rectangle($x1,$y1,$x2,$y2,$fg);
@@ -226,8 +239,6 @@ sub unfilled_box {
   # if the left end is off the end, then cover over
   # the leftmost line
   my ($width) = $gd->getBounds;
-
-  $bg = $self->set_pen($linewidth,$bg) if $linewidth > 1;
 
   $gd->line($x1,$y1+$linewidth,$x1,$y2-$linewidth,$bg)
     if $x1 < $self->panel->pad_left;
@@ -467,7 +478,7 @@ sub layout {
 
   if (abs($bump_direction) <= 1) {  # original bump algorithm
 
-    my %occupied; # format of occupied: key={top,bottom}, value=right
+    my (%bin1,%bin2);
     for my $g ($self->layout_sort(@parts)) {
 
       my $pos = 0;
@@ -483,21 +494,11 @@ sub layout {
 
 	# look for collisions
 	my $bottom = $pos + $height;
-
-	my $collision;
-	for my $key (keys %occupied) {
-	  my ($oldtop,$oldbottom) = split /,/,$key;
-	  my $oldright = $occupied{$key};
-	  next if $oldright+2  < $left;
-	  next if $oldbottom   < $pos;
-	  next if $oldtop      > $bottom;
-	  $collision = [$oldtop,$oldbottom,$oldright];
-	  last;
-	}
-	last unless $collision;
+	$self->collides(\%bin1,CM1,CM2,$left,$pos,$right,$bottom) or last;
+	my $collision = $self->collides(\%bin2,CM3,CM4,$left,$pos,$right,$bottom) or last;
 
 	if ($bump_direction > 0) {
-	  $pos += $collision->[1]-$collision->[0] + BUMP_SPACING;    # collision, so bump
+	  $pos += $collision->[3]-$collision->[1] + BUMP_SPACING;    # collision, so bump
 
 	} else {
 	  $pos -= BUMP_SPACING;
@@ -506,8 +507,8 @@ sub layout {
       }
 
       $g->move(0,$pos);
-      my $key = join ',',$g->top,$g->bottom;
-      $occupied{$key} = $right if !exists $occupied{$key} or $occupied{$key} < $right;
+      $self->add_collision(\%bin1,CM1,CM2,$left,$g->top,$right,$g->bottom);
+      $self->add_collision(\%bin2,CM3,CM4,$left,$g->top,$right,$g->bottom);
     }
   }
 
@@ -577,6 +578,48 @@ sub layout {
     $bottom = $_->bottom if $_->bottom > $bottom;
   }
   return $self->{layout_height} = $self->pad_bottom + $self->pad_top + $bottom - $self->top  + 1;
+}
+
+# the $%occupied structure is a hash of {left,top} = [left,top,right,bottom]
+sub collides {
+  my $self = shift;
+  my ($occupied,$cm1,$cm2,$left,$top,$right,$bottom) = @_;
+  my @keys = $self->_collision_keys($cm1,$cm2,$left,$top,$right,$bottom);
+  my $collides = 0;
+  for my $k (@keys) {
+    next unless exists $occupied->{$k};
+    for my $bounds (@{$occupied->{$k}}) {
+      my ($l,$t,$r,$b) = @$bounds;
+      next unless $right >= $l and $left <= $r and $bottom >= $t and $top <= $b;
+      $collides = $bounds;
+      last;
+    }
+  }
+  $collides;
+}
+
+sub add_collision {
+  my $self = shift;
+  my ($occupied,$cm1,$cm2,$left,$top,$right,$bottom) = @_;
+  my $value = [$left,$top,$right+2,$bottom];
+  my @keys = $self->_collision_keys($cm1,$cm2,@$value);
+  push @{$occupied->{$_}},$value foreach @keys;
+}
+
+sub _collision_keys {
+  my $self = shift;
+  my ($binx,$biny,$left,$top,$right,$bottom) = @_;
+  my @keys;
+  my $bin_left   = int($left/$binx);
+  my $bin_right  = int($right/$binx);
+  my $bin_top    = int($top/$biny);
+  my $bin_bottom = int($bottom/$biny);
+  for (my $x=$bin_left;$x<=$bin_right; $x++) {
+    for (my $y=$bin_top;$y<=$bin_bottom; $y++) {
+      push @keys,join(',',$x,$y);
+    }
+  }
+  @keys;
 }
 
 sub draw {
