@@ -79,11 +79,10 @@ use Bio::Event::EventGeneratorI;
 @ISA = qw(Bio::TreeIO );
 
 
-=head2 _initialize
+=head2 new
 
- Title   : _initialize
+ Title   : new
  Args    : -print_count => boolean  default is false
-
 
 =cut
 
@@ -91,7 +90,7 @@ sub _initialize {
     my $self = shift;
     $self->SUPER::_initialize(@_);
     my ($print_count) = $self->_rearrange([qw(PRINT_COUNT)],
-					  @_);
+					      @_);
     $self->print_tree_count($print_count || 0);
 }
 
@@ -260,6 +259,7 @@ sub _write_tree_Helper {
 	} elsif( defined ($b = $node->id) ) {
 	    $data[-1] .= $b;
 	}
+
 	my $bl = $node->branch_length;
 	if( ! defined $bl ) {
 	} elsif($bl =~ /\#/ ) { 
