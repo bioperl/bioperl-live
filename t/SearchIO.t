@@ -554,6 +554,7 @@ $result = $searchio->next_result;
 
 ok($result);
 $hit = $result->next_hit;
+ok($hit->accession, 'AE000208');
 $hsp = $hit->next_hsp;
 ok($hsp->get_aln->isa('Bio::Align::AlignI'));
 my $writer = Bio::SearchIO::Writer::HitTableWriter->new( 
