@@ -2,6 +2,8 @@ $Id$
 Revision history for Bioperl core modules
 
 1.2.3 Stable release update
+    o Bug #1475 - Fix and add speedup to spliced_seq for remote location
+                  handling.
     o Bug #1477 - Sel --> Sec abbreviation fixed
     o Fix bug #1487 where paring in-between locations when 
       end < start caused the FTLocationFactory logic to fail.
