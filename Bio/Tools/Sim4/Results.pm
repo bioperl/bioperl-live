@@ -314,8 +314,7 @@ sub parse_next_alignment {
 	       $exon->seqname($genomseq->{'seqname'});
 	   } else {
 	       # take filename stripped of path as fall back
-	       my ($basename, undef, undef) =
-		   fileparse($genomseq->{'filename'}, '\..*');
+	       my ($basename) = &File::Basename::fileparse($genomseq->{'filename'}, '\..*');
 	       $exon->seqname($basename);
 	   }
 	   $exon->feature1()->add_tag_value('filename',
@@ -338,8 +337,8 @@ sub parse_next_alignment {
 	       $fea2->seqname($estseq->{'seqname'});
 	   } else {
 	       # take filename stripped of path as fall back
-	       my ($basename, undef, undef) =
-		   fileparse($estseq->{'filename'}, '\..*');
+	       my ($basename) =
+		   &File::Basename::fileparse($estseq->{'filename'}, '\..*');
 	       $fea2->seqname($basename);
 	   }
 	   $fea2->add_tag_value('filename', $estseq->{'filename'});
