@@ -140,6 +140,7 @@ $DEFAULT_WRITER_CLASS = 'Bio::Search::Writer::HitTableWriter';
 sub _initialize {
     my ($self,@args) = @_;
     $self->SUPER::_initialize(@args);
+
     my ($pname) = $self->_rearrange([qw(PROGRAM_NAME)],
 				    @args);
     $self->program_name($pname || $DefaultProgramName);
@@ -261,7 +262,7 @@ sub start_element{
     my $nm = $data->{'Name'};    
    if( my $type = $MODEMAP{$nm} ) {
 	$self->_mode($type);
-	if( $self->_eventHandler->will_handle($type) ) {
+	if( $self->_will_handle($type) ) {
 	    my $func = sprintf("start_%s",lc $type);
 	    $self->_eventHandler->$func($data->{'Attributes'});
 	}						 
@@ -294,7 +295,7 @@ sub end_element {
     # object begins so have to detect this in end_element for now
         
     if( my $type = $MODEMAP{$nm} ) {
-	if( $self->_eventHandler->will_handle($type) ) {
+	if( $self->_will_handle($type) ) {
 	    my $func = sprintf("end_%s",lc $type);
 	    $rc = $self->_eventHandler->$func($self->{'_reporttype'},
 					      $self->{'_values'});	    
@@ -503,6 +504,56 @@ sub program_name{
 
     $self->{'program_name'} = shift if @_;
     return $self->{'program_name'} || $DefaultProgramName;
+}
+
+
+=head2 _will_handle
+
+ Title   : _will_handle
+ Usage   : Private method. For internal use only.
+              if( $self->_will_handle($type) ) { ... }
+ Function: Provides an optimized way to check whether or not an element of a 
+           given type is to be handled.
+ Returns : Reference to EventHandler object if the element type is to be handled.
+           undef if the element type is not to be handled.
+ Args    : string containing type of element.
+
+Optimizations:
+
+=over 2
+
+=item 1
+
+Using the cached pointer to the EventHandler to minimize repeated
+lookups.
+
+=item 2
+
+Caching the will_handle status for each type that is encountered so
+that it only need be checked by calling
+handler-E<gt>will_handle($type) once.
+
+=back
+
+This does not lead to a major savings by itself (only 5-10%).  In
+combination with other optimizations, or for large parse jobs, the
+savings good be significant.
+
+To test against the unoptimized version, remove the parentheses from
+around the third term in the ternary " ? : " operator and add two
+calls to $self-E<gt>_eventHandler().
+
+=cut
+
+sub _will_handle {
+    my ($self,$type) = @_;
+    my $handler = $self->{'_handler'};
+    my $will_handle = defined($self->{'_will_handle_cache'}->{$type})
+                             ? $self->{'_will_handle_cache'}->{$type}
+                             : ($self->{'_will_handle_cache'}->{$type} =
+                               $handler->will_handle($type));
+
+    return $will_handle ? $handler : undef;
 }
 
 1;
