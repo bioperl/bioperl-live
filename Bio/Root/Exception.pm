@@ -288,7 +288,7 @@ sub _reformat_stacktrace {
             ($prev_file, $prev_linenum) = ($file, $linenum);
             next;
         }
-        
+
         if( $method =~ /__ANON__/ ) {
             $method = "try{} block";
         }
@@ -299,6 +299,8 @@ sub _reformat_stacktrace {
         push @new_stack, "STACK: $method $prev_file:$prev_linenum";
         ($prev_file, $prev_linenum) = ($file, $linenum);
     }
+    push @new_stack, "STACK: $prev_file:$prev_linenum";
+
     return join "\n", @new_stack;
 }
 
