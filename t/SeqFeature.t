@@ -21,11 +21,12 @@
 
 
 ## We start with some black magic to print on failure.
-BEGIN { $| = 1; print "1..17\n"; 
+BEGIN { $| = 1; print "1..21\n"; 
 	use vars qw($loaded); }
 
 END {print "not ok 1\n" unless $loaded;}
 
+use Bio::Seq;
 use Bio::SeqFeature::Generic;
 use Bio::SeqFeature::FeaturePair;
 
@@ -171,6 +172,60 @@ if( $pair->end == 440 ) {
     print "not ok 17\n";
 }
 
-
+# Test attaching a SeqFeature::Generic to a Bio::Seq
+{
+    # Make the parent sequence object
+    my $seq = Bio::Seq->new(
+        '-seq'          => 'aaaaggggtttt',
+        '-display_id'   => 'test',
+        '-moltype'      => 'dna',
+        );
+    
+    # Make a SeqFeature
+    my $sf1 = Bio::SeqFeature::Generic->new(
+        '-start'    => 4,
+        '-end'      => 9,
+        '-strand'   => 1,
+        );
+    
+    # Add the SeqFeature to the parent
+    if ($seq->add_SeqFeature($sf1)) {
+        print "ok 18\n";
+    } else {
+        print "not ok 18\n";
+    }
+    
+    # Test that it gives the correct sequence
+    my $sf_seq1 = $sf1->seq->seq;
+    if ($sf_seq1 eq 'aggggt') {
+        print "ok 19\n";
+    } else {
+        print "not ok 19\n";
+    }
+    
+    # Make a second seqfeature on the opposite strand
+    my $sf2 = Bio::SeqFeature::Generic->new(
+        '-start'    => 4,
+        '-end'      => 9,
+        '-strand'   => -1,
+        );
+    
+    # This time add the PrimarySeq to the seqfeature
+    # before adding it to the parent
+    if ($sf2->attach_seq($seq->primary_seq)) {
+        print "ok 20\n";
+    } else {
+        print "not ok 20\n";
+    }
+    $seq->add_SeqFeature($sf2);
+    
+    # Test again that we have the correct sequence
+    my $sf_seq2 = $sf2->seq->seq;
+    if ($sf_seq2 eq 'acccct') {
+        print "ok 21\n";
+    } else {
+        print "not ok 21\n";
+    }
+}
 
 

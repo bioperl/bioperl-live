@@ -532,7 +532,7 @@ sub remove_tag {
            Bio::Seq object is for the *entire* sequence: ie
            from 1 to 10000
  Example :
- Returns :
+ Returns : TRUE on success
  Args    :
 
 
@@ -554,6 +554,7 @@ sub attach_seq {
 	   $sf->attach_seq($seq);
        }
    }
+   return 1;
 }
 
 =head2 seq

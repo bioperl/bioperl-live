@@ -568,7 +568,7 @@ sub annotation {
  Usage   : $annseq->add_SeqFeature($feat);
  Function: Adds t
  Example :
- Returns : 
+ Returns : TRUE on success
  Args    :
 
 
@@ -584,13 +584,13 @@ sub add_SeqFeature {
 	   $self->throw("$feat is not a SeqFeatureI and that's what we expect...");
        }
        
-       if( $feat->can("seq") ) {
-	   $fseq = $feat->seq;
-	   $aseq = $self->seq;
+       if( $feat->can("entire_seq") ) {
+	   $fseq = $feat->entire_seq;
+	   $aseq = $self->primary_seq;
 	   
 	   if( defined $aseq ) {
 	       if( defined $fseq ) {
-		   if( $aseq ne $fseq ) {
+		   unless ($aseq == $fseq) {
 		       $self->warn("$feat has an attached sequence which is not in this annseq. I worry about this");
 		   }
 	       } else {
@@ -600,10 +600,11 @@ sub add_SeqFeature {
 		   }
 	       }
 	   } # end of if aseq
-       } # end of if the feat can seq
+       } # end of if the feat can entire_seq
        
        push(@{$self->{'_as_feat'}},$feat);
    }
+   return 1;
 }
 
 =head2 top_SeqFeatures
