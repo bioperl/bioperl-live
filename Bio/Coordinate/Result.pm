@@ -149,13 +149,14 @@ sub add_result {
 
 sub seq_id {
     my ($self, $seqid) = @_;
-#
-#    if(! $self->is_remote()) {
-#	foreach my $subloc ($self->sub_Location(0)) {
-#	    $subloc->seq_id($seqid) if ! $subloc->is_remote();
-#	}
-#    }
-#    return $self->SUPER::seq_id($seqid);
+
+    my @ls = $self->each_Location;
+    if (@ls) {
+	return $ls[0]->seq_id;
+    } else {
+	return undef;
+    }
+
 }
 
 
