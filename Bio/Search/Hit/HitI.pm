@@ -130,6 +130,7 @@ sub description {
     $self->throw_not_implemented;
 }
 
+
 =head2 accession
 
  Title   : accession
@@ -703,6 +704,12 @@ See Also   : L<Bio::Search::HSP::GenericHSP::matches()|Bio::Search::HSP::Generic
 =cut
 
 sub matches { shift->throw_not_implemented }
+
+
+# aliasing for Steve's method names
+sub hit_description { shift->description(@_) }
+# aliasing for Steve's method names
+sub hit_length { shift->length(@_) }
 
 1;
 
