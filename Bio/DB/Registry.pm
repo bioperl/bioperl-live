@@ -55,7 +55,8 @@ use Bio::Root::Root;
 
 my %implement = (
 		 'bsane-corba'      => 'Bio::CorbaClient::SeqDB',
-		 'index-berkeleydb' => 'XYZ');
+		 'index-berkeleydb' => 'XYZ',
+		 'bioperldb' => 'Bio::DB::SQL::BioSeqDatabaseFetcher');
 
 sub new {
     my ($class) = shift;
@@ -76,10 +77,10 @@ sub _load_registry {
 
     my $home = (getpwuid($>))[7];
     
-    if( -e "$home/.bioinformatics/sequence.ini" ) {
-	open(F,"$home/.bioinformatics/sequence.ini");
-    } elsif ( -e "/etc/bioinformatics/sequence.ini" ) {
-	open(F,"$home/.bioinformatics/sequence.ini");
+    if( -e "$home/.bioinformatics/seqdatabase.ini" ) {
+	open(F,"$home/.bioinformatics/seqdatabase.ini");
+    } elsif ( -e "/etc/bioinformatics/seqdatabase.ini" ) {
+	open(F,"$home/.bioinformatics/seqdatabase.ini");
     } else {
 	# waiting for information
 	$self->throw("Oooops. We haven't implemented web fall back position yet");
@@ -107,7 +108,7 @@ sub _load_registry {
 		$self->{$db} = {};
 		$self->{$db}->{'services'} = [];
 	    }
-
+	    
 	    push(@{$self->{$db}->{'services'}},$hash);
 	    next; # back to main loop
 	}
@@ -137,12 +138,13 @@ sub get_database {
     }
 
     my ($config) = @{$self->{$dbname}->{'services'}};
-    
-    my $class = $implement{$config->{'protocol'}};
-
-    require $class;
-
-    my $db = $class->new( %$config);
+    my $class;
+    unless ($class = $implement{$config->{'protocol'}}) {
+	$self->throw("Registry does not support protocol ".$config->{'protocol'});
+    }
+    eval "require $class";
+    $config->{'biodbname'}=$dbname;
+    my $db = $class->new(%$config);
 
     $self->{$db}->{'active'} = $db;
 
