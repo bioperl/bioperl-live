@@ -465,7 +465,7 @@ found on the Bio::PrimarySeq object
 
 =head2 primary_seq
 
- Title   : seq
+ Title   : primary_seq
  Usage   : $obj->primary_seq($newval)
  Function: 
  Example : 
@@ -672,11 +672,10 @@ sub _retrieve_subSeqFeature {
 
 sub species {
     my ($self, $species) = @_;
-
     if ($species) {
         $self->{'species'} = $species;
     } else {
-        return $self->{'species'}
+        return $self->{'species'};
     }
 }
 

@@ -180,6 +180,72 @@ sub write_GFF{
 
 }
 
+=head2 annotation
+
+ Title   : annotation
+ Usage   : $obj->annotation($seq_obj)
+ Function: 
+ Example : 
+ Returns : value of annotation
+ Args    : newvalue (optional)
 
 
+=cut
 
+sub annotation {
+   my ($obj) = @_;
+   $obj->_abstractDeath();
+}
+
+=head2 primary_seq
+
+ Title   : primary_seq
+ Usage   : $obj->primary_seq($newval)
+ Function: 
+ Example : 
+ Returns : value of primary_seq
+ Args    : newvalue (optional)
+
+
+=cut
+
+sub primary_seq {
+    my ($obj) = @_;
+    $obj->_abstractDeath();
+}
+
+=head2 feature_count
+
+ Title   : feature_count
+ Usage   : $seq->feature_count()
+ Function: Return the number of SeqFeatures attached to a sequence
+ Example : 
+ Returns : number of SeqFeatures
+ Args    : none
+
+
+=cut
+
+sub feature_count {
+    my ($obj) = @_;
+    $obj->_abstractDeath();
+}
+
+=head2 species
+
+ Title   : species
+ Usage   : 
+ Function: Gets or sets the species
+ Example : $species = $self->species();
+ Returns : Bio::Species object
+ Args    : Bio::Species object or none;
+
+
+=cut
+
+sub species {
+    my ($self) = @_;
+    $self->_abstractDeath();
+}
+
+1;
