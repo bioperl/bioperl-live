@@ -224,11 +224,11 @@ These methods return true or false.
 sub overlaps {
   my ($self, $other, $so) = @_;
   return
-    $self->_testStrand($other, $so) and 
+    ($self->_testStrand($other, $so) and 
     not (
       ($self->start() > $other->end() or
        $self->end() < $other->start()   )
-        );
+        ));
 }
 
 =head2 contains
@@ -244,11 +244,11 @@ sub overlaps {
 sub contains {
   my ($self, $other, $so) = @_;
   if(ref $other) { # a range object?
-    return $self->_testStrand($so)      and
+    return ($self->_testStrand($so)      and
       $other->start() >= $self->start() and
-      $other->end() <= $self->end();
+      $other->end() <= $self->end());
   } else { # a scalar?
-    return $other >= $self->start() and $other <= $self->end();
+    return ($other >= $self->start() and $other <= $self->end());
   }
 }
 
@@ -264,9 +264,9 @@ sub contains {
 
 sub equals {
   my ($self, $other, $so) = @_;
-  return $self->_testStrand($so)           and
-         $self->start() == $other->start() and
-         $self->end()   == $other->end();
+  return ($self->_testStrand($so)           and
+          $self->start() == $other->start() and
+          $self->end()   == $other->end()       );
 }
 
 =head1 Geometrical methods
