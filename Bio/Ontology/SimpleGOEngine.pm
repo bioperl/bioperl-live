@@ -100,6 +100,7 @@ use Bio::Root::Root;
 use Bio::Ontology::RelationshipType;
 use Bio::Ontology::RelationshipFactory;
 use Bio::Ontology::OntologyEngineI;
+use Data::Dumper;
 
 use constant TRUE     => 1;
 use constant FALSE    => 0;
@@ -263,6 +264,46 @@ sub has_term {
 } # has_term
 
 
+=head2 add_relationship_type
+
+ Title   : add_relationship_type
+ Usage   : $engine->add_relationship_type( $type_name, $ont );
+ Function: Adds a new relationship type to the engine.  User get_relationship_type($type_name) to retrieve.
+ Returns : true if successfully added, false otherwise
+ Args    : relationship type name to add (scalar)
+
+
+=cut
+
+sub add_relationship_type{
+   my ($self,@args) = @_;
+
+   if(scalar(@_) == 3){
+	 my $type_name = $args[0];
+	 my $ont = $args[1];
+	 $self->{ "_extra_relationship_types" }{$type_name} = Bio::Ontology::RelationshipType->get_instance($type_name,$ont);
+#warn Dumper($self->{"_extra_relationship_types"}{$type_name});
+	 return 1;
+   }
+   return 0;
+}
+
+
+=head2 get_relationship_type
+
+ Title   : get_relationship_type
+ Usage   : $engine->get_relationship_type( $type_name );
+ Function: Gets a Bio::Ontology::RelationshipI object corresponding to $type_name
+ Returns : a Bio::Ontology::RelationshipI object
+ Args    :
+
+
+=cut
+
+sub get_relationship_type{
+   my ($self,$type_name) = @_;
+   return $self->{ "_extra_relationship_types" }{$type_name};
+}
 
 =head2 add_relationship
 
@@ -403,6 +444,12 @@ sub get_predicate_terms {
 
     my @a = ( $self->is_a_relationship(),
               $self->part_of_relationship() );
+
+	foreach my $termname (keys %{$self->{ "_extra_relationship_types" }}){
+warn $termname;
+warn $self->{ "_extra_relationship_types" }{ $termname };
+	  push @a, $self->{ "_extra_relationship_types" }{ $termname };
+	}
 
     return @a;
 } # get_predicate_terms

@@ -133,12 +133,16 @@ sub get_instance {
 	return $reltype;
     }
     # valid relationship type?
-    if ( ! (($name eq IS_A) || ($name eq PART_OF) ||
-	    ($name eq CONTAINS) || ( $name eq FOUND_IN ))) {
-        my $msg = "Found unknown type of relationship: [" . $name . "]\n";
-        $msg .= "Known types are: [" . IS_A . "], [" . PART_OF . "], [" . CONTAINS . "], [" . FOUND_IN . "]";
-        $class->throw( $msg );
-    }
+
+#
+#see the cell ontology.  this code is too strict, even for dag-edit files. -allen
+#
+#    if ( ! (($name eq IS_A) || ($name eq PART_OF) ||
+#	    ($name eq CONTAINS) || ( $name eq FOUND_IN ))) {
+#        my $msg = "Found unknown type of relationship: [" . $name . "]\n";
+#        $msg .= "Known types are: [" . IS_A . "], [" . PART_OF . "], [" . CONTAINS . "], [" . FOUND_IN . "]";
+#        $class->throw( $msg );
+#    }
     # if we get here we need to create the rel.type
     $reltype = $class->new(-name     => $name,
 			   -ontology => $ont);

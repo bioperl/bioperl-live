@@ -411,6 +411,9 @@ sub get_relationships{
 
 sub get_predicate_terms{
     my $self = shift;
+
+	my @preds = $self->engine->get_predicate_terms;
+
     return grep { $_->ontology->name eq $self->name;
 	      } $self->engine->get_predicate_terms(@_);
 }
