@@ -116,14 +116,14 @@ Ewan Birney, birney@sanger.ac.uk
 
 =head1 CONTRIBUTORS
 
-Allen Day, allenday@ucla.edu,
-Richard Adams, Richard.Adams@ed.ac.uk, 
-David J. Evans, David.Evans@vir.gla.ac.uk, 
-Heikki Lehvaslaiho, heikki@ebi.ac.uk, 
-Allen Smith, allens@cpan.org, 
-Jason Stajich, jason@bioperl.org, 
-Anthony Underwood, aunderwood@phls.org.uk, 
-Xintao Wei & Giri Narasimhan, giri@cs.fiu.edu
+Allen Day, allenday-at-ucla.edu,
+Richard Adams, Richard.Adams-at-ed.ac.uk, 
+David J. Evans, David.Evans-at-vir.gla.ac.uk, 
+Heikki Lehvaslaiho, heikki-at-ebi.ac.uk, 
+Allen Smith, allens-at-cpan.org, 
+Jason Stajich, jason-at-bioperl.org, 
+Anthony Underwood, aunderwood-at-phls.org.uk, 
+Xintao Wei & Giri Narasimhan, giri-at-cs.fiu.edu
 
 
 =head1 SEE ALSO
