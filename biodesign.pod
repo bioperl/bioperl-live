@@ -401,11 +401,52 @@ independent functions with the interface definition, and I (Ewan) used
 this in other interfaces since then. The documentation has to be clear
 about what is going on, but I think in general it is.
 
-=head2 IDL (Interface Definition Language)
+=head2 Implementing foreign objects for Bioperl
 
-There is an idl definition of bioperl in bioperl.idl. This is the start
-of a new era of interoperability in this field, so please read it and
-see if you can comment on it.
+To take advantage of the new bioperl interface/implementation split,
+you have three options for wrapping external objects as bioperl objects
+
+=over 
+
+=item straight inheritance from the I file
+
+Assume that bioperl will always be installed, and inheriet off 
+the appropiate "I" file. You will then need to read the I file 
+to see which functions you need to implement.
+
+=item compile-time inheritance of the I file
+
+One of the problems about the previous system is that one needs
+to have bioperl wherever your package goes. This might be too
+much of a constraint on you. One solution is to use (or abuse?) the
+Perl compile time system by putting a conditional use statement
+in a BEGIN block in your module, such as
+
+  BEGIN {
+
+	eval {
+	   require Bio::PrimarySeqI;
+	};
+        if ( $@ ) {
+	   # nothing happens
+        } else {
+           push(@ISA,"Bio::PrimarySeqI");
+        }
+  }
+
+=item Adaptor Class
+
+If what you want to wrap is an out-of-Perl experience (eg, a SQL database
+or a C struct or a CORBA client) you will need to write an Adaptor class.
+This will be a Perl object which specifically sits between your object 
+and bioperl. For complex Perl objects which don't map easily to a bioperl
+object, you will probably be forced to write adaptor objects
+
+With adaptor objects one can generally make their own CPAN module 
+installation, with instructions to install only when bioperl is around.
+
+
+=back
 
 
 

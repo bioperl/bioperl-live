@@ -12,19 +12,40 @@
 
 =head1 NAME
 
-Bio::LocatableSeq - DESCRIPTION of Object
+Bio::LocatableSeq - A Sequence object with start/end points on it
 
 =head1 SYNOPSIS
 
-Give standard usage here
+    # a normal sequence object
+    $locseq->seq();
+    $locseq->id();
+
+    # has start,end points
+    $locseq->start();
+    $locseq->end();
+    
+    # inheriets off RangeI, so range operations possible
+
+    $locseq->overlaps($seqfeature);
 
 =head1 DESCRIPTION
 
-Describe the object here
+The locatable sequence object was developed mainly because the 
+SimpleAlign object requires this functionality, and in the rewrite
+of the Sequence object we had to decide what to do with this.
+
+It is, to be honest, not well integrated with the rest of bioperl, for
+example, the ->trunc function does not return a LocatableSeq object,
+as some might have thought. There are all sorts of nasty gotcha's about
+interactions between coordinate systems when these sort of objects are
+used. 
+
+Please post to the guts list for more about this, or contact Ewan Birney.
+
 
 =head1 CONTACT
 
-Describe contact details here
+Ewan Birney <birney@ebi.ac.uk>
 
 =head1 APPENDIX
 
@@ -150,5 +171,8 @@ sub get_nse{
    return $self->id() . "/" . $self->start . "-" . $self->end ;
 
 }
+
+
+
 
 

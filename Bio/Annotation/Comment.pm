@@ -1,8 +1,7 @@
 
 #
-# BioPerl module for Bio::Pfam::Annotation::Comment
+# BioPerl module for Bio::Annotation::Comment
 #
-# Cared for by Ewan Birney <pfam@sanger.ac.uk>
 #
 # Copyright Ewan Birney
 #
@@ -12,19 +11,30 @@
 
 =head1 NAME
 
-Bio::Annotation::Comment - DESCRIPTION of Object
+Bio::Annotation::Comment - A Comment on an Annotation
 
 =head1 SYNOPSIS
 
-Give standard usage here
+    # comment objects attached to annotations
+    foreach my $comment ( $seq->annotation->each_Comment() ) {
+	# comment object currently pretty stupid. Just gives back 
+	# text as a string
+	$text = $comment->text();
+    }
 
 =head1 DESCRIPTION
 
-Describe the object here
+A comment object is meant to represent one logical comment in a 
+piece of annotation (common CC lines in EMBL files etc). At the moment
+is a very simple object, but this will give us a placeholder for 
+more advanced things, eg, able to provide some XML stuff and eventually
+things like authorship tracking.
+
+This object originally came from the Pfam annotation object
 
 =head1 CONTACT
 
-Describe contact details here
+Ewan Birney <birney@ebi.ac.uk>
 
 =head1 APPENDIX
 

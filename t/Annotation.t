@@ -18,7 +18,7 @@
 
 
 ## We start with some black magic to print on failure.
-BEGIN { $| = 1; print "1..1\n"; }
+BEGIN { $| = 1; print "1..5\n"; }
 END {print "not ok 1\n" unless $loaded;}
 
 use Bio::Annotation;
@@ -26,10 +26,27 @@ use Bio::Annotation;
 $loaded = 1;
 print "ok 1\n";    # 1st test passes.
 
-
 ## End of black magic.
 ##
 ## Insert additional test code below but remember to change
 ## the print "1..x\n" in the BEGIN block to reflect the
 ## total number of tests that will be run. 
 
+$annotation = Bio::Annotation->new();
+$comment    = Bio::Annotation::Comment->new();
+$annotation->add_Comment($comment);
+print "ok 2\n";
+
+$dblink     = Bio::Annotation::DBLink->new();
+$annotation->add_DBLink($dblink);
+
+print "ok 3\n";
+$ref        = Bio::Annotation::Reference->new();
+$annotation->add_Reference($ref);
+print "ok 4\n";
+
+$annotation->each_Comment();
+$annotation->each_DBLink();
+$annotation->each_Reference();
+
+print "ok 5\n";

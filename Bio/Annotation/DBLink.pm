@@ -2,7 +2,6 @@
 #
 # BioPerl module for Bio::Annotation::Link
 #
-# Cared for by Ewan Birney <pfam@sanger.ac.uk>
 #
 # Copyright Ewan Birney
 #
@@ -12,20 +11,27 @@
 
 =head1 NAME
 
-Bio::Annotation::DBLink - DESCRIPTION of Object
+Bio::Annotation::DBLink - Database Link
 
 =head1 SYNOPSIS
 
-Give standard usage here
+    $annotation = $seq->annotation;
+    foreach my $link ( $annotation->each_DBLink() ) {
+	print "Linked to ",$link->primary_id()," in ",$link->database,"\n";
+    }
+
 
 =head1 DESCRIPTION
 
 Provides an object which represents a link from one onbject to something
-in another database without proscribing what is in the other database
+in another database without proscribing what is in the other database.
+It gives back strings for the "primary_id", something like the accession
+number or the main id for the database and "database" being a string
+representation of the database.
 
 =head1 CONTACT
 
-Describe contact details here
+Ewan Birney <birney@ebi.ac.uk>
 
 =head1 APPENDIX
 

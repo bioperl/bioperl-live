@@ -12,20 +12,39 @@
 
 =head1 NAME
 
-Bio::Annotation::Reference - DESCRIPTION of Object
+Bio::Annotation::Reference - Literature Reference Block
 
 =head1 SYNOPSIS
 
-Give standard usage here
+    $annotation = $seq->annotation();
+    foreach $ref ( $annotation->each_Reference() ) {
+	print "Title: ",$ref->title,"\n";
+        print "Authors:",$ref->authors,"\n";
+        print "Location:",$ref->location,"\n";
+    }
+
+    
 
 =head1 DESCRIPTION
 
-Object which presents a literature reference. This is considered
-to be a specialised form of database link
+Object which presents a literature reference. This is considered to be
+a specialised form of database link. The literature reference contains
+the title, authors and location lines as text: no attempt is made to
+parse these into more computationally accessibly aspects, as it
+becomes a nightmare. A slot for the medline accession number is also
+provided.
+
+As most people will realise this object is really designed to
+supported literature references made in flat files. For more complex
+representations, including abstract and possibly full text a richer
+object that can somehow be easily connected (? inheritence or
+composition) to this object would be ideal. Please air your views on
+the guts list and if possible, nominate yourself as someone who can do
+this.
 
 =head1 CONTACT
 
-Describe contact details here
+Ewan Birney <birney@ebi.ac.uk>
 
 =head1 APPENDIX
 
@@ -58,69 +77,6 @@ sub _initialize {
 
 # set stuff in self from @args
  return $make; # success - we hope!
-}
-
-=head2 start
-
- Title   : start
- Usage   : $self->start($newval)
- Function: Gives the reference start base
- Example : 
- Returns : value of start
- Args    : newvalue (optional)
-
-
-=cut
-
-sub start{
-   my ($self,$value) = @_;
-   if( defined $value) {
-      $self->{'start'} = $value;
-    }
-    return $self->{'start'};
-
-}
-=head2 end
-
- Title   : end
- Usage   : $self->end($newval)
- Function: Gives the reference end base
- Example : 
- Returns : value of end
- Args    : newvalue (optional)
-
-
-=cut
-
-sub end{
-   my ($self,$value) = @_;
-   if( defined $value) {
-      $self->{'end'} = $value;
-    }
-    return $self->{'end'};
-
-}
-
-=head2 rp
-
- Title   : rp
- Usage   : $self->rp($newval)
- Function: Gives the RP line. No attempt is made to parse this line, unless it indicates
-           start and end reference bases
- Example : 
- Returns : value of rp
- Args    : newvalue (optional)
-
-
-=cut
-
-sub rp{
-   my ($self,$value) = @_;
-   if( defined $value) {
-      $self->{'rp'} = $value;
-    }
-    return $self->{'rp'};
-
 }
 
 =head2 authors
@@ -262,6 +218,70 @@ sub primary_id{
    my ($self) = @_;
 
    return $self->medline();
+}
+
+
+=head2 start
+
+ Title   : start
+ Usage   : $self->start($newval)
+ Function: Gives the reference start base
+ Example : 
+ Returns : value of start
+ Args    : newvalue (optional)
+
+
+=cut
+
+sub start{
+   my ($self,$value) = @_;
+   if( defined $value) {
+      $self->{'start'} = $value;
+    }
+    return $self->{'start'};
+
+}
+=head2 end
+
+ Title   : end
+ Usage   : $self->end($newval)
+ Function: Gives the reference end base 
+ Example : 
+ Returns : value of end
+ Args    : newvalue (optional)
+
+
+=cut
+
+sub end{
+   my ($self,$value) = @_;
+   if( defined $value) {
+      $self->{'end'} = $value;
+    }
+    return $self->{'end'};
+
+}
+
+=head2 rp
+
+ Title   : rp
+ Usage   : $self->rp($newval)
+ Function: Gives the RP line. No attempt is made to parse this line, unless it indicates
+           start and end reference bases
+ Example : 
+ Returns : value of rp
+ Args    : newvalue (optional)
+
+
+=cut
+
+sub rp{
+   my ($self,$value) = @_;
+   if( defined $value) {
+      $self->{'rp'} = $value;
+    }
+    return $self->{'rp'};
+
 }
 
 
