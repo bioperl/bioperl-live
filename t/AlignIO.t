@@ -81,15 +81,15 @@ $aln = $str->next_aln();
 ok $aln->get_seq_by_pos(1)->get_nse, 'P04777/1-33', " failed prodom input test ";
 
 # CLUSTAL
-$strout = Bio::AlignIO->new('-file' => ">".Bio::Root::IO->catfile("t","data","testaln.clustal"), 
+$strout = Bio::AlignIO->new('-file' => ">".Bio::Root::IO->catfile("t","data","testout.clustal"), 
 			      '-format' => 'clustalw');
 $status = $strout->write_aln($aln);
 ok $status, 1, "  failed clustalw (.aln) output test";
 undef $strout;
-$str = Bio::AlignIO->new('-file'=> Bio::Root::IO->catfile("t","data","testaln.clustal"), 
+$str = Bio::AlignIO->new('-file'=> Bio::Root::IO->catfile("t","data","testout.clustal"), 
 			   '-format' => 'clustalw');
 $aln = $str->next_aln($aln);
-ok $aln->get_seq_by_pos(1)->get_nse, 'P04777/1-33', "  failed clustalw (.aln) output test";
+ok $aln->get_seq_by_pos(1)->get_nse, 'P04777/1-33', "  failed clustalw (.aln) input test";
 
 # FASTA
 my $in = Bio::AlignIO->newFh('-file'  => Bio::Root::IO->catfile("t","data","testaln.fasta"), 
@@ -139,7 +139,7 @@ unlink(Bio::Root::IO->catfile("t","data","testout2.pfam"),
      Bio::Root::IO->catfile("t","data","testout.pfam"),
      Bio::Root::IO->catfile("t","data","testout.msf"),
      Bio::Root::IO->catfile("t","data","testout.fasta"), 
-     Bio::Root::IO->catfile("t","data","testaln.clustal"),
+     Bio::Root::IO->catfile("t","data","testout.clustal"),
      Bio::Root::IO->catfile("t","data","testout.phylip"),
      Bio::Root::IO->catfile("t","data","testout.nexus"),
        );
