@@ -83,7 +83,7 @@ print $outfh "#",uc(join("", map{ sprintf("%-10s",$_) } @fields)), "\n" if $head
 
 while(<>) {
     my $linestr = $_;
-    if( /^\s+\d+>>>(\S+).+/ ) {	
+    if( /^\s*\d+>>>(\S+).+/ ) {	
 	$data{'qname'} = $1;
 	if( /\-\s+(\d+)\s+aa\s+$/ ){
 	    $data{'qlen'} = $1;
@@ -122,9 +122,8 @@ while(<>) {
 	    $data{'fs'}       = shift @line;
 	    
 	    $data{'mmcount'} = $data{'alen'} - ( int($data{'percid'} * $data{'alen'}) + $data{'gapcount'});
-	    next if( $data{'evalue'} > $evalue || 
-		     $data{'bits'} < $bitscore );
-
+	    #next if( $data{'evalue'} > $evalue || 
+	#	     $data{'bits'} < $bitscore );
 	    
 	    for ( $data{'percid'}, $data{'percsim'} ) {
 		$_ = sprintf("%.2f",$_*100);
