@@ -564,9 +564,9 @@ sub translate {
 		$output = 'M'. substr($output,1);
 	    }
 	    elsif ($throw) {
-		$self->warn("Seq [$id]: Not using a valid initiator codon!");
-	    } else {
 		$self->throw("Seq [$id]: Not using a valid initiator codon!");
+	    } else {
+		$self->warn("Seq [$id]: Not using a valid initiator codon!");
 	    }
 	}
     }
