@@ -30,8 +30,9 @@ description = 1
 [P-element]
 glyph = triangle
 orient = S
-bgcolor = red
-fgcolor = white
+bgcolor   = red
+fgcolor   = white
+fontcolor = black
 label = 1
 point = 1
 

@@ -64,12 +64,14 @@ sub _label {
   return $label unless $label eq '1';
   return "1"    if $label eq '1 '; # 1 with a space
 
+
   # figure it out ourselves
   my $f = $self->feature;
-  return $f->info       if $f->can('info');
-  return $f->display_name if $f->can('display_name');
-  return $f->display_id   if $f->can('display_id');  # deprecated API
-  return eval {$f->seq_id} || eval{$f->primary_tag};
+
+  return $f->info         if $f->can('info');
+  return $f->seq_id       if $f->can('seq_id');
+  return $f->display_name if $f->can('display_name');   # deprecated API
+  return eval{$f->primary_tag};
 }
 sub _description {
   my $self = shift;

@@ -8,10 +8,13 @@ use strict;
 use lib "$ENV{HOME}/projects/bioperl-live";
 use Bio::Graphics;
 use Bio::SeqIO;
+use Bio::SeqFeature::Generic;
 
 my $file = shift                       or die "provide a sequence file as the argument";
 my $io = Bio::SeqIO->new(-file=>$file) or die "couldn't create Bio::SeqIO";
 my $seq = $io->next_seq                or die "couldn't find a sequence in the file";
+my $wholeseq = Bio::SeqFeature::Generic->new(-start=>1,-end=>$seq->length,
+					     -seq_id=>$seq->display_name);
 
 my @features = $seq->all_SeqFeatures;
 
@@ -23,19 +26,19 @@ for my $f (@features) {
 }
 
 my $panel = Bio::Graphics::Panel->new(
-				      -segment   => $seq,
+				      -length    => $seq->length,
 				      -key_style => 'between',
 				      -width     => 800,
 				      -pad_left  => 10,
 				      -pad_right => 10,
 				      );
-$panel->add_track($seq,
+$panel->add_track($wholeseq,
 		  -glyph => 'arrow',
 		  -bump => 0,
 		  -double=>1,
 		  -tick => 2);
 
-$panel->add_track($seq,
+$panel->add_track($wholeseq,
 		  -glyph  => 'generic',
 		  -bgcolor => 'blue',
 		  -label  => 1,

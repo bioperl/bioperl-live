@@ -40,6 +40,7 @@ sub new {
   my $gridcolor    = $options{-gridcolor} || GRIDCOLOR;
   my $grid         = $options{-grid}       || 0;
   my $empty_track_style   = $options{-empty_tracks} || 'key';
+  my $truecolor    = $options{-truecolor}  || 0;
 
   $offset   ||= $options{-segment}->start-1 if $options{-segment};
   $length   ||= $options{-segment}->length  if $options{-segment};
@@ -68,6 +69,7 @@ sub new {
 		key_style => $keystyle,
 		key_align => $keyalign,
 		all_callbacks => $allcallbacks,
+		truecolor     => $truecolor,
 		empty_track_style    => $empty_track_style,
 	       },$class;
 }
@@ -329,7 +331,8 @@ sub height {
 }
 
 sub gd {
-  my $self = shift;
+  my $self        = shift;
+  my $existing_gd = shift;
 
   local $^W = 0;  # can't track down the uninitialized variable warning
 
@@ -338,8 +341,10 @@ sub gd {
   my $width  = $self->width;
   my $height = $self->height;
 
+  my $gd = $existing_gd || GD::Image->new($width,$height,
+					  ($self->{truecolor} && GD::Image->can('isTrueColor') ? 1 : ())
+					 );
 
-  my $gd = GD::Image->new($width,$height);
   my %translation_table;
   for my $name ('white','black',keys %COLORS) {
     my $idx = $gd->colorAllocate(@{$COLORS{$name}});
@@ -347,8 +352,12 @@ sub gd {
   }
 
   $self->{translations} = \%translation_table;
-  $self->{gd}                = $gd;
-  $gd->fill(0,0,$self->bgcolor) if $self->bgcolor;
+  $self->{gd}           = $gd;
+  if ($self->bgcolor) {
+    $gd->fill(0,0,$self->bgcolor);
+  } elsif (eval {$gd->isTrueColor}) {
+    $gd->fill(0,0,$translation_table{'white'});
+  }
 
   my $pl = $self->pad_left;
   my $pt = $self->pad_top;
@@ -653,18 +662,31 @@ sub translate_color {
   my @colors = @_;
   if (@colors == 3) {
     my $gd = $self->gd or return 1;
-    return $gd->colorClosest(@colors);
+    return $self->colorClosest($gd,@colors);
   }
   elsif ($colors[0] =~ /^\#([0-9A-F]{2})([0-9A-F]{2})([0-9A-F]{2})$/i) {
     my $gd = $self->gd or return 1;
     my ($r,$g,$b) = (hex($1),hex($2),hex($3));
-    return $gd->colorClosest($r,$g,$b);
+    return $self->colorClosest($gd,$r,$g,$b);
   }
   else {
     my $color = $colors[0];
     my $table = $self->{translations} or return 1;
     return defined $table->{$color} ? $table->{$color} : 1;
   }
+}
+
+# workaround for bad GD
+sub colorClosest {
+  my ($self,$gd,@c) = @_;
+  return $gd->colorClosest(@c) if $GD::VERSION < 2.04;
+  my ($value,$index);
+  for (keys %COLORS) {
+    my ($r,$g,$b) = @{$COLORS{$_}};
+    my $dist = ($r-$c[0])**2 + ($g-$c[1])**2 + ($b-$c[2])**2;
+    ($value,$index) = ($dist,$_) if !defined($value) || $dist < $value;
+  }
+  return $self->{translations}{$index};
 }
 
 sub bgcolor {
@@ -1279,11 +1301,16 @@ Typical usage is:
 unshift_track() works like add_track(), except that the new track is
 added to the top of the image rather than the bottom.
 
-=item $gd = $panel-E<gt>gd
+=item $gd = $panel-E<gt>gd([$gd])
 
 The gd() method lays out the image and returns a GD::Image object
 containing it.  You may then call the GD::Image object's png() or
 jpeg() methods to get the image data.
+
+Optionally, you may pass gd() a preexisting GD::Image object that you
+wish to draw on top of.  If you do so, you should call the width() and
+height() methods first to ensure that the image has sufficient
+dimensions.
 
 =item $png = $panel-E<gt>png
 

@@ -362,7 +362,9 @@ sub bump {
 # we also look for the "color" option for Ace::Graphics compatibility
 sub fgcolor {
   my $self = shift;
-  my $index = $self->option('fgcolor') || $self->option('color') || return 0;
+  my $color = $self->option('fgcolor');
+  my $index = defined $color ? $color : $self->option('color');
+  $index = 'black' unless defined $index;
   $self->factory->translate_color($index);
 }
 
@@ -375,7 +377,9 @@ sub fillcolor {
 # we also look for the "background-color" option for Ace::Graphics compatibility
 sub bgcolor {
   my $self = shift;
-  my $index = $self->option('bgcolor') || $self->option('fillcolor') || return 0;
+  my $bgcolor = $self->option('bgcolor');
+  my $index = defined $bgcolor ? $bgcolor : $self->option('fillcolor');
+  $index = 'white' unless defined $index;
   $self->factory->translate_color($index);
 }
 sub font {
@@ -383,11 +387,13 @@ sub font {
 }
 sub fontcolor {
   my $self = shift;
-  $self->color('fontcolor') || $self->fgcolor;
+  my $fontcolor = $self->color('fontcolor');
+  return defined $fontcolor ? $fontcolor : $self->fgcolor;
 }
 sub font2color {
   my $self = shift;
-  $self->color('font2color') || $self->fontcolor;
+  my $font2color = $self->color('font2color');
+  return defined $font2color ? $font2color : $self->fgcolor;
 }
 sub tkcolor { # "track color"
   my $self = shift;

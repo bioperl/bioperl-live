@@ -3,6 +3,7 @@
 use strict;
 use lib '.','../blib/lib';
 use Bio::DB::BioFetch;
+use Bio::SeqFeature::Generic;
 use Bio::Graphics;
 
 my $accession = shift or die <<END;
@@ -44,57 +45,86 @@ my $bf = eval {require Bio::DB::FileCache}
 warn "fetching...\n";
 my $seq = $bf->get_Seq_by_id($accession);
 
-my @features = $seq->all_SeqFeatures;
-my @CDS      = grep {$_->primary_tag eq 'CDS'}  @features;
-my @gene     = grep {$_->primary_tag eq 'gene'} @features;
-my @tRNAs    = grep {$_->primary_tag eq 'tRNA'} @features;
+my $wholeseq = Bio::SeqFeature::Generic->new(-start=>1,-end=>$seq->length,
+					     -seq_id=>$seq->display_name);
 
-warn "rendering...\n";
-$start = $seq->start unless defined $start;
-$stop  = $seq->end   unless defined $stop;
+my @features = $seq->all_SeqFeatures;
+
+# sort features by their primary tags
+my %sorted_features;
+for my $f (@features) {
+  my $tag = $f->primary_tag;
+  push @{$sorted_features{$tag}},$f;
+}
 
 my $panel = Bio::Graphics::Panel->new(
-				      -offset  => $start,
-				      -length  => $stop - $start + 1,
-				      -width   => 1000,
+				      -length    => $seq->length,
+				      -key_style => 'between',
+				      -width     => 800,
+				      -pad_left  => 10,
+				      -pad_right => 10,
 				      );
-$panel->add_track(arrow => $seq,
+$panel->add_track($wholeseq,
+		  -glyph => 'arrow',
 		  -bump => 0,
 		  -double=>1,
 		  -tick => 2);
 
-$panel->add_track(transcript2  => \@gene,
-		  -bgcolor    =>  'blue',
-		  -fgcolor    =>  'black',
-		  -key        => 'Genes',
-		  -bump       =>  +1,
-		  -height     =>  10,
-		  -label      => \&gene_label,
-		  -description=> \&gene_description,
+$panel->add_track($wholeseq,
+		  -glyph   => 'generic',
+		  -bgcolor => 'blue',
+		  -label   => 1,
 		 );
 
-$panel->add_track(transcript2  => \@CDS,
-		  -bgcolor    =>  'cyan',
-		  -fgcolor    =>  'black',
-		  -key        => 'CDS',
-		  -bump       =>  +1,
-		  -height     =>  10,
-		  -label      => \&gene_label,
-		  -description=> \&gene_description,
-		 );
+# special cases
+if ($sorted_features{CDS}) {
+  $panel->add_track($sorted_features{CDS},
+		    -glyph      => 'transcript2',
+		    -bgcolor    => 'orange',
+		    -fgcolor    => 'black',
+		    -font2color => 'red',
+		    -key        => 'CDS',
+		    -bump       =>  +1,
+		    -height     =>  12,
+		    -label      => \&gene_label,
+		    -description=> \&gene_description,
+		   );
+  delete $sorted_features{'CDS'};
+}
 
-$panel->add_track(generic    => \@tRNAs,
-		  -bgcolor   =>  'red',
-		  -fgcolor   =>  'black',
-		  -key       => 'tRNAs',
-		  -bump      =>  +1,
-		  -height    =>  8,
-		  -label      => \&gene_label,
-		 );
+if ($sorted_features{tRNA}) {
+  $panel->add_track($sorted_features{tRNA},
+		    -glyph     =>  'transcript2',
+		    -bgcolor   =>  'red',
+		    -fgcolor   =>  'black',
+		    -font2color => 'red',
+		    -key       => 'tRNAs',
+		    -bump      =>  +1,
+		    -height    =>  12,
+		    -label     => \&gene_label,
+		   );
+  delete $sorted_features{tRNA};
+}
 
-my $gd = $panel->gd;
+# general case
+my @colors = qw(cyan orange blue purple green chartreuse magenta yellow aqua);
+my $idx    = 0;
+for my $tag (sort keys %sorted_features) {
+  my $features = $sorted_features{$tag};
+  $panel->add_track($features,
+		    -glyph    =>  'generic',
+		    -bgcolor  =>  $colors[$idx++ % @colors],
+		    -fgcolor  => 'black',
+		    -font2color => 'red',
+		    -key      => "${tag}s",
+		    -bump     => +1,
+		    -height   => 8,
+		    -description => \&generic_description
+		   );
+}
 
-print $gd->can('png') ? $gd->png : $gd->gif;
+print $panel->png;
+exit 0;
 
 sub gene_label {
   my $feature = shift;
@@ -106,6 +136,7 @@ sub gene_label {
   }
   $notes[0];
 }
+
 sub gene_description {
   my $feature = shift;
   my @notes;
@@ -117,4 +148,15 @@ sub gene_description {
   return unless @notes;
   substr($notes[0],30) = '...' if length $notes[0] > 30;
   $notes[0];
+}
+
+sub generic_description {
+  my $feature = shift;
+  my $description;
+  foreach ($feature->all_tags) {
+    my @values = $feature->each_tag_value($_);
+    $description .= $_ eq 'note' ? "@values" : "$_=@values; ";
+  }
+  $description =~ s/; $//; # get rid of last
+  $description;
 }

@@ -46,7 +46,7 @@ sub draw {
       $part->{partcolor} = $fill;
       next;
     }
-    my($r,$g,$b) = map { 255 - (255-$_) * min(max( ($s-$min_score)/$span, 0), 1) } 
+    my($r,$g,$b) = map { 255 - (255-$_) * min(max( ($s-$min_score)/$span, 0), 1) }
       ($red,$green,$blue);
     my $idx      = $self->panel->translate_color($r,$g,$b);
     $part->{partcolor} = $idx;

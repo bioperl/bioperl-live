@@ -157,6 +157,11 @@ around).  If you use libgd 2.0.1 or higher, be sure it matches GD
 version 2.0.1 or higher.
 </para>
 
+<para>
+You will also need to install the Text::Shellwords module, which is
+available from CPAN.
+</para>
+
 
 </section>
 
@@ -212,7 +217,7 @@ Our first attempt to parse and render this file looks like this:
   8    chomp;
   9    next if /^\#/;  # ignore comments
  10    my($name,$score,$start,$end) = split /\t+/;
- 11    my $feature = Bio::SeqFeature::Generic-&gt;new(-seqname=&gt;$name,-score=&gt;$score,
+ 11    my $feature = Bio::SeqFeature::Generic-&gt;new(-seq_id=&gt;$name,-score=&gt;$score,
  12                                                -start=&gt;$start,-end=&gt;$end);
  13    $track-&gt;add_feature($feature);
  14  }
@@ -337,7 +342,7 @@ scores.
  24    chomp;
  25    next if /^\#/;  # ignore comments
  26    my($name,$score,$start,$end) = split /\t+/;
- 27    my $feature = Bio::SeqFeature::Generic-&gt;new(-seqname=&gt;$name,-score=&gt;$score,
+ 27    my $feature = Bio::SeqFeature::Generic-&gt;new(-seq_id=&gt;$name,-score=&gt;$score,
  28                                                -start=&gt;$start,-end=&gt;$end);
  29    $track-&gt;add_feature($feature);
  30  }
@@ -460,7 +465,7 @@ The changes are shown in Example 3.
  32    next if /^\#/;  # ignore comments
  33    my($name,$score,$start,$end) = split /\t+/;
  34    my $feature = Bio::SeqFeature::Generic-&gt;new(-score=&gt;$score,
- 35                                                -seqname=&gt;$name,
+ 35                                                -seq_id=&gt;$name,
  36                                                -start=&gt;$start,-end=&gt;$end);
  37    $track-&gt;add_feature($feature);
  38  }
@@ -565,7 +570,7 @@ Code example 4 shows the new utility.
  14                                       );
 
  15  my $full_length = Bio::SeqFeature::Generic-&gt;new(-start=&gt;1,-end=&gt;$result-&gt;query_length,
- 16                                                  -seqname=&gt;$result-&gt;query_name);
+ 16                                                  -seq_id=&gt;$result-&gt;query_name);
  17  $panel-&gt;add_track($full_length,
  18                    -glyph   =&gt; 'arrow',
  19                    -tick    =&gt; 2,
@@ -591,7 +596,7 @@ Code example 4 shows the new utility.
  37  while( my $hit = $result-&gt;next_hit ) {
  38    next unless $hit-&gt;significance &lt; 1E-20;
  39    my $feature = Bio::SeqFeature::Generic-&gt;new(-score   =&gt; $hit-&gt;raw_score,
- 40                                                -seqname =&gt; $hit-&gt;name,
+ 40                                                -seq_id =&gt; $hit-&gt;name,
  41                                                -tag     =&gt; {
  42                                                             description =&gt; $hit-&gt;description
  43                                                            },
@@ -717,59 +722,62 @@ Code example 5 shows the code for rendering an EMBL or GenBank entry.
   5  use lib "$ENV{HOME}/projects/bioperl-live";
   6  use Bio::Graphics;
   7  use Bio::SeqIO;
+  8  use Bio::SeqFeature::Generic;
 
-  8  my $file = shift                       or die "provide a sequence file as the argument";
-  9  my $io = Bio::SeqIO-&gt;new(-file=&gt;$file) or die "couldn't create Bio::SeqIO";
- 10  my $seq = $io-&gt;next_seq                or die "couldn't find a sequence in the file";
+  9  my $file = shift                       or die "provide a sequence file as the argument";
+ 10  my $io = Bio::SeqIO-&gt;new(-file=&gt;$file) or die "couldn't create Bio::SeqIO";
+ 11  my $seq = $io-&gt;next_seq                or die "couldn't find a sequence in the file";
+ 12  my $wholeseq = Bio::SeqFeature::Generic-&gt;new(-start=&gt;1,-end=&gt;$seq-&gt;length,
+ 13                                               -seq_id=&gt;$seq-&gt;display_name);
 
- 11  my @features = $seq-&gt;all_SeqFeatures;
+ 14  my @features = $seq-&gt;all_SeqFeatures;
 
- 12  # sort features by their primary tags
- 13  my %sorted_features;
- 14  for my $f (@features) {
- 15    my $tag = $f-&gt;primary_tag;
- 16    push @{$sorted_features{$tag}},$f;
- 17  }
+ 15  # sort features by their primary tags
+ 16  my %sorted_features;
+ 17  for my $f (@features) {
+ 18    my $tag = $f-&gt;primary_tag;
+ 19    push @{$sorted_features{$tag}},$f;
+ 20  }
 
- 18  my $panel = Bio::Graphics::Panel-&gt;new(
- 19                                        -segment   =&gt; $seq,
- 20                                        -key_style =&gt; 'between',
- 21                                        -width     =&gt; 800,
- 22                                        -pad_left  =&gt; 10,
- 23                                        -pad_right =&gt; 10,
- 24                                        );
- 25  $panel-&gt;add_track($seq,
- 26                    -glyph =&gt; 'arrow',
- 27                    -bump =&gt; 0,
- 28                    -double=&gt;1,
- 29                    -tick =&gt; 2);
+ 21  my $panel = Bio::Graphics::Panel-&gt;new(
+ 22                                        -length    =&gt; $seq-&gt;length,
+ 23                                        -key_style =&gt; 'between',
+ 24                                        -width     =&gt; 800,
+ 25                                        -pad_left  =&gt; 10,
+ 26                                        -pad_right =&gt; 10,
+ 27                                        );
+ 28  $panel-&gt;add_track($wholeseq,
+ 29                    -glyph =&gt; 'arrow',
+ 30                    -bump =&gt; 0,
+ 31                    -double=&gt;1,
+ 32                    -tick =&gt; 2);
 
- 30  $panel-&gt;add_track($seq,
- 31                    -glyph  =&gt; 'generic',
- 32                    -bgcolor =&gt; 'blue',
- 33                    -label  =&gt; 1,
- 34                   );
+ 33  $panel-&gt;add_track($wholeseq,
+ 34                    -glyph  =&gt; 'generic',
+ 35                    -bgcolor =&gt; 'blue',
+ 36                    -label  =&gt; 1,
+ 37                   );
 
- 35  # general case
- 36  my @colors = qw(cyan orange blue purple green chartreuse magenta yellow aqua);
- 37  my $idx    = 0;
- 38  for my $tag (sort keys %sorted_features) {
- 39    my $features = $sorted_features{$tag};
- 40    $panel-&gt;add_track($features,
- 41                      -glyph    =&gt;  'generic',
- 42                      -bgcolor  =&gt;  $colors[$idx++ % @colors],
- 43                      -fgcolor  =&gt; 'black',
- 44                      -font2color =&gt; 'red',
- 45                      -key      =&gt; "${tag}s",
- 46                      -bump     =&gt; +1,
- 47                      -height   =&gt; 8,
- 48                      -label    =&gt; 1,
- 49                      -description =&gt; 1,
- 50                     );
- 51  }
+ 38  # general case
+ 39  my @colors = qw(cyan orange blue purple green chartreuse magenta yellow aqua);
+ 40  my $idx    = 0;
+ 41  for my $tag (sort keys %sorted_features) {
+ 42    my $features = $sorted_features{$tag};
+ 43    $panel-&gt;add_track($features,
+ 44                      -glyph    =&gt;  'generic',
+ 45                      -bgcolor  =&gt;  $colors[$idx++ % @colors],
+ 46                      -fgcolor  =&gt; 'black',
+ 47                      -font2color =&gt; 'red',
+ 48                      -key      =&gt; "${tag}s",
+ 49                      -bump     =&gt; +1,
+ 50                      -height   =&gt; 8,
+ 51                      -label    =&gt; 1,
+ 52                      -description =&gt; 1,
+ 53                     );
+ 54  }
 
- 52  print $panel-&gt;png;
- 53  exit 0;
+ 55  print $panel-&gt;png;
+ 56  exit 0;
 </programlisting>
 </example>
 </para>
@@ -784,28 +792,30 @@ goes wrong, the script dies with an error message.
 </para>
 
 <para>
+The returned object is a Bio::SeqI object, which has a length but no
+defined start or end coordinates.  We would like to create a drawable
+Bio::SeqFeatureI object to use for the scale, so we generate a new
+Bio::SeqFeature::Generic object that goes from a start of 1 to the
+length of the sequence. (lines 12-13).
+</para>
+
+<para>
 The script reads the features from the sequence object by calling
 <function>all_SeqFeatures()</function>, and then sorts each feature by
 its primary tag into a hash of array references named
-<varname>%sorted_features</varname> (lines 11-17).
+<varname>%sorted_features</varname> (lines 14-20).
 </para>
 
 <para>
 Next, we create the <classname>Bio::Graphics::Panel</classname> object
-(lines 18-24).  As in previous examples, we specify the width of the
+(lines 21-27).  As in previous examples, we specify the width of the
 image, as well as some extra white space to pad out the left and right
-borders.  However, instead of explicitly specifying the length of the
-sequence with the <parameter>-length</parameter> option, we let
-<classname>Bio::Graphics::Panel</classname> handle it by passing it
-the sequence object itself as the argument to the
-<parameter>-segment</parameter> option.  This will also correctly
-handle the unusual case of a sequence that does not start at position
-1.
+borders.
 </para>
 
 <para>
-We now add two tracks, one for the scale (lines 25-29) and the other
-for the sequence as a whole (30-34).  As in the earlier examples, we
+We now add two tracks, one for the scale (lines 28-32) and the other
+for the sequence as a whole (33-37).  As in the earlier examples, we
 pass <function>add_track()</function> the sequence object as the first
 argument before the options so that the object is incorporated into
 the track immediately.
@@ -814,11 +824,11 @@ the track immediately.
 <para>
 We are now ready to create a track for each feature type.  In order to
 distinguish the tracks by color, we initialize an array of 9 color
-names and simply cycle through them (lines 36-51).  For each feature
+names and simply cycle through them (lines 38-54).  For each feature
 tag, we retrieve the corresponding list of features from
-<varname>%sorted_features</varname> (line 39) and create a track for
+<varname>%sorted_features</varname> (line 42) and create a track for
 it using the "generic" glyph and the next color in the list (lines
-40-50).  We set the <option>-label</option> and
+43-53).  We set the <option>-label</option> and
 <option>-description</option> options to the value "1".  This signals
 <classname>Bio::Graphics</classname> that it should do the best it can
 to choose useful label and description values on its own.
@@ -871,7 +881,7 @@ into a generally useful utility.  The revised code is shown in example
   0  #!/usr/bin/perl
 
   1  # file: embl2picture.pl
-  2  # This is code example 5 in the Graphics-HOWTO
+  2  # This is code example 6 in the Graphics-HOWTO
   3  # Author: Lincoln Stein
 
   4  use strict;
@@ -896,127 +906,129 @@ into a generally useful utility.  The revised code is shown in example
  18  my $file = shift                       or die USAGE;
  19  my $io = Bio::SeqIO-&gt;new(-file=&gt;$file) or die USAGE;
  20  my $seq = $io-&gt;next_seq                or die USAGE;
+ 21  my $wholeseq = Bio::SeqFeature::Generic-&gt;new(-start=&gt;1,-end=&gt;$seq-&gt;length,
+ 22                                               -seq_id=&gt;$seq-&gt;display_name);
 
- 21  my @features = $seq-&gt;all_SeqFeatures;
+ 23  my @features = $seq-&gt;all_SeqFeatures;
 
- 22  # sort features by their primary tags
- 23  my %sorted_features;
- 24  for my $f (@features) {
- 25    my $tag = $f-&gt;primary_tag;
- 26    push @{$sorted_features{$tag}},$f;
- 27  }
+ 24  # sort features by their primary tags
+ 25  my %sorted_features;
+ 26  for my $f (@features) {
+ 27    my $tag = $f-&gt;primary_tag;
+ 28    push @{$sorted_features{$tag}},$f;
+ 29  }
 
- 28  my $panel = Bio::Graphics::Panel-&gt;new(
- 29                                        -segment   =&gt; $seq,
- 30                                        -key_style =&gt; 'between',
- 31                                        -width     =&gt; 800,
- 32                                        -pad_left  =&gt; 10,
- 33                                        -pad_right =&gt; 10,
- 34                                        );
- 35  $panel-&gt;add_track($seq,
- 36                    -glyph =&gt; 'arrow',
- 37                    -bump =&gt; 0,
- 38                    -double=&gt;1,
- 39                    -tick =&gt; 2);
+ 30  my $panel = Bio::Graphics::Panel-&gt;new(
+ 31                                        -length    =&gt; $seq-&gt;length,
+ 32                                        -key_style =&gt; 'between',
+ 33                                        -width     =&gt; 800,
+ 34                                        -pad_left  =&gt; 10,
+ 35                                        -pad_right =&gt; 10,
+ 36                                        );
+ 37  $panel-&gt;add_track($wholeseq,
+ 38                    -glyph =&gt; 'arrow',
+ 39                    -bump =&gt; 0,
+ 40                    -double=&gt;1,
+ 41                    -tick =&gt; 2);
 
- 40  $panel-&gt;add_track($seq,
- 41                    -glyph  =&gt; 'generic',
- 42                    -bgcolor =&gt; 'blue',
- 43                    -label  =&gt; 1,
- 44                   );
+ 42  $panel-&gt;add_track($wholeseq,
+ 43                    -glyph  =&gt; 'generic',
+ 44                    -bgcolor =&gt; 'blue',
+ 45                    -label  =&gt; 1,
+ 46                   );
 
- 45  # special cases
- 46  if ($sorted_features{CDS}) {
- 47    $panel-&gt;add_track($sorted_features{CDS},
- 48                      -glyph      =&gt; 'transcript2',
- 49                      -bgcolor    =&gt; 'orange',
- 50                      -fgcolor    =&gt; 'black',
- 51                      -font2color =&gt; 'red',
- 52                      -key        =&gt; 'CDS',
- 53                      -bump       =&gt;  +1,
- 54                      -height     =&gt;  12,
- 55                      -label      =&gt; \&amp;gene_label,
- 56                      -description=&gt; \&amp;gene_description,
- 57                     );
- 58    delete $sorted_features{'CDS'};
- 59  }
+ 47  # special cases
+ 48  if ($sorted_features{CDS}) {
+ 49    $panel-&gt;add_track($sorted_features{CDS},
+ 50                      -glyph      =&gt; 'transcript2',
+ 51                      -bgcolor    =&gt; 'orange',
+ 52                      -fgcolor    =&gt; 'black',
+ 53                      -font2color =&gt; 'red',
+ 54                      -key        =&gt; 'CDS',
+ 55                      -bump       =&gt;  +1,
+ 56                      -height     =&gt;  12,
+ 57                      -label      =&gt; \&amp;gene_label,
+ 58                      -description=&gt; \&amp;gene_description,
+ 59                     );
+ 60    delete $sorted_features{'CDS'};
+ 61  }
 
- 60  if ($sorted_features{tRNA}) {
- 61    $panel-&gt;add_track($sorted_features{tRNA},
- 62                      -glyph     =&gt;  'transcript2',
- 63                      -bgcolor   =&gt;  'red',
- 64                      -fgcolor   =&gt;  'black',
- 65                      -font2color =&gt; 'red',
- 66                      -key       =&gt; 'tRNAs',
- 67                      -bump      =&gt;  +1,
- 68                      -height    =&gt;  12,
- 69                      -label     =&gt; \&amp;gene_label,
- 70                     );
- 71    delete $sorted_features{tRNA};
- 72  }
+ 62  if ($sorted_features{tRNA}) {
+ 63    $panel-&gt;add_track($sorted_features{tRNA},
+ 64                      -glyph     =&gt;  'transcript2',
+ 65                      -bgcolor   =&gt;  'red',
+ 66                      -fgcolor   =&gt;  'black',
+ 67                      -font2color =&gt; 'red',
+ 68                      -key       =&gt; 'tRNAs',
+ 69                      -bump      =&gt;  +1,
+ 70                      -height    =&gt;  12,
+ 71                      -label     =&gt; \&amp;gene_label,
+ 72                     );
+ 73    delete $sorted_features{tRNA};
+ 74  }
 
- 73  # general case
- 74  my @colors = qw(cyan orange blue purple green chartreuse magenta yellow aqua);
- 75  my $idx    = 0;
- 76  for my $tag (sort keys %sorted_features) {
- 77    my $features = $sorted_features{$tag};
- 78    $panel-&gt;add_track($features,
- 79                      -glyph    =&gt;  'generic',
- 80                      -bgcolor  =&gt;  $colors[$idx++ % @colors],
- 81                      -fgcolor  =&gt; 'black',
- 82                      -font2color =&gt; 'red',
- 83                      -key      =&gt; "${tag}s",
- 84                      -bump     =&gt; +1,
- 85                      -height   =&gt; 8,
- 86                      -description =&gt; \&amp;generic_description
- 87                     );
- 88  }
+ 75  # general case
+ 76  my @colors = qw(cyan orange blue purple green chartreuse magenta yellow aqua);
+ 77  my $idx    = 0;
+ 78  for my $tag (sort keys %sorted_features) {
+ 79    my $features = $sorted_features{$tag};
+ 80    $panel-&gt;add_track($features,
+ 81                      -glyph    =&gt;  'generic',
+ 82                      -bgcolor  =&gt;  $colors[$idx++ % @colors],
+ 83                      -fgcolor  =&gt; 'black',
+ 84                      -font2color =&gt; 'red',
+ 85                      -key      =&gt; "${tag}s",
+ 86                      -bump     =&gt; +1,
+ 87                      -height   =&gt; 8,
+ 88                      -description =&gt; \&amp;generic_description
+ 89                     );
+ 90  }
 
- 89  print $panel-&gt;png;
- 90  exit 0;
+ 91  print $panel-&gt;png;
+ 92  exit 0;
 
- 91  sub gene_label {
- 92    my $feature = shift;
- 93    my @notes;
- 94    foreach (qw(product gene)) {
- 95      next unless $feature-&gt;has_tag($_);
- 96      @notes = $feature-&gt;each_tag_value($_);
- 97      last;
- 98    }
- 99    $notes[0];
-100  }
+ 93  sub gene_label {
+ 94    my $feature = shift;
+ 95    my @notes;
+ 96    foreach (qw(product gene)) {
+ 97      next unless $feature-&gt;has_tag($_);
+ 98      @notes = $feature-&gt;each_tag_value($_);
+ 99      last;
+100    }
+101    $notes[0];
+102  }
 
-101  sub gene_description {
-102    my $feature = shift;
-103    my @notes;
-104    foreach (qw(note)) {
-105      next unless $feature-&gt;has_tag($_);
-106      @notes = $feature-&gt;each_tag_value($_);
-107      last;
-108    }
-109    return unless @notes;
-110    substr($notes[0],30) = '...' if length $notes[0] &gt; 30;
-111    $notes[0];
-112  }
+103  sub gene_description {
+104    my $feature = shift;
+105    my @notes;
+106    foreach (qw(note)) {
+107      next unless $feature-&gt;has_tag($_);
+108      @notes = $feature-&gt;each_tag_value($_);
+109      last;
+110    }
+111    return unless @notes;
+112    substr($notes[0],30) = '...' if length $notes[0] &gt; 30;
+113    $notes[0];
+114  }
 
-113  sub generic_description {
-114    my $feature = shift;
-115    my $description;
-116    foreach ($feature-&gt;all_tags) {
-117      my @values = $feature-&gt;each_tag_value($_);
-118      $description .= $_ eq 'note' ? "@values" : "$_=@values; ";
-119    }
-120    $description =~ s/; $//; # get rid of last
-121    $description;
-122  }
+115  sub generic_description {
+116    my $feature = shift;
+117    my $description;
+118    foreach ($feature-&gt;all_tags) {
+119      my @values = $feature-&gt;each_tag_value($_);
+120      $description .= $_ eq 'note' ? "@values" : "$_=@values; ";
+121    }
+122    $description =~ s/; $//; # get rid of last
+123    $description;
+124  }
 </programlisting>
 </example>
 </para>
 
 <para>
-At 121 lines, this is the longest example in this HOWTO, but the
+At 124 lines, this is the longest example in this HOWTO, but the
 changes are straightforward.  The major difference occurs in lines
-45-59 and 60-72, where we handle two special cases: "CDS" records and
+47-61 and 62-74, where we handle two special cases: "CDS" records and
 "tRNAs".  For these two feature types we would like to draw the
 features like genes using the "transcript2" glyph.  This glyph draws
 inverted V's for introns, if there are any, and will turn the last (or
@@ -1025,8 +1037,8 @@ only) exon into an arrow to indicate the direction of transcription.
 
 <para>
 First we look to see whether there are any features with the primary
-tag of "CDS" (lines 45-59).  If so, we create a track for them using
-the desired glyph.  Line 47 shows how to add several features to a
+tag of "CDS" (lines 47-61).  If so, we create a track for them using
+the desired glyph.  Line 49 shows how to add several features to a
 track at creation time.  If the first argument to
 <function>add_track()</function> is an array reference, all the
 features contained in the array will be incorporated into the track.
@@ -1040,7 +1052,7 @@ feature type from the <varname>%sorted_features</varname> array.
 
 <para>
 We do the same thing for tRNA features, but with a different color
-scheme (lines 60-72).
+scheme (lines 62-74).
 </para>
 
 <para>
@@ -1053,8 +1065,8 @@ that will generate more informative description strings.
 </para>
 
 <para>
-The <function>gene_label()</function> (lines 91-100) and
-<function>gene_description()</function> (lines 101-112) subroutines
+The <function>gene_label()</function> (lines 93-102) and
+<function>gene_description()</function> (lines 103-114) subroutines
 are simple.  The first one searches the feature for the tags "product"
 and/or "gene" and uses the first one it finds as the label for the
 feature.  The <function>gene_description()</function> subroutine is
@@ -1064,7 +1076,7 @@ truncated.
 </para>
 
 <para>
-The <function>generic_description()</function> (lines 113-122) is
+The <function>generic_description()</function> (lines 115-124) is
 invoked to generate descriptions of all non-gene features.  We simply
 concatenate together the names and values of tags.  For example the
 entry:
