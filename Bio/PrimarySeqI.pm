@@ -659,7 +659,7 @@ sub desc {
 =cut
 
 sub is_circular{
-    shif->throw_not_implemented;
+    shift->throw_not_implemented;
 }
 
 =head1 Private functions
