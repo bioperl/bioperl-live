@@ -75,7 +75,7 @@ ok(! defined $fuzzy->min_start);
 ok($fuzzy->max_start, 10);
 ok($fuzzy->min_end, 20);
 ok($fuzzy->max_end, 20);
-ok($fuzzy->loc_type, 'EXACT');
+ok($fuzzy->location_type, 'EXACT');
 ok($fuzzy->start_pos_type, 'BEFORE');
 ok($fuzzy->end_pos_type, 'EXACT');
 
