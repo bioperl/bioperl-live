@@ -1,3 +1,87 @@
+# $Id$
+#
+# BioPerl module for Bio::SeqFeature::SiRNA::Pair
+#
+# Cared for by Donald Jackson, donald.jackson@bms.com
+#
+# Copyright Donald Jackson
+#
+# You may distribute this module under the same terms as perl itself
+
+# POD documentation - main docs before the code
+
+=head1 NAME
+
+Bio::SeqFeature::SiRNA::Pair - Perl object for small inhibitory RNA
+(SiRNA) oligo pairs
+
+=head1 SYNOPSIS
+
+  use Bio::SeqFeature::SiRNA::Pair;
+  my $pair = Bio::SeqFeature::SiRNA::Pair->
+      new( -sense       => $bio_seqfeature_sirna_oligo, # strand=1
+           -antisense	=> $bio_seqfeature_sirna_oligo, # strand= -1
+	   -primary	=> 'SiRNA::Pair',
+	   -source_tag 	=> 'Bio::Tools::SiRNA',
+	   -start	=> 8,
+	   -end		=> 31,
+	   -rank	=> 1,
+	   -fxgc	=> 0.5,
+	   -tag		=> { note => 'a note' } );
+
+  $target_sequence->add_SeqFeature($pair);					
+
+=head1 DESCRIPTION
+
+Object methods for (complementary) pairs of SiRNA::Oligo objects -
+inherits Bio::SeqFeature::Generic.  See that package for information
+on inherited methods.
+
+DOES NOT include methods for designing SiRNAs -- see
+L<Bio::Tools::SiRNA>
+
+=head2 EXPORT
+
+None by default.
+
+=head1 SEE ALSO
+
+L<Bio::SeqFeature::Oligo>, L<Bio::Tools::SiRNA>, L<perl>.
+
+=head1 FEEDBACK
+
+=head2 Mailing Lists
+
+User feedback is an integral part of the evolution of this and other
+Bioperl modules. Send your comments and suggestions preferably to
+the Bioperl mailing list.  Your participation is much appreciated.
+
+  bioperl-l@bioperl.org              - General discussion
+  http://bioperl.org/MailList.shtml  - About the mailing lists
+
+=head2 Reporting Bugs
+
+Report bugs to the Bioperl bug tracking system to help us keep track
+of the bugs and their resolution. Bug reports can be submitted via
+the web:
+
+  http://bugzilla.bioperl.org/
+
+=head1 AUTHOR
+
+Donald Jackson (donald.jackson@bms.com)
+
+=head1 CONTRIBUTORS
+
+Additional contributors names and emails here
+
+=head1 APPENDIX
+
+The rest of the documentation details each of the object methods.
+Internal methods are usually preceded with a _
+
+=cut
+
 package Bio::SeqFeature::SiRNA::Pair;
 
 require 5.005_62;
@@ -15,43 +99,6 @@ our $VERSION = '1.0';
 # because I'm not sure how to handle them.  Add RANK, FXGC, SENSE, ANTISENSE
 our @ARGNAMES = qw(RANK FXGC SENSE ANTISENSE START END STRAND PRIMARY SOURCE_TAG
 		   SCORE TAG SEQNAME ANNOTATION LOCATION);
-
-1;
-
-=head1 NAME
-
-Bio::SeqFeature::SiRNA::Pair.pm - Perl object for small inhibitory RNA (SiRNA) oligo pairs
-
-=head1 SYNOPSIS
-
-  use Bio::SeqFeature::SiRNA::Pair;
-
-  my $pair = Bio::SeqFeature::SiRNA::Pair->new( -sense		=> $bio_seqfeature_sirna_oligo, # strand=1
-						-antisense	=> $bio_seqfeature_sirna_oligo, # strand= -1
-						-primary	=> 'SiRNA::Pair',
-						-source_tag 	=> 'Bio::Tools::SiRNA',
-						-start		=> 8,
-						-end		=> 31,
-						-rank		=> 1,
-						-fxgc		=> 0.5,
-						-tag		=> { note => 'a note' } );
-
-  $target_sequence->add_SeqFeature($pair);
-						
-
-
-=head1 DESCRIPTION
-
-Object methods for (complementary) pairs of SiRNA::Oligo objects - 
-inherits Bio::SeqFeature::Generic.  See that package for information 
-on inherited methods.
-
-DOES NOT include methods for designing SiRNAs -- see Bio::Tools::SiRNA.pm
-
-=head2 EXPORT
-
-None by default.
-
 
 =head1 METHODS
 
@@ -74,8 +121,8 @@ None by default.
                                 with strand = -1
 );
 
-  Note		: SiRNA::Pair objects are typically created by a design algorithm such as
-                  Bio::Tools::SiRNA
+  Note		: SiRNA::Pair objects are typically created by a design 
+                  algorithm such as Bio::Tools::SiRNA
 
 =cut
 
@@ -112,15 +159,14 @@ sub new {
 
 
     return $self;
- 
 }
 
 =head2 rank
 
   Title		: rank
   Usage		: my $pair_rank = $sirna_pair->rank()
-  Purpose	: Get/set the 'quality rank' for this pair.  See Bio::Tools::SiRNA.pm 
-                  for a description of ranks.
+  Purpose	: Get/set the 'quality rank' for this pair.
+                  See Bio::Tools::SiRNA for a description of ranks.
   Returns	: scalar
   Args		: scalar (optional) indicating pair rank
 
@@ -204,7 +250,7 @@ sub fxGC {
 
 sub sense {
     my ($self, $soligo) = @_;
-    
+
     if ($soligo) {
 	$self->_add_oligo($soligo, 1) or return undef;
     }
@@ -225,7 +271,7 @@ sub sense {
 
 sub antisense {
     my ($self, $asoligo) = @_;
-    
+
     if ($asoligo) {
 	$self->_add_oligo($asoligo, -1) or return undef;
     }
@@ -236,7 +282,7 @@ sub antisense {
 	
 sub _add_oligo {
     my ($self, $oligo, $strand) = @_;
-    
+
     unless ($oligo->isa('Bio::SeqFeature::SiRNA::Oligo')) {
 	$self->throw( -class => 'Bio::Root::BadParameter',
 		      -text  =>  "Oligos must be passed as Bio::SeqFeature::SiRNA::Oligo objects\n");	
@@ -251,7 +297,7 @@ sub _get_oligo {
     my $feat;
 
     my @feats = $self->sub_SeqFeature;
-    
+
     foreach $feat (@feats) {
 	next unless ($feat->primary_tag eq 'SiRNA::Oligo');
 	next unless ($feat->strand == $strand);
@@ -260,14 +306,4 @@ sub _get_oligo {
     return undef;
 }
 
-
-
-=head1 AUTHOR
-
-Donald Jackson (donald.jackson@bms.com)
-
-=head1 SEE ALSO
-
-Bio::SeqFeature::Oligo.pm, Bio::Tools::SiRNA.pm, perl(1).
-
-=cut
+1;

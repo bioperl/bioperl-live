@@ -469,8 +469,7 @@ sub _pushback {
  Title   : close
  Usage   : $io->close()
  Function: Closes the file handle associated with this IO instance.
-           Will not close the FH if  -noclose is specified 
-            
+           Will not close the FH if  -noclose is specified
  Returns : none
  Args    : none
 

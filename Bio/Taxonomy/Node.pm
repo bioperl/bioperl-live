@@ -16,15 +16,14 @@ Bio::Taxonomy::Node - A node in a represented taxonomy
 
 =head1 SYNOPSIS
 
+
+=head1 DESCRIPTION
+
 This is the next generation (for Bioperl) of representing Taxonomy
 information.  Previously all information was managed by a single
 object called Bio::Species.  This new implementation allows
 representation of the intermediete nodes not just the species nodes
 and can relate their connections.
-
-=head1 DESCRIPTION
-
-Describe the object here
 
 =head1 FEEDBACK
 
@@ -299,6 +298,7 @@ sub node_name{
            and all other elements are in title case.
  Returns : Classification array
  Args    : none - this can be set directly
+
 =cut
 
 sub classification {

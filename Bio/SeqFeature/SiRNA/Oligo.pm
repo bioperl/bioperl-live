@@ -1,3 +1,85 @@
+# $Id$
+#
+# BioPerl module for Bio::SeqFeature::SiRNA::Pair
+#
+# Cared for by Donald Jackson, donald.jackson@bms.com
+#
+# Copyright Donald Jackson
+#
+# You may distribute this module under the same terms as perl itself
+
+# POD documentation - main docs before the code
+
+=head1 NAME
+
+Bio::SeqFeature::SiRNA::Oligo - Perl object for small inhibitory RNAs.
+
+=head1 SYNOPSIS
+
+  use Bio::SeqFeature::SiRNA::Oligo;
+
+  my $oligo = Bio::SeqFeature::SiRNA::Oligo->
+      new( -seq		=> 'AUGCCGAUUGCAAGUCAGATT',
+	   -start 	=> 10,
+	   -end		=> 31,
+	   -strand	=> -1,
+	   -primary	=> 'SiRNA::Oligo',
+	   -source_tag	=> 'Bio::Tools::SiRNA',
+	   -tag		=> { note => 'A note' }, );
+
+  # normally two complementary Oligos are combined in an SiRNA::Pair
+  # object
+  $pair->antisense($oligo);
+
+
+=head1 DESCRIPTION
+
+Object methods for single SiRNA oligos - inherits
+Bio::SeqFeature::Generic.  DOES NOT include methods for designing
+SiRNAs -- see L<Bio::Tools::SiRNA> for that.
+
+=head2 EXPORT
+
+None by default.
+
+=head1 SEE ALSO
+
+L<Bio::Tools::SiRNA>, L<Bio::SeqFeature::SiRNA::Pair>, L<perl>.
+
+=head1 FEEDBACK
+
+=head2 Mailing Lists
+
+User feedback is an integral part of the evolution of this and other
+Bioperl modules. Send your comments and suggestions preferably to
+the Bioperl mailing list.  Your participation is much appreciated.
+
+  bioperl-l@bioperl.org              - General discussion
+  http://bioperl.org/MailList.shtml  - About the mailing lists
+
+=head2 Reporting Bugs
+
+Report bugs to the Bioperl bug tracking system to help us keep track
+of the bugs and their resolution. Bug reports can be submitted via
+the web:
+
+  http://bugzilla.bioperl.org/
+
+=head1 AUTHOR
+
+Donald Jackson (donald.jackson@bms.com)
+
+=head1 CONTRIBUTORS
+
+Additional contributors names and emails here
+
+=head1 APPENDIX
+
+The rest of the documentation details each of the object methods.
+Internal methods are usually preceded with a _
+
+=cut
+
 package Bio::SeqFeature::SiRNA::Oligo;
 
 require 5.005_62;
@@ -10,41 +92,8 @@ our @ISA = qw(Bio::SeqFeature::Generic);
 
 our $VERSION = '1.0';
 
-our @ARGNAMES = qw(SEQ START END STRAND PRIMARY SOURCE_TAG SCORE TAG SEQ_ID ANNOTATION LOCATION);
-
-
-1;
-
-=head1 NAME
-
-Bio::SeqFeature::SiRNA::Oligo - Perl object for small inhibitory RNAs.
-
-=head1 SYNOPSIS
-
-  use Bio::SeqFeature::SiRNA::Oligo;
-
-  my $oligo = Bio::SeqFeature::SiRNA::Oligo->new( -seq		=> 'AUGCCGAUUGCAAGUCAGATT',
-						  -start 	=> 10,
-						  -end		=> 31,
-						  -strand	=> -1,
-						  -primary	=> 'SiRNA::Oligo',
-						  -source_tag	=> 'Bio::Tools::SiRNA',
-						  -tag		=> { note => 'A note' }, );
-
-  # normally two complementary Oligos are combined in an SiRNA::Pair object
-  $pair->antisense($oligo);
-
-						  
-=head1 DESCRIPTION
-
-Object methods for single SiRNA oligos - inherits Bio::SeqFeature::Generic.
-DOES NOT include methods for designing SiRNAs -- see Bio::Tools::SiRNA.pm for that.
-
-=head2 EXPORT
-
-None by default.
-
-=head1 METHODS
+our @ARGNAMES = qw(SEQ START END STRAND PRIMARY SOURCE_TAG SCORE TAG 
+                   SEQ_ID ANNOTATION LOCATION);
 
 =head2 new
 
@@ -65,15 +114,15 @@ None by default.
  	 	  -annotation     the AnnotationCollectionI object
  	 	  -location       the LocationI object
 
-  Note		: Currently passing arguments in gff_string or gff1_string is not supported.
-                  SiRNA::Oligo objects are typically created by a design 
-                  algorithm such as Bio::Tools::SiRNA
+Currently passing arguments in gff_string or gff1_string is not
+supported.  SiRNA::Oligo objects are typically created by a design
+algorithm such as Bio::Tools::SiRNA
 
 =cut
 
 sub new {
     my ($proto, @args) = @_;
-    
+
     my $pkg = ref($proto) || $proto;
 
     my (%args);
@@ -101,7 +150,7 @@ sub new {
 	}
     }
 
-    return $self;    
+    return $self;
 }
 
 =head2 seq
@@ -116,10 +165,10 @@ sub new {
                   Note that all but the last 2 nucleotides are RNA (per Tuschl and colleagues).
                   SiRNA::Pair objects are typically created by a design algorithm such as
                   Bio::Tools::SiRNA.
-                  
+
 =cut
 
-sub seq {    
+sub seq {
     my ($self, $seq) = @_;
     if ($seq) {
 	# check alphabet
@@ -134,14 +183,4 @@ sub seq {
     return $self->{'seq'};
 }
 
-
-
-=head1 AUTHOR
-
-Donald Jackson (donald.jackson@bms.com)
-
-=head1 SEE ALSO
-
-Bio::Tools::SiRNA.pm, Bio::SeqFeature::SiRNA::Pair.pm, perl(1).
-
-=cut
+1;

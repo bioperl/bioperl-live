@@ -1,3 +1,103 @@
+# $Id$
+#
+# BioPerl module for Bio::Tools::SiRNA
+#
+# Cared for by Donald Jackson, donald.jackson@bms.com
+#
+# Copyright Donald Jackson
+#
+# You may distribute this module under the same terms as perl itself
+
+# POD documentation - main docs before the code
+
+=head1 NAME
+
+SiRNA - Perl object for designing small inhibitory RNAs.
+
+=head1 SYNOPSIS
+
+  use Bio::Tools::SiRNA;
+
+  my $sirna_designer = Bio::Tools::SiRNA->new( -target => $bio_rich_seq );
+  my @pairs = $sirna_designer->design;
+
+  foreach $pair (@pairs) {
+      my $sense_oligo_sequence = $pair->sense->seq;
+      my $antisense_oligo_sequence = $pair->antisense->seq;
+
+      # print out results
+      print join ("\t", $pair->start, $pair->end, $pair->rank,
+                  $sense_oligo_sequence, $antisense_oligo_sequence), "\n";
+  }
+
+=head1 DESCRIPTION
+
+Package for designing SiRNA reagents.
+
+Input is a Bio::RichSeq object (the target).
+
+Output is a list of Bio::SeqFeature::SiRNA::Pair objects, which are
+added to the feature table of the target sequence.  Each
+Bio::SeqFeature::SiRNA::Pair contains two subfeatures
+(Bio::SeqFeature::Oligo objects) which correspond to the individual
+oligos.  These objects provide accessors for the information on the
+individual reagent pairs.
+
+This module implements the design rules described by Tuschl and
+colleagues (see
+http://www.mpibpc.gwdg.de/abteilungen/100/105/sirna.html).  They
+describe three rules for RNAi oligos, which I label as rank 1 (best),
+2, and 3 (worst).
+
+I added two modifications: SiRNAs that overlap known SNPs (identified
+as SeqFeatures with primary tag = variation) are avoided, and other
+regions (with primary tag = 'Excluded') can also be skipped.  I use
+this with Bio::Tools::Run::Mdust to avoid low-complexity regions (must
+be run separately), but other programs could also be used.
+
+=head2 EXPORT
+
+None.
+
+=head1 SEE ALSO
+
+L<Bio::Tools::Run::Mdust>, L<Bio::SeqFeature::SiRNA::Pair>,
+L<Bio::SeqFeature::SiRNA::Oligo>, L<perl>.
+
+=head1 FEEDBACK
+
+=head2 Mailing Lists
+
+User feedback is an integral part of the evolution of this and other
+Bioperl modules. Send your comments and suggestions preferably to
+the Bioperl mailing list.  Your participation is much appreciated.
+
+  bioperl-l@bioperl.org              - General discussion
+  http://bioperl.org/MailList.shtml  - About the mailing lists
+
+=head2 Reporting Bugs
+
+Report bugs to the Bioperl bug tracking system to help us keep track
+of the bugs and their resolution. Bug reports can be submitted via
+the web:
+
+  http://bugzilla.bioperl.org/
+
+=head1 AUTHOR
+
+Donald Jackson (donald.jackson@bms.com)
+
+=head1 CONTRIBUTORS
+
+Additional contributors names and emails here
+
+=head1 APPENDIX
+
+The rest of the documentation details each of the object methods.
+Internal methods are usually preceded with a _
+
+=cut
+
 package Bio::Tools::SiRNA;
 
 require 5.005_62;
@@ -31,55 +131,9 @@ our %COMP = ( A => 'T',
 	      N => 'N',
 	      );
 
-our @ARGNAMES = qw(START_PAD END_PAD MIN_GC CUTOFF OLIGOS AVOID_SNPS  
+our @ARGNAMES = qw(START_PAD END_PAD MIN_GC CUTOFF OLIGOS AVOID_SNPS
 		   GSTRING TMPDIR TARGET DEBUG);
-	      
 
-1;
-
-=head1 NAME
-
-SiRNA - Perl object for designing small inhibitory RNAs.
-
-=head1 SYNOPSIS
-
-  use Bio::Tools::SiRNA;
-
-  my $sirna_designer = Bio::Tools::SiRNA->new( -target => $bio_rich_seq );
-
-  my @pairs = $sirna_designer->design;
-
-foreach $pair (@pairs) {
-    my $sense_oligo_sequence = $pair->sense->seq;
-    my $antisense_oligo_sequence = $pair->antisense->seq;
-    
-    # print out results
-    print join ("\t", $pair->start, $pair->end, $pair->rank, $sense_oligo_sequence, 
-		$antisense_oligo_sequence), "\n";
-}
-
-=head1 DESCRIPTION
-
-Package for designing SiRNA reagents.
-
-Input is a Bio::RichSeq object (the target).
-
-Output is a list of Bio::SeqFeature::SiRNA::Pair objects, which are added to the feature 
-table of the target sequence.  Each Bio::SeqFeature::SiRNA::Pair contains two subfeatures (Bio::SeqFeature::Oligo objects) which correspond to the individual oligos.  These objects provide accessors for the information on the individual reagent pairs.
-
-This module implements the design rules described by Tuschl and colleagues (see 
-http://www.mpibpc.gwdg.de/abteilungen/100/105/sirna.html).  They describe three rules for RNAi oligos, which I label as rank 1 (best), 2, and 3 (worst).
-
-I added two modifications: SiRNAs that overlap known SNPs (identified as SeqFeatures with primary 
-tag = variation) are avoided, and other regions (with primary tag = 'Excluded') can also be skipped.
-I use this with Bio::Tools::Run::Mdust to avoid low-complexity regions (must be run separately), 
-but other programs could also be used.
-
-=head2 EXPORT
-
-None.
-
-=head1 METHODS
 
 =head2 new
 
@@ -92,12 +146,13 @@ None.
                   end_pad - distance from the CDS end to skip (default 50)
                   min_gc - minimum GC fraction (NOT percent) (default 0.4)
                   max_gc - maximum GC fraction (NOT percent) (default 0.6)
-                  cutoff - worst 'rank' accepted(default 3) 
-                  avoid_snps - boolean - reject oligos that overlap a variation SeqFeature in the target
-                                 (default true)
-                  gstring - maximum allowed consecutive Gs.  Too many can cause problems in synthesis 
-                    (default 4)
-  Note		: All arguments can also be changed/accessed using autoloaded methods such as:
+                  cutoff - worst 'rank' accepted(default 3)
+                  avoid_snps - boolean - reject oligos that overlap a variation
+                     SeqFeature in the target (default true)
+                  gstring - maximum allowed consecutive Gs.
+                     Too many can cause problems in synthesis (default 4)
+  Note		: All arguments can also be changed/accessed using autoloaded 
+                 methods such as:
 
     my $start_pad = $sirna_designer->start_pad().
 
@@ -360,13 +415,4 @@ sub AUTOLOAD {
     return $self->{$name};
 }
 
-			  
-=head1 AUTHOR
-
-Donald Jackson (donald.jackson@bms.com)
-
-=head1 SEE ALSO
-
-Bio::Tools::Run::Mdust, Bio::SeqFeature::SiRNA::Pair, Bio::SeqFeature::SiRNA::Oligo, perl(1).
-
-=cut
+1;

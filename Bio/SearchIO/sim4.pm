@@ -22,7 +22,6 @@ Bio::SearchIO::sim4 - parser for Sim4 alignments
   my $searchio = new Bio::SearchIO(-file => 'results.sim4',
                                    -format => 'sim4');
 
-
   while( my $r = $searchio->next_result ) {
     print $r->query_name, "\n";
   }
@@ -548,6 +547,7 @@ sub report_count { shift->result_count }
  Args    : string containing type of element.
 
 Optimizations:
+
   1. Using the cached pointer to the EventHandler to minimize repeated lookups.
   2. Caching the will_handle status for each type that is encountered
      so that it only need be checked by calling handler->will_handle($type) once.
@@ -558,14 +558,14 @@ savings good be significant.
 
 To test against the unoptimized version, remove the parentheses from
 around the third term in the ternary " ? : " operator and add two
-calls to $self->_eventHandler().
+calls to $self-E<gt>_eventHandler().
 
 =cut
 
 sub _will_handle {
     my ($self,$type) = @_;
     my $handler = $self->{'_handler_cache'} ||= $self->_eventHandler;
-    
+
     my $will_handle = defined($self->{'_will_handle_cache'}->{$type})
                              ? $self->{'_will_handle_cache'}->{$type}
                              : ($self->{'_will_handle_cache'}->{$type} =

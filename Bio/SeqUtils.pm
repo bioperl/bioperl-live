@@ -344,7 +344,7 @@ sub valid_aa{
  Args    : sequence object
            mutation, a Bio::LiveSeq::Mutation object, or an array of them
 
-See <Bio::LiveSeq::Mutation>.
+See L<Bio::LiveSeq::Mutation>.
 
 =cut
 

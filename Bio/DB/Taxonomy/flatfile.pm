@@ -12,7 +12,8 @@
 
 =head1 NAME
 
-Bio::DB::Taxonomy::flatfile - An implementation of Bio::DB::Taxonomy which uses local flat files
+Bio::DB::Taxonomy::flatfile - An implementation of Bio::DB::Taxonomy
+which uses local flat files
 
 =head1 SYNOPSIS
 
@@ -24,9 +25,9 @@ Bio::DB::Taxonomy::flatfile - An implementation of Bio::DB::Taxonomy which uses 
 
 =head1 DESCRIPTION
 
-This is an implementation which uses local flat files and the
-DB_File module RECNO data structures to manage a local
-copy of the NCBI Taxonomy database.
+This is an implementation which uses local flat files and the DB_File
+module RECNO data structures to manage a local copy of the NCBI
+Taxonomy database.
 
 File can be obtained from ftp://ftp.ncbi.nih.gov/pub/taxonomy/taxdump.tar.gz
 
@@ -139,6 +140,8 @@ sub new {
 }
 
 =head2 Bio::DB::Taxonomy Interface implementation
+
+=cut
 
 =head2 get_Taxonomy_Node
 

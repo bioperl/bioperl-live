@@ -26,8 +26,8 @@ Bio::SeqFeature::Gene::Exon - a feature representing an exon
 
 This module implements a feature representing an exon by implementing
 the Bio::SeqFeature::Gene::ExonI interface. By default an Exon is
-coding. Supply -is_coding => 0 to the constructor or call
-$exon->is_coding(0) otherwise.
+coding. Supply -is_coding =E<gt> 0 to the constructor or call
+$exon-E<gt>is_coding(0) otherwise.
 
 Apart from that, this class also implements Bio::SeqFeatureI by
 inheriting off Bio::SeqFeature::Generic.
@@ -41,8 +41,8 @@ and other Bioperl modules. Send your comments and suggestions preferably
  to one of the Bioperl mailing lists.
 Your participation is much appreciated.
 
-  bioperl-l@bioperl.org          - General discussion
-  http://bio.perl.org/MailList.html             - About the mailing lists
+  bioperl-l@bioperl.org                  - General discussion
+  http://bio.perl.org/MailList.html      - About the mailing lists
 
 =head2 Reporting Bugs
 

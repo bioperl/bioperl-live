@@ -32,7 +32,7 @@ Bio::SeqFeatureI - Abstract interface of a Sequence Feature
                   $feat->end, " on strand ", $feat->strand, "\n";
             print "easy utility to print locations in GenBank/EMBL way ",
                   $feat->location->to_FTstring(), "\n";
-            
+
             foreach $tag ( $feat->get_all_tags() ) {
 		print "Feature has tag ", $tag, " with values, ",
 		      join(' ',$feat->get_tag_value($tag)), "\n";
