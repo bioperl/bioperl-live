@@ -149,6 +149,8 @@ sub draw_dna {
 
   my $start  = $self->map_no_trunc($self->feature->start- $start_offset);
   my $end    = $self->map_no_trunc($self->feature->end  - $start_offset);
+  my $canonical_strand = $self->option('canonical_strand');
+
 
   my ($last,$tlast);
   for my $seg (@segs) {
@@ -170,14 +172,14 @@ sub draw_dna {
 
       warn "pixels_per_base = $pixels_per_base, pixels_per_target=$pixels_per_target\n" if DEBUG;
       my $offset = $self->{flip} ?  $end + ($last-1)*$pixels_per_base : $start + $last*$pixels_per_base;
-      
+
       for (my $i=0; $i<@fill_in; $i++) {
 
 	my $x = $self->{flip} ? int($offset + ($i+1)*$pixels_per_target + 0.5)
                               : int($offset + ($i+1)*$pixels_per_target + 0.5);
 
 	$self->filled_box($gd,$x,$y1+3,$x+$fontwidth,$y1+$lineheight-3,$pink,$pink) unless $gaps;
-	$gd->char($font,$x,$y1,$complement? $complement{$fill_in[$i]} : $fill_in[$i],$color); 
+	$gd->char($font,$x,$y1,$complement && !$canonical_strand ? $complement{$fill_in[$i]} : $fill_in[$i],$color);
       }
     }
 
@@ -191,7 +193,7 @@ sub draw_dna {
       if ($genomic[$i] && lc($bases[$i]) ne lc($complement ? $complement{$genomic[@genomic - $i - 1]} : $genomic[$i])) {
 	$self->filled_box($gd,$x,$y1+3,$x+$fontwidth,$y1+$lineheight-3,$pink,$pink);
       }
-      $gd->char($font,$x,$y1,$complement ? $complement{$bases[$i]} || $bases[$i] : $bases[$i],$color);
+      $gd->char($font,$x,$y1,$complement && !$canonical_strand ? $complement{$bases[$i]} || $bases[$i] : $bases[$i],$color);
     }
     $last  = $seg->[1];
     $tlast = $seg->[3];
@@ -292,6 +294,11 @@ In addition, the following segments-specific options are recognized:
   -show_mismatch When combined with -draw_target, 0 (false)
                  highlights mismatched bases in
                  pink.  SEE NOTE.
+
+  -canonical_strand If true, will reverse         0 (false)
+                    complement minus strand
+                    matches so that the displayed
+                    DNA is on the plus strand.
 
 The -draw_target and -ragged_start options only work with seqfeatures
 that implement the hit() method (Bio::SeqFeature::SimilarityPair).
