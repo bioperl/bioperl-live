@@ -46,20 +46,17 @@ the Bioperl mailing list.  Your participation is much appreciated.
 
 Report bugs to the Bioperl bug tracking system to help us keep track
 of the bugs and their resolution. Bug reports can be submitted via
-email or the web:
+the web:
 
-  bioperl-bugs@bioperl.org
   http://bugzilla.bioperl.org/
 
 =head1 AUTHOR - Jason Stajich
 
 Email jason@bioperl.org
 
-Describe contact details here
-
 =head1 CONTRIBUTORS
 
-Additional contributors names and emails here
+Aaron Mackey amackey@virginia.edu
 
 =head1 APPENDIX
 
@@ -90,12 +87,12 @@ BEGIN {
  Usage   : my $obj = new Bio::Tree::Node();
  Function: Builds a new Bio::Tree::Node object
  Returns : Bio::Tree::Node
- Args    : -left   => pointer to Left descendent (optional)
-           -right  => pointer to Right descenent (optional)
+ Args    : -left          => pointer to Left descendent (optional)
+           -right         => pointer to Right descenent (optional)
 	   -branch_length => branch length [integer] (optional)
-           -bootstrap => value   bootstrap value (string)
-           -desc      => description of node
-           -id        => unique id for node
+           -bootstrap     => value   bootstrap value (string)
+           -description   => description of node
+           -id            => unique id for node
 =cut
 
 sub new {
@@ -103,14 +100,21 @@ sub new {
 
   my $self = $class->SUPER::new(@args);
   my ($children, $branchlen,$id,
-      $bootstrap, $desc) = $self->_rearrange([qw(DESCENDENTS
+      $bootstrap, $desc,$d) = $self->_rearrange([qw(DESCENDENTS
 						 BRANCH_LENGTH
 						 ID
 						 BOOTSTRAP
 						 DESC
+						 DESCRIPTION
 						 )],
 					     @args);
-  $self->{'_desc'} = {};
+#  $self->{'_desc'} = {};
+  if( $d && $desc ) { 
+      $self->warn("can only accept -desc or -description, not both, accepting -description");
+      $desc = $d;
+  } elsif( defined $d && ! defined $desc ) {
+      $desc = $d;
+  }
   defined $desc && $self->description($desc);
   defined $bootstrap && $self->bootstrap($bootstrap);
   defined $id && $self->id($id);

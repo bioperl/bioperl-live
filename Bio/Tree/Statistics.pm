@@ -43,12 +43,11 @@ the Bioperl mailing list.  Your participation is much appreciated.
 
 Report bugs to the Bioperl bug tracking system to help us keep track
 of the bugs and their resolution. Bug reports can be submitted via
-email or the web:
+the web:
 
-  bioperl-bugs@bioperl.org
   http://bugzilla.bioperl.org/
 
-=head1 AUTHOR - Jason Stajich
+=head1 AUTHOR - Aaron Mackey
 
 Email jason@bioperl.org
 
@@ -87,12 +86,6 @@ use Bio::Root::Root;
 
 
 =cut
-
-sub new {
-  my($class,@args) = @_;
-  my $self = $class->SUPER::new(@args);
-}
-
 
 =head2 fu_and_li_D
 

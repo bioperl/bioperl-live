@@ -47,9 +47,8 @@ the Bioperl mailing list.  Your participation is much appreciated.
 
 Report bugs to the Bioperl bug tracking system to help us keep track
 of the bugs and their resolution. Bug reports can be submitted via
-email or the web:
+the web:
 
-  bioperl-bugs@bioperl.org
   http://bugzilla.bioperl.org/
 
 =head1 AUTHOR - Aaron Mackey
@@ -87,13 +86,13 @@ use Bio::Tree::Node;
  Usage   : my $obj = new Bio::Tree::NodeNHX();
  Function: Builds a new Bio::Tree::NodeNHX object
  Returns : Bio::Tree::NodeNHX
- Args    : -left   => pointer to Left descendent (optional)
-           -right  => pointer to Right descenent (optional)
+ Args    : -left          => pointer to Left descendent (optional)
+           -right         => pointer to Right descenent (optional)
 	   -branch_length => branch length [integer] (optional)
-           -bootstrap => value   bootstrap value (string)
-           -desc      => description of node
-           -id        => unique id for node
-           -nhx       => hashref of NHX tags and values
+           -bootstrap     => value   bootstrap value (string)
+           -description   => description of node
+           -id            => unique id for node
+           -nhx           => hashref of NHX tags and values
 
 =cut
 

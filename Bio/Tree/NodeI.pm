@@ -21,21 +21,39 @@ Bio::Tree::NodeI - Interface describing a Tree Node
     use Bio::TreeIO;
     # read in a clustalw NJ in phylip/newick format
     my $treeio = new Bio::TreeIO(-format => 'newick', -file => 'file.dnd');
+
     my $tree = $treeio->next_tree; # we'll assume it worked for demo purposes
+                                   # you might want to test that it was defined
 
     my $rootnode = $tree->get_root_node;
 
     # process just the next generation
-    foreach my $node ( $tree->each_Descendent() ) {
+    foreach my $node ( $rootnode->each_Descendent() ) {
 	print "branch len is ", $node->branch_length, "\n";
     }
+
     # process all the children
-    foreach my $node ( $tree->get_Descendents() ) {
+    my $example_leaf_node;
+    foreach my $node ( $rootnode->get_Descendents() ) {
 	if( $node->is_Leaf ) { 
 	    print "node is a leaf ... "; 
+            # for example use below
+            $example_leaf_node = $node unless defined $example_leaf_node; 
 	}
 	print "branch len is ", $node->branch_length, "\n";
-    }    
+    }
+
+    # The ancestor() method points to the parent of a node
+    # A node can only have one parent
+
+    my $parent = $example_leaf_node->ancestor;
+
+    # parent won't likely have an description because it is an internal node
+    # but child will because it is a leaf
+
+    print "Parent id: ", $parent->id," child id: ", 
+          $example_leaf_node->id, "\n";
+
 
 =head1 DESCRIPTION
 
@@ -43,6 +61,15 @@ A NodeI is capable of the basic structure of building a tree and
 storing the branch length between nodes.  The branch length is the
 length of the branch between the node and its ancestor, thus a root
 node in a Tree will not typically have a valid branch length.
+
+Various implementations of NodeI may extend the basic functions and
+allow storing of other information (like attatching a species object
+or full sequences used to build a tree or alternative sequences).  If
+you don't know how to extend a Bioperl object please ask, happy to
+help, we would also greatly appreciate contributions with improvements
+or extensions of the objects back to the Bioperl code base so that
+others don't have to reinvent your ideas.
+
 
 =head1 FEEDBACK
 
@@ -59,20 +86,17 @@ the Bioperl mailing list.  Your participation is much appreciated.
 
 Report bugs to the Bioperl bug tracking system to help us keep track
 of the bugs and their resolution. Bug reports can be submitted via
-email or the web:
+the web:
 
-  bioperl-bugs@bioperl.org
   http://bugzilla.bioperl.org/
 
 =head1 AUTHOR - Jason Stajich
 
 Email jason@bioperl.org
 
-Describe contact details here
-
 =head1 CONTRIBUTORS
 
-Additional contributors names and emails here
+Aaron Mackey amackey@virginia.edu
 
 =head1 APPENDIX
 
