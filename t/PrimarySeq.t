@@ -110,3 +110,16 @@ $seq = Bio::PrimarySeq->new('-id'               =>'aliasid',
 			    '-description'      =>'Alias desc');
 ok($seq->description, 'Alias desc');
 ok($seq->display_id, 'aliasid');
+
+
+#
+# alphabet
+#
+
+ok $seq = Bio::PrimarySeq->new
+    (-seq              => 'UABCDEFGHIJKLMON',
+     -display_id       => 'new-id',
+     -alphabet         => 'protein');
+ok $seq->seq('ABCDEFGHIJKLMONU');
+use Data::Dumper;
+print Dumper $seq;
