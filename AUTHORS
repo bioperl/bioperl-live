@@ -171,6 +171,8 @@ for if you see fit)
 
 =item * Martin Senger <senger at ebi.ac.uk> -- Bio::Biblio
 
+=item * Nigam Shah <nigam at psu.edu>
+
 =item * Shengqiang Shu <sshu at bdgp.lbl.gov> - Bio::Graphics::Glyph
 
 =item * Allen Smith <allens at cpan.org> -- Bio::Matrix and Bio::SimpleAlign fixes
@@ -190,8 +192,8 @@ for if you see fit)
 =item * Gert Thijs <gert.thijs at esat.kuleuven.ac.be> 
 
 =item * Charles Tilford <tilfordc at bms.com>
-                    
-=item * Anthony Underwood, <aunderwood at phls.org.uk>
+
+=item * Anthony Underwood <aunderwood at phls.org.uk>
 
 =item * Paul-Christophe Varoutas 
 
