@@ -724,6 +724,9 @@ sub _print_swissprot_FTHelper {
    $fth->loc =~ /(\d+)\.\.(\d+)/;
    $start = $1;
    $end = $2;
+   # to_FTString only returns one value when start == end,		#JB955
+   # so if no match is found, assume it is both start and end	#JB955
+   if (!$start) { $start = $end = $fth->loc; }					#JB955
    my $desc = "";
    $desc = @{$fth->field->{"description"}}[0]."." 
      if exists $fth->field->{"description"};
