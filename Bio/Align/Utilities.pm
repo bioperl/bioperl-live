@@ -17,9 +17,16 @@ and manipulating alignment objects
 
 =head1 SYNOPSIS
 
-use Bio::Align::Utilities qw(aa_to_dna_aln);
+  use Bio::Align::Utilities qw(aa_to_dna_aln);
+  # %dnaseqs is a hash of CDS sequences (spliced)
 
-my $dna_aln = aa_to_dna_aln($aaaln,\%dnaseqs);
+
+  # Even if the protein alignments are local make sure the start/end
+  # stored in the LocatableSeq objects are to the full length protein.
+  # The CoDing Sequence that is passed in should still be the full 
+  # length CDS as the nt alignment will be generated.
+  #
+  my $dna_aln = aa_to_dna_aln($aa_aln,\%dnaseqs);
 
 
 =head1 DESCRIPTION
@@ -48,19 +55,14 @@ the Bioperl mailing list.  Your participation is much appreciated.
 =head2 Reporting Bugs
 
 Report bugs to the Bioperl bug tracking system to help us keep track
-of the bugs and their resolution. Bug reports can be submitted via
-email or the web:
+of the bugs and their resolution. Bug reports can be submitted via the
+web:
 
-  bioperl-bugs@bioperl.org
   http://bugzilla.bioperl.org/
 
 =head1 AUTHOR - Jason Stajich
 
 Email jason@bioperl.org
-
-=head1 CONTRIBUTORS
-
-Additional contributors names and emails here
 
 =head1 APPENDIX
 
@@ -74,7 +76,7 @@ Internal methods are usually preceded with a _
 
 
 package Bio::Align::Utilities;
-use vars qw(@ISA @EXPORT @EXPORT_OK);
+use vars qw(@ISA @EXPORT @EXPORT_OK $GAP $CODONGAP);
 use strict;
 use Carp;
 use Bio::Root::Version;
@@ -85,7 +87,11 @@ require Exporter;
 @EXPORT = qw();
 @EXPORT_OK = qw(aa_to_dna_aln);
 
-use constant CODONSIZE => 3;
+BEGIN {
+    use constant CODONSIZE => 3;
+    $GAP = '-';
+    $CODONGAP = $GAP x CODONSIZE;
+}
 
 =head2 aa_to_dna_aln
 
@@ -112,6 +118,59 @@ See also: L<Bio::Align::AlignI>, L<Bio::SimpleAlign>, L<Bio::PrimarySeq>
 =cut
 
 sub aa_to_dna_aln {
+    my ($aln,$dnaseqs) = @_;
+    unless( defined $aln && 
+	    ref($aln) &&
+	    $aln->isa('Bio::Align::AlignI') ) { 
+	croak('Must provide a valid Bio::Align::AlignI object as the first argument to aa_to_dna_aln, see the documentation for proper usage and the method signature');
+    }
+    my $alnlen = $aln->length;
+    #print "HSP length is $alnlen\n";
+    my $dnaalign = new Bio::SimpleAlign;
+    
+    foreach my $seq ( $aln->each_seq ) {    
+	my $aa_seqstr = $seq->seq();
+	my $id = $seq->display_id;
+	my $dnaseq = $dnaseqs->{$id} || $aln->throw("cannot find ".
+						     $seq->display_id);
+	my $start_offset = ($seq->start() - 1) * CODONSIZE;
+	$dnaseq = $dnaseq->seq();
+	my $dnalen = $dnaseqs->{$id}->length;
+	my $nt_seqstr;
+	my $j = 0;
+	for( my $i = 0; $i < $alnlen; $i++ ) {
+	    my $char = substr($aa_seqstr,$i + $start_offset,1);	    
+	    if( $char eq '-' ) {
+		$nt_seqstr .= $CODONGAP;
+	    } else { 
+		if( $j > $dnalen ) { 
+		    $aln->warn("codons can't match up for $id, we've gone beyond the end of the DNA sequence\n");
+		    next;
+		}
+		$nt_seqstr .= substr($dnaseq,$j,CODONSIZE);
+		$j += CODONSIZE;
+	    }
+	}
+	
+        # funky looking math is to readjust to codon boundaries and deal
+	# with fact that sequence start with 1
+	my $newdna = new Bio::LocatableSeq(-display_id  => $id,
+					   -alphabet    => 'dna',
+					   -start       => $start_offset+1,
+					   -end         => ($seq->end * 
+							    CODONSIZE),
+					   -strand      => 1,
+					   -seq         => $nt_seqstr);    
+	$dnaalign->add_seq($newdna);
+    }
+    return $dnaalign;
+}
+
+
+# This is the previous implementation of aa_to_dna_aln function
+# which is ~98% slower.
+
+sub OLD_aa_to_dna_aln {
     my ($aln,$dnaseqs) = @_;
     unless( defined $aln && 
 	    ref($aln) &&
@@ -160,4 +219,5 @@ sub aa_to_dna_aln {
     }
     return $dnaalign;
 }
+
 1;
