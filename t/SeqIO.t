@@ -294,7 +294,7 @@ ok(length($seq->seq()) > 0 );
 print "Sequence 1 of 1 from GCG stream:\n", $seq->seq, "\n" if( $DEBUG);
 
 
-$str  = new Bio::SeqIO(-format => 'genbank',
+$str  = new Bio::SeqIO('-format' => 'genbank',
 			    -file   => Bio::Root::IO->catfile("t","AF165282.gb"),
 			    -verbose => $verbosity);
 
