@@ -21,7 +21,7 @@ BEGIN {
     }
     use Test;
 
-    $NUMTESTS = 37;
+    $NUMTESTS = 38;
     plan tests => $NUMTESTS;
     eval { require IO::String; 
 	   require Bio::Tools::Phylo::PAML;}; 
@@ -53,6 +53,7 @@ my $inpaml = new Bio::Tools::Phylo::PAML(-file => Bio::Root::IO->catfile(qw(t da
 ok($inpaml);
 my $result = $inpaml->next_result;
 ok($result);
+ok($result->version, qr'3\.12');
 my $MLmat = $result->get_MLmatrix;
 my $NGmat = $result->get_NGmatrix;
 
