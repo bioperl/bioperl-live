@@ -20,6 +20,9 @@ Bio::Factory::SeqAnalysisParserFactoryI - class capable of
 
     # initialize an object implementing this interface, e.g.
     $factory = Bio::Factory::SeqAnalysisParserFactory->new();
+    # find out the methods it knows about
+    print "registered methods: ",
+          join(', ', keys($factory->driver_table())), "\n";
     # obtain a parser object
     $parser = $factory->get_parser(-input=>$inputobj,
                                    -params=>[@params],
@@ -39,6 +42,11 @@ The concept behind this class and the interface it implements
 (Bio::Factory::SeqAnalysisParserFactoryI) is a generic analysis result parsing
 in high-throughput automated sequence annotation pipelines. See
 Bio::SeqAnalysisParserI for more documentation of this concept.
+
+You can always find out the methods an instance of this class knows
+about by the way given in the SYNOPSIS section. By default, and
+assuming that the documentation is up-to-date, this will comprise of
+genscan, mzef, estscan, blast, and hmmer (all case-insensitive).
 
 =head1 FEEDBACK
 
@@ -85,6 +93,9 @@ BEGIN {
 			 "genscan" => "Bio::Tools::Genscan",
 			 "mzef" => "Bio::Tools::MZEF",
 			 "estscan" => "Bio::Tools::ESTScan",
+			 "bplite" => "Bio::Tools::BPlite",
+			 "blast" => "Bio::Tools::BPlite",
+                         "hmmer" => "Bio::Tools::HMMER::Result",
 						 );
 }
 
