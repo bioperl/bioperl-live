@@ -18,7 +18,7 @@ BEGIN {
     }
 
     use Test;
-    plan tests => 32; 
+    plan tests => 34; 
 }
 
 if( $error == 1 ) {
@@ -44,8 +44,12 @@ ok( $stats->pairwise_stats->number_of_gaps($aln),21);
 ok( $stats->pairwise_stats->number_of_comparable_bases($aln),173);
 ok( $stats->pairwise_stats->number_of_differences($aln),13);
 
-my $d = $stats->distance(-align=> $aln,
-			 -method => 'JC');
+my $d = $stats->distance(-align => $aln,
+			 -method=> 'f81');
+ok(  $d->get_entry('hs_insulin','seq2'), '0.07918');
+
+$d = $stats->distance(-align=> $aln,
+		      -method => 'JC');
 ok( $d->get_entry('hs_insulin','seq2'), '0.07918');
 
 $d = $stats->distance(-align=> $aln,
@@ -80,6 +84,10 @@ ok( $stats->pairwise_stats->number_of_differences($aln),27);
 # now test the distance calculations
 $d = $stats->distance(-align => $aln, -method => 'jc');
 ok( $d->get_entry('human','owlmonkey'), 0.17847);
+
+$d = $stats->distance(-align => $aln,
+		      -method=> 'f81');
+ok(  $d->get_entry('human','owlmonkey'), '0.17847');
 
 $d = $stats->distance(-align => $aln, -method => 'uncorrected');
 ok( $d->get_entry('human','owlmonkey'), 0.15882);
