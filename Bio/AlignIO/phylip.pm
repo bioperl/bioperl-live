@@ -17,8 +17,8 @@ Bio::AlignIO::phylip - PHYLIP format sequence input/output stream
     use Bio::SimpleAlign;
 	#you can set the name length to something other than the default 10
 	#if you use a version of phylip (hacked) that accepts ids > 10
-    my $phylipstream = new Bio::AlignIO(-format => 'phylip',
-					-fh   => \*STDOUT,
+    my $phylipstream = new Bio::AlignIO(-format  => 'phylip',
+					-fh      => \*STDOUT,
 					-idlength=>30);
     # convert data from one format to another
     my $gcgstream     =  new Bio::AlignIO(-format => 'msf',
@@ -152,17 +152,30 @@ sub next_aln {
     # first alignment section
     my $idlen = $self->idlength;
     $count = 0;
+    my $iter = 1;
     my $non_interleaved = ! $self->interleaved ;
+    
     while( $entry = $self->_readline) {
 	last if( $entry =~ /^\s?$/ && ! $non_interleaved );
 
+	if( $entry =~ /^\s+(\d+)\s+(\d+)\s*$/) { 
+	    $self->_pushback($entry);
+	    last;
+	}
 	if( $entry =~ /^\s+(.+)$/ ) {
 	    $str = $1;
 	    $non_interleaved = 1;
 	    $str =~ s/\s//g;
-	    $count = scalar @names;
-	    $hash{$count} .= $str;
-	} elsif( $entry =~ /^(.{$idlen})\s+(.*)\s$/ ) {
+	    unless( ! $non_interleaved ) {
+		$count = scalar @names;
+		$hash{$count} .= $str;
+	    } else { 
+		$hash{$iter++} .= $str;
+		$iter = 1 if $iter > $count;
+	    }
+	} elsif( $entry =~ /^(.{$idlen})\s+(.*)\s$/ ||		 
+		 $entry =~ /^(.{$idlen})(\S{$idlen}\s+.+)\s$/ # Handle weirdnes s when id is too long
+		 ) {
 	    $name = $1;
 	    $str = $2;
 	    $name =~ s/[\s\/]/_/g;
@@ -171,7 +184,7 @@ sub next_aln {
 	    $str =~ s/\s//g;
 	    $count = scalar @names;
 	    $hash{$count} = $str;
-	} 
+	}
 	$self->throw("Not a valid interleaved PHYLIP file!") if $count > $seqcount; 
     }
     
@@ -179,13 +192,13 @@ sub next_aln {
 	# interleaved sections
 	$count = 0;
 	while( $entry = $self->_readline) {
-	    # finish current entry
+	    
+            # finish current entry
 	    if($entry =~/\s*\d+\s+\d+/){
 		$self->_pushback($entry);
 		last;
 	    }
 	    $count = 0, next if $entry =~ /^\s$/;
-	    
 	    $entry =~ /\s*(.*)$/ && do {
 		$str = $1;
 		$str =~ s/\s//g;
@@ -213,15 +226,15 @@ sub next_aln {
 	    $end = length($str);
 	}
 	# consistency test
-	$self->throw("Length of sequence [$seqname] is not [$residuecount]! ") 
+	$self->throw("Length of sequence [$seqname] is not [$residuecount] it is ".CORE::length($hash{$count})."! ") 
 	    unless CORE::length($hash{$count}) == $residuecount; 
-
+	
        $seq = new Bio::LocatableSeq('-seq'=>$hash{$count},
 				    '-id'=>$seqname,
 				    '-start'=>$start,
 				    '-end'=>$end,
 				    );
-
+	
        $aln->add_seq($seq);
 
    }
