@@ -640,6 +640,7 @@ sub _setinput {
     my ($seq, $temp, $infilename1, $infilename2,$fh ) ;
 #  If $input1 is not a reference it better be the name of a file with
 #  the sequence/ alignment data...
+    $self->_io_cleanup();
 
   SWITCH:  {
       unless (ref $input1) {
