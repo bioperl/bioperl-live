@@ -8,7 +8,7 @@ BEGIN {
 	use lib 't';
     }
     use Test;
-    plan tests => 48 }
+    plan tests => 68 }
 
 use Bio::Seq;
 use Bio::SeqIO;
