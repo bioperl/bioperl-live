@@ -360,10 +360,47 @@ Scripts that demonstrate uses of the Bio::Root modules.
 
 Script to test Bio::Root::Vector.
 
-=head2 examples/searchio/*
+=head2 examples/searchio/blast_example.pl
 
-A number of scripts illustrating the use of Bio::SearchIO for parsing
-Blast and PSI-Blast results. See L<Bio::SearchIO> for more information.
+Print out all parsed values from a BLAST report.
+
+=head2 examples/searchio/custom_writer.pl
+
+Demonstrates how to extract data from BLAST reports and output as
+tab-delimited data.
+
+=head2 examples/searchio/hitwriter.pl
+
+Demonstrates how to extract data from BLAST reports and output as
+tab-delimited data.
+
+=head2 examples/searchio/hspwriter.pl
+
+Demonstrates how to extract data from BLAST reports and output as
+tab-delimited data.
+
+=head2 examples/searchio/htmlwriter.pl
+
+Demonstrates how to extract data from BLAST reports and output as
+HTML.
+
+=head2 examples/searchio/psiblast_features.pl
+
+Illustrates how to grab a set of SeqFeatures from a Psiblast report.
+
+=head2 examples/searchio/psiblast_iterations.pl
+
+Demonstrates the use of a SearchIO parser for processing the 
+iterations within a PSI-BLAST report.
+
+=head2 examples/searchio/rawwriter.pl
+
+Shows how to print out raw BLAST alignment data for each HSP.
+
+=head2 examples/searchio/resultwriter.pl
+
+Demonstrates how to extract data from BLAST reports and output as
+tab-delimited data.
 
 =head2 examples/searchio/waba2gff.pl
 
