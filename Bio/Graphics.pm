@@ -4,7 +4,7 @@ use Bio::Graphics::Panel;
 use strict;
 
 use vars '$VERSION';
-$VERSION = '0.98';
+$VERSION = '1.03';
 
 1;
 
