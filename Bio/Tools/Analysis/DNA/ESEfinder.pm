@@ -136,6 +136,7 @@ use Data::Dumper;
 use IO::String;
 use Bio::SeqIO;
 use HTTP::Request::Common qw (POST);
+use HTML::HeadParser;
 use Bio::SeqFeature::Generic;
 use Bio::Tools::Analysis::SimpleAnalysisBase;
 use Bio::Seq::Meta::Array;
@@ -219,6 +220,11 @@ sub _run {
                          sequence =>$seq_fasta,
                         ];
     my $content = $self->request($request);
+    if( $content->is_error  ) {
+	$self->warn(ref($self)." Request Error:\n".$content->as_string);
+	return;
+    }
+
     my $text = $content->content; #1st reponse
     my ($tmpfile) = $text =~ /value="(tmp.+txt)"/;
     # now get data for all residues #
@@ -229,9 +235,12 @@ sub _run {
                        ];
     my $ua2 = LWP::UserAgent->new;
     my $content2 = $ua2->request($rq2);
+    if( $content2->is_error  ) {
+	$self->warn(ref($self)." Request Error:\n".$content2->as_string);
+	return;
+    }
+
     my $text2 = $content2->content;
-    open (OUT, ">dump") or die -$!;
-    close OUT;
     $self->{'_result'} = $text2;		
     $self->status('COMPLETED') if $text2 ne '';
 
@@ -249,7 +258,7 @@ sub result {
     my @fts;
 
     if ($value ) {
-        my $result = IO::String->new($self->{'_result'});
+	my $result = IO::String->new($self->{'_result'});
         my $current_SR;
         my $all_st_flag = 0;
         my %all;

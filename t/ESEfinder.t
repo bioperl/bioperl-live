@@ -26,6 +26,7 @@ BEGIN {
 	require IO::String; 
 	require LWP::UserAgent;
 	require Bio::WebAgent;
+	require HTML::HeadParser;
     }; 
     if( $@ ) {
         warn("IO::String or LWP::UserAgent not installed. This means that the module is not usable. Skipping tests");
@@ -69,7 +70,6 @@ my $seq = Bio::PrimarySeq->new(-id=>'bioperl',
 ok $tool = Bio::Tools::Analysis::DNA::ESEfinder->new(-verbose =>$verbose, -seq => $seq);
 ok $tool->run ( );
 ok my @res = $tool->result('Bio::SeqFeatureI');
-
 ok my $raw = $tool->result('');
 ok my $parsed = $tool->result('parsed');
 ok my $meta = $tool->result('all');
