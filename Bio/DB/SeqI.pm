@@ -1,6 +1,6 @@
 
 #
-# BioPerl module for Bio::DB::SeqDBI.pm
+# BioPerl module for Bio::DB::SeqI.pm
 #
 # Cared for by Ewan Birney <birney@ebi.ac.uk>
 #
@@ -12,11 +12,11 @@
 
 =head1 NAME
 
-Bio::DB::SeqDBI - Abstract Interface for Sequence databases
+Bio::DB::SeqI - Abstract Interface for Sequence databases
 
 =head1 SYNOPSIS
 
-   # get a Bio::DB::SeqDBI somehow
+   # get a Bio::DB::SeqI somehow
 
    $seq = $seqdb->get_Seq_by_id('some-id');
    $seq = $seqdb->get_Seq_by_acc('some-accession-number');
@@ -70,16 +70,16 @@ The rest of the documentation details each of the object methods. Internal metho
 # Let the code begin...
 
 
-package Bio::DB::SeqDBI;
+package Bio::DB::SeqI;
 use vars qw(@ISA);
 use strict;
 
 # Object preamble - inherits from Bio::Root::Object
 
-use Bio::DB::RandomAccessDBI;
-@ISA = qw(Bio::DB::RandomAccessDBI);
+use Bio::DB::RandomAccessI;
+@ISA = qw(Bio::DB::RandomAccessI);
 
-=head1 Methods inherieted from Bio::DB::RandomAccessDBI
+=head1 Methods inherieted from Bio::DB::RandomAccessI
 
 =head2 get_Seq_by_id
 
@@ -105,7 +105,7 @@ use Bio::DB::RandomAccessDBI;
 
 =cut
 
-=head1 Methods specific for Bio::DB::SeqDBI
+=head1 Methods [that were] specific for Bio::DB::SeqDBI
 
 =head2 get_PrimarySeq_stream
 

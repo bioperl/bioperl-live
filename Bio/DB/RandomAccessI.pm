@@ -2,7 +2,7 @@
 
 =head1 NAME
 
-Bio::DB::BioSeqI - Abstract interface for a sequence database
+Bio::DB::RandomAccessI - Abstract interface for a sequence database
 
 =head1 SYNOPSIS
 
@@ -21,7 +21,7 @@ Bio::DB::BioSeqI - Abstract interface for a sequence database
 This is a pure interface class - in other words, all this does is define
 methods which other (concrete) classes will actually implement. 
 
-The Bio::DB::BioSeqI class defines what methods a generic database class
+The Bio::DB::RandomAccessI class defines what methods a generic database class
 should have. At the moment it is just the ability to make Bio::Seq objects
 from a name (id) or a accession number.
 
@@ -46,30 +46,19 @@ The rest of the documentation details each of the object methods. Internal metho
 
 # Let the code begin...
 
+package Bio::DB::RandomAccessI;
 
-package Bio::DB::BioSeqI;
 use vars qw($AUTOLOAD @ISA @EXPORT_OK);
 use strict;
 
 # Object preamble - inherits from Bio::Root::Object
-
 use Bio::Root::Object;
-
-@ISA = qw(Bio::Root::Object Exporter);
+@ISA = qw(Bio::Root::RootI Exporter);
 @EXPORT_OK = qw();
 
 # new() is inherited from Bio::Root::Object
 
 # _initialize is where the heavy stuff will happen when new is called
-
-sub _initialize {
-  my($self,@args) = @_;
-
-  my $make = $self->SUPER::_initialize;
-
-  # set stuff in self from @args
-  return $make; # success - we hope!
-}
 
 
 =head2 get_Seq_by_id
@@ -106,7 +95,6 @@ sub get_Seq_by_acc{
    my ($self,@args) = @_;
 
    $self->throw("Abstract database call of get_Seq_by_acc. Your database has not implemented this method!");
-
 }
 
 
