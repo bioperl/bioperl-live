@@ -280,7 +280,7 @@ sub get_all_primary_ids {
     my( %bytepos );
    while (my($id, $rec) = each %$db) {
        my ($file, $begin, $end) = $self->unpack_record( $rec );
-       $bytepos{$begin} = $id;
+       $bytepos{"$file:$begin"} = $id;
    }
 
    return values %bytepos;
