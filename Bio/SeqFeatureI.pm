@@ -459,7 +459,7 @@ sub spliced_seq {
     map { 
 	$fstrand = $_->strand unless defined $fstrand;
 	$mixed = 1 if defined $_->strand && $fstrand != $_->strand;
-	[ $_, $_->start* $_->strand];	    
+	[ $_, $_->start* ($_->strand || 1)];	    
     } $self->location->each_Location; 
     
     if ( $mixed ) { 
