@@ -29,7 +29,7 @@ B<Bio::Search::Result::PsiBlastResult>) directly. If you need to
 construct BlastHits directly, see the new() function for details.
 
 For B<Bio::SearchIO> BLAST parsing usage examples, see the
-B<examples/search-blast> directory of the Bioperl distribution.
+B<examples/searchio> directory of the Bioperl distribution.
 
 =head1 DEPENDENCIES
 
