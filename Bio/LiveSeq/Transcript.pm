@@ -44,7 +44,7 @@ methods. Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::LiveSeq::Transcript;
-$VERSION=5.1;
+$VERSION=5.2;
 
 # Version history:
 # Tue Mar 21 14:38:02 GMT 2000 v 1.0 begun

@@ -45,7 +45,7 @@ methods. Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::LiveSeq::Translation;
-$VERSION=1.76;
+$VERSION=1.8;
 
 # Version history:
 # Thu Mar 23 14:41:52 GMT 2000 v.1.0 begun
@@ -62,11 +62,12 @@ $VERSION=1.76;
 # Mon May 22 15:28:49 BST 2000 v 1.74 modified seq() so that the "*" is printed
 # Wed Jun  7 04:02:18 BST 2000 v 1.75 added offset()
 # Thu Jun 29 15:10:22 BST 2000 v 1.76 bug corrected for elongation mutations, if stop codon is not found downstream
+# Wed Mar 28 16:37:37 BST 2001 v 1.8 carp -> warn,throw (coded methods in SeqI)
 
 use strict;
-use Carp qw(croak carp cluck);
+#use Carp qw(croak carp cluck);
 use vars qw($VERSION @ISA);
-use Bio::LiveSeq::SeqI 2.11; # uses SeqI, inherits from it
+use Bio::LiveSeq::SeqI 3.2; # uses SeqI, inherits from it
 @ISA=qw(Bio::LiveSeq::Transcript Bio::LiveSeq::SeqI); # first from Transcript!
 
 
@@ -89,11 +90,14 @@ sub new {
 
   my $transcript=$args{-transcript};
 
+  $obj = \%translation;
+  $obj = bless $obj, $class;
+
   unless ($transcript) {
-    croak "$class not initialised because no -transcript given";
+    $obj->throw("$class not initialised because no -transcript given");
   }
   unless (ref($transcript) eq "Bio::LiveSeq::Transcript") {
-    croak "$class not initialised because no object of class Transcript given";
+    $obj->throw("$class not initialised because no object of class Transcript given");
   }
 
   #my $startbase = $transcript->start;
@@ -101,9 +105,11 @@ sub new {
   my $strand = $transcript->strand;
   my $seq = $transcript->{'seq'};
 
-  %translation = (strand => $strand, seq => $seq, transcript => $transcript, moltype => "protein");
-  $obj = \%translation;
-  $obj = bless $obj, $class;
+  $obj->{'strand'}=$strand;
+  $obj->{'seq'}=$seq;
+  $obj->{'transcript'}=$transcript;
+  $obj->{'moltype'}="protein";
+
   $transcript->{'translation'}=$obj;# set the Translation ref into its Transcript
   return $obj;
 }
@@ -127,15 +133,18 @@ sub get_Transcript {
 # These get redefined here, overriding the SeqI ones
 
 sub change {
-  carp "Cannot change a Translation object!\nChanges have to be issued at the nucleotide level!";
+  my ($self)=@_;
+  $self->warn("Cannot change a Translation object!\nChanges have to be issued at the nucleotide level!");
   return (-1);
 }
 sub positionchange {
-  carp "Cannot change a Translation object!\nChanges have to be issued at the nucleotide level!";
+  my ($self)=@_;
+  $self->warn("Cannot change a Translation object!\nChanges have to be issued at the nucleotide level!");
   return (-1);
 }
 sub labelchange {
-  carp "Cannot change a Translation object!\nChanges have to be issued at the nucleotide level!";
+  my ($self)=@_;
+  $self->warn("Cannot change a Translation object!\nChanges have to be issued at the nucleotide level!");
   return (-1);
 }
 
@@ -157,19 +166,19 @@ sub seq {
   my $stop_pos=index($translation,"*");
   if ($stop_pos == -1) { # no stop present, continue downstream
     my $downstreamseq=$transcript->downstream_seq();
-    #carp "the downstream is: $downstreamseq";
+    #carp "the downstream is: $downstreamseq"; # debug
     my $cdnaseq=$transcript->seq();
     my $extendedseq=$cdnaseq.$downstreamseq;
     $translation=$transcript->translate_string($extendedseq);
-    #carp "the new translation is: $translation";
+    #carp "the new translation is: $translation"; # debug
     $stop_pos=index($translation,"*");
     if ($stop_pos == -1) { # still no stop present, return warning
-      carp "Warning: no stop codon found in the retrieved sequence downstream of Transcript ";
+      $self->warn("Warning: no stop codon found in the retrieved sequence downstream of Transcript ",1);
       undef $stop_pos;
       $proteinseq=$translation;
     } else {
       $proteinseq=substr($translation,0,$stop_pos+1);
-      #carp "the new stopped translation is: $proteinseq, because the stop is at position $stop_pos";
+      #carp "the new stopped translation is: $proteinseq, because the stop is at position $stop_pos"; # debug
     }
   } else {
     $proteinseq=substr($translation,0,$stop_pos+1);
@@ -232,7 +241,7 @@ sub position {
     return (0);
   } elsif ($position > 0) {
     if ($modulus != 1) {
-      #carp "Attention! Label $label is not in frame (1st position of triplet) with protein";
+      $self->warn("Attention! Label $label is not in frame (1st position of triplet) with protein",1); # ignorable
       if ($modulus == 2) {
 	return ($position / 3 + 1);
       } else { # i.e. modulus == 0
@@ -242,12 +251,12 @@ sub position {
     return ($position / 3 + 1);
   } else { # pos < 0
     if ($modulus != 0) {
-      carp "Attention! Label $label is not in frame (1st position of triplet) with protein";
+      $self->warn("Attention! Label $label is not in frame (1st position of triplet) with protein",1); # ignorable`
       return ($position / 3 - 1); # ok for both other positions
     }
     return ($position / 3);
   }
-  cluck "WEIRD: execution shouldn't have reached here";
+  $self->throw( "WEIRD: execution shouldn't have reached here");
   return (0); # this should never happen, but just in case
 }
 
@@ -297,7 +306,7 @@ sub labelsubseq {
   my $transcript=$self->get_Transcript;
   if ($start) {
     unless ($transcript->valid($start)) {
-      carp "Start label not valid"; return (-1);
+      $self->warn("Start label not valid"); return (-1);
     }
     $pos1=$self->position($start);
   }
@@ -306,10 +315,10 @@ sub labelsubseq {
       $length=1;
     } else {
       unless ($transcript->valid($end)) {
-	carp "End label not valid"; return (-1);
+	$self->warn("End label not valid"); return (-1);
       }
       unless ($transcript->follows($start,$end) == 1) {
-	carp "End label does not follow Start label!"; return (-1);
+	$self->warn("End label does not follow Start label!"); return (-1);
       }
       $pos2=$self->position($end);
       $length=$pos2-$pos1+1;

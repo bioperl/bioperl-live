@@ -17,8 +17,6 @@
 =head1 SYNOPSIS
 
 
-=head1 DESCRIPTION
-
 Class for REPEAT_REGION objects. They consist of a beginlabel, an endlabel (both
 referring to a LiveSeq DNA object) and a strand.
 The strand could be 1 (forward strand, default), -1 (reverse strand).
@@ -49,7 +47,6 @@ $VERSION=1.0;
 # Tue Apr  4 18:11:31 BST 2000 v 1.0 created
 
 use strict;
-use Carp;
 use vars qw($VERSION @ISA);
 use Bio::LiveSeq::Range 1.2; # uses Range, inherits from it
 @ISA=qw(Bio::LiveSeq::Range);
