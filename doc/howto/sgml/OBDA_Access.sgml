@@ -2,17 +2,17 @@
 <article lang="en">
   <articleinfo>
     <title>OBDA Access HOWTO</title>
-   <author>
-        <firstname>Aaron</firstname>
-        <surname>Mackey</surname>
-        <affiliation>
-                <orgname>
-                        <ulink url="http://www.virginia.edu">University of Virginia</ulink>
-                </orgname>
-                <address>
-                        <email>amackey@virginia.edu</email>
-                </address>
-        </affiliation>
+    <author>
+      <firstname>Aaron</firstname>
+      <surname>Mackey</surname>
+      <affiliation>
+	<orgname>
+	  <ulink url="http://www.virginia.edu">University of Virginia</ulink>
+	</orgname>
+	<address>
+	  <email>amackey@virginia.edu</email>
+	</address>
+      </affiliation>
     </author>
     <author>
       <!-- one of (CONTRIB AUTHORBLURB AFFILIATION OTHERNAME LINEAGE SURNAME FIRSTNAME HONORIFIC) -->
@@ -57,18 +57,18 @@
       </affiliation>
     </author>
     <author>
-        <firstname>Lincoln</firstname>
-        <surname>Stein</surname>
-        <affiliation>
-                <orgname>
-                        <ulink url="http://www.cshl.org">Cold Spring Harbor Laboratory</ulink>
-                </orgname>
-                <address>
-                        <email>lstein@cshl.org</email>
-                </address>
-        </affiliation>
-</author>
- <pubdate>2002-07-14</pubdate>
+      <firstname>Lincoln</firstname>
+      <surname>Stein</surname>
+      <affiliation>
+	<orgname>
+	  <ulink url="http://www.cshl.org">Cold Spring Harbor Laboratory</ulink>
+	</orgname>
+	<address>
+	  <email>lstein@cshl.org</email>
+	</address>
+      </affiliation>
+    </author>
+    <pubdate>2002-07-14</pubdate>
     <revhistory>
       <revision>
 	<revnumber>1.1</revnumber>
@@ -153,10 +153,12 @@
       <ulink url="http://obda.open-bio.org">obda.open-bio.org</ulink>.
     </para>
     <note>
-      Accessing data via the OBDA system is optional in Bioperl.  It
-      is still possible to access
-      sequence data via the old database-format-specific modules such as 
-      Bio::Index::Fasta or Bio::DB::Fasta.
+      <para>
+	Accessing data via the OBDA system is optional in Bioperl.  It
+	is still possible to access
+	sequence data via the old database-format-specific modules such as 
+	Bio::Index::Fasta or Bio::DB::Fasta.
+      </para>
     </note>
   </section>
 
@@ -176,16 +178,16 @@
       local copy automatically - no source code changes are necessary.
     </para>
   </section>
-
+  
   <section id="installation">
     <title>Installing the Registry File</title>
     <para>
       The registry file should be named seqdatabase.ini.  By default, it
       should be installed in one or more of the following locations:
-    <programlisting>
+      <programlisting>
 	$HOME/.bioinformatics/seqdatabase.ini
 	/etc/bioinformatics/seqdatabase.ini
-    </programlisting>
+      </programlisting>
     </para>
     <para>
       The Bio{Perl,Java,Python,Ruby} registry-handling code will initialize
@@ -199,9 +201,9 @@
       If a local registry file cannot be found, the registry-handling code
       will attempt to copy the file located at this URL to a
       $HOME/.bioinformatics directory:
-    <programlisting>
+      <programlisting>
 	http://www.open-bio.org/registry/seqdatabase.ini
-    </programlisting>    
+      </programlisting>    
     </para>
   </section>
   
@@ -211,15 +213,17 @@
       The registry file search path can be modified by setting the
       environment variable OBDA_SEARCH_PATH.  This variable is a
       semicolon-delimited string of directories and URLs, for example:
-    <programlisting>
+      <programlisting>
  OBDA_SEARCH_PATH=/home/lstein/;http://foo.org/
-    </programlisting>
+      </programlisting>
     </para>    
     <important>
-      Note that the fact that the search path is for an entire file
-      (seqdatabase.ini) rather than for single entry (e.g. 'genbank') means
-      that you have to copy any default values you want to keep from the
-      (old) default configuration file to your new configuration file. 
+      <para>
+	Note that the fact that the search path is for an entire file
+	(seqdatabase.ini) rather than for single entry (e.g. 'genbank') means
+	that you have to copy any default values you want to keep from the
+	(old) default configuration file to your new configuration file. 
+      </para>
     </important>
     <para>
       For example, say you have been using biofetch with the default
@@ -281,10 +285,10 @@
     <para>
       The options under each section must have two non-optional tag=value
       lines being
-     <programlisting>
+      <programlisting>
   protocol="protocol-type"
   location="location-string"
-     </programlisting>
+      </programlisting>
     </para>
   </section>
 
@@ -293,7 +297,7 @@
     <para>
       The protocol tag species what access mode to use.  Currently it can be
       one of:
-    <programlisting>
+      <programlisting>
   flat
   biofetch
   biosql
@@ -315,89 +319,93 @@
     </para>
     <para>
       <important>
-	Support for the biosql protocol is disabled as of
-	Bioperl version 1.4. We hope to remedy this in a subsequent
-	release.
+	<para>
+	  Support for the biosql protocol is disabled as of
+	  Bioperl version 1.4. We hope to remedy this in a subsequent
+	  release.
+	</para>
       </important>
     </para>
   </section>
 
   <section id="location">
-  <title>The Location Tag</title>
-  <para>
+    <title>The Location Tag</title>
+    <para>
       The location tag tells the bioperl sequence fetching code where the
       database is located.  Its interpretation depends on the protocol
       chosen.  For example, it might be a directory on the local file
       system, or a remote URL.  See below for protocol-specific details.
-  </para>
+    </para>
   </section>
   <section id="others">
-  <title>Other Tags</title>
+    <title>Other Tags</title>
     <para>
       Any number of additional tag values are allowed.  The number and
       nature of these tags depends on the access protocol selected.  Some
       protocols require no additional tags, whereas others will require
       several.
     </para>
+    <para>
     <table>
-      <title>OBDA Protocols</title>
-      <tgroup cols="3">
-        <thead>
-          <row>
-            <entry>Protocol</entry>
-            <entry>Tag</entry>
-            <entry>Description</entry>
-          </row>
-        </thead>
-        <tbody>
-	  <row>
-	    <entry>flat</entry><entry>location</entry><entry>Directory in which
-	      the index is stored. The "config.dat" file generated during indexing must be found in this location</entry>
-	  </row>
-	  <row>
-	    <entry>flat</entry><entry>dbname</entry><entry>Name of database</entry>
-	  </row>
-	  <row>
-	    <entry>biofetch</entry><entry>location</entry><entry>Base URL for the
-	      web service. Currently the only compatible biofetch service is http://www.ebi.ac.uk/cgi-bin/dbfetch</entry>
-	  </row>
-	  <row>>
-	    <entry>biofetch</entry><entry>dbname</entry><entry>Name of the
-	      database.  Currently recognized values are "embl" (sequence and
-	      protein), "swall" (SwissProt + TREMBL), and "refseq" (NCBI RefSeq entries)</entry>
-	  </row>
-	  <row>
-	    <entry>biosql</entry><entry>location</entry><entry>host:port</entry>
-	  </row>
-	  <row>
-	    <entry>biosql</entry><entry>dbname</entry><entry>database name</entry>
-	  </row>
-	  <row>
-	    <entry>biosql</entry><entry>driver</entry><entry>mysql|postgres|oracle|sybase|sqlserver|access|csv|informix|odbc|rdb</entry>
-	  </row>
-	  <row>
-	    <entry>biosql</entry><entry>user</entry><entry>username</entry>
-	  </row>
-	  <row>
-	    <entry>biosql</entry><entry>passwd</entry><entry>password</entry>
-	  </row>
-	  <row>
-	    <entry>biosql</entry><entry>biodbname</entry><entry>biodatabase name</entry>
-	  </row>
-	</tbody>
-      </tgroup>
-    </table>
+	<title>OBDA Protocols</title>
+	<tgroup cols="3">
+	  <thead>
+	    <row>
+	      <entry>Protocol</entry>
+	      <entry>Tag</entry>
+	      <entry>Description</entry>
+	    </row>
+	  </thead>
+	  <tbody>
+	    <row>
+	      <entry>flat</entry><entry>location</entry><entry>Directory in which
+		the index is stored. The "config.dat" file generated during indexing must be found in this location</entry>
+	    </row>
+	    <row>
+	      <entry>flat</entry><entry>dbname</entry><entry>Name of database</entry>
+	    </row>
+	    <row>
+	      <entry>biofetch</entry><entry>location</entry><entry>Base URL for the
+		web service. Currently the only compatible biofetch service is http://www.ebi.ac.uk/cgi-bin/dbfetch</entry>
+	    </row>
+	    <row>
+	      <entry>biofetch</entry><entry>dbname</entry><entry>Name of the
+		database.  Currently recognized values are "embl" (sequence and
+		protein), "swall" (SwissProt + TREMBL), and "refseq" (NCBI RefSeq entries)</entry>
+	    </row>
+	    <row>
+	      <entry>biosql</entry><entry>location</entry><entry>host:port</entry>
+	    </row>
+	    <row>
+	      <entry>biosql</entry><entry>dbname</entry><entry>database name</entry>
+	    </row>
+	    <row>
+	      <entry>biosql</entry><entry>driver</entry><entry>mysql|postgres|oracle|sybase|sqlserver|access|csv|informix|odbc|rdb</entry>
+	    </row>
+	    <row>
+	      <entry>biosql</entry><entry>user</entry><entry>username</entry>
+	    </row>
+	    <row>
+	      <entry>biosql</entry><entry>passwd</entry><entry>password</entry>
+	    </row>
+	    <row>
+	      <entry>biosql</entry><entry>biodbname</entry><entry>biodatabase name</entry>
+	    </row>
+	  </tbody>
+	</tgroup>
+      </table>
+    </para>
   </section>
 
   <section id="local">
   <title>Installing Local Databases</title>
-  <para>
+    <para>
       If you are using the biofetch protocol, you're all set.  You can start
       reading sequences immediately.  For the flat protocol, you
       will need to create and initialize a local database.  See the following
       documentation on how to do this:
-  </para>	
-  <para>
+    </para>	
+    <para>
       flat protocol:<ulink
 	url="http://bioperl.org/HOWTOs/html/Flat_Databases.html">Flat
 	Databases HOWTO</ulink>
@@ -410,9 +418,11 @@
     </para>
     <para>
       <important>
-	Support for the biosql protocol in OBDA is disabled as of
-	Bioperl version 1.4. We hope to remedy this in a subsequent
-	release.
+	<para>
+	  Support for the biosql protocol in OBDA is disabled as of
+	  Bioperl version 1.4. We hope to remedy this in a subsequent
+	  release.
+	</para>
       </important>
     </para>
     <para>
@@ -436,8 +446,8 @@
   </section>
 
   <section id="code">
-  <title>Writing code to use the Registry</title>
-  <para>
+    <title>Writing code to use the Registry</title>
+    <para>
       Once you've set up the OBDA registry file, accessing sequence data
       from within a perl script is simple. The following example shows how;
       note that nowhere in the script do you explicitly specify whether the
