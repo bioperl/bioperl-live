@@ -19,8 +19,8 @@ IUPAC - Generates unique Seq objects from an ambiguous Seq object
 use Bio::Seq;
 use Bio::Tools::IUPAC;
 
-my $ambiseq = new Bio::Seq -seq => 'ARTCGUTGR'
-my $stream = new Bio::Tools::IUPAC $seq;
+my $ambiseq = new Bio::Seq(-seq => 'ARTCGUTGR',-type => 'Dna');
+my $stream  = new Bio::Tools::IUPAC($seq);
 
 while ($uniqueseq = $stream->next_seq()) {
     # process the unique Seq object.
@@ -166,7 +166,7 @@ sub _initialize {
     # set stuff in self from @args
 
     my $seq = shift @args;
-    ref $seq eq 'Bio::Seq' or $self->throw("Must supply a Seq.pm object to IUPAC!");
+    $seq->isa('Bio::Seq') or $self->throw("Must supply a Seq.pm object to IUPAC!");
     $self->{'_SeqObj'} = $seq;
     if ($self->{'_SeqObj'}->type() =~ m/^[dr]na$/i ) { # nucleotide seq object
 	$self->{'_iupac_iub'} = { A => [qw(A)],
