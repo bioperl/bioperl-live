@@ -440,7 +440,8 @@ sub get_trace {
     if ($base_channel !~ /A|T|G|C/) {
 	$self->throw("You tried to ask for a base channel that wasn't A,T,G, or C. Ask for one of those next time.");
     } elsif ($base_channel) {
-	return $self->{'traces'}->{$base_channel};
+     my @temp = split(' ',$self->{'traces'}->{$base_channel});
+     return \@temp;
     }
 }
 
