@@ -1,4 +1,5 @@
-#!/usr/bin/env perl -w
+#!perl -w
+use strict;
 
 =head1 NAME 
 
@@ -51,7 +52,7 @@ Jason Stajich jason_at_bioperl-dot-org
 
 =cut
 
-use strict;
+
 use Getopt::Long;
 my $hitsection = 0;
 my %data;
