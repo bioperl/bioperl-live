@@ -79,7 +79,7 @@ catch Bio::Root::Exception with {
 
 # Try to call a subroutine that doesn't exist. But because it occurs within a try block,
 # the Error module will create a Error::Simple to capture it. Handy eh?
-if( $^V ne 5.6.0 ) {
+if( $^V ne 5.6.0 ) { # Yes we do want string compare here, read up on $^V
     try {
 	$test->foobar();
     }
@@ -88,6 +88,6 @@ if( $^V ne 5.6.0 ) {
 	ok(ref $err, 'Error::Simple');
     }; 
 } else { 
-    skip("Can't run this test on perl < 5.6.1",1);
+    skip("Can't run this test on perl == 5.6.0",1);
 }
 
