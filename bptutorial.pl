@@ -2800,7 +2800,7 @@ $access_remote_db = sub {
     };
 
 if ($@ || !$seq1) {
-    warn "Warning: Couldn't connect to Genbank with Bio::DB::GenBank.pm!\nProbably no network access.\n Skipping Test\n";
+    warn "Warning: Couldn't connect to Genbank with Bio::DB::GenBank.pm!\nProbably no network access.\n Skipping method 'access_remote_db'.\n";
     return 0;
 }
     $seq1_id =  $seq1->display_id();
@@ -2928,8 +2928,9 @@ $sequence_manipulations = sub {
     # to read and write sequence objects, eg:
     #$out = Bio::SeqIO->newFh('-format' => 'EMBL');
 
-    $out = Bio::SeqIO->newFh('-format' => 'fasta',
-			     -fh       => \*$outputfh);
+    $out = Bio::SeqIO->newFh('-format'   => 'fasta',
+			     '-noclose'  => 1,
+			     '-fh'       => $outputfh);
 
     print $outputfh "First sequence in fasta format... \n";
     print $out $seqobj;
@@ -2947,7 +2948,7 @@ $sequence_manipulations = sub {
     $seqobj->subseq(5,10)," \n"; # part of the sequence as a string
     print $outputfh "Acc num is ",
     $seqobj->accession_number(), " \n"; # when there, the accession number
-    print "Alphabet is ",
+    print $outputfh "Alphabet is ",
     $seqobj->alphabet(), " \n";    # one of 'dna','rna','protein'
     print $outputfh "Primary id is ", $seqobj->primary_seq->primary_id()," \n";
     # a unique id for this sequence irregardless
@@ -3158,9 +3159,10 @@ $run_standaloneblast = sub {
         return 0;
     }
 
-    $str = Bio::SeqIO->new('-file'=> Bio::Root::IO->catfile("t","data","dna2.fa") ,
+    $str = Bio::SeqIO->new('-file'=> 
+			   Bio::Root::IO->catfile("t","data","dna2.fa") ,
 #    $str = Bio::SeqIO->new('-file'=>'t/data/dna2.fa' ,
-                           '-format' => 'Fasta', );
+                           '-format' => 'fasta', );
     $seq1 = $str->next_seq();
 
     $blast_report = $factory->blastall($seq1);
@@ -3385,7 +3387,8 @@ $run_clustalw_tcoffee = sub {
 	    $factory->ktuple($ktuple);  # change the parameter before executing
 	    $aln = $factory->align($seq_array_ref);
 	    $strout = Bio::AlignIO->newFh('-format' => 'msf',
-					  -fh       => \*$outputfh);
+					  '-noclose'=> 1,
+					  '-fh'     => $outputfh);
 	    print $outputfh "Output of clustalw alignment... \n";
 	    print $strout $aln;
 	} else {
@@ -3408,7 +3411,8 @@ $run_clustalw_tcoffee = sub {
         $factory->ktuple($ktuple);  # change the parameter before executing
         $aln = $factory->align($seq_array_ref);
         $strout = Bio::AlignIO->newFh('-format' => 'msf',
-				      '-fh'     => \*$outputfh);
+				      '-noclose'=> 1,
+				      '-fh'     => $outputfh);
         print $outputfh "Output of TCoffee alignment... \n";
         print $strout $aln;
     } else {
@@ -3434,7 +3438,8 @@ $simplealign = sub {
     $in  = Bio::AlignIO->new('-file' => $infile ,
                              '-format' => 'pfam');
     $out1 = Bio::AlignIO->newFh('-format' => 'msf',
-				'-fh'     => \*$outputfh);
+				'-noclose'=> 1,
+				'-fh'     => $outputfh);
 
     # while ( my $aln = $in->next_aln() ) { $out->write_aln($aln);  }
     $aln = $in->next_aln() ;
@@ -3502,6 +3507,7 @@ $run_psw_bl2seq = sub {
 	$aln = $factory->pairwise_alignment($seq1,$seq2);
 
 	$out1 = Bio::AlignIO->newFh('-format' => 'fasta',
+				    '-noclose'=> 1,
 				    '-fh'     => $outputfh);
 	print $outputfh "The Smith-Waterman alignment in fasta format... \n";
 	print $out1 $aln;
@@ -3536,7 +3542,8 @@ $run_psw_bl2seq = sub {
     $aln = $str->next_aln();
 
     $out2 = Bio::AlignIO->newFh('-format' => 'fasta',
-				'-fh'     => \*$outputfh);
+				'-noclose'=> 1,
+				'-fh'     => $outputfh);
     print $outputfh "The Blast 2 sequence alignment in fasta format... \n";
     print $out2 $aln;
 
@@ -3939,17 +3946,17 @@ $demo_xml = sub {
       print $outputfh "   ", $seqobj->desc(), " \n";
       print $outputfh "Acc num is ", $seqobj->accession_number(),
       " \n"; # when there, the accession number
-      print "Alphabet is ", $seqobj->alphabet(),
+      print $outputfh "Alphabet is ", $seqobj->alphabet(),
       " \n";    # one of 'dna','rna','protein'
 
       @feats = $seqobj->all_SeqFeatures();
       $first_primary_tag = $feats[0]->primary_tag;
-      print $outputfh " Total number of sequence features is: ", scalar @feats, "
-\n";
-      print $outputfh " The primary tag of the first feature is:
-$first_primary_tag \n";
-      print $outputfh " The first feature begins at location ", $feats[0]->start,
-" \n";
+      print $outputfh " Total number of sequence features is: ", 
+      scalar @feats, "\n";
+      print $outputfh " The primary tag of the first feature is: ",
+      $first_primary_tag, "\n";
+      print $outputfh " The first feature begins at location ", 
+      $feats[0]->start," \n";
       print $outputfh "  and ends at location ", $feats[0]->end, " \n";
 
       return 1;
