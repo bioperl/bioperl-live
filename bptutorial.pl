@@ -95,8 +95,8 @@ BioPerlTutorial - a tutorial for bioperl
      III.10.1 Extended DNA / RNA alphabet
      III.10.2 Amino Acid alphabet
 
-IV.  Auxilliary Bioperl Packages (Bioperl-run, Bioperl-db, etc.)
-  IV.1 Using the Bioperl Auxilliary Packages
+IV.  Auxilliary Bioperl Libraries (Bioperl-run, Bioperl-db, etc.)
+  IV.1 Using the Bioperl Auxilliary Libraries
   IV.2 Running programs (Bioperl-run and Bioperl-ext)
      IV.2.1 Running BLAST locally  (StandAloneBlast)
      IV.2.2 Aligning 2 sequences with Blast using  bl2seq and AlignIO
@@ -104,7 +104,7 @@ IV.  Auxilliary Bioperl Packages (Bioperl-run, Bioperl-db, etc.)
      IV.2.4 Aligning 2 sequences with Smith-Waterman (pSW)
      IV.2.5 Sequence manipulation using the Bioperl EMBOSS interface
    IV.3 Bioperl-db
-   IV.4 Other Bioperl auxilliary packages
+   IV.4 Other Bioperl auxilliary libraries
 
 V.  Appendices
    V.1 Finding out which methods are used by which Bioperl Objects
@@ -250,7 +250,7 @@ can also be helpful for obtaining debugging information on perl objects.
 
 Some of the capabilities of bioperl require software beyond that of
 the minimal installation.  This additional software includes perl
-modules from CPAN, packages from bioperl\'s auxilliary
+modules from CPAN, package-libraries from bioperl\'s auxilliary
 code-repositories, a bioperl xs-extension, and several standard
 compiled bioinformatics programs.
 
@@ -703,7 +703,7 @@ See L<Bio::DB::Fasta> for more information on this fully-featured module.
 
 The core bioperl installation does not support accessing sequences
 stored in relational databases. However, such capabilility is
-available with the auxilliary bioperl-db package. See section IV.3 for
+available with the auxilliary bioperl-db library. See section IV.3 for
 more information.
 
 =head2 III.2 Transforming formats of database/ file records
@@ -813,7 +813,7 @@ information.
 Bioperl contains many modules with functions for sequence analysis. And
 if you cannot find the function you want in bioperl you may be able to
 find it in EMBOSS, which is accessible through the bioperl-run
-auxilliary package (see L<"IV.3">).
+auxilliary library (see L<"IV.3">).
 
 =cut
 
@@ -1186,7 +1186,7 @@ other programs do not pass parameters with a leading hyphen.
 
 As of release 1.2, the bioperl "core" package no longer supports
 running local Blasts.  The StandAloneBlast module has been moved to
-the auxilliary package bioperl-run.  See section L<"IV.2.1"> for more
+the auxilliary library bioperl-run.  See section L<"IV.2.1"> for more
 information.
 
 =for html <A NAME ="iii.4.2"></A>
@@ -1385,7 +1385,7 @@ Once one has identified a set of similar sequences, one often needs to
 create an alignment of those sequences. Bioperl offers several perl
 objects to facilitate sequence alignment: pSW, Clustalw.pm, TCoffee.pm
 and the bl2seq option of StandAloneBlast. As of release 1.2 of
-bioperl, using these modules requires a bioperl auxilliary package
+bioperl, using these modules requires a bioperl auxilliary library
 (bioperl-ext for pSW, bioperl-run for the others) and are therefore
 described in section IV. Here we describe only the module within the
 bioperl core package for manipulating previously created alignments,
@@ -2024,18 +2024,18 @@ are also acceptable in a biosequence:
 
 =for html <A NAME ="IV."></A>
 
-=head1 IV.  Auxilliary Bioperl Packages (Bioperl-run, Bioperl-db, etc.)
+=head1 IV.  Auxilliary Bioperl Libraries (Bioperl-run, Bioperl-db, etc.)
 
 =for html <A NAME ="iv.1"></A>
 
-=head2 IV.1 Using the Bioperl Auxilliary Packages
+=head2 IV.1 Using the Bioperl Auxilliary Libraries
 
 Beyond the bioperl "core" distribution which you get with the
 "minimal" installation, bioperl contains numerous other modules in
-so-called auxilliary packages.  These auxilliary packages include
+so-called auxilliary libraries.  These auxilliary libraries include
 bioperl-run, bioperl-db, bioperl-pipeline, bioperl-microarray and
 bioperl-ext among others.  Generally, modules are placed in an
-auxilliary package if either:
+auxilliary library if either:
 
 =over 4
 
@@ -2052,16 +2052,16 @@ of the bioinformatics community
 =back
 
 However there are exceptions and it is not always obvious whether a
-given module will be found in the "core" or in an auxiliary package.
+given module will be found in the "core" or in an auxiliary library.
 
 At present, modules in the auxilliary packages can be obtained only by
-means of the CVS system. To browse through the auxilliary packages and
+means of the CVS system. To browse through the auxilliary libraries and
 to obtain the download files, go to:
 
 http://cvs.bioperl.org/cgi-bin/viewcvs/viewcvs.cgi/?cvsroot=bioperl
 
 Generally CVS packages are not as well tested as the released core
-package.  Consequently after downloading and running:
+library.  Consequently after downloading and running:
 
   $ perl Makefile.PL
 and
@@ -2080,7 +2080,7 @@ line, e,g,:
 
   $perl -I/home/peter/auxmodules myscript.pl
 
-Once the auxiliary package has been installed in this manner, the
+Once the auxiliary library has been installed in this manner, the
 modules can be used in exactly the same manner as if they were in the
 bioperl core.
 
@@ -2091,10 +2091,10 @@ bioperl core.
 It possible to run various external (to Bioperl) sequence alignment
 and sequence manipulation programs via a perl interface using bioperl.
 However in most cases this requires having the bioperl-run auxilliary
-package (some cases may require bioperl-ext). Prior to bioperl release
+library (some cases may require bioperl-ext). Prior to bioperl release
 1.2, many of these features were available within the bioperl "core"
 release.  However currently some of the required modules have been
-transferred out of the core package. Some of the more commonly used of
+transferred out of the core library. Some of the more commonly used of
 these modules are described in this section.
 
 =head2 IV.2.1 Running BLAST locally  (StandAloneBlast)
@@ -2235,13 +2235,13 @@ encouraged to examine the script clustalw.pl in the scripts/align directory.
 The Smith-Waterman (SW) algorithm is the standard method for producing
 an optimal local alignment of two sequences.  Bioperl supports the
 computation of SW alignments via the pSW object with the auxilliary
-bioperl-ext package. Note that pSW only supports the alignment of
+bioperl-ext library. Note that pSW only supports the alignment of
 protein sequences, not nucleotide.
 
 The SW algorithm itself is implemented in C and incorporated into bioperl using
 an XS extension. This has significant efficiency advantages but means that
 pSW will B<not> work unless you have compiled the bioperl-ext auxilliary
-package.  If you have compiled the bioperl-ext package, usage is
+library.  If you have compiled the bioperl-ext package, usage is
 simple, where the method align_and_show displays the alignment while
 pairwise_alignment produces a (reference to) a SimpleAlign object.
 
@@ -2270,7 +2270,7 @@ identifying prospective antigenic sites) so if you cannot find
 the function you want in bioperl you might be able to find it in EMBOSS.
 
 EMBOSS programs are usually called from the command line but the
-bioperl-run auxilliary package provides a Perl "wrapper" for EMBOSS
+bioperl-run auxilliary library provides a Perl "wrapper" for EMBOSS
 function calls so that they can be executed from within a Perl script.
 Of course, the EMBOSS package as well as the bioperl-run must be
 installed for the Bioperl wrapper to function.
@@ -2339,9 +2339,9 @@ bioperl-db.
 
 =for html <A NAME ="iv.4"></A>
 
-=head2 IV.4 Other Bioperl auxilliary packages
+=head2 IV.4 Other Bioperl auxilliary libraries
 
-There a several other auxilliary packages in the bioperl CVS
+There a several other auxilliary libraries in the bioperl CVS
 repository including bioperl-microarray, bioperl-gui,
 bioperl-pipeline, bioperl-das-client and bioperl-corba-client. They
 are typically for specialized uses and/or require multiple external
@@ -2411,6 +2411,19 @@ To run a subset of the scripts do
  > perl -w  bptutorial.pl
 
 and use the displayed help screen.
+
+It may be best to start by just running one or two demos at a time. For 
+example, to run the basic sequence manipulation demo, do:
+
+ > perl -w  bptutorial.pl 1
+
+Some of the later demos require that you have an internet connection and/or 
+that you have an auxilliary bioperl library and/or external cpan
+module and/or external program installed.  They may also fail if you are 
+not running under Linux or Unix.  In all of these cases, the script should 
+fail "gracefully" simply saying the demo is being skipped.  However if 
+the script "crashes", simply run the other demos individually (and 
+perhaps send an email to bioperl-l@bioperl.org detailing the problem :-).
 
 =cut
 
@@ -2615,9 +2628,14 @@ $fetch_local_db = sub {
     # CWD not installed, revert to unix behavior, best we can do
     if( $@) { $dir = `pwd`;}
 
-    $inx2 = Bio::Index::Abstract->new
-        ('-FILENAME'  => Bio::Root::IO->catfile("$dir","$Index_File_Name") );
-    #   ('-FILENAME'  => "$dir/$Index_File_Name");
+    eval {$inx2 = Bio::Index::Abstract->new
+	      ('-FILENAME'  => Bio::Root::IO->catfile("$dir","$Index_File_Name") ); };
+   if( $@ ) {
+      print STDERR "Cannot find local index file $Index_File_Name\n";
+      print STDERR "Perhaps you didn't run the index_local_db demo? \n";
+      print STDERR "Skipping fetch_local_db example.\n\n";
+      return 0;
+    }      
 
     $indexhash = $inx2->db();
     $keyfound = "";
@@ -2866,8 +2884,11 @@ $restriction_and_sigcleave = sub {
 
 $run_standaloneblast = sub {
     eval {require Bio::Tools::Run::StandAloneBlast; };
-
-
+    if ( $@ ) {
+      print STDERR "Cannot load Bio::Tools::Run::StandAloneBlast\n";
+      print STDERR "Skipping local blast example:\n$@\n";
+      return 0;
+    }
     print "\nBeginning run_standaloneblast example... \n";
 
     my (@params, $factory, $input, $blast_report, $blast_present,
@@ -2908,7 +2929,7 @@ $run_remoteblast = sub {
 
     if ( $@ ) {
       print STDERR "Cannot load Bio::Tools::Run::RemoteBlast\n";
-      print STDERR "Cannot run run_remoteblast example:\n$@\n";
+      print STDERR "Skipping run_remoteblast example:\n$@\n";
     } else {
       my (@params, $remote_blast_object, $blast_file, $r, $rc,
          $database);
@@ -3179,44 +3200,58 @@ $simplealign = sub {
 
 $run_psw_bl2seq = sub {
 
+    #use Bio::Tools::pSW;
+    #use Bio::Tools::Run::StandAloneBlast;
+    my ($factory, $aln, $out1, $out2, $str, $seq1, $seq2, @params);
     print "\nBeginning run_psw_bl2seq example... \n";
     eval { require Bio::Tools::pSW; };
     if( $@ ) {
-        print STDERR ("\nThe C-compiled engine for Smith Waterman alignments (Bio::Ext::Align) has not been installed.\n Please read the install the bioperl-ext package\n\n");
-        return 0;
+        print STDERR "\nThe C-compiled engine for Smith Waterman alignments (Bio::Ext::Align) has not been installed.\n";
+        print STDERR "Please read the install the bioperl-ext package\n";
+	print STDERR "Skipping Smith-Waterman demo:\n$@\n";
+    } else {
+
+	# Aligning 2 sequences with Smith-Waterman (pSW)
+
+	# Get protein sequences from file
+
+	$str = Bio::SeqIO->new('-file'=>Bio::Root::IO->catfile("t","data","amino.fa") ,
+			       '-format' => 'Fasta', );
+	$seq1 = $str->next_seq();
+	$seq2 = $str->next_seq();
+
+	$factory = new Bio::Tools::pSW( '-matrix' => 'scripts/tools/blosum62.bla',
+					'-gap' => 12,
+					'-ext' => 2, );
+
+	$factory->align_and_show($seq1,$seq2,'STDOUT');
+	$aln = $factory->pairwise_alignment($seq1,$seq2);
+
+	$out1 = Bio::AlignIO->newFh('-format' => 'fasta');
+	print "The Smith-Waterman alignment in fasta format... \n";
+	print $out1 $aln;
     }
 
-    #use Bio::Tools::pSW;
-    use Bio::Tools::Run::StandAloneBlast;
-
-    # III.6.1 Aligning 2 sequences with Smith-Waterman (pSW)
-
-    my ($factory, $aln, $out1, $out2, $str, $seq1, $seq2, @params);
-
-    # Get protein sequences from file
-
-    $str = Bio::SeqIO->new('-file'=>Bio::Root::IO->catfile("t","data","amino.fa") ,
-                           '-format' => 'Fasta', );
-    $seq1 = $str->next_seq();
-    $seq2 = $str->next_seq();
-
-    $factory = new Bio::Tools::pSW( '-matrix' => 'scripts/tools/blosum62.bla',
-                                    '-gap' => 12,
-                                    '-ext' => 2, );
-
-    $factory->align_and_show($seq1,$seq2,'STDOUT');
-    $aln = $factory->pairwise_alignment($seq1,$seq2);
-
-    $out1 = Bio::AlignIO->newFh('-format' => 'fasta');
-    print "The Smith-Waterman alignment in fasta format... \n";
-    print $out1 $aln;
-
-
-    # III.6.2 Aligning 2 sequences with Blast using  bl2seq and AlignIO
+    # Aligning 2 sequences with Blast using  bl2seq and AlignIO
 
     # Bl2seq testing
     # first create factory for bl2seq
+
+    eval { require Bio::Tools::Run::StandAloneBlast; };
+    if ( $@ ){
+	print STDERR "Cannot load Bio::Tools::Run::StandAloneBlast module\n";
+	print STDERR "Skipping bl2seq demo:\n$@\n";
+	return 0;
+    }
+
     @params = ('program' => 'blastp', 'outfile' => 'bl2seq.out');
+
+    my $blast_present = Bio::Tools::Run::StandAloneBlast->exists_blast();
+    unless ($blast_present) {
+        warn "\n Blast program not found. Skipping bl2seq example\n\n";
+        return 0;
+    }
+
     $factory = Bio::Tools::Run::StandAloneBlast->new(@params);
     $factory->bl2seq($seq1, $seq2);
 
@@ -3424,6 +3459,7 @@ $run_struct = sub {
   if ( $@ ){
     print STDERR "Cannot load Bio::Structure modules\n";
     print STDERR "Cannot run run_struct:\n$@\n";
+    return 0;
   } else {
     print "\nBeginning Structure object example... \n";
 
@@ -3615,6 +3651,7 @@ $demo_xml = sub {
     if ( $@ ){
       print STDERR "Cannot run demo_xml\n";
       print STDERR "Problem parsing GAME format:\n$@\n";
+      return 0;
     } else {
       $seqobj = $str->next_seq();
       # $seq = $str->next_primary_seq();
