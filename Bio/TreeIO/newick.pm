@@ -109,65 +109,87 @@ sub next_tree{
 
    my $chars = '';
    $self->_eventHandler->start_document;
-   my $lastevent = '';
+   my ($prev_event,$lastevent,$id) = ('','','');
    foreach my $ch ( split(//,$_) ) {
        if( $ch eq ';' ) { 	   
 	   return $self->_eventHandler->end_document;
        } elsif( $ch eq '(' ) {
 	   $chars = '';
 	   $self->_eventHandler->start_element( {'Name' => 'tree'} );
-	   $lastevent = $ch;
        } elsif($ch eq ')' ) {
 	   if( $chars ) {
 	       if( $lastevent eq ':' ) {
 		   $self->_eventHandler->start_element( { 'Name' => 'branch_length'});
 		   $self->_eventHandler->characters($chars);
 		   $self->_eventHandler->end_element( {'Name' => 'branch_length'});
+		   $lastevent = $prev_event;
 	       } else { 
 		   $self->debug("id with no branchlength is $chars\n");
 		   $self->_eventHandler->start_element( { 'Name' => 'node' } );
 		   $self->_eventHandler->start_element( { 'Name' => 'id' } );
 		   $self->_eventHandler->characters($chars);
 		   $self->_eventHandler->end_element( { 'Name' => 'id' } );
+		   $id = $chars;
 	       }
-	       
+	       my $leafstatus = 0;
+	       if( $lastevent ne ')' ) {
+		   $leafstatus = 1;
+	       }
+
+	       $self->_eventHandler->start_element({'Name' => 'leaf'});
+	       $self->_eventHandler->characters($leafstatus);
+	       $self->_eventHandler->end_element({'Name' => 'leaf'});
+	       $id = '';
 	   } else {
-	       $self->_eventHandler->start_element( {'Name' => 'node'} )
+	       $self->_eventHandler->start_element( {'Name' => 'node'} );
 	   }
+
 	   $self->_eventHandler->end_element( {'Name' => 'node'} );
 	   $self->_eventHandler->end_element( {'Name' => 'tree'} );
 	   $chars = '';
-	   $lastevent = $ch;
        } elsif ( $ch eq ',' ) {
 	   if( $chars ) {
 	       if( $lastevent eq ':' ) {
 		   $self->_eventHandler->start_element( { 'Name' => 'branch_length'});
 		   $self->_eventHandler->characters($chars);
 		   $self->_eventHandler->end_element( {'Name' => 'branch_length'});
+		   $lastevent = $prev_event;
+		   $chars = '';		   
 	       } else { 
 		   $self->debug("id with no branchlength is $chars\n");
 		   $self->_eventHandler->start_element( { 'Name' => 'node' } );
 		   $self->_eventHandler->start_element( { 'Name' => 'id' } );
 		   $self->_eventHandler->characters($chars);
 		   $self->_eventHandler->end_element( { 'Name' => 'id' } );
-	       }   
+		   $id = $chars;
+	       }
 	   } else {
 	       $self->_eventHandler->start_element( { 'Name' => 'node' } );
 	   }
+	   my $leafstatus = 0;
+	   if( $lastevent ne ')' ) {
+	       $leafstatus = 1;
+	   }
+	   $self->_eventHandler->start_element({'Name' => 'leaf'});
+	   $self->_eventHandler->characters($leafstatus);
+	   $self->_eventHandler->end_element({'Name' => 'leaf'});
 	   $self->_eventHandler->end_element( {'Name' => 'node'} );
 	   $chars = '';
-	   $lastevent = $ch;
+	   $id    = '';
        } elsif( $ch eq ':' ) {
 	   $self->debug("id with a branchlength coming is $chars\n");
 	   $self->_eventHandler->start_element( { 'Name' => 'node' } );
 	   $self->_eventHandler->start_element( { 'Name' => 'id' } );	   
 	   $self->_eventHandler->characters($chars);
 	   $self->_eventHandler->end_element( { 'Name' => 'id' } );	   
+	   $id = $chars;
 	   $chars = '';
-	   $lastevent = $ch;
        } else { 	   
 	   $chars .= $ch;
+	   next;
        }
+       $prev_event = $lastevent;
+       $lastevent = $ch;
    }
    return undef;
 }

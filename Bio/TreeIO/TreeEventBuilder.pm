@@ -95,7 +95,7 @@ sub new {
 						    NODETYPE)], @args);
   $treetype ||= 'Bio::Tree::Tree';
   $nodetype ||= 'Bio::Tree::Node';
-  
+
   eval { 
       $self->_load_module($treetype);
       $self->_load_module($nodetype);
@@ -106,7 +106,7 @@ sub new {
   }
   $self->treetype($treetype);
   $self->nodetype($nodetype);
-  
+  $self->{'_treelevel'} = 0;
   return $self;
 }
 
@@ -216,16 +216,15 @@ sub start_element{
    my ($self,$data) =@_;
    $self->{'_lastitem'}->{$data->{'Name'}}++;   
 
-   $self->debug("starting element: $data->{Name}\n");
-
+   $self->debug("starting element: $data->{Name}\n");   
    push @{$self->{'_lastitem'}->{'current'}},$data->{'Name'};
-
+   
    my %data;
    
    if( $data->{'Name'} eq 'node' ) {
        push @{$self->{'_currentitems'}}, \%data; 
    } elsif ( $data->{Name} eq 'tree' ) {
-       $self->{_treelevel}++;
+       $self->{'_treelevel'}++;
    }
 }
 
@@ -250,19 +249,20 @@ sub end_element{
 
        $tnode = $self->nodetype->new( -verbose => $self->verbose,
 				      %{$node});
-       unless ( $node->{'-id'} ) { 
-	   for ( splice( @{$self->{_currentnodes}}, -$self->{_nodect}->[$self->{_treelevel} + 1]) ) {
+       unless ( $node->{'-leaf'} ) { 
+	   for ( splice( @{$self->{'_currentnodes'}}, 
+			 - $self->{'_nodect'}->[$self->{'_treelevel'}+1])) {
 	       $self->debug("adding desc: " . $_->to_string . "\n");
 	       $tnode->add_Descendent($_);
 	   }
-	   $self->{_nodect}->[$self->{_treelevel}+1] = 0;
+	   $self->{'_nodect'}->[$self->{'_treelevel'}+1] = 0;
        }
        push @{$self->{'_currentnodes'}}, $tnode;
-       $self->{_nodect}->[$self->{_treelevel}]++;
+       $self->{'_nodect'}->[$self->{'_treelevel'}]++;
        $self->debug ("added node: nodes in stack is ". scalar @{$self->{'_currentnodes'}} . ", treelevel: $self->{_treelevel}, nodect: $self->{_nodect}->[$self->{_treelevel}]\n");
    } elsif(  $data->{'Name'} eq 'tree' ) { 
        $self->debug("end of tree: nodes in stack is ". scalar @{$self->{'_currentnodes'}}. "\n");
-       $self->{_treelevel}--;
+       $self->{'_treelevel'}--;
    }
 
    $self->{'_lastitem'}->{ $data->{'Name'} }--; 
@@ -337,6 +337,8 @@ sub characters{
        } elsif ( $self->in_element('tag_value') ) {
 	   $hash->{'-nhx'}->{$hash->{'-NHXtagname'}} = $ch;
 	   delete $hash->{'-NHXtagname'};
+       } elsif( $self->in_element('leaf') ) {
+	   $hash->{'-leaf'} = $ch;
        }
        push @{$self->{'_currentitems'}}, $hash;
    }
