@@ -95,7 +95,7 @@ or the web:
 Ewan Birney, birney@sanger.ac.uk
 
 =cut
-
+#'
 #use strict;
 
 #
@@ -149,7 +149,6 @@ if( !$dir ) {
 if( $type ) {
    $Bio::Index::Abstract::USE_DBM_TYPE = $type;
 }
-
 #
 # Rock and roll...
 # 

@@ -15,7 +15,7 @@ BEGIN {
 	use lib 't';
     }
     use Test;
-    plan tests => 29; 
+    plan tests => 31; 
 }
 
 use Bio::Location::Simple;
@@ -78,7 +78,8 @@ $splitlocation->add_sub_Location($f);
 
 ok($splitlocation->max_end, 61);
 ok($splitlocation->min_start, 1);
-
+ok($splitlocation->end, 61);
+ok($splitlocation->start, 1);
 ok($splitlocation->sub_Location(),2);
 
 my $fuzzy = new Bio::Location::Fuzzy('-start' =>'<10', '-end' => 20, 
@@ -89,8 +90,8 @@ ok($fuzzy->start, undef);
 ok($fuzzy->end,20);
 ok($fuzzy->min_start, 10);
 ok($fuzzy->max_start, undef);
-ok($fuzzy->min_end, undef);
-ok($fuzzy->max_end, undef);
+ok($fuzzy->min_end, 20);
+ok($fuzzy->max_end, 20);
 ok($fuzzy->loc_type, 'EXACT');
 ok($fuzzy->start_pos_type, 'BEFORE');
 ok($fuzzy->end_pos_type, 'EXACT');

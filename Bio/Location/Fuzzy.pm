@@ -84,11 +84,13 @@ BEGIN {
 		    'AFTER'   => '>');   
    
     %FUZZYPOINTENCODE = ( 
-		     '\>(\d+)' => 'AFTER',
-		     '\<(\d+)' => 'BEFORE',
-		     '(\d+)'  => 'EXACT',
-		     '(\d+)\>' => 'AFTER',
-		     '(\d+)\<' => 'BEFORE',
+			  '\>(\d+)' => 'AFTER',
+			  '\<(\d+)' => 'BEFORE',
+			  qr/^(\d+)$/  => 'EXACT',
+			  '(\d+)\>' => 'AFTER',
+			  '(\d+)\<' => 'BEFORE',
+			  '(\d+)\.(\d+)' => 'WITHIN',
+			  '(\d+)\^(\d+)' => 'BETWEEN',
 		     );
     
     %FUZZYRANGEENCODE  = ( '\.' => 'WITHIN',
@@ -138,16 +140,26 @@ sub length {
 sub start {
     my($self,$value) = @_;
     if( defined $value ) {
-	my ($encode, $start) = $self->_fuzzypointencode($value);	
+	my ($encode, $min,$max) = $self->_fuzzypointencode($value);	
 	$self->{'_start_pos_type'} = $encode;
-	if( $encode eq 'BEFORE' ) {
-	    $self->{'_min_start'} = $start;
-	} elsif( $encode eq 'AFTER' ) {
-	    $self->{'_max_start'} = $start;
-	} else {
+	$self->{'_max_start'} = $self->{'_min_start'} = $self->{'_start'} = undef;
+	if( $encode eq 'EXACT' ) {
+	    # max and min should be equal to the start value 
+	    # if we have an exact point
+
 	    $self->{'_start'} = $value;
+	    $self->{'_max_start'} = $value;
+	    $self->{'_min_start'} = $value;
+	} else { 
+	    # so only if we are talking about a WITHIN or BETWEEN 
+	    # for both max and min get set to values
+
+	    $self->{'_max_start'} = $max if( $encode ne 'BEFORE' );
+	    $self->{'_min_start'} = $min if( $encode ne 'AFTER' );
 	}
     }
+    # start is undef if we don't know where it is exactly
+
     return $self->{'_start'};
 }
 
@@ -164,16 +176,26 @@ sub start {
 sub end {
     my($self,$value) = @_;
     if( defined $value ) {
-	my ($encode, $end) = $self->_fuzzypointencode($value);		
+	my ($encode, $min,$max) = $self->_fuzzypointencode($value);		
 	$self->{'_end_pos_type'} = $encode;
-	if( $encode eq 'BEFORE' ) {
-	    $self->{'_min_end'} = $end;
-	} elsif( $encode eq 'AFTER' ) {
-	    $self->{'_max_end'} = $end;
-	} else {
+	# reset all the store values
+	$self->{'_max_end'} = $self->{'_min_end'} = $self->{'_end'} = undef;
+	if( $encode eq 'EXACT' ) {
+	    # max and min should be equal to the end value 
+	    # if we have an exact point
+
 	    $self->{'_end'} = $value;
+	    $self->{'_max_end'} = $value;
+	    $self->{'_min_end'} = $value;
+	} else { 
+	    # so only if we are talking about a WITHIN or BETWEEN 
+	    # for both max and min get set to values
+	    $self->{'_max_end'} = $max if( $encode ne 'BEFORE');
+	    $self->{'_min_end'} = $min if( $encode ne 'AFTER' );
 	}
     }
+    # end is undef if we don't know where it is exactly
+
     return $self->{'_end'};
 }
 
@@ -403,7 +425,11 @@ sub _fuzzypointencode {
     return () if( !defined $string);
     foreach my $pattern ( keys %FUZZYPOINTENCODE ) {
 	if( $string =~ /^\s*$pattern\s*$/ ) {
-	    return ($FUZZYPOINTENCODE{$pattern}, $1);
+	    my ($min,$max) = ($1,$2);
+	    if( ! defined $max ) {
+		$max = $min;
+	    }
+	    return ($FUZZYPOINTENCODE{$pattern}, $min,$max);
 	}
     }
     if( $self->verbose > 1 ) {

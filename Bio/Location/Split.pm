@@ -164,10 +164,48 @@ sub splittype {
 
 =head2 LocationI methods
 
+=head2 start
+
+  Title   : start
+  Usage   : $start = $location->start();
+  Function: get the starting point of the first (sorted) item 
+  Returns : integer
+  Args    : none
+
+=cut
+
+sub start {
+    my ($self,$value) = @_;    
+    if( defined $value ) {
+	$self->warn("Trying to set the starting point of a split location, that is not possible, try manipulating the sub Locations");
+    }
+    my @locs = $self->sub_Location();
+    return ( @locs ) ? $locs[0]->start : undef;
+}
+
+=head2 end
+
+  Title   : end
+  Usage   : $end = $location->end();
+  Function: get the ending point of the last (sorted) item 
+  Returns : integer
+  Args    : none
+
+=cut
+
+sub end {
+    my ($self,$value) = @_;    
+    if( defined $value ) {
+	$self->warn("Trying to set the ending point of a split location, that is not possible, try manipulating the sub Locations");
+    }
+    my @locs = $self->sub_Location();
+    return ( @locs ) ? $locs[-1]->end : undef;
+}
+
 =head2 min_start
 
   Title   : min_start
-  Usage   : $min_start = $fuzzy->min_start();
+  Usage   : $min_start = $location->min_start();
   Function: get the minimum starting point
   Returns : the minimum starting point from the contained sublocations
   Args    : none
@@ -176,6 +214,10 @@ sub splittype {
 
 sub min_start {
     my ($self, $value) = @_;    
+    if( defined $value ) {
+	$self->warn("Trying to set the minimum starting point of a split location, that is not possible, try manipulating the sub Locations");
+    }
+
     my @locs = $self->sub_Location();
     if( @locs ) {
 	return ( defined $locs[0]->min_start ? $locs[0]->min_start :
