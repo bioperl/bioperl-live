@@ -39,7 +39,7 @@ if( $error == 1 ) {
     exit(0);
 }
 
-use Bio::DB::GDB;
+require Bio::DB::GDB;
 my $verbose = 0;
 
 my ($gdb, $marker, $info);
