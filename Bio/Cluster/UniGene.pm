@@ -180,15 +180,11 @@ sub new {
 =cut
 
 sub unigene_id {
-   my ($obj,$value) = @_;
-
-   if( defined $value) {
-      $obj->{'unigene_id'} = $value;
-    }
-   if( ! exists $obj->{'unigene_id'} ) {
-       return "$obj";
-   }
-   return $obj->{'unigene_id'};
+	my ($obj,$value) = @_;
+	if( defined $value) {
+		$obj->{'unigene_id'} = $value;
+	}
+	return $obj->{'unigene_id'};
 }
 
 
@@ -206,15 +202,11 @@ sub unigene_id {
 =cut
 
 sub title {
-   my ($obj,$value) = @_;
-
-   if( defined $value) {
-      $obj->{'title'} = $value;
-    }
-   if( ! exists $obj->{'title'} ) {
-       return "$obj";
-   }
-   return $obj->{'title'};
+	my ($obj,$value) = @_;
+	if( defined $value) {
+		$obj->{'title'} = $value;
+	}
+	return $obj->{'title'};
 }
 
 
@@ -231,15 +223,11 @@ sub title {
 =cut
 
 sub gene {
-   my ($obj,$value) = @_;
-
-   if( defined $value) {
-      $obj->{'gene'} = $value;
-    }
-   if( ! exists $obj->{'gene'} ) {
-       return "$obj";
-   }
-   return $obj->{'gene'};
+	my ($obj,$value) = @_;
+	if( defined $value) {
+		$obj->{'gene'} = $value;
+	}
+	return $obj->{'gene'};
 }
 
 
@@ -256,15 +244,11 @@ sub gene {
 =cut
 
 sub cytoband {
-   my ($obj,$value) = @_;
-
-   if( defined $value) {
-      $obj->{'cytoband'} = $value;
-    }
-   if( ! exists $obj->{'cytoband'} ) {
-       return "$obj";
-   }
-   return $obj->{'cytoband'};
+	my ($obj,$value) = @_;
+	if( defined $value) {
+		$obj->{'cytoband'} = $value;
+	}
+	return $obj->{'cytoband'};
 }
 
 
@@ -279,15 +263,11 @@ sub cytoband {
 =cut
 
 sub locuslink {
-   my ($obj,$value) = @_;
-
-   if( defined $value) {
-      $obj->{'locuslink'} = $value;
-    }
-   if( ! exists $obj->{'locuslink'} ) {
-       return "$obj";
-   }
-   return $obj->{'locuslink'};
+	my ($obj,$value) = @_;
+	if( defined $value) {
+		$obj->{'locuslink'} = $value;
+	}
+	return $obj->{'locuslink'};
 }
 
 
@@ -324,15 +304,11 @@ sub next_locuslink {
 =cut
 
 sub gnm_terminus {
-   my ($obj,$value) = @_;
-
-   if( defined $value) {
-      $obj->{'gnm_terminus'} = $value;
-    }
-   if( ! exists $obj->{'gnm_terminus'} ) {
-       return "$obj";
-   }
-   return $obj->{'gnm_terminus'};
+	my ($obj,$value) = @_;
+	if( defined $value) {
+		$obj->{'gnm_terminus'} = $value;
+	}
+	return $obj->{'gnm_terminus'};
 }
 
 =head2 scount
@@ -347,15 +323,11 @@ sub gnm_terminus {
 =cut
 
 sub scount {
-   my ($obj,$value) = @_;
-
-   if( defined $value) {
-      $obj->{'scount'} = $value;
-    }
-   if( ! exists $obj->{'scount'} ) {
-       return "$obj";
-   }
-   return $obj->{'scount'};
+	my ($obj,$value) = @_;
+	if( defined $value) {
+		$obj->{'scount'} = $value;
+	}
+	return $obj->{'scount'};
 }
 
 
@@ -373,15 +345,11 @@ sub scount {
 =cut
 
 sub express {
-   my ($obj,$value) = @_;
-
-   if( defined $value) {
-      $obj->{'express'} = $value;
-    }
-   if( ! exists $obj->{'express'} ) {
-       return "$obj";
-   }
-   return $obj->{'express'};
+	my ($obj,$value) = @_;
+	if( defined $value) {
+		$obj->{'express'} = $value;
+	}
+	return $obj->{'express'};
 }
 
 
@@ -417,15 +385,11 @@ sub next_express {
 =cut
 
 sub chromosome {
-   my ($obj,$value) = @_;
-
-   if( defined $value) {
-      $obj->{'chromosome'} = $value;
-    }
-   if( ! exists $obj->{'chromosome'} ) {
-       return "$obj";
-   }
-   return $obj->{'chromosome'};
+	my ($obj,$value) = @_;
+	if( defined $value) {
+		$obj->{'chromosome'} = $value;
+	}
+	return $obj->{'chromosome'};
 }
 
 
@@ -461,15 +425,11 @@ sub next_chromosome {
 =cut
 
 sub sts {
-   my ($obj,$value) = @_;
-
-   if( defined $value) {
-      $obj->{'sts'} = $value;
-    }
-   if( ! exists $obj->{'sts'} ) {
-       return "$obj";
-   }
-   return $obj->{'sts'};
+	my ($obj,$value) = @_;
+	if( defined $value) {
+		$obj->{'sts'} = $value;
+	}
+	return $obj->{'sts'};
 }
 
 
@@ -505,15 +465,11 @@ sub next_sts {
 =cut
 
 sub txmap {
-   my ($obj,$value) = @_;
-
-   if( defined $value) {
-      $obj->{'txmap'} = $value;
-    }
-   if( ! exists $obj->{'txmap'} ) {
-       return "$obj";
-   }
-   return $obj->{'txmap'};
+	my ($obj,$value) = @_;
+	if( defined $value) {
+		$obj->{'txmap'} = $value;
+	}
+	return $obj->{'txmap'};
 }
 
 
@@ -549,15 +505,11 @@ sub next_txmap {
 =cut
 
 sub protsim {
-   my ($obj,$value) = @_;
-
-   if( defined $value) {
-      $obj->{'protsim'} = $value;
-    }
-   if( ! exists $obj->{'protsim'} ) {
-       return "$obj";
-   }
-   return $obj->{'protsim'};
+	my ($obj,$value) = @_;
+	if( defined $value) {
+		$obj->{'protsim'} = $value;
+	}
+	return $obj->{'protsim'};
 }
 
 
@@ -594,15 +546,11 @@ sub next_protsim {
 =cut
 
 sub sequence {
-   my ($obj,$value) = @_;
-
-   if( defined $value) {
-      $obj->{'sequence'} = $value;
-    }
-   if( ! exists $obj->{'sequence'} ) {
-       return "$obj";
-   }
-   return $obj->{'sequence'};
+	my ($obj,$value) = @_;
+	if( defined $value) {
+		$obj->{'sequence'} = $value;
+	}
+	return $obj->{'sequence'};
 }
 
 
