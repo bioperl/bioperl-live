@@ -17,7 +17,7 @@ BEGIN {
 	use lib 't';
     }
     use Test;
-    $NTESTS = 15;
+    $NTESTS = 16;
     plan tests => $NTESTS }
 
 use Bio::Factory::EMBOSS;
