@@ -150,7 +150,7 @@ sub next_seq {
        return undef; # end of file
    }
    $line =~ /^ID\s+\S+/ || $self->throw("EMBL stream with no ID. Not embl in my book");
-   $line =~ /^ID\s+(\S+)\s+\S+\;\s+(\S+)\;\s+(\S+)\;/;
+   $line =~ /^ID\s+(\S+)\s+\S+\;\s+([^;]+)\;\s+(\S+)\;/;
    $name = $1;
    $mol = $2;
    $div = $3;
@@ -161,6 +161,10 @@ sub next_seq {
     # you won't know which entry caused an error
    $seq->display_id($name);
    if($mol) {
+       if ( $mol =~ /circular/ ) {
+	   $seq->is_circular(1);
+	   $mol =~  s|circular ||;
+       }
        $seq->molecule($mol);
        my $moltype;
        if (defined $seq->molecule) {
@@ -169,7 +173,7 @@ sub next_seq {
 	       $moltype='dna';
 	   }
 	   elsif ($mol =~ /RNA/) {
-	       $moltype='rna';
+	       $moltype='dna';
 	   }
 	   elsif ($mol =~ /AA/) {
 	       $moltype='protein';
@@ -340,6 +344,7 @@ sub write_seq {
     
     if ($seq->can('molecule')) {
         $mol = $seq->molecule();
+	$mol = 'RNA' if $mol =~ /RNA/; # no 'mRNA' 
     }
     elsif (defined $seq->primary_seq->moltype) {
 	my $moltype =$seq->primary_seq->moltype;
@@ -354,6 +359,7 @@ sub write_seq {
 	}
     }
     $mol ||= 'XXX';
+    $mol = "circular $mol" if $seq->is_circular;
    
     my $temp_line;
     if( $self->_id_generation_func ) {
