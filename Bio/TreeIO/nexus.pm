@@ -120,37 +120,37 @@ sub _parse {
    my %translate;
    while( defined ( $_ = $self->_readline ) ) {
        next if ( /^\[/);
-       if( $state > 0 ) {	   
-	   if( /^\[/ ) {
-	       $state++;
-	   } elsif( /^\]/ ) {
-	       $state--;
-	   } elsif( /^\s*Translate/i ) { 
-	       $state = 3;
-	   } elsif( $state == 3) {
-	       if( /^\s+(\S+)\s+(\S+)\s*([\,\;])\s*$/ ) {
-		   $translate{$1} = $2;
-		   $state = 1 if( $3 eq ';' );
-	       } elsif( /^\s+;/) {
-		   $state = 1;
-	       }
-	   } elsif( /^\s*tree\s+(\S+)\s+\=\s+(?:\[\S+\])?\s*([^\;]+;)\s*$/ ) {
-	       my $buf = new IO::String($2);
-	       my $treeio = new Bio::TreeIO(-format => 'newick',
-					    -fh     => $buf);
-	       my $tree = $treeio->next_tree;
-	       foreach my $node ( grep { $_->is_Leaf } $tree->get_nodes ) {
-		   my $id = $node->id;
-		   my $lookup = $translate{$id};
-		   $node->id($lookup || $id);
-	       }
-	       push @{$self->{'_trees'}},$tree;
+       if( /^\[/ ) {
+	   $state = 1 if $state != 0;
+       } elsif( /^\]/ ) {
+	   $state = 0 if $state == 1;
+       } elsif( /^\s*Translate/i ) { 
+	   $state = 3;
+       } elsif( $state == 3 ) {
+	   if( /^\s+(\S+)\s+(\S+)\s*([\,\;])\s*$/ ) {
+	       $translate{$1} = $2;
+	       $state = 1 if( $3 eq ';' );
+	   } elsif( /^\s+;/) {
+	       $state = 1;
 	   }
-       } elsif( /^\s*Begin\s+trees;/i ) {
+       } elsif( /^\s*tree\s+(\S+)\s+\=\s+(?:\[\S+\])?\s*([^\;]+;)\s*$/ ) {
+	   my $buf = new IO::String($2);
+	   my $treeio = new Bio::TreeIO(-format => 'newick',
+					-fh     => $buf);
+	   my $tree = $treeio->next_tree;
+	   foreach my $node ( grep { $_->is_Leaf } $tree->get_nodes ) {
+	       my $id = $node->id;
+	       my $lookup = $translate{$id};
+	       $node->id($lookup || $id);
+	   }
+	   push @{$self->{'_trees'}},$tree;
+       } elsif( /^\s*Begin(\s+trees)?;/io ) {
 	   $state = 1;
-       } elsif( /^\s*End(\s+trees);/i ) {
+       } elsif( /^\s*End(\s+trees)?;/io ) {
 	   $state = 0;
 	   return;
+       } else { 
+	   $self->debug("$state, $_");
        }
    }
 }
