@@ -32,7 +32,7 @@ sub insert_sequence {
 package main;
 
 my $bWINDOWS = 0;    # Boolean: is this a MSWindows operating system?
-if ($^O =~ /Win/i) {
+if ($^O =~ /MSWin32/i) {
     $bWINDOWS = 1;
 }
 
