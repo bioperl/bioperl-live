@@ -186,6 +186,8 @@
 	$HOME/.bioinformatics/seqdatabase.ini
 	/etc/bioinformatics/seqdatabase.ini
     </programlisting>
+    </para>
+    <para>
       The Bio{Perl,Java,Python,Ruby} registry-handling code will initialize
       itself from the registry file located in the home directory first,
       and then it will read the system-wide default in /etc. Windows Perl users
@@ -249,6 +251,8 @@
  location=http://www.ebi.ac.uk/cgi-bin/dbfetch
  dbname=swall
       </programlisting>
+    </para>
+    <para>
       The first line is the registry format version number in the format
       VERSION=X.XX.  The current version is 1.00.
     </para>
@@ -263,6 +267,8 @@
   tag=value
   tag=value
       </programlisting>
+    </para>
+    <para>
       Each section starts with a symbolic database service name enclosed in
       square brackets. Service names are case-insensitive.  The remainder
       of the section is followed by a series of tag=value pairs that
@@ -292,6 +298,8 @@
   biofetch
   biosql
       </programlisting>
+    </para>
+    <para>
       "flat" is used to fetch sequences from local flat files that have been
       indexed using BerkeleyDB or binary search indexing.
     </para>
@@ -306,11 +314,11 @@
       to the BioSQL schema, and install the bioperl-db distribution.
     </para>
     <para>
-      <emphasis>
+      <important>
 	Support for the biosql protocol is disabled as of
 	Bioperl version 1.4. We hope to remedy this in a subsequent
 	release.
-      </emphasis>
+      </important>
     </para>
   </section>
 
@@ -401,14 +409,14 @@
       Download the Biosql tar file to view all the documentation.
     </para>
     <para>
-      <emphasis>
+      <important>
 	Support for the biosql protocol in OBDA is disabled as of
 	Bioperl version 1.4. We hope to remedy this in a subsequent
 	release.
-      </emphasis>
+      </important>
     </para>
     <para>
-      Once the "flat" database is created you can configure your
+      Once the flat database is created you can configure your
       seqdatabase.ini file. Let's say that you have used the
       bioflat_index.pl script to create the flat database and a new 
       directory called "ppp" has
@@ -416,7 +424,7 @@
       directory contains the config.dat file). Your sequence.ini entry
       should contain these lines:
       <programlisting>
-	protocol=flat
+        protocol=flat
         location=/home/sally/bioinf
         dbname=ppp
       </programlisting>
@@ -479,9 +487,7 @@
       As a convenience, the Bioperl distribution includes the script
       biogetseq.PLS that enables one to have OBDA access to sequence
       data from the command line.
-    </para>
-    <para>
-      The script 'biogetseq' is located in the scripts/DB directory of the
+      It's located in the scripts/DB directory of the
       bioperl distribution (it may also have been installed in your system
       if you you asked for a script installation after 'make
       install'. Move or add it into your path to run it. You can get 
