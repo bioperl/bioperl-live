@@ -11,6 +11,8 @@ Revision history for Bioperl core modules
         - Added $NEWLINE and $TIMEOUT_SECS to Bio::Root::Global.
         - Changed default timeout to 20 seconds (was 3).
         - Moved lengthy modification notes to the bottom of some files.
+	- Fixed SimpleAlign write_fasta bug.
+	- Beefed up SimpleAlign.t test
 
 0.04.3  Thu Feb  4 07:48:53 1999
         - Bio::Root::Object.pm and Global.pm now detect when

@@ -1054,7 +1054,7 @@ sub write_clustalw {
            : 
            :
  Returns   : 
- Argument  : 
+ Argument  : reference-to-glob to file or a filehandle object
 
 =cut
 
@@ -1070,7 +1070,7 @@ sub write_fasta {
 	print $file ">$name\n";
 	
 	$count =0;
-	$length = &length($seq);
+	$length = length($seq);
 	while( ($count * 60 ) < $length ) {
 	    $seqsub = substr($seq,$count*60,60);
 	    print $file "$seqsub\n";
@@ -1078,8 +1078,6 @@ sub write_fasta {
 	}
     }
 }
-
-
 
 sub set_displayname {
     my $self = shift;
