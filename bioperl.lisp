@@ -1,4 +1,6 @@
-
+;;
+;; $Id: bioperl.lisp,v 1.23 2002-10-03 18:08:50 lapp Exp $
+;;
 ;; Perl mode set up
 
 (assoc "\\.pl$" auto-mode-alist)
@@ -17,7 +19,7 @@
 (defun bioperl-object-start (perl-object-name perl-caretaker-name caretaker-email)
   "Places standard bioperl object notation headers and footers"
   (interactive "sName of Object: \nsName of caretaker: \nsEmail: ")
-  (insert "# $Id: bioperl.lisp,v 1.22 2002-09-16 21:51:47 lapp Exp $\n#\n# BioPerl module for " perl-object-name "\n#\n# Cared for by " perl-caretaker-name " <" caretaker-email ">\n#\n# Copyright " perl-caretaker-name "\n#\n# You may distribute this module under the same terms as perl itself\n\n")
+  (insert "# $Id: bioperl.lisp,v 1.23 2002-10-03 18:08:50 lapp Exp $\n#\n# BioPerl module for " perl-object-name "\n#\n# Cared for by " perl-caretaker-name " <" caretaker-email ">\n#\n# Copyright " perl-caretaker-name "\n#\n# You may distribute this module under the same terms as perl itself\n\n")
   (insert "# POD documentation - main docs before the code\n\n")
   (insert "=head1 NAME\n\n" perl-object-name " - DESCRIPTION of Object\n\n")
   (insert "=head1 SYNOPSIS\n\nGive standard usage here\n\n")
@@ -49,7 +51,7 @@
 						 caretaker-email)
   "Places standard bioperl object notation headers and footers"
   (interactive "sName of Object: \nsName of caretaker: \nsEmail: ")
-  (insert "# $Id: bioperl.lisp,v 1.22 2002-09-16 21:51:47 lapp Exp $\n#\n# BioPerl module for " perl-object-name "\n#\n# Cared for by " perl-caretaker-name " <" caretaker-email ">\n#\n# Copyright " perl-caretaker-name "\n#\n# You may distribute this module under the same terms as perl itself\n\n")
+  (insert "# $Id: bioperl.lisp,v 1.23 2002-10-03 18:08:50 lapp Exp $\n#\n# BioPerl module for " perl-object-name "\n#\n# Cared for by " perl-caretaker-name " <" caretaker-email ">\n#\n# Copyright " perl-caretaker-name "\n#\n# You may distribute this module under the same terms as perl itself\n\n")
   (insert "# POD documentation - main docs before the code\n\n")
   (insert "=head1 NAME\n\n" perl-object-name " - DESCRIPTION of Interface\n\n")
   (insert "=head1 SYNOPSIS\n\nGive standard usage here\n\n")
@@ -85,7 +87,7 @@
   "puts in a bioperl method for a get/set method complete with pod boiler-plate"
   (interactive "sfield name:")
   (insert "=head2 " field-name "\n\n Title   : " field-name "\n Usage   : $obj->" field-name "($newval)\n Function: \n Example : \n Returns : value of " field-name " (a scalar)\n Args    : new value (a scalar, optional)\n\n\n=cut\n\n")
-  (insert "sub " field-name "{\n   my ($self,$value) = @_;\n   if( defined $value) {\n      $self->{'" field-name "'} = $value;\n    }\n    return $self->{'" field-name "'};")
+  (insert "sub " field-name "{\n    my $self = shift;\n\n    return $self->{'" field-name "'} = shift if @_;\n    }\n    return $self->{'" field-name "'};")
   (insert "\n}\n"))
 
 
@@ -101,8 +103,8 @@
 
 
 
-;;(setq perl-mode-hook 
-;;      '(lambda ()
+(setq perl-mode-hook 
+      '(lambda ()
 	 (define-key perl-mode-map "\C-c\C-h" 'perl-insert-start)
 	 (define-key perl-mode-map "\C-c\C-b" 'bioperl-object-start)
 	 (define-key perl-mode-map "\C-c\C-i" 'bioperl-interface-start)
@@ -123,5 +125,5 @@
 	   '("bioperl field func" . bioperl-getset))
 	 (define-key perl-mode-map [menu-bar p bioperl-method]
 	   '("bioperl method" . bioperl-method))
-;;	 ))
+	 ))
 

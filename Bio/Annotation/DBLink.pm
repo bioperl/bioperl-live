@@ -26,14 +26,15 @@ Bio::Annotation::DBLink - DESCRIPTION of Object
    $link2->database('dbSNP');
    $link2->primary_id('2367');
 
-   # $feat is Bio::Annotation object, Bio::SeqFeature::Generic inherits it
-   $feat->add_DBLink($link2);
+   # DBLink is-a Bio::AnnotationI object, can be added to annotation
+   # collections, e.g. the one on features or seqs
+   $feat->annotation->add_Annotation('dblink', $link2);
 
 
 =head1 DESCRIPTION
 
-Provides an object which represents a link from one onbject to something
-in another database without proscribing what is in the other database
+Provides an object which represents a link from one object to something
+in another database without prescribing what is in the other database
 
 =head1 AUTHOR - Ewan Birney
 
@@ -140,11 +141,13 @@ sub hash_tree{
  Usage   : $obj->tagname($newval)
  Function: Get/set the tagname for this annotation value.
 
-           Setting this is optional. If set, it obviates the need to provide
-           a tag to Bio::AnnotationCollectionI when adding this object. When
-           obtaining an AnnotationI object from the collection, the collection
-           will set the value to the tag under which it was stored unless the
-           object has a tag stored already.
+           Setting this is optional. If set, it obviates the need to
+           provide a tag to Bio::AnnotationCollectionI when adding
+           this object. When obtaining an AnnotationI object from the
+           collection, the collection will set the value to the tag
+           under which it was stored unless the object has a tag
+           stored already.
+
  Example : 
  Returns : value of tagname (a scalar)
  Args    : new value (a scalar, optional)
@@ -214,12 +217,14 @@ sub primary_id{
  Title   : optional_id
  Usage   : $self->optional_id($newval)
  Function: get/set for the optional_id (a string)
-           optional id is a slot for people to use as they wish. The main
-           issue is that some databases do not have a clean single string
-           identifier scheme. It is hoped that the primary_id can behave like
-           a reasonably sane "single string identifier" of objects, and people
-           can use/abuse optional ids to their heart's content to provide
-           precise mappings. 
+
+           optional id is a slot for people to use as they wish. The
+           main issue is that some databases do not have a clean
+           single string identifier scheme. It is hoped that the
+           primary_id can behave like a reasonably sane "single string
+           identifier" of objects, and people can use/abuse optional
+           ids to their heart's content to provide precise mappings.
+
  Example : 
  Returns : value of optional_id
  Args    : newvalue (optional)
