@@ -114,7 +114,7 @@ sub new {
 	$format = "\L$format";	# normalize capitalization to lower case
 
 	# normalize capitalization
-	return undef unless( &_load_format_module($format) );
+	return undef unless( $class->_load_format_module($format) );
 	return "Bio::MapIO::$format"->new(@args);
     }
 
@@ -201,27 +201,22 @@ sub _initialize {
 =cut
 
 sub _load_format_module {
-  my ($format) = @_;
-  my ($module, $load, $m);
-
-  $module = "_<Bio/MapIO/$format.pm";
-  $load = "Bio/MapIO/$format.pm";
-
-  return 1 if $main::{$module};
+  my ($self,$format) = @_;
+  my $module = "Bio::MapIO::" . $format;
+  my $ok;  
   eval {
-    require $load;
+      $ok = $self->_load_module($module);
   };
   if ( $@ ) {
     print STDERR <<END;
-$load: $format cannot be found
+$self: $format cannot be found
 Exception $@
 For more information about the MapIO system please see the MapIO docs.
 This includes ways of checking for formats at compile time, not run time
 END
   ;
-    return;
   }
-  return 1;
+  return $ok;
 }
 
 

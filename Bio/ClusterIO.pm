@@ -173,7 +173,7 @@ sub new {
 	$format = "\L$format";	# normalize capitalization to lower case
 
 	# normalize capitalization
-	return undef unless( &_load_format_module($format) );
+	return undef unless( $class->_load_format_module($format) );
 	return "Bio::ClusterIO::$format"->new(@args);
     }
 }
@@ -218,24 +218,20 @@ sub next_cluster {
 
 sub _load_format_module {
   my ($format) = @_;
-  my ($module, $load, $m);
-
-  $module = "_<Bio/ClusterIO/$format.pm";
-  $load = "Bio/ClusterIO/$format.pm";
-
-  return 1 if $main::{$module};
+  my $module = "Bio::ClusterIO::" . $format;
+  my $ok;
+  
   eval {
-    require $load;
+      $ok = $self->_load_module($module);
   };
   if ( $@ ) {
     print STDERR <<END;
-$load: couldn't load $format - for more details on supported formats please see the ClusterIO docs
+$self: could not load $format - for more details on supported formats please see the ClusterIO docs
 Exception $@
 END
   ;
-    return;
   }
-  return 1;
+  return $ok;
 }
 
 =head2 _guess_format
