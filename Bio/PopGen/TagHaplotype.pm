@@ -77,11 +77,12 @@ use Bio::Root::Root;
 
 @ISA =qw(Bio::Root::Root);
 
-my $USAGE = 'Usage:
+my $USAGE = <<EOF
+Usage:
+    Bio::PopGen::TagHaplotype->new(-haplotype_block => \$hapblockref)
 
-    Bio::PopGen::TagHaplotype->new(-haplotype_block)
-
-';
+EOF
+;
 
 =head2 new
 
@@ -111,7 +112,7 @@ sub new{
 
     # check that the haplotype block is well formed.
     for (my $i=0; $i<$#$haplotype_block+1; $i++){
-        if ( $#{$haplotype_block->[$0]} !=
+	if ( $#{$haplotype_block->[0]} !=
              $#{$haplotype_block->[$i]} ){
 
             $self->throw("The haplotype matrix is not well formed (Not squared)");
