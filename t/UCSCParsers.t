@@ -15,7 +15,7 @@ BEGIN {
     }
     use Test;
     use vars qw($TESTCOUNT);
-    $TESTCOUNT = 38;
+    $TESTCOUNT = 43;
     plan tests => $TESTCOUNT;
 }
 
@@ -36,6 +36,8 @@ ok($hit->length, 28791);
 my $hsp    = $hit->next_hsp;
 ok($hsp->query->start,139871);
 ok($hsp->query->end,141473);
+ok($hsp->query->strand, 1);
+ok($hsp->hit->strand, 1);
 my $q_gapblocks = $hsp->gap_blocks('query');
 ok(scalar @$q_gapblocks, 24);
 ok($q_gapblocks->[0]->[1],45);
@@ -58,6 +60,7 @@ ok($q_gapblocks->[1]->[1],4);
 ok($q_gapblocks->[1]->[0],123856);
 
 
+
 #-----------------------------------
 
 
@@ -75,6 +78,8 @@ ok($hit->length, 1775);
 $hsp    = $hit->next_hsp;
 ok($hsp->query->start,1);
 ok($hsp->query->end,1776);
+ok($hsp->query->strand,1);
+ok($hsp->hit->strand,1);
 $q_gapblocks = $hsp->gap_blocks('query');
 ok(scalar @$q_gapblocks, 1);
 ok($q_gapblocks->[0]->[1],1775);
@@ -88,6 +93,7 @@ ok($hsp->hit->end,1245);
 ok($hsp->query->start, 841);
 ok($hsp->query->end, 1245);
 ok($hsp->query->strand,-1);
+ok($hsp->hit->strand,1);
 
 $q_gapblocks = $hsp->gap_blocks('query');
 ok(scalar @$q_gapblocks, 4);
