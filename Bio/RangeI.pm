@@ -79,9 +79,10 @@ use Carp;
 use Bio::Root::RootI;
 use vars qw(@ISA);
 use integer;
-use vars '%STRAND_OPTIONS';
+use vars qw( @ISA %STRAND_OPTIONS );
 
-@ISA = qw(Bio::Root::RootI);
+use Bio::Root::Interface;
+@ISA = qw( Bio::Root::Interface );
 
 BEGIN {
 # STRAND_OPTIONS contains the legal values for the strand options
@@ -93,6 +94,8 @@ BEGIN {
      );
 }
 
+# utility methods
+#
 
 # returns true if strands are equal and non-zero
 sub _strong {
@@ -139,7 +142,7 @@ These methods must be implemented in all subclasses.
 =cut
 
 sub start {
-    shift->_abstractDeath('start');
+    shift->throw_not_implemented();
 }
 
 =head2 end
@@ -154,7 +157,7 @@ sub start {
 =cut
 
 sub end {
-    shift->_abstractDeath('end');
+    shift->throw_not_implemented();
 }
 
 =head2 length
@@ -169,7 +172,7 @@ sub end {
 =cut
 
 sub length {
-    shift->_abstractDeath('length');
+    shift->throw_not_implemented();
 }
 
 =head2 strand
@@ -184,7 +187,7 @@ sub length {
 =cut
 
 sub strand {
-    shift->_abstractDeath('strand');
+    shift->throw_not_implemented();
 }
 
 =head1 Boolean Methods

@@ -80,7 +80,6 @@ package Bio::SeqFeatureI;
 use vars qw(@ISA);
 use strict;
 
-# Object preamble - inheriets from Bio::Root::Object
 use Bio::RangeI;
 
 use Carp;
@@ -137,7 +136,7 @@ New method interfaces.
 sub sub_SeqFeature{
    my ($self,@args) = @_;
 
-   $self->_abstractDeath('sub_SeqFeature');
+   $self->throw_not_implemented();
 }
 
 
@@ -156,7 +155,8 @@ sub sub_SeqFeature{
 sub primary_tag{
    my ($self,@args) = @_;
 
-   $self->_abstractDeath('primary_tag');
+   $self->throw_not_implemented();
+
 }
 
 =head2 source_tag
@@ -174,7 +174,7 @@ sub primary_tag{
 sub source_tag{
    my ($self,@args) = @_;
 
-   $self->_abstractDeath('source_tag');
+   $self->throw_not_implemented();
 }
 
 =head2 has_tag
@@ -190,7 +190,9 @@ sub source_tag{
 
 sub has_tag{
    my ($self,@args) = @_;
-   $self->_abstractDeath('has_tag');
+
+   $self->throw_not_implemented();
+
 }
 
 =head2 each_tag_value
@@ -207,7 +209,7 @@ sub has_tag{
 sub each_tag_value {
    my ($self,@args) = @_;
 
-   $self->_abstractDeath('each_tag_value');
+   $self->throw_not_implemented();
 }
 
 =head2 all_tags
@@ -224,7 +226,7 @@ sub each_tag_value {
 sub all_tags{
    my ($self,@args) = @_;
 
-   $self->_abstractDeath('all_tags');
+   $self->throw_not_implemented();
 }
 
 =head2 gff_string
@@ -354,7 +356,7 @@ triplets (start, stop, strand) from which new ranges could be built.
 sub location {
    my ($self) = @_;
 
-   $self->_abstractDeath('location');
+   $self->throw_not_implemented();
 }
 
 
