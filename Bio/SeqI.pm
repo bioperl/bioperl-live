@@ -166,46 +166,6 @@ sub write_GFF{
 
 }
 
-=head2 seq
-
- Title   : seq
- Usage   : my $string = $seq->seq();
- Function: Get or set the basic sequence string associated with this
-           sequence object.
- Returns : string
- Args    : string or none
-
-
-=cut
-
-sub seq{
-   my ($self) = @_;
-   $self->throw_not_implemented();
-}
-
-=head2 write_GFF
-
- Title   : write_GFF
- Usage   : $seq->write_GFF(\*FILEHANDLE);
- Function: Convience method to write out all the sequence features
-           in GFF format to the provided filehandle (STDOUT by default)
- Returns : none
- Args    : [optional] filehandle to write to (default is STDOUT)
-
-
-=cut
-
-sub write_GFF{
-   my ($self,$fh) = @_;
-
-   $fh || do { $fh = \*STDOUT; };
-
-   foreach my $sf ( $self->all_SeqFeatures() ) {
-       print $fh $sf->gff_string, "\n";
-   }
-
-}
-
 =head2 annotation
 
  Title   : annotation
