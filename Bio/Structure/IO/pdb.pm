@@ -737,6 +737,8 @@ sub write_structure {
 		}
 		for my $chain ($struc->get_chains($model)) {
 			my ($residue, $atom, $resname, $resnum, $atom_line, $atom_serial, $atom_icode, $chain_id);
+			my ($prev_resname, $prev_resnum, $prev_atomicode); # need these for TER record
+			my $wr_ter = 0; # have we already written out a TER for this chain
 			$chain_id = $chain->id;
 			if ( $chain_id eq "default" ) {
 				$chain_id = " "; 
@@ -746,6 +748,18 @@ $self->debug("model_id: $model->id chain_id: $chain_id\n");
 				($resname, $resnum) = split /-/, $residue->id;
 				for $atom ($struc->get_atoms($residue)) {
 					if ($het_res{$resname}) {  # HETATM
+						if ( ! $wr_ter && $resname ne "HOH" ) { # going from ATOM -> HETATM, we have to write TER
+							my $ter_line = "TER   ";
+							$ter_line .= sprintf("%5d", $atom_serial + 1);
+							$ter_line .= "      ";
+							$ter_line .= sprintf("%3s ", $prev_resname);
+							$ter_line .= $chain_id;
+							$ter_line .= sprintf("%4d", $prev_resnum);
+							$ter_line .= $atom_icode ? $prev_atomicode : " "; # 27
+							$ter_line .= " " x (80 - length $ter_line);  # extend to 80 chars
+							$self->_print($ter_line,"\n");
+							$wr_ter = 1;
+						}
 						$atom_line = "HETATM";
 					} else {
 						$atom_line = "ATOM  ";
@@ -753,13 +767,42 @@ $self->debug("model_id: $model->id chain_id: $chain_id\n");
 					$atom_line .= sprintf("%5d ", $atom->serial);
 					$atom_serial = $atom->serial; # we need it for TER record
 					$atom_icode = $atom->icode;
+					# remember some stuff if next iteration needs writing TER
+					$prev_resname = $resname;
+					$prev_resnum  = $resnum;
+					$prev_atomicode = $atom_icode;
+					# getting the name of the atom correct is subtrivial
 					my $atom_id = $atom->id;
-					if ($atom->id =~ /^\dH/) { # H: four positions, left justified
-						$atom_line .= sprintf("%-4s", $atom->id);
-					} elsif (length($atom_id) == 4) {
-						$atom_line .= $atom_id;
-					} else { # this is certainly not completely correct (DNA and friends) XXX
-						$atom_line .= sprintf(" %-3s", $atom->id);
+					# is pdb_atomname set, then use this (most probably set when
+					# reading in the PDB record)
+					my $pdb_atomname = $atom->pdb_atomname;
+					if( defined $pdb_atomname ) {
+						$atom_line .= sprintf("%-4s", $pdb_atomname);
+					} else {
+						# start (educated) guessing
+						my $element = $atom->element;
+						if( defined $element && $element ne "H") {
+							# element should be at first two positions (right justified)
+							# ie. Calcium should be "CA  "
+							#     C alpha should be " CA "
+							if( length($element) == 2 ) { 
+								$atom_line .= sprintf("%-4s", $atom->id);
+							} else {
+								$atom_line .= sprintf(" %-3s", $atom->id);
+							}
+						} else { # old behaviour do a best guess
+							if ($atom->id =~ /^\dH/) { # H: four positions, left justified
+								$atom_line .= sprintf("%-4s", $atom->id);
+							} elsif (length($atom_id) == 4) {
+								if ($atom_id =~ /^(H\d\d)(\d)$/) {  # turn H123 into 3H12
+									$atom_line .= $2.$1;
+								} else {	# no more guesses, no more alternatives
+									$atom_line .= $atom_id;
+								}
+							} else { # if we get here and it is not correct let me know
+								$atom_line .= sprintf(" %-3s", $atom->id);
+							}
+						}
 					}
 					# we don't do alternate location at this moment
 					$atom_line .= " "; 				# 17
@@ -774,7 +817,9 @@ $self->debug("model_id: $model->id chain_id: $chain_id\n");
 					$atom_line .= sprintf("%6.2f", $atom->occupancy); # 55-60
 					$atom_line .= sprintf("%6.2f", $atom->tempfactor); # 61-66
 					$atom_line .= "      ";				# 67-72
-					$atom_line .= "    ";		# seqID deprecated 73-76
+					$atom_line .= $atom->segID ? 			# segID 73-76
+							sprintf("%-4s",  $atom->segID) :
+							"    ";
 					$atom_line .= $atom->element ? 
 							sprintf("%2s", $atom->element) :
 							"  ";
@@ -785,8 +830,8 @@ $self->debug("model_id: $model->id chain_id: $chain_id\n");
 					$self->_print($atom_line,"\n");
 				}
 			}
-			# write out TER record if previous was not HOH
-			if ($resname ne "HOH") {
+			# write out TER record if it hasn't been written yet
+			if ( $resname ne "HOH" && ! $wr_ter ) {
 				my $ter_line = "TER   ";
 				$ter_line .= sprintf("%5d", $atom_serial + 1);
 				$ter_line .= "      ";
@@ -796,6 +841,7 @@ $self->debug("model_id: $model->id chain_id: $chain_id\n");
 				$ter_line .= $atom_icode ? $atom_icode : " "; # 27
 				$ter_line .= " " x (80 - length $ter_line);  # extend to 80 chars
 				$self->_print($ter_line,"\n");
+				$wr_ter = 1;
 			}
 		}
 		if ($struc->get_models > 1) { # we need ENDMDL
@@ -1123,10 +1169,11 @@ $self->debug("_read_PDB_coor: parsing model $model_num\n");
 				$old = 1;
 			}
 		} 
-
+		# old hier ook setten XXX
 		# ATOM lines, if first set chain
 		if (/^(ATOM |HETATM|SIGATM)/) {
 			my @line_elements = unpack $atom_unpack, $_;
+			my $pdb_atomname = $line_elements[1]; # need to get this before removing spaces
 			for my $k (0 .. $#line_elements) {
 				$line_elements[$k] =~ s/^\s+//; # remove leading space
 				$line_elements[$k] =~ s/\s+$//; # remove trailing space
@@ -1164,6 +1211,7 @@ $self->debug("_read_PDB_coor: parsing model $model_num\n");
 				$atom = Bio::Structure::Atom->new;
 				$struc->add_atom($residue,$atom);
 				$atom->id($atomname);
+				$atom->pdb_atomname($pdb_atomname); # store away PDB atomname for writing out
 				$atom->serial($serial);
 				$atom->icode($icode);
 				$atom->x($x);
@@ -1171,7 +1219,7 @@ $self->debug("_read_PDB_coor: parsing model $model_num\n");
 				$atom->z($z);
 				$atom->occupancy($occupancy);
 				$atom->tempfactor($tempfactor);
-				# ? segment ID ? $seqID (deprecated)
+				$atom->segID($segID); # deprecated but used by people
 				if (! $old ) {
 					$atom->element($element);
 					$atom->charge($charge);
@@ -1319,20 +1367,24 @@ $self->debug("ann_string: $ann_string\n");
 			my $cont_number = 2;
 			my $out_line;
 			my $num_pos = $rol_length;
-			for (my $i = 0; $i < $ann_length; $i += $num_pos ) { 
+			my $i = 0;
+			while( $i < $ann_length ) { 
 				$t_string = substr($ann_string, $i, $num_pos);
 $self->debug("t_string: $t_string~~$i $num_pos\n");
 				if ($first_line) {
 					$out_line = $name . " " x ($rol_begin - $c_begin) . $t_string;
 					$out_line .= " " x (80 - length($out_line) ) . "\n";
 					$first_line = 0;
-					if ($rol_begin - $c_end == 1) {
+					$output_string = $out_line;
+					$i += $num_pos;	# first do counter
+					if ($rol_begin - $c_end == 1) { # next line one character less
 						$num_pos--;
 					}
-					$output_string = $out_line;
 				} else {
 					$out_line = $name . sprintf("%2d",$cont_number);
-					if ($rol_begin - $c_end == 1) {  # no space
+					# a space after continuation number
+					if ($rol_begin - $c_end == 1) {  # one space after cont number
+						$out_line .= " ";
 						$out_line .=  $t_string;
 					} else {
 						$out_line .= " " x ($rol_begin - $c_end - 1) . $t_string;
@@ -1340,6 +1392,7 @@ $self->debug("t_string: $t_string~~$i $num_pos\n");
 					$out_line .= " " x (80 -length($out_line) ) . "\n";
 					$cont_number++;
 					$output_string .= $out_line;
+					$i += $num_pos;
 				}
 			}
 		} else { # no continuation
