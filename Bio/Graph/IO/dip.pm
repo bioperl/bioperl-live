@@ -1,4 +1,28 @@
-#!/bin/perl -w
+# $Id$
+#
+# BioPerl module for Bio::Graph::IO::dip
+#
+# You may distribute this module under the same terms as perl itself
+# POD documentation - main docs before the code
+
+=head1 NAME
+
+Bio::Graph::IO::dip - class for parsing interaction data in dip format
+
+=head1 SYNOPSIS
+
+Do not use this module directly, use Bio::Graph::IO, for example:
+
+  my $graph_io = Bio::Graph::IO->new(-format => 'dip',
+                                     -file   => 'data.dip');
+
+=head1 METHODS
+
+The naming system is analagous to the SeqIO system, although usually
+next_network() will be called only once per file.
+
+=cut
+
 package Bio::Graph::IO::dip;
 use vars qw(@ISA $FAC);
 
@@ -10,24 +34,10 @@ use Bio::Annotation::Collection;
 use Bio::Graph::Edge;
 use strict;
 @ISA = qw(Bio::Graph::IO);
+
 BEGIN{
 	$FAC = Bio::Seq::SeqFactory->new(-type=>'Bio::Seq::RichSeq');
 }
-
-=head1    NAME
-
-Bio::Graph::IO::dip - class for parsing interaction data in dip format
-
-=head1    SYNOPSIS
-
-Do not use this module directly, use Bio::Graph::IO.pm instead
-E.g.,
-my $graph_io = Bio::Graph::IO->new(-format=>'dip', -file =>'data.dip');
-
-=head1    METHODS
-
-The naming system is analagous to the SeqIO system, although usually
-next_network() will be called only once per file. 
 
 =head2        next_network
 
@@ -37,7 +47,7 @@ usage       : my $g = $graph_io->next_network();
 arguments   : none
 returns     : a a Bio::Graph::ProteinGraph object
 
-=cut 
+=cut
 
 sub next_network {
 
@@ -106,13 +116,12 @@ sub next_network {
 		  } else {
 			$node2 = $seen_nodes{$n2};
 		}
-		
+
 		## create new edge object based on node, weight. 
 		$graph->add_edge(Bio::Graph::Edge->new( -nodes  => [$node1, $node2],
 									-weight => $score,
 									-id     => $edge_id),
 									);
-
 	}
 
 	## now ensure nodes are accessible by either 1ary or 2ndary ids. 
@@ -127,7 +136,7 @@ sub next_network {
  arguments: a Bio::Graph::ProteinGraph object
  returns  : void
  usage    : $out->write_network($gr);
- 
+
 =cut
 
 sub write_network {
@@ -144,9 +153,9 @@ my @edges = $gr->edges();
 
 #for each edge	
 for my $edge (@edges) {
-	my $str  = "DIP:" .$edge->object_id(). "\t";             #output string
+	my $str  = "DIP:" .$edge->object_id(). "\t"; #output string
 	my @nodes = $edge->nodes();
-	
+
 	# add node ids to string in correct order
 	for my $n (@nodes){
 
@@ -171,10 +180,7 @@ for my $edge (@edges) {
 	$self->_print($str);
  }# next edge
 $self->flush();
-		
 }
-
-
 
 sub _add_db_links {
 	my ($self, $acc, $s1, $p1,  $n1, $g1) = @_;
@@ -193,10 +199,5 @@ sub _add_db_links {
 	}
 	return $ac;
 }
-		
-		
-	
 
 1;
-
-
