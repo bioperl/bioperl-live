@@ -656,7 +656,6 @@ sub bl2seq {
     $self->j($infilename2);	# set file name of first sequence to 
                                 # be aligned to inputfilename2 
                                 # (-j param of bl2seq)
-
     my $blast_report = &_generic_local_blast($self, $executable);    
 }
 #################################################
@@ -737,22 +736,15 @@ sub _runblast {
 # set significance cutoff to set expectation value or default value
 # (may want to make this value vary for different executables)
 
-    if( $self->verbose > 0 ) {
-	open(OUT, $outfile) || $self->throw("cannot open $outfile");
-	while(<OUT>) { $self->debug($_)}
-	close(OUT);
-    }
-    if( $self->_READMETHOD =~ /^Blast|SearchIO/i ) {
-	# Obselete comments below --
-	# If running bl2seq or psiblast (blastpgp with multiple iterations),
-	# the specific parsers for these programs must be used (ie BPbl2seq or
-	# BPpsilite).  Otherwise either the Blast parser or the BPlite
-	# parsers can be selected.
-	# --end obselete comments
-	# Bio::SearchIO can parse bl2seq, blast, and psiblast output
+# If running bl2seq or psiblast (blastpgp with multiple iterations),
+# the specific parsers for these programs must be used (ie BPbl2seq or
+# BPpsilite).  Otherwise either the Blast parser or the BPlite
+# parsers can be selected.
+
+    if ($self->_READMETHOD =~ /^(Blast|SearchIO)/i )  {
 	$blast_obj = Bio::SearchIO->new(-file=>$outfile,
-					-format => 'blast'   ) ;
-    } elsif( $self->_READMETHOD =~ /BPlite/ ) {
+					-format => 'blast' )  ;
+    } elsif( $self->_READMETHOD =~ /BPlite/i ) {
 	if ($executable =~ /bl2seq/i)  {
 	    # Added program info so BPbl2seq can compute strand info
 	    $blast_obj = Bio::Tools::BPbl2seq->new(-file => $outfile,
@@ -769,6 +761,7 @@ sub _runblast {
     } else {
 	$self->warn("Unrecognized readmethod ".$self->_READMETHOD);
     }
+
     return $blast_obj;
 }
 
@@ -789,7 +782,7 @@ sub _runwublast {
     my ($blast_obj,$exe);
     if( ! ($exe = $self->executable($self->p))){
     	$self->warn("cannot find path to $executable");
-      return undef;    
+	return undef;    
     }
     my $commandstring = $exe.  " ".$param_string;
    
@@ -831,9 +824,11 @@ sub _setinput {
 #  $input may be an array of BioSeq objects...
       if (ref($input1) =~ /ARRAY/i ) {
 	  ($fh,$infilename1) = $self->io->tempfile();
-	  $temp =  Bio::SeqIO->new(-fh=> $fh, '-format' => 'Fasta');
+	  $temp =  Bio::SeqIO->new(-fh=> $fh, 
+				   '-format' => 'fasta');
 	  foreach $seq (@$input1) {
 	      unless ($seq->isa("Bio::PrimarySeqI")) {return 0;}
+	      $seq->display_id($seq->display_id);
 	      $temp->write_seq($seq);
 	  }
 	  close $fh;
@@ -851,11 +846,10 @@ sub _setinput {
 	  my $seq_string =  $input1->seq();
 	  $seq_string =~ s/\W+//g; # get rid of spaces in sequence
 	  $input1->seq($seq_string);
-	  $temp =  Bio::SeqIO->new(-fh=> $fh, '-format' => 'Fasta');
+	  $temp =  Bio::SeqIO->new(-fh=> $fh, '-format' => 'fasta');
 	  $temp->write_seq($input1);
 	  close $fh;
 	  undef $fh;
-#		$temp->write_seq($input1);
 	  last SWITCH;
       }
       $infilename1 = 0;		# Set error flag if you get here
@@ -872,7 +866,7 @@ sub _setinput {
 	  $temp =  Bio::SeqIO->new(-fh=> $fh, '-format' => 'Fasta');
 	  $temp->write_seq($input2);
 	  close $fh;
-	  undef $fh;
+	  undef $fh;	  
 	  last SWITCH2;
       }
 # Option for using psiblast's pre-alignment "jumpstart" feature
@@ -931,8 +925,8 @@ sub _setparams {
 
     if ($executable eq 'blastall') {@execparams = @BLASTALL_PARAMS; }
     if ($executable eq 'blastpgp') {@execparams = @BLASTPGP_PARAMS; }
-    if ($executable eq 'bl2seq') {@execparams = @BL2SEQ_PARAMS; }
-    if($executable eq 'wublast') { @execparams = @WUBLAST_PARAMS; }
+    if ($executable eq 'bl2seq')   {@execparams = @BL2SEQ_PARAMS; }
+    if($executable eq 'wublast')   {@execparams = @WUBLAST_PARAMS; }
 
     my $param_string = "";
     for $attr ( @execparams ) {
@@ -1045,14 +1039,6 @@ sub _setparams {
 
 
 =cut
-
-sub DESTROY {
-    my $self= shift;
-    unless ( $self->save_tempfiles ) {
-	$self->cleanup();
-    }
-    $self->SUPER::DESTROY();
-}
 
 1;
 __END__
