@@ -390,10 +390,8 @@ sub newFh {
  Example : $fh = $obj->fh;      # make a tied filehandle
            $sequence = <$fh>;   # read a sequence object
            print $fh $sequence; # write a sequence object
- Returns : filehandle tied to the Bio::SeqIO::Fh class
- Args    :
-
-See L<Bio::SeqIO::Fh>
+ Returns : filehandle tied to Bio::SeqIO class
+ Args    : none
 
 =cut
 
