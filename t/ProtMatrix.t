@@ -17,7 +17,7 @@ BEGIN {
    use Test;
 
    # fix this
-   plan tests => 11;
+   plan tests => 14;
 }
 
 use Bio::Matrix::PSM::ProtMatrix;
