@@ -23,11 +23,10 @@
 BEGIN { $| = 1; print "1..9\n";
 	use vars qw($loaded); }
 # Modify following line as required to point to tcoffee program directory on your system
-BEGIN { 
-	
-}
 
-END {print "not ok 1\n" unless $loaded;}
+END {print "not ok 1\n" unless $loaded;
+    unlink( qw(cysprot.dnd cysprot1a.dnd) );
+}
 
 use Bio::Tools::Alignment::TCoffee;
 use Bio::SimpleAlign;
