@@ -32,9 +32,12 @@ o System requirements
 
    Set the Bioperl repository, find Bioperl, install Bioperl:
 
-   PPM>repository set <number>
+   PPM>repository set <Bioperl repository number>
    PPM>search *
-   PPM>install <bioperl package>
+   PPM>install <bioperl package number>
+  
+   As of this writing the Bundle::BioPerl bundle is not found in any
+   ActiveState package, we are working to fix this.
 
  - Additional information using Bioperl with MacOS can be 
    found at http://bioperl.org/Core/mac-bioperl.html
