@@ -859,7 +859,15 @@ $query_obj = Bio::DB::Query::GenBank->new(-db    => 'nucleotide',
 		                          -query => $query ); 
 		</programlisting>
 	 </para>
-<para></para>
+	 <para></para>
+	 <note>
+		<para>
+		  This capability to query by string and field is only available
+		  for GenBank as of Bioperl version 1.5, queries to other
+		  databases, like Swissprot or EMBL, are limited to identifiers
+		  and accessions.
+		</para>
+	 </note>
 	 <para>
 		That is how we would construct a query object, but we
 		haven't retrieved sequences yet. To do so we will have to create
@@ -1753,7 +1761,8 @@ $seq_obj = $inx->fetch($id)
 	 <para>
 		By default the fasta indexing code will use the string following the 
 		<emphasis>&gt;</emphasis> character as a key, meaning that 
-		fasta header line should look something like this:
+		fasta header line should look something like this if you want to
+		<function>fetch</function> using the value "48882":
 	 </para>
 	 <para>
 		<programlisting>
@@ -1763,7 +1772,7 @@ $seq_obj = $inx->fetch($id)
 	 <para></para>
 	  <para>
 		However, what if you wanted to retrieve using some other key,
-		like "1CRA" in this example? You can customize the index by 
+		like "1CRA" in the example above? You can customize the index by 
 		using 
 <ulink
 		url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Index/Fasta.html"><citetitle>Bio::Index::Fasta</citetitle></ulink>'s 

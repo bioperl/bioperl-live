@@ -105,8 +105,8 @@
     <para>
       A central idea in OOP is inheritance,
       which means that a child object can derive some of its 
-      capabilities from a parent object. The OOP approach also allows 
-      new modules to 
+      capabilities or functionality from a parent object. The OOP 
+		approach also allows new modules to 
       modify or add functionality, distinct from the parent. Practically
       speaking this means that there's not one definitive SeqFeature
       or Annotation object but many, each a variation on a theme. The
