@@ -211,24 +211,24 @@ sub _parse_genes {
     my ($self) = @_;
     my @genes;
     local ($/) = "//";
-    my ($score,$prot_id,$target_id,$junk);
+    my ($score,$prot_id,$target_id);
 
     while ( defined($_ = $self->_readline) ) {
       	$self->debug( $_ ) if( $self->verbose > 0);
-        ($score) = $_=~ m/Score\s+(\d+[\.][\d]+)/;
+        ($score) = $_=~ m/Score\s+(\d+[\.][\d]+)/o;
         $self->_score($score) unless defined $self->_score;
-        ($junk,$prot_id) = $_=~ m/Query (protein|model):\s+(\S+)/;
+        ($prot_id) = $_=~ m/Query (?:protein|model):\s+(\S+)/o;
         $self->_prot_id($prot_id) unless defined $self->_prot_id;
-        ($target_id) = $_=~  m/Target Sequence\s+(\S+)/;	
+        ($target_id) = $_=~  m/Target Sequence\s+(\S+)/o;	
         $self->_target_id($target_id) unless defined $self->_target_id;
-        next unless /Gene\s+\d+\n/;
+        next unless /Gene\s+\d+\n/o;
 
         my @genes_txt = split(/Gene\s+\d+\n/);
         shift @genes_txt; #remove first empty entry
        
         foreach my $gene_txt(@genes_txt){
           # If genewise has assigned a strand to the gene as a whole
-          my ($g_start, $g_end, $type) = $gene_txt =~ m/Gene\s+(\d+)\s+(\d+)\s+(?:\[(\w+)\])?/;
+          my ($g_start, $g_end, $type) = $gene_txt =~ m/Gene\s+(\d+)\s+(\d+)\s+(?:\[(\w+)\])?/o;
           my $g_strand;
           my $source_tag = $type ? "$Srctag". "_$type" : $Srctag;
           my $genes = new Bio::SeqFeature::Gene::GeneStructure(-source => $source_tag);
@@ -246,7 +246,7 @@ sub _parse_genes {
           my $nbr = 1;
           #loop through each exon-supporting feature pair
           foreach my $e (@exons){
-      	    my ($e_start,$e_end,$phase) = $e =~ m/Exon\s+(\d+)\s+(\d+)\s+phase\s+(\d+)/;
+      	    my ($e_start,$e_end,$phase) = $e =~ m/Exon\s+(\d+)\s+(\d+)\s+phase\s+(\d+)/o;
       	    my $e_strand;
       	    ($e_start,$e_end,$e_strand) = $self->_get_strand($e_start,$e_end);
       	    $transcript->strand($e_strand) unless $transcript->strand != 0;
@@ -265,10 +265,12 @@ sub _parse_genes {
 		$exon->add_tag_value('Target',"Protein:".$self->_prot_id);
        	    }
       	    $exon->add_tag_value("Exon",$nbr++);
-	    if( $e =~ m/Supporting\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)/) {
-		my ($geno_start,$geno_end, $prot_start, $prot_end) = ($1,$2,$3,$4);
+	    if( $e =~ m/Supporting\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)/o) {
+		my ($geno_start,$geno_end,
+		    $prot_start, $prot_end) = ($1,$2,$3,$4);
 		my $prot_strand;
-		($prot_start,$prot_end,$prot_strand) = $self->_get_strand($prot_start,$prot_end);
+		($prot_start,$prot_end,
+		 $prot_strand) = $self->_get_strand($prot_start,$prot_end);
 		my $pf = new Bio::SeqFeature::Generic
 		    ( -start   => $prot_start, 
 		      -end     => $prot_end,
@@ -278,7 +280,8 @@ sub _parse_genes {
 		      -source  => $source_tag,
 		      -primary_tag => 'supporting_protein_feature',);
 		my $geno_strand;
-		($geno_start,$geno_end,$geno_strand) = $self->_get_strand($geno_start,$geno_end);
+		($geno_start,$geno_end,
+		 $geno_strand) = $self->_get_strand($geno_start,$geno_end);
 		my $gf = new Bio::SeqFeature::Generic 
 		    ( -start   => $geno_start,
 		      -end     => $geno_end,
