@@ -35,7 +35,7 @@ ok $blast = Bio::Tools::Blast->new(-file   =>Bio::Root::IO->catfile("t","blast.r
 					);
 ok $blast->display();
 ok $blast->is_signif;
-ok $blast->signif, '1.0e-05', "Signif: ".$blast->signif;
+ok $blast->signif == 1e-05, 1, "Signif: ".$blast->signif;
 ok $blast->num_hits, 4;
 ok $blast->length, 504;
 ok $blast->program, 'TBLASTN';
