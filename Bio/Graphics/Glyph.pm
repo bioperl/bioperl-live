@@ -324,8 +324,8 @@ sub connector {
 #              0    no bumping
 #              +1   bump down
 #              -1   bump up
-#              +2   simple bump up
-#              -2   simple bump down
+#              +2   simple (hyper) bump up
+#              -2   simple (hyper) bump down
 sub bump {
   my $self = shift;
   return $self->option('bump');

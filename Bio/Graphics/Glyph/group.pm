@@ -25,6 +25,15 @@ sub new {
   $self;
 }
 
+# don't allow simple bumping in groups -- it looks terrible...
+sub bump {
+  my $bump = shift->SUPER::bump(@_);
+  return unless defined $bump;
+  return 1  if $bump > 1;
+  return -1 if $bump < 1;
+  return $bump;
+}
+
 #sub layout_width {
 #  my $self = shift;
 #  my @parts = $self->parts or return $self->SUPER::layout_width;
