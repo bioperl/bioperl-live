@@ -323,6 +323,16 @@
 		usually the script or the error messages. If you give enough 
 		information you will get help.
     </para>
+	 <note>
+		<para>
+		  And every once in a while, not often, an email will go
+		  unanswered just because the
+		  the tone of the email is unpleasant. Bioperl
+		  is a 100% volunteer effort, we all have full-time jobs, 
+		  complaining about bugs or lack of
+		  documentation is not the way to make friends!
+		</para>
+	 </note>
   </section>
 
   <section id="perl">
@@ -494,20 +504,28 @@ use Bio::Seq;
 
 use Bio::Seq;
 		
-$seq_obj = Bio::Seq->new(-seq => "aaaatgggggggggggccccgtt");
+$seq_obj = Bio::Seq->new(-seq => "aaaatgggggggggggccccgtt"
+                         -alphabet => 'dna' );
 		</programlisting>
     </para>
-<para></para>
+	 <para></para>
 	 <para>
 		That's it! The variable <varname>$seq_obj</varname> is the
 		Sequence object, a simple one, containing just a sequence.
+		Note that the code tells Bioperl that the sequence is DNA
+		(the choices here are 'dna', 'rna', and 'protein'), this is
+		the wise thing to do. If you don't tell Bioperl it will attempt 
+		to guess the alphabet. Normally it guesses correctly but if your sequence
+		has lots of odd or ambiguous characters, such as N or X,
+		Bioperl's guess may be incorrect and this may lead to some
+		problems.
 	 </para>
-		<para>
-			 <ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Seq.html"><citetitle>Bio::Seq</citetitle></ulink> objects can be created manually, as above, but
-			 they're also create automatically in many operations
-			 in Bioperl, for example when alignment files or database
-			 entries or BLAST reports are parsed.
-		</para>      
+	 <para>
+		<ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Seq.html"><citetitle>Bio::Seq</citetitle></ulink> objects can be created manually, as above, but
+		they're also create automatically in many operations
+		in Bioperl, for example when alignment files or database
+		entries or BLAST reports are parsed.
+	 </para>      
 	 <para>
 		Any time you explicitly create an object, you
 		will use this <function>new()</function> method. The syntax of this
@@ -545,7 +563,8 @@ $seq_obj = Bio::Seq->new(-seq => "aaaatgggggggggggccccgtt");
 
 use Bio::Seq;
 		
-$seq_obj = Bio::Seq->new(-seq => "aaaatgggggggggggccccgtt");
+$seq_obj = Bio::Seq->new(-seq => "aaaatgggggggggggccccgtt",
+		         -alphabet => 'dna' );
 
 print $seq_obj->seq;
 		</programlisting>
@@ -571,7 +590,8 @@ use Bio::Seq;
 		
 $seq_obj = Bio::Seq->new(-seq => "aaaatgggggggggggccccgtt",
 		         -display_id => "#12345",
-		         -desc => "example 1" );
+		         -desc => "example 1",
+                         -alphabet => "dna" );
 
 print $seq_obj->seq();
 		</programlisting>
@@ -636,7 +656,8 @@ use Bio::SeqIO;
 
 $seq_obj = Bio::Seq->new(-seq => "aaaatgggggggggggccccgtt",
 		         -display_id => "#12345",
-		         -desc => "example 1" );
+		         -desc => "example 1",
+                         -alphabet => "dna" );
 
 $seqio_obj = Bio::SeqIO->new(-file => '>sequence.fasta', 
 	                     -format => 'fasta' );
@@ -646,7 +667,8 @@ $seqio_obj->write_seq($seq_obj);
 	 </para> 
 <para></para>
 	 <para>
-		Let's consider that last line where you see two objects since 
+		Let's consider that last <function>write_seq</function>
+		line where you see two objects since 
 		this is where some  
 		neophytes start to get a bit nervous. What's going on there? In that
 		line we handed or passed the Sequence object to the SeqIO object as an
@@ -674,7 +696,7 @@ aaaatgggggggggggccccgtt
 	 </para>
 <para></para>
 	 <para>
-		Let's demonstrate the intelligence of the SeqIO object - the example
+		Let's demonstrate the intelligence of the SeqIO - the example
 		below shows what file content is created when the argument to
 		"-format" is set to "genbank" instead of "fasta":
 	 </para>
@@ -719,7 +741,7 @@ ORIGIN
 
 use Bio::SeqIO;
 
-$seqio_obj = Bio::SeqIO->new(-file => "sequence.fa",
+$seqio_obj = Bio::SeqIO->new(-file => "sequence.fasta",
                              -format => "fasta" );
 		</programlisting>
 	 </para>
@@ -738,7 +760,7 @@ $seqio_obj = Bio::SeqIO->new(-file => "sequence.fa",
 
 use Bio::SeqIO;
 
-$seqio_obj = Bio::SeqIO->new(-file => "sequence.fa",
+$seqio_obj = Bio::SeqIO->new(-file => "sequence.fasta",
                              -format => "fasta" );
 		  
 $seq_obj = $seqio_obj->next_seq;
@@ -756,9 +778,11 @@ $seq_obj = $seqio_obj->next_seq;
 		to the Sequence object we created manually in our first example.
 		This is another idiom that's used frequently in Bioperl, the
 		next_&lt;something&gt; method. You'll come across the same idea
-		in the <function>next_aln</function> method of AlignIO (reading and 
+		in the <function>next_aln</function> method of 
+<ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/AlignIO.html"><citetitle>AlignIO</citetitle></ulink> (reading and 
 		writing alignment files) and 
-		the <function>next_hit</function> method of SearchIO (reading 
+		the <function>next_hit</function> method of 
+<ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SearchIO.html"><citetitle>SearchIO</citetitle></ulink> (reading 
 		the output of sequence comparison programs such as BLAST and 
 		HMMER).
 	 </para>
@@ -783,7 +807,7 @@ while ($seq_obj = $seqio_obj->next_seq){
 		to do. If you don't give a format then the SeqIO object will 
 		try to determine the format from the file suffix or extension 
 		(and a list of the file extensions is in the  
-		<ulink url="http://bioperl.org/HOWTOs/SeqIO/index.html"><citetitle>SeqIO HOWTO</citetitle></ulink>). In fact, the suffix "fa" is one that
+		<ulink url="http://bioperl.org/HOWTOs/SeqIO/index.html"><citetitle>SeqIO HOWTO</citetitle></ulink>). In fact, the suffix "fasta" is one that
 		SeqIO understands, so "-format" is unnecessary above. Without a known
 		suffix SeqIO will attempt to guess the format based on the 
 		file's contents but there's no guarantee that it can guess
@@ -868,6 +892,7 @@ $query_obj = Bio::DB::Query::GenBank->new(-db    => 'nucleotide',
 		  and accessions.
 		</para>
 	 </note>
+	 <para></para>
 	 <para>
 		That is how we would construct a query object, but we
 		haven't retrieved sequences yet. To do so we will have to create
@@ -879,7 +904,7 @@ $query_obj = Bio::DB::Query::GenBank->new(-db    => 'nucleotide',
 use Bio::DB::GenBank;
 use Bio::DB::Query::GenBank;
 
-$query = "Arabidopsis[ORGN] AND topoisomerase[TITL]";
+$query = "Arabidopsis[ORGN] AND topoisomerase[TITL] and 0:3000[SLEN]";
 $query_obj = Bio::DB::Query::GenBank->new(-db    => 'nucleotide',
 		                          -query => $query ); 
 
@@ -1010,7 +1035,7 @@ $seq_obj->seq("MMTYDFFFFVVNNNNPPPPAAAW");
 				  <entry>length</entry>
 				  <entry>length, a number</entry>
 				  <entry>$len = $so->length</entry>
-				  <entry></entry>
+				  <entry>get the length</entry>
 				</row>
 				<row>
 				  <entry>alphabet</entry>
