@@ -20,7 +20,7 @@ BEGIN {
 	use lib 't';
     }
     use vars qw($NTESTS);
-    $NTESTS = 615;
+    $NTESTS = 616;
     $LASTXMLTEST = 54;
     $error = 0;
 
@@ -554,6 +554,8 @@ while( my $hit = $result->next_hit ) {
 	    # is we are calculating average percent id
 	    ok(sprintf("%.2f",$hsp->get_aln->overall_percentage_identity()),
 	       '51.77');
+	    ok(sprintf("%.2f",$hsp->get_aln->average_percentage_identity()),
+	       '58.41');
 	}
     }
     last if( $count++ > @valid );
