@@ -12,7 +12,7 @@ See L<Bio::DB::GFF>.
 
 Bio::DB::GFF::Feature is a stretch of sequence that corresponding to a
 single annotation in a GFF database.  It inherits from
-Bio::DB::GFF::RelSegment, and so has all the support for relative
+Bio::DB::GFF::Segment, and so has all the support for relative
 addressing of this class and its ancestors.  It also inherits from
 Bio::SeqFeatureI and so has the familiar start(), stop(),
 primary_tag() and location() methods (it implements Bio::LocationI
@@ -35,7 +35,7 @@ Bioperl modules.
 
 Generally, you will not create or manipulate Bio::DB::GFF::Feature
 objects directly, but use those that are returned by the
-Bio::DB::GFF::RelSegment-E<gt>features() method.
+Bio::DB::GFF::Segment-E<gt>features() method.
 
 =head2 Important note about start() vs end()
 
@@ -82,7 +82,6 @@ use Bio::DB::GFF::Typename;
 use Bio::DB::GFF::Homol;
 use Bio::LocationI;
 
-*segments = \&sub_SeqFeature;
 my %CONSTANT_TAGS = (method=>1, source=>1, score=>1, phase=>1, notes=>1, id=>1, group=>1);
 
 =head2 new_from_parent
@@ -98,11 +97,11 @@ This method is called by Bio::DB::GFF to create a new feature using
 
 information obtained from the GFF database.  It is one of two similar
 constructors.  This one is called when the feature is generated from a
-RelSegment object, and should inherit that object's coordinate system.
+Segment object, and should inherit that object's coordinate system.
 
 The 14 arguments are positional (sorry):
 
-  $parent       a Bio::DB::GFF::RelSegment object (or descendent)
+  $parent       a Bio::DB::GFF::Segment object (or descendent)
   $start        start of this feature
   $stop         stop of this feature
   $method       this feature's GFF method
@@ -125,7 +124,7 @@ information is embedded in the group object.
 # this is called for a feature that is attached to a parent sequence,
 # in which case it inherits its coordinate reference system and strandedness
 sub new_from_parent {
-  my $package   = shift;
+  my $pack   = shift;
   my ($parent,
       $start,$stop,
       $method,$source,$score,
@@ -133,25 +132,44 @@ sub new_from_parent {
       $group,$db_id,$group_id,
       $tstart,$tstop) = @_;
 
+  if( $start > $stop ) {
+    $fstrand = '-';
+  }
   ($start,$stop) = ($stop,$start) if defined($fstrand) and $fstrand eq '-';
+  unless( defined( $fstrand ) ) {
+    $fstrand = 0;
+  }
   my $class = $group ? $group->class : $parent->class;
 
+  # The given parent is a Segment, but we want the factory aka
+  # parent_segment_provider to be the GFF object at the top (grandad,
+  # probably).
+  my $seq_id = $parent;
+  while( $parent && ref( $parent ) && !$parent->isa( 'Bio::DB::GFF' ) ) {
+    last unless( $parent->can( 'factory' ) );
+    $parent = $parent->factory();
+  }
+
   my %args =
-    { '-seq_id' => $parent,
-      '-start' => $start,
-      '-end' => $stop,
-      '-strand' => $fstrand,
+    ( '-seq_id' => $seq_id,
+      '-start' => $seq_id->abs2rel( $start ),
+      '-end' => $seq_id->abs2rel( $stop ),
+      '-strand' => $seq_id->abs2rel_strand( $fstrand ),
       '-absolute' => $parent->absolute(),
       '-type' => Bio::DB::GFF::Typename->new( $method, $source ),
-      '-parent' => $parent
-    };
-  my $self = $package->SUPER::new( %args );
-  my $self->{ 'score' } = $score;
-  my $self->{ 'phase' } = $phase;
-  my $self->{ 'group' } = $group;
-  my $self->{ 'db_id' } = $db_id;
-  my $self->{ 'group_id' } = $group_id;
-  my $self->{ 'class' } = $class;
+      '-parent' => $parent,
+      '-orientation_policy' => 'dependent'
+    );
+  my $self = $pack->SUPER::new( %args );
+  $self->{ 'score' } = $score;
+  $self->{ 'phase' } = $phase;
+  $self->{ 'group' } = $group;
+  $self->{ 'db_id' } = $db_id;
+  $self->{ 'group_id' } = $group_id;
+  $self->{ 'class' } = $class;
+  # Default to sorted
+  $self->sorted( 1 );
+
   return $self;
 } # new_from_parent(..)
 
@@ -167,7 +185,7 @@ sub new_from_parent {
 This method is called by Bio::DB::GFF to create a new feature using
 information obtained from the GFF database.  It is one of two similar
 constructors.  This one is called when the feature is generated
-without reference to a RelSegment object, and should therefore use its
+without reference to a Segment object, and should therefore use its
 default coordinate system (relative to itself).
 
 The 14 arguments are positional:
@@ -196,7 +214,7 @@ information is embedded in the group object.
 # 'This is called when creating a feature from scratch.  It does not have
 # an inherited coordinate system.
 sub new {
-  my $package = shift;
+  my $pack = shift;
   my ($factory,
       $srcseq,
       $start,$stop,
@@ -205,27 +223,87 @@ sub new {
       $group,$db_id,$group_id,
       $tstart,$tstop) = @_;
 
+  if( $start > $stop ) {
+    $fstrand = '-';
+  }
   ($start,$stop) = ($stop,$start) if defined($fstrand) and $fstrand eq '-';
+  unless( defined( $fstrand ) ) {
+    $fstrand = 0;
+  }
   my $class =  $group ? $group->class : 'Sequence';
 
   my %args =
-    { '-seq_id' => $srcseq,
+    ( '-seq_id' => $srcseq,
       '-start' => $start,
       '-end' => $stop,
       '-strand' => $fstrand,
-      '-absolute' => $factory->absolute(),
+      '-absolute' => ( defined( $factory ) ? $factory->absolute() : undef ),
       '-type' => Bio::DB::GFF::Typename->new( $method, $source ),
-      '-parent' => $factory
-    };
-  my $self = $package->SUPER::new( %args );
-  my $self->{ 'score' } = $score;
-  my $self->{ 'phase' } = $phase;
-  my $self->{ 'group' } = $group;
-  my $self->{ 'db_id' } = $db_id;
-  my $self->{ 'group_id' } = $group_id;
-  my $self->{ 'class' } = $class;
+      '-parent' => $factory,
+      '-orientation_policy' => 'dependent'
+    );
+  my $self = $pack->SUPER::new( %args );
+  $self->{ 'score' } = $score;
+  $self->{ 'phase' } = $phase;
+  $self->{ 'group' } = $group;
+  $self->{ 'db_id' } = $db_id;
+  $self->{ 'group_id' } = $group_id;
+  $self->{ 'class' } = $class;
   return $self;
 } # new(..)
+
+=head2 new_from_segment
+
+ Title   : new_from_segment
+ Usage   : $s = Bio::DB::GFF::Feature->new_from_segment( $copy_from )
+ Function: create a new L<Bio::DB::GFF::Segment>
+ Returns : A new L<Bio::DB::GFF::Segment> object
+ Args    : Another L<Bio::DB::GFF::Segment> object
+ Status  : Protected
+
+  This constructor is used internally by the subseq() method.  It forces
+  the new segment into the L<Bio::DB::GFF::Segment> package, regardless
+  of the package that it is called from.  This causes subclass-specific
+  information, such as feature types, to be dropped when a subsequence
+  is created.
+
+  This also does not copy into the new segment the features held in
+  the existing segment.  If you would like the new segment to hold the
+  same features you must explicitly add them, like so:
+    $new_segment->add_features( $copy_from->features() );
+
+  As a special bonus you may also pass an existing hash and it will be the
+  blessed an anointed object that is returned, like so:
+    $new_segment =
+      Bio::DB::GFF::Segment->new_from_segment(
+        $copy_from,
+        $new_segment
+      );
+
+  This delegates explicitly to the L<Bio::DB::GFF::Segment> superclass
+  method of the same name.
+
+=cut
+
+## This method is here because a method of the same name exists in
+## both superclasses, and we want to use the Bio::DB::GFF::Segment
+## one..
+sub new_from_segment {
+  shift->Bio::DB::GFF::Segment::new_from_segment( @_ );
+} # new_from_segment(..)
+
+## These methods are here because a method of the same name exists in
+## both superclasses, and we want to use the Bio::DB::GFF::Segment
+## one..
+sub seq {
+  shift->Bio::DB::GFF::Segment::dna( @_ );
+} # seq(..)
+sub dna {
+  shift->Bio::DB::GFF::Segment::dna( @_ );
+} # dna(..)
+sub protein {
+  shift->Bio::DB::GFF::Segment::dna( @_ );
+} # protein(..)
 
 =head2 method
 
@@ -781,10 +859,12 @@ is called by the overloaded "" operator.
 
 sub asString {
   my $self = shift;
-  my $type = $self->type;
-  my $name = $self->group;
-  return "$type($name)" if $name;
-  return $type;
+  ## TODO: REMOVE?
+  return $self->Bio::SeqFeatureI::toString();
+##  my $type = $self->type;
+##  my $name = $self->group;
+##  return "$type($name)" if $name;
+##  return $type;
 #  my $type = $self->method;
 #  my $id   = $self->group || 'unidentified';
 #  return join '/',$id,$type,$self->SUPER::asString;
@@ -834,7 +914,7 @@ sub gff_string {
 The current default aggregator for GFF "similarity" features creates a
 composite Bio::DB::GFF::Feature object of type "gapped_alignment".
 The target() method for the feature as a whole will return a
-RelSegment object that is as long as the extremes of the similarity
+Segment object that is as long as the extremes of the similarity
 hit target, but will not necessarily be the same length as the query
 sequence.  The length of each "similarity" subfeature will be exactly
 the same length as its target().  These subfeatures are essentially
@@ -871,7 +951,7 @@ This module is still under development.
 
 =head1 SEE ALSO
 
-L<bioperl>, L<Bio::DB::GFF>, L<Bio::DB::RelSegment>
+L<bioperl>, L<Bio::DB::GFF>, L<Bio::DB::Segment>
 
 =head1 AUTHOR
 

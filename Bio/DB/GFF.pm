@@ -443,20 +443,21 @@ package Bio::DB::GFF;
 
 use strict;
 
-use Bio::DB::GFF::Util::Rearrange;
-use Bio::DB::GFF::RelSegment;
-use Bio::DB::GFF::Feature;
-use Bio::DB::GFF::Aggregator;
-use Bio::DasI;
 use Bio::Root::Root;
+use Bio::DB::GFFI;
 
-use vars qw($VERSION @ISA);
-@ISA = qw(Bio::Root::Root Bio::DasI);
+use vars qw( $VERSION @ISA );
+@ISA = qw( Bio::Root::Root Bio::DB::GFFI );
 
 $VERSION = '1.04';
-my %valid_range_types = (overlaps     => 1,
-			 contains     => 1,
-			 contained_in => 1);
+
+use Bio::DB::GFF::Util::Rearrange;
+use Bio::DB::GFF::Feature;
+use Bio::DB::GFF::Aggregator;
+
+my %valid_range_types = ( overlaps     => 1,
+			  contains     => 1,
+			  contained_in => 1 );
 
 =head1 Querying GFF Databases
 
@@ -579,8 +580,8 @@ sub new {
   # default settings go here.....
   $self->automerge(1);  # set automerge to true
 
-  $self;
-}
+  return $self;
+} # new(..)
 
 
 =head2 types
@@ -783,8 +784,10 @@ a scalar context.
 
 sub segment {
   my $self = shift;
-  my @segments =  Bio::DB::GFF::RelSegment->new(-factory => $self,
-						$self->setup_segment_args(@_));
+  my @segments =  Bio::DB::GFF::Segment->new(
+    '-factory' => $self,
+    $self->setup_segment_args( @_ )
+  );
   foreach (@segments) {
     $_->absolute(1) if $self->absolute;
   }
@@ -987,7 +990,7 @@ sub get_feature_by_name {
   my @aggregators;
   if ($automerge) {
     for my $a ($self->aggregators) {
-      push @aggregators,$a if $a->disaggregate([],$self);
+      push @aggregators,$a if $a->disaggregate_types([],$self);
     }
   }
 
@@ -1050,7 +1053,7 @@ sub get_feature_by_attribute {
   my @aggregators;
   if ($self->automerge) {
     for my $a ($self->aggregators) {
-      unshift @aggregators,$a if $a->disaggregate([],$self);
+      unshift @aggregators,$a if $a->disaggregate_types([],$self);
     }
   }
 
@@ -1850,11 +1853,11 @@ not intended for use by end programmers.
  Args    : name and class of landmark
  Status  : public
 
-This method is called by Bio::DB::GFF::RelSegment to obtain the
+This method is called by Bio::DB::GFF::Segment to obtain the
 absolute coordinates of a sequence landmark.  The arguments are the
 name and class of the landmark.  If successful, abscoords() returns
 the ID of the reference sequence, its class, its start and stop
-positions, and the orientation of the reference sequence's coordinate
+positions, and the orientation of the reference sequence\'s coordinate
 system ("+" for forward strand, "-" for reverse strand).
 
 If $refseq is present in the argument list, it forces the query to
@@ -2180,7 +2183,11 @@ sub dna {
 					     [qw(STOP END)],
     					    'CLASS',
 					   ],@_);
-# return unless defined $start && defined $stop;
+  ## TODO: Is this the right way to handle this?
+  if( defined( $id ) && ref( $id ) && $id->isa( 'Bio::RelRangeI' ) ) {
+    $id = $id->abs_seq_id();
+  }
+  # return unless defined $start && defined $stop;
   $self->get_dna($id,$start,$stop,$class);
 }
 
@@ -2325,7 +2332,7 @@ adaptor it is not used.
 
 =cut
 
-sub get_features{
+sub get_features {
   my $self = shift;
   my ($search,$options,$callback) = @_;
   $self->throw("get_features() must be implemented by an adaptor");
@@ -2551,7 +2558,7 @@ sub get_types {
 
  This takes 14 arguments (really!):
 
-  $parent                A Bio::DB::GFF::RelSegment object
+  $parent                A Bio::DB::GFF::Segment object
   $group_hash            A hashref containing unique list of GFF groups
   $refname               The name of the reference sequence for this feature
   $refclass              The class of the reference sequence for this feature
@@ -2724,7 +2731,7 @@ sub make_match_sub {
   my $sub =<<END;
 sub {
   my \$feature = shift or return;
-  return \$feature->type =~ /^($expr)\$/i;
+  return \$feature->type() =~ /^($expr)\$/i;
 }
 END
   warn "match sub: $sub\n" if $self->debug;
@@ -2827,7 +2834,7 @@ The options hashref contains zero or more of the following keys:
   iterator	if true, return an iterator
 
 The $parent argument is a scalar object containing a
-Bio::DB::GFF::RelSegment object or descendent.
+Bio::DB::GFF::Segment object or descendent.
 
 =cut
 
@@ -2848,7 +2855,7 @@ sub _features {
     for my $a ($self->aggregators) {
       $a = $a->clone if $options->{iterator};
       unshift @aggregators,$a
-	if $a->disaggregate(\@aggregated_types,$self);
+	if $a->disaggregate_types(\@aggregated_types,$self);
     }
   }
 
@@ -2867,7 +2874,19 @@ sub _features {
   my %groups;         # cache the groups we create to avoid consuming too much unecessary memory
   my $features = [];
 
+  ## TODO: Put back
   my $callback = sub { push @$features,$self->make_feature($parent,\%groups,@_) };
+  ## TODO: REMOVE.  Testing.
+  #my $callback = sub {
+  #  my $new_feature = $self->make_feature($parent,\%groups,@_);
+  #  unless( $new_feature->isa( 'Bio::DB::GFF::Feature' ) ) {
+  #    $self->throw( "Internal error: $self->make_feature( $parent, \\\%groups, ".join( ", ", @_ )." ) has returned $new_feature, a ".ref( $new_feature ).".  Expecting a Bio::DB::GFF::Feature." );
+  #  } else {
+  #    ## TODO: REMOVE
+  #    #print STDERR "Hey, got $new_feature.\n";
+  #  }
+  #  push( @$features, $new_feature );
+  #};
   $self->get_features({ %$search,
 			types  => \@aggregated_types },
 		        $options,
@@ -3014,7 +3033,7 @@ fixed.
 =head1 SEE ALSO
 
 L<bioperl>,
-L<Bio::DB::GFF::RelSegment>,
+L<Bio::DB::GFF::Segment>,
 L<Bio::DB::GFF::Aggregator>,
 L<Bio::DB::GFF::Feature>,
 L<Bio::DB::GFF::Adaptor::dbi::mysqlopt>,

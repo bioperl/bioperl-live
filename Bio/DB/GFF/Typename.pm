@@ -160,8 +160,8 @@ sub match {
     ($method,$source) = split /:/,$target;
   }
 
-  return if $method ne '' && $self->method ne '' && $method ne $self->method;
-  return if $source ne '' && $self->source ne '' && $source ne $self->source;
+  return if $method ne '' && $self->method ne '' && lc( $method ) ne lc( $self->method );
+  return if $source ne '' && $self->source ne '' && lc( $source ) ne lc( $self->source );
   1;
 }
 
@@ -173,7 +173,7 @@ This module is still under development.
 
 =head1 SEE ALSO
 
-L<bioperl>, L<Bio::DB::GFF>, L<Bio::DB::RelSegment>
+L<bioperl>, L<Bio::DB::GFF>, L<Bio::DB::Segment>
 
 =head1 AUTHOR
 

@@ -12,7 +12,7 @@ See L<Bio::DB::GFF>.
 
 Bio::DB::GFF::Segment provides the basic representation of a range of
 DNA contained in a GFF database.  It is the base class from which the
-Bio::DB::GFF::RelSegment and Bio::DB::GFF::Feature classes are
+Bio::DB::GFF::Segment and Bio::DB::GFF::Feature classes are
 derived.
 
 Generally, you will not create or manipulate Bio::DB::GFF::Segment
@@ -33,6 +33,8 @@ $VERSION = '0.31';
 
 ## Other imports
 use Bio::Annotation::Collection;
+use Bio::DB::GFF::Util::Rearrange; # for &rearrange
+use Bio::RelRange qw( &absRange &absSeqId &absStart &absEnd &absStrand );
 
 use overload 
   '""'     => 'asString',
@@ -59,34 +61,796 @@ This method creates a new Bio::DB::GFF::Segment object.  Generally
 this is called automatically by the Bio::DB::GFF module and
 derivatives.
 
-There are five positional arguments:
+Arguments may either be in named argument form or positional.
+  There are five positional arguments:
+  
+   $factory      a Bio::DB::GFF::Adaptor to use for database access
+   $sourceclass  class of the source sequence
+   $sourceseq    ID of the source sequence
+   $start        start of the desired segment relative to source sequence
+   $stop         stop of the desired segment relative to source sequence
 
- $factory      a Bio::DB::GFF::Adaptor to use for database access
- $sourceclass  class of the source sequence
- $sourceseq    ID of the source sequence
- $start        start of the desired segment relative to source sequence
- $stop         stop of the desired segment relative to source sequence
+  Named arguments are:
+   -factory    => factory and DBI interface
+   -seq        => seq_id, the sequence or segment that this one is relative to
+   -class      => The namespace of the -seq sequence
+   -start      => start relative to seq_id
+   -stop       => stop relative to seq_id
+   -offset     => 0-based offset relative to seq_id (instead of -start, -stop)
+   -length     => length of segment (instead of -stop; required with -offset)
+   -ref        => new_seq_id, range to re-relativize to after creation
+   -refclass   => The namespace of new_seq_id
+   -absolute   => use absolute coordinate addressing
+   -nocheck    => turn off checking, force segment to be constructed
+=cut
+ 
+sub new {
+  my $pack = shift;
+  $pack = ref $pack if ref $pack;
+
+  my ($parent,$seq_id,$start,$stop,$new_seq_id,$class,$new_class,$offset,$length,$force_absolute,$nocheck);
+  if( scalar( @_ ) && $_[ 0 ] =~ /^-/ ) {
+    ($parent,$seq_id,$start,$stop,$new_seq_id,$class,$new_class,$offset,$length,$force_absolute,$nocheck) =
+      rearrange([
+                  [qw(FACTORY PARENT)],
+                  [qw(NAME SEQ SEQUENCE SOURCESEQ SEQ_ID SEQID)],
+                  [qw(START BEGIN)],
+                  [qw(STOP END)],
+                  [qw(REFSEQ REF REFNAME NEW_SEQ_ID NEWSEQID)],
+                  [qw(CLASS SEQCLASS SEQ_ID_CLASS SEQIDCLASS)],
+                  [qw(REFCLASS NEW_SEQ_ID_CLASS NEWSEQIDCLASS)],
+                  [qw(OFFSET OFF)],
+                  [qw(LENGTH LEN)],
+                  [qw(ABSOLUTE)],
+                  [qw(NOCHECK FORCE)]
+                ], @_ );
+  } else {
+    ( $parent, $class, $seq_id, $start, $stop ) = @_;
+    $force_absolute = 1;
+  }
+
+  unless( defined( $parent ) &&
+          ref( $parent ) &&
+          $parent->isa( 'Bio::DB::GFF' )
+        ) {
+    $pack->throw( "new(): you must provide a factory argument that isa Bio::DB::GFF object.".( defined( $parent ) ? ( ref( $parent ) ? '  The object given is a '.ref( $parent ). '.' : "  The value given, '$parent', is not an object." ) : '  No factory was given.' ) );
+  }
+
+  # support for Featname objects
+  if( ref( $seq_id ) && $seq_id->isa( 'Bio::DB::GFF::Featname' ) ) {
+    $class = $seq_id->class();
+    $seq_id = $seq_id->name();
+  }
+  # if the class of the landmark is not specified then default to 'Sequence'
+  $class ||= 'Sequence';
+
+  # We allow people to use segments as sources.  This is the same as
+  # if the user had done $seq_id->subseq( $start, $stop ) instead,
+  # so we just do that for her.
+  if( ref( $seq_id ) && $seq_id->isa( 'Bio::DB::GFF::Segment' ) ) {
+    unless( defined $start ) {
+      $start = 1;
+    }
+    unless( defined $stop ) {
+      $stop = $seq_id->length();
+    }
+    #return $seq_id->subseq( $start, $stop );
+    my $result = $seq_id->subseq( $start, $stop );
+    unless( $result->isa( 'Bio::DB::GFF::Segment' ) ) {
+      $pack->throw( 'Internal error: The segment created by \$seq_id->subseq( $start, $stop ) is not a Bio::DB::GFF::Segment!  It is a '.ref( $result ).'.  \$seq_id is $seq_id, a '.ref( $seq_id ).'.' );
+    }
+  }
+
+  if( $nocheck ) {
+    $force_absolute++;
+    $start = 1;
+  }
+
+  # Clean up range info
+  my $strand = 1;
+  if( defined $offset ) {
+    if( defined $start ) {
+      warn "new(): bad idea to call new() with both a start and an offset";
+    }
+    $start = $offset + 1;
+  }
+  # An explicit length overrides start and stop
+  if( defined $length ) {
+    if( defined $stop ) {
+      warn "new(): bad idea to call new() with both a stop and a length";
+    }
+    $stop = ( $start + $length - 1 );
+  }
+  if( $stop < $start ) {
+    # Flip and note it in the strand.
+    my $temp = $start;
+    $start = $stop;
+    $stop = $temp;
+    $strand = -1;
+  }
+
+  # It is possible that $seq_id is a range, in which
+  # case all of our start, end, etc. are relative to that.  This next
+  # section uses the database to get the absolute coords of the seq_id
+  # if it is not a range; in
+  # the case that seq_id refers to a sequence, this will just be
+  # 1..sequence_length.  It is even possible that the database will
+  # return multiple possible ranges/sequences that the given
+  # seq_id/class
+  # combination could refer to.  In this case we'll return a list of
+  # multiple new Segment objects, one for each possibility.
+  my @seq_ids;
+  if( ref( $seq_id ) && $seq_id->isa( 'Bio::RangeI' ) ) {
+    push( @seq_ids, $seq_id );
+  } else {
+    # @abscoords is an array ref, each element of which is
+    # ($abs_ref,$abs_class,$abs_start,$abs_stop,$abs_strand,$sname).
+    # That's the format returned by GFF's abscoords(..) method.
+    my @abscoords;
+  
+    if( $force_absolute && defined( $start ) ) {
+      # absolute position is given to us
+      @abscoords = ( [ $seq_id, $class, $start, $stop, '+' ] );
+    } else {
+      my $result =
+        $parent->abscoords(
+          $seq_id,
+          $class,
+          ( $force_absolute ? $seq_id : () )
+        );
+      return unless $result; ## TODO: Complain?  This seems like a big deal 2 me.
+      @abscoords = @$result;
+    }
+  
+    foreach ( @abscoords ) {
+      # This is a possible range for $seq_id, so eg. $seq_id_seq_id is
+      # one possibility for $seq_id's $seq_id.
+      my ( $seq_id_seq_id, $seq_id_class, $seq_id_start,
+           $seq_id_stop, $seq_id_strand, $seq_id_sname ) =
+        @$_;
+      ## TODO: REMOVE?
+      unless( defined( $seq_id_seq_id ) ) {
+        warn "Broken result from the abscoords(..) method: ( ".
+          join( ", ", @$_ )." )";
+        next;
+      }
+
+      unless( defined( $seq_id_sname ) ) {
+        $seq_id_sname = $seq_id; # Yes, $seq_id, not $seq_id_seq_id.
+      }
+      $seq_id_strand ||= '+';
+
+      ## Segment_NamedRelRange is an inner class, defined below.
+      my $a_possible_seq_id = Bio::DB::GFF::Segment_NamedRelRange->new(
+        '-name' => $seq_id_sname,
+        '-seq_id' => $seq_id_seq_id,
+        '-start' => $seq_id_start,
+        '-end' => $seq_id_stop,
+        '-strand' => $seq_id_strand
+      );
+
+      # We're gonna store some extra info in there.  This is kinda
+      # hacky, but hey, this is Perl.  We'll precede all additions
+      # with _gff_, to avoid name clashes.
+
+      # This is how we'll hackily keep track of the class of it.
+      $a_possible_seq_id->{ '_gff_class' } = $seq_id_class;
+      
+      # Apparently "this allows an SQL optimization way down deep" --
+      # when we do end up making a $self, we'll store this temporary
+      # '_gff_whole' value in $self as $self->{ 'whole' }.
+      if( ( $seq_id_seq_id eq $seq_id_sname ) and
+          !defined( $start ) and
+          !defined( $stop )
+        ) {
+        $a_possible_seq_id->{ '_gff_whole' }++;
+      }
+      push( @seq_ids, $a_possible_seq_id );
+    } # End foreach @abscoords
+  } # End building up the list of possible @seq_ids. (if..else..)
+
+  # So we get to return one $self for each possible $seq_id.
+  my @object_results;
+  foreach my $a_possible_seq_id ( @seq_ids ) {
+    # Localize, man.
+    my $a_possible_start = $start;
+    my $a_possible_stop = $stop;
+
+    # If we haven't been given start/stop info we make it the
+    # entirety of the seq.
+    unless( defined $a_possible_start ) {
+      $a_possible_start = 1;
+    }
+    unless( defined $a_possible_stop ) {
+      $a_possible_stop = $a_possible_seq_id->length();
+    }
+
+    # When $force_absolute is given, the coords provided are
+    # interpreted as absolute coords. (I think).
+    # TODO: rerelativize the coords.
+
+    # also TODO: This is what it used to be, and it just doesn't make
+    # any sense to me.
+#    if( $force_absolute ) {
+#      ( $a_possible_start, $a_possible_stop ) =
+#        ( $seq_id->abs_start(), $seq_id->abs_end() );
+#      $a_possible_self->absolute( 1 );
+#    }
+
+    # Make sure that our possible seq_id is rooted at a real sequence.
+    my $sequence_range = $a_possible_seq_id;
+    if( ref( $a_possible_seq_id ) &&
+        $a_possible_seq_id->isa( 'Bio::DB::GFF::Segment_NamedRelRange' ) &&
+        ( $a_possible_seq_id->name() ne $a_possible_seq_id->seq_id() )
+      ) {
+      my $a =
+        $parent->abscoords( $a_possible_seq_id->seq_id(), 'Sequence' );
+      my $seq_start = $a->[ 0 ][ 2 ];
+      my $seq_stop  = $a->[ 0 ][ 3 ];
+      ## Paul's question: why would $seq_start ever not be 1?  How
+      ## should that affect absolute positions?
+      $a_possible_seq_id->seq_id(
+        Bio::RelRange->new(
+          '-seq_id' => $a->[ 0 ][ 0 ],
+          '-start' => $a->[ 0 ][ 2 ],
+          '-end' => $a->[ 0 ][ 3 ],
+          '-strand' => 1,
+          '-orientation_policy' => 'dependent'
+        )
+      );
+      $sequence_range = $a_possible_seq_id->seq_id();
+    } # End if we need to get the root sequence's bounds
+
+    my $a_possible_self = $pack->SUPER::new(
+      '-seq_id' => $a_possible_seq_id,
+      '-start' => $a_possible_start,
+      '-end' => $a_possible_stop,
+      '-strand' => $strand,
+      '-parent' => $parent,
+      '-orientation_policy' => 'dependent'
+    );
+
+    $a_possible_self->{ 'class' } = $class;
+
+    # Handle truncation in either direction.  This only happens if the
+    # segment runs off the end of the reference sequence.
+    if( $parent->strict_bounds_checking() ) {
+      my %truncated;
+      # Skip this possible seq_id if we are completely off the end of
+      # the sequence, 'cause that's, like, impossible.
+      if( ( $a_possible_self->abs_start() > $sequence_range->end() ) ||
+          ( $a_possible_self->abs_end() < $sequence_range->start() ) ) {
+        next;
+      }
+      if( $a_possible_self->abs_start() < $sequence_range->start() ) {
+        $a_possible_self->start(
+          $a_possible_self->abs2rel( $sequence_range->start() )
+        );
+        $truncated{ 'start' }++;
+      }
+      if( $a_possible_self->abs_end() > $sequence_range->end() ) {
+        $a_possible_self->end(
+          $a_possible_self->abs2rel( $sequence_range->end() )
+        );
+        $truncated{ 'stop' }++;
+      }
+      $a_possible_self->{ 'truncated' } = %truncated;
+    }
+
+    # We (hackily) stored the 'whole' value in the possible seq_id.
+    $a_possible_self->{ 'whole' } = $a_possible_seq_id->{ '_gff_whole' };
+    undef $a_possible_seq_id->{ '_gff_whole' };
+
+    # If they want to rerelativize, do it.
+    if( defined( $new_class ) ) {
+      if( defined( $new_seq_id ) &&
+          ref( $new_seq_id ) &&
+          $new_seq_id->isa( 'Bio::DB::GFF:Featname' )
+        ) {
+        $new_seq_id->class( $new_class );
+      } elsif( defined( $new_seq_id ) ) {
+        $new_seq_id =
+          Bio::DB::GFF::Featname->new( $new_class, $new_seq_id );
+      } else {
+        $a_possible_seq_id->{ '_gff_class' } = $new_class;
+      }
+    }
+    if( defined( $new_seq_id ) ) {
+      $a_possible_self->seq_id( $new_seq_id );
+    }
+
+    if( $force_absolute ) {
+      $a_possible_self->absolute( 1 );
+    }
+
+    push( @object_results, $a_possible_self );
+  } # End creating all of the possible $selfs.
+
+  # If they only want one, we just give 'em one.
+  return ( wantarray ? @object_results : $object_results[ 0 ] );
+} # new(..)
+
+=head2 new_from_segment
+
+ Title   : new_from_segment
+ Usage   : $s = Bio::DB::GFF::Segment->new_from_segment( $copy_from )
+ Function: create a new L<Bio::DB::GFF::Segment>
+ Returns : A new L<Bio::DB::GFF::Segment> object
+ Args    : Another L<Bio::DB::GFF::Segment> object
+ Status  : Protected
+
+  This constructor is used internally by the subseq() method.  It forces
+  the new segment into the L<Bio::DB::GFF::Segment> package, regardless
+  of the package that it is called from.  This causes subclass-specific
+  information, such as feature types, to be dropped when a subsequence
+  is created.
+
+  This also does not copy into the new segment the features held in
+  the existing segment.  If you would like the new segment to hold the
+  same features you must explicitly add them, like so:
+    $new_segment->add_features( $copy_from->features() );
+
+  As a special bonus you may also pass an existing hash and it will be the
+  blessed an anointed object that is returned, like so:
+    $new_segment =
+      Bio::DB::GFF::Segment->new_from_segment(
+        $copy_from,
+        $new_segment
+      );
 
 =cut
 
-sub new {
-  my $class = shift;
-  my ($factory,$segclass,$segname,$start,$stop) = @_;
+sub new_from_segment {
+  my $pack = shift; # ignored
+  my $copy_from = shift || $pack;
+  my $new_segment = shift;
+  $new_segment =
+    Bio::SeqFeature::SimpleSegment->new_from_segment(
+      $copy_from,
+      $new_segment
+    );
+  @{ $new_segment }{ qw( _class ) } = @{ $copy_from }{ qw( _class ) };
+  bless $new_segment, __PACKAGE__;
+  $new_segment->orientation_policy( 'dependent' );
+  $new_segment->ensure_orientation();
+  return $new_segment;
+} # new_from_segment
 
-  $segclass = $segname->class if ref($segname) && $segname->can('class');
-  $segclass ||= 'Sequence';
-  $factory or $class->throw("->new(): provide a factory argument");
+=head2 features
 
-  my %args = {
-    '-seq_id' => $segname,
-    '-start' => $start,
-    '-end' => $stop,
-    '-parent' => $factory
-  };
-  my $self = $class->SUPER::new( %args );
-  $self->{ 'class' } = $segclass;
-  return $self;
-} # new(..)
+ Title   : features
+ Usage   : @features = $segment->features( %args );
+           OR
+           @features = $segment->features( @types );
+ Returns : a list of L<Bio::SeqFeatureI> objects,
+           OR
+           (when the -iterator option is true) an L<Bio::SeqFeature::IteratorI>
+           OR
+           (when the -callback argument is given) true iff the callbacks
+             completed.
+ Args    : see below
+ Status  : Public
+
+This routine will retrieve features associated with this segment
+object.  It can be used to return all features, or a subset based on
+their type, location, or attributes.  Features that are returned in
+relative mode (relative either to this SegmentI or to a given RangeI)
+will be returned with coordinates that are relative.  Features that
+are returned in absolute mode will be returned with absolute
+coordinates.  The mode is determined by the -baserange and -absolute
+arguments and by the absolute() flag, in that precedence order.
+
+If ranges are specified using the -ranges argument, then these ranges
+will be used to narrow the results, according to the specified
+-rangetype and -strandtype arguments.
+
+If no ranges are specified but the -rangetype argument is given then a
+special and strange thing happens: the method call is delegated to the
+parent_segment_provider.  If it is a SegmentI then its features()
+method will be called with all the same arguments but with *this*
+segment as the -range argument.  If the parent_segment_provider is a
+L<Bio::DB::SegmentProviderI> (but not a SegmentI) then the same thing
+will happen, but to the SegmentI returned by its get_collection()
+method with no arguments.  If the parent_segment_provider is null then
+no features will be returned.
+
+If a -baserange is specified then unqualified ranges given with the
+-ranges argument will be interpreted as relative to that baserange,
+and qualified ranges will be re-relativized to the baserange.  If no
+-baserange is given then a default will be provided that will depend
+on the value of the -absolute argument or the absolute() flag.  If
+-absolute is given and true or if absolute() is true then the default
+baserange is the value returned by the abs_seq_id() method; if
+( -absolute || absolute() ) is false then the default is this SegmentI
+object ($self).  You may force absolute range interpretations by
+giving a -baserange that is not a L<Bio::RangeI> (such as the string
+'absolute', though any string will do the trick), by providing a true
+value to the -absolute argument, or by setting the absolute() flag to
+true.
+
+-rangetype is one of:
+   "overlaps"      return all features that overlap the range (default)
+   "contains"      return features completely contained within the range
+   "contained_in"  return features that completely contain the range
+
+-strandmatch is one of:
+   "strong"        ranges must have the same strand
+   "weak"          ranges must have the same strand or no strand (default)
+   "ignore"        ignore strand information
+
+Two types of argument lists are accepted.  In the positional argument
+form, the arguments are treated as a list of feature types (as if they
+were given as -types => \@_).  In the named parameter form, the
+arguments are a series of -name=E<gt>value pairs.  Note that the table
+below is not exhaustive; implementations must support these but may
+support other arguments as well (and are responsible for documenting the
+difference).
+
+  Argument       Description
+  --------       ------------
+
+  -type          A type name or an object of type L<Bio::SeqFeature::TypeI>
+  -types         An array reference to multiple type names or TypeI objects
+
+  -unique_id     A (string) unique_id.  See also -namespace.
+  -unique_ids    An array reference to multiple unique_id values.
+
+  -name          A (string) display_name or unique_id.  See also -namespace.
+  -names         An array reference to multiple display_name/unique_id values.
+
+  -namespace     A (string) namespace qualifier to help resolve the name/id(s)
+  -class         same as -namespace
+
+  -attributes    A hashref containing a set of attributes to match.  See
+                 below.
+
+  -baserange     A L<Bio::RangeI> object defining the range to which
+                 the -range argument is relative.  The default
+                 baserange depends on the value of the absolute()
+                 flag.  If absolute() is true then the default is the
+                 value of the abs_seq_id() method.  If absolute() is
+                 false then the default is $self.  Note that the
+                 baserange affects the sort order.  See also
+                 -absolute.
+
+  -absolute      If -absolute is given and true then all behavior will be as
+                 if this SegmentI's absolute() flag was set to true,
+                 even if it isn't.  If -absolute is given and false
+                 then all behavior will be as if this SegmentI's
+                 absolute() flag was set to false, even if it isn't.
+                 Note that -baserange can still be given and can force
+                 relativeness, and that takes precedence over -absolute.
+
+  -range         A L<Bio::RangeI> object defining the range to search.
+                 See also -strandmatch, -rangetype, and -baserange.
+  -ranges        An array reference to multiple ranges.
+
+  -rangetype     One of "overlaps", "contains", or "contained_in".  If no
+                 range is given then a strange thing happens (it is
+                 described above).
+
+  -strandmatch   One of "strong", "weak", or "ignore".  Note that the strand
+                 attribute of a given -range must be non-zero for this to work
+                 (a 0/undef strand forces a 'weak' strandmatch to become
+                 'ignore' and cripples the 'strong' strandmatch).
+
+  -iterator      Return a L<Bio::SeqFeature::IteratorI>
+
+  -callback      A callback to invoke on each feature
+
+  -sort          Return the features in order (of their start positions).
+                 Note that if sorted() is true, then this argument is
+                 redundant (the features will be returned in order
+                 regardless).  If the baserange (see -baserange) has a
+                 negative strand then the sort order will be reversed.
+
+All plural arguments are interchangeable with their singular counterparts.
+
+The -attributes argument is a hashref containing one or more
+attributes to match against:
+
+  -attributes => { Gene => 'abc-1',
+                   Note => 'confirmed' }
+
+Attribute matching is simple string matching, and multiple attributes
+are ANDed together.  More complex filtering can be performed using the
+-callback option (see below).
+
+The -unique_ids argument is a reference to a list of strings.  Every
+returned feature must have its unique_id value in this list or, if a
+feature has no defined unique_id, then its display_name value in the
+list if the list is provided.  A -unique_id argument is treated as a
+single-element list of unique_ids.
+
+The -names argument is a reference to a list of strings.  Every
+returned feature must have its display_name or its unique_id value in this
+list if the list is provided.  A -name argument is treated as a
+single-element list of names.
+
+If a -namespace is provided then names and ids (both queries and
+targets) will be prepended with "$namespace:" as a bonus.  So
+if you do features( -names => [ 'foo', 'bar' ], -namespace => 'ns' )
+then any feature with the display_name or unique_id 'foo', 'ns:foo',
+'bar', or 'ns:bar' will be returned.
+
+If -iterator is true, then the method returns an object of type
+Bio::SeqFeature::IteratorI.  Each call to next_seq() on this
+object returns a Bio::SeqFeatureI object from this collection.
+
+If -callback is passed a code reference, the code reference will be
+invoked on each feature returned.  The code will be passed two
+arguments consisting of the current feature and this SegmentI
+object, and must return a true value. If the code returns a false
+value, feature retrieval will be aborted.
+
+-callback and -iterator are mutually exclusive options.  If -iterator
+is defined, then -callback is ignored.
+
+-callback and -sort are mutually exclusive options.  If -sort is
+defined, then -callback is ignored.  If you want to do a sorted
+callback, set the sorted() flag of this collection to true.
+
+If -sort or sorted() is true then the features will be returned in
+order of the features' start positions.  This order will be reversed
+if the baserange has a negative strand (remember that the default
+baserange depends upon the value of the absolute() flag, but this may
+be overridden by the -baserange argument).
+
+Note that no guarantees are made by the SegmentI interface about
+the order of the features, except when the sorted() flag is true or
+when the -sort option is given to the features method.  Therefore
+the implementation may choose to reorder the underlying data structure
+to better accomodate -sorted feature requests as a result of a
+features() call.  When this happens the SegmentI's sorted() flag
+should be set to true, so that the client can detect that the -sorted
+argument to features() is now irrelevant.
+
+NOTE: the following methods all build on top of features(), and do not
+need to be explicitly implemented.
+
+    features_in_range()
+    overlapping_features()
+    contained_features()
+    contained_in()
+    get_feature_stream()
+    get_feature_by_name()
+    get_feature_by_id()
+    get_feature_by_attribute()
+
+=cut
+
+sub features {
+  my $self = shift;
+
+  my ( $types, $unique_ids, $namespace, $names, $attributes, $baserange, $ranges, $strandmatch, $rangetype, $iterator, $callback, $sort, $sparse, $merge, $seq_id, $start, $end );
+  if( scalar( @_ ) && $_[ 0 ] =~ /^-/ ) {
+    ( $types, $unique_ids, $namespace, $names, $attributes, $baserange, $ranges, $strandmatch, $rangetype, $iterator, $callback, $sort, $sparse, $merge, $seq_id, $start, $end ) =
+      rearrange(
+        [ [ qw( TYPE TYPES ) ],
+          [ qw( UNIQUE_IDS UNIQUEIDS IDS UNIQUE_ID UNIQUEID ID ) ],
+          [ qw( NAMESPACE NAME_SPACE CLASS ) ],
+          [ qw( NAME NAMES DISPLAY_NAME DISPLAY_NAMES DISPLAYNAME DISPLAYNAMES ) ],
+          [ qw( ATTRIBUTE ATTRIBUTES ) ],
+          [ qw( BASERANGE BASE_RANGE BASELOCATION BASE_LOCATION BASE ) ],
+          [ qw( RANGE RANGES LOCATION LOCATIONS LOC ) ],
+          [ qw( STRANDMATCH STRAND_MATCH ) ],
+          [ qw( RANGETYPE RANGE_TYPE ) ],
+          [ qw( ITERATOR STREAM ) ],
+          [ qw( CALLBACK CALL_BACK ) ],
+          [ qw( SORT SORTED ) ],
+          [ qw( RARE SPARSE ) ],
+          [ qw( MERGE AUTOMERGE ) ],
+          [ qw( SEQ_ID SEQID SEQ ID REF REF_SEQ REFSEQ ) ],
+          [ qw( START BEGIN LOW ) ],
+          [ qw( STOP END HIGH ) ]
+        ],
+        @_
+      );
+  } else {
+    ## Types.
+    $types = \@_;
+  }
+
+  ## Fix up types.
+  if( $types ) {
+    unless( ref $types eq 'ARRAY' ) {
+      ## The incoming value might be a simple scalar instead of a list.
+      $types = [ $types ];
+    }
+    ## Just in case it's an array ref to an empty string:
+    if(
+       !scalar( @$types ) ||
+       ( ( scalar( @$types ) == 1 ) && !( $types->[ 0 ] ) )
+      ) {
+      undef $types;
+    }
+  }
+
+  ## Fix up unique_ids.
+  if( $unique_ids ) {
+    unless( ref $unique_ids eq 'ARRAY' ) {
+      ## The incoming value might be a simple scalar instead of a list.
+      $unique_ids = [ $unique_ids ];
+    }
+    ## Just in case it's an array ref to an empty string:
+    if(
+       !scalar( @$unique_ids ) ||
+       ( ( scalar( @$unique_ids ) == 1 ) && !( $unique_ids->[ 0 ] ) )
+      ) {
+      undef $unique_ids;
+    }
+  }
+
+  ## Fix up names.
+  if( $names ) {
+    unless( ref $names eq 'ARRAY' ) {
+      ## The incoming value might be a simple scalar instead of a list.
+      $names = [ $names ];
+    }
+    ## Just in case it's an array ref to an empty string:
+    if(
+       !scalar( @$names ) ||
+       ( ( scalar( @$names ) == 1 ) && !( $names->[ 0 ] ) )
+      ) {
+      undef $names;
+    }
+  }
+
+  ## Attributes better be a hash ref if it is anything.
+  if( $attributes ) {
+    unless( ref( $attributes ) eq 'HASH' ) {
+      $self->throw( "The -attributes argument must be a HASH REF." );
+    }
+  }
+
+  ## Fix up ranges.
+  if( $ranges ) {
+    unless( ref $ranges eq 'ARRAY' ) {
+      ## The incoming value might be a simple scalar instead of a list.
+      $ranges = [ $ranges ];
+    }
+    ## Just in case it's an array ref to an empty string:
+    if(
+       !scalar( @$ranges ) ||
+       ( ( scalar( @$ranges ) == 1 ) && !( $ranges->[ 0 ] ) )
+      ) {
+      undef $ranges;
+    }
+  } elsif( defined( $seq_id ) || defined( $start ) || defined( $end ) ) {
+    $ranges = [ Bio::RelRange->new(
+                  '-seq_id' => $seq_id,
+                  '-start' => $start,
+                  '-end' => $end,
+                   -orientation_policy => 'dependent'
+                ) ];
+  }
+
+  ## We can use ourselves as the baserange, if we are a Bio::RangeI.
+  if( $self->isa( 'Bio::RangeI' ) && !$baserange ) {
+    $baserange = $self;
+  }
+
+  ## Derelativize, man.
+  if( $ranges && @$ranges && $baserange ) {
+    my @new_ranges;
+    foreach my $range ( @$ranges ) {
+      unless( ref( $range ) && $range->isa( 'Bio::RangeI' ) ) {
+        $self->throw( "Expected the -ranges argument to be a reference to a list of Bio::RangeI objects, but it contains something incompatible: " . overload::StrVal( $range ) );
+      }
+      unless( defined $range->seq_id() ) {
+        $range = Bio::RelRange->new(
+                   -seq_id => $baserange,
+                   -start =>  $range->start(),
+                   -end =>    $range->end(),
+                   -strand => $range->strand(),
+                   -orientation_policy => 'dependent'
+                 );
+      } elsif( !$range->isa( 'Bio::RelRangeI' ) ) {
+        $range = Bio::RelRange->new(
+                   -seq_id => $range->seq_id(),
+                   -start =>  $range->start(),
+                   -end =>    $range->end(),
+                   -strand => $range->strand(),
+                   -orientation_policy => 'dependent'
+                 );
+      }
+      $range->absolute( 1 );
+      push( @new_ranges, $range );
+    }
+    $ranges = \@new_ranges;
+  } # End derelativizing ranges.  Now they're absolute.
+
+  ## -strandmatch defaults to 'weak'
+  unless( defined $strandmatch ) {
+    $strandmatch = 'weak';
+  }
+
+  ## -rangetype defaults to 'overlaps'
+  unless( defined $rangetype ) {
+    $rangetype = 'overlaps';
+  }
+
+  ## -iterator and -callback are mutually exclusive.
+  if( $iterator && $callback ) {
+    $self->throw( "The -iterator and -callback options are mutually exclusive, and yet both have been specified.  Perhaps you could apply your callback method to each element returned by the iterator?" );
+  }
+
+  ## -sort is redundant if sorted() is true.
+  if( $sort && $self->sorted() ) {
+    undef $sort;
+  }
+
+  ## -sort and -callback are mutually exclusive.
+  if( $sort && $callback ) {
+    $self->throw( "The -sort and -callback options are mutually exclusive, and yet both have been specified.  Perhaps you could first set the sorted() property of this collection to true, and then try again." );
+  }
+
+  ## We actually implement the sorting on-the-fly anyway, so the above
+  ## redundancy check is silly (but we keep it for the mutex check)
+  $sort ||= $self->sorted();
+  ## Do a reverse sort iff the baserange has a negative strand.
+  my $reverse_sort = ( $baserange && ( $baserange->strand() < 0 ) );
+
+  my %args = (
+    '-ref' => ( $ranges && @$ranges ? $ranges->[ 0 ]->seq_id() : undef ) ||
+      $self->abs_seq_id(),
+    '-class' => $namespace || $self->class(),
+    '-start' => ( $ranges && @$ranges ? $ranges->[ 0 ]->start() : undef ) ||
+      ( $self->{ 'whole' } ? undef : $self->abs_start() ),
+    '-end' => ( $ranges && @$ranges ? $ranges->[ 0 ]->end() : undef ) ||
+      ( $self->{ 'whole' } ? undef : $self->abs_end() ),
+    '-range_type' => $rangetype,
+    '-types' => $types,
+    '-unique_ids' => $unique_ids,
+    '-names' => $names,
+    '-attributes' => $attributes,
+    '-sparse' => $sparse,
+    '-merge' => $merge,
+    '-iterator' => $iterator,
+    '-callback' => $callback,
+    '-parent' => $self
+  );
+  ## TODO: This doesn't account for the whole picture.  Update.
+  return $self->factory()->features_in_range( %args );
+} # features(..)
+
+## TODO: bring types back up to speed.
+=head2 types
+
+ Title   : types
+ Usage   : @types = $s->types([-enumerate=>1])
+ Function: list feature types that overlap this segment
+ Returns : a list of Bio::DB::GFF::Typename objects or a hash
+ Args    : see below
+ Status  : Public
+
+The types() method will return a list of Bio::DB::GFF::Typename
+objects, each corresponding to a feature that overlaps the segment.
+If the optional -enumerate parameter is set to a true value, then the
+method will return a hash in which the keys are the type names and the 
+values are the number of times a feature of that type is present on
+the segment.  For example:
+
+  %count = $s->types(-enumerate=>1);
+
+=cut 
+
+# wrapper for lower-level types() call.
+sub types {
+  my $self = shift;
+
+  my @args;
+  if (@_ && $_[0] !~ /^-/) {
+    @args = (-type => \@_)
+  } else {
+    @args = @_;
+  }
+  $self->factory->types(-ref  => $self->abs_seq_id(),
+			-class => $self->class(),
+			-start=> $self->abs_start(),
+			-stop => $self->abs_end(),
+			@args);
+} # types(..)
 
 =head2 stop
 
@@ -101,45 +865,9 @@ This is an alias for end(), provided for AcePerl compatibility.
 
 =cut
 
-*stop = \&end;
-
-=head2 low
-
- Title   : low
- Usage   : $s->low
- Function: return lower coordinate
- Returns : lower coordinate
- Args    : none
- Status  : Public
-
-Returns the lower coordinate, either start or end.
-
-=cut
-
-sub low {
-  my $self = shift;
-  my ($start,$stop) = ($self->start,$self->stop);
-  return $start < $stop ? $start : $stop;
-}
-
-=head2 high
-
- Title   : high
- Usage   : $s->high
- Function: return higher coordinate
- Returns : higher coordinate
- Args    : none
- Status  : Public
-
-Returns the higher coordinate, either start or end.
-
-=cut
-
-sub high {
-  my $self = shift;
-  my ($start,$stop) = ($self->start,$self->stop);
-  return $start > $stop ? $start : $stop;
-}
+sub stop {
+  shift->end( @_ );
+} # stop(..)
 
 =head2 sourceseq
 
@@ -181,37 +909,46 @@ sub class     {
 =head2 subseq
 
  Title   : subseq
- Usage   : $s->subseq($start,$stop)
- Function: generate a subsequence
- Returns : a Bio::DB::GFF::Segment object
- Args    : start and end of subsequence
+ Usage   : $s->subseq( $new_start, $new_end )
+ Function: Generate a sub-segment, relative to the same refseq as this segment.
+ Returns : A L<Bio::DB::GFF::Segment> object
+ Args    : Start and end of subsegment, relative to this segment.
  Status  : Public
 
 This method generates a new segment from the start and end positions
-given in the arguments.  If stop E<lt> start, then the strand is reversed.
+given in the arguments.  If end E<lt> start, then the strand is
+reversed.  Note that although the coordinates are given relative to
+this segment, the returned segment will have start and end positions
+relative to this segment's current seq_id (and it will have the same seq_id).
 
 =cut
 
 sub subseq {
   my $self = shift;
-  my ($newstart,$newstop) = @_;
-  my ($refseq,$start,$stop,$class) = ($self->{sourceseq},
-				      $self->{start},$self->{stop},
-				      $self->class);
+  my ( $new_start, $new_end ) = @_;
 
-  # We deliberately force subseq to return objects of type RelSegment
+  # We deliberately force subseq to return objects of type Segment
   # Otherwise, when we get a subsequence from a Feature object,
   # its method and source go along for the ride, which is incorrect.
-  my $new = $self->new_from_segment($self);
-  if ($start <= $stop) {
-    @{$new}{qw(start stop)} = ($start + $newstart - 1, $start + $newstop  - 1);
-  } else {
-    @{$new}{qw(start stop)} = ($start - ($newstart - 1), $start - ($newstop  - 1)),
-
+  my $new = $self->new_from_segment( $self );
+  if( $new_start <= $new_end ) {
+    my $temp = $new_start;
+    $new_start = $new_end;
+    $new_end = $temp;
+    $new->strand( ( $self->strand() || 1 ) * -1 );
   }
 
-  $new;
-}
+  # The test here is from the old subseq method (but I still can't
+  # figure it out --Paul)
+  if( $self->start() <= $self->end() ) {
+    $new->start( $self->start() + $new_start - 1 );
+    $new->end( $self->start() + $new_end - 1 );
+  } else {
+    $new->start( $self->start() - $new_start - 1 );
+    $new->end( $self->start() - $new_end - 1 );
+  }
+  return $new;
+} # subseq(..)
 
 =head2 seq
 
@@ -232,24 +969,27 @@ compatibility with AceDB.
 
 sub seq {
   my $self = shift;
-  my ($ref,$class,$start,$stop,$strand) 
-    = @{$self}{qw(sourceseq class start stop strand)};
-#  ($start,$stop) = ($stop,$start) if $strand eq '-';
-  $self->factory->dna($ref,$start,$stop,$class);
-}
+  return $self->factory()->dna(
+    '-id'    => $self->abs_seq_id(),
+    '-start' => $self->abs_start(),
+    '-end'   => $self->abs_end(),
+    '-class' => $self->class()
+  );
+} # seq(..)
 
 *protein = *dna = \&seq;
 
 =head2 equals
 
- Title   : equals
- Usage   : $s->equals($d)
- Function: segment equality
- Returns : true, if two segments are equal
- Args    : another segment
- Status  : Public
+  Title   : equals
+  Usage   : $s->equals( $d )
+  Function: segment equality
+  Returns : true, if two segments are equal
+  Args    : another segment
+  Status  : Public
 
-Returns true if the two segments have the same source sequence, start and stop.
+  Returns true if the two segments have the same abs_seq_id,
+  abs_start, and abs_end.
 
 =cut
 
@@ -257,11 +997,15 @@ sub equals {
   my $self = shift;
   my $peer = shift;
   return unless defined $peer;
-  return $self->asString eq $peer unless ref($peer) && $peer->isa('Bio::DB::GFF::Segment');
-  return $self->start eq $peer->start
-         && $self->stop  eq $peer->stop
-         && $self->sourceseq eq $peer->sourceseq;
-}
+  if( ref( $peer ) && $peer->isa( 'Bio::DB::GFF::Segment' ) ) {
+    return ( ( $self->abs_start() eq $peer->abs_start() ) &&
+             ( $self->abs_end() eq $peer->abs_end() ) &&
+             #( $self->seq_id() eq $peer->seq_id() ) &&
+             ( $self->abs_seq_id() eq $peer->abs_seq_id() ) );
+  } else {
+    return ( $self->asString() eq $peer );
+  }
+} # equals(..)
 
 =head2 asString
 
@@ -275,16 +1019,18 @@ sub equals {
 Returns a human-readable string representing this sequence.  Format
 is:
 
-   sourceseq/start,stop
+   sourceseq:start,stop
 
 =cut
 
 sub asString {
-  my $self = shift;
-  my $label = $self->refseq;
-  my $start = $self->start;
-  my $stop  = $self->stop;
-  return "$label:$start,$stop";
+  shift->toString();
+  ## TODO: Put back the old stuff.. I guess..
+#  my $self = shift;
+#  my $label = $self->refseq();
+#  my $start = $self->start();
+#  my $stop  = $self->stop();
+#  return "$label:$start,$stop";
 }
 
 =head2 clone
@@ -292,7 +1038,7 @@ sub asString {
  Title   : clone
  Usage   : $copy = $s->clone
  Function: make a copy of this segment
- Returns : a Bio::DB::GFF::Segment object
+ Returns : a L<Bio::DB::GFF::Segment> object
  Args    : none
  Status  : Public
 
@@ -344,6 +1090,153 @@ This is an alias to abs_seq_id().
 sub abs_ref {
   shift->abs_seq_id( @_ );
 }
+
+# Internal overridable getter/setter for the actual stored value of seq_id.
+# This one can take an optional class argument as well, so the usage becomes:
+# Usage   : my $seq_id = $segment->_seq_id( [$new_seq_id] );
+#           OR
+#           my $old_seq_id = $segment->_seq_id( $new_seq_class, $new_seq_id );
+#
+# This method will get or set the reference sequence.  Called with no
+# arguments, it returns the current reference sequence.  Called with
+# either a class and sequence ID, a Bio::RelRangeI object (or
+# subclass), or a Bio::DB::GFF::Featname object, it will set the current
+# reference sequence and return the previous one.
+# 
+# The method will generate an exception if you attempt to set the
+# reference sequence to a sequence that isn't contained in the database,
+# or one that has a different source sequence from the segment.
+sub _seq_id {
+  my $self = shift;
+  my $old_val = $self->{ '_seq_id' };
+  if( @_ ) {
+    my ( $newref, $newclass );
+    if( @_ == 2 ) {
+      $newclass = shift;
+      $newref   = shift;
+    } else {
+      $newref   = shift;
+      $newclass = 'Sequence';
+    }
+
+    # support for Featname objects
+    if( ref( $newref ) && $newref->isa( 'Bio::DB::GFF::Featname' ) ) {
+      $newclass = $newref->class();
+    }
+
+    my $abs_seq_id = $self->abs_seq_id();
+    my $new_seq_id;
+    if( ref( $newref ) && $newref->isa( 'Bio::RangeI' ) ) {
+      if( $self->{ '_seq_id' } &&
+          ref( $self->{ '_seq_id' } ) &&
+          $self->{ '_seq_id' }->isa( 'Bio::RangeI' ) &&
+          $self->{ '_seq_id' } eq $newref ) {
+
+        # Attempt to set the seq_id to what it already is.  Who am I
+        # to complain?  Go ahead.
+        # (We've bothered to test for this because the elsif clause
+        # can grab this case sometimes and it'd be rude to throw an
+        # exception).
+      } elsif( $self eq $newref ) {
+        $self->throw( "Unable to set the reference sequence to \$self: \$self is $self, attempted new seq_id is $newref." );
+      }
+      # Avoid circularity by forcing new_seq_id to be defined relative
+      # to the absolute range.
+      my $name =
+        ( $newref->isa( 'Bio::DB::GFF::Segment_NamedRelRange' ) ?
+          $newref->name() :
+          ( $newref->isa( 'Bio::RangeI' ) ?
+            $newref->seq_id() :
+            undef ) );
+      ## TODO: Perhaps we don't *always* have to do this.. but this
+      ## works for now.
+      $new_seq_id = Bio::DB::GFF::Segment_NamedRelRange->new(
+        '-name' => $name,
+        '-seq_id' => absRange( $newref ),
+        '-start' => absStart( $newref ),
+        '-end' => absEnd( $newref ),
+        '-strand' => absStrand( $newref )
+      );
+    } else {
+      my ( $newref_abs_seq_id, $refclass, $refstart, $refstop, $refstrand, $sname );
+      my $coords = $self->factory()->abscoords( $newref, $newclass );
+      foreach ( @$coords ) { # find the appropriate one
+	( $newref_abs_seq_id, $refclass, $refstart, $refstop, $refstrand, $sname ) =
+          @$_;
+	last if( !defined( $abs_seq_id ) ||
+                 ( $newref_abs_seq_id ne $abs_seq_id ) );
+      }
+      $new_seq_id = Bio::DB::GFF::Segment_NamedRelRange->new(
+        '-name' => $sname,
+        '-seq_id' => $newref_abs_seq_id,
+        '-start' => $refstart,
+        '-end' => $refstop,
+        '-strand' => $refstrand
+      );
+
+      # Make sure that our new seq_id is rooted at a real sequence.
+      if( $new_seq_id->isa( 'Bio::DB::GFF::Segment_NamedRelRange' ) &&
+          ( $new_seq_id->name() ne $new_seq_id->seq_id() ) 
+        ) {
+        my $a =
+          $self->factory()->abscoords( $new_seq_id->seq_id(), 'Sequence' );
+        my $seq_start = $a->[ 0 ][ 2 ];
+        my $seq_stop  = $a->[ 0 ][ 3 ];
+        ## Paul's question: why would $seq_start ever not be 1?  How
+        ## should that affect absolute positions?
+        $new_seq_id->seq_id(
+          Bio::RelRange->new(
+            '-seq_id' => $a->[ 0 ][ 0 ],
+            '-start' => $a->[ 0 ][ 2 ],
+            '-end' => $a->[ 0 ][ 3 ],
+            '-strand' => 1,
+            '-orientation_policy' => 'dependent'
+          )
+        );
+      } # End if we need to get the root sequence's bounds
+    }
+
+    if( defined( $abs_seq_id ) &&
+        ( $new_seq_id->abs_seq_id() ne $abs_seq_id )
+      ) {
+      $self->throw( "Can't set reference sequence: $newref and $self are on different sequences ($newref is on '".$new_seq_id->abs_seq_id()."', $self is on '".$abs_seq_id."')." );
+    }
+
+    # Our strategy is to get absolute coords for $self and then
+    # rerelativize them to the new_seq_id.
+    # We can use another range that is relative to $new_seq_id to
+    # convert the coords.  Anything will do, so long as it starts at
+    # 1 and is on the + strand.
+    my $temp_rel_range =
+      Bio::RelRange->new(
+        '-seq_id' => $new_seq_id,
+        '-start' => 1,
+        '-end' => 1, # we could use $new_seq_id->length, but it's unnecessary.
+        '-strand' => 1,
+        '-orientation_policy' => 'dependent'
+      );
+    my $abs_self = new Bio::RelRange( $self );
+    $abs_self->absolute( 1 );
+    $self->{ '_start' } =
+      $temp_rel_range->abs2rel( $abs_self->start() );
+    $self->{ '_end' } =
+      $temp_rel_range->abs2rel( $abs_self->end() );
+    $self->{ '_strand' } =
+      $temp_rel_range->abs2rel_strand( $abs_self->strand() );
+
+    if( $self->{ '_end' } < $self->{ '_start' } ) {
+      my $tmp = $self->{ '_start' };
+      $self->{ '_start' } = $self->{ '_end' };
+      $self->{ '_end' } = $tmp;
+    }
+
+    $self->{ '_seq_id' } = $new_seq_id;
+  }
+  ## TODO: This is what this was from RelSegment::refseq(..):  why sourceseq?
+  ## TODO: Note that presently we won't allow setting in absolute mode anyways.
+  # return $self->absolute ? $self->sourceseq : $old_value;
+  return $old_val;
+} # _seq_id(..)
 
 =head2 refseq
 
@@ -571,8 +1464,145 @@ sub annotation {
 
 }
 
+## Inner class ##############################################################
+#============================================================================
+# Bio::DB::GFF::Segment_NamedRelRange: A Bio::RelRange that has a
+# name and uses it for overloading stringification and equality.
+#============================================================================
+package Bio::DB::GFF::Segment_NamedRelRange;
+use Bio::RelRange;
+use vars qw( @ISA );
+
+@ISA = qw( Bio::RelRange );
+
+use overload 
+#  '""'     => 'name',
+# For debugging, try using:
+  '""'     => 'toString',
+  eq       => 'equals',
+  fallback => 1;
+
+=head2 new
+
+  Title   : new
+  Usage   : $range = Bio::DB::GFF::Segment_NamedRelRange->new(
+                       $another_range_to_copy_from,
+                       $name
+                     );
+            OR
+            $range = Bio::DB::GFF::Segment_NamedRelRange->new(
+                       -name => $name,
+                       -seq_id => $another_range_or_a_sequence_id,
+                       -start => 100,
+                       -end => 200,
+                       -strand => +1,
+                       -absolute => 1
+                     );
+  Function: generates a new Bio::DB::GFF:Segment_NamedRelRange object
+  Returns : a new Bio::DB::GFF::Segment_NamedRelRange object
+  Args    : a L<Bio::RangeI> to copy from and a name
+            OR
+              -name (required)
+              two of (-start, -end, -length) - the third is calculated
+              -strand (defaults to 0)
+              -seq_id (not required but highly recommended)
+              -absolute (defaults to 0)
+
+    Note that if you pass a RelRangeI that is in absolute() mode, the
+    copied values will be absolute, and the relative values will not
+    be preserved.  To work around this, set absolute() to false before
+    passing it in.
+
+    If the -absolute argument is true, the other values will be
+    interpreted relative to the given -seq_id, but then absolute()
+    will be set to true.
+
+=cut
+
+sub new {
+  my $caller = shift;
+  my $self = $caller->SUPER::new( @_ );
+
+  my $name;
+  if( scalar( @_ ) && ( $_[ 0 ] =~ /^-/ ) ) {
+    ( $name ) =
+      $self->_rearrange( [ qw( NAME ) ], @_ );
+  } else {
+    ( undef, $name ) = @_;
+  }
+  unless( defined( $name ) ) {
+    $self->throw( "You must provide a -name argument to the Segment_NamedRelRange constructor.\n" );
+  }
+  $self->name( $name );
+
+  ## GFF uses the dependent orientation policy.
+  $self->orientation_policy( 'dependent' );
+  $self->ensure_orientation();
+
+  return $self;
+} # new(..)
+
+=head2 name
+
+ Title   : name
+ Usage   : my $name = $range->name()
+ Function: Get/set the name of this range.
+ Returns : The current (or former, if used as a set method) name.
+ Args    : [optional] a new name
+ Status  : Public
+
+=cut
+
+sub name {
+  my $self = shift;
+  my $new_value = shift;
+  my $old_value = $self->{ '_name' };
+
+  if( defined( $new_value ) ) {
+    $self->{ '_name' } = $new_value;
+  }
+  return $old_value;
+} # name(..)
+
+=head2 equals
+
+  Title   : equals
+  Usage   : if( $r1->equals( $r2 ) ) { do something }
+  Function: Test whether $r1 has the same abs_start, abs_end, length,
+            and abs_seq_id as $r2.  If $r2 is a string, test whether it
+            is equal to name.
+  Args    : arg #1 = a L<Bio::RangeI> or string to compare this to (mandatory)
+            arg #2 = strand option ('strong', 'weak', 'ignore') (optional)
+  Returns : true iff they are describing the same range
+
+  If either range has no defined (abs) seq_id then (abs) seq_id will
+  be ignored in the test.
+
+  The behavior of this method differs from its behavior in
+  L<Bio::RelRangeI> when the argument is a string.  When the argument
+  is a string it will be tested for equality (using eq) with this
+  range's name.
+
+=cut
+# '
+
+sub equals {
+  my $self = shift;
+  my ( $other, $strand_option ) = @_;
+  if( defined( $other ) && !ref( $other ) && ( ref( \$other ) eq 'SCALAR' ) ) {
+    return ( $self->name() eq $other );
+  } else {
+    return $self->SUPER::equals( @_ );
+  }
+} # equals(..)
+
+#============================================================================
+## This is the end of Segment_NamedRelRange, an inner class of Segment.
+#============================================================================
+## End Inner class ##########################################################
 
 1;
+
 __END__
 
 =head1 BUGS

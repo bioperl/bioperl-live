@@ -86,7 +86,7 @@ This module is still under development.
 
 =head1 SEE ALSO
 
-L<bioperl>, L<Bio::DB::GFF>, L<Bio::DB::RelSegment>
+L<bioperl>, L<Bio::DB::GFF>, L<Bio::DB::Segment>
 
 =head1 AUTHOR
 
