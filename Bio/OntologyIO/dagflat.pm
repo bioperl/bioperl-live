@@ -138,9 +138,9 @@ use constant FALSE        => 0;
                           parser will auto-discover it by using the term
                           that starts with a '$', and converting underscores
                           to spaces
-           -engine     => the L<Bio::Ontology::OntologyEngineI> object
+           -engine     => the Bio::Ontology::OntologyEngineI object
                           to be reused (will be created otherwise); note
-                          that every L<Bio::Ontology::OntologyI> will
+                          that every Bio::Ontology::OntologyI will
                           qualify as well since that one inherits from the
                           former.
 
@@ -382,22 +382,18 @@ sub _add_term {
 
 # This simply delegates. See SimpleGOEngine
 sub _part_of_relationship {
-    my ( $self, $term ) = @_;
+    my $self = shift;
 
-    return $self->_ont_engine()->part_of_relationship();
-
-
+    return $self->_ont_engine()->part_of_relationship(@_);
 } # _part_of_relationship 
 
 
 
 # This simply delegates. See SimpleGOEngine
 sub _is_a_relationship {
-    my ( $self, $term ) = @_;
+    my $self = shift;
 
-    return $self->_ont_engine()->is_a_relationship();
-
-
+    return $self->_ont_engine()->is_a_relationship(@_);
 } # _is_a_relationship 
 
 
@@ -416,12 +412,9 @@ sub _add_relationship {
 
 # This simply delegates. See SimpleGOEngine
 sub _has_term {
-    my ( $self, $term ) = @_;
+    my $self = shift;
 
-    
-    return $self->_ont_engine()->has_term( $term );
-
-
+    return $self->_ont_engine()->has_term( @_ );
 } # _add_term
 
 
