@@ -234,9 +234,10 @@ sub _unregister_for_cleanup {
 
 sub _cleanup_methods {
   my $self = shift;
-  return unless ref $self eq "HASH";
+  return unless ref $self && $self->isa('HASH');
   my $methods = $self->{'_root_cleanup_methods'} or return;
   @$methods;
+
 }
 
 =head2 throw
@@ -369,7 +370,6 @@ sub _load_module {
     }
     return 1;
 }
-
 
 1;
 
