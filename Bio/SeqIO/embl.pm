@@ -163,6 +163,21 @@ sub next_seq {
    $seq->display_id($name);
    if($mol) {
        $seq->molecule($mol);
+       my $moltype='XXX';
+       if (defined $seq->molecule) {
+	   my $mol =$seq->molecule;
+	   if ($mol =~ /DNA/) {
+	       $moltype='dna';
+	   }
+	   elsif ($mol =~ /RNA/) {
+	       $moltype='rna';
+	   }
+	   elsif ($mol =~ /AA/) {
+	       $moltype='protein';
+	   }
+       }
+       $seq->primary_seq->moltype($moltype);
+
    }
    if ($div) {
        $seq->division($div);
@@ -192,7 +207,7 @@ sub next_seq {
        }
        
        #version number
-       if( /^SV\s+(\S+);?/ ) {
+       if( /^SV\s+\S+\.(\d+);?/ ) {
 	   my $sv = $1;
 	   $sv =~ s/\;//;
 	   $seq->seq_version($sv);
@@ -324,6 +339,18 @@ sub write_seq {
     
     if ($seq->can('molecule')) {
         $mol = $seq->molecule();
+    }
+    elsif (defined $seq->primary_seq->moltype) {
+	my $moltype =$seq->primary_seq->moltype;
+	if ($moltype eq 'dna') {
+	    $mol ='DNA';
+	}
+	elsif ($moltype eq 'rna') {
+	    $mol='RNA';
+	}
+	elsif ($moltype eq 'protein') {
+	    $mol='AA';
+	}
     }
     $mol ||= 'XXX';
    
