@@ -336,6 +336,7 @@ sub throw{
  Function: Loads up (like use) the specified module at run time on demand.
  Example : 
  Returns : TRUE on success. Throws an exception upon failure.
+.
  Args    : The module to load (_without_ the trailing .pm).
 
 =cut
@@ -345,8 +346,14 @@ sub _load_module {
     my ($module, $load, $m);
     $module = "_<$name.pm";
     return 1 if $main::{$module};
-    $load = "$name.pm";
 
+    # untaint operation for safe web-based running (modified after a fix
+    # a fix by Lincoln) HL
+    if ($name !~ /^([\w:]+)$/) {
+	$self->throw("$name is an illegal perl package name");
+    }
+
+    $load = "$name.pm";
     my $io = Bio::Root::IO->new();
     # catfile comes from IO
     $load = $io->catfile((split(/::/,$load)));
