@@ -83,11 +83,25 @@ use vars qw( $TYPE_AND_VERSION_KEY
 
 use Bio::Root::RootI;
 use Symbol();
-use DB_File;
 
 @ISA = qw(Bio::Root::RootI);
 
-# new() is inherited from Bio::Root::Object
+# Generate accessor methods for simple object fields
+BEGIN {
+    foreach my $func (qw(filename write_flag)) {
+        no strict 'refs';
+        my $field = "_$func";
+        
+        *$func = sub {
+            my( $self, $value ) = @_;
+            
+            if (defined $value) {
+                $self->{$field} = $value;
+            }
+            return $self->{$field};
+        }
+    }
+}
 
 =head2 new
 
@@ -179,48 +193,26 @@ sub new {
 
 sub dbm_package {
     my( $self, $value ) = @_;
-    
-    if ($value) {
-        $self->{'_dbm_package'} = $value;
-    }
-    elsif (! $self->{'_dbm_package'}) {
-        if ($USE_DBM_TYPE) {
-            $self->{'_dbm_package'} = $USE_DBM_TYPE;
-        } else {
-            my( $type );
-            # DB_File isn't available on all systems
-            eval {
-                require DB_File;
-                DB_File->import('$DB_HASH');
-            };
-            if ($@) {
-                require SDBM_File;
-                $type = 'SDBM_File';
-            } else {
-                $type = 'DB_File';
-            }
-            $USE_DBM_TYPE = $self->{'_dbm_package'} = $type;
-        }
-    }
+    my $to_require = 0;
+    if( $value || ! $self->{'_dbm_package'} ) {
+	my $type = $value || $USE_DBM_TYPE || 'DB_File';	
+	if( $type =~ /DB_File/i ) {
+	    eval { 
+		require DB_File;
+		DB_File->import('$DB_HASH');
+	    };
+	    $type = ( $@ ) ? 'SDBM_File' : 'DB_File';
+	} 	
+	if( $type ne 'DB_File' ) {
+	    eval { require "$type.pm"; };
+	    $self->throw($@) if( $@ );
+	}
+	$self->{'_dbm_package'} = $type;
+	if( ! defined $USE_DBM_TYPE ) {
+	    $USE_DBM_TYPE = $self->{'_dbm_package'};
+	}	
+    } 
     return $self->{'_dbm_package'};
-}
-
-
-# Generate accessor methods for simple object fields
-BEGIN {
-    foreach my $func (qw(filename write_flag)) {
-        no strict 'refs';
-        my $field = "_$func";
-        
-        *$func = sub {
-            my( $self, $value ) = @_;
-            
-            if (defined $value) {
-                $self->{$field} = $value;
-            }
-            return $self->{$field};
-        }
-    }
 }
 
 =head2 db
@@ -507,9 +499,21 @@ sub make_index {
 
     # We're really fussy/lazy, expecting all file names to be fully qualified
     $self->throw("No files to index provided") unless @files;
-    foreach my $file (@files) {
-        $self->throw("File name not fully qualified : $file") unless $file =~ m|^/|;
-        $self->throw("File does not exist: $file")            unless -e $file;
+    for(my $i=0;$i<scalar @files; $i++)  {
+	if( $Bio::Root::RootI::FILESPECLOADED ) {	    
+	    if( ! File::Spec->file_name_is_absolute($files[$i]) ) {
+		$files[$i] = File::Spec->rel2abs($files[$i]);
+	    }
+	} else { 
+	    if(  $^O =~ /MSWin/i ) {
+		($files[$i] =~ m|^[A-Za-z]:/|) || 
+		    $self->throw("File name not fully qualified : $files[$i]");
+	    } else {
+		($files[$i] =~ m|^/|) || 
+		    $self->throw("File name not fully qualified : $files[$i]"); 
+	    }
+	}
+        $self->throw("File does not exist: $files[$i]")   unless -e $files[$i];
     }
 
     # Add each file to the index
