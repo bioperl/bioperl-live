@@ -161,7 +161,13 @@ sub new {
   my $self = bless {},$class;
 
   $arg{-strand} ||= 0;
-  $self->{strand}  = $arg{-strand} ? ($arg{-strand} >= 0 ? +1 : -1) : 0;
+  if ($arg{-strand} =~ /[\+\-\.]/){
+	$arg{-strand} = "+" && $self->{strand} = +1;
+	$arg{-strand} = "-" && $self->{strand} = -1;
+	$arg{-strand} = "." && $self->{strand} = 0;
+  } else {
+	  $self->{strand}  = $arg{-strand} ? ($arg{-strand} >= 0 ? +1 : -1) : 0;
+  }
   $self->{name}    = $arg{-name}   || $arg{-seqname} || $arg{-display_id} 
     || $arg{-display_name} || $arg{-id} || $arg{-primary_id};
   $self->{type}    = $arg{-type}   || 'feature';
@@ -464,10 +470,12 @@ sub gff_string {
   my $name  = $self->name;
   my $class = $self->class;
   my $group = "$class $name" if $name;
+  my $strand = ('-','.','+')[$self->strand+1];
+print STDERR "My Sranddy is $strand from ".($self->strand)."  ".($self->strand+1)."\n";
   my $string;
   $string .= join("\t",$self->ref||'.',$self->source||'.',$self->method||'.',
                        $self->start||'.',$self->stop||'.',
-                       $self->score||'.',$self->strand||'.',$self->phase||'.',
+                       $self->score||'.',$strand||'.',$self->phase||'.',
                        $group||'');
   $string .= "\n";
   foreach ($self->sub_SeqFeature) {
