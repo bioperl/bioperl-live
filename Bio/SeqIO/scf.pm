@@ -136,12 +136,14 @@ sub next_seq {
     $creator->{header} = $self->_get_header($buffer);
     if ($creator->{header}->{'version'} lt "3.00") {
 	          # first gather the trace information
-	    $length = $creator->{header}->{'samples'}*$creator->{header}->{sample_size}*4;
+	    $length = $creator->{header}->{'samples'}*
+               $creator->{header}->{sample_size}*4;
 	    $buffer = $self->read_from_buffer($fh,$buffer,$length);
 	          # @read = unpack "n$length",$buffer;
 	          # these traces need to be split
                # returns a reference to a hash
-         $creator->{traces} = $self->_parse_v2_traces($buffer,$creator->{header}->{sample_size});
+         $creator->{traces} = $self->_parse_v2_traces(
+               $buffer,$creator->{header}->{sample_size});
 	          # now go and get the base information
 	    $offset = $creator->{header}->{bases_offset};
 	    $length = ($creator->{header}->{bases} * 12);
@@ -158,7 +160,8 @@ sub next_seq {
     } else {
 	    my $transformed_read;
 	    foreach (qw(a c g t)) {
-	        $length = $creator->{header}->{'samples'}*$creator->{header}->{sample_size};
+	        $length = $creator->{header}->{'samples'}*
+                    $creator->{header}->{sample_size};
 	        $buffer = $self->read_from_buffer($fh,$buffer,$length);
                 my $byte = "n";
                 if ($creator->{header}->{sample_size} == 1){
@@ -204,7 +207,8 @@ sub next_seq {
 	    $buffer = $self->read_from_buffer($fh,$buffer,$length);
 	    $creator->{'sequence'} = unpack("a$length",$buffer);
 	          # now, finally, extract the calls from the accuracy information.
-	    $creator->{qualities} = $self->_get_v3_quality($creator->{'sequence'},$creator->{accuracies});
+	    $creator->{qualities} = $self->_get_v3_quality(
+               $creator->{'sequence'},$creator->{accuracies});
     }
     # now go and get the comment information
 	$offset = $creator->{header}->{comments_offset};
@@ -212,8 +216,8 @@ sub next_seq {
     $length = $creator->{header}->{comment_size};
     $buffer = $self->read_from_buffer($fh,$buffer,$length);
     $creator->{comments} = $self->_get_comments($buffer);
-          # can a bioperl person explain how this factory should create a sequencetrace?
-          # create a SeqWithQuality object
+          # can a bioperl person explain how this factory should create 
+          # a sequencetrace?  create a SeqWithQuality object
      my $swq = Bio::Seq::SeqWithQuality->new(
                -seq =>   $creator->{'sequence'},
               -qual =>	$creator->{'qualities'},
@@ -447,17 +451,6 @@ sub _parse_v2_traces {
     return $traces;
 }
 
-=head2 get_trace($base_channel)
-
- Title   : get_trace($base_channel)
- Usage   : @a_trace = @{$obj->get_trace("A")};
- Function: Return the trace data for the given base.
- Returns : A reference to an array containing the trace data for the
-	   given base.
- Args    : A,C,G, or T. Any other input throws.
- Notes   :
-
-=cut
 
 sub get_trace_deprecated_use_the_sequencetrace_object_instead {
     # my ($self,$base_channel,$traces) = @_;
@@ -470,18 +463,7 @@ sub get_trace_deprecated_use_the_sequencetrace_object_instead {
     #}
 }
 
-=head2 get_peak_indices()
-
- Title   : get_peak_indices()
- Usage   : @a_trace = @{$obj->get_peak_indices()};
- Function: Return the peak indices for this scf.
- Returns : A reference to an array containing the peak indices for this scf. 
- Args    : None.
- Notes   :
-
-=cut
-
-sub _deprecated_get_peak_indices {
+sub _deprecated_get_peak_indices_deprecated_use_the_sequencetrace_object_instead {
     my ($self) = shift;
     my @temp = split(' ',$self->{'parsed'}->{'peak_indices'});
     return \@temp;
@@ -510,23 +492,7 @@ sub get_header {
     return \%header;
 }
 
-=head2 _dump_traces_incoming($transformed)
-
- Title   : _dump_traces_incoming("transformed")
- Usage   : &_dump_traces($ra,$rc,$rg,$rt);
- Function: Used in debugging. Prints all traces one beside each other.
- Returns : Nothing.
- Args    : References to the arrays containing the traces for A,C,G,T.
- Notes   : Beats using dumpValue, I'll tell ya. Much better then using
-           join' ' too.
-	- if a scalar is included as an argument (any scalar), this
-	procedure will dump the _delta'd trace. If you don't know what
-	that means you should not be using this.
-
-=cut
-
-#'
-sub _dump_traces_incoming {
+sub _dump_traces_incoming_deprecated_use_the_sequencetrace_object {
     # my ($self) = @_;
     # my (@sA,@sT,@sG,@sC);
     # @sA = @{$self->{'traces'}->{'A'}};
@@ -544,22 +510,7 @@ sub _dump_traces_incoming {
     #return;
 }
 
-=head2 _dump_traces_outgoing($transformed)
-
- Title   : _dump_traces_outgoing("transformed")
- Usage   : &_dump_traces_outgoing(($ra,$rc,$rg,$rt);
- Function: Used in debugging. Prints all traces one beside each other.
- Returns : Nothing.
- Args    : References to the arrays containing the traces for A,C,G,T.
- Notes   : Beats using dumpValue, I\'ll tell ya. Much better then using
-           join' ' too.
-	- if a scalar is included as an argument (any scalar), this
-	procedur will dump the _delta'd trace. If you don't know what
-	that means you should not be using this.
-
-=cut
-
-sub _dump_traces_outgoing {
+sub _dump_traces_outgoing_deprecated_use_the_sequencetrace_object {
     my ($self,$transformed) = @_;
     my (@sA,@sT,@sG,@sC);
     if ($transformed) {
@@ -584,7 +535,8 @@ sub _dump_traces_outgoing {
 =head2 write_seq
 
  Title   : write_seq(-SeqWithQuality => $swq, <comments>)
- Usage   : $obj->write_seq(	-SeqWithQuality => $swq,
+ Usage   : $obj->write_seq(
+               -target => $swq,
 			-version => 2,
 			-CONV => "Bioperl-Chads Mighty SCF writer.");
  Function: Write out an scf.
@@ -598,11 +550,15 @@ sub _dump_traces_outgoing {
 	   to decide what might be good to put in here.
 
  Notes   :
-        Someday: (All of this stuff is easy easy easy I just don't have
-                the requirement or the time.)
-                - Change the peak scaling factor?
-                - Change the width of the peak?
-                - Change the overlap between peaks?
+          For best results, use a SequenceTrace object.
+          The things that you need to write an scf:
+          a) sequence
+          b) quality
+          c) peak indices
+          d) traces
+          - You _can_ write an scf with just a and b by passing in a 
+               SequenceWithQuality object- false traces will be synthesized
+               for you.
 
 =cut
 
@@ -614,22 +570,20 @@ sub write_seq {
      my $writer_fodder;
      if (ref($swq) =~ /Bio::Seq::SequenceTrace|Bio::Seq::SeqWithQuality/) {
                if (ref($swq) eq "Bio::Seq::SeqWithQuality") {
+                         # this means that the object *has no trace data*
+                         # we might as well synthesize some now, ok?
                     my $swq2 = new Bio::Seq::SequenceTrace(
                          -swq     =>   $swq
                     );
                     $swq2->_synthesize_traces();
                     $swq2->set_accuracies();
-                    print("Going to use this thing with false traces!!!\n");
-                    $dumper->dumpValue($swq2);
                     $swq = $swq2;
                }
-               
      }
     else  {
 	$self->throw("You must pass a Bio::Seq::SeqWithQuality or a Bio::Seq::SequenceTrace object to write_seq as a parameter named \"target\"");
     }
-
-    # all of the rest of the arguments are comments for the scf
+          # all of the rest of the arguments are comments for the scf
     foreach $arg (sort keys %args) {
 	next if ($arg =~ /target/i);
 	($label = $arg) =~ s/^\-//;
@@ -667,41 +621,62 @@ sub write_seq {
     $writer_fodder->{'header'}->{'samples_offset'} = "128";
      $writer_fodder->{'header'}->{'samples'} = $swq->trace_length();
           # create the binary for the comments and file it in writer_fodder
-    $writer_fodder->{comments} =  $self->_get_binary_comments($writer_fodder->{comments});
-          # create the binary and the strings for the traces, bases, offsets (if necessary), and accuracies (if necessary)
-    $writer_fodder->{traces} = $self->_get_binary_traces($writer_fodder->{'header'}->{'version'},$swq,$writer_fodder->{'header'}->{'sample_size'});
+    $writer_fodder->{comments} =  $self->_get_binary_comments(
+               $writer_fodder->{comments});
+          # create the binary and the strings for the traces, bases, 
+          # offsets (if necessary), and accuracies (if necessary)
+    $writer_fodder->{traces} = $self->_get_binary_traces(
+               $writer_fodder->{'header'}->{'version'},
+               $swq,$writer_fodder->{'header'}->{'sample_size'});
     my ($b_base_offsets,$b_base_accuracies,$samples_size,$bases_size);
     #
     # version 2
     #
     if ($writer_fodder->{'header'}->{'version'} == 2) {
-          $writer_fodder->{bases} = $self->_get_binary_bases(2,$swq);
-	     $samples_size = $writer_fodder->{'header'}->{'samples'} * 4 * 
-	     $writer_fodder->{'header'}->{'sample_size'};
-	     $bases_size = length($swq->seq()) * 12;
-	     $writer_fodder->{'header'}->{'bases_offset'} = 128 
-                         + length($writer_fodder->{samples}->{binary});
-	     $writer_fodder->{'header'}->{'comments_offset'} = 128 
-                         + length($writer_fodder->{'samples'}->{'binary'}) 
-                         + length($writer_fodder->{'base_structure'}->{'binary'}); 
-	     $writer_fodder->{'header'}->{'comments_size'} = length($writer_fodder->{'comments'}->{binary});
+          $writer_fodder->{bases} = $self->_get_binary_bases(
+                         2,
+                         $swq,
+                         $writer_fodder->{'header'}->{'sample_size'});
+	     $samples_size = CORE::length($writer_fodder->{traces}->{'binary'});
+	     $bases_size = CORE::length($writer_fodder->{bases}->{binary});
+	     $writer_fodder->{'header'}->{'bases_offset'} = 128 + $samples_size;
+	     $writer_fodder->{'header'}->{'comments_offset'} = 128 + 
+               $samples_size + $bases_size;
+	     $writer_fodder->{'header'}->{'comments_size'} = 
+               length($writer_fodder->{'comments'}->{binary});
 	     $writer_fodder->{'header'}->{'private_size'} = "0";
-	     $writer_fodder->{'header'}->{'private_offset'} = 128 + $samples_size + 
-	     $bases_size + $writer_fodder->{'header'}->{'comments_size'};
-	     $self->_print ($writer_fodder->{'header'}->{'binary'}) or print("Could not write binary header...\n"); 
-	     $self->_print ($writer_fodder->{'traces'}->{'binary'}) or print("Could not write binary traces...\n"); 
-	     $self->_print ($writer_fodder->{'base_structure'}->{'binary'}) or print("Could not write binary base structures...\n"); 
-	     $self->_print ($writer_fodder->{'comments'}->{'binary'}) or print("Could not write binary comments...\n");
+	     $writer_fodder->{'header'}->{'private_offset'} = 128 + 
+               $samples_size + $bases_size + 
+               $writer_fodder->{'header'}->{'comments_size'};
+          $writer_fodder->{'header'}->{'binary'} = 
+               $self->_get_binary_header($writer_fodder->{header});
+          $dumper->dumpValue($writer_fodder);
+	     $self->_print ($writer_fodder->{'header'}->{'binary'}) 
+               or print("Could not write binary header...\n"); 
+	     $self->_print ($writer_fodder->{'traces'}->{'binary'}) 
+               or print("Could not write binary traces...\n"); 
+	     $self->_print ($writer_fodder->{'bases'}->{'binary'}) 
+               or print("Could not write binary base structures...\n"); 
+	     $self->_print ($writer_fodder->{'comments'}->{'binary'}) 
+               or print("Could not write binary comments...\n");
     }
     else {
           ($writer_fodder->{peak_indices},
            $writer_fodder->{accuracies},
            $writer_fodder->{bases},
-           $writer_fodder->{reserved} ) = $self->_get_binary_bases(3,$swq,$writer_fodder->{'header'}->{'sample_size'});
-	     $writer_fodder->{'header'}->{'bases_offset'} = 128 + length($writer_fodder->{'traces'}->{'binary'});
-	     $writer_fodder->{'header'}->{'comments_size'} = length($writer_fodder->{'comments'}->{'binary'});
+           $writer_fodder->{reserved} ) = 
+               $self->_get_binary_bases(
+                    3,
+                    $swq,
+                    $writer_fodder->{'header'}->{'sample_size'}
+               );
+	     $writer_fodder->{'header'}->{'bases_offset'} = 128 + 
+               length($writer_fodder->{'traces'}->{'binary'});
+	     $writer_fodder->{'header'}->{'comments_size'} = 
+               length($writer_fodder->{'comments'}->{'binary'});
 	          # this is:
-	          # bases_offset + base_offsets + accuracies + called_bases + reserved
+	          # bases_offset + base_offsets + accuracies + called_bases + 
+               # reserved
 	     $writer_fodder->{'header'}->{'private_size'} = "0";
     
 	     $writer_fodder->{'header'}->{'comments_offset'} = 
@@ -710,21 +685,29 @@ sub write_seq {
 		         length($writer_fodder->{'accuracies'}->{'binary'})+
 			    length($writer_fodder->{'bases'}->{'binary'})+
 			    length($writer_fodder->{'reserved'}->{'binary'});
-	$writer_fodder->{'header'}->{'private_offset'} = $writer_fodder->{'header'}->{'comments_offset'} + $writer_fodder->{'header'}->{'comments_size'};
+	$writer_fodder->{'header'}->{'private_offset'} = 
+          $writer_fodder->{'header'}->{'comments_offset'} + 
+               $writer_fodder->{'header'}->{'comments_size'};
 	$writer_fodder->{'header'}->{'spare'}->[1] = 
-	    $writer_fodder->{'header'}->{'comments_offset'} +
-		length($writer_fodder->{'comments'}->{'binary'});
-     $writer_fodder->{header}->{binary} = $self->_get_binary_header($writer_fodder->{header});
-	$self->_print ($writer_fodder->{'header'}->{'binary'}) or print("Couldn't write header\n");
-	$self->_print ($writer_fodder->{'traces'}->{'binary'}) or print("Couldn't write samples\n");
-	$self->_print ($writer_fodder->{'peak_indices'}->{'binary'}) or print("Couldn't write peak offsets\n");
-	$self->_print ($writer_fodder->{'accuracies'}->{'binary'}) or print("Couldn't write accuracies\n");
-	$self->_print ($writer_fodder->{'bases'}->{'binary'}) or print("Couldn't write called_bases\n");
-	$self->_print ($writer_fodder->{'reserved'}->{'binary'}) or print("Couldn't write reserved\n");
-	$self->_print ($writer_fodder->{'comments'}->{'binary'}) or print ("Couldn't write comments\n");
+	     $writer_fodder->{'header'}->{'comments_offset'} +
+		     length($writer_fodder->{'comments'}->{'binary'});
+     $writer_fodder->{header}->{binary} = 
+          $self->_get_binary_header($writer_fodder->{header});
+	$self->_print ($writer_fodder->{'header'}->{'binary'}) 
+          or print("Couldn't write header\n");
+	$self->_print ($writer_fodder->{'traces'}->{'binary'}) 
+          or print("Couldn't write samples\n");
+	$self->_print ($writer_fodder->{'peak_indices'}->{'binary'}) 
+          or print("Couldn't write peak offsets\n");
+	$self->_print ($writer_fodder->{'accuracies'}->{'binary'}) 
+          or print("Couldn't write accuracies\n");
+	$self->_print ($writer_fodder->{'bases'}->{'binary'}) 
+          or print("Couldn't write called_bases\n");
+	$self->_print ($writer_fodder->{'reserved'}->{'binary'}) 
+          or print("Couldn't write reserved\n");
+	$self->_print ($writer_fodder->{'comments'}->{'binary'}) 
+          or print ("Couldn't write comments\n");
     }
-          # $dumper->dumpValue($writer_fodder);
-
 
     # kinda unnecessary, given the close() below, but maybe that'll go
     # away someday.
@@ -787,13 +770,14 @@ sub _get_binary_header {
 
 sub _get_binary_traces {
     my ($self,$version,$ref,$sample_size) = @_;
-          # ref _should_ be a Bio::Seq::SequenceTrace, but might be a Bio::Seq::SeqWithQuality
+          # ref _should_ be a Bio::Seq::SequenceTrace, but might be a 
+          # Bio::Seq::SeqWithQuality
      my $returner;
      my $sequence = $ref->seq();
      my $sequence_length = length($sequence);	
           # first of all, do we need to synthesize the trace?
           # if so, call synthesize_base
-     my ($traceobj,@traces);
+     my ($traceobj,@traces,$current);
      if ( ref($ref) eq "Bio::Seq::SeqWithQuality" ) {
           $traceobj = new Bio::Seq::SeqWithQuality(
                -target   =>   $ref
@@ -802,10 +786,9 @@ sub _get_binary_traces {
      }
      else {
           $traceobj = $ref;
-         if ($version eq "2") {
-               my (@traces,$current);
+          if ($version eq "2") {
                my $trace_length = $traceobj->trace_length();
-               for ($current = 0; $current < $trace_length; $current++) {
+               for ($current = 1; $current <= $trace_length; $current++) {
                     foreach (qw(a c g t)) {
                          push @traces,$traceobj->trace_value_at($_,$current);
                     }      
@@ -851,23 +834,27 @@ sub _get_binary_bases {
      if ($version == 2) {
           $returner->{'version'} = "2";
          for (my $current_base =1; $current_base < $length; $current_base++) {
-               push @current_row,0,0,0;
-               push @current_row,$trace->baseat($current_base);
-               push @current_row,$trace->accuracy_at("t",$current_base);
-               push @current_row,$trace->accuracy_at("g",$current_base);
-               push @current_row,$trace->accuracy_at("c",$current_base);
-               push @current_row,$trace->accuracy_at("a",$current_base);
+               my @current_row;
                push @current_row,$trace->peak_index_at($current_base);
+               push @current_row,$trace->accuracy_at("a",$current_base);
+               push @current_row,$trace->accuracy_at("c",$current_base);
+               push @current_row,$trace->accuracy_at("g",$current_base);
+               push @current_row,$trace->accuracy_at("t",$current_base);
+               push @current_row,$trace->baseat($current_base);
+               push @current_row,0,0,0;
                push @{$returner->{string}},@current_row;
                $returner->{binary} .= pack "N C C C C a C3",@current_row;
           }
+          return $returner;
      }
      else {
           $returner->{'version'} = "3.00";
           $returner->{peak_indices}->{string} = $trace->peak_indices();
           my $length = scalar(@{$returner->{peak_indices}->{string}});
-          $returner->{peak_indices}->{binary} = pack "N$length",@{$returner->{peak_indices}->{string}};
-          $returner->{peak_indices}->{length} = CORE::length($returner->{peak_indices}->{binary});
+          $returner->{peak_indices}->{binary} = 
+               pack "N$length",@{$returner->{peak_indices}->{string}};
+          $returner->{peak_indices}->{length} = 
+               CORE::length($returner->{peak_indices}->{binary});
           my @accuracies;
           foreach my $base (qw(a c g t)) {
                $returner->{accuracies}->{$base} = $trace->accuracies($base);
@@ -877,195 +864,32 @@ sub _get_binary_bases {
           $length = scalar(@accuracies);
                # this really is "c" for samplesize == 2
           $returner->{accuracies}->{binary} = pack "c${length}",@accuracies;
-          $returner->{accuracies}->{length} = CORE::length($returner->{accuracies}->{binary});
-               $length = $trace->seq_obj()->length();
+          $returner->{accuracies}->{length} = 
+               CORE::length($returner->{accuracies}->{binary});
+          $length = $trace->seq_obj()->length();
           for (my $count=0; $count< $length; $count++) {
                push @{$returner->{reserved}->{string}},0,0,0;
           }
      }
      $length = scalar(@{$returner->{reserved}->{string}});
                # this _must_ be "c"
-          $returner->{'reserved'}->{'binary'} = pack "c$length",@{$returner->{reserved}->{string}};
-         $returner->{'reserved'}->{'length'} = CORE::length($returner->{'reserved'}->{'binary'});
+     $returner->{'reserved'}->{'binary'} = 
+          pack "c$length",@{$returner->{reserved}->{string}};
+     $returner->{'reserved'}->{'length'} = 
+          CORE::length($returner->{'reserved'}->{'binary'});
           # $returner->{'bases'}->{'string'} = $trace->seq();
      my @bases = split('',$trace->seq());
      $length = $trace->length();
      $returner->{'bases'}->{'binary'} = $trace->seq();
           # print("Returning this:\n");
           # $dumper->dumpValue($returner);
-     return ($returner->{peak_indices},$returner->{accuracies},$returner->{bases},$returner->{reserved});
+     return ($returner->{peak_indices},
+             $returner->{accuracies},
+             $returner->{bases},
+             $returner->{reserved});
 
 }
 
-
-
-sub _deprecated_moved_to_sequence_trace_synthesize_base {
-     my ($self,$swq,$version) = @_;
-     ( my $sequence = $swq->seq() ) =~ tr/a-z/A-Z/;
-     my @quals = @{$swq->qual()};
-     my $info;
-	    # build the ramp for the first base.
-	    # a ramp looks like this "1 4 13 29 51 71 80 71 51 29 13 4 1" times the quality score.
-	    # REMEMBER: A C G T
-	    # note to self-> smooth this thing out a bit later
-    @{$self->{'text'}->{'ramp'}} = qw( 1 4 13 29 51 75 80 75 51 29 13 4 1 );
-	    # the width of the ramp
-    $self->{'text'}->{'ramp_width'} = scalar(@{$self->{'text'}->{'ramp'}});
-	    # how far should the peaks overlap?
-    $self->{'text'}->{'ramp_overlap'} = 1;
-    # where should the peaks be located?
-    $self->{'text'}->{'peak_at'} = 7;
-    $self->{'text'}->{'ramp_total_length'} =
-		$self->{'info'}->{'sequence_length'} * $self->{'text'}->{'ramp_width'}
-		- $self->{'info'}->{'sequence_length'} * $self->{'text'}->{'ramp_overlap'};
-    # create some empty arrays
-    # my (@sam_a,@sam_c,@sam_g,@sam_t,$pos);
-    my $pos;
-    my $total_length = $self->{'text'}->{ramp_total_length};
-    for ($pos=0;$pos<=$total_length;$pos++) {
-	$self->{'text'}->{'samples_a'}[$pos] = $self->{'text'}->{'samples_c'}[$pos] 
-		= $self->{'text'}->{'samples_g'}[$pos] = $self->{'text'}->{'samples_t'}[$pos] = "0";
-    }
-	# $self->_dump_traces();
-	    # now populate them
-    my ($current_base,$place_base_at,$peak_quality,$ramp_counter,$current_ramp,$ramp_position);
-    my $sequence_length = $self->{'info'}->{'sequence_length'};
-    my $half_ramp = int($self->{'text'}->{'ramp_width'}/2);
-    for ($pos = 0; $pos<$sequence_length;$pos++) {
-	$current_base = substr($self->{'info'}->{'sequence'},$pos,1);
-		# where should the peak for this base be placed? Modeled after a mktrace scf
-	$place_base_at = ($pos * $self->{'text'}->{'ramp_width'}) - 
-	                 ($pos * $self->{'text'}->{'ramp_overlap'}) - 
-		         $half_ramp + $self->{'text'}->{'ramp_width'} - 1;
-	push @{$self->{'text'}->{'v3_peak_offsets'}},$place_base_at;
-	$peak_quality = $quals[$pos];
-	if ($current_base eq "A") {
-		$ramp_position = $place_base_at - $half_ramp;
-		for ($current_ramp = 0; $current_ramp < $self->{'text'}->{'ramp_width'};  $current_ramp++) {
-			$self->{'text'}->{'samples_a'}[$ramp_position+$current_ramp] = $peak_quality * $self->{'text'}->{'ramp'}[$current_ramp];
-		}
-		push @{$self->{'text'}->{'v2_bases'}},($place_base_at+1,$peak_quality,0,0,0,$current_base,0,0,0);
-		push @{$self->{'text'}->{'v3_base_accuracy_a'}},$peak_quality;
-		foreach (qw(g c t)) {
-			push @{$self->{'text'}->{"v3_base_accuracy_$_"}},0;
-		}
-	}
-	elsif ($current_base eq "C") {
-		$ramp_position = $place_base_at - $half_ramp;
-		for ($current_ramp = 0; $current_ramp < $self->{'text'}->{'ramp_width'}; $current_ramp++) {
-			$self->{'text'}->{'samples_c'}[$ramp_position+$current_ramp] = $peak_quality * $self->{'text'}->{'ramp'}[$current_ramp];
-		}
-		push @{$self->{'text'}->{'v2_bases'}},($place_base_at+1,0,$peak_quality,0,0,$current_base,0,0,0);
-		push @{$self->{'text'}->{'v3_base_accuracy_c'}},$peak_quality;
-		foreach (qw(g a t)) {
-			push @{$self->{'text'}->{"v3_base_accuracy_$_"}},0;
-		}
-	} elsif ($current_base eq "G") {
-		$ramp_position = $place_base_at - $half_ramp;
-		for ($current_ramp = 0; 
-			$current_ramp < $self->{'text'}->{'ramp_width'}; 
-			$current_ramp++) {
-			$self->{'text'}->{'samples_g'}[$ramp_position+$current_ramp] = $peak_quality * $self->{'text'}->{'ramp'}[$current_ramp];
-		}
-		push @{$self->{'text'}->{'v2_bases'}},($place_base_at+1,0,0,$peak_quality,0,$current_base,0,0,0);
-		push @{$self->{'text'}->{"v3_base_accuracy_g"}},$peak_quality;
-		foreach (qw(a c t)) {
-			push @{$self->{'text'}->{"v3_base_accuracy_$_"}},0;
-		}
-	}
-	elsif( $current_base eq "T" ) { 
-		$ramp_position = $place_base_at - $half_ramp;
-		for ($current_ramp = 0; $current_ramp < $self->{'text'}->{'ramp_width'}; $current_ramp++) {
-			$self->{'text'}->{'samples_t'}[$ramp_position+$current_ramp] = $peak_quality * $self->{'text'}->{'ramp'}[$current_ramp];
-		}
-		push @{$self->{'text'}->{'v2_bases'}},($place_base_at+1,0,0,0,$peak_quality,$current_base,0,0,0);
-		push @{$self->{'text'}->{'v3_base_accuracy_t'}},$peak_quality;
-		foreach (qw(g c a)) {
-			push @{$self->{'text'}->{"v3_base_accuracy_$_"}},0;
-		}
-	} elsif ($current_base eq "N") {
-	    $ramp_position = $place_base_at - $half_ramp;
-	    for ($current_ramp = 0; 
-		 $current_ramp < $self->{'text'}->{'ramp_width'}; 
-		 $current_ramp++) {
-		$self->{'text'}->{'samples_a'}[$ramp_position+$current_ramp] = $peak_quality * $self->{'text'}->{'ramp'}[$current_ramp];
-	    }
-	    push @{$self->{'text'}->{'v2_bases'}},($place_base_at+1,$peak_quality,
-							 $peak_quality,$peak_quality,$peak_quality,
-							 $current_base,0,0,0);
-		foreach (qw(a c g t)) {
-			push @{$self->{'text'}->{"v3_base_accuracy_$_"}},0;
-		}
-	}
-	else {
-		# don't print this.
-		# print ("The current base ($current_base) is not a base. Hmmm.\n");
-	}
-    }
-	foreach (qw(a c g t)) {
-		pop @{$self->{'text'}->{"samples_$_"}};
-	}
-
-			# set the samples in the header
-		$self->{'header'}->{'samples'} = scalar(@{$self->{'text'}->{'samples_a'}});
-
-			# create the final trace string (this is version dependent)
-		$self->_make_trace_string($version);
-			# create the binary for v2 bases
-		if ($self->{'header'}->{'version'} == 2) {
-			my ($packstring,@pack_array,$pos2,$tester,@unpacked);
-			for ($pos = 0; $pos<$sequence_length;$pos++) {
-				my @pack_array = @{$self->{'text'}->{'v2_bases'}}[$pos*9..$pos*9+8];
-				$self->{'binaries'}->{'v2_bases'} .= pack "N C C C C a C3",@pack_array;
-			}
-			# now create the binary for the traces
-			my $trace_pack_length = scalar(@{$self->{'text'}->{'samples_all'}});
-               my $byte;
-	    		$self->{'binaries'}->{'samples_all'} .= pack "c$trace_pack_length",@{$self->{'text'}->{'samples_all'}};
-		}
-		else {
-				# now for the version 3 stuff!
-				# delta the trace data
-			my @temp;
-			foreach (qw(a c g t)) {
-				$self->{'text'}->{"t_samples_$_"} = $self->_delta($self->{'text'}->{"samples_$_"},"forward");
-					if ($_ eq 'a') {
-						@temp = @{$self->{'text'}->{"t_samples_a"}};
-						@{$self->{'text'}->{'samples_all'}} = @{$self->{'text'}->{"t_samples_a"}};
-					}
-					else {
-						push @{$self->{'text'}->{'samples_all'}},@{$self->{'text'}->{"t_samples_$_"}};
-					}
-			}
-				# now create the binary for the traces
-			my $trace_pack_length = scalar(@{$self->{'text'}->{'samples_all'}});
-
-			$self->{'binaries'}->{'samples_all'} .= pack "n$trace_pack_length",@{$self->{'text'}->{'samples_all'}};
-
-				# peak offsets
-			my $length = scalar(@{$self->{'text'}->{'v3_peak_offsets'}});
-			$self->{'binaries'}->{'v3_peak_offsets'} = pack "N$length",@{$self->{'text'}->{'v3_peak_offsets'}};
-				# base accuracies
-			@{$self->{'text'}->{'v3_accuracies_all'}} = @{$self->{'text'}->{"v3_base_accuracy_a"}};
-			foreach (qw(c g t)) {
-				@{$self->{'text'}->{'v3_accuracies_all'}} = (@{$self->{'text'}->{'v3_accuracies_all'}},@{$self->{'text'}->{"v3_base_accuracy_$_"}});
-			}
-			$length = scalar(@{$self->{'text'}->{'v3_accuracies_all'}});
-			
-			$self->{'binaries'}->{'v3_accuracies_all'} = pack "c$length",@{$self->{'text'}->{'v3_accuracies_all'}};
-				# called bases
-			$length = length($self->{'info'}->{'sequence'});
-			my @seq = split(//,$self->{'info'}->{'sequence'});
-				# pack the string
-			$self->{'binaries'}->{'v3_called_bases'} = $self->{'info'}->{'sequence'};
-				# finally, reserved for future use
-			$length = $self->{'info'}->{'sequence_length'};
-			for (my $counter=0; $counter < $length; $counter++) {
-				push @temp,0;
-			}
-			$self->{'binaries'}->{'v3_reserved'} = pack "N$length",@temp;
-		}
-}
 
 =head2 _make_trace_string($version)
 

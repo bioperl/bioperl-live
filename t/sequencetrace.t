@@ -114,11 +114,4 @@ sub the_old_way {
         $dumper->dumpValue($subtraces);
 }
 
-sub crown {
-     my $subtraces = shift;
-     my $counter;
-
-
-}
-
 

@@ -16,6 +16,9 @@ Bio::Seq::SequenceTrace - Bioperl object packaging a sequence with its trace
 
 =head1 SYNOPSIS
 
+
+
+
 =head1 DESCRIPTION
 
 This object stores a sequence with its trace.
@@ -78,6 +81,10 @@ my $dumper = new Dumpvalue();
           -trace_t  =>   \@trace_values_for_t_channel,
           -trace_g  =>   \@trace_values_for_g_channel,
           -trace_c  =>   \@trace_values_for_c_channel,
+          -accuracy_a    =>   \@a_accuracies,
+          -accuracy_t    =>   \@t_accuracies,
+          -accuracy_g    =>   \@g_accuracies,
+          -accuracy_c    =>   \@c_accuracies,
           -peak_indices    => '0 5 10 15 20 25 30 35'
      );
  Function: Returns a new Bio::Seq::SequenceTrace object from basic
@@ -193,7 +200,7 @@ sub trace {
 
  Title   : peak_indices($new_indices)
  Usage   : $indices = $obj->peak_indices($new_indices);
- Function: Return the trace iindex points for this object.
+ Function: Return the trace index points for this object.
  Returns : A scalar
  Args    : If used, the trace indices will be set to the provided value.
 
@@ -218,6 +225,39 @@ sub peak_indices {
 }
 
 
+=head2 _reset_peak_indices()
+
+ Title   : _rest_peak_indices()
+ Usage   : $obj->_reset_peak_indices();
+ Function: Reset the peak indices.
+ Returns : Nothing.
+ Args    : None.
+ Notes   : When you create a sub_trace_object, the peak indices
+     will still be pointing to the apporpriate location _in the
+     original trace_. In order to fix this, the initial value must
+     be subtracted from each value here. ie. The first peak index
+     must be "1".
+
+=cut
+
+sub _reset_peak_indices {
+   my $self = shift;
+     my $length = $self->length();
+     my $subtractive = $self->peak_index_at(1);
+     my ($original,$new);
+     $self->peak_index_at(1,"null");
+     for (my $counter=2; $counter<= $length; $counter++) {
+          my $original = $self->peak_index_at($counter);
+          $new = $original - $subtractive;
+          $self->peak_index_at($counter,$new);
+     }
+     return;
+}
+
+
+
+
+
 =head2 peak_index_at($position)
 
  Title   : peak_index_at($position)
@@ -232,20 +272,15 @@ sub peak_indices {
 sub peak_index_at {
    my ($self,$position,$value)= @_;
    if ($value) {
-          $self->peak_indices->[$position-1] = $value;
+          if ($value eq "null") {
+               $self->peak_indices->[$position-1] = "0";
+          }
+          else {
+               $self->peak_indices->[$position-1] = $value;
+          }
    }
     return $self->peak_indices()->[$position-1];
 }
-
-
-
-
-
-
-
-
-
-
 
 =head2 alphabet()
 
@@ -616,8 +651,7 @@ sub qualat {
  Usage   : @peak_indices = @{$obj->sub_peak_index(10,20);
  Function: returns the trace index values from $start to $end, where the
         first value is 1 and the number is inclusive, ie 1-2 are the
-	first two bases of the sequence. Start cannot be larger than
-	end but can be e_peak_index.
+	first two trace indices for this channel.
  Returns : A reference to an array.
  Args    : a start position and an end position
 
@@ -644,11 +678,10 @@ sub sub_peak_index {
 
 }
 
-
 =head2 sub_trace($start,$end)
 
  Title   : sub_trace($base_channel,$start,$end)
- Usage   : @peak_indices = @{$obj->sub_trace('a',10,20);
+ Usage   : @trace_values = @{$obj->sub_trace('a',10,20)};
  Function: returns the trace values from $start to $end, where the
         first value is 1 and the number is inclusive, ie 1-2 are the
 	first two bases of the sequence. Start cannot be larger than
@@ -681,9 +714,9 @@ sub sub_trace {
 
 =head2 trace_length()
 
- Title   : peak_index_length()
- Usage   : $peak_index_length = $obj->peak_index_length();
- Function: Return the peak_index if all four traces (atgc)
+ Title   : trace_length()
+ Usage   : $trace_length = $obj->trace_length();
+ Function: Return the length of the trace if all four traces (atgc)
      are the same. Otherwise, throw an error.
  Returns : A scalar.
  Args    : none
@@ -747,10 +780,23 @@ sub sub_trace_object {
 
         );
      $new_object->set_accuracies();
+     $new_object->_reset_peak_indices();
      return $new_object;
 }
 
+=head2 _synthesize_traces()
 
+ Title   : _synthesize_traces()
+ Usage   : $obj->_synthesize_traces();
+ Function: Synthesize false traces for this object.
+ Returns : Nothing.
+ Args    : None.
+ Notes   : This method is intended to be invoked when this
+     object is created with a SWQ object- that is to say that
+     there is a sequence and a set of qualities but there was
+     no actual trace data.
+
+=cut
 
 sub _synthesize_traces {
      my ($self) = shift;

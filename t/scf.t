@@ -21,8 +21,12 @@ BEGIN {
 }
 
 END {
-     #     unlink qw(write_scf.scf write_scf_no_sequence.scf 
-	#      write_scf_no_qualities.scf);
+     unlink qw(
+               write_scf.scf
+               write_scf_synthetic_traces.scf 
+	          write_scf_subtrace.scf
+               write_scf_version2.scf
+     );
 }
 
 use Dumpvalue();
@@ -135,15 +139,29 @@ $in_scf_v3 = Bio::SeqIO->new('-file' => Bio::Root::IO->catfile
 			     '-format' => 'scf',
 			     '-verbose' => $verbose);
 $v3 = $in_scf_v3->next_seq();
-print("The full trace object is as follows:\n");
+# print("The full trace object is as follows:\n");
 my $sub_v3 = $v3->sub_trace_object(5,50);
 
-# print("The subtrace object is this:\n");
-# $dumper->dumpValue($sub_v3);
+print("The subtrace object is this:\n");
+$dumper->dumpValue($sub_v3);
 
 $out_scf->write_seq(
           -target   =>   $sub_v3
 );
+
+
+my $in_scf_v2 = Bio::SeqIO->new('-file' => Bio::Root::IO->catfile
+				("t","data",
+				 "version2.scf"),
+			     '-format' => 'scf',
+			     '-verbose' => $verbose);
+$v3 = $in_scf_v2->next_seq();
+$out_scf = Bio::SeqIO->new(-file   =>   ">write_scf_version2.scf",
+                           -format =>   "scf");
+$out_scf->write_seq( -target  => $v3,
+                     -version => 2 );
+
+# now some version 2 things.
 
 
 
