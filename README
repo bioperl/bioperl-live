@@ -9,8 +9,8 @@ o Getting Started
  For tutorials see Bioperl's bptutorial.pl or the online Bioperl tutorial
  at http://www.pasteur.fr/recherche/unites/sis/formation/bioperl. For
  information on databases and Bioperl see biodatabases.pod. To look at
- example code browse the examples/ and scripts/ directories, and look at
- bioperl.pod for a descriptions of all these scripts. The bioperl.pod file
+ example code browse the scripts/ directories, and look at
+ bioscripts.pod for a descriptions of all these scripts. The bioperl.pod file
  also gives a overview of the history and purpose of Bioperl. The FAQ
  may also be useful if you have a particular question.
 
@@ -84,7 +84,6 @@ o About the directory structure
  scripts/contributed - User submissions of useful scripts not necessarily 
 		       integrated into bioperl.  Please see the README
 		       in this directory.
- examples/ - Example code snippets
  doc/ - "How To" files and the FAQ as XML
 
 o Documentation
@@ -125,12 +124,12 @@ o Documentation
  There is also an online course written at the Pasteur Institute. See:
  http://www.pasteur.fr/recherche/unites/sis/formation/bioperl.
 
- Useful documentation, in the form of example code, can also be found
- in the scripts/ and examples/ directories. The current collection
- includes scripts that run BLAST and retrieve full "Subject" sequences,
- make primers, retrieve ESTs based on tissue, align protein to nucleotide
+ Useful documentation in the form of example code can also be found
+ in the scripts/ directory. The current collection includes scripts
+ that run BLAST, index flat files, parse PDB structure files, make primers,
+ retrieve ESTs based on tissue, align protein to nucleotide
  sequence, run GENSCAN on multiple sequences, and much more! See
- bioperl.pod for a complete listing.
+ bioscripts.pod for a complete listing.
 
 o Releases
   
