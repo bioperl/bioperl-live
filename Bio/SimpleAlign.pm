@@ -40,11 +40,12 @@ built in manipulations and especially file format systems for
 read/writing alignments.
 
 SimpleAlign basically views an alignment as an immutable block of text.
-SimpleAlign *is not* the object to be using if you want to manipulate an
-alignment (eg, truncate an alignment or remove columns that are all gaps).
+SimpleAlign *is not* the object to be using if you want to perform complex
+alignment alignment manipulations.
 These functions are much better done by UnivAln by Georg Fuellen. 
 
-However for lightweight display/formatting - this is the one to use.
+However for lightweight display/formatting and minimal manipulation
+(e.g. removiung all-gaps columns) - this is the one to use.
 
 Tricky concepts. SimpleAlign expects name,start,end to be 'unique' in
 the alignment, and this is the key for the internal hashes.
@@ -138,6 +139,7 @@ sub _initialize {
 
   $self->{'seq'} = {};
   $self->{'order'} = {};
+  $self->{'start_end_lists'} = {};
   $self->{'dis_name'} = {};
   $self->{'id'} = 'NoName';
 
@@ -209,6 +211,13 @@ sub addSeq {
 
     if( $self->{'seq'}->{$name} ) {
 	$self->warn("Replacing one sequence [$name]\n");
+
+    }
+    else {
+	if (not exists( $self->{'start_end_lists'}->{$id})) {
+	    $self->{'start_end_lists'}->{$id} = [];
+	}
+	push @{$self->{'start_end_lists'}->{$id}}, $seq;
     }
 
     $self->{'seq'}->{$name} = $seq;
@@ -232,7 +241,6 @@ sub removeSeq {
     my $seq = shift;
     my ($name,$id,$start,$end);
 
-    $seq->out_fasta(\*STDOUT);
     $id = $seq->id();
     $start = $seq->start();
     $end  = $seq->end(); 
@@ -241,8 +249,31 @@ sub removeSeq {
     if( !exists $self->{'seq'}->{$name} ) {
 	$self->throw("Sequence $name does not exist in the alignment to remove!");
     }
-
+    
     delete $self->{'seq'}->{$name};
+    
+    # we need to remove this seq from the start_end_lists hash
+
+    if (exists $self->{'start_end_lists'}->{$id}) {
+	# we need to find the sequence in the array.
+	
+	my ($i, $found);;
+	for ($i=0; $i < @{$self->{'start_end_lists'}->{$id}}; $i++) {
+	    if (${$self->{'start_end_lists'}->{$id}}[$i] eq $seq) {
+		$found = 1;
+		last;
+	    }
+	}
+	if ($found) {
+	    splice @{$self->{'start_end_lists'}->{$id}}, $i, 1;
+	}
+	else {
+	    $self->throw("Could not find the sequence to remoce from the start-end list");
+	}
+    }
+    else {
+	$self->throw("There is no seq list for the name $id");
+    }
 
     # we can't do anything about the order hash but that is ok
     # because eachSeq will handle it
@@ -277,6 +308,42 @@ sub eachSeq {
 
     return @arr;
 }
+
+
+
+
+    
+=head2 eachSeqWithId
+
+ Title     : eachSeqWithId
+ Usage     : foreach $seq ( $align->eachSeqWithName() ) 
+           : 
+           :
+ Function  : gets an array of Seq objects from the
+           : alignment, the contents being those sequences
+           : with the given name (there may be more than one
+           :
+ Returns   : an array
+ Argument  : nothing
+
+=cut
+
+sub eachSeqWithId {
+    my $self = shift;
+    my $id = shift;
+
+    my (@arr, $seq);
+
+    if (exists($self->{'start_end_lists'}->{$id})) {
+	@arr = @{$self->{'start_end_lists'}->{$id}};
+    }
+    return @arr; 
+
+
+    return @arr;
+}
+
+
 
 
 
@@ -728,51 +795,27 @@ sub read_fasta {
 sub read_selex {
     my $self = shift;
     my $in = shift;
-    my ($start,$end,%align,$name,$seqname,$seq,$count,%hash,%c2name,$no);
-    
-    # not quite sure 'what' selex format is, but here we go!
+    my ($start,$end,%align,$name,$seqname,$seq,$count,%hash,%c2name, %accession, $no);
+   
+    # in selex/stokholm format, every non-blank line that does not start
+    # with '#=' is an alignment segment; the '#=' lines are mark up lines.
+    # Of particular interest are the '#=GF <name/st-ed> AC <accession>' 
+    # lines, which give accession numbers for each segment
 
     while( <$in> ) {
-	#/^#=SQ/ && last;
-	/^#=RF/ && last;
-    }
+	/^\#=GF\s+(\S+)\s+AC\s+(\S+)/ && do {
+	    $accession{ $1 } = $2; 
+	    next;
+	};
 
-    while( <$in> ) {
-	/^#/ && next;
-	/^\s/ && next;
-	/\w/ && last;
-    }
-
-    if( eof($in) ) {
-	warn("Exhausted file without reading selex format");
-	return undef;
-    }
-    # first line starting with word
-    chop;
-
-    $count =0;
-
-    if( !/^(\S+)\s+([A-Za-z\.\-]+)\s*/ ) {
-	warn("Ok. I think [$_] does not look like selex format. Not sure...");
-	return (-1);
-    }
-
-    $name = $1;
-    $seq = $2;
-
-    $align{$name} .= $seq;
-    $c2name{$count} = $name;
-    $count++;
-
-    while( <$in> ) {
 	!/^([^\#]\S+)\s+([A-Za-z\.\-]+)\s*/ && next;
 	
 	$name = $1;
 	$seq = $2;
 
 	if( ! defined $align{$name}  ) {
-	    $c2name{$count} = $name;
 	    $count++;
+	    $c2name{$count} = $name;
 	}
 
 	$align{$name} .= $seq;
@@ -798,7 +841,8 @@ sub read_selex {
 			    '-id'=>$seqname,
 			    '-start'=>$start,
 			    '-end'=>$end, 
-			    '-type'=>'aligned'
+			    '-type'=>'aligned',
+			    '-names'=>{'acc'=>$accession{$name}}
 			    );
 
 	$self->addSeq($seq);
@@ -978,10 +1022,15 @@ sub write_Pfam_link {
     my $out  = shift;
     my $len  = shift;
     my $acc   = shift;
-    my ($namestr,$linkstr,$seq,$name,$start,$end,$disname,$add,$place);
+    my ($namestr,$linkstr,$seq,$name,$start,$end,$disname,$add,$place, $maxlen);
 
     if( !defined $len ) {
 	$len = 22;
+    }
+
+    $maxlen = $self->maxdisplayname_length() + 2;
+    if ($maxlen > $len) {
+	$len  = $maxlen;
     }
 
     foreach $seq ( $self->eachSeq() ) {
@@ -1108,6 +1157,28 @@ sub write_fasta {
 	    $seqsub = substr($seq,$count*60,60);
 	    print $file "$seqsub\n";
 	    $count++;
+	}
+    }
+}
+
+
+
+sub write_selex {
+    my $self = shift;
+    my $out  = shift;
+    my $acc  = shift;
+    my ($namestr,$seq,$add);
+    my ($maxn);
+
+    $maxn = $self->maxdisplayname_length();
+    
+    foreach $seq ( $self->eachSeq() ) {
+	$namestr = $self->get_displayname($seq->get_nse());
+	$add = $maxn - length($namestr) + 2;
+	$namestr .= " " x $add;
+	print $out sprintf("%s  %s\n",$namestr,$seq->str());
+	if( defined $acc && $acc == 1) {
+	    print $out sprintf("%s %s %s %s\n", "#=GS", $namestr, "AC", $seq->names()->{'acc'});
 	}
     }
 }
@@ -1587,8 +1658,11 @@ sub read_Prodom{
 
    my ($acc, $fake_id, $start, $end, $seq, $add, %names);
 
-   while (<$file>){
-       if (/^AL\s+(\S+)\|(\S+)\s+(\d+)\s+(\d+)\s+\S+\s+(\S+)$/){
+   while (<$file>) {
+       if (/^AC\s+(\S+)$/) {
+	   $self->id( $1 );
+       }
+       elsif (/^AL\s+(\S+)\|(\S+)\s+(\d+)\s+(\d+)\s+\S+\s+(\S+)$/){
 	   $acc=$1;
 	   $fake_id=$2;  # Accessions have _species appended
 	   $start=$3;
@@ -1605,8 +1679,205 @@ sub read_Prodom{
 			       '-type'=>'aligned');
 	   
 	   $self->addSeq($add);
-        }
+       }
+       elsif (/^CO/) {
+	   # the consensus line marks the end of the alignment part of the entry
+	   last;
+       }
+   }
+}
+
+
+
+=head2 allgaps_columns_removed
+
+ Title   : allgaps_columns_removed
+ Usage   : $new = $ali->allgaps_columns_removed
+ Function:
+    This function returns the alignment that results from from removing 
+    columns that are all gaps.
+    for the alignment
+
+ Returns : 
+    A new SimpleAlign object, with no all-gaps columns
+ Args    :
+
+=cut
+
+sub allgaps_columns_removed {
+    my ($self) = @_;
+
+    my ($newaln, @columnlist, %mymap);
+
+    $newaln = Bio::SimpleAlign->new();
+    $newaln->id( $self->id() );
+
+    foreach my $seq ($self->eachSeq) {
+	my @ary = $seq->ary();
+
+	foreach my $el (grep { $ary[$_] ne '.' and $ary[$_] ne '-' } (0..$self->length_aln-1)) {
+	    $mymap{ $el } = 1;
+	}
     }
+
+    my @sortedgappositions = sort { $b <=> $a } grep { not defined( $mymap{$_}) } (0..$self->length_aln-1);
+
+    foreach my $seq ($self->eachSeq) {
+	my @newseq = $seq->ary();
+
+	foreach my $gappos (@sortedgappositions) {
+	    splice @newseq, $gappos, 1;
+	}
+
+	my $newseq = Bio::Seq->new('-id' => $seq->id(),
+				   '-start' => $seq->start(),
+				   '-end' => $seq->end(),
+				   '-seq' => \@newseq,
+				   '-type' => 'aligned');
+	foreach my $nm (keys %{$seq->names}) {
+	    $newseq->names->{$nm} = $seq->names->{$nm};
+	}
+	$newaln->addSeq( $newseq );  
+    }
+
+    return $newaln;
+}
+
+
+
+
+=head2 column_from_residue_number
+
+ Title   : column_from_residue_number
+ Usage   : $col = $ali->column_from_residue_number( $seqname, $resnumber)
+ Function:
+    This function gives the position in the alignment (i.e. column number) of
+    the given residue number in the sequence with the given name. For example,
+    for the alignment
+    
+    Seq1/91-97 AC..DEF.GH
+    Seq2/24-30 ACGG.RTY..
+    Seq3/43-51 AC.DDEFGHI
+
+    column_from_residue_number( "Seq1", 94 ) returns 5.
+    column_from_residue_number( "Seq2", 25 ) returns 2.
+    column_from_residue_number( "Seq3", 50 ) returns 9.
+
+    An exception is thrown if the residue number would lie outside the length
+    of the aligment (e.g. column_from_residue_number( "Seq2", 22 )
+
+ Returns : 
+    A column number for the postion in the alignment of the given residue in the given
+         sequence (1 = first column)
+ Args    :
+    A sequence name (not a name/start-end)
+    A residue number in the whole sequence (not just that segment of it in the alignment)
+
+=cut
+
+sub column_from_residue_number {
+    my ($self, $seqname, $resnumber) = @_;
+
+    foreach my $seq ($self->eachSeqWithId($seqname)) {
+	if ($resnumber >= $seq->start() and $resnumber <= $seq->end()) {
+	    # we have found the correct sequence
+	    my @residues = $seq->ary();
+	    my $count = $seq->start();
+	    my $i;
+	    for ($i=0; $i < @residues; $i++) {
+		if ($residues[$i] ne '.' and $residues[$i] ne '-') {
+		    $count == $resnumber and last;
+		    $count++;
+		}		    
+	    }
+	    # $i now holds the index of the column. The actual colimn number is this index + 1
+		
+	    return $i+1;
+	}
+    }
+
+    $self->throw("Could not find a sequence segment in $seqname containing residue number $resnumber");
+
+}
+
+
+
+=head2 trimmed_alignment
+
+ Title   : trimmed_aligmment
+ Usage   : $alignment = $ali->trimmed_alignment( $start_columnm, $end_column );
+ Function:
+    This function cuts produces a new alignment that is the result od cutting this
+    alignment to the left of the start column and to the right of the end column.
+    The returned alignment includes start column and end column
+ Returns : 
+    A SimpleAlign object
+ Args    :
+    A start column and end column
+ Notes   :
+    The start and end of each sequence in the alignment will need to change, and this function 
+    does this.
+
+    If $start is undefined, then the alignment returned extends from column 1 to $end.
+    If $end is undefined, then the alignment returned extends from column start to end
+=cut
+
+sub trimmed_alignment {
+    my ($self, $start, $end) = @_;
+
+    if (not defined($start) and not defined($end)) {
+	$self->throw("The desired extent of the alignment has not been given in any way");
+    }
+    elsif (not defined($start)) {
+	$start = 1;
+    }
+    elsif (not defined($end)) {
+	$end = $self->length_aln();
+    }
+    
+    my $newaln = Bio::SimpleAlign->new();
+    $newaln->id( $self->id() );
+    
+    foreach my $seq ($self->eachSeq()) {
+	my @residues = $seq->ary();
+
+	my @discardedleft = splice @residues, 0, $start-1;
+
+	# now, if we splice the first ($end - $start + 1) residues, then that is 
+	# what we are interested in. @residues will be left with what is discarded right.
+ 
+	my @finalseqs = splice @residues, 0, $end-$start+1;
+
+	my $newstart = $seq->start();
+	my $newend = $seq->end();
+	foreach my $char (@discardedleft) {
+	    if ($char ne '-' and $char ne '.') {
+		$newstart++;
+	    }
+	}
+	foreach my $char (@residues) {
+	    if ($char ne '-' and $char ne '.') {
+		$newend--;
+	    }
+	}
+
+	# we may be left with just gaps in the sequence; if this is the case
+	# then don't add it
+
+	if ($newend >= $newstart) {
+	    my $newseq = Bio::Seq->new( '-id' => $seq->id(),
+					'-start' => $newstart,
+					'-end' => $newend,
+					'-seq' => \@finalseqs,
+					'-type' => 'aligned' );
+	    foreach my $nm (keys %{$seq->names}) {
+		$newseq->names->{$nm} = $seq->names->{$nm};
+	    }
+	    $newaln->addSeq( $newseq );  
+	}
+    }
+
+    return $newaln;					
 }
 
 
