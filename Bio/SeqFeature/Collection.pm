@@ -134,7 +134,7 @@ use Bio::Root::Root;
 use Bio::DB::GFF::Util::Binning;
 use DB_File;
 use Bio::Location::Simple;
-use Storable qw(freeze thaw);
+use Bio::SeqFeature::Generic;
 
 @ISA = qw(Bio::Root::Root );
 
@@ -220,7 +220,7 @@ sub add_features{
 	   next;
        }
        my $bin = bin($f->start,$f->end,$self->min_bin);
-       my $serialized = freeze($f);
+       my $serialized = &freeze($f);
        $self->{'_btree'}->put($bin,$serialized);
        $self->debug( "$bin for ". $f->location->to_FTstring(). " matches ".$#{$self->{'_features'}}. "\n");
        $count++;
@@ -359,7 +359,7 @@ sub remove_features{
        foreach my $v ( @vals )  {
 	   # Once we have uniquely identifiable field
 	   # I think it will work better.
-	   if( $v eq freeze($f) ) {
+	   if( $v eq &freeze($f) ) {
 	       $self->{'_btree'}->del_dup($bin,$v);
 	       $vcount--;
 	       $countprocessed++;
@@ -392,7 +392,7 @@ sub get_all_features{
 	$status == 0 ;
 	$status = $self->{'_btree'}->seq($key, $value, R_NEXT) )
    {   next unless defined $value;
-       push @features, thaw($value);
+       push @features, &thaw($value);
    }
    if( scalar @features !=  $self->feature_count() ) {
        $self->warn("feature count does not match actual count\n");
@@ -508,6 +508,15 @@ sub _compare{
     $_[0] <=> $_[1];
 }
 
+
+sub freeze {
+    my $obj = shift;
+    return $obj->gff_string;
+}
+
+sub thaw {
+    Bio::SeqFeature::Generic->new(-gff_string => shift);
+}
 
 sub DESTROY {
     my $self = shift;
