@@ -1,0 +1,526 @@
+# $Id$
+#
+# BioPerl module Bio::Factory::Biblio::soap.pm
+#
+# Cared for by Martin Senger <senger@ebi.ac.uk>
+# For copyright and disclaimer see below.
+
+# POD documentation - main docs before the code
+
+=head1 NAME
+
+Bio::Factory::Biblio::soap - A SOAP-based access to a bibliographic query service
+
+=head1 SYNOPSIS
+
+Do not use this object directly, it is recommended to access it and use
+it through the I<Bio::Biblio> module:
+
+  use Bio::Biblio;
+  my $biblio = new Bio::Biblio (-access => 'soap');
+
+=head1 DESCRIPTION
+
+This object contains the real implementation of a Bibliographic Query
+Service as defined in L<Bio::Factory::BiblioI> - using a SOAP protocol
+to access a WebService (a remote server) that represents a
+bibliographic repository.
+
+=head1 FEEDBACK
+
+=head2 Mailing Lists
+
+User feedback is an integral part of the evolution of this and other
+Bioperl modules. Send your comments and suggestions preferably to
+the Bioperl mailing list.  Your participation is much appreciated.
+
+  bioperl-l@bioperl.org              - General discussion
+  http://bioperl.org/MailList.shtml  - About the mailing lists
+
+=head2 Reporting Bugs
+
+Report bugs to the Bioperl bug tracking system to help us keep track
+of the bugs and their resolution. Bug reports can be submitted via
+email or the web:
+
+  bioperl-bugs@bioperl.org
+  http://bioperl.org/bioperl-bugs/
+
+=head1 AUTHOR
+
+Martin Senger (senger@ebi.ac.uk)
+
+=head1 COPYRIGHT
+
+Copyright (c) 2002 European Bioinformatics Institute. All Rights Reserved.
+
+This module is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself.
+
+=head1 DISCLAIMER
+
+This software is provided "as is" without warranty of any kind.
+
+=head1 BUGS AND LIMITATIONS
+
+=over
+
+=item *
+
+Methods returning a boolean value (I<has_next>, I<exists> and
+I<contains>) can be used only with SOAP::Lite version 0.52 and newer
+(probably due to a bug in the older SOAP::Lite).
+
+=item *
+
+It does not use WSDL. Coming soon...
+
+=item *
+
+There is an open question to discuss: should the service return
+citations as type I<string> or rather as type I<base64>? What is
+faster? What is better for keeping non-ASCII characters untouched? How
+the decision would be influenced if the transparent compression
+support is introduced?
+
+=item *
+
+More testing and debugging needed to ensure that returned citations
+are properly transferred even if they contain foreign characters.
+
+=back
+
+=head1 APPENDIX
+
+The main documentation details are to be found in
+L<Bio::Factory::BiblioI>.
+
+Here is the rest of the object methods.  Internal methods are preceded
+with an underscore _.
+
+=cut
+
+
+# Let the code begin...
+
+
+package Bio::Factory::Biblio::soap;
+use vars qw(@ISA $VERSION $Revision $DEFAULT_SERVICE $DEFAULT_NAMESPACE);
+use strict;
+
+use Bio::Biblio;  # TBD: ?? WHY SHOULD I DO THIS ??
+use SOAP::Lite
+    on_fault => sub {
+	my $soap = shift;
+	my $res = shift;
+	my $msg =
+	    ref $res ? "--- SOAP FAULT ---\n" . $res->faultcode . " " . $res->faultstring
+		     : "--- TRANSPORT ERROR ---\n" . $soap->transport->status;
+        Bio::Factory::Biblio::soap->throw ( -text => $msg );
+    }
+;
+
+@ISA = qw(Bio::Biblio);
+
+BEGIN { 
+    # set the version for version checking
+    $VERSION = do { my @r = (q$Revision$ =~ /\d+/g); sprintf "%d.%-02d", @r };
+    $Revision = q$Id$;
+
+    # where to go...
+    $DEFAULT_SERVICE = 'http://industry.ebi.ac.uk/soap/openBQS';
+
+    # ...and what to find there
+    $DEFAULT_NAMESPACE = 'http://industry.ebi.ac.uk/openBQS';
+}
+
+# -----------------------------------------------------------------------------
+
+=head2 _initialize
+
+ Usage   : my $obj = new Bio::Biblio (-access => 'soap' ...);
+           (_initialize is internally called from this constructor)
+ Returns : nothing interesting
+ Args    : This module recognises and uses following arguments:
+
+             -namespace => 'urn'
+               The namespace used by the WebService that is being
+               accessed. It is a string which guarantees its world-wide
+               uniqueness - therefore it often has a style of a URL -
+               but it does not mean that such pseudo-URL really exists.
+
+               Default is 'http://industry.ebi.ac.uk/openBQS'
+               (which well corresponds with the default '-location' -
+               see module Bio::Biblio).
+
+             -destroy_on_exit => '0'
+                Default value is '1' which means that all Bio::Biblio
+                objects - when being finalised - will send a request
+                to the remote WebService to forget the query collections
+                they represent.
+
+                If you change it to '0' make sure that you know the
+                query collection identification - otherwise you will
+                not be able to re-established connection with it.
+                This can be done by calling method get_collection_id.
+
+              -collection_id => '...'
+                It defines what query collection will this object work
+                with. Use this argument when you know a collection ID
+                of an existing query collection and when you wish to
+                re-established connection with it.
+
+                By default, the collection IDs are set automatically
+                by the query methods - they return Bio::Biblio objects
+                already having a collection ID.
+
+                A missing or undefined collection ID means that the
+                object represents the whole bibliographic repository
+                (which again means that some methods, like get_all,
+                will be probably refused).
+
+              -soap => a SOAP::Lite object
+                Usually all Bio::Biblio objects share an instance of
+                the underlying SOAP::Lite module. But you are free
+                to have more - perhaps with different characteristics.
+
+                See the code for attributes of the default SOAP::Lite
+                object.
+
+	   Additionally, the factory module Bio::Biblio recognises
+	   also:
+             -access => '...'
+             -location => '...'
+
+It populates calling object with the given arguments, and then - for
+some attributes and only if they are not yet populated - it assigns
+some default values.
+
+This is an actual new() method (except for the real object creation
+and its blessing which is done in the parent class Bio::Root::Root in
+method _create_object).
+
+Note that this method is called always as an I<object> method (never as
+a I<class> method) - and that the object who calls this method may
+already be partly initiated (from Bio::Biblio::new method); so if you
+need to do some tricks with the 'class invocation' you need to change
+Bio::Biblio::new method, not this one.
+
+=cut
+
+sub _initialize {
+    my ($self, @args) = @_;
+    
+    # make a hashtable from @args
+    my %param = @args;
+    @param { map { lc $_ } keys %param } = values %param; # lowercase keys
+
+    # copy all @args into this object (overwriting what may already be
+    # there) - changing '-key' into '_key'
+    my $new_key;
+    foreach my $key (keys %param) {
+	($new_key = $key) =~ s/^-/_/;
+	$self->{ $new_key } = $param { $key };
+    }
+
+    # finally add default values for those keys who have default value
+    # and who are not yet in the object
+    $self->{'_location'} = $DEFAULT_SERVICE unless $self->{'_location'};
+    $self->{'_namespace'} = $DEFAULT_NAMESPACE unless $self->{'_namespace'};
+    $self->{'_destroy_on_exit'} = 1 unless defined $self->{'_destroy_on_exit'};
+    $self->{'_soap'} = SOAP::Lite
+	                  -> uri ($self->{'_namespace'})
+	                  -> proxy ($self->{'_location'}) unless $self->{'_soap'};
+
+}
+
+# -----------------------------------------------------------------------------
+
+#
+# objects representing query collections are being destroyed if they
+# have attribute '_destroy_on_exit' set to true - which is a default
+# value
+#
+sub DESTROY {
+    my $self = shift;
+    my $soap = $self->{'_soap'};
+    my $destroy = $self->{'_destroy_on_exit'};
+    return unless $destroy;
+    my $collection_id = $self->{'_collection_id'};
+    return unless $collection_id;
+
+    # ignore all errors here
+    eval {
+	$soap->destroy (SOAP::Data->type (string => $collection_id));
+    }
+}
+
+#
+# some methods must be called with an argument containing a collection
+# ID; here we return a proper error message explaining it
+#
+sub _no_id_msg {
+    my $self = shift;
+    my $package = ref $self;
+    my $method = (caller(1))[3];
+    my $strip_method = $method;
+    $strip_method =~ s/^$package\:\://;
+
+    return <<"END_OF_MSG";
+Method '$method' works only if its object has a query collection ID.
+Perhaps you need to use:
+\tnew Bio::Biblio (-collection_id => '1234567')->$strip_method;
+or to obtain a collection ID indirectly from a query method:
+\tnew Bio::Biblio->find ('keyword')->$strip_method;
+END_OF_MSG
+}
+    
+#
+# some methods do not work with older SOAP::Lite version; here we
+#return message explaining it
+#
+sub _old_version_msg {
+    my $self = shift;
+    my $method = (caller(1))[3];
+
+    return <<"END_OF_MSG";
+Method '$method' works only with SOAP::Lite
+version 0.52 and newer (the problem is with returning a boolean value from the server).
+END_OF_MSG
+}
+
+#
+# some controlled vocabulary methods needs two parameters; here we
+# return message explaining it
+#
+sub _two_params_msg {
+    my $self = shift;
+    my $method = (caller(1))[3];
+
+    return <<"END_OF_MSG";
+Method '$method' expects two parameters: vocabulary name and a value.
+END_OF_MSG
+}
+
+#
+# some controlled vocabulary methods needs a vocabulary name; here we
+# return message explaining it
+#
+sub _missing_name_msg {
+    my $self = shift;
+    my $method = (caller(1))[3];
+
+    return <<"END_OF_MSG";
+Method '$method' expects vocabulary name as parameter.
+END_OF_MSG
+}
+
+    
+# ---------------------------------------------------------------------
+#
+#   Here are the methods implementing Bio::Factory::BiblioI interface
+#   (documentation is in Bio::Factory::BiblioI)
+#
+# ---------------------------------------------------------------------
+
+sub get_collection_id {
+   my ($self) = @_;
+   $self->{'_collection_id'};
+}
+
+sub get_count {
+   my ($self) = @_;
+   my $soap = $self->{'_soap'};
+   my ($collection_id) = $self->{'_collection_id'};
+   if ($collection_id) {
+       $soap->getBibRefCount (SOAP::Data->type (string => $collection_id))->result;
+   } else {
+       $soap->getBibRefCount->result;
+   }
+}
+
+# try: 94033980
+sub get_by_id {
+   my ($self, $citation_id) = @_;
+   $self->throw ("Citation ID is expected as a parameter of method 'get_by_id'.")
+       unless $citation_id;
+   my $soap = $self->{'_soap'};
+   $soap->getById (SOAP::Data->type (string => $citation_id))->result;
+}
+
+sub find {
+   my ($self, $keywords, $attrs) = @_;
+   my (@keywords, @attrs);
+
+   # $keywords can be a comma-delimited scalar or a reference to an array
+   if ($keywords) {
+       my $ref = ref $keywords;
+       @keywords = split (/,/, $keywords) unless $ref;
+       @keywords = @$keywords if $ref =~ /ARRAY/;
+   }
+   $self->throw ("No keywords given in 'find' method.\n")
+       unless (@keywords);
+
+   # ...and the same with $attrs
+   if ($attrs) {
+       my $ref = ref $attrs;
+       @attrs = split (/,/, $attrs) unless $ref;
+       @attrs = @$attrs if $ref =~ /ARRAY/;
+   }
+
+   my $soap = $self->{'_soap'};
+   my $collection_id = $self->{'_collection_id'};
+   my $new_id;
+   if ($collection_id) {
+       if (@attrs) {
+	   $new_id = $soap->find (SOAP::Data->type (string => $collection_id), \@keywords, \@attrs)->result;
+       } else {
+	   $new_id = $soap->find (SOAP::Data->type (string => $collection_id), \@keywords)->result;
+       }
+   } else {
+       if (@attrs) {
+	   $new_id = $soap->find (\@keywords, \@attrs)->result;
+       } else {
+	   $new_id = $soap->find (\@keywords)->result;
+       }
+   }
+
+   # clone itself but change the collection ID to a new one
+   return $self->new (-collection_id       => $new_id,
+		      -parent_collection_d => $collection_id);
+}
+
+sub get_all_ids {
+   my ($self) = @_;
+   my $soap = $self->{'_soap'};
+   my ($collection_id) = $self->{'_collection_id'};
+   $self->throw ($self->_no_id_msg) unless $collection_id;
+   $soap->getAllIDs (SOAP::Data->type (string => $collection_id))->result;
+}
+
+sub get_all {
+   my ($self) = @_;
+   my $soap = $self->{'_soap'};
+   my ($collection_id) = $self->{'_collection_id'};
+   $self->throw ($self->_no_id_msg) unless $collection_id;
+   $soap->getAllBibRefs (SOAP::Data->type (string => $collection_id))->result;
+}
+
+sub has_next {
+   my ($self) = @_;
+   my $soap = $self->{'_soap'};
+   my ($collection_id) = $self->{'_collection_id'};
+   $self->throw ($self->_no_id_msg) unless $collection_id;
+   $self->throw ($self->_old_version_msg) if $SOAP::Lite::VERSION < 0.52;
+   $soap->hasNext (SOAP::Data->type (string => $collection_id))->result;
+}
+
+sub get_next {
+   my ($self) = @_;
+   my $soap = $self->{'_soap'};
+   my ($collection_id) = $self->{'_collection_id'};
+   $self->throw ($self->_no_id_msg) unless $collection_id;
+   $soap->getNext (SOAP::Data->type (string => $collection_id))->result;
+}
+
+sub get_more {
+   my ($self, $how_many) = @_;
+   my $soap = $self->{'_soap'};
+   my $collection_id = $self->{'_collection_id'};
+   $self->throw ($self->_no_id_msg) unless $collection_id;
+
+   unless (defined ($how_many) and $how_many =~ /^\d+$/) {
+       warn ("Method 'get_more' expects a numeric argument. Changing to 1.\n");
+       $how_many = 1;
+   }
+   unless ($how_many > 0) {
+       warn ("Method 'get_more' expects a positive argument. Changing to 1.\n");
+       $how_many = 1;
+   }
+
+   $soap->getMore (SOAP::Data->type (string => $collection_id),
+		   SOAP::Data->type (int    => $how_many))->result;
+}
+
+sub reset_retrieval {
+   my ($self) = @_;
+   my $soap = $self->{'_soap'};
+   my ($collection_id) = $self->{'_collection_id'};
+   $self->throw ($self->_no_id_msg) unless $collection_id;
+   $soap->resetRetrieval (SOAP::Data->type (string => $collection_id));
+}
+
+sub exists {
+   my ($self) = @_;
+   my $soap = $self->{'_soap'};
+   my ($collection_id) = $self->{'_collection_id'};
+   $self->throw ($self->_no_id_msg) unless $collection_id;
+   $self->throw ($self->_old_version_msg) if $SOAP::Lite::VERSION < 0.52;
+   $soap->exists (SOAP::Data->type (string => $collection_id))->result;
+}
+
+sub destroy {
+   my ($self) = @_;
+   my $soap = $self->{'_soap'};
+   my ($collection_id) = $self->{'_collection_id'};
+   $self->throw ($self->_no_id_msg) unless $collection_id;
+   $soap->destroy (SOAP::Data->type (string => $collection_id));
+}
+
+sub get_vocabulary_names {
+   my ($self) = @_;
+   my $soap = $self->{'_soap'};
+   $soap->getAllVocabularyNames->result;
+}
+
+sub contains {
+   my ($self, $vocabulary_name, $value) = @_;
+   my $soap = $self->{'_soap'};
+   $self->throw ($self->_old_version_msg) if $SOAP::Lite::VERSION < 0.52;
+   $self->throw ($self->_two_params_msg)
+       unless defined $vocabulary_name and defined $value;
+   $soap->contains (SOAP::Data->type (string => $vocabulary_name),
+		    SOAP::Data->type (string => $value))->result;
+}
+
+sub get_entry_description {
+   my ($self, $vocabulary_name, $value) = @_;
+   my $soap = $self->{'_soap'};
+   $self->throw ($self->_two_params_msg)
+       unless defined $vocabulary_name and defined $value;
+   $soap->getEntryDescription (SOAP::Data->type (string => $vocabulary_name),
+			         SOAP::Data->type (string => $value))->result;
+}
+
+sub get_all_values {
+   my ($self, $vocabulary_name) = @_;
+   my $soap = $self->{'_soap'};
+   $self->throw ($self->_missing_name_msg)
+       unless defined $vocabulary_name;
+   $soap->getAllValues (SOAP::Data->type (string => $vocabulary_name))->result;
+}
+
+sub get_all_entries {
+   my ($self, $vocabulary_name) = @_;
+   my $soap = $self->{'_soap'};
+   $self->throw ($self->_missing_name_msg)
+       unless defined $vocabulary_name;
+   $soap->getAllEntries (SOAP::Data->type (string => $vocabulary_name))->result;
+}
+
+=head2 VERSION and Revision
+
+ Usage   : print $Bio::Factory::Biblio::soap::VERSION;
+           print $Bio::Factory::Biblio::soap::Revision;
+
+=cut
+
+=head2 Defaults
+
+ Usage   : print $Bio::Factory::Biblio::soap::DEFAULT_SERVICE;
+           print $Bio::Factory::Biblio::soap::DEFAULT_NAMESPACE;
+
+=cut
+
+1;
+__END__
