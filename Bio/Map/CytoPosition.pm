@@ -101,7 +101,7 @@ $VERSION=1.0;
 # Object preamble - inheritance
 
 use Bio::Variation::VariantI;
-use Bio::Range;
+use Bio::RangeI;
 use Bio::Map::Position;
 
 @ISA = qw(  Bio::Map::Position Bio::Variation::VariantI );

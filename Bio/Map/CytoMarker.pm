@@ -67,12 +67,11 @@ Internal methods are usually preceded with a _
 package Bio::Map::CytoMarker;
 use vars qw(@ISA);
 use strict;
-use Bio::Root::Root;
 use Bio::Map::Marker;
 use Bio::Map::CytoPosition;
-use Bio::Range;
+use Bio::RangeI;
 
-@ISA = qw(Bio::Map::Marker Bio::RangeI Bio::Root::Root  );
+@ISA = qw(Bio::Map::Marker Bio::RangeI  );
 
 
 =head2 Bio::Map::MarkerI methods

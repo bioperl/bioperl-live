@@ -91,7 +91,7 @@ use strict;
 use Bio::Root::Root;
 use Bio::Map::Position;
 
-@ISA = qw(Bio::Root::Root Bio::Map::Position);
+@ISA = qw(Bio::Map::Position);
 
 =head2 new
 
