@@ -13,7 +13,7 @@ BEGIN {
         use lib 't','..';
     }
     use Test;
-    $NUMTESTS = 43;
+    $NUMTESTS = 44;
     plan tests => $NUMTESTS;
 
 }
@@ -103,3 +103,8 @@ while( my $seq = $seqio->next_seq ) {
     ok $seq->id =~ /test/;
 }
 
+#
+# text guessing
+#
+
+ok new Bio::Tools::GuessSeqFormat( -text => $string )->guess, 'fasta';
