@@ -30,7 +30,7 @@ eval{
     $seq = new Bio::Seq(-ID  =>'test_seq', 
 			-SEQ =>$sequence); 
     
-    $re  = new Bio::Tools::RestrictionEnzyme(-NAME=>'EcoRI');
+    $re  = new Bio::Tools::RestrictionEnzyme(-name=>'EcoRI');
 };
 $@ && die "\n*** TROUBLE BUILDING OBJECTS:\n$@\n"; 
 
