@@ -378,7 +378,8 @@ sub name{
 
  Title   : translate
  Usage   : $obj->translate('YTR')
- Function: Returns one letter amino acid code for a codon input.
+ Function: Returns a string of one letter amino acid codes from 
+           nucleotide sequence input. The imput can be of any length.
 
            Returns 'X' for unknown codons and codons that code for
            more than one amino acid. Returns an empty string if input
@@ -397,13 +398,76 @@ sub name{
            three characters long.
 
  Example :
- Returns : One letter ambiguous IUPAC amino acid code
- Args    : a codon = a three character, ambiguous IUPAC nucleotide string
+ Returns : a string of one letter ambiguous IUPAC amino acid codes
+ Args    : ambiguous IUPAC nucleotide string
 
 
 =cut
 
-sub translate{
+sub translate {
+    my ($self, $seq) = @_;
+    my $id = $self->id;
+    my ($partial) = 0;
+
+    if (length($seq) % 3 ) {
+	$seq = $seq. 'n';
+	$partial = 1;
+    }
+    
+    $seq = lc $seq; 
+    $seq =~ tr/u/t/;
+    my $protein = "";
+    if ($seq =~ /[^actg]/ or $partial) { #ambiguous chars or non x3 length
+        for (my $i = 0; $i < (length($seq) - 1); $i+=3) {
+            my $triplet = substr($seq, $i, 3);
+	    $triplet .= 'n' and $partial = 1
+		if length($triplet) % 2 == 0;
+	    if (exists $codons->{$triplet}) {
+		$protein .= substr($tables[$id-1], $codons->{$triplet},1);
+		$partial = 0;
+	    } else {
+		my $aa;
+		my @codons = _unambiquous_codons($triplet);
+		my %aas =();
+		foreach my $codon (@codons) {
+		    $aas{substr($tables[$id-1],$codons->{$codon},1)} = 1;
+		}
+		my $count = scalar keys %aas;
+		if ( $count == 1 ) {
+		    $aa = (keys %aas)[0];
+		}
+		elsif ( $count == 2 ) {
+		    if ($aas{'D'} and $aas{'N'}) {
+			$aa = 'B';
+		    }
+		    elsif ($aas{'E'} and $aas{'Q'}) {
+			$aa = 'Z';
+		    } else {
+			$partial ? ($aa = '') : ($aa = 'X');
+		    }
+		} else {
+		    $partial ? ($aa = '') :  ($aa = 'X');
+		}
+#		print "(amb2: $partial($triplet:$protein))\n";
+		$protein .= $aa;
+		$partial = 0;
+	    }
+	}
+    } else { # simple, strict translation
+	for (my $i = 0; $i < (length($seq) -2 ) ; $i+=3) {
+            my $triplet = substr($seq, $i, 3); 
+            if (exists $codons->{$triplet}) {
+                $protein .= substr($tables[$id-1], $codons->{$triplet}, 1);
+	    } elsif (length $triplet == 3 ) {
+                $protein .= 'X' ;
+            }
+        }
+    }
+
+    return $protein;
+}
+
+sub translate_old{
    my ($self, $value) = @_;
    my ($id) = $self->{'id'};
    my ($partial) = 0;
