@@ -150,7 +150,7 @@ sub seq {
     if( defined $value) {
 	$self->{'seq'} = $value;
     }
-    return $self->{'seq'};
+    return $self->{'seq'} || '';
 }
 
 
@@ -176,7 +176,7 @@ sub seqori {
     if( defined $value) {
 	$self->{'seqori'} = $value;
     }
-    return $self->{'seqori'};
+    return $self->{'seqori'} || '';
 }
 
 
@@ -231,7 +231,7 @@ sub len {
   }
    if ( ! exists $self->{'len'} ) {
        return length $self->{'seq'};
-   } 
+   }
    return $self->{'len'};
 }
 
