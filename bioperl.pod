@@ -1,5 +1,5 @@
 ## bioperl.pod
-## $Id: bioperl.pod,v 1.1.1.1.2.1 1999-02-02 11:49:15 sac Exp $
+## $Id: bioperl.pod,v 1.1.1.1.2.2 1999-02-03 13:17:40 sac Exp $
 
 ## Should contain general info about the distribution including
 ## links to all the various modules.
@@ -352,7 +352,7 @@ later versions of perl. Individual modules perhaps should explicitly impose
 their own perl version requirements. Consider this issue open for discussion
 on the guts (developer) mailing list.
 
-=end
+=back
 
 =head1 ACKNOWLEDGEMENTS
 

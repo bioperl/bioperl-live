@@ -70,7 +70,7 @@ mainly by Ewan.
 
 =item Use hashed constructor - not done!
 
-=end
+=back
 
 =head1 FEEDBACK
 
