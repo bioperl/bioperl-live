@@ -228,7 +228,7 @@ sub match {
    my ($self) = @_;
 
    $self->warn("More than one match in results")
-       if $self->each_match > 1;
+       if $self->each_match > 1 and $self->verbose > 0;
    unless (defined $self->{'_match'} ) {
        my @m = $self->each_match;
        $self->{'_match'} = $m[-1];
@@ -251,7 +251,7 @@ sub gap {
    my ($self) = @_;
 
    $self->warn("More than one gap in results")
-       if $self->each_gap > 1;
+       if $self->each_gap > 1 and $self->verbose > 0;
    unless (defined $self->{'_gap'} ) {
        my @m = $self->each_gap;
        $self->{'_gap'} = $m[-1];
