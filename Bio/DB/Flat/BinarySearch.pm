@@ -814,9 +814,9 @@ sub _index_file {
       $last_one = $_;
       $self->{alphabet} ||= $self->guess_alphabet($_);		
       if ($_ =~ /$start_pattern/) {
-	if ($done == 0) {
-	  $id = $new_primary_entry;
-	  $self->{alphabet} ||= $self->guess_alphabet($_);
+	 if ($done == 0) {
+	    $id = $new_primary_entry;
+	    $self->{alphabet} ||= $self->guess_alphabet($_);
 	  
 	  my $tmplen = (tell $fh) - length($_);
 
@@ -1195,8 +1195,8 @@ sub make_config_file {
 	my $format = $self->format;
 	my $alphabet = $self->alphabet;
 	my $alpha    = $alphabet ? "/$alphabet" : '';
-	print CON "format\t" . "URN:LSID:open-bio.org:$format$alpha\n";
-    }
+	print CON "format\t" . "$format\n";
+     }
     close(CON);
 }
 
@@ -1661,12 +1661,12 @@ sub secondary_namespaces {
 
 sub new_SWISSPROT_index {
     my ($self,$index_dir,@files) = @_;
-    
+
     my %secondary_patterns;
-    
+
     my $start_pattern = "^ID   (\\S+)";
     my $primary_pattern = "^AC   (\\S+)\\;";
-    
+
     $secondary_patterns{"ID"} = $start_pattern;
 
     my $index =  new Bio::DB::Flat::BinarySearch
@@ -1676,13 +1676,13 @@ sub new_SWISSPROT_index {
 	 -primary_namespace  => "ACC",
 	 -start_pattern      => $start_pattern,
 	 -secondary_patterns => \%secondary_patterns);
-    
+
     $index->build_index(@files);
 }
 
 sub new_EMBL_index {
    my ($self,$index_dir,@files) = @_;
-   
+
    my %secondary_patterns;
 
    my $start_pattern = "^ID   (\\S+)";
@@ -1698,7 +1698,7 @@ sub new_EMBL_index {
 	-primary_namespace  => "ACC",
 	-start_pattern      => $start_pattern,
 	-secondary_patterns => \%secondary_patterns);
-   
+
     $index->build_index(@files);
 
    return $index;
@@ -1722,11 +1722,10 @@ sub new_FASTA_index {
 	-primary_namespace  => "ACC",
 	-start_pattern      => $start_pattern,
 	-secondary_patterns => \%secondary_patterns);
-   
+
    $index->build_index(@files);
 
    return $index;
-
 }
 
 # EVERYTHING THAT FOLLOWS THIS
@@ -1791,10 +1790,6 @@ sub _guess_patterns {
   if ($format =~ /fasta/i) {
     return ('ACC',
 	    "^>(\\S+)",
-	    "^>",
-	    {
-	     ID => "^>\\S+ +(\\S+)"
-	    }
 	   );
   }
 
