@@ -282,7 +282,7 @@ sub to_string {
     my $s = "";
 
     $s .= "-- GO id:\n";
-    $s .= $self->GO_id()."\n";
+    $s .= ($self->GO_id() || '')."\n";
     $s .= "-- Name:\n";
     $s .= ($self->name() || '') ."\n";
     $s .= "-- Definition:\n";
