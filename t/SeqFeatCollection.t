@@ -22,7 +22,7 @@ BEGIN {
     }
     use Test;
 
-    $NUMTESTS = 12;
+    $NUMTESTS = 428;
     plan tests => $NUMTESTS;
 
     eval { require DB_File; };
@@ -133,7 +133,29 @@ my $r = new Bio::Location::Simple(-start => 67700,
 				-contain => 0);
 
 ok(scalar @feat, 56);
+ok($col->feature_count, 412);
+my $count = $col->feature_count;
+$col->remove_features( [$features[58], $features[60]]);
 
+ok( $col->feature_count, 410);
+@feat = $col->features_in_range(-range => $r,
+				-strandmatch => 'ignore',
+				-contain => 0);
+ok( scalar @feat, 54);
+# add the removed features back in in order to get the collection back to size 
+
+$col->add_features([$features[58], $features[60]]);
+
+# let's randomize so we aren't removing and adding in the same order
+# and hopefully randomly deal with a bin's expiration
+fy_shuffle(\@features);
+
+foreach my $f ( @features ) {
+    next unless defined $f;
+    $col->remove_features([$f]);
+    ok( $col->feature_count, --$count);
+}
+ok($col->feature_count, 0);
 if( $verbose ) {
     my @fts =  sort { $a->start <=> $b->start}  grep { $r->overlaps($_,'ignore') } @features;
     
@@ -159,3 +181,12 @@ if( $verbose ) {
     }
 }
 
+sub fy_shuffle { 
+    my $array = shift;
+    my $i;
+    for( $i = @$array; $i--; ) { 
+	my $j = int rand($i+1);
+	next if $i==$j;
+	@$array[$i,$j] = @$array[$j,$i];
+    }
+}
