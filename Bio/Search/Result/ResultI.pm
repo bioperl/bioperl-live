@@ -18,31 +18,36 @@ Bio::Search::Result::ResultI - Abstract interface to Search Result objects
 
 =head1 SYNOPSIS
 
-Bio::Search::Result::ResultI objects cannot be instantiated since this
-module defines a pure interface.
+# Bio::Search::Result::ResultI objects cannot be instantiated since this
+# module defines a pure interface.
 
-Given an object that implements the Bio::Search::Result::ResultI  interface,
-you can do the following things with it:
+# Given an object that implements the Bio::Search::Result::ResultI  interface,
+# you can do the following things with it:
 
-    while( $hit = $result->next_hits()) { ... }
+    use Bio::SearchIO;
+    my $io = new Bio::SearchIO(-format => 'blast',
+ 			       -file   => 't/data/HUMBETGLOA.tblastx');
+    my $result = $io->next_result;
+    while( $hit = $result->next_hits()) { # enter code here for hit processing
+    }
 
-    $id = $result->query_name();
+    my $id = $result->query_name();
 
-    $id = $result->query_description();
+    my $desc = $result->query_description();
 
-    $name = $result->database_name()
+    my $dbname = $result->database_name();
 
-    $size = $result->database_letters()
+    my $size = $result->database_letters();
 
-    $num_entries = $result->database_entries()
+    my $num_entries = $result->database_entries();
 
-    my $gap_ext = $result->get_parameter('gapext')
+    my $gap_ext = $result->get_parameter('gapext');
 
-    my @params = $result->available_parameters
+    my @params = $result->available_parameters;
 
-    my $gap_ext = $result->get_statistic('kappa')
+    my $kappa = $result->get_statistic('kappa');
 
-    my @statnames = $result->available_statistics
+    my @statnames = $result->available_statistics;
 
 =head1 DESCRIPTION
 

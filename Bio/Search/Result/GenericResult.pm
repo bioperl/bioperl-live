@@ -12,15 +12,62 @@
 
 =head1 NAME
 
-Bio::Search::Result::GenericResult - DESCRIPTION of Object
+Bio::Search::Result::GenericResult - Generic Implementation of Bio::Search::Result::ResultI interface applicable to most search results.
 
 =head1 SYNOPSIS
 
-Give standard usage here
+{
 
+    use Bio::Search::Result::GenericResult;
+    my @hits = (); # would be a list of Bio::Search::Hit::HitI objects
+    # typically these are created from a Bio::SearchIO stream
+    my $result = new Bio::Search::Result::GenericResult
+	( -query_name        => 'HUMBETGLOA',
+	  -query_accession   => ''
+	  -query_description => 'Human haplotype C4 beta-globin gene, complete cds.'
+	  -query_length      => 3002
+	  -database_name     => 'ecoli.aa'
+	  -database_letters  => 4662239,
+	  -database_entries  => 400,
+	  -parameters        => { 'e' => '0.001' },
+	  -statistics        => { 'kappa' => 0.731 },
+	  -algorithm         => 'blastp',
+           -algorithm_version => '2.1.2',
+	  );
+    
+    my $id = $result->query_name();
+    
+    my $desc = $result->query_description();
+    
+    my $name = $result->database_name();
+
+    my $size = $result->database_letters();
+
+    my $num_entries = $result->database_entries();
+
+    my $gap_ext = $result->get_parameter('e');
+
+    my @params = $result->available_parameters;
+
+    my $kappa = $result->get_statistic('kappa');
+
+    my @statnames = $result->available_statistics;
+
+    # typically one gets Results from a SearchIO stream
+    use Bio::SearchIO;
+    my $io = new Bio::SearchIO(-format => 'blast',
+ 			       -file   => 't/data/HUMBETGLOA.tblastx');
+    my $result = $io->next_result;
+    while( $hit = $result->next_hits()) {  
+    # insert code here for hit processing
+    }
+
+}
 =head1 DESCRIPTION
 
-Describe the object here
+This object is an implementation of the Bio::Search::Result::ResultI
+interface and provides a generic place to store results from a
+sequence database search.
 
 =head1 FEEDBACK
 
@@ -96,7 +143,7 @@ sub new {
   my $self = $class->SUPER::new(@args);
 
   $self->{'_hits'} = [];
-  $self->{'_hititerator'} = 0;
+  $self->{'_hitindex'} = 0;
   $self->{'_statistics'} = {};
   $self->{'_parameters'} = {};
 
@@ -460,7 +507,7 @@ sub add_hit {
 =head2 rewind
 
  Title   : rewind
- Usage   : $hsp->rewind;
+ Usage   : $result->rewind;
  Function: Allow one to reset the Hit iteration to the beginning
            Since this is an in-memory implementation
  Returns : none
@@ -521,6 +568,5 @@ sub add_statistic {
    $self->{'_statistics'}->{$key} = $value;
    return;
 }
-
 
 1;
