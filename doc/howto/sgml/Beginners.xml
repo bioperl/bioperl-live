@@ -320,7 +320,9 @@ Internet, point your browser at http://www.perl.com/, the Perl Home Page.
 		  >emacs seqio.pl
 		</programlisting>
 	 </para>
+	 <para>
 	 And make this the first line:
+	 </para>
 	 <para>
 		<programlisting>
 		  #!/bin/perl -w
@@ -330,6 +332,219 @@ Internet, point your browser at http://www.perl.com/, the Perl Home Page.
 		The "-w" flag tells Perl to warn you if various common errors
 		are encountered.
 	 </para>
+  </section>
+
+  <section id="create">
+	 <title>Creating a sequence, and an object</title>
+    <para>
+		Our first script will create a sequence. In the process of
+		creating a sequence you will also be creating an "object", since
+		Bioperl is written in an object-oriented way. Why be
+		object-oriented? Why introduce these novel or intrusive notions into
+		software that should be "biological" or "intuitive"? The reason is 
+		that thinking in terms of modules or objects turns out to be the
+		most flexible, and ultimately the simplest, way to deal with
+		data as complex as biological data. Once you get over your initial
+		skepticism, and have written a few scripts, you will find this
+		idea of an object becoming a bit more natural.
+	 </para>
+	 <para>
+		One way to think about an object in software is that it is a container
+		for data. The typical sequence entry contains
+		differents sorts of data as well, so it will serve as a nice example of what
+		an object can be. All objects in Bioperl are associated with specific
+		Bioperl modules, so if you want to create an object you're also going
+		to have to tell Perl which module to use. Let's add another line:
+    </para>	
+    <para>
+		<programlisting>
+		  #!/bin/perl -w
+
+		  use Bio::Seq;
+		</programlisting>
+    </para>
+	 <para>
+		We will "use" the Bio::Seq module in order to create a Bio::Seq object.
+		The Bio::Seq module is one of the central modules in
+		Bioperl. The analogous Bio::Seq object, or "sequence object", or
+		"Seq object", is ubiquitous in Bioperl, it contains 
+		a single sequence and associated names, identifiers, and
+		properties. Let's create a very simple sequence object at
+		first, like so:
+    </para>
+    <para>
+		<programlisting>
+		  #!/bin/perl -w
+
+		  use Bio::Seq;
+		
+		  $seq_obj = Bio::Seq->new(-seq => "aaaatgggggggggggccccgtt");
+		</programlisting>
+    </para>
+	 <para>
+		When you assign a value to an object it's said that you that 
+		you have <emphasis>set</emphasis> a value.
+	 </para>
+	 <para>
+      <note>
+		  <para>
+			 Bio::Seq objects can be created manually, as above, but
+			 they're also create automatically in many operations
+			 in Bioperl, for example when alignment files or
+			 BLAST reports are parsed.
+		  </para>
+      </note>
+	 </para>
+	 <para>
+		An object, like our $seq_obj above, is a specialized kind of a variable.
+		Any time you explicitly create or intitialize the variable, you
+		will use this <function>new()</function> method. The syntax of this
+		line is one you'll see again and again in Bioperl: the name
+		of the object or variable, the module name, the
+		string <emphasis>new</emphasis>, some argument name like
+		<emphasis>-seq</emphasis>, the <emphasis>=></emphasis>, and then
+		the argument itself, like
+		<emphasis>aaaatgggggggggggccccgtt</emphasis>.
+	 </para>
+	 <para>
+		<note>
+		  <para>
+			 If you've programmed before you've probably come across the term
+			 "function". In object-oriented programming the term
+			 "method" is used instead.			 
+		  </para>
+		</note>
+	 </para>
+	 <para>
+		The object was described as a data container, but it is more
+		than that. It is also a variable that can access specific 
+		methods, methods taken from the module or modules that were used
+		to create it. For example, the <classname>Bio::Seq</classname> module has a method
+		called <function>seq()</function> that will print out the
+		sequence of Bio::Seq objects. You could use it like this:
+	 </para>
+	 <para>
+		<programlisting>
+		  #!/bin/perl -w
+
+		  use Bio::Seq;
+		
+		  $seq_obj = Bio::Seq->new(-seq => "aaaatgggggggggggccccgtt");
+
+		  print $seq_obj->seq();
+		</programlisting>
+	 </para>
+	 <para>
+		As you'd expect, this script will print out <emphasis>
+		  aaaatgggggggggggccccgtt</emphasis>. That <emphasis>->
+		</emphasis> symbol is used when an object calls or accesses
+		its methods. When you obtain a value from an object it's said 
+		that you that you <emphasis>get</emphasis> that value.
+	 </para>
+	 <para>
+		Let's make our example a bit more true-to-life, since a typical
+		sequence needs a name, perhaps an identifier, in addition to
+		its sequence.
+	 </para>
+	 <para>
+		<programlisting>
+		  #!/bin/perl -w
+
+		  use Bio::Seq;
+		
+		  $seq_obj = Bio::Seq->new(-seq => "aaaatgggggggggggccccgtt",
+		                           -id => "#12345"
+		                           -display_name => "example 1" );
+
+		  print $seq_obj->seq();
+		</programlisting>
+	 </para>
+  </section>
+
+  <section id="writing">
+    <title>Writing a sequence to a file</title>
+	 <para>
+		This next example will show how two objects can work together
+		to create a sequence file.
+		We already have a sequence object, and we will create an
+		additional object whose responsibility it is to read from and write
+		to files. This object is the <classname>Bio::SeqIO</classname> object, 
+		where IO stands for <emphasis>I</emphasis>nput-<emphasis>O</emphasis>utput.
+		By using Bio::SeqIO in this manner you will be able to get input
+		and output from all of the sequence file formats supported by Bioperl.
+		The way you create <classname>Bio::SeqIO</classname> objects is 
+		very similar to the way we used <function>new()</function> to
+		create a <classname>Bio::Seq</classname> object:
+	 </para>    
+	 <para>
+		<programlisting>
+		  use Bio::SeqIO;
+
+		  my $seq_io = Bio::SeqIO->new(-file => '>sequence.fasta', 
+		                               -format => 'fasta' );
+		</programlisting> 
+	 </para> 
+	 <para>
+    </para>
+    <para>
+    </para>
+  </section>
+
+  <section id="retrieving_gb">
+	 <title>Retrieving a sequence from a file</title>
+		
+	 <para>
+		A common beginner's mistake is to choose to not use
+		<classname>Bio::SeqIO</classname>. This is understandable, as you
+		may have read about Perl's <function>open</function>
+		function, and Bioperl's way of retrieving sequences looks odd
+		and overly complicated, at first. But don't use
+		<function>open()</function>! Using <function>open</function> 
+		immediately forces you to do the parsing of the sequence
+		file and this can get complicated very quickly. Trust
+		SeqIO, it's built to open and parse all
+		the common sequence formats, it can read and write to files,
+		and it's built to operate with all the other Bioperl 
+		modules that you will want to use. 
+	 </para>
+
+	 <para>
+		Once you've decided to read a sequence (or multiple sequences) from
+		a file, you should include the following line in your program:
+	 </para>
+		  
+	 <para>
+		<programlisting>
+		  use Bio::SeqIO;
+		</programlisting>
+	 </para>
+		  
+	 <para>
+		This line does several things:
+		<simplelist type="horiz" columns="1">
+		  <member>
+			 The word "my" tells the Perl interpreter that this is the
+			 first time that the variable $seqio has been used, and it
+			 also defines the scope of $seqio. Writing "my" before the
+			 first use of a variable is a requirement when "using strict."
+		  </member>
+		  <member>
+			 The new method of the Bio::SeqIO module is called. This method
+			 is used to construct and return a new Bio::SeqIO object.
+		  </member>
+		  <member>
+			 This method is passed two arguments: a file value "seq.fasta" and
+			 a format value of "fasta". These arguments tell Bio::SeqIO that
+			 $seqio will read sequence information from a file named seq.fasta
+			 that is stored in the FASTA sequence file format.
+		  </member>
+		  <member>
+			 The object returned by the "new" method is assigned to the scalar
+			 variable $seqio. 
+		  </member>
+		</simplelist>
+	 </para>
+	 
   </section>
 
   <section id="retrieving_gb">
@@ -357,108 +572,6 @@ Internet, point your browser at http://www.perl.com/, the Perl Home Page.
 		analogous fashion.
 	 </para>
 	 
-  </section>
-
-  <section id="retrieving_gb">
-	 <title>Retrieving a sequence from a file<title>
-		  <para>
-			 Furthermore, the 
-			 syntax used to retrieve these sequences is fairly uniform,
-			 since a single class or module does all the work for you. This
-			 module is <classname>Bio::SeqIO</classname>, where IO stands for 
-			 <emphasis>I</emphasis>nput-<emphasis>O</emphasis>utput.
-		  </para>
-
-		  <para>
-			 A common beginner's mistake is to choose to not use
-			 <classname>Bio::SeqIO</classname>. This is understandable, as you
-			 may have read about Perl's <function>open</function>
-			 function, and Bioperl's way of retrieving sequences looks odd
-			 and overly complicated, at first. But don't use
-			 <function>open()</function>! Using <function>open</function> 
-			 immediately forces you to do the parsing of the sequence
-			 file and this can get complicated very quickly. Trust
-			 SeqIO, it's built to open and inter-convert all
-			 the common sequence formats, it can read and write to files,
-			 and it's built to operate with all the other Bioperl 
-			 modules that you will want to use. 
-		  </para>
-
-                  <para>
-                         Once you've decided to read a sequence (or multiple sequences) from
-                         a file, you should include the following line in your program:
-                  </para>
-
-                  <para>
-                           <programlisting>
-                              use Bio::SeqIO;
-                           </programlisting>
-                  </para>
-
-                  <para>
-                         This tells Perl that you'd like to make use of the
-                         functions and objects defined defined in the
-                         Bio::SeqIO module. "Using" Bio::SeqIO in this manner
-                         will allow input and output from all of the sequence
-                         file formats supported by Bioperl.
-                  </para>
-
-                  <para>
-                         Now that we've told Perl to use the Bio::SeqIO module,
-                         we should make use of it. The following line creates a
-                         Bio::SeqIO object:
-                  </para>
-                            <programlisting>
-                               my $seqio = Bio::SeqIO->new( -file => 'sequence.fasta', -format => 'fasta' );
-                            </programlisting>
-                  </para>
-
-                  <para>
-                         This line does several things:
-                        <simplelist type="horiz" columns="1">
-                           <member>
-                              The word "my" tells the Perl interpreter that this is the
-                              first time that the variable $seqio has been used, and it
-                              also defines the scope of $seqio. Writing "my" before the
-                              first use of a variable is a requirement when "using strict."
-                           </member>
-                           <member>
-                              The new method of the Bio::SeqIO module is called. This method
-                              is used to construct and return a new Bio::SeqIO object.
-                           </member>
-                           <member>
-                              This method is passed two arguments: a file value "seq.fasta" and
-                              a format value of "fasta". These arguments tell Bio::SeqIO that
-                              $seqio will read sequence information from a file named seq.fasta
-                              that is stored in the FASTA sequence file format.
-                           </member>
-                           <member>
-                              The object returned by the "new" method is assigned to the scalar
-                              variable $seqio. 
-                           </member>
-                        </simplelist>
-                  </para>
-
-                  
-
-
-  </section>
-
-
-  <section id="regexp">
-    <title>Regular Expressions</title>
-    <para>
-    </para>
-    <para>
-    </para>
-    <para>
-    </para>
-    <para>
-    </para>
-    <para>
-      <important>
-      </important>
-    </para>
   </section>
 
   <section id="blast">
@@ -505,26 +618,20 @@ while( my $seq = $seq_in->next_seq() ) {
     </para>
   </section>
 
-  <section id="">
-	 <title></title>
+  <section id="regexp">
+    <title>Regular Expressions</title>
     <para>
-    </para>	
+    </para>
+    <para>
+    </para>
     <para>
     </para>
     <para>
     </para>
     <para>
       <important>
-		  <para>
-		  </para>
       </important>
     </para>
-    <para>
-      <programlisting>
-      </programlisting>
-    </para>
-    <para>
-	 </para>
   </section>
 
   <section id="">
@@ -580,70 +687,70 @@ while( my $seq = $seq_in->next_seq() ) {
 
   <section id="objects">
 	 <title>Appendix II: The Basics of Perl Objects<title>
-            <para>
-               Object-oriented programming (OOP) is software engineering
-               technique for modularizing code. The difference between
-               object-oriented programming and procedural programming can be
-               simply illustrated.
-            </para>
+		  <para>
+			 Object-oriented programming (OOP) is software engineering
+			 technique for modularizing code. The difference between
+			 object-oriented programming and procedural programming can be
+			 simply illustrated.
+		  </para>
 
-            <para>
-               <emphasis>A Simple Example</emphasis>
-               Assume that we have a DNA sequence stored in the scalar variable
-               $sequence. We'd like to generate the reverse complement of this 
-               sequence and store it in $reverse_complement. Shown below is the
-               procedural Perl technique of using a subroutine to operate on
-               this scalar data:
-            </para>
-            Example 1: 
-               <programlisting>
-                  my $reverse_complement = &rev_com( $sequence );
-               </programlisting>
-            </para>
-
-            <para>
-               The hallmark of a procedural program is that data and functions to
-               operate on that data are kept separate. In order to generate the reverse
-               complement of a DNA sequence, we need to call a function that operates
-               on that DNA sequence.
-            </para>
+		  <para>
+			 <emphasis>A Simple Example</emphasis>
+			 Assume that we have a DNA sequence stored in the scalar variable
+			 $sequence. We'd like to generate the reverse complement of this 
+			 sequence and store it in $reverse_complement. Shown below is the
+			 procedural Perl technique of using a subroutine to operate on
+			 this scalar data:
+		  </para>
+		  Example 1: 
+		  <programlisting>
+			 my $reverse_complement = &rev_com( $sequence );
+		  </programlisting>
+		</para>
+		  
+		  <para>
+			 The hallmark of a procedural program is that data and functions to
+			 operate on that data are kept separate. In order to generate the reverse
+			 complement of a DNA sequence, we need to call a function that operates
+			 on that DNA sequence.
+		  </para>
                
-            <para>
-               Shown below is the object-oriented way of generating the reverse 
-               complement of a DNA sequence:
-            </para>
+		  <para>
+			 Shown below is the object-oriented way of generating the reverse 
+			 complement of a DNA sequence:
+		  </para>
 
-            <para>
-            Example 2:
-               <programlisting>
-                  my $reverse_complement = $sequence->revcom;
-               </programlisting>
-            </para>
+		  <para>
+			 Example 2:
+			 <programlisting>
+				my $reverse_complement = $sequence->revcom;
+			 </programlisting>
+		  </para>
 
-            <para>
-               The main difference between this object-oriented example and the
-               procedural example shown before is that the function for
-               generating the reverse complement (called "revcom") part of
-               $sequence. To put it another way, $sequence knows how to calculate
-               and return its reverse complement. Encapsaluting both data and
-               functions into the same construct is the fundamental idea behind
-               object-oriented programming. 
-            </para>
+		  <para>
+			 The main difference between this object-oriented example and the
+			 procedural example shown before is that the function for
+			 generating the reverse complement (called "revcom") part of
+			 $sequence. To put it another way, $sequence knows how to calculate
+			 and return its reverse complement. Encapsaluting both data and
+			 functions into the same construct is the fundamental idea behind
+			 object-oriented programming. 
+		  </para>
 
-            <para>
-               <emphasis>Terminology</emphasis>
-               In the object-oriented example above, $sequence is called an
-               object, and the function "revcom" is called a method. An object
-               is a data structure that has both data and methods associated
-               with it. Objects are separated into types called classes, and the
-               class of an object defines both the data that it can hold and the 
-               methods that it knows.
-            </para>
-
-            <para>
-               <emphasis>A Bioperl Example</emphasis>
-               
-            </para>
+		  <para>
+			 <emphasis>Terminology</emphasis>
+			 In the object-oriented example above, $sequence is called an
+			 object, and the function "revcom" is called a method. An object
+			 is a data structure that has both data and methods associated
+			 with it. Objects are separated into types called classes, and the
+			 class of an object defines both the data that it can hold and the 
+			 methods that it knows.
+		  </para>
+		  
+		  <para>
+			 <emphasis>A Bioperl Example</emphasis>
+			 
+		  </para>
 
   </section>
 </article>
@@ -721,4 +828,26 @@ while( my $seq = $seq_in->next_seq() ) {
     
   </section>
 
+-->
+
+<!--
+		<table>
+		  <title></title>
+		  <tgroup cols="3">
+			 <thead>
+				<row>
+				  <entry></entry>
+				  <entry></entry>
+				  <entry></entry>
+				</row>
+			 </thead>
+			 <tbody>
+				<row>
+				  <entry></entry>
+				  <entry></entry>
+				  <entry></entry>
+				</row>
+			 </tbody>
+		  </tgroup>
+      </table>
 -->
