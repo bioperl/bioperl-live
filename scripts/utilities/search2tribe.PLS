@@ -1,5 +1,5 @@
 #!/usr/bin/perl -w
-# $Id: search2tribe.PLS,v 1.4 2003-06-17 15:56:04 jason Exp $
+# $Id: search2tribe.PLS,v 1.5 2004-03-09 15:11:27 jason Exp $
 
 # Author:      Jason Stajich <jason@bioperl.org>
 # Description: Turn SearchIO parseable report(s) into a TRIBE matrix
@@ -66,7 +66,7 @@ if( $output ) {
     $outfh = *STDOUT;
 }
 
-my $parser = new Bio::SearchIO(-format => $format);
+my $parser = new Bio::SearchIO(-format => $format, -fh => \*ARGV);
 
 # Let's throw away HSP events
 $parser->attach_EventHandler(new Bio::SearchIO::FastHitEventBuilder);
