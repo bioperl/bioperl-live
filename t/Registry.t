@@ -4,8 +4,7 @@
 # written by Brian Osborne
 
 use strict;
-my $old_search_path;
-use vars qw($old_search_path $have_DB_File);
+use vars qw($old_search_path $no_DB_File);
 
 BEGIN {
    eval { require Test; };
@@ -13,19 +12,17 @@ BEGIN {
       use lib 't','..';
    }
    use Test;
-   $have_DB_File = 0;
+   $no_DB_File = 0;
    $old_search_path = $ENV{OBDA_SEARCH_PATH} if defined $ENV{OBDA_SEARCH_PATH};
-   eval {require DB_File;
-         require BerkeleyDB;};
+	$ENV{OBDA_SEARCH_PATH} = 't/data/registry/flat;t/data/registry/bdb';
+   eval { require DB_File;
+          require BerkeleyDB;
+		 };
    if ($@) {
       $ENV{OBDA_SEARCH_PATH} = 't/data/registry/flat';
-      print STDERR "DB_File and BerkeleyDB not found. Skipping DB_File tests\n";
-      plan tests => 7;
-   } else {
-      $have_DB_File = 1;
-      $ENV{OBDA_SEARCH_PATH} = 't/data/registry/flat;t/data/registry/bdb';
-      plan tests => 12;
-   }
+      $no_DB_File = 1;
+	}
+	plan tests => 13;
 }
 
 use Bio::DB::Registry;
@@ -44,15 +41,21 @@ my $flat = Bio::DB::Flat->new(-directory  => $tmpdir,
 my $entries = $flat->build_index("t/data/cysprot.fa");
 ok $entries == 7;
 
-if ($have_DB_File) {
-   my $bdb = Bio::DB::Flat->new(-directory  => $tmpdir,
+if ($no_DB_File){
+	for (1..2) {
+		skip("DB_File or BerkeleyDB not found, skipping DB_File tests",1);
+	}
+} else {
+	my $bdb = Bio::DB::Flat->new(-directory  => $tmpdir,
 										  -dbname     => 'testbdb',
 										  -format     => 'fasta',
 										  -index      => 'bdb',
 										  -write_flag => 1 );
-   $entries = $bdb->build_index("t/data/cysprot.fa");
-   ok $entries == 7;
+	ok defined($bdb);
+	$entries = $bdb->build_index("t/data/cysprot.fa");
+	ok $entries == 7;
 }
+
 
 my $registry = Bio::DB::Registry->new;
 ok defined($registry);
@@ -66,7 +69,11 @@ ok defined($seq);
 my $sequence = $seq->seq;
 ok $sequence eq "MAHARVLLLALAVLATAAVAVASSSSFADSNPIRPVTDRAASTLESAVLGALGRTRHALRFARFAVRYGKSYESAAEVRRRFRIFSESLEEVRSTNRKGLPYRLGINRFSDMSWEEFQATRLGAAQTCSATLAGNHLMRDAAALPETKDWREDGIVSPVKNQAHCGSCWTFSTTGALEAAYTQATGKNISLSEQQLVDCAGGFNNFGCNGGLPSQAFEYIKYNGGIDTEESYPYKGVNGVCHYKAENAAVQVLDSVNITLNAEDELKNAVGLVRPVSVAFQVIDGFRQYKSGVYTSDHCGTTPDDVNHAVLAVGYGVENGVPYWLIKNSWGADWGDNGYFKMEMGKNMCAIATCASYPVVAA";
 
-if ($have_DB_File) {
+if ($no_DB_File) {
+	for (1..4) {
+		skip("DB_File or BerkeleyDB not found, skipping DB_File tests",1);
+	}
+} else {
    ok grep /testbdb/,@available_services;
    $db = $registry->get_database('testbdb');
    ok defined($db);
