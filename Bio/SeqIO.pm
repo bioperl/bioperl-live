@@ -410,15 +410,12 @@ sub fh {
 
 sub _initialize {
     my($self, @args) = @_;
-    my ($seqfact, $flush) = $self->_rearrange([qw(SEQFACTORY FLUSH)], @args);
+
+    # flush is initialized by the Root::IO init
+
+    my ($seqfact) = $self->_rearrange([qw(SEQFACTORY )], @args);
 
     $seqfact && $self->sequence_factory($seqfact);
-
-    if (defined $flush) {
-	$self->{_flush_on_write} = $flush;
-    } else {
-	$self->{_flush_on_write} = 1;
-    }
 
     # initialize the IO part
     $self->_initialize_io(@args);

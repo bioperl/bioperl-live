@@ -213,8 +213,10 @@ sub _initialize_io {
 
     $self->_register_for_cleanup(\&_io_cleanup);
 
-    my ($input, $file, $fh) = $self->_rearrange([qw(INPUT FILE FH)], @args);
-
+    my ($input, $file, $fh, $flush) = $self->_rearrange([qw(INPUT 
+							    FILE FH 
+							    FLUSH)], @args);
+    
     delete $self->{'_readbuffer'};
     delete $self->{'_filehandle'};
 
@@ -247,6 +249,8 @@ sub _initialize_io {
 	$self->file($file);
     }
     $self->_fh($fh) if $fh; # if not provided, defaults to STDIN and STDOUT
+
+    $self->_flush_on_write(defined $flush ? $flush : 1);
     return 1;
 }
 
@@ -723,6 +727,27 @@ sub rmtree {
     }
 
     $count;
+}
+
+=head2 _flush_on_write
+
+ Title   : _flush_on_write
+ Usage   : $obj->_flush_on_write($newval)
+ Function: Boolean flag to indicate whether to flush 
+           the filehandle on writing when the end of 
+           a component is finished (Sequences,Alignments,etc)
+ Returns : value of _flush_on_write
+ Args    : newvalue (optional)
+
+
+=cut
+
+sub _flush_on_write {
+    my ($self,$value) = @_;
+    if( defined $value) {
+	$self->{'_flush_on_write'} = $value;
+    }
+    return $self->{'_flush_on_write'};
 }
 
 1;
