@@ -98,6 +98,14 @@ to new().  The feature endpoints are automatically adjusted.
 
 An alias for sub_SeqFeature().
 
+=item get_SeqFeatures()
+
+Alias for sub_SeqFeature()
+
+=item get_all_SeqFeatures()
+
+Alias for sub_SeqFeature()
+
 =item merged_segments()
 
 Another alias for sub_SeqFeature().
@@ -140,6 +148,35 @@ use vars '@ISA';
 *exons       = *sub_SeqFeature = *merged_segments = \&segments;
 *method      = \&type;
 *source      = \&source_tag;
+
+# implement Bio::SeqI and FeatureHolderI interface
+
+sub primary_seq { return $_[0] }
+sub annotation { 
+    my ($obj,$value) = @_;
+    if( defined $value ) {
+	$obj->throw("object of class ".ref($value)." does not implement ".
+		    "Bio::AnnotationCollectionI. Too bad.")
+	    unless $value->isa("Bio::AnnotationCollectionI");
+	$obj->{'_annotation'} = $value;
+    } elsif( ! defined $obj->{'_annotation'}) {
+	$obj->{'_annotation'} = new Bio::Annotation::Collection;
+    }
+    return $obj->{'_annotation'};
+}
+sub species {
+    my ($self, $species) = @_;
+    if ($species) {
+        $self->{'species'} = $species;
+    } else {
+        return $self->{'species'};
+    }
+}
+
+*get_all_SeqFeatures = *get_SeqFeatures = \&segments;
+sub feature_count { return scalar @{shift->{segments} || []} }
+
+
 
 sub target { return; }
 sub hit    { return; }
@@ -289,6 +326,7 @@ sub seq {
   return $dna;
 }
 *dna = \&seq;
+
 
 =head2 factory
 
