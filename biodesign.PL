@@ -428,4 +428,5 @@ reliable and powerful software and providing outlets for individual
 creativity and imagination. In this spirit of open-mindedness we invite
 you to share your ideas with us at bioperl-l at bioperl.org.
 
+=cut
 THEEND

@@ -223,4 +223,5 @@ sequences and extract subsequences rapidly.
 See L<Bio::DB::GFF>, L<Bio::DB::GFF::RelSegment>,
 L<Bio::DB::GFF::Feature>, and L<Bio::DB::GFF::Adaptor::dbi>.
 
+=cut
 THEEND
