@@ -11,7 +11,7 @@ BEGIN {
 	use lib 't';
     }
     use Test;
-    $TESTCOUNT = 230;
+    $TESTCOUNT = 235;
     plan tests => $TESTCOUNT;
 }
 
@@ -41,7 +41,7 @@ sub read_write {
     print "Sequence 1 of 2 from $format stream:\n", $seq->seq, "\n\n" if  $DEBUG;
 
     unless ($format eq 'raw') {
-        ok $seq->id, 'roa1_drome';
+        ok $seq->id, 'roa1_drome',"ID for format $format";
         ok $seq->length, 358;
     }
 
@@ -96,6 +96,19 @@ ok $as->alphabet, 'dna';
 ok($as->primary_id, 3598416);
 
 
+$ast = Bio::SeqIO->new( '-format' => 'genbank' ,
+			'-file' => Bio::Root::IO->catfile("t","data",
+							  "NT_021877.gbk"));
+$ast->verbose($verbosity);
+$as = $ast->next_seq();
+ok $as->molecule, 'DNA';
+ok $as->alphabet, 'dna';
+ok($as->primary_id, 37539616);
+ok($as->accession_number, 'NT_021877');
+
+my ($cds) = grep { $_->primary_tag eq 'CDS' } $as->get_SeqFeatures();
+ok(($cds->get_tag_values('transl_except'))[1],
+   '(pos:complement(4224..4226),aa:OTHER)');
 # embl
 $ast = Bio::SeqIO->new( '-format' => 'embl' ,
 			'-file' => Bio::Root::IO->catfile("t","data","roa1.dat"));
