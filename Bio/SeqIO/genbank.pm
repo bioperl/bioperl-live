@@ -68,7 +68,6 @@ and other Bioperl modules. Send your comments and suggestions preferably
 Your participation is much appreciated.
 
   bioperl-l@bioperl.org                  - General discussion
-  bioperl-guts-l@bioperl.org             - Technically-oriented discussion
   http://www.bioperl.org/MailList.shtml  - About the mailing lists
 
 =head2 Reporting Bugs

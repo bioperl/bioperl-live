@@ -42,7 +42,6 @@ Your participation is much appreciated.
 
   bioxml-dev@bioxml.org                 the bioxml list.
   bioperl-l@bioperl.org                - General bioperl discussion
-  bioperl-guts-l@bioperl.org           - Technically-oriented bioperl discussion
   http://www.bioxml.org/MailList.html  - About the bioxml mailing list
   http://www.bioperl.org/MailList.html - About the bioperl mailing lists
 

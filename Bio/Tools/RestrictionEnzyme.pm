@@ -268,7 +268,6 @@ Send your comments and suggestions preferably to one of the Bioperl mailing list
 Your participation is much appreciated.
 
    bioperl-l@bioperl.org             - General discussion
-   bioperl-guts-l@bioperl.org        - Automated bug and CVS messages
    http://bioperl.org/MailList.shtml - About the mailing lists
 
 =head2 Reporting Bugs
