@@ -8,6 +8,41 @@ use vars '@ISA';
 @ISA = 'Bio::Graphics::Glyph::transcript2';
 use constant DEFAULT_UTR_COLOR => '#D0D0D0';
 
+# This hack preprocesses the glyph to remove overlaps between UTRs and
+# exons.  The exons are clipped so that UTRs have precedence
+sub new {
+  my $class = shift;
+  my $self  = $class->SUPER::new(@_);
+
+  if ($self->option('adjust_exons')) {
+    # find the utrs
+    my @utrs  = grep {$_->feature->type =~ /utr/i} $self->parts;
+    my %seen  = map {$_=>1} @utrs;
+    my @other = grep {!$seen{$_}} $self->parts;
+    my @clipped_parts;
+
+    for my $p (@other) {
+      my $p_right = $p->{left}+$p->{width};
+      for my $u (@utrs) {
+	my $u_right = $u->{left}+$u->{width};
+	if ($u_right > $p->{left} && $u->{left} < $p_right) { # overlaps - clip
+	  if ($p->{left} >= $u->{left}) {
+	    $p->{left}    = $u_right;
+	    $p->{width}   = $p_right - $p->{left};
+	  }
+	  if ($p_right <= $u_right) {
+	    my $new_right = $u->{left};
+	    $p->{width}   = $u->{left} - $p->{left};
+	  }
+	}
+      }
+    }
+    $self->{parts} = [grep {$_->{width}>1} sort {$a->{left}<=>$b->{left}} $self->parts];
+  }
+
+  $self;
+}
+
 sub is_utr {
   my $self = shift;
   return $self->feature->primary_tag =~ /UTR|untranslated_region/i;
@@ -130,6 +165,14 @@ glyph-specific options:
   -decorate_introns
                  Draw strand with little arrows undef (false)
                  on the intron.
+
+  -adjust_exons  Fix exons so that they don't   undef (false)
+                 overlap UTRs
+
+The B<-adjust_exons> option is needed to handle features in which the
+exons (SO type "exon") overlaps with the UTRs (SO types
+"five_prime_utr" and "three_prime_utr").  The exon parts of the glyph
+will be clipped so that it doesn't overlap with the UTR parts.
 
 =head1 BUGS
 
