@@ -157,7 +157,7 @@ sub _pivot {
 	    push @cols, [split $self->flag('field_delimiter')];
 	}
     }
-    my $startingcol = 10;
+    my $startingcol = 11;
 
     $self->{'_header'} = [ map { $_->[0] } @cols];
     for my $n ($startingcol.. $#{ $cols[ 0 ]}) { 
