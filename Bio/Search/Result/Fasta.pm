@@ -65,7 +65,7 @@ The rest of the documentation details each of the object methods. Internal metho
 
 package Bio::Search::Result::Fasta;
 
-use vars qw($AUTOLOAD @ISA);
+use vars qw($AUTOLOAD @ISA @EXPORT_OK);
 use strict;
 
 # Object preamble - inherits from Bio::Root::Object
@@ -74,24 +74,61 @@ use Bio::Search::Result::ResultI;
 
 @ISA = qw(Bio::Search::Result::ResultI Exporter);
 
-# these are FASTA-specific accessors - pass off the generic to ResultI!
 my @AUTOLOAD_OK = qw(
-                     );
-
+                         _INTERACTIVE
+                         _ALGORITHM_DESC
+                         _ALGORITHM
+                         _VERSION
+                         _VERSION_DATE
+                         _CITATION
+                         _QUERY_FILENAME
+                         _QUERY_START
+                         _QUERY_END
+                         _QUERY_SIZE
+                         _QUERY_TYPE
+                         _QUERY_SUPERFAMILIES
+                         _QUERY_DESC
+                         _LIBRARY_FILENAME
+                         _LIBRARY_RESIDUES
+                         _LIBRARY_SEQUENCES
+                         _STATISTICS
+                         _OPTIMIZED
+                         _MATRIX_NAME
+                         _MATRIX_OFFSET
+                         _MATRIX_HIGH_SCORE
+                         _MATRIX_LOW_SCORE
+                         _KTUP
+                         _JOIN
+                         _OPT
+                         _GAP_OPEN
+                         _GAP_EXTEND
+                         _WIDTH
+                         _SCANTIME
+                         _DISPLAY_TIME
+                         _START_TIME
+                         _END_TIME
+                         _APP_LIB_SIZE
+                         _HITS
+                         _COMPLIB
+                         _COMPLIB_VERSION
+                         _COMPLIB_VERSION_DATE
+                    );
 my %AUTOLOAD_OK = ();
-@AUTOLOAD_OK{@AUTOLOAD_OK} = 1;
+@AUTOLOAD_OK{@AUTOLOAD_OK} = (1) x @AUTOLOAD_OK;
 
 # new() is inherited from Bio::Root::Object
 
 # _initialize is where the heavy stuff will happen when new is called
 
 sub _initialize {
-    my($self,@args) = @_;
+    my($self, %args) = @_;
 
-    # process @args for any Fasta specific stuff here and now!
+    my $make = $self->SUPER::_initialize(%args);
 
-    # then pass off whats left to ResultI.pm to handle!
-    my $make = $self->SUPER::_initialize(@args);
+    while (my ($key, $val) = each %args) {
+	$key = '_' . uc($key);
+	$self->$key($val);
+    }
 
     return $make; # success - we hope!
 }
@@ -99,14 +136,17 @@ sub _initialize {
 sub AUTOLOAD {
     my ($self, $val) = @_;
 
+    $AUTOLOAD =~ s/.*:://;
+
     if ( $AUTOLOAD_OK{$AUTOLOAD} ) {
-        $self->{$AUTOLOAD} = $val if defined $val;
+        $self->{$AUTOLOAD} = $val if defined $val &&
+	    caller eq 'Bio::Search::Result::Fasta';
         return $self->{$AUTOLOAD};
     } else {
-        my $check = $self->SUPER::AUTOLOAD($val);
-        $self->throw("Failed accessor: $AUTOLOAD !") unless defined $check;
-        return $check;
+        $self->throw("Unallowed accessor: $AUTOLOAD !");
     }
 }
 
 1;
+
+__END__

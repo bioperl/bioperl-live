@@ -77,6 +77,8 @@ use strict;
 use Bio::Search::Processor::ProcessorI;
 
 # "uses" modules
+use Data::Dumper;
+use IO::File;
 use Bio::Search::Result::Fasta;
 use Bio::Search::Hit::Fasta; # will be contained in Result::Fasta
 use Bio::SimpleAlign; # will be contained in Hit::Fasta
@@ -90,7 +92,7 @@ my @AUTOLOAD_OK = qw(
 		    );
 my %AUTOLOAD_OK;
 
-@AUTOLOAD_OK{@AUTOLOAD_OK} = 1;
+@AUTOLOAD_OK{@AUTOLOAD_OK} = (1) x @AUTOLOAD_OK;
 
 # new() is inherited from Bio::Root::Object
 
@@ -130,8 +132,6 @@ sub next_result{
 
     my $fh = $self->_FILEHANDLE() or $self->throw("No data source!");
 
-    my $result = new Bio::Search::Result::Fasta;
-
     return undef if eof $fh;
 
     # process data from $fh and set appropriate values in $result using
@@ -140,13 +140,13 @@ sub next_result{
     # Alignment objects.  Sky's the limit here.
 
     local($/) = "\n";  # just to make sure ...
-    my $interactive = 1;
+    my $interactive = 0;
 
     my $line = <$fh>; #" FASTA searches a protein or DNA sequence data bank"
     my ($algorithm_desc, $algorithm) = $line =~ m/^\s*((T?FAST\W).*?)\s*$/;
 
     $line = <$fh>; #" version 3.2t05  May 12, 1999"
-    my ($version, $versiondate) = $line =~ m/^\s*version\s+(\S+)\s+(.*?)\s*$/;
+    my ($version, $version_date) = $line =~ m/^\s*version\s+(\S+)\s+(.*?)\s*$/;
 
     $line = <$fh>; # "Please cite:"
     $line = <$fh>; #" W.R. Pearson & D.J. Lipman PNAS (1988) 85:2444-2448"
@@ -176,7 +176,7 @@ sub next_result{
                    # no new information, so skip it.
 
     $line = <$fh>; # <blank line> or "..... ..... ..... Done!" if interactive
-    if ( substr($line, 0, 1) eq '.' ) {
+    if ( substr($line, 0, 1) eq '.' ) { # I can't imagine actually doing this
         $interactive = 1;
         until ($line =~ m/^[\.\s]*Done!\s*$/) {
 	    $line = <$fh>;
@@ -199,7 +199,7 @@ sub next_result{
 
     $line = <$fh>; # First line of statistics, could be one of many:
 
-    my $statistics = {};
+    my $statistics = { 'histogram' => $histogram };
 
  SWITCH: {
 
@@ -413,6 +413,7 @@ sub next_result{
                        ([^\/]+)\/?(-?\d+)?\s*matrix\s*
                        \((-?\d+):(-?\d+)\]\s*
                        ktup:\s*(\d+)/x;
+    $optimized = defined $optimized ? 1 : 0;
 
     $line = <$fh>;
 # join: 38, opt: 26, gap-pen: -12/ -2, width:  16 reg.-scaled
@@ -427,7 +428,7 @@ sub next_result{
     my ($scantime) = $line =~ m/(\d*\.?\d*)/;
 
     $line = <$fh>;
-#The best  scores are:                             initn init1 opt z-sc E(23874)
+#The best  scores are:                           initn init1 opt z-sc E(23874)
     my ($app_lib_size) = $line =~ m/E\(\s*(\d+)\s*\)/;
 
 #104K_THEPA 104 KD MICRONEME-RHOPTRY ANTI  ( 924) 4590 4590 4590 3639.4 1.6e-196
@@ -437,35 +438,91 @@ sub next_result{
 #PRP4_HUMAN SALIVARY PROLINE-RICH PROTEIN  ( 247)  173   94  205  157.3   0.014
 
     my @hits = ();
-    while (1) {
-	$line = <$fh>;
-	if ($line =~ m/^\s*$/) {
-	    last;
-	} else {
-	    my ($desc, $size, $initn, $init1, $opt, $zsc, $e_val) =
-		$line =~ m/^(.{40})\s*
-                           \(\s*(\d+)\s*\)\s*
-                           (\d+)\s*(\d+)\s*(\d+)\s*
-                           (?:(\d*\.?\d*)\s*(\d*[\.e]?\d*e?-?\d*)\s*)?$/x;
-	    $desc =~ m/^(\S+)\s*(.*)\s*$/;
-	    my $id = $1; $desc = $2;
-	    my $hit = Bio::Search::Hit::Fasta->new('id' => $id,
-						   'desc' => $desc,
-						   'size' => $size,
-						   'initn' => $initn,
-						   'init1' => $init1,
-						   'opt' => $opt,
-						   'zsc' => $zsc,
-						   'e_val' => $e_val);
-	    push @hits, $hit;
-	}
+    while ( ($line = <$fh>) && ($line !~ m/^\s*$/) ) {
+	my ($desc, $size, $initn, $init1, $opt, $zsc, $e_val) =
+	    $line =~ m/^(.{40})\s*
+                       \(\s*(\d+)\s*\)\s*
+                       (\d+)\s*(\d+)\s*(\d+)\s*
+                       (?:(\d*\.?\d*)\s*(\d*[\.e]?\d*e?-?\d*)\s*)?$/x;
+	$desc =~ m/^(\S+)\s*(.*)\s*$/;
+	my $id = $1; $desc = $2;
+	my $hit = Bio::Search::Hit::Fasta->new('id' => $id,
+					       'desc' => $desc,
+					       'size' => $size,
+					       'initn' => $initn,
+					       'init1' => $init1,
+					       'opt' => $opt,
+					       'zsc' => $zsc,
+					       'e_val' => $e_val);
+	push @hits, $hit;
     }
+
+    # skip alignment info for now ... this is the next area for improvement
+    while ($line !~ m/\d+ \s* residues \s* in \s*
+                      \d+ \s* library \s* sequences/x) {
+	$line = <$fh>;
+    }
+
+    $line = <$fh>;
+    my ($complib, $complib_version, $complib_version_date) =
+	$line =~ m/^\s*([^\[]*)\[version\s*(\S*)\s*([^\]]*)\]\s*$/;
+
+    $line = <$fh>;
+    my ($start_time, $end_time) = $line =~ m/^\s*start:\s*(.*?)\s*
+                                             done:\s*(.*?)\s*$/x;
+
+    $line = <$fh>;
+    my ($display_time) = $line =~ m/Display time:\s*(\d*\.?\d*)/;
+
+    <$fh>; <$fh>; # done!
+
+    my $result = new Bio::Search::Result::Fasta
+	('interactive' => $interactive,
+	 'algorithm_desc' => $algorithm_desc,
+	 'algorithm' => $algorithm,
+	 'version' => $version,
+	 'version_date' => $version_date,
+	 'citation' => $citation,
+	 'query_filename' => $query_filename,
+	 'query_start' => $query_start,
+	 'query_end' => $query_end,
+	 'query_size' => $query_size,
+	 'query_type' => $query_type,
+	 'query_superfamilies' => $query_superfamilies,
+	 'query_desc' => $query_desc,
+	 'library_filename' => $library_filename,
+	 'library_residues' => $library_residues,
+	 'library_sequences' => $library_sequences,
+	 'statistics' => $statistics,
+	 'optimized' => $optimized,
+	 'matrix_name' => $matrix_name,
+	 'matrix_offset' => $matrix_offset,
+	 'matrix_high_score' => $matrix_high_score,
+	 'matrix_low_score' => $matrix_low_score,
+	 'ktup' => $ktup,
+	 'join' => $join,
+	 'opt' => $opt,
+	 'gap_open' => $gap_open,
+	 'gap_extend' => $gap_extend,
+	 'width' => $width,
+	 'start_time' => $start_time,
+	 'end_time' => $end_time,
+	 'scantime' => $scantime,
+	 'display_time' => $display_time,
+	 'app_lib_size' => $app_lib_size,
+	 'hits' => \@hits,
+	 'complib' => $complib,
+	 'complib_version' => $complib_version,
+	 'complib_version_date' => $complib_version_date,
+	);
 
     return $result;
 }
 
 sub AUTOLOAD {
     my ($self, $val) = @_;
+
+    $AUTOLOAD =~ s/.*:://;
 
     if ($AUTOLOAD_OK{$AUTOLOAD}) {
 	$self->{$AUTOLOAD} = $val if defined $val;

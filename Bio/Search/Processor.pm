@@ -60,7 +60,6 @@ The rest of the documentation details each of the object methods. Internal metho
 
 package Bio::Search::Processor;
 
-use Bio::Root::Object; # using, not isa
 use Exporter; # isa
 
 use strict;
@@ -86,17 +85,25 @@ sub new {
 
     my $type = shift;
     my $proc;
+    my ($module, $load, $algorithm);
 
-    my ($algorithm) = Bio::Root::Object->_rearrange([qw(ALGORITHM)], @_);
-    defined $algorithm or Bio::Root::Object->throw("Must supply an algorithm!");
+    my %args = @_;
 
-    my $module = "_<Bio/Search/Processor/$algorithm.pm";
-    my $load = "Bio/Search/Processor/$algorithm.pm";
+    exists $args{'-algorithm'} or do { 
+	print STDERR "Must supply an algorithm!";
+	return undef;
+    };
+
+    $algorithm = $args{'-algorithm'} || $args{'-ALGORITHM'};
+
+    $module = "_<Bio/Search/Processor/$algorithm.pm";
+    $load = "Bio/Search/Processor/$algorithm.pm";
 
     unless ( $main::{$module} ) {
 	eval { require $load; };
 	if ( $@ ) {
-	    Bio::Root::Object->throw("$load: $algorithm cannot be found\nException $@\nFor more information about the Search/Processor system please see the Processor docs.\nThis includes ways of checking for processors at compile time, not run time\n");
+	    print STDERR "$load: $algorithm cannot be found\nException $@\nFor more information about the Search/Processor system please see the Processor docs.\nThis includes ways of checking for processors at compile time, not run time\n";
+	    return undef;
 	}
     }
 

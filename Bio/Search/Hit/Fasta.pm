@@ -64,7 +64,7 @@ The rest of the documentation details each of the object methods. Internal metho
 
 package Bio::Search::Hit::Fasta;
 
-use vars qw($AUTOLOAD @ISA);
+use vars qw($AUTOLOAD @ISA @EXPORT_OK);
 use strict;
 
 # Object preamble - inherits from Bio::Root::Object
@@ -73,23 +73,32 @@ use Bio::Search::Hit::HitI;
 
 @ISA = qw(Bio::Search::Hit::HitI Exporter);
 
-# Fasta-specific accessor's only, let HitI.pm do the basics!
-my @AUTOLOAD_OK = qw(
+my @AUTOLOAD_OK = qw(        _ID
+                             _DESC
+                             _SIZE
+                             _INITN
+                             _INIT1
+                             _OPT
+                             _ZSC
+                             _E_VAL
                     );
+
 my %AUTOLOAD_OK = ();
-@AUTOLOAD_OK{@AUTOLOAD_OK} = 1;
+@AUTOLOAD_OK{@AUTOLOAD_OK} = (1) x @AUTOLOAD_OK;
 
 # new() is inherited from Bio::Root::Object
 
 # _initialize is where the heavy stuff will happen when new is called
 
 sub _initialize {
-    my($self,@args) = @_;
+    my($self, %args) = @_;
 
-    # process @args for any Fasta specific stuff here and now!
+    my $make = $self->SUPER::_initialize(%args);
 
-    # then pass off whats left to HitI.pm to handle!
-    my $make = $self->SUPER::_initialize(@args);
+    while (my ($key, $val) = each %args) {
+	$key = '_' . uc($key);
+	$self->$key($val);
+    }
 
     return $make; # success - we hope!
 }
@@ -97,14 +106,16 @@ sub _initialize {
 sub AUTOLOAD {
     my ($self, $val) = @_;
 
+    $AUTOLOAD =~ s/.*:://;
+
     if ( $AUTOLOAD_OK{$AUTOLOAD} ) {
         $self->{$AUTOLOAD} = $val if defined $val;
         return $self->{$AUTOLOAD};
     } else {
-        my $check = $self->SUPER::AUTOLOAD($val);
-        $self->throw("Failed accessor: $AUTOLOAD !") unless defined $check;
-        return $check;
+        $self->throw("Unallowed accessor: $AUTOLOAD !");
     }
 }
 
 1;
+
+__END__
