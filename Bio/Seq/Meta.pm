@@ -19,13 +19,15 @@ residue-based meta information
 
   use Bio::LocatableSeq;
   use Bio::Seq::Meta;
+  use Bio::Tools::OddCodes;
+  use Bio::SeqIO;
 
   my $seq = Bio::LocatableSeq->new(-id=>'test',
                                    -seq=>'ACTGCTAGCT',
                                    -start=>2434,
                                    -start=>2443,
                                    -strand=>1,
-                                   -varbose=>1, # to see warnings
+                                   -verbose=>1, # to see warnings
                                   );
 
   bless $seq, Bio::Seq::Meta;
@@ -65,7 +67,7 @@ long and blank values are space characters (ASCII 32).
 The length of the meta data sequence is not dependent on the amount of
 the meta information.  The meta information always covers all the
 residues. If necessary, the implementation quietly truncates or extends
-metainformation with blank values.
+meta information with blank values.
 
 It is assumed that meta data values do not depend on the nucleotide
 sequence strand value.
@@ -85,7 +87,7 @@ variants. These are the suffixes and prefixes used in the variants:
 =item _text
 
 Suffix B<_text> guaranties that output is a string. Note that it does
-not limit the imput.
+not limit the input.
 
 In this implementation, the output is always text, so these methods
 are redundant.
@@ -100,13 +102,13 @@ is not defined, it defaults to the complete sequence.
 =item named_
 
 Prefix B<named_> in method names allows the used to attach multiple
-meta strings to one sequence by explicitely naming them. The name is
+meta strings to one sequence by explicitly naming them. The name is
 always the first argument to the method. The "unnamed" methods use the
 class wide default name for the meta data and are thus special cases
 "named" methods.
 
 Note that internally names are keys in a hash and any misspelling of a
-name will silenty store the data under a wrong name. The used names
+name will silently store the data under a wrong name. The used names
 (keys) can be retrieved using method meta_names(). See L<meta_names>.
 
 =back
@@ -352,7 +354,7 @@ sub named_meta_text {
            should extend to the end of the sequence.
 
            The return value may be a string or an array reference,
-           depending on the implentation. If in doubt, use
+           depending on the implementation. If in doubt, use
            submeta_text() which is a variant guarantied to return a
            string.  See L<submeta_text>.
 
@@ -460,7 +462,7 @@ sub named_submeta_text {
 
  Title   : meta_names
  Usage   : @meta_names  = $obj->meta_names()
- Function: Retrives an array of meta data set names. The default
+ Function: Retrieves an array of meta data set names. The default
            (unnamed) set name is guarantied to be the first name if it
            contains any data.
  Returns : an array of names

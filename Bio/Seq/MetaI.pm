@@ -42,7 +42,7 @@ The length of the meta data sequence is not dependent on the amount of
 the meta information. The meta information always covers all the
 residues, but a blank value is used to denote unavailable
 information. If necessary the implementation quietly truncates or
-extends metain formation with blank values. Definition of blank is
+extends meta information with blank values. Definition of blank is
 implementation dependent. Gaps in MSAs should not have meta
 information.
 
@@ -54,7 +54,7 @@ array of scalars, array of hashes, array of objects.
 
 If the implementation so chooses, there can be more then one meta
 values associated to each residue. See L<named_meta> and
-L<names_submeta>. Note that use of arbitray names is very prone to
+L<names_submeta>. Note that use of arbitrary names is very prone to
 typos leading to creation of additional copies of meta data sets.
 
 Bio::Seq::Meta provides basic, pure perl implementation of sequences
@@ -73,7 +73,7 @@ variants. These are the suffixes and prefixes used in the variants:
 =item _text
 
 Suffix B<_text> guaranties that output is a string. Note that it does
-not limit the imput.
+not limit the input.
 
 =item sub
 
@@ -85,13 +85,13 @@ is not defined, it defaults to the complete sequence.
 =item named_
 
 Prefix B<named_> in method names allows the used to attach multiple
-meta strings to one sequence by explicitely naming them. The name is
+meta strings to one sequence by explicitly naming them. The name is
 always the first argument to the method. The "unnamed" methods use the
 class wide default name for the meta data and are thus special cases
 "named" methods.
 
 Note that internally names are keys in a hash and any misspelling of a
-name will silenty store the data under a wrong name. The used names
+name will silently store the data under a wrong name. The used names
 (keys) can be retrieved using method meta_names(). See L<meta_names>.
 
 =back
