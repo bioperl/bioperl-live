@@ -46,7 +46,7 @@ warn "fetching...\n";
 my $seq = $bf->get_Seq_by_id($accession);
 
 my $wholeseq = Bio::SeqFeature::Generic->new(-start=>1,-end=>$seq->length,
-					     -seq_id=>$seq->display_name);
+					     -seq_id=>$seq->display_id);
 
 my @features = $seq->all_SeqFeatures;
 
