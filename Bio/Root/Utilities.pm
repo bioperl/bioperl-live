@@ -397,7 +397,8 @@ sub compress {
     my ($compressed, @args);
 
     if($tmp or not -o $fileName) {
-	$compressed = POSIX::tmpnam;                                                 
+	$compressed = POSIX::tmpnam;
+	$compressed .= ".tmp.bioperl";
 	$compressed .= '.gz';
 	@args = ($GNU_PATH."gzip -f < $fileName > $compressed");
 	not $tmp and 
@@ -469,7 +470,8 @@ sub uncompress {
     my($uncompressed, @args);
 
     if($tmp or not -o $fileName) {
-	$uncompressed = POSIX::tmpnam;                                                 
+	$uncompressed = POSIX::tmpnam;
+	$uncompressed .= ".tmp.bioperl";
 	@args = ($GNU_PATH."gunzip -f < $fileName > $uncompressed");
 	not $tmp and $self->verbose > 0 and
 	    $self->warn("Not owner of file $fileName\nUncompressing to tmp file $uncompressed.");
