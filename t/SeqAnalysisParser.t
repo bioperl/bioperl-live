@@ -20,22 +20,23 @@ BEGIN {
     plan tests => 9;
 }
 
-use Bio::SeqFeatureProducer;
-use Bio::Tools::MZEF;
+use Bio::Factory::SeqAnalysisParserFactory;
 use Bio::SeqIO;
 
-my ($seqio,$seq,$sfp, $gene_seen, $exon_seen);
+my ($seqio,$seq,$factory,$parser, $gene_seen, $exon_seen);
 
 $seqio = new Bio::SeqIO('-format'=>'fasta', '-file' => 't/genomic-seq.fasta');
 ok $seqio->isa('Bio::SeqIO');# 'seqio was not created';
 $seq = $seqio->next_seq;
 ok $seq->isa('Bio::PrimarySeqI');#'could not read sequence';
 
-$sfp = new Bio::SeqFeatureProducer(-method => 'genscan',
-					     -input  => 't/genomic-seq.genscan');
-ok $sfp->isa('Bio::SeqFeatureProducer');#'no SeqFeatureProducer created';
-
-$sfp->add_features($seq);
+$factory = new Bio::Factory::SeqAnalysisParserFactory();
+$parser = $factory->get_parser(-input => 't/genomic-seq.genscan',
+				  -method => 'genscan');
+ok $parser->isa('Bio::SeqAnalysisParserI');#'noSeqAnalysisParserI created';
+while( my $feat = $parser->next_feature() ){
+    $seq->add_SeqFeature($feat);
+}
 ($gene_seen, $exon_seen)  = (0,0);
 foreach my $feat (  $seq->top_SeqFeatures() ) {
     if( $feat->isa("Bio::Tools::Prediction::Gene") ) {
@@ -47,20 +48,18 @@ foreach my $feat (  $seq->top_SeqFeatures() ) {
 }
 ok $exon_seen, 37;
 ok $gene_seen, 3;
- 
-$sfp = new Bio::SeqFeatureProducer();
-ok($sfp->isa('Bio::SeqFeatureProducer'));
-
-my $parser = new Bio::Tools::MZEF(-file => 't/genomic-seq.mzef');
+$parser = $factory->get_parser(-input => 't/genomic-seq.mzef',
+			       -method=> 'mzef');
 $seqio = new Bio::SeqIO('-format'=>'fasta', '-file' => 't/genomic-seq.fasta');
-
 $seq = $seqio->next_seq();
 ok(defined $seq && $seq->isa('Bio::PrimarySeqI'));
 
-$sfp->add_features($seq,$parser);
-
+ok $parser->isa('Bio::SeqAnalysisParserI');#'noSeqAnalysisParserI created';
+while( my $feat = $parser->next_feature() ){
+    $seq->add_SeqFeature($feat);
+}
 ($gene_seen, $exon_seen)  = (0,0);
-foreach my $feat ( $seq->top_SeqFeatures() ) {
+foreach my $feat (  $seq->top_SeqFeatures() ) {
     if( $feat->isa("Bio::Tools::Prediction::Gene") ) {
 	foreach my $exon ( $feat->exons ) {
 	    $exon_seen++;
