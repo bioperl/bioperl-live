@@ -9,12 +9,12 @@ use vars qw(@ISA $VERSION);
 @ISA = qw(Bio::Graphics::Glyph::segmented_keyglyph Bio::Graphics::Glyph::translation);
 
 my %default_colors = qw(
-			frame0f  cadetblue
+			frame0f  cyan
 			frame1f  blue
 			frame2f  darkblue
-			frame0r  darkred
+			frame0r  magenta
 			frame1r  red
-			frame2r crimson
+			frame2r  darkred
 		       );
 $VERSION = 1.00;
 
@@ -171,6 +171,7 @@ sub draw_component {
     my $x = $strand > 0 ? $start + $i * $pixels_per_residue
                         : $stop  - $i * $pixels_per_residue;
     next unless ($x >= $x1 && $x <= $x2);
+    $x -= $pixels_per_residue/3 if $self->{flip};
     $gd->char($font,$x+1,$y,$residues[$i],$color);
   }
 }

@@ -82,17 +82,21 @@ sub draw_dna {
     $forward = 1;
   }
 
-  my $start  = $self->map_no_trunc($feature->start);
-  my $end    = $self->map_no_trunc($feature->end);
+#  my $start  = $self->map_no_trunc($feature->start);
+#  my $end    = $self->map_no_trunc($feature->end);
+  my $start   = $self->panel->left + $self->map_pt($feature->start);
+  my $end     = $self->panel->left + $self->map_pt($feature->end);
 
   my $offset  = int(($x1-$start-1)/$pixels_per_base);
+  #  $start += $pixels_per_base if $self->{flip};  # line up correctly
 
   for (my $i=$offset;$i<@bases;$i++) {
     my $x = $start + $i * $pixels_per_base;
     next if $x+1 < $x1;
     last if $x > $x2;
-    $gd->char($font,$x+2,$y1,$bases[$i],$color)                                      if $forward;
-    $gd->char($font,$x+2,$y1+($forward ? $lineheight:0),$complement{$bases[$i]}||$bases[$i],$color) if $reverse;
+    $gd->char($font,$x+2,$y1,$bases[$i],$color)                                   if $forward;
+    $gd->char($font,$x+2,$y1+($forward ? $lineheight:0),
+	      $complement{$bases[$i]}||$bases[$i],$color)                         if $reverse;
   }
 
 }

@@ -7,12 +7,12 @@ use vars qw(@ISA $VERSION);
 @ISA = qw(Bio::Graphics::Glyph::generic);
 
 my %default_colors = qw(
-			frame0f  cadetblue
+			frame0f  cyan
 			frame1f  blue
 			frame2f  darkblue
-			frame0r  darkred
+			frame0r  magenta
 			frame1r  red
-			frame2r  crimson
+			frame2r  darkred
 		       );
 $VERSION = 1.00;
 
@@ -134,11 +134,11 @@ sub draw_frame {
   my $lh;
   if ($self->translation_type eq '6frame') {
     $lh = $self->height / 6;
-    $y1 += $lh * $frame;
+    $y1 += $lh * (($strand >= 0) ? $frame : (2-$frame));
     $y1 += $self->height/2 if $strand < 0;
   } else {
     $lh = $self->height / 3;
-    $y1 += $lh * $frame;
+    $y1 += $lh * (($strand >= 0) ? $frame : (2-$frame));
   }
 
   $y2 = $y1;
@@ -153,13 +153,14 @@ sub draw_frame {
   my $protein = $realseq->translate(undef,undef,$base_offset,$codon_table)->seq;
 
   my $str     = $strand;
-
   $str *= -1  if $self->{flip};
 
-  my $k       = $str>=0 ? 'f' : 'r';
-  my $color   = $self->color("frame$frame$k") ||
-                $self->color("frame$frame") ||
-                $self->default_color("frame$frame$k") || $self->fgcolor;
+  my $f       = $strand >=0 ? $frame : (2-$frame);
+  my $k       = $str>=0     ? 'f' : 'r';
+
+  my $color   = $self->color("frame$f$k") ||
+                $self->color("frame$f") ||
+                $self->default_color("frame$f$k") || $self->fgcolor;
   if ($self->protein_fits) {
     $self->draw_protein(\$protein,$strand,$color,$gd,$x1,$y1,$x2,$y2);
   } else {
@@ -185,7 +186,7 @@ sub draw_protein {
     next if $x+1 < $x1;
     last if $x > $x2;
     if ($flip) {
-      $gd->char($font,$right-($x-$left)+2,$y1,$residues[$i],$color);
+      $gd->char($font,$right-($x-$left+$pixels_per_base)+2,$y1,$residues[$i],$color);
     } else {
       $gd->char($font,$x+2,$y1,$residues[$i],$color);
     }
