@@ -2956,7 +2956,7 @@ sub _split_group {
     # (the GFF format is obviously screwed up here)
     elsif ($tag eq 'Target' && /([^:\"\s]+):([^\"\s]+)/) {
       ($gclass,$gname) = ($1,$2);
-      ($tstart,$tstop) = /(\d+) (\d+)/;
+      ($tstart,$tstop) = / (\d+) (\d+)/;
     }
 
     elsif (!$value) {
