@@ -1169,15 +1169,24 @@ for more information.
 
 Another common sequence manipulation task for nucleic acid sequences
 is locating restriction enzyme cutting sites.  Bioperl provides the
-RestrictionEnzyme object for this purpose. Bioperl's
-standard RestrictionEnzyme object comes with data for more than 150
-different restriction enzymes. A list of the available enzymes can be
-accessed using the available_list() method. For example to select all
+Restriction::Enzyme, Restriction::EnzymeCollection, and 
+Restriction::Analysis objects for this purpose. A new enzyme would be
+defined like this:
+
+  my $re = new Bio::Restriction::Enzyme(-enzyme=>'EcoRI',-seq=>'G^AATTC');
+
+A more typical case would be to use an existing enzyme to cut a DNA sequence
+and examine the products. Bioperl's default Restriction::EnzymeCollection 
+object comes with data for more than 500 different Type II restriction enzymes. You create this object like this:
+
+  my $collection = Bio::Restriction::EnzymeCollection;
+
+A list of the available enzyme names can be accessed using the 
+available_list() method, but these are just the names, not the functional
+objects. For example to select all
 available enzymes with cutting patterns that are six bases long one
 would write:
 
-  $re = new Bio::Tools::RestrictionEnzyme('-name'=>'EcoRI');
-  @sixcutters = $re->available_list(6);
 
 Once an appropriate enzyme has been selected, the sites for that
 enzyme on a given nucleic acid sequence can be obtained using the
@@ -1187,14 +1196,6 @@ cut_seq() method.  The syntax for performing this task is:
   # $seqobj is the Seq object for the dna to be cut
   @fragments =  $re1->cut_seq($seqobj);
 
-Adding an enzyme not in the default list is easily accomplished:
-
-  $re2 = new Bio::Tools::RestrictionEnzyme('-NAME' =>'EcoRV--GAT^ATC',
-                                           '-MAKE' =>'custom');
-
-Once the custom enzyme object has been created, cut_seq() can be
-called in the usual manner. See L<Bio::Tools::RestrictionEnzyme> for
-details.
 
 
 =head2    III.3.4 Identifying amino acid cleavage sites (Sigcleave)
