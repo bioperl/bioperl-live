@@ -6,7 +6,7 @@
 # ftp://ftp.ncbi.nih.gov/blast/db
 
 use strict;
-use constant NUMTESTS => 16;
+use constant NUMTESTS => 18;
 BEGIN { 
     eval { require Test; };
     if( $@ ) {
@@ -38,7 +38,8 @@ my $amino_database = 'swissprot';
 
 my @params = ('program' => 'blastn', 'database' => $nt_database , 
 	      '_READMETHOD' => 'SearchIO', 
-	      'output' => 'blastreport.out');
+	      'output' => 'blastreport.out',
+	     'verbose' => 0);
 my  $factory = Bio::Tools::Run::StandAloneBlast->new('-verbose' => $verbose,
 						     @params);
 
@@ -46,6 +47,11 @@ ok $factory;
 
 my $inputfilename = Bio::Root::IO->catfile("t","data","test.txt");
 my $program = 'blastn';
+$factory->quiet(0);
+$factory->q(-3);
+
+ok($factory->q, -3);
+ok($factory->quiet, 0);
 
 my $blast_present = $factory->executable('blastall');
 if( ! $blast_present ) {

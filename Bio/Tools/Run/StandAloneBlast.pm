@@ -373,30 +373,48 @@ sub new {
     my ($caller, @args) = @_;
     # chained new
     my $self = $caller->SUPER::new(@args);
- 
+
     # to facilitiate tempfile cleanup
     my ($tfh,$tempfile) = $self->io->tempfile();
     close($tfh); # we don't want the filehandle, just a temporary name
     $self->o($tempfile) unless $self->o;
     $self->_READMETHOD($DEFAULTREADMETHOD);
     while (@args)  {
-	    my $attr =   shift @args;
+	my $attr =   shift @args;
     	my $value =  shift @args;
     	next if( $attr eq '-verbose');
     	# the workaround to deal with initializing
-      if($attr =~/^\s*program\s*$|^p$/){
-        if($value =~/^wu*/){
-          $BLASTTYPE="wublast";
-        }
-      	$attr = 'p';
-      }
-      if($attr =~/outfile/){
-        $attr = 'o';
-      }
-    
-    	$self->$attr($value);
+	if($attr =~/^\s*program\s*$|^p$/){
+	    if($value =~/^wu*/){
+		$BLASTTYPE="wublast";
+	    }
+	    $attr = 'p';
+	}
+	if($attr =~/outfile/){
+	    $attr = 'o';
+	}
+
+	$self->$attr($value);
     }
     return $self;
+}
+
+=head2 quiet
+
+ Title   : quiet
+ Usage   : $obj->quiet($newval)
+ Function: 
+ Example : 
+ Returns : value of quiet (a scalar)
+ Args    : on set, new value (a scalar or undef, optional)
+
+
+=cut
+
+sub quiet{
+    my $self = shift;
+    return $self->{'_quiet'} = shift if @_;
+    return $self->{'_quiet'};
 }
 
 sub AUTOLOAD {
