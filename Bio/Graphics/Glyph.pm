@@ -1301,7 +1301,6 @@ Calculate the right side of the glyph.
 Optionally offset the glyph by the indicated amount and draw it onto
 the GD::Image object.
 
-
 =item $glyph-E<gt>draw_label($gd,$left,$top)
 
 Draw the label for the glyph onto the provided GD::Image object,
@@ -1511,6 +1510,21 @@ then call $gd-E<gt>line() twice to generate the criss-cross.
 
 For more complex draw() methods, see Bio::Graphics::Glyph::transcript
 and Bio::Graphics::Glyph::segments.
+
+Please avoid using a specific image class (via "use GD" for example)
+within your glyph package. Instead, rely on the image package passed
+to the draw() method. This approach allows for future expansion of
+supported image classes without requiring glyph redesign. If you need
+access to the specific image classes such as Polygon, Image, or Font,
+generate them like such:
+
+ sub draw {
+  my $self = shift;
+  my $image_class = shift;
+
+  my $polygon_package = $self->polygon_package->new()
+  ...
+  }
 
 =head1 BUGS
 
