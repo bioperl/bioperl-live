@@ -446,9 +446,16 @@ sub end_pos_type {
 sub to_FTstring {
     my ($self) = @_;
     my @strs;
-    foreach my $loc ( $self->sub_Location() ) {
-	push @strs, $loc->to_FTstring();
+    foreach my $loc ( $self->sub_Location() ) {	
+	my $str = $loc->to_FTstring();
+	if( defined $self->seq_id && 
+	    defined $loc->seq_id && 
+	    $loc->seq_id ne $self->seq_id ) {
+	    $str = sprintf("%s:%s", $loc->seq_id, $str);
+	} 
+	push @strs, $str;
     }    
+       
     my $str = sprintf("%s(%s)",$self->splittype, join(",", @strs));
     if( $self->strand == -1 ) {
 	$str = sprintf("complement(%s)",$str);

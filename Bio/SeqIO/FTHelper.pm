@@ -113,18 +113,24 @@ sub _generic_seqfeature {
 	my $combotype=$1; 	
 	$sf->primary_tag($fth->key);
 	$sf->source_tag($source);
-
 	my $splitlocation = new Bio::Location::Split(-strand=>$strand, 
+						     -seqid => $annseq->id,
 						     -splittype => $combotype);
 	# we need to make sub features
 	my $loc = $fth->loc;
 	$loc =~ s/^$combotype\((\S+)\)/$1/;	
 	foreach my $next_loc ( split(/\s*,\s*/, $loc) ) {
+	    my $seqid = $annseq->id;
+	    if ( $next_loc =~ s/^.*\(\s*(\S+:)// ) {
+		$seqid = $1;
+		$seqid =~ s/://;
+	    }
 	    if( my $location = $fth->_parse_loc($sf,$next_loc)) {
 		print STDERR "I got ", join(",", ($location->start(), 
 					 $location->end(), 
 					 $location->strand())), 
 		" for $next_loc\n" if( $fth->verbose > 0 );
+		$location->seq_id($seqid);
 		$splitlocation->add_sub_Location($location);
 	    } else {
 		$fth->warn("unable to parse location successfully out of " .
@@ -151,6 +157,7 @@ sub _generic_seqfeature {
     #print "Adding B4 ", $sf->primary_tag , "\n";
 
     if(defined($sf)) {
+	print "dogfood location is ", $sf->location->to_FTstring(), "\n";
 	foreach my $key ( keys %{$fth->field} ){
 	    foreach my $value ( @{$fth->field->{$key}} ) {
 		$sf->add_tag_value($key,$value);
@@ -259,7 +266,6 @@ sub _parse_loc {
 	}
 	$sf->add_tag_value($fea_type, $tagval);
     }
-
     return $location;
 }
 
