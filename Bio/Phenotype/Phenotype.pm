@@ -308,13 +308,8 @@ sub comment {
 sub each_gene_symbol {
     my ( $self ) = @_;
 
-    if ( $self->{ "_gene_symbols" } ) {
-        return @{ $self->{ "_gene_symbols" } };
-    }
-    else {
-        return my @a = (); 
-    }
-
+    return @{$self->{"_gene_symbols"}} if exists($self->{"_gene_symbols"});
+    return ();
 } # each_gene_symbol
 
 
@@ -381,13 +376,8 @@ sub remove_gene_symbols {
 sub each_Variant {
      my ( $self ) = @_;
 
-    if ( $self->{ "_variants" } ) {
-        return @{ $self->{ "_variants" } };
-    }
-    else {
-        return my @a = (); 
-    }
-
+     return @{ $self->{ "_variants" } } if exists($self->{ "_variants" });
+     return ();
 } # each_Variant
 
 
@@ -454,13 +444,8 @@ sub remove_Variants {
 sub each_Reference {
     my ( $self ) = @_;
     
-    if ( $self->{ "_references" } ) {
-        return @{ $self->{ "_references" } };
-    }
-    else {
-        return my @a = (); 
-    }
-
+    return @{ $self->{ "_references" } } if exists($self->{ "_references" });
+    return ();
 } # each_Reference
 
 
@@ -528,13 +513,8 @@ sub remove_References {
 sub each_CytoPosition {
     my ( $self ) = @_;
     
-    if ( $self->{ "_cyto_positions" } ) {
-        return @{ $self->{ "_cyto_positions" } };
-    }
-    else {
-        return my @a = (); 
-    }
-
+    return @{$self->{"_cyto_positions"}} if exists($self->{"_cyto_positions"});
+    return ();
 } # each_CytoPosition
 
 
@@ -605,13 +585,8 @@ sub remove_CytoPositions {
 sub each_Correlate {
     my ( $self ) = @_;
 
-    if ( $self->{ "_correlates" } ) {
-        return @{ $self->{ "_correlates" } };
-    }
-    else {
-        return my @a = (); 
-    }
-
+    return @{ $self->{ "_correlates" } } if exists($self->{ "_correlates" });
+    return (); 
 } # each_Correlate
 
 
@@ -683,13 +658,8 @@ sub remove_Correlates {
 sub each_Measure {
     my ( $self ) = @_;
     
-    if ( $self->{ "_measures" } ) {
-        return @{ $self->{ "_measures" } };
-    }
-    else {
-        return my @a = (); 
-    }
-
+    return @{ $self->{ "_measures" } } if exists($self->{ "_measures" });
+    return ();
 } # each_Measure
 
 
@@ -757,13 +727,8 @@ sub remove_Measures {
 sub each_keyword {
     my ( $self ) = @_;
     
-    if ( $self->{ "_keywords" } ) {
-        return @{ $self->{ "_keywords" } };
-    }
-    else {
-        return my @a = (); 
-    }
-
+    return @{ $self->{ "_keywords" } } if exists($self->{ "_keywords" });
+    return ();
 } # each_keyword
 
 
@@ -827,13 +792,8 @@ sub remove_keywords {
 sub each_DBLink {
     my ( $self ) = @_;
    
-    if ( $self->{ "_db_links" } ) {
-        return @{ $self->{ "_db_links" } };
-    }
-    else {
-        return my @a = (); 
-    }
-   
+    return @{ $self->{ "_db_links" } } if exists($self->{ "_db_links" });
+    return ();   
 }
 
 
@@ -904,13 +864,8 @@ sub remove_DBLinks {
 sub each_Genotype {
     my ( $self ) = @_;
    
-    if ( $self->{ "_genotypes" } ) {
-        return @{ $self->{ "_genotypes" } };
-    }
-    else {
-        return my @a = (); 
-    }
-
+    return @{ $self->{ "_genotypes" } } if exists($self->{ "_genotypes" });
+    return ();
 } # each_Genotype
 
 
