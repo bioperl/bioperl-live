@@ -275,14 +275,15 @@ sub _cleanup_methods {
 
 sub throw{
    my ($self,@args) = @_;
-   if( @args % 2 != 0 ) { 
-       unshift @args, '-text';
-   }
-   my ( $text, $class ) = $self->_rearrange( [qw(TEXT CLASS)], @args);
+   my %params = @args;
 
-   if( $ERRORLOADED ) {
+   if( $ERRORLOADED and exists $params{'-text'} || $params{'-TEXT'}) {
 #       print STDERR "  Calling Error::throw\n\n";
 
+       if( @args % 2 != 0 ) { 
+           unshift @args, '-text';
+       }
+       my ( $text, $class ) = $self->_rearrange( [qw(TEXT CLASS)], @args);
        if( defined($class)) {
            if( not $class->isa('Error')) {
                $text .= "\nWARNING: $class is not an Error.pm object\n";
@@ -303,11 +304,11 @@ sub throw{
 #       print STDERR "  Not calling Error::throw\n\n";
 
        my $std = $self->stack_trace_dump();
-       my $title = "------------- EXCEPTION: $class -------------";
+       my $title = "------------- EXCEPTION -------------";
        my $footer = "\n" . '-' x CORE::length($title);
 
        my $out = $title . "\n" .
-           "MSG: ".$text."\n". $std . $footer . "\n";
+           "MSG: ".$args[0]."\n". $std . $footer . "\n";
 
        die $out;
    }
