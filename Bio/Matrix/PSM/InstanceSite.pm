@@ -74,7 +74,7 @@ use strict;
 
  Title   : new
  Usage   : my $isntance=new Bio::Matrix::PSM::InstanceSite (-seq=>'TATAAT', -id=>"TATAbox1",
-                          -accession_numbaer='ENSG00000122304', -mid=>'TB1',
+                          -accession_number='ENSG00000122304', -mid=>'TB1',
                           -desc=>'TATA box, experimentally verified in PRM1 gene',-relpos=>-35)
  Function: Creates an InstanceSite object from memory.
  Throws  :
@@ -104,11 +104,8 @@ if (($args{seq} eq '') || (!defined($args{seq}))) {
 	warn "No sequence?!\n";
 }
 $self->{mid}=$args{mid};
-my $minstance=$args{mid} . "@" . $args{accession};
 $self->seq($args{seq});
 $self->desc($args{desc});
-$self->accession_number($args{accession});
-$self->primary_id($minstance); #Since this is a unique key this is the place for it?
 $self->{score}=$args{score};
 $self->{relpos}=$args{relpos};
 return $self;
