@@ -11,8 +11,7 @@ use Bio::SeqFeature::Generic;
 use Bio::Root::Root;
 use Bio::SeqFeature::SiRNA::Oligo;
 use Bio::SeqFeature::SiRNA::Pair;
-use Bio::Tools::Mdust; # for low-complexity filtering
-#use GD::Text::Align;
+use GD::Text::Align;
 
 
 our @ISA = qw(Bio::Root::Root);
@@ -33,7 +32,7 @@ our %COMP = ( A => 'T',
 	      N => 'N',
 	      );
 
-our @ARGNAMES = qw(START_PAD END_PAD MIN_GC CUTOFF OLIGOS AVOID_SNPS DUST 
+our @ARGNAMES = qw(START_PAD END_PAD MIN_GC CUTOFF OLIGOS AVOID_SNPS  
 		   GSTRING TMPDIR TARGET DEBUG);
 	      
 
@@ -54,21 +53,28 @@ SiRNA - Perl object for designing small inhibitory RNAs.
 foreach $pair (@pairs) {
     my $sense_oligo_sequence = $pair->sense->seq;
     my $antisense_oligo_sequence = $pair->antisense->seq;
+    
+    # print out results
+    print join ("\t", $pair->start, $pair->end, $pair->rank, $sense_oligo_sequence, 
+		$antisense_oligo_sequence), "\n";
 }
 
 =head1 DESCRIPTION
 
 Package for designing SiRNA reagents.
+
 Input is a Bio::RichSeq object (the target).
+
 Output is a list of Bio::SeqFeature::SiRNA::Pair objects, which are added to the feature 
 table of the target sequence.  Each Bio::SeqFeature::SiRNA::Pair contains two subfeatures (Bio::SeqFeature::Oligo objects) which correspond to the individual oligos.  These objects provide accessors for the information on the individual reagent pairs.
 
 This module implements the design rules described by Tuschl and colleagues (see 
 http://www.mpibpc.gwdg.de/abteilungen/100/105/sirna.html).  They describe three rules for RNAi oligos, which I label as rank 1 (best), 2, and 3 (worst).
 
-I added two modifications: regions of low sequence complexity can be masked out using 
-mdust (a stand-alone version of the dust filter - see Bio::Tools::Mdust), and known SNPs (identified
-as SeqFeatures with primary tag = variation) are avoided.  
+I added two modifications: SiRNAs that overlap known SNPs (identified as SeqFeatures with primary 
+tag = variation) are avoided, and other regions (with primary tag = 'Excluded') can also be skipped.
+I use this with Bio::Tools::Run::Mdust to avoid low-complexity regions (must be run separately), 
+but other programs could also be used.
 
 =head2 EXPORT
 
@@ -90,8 +96,6 @@ None.
                   cutoff - worst 'rank' accepted(default 3) 
                   avoid_snps - boolean - reject oligos that overlap a variation SeqFeature in the target
                                  (default true)
-                  dust - boolean - exclude low-complexity regions identified by mdust
-                           (default true)
                   gstring - maximum allowed consecutive Gs.  Too many can cause problems in synthesis 
                     (default 4)
   Note		: All arguments can also be changed/accessed using autoloaded methods such as:
@@ -118,13 +122,6 @@ sub new {
     $self->{'oligos'} = [];
     defined($args{'AVOID_SNPS'}) ? $self->{'avoid_snps'} = $args{'AVOID_SNPS'} :  
 	$self->{'avoid_snps'} = 1; # (t/f to avoid or include reagents that cover SNPs)
-    defined ($args{'DUST'}) ? $self->{'dust'} = $args{'DUST'} : 
-	$self->{'dust'} = 1;
-    # override: do not use mdust if environment variable not defined
-    unless ($ENV{'MDUSTDIR'}) {
-	$self->{'dust'} = 0;
-    } 
-    $self->{'dusted'} = 0;
     $self->{'gstring'} = $args{'GSTRING'} || 4; # maximum allowed consecutive Gs - too many can cause problems in oligo synthesis
     $self->{'tmpdir'} = $args{'TMPDIR'}  || $ENV{'TMPDIR'} || $ENV{'TMP'} || '';
     $self->{'debug'} = $args{'DEBUG'} || 0;
@@ -205,12 +202,6 @@ sub _define_target {
     my $target = $self->target or 
 	$self->throw("Unable to design oligos - no target provided");
 
-    # run mdust
-    if ($self->dust && !$self->dusted) {
-	$self->_mdust;
-    }
-
-    
     ($cds) = grep { $_->primary_tag eq 'CDS' } $target->top_SeqFeatures;
     
     if ($cds) {
@@ -350,18 +341,6 @@ sub _get_anti {
 }
 
 
-sub _mdust {
-    my ($self) = @_;
-    # run mdust to mask low-complexity regions in target
-    my $mdust = Bio::Tools::Mdust->new(-coords 	=> 1, 
-				       -target	=> $self->target,
-				       -tmpdir 	=> $self->tmpdir,
-				       -debug	=> $self->debug,
-				       );
-    $mdust->run;    
-    $self->dusted(1);
-}
-	
 sub AUTOLOAD {
     my ($self, $value) = @_;
     my $name = $AUTOLOAD;
@@ -389,6 +368,6 @@ Donald Jackson (donald.jackson@bms.com)
 
 =head1 SEE ALSO
 
-Bio::Tools::Mdust, Bio::SeqFeature::SiRNA::Pair, Bio::SeqFeature::SiRNA::Oligo, perl(1).
+Bio::Tools::Run::Mdust, Bio::SeqFeature::SiRNA::Pair, Bio::SeqFeature::SiRNA::Oligo, perl(1).
 
 =cut
