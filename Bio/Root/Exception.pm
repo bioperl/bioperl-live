@@ -268,7 +268,7 @@ sub _reformat_stacktrace {
     my $self = shift;
     my $msg = $self->text;
     my $stack = $self->stacktrace();
-    $stack =~ s/$msg//;
+    $stack =~ s/\Q$msg//;
     my @stack = split( /\n/, $stack);
     my @new_stack = ();
     my ($method, $file, $linenum, $prev_file, $prev_linenum);
