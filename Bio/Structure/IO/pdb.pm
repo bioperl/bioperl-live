@@ -1189,7 +1189,9 @@ $self->debug("_read_PDB_coor: parsing model $model_num\n");
 				}
 				$chain_name = $chain->id;
 			}
+			#my $res_name_num = $resname."-".$resseq;
 			my $res_name_num = $resname."-".$resseq;
+			$res_name_num .= '.'.$icode if $icode;
 			if ($res_name_num ne $residue_name) { # new residue
 				$residue = Bio::Structure::Residue->new;
 				$struc->add_residue($chain,$residue);
