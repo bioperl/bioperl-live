@@ -173,7 +173,7 @@ Specify the format of the file.  Supported formats include:
    nexus       Swofford et al NEXUS format
    pfam        Pfam sequence alignment format
    phylip      Felsenstein's PHYLIP format
-   emboss      water and needle format
+   emboss      EMBOSS water and needle format
    mega        MEGA format
    meme        MEME format
    psi         PSI-BLAST format
@@ -442,12 +442,16 @@ sub _guess_format {
    my $class = shift;
    return unless $_ = shift;
    return 'fasta'   if /\.(fasta|fast|seq|fa|fsa|nt|aa)$/i;
-   return 'msf'     if /\.(msf|pileup)$/i;
+   return 'msf'     if /\.(msf|pileup|gcg)$/i;
    return 'pfam'    if /\.(pfam|pfm)$/i;
    return 'selex'   if /\.(selex|slx|selx|slex|sx)$/i;
    return 'phylip'  if /\.(phylip|phlp|phyl|phy|phy|ph)$/i;
    return 'nexus'   if /\.(nexus|nex)$/i;
-   return 'mega'    if( /\.(meg|mega)$/i );
+   return 'mega'     if( /\.(meg|mega)$/i );
+   return 'clustalw' if( /\.aln$/i );
+   return 'meme'     if( /\.meme$/i );
+   return 'emboss'   if( /\.(water|needle)$/i );
+   return 'psi'      if( /\.psi$/i );
 }
 
 sub DESTROY {
