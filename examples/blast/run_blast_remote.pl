@@ -1,5 +1,11 @@
 #!/usr/bin/perl -w
 
+# IMPORTANT NOTE:
+#  After running this script, you will have a file containing
+#  NCBI BLAST queue submission data. These can be read by 
+#  retrieve_blast.pl to fetch the actual BLAST reports from NCBI.
+#  See comments in retrieve_blast.pl for usage details.
+
 #---------------------------------------------------------------------------
 # PROGRAM  : run_blast_remote.pl
 # PURPOSE  : To demonstrate how to run and parse Blast reports using the 
@@ -17,9 +23,6 @@
 #
 # This is basically identical to the parse.pl script 
 # with additional options added for running a Blast report.
-#
-# Please see the helper script retrieve_blast.pl for retrieving the
-# report based on the output of run_blast_remote.pl
 #
 # This demo script does not exercise all of the functionality of the Blast object.
 # See the POD for the Bio::Tools::Blast.pm, accessible from the above URL.
