@@ -132,12 +132,7 @@ sub _generic_seqfeature {
     
     # set additional location attributes
     if($seqid && (! $loc->is_remote())) {
-	$loc->seq_id($seqid);
-	if($loc->isa("Bio::Location::SplitLocationI")) {
-	    foreach my $subloc ($loc->sub_Location()) {
-		$subloc->seq_id($seqid) unless $subloc->is_remote();
-	    }
-	}
+	$loc->seq_id($seqid); # propagates if it is a split location
     }
 
     # set attributes of feature
