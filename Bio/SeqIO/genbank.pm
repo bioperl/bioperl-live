@@ -769,27 +769,6 @@ sub _read_GenBank_Species {
     return $make;
 }
 
-=head2 _filehandle
-
- Title   : _filehandle
- Usage   : $obj->_filehandle($newval)
- Function: 
- Example : 
- Returns : value of _filehandle
- Args    : newvalue (optional)
-
-
-=cut
-
-sub _filehandle{
-   my ($obj,$value) = @_;
-   if( defined $value) {
-      $obj->{'_filehandle'} = $value;
-    }
-    return $obj->{'_filehandle'};
-
-}
-
 =head2 _read_FTHelper_GenBank
 
  Title   : _read_FTHelper_GenBank
