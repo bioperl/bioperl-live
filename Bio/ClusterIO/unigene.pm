@@ -93,9 +93,6 @@ sub next_cluster {
 my (%unigene,@express,@locuslink,@chromosome,@sts,@txmap,@protsim,@sequence);
 
 # set up the regexes
-my $data = "\\S.+";
-my $num  = "\d+";
-my $organism = "At|Bt|Dm|Dr|Hs|Hv|Mm|Os|Rn|Ta|Xl|Zm";
 
 my %line_is = (
 			ID				=> 	q/ID\s+(\w\w\.\d+)/,
@@ -112,13 +109,13 @@ my %line_is = (
 			PROTSIM			=>	q/PROTSIM\s+(\S.*)/,
 			SCOUNT			=>	q/SCOUNT\s+(\S.*)/,
 			SEQUENCE		=>	q/SEQUENCE\s+(\S.*)/,
-			ACC				=>	q/ACC=\s+(\S.*)/,
-			NID				=>	q/NID=\s+(\S.*)/,
-			PID				=>	q/PID=\s+(\S.*)/,
-			CLONE			=>	q/CLONE=\s+(\S.*)/,
-			END				=>	q/END=\s+(\S.*)/,
-			LID				=>	q/LID=\s+(\S.*)/,
-			MGC				=>	q/MGC=\s+(\S.*)/,
+			ACC				=>	q/ACC=\s*(\S.*)/,
+			NID				=>	q/NID=\s*(\S.*)/,
+			PID				=>	q/PID=\s*(\S.*)/,
+			CLONE			=>	q/CLONE=\s*(\S.*)/,
+			END				=>	q/END=\s*(\S.*)/,
+			LID				=>	q/LID=\s*(\S.*)/,
+			MGC				=>	q/MGC=\s*(\S.*)/,
 			DELIMITER		=>	q/^\/\//
 );
 
@@ -182,7 +179,7 @@ my %line_is = (
 				my @items = split /;/,$1;
 				foreach (@items) {
 					if (/$line_is{ACC}/gcx) {
-						$seq->{acc} = $1;
+					    $seq->{acc} = $1;
 					}
 					elsif (/$line_is{NID}/gcx) {
 						$seq->{nid} = $1;
