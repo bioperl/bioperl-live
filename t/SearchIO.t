@@ -62,7 +62,7 @@ if( ! $SKIPXML ) {
 
     ok($result->available_parameters, 8);
     ok($result->get_parameter('gapext'), 1);
-    ok($result->available_statistics, 7);
+    ok($result->available_statistics, 5);
     ok($result->get_statistic('lambda'), 0.267);
 
 # this result actually has a hit
