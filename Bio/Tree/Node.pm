@@ -304,9 +304,8 @@ sub ancestor{
 =head2 branch_length
 
  Title   : branch_length
- Usage   : $obj->branch_length($newval)
- Function:
- Example :
+ Usage   : $obj->branch_length()
+ Function: Get/Set the branch length
  Returns : value of branch_length
  Args    : newvalue (optional)
 
@@ -319,12 +318,12 @@ sub branch_length{
     return $self->{'_branch_length'};
 }
 
+
 =head2 bootstrap
 
  Title   : bootstrap
  Usage   : $obj->bootstrap($newval)
- Function:
- Example :
+ Function: Get/Set the bootstrap value
  Returns : value of bootstrap
  Args    : newvalue (optional)
 
@@ -341,8 +340,7 @@ sub bootstrap{
 
  Title   : description
  Usage   : $obj->description($newval)
- Function:
- Example :
+ Function: Get/Set the description string
  Returns : value of description
  Args    : newvalue (optional)
 
@@ -359,10 +357,10 @@ sub description{
 
  Title   : id
  Usage   : $obj->id($newval)
- Function:
- Example :
- Returns : value of id
+ Function: The human readable identifier for the node 
+ Returns : value of human readable id
  Args    : newvalue (optional)
+
 
 "A name can be any string of printable characters except blanks,
 colons, semicolons, parentheses, and square brackets. Because you may
