@@ -2,7 +2,7 @@
 ## Bioperl Test Harness Script for Modules
 ## $Id$
 use strict;
-use constant NUMTESTS => 11;
+use constant NUMTESTS => 9;
 
 BEGIN {     
     eval { require Test; };
@@ -30,8 +30,6 @@ ok $seq = new Bio::LocatableSeq(
 ok $seq->column_from_residue_number(4), 9;
 
 
-exit;
-
 $str = Bio::AlignIO->new(-file=> Bio::Root::IO->catfile("t","data","testaln.pfam"));
 ok defined($str) && ref($str) && $str->isa('Bio::AlignIO');
 $aln = $str->next_aln();
@@ -40,11 +38,5 @@ ok ref($seq), 'Bio::LocatableSeq';
 
 ok $seq->get_nse, '1433_LYCES/9-246';
 ok $seq->id, '1433_LYCES';
-ok $seq->no_gaps, 1;
+ok $seq->no_gaps, 3;
 
-
-my $string = $seq->seq;
-print $string, CORE::length($string), "\n";
-
-use Data::Dumper;
-print Dumper($seq);
