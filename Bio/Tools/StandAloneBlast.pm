@@ -516,7 +516,7 @@ sub bl2seq {
     $self->j($infilename2);	# set file name of first sequence to be aligned to inputfilename2 (-j param of bl2seq)
 
 
-    my $blast_report = &_generic_local_blast($self, $executable);
+    my $blast_report = &_generic_local_blast($self, $executable);    
 }
 #################################################
 

@@ -1,4 +1,4 @@
-
+# $Id$
 #
 # BioPerl module for Bio::Tools::Genscan
 #
@@ -93,17 +93,12 @@ use vars qw(@ISA);
 use strict;
 use Symbol;
 
-# Object preamble - inherits from Bio::Root::Object
-
-use Bio::Root::Object;
+use Bio::Root::RootI;
 use Bio::Tools::AnalysisResult;
 use Bio::Tools::Prediction::Gene;
 use Bio::Tools::Prediction::Exon;
 
 @ISA = qw(Bio::Tools::AnalysisResult);
-# new() is inherited from Bio::Root::Object
-
-# _initialize is where the heavy stuff will happen when new is called
 
 #There's nothing special to do for us here, so just rely on the inherited
 #version.

@@ -1,4 +1,4 @@
-
+# $Id$
 #
 # BioPerl module for Bio::Tools::AnalysisResult
 #
@@ -97,11 +97,12 @@ use Symbol;
 
 # Object preamble - inherits from Bio::Root::Object
 
-use Bio::Root::Object;
+use Bio::Root::RootI;
 use Bio::SeqAnalysisParserI;
 
-@ISA = qw(Bio::Root::Object Bio::SeqAnalysisParserI);
-# new() is inherited from Bio::Root::Object
+@ISA = qw(Bio::Root::RootI Bio::SeqAnalysisParserI);
+
+# new() is inherited from Bio::Root::RootI
 
 # _initialize is where the heavy stuff will happen when new is called
 

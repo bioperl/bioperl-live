@@ -1,4 +1,4 @@
-
+# $Id$
 #
 # BioPerl module for Bio::Tools::Prediction::Exon
 #
@@ -71,9 +71,8 @@ use strict;
 
 use Bio::SeqFeature::Generic;
 
-
 @ISA = qw(Bio::SeqFeature::Generic);
-# new() is inherited from Bio::Root::Object
+# new() is inherited from Bio::Root::RootI
 
 # _initialize is where the heavy stuff will happen when new is called
 
@@ -231,4 +230,3 @@ sub coding_signal_score {
 #
 
 1;
-

@@ -1,4 +1,4 @@
-
+# $Id$
 #
 # BioPerl module for Bio::Tools::Prediction::Gene
 #
@@ -80,7 +80,7 @@ use Bio::SeqFeature::GeneStructure;
 
 
 @ISA = qw(Bio::SeqFeature::GeneStructure);
-# new() is inherited from Bio::Root::Object
+# new() is inherited from Bio::Root::RootI
 
 # _initialize is where the heavy stuff will happen when new is called
 

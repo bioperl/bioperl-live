@@ -1,4 +1,4 @@
-
+# $Id$
 #
 # BioPerl module for Bio::Tools::MZEF
 #
@@ -92,15 +92,12 @@ package Bio::Tools::MZEF;
 use vars qw(@ISA);
 use strict;
 
-# Object preamble - inherits from Bio::Root::Object
-
-use Bio::Root::Object;
 use Bio::Tools::AnalysisResult;
 use Bio::Tools::Prediction::Gene;
 use Bio::Tools::Prediction::Exon;
 
 @ISA = qw(Bio::Tools::AnalysisResult);
-# new() is inherited from Bio::Root::Object
+# new() is inherited from Bio::Root::RootI
 
 # called by the inherited _initialize.
 sub _initialize_state {
