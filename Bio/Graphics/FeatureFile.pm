@@ -235,7 +235,7 @@ for you.
 sub render {
   my $self = shift;
   my $panel = shift;
-  my ($position_to_insert,$options) = @_;
+  my ($position_to_insert,$options,$max_bump,$max_label) = @_;
 
   $panel ||= $self->new_panel;
 
@@ -254,20 +254,34 @@ sub render {
     @override = %$options;
   } else {
     $options ||= 0;
-    push @override,(-bump => 1) if $options >= 1;
-    push @override,(-label =>1) if $options >= 2;
+    if ($options == 1) {  # compact
+      push @override,(-bump => 0,-label=>0);
+    } elsif ($options == 2) { #expanded
+      push @override,(-bump=>1);
+    } elsif ($options == 3) { #expand and label
+      push @override,(-bump=>1,-label=>1);
+    } elsif ($options == 4) { #hyperexpand
+      push @override,(-bump => 2);
+    } elsif ($options == 5) { #hyperexpand and label
+      push @override,(-bump => 2,-label=>1);
+    }
   }
 
   for my $type (@configured_types,@unconfigured_types) {
+    my $features = $self->features($type);
+    my @auto_bump;
+    push @auto_bump,(-bump  => @$features < $max_bump)  if defined $max_bump;
+    push @auto_bump,(-label => @$features < $max_label) if defined $max_label;
+
     my @config = ( -glyph   => 'segments',         # really generic
 		   -bgcolor => $COLORS[$color++ % @COLORS],
 		   -label   => 1,
 		   -key     => $type,
+		   @auto_bump,
 		   @base_config,         # global
-		   $self->style($type),  # feature-specificp
+		   $self->style($type),  # feature-specific
 		   @override,
 		 );
-    my $features = $self->features($type);
     if (defined($position_to_insert)) {
       $panel->insert_track($position_to_insert++,$features,@config);
     } else {
