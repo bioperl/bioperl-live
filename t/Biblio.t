@@ -76,7 +76,7 @@ print $@ if $@;
 my $biblio;
 eval { $biblio = new Bio::Biblio (-location => 'http://localhost:4567'); };
 print sprintf ($format, "new Bio::Biblio "); skip ($serror, defined $biblio);
-print $@ if $@;
+#print $@ if $@;
 
 
 # check 'use ...IO...'
