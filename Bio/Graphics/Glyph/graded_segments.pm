@@ -45,14 +45,16 @@ sub draw {
       $part->{partcolor} = $fill;
       next;
     }
-    my($r,$g,$b) = map {(255 - (255-$_) * (($s-$min_score)/$span))}
-			($red,$green,$blue);
+    my($r,$g,$b) = map { 255 - (255-$_) * min(max( ($s-$min_score)/$span, 0), 1) } 
+      ($red,$green,$blue);
     my $idx      = $self->panel->translate_color($r,$g,$b);
     $part->{partcolor} = $idx;
   }
-
   $self->SUPER::draw(@_);
 }
+
+sub min { $_[0] < $_[1] ? $_[0] : $_[1] }
+sub max { $_[0] > $_[1] ? $_[0] : $_[1] }
 
 sub subseq {
   my $class = shift;
