@@ -15,10 +15,7 @@
 	  <address><email>radams_at_staffmail.ed.ac.uk</email></address>
 	</affiliation>
       </author>
-
-
       <pubdate>2003-11-14</pubdate>
-
       <revhistory>
 	<revision>
 		<revnumber>0.1</revnumber>
@@ -71,7 +68,7 @@
       <para>
         At present the following prediction servers are supported, mainly
         reflecting my own research interests. Under current development
-        are modules  wrapping remote analyses using HMMER, Pfam, the ELM 
+        are modules wrapping remote analyses using HMMER, Pfam, the ELM 
         peptide motif database and SIFT for prediction of untolerated 
         non-synonymous SNPs. 
        <table>
