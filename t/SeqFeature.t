@@ -20,7 +20,7 @@ BEGIN {
     }
     use Test;
 
-    plan tests => 37;
+    plan tests => 41;
 }
 
 use Bio::Seq;
