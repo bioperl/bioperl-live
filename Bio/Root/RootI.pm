@@ -9,6 +9,10 @@
 # You may distribute this module under the same terms as perl itself
 
 # POD documentation - main docs before the code
+# 
+# This was refactored to have chained calls to new instead
+# of chained calls to _initialize
+#
 
 =head1 NAME
 
@@ -59,7 +63,7 @@ use vars qw(@ISA $DEBUG $ID $Revision $VERSION $VERBOSITY
 use strict;
 use Bio::Root::Err;
 # determine tempfile
-$TEMPCOUNTER = 0;
+
 eval { require 'File/Temp.pm'; $TEMPMODLOADED = 1; };
 if( $@ ) { 
     use Fcntl;
@@ -85,12 +89,12 @@ if( $@ ) {
 }
 
 BEGIN { 
-
     $ID        = 'Bio::Root::RootI';
     $VERSION   = 0.7;
     $Revision  = '$Id$ ';
     $DEBUG     = 0;
     $VERBOSITY = 0;
+    $TEMPCOUNTER = 0;
 }
 
 
@@ -102,19 +106,48 @@ BEGIN {
 =cut
 
 sub new {
+    local($^W) = 0;
     my ($caller, @args) = @_;
     
     my $caller_is_obj = ref($caller);      #Dave Block
     my $class = $caller_is_obj || $caller; #copied from Conway, OOPerl
 
-    my $self = bless {}, $class;
-    eval { 
-	$self->_initialize(@args);   
+    my $self = bless({}, $class);
+    my %param = @args;
+    my($name, $parent, $strict, $verbose, $obj, $record_err) = 
+	( ($param{'-NAME'}||$param{'-name'}), ($param{'-PARENT'}||$param{'-parent'}), 
+	  ($param{'-STRICT'}||$param{'-strict'}),
+	  ($param{'-VERBOSE'}||$param{'-verbose'}),
+	  ($param{'-OBJ'}||$param{'-obj'}, 
+	   $param{'-RECORD_ERR'}||$param{'-record_err'})
+	  );
+
+    ## See "Comments" above regarding use of _rearrange().
+    #	$self->_rearrange([qw(NAME PARENT MAKE STRICT VERBOSE OBJ)], %param);
+
+    $DEBUG and do{ 
+	print STDERR ">>>> Initializing $ID (${\ref($self)}) ",$name||'anon';
+	<STDIN>;
     };
-    if( $@ ) {
-	&throw(new Bio::Root::RootI, $@);
-    }
+    
+    $name ||= ($#_ == 1 ? $_[1] : '');  # If a single arg is given, use as name.
+    
+    ## Another performance issue: calling name(), parent(), strict()
+    ## Any speed diff with conditionals to avoid method calls?
+    $name && $self->name($name);
+    $parent && $self->parent($parent);
+    $self->strict($strict || 'null'); #'null' is special string which will reset value 
+    $self->verbose($verbose || 'null');
+    $self->_record_err( $record_err || 'null');    
+    
+    $DEBUG and print STDERR "---> Initialized $ID (${\ref($self)}) ",$name,"\n";
     return $self;
+}
+
+# for backwards compatibility
+sub _initialize {
+    my($self,@args) = @_;
+    return 1;
 }
 
 =head2 throw
@@ -165,8 +198,7 @@ sub throw {
 #----------
     my($self,@param) = @_;
 
-    my $verbosity = 0;
-
+    my $verbosity =  $self->can('verbose') ? $self->verbose() : 0;
 
     if($verbosity < 0) {
 	# Low verbosity: no stack trace.
@@ -221,13 +253,7 @@ sub warn {
 #---------
     my($self,@param) = @_;
 
-    my $verbosity;
-
-    if( $self->can('verbose') ) {
-	$verbosity = $self->verbose();
-    } else {
-	$verbosity = 0;
-    }
+    my $verbosity =  $self->can('verbose') ? $self->verbose() : 0;
 
     if($verbosity < 0 ) {
 	# Low verbosity or script is a cgi: don't print anything but set warning.	
@@ -250,7 +276,7 @@ sub warn {
  Comments  : An object with a warning should be considered 
            : completely operational, so use this type of error sparingly. 
            : These errors are intended for problem conditions which:
-           :  1. Don't destroy the basic functionality of the object.
+           :  1. Do not destroy the basic functionality of the object.
            :  2. Might be of incidental interest to the user.
            :  3. Are of interest to the programmer but not the end user.
 
@@ -258,7 +284,7 @@ See also   : L<warn>(), L<_set_err>(), L<err>()
 
 =cut
 
-#-----------------'
+#-----------------
 sub _set_warning {  
 #-----------------
     my( $self, @data ) = @_;  
@@ -530,127 +556,44 @@ sub stack_trace {
     ## Get everything but the call to stack_trace
     $beg ||= 1;
     $end ||= $#data;
-    @data = @data[$beg..$end];
-
+    @data = @data[$beg..$end];    
     wantarray ? @data : \@data;
 }
-
-=head2 _initialize
-
- Purpose   : Initializes key Bio::Root::Object.pm data (name, parent, make, strict).
-           : Called by new().
- Usage     : n/a; automatically called by Bio::Root::Object::new()
- Returns   : String containing the -MAKE constructor option or 'default' 
-           : if none defined (if a -MAKE parameter is defined, the value
-           : returned will be that obtained from the make() method.)
-           : This return value saves any subclass from having to call
-           : $self->make() during construction. For example, within a
-           : subclass _initialize() method, invoke the Bio::Root::Object::
-           : initialize() method as follows:
-           :    my $make = $self->SUPER::_initialize(@param);
- Argument  : Named parameters passed from new()
-           :  (PARAMETER TAGS CAN BE ALL UPPER OR ALL LOWER CASE).
- Comments  : This method calls name(), make(), parent(), strict(), index()
-           : and thus enables polymorphism on these methods. To save on method
-           : call overhead, these methods are called only if the data need 
-           : to be set.
-           :
-           : The _set_clone() method is called if the -MAKE option includes
-           : the string 'clone' (e.g., -MAKE => 'clone').
-           :
-           : The index() method is called if the -MAKE option includes
-           : the string 'index'. (This is an experimental feature)
-           : (Example: -MAKE => 'full_index').
-           :
-           : NOTE ON USING _rearrange():
-           :
-           : _rearrange() is a handy method for working with tagged (named)
-           : parameters and it permits case-insensitive in tag names
-           : as well as handling tagged or un-tagged parameters.
-           : _initialize() does not currently call _rearrange() since
-           : there is a concern about performance when setting many objects.
-           : One issue is that _rearrange() could be called with many elements 
-           : yet the caller is interested in only a few. Also, derived objects 
-           : typically invoke _rearrange() in their constructors as well. 
-           : This could particularly degrade performance when creating lots 
-           : of objects with extended inheritance hierarchies and lots of tagged
-           : parameters which are passes along the inheritance hierarchy.
-           :
-           : One thing that may help is if _rearrange() deleted all parameters
-           : it extracted. This would require passing a reference to the param list
-           : and may add excessive dereferencing overhead.
-           : It also would cause problems if the same parameters are used by
-           : different methods or objects.
-
-See Also   : L<new>(), L<make>(), L<name>(), L<parent>(), L<strict>(), L<index>(), L<_rearrange>(), L<_set_clone>(), L<verbose>()
-
-=cut
 
 #------------
 sub verbose { 
 #------------
     my ($self,$value) = @_; 
 
-    # Using global verbosity
-    if( defined $value ) {
-	$VERBOSITY = $value;
+    # Object-specific verbosity 
+    if($value) { 
+	$self->{'_verbose'} = $value eq 'null' ? undef : $value; 
     }
-    return $VERBOSITY;
-
-    # Object-specific verbosity (not used unless above code is commented out)
-    if(@_) { $self->{'_verbose'} = shift; }
-    defined($self->{'_verbose'}) 
-	? return $self->{'_verbose'}
-	: (ref $self->{'_parent'} ? $self->{'_parent'}->verbose : 0);
+    return defined($self->{'_verbose'}) 
+	? return $self->{'_verbose'} : 
+	    (ref $self->{'_parent'} ? $self->{'_parent'}->verbose : 0);
+    
+    # Using global verbosity
+    # if( defined $value ) {
+    #	$VERBOSITY = $value;
+    #}
+    #return $VERBOSITY;
 }
 
-#----------------
-sub _initialize {
-#----------------
-    local($^W) = 0;
-    my($self, %param) = @_;
-    
-    my($name, $parent, $make, $strict, $verbose, $obj, $record_err) = (
-	($param{-NAME}||$param{'-name'}), ($param{-PARENT}||$param{'-parent'}), 
-	($param{-MAKE}||$param{'-make'}), ($param{-STRICT}||$param{'-strict'}),
-	($param{-VERBOSE}||$param{'-verbose'}),
-        ($param{-OBJ}||$param{'-obj'}, $param{-RECORD_ERR}||$param{'-record_err'})
-					  );
-    ## See "Comments" above regarding use of _rearrange().
-#	$self->_rearrange([qw(NAME PARENT MAKE STRICT VERBOSE OBJ)], %param);
+#------------
+sub strict { 
+#------------
+    my ($self,$value) = @_;
+    ($value) && ($self->{'_strict'} = $value eq 'null' ? undef : $value); 
+    return $self->{'_strict'};
+}
 
-    $DEBUG and do{ print STDERR ">>>> Initializing $ID (${\ref($self)}) ",$name||'anon';<STDIN>};
-
-    if(defined($make) and $make =~ /clone/i) { 
-	$self->_set_clone($obj);
-
-    } else {
-	$name ||= ($#_ == 1 ? $_[1] : '');  # If a single arg is given, use as name.
-
-	## Another performance issue: calling name(), parent(), strict(), make()
-	## Any speed diff with conditionals to avoid method calls?
-	
-	$self->name($name) if $name; 
-	$self->parent($parent) if $parent;
-	$self->{'_strict'}  = $strict  || undef;
-	$self->verbose($verbose) || undef;
-	$self->{'_record_err'} = $record_err || undef;
-
-	if($make) {
-	    $make = $self->make($make);
-	
-	    # Index the Object in the global object hash only if requested.
-	    # This feature is not used much. If desired, an object can always 
-	    # call Bio::Root::Object::index()  any time after construction.
-	    $self->index() if $make =~ /index/; 
-	}
-    }
-    
-    $DEBUG and print STDERR "---> Initialized $ID (${\ref($self)}) ",$name,"\n";
-
-    ## Return data of potential use to subclass constructors.
-#    return (($make || 'default'), $strict);   # maybe (?)
-    return $make || 'default';
+#------------
+sub _record_err { 
+#------------
+    my ($self,$value) = @_; 
+    ($value) && ($self->{'_record_err'} = $value eq 'null' ? undef : $value); 
+    return $self->{'_record_err'};
 }
 
 =head2 _rearrange
@@ -925,21 +868,19 @@ sub tempfile {
  Function: returns a temporary directory
  Example : my ($tempdir) = $self->tempdir(CLEANUP=>1); 
  Returns : a temporary directory
- Args    : hash - ( key CLEANUP ) indicates whether or not to cleanup 
-           dir on object destruction
+ Args    : args - ( key CLEANUP ) indicates whether or not to cleanup 
+           dir on object destruction, other keys as specified by File::Temp
 =cut
 
 sub tempdir {
-    my ( $self, %hash ) = @_;
+    my ( $self, %args ) = @_;
 
     if( $TEMPMODLOADED ) {
-	my $dir = &File::Temp::tempdir(%hash);
-	push @{$self->{'_rooti_tempdirs'}},$dir;
+	my $dir = &File::Temp::tempdir(%args);
 	return $dir;
     }
     # we are planning to cleanup temp files no matter what
-    if( $hash{CLEANUP} == 1 ) {	$self->{'_cleanuptempdir'} = 1;
-    }
+    $self->{'_cleanuptempdir'} = $args{CLEANUP} == 1;
     
     my $tdir = sprintf("%s/%s-%s-%s", $TEMPDIR, 
 		    "dir_". $ENV{USER} || 'unknown', $$, 
@@ -952,12 +893,16 @@ sub tempdir {
 
 sub DESTROY {
     my ($self) = @_;
-    # we are planning to cleanup temp files no matter what
-    unlink @{$self->{'_rooti_tempfiles'}} 
+    # we are planning to cleanup temp files no matter what     
     if( defined $self->{'_rooti_tempfiles'} 
-	&& ref($self->{'_rooti_tempfiles'}) =~ /array/i );
-    foreach ( @{$self->{'_rooti_tempdirs'}} ) {
-#	rmdir($_);
+	&& ref($self->{'_rooti_tempfiles'}) =~ /array/i) { 
+	unlink @{$self->{'_rooti_tempfiles'}}; 
+    }
+    # cleanup if we are not using File::Temp
+    if( $self->{'_cleanuptempdir'} ) {
+	foreach ( @{$self->{'_rooti_tempdirs'}} ) {
+	    rmdir($_); 
+	}
     }
 }
 1;
