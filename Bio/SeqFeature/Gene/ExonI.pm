@@ -85,6 +85,26 @@ sub _abstractDeath {
     }
 }
 
+=head2 is_coding
+
+ Title   : is_coding
+ Usage   : if($exon->is_coding()) {
+                   # do something
+           }
+ Function: Whether or not the exon codes for amino acid.
+ Returns : TRUE if the object represents a feature translated into protein,
+           and FALSE otherwise.
+ Args    : 
+
+
+=cut
+
+sub is_coding {
+    my ($self) = @_;
+
+    $self->_abstractDeath();
+}
+
 =head2 cds
 
  Title   : cds()

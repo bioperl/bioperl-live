@@ -84,11 +84,37 @@ sub new {
 	$self->_rearrange([qw(PRIMARY)],@args);
 
     $primary = 'exon' unless $primary;
-    $self->primary_tag($primary);
+    $self->primary_tag($primary); # this will also set is_coding()
     $self->strand(0) if(! defined($self->strand()));
     return $self;
 }
 
+
+=head2 is_coding
+
+ Title   : is_coding
+ Usage   : if($exon->is_coding()) {
+                   # do something
+           }
+           if($is_utr) {
+               $exon->is_coding(0);
+           }
+ Function: Get/set whether or not the exon codes for amino acid.
+ Returns : TRUE if the object represents a feature translated into protein,
+           and FALSE otherwise.
+ Args    : A boolean value on set.
+
+
+=cut
+
+sub is_coding {
+    my ($self,$val) = @_;
+
+    if(defined($val)) {
+	$self->{'_iscoding'} = $val;
+    }
+    return $self->{'_iscoding'} = $val;
+}
 
 =head2 primary_tag
 
@@ -101,8 +127,12 @@ sub new {
            tag values following a certain convention. For consistency reasons,
            the tag value must contain the string 'exon' (case-insensitive).
            To distinguish between different types of exon, a string describing
-           this type may be added. Presently, the following types are allowed:
-           initial, internal, terminal, and utr (all case-insensitive).
+           this type may be appended or prefixed. Presently, the following
+           types are allowed: initial, internal, terminal, and utr (all case-
+           insensitive).
+
+           If the supplied tag value matches 'utr' (case-insensitive),
+           is_coding() will automatically bet set to FALSE.
 
  Returns : A string.
  Args    : A string on set.
@@ -113,12 +143,14 @@ sub new {
 sub primary_tag {
    my ($self,$value) = @_;
 
-   if(defined($value) &&
-      (($value !~ /exon/i) ||
-       ((lc($value) ne "exon") &&
-	(! grep { $value =~ /$_/i; } @valid_exon_types)))) {
-       $self->throw("primary tag $value is invalid for object of class ".
-		    ref($self));
+   if(defined($value)) {
+       if(($value !~ /exon/i) ||
+	  ((lc($value) ne "exon") &&
+	   (! grep { $value =~ /$_/i; } @valid_exon_types))) {
+	   $self->throw("primary tag $value is invalid for object of class ".
+			ref($self));
+       }
+       $self->is_coding($value =~ /utr/i ? 0 : 1);
    }
    return $self->SUPER::primary_tag($value);
 }
@@ -160,8 +192,9 @@ sub location {
            result is that the first base starts a codon (frame 0).
 
            This implementation returns undef if the particular exon is
-           actually a UTR (untranslated region). Undef will also be returned
-           if no sequence is attached to this exon feature.
+           not translated to protein, i.e., is_coding() returns FALSE. Undef
+           will also be returned if no sequence is attached to this exon
+           feature.
 
  Returns : A Bio::PrimarySeqI implementing object.
  Args    : 
@@ -173,7 +206,7 @@ sub cds {
     my ($self) = @_;
 
     # UTR is not translated
-    return undef if($self->primary_tag() =~ /utr/i);
+    return undef if(! $self->is_coding());
 
     my $seq = $self->seq();
     if(defined($seq) && defined($self->frame()) && ($self->frame() != 0)) {
