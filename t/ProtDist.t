@@ -81,11 +81,11 @@ $matrix = $dist_factory->create_distance_matrix($inputfilename);
 
 ok defined $matrix->{'ENSP000003'}{'SINFRUP001'};
 
-my $inputfilename = Bio::Root::IO->catfile("t","data","cysprot.fa");
-my @params = ('ktuple' => 2, 'matrix' => 'BLOSUM', 
-              -verbose => $verbose);
+$inputfilename = Bio::Root::IO->catfile("t","data","cysprot.fa");
+@params = ('ktuple' => 2, 'matrix' => 'BLOSUM', 
+	   -verbose => $verbose);
 my  $align_factory = Bio::Tools::Run::Alignment::Clustalw->new(@params);
 my $aln = $align_factory->align($inputfilename);
 $matrix = $dist_factory->create_distance_matrix($aln);
 
-ok defined $matrix->{'ALEU_HORVU'}{'CATL_HUMAN'};
+ok ($matrix->{'ALEU_HORVU'}{'CATL_HUMAN'},3.34186,"failed creating distance matrix");
