@@ -190,7 +190,7 @@ BEGIN {
            -accession_number => accession number
            -primary_id  => primary id (Genbank id)
            -desc        => description text
-           -moltype     => molecule type (dna,rna,prot)
+           -moltype     => molecule type (dna,rna,protein)
            -id          => alias for display id
 
 =cut
@@ -596,7 +596,7 @@ sub _guess_type {
    my ($str,$str2,$total,$atgc,$u,$type);
 
    $str = $self->seq();
-   $str =~ s/\-\.//g;
+   $str =~ s/\-\.\?//g;
 
    $total = CORE::length($str);
    if( $total == 0 ) {
