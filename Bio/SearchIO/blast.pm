@@ -10,6 +10,14 @@
 
 # POD documentation - main docs before the code
 
+# 20030409 - sac
+#          PSI-BLAST full parsing support. Rollout of new
+#          model which will remove Steve's old psiblast driver 
+# 20030424 - jason
+#          Megablast parsing fix as reported by Neil Saunders
+# 20030427 - jason 
+#          Support bl2seq parsing
+
 =head1 NAME
 
 Bio::SearchIO::blast - Event generator for event based parsing of blast reports 
@@ -86,6 +94,7 @@ use vars qw(@ISA %MAPPING %MODEMAP
             $MAX_HSP_OVERLAP
             $DEFAULT_SIGNIF
             $DEFAULT_SCORE
+	    $DEFAULTREPORTTYPE
            );
 
 use Bio::SearchIO;
@@ -199,6 +208,7 @@ BEGIN {
 
     $DEFAULT_BLAST_WRITER_CLASS = 'Bio::Search::Writer::HitTableWriter';
     $MAX_HSP_OVERLAP  = 2;  # Used when tiling multiple HSPs.
+    $DEFAULTREPORTTYPE = 'BLASTP'; # for bl2seq
 }
 
 =head2 new
@@ -210,6 +220,11 @@ BEGIN {
  Args    : Key-value pairs:
            -fh/-file => filehandle/filename to BLAST file
            -format   => 'blast'
+           -report_type => 'blastx', 'tblastn', etc -- only for bl2seq
+                           reports when you want to distinguish between
+                           tblastn and blastx reports (this only controls
+                           where the frame information is put - on the query
+                           or subject object.
            -inclusion_threshold => e-value threshold for inclusion in the
                                    PSI-BLAST score matrix model (blastpgp)
            -signif      => float or scientific notation number to be used
@@ -269,12 +284,15 @@ sub _initialize {
     # Optimization: caching the EventHandler since it's use a lot during the parse.
     $self->{'_handler_cache'} = $handler;
 
-    my($min_qlen, $check_all, $overlap, $best ) =
-           $self->_rearrange([qw(MIN_LENGTH CHECK_ALL_HITS OVERLAP BEST )], @args);
+    my($min_qlen, $check_all, $overlap, $best,$rpttype ) =
+           $self->_rearrange([qw(MIN_LENGTH CHECK_ALL_HITS 
+				 OVERLAP BEST 
+				 REPORT_TYPE)], @args);
 
     defined $min_qlen && $self->min_query_length($min_qlen);
     defined $best && $self->best_hit_only($best);
     defined $check_all && $self->check_all_hits($check_all);
+    defined $rpttype && ($self->{'_reporttype'} = $rpttype);
 }
 
 
@@ -297,7 +315,7 @@ sub next_result{
    my ($reporttype,$seenquery,$reportline);
    my ($seeniteration,$found_again);
    my $incl_threshold = $self->inclusion_threshold;
-
+   my $bl2seq_fix;
    $self->start_document();
    my (@hit_signifs);
 
@@ -363,12 +381,23 @@ sub next_result{
 		   $self->end_element({'Name'=> 'Hit'});
 	       $self->within_element('iteration') &&
 		   $self->end_element({'Name'=> 'Iteration'});
-	       
+	       if( $bl2seq_fix ) { 
+		   $self->element({ 'Name' => 'BlastOutput_program',
+				    'Data' => $reporttype});
+	       }
 	       $self->end_element({'Name' => 'BlastOutput'});
                return $self->end_document();
            } else { 
                if( ! defined $reporttype ) {
                    $self->_start_blastoutput;
+		   if( defined $seeniteration ) {
+		       $self->within_element('iteration') &&
+			   $self->end_element({ 'Name' => 'Iteration'});
+		       $self->_start_iteration;
+		   } else { 
+		       $self->_start_iteration;
+		   }
+		   $seeniteration = 1;
                }
            }
            $seenquery = $q;
@@ -466,13 +495,21 @@ sub next_result{
                            'Data' => $db});
        } elsif( /^>(\S+)\s*(.*)?/ ) {
            chomp;
-
            $self->in_element('hsp') && $self->end_element({ 'Name' => 'Hsp'});
            $self->in_element('hit') && $self->end_element({ 'Name' => 'Hit'});
-           $self->start_element({ 'Name' => 'Hit'});
-           my $id = $1;          
+	   # special case when bl2seq reports don't have a leading
+	   # Query=
+	   if( ! $self->within_element('result') ) {
+	       $self->_start_blastoutput;
+	       $self->_start_iteration;
+           } elsif( ! $self->within_element('iteration') ) {
+	       $self->_start_iteration;
+	   }
+	   $self->start_element({ 'Name' => 'Hit'});
+           my $id = $1;
            my $restofline = $2;
-           $self->element({ 'Name' => 'Hit_id',
+           $self->debug("Starting a hit: $1 $2\n");
+	   $self->element({ 'Name' => 'Hit_id',
                             'Data' => $id});           
            my ($acc, $version);
            if ($id =~ /(gb|emb|dbj|sp|pdb|bbs|ref|lcl)\|(.*)\|(.*)/) {
@@ -558,13 +595,13 @@ sub next_result{
                 \s*Expect(\(\d+\))?\s*=\s*(\S+) # E-value
                 /ox) { # parse NCBI blast HSP
            $self->in_element('hsp') && $self->end_element({ 'Name' => 'Hsp'});
-           
 	   # print STDERR "Got ncbi HSP score=$3\n";
-
+	   
            # Some data clean-up so e-value will appear numeric to perl
            my ($score, $bits, $evalue) = ($3, $1, $5);
-           $evalue = "1$evalue" if $evalue =~ /^e/;
-
+	   $evalue = "1$evalue" if $evalue =~ /^e/;           
+           $self->debug("Got NCBI HSP score=$score, evalue $evalue\n");
+	   
            $self->start_element({'Name' => 'Hsp'});
            $self->element( { 'Name' => 'Hsp_score',
                              'Data' => $score});
@@ -604,9 +641,24 @@ sub next_result{
        } elsif( $self->in_element('hsp') &&
                 /Strand\s*=\s*(Plus|Minus)\s*\/\s*(Plus|Minus)/i ) {
            # consume this event ( we infer strand from start/end)
+	   unless( $reporttype ) {
+	       $self->{'_reporttype'} = $reporttype = 'BLASTN';
+	       $bl2seq_fix =1; # special case to resubmit the algorithm
+	                       # reporttype
+	   }
            next;
        } elsif( $self->in_element('hsp') &&
                 /Frame\s*=\s*([\+\-][1-3])\s*(\/\s*([\+\-][1-3]))?/ ){
+	   # this is for bl2seq only
+	   unless( defined $reporttype) {
+	       $bl2seq_fix = 1;
+	       if( $1 && $2 ) { $reporttype = 'TBLASTX' }
+	       else { $reporttype = 'BLASTX'; 
+# we can't distinguish between BLASTX and TBLASTN straight from the report }
+		  }
+	       $self->{'_reporttype'} = $reporttype;
+	   }
+	   
            my ($queryframe,$hitframe);
            if( $reporttype eq 'TBLASTX' ) {
                ($queryframe,$hitframe) = ($1,$2);
@@ -621,12 +673,14 @@ sub next_result{
                       
            $self->element({'Name' => 'Hsp_hit-frame',
                            'Data' => $hitframe});
-       } elsif(  /^Parameters:/ || /^\s+Database:\s+?/ || /^\s+Subset/ || /^\s*Lambda/ ||
+       } elsif(  /^Parameters:/ || /^\s+Database:\s+?/ || 
+		 /^\s+Subset/ || /^\s*Lambda/ ||
                  ( $self->in_element('hsp') && (/WARNING/ || /NOTE/ )) ) {
 
-           # Note: Lambda check was necessary to parse t/data/ecoli_domains.rpsblast
-           #print STDERR "blast.pm: found parameters section \n";
-
+           # Note: Lambda check was necessary to parse 
+	   # t/data/ecoli_domains.rpsblast AND to parse bl2seq
+#           $self->debug("blast.pm: found parameters section \n");
+	   
            $self->in_element('hsp') && $self->end_element({'Name' => 'Hsp'});
            $self->in_element('hit') && $self->end_element({'Name' => 'Hit'});
            
@@ -654,6 +708,10 @@ sub next_result{
 		   $self->in_element('hit') &&
 		       $self->end_element({'Name'=> 'Hit'});
 		   # --
+		   if( $bl2seq_fix ) { 
+		       $self->element({ 'Name' => 'BlastOutput_program',
+					'Data' => $reporttype});
+		   }
 		   $self->end_element({ 'Name' => 'BlastOutput'});
                    return $self->end_document();
                }
@@ -700,20 +758,24 @@ sub next_result{
                            $self->element({'Name' => 'Statistics_DFA_size',
                                            'Data' => "$2 $3"});
                        }
-                   } elsif( /^\s+Time to generate neighborhood:\s+(\S+\s+\S+\s+\S+)/ ) { 
+                   } elsif( m/^\s+Time to generate neighborhood:\s+
+			    (\S+\s+\S+\s+\S+)/x ) { 
                        $self->element({'Name' => 'Statistics_neighbortime',
                                        'Data' => $1});
                    } elsif( /processors\s+used:\s+(\d+)/ ) {
                           $self->element({'Name' => 'Statistics_noprocessors',
                                            'Data' => $1});
-                   } elsif( /^\s+(\S+)\s+cpu\s+time:\s+(\S+\s+\S+\s+\S+)\s+Elapsed:\s+(\S+)/ ) {
+                   } elsif( m/^\s+(\S+)\s+cpu\s+time:\s+# cputype
+			    (\S+\s+\S+\s+\S+)           # cputime
+			    \s+Elapsed:\s+(\S+)/x ) {
                        my $cputype = lc($1);
                        $self->element({'Name' => "Statistics_$cputype\_cputime",
                                        'Data' => $2});
                        $self->element({'Name' => "Statistics_$cputype\_actualtime",
                                        'Data' => $3});
                    } elsif( /^\s+Start:/ ) {
-                       my ($junk,$start,$stime,$end,$etime) = split(/\s+(Start|End)\:\s+/,$_);
+                       my ($junk,$start,$stime,
+			   $end,$etime) = split(/\s+(Start|End)\:\s+/,$_);
                        chomp($stime);
                        $self->element({'Name' => 'Statistics_starttime',
                                        'Data' => $stime});
@@ -743,7 +805,8 @@ sub next_result{
                    } elsif( /effective\s+search\s+space:\s+(\d+)/ ) {
                        $self->element({'Name' => 'Statistics_eff-space',
                                        'Data' => $1});
-                   } elsif( /Gap\s+Penalties:\s+Existence:\s+(\d+)\,\s+Extension:\s+(\d+)/) {
+                   } elsif( m/Gap\s+Penalties:\s+Existence:\s+(\d+)\,
+			    \s+Extension:\s+(\d+)/x) {
                        $self->element({'Name' => 'Parameters_gap-open',
                                        'Data' => $1});
                        $self->element({'Name' => 'Parameters_gap-extend',
@@ -764,7 +827,8 @@ sub next_result{
                    } elsif( /^(T|A|X1|X2|S1|S2):\s+(\d+)/ ) {
                        $self->element({'Name' => "Statistics_$1",
                                        'Data' => $2})
-                       } elsif( /frameshift\s+window\,\s+decay\s+const:\s+(\d+)\,\s+([\.\d]+)/ ) {
+                       } elsif( m/frameshift\s+window\,
+				\s+decay\s+const:\s+(\d+)\,\s+([\.\d]+)/x ) {
                            $self->element({'Name'=> 'Statistics_framewindow',
                                            'Data' => $1});
                            $self->element({'Name'=> 'Statistics_decay',
@@ -775,6 +839,8 @@ sub next_result{
            }
        } elsif( $self->in_element('hsp') ) {
            # let's read 3 lines at a time;
+	   # bl2seq hackiness... Not sure I like
+	   $self->{'_reporttype'} ||= $DEFAULTREPORTTYPE;
            my %data = ( 'Query' => '',
                         'Mid' => '',
                         'Hit' => '' );
@@ -783,7 +849,7 @@ sub next_result{
                 defined($_) && $i < 3; 
                 $i++ ){               
                chomp;
-               if( ($i == 0 &&  /^\s+$/) ||  /^\s*Lambda/i ) { 
+	       if( ($i == 0 &&  /^\s+$/) ||  /^\s*Lambda/i ) { 
                    $self->_pushback($_) if defined $_;
                    $self->end_element({'Name' => 'Hsp'});
                    last; 
@@ -812,7 +878,10 @@ sub next_result{
    } 
 
    #print STDERR "blast.pm: End of BlastOutput\n";
-
+   if( $bl2seq_fix ) { 
+       $self->element({ 'Name' => 'BlastOutput_program',
+			'Data' => $reporttype});
+   }
    $self->end_element({'Name' => 'BlastOutput'}) unless ! $self->{'_seentop'};
    return $self->end_document();
 }
@@ -928,9 +997,11 @@ sub end_element {
     my $nm = $data->{'Name'};
     my $type = $MODEMAP{$nm};
     my $rc;
-    if($nm eq 'BlastOutput_program' &&
-       $self->{'_last_data'} =~ /(t?blast[npx])/i ) {
-        $self->{'_reporttype'} = uc $1;
+    if($nm eq 'BlastOutput_program') {
+	if( $self->{'_last_data'} =~ /(t?blast[npx])/i ) {
+	    $self->{'_reporttype'} = uc $1;
+	}
+	$self->{'_reporttype'} ||= $DEFAULTREPORTTYPE;
     }
 
     # Hsps are sort of weird, in that they end when another

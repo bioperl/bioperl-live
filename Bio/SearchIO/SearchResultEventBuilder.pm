@@ -153,8 +153,12 @@ sub start_result {
 
 =cut
 
+# this is overridden by IteratedSearchResultEventBuilder
+# so keep that in mind when debugging
+
 sub end_result {
     my ($self,$type,$data) = @_;    
+
     if( defined $data->{'runid'} &&
         $data->{'runid'} !~ /^\s+$/ ) {        
 
@@ -308,7 +312,7 @@ sub end_hit{
                                $data->{'RESULT-algorithm_name'} || $type);
     $args{'-hsps'}      = $self->{'_hsps'};
     $args{'-query_len'} =  $data->{'RESULT-query_length'};
-    my ($hitrank) = scalar @{$self->{'_hits'}} + 1;
+    my ($hitrank) = scalar @{$self->{'_hits'} || []} + 1;
     $args{'-rank'} = $hitrank;
     unless( defined $args{'-significance'} ) {
 	if( defined $args{'-hsps'} ) {

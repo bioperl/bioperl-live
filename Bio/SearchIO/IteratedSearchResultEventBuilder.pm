@@ -377,9 +377,10 @@ sub start_iteration {
 sub end_iteration {
     my ($self,$type,$data) = @_;   
 
-    #print STDERR "ISREB: end_iteration()\n";
+    # print STDERR "ISREB: end_iteration()\n";
 
-    my %args = map { my $v = $data->{$_}; s/ITERATION//; ($_ => $v); } grep { /^ITERATION/ } keys %{$data};
+    my %args = map { my $v = $data->{$_}; s/ITERATION//; ($_ => $v); } 
+    grep { /^ITERATION/ } keys %{$data};
 
     $args{'-number'} = $self->{'_iteration_count'};
     $args{'-oldhits_below'} = $self->{'_oldhits_below'};

@@ -20,7 +20,7 @@ BEGIN {
 	use lib 't';
     }
     use vars qw($NTESTS);
-    $NTESTS = 900;
+    $NTESTS = 1014;
     $LASTXMLTEST = 54;
     $error = 0;
 
@@ -1292,6 +1292,175 @@ ok(-e "searchio.html");
 unlink 'searchio.out';
 unlink 'searchio.html';
 
+
+# bl2seq parsing testing
+
+# this is blastp bl2seq
+$searchio = new Bio::SearchIO(-format => 'blast',
+			      -file   => Bio::Root::IO->catfile(qw(t data
+								   bl2seq.out)));
+$result = $searchio->next_result;
+ok($result);
+ok($result->query_name, '');
+ok($result->algorithm, 'BLASTP');
+$hit = $result->next_hit;
+ok($hit->name, 'ALEU_HORVU');
+ok($hit->length, 362);
+$hsp = $hit->next_hsp;
+ok($hsp->score, 481);
+ok($hsp->bits, 191);
+ok(int $hsp->percent_identity, 34);
+ok($hsp->evalue, '2e-53');
+ok(int($hsp->frac_conserved*$hsp->length), 167);
+ok($hsp->query->start, 28);
+ok($hsp->query->end, 343);
+ok($hsp->hit->start, 60);
+ok($hsp->hit->end,360);
+ok($hsp->gaps, 27);
+
+# this is blastn bl2seq 
+$searchio = new Bio::SearchIO(-format => 'blast',
+			      -file   => Bio::Root::IO->catfile
+			      (qw(t data bl2seq.blastn.rev)));
+$result = $searchio->next_result;
+ok($result);
+ok($result->query_name, '');
+ok($result->algorithm, 'BLASTN');
+ok($result->query_length, 180);
+$hit = $result->next_hit;
+ok($hit->length, 179);
+ok($hit->name, 'human');
+$hsp = $hit->next_hsp;
+ok($hsp->score, 27);
+ok($hsp->bits, '54.0');
+ok(int $hsp->percent_identity, 88);
+ok($hsp->evalue, '2e-12');
+ok(int($hsp->frac_conserved*$hsp->length), 83);
+ok($hsp->query->start, 94);
+ok($hsp->query->end, 180);
+ok($hsp->query->strand, 1);
+ok($hsp->hit->strand, -1);
+ok($hsp->hit->start, 1);
+ok($hsp->hit->end,94);
+ok($hsp->gaps, 7);
+
+# this is blastn bl2seq 
+$searchio = new Bio::SearchIO(-format => 'blast',
+			      -file   => Bio::Root::IO->catfile
+			      (qw(t data bl2seq.blastn)));
+$result = $searchio->next_result;
+ok($result);
+ok($result->query_name, '');
+ok($result->query_length, 180);
+ok($result->algorithm, 'BLASTN');
+$hit = $result->next_hit;
+ok($hit->name, 'human');
+ok($hit->length, 179);
+$hsp = $hit->next_hsp;
+ok($hsp->score, 27);
+ok($hsp->bits, '54.0');
+ok(int $hsp->percent_identity, 88);
+ok($hsp->evalue, '2e-12');
+ok(int($hsp->frac_conserved*$hsp->length), 83);
+ok($hsp->query->start, 94);
+ok($hsp->query->end, 180);
+ok($hsp->query->strand, 1);
+ok($hsp->hit->strand, 1);
+ok($hsp->hit->start, 86);
+ok($hsp->hit->end,179);
+ok($hsp->gaps, 7);
+
+# this is blastp bl2seq
+$searchio = new Bio::SearchIO(-format => 'blast',
+			      -file   => Bio::Root::IO->catfile
+			      (qw(t data bl2seq.bug940.out)));
+$result = $searchio->next_result;
+ok($result);
+ok($result->query_name, 'zinc');
+ok($result->algorithm, 'BLASTP');
+ok($result->query_description, 'finger protein 135 (clone pHZ-17) [Homo sapiens]. neo_id RS.ctg14243-000000.6.0');
+ok($result->query_length, 469);
+$hit = $result->next_hit;
+ok($hit->name, 'gi|4507985|');
+ok($hit->description,'zinc finger protein 135 (clone pHZ-17) [Homo sapiens]. neo_id RS.ctg14243-000000.6.0');
+ok($hit->length, 469);
+$hsp = $hit->next_hsp;
+ok($hsp->score, 1626);
+ok($hsp->bits, 637);
+ok(int $hsp->percent_identity, 66);
+ok($hsp->evalue, '0.0');
+ok(int($hsp->frac_conserved*$hsp->length), 330);
+ok($hsp->query->start, 121);
+ok($hsp->query->end, 469);
+ok($hsp->hit->start, 1);
+ok($hsp->hit->end,469);
+ok($hsp->gaps, 120);
+ok($hit->next_hsp); # there is more than one HSP here, 
+                    # make sure it is parsed at least
+
+# cannot distinguish between blastx and tblastn reports
+# so we're only testing a blastx report for now
+
+# this is blastx bl2seq
+$searchio = new Bio::SearchIO(-format => 'blast',
+			      -file   => Bio::Root::IO->catfile
+			      (qw(t data bl2seq.blastx.out)));
+$result = $searchio->next_result;
+ok($result);
+ok($result->query_name, 'AE000111.1');
+ok($result->query_description, 'Escherichia coli K-12 MG1655 section 1 of 400 of the complete genome');
+ok($result->algorithm, 'BLASTX');
+ok($result->query_length, 720);
+$hit = $result->next_hit;
+ok($hit->name, 'AK1H_ECOLI');
+ok($hit->description,'P00561 Bifunctional aspartokinase/homoserine dehydrogenase I (AKI-HDI) [Includes: Aspartokinase I ; Homoserine dehydrogenase I ]');
+ok($hit->length, 820);
+$hsp = $hit->next_hsp;
+ok($hsp->score, 634);
+ok($hsp->bits, 248);
+ok(int $hsp->percent_identity, 100);
+ok($hsp->evalue, '2e-70');
+ok(int($hsp->frac_conserved*$hsp->length), 128);
+ok($hsp->query->start, 1);
+ok($hsp->query->end, 384);
+ok($hsp->hit->start, 1);
+ok($hsp->hit->end,128);
+ok($hsp->gaps, 0);
+ok($hsp->query->frame,-1);
+ok($hsp->hit->frame,0);
+ok($hsp->query->strand,-1);
+ok($hsp->hit->strand,0);
+
+# this is tblastx bl2seq (self against self)
+$searchio = new Bio::SearchIO(-format => 'blast',
+			      -file   => Bio::Root::IO->catfile
+			      (qw(t data bl2seq.tblastx.out)));
+$result = $searchio->next_result;
+ok($result);
+ok($result->query_name, 'Escherichia');
+ok($result->algorithm, 'TBLASTX');
+ok($result->query_description, 'coli K-12 MG1655 section 1 of 400 of the complete genome');
+ok($result->query_length, 720);
+$hit = $result->next_hit;
+ok($hit->name, 'gi|1786181|gb|AE000111.1|AE000111');
+
+ok($hit->description,'Escherichia coli K-12 MG1655 section 1 of 400 of the complete genome');
+ok($hit->length, 720);
+$hsp = $hit->next_hsp;
+ok($hsp->score, 1118);
+ok($hsp->bits, 515);
+ok(int $hsp->percent_identity, 95);
+ok($hsp->evalue, '1e-151');
+ok(int($hsp->frac_conserved*$hsp->length), 229);
+ok($hsp->query->start, 1);
+ok($hsp->query->end, 720);
+ok($hsp->hit->start, 1);
+ok($hsp->hit->end,720);
+ok($hsp->gaps, 0);
+ok($hsp->query->frame,0);
+ok($hsp->hit->frame,0);
+ok($hsp->query->strand,1);
+ok($hsp->hit->strand,1);
 
 __END__
 
