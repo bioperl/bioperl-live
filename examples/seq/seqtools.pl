@@ -6,7 +6,8 @@ BEGIN {
         ###         to the directory right above Bio/ in order
         ###         for perl to be able to locate the .pm files. 
 
-	$INSTALL_PATH = "/home/users/sac/perl/lib";
+#	$INSTALL_PATH = "/home/users/sac/perl/lib";
+	$INSTALL_PATH = "/home/steve/projects/bioperl/bioperl-0.04-bug/bioperl-live";
 
         ###
         ####
@@ -277,7 +278,7 @@ sub init_seq {
     $type = 'Amino' if $opt_prot;
     $type = 'Dna' if $opt_nucl;
 
-    if($MONITOR) {
+    if($DEBUG) {
 	$type or print STDERR "\n*** Sequence type not specified (can use -nucl or -prot on command line)\n\n";
     }
     
