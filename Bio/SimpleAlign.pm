@@ -117,7 +117,7 @@ Ewan Birney, birney@sanger.ac.uk
 
 David J. Evans, David.Evans@vir.gla.ac.uk, 
 Heikki Lehvaslaiho, heikki@ebi.ac.uk, 
-Allen Smith, easmith@beatrice.rutgers.edu
+Allen Smith, allens@cpan.org, 
 Jason Stajich, jason@bioperl.org, 
 Xintao Wei & Giri Narasimhan, giri@cs.fiu.edu,
 
