@@ -25,7 +25,7 @@ Bio::PrimarySeq - Bioperl lightweight Sequence Object
   #make from memory
   $seqobj = Bio::PrimarySeq->new ( -seq => 'ATGGGGTGGGCGGTGGGTGGTTTG',
 			    -id  => 'GeneFragment-12',
-			    -accession => 'X78121',
+			    -accession_number => 'X78121',
 			    -moltype => 'dna'
 			    );
   
