@@ -8,7 +8,7 @@
 
 use strict;
 use vars qw($NUMTESTS $DEBUG);
-$DEBUG=0;
+$DEBUG=1;
 my $error;
 
 BEGIN { 
@@ -22,7 +22,7 @@ BEGIN {
     }
     use Test;
 
-    $NUMTESTS = 9;
+    $NUMTESTS = 13;
     plan tests => $NUMTESTS;
     eval { require 'IO/String.pm' };
     if( $@ ) {
@@ -81,9 +81,27 @@ eval {
 				     -verbose=>$verbose,
 				     -retrievaltype => 'tempfile'
 				     )); 
+
     ok(defined($refio = $db->get_Stream_by_batch(['20063307', '98276153'])));
-    ok($refio->next_bibref->length, 408);
-    ok($refio->next_bibref->length, 1611);
+    ok($refio->next_bibref->identifier, '20063307');
+    ok($refio->next_bibref->identifier, '98276153');
+};
+
+if ($@) {    
+    if( $DEBUG ) { 
+	warn "Batch access test failed.Error: $@\n";
+    }
+    foreach ( $Test::ntest..$NUMTESTS ) { skip('no network access',1); }
+}
+
+eval {
+    ok defined($db = new Bio::Biblio(-access => 'biofetch',
+				     -verbose=>$verbose
+				     )); 
+
+    ok(defined($refio = $db->get_Stream_by_batch(['20063307', '98276153'])));
+    ok($refio->next_bibref->identifier, '20063307');
+    ok($refio->next_bibref->identifier, '98276153');
 };
 
 if ($@) {    

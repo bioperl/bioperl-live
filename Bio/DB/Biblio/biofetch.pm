@@ -152,7 +152,6 @@ sub get_by_id {
 }
 
 
-
 =head2 get_seq_stream
 
  Title   : get_seq_stream
@@ -209,13 +208,65 @@ sub get_seq_stream {
 				'location' => $content);
         print STDERR "str is $$content\n" if ( $self->verbose > 0);
 	$stream = new Bio::Biblio::IO('-format' => $ioformat,
-				      '-data'   => $$content);
+#				      '-data'   => "<tag>". $$content. "</tag>");
+				      '-data'   => $$content
+				      );
     } else { 
 	$self->throw("retrieval type " . $self->retrieval_type . 
 		     " unsupported\n");
     }
     return $stream;
 }
+
+
+=head2 postprocess_data
+
+ Title   : postprocess_data
+ Usage   : $self->postprocess_data ( 'type' => 'string',
+				     'location' => \$datastr);
+ Function: process downloaded data before loading into a Bio::SeqIO
+ Returns : void
+ Args    : hash with two keys - 'type' can be 'string' or 'file'
+                              - 'location' either file location or string 
+                                           reference containing data
+
+=cut
+
+# the default method, works for genbank/genpept, other classes should
+# override it with their own method.
+
+sub postprocess_data {    
+    my ($self, %args) = @_;
+    my $data;
+    my $type = uc $args{'type'};
+    my $location = $args{'location'};
+    if( !defined $type || $type eq '' || !defined $location) {
+	return;
+    } elsif( $type eq 'STRING' ) {
+	$data = $$location; 
+    } elsif ( $type eq 'FILE' ) {
+	open(TMP, $location) or $self->throw("could not open file $location");
+	my @in = <TMP>;
+	close TMP;
+	$data = join("", @in);
+    }
+
+    $data = "<tag>". $data. "</tag>";
+    
+    if( $type eq 'FILE'  ) {
+	open(TMP, ">$location") or $self->throw("could overwrite file $location");
+	print TMP $data;
+	close TMP;
+    } elsif ( $type eq 'STRING' ) {
+	${$args{'location'}} = $data;
+    }
+    
+    $self->debug("format is ". $self->request_format(). " data is $data\n");
+
+}
+
+
+
 
 =head2 VERSION and Revision
 
