@@ -22,7 +22,7 @@ BEGIN {
     }
     use Test;
 
-    $NUMTESTS = 6;
+    $NUMTESTS = 13;
     plan tests => $NUMTESTS;
     eval { require 'IO/String.pm' };
     if( $@ ) {
@@ -51,29 +51,39 @@ my $verbose = 0;
 ## the print "1..x\n" in the BEGIN block to reflect the
 ## total number of tests that will be run. 
 
-my ($db,$seq,$seqio);
+my ($db,$seq,$db2,$seq2,$seqio);
 # get a single seq
 
 $seq = $seqio = undef;
 
 #test redirection from GenBank and EMBL
-#GenBank
 $verbose = -1;
+#GenBank
 ok $db = new Bio::DB::GenBank('-verbose'=>$verbose) ;     
-eval {
-    $seq = $db->get_Seq_by_acc('NT_006732');
-};
-ok $@;
-ok $seq = $db->get_Seq_by_acc('NM_006732');
-ok($seq && $seq->length eq 3775);
 #EMBL
-ok $db = new Bio::DB::EMBL('-verbose'=>$verbose) ;     
+ok $db2 = new Bio::DB::EMBL('-verbose'=>$verbose) ;     
+
 eval {
     $seq = $db->get_Seq_by_acc('NT_006732');
+    $seq2 = $db2->get_Seq_by_acc('NT_006732');
 };
 ok $@;
-ok $seq = $db->get_Seq_by_acc('NM_006732');
-ok($seq && $seq->length eq 3775);
+
+eval {
+    ok $seq = $db->get_Seq_by_acc('NM_006732');
+    ok($seq && $seq->length eq 3775);
+    ok $seq2 = $db2->get_Seq_by_acc('NM_006732');
+    ok($seq2 && $seq2->length eq 3775);
+};
+
+if ($@) {
+    print STDERR "Warning: Couldn't connect to RefSeq with Bio::DB::RefSeq.pm!\n" . $@;
+
+    foreach ( 1..4) { 
+	 skip('could not connect to embl',1);}
+}
+
+
 
 $verbose = 0;
 
@@ -87,7 +97,7 @@ eval {
 };
 
 if ($@) {
-    print STDERR "Warning: Couldn't connect to EMBL with Bio::DB::RefSeq.pm!\n" . $@;
+    print STDERR "Warning: Couldn't connect to RefSeq with Bio::DB::RefSeq.pm!\n" . $@;
 
     foreach ( $Test::ntest..$NUMTESTS) { 
 	 skip('could not connect to embl',1);}
