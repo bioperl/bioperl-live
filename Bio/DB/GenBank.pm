@@ -84,7 +84,7 @@ $MODVERSION = '0.8';
 
 use Bio::DB::RandomAccessI;
 use Bio::SeqIO;
-use IO::String;
+use IO::Scalar;
 use IO::File;
 use Bio::Root::RootI;
 use LWP::UserAgent;
@@ -290,7 +290,7 @@ sub get_Stream_by_batch {
        if(! defined($streamfmt)) {
 	   (undef, $streamfmt) = $self->request_format();
        }
-       $stream = new IO::String($content);
+       $stream = IO::String->new($content);
    };
    if ( $@ ) {
        $self->throw($@);
@@ -363,7 +363,7 @@ sub _get_stream {
   if(! defined($streamfmt)) {
       (undef, $streamfmt) = $self->request_format();
   }
-  my $stream = new IO::String($content);
+  my $stream = IO::String->new($content);
   return Bio::SeqIO->new('-fh' => $stream, '-format' => $streamfmt);
 }
 

@@ -294,7 +294,7 @@ sub _get_stream {
 	  $self->throw($@);
       }
   }
-  my $stream = new IO::String(join("\n", @all));
+  my $stream = IO::String->new(join("\n", @all));
   return Bio::SeqIO->new('-fh' => $stream, '-format' => $self->streamfmt);
 }
 
