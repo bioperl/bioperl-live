@@ -80,7 +80,7 @@ use strict;
 use vars qw( $ID $VERSION $revision);
 
 $ID       = 'Bio::Tools::Blast::Run::Webblast';
-$VERSION  = 1.23; 
+$VERSION  = 1.24; 
 
 # SAC: grouped database names.
 # May want to put these sorts of things in a
@@ -359,7 +359,7 @@ their resolution. Bug reports can be submitted via email or the web:
 
 =head1 VERSION
 
-Bio::Tools::Blast::Run::Webblast.pm, 1.23
+Bio::Tools::Blast::Run::Webblast.pm, 1.24
 
 =head1 COPYRIGHT
 
@@ -2022,6 +2022,12 @@ __END__
 ############################################################################
 
 # MODIFICATION HISTORY :
+#  1.24, 15 May 2000 sac:
+#     -- Uses SeqIO and IO::Scalar instead of Bio::Seq->layout()
+#        to get a Fasta-formatted sequence string.
+#     -- Removed message about possibly bad blast report
+#        which now always happens given the NCBI queueing system
+#
 #  1.23, 15 Oct 1999, sac:
 #     -- Updated the URLs for the NCBI servers.
 #
