@@ -9,11 +9,14 @@
 use strict;
 use vars qw($NUMTESTS);
 
+my $error;
+
 BEGIN { 
     # to handle systems with no installed Test module
     # we include the t dir (where a copy of Test.pm is located)
     # as a fallback
     eval { require Test; };
+    $error = 0;
     if( $@ ) {
 	use lib 't';
     }
@@ -27,14 +30,17 @@ BEGIN {
 	for( 1..$NUMTESTS ) {
 	    skip(1,"IO::String not installed. This means the Bio::DB::* modules are not usable. Skipping tests");
 	}
-	exit(0);
+       $error = 1; 
     }
 }
 
+if( $error ==  1 ) {
+    exit(0);
+}
 
-use Bio::DB::GenBank;
-use Bio::DB::GenPept;
-use Bio::DB::SwissProt;
+require "Bio/DB/GenBank";
+require "Bio/DB/GenPept";
+require "Bio/DB/SwissProt";
 my $testnum;
 my $verbose = 0;
 

@@ -766,7 +766,7 @@ sub slurp_gff_file {
   
    while(<$f>) {
 
-       my $sf = Bio::SeqFeature::Generic->new(-gff_string => $_);
+       my $sf = Bio::SeqFeature::Generic->new('-gff_string' => $_);
        push(@out, $sf);
    }
 

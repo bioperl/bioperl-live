@@ -41,7 +41,7 @@ ok ($info = $gdb->get_info(-type=>'marker',
 ok $info->{gdbid}, 'GDB:188296', 'value was ' . $info->{gdbid};
 ok $info->{primers}->[0], 'GCCCAGGAGGTTGAGG', 'value was ' . $info->{primers}->[0];
 ok $info->{primers}->[1], 'AAGGCAGGCTTGAATTACAG', 'value was ' . $info->{primers}->[1];
-ok $info->{length}, 226, 'value was '. $info->{length};
+ok $info->{'length'}, 226, 'value was '. $info->{'length'};
 
 $marker = 'UT497';
 $info = undef;
@@ -50,4 +50,4 @@ ok ($info = $gdb->get_info(-type=>'marker',
 ok $info->{gdbid}, 'GDB:198271', 'value was ' . $info->{gdbid};
 ok $info->{primers}->[0], 'GGGTGACAGAACAAGACCT', 'value was ' . $info->{primers}->[0];
 ok $info->{primers}->[1], 'ACCCATTAGCCTTGAACTGA', 'value was ' . $info->{primers}->[1];
-ok $info->{length}, 155, 'value was '. $info->{length};
+ok $info->{'length'}, 155, 'value was '. $info->{'length'};
