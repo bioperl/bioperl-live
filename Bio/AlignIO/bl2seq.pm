@@ -1,3 +1,4 @@
+# $Id$
 #
 # BioPerl module for Bio::AlignIO::bl2seq
 
@@ -34,25 +35,27 @@ Do not use this module directly.  Use it via the Bio::AlignIO class, as in:
 
 =head1 DESCRIPTION
 
-This object can create Bio::SimpleAlign sequence alignment objects (of 2 sequences)
-from bl2seq BLAST reports.
+This object can create Bio::SimpleAlign sequence alignment objects (of
+2 sequences) from bl2seq BLAST reports.
 
-A nice feature of this module is that- in combination with StandAloneBlast.pm or remote
-blasting - it can be used to align 2 sequences and make a SimpleAlign object from them which
-can then be manipulated using any of SimpleAlign.pm's methods, eg:
+A nice feature of this module is that- in combination with
+StandAloneBlast.pm or remote blasting - it can be used to align 2
+sequences and make a SimpleAlign object from them which can then be
+manipulated using any SimpleAlign.pm methods, eg:
 
-#Get 2 sequences
-$str = Bio::SeqIO->new(-file=>'t/amino.fa' , '-format' => 'Fasta', );
-my $seq3 = $str->next_seq();
-my $seq4 = $str->next_seq();
+   #Get 2 sequences
+   $str = Bio::SeqIO->new(-file=>'t/amino.fa' , '-format' => 'Fasta', );
+   my $seq3 = $str->next_seq();
+   my $seq4 = $str->next_seq();
 
-# Run bl2seq on them
-$factory = Bio::Tools::StandAloneBlast->new('program' => 'blastp', 'outfile' => 'bl2seq.out');
-my $bl2seq_report = $factory->bl2seq($seq3, $seq4);
+   # Run bl2seq on them
+   $factory = Bio::Tools::StandAloneBlast->new('program' => 'blastp', 
+					       'outfile' => 'bl2seq.out');
+   my $bl2seq_report = $factory->bl2seq($seq3, $seq4);
 
-# Use AlignIO.pm to create a SimpleAlign object from the bl2seq report
-$str = Bio::AlignIO->new(-file=> 'bl2seq.out','-format' => 'bl2seq');
-$aln = $str->next_aln();
+   # Use AlignIO.pm to create a SimpleAlign object from the bl2seq report
+   $str = Bio::AlignIO->new(-file=> 'bl2seq.out','-format' => 'bl2seq');
+   $aln = $str->next_aln();
 
 =head1 FEEDBACK
 
@@ -97,7 +100,14 @@ use Bio::AlignIO;
 use Bio::Tools::BPbl2seq;
 
 @ISA = qw(Bio::AlignIO);
-# new() is inherited from Bio::Root::Object
+
+# AlignIO is special new must be explict 
+sub new {
+    my ($class, @args) = @_;
+    my $self = bless {}, $class;
+    $self->_initialize(@args);
+    return $self;
+}
 
 # _initialize is where the heavy stuff will happen when new is called
 
@@ -181,3 +191,5 @@ sub write_aln {
 
     $self->throw("Sorry: writing bl2seq output is not available! /n");
 }
+
+1;

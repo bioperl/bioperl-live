@@ -1,3 +1,4 @@
+# $Id$
 #
 # BioPerl module for Bio::AlignIO::stockholm
 
@@ -55,13 +56,19 @@ methods. Internal methods are usually preceded with a _
 package Bio::AlignIO::stockholm;
 use vars qw(@ISA);
 use strict;
-# Object preamble - inherits from Bio::Root::Object
 
 use Bio::AlignIO;
 
 @ISA = qw(Bio::AlignIO);
-# new() is inherited from Bio::Root::Object
 
+# AlignIO is special new must be explict 
+
+sub new {
+    my ($class, @args) = @_;
+    my $self = bless {}, $class;
+    $self->_initialize(@args);
+    return $self;
+}
 # _initialize is where the heavy stuff will happen when new is called
 
 sub _initialize {
@@ -83,7 +90,8 @@ sub next_aln {
     my $self = shift;
     my $entry;
 
-    my ($start,$end,%align,$name,$seqname,$seq,$count,%hash,%c2name, %accession, $no);
+    my ($start,$end,%align,$name,$seqname,$seq,$count,
+	%hash,%c2name, %accession, $no);
 
     # in stockholm format, every non-blank line that does not start
     # with '#=' is an alignment segment; the '#=' lines are mark up lines.
@@ -178,3 +186,4 @@ sub write_aln {
     $self->throw("Sorry: stockholm-format output, not yet implemented! /n");
 }
 
+1;

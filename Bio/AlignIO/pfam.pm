@@ -1,3 +1,4 @@
+# $Id$
 #
 # BioPerl module for Bio::AlignIO::pfam
 
@@ -55,12 +56,19 @@ methods. Internal methods are usually preceded with a _
 package Bio::AlignIO::pfam;
 use vars qw(@ISA);
 use strict;
-# Object preamble - inherits from Bio::Root::Object
 
 use Bio::AlignIO;
 
 @ISA = qw(Bio::AlignIO);
-# new() is inherited from Bio::Root::Object
+
+# AlignIO is special new must be explict 
+
+sub new {
+    my ($class, @args) = @_;
+    my $self = bless {}, $class;
+    $self->_initialize(@args);
+    return $self;
+}
 
 # _initialize is where the heavy stuff will happen when new is called
 
@@ -154,3 +162,5 @@ sub write_aln {
    return 1;
   }
 }
+
+1;
