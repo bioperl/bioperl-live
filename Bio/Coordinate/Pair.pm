@@ -98,6 +98,8 @@ use strict;
 use Bio::Root::Root;
 use Bio::Coordinate::MapperI;
 use Bio::Coordinate::Result;
+use Bio::Coordinate::Result::Match;
+use Bio::Coordinate::Result::Gap;
 
 @ISA = qw(Bio::Root::Root Bio::Coordinate::MapperI);
 

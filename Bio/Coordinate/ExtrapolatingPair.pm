@@ -73,6 +73,8 @@ use strict;
 use Bio::Root::Root;
 use Bio::LocationI;
 use Bio::Coordinate::Result;
+use Bio::Coordinate::Result::Match;
+use Bio::Coordinate::Pair;
 
 @ISA = qw(Bio::Coordinate::Pair);
 
