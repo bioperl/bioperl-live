@@ -1,4 +1,4 @@
-
+#$Id$
 #-----------------------------------------------------------------------------
 # PACKAGE    : OddCodes.pm
 # PURPOSE    : To write amino acid sequences in alternative alphabets
@@ -7,13 +7,13 @@
 # CREATED    : 8th July 2000
 # MODIFIED   : 
 # DISCLAIMER : I am employed in the pharmaceutical industry but my 
-#	       : employers do not endorse or sponsor this module
-#	       : in any way whatsoever.  The above email address is
-#	       : given purely for the purpose of easy communication
+#            : employers do not endorse or sponsor this module
+#            : in any way whatsoever.  The above email address is
+#            : given purely for the purpose of easy communication
 #            : with the author, and does not imply any connection
-#	       : between my employers and anything written below.
+#	     : between my employers and anything written below.
 # LICENCE    : You may distribute this module under the same terms 
-#	       : as the rest of BioPerl.
+#	     : as the rest of BioPerl.
 #----------------------------------------------------------------------------
 
 =head1 NAME
@@ -23,23 +23,25 @@ one protein sequence
 
 =head1 SYNOPSIS
 
-Take a sequence object from eg, an inputstream, and creates an object 
+Take a sequence object from eg, an inputstream, and creates an object
 for the purposes of rewriting that sequence in another alphabet.
-These are abbreviated amino acid sequence alphabets, designed to 
-simplify the statistical aspects of analysing protein sequences, 
-by reducing the combinatorial explosion of the 20-letter alphabet.  
-These abbreviated alphabets range in size from 2 to 8.
+These are abbreviated amino acid sequence alphabets, designed to
+simplify the statistical aspects of analysing protein sequences, by
+reducing the combinatorial explosion of the 20-letter alphabet.  These
+abbreviated alphabets range in size from 2 to 8.
 
 Creating the OddCodes object, eg:
 
-	my $inputstream = Bio::SeqIO->new( -file => "seqfile", -format =>
-'Fasta');
+	my $inputstream = Bio::SeqIO->new( '-file' => "seqfile", 
+                                           '-format' => 'Fasta');
 	my $seqobj = $inputstream->next_seq();
 	my $oddcode_obj = Bio::Tools::Oddcodes->new($seqobj);
 
 or:
-	my $seqobj = Bio::PrimarySeq->new(-seq=>'[cut and paste a sequence
-here]', -moltype = 'protein', -id = 'test');
+	my $seqobj = Bio::PrimarySeq->new
+              (-seq=>'[cut and paste a sequence here]', 
+               -moltype = 'protein', 
+               -id = 'test');
 	my $oddcode_obj  =  Bio::Tools::OddCodes->new($seqobj);
 
 do the alternative coding, returning the answer as a reference to a string
@@ -62,15 +64,12 @@ display sequence in new form, eg:
 =head1 DESCRIPTION
 
 Bio::Tools::Oddcodes is a welterweight object for rewriting a protein
-sequence
-in an alternative alphabet.  8 of these are provided, ranging from the the
-2-letter
-hydrophobic alphabet, to the 8-letter chemical alphabet.  These are useful
-for the 
-statistical analysis of protein sequences since they can partially avoid the
-combinatorial explosion produced by the full 20-letter alphabet (eg. 400
-dimers,
-8000 trimers etc.)
+sequence in an alternative alphabet.  8 of these are provided, ranging
+from the the 2-letter hydrophobic alphabet, to the 8-letter chemical
+alphabet.  These are useful for the statistical analysis of protein
+sequences since they can partially avoid the combinatorial explosion
+produced by the full 20-letter alphabet (eg. 400 dimers, 8000 trimers
+etc.)
 
 See Synopsis above for object creation code.
 
@@ -432,8 +431,3 @@ sub _pullseq
 }
 
 1;
-
-
-
-
-
