@@ -84,6 +84,11 @@ Script that accepts files in GFF or tab-delimited format and creates
 corresponding PNG image files. See L<Bio::Graphics> and
 L<Bio::Graphics::FeatureFile> for more information.
 
+=head2 scripts/graphics/frend.PLS
+
+Create a PNG file on the Web using Bio::Graphics, accepts a file
+containing sequence and feature coordinates.
+
 =head2 scripts/index/bpfetch.PLS
 
 Fetch sequences from local indexed database or over the network and
@@ -213,10 +218,11 @@ Convert Prosite motifs to Perl regular expressions.
 Script to convert rebase file to format compatible with 
 Bio::Tools::RestrictionEnzyme.
 
-=head2 examples/das/das_server.pl
+=head2 examples/contributed/expression_analysis*
 
-Sets up a minimal DAS annotation server, requires Apache::DBI and
-Bio::DB::GFF. See L<Bio::DB::GFF> for details.
+A set of scripts that accept microarray data as input and perform
+statistical analyses, including t test, U test, Mann-Whitney,
+and Pearson correlation coefficent.
 
 =head2 examples/db/dbfetch
 
