@@ -1036,8 +1036,10 @@ sub feature2label {
   my $feature = shift;
   my $type  = eval {$feature->type} || $feature->primary_tag or return;
   (my $basetype = $type) =~ s/:.+$//;
-  my $label = $self->type2label($type) || $self->type2label($basetype) || $type;
-  $label;
+  my @labels = $self->type2label($type);
+  @labels = $self->type2label($basetype) unless @labels;
+  @labels = ($type) unless @labels;;
+  wantarray ? @labels : $labels[0];
 }
 
 =over 4
@@ -1055,11 +1057,13 @@ convenience for the generic genome browser.
 sub make_link {
   my $self     = shift;
   my $feature  = shift;
-  my $label    = $self->feature2label($feature) or return;
-  my $link     = $self->setting($label,'link');
-  $link        = $self->setting(general=>'link') unless defined $link;
-  return unless $link;
-  return $self->link_pattern($link,$feature);
+  for my $label ($self->feature2label($feature)) {
+    my $link     = $self->setting($label,'link');
+    $link        = $self->setting(general=>'link') unless defined $link;
+    next unless $link;
+    return $self->link_pattern($link,$feature);
+  }
+  return;
 }
 
 sub link_pattern {
@@ -1081,12 +1085,13 @@ sub link_pattern {
   return $pattern;
 }
 
-# given a feature type, return its label
+# given a feature type, return its label(s)
 sub type2label {
   my $self = shift;
   my $type = shift;
   $self->{_type2label} ||= $self->invert_types;
-  $self->{_type2label}{$type};
+  my @labels = keys %{$self->{_type2label}{$type}};
+  wantarray ? @labels : $labels[0]
 }
 
 sub invert_types {
@@ -1096,7 +1101,7 @@ sub invert_types {
   for my $label (keys %{$config}) {
     my $feature = $config->{$label}{feature} or next;
     foreach (shellwords($feature||'')) {
-      $inverted{$_} = $label;
+      $inverted{$_}{$label}++;
     }
   }
   \%inverted;
