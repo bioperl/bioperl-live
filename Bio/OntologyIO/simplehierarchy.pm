@@ -221,6 +221,7 @@ sub parse {
 
     # set up the ontology of the relationship types
 	$self->_part_of_relationship->ontology($ont);
+	$self->_is_a_relationship->ontology($ont);
 #    foreach ($self->_part_of_relationship(), $self->_is_a_relationship()) {
 #	$_->ontology($ont);
 #    }
@@ -353,7 +354,9 @@ sub _part_of_relationship {
 sub _is_a_relationship {
     my ( $self, $term ) = @_;
 
-    return $self->_ont_engine()->is_a_relationship();
+    $self->{ "_is_a_relationship" } ||= Bio::Ontology::RelationshipType->get_instance( 'IS_A' );
+	return $self->{ "_is_a_relationship" };
+#    return $self->_ont_engine()->is_a_relationship();
 
 
 } # _is_a_relationship 
@@ -446,7 +449,7 @@ sub _parse_flat_file {
 	if($parent ne $current_term) { #this prevents infinite recursion from a parent linking to itself
 	  $self->_add_relationship($parent,
 							   $current_term,
-							   $self->_part_of_relationship(),
+							   $self->_is_a_relationship(),
 							   $ont
 							  );
 	}
