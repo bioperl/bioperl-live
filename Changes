@@ -17,6 +17,9 @@ Revision history for Bioperl core modules
     o Bio::Structure added (since 0.9.1) for Protein structure objects 
       and PDB parser to retrieve and write these structures from data files. 
 
+    o Several important Bio::DB::GFF bug fixes for handling features that
+      are mapped to multiple reference points.
+
 0.9.2 Developer's release
 
     o Bio::Search and Bio::SearchIO system introduced for event based

@@ -364,12 +364,20 @@ structures: the transcript aggregator assembles transcripts from
 introns and exons; the gene aggregator then assembles genes from sets
 of transcripts.
 
-Three aggregators are currently provided:
+Three default aggregators are provided:
 
-      transcript   assembles transcripts
-      clone        assembles clones from Clone_end features
-      alignment    assembles gapped alignments from similarity
-	           features
+      transcript   assembles transcripts from features of type
+                   exon, CDS, 5'UTR, 3'UTR, TSS, and PolyA
+      clone        assembles clones from Clone_left_end, Clone_right_end
+                   and Sequence features.
+      alignment    assembles gapped alignments from features of type
+                   "similarity".
+
+In addition, this module provides the optional "wormbase_gene"
+aggregator, which accomodates the WormBase representation of genes.
+This aggregator aggregates features of method "exon", "CDS", "5'UTR",
+"3'UTR", "polyA" and "TSS" into a single object.  It also expects to
+find a single feature of type "Sequence" that spans the entire gene.
 
 The existing aggregators are easily customized.
 
@@ -384,6 +392,10 @@ this call:
   @features = $segment->features();
 
 will return a list of unaggregated similarity segments.
+
+For more informnation, see the manual pages for
+Bio::DB::GFF::Aggregator::transcript, Bio::DB::GFF::Aggregator::clone,
+etc.
 
 =back
 
@@ -664,7 +676,7 @@ immediately after an error condition has been detected.
 sub error {
   my $self = shift;
   my $g = $self->{error};
-  $self->{error} = shift if @_;
+  $self->{error} = join '',@_ if @_;
   $g;
 }
 
@@ -717,7 +729,7 @@ sub automerge {
  Title   : segment
  Usage   : $db->segment(@args);
  Function: create a segment object
- Returns : a segment object
+ Returns : segment object(s)
  Args    : numerous, see below
  Status  : public
 
@@ -821,6 +833,17 @@ The segments() method, described below, can be used to retrieve all
 the segments spanned by a named feature, regardless of whether it is
 on a contiguous physical segment.
 
+Note that if the given landmark is in the database more than once
+under different references sequences, segment() will return several
+segment objects, one for each reference sequence.  The span will begin
+at the lowest coordinate on the sequence, and extend to the highest.
+In this case, segment() will return a list.  To avoid possible
+confusion, if you call segment() in a scalar context and the landmark
+is present on multiple references, segment() will return undef and
+generate an error message (retrievable with the error() method).
+segment() will only return a list if you deliberately call it in a
+list context.  For this reason, segments() is an alias for segment().
+
 =cut
 
 #'
@@ -831,10 +854,23 @@ sub segment {
     @_ = (-class=>$_[0],-name=>$_[1]) if @_ == 2;
     @_ = (-name=>$_[0])               if @_ == 1;
   }
-  my $segment =  $_[0] =~ /^-/ ? Bio::DB::GFF::RelSegment->new(-factory => $self,@_)
-                               : Bio::DB::GFF::RelSegment->new($self,@_);
-  $segment->absolute(1) if $segment && $self->absolute;
-  $segment;
+  my @segments =  $_[0] =~ /^-/ ? Bio::DB::GFF::RelSegment->new(-factory => $self,@_)
+                                : Bio::DB::GFF::RelSegment->new($self,@_);
+  foreach (@segments) {
+    $_->absolute(1) if $self->absolute;
+  }
+
+  # handle expectations of caller
+  if (@segments == 0) {
+    return;
+  } elsif (@segments == 1) {
+    return $segments[0];
+  } elsif (wantarray) { # more than one reference sequence
+    return @segments;
+  } else {
+    $self->error($segments[0]->name," has more than one reference sequence in database.  Please call in a list context to retrieve them all.");
+    return;
+  }
 }
 
 =head2 abs_segment
@@ -859,7 +895,19 @@ sub abs_segment {
     @_ = (-name=> $_[0])              if @_ == 1;
   }
   push @_,('-force_absolute'=>1);
-  return Bio::DB::GFF::RelSegment->new(-factory => $self,@_);
+  my @segments = Bio::DB::GFF::RelSegment->new(-factory => $self,@_);
+
+  # handle expectations of caller
+  if (@segments == 0) {
+    return;
+  } elsif (@segments == 1) {
+    return $segments[0];
+  } elsif (wantarray) { # more than one reference sequence
+    return @segments;
+  } else {
+    $self->error($segments[0]->name," has more than one reference sequence in database");
+    return;
+  }
 }
 
 =head2 absolute
@@ -1170,30 +1218,29 @@ sub features {
 		   );
 }
 
-=head2 segments
+=head2 fetch_group
 
- Title   : segments
- Usage   : $db->segments($class => $name)
+ Title   : fetch_group
+ Usage   : $db->fetch_group($class => $name)
  Function: fetch segments by group name
  Returns : a list of Bio::DB::GFF::Feature objects
  Args    : the class and name of the desired feature
  Status  : public
 
-This method can be used to fetch a set of one or more named features 
-from the database.  GFF annotations are named using the group class and 
-name fields, so for features that belong to a group of size one, this method 
-can be used to retrieve that group (and is equivalent to the segment() method).
+This method can be used to fetch a set of one or more named features
+from the database.  GFF annotations are named using the group class
+and name fields, so for features that belong to a group of size one,
+this method can be used to retrieve that group (and is equivalent to
+the segment() method).
 
 This method may return zero, one, or several Bio::DB::GFF::Feature
 objects.
 
 Aggregation is performed on features as usual.
 
-The fetch_group() method is an alias for this one.
-
 =cut
 
-sub segments {
+sub fetch_group {
   my $self = shift;
   my ($gclass,$gname);
   if (@_ == 1) {
@@ -1210,7 +1257,7 @@ sub segments {
   @$features;
 }
 
-*fetch_group = \&segments;
+*segments = \&segment;
 
 =head2 get_seq_stream()
 

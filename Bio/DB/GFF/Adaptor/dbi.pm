@@ -153,12 +153,15 @@ sub get_dna {
  Title   : get_abscoords
  Usage   : ($refseq,$refclass,$start,$stop,$strand) = $db->get_abscoords($name,$class)
  Function: get absolute coordinates for landmark
- Returns : five-element list containing reference sequence name, class, start, stop and strand
+ Returns : an array ref -- see below
  Args    : name and class of desired landmark
  Status  : Public
 
 This method performs the low-level resolution of a landmark into a
 reference sequence and position.
+
+The result is an array ref, each element of which is a five-element
+list containing reference sequence name, class, start, stop and strand.
 
 =cut
 
@@ -178,11 +181,8 @@ sub get_abscoords {
   if (@result == 0) {
     $self->error("$name not found in database");
     return;
-  } elsif (@result > 1) {
-    $self->error("$name has more than one reference sequence in database");
-    return;
   } else {
-    return @{$result[0]};
+    return \@result;
   }
 }
 

@@ -55,7 +55,7 @@ sub require_whole_object { 1; }
  Title   : part_names
  Usage   : $aggregator->part_names
  Function: return the methods for the sub-parts
- Returns : the list "intron", "exon" and "CDS"
+ Returns : the list "exon", "CDS", "5'UTR", "3'UTR", "TSS", "PolyA"
  Args    : none
  Status  : Public
 

@@ -26,7 +26,8 @@ BEGIN {
 
 
 sub bail ($;$);
-sub prompt ($;$);
+sub user_prompt ($;$);
+sub fail ($);
 eval { require DBI } or bail(TEST_COUNT,'DBI driver is missing');
 use lib './blib/lib';
 use Bio::DB::GFF;
@@ -47,7 +48,7 @@ push @args,('-pass' => $cfg->{test_pass}) if $cfg->{test_pass};
 
 my $db = eval { Bio::DB::GFF->new(@args) };
 ok($db);
-fail(TEST_COUNT - 2,"Couldn't open database so can't run other tests") unless $db;
+fail(TEST_COUNT - 2) unless $db;
 
 # exercise the loader
 ok($db->initialize(1));
@@ -321,9 +322,9 @@ sub ChooseDrivers {
     for which you have insert privileges.
 END
 ;
-  my $proceed = prompt("Do you want to run the tests? y/n",'n');
+  my $proceed = user_prompt("Do you want to run the tests? y/n",'n');
   return unless $proceed =~/^[yY]/;
-  my $choice = prompt("Which database driver do you wish to use (@preferred_drivers)",$preferred_drivers[0]);
+  my $choice = user_prompt("Which database driver do you wish to use (@preferred_drivers)",$preferred_drivers[0]);
   $cfg->{dbd_driver} = $choice;
   $cfg;
 }
@@ -352,27 +353,27 @@ sub QueryDb {
 
   my $test_db =  exists($options->{"$d-test-db"}) ?
     $options->{"$d-test-db"} : ($cfg->{'test_db'} || 'test');
-  $test_db = prompt
+  $test_db = user_prompt
     ("Which database should I use for testing the $db drivers?",
      $test_db) if $prompt;
 
   my $test_host = exists($options->{"$d-test-host"}) ?
     $options->{"$d-test-host"} : ($cfg->{'test_host'} || 'localhost');
-  $test_host = prompt
+  $test_host = user_prompt
     ("On which host is database $test_db running (hostname, ip address or host:port)", $test_host) if $prompt;
 
   my($test_user, $test_pass);
 
   $test_user = exists($options->{"$d-test-user"}) ?
     $options->{"$d-test-user"} : ($cfg->{'test_user'} || "undef");
-  $test_user = prompt
+  $test_user = user_prompt
     ("User name for connecting to database $test_db?", $test_user)
       if $prompt;
   $test_user = undef if $test_user eq 'undef';
 
   $test_pass = exists($options->{"$d-test-pass"}) ?
     $options->{"$d-test-pass"} : ($cfg->{'test_pass'} || "undef");
-  $test_pass = prompt
+  $test_pass = user_prompt
     ("Password for connecting to database $test_db?", $test_pass)
       if $prompt;
   $test_pass = undef if $test_pass eq 'undef';
@@ -418,7 +419,7 @@ sub fail ($) {
   exit 0;
 }
 
-sub prompt ($;$) {
+sub user_prompt ($;$) {
     my($mess,$def)=@_;
     Carp::confess("prompt function called without an argument") unless defined $mess;
     my $dispdef = defined $def ? "[$def] " : " ";

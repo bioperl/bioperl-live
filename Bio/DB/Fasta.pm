@@ -535,7 +535,7 @@ sub index_dir {
   my $flags = $modtime <= $indextime ? O_RDONLY : O_CREAT|O_RDWR;
 
   my @dbmargs = $self->dbmargs;
-  tie %offsets,'AnyDBM_File',$index,$flags,0644,@dbmargs or $self->throw( "Can't open cache file: $!");
+  tie %offsets,'AnyDBM_File',$index,$flags,0644,@dbmargs or $self->throw( "Can't open FASTA index file $index: $!");
 
   # no indexing needed
   return \%offsets if $modtime <= $indextime;

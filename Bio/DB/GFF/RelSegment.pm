@@ -217,8 +217,7 @@ sub new {
     return $name->subseq($start,$stop);
   }
 
-  # partially fill in object
-  my $self = bless { factory => $factory },$package;
+  my @object_results;
 
   # support for Featname objects
   if (ref($name) && $name->can('class')) {
@@ -229,67 +228,80 @@ sub new {
   $class ||= 'Sequence';
 
   # confirm that indicated sequence is actually in the database!
-  my($absref,$absclass,$absstart,$absstop,$absstrand);
+  my @abscoords;
+
+  # abscoords() will now return an array ref, each element of which is
+  # ($absref,$absclass,$absstart,$absstop,$absstrand)
 
   if ($force_absolute && defined($start)) { # absolute position is given to us
-    ($absref,$absclass,$absstart,$absstop,$absstrand) = ($name,$class,$start,$stop,'+');
+    @abscoords = ([$name,$class,$start,$stop,'+']);
   } else {
-    ($absref,$absclass,$absstart,$absstop,$absstrand) = $factory->abscoords($name,$class,$force_absolute ? $name : ()) or return;
+    my $result = $factory->abscoords($name,$class,$force_absolute ? $name : ()) or return;
+    @abscoords = @$result;
   }
 
-  $absstrand ||= '+';
+  foreach (@abscoords) {
+    my ($absref,$absclass,$absstart,$absstop,$absstrand) = @$_;
+    my ($this_start,$this_stop,$this_length) = ($start,$stop,$length);
 
-  # an explicit length overrides start and stop
-  if (defined $offset) {
-    warn "new(): bad idea to call new() with both a start and an offset"
-      if defined $start;
-    $start = $offset+1;
-  }
-  if (defined $length) {
-    warn "new(): bad idea to call new() with both a stop and a length"
-      if defined $stop;
-    $stop = $start + $length - 1;
-  }
+    # partially fill in object
+    my $self = bless { factory => $factory },$package;
 
-  # this allows a SQL optimization way down deep
-  $self->{whole}++ if $absref eq $name and !defined($start) and !defined($stop);
+    $absstrand ||= '+';
 
-  $start = 1                    if !defined $start;
-  $stop  = $absstop-$absstart+1 if !defined $stop;
-  $length = $stop - $start + 1;
-
-  # now offset to correct subsegment based on desired start and stop
-  if ($force_absolute) {
-    ($start,$stop) = ($absstart,$absstop);
-    $self->absolute(1);
-  } elsif ($absstrand eq '+') {
-    $start =  $absstart + $start - 1;
-    $stop  =  $start    + $length - 1;
-  } else {
-    $start =  $absstop - ($start - 1);
-    $stop  =  $absstop - ($stop - 1);
-  }
-
-  @{$self}{qw(sourceseq start stop strand class)}
-    = ($absref,$start,$stop,$absstrand,$absclass);
-
-  # handle reference sequence
-  if (defined $refseq) {
-    $refclass = $refseq->class if $refseq->can('class');
-    $refclass ||= 'Sequence';
-    my ($refref,$refstart,$refstop,$refstrand) = $factory->abscoords($refseq,$refclass);
-    unless ($refref eq $absref) {
-      $self->error("reference sequence is on $refref but source sequence is on $absref");
-      return;
+    # an explicit length overrides start and stop
+    if (defined $offset) {
+      warn "new(): bad idea to call new() with both a start and an offset"
+	if defined $this_start;
+      $this_start = $offset+1;
     }
-    $refstart = $refstop if $refstrand eq '-';
-    @{$self}{qw(ref refstart refstrand)} = ($refseq,$refstart,$refstrand);
-  } else {
-    $absstart = $absstop if $absstrand eq '-';
-    @{$self}{qw(ref refstart refstrand)} = ($name,$absstart,$absstrand);
+    if (defined $this_length) {
+      warn "new(): bad idea to call new() with both a stop and a length"
+	if defined $this_stop;
+      $this_stop = $this_start + $length - 1;
+    }
+
+    # this allows a SQL optimization way down deep
+    $self->{whole}++ if $absref eq $name and !defined($this_start) and !defined($this_stop);
+
+    $this_start     = 1                    if !defined $this_start;
+    $this_stop      = $absstop-$absstart+1 if !defined $this_stop;
+    $this_length = $this_stop - $this_start + 1;
+
+    # now offset to correct subsegment based on desired start and stop
+    if ($force_absolute) {
+      ($this_start,$this_stop) = ($absstart,$absstop);
+      $self->absolute(1);
+    } elsif ($absstrand eq '+') {
+      $this_start =  $absstart   + $this_start - 1;
+      $this_stop  =  $this_start + $this_length - 1;
+    } else {
+      $this_start =  $absstop - ($this_start - 1);
+      $this_stop  =  $absstop - ($this_stop - 1);
+    }
+
+    @{$self}{qw(sourceseq start stop strand class)}
+      = ($absref,$this_start,$this_stop,$absstrand,$absclass);
+
+    # handle reference sequence
+    if (defined $refseq) {
+      $refclass = $refseq->class if $refseq->can('class');
+      $refclass ||= 'Sequence';
+      my ($refref,$refstart,$refstop,$refstrand) = $factory->abscoords($refseq,$refclass);
+      unless ($refref eq $absref) {
+	$self->error("reference sequence is on $refref but source sequence is on $absref");
+	return;
+      }
+      $refstart = $refstop if $refstrand eq '-';
+      @{$self}{qw(ref refstart refstrand)} = ($refseq,$refstart,$refstrand);
+    } else {
+      $absstart = $absstop if $absstrand eq '-';
+      @{$self}{qw(ref refstart refstrand)} = ($name,$absstart,$absstrand);
+    }
+    push @object_results,$self;
   }
 
-  return $self;
+  @object_results;
 }
 
 # overridden methods
@@ -359,8 +371,12 @@ sub refseq {
       ($refsource,undef,$refstart,$refstop,$refstrand) =
 	($newref->sourceseq,undef,$newref->abs_start,$newref->abs_stop,$newref->abs_strand >= 0 ? '+' : '-');
     } else {
-      ($refsource,undef,$refstart,$refstop,$refstrand) =
-	$self->factory->abscoords($newref,$newclass);
+      my $coords = $self->factory->abscoords($newref,$newclass);
+      foreach (@$coords) { # find the appropriate one
+	($refsource,undef,$refstart,$refstop,$refstrand) = @$_;
+	last if $refsource eq $self->{sourceseq};
+      }
+	
     }
     $self->throw("can't set reference sequence: $newref and $self are on different sequence segments")
       unless $refsource eq $self->{sourceseq};
