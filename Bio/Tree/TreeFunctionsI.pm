@@ -434,34 +434,150 @@ sub is_paraphyletic{
  Function: Reroots a tree either making a new node the root
  Returns : 1 on success, 0 on failure
  Args    : Bio::Tree::NodeI that is in the tree
-
+ 
 
 =cut
 
+# From  Ramiro Barrantes-Reynolds <ramiro@sbb.uvm.edu>
+# Algorithm:
+#    get start_node
+#    if start_node is root return error
+#    startnode_ancestor = ancestor of start_node
+#    Node new_root = single node between startnode_ancestor and start_node
+#    Put labels of root to labels of new root
+#    make node = new_root
+#    ancestor = ancestor of node
+#
+#    while node is not root
+#         if ancestor is not old_root
+#            tmp = ancestor of ancestor
+#            reverse direction of edge between node and ancestor
+#         if ancestor is old_root and has only one descendent
+#            eliminate the ancestor and makes its descendent descend directly
+#            from node.
+#         elseif ancestor is not old_root
+#            node = ancestor
+#            ancestor = tmp
+#    endwhile
+
 sub reroot {
-    my ($self,$node) = @_;
-    unless (defined $node && $node->isa("Bio::Tree::NodeI")) {
+    my ($self,$startnode) = @_;
+    unless (defined $startnode && $startnode->isa("Bio::Tree::NodeI")) {
 	$self->warn("Must provide a valid Bio::Tree::NodeI when rerooting");
 	return 0;
     }
     # Still need to validate that $node is actually in the tree....
-    if( $node->is_Leaf() ) {
+    if( $startnode->is_Leaf() ) {
 	$self->warn("Asking to root with a leaf, will use the leaf's ancestor");
-	$node = $node->ancestor;
-    }
+	$startnode = $startnode->ancestor;
+    }    
+    my $old_root = $self->get_root_node;
+    
 
-    my $current_root = $self->get_root_node;
-    my $old_ancestor = $node->ancestor;
-
-    if( ! $old_ancestor ) {
+    if( $startnode == $old_root ) {
 	$self->warn("Node requested for reroot is already the root node!");
 	return 0;
     }
-
-    $old_ancestor->remove_Descendent($node);
-    $node->add_Descendent($current_root);
-    $self->set_root_node($node);
+    my $startnode_ancestor = $startnode->ancestor;
+    
+    my $newroot = new Bio::Tree::Node();
+    delete_edge($startnode_ancestor,$startnode);
+    $startnode_ancestor->add_Descendent($newroot);
+    $newroot->add_Descendent($startnode);
+                                                                               
+    $self->set_root_node($newroot);
+                                                                               
+    my $node = $newroot;
+    my $ancestor = $startnode_ancestor;
+    while ($node != $old_root) {
+        my $tmp;
+        if ($ancestor != $old_root) {
+            $tmp = $ancestor->ancestor;
+        }
+        reverse_edge($ancestor,$node);
+        if ($ancestor == $old_root) {
+            my @desc = $ancestor->each_Descendent;
+            if (scalar (@desc) == 1) {
+                $old_root->remove_Descendent($desc[0]);
+                $node->add_Descendent($desc[0]);
+                if (defined $old_root->id ) {   #update labels in new root, ifwe need to remove it
+                    $newroot->id($old_root->id);
+                }
+            }
+            return;
+        } else {
+            $node = $ancestor;
+            $ancestor = $tmp;
+        }
+    }
     return 1;
+}
+
+=head2 reverse_edge
+                                                                               
+ Title   : reverse_edge
+ Usage   : $node->reverse_edge(child);
+ Function: makes child be a parent of node
+ Requires: child must be a direct descendent of node
+ Returns : nothing
+ Args    : Bio::Tree::NodeI that is in the tree
+
+=cut
+                                                                               
+sub reverse_edge {
+    my ($self,$node) = @_;
+    delete_edge($self, $node);
+    $node->add_Descendent($self);
+    1;
+}
+                                                                               
+                                                                               
+=head2 delete_edge
+                                                                               
+ Title   : delete_edge
+ Usage   : $node->reverse_edge(child); 
+ Function: makes child be a parent of node
+ Requires: child must be a direct descendent of node
+ Returns : nothing
+ Args    : Bio::Tree::NodeI that is in the tree
+ 
+=cut
+
+sub delete_edge {
+    my ($self,$node) = @_;
+    unless (defined $self && $self->isa("Bio::Tree::NodeI")) {
+        $self->warn("Must provide a valid Bio::Tree::NodeI when rerooting");
+        return 1;
+    }
+    unless (defined $node && $node->isa("Bio::Tree::NodeI")) {
+        $self->warn("Must provide a valid Bio::Tree::NodeI when rerooting");
+        return 1;
+    }
+    if( $self->{'_desc'}->{$node->internal_id} ) {
+        $node->ancestor(undef);
+        $self->{'_desc'}->{$node->internal_id}->ancestor(undef);
+        delete $self->{'_desc'}->{$node->internal_id};
+    } else {
+        $self->warn("First argument must be direct parent of node");
+        return 1;
+    }
+    1;
+}
+                                                                           
+                                                                               
+sub findnode_by_id {
+    my $tree = shift;
+    my $id = shift;
+    my $rootnode = $tree->get_root_node;
+    if ( ($rootnode->id) and ($rootnode->id eq $id) ) {
+        return $rootnode;
+    }
+    # process all the children
+    foreach my $node ( $rootnode->get_Descendents ) {
+        if ( ($node->id) and ($node->id eq $id ) ) {
+            return $node;
+        }
+    }
 }
 
 1;
