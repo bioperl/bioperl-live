@@ -1,4 +1,4 @@
-# $Id: PLATFORMS,v 1.10 2001-11-04 17:27:03 jason Exp $
+# $Id: PLATFORMS,v 1.11 2001-12-14 17:21:31 jason Exp $
 
 Perl general comments:
 
@@ -10,10 +10,10 @@ Perl general comments:
           versions of HTML::Parser.
 
 	o DB.t has intermittent time-out failures (which will most
-	  likely cause tests 3 and/or 27 to fail)
+	  likely cause tests 3 and/or 27 to fail).
 
 	o Index.t will fail if you have an out-of-date DBM file
-	  installation
+	  installation.
 
 
 Tested systems & OS Specific Comments or Warnings
@@ -54,9 +54,12 @@ Comments: Some warnings about <HANDLE> which can be safely
 
 Machine : Win32, WinNT i386
 Compiler: --
-Perl    : ActiveState Perl 5.6
-Comments: Likely failure of Index.t (i.e., the modules in Bio/Index/),
+Perl    : ActiveState Perl 5.6, 5.5.1
+Comments: Be sure that the module DB_File is installed and up-to-date 
+	  to allow Bio::Index modules to work properly. 
           File::Temp potentially broken (causing at least BPpsilite to fail)
+	  Installing ppm's IO-stringy and IO-String and File-Temp are 
+	  necessary as well.
 	  See http://bioperl.org/Core/windows-bioperl.html for more info on 
 	  installing on Windows.
 	
