@@ -54,7 +54,7 @@ unless ($clustal_present) {
 }
 $aln = $factory->align($inputfilename);
 
-ok ($aln->{'_order'}->{'0'}, 'CATH_HUMAN/1-335', 
+ok ($aln->get_seq_by_pos(1)->get_nse, 'CATH_HUMAN/1-335', 
     "failed clustalw alignment using input file");
 
 my $str = Bio::SeqIO->new(-file=> Bio::Root::IO->catfile("t","data","cysprot.fa"), 
@@ -67,14 +67,14 @@ while ( my $seq = $str->next_seq() ) {
 
 $aln = $factory->align(\@seq_array);
 	
-ok ($aln->{'_order'}->{'0'}, 'CATH_HUMAN/1-335', 
+ok ($aln->get_seq_by_pos(1)->get_nse, 'CATH_HUMAN/1-335', 
     "failed clustalw alignment using BioSeq array ");
 	
 my $profile1 = Bio::Root::IO->catfile("t","data","cysprot1a.msf");
 my $profile2 = Bio::Root::IO->catfile("t","data","cysprot1b.msf");
 $aln = $factory->profile_align($profile1,$profile2);
 
-ok( $aln->{'_order'}->{'1'}, 'CATH_HUMAN/1-335', 
+ok( $aln->get_seq_by_pos(2)->get_nse, 'CATH_HUMAN/1-335', 
     " failed clustalw profile alignment using input file" );
 
 my $str1 = Bio::AlignIO->new(-file=> Bio::Root::IO->catfile("t","data","cysprot1a.msf"));
@@ -83,7 +83,7 @@ my $str2 = Bio::AlignIO->new(-file=> Bio::Root::IO->catfile("t","data","cysprot1
 my $aln2 = $str2->next_aln();
 
 $aln = $factory->profile_align($aln1,$aln2);
-ok($aln->{'_order'}->{'1'}, 'CATH_HUMAN/1-335', 
+ok($aln->get_seq_by_pos(2)->get_nse, 'CATH_HUMAN/1-335', 
    "failed clustalw profile alignment using SimpleAlign input ");
 
 $str1 = Bio::AlignIO->new(-file=> Bio::Root::IO->catfile("t","data","cysprot1a.msf"));
@@ -92,5 +92,5 @@ $str2 = Bio::SeqIO->new(-file=> Bio::Root::IO->catfile("t","data","cysprot1b.fa"
 my $seq = $str2->next_seq();
 $aln = $factory->profile_align($aln1,$seq);
 
-ok ($aln->{'_order'}->{'1'},  'CATH_HUMAN/1-335', 
+ok ($aln->get_seq_by_pos(2)->get_nse,  'CATH_HUMAN/1-335', 
     "failed adding new sequence to alignment");
