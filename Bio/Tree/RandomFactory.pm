@@ -77,8 +77,12 @@ Internal methods are usually preceded with a _
 
 
 package Bio::Tree::RandomFactory;
-use vars qw(@ISA);
+use vars qw(@ISA $PRECISION_DIGITS);
 use strict;
+
+BEGIN { 
+    $PRECISION_DIGITS = 3; # Precision for the branchlength
+}
 
 use Bio::Factory::TreeFactoryI;
 use Bio::Root::Root;
@@ -171,7 +175,6 @@ sub next_tree{
    # and a list of integers representing the indexes in tree called @list
 
    for($in=0;$in < $size;$in++)  {
-       $tree[$in]->{'nummut'} = 0;
        $tree[$in]->{'time'} = 0;
        $tree[$in]->{'desc1'} = undef;
        $tree[$in]->{'desc2'} = undef;
@@ -181,12 +184,12 @@ sub next_tree{
    my $t=0;
    # generate times for the nodes
    for($in = $size; $in > 1; $in-- ) {
-	$t+= -2.0 * log(1 - rand(1)) / ( $in * ($in-1) );    
-	$tree[2 * $size - $in]->{'time'} =sprintf("%.4f",$t);
+	$t+= -2.0 * log(1 - $self->random(1)) / ( $in * ($in-1) );    
+	$tree[2 * $size - $in]->{'time'} =$t;
     }
    # topology generation
    for ($in = $size; $in > 1; $in-- ) {
-       my $pick = int rand($in);    
+       my $pick = int $self->random($in);    
        my $nodeindex = $list[$pick];       
        my $swap = 2 * $size - $in;       
        $tree[$swap]->{'desc1'} = $nodeindex;	
@@ -218,6 +221,65 @@ sub next_tree{
    return $T;
 }
 
+=head2 add_Mutations
+
+ Title   : add_Mutations
+ Usage   : $factory->add_Mutations($tree, $mutcount);
+ Function: Adds mutations to a tree via a random process weighted by 
+           branch length (it is a poisson distribution 
+			  as part of a coalescent process) 
+ Returns : none
+ Args    : $tree - Bio::Tree::TreeI 
+           $nummut - number of mutations
+
+
+=cut
+
+sub add_Mutations{
+   my ($self,$tree, $nummut) = @_;
+   my @branches;
+   my @lens;
+   my $branchlen = 0;
+   my $last = 0;
+   my @nodes = $tree->get_nodes();
+   my $precision = 10**$PRECISION_DIGITS;
+   my $i = 0;
+
+   # Jason's somewhat simplistics way of doing a poission
+   # distribution for a fixed number of mutations
+   # build an array and put the node number in a slot
+   # representing the branch to put a mutation on
+   # but weight the number of slots per branch by the 
+   # length of the branch ( ancestor's time - node time)
+   
+   foreach my $node ( @nodes ) {
+       if( $node->ancestor ) { 
+	   my $len = int ( ($node->ancestor->branch_length - 
+			    $node->branch_length) * $precision);
+	   if ( $len > 0 ) {
+	       for( my $j =0;$j < $len;$j++) {
+		   push @branches, $i;
+	       }
+	       $last += $len;
+	   }
+	   $branchlen += $len;
+       }
+       if( ! $node->isa('Bio::Tree::AlleleNode') ) {
+	   bless $node, 'Bio::Tree::AlleleNode'; # rebless it to the right node
+       } 
+       $node->purge_markers;
+       $i++;
+   }
+   # sanity check
+    die("branch len is $branchlen arraylen is $last")
+        unless ( $branchlen == $last );
+   
+   for( my $j = 0; $j < $nummut; $j++)  {
+       my $index = int(rand($branchlen));
+       my $branch = $branches[$index];
+       $nodes[$branch]->add_alleles("Mutation$j", [1]);
+   }
+}
 
 =head2 maxcount
 
