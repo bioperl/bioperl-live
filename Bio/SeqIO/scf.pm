@@ -55,6 +55,7 @@ bioinformatics@dieselwurks.com
 
 Jason Stajich, jason@bioperl.org
 Tony Cox, avc@sanger.ac.uk
+Heikki Lehvaslaiho, heikki@ebi.ac.uk
 
 =head1 APPENDIX
 
@@ -80,11 +81,11 @@ BEGIN {
 
 sub _initialize {
   my($self,@args) = @_;
-  $self->SUPER::_initialize(@args);    
+  $self->SUPER::_initialize(@args);
   if( ! defined $self->sequence_factory ) {
       $self->sequence_factory(new Bio::Seq::SeqFactory
 			      (-verbose => $self->verbose(), 
-			       -type => 'Bio::Seq::SeqWithQuality'));      
+			       -type => 'Bio::Seq::SeqWithQuality'));
   }
 }
 
@@ -109,7 +110,7 @@ sub next_seq {
     my ($self) = @_;
     my ($seq, $seqc, $fh, $buffer, $offset, $length, $read_bytes, @read,
 	%names);
-    # set up a filehandle to read in the scf    
+    # set up a filehandle to read in the scf
     $fh = $self->_filehandle();
     unless ($fh) {		# simulate the <> function
 	if ( !fileno(ARGV) or eof(ARGV) ) {
@@ -130,11 +131,10 @@ sub next_seq {
 	# first gather the trace information
 	$length = $self->{'samples'}*$self->{sample_size}*4;
 	$buffer = $self->read_from_buffer($fh,$buffer,$length);
-	my $byte = "n";
-	if ($self->{sample_size} == 1){
+	if ($self->{sample_size} == 1) {
 	    $byte = "c";
 	}
-	@read = unpack "${byte}${length}",$buffer;
+	@read = unpack "n$length",$buffer;
 	# these traces need to be split
 	$self->_set_v2_traces(\@read);
 	# now go and get the base information
@@ -144,21 +144,24 @@ sub next_seq {
 	$buffer = $self->read_from_buffer($fh,$buffer,$length);
 	# now distill the information into its fractions.
 	$self->_set_v2_bases($buffer);
-    }
-    else {
+    } else {
 	my $transformed_read;
 	foreach (qw(A C G T)) {
 	    $length = $self->{'samples'}*$self->{sample_size};
 	    $buffer = $self->read_from_buffer($fh,$buffer,$length);
-	    @read = unpack "n$length",$buffer;
-				# this little spurt of nonsense is because
-				# the trace values are given in the binary
-				# file as unsigned shorts but they really
-				# are signed. 30000 is an arbitrary number
-				# (will there be any traces with a given
-				# point greater then 30000? I hope not.
-				# once the read is read, it must be changed
-				# from relative 
+            my $byte = "n";
+            if ($self->{sample_size} == 1) {
+                $byte = "c";
+            }
+	    @read = unpack "${byte}${length}",$buffer;
+	    # this little spurt of nonsense is because
+	    # the trace values are given in the binary
+	    # file as unsigned shorts but they really
+	    # are signed. 30000 is an arbitrary number
+	    # (will there be any traces with a given
+	    # point greater then 30000? I hope not.
+	    # once the read is read, it must be changed
+	    # from relative
 	    for (my $element=0; $element < scalar(@read); $element++) {
 		if ($read[$element] > 30000) {
 		    $read[$element] = $read[$element] - 65536;
@@ -184,6 +187,8 @@ sub next_seq {
 	$self->_set_v3_quality($self);
     }
     # now go and get the comment information
+    $offset = $self->{comments_offset};
+    seek $fh,$offset,0;
     $length = $self->{comment_size};
     $buffer = $self->read_from_buffer($fh,$buffer,$length);
     $self->_set_comments($buffer);
@@ -193,6 +198,7 @@ sub next_seq {
 	 -id   =>	$self->{'comments'}->{'NAME'}
 	 );
 }
+
 
 =head2 _set_v3_quality()
 
@@ -463,7 +469,7 @@ sub get_header {
     foreach (qw(scf samples sample_offset bases bases_left_clip 
 		bases_right_clip bases_offset comment_size comments_offset 
 		version sample_size code_set peak_indices)) {
-	%header->{"$_"} = $self->{"$_"};
+	$header{"$_"} = $self->{"$_"};
     }
     return \%header;
 }
@@ -583,23 +589,23 @@ sub write_seq {
     foreach $arg (sort keys %args) {
 	next if ($arg =~ /SeqWithQuality/i);
 	($label = $arg) =~ s/^\-//;
-	$comments{$label} = %args->{$arg};
+	$comments{$label} = $args{$arg};
     }
     if (!$comments{'NAME'}) { $comments{'NAME'} = $swq->id(); }
     # HA! Bwahahahaha.
     $comments{'CONV'} = "Bioperl-Chads Mighty SCF writer." unless defined $comments{'CONV'};
     # now deal with the version of scf they want to write
-    if (%comments->{version}) {
-	if (%comments->{version} != 2 && %comments->{version} != 3) {
+    if ($comments{version}) {
+	if ($comments{version} != 2 && $comments{version} != 3) {
 	    $self->warn("This module can only write version 2.0 or 3.0 scf's. Writing a version 2.0 scf by default.");
-	    %comments->{version} = "2.00";
+	    $comments{version} = "2.00";
 	}
-	if (%comments->{'version'} > 2) {
-	    %comments->{'version'} = "3.00";
+	if ($comments{'version'} > 2) {
+	    $comments{'version'} = "3.00";
 	}
     }
     else {
-	%comments->{'version'} = "2.00";
+	$comments{'version'} = "2.00";
     }
 
 
@@ -610,7 +616,7 @@ sub write_seq {
     $self->{'header'}->{'bases'} = length($swq->seq());
     $self->{'header'}->{'bases_left_clip'} = "0";
     $self->{'header'}->{'bases_right_clip'} = "0";
-    $self->{'header'}->{'version'} = %comments->{'version'};
+    $self->{'header'}->{'version'} = $comments{'version'};
     $self->{'header'}->{'sample_size'} = "2";
     $self->{'header'}->{'code_set'} = "9";
     @{$self->{'header'}->{'spare'}} = qw(0 0 0 0 0 0 0 0 0 0 
@@ -619,7 +625,7 @@ sub write_seq {
     # create the binary for the comments and file it in $self->{'binaries'}->{'comments'}
     $self->_set_binary_comments(\%comments);
     # create the binary and the strings for the traces, bases, offsets (if necessary), and accuracies (if necessary)
-    $self->_set_binary_tracesbases(%comments->{'version'},$swq->seq(),$swq->qual());
+    $self->_set_binary_tracesbases($comments{'version'},$swq->seq(),$swq->qual());
 
     # now set more things in the header
     $self->{'header'}->{'samples_offset'} = "128";
@@ -653,7 +659,7 @@ sub write_seq {
 
     # should something better be done rather then returning after
     # writing? I don't do any exception trapping here
-    if (%comments->{'version'} == 2) {
+    if ($comments{'version'} == 2) {
 	# print ("Lengths:\n");
 	# print("Header  : ".length($self->{'binaries'}->{'header'})."\n");
 	# print("Traces  : ".length($self->{'binaries'}->{'samples_all'})."\n");
@@ -664,7 +670,7 @@ sub write_seq {
 	$self->_print ($self->{'binaries'}->{'v2_bases'}) or return;
 	$self->_print ($self->{'binaries'}->{'comments'}) or return;
     }
-    elsif (%comments->{'version'} ==3) {
+    elsif ($comments{'version'} ==3) {
 	# print ("Lengths:\n");
 	# print("Header  : ".length($self->{'binaries'}->{'header'})."\n");
 	# print("Traces  : ".length($self->{'binaries'}->{'samples_all'})."\n");
@@ -1229,6 +1235,25 @@ sub _dump_base_accuracies_incoming {
 	}
 }
 
+
+=head2 _dump_comments()
+
+ Title   : _dump_comments()
+ Usage   : $self->_dump_comments();
+ Function: Debug dump the comments section from the scf.
+ Returns : Nothing.
+ Args    : Nothing.
+ Notes   : None.
+
+=cut
+
+sub _dump_comments {
+    my ($self) = @_;
+    warn ("SCF comments:\n");
+    foreach my $k (keys %{$self->{'comments'}}) {
+	warn ("\t {$k} ==> ", $self->{'comments'}->{$k}, "\n");
+    }
+}
 
 
 1;
