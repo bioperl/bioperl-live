@@ -3,13 +3,15 @@
 
 use strict;
 use vars qw($DEBUG $TESTCOUNT);
-BEGIN {     
+$DEBUG = $ENV{'BIOPERLDEBUG'} || 0;
+
+BEGIN {
     eval { require Test; };
     if( $@ ) {
 	use lib 't';
     }
     use Test;
-    $TESTCOUNT = 162;
+    $TESTCOUNT = 165;
     plan tests => $TESTCOUNT;
 }
 
@@ -22,78 +24,82 @@ use Bio::Annotation::Collection;
 ok(1);
 
 my $verbosity = -1;   # Set to -1 for release version, so warnings aren't printed
+$verbosity = 2 if $DEBUG;
+
+#
+# Basic read and/or write tests
+#
+
+
+sub read_write {
+    my $format = shift;
+    my $seq;
+
+    my $str = Bio::SeqIO->new(-file=> Bio::Root::IO->catfile("t","data","test.$format"),
+                              '-format' => $format);
+    ok $seq = $str->next_seq();
+    print "Sequence 1 of 2 from $format stream:\n", $seq->seq, "\n\n" if  $DEBUG;
+
+    unless ($format eq 'raw') {
+        ok $seq->id, 'roa1_drome';
+        ok $seq->length, 358;
+    }
+
+    unless ($format eq 'gcg') { # GCG file can contain only one sequence
+        ok $seq = $str->next_seq();
+        print "Sequence 2 of 2 from $format stream:\n", $seq->seq, $seq->seq, "\n" if $DEBUG;
+    }
+
+    my $out = Bio::SeqIO->new('-file'=> ">". Bio::Root::IO->catfile("t","data","$format.out"),
+                           '-format' => $format);
+    ok $out->write_seq($seq);
+}
+
+my @formats = qw(gcg fasta raw pir tab);
+
+foreach my $format (@formats) {
+    print "======== $format ========\n" if $DEBUG;
+    read_write($format);
+}
+
+END {
+
+    map { unlink Bio::Root::IO->catfile("t","data","$_.out") } @formats
+
+}
 
 my ($str, $seq,$ast,$temp,$mf,$ent,$out); # predeclare variables for strict
-$str = Bio::SeqIO->new('-file' => Bio::Root::IO->catfile("t","data","test.fasta"), 
-		       '-format' => 'Fasta');
+# PIR testing
+
+$str = Bio::SeqIO->new('-file' => Bio::Root::IO->catfile("t","data","seqfile.pir"),
+                       '-format' => 'pir');
 ok $str;
+$out = new Bio::SeqIO(-format => 'pir', -fh => \*STDOUT);
 
-ok (defined($seq = $str->next_seq()));
-
-print "Sequence 1 of 2 from fasta stream:\n", $seq->seq, "\n" if ( $DEBUG);
-
-ok($seq->id, 'roa1_drome');
-ok $seq->length, 358;
-
-
-$str = Bio::SeqIO->new(-file=> Bio::Root::IO->catfile("t","data","test.raw"), '-format' => 'Raw');
-
-ok $str;
-
-ok ($seq = $str->next_seq());
-print "Sequence 1 of 2 from Raw stream:\n", $seq->seq, "\n\n" if( $DEBUG);
-
-ok ($seq = $str->next_seq());
-    
-print "Sequence 2 of 2 from Raw stream:\n", $seq->seq, $seq->seq, "\n" 
-    if( $DEBUG);
-
-
-
-$str = Bio::SeqIO->new('-file' => Bio::Root::IO->catfile("t","data","test.gcg"), 
-		       '-format' => 'GCG');
-
-ok $str;
-
-ok ( $seq = $str->next_seq());
-print "Sequence 1 of 1 from GCG stream:\n", $seq->seq, "\n" if( $DEBUG);
-
-
-$str = Bio::SeqIO->new('-file'=> ">".Bio::Root::IO->catfile("t","data","gcg.out"), 
-		       '-format' => 'GCG');
-
-$str->write_seq($seq);
-ok(1);
-unlink(Bio::Root::IO->catfile("t","data","gcg.out"));
-
-
-$str = Bio::SeqIO->new( '-file'=> Bio::Root::IO->catfile("t","data","test.genbank"), 
-			'-format' => 'GenBank');
-
-ok $str;
-$str->verbose($verbosity);
-
-ok ( $seq = $str->next_seq() );
-print "Sequence 1 of 1 from GenBank stream:\n", $seq->seq, "\n" if( $DEBUG);
-
-my $strout = Bio::SeqIO->new('-file'=> ">".Bio::Root::IO->catfile("t","data","genbank.out"), 
-			     '-format' => 'GenBank');
-while( $seq ) {
-    $strout->write_seq($seq);
-    $seq = $str->next_seq();
+while( $seq = $str->next_seq()) {
+#    ok($seq->id, qr /^[PF]1/ );
+    ok($seq->length > 1);
+    $out->write_seq($seq) if $verbosity > 0;
 }
-undef $strout;
-unlink(Bio::Root::IO->catfile("t","data","genbank.out"));
-
-ok(1);
-
-$str = undef;
 
 
-$ast = Bio::SeqIO->new( '-format' => 'embl' , 
-			'-file' => Bio::Root::IO->catfile("t","data","roa1.dat"));
+
+
+
+$ast = Bio::SeqIO->new( '-format' => 'GenBank' ,
+			'-file' => Bio::Root::IO->catfile("t","data","roa1.genbank"));
 $ast->verbose($verbosity);
 my $as = $ast->next_seq();
+ok $as->molecule, 'mRNA';
+ok $as->alphabet, 'dna';
+ok($as->primary_id, 3598416);
+
+
+# embl
+$ast = Bio::SeqIO->new( '-format' => 'embl' ,
+			'-file' => Bio::Root::IO->catfile("t","data","roa1.dat"));
+$ast->verbose($verbosity);
+$as = $ast->next_seq();
 ok defined $as->seq;
 ok($as->display_id, 'HSHNCPA1');
 ok($as->accession_number, 'X79536');
@@ -106,22 +112,33 @@ ok(scalar $as->all_SeqFeatures(), 4);
 ok($as->length, 1198);
 ok($as->species->binomial(), 'Homo sapiens');
 
-$ast = Bio::SeqIO->new( '-format' => 'GenBank' , 
-			'-file' => Bio::Root::IO->catfile("t","data","roa1.genbank"));
-$ast->verbose($verbosity);
-$as = $ast->next_seq();
-ok $as->molecule, 'mRNA';
-ok $as->alphabet, 'dna';
-ok($as->primary_id, 3598416);
 
-$mf = Bio::SeqIO::MultiFile->new( '-format' => 'Fasta' , 
-				  '-files' => 
+$ent = Bio::SeqIO->new( '-file' => Bio::Root::IO->catfile("t","data","test.embl"),
+			'-format' => 'embl');
+
+$seq = $ent->next_seq();
+
+ok(defined $seq->seq(), 1,
+   'failure to read Embl with ^ location and badly split double quotes');
+ok(scalar $seq->annotation->get_Annotations('reference'), 3);
+$out = Bio::SeqIO->new('-file'=> ">". Bio::Root::IO->catfile("t","data","embl.out"),
+		       '-format' => 'embl');
+
+ok($out->write_seq($seq),1,
+   'failure to write Embl format with ^ < and > locations');
+
+unlink(Bio::Root::IO->catfile("t","data","embl.out"));
+
+
+# multifile
+$mf = Bio::SeqIO::MultiFile->new( '-format' => 'Fasta' ,
+				  '-files' =>
 				  [ Bio::Root::IO->catfile("t","data","multi_1.fa"),
 				  Bio::Root::IO->catfile("t","data","multi_2.fa")]);
 
 ok defined $mf;
 my $count = 0;
-eval { 
+eval {
     while( $seq = $mf->next_seq() ) {
 	$count++;
 	$temp = $seq->display_id;
@@ -129,8 +146,10 @@ eval {
 };
 ok( $count ,12);
 $temp = undef;
+
+# swissprot
 $ast = Bio::SeqIO->new( '-verbosity' => $verbosity,
-			'-format' => 'swiss' , 
+			'-format' => 'swiss' ,
 			'-file' => Bio::Root::IO->catfile("t","data","roa1.swiss"));
 $as = $ast->next_seq();
 
@@ -147,22 +166,10 @@ ok(scalar $as->annotation->get_Annotations('reference'), 11);
 
 ($ent, $seq, $out,$as) = undef;
 
-$ent = Bio::SeqIO->new( '-file' => Bio::Root::IO->catfile("t","data","test.embl"),
-			'-format' => 'embl');
 
-$seq = $ent->next_seq();
 
-ok(defined $seq->seq(), 1, 
-   'failure to read Embl with ^ location and badly split double quotes');
-ok(scalar $seq->annotation->get_Annotations('reference'), 3);
-$out = Bio::SeqIO->new('-file'=> ">". Bio::Root::IO->catfile("t","data","embl.out"), 
-		       '-format' => 'embl');
 
-ok($out->write_seq($seq),1,
-   'failure to write Embl format with ^ < and > locations');
-
-unlink(Bio::Root::IO->catfile("t","data","embl.out"));
-
+#ace
 {
     my $t_file = Bio::Root::IO->catfile("t","data","test.ace");
     my( $before );
@@ -183,12 +190,12 @@ unlink(Bio::Root::IO->catfile("t","data","embl.out"));
     ok @a_seq, 3, 'wrong number of sequence objects';
 
     my $esc_name = $a_seq[1]->display_id;
-    ok( $esc_name , 'Name; 4% strewn with \ various / escaped characters', 
+    ok( $esc_name , 'Name; 4% strewn with \ various / escaped characters',
 	"bad unescaping of characters, $esc_name");
-    
+
     ok $a_seq[0]->alphabet, 'protein', 'alphabets incorrectly detected';
     ok $a_seq[1]->alphabet, 'dna', 'alphabets incorrectly detected';
-    
+
     my $o_file = Bio::Root::IO->catfile("t","data","test.out.ace");
     my $a_out = Bio::SeqIO->new( -FILE => "> $o_file", -FORMAT => 'ace');
     my $a_out_ok = 1;
@@ -197,7 +204,7 @@ unlink(Bio::Root::IO->catfile("t","data","embl.out"));
     }
     undef($a_out);  # Flush to disk
     ok $a_out_ok,1,'error writing sequence';
-    
+
     my( $after );
     {
         local $/ = undef;
@@ -207,10 +214,14 @@ unlink(Bio::Root::IO->catfile("t","data","embl.out"));
         close AFTER;
     }
     unlink($o_file);
-    
-    ok( ($before and $after and ($before eq $after)),1, 
+
+    ok( ($before and $after and ($before eq $after)),1,
 	'test output file differs from input');
 }
+
+#
+# streaming & Bio::RichSeq creation
+#
 
 my $stream = Bio::SeqIO->new('-file' => Bio::Root::IO->catfile("t","data","test.genbank"),
 			     '-format' => 'GenBank');
@@ -227,9 +238,9 @@ while($seq = $stream->next_seq()) {
 	ok $seq->display_id(), $ids[$seqnum];
 	$species = $seq->species();
 	@cl = $species->classification();
-	ok( $species->binomial(), $tnames[$seqnum], 
+	ok( $species->binomial(), $tnames[$seqnum],
 	    'species parsing incorrect for genbank');
-	ok( $cl[3] ne $species->genus(), 1, 
+	ok( $cl[3] ne $species->genus(), 1,
 	    'genus duplicated in genbank parsing');
 	ok( $species->ncbi_taxid, $tids[$seqnum] );
     }
@@ -256,7 +267,7 @@ while($seq = $stream->next_seq()) {
 }
 ok $seqnum, 5, "Total number of sequences in test file";
 
-$ent = Bio::SeqIO->new( '-file' => Bio::Root::IO->catfile("t","data","test.embl"), 
+$ent = Bio::SeqIO->new( '-file' => Bio::Root::IO->catfile("t","data","test.embl"),
 			'-format' => 'embl');
 $ent->verbose($verbosity);
 $seq = $ent->next_seq();
@@ -265,7 +276,7 @@ $species = $seq->species();
 ok( $cl[3] ne $species->genus(), 1, 'genus duplicated in EMBL parsing');
 $ent->close();
 
-$seq = Bio::SeqIO->new( '-format' => 'GenBank' , 
+$seq = Bio::SeqIO->new( '-format' => 'GenBank' ,
 			-file => Bio::Root::IO->catfile("t","data","testfuzzy.genbank"));
 $seq->verbose($verbosity);
 ok(defined($as = $seq->next_seq()));
@@ -296,7 +307,7 @@ ok($loc->start, 84248);
 ok($loc->end, 84996);
 ok($loc->strand,1);
 
-$seq = Bio::SeqIO->new( '-format' => 'GenBank' , 
+$seq = Bio::SeqIO->new( '-format' => 'GenBank' ,
 			-file => ">".Bio::Root::IO->catfile("t","data","genbank.fuzzyout"));
 $seq->verbose($verbosity);
 ok($seq->write_seq($as));
@@ -336,6 +347,7 @@ foreach my $gn ( $seq->annotation->get_Annotations('gene_name') ) {
     ok ($gn->value, 'F54H12.1');
 }
 
+
 # test species in swissprot -- this can be a n:n nightmare
 ok ($seq = $seqio->next_seq());
 my @sec_acc = $seq->get_secondary_accessions();
@@ -367,7 +379,7 @@ foreach my $gn ( $ann->get_all_values() ) {
 ok $ann->value(-joins => [" AND "," OR "]), "(CALM1 OR CAM1 OR CALM OR CAM) AND (CALM2 OR CAM2 OR CAMB) AND (CALM3 OR CAM3 OR CAMC)";
 
 # test dos Linefeeds in gcg parser
-$str = Bio::SeqIO->new('-file' => Bio::Root::IO->catfile("t","data","test_badlf.gcg"), 
+$str = Bio::SeqIO->new('-file' => Bio::Root::IO->catfile("t","data","test_badlf.gcg"),
 		       '-format' => 'GCG');
 
 ok($str);
@@ -396,18 +408,6 @@ ok ($seq->version, 1);
 ok ($seq->seq_version, 1);
 ok ($seq->primary_id, "5734104");
 
-# PIR testing
-
-$str = Bio::SeqIO->new('-file' => Bio::Root::IO->catfile("t","data","seqfile.pir"), 
-		       '-format' => 'pir');
-ok $str;
-$strout = new Bio::SeqIO(-format => 'pir', -fh => \*STDOUT);
-
-while( $seq = $str->next_seq()) {
-    ok($seq->id, qr /^[PF]1/ );
-    ok($seq->length > 1);
-    $strout->write_seq($seq) if( $verbosity > 0);
-}
 
 # test embl writing of a PrimarySeq
 
@@ -417,7 +417,7 @@ my $primaryseq = new Bio::PrimarySeq( -seq => 'AGAGAGAGATA',
 				      -alphabet => 'DNA',
 				      -accession_number => 'myaccession');
 
-my $embl = new Bio::SeqIO(-format => 'embl', 
+my $embl = new Bio::SeqIO(-format => 'embl',
 			  -verbose => $verbosity -1,
 			  -file => ">primaryseq.embl");
 
@@ -462,7 +462,7 @@ ok($accs[0], 'J01597');
 ok($accs[-1], 'X56742');
 
 $seqio = new Bio::SeqIO(-format => 'genbank',
-			-file   => Bio::Root::IO->catfile(qw(t data 
+			-file   => Bio::Root::IO->catfile(qw(t data
 							     D10483.gbk)));
 
 $seq = $seqio->next_seq;
