@@ -316,18 +316,20 @@ sub new {
     
     if( $hsp_len ) {
         $self->length('total', $hsp_len);
-        $self->frac_identical( 'total', $identical / $self->length('total'));
-        $self->frac_conserved( 'total', $conserved / $self->length('total'));
+        $self->frac_identical( 'total', $identical / $hsp_len);
+        $self->frac_conserved( 'total', $conserved / $hsp_len);
     }
     if( $hit_len ) {
 #        $self->length('hit', $self->hit->length);
-        $self->frac_identical( 'hit', $identical / $self->length('hit'));
-        $self->frac_conserved( 'hit', $conserved / $self->length('hit'));
+        my $logical = Bio::Search::SearchUtils::logical_length($algo, 'hit', $self->length('hit'));
+        $self->frac_identical( 'hit', $identical / $logical);
+        $self->frac_conserved( 'hit', $conserved / $logical);
     }
     if( $query_len ) {
 #        $self->length('query', $self->query->length);        
-        $self->frac_identical( 'query', $identical / $self->length('query')) ;
-        $self->frac_conserved( 'query', $conserved / $self->length('query'));
+        my $logical = Bio::Search::SearchUtils::logical_length($algo, 'query', $self->length('query'));
+        $self->frac_identical( 'query', $identical / $logical) ;
+        $self->frac_conserved( 'query', $conserved / $logical);
     }
     $self->query_string($query_seq);
     $self->hit_string($hit_seq);
@@ -347,14 +349,15 @@ sub new {
         $gaps = $self->gaps("query") + $self->gaps("hit");
     }
     $self->gaps('total', $gaps);
-    $self->percent_identity($percent_id || 
-			    $identical / $hsp_len ) if( $hsp_len > 0 );
+
+    # Relying on frac_identical for percent_id.
+    $self->percent_identity($percent_id ||
+			    $self->frac_identical('total')*100) if( $hsp_len > 0 );
 
     defined $rank && $self->rank($rank);
     defined $links && $self->links($links);
     return $self;
 }
-
 
 
 =head2 L<Bio::Search::HSP::HSPI> methods
