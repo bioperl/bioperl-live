@@ -330,8 +330,30 @@ sub next_result{
 	   my $restofline = $2;
 	   $self->element({ 'Name' => 'Hit_id',
 			    'Data' => $id});
-	   my @pieces = split(/\|/,$id);
-	   my $acc = pop @pieces;
+
+	   my ($acc, $version);
+	   if ($id =~ /(gb|emb|dbj|sp|pdb|bbs|ref|lcl)\|(.*)\|(.*)/) {
+	   ($acc, $version) = split /\./, $2; 
+	   } elsif ($id =~ /(pir|prf|pat|gnl)\|(.*)\|(.*)/) {
+	   ($acc, $version) = split /\./, $3;  
+	   } else {
+	   	#punt, not matching the db's at ftp://ftp.ncbi.nih.gov/blast/db/README
+	   	#Database Name                     Identifier Syntax
+        #============================      ========================
+        #GenBank                           gb|accession|locus
+        #EMBL Data Library                 emb|accession|locus
+        #DDBJ, DNA Database of Japan       dbj|accession|locus
+        #NBRF PIR                          pir||entry
+        #Protein Research Foundation       prf||name
+        #SWISS-PROT                        sp|accession|entry name
+        #Brookhaven Protein Data Bank      pdb|entry|chain
+        #Patents                           pat|country|number 
+        #GenInfo Backbone Id               bbs|number 
+        #General database identifier	   gnl|database|identifier
+        #NCBI Reference Sequence           ref|accession|locus
+        #Local Sequence identifier         lcl|identifier
+	   	$acc=$id;
+	   }
 	   $self->element({ 'Name' =>  'Hit_accession',
 			    'Data'  => $acc});	   
 
