@@ -23,21 +23,9 @@ BEGIN {
     }
     use Test;
 
-    $NUMTESTS = 40;
+    $NUMTESTS = 42;
     plan tests => $NUMTESTS;
-
-    unless( eval "require Parse::RecDescent; 1;" ) {
-      #warn $@;
-      #print STDERR "Parse::RecDescent not installed. This means that Bio::Cluster::UniGene module is not usable. Skipping tests.\n";
-      for( 1..$NUMTESTS ) {
-	skip("Parse::RecDescent not installed.",1);
-      }
-      $error = 1;
-    }
-}
-
-if( $error ==  1 ) {
-    exit(0);
+    
 }
 
 use Bio::Cluster::UniGene;
@@ -56,9 +44,9 @@ ok($unigene->unigene_id, 'Hs.2');
 ok($unigene->title, 'N-acetyltransferase 2 (arylamine N-acetyltransferase)');
 ok($unigene->gene, 'NAT2');
 ok($unigene->cytoband,'8p22');
-ok($unigene->locuslink,'10');
 ok($unigene->gnm_terminus,'T');
 ok($unigene->scount,29);
+ok(scalar @{ $unigene->locuslink }, 2);
 ok(scalar @{ $unigene->chromosome }, 10);
 ok(scalar @{ $unigene->express }, 4);
 ok(scalar @{ $unigene->sts }, 4);
@@ -67,6 +55,7 @@ ok(scalar @{ $unigene->protsim } , 4);
 
 ok(scalar @{ $unigene->sequence },29);
 
+ok($unigene->next_locuslink, '58473');
 ok($unigene->next_chromosome, '8');
 ok($unigene->next_express, 'colon');
 ok($unigene->next_sts, 'ACC=- NAME=GDB:386004 UNISTS=157141');
@@ -88,9 +77,6 @@ ok($unigene->gene, 'gene_test', 'gene was ' . $unigene->gene);
 $unigene->cytoband('cytoband_test');
 ok($unigene->cytoband, 'cytoband_test', 'cytoband was ' . $unigene->cytoband);
 
-$unigene->locuslink('locuslink_test');
-ok($unigene->locuslink, 'locuslink_test', 'locuslink was ' . $unigene->locuslink);
-
 $unigene->gnm_terminus('gnm_terminus_test');
 ok($unigene->gnm_terminus, 'gnm_terminus_test', 'gnm_terminus was ' . $unigene->gnm_terminus);
 
@@ -101,6 +87,17 @@ my $seq = $unigene->next_seq;
 ok($seq->isa('Bio::PrimarySeqI'), 1,'expected a Bio::PrimarySeq object but got a ' . ref($seq));
 my $accession = $seq->accession_number;
 ok($accession, 'D90040');
+
+my @locuslink_test = ( "58473", "5354" );
+$unigene->locuslink(\@locuslink_test);
+my @locuslink_results;
+while (my $locuslink = $unigene->next_locuslink) {
+	push @locuslink_results, $locuslink;
+}
+ok scalar(@locuslink_results), 2, 'expected locuslink to have 2 entries but it had ' . scalar(@locuslink_results);
+my $locuslink = shift @locuslink_results;
+ok $locuslink, '58473', 'expected 58473 but got ' . $locuslink;
+
 
 my @express_test = qw( kidney heart liver spleen );
 $unigene->express(\@express_test);
