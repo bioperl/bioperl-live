@@ -1,35 +1,14 @@
-#-----------------------------------------------------------------------------
-# PACKAGE : Bio::Tools::SeqPattern.pm
-# AUTHOR  : Steve Chervitz (sac@bioperl.org)
-# CREATED : 28 Aug 1997
-# REVISION: $Id$
-#            
-# Copyright (c) 1997-8 Steve Chervitz. All Rights Reserved.
-#           This module is free software; you can redistribute it and/or 
-#           modify it under the same terms as Perl itself.
-#-----------------------------------------------------------------------------
+# $Id$
+#
+# bioperl module for Bio::Tools::SeqPattern
+#
+# Cared for by  Steve Chervitz  (sac@bioperl.org)
+#
+# Copyright  Steve Chervitz 
+#
+# You may distribute this module under the same terms as perl itself
 
-package Bio::Tools::SeqPattern;
-
-use Bio::Root::Root;
-@ISA = qw(Bio::Root::Root);
-use strict;
-use vars qw ($ID $VERSION);
-$ID  = 'Bio::Tools::SeqPattern';
-$VERSION = 0.011;
-
-## These constants may be more appropriate in a Bio::Dictionary.pm 
-## type of class.
-my $PURINES      = 'AG';
-my $PYRIMIDINES  = 'CT';
-my $PHILICS      = 'TSHEDQNKR';
-my $PHOBICS      = 'IFVLWMAGCY';
-my $Regexp_chars = '\w,.\*()\[\]<>\{\}^\$';  # quoted for use in regexps
-
-## Package variables used in reverse complementing.
-my (%Processed_braces, %Processed_asterics);
-
-## POD Documentation:
+# POD documentation - main docs before the code
 
 =head1 NAME
 
@@ -102,7 +81,6 @@ send me some email (sac@bioperl.org). Thanks.
 This module supports the same set of ambiguity codes for nucleotide 
 sequences as supported by B<Bio::Seq.pm>. These ambiguity codes
 define the behavior or the expand() method.
-Amino acid alphabet support is different from that of Seq.pm (see below).
 
  ------------------------------------------
  Symbol       Meaning      Nucleic Acid
@@ -152,8 +130,8 @@ Amino acid alphabet support is different from that of Seq.pm (see below).
  W        Tryptophan
  Y        Tyrosine
 
- B        Any hydrophobic: IFVLWMAGCY
- Z        Any hydrophilic: TSHEDQNKR
+ B        Aspartic Acid, Asparagine
+ Z        Glutamic Acid, Glutamine
  X        Any amino acid
  .        Any amino acid
 
@@ -222,8 +200,28 @@ modify it under the same terms as Perl itself.
 ###
 ##
 #'
+# CREATED : 28 Aug 1997
 
 
+package Bio::Tools::SeqPattern;
+
+use Bio::Root::Root;
+@ISA = qw(Bio::Root::Root);
+use strict;
+use vars qw ($ID $VERSION);
+$ID  = 'Bio::Tools::SeqPattern';
+$VERSION = 0.011;
+
+## These constants may be more appropriate in a Bio::Dictionary.pm 
+## type of class.
+my $PURINES      = 'AG';
+my $PYRIMIDINES  = 'CT';
+my $BEE      = 'DN';
+my $ZED      = 'EQ';
+my $Regexp_chars = '\w,.\*()\[\]<>\{\}^\$';  # quoted for use in regexps
+
+## Package variables used in reverse complementing.
+my (%Processed_braces, %Processed_asterics);
 
 #####################################################################################
 ##                                 CONSTRUCTOR                                     ##
@@ -363,16 +361,16 @@ sub _expand_pep {
     $pat =~ s/^</\^/;
     $pat =~ s/>$/\$/;
 
-    ## Avoid nested situations: [bmnq] --/--> [[$PHOBICS]mnq]
-    ## Yet correctly deal with: fze[bmnq] ---> f[$PHILICS]e[$PHOBICSmnq]
+    ## Avoid nested situations: [bmnq] --/--> [[$ZED]mnq]
+    ## Yet correctly deal with: fze[bmnq] ---> f[$BEE]e[$ZEDmnq]
     if($pat =~ /\[\w*[BZ]\w*\]/) {
-	$pat =~ s/\[(\w*)B(\w*)\]/\[$1$PHOBICS$2\]/g;
-	$pat =~ s/\[(\w*)Z(\w*)\]/\[$1$PHILICS$2\]/g;
-	$pat =~ s/B/\[$PHOBICS\]/g;
-	$pat =~ s/Z/\[$PHILICS\]/g;
+	$pat =~ s/\[(\w*)B(\w*)\]/\[$1$ZED$2\]/g;
+	$pat =~ s/\[(\w*)Z(\w*)\]/\[$1$BEE$2\]/g;
+	$pat =~ s/B/\[$ZED\]/g;
+	$pat =~ s/Z/\[$BEE\]/g;
     } else {
-	$pat =~ s/B/\[$PHOBICS\]/g;
-	$pat =~ s/Z/\[$PHILICS\]/g;
+	$pat =~ s/B/\[$ZED\]/g;
+	$pat =~ s/Z/\[$BEE\]/g;
     }
     $pat =~ s/\((.)\)/$1/g;  ## Doing these last since:
     $pat =~ s/\[(.)\]/$1/g;  ## Pattern could contain [B] (for example)
@@ -928,4 +926,3 @@ to a hash containing all or some of the following fields:
 
 
 =cut
-

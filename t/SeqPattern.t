@@ -12,7 +12,7 @@ BEGIN {
 	use lib 't';
     }
     use Test;
-    plan tests => 5;
+    plan tests => 6;
 }
 
 use Bio::Tools::SeqPattern;
@@ -34,3 +34,10 @@ $pattern_obj = new Bio::Tools::SeqPattern(-SEQ =>$pattern, -TYPE =>'protein');
 ok defined($pattern_obj) && ref($pattern_obj) && $pattern_obj->isa('Bio::Tools::SeqPattern');
 
 ok $pattern_obj2->expand, '(CT).(C[AG][AG]CT){1,80}.(AGGGG){1,200}';
+
+# amino patterns
+
+$pattern = 'ABZH';
+$pattern_obj2 = new Bio::Tools::SeqPattern(-SEQ =>$pattern, 
+					   -TYPE =>'amino');
+ok $pattern_obj2->expand, 'A[EQ][DN]H';
