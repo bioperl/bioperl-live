@@ -1,3 +1,5 @@
+# $Id$
+
 =head1 NAME
 
 Bio::Search::BlastUtils - Utility functions for Bio::Search:: BLAST objects
