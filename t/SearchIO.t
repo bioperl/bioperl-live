@@ -20,7 +20,7 @@ BEGIN {
 	use lib 't';
     }
     use vars qw($NTESTS);
-    $NTESTS = 550;
+    $NTESTS = 597;
     $LASTXMLTEST = 49;
     $error = 0;
 
@@ -413,6 +413,70 @@ while( my $hit = $result->next_hit ) {
     }
     last if( $count++ > @valid );
 } 
+
+$searchio = new Bio::SearchIO(-format => 'fasta',
+				 -file   => 't/data/cysprot_vs_gadfly.FASTA');
+$result = $searchio->next_result;
+ok($result->database_name, qr/gadflypep2/);
+ok($result->database_letters, 7177762);
+ok($result->database_entries, 14334);
+ok($result->algorithm, 'FASTP');
+ok($result->algorithm_version, '3.3t08');
+ok($result->query_name, 'cysprot.fa');
+ok($result->query_length, 2385);
+ok($result->get_parameter('gapopen'), -12);
+ok($result->get_parameter('gapext'), -2);
+ok($result->get_parameter('ktup'), 2);
+ok($result->get_parameter('matrix'), 'BL50');
+
+ok($result->get_statistic('lambda'), 0.1397);
+ok($result->get_statistic('dbletters'), 7177762 );
+ok($result->get_statistic('dbentries'), 14334);
+
+
+@valid = ( [ 'Cp1|FBgn0013770|pp-CT20780|FBan0006692', 341, 
+	     'FBan0006692', 3.1e-59, 228],
+	   [ 'CG11459|FBgn0037396|pp-CT28891|FBan0011459', 336, 
+	     'FBan0011459', 6.4e-41,  167],
+	   [ 'CG4847|FBgn0034229|pp-CT15577|FBan0004847', 390, 
+	     'FBan0004847',  2.5e-40, 165]);
+$count = 0;
+
+while( my $hit = $result->next_hit ) {
+    my $d = shift @valid;
+
+    ok($hit->name, shift @$d);
+    ok($hit->length, shift @$d);
+    ok($hit->accession, shift @$d);
+    ok($hit->significance, shift @$d );
+    ok($hit->raw_score, shift @$d );
+
+    if( $count == 0 ) {
+	while( my $hsp = $hit->next_hsp ) {
+	    ok($hsp->query->start, 1373);
+	    ok($hsp->query->end, 1706);
+	    ok($hsp->query->strand, 0);
+	    ok($hsp->hit->start, 5);
+	    ok($hsp->hit->end, 341);
+	    ok($hsp->hit->strand, 0);
+	    ok($hsp->length('hsp'), 345);	    
+	    ok($hsp->evalue == 3.1e-59 );
+	    ok($hsp->score, 1170.6);
+	    ok($hsp->bits,227.8);
+	    ok(sprintf("%.2f",$hsp->percent_identity), 53.04);
+	    ok(sprintf("%.4f",$hsp->frac_identical('query')), 0.5479);
+	    ok(sprintf("%.4f",$hsp->frac_identical('hit')), '0.5430');
+	    ok($hsp->query->frame(), 0);
+	    ok($hsp->hit->frame(), 0);
+	    ok($hsp->gaps('query'), 11);
+	    ok($hsp->gaps, 194);
+	    ok($hsp->query_string, 'SNWGNNGYFLIERGKNMCGLAACASYPIPQVMNPTLILAAFCLGIASATLTFDHSLEAQWTKWKAMHNRLY-GMNEEGWRRAVWEKNMKMIELHNQEYREGKHSFTMAMNAFGDMTSEEFRQVMNGFQ---NRKPR------KGKVFQEPLFYEAPRSVDWREKGYVTPVKNQGQCGSCWAFSATGALEGQMFRKTGRLISLSEQNLVDCSGPQGNEGCNGGLMDYAFQYVQDNGGLDSEESYPYEATEESCKYNPKYSVANDTGFVDIPK-QEKALMKAVATVGPISVAIDAGHESFLFYKEGIYFEPDCSSEDMDHGVLVVGYGFESTESDNNKYWLVKNSWGEEWGMGGYVKMAKDRRNHCGIASAASYPTVMTPLLLLAVLCLGTALATPKFDQTFNAQWHQWKSTHRRLYGTNEE');
+
+	}
+    }
+    last if( $count++ > @valid );
+} 
+
 
 # test on TFASTXY
 $searchio = new Bio::SearchIO(-format => 'fasta',
