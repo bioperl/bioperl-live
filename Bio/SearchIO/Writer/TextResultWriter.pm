@@ -142,8 +142,31 @@ sub to_string {
 			$self->filter('HIT'),
 			$self->filter('HSP'));
     return '' if( defined $resultfilter && ! &{$resultfilter}($result) );
-    
-    my $type = ( $result->algorithm =~ /(P|X|Y)$/i ) ? 'PROTEIN' : 'NUCLEOTIDE';
+
+    my ($qtype,$dbtype,$dbseqtype,$type);
+    my $alg = $result->algorithm;
+    if(  $alg =~ /T(FAST|BLAST)(XY)/i ) {
+	$qtype      = $dbtype = 'translated';
+	$dbseqtype = $type       = 'PROTEIN';
+    } elsif( $alg =~ /T(FAST|BLAST)N/i ) {
+	$qtype      = '';
+	$dbtype     = 'translated';
+	$type       = 'PROTEIN';
+	$dbseqtype  = 'NUCLEOTIDE';
+    } elsif( $alg =~ /(FAST|BLAST)N/i || 
+	     $alg =~ /(WABA|EXONERATE)/i ) {
+	$qtype      = $dbtype = '';
+	$type       = 'NUCLEOTIDE';
+    } elsif( $alg =~ /(FAST|BLAST)P/  || $alg =~ /SSEARCH/i ) {
+	$qtype      = $dbtype = '';
+	$type = $dbseqtype  = 'PROTEIN';
+    } else { 
+	print STDERR "algorithm was ", $result->algorithm, " couldn't match\n";
+    }    
+    my %baselens = ( 'Sbjct:'   => ( $dbtype eq 'translated' )  ? 3 : 1,
+		     'Query:'   => ( $qtype    eq 'translated' )  ? 3 : 1);
+    my $reference = $result->algorithm_reference || $self->algorithm_reference($result);    
+
     my $str = sprintf(
 qq{%s %s 
 
@@ -163,7 +186,7 @@ Sequences producing significant alignments:         Score       E
 },
 		      $result->algorithm,  $result->algorithm_version,
 		      $result->algorithm, ref($result),
-		      $result->program_reference() || $self->algorithm_reference($result),
+		      $reference,
 		      $result->query_name, $result->query_description, 
 		      $result->query_length, 
 		      $result->database_name(),
@@ -209,11 +232,7 @@ Sequences producing significant alignments:         Score       E
 			       $hsp->length('total'),
 			     POSIX::floor($hsp->frac_identical('total') * 100));
 
-	    if( $hit->algorithm =~ /(T)?BLAST(X|P)/ ||
-		$hit->algorithm =~ /(T)?FAST(X|Y|P)/ ||
-		$hit->algorithm eq 'TBLASTN' ||
-		$hit->algorithm eq 'TFASTN' 
-		) {
+	    if( $type eq 'PROTEIN' ) {
 		$hspstr .= sprintf(", Positives = %d/%d (%d%%)",
 				   ( $hsp->frac_conserved('total') * 
 				     $hsp->length('total')),
@@ -288,14 +307,13 @@ Sequences producing significant alignments:         Score       E
 			$start = $v->{'start'};
 			# since strand can be + or - use the direction
 			# to signify which whether to add or substract from end
-			my $d = ( ( $v->{'direction'} ) * 
-				  ( $AlignmentLineWidth - $plen ));
+			my $d = $v->{'direction'} * ( $AlignmentLineWidth - $plen )*
+			    $baselens{$v->{'name'}};
 			if( length($piece) < $AlignmentLineWidth ) {
-			    $d = (length($piece) - $plen) * $v->{'direction'};
+			    $d = (length($piece) - $plen) * $v->{'direction'} * 
+				$baselens{$v->{'name'}};
 			}
 			$end   = $v->{'start'} + $d - $v->{'direction'};
-
-
 			$v->{'start'} += $d;
 		    }
 		    $hspstr .= sprintf("%s %-".$numwidth."s %s %s\n",

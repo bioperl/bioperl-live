@@ -173,12 +173,37 @@ sub remote_database_url{
 
 sub to_string {
     my ($self,$result,$num) = @_; 
+    $num ||= 0;
     return unless defined $result;
     my ($resultfilter,$hitfilter, $hspfilter) = ( $self->filter('RESULT'),
 						  $self->filter('HIT'),
 						  $self->filter('HSP') );
     return '' if( defined $resultfilter && ! &{$resultfilter}($result) );    
 
+    my ($qtype,$dbtype,$dbseqtype,$type);
+    my $alg = $result->algorithm;
+    if(  $alg =~ /T(FAST|BLAST)(XY)/i ) {
+	$qtype      = $dbtype = 'translated';
+	$dbseqtype = $type       = 'PROTEIN';
+    } elsif( $alg =~ /T(FAST|BLAST)N/i ) {
+	$qtype      = '';
+	$dbtype     = 'translated';
+	$type       = 'PROTEIN';
+	$dbseqtype  = 'NUCLEOTIDE';
+    } elsif( $alg =~ /(FAST|BLAST)N/i || 
+	     $alg =~ /(WABA|EXONERATE)/i ) {
+	$qtype      = $dbtype = '';
+	$type       = 'NUCLEOTIDE';
+    } elsif( $alg =~ /(FAST|BLAST)P/  || $alg =~ /SSEARCH/i ) {
+	$qtype      = $dbtype = '';
+	$type = $dbseqtype  = 'PROTEIN';
+    } else { 
+	print STDERR "algorithm was ", $result->algorithm, " couldn't match\n";
+    }
+    
+    
+    my %baselens = ( 'Sbjct:'   => ( $dbtype eq 'translated' )  ? 3 : 1,
+		     'Query:'   => ( $qtype    eq 'translated' )  ? 3 : 1);
     my $reference = $result->algorithm_reference || $self->algorithm_reference($result);
     $reference =~ s/\~/\n/g;
     my $str;
@@ -262,17 +287,12 @@ qq{
 			       $hsp->length('total'),
 			       $hsp->frac_identical('total') * 100);
 
-	    if( $hit->algorithm =~ /(T)?BLAST(X|P)/ ||
-		$hit->algorithm =~ /(T)?FAST(X|Y|P)/ ||
-		$hit->algorithm eq 'TBLASTN' ||
-		$hit->algorithm eq 'TFASTN' 
-		) {
+	    if( $type eq 'PROTEIN' ) {
 		$hspstr .= sprintf(", Positives = %d/%d (%d%%)",
 				   ( $hsp->frac_conserved('total') * 
 				     $hsp->length('total')),
 				   $hsp->length('total'),
 				   $hsp->frac_conserved('total') * 100);
-		
 	    }
 	    if( $hsp->gaps ) {
 		$hspstr .= sprintf(", Gaps = %d/%d (%d%%)",
@@ -282,7 +302,7 @@ qq{
 				    $hsp->length('total')));
 	    }
 	    
-	    my ($h,$q) = ( $hsp->hit->frame ,$hsp->query->frame);
+	    my ($h,$q) = ( $hsp->hit->frame, $hsp->query->frame);
 		
 	    if( $h || $q ) {
 		$hspstr .= " Frame = ";
@@ -297,8 +317,10 @@ qq{
 	    
 	    my @hspvals = ( {'name' => 'Query:',
 			     'seq'  => $hsp->query_string,
-			     'start' => $hsp->query->strand >= 0 ? $hsp->query->start : $hsp->query->end,
-			     'end'   => $hsp->query->strand >= 0 ? $hsp->query->end : $hsp->query->start,
+			     'start' => $hsp->query->strand >= 0 ? 
+				 $hsp->query->start : $hsp->query->end,
+			     'end'   => $hsp->query->strand >= 0 ? 
+			         $hsp->query->end : $hsp->query->start,
 			     'index' => 0,
 			     'direction' => $hsp->query->strand || 1
 			     },
@@ -311,8 +333,10 @@ qq{
 			      },
 			    { 'name'  => 'Sbjct:',
 			      'seq'   => $hsp->hit_string,
-			      'start' => $hsp->hit->strand >= 0 ? $hsp->hit->start : $hsp->hit->end,
-			      'end'   => $hsp->hit->strand >= 0 ? $hsp->hit->end : $hsp->hit->start,
+			      'start' => $hsp->hit->strand >= 0 ? 
+				  $hsp->hit->start : $hsp->hit->end,
+			      'end'   => $hsp->hit->strand >= 0 ? 
+			          $hsp->hit->end : $hsp->hit->start,
 			      'index' => 0, 
 			      'direction' => $hsp->hit->strand || 1
 			      }
@@ -339,14 +363,13 @@ qq{
 			$start = $v->{'start'};
 			# since strand can be + or - use the direction
 			# to signify which whether to add or substract from end
-			my $d = ( ( $v->{'direction'} ) * 
-				  ( $AlignmentLineWidth - $plen ));
+			my $d = $v->{'direction'} * ( $AlignmentLineWidth - $plen )*
+			    $baselens{$v->{'name'}};
 			if( length($piece) < $AlignmentLineWidth ) {
-			    $d = (length($piece) - $plen) * $v->{'direction'};
+			    $d = (length($piece) - $plen) * $v->{'direction'} * 
+				$baselens{$v->{'name'}};
 			}
 			$end   = $v->{'start'} + $d - $v->{'direction'};
-
-
 			$v->{'start'} += $d;
 		    }
 		    $hspstr .= sprintf("%s %-".$numwidth."s %s %s\n",
