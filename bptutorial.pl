@@ -362,6 +362,21 @@ repeated for every CPAN module, bioperl-extension and external
 module to be installed. A helper module CPAN.pm is available from
 CPAN which automates the process for installing the perl modules.
 
+The CPAN module can also be used to install all of the listed modules
+in a single step as a "bundle" of modules, Bundle::BioPerl, eg
+
+  $>perl -MCPAN -e shell
+  cpan>install Bundle::BioPerl
+  <installation details....>
+  cpan>install B/BI/BIRNEY/bioperl-1.0.tar.gz
+  <installation details....>
+  cpan>quit
+
+Bear in mind that these instructions assume that you have root privileges.
+If you don\'t have root privileges but would like to install Bioperl or
+these associated modules please see the Installation section of the
+Bioperl README file for instructions.
+
 =back
 
 For the external programs (clustal, Tcoffee, ncbi-blast), there is an
@@ -440,7 +455,7 @@ Seq is the central sequence object in bioperl.  When in doubt this is
 probably the object that you want to use to describe a dna, rna or
 protein sequence in bioperl.  Most common sequence manipulations can
 be performed with Seq.  These capabilities are described in sections
-III.3.1 and III.7.1.
+III.3.1 and III.7.1, or in the documentation for Seq.pm.
 
 Seq objects can be created explicitly (see section III.2.1 for an
 example).  However usually Seq objects will be created for you
@@ -1023,7 +1038,16 @@ The syntax for running PHIBLAST, PSIBLAST and bl2seq searches via
 StandAloneBlast is also straightforward.  See the StandAloneBlast.pm
 documentation for details.  In addition, the script standaloneblast.pl
 in the examples directory contains descriptions of various possible
-applications of the StandAloneBlast object.
+applications of the StandAloneBlast object. This script shows how the
+blast report object can access a blast parser directly, eg
+
+  while (my $sbjct = $blast_report->nextSbjct){
+     while (my $hsp = $sbjct->nextHSP){
+        print $hsp->score . " " . $hsp->subject->seqname . "\n";
+     }
+  }
+
+See the section on parsing BLAST reports with BPlite, below, for details.
 
 =head2   III.4.2 Running BLAST remotely (using Blast.pm)
 
