@@ -24,7 +24,7 @@ BEGIN {
 	    exit( 0 );
     }
 
-    plan tests => 88;
+    plan tests => 126;
 }
 
 
@@ -57,7 +57,7 @@ ok ($ont->name(), "Gene Ontology");
 my $engine = $ont->engine();
 ok ($engine->isa("Bio::Ontology::OntologyEngineI"));
 
-my $term = $engine->get_term( "GO:0018897" );
+my $term = $engine->get_terms( "GO:0018897" );
 
 my @dblinks = sort ( $term->get_dblinks() );
 my @synos = sort ( $term->get_synonyms() );
@@ -72,9 +72,8 @@ ok( $term->name(), "dibenzothiophene desulfurization" );
 
 @dblinks = ();
 @synos = ();
-$term = "";
 
-$term = $engine->get_term( "GO:0004796" );
+$term = $engine->get_terms( "GO:0004796" );
 
 @dblinks = sort ( $term->get_dblinks() );
 @synos = sort ( $term->get_synonyms() );
@@ -124,26 +123,19 @@ ok( $parents[ 1 ]->GO_id(), "GO:0018895" );
 
 @parents = sort goid ( $ont->get_parent_terms( "GO:0004796", $PART_OF ) );
 
-ok( @parents == 0 );
-
-
-
-
+ok( scalar(@parents), 0 );
 
 my @anc = sort goid ( $ont->get_ancestor_terms( $term ) );
 
-ok( @anc == 3 );
+ok( scalar(@anc), 3 );
 
 ok( $anc[ 0 ]->GO_id(), "GO:0003673" );
 ok( $anc[ 1 ]->GO_id(), "GO:0015034" );
 ok( $anc[ 2 ]->GO_id(), "GO:0018895" );
 
 
-@anc = ();
-
 @anc = sort goid ( $ont->get_ancestor_terms( "GO:0004796", $IS_A ) );
-
-ok( @anc == 3 );
+ok( scalar(@anc), 3 );
 
 ok( $anc[ 0 ]->GO_id(), "GO:0003673" );
 ok( $anc[ 1 ]->GO_id(), "GO:0015034" );
@@ -194,7 +186,7 @@ ok( $childs[ 1 ]->ontology()->name(), "Gene Ontology" );
 
 
 
-ok( $engine->get_term( "GO:0005625" )->name(), "soluble fraction" ); 
+ok( $engine->get_terms( "GO:0005625" )->name(), "soluble fraction" ); 
 
 
 
@@ -285,13 +277,111 @@ $parser = Bio::OntologyIO->new(
 $ont = $parser->next_ontology();
 ok ($ont);
 
-my @roots2 = $ont->get_root_terms();
-ok( scalar(@roots2), 1 );
+@roots = $ont->get_root_terms();
+ok( scalar(@roots), 1 );
 
-my @leafs2 = $ont->get_leaf_terms();
-ok( scalar(@leafs2), 4 );
+@leafs = $ont->get_leaf_terms();
+ok( scalar(@leafs), 4 );
+
+$parser = Bio::OntologyIO->new(
+                      -format    => "soflat",
+		      -file      => $io->catfile("t", "data",
+						 "sofa.ontology"),
+		      # test overwriting the default
+		      -ontology_name => "Sequence Feature Ontology");
+
+$ont = $parser->next_ontology();
+ok ($ont);
+ok ($ont->name, "Sequence Feature Ontology");
+
+@roots = $ont->get_root_terms();
+ok (scalar(@roots), 1);
+ok ($roots[0]->name(), "Sequence_Feature_Ontology");
+ok ($roots[0]->identifier(), "SO:0000000");
+
+my @terms = $ont->get_child_terms($roots[0]);
+ok (scalar(@terms), 1);
+ok ($terms[0]->name(), "sofa");
+@terms = $ont->get_child_terms($terms[0]);
+ok (scalar(@terms), 1);
+ok ($terms[0]->name(), "feature");
+my $featterm = $terms[0];
+@terms = $ont->get_child_terms($featterm);
+ok (scalar(@terms), 10);
+
+# oligonucleotide has two parents, see whether this is handled
+@terms = $ont->get_descendant_terms($featterm);
+($term) = grep { $_->name() eq "oligonucleotide"; } @terms;
+ok $term;
+skip(! $term, $term->identifier(), "SO:0000696");
+
+@terms = $ont->get_ancestor_terms($term);
+ok (scalar(@terms), 7);
+ok (scalar(grep { $_->name() eq "remark"; } @terms), 1);
+ok (scalar(grep { $_->name() eq "reagent"; } @terms), 1);
+
+# processed_transcript has part-of and is-a children
+@terms = $ont->get_descendant_terms($featterm);
+($term) = grep { $_->name() eq "processed_transcript"; } @terms;
+ok $term;
+skip(! $term, $term->identifier(), "SO:0000233");
+
+@terms = $ont->get_child_terms($term);
+ok (scalar(@terms), 4);
+@terms = $ont->get_child_terms($term, $PART_OF);
+ok (scalar(@terms), 2);
+@terms = $ont->get_child_terms($term, $IS_A);
+ok (scalar(@terms), 2);
+@terms = $ont->get_child_terms($term, $PART_OF, $IS_A);
+ok (scalar(@terms), 4);
+
+# now all descendants:
+@terms = $ont->get_descendant_terms($term);
+ok (scalar(@terms), 13);
+@terms = $ont->get_descendant_terms($term, $PART_OF);
+ok (scalar(@terms), 2);
+@terms = $ont->get_descendant_terms($term, $IS_A);
+ok (scalar(@terms), 5);
+@terms = $ont->get_descendant_terms($term, $PART_OF, $IS_A);
+ok (scalar(@terms), 13);
+
+# TF_binding_site has 2 parents and different relationships in the two
+# paths up (although the relationships to its two parents are of the
+# same type, namely is-a)
+@terms = $ont->get_descendant_terms($featterm);
+($term) = grep { $_->name() eq "TF_binding_site"; } @terms;
+ok $term;
+skip(! $term, $term->identifier(), "SO:0000235");
+
+@terms = $ont->get_parent_terms($term);
+ok (scalar(@terms), 2);
+my ($pterm) = grep { $_->name eq "regulatory_region"; } @terms;
+ok $pterm;
+@terms = $ont->get_parent_terms($term, $PART_OF);
+ok (scalar(@terms), 0);
+@terms = $ont->get_parent_terms($term, $IS_A);
+ok (scalar(@terms), 2);
+@terms = $ont->get_parent_terms($term, $PART_OF, $IS_A);
+ok (scalar(@terms), 2);
+
+# now all ancestors:
+@terms = $ont->get_ancestor_terms($term);
+ok (scalar(@terms), 6);
+@terms = $ont->get_ancestor_terms($term, $PART_OF);
+ok (scalar(@terms), 0);
+@terms = $ont->get_ancestor_terms($pterm, $PART_OF);
+ok (scalar(@terms), 1);
+@terms = $ont->get_ancestor_terms($term, $IS_A);
+ok (scalar(@terms), 5);
+@terms = $ont->get_ancestor_terms($pterm, $IS_A);
+ok (scalar(@terms), 0);
+@terms = $ont->get_ancestor_terms($term, $PART_OF, $IS_A);
+ok (scalar(@terms), 6);
 
 
+#################################################################
+# helper functions
+#################################################################
 
 sub goid { num ( $a->GO_id() ) <=> num ( $b->GO_id() ) }
 

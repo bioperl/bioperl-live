@@ -445,13 +445,13 @@ sub _parse_flat_file {
         
         
         if ( ! $self->_has_term( $current_term ) ) {
-            my $term = $self->_create_ont_entry($self->_get_name($line,
+            my $term =$self->_create_ont_entry($self->_get_name($line,
 								$current_term),
 						$current_term );
             $self->_add_term( $term, $ont );
         }
         
-        my $current_term_object = $self->_ont_engine()->get_term( $current_term );
+        my $current_term_object = $self->_ont_engine()->get_terms( $current_term );
         
         $current_term_object->add_dblink( @cross_refs );
         $current_term_object->add_secondary_id( @sec_go_ids );
@@ -556,10 +556,13 @@ sub _get_first_termid {
 sub _get_name {
     my ( $self, $line, $termid ) = @_;
     
-    if ( $line =~ /([^;^<^%^,]+);\s*$termid/ ) {
+    if ( $line =~ /([^;<%,]+);\s*$termid/ ) {
         my $name = $1;
+	# remove trailing and leading whitespace
         $name =~ s/\s+$//;
         $name =~ s/^\s+//;
+	# remove leading dollar character
+	$name = substr($name,1) if index($name,'$') == 0;
         return $name;
     }
     else {
