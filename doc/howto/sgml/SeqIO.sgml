@@ -65,11 +65,11 @@
       <para>
 	The SeqIO system handles all of the complexity of parsing sequences of many
 	standard formats that scripters have wrestled with over the years. Given some 
-	way of accessing some sequences (flat files, STDIN, variable, etc.), and a format description,
+	way of accessing some sequences (flat files, STDIN and STDOUT, variables, etc.), and a format description,
 	it provides access to a stream of SeqI objects tailored to the information provided 
 	by the format. The format description is, technically, optional.  SeqIO can try to 
-	guess based on known file extensions, but if your source doesn't have a standard file 
-	extension, or isn't even a file at all, it throws up its hands and tries fasta.
+	guess based on known file extensions or content, but if your source doesn't have a standard file 
+	extension or comprehensible content, or isn't even a file at all, it throws up its hands and tries fasta.
 	Unless you are always working with FASTA files, it is a good idea to get into the
 	practice of always specifying the format.
       </para>
@@ -216,8 +216,69 @@ Here is a current listing of formats, as of version 1.2.
 	    </tbody>
 	  </tgroup>
 	</table>
-Note: SeqIO needs the bioperl-ext package to read the scf, abi, alf, pln, exp, ctf, and ztr formats.
-  </para>
+</para>
+<note>SeqIO needs the bioperl-ext package to read the scf, abi, alf, pln, exp, ctf, and ztr formats.
+</note>  
+<para>
+For some one of the initial perplexities of Bioperl is the variety of
+different sequence objects, and this gives rise to questions like "How
+do I convert a PrimarySeq object into a RichSeq object?". The basic answer
+is that one should never have to do this, SeqIO takes care of all
+these conversions. The reason for these different objects in the first
+place has to with the information, or lack of information, inherent to
+the different file formats. For example, the fasta format has no place 
+for sequence features, and its contents end up in Bio::Seq objects, 
+whereas the Genbank format is designed to handle sequence features so its 
+contents are transformed into Bio::RichSeq objects. Though we just said
+that the conversions are done automatically we offer this table that
+shows some common formats and their corresponding object types, just
+to satisfy the curious.
+	<table>
+	  <title>Formats and Object</title>
+	  <tgroup cols="2">
+	    <thead>
+	      <row>
+		<entry>Format</entry>
+		<entry>Object type</entry>
+		 </row>
+	    </thead>
+<tbody>	
+     <row>
+		<entry>fasta</entry>
+		<entry>Bio::Seq</entry>
+	      </row>
+	      <row>
+		<entry>genbank</entry>
+		<entry>Bio::Seq::RichSeq</entry>
+	      </row>
+  <row>
+		<entry>pir</entry>
+		<entry>Bio::Seq</entry>
+	      </row>
+  <row>
+		<entry>embl</entry>
+		<entry>Bio::Seq::RichSeq</entry>
+	      </row>
+  <row>
+		<entry>raw</entry>
+		<entry>Bio::Seq</entry>
+	      </row>
+	    <row>
+		<entry>ace</entry>
+		<entry>Bio::PrimarySeq</entry>
+	      </row>
+  <row>
+		<entry>bsml</entry>
+		<entry>Bio::Seq::RichSeq</entry>
+	      </row>
+  <row>
+		<entry>swiss</entry>
+		<entry>Bio::Seq::RichSeq</entry>
+	      </row>
+</tbody>
+</tgroup>
+	</table>
+</para>
 </section>
 
 <section id="working">
@@ -315,7 +376,7 @@ file into an array:
      </programlisting>
    </para>
       <para>
-	Now, what if we want to convert one format to another. When you create a 
+	Now, what if we want to convert one format to another? When you create a 
 	Bio::SeqIO object to read in a flat file, the magic behind the curtains is that 
 	each call to 'next_seq' is a complex parsing of the next
 	sequence record into a SeqI object - not a
@@ -373,10 +434,9 @@ some really complex things.
    </para>
    <para>
    Now, let's play around with the previous code, changing aspects of it to 
-exploit the functionality of the SeqIO system. Let's take a stream from standard 
-in, so that we can use other programs to stream data of a particular format into
+exploit the functionality of the SeqIO system. Let's take a stream from STDIN, so that we can use other programs to stream data of a particular format into
 the program, and write out a file of a particular format. Here we have to make 
-use of two new things: one perl specific, and one SeqIO specific.
+use of two new things: one perl-specific, and one SeqIO-specific.
 Perl allows you to 'GLOB' a filehandle by placing a '*' in front of the
 handle name, making it available for use as a variable, or as in this case, 
 as an argument to a function. In concert, SeqIO allows you to pass a GLOB'ed  
@@ -410,7 +470,7 @@ STDIN, meaning it could be used like this:
      </programlisting>
    </para>
    <para>
-	Why use files at all, we can pipe STDIN to STDOUT, which could
+	Why use files at all? We can pipe STDIN to STDOUT, which could
 	allow us to plug this into some other pipeline, something
 	like:
 	<programlisting>
@@ -440,7 +500,7 @@ STDIN, meaning it could be used like this:
    <para>
    A popular question many people have asked is "What if I have a string that has 
 a series of sequence records in some format, and I want to make it a Seq object?" 
-You might do this if you allow users to paste in sequence data into a web form, 
+You might want to do this if you allow users to paste in sequence data into a web form, 
 and then do something with that sequence data.  This can be accomplished using
 the -fh parameter, along with perl's IO::String module that allows you to turn
 the contents of a string into a standard globbed perl handle.  This isn't a complete
@@ -475,7 +535,7 @@ takes a gzipped file of a given format and writes out a FASTA file,
 <programlisting>
       >gzip2fasta.pl gbpri1.seq.gz Genbank gbpri1.fa
 </programlisting>
-	Let code begin...
+	Let the code begin...
 
      <programlisting>                              
       use Bio::SeqIO;
@@ -623,12 +683,12 @@ single quoted, and attempts to execute it as code, while the -M flag
 takes a module name and tells the one-liner to use that module. When using a single 
 quote to enclose the string to -e, you also have to make use of perl's string 
 modifier 'q(string)' to single quote a string without confusing the shell. 
-Let's find out how many GSS sequences are in gbpri1.seq.gz. Note that I
+Let's find out how many GSS sequences are in gbpri1.seq.gz. Note that we
    have placed new-line characters in this to make it easier to read,
    but in practice you wouldn't actually hit the return key until you 
 	were ready to run the program.
      <programlisting>
-      perl -MBio::SeqIO -e 'my $gss = 0; my $in =  Bio::SeqIO->new(q(-file) => q(/usr/local/bin/gunzip -c gbpri1.seq.gz |), 
+      >perl -MBio::SeqIO -e 'my $gss = 0; my $in =  Bio::SeqIO->new(q(-file) => q(/usr/local/bin/gunzip -c gbpri1.seq.gz |), 
       q(-format) => q(Genbank)); while (my $seq = $in->next_seq) { $gss++ if ($seq->keywords =~ m/GSS/);} 
       print "There are $gss GSS sequences in gbpri1.seq.gz\n";'
      </programlisting>
