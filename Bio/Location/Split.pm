@@ -294,7 +294,7 @@ sub strand{
 	$self->{'strand'} = $value;
 	# propagate to all sublocs
 	foreach my $loc ($self->sub_Location(0)) {
-	    $loc->strand($value);
+	    $loc->strand($value) if ! $loc->is_remote();
 	}
     }
     return $self->{'strand'};
