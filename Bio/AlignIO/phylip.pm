@@ -256,7 +256,11 @@ sub write_aln {
 	    } elsif( $self->id_linebreak) { 
 		$name .= "\n"; 
 	    }
-	    $hash{$name} = $seq->seq();
+
+      #phylip needs dashes not dots 
+      my $seq = $seq->seq();
+      $seq=~s/\./-/g;
+	    $hash{$name} = $seq;
 	    push(@arr,$name);
 	}
 
