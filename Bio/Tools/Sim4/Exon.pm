@@ -66,11 +66,10 @@ use strict;
 
 # Object preamble - inherits from Bio::Root::Object
 
-use Bio::SeqFeature::Generic;
+use Bio::SeqFeature::Homol;
 
 
-@ISA = qw(Bio::SeqFeature::Generic);
-@EXPORT_OK = qw();
+@ISA = qw(Bio::SeqFeature::Homol);
 # new() is inherited from Bio::Root::Object
 
 # _initialize is where the heavy stuff will happen when new is called
@@ -82,6 +81,7 @@ sub _initialize {
 
   $self->primary_tag('exon'); # set 
   $self->source_tag('Sim4');
+  $self->strand(0);
 # set stuff in self from @args
   return $make; # success - we hope!
 }
@@ -89,6 +89,27 @@ sub _initialize {
 #
 # Everything else is just inherieted from SeqFeature::Generic. Cool.
 #
+
+=head2 percentage_id
+
+ Title   : percentage_id
+ Usage   : $obj->percentage_id($newval)
+ Function: 
+ Returns : value of percentage_id
+ Args    : newvalue (optional)
+
+
+=cut
+
+sub percentage_id{
+   my $obj = shift;
+   if( @_ ) {
+      my $value = shift;
+      $obj->{'percentage_id'} = $value;
+    }
+    return $obj->{'percentage_id'};
+
+}
 
 1;
 

@@ -163,13 +163,14 @@ sub next_annseq{
 
 #   $self->warn("not parsing upper annotation in EMBL file yet!");
 
-   my $buffer = $_;
+   my $buffer = $line;
 
    my $annseq = Bio::AnnSeq->new();
    
    BEFORE_FEATURE_TABLE :
    until( eof($fh) ) {
        $_ = $buffer;
+
 
        # Exit at start of Feature table
        last if /^FH/;
@@ -259,9 +260,21 @@ sub write_annseq {
    my $i;
    my $str = $seq->seq;
 
-   print $fh "ID   ", $seq->id(), "\nXX   \n";
+   my $div;
+   my $len = $seq->seq_len();
+
+   if( !$annseq->can('division') || ($div = $annseq->division()) == undef ) {
+       $div = 'UNK';
+   }
+
+   print $fh sprintf("ID    %-11sstandard; DNA; $div; %d BP.",$seq->id(),$len);
+   
+   print $fh "\nXX   \n";
+
+   # this next line screws up perl mode parsing. Sorry. It is a pain!
    _write_line_EMBL_regex($fh,"DE   ","DE   ",$seq->desc(),'\s+|$',80);
    print $fh "XX   \n";
+
 
 
    
@@ -336,7 +349,28 @@ sub write_annseq {
    # finished printing features.
 
    $str =~ tr/A-Z/a-z/;
-   print $fh "SQ   \n";
+   my $a = $str; 
+   $a =~ s/[^A]//g;
+   my $alen = length $a;
+
+   my $t = $str; 
+   $t =~ s/[^T]//g;
+   my $tlen = length $t;
+
+   my $g = $str; 
+   $g =~ s/[^G]//g;
+   my $glen = length $g;
+
+   my $c = $str; 
+   $c =~ s/[^C]//g;
+   my $clen = length $c;
+
+   my $olen = $len - ($alen + $tlen + $clen + $glen);
+   if( $olen < 0 ) {
+       $self->warn("Weird. More atgc than bases. Problem!");
+   }
+
+   print $fh "SQ   Sequence $len BP; $alen A; $clen C; $glen G; $tlen T; $olen other;\n";
    print $fh "    ";
    for ($i = 0; $i < length($str); $i += 10) {
        print $fh substr($str,$i,10), " ";
@@ -522,16 +556,18 @@ sub _read_FTHelper_EMBL {
        $loc = $2;
    }
 
+   $out = new Bio::AnnSeqIO::FTHelper();
+
    # Read the rest of the location
    while( <$fh> ) {
        # Exit loop on first qualifier - line is left in $_
+       last if /^XX/; # sometimes a trailing XX comment left in!
        last if /^FT\s+\//;
        # Get location line
-       /^FT\s+(\S+)/ or Bio::Root::Object::throw("Weird location line in EMBL feature table: '$_'");
+       /^FT\s+(\S+)/ or $out->throw("Weird location line in EMBL feature table: '$_'");
        $loc .= $1;
    }
 
-   $out = new Bio::AnnSeqIO::FTHelper();
    $out->key($key);
    $out->loc($loc);
 

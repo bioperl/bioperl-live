@@ -1,4 +1,4 @@
-x
+
 #
 # BioPerl module for Bio::Tools::Sim4::ExonSet
 #
@@ -70,7 +70,6 @@ use Bio::SeqFeature::Generic;
 
 @ISA = qw(Bio::SeqFeature::Generic);
 
-@EXPORT_OK = qw();
 # new() is inherited from Bio::Root::Object
 
 # _initial2ize is where the heavy stuff will happen when new is called
@@ -83,6 +82,7 @@ sub _initialize {
   $self->{'exon_array'} = [];
   $self->primary_tag('ExonSet');
   $self->source_tag('Sim4');
+  $self->strand(0);
 # set stuff in self from @args
   return $make; # success - we hope!
 }

@@ -504,6 +504,9 @@ sub seq{
        return undef;
    }
 
+   # assumming our seq object is sensible, it should not have to yank
+   # the entire sequence out here.
+
    my $seq = $self->{'_gsf_seq'}->trunc($self->start(),$self->end());
    if( $self->strand == -1 ) {
        $seq = $seq->revcom;
@@ -528,6 +531,35 @@ sub entire_seq{
    my ($self) = @_;
 
    return $self->{'_gsf_seq'};
+}
+
+
+=head2 seqname
+
+ Title   : seqname
+ Usage   : $obj->seqname($newval)
+ Function: There are many cases when you make a feature that you
+           do know the sequence name, but do not know its actual
+           sequence. This is an attribute such that you can store 
+           the seqname.
+
+           This attribute should *not* be used in GFF dumping, as
+           that should come from the collection in which the seq
+           feature was found.
+ Returns : value of seqname
+ Args    : newvalue (optional)
+
+
+=cut
+
+sub seqname{
+   my $obj = shift;
+   if( @_ ) {
+      my $value = shift;
+      $obj->{'_gsf_seqname'} = $value;
+    }
+    return $obj->{'_gsf_seqname'};
+
 }
 
 =head2 _parse

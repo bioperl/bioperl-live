@@ -280,6 +280,42 @@ sub species {
     }
 }
 
+=head1 EMBL/GenBank/DDBJ methods
+
+These methods are here to support the EMBL/GenBank/DDBJ format.
+The problem is that these formats require a certain amount
+of additional information (eg, what division they are from), but
+to make bioperl slavishly involved with this is just a bad idea.
+
+If you want to use these methods, B<please> preface them with
+a $as->can('method-name'). If this fails, then do something
+sensible. This means that we do not have to think about
+being in lock-step with EMBL/GenBank/DDBJ but can still support
+all the information that is required.
+
+=head2 division
+
+ Title   : division
+ Usage   : $obj->division($newval)
+ Function: 
+ Returns : value of division
+ Args    : newvalue (optional)
+
+
+=cut
+
+sub division{
+   my $obj = shift;
+   if( @_ ) {
+      my $value = shift;
+      $obj->{'division'} = $value;
+    }
+    return $obj->{'division'};
+
+}
+
+
+
 
 
 
