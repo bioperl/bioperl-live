@@ -459,7 +459,8 @@ sub repository_subset {
 
 =head2 Description methods
 
-No need to implement a saparate abstract_language method [BiblioDescription::language].
+No need to implement a saparate abstract_language method
+[BiblioDescription::language].
 
 =cut
 
@@ -578,10 +579,12 @@ sub toc_type {
 
  Title   : publisher
  Usage   : $publisher = $obj->publisher();
- Function: Returns or sets the reference to a L<Bio::Biblio::Provider> object.
+ Function: Returns or sets the reference to a Bio::Biblio::Provider object.
            If there is no link, it will return undef
  Returns : an obj_ref or undef
  Args    : Bio::Biblio::Provider object
+
+See L<Bio::Biblio::Provider> for more information
 
 =cut
 
@@ -610,12 +613,14 @@ sub publisher {
  Usage   : $self->add_author($person)
  Function: 
 
-           Adds one L<Bio::Biblio::ProviderI> object into the list of
+           Adds one Bio::Biblio::ProviderI object into the list of
            authors.
 
  Example : 
  Returns : 1 when succeeds, 0 for failure.
  Args    : Bio::Biblio::ProviderI object
+
+See L<Bio::Biblio::Provider> for details
 
 =cut
 
@@ -642,11 +647,13 @@ sub add_author {
  Usage   : $obj->each_author();
  Function: 
 
-	     Returns a list of L<Bio::Biblio::ProviderI> objects
+	     Returns a list of Bio::Biblio::ProviderI objects
 
  Example : 
  Returns : list of authors
  Args    : none
+
+See L<Bio::Biblio::ProviderI> for details
 
 =cut
 
@@ -663,12 +670,14 @@ sub each_author{
  Usage   : $self->add_contributor($person)
  Function: 
 
-           Adds one L<Bio::Biblio::ProviderI> object into the list of
+           Adds one Bio::Biblio::ProviderI object into the list of
            contributors.
 
  Example : 
  Returns : 1 when succeeds, 0 for failure.
  Args    : Bio::Biblio::ProviderI object
+
+See L<Bio::Biblio::ProviderI> for details
 
 =cut
 
@@ -695,11 +704,13 @@ sub add_contributor {
  Usage   : $obj->each_contributor();
  Function: 
 
-	     Returns a list of L<Bio::Biblio::ProviderI> objects
+	     Returns a list of Bio::Biblio::ProviderI objects
 
  Example : 
  Returns : list of contributors
  Args    : none
+
+See L<Bio::Biblio::ProviderI> for details
 
 =cut
 
