@@ -138,7 +138,7 @@ sub new {
 sub features {
    my $self = shift;
    $self->throw('This method is only valid with the GFF3 format')
-         unless $self->version >= 3;
+         unless $self->gff_version >= 3;
 
    local $_;
    my (%features,%parents,%ids);
@@ -147,10 +147,11 @@ sub features {
      next if /^\#/;
      next if /^\s*$/;
      next if /^\/\//;
+     chomp;
 
      my $feat = Bio::SeqFeature::Generic->new();
      my @groups = $self->from_gff_string($feat,$_);
-     my $id = $feat->unique_id || $feat;  # either its unique ID or a memory location
+     my $id = $feat->unique_id || "$feat";  # either its unique ID or a memory location
 
      # Have we seen a feature with the same ID before?  If so, then the GFF3
      # semantics are trying to tell us that this is a disjunct location.
@@ -186,7 +187,7 @@ sub features {
 
      my $parent = Bio::SeqFeature::Generic->new(-primary=>'region');
      for my $child_id (keys %{$parents{$parent_id}}) {
-       $parent->add_SeqFeature($features{$child_id});
+       $parent->add_SeqFeature($features{$child_id},'EXPAND');
        $exclude{$child_id}++;
      }
    }
@@ -472,14 +473,14 @@ sub _from_gff3_string {
    $frame = 0 unless $frame =~ /^\d+$/;
    $feat->seq_id($seqname);
    $feat->primary_tag($type);
-   $feat->source($source);
+   $feat->source_tag($source);
    $feat->start($start);
    $feat->end($end);
    $feat->strand($STRANDS{$strand}||0);
-   my @groups     = map {_unescape($_)} split /;\s*/,$groups;
-   my @attributes = split /;\s*/,$attribs;
+   my @groups     = grep {$_ ne '.'} map {_unescape($_)} split /;\s*/,$groups;
+   my @attributes = split /;\s*/,$attribs if $attribs;
    foreach (@attributes) {
-      my ($name,$value) = split /=/,2;
+      my ($name,$value) = split /=/,$_,2;
       _unescape($name);
       _unescape($value);
       # handle special cases
@@ -488,7 +489,7 @@ sub _from_gff3_string {
          next;
       }
       if ($name eq 'Target') {
-          my ($target,$tstart,$tend) =~ /^(.+):(\d+)\.\.(\d+)$/ or next;
+          my ($target,$tstart,$tend) = $value =~ /^(.+):(\d+)\.\.(\d+)$/ or next;
           my $tstrand = ($start < $end) ? +1 : -1;
           my $location = Bio::Location::Simple->new(-start  => $tstart,
                                                     -end    => $tend,
@@ -767,10 +768,8 @@ sub _gff2_string{
 =cut
 
 sub gff_version {
-  my ($self, $value) = @_;
-  if(defined $value && (($value == 1) || ($value == 2))) {
-    $self->{'GFF_VERSION'} = $value;
-  }
+  my $self = shift;
+  $self->{'GFF_VERSION'} = shift if @_;
   return $self->{'GFF_VERSION'};
 }
 

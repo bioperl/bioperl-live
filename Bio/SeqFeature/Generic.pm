@@ -138,6 +138,7 @@ use Bio::FeatureHolderI;
 use Bio::Annotation::Collection;
 use Bio::Location::Simple;
 use Bio::Tools::GFF;
+use Bio::AlternativeLocationHolderI;
 #use Tie::IxHash;
 
 @ISA = qw(Bio::Root::Root Bio::SeqFeatureI 
