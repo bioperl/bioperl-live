@@ -731,16 +731,9 @@ sub read {
 	    
 	    $lines++;
 	    alarm(0);  # Deactivate the alarm as soon as we start reading.
-
-#  printf STDERR "Chunk length: %d\n", length $_;
-  if ($lines % 100 ==0) {
-#    printf STDERR "PS AUXW:\n  %s", `ps auxw | grep perl`;
-  }
-
 	    my($result);
 	    if($func_ref) {
 		$result = &$func_ref($_) or last READ_LOOP;
-#		print "$ID read(): RESULT = $result\n"; 
 	    } else {
 		$data .= $_;
 	    }

@@ -2,11 +2,19 @@
 # PACKAGE : Bio::Root::Utilities.pm
 # PURPOSE : Provides general-purpose utilities of potential interest to any Perl script.
 # AUTHOR  : Steve A. Chervitz (sac@genome.stanford.edu)
-
-
 # CREATED : Feb 1996
 # REVISION: $Id$
 # STATUS  : Alpha
+#
+# This module manages file compression and uncompression using gzip or
+# the UNIX compress programs (see the compress() and uncompress() methods).
+# Also, it can create filehandles from gzipped files. If you want to use a
+# different compression utility (such as zip, pkzip, stuffit, etc.) you
+# are on your own.
+#
+# If you manage to incorporate an alternate compression utility into this
+# module, please post a note to the bio.perl.org mailing list
+# vsns-bcd-perl@lists.uni-bielefeld.de. Thanks.
 #
 # TODO    : Configure $GNU_PATH during installation.
 #           Improve documentation (POD).
@@ -40,9 +48,11 @@ use vars qw($ID $VERSION $Util $GNU_PATH);
 $ID        = 'Bio::Root::Utilities';
 $VERSION   = 0.042;
 
-# $GNU_PATH may be required for executing gzip/gunzip 
-# in some situations. Customize for your site or leave
-# it as a null string.
+# $GNU_PATH points to the directory containing the gzip and gunzip 
+# executables. It may be required for executing gzip/gunzip 
+# in some situations (e.g., when $ENV{PATH} doesn't contain this dir.
+# Customize $GNU_PATH for your site if the compress() or
+# uncompress() functions are generating exceptions.
 $GNU_PATH  = ''; 
 #$GNU_PATH  = '/tools/gnu/bin/'; 
 
@@ -776,7 +786,6 @@ sub delete {
  Purpose   : Create a FileHandle object from a file or STDIN.
            : Mainly used as a helper method by read() and get_newline().
  Example   : $data = $object->create_filehandle(-FILE =>'usr/people/me/data.txt')
-           :
  Argument  : Named parameters (case-insensitive):
            :  (all optional)
            :    -CLIENT  => object reference for the object submitting
@@ -789,6 +798,12 @@ sub delete {
  Throws    : Exception if cannot open a supplied file or if supplied with a
            : reference that is not a FileHandle ref.
  Comments  : If given a FileHandle reference, this method simply returns it.
+           : This method assumes the user wants to read ascii data. So, if
+           : the file is binary, it will be treated as a compressed (gzipped)
+           : file and access it using gzip -ce. The problem here is that not
+           : all binary files are necessarily compressed. Therefore, 
+           : this method should probably have a -mode parameter to
+           : specify ascii or binary.
 
 See Also :  L<get_newline>(), L<Bio::Root:IOManager::read>(),
 
@@ -823,10 +838,11 @@ sub create_filehandle {
       $self->verbose > 0 and printf STDERR "$ID: reading data from FileHandle\n";
 
     } elsif($file) {
-      # Use gzip -cd to uncompress file if neccesary.
       $client->{'_input_type'} = "FileHandle for $file";
 
+      # Use gzip -cd to access compressed data.
       if( -B $file ) {
+	$client->{'_input_type'} .= " (compressed)";
 	$file = "${GNU_PATH}gzip -cd $file |"
       }
       
@@ -874,8 +890,8 @@ sub get_newline {
 
     if(not $client) {  $client = $self;   }
 
-    if($client->{'_input_type'} eq 'STDIN') {
-#    if(ref($FH) ne 'FileHandle') {
+    if($client->{'_input_type'} eq 'STDIN' ||
+      $client->{'_input_type'} =~ /compressed/ ) {
       # Can't taste from STDIN since we can't seek 0 on it.
       # Are other non special Glob refs seek able?
       # Attempt to guess newline based on platform.
