@@ -3915,10 +3915,10 @@ $bpinspect1 = sub {
     my ($object, $object_class,$package );
     my @package_list = ();
     $object = shift;
-    ($object_class = $object) =~ s/::/\//g;  # replace "::" with "/"
-    $object_class = $object_class . ".pm";
-    require $object_class;
-
+#    ($object_class = $object) =~ s/::/\//g;  # replace "::" with "/"
+#    $object_class = $object_class . ".pm";
+    $object_class = $object . ".pm";
+    eval "require $object_class"; # eval causes replacement of "::" with "/" or "\"
     my $method_hash = $object->methods('all');
 
     print " \n ***Methods for Object $object ********  \n";
@@ -3963,16 +3963,13 @@ $bpinspect1 = sub {
             for my $method (grep {not /^[(_]/ and
                                   defined &{${"${class}::"}{$_}}}
                             keys %{"${class}::"}) {
-                $methods{$method} = $class;        #ps
-#                $methods{$method} = wantarray ? undef : $class->can($method);
+		next if exists $methods{$method}; # method already found in heirarchy
+                $methods{$method} = $class;        
             }
         }
 
         wantarray ? keys %methods : \%methods;
     }
-
-    1;
-
     return 1;
 } ;
 
