@@ -87,51 +87,47 @@ sub new {
 =head2
 
   Title   : start
-  Usage   : $start = $range->start();
+  Usage   : $start = $loc->start();
   Function: get/set the start of this range
   Returns : the start of this range
   Args    : optionaly allows the start to be set
-          : using $range->start($start)
+          : using $loc->start($start)
 
 =cut
 
 sub start {
   my ($self, $value) = @_;
-  if( defined $value || !defined $self->{'_start'} ) {
-      $value = 0 unless defined ( $value );
-      $self->{'_start'} = $value;
-  }
-  return $self->{'_start'};
+
+  $self->min_start($value) if( defined $value );
+  return $self->SUPER::start();
 }
 
 =head2
 
   Title   : end
-  Usage   : $end = $range->end();
+  Usage   : $end = $loc->end();
   Function: get/set the end of this range
   Returns : the end of this range
   Args    : optionaly allows the end to be set
-          : using $range->end($start)
+          : using $loc->end($start)
 
 =cut
 
 sub end {
   my ($self, $value) = @_;
-  if( defined $value || !defined $self->{'_end'}) {
-      $value = 0 unless defined ( $value );
-      $self->{'_end'} = $value;
-  }
-  return $self->{'_end'};
+
+  $self->min_end($value) if( defined $value );
+  return $self->SUPER::end();
 }
 
 =head2
 
   Title   : strand
-  Usage   : $strand = $range->strand();
+  Usage   : $strand = $loc->strand();
   Function: get/set the strand of this range
   Returns : the strandidness (-1, 0, +1)
   Args    : optionaly allows the strand to be set
-          : using $range->strand($strand)
+          : using $loc->strand($strand)
 
 =cut
 
@@ -160,11 +156,11 @@ sub strand {
 =head2 length
 
  Title   : length
- Usage   :
- Function:
+ Usage   : $len = $loc->length();
+ Function: get the length in the coordinate space this location spans
  Example :
- Returns :
- Args    :
+ Returns : an integer
+ Args    : none
 
 
 =cut
@@ -179,36 +175,46 @@ sub length {
   Title   : min_start
   Usage   : my $minstart = $location->min_start();
   Function: Get minimum starting location of feature startpoint   
-  Returns : integer or undef if no maximum starting point.
+  Returns : integer or undef if no minimum starting point.
   Args    : none
 
 =cut
 
 sub min_start {
-    my($self) = @_;
-    return $self->start();
+    my ($self,$value) = @_;
+
+    if(defined($value)) {
+	$self->{'_start'} = $value;
+    }
+    return $self->{'_start'};
 }
 
 =head2 max_start
 
   Title   : max_start
   Usage   : my $maxstart = $location->max_start();
-  Function: Get maximum starting location of feature startpoint  
+  Function: Get maximum starting location of feature startpoint.
+
+            In this implementation this is exactly the same as min_start().
+
   Returns : integer or undef if no maximum starting point.
   Args    : none
 
 =cut
 
 sub max_start {
-    my($self) = @_;
-    return $self->start();
+    my ($self,@args) = @_;
+    return $self->min_start(@args);
 }
 
 =head2 start_pos_type
 
   Title   : start_pos_type
   Usage   : my $start_pos_type = $location->start_pos_type();
-  Function: Get start position type (ie <,>, ^) 
+  Function: Get start position type (ie <,>, ^).
+
+            In this implementation this will always be 'EXACT'.
+
   Returns : type of position coded as text 
             ('BEFORE', 'AFTER', 'EXACT','WITHIN', 'BETWEEN')
   Args    : none
@@ -231,8 +237,12 @@ sub start_pos_type {
 =cut
 
 sub min_end {
-    my($self) = @_;
-    return $self->end();
+    my($self,$value) = @_;
+
+    if(defined($value)) {
+	$self->{'_end'} = $value;
+    }
+    return $self->{'_end'};
 }
 
 =head2 max_end
@@ -240,14 +250,17 @@ sub min_end {
   Title   : max_end
   Usage   : my $maxend = $location->max_end();
   Function: Get maximum ending location of feature endpoint 
+
+            In this implementation this is exactly the same as min_end().
+
   Returns : integer or undef if no maximum ending point.
   Args    : none
 
 =cut
 
 sub max_end {
-    my($self) = @_;
-    return $self->end();
+    my($self,@args) = @_;
+    return $self->min_end(@args);
 }
 
 =head2 end_pos_type
@@ -255,6 +268,9 @@ sub max_end {
   Title   : end_pos_type
   Usage   : my $end_pos_type = $location->end_pos_type();
   Function: Get end position type (ie <,>, ^) 
+
+            In this implementation this will always be 'EXACT'.
+
   Returns : type of position coded as text 
             ('BEFORE', 'AFTER', 'EXACT','WITHIN', 'BETWEEN')
   Args    : none
@@ -286,9 +302,9 @@ sub location_type {
 
   Title   : to_FTstring
   Usage   : my $locstr = $location->to_FTstring()
-  Function: Get/Set seq_id that location refers to
-  Returns : seq_id
-  Args    : [optional] seq_id value to set
+  Function: returns the FeatureTable string of this location
+  Returns : string
+  Args    : none
 
 =cut
 
