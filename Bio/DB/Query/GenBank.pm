@@ -95,7 +95,7 @@ use constant MAXENTRY            => 100;
 use vars qw(@ISA @ATTRIBUTES $VERSION);
 
 @ISA     = 'Bio::DB::Query::WebQuery';
-$VERSION = '0.1';
+$VERSION = '0.2';
 
 BEGIN {
   @ATTRIBUTES = qw(db reldate mindate maxdate datetype);
@@ -193,7 +193,7 @@ sub cookie {
 sub _request_parameters {
   my $self = shift;
   my ($method,$base);
-  my @params = map {$self->$_ ? ($_ => $self->$_) : () } @ATTRIBUTES;
+  my @params = map {eval("\$self->$_") ? ($_ => eval("\$self->$_")) : () } @ATTRIBUTES;
   push @params,('usehistory'=>'y','tool'=>'bioperl');
   $method = 'get';
   $base   = ESEARCH;
