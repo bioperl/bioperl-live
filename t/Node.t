@@ -24,7 +24,7 @@ ok(1);
 
 my $node1 = new Bio::Tree::Node();
 my $node2 = new Bio::Tree::Node();
-ok(! $node1->is_Leaf);
+ok($node1->is_Leaf() );
 ok($node1->ancestor, undef);
 
 my $pnode = new Bio::Tree::Node();
