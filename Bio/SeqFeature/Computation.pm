@@ -125,9 +125,9 @@ sub new {
     $database_version && $self->database_version($database_version);
     $computation_id   && $self->computation_id($computation_id);
     $score            && do {
-	if (ref($score)) {
-	    foreach my $t ( keys %$score ) {
-		$self->add_score_value($t,$score->{$t});
+	if (ref($score) =~ /hash/i) {
+	    while( my ($t,$val) = each %$score ) {
+		$self->add_score_value($t,$val);
 	    }
 	} else { 	     
 	    $self->score($score); 	
@@ -149,9 +149,9 @@ sub new {
 =cut
 
 sub has_score {
-   my ($self, $score) = (shift, shift);
-
-   return exists $self->{'_gsf_score_hash'}->{$score};
+    my ($self, $score) = @_;
+    return undef unless defined $score;
+    return exists $self->{'_gsf_score_hash'}->{$score};
 }
 
 =head2 add_score_value
@@ -165,6 +165,11 @@ sub has_score {
 
 sub add_score_value {
    my ($self, $score, $value) = @_;
+   if( ! defined $score || ! defined $value ) { 
+       $self->warn("must specify a valid $score and $value to add_score_value");
+       return 0;
+   }
+
    if ( !defined $self->{'_gsf_score_hash'}->{$score} ) {
        $self->{'_gsf_score_hash'}->{$score} = [];
    }
@@ -186,12 +191,15 @@ sub add_score_value {
 =cut
 
 sub score {
-   my ($self, $value) = (shift, shift);
-   if ($value) {
-      $self->add_score_value('default', $value);
-   } else {
-      return ($self->get_score_value('default'))[0];
-   }
+    my ($self, $value) = @_;
+    my @v;
+    if (defined $value) {
+	@v = $value;
+	$self->add_score_value('default', $value);
+    } else {       
+	@v = $self->each_score_value('default');
+    }
+    return $v[0];
 }
 
 =head2 each_score_value
@@ -203,7 +211,6 @@ sub score {
  Returns : A list of scalars
  Args    : The name of the score
 
-
 =cut
 
 sub each_score_value {
@@ -211,7 +218,6 @@ sub each_score_value {
    if ( ! exists $self->{'_gsf_score_hash'}->{$score} ) {
        $self->throw("asking for score value that does not exist $score");
    }
-
    return @{$self->{'_gsf_score_hash'}->{$score}};
 }
 
