@@ -215,7 +215,8 @@ sub write_aln{
 		   $blockcount += $BLOCKLEN;
 	       }
 	       $self->_print(sprintf("#%-".($MEGANAMELEN-1)."s%s\n",
-				     $aln->displayname($seq->get_nse()),
+				     substr($aln->displayname($seq->get_nse()),
+					    0,$MEGANAMELEN-2),
 				     join(' ', @blocks)));	       
 	   }	   
 	   $self->_print("\n");
