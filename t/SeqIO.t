@@ -2,7 +2,7 @@
 # $Id$
 
 use strict;
-use vars qw($DEBUG $TESTCOUNT);
+use vars qw($DEBUG $TESTCOUNT $NODOM);
 $DEBUG = $ENV{'BIOPERLDEBUG'} || 0;
 
 BEGIN {
@@ -12,6 +12,13 @@ BEGIN {
     }
     use Test;
     $TESTCOUNT = 270;
+    # interpro uses XML::DOM
+    eval {require XML::DOM};
+    if ($@) {
+       $TESTCOUNT -= 8;
+       $NODOM = 1;
+       print STDERR "XML::DOM not found - skipping interpro tests\n";
+    }
     plan tests => $TESTCOUNT;
 }
 
@@ -212,9 +219,9 @@ ok(scalar $as->annotation->get_Annotations('reference'), 11);
 ($ent, $seq, $out,$as) = undef;
 
 #interpro
-{
+unless ($NODOM) {
   my $t_file = Bio::Root::IO->catfile("t","data","test.interpro");
-  my $a_in = Bio::SeqIO->new( -FILE => $t_file, -FORMAT => 'interpro');
+  my $a_in = Bio::SeqIO->new( -FILE => $t_file, -FORMAT => 'interpro'); # ici
 
   my $seq = $a_in->next_seq();
   ok($seq);
