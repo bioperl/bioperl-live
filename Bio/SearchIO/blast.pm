@@ -111,7 +111,7 @@ Email Jason Stajich jason-at-bioperl.org
 
 =head1 CONTRIBUTORS
 
-Steve Chervitz sac@bioperl.org
+Steve Chervitz sac-at-bioperl.org
 
 =head1 APPENDIX
 
@@ -121,7 +121,7 @@ Internal methods are usually preceded with a _
 =cut
 
 
-# Let the code begin...
+# Let the code begin...'
 
 
 
@@ -141,9 +141,6 @@ use vars qw(@ISA %MAPPING %MODEMAP
 use Bio::SearchIO;
 
 @ISA = qw(Bio::SearchIO );
-
-# End users should not ever see these exceptions
-@Bio::SearchIO::InternalParserError::ISA = qw(Bio::Root::Exception);
 
 BEGIN { 
     # mapping of NCBI Blast terms to Bioperl hash keys
@@ -189,7 +186,8 @@ BEGIN {
           'Hit_score'     => 'HIT-score',
           'Hit_bits'      => 'HIT-bits',
 
-          'Iteration_iter-num' => 'ITERATION-number',
+          'Iteration_iter-num'   => 'ITERATION-number',
+          'Iteration_converged'  => 'ITERATION-converged',
 
           'BlastOutput_program'  => 'RESULT-algorithm_name',
           'BlastOutput_version'  => 'RESULT-algorithm_version',
@@ -309,6 +307,7 @@ BEGIN {
                            default = false.
 
 =cut
+#'
 
 sub _initialize {
     my ($self,@args) = @_;
@@ -371,6 +370,7 @@ sub next_result{
 	   /^(MEGABLAST)\s*(.+)$/i || 
 	   /^(P?GENEWISE|HFRAME|SWN|TSWN)\s+(.+)/i #Paracel BTK
            ) {
+#           $self->debug("blast.pm: Start of new report: $1 $2\n");
 	   if( $self->{'_seentop'} ) {
                # This handles multi-result input streams
                $self->_pushback($_);
@@ -394,7 +394,7 @@ sub next_result{
            $self->element({ 'Name' => 'BlastOutput_inclusion-threshold',
                             'Data' => $incl_threshold});
        } elsif ( /^Searching/ ) {
-           # print STDERR "blast.pm: Searching found...\n";
+#            $self->debug("blast.pm: Searching found...\n");
 
            $self->in_element('hsp') && 
                $self->end_element({ 'Name' => 'Hsp'});
@@ -410,7 +410,7 @@ sub next_result{
            }
            $seeniteration = 1;
        } elsif ( /^Query=\s*(.+)$/ ) {
-           # print STDERR "blast.pm: Query= found...$_\n";
+#           $self->debug("blast.pm: Query= found...$_\n");
            my $q = $1;
            my $size = 0;
 	   
@@ -476,6 +476,7 @@ sub next_result{
            }
 
        } elsif( /Sequences producing significant alignments:/ ) {
+#           $self->debug("blast.pm: Processing NCBI-BLAST descripitons\n");
            $flavor = 'ncbi';
            # The next line is not necessarily whitespace in psiblast reports.
            # Also note that we must look for the end of this section by testing
@@ -493,14 +494,20 @@ sub next_result{
                    # Some data clean-up so e-value will appear numeric to perl
                    $evalue =~ s/^e/1e/i;
 		   push @hit_signifs, [ $evalue, $score ];
-               } elsif( /^>/ ) {
+               } elsif (/^CONVERGED/i) {
+                   $self->element({ 'Name' => 'Iteration_converged',
+                                    'Data' => 1});
+               }
+
+               if( /^>/ ) {
                    $self->_pushback($_);
                    last descline;
                }
            }
        } elsif( /Sequences producing High-scoring Segment Pairs:/ ) {
-           # This block is for wu-blast, so we don't have to check for psi-blast stuff
+           # This block is for WU-BLAST, so we don't have to check for psi-blast stuff
            # skip the next line
+#           $self->debug("blast.pm: Processing WU-BLAST descripitons\n");
            $_ = $self->_readline();
            $flavor = 'wu';
 
@@ -515,7 +522,7 @@ sub next_result{
                 push @hit_signifs, [ pop @line, pop @line];
            }
        } elsif ( /^Database:\s*(.+)$/ ) {
-           #print STDERR "blast.pm: Database: $1...\n";
+#           $self->debug("blast.pm: Database: $1\n");
            my $db = $1;
 
            while( defined($_ = $self->_readline) ) {
@@ -537,6 +544,7 @@ sub next_result{
                            'Data' => $db});
        } elsif( /^>(\S+)\s*(.*)?/ ) {
            chomp;
+#           $self->debug("blast.pm: Hit: $1\n");
            $self->in_element('hsp') && $self->end_element({ 'Name' => 'Hsp'});
            $self->in_element('hit') && $self->end_element({ 'Name' => 'Hit'});
 	   # special case when bl2seq reports don't have a leading
@@ -550,7 +558,7 @@ sub next_result{
 	   $self->start_element({ 'Name' => 'Hit'});
            my $id = $1;
            my $restofline = $2;
-           $self->debug("Starting a hit: $1 $2\n");
+#           $self->debug("Starting a hit: $1 $2\n");
 	   $self->element({ 'Name' => 'Hit_id',
                             'Data' => $id});           
            my ($acc, $version);
@@ -612,7 +620,7 @@ sub next_result{
                 /ox) {
 	   $self->in_element('hsp') && $self->end_element({'Name' => 'Hsp'});
            $self->start_element({'Name' => 'Hsp'});
-	   $self->debug( "Got paracel genewise HSP score=$1\n");
+#	   $self->debug( "Got paracel genewise HSP score=$1\n");
 	   
            # Some data clean-up so e-value will appear numeric to perl
            my ($score, $bits, $evalue) = ($3, $1, $4);
@@ -631,7 +639,8 @@ sub next_result{
                 /ox) {
 	   $self->in_element('hsp') && $self->end_element({'Name' => 'Hsp'});
            $self->start_element({'Name' => 'Hsp'});
-	   $self->debug( "Got paracel hframe HSP score=$1\n");
+#	   $self->debug( "Got paracel hframe HSP score=$1\n");
+
 	   # Some data clean-up so e-value will appear numeric to perl
            my ($score, $evalue, $pvalue) = ($1, $2, $4);
            $evalue = "1$evalue" if $evalue =~ /^e/;
@@ -654,7 +663,6 @@ sub next_result{
                   ) { # wu-blast HSP parse
            $self->in_element('hsp') && $self->end_element({'Name' => 'Hsp'});
            $self->start_element({'Name' => 'Hsp'});
-	   # print STDERR "Got wu HSP score=$1\n";
 	   
            # Some data clean-up so e-value will appear numeric to perl
            my ($score, $bits, $evalue, $pvalue) = ($1, $2, $3, $6);
@@ -676,7 +684,6 @@ sub next_result{
                 \s*Expect(\(\d+\))?\s*=\s*(\S+) # E-value
                 /ox) { # parse NCBI blast HSP
            $self->in_element('hsp') && $self->end_element({ 'Name' => 'Hsp'});
-	   # print STDERR "Got ncbi HSP score=$3\n";
 	   
            # Some data clean-up so e-value will appear numeric to perl
            my ($score, $bits, $evalue) = ($3, $1, $5);
@@ -925,6 +932,7 @@ sub next_result{
                $last = $_;
            }
        } elsif( $self->in_element('hsp') ) {
+#           $self->debug("blast.pm: Processing HSP\n");
            # let's read 3 lines at a time;
 	   # bl2seq hackiness... Not sure I like
 	   $self->{'_reporttype'} ||= $DEFAULTREPORTTYPE;
@@ -960,11 +968,11 @@ sub next_result{
            $self->characters({'Name' => 'Hsp_midline',
                               'Data' => $data{'Mid'} });
        } else { 
-           $self->debug( "unrecognized line $_");
+           $self->debug( "blast.pm: unrecognized line $_");
        }
    } 
 
-#   print STDERR "blast.pm: End of BlastOutput \n";
+#   $self->debug("blast.pm: End of BlastOutput\n");
    if( $self->{'_seentop'} ) {
        $self->within_element('hsp') && 
 	   $self->end_element({ 'Name' => 'Hsp'});
@@ -1151,7 +1159,7 @@ sub end_element {
             $self->{'_values'}->{$MAPPING{$nm}} = $self->{'_last_data'};
         }
     } else { 
-        $self->debug( "unknown nm $nm, ignoring\n");
+        $self->debug( "blast.pm: unknown nm $nm, ignoring\n");
     }
     $self->{'_last_data'} = ''; # remove read data if we are at 
                                 # end of an element
@@ -1279,7 +1287,7 @@ sub start_document{
 
 sub end_document{
    my ($self,@args) = @_;
-   #print STDERR "blast.pm: end_document\n";
+#   $self->debug("blast.pm: end_document\n");
    return $self->{'_result'};
 }
 
@@ -1425,5 +1433,115 @@ sub check_all_hits {
 
 
 1;
+
+
+__END__
+
+Developer Notes
+---------------
+
+The following information is added in hopes of increasing the
+maintainability of this code. It runs the risk of becoming obsolete as
+the code gets updated. As always, double check against the actual
+source. If you find any discrepencies, please correct them.
+[ This documentation added on 3 Jun 2003. ]
+
+The logic is the brainchild of Jason Stajich, documented by Steve
+Chervitz. Jason: please check it over and modify as you see fit.
+
+Question:
+Elmo wants to know: How does this module unmarshall data from the input stream?
+(i.e., how does information from a raw input file get added to 
+the correct Bioperl object?)
+
+Answer:
+
+This answer is specific to SearchIO::blast, but may apply to other
+SearchIO.pm subclasses as well. The following description gives the
+basic idea. The actual processing is a little more complex for
+certain types of data (HSP, Report Parameters).
+
+You can think of blast::next_result() as faking a SAX XML parser,
+making a non-XML document behave like its XML. The overhead to do this
+is quite substantial (~650 lines of code instead of ~80 in
+blastxml.pm).
+
+0. First, add a key => value pair for the datum of interest to %MAPPING
+    Example:
+           'Foo_bar'   => 'Foo-bar',
+
+1. next_result() collects the datum of interest from the input stream, 
+   and calls element(). 
+    Example:
+            $self->element({ 'Name' => 'Foo_bar',
+                             'Data' => $foobar});
+
+2. The element() method is a convenience method that calls start_element(),
+   characters(), and end_element(). 
+
+3. start_element() checks to see if the event handler can handle a start_xxx(),
+   where xxx = the 'Name' parameter passed into element(), and calls start_xxx()
+   if so. Otherwise, start_element() does not do anything.
+
+   Data that will have such an event handler are defined in %MODEMAP.
+   Typically, there are only handler methods for the main parts of
+   the search result (e.g., Result, Iteration, Hit, HSP),
+   which have corresponding Bioperl modules. So in this example,
+   there was an earlier call such as $self->element({'Name'=>'Foo'})
+   and the Foo_bar datum is meant to ultimately go into a Foo object.
+
+   The start_foo() method in the handler will typically do any
+   data initialization necessary to prepare for creating a new Foo object.
+   Example: SearchResultEventBuilder::start_result()
+
+4. characters() takes the value of the 'Data' key from the hashref argument in
+   the elements() call and saves it in a local data member:
+   Example:
+   $self->{'_last_data'} = $data->{'Data'};
+
+5. end_element() is like start_element() in that it does the check for whether
+   the event handler can handle end_xxx() and if so, calls it, passing in 
+   the data collected from all of the characters() calls that occurred
+   since the start_xxx() call.
+
+   If there isn't any special handler for the data type specified by 'Name', 
+   end_element() will place the data saved by characters() into another
+   local data member that saves it in a hash with a key defined by %MAPPING.
+   Example:
+           $nm = $data->{'Name'};
+           $self->{'_values'}->{$MAPPING{$nm}} = $self->{'_last_data'};
+
+   In this case, $MAPPING{$nm} is 'Foo-bar'.
+
+   end_element() finishes by resetting the local data member used by 
+   characters(). (i.e., $self->{'_last_data'} = '';)
+
+6. When the next_result() method encounters the end of the Foo element in the 
+   input stream. It will invoke $self->end_element({'Name'=>'Foo'}).
+   end_element() then sends all of the data in the $self->{'_values'} hash.
+   Note that $self->{'_values'} is cleaned out during start_element(),
+   keeping it at a resonable size.
+
+   In the event handler, the end_foo() method takes the hash from end_element()
+   and creates a new hash containing the same data, but having keys lacking
+   the 'Foo' prefix (e.g., 'Foo-bar' becomes '-bar'). The handler's end_foo()
+   method then creates the Foo object, passing in this new hash as an argument.
+   Example: SearchResultEventBuilder::end_result()
+
+7. Objects created from the data in the search result are managed by 
+   the event handler which adds them to a ResultI object (using API methods
+   for that object). The ResultI object gets passed back to
+   SearchIO::end_element() when it calls end_result().
+
+   The ResultI object is then saved in an internal data member of the 
+   SearchIO object, which returns it at the end of next_result()
+   by calling end_document().
+
+   (Technical Note: All objects created by end_xxx() methods in the event 
+    handler are returned to SearchIO::end_element(), but the SearchIO object
+    only cares about the ResultI objects.)
+
+(Sesame Street aficionados note: This answer was NOT given by Mr. Noodle ;-P)
+
 
 
