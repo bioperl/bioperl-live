@@ -374,7 +374,7 @@ sub new {
  Throws    : Exception if the requested enzyme name is unavailable.
            : NOTE: Case sensitive.
 
-See Also   : L<_initialize>(), L<_make_custom>()
+See Also   : L<Bio::Seq.pm::_initialize>(), L<_make_custom>()
 
 =cut
 
@@ -411,7 +411,7 @@ sub _make_standard {
            : Warning if the string did not specify cut position.
            :         Places cut site after 5'-most position.
 
-See Also   : L<_initialize>()
+See Also   : L<Bio::Seq.pm::_initialize>()
 
 =cut
 

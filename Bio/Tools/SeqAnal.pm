@@ -119,10 +119,11 @@ The mode is set by supplying switches to the constructor, see L<_initialize>().
 
 
 
-A key feature of SeqAnal.pm is the ability to access raw data in a generic
-fashion. Regardless of what sequence analysis method is used, the raw data
-always need to be read into memory.  The SeqAnal.pm class utilizes the L<read>()
-method inherited from B<Bio::Root::Object.pm> to permit the following:
+A key feature of SeqAnal.pm is the ability to access raw data in a
+generic fashion. Regardless of what sequence analysis method is used,
+the raw data always need to be read into memory.  The SeqAnal.pm class
+utilizes the L<Bio::Root::Object::read>() method inherited from
+B<Bio::Root::Object.pm> to permit the following:
 
 =over 4
 
