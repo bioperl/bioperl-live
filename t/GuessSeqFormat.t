@@ -106,24 +106,28 @@ foreach my $ext (@seqformats) {
 #
 # File handle tests
 #
+if( eval 'require IO::String; 1' ) {
 
-use IO::String;
-
-my $string = ">test1 no comment
+    my $string = ">test1 no comment
 agtgctagctagctagctagct
 >test2 no comment
 gtagttatgc
 ";
 
-my $stringfh = new IO::String($string);
-
-my $seqio = new Bio::SeqIO(-fh => $stringfh);
-while( my $seq = $seqio->next_seq ) {
-    ok $seq->id =~ /test/;
-}
-
+    my $stringfh = new IO::String($string);
+    
+    my $seqio = new Bio::SeqIO(-fh => $stringfh);
+    while( my $seq = $seqio->next_seq ) {
+	ok $seq->id =~ /test/;
+    }
+    
 #
 # text guessing
 #
 
-ok new Bio::Tools::GuessSeqFormat( -text => $string )->guess, 'fasta';
+    ok new Bio::Tools::GuessSeqFormat( -text => $string )->guess, 'fasta';
+} else {
+    for (1..3) {
+	skip("skipping guessing format from string, IO::String not installed",1);
+    }
+}
