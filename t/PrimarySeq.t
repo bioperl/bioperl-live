@@ -19,7 +19,7 @@
 
 
 ## We start with some black magic to print on failure.
-BEGIN { $| = 1; print "1..9\n"; 
+BEGIN { $| = 1; print "1..13\n"; 
 	use vars qw($loaded); }
 END {print "not ok 1\n" unless $loaded;}
 
@@ -49,20 +49,21 @@ my $seq = Bio::PrimarySeq->new(-seq=>'TTGGTGGCGTCAACT',
                         -desc=>'Sample Bio::Seq object');
 test 2, defined $seq;
 
-$seq->accession_number();
-$seq->seq();
-$seq->display_id();
+test 3, $seq->accession_number() eq 'X677667';
+test 4, $seq->seq() eq 'TTGGTGGCGTCAACT';
+test 5, $seq->display_id(), 'new-id';
 
-test 3, $seq->display_id() eq 'new-id';
+test 6, $seq->display_id() eq 'new-id';
+test 7, $seq->moltype() eq 'dna';
 
 $trunc = $seq->trunc(1,4);
-test 4, defined $trunc;
-test 5, ( $trunc->seq() eq 'TTGG' ), "Expecting TTGG. Got ".$trunc->seq();
+test 8, defined $trunc && $trunc->length == 4;
+test 9, ( $trunc->seq() eq 'TTGG' ), "Expecting TTGG. Got ".$trunc->seq();
 
 $rev = $seq->revcom();
-test 6, defined $rev; 
+test 10, defined $rev; 
 
-test 7, ( $rev->seq() eq 'AGTTGACGCCACCAA' );
+test 11, ( $rev->seq() eq 'AGTTGACGCCACCAA' );
 
 #
 # Translate
@@ -70,15 +71,11 @@ test 7, ( $rev->seq() eq 'AGTTGACGCCACCAA' );
 
 $aa = $seq->translate();
 
-#print $seq->seq, "ok 8\n"; # you cannot simply comment out tests -- they
-                            # will be treated as failed!
-
-test 8, ( $aa->seq eq 'LVAST' ), "Translation: ". $aa->seq;
+test 12, ( $aa->seq eq 'LVAST' ), "Translation: ". $aa->seq;
 
 $seq->seq('TTGGTGGCGTCAACTTAA');
 
-#                    $stop, $unknown, $frame, $tableid, $fullCDS, $throw
 $aa = $seq->translate(undef, undef, undef, undef, 1);
 
 # tests for non-Methionin initiator codon (AGT) coding for M
-test 9, ( $aa->seq eq 'MVAST' ), "Translation: ". $aa->seq;
+test 13, ( $aa->seq eq 'MVAST' ), "Translation: ". $aa->seq;
