@@ -7,7 +7,7 @@
 use strict;
 use ExtUtils::MakeMaker;
 use Bio::Root::IO;
-use constant TEST_COUNT => 95;
+use constant TEST_COUNT => 96;
 use constant FASTA_FILES => Bio::Root::IO->catfile('t','data','dbfa');
 use constant GFF_FILE    => Bio::Root::IO->catfile('t','data',
 						   'biodbgff','test.gff');
@@ -54,7 +54,7 @@ if ($adaptor =~ /^dbi/) {
 my $db = eval { Bio::DB::GFF->new(@args) };
 warn $@ if $@;
 ok($db);
-fail(TEST_COUNT - 2) unless $db;
+fail(TEST_COUNT - 1) unless $db;
 
 # exercise the loader
 ok($db->initialize(1));
@@ -322,7 +322,8 @@ sub ChooseDrivers {
   my $cfg = shift || {};
   my @drivers = grep {!$EXCLUDE_DRIVERS{$_}} DBI->available_drivers;
   my @preferred_drivers = sort {($PREFERRED_DRIVERS{$a}||99) <=> ($PREFERRED_DRIVERS{$b}||99)} @drivers;
-  print <<END;
+  print STDERR <<END;
+
 *** Bio::DB::GFF TEST SETUP ***
     Bio::DB::GFF requires a running database server (preferably MySQL).
     To run this test suite you must provide the name and host of a test database
@@ -400,6 +401,7 @@ sub QueryDb {
 
 
   if ($options->{'verbose'}) {
+    local $^W=0;  # some uninitialized variable warning coming through
     print("Driver $driver is using the following settings for tests:\n",
 	  "    Database $test_db\n",
 	  "    Host     $test_host\n",
