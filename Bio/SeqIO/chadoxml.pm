@@ -372,13 +372,16 @@ EOUSAGE
 	$ftype = 'DNA' if $ftype eq 'dna';
 	$ftype = 'RNA' if $ftype eq 'rna';
 
-	my $gb_type = $seq->molecule() || $seq->alphabet || 'DNA';
-	$gb_type = 'DNA' if $gb_type eq 'dna';
+	my $gb_type = $ftype;
 
 	my %ftype_hash = ( "name" => $ftype, "cv_id" => {"name" => 'SO'});
 		
 	my $spec = $seq->species();
-	%organism = ("genus"=>$spec->genus(), "species" => $spec->species());
+	if (!defined $spec) {
+		$self->throw("$seq does not know what organism it is from, which is required by chado. cannot proceed!\n");
+	} else {
+		%organism = ("genus"=>$spec->genus(), "species" => $spec->species());
+	}
 
         my $residues = $seq->seq || '';
 
