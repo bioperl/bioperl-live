@@ -1,4 +1,4 @@
-# $Id: PLATFORMS,v 1.13 2002-01-22 22:55:55 dag Exp $
+# $Id: PLATFORMS,v 1.14 2002-04-03 23:33:08 jason Exp $
 
 Perl general comments:
 
@@ -18,6 +18,12 @@ Perl general comments:
 
 Tested systems & OS Specific Comments or Warnings
 ==================================================
+
+Machine : RedHat Linux 7.2 i686
+Compiler: cc
+Perl    : 5.004-5.6.1
+Comments: XML::Writer tests fails (segfault), but do an install/force anyways
+	  and all will work.
 
 Machine : Linux i386
 Compiler: cc
