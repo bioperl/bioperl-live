@@ -179,8 +179,7 @@ sub sub_Location {
 		@sublocs);
     if(@locs) {
       if($order == 1) {
-	# Schwartzian transforms for performance boost
-	  
+	# Schwartzian transforms for performance boost	  
 	  @locs = map {$_->[0]}
 	  sort { $a->[1] <=> $b->[1] }
 	    map { [$_=>$_->start] } @locs;

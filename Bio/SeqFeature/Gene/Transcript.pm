@@ -288,14 +288,15 @@ sub introns {
     $rev_order = ($exons[0]->end() < $exons[1]->start() ? 0 : 1);
     # Make sure exons are sorted. Because we assume they don't overlap, we
     # simply sort by start position.
+
     if((! defined($strand)) || ($strand != -1) || (! $rev_order)) {
 	# always sort forward for plus-strand transcripts, and for negative-
 	# strand transcripts that appear to be unsorted or forward sorted
-        @exons = sort { $a->start() <=> $b->start(); } @exons;
+        @exons = map { $_->[0] } sort { $a->[1] <=> $b->[1] } map { [ $_, $_->start()* $_->strand ] } @exons;
     } else {
 	# sort in reverse order for transcripts on the negative strand and
 	# found to be in reverse order
-        @exons = sort { $b->start() <=> $a->start(); } @exons;	
+        @exons = map { $_->[0] } sort { $b->[1] <=> $a->[1] } map { [ $_, $_->start()] } @exons;
     }
     # loop over all intervening gaps
     for(my $i = 0; $i < $#exons; $i++) {
@@ -773,9 +774,9 @@ sub _stranded_sort {
 	}
     }
     if (defined $strand && $strand == - 1) {  #reverse strand
-	return sort {$b->start <=> $a->start} @list;
+	return map { $_->[0] } sort {$b->[1] <=> $a->[1]} map { [$_, $_->start] } @list;
     } else {               #undef or forward strand
-	return sort {$a->start <=> $b->start} @list;
+	return map { $_->[0] } sort {$a->[1] <=> $b->[1]} map { [$_, $_->start] } @list;
     }
 }
 

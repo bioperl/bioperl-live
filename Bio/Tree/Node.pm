@@ -186,12 +186,16 @@ sub each_Descendent{
        return sort $sortby values %{$self->{'_desc'}};
    } else  {
        if ($sortby eq 'height') {
-	   return sort {($a->height <=> $b->height) ||
-			    $a->internal_id <=> $b->internal_id } 
-	       values %{$self->{'_desc'}};
+	   return map { $_->[0] }
+		  sort { $a->[1] <=> $b->[1] || 
+			 $a->[2] <=> $b->[2] } 
+	       map { [$_, $_->height, $_->internal_id ] } 
+	   values %{$self->{'_desc'}};
        } else {
-	   return sort { $a->internal_id <=> $b->internal_id } 
-	       values %{$self->{'_desc'}};	   
+	   return map { $_->[0] }
+	          sort { $a->[1] <=> $b->[1] } 
+	          map { [$_, $_->height ] }
+	          values %{$self->{'_desc'}};	   
        }
    }
 }

@@ -42,7 +42,10 @@ sub new {
   if (@subfeatures) {
 
     # dynamic glyph resolution
-    @subglyphs = sort { $a->left  <=> $b->left }  $factory->make_glyph($level+1,@subfeatures);
+    @subglyphs = map { $_->[0] }
+    sort { $a->[1] <=> $b->[1] }
+    map { [$_, $_->left ] } 
+    $factory->make_glyph($level+1,@subfeatures);
 
     $self->{parts}   = \@subglyphs;
   }
@@ -417,6 +420,8 @@ sub layout_sort {
        my @sortbys = split(/\s*\|\s*/o, $opt);
        $sortfunc = 'sub { ';
        my $sawleft = 0;
+
+       # not sure I can make this schwartzian transfored
        for my $sortby (@sortbys) {
            if ($sortby eq "left" || $sortby eq "default") {
                $sortfunc .= '($a->left <=> $b->left) || ';

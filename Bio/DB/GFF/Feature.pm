@@ -654,11 +654,10 @@ sub merged_segments {
   my $truename = overload::StrVal($self);
 
   return @{$self->{merged_segs}{$type}} if exists $self->{merged_segs}{$type};
-  my @segs = sort {
-                $a->start <=> $b->start
-		  ||
-                $a->type cmp  $b->type
-		 } $self->sub_SeqFeature($type);
+  my @segs = map  { $_->[0] } 
+             sort { $a->[1] <=> $b->[1] ||
+		    $a->[2] cmp $b->[2] }
+             map  { [$_, $_->start, $_->type] } $self->sub_SeqFeature($type);
 
   # attempt to merge overlapping segments
   my @merged = ();
@@ -939,8 +938,14 @@ sub sort_features {
   my $strand = $self->strand or return;
   my $subfeat = $self->{subfeatures} or return;
   for my $type (keys %$subfeat) {
-    $subfeat->{$type} = [sort {$a->start<=>$b->start} @{$subfeat->{$type}}] if $strand > 0;
-    $subfeat->{$type} = [sort {$b->start<=>$a->start} @{$subfeat->{$type}}] if $strand < 0;
+      $subfeat->{$type} = [map { $_->[0] }
+			   sort {$a->[1] <=> $b->[1] }
+			   map { [$_,$_->start] }
+			   @{$subfeat->{$type}}] if $strand > 0;
+      $subfeat->{$type} = [map { $_->[0] }
+			   sort {$b->[1] <=> $a->[1]}
+			   map { [$_,$_->start] }
+			   @{$subfeat->{$type}}] if $strand < 0;
   }
 }
 

@@ -295,7 +295,9 @@ sub domain_bits_cutoff_from_evalue {
     @doms = $self->each_Domain;
 
 
-    @doms = sort { $b->bits <=> $a->bits } @doms;
+    @doms = map { $_->[0] } 
+            sort { $b->[1] <=> $a->[1] } 
+            map { [ $_, $_->bits] } @doms;
     $seen = 0;
     foreach $_ ( @doms ) {
 	if( $_->evalue > $eval ) {

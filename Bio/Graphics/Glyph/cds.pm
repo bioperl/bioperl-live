@@ -44,7 +44,9 @@ sub draw {
 
   # figure out the colors of each part
   # sort minus strand features backward
-  @parts = sort {$b->left <=> $a->left} @parts if $strand < 0;
+  @parts = map { $_->[0] }
+  sort { $b->[1] <=> $a->[1] }
+  map { [$_, $_->left ] } @parts if $strand < 0;
   my $translate_table = Bio::Tools::CodonTable->new;
 
   for (my $i=0; $i < @parts; $i++) {
