@@ -85,6 +85,7 @@ $str = Bio::SeqIO->new(-file=> '>t/gcg.out', '-format' => 'GCG');
 
 $str->write_seq($seq);
 ok(1);
+unlink('t/gcg.out');
 
 #####
 ## End of ChrisDag's SeqIO tests.
@@ -106,6 +107,8 @@ while( $seq ) {
     $seq = $str->next_seq();
 }
 undef $strout;
+unlink('t/genbank.out');
+
 ok(1);
 
 # please leave this as the last line:
@@ -163,6 +166,8 @@ $out = Bio::SeqIO->new(-file=> '>t/embl.out', '-format' => 'embl');
 
 # test writing the same
 ok $out->write_seq($seq),1,'failure to write Embl format with ^ < and > locations';
+
+unlink('t/embl.out');
 
 # ACeDB flatfile (ace) sequence format tests
 {
@@ -267,3 +272,4 @@ $seq = Bio::SeqIO->new( '-format' => 'GenBank' ,
 			-file => '>t/genbank.fuzzyout');
 $seq->verbose($verbosity);
 ok($seq->write_seq($as));
+unlink('t/genbank.fuzzyout');

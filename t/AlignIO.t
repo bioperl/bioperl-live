@@ -112,4 +112,4 @@ ok ($aln->{order}->{'1'}, 'ALEU_HORVU -60-360',
 
 unlink('t/testout2.pfam','t/testout.selex',
        't/testout.pfam','t/testout.msf',
-       't/testout.fasta');
+       't/testout.fasta', 't/testaln.clustal');

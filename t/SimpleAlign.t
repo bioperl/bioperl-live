@@ -44,12 +44,15 @@ $aln->write_Pfam(\*OUT);
 close(OUT);
 ok(1);
 
+# make sure we can dogfood here
 $aln = Bio::SimpleAlign->new();
 open(IN,"t/out.pfam");
 $aln->read_Pfam(\*IN);
 close(IN);
 
 ok ( $aln );
+
+unlink('t/out.pfam');
 
 
 
