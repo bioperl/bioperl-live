@@ -53,7 +53,7 @@ ok $svg->xmlify;
 
 my $psmIO =  new Bio::Matrix::PSM::IO(-format=>'meme', 
                                    -file=> Bio::Root::IO->catfile(qw(t data meme.dat)));
-my $picto = Bio::Graphics::Pictogram->new(-width=>"800",
+$picto = Bio::Graphics::Pictogram->new(-width=>"800",
                                           -normalize=>1,
                                           -fontsize=>"80",
                                           -plot_bits=>1,
@@ -63,7 +63,7 @@ my $picto = Bio::Graphics::Pictogram->new(-width=>"800",
                                                    'T'=>'magenta'});
 
 my $psm = $psmIO->next_psm;
-my $svg = $picto->make_svg($psm);
+$svg = $picto->make_svg($psm);
 ok $svg->xmlify;
 
 
