@@ -217,7 +217,6 @@ sub get_ontology{
                                       -format   => $fmt,
                                      );
         $o = $io->next_ontology;
-
         $ont_store_by_name{$name} = $o;
       }
     }

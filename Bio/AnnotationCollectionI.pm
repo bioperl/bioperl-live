@@ -44,7 +44,7 @@ The trouble about this is we are not that sure what "interesting
 facts" someone might want to store: the possibility is endless. 
 
 Bioperl's approach is that the "interesting facts" are represented by
-Bio::AnnotationI objects. The interface Bio::AnnotationI guarentees
+Bio::AnnotationI objects. The interface Bio::AnnotationI guarantees
 two methods
 
    $obj->as_text(); # string formated to display to users
@@ -63,8 +63,8 @@ and in some cases (like the tag "gene_name") indicate how to interpret the
 data underneath the tag. The tag is only one tag deep and each tag can have an
 array of values.
 
-In addition, AnnotationCollectionI's are guarentee to maintain a consistent
-set object values under each tag - at least that each object complies to one
+In addition, AnnotationCollections are guaranteed to maintain consistent
+types of objects under each tag - at least that each object complies to one
 interface. The "standard" AnnotationCollection insists the following rules
 are set up
 

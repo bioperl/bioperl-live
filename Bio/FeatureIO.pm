@@ -379,7 +379,11 @@ sub next_feature {
 
 sub write_feature {
     my ($self, $seq) = @_;
-    $self->throw("Sorry, you cannot write to a generic Bio::FeatureIO object.");
+    if(ref($self) eq __PACKAGE__){
+      $self->throw("Sorry, you cannot write to a generic Bio::FeatureIO object.");
+    } else {
+      $self->throw_not_implemented();
+    }
 }
 
 =head2 _load_format_module
