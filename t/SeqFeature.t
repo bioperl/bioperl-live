@@ -281,7 +281,7 @@ $geneseq->add_SeqFeature($gene);
 
 my ($t) = $gene->transcripts(); # get 1st transcript
 ok(defined $t); 
-ok($t->mrna->length, 1595);
+ok($t->mrna->length, 1693);
 ok($gene->utrs, 2);
 
 

@@ -67,17 +67,25 @@ package Bio::SeqFeature::Gene::Intron;
 use vars qw(@ISA);
 use strict;
 
-# Object preamble - inherits from Bio::Root::Root
-
+use Bio::SeqFeature::Gene::Exon;
 use Bio::SeqFeature::Gene::NC_Feature;
 
 @ISA = qw(Bio::SeqFeature::Gene::NC_Feature);
 
 sub new {
-  my($class,@args) = @_;
+    my($class,@args) = @_;
 
-  my $self = $class->SUPER::new(@args);
+    # introns are non-coding by default
+    if(! grep { lc($_) eq '-is_coding'; } @args) {
+	push(@args, '-is_coding', 0);
+    }
+    my $self = $class->SUPER::new(@args);
 
+    my ($primary, $prim) = 
+	$self->_rearrange([qw(PRIMARY PRIMARY_TAG)],@args);
+    $self->primary_tag('intron') unless $primary || $prim;
+
+    return $self;
 }
 
 =head2 upstream_Exon 
@@ -95,7 +103,8 @@ sub upstream_Exon {
     
     if ($exon) {
         $self->{'_intron_location'} = undef;
-        $self->throw("'$exon' is not a Bio::SeqFeature::Gene::Exon") unless $exon->isa('Bio::SeqFeature::Gene::Exon');
+        $self->throw("'$exon' is not a Bio::SeqFeature::Gene::ExonI") 
+	    unless $exon->isa('Bio::SeqFeature::Gene::ExonI');
         $self->{'_upstream_exon'} = $exon;
     }
     return $self->{'_upstream_exon'};
@@ -117,8 +126,8 @@ sub downstream_Exon {
     
     if ($exon) {
         $self->{'_intron_location'} = undef;
-        $self->throw("'$exon' is not a Bio::SeqFeature::Gene::Exon")
-            unless $exon->isa('Bio::SeqFeature::Gene::Exon');
+        $self->throw("'$exon' is not a Bio::SeqFeature::Gene::ExonI")
+            unless $exon->isa('Bio::SeqFeature::Gene::ExonI');
         $self->{'_downstream_exon'} = $exon;
     }
     return $self->{'_downstream_exon'};

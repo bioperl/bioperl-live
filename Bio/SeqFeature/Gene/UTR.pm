@@ -13,7 +13,7 @@
 =head1 NAME
 
 Bio::SeqFeature::Gene::UTR - A feature representing an untranslated region
-          that is part of a transcription unit
+          that is part of a transcriptional unit
 
 =head1 SYNOPSIS
 
@@ -70,15 +70,38 @@ use strict;
 
 # Object preamble - inherits from Bio::Root::Root
 
-use Bio::SeqFeature::Gene::NC_Feature;
+use Bio::SeqFeature::Gene::Exon;
 
-@ISA = qw(Bio::SeqFeature::Gene::NC_Feature);
+@ISA = qw(Bio::SeqFeature::Gene::Exon);
 
-sub new {
-  my($class,@args) = @_;
+=head2 new
 
-  my $self = $class->SUPER::new(@args);
-  return $self;
+ Title   : new
+ Usage   :
+ Function: We override the constructor here to set is_coding to false
+           unless explicitly overridden.
+
+ Example :
+ Returns : 
+ Args    :
+
+
+=cut
+
+sub new{
+    my ($caller, @args) = @_;
+
+    if(! grep { lc($_) eq '-is_coding'; } @args) {
+	push(@args, '-is_coding', 0);
+    }
+    my $self = $caller->SUPER::new(@args);
+
+    my ($primary, $prim) = 
+	$self->_rearrange([qw(PRIMARY PRIMARY_TAG)],@args);
+
+    $self->primary_tag('utr') unless $primary || $prim;
+
+    return $self;
 }
 
 =head2 primary_tag
@@ -94,13 +117,18 @@ sub new {
 =cut
 
 sub primary_tag{
-   my ($self,$val) = @_;
-   if( defined $val ) {
-       if ($val =~ /(3|5)/ ) { $val = "utr$1prime" }
-       else { $self->warn("tag should contain indication if this is 3 or 5 prime.  Preferred text is 'utr3prime' or 'utr5prime'.  Using user text of '$val'");}
-   }
-   $self->SUPER::primary_tag($val);
-
+    my $self = shift;
+    if(@_ && defined($_[0])) {
+	my $val = shift;
+	if ($val =~ /(3|5)/ ) { 
+	    $val = "utr$1prime";
+	} else { 
+	    $self->warn("Primary tag should indicate if this is 3 or 5'. ".
+			"Preferred text is 'utr3prime' or 'utr5prime'.");
+	}
+	unshift(@_,$val);
+    }
+    return $self->SUPER::primary_tag(@_);
 }
 
 1;

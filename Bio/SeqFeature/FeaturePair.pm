@@ -144,9 +144,6 @@ sub new {
 			      FEATURE_FACTORY
 			      )],@args);
     
-    # Store the features in the object
-    $feature1 && $self->feature1($feature1);
-    $feature2 && $self->feature2($feature2);
     # initialize the feature object factory if not provided
     if(! $featfact) {
 	$featfact = Bio::Factory::ObjectFactory->new(
@@ -154,6 +151,9 @@ sub new {
 				   -interface => "Bio::SeqFeatureI");
     }
     $self->feature_factory($featfact);
+    # Store the features in the object
+    $feature1 && $self->feature1($feature1);
+    $feature2 && $self->feature2($feature2);
     
     # OK. Now we're setup to store all the attributes, and they'll go right
     # away into the right objects.

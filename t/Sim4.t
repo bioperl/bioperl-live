@@ -12,7 +12,7 @@ BEGIN {
 	use lib 't';
     }
     use Test;
-    plan tests => 27;
+    plan tests => 129;
 }
 
 use Bio::Tools::Sim4::Results;

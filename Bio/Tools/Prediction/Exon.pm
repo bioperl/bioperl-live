@@ -78,8 +78,6 @@ sub new {
     
     my $self = $class->SUPER::new(@args);
 
-    my ($primary) = $self->_rearrange([qw(PRIMARY)],@args);
-
     return $self;
 }
 
@@ -156,9 +154,7 @@ sub predicted_protein {
 =cut
 
 sub significance {
-    my ($self, $value) = @_;
-
-    return $self->_tag_value('signif', $value);
+    return shift->_tag_value('signif', @_);
 }
 
 =head2 start_signal_score
@@ -175,9 +171,7 @@ sub significance {
 =cut
 
 sub start_signal_score {
-    my ($self, $value) = @_;
-
-    return $self->_tag_value('AccScore', $value);
+    return shift->_tag_value('AccScore', @_);
 }
 
 =head2 end_signal_score
@@ -194,9 +188,7 @@ sub start_signal_score {
 =cut
 
 sub end_signal_score {
-    my ($self, $value) = @_;
-
-    return $self->_tag_value('DonScore', $value);
+    return shift->_tag_value('DonScore', @_);
 }
 
 =head2 coding_signal_score
@@ -212,9 +204,7 @@ sub end_signal_score {
 =cut
 
 sub coding_signal_score {
-    my ($self, $value) = @_;
-
-    return $self->_tag_value('CodScore', $value);
+    return shift->_tag_value('CodScore', @_);
 }
 
 #

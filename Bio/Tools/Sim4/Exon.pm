@@ -97,8 +97,6 @@ package Bio::Tools::Sim4::Exon;
 use vars qw(@ISA);
 use strict;
 
-use Bio::SeqFeature::FeaturePair;
-use Bio::SeqFeature::Generic;
 use Bio::SeqFeature::SimilarityPair;
 
 @ISA = qw(Bio::SeqFeature::SimilarityPair);
@@ -108,10 +106,15 @@ sub new {
     my %param = @args;
     my $self = $class->SUPER::new(@args);
 
-    my ($prim, $source) = $self->_rearrange([qw(PRIMARY SOURCE)], @args);
+    my ($prim, $prim_tag, $source, $source_tag) = 
+	$self->_rearrange([qw(PRIMARY
+			      PRIMARY_TAG 
+			      SOURCE
+			      SOURCE_TAG)], 
+			  @args);
 
-    $self->primary_tag('exon') unless $prim;
-    $self->source_tag('Sim4') unless $source;
+    $self->primary_tag('exon') unless $prim || $prim_tag;
+    $self->source_tag('Sim4') unless $source || $source_tag;
     $self->strand(0) unless defined($self->strand());
     $self->query();
     return $self; 
