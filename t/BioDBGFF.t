@@ -188,7 +188,10 @@ ok($segment6->dna,$dna);
 undef $@;
 my $result = eval { $segment6->ref('Contig2') };
 ok(!$result);
-ok("$@" =~ /are on different sequence segments/);
+
+# note, the test for $DB::package was inserted because throw() was not behaving
+# properly when run under perl debugger.
+ok(defined $DB::package or "$@" =~ /are on different sequence segments/);
 
 # types across a segment
 $segment1 = $db->segment('Contig1');
