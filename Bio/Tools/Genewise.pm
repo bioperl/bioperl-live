@@ -18,7 +18,7 @@ Bio::Tools::Genewise - Results of one Genewise run
   my $gw = Bio::Tools::Genewise(-file=>"genewise.out");
 
   while (my $gene = $gw->next_prediction){
-      my @transcripts = $gw->transcripts;
+    my @transcripts = $gene->transcripts;
       foreach my $t(@transcripts){
         my @exons =  $t->exons;
         foreach my $e(@exons){
