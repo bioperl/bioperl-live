@@ -770,7 +770,7 @@ sub _get_id {
     # we shouldn't have gotten here if it's at least a remotely decent ID
     $self->warn(ref($self).
 		": Are you sure '$term' is a valid identifier? ".
-		"If you see problems, this may be the cause.");
+		"If you see problems, this may be the cause.") if $self->verbose;
     return $term;
 } # _get_id
 
