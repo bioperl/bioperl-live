@@ -7,18 +7,13 @@
 #
 # You may distribute this module under the same terms as perl itself
 
-# POD documentation - main docs before the code
-
-# let the code begin ...
-
 package Bio::Tools::BPlite;
 
 use strict;
 use vars qw(@ISA);
 
 use Bio::Root::Object; # root object to inherit from
-use Bio::SeqFeature::Generic;      # HSP (high scoring pairs) will be
-use Bio::SeqFeature::FeaturePair;  # stored using these two classes
+use Bio::Tools::BPlite::Sbjct; # we want to use Sbjct
 
 @ISA = qw(Bio::Root::Object);
 
@@ -67,10 +62,10 @@ sub nextSbjct {
   ####################
   # the Sbjct object #
   ####################
-  my $sbjct = Bio::Tools::BPlite::Sbjct::new($def, 
-                                             $self->{FH}, 
-					     $self->{LASTLINE}, 
-					     $self);
+  my $sbjct = new Bio::Tools::BPlite::Sbjct($def, 
+                                            $self->{FH}, 
+					    $self->{LASTLINE}, 
+					    $self);
   return $sbjct;
 }
 
@@ -111,151 +106,6 @@ sub _fastForward {
   }
   $self->warn("Possible error while parsing BLAST report!");
 }
-
-###############################################################################
-# Bio::Tools::BPlite::Sbjct
-###############################################################################
-package Bio::Tools::BPlite::Sbjct;
-
-use overload '""' => 'name';
-
-# work to be done from here on!
-sub new {
-	my $sbjct = bless {};
-	($sbjct->{NAME},$sbjct->{FH},$sbjct->{LASTLINE}, $sbjct->{PARENT}) = @_;
-	$sbjct->{HSP_ALL_PARSED} = 0;
-	return $sbjct;
-}
-
-sub name {shift->{NAME}}
-
-sub nextHSP {
-	my ($sbjct) = @_;
-	return 0 if $sbjct->{HSP_ALL_PARSED};
-	
-	############################
-	# get and parse scorelines #
-	############################
-	my $scoreline = $sbjct->{LASTLINE};
-	my $FH = $sbjct->{FH};
-	my $nextline = <$FH>;
-	return undef if not defined $nextline;
-	$scoreline .= $nextline;
-	my ($score, $bits);
-	if ($scoreline =~ /\d bits\)/) {
-		($score, $bits) = $scoreline =~
-			/Score = (\d+) \((\S+) bits\)/; # WU-BLAST
-	}
-	else {
-		($bits, $score) = $scoreline =~
-			/Score =\s+(\S+) bits \((\d+)/; # NCBI-BLAST
-	}
-	
-	my ($match, $length) = $scoreline =~ /Identities = (\d+)\/(\d+)/;
-	my ($positive) = $scoreline =~ /Positives = (\d+)/;
-	$positive = $match if not defined $positive;
-	my ($p)       = $scoreline =~ /[Sum ]*P[\(\d+\)]* = (\S+)/;
-	if (not defined $p) {($p) = $scoreline =~ /Expect = (\S+)/}
-	
-	die "parse error $scoreline\n" if not defined $score;
-
-	#######################
-	# get alignment lines #
-	#######################
-	my @hspline;
-	while(<$FH>) {
-		if ($_ =~ /^WARNING:|^NOTE:/) {
-			while(<$FH>) {last if $_ !~ /\S/}
-		}
-		elsif ($_ !~ /\S/)            {next}
-		elsif ($_ =~ /Strand HSP/)    {next} # WU-BLAST non-data
-		elsif ($_ =~ /^\s*Strand/)    {next} # NCBI-BLAST non-data
-		elsif ($_ =~ /^\s*Score/)     {$sbjct->{LASTLINE} = $_; last}
-		elsif ($_ =~ /^>|^Parameters|^\s+Database:/)   {
-			$sbjct->{LASTLINE} = $_;
-			$sbjct->{PARENT}->{LASTLINE} = $_;
-			$sbjct->{HSP_ALL_PARSED} = 1;
-			last;
-		}
-		else {
-			push @hspline, $_;           #      store the query line
-			my $l1 = <$FH>; push @hspline, $l1; # grab/store the alignment line
-			my $l2 = <$FH>; push @hspline, $l2; # grab/store the sbjct line
-		}
-	}
-	
-	#########################
-	# parse alignment lines #
-	#########################
-	my ($ql, $sl, $as) = ("", "", "");
-	my ($qb, $qe, $sb, $se) = (0,0,0,0);
-	my (@QL, @SL, @AS); # for better memory management
-		
-	for(my $i=0;$i<@hspline;$i+=3) {
-		#warn $hspline[$i], $hspline[$i+2];
-		$hspline[$i]   =~ /^Query:\s+(\d+)\s+(\S+)\s+(\d+)/;
-		$ql = $2; $qb = $1 unless $qb; $qe = $3;
-		
-		my $offset = index($hspline[$i], $ql);
-		$as = substr($hspline[$i+1], $offset, CORE::length($ql));
-		
-		$hspline[$i+2] =~ /^Sbjct:\s+(\d+)\s+(\S+)\s+(\d+)/;
-		$sl = $2; $sb = $1 unless $sb; $se = $3;
-		
-		push @QL, $ql; push @SL, $sl; push @AS, $as;
-	}
-
-	##################
-	# the HSP object #
-	##################
-	$ql = join("", @QL);
-	$sl = join("", @SL);
-	$as = join("", @AS);
-	my $hsp = BPlite::HSP::new(
-		$score,$bits,$match,$positive,$length,$p,$qb,$qe,$sb,$se,$ql,$sl,$as);
-	return $hsp;
-}
-
-###############################################################################
-# BPlite::HSP
-###############################################################################
-package BPlite::HSP;
-use overload '""' => '_overload';
-sub new {
-	my $hsp = bless {};
-	($hsp->{SCORE}, $hsp->{BITS},
-		$hsp->{MATCH}, $hsp->{POSITIVE}, $hsp->{LENGTH},$hsp->{P},
-		$hsp->{QB}, $hsp->{QE}, $hsp->{SB}, $hsp->{SE},
-		$hsp->{QL}, $hsp->{SL}, $hsp->{AS}) = @_;
-	$hsp->{PERCENT} = int(1000 * $hsp->{MATCH}/$hsp->{LENGTH})/10;
-	return $hsp;
-}
-sub _overload {
-	my $hsp = shift;
-	return $hsp->queryBegin."..".$hsp->queryEnd." ".$hsp->bits;
-}
-sub score           {shift->{SCORE}}
-sub bits            {shift->{BITS}}
-sub percent         {shift->{PERCENT}}
-sub match           {shift->{MATCH}}
-sub positive        {shift->{POSITIVE}}
-sub length          {shift->{LENGTH}}
-sub P               {shift->{P}}
-sub queryBegin      {shift->{QB}}
-sub queryEnd        {shift->{QE}}
-sub sbjctBegin      {shift->{SB}}
-sub sbjctEnd        {shift->{SE}}
-sub queryAlignment  {shift->{QL}}
-sub sbjctAlignment  {shift->{SL}}
-sub alignmentString {shift->{AS}}
-sub qb              {shift->{QB}}
-sub qe              {shift->{QE}}
-sub sb              {shift->{SB}}
-sub se              {shift->{SE}}
-sub qa              {shift->{QL}}
-sub sa              {shift->{SL}}
-sub as              {shift->{AS}}
-
 
 1;
 __END__
