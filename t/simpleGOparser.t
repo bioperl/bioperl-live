@@ -24,7 +24,7 @@ BEGIN {
 	    exit( 0 );
     }
 
-    plan tests => 81;
+    plan tests => 83;
 }
 
 
@@ -33,10 +33,10 @@ use Bio::Root::IO;
 
 my $io = new Bio::Root::IO; # less typing from now on ...
 my $parser = Bio::OntologyIO::simpleGOparser->new(
-		      -go_defs_file_name => $io->catfile("t","data",
-							 "GO.defs.test"),
-		      -components_file_name => $io->catfile("t","data",
-						  "component.ontology.test" ));
+		      -go_defs_file_name => $io->catfile( "t","data",
+							 "GO.defs.test" ),
+		      -components_file_name => $io->catfile( "t","data",
+						  "component.ontology.test" ) );
 
 
 my $IS_A    = Bio::Ontology::RelationshipType->get_instance( "IS_A" );
@@ -248,13 +248,36 @@ ok( $engine->add_relationship( $rels[ 2 ] ) ); # now it's changed, can add
  
 
 
-my @roots = sort( $engine->get_root_terms() );
+my @roots = $engine->get_root_terms();
 
 ok( @roots == 10 );
 
-my @leafs = sort( $engine->get_leaf_terms() );
+my @leafs = $engine->get_leaf_terms();
 
 ok( @leafs == 19 );
+
+
+
+$parser = Bio::OntologyIO::simpleGOparser->new(
+		      -go_defs_file_name => $io->catfile( "t","data",
+							 "GO.defs.test2" ),
+		      -components_file_name => $io->catfile("t","data",
+						  "component.ontology.test2" ) );
+
+
+$engine = $parser->parse();
+
+my @roots2 = $engine->get_root_terms();
+
+ok( @roots2 == 1 );
+
+my @leafs2 = $engine->get_leaf_terms();
+
+ok( @leafs2 == 4 );
+
+
+
+
 
 
 
