@@ -226,8 +226,7 @@ sub test {
        unless $self->out;
    $self->warn("Incoming coordinates are not defined")
        unless $self->in;
-
-   1 if $self->in->end - $self->in->start == $self->out->end - $self->out->start;
+   return ($self->in->end - $self->in->start) == ($self->out->end - $self->out->start);
 }
 
 
