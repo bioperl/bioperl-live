@@ -545,7 +545,7 @@ warn $line;
 # Parses the 1st term id number out of line.
 sub _get_first_termid {
     my ( $self, $line ) = @_;
-    
+
     if ( $line =~ /;\s*([A-Z_]{1,8}:\d{1,7})/ ) {
         return $1;
     }
@@ -566,6 +566,7 @@ sub _get_name {
 	# remove trailing and leading whitespace
         $name =~ s/\s+$//;
         $name =~ s/^\s+//;
+		$name =~ s/\@.+?\@//;
 	# remove leading dollar character; also we default the name of the
 	# ontology to this name if preset to something else
 	if(index($name,'$') == 0) {
@@ -574,6 +575,7 @@ sub _get_name {
 	    $self->ontology_name(join(" ",split(/_/,$name))) 
 		unless $self->ontology_name();
 	}
+warn $name;
         return $name;
     }
     else {
@@ -608,7 +610,7 @@ sub _get_db_cross_refs {
    
     while ( $line =~ /;([^;^<^%^:]+:[^;^<^%^:]+)/g ) {
         my $ref = $1;
-        if ( $ref =~ /synonym/ || $ref =~ /[A-Z]{1,8}:\d{7}/ ) {
+        if ( $ref =~ /synonym/ || $ref =~ /[A-Z]{1,8}:\d{1,7}/ ) {
             next;
         }
         $ref =~ s/\s+$//;
@@ -625,7 +627,7 @@ sub _get_secondary_termids {
     my ( $self, $line ) = @_;
     my @secs = ();
    
-    while ( $line =~ /,\s*([A-Z]{1,8}:\d{7})/g ) {
+    while ( $line =~ /,\s*([A-Z]{1,8}:\d{1,7})/g ) {
         my $sec = $1;
         push( @secs, $sec );
     }
@@ -641,9 +643,9 @@ sub _get_isa_termids {
     
     my @ids = ();
     
-    $line =~ s/[A-Z]{1,8}:\d{7}//;
+    $line =~ s/[A-Z]{1,8}:\d{1,7}//;
     
-    while ( $line =~ /%[^<^,]*?([A-Z]{1,8}:\d{7})/g ) {
+    while ( $line =~ /%[^<^,]*?([A-Z]{1,8}:\d{1,7})/g ) {
         push( @ids, $1 );
     }
     return @ids; 
@@ -657,9 +659,9 @@ sub _get_partof_termids {
     
     my @ids = ();
     
-    $line =~ s/[A-Z]{1,8}:\d{7}//;
+    $line =~ s/[A-Z]{1,8}:\d{1,7}//;
     
-    while ( $line =~ /<[^%^,]*?([A-Z]{1,8}:\d{7})/g ) {
+    while ( $line =~ /<[^%^,]*?([A-Z]{1,8}:\d{1,7})/g ) {
         push( @ids, $1 );
     }
     return @ids; 
