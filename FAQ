@@ -1,4 +1,4 @@
-# $Id: FAQ,v 1.8 2002-04-24 12:32:32 jason Exp $
+# $Id: FAQ,v 1.9 2002-04-26 12:25:44 bosborne Exp $
 
 Bioperl FAQ
 -----------
@@ -257,10 +257,11 @@ IV. Utilities
      in a protein? Calculate nucleotide melting temperature? Find repeats?
 
      In fact, none of these functions are built into Bioperl but they are
-     all available in the EMBOSS package (www.uk.embnet.org/Software/EMBOSS),
-     as well as many others. The Bioperl developers created a simple
-     interface to EMBOSS such that any and all EMBOSS programs can be run
-     from within Bioperl. See Bio::Factory::EMBOSS for more information.
+     all available in the EMBOSS package (www.uk.embnet.org/Software/EMBOSS
+     or www.emboss.org), as well as many others. The Bioperl developers
+     created a simple interface to EMBOSS such that any and all EMBOSS
+     programs can be run from within Bioperl. See Bio::Factory::EMBOSS
+     for more information.
 
      If you can't find the functionality you want in Bioperl then make sure
      to look for it in EMBOSS, these packages integrate quite gracefully
@@ -277,7 +278,9 @@ IV. Utilities
      module addresses the percent match query). Or, take a look at the TFBS
      package, at http://forkhead.cgb.ki.se/TFBS (Transcription Factor Binding
      Site). This Bioperl-compliant package specializes in pattern searching
-     of nucleotide sequence using matrices.
+     of nucleotide sequence using matrices. Finally, you could use
+     EMBOSS, as discussed in question 1, above. The relevant programs
+     would be fuzzpro or fuzznuc.
 
   3. Can I query MEDLINE or other bibliographic repositories using Bioperl?
 
