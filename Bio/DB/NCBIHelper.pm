@@ -34,9 +34,8 @@ web databases.  This module just centralizes the methods for
 constructing a URL for querying NCBI GenBank and NCBI GenPept and the
 common HTML stripping done in L<postprocess_data>().
 
-The NCBI query URLs used are http://www.ncbi.nlm.nih.gov as the base URL,
-/cgi-bin/Entrez/qserver.cgi as the query interface for batch mode, and 
-/entrez/utils/qmap.cgi for single-query mode.
+The base NCBI query URL used is 
+http://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi.
 
 =head1 FEEDBACK
 
@@ -92,7 +91,7 @@ use Bio::Root::Root;
 
 BEGIN {
     $MAX_ENTRIES = 19000;
-    $HOSTBASE = 'http://www.ncbi.nlm.nih.gov';
+    $HOSTBASE = 'http://eutils.ncbi.nlm.nih.gov';
     %CGILOCATION = (
 		    'batch'  => ['post' => '/entrez/eutils/efetch.fcgi'],
 		    'query'  => ['get'  => '/entrez/eutils/efetch.fcgi'],
