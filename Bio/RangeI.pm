@@ -291,12 +291,13 @@ which new ranges could be built.
 
   Title   : intersection
   Usage   : ($start, $stop, $strand) = $r1->intersection($r2)
+            my $containing_range = $r1->intersection($r2)
   Function: gives the range that is contained by both ranges
   Args    : arg #1 = a range to compare this one to (mandatory)
             arg #2 = strand option ('strong', 'weak', 'ignore') (optional)
   Returns : undef if they do not overlap, 
             or the range that they do overlap 
-            (in an objectlike the calling one)
+            (in an objectlike the calling one, OR a three element array)
 
 =cut
 
@@ -320,7 +321,9 @@ sub intersection {
 
     my $union_strand;  # Strand for the union range object.
 
-    if($self->strand == $other->strand) {
+    if(defined($self->strand) &&
+       defined($other->strand) &&
+       $self->strand == $other->strand) {
 	$union_strand = $other->strand;
     } else {
 	$union_strand = 0;
@@ -329,24 +332,29 @@ sub intersection {
     if($start > $end) {
 	return undef;
     } else {
-	return $self->new('-start' => $start,
-			  '-end' => $end,
-			  '-strand' => $union_strand
-			  );
-	#return ($start, $end, $union_strand);
+	if( wantarray() ) {
+	    return ($start, $end, $union_strand);
+	}
+	else {
+	    return $self->new('-start' => $start,
+			      '-end' => $end,
+			      '-strand' => $union_strand
+			     );
+	}
+
     }
 }
 
 =head2 union
 
-    Title   : union
+   Title   : union
     Usage   : ($start, $stop, $strand) = $r1->union($r2);
             : ($start, $stop, $strand) = Bio::RangeI->union(@ranges);
               my $newrange = Bio::RangeI->union(@ranges);
     Function: finds the minimal range that contains all of the ranges
     Args    : a range or list of ranges to find the union of
     Returns : the range object containing all of the ranges
-
+              (in an objectlike the calling one, OR a three element array)
 =cut
 
 sub union {
@@ -439,5 +447,73 @@ sub overlap_extent{
 
     return ($au,$ie-$is+1,$bu);
 }
+
+=head2 disconnected_ranges
+
+    Title   : disconnected_ranges
+    Usage   : my @disc_ranges = Bio::Range->disconnected_ranges(@ranges);
+              
+    Function: finds the minimal set of ranges such that each input range
+              is fully contained by at least one output range, and none of
+              the output ranges overlap
+    Args    : a list of ranges
+    Returns : a list of objects of the same type as the input (conforms to RangeI)
+
+=cut
+
+sub disconnected_ranges {
+    my $self = shift;
+    my @inranges = @_;
+    if(ref $self) {
+	unshift @inranges, $self;
+    }
+
+    my @outranges = ();
+    foreach my $inrange (@inranges) {
+	my $intersects = 0;
+	my @outranges_new = ();
+	my @intersecting_ranges = ();
+	for (my $i=0; $i<@outranges; $i++) {
+	    my $outrange = $outranges[$i];
+	    my $intersection = $inrange->intersection($outrange);
+	    if ($intersection) {
+		$intersects = 1;
+		my $union = $inrange->union($outrange);
+		push(@intersecting_ranges, $union);
+	    }
+	    else {
+		push(@outranges_new, $outrange);
+	    }
+	}
+	@outranges = @outranges_new;
+	if (@intersecting_ranges) {
+#	    printf "  I:%d..%d\n", $_->start, $_->end foreach @intersecting_ranges;
+	    if (@intersecting_ranges > 1) {
+		# this sf intersected > 1 range, which means that
+		# all the ranges it intersects should be joined
+		# together in a new range
+		push(@outranges,
+		     Bio::RangeI->union(@intersecting_ranges));
+	    }
+	    else {
+		# exactly 1 intersecting range
+		push(@outranges, @intersecting_ranges);
+	    }
+	}
+	else {
+	    # no intersections found - new range
+	    push(@outranges, 
+		 $self->new(-start=>$inrange->start,
+			    -end=>$inrange->end,
+			    -strand=>$inrange->strand,
+			   ));
+	}
+#	printf "IN_INT:%d N_OUT:%d [%s]\n", scalar(@intersecting_ranges), scalar(@outranges), $inrange->primary_tag;
+#	printf "  U:%d..%d\n", $_->start, $_->end foreach @outranges;
+    }
+#    printf "DONE:%d\n", scalar(@outranges);
+    return @outranges;
+}
+
 
 1;

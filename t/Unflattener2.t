@@ -121,3 +121,10 @@ sub getseq {
     my $seq = $seqio->next_seq();
     return $seq;
 }
+
+# 1 2,3
+# 2 1,2
+# 3 4,5
+# 4 1,4,5,6
+# 5 1,4,5,6
+# 6 1,4,5,6

@@ -253,6 +253,30 @@ features. For the example data above, we would have the following groups.
   [ gene mRNA CDS ]
   [ gene mRNA mRNA mRNA CDS CDS CDS ]
 
+=head3 Multicopy Genes
+
+Multicopy genes are usually rRNAs or tRNAs that are duplicated across
+the genome. Because they are functionally equivalent, and usually have
+the same sequence, they usually have the same group_tag (ie gene
+symbol); they often have a /note tag giving copy number. This means
+they will end up in the same group. This is undesirable, because they
+are spatially disconnected.
+
+There is another step, which involves splitting spatially disconnected
+groups into distinct groups
+
+this would turn this
+
+ [gene-rrn3 rRNA-rrn3 gene-rrn3 rRNA-rrn3]
+
+into this
+
+ [gene-rrn3 rRNA-rrn3] [gene-rrn3 rRNA-rrn3]
+
+based on the coordinates
+
+=head3 What next?
+
 The next step is to add some structure to each group, by making
 B<containment hierarchies>, trees that represent how the features
 interrelate
@@ -581,6 +605,7 @@ use strict;
 use Bio::Root::Root;
 use Bio::Location::Simple;
 use Bio::SeqFeature::Generic;
+use Bio::Range;
 
 
 @ISA = qw(Bio::Root::Root);
@@ -1172,6 +1197,20 @@ sub unflatten_seq{
        }
    }
    
+   # as well as having the same group_tag, a group should be spatially
+   # connected. if not, then the group should be split into subgroups.
+   # this turns out to be necessary in the case of multicopy genes.
+   # the standard way to represent these is as spatially disconnected
+   # gene models (usually a 'gene' feature and some kind of RNA feature)
+   # with the same group tag; the code below will split these into 
+   # seperate groups, one per copy.
+   @groups = map { $self->_split_group_if_disconnected($_) } @groups;
+
+   # remove any duplicates; most of the time the method below has
+   # no effect. there are some unusual genbank records for which
+   # duplicate removal is necessary. see the comments in the
+   # _remove_duplicates_from_group() method if you want to know
+   # the ugly details
    foreach my $group (@groups) {
        $self->_remove_duplicates_from_group($group);
    }
@@ -1436,6 +1475,42 @@ sub unflatten_seq{
    return $seq->get_SeqFeatures;
 }
 
+sub _split_group_if_disconnected {
+    my $self = shift;
+    my $group = shift;
+    my @sfs = @$group;
+    my @ranges =
+      Bio::Range->disconnected_ranges(@sfs);
+    my @groups;
+    if (@ranges == 0) {
+	$self->throw("ASSERTION ERROR");
+    }
+    elsif (@ranges == 1) {
+	# no need to split the group
+	@groups = ($group);
+    }
+    else {
+	# @ranges > 1
+	# split the group into disconnected ranges
+	if ($self->verbose) {
+	    print "GROUP PRE-SPLIT:\n";
+	    $self->_write_group($group, $self->group_tag);
+	}
+	@groups =
+	  map {
+	      my $range = $_;
+	      [grep {
+		  $_->intersection($range);
+	      } @sfs]
+	  } @ranges;
+	if ($self->verbose) {
+	    print "SPLIT GROUPS:\n";
+	    $self->_write_group($_, $self->group_tag) foreach @groups;	    
+	}
+    }
+    return @groups;
+}
+
 sub _remove_duplicates_from_group {
     my $self = shift;
     my $group = shift;
@@ -1467,6 +1542,10 @@ sub _remove_duplicates_from_group {
 	# the former is the 'standard' way of representing the gene in genbank;
 	# the latter is redundant with the CDS entry. So we shall get rid of
 	# the latter with the following filter
+
+	if ($self->verbose) {
+	    print "REMOVING DUPLICATES:\n";
+	}
 
 	@genes =
 	  grep {
@@ -1771,9 +1850,14 @@ sub unflatten_group{
        my $container_sf = $container{$sf};
        if ($container_sf) {
            eval {
+	       # make $sf nested inside $container_sf
+	       #
+	       # this will throw an exception if $sf is
+	       # not spatially within $container_sf
 	       $container_sf->add_SeqFeature($sf);
 	   };
 	   if ($@) {
+	       # probably a spatial containment problem
 	       $self->problem(2,
 			      "bioperl add_SeqFeature says:$@",
 			      $container_sf,
