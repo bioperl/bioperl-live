@@ -364,6 +364,7 @@ sub next_result {
 	$data{'-stats'}     = $self->{'_summary'}->{'stats'};
 	$data{'-aafreq'}    = $self->{'_summary'}->{'aafreqs'};
 	$data{'-ntfreq'}    = $self->{'_summary'}->{'ntfreqs'};
+	$data{'-input_params'} = $self->{'_summary'}->{'inputparams'};
 	return new Bio::Tools::Phylo::PAML::Result %data;
     } else {
 	return undef;
@@ -464,6 +465,15 @@ sub _parse_summary {
 sub _parse_inputparams { 
     my ($self) = @_;
     
+    while( defined($_ = $self->_readline ) ) {
+	if(/^((?:Codon frequencies)|(?:Site-class models))\s*:\s+(.+)/ ) {
+	    my ($param,$val) = ($1,$2);	    
+	    $self->{'_summary'}->{'inputparams'}->{$param} = $val;
+	} elsif( /^\s+$/ || /^ns\s+=\s+/ ) {
+	    $self->_pushback($_);
+	    last;
+	}
+    }
 }
 
 sub _parse_codon_freqs {
@@ -847,13 +857,13 @@ sub _parse_Forestry {
 			}
 			if( $self->verbose > 1 ) {
 			    for my $k ( sort { $a <=> $b } keys %match ) {
-				warn "$k -> ",join(",",@{$match{$k}}), "\n";
+				$self->debug( "$k -> ",
+					      join(",",@{$match{$k}}), "\n");
 			    }
 			}
 		    }
 		    push @trees, $tree;
 		}
-#		last;
 	    }
 	    $okay++;
 	} elsif( /^\s*\d+\.\.\d+/ ) {

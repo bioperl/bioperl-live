@@ -25,10 +25,11 @@ Bio::Tools::Phylo::PAML::Result - A PAML result set object
   # which isa Bio::SeqAnalysisResultI object.
   my $result = $parser->next_result();
 
-  my @seqs       = $result->get_seqs;
-  my $MLmatrix   = $result->get_MLmatrix; # get MaxLikelihood Matrix
-  my $NGmatrix   = $result->get_NGmatrix; # get Nei-Gojoburi Matrix
-  my @basfreq    = $result->get_codon_pos_basefreq;
+  my @seqs         = $result->get_seqs;
+  my %input_params = $result->get_input_parameters;
+  my @basfreq      = $result->get_codon_pos_basefreq;
+  my $MLmatrix     = $result->get_MLmatrix; # get MaxLikelihood Matrix
+  my $NGmatrix     = $result->get_NGmatrix; # get Nei-Gojoburi Matrix
 
 
   # for AAML runs
@@ -111,6 +112,7 @@ use Bio::AnalysisResultI;
            -kappa_mat => Bio::Matrix::PhylipDist of kappa values (only for BASEML)
            -alpha_mat => Bio::Matrix::PhylipDist of alpha values (only for BASEML)
            -NSSitesresult => arrayref of PAML::ModelResult 
+           -input_params  => input params from .ctl file 
 
 =cut
 
@@ -124,17 +126,20 @@ sub new {
       $aafreq, $aadistmat, 
       $aamldistmat,
       $ntfreqs, $kappa_mat,$alpha_mat,
-      $NSSitesresults ) = $self->_rearrange([qw(TREES MLMATRIX 
-						SEQS NGMATRIX
-						CODONPOS CODONFREQ
-						VERSION MODEL PATTERNS
-						STATS AAFREQ AADISTMAT
-						AAMLDISTMAT 
-						NTFREQ
-						KAPPA_DISTMAT
-						ALPHA_DISTMAT
-						NSSITESRESULTS)], 
-				       @args);
+      $NSSitesresults,$input_params ) = 
+	  $self->_rearrange([qw
+			     (TREES MLMATRIX 
+			      SEQS NGMATRIX
+			      CODONPOS CODONFREQ
+			      VERSION MODEL PATTERNS
+			      STATS AAFREQ AADISTMAT
+			      AAMLDISTMAT 
+			      NTFREQ
+			      KAPPA_DISTMAT
+			      ALPHA_DISTMAT
+			      NSSITESRESULTS
+			      INPUT_PARAMS)], 
+			    @args);
   $self->reset_seqs;
   if( $trees ) {
       if(ref($trees) !~ /ARRAY/i ) { 
@@ -240,6 +245,17 @@ sub new {
   } 
   if( $alpha_mat ) {
       $self->set_AlphaMatrix($alpha_mat);
+  }
+
+  if( $input_params ) {
+      if(  ref($input_params) !~ /HASH/i ) {
+	  warn("need a valid HASH object for input_params\n");
+      } else {
+	  while( my ($p,$v) = each %$input_params ) {
+	      $self->set_input_parameter($p,$v);
+	  }
+      }
+      
   }
   return $self;
 }
@@ -915,5 +931,55 @@ sub set_AlphaMatrix{
    $self->{'_AlphaMatix'} = $d;
    return undef;
 }
+
+=head2 set_input_parameter
+
+ Title   : set_input_parameter
+ Usage   : $obj->set_input_parameter($p,$vl);
+ Function: Set an Input Parameter 
+ Returns : none
+ Args    : $parameter and $value
+
+
+=cut
+
+sub set_input_parameter{
+   my ($self,$p,$v) = @_;
+   return unless defined $p;
+   $self->{'_input_parameters'}->{$p} = $v;
+}
+
+=head2 get_input_parameters
+
+ Title   : get_input_parameters
+ Usage   : $obj->get_input_parameters;
+ Function: Get Input Parameters 
+ Returns : Hash of key/value pairs
+ Args    : none
+
+
+=cut
+
+sub get_input_parameters{
+   my ($self) = @_;
+   return %{$self->{'_input_parameters'} || {}};
+}
+
+=head2 reset_input_parameters
+
+ Title   : reset_input_parameters
+ Usage   : $obj->reset_input_parameters;
+ Function: Reset the Input Parameters hash 
+ Returns : none
+ Args    : none
+
+
+=cut
+
+sub reset_input_parameters{
+   my ($self) = @_;
+   $self->{'_input_parameters'} = {};
+}
+
 
 1;
