@@ -411,7 +411,7 @@ sub _load_format_module {
     my $class = ref($self) || $self;
     my $module = $class."::$format";#"Bio::Feature::" . $format;
     my $ok;
-warn $module;
+
     eval {
 	$ok = $self->_load_module($module);
     };

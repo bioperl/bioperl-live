@@ -215,6 +215,10 @@ sub _write_feature_3 {
     my $vstring = join ',', map {uri_escape($_->identifier)} @v;
     push @attr, "Ontology_term=$vstring";
   }
+  if(my @v = ($feature->get_Annotations('comment'))){
+    my $vstring = join ',', map {uri_escape($_->text)} @v;
+    push @attr, "Note=$vstring";
+  }
 
   my $attr = join ';', @attr;
 

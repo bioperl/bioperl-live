@@ -5,6 +5,7 @@ use base qw(Bio::FeatureIO);
 use Bio::SeqFeature::Annotated;
 use Bio::OntologyIO;
 
+use Bio::Annotation::Comment;
 use Bio::Annotation::DBLink;
 use Bio::Annotation::OntologyTerm;
 use Bio::Annotation::SimpleValue;
@@ -70,8 +71,13 @@ sub next_feature {
                                                       -seq_id => $pNode->getAttribute('id'),
                                                      );
 
+        $feature->source( $lNode->getAttribute('evidence') );
+
         my $t = Bio::Annotation::OntologyTerm->new(-identifier => 'SO:0000001', -name => 'region');
         $feature->add_Annotation('type',$t);
+
+        my $c = Bio::Annotation::Comment->new(-tagname => 'comment', -text => $iNode->getAttribute('name'));
+        $feature->add_Annotation($c);
 
         my $d = Bio::Annotation::DBLink->new();
         $d->database($mNode->getAttribute('dbname'));
@@ -81,8 +87,6 @@ sub next_feature {
 
         my $s = Bio::Annotation::SimpleValue->new(-tagname => 'status', -value => $lNode->getAttribute('status'));
         $feature->annotation->add_Annotation($s);
-        my $e = Bio::Annotation::SimpleValue->new(-tagname => 'evidence', -value => $lNode->getAttribute('evidence'));
-        $feature->annotation->add_Annotation($e);
 
         foreach my $cNode (@cNodes){
           my $o = Bio::Annotation::OntologyTerm->new(-identifier => $cNode->getAttribute('id'));
