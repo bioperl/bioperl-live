@@ -162,23 +162,23 @@ sub new {
 				   NAME
 				   DEFINITION
 				   CATEGORY
-                                   ONTOLOGY
+                   ONTOLOGY
 				   VERSION
 				   IS_OBSOLETE
 				   COMMENT
-                                   DBLINKS REFERENCES
-                                 ) ], @args );
+                   DBLINKS REFERENCES
+       ) ], @args );
 
     $self->init();
-
-    $identifier            && $self->identifier( $identifier );
-    $name                  && $self->name( $name );
-    $definition            && $self->definition( $definition );
-    $category              && $self->category( $category );
-    $ont                   && $self->ontology( $ont );
+    
+    defined($identifier)   && $self->identifier( $identifier );
+    defined($name)         && $self->name( $name );
+    defined($definition)   && $self->definition( $definition );
+    defined($category)     && $self->category( $category );
+    defined($ont)          && $self->ontology( $ont );
     defined($version)      && $self->version( $version );
     defined($is_obsolete)  && $self->is_obsolete( $is_obsolete );
-    $comment               && $self->comment( $comment  );
+    defined($comment)      && $self->comment( $comment  );
     ref($dblinks)          && $self->add_dblink(@$dblinks);
     ref($references)       && $self->add_reference(@$references);
 
@@ -199,6 +199,7 @@ sub init {
     $self->is_obsolete(0);
     $self->remove_synonyms();
     $self->remove_dblinks();
+    $self->remove_references;
     $self->remove_secondary_ids();
 
 } # init

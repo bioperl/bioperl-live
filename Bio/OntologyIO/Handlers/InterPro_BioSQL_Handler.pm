@@ -38,6 +38,7 @@ use Bio::Ontology::Term;
 use Bio::Ontology::RelationshipType;
 use Bio::Ontology::Relationship;
 use Bio::Annotation::DBLink;
+use Bio::Annotation::Reference;
 
 @ISA = qw(Bio::OntologyIO::Handlers::BaseSAXHandler);
 
@@ -109,10 +110,45 @@ sub start_element {
             $example->database($args{db});
             $example->primary_id($args{dbkey});
             print "EXAmPLE:\t", $example->database, '|', $example->primary_id, "\n";
+        }elsif($top eq 'child'){
+            ;
+        }elsif($top eq 'member_list'){
+            my $dblink=Bio::Annotation::DBLink->new(
+                -dbname => $args{id},
+                -primary_id => $args{dbkey},
+                -comment => $args{name}
+            );
+        }elsif($top eq 'external_doc_list'){
+            ;
+        }elsif($top eq 'publication'){
+            if($args{db} eq 'MEDLINE'){
+                $self->_current_hash->{medline} =$args{dbkey};
+            }else{
+                print "Anywhere else??!!\n";
+            }
+        }elsif($top eq 'structure_db_links'){
+            ;
+        }elsif($top eq 'abstract'){
+            ;
         }else{
-            print STDERR "Possible??\n";
+            print "Possible??--$top\n";
         }
+    }elsif($tag eq 'publication'){
+        my $publication = Bio::Annotation::Reference->new(
+            -medline => $args{id});
+        $self->_current_hash->{publication} = $publication;
+    }elsif($tag eq 'author_list'){
+        ;
+    }elsif($tag eq 'journal'){
+        ;
+    }elsif($tag eq 'location'){
+        ;
+    }elsif($tag eq 'year'){
+        ;
+    }else{
+        ;
     }
+        
     $self->_visited_count_inc($tag);
     $self->_push_tag($tag);
 }
@@ -121,6 +157,7 @@ sub start_element {
 sub end_element {
     my $self=shift;
     my $tag=shift->{Name};
+    my $chars_in=$self->_chars_hash->{$tag};
     if($tag eq 'interpro'){
         my $rel = $self->_relationship;
         my $db = $self->_db;
@@ -128,12 +165,8 @@ sub end_element {
         eval {$prel->create};
         if($@){
             my $interpro = $rel->subject_term;
-            print STDERR "$@\n";
-            print STDERR "\n\n\n";
-            print STDERR $interpro->identifier, "\t", $interpro->name, "\t";
-            print STDERR $interpro->description, "\n\n\n";
-            print '-'x80, "\n";
-            
+            print STDERR "$@\n\n\n\n";
+            print STDERR "$interpro\n\n\n", '-'x80, "\n";
         }
 #        print $count++, "\n";
     }elsif($tag eq 'name'){
@@ -153,6 +186,13 @@ sub end_element {
         $example->comment($comment);
         $self->_relationship->subject_term->add_dblink($example);
         $self->_chars_hash->{example}='';
+    }elsif($tag eq 'publication'){
+        my $publication = $self->_create_publication;
+        $self->_relationship->subject_term->add_reference($publication);
+    }elsif($tag eq 'author_list'){
+        $self->_current_hash->{author} =$chars_in;
+    }elsif($tag eq 'title'){
+        $self->_current_hash->{title}=$chars_in;
     }
     $self->_pop_tag;
     $self->_visited_count_dec($tag);
@@ -196,5 +236,29 @@ sub _relationship {
     $self->{_relationship}=shift if @_;
     return $self->{_relationship};
 }
-
+sub _create_publication {
+    my $self=shift;
+    my $publication = $self->_current_hash->{publication};
+    my $author = $self->_current_hash->{author};
+    my $journal = $self->_current_hash->{journal};
+    my $year = $self->_current_hash->{year};
+    my $page_location = $self->_current_hash->{page_location};
+    my $volumn = $self->_current_hash->{volumn};
+    $publication->authors($author);
+    $publication->location("$journal, $year, V $volumn, $page_location");
+    my $title = $self->_current_hash->{title};
+    $publication->title($title);
+    my $medline = $self->_current_hash->{medline};
+    $publication->medline($medline);
+    
+# Clear the above in current hash
+    $self->_current_hash->{publication} = undef;
+    $self->_current_hash->{author}      = undef;
+    $self->_current_hash->{journal}     = undef;
+    $self->_current_hash->{year}        = undef;
+    $self->_current_hash->{page_location}=undef;
+    $self->_current_hash->{volumn}      = undef;
+    $self->_current_hash->{title}       = undef;
+    $self->_current_hash->{medline}     = undef;
+}
 1;
