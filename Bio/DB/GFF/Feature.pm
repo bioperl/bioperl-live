@@ -1116,7 +1116,7 @@ sub gff_string {
   elsif (my $g = $self->group) {
     $class = $g->class || '';
     $name  = $g->name  || '';
-    push @group,"$class $name";
+    ($name =~ /\S\s\S/)?(push @group, "$class '$name'"):(push @group,"$class $name");
   }
 
   # add exhaustive list of attributes
