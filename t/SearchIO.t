@@ -20,7 +20,7 @@ BEGIN {
 	use lib 't';
     }
     use vars qw($NTESTS);
-    $NTESTS = 659;
+    $NTESTS = 664;
     $LASTXMLTEST = 54;
     $error = 0;
 
@@ -938,6 +938,8 @@ my $writer = Bio::SearchIO::Writer::HitTableWriter->new(
                                                   query_length
                                                   hit_name
                                                   hit_length
+						  bits
+						  score
                                                   frac_identical_query
                                                   expect
                                                   )]  );
@@ -952,7 +954,41 @@ my $outhtml = new Bio::SearchIO(-writer => $writerhtml,
 $outhtml->write_result($result, 1);
 ok(-e "searchio.html");
 
+unlink 'searchio.out';
+unlink 'searchio.html';
+$searchio = new Bio::SearchIO ('-format' => 'blast',
+			       '-file'   => Bio::Root::IO->catfile('t','data','HUMBETGLOA.tblastx'));
+
+$result = $searchio->next_result;
+
+ok($result);
+$hit = $result->next_hit;
+ok($hit->accession, 'AE000479');
+$hsp = $hit->next_hsp;
+ok($hsp->get_aln->isa('Bio::Align::AlignI'));
+$writer = Bio::SearchIO::Writer::HitTableWriter->new( 
+                                  -columns => [qw(
+                                                  query_name
+                                                  query_length
+                                                  hit_name
+                                                  hit_length
+						  bits
+						  score
+                                                  frac_identical_query
+                                                  expect
+                                                  )]  );
+
+$out = new Bio::SearchIO(-writer => $writer,
+			    -file   => ">searchio.out");
+$out->write_result($result, 1);
+ok(-e 'searchio.out');
+$writerhtml = new Bio::SearchIO::Writer::HTMLResultWriter();
+$outhtml = new Bio::SearchIO(-writer => $writerhtml,
+				-file   => ">searchio.html");
+$outhtml->write_result($result, 1);
+ok(-e "searchio.html");
+
 END { 
-    unlink 'searchio.out';
-    unlink 'searchio.html';
+#    unlink 'searchio.out';
+#    unlink 'searchio.html';
 }
