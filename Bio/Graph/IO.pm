@@ -136,7 +136,7 @@ sub next_graph {
 
 sub write_graph {
    my ($self, $gr) = @_;
-   $self->throw("Sorry, not implemented yet");
+   $self->throw("Sorry, you can't write from a generic Bio::GraphIO object.");
 }
 
 
@@ -161,16 +161,25 @@ my ($self, $format) = @_;
     };
     if ( $@ ) {
     print STDERR <<END
-$self: $format cannot be found
+$self:$format cannot be found
 Exception $@
 For more information about the Network system please see the NetworkIO docs.
-This includes ways of checking for formats at compile time, not run time
 END
   ;
   }
   return $ok;
 
 }
+sub _initialize_io {
+
+	my ($self, @args) = @_;
+	$self->SUPER::_initialize_io(@args);
+	my ($th) = $self->_rearrange( [qw(THRESHOLD)], @args);
+	$self->{'_th'} = $th;
+	return $self;
+
+}
+
 1;
 
 

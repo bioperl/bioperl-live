@@ -13,11 +13,6 @@ use strict;
 BEGIN{
 	$FAC = Bio::Seq::SeqFactory->new(-type=>'Bio::Seq::RichSeq');
 }
-#sub new {
-#	my $class = shift;
-#	my $self = $class->SUPER::new(@_);
-#	return $self;
-#}
 
 sub next_network {
 
@@ -40,6 +35,11 @@ sub next_network {
 			(GI\S+)\t*
 			(\d\.\d+)? #optional confidence  or weight score 
 			/x;
+
+		## skip if score is below threshold
+		if (defined($self->{'_th'}) && defined($score)) {
+			next unless $score >= $self->{'_th'};
+		}
 
 	   ## build node object if is new node
 	   my ($node1, $node2);
