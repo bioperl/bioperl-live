@@ -47,10 +47,9 @@ of the Bioperl mailing lists.  Your participation is much appreciated.
 =head2 Reporting Bugs
 
 Report bugs to the Bioperl bug tracking system to help us keep track
-the bugs and their resolution.  Bug reports can be submitted via email
-or the web:
+the bugs and their resolution.  Bug reports can be submitted via the
+web:
 
-  bioperl-bugs@bio.perl.org
   http://bugzilla.bioperl.org/
 
 =head1 AUTHOR - Heikki Lehvaslaiho
@@ -79,9 +78,9 @@ BEGIN {
     use vars qw(  %RANGEENCODE  %RANGEDECODE  );
 
     %RANGEENCODE  = ('\.\.' => 'EXACT',
-		     '\^' => 'IN-BETWEEN' );
+		     '\^'   => 'IN-BETWEEN' );
 
-    %RANGEDECODE  = ('EXACT' => '..',
+    %RANGEDECODE  = ('EXACT'      => '..',
 		     'IN-BETWEEN' => '^' );
 
 }
@@ -211,7 +210,7 @@ sub length {
   Function: Get start position type (ie <,>, ^).
 
   Returns : type of position coded as text 
-            ('BEFORE', 'AFTER', 'EXACT','WITHIN', 'BETWEEN', 'IN-BETWEEN')
+            ('BEFORE', 'AFTER', 'EXACT','WITHIN', 'BETWEEN')
   Args    : none
 
 =cut
@@ -247,7 +246,7 @@ sub length {
   Function: Get end position type (ie <,>, ^) 
 
   Returns : type of position coded as text 
-            ('BEFORE', 'AFTER', 'EXACT','WITHIN', 'BETWEEN', 'IN-BETWEEN')
+            ('BEFORE', 'AFTER', 'EXACT','WITHIN', 'BETWEEN')
   Args    : none
 
 =cut

@@ -42,15 +42,13 @@ of the Bioperl mailing lists.  Your participation is much appreciated.
 =head2 Reporting Bugs
 
 Report bugs to the Bioperl bug tracking system to help us keep track
-the bugs and their resolution.  Bug reports can be submitted via email
-or the web:
+the bugs and their resolution.  Bug reports can be submitted via the web:
 
-  bioperl-bugs@bio.perl.org
   http://bugzilla.bioperl.org/
 
 =head1 AUTHOR - Jason Stajich
 
-Email jason@bioperl.org
+Email jason-at-bioperl-dot-org
 
 =head1 APPENDIX
 
@@ -78,7 +76,7 @@ use Carp;
   Title   : loc_type
   Usage   : my $location_type = $location->location_type();
   Function: Get location type encoded as text
-  Returns : string ('EXACT', 'WITHIN', 'BETWEEN')
+  Returns : string ('EXACT', 'WITHIN', 'IN-BETWEEN')
   Args    : none
 
 =cut

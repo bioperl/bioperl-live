@@ -46,15 +46,14 @@ of the Bioperl mailing lists.  Your participation is much appreciated.
 =head2 Reporting Bugs
 
 Report bugs to the Bioperl bug tracking system to help us keep track
-the bugs and their resolution.  Bug reports can be submitted via email
-or the web:
+the bugs and their resolution.  Bug reports can be submitted via the
+web:
 
-  bioperl-bugs@bio.perl.org
   http://bugzilla.bioperl.org/
 
 =head1 AUTHOR - Jason Stajich
 
-Email jason@bioperl.org
+Email jason-at-bioperl-dot-org
 
 =head1 APPENDIX
 
@@ -85,7 +84,7 @@ BEGIN {
    # Exact position is unknown, but is within the range specified, ((1.2)..100)
 		    'WITHIN' => '.', 
 		    # 1^2
-		    'BETWEEN' => '^',
+		    'BETWEEN'    => '^',
 		    # <100
 		    'BEFORE'  => '<',
 		    # >10
@@ -99,17 +98,16 @@ BEGIN {
     %FUZZYPOINTENCODE = ( 
 			  '\>(\d+)(.{0})' => 'AFTER',
 			  '\<(.{0})(\d+)' => 'BEFORE',
-			  '(\d+)'  => 'EXACT',
+			  '(\d+)'         => 'EXACT',
 			  '(\d+)(.{0})\>' => 'AFTER',
 			  '(.{0})(\d+)\<' => 'BEFORE',
-			  '(\d+)\.(\d+)' => 'WITHIN',
-			  '(\d+)\^(\d+)' => 'BETWEEN',
+			  '(\d+)\.(\d+)'  => 'WITHIN',
+			  '(\d+)\^(\d+)'  => 'BETWEEN',
 		     );
     
-    %FUZZYRANGEENCODE  = ( '\.' => 'WITHIN',
+    %FUZZYRANGEENCODE  = ( '\.'   => 'WITHIN',
 			   '\.\.' => 'EXACT',
-			   '\^' => 'BETWEEN' );
-
+			   '\^'   => 'IN-BETWEEN' );
 }
 
 =head2 new
@@ -121,7 +119,7 @@ BEGIN {
  Args    : -start    => value for start  (initialize by superclass)
            -end      => value for end    (initialize by superclass)
            -strand   => value for strand (initialize by superclass)
-           -location_type => either ('EXACT', 'WITHIN', 'BETWEEN') OR
+           -location_type => either ('EXACT', 'WITHIN', 'IN-BETWEEN') OR
                                ( 1,2,3)
            -start_ext=> extension for start - defaults to 0, 
            -start_fuz=  fuzzy code for start can be 
@@ -156,7 +154,7 @@ sub new {
   Title   : location_type
   Usage   : my $location_type = $location->location_type();
   Function: Get location type encoded as text
-  Returns : string ('EXACT', 'WITHIN', 'BETWEEN')
+  Returns : string ('EXACT', 'WITHIN', 'IN-BETWEEN')
   Args    : none
 
 =cut
@@ -165,22 +163,20 @@ sub location_type {
     my ($self,$value) = @_;
     if( defined $value || ! defined $self->{'_location_type'} ) {
 	$value = 'EXACT' unless defined $value;
-	if(! defined $FUZZYCODES{$value})  {
+	if(! defined $FUZZYCODES{$value} )  {
 	    $value = uc($value);
 	    if( $value =~ /\.\./ ) {
 		$value = 'EXACT';
 	    } elsif( $value =~ /^\.$/ ) {
 		$value = 'WITHIN';
 	    } elsif( $value =~ /\^/ ) {
-		$value = 'BETWEEN';
-
-
+		$value = 'IN-BETWEEN';
 		$self->throw("Use Bio::Location::Simple for IN-BETWEEN locations [". $self->start. "] and [". $self->end. "]")
 		    if defined $self->start && defined $self->end && ($self->end - 1 == $self->start);
-
+		
 
 	    } elsif( $value ne 'EXACT' && $value ne 'WITHIN' && 
-		     $value ne 'BETWEEN' ) {
+		     $value ne 'IN-BETWEEN' ) {
 		$self->throw("Did not specify a valid location type");
 	    }
 	}
@@ -233,7 +229,7 @@ sub start {
     }
 
     $self->throw("Use Bio::Location::Simple for IN-BETWEEN locations [". $self->SUPER::start. "] and [". $self->SUPER::end. "]")
-	if $self->location_type eq 'BETWEEN'  && defined $self->SUPER::end && ($self->SUPER::end - 1 == $self->SUPER::start);
+	if $self->location_type eq 'IN-BETWEEN'  && defined $self->SUPER::end && ($self->SUPER::end - 1 == $self->SUPER::start);
 
     return $self->SUPER::start();
 }
@@ -258,7 +254,7 @@ sub end {
     }
 
     $self->throw("Use Bio::Location::Simple for IN-BETWEEN locations [". $self->SUPER::start. "] and [". $self->SUPER::end. "]")
-	if $self->location_type eq 'BETWEEN' && defined $self->SUPER::start && ($self->SUPER::end - 1 == $self->SUPER::start);
+	if $self->location_type eq 'IN-BETWEEN' && defined $self->SUPER::start && ($self->SUPER::end - 1 == $self->SUPER::start);
 
     return $self->SUPER::end();
 }
@@ -413,6 +409,7 @@ sub end_pos_type {
 =head2 coordinate_policy
 
   Title   : coordinate_policy
+
   Usage   : $policy = $location->coordinate_policy();
             $location->coordinate_policy($mypolicy); # set may not be possible
   Function: Get the coordinate computing policy employed by this object.
