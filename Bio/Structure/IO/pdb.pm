@@ -1205,6 +1205,11 @@ $self->debug("_read_PDB_coor: parsing model $model_num\n");
 			# (bug fix was to add $icode here to make unique)
 			# original looked like
 			# my $res_name_num = $resname."-".$resseq;
+			
+			# to get around warning, set icode to "" if not defined
+			if( !defined $icode ) {
+			    $icode = "";
+			}
 
 			my $res_name_num = $resname."-".$resseq.$icode;
 			if ($res_name_num ne $residue_name) { # new residue
