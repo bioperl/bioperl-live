@@ -115,7 +115,9 @@ sub new {
 
   # initialize IO
   $self->_initialize_io(@args);
-    
+  
+  $self->_parse_header();
+
   $gff_version ||= 2;
   
   if( ! $self->gff_version($gff_version) )  {
@@ -125,6 +127,68 @@ sub new {
   $self->{'_first'} = 1;
   return $self;
 }
+
+=head2 _parse_header
+
+ Title   : _parse_header
+ Usage   : $gffio->_parse_header()
+ Function: used to turn parse GFF header lines.  currently
+           produces Bio::LocatableSeq objects from ##sequence-region
+           lines
+ Example :
+ Returns : 1 on success
+ Args    : none
+
+
+=cut
+
+sub _parse_header{
+   my ($self,@args) = @_;
+
+   my @unhandled;
+   while(my $line = $self->_readline()){
+ 	 my $handled = 0;
+
+	 if($line =~ /^\#\#sequence-region\s+(\S+)\s+(\S+)\s+(\S+)\s*/){
+	   my($seqid,$start,$end) = ($1,$2,$3);
+	   push @{ $self->{'segments'} }, Bio::LocatableSeq->new(
+															 -id    => unescape($seqid),
+															 -start => $start,
+															 -end   => $end,
+															);
+	   $handled = 1;
+	 } elsif($line =~ /^(\#\#feature-ontology)/) {
+	   #to be implemented
+	   $self->warn("$1 header tag parsing unimplemented");
+	 } elsif($line =~ /^(\#\#attribute-ontology)/) {
+	   #to be implemented
+	   $self->warn("$1 header tag parsing unimplemented");
+	 } elsif($line =~ /^(\#\#source-ontology)/) {
+	   #to be implemented
+	   $self->warn("$1 header tag parsing unimplemented");
+	 } elsif($line =~ /^(\#\#\#)/) {
+	   #to be implemented
+	   $self->warn("$1 header tag parsing unimplemented");
+	 } elsif($line =~ /^(\#\#FASTA)/) {
+	   #to be implemented
+	   $self->warn("$1 header tag parsing unimplemented");
+	 }
+
+ 	 if(!$handled){
+	   push @unhandled, $line
+ 	 }
+
+	 #looks like the header is over!
+	 last unless $line =~ /^\#/;
+   }
+
+   foreach my $line (@unhandled){
+	 $self->_pushback($line);
+   }
+
+   return 1;
+}
+
 
 =head2 next_segment
 
@@ -168,17 +232,6 @@ sub next_feature {
     # be graceful about empty lines or comments, and make sure we return undef
     # if the input's consumed
     while(($gff_string = $self->_readline()) && defined($gff_string)) {	
-
-	  if($gff_string =~ /^##sequence-region\s+(\S+)\s+(\S+)\s+(\S+)\s*/){
-		my($seqid,$start,$end) = ($1,$2,$3);
-		push @{ $self->{'segments'} }, Bio::LocatableSeq->new(
-													 -id    => unescape($seqid),
-													 -start => $start,
-													 -end   => $end,
-													);
-		next;
-	  }
-
 	  next if($gff_string =~ /^\#/ || $gff_string =~ /^\s*$/ ||
 			  $gff_string =~ /^\/\//);
 	  last;
