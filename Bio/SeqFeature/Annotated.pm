@@ -330,6 +330,27 @@ sub _expand_region {
     }
 }
 
+=head2 source
+
+ Title   : source
+ Usage   : $obj->source($newval)
+ Function: holds a string corresponding to the source of the feature.
+           this method may be moved to a Bio::Annotation::SimpleValue in the future.
+ Example : 
+ Returns : value of source (a scalar)
+ Args    : on set, new value (a scalar or undef, optional)
+
+
+=cut
+
+sub source {
+  my $self = shift;
+
+  return $self->{'source'} = shift if @_;
+  return $self->{'source'};
+}
+
+
 =head2 start
 
  Title   : start
@@ -483,7 +504,7 @@ sub location {
 
 sub _no_tags {
   my $self = shift;
-  $self->throw("this method isn't needed. use Bio::Annotation::Collection");
+  $self->throw("tag methods are deprecated. use Bio::Annotation::Collection");
   #$self->throw_not_implemented();
 }
 

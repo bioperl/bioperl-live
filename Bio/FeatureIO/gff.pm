@@ -73,6 +73,8 @@ use Bio::Annotation::DBLink;
 
 use Bio::Ontology::OntologyStore;
 
+use URI::Escape;
+
 use constant DEFAULT_VERSION => 3;
 
 sub _initialize {
@@ -266,7 +268,8 @@ sub _handle_feature {
 
   my($seq,$source,$type,$start,$end,$score,$strand,$phase,$attribute_string) = split /\s+/, $feature_string;
 
-  $feat->seq_id($seq);
+  $feat->seq_id( uri_unescape($seq) );
+  $feat->source( uri_unescape($source) );
   $feat->start($start) unless $start eq '.';
   $feat->end($end) unless $end eq '.';
   $feat->strand($strand eq '+' ? 1 : $strand eq '-' ? -1 : 0);
@@ -292,7 +295,7 @@ sub _handle_feature {
   my @attributes = split ';', $attribute_string;
   foreach my $attribute (@attributes){
     my($key,$values) = split '=', $attribute;
-    my @values = split ',', $values;
+    my @values = map{uri_unescape($_)} split ',', $values;
     $attr{$key} = [@values];
   }
 
@@ -347,7 +350,6 @@ sub _handle_feature {
     $a->value( @{ $attr{Name} }[0] );
     $ac->add_Annotation('Name',$a);
   }
-
 
   foreach my $other_canonical (qw(Alias Parent Note)){
     if($attr{$other_canonical}){
