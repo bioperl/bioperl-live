@@ -970,7 +970,7 @@ These methods come from L<Bio::SeqFeature::SimilarityPair>
 =head2 strand
 
  Title   : strand
- Usage   : $hsp->strand('quer')
+ Usage   : $hsp->strand('query')
  Function: Retrieves the strand for the HSP component requested
  Returns : +1 or -1 (0 if unknown)
  Args    : 'hit' or 'subject' or 'sbjct' to retrieve the strand of the subject
