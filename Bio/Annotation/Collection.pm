@@ -220,7 +220,8 @@ sub description{
 
    my ($desc) = $self->get_Annotations('description');
    
-   return $desc->value;
+   # If no description tag exists, do not attempt to call value on undef:
+   return $desc ? $desc->value : undef;
 }
 
 
@@ -286,12 +287,14 @@ sub each_gene_name{
 =cut
 
 sub add_Reference{
-   my ($self,$value) = @_;
+   my ($self, @values) = @_;
 
    $self->deprecated("add_Reference (old style Annotation) on new style Annotation::Collection");
-
-   $self->add_Annotation('reference',$value);
-
+   
+   # Allow multiple (or no) references to be passed, as per old method
+   foreach my $value (@values) {
+       $self->add_Annotation('reference',$value);
+   }
 }
 
 =head2 each_Reference
