@@ -153,7 +153,7 @@ Internal methods are usually preceded with a _
 
 
 package Bio::Seq::Meta;
-use vars qw(@ISA $DEFAULT_NAME);
+use vars qw(@ISA $DEFAULT_NAME $GAP $META_GAP);
 use strict;
 use Bio::LocatableSeq;
 use Bio::Seq::MetaI;
@@ -166,7 +166,8 @@ use Bio::Seq::MetaI;
 BEGIN {
 
     $DEFAULT_NAME = 'DEFAULT';
-
+    $GAP = '-';
+    $META_GAP = ' ';
 }
 
 =head2 new
@@ -270,7 +271,7 @@ sub named_meta {
 
        $self->{'_meta'}->{$name} = $value;
 
-       $self->_test_gap_positions($name) if $self->verbose > 0;
+       #$self->_test_gap_positions($name) if $self->verbose > 0;
    }
    return substr($self->{'_meta'}->{$name}, 0, $self->length)
        if defined $self->{'_meta'}->{$name} and
@@ -306,10 +307,10 @@ sub _test_gap_positions {
     for (my $i=0; $i < $len; $i++) {
         my $s = substr $self->{seq}, $i, 1;
         my $m = substr $self->{_meta}->{$name}, $i, 1;
-        $self->warn("Gap mismatch in column [". ($i+1). "] of [$name] meta data in seq [". $self->id. "]")
+        $self->warn("Gap mismatch [$m/$s] in column [". ($i+1). "] of [$name] meta data in seq [". $self->id. "]")
             and $success = 0
-                #if ($s eq '-' || $m eq '-') && $s ne $m;
-                if ($m eq '-') && $s ne $m;
+                #if ($s eq $GAP || $m eq $GAP) && $s ne $m;
+                if ($s eq $META_GAP) && $s ne $m;
     }
     return $success;
 }
@@ -409,7 +410,7 @@ sub named_submeta {
 
         # pad meta data if needed
         if (length($self->{_meta}->{$name}) < $start) {
-            $self->{'_meta'}->{$name} .=  " " x ( $start - lenght($self->{'_meta'}->{$name}));
+            $self->{'_meta'}->{$name} .=  " " x ( $start - length($self->{'_meta'}->{$name}));
         }
 
         my $tail = substr ($self->{_meta}->{$name}, $start-1+length($value));
@@ -426,7 +427,7 @@ sub named_submeta {
 
         # pad meta data if needed
         if (length($self->{_meta}->{$name}) < $end) {
-            $self->{'_meta'}->{$name} .=  " " x ( $start - lenght($self->{'_meta'}->{$name}));
+            $self->{'_meta'}->{$name} .=  " " x ( $start - length($self->{'_meta'}->{$name}));
         }
 
         return substr ($self->{_meta}->{$name}, $start-1, $end - $start + 1)
@@ -472,7 +473,6 @@ sub meta_names {
         push (@r, $_) unless $_ eq $DEFAULT_NAME;
     }
     unshift @r, $DEFAULT_NAME if $self->{'_meta'}->{$DEFAULT_NAME};
-;
     return @r;
  }
 
@@ -514,6 +514,15 @@ sub trunc {
     my ($self, $start, $end) = @_;
 
     # test arguments
+    $start =~ /^[+]?\d+$/ and $start > 0 or
+        $self->throw("Need at least a positive integer start value as start");
+    $end =~ /^[+]?\d+$/ and $end > 0 or
+        $self->throw("Need at least a positive integer start value as end");
+    $end >= $start or
+        $self->throw("End position has to be larger or equal to start");
+    $end <= $self->length or
+        $self->throw("End position can not be larger than sequence length");
+
     my $new = $self->SUPER::trunc($start, $end);
     $start--;
     foreach (keys %{$self->{_meta}}) {
