@@ -8,7 +8,7 @@ BEGIN {
 	use lib 't';
     }
     use Test;
-    plan tests => 90;
+    plan tests => 92;
 }
 
 use Bio::Seq;
@@ -345,8 +345,20 @@ while( $seq = $str->next_seq()) {
 
 my $primaryseq = new Bio::PrimarySeq( -seq => 'AGAGAGAGATA',
 				      -id  => 'myid',
+				      -desc => 'mydescr',
 				      -alphabet => 'DNA',
 				      -accession_number => 'myaccession');
-my $embl = new Bio::SeqIO(-format => 'embl' );
 
-#ok($embl->write_seq($primaryseq));
+my $embl = new Bio::SeqIO(-format => 'embl', 
+			  -verbose => $verbosity -1,
+			  -file => ">".Bio::Root::IO->catfile("t","data","primaryseq.embl")
+			  );
+
+ok($embl->write_seq($primaryseq));
+my $scalar = "test";
+eval {
+    $embl->write_seq($scalar);
+};
+ok ($@);
+
+unlink(Bio::Root::IO->catfile("t","data","primaryseq.embl"));
