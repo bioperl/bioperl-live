@@ -627,7 +627,8 @@ sub DESTROY {
     return if $self->{_reported_problems};
     return if $self->{_ignore_problems};
     my @probs = $self->get_problems;
-    if (@probs) {
+    if (!$self->{_problems_reported} &&
+	scalar(@probs)) {
 	print STDERR 
 	  "WARNING: There are UNREPORTED PROBLEMS.\n".
 	    "You may wish to use the method report_problems(), \n",
@@ -857,7 +858,18 @@ sub add_problem{
 # see get_problems
 sub problem {
     my $self = shift;
-    my ($severity, $desc) = @_;
+    my ($severity, $desc, @sfs) = @_;
+    if (@sfs) {
+	foreach my $sf (@sfs) {
+	    $desc .=
+	      sprintf("\nSF: %s\n",
+		      join('; ',
+			   map {
+			       $sf->has_label($_) ?
+				 $sf->get_tag_values($_) : ()
+			     } qw(gene product label)));
+	}
+    }
     my $thresh = $self->error_threshold;
     if ($severity > $thresh) {
 	$self->{_problems_reported} = 1;
@@ -1138,7 +1150,7 @@ sub unflatten_seq{
                # currently something can only belong to one group
                $self->problem(2,
 			      ">1 value for /$group_tag: @group_tagvals\n".
-			      "At this time this module is not equipped to handle this adequately");
+			      "At this time this module is not equipped to handle this adequately", $sf);
            }
 	   # get value of group tag
            my $gtv = shift @group_tagvals;
@@ -1174,25 +1186,27 @@ sub unflatten_seq{
        if (defined($structure_type)) {
 	   $self->throw("Can't combine use_magic AND setting structure_type");
        }
-       foreach my $group (@groups) {
-	   my @introns = grep {$_->primary_tag eq 'exon'} @$group;
-	   my @exons = grep {$_->primary_tag eq 'exon'} @$group;
-	   my @mrnas = grep {$_->primary_tag eq 'mRNA'} @$group;
-	   my @cdss = grep {$_->primary_tag eq 'CDS'} @$group;
+       my $n_introns =
+	 scalar(grep {$_->primary_tag eq 'exon'} @flat_seq_features);
+       my $n_exons =
+	 scalar(grep {$_->primary_tag eq 'exon'} @flat_seq_features);
+       my $n_mrnas =
+	 scalar(grep {$_->primary_tag eq 'mRNA'} @flat_seq_features);
+       my $n_cdss =
+	 scalar(grep {$_->primary_tag eq 'CDS'} @flat_seq_features);
 	   
-	   if (@cdss) {
-	       # a pc gene model should contain at the least a CDS
-	       if (!@mrnas) {
-		   # looks like structure_type == 1
-		   $structure_type = 1;
-		   $need_to_infer_mRNAs = 1;
-	       }
-	       # we always infer exons in magic mode
-	       $need_to_infer_exons = 1;
+       if ($n_cdss) {
+	   # a pc gene model should contain at the least a CDS
+	   if (!$n_mrnas) {
+	       # looks like structure_type == 1
+	       $structure_type = 1;
+	       $need_to_infer_mRNAs = 1;
 	   }
-	   else {
-	       # this doesn't seem to be any kind of protein coding gene model
-	   }
+	   # we always infer exons in magic mode
+	   $need_to_infer_exons = 1;
+       }
+       else {
+	   # this doesn't seem to be any kind of protein coding gene model
        }
 
        if ($need_to_infer_exons) {
@@ -1753,7 +1767,15 @@ sub unflatten_group{
    foreach my $sf (@sfs) {
        my $container_sf = $container{$sf};
        if ($container_sf) {
-           $container_sf->add_SeqFeature($sf);
+           eval {
+	       $container_sf->add_SeqFeature($sf);
+	   };
+	   if ($@) {
+	       $self->problem(2,
+			      "bioperl add_SeqFeature says:$@",
+			      $container_sf,
+			      $sf);
+	   }
        }
        else {
            push(@top, $sf);
@@ -2005,10 +2027,10 @@ sub infer_mRNA_from_CDS{
 
        $sf->isa("Bio::SeqFeatureI") || $self->throw("$sf NOT A SeqFeatureI");
        $sf->isa("Bio::FeatureHolderI") || $self->throw("$sf NOT A FeatureHolderI");
-
+       
        if ($sf->primary_tag eq 'mRNA') {
 	   $self->problem(3,
-			  "you cannot infer mRNAs if there are already mRNAs present");
+			  "you cannot infer mRNAs if there are already mRNAs present", $sf);
        }
 
        my @cdsl = grep {$_->primary_tag eq 'CDS' } $sf->get_SeqFeatures;
