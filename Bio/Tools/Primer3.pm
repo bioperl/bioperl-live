@@ -337,9 +337,19 @@ sub next_primer {
   elsif ($key =~ /PRIMER_RIGHT/i) {$primer_right_hash{$key}=$$results{$key}}
   else {$product_hash{$key}=$$results{$key}}
  }
- $left_seq->add_tag_value(%primer_left_hash);
- $right_seq->add_tag_value(%primer_right_hash);
- $primed_seq->add_tag_value(%product_hash);
+ #$left_seq->add_tag_value(%primer_left_hash);
+ #$right_seq->add_tag_value(%primer_right_hash);
+ #$primed_seq->add_tag_value(%product_hash);
+
+ while (my ($k, $v) = each %primer_left_hash) {
+    $left_seq->add_tag_value($k, $v);
+ }
+ while (my ($k, $v) = each %primer_right_hash) {
+    $right_seq->add_tag_value($k, $v);
+ }
+ while (my ($k, $v) = each %product_hash) {
+    $primed_seq->add_tag_value($k, $v);
+ }
 
  $self->{'next_to_return'}=$next+1;
  return $primed_seq;
