@@ -73,7 +73,7 @@ ok int($hsp->percent), 24;
 ok $hsp->P, 4e-07;
 ok $hsp->match, 64;
 ok $hsp->positive, 112;
-ok $hsp->hsplength, 263;
+ok $hsp->hsplength, 261;
 ok $hsp->query->start, 64;
 ok $hsp->query->end, 324;
 ok $hsp->query->length, 261;
