@@ -12,7 +12,23 @@ Bio::Tools::Genewise - Results of one Genewise run
 
 =head1 SYNOPSIS
 
+use Bio::Tools::Genewise;
+my $gw = Bio::Tools::Genewise(-file=>"genewise.out");
+
+while (my $gene = $gw->next_prediction){
+    my @transcripts = $g->transcripts;
+    foreach my $t(@transcripts){
+      my @exons =  $t->exons;
+      foreach my $e(@exons){
+          print $e->start." ".$e->end."\n";
+      }
+    }
+}
+
 =head1 DESCRIPTION
+
+This is the parser for the output of Genewise. It takes either a file handle or
+a file name and returns a Bio::SeqFeature::Gene::GeneStructure object.
 
 =head1 FEEDBACK
 
@@ -54,77 +70,33 @@ use strict;
 use Symbol;
 
 use Bio::Root::Root;
+use Bio::Root::IO;
 use Bio::Tools::AnalysisResult;
 use Bio::SeqFeature::Generic;
 use Bio::SeqFeature::Gene::Exon;
-use Bio::Tools::Run::WrapperBase;
 use Bio::SeqFeature::FeaturePair;
 use Bio::SeqFeature::Gene::Transcript;
 use Bio::SeqFeature::Gene::GeneStructure;
 
-@ISA = qw(Bio::Tools::AnalysisResult);
+@ISA = qw(Bio::Root::Root Bio::Root::IO);
 
-sub _initialize_state {
-    my ($self,@args) = @_;
 
-    # first call the inherited method!
-    $self->SUPER::_initialize_state(@args);
+=head2 new
 
-    # our private state variables
-    $self->{'_preds_parsed'} = 0;
-    $self->{'_has_cds'} = 0;
-    # array of pre-parsed predictions
-    $self->{'_preds'} = [];
-    # seq stack
-    $self->{'_seqstack'} = [];
-}
-
-=head2 analysis_method
-
- Usage     : $genewise->analysis_method();
- Purpose   : Inherited method. Overridden to ensure that the name matches
-             /genewise/i.
- Returns   : String
- Argument  : n/a
-
-=cut
-
-#-------------
-sub analysis_method { 
-#-------------
-    my ($self, $method) = @_;  
-    if($method && ($method !~ /genewise/i)) {
-	$self->throw("method $method not supported in " . ref($self));
-    }
-    return $self->SUPER::analysis_method($method);
-}
-
-=head2 next_prediction
-
- Title   : next_prediction
- Usage   : while($gene = $genewise->next_prediction()) {
-                  # do something
-           }
- Function: Returns the gene structure prediction of the Genewise result
-           file. Call this method repeatedly until FALSE is returned.
-
+ Title   : new
+ Usage   : $obj->new(-file=>"genewise.out");
+           $obj->new(-fh=>\*GW);
+ Function: Constructor for genewise wrapper. Takes either a file or filehandle
  Example :
- Returns : a Bio::SeqFeature::Gene::GeneStructure object 
- Args    :
+ Returns : L<Bio::Tools::Genewise>
 
 =cut
 
-sub next_prediction {
-    my ($self,$filehandle) = @_;
-    my $gene;
-
-    # if the prediction section hasn't been parsed yet, we do this now
-    $self->_parse_predictions($filehandle) unless $self->_predictions_parsed();
-
-    # get next gene structure
-    $gene = $self->_prediction();
-
-    return $gene;
+sub new {
+  my($class,@args) = @_;
+  my $self = $class->SUPER::new(@args);
+  $self->_initialize_io(@args);
+  return $self;
 }
 
 =head2 _get_strand
@@ -154,27 +126,94 @@ sub _get_strand {
   return ($start,$end,$strand);
 }
 
+=head2 score
 
-=head2 _parse_predictions
-
- Title   : _parse_predictions()
- Usage   : $obj->_parse_predictions()
- Function: Parses the prediction section. Automatically called by
-           next_prediction() if not yet done.
+ Title   : score
+ Usage   : $obj->score
+ Function: get/set for score info
  Example :
- Returns : 
+ Returns : a score value
 
 =cut
 
-sub _parse_predictions {
-    my ($self, $filehandle) = @_;
+sub _score {
+  my ($self,$val) = @_;
+  if($val){
+    $self->{'_score'} = $val;
+  }
+  return $self->{'_score'};
+}
+
+=head2 _prot_id
+
+ Title   : _prot_id
+ Usage   : $obj->_prot_id
+ Function: get/set for protein id 
+ Example :
+ Returns :a protein id
+
+=cut
+
+sub _prot_id {
+  my ($self,$val) = @_;
+  if($val){
+    $self->{'_prot_id'} = $val;
+  }
+  return $self->{'_prot_id'};
+}
+
+=head2 _target_id
+
+ Title   : _target_id
+ Usage   : $obj->_target_id
+ Function: get/set for genomic sequence id
+ Example :
+ Returns :a target id
+
+=cut
+
+sub _target_id {
+  my ($self,$val) = @_;
+  if($val){
+    $self->{'_target_id'} = $val;
+  }
+  return $self->{'_target_id'};
+}
+
+
+=head2 next_prediction
+
+ Title   : next_prediction
+ Usage   : while($gene = $genewise->next_prediction()) {
+                  # do something
+           }
+ Function: Returns the gene structure prediction of the Genewise result
+           file. Call this method repeatedly until FALSE is returned.
+
+ Example :
+ Returns : a Bio::SeqFeature::Gene::GeneStructure object
+ Args    :
+
+=cut
+
+
+sub next_prediction {
+    my ($self) = @_;
     my $genes = new Bio::SeqFeature::Gene::GeneStructure ;
     my $transcript = new Bio::SeqFeature::Gene::Transcript ;
     $/ = "//";
     my $score;
-    while (<$filehandle>) {
+    my $prot_id;
+    my $target_id;
+    while ($_ = $self->_readline) {
 
-        ($score) = $_=~m/Score\s+(\d+[\.][\d]+)/ unless defined $score;
+        ($score) = $_=~m/Score\s+(\d+[\.][\d]+)/;
+        $self->_score($score) unless defined $self->_score;
+        ($prot_id) = $_=~m/Query protein:\s+([\w\.]+)/;
+        $self->_prot_id($prot_id) unless defined $self->_prot_id;
+        ($target_id) = $_=~m/Target Sequence\s+([\w\.]+)/;
+        $self->_target_id($target_id) unless defined $self->_target_id;
+
 
         next unless /Gene\s+\d+\n/;
 
@@ -184,7 +223,7 @@ sub _parse_predictions {
 
         #loop through each exon-supporting feature pair
         foreach my $e (@exons){
-          my ($e_start,$e_end,$phase) = $_=~ m/Exon\s+(\d+)\s+(\d+)\s+phase\s+(\d+)/;
+          my ($e_start,$e_end,$phase) = $e=~ m/Exon\s+(\d+)\s+(\d+)\s+phase\s+(\d+)/;
           my $e_strand;
           ($e_start,$e_end,$e_strand) = $self->_get_strand($e_start,$e_end);
           $transcript->strand($e_strand) unless $transcript->strand != 0;
@@ -194,92 +233,35 @@ sub _parse_predictions {
           $exon->add_tag_value('phase',$phase);
 
           my ($geno_start,$geno_end,$prot_start,$prot_end) = $_=~m/Supporting\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)/;
+          
           my $prot_strand;
           ($prot_start,$prot_end,$prot_strand) = $self->_get_strand($prot_start,$prot_end);
           my $pf = new Bio::SeqFeature::Generic( -start   => $prot_start,
                                               -end     => $prot_end,
-                                              -seqname => 'protein',
-                                              -score   => $score,
+                                              -seqname => $self->_prot_id,
+                                              -score   => $self->_score,
                                               -strand  => $prot_strand,
-                                              -source_tag => 'genewise',
-                                              -primary_tag => 'supporting_protein_feature',
+                                              -source=> 'genewise',
+                                              -primary=> 'supporting_protein_feature',
                                               );
           my $geno_strand;
           ($geno_start,$geno_end,$geno_strand) = $self->_get_strand($geno_start,$geno_end);
           my $gf = new Bio::SeqFeature::Generic( -start   => $geno_start,
                                               -end     => $geno_end,
-                                              -seqname => 'genomic',
-                                              -score   => $score,
+                                              -seqname => $self->_target_id,
+                                              -score   => $self->_score,
                                               -strand  => $geno_strand,
-                                              -source_tag => 'genewise',
-                                              -primary_tag => 'supporting_genomic_feature',
+                                              -source=> 'genewise',
+                                              -primary=> 'supporting_genomic_feature',
                                               );
-          $exon->add_tag_value( 'supporting_protein_feature' => $pf );
-          $exon->add_tag_value( 'supporting_genomic_feature' => $gf );
+          my $fp = new Bio::SeqFeature::FeaturePair(-feature1=>$gf,-feature2=>$pf);
+
+          $exon->add_tag_value( 'supporting_feature' => $fp );
           $transcript->add_exon($exon);
         }
 
     $genes->add_transcript($transcript);
+    return $genes;
   }
-
-  $self->_add_prediction($genes);
-  $self->_predictions_parsed(1);
 }
-
-=head1 _prediction
-
- Title   : _prediction()
- Usage   : $gene = $obj->_prediction()
- Function: internal
- Example :
- Returns : 
-
-=cut
-
-sub _prediction {
-    my ($self) = @_;
-
-    return undef unless(exists($self->{'_preds'}) && @{$self->{'_preds'}});
-    return shift(@{$self->{'_preds'}});
-}
-
-=head2 _add_prediction
-
- Title   : _add_prediction()
- Usage   : $obj->_add_prediction($gene)
- Function: internal
- Example :
- Returns : 
-
-=cut
-
-sub _add_prediction {
-    my ($self, $gene) = @_;
-
-    if(! exists($self->{'_preds'})) {
-	$self->{'_preds'} = [];
-    }
-    push(@{$self->{'_preds'}}, $gene);
-}
-
-=head2 _predictions_parsed
-
- Title   : _predictions_parsed
- Usage   : $obj->_predictions_parsed
- Function: internal
- Example :
- Returns : TRUE or FALSE
-
-=cut
-
-sub _predictions_parsed {
-    my ($self, $val) = @_;
-
-    $self->{'_preds_parsed'} = $val if $val;
-    if(! exists($self->{'_preds_parsed'})) {
-	$self->{'_preds_parsed'} = 0;
-    }
-    return $self->{'_preds_parsed'};
-}
-
 1;
