@@ -301,8 +301,7 @@ sub get_stream {
 
   Usage   : $index->cachesize(1000000)
   Function: Sets the dbm file cache size for the index.
-  			Needs to be set before the DBM file gets opened.
-
+  	    Needs to be set before the DBM file gets opened.
   Example : $index->cachesize(1000000)
   Returns : size of the curent cache
 
