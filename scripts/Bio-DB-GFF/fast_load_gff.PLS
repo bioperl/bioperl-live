@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-# $Id: fast_load_gff.PLS,v 1.1 2003-02-27 11:41:39 lstein Exp $
+# $Id: fast_load_gff.PLS,v 1.2 2003-03-05 12:02:05 lstein Exp $
 
 use strict;
 use lib './blib/lib';
@@ -158,8 +158,8 @@ machine and that the indicated user have the "file" privilege to load
 the tables and have enough room in /usr/tmp (or whatever is specified
 by the \$TMPDIR environment variable), to hold the tables transiently.
 
-The --remote option *may* allow you to load remote databases, for
-example:
+The --local option *may* allow you to load remote databases from local
+files, for example:
 
    fast_load_gff.pl -local -d 'test;host=brie3.cshl.org' test_data.gff
 
