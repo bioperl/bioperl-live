@@ -136,7 +136,7 @@ sub next_seq{
     my $seq = Bio::Seq::RichSeq->new('-verbose' =>$self->verbose());
     
     while(defined($line = $self->_readline())) {
-	$line =~ /^\S/ && last;
+	$line =~ /^LOCUS\s+\S+/ && last;
     }
     return undef if( !defined $line ); # end of file
     
