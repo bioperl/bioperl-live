@@ -23,7 +23,7 @@ BEGIN { $| = 1; print "1..7\n";
 END {print "not ok 1\n" unless $loaded;}
 
 use lib '../';
-use Bio::NewSeq;
+use Bio::PrimarySeq;
 
 $loaded = 1;
 print "ok 1\n";    # 1st test passes.
@@ -36,16 +36,16 @@ print "ok 1\n";    # 1st test passes.
 ## total number of tests that will be run. 
 
 
-my $seq = Bio::NewSeq->new(-seq=>'ACTGTGGCGTCAACT',
-			-id => 'new-id',
+my $seq = Bio::PrimarySeq->new(-seq=>'ACTGTGGCGTCAACT',
+			-display_id => 'new-id',
 			-moltype => 'dna',
-			-accession => 'X677667',
+			-accession_number => 'X677667',
                         -desc=>'Sample Bio::Seq object');
 print "ok 2\n";  
 
-$seq->accession();
+$seq->accession_number();
 $seq->seq();
-$seq->id();
+$seq->display_id();
 
 print "ok 3\n";
 

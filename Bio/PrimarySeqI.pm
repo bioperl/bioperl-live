@@ -24,8 +24,8 @@ Bio::PrimarySeqI - Interface definition for a Bio::PrimarySeq
 
     # accessors
 
-    $string    = $obj->get_seq();
-    $substring = $obj->get_subseq(12,50);
+    $string    = $obj->seq();
+    $substring = $obj->subseq(12,50);
     $display   = $obj->display_id(); # for human display
     $id        = $obj->primary_id(); # unique id for this object, implementation defined
     $unique_key= $obj->accession_number(); 
@@ -48,13 +48,16 @@ Bio::PrimarySeqI - Interface definition for a Bio::PrimarySeq
 
 =head1 DESCRIPTION
 
- This object defines an abstract interface to sequences. There is a
-pure perl implementation of this in Bio::PrimaySeq. If you just want
-to use Bio::PrimaySeq objects, then please read that module
-first. This module defines the interface, and is of more interest to
-people who want to wrap their own Perl Objects/RDBs/FileSystems etc in
-way that they "are" bioperl sequence objects, even though it is not
-using Perl to store the sequence etc.
+This object defines an abstract interface to basic sequence
+information. PrimarySeq is an object just for the sequence and its
+name(s), nothing more. Seq is the larger object complete with
+features. There is a pure perl implementation of this in
+Bio::PrimaySeq. If you just want to use Bio::PrimaySeq objects, then
+please read that module first. This module defines the interface, and
+is of more interest to people who want to wrap their own Perl
+Objects/RDBs/FileSystems etc in way that they "are" bioperl sequence
+objects, even though it is not using Perl to store the sequence etc.
+
 
 This interface defines what bioperl consideres necessary to "be" a
 sequence, without providing an implementation of this. (An
@@ -117,7 +120,7 @@ define.
 =head2 seq
 
  Title   : seq
- Usage   : $string    = $obj->get_seq()
+ Usage   : $string    = $obj->seq()
  Function: Returns the sequence as a string of letters. The
            case of the letters is left up to the implementer.
            Suggested cases are upper case for proteins and lower case for
@@ -129,7 +132,7 @@ define.
 
 =cut
 
-sub get_seq {
+sub seq {
    my ($self) = @_;
 
    if( $self->can('throw') ) {
@@ -139,10 +142,10 @@ sub get_seq {
    }
 }
 
-=head2 get_subseq
+=head2 subseq
 
- Title   : get_subseq
- Usage   : $substring = $obj->get_subseq(10,40);
+ Title   : subseq
+ Usage   : $substring = $obj->subseq(10,40);
  Function: returns the subseq from start to end, where the first base
            is 1 and the number is inclusive, ie 1-2 are the first two
            bases of the sequence
@@ -155,7 +158,7 @@ sub get_seq {
 
 =cut
 
-sub get_subseq{
+sub subseq{
    my ($self) = @_;
 
    if( $self->can('throw') ) {
@@ -413,15 +416,15 @@ sub revcom{
 
    if( $self->can_call_new == 1  ) {
        $out = $self->new( '-seq' => $revseq,
-			  '-display_id'  => $self->id,
-			  '-accession_number' => $self->accession,
+			  '-display_id'  => $self->display_id,
+			  '-accession_number' => $self->accession_number,
 			  '-moltype' => $self->moltype
 			  );
    } else {
        $self->_attempt_to_load_Seq();
        $out = Bio::PrimarySeq->new('-seq' => $revseq,
-			  '-display_id'  => $self->id,
-			  '-accession_number' => $self->accession,
+			  '-display_id'  => $self->display_id,
+			  '-accession_number' => $self->accession_number,
 			  '-moltype' => $self->moltype
 			  );
    }
@@ -467,21 +470,57 @@ sub trunc{
    my $out;
    if( $self->can_call_new == 1  ) {
        $out = $self->new( '-seq' => $str,
-			  '-display_id'  => $self->id,
-			  '-accession_number' => $self->accession,
+			  '-display_id'  => $self->display_id,
+			  '-accession_number' => $self->accession_number,
 			  '-moltype' => $self->moltype
 			  );
    } else {
        $self->_attempt_to_load_Seq();
        $out = Bio::PrimarySeq->new('-seq' => $str,
-			    '-display_id'  => $self->id,
-			    '-accession_number' => $self->accession,
+			    '-display_id'  => $self->display_id,
+			    '-accession_number' => $self->accession_number,
 			    '-moltype' => $self->moltype
 			    );
    }
    
 
    return $out;
+}
+
+=head2 id
+
+ Title   : id
+ Usage   : $id = $seq->id()
+ Function:
+ Example :
+ Returns : 
+ Args    :
+
+
+=cut
+
+sub  id {
+   my ($self)= @_;
+
+   return $self->display_id();
+}
+
+=head2 length
+
+ Title   : length
+ Usage   : $len = $seq->length()
+ Function:
+ Example :
+ Returns : 
+ Args    :
+
+
+=cut
+
+sub  length {
+   my ($self)= @_;
+
+   return CORE::length($self->get_seq());
 }
 
 =head1 Methods for Backward Compatibility

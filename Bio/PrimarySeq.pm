@@ -1,6 +1,6 @@
 
 #
-# bioperl module for Bio::NewSeq
+# bioperl module for Bio::PrimarySeq
 #
 # Cared for by Ewan Birney <birney@sanger.ac.uk>
 #
@@ -48,22 +48,22 @@ Bio::Seq - Bioperl lightweight Sequence Object
 
 =head1 DESCRIPTION
 
-Seq is a lightweight Sequence object, storing little more than the
-sequence, its name, a computer useful unique name. It does not contain
-sequence features or other information.  To have a sequence with
-sequence features you should use the AnnSeq object (AnnotatedSequence)
-which uses this object.
+PrimaySeq is a lightweight Sequence object, storing little more than
+the sequence, its name, a computer useful unique name. It does not
+contain sequence features or other information.  To have a sequence
+with sequence features you should use the Seq object which uses this
+object.
 
-Sequence objects are defined by the Bio::SeqI interface, and this
+Sequence objects are defined by the Bio::PrimarySeqI interface, and this
 object is a pure Perl implementation of the interface (if that's
 gibberish to you, don't worry. The take home message is that this
 object is the bioperl default sequence object, but other people can
 use their own objects as sequences if they so wish). If you are
 interested in wrapping your own objects as compliant Bioperl sequence
-objects, then you should read the Bio::SeqI documentation
+objects, then you should read the Bio::PrimarySeqI documentation
 
-The documenation of this object is a merge of the Bio::Seq and
-Bio::SeqI documentation.  This allows all the methods which you can
+The documenation of this object is a merge of the Bio::PrimarySeq and
+Bio::PrimarySeqI documentation.  This allows all the methods which you can
 call on sequence objects here.
 
 =head1 Reimplementation
@@ -152,17 +152,17 @@ The rest of the documentation details each of the object methods. Internal metho
 # Let the code begin...
 
 
-package Bio::NewSeq;
+package Bio::PrimarySeq;
 use vars qw(@ISA);
 use strict;
 
 # Object preamble - inherits from Bio::Root::Object
 
 use Bio::Root::Object;
-use Bio::SeqI;
+use Bio::PrimarySeqI;
 
 
-@ISA = qw(Bio::Root::Object Bio::SeqI);
+@ISA = qw(Bio::Root::Object Bio::PrimarySeqI);
 
 # new() is inherited from Bio::Root::Object
 
@@ -171,10 +171,11 @@ use Bio::SeqI;
 sub _initialize {
   my($self,@args) = @_;
 
-  my($seq,$id,$acc,$desc,$moltype) =
+  my($seq,$id,$acc,$pid,$desc,$moltype) =
       $self->_rearrange([qw(SEQ
-			    ID
-			    ACCESSION
+			    DISPLAY_ID
+			    ACCESSION_NUMBER
+			    PRIMARY_ID
 			    DESC
 			    MOLTYPE
 			    )],
@@ -182,8 +183,9 @@ sub _initialize {
 
   my $make = $self->SUPER::_initialize(@args);
   $self->seq($seq);
-  $self->id($id);
-  $self->accession($acc);
+  $self->display_id($id);
+  $self->accession_number($acc);
+  $self->primary_id($pid);
   $self->desc($desc);
   $self->moltype($moltype);
 
@@ -206,7 +208,7 @@ sub _initialize {
 sub seq{
    my ($obj,$value) = @_;
    if( defined $value) {
-       if( $value !~ /^[A-Za-z]+$/ ) {
+       if( $value !~ /^[A-Za-z\-\.]+$/ ) {
 	   $obj->throw("Attempting to set the sequence to [$value] which does not look healthy");
        }
        $obj->{'seq'} = $value;
@@ -243,11 +245,11 @@ sub subseq{
 
 }
 
-=head2 id
+=head2 display_id
 
- Title   : id
- Usage   : $id_string = $obj->id();
- Function: returns the id, aka the common name of the Sequence object.
+ Title   : display_id
+ Usage   : $id_string = $obj->display_id();
+ Function: returns the display id, aka the common name of the Sequence object.
            
          The semantics of this is that it is the most likely string to be
          used as an identifier of the sequence, and likely to have "human" readability.
@@ -264,119 +266,75 @@ sub subseq{
 
 =cut
 
-sub id{
+sub display_id{
    my ($obj,$value) = @_;
    if( defined $value) {
-      $obj->{'id'} = $value;
+      $obj->{'display_id'} = $value;
     }
-    return $obj->{'id'};
+    return $obj->{'display_id'};
 
 }
 
 
-=head2 accession
+=head2 accession_number
 
- Title   : accession
- Usage   : $unique_key = $obj->accession;
- Function: Returns a computer defined unique key for this sequence. The
-           accession field name was chosen as in bioinformatics accession
-           numbers are a known concept and well understood.
+ Title   : accession_number
+ Usage   : $unique_key = $obj->accession_number;
+ Function: Returns the unique biological id for a sequence, commonly
+           called the accession_number. For sequences from established
+           databases, the implementors should try to use the correct
+           accession number. Notice that primary_id() provides the
+           unique id for the implemetation, allowing multiple objects
+           to have the same accession number in a particular implementation.
 
-           The aim of this field is that it provides a unique
-           placeholder of where this sequence came from. This allows
-           the rest of the bioperl system to retrieve additional
-           information on the sequence that it might want to
-           store. Effectively it is the computer's unique id.
-
-           The semantics for this should follow the URL type system
-           (or interoperable name service from the OMG standard) being
-
-           /xxx/yyy/zzz/unique_key.<version_number>
-
-           any of these portions can be omitted except for unique key.
-
-           The unique key indicates the actual unique key for this
-           sequence object.  For sequences from the public databases
-           these should be the accession numbers from
-           GenBank/EMBL/DDBJ and accession numbers from
-           swissprot/sptrembl.  For internal databases, the natural
-           thing is to use your own database's primary key for the
-           sequence.
-
-           The version number is optional, and indicates a version
-           which changes on the semantics for the underlying
-           database. The only semantics which is enforced about
-           version numbers is that higher numbers are more up to date
-           than smaller numbers.
-
-           The information before the unique_key is also optional but
-           indicates the database (also called 'context') of the
-           key. For example, 
-
-           /mycompany/dna/DID138338
-
-           would have a unique id of DID138338 and a context of /mycompany/dna
-
-           For public databases, we suggest the following contexts are used:
-
-           /bio/dna/X12671 - accession number X12671 from GenBank/EMBL/DDBJ
-           /bio/pid/g496898 - protein pid number
-           /bio/protein/P09651 - accession number from swissprot/sptrembl
-           /bio/pdb/1HA1   - PDB identifier for protein structures
-
-           For sequences with no context, ie accession numbers by
-           themselves the correct interpretation is that for dna
-           sequences these are /bio/dna/accession_number and for
-           protein sequences these are /bio/protein/accession_number.
-
-          Sequence From Files:
-
-          A number of times in bioinformatics, one doesn't have a
-          database but rather a sequence from a file. Here there is
-          some ambiguity of what happens to this field. If the
-          sequence file contains an accession number field then one
-          should use that as providing the accession number
-          information, probably interpreting it as one of the
-          "standard" contexts above.  However, a different view is to
-          claim that the accession number should indicate the file
-          this was made from. For file formats that have no accession
-          number field (eg, plain FASTA format, with no overloading of
-          the ID line, or raw format, or PIR format), this provides a
-          mechanism for identifying the sequence. The proposal is to
-          extend the context now into a full URL, including the
-          filename, with the "unique_id" now becoming the byte offset
-          into the file for this sequence. To make this concept
-          useful, the format of the file also needs to be encoded, so
-          that this context can be used.  The proposal is that a
-          ::<format-string> is placed after the machine specification
-          of the URL. For example:
-
-          file://localhost::EMBL/nfs/data/roa1.dat/556760
-
-          would indicate a EMBL formatted file found on the nfs system 
-          with byte offset 556760.
-
-
-          Sequence From Raw Memory:
-
-          Sequences created inside bioperl with no given accession number,
-          should have the following accession field:
-
-          /bioperl/<scalar_memory_location>
-  
+           For sequences with no accession number, this method should return
+           "unknown".  
  Returns : A string
- Args    : None
+ Args    : A string (optional) for setting
 
 =cut
 
-sub accession{
+sub accession_number {
    my ($obj,$value) = @_;
    if( defined $value) {
-      $obj->{'accession'} = $value;
-    }
-    return $obj->{'accession'};
+      $obj->{'accession_number'} = $value;
+  }
+   if( ! exists $obj->{'accession_number'} ) {
+       return "unknown";
+   } 
+   return $obj->{'accession_number'};
 
 }
+
+
+=head2 primary_id
+
+ Title   : primary_id
+ Usage   : $unique_key = $obj->primary_id;
+ Function: Returns the unique id for this object in this
+           implementation. This allows implementations to manage
+           their own object ids in a way the implementaiton can control
+           clients can expect one id to map to one object.
+
+           For sequences with no accession number, this method should return
+           a stringified memory location.
+ Returns : A string
+ Args    : A string (optional, for setting)
+
+=cut
+
+sub primary_id {
+   my ($obj,$value) = @_;
+   if( defined $value) {
+      $obj->{'primary_id'} = $value;
+    }
+   if( ! exists $obj->{'primary_id'} ) {
+       return "$obj";
+   }
+   return $obj->{'primary_id'};
+
+}
+
 
 =head2 moltype
 
@@ -448,10 +406,10 @@ sub can_call_new{
 
 }
 
-=head1 Methods Inherieted from Bio::SeqI
+=head1 Methods Inherieted from Bio::PrimarySeqI
 
-These methods are available on Bio::Seq, although they are actually
-implemented on Bio::SeqI
+These methods are available on Bio::PrimarySeq, although they are actually
+implemented on Bio::PrimarySeqI
 
 =head2 revcom
 
@@ -495,6 +453,12 @@ implemented on Bio::SeqI
 
 
 1;
+
+
+
+
+
+
 
 
 
