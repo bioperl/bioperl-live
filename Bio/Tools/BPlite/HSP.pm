@@ -25,8 +25,23 @@ use Bio::SeqFeature::Similarity;
 
 sub new {
     my ($class, @args) = @_;
-    my $self = $class->SUPER::new(@args);
 
+    # workaround to make sure frame is not set before strand is
+    # interpreted from query/subject info 
+    # this workaround removes the key from the hash
+    # so the superclass does not try and work with it
+    # we'll take care of setting it in this module later on
+
+    my %newargs = @args;
+    foreach ( keys %newargs ) {
+	if( /frame$/i ) {
+	    delete $newargs{$_};
+	} 
+    }
+    # done with workaround
+
+    my $self = $class->SUPER::new(%newargs);
+    
     my ($score,$bits,$match,$positive,$p,$qb,$qe,$sb,$se,$qs,
 	$ss,$hs,$qname,$sname,$qlength,$slength, $frame) = 
 	    $self->_rearrange([qw(SCORE
@@ -47,23 +62,26 @@ sub new {
 				  SBJCTLENGTH
 				  FRAME
 				  )],@args);
-
+    
     # Store the aligned query as sequence feature
     if ($qe > $qb) {		# normal query: start < end
 	$self->query( Bio::SeqFeature::Similarity->new
-		      (-start=>$qb, -end=>$qe, -strand=>1, -source=>"BLAST" ) ) }
+		      (-start=>$qb, -end=>$qe, -strand=>1, 
+		       -source=>"BLAST" ) ) }
     else {			# reverse query (i dont know if this is possible, but feel free to correct)
 	$self->query( Bio::SeqFeature::Similarity->new
-		      (-start=>$qe, -end=>$qb, -strand=>-1, -source=>"BLAST" ) ) }
+		      (-start=>$qe, -end=>$qb, -strand=>-1,
+		       -source=>"BLAST" ) ) }
 
     # store the aligned subject as sequence feature
     if ($se > $sb) {		# normal subject
 	$self->subject( Bio::SeqFeature::Similarity->new
-			(-start=>$sb, -end=>$se, -strand=>1, -source=>"BLAST" ) ) }
+			(-start=>$sb, -end=>$se, -strand=>1,
+			 -source=>"BLAST" ) ) }
     else {			# reverse subject: start bigger than end
 	$self->subject( Bio::SeqFeature::Similarity->new
-			(-start=>$se, -end=>$sb, -strand=>-1, -source=>"BLAST" ) ) }
-
+			(-start=>$se, -end=>$sb, -strand=>-1, 
+			 -source=>"BLAST" ) ) }
     # name the sequences
     $self->query->seqname($qname); # query
     $self->subject->seqname($sname); # subject
@@ -84,7 +102,6 @@ sub new {
     $self->{'QS'} = $qs;
     $self->{'SS'} = $ss;
     $self->{'HS'} = $hs;
-    
     
     defined $frame && $self->frame($frame);
     return $self;		# success - we hope!
@@ -218,15 +235,22 @@ sub ss              {shift->{'SS'}}
 
 sub hs              {shift->{'HS'}}
 
+
 sub frame {
     my ($self, $frame) = @_;
     if( defined $frame ) {
 	if( $frame == 0 ) {
-	} elsif( $frame !~ /^[+-]?([0-3])/ ) {
+	    $frame = '.';
+	} elsif( $frame !~ /^([+-])?([1-3])/ ) {	    
 	    $self->warn("Specifying an invalid frame ($frame)");
-	    $frame = 0;
+	    $frame = '.';
 	} else { 
-	    $frame = $1 - 1;
+	    if( ($1 eq '-' && $self->subject->strand >= 0) ||
+		($1 eq '+' && $self->subject->strand <= 0) ) {
+		$self->warn("Frame ($frame) did not match strand of query match (".
+			    $self->subject->strand().")");
+	    }
+	    $frame = $2 - 1;
 	}
     }
     return $self->SUPER::frame($frame);
