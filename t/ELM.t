@@ -24,6 +24,7 @@ BEGIN {
     eval {
 	require IO::String; 
 	require LWP::UserAgent;
+	require HTML::HeadParser
     }; 
     if( $@ ) {
         warn("IO::String or LWP::UserAgent not installed. This means that the module is not usable. Skipping tests");
