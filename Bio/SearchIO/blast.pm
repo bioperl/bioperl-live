@@ -456,7 +456,7 @@ sub next_result{
            my $size = 0;
 	   
            if( defined $seenquery ) { 
-	       $self->_pushback($reportline);
+	       $self->_pushback($reportline) if $reportline;
                $self->_pushback($_);
 	       $self->in_element('hsp') &&
 		   $self->end_element({'Name'=> 'Hsp'});
@@ -474,7 +474,7 @@ sub next_result{
                if( ! defined $reporttype ) {
                    $self->_start_blastoutput;
 		   if( defined $seeniteration ) {
-		       $self->within_element('iteration') &&
+		       $self->in_element('iteration') &&
 			   $self->end_element({ 'Name' => 'Iteration'});
 		       $self->_start_iteration;
 		   } else { 
@@ -868,7 +868,7 @@ sub next_result{
                    # let's handle this in the loop
                    last;
                } elsif( /^Query=/ ) {        
-                   $self->_pushback($reportline);
+                   $self->_pushback($reportline) if $reportline;
                    $self->_pushback($_);
 		   # -- Superfluous I think, but adding nonetheless
                    $self->in_element('hsp') &&
