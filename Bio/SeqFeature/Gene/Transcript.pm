@@ -74,6 +74,7 @@ use Bio::PrimarySeq;
 sub new {
     my ($caller, @args) = @_;
     my $self = $caller->SUPER::new(@args);
+    $self->_register_for_cleanup(\&transcript_destroy);
     my ($primary) = $self->_rearrange([qw(PRIMARY)],@args);
 
     $primary = 'transcript' unless $primary;
@@ -654,7 +655,7 @@ sub _make_cds {
 
 sub features {
     my $self = shift;    
-    return @{$self->{'_features'} || []};
+    return grep { defined } @{$self->{'_features'} || []};
 }
 
 =head2 features_ordered
@@ -678,7 +679,7 @@ sub features_ordered{
 sub get_unordered_feature_type{
     my ($self, $type, $pri)=@_;
     my @list;
-    foreach ($self->features) {
+    foreach ( $self->features) {
 	if ($_->isa($type)) {
 	    if ($pri && $_->primary_tag !~ /$pri/i) {
 		next;
@@ -702,7 +703,8 @@ sub _flush {
      my @list=$self->features;
      my @cut;
      for (reverse (0..$#list)) {
-         if ($list[$_]->isa($type)) {
+         if (defined $list[$_] &&
+	     $list[$_]->isa($type)) {
              if ($pri && $list[$_]->primary_tag !~ /$pri/i) {
                  next;
              }
@@ -781,8 +783,9 @@ sub _new_of_type {
     return $fea;
 }
 
-sub DESTROY {
-    my $self = shift;
+sub transcript_destroy {
+    my $self = shift;    
+    $self->flush_sub_SeqFeature();
     $self->parent(undef);
 }
 

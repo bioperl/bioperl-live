@@ -77,6 +77,7 @@ use Bio::SeqFeature::Gene::GeneStructureI;
 sub new {
     my ($caller, @args) = @_;
     my $self = $caller->SUPER::new(@args);
+    $self->_register_for_cleanup(\&gene_cleanup);
     my ($primary) =
 	$self->_rearrange([qw(PRIMARY
 			      )],@args);
@@ -142,10 +143,11 @@ sub add_transcript {
 
 sub flush_transcripts {
     my ($self) = @_;
-
+    
     if(exists($self->{'_transcripts'})) {
 	foreach my $t ( grep {defined} @{$self->{'_transcripts'} || []} ) {
 	    $t->parent(undef); # remove bkwds pointers
+	    $t = undef;
 	}
 	delete($self->{'_transcripts'});
     }
@@ -390,10 +392,9 @@ sub flush_sub_SeqFeature {
    }
 }
 
-sub DESTROY { 
+sub gene_cleanup {
     my $self = shift;
     $self->flush_transcripts();
-    $self->SUPER::DESTROY();
 }
 
 1;
