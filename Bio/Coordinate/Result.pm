@@ -130,8 +130,7 @@ sub add_result {
   $self->throw("Is not a Bio::Coordinate::Result but [$value]")
       unless $value->isa('Bio::Coordinate::Result');
 
-  map {  $self->add_sub_Location($_);} $value->each_Location;
-
+  map { $self->add_sub_Location($_) } $value->each_Location;
 }
 
 =head2 seq_id
@@ -158,7 +157,6 @@ sub seq_id {
     } else {
 	return undef;
     }
-
 }
 
 
@@ -181,9 +179,8 @@ These methods are shortcuts to Match and Gap locations.
 
 =cut
 
-sub each_gap{
+sub each_gap {
    my ($self) = @_;
-
 
    my @gaps;
    foreach my $gap ($self->each_Location) {
