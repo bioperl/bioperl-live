@@ -8,10 +8,10 @@ Bio::Search::SearchUtils - Utility functions for Bio::Search:: objects
 
 =head1 DESCRIPTION
 
-The SearchUtils.pm module is a collection of subroutines used primarily by
-Bio::Search::Hit::HitI objects for some of the additional
-functionality, such as HSP tiling. Right now, the SearchUtils is just a
-collection of methods, not an object.
+The SearchUtils.pm module is a collection of subroutines used
+primarily by Bio::Search::Hit::HitI objects for some of the additional
+functionality, such as HSP tiling. Right now, the SearchUtils is just
+a collection of methods, not an object.
 
 =head1 AUTHOR 
 
