@@ -829,9 +829,15 @@ sub create_filehandle {
 	$FH = $file;
 	$client->{'_input_type'} = "FileHandle";
       } elsif($handle_ref eq 'GLOB') {
-#	$FH = new FileHandle($file);  # Can't do this
-	$FH = $file;
-	$client->{'_input_type'} = "Glob";
+      # NOTE: Assuming STDIN here. I'd like work with any typeglobbed filehandle
+      #       but I'm not sure how. To pass in a filehandle besides STDIN, use
+      #       a FileHandle object ref in the -file parameter.
+        $FH = \*STDIN;
+	$client->{'_input_type'} = "STDIN";
+
+        # This doesn't behave right with STDIN.
+	#$FH = $file;
+	#$client->{'_input_type'} = "Glob";
       } else {
 	$self->throw("Can't read from $file: Not a FileHandle or GLOB ref.");
       }
@@ -890,10 +896,9 @@ sub get_newline {
 
     if(not $client) {  $client = $self;   }
 
-    if($client->{'_input_type'} eq 'STDIN' ||
-      $client->{'_input_type'} =~ /compressed/ ) {
+    if($client->{'_input_type'} =~ /STDIN|Glob|compressed/) {
       # Can't taste from STDIN since we can't seek 0 on it.
-      # Are other non special Glob refs seek able?
+      # Are other non special Glob refs seek-able? 
       # Attempt to guess newline based on platform.
       # Not robust since we could be reading Unix files on a Mac, e.g.
       if(defined $ENV{'MACPERL'}) {
@@ -905,7 +910,8 @@ sub get_newline {
       $NEWLINE = $self->taste_file($FH);
     }
 
-    close ($FH) unless $client->{'_input_type'} eq 'STDIN';
+    close ($FH) unless ($client->{'_input_type'} eq 'STDIN' || 
+                        $client->{'_input_type'} eq 'FileHandle');
     
     delete $client->{'_input_type'};
 
