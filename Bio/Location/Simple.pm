@@ -272,9 +272,10 @@ sub location_type {
 	$value = uc $value;
 	if (! defined $RANGEDECODE{$value}) {
 	    $value = '\^' if $value eq '^';
+	    $value = '\.\.' if $value eq '..';
 	    $value = $RANGEENCODE{$value};
 	}
-	$self->throw("Did not specify a valid location type.[$value] is no good")
+	$self->throw("Did not specify a valid location type. [$value] is no good")
 	    unless defined $value;
 	$self->{'_location_type'} = $value;
     }
@@ -318,8 +319,11 @@ sub to_FTstring {
 	return $self->start;
     }
     $str = $self->start . $RANGEDECODE{$self->location_type} . $self->end;
+    if($self->is_remote() && $self->seq_id()) {
+	$str = $self->seq_id() . ":" . $str;
+    }
     if( $self->strand == -1 ) {
-	$str = sprintf("complement(%s)", $str);
+	$str = "complement(".$str.")";
     }
     return $str;
 }

@@ -378,7 +378,6 @@ sub to_FTstring {
 sub each_Location {
     my ($self,@args) = @_;
     $self->throw_not_implemented();
-    return undef;
 }
 
 1;

@@ -274,6 +274,32 @@ sub is_single_sequence {
 
 =head1 LocationI methods
 
+=head2 strand
+
+ Title   : strand
+ Usage   : $obj->strand($newval)
+ Function: Gets/sets the strand attribute of the location. Note that for
+           SplitLocations, setting the strand of the container (this object)
+           is a short-cut for setting the strand of all sublocations.
+ Example : 
+ Returns : value of strand (a scalar)
+ Args    : new value (a scalar, optional)
+
+
+=cut
+
+sub strand{
+    my ($self,$value) = @_;
+    if( defined $value) {
+	$self->{'strand'} = $value;
+	# propagate to all sublocs
+	foreach my $loc ($self->sub_Location(0)) {
+	    $loc->strand($value);
+	}
+    }
+    return $self->{'strand'};
+}
+
 =head2 start
 
   Title   : start
@@ -496,11 +522,6 @@ sub to_FTstring {
     }    
 
     my $str = sprintf("%s(%s)",lc $self->splittype, join(",", @strs));
-# for bug #1074 -- still investigating if this is ever needed
-# --jason
-    if( $self->strand == -1 ) {
-	$str = sprintf("complement(%s)",$str);
-    }
     return $str;
 }
 

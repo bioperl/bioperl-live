@@ -498,13 +498,23 @@ sub to_FTstring {
 	    if( defined $vals{"max_$point"} ) {
 		$strs{$point} .= $vals{"max_$point"};
 	    }
+	    if(($vals{$point."_code"} eq 'WITHIN') || 
+	       ($vals{$point."_code"} eq 'BETWEEN')) {
+		$strs{$point} = "(".$strs{$point}.")";
+	    }
 	} else { 
 	    $strs{$point} = $vals{$point};
 	}
+	
     }
     my $str = $strs{'start'} . $delimiter . $strs{'end'};
+    if($self->is_remote() && $self->seq_id()) {
+	$str = $self->seq_id() . ":" . $str;
+    }
     if( $self->strand == -1 ) {
-	$str = sprintf("complement(%s)", $str);
+	$str = "complement(" . $str . ")";
+    } elsif($self->location_type() eq "WITHIN") {
+	$str = "(".$str.")";
     }
     return $str;
 }

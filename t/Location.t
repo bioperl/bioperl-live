@@ -151,15 +151,15 @@ $splitlocation->add_sub_Location($f);
 ok( $splitlocation->to_FTstring(), 
     'join(13..30,30..90,18..22,19..20,<50..61,complement(5..12))');
 $splitlocation->strand(-1);
-skip( 'not going to test this right now', $splitlocation->to_FTstring(), 
-    'join(13..30,30..90,18..22,19..20,<50..61,complement(5..12))');
+ok( $splitlocation->to_FTstring(), 
+    'join(complement(13..30),complement(30..90),complement(18..22),complement(19..20),complement(<50..61),complement(5..12))');
 
 $f = new Bio::Location::Fuzzy(-start => '45.60',
 			      -end   => '75^80');
 
-ok($f->to_FTstring(), '45.60..75^80');
+ok($f->to_FTstring(), '(45.60)..(75^80)');
 $f->start('20>');
-ok($f->to_FTstring(), '>20..75^80');
+ok($f->to_FTstring(), '>20..(75^80)');
 
 # test that even when end < start that length is always positive
 
