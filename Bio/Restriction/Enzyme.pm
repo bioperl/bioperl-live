@@ -236,6 +236,7 @@ Rob Edwards, redwards@utmem.edu
 =head1 CONTRIBUTORS
 
 Heikki Lehvaslaiho, heikki@ebi.ac.uk
+Peter Blaiklock, pblaiklo@restrictionmapper.org
 
 =head1 COPYRIGHT
 
@@ -349,7 +350,7 @@ sub new {
         unless $self->{'_name'} && $self->{'_seq'};
 
 
-    $cut && $self->cut($cut);
+    defined $cut && $self->cut($cut);
     $complementary_cut && $self->complementary_cut($complementary_cut);
     $is_prototype && $self->is_prototype($is_prototype);
     $prototype && $self->prototype($prototype);
@@ -461,7 +462,7 @@ sub site {
 
 
         # now set the recognition site as a new Bio::PrimarySeq object
-        # we need it before caling cut() and complementary_cut()
+        # we need it before calling cut() and complementary_cut()
         $self->{_seq} = new Bio::PrimarySeq(-id=>$self->name,
                                             -seq=>$site,
                                             -verbose=>$self->verbose,
@@ -529,10 +530,6 @@ sub cut {
          $self->throw("The cut position needs to be an integer [$value]")
              unless $value =~ /[-+]?\d+/;
          $self->{'_cut'} = $value;
-         if ($value == 0) {
-             $self->{'_site'} =~ s/\^//;
-             return $self->complementary_cut(0);
-         }
          $self->complementary_cut(length ($self->seq->seq) - $value )
              if $self->type eq 'II';
 
