@@ -1048,6 +1048,49 @@ sub straight_join_limit {
 }
 
 
+sub _feature_by_name {
+  my $self = shift;
+  my ($class,$name,$location,$callback) = @_;
+  $callback || $self->throw('must provide a callback argument');
+
+  my @bin_parts      = split /\s*OR/, $self->bin_query($location->[1],$location->[2]) if $location;
+  my $select         = $self->make_features_select_part;
+  my $from           = $self->make_features_from_part(undef,{sparse_groups=>1});
+  my ($where,@args)  = $self->make_features_by_name_where_part($class,$name);
+  my $join           = $self->make_features_join_part;
+  my $range          = $self->pg_make_features_by_range_where_part('overlaps',
+                                                                {refseq=>$location->[0],
+                                                                 class =>'',
+                                                                 start=>$location->[1],
+                                                                 stop =>$location->[2]}) if $location;
+
+  my @temp_args;
+  my @query_pieces;
+  my $query;
+  if (@bin_parts) {
+    foreach my $bin (@bin_parts) {
+      my $temp_query = "SELECT $select FROM $from WHERE $join AND $where AND $range AND $bin\n";
+      push @temp_args, @args;
+      push @query_pieces, $temp_query;
+    }
+
+    @args  = @temp_args;
+    $query = join("UNION\n", @query_pieces);
+
+  } else {
+    $query  = "SELECT $select FROM $from WHERE $where AND $join";
+  }
+
+  my $sth    = $self->dbh->do_query($query,@args);
+
+  my $count = 0;
+  while (my @row = $sth->fetchrow_array) {
+    $callback->(@row);
+    $count++;
+  }
+  $sth->finish;
+  return $count;
+}
 
 
 1;
