@@ -223,7 +223,9 @@ sub add_features{
        my $bin = bin($f->start,$f->end,$self->min_bin);
        my $serialized = &feature_freeze($f);
        $self->{'_btree'}->put($bin,$serialized);
-       $self->debug( "$bin for ". $f->location->to_FTstring(). " matches ".$#{$self->{'_features'}}. "\n");
+       if( $f->isa('Bio::SeqFeature::Generic') ) {
+	   $self->debug( "$bin for ". $f->location->to_FTstring(). " matches ".$#{$self->{'_features'}}. "\n");
+       }
        $count++;
    }
    return $count;
