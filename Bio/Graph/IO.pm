@@ -15,16 +15,16 @@ Bio::Graph::IO - Class for reading /writing biological graph data.
 # be represented by graphs e.g., protein interaction data. 
 
 #e.g., a graph reformatter..
-  my $graph_in = Bio::BioGraphIO->new(-file =>'myfile.dat', -format=>'dip' );
+  my $graph_in = Bio::Graph::IO->new(-file =>'myfile.dat', -format=>'dip' );
   my $graph    = $graph_in->next_graph();
-  my $graph_out = Bio::BioGraphIO->new(-file =>'outfile.dat', -format=>'psixml') ;
+  my $graph_out = Bio::Graph::IO->new(-file =>'outfile.dat', -format=>'psixml') ;
   $graph_out->write_graph($graph);
 
 =head1  DESCRIPTION
 
 This class is analagous to the SeqIO and AlignIO classes. To read in a file 
 of a particular format, file and format are given as key/value pairs aas arguments.
-The Bio::BioGraphIO checks that the appropriate module is available and loads it. 
+The Bio::Graph::IO checks that the appropriate module is available and loads it. 
 
 At present only the DIP tab delimited format and psi-XML is supported
 
@@ -79,8 +79,8 @@ Email richard.adams@ed.ac.uk
 =head2  new
 
  Name       : new
- Usage      : $io = Bio::BioGraphIO->new(-file=>'myfile.dat', -format=>'dip');
- Returns    : A BioGraphIO stream initialised to the appropriate format.
+ Usage      : $io = Bio::Graph::IO->new(-file=>'myfile.dat', -format=>'dip');
+ Returns    : A Bio::Graph::IO stream initialised to the appropriate format.
  Args       : Named parameters: 
                   -file   => $filename
                   -format => format
@@ -153,7 +153,7 @@ sub write_graph {
 sub _load_format_module {
 
 my ($self, $format) = @_;
-    my $module = "NetworkIO::" . $format;
+    my $module = "Bio::Graph::IO::" . $format;
     my $ok;
 
     eval {
