@@ -853,7 +853,9 @@ Version 1.000 on 12 Feb 1997.
 Version 1.001 on 19 Feb 1997. Fixed a bug that 
 triggered _rowbounds() and _colbounds() to use maximal index lists
 whenever the first index in an index list was 0. New example in POD:
-$aln = new Bio::UnivAln(-seqs=>scalar($aln2->var_sites()));
+
+  $aln = new Bio::UnivAln(-seqs=>scalar($aln2->var_sites()));
+
 Internal: Now avoiding any global parameter passing by using closures,
 for the utility functions.
 
