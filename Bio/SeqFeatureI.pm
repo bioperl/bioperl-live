@@ -81,6 +81,7 @@ use vars qw(@ISA);
 use strict;
 
 use Bio::RangeI;
+use Bio::Seq;
 
 use Carp;
 
@@ -511,7 +512,7 @@ sub spliced_seq {
 	}
     }
     my $out = Bio::Seq->new( -id => $self->entire_seq->display_id . "_spliced_feat",
-			     -seq => $seqstr);
+				      -seq => $seqstr);
     
     return $out;
 }
