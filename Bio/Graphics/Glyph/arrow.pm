@@ -273,28 +273,28 @@ options are recognized:
 	      1 = major ticks
 	      2 = minor ticks
 
-  -parallel   Whether to draw the arrow         true
+  -parallel   Whether to draw the arrow         1 (true)
 	      parallel to the sequence
 	      or perpendicular to it.
 
-  -northeast  Force a north or east             true
+  -northeast  Force a north or east             1 (true)
 	      arrowhead(depending 
 	      on orientation)
 
   -east       synonym of above
 
-  -southwest  Force a south or west             true
+  -southwest  Force a south or west             1 (true)
 	      arrowhead(depending 
 	      on orientation)
 
   -west       synonym of above
 
-  -double     force-doubleheaded arrow          false
+  -double     force-doubleheaded arrow          0 (false)
 
-  -base       Draw a vertical base at the       false
+  -base       Draw a vertical base at the       0 (false)
               non-arrowhead side
 
-  -scale      Reset the labels on the arrow     false
+  -scale      Reset the labels on the arrow     0 (false)
               to reflect an externally 
               established scale.
 
@@ -312,7 +312,7 @@ options are recognized:
               if you want to display in
               cR units)
 
-Set -parallel to false to display a point-like feature such as a
+Set -parallel to 0 (false) to display a point-like feature such as a
 polymorphism, or to indicate an important location.  If the feature
 start == end, then the glyph will draw a single arrow at the
 designated location:
