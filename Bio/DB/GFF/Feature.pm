@@ -599,6 +599,22 @@ sub add_subfeature {
   push @{$subfeat},$feature;
 }
 
+=head2 attach_seq
+
+ Title   : attach_seq
+ Usage   : $sf->attach_seq($seq)
+ Function: Attaches a Bio::Seq object to this feature. This
+           Bio::Seq object is for the *entire* sequence: ie
+           from 1 to 10000
+ Example :
+ Returns : TRUE on success
+ Args    : a Bio::PrimarySeqI compliant object
+
+=cut
+
+sub attach_seq { }
+
+
 =head2 location
 
  Title   : location
