@@ -149,8 +149,14 @@ sub next_seq{
     }
     
     $line =~ /^LOCUS\s+\S+/ || $self->throw("GenBank stream with no LOCUS. Not GenBank in my book. Got $line");
-    $line =~ /^LOCUS\s+(\S+)\s+\S+\s+(bp|aa)\s+(\S+)\s+(\S+)\s+(\S+)?/;
-
+    $line =~ /^LOCUS\s+(\S+)\s+\S+\s+(bp|aa)\s+(\S+)\s+(\S+)\s+(\S+)?/ || {
+	$line =~ /^LOCUS\s+(\S+)/ ||
+	    $self->throw("GenBank stream with no LOCUS. Not GenBank in my book. Got $line");
+	# fall back to at least an ID
+	$name = $1;
+	$self->warn("GenBank record with LOCUS line in unexpected format. ".
+		    "Attributes from this line other than ID will be missing.");
+    }
     $name = $1;
     # this is important to have the id for display in e.g. FTHelper, otherwise
     # you won't know which entry caused an error
@@ -168,7 +174,7 @@ sub next_seq{
 	$seq->division($4);
 	$date = $5;
     } else {
-	$seq->molecule('PRT');
+	$seq->molecule('PRT') if($2 eq 'aa');
 	$seq->division($3);
 	$date = $4;
     }
