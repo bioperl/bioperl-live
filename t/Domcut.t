@@ -50,7 +50,7 @@ exit 0 if $ERROR ==  1;
 
 use Data::Dumper;
 
-use Bio::Seq;
+use Bio::PrimarySeq;
 require Bio::Tools::Analysis::Protein::Domcut;
 
 ok 1;
@@ -62,7 +62,7 @@ ok my $tool = Bio::WebAgent->new(-verbose =>$verbose);
 
 
 
-my $seq = Bio::Seq->new(-seq => 'MSADQRWRQDSQDSFGDSFDGDPPPPPPPPFGDSFGDGFSDRSRQDQRS',
+my $seq = Bio::PrimarySeq->new(-seq => 'MSADQRWRQDSQDSFGDSFDGDPPPPPPPPFGDSFGDGFSDRSRQDQRS',
 						-display_id => 'test2');
 
 ok $tool = Bio::Tools::Analysis::Protein::Domcut->new( -seq=>$seq);
@@ -79,6 +79,6 @@ if (scalar @res > 0) {
 ok my $meta = $tool->result('all');
 
 if (!$METAERROR) { #if Bio::Seq::Meta::Array available
-	skip("meta methods return undef",$meta->named_submeta_text('Domcut', 1,2), "0.068 0.053");
-	skip ("meta methods return undef",$meta->seq, "MSADQRWRQDSQDSFGDSFDGDPPPPPPPPFGDSFGDGFSDRSRQDQRS");
+	ok($meta->named_submeta_text('Domcut', 1,2), "0.068 0.053");
+	ok ($meta->seq, "MSADQRWRQDSQDSFGDSFDGDPPPPPPPPFGDSFGDGFSDRSRQDQRS");
 	}

@@ -18,7 +18,7 @@ BEGIN {
     }
     use Test;
 
-    $NUMTESTS = 12;
+    $NUMTESTS = 11;
     plan tests => $NUMTESTS;
 
     eval {
@@ -50,7 +50,7 @@ exit 0 if $ERROR ==  1;
 
 use Data::Dumper;
 
-use Bio::Seq;
+use Bio::PrimarySeq;
 require Bio::Tools::Analysis::Protein::GOR4;
 
 ok 1;
@@ -62,7 +62,7 @@ ok my $tool = Bio::WebAgent->new(-verbose =>$verbose);
 
 
 
-my $seq = Bio::Seq->new(-seq => 'MSADQRWRQDSQDSFGDSFDGDPPPPPPPPFGDSFGDGFSDRSRQDQRS',
+my $seq = Bio::PrimarySeq->new(-seq => 'MSADQRWRQDSQDSFGDSFDGDPPPPPPPPFGDSFGDGFSDRSRQDQRS',
 						-display_id => 'test2',
 						);
 ok $tool = Bio::Tools::Analysis::Protein::GOR4->new( -seq=>$seq,
@@ -80,10 +80,7 @@ if (scalar @res > 0) {
 ok my $meta = $tool->result('all');
 
 if (!$METAERROR) { #if Bio::Seq::Meta::Array available
-	#meta sequence contains data...
-	ok ($meta->{'primary_seq'}{'seq'}, 'MSADQRWRQDSQDSFGDSFDGDPPPPPPPPFGDSFGDGFSDRSRQDQRS');
 
-	#but not available thru method call...??
-	skip ("meta sequences are undefined?", $meta->named_submeta_text('GOR4_helix',1,2), '104 195');
-	skip ("meta sequences are undefined?", $meta->seq, 'MSADQRWRQDSQDSFGDSFDGDPPPPPPPPFGDSFGDGFSDRSRQDQRS');
+	ok ( $meta->named_submeta_text('GOR4_coil',1,2), '0.999 0.999');
+	ok ( $meta->seq, 'MSADQRWRQDSQDSFGDSFDGDPPPPPPPPFGDSFGDGFSDRSRQDQRS');
 	}
