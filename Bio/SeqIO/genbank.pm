@@ -363,15 +363,15 @@ sub write_seq {
 	$temp_line=~s/\;//g;
 	$temp_line=~s/\.//g;
 
-  } else {
+    } else {
 	
-	
+	my ($date,$sth)=split(/\s/,$date);
+    
 	$temp_line = sprintf ("%-12s%-10s%10s bp%8s%5s %3s ",$seq->id(),$len,$mol,$div,$date);
     } 
    
-    my ($date,$sth)=split(/\s/,$date);
    
-    $self->_print("LOCUS       $temp_line     $date\n");   
+    $self->_print("LOCUS       $temp_line\n");   
     $self->_write_line_GenBank_regex("DEFINITION  ","            ",$seq->desc(),"\\s\+\|\$",80);
     
     # if there, write the accession line
