@@ -1127,7 +1127,7 @@ Ace::Graphics::Panel-E<gt>add_track().
 This is similar to add_feature(), but the list of features is treated
 as a group and can be configured as a set.
 
-=item $glyph->E<gt>finished
+=item $glyph-E<gt>finished
 
 When you are finished with a glyph, you can call its finished() method
 in order to break cycles that would otherwise cause memory leaks.

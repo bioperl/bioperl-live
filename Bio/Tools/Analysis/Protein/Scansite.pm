@@ -168,7 +168,7 @@ my $URL = 'http://scansite.mit.edu/cgi-bin/motifscan_seq';
            the raw result)
 
 The method returns a scalar representing a result of an executed
-job. If the job was terminated by an error the result 
+job. If the job was terminated by an error the result
 
 This implementation returns differently processed data depending on
 argument:
@@ -186,11 +186,10 @@ array.  The objects are L<Bio::SeqFeature::Generic>.
 
 =item 'parsed'
 
-Returns a reference  to an array of hashes containing the data of one 
-phosphorylation site prediction. Key values are :	
-		
-motif, percentile, position, protein, score, site, zscore,  sequence.
+Returns a reference to an array of hashes containing the data of one
+phosphorylation site prediction. Key values are :
 
+motif, percentile, position, protein, score, site, zscore,  sequence.
 
 
 =back

@@ -12,7 +12,7 @@
 
 =head1 NAME
 
-Bio::Tools::RandomDistFunctions - A set of routines useful for generating random data in different disyributions
+Bio::Tools::RandomDistFunctions - A set of routines useful for generating random data in different distributions
 
 =head1 SYNOPSIS
 
@@ -27,8 +27,8 @@ Most of the code is based on the C implementation of these routines in
 Mike Sanderson's r8s's package.  See http://ginger.ucdavis.edu/ for
 information on his software.
 
-This code tries to be fast and use available faster BigInt and GMP library methods when 
-those modules are available.
+This code tries to be fast and use available faster BigInt and GMP
+library methods when those modules are available.
 
 =head1 FEEDBACK
 
@@ -56,7 +56,8 @@ Email jason-at-bioperl.org
 
 =head1 CONTRIBUTORS
 
-Thanks to Mike Sanderson for assistance in the getting this implementation together.
+Thanks to Mike Sanderson for assistance in the getting this
+implementation together.
 
 =head1 APPENDIX
 
@@ -84,13 +85,15 @@ use Bio::Root::Root;
 =head2 birth_distribution
 
  Title   : rand_birth_distribution
- Usage   : my $randvar = Bio::Tools::RandomDistFunctions->rand_birth_distribution($lambda);
- Function: Returns a random number from a birth process waiting time with a fixed interval
-           1.0.  Times are measured from 0=present,1=root;
+ Usage   : my $randvar = Bio::Tools::RandomDistFunctions->
+             rand_birth_distribution($lambda);
+ Function: Returns a random number from a birth process waiting time with
+           a fixed interval 1.0.  Times are measured from 0=present,1=root;
  Returns : floating point number
  Args    : $lambda ( > 0 )
  References : This is based on code by Mike Sanders in r8s.
               Ross, Stochastic Processes, p. 145 for the density
+
 =cut
 
 sub rand_birth_distribution{
@@ -109,9 +112,10 @@ sub rand_birth_distribution{
 =head2 rand_geometric_distribution
 
  Title   : rand_geometric_distribution
- Usage   : my $randvar = Bio::Tools::RandomDistFunctions->rand_geometric_distribution($param);
- Function: Returns a random geometric variate distributed with paramater $param, according to
-           c.d.f. 1 - ( 1- param) ^ n 
+ Usage   : my $randvar = Bio::Tools::RandomDistFunctions->
+             rand_geometric_distribution($param);
+ Function: Returns a random geometric variate distributed with paramater 
+           $param, according to c.d.f. 1 - ( 1- param) ^ n 
  Returns : integer
  Args    : $param ( > 0 )
 
@@ -137,16 +141,19 @@ sub rand_geometric_distribution{
    my $z = log(1 - rand(1)) / $den;
    return POSIX::floor($z) + 1;
    # MSanderson comments from r8s code
-   # Is this the right truncation of the real-valued expression above? YES
-   # Checked by reference to the expected mean of the distribution in 100,000 replicates
-   # EX = 1/param   Var = (1-param)/param^2  See Olkin, Gleser, and Derman, p. 193ff. Probability
-   # Models and Applications, 1980.
+   # Is this the right truncation of the real-valued expression above?
+   # YES
+   # Checked by reference to the expected mean of the distribution in
+   # 100,000 replicates
+   # EX = 1/param Var = (1-param)/param^2 See Olkin, Gleser, and
+   # Derman, p. 193ff. Probability Models and Applications, 1980.
 }
 
 =head2 rand_exponentional_distribution
 
  Title   : rand_exponentional_distribution
- Usage   : my $var = Bio::Tools::RandomDistFunctions->rand_exponentional_distribution($param);
+ Usage   : my $var = Bio::Tools::RandomDistFunctions->
+             rand_exponentional_distribution($param);
  Function: Returns a random exponential variate distributed with parameter
            $param, according to c.d.f 1 - e^(-param * x)
  Returns : floating point number 

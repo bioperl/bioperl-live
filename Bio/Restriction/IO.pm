@@ -134,8 +134,8 @@ use Bio::SeqIO;
  Args    : -file => $filename
            -format => format
            -fh => filehandle to attach to
-=cut
 
+=cut
 
 sub new {
    my ($class, %param) = @_;

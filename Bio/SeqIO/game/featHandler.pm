@@ -22,7 +22,7 @@ This module is not used directly
 
 =head1 DESCRIPTION
 
-Bio::SeqIO::game::featHandler converts game XML <annotation> elements into
+Bio::SeqIO::game::featHandler converts game XML E<lt>annotationE<gt> elements into
 flattened Bio::SeqFeature::Generic objects to be added to the sequence
 
 =head1 FEEDBACK

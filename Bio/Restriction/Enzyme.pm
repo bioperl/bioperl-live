@@ -467,8 +467,6 @@ sub site {
             $self->complementary_cut(length $second);
         $self->revcom_site($self->{_seq}->revcom->seq);
         }
-        
-  
     }
     return $self->{'_site'};
 }
@@ -483,9 +481,10 @@ sub site {
            : cleavage site as in  'G^AATTC'.
  Argument  : Sequence of the site
  Throws    : n/a
-  
-This is the same as site, except it returns the revcom site. For palindromic enzymes
-these two are identical. For non-palindromic enzymes they are not!
+
+This is the same as site, except it returns the revcom site. For
+palindromic enzymes these two are identical. For non-palindromic
+enzymes they are not!
 
 See also L<site|site> above.
 
@@ -527,7 +526,7 @@ sub revcom_site {
        $revcom =~ s/(.{$hat})/$1\^/;
        $self->{'_revcom_site'}=$revcom;
    }
-       
+
     return $self->{'_revcom_site'};
 }
 

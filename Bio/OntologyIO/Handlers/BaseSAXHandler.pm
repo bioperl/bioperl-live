@@ -22,7 +22,7 @@ the following suggestions.
      my $tag=$_[0]->{Name};
      my %args=%{$_[0]->{Attributes}};
      # Your code here.
-     
+
      # Before you enclose this method, write these 2 line.
      $self->_visited_count_inc($tag);
      $self->_push_tag($tag);
@@ -40,17 +40,18 @@ the following suggestions.
      $self->_pop_tag;
  }
 
-3) In characters, or any other methods where you may used the tag stack or 
-count
+3) In characters, or any other methods where you may used the tag
+stack or count
+
  sub characters {
      my $self=shift;
      my $text=shift->{Data};
-     
+
      $self->_chars_hash->{$self->_top_tag} .= $text;
 
  }
-    $count = $self->_visited_count('myTag');
-    $tag = $self->_top_tag;
+ $count = $self->_visited_count('myTag');
+ $tag = $self->_top_tag;
 
 
 =head1 AUTHOR

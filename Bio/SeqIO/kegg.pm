@@ -16,15 +16,14 @@ Bio::SeqIO::kegg - KEGG sequence input/output stream
 
 =head1 SYNOPSIS
 
-It is probably best not to use this object directly, but
-rather go through the SeqIO handler system. Go:
+  #It is probably best not to use this object directly, but
+  #rather go through the SeqIO handler system. Go:
 
-    $stream = Bio::SeqIO->new(-file => $filename, -format => 'KEGG');
+  $stream = Bio::SeqIO->new(-file => $filename, -format => 'KEGG');
 
-    while ( my $seq = $stream->next_seq() ) {
+  while ( my $seq = $stream->next_seq() ) {
 	# do something with $seq
-    }
-
+  }
 
 =head1 DESCRIPTION
 
@@ -33,7 +32,7 @@ This class transforms KEGG gene records into Bio::Seq objects.
 =head2 Mapping of record properties to object properties
 
 This section is supposed to document which sections and properties of
-a GenBank databank record end up where in the Bioperl object model. It
+a KEGG databank record end up where in the Bioperl object model. It
 is far from complete and presently focuses only on those mappings
 which may be non-obvious. $seq in the text refers to the
 Bio::Seq::RichSeqI implementing object returned by the parser for each
@@ -41,43 +40,43 @@ record.
 
 =over 4
 
-=item ENTRY
+=item 'ENTRY'
 
 $seq-E<gt>primary_id
 
-=item NAME
+=item 'NAME'
 
 $seq-E<gt>display_id
 
-=item DEFINITION
+=item 'DEFINITION'
 
 $seq-E<gt>annotation-E<gt>get_Annotations('description');
 
-=item ORTHOLOG
+=item 'ORTHOLOG'
 
 grep {$_-E<gt>database eq 'KO'} $seq-E<gt>annotation-E<gt>get_Annotations('dblink')
 
-=item CLASS
+=item 'CLASS'
 
 grep {$_-E<gt>database eq 'PATH'} $seq-E<gt>annotation-E<gt>get_Annotations('dblink')
 
-=item POSITION
+=item 'POSITION'
 
 FIXME, NOT IMPLEMENTED
 
-=item DBLINKS
+=item 'DBLINKS'
 
 $seq-E<gt>annotation-E<gt>get_Annotations('dblink')
 
-=item CODON_USAGE
+=item 'CODON_USAGE'
 
 FIXME, NOT IMPLEMENTED
 
-=item AASEQ
+=item 'AASEQ'
 
 $seq-E<gt>translate-E<gt>seq
 
-=item NTSEQ
+=item 'NTSEQ'
 
 $seq-E<gt>seq
 

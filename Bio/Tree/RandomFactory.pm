@@ -123,7 +123,7 @@ use Bio::Tree::Tree;
                - birthdeath_forward/BDF
                - birthdeath_backwards/BDB
 
-               
+
           ONE of the following must be specified
            -taxa     => $arrayref of taxa names
            -num_taxa => integer indicating number of taxa in the tree
