@@ -28,7 +28,7 @@ Bio::Search::Result::ResultI - Abstract interface to Search Result objects
     my $io = new Bio::SearchIO(-format => 'blast',
  			       -file   => 't/data/HUMBETGLOA.tblastx');
     my $result = $io->next_result;
-    while( $hit = $result->next_hits()) { # enter code here for hit processing
+    while( $hit = $result->next_hit()) { # enter code here for hit processing
     }
 
     my $id = $result->query_name();
@@ -309,6 +309,55 @@ sub get_statistic{
 sub available_statistics{
    my ($self) = @_;
    $self->throw_not_implemented();
+}
+
+=head2 algorithm
+
+ Title   : algorithm
+ Usage   : my $r_type = $result->algorithm
+ Function: Obtain the name of the algorithm used to obtain the Result
+ Returns : string (e.g., BLASTP)
+ Args    : [optional] scalar string to set value
+
+=cut
+
+sub algorithm{
+   my ($self) = @_;
+   $self->throw_not_implemented();
+}
+
+=head2 algorithm_version
+
+ Title   : algorithm_version
+ Usage   : my $r_version = $result->algorithm_version
+ Function: Obtain the version of the algorithm used to obtain the Result
+ Returns : string (e.g., 2.1.2)
+ Args    : [optional] scalar string to set algorithm version value
+
+=cut
+
+sub algorithm_version{
+   my ($self) = @_;
+   $self->throw_not_implemented();
+}
+
+
+=head2 algorithm_reference
+
+ Title   : algorithm_reference
+ Usage   : $obj->algorithm_reference($newval)
+ Function: 
+ Returns : value of the literature reference for the algorithm
+ Args    : newvalue (optional)
+ Comments: The default implementation in ResultI returns an empty string
+           rather than throwing a NotImplemented exception, since
+           the ref may not always be available and is not critical.
+
+=cut
+
+sub algorithm_reference{
+   my ($self) = @_;
+   return '';
 }
 
 =head2 num_hits
