@@ -90,18 +90,20 @@ use Bio::RangeI;
 
 # _initialize is where the heavy stuff will happen when new is called
 
-sub _initialize {
-  my($self,@args) = @_;
+sub new {
+    my ($class, @args) = @_;
+    my $self = Bio::Seq->new(@args);
 
-  my ($start,$end,$strand) = $self->_rearrange( [qw(START END STRAND)],@args);
-  my $make = $self->SUPER::_initialize(@args);
- 
-  defined $start && $self->start($start);
-  defined $end   && $self->end($end);
-  defined $strand && $self->strand($strand);
+    bless $self, ref($class) || $class;
 
+    my ($start,$end,$strand) = $self->_rearrange( [qw(START END STRAND)],@args);
+    
+    defined $start && $self->start($start);
+    defined $end   && $self->end($end);
+    defined $strand && $self->strand($strand);
+    
 # set stuff in self from @args
- return $make; # success - we hope!
+    return $self; # success - we hope!
 }
 
 =head2 start

@@ -161,44 +161,58 @@ use Bio::PrimarySeqI;
 
 @ISA = qw(Bio::Root::RootI Bio::PrimarySeqI);
 
-# new() is inherited from Bio::Root::RootI
+=head2 new
 
-# _initialize is where the heavy stuff will happen when new is called
+ Title   : new
+ Usage   : $seq    = Bio::PrimarySeq->new( -seq => 'ATGGGGGTGGTGGTACCCT',
+                                           -id  => 'human_id',
+					   -accession_number => 'AL000012',
+					   );
 
-sub _initialize {
-  my($self,@args) = @_;
+ Function: Returns a new primary seq object from
+           basic constructors, being a string for the sequence
+           and strings for id and accession_number
+ Returns : a new Bio::PrimarySeq object
 
-  my($seq,$id,$acc,$pid,$desc,$moltype,$given_id) =
-      $self->_rearrange([qw(SEQ
-			    DISPLAY_ID
-			    ACCESSION_NUMBER
-			    PRIMARY_ID
-			    DESC
-			    MOLTYPE
-                            ID
-			    )],
-			@args);
+=cut
 
-  
 
-  my $make = $self->SUPER::_initialize(@args);
 
-  if( defined $id && defined $given_id ) {
-      if( $id ne $given_id ) {
-	  $self->throw("Provided both id and display_id constructor functions. [$id] [$given_id]");
-      }
-  }
-  if( defined $given_id ) { $id = $given_id; }
+sub new {
+    # standard new call..
+    my($caller,@args) = @_;
+    my $class = ref($caller) || $caller;
+    my $self = {};
+    bless $self,$class;
 
-  $seq     && $self->seq($seq);
-  $id      && $self->display_id($id);
-  $acc     && $self->accession_number($acc);
-  $pid     && $self->primary_id($pid);
-  $desc    && $self->desc($desc);
-  $moltype && $self->moltype($moltype);
-
+    my($seq,$id,$acc,$pid,$desc,$moltype,$given_id) =
+	$self->_rearrange([qw(SEQ
+			      DISPLAY_ID
+			      ACCESSION_NUMBER
+			      PRIMARY_ID
+			      DESC
+			      MOLTYPE
+			      ID
+			      )],
+			  @args);
+    
+    
+    if( defined $id && defined $given_id ) {
+	if( $id ne $given_id ) {
+	    $self->throw("Provided both id and display_id constructor functions. [$id] [$given_id]");
+	}
+    }
+    if( defined $given_id ) { $id = $given_id; }
+    
+    $seq     && $self->seq($seq);
+    $id      && $self->display_id($id);
+    $acc     && $self->accession_number($acc);
+    $pid     && $self->primary_id($pid);
+    $desc    && $self->desc($desc);
+    $moltype && $self->moltype($moltype);
+    
 # set stuff in self from @args
-  return $make; # success - we hope!
+    return $self; # success - we hope!
 }
 
 =head2 seq
@@ -560,3 +574,12 @@ sub _guess_type {
 }
 
 1;
+
+
+
+
+
+
+
+
+

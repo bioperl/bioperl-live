@@ -16,7 +16,7 @@ Bio::Seq - Sequence object, with features
 
 =head1 SYNOPSIS
 
-    $seqio  = Bio::SeqIO->new ( '-format' => 'Fasta' , -file => 'myfile.fasta');
+    $seqio  = Bio::SeqIO->new ( '-format' => 'embl' , -file => 'myfile.dat');
     $seqobj = $seqio->next_seq();
 
     # features must implement Bio::SeqFeatureI
@@ -106,13 +106,30 @@ use Bio::Annotation;
 use Bio::PrimarySeq;
 
 @ISA = qw(Bio::Root::RootI Bio::SeqI);
-# new() is inherited from Bio::Root::RootI
 
-# _initialize is where the heavy stuff will happen when new is called
-sub _initialize {
-    my($self,@args) = @_;
-    my($ann);
-    my $make = $self->SUPER::_initialize(@args);
+
+=head2 new
+
+ Title   : new
+ Usage   : $seq    = Bio::Seq->new( -seq => 'ATGGGGGTGGTGGTACCCT',
+                                    -id  => 'human_id',
+				    -accession_number => 'AL000012',
+				   );
+
+ Function: Returns a new seq object from
+           basic constructors, being a string for the sequence
+           and strings for id and accession_number
+ Returns : a new Bio::Seq object
+
+=cut
+
+sub new {
+    # standard new call..
+    my($caller,@args) = @_;
+    my $class = ref($caller) || $caller;
+    my $self = {};
+    bless $self,$class;
+
 
     # this is way too sneaky probably. We delegate the construction of
     # the Seq object onto PrimarySeq and then pop primary_seq into
@@ -123,12 +140,12 @@ sub _initialize {
     $self->{'date'} = [];
     $self->{'secondary_accession'} = [];
 
-    $ann = new Bio::Annotation;
+    my $ann = new Bio::Annotation;
     $self->annotation($ann);
     $self->primary_seq($pseq);
 
-# set stuff in self from @args
-    return $make;		# success - we hope!
+
+    return $self;
 }
 
 =head1 PrimarySeq interface

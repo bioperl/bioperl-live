@@ -84,24 +84,20 @@ use Bio::Seq;
 
 sub new {
     my ($class, @args) = @_;
-    my $self = bless {}, ref($class) || $class;
-    $self->_initialize(@args);
-    return $self;
-}
+    my $self = Bio::Seq->new(@args);
 
-sub _initialize {
-    my ($self, @args) = @_;
-
+    bless $self, ref($class) || $class;
+    
     my ($pseq) = $self->_rearrange([qw(PRIMARYSEQ)], @args);
 
-    my $make = $self->SUPER::_initialize(@args);    
-    
     if( ! defined $pseq ) {
 	$pseq = new Bio::Seq::LargePrimarySeq(@args);
     }
     $self->primary_seq($pseq);
-    return $make;
+
+    return $self;
 }
+
 
 =head2 trunc
 

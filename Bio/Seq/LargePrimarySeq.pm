@@ -79,6 +79,7 @@ use strict;
 use Bio::Root::RootI;
 use Bio::PrimarySeqI;
 use File::Temp qw(tempfile tempdir);
+use FileHandle;
 
 use POSIX;
 use FileHandle;
@@ -124,7 +125,12 @@ sub _initialize {
     $moltype && $self->moltype($moltype);
 
     my $tempdir = tempdir( CLEANUP => 1);
-    my ($fh,$file) = tempfile( DIR => $tempdir );
+    my ($tfh,$file) = tempfile( DIR => $tempdir );
+
+    # Ewan FIX HERE - Perl 5.005 got a $tfh as a GLOB and then I
+    # could not call seek on this. This works more, but still fails 
+    # can't figure out how to open in read/write mode.
+    my $fh = FileHandle->new($file);
 
     $fh      && $self->_fh($fh);
     $file    && $self->_filename($file);

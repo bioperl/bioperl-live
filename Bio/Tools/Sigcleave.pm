@@ -258,36 +258,13 @@ foreach $i (keys %WeightTable)
 #####################################################################################
 
 
-=head1 _initialize
+sub new {
+    my ($class, @args) = @_;
+    my $self = Bio::Seq->new(@args);
 
- Title     : _initialize
- Usage     : n/a; automatically called by Bio::Root::Object::new()
- Purpose   : Verifies that the type is correct for superclass (Bio::Seq.pm)
-           : and calls superclass constructor last.
- Returns   : n/a
- Argument  : Parameters passed to new()
- Throws    : Exception if given type is not protein.
- Comments  : 
-See Also   : B<Bio::Root::Object::new()>, B<Bio::Seq::_initialize()>
+    bless $self, ref($class) || $class;
 
-=cut
-
-#----------------
-sub _initialize {
-#----------------
-    my($self, %param) = @_;
-    
-    my($threshold,$type) = $self->_rearrange([qw(THRESHOLD
-                                                 TYPE)], %param);
-
-    my $make = $self->SUPER::_initialize(%param);
-
-    # complain if not protein
-    if ($type =~ /nuc|[dr]na/i) {
-	$self->throw("Sigcleave.pm only supports protein sequences.");
-    } elsif ($type =~ /amino|pep|prot/i) {
-	$self->{type} = 'amino';
-    }
+    my ($threshold) = $self->_rearrange([qw(THRESHOLD)],@args);
 
     # set threshold if supplied, otherwise default to 3.5
     if (defined $threshold) {
@@ -297,7 +274,7 @@ sub _initialize {
     }
 
     $self->_Analyze;
-    $make;
+    return $self;
 }
 
 
