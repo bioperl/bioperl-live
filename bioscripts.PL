@@ -30,10 +30,32 @@ contributing your own script.
 
 =head1 PRODUCTION SCRIPTS
 
+=head2 scripts/biblio/biblio.PLS
+
+A fully-featured script that uses Bio::Biblio, a module for 
+accessing and querying bibliographic repositories like Medline.
+
+=head2 scripts/Bio-DB-GFF/bulk_load_gff.PLS
+
+This script loads a mySQL Bio::DB::GFF database with the features 
+contained in a list of GFF files, it cannot do incremental loads.
+
+=head2 scripts/Bio-DB-GFF/fast_load_gff.PLS
+
+This script does a rapid load of a mySQL Bio::DB::GFF database
+using files as source. Probably only works in Unix as it relies 
+on pipes.
+
 =head2 scripts/Bio-DB-GFF/generate_histogram.PLS
 
 Create a GFF-formatted histogram of the density of the indicated set
 of feature types.
+
+=head2 scripts/Bio-DB-GFF/load_gff.PLS
+
+This script loads a mySQL Bio::DB::GFF database with the features 
+contained in a list of GFF files. This script will work with all
+database adaptors supported by Bio::DB::GFF (mySQL, Oracle, Postgres).
 
 =head2 scripts/Bio-DB-GFF/process_gadfly.PLS
 
@@ -84,9 +106,24 @@ Indexes local databases, partners with bpfetch.pl.
 
 Extract the sequence for a specified feature type.
 
-=head2 scripts/seqstats/chaos_plot.pl
+=head2 scripts/seqstats/aacomp.PLS
+
+Prints out the count of amino acids over all protein
+sequences in the input file.
+
+=head2 scripts/seqstats/chaos_plot.PLS
 
 Produce a PNG or JPEG chaos plot given a DNA sequence using GD.pm.
+
+=head2 scripts/seqstats/gccalc.PLS
+
+Prints out the GC content for every nucleotide sequence
+in the input file.
+
+=head2 scripts/seqstats/oligo_count.PLS
+
+Use this script to determine what primers would be useful for 
+frequent priming of nucleic acid for random labeling.
 
 =head2 scripts/taxa/taxid4species.PLS
 
@@ -116,6 +153,11 @@ Requires Digest::MD5.
 
 Perl implementation of Sean Eddy's sreformat, a sequence and 
 alignment converter.
+
+=head2 scripts/utilities/dbsplit.PLS
+
+Splits one or more sequence files into subfiles with specified
+numbers of sequences, any sequence format.
 
 =head2 scripts/utilities/pairwise_kaks.PLS
 
