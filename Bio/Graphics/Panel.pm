@@ -1264,7 +1264,7 @@ and then to compute its width using the formula:
   $width = gdMediumBoldFont->width * length($longest_key) +3;
 
 In order to obtain scalable vector graphics (SVG) output, you should
-pass new() the -image_class=E<lt>'GD::SVG' parameter. This will cause
+pass new() the -image_class=E<gt>'GD::SVG' parameter. This will cause
 Bio::Graphics::Panel to load the optional GD::SVG module. See the gd()
 and svg() methods below for additional information.
 
@@ -1495,7 +1495,7 @@ wish to draw on top of.  If you do so, you should call the width() and
 height() methods first to ensure that the image has sufficient
 dimensions.
 
-If you passed new() the -image_class=E<lt>'GD::SVG' parameter, the gd() method
+If you passed new() the -image_class=Eglt>'GD::SVG' parameter, the gd() method
 returns a GD::SVG::Image object. This object overrides GD::Image
 methods in order to generate SVG output. It behaves exactly as
 described for GD::Image objects with one exception: it implements and
