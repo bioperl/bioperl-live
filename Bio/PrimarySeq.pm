@@ -153,7 +153,8 @@ my %valid_type = map {$_, 1} qw( dna rna protein );
            -primary_id  => primary id (Genbank id)
            -namespace   => the namespace for the accession
            -authority   => the authority for the namespace
-           -desc        => description text
+           -description => description text
+           -desc        => alias for description
            -alphabet    => sequence type (alphabet) (dna|rna|protein)
            -id          => alias for display id
            -is_circular => boolean field for whether or not sequence is circular
@@ -166,7 +167,8 @@ sub new {
     my $self = $class->SUPER::new(@args);
 
     my($seq,$id,$acc,$pid,$ns,$auth,$v,$oid,
-       $desc,$alphabet,$given_id,$is_circular,$direct,$ref_to_seq,$len) =
+       $desc,$description,
+       $alphabet,$given_id,$is_circular,$direct,$ref_to_seq,$len) =
 	$self->_rearrange([qw(SEQ
 			      DISPLAY_ID
 			      ACCESSION_NUMBER
@@ -176,6 +178,7 @@ sub new {
 			      VERSION
 			      OBJECT_ID
 			      DESC
+			      DESCRIPTION
 			      ALPHABET
 			      ID
 			      IS_CIRCULAR
@@ -218,12 +221,13 @@ sub new {
     $acc         && $self->accession_number($acc);
     defined $pid && $self->primary_id($pid);
     $desc        && $self->desc($desc);
+    $description && $self->description($description);
     $is_circular && $self->is_circular($is_circular);
     $ns          && $self->namespace($ns);
     $auth        && $self->authority($auth);
     defined($v)  && $self->version($v);
     defined($oid) && $self->object_id($oid);
-
+    
     return $self;
 }
 
