@@ -87,7 +87,7 @@ use strict;
 # Object preamble - inheriets from Bio::Root::Object
 
 use Bio::Root::Object;
-
+use Wise2;
 
 use AutoLoader;
 @ISA = qw(Bio::Root::Object Exporter);
@@ -115,7 +115,7 @@ sub _initialize {
     $lump = 50;
   }
 
-  $self->_engine(&bp_sw::new_Histogram($min,$max,$lump));
+  $self->_engine(&Wise2::new_Histogram($min,$max,$lump));
 
   return $make; # success - we hope!
 }
@@ -153,7 +153,7 @@ sub add_score{
 sub fit_evd{
    my ($self,@args) = @_;
 
-   return $self->_engine()->ExtremeValueFitHistogram(100);
+   return $self->_engine()->ExtremeValueFitHistogram(10000);
    
 }
 
