@@ -104,7 +104,7 @@ my %FH;
 my $tmpdir = $ENV{TMPDIR} || $ENV{TMP} || '/usr/tmp';
 my @files = (FDATA,FTYPE,FGROUP,FDNA,FATTRIBUTE,FATTRIBUTE_TO_FEATURE);
 foreach (@files) {
-  $FH{$_} = IO::File->new("$tmpdir/$_",">") or die $_,": $!";
+  $FH{$_} = IO::File->new("$tmpdir/$_.$$",">") or die $_,": $!";
   $FH{$_}->autoflush;
 }
 
@@ -183,13 +183,13 @@ my $success = 1;
 foreach (@files) {
   my $command =<<END;
 ${\MYSQL} $AUTH
--e "lock tables $_ write; delete from $_; load data infile '$tmpdir/$_' replace into table $_; unlock tables"
+-e "lock tables $_ write; delete from $_; load data infile '$tmpdir/$_.$$' replace into table $_; unlock tables"
 $DSN
 END
 ;
   $command =~ s/\n/ /g;
   $success &&= system($command) == 0;
-  unlink "$tmpdir/$_";
+  unlink "$tmpdir/$_.$$";
 }
 warn "done...\n";
 
