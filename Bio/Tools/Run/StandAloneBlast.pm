@@ -324,7 +324,7 @@ program with the option "-" as in blastall -
         The database specified must first be formatted with formatdb.
         Multiple database names (bracketed by quotations) will be accepted.
         An example would be -d "nr est"
-  -i  Query File [File In]   Set by StandAloneBlast.pm from script.
+   -i  Query File [File In]   Set by StandAloneBlast.pm from script.
     default = stdin. The query should be in FASTA format.  If multiple FASTA entries are in the input
         file, all queries will be searched.
   -e  Expectation value (E) [Real] default = 10.0
@@ -941,13 +941,15 @@ sub _setparams {
 
 	if ($attr  eq 'd' && ($executable ne 'bl2seq')) { 
 # This is added so that you can specify a DB with a full path
-	  if (! (-e $value.".nin" || -e $value.".pin")){ 
-      my @dbs = split(/ /, $value);
-      for (my $i = 0; $i < scalar(@dbs); $i++) {
-        $dbs[$i] = File::Spec->catdir($DATADIR, $dbs[$i]);
-      }
-      $value = '"'.join(" ", @dbs).'"';
-    }
+#	    if (! (-e $value.".nin" || -e $value.".pin")){ 
+	    my @dbs = split(/ /, $value);
+	    for (my $i = 0; $i < scalar(@dbs); $i++) {
+		# moved the test for full path db to work with multiple databases
+		if (! (-e $dbs[$i].".nin" || -e $dbs[$i].".pin")){ 
+		    $dbs[$i] = File::Spec->catdir($DATADIR, $dbs[$i]);
+		}
+		$value = '"'.join(" ", @dbs).'"';
+	    }
 	}
 # put params in format expected by Blast
 	$attr  = '-'. $attr ;       
