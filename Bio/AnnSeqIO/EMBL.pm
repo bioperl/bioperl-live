@@ -337,6 +337,10 @@ sub write_annseq {
        foreach my $sf ( $annseq->top_SeqFeatures ) {
 	   my @fth = Bio::AnnSeqIO::FTHelper::from_SeqFeature($sf,$annseq);
 	   foreach my $fth ( @fth ) {
+	       if( ! $fth->isa('Bio::AnnSeqIO::FTHelper') ) {
+		   $sf->throw("Cannot process FTHelper... $fth");
+	       }
+
 	       &_print_EMBL_FTHelper($fth,$fh);
 	   }
        }
@@ -401,7 +405,7 @@ sub write_annseq {
 sub _print_EMBL_FTHelper {
    my ($fth,$fh) = @_;
    
-   if(! $fth->isa('Bio::AnnSeqIO::FTHelper') ) {
+   if( ! ref $fth || ! $fth->isa('Bio::AnnSeqIO::FTHelper') ) {
        $fth->warn("$fth is not a FTHelper class. Attempting to print, but there could be tears!");
    }
 

@@ -158,33 +158,35 @@ sub annotation{
 =cut
 
 sub add_SeqFeature{
-   my ($self,$feat) = @_;
+   my ($self,@feat) = @_;
    my ($fseq,$aseq);
 
-   if( !$feat->isa("Bio::SeqFeatureI") ) {
-       $self->warn("$feat is not a SeqFeatureI and that's what we expect...");
-   }
 
-   if( $feat->can("seq") ) {
-       $fseq = $feat->seq;
-       $aseq = $self->seq;
-
-       if( defined $aseq ) {
-	   if( defined $fseq ) {
-	       if( $aseq ne $fseq ) {
-		   $self->warn("$feat has an attached sequence which is not in this annseq. I worry about this");
-	       }
-	   } else {
-	       if( $feat->can("attach_seq") ) {
-		   # attach it 
-		   $feat->attach_seq($aseq);
-	       }
-	   }
-       } # end of if aseq
-   } # end of if the feat can seq
-
-   push(@{$self->{'_as_feat'}},$feat);
+   foreach my $feat ( @feat ) {
+       if( !$feat->isa("Bio::SeqFeatureI") ) {
+	   $self->warn("$feat is not a SeqFeatureI and that's what we expect...");
+       }
        
+       if( $feat->can("seq") ) {
+	   $fseq = $feat->seq;
+	   $aseq = $self->seq;
+	   
+	   if( defined $aseq ) {
+	       if( defined $fseq ) {
+		   if( $aseq ne $fseq ) {
+		       $self->warn("$feat has an attached sequence which is not in this annseq. I worry about this");
+		   }
+	       } else {
+		   if( $feat->can("attach_seq") ) {
+		       # attach it 
+		       $feat->attach_seq($aseq);
+		   }
+	       }
+	   } # end of if aseq
+       } # end of if the feat can seq
+       
+       push(@{$self->{'_as_feat'}},$feat);
+   }
 }
 
 =head2 top_SeqFeatures

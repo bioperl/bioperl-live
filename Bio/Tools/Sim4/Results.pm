@@ -255,12 +255,21 @@ sub _parse_fh{
 		   my $f2start = $3;
 		   my $f2end   = $4;
 		   my $perc = $5;
-
-		   my $homol = Bio::SeqFeature::Generic->new(
-							     -start => $f2start,
-							     -end   => $f2end,
-							     -strand => $hit_direction,
-							     );
+		   
+		   my $homol;
+		   if( $hit_direction == 1 ) {
+		       $homol = Bio::SeqFeature::Generic->new(
+								 -start => $f2start,
+								 -end   => $f2end,
+								 -strand => $hit_direction,
+								 );
+		   } else {
+		       $homol = Bio::SeqFeature::Generic->new(
+								 -end => $length2 - $f2start,
+								 -start => $length2 - $f2end +1,
+								 -strand => $hit_direction,
+								 );
+		   }
 							    
 
 		   my $exon = Bio::Tools::Sim4::Exon->new();
@@ -271,7 +280,7 @@ sub _parse_fh{
 		   $exon->homol_SeqFeature($homol);
 		   $es->add_Exon($exon);
 	       };
-	       if( ! /\-\>/ ) {
+	       if( ! /\-\>/ && ! /\<\-/ && ! /\=\=/) {
 		   last;
 	       }
 	   }

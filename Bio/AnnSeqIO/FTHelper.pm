@@ -147,15 +147,21 @@ sub from_SeqFeature {
 	}
 	# going into sub features
 	foreach my $sub ( $sf->sub_SeqFeature() ) {
-	    my $subfth = &Bio::AnnSeqIO::FTHelper::from_SeqFeature($sub);
-	    push(@ret,$subfth);
+	    my @subfth = &Bio::AnnSeqIO::FTHelper::from_SeqFeature($sub);
+	    push(@ret,@subfth);
 	}
     }
 
-    my $fth = new Bio::AnnSeqIO::FTHelper();
+    my $fth = Bio::AnnSeqIO::FTHelper->new();
 
     $fth->loc($loc);
     $fth->key($key);
+    $fth->field->{'note'}= [];
+    push(@{$fth->field->{'note'}},"source=" . $sf->source_tag );
+    push(@{$fth->field->{'note'}},"score=" . $sf->score );
+    push(@{$fth->field->{'note'}},"frame=" . $sf->frame );
+    push(@{$fth->field->{'note'}},"strand=" . $sf->strand );
+
     foreach my $tag ( $sf->all_tags ) {
 	if( !defined $fth->field->{$tag} ) {
 	    $fth->field->{$tag} = [];
@@ -166,6 +172,16 @@ sub from_SeqFeature {
     }
 
     push(@ret,$fth);
+
+    if( $#ret == -1 ) {
+	$context_annseq->throw("Problem in processing seqfeature $sf - no fthelpers. Error!");
+    }
+    foreach my $ft ( @ret ) {
+	if( !$ft->isa('Bio::AnnSeqIO::FTHelper') ) {
+	    $sf->throw("Problem in processing seqfeature $sf - made a $fth!");
+	}
+    }
+
     return @ret;
 
 }

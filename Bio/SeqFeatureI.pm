@@ -251,6 +251,15 @@ sub gff_string{
    }
    $frame = '.' unless defined $frame;
 
+   my $strand;
+   if( $feat->strand == 1 ) {
+       $strand = '+';
+   } elsif ( $feat->strand == -1 ) {
+       $strand = '-';
+   } else {
+       $strand = '.';
+   }
+
    $str = join("\t",
                  "SEQ",
 		 $feat->source_tag(),
@@ -258,8 +267,15 @@ sub gff_string{
 		 $feat->start(),
 		 $feat->end(),
 		 $score,
-		 $feat->strand(),
+		 $strand,
 		 $frame);
+
+   foreach my $tag ( $feat->all_tags ) {
+       foreach my $value ( $feat->each_tag_value($tag) ) {
+	   $str .= " $tag=$value";
+       }
+   }
+
 
    return $str;
 }

@@ -188,6 +188,24 @@ sub end{
    return $self->{'_gsf_end'};
 }
 
+=head2 length
+
+ Title   : length
+ Usage   :
+ Function:
+ Example :
+ Returns : 
+ Args    :
+
+
+=cut
+
+sub length{
+   my ($self) = @_;
+
+   return $self->end - $self->start +1;
+}
+
 
 =head2 strand
 
@@ -219,7 +237,7 @@ sub strand{
    return $self->{'_gsf_strand'};
 }
 
-=head2 strand
+=head2 score
 
  Title   : score
  Usage   : $score = $feat->score()
@@ -243,6 +261,32 @@ sub score {
   }
   
   return $self->{'_gsf_score'};
+}
+
+=head2 frame
+
+ Title   : frame
+ Usage   : $frame = $feat->frame()
+           $feat->frame($frame)
+ Function: get/set on frame information
+ Returns : 0,1,2
+ Args    : none if get, the new value if set
+
+
+=cut
+
+sub frame {
+  my $self = shift;
+  
+  if(@_) {
+       my $value = shift;
+       if( $value !~ /^[+-]?\d+\.?\d*(e-\d+)?/ ) {
+	   $self->throw("'$value' is not a valid score");
+       }
+       $self->{'_gsf_frame'} = $value;
+  }
+  
+  return $self->{'_gsf_frame'} || '.';
 }
 
 =head2 sub_SeqFeature
