@@ -309,8 +309,7 @@ ok $res->end, 10;
 #
 # chr to cds ; ranges into one
 #
-
-my $exons = new Bio::Location::Split;
+my $exons = new Bio::Location::Split(-seq_id => 'gene');
 $exons->add_sub_Location($e1);
 $exons->add_sub_Location($e2);
 $exons->add_sub_Location($e3);
