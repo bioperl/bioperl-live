@@ -1,5 +1,5 @@
 #
-# BioPerl module for Bio::SeqIO::fasta
+# BioPerl module for Bio::SeqIO::gcg
 #
 # Cared for by Ewan Birney <birney@sanger.ac.uk>
 #          and Lincoln Stein <lstein@cshl.org>
