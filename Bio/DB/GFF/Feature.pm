@@ -1025,6 +1025,17 @@ sub name {
   return $self->group || $self->SUPER::name;
 }
 
+=head2 gff_string
+
+ Title   : gff_string
+ Usage   : $string = $feature->gff_strin
+ Function: return GFF version 2 representation of feature
+ Returns : a string
+ Args    : none
+ Status  : Public
+
+=cut
+
 sub gff_string {
   my $self = shift;
   my ($start,$stop) = ($self->start,$self->stop);
@@ -1058,6 +1069,75 @@ sub gff_string {
   $phase = '.' unless defined $phase;
   return join("\t",$n,$self->source,$self->method,$start||'.',$stop||'.',$self->score||'.',$strand||'.',$phase,$group_field);
 }
+
+=head2 gff3_string
+
+ Title   : gff3_string
+ Usage   : $string = $feature->gff3_string([$recurse])
+ Function: return GFF3 representation of feature
+ Returns : a string
+ Args    : An optional flag, which if true, will cause the feature to recurse over
+           subfeatures.
+ Status  : Public
+
+=cut
+
+sub gff3_string {
+  my $self = shift;
+  my ($recurse,$parent) = @_;
+  my ($start,$stop) = ($self->start,$self->stop);
+
+  # the defined() tests prevent uninitialized variable warnings, when dealing with clone objects
+  # whose endpoints may be undefined
+  ($start,$stop) = ($stop,$start) if defined($start) && defined($stop) && $start > $stop;
+
+  my $strand = ('-','.','+')[$self->strand+1];
+  my $ref = $self->refseq;
+  my $n   = ref($ref) ? $ref->name : $ref;
+  my $phase = $self->phase;
+  $phase = '.' unless defined $phase;
+
+  my ($class,$name) = ('','');
+  my @group;
+  if (my $t = $self->target) {
+    my $name  = $t->name;
+    my $start = $t->start;
+    my $stop  = $t->stop;
+    push @group,[Target=>"$name+$start+$stop"];
+  }
+
+  elsif (my $g = $self->group) {
+    $class = $g->class || '';
+    $name  = $g->name  || '';
+    $name  = "$class:$name" if defined $class;
+    push @group,[ID =>  $name] if !defined($parent) || $name ne $parent;
+  }
+
+  push @group,[Parent => $parent] if defined $parent;
+
+  my @attributes = $self->attributes;
+  while (@attributes) {
+    push @group,[shift(@attributes),shift(@attributes)]
+  }
+  my $group_field = join ';',map {join '=',_escape($_->[0]),_escape($_->[1])} @group;
+  my $string = join("\t",$n,$self->source,$self->method,$start||'.',$stop||'.',
+                         $self->score||'.',$strand||'.',$phase,$group_field);
+  $string .= "\n";
+  if ($recurse) {
+    foreach ($self->sub_SeqFeature) {
+      $string .= $_->gff3_string(1,$name);
+    }
+  }
+  $string;
+}
+
+sub _escape {
+  my $toencode = shift;
+  $toencode    =~ s/([^a-zA-Z0-9_. :?^*\(\)\[\]@!-])/uc sprintf("%%%02x",ord($1))/eg;
+  $toencode    =~ tr/ /+/;
+  $toencode;
+}
+
 
 =head1 A Note About Similarities
 
