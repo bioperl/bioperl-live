@@ -39,7 +39,7 @@ To use this for your own code you will either want to inherit from
 this module, or instantiate an object for every file or stream you are
 dealing with. In the first case this module will most likely not be
 the first class off which your class inherits; therefore you need to
-call _initialize_io() with the named parameters in order set file
+call _initialize_io() with the named parameters in order to set file
 handle, open file, etc automatically.
 
 Most methods start with an underscore, indicating they are private. In
@@ -51,7 +51,7 @@ In addition this module contains a couple of convenience methods for
 cross-platform safe tempfile creation and similar tasks. There are
 some CPAN modules related that may not be available on all
 platforms. At present, File::Spec and File::Temp are attempted. This
-module exports $PATHSEP, $TEMPFILE, and $ROOTDIR, which will always be set, 
+module defines $PATHSEP, $TEMPDIR, and $ROOTDIR, which will always be set, 
 and $OPENFLAGS, which will be set if either of File::Spec or File::Temp fails.
 
 =head1 FEEDBACK
@@ -243,6 +243,7 @@ sub _initialize_io {
 	$fh = Symbol::gensym();
 	open ($fh,$file) ||
 	    $self->throw("Could not open $file for reading: $!");
+	$self->file($file);
     }
     $self->_fh($fh) if $fh; # if not provided, defaults to STDIN and STDOUT
     return 1;
@@ -266,6 +267,26 @@ sub _fh {
 	$obj->{'_filehandle'} = $value;
     }
     return $obj->{'_filehandle'};
+}
+
+=head2 file
+
+ Title   : file
+ Usage   : $obj->file($newval)
+ Function:
+ Example :
+ Returns : value of file
+ Args    : newvalue (optional)
+
+
+=cut
+
+sub file {
+    my ($obj, $value) = @_;
+    if ( defined $value) {
+	$obj->{'_file'} = $value;
+    }
+    return $obj->{'_file'};
 }
 
 =head2 _print
@@ -338,7 +359,7 @@ sub _pushback {
 =head2 close
 
  Title   : close
- Usage   : $seqio->close()
+ Usage   : $io->close()
  Function: Closes the file handle associated with this IO instance.
  Example :
  Returns :
