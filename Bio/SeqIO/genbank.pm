@@ -1,15 +1,3 @@
-# $Id$
-#
-# BioPerl module for Bio::SeqIO::GenBank
-#
-# Cared for by Elia Stupka <elia@tll.org.sg>
-#
-# Copyright Elia Stupka
-#
-# You may distribute this module under the same terms as perl itself
-
-# POD documentation - main docs before the code
-
 =head1 NAME
 
 Bio::SeqIO::GenBank - GenBank sequence input/output stream
@@ -33,23 +21,6 @@ file databases.
 
 There is alot of flexibility here about how to dump things which I need
 to document fully.
-
-=head2 Mapping of record properties to object properties
-
-This section is supposed to document which sections and properties of
-a GenBank databank record end up where in the Bioperl object model. It
-is far from complete and presently focuses only on those mappings
-which may be non-obvious. $seq in the text refers to the
-Bio::Seq::RichSeqI implementing object returned by the parser for each
-record.
-
-=over 4
-
-=item GI number
-
-$seq-E<gt>primary_id
-
-=back
 
 =head2 Optional functions
 
@@ -101,7 +72,7 @@ the top level object which defines a function called NAME() which
 stores this information.
 
 Items listed as Annotation 'NAME' tell you the data is stored the
-associated Bio::Annotation::Colection object which is associated with
+associated Bio::AnnotationCollectionI object which is associated with
 Bio::Seq objects.  If it is explictly requested that no annotations
 should be stored when parsing a record of course they won't be
 available when you try and get them.  If you are having this problem
@@ -115,7 +86,9 @@ Origin               Annotation 'origin'
 
 Accessions           PrimarySeq accession_number()
 Secondary accessions RichSeq get_secondary_accessions()
-Keywords             RichSeq keywords()
+GI number            PrimarySeq primary_id()
+LOCUS                PrimarySeq display_id()
+Keywords             RichSeq get_keywords()
 Dates                RichSeq get_dates()
 Molecule             RichSeq molecule()
 Seq Version          RichSeq seq_version()
@@ -508,6 +481,7 @@ sub next_seq {
 		  foreach my $tagval ($feat->get_tag_values('db_xref')) {
 		      if(index($tagval,"taxon:") == 0) {
 			  $species->ncbi_taxid(substr($tagval,6));
+                          last;
 		      }
 		  }
 	      }
@@ -541,7 +515,7 @@ sub next_seq {
       if($builder->want_slot('seq')) {
 	  # the fact that we want a sequence does not necessarily mean that
 	  # there also is a sequence ...
-	  if(defined($_) && s/^ORIGIN//) {
+	  if(defined($_) && s/^ORIGIN\s+//) {
 	      chomp;
 	      if( $annotation && length($_) > 0 ) {
 		  $annotation->add_Annotation('origin',
@@ -739,12 +713,12 @@ sub write_seq {
 						 $ref->medline, "\\s\+\|\$",80);
 		# I am assuming that pubmed entries only exist when there
 		# are also MEDLINE entries due to the indentation
-		# This could be a wrong assumption
-		if( $ref->pubmed ) {
-		    $self->_write_line_GenBank_regex("   PUBMED   "," "x12,
-						     $ref->pubmed, "\\s\+\|\$",
-						     80);
-		}
+	    }
+	    # This could be a wrong assumption
+	    if( $ref->pubmed ) {
+		$self->_write_line_GenBank_regex("   PUBMED   "," "x12,
+						 $ref->pubmed, "\\s\+\|\$",
+						 80);
 	    }
 	    $count++;
 	}
@@ -817,7 +791,8 @@ sub write_seq {
 	}
 
 	my ($o) = $seq->annotation->get_Annotations('origin');
-	$self->_print(sprintf("%-6s%s\n",'ORIGIN',$o ? $o->value : ''));
+	$self->_print(sprintf("%-12s%s\n",
+			      'ORIGIN', $o ? $o->value : ''));
         # print out the sequence
 	my $nuc = 60;		# Number of nucleotides per line
 	my $whole_pat = 'a10' x 6; # Pattern for unpacking a whole line
@@ -957,8 +932,11 @@ sub _read_GenBank_References{
        if (/^\s{2}JOURNAL\s+(.*)/o) { 
 	   push(@loc, $1);
 	   while ( defined($_ = $self->_readline) ) {
-	       /^\s{3,}(.*)/o && do { push(@loc, $1);
-				     next;
+	       # we only match when there are at least 4 spaces
+	       # there is probably a better way to match this
+	       # as it assumes that the describing tag is short enough 
+	       /^\s{4,}(.*)/o && do { push(@loc, $1);
+				      next;
 				 };
 	       last;
 	   }
