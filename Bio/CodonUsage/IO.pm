@@ -130,7 +130,7 @@ sub write_data {
 			}
 	my $outstring = "Codon usage table\n\n";
 
-	my $sp_string = $cut->species . "[" . "$cut->{'_gb_db'}" . "]  " .
+	my $sp_string = $cut->species . "[" . $cut->_gb_db . "]  " .
 					$cut->cds_count . "  CDS's\n\n";
 	$outstring .= $sp_string;
 	my $colhead = sprintf("%-9s%-9s%15s%12s%12s\n\n", "AmAcid",
@@ -140,16 +140,16 @@ sub write_data {
 	### now write bulk of codon data  ##
 	my $ctable =  Bio::Tools::CodonTable->new;
 
-	for my $f (qw(C T A G)) {
-		for my $s (qw(C T A G)) {
-			for my $t (qw(C T A G)) {
+	for my $f (qw(G A T C)) {
+		for my $s (qw(G A T C)) {
+			for my $t (qw(G A T C)) {
 				$cod = $f . $s . $t;
 				my $aa =$Bio::SeqUtils::THREECODE {$ctable->translate($cod)};
 				my $codstr = sprintf("%-9s%-9s%15.2f%12.2f%12.2f\n",		
 
-						$aa, $cod, $cut->codon_count($cod), 
-						$cut->{'_table'}{$aa}{$cod}{'per1000'},
-						$cut->codon_rel_frequency($cod));
+						$aa, $cod, my $tt = $cut->codon_count($cod)|| 0.00, 
+						my $ll =$cut->{'_table'}{$aa}{$cod}{'per1000'}|| 0.00,
+						my $ss = $cut->codon_rel_frequency($cod) || 0.00);
 				$outstring .= $codstr;
 			}
 		$outstring .= "\n";
@@ -161,8 +161,8 @@ sub write_data {
 	$outstring .= "Coding GC ". $cut->get_coding_gc('all'). "%\n";
 	$outstring .= "1st letter GC ". $cut->get_coding_gc(1). "%\n";
 	$outstring .= "2nd letter GC ". $cut->get_coding_gc(2). "%\n";
-	$outstring .= "3rd letter GC ". $cut->get_coding_gc(2). "%\n";
-	$outstring .= "Genetic code " . $cut->genetic_code() ."\n";
+	$outstring .= "3rd letter GC ". $cut->get_coding_gc(3). "%\n";
+	$outstring .= "Genetic code " . $cut->genetic_code() ."\n\n\n";
 
 	
 			
