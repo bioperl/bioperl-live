@@ -173,12 +173,12 @@ sub get_dna {
   # special case, get it all
   if (!($has_start || $has_stop)) {
     $sth = $self->dbh->do_query('select fdna,foffset from fdna where fref=? order by foffset',$ref);
-  } 
+  }
 
   elsif (!$has_stop) {
     $sth = $self->dbh->do_query('select fdna,foffset from fdna where fref=? and foffset>=? order by foffset',
 				$ref,$offset_start);
-  } 
+  }
 
   else {  # both start and stop defined
     $sth = $self->dbh->do_query('select fdna,foffset from fdna where fref=? and foffset>=? and foffset<=? order by foffset',
@@ -1996,6 +1996,8 @@ sub _delete {
     my $result      = $dbh->selectall_arrayref($types_query);
     my @typeids     = map {$_->[0]} @$result;
     my $typelist    = join ',',map{$dbh->quote($_)} @typeids;
+    $typelist ||= "0"; # don't cause DBI to die with invalid SQL when
+                       # unknown feature types were requested.
     push @where,"(ftypeid in ($typelist))";
   }
   $self->throw("This operation would delete all feature data and -force not specified")
@@ -2003,6 +2005,7 @@ sub _delete {
   $query .= " where ".join(' and ',@where) if @where;
   warn "$query\n" if $self->debug;
   my $result = $dbh->do($query);
+
   defined $result or $self->throw($dbh->errstr);
   $result;
 }
