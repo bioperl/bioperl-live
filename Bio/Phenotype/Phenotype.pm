@@ -246,18 +246,10 @@ sub name {
 =cut
 
 sub description {
-    my ( $self, $value ) = @_;
-
-    if ( defined $value ) {
-        $self->{ "_description" } = $value;
-    }
-
+    my $self = shift;
+    return $self->{ "_description" } = shift if(@_);
     return $self->{ "_description" };
-
-} # description
-
-
-
+}
 
 =head2 species
 
@@ -283,9 +275,6 @@ sub species {
 
 } # species
 
-
-
-
 =head2 comment
 
  Title   : comment
@@ -299,17 +288,10 @@ sub species {
 =cut
 
 sub comment {
-    my ( $self, $value ) = @_;
-
-    if ( defined $value ) {
-        $self->{ "_comment" } = $value;
-    }
-
+    my $self = shift;
+    return $self->{ "_comment" } = shift if(@_);
     return $self->{ "_comment" };
-
 } # comment
-
-
 
 
 =head2 each_gene_symbol
