@@ -198,7 +198,10 @@ my %Home_url =
      'phylip'          =>'http://evolution.genetics.washington.edu/phylip.html',
      'pir'             =>'http://www-nbrf.georgetown.edu/pir/',
      'pfam'            =>'http://pfam.wustl.edu/',
+     'pfam_uk'         =>'http://www.sanger.ac.uk/Software/Pfam/',
+     'pfam_us'         =>'http://pfam.wustl.edu/',
      'pdb'             =>'http://www.pdb.bnl.gov/',
+     'presage'         =>'http://presage.stanford.edu/',
      'geneQuiz'        =>'http://www.sander.ebi.ac.uk/genequiz/genomes/sc/',
      'molMov'          =>'http://bioinfo.mbb.yale.edu/MolMovDB/',
 #     'protMot'         =>'http://bioinfo.mbb.yale.edu/ProtMotDB/', # old, use molMov instead
@@ -218,6 +221,8 @@ my %Stem_url =
       'emotif'      =>'http://dna.Stanford.EDU/cgi-bin/emotif/',
       'entrez'      =>'http://www3.ncbi.nlm.nih.gov/htbin-post/Entrez/query?',
       'pdb'         =>'http://www.pdb.bnl.gov/pdb-bin/',
+      'pfam_uk'     =>'http://www.sanger.ac.uk/cgi-bin/Pfam/',
+      'pfam_us'     =>'http://pfam.wustl.edu/cgi-bin/',
       'pir'         =>'http://www-nbrf.georgetown.edu/cgi-bin/nbrfget?',
       );
 
@@ -249,13 +254,18 @@ my %Search_url =
       'molMov'       =>$Home_url{'molMov'}.'search.cgi?pdb=',
       'pdb'          =>$Stem_url{'pdb'}.'opdbshort?oPDBid=',  # same as 3db
       'pdb_coord'    =>$Stem_url{'pdb'}.'send-pdb?filename=', # retrieves full coordinate file
-      'pfam'         =>$Home_url{'pfam'}.'cgi-bin/nph-hmm_search?evalue=1.0&protseq=',
+      'pfam'         =>$Home_url{'pfam'}.'cgi-bin/nph-hmm_search?evalue=1.0&protseq=',  # default: seq search, US
+      'pfam_sp_uk'   =>$Stem_url{'pfam_uk'}.'swisspfamget.pl?name=',
+      'pfam_seq_uk'  =>$Stem_url{'pfam_uk'}.'nph-search.cgi?evalue=1.0&type=normal&protseq=',
+      'pfam_sp_us'   =>$Stem_url{'pfam_us'}.'getswisspfam?key=',
+      'pfam_seq_us'  =>$Stem_url{'pfam_us'}.'nph-hmm_search?evalue=1.0&protseq=',
       'pfam_form'    =>$Home_url{'pfam'}.'cgi-bin/hmm_page.cgi', # interactive search form
       'pir_id'       =>$Stem_url{'pir'}.'fmt=c&xref=0&id=',
       'pir_acc'      =>$Stem_url{'pir'}.'fmt=c&xref=1&id=',
       'pir_uid'      =>$Stem_url{'pir'}.'uid=',
       'pdbSum'       =>$Home_url{'bsm'}.'cath/GetPDBSUMCODE.pl?code=',
 #      'protMot'      =>$Home_url{'protMot'}.'search.cgi?pdb=', # old, use molMov instead
+      'presage_sp'   =>$Home_url{'presage'}.'search.cgi?spac=',
       'swpr'         =>$Home_url{'expasy'}.'cgi-bin/get-sprot-entry?',
       'swModel'      =>$Home_url{'expasy'}.'cgi-bin/sprot-swmodel-sub?',
       'swprSearch'   =>$Home_url{'expasy'}.'cgi-bin/sprot-search-ful?',
@@ -344,8 +354,10 @@ my %S3d_url =
      'pdb'           =>$SGD_stem_url{'s3d'}.'get?class=pdb&item=',
      'pdb_coord'     =>$SGD_stem_url{'s3d'}.'pdbcoord.pl?id=',
      'dsc'           =>$SGD_stem_url{'s3d'}.'dsc.pl?gene=',
-     'emotif'        =>$SGD_stem_url{'s3d'}.'seq_search?db=emotif&gene=',
-     'pfam'          =>$SGD_stem_url{'s3d'}.'seq_search?db=pfam&gene=',
+     'emotif'        =>$SGD_stem_url{'s3d'}.'seq_search.pl?db=emotif&gene=',
+     'pfam'          =>$SGD_stem_url{'s3d'}.'seq_search.pl?db=pfam&gene=',
+     'pfam_uk'       =>$SGD_stem_url{'s3d'}.'seq_search.pl?db=pfam&loc=uk&gene=',
+     'pfam_us'       =>$SGD_stem_url{'s3d'}.'seq_search.pl?db=pfam&loc=us&gene=',
      'blast_pdb'     =>$SGD_stem_url{'s3d'}.'getblast?db=pdb&name=',
      'blast_nr'      =>$SGD_stem_url{'s3d'}.'getblast?db=nr&name=',
      'blast_est'     =>$SGD_stem_url{'s3d'}.'getblast?db=est&name=',
