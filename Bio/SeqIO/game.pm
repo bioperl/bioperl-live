@@ -559,7 +559,7 @@ sub write_seq {
     }
     $writer->endTag([$bxgame, 'game']);
 
-    $self->_fh->flush if $self->_flush_on_write && defined $self->_fh;
+    $self->flush if $self->_flush_on_write && defined $self->_fh;
     return 1;
 }
 

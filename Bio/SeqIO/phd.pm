@@ -234,7 +234,7 @@ sub write_seq {
     }
     $self->_print ("END_DNA\n\nEND_SEQUENCE\n");
 
-    $self->_fh->flush if $self->_flush_on_write && defined $self->_fh;
+    $self->flush if $self->_flush_on_write && defined $self->_fh;
     return 1;
 }
 

@@ -156,7 +156,7 @@ sub write_aln {
 	$self->_print("\n");
 	$len += $BlockLen+1;
     }
-    $self->_fh->flush if $self->_flush_on_write && defined $self->_fh;
+    $self->flush if $self->_flush_on_write && defined $self->_fh;
     return 1;
 }
 

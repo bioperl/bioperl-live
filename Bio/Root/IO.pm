@@ -398,6 +398,37 @@ sub close {
    delete $self->{'_readbuffer'};
 }
 
+
+=head2 flush
+
+ Title   : flush
+ Usage   : $io->flush()
+ Function: Flushes the filehandle
+ Example :
+ Returns :
+ Args    :
+
+=cut
+
+sub flush {
+  my ($self) = shift;
+  
+  if( !defined $self->{'_filehandle'} ) {
+    $self->throw("Attempting to call flush but no filehandle active");
+  }
+
+  if( ref($self->{'_filehandle'}) =~ /GLOB/ ) {
+    my $oldh = select($self->{'_filehandle'});
+    $| = 1;
+    select($oldh);
+  } else {
+    $self->{'_filehandle'}->flush();
+  }
+
+}
+  
+
+
 sub _io_cleanup {
     my ($self) = @_;
 

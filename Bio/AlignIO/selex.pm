@@ -162,7 +162,7 @@ sub write_aln {
 	    $self->_print (sprintf("%s  %s\n",$namestr,$seq->seq())) or return;
 	}
     }
-    $self->_fh->flush if $self->_flush_on_write && defined $self->_fh;
+    $self->flush if $self->_flush_on_write && defined $self->_fh;
     return 1;
 }
 
