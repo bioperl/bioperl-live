@@ -24,7 +24,7 @@ BEGIN {
 	    exit( 0 );
     }
 
-    plan tests => 81, todo => [80,81];
+    plan tests => 81;
 }
 
 
@@ -150,9 +150,6 @@ ok( $anc[ 1 ]->GO_id(), "GO:0030481" );
 @anc = sort( $engine->get_ancestor_terms( "GO:0000666", $PART_OF ) );
 
 ok( @anc == 6 );
-#foreach my $x ( @anc ) {
-#    print $x->GO_id(), "\n";
-#}
 
 ok( $anc[ 0 ]->GO_id(), "GO:0005623" );
 ok( $anc[ 1 ]->GO_id(), "GO:0005933" );
@@ -160,8 +157,6 @@ ok( $anc[ 2 ]->GO_id(), "GO:0005935" );
 ok( $anc[ 3 ]->GO_id(), "GO:0005938" );
 ok( $anc[ 4 ]->GO_id(), "GO:0005937" );
 ok( $anc[ 5 ]->GO_id(), "GO:0005625" );
-
-
 
 
 
@@ -253,21 +248,13 @@ ok( $engine->add_relationship( $rels[ 2 ] ) ); # now it's changed, can add
  
 
 
-
-# $parser = Bio::OntologyIO::simpleGOparser->new( -go_defs_file_name    => "/home/czmasek/GO/GO.defs.test2",
-#                                               -components_file_name => "/home/czmasek/GO/component.ontology.test2" );
-
-
-
-# $engine = $parser->parse();
-
 my @roots = sort( $engine->get_root_terms() );
 
-ok( @roots == 1 );
+ok( @roots == 10 );
 
 my @leafs = sort( $engine->get_leaf_terms() );
 
-ok( @leafs == 4 );
+ok( @leafs == 19 );
 
 
 
