@@ -451,62 +451,6 @@ sub  id {
 }
 
 
-=head1 Methods for Backward Compatibility
-
-These methods are here for backward compatibility with the old, 0.5
-Seq objects. They all throw warnings that someone is using a 
-deprecated method, and may eventually be removed completely from
-this object. However, they are important to ease the transition from
-the old system.
-
-=head2 str
-
- Title   : str
- Usage   :
- Function:
- Example :
- Returns : 
- Args    :
-
-
-=cut
-
-=head2 ary
-
- Title   : ary
- Usage   :
- Function:
- Example :
- Returns : 
- Args    :
-
-
-=cut
-
-=head2 getseq
-
- Title   : getseq
- Usage   :
- Function:
- Example :
- Returns : 
- Args    :
-
-
-=cut
-
-=head2 type
-
- Title   : type
- Usage   :
- Function:
- Example :
- Returns :
- Args    :
-
-
-=cut
-
 =head1 Seq only methods
 
 These methods are specific to the Bio::Seq object, and not
@@ -689,23 +633,24 @@ sub _retrieve_subSeqFeature {
 
 }
 
-=head2 fetch_SeqFeatures
+#Who needs this? It's not in any interface, and it's not implemented.
+#  =head2 fetch_SeqFeatures
 
- Title   : fetch_SeqFeatures
- Usage   :
- Function:
- Example :
- Returns : 
- Args    :
+#   Title   : fetch_SeqFeatures
+#   Usage   :
+#   Function:
+#   Example :
+#   Returns : 
+#   Args    :
 
 
-=cut
+#  =cut
 
-sub fetch_SeqFeatures {
-   my ($self,@args) = @_;
+#  sub fetch_SeqFeatures {
+#     my ($self,@args) = @_;
 
-   $self->throw("Not implemented yet");
-}
+#     $self->throw("Not implemented yet");
+#  }
 
 
 =head2 species
@@ -729,6 +674,62 @@ sub species {
         return $self->{'species'}
     }
 }
+
+=head1 Methods for Backward Compatibility
+
+These methods are here for backward compatibility with the old, 0.5
+Seq objects. They all throw warnings that someone is using a 
+deprecated method, and may eventually be removed completely from
+this object. However, they are important to ease the transition from
+the old system.
+
+=head2 str
+
+ Title   : str
+ Usage   :
+ Function:
+ Example :
+ Returns : 
+ Args    :
+
+
+=cut
+
+=head2 ary
+
+ Title   : ary
+ Usage   :
+ Function:
+ Example :
+ Returns : 
+ Args    :
+
+
+=cut
+
+=head2 getseq
+
+ Title   : getseq
+ Usage   :
+ Function:
+ Example :
+ Returns : 
+ Args    :
+
+
+=cut
+
+=head2 type
+
+ Title   : type
+ Usage   :
+ Function:
+ Example :
+ Returns :
+ Args    :
+
+
+=cut
 
 =head1 EMBL/GenBank/DDBJ methods
 
