@@ -337,8 +337,8 @@ sub new {
     my $self = $caller->SUPER::new(@args);
  
     # to facilitiate tempfile cleanup
-    # my (undef,$tempfile) = $self->io->tempfile();
-    # $self->outfile($tempfile);
+    my (undef,$tempfile) = $self->io->tempfile();
+    $self->outfile($tempfile);
     $self->_READMETHOD('Blast');
     while (@args)  {
 	my $attr =   shift @args;
