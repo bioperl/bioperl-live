@@ -171,6 +171,7 @@ sub next_result{
    my $seentop;
    my (@q_ex, @m_ex, @h_ex); ## gc addition
    while( defined($_ = $self->_readline) ) {
+       #print STDERR "Reading $_";
        if( /^Query:\s+(\S+)(\s+(.+))?/ ) {
 	   if( $seentop ) {
 	       $self->end_element({'Name' => 'ExonerateOutput'});
@@ -190,19 +191,121 @@ sub next_result{
 			    'Data' => 'Exonerate' });
 
        } elsif ( /^Target:\s+(\S+)(\s+(.+))?/ ) {
-	    my ($nm,$desc) = ($1,$2);
+	   my ($nm,$desc) = ($1,$2);
 	   chomp($desc) if defined $desc;
 	   $self->start_element({'Name' => 'Hit'});
 	   $self->element({'Name' => 'Hit_id',
 			   'Data' => $nm});
 	   $self->element({'Name' => 'Hit_desc',
 			   'Data' => $desc});
+       } elsif(  s/^vulgar:\s+(\S+)\s+         # query sequence id
+		 (\d+)\s+(\d+)\s+([\-\+])\s+   # query start-end-strand
+		 (\S+)\s+                      # target sequence id
+		 (\d+)\s+(\d+)\s+([\-\+])\s+   # target start-end-strand
+		 (\d+)\s+                      # score
+		 //ox ) {
+
+	   #
+	   # Note from Ewan. This is ugly - copy and paste from
+	   # cigar line parsing. Should unify somehow...
+	   #
+
+	   $self->start_element({'Name' => 'ExonerateOutput'});
+	   $self->element({'Name' => 'ExonerateOutput_query-def',
+			   'Data' => $1 });
+
+	   $self->start_element({'Name' => 'Hit'});
+	   $self->element({'Name' => 'Hit_id',
+			   'Data' => $5});
+
+	   ## gc note:
+	   ## $qe and $he are no longer used for calculating the ends,
+	   ## just the $qs and $hs values and the alignment and insert lenghts
+	   my ($qs,$qe,$qstrand) = ($2,$3,$4);
+	   my ($hs,$he,$hstrand) = ($6,$7,$8);
+	   my $score = $9;
+#	   $self->element({'Name' => 'ExonerateOutput_query-len',
+#			   'Data' => $qe});
+#	   $self->element({'Name' => 'Hit_len',
+#			   'Data' => $he});
+	
+	   my @rest = split;
+	   if( $qstrand eq '-' ) {
+	       $qstrand = -1;
+	       ($qs,$qe) = ($qe,$qs); # flip-flop if we're on opp strand
+	   		$qs--; $qe++;
+	   } else { $qstrand = 1; }
+	   if( $hstrand eq '-' ) {
+	       $hstrand = -1;
+	       ($hs,$he) = ($he,$hs); # flip-flop if we're on opp strand
+	       $hs--; $he++;
+	   } else { $hstrand = 1; }
+	   # okay let's do this right and generate a set of HSPs
+	   # from the cigar line
+
+		## gc note:
+		## add one because these values are zero-based
+		## this calculation was originally done lower in the code,
+		## but it's clearer to do it just once at the start
+	   $qs++;
+	   $hs++;
+
+	   my ($aln_len,$inserts,$deletes) = (0,0,0);
+	   
+	   while( @rest >= 3 ) {
+	       my ($state,$len1,$len2) = (shift @rest, shift @rest, shift @rest);
+
+	       # 
+	       # HSPs are only the Match cases; otherwise we just
+	       # move the coordinates on by the correct amount
+	       #
+
+	       if( $state eq 'M' ) {
+		   $self->start_element({'Name' => 'Hsp'});
+		   
+		   $self->element({'Name' => 'Hsp_score',
+				   'Data' => $score});
+		   $self->element({'Name' => 'Hsp_align-len',
+				   'Data' => $len1});
+		   $self->element({'Name' => 'Hsp_query-from',
+				   'Data' => $qs});
+		   $qs += $len1*$qstrand;
+		   $self->element({'Name' => 'Hsp_query-to',
+				   'Data' => $qs - ($qstrand*1)});
+		   
+		   $self->element({'Name' => 'Hsp_hit-from',
+				   'Data' => $hs});
+		   $hs += $len2*$hstrand;
+		   $self->element({'Name' => 'Hsp_hit-to',
+				   'Data' => $hs-($hstrand*1)});
+		   $self->element({'Name' => 'Hsp_identity',
+				   'Data' => 0});
+		
+		   $self->end_element({'Name' => 'Hsp'});
+
+
+	       } else {
+		   $qs += $len1*$qstrand;
+		   $hs += $len2*$hstrand;
+	       }
+	   }
+
+	   # end of hit
+	   $self->element({'Name' => 'Hit_score',
+			   'Data' => $score});
+	   # issued end...
+	   $self->end_element({'Name' => 'Hit'});
+	   $self->end_element({'Name' => 'ExonerateOutput'});
+
+	   return $self->end_document();	
+
        } elsif(  s/^cigar:\s+(\S+)\s+          # query sequence id
 		 (\d+)\s+(\d+)\s+([\-\+])\s+   # query start-end-strand
 		 (\S+)\s+                      # target sequence id
 		 (\d+)\s+(\d+)\s+([\-\+])\s+   # target start-end-strand
 		 (\d+)\s+                      # score
 		 //ox ) {
+
 	   if( ! $self->in_element('ExonerateOutput') ) {
 	       $self->start_element({'Name' => 'ExonerateOutput'});
 	       $self->element({'Name' => 'ExonerateOutput_query-def',
@@ -367,6 +470,7 @@ sub next_result{
 
 	   return $self->end_document();	
        } else {
+	   # skipping this line
        }
    }
    return $self->end_document() if( $seentop );
