@@ -10,7 +10,7 @@ BEGIN {
     }
     use Test;
     use vars qw($NTESTS);
-    $NTESTS = 10;
+    $NTESTS = 8;
     plan tests => $NTESTS;
 }
 
@@ -26,16 +26,15 @@ END {
 my $blast_out = Bio::Root::IO->catfile("t","data","TribeMCL.bls");
 
 #do from raw blast output
-my @params=('blastfile'=>$blast_out,I=>'3.0');
+my @params=('inputtype'=>'blastfile',I=>'3.0');
 my $fact = Bio::Tools::Run::TribeMCL->new(@params);
 
 ok $fact->isa('Bio::Tools::Run::TribeMCL');
-ok ($fact->blastfile,$blast_out);
 
 my $bequiet =1 ;
 $fact->quiet($bequiet);
 
-my $fam = $fact->run;
+my $fam = $fact->run($blast_out);
 ok ($fam->[0]->[0], 'ENSANGP00000008485');
 ok ($fam->[1]->[0], 'COE1_MOUSE');
 ok ($fam->[2]->[0], 'ENSANGP00000019582');
@@ -43,15 +42,14 @@ ok ($fam->[2]->[0], 'ENSANGP00000019582');
 #do from searchio
 
 my $sio = Bio::SearchIO->new(-format=>'blast',
-                                                -file=>$blast_out);
-my @params=('searchio'=>$sio,I=>'3.0');
+                             -file=>$blast_out);
+my @params=('inputtype'=>'searchio',I=>'3.0');
 my $fact = Bio::Tools::Run::TribeMCL->new(@params);
 ok $fact->isa('Bio::Tools::Run::TribeMCL');
-ok ($fact->searchio->isa("Bio::SearchIO"));
 my $bequiet =1 ;
 $fact->quiet($bequiet);
 
-my $fam = $fact->run;
+my $fam = $fact->run($sio);
 ok ($fam->[0]->[0], 'ENSANGP00000008485');
 ok ($fam->[1]->[0], 'COE1_MOUSE');
 ok ($fam->[2]->[0], 'ENSANGP00000019582');
