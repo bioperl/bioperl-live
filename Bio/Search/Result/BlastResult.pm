@@ -1,92 +1,74 @@
-#-----------------------------------------------------------------
 # $Id$
 #
-# BioPerl module Bio::Search::Result::BlastResult
+# BioPerl module for Bio::Search::Result::BlastResult
 #
 # Cared for by Steve Chervitz <sac@bioperl.org>
 #
+# Copyright Steve Chervitz
+#
 # You may distribute this module under the same terms as perl itself
-#-----------------------------------------------------------------
 
 # POD documentation - main docs before the code
 
 =head1 NAME
 
-Bio::Search::Result::BlastResult - A top-level BLAST Report object
+Bio::Search::Result::BlastResult - Blast-specific subclass of Bio::Search::Result::GenericResult
 
 =head1 SYNOPSIS
 
-The construction of BlastResult objects is performed by
-by the B<Bio::SearchIO::psiblast> parser.
-Therefore, you do not need to
-use B<Bio::Search::Result::BlastResult>) directly. If you need to construct
-BlastHits directly, see the new() function for details.
+    # Working with iterations (PSI-BLAST results)
 
-For B<Bio::SearchIO> BLAST parsing usage examples, see the
-B<examples/search-blast> directory of the Bioperl distribution.
+    $result->next_iteration();
+    $result->num_iterations();
+    $result->iteration();
+    $result->iterations();
+
+# See Bio::Search::Result::GenericResult for information about working with Results.
+
+# See L<Bio::Search::Iteration::IterationI|Bio::Search::Iteration::IterationI>
+# for details about working with iterations.
+
+# TODO:
+#     * Show how to configure a SearchIO stream so that it generates
+#       BlastResult objects.
+
 
 =head1 DESCRIPTION
 
-This module supports BLAST versions 1.x and 2.x, gapped and ungapped,
-and PSI-BLAST.
+This object is a subclass of Bio::Search::Result::GenericResult
+and provides some operations that facilitate working with BLAST
+and PSI-BLAST results.
 
-=head1 DEPENDENCIES
-
-Bio::Search::Result::BlastResult.pm is a concrete class that inherits from B<Bio::Root::Root> and B<Bio::Search::Result::ResultI>. It  relies on two other modules:
-
-=over 4
-
-=item B<Bio::Search::Hit::BlastHit> 
-
-Encapsulates a single a single BLAST hit.
-
-=item B<Bio::Search::GenericDatabase>
-
-Provides an interface to a blast database metadata.
-
-=back
+For general information about working with Results, see 
+Bio::Search::Result::GenericResult.
 
 =head1 FEEDBACK
 
-=head2 Mailing Lists 
+=head2 Mailing Lists
 
 User feedback is an integral part of the evolution of this and other
-Bioperl modules.  Send your comments and suggestions preferably to one
-of the Bioperl mailing lists.  Your participation is much appreciated.
+Bioperl modules. Send your comments and suggestions preferably to
+the Bioperl mailing list.  Your participation is much appreciated.
 
-    bioperl-l@bioperl.org              - General discussion
-    http://bio.perl.org/MailList.html  - About the mailing lists
+  bioperl-l@bioperl.org              - General discussion
+  http://bioperl.org/MailList.shtml  - About the mailing lists
 
 =head2 Reporting Bugs
 
 Report bugs to the Bioperl bug tracking system to help us keep track
-the bugs and their resolution. Bug reports can be submitted via email
-or the web:
+of the bugs and their resolution. Bug reports can be submitted via
+email or the web:
 
-    bioperl-bugs@bio.perl.org                   
-    http://bugzilla.bioperl.org/           
+  bioperl-bugs@bioperl.org
+  http://bugzilla.bioperl.org/
 
-=head1 AUTHOR 
+=head1 AUTHOR - Steve Chervitz
 
-Steve Chervitz E<lt>sac@bioperl.orgE<gt>
+Email sac@bioperl.org
 
-See L<the FEEDBACK section | FEEDBACK> for where to send bug reports and comments.
+=head1 CONTRIBUTORS
 
-=head1 ACKNOWLEDGEMENTS
-
-This software was originally developed in the Department of Genetics
-at Stanford University. I would also like to acknowledge my
-colleagues at Affymetrix for useful feedback.
-
-=head1 COPYRIGHT
-
-Copyright (c) 2001 Steve Chervitz. All Rights Reserved.
-
-=cut
-
-=head1 DISCLAIMER
-
-This software is provided "as is" without warranty of any kind.
+Additional contributors names and emails here
 
 =head1 APPENDIX
 
@@ -98,507 +80,284 @@ Internal methods are usually preceded with a _
 
 # Let the code begin...
 
-package Bio::Search::Result::BlastResult;
 
+package Bio::Search::Result::BlastResult;
+use vars qw(@ISA);
 use strict;
 
-use Bio::Search::Result::ResultI;
-use Bio::Root::Root;
+use Bio::Search::Result::GenericResult;
 
-use overload 
-    '""' => \&to_string;
+@ISA = qw( Bio::Search::Result::GenericResult );
 
-use vars qw(@ISA $Revision );
+=head2 new
 
-$Revision = '$Id$';  #'
-@ISA = qw( Bio::Root::Root Bio::Search::Result::ResultI);
+ Title   : new
+ Usage   : my $obj = new Bio::Search::Result::BlastResult();
+ Function: Builds a new Bio::Search::Result::BlastResult object
+ Returns : Bio::Search::Result::BlastResult
+ Args    : See Bio::Search::Result::GenericResult();
+           The following parameters are specific to BlastResult:
+             -iterations  => array ref of Bio::Search::Iteration::IterationI objects
+             -inclusion_threshold => e-value threshold for inclusion in the
+                                     PSI-BLAST score matrix model (blastpgp)
 
-#----------------
+=cut
+
 sub new {
-#----------------
-    my ($class, @args) = @_; 
-    my $self = $class->SUPER::new(@args);
-    return $self;
+  my($class,@args) = @_;
+
+  my $self = $class->SUPER::new(@args);
+
+  $self->{'_iterations'} = [];
+  $self->{'_iteration_index'} = 0;
+  $self->{'_iteration_count'} = 0;
+
+  my( $iters, $ithresh ) = $self->_rearrange([qw(ITERATIONS
+                                                 INCLUSION_THRESHOLD)],@args);
+
+  $self->{'_inclusion_threshold'} = $ithresh;  # This is a read-only variable
+
+  if( defined $iters  ) {
+      $self->throw("Must define arrayref of Iterations when initializing a $class\n") unless ref($iters) =~ /array/i;
+
+      foreach my $i ( @{$iters} ) {
+          $self->add_iteration($i);
+      }
+  } 
+  else {
+      # This shouldn't get called with the new SearchIO::blast.
+      print STDERR "BlastResult::new(): Not adding iterations.\n";
+      $self->{'_no_iterations'} = 1;
+  }
+
+  return $self;
 }
 
-#sub DESTROY {
-#    my $self = shift;
-#    print STDERR "->DESTROYING $self\n";
-#}
 
+=head2 hits
 
-#=================================================
-# Begin Bio::Search::Result::ResultI implementation
-#=================================================
+This method overrides L<Bio::Search::Result::GenericResult::hits()> to take 
+into account the possibility of multiple iterations, as occurs in PSI-BLAST reports.
+
+If there are multiple iterations, all 'new' hits for all iterations are returned.
+These are the hits that did not occur in a previous iteration.
+
+See Also: L<Bio::Search::Result::GenericResult::hits()>
+
+=cut
+
+sub hits {
+   my ($self) = shift;
+   if ($self->{'_no_iterations'}) {
+       return $self->SUPER::hits;
+   }
+   my @hits = ();
+   foreach my $it ($self->iterations) {
+       push @hits, $it->hits;
+   }
+   return @hits;
+}
 
 =head2 next_hit
 
-See L<Bio::Search::Result::ResultI::next_hit()|Bio::Search::Result::ResultI> for documentation
+This method overrides L<Bio::Search::Result::GenericResult::next_hit()> to take 
+into account the possibility of multiple iterations, as occurs in PSI-BLAST reports.
+
+If there are multiple iterations, calling next_hit() traverses the
+all of the hits, old and new, for each iteration, calling next_hit() on each iteration. 
+
+See Also: L<Bio::Search::Iteration::GenericIteration::next_hit()>
 
 =cut
 
-#----------------
 sub next_hit {
-#----------------
-    my ($self) = @_;
-    
-    unless(defined $self->{'_hit_queue'}) {	
-        $self->{'_hit_queue'} = [$self->hits()];	
+    my ($self,@args) = @_;
+    if ($self->{'_no_iterations'}) {
+        return $self->SUPER::next_hit(@args);
     }
-    
-    shift @{$self->{'_hit_queue'}};
-}
 
-=head2 query_name
-
-See L<Bio::Search::Result::ResultI::query_name()|Bio::Search::Result::ResultI> for documentation
-
-=cut
-
-#----------------
-sub query_name {
-#----------------
-    my $self = shift;
-    if (@_) { 
-        my $name = shift;
-        $name =~ s/^\s+|(\s+|,)$//g;
-        $self->{'_query_name'} = $name;
+    my $iter_index;
+    if (not defined $self->{'_last_hit'}) {
+        $iter_index = $self->{'_iter_index'} = $self->_next_iteration_index;
+    } else {
+        $iter_index = $self->{'_iter_index'};
     }
-    return $self->{'_query_name'};
-}
 
-=head2 query_length
+    return undef if $iter_index >= scalar @{$self->{'_iterations'}};
 
-See L<Bio::Search::Result::ResultI::query_length()|Bio::Search::Result::ResultI> for documentation
+    my $it = $self->{'_iterations'}->[$iter_index];
+    my $hit = $self->{'_last_hit'} = $it->next_hit;
 
-=cut
-
-#----------------
-sub query_length {
-#----------------
-    my $self = shift;
-    if(@_) { $self->{'_query_length'} = shift; }
-    return $self->{'_query_length'};
-}
-
-=head2 query_description
-
-See L<Bio::Search::Result::ResultI::query_description()|Bio::Search::Result::ResultI> for documentation
-
-=cut
-
-#----------------
-sub query_description {
-#----------------
-    my $self = shift;
-    if(@_) { 
-        my $desc = shift;
-        defined $desc && $desc =~ s/(^\s+|\s+$)//g;
-        # Remove duplicated ID at beginning of description string
-        defined $desc && $desc =~ s/^$self->{'_query_name'}//o;
-        $self->{'_query_query_desc'} = $desc || '';
-    }
-    return $self->{'_query_query_desc'};
+    return defined($hit) ? $hit : $self->next_hit;
 }
 
 
-=head2 analysis_method
+=head2 num_hits
 
-See L<Bio::AnalysisResultI::analysis_method()|Bio::AnalysisResultI> for documentation
+This method overrides L<Bio::Search::Result::GenericResult::num_hits()> to take 
+into account the possibility of multiple iterations, as occurs in PSI-BLAST reports.
 
-This implementation ensures that the name matches /blast/i.
+If there are multiple iterations, calling num_hits() returns the number of
+'new' hits for each iteration. These are the hits that did not occur
+in a previous iteration.
 
-=cut
-
-#----------------
-sub analysis_method { 
-#----------------
-    my ($self, $method) = @_;  
-    if($method ) {
-      if( $method =~ /blast/i) {
-	$self->{'_analysis_prog'} = $method;
-      } else {
-	$self->throw("method $method not supported in " . ref($self));
-      }
-    }
-    return $self->{'_analysis_prog'}; 
-}
-
-=head2 analysis_method_version
-
-See L<Bio::AnalysisResultI::analysis_method_version()|Bio::AnalysisResultI> for documentation
+See Also: L<Bio::Search::Result::GenericResult::num_hits()>
 
 =cut
 
-#----------------
-sub analysis_method_version {
-#----------------
-    my ($self, $version) = @_; 
-    if($version) {
-	$self->{'_analysis_progVersion'} = $version;
-    }
-    return $self->{'_analysis_progVersion'}; 
-}
-
-
-=head2 analysis_query
-
-See L<Bio::AnalysisResultI::analysis_query()|Bio::AnalysisResultI> for documentation
-
-=cut
-
-#----------------
-sub analysis_query {
-#----------------
-
-    my ($self) = @_;
-    if(not defined $self->{'_analysis_query'}) {
-        require Bio::PrimarySeq;
-        my $moltype = $self->analysis_method =~ /blastp|tblastn/i ? 'protein' : 'dna';
-	$self->{'_analysis_query'} =  Bio::PrimarySeq->new( -display_id => $self->query_name,
-                                                            -desc => $self->query_description,
-                                                            -moltype => $moltype
-                                                          );
-        $self->{'_analysis_query'}->length( $self->query_length );
-    }
-    return $self->{'_analysis_query'};
-}
-
-=head2 analysis_subject
-
- Usage     : $blastdb = $result->analyis_subject();
- Purpose   : Get a Bio::Search::DatabaseI object containing
-             information about the database used in the BLAST analysis.
- Returns   : Bio::Search::DatabaseI object.
- Argument  : n/a
-
-=cut
-
-#---------------
-sub analysis_subject { 
-#---------------
-    my ($self, $blastdb) = @_; 
-    if($blastdb) {
-        if( ref $blastdb and $blastdb->isa('Bio::Search::DatabaseI')) {
-            $self->{'_analysis_sbjct'} = $blastdb;
-        }
-        else {
-            $self->throw(-class =>'Bio::Root::BadParameter',
-                         -text => "Can't set BlastDB: not a Bio::Search::DatabaseI $blastdb"
-                         );
-        }
-    }
-    return $self->{'_analysis_sbjct'};
-}
-
-=head2 next_feature
-
- Title   : next_feature
- Usage   : while( my $feat = $blast_result->next_feature ) { # do something }
- Function: Returns the next feature available in the analysis result, or
-           undef if there are no more features.
- Example :
- Returns : A Bio::SeqFeatureI compliant object, in this case, 
-           each Bio::Search::HSP::BlastHSP object within each BlastHit.
- Args    : None
-
-=cut
-
-#---------------
-sub next_feature{
-#---------------
-   my ($self) = @_;
-   my ($hit, $hsp);
-   $hit = $self->{'_current_hit'};
-   unless( defined $hit ) {
-       $hit = $self->{'_current_hit'} = $self->next_hit;
-       return undef unless defined $hit;
+sub num_hits{
+   my ($self) = shift;
+   if ($self->{'_no_iterations'}) {
+       return $self->SUPER::num_hits;
    }
-   $hsp = $hit->next_hsp;
-   unless( defined $hsp ) {
-       $self->{'_current_hit'} = undef;
-       return $self->next_feature;
-   }
-   return $hsp || undef;
+   if (not defined $self->{'_iterations'}) {
+       $self->throw("Can't get Hits: data not collected.");
+    }
+    return scalar( $self->hits );
+}
+
+=head2 add_iteration
+
+ Title   : add_iteration
+ Usage   : $report->add_iteration($iteration)
+ Function: Adds a IterationI to the stored list of iterations
+ Returns : Number of IterationI currently stored
+ Args    : Bio::Search::Iteration::IterationI
+
+=cut
+
+sub add_iteration {
+    my ($self,$i) = @_;
+    if( $i->isa('Bio::Search::Iteration::IterationI') ) { 
+        push @{$self->{'_iterations'}}, $i;
+        $self->{'_iteration_count'}++;
+    } else { 
+        $self->throw("Passed in a " .ref($i). 
+                     " as a Iteration which is not a Bio::Search::IterationI.");
+    }
+    return scalar @{$self->{'_iterations'}};
 }
 
 
-sub algorithm { shift->analysis_method( @_ ); }
-sub algorithm_version { shift->analysis_method_version( @_ ); }
+=head2 next_iteration
 
-=head2 available_parameters
-
- Title   : available_parameters
- Usage   : my @params = $report->available_paramters
- Function: Returns the names of the available parameters
- Returns : Return list of available parameters used for this report
+ Title   : next_iteration
+ Usage   : while( $it = $result->next_iteration()) { ... }
+ Function: Returns the next Iteration object, representing all hits
+           found within a given PSI-Blast iteration.
+ Returns : a Bio::Search::Iteration::IterationI object or undef if there are no more.
  Args    : none
 
 =cut
 
-sub available_parameters{
-    return ();
+sub next_iteration {
+    my ($self) = @_;
+
+   unless($self->{'_iter_queue_started'}) {
+       $self->{'_iter_queue'} = [$self->iterations()];
+       $self->{'_iter_queue_started'} = 1;
+   }
+   return shift @{$self->{'_iter_queue'}};
 }
 
+=head2 iteration
 
-=head2 get_parameter
-
- Title   : get_parameter
- Usage   : my $gap_ext = $report->get_parameter('gapext')
- Function: Returns the value for a specific parameter used
-           when running this report
- Returns : string
- Args    : name of parameter (string)
+ Usage     : $iteration = $blast->iteration( $number );
+ Purpose   : Get an IterationI object for the specified iteration
+             in the search result (PSI-BLAST).
+ Returns   : Bio::Search::Iteration::IterationI object
+ Throws    : Bio::Root::NoSuchThing exception if $number is not within 
+             range of the number of iterations in this report.
+ Argument  : integer (optional, if not specified get the last iteration)
+             First iteration = 1
 
 =cut
 
-sub get_parameter{
-    return '';
+sub iteration {
+    my ($self,$num) = @_;
+    $num = scalar @{$self->{'_iterations'}} unless defined $num;
+    unless ($num >= 1 and $num <= scalar $self->{'_iteration_count'}) {
+        $self->throw(-class=>'Bio::Root::NoSuchThing',
+                     -text=>"No such iteration number: $num. Valid range=1-$self->{'_iteration_count'}",
+                     -value=>$num);
+    }
+    return $self->{'_iterations'}->[$num-1];
 }
 
-=head2 get_statistic
+=head2 num_iterations
 
- Title   : get_statistic
- Usage   : my $gap_ext = $report->get_statistic('kappa')
- Function: Returns the value for a specific statistic available 
-           from this report
- Returns : string
- Args    : name of statistic (string)
+ Usage     : $num_iterations = $blast->num_iterations; 
+ Purpose   : Get the number of iterations in the search result (PSI-BLAST).
+ Returns   : Total number of iterations in the report
+ Argument  : none (read-only)
 
 =cut
 
-sub get_statistic{
-    return '';
-}
+sub num_iterations { shift->{'_iteration_count'} }
 
-=head2 available_statistics
 
- Title   : available_statistics
- Usage   : my @statnames = $report->available_statistics
- Function: Returns the names of the available statistics
- Returns : Return list of available statistics used for this report
+# Methods provided for consistency with BPpsilite.pm
+
+=head2 number_of_iterations
+
+Same as L<num_iterations()>.
+
+=cut
+
+sub number_of_iterations { shift->num_iterations }
+
+=head2 round
+
+Same as L<iteration()>.
+
+=cut
+
+sub round { shift->iteration(@_) }
+
+
+=head2 iterations
+
+ Title   : iterations
+ Usage   : my @iterations = $result->iterations
+ Function: Returns the IterationI objects contained within this Result
+ Returns : Array of L<Bio::Search::Iteration::IterationI> objects
  Args    : none
 
 =cut
 
-sub available_statistics{
-    return ();
-}
-
-#=================================================
-# End Bio::Search::Result::ResultI implementation
-#=================================================
-
-
-=head2 to_string
-
- Title   : to_string
- Usage   : print $blast->to_string;
- Function: Returns a string representation for the Blast result. 
-           Primarily intended for debugging purposes.
- Example : see usage
- Returns : A string of the form:
-           [BlastResult] <analysis_method> query=<name> <description> db=<database
-           e.g.:
-           [BlastResult] BLASTP query=YEL060C vacuolar protease B, db=PDBUNIQ 
- Args    : None
-
-=cut
-
-#---------------
-sub to_string {
-#---------------
+sub iterations { 
     my $self = shift;
-    my $str = "[BlastResult] " . $self->analysis_method . " query=" . $self->query_name . " " . $self->query_description .", db=" . $self->database_name;
-    return $str;
+    my @its = ();
+    if( ref($self->{'_iterations'}) =~ /ARRAY/i ) {
+       @its = @{$self->{'_iterations'}};
+    }
+    return @its;
 }
 
-#---------------
-sub database_name {
-#---------------
-    my $self = shift;
-    my $dbname = '';
-    if( ref $self->analysis_subject) {
-      $dbname = $self->analysis_subject->name;
-    } 
-    return $dbname;
-}
+=head2 psiblast
 
-=head2 database_entries
-
- Title   : database_entries
- Usage   : $num_entries = $result->database_entries()
- Function: Used to obtain the number of entries contained in the database.
- Returns : a scalar integer representing the number of entities in the database
-           or undef if the information was not available.
- Args    : [optional] new integer for the number of sequence entries in the db
-
+ Usage     : if( $blast->psiblast ) { ... }
+ Purpose   : Set/get a boolean indicator whether or not the report 
+             is a PSI-BLAST report.
+ Returns   : 1 if PSI-BLAST, undef if not.
+ Argument  : 1 (when setting)
 
 =cut
 
-#---------------
-sub database_entries {
-#---------------
-    my $self = shift;
-    my $dbentries = '';
-    if( ref $self->analysis_subject) {
-      $dbentries = $self->analysis_subject->entries;
-    } 
-    return $dbentries;
-}
-
-
-=head2 database_letters
-
- Title   : database_letters
- Usage   : $size = $result->database_letters()
- Function: Used to obtain the size of database that was searched against.
- Returns : a scalar integer (units specific to algorithm, but probably the
-           total number of residues in the database, if available) or undef if
-           the information was not available to the Processor object.
- Args    : [optional] new scalar integer for number of letters in db 
-
-
-=cut
-
-#---------------
-sub database_letters {
-#---------------
-    my $self = shift;
-    my $dbletters = '';
-    if( ref $self->analysis_subject) {
-      $dbletters = $self->analysis_subject->letters;
-    } 
-    return $dbletters;
-}
-
-#---------------
-sub hits {
-#---------------
-    my $self = shift;
-    my @hits = ();
-    if( ref $self->{'_hits'}) {
-        @hits = @{$self->{'_hits'}};
+#----------------
+sub psiblast {
+#----------------
+    my ($self, $val ) = @_;
+    if( $val ) {
+        $self->{'_psiblast'} = 1;
     }
-    return @hits;
+    return $self->{'_psiblast'};
 }
-
-=head2 add_hit
-
- Usage     : $blast->add_hit( $hit );
- Purpose   : Adds a hit object to the collection of hits in this BLAST result.
- Returns   : n/a
- Argument  : A Bio::Search::Hit::HitI object
- Comments  : For PSI-BLAST, hits from all iterations are lumped together.
-             For any given hit, you can determine the iteration in which it was
-             found by checking $hit->iteration().
-
-=cut
-
-#---------------
-sub add_hit {
-#---------------
-    my ($self, $hit) = @_;
-    my $add_it = 1;
-    unless( ref $hit and $hit->isa('Bio::Search::Hit::HitI')) {
-        $add_it = 0;
-        $self->throw(-class =>'Bio::Root::BadParameter',
-                     -text => "Can't add hit: not a Bio::Search::Hit::HitI: $hit"
-                    );
-    }
-
-    # Avoid adding duplicate hits if we're doing multiple iterations (PSI-BLAST)
-#    if( $self->iterations > 1 ) {
-#        my $hit_name = $hit->name;
-#        if( grep $hit_name eq $_, @{$self->{'_hit_names'}}) {
-#            $add_it = 0;
-#        }
-#    }
-
-    if( $add_it ) {
-        push @{$self->{'_hits'}}, $hit;
-        push @{$self->{'_hit_names'}}, $hit->name;
-    }
-}
-
-
-=head2 is_signif
-
- Usage     : $blast->is_signif();
- Purpose   : Determine if the BLAST report contains significant hits.
- Returns   : Boolean
- Argument  : n/a
- Comments  : BLAST reports without significant hits but with defined
-           : significance criteria will throw exceptions during construction.
-           : This obviates the need to check significant() for
-           : such objects.
-
-=cut
-
-#------------
-sub is_signif { my $self = shift; return $self->{'_is_significant'}; }
-#------------
-
-
-=head2 matrix
-
- Usage     : $blast_object->matrix();
- Purpose   : Get the name of the scoring matrix used.
-           : This is extracted from the report.
- Argument  : n/a
- Returns   : string or undef if not defined
- Comments  : TODO: Deprecate this and implement get_parameter('matrix').
-
-=cut
-
-#------------
-sub matrix { 
-#------------
-    my $self = shift; 
-    if(@_) {
-         $self->{'_matrix'} = shift;
-    }
-    $self->{'_matrix'};
-}
-
-
-=head2 raw_statistics
-
- Usage     : @stats = $blast_result->raw_statistics();
- Purpose   : Get the raw, unparsed statistical parameter section of the Blast report.
-             This is the section at the end after the last HSP alignment.
- Argument  : n/a
- Returns   : Array of strings
-
-=cut
-
-#------------
-sub raw_statistics { 
-#------------
-    my $self = shift; 
-    if(@_) {
-	my $params = shift;
-	if( ref $params eq 'ARRAY') {
-	    $self->{'_raw_statistics'} = $params;
-	}
-	else {
-            $self->throw(-class =>'Bio::Root::BadParameter',
-                         -text => "Can't set statistical params: not an ARRAY ref: $params"
-                         );
-        }
-    }
-    if(not defined $self->{'_raw_statistics'}) {
-	$self->{'_raw_statistics'} = [];
-    }
-
-    @{$self->{'_raw_statistics'}};
-}
-
 
 
 =head2 no_hits_found
 
- Usage     : $nohits = $blast->no_hits_found( [iteration_number] ); 
+ Usage     : $nohits = $blast->no_hits_found( $iteration_number );
  Purpose   : Get boolean indicator indicating whether or not any hits
              were present in the report.
 
@@ -617,9 +376,7 @@ sub raw_statistics {
 
 =cut
 
-#-----------
 sub no_hits_found {
-#-----------
     my ($self, $round) = @_;
 
     my $result = 0;   # final return value of this method.
@@ -653,7 +410,7 @@ sub no_hits_found {
 
 =head2 set_no_hits_found
 
- Usage     : $blast->set_no_hits_found( [iteration_number] ); 
+ Usage     : $blast->set_no_hits_found( $iteration_number ); 
  Purpose   : Set boolean indicator indicating whether or not any hits
              were present in the report.
  Returns   : n/a
@@ -661,56 +418,62 @@ sub no_hits_found {
 
 =cut
 
-#-----------
 sub set_no_hits_found {
-#-----------
     my ($self, $round) = @_;
     $round ||= 1;
     $self->{"_iteration_$round"}->{'_no_hits_found'} = 1;
 }
 
+=head2 _next_iteration_index
 
-=head2 iterations
-
- Usage     : $num_iterations = $blast->iterations;  (get)
-             $blast->iterations($num_iterations);   (set)
- Purpose   : Set/get the number of iterations in the Blast Report (PSI-BLAST).
- Returns   : Total number of iterations in the report
- Argument  : integer  (when setting)
+ Title   : _next_iteration_index
+ Usage   : private
 
 =cut
 
-#----------------
-sub iterations {
-#----------------
-    my ($self, $num ) = @_;
-    if( defined $num ) {
-        $self->{'_iterations'} = $num;
-    }
-    return $self->{'_iterations'};
+sub _next_iteration_index{
+   my ($self,@args) = @_;
+   return $self->{'_iteration_index'}++;
 }
 
 
-=head2 psiblast
+=head2 rewind
 
- Usage     : if( $blast->psiblast ) { ... }
- Purpose   : Set/get a boolean indicator whether or not the report 
-             is a PSI-BLAST report.
- Returns   : 1 if PSI-BLAST, undef if not.
- Argument  : 1 (when setting)
+ Title   : rewind
+ Usage   : $result->rewind;
+ Function: Allow one to reset the Iteration iterator to the beginning
+           Since this is an in-memory implementation
+ Returns : none
+ Args    : none
 
 =cut
 
-#----------------
-sub psiblast {
-#----------------
-    my ($self, $val ) = @_;
-    if( $val ) {
-        $self->{'_psiblast'} = 1;
-    }
-    return $self->{'_psiblast'};
+sub rewind {
+   my $self = shift;
+   $self->SUPER::rewind(@_);
+   $self->{'_iteration_index'} = 0;
+   foreach ($self->iterations) {
+       $_->rewind;
+   }
+}
+
+
+=head2 inclusion_threshold
+
+ Title   : inclusion_threshold
+ Usage   : my $incl_thresh = $result->inclusion_threshold; (read-only)
+ Function: Gets the e-value threshold for inclusion in the PSI-BLAST 
+           score matrix model (blastpgp) that was used for generating the report
+           being parsed.
+ Returns : number (real) or undef if not a PSI-BLAST report.
+ Args    : none
+
+=cut
+
+sub inclusion_threshold {
+    my $self = shift;
+    return $self->{'_inclusion_threshold'};
 }
 
 
 1;
-__END__
