@@ -37,7 +37,7 @@ $ind = Bio::Index::Fasta->new('Wibbl', 'WRITE');
 $ind->make_index("$dir/t/seqs.fas");
 
 print "ok 2\n";
-
+$ind = 0;
 
 
 
