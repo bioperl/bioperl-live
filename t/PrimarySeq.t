@@ -3,19 +3,19 @@
 ## $Id$
 
 # Before `make install' is performed this script should be runnable with
-# `make test'. After `make install' it should work as `perl test.t'
+# `make test'. After `make install' it should work as `perl t/test.t'
 
 use strict;
 BEGIN { 
-    # to handle systems with no installed Test module
-    # we include the t dir (where a copy of Test.pm is located)
-    # as a fallback
-    eval { require Test; };
-    if( $@ ) {
-	use lib 't';
-    }
-    use Test;
-    plan tests => 35;
+	# to handle systems with no installed Test module
+	# we include the t dir (where a copy of Test.pm is located)
+	# as a fallback
+	eval { require Test; };
+	if( $@ ) {
+		use lib 't';
+	}
+	use Test;
+	plan tests => 37;
 }
 use Bio::PrimarySeq;
 use Bio::Location::Simple;
@@ -24,11 +24,12 @@ use Bio::Location::Split;
 
 ok(1);
 
-my $seq = Bio::PrimarySeq->new('-seq'              =>'TTGGTGGCGTCAACT',
+my $seq = Bio::PrimarySeq->new(
+					 '-seq'              => 'TTGGTGGCGTCAACT',
 			       '-display_id'       => 'new-id',
 			       '-alphabet'         => 'dna',
 			       '-accession_number' => 'X677667',
-			       '-desc'             =>'Sample Bio::Seq object');
+			       '-desc'             => 'Sample Bio::Seq object');
 ok defined $seq;
 ok $seq->isa('Bio::PrimarySeqI');
 ok $seq->accession_number(), 'X677667';
@@ -106,7 +107,13 @@ ok $aa->seq, 'MVAST', "Translation: ". $aa->seq;
 ok $seq->seq('TTGGTGGCG?CAACT'), 'TTGGTGGCG?CAACT';
 
 # test for some aliases
-$seq = Bio::PrimarySeq->new('-id'               =>'aliasid',
-			    '-description'      =>'Alias desc');
+$seq = Bio::PrimarySeq->new('-id'          => 'aliasid',
+									 '-description' => 'Alias desc');
 ok($seq->description, 'Alias desc');
 ok($seq->display_id, 'aliasid');
+
+# test that x's are ignored and n's are assumed to be 'dna'
+$seq->seq('atgxxxxxx');
+ok($seq->alphabet,'dna');
+$seq->seq('atgnnnnnn');
+ok($seq->alphabet,'dna');
