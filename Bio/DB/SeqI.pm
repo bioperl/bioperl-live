@@ -111,11 +111,10 @@ use Bio::DB::RandomAccessI;
 
  Title   : get_PrimarySeq_stream
  Usage   : $stream = get_PrimarySeq_stream
- Function: Makes a Bio::DB::SeqStreamI compliant object
-           which provides a single method, next_primary_seq
- Returns : Bio::DB::SeqStreamI
+ Function: Makes a Bio::SeqIO compliant object
+           which provides a single method, next_seq
+ Returns : Bio::SeqIO
  Args    : none
-
 
 =cut
 
