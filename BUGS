@@ -1,0 +1,16 @@
+Known Bugs 
+
+
+Bioperl 0.7.1
+=============
+ * Bio::Tools::BPlite does not parse and set frame properly for
+   tblastx reports (Jitterbug bug # 978).
+
+Bioperl 0.7
+===========
+ * Bio::Tools::BPlite doc error lists
+   code synopsis code as 
+     my $parser = new BPlite(\*FH);  
+   should be 
+     my $parser = new Bio::Tools::BPlite(\*FH);
+  
