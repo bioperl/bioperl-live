@@ -91,6 +91,21 @@ sub _abstractDeath {
   }
 }
 
+=head2 location_type
+
+  Title   : location_type
+  Usage   : my $location_type = $location->location_type();
+  Function: Get location type encoded as text
+  Returns : string ('EXACT', 'WITHIN', 'BETWEEN')
+  Args    : none
+
+=cut
+
+sub location_type { 
+    my ($self,@args) = @_;
+    $self->_abstractDeath();
+}
+
 =head2 start
 
   Title   : start
