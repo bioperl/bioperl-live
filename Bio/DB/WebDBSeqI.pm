@@ -667,6 +667,7 @@ sub _stream_request {
       print $record;
     }
     close STDOUT; close STDERR;
+    kill 9=>$$;  # to prevent END{} blocks from executing in forked children
   }
   else {
 
