@@ -169,10 +169,11 @@ sub new {
     $self->report_type($blasttype);
     # Determine strand meanings
     my ($queryfactor, $sbjctfactor) = (1,0); # default
-    if ($blasttype eq 'BLASTP' || $blasttype eq 'TBLASTN') {
+    if ($blasttype eq 'BLASTP' || $blasttype eq 'TBLASTN' ) {
 	$queryfactor = 0;
     }
-    if ($blasttype eq 'TBLASTN' || $blasttype eq 'TBLASTX')  {
+    if ($blasttype eq 'TBLASTN' || $blasttype eq 'TBLASTX' || 
+	$blasttype eq 'BLASTN' )  {
 	$sbjctfactor = 1;
     }
     
@@ -186,7 +187,7 @@ sub new {
 		$self->query( Bio::SeqFeature::Similarity->new
 		      (-start=>$qb, -end=>$qe, -strand=>$strand, 
 		       -source=>"BLAST" ) ) }
-    else {			# reverse query (i dont know if this is possible, but feel free to correct)
+    else {			# reverse query (i dont know if this is possible, but feel free to correct)	
 		if ($queryfactor) { $strand = -1; } else { $strand = undef; }
 		$self->query( Bio::SeqFeature::Similarity->new
 		      (-start=>$qe, -end=>$qb, -strand=>$strand,
@@ -194,13 +195,13 @@ sub new {
 
     # store the aligned subject as sequence feature
     if ($se > $sb) {		# normal subject
-		if ($sbjctfactor) { $strand = 1; } else { $strand = undef; }
-		$self->subject( Bio::SeqFeature::Similarity->new
+	if ($sbjctfactor) { $strand = 1; } else { $strand = undef; }
+	$self->subject( Bio::SeqFeature::Similarity->new
 			(-start=>$sb, -end=>$se, -strand=>$strand,
 			 -source=>"BLAST" ) ) }
-    else {			# reverse subject: start bigger than end
-		if ($sbjctfactor) { $strand = -1; } else { $strand = undef; }
-		$self->subject( Bio::SeqFeature::Similarity->new
+    else { # reverse subject: start bigger than end
+	if ($sbjctfactor) { $strand = -1; } else { $strand = undef; }
+	$self->subject( Bio::SeqFeature::Similarity->new
 			(-start=>$se, -end=>$sb, -strand=>$strand,
 			 -source=>"BLAST" ) ) }
     
