@@ -7,7 +7,6 @@
 use strict;
 
 my $NUMTESTS;
-my $error;
 
 BEGIN {
     eval { require Test; };
@@ -16,24 +15,17 @@ BEGIN {
     }
     use Test;
     $NUMTESTS = 14;
-    $error  = 0;
-
     plan tests => $NUMTESTS;
-
-}
-
-if( $error ==  1 ) {
-    exit(0);
 }
 
 require Bio::Restriction::IO;
-
 use Bio::Root::IO;
 require Bio::Restriction::EnzymeCollection;
 
-use Data::Dumper;
-ok(1);
+my $tmpdir = "t/tmp";
+mkdir($tmpdir,0777);
 
+ok(1);
 
 #
 # default enz set
@@ -45,12 +37,10 @@ ok $renzs->each_enzyme, 532;
 ok my $e = $renzs->get_enzyme('AccI');
 ok $e->name, 'AccI';
 
-
-ok my $out  = Bio::Restriction::IO->new(-format=>'base',  -file=> ">/tmp/r");
+ok my $out = Bio::Restriction::IO->new(-format => 'base',
+													-file   => ">$tmpdir/r");
 #$out->write($renzs);
 #map {print $_->name, "\t", $_->site, "\t", $_->overhang, "\n"} $renzs->each_enzyme;
-
-
 
 #
 # withrefm, 31
@@ -61,8 +51,6 @@ ok $in  = Bio::Restriction::IO->new
      -file => Bio::Root::IO->catfile("t","data","rebase.withrefm"));
 ok $renzs = $in->read;
 ok $renzs->each_enzyme, 11;
-
-
 
 #
 # itype2, 8
@@ -78,4 +66,11 @@ ok $renzs = $in->read;
 ok $renzs->each_enzyme, 16;
 
 ok  $out  = Bio::Restriction::IO->new(-format=>'base');
-#$out->write($renzs);
+
+END { cleanup(); }
+
+sub cleanup {
+   eval {
+      Bio::Root::IO->rmtree($tmpdir) if (-d $tmpdir);
+   };
+}
