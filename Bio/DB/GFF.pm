@@ -1143,7 +1143,7 @@ sub segments {
     $gname  = shift;
   } else  {
     ($gclass,$gname) = rearrange(['CLASS','NAME'],@_);
-    $class ||= $self->default_class;
+    $gclass ||= $self->default_class;
   }
   my %groups;         # cache the groups we create to avoid consuming too much unecessary memory
   my $features = [];
