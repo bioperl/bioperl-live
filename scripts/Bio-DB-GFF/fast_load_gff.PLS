@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-# $Id: fast_load_gff.PLS,v 1.10 2003-10-17 16:47:36 scain Exp $
+# $Id: fast_load_gff.PLS,v 1.11 2003-11-10 17:07:48 scain Exp $
 
 use strict;
 # use lib './blib/lib';
@@ -237,6 +237,7 @@ while (<>) {
 
   elsif (/^\#\#gff-version\s+3/) {
     $gff3++;
+    next;
   }
 
   elsif (/^\#\#\s*sequence-region\s+(\S+)\s+(\d+)\s+(\d+)/i) { # header line

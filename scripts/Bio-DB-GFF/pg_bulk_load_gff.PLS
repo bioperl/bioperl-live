@@ -237,6 +237,7 @@ while (<>) {
 
   } elsif (/^\#\#gff-version\s+3/) {
     $gff3++;
+    next;
 
   } elsif (/^\#\#\s*sequence-region\s+(\S+)\s+(\d+)\s+(\d+)/i) { # header line
     ($ref,$source,$method,$start,$stop,$score,$strand,$phase,$group) = 
