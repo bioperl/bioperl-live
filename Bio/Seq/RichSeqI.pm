@@ -94,7 +94,82 @@ sub get_secondary_accessions{
 }
 
 
+=head2 division
 
+ Title   : division
+ Usage   :
+ Function:
+ Example :
+ Returns : 
+ Args    :
+
+
+=cut
+
+sub division{
+   my ($self,@args) = @_;
+
+   $self->throw("hit division in interface definition - error");
+
+}
+
+
+=head2 molecule
+
+ Title   : molecule
+ Usage   :
+ Function:
+ Example :
+ Returns : 
+ Args    :
+
+
+=cut
+
+sub molecule{
+   my ($self,@args) = @_;
+
+   $self->throw("hit molecule in interface definition - error");
+}
+
+=head2 get_dates
+
+ Title   : get_dates
+ Usage   :
+ Function:
+ Example :
+ Returns : 
+ Args    :
+
+
+=cut
+
+sub get_dates{
+   my ($self,@args) = @_;
+
+   $self->throw("hit get_dates in interface definition - error");
+
+}
+
+
+=head2 seq_version
+
+ Title   : seq_version
+ Usage   :
+ Function:
+ Example :
+ Returns : 
+ Args    :
+
+
+=cut
+
+sub seq_version{
+   my ($self,@args) = @_;
+
+   $self->throw("hit seq_version in interface definition - error");
+
+}
 
 
 
