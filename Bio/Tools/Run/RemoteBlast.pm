@@ -17,15 +17,49 @@ Bio::Tools::Run::RemoteBlast - Object for remote execution of the NCBI Blast via
 =head1 SYNOPSIS
 
 Remote-blast "factory object" creation and blast-parameter initialization:
+use Bio::Tools::Run::RemoteBlast;
+use strict;
+my $v = 1;
+my $prog = 'blastp';
+my $db   = 'swissprot';
+my $e_val= '1e-10';
 
-    $factory = Bio::Tools::Run::RemoteBlast->new(@params);
-
-Blast a sequence against a database:
-
- $str = Bio::SeqIO->new(-file=>'t/amino.fa' , '-format' => 'Fasta' );
- $input = $str->next_seq();
- $input2 = $str->next_seq();
- $blast_report = $factory->runblast($input);
+my @params = ( '-prog' => $prog,
+	       '-data' => $db,
+	       '-expect' => $e_val );
+	       
+my $factory = Bio::Tools::Run::RemoteBlast->new(@params);
+$v = 1;
+my $str = Bio::SeqIO->new(-file=>'amino.fa' , '-format' => 'fasta' );
+my $input = $str->next_seq();
+#  Blast a sequence against a database:
+my $r = $factory->submit_blast($input);
+print STDERR "waiting..." if( $v > 0 );
+while ( my @rids = $factory->each_rid ) {
+    foreach my $rid ( @rids ) {
+	my $rc = $factory->retrieve_blast($rid);
+	if( !ref($rc) ) {
+	    if( $rc < 0 ) { 		
+		    $factory->remove_rid($rid);
+		}
+	    print STDERR "." if ( $v > 0 );
+	    sleep 5;
+	} else { 
+	    $factory->remove_rid($rid);
+	    my $result = $rc->next_result;
+	    print "db is ", $result->database_name(), "\n";
+	    my $count = 0;
+	    while( my $hit = $result->next_hit ) {		
+		$count++;
+		next unless ( $v > 0);
+		print "hit name is ", $hit->name, "\n";
+		while( my $hsp = $hit->next_hsp ) {
+		    print "score is ", $hsp->score, "\n";
+		} 
+	    }
+	}
+    }
+}
 
 Various additional options and input formats are available.  See the
 DESCRIPTION section for details.
@@ -56,7 +90,7 @@ or the web:
 
 =head1 AUTHOR -  Jason Stajich
 
-Email jason@chg.mc.duke.edu
+Email jason@bioperl.org
 
 =head1 APPENDIX
 
@@ -76,7 +110,7 @@ use Bio::Root::IO;
 use Bio::SeqIO;
 use IO::String;
 use Bio::Tools::BPlite;
-use Bio::Tools::Blast;
+use Bio::SearchIO;
 use LWP;
 use HTTP::Request::Common;
 BEGIN {      
@@ -106,7 +140,7 @@ BEGIN {
      %BLAST_PARAMS = ( 'prog' => 'blastp',
 		       'data' => 'nr',
 		       'expect' => '1e-3',
-		       'readmethod' => 'BPlite'
+		       'readmethod' => 'SearchIO'
 		       );
 
 }
@@ -383,10 +417,11 @@ sub retrieve_blast {
 	my $size = -s $tempfile;
 	if( $size > 1000 ) {
 	    my $blastobj;
-	    if( $self->readmethod =~ /Blast/ ) {
-		$blastobj = new Bio::Tools::Blast(-file => $tempfile);
-	    } else { 
+	    if( $self->readmethod =~ /BPlite/ ) {
 		$blastobj = new Bio::Tools::BPlite(-file => $tempfile);
+	    } else {
+		$blastobj = new Bio::SearchIO(-file => $tempfile,
+					      -format => 'blast');
 	    }
 	    return $blastobj;
 	} elsif( $size < 500 ) { # search had a problem
@@ -407,7 +442,7 @@ sub _load_input {
     my ($self, $input) = @_;
     
     if( ! defined $input ) { 
-	$self->throw("Calling runblast with no input");	
+	$self->throw("Calling remote blast with no input");	
     }    
     my @seqs;
     if( ! ref $input ) {
