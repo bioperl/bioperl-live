@@ -53,6 +53,7 @@ Email bioinformatics1@dieselwurks.com
 
 Lincoln Stein, lstein@cshl.org
 Heikki Lehvaslaiho, heikki@ebi.ac.uk
+Jason Stajich jason@bioperl.org
 
 =head1 APPENDIX
 
@@ -85,36 +86,39 @@ use Bio::Map::PositionI;
  Function: Builds a new Bio::Map::LinkagePosition object 
  Returns : Bio::Map::LinkagePosition
  Args    : -positions => the relative order of this marker on a linkage map
-	-distance => the centimorgam distance of this marker from the previous
-		marker. Can be 0!
- Notes   : In this case, if -position is a list the first element will be used
-	as the position for this marker. It is much better to simply provide a
-	scalar for this value in the context of a LinkagePosition object.
-	( position_s_ is used simply because this object inherits from
-	PositionI )
-	If -distance = 0 or is omitted it is assumed that the marker here
-	is linked to the marker before it.	
+ 	   -distance => the centimorgam distance of this marker from the 
+                        previous marker. Can be 0!
+ Notes : In this case, if -position is a list the first element will
+	 be used as the position for this marker. It is much better to
+	 simply provide a scalar for this value in the context of a
+	 LinkagePosition object.  ( position_s_ is used simply because
+	 this object inherits from PositionI ) If -distance = 0 or is
+	 omitted it is assumed that the marker here is linked to the
+	 marker before it.
 
 =cut
 
 sub new {
-  my($class,@args) = @_;
-	my $self = $class->SUPER::new(@args);
-	my %param = @args;
-	my ($positions,$distance) = $self->_rearrange([qw(POSITIONS DISTANCE)], @args);
-	if( ref($positions) =~ /array/i ) {
-		$self->add_position(pop(@$positions));
+    my($class,@args) = @_;
+    my $self = $class->SUPER::new(@args);
+    my %param = @args;
+    my ($positions,$distance) = $self->_rearrange([qw(POSITIONS 
+						      DISTANCE)], @args);
+    if( ref($positions) =~ /array/i ) {
+	while( @$positions ) {
+	    $self->add_position(pop(@$positions));
 	}
-	else {
-		$self->add_position($positions);
-	}
-	if ($distance) {
-		$self->distance($distance);
-	}
-	else {
-		$self->distance('0.0');
-	}
-  return bless $self;
+    } else {
+	$self->add_position($positions);
+    }
+
+    if ($distance) {
+	$self->distance($distance);
+    }
+    else {
+	$self->distance('0.0');
+    }
+    return bless $self;
 }
 
 
@@ -191,11 +195,11 @@ sub purge_positions {
 =cut
 
 sub distance {
-	my ($self,$distance) = @_;
-	if ($distance) {
-	   $self->{'_distance'} = $distance;
-	}
-	return $self->{'_distance'};	
+    my ($self,$distance) = @_;
+    if ($distance) {
+	$self->{'_distance'} = $distance;
+    }
+    return $self->{'_distance'};	
 }
 
 =head2 position($new_postion)
@@ -212,14 +216,14 @@ sub distance {
 =cut
 
 sub position {
-	my ($self,$position) = @_;
-	if ($position) {
-		# no point in keeing the old ones
-		$self->purge_positions();
-		$self->add_position($position);
-	}
-		# ::dumpValue($self);
-	return $self->{'_positions'};	
+    my ($self,$position) = @_;
+    if ($position) {
+	# no point in keeing the old ones
+	$self->purge_positions();
+	$self->add_position($position);
+    }
+    # ::dumpValue($self);
+    return $self->{'_positions'};	
 }
 
 

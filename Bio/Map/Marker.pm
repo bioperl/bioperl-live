@@ -54,6 +54,7 @@ Email bioinformatics1@dieselwurks.com
 
 Heikki Lehvaslaiho heikki@ebi.ac.uk
 Lincoln Stein      lstein@cshl.org
+Jason Stajich      jason@bioperl.org
 
 =head1 APPENDIX
 
@@ -67,15 +68,15 @@ Internal methods are usually preceded with a _
 package Bio::Map::Marker;
 use vars qw(@ISA);
 use strict;
-use Bio::Root::RootI;
+use Bio::Root::Root;
 
-@ISA = qw(Bio::Root::RootI Bio::Map::MappableI);
+@ISA = qw(Bio::Root::Root Bio::Map::MarkerI);
 
 =head2 new
 
  Title   : new
  Usage   : $o_marker = new Bio::Map::Marker( -name => 'Whizzy marker',
-	-position => $position);
+	                                     -position => $position);
  Function: Builds a new Bio::Map::Marker object
  Returns : Bio::Map::Marker
  Args    :
@@ -87,15 +88,13 @@ use Bio::Root::RootI;
 =cut
 
 sub new {
-	my ($class,@args) = @_;
-        my $self = {};
-	my $self = $class->SUPER::new(@args);
-	my ($name, $position) = $self->_rearrange([qw(NAME POSITION)], @args);
-	if ($name) { $self->name($name); } else {$self->name('Unnamed marker'); }
-	$position && $self->position($position);
-	return bless $self;
+    my ($class,@args) = @_;
+    my $self = $class->SUPER::new(@args);
+    my ($name, $position) = $self->_rearrange([qw(NAME POSITION)], @args);
+    if ($name) { $self->name($name); } else {$self->name('Unnamed marker'); }
+    $position && $self->position($position);
+    return bless $self;
 }
-
 
 
 =head2 position
@@ -109,11 +108,11 @@ sub new {
 =cut
 
 sub position {
-	my ($self,$o_position) = @_;
-	if ($o_position) {
-		$self->{'_position'} = $o_position;
-	}
-	return $self->{'_position'};	
+    my ($self,$o_position) = @_;
+    if ($o_position) {
+	$self->{'_position'} = $o_position;
+    }
+    return $self->{'_position'};	
 }
 
 =head2 name($new_name)
@@ -129,11 +128,11 @@ sub position {
 =cut
 
 sub name {
-	my ($self,$name) = @_;
-	if ($name) {
-		$self->{'_name'} = $name;
-	}
-	return $self->{'_name'};	
+    my ($self,$name) = @_;
+    if ($name) {
+	$self->{'_name'} = $name;
+    }
+    return $self->{'_name'};	
 }
 
 1;

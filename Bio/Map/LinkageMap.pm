@@ -63,8 +63,9 @@ Email bioinformatics1@dieselwurks.com
 
 =head1 CONTRIBUTORS
 
-Lincoln Stein, lstein@cshl.org
-Heikki Lehvaslaiho, heikki@ebi.ac.uk
+Lincoln Stein       lstein@cshl.org
+Heikki Lehvaslaiho  heikki@ebi.ac.uk
+Jason Stajich       jason@bioperl.org
 
 =head1 APPENDIX
 
@@ -76,14 +77,13 @@ Internal methods are usually preceded with a _
 
 # Let the code begin...
 
-
 package Bio::Map::LinkageMap;
 use vars qw(@ISA);
 use strict;
-use Bio::Root::RootI;
-use Carp;
+use Bio::Root::Root;
+use Bio::Map::MapI;
 
-@ISA = qw(Bio::Root::RootI Bio::Map::MapI);
+@ISA = qw(Bio::Root::Root Bio::Map::MapI);
 
 =head2 new
 
@@ -102,22 +102,26 @@ use Carp;
 
 sub new {
   my ($class,@args) = @_;
-	my $self = {};
+  
+  my $self = $class->SUPER::new(@args);
+
   $self->{'_elements'} = [];
   $self->{'_name'}     = '';
   $self->{'_species'}  = '';
   $self->{'_units'}    = '';
 
-  my $self = $class->SUPER::new(@args);
   my ($name, $species, $units,
-      $elements, $type) = $self->_rearrange([qw(NAME SPECIES UNITS ELEMENTS TYPE)], @args);
+      $elements, $type) = $self->_rearrange([qw(NAME 
+						SPECIES 
+						UNITS 
+						ELEMENTS 
+						TYPE)], @args);
   $name     && $self->name($name);
   $species  && $self->species($species);
-	if ($units) { $self->units($units); }
-	else { $self->units('cM'); }
-	if ($type) { $self->type($type); }
-	else { $self->type('Linkage'); }
-  if( $elements && ref($elements) =~ /array/ ) {
+  $self->units(defined $units ? $units : 'cM');
+  $self->type(defined $type ? $type : 'Linkage');
+  
+  if( $elements && ref($elements) =~ /array/i ) {
       foreach my $item ( @$elements ) {
           $self->add_element($item);
       }
@@ -130,49 +134,48 @@ sub new {
 
  Title   : species($new_species)
  Usage   : my $species = $map->species($new_species) _or_
-	my $species = $map->species()
+ 	   my $species = $map->species()
  Function: Get/Set Species for a map
  Returns : A Bio::Species object representing the current species of this
-	LinkageMap.
+	   LinkageMap.
  Args    : If provided, the species of this LinkageMap will be set to
-	$new_species.
-	
+	   $new_species.
 
 =cut
 
 sub species {
-	my ($self,$species) = @_;
-	if ($species) {
-		$self->{'_species'} = $species;
-	}
-	return $self->{'_species'};
+    my ($self,$species) = @_;
+    if ($species) {
+	$self->{'_species'} = $species;
+    }
+    return $self->{'_species'};
 }
 
 =head2 units($new_units)
 
  Title   : units($new_units)
  Usage   : $map->units($new_units) _or_
-	$map->units()
+	   $map->units()
  Function: Get/Set units for a map
  Returns : A scalar representing the units for this LinkageMap
  Args    : If provided, the units for this LinkageMap will be set to
-	$new_units.
+	   $new_units.
 
 =cut
 
 sub units {
-	my ($self,$units) = @_;
-	if (!$units) {
-		return $self->{'_units'};
-	}
+    my ($self,$units) = @_;
+    if (defined $units) {
 	$self->{'_units'} = $units;
+    }
+    return $self->{'_units'};
 }
 
 =head2 type($new_type)
 
  Title   : type($new_type)
  Usage   : my $type = $map->type($new_type) _or_
-	my $type = $map->type()
+	   my $type = $map->type()
  Function: Get/Set Map type
  Returns : A scalar representing the current map type.
  Args    : If provided, the current map type will be set to $new_type.
@@ -180,11 +183,11 @@ sub units {
 =cut
 
 sub type {
-	my ($self,$type) = @_;
-	if (!$type) {
-		$self->{'_type'} = $type;
-	}
-	return $self->{'_type'};
+    my ($self,$type) = @_;
+    if (defined $type) {
+	$self->{'_type'} = $type;
+    }
+    return $self->{'_type'};
 }
 
 =head2 length()
@@ -192,30 +195,30 @@ sub type {
  Title   : length()
  Usage   : my $length = $map->length();
  Function: Retrieves the length of the map. In the case of a LinkageMap, the
-	length is the sum of all marker distances.
+	   length is the sum of all marker distances.
  Returns : An integer representing the length of this LinkageMap. Will return
-	undef if length is not calculateable
+	   undef if length is not calculateable
  Args    : None.
 
 
 =cut
 
 sub length {
-	my ($self) = @_;
-	my $total_distance;
-	foreach (@{$self->{'_elements'}}) {
-		if ($_) {
-			$total_distance += $_->position()->distance();
-		}
+    my ($self) = @_;
+    my $total_distance;
+    foreach (@{$self->{'_elements'}}) {
+	if ($_) {
+	    $total_distance += $_->position()->distance();
 	}
-	return $total_distance;
+    }
+    return $total_distance;
 }
 
 =head2 name($new_name)
 
  Title   : name($new_name)
  Usage   : my $name = $map->name($new_name) _or_
-	my $length = $map->name()
+	   my $length = $map->name()
  Function: Get/set the name of the map.
  Returns : The current name of the map.
  Args    : If provided, the name of the map is set to $new_name.
@@ -223,11 +226,11 @@ sub length {
 =cut
 
 sub name {
-	my ($self,$name) = @_;
-	if ($name) {
-		$self->{'_name'} = $name;
-	}
-	return $self->{'_name'};
+    my ($self,$name) = @_;
+    if ($name) {
+	$self->{'_name'} = $name;
+    }
+    return $self->{'_name'};
 }
 
 =head2 add_element($marker)
@@ -237,30 +240,39 @@ sub name {
  Function: Add a Bio::Map::MappableI object to the Map
  Returns : none
  Args    : Bio::Map::MappableI object
- Notes   : It is strongly recommended that you use a Bio::Map::LinkagePosition
-	as the position in any Bio::Map::Mappable that you create to place on
-	this map. Using some other Bio::Map::Position might work but might be
-	unpredictable.
+ Notes : It is strongly recommended that you use a
+	 Bio::Map::LinkagePosition as the position in any
+	 Bio::Map::Mappable that you create to place on this
+	 map. Using some other Bio::Map::Position might work but might
+	 be unpredictable.
 
 =cut
 
 sub add_element {
-	my ($self,$marker) = @_;
-	my $o_position = $marker->position()->position();
-		# print("add_element: \$o_position is $o_position\n");
-		# print("add_element: \$marker is $marker\n");
-	my @position = @$o_position;
-	my @positions_copy = @position;
-	
-	if (ref($o_position) != /Linkage/) {
-		$self->warn("You really should use a Linkage Position for this object. This insures that there is only one position. Trying anyway...");
-	}
-		# my $position = pop(@{$o_position->position()});
-	my $position = pop(@positions_copy);
-	if ($self->{'_elements'}[$position]) {
-		$self->warn("Replacing the marker in position $position because in a linkage map the position is a key.");
-	}	
-	$self->{'_elements'}[$position] = $marker;
+    my ($self,$marker) = @_;
+
+    my $o_position = $marker->position()->position();
+    $self->debug( "marker position is ". $marker->position());
+#     print("add_element: \$o_position is $o_position\n");
+#     print("add_element: \$marker is $marker\n");
+    my @position = @$o_position;
+    my @positions_copy = @position;
+
+    # This is not so good here - need to think about it some more but
+    # I expected markers to support having multiple positions, I guess
+    # in a LinkageMap you have to constrain things to a single position
+    # on the map.
+    
+    if ( ref($o_position) =~ /array/i ||
+	 $o_position->isa('Bio::Map::LinkagePosition') ) {
+	$self->warn("You really should use a Linkage Position for this object. This insures that there is only one position. Trying anyway...");	
+    }
+    # my $position = pop(@{$o_position->position()});
+    my $position = pop(@positions_copy);
+    if ($self->{'_elements'}[$position]) {
+	$self->warn("Replacing the marker in position $position because in a linkage map the position is a key.");
+    }	
+    $self->{'_elements'}[$position] = $marker;
 }
 
 =head2 each_element
@@ -277,8 +289,8 @@ sub add_element {
 =cut
 
 sub each_element {
-	my ($self) = @_;
-	return @{$self->{'_elements'}};
+    my ($self) = @_;
+    return @{$self->{'_elements'}};
 }
 
 1;

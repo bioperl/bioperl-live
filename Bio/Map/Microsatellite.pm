@@ -14,12 +14,13 @@ Bio::Map::Microsatellite - An object representing a Microsatellite marker.
 
 =head1 SYNOPSIS
 
-$o_usat = new Bio::Map::Microsatellite(-name=>'Chad Super Marker 2',
-        -sequence => 'gctgactgatcatatatatatatatatatatatatatatatcgcgatcgtga',
-        -motif => 'at',
-        -repeats => 15,
-	-repeat_start_position => 11
-	);
+$o_usat = new Bio::Map::Microsatellite
+    (-name=>'Chad Super Marker 2',
+     -sequence => 'gctgactgatcatatatatatatatatatatatatatatatcgcgatcgtga',
+     -motif => 'at',
+     -repeats => 15,
+     -repeat_start_position => 11
+     );
 
 $sequence_before_usat = $o_usat->get_leading_flank();
 $sequence_after_usat = $o_usat->get_trailing_flank();
@@ -30,8 +31,8 @@ $sequence_after_usat = $o_usat->get_trailing_flank();
 
 This object handles the notion of an Microsatellite. This microsatellite can
 be placed on a (linear) Map or used on its own.  If this Microsatellites
-will be used in a mapping context (it doesn't have to, you know) it can have
-multiple positions in a map. For information about a Microsatellite's position
+will be used in a mapping context (it doesn\'t have to, you know) it can have
+multiple positions in a map. For information about a Microsatellite\'s position
 in a map one must query the associate PositionI object which is accessible
 through the position() method.
 
@@ -63,6 +64,7 @@ Email bioinformatics1@dieselwurks.com
 
 Heikki Lehvaslaiho heikki@ebi.ac.uk
 Lincoln Stein      lstein@cshl.org
+Jason Stajich      jason@bioperl.org
 
 =head1 APPENDIX
 
@@ -76,12 +78,10 @@ Internal methods are usually preceded with a _
 package Bio::Map::Microsatellite;
 use vars qw(@ISA);
 use strict;
-use Bio::Root::RootI;
-use Carp;
+use Bio::Root::Root;
+use Bio::Map::MarkerI;
 
-# when a MarkerI exists, this object should bea like this:
-	# @ISA = qw(Bio::Root::RootI Bio::Map::MarkerI);
-@ISA = qw(Bio::Root::RootI);
+@ISA = qw(Bio::Root::Root Bio::Map::MarkerI);
 
 =head2 new
 
@@ -117,10 +117,17 @@ use Carp;
 
 sub new {
 	my ($class,@args) = @_;
-        my $self = {};
-	my $self = $class->SUPER::new(@args);
-	my ($name, $position, $sequence, $motif,$repeats,$start) = $self->_rearrange([qw(NAME POSITION SEQUENCE MOTIF REPEATS REPEAT_START_POSITION)], @args);
-	if ($name) { $self->name($name); } else {$self->name('Unnamed microsatellite'); }
+        my $self = $class->SUPER::new(@args);
+	my ($name, $position, $sequence, 
+	    $motif,$repeats,
+	    $start) = $self->_rearrange([qw(NAME 
+					    POSITION 
+					    SEQUENCE 
+					    MOTIF 
+					    REPEATS 
+					    REPEAT_START_POSITION)], @args);
+	if ($name) { $self->name($name); } 
+	else {$self->name('Unnamed microsatellite'); }
 	$position && $self->position($position);
 	$sequence && $self->sequence($sequence);
 	if ($motif) { $self->motif($motif); } else {$self->motif('Unknown motif'); }
@@ -281,18 +288,20 @@ sub repeat_start_position {
 	end position based on the start position, the length of the
 	motif, and the nuimber of repeats.
 	If you specify a value the current end position of the repeat
-	will be set to that value. This is a really bad idea. Don't do
+	will be set to that value. This is a really bad idea. Don\'t do
 	it.
 
 =cut
 
 sub repeat_end_position {
 	my ($self,$caller) = @_;
-	if ($caller eq "set") {
+	if( defined $caller ) { 
+	    if ($caller eq "set") {
 		$self->{'_repeat_end_position'} = $self->{'_repeat_start_position'} + (length($self->motif()) * $self->repeats());
-	}
-	elsif ($caller) {
+	    }
+	    elsif ($caller) {
 		$self->{'_repeat_end_position'} = $caller;
+	    }
 	}
 	return $self->{'_repeat_end_position'};
 

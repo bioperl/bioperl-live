@@ -79,15 +79,12 @@ use Bio::Map::OrderedPositionWithDistance;
 =cut
 
 sub new {
-	my($class,@args) = @_;
-	my $self = {};
-	my %param = @args;
-	my $filename = $param{'-file'};
-	my $type = $param{'-type'};
-	$self->{'filename'} = $filename;
-	$self->{'type'} = $type;
-	$self->{fh} = Bio::Root::IO->new(-file=>"$filename");
-	return bless $self;
+    my($class,@args) = @_;
+    my $self = $class->SUPER::new(@args);
+
+    $self->_initialize_io(@args);
+    ($self->{'type'}) = $self->_rearrange([qw(TYPE)], @args);
+    return $self;
 }
 
 
@@ -104,29 +101,29 @@ sub new {
 =cut
 
 sub next_marker {
-	my $self = shift;
-	if ($self->{done_markers}) { return; }
-	my $line;
-	if (!$self->{processed_top}) {
-		until (($line = $self->{fh}->_readline()) =~ /^  Markers          Distance/) { }
-		$self->{processed_top} = 1;
-	}
-	$line = $self->{fh}->_readline();
-	chomp $line;
-	if ($line =~ /----------/) {
-		$self->{done_markers} = 1;
-	}
-	$line =~ /\s+(\S+)\s+(\S+)\s+(\S+)/;
-	my ($marker_number,$marker_name,$marker_distance);
-	$marker_number = $1;
-        $marker_name = $2;
-        $marker_distance = $3;
-	my $o_marker = new Bio::Map::Marker(-name=> $marker_name,
-		-position => new Bio::Map::OrderedPositionWithDistance(
-			-positions => $marker_number,
-                	-distance => $marker_distance
-                	)
-		);
+    my $self = shift;
+    if ($self->{'done_markers'}) { return; }
+    my $line;
+    if (!$self->{'processed_top'}) {
+	until (($line = $self->_readline()) =~ /^\s+Markers\s+Distance/) { }
+	$self->{'processed_top'} = 1;
+    }
+    $line = $self->_readline();
+    chomp $line;
+    if ($line =~ /-{5,}/) { # terminator is ------- 
+	$self->{'done_markers'} = 1;
+	return undef;
+    }
+    $line =~ s/^\s+//;
+    my ($marker_number,$marker_name,$marker_distance) = split(/\s+/,$line);
+
+    my $pos = new Bio::Map::OrderedPositionWithDistance
+	(-positions => $marker_number,
+	 -distance => $marker_distance
+	 );
+    my $o_marker = new Bio::Map::Marker('-name'=> $marker_name,
+					'-position' => $pos);
+    return $o_marker;
 }
 
 =head2 summary_info()
@@ -142,120 +139,14 @@ sub next_marker {
 =cut
 
 sub summary_info {
-	my $self = shift;
-	if (!$self->{done_markers}) {
-		$self->warn("You can't get the summary info until all markers are read from the mapmaker file. Sorry.\n");
-		return;
-	}
-	my $line = $self->{fh}->_readline();
-	chomp $line;
-	return $line;
-}
-
-
-
-
-
-
-=head2 attach_EventHandler
-
- Title   : attach_EventHandler
- Usage   : $parser->attatch_EventHandler($handler)
- Function: Adds an event handler to listen for events
- Returns : none
- Args    : Bio::Event::EventHandlerI
-
-=cut
-
-sub attach_EventHandler{
-    my ($self,$handler) = @_;
-    return if( ! $handler );
-    if( ! $handler->isa('Bio::Event::EventHandlerI') ) {
-	$self->warn("Ignoring request to attatch handler ".ref($handler). ' because it is not a Bio::Event::EventHandlerI');
+    my $self = shift;
+    if (!$self->{'done_markers'}) {
+	$self->warn("You can't get the summary info until all markers are read from the mapmaker file. Sorry.\n");
+	return;
     }
-    $self->{'_handler'} = $handler;
-    return;
-}
-
-=head2 _eventHandler
-
- Title   : _eventHandler
- Usage   : private
- Function: Get the EventHandler
- Returns : Bio::Event::EventHandlerI
- Args    : none
-
-
-=cut
-
-sub _eventHandler{
-   my ($self) = @_;
-   return $self->{'_handler'};
-}
-
-sub _initialize {
-    my($self, @args) = @_;
-    $self->{'_handler'} = undef;
-    # not really necessary unless we put more in RootI
-    $self->SUPER::_initialize(@args);
-    
-    # initialize the IO part
-    $self->_initialize_io(@args);
-    $self->attach_EventHandler(new Bio::TreeIO::TreeEventBuilder());
-}
-
-=head2 _load_format_module
-
- Title   : _load_format_module
- Usage   : *INTERNAL TreeIO stuff*
- Function: Loads up (like use) a module at run time on demand
- Example :
- Returns :
- Args    :
-
-=cut
-
-sub _load_format_module {
-  my ($format) = @_;
-  my ($module, $load, $m);
-
-  $module = "_<Bio/TreeIO/$format.pm";
-  $load = "Bio/TreeIO/$format.pm";
-
-  return 1 if $main::{$module};
-  eval {
-    require $load;
-  };
-  if ( $@ ) {
-    print STDERR <<END;
-$load: $format cannot be found
-Exception $@
-For more information about the TreeIO system please see the TreeIO docs.
-This includes ways of checking for formats at compile time, not run time
-END
-  ;
-    return;
-  }
-  return 1;
-}
-
-
-=head2 _guess_format
-
- Title   : _guess_format
- Usage   : $obj->_guess_format($filename)
- Function:
- Example :
- Returns : guessed format of filename (lower case)
- Args    :
-
-=cut
-
-sub _guess_format {
-   my $class = shift;
-   return unless $_ = shift;
-   return 'newick'   if /\.(dnd|newick|nh)$/i;
-   return 'phyloxml' if /\.(xml)$/i;
+    my $line = $self->_readline();
+    chomp $line;
+    return $line;
 }
 
 sub DESTROY {
