@@ -198,11 +198,21 @@ sub pairwise_alignment{
     my ($self,$seq1,$seq2) = @_;
     my($t1,$t2,$aln,$out,@str1,@str2,@ostr1,@ostr2,$alc,$tstr,$tid,$start1,$end1,$start2,$end2,$alctemp);
 
+    # fix Jitterbug #1044
+    if( $seq1->length() < 2 || 
+	$seq2->length() < 2 ) {
+	$self->warn("cannot align sequences with length less than 2");
+	return undef;
+    }
     $self->set_memory_and_report();
     # create engine objects 
+    $seq1->display_id('seq1') unless ( defined $seq1->id() );
+    $seq2->display_id('seq2') unless ( defined $seq2->id() );
 
-    $t1  = &Bio::Ext::Align::new_Sequence_from_strings($seq1->id(),$seq1->seq());
-    $t2  = &Bio::Ext::Align::new_Sequence_from_strings($seq2->id(),$seq2->seq());
+    $t1  = &Bio::Ext::Align::new_Sequence_from_strings($seq1->id(),
+						       $seq1->seq());
+    $t2  = &Bio::Ext::Align::new_Sequence_from_strings($seq2->id(),
+						       $seq2->seq());
     $aln = &Bio::Ext::Align::Align_Sequences_ProteinSmithWaterman($t1,$t2,$self->{'matrix'},-$self->gap,-$self->ext);
     if( ! defined $aln || $aln == 0 ) {
 	$self->throw("Unable to build an alignment");
@@ -296,7 +306,18 @@ sub align_and_show {
     my($self,$seq1,$seq2,$fh) = @_;
     my($t1,$t2,$aln,$id,$str);
 
+    # fix Jitterbug #1044
+    if( $seq1->length() < 2 || 
+	$seq2->length() < 2 ) {
+	$self->warn("cannot align sequences with length less than 2");
+	return undef;
+    }
+    if( ! defined $fh ) { 
+	$fh = \*STDOUT;
+    }
     $self->set_memory_and_report();
+    $seq1->display_id('seq1') unless ( defined $seq1->id() );
+    $seq2->display_id('seq2') unless ( defined $seq2->id() );
 
     $t1  = &Bio::Ext::Align::new_Sequence_from_strings($seq1->id(),$seq1->seq());
 
