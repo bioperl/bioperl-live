@@ -1,4 +1,4 @@
-# $Id: FAQ,v 1.2 2002-02-14 22:59:07 bosborne Exp $
+# $Id: FAQ,v 1.3 2002-02-16 21:17:12 bosborne Exp $
 
 Bioperl FAQ
 -----------
@@ -48,7 +48,7 @@ I. Bioperl in general
      object-oriented manner so that many modules depend on each other
      to achieve a task.  The collection of modules in the bioperl-live
      repository consist of the core of the functionality of bioperl.
-     Additionally auxiallary modules for creating graphical interfaces
+     Additionally auxiliary modules for creating graphical interfaces
      (bioperl-gui), persistent storage in RDMBS (bioperl-db), and
      CORBA bridges to the BioCORBA (www.biocorba.org) specification
      (bioperl-corba-server and bioperl-corba-client) are all available
@@ -116,7 +116,7 @@ I. Bioperl in general
   7.  Who uses this toolkit?
 
       Lots of people.  Sanger Centre, EBI, many large and small
-      academic laboratories, large and small pharmacutical companies.
+      academic laboratories, large and small pharmaceutical companies.
       All the developers on the bioperl list use the toolkit in some
       capacity on a regular basis.
       
@@ -189,6 +189,9 @@ IV. Sequence utilities
      In fact, none of these functions are built into Bioperl but they are
      all available in the EMBOSS package (www.uk.embnet.org/Software/EMBOSS),
      as well as many others. The Bioperl developers created a simple
-     interface to EMBOSS such any and all EMBOSS programs can be run
-     from with Bioperl. See Bio::Factory::EMBOSS for more information.
+     interface to EMBOSS such that any and all EMBOSS programs can be run
+     from within Bioperl. See Bio::Factory::EMBOSS for more information.
+
+     If you can't find the functionality you want in Bioperl then make sure
+     to look for it in EMBOSS, these packages integrate quite gracefully.
      
