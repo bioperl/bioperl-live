@@ -79,6 +79,8 @@ use Bio::Location::Split;
 use Bio::Location::Fuzzy;
 use Bio::Seq;
 use Bio::SeqFeature::Generic;
+use Bio::Species;
+use Bio::Annotation::Collection;
 
 =head2 new
 
@@ -99,6 +101,7 @@ system's temporary file directory.  The name of this temporary file
 can be retrieved using file_name().
 
 =cut
+#'
 
 sub new {
     my ($class,@args) = @_;
@@ -232,6 +235,7 @@ file, it probably isn't safe to change this value.
 
 =cut
 
+#'
 sub keep {
   my $self = shift;
   my $d = $self->{keep};
