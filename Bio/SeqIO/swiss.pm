@@ -350,7 +350,7 @@ sub next_seq {
 	-desc     => $desc,
 	-keywords => $keywords,
 	-accession_number => $acc,
-	-secondardy_accessions => \@sec,
+	-secondary_accessions => \@sec,
 	-features => \@features,
 	-annotation => $annotation,
 	);
