@@ -13,7 +13,7 @@ BEGIN {
         use lib 't','..';
     }
     use Test;
-    $NUMTESTS = 44;
+    $NUMTESTS = 46;
     plan tests => $NUMTESTS;
 
 }
@@ -36,6 +36,17 @@ my @seqformats = qw{ ace embl fasta game gcg
                      genbank mase  pfam pir raw swiss tab };
 
 my %no_seqio_module = map {$_=>1} qw {gcgblast gcgfasta mase pfam};
+
+my $guessed_format = new Bio::Tools::GuessSeqFormat
+        (-file => Bio::Root::IO->catfile("t","data","test.waba"))->guess;
+ok $guessed_format, undef ;
+
+eval {
+    my $input = Bio::SeqIO->new
+        (-file=>Bio::Root::IO->catfile("t","data","test.waba"));
+    ok my $seq = $input->next_seq();
+};
+$@ ? ok 1 : ok 0;
 
 foreach $format (@seqformats) {
     my $guessed_format = new Bio::Tools::GuessSeqFormat

@@ -50,7 +50,7 @@ scalar, or through a filehandle.
 The guess() method of a Bio::Tools::GuessSeqFormat object will
 examine the data, line by line, until it finds a line to which
 only one format can be assigned.  If no conclusive guess can be
-made, the "unknown" format is returned.
+made, undef is returned.
 
 If the Bio::Tools::GuessSeqFormat object is given a filehandle
 which is seekable, it will be restored to its original position
@@ -383,8 +383,7 @@ sub text
  Function   : Guesses the format of the data accociated with the
               object.
  Returns    : A format string such as "swiss" or "pir".  If a
-              format can not be found, the "unknown" format will
-              be returned.
+              format can not be found, undef is returned.
  Arguments  : None.
 
     If the object is associated with a filehandle and if that
@@ -502,7 +501,7 @@ sub guess
         # Seek to the start position.
         $fh->setpos($start_pos);
     }
-    return ($done ? $fmt_string : "unknown");
+    return ($done ? $fmt_string : undef);
 }
 
 =head1 HELPER SUBROUTINES
