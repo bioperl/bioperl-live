@@ -298,7 +298,7 @@ sub result {
                 push @{$type_scores{'sheet'}}, $aa->{'sheet'};
                 push @{$type_scores{'coil'}}, $aa->{'coil'};
             }
-            require Array;
+            require Bio::Seq::Meta::Array;
             bless ($self->seq, "Bio::Seq::Meta::Array");
             $self->seq->isa("Bio::Seq::MetaI")
                 || $self->throw("$self is not a Bio::Seq::MetaI");
