@@ -22,15 +22,17 @@
 
 =head1 NAME
 
-RelationshipI - DESCRIPTION of Interface
+RelationshipI - Interface for a relationship between ontology terms
 
 =head1 SYNOPSIS
 
-Give standard usage here
+    # see documentation of methods and an implementation, e.g.,
+    # Bio::Ontology::Relationship
 
 =head1 DESCRIPTION
 
-Describe the interface here
+This is the minimal interface for a relationship between two terms in
+an ontology. Ontology engines will use this.
 
 =head1 FEEDBACK
 
@@ -50,7 +52,7 @@ of the bugs and their resolution. Bug reports can be submitted via
 email or the web:
 
   bioperl-bugs@bioperl.org
-  http://bioperl.org/bioperl-bugs/
+  http://bugzilla.bioperl.org/
 
 =head1 AUTHOR - Peter Dimitrov
 
@@ -76,83 +78,64 @@ Internal methods are usually preceded with a _
 package Bio::Ontology::RelationshipI;
 use vars qw(@ISA);
 use strict;
-use Carp;
-use Bio::Root::Root;
+use Bio::Root::RootI;
 
-@ISA = qw( Bio::Root::Root );
+@ISA = qw( Bio::Root::RootI );
 
 =head2 identifier
 
  Title   : identifier
- Usage   :
- Function:
- Example :
- Returns : 
- Args    :
-
+ Usage   : print $rel->identifier();
+ Function: Set/get for the identifier of this Relationship.
+ Returns : The identifier [scalar].
+ Args    : 
 
 =cut
 
 sub identifier{
-  my ($self) = @_;
-
-  $self->throw("Abstract method identifier implementing class did not provide method");
+    shift->throw_not_implemented();
 }
 
 =head2 parent_term
 
  Title   : parent_term
- Usage   :
- Function:
- Example :
- Returns : 
- Args    :
-
+ Usage   : $parent = $rel->parent_term();
+ Function: Set/get for the parent term of this Relationship.
+ Returns : The parent term [Bio::Ontology::TermI].
+ Args    : 
 
 =cut
 
 sub parent_term{
-  my ($self) = @_;
-
-  $self->throw("Abstract method parent_term implementing class did not provide method");
-
-
+    shift->throw_not_implemented();
 }
 
 =head2 child_term
 
  Title   : child_term
- Usage   :
- Function:
- Example :
- Returns : 
- Args    :
-
+ Usage   : $child = $rel->child_term();
+ Function: Set/get for the child term of this Relationship.
+ Returns : The child term [Bio::Ontology::TermI].
+ Args    : 
 
 =cut
 
 sub child_term{
-  my ($self) = @_;
-
-  $self->throw("Abstract method child_term implementing class did not provide method");
+    shift->throw_not_implemented();
 }
 
 =head2 relationship_type
 
  Title   : relationship_type
- Usage   :
- Function:
- Example :
- Returns : 
- Args    :
-
+ Usage   : $type = $rel->relationship_type();
+ Function: Set/get for the relationship type of this relationship.
+ Returns : The relationship type [Bio::Ontology::TermI].
+ Args    : 
 
 =cut
 
 sub relationship_type{
-  my ($self) = @_;
-
-  $self->throw("Abstract method relationship_type implementing class did not provide method");
+    shift->throw_not_implemented();
 }
 
 

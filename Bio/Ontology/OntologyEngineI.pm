@@ -22,15 +22,30 @@
 
 =head1 NAME
 
-OntologyEngineI - DESCRIPTION of Interface
+OntologyEngineI - Interface a minimal Ontology implementation should satisfy
 
 =head1 SYNOPSIS
 
-Give standard usage here
+    # see documentation of methods
 
 =head1 DESCRIPTION
 
-Describe the interface here
+This describes the minimal interface an Ontology implementation should
+provide.  It intentionally doesn't make explicit references to the
+ontology being a DAG, nor does it mandate that the ontology be a
+vocabulary. Rather, it tries to generally express what should be
+accessible about an ontology.
+
+The idea is to allow for different implementations for different
+purposes, which may then differ as to which operations are efficient
+and which aren't, and how much richer the functionality is on top of
+this minimalistic set of methods. Check modules in the Bio::Ontology
+namespace to find out which implementations exist. At the time of
+writing, there is a SimpleOntologyEngine (which does not use
+Graph.pm), and a Graph.pm-based implementation in SimpleGOEngine.
+
+Ontology parsers in Bio::OntologyIO are required to return an
+implementation of this interface.
 
 =head1 FEEDBACK
 
@@ -50,7 +65,7 @@ of the bugs and their resolution. Bug reports can be submitted via
 email or the web:
 
   bioperl-bugs@bioperl.org
-  http://bioperl.org/bioperl-bugs/
+  http://bugzilla.bioperl.org/
 
 =head1 AUTHOR - Peter Dimitrov
 
@@ -85,56 +100,49 @@ use Bio::Root::RootI;
 
  Title   : add_term
  Usage   : add_term(TermI term): TermI
- Function:
- Example :
- Returns : 
- Args    :
+ Function: Adds TermI object to the ontology engine term store
+ Example : $oe->add_term($term)
+ Returns : its argument.
+ Args    : object of class TermI.
 
 
 =cut
 
 sub add_term{
-  my ($self) = @_;
-
-  $self->throw("Abstract method add_term implementing class did not provide method");
+    shift->throw_not_implemented();
 }
 
 =head2 add_relationship
 
  Title   : add_relationship
- Usage   : add_relationship(RelationshipI relationship)
+ Usage   : add_relationship(RelationshipI relationship): RelationshipI
   add_relatioship(TermI parent, TermI child, TermI relationship_type)
- Function:
+ Function: Adds a relationship object to the ontology engine.
  Example :
- Returns : 
- Args    :
+ Returns : Its argument.
+ Args    : A RelationshipI object.
 
 
 =cut
 
 sub add_relationship{
-  my ($self, $relationship) = @_;
-
-  $self->throw("Abstract method add_relationship implementing class did not provide method");
-
+    shift->throw_not_implemented();
 }
 
 =head2 get_relationships
 
  Title   : get_relationships
- Usage   : get_relationships([TermI term]): RelationshipI[]
- Function:
+ Usage   : get_relationships(): RelationshipI[]
+ Function: Retrieves all relationship objects.
  Example :
- Returns : 
+ Returns : Array of RelationshipI objects
  Args    :
 
 
 =cut
 
 sub get_relationships{
-  my ($self) = @_;
-
-  $self->throw("Abstract method get_relationships implementing class did not provide method");
+    shift->throw_not_implemented();
 }
 
 =head2 get_relationship_types
@@ -150,118 +158,126 @@ sub get_relationships{
 =cut
 
 sub get_relationship_types{
-  my ($self) = @_;
-
-  $self->throw("Abstract method get_relationship_types implementing class did not provide method");
+    shift->throw_not_implemented();
 }
 
 =head2 get_child_terms
 
  Title   : get_child_terms
- Usage   : get_child_terms(TermI term, TermI[] rel_types): TermI[]
- Function:
- Example :
+ Usage   : get_child_terms(TermI term, TermI[] relationship_types): TermI[]
+ Function: Retrieves all child terms of a given term, that satisfy a
+           relationship among those that are specified in the second
+           argument or undef otherwise. get_child_terms is a special
+           case of get_descendant_terms, limiting the search to the
+           direct descendants.
 
- Returns :
- Args    :
+ Example :
+ Returns : Array of TermI objects.
+ Args    : First argument is the term of interest, second is the list
+           of relationship type terms.
 
 
 =cut
 
 sub get_child_terms{
-  my ($self) = @_;
-
-  $self->throw("Abstract method get_child_terms implementing class did not provide method");
+    shift->throw_not_implemented();
 }
 
 =head2 get_descendant_terms
 
  Title   : get_descendant_terms
  Usage   : get_descendant_terms(TermI term, TermI[] rel_types): TermI[]
- Function:
+ Function: Retrieves all descendant terms of a given term, that
+           satisfy a relationship among those that are specified in
+           the second argument or undef otherwise. 
  Example :
- Returns : 
- Args    :
+ Returns : Array of TermI objects.
+ Args    : First argument is the term of interest, second is the list
+           of relationship type terms.
 
 
 =cut
 
 sub get_descendant_terms{
-  my ($self) = @_;
-
-  $self->throw("Abstract method get_descendant_terms implementing class did not provide method");
+    shift->throw_not_implemented();
 }
 
 =head2 get_parent_terms
 
  Title   : get_parent_terms
- Usage   : get_parent_terms(TermI term, TermI[] rel_types): TermI[]
- Function:
+ Usage   : get_parent_terms(TermI term, TermI[] relationship_types): TermI[]
+ Function: Retrieves all parent terms of a given term, that satisfy a
+           relationship among those that are specified in the second
+           argument or undef otherwise. get_parent_terms is a special
+           case of get_ancestor_terms, limiting the search to the
+           direct ancestors.
+
  Example :
- Returns : 
- Args    :
+ Returns : Array of TermI objects.
+ Args    : First argument is the term of interest, second is the list
+           of relationship type terms.
 
 
 =cut
 
 sub get_parent_terms{
-  my ($self) = @_;
-
-  $self->throw("Abstract method get_parent_terms implementing class did not provide method");
+    shift->throw_not_implemented();
 }
 
 =head2 get_ancestor_terms
 
  Title   : get_ancestor_terms
- Usage   : get_ancestor_terms(TermI term, TermI[] rel_types): TermI[]
- Function:
+ Usage   : get_ancestor_terms(TermI term, TermI[] relationship_types): TermI[]
+ Function: Retrieves all ancestor terms of a given term, that satisfy
+           a relationship among those that are specified in the second
+           argument or undef otherwise. 
+
  Example :
- Returns : 
- Args    :
+ Returns : Array of TermI objects.
+ Args    : First argument is the term of interest, second is the list
+           of relationship type terms.
 
 
 =cut
 
 sub get_ancestor_terms{
-  my ($self) = @_;
-
-  $self->throw("Abstract method get_ancestor_terms implementing class did not provide method");
+    shift->throw_not_implemented();
 }
 
 =head2 get_leaf_terms
 
  Title   : get_leaf_terms
- Usage   :
- Function:
- Example :
- Returns : 
+ Usage   : get_leaf_terms(): TermI[]
+ Function: Retrieves all leaf terms from the ontology. Leaf term is a
+           term w/o descendants.
+
+ Example : @leaf_terms = $obj->get_leaf_terms()
+ Returns : Array of TermI objects.
  Args    :
 
 
 =cut
 
 sub get_leaf_terms{
-  my ($self) = @_;
-
-  $self->throw("Abstract method get_leaf_terms implementing class did not provide method");
+    shift->throw_not_implemented();
 }
 
 =head2 get_root_terms()
 
- Title   : get_root_terms()
- Usage   : get_root_terms()
- Function:
- Example :
- Returns : 
+ Title   : get_root_terms
+ Usage   : get_root_terms(): TermI[]
+ Function: Retrieves all root terms from the ontology. Root term is a
+           term w/o descendants.
+
+ Example : @root_terms = $obj->get_root_terms()
+ Returns : Array of TermI objects.
  Args    :
 
 
 =cut
 
 sub get_root_terms(){
-  my ($self) = @_;
-
-  $self->throw("Abstract method get_root_terms() implementing class did not provide method");
+    shift->throw_not_implemented();
 }
 
 1;

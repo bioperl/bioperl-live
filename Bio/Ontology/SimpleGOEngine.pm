@@ -219,13 +219,14 @@ sub part_of_relationship {
 sub add_term {
     my ( $self, $term ) = @_;
 
-    $self->_check_class( $term, "Bio::Ontology::GOterm" );
-
-    my $goid = $term->GO_id();
-
-    if ( $self->graph()->has_vertex( $term ) ) {
-        $self->throw( "Ontology already contains a GO term with an identifier of \"$goid\"" );
+    if ( $self->has_term( $term ) ) {
+        $self->throw("Ontology already contains a GO term with an ".
+		     "identifier of \"".$self->_get_id($term)."\"" );
     }
+    # type is actually checked already in has_term(), so we can omit that here
+    #$self->_check_class( $term, "Bio::Ontology::GOterm" );
+
+    my $goid = $self->_get_id($term);
 
     $self->graph()->add_vertex( $goid );
     $self->graph()->set_attribute( TERM, $goid, $term );
