@@ -69,6 +69,7 @@ use strict;
 use Bio::Root::RootI;
 use LWP::UserAgent;
 use HTTP::Request::Common;
+use HTML::Parser;
 
 use vars qw(@ISA $BASEADDRESS %PARAMSTRING $MODVERSION);
 
@@ -241,8 +242,8 @@ sub get_info {
 					 $text =~ /Seq Max Len/i) ) {
 				   $state = 3;
 			       }  elsif ( $state == 4 ) {
-				   my ($len) = ( $text =~ /0\.(\d+)\d/ );
-				   $length = $len;
+				   my ($len) = ( $text =~ /\d+\.(\d+)\d/ );
+				   $length = 1000 * $len;
 				   $state = 0;
 			       } elsif( $lasttag eq 'dd' && 
 					$text =~ /(GDB:\d+)/i ) {
