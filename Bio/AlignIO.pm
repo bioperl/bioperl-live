@@ -10,7 +10,7 @@
 #
 # You may distribute this module under the same terms as perl itself
 #
-# _history
+# History
 # October 18, 1999  SeqIO largely rewritten by Lincoln Stein
 # September, 2000 AlignIO written by Peter Schattner
 
@@ -25,57 +25,56 @@ Bio::AlignIO - Handler for AlignIO Formats
     use Bio::AlignIO;
 
     $inputfilename = "testaln.fasta";
-    $in  = Bio::AlignIO->new(-file => $inputfilename ,
-                             '-format' => 'fasta');
-    $out = Bio::AlignIO->new(-file => ">out.aln.pfam" ,
-                             '-format' => 'pfam');
-    # note: we quote -format to keep older perl's from complaining.
+    $in  = Bio::AlignIO->new(-file   => $inputfilename ,
+                             -format => 'fasta');
+    $out = Bio::AlignIO->new(-file   => ">out.aln.pfam" ,
+                             -format => 'pfam');
 
     while ( my $aln = $in->next_aln() ) {
         $out->write_aln($aln);
     }
 
- #or
+Or:
 
     use Bio::AlignIO;
 
-    $inputfilename = "testaln.fasta";
-    $in  = Bio::AlignIO->newFh(-file => $inputfilename ,
-                               '-format' => 'fasta');
-    $out = Bio::AlignIO->newFh('-format' => 'pfam');
+    open MYIN,"testaln.fasta";
+    $in  = Bio::AlignIO->newFh(-fh     => \*MYIN,
+                               -format => 'fasta');
+    $out = Bio::AlignIO->newFh(-fh     =>  \*MYOUT,
+                               -format => 'pfam');
 
-    # World's shortest Fasta<->pfam format converter:
+    # World's smallest Fasta<->pfam format converter:
     print $out $_ while <$in>;
 
 =head1 DESCRIPTION
 
 Bio::AlignIO is a handler module for the formats in the AlignIO set
-(eg, Bio::AlignIO::fasta). It is the officially sanctioned way of
-getting at the alignment objects, which most people should use. The
-resulting alignment is a Bio::Align::AlignI compliant object. See
-L<Bio::Align::AlignI> for more information.
+(e.g. Bio::AlignIO::fasta). It is the officially sanctioned way of
+getting at the alignment objects. The resulting alignment is a
+Bio::Align::AlignI-compliant object. See L<Bio::Align::AlignI>
+for more information.
 
-The idea is that you request a stream object for a particular format.
-All the stream objects have a notion of an internal file that is read
+The idea is that you request an object for a particular format.
+All the objects have a notion of an internal file that is read
 from or written to. A particular AlignIO object instance is configured
-for either input or output. A specific example of a stream object is
-the Bio::AlignIO::fasta object.
+for either input or output, you can think of it as a stream object.
 
-Each stream object has functions
+Each object has functions:
 
    $stream->next_aln();
 
-and
+And:
 
    $stream->write_aln($aln);
 
-also
+Also:
 
    $stream->type() # returns 'INPUT' or 'OUTPUT'
 
 As an added bonus, you can recover a filehandle that is tied to the
 AlignIO object, allowing you to use the standard E<lt>E<gt> and print
-operations to read and write sequence objects:
+operations to read and write alignment objects:
 
     use Bio::AlignIO;
 
@@ -86,29 +85,12 @@ operations to read and write sequence objects:
 	# do something with $aln
     }
 
-and
+And:
 
     print $stream $aln; # when stream is in output mode
 
-This makes the simplest ever reformatter
-
-    #!/usr/local/bin/perl
-
-    $format1 = shift;
-    $format2 = shift ||
-        die "Usage: reformat format1 format2 < input > output";
-
-    use Bio::AlignIO;
-
-    $in  = Bio::AlignIO->newFh(-format => $format1 );
-    $out = Bio::AlignIO->newFh(-format => $format2 );
-    # note: you might want to quote -format to keep 
-    #  older perl's from complaining.
-
-    print $out $_ while <$in>;
-
 AlignIO.pm is patterned on the module SeqIO.pm and shares most the
-SeqIO.pm features.  One significant difference currently is that
+SeqIO.pm features.  One significant difference is that
 AlignIO.pm usually handles IO for only a single alignment at a time
 (SeqIO.pm handles IO for multiple sequences in a single stream.)  The
 principal reason for this is that whereas simultaneously handling
@@ -118,13 +100,6 @@ multiple alignments is not. The only current exception is format
 may produce several alignment pairs.  This set of alignment pairs can
 be read using multiple calls to next_aln.
 
-Capability for IO for more than one multiple alignment - other than
-for bl2seq format -(which may be of use for certain applications such
-as IO for Pfam libraries) may be included in the future.  For this
-reason we keep the name "next_aln()" for the alignment input routine,
-even though in most cases only one alignment is read (or written) at a
-time and the name "read_aln()" might be more appropriate.
-
 =head1 CONSTRUCTORS
 
 =head2 Bio::AlignIO-E<gt>new()
@@ -132,9 +107,10 @@ time and the name "read_aln()" might be more appropriate.
    $seqIO = Bio::AlignIO->new(-file => 'filename',   -format=>$format);
    $seqIO = Bio::AlignIO->new(-fh   => \*FILEHANDLE, -format=>$format);
    $seqIO = Bio::AlignIO->new(-format => $format);
+   $seqIO = Bio::AlignIO->new(-fh => \*STDOUT, -format => $format);
 
 The new() class method constructs a new Bio::AlignIO object.  The
-returned object can be used to retrieve or print BioAlign
+returned object can be used to retrieve or print alignment
 objects. new() accepts the following parameters:
 
 =over 4
@@ -202,18 +178,18 @@ all supported.
 =head2 Bio::AlignIO-E<gt>newFh()
 
    $fh = Bio::AlignIO->newFh(-fh   => \*FILEHANDLE, -format=>$format);
+   # read from STDIN or use @ARGV:
    $fh = Bio::AlignIO->newFh(-format => $format);
-   # etc.
 
 This constructor behaves like new(), but returns a tied filehandle
 rather than a Bio::AlignIO object.  You can read sequences from this
-object using the familiar E<lt>E<gt> operator, and write to it using print().
-The usual array and $_ semantics work.  For example, you can read all
-sequence objects into an array like this:
+object using the familiar E<lt>E<gt> operator, and write to it using 
+print(). The usual array and $_ semantics work.  For example, you can 
+read all sequence objects into an array like this:
 
   @sequences = <$fh>;
 
-Other operations, such as read(), sysread(), write(), close(), and printf() 
+Other operations, such as read(), sysread(), write(), close(), and printf()
 are not supported.
 
 =over 1
@@ -221,17 +197,17 @@ are not supported.
 =item -flush
 
 By default, all files (or filehandles) opened for writing alignments
-will be flushed after each write_aln() (making the file immediately
-usable).  If you don't need this facility and would like to marginally
+will be flushed after each write_aln() making the file immediately
+usable.  If you don't need this facility and would like to marginally
 improve the efficiency of writing multiple sequences to the same file
 (or filehandle), pass the -flush option '0' or any other value that
 evaluates as defined but false:
 
-  my $clustal = new Bio::AlignIO -file   => "<prot.aln",
-                          -format => "clustalw";
-  my $msf = new Bio::AlignIO -file   => ">prot.msf",
-                          -format => "msf",
-                          -flush  => 0; # go as fast as we can!
+  my $clustal = Bio::AlignIO->new( -file   => "<prot.aln",
+                                   -format => "clustalw" );
+  my $msf = Bio::AlignIO->new(-file   => ">prot.msf",
+                              -format => "msf",
+                              -flush  => 0 ); # go as fast as we can!
   while($seq = $clustal->next_aln) { $msf->write_aln($seq) }
 
 =back
