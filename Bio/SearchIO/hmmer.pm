@@ -72,10 +72,6 @@ Internal methods are usually preceded with a _
 
 =cut
 
-
-# Let the code begin...
-
-
 package Bio::SearchIO::hmmer;
 use vars qw(@ISA);
 use strict;
@@ -85,6 +81,7 @@ use vars qw(@ISA %MAPPING %MODEMAP
 	    $DEFAULT_RESULT_FACTORY_CLASS  
 	    );
 use Bio::SearchIO;
+use Bio::Factory::ObjectFactory;
 
 @ISA = qw(Bio::SearchIO );
 
@@ -151,9 +148,23 @@ BEGIN {
 sub _initialize {
     my ($self,@args) = @_;
     $self->SUPER::_initialize(@args);
-    $self->_eventHandler->register_factory('result', Bio::Search::Result::ResultFactory->new(-type => 'Bio::Search::Result::HMMERResult'));
-    $self->_eventHandler->register_factory('hit', Bio::Search::Result::ResultFactory->new(-type => 'Bio::Search::Hit::HMMERHit'));
-    $self->_eventHandler->register_factory('hsp', Bio::Search::Result::ResultFactory->new(-type => 'Bio::Search::HSP::HMMERHSP'));
+    my $handler = $self->_eventHandler;
+    # new object initialization code
+    $handler->register_factory('result',
+                               Bio::Factory::ObjectFactory->new(
+                                      -type      => 'Bio::Search::Result::HMMERResult',
+                                      -interface => 'Bio::Search::Result::ResultI'));
+
+    $handler->register_factory('hit', 
+                               Bio::Factory::ObjectFactory->new(
+                                       -type      => 'Bio::Search::Hit::HMMERHit',
+                                       -interface => 'Bio::Search::Hit::HitI'));
+
+    $handler->register_factory('hsp', 
+                               Bio::Factory::ObjectFactory->new(
+                                       -type      => 'Bio::Search::HSP::HMMERHSP',
+                                       -interface => 'Bio::Search::HSP::HSPI'));
+    $self->{'_hmmidline'} = 'HMMER 2.2g (August 2001)';
 }
 =head2 next_result
 
@@ -245,16 +256,23 @@ sub next_result{
 	       while( defined($_ = $self->_readline) ) {
 		   last if( /^\s+$/);
 		   next if( /^(Model|Sequence)\s+Domain/o || /^\-\-\-/o );
-		   chomp;
-		   if( my ($n,$domainnum,$domainct, @vals) = (/(\S+)\s+(\d+)\/(\d+)\s+(\d+)\s+(\d+).+?(\d+)\s+(\d+)\s+\S+\s+(\S+)\s+(\S+)\s*$/o) ) {
-		       # array lookup so that we can get rid of things 
-		       # when they've been processed
-		       my $info = $hitinfo[$hitinfo{$n}];
-		       if( !defined $info ) { 
-			   $self->warn("incomplete Sequence information, can't find $n hitinfo says $hitinfo{$n}"); 
-			   next;
-		       }
-		       push @hspinfo, [ $n, @vals];
+		   if( my ($n,$domainnum,$domainct, @vals) = 
+		       (m!^(\S+)\s+      # host name
+			(\d+)/(\d+)\s+   # num/num (ie 1 of 2) 
+			(\d+)\s+(\d+).+? # sequence start and end
+			(\d+)\s+(\d+)\s+ # hmm start and end
+			\S+\s+           # []
+			(\S+)\s+         # score
+			(\S+)            # evalue
+			\s*$!ox ) ) {
+                       # array lookup so that we can get rid of things 
+                       # when they've been processed
+                       my $info = $hitinfo[$hitinfo{$n}];
+                       if( !defined $info ) { 
+                           $self->warn("Incomplete Sequence information, can't find $n hitinfo says $hitinfo{$n}"); 
+                           next;
+                       }
+                       push @hspinfo, [ $n, @vals];
 		   }
 	       }
 	   } elsif( /^Alignments of top/o  ) {
@@ -450,8 +468,28 @@ sub next_result{
 		   last if( /^\s+$/);
 		   next if( /^Model\s+Domain/o || /^\-\-\-/o );
 		   chomp;
-		   if( my @vals = (/(\S+)\s+\S+\s+(\d+)\s+(\d+).+?(\d+)\s+(\d+)\s+\S+\s+(\S+)\s+(\S+)\s*$/o) ) {
-		       push @hspinfo, [ @vals ];
+		   if( my ($n,$domainnum,$domainct,@vals) = 
+			   (m!^(\S+)\s+         # domain name
+			    \s+(\d+)/(\d+)\s+   # domain num out of num
+			    (\d+)\s+(\d+).+?    # seq start, end
+			    (\d+)\s+(\d+)\s+    # hmm start, end
+			    \S+\s+              # []
+			    (\S+)\s+            # score       
+			    (\S+)               # evalue
+			    \s*$!ox ) ) {
+		       my $hindex = $hitinfo{$n};
+		       if( ! defined $hindex ) {
+			   push @hitinfo, [ $n, '',$vals[5],$vals[6],
+					    $domainct];
+			   $hitinfo{$n} = $#hitinfo;
+			   $hindex = $#hitinfo;
+		       }
+		       my $info = $hitinfo[$hindex];
+                       if( ! defined $info ) { 
+                           $self->warn("incomplete Domain information, can't find $n hitinfo says $hitinfo{$n}"); 
+                           next;
+                       }
+                       push @hspinfo, [ $n, @vals];
 		   }
 	       }
 	   } elsif( /^Alignments of top/o  ) {
@@ -474,7 +512,7 @@ sub next_result{
 		       last;
 		   }
 		   chomp;
-		   if( /^\s*(\S+):.*from\s+(\d+)\s+to\s+(\d+)/o ) {
+		   if( m/(\S+):.*from\s+(\d+)\s+to\s+(\d+)/o ) {
 		       my ($name,$from,$to) = ($1,$2,$3);
 		       if( ! defined $lastdomain || $lastdomain ne $name ) {
 			   
@@ -486,8 +524,14 @@ sub next_result{
 			   }
 			   $self->start_element({'Name' => 'Hit'});
 			   my $info = [@{$hitinfo[$hitinfo{$name}]}];
-			   if( $info->[0] ne $name ) { 
-			       $self->throw("Somehow the Model table order does not match the order in the domains (got ".$info->[0].", expected $name)"); 
+			   if( ! defined $info ||
+			       $info->[0] ne $name ) {
+			       $self->warn("Somehow the Model table order does not match the order in the domains (got ".$info->[0].", expected $name). We're
+back loading this from the alignment information instead");
+				$info = [$name, '',
+					 /score\s+([^,\s]+),\s+E\s+=\s+(\S+)/ox];
+			       push @hitinfo, $info;
+			       $hitinfo{$name} = $#hitinfo;
 			   }
 
 			   $self->element({'Name' => 'Hit_id',
