@@ -56,7 +56,7 @@ methods. Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::SeqIO::ztr;
-use vars qw(@ISA);
+use vars qw(@ISA $READ_AVAIL);
 use strict;
 # Object preamble - inherits from Bio::Root::Object
 
@@ -68,11 +68,10 @@ push @ISA, qw( Bio::SeqIO );
 sub BEGIN {
     eval { require Bio::SeqIO::staden::read; };
     if ($@) {
-	Bio::Root::Root->throw( -class => 'Bio::Root::SystemException',
-				-text  => "Bio::SeqIO::staden::read is not available; make sure the bioperl-ext package has been installed successfully!"
-			      );
+	$READ_AVAIL = 0;
     } else {
 	push @ISA, "Bio::SeqIO::staden::read";
+	$READ_AVAIL = 1;
     }
 }
 
@@ -80,12 +79,18 @@ sub _initialize {
   my($self,@args) = @_;
   $self->SUPER::_initialize(@args);  
   if( ! defined $self->sequence_factory ) {
-      $self->sequence_factory(new Bio::Seq::SeqFactory(-verbose => $self->verbose(), -type => 'Bio::Seq::SeqWithQuality'));      
+      $self->sequence_factory(new Bio::Seq::SeqFactory(-verbose => $self->verbose(), -type => 'Bio::Seq'));      
   }
 
   my ($compression) = $self->_rearrange([qw[COMPRESSION]], @args);
   $compression = 2 unless defined $compression;
   $self->compression($compression);
+
+  unless ($READ_AVAIL) {
+      Bio::Root::Root->throw( -class => 'Bio::Root::SystemException',
+			      -text  => "Bio::SeqIO::staden::read is not available; make sure the bioperl-ext package has been installed successfully!"
+			    );
+  }
 }
 
 =head2 next_seq
