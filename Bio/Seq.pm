@@ -1030,31 +1030,15 @@ sub primary_seq {
 
 sub add_SeqFeature {
    my ($self,@feat) = @_;
-   my ($fseq,$aseq);
-
 
    foreach my $feat ( @feat ) {
        if( !$feat->isa("Bio::SeqFeatureI") ) {
 	   $self->throw("$feat is not a SeqFeatureI and that's what we expect...");
        }
 
-       if( $feat->can("entire_seq") ) {
-	   $fseq = $feat->entire_seq;
-	   $aseq = $self->primary_seq;
-
-	   if( defined $aseq ) {
-	       if( defined $fseq ) {
-		   unless ($aseq == $fseq) {
-		       $self->warn("$feat has an attached sequence which is not in this annseq. I worry about this");
-		   }
-	       } else {
-		   if( $feat->can("attach_seq") ) {
-		       # attach it
-		       $feat->attach_seq($aseq);
-		   }
-	       }
-	   } # end of if aseq
-       } # end of if the feat can entire_seq
+       # make sure we attach ourselves to the feature if the feature wants it
+       my $aseq = $self->primary_seq;
+       $feat->attach_seq($aseq) if $aseq;
 
        push(@{$self->{'_as_feat'}},$feat);
    }

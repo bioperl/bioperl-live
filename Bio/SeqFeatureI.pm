@@ -221,9 +221,24 @@ sub all_tags{
  Function: Attaches a Bio::Seq object to this feature. This
            Bio::Seq object is for the *entire* sequence: ie
            from 1 to 10000
+
+           Note that it is not guaranteed that if you obtain a feature from
+           an object in bioperl, it will have a sequence attached. Also,
+           implementors of this interface can choose to provide an empty
+           implementation of this method. I.e., there is also no guarantee 
+           that if you do attach a sequence, seq() or entire_seq() will not
+           return undef.
+
+           The reason that this method is here on the interface is to enable
+           you to call it on every SeqFeatureI compliant object, and
+           that it will be implemented in a useful way and set to a useful 
+           value for the great majority of use cases. Implementors who choose
+           to ignore the call are encouraged to specifically state this in
+           their documentation.
+
  Example :
  Returns : TRUE on success
- Args    :
+ Args    : a Bio::PrimarySeqI compliant object
 
 
 =cut
@@ -239,7 +254,8 @@ sub attach_seq {
  Function: returns the truncated sequence (if there is a sequence attached) 
            for this feature
  Example :
- Returns : sub seq (a string) on attached sequence bounded by start & end
+ Returns : sub seq (a Bio::PrimarySeqI compliant object) on attached sequence
+           bounded by start & end, or undef if there is no sequence attached
  Args    : none
 
 
@@ -255,8 +271,9 @@ sub seq {
  Usage   : $whole_seq = $sf->entire_seq()
  Function: gives the entire sequence that this seqfeature is attached to
  Example :
- Returns : a Bio::PrimarySeqI compliant object
- Args    :
+ Returns : a Bio::PrimarySeqI compliant object, or undef if there is no
+           sequence attached
+ Args    : none
 
 
 =cut

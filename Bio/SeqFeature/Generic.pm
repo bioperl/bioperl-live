@@ -616,7 +616,7 @@ sub remove_tag {
            from 1 to 10000
  Example :
  Returns : TRUE on success
- Args    :
+ Args    : a Bio::PrimarySeqI compliant object
 
 
 =cut
@@ -624,19 +624,17 @@ sub remove_tag {
 sub attach_seq {
    my ($self, $seq) = @_;
 
-   if ( !defined $seq || !ref $seq || ! $seq->isa("Bio::PrimarySeqI") ) {
+   if ( ! ($seq && ref($seq) && $seq->isa("Bio::PrimarySeqI")) ) {
        $self->throw("Must attach Bio::PrimarySeqI objects to SeqFeatures");
    }
 
    $self->{'_gsf_seq'} = $seq;
 
    # attach to sub features if they want it
-
-   foreach my $sf ( $self->sub_SeqFeature() ) {
-       if ( $sf->can("attach_seq") ) {
-	   $sf->attach_seq($seq);
-       }
+   foreach ( $self->sub_SeqFeature() ) {
+       $_->attach_seq($seq);
    }
+
    return 1;
 }
 
@@ -646,7 +644,8 @@ sub attach_seq {
  Usage   : $tseq = $sf->seq()
  Function: returns the truncated sequence (if there) for this
  Example :
- Returns : sub seq on attached sequence bounded by start & end
+ Returns : sub seq (a Bio::PrimarySeqI compliant object) on attached sequence
+           bounded by start & end, or undef if there is no sequence attached
  Args    : none
 
 
@@ -686,7 +685,8 @@ sub seq {
  Usage   : $whole_seq = $sf->entire_seq()
  Function: gives the entire sequence that this seqfeature is attached to
  Example :
- Returns :
+ Returns : a Bio::PrimarySeqI compliant object, or undef if there is no
+           sequence attached
  Args    :
 
 
@@ -695,7 +695,6 @@ sub seq {
 sub entire_seq {
    my ($self) = @_;
 
-   return undef unless exists($self->{'_gsf_seq'});
    return $self->{'_gsf_seq'};
 }
 
