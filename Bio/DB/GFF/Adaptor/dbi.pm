@@ -1246,16 +1246,16 @@ there must be a blank line between each of the CREATE statements:
 
  create table fgroup (
      gid	    int not null  auto_increment,
-     gclass  varchar(20),
-     gname   varchar(100),
+     gclass  varchar(255),
+     gname   varchar(255),
      primary key(gid),
      unique(gclass,gname)
  )
 
  create table ftype (
      ftypeid      int not null   auto_increment,
-     fmethod       varchar(30) not null,
-     fsource       varchar(30),
+     fmethod       varchar(255) not null,
+     fsource       varchar(255),
      primary key(ftypeid),
      index(fmethod),
      index(fsource),
@@ -1263,7 +1263,7 @@ there must be a blank line between each of the CREATE statements:
  )
 
  create table fdna (
-     fref          varchar(20) not null,
+     fref          varchar(255) not null,
      fdna          longblob not null,
      primary key(fref)
  )

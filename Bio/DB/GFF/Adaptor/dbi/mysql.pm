@@ -835,7 +835,7 @@ sub schema {
   return split "\n\n",<<END;
 create table fdata (
     fid	         int not null  auto_increment,
-    fref         varchar(20)    not null,
+    fref         varchar(100)    not null,
     fstart       int unsigned   not null,
     fstop        int unsigned   not null,
     ftypeid      int not null,
@@ -853,7 +853,7 @@ create table fdata (
 
 create table fgroup (
     gid	    int not null  auto_increment,
-    gclass  varchar(20),
+    gclass  varchar(100),
     gname   varchar(100),
     primary key(gid),
     unique(gclass,gname)
@@ -861,8 +861,8 @@ create table fgroup (
 
 create table ftype (
     ftypeid      int not null   auto_increment,
-    fmethod       varchar(30) not null,
-    fsource       varchar(30),
+    fmethod       varchar(100) not null,
+    fsource       varchar(100),
     primary key(ftypeid),
     index(fmethod),
     index(fsource),
@@ -870,7 +870,7 @@ create table ftype (
 )
 
 create table fdna (
-		fref    varchar(20) not null,
+		fref    varchar(100) not null,
 	        foffset int(10) unsigned not null,
 	        fdna    longblob,
 		primary key(fref,foffset)
@@ -884,8 +884,8 @@ create table fnote (
 )
 
 create table fmeta (
-		fname   char(255) not null,
-	        fvalue  char(255) not null,
+		fname   varchar(255) not null,
+	        fvalue  varchar(255) not null,
 		primary key(fname)
 )
 
