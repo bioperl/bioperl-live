@@ -1,15 +1,7 @@
-# -*-Perl-*-
-## Bioperl Test Harness Script for Modules
-## $Id$
-
-# Before `make install' is performed this script should be runnable with
-# `make test'. After `make install' it should work as `perl test.t'
-
 use strict;
+use Bio::Root::IO; # needed for the BEGIN block
+
 BEGIN {	
-    # to handle systems with no installed Test module
-    # we include the t dir (where a copy of Test.pm is located)
-    # as a fallback
     eval { require Test; };
     if( $@ ) { 
 	use lib 't';
@@ -19,7 +11,7 @@ BEGIN {
     plan tests => 29;
     use vars qw($loaded $testout $expectedout);
     $testout = "blast.t.out";  # output from this script.
-    $expectedout = 't/expected.blast.out';
+    $expectedout = Bio::Root::IO->catfile("t","expected.blast.out");
     unlink $testout;
     $^W = 0; 
 }
@@ -29,7 +21,6 @@ END {
 }
 
 use Bio::Tools::Blast;
-use Bio::Root::IO;
 $loaded = 1;
 
 my($blast,@hits,@inds,$cfile,$ufile);
@@ -50,7 +41,6 @@ ok $blast->length, 504;
 ok $blast->program, 'TBLASTN';
 ok $blast->query,  'gi|1401126';
 ok $blast->hit->name, 'gb|U49928|HSU49928';
-#print STDERR "Hit is ",$blast->hit->name,"\n";
 ok $blast->hit->length, 3096;
 
 @hits  = $blast->hits;
@@ -63,11 +53,9 @@ ok $hits[1]->hsp->frac_conserved, '0.43';
 ok $hits[1]->hsp->score, 137;
 ok $hits[1]->hsp->bits, '57.8';
 
-# Sequence index testing.
 ok scalar (@inds = $hits[1]->hsp->seq_inds('query', 'iden', 1));
 ok $inds[0], '66-68';
 
-# Output testing.
 ok print OUT $blast->table_labels;
 ok print OUT $blast->table;
 print OUT "\n\n";

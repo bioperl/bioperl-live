@@ -1,16 +1,8 @@
-# -*-Perl-*-
-## Bioperl Test Harness Script for Modules
-## $Id$
 
-# Before `make install' is performed this script should be runnable with
-# `make test'. After `make install' it should work as `perl test.t'
 
 use strict;
 use vars qw($NUMTESTS);
 BEGIN { 
-    # to handle systems with no installed Test module
-    # we include the t dir (where a copy of Test.pm is located
-    # as a fallback
     eval { require Test; };
     if( $@ ) {
 	use lib 't';
@@ -30,6 +22,7 @@ BEGIN {
 
 use Text::Wrap 98;
 use Bio::Variation::IO;
+use Bio::Root::IO;
 
 sub fileformat ($) {
     my ($file) = shift;
@@ -58,9 +51,6 @@ sub filename ($) {
     return $name;
 }
 
-#
-#  read and write test
-#
 sub io {
     my ($t_file, $o_file) = @_; 
     my $res;
@@ -83,7 +73,6 @@ sub io {
 
     ok $before;#"Error in reading input file [$t_name.$o_ext]";
 
-    # Test reading
     my $in = Bio::Variation::IO->new( -file => $t_file);
     my  @entries ;
     while (my $e = $in->next) {
@@ -92,7 +81,6 @@ sub io {
     my $count = scalar @entries;
     ok @entries > 0;# "No SeqDiff objects [$count]";
     
-    # Test writing
     my $out = Bio::Variation::IO->new( -FILE => "> $o_file", -FORMAT => $o_format);
     my $out_ok = 1;
     foreach my $e (@entries) {
@@ -112,7 +100,6 @@ sub io {
 
     ok $after;# "Error in reading in again the output file [$o_file]";
 
-    #Test that input and output files are identical
     ok $before, $after, "test output file differs from input";
     print STDERR `diff $t_file $o_file` if $before ne $after;
     unlink($o_file); 
@@ -120,21 +107,12 @@ sub io {
 
 
 
-#
-# First test flat file IO
-#
 
-# mutations from one allele to an other
-io  't/mutations.dat', 't/mutations.out.dat'; #2..6
+io  (Bio::Root::IO->catfile("t","mutations.dat"), Bio::Root::IO->catfile("t","mutations.out.dat")); #2..6
 
-#complex sequence difference: two variations, one with multiple alleles
-io  't/polymorphism.dat', 't/polymorphism.out.dat'; #7..11
+io  (Bio::Root::IO->catfile("t","polymorphism.dat"), Bio::Root::IO->catfile("t","polymorphism.out.dat")); #7..11
 
-#
-# XML IO
-#
 
-# first check whether the necessary XML modules are installed
 eval {
     require Bio::Variation::IO::xml;
 };
@@ -150,22 +128,16 @@ if( $@ ) {
     exit(0);
 }
 
-# mutations from one allele to an other
 eval {
-	io  't/mutations.xml', 't/mutations.out.xml'; #12..16
+	io  (Bio::Root::IO->catfile("t","mutations.xml"), Bio::Root::IO->catfile("t","mutations.out.xml")); #12..16
 };
 
-#complex sequence difference: two variations, one with multiple alleles
 eval {
-	io  't/polymorphism.xml', 't/polymorphism.out.xml'; #17..21
+	io  (Bio::Root::IO->catfile("t","polymorphism.xml"), Bio::Root::IO->catfile("t","polymorphism.out.xml")); #17..21
 };
 
-#
-# flat <=> XML
-#
 
-# mutations from one allele to an other
 eval { 
-	io  't/mutations.dat', 't/mutations.out.xml'; #22..26
+	io  (Bio::Root::IO->catfile("t","mutations.dat"), Bio::Root::IO->catfile("t","mutations.out.xml")); #22..26
 };
 

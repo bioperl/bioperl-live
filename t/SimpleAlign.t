@@ -1,15 +1,7 @@
-# -*-Perl-*-
-## Bioperl Test Harness Script for Modules
-## $Id$
 
-# Before `make install' is performed this script should be runnable with
-# `make test'. After `make install' it should work as `perl test.t'
 
 use strict;
 BEGIN {     
-    # to handle systems with no installed Test module
-    # we include the t dir (where a copy of Test.pm is located)
-    # as a fallback
     eval { require Test; };
     if( $@ ) {
 	use lib 't';
@@ -28,7 +20,7 @@ $aln->read_mase(\*FH);
 close(FH);
 
 ok( $aln );
-open(OUT,">t/out.aln_fasta"); 
+open(OUT,">".Bio::Root::IO->catfile("t","out.aln_fasta")); 
 $aln->write_fasta(\*OUT);
 close(OUT);
 ok(1);
@@ -40,12 +32,11 @@ close(FH);
 
 ok ( $aln );
 
-open(OUT,">t/out.pfam"); 
+open(OUT,">".Bio::Root::IO->catfile("t","out.pfam")); 
 $aln->write_Pfam(\*OUT);
 close(OUT);
 ok(1);
 
-# make sure we can dogfood here
 $aln = Bio::SimpleAlign->new();
 open(IN,Bio::Root::IO->catfile("t","out.pfam"));
 $aln->read_Pfam(\*IN);
@@ -53,7 +44,7 @@ close(IN);
 
 ok ( $aln );
 
-unlink('t/out.pfam', 't/out.aln_fasta');
+unlink(Bio::Root::IO->catfile("t","out.pfam"), Bio::Root::IO->catfile("t","out.aln_fasta"));
 
 
 

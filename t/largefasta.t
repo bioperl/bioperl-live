@@ -1,15 +1,7 @@
-# -*-Perl-*-
-## Bioperl Test Harness Script for Modules
-## $Id$
 
-# Before `make install' is performed this script should be runnable with
-# `make test'. After `make install' it should work as `perl test.t'
 
 use strict;
 BEGIN { 
-    # to handle systems with no installed Test module
-    # we include the t dir (where a copy of Test.pm is located)
-    # as a fallback
     eval { require Test; };
     if( $@ ) {
 	use lib 't';
@@ -23,7 +15,7 @@ use vars qw($tmpfile);
 use Bio::Root::IO;
 END { unlink $tmpfile; }
 
-$tmpfile = 't/largefastatest.out';
+$tmpfile = Bio::Root::IO->catfile("t","largefastatest.out");
 my $seqio = new Bio::SeqIO('-format'=>'largefasta',
 			   '-file'  =>Bio::Root::IO->catfile("t","genomic-seq.fasta"));
 ok defined $seqio, 1, 'cannot instantiate Bio::SeqIO::largefasta';

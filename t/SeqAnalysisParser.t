@@ -1,17 +1,7 @@
-# -*-Perl-*-
-## Bioperl Test Harness Script for Modules
-##
-# CVS Version
-# $Id$
 
-# Before `make install' is performed this script should be runnable with
-# `make test'. After `make install' it should work as `perl test.t'
 
 use strict;
 BEGIN { 
-    # to handle systems with no installed Test module
-    # we include the t dir (where a copy of Test.pm is located)
-    # as a fallback
     eval { require Test; };
     if( $@ ) {
 	use lib 't';
@@ -32,7 +22,7 @@ $seq = $seqio->next_seq;
 ok $seq->isa('Bio::PrimarySeqI');#'could not read sequence';
 
 $factory = new Bio::Factory::SeqAnalysisParserFactory();
-$parser = $factory->get_parser(-input => 't/genomic-seq.genscan',
+$parser = $factory->get_parser(-input => Bio::Root::IO->catfile("t","genomic-seq.genscan"),
 				  -method => 'genscan');
 ok $parser->isa('Bio::SeqAnalysisParserI');#'noSeqAnalysisParserI created';
 while( my $feat = $parser->next_feature() ){
@@ -49,7 +39,7 @@ foreach my $feat (  $seq->top_SeqFeatures() ) {
 }
 ok $exon_seen, 37;
 ok $gene_seen, 3;
-$parser = $factory->get_parser(-input => 't/genomic-seq.mzef',
+$parser = $factory->get_parser(-input => Bio::Root::IO->catfile("t","genomic-seq.mzef"),
 			       -method=> 'mzef');
 $seqio = new Bio::SeqIO('-format'=>'fasta', '-file' => Bio::Root::IO->catfile("t","genomic-seq.fasta"));
 $seq = $seqio->next_seq();

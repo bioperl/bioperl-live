@@ -1,18 +1,5 @@
-# -*-Perl-*-
-## Bioperl Test Harness Script for Modules
-##
-# CVS Version
-# $Id$
-
-
-# Before `make install' is performed this script should be runnable with
-# `make test'. After `make install' it should work as `perl test.t'
-
 use strict;
 BEGIN {     
-    # to handle systems with no installed Test module
-    # we include the t dir (where a copy of Test.pm is located)
-    # as a fallback
     eval { require Test; };
     if( $@ ) {
 	use lib 't';
@@ -39,15 +26,13 @@ chomp( $dir );
     my $ind = Bio::Index::Fasta->new(-filename => 'Wibbl', 
 				     -write_flag => 1,
 				     -verbose => 0);
-    $ind->make_index("$dir/t/multifa.seq");
-    $ind->make_index("$dir/t/seqs.fas");
-    $ind->make_index("$dir/t/multi_1.fa");
+    $ind->make_index(Bio::Root::IO->catfile($dir,"t","multifa.seq"));
+    $ind->make_index(Bio::Root::IO->catfile($dir,"t","seqs.fas"));
+    $ind->make_index(Bio::Root::IO->catfile($dir,"t","multi_1.fa"));
 }
 
 ok ( -e "Wibbl" );
 
-# Test that the sequences we've indexed
-# are all retrievable, and the correct length
 {
     my %t_seq = (
         HSEARLOBE               => 321,
@@ -56,7 +41,6 @@ ok ( -e "Wibbl" );
         'gi|238775|bbs|65126'   => 70,
     );
 
-    # Tests opening index of unknown type
     my $ind = Bio::Index::Abstract->new(-FILENAME => 'Wibbl');
 
     my $ok_3 = 1;
@@ -89,14 +73,14 @@ ok ( -e "Wibbl" );
 {
     my $ind = Bio::Index::SwissPfam->new(-filename=>'Wibbl2', 
 					 -write_flag=>1);
-    $ind->make_index("$dir/t/swisspfam.data");
+    $ind->make_index(Bio::Root::IO->catfile($dir,"t","swisspfam.data"));
     ok ( -e "Wibbl2" );
 }
 
 {
     my $ind = Bio::Index::EMBL->new(-filename=>'Wibbl3', 
 				    -write_flag=>1);
-    $ind->make_index("$dir/t/test.embl");
+    $ind->make_index(Bio::Root::IO->catfile($dir,"t","test.embl"));
     ok ( -e "Wibbl3" );
     ok $ind->fetch('AL031232')->length, 4870;
 }
@@ -104,7 +88,7 @@ ok ( -e "Wibbl" );
 {
     my $ind = Bio::Index::Swissprot->new(-filename=>'Wibbl4', 
 				    -write_flag=>1);
-    $ind->make_index("$dir/t/roa1.swiss");
+    $ind->make_index(Bio::Root::IO->catfile($dir,"t","roa1.swiss"));
     ok ( -e "Wibbl4" );
     ok ($ind->fetch('P09651')->display_id(), 'ROA1_HUMAN');
 }
@@ -113,7 +97,7 @@ ok ( -e "Wibbl" );
     my $ind = Bio::Index::GenBank->new(-filename=>'Wibbl5', 
 				       -write_flag=>1, 
 				       -verbose => 0);
-    $ind->make_index("$dir/t/roa1.genbank");
+    $ind->make_index(Bio::Root::IO->catfile($dir,"t","roa1.genbank"));
     ok ( -e "Wibbl5" );
     ok ($ind->fetch('AI129902')->length, 37);
 }
