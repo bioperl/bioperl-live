@@ -407,11 +407,11 @@ sub write_annseq {
 	    print $fh "SOURCE      $OS\n";
 	}
 	print $fh "  ORGANISM  $OS\n";
-        my $OC = join ('; ', reverse(@class));
-	$OC =~ s/\;\s+$//;
-	$OC .= ".";
-
-        _write_line_GenBank_regex($fh,"            ","            ",$OC,"\; \|\$",80);
+        my $OC = join (';', reverse(@class));
+	$OC =~ s/\;//;
+	$OC =~ s/\n//g;
+	$OC =~ s/\;\;/\; /g;
+        _write_line_GenBank_regex($fh,"            ","            ",$OC,"\\s\+\|\$",80);
     }
     
     # Reference lines
@@ -678,8 +678,9 @@ sub _read_GenBank_Species {
 	    $common = $1;
 	    $common =~ s/\.//;
 	}
-	if (/^  ORGANISM\s+(\S+)\s+(\S+)\s+(\S+)/) {
-            $genus   = $1;
+	if (/^  ORGANISM\s+(\S+)\s+(\S+)\s+?(\S+)?/) {
+            $genus = $1 if $1;
+	    $genus = "None" unless $1;
 	    if ($2) {
 		$species = $2;
 	    }

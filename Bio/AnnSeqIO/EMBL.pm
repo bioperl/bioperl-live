@@ -194,12 +194,12 @@ sub next_annseq{
        $annseq->molecule($mol);
    }
    
-   $div = $3;
-   $div =~ s/\;//;
-   if ($div) {
+   if ($3) {
+       $div = $3;
+       $div =~ s/\;//;
        $annseq->division($div);
    }
-
+   
 #   $self->warn("not parsing upper annotation in EMBL file yet!");
    my $buffer = $line;
 
