@@ -6,9 +6,11 @@
 
 use strict;
 use ExtUtils::MakeMaker;
+use Bio::Root::IO;
 use constant TEST_COUNT => 95;
-use constant FASTA_FILES => './t/data/dbfa';
-use constant GFF_FILE    => './t/data/biodbgff/test.gff';
+use constant FASTA_FILES => Bio::Root::IO->catfile('t','data','dbfa');
+use constant GFF_FILE    => Bio::Root::IO->catfile('t','data',
+						   'biodbgff','test.gff');
 
 BEGIN {
     # to handle systems with no installed Test module
@@ -401,7 +403,7 @@ sub bail ($;$) {
   my $count = shift;
   my $explanation = shift;
   for (1..$count) {
-    skip(1,0,$explanation);
+    skip($explanation,1);
   }
   exit 0;
 }
