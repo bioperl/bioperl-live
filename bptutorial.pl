@@ -65,7 +65,7 @@ BioPerlTutorial - a tutorial for bioperl
     III.3.1 Manipulating sequence data with Seq methods (Seq)
     III.3.2 Obtaining basic sequence statistics- MW, residue & 
             codon frequencies (SeqStats)
-    III.3.3 Identifying restriction enzyme sites (RestrictionEnzyme)
+    III.3.3 Identifying restriction enzyme sites (Bio::Restriction)
     III.3.4 Identifying amino acid cleavage sites (Sigcleave)
     III.3.5 Miscellaneous sequence utilities: OddCodes, SeqPattern
     III.3.6 Converting coordinate systems (Coordinate::Pair, RelSegment)
@@ -1165,38 +1165,64 @@ methods for calculating frequencies of "words" (e.g. tetramers or hexamers)
 within the sequence. See L<Bio::Tools::SeqStats> and L<Bio::Tools::SeqWords>
 for more information.
 
-=head2 III.3.3 Identifying restriction enzyme sites (RestrictionEnzyme)
+=head2 III.3.3 Identifying restriction enzyme sites (Bio::Restriction)
 
 Another common sequence manipulation task for nucleic acid sequences
 is locating restriction enzyme cutting sites.  Bioperl provides the
-Restriction::Enzyme, Restriction::EnzymeCollection, and 
-Restriction::Analysis objects for this purpose. A new enzyme would be
-defined like this:
+Bio::Restriction::Enzyme, Bio::Restriction::EnzymeCollection, and
+Bio::Restriction::Analysis objects for this purpose. These modules replace the
+older module Bio::Tools::RestrictionEnzyme. A new collection of enzyme
+objects would be defined like this:
 
-  my $re = new Bio::Restriction::Enzyme(-enzyme=>'EcoRI',-seq=>'G^AATTC');
+   use Bio::Restriction::EnzymeCollection;
+   my $all_collection = Bio::Restriction::EnzymeCollection;
 
-A more typical case would be to use an existing enzyme to cut a DNA sequence
-and examine the products. Bioperl's default Restriction::EnzymeCollection 
-object comes with data for more than 500 different Type II restriction enzymes. You create this object like this:
+Bioperl's default Restriction::EnzymeCollection object comes with data for 
+more than 500 different Type II restriction enzymes. A list of the available 
+enzyme names can be accessed using the available_list() method, but these 
+are just the names, not the functional objects. You also have access to 
+enzyme subsets. For example to select all available Enzyme objects with 
+recognition sites that are six bases long one could write:
 
-  my $collection = Bio::Restriction::EnzymeCollection;
+  my $six_cutter_collection = $all_collection->cutters(6);
+  foreach my $enz ($six_cutter_collection){
+     print $enz->name,"\t",$enz->site,"\t",$enz->overhang_seq,"\n";
+     # prints name, recognition site, overhang
+  }
 
-A list of the available enzyme names can be accessed using the 
-available_list() method, but these are just the names, not the functional
-objects. For example to select all
-available enzymes with cutting patterns that are six bases long one
-would write:
+There are other criteria that can be used to select enzyme objects,
+such as unique_cutters() and blunt_enzymes(). You can also select a
+Enzyme object by name, like so:
 
+  my $ecori_enzyme = $all_collection->get_enzyme('EcoRI');
 
 Once an appropriate enzyme has been selected, the sites for that
 enzyme on a given nucleic acid sequence can be obtained using the
-cut_seq() method.  The syntax for performing this task is:
+fragments() method.  The syntax for performing this task is:
 
-  $re1 = new Bio::Tools::RestrictionEnzyme(-name=>'EcoRI');
-  # $seqobj is the Seq object for the dna to be cut
-  @fragments =  $re1->cut_seq($seqobj);
+   use Bio::Restriction::Analysis;
+   my $analysis = Bio::Restriction::Analysis->new(-seq => $seq);
+   # where $seq is the Bio::Seq object for the DNA to be cut
+   @fragments =  $analysis->fragments($enzyme);
+   # and @fragments will be an array of strings
 
+To get information on isoschizomers, methylation sites, microbe source,
+vendor or availability you will need to create your EnzymeCollection 
+directly from a REBASE file, like this:
 
+  use Bio::Restriction::IO;
+  my $re_io = Bio::Restriction::IO->new(-file=>$file,-format=>'withrefm');
+  my $rebase_collection = $re_io->read;
+
+A REBASE file in the correct format can be found at 
+ftp://ftp.neb.com/pub/rebase, it will have a name like "withrefm.308".
+If need be you can also create new enzymes, like this:
+
+  my $re = new Bio::Restriction::Enzyme(-enzyme=>'BioRI',-seq=>'GG^AATTCC');
+
+For more informatation see L<Bio::Restriction::Enzyme>,
+L<Bio::Restriction::EnzymeCollection>, L<Bio::Restriction::Analysis>, and
+L<Bio::Restriction::IO>.
 
 =head2    III.3.4 Identifying amino acid cleavage sites (Sigcleave)
 
@@ -3078,44 +3104,45 @@ $seqstats_and_seqwords = sub {
 
 $restriction_and_sigcleave = sub {
 
-    use Bio::Tools::RestrictionEnzyme;
+    use Bio::Restriction::EnzymeCollection;
+    use Bio::Restriction::Analysis;
     use Bio::Tools::Sigcleave;
 
-    my ($re, $re1, $re2, @sixcutters, @fragments1,
-        @fragments2, $seqobj, $dna);
+    my ($re1, $re2, $allcutters, $sixcutters, @fragments1,
+        @fragments2, $analysis, $seqobj, $dna);
     print $outputfh "\nBeginning restriction enzyme example... \n";
 
-    # III.4.4 Identifying restriction enzyme sites (RestrictionEnzyme)
+    # III.4.4 Identifying restriction enzyme sites (Bio::Restriction)
 
     $dna = 'CCTCCGGGGACTGCCGTGCCGGGCGGGAATTCGCCATGGCGACCCTGGAAAAGCTGATATCGAAGGCCTTCGA';
 
     # Build sequence and restriction enzyme objects.
-    $seqobj = new Bio::Seq('-ID'  => 'test_seq',
-                           '-SEQ' =>$dna);
+    $seqobj = new Bio::Seq(-id  => 'test_seq',
+                           -seq => $dna);
 
-    #$re  = new Bio::Tools::RestrictionEnzyme();
-    $re  = new Bio::Tools::RestrictionEnzyme('-name'=>'EcoRI');
-    @sixcutters = $re->available_list(6);
+    $allcutters  = new Bio::Restriction::EnzymeCollection;
+    $sixcutters = $allcutters->cutters(6);
+    $analysis = Bio::Restriction::Analysis->new(-seq => $seqobj);
+    my @sixcutters = $sixcutters->available_list;
 
     print $outputfh "The following 6-cutters are available\n";
     print $outputfh join(" ",@sixcutters),"\n";
 
-    $re1  = new Bio::Tools::RestrictionEnzyme('-name'=>'EcoRI');
-    @fragments1 =  $re1->cut_seq($seqobj);
-    #$seqobj is the Seq object for the dna to be cut
+    $re1 = $allcutters->get_enzyme('EcoRI');
+    @fragments1 = $analysis->fragments($re1);
+    # $re1 is the enzyme cutting the DNA in $seqobj
 
     print $outputfh "\nThe sequence of " . $seqobj->display_id . " is " .
     $seqobj->seq . "\n";
     print $outputfh "When cutting " . $seqobj->display_id() . " with " .
-    $re1->seq->id . " the initial fragment is\n" . $fragments1[0];
+    $re1->name . " the initial fragment is\n" . $fragments1[0];
 
-    $re2 = new Bio::Tools::RestrictionEnzyme
-        ('-NAME' =>'EcoRV--GAT^ATC',
-         '-MAKE' =>'custom');
-    @fragments2 =  $re2->cut_seq($seqobj);
+    $re2 = Bio::Restriction::Enzyme->new(-name => 'EcoRV',
+                                         -seq  => 'GAT^ATC');
+    @fragments2 = $analysis->fragments($re2);
 
     print $outputfh "\nWhen cutting ", $seqobj->display_id(),
-    " with ", $re2->seq->id;
+    " with ", $re2->name;
     print $outputfh " the second fragment is\n", $fragments2[1], " \n";
 
     # III.4.7 Identifying amino acid cleavage sites (Sigcleave)
