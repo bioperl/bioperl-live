@@ -27,7 +27,7 @@ Bio::Tools::Genemark - Results of one Genemark run
        # $gene is an instance of Bio::Tools::Prediction::Gene, which inherits
        # off Bio::SeqFeature::Gene::Transcript.
        #
-       # $gene->exons() returns an array of 
+       # $gene->exons() returns an array of
        # Bio::Tools::Prediction::Exon objects
        # all exons:
        @exon_arr = $gene->exons();
@@ -38,7 +38,7 @@ Bio::Tools::Genemark - Results of one Genemark run
        @intrl_exons = $gene->exons('Internal');
        # terminal exons only
        @term_exons = $gene->exons('Terminal');
-       # singleton exons: 
+       # singleton exons:
        ($single_exon) = $gene->exons();
    }
 
@@ -48,16 +48,17 @@ Bio::Tools::Genemark - Results of one Genemark run
 
 =head1 DESCRIPTION
 
-The Genemark module provides a parser for Genemark gene structure prediction
-output. It parses one gene prediction into a Bio::SeqFeature::Gene::Transcript-
-derived object.
+The Genemark module provides a parser for Genemark gene structure
+prediction output. It parses one gene prediction into a
+Bio::SeqFeature::Gene::Transcript- derived object.
 
-This module has been developed around genemark.hmm for eukaryots v2.2a and will 
-probably not work with other versions.
+This module has been developed around genemark.hmm for eukaryots v2.2a
+and will probably not work with other versions.
 
 
-This module also implements the Bio::SeqAnalysisParserI interface, and thus
-can be used wherever such an object fits. See L<Bio::SeqAnalysisParserI>.
+This module also implements the Bio::SeqAnalysisParserI interface, and
+thus can be used wherever such an object fits. See
+L<Bio::SeqAnalysisParserI>.
 
 =head1 FEEDBACK
 
@@ -67,8 +68,8 @@ User feedback is an integral part of the evolution of this and other
 Bioperl modules. Send your comments and suggestions preferably to one
 of the Bioperl mailing lists.  Your participation is much appreciated.
 
-  bioperl-l@bioperl.org          - General discussion
-  http://bio.perl.org/MailList.html             - About the mailing lists
+  bioperl-l@bioperl.org                   - General discussion
+  http://bio.perl.org/MailList.html       - About the mailing lists
 
 =head2 Reporting Bugs
 
@@ -84,11 +85,10 @@ or the web:
 Email hlapp@gmx.net
       m.w.e.j.fiers@plant.wag-ur.nl
 
-Describe contact details here
-
 =head1 APPENDIX
 
-The rest of the documentation details each of the object methods. Internal methods are usually preceded with a _
+The rest of the documentation details each of the object
+methods. Internal methods are usually preceded with a _
 
 =cut
 
@@ -135,9 +135,9 @@ sub _initialize_state {
 =cut
 
 #-------------
-sub analysis_method { 
+sub analysis_method {
 #-------------
-    my ($self, $method) = @_;  
+    my ($self, $method) = @_;
     if($method && ($method !~ /Genemark\.hmm/i)) {
 	$self->throw("method $method not supported in " . ref($self));
     }
@@ -155,7 +155,7 @@ sub analysis_method {
 
            The returned object is actually a SeqFeatureI implementing object.
            This method is required for classes implementing the
-           SeqAnalysisParserI interface, and is merely an alias for 
+           SeqAnalysisParserI interface, and is merely an alias for
            next_prediction() at present.
 
  Example :
@@ -196,7 +196,7 @@ sub next_prediction {
 
     # get next gene structure
     $gene = $self->_prediction();
-    
+
     return $gene;
 }
 
@@ -207,7 +207,7 @@ sub next_prediction {
  Function: Parses the prediction section. Automatically called by
            next_prediction() if not yet done.
  Example :
- Returns : 
+ Returns :
 
 =cut
 
@@ -225,7 +225,7 @@ sub _parse_predictions {
     my $current_gene_no = -1;
 
     while(defined($_ = $self->_readline())) {
-        
+
 	if( (/^\s*(\d+)\s+(\d+)/) || (/^\s*(\d+)\s+[\+\-]/)) {
 
 	    #  this is an exon, Genemark doesn't predict anything else
@@ -235,7 +235,7 @@ sub _parse_predictions {
 	    #exon no:
 	    my $signalnr = 0;
 	    if ($2) { my $signalnr = $2; } # used in tag: exon_no
-	    
+	
 	    # split into fields
 	    chomp();
 	    my @flds = split(' ', $_);
@@ -243,7 +243,7 @@ sub _parse_predictions {
 	    # create the feature (an exon) object
 	    my $predobj = Bio::Tools::Prediction::Exon->new();
 
-		 
+		
 	    # define info depending on it being eu- or prokaryot
 	    my ($start, $end, $orientation, $prediction_source);
 
@@ -253,7 +253,7 @@ sub _parse_predictions {
 	        ($start, $end) = @flds[(2,3)];
 		$exontag = "_na_";
 
-	    } else {		   
+	    } else {		
 	        $prediction_source = "Genemark.hmm.eu";
 	       	$orientation = ($flds[2] eq '+') ? 1 : -1;
 	        ($start, $end) = @flds[(4,5)];
@@ -275,14 +275,13 @@ sub _parse_predictions {
 		
 	    # frame calculation as in the genscan module
 	    # is to be implemented...
-	    
+	
 	    #If the $prednr is not equal to the current gene, we
 	    #need to make a new gene and close the old one
 	    if($prednr != $current_gene_no) {
  	        # a new gene, store the old one if it exists
 		if (defined ($gene)) {
 		    $gene->seq_id($seqname);
-		    $self->_add_prediction($gene);	    
 		    $gene = undef ;
 		}
 		#and make a new one
@@ -290,10 +289,10 @@ sub _parse_predictions {
 		    (
 		     '-primary' => "GenePrediction$prednr",
 		     '-source' => $prediction_source);
-		
+                $self->_add_prediction($gene);		
 		$current_gene_no = $prednr;
-	    } 
-	    
+	    }
+	
 	    # Add the exon to the gene
 	    $gene->add_exon($predobj, ($exontag eq "_na_" ?
 				       undef : $exontags{$exontag}));
@@ -303,7 +302,7 @@ sub _parse_predictions {
 	if(/^(Genemark\.hmm\s*[PROKARYOTIC]*)\s+\(Version (.*)\)$/i) {
 	    $self->analysis_method($1);
 
-	    my $gm_version = $2; 
+	    my $gm_version = $2;
 
 	    $self->analysis_method_version($gm_version);
 	    next;
@@ -313,19 +312,19 @@ sub _parse_predictions {
        if (/^Matrices file:\s+(\S+)?/i)  {
 	    $self->analysis_subject($1);
 	    # since the line after the matrix file is always the date
-	    # (in the output file's I have seen!) extract and store this 
+	    # (in the output file's I have seen!) extract and store this
 	    # here
 	     if (defined(my $_date = $self->_readline())) {
 	         chomp ($_date);
 	     	 $self->analysis_date($_date);
 	     }
-	}			   
+	}			
 	
         #Matrix file for prokaryot version
        if (/^Model file name:\s+(\S+)/) {
 	    $self->analysis_subject($1);
 	    # since the line after the matrix file is always the date
-	    # (in the output file's I have seen!) extract and store this 
+	    # (in the output file's I have seen!) extract and store this
 	    # here
 	    my $_date = $self->_readline() ;
 	    if (defined($_date = $self->_readline())) {
@@ -350,7 +349,7 @@ sub _parse_predictions {
             while (1) {
 	       my ($aa_id, $seq) = $self->_read_fasta_seq();
 	       last unless ($aa_id);
-	       	       	
+
 	       #now parse through the predictions to add the pred. protein
 	       FINDPRED: foreach my $gene (@{$self->{'_preds'}}) {
 	            $gene->primary_tag() =~ /[^0-9]([0-9]+)$/;
@@ -362,21 +361,21 @@ sub _parse_predictions {
 					              '-alphabet' => "protein");
 			$gene->predicted_protein($seqobj);
 			last FINDPRED;
-		    }	  
+		    }	
 
 	       }
-           }				      
+           }				
 
  	   last;
 	};
     }
-    
+
     # if the analysis query object contains a ref to a Seq of PrimarySeq
     # object, then extract the predicted sequences and add it to the gene
     # object.
-    if (defined $self->analysis_query()) { 
+    if (defined $self->analysis_query()) {
         my $orig_seq = $self->analysis_query();
-        FINDPREDSEQ: foreach my $gene (@{$self->{'_preds'}}) { 
+        FINDPREDSEQ: foreach my $gene (@{$self->{'_preds'}}) {
 	   my $predseq = "";
 	   foreach my $exon ($gene->exons()) {
 		#print $exon->start() . " " . $exon->end () . "\n";
@@ -388,8 +387,8 @@ sub _parse_predictions {
 	   $gene->predicted_cds($seqobj);
 	}
     }
-    
-    
+
+
     $self->_predictions_parsed(1);
 }
 
@@ -399,7 +398,7 @@ sub _parse_predictions {
  Usage   : $gene = $obj->_prediction()
  Function: internal
  Example :
- Returns : 
+ Returns :
 
 =cut
 
@@ -416,7 +415,7 @@ sub _prediction {
  Usage   : $obj->_add_prediction($gene)
  Function: internal
  Example :
- Returns : 
+ Returns :
 
 =cut
 
@@ -485,9 +484,9 @@ sub _read_fasta_seq {
     my ($self) = @_;
     my ($id, $seq);
     local $/ = ">";
-    
+
     return 0 unless (my $entry = $self->_readline());
-    
+
     $entry =~ s/^>//;
     # complete the entry if the first line came from a pushback buffer
     while(! ($entry =~ />$/)) {
@@ -498,7 +497,7 @@ sub _read_fasta_seq {
     # delete everything onwards from an new fasta start (>)
     $entry =~ s/\n>.*$//s;
     # id and sequence
-    
+
     if($entry =~ s/^(.+)\n//) {
 	$id = $1;
 	$id =~ s/ /_/g;
@@ -509,7 +508,7 @@ sub _read_fasta_seq {
 	$self->throw("Can't parse Genemark predicted sequence entry");
     }
     $seq =~ s/\s//g; # Remove whitespace
-    return ($id, $seq);  
+    return ($id, $seq);
 }
 
 1;
