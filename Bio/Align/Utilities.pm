@@ -144,7 +144,7 @@ sub aa_to_dna_aln {
 	my $j = 0;
 	for( my $i = 0; $i < $alnlen; $i++ ) {
 	    my $char = substr($aa_seqstr,$i + $start_offset,1);	    
-	    if( $char eq '-' ) {
+	    if (( $char eq '-' ) || ( $char eq '.' ))  {
 		$nt_seqstr .= $CODONGAP;
 	    } else { 
 		if( $j > $dnalen ) { 
