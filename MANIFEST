@@ -1,4 +1,4 @@
-## $Id: MANIFEST,v 1.47 2001-08-23 22:14:20 dblock Exp $
+## $Id: MANIFEST,v 1.48 2001-09-24 02:09:41 jason Exp $
 ##
 ## This is the file listing for everything that
 ## comes with the bioperl distribution. The perl
@@ -128,27 +128,21 @@ Bio/Seq/RichSeqI.pm
 Bio/Seq.pm
 Bio/SeqAnalysisParserI.pm
 Bio/SeqFeature/Computation.pm
-Bio/SeqFeature/Exon.pm
 Bio/SeqFeature/FeaturePair.pm
 Bio/SeqFeature/Gene/Exon.pm
 Bio/SeqFeature/Gene/ExonI.pm
 Bio/SeqFeature/Gene/GeneStructure.pm
 Bio/SeqFeature/Gene/GeneStructureI.pm
-Bio/SeqFeature/Gene/Transcript.pm
-Bio/SeqFeature/Gene/TranscriptI.pm
+Bio/SeqFeature/Gene/Intron.pm
 Bio/SeqFeature/Gene/NC_Feature.pm
 Bio/SeqFeature/Gene/Promoter.pm
-Bio/SeqFeature/Gene/utr.pm
-Bio/SeqFeature/Gene/Intron.pm
+Bio/SeqFeature/Gene/Transcript.pm
+Bio/SeqFeature/Gene/TranscriptI.pm
 Bio/SeqFeature/Gene/poly_A_site.pm
+Bio/SeqFeature/Gene/utr.pm
 Bio/SeqFeature/Generic.pm
-Bio/SeqFeature/Intron.pm
-Bio/SeqFeature/PolyA.pm
-Bio/SeqFeature/Promoter.pm
 Bio/SeqFeature/Similarity.pm
 Bio/SeqFeature/SimilarityPair.pm
-Bio/SeqFeature/UTR3.pm
-Bio/SeqFeature/UTR5.pm
 Bio/SeqFeatureI.pm
 Bio/SeqI.pm
 Bio/SeqIO/FTHelper.pm
