@@ -88,7 +88,7 @@ sub _initialize {
  Args    :
 
 =cut
-# 
+
 sub next_seq{
   my $self = shift;
   local $/ = '>';

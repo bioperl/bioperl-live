@@ -105,7 +105,7 @@ use Bio::DB::RandomAccessI;
 
 =cut
 
-=head1 Methods [that were] specific for Bio::DB::SeqDBI
+=head1 Methods [that were] specific for Bio::DB::SeqI
 
 =head2 get_PrimarySeq_stream
 

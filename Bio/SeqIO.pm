@@ -360,7 +360,7 @@ sub _initialize {
 
 =cut
   
-sub _load_format_module{
+sub _load_format_module {
   my ($format) = @_;
   my ($module,$load,$m);
   

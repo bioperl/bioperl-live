@@ -229,8 +229,7 @@ sub get_PrimarySeq_stream{
 
 sub get_all_primary_ids{
    my ($self,@args) = @_;
-   my (@ids,$db,%bytepos);
-
+    my $db = $self->db;
    
    # the problem is here that we have indexed things both on
    # accession number and byte position. 
@@ -243,8 +242,9 @@ sub get_all_primary_ids{
    # someone is going to index a database with no accession numbers.
    # doh!. We have to uniquify the index...
 
-   foreach my $id ( keys %{$db} ) {
-       my ($file, $begin, $end) = $self->unpack_record( $db->{$id} );
+    my( %bytepos );
+   while (my($id, $rec) = each %$db) {
+       my ($file, $begin, $end) = $self->unpack_record( $rec );
        $bytepos{$begin} = $id;
    }
 
