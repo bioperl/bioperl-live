@@ -237,6 +237,9 @@ do, it is considered a seperate entity
 sub generate_unique_persistent_id{
    my ($self,$sf,@args) = @_;
 
+   if (!$sf->isa("Bio::SeqFeatureI")) {
+       $sf->throw("not a Bio::SeqFeatureI");
+   }
    my $seq_id = $sf->seq_id || $sf->throw("seq_id must be set");
    #my $seq_id = $sf->seq_id || 'unknown_seq';
    my $source = $sf->source_tag || $sf->throw("source tag must be set");

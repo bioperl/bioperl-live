@@ -274,11 +274,11 @@ sub write_seq {
         $seq_chaos_feature_id = $seq->accession_number . '.' . ($seq->can('seq_version') ? $seq->seq_version : $seq->version);
     }
     else {
-        $seq_chaos_feature_id = $self->get_temp_uid('seq', $seq);
+        $seq_chaos_feature_id = $self->get_chaos_feature_id($seq);
     }
 
 #    if ($seq->accession_number eq 'unknown') {
-#        $seq_chaos_feature_id = $self->get_temp_uid('contig', $seq);
+#        $seq_chaos_feature_id = $self->get_chaos_feature_id('contig', $seq);
 #    }
 
     # data structure representing the core sequence for this record
@@ -498,7 +498,7 @@ sub write_sf {
                      ]
                     );
     }
-    my $feature_id = $self->get_temp_uid($type, $sf);
+    my $feature_id = $self->get_chaos_feature_id($sf);
     
     # do something with genbank stuff
     my $pid = $props{'protein_id'};
@@ -617,22 +617,20 @@ sub session_id {
 }
 
 
-sub get_temp_uid {
+sub get_chaos_feature_id {
     my $self = shift;
     my $ob = shift;
 
     my $id = $ob->can("primary_id") ? $ob->primary_id : undef;
     if ($id) {
-        $id = $self->context_namespace . ":" . $id;
+        $id = $self->context_namespace ? $self->context_namespace . ":" . $id : $id;
     }
     else {
-        eval {
+        if ($ob->isa("Bio::SeqFeatureI")) {
             $id = $IDH->generate_unique_persistent_id($ob);
-        };
-        if ($@) {
-            print STDERR $@;
-            require "Data/Dumper.pm";
-            print Dumper $ob;
+        }
+        else {
+            $self->throw("Cannot generate a unique persistent ID for a Seq without either primary_id or accession");
         }
     }
     return $id;
