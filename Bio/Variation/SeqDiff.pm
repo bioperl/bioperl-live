@@ -97,6 +97,7 @@ my $VERSION=1.0;
 use strict;
 use vars qw($VERSION @ISA);
 use Bio::Root::RootI;
+use Bio::Tools::CodonTable;
 
 @ISA = qw( Bio::Root::RootI );
 
@@ -118,8 +119,8 @@ sub new {
     bless $self, $class;
 
     my($id, $sysname, $trivname, $chr, $gene_symbol, 
-       $desc, $moltype, $numbering, $offset, $cds_end,
-       $dna_ori, $dna_mut, $rna_ori, $aa_ori, $aa_mut
+       $desc, $moltype, $numbering, $offset, $rna_offset, $rna_id, $cds_end,
+       $dna_ori, $dna_mut, $rna_ori, $rna_mut, $aa_ori, $aa_mut
        #@variants, @genes
        ) =
 	   $self->_rearrange([qw(ID
@@ -131,6 +132,8 @@ sub new {
 				 MOLTYPE
 				 NUMBERING
 				 OFFSET
+				 RNA_OFFSET
+				 RNA_ID
 				 CDS_END
 				 DNA_ORI
 				 DNA_MUT
@@ -151,12 +154,14 @@ sub new {
     $moltype   && $self->moltype($moltype);
     $numbering && $self->numbering($numbering);
     $offset    && $self->offset($offset);   
+    $rna_offset && $self->rna_offset($rna_offset);   
+    $rna_id    && $self->rna_id($rna_id);   
     $cds_end   && $self->cds_end($cds_end);   
 
     $dna_ori   && $self->dna_ori($dna_ori); 
     $dna_mut   && $self->dna_mut($dna_mut); 
     $rna_ori   && $self->rna_ori($rna_ori); 
-    $rna_ori   && $self->rna_ori($rna_ori); 
+    $rna_mut   && $self->rna_mut($rna_mut); 
     $aa_ori    && $self->aa_ori ($aa_ori);  
     $aa_mut    && $self->aa_mut ($aa_mut);  
 
@@ -524,6 +529,64 @@ sub cds_end {
 }
 
 
+=head2 rna_offset
+
+ Title   : rna_offset
+ Usage   : $obj->rna_offset(124); $rna_offset = $obj->rna_offset();
+ Function: 
+
+           Sets or returns the rna_offset from the beginning of the RNA sequence 
+           to the coordinate start used to describe variants. Typically
+           the beginning of the coding region of the gene. 
+
+ Example : 
+ Returns : value of rna_offset, a scalar
+ Args    : newvalue (optional)
+
+=cut
+
+
+
+sub rna_offset {
+  my ($self,$value) = @_;
+  if (defined $value) {
+    $self->{'rna_offset'} = $value;
+  }
+  elsif (not defined $self->{'rna_offset'} ) {
+      return $self->{'rna_offset'} = 0;
+  }
+  else {
+      return $self->{'rna_offset'};
+  }
+}
+
+
+=head2 rna_id
+
+ Title   : rna_id
+ Usage   : $obj->rna_id('transcript#3'); $rna_id = $obj->rna_id();
+ Function: 
+
+	    Sets or returns the ID for original RNA sequence of the seqDiff.
+
+ Example : 
+ Returns : value of rna_id, a scalar
+ Args    : newvalue (optional)
+
+=cut
+
+
+sub rna_id {
+  my ($self,$value) = @_;
+  if (defined $value) {
+    $self->{'rna_id'} = $value;
+  }
+  else {
+      return $self->{'rna_id'};
+  }
+}
+
+
 
 =head2 add_Variant
 
@@ -798,7 +861,7 @@ sub aa_mut {
  Usage   : $obj->alignment
  Function: 
 
-           Prints into STDOUT RNA/AA sequence alignment from linked
+           Returns a pretty RNA/AA sequence alignment from linked
            objects.  Under construction: Only simple coding region
            point mutations work.
 
@@ -821,8 +884,8 @@ sub alignment {
 	    my $upflank = $mut->upStreamSeq;
 	    my $dnflank = $mut->dnStreamSeq;
 	    my $cposd = $mut->codon_pos;
-	    my $rori = $mut->allele_ori;
-	    my $rmut =  $mut->allele_mut;
+	    my $rori = $mut->allele_ori->seq;
+	    my $rmut =  $mut->allele_mut->seq;
 	    my $rseqoriu = '';
 	    my $rseqmutu = '';
 	    my $rseqorid = '';
@@ -912,7 +975,7 @@ sub alignment {
 	    
 	
 	    #translate
-	    my $tr = new Bio::Tools::CodonTable ('-id' => $mut->translation_table);
+	    my $tr = new Bio::Tools::CodonTable ('-id' => $mut->codon_table);
 	    my $apos =  $mut->AAChange->start;
 	    my $rseqori;
 	    my $rseqmut;
@@ -977,10 +1040,12 @@ sub alignment {
 	}
 
     }
-    #print out
+
+    my $res;
     foreach my $line (@entry) {
-	print  $line, "\n";
+       $res .=  "$line\n";
     }
+    return $res;
 }
 
 1;
