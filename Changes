@@ -13,7 +13,12 @@ Main trunk changes (not necessarily part of 1.4 branch)
      alignments by making each column a site (Marker), options to include/exclude
      monomorphic sites.  Future work will include subselecting sites by categories like
      silent/non-synonymous, etc.
-   
+
+  o Bio::Align::DNAStatistics  - fixed so that most distance calcs are correct now
+
+  o Bio::Tree::DistanceFactory - added support for Neighbor-Joining and UPGMA distance
+    based tree building methods.
+
 1.4 branch
 
 1.4.1 
