@@ -148,16 +148,15 @@ take a scalar argument and return a scalar result, like this:
     return $modified_id;
   }
 
-As per the Fasta specification, the sequence ID consists of one or
-more non-whitespace characters following the initial E<gt>.  For example:
+make_my_id() will be called with the full fasta id line (including the
+">" symbol!).  For example:
 
- >A12345.3 Predicted C. elegans protein
+ >A12345.3 Predicted C. elegans protein egl-2
 
-During indexing, the module will use the regular expression /^E<gt>(\S+)/
-to extract "A12345.3" for use as the ID.  If a -makeid callback is
-provided, the extracted ID will be passed to the subroutine.  This
-gives you a chance to extract preferred accession numbers from
-multipart IDs such as those provided by GenBank.
+By default, this module will use the regular expression /^E<gt>(\S+)/
+to extract "A12345.3" for use as the ID.  If you pass a -makeid
+callback, you can extract any portion of this, such as the "egl-2"
+symbol.
 
 The -makeid option is ignored after the index is constructed.
 
@@ -448,7 +447,7 @@ sub new {
 
   my $self = bless { debug      => $opts{-debug},
 		     makeid     => $opts{-makeid},
-		     glob       => $opts{-glob}    || '*.{fa,fasta,FA,FASTA,fast,FAST,dna}',
+		     glob       => $opts{-glob}    || '*.{fa,fasta,FA,FASTA,fast,FAST,dna,fsa}',
 		     maxopen    => $opts{-maxfh}   || 32,
 		     dbmargs    => $opts{-dbmargs} || undef,
 		     fhcache    => {},
@@ -681,7 +680,7 @@ sub calculate_offsets {
 					$linelength,$firstline,
 					$type,$base);
       }
-      $id = ref($self->{makeid}) eq 'CODE' ? $self->{makeid}->($1) : $1;
+      $id = ref($self->{makeid}) eq 'CODE' ? $self->{makeid}->($_) : $1;
       ($offset,$firstline,$linelength) = ($pos,length($_),0);
     } else {
       $linelength ||= length($_);

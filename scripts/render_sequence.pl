@@ -1,7 +1,7 @@
 #!/usr/bin/perl
 
 use strict;
-use lib '.','./blib/lib';
+use lib '.','../blib/lib';
 use Bio::DB::BioFetch;
 use Bio::Graphics;
 
@@ -17,16 +17,29 @@ Usage: $0 <accession> [start] [stop]
 
 Example to try:
    render_entry CEF58D5 | display -
+
+By default, will look for accession in the "embl" namespace.  To
+choose other namespaces, use these formats:
+
+  swall:CEF58D5
+  refseq:NC_001320
+
 END
 ;
 
 my ($start,$stop) = @ARGV;
 
+my $db = 'embl';
+if ($accession =~ /^(embl|swall|refseq):(.+)/) {
+  $db        = $1;
+  $accession = $2;
+}
+
 my $bf = eval {require Bio::DB::FileCache}
-  ? Bio::DB::FileCache->new(-seqdb=>Bio::DB::BioFetch->new,
+  ? Bio::DB::FileCache->new(-seqdb=>Bio::DB::BioFetch->new(-db=>$db),
 			    -file =>'/usr/tmp/my_seq_cache',
 			    -keep =>1)
-  : Bio::DB::Biofetch->new;
+  : Bio::DB::BioFetch->new(-db=>$db);
 
 my $seq = $bf->get_Seq_by_id($accession);
 
