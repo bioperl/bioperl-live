@@ -27,10 +27,15 @@ my $factory = new Bio::Tree::RandomFactory( -sample_size => 6,
 
 =head1 DESCRIPTION
 
-Builds a random tree every time next_tree is called.
+Builds a random tree every time next_tree is called or up to -maxcount times.
 
-This algorithm is based on the make_tree algorithm from Richard Hudson 199? 
-XXXX.
+This algorithm is based on the make_tree algorithm from Richard Hudson 1990.
+
+Hudson, R. R. 1990. Gene genealogies and the coalescent
+       process. Pp. 1-44 in D. Futuyma and J.  Antonovics, eds. Oxford
+       surveys in evolutionary biology. Vol. 7. Oxford University
+       Press, New York
+
 
 =head1 FEEDBACK
 
@@ -56,11 +61,9 @@ email or the web:
 
 Email jason@bioperl.org
 
-Describe contact details here
-
 =head1 CONTRIBUTORS
 
-Additional contributors names and emails here
+Matthew Hahn, <matthew.hahn@duke.edu>
 
 =head1 APPENDIX
 
@@ -137,6 +140,7 @@ sub new{
            NOTE: if maxcount is not specified on initialization or
                  set to a valid integer, subsequent calls to next_tree will 
                  continue to return random trees and never return undef
+           
  Returns : Bio::Tree::TreeI object
  Args    : none
 
@@ -144,35 +148,72 @@ sub new{
 
 sub next_tree{
    my ($self) = @_;
+   return undef if( $self->{'_treecounter'}++ >= $self->maxcount );
    my $size = $self->sample_size;
-   my $i;
-   # adopted from Hudson, 19??
-   my @nodes;
-   my $start = 2 * $size; 
-   my $bl = 0;
-   my @list;
-   for($i=0;$i<$start; $i++) { 
-       $nodes[$i] = new Bio::Tree::AlleleNode(-id => "node$i");
-       $list[$i] = $nodes[$i];
+   
+   my $in;
+   my @tree = ();
+   my @list = ();
+   
+   for($in=0;$in < 2*$size -1; $in++ ) { 
+       push @tree, { 'nodenum' => "Node$in" };
+   }
+   # in C we would have 2 arrays
+   # an array of nodes (tree)
+   # and array of pointers to these nodes (list)
+   # and we just shuffle the list items to do the 
+   # tree topology generation
+   # instead in perl, we will have a list of hashes (nodes) called @tree
+   # and a list of integers representing the indexes in tree called @list
+
+   for($in=0;$in < $size;$in++)  {
+       $tree[$in]->{'nummut'} = 0;
+       $tree[$in]->{'time'} = 0;
+       $tree[$in]->{'desc1'} = undef;
+       $tree[$in]->{'desc2'} = undef;
+       push @list, $in;
    }
 
-   for($i=$start;$i > 1;$i-- ) {
-       $bl += -2.0 * log ( 1.0000 - rand()) / ( $i * ($i - 1) );
-       $nodes[2*$size - $i]->branch_length(sprintf("%.5f",$bl));       
+   my $t=0;
+   # generate times for the nodes
+   for($in = $size; $in > 1; $in-- ) {
+	$t+= -2.0 * log(1 - rand(1)) / ( $in * ($in-1) );    
+	$tree[2 * $size - $in]->{'time'} =sprintf("%.4f",$t);
+    }
+   # topology generation
+   for ($in = $size; $in > 1; $in-- ) {
+       my $pick = int rand($in);    
+       my $nodeindex = $list[$pick];       
+       my $swap = 2 * $size - $in;       
+       $tree[$swap]->{'desc1'} = $nodeindex;	
+       $list[$pick] = $list[$in-1];       
+       $pick = int rand($in - 1);    
+       $nodeindex = $list[$pick];
+       $tree[$swap]->{'desc2'} = $nodeindex;	
+       $list[$pick] = $swap;
    }
-   for( $i= $size; $i > 1; $i--) {
-       my $pick = $self->random($i);
-       my $node1 = $nodes[$pick];
-       $nodes[2*$size - $i]->add_Descendent($node1);
-       $nodes[$pick] = $nodes[$i-1];
-       $pick = $self->random($i-1);       
-       my $node2 = $nodes[$pick];
-       $nodes[2*$size - $i]->add_Descendent($node2);       
-       $nodes[$pick] = $nodes[2*$size - $i];
+   # Let's convert the hashes into nodes
+
+   my @nodes = ();   
+   foreach my $n ( @tree ) { 
+       push @nodes, 
+	   new Bio::Tree::AlleleNode(-id => $n->{'nodenum'},
+				     -branch_length => $n->{'time'});
    }
-   my $tree = new Bio::Tree::Tree(-root => $nodes[0]);
-   return $tree;
+   my $ct = 0;
+   foreach my $node ( @nodes ) { 
+       my $n = $tree[$ct++];
+       if( defined $n->{'desc1'} ) {
+	   $node->add_Descendent($nodes[$n->{'desc1'}]);
+       }
+       if( defined $n->{'desc2'} ) { 
+	   $node->add_Descendent($nodes[$n->{'desc2'}]);
+       }
+   }   
+   my $T = new Bio::Tree::Tree(-root => pop @nodes );
+   return $T;
 }
+
 
 =head2 maxcount
 
@@ -278,16 +319,17 @@ sub attach_EventHandler{
 
 sub _eventHandler{
    my ($self) = @_;
-
    return $self->{'_handler'};
 }
 
 =head2 random
 
  Title   : random
- Usage   : my $rint = $node->random($size)
- Function: Generates a random number between 0..$size
- Returns : Integer
+ Usage   : my $rfloat = $node->random($size)
+ Function: Generates a random number between 0 and $size
+           This is abstracted so that someone can override and provide their
+           own special RNG.  This is expected to be a uniform RNG.
+ Returns : Floating point random
  Args    : $maximum size for random number (defaults to 1)
 
 
@@ -295,8 +337,7 @@ sub _eventHandler{
 
 sub random{
    my ($self,$max) = @_;
-   $max = 2 unless defined $max || $max < 0;
-   return int ( $max * rand());
+   return rand($max);
 }
 
 1;
