@@ -167,7 +167,7 @@ sub unions {
     goto DONE if scalar(keys %i) == $lastsize;
     $lastsize = scalar(keys %i);
 
-warn $lastsize;
+    #warn $lastsize;
 
   } while(1);
 
