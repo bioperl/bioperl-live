@@ -138,7 +138,7 @@ sub new {
     my ( $GO_id )
 	= $self->_rearrange( [ qw( GO_ID ) ], @args );
    
-    $GO_id                 && $self->GO_id( $GO_id );
+    $GO_id && $self->GO_id( $GO_id );
   
                                                     
     return $self;
