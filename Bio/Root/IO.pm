@@ -556,7 +556,7 @@ sub exists_exe {
     if($FILESPECLOADED) {
 	foreach my $dir (File::Spec->path()) {
 	    my $f = Bio::Root::IO->catfile($dir, $exe);	    
-	    return $f if(-e $f );
+	    return $f if(-e $f && -x $f );
 	}
     }    
     return 0;
