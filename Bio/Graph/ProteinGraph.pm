@@ -4,11 +4,11 @@ package Bio::Graph::ProteinGraph;
 use Bio::Graph::SimpleGraph;
 use Clone qw(clone);
 use vars  qw(@ISA);
-our @ISA = qw(SimpleGraph);
+our @ISA = qw(Bio::Graph::SimpleGraph);
 
 =head1     NAME
 
-Bio::Graph::Protein - a representation of a protein interaction graph.
+Bio::Graph::ProteinGraph - a representation of a protein interaction graph.
 
 =head1     SYNOPSIS
 
@@ -16,6 +16,31 @@ Bio::Graph::Protein - a representation of a protein interaction graph.
 
     my $graphio = Bio::Graph::IO->new(-file=>'myfile.dat', -format=>'dip');
     my $graph   = $graphio->next_network();
+
+	## remove duplicate interactions from within a dataset
+
+	$graph->remove_dup_edges();
+
+    ## get a node (represented by a sequence object) from the graph.
+    my $seqobj = $gr->nodes_by_id('P12345');
+
+	## get clustering coefficient of a given node 
+	my $cc = $gr->clustering_coefficient($graph->nodes_by_id('NP_023232'));
+	if ($cc != -1) {  ## result is -1 if cannot be calculated
+		print "CC for NP_023232 is $cc";
+		}
+
+    ## get grqph density
+    my $density = $gr->density();
+
+   ## get connected subgraphs
+   my @graphs = $gr->components();
+
+   ## remove a node
+   $gr->remove_nodes($gr->nodes_by_id('P12345'));
+
+   
+
 
     ## get interactors of your favourite protein
 
@@ -97,13 +122,15 @@ Bio::Graph::Protein - a representation of a protein interaction graph.
 =head1  REQUIREMENTS
 
 To use this code you will need the Clone.pm module availabe from CPAN.
-You also need Class::AutoClass availabe from CPAN as well. 
+You also need Class::AutoClass availabe from CPAN as well.
+To read in XML data you will need XML::Twig available from CPAN too. 
 
 =head1 SEE ALSO
 
 L<Bio::Graph::SimpleGraph>, 
 L<Bio::Graph::IO>,
 L<Bio::Graph::ProteinEdgeI>
+
 L<Bio::DB::CUTG>
 
 
@@ -128,7 +155,15 @@ or the web:
   bioperl-bugs@bioperl.org
   http://bugzilla.bioperl.org/
 
-=head1 AUTHOR - Richard Adams 
+=head1 AUTHORS
+
+=head2 AUTHOR1 
+
+ Richard Adams - this module, IO modules.
+
+=head2 AUTHOR2
+
+ Nat Goodman  - SimpleGraph.pm, and all underlying graph algorithms.
 
 Email richard.adams@ed.ac.uk
 
@@ -371,8 +406,9 @@ sub _get_ids {
 }
 
 sub add_edge {
-  my $self = shift;
-  my $edges = $self->_edges;
+
+  my $self      = shift;
+  my $edges     = $self->_edges;
   my $neighbors = $self->_neighbors;
   my $dup_edges = $self->_dup_edges;
 	my $edge;
@@ -387,13 +423,15 @@ sub add_edge {
 	else {
 		$self->throw(" Invalid edge! - must be an array of nodes, or an edge object");
 	}
+
 	my ($m, $n) = $edge->nodes();
     next if $m eq $n;		# no self edges
     last unless defined $m && defined $n;
-    ($m,$n)=($n,$m) if "$n" lt "$m";
+    ($m,$n) = ($n,$m) if "$n" lt "$m";
+
     unless ($edges->{$m,$n}) {
       $self->add_node($m,$n);
-      ($m,$n) = $self->nodes($m,$n);
+      ($m,$n)         = $self->nodes($m,$n);
       $edges->{$m,$n} = $edge;
       push(@{$neighbors->{$m}},$n);
       push(@{$neighbors->{$n}},$m);
@@ -442,7 +480,7 @@ sub add_dup_edge {
 =head2      remove_dup_edges 
 
  name        : remove_dup_edges
- purpose     : removes suplicate edges from graph
+ purpose     : removes duplicate edges from graph
  arguments   : none         - removes all duplicate edges
                edge id list - removes spwcified edges
  returns     : void
@@ -490,27 +528,9 @@ sub  remove_dup_edges{
 
 sub clustering_coefficient {
 	my  ($self, $val)  = @_;
-	my $n;
-	if (!$val ) {
-		$self->throw( " I need a node that's a sequence object");
-		}
-
-	## if param is texttry to get sequence object..
-	if (!ref($val)){
-		 $n = $self->nodes_by_id($val);
-		if(!defined($n)) {
-			$self->throw ("Cannnot find node given by the id [$val]");
-			}
-	}
-	# if reference should be a SeqObj
-	elsif(!$val->isa('Bio::SeqI')){
-		$self->throw( " I need a node that's a sequence object".
-                      " not a [". ref($val) . "].");
-		}
-
-	## is a seq obj
-	else {$n = $val};
-
+	my $n = $self->_check_args($val);
+	$self->throw("[$val] is an incorrect parameter, not presnt in the graph")
+		unless defined($n);
 	my @n = $self->neighbors($n);
 	my $n_count = scalar @n;
 	my $c = 0;
@@ -543,48 +563,74 @@ sub clustering_coefficient {
 sub remove_nodes {
 	my $self = shift @_;
 	if (!@_) {
-		$self->warn("You have to sepcify a node");
+		$self->warn("You have to specify a node");
 		return;
 		}
 	my $edges     = $self->_edges;
 	my $ns = $self->_neighbors;
 	my $dups      = $self->_dup_edges;
 	my $nodes     = $self->_nodes;
-	while (my $node = shift @_ ) {
+	while (my $val = shift @_ ) {
+
+		## check argument
+		my $node = $self->_check_args($val);
+		$self->throw("[$val] is an incorrect parameter, not present in the graph")
+				unless defined($node);
 
 		##1. remove dup edges containing the node ##
 		$self->remove_dup_edges($node);
-	
 
-		##3. remove node from interactor's neighbours
-
+		##2. remove node from interactor's neighbours
 		my @ns = $self->neighbors($node);
 		for my $n (@ns) {
-			my @otherns = $self->neighbors($n);
+			my @otherns    = $self->neighbors($n); #get neighbors of neighbors 
 			my @new_others = ();
-			@new_others = grep{$node ne $_} @otherns;
-			@{$ns->{$n}} = @new_others;
+			##look for node in neighbor's neighbors
+			@new_others    = grep{$node ne $_} @otherns;
+			@{$ns->{$n}}   = @new_others;
 		}
 
-		##2. Delete node from neighbour hash
+		##3. Delete node from neighbour hash
 		delete $ns->{$node};
 
 		##4. Now remove edges involving node
-		my $re  = $node;
-		print STDERR $re;
 		for my $k (keys %$edges) {
+			##access via internal hash rather than by object. 
 			if ($edges->{$k}->[0] eq $node ||
-			   $edges->{$k}->[1] eq $node){
-				print STDERR "herhe";
-		
+			   		$edges->{$k}->[1] eq $node){
 				delete($edges->{$k});
 			}
 		}
+
 		##5. Now remove node itself;
 		delete $nodes->{$node};
 
 	}
 	return 1;
+}
+
+=head2   unconnected_nodes
+
+ name      : unconnected_nodes
+ purpose   : return a list of nodes with no connections. 
+ arguments : none
+ returns   : an array or array reference of unconnected nodes
+ usage     : my @ucnodes = $gr->unconnected_nodes();
+
+=cut
+
+sub unconnected_nodes {
+ my $self = shift;
+ my $neighbours = $self->_neighbors;
+ my $nodes      = $self->_nodes;
+ my $uc_nodes = [];
+ for my $n (keys %$neighbours) {
+	if (@{$neighbours->{$n}} == 0){ 
+		push @$uc_nodes, $nodes->{$n};
+		}
+	}
+  wantarray?@$uc_nodes:$uc_nodes;
+		
 }
 
 
@@ -595,6 +641,32 @@ sub _ids {
 		push @refs, $self->{'_id_map'}{shift @_ };
 	}
 	return @refs;
+}
+
+sub _check_args {
+## used to check a parameter is a valid node or a text identifier
+	my ($self, $val) = @_;
+	my $n;
+	if (!$val ) {
+		$self->throw( " I need a node that's a sequence object");
+		}
+
+	## if param is texttry to get sequence object..
+	if (!ref($val)){
+		 $n = $self->nodes_by_id($val);
+		if(!defined($n)) {
+			$self->throw ("Cannnot find node given by the id [$val]");
+			}
+	}
+	# if reference should be a SeqObj
+	elsif(!$val->isa('Bio::SeqI')){
+		$self->throw( " I need a node that's a sequence object".
+                      " not a [". ref($val) . "].");
+		}
+
+	## is a seq obj
+	else {$n = $val};
+	return $n; #n is either a node or undef
 }
 		
 	
