@@ -1,12 +1,38 @@
 $Id$
 
+INTRODUCTION
+
+Importing sequences with annotations is a central part of
+most bioinformatics tasks.  Bioperl supports importing sequences from
+indexed flat-files, local relational databases and remote (internet)
+databases. Previously, separate programming syntax was required for
+each of these types of data access (see for example Section III.1 of
+the Bioperl tutorial). In addition, if one wanted to change one's mode
+of sequence-data acquisition (for example, by implementing a local
+relational database version of Genbank when previously the data had
+been stored in an indexed flat-file) one had to rewrite all of the
+data-access subroutines in one's application code.
+
+The Open Biological Database Access (OBDA) System was designed so that
+one could use the same application code to access data from all three
+of the database types by simply changing a few lines in a
+"configuration file". This makes application code more portable and
+easier to maintain. This document shows how to set up the required
+OBDA-registry configuration file and how to access data from the
+databases referred to in the configuration file using a perl script as
+well as from the command line.
+
+Note: accessing data via the OBDA system is optional in Bioperl.  It
+is still possible (though probably not advantageous) to access
+sequence data via the old database-format-specific modules such as 
+Bio::Index::Fasta.
+
 USING THE OBDA BIODIRECTORY REGISTRY SYSTEM TO ACCESS SEQUENCE DATABASES
 
-The Open Biological Database Access (OBDA) BioDirectory Registry is a
-platform-independent system for specifying how BioPerl programs find
-sequence databases.  It uses a site-wide configuration file, known as
-the registry, which defines one or more databases and the access
-methods to use to access them.
+The OBDA  BioDirectory Registry is a platform-independent system for 
+specifying how BioPerl programs find sequence databases.  It uses a 
+site-wide configuration file, known as the registry, which defines 
+one or more databases and the access methods to use to access them.
 
 For instance, you might start out by accessing sequence data over the
 web, and later decide to install a locally mirrored copy of GenBank.
@@ -41,6 +67,20 @@ delimited string of files and URLs, for example:
 
 The search order proceeds from left to right.  The first file or URL
 that is found ends the search.
+
+Warning! Note that the fact that the search path is for an entire file
+(seqdatabase.ini) rather than for single entry (e.g. 'genbank') means
+that you have to copy any default values you want to keep from the
+(old) default configuration file to your new configuration file. 
+
+For example, say you have been using biofetch with the default
+configuration file http://www.open-bio.org/registry/seqdatabase.ini
+for all your sequence-data retrieval.  If you now install a local copy
+of genbank, your local seqdatabase.ini must not only have a "stanza"
+indicating that 'genbank' is local but it must have stanzas
+configuring the web access for all the other databases you use, since 
+http://www.open-bio.org/registry/seqdatabase.ini will no longer be
+found in a registry-file search.
 
 ============================================================================
 
@@ -162,13 +202,19 @@ reading sequences immediately.  For the flat and biosql protocols, you
 will need to create and initialize local databases.  See the following
 documentation on how to do this:
 
-   flat protocol:    See FLAT-DATABASES-HOWTO.txt
-   biosql protocol:  See BIOSQL-HOWTO.txt
+   flat protocol:    See FLAT-DATABASES-HOWTO.txt (in the doc/howto subdirectory)
+   biosql protocol:  See BIOSQL-HOWTO.txt (this doc is still being developed)
 
 ============================================================================
 
 
 WRITING CODE TO USE THE REGISTRY
+
+Once you've set up the OBDA registry file, accessing sequence data
+from within a perl script is simple. The following example shows how;
+note that nowhere in the script do you explicitly specify whether the
+data is stored in a flat file, a local relational database or a
+database on the internet.
 
 To use the registry from a Perl script, use the following idiom:
 
@@ -201,6 +247,10 @@ string.
 
 USING BIOGETSEQ TO ACCESS REGISTRY SEQUENCES FROM THE COMMAND LINE
 
+As a convenience, the Bioperl distribution includes a script
+'biogetseq' that enables one to have OBDA access to sequence data from
+the command line.
+
 The script 'biogetseq' is located at the scripts/DB directory of the
 bioperl distribution. Move or add it into your path to run it.
 
@@ -229,6 +279,9 @@ abbreviated to one letter format:
 ChangeLog
 
 $Log$
+Revision 1.4  2003/02/20 22:41:25  heikki
+added explanation for biogetseq
+
 Revision 1.3  2003/02/20 21:12:01  lstein
 added new heading to biodatabase access doc for Heikki to fill in
 

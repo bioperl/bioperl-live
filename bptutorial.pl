@@ -68,7 +68,7 @@ BioPerlTutorial - a tutorial for bioperl
     III.3.3 Identifying restriction enzyme sites (RestrictionEnzyme)
     III.3.4 Identifying amino acid cleavage sites (Sigcleave)
     III.3.5 Miscellaneous sequence utilities: OddCodes, SeqPattern
-    III.3.6 Sequence manipulation without creating Bioperl "objects"
+    III.3.6 Converting coordinate systems (Coordinate::Pair, RelSegment)
   III.4 Searching for "similar" sequences
      III.4.1 Running BLAST remotely (using RemoteBlast.pm)
      III.4.2 Parsing BLAST and FASTA reports with Search and SearchIO
@@ -247,6 +247,11 @@ Bio::Perl has a number of other "easy to use" functions, including
                         NCBI
   write_blast         - writes a blast report out to a file
 
+Using the Bio::Perl.pm module, it is possible to manipulate sequence
+data in Bioperl without explicitly creating Seq or SeqIO objects 
+described later in this tutorial. However, only limited
+data manipulation is supported in this mode.  
+
 Look at the documentation in L<Bio::Perl> by going 'perldoc Bio::Perl' to
 learn more about these functions. In all these cases, Bio::Perl
 accesses a subset of the underlying Bioperl functions (for example,
@@ -254,7 +259,8 @@ translation in Bioperl can handle many different translation tables
 and provides different options for stop codon processing) - in most
 cases, most users will migrate to using the underlying bioperl objects
 as their sophistication level increases, but L<Bio::Perl> provides an
-easy on-ramp for newcomers and lazy programmers.
+easy on-ramp for newcomers and lazy programmers. Also see scripts/bioperl.pl
+for more examples of usage of this module.
 
 =head2 I.3 Software requirements
 
@@ -669,8 +675,32 @@ However, in most cases, it is preferable to access sequence data from
 some online data file or database (Note that in common with
 conventional bioinformatics usage we will sometimes call a "database"
 what might be more appropriately referred to as an "indexed flat
-file".)  Bioperl supports accessing remote databases as well as
-developing indices for setting up local databases.
+file".)  
+
+Bioperl supports accessing remote databases as well as developing 
+indices for setting up local databases.  There are two general approaches 
+to accomplishing this.  If you know what kind of database the sequences 
+is stored in (ie flat file, local relational database or a database 
+accessed remotely over the internet), you can write a script that specifically 
+accesses data from that kind of database.  This approach is described 
+in sections III.1.1 and III.1.2 for access from remote databases and 
+local indexed flat files respectively. (To explicitly access sequence 
+data from a local relational database requires installing and setting 
+up the modules in the bioperl-db library which is outside the scope 
+of this tutorial.)
+
+The other approach is to use the recently developed OBDA (Open
+Bioinformatics Data Access) Registry system.  Using OBDA, it is
+possible to import sequence data from a database without your needing
+to know whether the required database is flat-file or relational or
+even whether it is local or accessible only over the net.
+Descriptions of how to set up the necessary registry configuration
+file and access sequence data with the registry in described in
+BIODATABASE_ACCESS in the doc/howto subdirectory and won't be repeated
+here. Note, the OBDA approach is still under development as of this 
+writing (March 2003); so if you run into difficulties, you can always 
+use the older database specific access methods described in the next
+two subsections.
 
 =head2   III.1.1 Accessing remote databases (Bio::DB::GenBank, etc)
 
@@ -1239,27 +1269,80 @@ More detail can be found in L<Bio::Tools::SeqPattern>.
 
 =for html <A NAME ="iii.3.6"></A>
 
-=head2 III.3.6 Sequence manipulation without creating Bioperl "objects" (Perl.pm)
+=head2 III.3.6 Converting coordinate systems (Coordinate::Pair, RelSegment)
 
-Using the Bio::Perl.pm module, it is possible to manipulate sequence
-data in Bioperl without explicitly creating Seq or SeqIO objects.
-This feature may ease the Bioperl learning curve for new users
-unfamiliar or uncomfortable with using Perl objects.  However, only
-limited data manipulation are supported in this mode.  In addition,
-each method (i.e. function) that will be used by the script must be
-explicitly declared in the initial "use directive".  For example a
-simple data format conversion and sequence manipulation could be
-performed as follows - note that no "new" methods are called and that
-no Seq or SeqIO objects are created:
+Coordinate system conversion is a common requirement, for example, when 
+one wants to look at the relative positions of sequence features to one 
+another and convert those relative positions to "absolute" coordinates 
+along a chromosome or contig.  Although coordinate conversion sounds pretty 
+trivial it can get fairly tricky when one includes the possibilities of switching 
+to coordinates on negative (ie Crick) strands and/or having a coordinate 
+system "terminate" because you have reached the end of a clone or contig.  
+Bioperl has two different approaches to coordinate-system conversion (based 
+on the modules Bio::Coordinate::Pair and  Bio::DB::GFF::RelSegment, respectively).
 
-  use Bio::Perl qw( get_sequence );
-  # get a sequence from a database (assummes internet connection)
-  $seq_object = get_sequence('swissprot',"ROA1_HUMAN");
-  # $seq_object is Bio::Seq object, so the following methods work
-  $seq_id  = $seq_object->display_id;
-  $seq_as_string = $seq_object->seq();
+The Coordinate::Pair approach is somewhat more "low level".  With it, you 
+define an input coordinate system and an output coordinate system, where 
+in each case a coordinate system is a triple of a start position, end position 
+and strand.  The "end position" is especially important when dealing with 
+unfinished assemblies where the coordinate system ends when one reaches 
+the end of the sequence of a clone or contig.  Once one has defined the 
+two coordinate systems, one defines a "Coordinate::Pair" to map between 
+them.  Then one can map positions between the coordinates systems with 
+code such as this:
 
-For more details see L<Bio::Perl> and scripts/bioperl.pl.
+$input_coordinates = Bio::Location::Simple->new  
+  (-seq_id => 'propeptide', -start => 1000, -end => 2000, -strand=>1 );
+$output_coordinates = Bio::Location::Simple->new  
+  (-seq_id => 'peptide', -start => 1100, -end => 2100, -strand=>1 );
+$pair = Bio::Coordinate::Pair->new
+(-in => $input_coordinates ,  -out => $output_coordinates   );
+$pos = Bio::Location::Simple->new (-start => 500, -end => 500 );
+$res = $pair->map($pos);
+$converted_pos  = $res->gap->start;
+
+See the documentation for Bio::Coordinate::Pair and Bio::Coordinate::GeneMapper 
+for more details.
+
+The Bio::DB::GFF::RelSegment approach is designed more for handling coordinate 
+transformations of sequence features rather than for transforming arbitrary 
+coordinate systems.  With Bio::DB::GFF::RelSegment you define a coordinate 
+system relative to a specific feature (called the "refseq").  You also have 
+access to the "absolute" coordinate system (typically of the entire chromosome.)  
+You can determine the position of a feature relative to some other feature 
+simply by redefining the relevant reference feature (ie the "refseq") with 
+code like this:
+
+$db = Bio::DB::GFF->new(-dsn => 'dbi:mysql:elegans',
+                                           -adaptor=>'dbi:mysqlopt');
+
+$seg = $db->segment('ZK909');
+$relative_start = $seg->start;  # $relative_start  = 1;
+
+# Now retrieve the start position of ZK909 relative to feature ZK337
+$seg->refseq('ZK337');
+$relative_start = $seg->start;  
+
+# Now retrieve the start position of ZK909 relative to the entire chromosome
+$absolute_start =  $seg->abs_start;
+
+This approach is convenient because you don't have to keep track of 
+coordinates directly; you just keep track of the name of a feature 
+which in turn marks the coordinate-system origin.  However, this 
+approach does require that you have stored all the sequence features 
+in GFF format.   Moreover, Bio::DB::GFF::RelSegment has been principally 
+developed and tested for applications where all the sequence features are 
+stored in a Bioperl-db relational database. However,  if one wants to use 
+the Bio:DB::GFF machinery (including its coordinate transformation 
+capabilities) without building a local relational database, this is 
+possible by defining the 'database' as having an adaptor called 'memory'; 
+e.g. 
+
+$db = Bio::DB::GFF->new( '-adaptor' => 'memory' );
+
+For more details on coordinate transformations and other GFF-related 
+capabilities in Bioperl see  Bio::DB::GFF::RelSegment.pm, Bio::DB::GFF.pm 
+and the test file  t / BioDBGFF.t.
 
 =head2 III.4 Searching for "similar" sequences
 
