@@ -1342,7 +1342,7 @@ sub desc {
 #--------------
 sub database { 
     my $self = shift; 
-    self->warn("Bio::Tools::Sbjct::database() is deprecated.\nNo useful information is provided by this method.\nUse Bio::Tools::Blast::database().\n");
+    $self->warn("Bio::Tools::Sbjct::database() is deprecated.\nNo useful information is provided by this method.\nUse Bio::Tools::Blast::database().\n");
     return $self->{'_db'};
 }
 #--------------
