@@ -881,6 +881,33 @@ their resolution. Bug reports can be submitted via email or the web:
     bioperl-bugs@bio.perl.org                   
     http://bio.perl.org/bioperl-bugs/           
 
+=head1 ACKNOWLEDGEMENTS
+
+Some pieces of the code were contributed by Steven E. Brenner, 
+Steve Chervitz, Ewan Birney, Tim Dudgeon, David Curiel, and other Bioperlers.
+Thanks !!!!
+
+=head1 SEE ALSO
+
+  UnivAln.pm - The biosequence alignment object
+  Parse.pm   - The perl interface to ReadSeq
+
+=head1 REFERENCES
+
+BioPerl Project Page
+http://bio.perl.org/
+
+=head1 VERSION
+
+Bio::Seq.pm, beta 0.050
+
+=head1 COPYRIGHT
+
+ Copyright (c) 1996-1998 Chris Dagdigian, Georg Fuellen, Richard Resnick.
+ All Rights Reserved. This module is free software; you can redistribute 
+ it and/or modify it under the same terms as Perl itself.
+
+=cut
 
 =head1 Appendix
 
@@ -2250,7 +2277,7 @@ sub copy {
   my($self) = @_;
   my(%dup);
 
-  # changes suggested by Curiel, David. Done by EB.
+  # changes suggested by David Curiel. Done by EB.
 
   $dup{"seq"}     = $self->{"seq"};
   $dup{"id"}      = $self->{"id"};
