@@ -19,26 +19,26 @@ Bio::Tools::Sim4::Results - Results of one Sim4 run
 
    # to preset the order of EST and genomic file as given on the sim4 
    # command line:
-   $sim4 = Bio::Tools::Sim4::Results->new(-file => 'result.sim4',
-                                          -estfirst => 1);
+   my $sim4 = Bio::Tools::Sim4::Results->new(-file => 'result.sim4',
+                                             -estfirst => 1);
    # to let the order be determined automatically (by length comparison):
    $sim4 = Bio::Tools::Sim4->new( -file => 'sim4.results' );
    # filehandle:
    $sim4 = Bio::Tools::Sim4->new( -fh   => \*INPUT );
 
    # parse the results
-   while($exonset = $sim4->next_exonset()) {
+   while(my $exonset = $sim4->next_exonset()) {
        # $exonset is-a Bio::SeqFeature::Generic with Bio::Tools::Sim4::Exons
        # as sub features
        print "Delimited on sequence ", $exonset->seq_id(), 
-             "from ", $exonset->start(), " to ", $exonset->end() "\n";
-       foreach $exon ( $exonset->sub_SeqFeature() ) {
+             "from ", $exonset->start(), " to ", $exonset->end(), "\n";
+       foreach my $exon ( $exonset->sub_SeqFeature() ) {
 	  # $exon is-a Bio::SeqFeature::FeaturePair
 	  print "Exon from ", $exon->start, " to ", $exon->end, 
                 " on strand ", $exon->strand(), "\n";
           # you can get out what it matched using the est_hit attribute
-          $homol = $exon->est_hit();
-          print "Matched to sequence", $homol->seq_id, 
+          my $homol = $exon->est_hit();
+          print "Matched to sequence ", $homol->seq_id, 
                 " at ", $homol->start," to ", $homol->end, "\n";
       }
    }
@@ -234,7 +234,7 @@ sub parse_next_alignment {
        /^seq2/ && do {
 	   # the second hit has also the database name in the >name syntax 
 	   # (in brackets).
-	   /^seq2\s+=\s+(\S+)\s+\(>?(\S+)\s*\)\,\s+(\d+)/ ||
+	   /^seq2\s+=\s+(\S+)\s+\(>?(\S+)\s*\)\,\s+(\d+)/||
 	       $self->throw("Sim4 parsing error on seq2 [$_] line. Sorry!");
 	   $seq2props{'filename'} = $1;
 	   $seq2props{'seqname'} = $2;
