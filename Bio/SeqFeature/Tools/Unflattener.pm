@@ -865,7 +865,7 @@ sub problem {
 	      sprintf("\nSF: %s\n",
 		      join('; ',
 			   map {
-			       $sf->has_label($_) ?
+			       $sf->has_tag($_) ?
 				 $sf->get_tag_values($_) : ()
 			     } qw(gene product label)));
 	}
