@@ -65,14 +65,14 @@ the BlastHSP.pm object is used.
 
 Bio::Search::HSP::BlastHSP.pm is a concrete class that inherits from
 B<Bio::SeqFeature::SimilarityPair> and B<Bio::Search::HSP::HSPI>.
-B<Bio::Seq> and B<Bio::UnivAln> are employed for creating 
+B<Bio::Seq> and B<Bio::SimpleAlign> are employed for creating 
 sequence and alignment objects, respectively.
 
-=head2 Relationship to UnivAln.pm & Seq.pm
+=head2 Relationship to SimpleAlign.pm & Seq.pm
 
 BlastHSP.pm can provide the query or sbjct sequence as a B<Bio::Seq>
 object via the L<seq()|seq> method. The BlastHSP.pm object can also create a
-two-sequence B<Bio::UnivAln> alignment object using the the query
+two-sequence B<Bio::SimpleAlign> alignment object using the the query
 and sbjct sequences via the L<get_aln()|get_aln> method. Creation of alignment
 objects is not automatic when constructing the BlastHSP.pm object since
 this level of functionality is not always required and would generate
@@ -1591,21 +1591,21 @@ sub seq_inds {
 =head2 get_aln
 
  Usage     : $hsp->get_aln()
- Purpose   : Get a Bio::UnivAln.pm object constructed from the query + sbjct 
+ Purpose   : Get a Bio::SimpleAlign object constructed from the query + sbjct 
            : sequences of the present HSP object.
  Example   : $aln_obj = $hsp->get_aln();
- Returns   : Object reference for a Bio::UnivAln.pm object.
+ Returns   : Object reference for a Bio::SimpleAlign.pm object.
  Argument  : n/a.
  Throws    : Propagates any exception ocurring during the construction of
-           : the Bio::UnivAln object.
- Comments  : Requires Bio::UnivAln.pm.
-           : The Bio::UnivAln.pm object is constructed from the query + sbjct 
+           : the Bio::SimpleAlign object.
+ Comments  : Requires Bio::SimpleAlign.
+           : The Bio::SimpleAlign object is constructed from the query + sbjct 
            : sequence objects obtained by calling seq().
            : Gap residues are included (see $GAP_SYMBOL). It is important that 
-           : Bio::UnivAln.pm recognizes the gaps correctly. A strategy for doing 
+           : Bio::UnivAln recognizes the gaps correctly. A strategy for doing 
            : this is being considered. Currently it is hard-wired.
 
-See Also   : L<seq()|seq>, L<Bio::UnivAln>
+See Also   : L<seq()|seq>, L<Bio::SimpleAlign>
 
 =cut
 
@@ -1614,17 +1614,24 @@ sub get_aln {
 #------------
     my $self = shift;
 
-    require Bio::UnivAln;
-
+    require Bio::SimpleAlign;
+    require Bio::LocatableSeq;
     my $qseq = $self->seq('query');
     my $sseq = $self->seq('sbjct');
 
     my $type = $self->{'_prog'} =~ /P$|^T/ ? 'amino' : 'dna';
-
-    Bio::UnivAln->new( -seqs => [$qseq, $sseq],
-		       -desc => $self->to_string,
-		       -type => $type,
-		       );
+    my $aln = new Bio::SimpleAlign();
+    $aln->add_seq(new Bio::LocatableSeq(-seq => $qseq->seq(),
+					-id  => 'query_'.$qseq->display_id(),
+					-start => 1,
+					-end   => CORE::length($qseq)));
+		  
+    $aln->add_seq(new Bio::LocatableSeq(-seq => $sseq->seq(),
+					-id  => 'hit_'.$sseq->display_id(),
+					-start => 1,
+					-end   => CORE::length($sseq)));
+		  
+    return $aln;
 }
 
 
