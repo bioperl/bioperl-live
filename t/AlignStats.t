@@ -36,7 +36,7 @@ use Bio::Root::IO;
 # Volunteers welcomed
 
 my $in = new Bio::AlignIO(-format => 'emboss',
-			  -file   => Bio::Root::IO->catfile('t', 'data',
+			  -file   => Bio::Root::IO->catfile( 't','data',
 							    'insulin.water'));
 my $aln = $in->next_aln();
 ok($aln);
@@ -62,7 +62,7 @@ $aln = $in->next_aln();
 ok(! defined $aln);
 
 $in = new Bio::AlignIO(-format => 'fasta',
-		       -file   => Bio::Root::IO->catfile('t', 'data',
+		       -file   => Bio::Root::IO->catfile('t','data',
 							 'hs_owlmonkey.fasta'));
 
 $aln = $in->next_aln();
@@ -92,3 +92,19 @@ if( 0 ) {
 #ok( sprintf("%.4f", Bio::Align::DNAStatistics->D_Tamura($aln)), 0.1233);
 #ok( sprintf("%.4f", Bio::Align::DNAStatistics->D_Tamura($aln)), 0.1246);
 #ok( sprintf("%.4f", Bio::Align::DNAStatistics->D_JinNeiGamma($aln)), 0.1350);
+
+### now test Nei_gojobori methods ##
+$in = Bio::AlignIO->new(-format => 'fasta',
+		       -file   => Bio::Root::IO->catfile('t','data', 'nei_gojobori_test.aln'));
+my $alnobj = $in->next_aln();
+ok($alnobj);
+my $result = $stats->calc_KaKs_pair($alnobj, 'seq1', 'seq2');
+ok (sprintf ("%.1f", $result->[0]{'S'}), 40.5);
+ok (sprintf ("%.1f", $result->[0]{'z_score'}), 4.2);
+$result = $stats->calc_all_KaKs_pairs($alnobj);
+ok (sprintf ("%.1f", $result->[1]{'S'}), 41.5);
+ok (sprintf ("%.1f", $result->[1]{'z_score'}), 4.6);
+$result = $stats->calc_average_KaKs($alnobj, 100);
+ok (sprintf ("%.4f", $result->{'D_n'}), 0.1628);
+
+
