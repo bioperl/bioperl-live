@@ -78,7 +78,7 @@ test 19, $hsp->query->end == 504;
 test 20, $hsp->query->seqname eq $report->query;
 test 21, $hsp->query->primary_tag eq "similarity";
 test 22, $hsp->query->source_tag eq "BLAST";
-test 23, $hsp->sbjct->length == 1512;
+test 23, $hsp->subject->length == 1512;
 
 close FH;
 

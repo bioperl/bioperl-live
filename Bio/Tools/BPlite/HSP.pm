@@ -16,12 +16,12 @@ use strict;
 # to disable overloading comment this out:
 use overload '""' => '_overload';
 
-# Object preamble - inheriets from Bio::SeqFeature::FeaturePair
+# Object preamble - inheriets from Bio::SeqFeature::SimilarityPair
 
-use Bio::SeqFeature::FeaturePair;
-use Bio::SeqFeature::Generic; # we want to use Generic Features
+use Bio::SeqFeature::SimilarityPair;
+use Bio::SeqFeature::Similarity;
 
-@ISA = qw(Bio::SeqFeature::FeaturePair);
+@ISA = qw(Bio::SeqFeature::SimilarityPair);
 
 # new() is inherited from Bio::Root::Object
 
@@ -31,13 +31,12 @@ sub _initialize {
   my($self,@args) = @_;
   my $make = $self->SUPER::_initialize;
 
-  my ($score,$bits,$match,$positive,$length,
-      $p,$qb,$qe,$sb,$se,$qs,$ss,$hs,$qname,$sname) = 
+  my ($score,$bits,$match,$positive,$p,$qb,$qe,$sb,$se,$qs,
+      $ss,$hs,$qname,$sname,$qlength,$slength) = 
       $self->_rearrange([qw(SCORE
 			    BITS
 			    MATCH
 			    POSITIVE
-			    LENGTH
 			    P
 			    QUERYBEGIN
 			    QUERYEND
@@ -47,39 +46,47 @@ sub _initialize {
 			    SBJCTSEQ
 			    HOMOLOGYSEQ
 			    QUERYNAME
-			    SBJCTNAME
-			    )],@args);
-  # set object vars
-  $self->{SCORE} = $score;
-  $self->{BITS} = $bits;
-  $self->{PERCENT} = int((1000 * $match)/$length)/10;
-  $self->{MATCH} = $match;
-  $self->{POSITIVE} = $positive;
-  $self->{LENGTH} = $length;
-  $self->{P} = $p;
-  $self->{QS} = $qs;
-  $self->{SS} = $ss;
-  $self->{HS} = $hs;
+			    SBJCTNAME			    
+			    QUERYLENGTH
+			    SBJCTLENGTH
+			)],@args);
 
   # Store the aligned query as sequence feature
   if ($qe > $qb) { # normal query: start < end
-    $self->feature1( Bio::SeqFeature::Generic->new
-      (-start=>$qb, -end=>$qe, -strand=>1, -primary=>"similarity", source=>"BLAST" ) ) }
+    $self->query( Bio::SeqFeature::Similarity->new
+      (-start=>$qb, -end=>$qe, -strand=>1, -source=>"BLAST" ) ) }
   else { # reverse query (i dont know if this is possible, but feel free to correct)
-    $self->feature1( Bio::SeqFeature::Generic->new
-      (-start=>$qe, -end=>$qb, -strand=>-1, -primary=>"similarity", source=>"BLAST" ) ) }
+    $self->query( Bio::SeqFeature::Similarity->new
+      (-start=>$qe, -end=>$qb, -strand=>-1, -source=>"BLAST" ) ) }
   
   # store the aligned subject as sequence feature
   if ($se > $sb) { # normal subject
-    $self->feature2( Bio::SeqFeature::Generic->new
-      (-start=>$sb, -end=>$se, -strand=>1, -primary=>"similarity", source=>"BLAST" ) ) }
+    $self->subject( Bio::SeqFeature::Similarity->new
+      (-start=>$sb, -end=>$se, -strand=>1, -source=>"BLAST" ) ) }
   else { # reverse subject: start bigger than end
-    $self->feature2( Bio::SeqFeature::Generic->new
-      (-start=>$se, -end=>$sb, -strand=>-1, -primary=>"similarity", source=>"BLAST" ) ) }
+    $self->subject( Bio::SeqFeature::Similarity->new
+      (-start=>$se, -end=>$sb, -strand=>-1, -source=>"BLAST" ) ) }
 
   # name the sequences
-  $self->feature1->seqname($qname); # query
-  $self->feature2->seqname($sname); # sbjct
+  $self->query->seqname($qname); # query
+  $self->subject->seqname($sname); # subject
+
+  # set lengths
+  $self->query->seqlength($qlength); # query
+  $self->subject->seqlength($slength); # subject
+
+  # set object vars
+  $self->score($score);
+  $self->bits($bits);
+  $self->significance($p);
+  $self->query->frac_identical($match);
+  $self->subject->frac_identical($match);
+  $self->{PERCENT} = int((1000 * $match)/
+			 $self->query->length)/10;
+  $self->{POSITIVE} = $positive;
+  $self->{QS} = $qs;
+  $self->{SS} = $ss;
+  $self->{HS} = $hs;
 
   return $make; # success - we hope!
 }
@@ -90,19 +97,10 @@ sub _overload {
 	return $self->start."..".$self->end." ".$self->bits;
 }
 
-# aliases for features 1 & 2
-sub query {shift->feature1(@_)}
-sub subject {shift->feature2(@_)}
-sub sbjct {shift->feature2(@_)}
-
-sub score           {shift->{SCORE}}
-sub hscore          {shift->{SCORE}} # for compatibility with FeaturePair
-sub bits            {shift->{BITS}}
+sub P               {shift->significance(@_)}
 sub percent         {shift->{PERCENT}}
-sub match           {shift->{MATCH}}
+sub match           {shift->query->frac_identical(@_)}
 sub positive        {shift->{POSITIVE}}
-sub length          {shift->{LENGTH}}
-sub P               {shift->{P}}
 sub querySeq        {shift->{QS}}
 sub sbjctSeq        {shift->{SS}}
 sub homologySeq     {shift->{HS}}

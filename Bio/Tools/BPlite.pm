@@ -39,6 +39,8 @@ sub _initialize {
 
 sub query    {shift->{QUERY}}
 
+sub qlength  {shift->{LENGTH}}
+
 sub database {shift->{DATABASE}}
 
 sub nextSbjct {
@@ -58,14 +60,16 @@ sub nextSbjct {
   }
   $def =~ s/\s+/ /g;
   $def =~ s/\s+$//g;
-  $def =~ s/Length = [\d,]+$//g;
+  $def =~ s/Length = ([\d,]+)$//g;
+  my $length = $1;
   return 0 unless $def =~ /^>/;
   $def =~ s/^>//;
 
   ####################
   # the Sbjct object #
   ####################
-  my $sbjct = new Bio::Tools::BPlite::Sbjct(-name=>$def, 
+  my $sbjct = new Bio::Tools::BPlite::Sbjct(-name=>$def,
+					    -length=>$length,
                                             -fh=>$self->{FH}, 
 					    -lastline=>$self->{LASTLINE}, 
 					    -parent=>$self);
@@ -77,7 +81,7 @@ sub _parseHeader {
   my $FH = $self->{FH};
   
   while(<$FH>) {
-    if ($_ =~ /^Query=\s+(.+)/)    {
+    if ($_ =~ /^Query=\s+([^\(]+)/)    {
       my $query = $1;
       while(<$FH>) {
         last if $_ !~ /\S/;
@@ -85,7 +89,10 @@ sub _parseHeader {
       }
       $query =~ s/\s+/ /g;
       $query =~ s/^>//;
+      $query =~ /\((\d+)\s+\S+\)\s*$/;
+      my $length = $1;
       $self->{QUERY} = $query;
+      $self->{LENGTH} = $length;
     }
     elsif ($_ =~ /^Database:\s+(.+)/) {$self->{DATABASE} = $1}
     elsif ($_ =~ /^>/)                {$self->{LASTLINE} = $_; return 1}

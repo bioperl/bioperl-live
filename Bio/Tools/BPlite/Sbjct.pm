@@ -23,8 +23,9 @@ sub _initialize {
   my ($self, @args) = @_; 
   my $make = $self->SUPER::_initialize;
   
-  ($self->{NAME},$self->{FH},$self->{LASTLINE},$self->{PARENT}) =
+  ($self->{NAME},$self->{LENGTH},$self->{FH},$self->{LASTLINE},$self->{PARENT}) =
       $self->_rearrange([qw(NAME
+			    LENGTH
 			    FH
 			    LASTLINE
 			    PARENT
@@ -121,12 +122,21 @@ sub nextHSP {
   $ql = join("", @QL);
   $sl = join("", @SL);
   $as = join("", @AS);
-  my $hsp = new Bio::Tools::BPlite::HSP(
-    -score=>$score, -bits=>$bits, -match=>$match,
-    -positive=>$positive, -length=>$length, -p=>$p,
-    -queryBegin=>$qb, -queryEnd=>$qe, -sbjctBegin=>$sb,
-    -sbjctEnd=>$se, -querySeq=>$ql, -sbjctSeq=>$sl,
-    -homologySeq=>$as, -queryName=>$self->{PARENT}->query,
-    -sbjctName=>$self->{NAME});
+  my $hsp = new Bio::Tools::BPlite::HSP(-score=>$score, 
+					-bits=>$bits, 
+					-match=>$match,
+					-positive=>$positive, 
+					-p=>$p,
+					-queryBegin=>$qb, 
+					-queryEnd=>$qe, 
+					-sbjctBegin=>$sb,
+					-sbjctEnd=>$se, 
+					-querySeq=>$ql, 
+					-sbjctSeq=>$sl,
+					-homologySeq=>$as, 
+					-queryName=>$self->{PARENT}->query,
+					-sbjctName=>$self->{NAME},
+					-queryLength=>$self->{PARENT}->qlength,
+					-sbjctLength=>$self->{LENGTH});
   return $hsp;
 }

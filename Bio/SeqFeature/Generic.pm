@@ -256,10 +256,9 @@ sub strand {
 =cut
 
 sub score {
-  my $self = shift;
+  my ($self,$value) = @_;
 
-  if ( @_ ) {
-       my $value = shift;
+  if (defined($value)) {
        if ( $value !~ /^[+-]?\d+\.?\d*(e-\d+)?/ ) {
 	   $self->throw("'$value' is not a valid score");
        }
