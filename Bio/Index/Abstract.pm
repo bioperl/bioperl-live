@@ -204,6 +204,8 @@ sub db {
     This method should not be used without forethought 
 =cut
 
+#'
+
 sub get_stream {
    my ($self,$id) = @_;
 
@@ -567,6 +569,9 @@ sub _file_count {
   Usage   : $index->add_record( $id, @stuff );
   Function: Calls pack_record on @stuff, and adds the result
             of pack_record to the index database under key $id.
+            If $id is a reference to an array, then a new entry
+            is added under a key corresponding to each element
+            of the array.
   Example : $index->add_record( $id, $fileNumber, $begin, $end )
   Returns : TRUE on success or FALSE on failure
   Args    : ID LIST
@@ -575,11 +580,21 @@ sub _file_count {
 
 sub add_record {
     my( $self, $id, @rec ) = @_;
-    if( $self->verbose != 0 ) {
-	print STDERR "Adding key $id\n";
+    
+    my( @id_list );
+    if (ref($id) eq 'ARRAY') {
+        @id_list = @$id;
+    } else {
+        @id_list = ($id);
     }
+    
+    foreach my $id (@id_list) {
+        if( $self->verbose != 0 ) {
+	    print STDERR "Adding key $id\n";
+        }
 
-    $self->db->{$id} = $self->pack_record( @rec );
+        $self->db->{$id} = $self->pack_record( @rec );
+    }
 }
 
 
