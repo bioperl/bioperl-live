@@ -41,7 +41,7 @@ if( $error ==  1 ) {
 require Bio::DB::EMBL;
 
 my $testnum;
-my $verbose = 2;
+my $verbose = 0;
 
 ## End of black magic.
 ##
