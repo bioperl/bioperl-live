@@ -572,16 +572,26 @@ sub add_clinical_symptoms {
     push @{$self->{_clinical_symptoms}->{$part}}, @symptoms;
 }
 
-=head2 get_clinical_symptoms
+=head2 query_clinical_symptoms
 
   Title     : get_clinical_symptoms
-  Usage     : @symptoms = $self->get_clinical_symptoms('Ears');
+  Usage     : @symptoms = $self->query_clinical_symptoms('Ears');
   Function  : get all symptoms specific to one part/organism.
   Returns   : an array of text
-  Args      : $part
+  Args      : $organ
 
 =cut
 
+sub query_clinical_symptoms {
+    my ($self, $organ)=@_;
+    my $symptoms=$self->{_clinical_symptoms}->{$organ};
+    @$symptoms;
+}
+
+sub get_clinical_symptom_organs {
+    my ($self)=@_;
+    keys %{$self->{_clinical_symptoms}};
+}
 
 =head2 created
 
