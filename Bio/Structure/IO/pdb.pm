@@ -1157,6 +1157,7 @@ sub _read_PDB_coordinate_section {
 	$model->id('default');
 	my $noatom = $self->_noatom;
 	my ($chain, $residue, $atom, $old);
+	my (%_ch_in_model);  # which chains are already in this model
 
 	$_ = $$buffer;
 	while (defined( $_ ||= $self->_readline )) {
@@ -1182,11 +1183,20 @@ $self->debug("_read_PDB_coor: parsing model $model_num\n");
 			my ($serial, $atomname, $altloc, $resname, $chainID, $resseq, $icode, $x, $y, $z, 
 				$occupancy, $tempfactor, $segID, $element, $charge) = @line_elements;
 			$chainID = 'default' if ( !defined $chainID ); 
-			if ($chainID ne $chain_name) { # new chain
-				$chain = Bio::Structure::Chain->new;
-				$struc->add_chain($model,$chain);
-				$chain->id($chainID);
-				$chain_name = $chainID;
+			if ($chainID ne $chain_name) { # possibly a new chain
+				# fix for bug #1187
+				#  we can have ATOM/HETATM of an already defined chain (A B A B)
+				#  e.g. 1abm
+				
+				if (exists $_ch_in_model{$chainID} ) { # we have already seen this chain in this model
+					$chain = $_ch_in_model{$chainID};
+				} else {  # we create a new chain
+					$chain = Bio::Structure::Chain->new;
+					$struc->add_chain($model,$chain);
+					$chain->id($chainID);
+					$_ch_in_model{$chainID} = $chain;
+				}
+				$chain_name = $chain->id;
 			}
 			my $res_name_num = $resname."-".$resseq;
 			if ($res_name_num ne $residue_name) { # new residue
