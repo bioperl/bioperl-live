@@ -350,7 +350,7 @@ qq{
 			if( length($piece) < $AlignmentLineWidth ) {
 			    $d = (length($piece) - $plen) * $v->{'direction'};
 			}
-			$end   = $v->{'start'} + $d - 1;
+			$end   = $v->{'start'} + $d - $v->{'direction'};
 
 
 			$v->{'start'} += $d;
