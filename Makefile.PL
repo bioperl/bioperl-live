@@ -37,7 +37,9 @@
 	     'Graph::Directed'          => '0.0/Generic Graph data stucture and algorithms/ontology engine implementation for the GO parser/Bio::Ontology::SimpleOntologyEngine',
 	     'Class::AutoClass'         => '0.0/Protocol for object creation/creating objects/Bio::Graph::SimpleGraph',
 	     'Clone'                    => '0.0/Recursively copy Perl datatypes/cloning ProteinGraph objects/Bio::Graph::ProteinGraph',
-
+	     'XML::SAX'                 => '0.0/New style SAX parser/Parsers/Bio::SeqIO::tigrxml,Bio::SeqIO::bsml_sax',
+	     'XML::SAX::Base'                 => '0.0/New style SAX parser/Parsers/Bio::SeqIO::tigrxml,Bio::SeqIO::bsml_sax',
+	     'XML::SAX::Writer'         => '0.0/New style SAX parser/Writers/Bio::SeqIO::tigrxml,Bio::SeqIO::bsml_sax',
 # Bio::Microarray is not in core bioperl yet
 #	     'enum'                     => '0.0/C style enumerated types and bitmask flags 
 # in Perl/Bio::Microarray::Affymetrix::*',

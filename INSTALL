@@ -523,3 +523,7 @@ o DEPENDENCIES AND Bundle::BioPerl
 
  Clone                    Used to clone objects
                           Bio::Graph::ProteinGraph
+
+XML::SAX		  New style SAX parser for Bio::SeqIO::bsml_sax
+XML::SAX::Base		  Bio::SeqIO::tigrxml
+XML::SAX::Writer
