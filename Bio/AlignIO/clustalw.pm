@@ -107,8 +107,10 @@ sub _initialize {
  Title   : next_aln
  Usage   : $aln = $stream->next_aln()
  Function: returns the next alignment in the stream
- Returns : L<Bio::Align::AlignI> object
+ Returns : Bio::Align::AlignI object
  Args    : NONE
+
+See L<Bio::Align::AlignI> for details
 
 =cut
 
