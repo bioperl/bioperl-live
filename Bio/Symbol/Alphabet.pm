@@ -107,8 +107,9 @@ sub new {
     $self->{'_alphabets'} = [];
     my ($symbols, $subalphas) = $self->_rearrange([qw(SYMBOLS SUBALPHAS)],
 						  @args);
-    $symbols && ref($symbols) =~ /array/i && $self->symbols(@$symbols);
-    $subalphas && ref($subalphas) =~ /array/i && $self->alphabets(@$subalphas);
+    
+    defined $symbols && ref($symbols) =~ /array/i && $self->symbols(@$symbols);
+    defined $subalphas && ref($subalphas) =~ /array/i && $self->alphabets(@$subalphas);
     return $self;
 }
 
@@ -132,7 +133,8 @@ sub symbols {
     if( @args ) { 
 	$self->{'_symbols'} = [];
 	foreach my $symbol ( @args ) {
-	    if( ! $symbol->isa('Bio::Symbol::SymbolI') ) {
+	    if( ! defined $symbol || ! ref($symbol) || 
+		! $symbol->isa('Bio::Symbol::SymbolI') ) {
 		$self->warn("Did not provide a proper Bio::Symbol::SymbolI to method 'symbols' (got $symbol)");
 	    } else { 
 		push @{$self->{'_symbols'}}, $symbol;

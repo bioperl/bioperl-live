@@ -116,12 +116,14 @@ sub new {
   my $self = $class->SUPER::new(@args);
   $self->{'_symbols'} = [];
 
-  my ($name, $token, $symbols) = $self->_rearrange([qw(NAME TOKEN SYMBOLS)],
-						   @args);
+  my ($name, $token, $symbols,
+      $matches) = $self->_rearrange([qw(NAME TOKEN SYMBOLS 
+					MATCHES)],
+				    @args);
   $token && $self->token($token);
   $name && $self->name($name);
   $symbols && ref($symbols) =~ /array/i && $self->symbols(@$symbols);
-
+  $matches && $self->matches($matches); 
   return $self;
 }
 
@@ -167,7 +169,7 @@ sub token{
  Title   : symbols
  Usage   : my @symbols = $self->symbols();
  Function: Get/Set Symbols this Symbol is composed from
- Example : A codon is composed of 3 DNA symbols
+ Example : Ambiguity symbols are made up > 1 base symbol
  Returns : Array of Bio::Symbol::SymbolI objects
  Args    : (optional) Array of Bio::Symbol::SymbolI objects
 
@@ -225,5 +227,6 @@ sub equals{
    # Doesn't handle DNA vs PROTEIN accidential comparisons
    return  $self->token eq $symbol2->token;
 }
+
 
 1;

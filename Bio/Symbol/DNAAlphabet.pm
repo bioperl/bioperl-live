@@ -102,11 +102,14 @@ sub new {
   foreach my $let ( keys %alphabet ) {
       next if( $symbols{$let} || $let eq 'U');
       my @subsymbols;
+      
       foreach my $sublet ( @{$alphabet{$let}} ) {
 	  push @subsymbols, $symbols{$sublet};
       }
+      my $alpha = new Bio::Symbol::Alphabet(-symbols => \@subsymbols);
       $symbols{$let} = new Bio::Symbol::Symbol(-name    => $let,
 					       -token   => $let,
+					       -matches => $alpha,  
 					       -symbols => \@subsymbols); 
   }
   
