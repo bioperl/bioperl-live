@@ -495,6 +495,9 @@ sub trunc{
            Note: if you set $dna_seq_obj->verbose(1) you will get a
            warning if the first codon is not a valid initiator.
 
+           Added way of translating using a custom codon table.  This
+           has to be the final addition to this overloaded interface!
+
 
  Returns : A Bio::PrimarySeqI implementing object
  Args    : character for terminator (optional) defaults to '*'
@@ -503,12 +506,13 @@ sub trunc{
            codon table id (optional) defaults to 1
            complete coding sequence expected, defaults to 0 (false)
            boolean, throw exception if not complete CDS (true) or defaults to warning (false)
+           codontable, a custom Bio::Tools::CodonTable object, optional
 
 =cut
 
 sub translate {
     my($self) = shift;
-    my($stop, $unknown, $frame, $tableid, $fullCDS, $throw) = @_;
+    my($stop, $unknown, $frame, $tableid, $fullCDS, $throw, $codonTable) = @_;
     my($i, $len, $output) = (0,0,'');
     my($codon)   = "";
     my $aa;
@@ -530,7 +534,12 @@ sub translate {
 	($frame == 0 or $frame == 1 or $frame == 2);
 
     #warns if ID is invalid
-    my $codonTable = Bio::Tools::CodonTable->new( -id => $tableid);
+    if ($codonTable) {
+        $self->throw("Need a Bio::Tools::CodonTable object, not". $codonTable)
+            unless $codonTable->isa('Bio::Tools::CodonTable');
+    } else {
+        $codonTable = Bio::Tools::CodonTable->new( -id => $tableid);
+    }
 
     my ($seq) = $self->seq();
 
