@@ -773,7 +773,7 @@ Bio::SimpleAlign</ulink> object and use it like this:
       residues in an alignment, query or hit. It could be used like this:
       <programlisting>
 	# put all the conserved matches in query strand into an array
-	my @str_array = split "",$hsp->query_strand;
+	my @str_array = split "",$hsp->query_string;
 	foreach ( $hsp->seq_inds('query','conserved') ){
 	   push @conserved,$str_array[$_ - 1];
 	}
