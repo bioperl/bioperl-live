@@ -71,6 +71,7 @@ use strict;
 use Bio::Root::Root;
 use Bio::PopGen::PopulationI;
 use Bio::PopGen::Marker;
+use Bio::PopGen::Genotype;
 
 @ISA = qw(Bio::Root::Root Bio::PopGen::PopulationI );
 
@@ -236,7 +237,7 @@ sub add_Individual{
     }
     $self->{'_cached_markernames'} = undef;
     $self->{'_allele_freqs'} = {};
-    return scalar @{$self->{'_individuals'}};
+    return scalar @{$self->{'_individuals'} || []};
 }
 
 
@@ -256,7 +257,7 @@ sub remove_Individuals {
     my %namehash; # O(1) lookup will be faster I think
     foreach my $n ( @names ) { $namehash{$n}++ }
     my @tosplice;
-    foreach my $ind (  @{$self->{'_individuals'}} ) {
+    foreach my $ind (  @{$self->{'_individuals'} || []} ) {
 	unshift @tosplice, $i if( $namehash{$ind->person_id} );
 	$i++;
     }
@@ -265,7 +266,7 @@ sub remove_Individuals {
     }
     $self->{'_cached_markernames'} = undef;
     $self->{'_allele_freqs'} = {};
-    return scalar @{$self->{'_individuals'}};
+    return scalar @{$self->{'_individuals'} || []};
 }
 
 =head2 get_Individuals
@@ -284,7 +285,7 @@ sub remove_Individuals {
 
 sub get_Individuals{
    my ($self,@args) = @_;
-   my @inds = @{$self->{'_individuals'}};
+   my @inds = @{$self->{'_individuals'} || []};
    return unless @inds;
    if( @args ) { # save a little time here if @args is empty
        my ($id,$marker) = $self->_rearrange([qw(UNIQUE_ID MARKER)], @args);
@@ -316,7 +317,7 @@ sub get_Genotypes{
    my ($name) = $self->_rearrange([qw(MARKER)],@args);
    if( defined $name ) {
        return grep { defined $_ } map { $_->get_Genotypes(-marker => $name) } 
-       @{$self->{'_individuals'}}
+       @{$self->{'_individuals'} || []}
    } 
    $self->warn("You needed to have provided a valid -marker value");
    return ();
@@ -336,14 +337,14 @@ sub get_Genotypes{
 
 sub get_marker_names{
     my ($self,$force) = @_;
-    return @{$self->{'_cached_markernames'}} 
+    return @{$self->{'_cached_markernames'} || []} 
       if( ! $force && defined $self->{'_cached_markernames'});
     my %unique;
     foreach my $n ( map { $_->get_marker_names } $self->get_Individuals() ) {
 	$unique{$n}++;
     }
     $self->{'_cached_markernames'} = [ keys %unique ];
-    return @{$self->{'_cached_markernames'} };
+    return @{$self->{'_cached_markernames'} || []};
 }
 
 
@@ -404,10 +405,10 @@ sub get_number_individuals{
    }
 
    unless( defined $markername ) {
-       return scalar @{$self->{'_individuals'}};
+       return scalar @{$self->{'_individuals'} || []};
    } else { 
        my $number =0;
-       foreach my $individual ( @{$self->{'_individuals'}} ) {
+       foreach my $individual ( @{$self->{'_individuals'} || []} ) {
 	   $number++ if( $individual->has_Marker($markername));
        }
        return $number;
@@ -498,6 +499,53 @@ sub get_Frequency_Heterozygotes{
        }
    }
    return $total ? $heterozygote_count / $total : 0;
+}
+
+=head2 haploid_population
+
+ Title   : haploid_population
+ Usage   :
+ Function: Make a new population where all the individuals
+           are haploid - effectively an individual out of each
+           chromosome an individual has.  
+ Example :
+ Returns : 
+ Args    :
+
+
+=cut
+
+sub haploid_population{
+   my ($self) = @_;
+   my @inds;
+   my @marker_names = $self->get_marker_names;
+
+   for my $ind ( $self->get_Individuals ) {
+       my @chromosomes;
+       my $id = $ind->unique_id;
+       # separate genotypes into 'chromosomes'
+       for my $marker_name( @marker_names ) {
+	   my ($genotype) = $ind->get_Genotypes(-marker => $marker_name);
+	   my $i =0;
+	   for my $allele ( $genotype->get_Alleles ) {
+	       push @{$chromosomes[$i]}, 
+	       Bio::PopGen::Genotype->new(-marker_name => $marker_name,
+					-individual_id => $id.".$i",
+					-alleles     => [$allele]);
+	       $i++;
+	   }
+       }
+       for my $chrom ( @chromosomes ) {
+	   my $copyind = ref($ind)->new(-unique_id => $id.".1",
+					-genotypes => $chrom);
+	   push @inds, $ind;
+       }
+   }
+   my $population = ref($self)->new(-name        => $self->name,
+				    -source      => $self->source,
+				    -description => $self->description,
+				    -individuals => \@inds);
+				    
 }
 
 1;
