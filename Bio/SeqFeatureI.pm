@@ -18,7 +18,7 @@ Bio::SeqFeatureI - Abstract interface of a Sequence Feature
 
     # get a seqfeature somehow, eg,
 
-    foreach $feat ( $annseq->all_SeqFeatures() ) {
+    foreach $feat ( $seq->top_SeqFeatures() ) {
             print "Feature from ", $feat->start, "to ", 
 	          $feat->end, " Primary tag  ", $feat->primary_tag, 
 	          ", produced by ", $feat->source_tag(), "\n";
@@ -294,6 +294,103 @@ sub _static_gff_formatter{
        $static_gff_formatter = Bio::Tools::GFF->new('-gff_version' => 2);
    }
    return $static_gff_formatter;
+}
+
+=head1 Decorating methods
+
+These methods have an implementation provided by Bio::SeqFeatureI,
+but can be validly overwritten by subclasses
+
+=head2 spliced_seq
+
+  Title   : spliced_seq
+
+  Usage   : $seq = $feature->spliced_seq()
+            $seq = $feature_with_remote_locations->spliced_seq($db_for_seqs)
+
+  Function: Provides a sequence of the feature which is the most
+            semantically "relevant" feature for this sequence. A default
+            implementation is provided which for simple cases returns just
+            the sequence, but for split cases, loops over the split location
+            to return the sequence. In the case of split locations with
+            remote locations, eg
+
+            join(AB000123:5567-5589,80..1144)
+
+            in the case when a database object is passed in, it will attempt
+            to retrieve the sequence from the database object, and "Do the right thing",
+            however if no database object is provided, it will generate the correct
+            number of N's (DNA) or X's (protein, though this is unlikely).
+
+            This function is deliberately "magical" attempting to second guess
+            what a user wants as "the" sequence for this feature
+
+            Implementing classes are free to override this method with their
+            own magic if they have a better idea what the user wants
+
+  Args    : [optional] A Bio::DB::RandomAccessI compliant object
+  Returns : A Bio::Seq
+  
+=cut
+
+sub spliced_seq {
+    my ($self,$db) = shift;
+
+    if( !$self->location->isa("Bio::Location::SplitLocationI") ) {
+	return $self->seq(); # nice and easy!
+    }
+
+    # redundant test, but the above ISA is probably not ideal.
+    if( ! $self->location->isa("Bio::Location::SplitLocationI") ) {
+	$self->throw("not atomic, not split, yikes, in trouble!");
+    }
+
+    my $seqstr;
+    my $seqid = $self->entire_seq->id;
+
+    foreach my $loc ( $self->location->sub_Location() ) {
+	if( ! $loc->isa("Bio::Location::Atomic") ) {
+	    $self->throw("Can only deal with one level deep locations");
+	}
+	my $called_seq;
+
+	# deal with remote sequences
+
+	if( $loc->seq_id ne $seqid ) {
+	    if( defined $db ) {
+		my $sid = $loc->seq_id;
+		$sid =~ s/\.\d+//g;
+		eval {
+		    $called_seq = $db->get_Seq_by_acc($sid);
+		};
+		if( $@ ) {
+		    $self->warn("In attempting to join a remote location, sequence $sid was not in database. Will provide padding N's. Full exception \n\n$@");
+		    $called_seq = undef;
+		}
+	    } else {
+		$called_seq = undef;
+	    }
+	    if( !defined $called_seq ) {
+		$seqstr .= 'N' x $self->length;
+		next;
+	    }
+	} else {
+	    $called_seq = $self->entire_seq;
+	}
+
+
+	if( $loc->strand == 1 ) {
+	    $seqstr .= $called_seq->subseq($loc->start,$loc->end);
+	} else {
+	    $seqstr .= $called_seq->trunc($loc->start,$loc->end)->complement;
+	}
+
+    }
+
+   my $out = Bio::Seq->new( -id => $self->entire_seq->id . "_spliced_feat",
+			     -seq => $seqstr);
+
+    return $out;
 }
 
 

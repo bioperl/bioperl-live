@@ -30,7 +30,7 @@ FEATURES             Location/Qualifiers
                      /clone="p427/428"
      misc_feature    5.12
                      /note="Fuzzy location"
-     misc_feature    join(J00194:(100..202),1..245,300..422)
+     misc_feature    join(J00194:(100..202),1..245,256..258)
                      /note="Location partly in another entry"
 BASE COUNT      118 a     46 c     67 g     79 t
 ORIGIN      
