@@ -204,6 +204,8 @@ sub to_string {
 
     my ($qtype,$dbtype,$dbseqtype,$type);
     my $alg = $result->algorithm;
+
+    # This is actually wrong for the FASTAs I think
     if(  $alg =~ /T(FAST|BLAST)([XY])/i ) {
 	$qtype      = $dbtype = 'translated';
 	$dbseqtype = $type       = 'PROTEIN';
@@ -219,7 +221,7 @@ sub to_string {
     } elsif( $alg =~ /(FAST|BLAST)P/  || $alg =~ /SSEARCH/i ) {
 	$qtype      = $dbtype = '';
 	$type = $dbseqtype  = 'PROTEIN';
-    } elsif( $alg =~ /(FAST|BLAST)X/i ) {
+    } elsif( $alg =~ /(FAST|BLAST)[XY]/i ) {
 	$qtype      = 'translated';
         $dbtype     = 'PROTEIN';
 	$dbseqtype  = $type      = 'PROTEIN';
@@ -434,7 +436,7 @@ sub to_string {
     # make table of search statistics and end the web page
     $str .= "</table><p>\n".$hspstr."<p><p><hr><h2>Search Parameters</h2><table border=1><tr><th>Parameter</th><th>Value</th>\n";
         
-    foreach my $param ( $result->available_parameters ) {
+    foreach my $param ( sort $result->available_parameters ) {
 	$str .= "<tr><td>$param</td><td>". $result->get_parameter($param) ."</td></tr>\n";
 	
     }
@@ -686,12 +688,13 @@ sub default_introduction {
     <b>Database:</b> %s<br><dd>%s sequences; %s total letters<p></dd>
     <p>
   }, 
-		    $result->query_name, 
-		    $result->query_description, $result->query_length, 
-		    $result->database_name(),
-		    &_numwithcommas($result->database_entries()), 
-		    &_numwithcommas($result->database_letters()),
-		    );
+		   $result->query_name, 
+		   $result->query_description, 
+		   &_numwithcommas($result->query_length), 
+		   $result->database_name(),
+		   &_numwithcommas($result->database_entries()), 
+		   &_numwithcommas($result->database_letters()),
+		   );
 }
 
 =head2 end_report
