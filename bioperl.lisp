@@ -34,7 +34,7 @@
   (insert "\npackage " perl-object-name ";\n")
   (insert "use vars qw($AUTOLOAD @ISA);\n")
   (insert "use strict;\n")
-  (insert "\n# Object preamble - inheriets from Bio::Root::Object\n")
+  (insert "\n# Object preamble - inherits from Bio::Root::Object\n")
   (insert "\nuse Bio::Root::Object;\n\n")
   (insert "\nuse AutoLoader;\n@ISA = qw(Bio::Root::Object Exporter);\n@EXPORT_OK = qw();\n")
   (insert "# new() is inherited from Bio::Root::Object\n\n")
@@ -43,7 +43,7 @@
   )
 
 (defun bioperl-method (method-name)
-  "puts in a bioperl method complete with pod bioler-plate"
+  "puts in a bioperl method complete with pod boiler-plate"
   (interactive "smethod name:")
   (insert "=head2 " method-name "\n\n Title   : " method-name "\n Usage   :\n Function:\n Example :\n Returns : \n Args    :\n\n\n=cut\n\n")
   (insert "sub " method-name "{\n   my ($self,@args) = @_;\n")
@@ -53,7 +53,7 @@
 
 
 (defun bioperl-getset (field-name)
-  "puts in a bioperl method for a get/set method complete with pod bioler-plate"
+  "puts in a bioperl method for a get/set method complete with pod boiler-plate"
   (interactive "sfield name:")
   (insert "=head2 " field-name "\n\n Title   : " field-name "\n Usage   : $obj->" field-name "($newval)\n Function: \n Example : \n Returns : value of " field-name "\n Args    : newvalue (optional)\n\n\n=cut\n\n")
   (insert "sub " field-name "{\n   my ($obj,$value) = @_;\n   if( defined $value) {\n      $obj->{'" field-name "'} = $value;\n    }\n    return $obj->{'" field-name "'};\n")
@@ -78,6 +78,13 @@
 	 (define-key perl-mode-map [menu-bar p bioperl-method]
 	   '("bioperl method" . bioperl-method))
 	 ))
+
+
+
+
+
+
+
 
 
 
