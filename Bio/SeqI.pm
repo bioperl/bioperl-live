@@ -88,7 +88,6 @@ use strict;
 
 use vars qw(@ISA);
 use Bio::PrimarySeqI;
-use Carp;
 
 # Object preamble - inheriets from Bio::PrimarySeqI
 
