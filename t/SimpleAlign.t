@@ -2,7 +2,7 @@
 ## Bioperl Test Harness Script for Modules
 ## $Id$
 use strict;
-use constant NUMTESTS => 58;
+use constant NUMTESTS => 59;
 
 BEGIN {
     eval { require Test; };
@@ -25,6 +25,10 @@ $str = Bio::AlignIO->new(-file=> Bio::Root::IO->catfile("t","data","testaln.pfam
 ok defined($str) && ref($str) && $str->isa('Bio::AlignIO');
 $aln = $str->next_aln();
 ok $aln->get_seq_by_pos(1)->get_nse, '1433_LYCES/9-246', " failed pfam input test";
+
+my $aln1 = $aln->remove_columns(['mismatch']);
+ok ($aln1->match_line, '::*::::*:**:*:*:***:**.***::*.*::**::**:***..**:*:*.::::*:.:*.*.**:***.**:*.:.**::**.*:***********:::*:.:*:**.*::*:.*.:*:**:****************::');
+
 
 my $aln2 = $aln->select(1,3);
 ok $aln2;
