@@ -541,7 +541,7 @@ sub align_and_show {
     Bio::Ext::Align::AlnColumn::add_alu($col, $alu2);
     Bio::Ext::Align::AlnColumn::set_next($last_col, $col);
 
-    &Align::write_pretty_str_align($out,$seq1->id,$seq1->seq,$seq2->id,$seq2->seq,12,50,$fh);
+    &Bio::Ext::Align::write_pretty_str_align($out,$seq1->id,$seq1->seq,$seq2->id,$seq2->seq,12,50,$fh);
 }
 
 =head2 match
