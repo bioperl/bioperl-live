@@ -107,6 +107,7 @@ use Bio::Species;
 use Bio::Root::Object;
 use FileHandle;
 
+
 @ISA = qw(Bio::SeqIO);
 # new() is inherited from Bio::Root::Object
 
@@ -318,7 +319,9 @@ sub next_seq{
 
 sub write_seq {
     my ($self,$seq) = @_;
-    
+   
+  
+
     if( !defined $seq ) {
 	$self->throw("Attempting to write with no seq!");
     }
@@ -348,16 +351,21 @@ sub write_seq {
     
     local($^W) = 0;   # supressing warnings about uninitialized fields.
     
+    my @dates = $seq->each_date();
+    my $date = shift @dates;    
+
+
     my $temp_line;
     if( $self->_id_generation_func ) {
 	$temp_line = &{$self->_id_generation_func}($seq,'genbank');
     } else {
-	my @dates = $seq->each_date();
-	my $date = shift @dates;
-	$temp_line = sprintf ("%-12s%-10s%10s bp%8s%5s %3s ", 'LOCUS',$seq->id(),$len,$mol,$div,$date);
+	
+	$temp_line = sprintf ("%-12s%-10s%10s bp%8s%5s %3s ",$seq->id(),$len,$mol,$div,$date);
     } 
-    
-    $self->_print("$temp_line\n");   
+   
+    my ($date,$sth)=split(/\s/,$date);
+   
+    $self->_print("LOCUS       $temp_line     $date\n");   
     $self->_write_line_GenBank_regex("DEFINITION  ","            ",$seq->desc(),"\\s\+\|\$",80);
     
     # if there, write the accession line
@@ -439,19 +447,28 @@ sub write_seq {
     if( defined $self->_post_sort ) {
 	# we need to read things into an array. Process. Sort them. Print 'em
 
+ 
+
 	my $post_sort_func = $self->_post_sort();
 	my @fth;
+
 
 	foreach my $sf ( $seq->top_SeqFeatures ) {
 	    push(@fth,Bio::SeqIO::FTHelper::from_SeqFeature($sf,$seq));
 	}
-
+ 
 	@fth = sort { &$post_sort_func($a,$b) } @fth;
-
+ 
 	foreach my $fth ( @fth ) {
 	    $self->_print_GenBank_FTHelper($fth);
 	}
-    } else {
+  
+
+} 
+
+ 
+
+    else {
 	# not post sorted. And so we can print as we get them.
 	# lower memory load...
 	
@@ -474,6 +491,9 @@ sub write_seq {
 # finished printing features.
     
     $str =~ tr/A-Z/a-z/;
+
+
+
 
 # Count each nucleotide
     my $alen = $str =~ tr/a/a/;
@@ -506,7 +526,7 @@ sub write_seq {
 	    $self->_print(sprintf("%9d ",$di));
 	}
     }
-    
+     
     
     $self->_print("\n//\n");
     return 1;
