@@ -1,0 +1,428 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE article
+  PUBLIC "-//OASIS//DTD DocBook XML V4.2//EN" "file:/c:/docbook/dtd/docbookx.dtd
+"
+  [
+    <!ENTITY % global.entities SYSTEM "file:/c:/docbook/include/global.xml">
+    %global.entities;
+
+    <!ENTITY % entities SYSTEM "entities.xml">
+    %entities;
+  ]
+>
+
+<article lang="en">
+  <articleinfo>
+    <title>Beginners HOWTO</title>
+    <author>
+      <!-- 
+		one of (CONTRIB AUTHORBLURB AFFILIATION OTHERNAME 
+		LINEAGE SURNAME FIRSTNAME HONORIFIC) 
+		-->
+      <firstname>Brian</firstname>
+      <surname>Osborne</surname>
+      <authorblurb>
+		  <para>Bioperl contributor</para>
+      </authorblurb>
+      <affiliation>
+		  <orgname>
+			 <ulink url="http://www.cognia.com">Cognia
+				Corporation</ulink>
+		  </orgname>
+		  <address>
+			 <email>brian-at-cognia.com</email>
+        </address>
+      </affiliation>
+    </author>
+    <pubdate>2004-12-14</pubdate>
+<!--
+    <revhistory>
+      <revision>
+		  <revnumber></revnumber>
+		  <date></date>
+		  <authorinitials></authorinitials>
+		  <revremark></revremark>
+      </revision>
+    </revhistory>
+-->    
+	 <legalnotice>
+      <para>
+		  This document is copyright Brian Osborne, 2004.  For
+		  reproduction other than personal use please contact 
+		  brian at cognia.com.
+      </para>      
+    </legalnotice>
+    
+    <abstract>
+      <para>
+		  This is a HOWTO written in DocBook (SGML) that talks about using
+		  Bioperl, for biologists who would like to learn more
+		  about writing their own bioinformatics scripts using Bioperl. 
+      </para>
+    </abstract>
+  </articleinfo>
+  
+  <section id="introduction">
+    <title>Introduction</title>
+    <para>
+		If you're a molecular biologist of some sort it's likely that
+		you're interested in gene and protein sequences, and you study them
+		in some way on a regular basis. Perhaps you'd like to try your
+		hand at automating some of these tasks, or you're just curious
+		about learning more about the programming side of bioinformatics.
+		In this HOWTO you'll see discussion of some of the common tasks, 
+		like sequence analysis with BLAST, retrieving sequences from 
+		public databases, and making alignments. You'll also see how to
+		write Bioperl scripts that chain these tasks together, that's
+		how you're able to do really powerful things with Bioperl.
+    </para>
+    <para>
+		You will also see some discussions of software concepts, it
+		can't be avoided, and the more you understand about
+		programming the better. All efforts will be made
+		not to introduce too much unfamiliar material but 
+		there is an introducton to  modularity, or objects. This is 
+		one of the aspects of the Bioperl package that you'll have
+		to come to grips with as you attempt more complex tasks with
+		your scripts.
+    </para>
+    <note>
+      <para>
+		  This HOWTO does not discuss a very nice module that's designed for
+		  beginners, 
+		  <ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Perl">Bio::Perl</ulink>. The reason is that though this is an
+			 excellent introductory tool, it can't be extended. What's
+		  attempted here is both an introduction and suggestions on
+		  ways to expand your new-found skills.
+      </para>
+    </note>
+  </section>
+
+  
+  <section id="installation">
+    <title>Installing Bioperl</title>
+    <para>
+		The first thing to determine is the Bioperl platform - Unix or
+		Windows? Here are some things to consider, if you're choosing 
+		between the two.
+	 </para>
+	 <para>
+		<emphasis>Unix Advantages</emphasis>
+		<simplelist type="horiz" columns="1">
+		  <member>
+			 Knowing some Unix is a useful skill. No matter how prevalent 
+			 Windows is on the desktop, Unix rules bioinformatics.
+		  </member>
+		  <member>
+			 Unix isn't as hard as you may think, if you know less than
+			 10 commands you're ready to work.
+		  </member>
+		  <member>
+			 Every bioinformatics application you've ever heard of runs on Unix.
+		  </member>
+		  <member>
+			 If you want to do serious computation the typical Unix server is
+			 probably more stable and more powerful than the 
+			 available Windows machine.
+		  </member>
+		  <member>
+			 There's an administrator taking care of the machine - maybe
+			 she'll even install Bioperl for you! Ask and see.
+		  </member>
+		</simplelist>
+	 </para>
+	 <para>
+		<emphasis>Unix Disadvantages</emphasis>
+		<simplelist type="horiz" columns="1">
+		  <member>
+			 The command-line can seem unfamiliar and awkward at first.
+		  </member>
+		  <member>
+			 Your Unix account may be on a server - not too portable!
+		  </member>
+		  <member>
+			 You won't have easy access to all your familiar programs.
+		  </member>
+		  <member>
+			 You'll probably have to learn to use a Unix word processor,
+			 like emacs or vi (nano or pico are other possible choices,
+			 very easy to use).
+		  </member>
+		  <member>
+			 You won't have control of the machine, the administrator
+			 will. You may not be able to download all of Genbank,
+			 for example!
+		  </member>
+		</simplelist>
+	 </para>
+	 <para>
+		<emphasis>Windows Advantages</emphasis>
+		<simplelist type="horiz" columns="1">
+		  <member>
+			 Simplicity, if Windows is what you're working with now.
+		  </member>
+		  <member>
+			 Plenty of Bioperl users run it on Windows.
+		  </member>
+		</simplelist>
+	 </para>
+	 <para>
+		<emphasis>Windows Disdvantages</emphasis>
+		<simplelist type="horiz" columns="1">
+		  <member>
+			 Not all bioinformatics applications run on Windows.
+		  </member>
+		  <member>
+			 It's your computer, you will have to deal with the installation details
+			 yourself.
+		  </member>
+		</simplelist>
+	 </para>
+    <para>
+		<tip>
+		  If you decide to use Unix there are many Web pages that can 
+		  give you a good introduction, google "introduction unix" to
+		  see more than a few.
+		</tip>
+    </para>
+    <para>
+		The instructions for Unix and Windows installations are found
+		on the <ulink url="http://bioperl.org/Core/Latest/index.shtml">download page</ulink>.
+		If you do run into problems then mail bioperl-l@bioperl.org,
+		this is the main mailing list, installation issues are
+		frequently discussed.
+	 </para>
+  </section>
+  
+  <section id="help">
+    <title>Getting Assistance</title>
+    <para>
+		People will run into problems installing Bioperl or writing 
+		scripts using Bioperl, nothing unusual about that. If you need 
+		assistance the way to get it is to mail bioperl-l@bioperl.org.
+		There are a good number of helpful people who regularly read
+		this list and if you want their advice it's best to give
+		sufficent detail. Your letter should probably include:
+		<simplelist type="horiz" columns="1">
+		  <member>
+			 The version of Bioperl you're working with. 
+		  </member>
+		  <member>
+			 The platform or operating system you're using. 
+			 </member>
+		  <member>
+			 What you are trying to do.
+		  </member>
+		  <member>
+			 The script you're writing, if you're writing a script.
+		  </member>
+		  <member>
+			 Any error messages you saw.
+		  </member>
+		</simplelist>
+    </para>    
+    <para>
+		Every once in a while a message will appear in bioperl-l coming from someone
+		in distress that goes unanswered. The explanation is simple:
+		the person neglected to include 1 or more of the details above,
+		usually the script or the error messages. If you give enough 
+		information you'll always get help.
+    </para>
+  </section>
+
+  <section id="perl">
+    <title>Perl Itself</title>
+    <para>
+		Perhaps you're already know a little Perl, or 
+		have started to study it. If you haven't, here are a few books 
+		you could look at:
+	 </para>
+    <para>
+		<simplelist type="horiz" columns="2">
+		  <member>
+		  </member>
+		</simplelist>
+    </para>
+    <para>
+      <programlisting>
+      </programlisting>
+    </para>
+    <para>
+    </para>
+    <para>
+    </para>
+    <para>
+      <programlisting>
+      </programlisting>
+    </para>
+  </section>
+
+  <section id="starting">
+	 <title>Starting to write a script on Unix</title>
+	 <para>
+		Sometimes the trickiest part is this step, writing something and
+		getting it to run. Windows and Unix are slightly different, let's
+		address them separately.
+	 </para>
+	 <para>
+		In Unix when you're ready to work you're usually in the
+		command-line or "shell" environment. People have their own
+		choices as to shell, usually bash or tcsh, sometimes zsh, csh,
+		and so on. At any rate, you're in the shell, let's write 
+		something. First find out Perl's version by typing:
+			<para>
+		  <programlisting>
+			 >perl -v
+		  </programlisting>
+		  </para>
+	
+		<para>
+		  <programlisting>
+			 >
+		  </programlisting>
+		</para>
+	
+		<para>
+		  <programlisting>
+			 >which perl
+		  </programlisting>
+		</para>
+	
+		<para>
+		  <programlisting>
+			 >/bin/perl
+		  </programlisting>
+		</para>
+	
+ </para>
+  </section>
+
+ <section id="starting">
+	 <title>Starting to write a script on Unix</title>
+
+</section>
+  <section id="retrieving_gb">
+	 <title>Retrieving a sequence from Genbank<title>
+		  
+
+  </section>
+
+  <section id="retrieving_gb">
+	 <title>Retrieving a sequence from a file<title>
+		  
+
+  </section>
+
+  <section id="retrieving_gb">
+	 <title>Retrieving a sequence from Genbank<title>
+		  
+
+  </section>
+
+  <section id="retrieving_gb">
+	 <title>Retrieving a sequence from Genbank<title>
+		  
+
+  </section>
+
+  <section id="regexp">
+    <title>Regular Expressions</title>
+    <para>
+    </para>
+    <para>
+    </para>
+    <para>
+    </para>
+    <para>
+    </para>
+    <para>
+      <important>
+      </important>
+    </para>
+  </section>
+
+  <section id="blast">
+    <title>BLAST</title>
+    <para>
+      <programlisting>
+my $seq_in  = Bio::SeqIO->new( -format => 'fasta',
+                               -file   => $string);
+
+while( my $seq = $seq_in->next_seq() ) {
+  my $factory = Bio::Tools::Run::StandAloneBlast->new(
+		  outfile => $seq->display_id . ".blastn",
+		  program => 'blastn' );
+  my $bl2seq_report = $factory->bl2seq( 'ketosintaza-dna', $seq);
+}
+      </programlisting>
+    </para>
+  </section>
+
+  <section id="">
+    <title></title>
+    <para>
+    </para>
+    <para>
+		<table>
+		  <title></title>
+		  <tgroup cols="3">
+			 <thead>
+				<row>
+				  <entry></entry>
+				  <entry></entry>
+				  <entry></entry>
+				</row>
+			 </thead>
+			 <tbody>
+				<row>
+				  <entry></entry>
+				  <entry></entry>
+				  <entry></entry>
+				</row>
+			 </tbody>
+		  </tgroup>
+      </table>
+    </para>
+  </section>
+
+  <section id="">
+	 <title></title>
+    <para>
+    </para>	
+    <para>
+    </para>
+    <para>
+    </para>
+    <para>
+      <important>
+		  <para>
+		  </para>
+      </important>
+    </para>
+    <para>
+      <programlisting>
+      </programlisting>
+    </para>
+    <para>
+	 </para>
+  </section>
+
+  <section id="">
+    <title></title>
+    <para>
+	 </para>
+    <para>
+      <programlisting>
+      </programlisting>
+    </para>
+    <para>
+	 </para>
+    <para>
+      <programlisting>
+      </programlisting>
+    </para>
+    <para>
+	 </para>
+  </section>
+  
+</article>
