@@ -155,7 +155,8 @@ sub next_result{
 		$hstart,$hend,$hstrand, $score) = ($1,$2,$3,$4,$5,
 						   $6,$7,$8,$9);
 	    $self->{'_reporttype'} = 'AXT';
-
+	    # Jim's code is 0 based
+	    $qstart++;  $qend++; $hstart++; $hend++;
 	    if( defined $curquery && 
 		$curquery ne $qname ) { 
 		$self->end_element({'Name' => 'Hit'});
