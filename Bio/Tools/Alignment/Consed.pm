@@ -129,35 +129,24 @@ $VERSION = '0.60';
 =cut
 
 sub new {
-    # old, non named-parameter passing
-    # my ($class, $filename,$verbose) = @_;
     my ($class,$filename,%args);
     $class = shift;
-    eval {
-	%args = @_;
-    };
-    if ($@) {
-	print("Please used named parameters. Check the docs!\n");
-	die();
-    }
+    eval { %args = @_; };
     my $self = {};
-    
-    $self->{filename} = $args{-acefile};
-    if (!($self->{filename} =~ /\//)) { 
-	$self->{filename} = "./".$self->{filename}; 
+    if ($@) { $self->throw("Please used named parameters. Check the docs!"); }
+    $self->{'filename'} = $args{-acefile};
+	# this is special to UNIX and should probably use catfile
+    if (!($self->{'filename'} =~ /\//)) { 
+	$self->{'filename'} = "./".$self->{'filename'}; 
     } 
-    if ($args{-verbose}) { $self->{verbose} = 1; }
-    else { $self->{verbose} = 0; }
-    $self->{filename} =~ m/(.*\/)(.*)ace.*$/;
-    $self->{path} = $1;
-	# csm: change this for BIOPERL
-	# $self->{fh} = new FileHandle;
-    $self->{o_trim} = new Bio::Tools::Alignment::Trim;
-	# csm: Change this for BIOPERL
-    	# open($self->{fh},$self->{filename}) or die "I can't open the acefile ($filename) : $!\n";
+    if ($args{-verbose}) { $self->{'verbose'} = 1; }
+    else { $self->{'verbose'} = 0; }
+    $self->{'filename'} =~ m/(.*\/)(.*)ace.*$/;
+    $self->{'path'} = $1;
+	$self->{'fh'} = new Bio::Root::IO(-file=>$self->{'filename'});	
+    $self->{'o_trim'} = new Bio::Tools::Alignment::Trim;
     bless ($self, $class);
-	# csm: change this for BIOPERL
-    &_read_file($self,"verbose");
+    $self->_read_file("verbose");
     return $self;
 }
 
@@ -184,11 +173,11 @@ sub new {
 sub set_verbose {
 	my ($self,$verbose) = @_;
 	if ( $verbose < 0 || $verbose > 3) {
-		print("Error in setting verbosity level of Bio::Tools::Alignment::Consed. The value you entered ($verbose) is not in the range of 0 and 3.\n");
+		$self->warn("Error in setting verbosity level of Bio::Tools::Alignment::Consed. The value you entered ($verbose) is not in the range of 0 and 3.");
 		return 1;
 	}
-	$self->{verbose} = $verbose;
-	print("Verbosity level set to $self->{verbose}.\n");
+	$self->{'verbose'} = $verbose;
+		# print("Verbosity level set to $self->{'verbose'}.\n");
 	return 0;
 }
 
@@ -206,7 +195,7 @@ sub set_verbose {
 
 sub get_filename {
 	my $self = shift;
-	return $self->{filename};
+	return $self->{'filename'};
 }
 
 =head2 count_sequences_with_grep()
@@ -227,7 +216,6 @@ sub get_filename {
 
 =cut
 
-#'
 sub count_sequences_with_grep {
     my $self = shift;
     my ($working_dir,$grep_cli,@total_grep_sequences);
@@ -235,17 +223,17 @@ sub count_sequences_with_grep {
     	# then i took platforms from Bioperl*/PLATFORMS here. Is that good?
     	# print("\$^O is $^O\n");
     if (!($^O =~ /linux|unix|bsd|solaris/i)) {
-	print("Bio::Tools::Alignment::Consed::count_sequences_with_grep: This sub uses grep which is doesn't run on this operating system, AFAIK. Sorry.\n");
+	$self->warn("Bio::Tools::Alignment::Consed::count_sequences_with_grep: This sub uses grep which is doesn't run on this operating system, AFAIK. Sorry.");
 	return 1;
     }
     $grep_cli = `which grep`;
     if (!$grep_cli) {
-	print("I couldn't see to find grep on this system, or the which command is broken. Bio::Tools::Alignment::Consed::count_sequences_with_grep requires grep and which to find grep.\n");
+	$self->warn("I couldn't see to find grep on this system, or the which command is broken. Bio::Tools::Alignment::Consed::count_sequences_with_grep requires grep and which to find grep.");
 	return 1;
     }
     chomp $grep_cli;
     push(@total_grep_sequences, my @foo = `$grep_cli ^AF $self->{filename}`);
-    my $cli = "$grep_cli \\> $self->{path}*.singlets";
+    my $cli = "$grep_cli \\> $self->{'path'}*.singlets";
     push(@total_grep_sequences, @foo = `$cli`);
     return scalar(@total_grep_sequences);
 }
@@ -262,7 +250,7 @@ sub count_sequences_with_grep {
 
 sub get_path {
 	my $self = shift;
-	return $self->{path};
+	return $self->{'path'};
 }
 
 =head2 get_contigs()
@@ -280,7 +268,7 @@ sub get_path {
 
 sub get_contigs {
     my ($self,$contig) = @_;
-    my @keys = (sort keys %{$self->{contigs}});
+    my @keys = (sort keys %{$self->{'contigs'}});
     return @keys;
 }
 
@@ -302,10 +290,9 @@ sub get_contigs {
 
 =cut
 
-#'
 sub get_quality_array {
     my ($self,$contig) = @_;
-    my @qualities = split(' ',($self->{contigs}{$contig}{quality}=~s/\s+//));
+    my @qualities = split(' ',($self->{'contigs'}->{$contig}->{'quality'}=~s/\s+//));
     return @qualities;
 }
 
@@ -326,10 +313,9 @@ sub get_quality_array {
 
 =cut
 
-#'
 sub get_quality_scalar {
     my ($self,$contig) = @_;
-    return $self->{contigs}{$contig}{quality};
+    return $self->{'contigs'}->{$contig}->{'quality'};
 }
 
 =head2 freeze_hash()
@@ -356,9 +342,9 @@ sub freeze_hash {
     my $self = shift;
 	$self->warn("This method was removed from the bioperl consed.pm. Sorry.\n");
 	if (1==2) {
-	    if ($self->{verbose} == 1) { print("Bio::Tools::Alignment::Consed::freeze_hash: \$self->{path} is $self->{path}\n"); }
-	    my $filename = $self->{path}."frozen";
-	    my %contigs = %{$self->{contigs}};
+	    if ($self->{'verbose'} == 1) { print("Bio::Tools::Alignment::Consed::freeze_hash: \$self->{path} is $self->{path}\n"); }
+	    my $filename = $self->{'path'}."frozen";
+	    my %contigs = %{$self->{'contigs'}};
 	    my $frozen = freeze(%contigs);
 	    umask 0001;
 	    open (FREEZE,">$filename") or do {
@@ -385,10 +371,10 @@ sub freeze_hash {
 sub get_members {
     my ($self,$contig) = @_;
     if (!$contig) {
-	print("You need to provide the name of a contig to use Bio::Tools::Alignment::Consed::get_members!\n");
+	$self->warn("You need to provide the name of a contig to use Bio::Tools::Alignment::Consed::get_members!\n");
 	return;
     }
-    return @{$self->{contigs}{$contig}{member_array}};
+    return @{$self->{'contigs'}->{$contig}->{'member_array'}};
 }
 
 =head2 get_members_by_name($some_arbitrary_name)
@@ -407,18 +393,18 @@ sub get_members {
 
 sub get_members_by_name {
     my ($self,$name) = @_;
-    # build a list to try to screen for redundancy
+	    # build a list to try to screen for redundancy
     my @contigs_with_that_name;
-    foreach my $currkey ( sort keys %{$self->{contigs}} ) {
-	next if (!$self->{contigs}{$currkey}{name});
-	if ($self->{contigs}{$currkey}{name} eq "$name") {
+    foreach my $currkey ( sort keys %{$self->{'contigs'}} ) {
+	next if (!$self->{'contigs'}->{$currkey}->{'name'});
+	if ($self->{'contigs'}->{$currkey}->{'name'} eq "$name") {
 	    push @contigs_with_that_name,$currkey;
 	}
     }
     my $count = @contigs_with_that_name;
     if ($count == 1) {
 	my $contig_num = $contigs_with_that_name[0];
-	return @{$self->{contigs}{$contig_num}{member_array}};
+	return @{$self->{'contigs'}->{$contig_num}->{'member_array'}};
     }
 }
 
@@ -437,8 +423,8 @@ sub get_members_by_name {
 
 sub get_contig_number_by_name {
     my ($self,$name) = @_;
-    foreach my $currkey (sort keys %{$self->{contigs}}) {
-	if ($self->{contigs}{$currkey}{name} && $self->{contigs}{$currkey}{name} eq "$name") {
+    foreach my $currkey (sort keys %{$self->{'contigs'}}) {
+	if ($self->{'contigs'}->{$currkey}->{'name'} && $self->{'contigs'}->{$currkey}->{'name'} eq "$name") {
 	    return $currkey;
 	}
     }
@@ -457,7 +443,7 @@ sub get_contig_number_by_name {
 
 sub get_sequence {
     my ($self,$contig) = @_;
-    return $self->{contigs}{$contig}{consensus};
+    return $self->{'contigs'}->{$contig}->{'consensus'};
 }
 
 =head2 set_final_sequence($some_sequence)
@@ -475,15 +461,15 @@ sub get_sequence {
 
 sub set_final_sequence {
     my ($self,$name,$sequence) = @_;
-    if (!$self->{contigs}{$name}) {
-	print("You cannot set the final sequence for $name because it doesn't exist!\n");
+    if (!$self->{'contigs'}->{$name}) {
+	$self->warn("You cannot set the final sequence for $name because it doesn't exist!\n");
 	return 1;
     }
     else {
-	$self->{contigs}{$name}{final_sequence} = $sequence;
+	$self->{'contigs'}->{$name}->{'final_sequence'} = $sequence;
     }
     return 0;
-}				# end set_final_sequence
+}
 
 =head2  _read_file()
 
@@ -501,26 +487,24 @@ sub set_final_sequence {
 sub _read_file {
     my ($self,$verbose) = @_;
     my ($line,$in_contig,$in_quality,$contig_number,$top); 
-    if ($self->{verbose} == 1) { $verbose = 1; }
-    if ($verbose) { print("Bio::Tools::Alignment::Consed is opening $self->{filename} in _read_file()\n"); }
-
+    if ($self->{'verbose'} == 1) { $verbose = 1; }
     # make it easier to type $fhl
-	$self->{fh} = Bio::Root::IO->new(-file => $self->{filename});
-    my $fhl = $self->{fh};
+    my $fhl = $self->{'fh'};
     while ($line=$fhl->_readline()) {
 	chomp $line;
-	# check if there is anything on this line
-	# if not, you can stop gathering consensus sequence
+		# check if there is anything on this line
+		# if not, you can stop gathering consensus sequence
 	if (!$line) {
-				# if the line is blank you are no longer to gather consensus sequence or quality values
+		# if the line is blank you are no longer to gather consensus 
+		# sequence or quality values
 	    $in_contig = 0;
 	    $in_quality = 0;
 	}
 	# you are currently gathering consensus sequence
 	elsif ($in_contig) {
 	    if ($in_contig == 1) {
-		# if ($self->{verbose} == 1) { print("Adding $line to consensus of contig number $contig_number.\n"); }
-		$self->{contigs}{$contig_number}{consensus} .= $line;
+		# if ($self->{'verbose'} == 1) { print("Adding $line to consensus of contig number $contig_number.\n"); }
+		$self->{'contigs'}->{$contig_number}->{'consensus'} .= $line;
 	    }
 	}
 	elsif ($in_quality) {
@@ -528,14 +512,13 @@ sub _read_file {
 		$in_quality = undef;
 	    }
 	    else {
-		# if ($self->{verbose} == 1) { print("Adding $line to quality of contig number $contig_number.\n"); }
-		# I wrote this in here because acefiles produced by cap3 don't have a leading space
-		# like the acefiles produced by phrap and there is the potential to have concatenated
-		# quality values like this: 2020 rather then 20 20 whre lines collide. Thanks Andrew for noticing.
-		if ($self->{contigs}{$contig_number}{quality} && !($self->{contigs}{$contig_number}{quality} =~ m/\ $/)) {
-		    $self->{contigs}{$contig_number}{quality} .= " ";
+			# I wrote this in here because acefiles produced by cap3 don't have a leading space
+			# like the acefiles produced by phrap and there is the potential to have concatenated
+			# quality values like this: 2020 rather then 20 20 whre lines collide. Thanks Andrew for noticing.
+		if ($self->{'contigs'}->{$contig_number}->{'quality'} && !($self->{'contigs'}->{$contig_number}->{'quality'} =~ m/\ $/)) {
+		    $self->{'contigs'}->{$contig_number}->{'quality'} .= " ";
 		}
-		$self->{contigs}{$contig_number}{quality} .= $line;
+		$self->{'contigs'}->{$contig_number}->{'quality'} .= $line;
 	    }
 	}
 	elsif ($line =~ /^BQ/) {
@@ -554,10 +537,10 @@ sub _read_file {
 	    $line =~ m/^CO\ Contig(\d+)\ \d+\ \d+\ \d+\ (\w)/;
 	    $contig_number = $1;
 	    if ($2 eq "C") {
-		if ($self->{verbose} == 1) { print("Contig $contig_number is complemented!\n"); }
+		if ($self->{'verbose'} == 1) { print("Contig $contig_number is complemented!\n"); }
 	    }
-	    $self->{contigs}{$contig_number}{member_array} = [];
-	    $self->{contigs}{$contig_number}{contig_direction} = "$2";
+	    $self->{'contigs'}->{$contig_number}->{'member_array'} = [];
+	    $self->{'contigs'}->{$contig_number}->{'contig_direction'} = "$2";
 	    $in_contig = 1;
 	}
 		# 000713
@@ -566,54 +549,53 @@ sub _read_file {
 	elsif ($line =~ /^BSDEPRECATED/) {
 	    $line =~ m/^BS\s+\d+\s+\d+\s+(.+)/;
 	    my $member = $1;
-	    $self->{contigs}{$contig_number}{$member}++;
+	    $self->{'contigs'}->{$contig_number}->{$member}++;
 	}
 		# the members of the contigs are determined by the AF line in the ace file
 	elsif ($line =~ /^AF/) {
-	    if ($self->{verbose} == 1) { print("I see an AF line here.\n"); }
+	    if ($self->{'verbose'} == 1) { print("I see an AF line here.\n"); }
 	    $line =~ /^AF\ (\S+)\ (\w)\ (\S+)/;
 				# push the name of the current read onto the member array for this contig
-	    push @{$self->{contigs}{$contig_number}{member_array}},$1;
+	    push @{$self->{'contigs'}->{$contig_number}->{'member_array'}},$1;
 				# the first read in the contig will be named the "top" read				
 	    if (!$top) {
-		if ($self->{verbose} == 1) { print("\$top is not set.\n"); }
-		if ($self->{contigs}{$contig_number}{contig_direction} eq "C") {
-		    if ($self->{verbose} == 1) { print("Reversing the order of the reads. The bottom will be $1\n"); }
+		if ($self->{'verbose'} == 1) { print("\$top is not set.\n"); }
+		if ($self->{'contigs'}->{$contig_number}->{'contig_direction'} eq "C") {
+		    if ($self->{'verbose'} == 1) { print("Reversing the order of the reads. The bottom will be $1\n"); }
 		    # if the contig sequence is marked as the complement, the top becomes the bottom and$
-		    $self->{contigs}{$contig_number}{bottom_name} = $1;
-		    $self->{contigs}{$contig_number}{bottom_complement} = $2;
-		    $self->{contigs}{$contig_number}{bottom_start} = $3;
+		    $self->{'contigs'}->{$contig_number}->{'bottom_name'} = $1;
+		    $self->{'contigs'}->{$contig_number}->{'bottom_complement'} = $2;
+		    $self->{'contigs'}->{$contig_number}->{'bottom_start'} = $3;
 		}
 		else {
-		    if ($self->{verbose} == 1) { print("NOT reversing the order of the reads. The top_name will be $1\n"); }
+		    if ($self->{'verbose'} == 1) { print("NOT reversing the order of the reads. The top_name will be $1\n"); }
 		    # if the contig sequence is marked as the complement, the top becomes the bottom and$
-		    $self->{contigs}{$contig_number}{top_name} = $1;
-		    $self->{contigs}{$contig_number}{top_complement} = $2;
-		    $self->{contigs}{$contig_number}{top_start} = $3;
+		    $self->{'contigs'}->{$contig_number}->{'top_name'} = $1;
+		    $self->{'contigs'}->{$contig_number}->{'top_complement'} = $2;
+		    $self->{'contigs'}->{$contig_number}->{'top_start'} = $3;
 		}
 		$top = 1;
 	    }
 	    else {
 		# if the contig sequence is marked as the complement, the top becomes the bottom and the bottom becomes the top
-		if ($self->{contigs}{$contig_number}{contig_direction} eq "C") {
-		    if ($self->{verbose} == 1) { print("Reversing the order of the reads. The top will be $1\n"); }
-		    $self->{contigs}{$contig_number}{top_name} = $1;
-		    $self->{contigs}{$contig_number}{top_complement} = $2;
-		    $self->{contigs}{$contig_number}{top_start} = $3;
+		if ($self->{'contigs'}->{$contig_number}->{'contig_direction'} eq "C") {
+		    if ($self->{'verbose'} == 1) { print("Reversing the order of the reads. The top will be $1\n"); }
+		    $self->{'contigs'}->{$contig_number}->{'top_name'} = $1;
+		    $self->{'contigs'}->{$contig_number}->{'top_complement'} = $2;
+		    $self->{'contigs'}->{$contig_number}->{'top_start'} = $3;
 		}
 		else {
-		    if ($self->{verbose} == 1) { print("NOT reversing the order of the reads. The bottom will be $1\n"); }
-		    $self->{contigs}{$contig_number}{bottom_name} = $1;
-		    $self->{contigs}{$contig_number}{bottom_complement} = $2;
-		    $self->{contigs}{$contig_number}{bottom_start} = $3;
+		    if ($self->{'verbose'} == 1) { print("NOT reversing the order of the reads. The bottom will be $1\n"); }
+		    $self->{'contigs'}->{$contig_number}->{'bottom_name'} = $1;
+		    $self->{'contigs'}->{$contig_number}->{'bottom_complement'} = $2;
+		    $self->{'contigs'}->{$contig_number}->{'bottom_start'} = $3;
 		}
 		$top = undef;
 	    }
 	}
-	# if ($self->{verbose} == 1) { print("in_contig: $in_contig\n"); }
-    }				# end while
+    }
     return 0;
-}				# end read_file
+}
 
 =head2 set_reverse_designator($some_string)
 
@@ -631,9 +613,9 @@ sub _read_file {
 
 sub set_reverse_designator {
     my ($self,$reverse_designator) = @_;
-    $self->{reverse_designator} = $reverse_designator;
-    $self->{o_trim}->set_reverse_designator($reverse_designator);
-    return $self->{reverse_designator};
+    $self->{'reverse_designator'} = $reverse_designator;
+    $self->{'o_trim'}->set_reverse_designator($reverse_designator);
+    return $self->{'reverse_designator'};
 }				# end set_reverse_designator
 
 =head2 set_forward_designator($some_string)
@@ -652,9 +634,9 @@ sub set_reverse_designator {
 
 sub set_forward_designator {
     my ($self,$forward_designator) = @_;
-    $self->{forward_designator} = $forward_designator;
-    $self->{o_trim}->set_forward_designator($forward_designator);
-    return $self->{forward_designator};
+    $self->{'forward_designator'} = $forward_designator;
+    $self->{'o_trim'}->set_forward_designator($forward_designator);
+    return $self->{'forward_designator'};
 }				# end set_forward_designator
 
 =head2 set_designator_ignore_case("yes")
@@ -671,9 +653,9 @@ sub set_forward_designator {
 sub set_designator_ignore_case {
     my ($self,$ignore_case) = @_;
     if ($ignore_case eq "yes") {
-	$self->{designator_ignore_case} = 1;
+	$self->{'designator_ignore_case'} = 1;
     }
-    return $self->{designator_ignore_case};
+    return $self->{'designator_ignore_case'};
 }				# end set_designator_ignore_case
 
 =head2 set_trim_points_singlets_and_singletons()
@@ -695,15 +677,14 @@ sub set_designator_ignore_case {
 
 sub set_trim_points_singlets_and_singletons {
     my ($self,$verbose) = @_;
-    if ($self->{verbose} || $verbose ) { $verbose = 1; } else { $verbose = 0; }
+    if ($self->{'verbose'} || $verbose ) { $verbose = 1; } else { $verbose = 0; }
     my (@points,$trimmed_sequence);
-    if ($verbose == 1) { print("Bio::Tools::Alignment::Consed::set_trim_points_singlets_and_singletons: Setting the quality trimpoints.\n"); }
-    if (!$self->{doublets_set}) {
-	print("You neet to set the doublets before you use set_trim_points_singlets_and_doublets. Doing that now.\n");
-	&set_doublets($self);
+    if (!$self->{'doublets_set'}) {
+	$self->warn("You neet to set the doublets before you use set_trim_points_singlets_and_doublets. Doing that now.");
+	$self->set_doublets();
     }
-    foreach (sort keys %{$self->{contigs}}) {
-	if ($self->{contigs}{$_}{class} eq "singlet") {
+    foreach (sort keys %{$self->{'contigs'}}) {
+	if ($self->{'contigs'}->{$_}->{'class'} eq "singlet") {
 	    if ($verbose == 1) { print("Singlet $_\n"); }
 				# this is what Warehouse wants
 				#         my ($self,$sequence,$quality,$name) = @_;
@@ -711,16 +692,16 @@ sub set_trim_points_singlets_and_singletons {
 				# my ($self,$sequence,$quality,$name,$class) = @_;
 				# the following several lines are to make the parameter passing legible.
 	    my ($sequence,$quality,$name,$class);
-	    $sequence = $self->{contigs}{$_}{consensus};
-	    if (!$self->{contigs}{$_}{quality}) { $quality = "unset"; }
-	    else { $quality = $self->{contigs}{$_}{quality}; }
-	    $name = $self->{contigs}{$_}{name};
-	    $class = $self->{contigs}{$_}{class};
+	    $sequence = $self->{'contigs'}->{$_}->{'consensus'};
+	    if (!$self->{'contigs'}->{$_}->{'quality'}) { $quality = "unset"; }
+	    else { $quality = $self->{'contigs'}->{$_}->{'quality'}; }
+	    $name = $self->{'contigs'}->{$_}->{'name'};
+	    $class = $self->{'contigs'}->{$_}->{'class'};
 	    (@points) = $self->{o_trim}->trim_singlet($sequence,$quality,$name,$class);
 	    if ($verbose == 1) { print("\tConsed::set_trim_points...: Start and end points for $_ is $points[0] and $points[1]\n"); }
-	    $self->{contigs}{$_}{start_point} = $points[0];
-	    $self->{contigs}{$_}{end_point} = $points[1];
-	    $self->{contigs}{$_}{sequence_trimmed} = $points[2];
+	    $self->{'contigs'}->{$_}->{'start_point'} = $points[0];
+	    $self->{'contigs'}->{$_}->{'end_point'} = $points[1];
+	    $self->{'contigs'}->{$_}->{'sequence_trimmed'} = $points[2];
 	}
     }
     if ($verbose == 1) { print("Bio::Tools::Alignment::Consed::set_trim_points_singlets_and_singletons: Done setting the quality trimpoints.\n"); }
@@ -744,28 +725,28 @@ sub set_trim_points_singlets_and_singletons {
 sub set_trim_points_doublets {
     my $self = shift;
     my @points;
-    if ($self->{verbose} == 1) { print("Bio::Tools::Alignment::Consed::set_trim_points_doublets: Restoring zeros for doublets.\n"); }
-    &show_missing_sequence($self);
-    if ($self->{verbose} == 1) { print("Bio::Tools::Alignment::Consed::set_trim_points_doublets: Setting doublet trim points.\n"); }
-    foreach (sort keys %{$self->{contigs}}) {
-	if ($self->{contigs}{$_}{class} eq "doublet") {
-				# if ($self->{verbose} == 1) { print("Bio::Tools::Alignment::Consed::set_trim_points_doublets: Setting trimpoints for doublet $_\n"); }
-				# if ($self->{verbose} == 1) { print("The qualities for this doublet are $self->{contigs}{$_}{quality}\n"); }
-				# if ($self->{verbose} == 1) { print("Consed::set_trim_points_doublets: there are ".length($self->{contigs}{$_}{consensus})." bases in $_\n"); }
+    if ($self->{'verbose'} == 1) { print("Bio::Tools::Alignment::Consed::set_trim_points_doublets: Restoring zeros for doublets.\n"); }
+    	# &show_missing_sequence($self);
+    if ($self->{'verbose'} == 1) { print("Bio::Tools::Alignment::Consed::set_trim_points_doublets: Setting doublet trim points.\n"); }
+    foreach (sort keys %{$self->{'contigs'}}) {
+	if ($self->{'contigs'}->{$_}->{'class'} eq "doublet") {
+				# if ($self->{'verbose'} == 1) { print("Bio::Tools::Alignment::Consed::set_trim_points_doublets: Setting trimpoints for doublet $_\n"); }
+				# if ($self->{'verbose'} == 1) { print("The qualities for this doublet are $self->{'contigs'}->{$_}->{'quality'}\n"); }
+				# if ($self->{'verbose'} == 1) { print("Consed::set_trim_points_doublets: there are ".length($self->{'contigs'}->{$_}->{consensus})." bases in $_\n"); }
 				# my ($self,$sequence,$quality,$name,$class) = @_;
-	    (@points) = $self->{o_trim}->trim_doublet($self->{contigs}{$_}{consensus},$self->{contigs}{$_}{quality},$self->{contigs}{$_}{name},$self->{contigs}{$_}{class});
+	    (@points) = $self->{o_trim}->trim_doublet($self->{'contigs'}->{$_}->{'consensus'},$self->{'contigs'}->{$_}->{'quality'},$self->{'contigs'}->{$_}->{name},$self->{'contigs'}->{$_}->{'class'});
 				# print("Consed::set_trim_points_doublets: Start and end points for $_ is $points[0] and $points[1]\n");
 				# print("Bio::Tools::Alignment::Consed::set_trim_points_doublets: \@points is @points\n");
-	    $self->{contigs}{$_}{start_point} = $points[0];
-	    $self->{contigs}{$_}{end_point} = $points[1];
-	    $self->{contigs}{$_}{sequence_trimmed} = $points[2];
+	    $self->{'contigs'}->{$_}->{'start_point'} = $points[0];
+	    $self->{'contigs'}->{$_}->{'end_point'} = $points[1];
+	    $self->{'contigs'}->{$_}->{'sequence_trimmed'} = $points[2];
 				# 010102 the deprecated way to do things:
-				# my $trimmed_sequence = $self->{o_trim}->trim_doublet($self->{contigs}{$_}{consensus});
+				# my $trimmed_sequence = $self->{o_trim}->trim_doublet($self->{'contigs'}->{$_}->{consensus});
 				# print("Consed::set_trim_points_doublets: the trimmed sequence for $_ is $trimmed_sequence\n");
-				# $self->{contigs}{$_}{sequence_trimmed} = $trimmed_sequence;
+				# $self->{'contigs'}->{$_}->{sequence_trimmed} = $trimmed_sequence;
 	}
     }
-    if ($self->{verbose} == 1) { print("Bio::Tools::Alignment::Consed::set_trim_points_doublets: Done setting doublet trim points.\n"); }
+    if ($self->{'verbose'} == 1) { print("Bio::Tools::Alignment::Consed::set_trim_points_doublets: Done setting doublet trim points.\n"); }
 }				# end set_trim_points_doublets
 
 =head2 get_trimmed_sequence_by_name($name)
@@ -783,13 +764,13 @@ sub get_trimmed_sequence_by_name {
     my ($self,$name) = @_;
     my $trimmed_sequence;
     my $contigname = &get_contig_number_by_name($self,$name);
-    my $class = $self->{contigs}{$contigname}{class};
+    my $class = $self->{'contigs'}->{$contigname}->{'class'};
     # what is this business and who was smoking crack while writing this?
     # if ($class eq "singlet") {
     # send the sequence, the quality, and the name
-    # $trimmed_sequence = $self->{o_trim}->trim_singlet($self->{contigs}{$contigname}{consensus},$self->{contigs}{$contigname}{quality},$name);
+    # $trimmed_sequence = $self->{o_trim}->trim_singlet($self->{'contigs'}->{$contigname}->{consensus},$self->{'contigs'}->{$contigname}->{'quality'},$name);
     # }
-    return $self->{contigs}{$contigname}{sequence_trimmed};
+    return $self->{'contigs'}->{$contigname}->{'sequence_trimmed'};
 }
 
 =head2 set_dash_present_in_sequence_name("yes")
@@ -806,12 +787,12 @@ sub get_trimmed_sequence_by_name {
 sub set_dash_present_in_sequence_name {
     my ($self,$dash_present) = @_;
     if ($dash_present eq "yes") {
-	$self->{dash_present_in_sequence_name} = 1;
+	$self->{'dash_present_in_sequence_name'} = 1;
     }
     else {
-	$self->{dash_present_in_sequence_name} = 0;
+	$self->{'dash_present_in_sequence_name'} = 0;
     }
-    return $self->{dash_present_in_sequence_name};
+    return $self->{'dash_present_in_sequence_name'};
 }				# end set_dash_present_in_sequence_name
 
 =head2 set_doublets()
@@ -825,67 +806,66 @@ sub set_dash_present_in_sequence_name {
  Notes   : A complicated subroutine that iterates over the
 	Bio::Tools::Alignment::Consed looking for contigs of 2. If the forward and
 	reverse designator are removed from each of the reads in
-	{member_array} and the remaining reads are the same, {name} is set
+	{'member_array'} and the remaining reads are the same, {name} is set
 	to that name and the contig's class is set as "doublet". If any of
 	those cases fail the contig is marked as a "pair".
 
 =cut
 
-#'
 sub set_doublets {
     my ($self,$verbose) = @_;
-    if ($self->{verbose}) { $verbose = 1; }
+    if ($self->{'verbose'}) { $verbose = 1; }
     # set the designators in the Bio::Tools::Alignment::Trim object
-    $self->{o_trim}->set_designators($self->{reverse_designator},$self->{forward_designator});
+    $self->{'o_trim'}->set_designators($self->{'reverse_designator'},$self->{'forward_designator'});
     #
-    foreach my $key_contig (sort keys %{$self->{contigs}}) {
+    foreach my $key_contig (sort keys %{$self->{'contigs'}}) {
 
 	# if there is a member array (why would there not be? This should be a die()able offence
 	# but for now I will leave it
-	if ($self->{contigs}{$key_contig}{member_array}) {
+	if ($self->{'contigs'}->{$key_contig}->{'member_array'}) {
 				# if there are two reads in this contig 
 	    # i am pretty sure that this is wrong but i am keeping it for reference
-	    # if (@{$self->{contigs}{$key_contig}{member_array}} == 2 || !$self->{contigs}{$key_contig}{class}) {
+	    # if (@{$self->{'contigs'}->{$key_contig}->{'member_array'}} == 2 || !$self->{'contigs'}->{$key_contig}->{'class'}) {
 	    # <seconds later>
 	    # <nod> WRONG. Was I on crack?
-	    if (@{$self->{contigs}{$key_contig}{member_array}} == 2) {
-		$self->{contigs}{$key_contig}{num_members} = 2;
-		if ($self->{verbose} == 1) { print("\tThere are 2 members! Looking for the contig name...\n"); }
-		my $name = _get_contig_name($self,$self->{contigs}{$key_contig}{member_array});
-		if ($self->{verbose} == 1) { print("The name is $name\n"); }
+	    if (@{$self->{'contigs'}->{$key_contig}->{'member_array'}} == 2) {
+		$self->{'contigs'}->{$key_contig}->{'num_members'} = 2;
+		if ($self->{'verbose'} == 1) { print("\tThere are 2 members! Looking for the contig name...\n"); }
+		my $name = _get_contig_name($self,$self->{'contigs'}->{$key_contig}->{'member_array'});
+		if ($self->{'verbose'} == 1) { print("The name is $name\n"); }
 		if ($name) {
-		    $self->{contigs}{$key_contig}{name} = $name;
-		    $self->{contigs}{$key_contig}{class} = "doublet";
+		    $self->{'contigs'}->{$key_contig}->{'name'} = $name;
+		    $self->{'contigs'}->{$key_contig}->{'class'} = "doublet";
 		}
 		else {
-		    if ($self->{verbose} == 1) { print("$key_contig is a pair.\n"); }
-		    $self->{contigs}{$key_contig}{class} = "pair";
+		    if ($self->{'verbose'} == 1) { print("$key_contig is a pair.\n"); }
+		    $self->{'contigs'}->{$key_contig}->{'class'} = "pair";
 		}
 	    }
 				# this is all fair and good but what about singlets?
 				# they have one reads in the member_array but certainly are not singletons
-	    elsif (@{$self->{contigs}{$key_contig}{member_array}} == 1) {
+	    elsif (@{$self->{'contigs'}->{$key_contig}->{'member_array'}} == 1) {
 		# set the name to be the name of the read
-		$self->{contigs}{$key_contig}{name} = @{$self->{contigs}{$key_contig}{member_array}}[0];
+		$self->{'contigs'}->{$key_contig}->{name} = @{$self->{'contigs'}->{$key_contig}->{'member_array'}}[0];
 		# set the number of members to be one
-		$self->{contigs}{$key_contig}{num_members} = 1;
+		$self->{'contigs'}->{$key_contig}->{num_members} = 1;
 		# if this was a singlet, it would already belong to the class "singlet"
 		# so leave it alone
 		# if it is not a singlet, it is a singleton! lablel it appropriately
-		unless ($self->{contigs}{$key_contig}{class}) {
-		    $self->{contigs}{$key_contig}{class} = "singleton";
+		unless ($self->{'contigs'}->{$key_contig}->{'class'}) {
+		    $self->{'contigs'}->{$key_contig}->{'class'} = "singleton";
 		}
 	    }
 				# set the multiplet characteristics
-	    elsif (@{$self->{contigs}{$key_contig}{member_array}} >= 3) {
-		$self->{contigs}{$key_contig}{num_members} = @{$self->{contigs}{$key_contig}{member_array}};
-		$self->{contigs}{$key_contig}{class} = "multiplet";
+	    elsif (@{$self->{'contigs'}->{$key_contig}->{'member_array'}} >= 3) {
+		$self->{'contigs'}->{$key_contig}->{'num_members'} = @{$self->{'contigs'}->{$key_contig}->{'member_array'}};
+		$self->{'contigs'}->{$key_contig}->{'class'} = "multiplet";
 	    }
-	    $self->{contigs}{$key_contig}{num_members} = @{$self->{contigs}{$key_contig}{member_array}};
+	    $self->{'contigs'}->{$key_contig}->{'num_members'} = @{$self->{'contigs'}->{$key_contig}->{'member_array'}};
 
 	}
     }
-    $self->{doublets_set} = "done";
+    $self->{'doublets_set'} = "done";
     return 0;
 }				# end set_doublets
 
@@ -905,10 +885,10 @@ sub set_doublets {
 sub set_singlets {
     # parse out the contents of the singlets file
     my ($self,$verbose) = @_;
-    if ($verbose || $self->{verbose}) { $verbose = 1; }
+    if ($verbose || $self->{'verbose'}) { $verbose = 1; }
     else { $verbose = 0; }
     if ($verbose == 1) { print("Bio::Tools::Alignment::Consed Adding singlets to the contig hash...\n"); }
-    my $full_filename = $self->{filename};
+    my $full_filename = $self->{'filename'};
     if ($verbose == 1) { print("Bio::Tools::Alignment::Consed::set_singlets: \$full_filename is $full_filename\n"); }
     $full_filename =~ m/(.*\/)(.*ace.*)$/; 			       
     my ($base_path,$filename) = ($1,$2);
@@ -926,38 +906,35 @@ sub set_singlets {
 	if (/\>/) {
 	    if ($name && $sequence) {
 		if ($verbose == 1) { print("Adding $name with sequence $sequence to hash...\n"); }
-		push @{$self->{contigs}{$name}{member_array}},$name;
-		$self->{contigs}{$name}{consensus} = $sequence;
-		$self->{contigs}{$name}{name} = $name;
-		$self->{contigs}{$name}{"singlet"} = 1;
-		$self->{contigs}{$name}{class} = "singlet";
+		push @{$self->{'contigs'}->{$name}->{'member_array'}},$name;
+		$self->{'contigs'}->{$name}->{'consensus'} = $sequence;
+		$self->{'contigs'}->{$name}->{'name'} = $name;
+		$self->{'contigs'}->{$name}->{"singlet"} = 1;
+		$self->{'contigs'}->{$name}->{'class'} = "singlet";
 	    }
 	    $sequence = $name = undef;
 	    $count++;
 	    m/^\>(.*)\s\sCHROMAT/;
 	    $name = $1;
 	    if (!$name) {
-		# print STDERR ("Error while processing singlets file: I couldn't find the name for $_\n");
 		m/\>(\S+)\s/;
 		$name = $1;
-		# print STDERR ("Using the name $name for $_\n");
 	    }
-
 	}
 	else { $sequence .= $_; }	
     }
     if ($name && $sequence) {
 	if ($verbose == 1) { print("Pushing the last of the singlets ($name)\n"); }
-	@{$self->{contigs}{$name}{member_array}} = $name;
-	$self->{contigs}{$name}{consensus} = $sequence;
-	$self->{contigs}{$name}{name} = $name;
-	$self->{contigs}{$name}{"singlet"} = 1;
-	$self->{contigs}{$name}{class} = "singlet";
+	@{$self->{'contigs'}->{$name}->{'member_array'}} = $name;
+	$self->{'contigs'}->{$name}->{'consensus'} = $sequence;
+	$self->{'contigs'}->{$name}->{'name'} = $name;
+	$self->{'contigs'}->{$name}->{"singlet"} = 1;
+	$self->{'contigs'}->{$name}->{'class'} = "singlet";
     }
     if ($verbose == 1) { print("Bio::Tools::Alignment::Consed::set_singlets: Done adding singlets to the singlets hash.\n"); }
     			# if ($count) { print("\t$count singlets were found in $singletsfile\n"); }
     			# else { print("\tNo singlets were found here.\n"); }
-    $self->{singlets_set} = "done";
+    $self->{'singlets_set'} = "done";
     return 0;
 }				# end sub set_singlets
 
@@ -978,20 +955,20 @@ sub get_singlets {
     # singlets have "singlet"=1 in the hash
     my $self = shift;
     if (!$self->{singlets_set}) {
-	print("You need to set the singlets before you get them. Doing that now.\n");
+	$self->warn("You need to set the singlets before you get them. Doing that now.");
 	$self->set_singlets();
     }	
 
     my (@singlets,@array);
-    foreach my $key (sort keys %{$self->{contigs}}) {
-	# @array = @{$Consed::contigs{$key}{member_array}};
+    foreach my $key (sort keys %{$self->{'contigs'}}) {
+	# @array = @{$Consed::contigs{$key}->{'member_array'}};
 	# somethimes a user will try to get a list of singlets before the classes for the rest of the
 	# contigs has been set (see t/test.t for how I figured this out. <bah>			
 	# so either way, just return class=singlets
-	if (!$self->{contigs}{$key}{class}) {
+	if (!$self->{'contigs'}->{$key}->{'class'}) {
 	    # print("$key has no class. why?\n");
 	}
-	elsif ($self->{contigs}{$key}{class} eq "singlet") {
+	elsif ($self->{'contigs'}->{$key}->{'class'} eq "singlet") {
 	    push @singlets,$key;
 	}
     }
@@ -1002,7 +979,7 @@ sub get_singlets {
 
  Title   : set_quality_by_name($name,$quality)
  Usage   : $o_consed->set_quality_by_name($name,$quality);
- Function: Deprecated. Make the contig with {name} have {quality} $quality.
+ Function: Deprecated. Make the contig with {name} have {'quality'} $quality.
            Probably used for testing.
  Returns : Nothing.
  Args    : The name of a contig and a scalar for its quality.
@@ -1014,9 +991,9 @@ sub set_quality_by_name {
     # this is likely deprecated
     my ($self,$name,$quality) = shift;
     my $return;
-    foreach (sort keys %{$self->{contigs}}) {
-	if ($self->{contigs} eq "$name" || $self->{contigs}{name} eq "$name") {
-	    $self->{contigs}{quality} = $quality;
+    foreach (sort keys %{$self->{'contigs'}}) {
+	if ($self->{'contigs'} eq "$name" || $self->{'contigs'}->{'name'} eq "$name") {
+	    $self->{'contigs'}->{'quality'} = $quality;
 	    $return=1;
 	}
     }
@@ -1028,7 +1005,7 @@ sub set_quality_by_name {
  Title   : set_singlet_quality()
  Usage   : $o_consed->set_singlet_quality();
  Function: For each singlet, go to the appropriate file in phd_dir and read
-           in the phred quality for that read and place it into {quality}
+           in the phred quality for that read and place it into {'quality'}
  Returns : 0 or 1.
  Args    : None.
  Notes   : This is the next subroutine that will receive substantial revision
@@ -1039,7 +1016,7 @@ sub set_quality_by_name {
 
 sub set_singlet_quality {
     my $self = shift;
-    my $full_filename = $self->{filename};
+    my $full_filename = $self->{'filename'};
     $full_filename =~ m/(.*\/)(.*)ace.*$/;
     my ($base_path,$filename) = ($1,"$2"."qual");
     my $singletsfile = $base_path.$filename;
@@ -1047,7 +1024,7 @@ sub set_singlet_quality {
 	# print("$singletsfile is indeed a file. Trying to open it...\n");
     }
     else {
-	print("$singletsfile is not a file. Sorry.\n");
+	$self->warn("$singletsfile is not a file. Sorry.\n");
 	return;
     }
 	my $singlets_fh = Bio::Root::IO->new(-file => $singletsfile);
@@ -1058,24 +1035,18 @@ sub set_singlet_quality {
 	if ($line =~ /^\>/) {
 	    $quality = undef;
 	    $line =~ m/\>(\S*)\s/;
-				# qline =~ m/^\S\w/;
 	    $identity = $1;
-				# print("Singlet identity is $identity\n");
 	}
 	else {
-	    if ($self->{contigs}{$identity}) {
-				# @qline = split(' ',$line);
-				# @qline = split(' ',$self->{contigs}{$identity}{quality});
-				# $quality .= " $line";
-				# push @{$self->{contigs}{$identity}{quality}},@qline;
-		$self->{contigs}{$identity}{quality} .= "$line ";
+	    if ($self->{'contigs'}->{$identity}) {
+		$self->{'contigs'}->{$identity}->{'quality'} .= "$line ";
 	    }
 	}
 
     }
-    print("Bio::Tools::Alignment::Consed::set_singlet_quality: Done.\n");
+	#     print("Bio::Tools::Alignment::Consed::set_singlet_quality: Done.\n");
     return 0;
-}				# end set_singlet_qualities
+}
 
 =head2 set_contig_quality()
 
@@ -1091,7 +1062,7 @@ sub set_singlet_quality {
 sub set_contig_quality {
 	    # note: contigs _include_ singletons but _not_ singlets
     my ($self) = shift;
-    my $full_filename = $self->{filename};
+    my $full_filename = $self->{'filename'};
 	    # Run_SRC3700_2000-08-01_73+74.fasta.screen.contigs.qual
 	    # from Consed.pm
     $full_filename =~ m/(.*\/)(.*)ace.*$/;
@@ -1099,32 +1070,29 @@ sub set_contig_quality {
     my $singletsfile = $base_path.$filename;
 	    # print("\$singletsfile is $singletsfile\n");
     if (-f $singletsfile) {
-	# print("$singletsfile is indeed a file. Trying to open it...\n");
+		# print("$singletsfile is indeed a file. Trying to open it...\n");
     }
     else {
-	print("Bio::Tools::Alignment::Consed::set_contig_quality $singletsfile is not a file. Sorry.\n");
+		# print("Bio::Tools::Alignment::Consed::set_contig_quality $singletsfile is not a file. Sorry.\n");
 	return;
     }
 	my $contig_quality_fh = Bio::Root::IO->new(-file => $singletsfile);
 
     my ($sequence,$name,$count,$identity,$line,$quality);
-		# delete me csm!
-    						# while ($line = <CONTIGS>) {
 	while ($line = $contig_quality_fh->_readline()) {
 		chomp $line;
 	if ($line =~ /^\>/) {
 	    $quality = undef;
-				# Contig identity is >Run_SRC3700_2000-08-01_73+74.fasta.screen.Contig1	
 	    $line =~ m/\>.*Contig(\d+)\s/;
 	    $identity = $1;
 	}
 	else {
-	    if ($self->{contigs}{$identity} ) {
-		$self->{contigs}{$identity}{quality} .= " $line";
+	    if ($self->{'contigs'}->{$identity} ) {
+		$self->{'contigs'}->{$identity}->{'quality'} .= " $line";
 	    }
 	}
     }
-    print("Bio::Tools::Alignment::Consed::set_contig_quality: Done setting contig qualities.\n");
+    	# print("Bio::Tools::Alignment::Consed::set_contig_quality: Done setting contig qualities.\n");
 }				# end set_contig_quality
 
 =head2 get_multiplets()
@@ -1144,11 +1112,9 @@ sub get_multiplets {
 	    # multiplets have # members > 2
     my $self = shift;
     my (@multiplets,@array);
-    foreach my $key (sort keys %{$self->{contigs}}) {
-	# @array = @{$self->{contigs}{$key}{member_array}};
-	if ($self->{contigs}{$key}{class}) {
-	    if ($self->{contigs}{$key}{class} eq "multiplet") {
-				# print("$key is a multiplet!\n");
+    foreach my $key (sort keys %{$self->{'contigs'}}) {
+	if ($self->{'contigs'}->{$key}->{'class'}) {
+	    if ($self->{'contigs'}->{$key}->{'class'} eq "multiplet") {
 		push @multiplets,$key;
 	    }
 	}
@@ -1163,7 +1129,7 @@ sub get_multiplets {
   Function: Return a list of all of the read names in the 
             Bio::Tools::Alignment::Consed object.
  Returns : An array containing all of the elements in all of the
-           {member_array}s.
+           {'member_array'}s.
  Args    : None.
  Notes   : 
 
@@ -1172,22 +1138,18 @@ sub get_multiplets {
 sub get_all_members {
     my $self = shift;
     my @members;
-    foreach my $key (sort keys %{$self->{contigs}}) {
+    foreach my $key (sort keys %{$self->{'contigs'}}) {
 	if ($key =~ /^singlet/) {
-				# print("Bio::Tools::Alignment::Consed: $key is a singlet. Pushing $self->{contigs}{$key}{member_array}[0] onto \@members\n");
-	    push @members,$self->{contigs}{$key}{member_array}[0];
+	    push @members,$self->{'contigs'}->{$key}->{'member_array'}[0];
 	}
-	elsif ($self->{contigs}{$key}{member_array}) {
-				# print("Bio::Tools::Alignment::Consed: $key is an array containing: @{$self->{contigs}{$key}{member_array}}\nPushing onto \@members\n");
-	    push @members,@{$self->{contigs}{$key}{member_array}};
+	elsif ($self->{'contigs'}->{$key}->{'member_array'}) {
+	    push @members,@{$self->{'contigs'}->{$key}->{'member_array'}};
 	}
 	# else {
-	#	print("Bio::Tools::Alignment::Consed: $key is _not_ an array. Pushing $self->{contigs}{$key}{member_array} onto \@members\n");
-	#	push @members,$self->{contigs}{$key}{member_array};
+	#	print("Bio::Tools::Alignment::Consed: $key is _not_ an array. Pushing $self->{'contigs'}->{$key}->{'member_array'} onto \@members\n");
+	#	push @members,$self->{'contigs'}->{$key}->{'member_array'};
 	# }
     }
-    # my $num_members = @members;
-    # print("In the module, there were $num_members members\n");
     return @members;
 }
 
@@ -1224,7 +1186,7 @@ sub sum_lets {
     $count_multiplets = @multiplets;
     my $return_string;
     foreach (@multiplets) {
-	my $number_members = $self->{contigs}{$_}{num_members};
+	my $number_members = $self->{'contigs'}->{$_}->{num_members};
 	# print ("Multiplet $_ has $number_members members\n");
 	$multiplet_count += $number_members;
     }
@@ -1234,9 +1196,9 @@ sub sum_lets {
     foreach (qw(multiplet_count singlets doublets pairs singletons multiplets count_multiplets)) {
 	no strict 'refs';	# renege for the block
 	if (!${$_}) {
-	${$_} = 0;
-}
-}
+		${$_} = 0;
+	}
+    }
 	if (!$multiplet_count) { $multiplet_count = 0; }
 	if ($total_only) {
 		return $count;
@@ -1262,20 +1224,19 @@ sub sum_lets {
 
 =cut
 
-#'
 sub write_stats {
 		# worry about platform dependence here?
 		# oh shucksdarn.
 	my $self = shift;
-	my $stats_filename = $self->{path}."statistics";
+	my $stats_filename = $self->{'path'}."statistics";
 	my $statistics_raw = $self->sum_lets;
 	(my $statsfilecontents = $statistics_raw) =~ s/.*\ \:\ //g;
-	print("Bio::Tools::Alignment::Consed::write_stats - I would write this to $stats_filename:\n");
-	print("$statsfilecontents\n");
 	umask 0001;
-	open(STATSFILE,">$stats_filename") or print("Could not open the statsfile: $!\n");
-	print STATSFILE ("$statsfilecontents");
-	close STATSFILE;
+	my $fh = new Bio::Root::IO(-file=>"$stats_filename");
+		# open(STATSFILE,">$stats_filename") or print("Could not open the statsfile: $!\n");
+	$fh->_print("$statsfilecontents");
+		# close STATSFILE;
+	$fh->close();
 }
 
 =head2 get_singletons()
@@ -1295,18 +1256,18 @@ sub get_singletons {
 		# singletons are contigs with one member (see consed documentation)
 	my $self = shift;
 	my (@singletons,@array);
-	foreach my $key (sort keys %{$self->{contigs}}) {
-		if ($self->{contigs}{$key}{class}) {
-			# print ("$key class: $self->{contigs}{$key}{class}\n");
+	foreach my $key (sort keys %{$self->{'contigs'}}) {
+		if ($self->{'contigs'}->{$key}->{'class'}) {
+			# print ("$key class: $self->{'contigs'}->{$key}->{'class'}\n");
 		}
 		else {
-			print("$key belongs to no class. why?\n");
+			# print("$key belongs to no class. why?\n");
 		}
-		if ($self->{contigs}{$key}{member_array}) {
-			@array = @{$self->{contigs}{$key}{member_array}};
+		if ($self->{'contigs'}->{$key}->{'member_array'}) {
+			@array = @{$self->{'contigs'}->{$key}->{'member_array'}};
 		}
 		my $num_array_elem = @array;
-		if (@array == 1 && $self->{contigs}{$key}{class} eq "singleton") { push @singletons,$key; }
+		if (@array == 1 && $self->{'contigs'}->{$key}->{'class'} eq "singleton") { push @singletons,$key; }
 	}
 	return @singletons;
 }
@@ -1328,10 +1289,10 @@ sub get_pairs {
 		# a pair is a contig of two where the names do not match
 	my $self = shift;
 	my (@pairs,@array);
-	foreach my $key (sort keys %{$self->{contigs}}) {
-		if ($self->{contigs}{$key}{member_array}) {
-			if (@{$self->{contigs}{$key}{member_array}} == 2 && 
-			    $self->{contigs}{$key}{class} eq "pair") {
+	foreach my $key (sort keys %{$self->{'contigs'}}) {
+		if ($self->{'contigs'}->{$key}->{'member_array'}) {
+			if (@{$self->{'contigs'}->{$key}->{'member_array'}} == 2 && 
+			    $self->{'contigs'}->{$key}->{'class'} eq "pair") {
 				push @pairs,$key;
 			}
 		}
@@ -1352,7 +1313,7 @@ sub get_pairs {
 
 sub get_name {
 	my ($self,$contig) = @_;
-	return $self->{contigs}{$contig}{name};
+	return $self->{'contigs'}->{$contig}->{'name'};
 }
 
 =head2 _get_contig_name(\@array_containing_reads)
@@ -1369,16 +1330,14 @@ sub get_name {
 
 sub _get_contig_name {
 	my ($self,$r_array) = @_;
-		# print("$self $r_array)\n");
 	my @contig_members = @$r_array;
-		# print("\tAnalyzing the following names for matches: @contig_members\n");
 	my @name_nodir;
 	foreach (@contig_members) {
 			# how can I distinguish the clone name from the direction label?
 			# look for $Consed::reverse_designator and $Consed::forward_designator
 			# what if you don't find _any_ of those?
-		my $forward_designator = $self->{forward_designator} || "f";
-		my $reverse_designator = $self->{reverse_designator} || "r";
+		my $forward_designator = $self->{'forward_designator'} || "f";
+		my $reverse_designator = $self->{'reverse_designator'} || "r";
 		my $any_hits = /(.+)($forward_designator.*)/ || /(.+)($reverse_designator.*)/||/(.+)(_.+)/;
 		my $name = $1;
 		my $suffix = $2;
@@ -1429,21 +1388,15 @@ sub _get_contig_name {
 sub get_doublets {
 	my $self = shift;
 	if (!$self->{doublets_set}) {
-		print("You need to set the doublets before you can get them. Doing that now.\n");
+		$self->warn("You need to set the doublets before you can get them. Doing that now.");
 		$self->set_doublets();
 	}
 	my @doublets;
-	foreach (sort keys %{$self->{contigs}}) {
-	    # print("Bio::Tools::Alignment::Consed::get_doublets: Examining contig $_ for a name. class: $self->{contigs}{$_}{class}\n");
-	    if ($self->{contigs}{$_}{name} && $self->{contigs}{$_}{class} eq "doublet") {
-		# print("Bio::Tools::Alignment::Consed::get_doublets: Contig $_ has a name: #$self->{contigs}{$_}{name}# \n");
-		# print("Bio::Tools::Alignment::Consed::get_doublets: $self->{contigs}{$_}{name}\n");
-		push @doublets,$self->{contigs}{$_}{name};
+	foreach (sort keys %{$self->{'contigs'}}) {
+	    if ($self->{'contigs'}->{$_}->{name} && $self->{'contigs'}->{$_}->{'class'} eq "doublet") {
+		push @doublets,$self->{'contigs'}->{$_}->{'name'};
 	    }
 	}
-	# my $dumper = new Dumpvalue;
-	# $dumper->dumpValue(\%Consed::contigs); 
-	# print("Bio::Tools::Alignment::Consed::get_doublets: There are ".scalar(@doublets)." doublets here.\n");
 	return @doublets;
 } # end get_doublets
 
@@ -1463,7 +1416,7 @@ sub dump_hash {
 	my $dumper = new Dumpvalue;
 	print "Bio::Tools::Alignment::Consed::dump_hash - ",
 	      "The following is the contents of the contig hash...\n";
-	$dumper->dumpValue($self->{contigs});
+	$dumper->dumpValue($self->{'contigs'});
 }
 
 =head2 dump_hash_compact()
@@ -1490,14 +1443,14 @@ sub dump_hash_compact {
 	foreach (@singlets) {
 		my @members = $self->get_members($_);
 		print($self->get_name($_)."\tsinglets\t".(join',',@members)."\t");
-		if ($self->{contigs}{$_}{quality}) { print("qualities found here\n"); }
+		if ($self->{'contigs'}->{$_}->{'quality'}) { print("qualities found here\n"); }
 		else { print("no qualities found here\n"); }
 
 	}
 	foreach (@singletons) {
 		my @members = $self->get_members($_);
 		print($self->get_name($_)."\tsingletons\t".(join',',@members)."\t");
-		if ($self->{contigs}{$_}{quality}) { print("qualities found here\n"); }
+		if ($self->{'contigs'}->{$_}->{'quality'}) { print("qualities found here\n"); }
 		else { print("no qualities found here\n"); }
 	}
 	foreach my $pair (@pairs) {
@@ -1513,7 +1466,7 @@ sub dump_hash_compact {
 		my @members = $self->get_members_by_name($_);
 		print("$_\tdoublets\t".(join',',@members)."\t");
 		my $contig_number = &get_contig_number_by_name($self,$_);
-		if ($self->{contigs}{$contig_number}{quality}) { print("qualities found here\n"); }
+		if ($self->{'contigs'}->{$contig_number}->{'quality'}) { print("qualities found here\n"); }
 		else { print("no qualities found here\n"); }
 		# print($_."\tdoublets\t".(join',',@members)."\n");
 	}
@@ -1548,21 +1501,21 @@ sub get_phreds {
     my $self = shift;
 		# print("Getting phreds...\n");
 	my $current_contig;
-	foreach $current_contig (sort keys %{$self->{contigs}}) {
+	foreach $current_contig (sort keys %{$self->{'contigs'}}) {
 			# print("Looking at $current_contig for its class\n");
-		if ($self->{contigs}{$current_contig}{class} eq "doublet") {
-			if ($self->{verbose} == 1) { print("$current_contig is a doublet. Going to parse_phd for top($self->{contigs}{$current_contig}{top_name}) and bottom($self->{contigs}{$current_contig}{bottom_name})\n"); }
-			my $r_phreds_top = &parse_phd($self,$self->{contigs}{$current_contig}{top_name});
-			my $r_phreds_bottom = &parse_phd($self,$self->{contigs}{$current_contig}{bottom_name});
-			if ($self->{contigs}{$current_contig}{top_complement} eq "C") {
+		if ($self->{'contigs'}->{$current_contig}->{'class'} eq "doublet") {
+			if ($self->{'verbose'} == 1) { print("$current_contig is a doublet. Going to parse_phd for top($self->{'contigs'}->{$current_contig}->{'top_name'}) and bottom($self->{'contigs'}->{$current_contig}->{'bottom_name'})\n"); }
+			my $r_phreds_top = &parse_phd($self,$self->{'contigs'}->{$current_contig}->{'top_name'});
+			my $r_phreds_bottom = &parse_phd($self,$self->{'contigs'}->{$current_contig}->{'bottom_name'});
+			if ($self->{'contigs'}->{$current_contig}->{'top_complement'} eq "C") {
 					# print("Reversing and complementing...\n");
 				$r_phreds_top = &reverse_and_complement($r_phreds_top);
 			}
-			if ($self->{contigs}{$current_contig}{bottom_complement} eq "C") {
+			if ($self->{'contigs'}->{$current_contig}->{'bottom_complement'} eq "C") {
 				$r_phreds_bottom = &reverse_and_complement($r_phreds_bottom);
 			}
-			$self->{contigs}{$current_contig}{top_phreds} = $r_phreds_top;
-			$self->{contigs}{$current_contig}{bottom_phreds} = $r_phreds_bottom;
+			$self->{'contigs'}->{$current_contig}->{'top_phreds'} = $r_phreds_top;
+			$self->{'contigs'}->{$current_contig}->{'bottom_phreds'} = $r_phreds_bottom;
 		}
 	}
 }
@@ -1576,7 +1529,7 @@ sub get_phreds {
  Args    : The name of a read.
  Notes   : This is a significantly weak subroutine because it was always
 	intended that these functions, along with the finctions provided by
-	get_phreds() be put into the Bio::Tools::Alignment::Phred module. This is done now but
+	get_phreds() be put into the Bio::SeqIO:phred module. This is done now but
 	the Bio::Tools::Alignment::Consed module has not be rewritten to reflect this
 	change.
 
@@ -1584,15 +1537,17 @@ sub get_phreds {
 
 sub parse_phd {
         my ($self,$sequence_name) = @_;
-		if ($self->{verbose} == 1) { print("Parsing phd for $sequence_name\n"); }
+		if ($self->{'verbose'} == 1) { print("Parsing phd for $sequence_name\n"); }
         my $in_dna = 0;
         my $base_number = 0;
         my (@bases,@current_line);
                 # print("parse_phd: $sequence_name\n");
-        open(PHD,"<$self->{path}/../phd_dir/$sequence_name.phd.1") or
-	    die "Couldn't open the phred for $sequence_name\n";
-        while (<PHD>) {
-                chomp;
+	my $fh = new Bio::Root::IO(-file=>"$self->{path}/../phd_dir/$sequence_name.phd.1");
+        # open(PHD,"<$self->{path}/../phd_dir/$sequence_name.phd.1") or
+	 #    die "Couldn't open the phred for $sequence_name\n";
+        while ($fh->_readline()) {
+                	# print("Reading a line from a phredfile!\n");
+		chomp;
                 if (/^BEGIN_DNA/) { $in_dna = 1; next}
                 if (/^END_DNA/) { last; }
                 if (!$in_dna) { next; }
@@ -1661,29 +1616,26 @@ sub reverse_recurse($source,$destination) {
 sub show_missing_sequence() {
 		# decide which sequence should not have been clipped at consensus position = 0
 	my $self = shift;
-		# print("This is self->{contigs}\n");
-		# print("\%{$self->{contigs}}\n");
 	&get_phreds($self);
-	print("Bio::Tools::Alignment::Consed::show_missing_sequence!!\n");
 	my ($current_contig,@qualities);
-	foreach $current_contig (sort keys %{$self->{contigs}}) {
+	foreach $current_contig (sort keys %{$self->{'contigs'}}) {
 			# print("Bio::Tools::Alignment::Consed::show_missing_sequence deciding whether $current_contig is a doublet\n");
-		if ($self->{contigs}{$current_contig}{class} eq "doublet") {
+		if ($self->{'contigs'}->{$current_contig}->{'class'} eq "doublet") {
 				# print("restoring qualities to doublet $current_contig\n");
 			my $number_leading_xs = 0;
 			my $number_trailing_xs = 0;
-			my $measurer = $self->{contigs}{$current_contig}{quality};
+			my $measurer = $self->{'contigs'}->{$current_contig}->{'quality'};
 			while ($measurer =~ s/^\ 0\ /\ /) {
 				$number_leading_xs++;
 			}
 			while ($measurer =~ s/\ 0(\s*)$/$1/) {
 				$number_trailing_xs++;
 			}
-			# print("There were $number_leading_xs leading X's and $number_trailing_xs trailing X's for $current_contig\n");
-				# print("What happened?#$contigs{$current_contig}{consensus_quality}\n");
-				# print("#$contigs{$current_contig}{consensus_sequence}#\n");
-				# print("\$self->{contigs}{$current_contig}{quality} is $self->{contigs}{$current_contig}{quality}\n");
-			@qualities = split(' ',$self->{contigs}{$current_contig}{quality});
+				# print("There were $number_leading_xs leading X's and $number_trailing_xs trailing X's for $current_contig\n");
+				# print("What happened?#$contigs->{$current_contig}->{consensus_quality}\n");
+				# print("#$contigs->{$current_contig}->{'consensus_sequence'}#\n");
+				# print("\$self->{'contigs'}->{$current_contig}->{'quality'} is $self->{'contigs'}->{$current_contig}->{'quality'}\n");
+			@qualities = split(' ',$self->{'contigs'}->{$current_contig}->{'quality'});
 			my $in_initial_zeros = 0;
 			for (my $count=0;$count<scalar(@qualities); $count++) {
 				if ($qualities[$count] == 0) {
@@ -1691,20 +1643,19 @@ sub show_missing_sequence() {
 						# print("The quality of the consensus at ".($count+1)." is zero. Retrieving the real quality value.\n");
 						# how do I know which strand to get these quality values from????
 						# boggle
-					my $top_quality_here = $self->{contigs}{$current_contig}{top_phreds}[0-$self->{contigs}{$current_contig}{top_start}+$count+1];
-					my $bottom_quality_here = $self->{contigs}{$current_contig}{bottom_phreds}[1-$self->{contigs}{$current_contig}{bottom_start}+$count];
-					if (!$bottom_quality_here || (1-$self->{contigs}{$current_contig}{bottom_start}+$count)<0) {
+					my $top_quality_here = $self->{'contigs'}->{$current_contig}->{'top_phreds'}->[0-$self->{'contigs'}->{$current_contig}->{'top_start'}+$count+1];
+					my $bottom_quality_here = $self->{'contigs'}->{$current_contig}->{'bottom_phreds'}->[1-$self->{'contigs'}->{$current_contig}->{'bottom_start'}+$count];
+					if (!$bottom_quality_here || (1-$self->{'contigs'}->{$current_contig}->{'bottom_start'}+$count)<0) {
 						$bottom_quality_here = "not found";
 					}
 					if (!$top_quality_here) {
 						$top_quality_here = "not found";
 					}
-						# print("Looking for quals at position $count of $current_contig: top position ".(0-$self->{contigs}{$current_contig}{top_start}+$count)." ($self->{contigs}{$current_contig}{top_name}) $top_quality_here , bottom position ".(1-$self->{contigs}{$current_contig}{bottom_start}+$count)." ($self->{contigs}{$current_contig}{bottom_name}) $bottom_quality_here\n"); 
+						# print("Looking for quals at position $count of $current_contig: top position ".(0-$self->{'contigs'}->{$current_contig}->{top_start}+$count)." ($self->{'contigs'}->{$current_contig}->{top_name}) $top_quality_here , bottom position ".(1-$self->{'contigs'}->{$current_contig}->{bottom_start}+$count)." ($self->{'contigs'}->{$current_contig}->{bottom_name}) $bottom_quality_here\n"); 
 					if ($count<$number_leading_xs) {
 							# print("$count is less then $number_leading_xs so I will get the quality from the top strand\n");
-							# print("retrieved quality is ".$self->{contigs}{$current_contig}{top_phreds}[0-$self->{contigs}{$current_contig}{top_start}+$count+1]."\n");
+							# print("retrieved quality is ".$self->{'contigs'}->{$current_contig}->{top_phreds}[0-$self->{'contigs'}->{$current_contig}->{top_start}+$count+1]."\n");
 						my $quality = $top_quality_here;
-							# $contigs{$current_contig}{top_phreds}[0-$contigs{$current_contig}{top_start}+$count+1];
 						$quality =~ /\S+\s(\d+)\s+/;
 						$quality = $1;
 							# print("retrieved quality for leading zero $count is $quality\n");
@@ -1729,20 +1680,20 @@ sub show_missing_sequence() {
 						# does a similar situation exist for the leading zeros? i dunno
 						#
 							# print("$count is greater then $number_leading_xs so I will get the quality from the bottom strand\n");
-							# print("retrieved quality is ".$contigs{$current_contig}{top_phreds}[0-$contigs{$current_contig}{top_start}+$count+1]."\n");
+							# print("retrieved quality is ".$contigs->{$current_contig}->{top_phreds}[0-$contigs->{$current_contig}->{top_start}+$count+1]."\n");
 							# my ($quality,$top_phred_position,$bottom_phred_position,$top_phred_data,$bottom_phred_data);
 						if ($bottom_quality_here eq "not found") {
-								# $top_phred_position = 1-$contigs{$current_contig}{bottom_start}+$count;
+								# $top_phred_position = 1-$contigs->{$current_contig}->{bottom_start}+$count;
 								# print("Going to get quality from here: $top_phred_position of the top.\n");
-								# my $temp_quality - $contigs{$current_contig}{top_phreds}
-								# $quality = $contigs{$current_contig}{top_phreds}[$top_phred_position];
+								# my $temp_quality - $contigs->{$current_contig}->{top_phreds}
+								# $quality = $contigs->{$current_contig}->{top_phreds}[$top_phred_position];
 							$top_quality_here =~ /\w+\s(\d+)\s/;
 							$quality = $1;
 						}
 						elsif ($top_quality_here eq "not found") {
-								# $bottom_phred_position = 1+$contigs{$current_contig}{bottom_start}+$count;
+								# $bottom_phred_position = 1+$contigs->{$current_contig}->{bottom_start}+$count;
 								# print("Going to get quality from here: $bottom_phred_position of the bottom.\n");
-								# $quality = $contigs{$current_contig}{bottom_phreds}[$bottom_phred_position];
+								# $quality = $contigs->{$current_contig}->{bottom_phreds}[$bottom_phred_position];
 								# print("Additional: no top quality but bottom is $quality\n");
 							$bottom_quality_here =~ /\w+\s(\d+)\s/;
 							$quality = $1;
@@ -1751,7 +1702,7 @@ sub show_missing_sequence() {
 								# print("Oh jeepers, there are 2 qualities to choose from at this position.\n");
 								# print("Going to compare these phred qualities: top: #$top_quality_here# bottom: #$bottom_quality_here#\n");
 								# now you have to compare them
-								# my $top_quality_phred = $contigs{$current_contig}{top_phreds}[$top_phred_position];
+								# my $top_quality_phred = $contigs->{$current_contig}->{top_phreds}[$top_phred_position];
 								# #t 40 875#
 								# print("regexing #$top_quality_here#... ");
 							$top_quality_here =~ /\w\ (\d+)\s/;
@@ -1774,7 +1725,6 @@ sub show_missing_sequence() {
 							# print("Additional data: top quality phred: $top_quality_here\n");
 							# print("Additional data: bottom quality phred: $bottom_quality_here\n");
 						} else {
-								# print("retrieved quality for trailing zero at $count is #$quality#\n");
 							$qualities[$count] = $quality;
 						}
 					}						
@@ -1782,21 +1732,11 @@ sub show_missing_sequence() {
 
 			}
 			unless (!@qualities) {
-				$self->{contigs}{$current_contig}{quality} = join(" ",@qualities);
-					# print("Final quality values: #$contigs{$current_contig}{consensus_quality}\n");
-					# print("#$contigs{$current_contig}{consensus_sequence}#\n");
+				$self->{'contigs'}->{$current_contig}->{'quality'} = join(" ",@qualities);
 			}
-			$self->{contigs}{$current_contig}{bottom_phreds} = undef;
-			$self->{contigs}{$current_contig}{top_phreds} = undef;
-
+			$self->{'contigs'}->{$current_contig}->{'bottom_phreds'} = undef;
+			$self->{'contigs'}->{$current_contig}->{'top_phreds'} = undef;
 			my $count = 1;
-				# for debugging
-				# print("I see ".scalar(@qualities)." quality values in $current_contig while the sequence has ".length($contigs{$current_contig}{consensus_sequence})." bases\n");
-				# print("The quality values are\n");
-				#for (my $count=0; $count<scalar(@qualities); $count++) { 
-				#	print $count+1;
-				#	print ":$qualities[$count]:".substr($contigs{$current_contig}{consensus_sequence},$count,1)."\n";
-				#}
 		} # end foreach key
 	}
 }
