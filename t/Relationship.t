@@ -15,7 +15,7 @@ BEGIN {
         use lib 't';
     }
     use Test;
-    plan tests => 8;
+    plan tests => 9;
 }
 
 use Bio::Ontology::Relationship;
@@ -41,10 +41,9 @@ my $rel = Bio::Ontology::Relationship->new( -identifier        => "16847",
                                             -child_term        => $child,
                                             -relationship_type => $IS_A ); 
 
-
+ok( $rel->isa( "Bio::Ontology::Relationship" ) );
 
 ok( $rel->identifier(), "16847" );
-
 
 ok( $rel->parent_term()->name(), "parent" );
 
