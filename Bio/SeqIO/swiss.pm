@@ -105,9 +105,9 @@ use Bio::Seq;
 use Bio::SeqIO::FTHelper;
 use Bio::SeqFeature::Generic;
 use Bio::Species;
-use Bio::SeqIO::StreamI;
+#use Bio::SeqIO::StreamI;
 
-# Object preamble - inheriets from Bio::Root::Object
+# Object preamble - inherits from Bio::Root::Object
 
 use Bio::Root::Object;
 use FileHandle;
@@ -356,15 +356,14 @@ sub write_seq {
    }
 
    my $fh = $self->_filehandle();
-   my $seq = $seq->seq();
    my $i;
    my $str = $seq->seq;
    
    my $mol;
    my $div;
-   my $len = $seq->seq_len();
+   my $len = $seq->length();
 
-   if ( !$seq->can('division') || ($div = $seq->division()) eq undef ) {
+   if ( !$seq->can('division') || ! defined ($div = $seq->division()) ) {
        $div = 'UNK';
    }
    else {
@@ -372,7 +371,7 @@ sub write_seq {
    }
    $mol = $seq->molecule;
   
-   if(!$seq->can('molecule') || ($mol eq undef )) {
+   if(!$seq->can('molecule') || (!defined($mol))) {
        $mol = 'XXX';
    }
    else {
@@ -389,6 +388,7 @@ sub write_seq {
    print $fh "ID   $temp_line\n";   
 
    # if there, write the accession line
+   local($^W) = 0;   # supressing warnings about uninitialized fields
 
    if( $self->_ac_generation_func ) {
        $temp_line = &{$self->_ac_generation_func}($seq);
@@ -586,7 +586,7 @@ sub _print_swissprot_FTHelper {
 sub _read_swissprot_References{
    my ($buffer,$fh) = @_;
    my (@refs);
-   my $b1, my $b2, my $rp, my $title, my $loc, my $au, my $med, my $com;
+   my ($b1, $b2, $rp, $title, $loc, $au, $med, $com);
    
    if ($$buffer !~ /^RP/) {
        $$buffer = <$fh>;
@@ -748,7 +748,8 @@ sub _read_FTHelper_swissprot {
    $loc =~ s/>//;
    $out->key($key);
    $out->loc($loc);
-   $out->field->{$key};
+   # $out->field->{$key};   # What's the purpose of this? I changed to next line. SAC 2/21/00
+   $out->field($key);
    $value =~ s/\"\"/\"/g;
    push (@{$out->field->{$key}},$value);
    
