@@ -61,7 +61,7 @@ methods. Internal methods are usually preceded with a _
 
 package Bio::Tools::Run::Pseudowise;
 use vars qw($AUTOLOAD @ISA $PROGRAM $PROGRAMDIR
-            $TMPDIR $TMPOUTFILE @DBA_SWITCHES 
+            $TMPDIR $TMPOUTFILE @PSEUDOWISE_SWITCHES @PSEUDOWISE_PARAMS 
             @OTHER_SWITCHES %OK_FIELD);
 use strict;
 use Bio::SeqIO;
@@ -90,11 +90,22 @@ BEGIN {
     if (defined $ENV{WISEDIR}) {
         $PROGRAMDIR = $ENV{WISEDIR} || '';
         $PROGRAM = Bio::Root::IO->catfile($PROGRAMDIR."/src/bin/",
-                                          'dba'.($^O =~ /mswin/i ?'.exe':''));
+                                          'pseudowise'.($^O =~ /mswin/i ?'.exe':''));
     }
     else {
         $PROGRAM = 'pseudowise';
     }
+    @PSEUDOWISE_PARAMS = qw(SPLICE_MAX_COLLAR SPLICE_MIN_COLLAR SPLICE_SCORE_OFFSET
+                     GENESTATS
+                     NOMATCHN PARAMS KBYTE DYMEM DYDEBUG PALDEBUG 
+                     ERRORLOG);
+
+    @PSEUDOWISE_SWITCHES = qw(HELP SILENT QUIET ERROROFFSTD);
+
+    # Authorize attribute fields
+    foreach my $attr ( @PSEUDOWISE_PARAMS, @PSEUDOWISE_SWITCHES,
+                       @OTHER_SWITCHES) { $OK_FIELD{$attr}++; }
+
 }
 
 sub new {
@@ -128,6 +139,16 @@ sub new {
   return $self;
 }
 
+
+sub AUTOLOAD {
+    my $self = shift;
+    my $attr = $AUTOLOAD;
+    $attr =~ s/.*:://;
+    $attr = uc $attr;
+    $self->throw("Unallowed parameter: $attr !") unless $OK_FIELD{$attr};
+    $self->{$attr} = shift if @_;
+    return $self->{$attr};
+}
 
 =head2  exists_pseudowise()
 
@@ -312,9 +333,6 @@ sub _parse_results {
                       my $no = scalar(@element);
                       my $gene_start = $element[1];
                       my $gene_end = $element[2];
-                      print "No. of elements in Gene-- $no\n";
-                      print "Gene start - $gene_start\n";
-                      print "Gene End - $gene_end\n";
                       $gene->start($gene_start);
                       $gene->end($gene_end);
                     }
@@ -324,10 +342,6 @@ sub _parse_results {
                       my $exon_start = $element[1];
                       my $exon_end = $element[2];
                       my $exon_phase = $element[4];
-                      print "No. of elements in Exon-- $no\n";
-                      print "Exon start - $exon_start\n";
-                      print "Exon End - $exon_end\n";
-                      print "Exon Phase - $exon_phase\n";
                       my $exon = new Bio::SeqFeature::Generic (
                                 -start => $exon_start,
                                 -end => $exon_end,
@@ -356,7 +370,7 @@ sub _parse_results {
  Function:   Create input files for pseudowise program
  Example :
  Returns : name of file containing dba data input
- Args    : Seq objects or input file name
+ Args    : Seq objects in the order of query protein and cdna and target genomic sequence 
 
 =cut
 
