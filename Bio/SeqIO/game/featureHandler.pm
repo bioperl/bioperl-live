@@ -6,7 +6,7 @@
 # $Id$
 #
 
-package Bio::SeqIO::featureHandler;
+package Bio::SeqIO::game::featureHandler;
 use Bio::SeqFeature::Generic;
 use vars qw{ $AUTOLOAD @ISA };
 use strict;

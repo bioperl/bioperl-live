@@ -78,9 +78,9 @@ use strict;
 # Object preamble - inherits from Bio::Root::Object
 
 use Bio::SeqIO;
-use Bio::SeqIO::seqHandler;
-use Bio::SeqIO::featureHandler;
-use Bio::SeqIO::idHandler;
+use Bio::SeqIO::game::seqHandler;
+use Bio::SeqIO::game::featureHandler;
+use Bio::SeqIO::game::idHandler;
 use XML::Parser::PerlSAX;
 use Bio::SeqFeature::Generic;
 use XML::Writer;
@@ -131,7 +131,7 @@ sub next_seq {
   unless (defined @{$self->{seqs}}) {
 
       eval {
-	my $handler = Bio::SeqIO::idHandler->new();
+	my $handler = Bio::SeqIO::game::idHandler->new();
 	my $options = {Handler=>$handler};
 	my $parser = XML::Parser::PerlSAX->new($options);
 	$self->{seqs} = $parser->parse(Source => { SystemId => $self->{file} });
@@ -144,12 +144,12 @@ sub next_seq {
   }
   my $seq = shift(@{$self->{seqs}});
   if ($seq) {
-    my $handler = Bio::SeqIO::seqHandler->new($seq);
+    my $handler = Bio::SeqIO::game::seqHandler->new($seq);
     my $options = {Handler=>$handler};
     my $parser = XML::Parser::PerlSAX->new($options);
     my $pseq = $parser->parse(Source => { SystemId => $self->{file} });
 
-    my $handler = Bio::SeqIO::featureHandler->new($pseq->length(), $pseq->moltype());
+    my $handler = Bio::SeqIO::game::featureHandler->new($pseq->length(), $pseq->moltype());
     my $options = {Handler=>$handler};
 
     my $parser = XML::Parser::PerlSAX->new($options);
@@ -176,9 +176,24 @@ sub next_seq {
 sub next_primary_seq {
   my $self=shift;
 
+  unless (defined @{$self->{seqs}}) {
+    
+    eval {
+      my $handler = Bio::SeqIO::game::idHandler->new();
+      my $options = {Handler=>$handler};
+      my $parser = XML::Parser::PerlSAX->new($options);
+      $self->{seqs} = $parser->parse(Source => { SystemId => $self->{file} });
+    };
+    if ($@) {
+      $self->warn("There was an error parsing the xml document $self->{file}.  It may not be well-formed or
+	empty.");
+      return 0;
+    }
+  }
+
   my $seq = shift(@{$self->{seqs}});
   if ($seq) {
-    my $handler = Bio::SeqIO::seqHandler->new($seq);
+    my $handler = Bio::SeqIO::game::seqHandler->new($seq);
     my $options = {Handler=>$handler};
     my $parser  = XML::Parser::PerlSAX->new($options);
     my $pseq = $parser->parse(Source => { SystemId => $self->{file} });

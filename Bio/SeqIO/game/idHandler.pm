@@ -4,7 +4,7 @@
 # $Id$
 #
 
-package Bio::SeqIO::idHandler;
+package Bio::SeqIO::game::idHandler;
 use vars qw{ $AUTOLOAD };
 use strict;
 
