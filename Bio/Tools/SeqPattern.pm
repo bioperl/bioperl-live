@@ -47,15 +47,6 @@ Bio::Tools::SeqPattern.pm - Bioperl object for a sequence pattern or motif
     $pat2     = '[VILM]R(GXX){3,2}...[^PG]';
     $pattern2 = new Bio::Tools::SeqPattern(-SEQ =>$pattern, -TYPE =>'Amino'); 
 
-=head1 INSTALLATION
-
-This module is included with the central Bioperl distribution:
-
-   http://bio.perl.org/Core/Latest
-   ftp://bio.perl.org/pub/DIST
-
-Follow the installation instructions included in the README file.
-
 =head1 DESCRIPTION
 
 The Bio::Tools::SeqPattern.pm module encapsulates generic data and
@@ -176,7 +167,7 @@ Currently, this module only supports patterns using a grep-like syntax.
 =head1 USAGE
 
 A simple demo script is included with the central Bioperl distribution
-(L<INSTALLATION>) and is also available from:
+and is also available from:
 
     http://bio.perl.org/Core/Examples/seq_pattern.pl
 
@@ -211,8 +202,6 @@ or the web:
 =head1 AUTHOR
 
 Steve A. Chervitz, sac@genome.stanford.edu
-
-See the L<FEEDBACK> section for where to send bug reports and comments.
 
 =head1 VERSION
 
@@ -253,7 +242,7 @@ modify it under the same terms as Perl itself.
  Comments  : The process of creating a new SeqPattern.pm object
            : ensures that the pattern string is untained.
 
-See Also   : L<_untaint_pat>(), B<Bio::Root::Root::new()>, 
+See Also   : B<Bio::Root::Root::new()>, 
              B<Bio::Seq::_initialize()>
 
 =cut
@@ -296,10 +285,8 @@ sub new {
  Argument  : n/a
  Throws    : Exception if the pattern contains invalid characters.
  Comments  : Does not call the superclass method.
-           : Actaully permits any alphanumeric, not just the
+           : Actually permits any alphanumeric, not just the
            : standard genetic alphabet.
-
-See Also   : B<Bio::Seq::alphabet_ok()>, L<_initialize>()
 
 =cut
 
@@ -337,7 +324,7 @@ sub alphabet_ok {
  Throws    : Exception if sequence type is not recognized 
            : (i.e., is not one of [DR]NA, Amino)
 
-See Also   : B<Extended Alphabet Support>, L<_expand_pep>(), L<_exapand_nuc>()
+See Also   : B<Extended Alphabet Support>, L<_expand_pep>(), L<_expand_nuc>()
 
 =cut
 
@@ -895,6 +882,7 @@ sub type{
 }
 
 1;
+
 __END__
 
 #########################################################################
@@ -909,7 +897,7 @@ Information about the various data members of this module is provided
 for those wishing to modify or understand the code. Two things to bear
 in mind:
 
-=over 4
+=over 2
 
 =item 1 Do NOT rely on these in any code outside of this module. 
 
@@ -941,6 +929,3 @@ to a hash containing all or some of the following fields:
 
 =cut
 
-
-
-1;
