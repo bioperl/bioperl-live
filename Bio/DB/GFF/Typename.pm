@@ -52,6 +52,10 @@ sub new    {
   my ($method,$source) = @_;
   $method ||= '';
   $source ||= '';
+  if ($source eq '' && $method =~ /^(\w+):(\w+)$/) {
+    $method = $1;
+    $source = $2;
+  }
   return $OBJECT_CACHE{"$method:$source"} ||= bless [$method,$source],$package;
 }
 
@@ -124,6 +128,35 @@ This method creates an exact copy of the object.
 sub clone {
   my $self = shift;
   return bless [@$self],ref $self;
+}
+
+=head2 match
+
+ Title   : match
+ Usage   : $boolean = $type->match($type_or_string)
+ Function: fuzzy match on types
+ Returns : a flag indicating that the argument matches the object
+ Args    : a Bio::DB::GFF::typename object, or a string in method:source format
+ Status  : Public
+
+This match allows Sequence:Link and Sequence: to match, but not
+Sequence:Link and Sequence:Genomic_canonical.
+
+=cut
+
+sub match {
+  my $self   = shift;
+  my $target = shift;
+  my ($method,$source);
+  if (UNIVERSAL::isa($target,'Bio::DB::GFF::Typename')) {
+    ($method,$source) = ($target->method,$target->source);
+  } else {
+    ($method,$source) = split /:/,$target;
+  }
+
+  return if $method ne '' && $self->method ne '' && $method ne $self->method;
+  return if $source ne '' && $self->source ne '' && $source ne $self->source;
+  1;
 }
 
 1;

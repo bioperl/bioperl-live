@@ -151,7 +151,7 @@ sub make_object {
     return $class->new(Text=>$name);
   }
 
-  return $self->SUPER::make_object($name,$class,$start,$stop);
+  return $self->SUPER::make_object($class,$name,$start,$stop);
 }
 
 sub bin_query {

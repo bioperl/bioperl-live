@@ -308,6 +308,10 @@ sub new {
   for my $a (@a) {
     $self->add_aggregator($a);
   }
+
+  # default settings go here.....
+  $self->automerge(1);  # set automerge to true
+
   $self;
 }
 
@@ -477,6 +481,29 @@ sub debug {
   my $self = shift;
   my $g = $self->{debug};
   $self->{debug} = shift if @_;
+  $g;
+}
+
+
+=head2 automerge
+
+ Title   : automerge
+ Usage   : $db->automerge( [$new automerge] );
+ Function: get or set automerge value
+ Returns : current value (boolean)
+ Args    : an optional argument to set the automerge value
+ Status  : Public
+
+By default, this module will use the aggregators to merge groups into
+single composite objects.  This default can be changed to false by
+calling automerge(0).
+
+=cut
+
+sub automerge {
+  my $self = shift;
+  my $g = $self->{automerge};
+  $self->{automerge} = shift if @_;
   $g;
 }
 
@@ -689,7 +716,7 @@ sub features_in_range {
 	       [qw(MERGE AUTOMERGE)],
 	       'ITERATOR'
 	      ],@_);
-  $automerge = 1 unless defined $automerge;
+  $automerge = $self->automerge unless defined $automerge;
   $self->throw("range type must be one of {".
 	       join(',',keys %valid_range_types).
 	       "}\n")
@@ -829,7 +856,7 @@ sub features {
   }
 
   # for whole database retrievals, we probably don't want to automerge!
-  $automerge = 0 unless defined $automerge;
+  $automerge = $self->automerge unless defined $automerge;
   $self->_features('contains',undef,undef,undef,undef,$types,undef,$automerge,$iterator);
 }
 
@@ -1457,7 +1484,7 @@ END
 =head2 make_object
 
  Title   : make_object
- Usage   : $db->make_object($name,$class,$start,$stop)
+ Usage   : $db->make_object($class,$name,$start,$stop)
  Function: creates a feature object
  Returns : a feature object
  Args    : see below
@@ -1481,7 +1508,7 @@ Arguments are:
 # abstract call to turn a feature into an object, given its class and name
 sub make_object {
   my $self = shift;
-  my ($name,$class,$start,$stop) = @_;
+  my ($class,$name,$start,$stop) = @_;
   return Bio::DB::GFF::Homol->new($self,$class,$name,$start,$stop)
     if defined $start and length $start;
   return Bio::DB::GFF::Featname->new($class,$name);
