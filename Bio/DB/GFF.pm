@@ -1736,6 +1736,9 @@ sub setup_argv {
   my @argv;
 
   if (-d $file_or_directory) {
+    # Because glob() is broken with long file names that contain spaces
+    $file_or_directory = Win32::GetShortPathName($file_or_directory)
+      if $^O =~ /^MSWin/i && eval 'use Win32; 1';
     @argv = map { glob("$file_or_directory/*.{$_,$_.gz,$_.Z,$_.bz2}")} @suffixes;
   }elsif (my $fd = fileno($file_or_directory)) {
     open STDIN,"<&=$fd" or $self->throw("Can't dup STDIN");
