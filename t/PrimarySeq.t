@@ -18,7 +18,7 @@
 
 
 ## We start with some black magic to print on failure.
-BEGIN { $| = 1; print "1..9\n"; 
+BEGIN { $| = 1; print "1..10\n"; 
 	use vars qw($loaded); }
 END {print "not ok 1\n" unless $loaded;}
 
@@ -77,13 +77,25 @@ if( $rev->seq() ne 'AGTTGACGCCACCAA' ) {
 
 $aa = $seq->translate();
 
-print "ok 8\n";
+#print $seq->seq, "ok 8\n";
 
-# tests for non-Methionin initiator codon (AGT) coding for M
-if( $aa->seq ne 'MVAST' ) {
+if( $aa->seq ne 'LVAST' ) {
     print STDERR "Translation: ", $aa->seq, "\n";
     print "not ok 9\n";
 } else {
     print "ok 9\n";
+}
+
+$seq->seq('TTGGTGGCGTCAACTTAA');
+
+#                    $stop, $unknown, $frame, $tableid, $fullCDS, $throw
+$aa = $seq->translate(undef, undef, undef, undef, 1);
+
+# tests for non-Methionin initiator codon (AGT) coding for M
+if( $aa->seq ne 'MVAST' ) {
+    print STDERR "Translation: ", $aa->seq, "\n";
+    print "not ok 10\n";
+} else {
+    print "ok 10\n";
 }
 
