@@ -746,6 +746,7 @@ sub n { shift->throw_not_implemented }
 
 sub range { shift->throw_not_implemented }
 
+sub expect { shift->evalue(@_) }
 
 1;
 
