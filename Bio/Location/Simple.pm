@@ -82,7 +82,7 @@ sub new {
 							       START
 							       END
 							       STRAND
-							       SEQID)],@args);
+							       SEQ_ID)],@args);
     defined $v && $self->verbose($v);
     defined $strand && $self->strand($strand);
     defined $start  && $self->start($start);

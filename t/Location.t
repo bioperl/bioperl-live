@@ -6,7 +6,7 @@
 # `make test'. After `make install' it should work as `perl test.t'
 
 use strict;
-BEGIN {     
+BEGIN {
     # to handle systems with no installed Test module
     # we include the t dir (where a copy of Test.pm is located)
     # as a fallback
@@ -15,7 +15,7 @@ BEGIN {
 	use lib 't';
     }
     use Test;
-    plan tests => 45;
+    plan tests => 50;
 }
 
 use Bio::Location::Simple;
@@ -29,11 +29,13 @@ use Bio::SeqFeature::FeaturePair;
 ok(1);
 
 my $simple = new Bio::Location::Simple('-start' => 10, '-end' => 20,
-				       '-strand' => 1);
+				       '-strand' => 1, -seq_id => 'my1');
 ok $simple->isa('Bio::LocationI') && $simple->isa('Bio::RangeI');
 
 ok $simple->start, 10;
 ok $simple->end, 20;
+ok $simple->seq_id, 'my1';
+
 
 my $generic = new Bio::SeqFeature::Generic('-start' => 5, '-end' => 30, 
 					   '-strand' => 1);
@@ -66,8 +68,8 @@ ok($generic->contains($simple));
 
 # fuzzy location tests
 my $fuzzy = new Bio::Location::Fuzzy('-start' =>'<10', '-end' => 20, 
-				     -strand=>1);
-				     
+				     -strand=>1, -seq_id=>'my2');
+
 ok($fuzzy->strand, 1);
 ok($fuzzy->start, 10);
 ok($fuzzy->end,20);
@@ -78,6 +80,8 @@ ok($fuzzy->max_end, 20);
 ok($fuzzy->location_type, 'EXACT');
 ok($fuzzy->start_pos_type, 'BEFORE');
 ok($fuzzy->end_pos_type, 'EXACT');
+ok $fuzzy->seq_id, 'my2';
+ok $fuzzy->seq_id('my3'), 'my3';
 
 # split location tests
 my $splitlocation = new Bio::Location::Split;
@@ -88,6 +92,7 @@ $splitlocation->add_sub_Location($f);
 ok($f->start, 13);
 ok($f->min_start, 13);
 ok($f->max_start,13);
+
 
 $f = new Bio::Location::Simple('-start'=>30,
 			       '-end'=>90,
@@ -152,3 +157,7 @@ $f = new Bio::Location::Simple(-verbose => -1,
 ok($f->length, 81);
 ok($f->strand,-1);
 
+# test that can call seq_id() on a split location;
+$splitlocation = new Bio::Location::Split(-seq_id => 'mysplit1');
+ok $splitlocation->seq_id,'mysplit1';
+ok $splitlocation->seq_id('mysplit2'),'mysplit2';
