@@ -1,0 +1,5 @@
+The files in this directory are contributed by various people who have
+written biological analysis software in perl as a script.  Please
+contact the authors for more information.  Those interested in porting
+this functionality to a bioperl module are encouraged to contact the
+bioperl mailing list bioperl-l@bioperl.org
