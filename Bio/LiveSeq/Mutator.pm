@@ -32,7 +32,7 @@
 =head1 DESCRIPTION
 
   This class mutates L<Bio::LiveSeq::Gene> objects and returns
-  L<Bio::Variation::SeqDiff> object. Mutations are descibed as
+  L<Bio::Variation::SeqDiff> object. Mutations are described as
   L<Bio::LiveSeq::Mutation> objects.
 
 =head1 FEEDBACK
@@ -57,7 +57,7 @@ report bugs to the Bioperl bug tracking system to help us keep track
 =head1 AUTHOR - Heikki Lehvaslaiho & Joseph A.L. Insana
 
   Email:  heikki@ebi.ac.uk
-          Insana@ebi.ac.uk, jinsane@alaric.atnet.it
+          insana@ebi.ac.uk, jinsana@gmx.net
 
   Address:
 
@@ -123,7 +123,7 @@ sub new {
  Function: 
 
            Returns or sets the link-reference to a
-           L<Bio::LiveSeq::Gene> object.  If mo value has ben set, it
+           L<Bio::LiveSeq::Gene> object. If no value has ben set, it
            will return undef
 
  Returns : an object reference  or undef
@@ -759,22 +759,6 @@ sub _set_DNAMutation {
 # returns a boolean value
 #
 
-=head2 _set_DNAMutation
-
- Title   : _set_DNAMutation
- Usage   :
- Function:
-
-           Stores DNA level mutation attributes before mutation into
-           L<Bio::Variation::DNAMutation> object.  Links it to SeqDiff
-           object.
-
- Example :
- Returns : L<Bio::Variation::DNAMutation> object
- Args    : L<Bio::Variation::SeqDiff> object
-
-=cut
-
 sub _rnaAffected {
     my ($self) = @_;
     my @exons=$self->RNA->all_Exons;
@@ -789,7 +773,35 @@ sub _rnaAffected {
 	 #this means one of the two labels is an inserted one
 	 #(coming from a previous mutation. This would falsify all <,>
 	 #checks, so the follow() has to be used
-	 croak "Workaround not implemented yet!! \n";
+	 carp "Attention, workaround not fully tested yet! Expect unpredictable results.\n";
+	 if (($self->mutation->postlabel==$RNAstart) or (follows($self->mutation->postlabel,$RNAstart))) {
+	     carp "RNA not affected because change occurs before RNAstart";
+	 }
+	 elsif (($RNAend==$self->mutation->praelabel) or (follows($RNAend,$self->mutation->prelabel))) {
+	     carp "RNA not affected because change occurs after RNAend";
+	 }
+	 elsif (scalar @exons == 1) {
+	     #if @exons now empty -> no introns, just one exon
+	     $rnaAffected = 1; # then RNA is affected!
+	 } else {
+	     # otherwise check for change occurring inside an intron
+	     $firstexon=shift(@exons);
+	     $before=$firstexon->end;
+	
+	     foreach $i (0..$#exons) {
+		 $after=$exons[$i]->start;
+		 if (follows($self->mutation->prelabel,$before) or
+			($after==$self->mutation->prelabel) or
+			follows($after,$self->mutation->prelabel) or
+			follows($after,$self->mutation->postlabel)) {
+
+		     $rnaAffected = 1;
+		     # $i is number of exon and can be used for proximity check
+		 }
+		 $before=$exons[$i]->end;
+	     }
+	
+	 }
     } else {
 	 my $strand=$exons[0]->strand;
 	 if (($strand == 1 and $self->mutation->postlabel <= $RNAstart) or
@@ -913,16 +925,21 @@ sub _set_effects {
     # Flanking sequences
     #
     $rnachange->upStreamSeq($upstreamseq);
+
     # won't work OK if postlabel NOT in Transcript
-    # now added RNApostlabel but this has to be fully tested
+    # now added RNApostlabel but this has to be /fully tested/
     # for the fix, all postlabel used in the next block have been changed to RNApostlabel
-    # removed for now.... (bad fix)
-    #my $RNApostlabel=$self->RNA->label(2,$label); # to fix fac7g65 bug
-    $dnstreamseq=$self->RNA->labelsubseq($self->mutation->postlabel, $flanklen);
+    my $RNApostlabel; # to fix fac7g64 bug
+    if ($self->mutation->len == 0) {
+      $RNApostlabel=$self->mutation->label;
+    } else {
+      $RNApostlabel=$self->RNA->label(2,$self->mutation->label);
+    }
+    $dnstreamseq=$self->RNA->labelsubseq($RNApostlabel, $flanklen);
     if ($dnstreamseq eq '-1') { # if out of transcript was requested
 	 my $lastexon=$exons[-1];
 	 my $lastexonlength=$lastexon->length;
-	 $dnstreamseq=$self->RNA->labelsubseq($self->mutation->postlabel); # retrieves till RNAend
+	 $dnstreamseq=$self->RNA->labelsubseq($RNApostlabel); # retrieves till RNAend
 	 my $lacking=$flanklen-length($dnstreamseq); # how many missing
 	 my $downstream_stop=$lastexon->subseq($lastexonlength+1,undef,$lacking);
 	 $dnstreamseq .= $downstream_stop;
