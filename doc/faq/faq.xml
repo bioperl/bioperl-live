@@ -238,7 +238,7 @@ Bio::DB::GenPept when you are retrieving these accessions. This is still an area
         <question>I get the warning "(old style Annotation) on new style Annotation::Collection".  What is wrong?
         </question>
         
-        <answer><p>This is because we have transitioned from a the <tt>add_Comment/each_Comment, add_Reference/each_Reference</tt> style to add_Annotation('comment', $ann)/get_Annotations('comment). Please update your code in order to avoid seeing these warning messages.</p>
+        <answer><p>This is because we have transitioned from the <tt>add_Comment/each_Comment, add_Reference/each_Reference</tt> style to <tt>add_Annotation('comment', $ann)/get_Annotations('comment)</tt>. Please update your code in order to avoid seeing these warning messages.</p>
 
         <p>This is because we have changed (starting with 1.0) the annotation collection implementation from the Bio::Annotation object to the Bio::Annotation::Collection object which is a more general and extensible system.  In the future the Reference objects will likely be implemented by the Bio::Biblio system but we hope to maintain a compatible API for these. 
         </p>
@@ -250,18 +250,20 @@ Bio::DB::GenPept when you are retrieving these accessions. This is still an area
       <answer>
       <p>To get all the features:</p>
       <code>
-      my @features = $seq-&gt;all_SeqFeatures();
+  my @features = $seq-&gt;all_SeqFeatures();
       </code>
       <p>To get all the features filtering on only those which have the primary tag 'exon'.</p>
       <code>
-      my @genes    = grep { $_-&gt;primary_tag eq 'exon'} $seq-&gt;all_SeqFeatures();
+  my @genes = grep { $_-&gt;primary_tag eq 'exon'} 
+              $seq-&gt;all_SeqFeatures();
       </code>
       <p>To get all the features filtering on this which have the tag 'note' and within the note field contain the requested string <i>$noteval</i>.</p>
       <code>
-      my @f_with_note = grep { my @a = $_-&gt;has_tag('note') ?
-                               $_-&gt;each_tag_value('note') : ();
-                               grep { /$noteval/ } @a; }
-                        $seq-&gt;all_SeqFeatures(); 
+  my @f_with_note = grep { 
+                           my @a = $_-&gt;has_tag('note') ?
+                           $_-&gt;each_tag_value('note') : (); 
+                           grep { /$noteval/ } @a; 
+                         }  $seq-&gt;all_SeqFeatures(); 
       </code>
        </answer>
       </q>
