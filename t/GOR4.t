@@ -27,7 +27,7 @@ BEGIN {
 	
     }; 
     if( $@ ) {
-        warn("IO::String or LWP::UserAgent not installed. This means that the module is not usable. Skipping tests");
+        warn("IO::String or LWP::UserAgent not installed. This means that the module is not usable. Skipping tests\n");
 	$ERROR = 1;
     }
 	#check this is available, set error flag if not.
