@@ -146,6 +146,7 @@ Bio/Graphics/Glyph/extending_arrow.pm
 Bio/Graphics/Glyph/generic.pm
 Bio/Graphics/Glyph/graded_segments.pm
 Bio/Graphics/Glyph/group.pm
+Bio/Graphics/Glyph/heterogeneous_segments.pm
 Bio/Graphics/Glyph/line.pm
 Bio/Graphics/Glyph/oval.pm
 Bio/Graphics/Glyph/pinsertion.pm
@@ -160,7 +161,6 @@ Bio/Graphics/Glyph/track.pm
 Bio/Graphics/Glyph/transcript.pm
 Bio/Graphics/Glyph/transcript2.pm
 Bio/Graphics/Glyph/triangle.pm
-Bio/Graphics/Glyph/wormbase_transcript.pm
 Bio/Graphics/Panel.pm
 Bio/Index/Abstract.pm
 Bio/Index/AbstractSeq.pm

@@ -535,12 +535,14 @@ sub sub_SeqFeature {
   my $type = shift;
   my $subfeat = $self->{subfeatures} or return;
   $self->sort_features;
+  my @a;
   if ($type) {
     my $features = $subfeat->{lc $type} or return;
-    return @{$features};
+    @a = @{$features};
   } else {
-    return map {@{$_}} values %{$subfeat};
+    @a = map {@{$_}} values %{$subfeat};
   }
+  return @a;
 }
 
 =head2 add_subfeature

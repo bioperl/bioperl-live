@@ -198,6 +198,7 @@ L<Bio::Graphics::Glyph::arrow>,
 L<Bio::Graphics::Glyph::box>,
 L<Bio::Graphics::Glyph::primers>,
 L<Bio::Graphics::Glyph::segments>,
+L<Bio::Graphics::Glyph::heterogeneous_segments>,
 L<Bio::Graphics::Glyph::toomany>,
 L<Bio::Graphics::Glyph::transcript>,
 
