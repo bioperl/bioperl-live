@@ -15,7 +15,7 @@ BEGIN {
 	use lib 't';
     }
     use Test;
-    plan tests => 32;
+    plan tests => 34;
 }
 
 use Bio::Tools::Genscan;
@@ -77,6 +77,13 @@ while(my $gene = $genscan->next_prediction()) {
 	    "predicted and extracted protein seqs don't match");
     }
 }
+
+# Genscan report with no genes predicted
+my $null_genscan = Bio::Tools::Genscan->new('-file' => Bio::Root::IO->catfile("t","data","no-genes.genscan"));
+ok $null_genscan;
+my $no_gene = $null_genscan->next_prediction;
+my @exons = $no_gene->exons;
+ok($#exons,-1);
 
 # MZEF report
 my $mzef = Bio::Tools::MZEF->new('-file' => Bio::Root::IO->catfile("t","data","genomic-seq.mzef"));
