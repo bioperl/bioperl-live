@@ -192,9 +192,6 @@ sub _initialize {
   }
   if( defined $given_id ) { $id = $given_id; }
 
-defined($seq) && print STDOUT "PR seq:$seq~~\n";
-
-
   $seq     && $self->seq($seq);
   $id      && $self->display_id($id);
   $acc     && $self->accession_number($acc);
