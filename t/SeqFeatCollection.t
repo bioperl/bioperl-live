@@ -151,7 +151,7 @@ $col->add_features([$features[58], $features[60]]);
 fy_shuffle(\@features);
 
 foreach my $f ( @features ) {
-    next unless defined $f;
+    $count--, next unless defined $f;
     $col->remove_features([$f]);
     ok( $col->feature_count, --$count);
 }
