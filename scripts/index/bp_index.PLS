@@ -2,33 +2,33 @@
 
 =head1 NAME
 
-bpindex.pl - indexes files for use by bpfetch.pl
+bp_index.pl - indexes files for use by bp_fetch.pl
 
 =head1 SYNOPSIS
 
-bpindex.pl index_name file1 file2 etc.
+bp_index.pl index_name file1 file2 etc.
 
 =head1 DESCRIPTION
 
-bpindex.pl builds a bioperl index for the sequence files given in the
+bp_index.pl builds a bioperl index for the sequence files given in the
 argument list, under the index name. For example
 
-   bpindex.pl nrdb /data/nrdb/nrdb.fasta
+   bp_index.pl nrdb /data/nrdb/nrdb.fasta
 
 would build an index called 'nrdb' as the index name for the file
 nrdb.fasta, and
 
-   bpindex.pl -fmt EMBL swiss /data/swiss/*.dat
+   bp_index.pl -fmt EMBL swiss /data/swiss/*.dat
 
 would build an index called swiss for all the files in /data/swiss
 which end in .dat which are in EMBL format.
 
 The indexes are built using the Bio/Index/* modules, in particular,
 Bio::Index::EMBL and the Bio::Index::Fasta modules. Any script which
-uses these modules can use the index. A good example script is bpfetch
+uses these modules can use the index. A good example script is bp_fetch
 which fetches sequences and pipes them to STDOUT, for example
 
-   bpfetch swiss:ROA1_HUMAN
+   bp_fetch swiss:ROA1_HUMAN
 
 gets the ROA1_HUMAN sequence from the swiss index and writes it as
 fasta format on STDOUT.
@@ -47,7 +47,7 @@ Options for expert use
 
 =head1 ENVIRONMENT
 
-bpindex and bpfetch coordinate where the databases lie using the
+bp_index and bp_fetch coordinate where the databases lie using the
 enviroment variable BIOPERL_INDEX. This can be overridden using the
 -dir option. There is no default value, so you must use the -dir option 
 or set BIOPERL_INDEX.
@@ -58,15 +58,15 @@ which itself defaults to SDBM_File.
 
 =head1 USING IT YOURSELF
 
-bpindex.pl is a script that drives the Index modules. If you want to 
+bp_index.pl is a script that drives the Index modules. If you want to 
 use this script heavily in your work, if it is Perl based, it is 
 almost certainly better to look at the code in this script and copy
-it across (probably you will be more likely to want to use the bpfetch
+it across (probably you will be more likely to want to use the bp_fetch
 code).
 
 =head1 EXTENDING IT
 
-bpindex is just a wrapper around James Gilbert's excellent Index modules
+bp_index is just a wrapper around James Gilbert's excellent Index modules
 found in bioperl
 
 =head1 FEEDBACK
@@ -118,10 +118,10 @@ BEGIN {
 	    require Bio::Index::EMBL;
 	};
 	if ( $@ ) {
-	    print STDERR ("\nbpindex cannot find Bio::Index::Fasta and Bio::Index::EMBL\nbpindex needs to have bioperl installed for it to run.\nBioperl is very easy to install\nSee http://bio.perl.org for more information\n\n");
+	    print STDERR ("\nbp_index cannot find Bio::Index::Fasta and Bio::Index::EMBL\nbp_index needs to have bioperl installed for it to run.\nBioperl is very easy to install\nSee http://bio.perl.org for more information\n\n");
 	    exit(1);
 	} else {
-	    print STDERR ("\nYou are running bpindex.pl without installing bioperl.\nYou have done it from bioperl/scripts, and so we can find the necessary information\nbut it is much better to install bioperl\n\nPlease read the README in the bioperl distribution\n\n");
+	    print STDERR ("\nYou are running bp_index.pl without installing bioperl.\nYou have done it from bioperl/scripts, and so we can find the necessary information\nbut it is much better to install bioperl\n\nPlease read the README in the bioperl distribution\n\n");
 	}
     }
 }
@@ -139,7 +139,7 @@ exec('perldoc',$0) unless @ARGV;
 my $name = shift;
 
 if( !$dir ) {
-    print STDERR "\nNo directory specified for index\nDirectory must be specified by the environment varaible BIOPERL_INDEX or -dir option\ngo bpindex with no arguments for more help\n\n";
+    print STDERR "\nNo directory specified for index\nDirectory must be specified by the environment varaible BIOPERL_INDEX or -dir option\ngo bp_index with no arguments for more help\n\n";
     exit(1);
 }
 

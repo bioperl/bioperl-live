@@ -2,19 +2,19 @@
 
 =head1 NAME
 
-bpfetch.pl - fetches sequences from bioperl indexed databases
+bp_fetch.pl - fetches sequences from bioperl indexed databases
 
 =head1 SYNOPSIS 
 
-  bpfetch.pl swiss:ROA1_HUMAN
+  bp_fetch.pl swiss:ROA1_HUMAN
 
-  bpfetch.pl net::genbank:X47072
+  bp_fetch.pl net::genbank:X47072
 
-  bpfetch.pl net::genpept:ROA1_HUMAN
+  bp_fetch.pl net::genpept:ROA1_HUMAN
 
-  bpfetch.pl ace::myserver.somewhere.edu,21000:X56676
+  bp_fetch.pl ace::myserver.somewhere.edu,21000:X56676
 
-  bpfetch.pl -fmt GCG swiss:ROA1_HUMAN
+  bp_fetch.pl -fmt GCG swiss:ROA1_HUMAN
 
 =head1 DESCRIPTION
 
@@ -56,7 +56,7 @@ options only for expert use
 
 =head1 ENVIRONMENT
 
-bpindex and bpfetch coordinate where the databases lie using the
+bp_index and bp_fetch coordinate where the databases lie using the
 enviroment variable BIOPERL_INDEX. This can be overridden using the
 -dir option. The index type (SDBM or DB_File or another index file)
 is controlled by the BIOPERL_INDEX_TYPE variable. This defaults to 
@@ -64,7 +64,7 @@ SDBM_File
 
 =head1 USING IT YOURSELF
 
-bpfetch is a wrapper around the bioperl modules which support 
+bp_fetch is a wrapper around the bioperl modules which support 
 the Bio::DB::BioSeqI abstract interface. These include:
 
   Author          Code
@@ -76,11 +76,11 @@ the Bio::DB::BioSeqI abstract interface. These include:
 
 These modules can be used directly, which is far better than using
 this script as a system call or a pipe to read from. Read the
-source code for bpfetch to see how it is used.
+source code for bp_fetch to see how it is used.
 
 =head1 EXTENDING IT
 
-bpfetch uses a number of different modules to provide access to
+bp_fetch uses a number of different modules to provide access to
 databases. Any module which subscribes to the Bio::DB::BioSeqI
 interface can be used here. For flat file indexers, this is
 best done by extending Bio::Index::Abstract, as is done in
@@ -146,10 +146,10 @@ BEGIN {
             require Bio::SeqIO;
 	};
 	if ( $@ ) {
-	    print STDERR ("\nbpindex cannot find Bio::Index::Fasta and Bio::Index::EMBL\nbpindex needs to have bioperl installed for it to run.\nBioperl is very easy to install\nSee http://bio.perl.org for more information\n\n");
+	    print STDERR ("\nbp_index cannot find Bio::Index::Fasta and Bio::Index::EMBL\nbp_index needs to have bioperl installed for it to run.\nBioperl is very easy to install\nSee http://bio.perl.org for more information\n\n");
 	    exit(1);
 	} else {
-	    print STDERR ("\nYou are running bpindex.pl without installing bioperl.\nYou have done it from bioperl/scripts, and so we can find the necessary information\nbut it is much better to install bioperl\n\nPlease read the README in the bioperl distribution\n\n");
+	    print STDERR ("\nYou are running bp_index.pl without installing bioperl.\nYou have done it from bioperl/scripts, and so we can find the necessary information\nbut it is much better to install bioperl\n\nPlease read the README in the bioperl distribution\n\n");
 	}
     }
 
@@ -161,7 +161,7 @@ BEGIN {
 
     if( $@ ) {
 	if( !exists $ENV{'BIOPERL_SAVVY'} ) {
-	    print STDERR ("\nbpfetch cannot find Bio::DB::GenBank and Bio::DB::EMBL modules\nThis is most likely because LWP has not been installed\nThis does not effect local indexing\nset environment variable BIOPERL_SAVVY to supress this message\n\n");
+	    print STDERR ("\nbp_fetch cannot find Bio::DB::GenBank and Bio::DB::EMBL modules\nThis is most likely because LWP has not been installed\nThis does not effect local indexing\nset environment variable BIOPERL_SAVVY to supress this message\n\n");
 	}
     }
 }
@@ -264,7 +264,7 @@ foreach my $arg ( @ARGV ) {
 	    };
 	    /^local$/ && do {
 		if( !$dir ) {
-		    die "\nNo directory specified for index\nDirectory must be specified by the environment varaible BIOPERL_INDEX or --dir option\ngo bpindex with no arguments for more help\n\n";
+		    die "\nNo directory specified for index\nDirectory must be specified by the environment varaible BIOPERL_INDEX or --dir option\ngo bp_index with no arguments for more help\n\n";
 		}
 
 		#
