@@ -1,14 +1,35 @@
-These are utilities that go with the Bio::DB::GFF module:
+These are utilities that go with the Bio::DB::GFF module.
 
-load_gff.pl	      Slow but foolproof GFF table to database loader.
-bulk_load_gff.pl      Fast loader, but wipes database clean each time.
-fast_load_gff.pl      EXPERIMENTAL incremental loader that is as fast
-		       as bulk loader, but only works on Unix platforms.
-generate_histogram.pl Generate histogram of sequence features, for use with
-		       generic genome browser.
-process_gadfly.pl     Tweak GadFly GFF files for loading (drosophila).
-process_wormbase.pl   Tweak WormBase GFF files for loading (elegans)
-process_sgd.pl        Turn SGD feature dumps into GFF files for loading (saccharomyces).
-process_ncbi_human.pl Turn NCBI feature dumps into GFF files for loading (human).
+examples/Bio-DB-GFF/load_gff.pl:
+
+Slow but foolproof GFF table to database loader.
+
+examples/Bio-DB-GFF/bulk_load_gff.pl:      
+
+Fast loader, but wipes database clean each time.
+
+examples/Bio-DB-GFF/fast_load_gff.pl:
+
+EXPERIMENTAL incremental loader that is as fast as bulk loader, but only works on Unix platforms.
+
+scripts/Bio-DB-GFF/generate_histogram.PLS: 
+
+Generate histogram of sequence features, for use with generic genome browser.
+
+scripts/Bio-DB-GFF/process_gadfly.PLS:     
+
+Tweak GadFly GFF files for loading (drosophila).
+
+scripts/Bio-DB-GFF/process_wormbase.PLS:   
+
+Tweak WormBase GFF files for loading (elegans).
+
+scripts/Bio-DB-GFF/process_sgd.PLS:        
+
+Turn SGD feature dumps into GFF files for loading (saccharomyces).
+
+scripts/Bio-DB-GFF/process_ncbi_human.PLS: 
+
+Turn NCBI feature dumps into GFF files for loading (human).
 
 
