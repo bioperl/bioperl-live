@@ -27,20 +27,18 @@ This object can transform .qual (similar to fasta) objects to and from
 
 =head2 Mailing Lists
 
-User feedback is an integral part of the evolution of this
-and other Bioperl modules. Send your comments and suggestions preferably
- to one of the Bioperl mailing lists.
-Your participation is much appreciated.
+User feedback is an integral part of the evolution of this and other
+Bioperl modules. Send your comments and suggestions preferably to one
+of the Bioperl mailing lists.  Your participation is much appreciated.
 
-  vsns-bcd-perl@lists.uni-bielefeld.de          - General discussion
-  vsns-bcd-perl-guts@lists.uni-bielefeld.de     - Technically-oriented discussion
-  http://bio.perl.org/MailList.html             - About the mailing lists
+  bioperl-l@bioperl.org                  - General discussion
+  http://www.bioperl.org/MailList.shtml  - About the mailing lists
 
 =head2 Reporting Bugs
 
 Report bugs to the Bioperl bug tracking system to help us keep track
- the bugs and their resolution.
- Bug reports can be submitted via email or the web:
+the bugs and their resolution.  Bug reports can be submitted via email
+or the web:
 
   bioperl-bugs@bio.perl.org
   http://bio.perl.org/bioperl-bugs/
@@ -49,6 +47,10 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 
 Chad Matsalla
 bioinformatics@dieselwurks.com
+
+=head1 CONTRIBUTORS
+
+Jason Stajich, jason@bioperl.org
 
 =head1 APPENDIX
 
@@ -142,12 +144,12 @@ sub next_primary_qual {
 	$sequence =~ s/\n//g;
   if ($as_next_qual) {
 	# print("CSM qual.pm: creating a primaryqual object with $sequence\n");
-    $qual = Bio::Seq::PrimaryQual->new(-qual        => $sequence,
-                                -id         => $id,
-                                -primary_id => $id,
-				-display_id => $id,
-                                -desc       => $fulldesc
-                                );
+      $qual = Bio::Seq::PrimaryQual->new(-qual        => $sequence,
+					 -id         => $id,
+					 -primary_id => $id,
+					 -display_id => $id,
+					 -desc       => $fulldesc
+					 );
   }
   # if there wasn't one before, set the guessed type
 	# no, don't.
@@ -172,7 +174,7 @@ sub _initialize {
   return unless my $make = $self->SUPER::_initialize(@args);
 }
 
-=head2 write_qual(-source => $source, -header => "some information")
+=head2 write_qual
 
  Title   : write_qual(-source => $source, -header => "some information")
  Usage   : $obj->write_qual(	-source => $source,
@@ -194,8 +196,9 @@ sub _initialize {
 sub write_qual {
 	my ($self,%args) = @_;
 	my $source = $args{-source};
-	if (!$source || ( ref($source) ne "Bio::Seq::SeqWithQuality" && ref($source) ne "Bio::Seq::PrimaryQual")) {
-		$self->throw("You must pass a Bio::Seq::SeqWithQuality or a Bio::Seq::PrimaryQual object to write_qual as a parameter named \"source\"");
+	if (!$source || ( ref($source) ne "Bio::Seq::SeqWithQuality" && 
+			  ref($source) ne "Bio::Seq::PrimaryQual")) {
+	    $self->throw("You must pass a Bio::Seq::SeqWithQuality or a Bio::Seq::PrimaryQual object to write_qual as a parameter named \"source\"");
 	}
 	my $header = $source->id();
 	if (!$header) { $header = "unknown"; }

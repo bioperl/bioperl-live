@@ -20,21 +20,19 @@ Do not use this module directly.  Use it via the L<Bio::SeqIO> class.
 
 =head1 DESCRIPTION
 
-This object can transform .phd files (from Phil Green's phred basecaller)
+This object can transform .phd files (from Phil Green\'s phred basecaller)
 to and from Bio::Seq::SeqWithQuality objects
 
 =head1 FEEDBACK
 
 =head2 Mailing Lists
 
-User feedback is an integral part of the evolution of this
-and other Bioperl modules. Send your comments and suggestions preferably
- to one of the Bioperl mailing lists.
-Your participation is much appreciated.
+User feedback is an integral part of the evolution of this and other
+Bioperl modules. Send your comments and suggestions preferably to one
+of the Bioperl mailing lists.  Your participation is much appreciated.
 
-  vsns-bcd-perl@lists.uni-bielefeld.de          - General discussion
-  vsns-bcd-perl-guts@lists.uni-bielefeld.de     - Technically-oriented discussion
-  http://bio.perl.org/MailList.html             - About the mailing lists
+  bioperl-l@bioperl.org                  - General discussion
+  http://www.bioperl.org/MailList.shtml  - About the mailing lists
 
 =head2 Reporting Bugs
 
@@ -49,6 +47,10 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 
 Chad Matsalla
 bioinformatics@dieselwurks.com
+
+=head1 CONTRIBUTORS
+
+Jason Stajich, jason@bioperl.org
 
 =head1 APPENDIX
 
@@ -67,8 +69,6 @@ use Bio::Seq::PrimaryQual;
 use Bio::PrimarySeq;
 use Bio::Seq::SeqWithQuality;
 
-require 'dumpvar.pl';
-
 @ISA = qw(Bio::SeqIO);
 
 =head2 next_phd()
@@ -85,16 +85,16 @@ require 'dumpvar.pl';
 =cut
 
 sub next_phd {
-		# print("CSM next_phd\n");
-		# print("CSM Invoking next_primary_phd with $_[0] and 1\n");
-		# ::dumpValue($_[0]);
-		# print("\n");
-	my $something = next_primary_phd( $_[0], 1 );
-		# print("CSM The result is:\n");
-		# ::dumpValue($something);
-		# print("\n");
-	return $something;    
-		# return next_primary_phd( $_[0], 1 );
+    # print("CSM next_phd\n");
+    # print("CSM Invoking next_primary_phd with $_[0] and 1\n");
+    # ::dumpValue($_[0]);
+    # print("\n");
+    my $something = next_primary_phd( $_[0], 1 );
+    # print("CSM The result is:\n");
+    # ::dumpValue($something);
+    # print("\n");
+    return $something;    
+    # return next_primary_phd( $_[0], 1 );
 }
 
 =head2 next_primary_phd()
@@ -121,7 +121,7 @@ sub next_primary_phd {
 		return if (!$entry);
 		chomp($entry);
 		if ($entry =~ /^BEGIN_SEQUENCE\s+(\S+)/) {
-			print("Setting id to $1\n");
+			$self->warn("Setting id to $1\n") if($self->verbose > 0);
 			$id = $1;
 			$entry = $self->_readline();
 		}
@@ -141,7 +141,7 @@ sub next_primary_phd {
 		push @qualities,$2;
 		push(@lines,$entry);
 	}
-	print("Creating objects with id = $id\n");
+	$self->warn("Creating objects with id = $id\n") if( $self->verbose > 0);
 	my $swq = Bio::Seq::SeqWithQuality->new(
 					-seq	=>	join('',@bases),
 					-qual        => \@qualities,
@@ -169,11 +169,10 @@ sub _initialize {
 }
 
 
-=head2 write_phd(-SeqWithQuality => $swq,<comments>)
+=head2 write_phd
 
  Title   : write_phd(-SeqWithQuality => $swq, <comments>)
- Usage   : $obj->write_swq(     -SeqWithQuality => $swq,
-);
+ Usage   : $obj->write_swq(     -SeqWithQuality => $swq,);
  Function: Write out an scf.
  Returns : Nothing.
  Args    : Requires: a reference to a SeqWithQuality object to form the
@@ -242,8 +241,6 @@ sub write_phd {
 	}
 	print $fh ("END_DNA\n\nEND_SEQUENCE\n");
 }
-
-
 
 1;
 __END__
