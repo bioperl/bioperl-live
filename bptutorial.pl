@@ -1631,7 +1631,7 @@ The module Bio::Tools::Run::StandAloneBlast offers the ability to wrap
 local calls to blast from within perl.  All of the currently available
 options of NCBI Blast (e.g. PSIBLAST, PHIBLAST, bl2seq) are available
 from within the bioperl StandAloneBlast interface.  Of course, to use
-StandAloneBlast, one needs to have installed locally ncbi-blast as
+StandAloneBlast, one needs to have installed BLAST from NCBI locally as
 well as one or more blast-readable databases.
 
 Basic usage of the StandAloneBlast.pm module is simple.  Initially, a
@@ -1652,9 +1652,10 @@ object or an array of Seq objects, eg
   $blast_report = $factory->blastall($input);
 
 The returned blast report will be in the form of a bioperl
-parsed-blast object.  The report object may be either a BPlite,
+parsed-blast object.  The report object may be either a SearchIO, BPlite,
 BPpsilite, BPbl2seq or Blast object depending on the type of blast
-search.  The "raw" blast report is also available.
+search - the SearchIO object is returned by default.  The "raw" blast
+report is also available.
 
 The syntax for running PHIBLAST, PSIBLAST and bl2seq searches via
 StandAloneBlast is also straightforward.  See
@@ -1662,18 +1663,16 @@ L<Bio::Tools::Run::StandAloneBlast> documentation for details. In
 addition, the script standaloneblast.pl in the examples/tools directory
 contains descriptions of various possible applications of the
 StandAloneBlast object. This script shows how the blast report object
-can access a blast parser directly, eg
+can access the SearchIO blast parser directly, e.g.
 
-  while (my $sbjct = $blast_report->next_hit){
+  while (my $hit = $blast_report->next_hit){
      while (my $hsp = $sbjct->next_hsp){
-        print $hsp->score . " " . $hsp->subject->seqname . "\n";
+        print $hsp->score . " " . $hit->name . "\n";
      }
   }
 
-See the sections L<"III.4.2"> and L<"III.4.3"> on for more details on
-parsing BLAST reports. Also see the script standaloneblast.pl in the
-examples/tools/ subdirectory for more detailed working examples of code
-using this module.
+See the sections L<"III.4.2"> and L<"III.4.3"> for more details on
+parsing BLAST reports.
 
 =for html <A NAME ="iii.5"></A>
 
