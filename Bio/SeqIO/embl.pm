@@ -225,7 +225,6 @@ sub next_seq {
    BEFORE_FEATURE_TABLE :
    until( !defined $buffer ) {
        $_ = $buffer;
-       warn($_);
        # exit if we hit Sequence and there is no feature table
        if( /^SQ/ ) {
 	   $self->_pushback($_);
@@ -360,7 +359,6 @@ sub next_seq {
    }
    $seqc = "";	       
    while( defined ($_ = $self->_readline) ) {
-       warn($_);
        /^\/\// && last;
        $_ = uc($_);
        s/[^A-Za-z]//g;
