@@ -388,5 +388,103 @@ sub remove_synonyms {
     return shift->term()->remove_synonyms(@_);
 } # remove_synonyms
 
+=head2 get_dblinks
+
+ Title   : get_dblinks()
+ Usage   : @ds = $term->get_dblinks();
+ Function: Returns a list of each dblinks of this GO term.
+ Returns : A list of dblinks [array of [scalars]].
+ Args    :
+
+=cut
+
+sub get_dblinks {
+    return shift->term->get_dblinks(@_);
+} # get_dblinks
+
+
+=head2 add_dblink
+
+ Title   : add_dblink
+ Usage   : $term->add_dblink( @dbls );
+           or
+           $term->add_dblink( $dbl );                  
+ Function: Pushes one or more dblinks
+           into the list of dblinks.
+ Returns : 
+ Args    : One  dblink [scalar] or a list of
+            dblinks [array of [scalars]].
+
+=cut
+
+sub add_dblink {
+    return shift->term->add_dblink(@_);
+} # add_dblink
+
+
+=head2 remove_dblinks
+
+ Title   : remove_dblinks()
+ Usage   : $term->remove_dblinks();
+ Function: Deletes (and returns) the definition references of this GO term.
+ Returns : A list of definition references [array of [scalars]].
+ Args    :
+
+=cut
+
+sub remove_dblinks {
+    return shift->term->remove_dblinks(@_);
+} # remove_dblinks
+
+=head2 get_secondary_ids
+
+ Title   : get_secondary_ids
+ Usage   : @ids = $term->get_secondary_ids();
+ Function: Returns a list of secondary identifiers of this Term.
+
+           Secondary identifiers mostly originate from merging terms,
+           or possibly also from splitting terms.
+
+ Returns : A list of secondary identifiers [array of [scalar]]
+ Args    :
+
+=cut
+
+sub get_secondary_ids {
+    return shift->term->get_secondary_ids(@_);
+} # get_secondary_ids
+
+
+=head2 add_secondary_id
+
+ Title   : add_secondary_id
+ Usage   : $term->add_secondary_id( @ids );
+           or
+           $term->add_secondary_id( $id );                  
+ Function: Adds one or more secondary identifiers to this term.
+ Returns : 
+ Args    : One or more secondary identifiers [scalars]
+
+=cut
+
+sub add_secondary_id {
+    return shift->term->add_secondary_id(@_);
+} # add_secondary_id
+
+
+=head2 remove_secondary_ids
+
+ Title   : remove_secondary_ids
+ Usage   : $term->remove_secondary_ids();
+ Function: Deletes (and returns) the secondary identifiers of this Term.
+ Returns : The previous list of secondary identifiers [array of [scalars]]
+ Args    :
+
+=cut
+
+sub remove_secondary_ids {
+    return shift->term->remove_secondary_ids(@_);
+} # remove_secondary_ids
+
 
 1;
