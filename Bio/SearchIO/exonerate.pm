@@ -22,6 +22,7 @@ use Bio::SearchIO;
 my $searchio = new Bio::SearchIO(-file => 'file.exonerate',
                                  -format => 'exonerate');
 
+
 while( my $r = $searchio->next_result ) {
   print $r->query_name, "\n";
 }
@@ -32,6 +33,13 @@ This is a driver for the SearchIO system for parsing Exonerate (Guy
 Slater) output.  You can get Exonerate at
 http://cvsweb.sanger.ac.uk/cgi-bin/cvsweb.cgi/exonerate/?cvsroot=Ensembl
 [until Guy puts up a Web reference,publication for it.]).
+
+An optional parameter -min_intron is supported by the L<new>
+initialization method.  This is if you run Exonerate with a different
+minimum intron length (default is 30) the parser will be able to
+detect the difference between standard deletions and an intron.  Still
+some room to play with there that might cause this to get
+misinterpreted that has not been fully tested or explored.
 
 =head1 FEEDBACK
 
@@ -76,43 +84,48 @@ Internal methods are usually preceded with a _
 
 package Bio::SearchIO::exonerate;
 use strict;
-use vars qw(@ISA @STATES %MAPPING %MODEMAP $DEFAULT_WRITER_CLASS);
+use vars qw(@ISA @STATES %MAPPING %MODEMAP $DEFAULT_WRITER_CLASS $MIN_INTRON);
 use Bio::SearchIO;
 
 @ISA = qw(Bio::SearchIO );
 
 use POSIX;
 
-BEGIN { 
-    %MODEMAP = ('ExonerateOutput' => 'result',
-		'Hit'             => 'hit',
-		'Hsp'             => 'hsp'
-		);
-    %MAPPING = 
-	( 
-	  'Hsp_query-from'=>  'HSP-query_start',
-	  'Hsp_query-to'  =>  'HSP-query_end',
-	  'Hsp_hit-from'  =>  'HSP-hit_start',
-	  'Hsp_hit-to'    =>  'HSP-hit_end',
-	  'Hsp_qseq'      =>  'HSP-query_seq',
-	  'Hsp_hseq'      =>  'HSP-hit_seq',
-	  'Hsp_midline'   =>  'HSP-homology_seq',
-	  'Hsp_score'     =>  'HSP-score',	 
-	  'Hsp_qlength'   =>  'HSP-query_length',
-	  'Hsp_hlength'   =>  'HSP-hit_length',
-	  'Hsp_align-len' =>  'HSP-hsp_length',
-	  'Hsp_identical' =>  'HSP-identical',
-	  
-	  'Hit_id'        => 'HIT-name',
-	  'Hit_desc'      => 'HIT-description',
-	  
-	  'ExonerateOutput_program'  => 'RESULT-algorithm_name',
-	  'ExonerateOutput_query-def'=> 'RESULT-query_name',
-	  'ExonerateOutput_query-desc'=> 'RESULT-query_description',
-	  
-	  );
-    $DEFAULT_WRITER_CLASS = 'Bio::Search::Writer::HitTableWriter';
-}
+
+%MODEMAP = ('ExonerateOutput' => 'result',
+    'Hit'             => 'hit',
+    'Hsp'             => 'hsp'
+    );
+%MAPPING = 
+    ( 
+    'Hsp_query-from'=>  'HSP-query_start',
+    'Hsp_query-to'  =>  'HSP-query_end',
+    'Hsp_hit-from'  =>  'HSP-hit_start',
+    'Hsp_hit-to'    =>  'HSP-hit_end',
+    'Hsp_qseq'      =>  'HSP-query_seq',
+    'Hsp_hseq'      =>  'HSP-hit_seq',
+    'Hsp_midline'   =>  'HSP-homology_seq',
+    'Hsp_score'     =>  'HSP-score',	 
+    'Hsp_qlength'   =>  'HSP-query_length',
+    'Hsp_hlength'   =>  'HSP-hit_length',
+    'Hsp_align-len' =>  'HSP-hsp_length',
+    'Hsp_identity'  =>  'HSP-identical',
+    'Hsp_gaps'       => 'HSP-hsp_gaps',
+    'Hsp_hitgaps'    => 'HSP-hit_gaps',
+    'Hsp_querygaps'  => 'HSP-query_gaps',
+    
+    'Hit_id'        => 'HIT-name',
+    'Hit_desc'      => 'HIT-description',
+    'Hit_score'     => 'HIT-score',
+    
+    'ExonerateOutput_program'  => 'RESULT-algorithm_name',
+    'ExonerateOutput_query-def'=> 'RESULT-query_name',
+    'ExonerateOutput_query-desc'=> 'RESULT-query_description',
+    
+    );
+$DEFAULT_WRITER_CLASS = 'Bio::Search::Writer::HitTableWriter';
+
+$MIN_INTRON=30; # This is the minimum intron size
 
 =head2 new
 
@@ -124,6 +137,17 @@ BEGIN {
 
 
 =cut
+
+sub new {
+    my ($class) = shift;
+    my $self = $class->SUPER::new(@_);
+    
+    my ($min_intron) = $self->_rearrange([qw(MIN_INTRON)], @_);
+    if( $min_intron ) {
+	$MIN_INTRON = $min_intron;
+    }
+    $self;
+}
 
 =head2 next_result
 
@@ -144,14 +168,12 @@ sub next_result{
    my $seentop;
    while( defined($_ = $self->_readline) ) {  
        if( /^Query:\s+(\S+)(\s+(.+))?/ ) {
-	   $seentop = 1;
-	   if( $self->within_element('hsp') ) {
-	       $self->end_element({'Name' => 'Hsp'});
-	       $self->end_element({'Name' => 'Hit'});
+	   if( $seentop ) {
 	       $self->end_element({'Name' => 'ExonerateOutput'});
 	       $self->_pushback($_);
 	       return $self->end_document();
 	   }
+	   $seentop = 1;	   
 	   my ($nm,$desc) = ($1,$2);
 	   chomp($desc) if defined $desc;
 	   $self->{'_result_count'}++;
@@ -170,72 +192,116 @@ sub next_result{
 	   $self->element({'Name' => 'Hit_id',
 			   'Data' => $nm});
 	   $self->element({'Name' => 'Hit_desc',
-			   'Data' => $desc});
-	   $self->start_element({'Name' => 'Hsp'});
-       } elsif( /^(\s+(\d+)\s+\:\s+)(.+)\s+\:\s+(\d+)\s*$/ ) {
-	   my ($qstart,$qmatch,$qend) = ($2,$3,$4);
-#	   Hsp_qseq Hsp_midline Hsp_hseq
-	   $self->element({'Name'  => 'Hsp_qseq',
-			   'Data'  => $qmatch});
-	   
-	   unless( defined( $_ = $self->_readline) ) {
-	       $self->warn("Unexpected ending to Exonerate file");
-	   }
-	   my $midline = substr($_,length($1),length($qmatch));
-	   $self->element({'Name'  => 'Hsp_midline',
-			   'Data'  => $midline});
-	   unless( defined( $_ = $self->_readline) &&
-		   /^\s+(\d+)\s+\:\s+(.+)\s+\:\s+(\d+)\s*$/ ) {
-	       $self->warn("Unexpected ending to Exonerate file");
-	   }
-	   my ($hstart,$hmatch,$hend) = ( $1,$2,$3 );
-	   $self->element({'Name'  => 'Hsp_hseq',
-			   'Data'  => $hmatch})
+			   'Data' => $desc});	   
        } elsif(  s/^cigar:\s+(\S+)\s+          # query sequence id
 		 (\d+)\s+(\d+)\s+([\-\+])\s+   # query start-end-strand
 		 (\S+)\s+                      # target sequence id
 		 (\d+)\s+(\d+)\s+([\-\+])\s+   # target start-end-strand
 		 (\d+)\s+                      # score
-		 //ox ) {	   
+		 //ox ) {
+	   
+	   
 	   my ($qs,$qe,$qstrand) = ($2,$3,$4);
 	   my ($hs,$he,$hstrand) = ($6,$7,$8);
-	   
+	   my $score = $9;
+	   my @rest = split;	   
 	   if( $qstrand eq '-' ) {
+	       $qstrand = -1;
 	       ($qs,$qe) = ($qe,$qs); # flip-flop if we're on opp strand
-	   }
+	   } else { $qstrand = 1; }
 	   if( $hstrand eq '-' ) {
+	       $hstrand = -1;
 	       ($hs,$he) = ($he,$hs); # flip-flop if we're on opp strand
+	   } else { $hstrand = 1; }
+	   # okay let's do this right and generate a set of HSPs 
+	   # from the cigar line
+	   
+	   my ($aln_len,$inserts,$deletes) = (0,0,0);
+	   while( @rest >= 2 ) {
+	       my ($state,$len) = (shift @rest, shift @rest);	       
+	       if( $state eq 'I' ) {
+		   $inserts+=$len;
+		   
+	       } elsif( $state eq 'D' ) {
+		   if( $len >= $MIN_INTRON ) {
+		       $self->start_element({'Name' => 'Hsp'});
+	   
+		       $self->element({'Name' => 'Hsp_score',
+				       'Data' => $score});		       
+		       $self->element({'Name' => 'Hsp_align-len',
+				       'Data' => $aln_len});   
+		       $self->element({'Name' => 'Hsp_identity',
+				       'Data' => $aln_len - 
+					   ($inserts + $deletes)});
+		       
+		       # HSP ends where the other begins
+		       $self->element({'Name' => 'Hsp_query-from',
+				       'Data' => $qs+1});
+		       $qs += $aln_len*$qstrand;
+		       $self->element({'Name' => 'Hsp_query-to',
+				       'Data' => $qs});
+		       
+		       $hs += $deletes;
+		       $self->element({'Name' => 'Hsp_hit-from',
+				       'Data' => $hs+1});
+		       $hs += $aln_len;
+		       $self->element({'Name' => 'Hsp_hit-to',
+				       'Data' => $hs+1});
+		       
+		       $self->element({'Name' => 'Hsp_align-len',
+				       'Data' => $aln_len + $inserts 
+					   + $deletes});   
+		       $self->element({'Name' => 'Hsp_identity',
+				       'Data' => $aln_len });
+
+		       $self->element({'Name' => 'Hsp_gaps',
+				       'Data' => $inserts + $deletes});
+		       $self->element({'Name' => 'Hsp_querygaps',
+				       'Data' => $inserts});
+		       $self->element({'Name' => 'Hsp_hitgaps',
+				       'Data' => $deletes});
+		       
+		       $self->end_element({'Name' => 'Hsp'});
+		       		       
+		       $aln_len = $inserts = $deletes = 0;
+		   }
+		   $deletes+=$len;		   
+	       } else { 
+		   $aln_len += $len;
+	       }
 	   }
+	   $self->start_element({'Name' => 'Hsp'});
+	   
+	   $self->element({'Name' => 'Hsp_score',
+			   'Data' => $score});
 	   
 	   $self->element({'Name' => 'Hsp_query-from',
 			   'Data' => $qs+1});
 	   $self->element({'Name' => 'Hsp_query-to',
 			   'Data' => $qe+1});
-	   
+
+	   $hs += $deletes;
 	   $self->element({'Name' => 'Hsp_hit-from',
 			   'Data' => $hs+1});
 	   $self->element({'Name' => 'Hsp_hit-to',
-			   'Data' => $he+1});
+			   'Data' => $he+1});	      
 
-	   $self->element({'Name' => 'Hsp_score',
-			   'Data' => $9});
-	   my (@rest) = split;
-	   my ($state,$len) = ( shift @rest, shift @rest);
 	   $self->element({'Name' => 'Hsp_align-len',
-			   'Data' => $len});	   
-	   $self->element({'Name' => 'Hsp_qlength',
-			   'Data' => abs($3-$2)});	   
-	   $self->element({'Name' => 'Hsp_hlength',
-			   'Data' => abs($7-$2)});
-	   my ($i,$lastindex,$count) = (0,-1,0);
-	   while( ($i = index ($self->{'_last_hspdata'}->{'Hsp_midline'},
-			       '|',$lastindex+1)) >= $lastindex ) {
-	       $count++;
-	       $lastindex = $i;
-	   }
-	   $self->element({'Name' => 'Hsp_identical',
-			   'Data' => $count});	   
-	   $self->end_element({'Name' => 'Hsp'});	   
+			   'Data' => $aln_len});   
+	   
+	   $self->element({'Name' => 'Hsp_identity',
+			   'Data' => $aln_len - ($inserts + $deletes)});
+
+	   $self->element({'Name' => 'Hsp_gaps',
+			   'Data' => $inserts + $deletes});
+	   
+	   $self->element({'Name' => 'Hsp_querygaps',
+			   'Data' => $inserts});
+	   $self->element({'Name' => 'Hsp_hitgaps',
+			   'Data' => $deletes});	   	   
+	   $self->end_element({'Name' => 'Hsp'});
+	   $self->element({'Name' => 'Hit_score',
+			   'Data' => $score});
 	   $self->end_element({'Name' => 'Hit'});
 	   $self->end_element({'Name' => 'ExonerateOutput'});
 	   return $self->end_document();	  
@@ -294,15 +360,7 @@ sub end_element {
     my $nm = $data->{'Name'};
     my $type = $MODEMAP{$nm};
     my $rc;
-    # Hsp are sort of weird, in that they end when another
-    # object begins so have to detect this in end_element for now
-    if( $nm eq 'Hsp' ) {
-	foreach ( qw(Hsp_qseq Hsp_midline Hsp_hseq) ) {
-	    $self->element({'Name' => $_,
-			    'Data' => $self->{'_last_hspdata'}->{$_}});
-	}
-	$self->{'_last_hspdata'} = {};
-    }
+
     if( $type = $MODEMAP{$nm} ) {
 	if( $self->_eventHandler->will_handle($type) ) {
 	    my $func = sprintf("end_%s",lc $type);
@@ -360,10 +418,6 @@ sub element{
 sub characters{
    my ($self,$data) = @_;   
 
-   if( $self->in_element('hsp') && 
-       $data->{'Name'} =~ /Hsp\_(qseq|hseq|midline)/ ) {       
-       $self->{'_last_hspdata'}->{$data->{'Name'}} .= $data->{'Data'};
-   }  
    return unless ( defined $data->{'Data'} && $data->{'Data'} !~ /^\s+$/ );
    
    $self->{'_last_data'} = $data->{'Data'}; 
