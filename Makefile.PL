@@ -28,19 +28,24 @@
 	     'SOAP::Lite'               => '0.0/SOAP protocol/XEMBL Services (also Bibliographic queries in Biblio::) /Bio::DB::XEMBLService',
 	     'HTML::Parser'             => '0.0/HTML parsing/HTML parsing of GDB page/Bio::DB::GDB',
 	     'DBD::mysql'               => '0.0/Mysql driver/loading and querying of Mysql-based GFF feature databases/Bio::DB::GFF',
-	     'GD'                       => '1.3/Graphical Drawing Toolkit/Rendering Sequences and Features/Bio::Graphics',
+	     'GD'                       => '1.3/Graphical Drawing Toolkit/rendering Sequences and Features/Bio::Graphics',
 	     'Text::Shellwords'         => '0.0/Execute shell commands/test scripts/Bio::Graphics',
 	     'SVG'                      => '2.26/Generate optional SVG output/Bio::Graphics/Bio::Graphics::Pictogram',
-	     'SVG::Graph'               => '0.01/Generate optional SVG output/Bio::TreeIO/Bio::TreeIO::svggraph',
-	     'GD::SVG'                  => '0.0/Generate optional SVG output/Bio::Graphics',
-	     'Storable'                 => '0.0/Persistent object storage and retrieval/Storing sequence objects in local file cache/Bio::DB::FileCache',
-	     'Graph::Directed'          => '0.0/Generic Graph data stucture and algorithms/Ontology Engine implementation for the GO parser/Bio::Ontology::SimpleOntologyEngine',
+	     'SVG::Graph'               => '0.01/Generate optional SVG output/creating SVG images/Bio::TreeIO::svggraph',
+	     'GD::SVG'                  => '0.0/Generate optional SVG output/creating SVG images/Bio::Graphics::Panel',
+	     'Storable'                 => '0.0/Persistent object storage and retrieval/storing sequence objects in local file cache/Bio::DB::FileCache',
+	     'Graph::Directed'          => '0.0/Generic Graph data stucture and algorithms/ontology engine implementation for the GO parser/Bio::Ontology::SimpleOntologyEngine',
+	     'Class::AutoClass'         => '0.0/Protocol for object creation/creating objects/Bio::Graph::SimpleGraph',
+	     'Clone'                    => '0.0/Recursively copy Perl datatypes/cloning ProteinGraph objects/Bio::Graph::ProteinGraph',
+
 # Bio::Microarray is not in core bioperl yet
-#	     'enum'                     => '0.0/C style enumerated types and bitmask flags in Perl/Bio::Microarray::Affymetrix::*',
+#	     'enum'                     => '0.0/C style enumerated types and bitmask flags 
+# in Perl/Bio::Microarray::Affymetrix::*',
 
 # rare function let's not scare people
-# 	     'srsperl.pm'               => '0.0/Sequence Retrieval System (SRS) perl API/alternative way of retrieving sequences/Bio::LiveSeq::IO::SRS.pm'
-	     );
+# 	     'srsperl.pm'               => '0.0/Sequence Retrieval System (SRS) perl 
+# API/alternative way of retrieving sequences/Bio::LiveSeq::IO::SRS.pm'
+	    );
 
 sub check_package {
     my ($name,$str) = @_;
