@@ -32,14 +32,12 @@
   (insert "=head1 APPENDIX\n\nThe rest of the documentation details each of the object methods. Internal methods are usually preceded with a _\n\n=cut\n\n")
   (insert "\n# Let the code begin...\n\n")
   (insert "\npackage " perl-object-name ";\n")
-  (insert "use vars qw($AUTOLOAD @ISA);\n")
+  (insert "use vars qw(@ISA);\n")
   (insert "use strict;\n")
-  (insert "\n# Object preamble - inherits from Bio::Root::Object\n")
-  (insert "\nuse Bio::Root::Object;\n\n")
-  (insert "\nuse AutoLoader;\n@ISA = qw(Bio::Root::Object Exporter);\n@EXPORT_OK = qw();\n")
-  (insert "# new() is inherited from Bio::Root::Object\n\n")
-  (insert "# _initialize is where the heavy stuff will happen when new is called\n\n")
-  (insert "sub _initialize {\n  my($self,@args) = @_;\n\n  my $make = $self->SUPER::_initialize;\n\n# set stuff in self from @args\n return $make; # success - we hope!\n}\n")
+  (insert "\n# Object preamble - inherits from Bio::Root::RootI\n")
+  (insert "\nuse Bio::Root::RootI;\n\n")
+  (insert "\nuse AutoLoader;\n@ISA = qw(Bio::Root::RootI );\n")
+  (insert "sub new {\n  my($class,@args) = @_;\n\n  my $self = $class->SUPER::new(@args);\n\n}\n")
   )
 
 (defun bioperl-method (method-name)
@@ -78,14 +76,3 @@
 	 (define-key perl-mode-map [menu-bar p bioperl-method]
 	   '("bioperl method" . bioperl-method))
 	 ))
-
-
-
-
-
-
-
-
-
-
-
