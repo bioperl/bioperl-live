@@ -98,6 +98,13 @@ sequence annotations.  Only the relational database version of
 Bio::DB::GFF is supported.  It can be used to create the database from
 scratch, as well as to incrementally load new data.
 
+This script takes a --fasta argument to load raw DNA into the database
+as well.  However, GFF databases do not require access to the raw DNA
+for most of their functionality.
+
+load_gff.pl also has a --upgrade option, which will perform a
+non-destructive upgrade of older schemas to newer ones.
+
 =item bulk_load_gff.pl
 
 This script will populate a Bio::DB::GFF database from a flat GFF file
@@ -105,6 +112,10 @@ of sequence annotations.  Only the MySQL database version of
 Bio::DB::GFF is supported.  It uses the "LOAD DATA INFILE" query in
 order to accelerate loading considerably; however, it can only be used
 for the initial load, and not for updates.
+
+This script takes a --fasta argument to load raw DNA into the database
+as well.  However, GFF databases do not require access to the raw DNA
+for most of their functionality.
 
 =item gadfly_to_gff.pl
 
@@ -507,7 +518,7 @@ sub new {
 
   $adaptor    ||= 'dbi::mysqlopt';
   my $class = "Bio::DB::GFF::Adaptor::\L${adaptor}\E";
-  eval "require $class";
+  eval "require $class" unless $class->can('new');
   $package->throw("Unable to load $adaptor adaptor: $@") if $@;
 
   my $self = $class->new($args);
@@ -560,7 +571,7 @@ For example ['/home/gff/gff1.gz','/home/gff/gff2.gz']
 =item 3. path to a directory
 
 The indicated directory will be searched for all files ending in the
-suffixes .gz, .Z or .bz2.
+suffixes .gff, .gff.gz, .gff.Z or .gff.bz2.
 
 =item 4. a filehandle
 
@@ -586,7 +597,6 @@ old method name is also recognized.
 sub load_gff {
   my $self              = shift;
   my $file_or_directory = shift || '.';
-
   open SAVEIN,"<&STDIN";
   local @ARGV = $self->setup_argv($file_or_directory,'gff') or return;  # to play tricks with reader
   my $result = $self->do_load_gff;
@@ -595,6 +605,51 @@ sub load_gff {
 }
 
 *load = \&load_gff;
+
+=head2 load_fasta
+
+ Title   : load_fasta
+ Usage   : $db->load_fasta($file|$directory|$filehandle);
+ Function: load FASTA data into database
+ Returns : count of records loaded
+ Args    : a directory, a file, a list of files, 
+           or a filehandle
+ Status  : Public
+
+This method takes a single overloaded argument, which can be any of:
+
+=over 4
+
+=item 1. a scalar corresponding to a FASTA file on the system
+
+A pathname to a local FASTA file.  Any files ending with the .gz, .Z, or
+.bz2 suffixes will be transparently decompressed with the appropriate
+command-line utility.
+
+=item 2. an array reference containing a list of FASTA files on the
+system
+
+For example ['/home/fasta/genomic.fa.gz','/home/fasta/genomic.fa.gz']
+
+=item 3. path to a directory
+
+The indicated directory will be searched for all files ending in the
+suffixes .fa, .fa.gz, .fa.Z or .fa.bz2.
+
+=item 4. a filehandle
+
+An open filehandle from which to read the FASTA data.
+
+=item 5. a pipe expression
+
+A pipe expression will also work. For example, a FASTA file on a remote
+web server can be loaded with an expression like this:
+
+  $db->load_gff("lynx -dump -source http://stein.cshl.org/fasta_test.fa |");
+
+=back
+
+=cut
 
 sub load_fasta {
   my $self              = shift;

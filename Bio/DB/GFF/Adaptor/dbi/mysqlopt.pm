@@ -352,7 +352,7 @@ sub load_gff_line {
   defined(my $typeid  = $self->get_table_id('ftype', $gff->{method} => $gff->{source})) or return;
   defined(my $groupid = $self->get_table_id('fgroup',$gff->{gname}  => $gff->{gclass})) or return;
 
-  my $bin =  bin($gff->{start},$gff->{stop},$self->{minbin});
+  my $bin =  bin($gff->{start},$gff->{stop},$self->min_bin);
 
   my $result = $s->{insert_data}->execute($gff->{ref},
 					  $gff->{start},$gff->{stop},$bin,
