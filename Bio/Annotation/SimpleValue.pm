@@ -138,10 +138,11 @@ sub as_text{
 =cut
 
 sub hash_tree{
-   my ($self) = @_;
-   
-   my $h = {};
-   $h->{'value'} = $self->value;
+    my $self = shift;
+    
+    my $h = {};
+    $h->{'value'} = $self->value;
+    return $h;
 }
 
 =head2 tagname
