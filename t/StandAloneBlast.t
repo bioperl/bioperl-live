@@ -23,7 +23,9 @@ BEGIN { $| = 1; print "1..8\n";
 	use vars qw($loaded); }
 # Edit the following line to point to the location of your local blast files...
 # BEGIN {$ENV{BLASTDIR} = '/home/peter/blast/'; }
-END {print "not ok 1\n" unless $loaded;}
+END {print "not ok 1\n" unless $loaded;
+     unlink('blastreport.out');
+}
 
 use Bio::Tools::Blast;
 use Bio::Tools::BPlite;
@@ -57,7 +59,8 @@ my $nt_database = 'ecoli.nt';
 my $amino_database = 'swissprot';
 
 ## Create blast factory
-my @params = ('program' => 'blastn', 'database' => $nt_database , '_READMETHOD' => 'Blast');
+my @params = ('program' => 'blastn', 'database' => $nt_database , 
+	      '_READMETHOD' => 'Blast', 'output' => 'blastreport.out');
 my  $factory = Bio::Tools::StandAloneBlast->new(@params);
 
 test 2, $factory, " couldn't create blast factory";
