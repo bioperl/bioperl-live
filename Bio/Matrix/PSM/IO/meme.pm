@@ -79,6 +79,7 @@ sub new {
     $self->{file} = $file;
     $self->{query}= $query;
     $self->{end}  = 0;
+    $self->{_strand}=0; #This we'll need to see if revcom option is used
     $self->_initialize_io(@args) || warn "Did you intend to use STDIN?"; #Read only for now
     #Skip header
     my $line;
@@ -184,6 +185,8 @@ sub next_psm {
 	if ($line=~ m/\sSite\s/) {
 	    $instances= $self->_parseInstance;
 	}
+#Check if revcom is enabled, not very original check....
+  $self->{_strand}=1 if (($line=~/^Sequence name/) && ($line=~/Strand/));
 	#Here starts the next motif
 	if ( ($line=~/width/) && ($line=~/sites/)) {
 	    chomp($line);
@@ -260,7 +263,6 @@ sub _parseMatrix {
 	$i++;
 	$line=$self->_readline;
     } until $line =~ /\-{10,}/;
-    
     return (-pA=>\@pA,-pC=>\@pC,-pG=>\@pG,-pT=>\@pT,-id=>$id);
 }
 
@@ -301,7 +303,7 @@ sub _parse_logs {
  Title   : _parseInstance
  Usage   :
  Function:  Parses the next sites instances from the meme file
- Throws  :  If the parser cannot find the correct number of columns
+ Throws  :
  Example :  Internal stuff
  Returns :  Bio::Matrix::PSM::InstanceSite object
  Args    :  none
@@ -311,7 +313,6 @@ sub _parse_logs {
 sub _parseInstance {
     my $self = shift;
     my $i=0;
-    
     $self->_readline;
     my ($line,@instance);
     while (defined($line=$self->_readline) ) {
@@ -319,17 +320,17 @@ sub _parseInstance {
 	chomp($line);
 	my @comp=split(/\s+/,$line);
 	my ($id,$start,$score,$strand,$s1,$s2,$s3);
-	if ( $#comp == 6) { #Revcomp enabled
+	if ( $self->{_strand}) {
 	    ($id,$strand,$start,$score,$s1,$s2,$s3)=@comp;
-	} elsif ( $#comp==5) {
+	} else {
 	    ($id,$start,$score,$s1,$s2,$s3)=@comp;
 	    $strand=1;
 	}
-	else {
-	    my $col=$#comp; 
-	    $self->throw("Cannot parse this matrix instances, probably a format issue: $col columns\n"); 
-	} #Throw if incorrect column number
-	my $seq= $s1.$s2.$s3;
+  	my $seq= $s1.$s2.$s3;
+	if ($seq =~ /[^ACGTacgtNnXx-]/) {
+            my $col=$#comp;
+	    $self->throw("I have not been able to parse the correct instance sequence: $seq, $col columns\n");
+	}
 	my $sid = $self->{id} . '@' . $id;
 	$instance[$i] = new Bio::Matrix::PSM::InstanceSite
 	    (-mid      => $self->{id}, 
