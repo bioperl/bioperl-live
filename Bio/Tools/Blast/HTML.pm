@@ -38,7 +38,7 @@ use vars qw( $ID $VERSION %DbUrl %SGDUrl $Revision
 	     $Acc $Pir_acc $Word $Signif $Int $Descrip);
 
 $ID = 'Bio::Tools::Blast::HTML';
-$VERSION  = 0.071; 
+$VERSION  = 0.074; 
 $Revision = '$Id$';  #'
 
 my $_set_markup = 0;
@@ -138,7 +138,7 @@ Steve A. Chervitz, sac@genome.stanford.edu
 
 =head1 VERSION
 
-Bio::Tools::Blast::HTML.pm, 0.071
+Bio::Tools::Blast::HTML.pm, 0.074
 
 =head1 COPYRIGHT
 
@@ -229,7 +229,7 @@ sub get_html_func {
 	# $_ contains a single line from a Blast report.
 	local $_ = shift;
 
-	croak("Report appears to be HTML formatted already.") if m/<HTML>|<a href/i;
+	croak("Report appears to be HTML formatted already.") if m/<HTML>|<TITLE>|<PRE>/i;
 
 	if(not $found_table) {
 	    if($ref_skip) {
