@@ -1193,7 +1193,7 @@ sub next_seq {
     # assemble the annotation collection
     my $ac = Bio::Annotation::Collection->new();
     foreach my $k (keys %$seq_h) {
-	next if $k =~ /acc|pid|nid/;
+	next if $k =~ /acc|pid|nid|version/;
 	my $ann = Bio::Annotation::SimpleValue->new(-tagname => $k,
 						    -value   => $seq_h->{$k});
 	$ac->add_Annotation($ann);
@@ -1206,6 +1206,7 @@ sub next_seq {
 	  -primary_id       => $seq_h->{nid} && $seq_h->{nid} =~ /^g\d+$/ ?
 				     substr($seq_h->{nid},1) : $seq_h->{nid},
 	  -display_id       => $seq_h->{acc},
+	  -version			=> $seq_h->{version},
 	  -alphabet         => $obj->{'_alphabet'},
 	  -namespace        => $seq_h->{acc} =~ /^NM_/ ? 'RefSeq' : 'GenBank',
 	  -authority        => $obj->authority(), # default is NCBI

@@ -88,7 +88,7 @@ my %line_is = (
 		PROTSIM			=>	q/PROTSIM\s+(\S.*)/,
 		SCOUNT			=>	q/SCOUNT\s+(\S.*)/,
 		SEQUENCE		=>	q/SEQUENCE\s+(\S.*)/,
-		ACC			=>	q/ACC=\s*(\S.*)/,
+		ACC			=>	q/ACC=(\w+)\.?(\d*)/,
 		NID			=>	q/NID=\s*(\S.*)/,
 		PID			=>	q/PID=\s*(\S.*)/,
 		CLONE			=>	q/CLONE=\s*(\S.*)/,
@@ -197,6 +197,7 @@ sub next_cluster {
 			foreach (@items) {
 				if (/$line_is{ACC}/gcx) {
 					$seq->{acc} = $1;
+					$seq->{version} = $2 if defined $2;
 				}
 				elsif (/$line_is{NID}/gcx) {
 					$seq->{nid} = $1;
