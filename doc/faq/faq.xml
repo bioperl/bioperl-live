@@ -255,7 +255,7 @@ href="http://bioperl.org/pipermail/bioperl-l/2003-December/014406.html">http://b
     <q id="4">
       <question>Let's say I want to do pairwise alignments of 2 sequences. How can I do this?</question>
       <answer>
-	<p>Look at Bio::Factory::EMBOSS to see how to use the 'water' and 'needle' alignment programs that are part of the EMBOSS suite.</p>
+	<p>Look at Bio::Factory::EMBOSS to see how to use the 'water' and 'needle' alignment programs that are part of the EMBOSS suite. Bio::Factory::EMBOSS is part of the bioperl-run package.</p>
 	<p>Or you can use the pSW module for DNA alignments or the dpAlign module for protein alignments. These are part of the bioperl-ext package (distributed separated at <a href="ftp://bioperl.org/pub/DIST">ftp://bioperl.org/pub/DIST</a>).
 	</p>
       </answer>
@@ -347,7 +347,7 @@ href="http://bioperl.org/pipermail/bioperl-l/2003-December/014406.html">http://b
     <q id="1">
       <question>How do I find all the ORFs in a nucleotide sequence? Antigenic sites in a protein? Calculate nucleotide melting temperature? Find repeats?</question>
       <answer>
-	<p>In fact, none of these functions are built into Bioperl but they are all available in the EMBOSS package (<a href="http://www.emboss.org/">http://www.emboss.org/</a>), as well as many others. The Bioperl developers created a simple interface to EMBOSS such that any and all EMBOSS programs can be run from within Bioperl. See Bio::Factory::EMBOSS for more information.
+	<p>In fact, none of these functions are built into Bioperl but they are all available in the EMBOSS package (<a href="http://www.emboss.org/">http://www.emboss.org/</a>), as well as many others. The Bioperl developers created a simple interface to EMBOSS such that any and all EMBOSS programs can be run from within Bioperl. See Bio::Factory::EMBOSS for more information, it's in the bioperl-run package.
 	</p>
 	<p>If you can't find the functionality you want in Bioperl then make sure to look for it in EMBOSS, these packages integrate quite gracefully with Bioperl. Of course, you will have to install EMBOSS to get this access.
 	</p>
