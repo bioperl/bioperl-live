@@ -404,4 +404,39 @@ sub delete_Obj {
   return(1);
 }
 
+
+=head2 verbose
+
+ Title   : verbose
+ Usage   : $self->verbose(0)
+ Function: Sets verbose level for how ->warn behaves
+           -1 = silent: no warning
+            0 = reduced: minimal warnings
+            1 = default: all warnings
+            2 = extended: all warnings + stack trace dump
+            3 = paranoid: a warning becomes a throw and the program dies
+
+           Note: a quick way to set all LiveSeq objects at the same verbosity
+           level is to change the DNA level object, since they all look to
+           that one if their verbosity_level attribute is not set.
+           But the method offers fine tuning possibility by changing the
+           verbose level of each object in a different way.
+
+           So for example, after $loader= and $gene= have been retrieved
+           by a program, the command $gene->verbose(0); would
+           set the default verbosity level to 0 for all objects.
+
+ Returns : the current verbosity level
+ Args    : -1,0,1,2 or 3
+
+=cut
+
+
+sub verbose {
+  my $self=shift;
+  my $value = shift;
+  return $self->{'features'}->{'DNA'}->verbose($value);
+}
+
+
 1;
