@@ -1,0 +1,900 @@
+ID   MA32_HUMAN     STANDARD;      PRT;   282 AA.
+AC   Q07021;
+DT   01-FEB-1995 (Rel. 31, Created)
+DT   01-FEB-1995 (Rel. 31, Last sequence update)
+DT   01-OCT-2000 (Rel. 40, Last annotation update)
+DE   COMPLEMENT COMPONENT 1, Q SUBCOMPONENT BINDING PROTEIN, MITOCHONDRIAL
+DE   PRECURSOR (GLYCOPROTEIN GC1QBP) (GC1Q-R PROTEIN) (HYALURONAN-BINDING
+DE   PROTEIN 1) (PRE-MRNA SPLICING FACTOR SF2, P32 SUBUNIT) (P33).
+GN   GC1QBP OR HABP1 OR SF2P32 OR C1QBP.
+OS   Homo sapiens (Human).
+OC   Eukaryota; Metazoa; Chordata; Craniata; Vertebrata; Euteleostomi;
+OC   Mammalia; Eutheria; Primates; Catarrhini; Hominidae; Homo.
+OX   NCBI_TaxID=9606;
+RN   [1]
+RP   SEQUENCE FROM N.A., AND SEQUENCE OF 74; 76-93 AND 208-216.
+RC   TISSUE=FIBROBLAST;
+RX   MEDLINE=94085792; PubMed=8262387;
+RA   Honore B., Madsen P., Rasmussen H.H., Vandekerckhove J., Celis J.E.,
+RA   Leffers H.;
+RT   "Cloning and expression of a cDNA covering the complete coding region
+RT   of the P32 subunit of human pre-mRNA splicing factor SF2.";
+RL   Gene 134:283-287(1993).
+RN   [2]
+RP   SEQUENCE OF 5-282 FROM N.A., AND SEQUENCE OF 74-114.
+RX   MEDLINE=91309150; PubMed=1830244;
+RA   Krainer A.R., Mayeda A., Kozak D., Binns G.;
+RT   "Functional expression of cloned human splicing factor SF2: homology
+RT   to RNA-binding proteins, U1 70K, and Drosophila splicing regulators.";
+RL   Cell 66:383-394(1991).
+RN   [3]
+RP   SEQUENCE FROM N.A., AND PARTIAL SEQUENCE.
+RX   MEDLINE=94253723; PubMed=8195709;
+RA   Ghebrehiwet B., Lim B.L., Peerschke E.I., Willis A.C., Reid K.B.;
+RT   "Isolation, cDNA cloning, and overexpression of a 33-kD cell surface
+RT   glycoprotein that binds to the globular 'heads' of C1q.";
+RL   J. Exp. Med. 179:1809-1821(1994).
+RN   [4]
+RP   X-RAY CRYSTALLOGRAPHY (2.25 ANGSTROMS).
+RX   MEDLINE=99199225; PubMed=10097078;
+RA   Jiang J., Zhang Y., Krainer A.R., Xu R.-M.;
+RT   "Crystal structure of human p32, a doughnut-shaped acidic
+RT   mitochondrial matrix protein.";
+RL   Proc. Natl. Acad. Sci. U.S.A. 96:3572-3577(1999).
+CC   -!- FUNCTION: NOT KNOWN. BINDS TO THE GLOBULAR "HEADS" OF C1Q THUS
+CC       INHIBITING C1 ACTIVATION.
+CC   -!- SUBCELLULAR LOCATION: MITOCHONDRIAL MATRIX.
+CC   -!- SIMILARITY: BELONGS TO THE MAM33 FAMILY.
+CC   -!- CAUTION: WAS ORIGINALLY (REF.1 AND REF.2) THOUGHT TO BE A PRE-MRNA
+CC       SPLICING FACTOR THAT PLAYS A ROLE IN PREVENTING EXON SKIPPING,
+CC       ENSURING THE ACCURACY OF SPLICING AND REGULATING ALTERNATIVE
+CC       SPLICING.
+CC   --------------------------------------------------------------------------
+CC   This SWISS-PROT entry is copyright. It is produced through a collaboration
+CC   between  the Swiss Institute of Bioinformatics  and the  EMBL outstation -
+CC   the European Bioinformatics Institute.  There are no  restrictions on  its
+CC   use  by  non-profit  institutions as long  as its content  is  in  no  way
+CC   modified and this statement is not removed.  Usage  by  and for commercial
+CC   entities requires a license agreement (See http://www.isb-sib.ch/announce/
+CC   or send an email to license@isb-sib.ch).
+CC   --------------------------------------------------------------------------
+DR   EMBL; L04636; AAA16315.1; -.
+DR   EMBL; M69039; AAA73055.1; -.
+DR   EMBL; X75913; CAA53512.1; -.
+DR   PIR; JT0762; JT0762.
+DR   PIR; S44104; S44104.
+DR   PDB; 1P32; 06-APR-99.
+DR   MIM; 601269; -.
+KW   Mitochondrion; Transit peptide; 3D-structure.
+FT   TRANSIT       1     73       MITOCHONDRION.
+FT   CHAIN        74    282       COMPLEMENT COMPONENT 1, Q SUBCOMPONENT
+FT                                BINDING PROTEIN.
+SQ   SEQUENCE   282 AA;  31362 MW;  2F747FA73BB1314B CRC64;
+     MLPLLRCVPR VLGSSVAGLR AAAPASPFRQ LLQPAPRLCT RPFGLLSVRA GSERRPGLLR
+     PRGPCACGCG CGSLHTDGDK AFVDFLSDEI KEERKIQKHK TLPKMSGGWE LELNGTEAKL
+     VRKVAGEKIT VTFNINNSIP PTFDGEEEPS QGQKVEEQEP ELTSTPNFVV EVIKNDDGKK
+     ALVLDCHYPE DEVGQEDEAE SDIFSIREVS FQSTGESEWK DTNYTLNTDS LDWALYDHLM
+     DFLADRGVDN TFADELVELS TALEHQEYIT FLEDLKSFVK SQ
+//
+ID   ACON_CAEEL     STANDARD;      PRT;   788 AA.
+AC   P34455;
+DT   01-FEB-1994 (Rel. 28, Created)
+DT   01-FEB-1994 (Rel. 28, Last sequence update)
+DT   15-JUL-1999 (Rel. 38, Last annotation update)
+DE   Probable aconitate hydratase, mitochondrial precursor (EC 4.2.1.3)
+DE   (Citrate hydro-lyase) (Aconitase).
+GN   F54H12.1.
+OS   Caenorhabditis elegans.
+OC   Eukaryota; Metazoa; Nematoda; Chromadorea; Rhabditida; Rhabditoidea;
+OC   Rhabditidae; Peloderinae; Caenorhabditis.
+OX   NCBI_TaxID=6239;
+RN   [1]
+RP   SEQUENCE FROM N.A.
+RC   STRAIN=BRISTOL N2;
+RX   MEDLINE=94150718; PubMed=7906398;
+RA   Wilson R., Ainscough R., Anderson K., Baynes C., Berks M.,
+RA   Bonfield J., Burton J., Connell M., Copsey T., Cooper J., Coulson A.,
+RA   Craxton M., Dear S., Du Z., Durbin R., Favello A., Fraser A.,
+RA   Fulton L., Gardner A., Green P., Hawkins T., Hillier L., Jier M.,
+RA   Johnston L., Jones M., Kershaw J., Kirsten J., Laisster N.,
+RA   Latreille P., Lightning J., Lloyd C., Mortimore B., O'Callaghan M.,
+RA   Parsons J., Percy C., Rifken L., Roopra A., Saunders D., Shownkeen R.,
+RA   Sims M., Smaldon N., Smith A., Smith M., Sonnhammer E., Staden R.,
+RA   Sulston J., Thierry-Mieg J., Thomas K., Vaudin M., Vaughan K.,
+RA   Waterson R., Watson A., Weinstock L., Wilkinson-Sproat J.,
+RA   Wohldman P.;
+RT   "2.2 Mb of contiguous nucleotide sequence from chromosome III of C.
+RT   elegans.";
+RL   Nature 368:32-38(1994).
+CC   -!- CATALYTIC ACTIVITY: Citrate = cis-aconitate + H(2)O.
+CC   -!- COFACTOR: ACONITASE HAS AN ACTIVE (4FE-4S) AND AN INACTIVE (3FE-
+CC       4S) FORMS. THE ACTIVE (4FE-4S) CLUSTER IS PART OF THE CATALYTIC
+CC       SITE THAT INTERCONVERTS CITRATE, CIS-ACONITASE, AND ISOCITRATE (BY
+CC       SIMILARITY).
+CC   -!- PATHWAY: TRICARBOXYLIC ACID CYCLE.
+CC   -!- SUBUNIT: MONOMER (BY SIMILARITY).
+CC   -!- SUBCELLULAR LOCATION: Mitochondrial (By similarity).
+CC   -!- SIMILARITY: BELONGS TO THE ACONITASE/IPM ISOMERASE FAMILY.
+CC   --------------------------------------------------------------------------
+CC   This SWISS-PROT entry is copyright. It is produced through a collaboration
+CC   between  the Swiss Institute of Bioinformatics  and the  EMBL outstation -
+CC   the European Bioinformatics Institute.  There are no  restrictions on  its
+CC   use  by  non-profit  institutions as long  as its content  is  in  no  way
+CC   modified and this statement is not removed.  Usage  by  and for commercial
+CC   entities requires a license agreement (See http://www.isb-sib.ch/announce/
+CC   or send an email to license@isb-sib.ch).
+CC   --------------------------------------------------------------------------
+DR   EMBL; L25599; AAA28050.1; -.
+DR   PIR; S44831; S44831.
+DR   HSSP; P20004; 1AMJ.
+DR   WormPep; F54H12.1; CE00516.
+DR   InterPro; IPR001030; Aconitase.
+DR   InterPro; IPR000573; Aconitase_C.
+DR   Pfam; PF00330; aconitase; 1.
+DR   Pfam; PF00694; Aconitase_C; 1.
+DR   PRINTS; PR00415; ACONITASE.
+DR   ProDom; PD000511; Aconitase; 1.
+DR   PROSITE; PS00450; ACONITASE_1; 1.
+DR   PROSITE; PS01244; ACONITASE_2; 1.
+KW   Hypothetical protein; Lyase; Tricarboxylic acid cycle; Iron-sulfur;
+KW   Mitochondrion; Transit peptide; 4Fe-4S.
+FT   TRANSIT       1      ?       MITOCHONDRION (POTENTIAL).
+FT   CHAIN         ?    788       PROBABLE ACONITATE HYDRATASE.
+FT   METAL       393    393       IRON-SULFUR (4FE-4S) (BY SIMILARITY).
+FT   METAL       456    456       IRON-SULFUR (4FE-4S) (BY SIMILARITY).
+FT   METAL       459    459       IRON-SULFUR (4FE-4S) (BY SIMILARITY).
+SQ   SEQUENCE   788 AA;  85712 MW;  8861E6FC198B70D9 CRC64;
+     MRYHFLFGSL RNHLFSFRGV IYCREKLFNC SKLSFRPSKV AISKFEPKSY LPYEKLSQTV
+     KIVKDRLKRP LTLSEKILYG HLDQPKTQDI ERGVSYLRLR PDRVAMQDAT AQMAMLQFIS
+     SGLPKTAVPS TIHCDHLIEA QKGGAQDLAR AKDLNKEVFN FLATAGSKYG VGFWKPGSGI
+     IHQIILENYA FPGLLLIGTD SHTPNGGGLG GLCIGVGGAD AVDVMADIPW ELKCPKVIGI
+     KLTGKLNGWT SAKDVILKVA DILTVKGGTG AIVEYFGPGV DSISATGMGT ICNMGAEIGA
+     TTSVFPYNES MYKYLEATGR KEIAEEARKY KDLLTADDGA NYDQIIEINL DTLTPHVNGP
+     FTPDLASSID KLGENAKKNG WPLDVKVSLI GSCTNSSYED MTRAASIAKQ ALDKGLKAKT
+     IFTITPGSEQ VRATIERDGL SKIFADFGGM VLANACGPCI GQWDRQDVKK GEKNTIVTSY
+     NRNFTGRNDA NPATHGFVTS PDITTAMAIS GRLDFNPLTD ELTAADGSKF KLQAPTGLDL
+     PPKGYDPGED TFQAPSGSGQ VDVSPSSDRL QLLSPFDKWD GKDLEDMKIL IKVTGKCTTD
+     HISAAGPWLK YRGHLDNISN NLFLTAINAD NGEMNKVKNQ VTGEYGAVPA TARKYKADGV
+     RWVAIGDENY GEGSSREHAA LEPRHLGGRA IIVKSFARIH ETNLKKQGML PLTFANPADY
+     DKIDPSDNVS IVGLSSFAPG KPLTAIFKKT NGSKVEVTLN HTFNEQQIEW FKAGSALNRM
+     KEVFAKSK
+//
+ID   143E_HUMAN     STANDARD;      PRT;   255 AA.
+AC   P42655; P29360; Q63631;
+DT   01-NOV-1995 (Rel. 32, Created)
+DT   01-NOV-1995 (Rel. 32, Last sequence update)
+DT   15-JUL-1999 (Rel. 38, Last annotation update)
+DE   14-3-3 protein epsilon (Mitochondrial import stimulation factor L
+DE   subunit) (Protein kinase C inhibitor protein-1) (KCIP-1) (14-3-3E).
+GN   YWHAE.
+OS   Homo sapiens (Human),
+OS   Mus musculus (Mouse),
+OS   Rattus norvegicus (Rat),
+OS   Bos taurus (Bovine), and
+OS   Ovis aries (Sheep).
+OC   Eukaryota; Metazoa; Chordata; Craniata; Vertebrata; Euteleostomi;
+OC   Mammalia; Eutheria; Primates; Catarrhini; Hominidae; Homo.
+OX   NCBI_TaxID=9606, 10090, 10116, 9913, 9940;
+RN   [1]
+RP   SEQUENCE FROM N.A.
+RC   SPECIES=Human;
+RX   MEDLINE=95372385; PubMed=7644510;
+RA   Conklin D.S., Galaktionov K., Beach D.;
+RT   "14-3-3 proteins associate with cdc25 phosphatases.";
+RL   Proc. Natl. Acad. Sci. U.S.A. 92:7892-7896(1995).
+RN   [2]
+RP   SEQUENCE FROM N.A.
+RC   SPECIES=Human; TISSUE=Heart;
+RA   Luk S.C.W., Lee C.Y., Waye M.M.Y.;
+RL   Submitted (JUN-1995) to the EMBL/GenBank/DDBJ databases.
+RN   [3]
+RP   SEQUENCE FROM N.A.
+RC   SPECIES=Human;
+RX   MEDLINE=96300316; PubMed=8684458;
+RA   Jin D.-Y., Lyu M.S., Kozak C.A., Jeang K.-T.;
+RT   "Function of 14-3-3 proteins.";
+RL   Nature 382:308-308(1996).
+RN   [4]
+RP   SEQUENCE FROM N.A.
+RC   SPECIES=Human; TISSUE=Liver;
+RX   MEDLINE=97011338; PubMed=8858348;
+RA   Chong S.S., Tanigami A., Roschke A.V., Ledbetter D.H.;
+RT   "14-3-3 epsilon has no homology to LIS1 and lies telomeric to it on
+RT   chromosome 17p13.3 outside the Miller-Dieker syndrome chromosome
+RT   region.";
+RL   Genome Res. 6:735-741(1996).
+RN   [5]
+RP   SEQUENCE FROM N.A.
+RC   SPECIES=Human;
+RA   Tanigami A., Chong S.S., Ledbetter D.H.;
+RT   "14-3-3 epsilon genomic sequence.";
+RL   Submitted (AUG-1998) to the EMBL/GenBank/DDBJ databases.
+RN   [6]
+RP   SEQUENCE FROM N.A.
+RC   SPECIES=Human; TISSUE=Placenta;
+RA   Strausberg R.;
+RL   Submitted (DEC-2000) to the EMBL/GenBank/DDBJ databases.
+RN   [7]
+RP   SEQUENCE FROM N.A.
+RC   SPECIES=Rat, and Sheep; TISSUE=Pineal gland;
+RX   MEDLINE=94296566; PubMed=8024705;
+RA   Roseboom P.H., Weller J.L., Babila T., Aitken A., Sellers L.A.,
+RA   Moffet J.R., Namboodiri M.A., Klein D.C.;
+RT   "Cloning and characterization of the epsilon and zeta isoforms of the
+RT   14-3-3 proteins.";
+RL   DNA Cell Biol. 13:629-640(1994).
+RN   [8]
+RP   SEQUENCE FROM N.A.
+RC   SPECIES=Rat; TISSUE=Liver;
+RX   MEDLINE=95122474; PubMed=7822263;
+RA   Alam R., Hachiya N., Sakaguchi M., Shun-Ichiro K., Iwanaga S.,
+RA   Kitajima M., Mihara K., Omura T.;
+RT   "cDNA cloning and characterization of mitochondrial import
+RT   stimulation factor (MSF) purified from rat liver cytosol.";
+RL   J. Biochem. 116:416-425(1994).
+RN   [9]
+RP   SEQUENCE FROM N.A.
+RC   SPECIES=Rat; TISSUE=Brain;
+RX   MEDLINE=96280718; PubMed=8694795;
+RA   Gao L., Gu X.B., Yu D.S., Yu R.K., Zeng G.;
+RT   "Association of a 14-3-3 protein with CMP-NeuAc:GM1 alpha 2,3-
+RT   sialyltransferase.";
+RL   Biochem. Biophys. Res. Commun. 224:103-107(1996).
+RN   [10]
+RP   SEQUENCE FROM N.A.
+RC   SPECIES=Mouse; STRAIN=SWISS; TISSUE=Kidney;
+RX   MEDLINE=95269876; PubMed=7750640;
+RA   McConnell J.E., Armstrong J.F., Bard J.B.;
+RT   "The mouse 14-3-3 epsilon isoform, a kinase regulator whose
+RT   expression pattern is modulated in mesenchyme and neuronal
+RT   differentiation.";
+RL   Dev. Biol. 169:218-228(1995).
+RN   [11]
+RP   SEQUENCE FROM N.A.
+RC   SPECIES=Mouse; STRAIN=129/SV;
+RA   Takihara Y., Irie K., Nomura M., Motaleb M., Matsumoto K.,
+RA   Shimada K.;
+RL   Submitted (SEP-1996) to the EMBL/GenBank/DDBJ databases.
+RN   [12]
+RP   SEQUENCE FROM N.A.
+RC   SPECIES=Bovine;
+RA   Jones J.M., Niikura T., Pinke R.M., Guo W., Molday L., Leykam J.,
+RA   McConnell D.G.;
+RT   "Expression of 14-3-3 proteins in bovine retinal photoreceptors.";
+RL   Submitted (JAN-1998) to the EMBL/GenBank/DDBJ databases.
+RN   [13]
+RP   SEQUENCE OF 1-152; 165-184 AND 216-255.
+RC   SPECIES=Sheep; TISSUE=Brain;
+RX   MEDLINE=92283271; PubMed=1317796;
+RA   Toker A., Sellers L.A., Amess B., Patel Y., Harris A., Aitken A.;
+RT   "Multiple isoforms of a protein kinase C inhibitor (KCIP-1/14-3-3)
+RT   from sheep brain. Amino acid sequence of phosphorylated forms.";
+RL   Eur. J. Biochem. 206:453-461(1992).
+RN   [14]
+RP   SEQUENCE OF 1-23 AND 125-140.
+RC   SPECIES=Sheep; TISSUE=Brain;
+RX   MEDLINE=90345949; PubMed=2143472;
+RA   Toker A., Ellis C.A., Sellers L.A., Aitken A.;
+RT   "Protein kinase C inhibitor proteins. Purification from sheep brain
+RT   and sequence similarity to lipocortins and 14-3-3 protein.";
+RL   Eur. J. Biochem. 191:421-429(1990).
+CC   -!- FUNCTION: ACTIVATES TYROSINE AND TRYPTOPHAN HYDROXYLASES IN THE
+CC       PRESENCE OF CA(2+)/CALMODULIN-DEPENDENT PROTEIN KINASE II, AND
+CC       STRONGLY ACTIVATES PROTEIN KINASE C. IS PROBABLY A MULTIFUNCTIONAL
+CC       REGULATOR OF THE CELL SIGNALING PROCESSES MEDIATED BY BOTH
+CC       KINASES.
+CC   -!- SUBUNIT: HOMODIMER.
+CC   -!- SUBCELLULAR LOCATION: CYTOPLASMIC.
+CC   -!- TISSUE SPECIFICITY: 14-3-3 PROTEINS ARE LOCALIZED IN NEURONS, AND
+CC       ARE AXONALLY TRANSPORTED TO THE NERVE TERMINALS. THEY MAY BE ALSO
+CC       PRESENT, AT LOWER LEVELS, IN VARIOUS OTHER EUKARYOTIC TISSUES.
+CC   -!- SIMILARITY: BELONGS TO THE 14-3-3 FAMILY.
+CC   --------------------------------------------------------------------------
+CC   This SWISS-PROT entry is copyright. It is produced through a collaboration
+CC   between  the Swiss Institute of Bioinformatics  and the  EMBL outstation -
+CC   the European Bioinformatics Institute.  There are no  restrictions on  its
+CC   use  by  non-profit  institutions as long  as its content  is  in  no  way
+CC   modified and this statement is not removed.  Usage  by  and for commercial
+CC   entities requires a license agreement (See http://www.isb-sib.ch/announce/
+CC   or send an email to license@isb-sib.ch).
+CC   --------------------------------------------------------------------------
+DR   EMBL; U28936; AAA75301.1; -.
+DR   EMBL; U20972; AAC50175.1; -.
+DR   EMBL; U43399; AAC50625.1; -.
+DR   EMBL; U43430; AAD00026.1; -.
+DR   EMBL; U54778; AAC50710.1; -.
+DR   EMBL; AB017103; BAA32538.1; -.
+DR   EMBL; AB017098; BAA32538.1; JOINED.
+DR   EMBL; AB017099; BAA32538.1; JOINED.
+DR   EMBL; AB017100; BAA32538.1; JOINED.
+DR   EMBL; AB017101; BAA32538.1; JOINED.
+DR   EMBL; AB017102; BAA32538.1; JOINED.
+DR   EMBL; BC000179; AAH00179.1; -.
+DR   EMBL; BC001440; AAH01440.1; -.
+DR   EMBL; M84416; AAC37659.1; -.
+DR   EMBL; D30739; BAA06401.1; -.
+DR   EMBL; Z19599; CAA79659.1; -.
+DR   EMBL; U53882; AAC52676.1; -.
+DR   EMBL; L07914; AAC37321.1; -.
+DR   EMBL; D87663; BAA13424.1; -.
+DR   EMBL; AF043735; AAC61927.1; -.
+DR   PIR; S10806; S10806.
+DR   PIR; S10807; S10807.
+DR   HSSP; P29312; 1A38.
+DR   MIM; 605066; -.
+DR   MGD; MGI:894689; Ywhae.
+DR   InterPro; IPR000308; 14-3-3.
+DR   Pfam; PF00244; 14-3-3; 1.
+DR   PRINTS; PR00305; 1433ZETA.
+DR   ProDom; PD000600; 14-3-3; 1.
+DR   SMART; SM00101; 14_3_3; 1.
+DR   PROSITE; PS00796; 1433_1; 1.
+DR   PROSITE; PS00797; 1433_2; 1.
+KW   Brain; Neurone; Acetylation; Multigene family.
+FT   MOD_RES       1      1       ACETYLATION.
+FT   CONFLICT     73     73       K -> T (IN REF. 9).
+FT   CONFLICT    120    120       F -> S (IN REF. 9).
+FT   CONFLICT    123    123       K -> Y (IN REF. 9).
+FT   CONFLICT    129    129       H -> Y (IN REF. 14).
+SQ   SEQUENCE   255 AA;  29174 MW;  07817CCBD1F75B26 CRC64;
+     MDDREDLVYQ AKLAEQAERY DEMVESMKKV AGMDVELTVE ERNLLSVAYK NVIGARRASW
+     RIISSIEQKE ENKGGEDKLK MIREYRQMVE TELKLICCDI LDVLDKHLIP AANTGESKVF
+     YYKMKGDYHR YLAEFATGND RKEAAENSLV AYKAASDIAM TELPPTHPIR LGLALNFSVF
+     YYEILNSPDR ACRLAKAAFD DAIAELDTLS EESYKDSTLI MQLLRDNLTL WTSDMQGDGE
+     EQNKEALQDV EDENQ
+//
+ID   143B_BOVIN     STANDARD;      PRT;   245 AA.
+AC   P29358;
+DT   01-DEC-1992 (Rel. 24, Created)
+DT   01-FEB-1996 (Rel. 33, Last sequence update)
+DT   16-OCT-2001 (Rel. 40, Last annotation update)
+DE   14-3-3 protein beta/alpha (Protein kinase C inhibitor protein-1)
+DE   (KCIP-1).
+GN   YWHAB.
+OS   Bos taurus (Bovine), and
+OS   Ovis aries (Sheep).
+OC   Eukaryota; Metazoa; Chordata; Craniata; Vertebrata; Euteleostomi;
+OC   Mammalia; Eutheria; Cetartiodactyla; Ruminantia; Pecora; Bovoidea;
+OC   Bovidae; Bovinae; Bos.
+OX   NCBI_TaxID=9913, 9940;
+RN   [1]
+RP   SEQUENCE.
+RC   SPECIES=Bovine;
+RX   MEDLINE=91108808; PubMed=1671102;
+RA   Isobe T., Ichimura T., Sunaya T., Okuyama T., Takahashi N., Kuwano R.,
+RA   Takahashi Y.;
+RT   "Distinct forms of the protein kinase-dependent activator of tyrosine
+RT   and tryptophan hydroxylases.";
+RL   J. Mol. Biol. 217:125-132(1991).
+RN   [2]
+RP   SEQUENCE OF 2-145 FROM N.A.
+RC   SPECIES=Bovine; TISSUE=Retina;
+RA   Jones J.M., Niikura T., Pinke R.M., Guo W., Molday L., Leykam J.,
+RA   McConnell D.G.;
+RT   "Expression of 14-3-3 proteins in bovine retinal photoreceptors.";
+RL   Submitted (JAN-1998) to the EMBL/GenBank/DDBJ databases.
+RN   [3]
+RP   SEQUENCE OF 2-83; 121-186 AND 199-241.
+RC   SPECIES=Sheep; TISSUE=Brain;
+RX   MEDLINE=92283271; PubMed=1317796;
+RA   Toker A., Sellers L.A., Amess B., Patel Y., Harris A., Aitken A.;
+RT   "Multiple isoforms of a protein kinase C inhibitor (KCIP-1/14-3-3)
+RT   from sheep brain. Amino acid sequence of phosphorylated forms.";
+RL   Eur. J. Biochem. 206:453-461(1992).
+RN   [4]
+RP   SEQUENCE OF 2-23.
+RC   SPECIES=Sheep; TISSUE=Brain;
+RX   MEDLINE=90345949; PubMed=2143472;
+RA   Toker A., Ellis C.A., Sellers L.A., Aitken A.;
+RT   "Protein kinase C inhibitor proteins. Purification from sheep brain
+RT   and sequence similarity to lipocortins and 14-3-3 protein.";
+RL   Eur. J. Biochem. 191:421-429(1990).
+RN   [5]
+RP   PHOSPHORYLATION.
+RC   SPECIES=Sheep;
+RX   MEDLINE=95197587; PubMed=7890696;
+RA   Aitken A., Howell S., Jones D., Madrazo J., Patel Y.;
+RT   "14-3-3 alpha and delta are the phosphorylated forms of
+RT   raf-activating 14-3-3 beta and zeta. In vivo stoichiometric
+RT   phosphorylation in brain at a Ser-Pro-Glu-Lys motif.";
+RL   J. Biol. Chem. 270:5706-5709(1995).
+RN   [6]
+RP   POST-TRANSLATIONAL MODIFICATIONS.
+RC   SPECIES=Sheep;
+RA   Aitken A., Patel Y., Martin H., Jones D., Robinson K., Madrazo J.,
+RA   Howell S.;
+RT   "Electrospray mass spectroscopy analysis with online trapping of
+RT   posttranslationally modified mammalian and avian brain 14-3-3
+RT   isoforms.";
+RL   J. Protein Chem. 13:463-465(1994).
+CC   -!- FUNCTION: ACTIVATES TYROSINE AND TRYPTOPHAN HYDROXYLASES IN THE
+CC       PRESENCE OF CA(2+)/CALMODULIN-DEPENDENT PROTEIN KINASE II, AND
+CC       STRONGLY ACTIVATES PROTEIN KINASE C. IS PROBABLY A MULTIFUNCTIONAL
+CC       REGULATOR OF THE CELL SIGNALING PROCESSES MEDIATED BY BOTH
+CC       KINASES.
+CC   -!- SUBUNIT: HOMODIMER.
+CC   -!- SUBCELLULAR LOCATION: CYTOPLASMIC.
+CC   -!- ALTERNATIVE PRODUCTS: TWO FORMS ARE PRODUCED BY ALTERNATIVE
+CC       INITIATION.
+CC   -!- TISSUE SPECIFICITY: 14-3-3 PROTEINS ARE LOCALIZED IN NEURONS, AND
+CC       ARE AXONALLY TRANSPORTED TO THE NERVE TERMINALS. THEY MAY BE ALSO
+CC       PRESENT, AT LOWER LEVELS, IN VARIOUS OTHER EUKARYOTIC TISSUES.
+CC   -!- PTM: ISOFORM ALPHA DIFFERS FROM ISOFORM BETA IN BEING
+CC       PHOSPHORYLATED.
+CC   -!- SIMILARITY: BELONGS TO THE 14-3-3 FAMILY.
+CC   --------------------------------------------------------------------------
+CC   This SWISS-PROT entry is copyright. It is produced through a collaboration
+CC   between  the Swiss Institute of Bioinformatics  and the  EMBL outstation -
+CC   the European Bioinformatics Institute.  There are no  restrictions on  its
+CC   use  by  non-profit  institutions as long  as its content  is  in  no  way
+CC   modified and this statement is not removed.  Usage  by  and for commercial
+CC   entities requires a license agreement (See http://www.isb-sib.ch/announce/
+CC   or send an email to license@isb-sib.ch).
+CC   --------------------------------------------------------------------------
+DR   EMBL; AF043736; AAC02090.1; -.
+DR   PIR; S13467; S13467.
+DR   PIR; S10804; S10804.
+DR   PIR; S23179; S23179.
+DR   HSSP; P29312; 1A38.
+DR   InterPro; IPR000308; 14-3-3.
+DR   Pfam; PF00244; 14-3-3; 1.
+DR   PRINTS; PR00305; 1433ZETA.
+DR   ProDom; PD000600; 14-3-3; 1.
+DR   SMART; SM00101; 14_3_3; 1.
+DR   PROSITE; PS00796; 1433_1; 1.
+DR   PROSITE; PS00797; 1433_2; 1.
+KW   Brain; Neurone; Phosphorylation; Acetylation; Multigene family;
+KW   Alternative initiation.
+FT   INIT_MET      0      0
+FT   CHAIN         1    245       14-3-3 PROTEIN BETA/ALPHA, LONG ISOFORM.
+FT   CHAIN         2    245       14-3-3 PROTEIN BETA/ALPHA, SHORT ISOFORM.
+FT   INIT_MET      2      2       FOR SHORT ISOFORM.
+FT   MOD_RES       1      1       ACETYLATION.
+FT   MOD_RES       2      2       ACETYLATION (IN SHORT ISOFORM).
+FT   MOD_RES     185    185       PHOSPHORYLATION.
+SQ   SEQUENCE   245 AA;  27950 MW;  AA91C2314D99549F CRC64;
+     TMDKSELVQK AKLAEQAERY DDMAAAMKAV TEQGHELSNE ERNLLSVAYK NVVGARRSSW
+     RVISSIEQKT ERNEKKQQMG KEYREKIEAE LQDICNDVLQ LLDKYLIPNA TQPESKVFYL
+     KMKGDYFRYL SEVASGDNKQ TTVSNSQQAY QEAFEISKKE MQPTHPIRLG LALNFSVFYY
+     EILNSPEKAC SLAKTAFDEA IAELDTLNEE SYKDSTLIMQ LLRDNLTLWT SENQGDEGDA
+     GEGEN
+//
+ID   CALM_HUMAN     STANDARD;      PRT;   148 AA.
+AC   P02593; P99014; P70667; Q61379; Q61380;
+DT   21-JUL-1986 (Rel. 01, Created)
+DT   21-JUL-1986 (Rel. 01, Last sequence update)
+DT   16-OCT-2001 (Rel. 40, Last annotation update)
+DE   Calmodulin.
+GN   (CALM1 OR CAM1 OR CALM OR CAM) AND (CALM2 OR CAM2 OR CAMB) AND
+GN   (CALM3 OR CAM3 OR CAMC).
+OS   Homo sapiens (Human),
+OS   Mus musculus (Mouse),
+OS   Rattus norvegicus (Rat),
+OS   Oryctolagus cuniculus (Rabbit),
+OS   Bos taurus (Bovine),
+OS   Gallus gallus (Chicken),
+OS   Anas platyrhynchos (Domestic duck),
+OS   Xenopus laevis (African clawed frog),
+OS   Arbacia punctulata (Punctuate sea urchin),
+OS   Oncorhynchus sp. (Salmon), and
+OS   Oryzias latipes (Medaka fish).
+OC   Eukaryota; Metazoa; Chordata; Craniata; Vertebrata; Euteleostomi;
+OC   Mammalia; Eutheria; Primates; Catarrhini; Hominidae; Homo.
+OX   NCBI_TaxID=9606, 10090, 10116, 9986, 9913, 9031, 8839, 8355, 7641,
+OX   8025, 8090;
+RN   [1]
+RP   SEQUENCE FROM N.A.
+RC   SPECIES=Human;
+RX   MEDLINE=89034207; PubMed=3182832;
+RA   Fischer R., Koller M., Flura M., Mathews S., Strehler-Page M.A.,
+RA   Krebs J., Penniston J.T., Carafoli E., Strehler E.E.;
+RT   "Multiple divergent mRNAs code for a single human calmodulin.";
+RL   J. Biol. Chem. 263:17055-17062(1988).
+RN   [2]
+RP   SEQUENCE FROM N.A.
+RC   SPECIES=Human;
+RX   MEDLINE=88059053; PubMed=2445749;
+RA   Sengupta B., Friedberg F., Detera-Wadleigh S.D.;
+RT   "Molecular analysis of human and rat calmodulin complementary DNA
+RT   clones. Evidence for additional active genes in these species.";
+RL   J. Biol. Chem. 262:16663-16670(1987).
+RN   [3]
+RP   SEQUENCE FROM N.A.
+RC   SPECIES=Human;
+RX   MEDLINE=85022688; PubMed=6385987;
+RA   Wawrzynczak E.J., Perham R.N.;
+RT   "Isolation and nucleotide sequence of a cDNA encoding human
+RT   calmodulin.";
+RL   Biochem. Int. 9:177-185(1984).
+RN   [4]
+RP   SEQUENCE FROM N.A.
+RC   SPECIES=Human; TISSUE=Blood;
+RX   MEDLINE=95010144; PubMed=7925473;
+RA   Rhyner J.A., Ottiger M., Wicki R., Greenwood T.M., Strehler E.E.;
+RT   "Structure of the human CALM1 calmodulin gene and identification of
+RT   two CALM1-related pseudogenes CALM1P1 and CALM1P2.";
+RL   Eur. J. Biochem. 225:71-82(1994).
+RN   [5]
+RP   SEQUENCE FROM N.A.
+RC   SPECIES=Human; TISSUE=Lymphoma;
+RA   Kato S.;
+RL   Submitted (FEB-1995) to the EMBL/GenBank/DDBJ databases.
+RN   [6]
+RP   SEQUENCE.
+RC   SPECIES=Human; TISSUE=Brain;
+RX   MEDLINE=82231946; PubMed=7093203;
+RA   Sasagawa T., Ericsson L.H., Walsh K.A., Schreiber W.E., Fischer E.H.,
+RA   Titani K.;
+RT   "Complete amino acid sequence of human brain calmodulin.";
+RL   Biochemistry 21:2565-2569(1982).
+RN   [7]
+RP   SEQUENCE.
+RC   SPECIES=Rabbit; TISSUE=Skeletal muscle;
+RX   MEDLINE=81138220; PubMed=7202416;
+RA   Grand R.J.A., Shenolikar S., Cohen P.;
+RT   "The amino acid sequence of the delta subunit (calmodulin) of rabbit
+RT   skeletal muscle phosphorylase kinase.";
+RL   Eur. J. Biochem. 113:359-367(1981).
+RN   [8]
+RP   SEQUENCE.
+RC   SPECIES=Bovine; TISSUE=Brain;
+RA   Kasai H., Kato Y., Isobe T., Kawasaki H., Okuyama T.;
+RT   "Determination of the complete amino acid sequence of calmodulin
+RT   (phenylalanine-rich acidic protein II) from bovine brain.";
+RL   Biomed. Res. 1:248-264(1980).
+RN   [9]
+RP   SEQUENCE.
+RC   SPECIES=Bovine; TISSUE=Brain;
+RX   MEDLINE=80094551; PubMed=7356670;
+RA   Watterson D.M., Sharief F., Vanaman T.C.;
+RT   "The complete amino acid sequence of the Ca2+-dependent modulator
+RT   protein (calmodulin) of bovine brain.";
+RL   J. Biol. Chem. 255:962-975(1980).
+RN   [10]
+RP   SEQUENCE.
+RC   SPECIES=Bovine; TISSUE=Uterus;
+RA   Grand R.J.A., Perry S.V.;
+RT   "The amino acid sequence of the troponin C-like protein (modulator
+RT   protein) from bovine uterus.";
+RL   FEBS Lett. 92:137-142(1978).
+RN   [11]
+RP   SEQUENCE OF 38-60.
+RC   SPECIES=Bovine;
+RX   MEDLINE=89064822; PubMed=3058479;
+RA   Pribilla I., Krueger H., Buchner K., Otto H., Schiebler W.,
+RA   Tripier D., Hucho F.;
+RT   "Heat-resistant inhibitors of protein kinase C from bovine brain.";
+RL   Eur. J. Biochem. 177:657-664(1988).
+RN   [12]
+RP   SEQUENCE FROM N.A.
+RC   SPECIES=Mouse;
+RX   MEDLINE=88257100; PubMed=3384819;
+RA   Bender P.K., Dedman J.R., Emerson C.P.;
+RT   "The abundance of calmodulin mRNAs is regulated in phosphorylase
+RT   kinase-deficient skeletal muscle.";
+RL   J. Biol. Chem. 263:9733-9737(1988).
+RN   [13]
+RP   SEQUENCE FROM N.A.
+RC   SPECIES=Mouse;
+RX   MEDLINE=90006775; PubMed=2551780;
+RA   Danchin A., Sezer O., Glaser P., Chalon P., Caput D.;
+RT   "Cloning and expression of mouse-brain calmodulin as an activator of
+RT   Bordetella pertussis adenylate cyclase in Escherichia coli.";
+RL   Gene 80:145-149(1989).
+RN   [14]
+RP   SEQUENCE FROM N.A.
+RC   SPECIES=Mouse; STRAIN=BALB/C; TISSUE=Brain;
+RA   Kato K.;
+RT   "A collection of cDNA clones with specific expression patterns in
+RT   mouse brain.";
+RL   Eur. J. Neurosci. 2:704-711(1991).
+RN   [15]
+RP   SEQUENCE.
+RC   SPECIES=Rat; TISSUE=Testis;
+RX   MEDLINE=78066877; PubMed=201628;
+RA   Dedman J.R., Jackson R.L., Schreiber W.E., Means A.R.;
+RT   "Sequence homology of the Ca2+-dependent regulator of cyclic
+RT   nucleotide phosphodiesterase from rat testis with other Ca2+-binding
+RT   proteins.";
+RL   J. Biol. Chem. 253:343-346(1978).
+RN   [16]
+RP   SEQUENCE FROM N.A.
+RC   SPECIES=Rat; TISSUE=Brain;
+RX   MEDLINE=87246077; PubMed=2885164;
+RA   Sherbany A.A., Parent A.S., Brosius J.;
+RT   "Rat calmodulin cDNA.";
+RL   DNA 6:267-272(1987).
+RN   [17]
+RP   SEQUENCE FROM N.A.
+RC   SPECIES=Rat; TISSUE=Brain;
+RX   MEDLINE=87226204; PubMed=3035194;
+RA   Nojima H., Hirofumi S.;
+RT   "Structure of a gene for rat calmodulin.";
+RL   J. Mol. Biol. 193:439-445(1987).
+RN   [18]
+RP   SEQUENCE FROM N.A.
+RC   SPECIES=Rat;
+RX   MEDLINE=87257889; PubMed=3037336;
+RA   Nojima H., Kishi K., Sokabe H.;
+RT   "Multiple calmodulin mRNA species are derived from two distinct
+RT   genes.";
+RL   Mol. Cell. Biol. 7:1873-1880(1987).
+RN   [19]
+RP   SEQUENCE FROM N.A.
+RC   SPECIES=Rat; STRAIN=SHR;
+RX   MEDLINE=89362474; PubMed=2527998;
+RA   Nojima H.;
+RT   "Structural organization of multiple rat calmodulin genes.";
+RL   J. Mol. Biol. 208:269-282(1989).
+RN   [20]
+RP   SEQUENCE FROM N.A.
+RC   SPECIES=Chicken;
+RX   MEDLINE=84008199; PubMed=6137485;
+RA   Putkey J.A., Ts'Ui K.F., Tanaka T., Lagace L., Stein J.P., Lai E.C.,
+RA   Means A.R.;
+RT   "Chicken calmodulin genes. A species comparison of cDNA sequences and
+RT   isolation of a genomic clone.";
+RL   J. Biol. Chem. 258:11864-11870(1983).
+RN   [21]
+RP   SEQUENCE FROM N.A.
+RC   SPECIES=Chicken;
+RX   MEDLINE=85104969; PubMed=2981850;
+RA   Simmen R.C.M., Tanaka T., Ts'Ui K.F., Putkey J.A., Scott M.J.,
+RA   Lai E.C., Means A.R.;
+RT   "The structural organization of the chicken calmodulin gene.";
+RL   J. Biol. Chem. 260:907-912(1985).
+RN   [22]
+RP   ERRATUM.
+RC   SPECIES=Chicken;
+RA   Simmen R.C.M., Tanaka T., Ts'Ui K.F., Putkey J.A., Scott M.J.,
+RA   Lai E.C., Means A.R.;
+RL   J. Biol. Chem. 262:4928-4929(1987).
+RN   [23]
+RP   SEQUENCE FROM N.A.
+RC   SPECIES=Chicken;
+RA   Iida Y.;
+RT   "cDNA sequences and molecular evolution of calmodulin genes of
+RT   chicken and eel.";
+RL   Bull. Chem. Soc. Jpn. 57:2667-2668(1984).
+RN   [24]
+RP   SEQUENCE FROM N.A.
+RC   SPECIES=A.platyrhynchos;
+RX   MEDLINE=93287810; PubMed=8389959;
+RA   Kimura N., Kurosawa N., Kondo K., Tsukada Y.;
+RT   "Molecular cloning of the kainate-binding protein and calmodulin
+RT   genes which are induced by an imprinting stimulus in ducklings.";
+RL   Brain Res. Mol. Brain Res. 17:351-355(1993).
+RN   [25]
+RP   SEQUENCE FROM N.A.
+RC   SPECIES=X.laevis;
+RX   MEDLINE=84191128; PubMed=6325880;
+RA   Chien Y.-H., Dawid I.B.;
+RT   "Isolation and characterization of calmodulin genes from Xenopus
+RT   laevis.";
+RL   Mol. Cell. Biol. 4:507-513(1984).
+RN   [26]
+RP   SEQUENCE OF 1-141 FROM N.A.
+RC   SPECIES=A.punctulata;
+RX   MEDLINE=88172463; PubMed=3351921;
+RA   Hardy D.O., Bender P.K., Kretsinger R.H.;
+RT   "Two calmodulin genes are expressed in Arbacia punctulata. An ancient
+RT   gene duplication is indicated.";
+RL   J. Mol. Biol. 199:223-227(1988).
+RN   [27]
+RP   SEQUENCE.
+RC   SPECIES=Salmon;
+RA   Yazawa M., Toda H., Yagi Y.;
+RT   "Amino acid sequence of salmon calmodulin.";
+RL   Seikagaku 57:1037-1037(1985).
+RN   [28]
+RP   SEQUENCE FROM N.A.
+RC   SPECIES=O.latipes;
+RX   MEDLINE=93012998; PubMed=1398109;
+RA   Matsuo K., Sato K., Ikeshima H., Shimoda K., Takano T.;
+RT   "Four synonymous genes encode calmodulin in the teleost fish, medaka
+RT   (Oryzias latipes): conservation of the multigene one-protein
+RT   principle.";
+RL   Gene 119:279-281(1992).
+RN   [29]
+RP   SEQUENCE OF 1-27, AND UBIQUITYLATION OF LYS-21.
+RC   SPECIES=Bovine;
+RX   MEDLINE=98380241; PubMed=9716384;
+RA   Laub M., Steppuhn J.A., Blueggel M., Immler D., Meyer H.E.,
+RA   Jennissen H.P.;
+RT   "Modulation of calmodulin function by ubiquitin-calmodulin ligase and
+RT   identification of the responsible ubiquitylation site in vertebrate
+RT   calmodulin.";
+RL   Eur. J. Biochem. 255:422-431(1998).
+RN   [30]
+RP   X-RAY CRYSTALLOGRAPHY (3.0 ANGSTROMS).
+RC   SPECIES=Rat;
+RX   MEDLINE=85188323; PubMed=3990807;
+RA   Babu Y.S., Sack J.S., Greenhough T.J., Bugg C.E., Means A.R.,
+RA   Cook W.J.;
+RT   "Three-dimensional structure of calmodulin.";
+RL   Nature 315:37-40(1985).
+RN   [31]
+RP   X-RAY CRYSTALLOGRAPHY (2.2 ANGSTROMS).
+RC   SPECIES=Rat;
+RX   MEDLINE=89110997; PubMed=3145979;
+RA   Babu Y.S., Bugg C.E., Cook W.J.;
+RT   "Structure of calmodulin refined at 2.2-A resolution.";
+RL   J. Mol. Biol. 204:191-204(1988).
+RN   [32]
+RP   X-RAY CRYSTALLOGRAPHY (2 ANGSTROMS).
+RC   SPECIES=Bovine;
+RX   MEDLINE=98104088; PubMed=9438860;
+RA   Wall M.E., Clarage J.B., Phillips G.N.;
+RT   "Motions of calmodulin characterized using both Bragg and diffuse
+RT   X-ray scattering.";
+RL   Structure 5:1599-1612(1997).
+RN   [33]
+RP   STRUCTURE BY NMR OF 76-148.
+RX   MEDLINE=94085641; PubMed=8262263;
+RA   Finn B.E., Drakenberg T., Forsen S.;
+RT   "The structure of apo-calmodulin. A 1H NMR examination of the
+RT   carboxy-terminal domain.";
+RL   FEBS Lett. 336:368-374(1993).
+RN   [34]
+RP   STRUCTURE BY NMR OF 76-148.
+RX   MEDLINE=96018615; PubMed=7552749;
+RA   Finn B.E., Evenas J., Drakenberg T., Waltho J.P., Thulin E.,
+RA   Forsen S.;
+RT   "Calcium-induced structural changes and domain autonomy in
+RT   calmodulin.";
+RL   Nat. Struct. Biol. 2:777-783(1995).
+RN   [35]
+RP   STRUCTURE BY NMR.
+RX   MEDLINE=96018613; PubMed=7552747;
+RA   Zhang M., Tanaka T., Ikura M.;
+RT   "Calcium-induced conformational transition revealed by the solution
+RT   structure of apo calmodulin.";
+RL   Nat. Struct. Biol. 2:758-767(1995).
+RN   [36]
+RP   STRUCTURE BY NMR.
+RX   MEDLINE=96018614; PubMed=7552748;
+RA   Kuboniwa H., Tjandra N., Grzesiek S., Ren H., Klee C.B., Bax A.;
+RT   "Solution structure of calcium-free calmodulin.";
+RL   Nat. Struct. Biol. 2:768-776(1995).
+RN   [37]
+RP   STRUCTURE BY NMR.
+RX   MEDLINE=98179557; PubMed=9514729;
+RA   Osawa M., Swindells M.B., Tanikawa J., Tanaka T., Mase T., Furuya T.,
+RA   Ikura M.;
+RT   "Solution structure of calmodulin-W-7 complex: the basis of diversity
+RT   in molecular recognition.";
+RL   J. Mol. Biol. 276:165-176(1998).
+RN   [38]
+RP   STRUCTURE BY NMR.
+RX   MEDLINE=99425120; PubMed=10493800;
+RA   Elshorst B., Hennig M., Foersterling H., Diener A., Maurer M.,
+RA   Schulte P., Schwalbe H., Griesinger C., Krebs J., Schmid H.,
+RA   Vorherr T., Carafoli E.;
+RT   "NMR solution structure of a complex of calmodulin with a binding
+RT   peptide of the Ca(2+) pump.";
+RL   Biochemistry 38:12320-12332(1999).
+CC   -!- FUNCTION: CALMODULIN MEDIATES THE CONTROL OF A LARGE NUMBER OF
+CC       ENZYMES BY CA(++). AMONG THE ENZYMES TO BE STIMULATED BY THE
+CC       CALMODULIN-CA(++) COMPLEX ARE A NUMBER OF PROTEIN KINASES AND
+CC       PHOSPHATASES.
+CC   -!- PTM: UBIQUITYLATION STRONGLY DECREASES THE ACTIVITY.
+CC   -!- MISCELLANEOUS: THIS PROTEIN HAS FOUR FUNCTIONAL CALCIUM-BINDING
+CC       SITES.
+CC   -!- SIMILARITY: TO OTHER EF-HAND CALCIUM BINDING PROTEINS.
+CC   --------------------------------------------------------------------------
+CC   This SWISS-PROT entry is copyright. It is produced through a collaboration
+CC   between  the Swiss Institute of Bioinformatics  and the  EMBL outstation -
+CC   the European Bioinformatics Institute.  There are no  restrictions on  its
+CC   use  by  non-profit  institutions as long  as its content  is  in  no  way
+CC   modified and this statement is not removed.  Usage  by  and for commercial
+CC   entities requires a license agreement (See http://www.isb-sib.ch/announce/
+CC   or send an email to license@isb-sib.ch).
+CC   --------------------------------------------------------------------------
+DR   EMBL; L00101; AAA48653.1; -.
+DR   EMBL; L00096; AAA48653.1; JOINED.
+DR   EMBL; L00097; AAA48653.1; JOINED.
+DR   EMBL; L00098; AAA48653.1; JOINED.
+DR   EMBL; L00099; AAA48653.1; JOINED.
+DR   EMBL; L00100; AAA48653.1; JOINED.
+DR   EMBL; M16659; AAA40864.1; -.
+DR   EMBL; M27319; AAA35635.1; -.
+DR   EMBL; U12022; AAB60644.1; -.
+DR   EMBL; U11886; AAB60644.1; JOINED.
+DR   EMBL; D45887; BAA08302.1; -.
+DR   EMBL; X13817; CAA32050.1; -.
+DR   EMBL; J04046; AAA51918.1; -.
+DR   EMBL; M19311; AAA35641.1; -.
+DR   EMBL; M19312; AAA40862.1; -.
+DR   EMBL; M17069; AAA40863.1; -.
+DR   EMBL; X13933; CAA32120.1; -.
+DR   EMBL; X13931; CAA32119.1; -.
+DR   EMBL; X13932; CAA32119.1; JOINED.
+DR   EMBL; X05117; CAA32119.1; JOINED.
+DR   EMBL; X13833; CAA32062.1; -.
+DR   EMBL; X13834; CAA32062.1; JOINED.
+DR   EMBL; X13835; CAA32062.1; JOINED.
+DR   EMBL; X14265; CAA32478.1; -.
+DR   EMBL; D83350; BAA11896.1; -.
+DR   EMBL; M36167; AAA48650.1; -.
+DR   EMBL; K01944; AAA49668.1; -.
+DR   EMBL; K01945; AAA49669.1; -.
+DR   EMBL; D10363; BAA01195.1; -.
+DR   EMBL; M19380; AAA66181.1; -.
+DR   EMBL; M19381; AAA66182.1; -.
+DR   EMBL; L31642; AAA65934.1; -.
+DR   EMBL; M27844; AAA37365.1; -.
+DR   EMBL; X61432; CAA43674.1; -.
+DR   PIR; S13159; MCHU.
+DR   PIR; JK0013; MCON.
+DR   PIR; A90719; MCBO.
+DR   PIR; A91104; MCRB.
+DR   PIR; S03206; MCRT.
+DR   PIR; A92394; MCCH.
+DR   PIR; S02690; S02690.
+DR   PIR; A60781; A60781.
+DR   PIR; JC1305; JC1305.
+DR   PDB; 2CLN; 15-OCT-94.
+DR   PDB; 3CLN; 09-JAN-89.
+DR   PDB; 1TRC; 15-OCT-91.
+DR   PDB; 1AK8; 17-SEP-97.
+DR   PDB; 1CDL; 31-AUG-94.
+DR   PDB; 1CDM; 31-AUG-94.
+DR   PDB; 1CFC; 07-DEC-95.
+DR   PDB; 1CFD; 07-DEC-95.
+DR   PDB; 1CLL; 31-OCT-93.
+DR   PDB; 1CM1; 04-MAR-98.
+DR   PDB; 1CM4; 04-MAR-98.
+DR   PDB; 1CMF; 07-DEC-95.
+DR   PDB; 1CMG; 07-DEC-95.
+DR   PDB; 1CTR; 20-DEC-94.
+DR   PDB; 1DEG; 31-MAY-94.
+DR   PDB; 1DMO; 01-AUG-96.
+DR   PDB; 1LIN; 08-MAR-96.
+DR   PDB; 1AJI; 17-SEP-97.
+DR   PDB; 1A29; 16-SEP-98.
+DR   PDB; 1MUX; 25-NOV-98.
+DR   PDB; 1CFF; 24-SEP-91.
+DR   SWISS-2DPAGE; P99014; MOUSE.
+DR   Aarhus/Ghent-2DPAGE; 9048; IEF.
+DR   MIM; 114180; -.
+DR   MIM; 114182; -.
+DR   MIM; 114183; -.
+DR   MGD; MGI:88251; Calm.
+DR   MGD; MGI:103250; Calm2.
+DR   MGD; MGI:103249; Calm3.
+DR   InterPro; IPR002048; EF-hand.
+DR   Pfam; PF00036; efhand; 4.
+DR   SMART; SM00054; EFh; 4.
+DR   PROSITE; PS00018; EF_HAND; 4.
+KW   Calcium-binding; Duplication; Methylation; Acetylation;
+KW   3D-structure.
+FT   INIT_MET      0      0
+FT   MOD_RES       1      1       ACETYLATION.
+FT   MOD_RES     115    115       METHYLATION (TRI-) (IN CHICKEN).
+FT   CA_BIND      20     31       EF-HAND 1.
+FT   CA_BIND      56     67       EF-HAND 2.
+FT   CA_BIND      93    104       EF-HAND 3.
+FT   CA_BIND     129    140       EF-HAND 4.
+FT   BINDING      21     21       UBIQUITIN (MULTI-).
+FT   CONFLICT     25     25       G -> N (IN REF. 12; AAA66182).
+FT   HELIX         5     19
+FT   TURN         21     22
+FT   STRAND       26     27
+FT   HELIX        29     37
+FT   TURN         38     40
+FT   HELIX        45     55
+FT   TURN         57     58
+FT   STRAND       63     64
+FT   HELIX        65     92
+FT   TURN         94     95
+FT   STRAND      100    100
+FT   HELIX       102    111
+FT   TURN        112    113
+FT   HELIX       118    128
+FT   STRAND      136    136
+FT   HELIX       138    146
+SQ   SEQUENCE   148 AA;  16706 MW;  464B8A287475A1CA CRC64;
+     ADQLTEEQIA EFKEAFSLFD KDGDGTITTK ELGTVMRSLG QNPTEAELQD MINEVDADGN
+     GTIDFPEFLT MMARKMKDTD SEEEIREAFR VFDKDGNGYI SAAELRHVMT NLGEKLTDEE
+     VDEMIREADI DGDGQVNYEE FVQMMTAK
+//
