@@ -1,8 +1,8 @@
-
+# $Id$
 #
-# BioPerl module for Bio::Pfam::Annotation::Comment
+# BioPerl module for Bio::Annotation::Comment
 #
-# Cared for by Ewan Birney <pfam@sanger.ac.uk>
+# Cared for by Ewan Birney <birney@ebi.ac.uk>
 #
 # Copyright Ewan Birney
 #
@@ -19,13 +19,13 @@ Bio::Annotation::Comment - A comment object, holding text
 
     $comment = Bio::Annotation::Comment->new();
     $comment->text("This is the text of this comment");
-    $annotation->add_Comment($comment);
+    $annotation->add_Annotation('comment', $comment);
 
 
 =head1 DESCRIPTION
 
 A holder for comments in annotations, just plain text. This is a very simple
-object, and justifably so.
+object, and justifiably so.
 
 =head1 CONTACT
 
@@ -68,14 +68,15 @@ sub new {
   my($class,@args) = @_;
 
   my $self = $class->SUPER::new(@args);
-  my ($text) = $self->_rearrange([qw( TEXT )], @args);
+  my ($text,$tag) = $self->_rearrange([qw(TEXT TAGNAME)], @args);
 
   defined $text && $self->text($text);
+  defined $tag && $self->tagname($tag);
 
   return $self;
 }
 
-=head2 AnnotationI implementing functions
+=head1 AnnotationI implementing functions
 
 =cut
 
@@ -116,7 +117,33 @@ sub hash_tree{
    $h->{'text'} = $self->text;
 }
 
-=head2 Specific accessors for Comments
+=head2 tagname
+
+ Title   : tagname
+ Usage   : $obj->tagname($newval)
+ Function: Get/set the tagname for this annotation value.
+
+           Setting this is optional. If set, it obviates the need to provide
+           a tag to Bio::AnnotationCollectionI when adding this object. When
+           obtaining an AnnotationI object from the collection, the collection
+           will set the value to the tag under which it was stored unless the
+           object has a tag stored already.
+ Example : 
+ Returns : value of tagname (a scalar)
+ Args    : new value (a scalar, optional)
+
+
+=cut
+
+sub tagname{
+    my ($self,$value) = @_;
+    if( defined $value) {
+	$self->{'tagname'} = $value;
+    }
+    return $self->{'tagname'};
+}
+
+=head1 Specific accessors for Comments
 
 =cut
 

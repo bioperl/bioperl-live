@@ -2,11 +2,25 @@
 #
 # BioPerl module for Bio::Annotation::OntologyTerm
 #
-# Cared for by bioperl <bioperl-l@bio.perl.org>
+# Cared for by Hilmar Lapp <hlapp at gmx.net>
 #
-# Copyright bioperl
+# Copyright Hilmar Lapp
 #
 # You may distribute this module under the same terms as perl itself
+
+# 
+# (c) Hilmar Lapp, hlapp at gmx.net, 2002.
+# (c) GNF, Genomics Institute of the Novartis Research Foundation, 2002.
+#
+# You may distribute this module under the same terms as perl itself.
+# Refer to the Perl Artistic License (see the license accompanying this
+# software package, or see http://www.perl.com/language/misc/Artistic.html)
+# for the terms under which you may use, modify, and redistribute this module.
+# 
+# THIS PACKAGE IS PROVIDED "AS IS" AND WITHOUT ANY EXPRESS OR IMPLIED
+# WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF
+# MERCHANTIBILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+#
 
 # POD documentation - main docs before the code
 
@@ -18,10 +32,24 @@ Bio::Annotation::OntologyTerm - An ontology term adapted to AnnotationI
 
    use Bio::Annotation::OntologyTerm;
    use Bio::Annotation::Collection;
+   use Bio::Ontology::Term;
 
-   my $col = new Bio::Annotation::Collection;
-   my $sv = new Bio::Annotation::OntologyTerm(-value => 'someval');   
-   $col->add_Annotation('tagname', $sv);
+   my $coll = new Bio::Annotation::Collection;
+
+   # this also implements a tag/value pair, where tag _and_ value are treated
+   # as ontology terms
+   my $annterm = new Bio::Annotation::OntologyTerm(-label => 'ABC1',
+                                                   -tagname => 'Gene Name');
+   # ontology terms can be added directly - they implicitly have a tag
+   $coll->add_Annotation($annterm);
+
+   # implementation is by composition - you can get/set the term object
+   # e.g.
+   my $term = $annterm->term(); # term is-a Bio::Ontology::TermI
+   print "ontology term ",$term->name()," (ID ",$term->identifier(),
+         "), category ",$term->category()->name(),"\n";
+   $term = Bio::Ontology::Term->new(-name => 'ABC2', -category => 'Gene Name');
+   $annterm->term($term);
 
 =head1 DESCRIPTION
 
@@ -47,11 +75,11 @@ or the web:
   bioperl-bugs@bioperl.org
   http://bio.perl.org/bioperl-bugs/
 
-=head1 AUTHOR - bioperl
+=head1 AUTHOR - Hilmar Lapp
 
 Email bioperl-l@bio.perl.org
+Email hlapp at gmx.net
 
-Describe contact details here
 
 =head1 APPENDIX
 
@@ -82,17 +110,36 @@ use Bio::Root::Root;
  Function: Instantiate a new OntologyTerm object
  Returns : Bio::Annotation::OntologyTerm object
  Args    : -term => $term to initialize the term data field [optional]
+           Most named arguments that Bio::Ontology::Term accepts will work
+           here too. -label is a synonym for -name, -tagname is a synonym for
+           -category.
 
 =cut
 
 sub new{
-   my ($class,@args) = @_;
+    my ($class,@args) = @_;
+    
+    my $self = $class->SUPER::new(@args);
+    
+    my ($term,$name,$label,$identifier,$definition,$cat,$tag) =
+	$self->_rearrange([qw(TERM
+			      NAME
+			      LABEL
+			      IDENTIFIER
+			      DEFINITION
+			      CATEGORY
+			      TAGNAME)],
+			  @args);
+    if($term) {
+	$self->term($term);
+    } else {
+	$self->name($name || $label) if $name || $label;
+	$self->identifier($identifier) if $identifier;
+	$self->definition($definition) if $definition;
+    }
+    $self->category($cat || $tag) if $cat || $tag;
 
-   my $self = $class->SUPER::new(@args);
-
-   my ($term) = $self->_rearrange([qw(TERM)], @args);
-   $self->term($term) if $term;
-   return $self;
+    return $self;
 }
 
 
@@ -139,6 +186,27 @@ sub hash_tree{
    $h->{'synonyms'} = [$self->each_synonym()];
 }
 
+
+=head2 tagname
+
+ Title   : tagname
+ Usage   : $obj->tagname($newval)
+ Function: Get/set the tagname for this annotation value.
+
+           Setting this is optional. If set, it obviates the need to provide
+           a tag to AnnotationCollection when adding this object.
+
+           This is aliased to category() here.
+ Example : 
+ Returns : value of tagname (a scalar)
+ Args    : new value (a scalar, optional)
+
+
+=cut
+
+sub tagname{
+    return shift->category(@_);
+}
 
 =head1 Methods for Bio::Ontology::TermI compliance
 

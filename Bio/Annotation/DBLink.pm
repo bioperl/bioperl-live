@@ -65,17 +65,19 @@ sub new {
 
   my $self = $class->SUPER::new(@args);
 
-  my ($database, $primary_id, $optional_id, $comment) =
+  my ($database, $primary_id, $optional_id, $comment, $tag) =
       $self->_rearrange([qw(DATABASE
 			    PRIMARY_ID
 			    OPTIONAL_ID
 			    COMMENT
+			    TAGNAME
 			    )], @args);
   
   $database    && $self->database($database);
   $primary_id  && $self->primary_id($primary_id);
   $optional_id && $self->optional_id($optional_id);
   $comment     && $self->comment($comment);
+  $tag         && $self->tagname($tag);
   
   return $self;
 }
@@ -132,7 +134,33 @@ sub hash_tree{
    return $h;
 }
 
-=head2 Specific accessors for DBLinks
+=head2 tagname
+
+ Title   : tagname
+ Usage   : $obj->tagname($newval)
+ Function: Get/set the tagname for this annotation value.
+
+           Setting this is optional. If set, it obviates the need to provide
+           a tag to Bio::AnnotationCollectionI when adding this object. When
+           obtaining an AnnotationI object from the collection, the collection
+           will set the value to the tag under which it was stored unless the
+           object has a tag stored already.
+ Example : 
+ Returns : value of tagname (a scalar)
+ Args    : new value (a scalar, optional)
+
+
+=cut
+
+sub tagname{
+    my ($self,$value) = @_;
+    if( defined $value) {
+	$self->{'tagname'} = $value;
+    }
+    return $self->{'tagname'};
+}
+
+=head1 Specific accessors for DBLinks
 
 =cut
 

@@ -1,8 +1,9 @@
+# $Id$
 #
 # BioPerl module for Bio::SeqFeature::Primer
 #
 # Cared for by Chad Matsalla
-#chad
+#
 # Copyright Chad Matsalla
 #
 # You may distribute this module under the same terms as perl itself
@@ -59,11 +60,7 @@ use vars qw(@ISA);
 use strict;
 
 use Bio::Root::Root;
-use Bio::SeqFeatureI;
 use Bio::SeqFeature::Generic;
-     # I am really not sure which of these I need so I included them at this time
-use Bio::Annotation;
-use Bio::Location::Simple;
 use Bio::Seq;
 use Dumpvalue qw(dumpValue);
 
@@ -161,6 +158,8 @@ sub seq {
      primer3 construct. 
 
 =cut
+
+#'
 
 sub all_tags {
      my $self = shift;
@@ -314,13 +313,6 @@ sub display_id {
      if ($newid) { $self->seq()->display_id($newid); }
      return $self->seq()->display_id();
 }
-
-
-
-
-
-
-
 
 
 1;

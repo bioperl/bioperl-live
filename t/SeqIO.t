@@ -1,4 +1,5 @@
 # -*-Perl-*- mode (to keep my emacs happy)
+# $Id$
 
 use strict;
 use vars qw($DEBUG $TESTCOUNT);

@@ -133,19 +133,35 @@ sub get_all_annotation_keys{
 
  Title   : get_Annotations
  Usage   : my @annotations = $collection->get_Annotations('key')
- Function: Retrieves all the Bio::AnnotationI objects for a specific key
+ Function: Retrieves all the Bio::AnnotationI objects for a specific key.
+
+           If no key is given, returns all annotation objects.
+
+           The returned objects will have their tagname() attribute set to
+           the key under which they were attached, unless the tagname was
+           already set.
+
  Returns : list of Bio::AnnotationI - empty if no objects stored for a key
- Args    : string which is key for annotations
+ Args    : string which is key for annotations (optional)
 
 =cut
 
 sub get_Annotations{
    my ($self,$key) = @_;
 
-   if( !defined $self->{'_annotation'}->{$key} ) {
-       return ();
+   if($key) {
+       if(! exists($self->{'_annotation'}->{$key})) {
+	   return ();
+       } else {
+	   return map { $_->tagname($key) if ! $_->tagname(); $_; } 
+	          @{$self->{'_annotation'}->{$key}};
+       }
    } else {
-       return @{$self->{'_annotation'}->{$key}};
+       my @anns = ();
+       foreach my $key ($self->get_all_annotation_keys()) {
+	   push(@anns, $self->get_Annotations($key));
+       }
+       return @anns;
    }
 }
 
@@ -175,8 +191,16 @@ sub get_num_of_annotations{
 
  Title   : add_Annotation
  Usage   : $self->add_Annotation('reference',$object);
+           $self->add_Annotation($object,'Bio::MyInterface::DiseaseI');
            $self->add_Annotation('disease',$object,'Bio::MyInterface::DiseaseI');
- Function: Adds an annotation for a specific 
+ Function: Adds an annotation for a specific key.
+
+           If the key is omitted, the object to be added must provide a value
+           via its tagname().
+
+           If the archetype is provided, this and future objects added under
+           that tag have to comply with the archetype and rejected otherwise.
+
  Returns : none
  Args    : annotation key ('disease', 'dblink', ...)
            object to store (must be Bio::AnnotationI compliant)
@@ -188,24 +212,27 @@ sub get_num_of_annotations{
 sub add_Annotation{
    my ($self,$key,$object,$archytype) = @_;
    
+   # if there's no key we use the tagname() as key
+   if(ref($key) && $key->isa("Bio::AnnotationI") &&
+      (! ($object && ref($object)))) {
+       $archytype = $object if $object;
+       $object = $key;
+       $key = $object->tagname();
+       $key = $key->name() if $key && ref($key); # OntologyTermI
+       $self->throw("Annotation object must have a tagname if key omitted")
+	   unless $key;
+   }
+
    if( !defined $object ) {
        $self->throw("Must have at least key and object in add_Annotation");
    }
 
    if( !ref $object ) {
-       $self->throw("Must add an object. Use Bio::Annotation::Comment, SimpleValue or OntologyTerm for simple text additions");
+       $self->throw("Must add an object. Use Bio::Annotation::{Comment,SimpleValue,OntologyTerm} for simple text additions");
    }
 
    if( !$object->isa("Bio::AnnotationI") ) {
        $self->throw("object must be AnnotationI compliant, otherwise we wont add it!");
-   }
-
-   # if there's no key, and the object is an Ontology::TermI, we use the
-   # category as key
-   if(ref($key) && $key->isa("Bio::Ontology::TermI") &&
-      (! ($object && $object->isa("Bio::Ontology::TermI")))) {
-       $key = $object->category();
-       $self->throw("term must have a category if key omitted") unless $key;
    }
 
    # ok, now we are ready! If we don't have an archytype, set it

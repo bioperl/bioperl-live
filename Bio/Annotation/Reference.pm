@@ -80,14 +80,15 @@ sub new{
 
     my $self = $class->SUPER::new(@args);
 
-    my ($start,$end,$authors,
-	$location,$title,$medline) = $self->_rearrange([qw(START
-							   END
-							   AUTHORS
-							   LOCATION
-							   TITLE
-							   MEDLINE
-							   )],@args);
+    my ($start,$end,$authors,$location,$title,$medline,$tag) =
+	$self->_rearrange([qw(START
+			      END
+			      AUTHORS
+			      LOCATION
+			      TITLE
+			      MEDLINE
+			      TAGNAME
+			      )],@args);
 
     defined $start    && $self->start($start);
     defined $end      && $self->end($end);
@@ -95,12 +96,13 @@ sub new{
     defined $location && $self->location($location);
     defined $title    && $self->title($title);
     defined $medline  && $self->medline($medline);
+    defined $tag      && $self->tagname($tag);
 
     return $self;
 }
 
 
-=head2 AnnotationI implementing functions
+=head1 AnnotationI implementing functions
 
 =cut
 
@@ -154,7 +156,34 @@ sub hash_tree{
    return $h;
 }
 
-=head2 Specific accessors for References
+=head2 tagname
+
+ Title   : tagname
+ Usage   : $obj->tagname($newval)
+ Function: Get/set the tagname for this annotation value.
+
+           Setting this is optional. If set, it obviates the need to provide
+           a tag to Bio::AnnotationCollectionI when adding this object. When
+           obtaining an AnnotationI object from the collection, the collection
+           will set the value to the tag under which it was stored unless the
+           object has a tag stored already.
+ Example : 
+ Returns : value of tagname (a scalar)
+ Args    : new value (a scalar, optional)
+
+
+=cut
+
+sub tagname{
+    my ($self,$value) = @_;
+    if( defined $value) {
+	$self->{'tagname'} = $value;
+    }
+    return $self->{'tagname'};
+}
+
+
+=head1 Specific accessors for References
 
 =cut
 

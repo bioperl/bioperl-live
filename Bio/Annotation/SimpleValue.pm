@@ -82,6 +82,7 @@ use Bio::Root::Root;
  Function: Instantiate a new SimpleValue object
  Returns : Bio::Annotation::SimpleValue object
  Args    : -value => $value to initialize the object data field [optional]
+           -tagname => $tag to initialize the tagname [optional]
 
 =cut
 
@@ -90,8 +91,11 @@ sub new{
 
    my $self = $class->SUPER::new(@args);
 
-   my ($value) = $self->_rearrange([qw(VALUE)], @args);
+   my ($value,$tag) = $self->_rearrange([qw(VALUE TAGNAME)], @args);
+
    defined $value  && $self->value($value);
+   defined $tag    && $self->tagname($tag);
+
    return $self;
 }
 
@@ -136,6 +140,29 @@ sub hash_tree{
    $h->{'value'} = $self->value;
 }
 
+=head2 tagname
+
+ Title   : tagname
+ Usage   : $obj->tagname($newval)
+ Function: Get/set the tagname for this annotation value.
+
+           Setting this is optional. If set, it obviates the need to provide
+           a tag to AnnotationCollection when adding this object.
+ Example : 
+ Returns : value of tagname (a scalar)
+ Args    : new value (a scalar, optional)
+
+
+=cut
+
+sub tagname{
+    my ($self,$value) = @_;
+    if( defined $value) {
+	$self->{'tagname'} = $value;
+    }
+    return $self->{'tagname'};
+}
+
 =head1 Specific accessors for SimpleValue
 
 =cut
@@ -160,5 +187,27 @@ sub value{
     return $self->{'value'};
 }
 
+=head2 tagname
+
+ Title   : tagname
+ Usage   : $obj->tagname($newval)
+ Function: Get/set the tagname for this annotation value.
+
+           Setting this is optional. If set, it obviates the need to provide
+           a tag to AnnotationCollection when adding this object.
+ Example : 
+ Returns : value of tagname (a scalar)
+ Args    : new value (a scalar, optional)
+
+
+=cut
+
+sub tagname{
+    my ($self,$value) = @_;
+    if( defined $value) {
+	$self->{'tagname'} = $value;
+    }
+    return $self->{'tagname'};
+}
 
 1;
