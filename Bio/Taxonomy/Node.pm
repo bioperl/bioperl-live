@@ -16,6 +16,26 @@ Bio::Taxonomy::Node - A node in a represented taxonomy
 
 =head1 SYNOPSIS
 
+  use Bio::Taxonomy::Node;
+  # typically you will get a Node from a Bio::DB::Taxonomy object
+  # but here is how you initialize one
+  my $node = new Bio::Taxonomy::Node(-name      => $name,
+                                     -object_id => $oid,
+                                     -parent_id => $pid,
+                                     -rank_id   => $rank,
+                                     -division  => $div,
+                                     -dbh       => $dbh);
+
+  my $dbh = new Bio::DB::Taxonomy(-source   => 'flatfile',
+                                  -directory=> '/tmp',
+                                  -nodesfile=> '/path/to/nodes.dmp',
+                                  -namesfile=> '/path/to/names.dmp');
+  my $hum_node = $dbh->get_Taxonomy_Node(-name => 'Homo sapiens');
+  my $hum_node2= $dbh->get_Taxonomy_Node(-taxonid => '9606');
+
+  print "rank is ", $hum_node->rank, "\n";
+  print "classification is ", join(" ", $hum_node->classification),"\n"; 
+  print "division is ", $node->division, "\n";
 
 =head1 DESCRIPTION
 
