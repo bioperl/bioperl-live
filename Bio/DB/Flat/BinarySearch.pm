@@ -35,8 +35,8 @@ retrieve sequences which is more efficient for large datasets.
 Patterns have to be entered to define where the keys are to be indexed
 and also where the start of each record.  E.g. for fasta
 
-    my $start_pattern   = "^>";
-    my $primary_pattern = "^>(\\S+)";
+    my $start_pattern   = '^>';
+    my $primary_pattern = '^>(\S+)';
 
 So the start of a record is a line starting with a E<gt> and the
 primary key is all characters up to the first space after the E<gt>
@@ -60,7 +60,10 @@ The index can now be created using
 
 The index is now ready to use.  For large sequence files the perl way
 of indexing takes a *long* time and a *huge* amount of memory.  For
-indexing things like dbEST I recommend using the C indexer.
+indexing things like dbEST I recommend using the DB_File indexer, BDB.
+
+The formats currently supported by this module are fasta, Swissprot,
+and EMBL.
 
 =head2 Creating indices with secondary keys
 
@@ -92,13 +95,13 @@ id (1433_CAEEL) as the secondary id.  The index is created as follows
 
     my %secondary_patterns;
 
-    my $start_pattern   = "^ID   (\\S+)";
-    my $primary_pattern = "^AC   (\\S+)\;";
+    my $start_pattern   = '^ID   (\S+)';
+    my $primary_pattern = '^AC   (\S+)\;';
 
-    $secondary_patterns{"ID"} = "^ID   (\\S+)";
+    $secondary_patterns{"ID"} = '^ID   (\S+)';
 
     my $index = new Bio::DB::Flat::BinarySearch(
-                -directory          => ".",
+                -directory          => $index_directory,
 		-dbname             => "ppp",
 		-write_flag         => 1,
                 -verbose            => 1,
@@ -109,8 +112,8 @@ id (1433_CAEEL) as the secondary id.  The index is created as follows
 
     $index->build_index($seqfile);
 
-Of course having secondary indices makes indexing slower and more 
-of a memory hog.
+Of course having secondary indices makes indexing slower and use more
+memory.
 
 =head2 Index reading
 
@@ -147,9 +150,12 @@ To access the secondary indices the secondary namespace needs to be known
 
     $index->secondary_namespaces("ID");
 
-Then the following calls can be used
+Then the following call can be used
 
     my $seq   = $index->get_Seq_by_secondary('ID','1433_CAEEL');
+
+These calls are not yet implemented
+
     my $fh    = $index->get_stream_by_secondary('ID','1433_CAEEL');
     my $entry = $index->get_entry_by_secondary('ID','1433_CAEEL');
 
@@ -237,7 +243,8 @@ my @formats = ['FASTA','SWISSPROT','EMBL'];
  Function: create a new Bio::DB::Flat::BinarySearch object
  Returns : new Bio::DB::Flat::BinarySearch
  Args    : -directory          Root directory for index files
-           -dbname             Name of subdirectory containing indices for named database
+           -dbname             Name of subdirectory containing indices 
+                               for named database
            -write_flag         Allow building index
            -primary_pattern    Regexp defining the primary id
            -secondary_patterns A hash ref containing the secondary
