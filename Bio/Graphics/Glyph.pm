@@ -28,7 +28,7 @@ sub new {
   my $class = shift;
   my %arg = @_;
 
-  my $feature = $arg{-feature} or die "No feature";
+  my $feature = $arg{-feature} or die "No feature $class";
   my $factory = $arg{-factory} || $class->default_factory;
   my $level   = $arg{-level} || 0;
   my $flip    = $arg{-flip};
@@ -906,23 +906,24 @@ sub filled_arrow {
 	    or ($x2 - $x1 < 3);
 
   my $fg = $self->fgcolor;
+  my $img_class = $self->_image_class;
+  my $pkg       = $img_class . '::Polygon';
+  my $poly = $pkg->new();
   if ($orientation >= 0) {
-    $gd->line($x1,$y1,$x2-$indent,$y1,$fg);
-    $gd->line($x2-$indent,$y1,$x2,($y2+$y1)/2,$fg);
-    $gd->line($x2,($y2+$y1)/2,$x2-$indent,$y2,$fg);
-    $gd->line($x2-$indent,$y2,$x1,$y2,$fg);
-    $gd->line($x1,$y2,$x1,$y1,$fg);
-    my $left = $self->panel->left > $x1 ? $self->panel->left : $x1;
-    $gd->fillToBorder($left+1,($y1+$y2)/2,$fg,$self->bgcolor);
+    $poly->addPt($x1,$y1);
+    $poly->addPt($x2-$indent,$y1);
+    $poly->addPt($x2,($y2+$y1)/2);
+    $poly->addPt($x2-$indent,$y2);
+    $poly->addPt($x1,$y2);
   } else {
-    $gd->line($x1,($y2+$y1)/2,$x1+$indent,$y1,$fg);
-    $gd->line($x1+$indent,$y1,$x2,$y1,$fg);
-    $gd->line($x2,$y2,$x1+$indent,$y2,$fg);
-    $gd->line($x1+$indent,$y2,$x1,($y1+$y2)/2,$fg);
-    $gd->line($x2,$y1,$x2,$y2,$fg);
-    my $right = $self->panel->right < $x2 ? $self->panel->right : $x2;
-    $gd->fillToBorder($right-1,($y1+$y2)/2,$fg,$self->bgcolor);
+    $poly->addPt($x2,$y1);
+    $poly->addPt($x2,$y2);
+    $poly->addPt($x1+$indent,$y2);
+    $poly->addPt($x1,($y2+$y1)/2);
+    $poly->addPt($x1+$indent,$y1);
   }
+  $gd->filledPolygon($poly,$self->bgcolor);
+  $gd->polygon($poly,$fg);
 }
 
 sub linewidth {
