@@ -14,7 +14,7 @@ BEGIN {
 		use lib 't';
 	}
 	use Test;
-	$NUMTESTS  = 59;
+	$NUMTESTS  = 60;
 	plan tests => $NUMTESTS;
 	eval {	require Class::AutoClass;
          	require Clone;
