@@ -1437,11 +1437,6 @@ sub strand {
 #-----------
     my( $self, $seqType ) = @_;
 
-    # Hack to deal with the fact that SimilarityPair calls strand()
-    # which will lead to an error because parsing hasn't yet occurred.
-    # See SimilarityPair::new().
-    return if $self->{'_initializing'};
-
     $seqType  ||= (wantarray ? 'list' : 'query');
     $seqType = 'sbjct' if $seqType eq 'hit';
 
