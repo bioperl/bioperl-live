@@ -95,8 +95,9 @@ use strict;
 use Bio::Root::Root;
 use Bio::Root::IO;
 use Bio::SeqAnalysisParserI;
+use Bio::AnalysisResultI;
 
-@ISA = qw(Bio::Root::Root Bio::SeqAnalysisParserI Bio::Root::IO);
+@ISA = qw(Bio::Root::RootI Bio::SeqAnalysisParserI Bio::AnalysisResultI Bio::Root::IO);
 
 sub new {
     my ($class, @args) = @_;
