@@ -387,7 +387,9 @@ sub option {
     if (defined(my $value  = $map->{$option_name})) {
       my $feature = $glyph->feature;
       return $value unless ref $value eq 'CODE';
-      return unless $feature->isa('Bio::SeqFeatureI');
+      # 23 July 2004 - commented this out because it was preventing whole segments from
+      # being passed to track callbacks.  This might cause problems elsewhere.
+      # return unless $feature->isa('Bio::SeqFeatureI');
       my $val = eval { $value->($feature,$option_name,$partno,$total_parts,$glyph)};
       warn $@ if $@;
       return defined $val && $val eq '*default*' ? $GENERIC_OPTIONS{$option_name} : $val;
