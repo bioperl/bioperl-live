@@ -94,7 +94,7 @@ if ($DEBUG) {
 $swq = Bio::Seq::SeqWithQuality->new(-seq=>'ATCGTACGTACGTC',
 				-qual=>"");
 
-my $out_scf = Bio::SeqIO->new('-file' => ">write_scf_no_qualities.scf",
+$out_scf = Bio::SeqIO->new('-file' => ">write_scf_no_qualities.scf",
 			      '-format' => 'csmscf');
 $out_scf->write_scf(	-SeqWithQuality	=>	$swq,
 			-MACH		=>	'CSM sequence-o-matic 5000',
