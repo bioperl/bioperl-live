@@ -10,6 +10,9 @@
 # _history
 # October 20, 2000
 # POD documentation - main docs before the code
+#
+# Added to get a simple_align object for a psiblast run with the -m 6 flag /AE
+# 
 
 =head1 NAME
 
@@ -35,6 +38,25 @@ of a PSIBLAST report
        if ($is_old ){next HIT;}
    #  do something with new hit...
    }
+=head2 ALIGNMENTS
+
+
+  # This assumed that you have $db pointing to a database, $out to an output file
+  # $slxdir to a directory and $psiout    
+  # note the alignments can only be obtained if the flag "-m 6" is run.
+  # It might also be necessary to use the flag -v to get all alignments
+  # 
+    my @psiparams = ('database' => $db , 'output' => $out, 'j' => 3, 'm' => 6,
+		     'h' => 1.e-3 , 'F' => 'T' , 'Q' => $psiout ); 
+    my $factory = Bio::Tools::Run::StandAloneBlast->new(@psiparams);
+    my $report = $factory->blastpgp($seq);
+    my $total_iterations = $report->number_of_iterations();
+    my $last_iteration = $report->round($total_iterations);
+    my $align=$last_iteration->Align;
+    my $slxfile=$slxdir.$id.".slx";
+    my $slx = Bio::AlignIO->new('-format' => 'selex','-file' => ">".$slxfile );
+    $slx->write_aln($align);
+
 
 =head1 DESCRIPTION
 
@@ -42,21 +64,18 @@ See the documentation for BPpsilite.pm for a description of the
 Iteration.pm module.
 
 =head1 AUTHORS - Peter Schattner
-
 Email: schattner@alum.mit.edu
-
-=head1 ACKNOWLEDGEMENTS
 
 Based on work of:
 Ian Korf (ikorf@sapiens.wustl.edu, http://sapiens.wustl.edu/~ikorf), 
 Lorenz Pollak (lorenz@ist.org, bioperl port)
 
-=head1 COPYRIGHT
+=head1 ACKNOWLEDGEMENTS
 
+=head1 COPYRIGHT
 BPlite.pm is copyright (C) 1999 by Ian Korf. 
 
 =head1 DISCLAIMER
-
 This software is provided "as is" without warranty of any kind.
 
 =cut
@@ -154,16 +173,15 @@ sub  oldhits  {shift->{'OLDHITS'}}
  Usage    : $sbjct = $obj->nextSbjct();
  Function : Method of iterating through all the Sbjct retrieved
             from parsing the report 
- Example  : while ( my $sbjct = $obj->nextSbjct ) {}
+#Example  : while ( my $sbjct = $obj->nextSbjct ) {}
  Returns  : next Sbjct object or undef if finished
  Args     :
-
 =cut
 
 sub nextSbjct {
   my ($self) = @_;
   $self->_fastForward or return undef;
-
+  
   #######################
   # get all sbjct lines #
   #######################
@@ -173,7 +191,18 @@ sub nextSbjct {
     if    ($_ !~ /\w/)            {next}
     elsif ($_ =~ /Strand HSP/)    {next} # WU-BLAST non-data
     elsif ($_ =~ /^\s{0,2}Score/) {$self->{'LASTLINE'} = $_; last}
-	elsif ($_ =~ /^Parameters|^\s+Database:|^\s+Posted date:/) {$self->{'LASTLINE'} = $_; last}
+    elsif ($_ =~ /^(\d+) .* \d+$/) {   # This is not correct at all
+       $self->{'LASTLINE'} = $_;       # 1: HSP does not work for -m 6 flag
+       $def=$1;                        # 2: length/name are incorrect     
+       my $length=undef;	       # 3: Names are repeated many times.
+       my $sbjct = new Bio::Tools::BPlite::Sbjct('-name'=>$def,
+					    '-length'=>$length,
+                                            '-fh'=>$self->{'FH'}, 
+					    '-lastline'=>$self->{'LASTLINE'}, 
+					    '-parent'=>$self);
+       return $sbjct;
+      } # m-6
+    elsif ($_ =~ /^Parameters|^\s+Database:|^\s+Posted date:/) {$self->{'LASTLINE'} = $_; last}
     else                          {$def .= $_}
   }
   $def =~ s/\s+/ /g;
@@ -194,6 +223,91 @@ sub nextSbjct {
   return $sbjct;
 }
 
+
+# This is added by /AE
+
+=head2 Align
+
+ Title    : Align
+ Usage    : $SimpleAlign = $obj->Align();
+ Function : Method to obtain a simpleAlign object from psiblast
+ Example  : $SimpleAlign = $obj->Align();
+ Returns  : SimpleAlign object or undef if not found.
+ BUG      : Only works if psiblast has been run with m 6 flag
+ Args     :
+=cut
+
+
+sub Align {
+  use Bio::SimpleAlign;
+  my ($self) = @_;
+  $self->_fastForward or return undef;
+  return undef unless $self->{'LASTLINE'} =~ /^QUERY/;  # If psiblast not run correctly
+  my $FH = $self->{'FH'};  
+  my $lastline = $self->{'LASTLINE'};  
+  my (%sequence,%first,%last,$num);
+  if ( $lastline =~ /^QUERY\s+(\d*)\s*([-\w]+)\s*(\d*)\s*$/){
+     my $name='QUERY';
+     my $start=$1; 
+     my $seq=$2; 
+     my $stop=$3; 
+     $seq =~ s/-/\./g; 
+     $start =~ s/ //g; 
+     $stop =~ s/ //g; 
+     $sequence{$name} .= $seq; 
+     if ($first{$name} eq ''){$first{$name}=$start;} 
+     if ($stop ne ''){$last{$name}=$stop;} 
+#     print "FOUND:\t$seq\t$start\t$stop\n"; 
+     $num=0;
+  } 
+  while(<$FH>){
+    chomp;
+    if ( $_ =~ /^QUERY\s+(\d*)\s*([-\w]+)\s*(\d*)\s*$/){
+       my $name='QUERY';
+       my $start=$1; 
+       my $seq=$2; 
+       my $stop=$3; 
+       $seq =~ s/-/\./g; 
+       $start =~ s/ //g; 
+       $stop =~ s/ //g; 
+       $sequence{$name} .= $seq; 
+       if ($first{$name} eq ''){$first{$name}=$start;} 
+       if ($stop ne ''){$last{$name}=$stop;} 
+       $num=0;
+     }elsif ( $_ =~ /^(\d{1,5})\s+(\d*)\s*([-\w]+)\s*(\d*)\s*$/ ){
+       my $name=$1.".".$num;
+       my $start=$2;
+       my $seq=$3;
+       my $stop=$4;
+       $seq =~ s/-/\./g;
+       $start =~ s/ //g;
+       $stop =~ s/ //g;
+       $sequence{$name} .= $seq;
+       if ($first{$name} eq ''){$first{$name}=$start;}
+       if ($stop ne ''){$last{$name}=$stop;}
+       $num++;
+     } 
+  } 
+  my $align = new Bio::SimpleAlign();
+  my @keys=sort keys(%sequence);
+  foreach my $name (@keys){
+    my $nse=$name."/".$first{$name}."-".$last{$name};
+#    print "$nse\t",$sequence{$name},"\n";
+    my $seqobj=Bio::LocatableSeq->new( -seq => $sequence{$name},
+                                    -id  => $name,
+                                    -name  => $nse,
+                                    -start  => $first{$name},
+                                    -end  => $last{$name}
+				   );
+
+    $align->add_seq($seqobj);
+  }
+
+  return $align;
+}
+
+# Start of internal subroutines.
+
 sub _parseHeader {
   my ($self) = @_;
   my (@old_hits, @new_hits);
@@ -208,7 +322,8 @@ sub _parseHeader {
     	else { push (@old_hits, $id);}
     }
     elsif ($_ =~ /^Sequences not found previously/)  {$newhits_true = 1 ;}
-    elsif ($_ =~ /^>/)
+# This is changed for "-m 6" option /AE
+    elsif ($_ =~ /^>/ || $_ =~ /^QUERY/)
         {$self->{'LASTLINE'} = $_;
 	 $self->{'OLDHITS'} = \@old_hits;
 	 $self->{'NEWHITS'} = \@new_hits;
@@ -226,16 +341,18 @@ sub _parseHeader {
 sub _fastForward {
   my ($self) = @_;
   return 0 if $self->{'REPORT_DONE'}; # empty report
-  return 1 if $self->{'LASTLINE'} =~ /^>/;
+  return 1 if $self->{'LASTLINE'} =~ /^>/ ;
+  return 1 if $self->{'LASTLINE'} =~ /^QUERY|^\d+ .* \d+$/; # Changed to also handle "-m 6" /AE
 
   my $FH = $self->{'FH'};
   while(<$FH>) {
+#    print "FASTFORWARD",$_,"\n";
     if ($_ =~ /^>|^Parameters|^\s+Database:/) {
       $self->{'LASTLINE'} = $_;
       return 1;
     }
   }
-  $self->warn("Possible error while parsing BLAST report!");
+  $self->warn("Possible error (2) while parsing BLAST report!");
 }
 
 1;

@@ -112,6 +112,7 @@ sub next_primary_seq {
   my ($id,$fulldesc) = $top =~ /^\s*(\S+)\s*(.*)/
     or $self->throw("Can't parse fasta header");
   $id =~ s/^>//;
+  if ($id eq '') {$id=$fulldesc;} # FIX incase no space between > and name \AE
   $sequence =~ s/\s//g; # Remove whitespace
 
   # for empty sequences we need to know the mol.type

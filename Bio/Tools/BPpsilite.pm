@@ -334,6 +334,8 @@ sub _preprocess {
 	    open (FILEHANDLE, ">$currentfile") || 
 		$self->throw("cannot open filehandle to write to file $currentfile");
 	    $oldround = $round;
+	}elsif ($currentline =~ /CONVERGED/){ # This is a fix for psiblast parsing with -m 6 /AE
+	  $round--;
 	}
 	print FILEHANDLE $currentline ;
 

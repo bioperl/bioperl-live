@@ -411,7 +411,7 @@ sub _fastForward {
 	}
     }
 
-    $self->warn("Possible error while parsing BLAST report!");
+    $self->warn("Possible error (1) while parsing BLAST report!");
 }
 
 1;
