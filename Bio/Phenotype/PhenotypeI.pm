@@ -114,19 +114,8 @@ methods. Internal methods are usually preceded with a _
 
 package Bio::Phenotype::PhenotypeI;
 use vars qw( @ISA );
-use strict;
-use Bio::Root::Root;
-use Bio::Species;
-use Bio::Variation::VariantI;
-use Bio::Annotation::DBLink;
-use Bio::Annotation::Reference;
-use Bio::Phenotype::Measure;
-use Bio::Phenotype::Correlate;
-use Bio::Map::CytoPosition;
-use Bio::Range;
-
-
-@ISA = qw( Bio::Root::Root );
+use Bio::Root::RootI;
+@ISA = qw( Bio::Root::RootI );
 
 
 
