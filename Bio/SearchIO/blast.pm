@@ -474,7 +474,7 @@ sub next_result{
 		defined($_) && $i < 3; 
 		$i++ ){
 	       chomp;	       
-	       if( /^((Query|Sbjct):\s+(\d+)\s+)(\S+)\s+(\d+)/ ) {
+	       if( /^((Query|Sbjct):\s+(\d+)\s*)(\S+)\s+(\d+)/ ) {
 		   $data{$2} = $4;
 		   $len = length($1);
 		   $self->{"\_$2"}->{'begin'} = $3 unless $self->{"_$2"}->{'begin'};
