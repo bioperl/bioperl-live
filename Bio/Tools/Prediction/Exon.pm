@@ -80,6 +80,8 @@ sub new {
 
     my ($primary) = $self->_rearrange([qw(PRIMARY)],@args);
 
+    $primary = 'predicted_exon' unless $primary;
+    $self->primary_tag($primary);
     return $self;
 }
 
