@@ -70,6 +70,7 @@ Contents
    Q3.7: Can I get domain number from hmmpfam or hmmsearch output? E.g.
 		   SH2_5: domain 2 of 2, from 349 to 432: score 104.4, E =
 	 1.9e-26
+   Q3.8: Does SearchIO parse the HTML output that BLAST creates?
 
 4. Utilities
 
@@ -603,6 +604,34 @@ Contents
 		       print "domain $domainnum of $total,\n";
 		       $domainnum++;
 		     }
+
+
+   Q3.8: Does SearchIO parse the HTML output that BLAST creates?
+
+      A: 
+	 Yes, with a twist. You can modify SearchIO's _readline() method
+	 such that it reads in the HTML and strips it of tags using the
+	 HTML::Strip module:
+
+	 
+	 use Bio::SearchIO;
+	 use HTML::Strip;
+	 
+	 my $hs = HTML::Strip->new();
+	 
+	 # replace the blast parser's _readline method with one that
+	 # auto-strips HTML:
+	 package Bio::SearchIO::blast; 
+	 
+	 sub Bio::SearchIO::blast::_readline {
+	     my ($self, @args) = @_;
+	     my $line = $self->SUPER::_readline(@args);
+	     return unless defined $line;
+	     return $hs->parse($line);
+	 }
+	 
+	 my $in = new Bio::SearchIO(-format => 'blast',
+				    -file   => $file);
 
 
 ---------------------------------------------------------------------------
