@@ -144,7 +144,8 @@ sub from_string{
 	    #
 	    # Note: The following code will /not/ work with nested
 	    # joins (you want to have grammar-based parsing for that).
-	    $loc = Bio::Location::Split->new(-splittype => $op);
+	    $loc = Bio::Location::Split->new(-verbose => $self->verbose,
+					     -splittype => $op);
 	    foreach my $substr (split(/,/, $oparg)) {
 		$loc->add_sub_Location($self->from_string($substr, 1));
 	    }

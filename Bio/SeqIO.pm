@@ -502,7 +502,8 @@ sub alphabet {
 	   # creating a dummy sequence object
 	   eval {
 	       require Bio::PrimarySeq;
-	       my $seq = Bio::PrimarySeq->new('-alphabet' => $value);
+	       my $seq = Bio::PrimarySeq->new('-verbose' => $self->verbose,
+					      '-alphabet' => $value);
 		
 	   };
 	   if ($@) {
