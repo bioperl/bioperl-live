@@ -603,10 +603,39 @@ sub all_tags{
 
 }
 
+=head2 has_tag
+
+ Title   : has_tag
+ Usage   : Function just for complying with SeqFeatureI
+ Function:
+ Example :
+ Returns : FALSE
+ Args    :
 
 
+=cut
+
+sub has_tag {
+   my ($self,@args) = @_;
+   return 0;
+
+}
+
+=head2 each_tag_value
+
+ Title   : each_tag_value
+ Usage   : Function just for complying with SeqFeatureI
+ Function:
+ Example :
+ Returns : undef
+ Args    :
 
 
+=cut
 
+sub each_tag_value {
+   my ($self,@args) = @_;
+   return undef;
+}
 
-
+1;
