@@ -4,12 +4,12 @@ use strict;
 
 my $DEBUG = $ENV{'BIOPERLDEBUG'} || 0;
 BEGIN { 
-    eval { require Test; };
-    if( $@ ) { 
-	use lib 't';
-    }
-    use Test;
-    plan tests => 98;
+	eval { require Test; };
+	if( $@ ) { 
+		use lib 't';
+	}
+	use Test;
+	plan tests => 103;
 }
 
 use Bio::SimpleAlign;
@@ -336,7 +336,7 @@ if( $^O ne 'darwin' || $] > 5.006 ) {
 				   );
     $status = $strout->write_aln($aln);
     ok $status, 1, " failed po output test";
-    
+
     ok $str = new Bio::AlignIO(
 			       '-file'   => Bio::Root::IO->catfile("t", "data", "testaln.po"),
 			       '-format' => 'po',
@@ -347,7 +347,16 @@ if( $^O ne 'darwin' || $] > 5.006 ) {
     ok $aln2->no_sequences, $aln->no_sequences;
     ok $aln2->length, $aln->length;
 } else { 
-    for ( 1..14 ) { 
-	skip(1,"skipping due to bug in perl 5.6.0 that comes with OS X 10.2");
-    }
+	for ( 1..14 ) { 
+		skip(1,"skipping due to bug in perl 5.6.0 that comes with OS X 10.2");
+	}
 }
+
+# meme tests, using a file also used by t/psm.t
+ok $str = new Bio::AlignIO(
+					-file => Bio::Root::IO->catfile("t", "data", "meme.dat"),
+					-format => 'meme' );
+ok defined($str) && ref($str) && $str->isa('Bio::AlignIO');
+ok $aln = $str->next_aln();
+ok $aln->length,25;
+ok $aln->no_sequences,4;
