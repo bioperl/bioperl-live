@@ -8,7 +8,7 @@ BEGIN {
 	use lib 't';
     }
     use Test;
-    plan tests => 81;
+    plan tests => 83;
 }
 
 use Bio::Seq;
@@ -100,7 +100,8 @@ $ast = Bio::SeqIO->new( '-format' => 'GenBank' ,
 			'-file' => Bio::Root::IO->catfile("t","data","roa1.genbank"));
 $ast->verbose($verbosity);
 $as = $ast->next_seq();
-ok defined $as->seq;
+ok $as->molecule, 'mRNA';
+ok $as->alphabet, 'dna';
 
 $mf = Bio::SeqIO::MultiFile->new( '-format' => 'Fasta' , 
 				  '-files' => 
