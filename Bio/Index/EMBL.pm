@@ -2,7 +2,7 @@
 #
 # BioPerl module for Bio::Index::Abstract
 #
-# Cared for by James Gilbert <jgrg@sanger.ac.uk>
+# Cared for by Ewan Birney <birney@sanger.ac.uk>
 #
 # You may distribute this module under the same terms as perl itself
 
@@ -10,24 +10,25 @@
 
 =head1 NAME
 
-Bio::Index::Fasta - Interface for indexing (multiple) fasta files
+Bio::Index::EMBL - Interface for indexing (multiple) EMBL/Swissprot
+.dat files (ie flat file embl/swissprot format).
 
 =head1 SYNOPSIS
 
     # Complete code for making an index for several
-    # fasta files
-    use Bio::Index::Fasta;
+    # EMBL files
+    use Bio::Index::EMBL;
 
     my $Index_File_Name = shift;
-    my $inx = Bio::Index::Fasta->new($Index_File_Name, 'WRITE');
+    my $inx = Bio::Index::EMBL->new($Index_File_Name, 'WRITE');
     $inx->make_index(@ARGV);
 
     # Print out several sequences present in the index
     # in gcg format
-    use Bio::Index::Fasta;
+    use Bio::Index::EMBL;
 
     my $Index_File_Name = shift;
-    my $inx = Bio::Index::Fasta->new($Index_File_Name);
+    my $inx = Bio::Index::EMBL->new($Index_File_Name);
 
     foreach my $id (@ARGV) {
         my $seq = $inx->fetch($id); # Returns Bio::Seq object
@@ -38,8 +39,9 @@ Bio::Index::Fasta - Interface for indexing (multiple) fasta files
 =head1 DESCRIPTION
 
 Inherits functions for managing dbm files from Bio::Index::Abstract.pm,
-and provides the basic funtionallity for indexing fasta files, and
-retrieving the sequence from them.
+and provides the basic funtionallity for indexing EMBL files, and
+retrieving the sequence from them. Heavily snaffled from James Gilbert's
+Fasta system.
 
 =head1 FEED_BACK
 
@@ -62,9 +64,9 @@ email or the web:
   bioperl-bugs@bio.perl.org
   http://bio.perl.org/bioperl-bugs/
 
-=head1 AUTHOR - James Gilbert
+=head1 AUTHOR - Ewan Birney
 
-Email - jgrg@sanger.ac.uk
+Email - birney@sanger.ac.uk
 
 =head1 APPENDIX
 
@@ -76,7 +78,7 @@ The rest of the documentation details each of the object methods. Internal metho
 # Let the code begin...
 
 
-package Bio::Index::Fasta;
+package Bio::Index::EMBL;
 
 use vars qw($VERSION @ISA @EXPORT_OK);
 use strict;
@@ -88,11 +90,11 @@ use Bio::Seq;
 @EXPORT_OK = qw();
 
 sub _type_stamp {
-    return '__FASTA__'; # What kind of index are we?
+    return '__EMBL_FLAT__'; # What kind of index are we?
 }
 
 sub _version {
-    return 0.2;
+    return 0.1;
 }
 $VERSION = _version();
 
@@ -103,7 +105,7 @@ $VERSION = _version();
   Title   : _initialize
   Usage   : $index->_initialize
   Function: Calls $index->SUPER::_initialize(), and then adds
-            the default id parser for fasta files.
+            the default id parser for EMBL files.
   Example : 
   Returns : 
   Args    : 
@@ -114,7 +116,6 @@ sub _initialize {
     my($self, $index_file, $write_flag) = @_;
     
     $self->SUPER::_initialize($index_file, $write_flag);
-    $self->id_parser( \&default_id_parser );
 }
 
 
@@ -122,7 +123,7 @@ sub _initialize {
 
   Title   : _index_file
   Usage   : $index->_index_file( $file_name, $i )
-  Function: Specialist function to index FASTA format files.
+  Function: Specialist function to index EMBL format files.
             Is provided with a filename and an integer
             by make_index in its SUPER class.
   Example : 
@@ -142,102 +143,46 @@ sub _index_file {
         $end,   # Offset from start of file of the end
                 # of the last found record.
         $id,    # ID of last found record.
+	$acc,   # accession of last record. Also put into the index
         );
 
     $begin = 0;
     $end   = 0;
 
-    open FASTA, $file or $self->throw("Can't open file for read : $file");
+    open EMBL, $file or $self->throw("Can't open file for read : $file");
 
     # Main indexing loop
-    while (<FASTA>) {
-        if (/^>/) {
-            my $new_begin = tell(FASTA) - length( $_ );
-            $end = $new_begin - 1;
+    $id = $acc = undef;
+    while (<EMBL>) {
+	if( /^\/\// ) {
+	    $end = tell(EMBL);
+	    if( ! defined $id ) {
+		$self->throw("Got to a end of entry line for an EMBL flat file with no parsed ID. Considering this a problem!");
+		next;
+	    }
+	    if( ! defined $acc ) {
+		$self->warn("For id [$id] in embl flat file, got no accession number. Storing id index anyway");
+	    }
 
-            $self->add_record($id, $i, $begin, $end) if $id;
-
-            $begin = $new_begin;
-            ($id) = $self->record_id( $_ );
-        }
+            $self->add_record($id, $i, $begin, $end);
+	    if( $acc ne $id ) {
+		$self->add_record($acc, $i, $begin, $end);
+	    }
+	} elsif (/^ID\s+(\S+)/) {
+	    $id = $1;
+	    # not sure if I like this. Assummes tell is in bytes.
+	    # we could tell before each line and save it.
+            $begin = tell(EMBL) - length( $_ ); 
+	    
+	} elsif (/^AC\s+(\S+?);?/) { # ignore ? if there.
+	    $acc =$1;
+	} else {
+	    # do nothing
+	}
     }
-    # Don't forget to add the last record
-    $end = tell(FASTA);
-    $self->add_record($id, $i, $begin, $end) if $id;
 
-    close FASTA;
+    close EMBL;
     return 1;
-}
-
-
-# Should there be a prototype for this method in Index::Abstract.pm?
-=head2 record_id
-
-  Title   : record_id
-  Usage   : $index->record_id( STRING );
-  Function: Parses the ID for an entry from the string
-            supplied, using the code in $index->{'_id_parser'}
-  Example : 
-  Returns : scalar or exception
-  Args    : STRING
-
-
-=cut
-
-sub record_id {
-    my ($self, $line) = @_;
-
-    if (my $id = $self->{'_id_parser'}->( $line )) {
-        return $id;
-    } else {
-        $self->throw("Can't parse ID from line : $line");
-    }
-}
-
-
-=head2 id_parser
-
-  Title   : id_parser
-  Usage   : $index->id_parser( CODE )
-  Function: Stores or returns the code used by record_id
-            to parse the ID for record from a string.  Useful
-            for (for instance) specifying a different parser
-            for different flavours of FASTA file.
-  Example : $index->id_parser( \&my_id_parser )
-  Returns : ref to CODE if called without arguments
-  Args    : CODE
-
-=cut
-
-sub id_parser {
-    my( $self, $code ) = @_;
-    
-    if ($code) {
-        $self->{'_id_parser'} = $code;
-    } else {
-        return $self->{'_id_parser'};
-    }
-}
-
-
-
-=head2 default_id_parser
-
-  Title   : default_id_parser
-  Usage   : $id = default_id_parser( $header )
-  Function: The default Fasta ID parser for Fasta.pm
-            Returns $1 from applying the regexp /^>\s*(\S+)/
-            to $header.
-  Example : 
-  Returns : ID string
-  Args    : a fasta header line string
-
-=cut
-
-sub default_id_parser {
-    my $line = shift;
-    $line =~ /^>\s*(\S+)/;
-    return $1;
 }
 
 
@@ -254,7 +199,7 @@ sub default_id_parser {
 
 sub fetch {
     my( $self, $id ) = @_;
-    
+    my $desc;
     my $db = $self->db();
     if (my $rec = $db->{ $id }) {
         my( @record );
@@ -264,28 +209,36 @@ sub fetch {
         # Get the (possibly cached) filehandle
         my $fh = $self->_file_handle( $file );
 
-        # Accumulate lines in @record until beyond end
+        # move to start
         seek($fh, $begin, 0);
-        while (defined(my $line = <$fh>)) {
-            push(@record, $line);
-            last if tell($fh) > $end;
+
+
+	#get id from file, and then loop to SQ line
+        while (<$fh>) {
+	    #print STDERR "Got $_";
+	    /^SQ\s/ && last;
+	    /^ID\s+(\S+)/ && do { $id = $1; };
+	    /^DE\s+(.*?)\s+$/ && do { $desc .= $1; }; 
+	    # accession numbers???
         }
-        
+
+        while (<$fh>) {
+	    /^\/\// && last;
+	    #print STDERR "Got $_";
+	    s/[\W0-9]//g;
+            push(@record, $_);
+            last if tell($fh) > $end;
+	}
+
         $self->throw("Can't fetch sequence for record : $id")
             unless @record;
         
-        # Parse record
-        my $firstLine = shift @record;
-        my ($name, $desc) = $firstLine =~ /^>\s*(\S+)\s*(.*?)\s*$/;
-        chomp( @record );
-        
         # Return a shiny Bio::Seq object
-        return Bio::Seq->new( -ID   => $name,
+        return Bio::Seq->new( -ID   => $id,
                               -DESC => $desc,
                               -SEQ  => uc(join('', @record)) );
     } else {
-	$self->throw("Unable to find a record for $id in Fasta index");
-	return;
+	$self->throw("Unable to find a record for $id in EMBL flat file index");
     }
 }
 

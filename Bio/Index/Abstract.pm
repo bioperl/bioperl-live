@@ -48,9 +48,9 @@ email or the web:
   bioperl-bugs@bio.perl.org
   http://bio.perl.org/bioperl-bugs/
 
-=head1 AUTHOR - Ewan Birney
+=head1 AUTHOR - Ewan Birney, James Gilbert
 
-Email - birney@sanger.ac.uk
+Email - birney@sanger.ac.uk, jgrg@sanger.ac.uk
 
 =head1 APPENDIX
 
@@ -163,7 +163,7 @@ sub db {
   Function: Called by _initialize() to create or open an existing
             index dbm file for adding and retieving records.  Write
             access is only given if explicitly asked for by passing 
-            the string 'WIRTE' as the second argument to the new()
+            the string 'WRITE' as the second argument to the new()
             function (which calls initialize).  The type of dbm file
             opened, DB_File or SDBM_File, depends upon wether the
             global variable $USE_DBM_TYPE is set to 'DB_File' or
@@ -301,7 +301,7 @@ sub _type_and_version {
 
 =head2 
 
-  Title   : 
+  Title   : _check_file_sizes
   Usage   : $index->_check_file_sizes()
   Function: Verifies that the files listed in the database
             are the same size as when the database was built,
@@ -529,3 +529,8 @@ sub DESTROY {
 }
 
 1;
+
+
+
+
+
