@@ -874,7 +874,8 @@ my ($self,$seq)=@_;
 return undef unless ($self->{logA});
 $self->throw ("I can calculate the score only for sequence which are exactly my size\n") unless (length($seq)==@{$self->{logA}});
 my @seq=split(//,$seq);
-my ($score,$i);
+my $score;
+my $i=0;
 foreach my $pos (@seq) {
   my $tv='log' . $pos;
   $score+=$self->{$tv}->[$i];
