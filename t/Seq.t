@@ -52,8 +52,8 @@ ok $seq->id(), 'something',  "saw ".$seq->id;
 ok $seq->accession_number, 'accnum', "saw ". $seq->accession_number ;
 ok $seq->subseq(5, 9),  'tggcg', "subseq(5,9) was ". $seq->subseq(5,9);
 
-# check IdentifiableI and DescribableI interfaces
-ok $seq->isa('Bio::IdentifiableI');
+# check GloballyIdentifiableI and DescribableI interfaces
+ok $seq->isa('Bio::GloballyIdentifiableI');
 ok $seq->isa('Bio::DescribableI');
 # make sure all methods are implemented
 ok $seq->authority("bioperl.org"), "bioperl.org";

@@ -43,7 +43,7 @@ ok ( defined ($unigene = $str->next_cluster()));
 # check interface implementations to be sure
 ok $unigene->isa("Bio::Cluster::UniGeneI");
 ok $unigene->isa("Bio::ClusterI");
-ok $unigene->isa("Bio::IdentifiableI");
+ok $unigene->isa("Bio::GloballyIdentifiableI");
 ok $unigene->isa("Bio::DescribableI");
 
 ok($unigene->unigene_id, 'Hs.2');

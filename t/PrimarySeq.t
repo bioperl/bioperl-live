@@ -39,8 +39,8 @@ ok $seq->is_circular(), undef;
 ok $seq->is_circular(1);
 ok $seq->is_circular(0), 0;
 
-# check IdentifiableI and DescribableI interfaces
-ok $seq->isa('Bio::IdentifiableI');
+# check GloballyIdentifiableI and DescribableI interfaces
+ok $seq->isa('Bio::GloballyIdentifiableI');
 ok $seq->isa('Bio::DescribableI');
 # make sure all methods are implemented
 ok $seq->authority("bioperl.org"), "bioperl.org";
