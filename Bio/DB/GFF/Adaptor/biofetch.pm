@@ -188,7 +188,8 @@ sub _load_embl {
 			ref    => $acc,
 			class  => $refclass,
 			source => $source,
-			method => 'origin',
+#			method => 'origin',
+			method => 'region',
 			start  => 1,
 			stop   => $seq->length,
 			score  => undef,
@@ -211,8 +212,17 @@ sub _load_embl {
     my @segments = map {[$_->start,$_->end,$_->seq_id]}
       $location->can('sub_Location') ? $location->sub_Location : $location;
 
-    my $type     =   $feat->primary_tag eq 'CDS'   ? 'coding'
-                   : $feat->primary_tag;
+# this changed CDS to coding, but that is the wrong thing to do, since
+# CDS is in SOFA and coding is not
+#    my $type     =   $feat->primary_tag eq 'CDS'   ? 'coding'
+#                   : $feat->primary_tag;
+    my $type     =    $feat->primary_tag eq 'source' ? 'region'
+                    : $feat->primary_tag;
+    $type        =    $type eq 'misc_RNA' ? 'RNA'
+                    : $type;
+    if ($type eq 'misc_feature' and $name->[1] =~ /similar/i) {
+      $type = 'computed_feature_by_similarity';
+    }
     my $parttype =  $feat->primary_tag eq 'mRNA'   ? 'exon' : $feat->primary_tag;
 
     if ($type eq 'gene') {
@@ -220,7 +230,7 @@ sub _load_embl {
       $mRNA_version       = 0;
     } elsif ($type eq 'mRNA') {
       $name->[1] = sprintf("%s.t%02d",$name->[1],++$transcript_version);
-    } elsif ($type eq 'coding') {
+    } elsif ($type eq 'CDS') {
       $name->[1] = sprintf("%s.c%02d",$name->[1],++$mRNA_version);
     }
 

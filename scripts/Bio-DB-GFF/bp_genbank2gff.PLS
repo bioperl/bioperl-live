@@ -2,7 +2,7 @@
 
 use lib '.';
 
-# $Id: bp_genbank2gff.PLS,v 1.9 2003-09-12 02:51:39 lstein Exp $
+# $Id: bp_genbank2gff.PLS,v 1.10 2003-11-14 19:25:44 scain Exp $
 use strict;
 use Bio::DB::GFF;
 use Getopt::Long;
@@ -79,7 +79,7 @@ sub load_gff_line {
   my @attributes;
   if (my $id = $options->{gname}) {
     my $parent = $id;
-    $parent    =~ s/\..\d+$//                  if     $options->{method} =~ /^(mRNA|transcript|coding)$/;
+    $parent    =~ s/\..\d+$//                  if     $options->{method} =~ /^(mRNA|transcript|coding|CDS)$/;
     push @attributes,"Parent=".escape($parent) if     $options->{method} =~ /^(exon|CDS|transcript|mRNA|coding)$/;
     push @attributes,"ID=".escape($id)         unless $options->{method} =~ /^(exon|CDS)$/;
   }
