@@ -97,7 +97,8 @@ use Bio::Tools::CodonTable;
  Function: Read only method that returns the amino acid sequence
            as a string of three letter codes. moltype has to be
            'protein'. Output follows the IUPAC standard plus
-           'Ter' for terminator.
+           'Ter' for terminator. A noncoded aminoacid selenocystein 
+           is recognized (Sel, U).
  Returns : A scalar
  Args    : character used for stop, optional, defaults to '*'
            character used for unknown, optional, defaults to 'X'
@@ -110,7 +111,8 @@ my  %onecode =
      'Ile' => 'I', 'Lys' => 'K', 'Leu' => 'L', 'Met' => 'M',
      'Asn' => 'N', 'Pro' => 'P', 'Gln' => 'Q', 'Arg' => 'R',
      'Ser' => 'S', 'Thr' => 'T', 'Val' => 'V', 'Trp' => 'W',
-     'Xaa' => 'X', 'Tyr' => 'Y', 'Glx' => 'Z', 'Ter' => '*'
+     'Xaa' => 'X', 'Tyr' => 'Y', 'Glx' => 'Z', 'Ter' => '*',
+     'Sel' => 'U'
      );
 
 my  %threecode = 
@@ -119,7 +121,8 @@ my  %threecode =
      'I' => 'Ile', 'K' => 'Lys', 'L' => 'Leu', 'M' => 'Met', 
      'N' => 'Asn', 'P' => 'Pro', 'Q' => 'Gln', 'R' => 'Arg', 
      'S' => 'Ser', 'T' => 'Thr', 'V' => 'Val', 'W' => 'Trp', 
-     'Y' => 'Tyr', 'Z' => 'Glx', 'X' => 'Xaa', '*' => 'Ter'
+     'Y' => 'Tyr', 'Z' => 'Glx', 'X' => 'Xaa', '*' => 'Ter',
+     'U' => 'Sel'
      );       
 
 =head2 seq3
@@ -132,7 +135,8 @@ my  %threecode =
            string of three letter codes. moltype has to be
            'protein'. Output follows the IUPAC standard plus 'Ter' for
            terminator. Any unknown character, including the default
-           unknown character 'X', is changed into 'Xaa'
+           unknown character 'X', is changed into 'Xaa'. A noncoded
+           aminoacid selenocystein is recognized (Sel, U).
 
  Returns : A scalar
  Args    : character used for stop in the protein seqence optional, defaults to '*'

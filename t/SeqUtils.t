@@ -12,13 +12,13 @@ use Bio::SeqUtils;
 ok 1;
 
 my ($seq, $util, $ascii, $ascii_aa, $ascii3);
-#selenocystein?
-#                     !    !     !     
+
+#                     !    !          
 $ascii =    'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-$ascii_aa = 'ABCDEFGHIXKLMNXPQRSTXVWXYZ';
+$ascii_aa = 'ABCDEFGHIXKLMNXPQRSTUVWXYZ';
 
 $ascii3 = 
-    'AlaAsxCysAspGluPheGlyHisIleXaaLysLeuMetAsnXaaProGlnArgSerThrXaaValTrpXaaTyrGlx';
+    'AlaAsxCysAspGluPheGlyHisIleXaaLysLeuMetAsnXaaProGlnArgSerThrSelValTrpXaaTyrGlx';
 
 $seq = Bio::PrimarySeq->new('-seq'=> $ascii,
 			       '-moltype'=>'protein', 
@@ -32,9 +32,9 @@ ok $util->seq3($seq), $ascii3;
 ok (Bio::SeqUtils->seq3($seq), $ascii3); 
 ok (Bio::SeqUtils->seq3($seq, undef, ','), 
     'Ala,Asx,Cys,Asp,Glu,Phe,Gly,His,Ile,Xaa,Lys,'.
-    'Leu,Met,Asn,Xaa,Pro,Gln,Arg,Ser,Thr,Xaa,Val,Trp,Xaa,Tyr,Glx');
+    'Leu,Met,Asn,Xaa,Pro,Gln,Arg,Ser,Thr,Sel,Val,Trp,Xaa,Tyr,Glx');
 
-$seq->seq('asd-KUUK-');
+$seq->seq('asd-KJJK-');
 ok (Bio::SeqUtils->seq3($seq, '-', ':'), 
     'Ala:Ser:Asp:Ter:Lys:Xaa:Xaa:Lys:Ter');
 
