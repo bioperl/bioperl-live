@@ -239,7 +239,7 @@ sub new {
 	$self->warn("Did not defined the number of identical matches in the HSP assuming 0");
 	$identical = 0;
     } 
-    if( defined $conserved ) {
+    if( ! defined $conserved ) {
 	$self->warn("Did not defined the number of conserved matches in the HSP assuming == identical ($identical)") if( $algo =~ /(FAST|BLAST)N/i);
 	$conserved = $identical;
     } 

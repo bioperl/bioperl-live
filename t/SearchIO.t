@@ -89,9 +89,9 @@ if( ! $SKIPXML ) {
     ok($hsp->frac_identical('query'), 0.15);
     ok($hsp->query->frac_identical, 0.15);
 
-    ok(sprintf("%.4f",$hsp->frac_conserved('total')),0.3773);
-    ok(sprintf("%.4f",$hsp->frac_conserved('hit')),0.3968);
-    ok($hsp->frac_conserved('query'),0.15);
+    ok(sprintf("%.4f",$hsp->frac_conserved('total')),0.5245);
+    ok(sprintf("%.4f",$hsp->frac_conserved('hit')),0.5516);
+    ok(sprintf("%.4f",$hsp->frac_conserved('query')),0.2085);
     ok($hsp->gaps('total'), 26);
     ok($hsp->length('hsp'), 326);
     ok($hsp->query_string, 'LRVCGVANSKALLTNVHGLNLENWQEELAQAKEPF-NLGRLIRLVKEYHLLN----PVIVDCTSSQAVAD-QYADFLREGFHVVTPNKKANTSSMDYYHQLRYAAEKSRRKFLYDTNVGAGLPVIENLQNLLNAGDELMKFSGILSGSLSYIFGKLDE-GMSFSEATTLAREMGYTEPDPRDDLSGMDVARKLLILARET-GRELELADIEIEPVLPAEFNAEGDVAAFMANLSQLDDLFAARVAKARDEGKVLRYVGNIDEDGVCRVKIAEVDGNDPLFKVKNGENALAFYSHYYQPLPLVLRGYGAGNDVTAAGVFADLLRTLS');
