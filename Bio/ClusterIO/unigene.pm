@@ -89,7 +89,7 @@ my %line_is = (
 		PROTSIM			=>	q/PROTSIM\s+(\S.*)/,
 		SCOUNT			=>	q/SCOUNT\s+(\S.*)/,
 		SEQUENCE		=>	q/SEQUENCE\s+(\S.*)/,
-		ACC			=>	q/ACC=(\w+)\.?(\d*)/,
+		ACC			=>	q/ACC=(\w+)(\.\d+)?/,
 		NID			=>	q/NID=\s*(\S.*)/,
 		PID			=>	q/PID=\s*(\S.*)/,
 		CLONE			=>	q/CLONE=\s*(\S.*)/,
@@ -197,36 +197,37 @@ sub next_cluster {
 			my $seq = {};
 			# add unigene id to each seq
 			#$seq->{unigene_id} = $unigene{ID}; 
-			my @items = split /;/,$1;
+			my @items = split(/;/, $1);
 			foreach (@items) {
-				if (/$line_is{ACC}/gcx) {
-					$seq->{acc} = $1;
-					$seq->{version} = $2 if defined $2;
-				}
-				elsif (/$line_is{NID}/gcx) {
-					$seq->{nid} = $1;
-				}
-				elsif (/$line_is{PID}/gcx) {
-					$seq->{pid} = $1;
-				}
-				elsif (/$line_is{CLONE}/gcx) {
-					$seq->{clone} = $1;
-				}
-				elsif (/$line_is{END}/gcx) {
-					$seq->{end} = $1;
-				}
-				elsif (/$line_is{LID}/gcx) {
-					$seq->{lid} = $1;
-				}
-				elsif (/$line_is{MGC}/gcx) {
-					$seq->{mgc} = $1;
-				}
-				elsif (/$line_is{SEQTYPE}/gcx) {
-					$seq->{seqtype} = $1;
-				}
-				elsif (/$line_is{TRACE}/gcx) {
-					$seq->{trace} = $1;
-				}								
+                            if (/$line_is{ACC}/gcx) {
+                                $seq->{acc} = $1;
+                                # remove leading dot if version pattern matched
+                                $seq->{version} = substr($2,1) if defined $2;
+                            }
+                            elsif (/$line_is{NID}/gcx) {
+                                $seq->{nid} = $1;
+                            }
+                            elsif (/$line_is{PID}/gcx) {
+                                $seq->{pid} = $1;
+                            }
+                            elsif (/$line_is{CLONE}/gcx) {
+                                $seq->{clone} = $1;
+                            }
+                            elsif (/$line_is{END}/gcx) {
+                                $seq->{end} = $1;
+                            }
+                            elsif (/$line_is{LID}/gcx) {
+                                $seq->{lid} = $1;
+                            }
+                            elsif (/$line_is{MGC}/gcx) {
+                                $seq->{mgc} = $1;
+                            }
+                            elsif (/$line_is{SEQTYPE}/gcx) {
+                                $seq->{seqtype} = $1;
+                            }
+                            elsif (/$line_is{TRACE}/gcx) {
+                                $seq->{trace} = $1;
+                            }
 			}
 			push @sequence, $seq;			
 		}

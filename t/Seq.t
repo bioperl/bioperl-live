@@ -14,7 +14,7 @@ BEGIN {
     }
     use Test;
 
-    plan tests => 53;
+    plan tests => 57;
 }
 
 use Bio::Seq;
@@ -189,3 +189,13 @@ ok ($richseq->division, 'Fungi');
 ok ($richseq->keywords, 'JUNK1; JUNK2');
 $richseq->seq_version('2');
 ok ($richseq->seq_version, 2);
+
+# tests for subtle misbehaviors
+$seq = Bio::Seq->new(-primary_id => 'blah', -accession_number => 'foo');
+ok ($seq->accession_number, $seq->primary_seq->accession_number);
+ok ($seq->primary_id, $seq->primary_seq->primary_id);
+$seq->accession_number('blurb');
+$seq->primary_id('bar');
+ok ($seq->accession_number, $seq->primary_seq->accession_number);
+ok ($seq->primary_id, $seq->primary_seq->primary_id);
+
