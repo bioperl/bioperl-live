@@ -537,7 +537,6 @@ sub _parse_flat_file {
 	if ( index($line,'$') != 0 ) {
 	  #adding @reltype@ syntax
 	  if ( $line !~ /^\s*([<%]|\@\w+?\@)/ ) {
-warn $line;
 		$self->throw( "format error (file ".$self->file.")" );
 	  }
 
@@ -646,7 +645,10 @@ sub _get_db_cross_refs {
         }
         $ref =~ s/\s+$//;
         $ref =~ s/^\s+//;
-        push( @refs, $ref );
+
+        $ref = $self->unescape( $ref );
+
+        push( @refs, $ref ) if defined $ref;
     }
     return @refs;
     
@@ -756,14 +758,14 @@ sub _next_term {
             $termid = $1;
         }
         elsif ( $line =~ /^\s*definition:\s*(.+)/ ) {
-            $def = $1;   
+            $def = $self->unescape($1);   
 	    $isobsolete = 1 if index($def,"OBSOLETE") == 0;
         }
         elsif ( $line =~ /^\s*definition_reference:\s*(.+)/ ) {
-            push( @def_refs, $1 );  
+            push( @def_refs, $self->unescape($1) );  
         }
         elsif ( $line =~ /^\s*comment:\s*(.+)/ ) {
-            $comment = $1;  
+            $comment = $self->unescape($1);  
         }
     }
     $self->_done( TRUE ) unless $line; # we'll come back until done

@@ -285,4 +285,14 @@ sub _map_format {
     return $mod;
 }
 
+sub unescape {
+  my( $self, $ref ) = @_;
+  $ref =~ s/&lt\\;/\</g;
+  $ref =~ s/&gt\\;/\>/g;
+  $ref =~ s/&pct\\;/\%/g;
+  $ref =~ s/\\n/\n/g;
+  $ref =~ s/\\t/\t/g;
+  return $ref;
+}
+
 1;
