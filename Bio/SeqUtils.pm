@@ -29,6 +29,13 @@ Bio::SeqUtils - Additional methods for PrimarySeq objects
     # translate a sequence in all six frames
     @seqs = Bio::SeqUtils->translate_6frames($seq);
 
+    # inplace editing of the sequence
+    Bio::SeqUtils->mutate($seq,
+                          Bio::LiveSeq::Mutation->new(-seq => 'c',
+                                                      -pos => 3
+                                                     ));
+
+
 =head1 DESCRIPTION
 
 This class is a holder of methods that work on Bio::PrimarySeqI-
@@ -49,6 +56,8 @@ sequences coded in three letter IUPAC amino acid codes.
 The next two methods, translate_3frames() and translate_6frames(), wrap
 around the standard translate method to give back an array of three
 forward or all six frame translations.
+
+The last method mutates the sequence string.
 
 =head1 FEEDBACK
 
@@ -320,14 +329,16 @@ sub valid_aa{
 =head2 mutate
 
  Title   : mutate
- Usage   : my @aa = $table->valid_aa
+ Usage   : Bio::SeqUtils->mutate($seq,$mutation1, $mutation2);
  Function: 
 
-           Does inplace editing of the sequence. The second argument
-           can be a Bio::LiveSeq::Mutation object or an array of
-           them. The mutations are applied sequentially checking only
-           that their position is within thecurrent sequence.
-           Insertions are inserted before the given position.
+           Inplace editing of the sequence.
+
+           The second argument can be a Bio::LiveSeq::Mutation object
+           or an array of them. The mutations are applied sequentially
+           checking only that their position is within the current
+           sequence.  Insertions are inserted before the given
+           position.
 
  Returns : boolean
  Args    : sequence object
