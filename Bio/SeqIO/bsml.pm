@@ -26,26 +26,26 @@
 
 =head1 NAME
 
-Bio::SeqIO::bsml - BSML sequence input/output stream
+ Bio::SeqIO::bsml - BSML sequence input/output stream
 
 =head1 SYNOPSIS
 
-It is probably best not to use this object directly, but
-rather go through the SeqIO handler system. To read a BSML file:
+ It is probably best not to use this object directly, but rather go
+ through the SeqIO handler system. To read a BSML file:
 
-    $stream = Bio::SeqIO->new(-file => $filename, -format => 'bsml');
+    $stream = Bio::SeqIO->new( -file => $filename, -format => 'bsml');
 
     while ( my $bioSeqObj = $stream->next_seq() ) {
 	# do something with $bioSeqObj
     }
 
-To write a Seq object to the current file handle in BSML XML format:
+ To write a Seq object to the current file handle in BSML XML format:
 
-    $stream->write_seq($seqObj);
+    $stream->write_seq( -seq => $seqObj);
 
-If instead you would like a XML::DOM object containing the BSML, use:
+ If instead you would like a XML::DOM object containing the BSML, use:
 
-    my $newXmlObject = $stream->to_bsml($seqObj);
+    my $newXmlObject = $stream->to_bsml( -seq => $seqObj);
 
 =head1 DEPENDENCIES
 
@@ -55,24 +55,31 @@ If instead you would like a XML::DOM object containing the BSML, use:
 
 =head1 DESCRIPTION
 
-This object can transform Bio::Seq objects to and from BSML (XML)
-flatfiles.
+ This object can transform Bio::Seq objects to and from BSML (XML)
+ flatfiles.
+
+=head2 NOTE:
+
+ 2/1/02 - I have changed the API to more closely match argument
+ passing used by other BioPerl methods ( -tag => value ). Internal
+ methods are using the same API, but you should not be calling those
+ anyway...
 
 =head1 FEEDBACK
 
 =head2 Mailing Lists
 
-User feedback is an integral part of the evolution of this
-and other Bioperl modules. Send your comments and suggestions preferably
- to one of the Bioperl mailing lists.
-Your participation is much appreciated.
+ User feedback is an integral part of the evolution of this and other
+ Bioperl modules. Send your comments and suggestions preferably to one
+ of the Bioperl mailing lists.  Your participation is much
+ appreciated.
 
   bioperl-l@bioperl.org                  - General discussion
   http://www.bioperl.org/MailList.shtml  - About the mailing lists
 
 =head2 Reporting Bugs
 
-Report bugs to the Bioperl bug tracking system to help us keep track
+ Report bugs to the Bioperl bug tracking system to help us keep track
  the bugs and their resolution.
  Bug reports can be submitted via email or the web:
 
@@ -81,9 +88,9 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 
 =head2 Things Still to Do
 
- * Should work with Annotation::Collection.pm version 1.3. This will be
-   my last commit that uses the old Annotation method calls - the next
-   version will utilize the new tag/value system.
+ * The module now uses the new Collection.pm system. However,
+   Annotations associated with a Feature object still seem to use the
+   old system, so parsing with the old methods are included..
 
  * Generate Seq objects with no sequence data but an assigned
    length. This appears to be an issue with Bio::Seq. It is possible
@@ -93,9 +100,15 @@ Report bugs to the Bioperl bug tracking system to help us keep track
  * Support <Seq-data-import>. Do not know how commonly this is used.
 
  * Some features are awaiting implementation in later versions of
-   BSML. These include: Nested feature support; Complex feature (ie
-   joins); Unambiguity in strand designation (ie -1,0,1, not just a
-   'complement' flag)
+   BSML. These include: 
+
+       * Nested feature support
+
+       * Complex feature (ie joins)
+
+       * Unambiguity in strand (ie -1,0,1, not just  'complement' )
+
+       * More friendly dblink structures
 
  * Location.pm (or RangeI::union?) appears to have a bug when 'expand'
    is used.
@@ -171,8 +184,8 @@ sub next_seq {
     
     # Set the molecule type
     if (my $val = $xmlSeq->getAttribute( "molecule" )) {
-	my %mol = ('dna' => 'dna', 'rna' => 'rna', 'aa' => 'protein');
-	$bioSeq->molecule($mol{ $val});
+	my %mol = ('dna' => 'DNA', 'rna' => 'RNA', 'aa' => 'protein');
+	$bioSeq->molecule($mol{ lc($val) });
     }
     
     # Set the accession number
@@ -213,11 +226,11 @@ sub next_seq {
 		 'sub_species' => 'y', );
     my %seqMap = (
 		  'add_date' => [ 'date' ],
-		  keywords => [ 'keyword', ],
+		  'keywords' => [ 'keyword', ],
 		  'seq_version' => [ 'version' ],
-		  division => [ 'division' ],
+		  'division' => [ 'division' ],
 		  'add_secondary_accession' => ['accession'],
-		  pid => ['pid'],
+		  'pid' => ['pid'],
 		  'primary_id' => [ 'primary.id', 'primary_id' ],
 		  );
     my $floppies = &GETFLOPPIES($xmlSeq);
@@ -276,23 +289,21 @@ sub next_seq {
 	}
 	if ($name =~ /comment/) {
 	    my $com = Bio::Annotation::Comment->new('-text' => $content);
-	    $bioSeq->annotation->add_Comment($com);
+	  #  $bioSeq->annotation->add_Comment($com);
+	    $bioSeq->annotation->add_Annotation('comment', $com);
 	    next;
 	}
-	# Ok, we have no idea what this attribute is. Dump to description...
-	push @seqDesc, [$name,$content];
+	# Description line - collect all descriptions for later assembly
+	if ($name =~ /descr/) {
+	    push @seqDesc, $content;
+	    next;
+	}
+	# Ok, we have no idea what this attribute is. Dump to SimpleValue
+	my $simp = Bio::Annotation::SimpleValue->new( -value => $content);
+	$bioSeq->annotation->add_Annotation($name, $simp);
     }
     unless ($#seqDesc < 0) {
-	my $val = $seqDesc[0][1];
-	if ($#seqDesc > 0) {
-	    # There was more than one description-type field
-	    my @joined = ();
-	    foreach my $part (@seqDesc) {
-		push @joined, $part->[0] . $nvtoken . $part->[1];
-	    }
-	    $val = join ", ", @joined;
-	}
-	$bioSeq->desc($val);
+	$bioSeq->desc( join "; ", @seqDesc);
     }
 
 #>>>>  This should be modified so that any IDREF associated with the
@@ -340,7 +351,8 @@ sub next_seq {
 		    $value ||= $content if ($name =~ /$match/i);
 		}
 		if ($value ne "") {
-		    $reference->$method($value);
+		    my $str = '$reference->' . $method . "($value)";
+		    eval($str);
 		    next;
 		}
 	    }
@@ -437,80 +449,81 @@ sub STRIP {
 =head2 to_bsml
 
  Title   : to_bsml
- Usage   : my $domDoc = $obj->to_bsml($seqref, $argsRef)
+ Usage   : my $domDoc = $obj->to_bsml(@args)
  Function: Generates an XML structure for one or more Bio::Seq objects.
            If $seqref is an array ref, the XML tree generated will include
            all the sequences in the array.
  Returns : A reference to the XML DOM::Document object generated / modified
- Args    : 0 A Bio::Seq reference, or an array reference of many of them
-           1 Optional argument hash reference, with recognized keys:
+ Args    : Argument array in form of -key => val. Recognized keys:
 
-           xmldoc        Specifies an existing XML DOM document to add the
-                         sequences to. If included, then only data (no
-                         page formatting) will be added. If not, a new
-                         XML::DOM::Document will be made, and will be
-                         populated with both <Sequence> data, as well
-                         as <Page> display elements.
+      -seq A Bio::Seq reference, or an array reference of many of them
 
-           nodisplay     Do not generate <Display> elements, or any
-                         children thereof, even if -xmldoc is not set.
+   -xmldoc Specifies an existing XML DOM document to add the sequences
+           to. If included, then only data (no page formatting) will
+           be added. If not, a new XML::DOM::Document will be made,
+           and will be populated with both <Sequence> data, as well as
+           <Page> display elements.
 
-           skipfeatures  If set to 'all', all <Feature>s will be
-                         skipped.  If it is a hash reference, any
-                         <Feature> with a class matching a key in the
-                         hash will be skipped - for example, to skip
-                         'source' and 'score' features, use:
+   -nodisp Do not generate <Display> elements, or any children
+           thereof, even if -xmldoc is not set.
 
-                         -skipfeatures => { source => 'Y', score => 'Y' }
+ -skipfeat If set to 'all', all <Feature>s will be skipped.  If it is
+           a hash reference, any <Feature> with a class matching a key
+           in the hash will be skipped - for example, to skip 'source'
+           and 'score' features, use:
 
-           skiptags      As above: if set to 'all', no tags are included,
-                         and if a hash reference, those specific tags
-                         will be ignored.
+               -skipfeat => { source => 'Y', score => 'Y' }
 
-                         Skipping some or all tags and features can
-                         result in noticable speed improvements.
+ -skiptags As above: if set to 'all', no tags are included, and if a
+           hash reference, those specific tags will be ignored.
 
-           noseqdata     If true, then <Seq-data> will not be included.
-                         This may be useful if you just want
-                         annotations and do not care about the raw
-                         ACTG information.
+           Skipping some or all tags and features can result in
+           noticable speed improvements.
 
-           returnseqs    Will return an array ref of the <Sequence>
-                         objects added (rather than the whole XML object)
+   -nodata If true, then <Seq-data> will not be included.  This may be
+           useful if you just want annotations and do not care about
+           the raw ACTG information.
 
-           forceclose    Early BSML browsers will crash if an element 
-                         *could* have children but does not, and is closed
-                         as an empty element e.g. <Styles/>. If forceclose
-                         is true (default), then such tags are given a
-                         comment child to explicitly close them e.g.
-                         <Styles><!-- --></Styles>. This is default true,
-                         set to "0" if you do not want this behavior.
+   -return Default is 'xml', which will return a reference to the BSML
+           XML object. If set to 'seq' will return an array ref of the
+           <Sequence> objects added (rather than the whole XML object)
 
- Examples : my $domObject = $stream->to_bsml(\@fourCoolSequenceObjects,
-					    { skipfeatures => { source => 1 },
-					  });
+    -close Early BSML browsers will crash if an element *could* have
+           children but does not, and is closed as an empty element
+           e.g. <Styles/>. If -close is true, then such tags are given
+           a comment child to explicitly close them e.g.  <Styles><!--
+           --></Styles>. This is default true, set to "0" if you do
+           not want this behavior.
 
-            # Add sequences to an existing BSML document:
-            $stream->to_bsml(\@fourCoolSequenceObjects,
-			     { skipfeatures => { source => 1 },
-			       xmldoc => $myBsmlDocumentInProgress  });
+ Examples : my $domObj = $stream->to_bsml( -seq => \@fourCoolSequenceObjects,
+					   -skipfeat => { source => 1 },
+					   );
+
+            # Or add sequences to an existing BSML document:
+            $stream->to_bsml( -seq => \@fourCoolSequenceObjects,
+			      -skipfeat => { source => 1 },
+			      -xmldoc => $myBsmlDocumentInProgress,  );
 
 =cut
 
 sub to_bsml {
     my $self = shift;
-    my ($seqref, $args) = @_;
-    
+    my $args = $self->_parseparams( -close => 1,
+				    -return => 'xml',
+				    @_);
+    $args->{NODISP} ||= $args->{NODISPLAY};
+    my $seqref = $args->{SEQ};
+    $seqref = (ref($seqref) eq 'ARRAY') ? $seqref : [ $seqref ];
+
     #############################
     # Basic BSML XML Components #
     #############################
     
-    $args->{forceclose} = 1 if ($args->{forceclose} eq "");
     my $xml;
     my ($bsmlElem, $defsElem, $seqsElem, $dispElem);
-    if ($args->{xmldoc}) {
+    if ($args->{XMLDOC}) {
 	# The user has provided an existing XML DOM object
-	$xml = $args->{xmldoc};
+	$xml = $args->{XMLDOC};
 	unless ($xml->isa("XML::DOM::Document")) {
 	    die ('SeqIO::bsml.pm error:\n'.
 		 'When calling ->to_bsml( { xmldoc => $myDoc }), $myDoc \n' .
@@ -527,7 +540,7 @@ sub to_bsml {
 	$bsmlElem = $self->_addel( $xml, 'Bsml');
 	$defsElem = $self->_addel( $bsmlElem, 'Definitions');
 	$seqsElem = $self->_addel( $defsElem, 'Sequences');
-	unless ($args->{nodisplay}) {
+	unless ($args->{NODISP}) {
 	    $dispElem = $self->_addel( $bsmlElem, 'Display');
 	    my $stylElem = $self->_addel( $dispElem, 'Styles');
 	    my $style = $self->_addel( $stylElem, 'Style', {
@@ -549,20 +562,12 @@ sub to_bsml {
     ###############
 
    $seqsElem = $xml->getElementsByTagName("Sequences")->item(0);
-    
-    # Inspect the sequence reference that has been passed
-    my @seqs = ($seqref);
-    if (ref($seqref) eq 'ARRAY') {
-	# A reference to an array of many sequences has been passed.
-	@seqs = ();
-	foreach my $s (@{$seqref}) { push @seqs, $s; }
-    }
-    
+        
     # Map over Bio::Seq to BSML
-    my %mol = ('dna' => 'dna', 'rna' => 'rna', 'protein' => 'aa');
+    my %mol = ('dna' => 'DNA', 'rna' => 'RNA', 'protein' => 'AA');
     my @xmlSequences;
 
-    foreach my $bioSeq (@seqs) {
+    foreach my $bioSeq (@{$seqref}) {
 	my $xmlSeq = $xml->createElement("Sequence");
 	my $FTs    = $xml->createElement("Feature-tables");
 	
@@ -604,7 +609,7 @@ sub to_bsml {
 	# Map over <Sequence> attributes
 	my %attr = ( 'title'         => $bioSeq->display_id,
 		     'length'        => $bioSeq->length,
-		     'molecule'      => $mol{ $bioSeq->molecule },
+		     'molecule'      => $mol{ lc($bioSeq->molecule) },
 		     'ic-acckey'     => $acc,
 		     'id'            => $id,
 		     'representation' => 'raw',
@@ -614,7 +619,9 @@ sub to_bsml {
 	    $xmlSeq->setAttribute($a, $attr{$a}) if ($attr{$a} ne "");
 	}
 	# Orphaned Attributes:
-	# <Sequence> topology, strand, locus
+	$xmlSeq->setAttribute('topology', 'circular') 
+	    if ($bioSeq->is_circular);
+	# <Sequence> strand, locus
 	
 	$self->_add_page($xml, $xmlSeq) if ($dispElem);
 	################
@@ -622,7 +629,8 @@ sub to_bsml {
 	################
 
 	# Check for Bio::Annotations on the * <Sequence> *.
-	$self->_parse_annotation($xml, $bioSeq, $seqDesc, $seqRefs);
+	$self->_parse_annotation( -xml => $xml, -obj => $bioSeq, 
+				  -desc => $seqDesc, -refs => $seqRefs);
 
 	# Incorporate species data
 	if (ref($bioSeq->species) eq 'Bio::Species') {
@@ -665,27 +673,31 @@ sub to_bsml {
 #>>>>	# Perhaps it is better to loop through top_Seqfeatures?...
 #>>>>	# ...however, BSML does not have a hierarchy for Features
 	
-	if ($args->{skipfeatures} eq 'all') {
-	    $args->{skipfeatures} = { all => 1};
+	if ($args->{SKIPFEAT} eq 'all') {
+	    $args->{SKIPFEAT} = { all => 1};
+	}
+	foreach my $class (keys %{$args->{SKIPFEAT}}) {
+	    $args->{SKIPFEAT}{lc($class)} = $args->{SKIPFEAT}{$class};
 	}
 	# Loop through all the features
 	my @features = $bioSeq->all_SeqFeatures();
-	if (@features && !$args->{skipfeatures}{all}) {
+	if (@features && !$args->{SKIPFEAT}{all}) {
 	    my $ft = $self->_addel($FTs, "Feature-table", {
 		title => "Features", });
 	    foreach my $bioFeat (@features ) {
 		my $featDesc = [];
 		my $class = lc($bioFeat->primary_tag);
 		# The user may have specified to ignore this type of feature
-		next if ($args->{skipfeatures}{$class});
+		next if ($args->{SKIPFEAT}{$class});
 		my $id = "FEAT-io" . $idcounter->{Feature}++;
 		my $xmlFeat = $self->_addel( $ft, 'Feature', {
 		    'id' => $id,
 		    'class' => $class , 
 		    'value-type' => $bioFeat->source_tag });
 		# Check for Bio::Annotations on the * <Feature> *.
-		$self->_parse_annotation($xml, $bioFeat, $featDesc, $featRefs,{
-		    id => $id });
+		$self->_parse_annotation( -xml => $xml, -obj => $bioFeat, 
+					  -desc => $featDesc, -id => $id
+					  -refs =>$featRefs, );
 		# Add the description stuff for the <Feature>
 		foreach my $de (@{$featDesc}) {
 		    $self->_addel($xmlFeat, "Attribute", {
@@ -694,12 +706,12 @@ sub to_bsml {
 		$self->_parse_location($xml, $xmlFeat, $bioFeat);
 
 		# loop through the tags, add them as <Qualifiers>
-		next if ($args->{skiptags} eq 'all');
+		next if ($args->{SKIPTAGS} =~ /all/i);
 		# Tags can consume a lot of CPU cycles, and can often be
 		# rather non-informative, so -skiptags can allow total or
 		# selective omission of tags.
 		foreach my $tag ($bioFeat->all_tags()) {
-		    next if (exists $args->{skiptags}{$tag});
+		    next if (exists $args->{SKIPTAGS}{$tag});
 		    foreach my $val ($bioFeat->each_tag_value($tag)) {
 			$self->_addel( $xmlFeat, 'Qualifier', {
 			    'value-type' => $tag , 
@@ -714,7 +726,7 @@ sub to_bsml {
 	##############	
 	
 	# Add sequence data
-	if ( (my $data = $bioSeq->seq) && !$args->{noseqdata} ) {
+	if ( (my $data = $bioSeq->seq) && !$args->{NODATA} ) {
 	    my $d = $self->_addel($xmlSeq, 'Seq-data');
 	    $d->appendChild( $xml->createTextNode($data) );
 	}
@@ -734,7 +746,7 @@ sub to_bsml {
     }
 
     # Prevent browser crashes by explicitly closing empty elements:
-    if ($args->{forceclose}) {
+    if ($args->{CLOSE}) {
 	my @problemChild = ('Sequences', 'Sequence', 'Feature-tables', 
 			    'Feature-table', 'Screen', 'View',);
 	foreach my $kid (@problemChild) {
@@ -747,7 +759,7 @@ sub to_bsml {
 	}
     }
 
-    if ($args->{returnseqs}) {
+    if ($args->{RETURN} =~ /seq/i) {
 	return \@xmlSequences;
     } else {
 	return $xml;
@@ -757,41 +769,51 @@ sub to_bsml {
 =head2 write_seq
 
  Title   : write_seq
- Usage   : $obj->write_seq($seqref, $argsRef)
+ Usage   : $obj->write_seq(@args)
  Function: Prints out an XML structure for one or more Bio::Seq objects.
            If $seqref is an array ref, the XML tree generated will include
            all the sequences in the array. This method is fairly simple,
            most of the processing is performed within to_bsml.
  Returns : A reference to the XML object generated / modified
- Args    : 0 A Bio::Seq reference, or an array reference of many of them
-           1 Optional arguments. In addition to all arguments used by
-             to_bsml, also recognized are:
+ Args    : Argument array. Recognized keys:
 
-               printmime    if true prints "Content-type: $mimetype\n\n"
-                            at top of document, where $mimetype is the
-                            value designated by this key. For generic
-                            XML use text/xml, for BSML use text/x-bsml
+      -seq A Bio::Seq reference, or an array reference of many of them
 
-               returnseqs   This option will be supressed, since the
-                            nature of this method is to print out the
-                            XML document. If you wish to retrieve the
-                            <Sequence> objects generated, use the to_bsml
-                            method directly.
+           Alternatively, the method may be called simply as...
+
+           $obj->write_seq( $bioseq )
+
+           ... if only a single argument is passed, it is assumed that
+           it is the sequence object (can also be an array ref of
+           many Seq objects )
+
+-printmime If true prints "Content-type: $mimetype\n\n" at top of
+           document, where $mimetype is the value designated by this
+           key. For generic XML use text/xml, for BSML use text/x-bsml
+
+   -return This option will be supressed, since the nature of this
+           method is to print out the XML document. If you wish to
+           retrieve the <Sequence> objects generated, use the to_bsml
+           method directly.
 
 =cut
 
 sub write_seq {
     my $self = shift;
-    my ($seqref, $args) = @_;
-    delete $args->{returnseqs};
+    my $args = $self->_parseparams( @_);
+    if ($#_ == 0 ) {
+	# If only a single value is passed, assume it is the seq object
+	unshift @_, "-seq";
+    }
     # Build a BSML XML DOM object based on the sequence(s)
-    my $xml = $self->to_bsml($seqref, $args);
+    my $xml = $self->to_bsml( @_,
+			      -return => undef );
     # Convert to a string
     my $out = $xml->toString;
     # Print after putting a return after each element - more readable
     $out =~ s/>/>\n/g;
-    $self->_print("Content-type: " . $args->{printmime} . "\n\n") 
-	if ($args->{printmime});
+    $self->_print("Content-type: " . $args->{PRINTMIME} . "\n\n") 
+	if ($args->{PRINTMIME});
     $self->_print( $out );
     # Return the DOM tree in case the user wants to do something with it
     return $xml;
@@ -994,25 +1016,159 @@ sub _parse_bsml_location {
     return $gsf;
 }
 
+=head2 _parse_reference
+
+ Title   : _parse_reference
+ Usage   : $obj->_parse_reference(@args )
+ Function: Makes a new <Reference> object from a ::Reference, which is
+           then stored in an array provide by -refs. It will be
+           appended to the XML tree later.
+ Returns : 
+ Args    : Argument array. Recognized keys:
+
+      -xml The DOM::Document being modified
+
+   -refobj The Annotation::Reference Object
+
+     -refs An array reference to hold the new <Reference> DOM object
+
+       -id Optional. If the XML id for the 'calling' element is
+           provided, it will be placed in any <Reference> refs
+           attribute.
+
+=cut
+
+sub _parse_reference {
+    my $self = shift;
+    my $args = $self->_parseparams( @_);
+    my ($xml, $ref, $refRef) = ($args->{XML}, $args->{REFOBJ}, $args->{REFS});
+
+    ###############
+    # <Reference> #
+    ###############
+
+    my $xmlRef = $xml->createElement("Reference");
+#>> This may not be the right way to make a BSML dbxref...
+    if (my $link = $ref->medline) {
+	$xmlRef->setAttribute('dbxref', $link);
+    }
+
+    # Make attributes for some of the characteristics
+    my %stuff = ( start => $ref->start,
+		  end => $ref->end,
+		  rp => $ref->rp, 
+		  comment => $ref->comment,
+		  pubmed => $ref->pubmed,
+		  );
+    foreach my $s (keys %stuff) {
+	$self->_addel($xmlRef, "Attribute", {
+	    name => $s, content => $stuff{$s} }) if ($stuff{$s});
+    }
+    $xmlRef->setAttribute('refs', $args->{ID}) if ($args->{ID});
+    # Add the basic information
+    # Should probably check for content before creation...
+    $self->_addel($xmlRef, "RefAuthors")->
+	appendChild( $xml->createTextNode(&STRIP($ref->authors)) );
+    $self->_addel($xmlRef, "RefTitle")->
+	appendChild( $xml->createTextNode(&STRIP($ref->title)) );
+    $self->_addel($xmlRef, "RefJournal")->
+	appendChild( $xml->createTextNode(&STRIP($ref->location)) );
+    # References will be added later in a <Feature-Table>
+    push @{$refRef}, $xmlRef;
+}
+
 =head2 _parse_annotation
 
  Title   : _parse_annotation
- Usage   : $obj->_parse_annotation($xmlDocument, $bioObj,
-				   $descArrayRef, $refArrayRef, $argsRef )
- Function: Will examine any Annotations found in $bioObj. Data found in
+ Usage   : $obj->_parse_annotation(@args )
+ Function: Will examine any Annotations found in -obj. Data found in
            ::Comment and ::DBLink structures, as well as Annotation 
-           description fields are stored in $descArrayRef for later
+           description fields are stored in -desc for later
            generation of <Attribute>s. <Reference> objects are generated
-           from ::References, and are stored in $refArrayRef - these will
+           from ::References, and are stored in -refs - these will
            be appended to the XML tree later.
  Returns : 
- Args    : 0 The DOM::Document being modified
-           1 Reference to the Bio object being analyzed
-           2 An array reference for holding description text items
-           3 An array reference to hold <Reference> DOM objects
-           4 Optional hash reference for arguments. Recognized keys:
-               id  - if the XML id for the 'calling' element is provided,
-                     it will be placed in any <Reference> refs attribute.
+ Args    : Argument array. Recognized keys:
+
+      -xml The DOM::Document being modified
+
+      -obj Reference to the Bio object being analyzed
+
+    -descr An array reference for holding description text items
+
+     -refs An array reference to hold <Reference> DOM objects
+
+       -id Optional. If the XML id for the 'calling' element is
+           provided, it will be placed in any <Reference> refs
+           attribute.
+
+=cut
+
+sub _parse_annotation {
+    my $self = shift;
+    my $args = $self->_parseparams( @_);
+    my ($xml, $obj, $descRef, $refRef) = 
+	( $args->{XML}, $args->{OBJ}, $args->{DESC}, $args->{REFS} );
+    # No good place to put any of this (except for references). Most stuff
+    # just gets dumped to <Attribute>s
+    my $ann = $obj->annotation;
+    return undef unless ($ann);
+#	use BMS::Branch; my $debug = BMS::Branch->new( ); warn "$obj :"; $debug->branch($ann);
+    unless (ref($ann) =~ /Collection/) {
+	# Old style annotation. It seems that Features still use this
+	# form of object
+	$self->_parse_annotation_old(@_);
+	return;
+    }
+
+    foreach my $key ($ann->get_all_annotation_keys()) {
+	foreach my $thing ($ann->get_Annotations($key)) {
+	    if ($key eq 'description') {
+		push @{$descRef}, ["description" , $thing->value];
+	    } elsif ($key eq 'comment') {
+		push @{$descRef}, ["comment" , $thing->text];
+	    } elsif ($key eq 'dblink') {
+		# DBLinks get dumped to attributes, too
+		push @{$descRef}, ["db_xref" ,  $thing->database . ":" 
+				   . $thing->primary_id ];
+		if (my $com = $thing->comment) {
+		    push @{$descRef}, ["link" , $com->text ];
+		}
+		
+	    } elsif ($key eq 'reference') {
+		$self->_parse_reference( @_, -refobj => $thing );
+	    } elsif (ref($thing) =~ /SimpleValue/) {
+		push @{$descRef}, [$key , $thing->value];
+	    } else {
+		# What is this??
+		push @{$descRef}, ["error", "bsml.pm did not understand ".
+				   "'$key' = '$thing'" ];
+	    }
+	}
+    }
+}
+
+=head2 _parse_annotation_old
+
+    Title   : _parse_annotation_old
+ Usage   : $obj->_parse_annotation_old(@args)
+ Function: As above, but for the old Annotation system.
+           Apparently needed because Features are still using the old-style
+           annotations?
+ Returns : 
+ Args    : Argument array. Recognized keys:
+
+      -xml The DOM::Document being modified
+
+      -obj Reference to the Bio object being analyzed
+
+    -descr An array reference for holding description text items
+
+     -refs An array reference to hold <Reference> DOM objects
+
+       -id Optional. If the XML id for the 'calling' element is
+           provided, it will be placed in any <Reference> refs
+           attribute.
 
 =cut
 
@@ -1020,10 +1176,11 @@ sub _parse_bsml_location {
     # <Reference> #
     ###############
 
-sub _parse_annotation {
+sub _parse_annotation_old {
     my $self = shift;
-    my ($xml, $obj, $descRef, $refRef, $args) = @_;
-
+    my $args = $self->_parseparams( @_);
+    my ($xml, $obj, $descRef, $refRef) = 
+	( $args->{XML}, $args->{OBJ}, $args->{DESC}, $args->{REFS} );
     # No good place to put any of this (except for references). Most stuff
     # just gets dumped to <Attribute>s
     if (my $ann = $obj->annotation) {
@@ -1048,35 +1205,7 @@ sub _parse_annotation {
 	
 	# References get produced and temporarily held
 	foreach my $ref ($ann->each_Reference) {
-	    my $xmlRef = $xml->createElement("Reference");
-#>>>>	    # This may not be the right way to make a BSML dbxref...
-	    if (my $link = $ref->medline) {
-		$xmlRef->setAttribute('dbxref', $link);
-	    }
-
-	    # Make attributes for some of the characteristics
-	    my %stuff = ( start => $ref->start,
-			  end => $ref->end,
-			  rp => $ref->rp, 
-			  comment => $ref->comment,
-			  pubmed => $ref->pubmed,
-			  );
-	    foreach my $s (keys %stuff) {
-		$self->_addel($xmlRef, "Attribute", {
-		    name => $s, content => $stuff{$s} }) if ($stuff{$s});
-	    }
-	    $xmlRef->setAttribute('refs', $args->{id}) if ($args->{id});
-	    # Add the basic information
-	    # Should probably check for content before creation...
-	    $self->_addel($xmlRef, "RefAuthors")->
-		appendChild( $xml->createTextNode(&STRIP($ref->authors)) );
-	    $self->_addel($xmlRef, "RefTitle")->
-		appendChild( $xml->createTextNode(&STRIP($ref->title)) );
-	    $self->_addel($xmlRef, "RefJournal")->
-		appendChild( $xml->createTextNode(&STRIP($ref->location)) );
-	    # References will be added later in a <Feature-Table>
-	    push @{$refRef}, $xmlRef;
-	    
+	    $self->_parse_reference( @_, -refobj => $ref );
 	}
     }
 }
@@ -1192,6 +1321,37 @@ sub _initialize {
       # current_node => the <Sequence> node next in line for next_seq
       $self->{'current_node'} = 0;
   }
+}
+
+
+=head2 _parseparams
+
+ Title   : _parseparams
+ Usage   : my $paramHash = $obj->_parseparams(@args)
+ Function: Borrowed from Bio::Parse.pm, who borrowed it from CGI.pm
+           Lincoln Stein -> Richard Resnick -> here
+ Returns : A hash reference of the parameter keys (uppercase) pointing to
+           their values.
+ Args    : An array of key, value pairs. Easiest to pass values as:
+           -key1 => value1, -key2 => value2, etc
+           Leading "-" are removed.
+
+=cut
+
+sub _parseparams {
+    my $self = shift;
+    my %hash = ();
+    my @param = @_;
+    
+    # Hacked out from Parse.pm
+    # The next few lines strip out the '-' characters which
+    # preceed the keys, and capitalizes them.
+    for (my $i=0;$i<@param;$i+=2) {
+        $param[$i]=~s/^\-//;
+        $param[$i]=~tr/a-z/A-Z/;
+    }
+    my(%hash) = @param;
+    return \%hash;
 }
 
 =head2 _parse_xml
