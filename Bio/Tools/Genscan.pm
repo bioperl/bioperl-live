@@ -16,6 +16,8 @@ Bio::Tools::Genscan - Results of one Genscan run
 
 =head1 SYNOPSIS
 
+   use Bio::Tools::Genscan;
+
    $genscan = Bio::Tools::Genscan->new(-file => 'result.genscan');
    # filehandle:
    $genscan = Bio::Tools::Genscan->new( -fh  => \*INPUT );
