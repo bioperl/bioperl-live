@@ -20,7 +20,7 @@ Bio::Search::Result::GenericResult - Generic Implementation of Bio::Search::Resu
     # typically one gets Results from a SearchIO stream
     use Bio::SearchIO;
     my $io = new Bio::SearchIO(-format => 'blast',
- 			       -file   => 't/data/HUMBETGLOA.tblastx');
+                                -file   => 't/data/HUMBETGLOA.tblastx');
     while( my $result = $io->next_result) {
         # process all search results within the input stream
         while( my $hit = $result->next_hits()) {  
@@ -32,18 +32,18 @@ Bio::Search::Result::GenericResult - Generic Implementation of Bio::Search::Resu
     my @hits = (); # would be a list of Bio::Search::Hit::HitI objects
     # typically these are created from a Bio::SearchIO stream
     my $result = new Bio::Search::Result::GenericResult
-	( -query_name        => 'HUMBETGLOA',
-	  -query_accession   => ''
-	  -query_description => 'Human haplotype C4 beta-globin gene, complete cds.'
-	  -query_length      => 3002
-	  -database_name     => 'ecoli.aa'
-	  -database_letters  => 4662239,
-	  -database_entries  => 400,
-	  -parameters        => { 'e' => '0.001' },
-	  -statistics        => { 'kappa' => 0.731 },
-	  -algorithm         => 'blastp',
+        ( -query_name        => 'HUMBETGLOA',
+          -query_accession   => ''
+          -query_description => 'Human haplotype C4 beta-globin gene, complete cds.'
+          -query_length      => 3002
+          -database_name     => 'ecoli.aa'
+          -database_letters  => 4662239,
+          -database_entries  => 400,
+          -parameters        => { 'e' => '0.001' },
+          -statistics        => { 'kappa' => 0.731 },
+          -algorithm         => 'blastp',
           -algorithm_version => '2.1.2',
-	  );
+          );
 
     my $id = $result->query_name();
 
@@ -63,6 +63,8 @@ Bio::Search::Result::GenericResult - Generic Implementation of Bio::Search::Resu
 
     my @statnames = $result->available_statistics;
 
+# TODO: Show how to configure a SearchIO stream so that it generates
+#       GenericResult objects.
 
 
 =head1 DESCRIPTION
@@ -70,6 +72,15 @@ Bio::Search::Result::GenericResult - Generic Implementation of Bio::Search::Resu
 This object is an implementation of the Bio::Search::Result::ResultI
 interface and provides a generic place to store results from a
 sequence database search.
+
+Unless you're writing a parser, you won't ever need to create a
+GenericResult or any other ResultI-implementing object. If you use
+the SearchIO system, ResultI objects are created automatically from
+a SearchIO stream which returns Bio::Search::Result::ResultI objects.
+
+For documentation on what you can do with GenericResult (and other ResultI
+objects), please see the API documentation in
+L<Bio::Search::Result::ResultI|Bio::Search::Result::ResultI>.
 
 =head1 FEEDBACK
 
@@ -137,6 +148,7 @@ use Bio::Search::Result::ResultI;
            -database_name     => Name of database
            -database_letters  => Number of residues in database
            -database_entries  => Number of entries in database
+           -hits              => array ref of Bio::Search::Hit::HitI objects
            -parameters        => hash ref of search parameters (key => value)
            -statistics        => hash ref of search statistics (key => value)
            -algorithm         => program name (blastx)
@@ -189,18 +201,18 @@ sub new {
 
   if( defined $params ) {
       if( ref($params) !~ /hash/i ) {
-	  $self->throw("Must specify a hash reference with the the parameter '-parameters");
+          $self->throw("Must specify a hash reference with the the parameter '-parameters");
       }
       while( my ($key,$value) = each %{$params} ) {
-	  $self->add_parameter($key,$value);
+          $self->add_parameter($key,$value);
       }
   }
   if( defined $stats ) {
       if( ref($stats) !~ /hash/i ) {
-	  $self->throw("Must specify a hash reference with the the parameter '-statistics");
+          $self->throw("Must specify a hash reference with the the parameter '-statistics");
       }
       while( my ($key,$value) = each %{$stats} ) {
-	  $self->add_statistic($key,$value);
+          $self->add_statistic($key,$value);
       }
   }
 
@@ -208,7 +220,7 @@ sub new {
       $self->throw("Must define arrayref of Hits when initializing a $class\n") unless ref($hits) =~ /array/i;
 
       foreach my $s ( @$hits ) {
-	  $self->add_hit($s);
+          $self->add_hit($s);
       }
   }
   return $self;
@@ -228,8 +240,8 @@ sub algorithm{
     my ($self,$value) = @_;
     my $previous = $self->{'_algorithm'};
     if( defined $value || ! defined $previous ) { 
-	$value = $previous = '' unless defined $value;
-	$self->{'_algorithm'} = $value;
+        $value = $previous = '' unless defined $value;
+        $self->{'_algorithm'} = $value;
     } 
     return $previous;   
 }
@@ -248,8 +260,8 @@ sub algorithm_version{
     my ($self,$value) = @_;
     my $previous = $self->{'_algorithm_version'};
     if( defined $value || ! defined $previous ) { 
-	$value = $previous = '' unless defined $value;
-	$self->{'_algorithm_version'} = $value;
+        $value = $previous = '' unless defined $value;
+        $self->{'_algorithm_version'} = $value;
     } 
 
     return $previous;   
@@ -293,8 +305,8 @@ sub query_name {
     my ($self,$value) = @_;
     my $previous = $self->{'_queryname'};
     if( defined $value || ! defined $previous ) {
-	$value = $previous = '' unless defined $value;
-	$self->{'_queryname'} = $value;
+        $value = $previous = '' unless defined $value;
+        $self->{'_queryname'} = $value;
     } 
     return $previous;
 }
@@ -313,8 +325,8 @@ sub query_accession {
     my ($self,$value) = @_;
     my $previous = $self->{'_queryacc'};
     if( defined $value || ! defined $previous ) {
-	$value = $previous = '' unless defined $value;
-	$self->{'_queryacc'} = $value;
+        $value = $previous = '' unless defined $value;
+        $self->{'_queryacc'} = $value;
     } 
     return $previous;
 }
@@ -334,8 +346,8 @@ sub query_length {
     my ($self,$value) = @_;
     my $previous = $self->{'_querylength'};
     if( defined $value || ! defined $previous ) {
-	$value = $previous = 0 unless defined $value;
-	$self->{'_querylength'} = $value;
+        $value = $previous = 0 unless defined $value;
+        $self->{'_querylength'} = $value;
     } 
     return $previous;
 }
@@ -355,8 +367,8 @@ sub query_description {
     my ($self,$value) = @_;
     my $previous = $self->{'_querydesc'};
     if( defined $value || ! defined $previous ) {
-	$value = $previous = '' unless defined $value;
-	$self->{'_querydesc'} = $value;
+        $value = $previous = '' unless defined $value;
+        $self->{'_querydesc'} = $value;
     } 
     return $previous;
 }
@@ -377,8 +389,8 @@ sub database_name {
     my ($self,$value) = @_;
     my $previous = $self->{'_dbname'};
     if( defined $value || ! defined $previous ) {
-	$value = $previous = '' unless defined $value;
-	$self->{'_dbname'} = $value;
+        $value = $previous = '' unless defined $value;
+        $self->{'_dbname'} = $value;
     } 
     return $previous;
 }
@@ -400,8 +412,8 @@ sub database_letters {
     my ($self,$value) = @_;
     my $previous = $self->{'_dbletters'};
     if( defined $value || ! defined $previous ) {
-	$value = $previous = '' unless defined $value;
-	$self->{'_dbletters'} = $value;
+        $value = $previous = '' unless defined $value;
+        $self->{'_dbletters'} = $value;
     } 
     return $previous;
 }
@@ -422,8 +434,8 @@ sub database_entries {
     my ($self,$value) = @_;
     my $previous = $self->{'_dbentries'};
     if( defined $value || ! defined $previous ) {
-	$value = $previous = '' unless defined $value;
-	$self->{'_dbentries'} = $value;
+        $value = $previous = '' unless defined $value;
+        $self->{'_dbentries'} = $value;
     } 
     return $previous;
 }
@@ -508,10 +520,10 @@ Bio::Search::Result::GenericResult specific methods
 sub add_hit {
     my ($self,$s) = @_;
     if( $s->isa('Bio::Search::Hit::HitI') ) { 
-	push @{$self->{'_hits'}}, $s;
+        push @{$self->{'_hits'}}, $s;
     } else { 
-	$self->warn("Passed in " .ref($s). 
-		    " as a Hit which is not a Bio::Search::HitI... skipping");
+        $self->throw("Passed in " .ref($s). 
+                     " as a Hit which is not a Bio::Search::HitI.");
     }
     return scalar @{$self->{'_hits'}};
 }
@@ -521,7 +533,7 @@ sub add_hit {
 
  Title   : rewind
  Usage   : $result->rewind;
- Function: Allow one to reset the Hit iteration to the beginning
+ Function: Allow one to reset the Hit iterator to the beginning
            Since this is an in-memory implementation
  Returns : none
  Args    : none
@@ -545,7 +557,6 @@ sub _nexthitindex{
    my ($self,@args) = @_;
    return $self->{'_hitindex'}++;
 }
-
 
 
 =head2 add_parameter
@@ -653,37 +664,14 @@ See documentation in L<Bio::Search::Result::ResultI::no_hits_found()|Bio::Search
 
 =cut
 
-#-----------
 sub no_hits_found {
-#-----------
-    my ($self, $round) = @_;
+    my $self = shift;
 
-    my $result = 0;   # final return value of this method.
     # Watch the double negative! 
     # result = 0 means "yes hits were found"
-    # result = 1 means "no hits were found" (for the indicated iteration or all iterations)
+    # result = 1 means "no hits were found" 
 
-    # If a iteration was not specified and there were multiple iterations,
-    # this method should return true only if all iterations had no hits found.
-    if( not defined $round ) {
-        if( $self->{'_iterations'} > 1) {
-            $result = 1;
-            foreach my $i( 1..$self->{'_iterations'} ) {
-                if( not defined $self->{"_iteration_$i"}->{'_no_hits_found'} ) {
-                    $result = 0;
-                    last;
-                }
-            }
-        }
-        else {
-            $result = $self->{"_iteration_1"}->{'_no_hits_found'};
-        }
-    }
-    else {
-        $result = $self->{"_iteration_$round"}->{'_no_hits_found'};
-    }
-
-    return $result;
+    return $self->{'_no_hits_found'};
 }
 
 
@@ -693,46 +681,9 @@ See documentation in L<Bio::Search::Result::ResultI::set_no_hits_found()|Bio::Se
 
 =cut
 
-#-----------
 sub set_no_hits_found {
-#-----------
-    my ($self, $round) = @_;
-    $round ||= 1;
-    $self->{"_iteration_$round"}->{'_no_hits_found'} = 1;
-}
-
-
-=head2 iterations
-
-See documentation in L<Bio::Search::Result::ResultI::iterations()|Bio::Search::Result::ResultI>
-
-=cut
-
-#----------------
-sub iterations {
-#----------------
-    my ($self, $num ) = @_;
-    if( defined $num ) {
-        $self->{'_iterations'} = $num;
-    }
-    return $self->{'_iterations'};
-}
-
-
-=head2 psiblast
-
-See documentation in L<Bio::Search::Result::ResultI::psiblast()|Bio::Search::Result::ResultI>
-
-=cut
-
-#----------------
-sub psiblast {
-#----------------
-    my ($self, $val ) = @_;
-    if( $val ) {
-        $self->{'_psiblast'} = 1;
-    }
-    return $self->{'_psiblast'};
+    my $self = shift;
+    $self->{'_no_hits_found'} = 1;
 }
 
 
@@ -751,11 +702,9 @@ sub psiblast {
 
 =cut
 
-#---------------
 sub to_string {
-#---------------
     my $self = shift;
-    my $str = "[GenericResult] " . $self->algorithm . " query=" . $self->query_name . " " . $self->query_description .", db=" . $self->database_name;
+    my $str = ref($self) . ", algorithm= " . $self->algorithm . ", query=" . $self->query_name . " " . $self->query_description .", db=" . $self->database_name;
     return $str;
 }
 
