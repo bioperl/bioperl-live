@@ -849,19 +849,27 @@ file.
 
 The following methods return an array of Bio::SeqFeature objects
 
-   $seqobj->top_SeqFeatures; # The 'top level' sequence features
-   $seqobj->all_SeqFeatures; # All sequence features, including sub
-                            # seq features
+   $seqobj->get_SeqFeatures; # The 'top level' sequence features
+   $seqobj->get_all_SeqFeatures; # All sequence features, including sub
+                                 # seq features
 
 For a comment annotation, you can use:
   use Bio::Annotation::Comment;
   $seq->annotation->add_Annotation('comment',
       Bio::Annotation::Comment->new(-text => 'some description');
 
+For a reference annotation, you can use:
+  use Bio::Annotation::Reference;
+  $seq->annotation->add_Annotation('reference',
+      Bio::Annotation::Reference->new(-authors  => 'author1,author2',
+                                      -title    => 'title line',
+                                      -location => 'location line',
+                                      -medline  => 998122);
+
 Sequence features will be discussed further in section L<"III.7"> on
 machine-readable sequence annotation. A general description of the
 object can be found in L<Bio::SeqFeature::Generic>, and a description
-of related, top-level "annotation" is found in L<Bio::Annotation::Comment>.
+of related, top-level "annotation" is found in L<Bio::Annotation::Collection>.
 
 Additional sample code for obtaining sequence features can be found in
 the script gb2features.pl in the subdirectory scripts/DB/.
