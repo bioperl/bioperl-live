@@ -42,8 +42,8 @@ $searchio = new Bio::SearchIO(-file =>
 			      Bio::Root::IO->catfile(qw(t data 
 							testdat.exonerate)),
 			      -format => 'exonerate');
-my @data = ( [qw(Contig124 ln27 574 763 -1 834 1023 1)],
-	     [qw(Contig124 ln27 809 939 -1 1016 1146 1)] );
+my @data = ( [qw(Contig124 ln27 575 764 -1 835 1024 1)],
+	     [qw(Contig124 ln27 810 940 -1 1017 1147 1)] );
 while( my $r = $searchio->next_result ) {
     my $d = shift @data;
     ok($r->query_name, shift @$d);

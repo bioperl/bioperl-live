@@ -208,14 +208,14 @@ sub next_result{
 	   }
 	   
 	   $self->element({'Name' => 'Hsp_query-from',
-			   'Data' => $qs});
+			   'Data' => $qs+1});
 	   $self->element({'Name' => 'Hsp_query-to',
-			   'Data' => $qe});
+			   'Data' => $qe+1});
 	   
 	   $self->element({'Name' => 'Hsp_hit-from',
-			   'Data' => $hs});
+			   'Data' => $hs+1});
 	   $self->element({'Name' => 'Hsp_hit-to',
-			   'Data' => $he});
+			   'Data' => $he+1});
 
 	   $self->element({'Name' => 'Hsp_score',
 			   'Data' => $9});
