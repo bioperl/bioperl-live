@@ -217,7 +217,8 @@ sub to_string {
 	     $alg =~ /(WABA|EXONERATE)/i ) {
 	$qtype      = $dbtype = '';
 	$type = $dbseqtype  = 'NUCLEOTIDE';
-    } elsif( $alg =~ /(FAST|BLAST)P/  || $alg =~ /SSEARCH/i ) {
+    } elsif( $alg =~ /(FAST|BLAST)P/  || 
+	     $alg =~ /SSEARCH|(HMM|SEARCH|PFAM)/i ) {
 	$qtype      = $dbtype = '';
 	$type = $dbseqtype  = 'PROTEIN';
     } elsif( $alg =~ /(FAST|BLAST)[XY]/i ) {
