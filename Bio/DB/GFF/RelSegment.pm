@@ -115,7 +115,7 @@ use Bio::RangeI;
 
 use vars qw($VERSION @ISA);
 @ISA = qw(Bio::DB::GFF::Segment);
-$VERSION = '0.41';
+$VERSION = '0.45';
 
 use overload '""' => 'asString',
              'bool' => sub { overload::StrVal(shift) },
@@ -296,6 +296,8 @@ sub new {
     # the reference sequence
     if ($factory->strict_bounds_checking &&
 	(($this_start < $absstart) || ($this_stop > $absstop))) {
+      # return empty if we are completely off the end of the ref se
+      next unless $this_start<=$absstop && $this_stop>=$absstart;
       if (my $a = $factory->abscoords($absref,'Sequence')) {
 	my $refstart = $a->[0][2];
 	my $refstop  = $a->[0][3];
