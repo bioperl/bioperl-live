@@ -1,35 +1,67 @@
-# BioPerl modul
-#
-#
+# BioPerl module: Bio::SeqIO::agave
+# 
 # You may distribute this module under the same terms as perl itself
-
+#
 # POD documentation - main docs before the code
-
+#
 # The original version of the module can be found here:
 # http://www.lifecde.com/products/agave/agave.pm
-# Modified by Simon Chan
 #
-#
+# The DTD for AGAVE XML can be located here:
+# http://www.lifecde.com/products/agave/schema/v2_3/agave.dtd
 
 =head1 NAME
 
-Bio::SeqIO::agave - AGAVE sequence output stream
+Bio::SeqIO::agave - AGAVE sequence output stream.
 
 =head1 SYNOPSIS
 
 It is probably best not to use this object directly, but
-rather go through the AnnSeqIO handler system. Go:
+rather go through the SeqIO handler system. Go:
 
-    $in  = Bio::SeqIO->new('-file' => "$file_in",
+  $in  = Bio::SeqIO->new('-file'   => "$file_in",
                          '-format' => 'EMBL');
 
-     $out = Bio::SeqIO->new('-file' => ">$file_out",
+  $out = Bio::SeqIO->new('-file'   => ">$file_out",
                          '-format' => 'AGAVE');
-  while ( my $seq = $in->next_seq() ) {$out->write_seq($seq); }
+
+  while (my $seq = $in->next_seq){
+	$out->write_seq($seq); 
+  }
 
 =head1 DESCRIPTION
 
 This object can transform Bio::Seq objects to agave xml file.
+
+=cut
+
+=head1 FEEDBACK
+                                                                                                                                             
+=head2 Mailing Lists
+                                                                                                                                             
+User feedback is an integral part of the evolution of this and other
+Bioperl modules. Send your comments and suggestions preferably to one
+of the Bioperl mailing lists.  Your participation is much appreciated.
+                                                                                                                                             
+  bioperl-l@bioperl.org            - General discussion
+  http://bioperl.org/MailList.shtml - About the mailing lists
+                                                                                                                                             
+=head2 Reporting Bugs
+                                                                                                                                             
+Report bugs to the Bioperl bug tracking system to help us keep track
+the bugs and their resolution.
+Bug reports can be submitted via email or the web:
+                                                                                                                                             
+  bioperl-bugs@bio.perl.org
+  http://bugzilla.bioperl.org/
+                                                                                                                                             
+=head1 AUTHOR - Simon K. Chan
+                                                                                                                                             
+Email:                                                                                                                                              
+=head1 APPENDIX
+                                                                                                                                             
+The rest of the documentation details each of the object
+methods. Internal methods are usually preceded with a _
 
 =cut
 
@@ -41,6 +73,7 @@ use strict;
 # Object preamble - inherits from Bio::Root::Object
 
 use IO::File;
+
 
 use lib '/home/skchan/gq/BIO_SUPPORT/bioperl-live';
 use Bio::SeqIO;
@@ -54,67 +87,70 @@ use Bio::Species;
 use lib '/home/skchan/gq/BIO_SUPPORT/XML-Writer/XML-Writer-0.510/blib/lib';
 use XML::Writer;
 
-use Bio::Seq;
-
 use Data::Dumper;
 
 @ISA = qw(Bio::SeqIO);
 
-
+# ==================================================================================
 sub _initialize {        
 
-  my($self,@args) = @_;
-  $self->SUPER::_initialize(@args); # run the constructor of the parent class.
+  my ($self,@args) = @_;
+  $self->SUPER::_initialize(@args); # Run the constructor of the parent class.
   
   my %tmp = @args ; 
   $self->{'file'} = $tmp{'-file'};
 
-  # filehandle is stored by superclass _initialize
-
-  # print "file: $tmp{-file}\n"; exit;
   if ($self->{'file'} !~ /^>/){
-	$self->_process; # parse the thing, but only if it is the input file (ie not outputing agave file).
- 	 $self->{'parsed'} = 1;
+	$self->_process;	# Parse the thing, but only if it is the input file (ie not outputing agave file, but reading it).
+ 	$self->{'parsed'} = 1;  # Set the flag to let the code know that the agave xml file has been parsed.
   }
   $self->{'seqs_stored'} = 0;
 
 }
-
+# ==================================================================================
 sub _process {
 
 	my ($self) = @_;
 	while (1){
 
 		my $line = $self->_readline;
-		### print "line: $line\n";
 		next unless $line;
 		next if $line =~ /^\s*$/;
+
 		if ($line =~ /<\?xml version/o){
+
 			# do nothing
-			# print "line: $line\n";
+
 		} elsif ($line =~ /\<!DOCTYPE (\w+) SYSTEM "([\w\.]+)"\>/){
 
-			# print "1: $1 , 2: $2\n";
 			die "This xml file is not in AGAVE format!"
 			if $1 ne 'sciobj' || $2 ne 'sciobj.dtd';
 
 		} elsif ($line =~ /<sciobj (.*)>/){
 
 			$self->{'sciobj'} = $self->_process_sciobj($1);
-			### print Data::Dumper->Dump([$self]); 
+
 		} elsif ($line =~ /<\/sciobj>/){
 
-			# $self->_store_seqs;
-			last;
+			last; # It is finished.
 
 		} else {
-			# print "last line: $line\n"; exit;
+			# throw an error message?
 		}	
 
-	}
+	} # close while loop
 
 }
+# ==================================================================================
+=head2
 
+	Title    : _process_sciobj
+	Usage    : $self->_process_sciobj
+	Function : Parses the data between the <sciobj></sciobj> tags.
+	Args     : The string that holds the attributes for <sciobj>.
+	Returns  : Data structure holding the values parsed between the <sciobj></sciobj> tags.
+
+=cut
 sub _process_sciobj {
 
 	my ($self, $attribute_line) = @_;
@@ -131,7 +167,7 @@ sub _process_sciobj {
 
 	return $sciobj;
 }
-
+# ==================================================================================
 sub _process_contig {
 
 	my ($self, $line, $attribute_line) = @_;
@@ -151,7 +187,7 @@ sub _process_contig {
 	return $contig;
 
 }
-
+# ==================================================================================
 sub _process_fragment_order {
 
 
@@ -175,7 +211,7 @@ sub _process_fragment_order {
 
 
 }
-
+# ==================================================================================
 sub _process_fragment_orientation {
 
 
@@ -206,9 +242,7 @@ sub _process_fragment_orientation {
 	die "Error.  Missing <fragment_orientation> tag.  Got this: $$line" if $count == 0;
 
 }
-
-
-
+# ==================================================================================
 sub _process_bio_sequence {
 
 	my ($self, $line, $attribute_line) = @_;
@@ -259,7 +293,7 @@ sub _process_bio_sequence {
 
 	return $bio_sequence;
 }
-
+# ==================================================================================
 sub _process_xrefs {
 
 	my ($self, $line, $data_structure) = @_;
@@ -310,7 +344,7 @@ sub _process_xrefs {
 
 
 }
-
+# ==================================================================================
 sub _process_xref {
 
 	my ($self, $line, $data_structure) = @_;
@@ -325,8 +359,7 @@ sub _process_xref {
 
 
 }
-
-
+# ==================================================================================
 sub _process_sequence_map {
 
 	my ($self, $line) = @_;
@@ -364,7 +397,7 @@ sub _process_sequence_map {
 		die "Error.  Missing </sequence_map>.  Got: $$line";
 	}
 }
-
+# ==================================================================================
 sub _process_annotations {
 
 	my ($self, $line) = @_;
@@ -405,7 +438,7 @@ sub _process_annotations {
 	}
 
 }
-
+# ==================================================================================
 sub _process_seq_feature {
 
 	my ($self, $line, $attribute_line) = @_;
@@ -454,12 +487,10 @@ sub _process_seq_feature {
 
 	# print Data::Dumper->Dump([$seq_feature]); exit;
 }
-
+# ==================================================================================
 sub _process_qualifier {
 
 	my ($self, $line, $data_structure) = @_;
-
-	# my $qualifier = $$data_structure->{'qualifier'};
 
 	while ($$line =~ /<qualifier\s?(.*?)\s?>(.*?)<\/qualifier>/){
 
@@ -472,8 +503,7 @@ sub _process_qualifier {
 
 
 }
-
-
+# ==================================================================================
 sub _process_classification {
 
 	my ($self, $line, $data_structure) = @_;
@@ -497,6 +527,7 @@ sub _process_classification {
 
 
 }
+# ==================================================================================
 sub _process_evidence { # NOT done.
 
 	my ($self, $line, $data_structure) = @_;
@@ -523,7 +554,7 @@ sub _process_evidence { # NOT done.
 
 
 }
-
+# ==================================================================================
 sub _process_comp_result { # NOT done.
 
 
@@ -557,7 +588,7 @@ sub _process_comp_result { # NOT done.
 	$self->_process_related_annot($line, $comp_result);
 	
 }
-
+# ==================================================================================
 sub _process_related_annot {
 
 	my ($self, $line, $data_structure) = @_;
@@ -599,8 +630,7 @@ sub _process_related_annot {
 
 
 }
-
-
+# ==================================================================================
 sub _process_result_group {
 
 	my ($self, $line, $data_structure) = @_;
@@ -632,7 +662,7 @@ sub _process_result_group {
 
 
 }
-
+# ==================================================================================
 sub _process_match_region {
 
 	my ($self, $line, $data_structure) = @_;
@@ -663,7 +693,7 @@ sub _process_match_region {
 	
 	}
 }
-
+# ==================================================================================
 sub _process_query_region {
 
 	my ($self, $line, $data_structure) = @_;
@@ -687,7 +717,7 @@ sub _process_query_region {
 
 
 }
-
+# ==================================================================================
 sub _process_alt_ids {
 
 	my ($self, $data_structure) = @_;
@@ -698,8 +728,7 @@ sub _process_alt_ids {
 	$self->_plus_tag(\$line, $data_structure, 'alt_ids');	
 
 }
-
-
+# ==================================================================================
 sub _tag_processing_helper {
 
 	my ($self, $attribute_list, $data_structure, $tag_name, $tag_value, $caller) = @_;
@@ -715,7 +744,7 @@ sub _tag_processing_helper {
 	}
 
 }
-
+# ==================================================================================
 sub _one_tag {
 
 	my ($self, $line, $data_structure, $tag_name) = @_;
@@ -1253,5 +1282,15 @@ sub _filehandle{
     return $obj->{'_filehandle'};
 
 }
+
+sub throw {
+
+        my ($self, @s) = @_;
+        my $string = "[$.]" . join('', @s);
+        $self->SUPER::throw($string);
+
+}
+
+
 
 1;
