@@ -157,7 +157,7 @@ sub to_string {
             $GFF .= "$refseq\t$source\tmatch\t$spmin\t$spmax\t$score\t+\t.\tTarget EST:$seqname $qpmin $qpmax\n";
         }
         if (scalar(@minus_hsps)){
-            $GFF .= "$refseq\t$source\tmatch\t$smmin\t$smmax\t$score\t+\t.\tTarget EST:$seqname $qmmax $qmmin\n";  # note reversal of max and min in column 9, as per the spec
+            $GFF .= "$refseq\t$source\tmatch\t$smmin\t$smmax\t$score\t-\t.\tTarget EST:$seqname $qmmax $qmmin\n";  # note reversal of max and min in column 9, as per the spec
         }
         # process + strand hsps
         my $strand = "+";
