@@ -1,5 +1,5 @@
 #
-# BioPerl module for Bio::SeqIO::fasta
+# BioPerl module for Bio::SeqIO::gcg
 #
 # Cared for by Ewan Birney <birney@sanger.ac.uk>
 #          and Lincoln Stein <lstein@cshl.org>
@@ -64,7 +64,7 @@ methods. Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::SeqIO::gcg;
-use vars '@ISA';
+use vars qw(@ISA);
 use strict;
 use Bio::SeqIO;
 
@@ -91,7 +91,6 @@ sub next_seq{
 
        ## Get the descriptive info (anything before the line with '..')
        unless( /\.\.$/ ) { $desc.= $_; }
-
        ## Pull ID, Checksum & Type from the line containing '..'
        /\.\.$/ && do     { $line = $_; chomp; 
                            if(/Check\:\s(\d+)\s/) { $chksum = $1; }
@@ -200,8 +199,6 @@ sub write_seq {
        $out[$i] .= "\n";
      }
      $out[$i] .= "\n";
-
-
      return unless $self->_print(@out);
    }
    return 1;
