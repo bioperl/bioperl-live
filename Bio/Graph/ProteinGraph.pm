@@ -24,13 +24,13 @@ Bio::Graph::ProteinGraph - a representation of a protein interaction graph.
     ## get a node (represented by a sequence object) from the graph.
     my $seqobj = $gr->nodes_by_id('P12345');
 
-        ## get clustering coefficient of a given node 
+        ## get clustering coefficient of a given node.  
         my $cc = $gr->clustering_coefficient($graph->nodes_by_id('NP_023232'));
         if ($cc != -1) {  ## result is -1 if cannot be calculated
                 print "CC for NP_023232 is $cc";
                 }
 
-    ## get grqph density
+    ## get graph density
     my $density = $gr->density();
 
    ## get connected subgraphs
@@ -38,6 +38,21 @@ Bio::Graph::ProteinGraph - a representation of a protein interaction graph.
 
    ## remove a node
    $gr->remove_nodes($gr->nodes_by_id('P12345'));
+
+   ## How many interactions are there?
+   my $count = $gr->edge_count;
+
+   ## How many nodes are there?
+   my $ncount = $gr->node_count();
+
+   ## Lets get interactions above a threshold confidence score.
+   my $edges = $gr->edges;
+   for my $edge (keys %$edges) {
+		if (defined($edges->{$edge}->weight()) &&
+                $edges->{$edge}->weight() > 0.6) {
+		        	print $edges->{$edge}->object_id(), "\t", $edges->{$edge}->weight(),"\n";
+		}
+	}
 
 
 
@@ -98,6 +113,9 @@ It derives most of its functionality from Nat Goodman's SimpleGraph
 module, but is adapted to be able to use protein identifiers to
 identify the nodes.
 
+This graph uses Bio::Seq objects for the nodes, as this class is
+familiar to most BioPerl users. 
+
 At present it is fairly 'lightweight' in that it represents nodes and
 edges but does not contain all the data about experiment ids etc found
 in the Protein Standards Initiative schema. Hopefully that will be
@@ -107,7 +125,7 @@ A dataset may contain duplicate or redundant interactions.
 Duplicate interactions are interactions that occur twice in the datset but with a different
 interaction ID, perhaps from a different experiment. The dup_edges method will retrieve these.
 
-Redundant interaction are interactions that occur twice or more in a datset wit the same interaction
+Redundant interaction are interactions that occur twice or more in a datset with the same interaction
 id. These are more likely to be due to database errors. 
 These methods are useful when merging 2 datasets using the union() method. Interactions
 present in both datasets, with different IDs, will be duplicate edges. 
@@ -815,7 +833,8 @@ sub articulation_points {
 
 	## find most connected - will be artic point if has >2 neighbors.
     ## use this to initiate DFS
-	my ($c, $id, $max);
+	my ($c, $id);
+	my $max = 0;
 	for my $n (keys %$neighbors) {
 		my $c = scalar @{$neighbors->{$n}};#
 		($max, $id) = ($c, $n) if  $c > $max;#
