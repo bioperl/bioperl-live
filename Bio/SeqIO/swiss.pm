@@ -207,12 +207,12 @@ sub next_seq {
 	   $seq->annotation->gene_name($1);
        }  
        #accession number
-       elsif( /^AC\s+(\S+); (\S+)?/) {
-	   $acc = $1;
-	   my $acc2 = $2 if $2;
-	   $acc2 =~ s/\;//;
+       elsif( /^AC\s+(.+)/) {
+	   my( $acc, @sec ) = split /[\s;]+/, $1;
 	   $seq->accession($acc);
-	   $seq->add_secondary_accession($acc2);
+           foreach my $s (@sec) {
+	      $seq->add_secondary_accession($s);
+           }
        }
        #version number
        elsif( /^SV\s+(\S+);?/ ) {
