@@ -9,7 +9,7 @@ BEGIN {
 	use lib 't';
     }
     use Test;
-    plan tests => 80;
+    plan tests => 94;
 }
 
 use Bio::SimpleAlign;
@@ -299,3 +299,40 @@ $strout = Bio::AlignIO->new('-file' => ">".Bio::Root::IO->catfile("t", "data",
                             '-format' => 'largemultifasta');
 $status = $strout->write_aln($aln);
 ok $status, 1,"  failed fasta output test";
+
+# POA
+
+# input ok?
+ok $str = new Bio::AlignIO(
+			   '-file'   => Bio::Root::IO->catfile("t", "data", "testaln.po"),
+			   '-format' => 'po',
+			  );
+ok defined($str) && ref($str) && $str->isa('Bio::AlignIO');
+ok $aln = $str->next_aln();
+ok $aln->no_sequences, 6;
+
+# output ok? i.e. does conversion from clustalw to po give the same alignment?
+ok $str = new Bio::AlignIO(
+			   '-file'   => Bio::Root::IO->catfile("t", "data", "testaln.aln"),
+			   '-format' => 'clustalw',
+			  );
+ok defined($str) && ref($str) && $str->isa('Bio::AlignIO');
+ok $aln = $str->next_aln();
+
+ok $strout = Bio::AlignIO->new(
+			       '-file'   => ">" . Bio::Root::IO->catfile("t", "data", "testout.po"),
+			       '-format' => 'po',
+			      );
+$status = $strout->write_aln($aln);
+ok $status, 1, " failed po output test";
+
+ok $str = new Bio::AlignIO(
+			   '-file'   => Bio::Root::IO->catfile("t", "data", "testaln.po"),
+			   '-format' => 'po',
+			  );
+ok defined($str) && ref($str) && $str->isa('Bio::AlignIO');
+my $aln2;
+ok $aln2 = $str->next_aln();
+ok $aln2->no_sequences, $aln->no_sequences;
+ok $aln2->length, $aln->length;
+
