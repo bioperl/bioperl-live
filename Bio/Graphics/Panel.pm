@@ -782,7 +782,6 @@ sub set_pen {
   my ($linewidth,$color) = @_;
   return $self->{pens}{$linewidth,$color} if $self->{pens}{$linewidth,$color};
   my $gd = $self->{gd};
-#  my $pkg = $self->_image_package;
   my $pkg = $self->image_package;
   my $pen = $self->{pens}{$linewidth} = $pkg->new($linewidth,$linewidth);
   my @rgb = $self->rgb($color);

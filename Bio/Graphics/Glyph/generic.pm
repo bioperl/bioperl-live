@@ -172,8 +172,8 @@ sub arrowhead {
 }
 
 sub arrow {
-  my $self = shift;
-  my $image  = shift;
+  my $self  = shift;
+  my $image = shift;
   my ($x1,$x2,$y) = @_;
 
   my $fg     = $self->set_pen;
