@@ -7,7 +7,6 @@
 # Copyright Peter Schattner
 #
 # You may distribute this module under the same terms as perl itself
-
 # POD documentation - main docs before the code
 
 =head1 NAME
@@ -451,9 +450,10 @@ sub _runclustalw {
 
     # Clean up the temporary files created along the way...
     # Replace file suffix with dnd to find name of dendrogram file(s) to delete
-    $infile1 =~ s/\.[^\.]*// ;
-    $infile2 =~ s/\.[^\.]*// ;
-    unlink ( "$infile1.dnd", "$infile2.dnd");
+    foreach my $f ( $infile1, $infile2 ) {
+	$f =~ s/\.[^\.]*$// ;   
+	unlink $f .'.dnd' if( $f ne '' );
+    } 
     return $aln;
 }
 

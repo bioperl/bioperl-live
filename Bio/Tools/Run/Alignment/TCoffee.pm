@@ -491,14 +491,14 @@ methods. Internal methods are usually preceded with a _
 
 package Bio::Tools::Run::Alignment::TCoffee;
 
-use vars qw($AUTOLOAD @ISA $TMPOUTFILE $DEBUG $PROGRAM $PROGRAMDIR);
+use vars qw($AUTOLOAD @ISA $TMPOUTFILE $DEBUG $PROGRAM $PROGRAMDIR $FILESPECLOADED);
 use strict;
 use Bio::Seq;
 use Bio::SeqIO;
 use Bio::SimpleAlign;
 use Bio::AlignIO;
 use Bio::Root::RootI;
-use File::Spec;
+eval { require 'File/Spec.pm'; $FILESPECLOADED = 0; };
 
 @ISA = qw(Bio::Root::RootI);
 
@@ -701,7 +701,7 @@ sub _run {
     }
     
     my $status = system($commandstring);
-    $self->throw( "TCoffee call crashed: $? \n") if(-z $TMPOUTFILE);
+    $self->throw( "TCoffee call crashed: $? \n") if( -z $TMPOUTFILE );
 
     my $outfile = $self->outfile() || $TMPOUTFILE;
 
@@ -714,9 +714,15 @@ sub _run {
     # Replace file suffix with dnd to find name of dendrogram file(s) to delete
     if( ! $self->keepdnd ) {
 	foreach my $f ( $infilename, $infile1, $infile2 ) {
+	    next if( !defined $f || $f eq '');
 	    $f =~ s/\.[^\.]*$// ;   
 	    # because TCoffee writes these files to the CWD
-	    (undef, undef, $f) = File::Spec->splitpath($f);    
+	    if( $FILESPECLOADED ) {
+		(undef, undef, $f) = File::Spec->splitpath($f);    
+	    } else { 		
+		my @line = split(/\//, $f);
+		$f = pop @line;	    
+	    }
 	    unlink $f .'.dnd' if( $f ne '' );
 	}
     }
