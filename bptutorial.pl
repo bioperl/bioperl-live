@@ -3586,6 +3586,14 @@ $run_psw_bl2seq = sub {
     #use Bio::Tools::Run::StandAloneBlast;
     my ($factory, $aln, $out1, $out2, $str, $seq1, $seq2, @params);
     print $outputfh "\nBeginning run_psw_bl2seq example... \n";
+    # Get protein sequences from file
+    $str = Bio::SeqIO->new('-file'=> Bio::Root::IO->catfile("t",
+							    "data",
+							    "amino.fa") ,
+			   '-format' => 'Fasta', );
+    $seq1 = $str->next_seq();
+    $seq2 = $str->next_seq();
+
     eval { require Bio::Tools::pSW; };
     if( $@ ) {
         print STDERR "\nThe C-compiled engine for Smith Waterman alignments (Bio::Ext::Align) has not been installed.\n";
@@ -3595,13 +3603,8 @@ $run_psw_bl2seq = sub {
 
 	# Aligning 2 sequences with Smith-Waterman (pSW)
 
-	# Get protein sequences from file
-        $str = Bio::SeqIO->new('-file'=>Bio::Root::IO->catfile("t","data","amino.fa") ,
-			       '-format' => 'Fasta', );
-	$seq1 = $str->next_seq();
-	$seq2 = $str->next_seq();
-
-	$factory = new Bio::Tools::pSW( '-matrix' => 'scripts/tools/blosum62.bla',
+	$factory = new Bio::Tools::pSW( '-matrix' => Bio::Root::IO->catfile
+					( 't','data','blosum62.bla'),
 					'-gap' => 12,
 					'-ext' => 2, );
 
@@ -3628,9 +3631,9 @@ $run_psw_bl2seq = sub {
 	return 0;
     }
 
-    @params = ('outfile' => 'bl2seq.out');
+    @params = ('outfile' => 'bl2seq.out','program' => 'blastp');
     $factory = Bio::Tools::Run::StandAloneBlast->new(@params);
-
+    
     unless ($factory->executable('bl2seq') ) {
         warn "\n Blast program not found. Skipping bl2seq example\n\n";
         return 0;
