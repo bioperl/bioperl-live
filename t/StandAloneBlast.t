@@ -100,7 +100,7 @@ test 3,$testresults[3] , " failed blastall blastn test";
 
 # This time use a BioSeq object as the query and BPlite as _READMETHOD
 $factory->_READMETHOD('BPlite');    # Note required leading underscore in _READMETHOD
-$factory->outfile('BP1test.out');
+#$factory->outfile('BP1test.out');
 
 # Get dna sequences from file
 my $str = Bio::SeqIO->new(-file=>'t/dna2.fa' , '-format' => 'Fasta', );
@@ -124,7 +124,8 @@ test 5,$testresults[5], " failed Seq array input test";
 
 # Bl2seq testing
 # first create factory for bl2seq
-@params = ('program' => 'blastp', 'outfile' => 'bl2seqtest.out');
+@params = ('program' => 'blastp');
+#@params = ('program' => 'blastp', 'outfile' => 'bl2seqtest.out');
 $factory = Bio::Tools::StandAloneBlast->new(@params);
 
 # Get protein sequences from file
@@ -139,7 +140,8 @@ test 6, $bl2seq_report->subject->start == 167, " failed creating or parsing bl2s
 
 # Psiblast testing
 ## Create factory for psiblast
-@params = ('database' => $amino_database, 'outfile' => 'psiblast.out');
+@params = ('database' => $amino_database);
+#@params = ('database' => $amino_database, 'outfile' => 'psiblast.out');
 $factory = Bio::Tools::StandAloneBlast->new(@params);
 
 # set psiblast iteration parameter

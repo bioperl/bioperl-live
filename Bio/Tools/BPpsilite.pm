@@ -129,8 +129,11 @@ use Bio::Root::Object; # root object to inherit from
 use Bio::Tools::BPlite; #
 @ISA = qw( Bio::Root::Object);
 
-# _initialize is where the heavy stuff will happen when new is called
+#  clean up temporary files when exiting
+END {    system('rm -f iteration?.tmp ') ;}
 
+
+# _initialize is where the heavy stuff will happen when new is called
 sub _initialize {
   my ($self, @args) = @_; 
   my $make = $self->SUPER::_initialize;
@@ -253,24 +256,6 @@ sub _parseHeader {
     }
   }
 }
-=head2
-sub _fastForward {
-  my ($self) = @_;
-  return 0 if $self->{REPORT_DONE}; # empty report
-  return 1 if $self->{LASTLINE} =~ /^>/;
-
-  my $FH = $self->{FH};
-  while(<$FH>) {
-#	if ($_ =~ /^>|^Parameters|^\s+Database:/) {
-      if ($_ =~ /^>|^Parameters|^\s+Database:|^\s*Results from round\s+(d+)/) {
-      $self->{LASTLINE} = $_;
-	if ($1) {   $self->{NEXT_ITERATION_NUMBER} = $1;}
-      return 1;
-    }
-  }
-  $self->warn("Possible error while parsing BLAST report!");
-}
-=cut
 
 =head2 _preprocess
 

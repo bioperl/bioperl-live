@@ -74,11 +74,10 @@ files are located in any other location, environmental variable $BLASTDATADIR wi
 need to be set to point to that directory.
 
 The use of the StandAloneBlast.pm module is as follows:
-Initially, a local blast "factory object" is created. The constructor is
-passed the desired '_READMETHOD' for parsing the BLAST report - Blast or BPlite (default) -  and an
+Initially, a local blast "factory object" is created. The constructor may be passed an
  optional array of (non-default) parameters to be used by the factory, eg:
 
-@params = ('program' => 'blastn', 'database' => 'ecoli.nt', '_READMETHOD' => 'BPlite');
+@params = ('program' => 'blastn', 'database' => 'ecoli.nt');
 $factory = Bio::Tools::StandAloneBlast->new(@params);
 
 Any parameters not explicitly set will remain as the defaults of the BLAST executable.  Note each 
@@ -127,6 +126,31 @@ BPlite can parse these reports. In any case, the "raw" blast report is also avai
 filename is set by the in the 'outfile' parameter and has the default value of
 "blastreport.out".
 
+When using the Blast.pm parser, only a default configuration is currently supported:
+ 	-signif => $self->e()  || 1e-5, # where $self->e(), if set, is the BLAST cutoff value
+	-parse  => 1,
+	-stats  => 1,
+	-check_all_hits => 1,
+If it is desired to parse the resulting report with Blast.pm with other values, the user can save the
+report in the file given by $factory->outfile('outputfilelocation') and then reading that file
+with Blast.pm using any parameters desired.
+
+
+For psiblast execution in BLAST's "jumpstart" mode, the program must be passed (in addition
+to the query sequence itself) an alignment containing the query sequence (in the form of a
+SimpleAlign object) as well as a "mask" specifying at what residues position-specific scoring
+matrices (PSSMs) are to used and at what residues default scoring matrices (eg BLOSUM)
+are to be used. See psiblast documentation for more details.  The mask itself is
+a string of 0's and 1's which is the same length as each sequence in the alignment
+and has a "1" at locations where (PSSMs) are to be used and a "0" at all other locations. So
+for example:
+
+$str = Bio::AlignIO->new(-file=> "cysprot.msf", '-format' => 'msf'  );
+$aln = $str->next_aln();
+$len = $aln->length_aln();
+$mask =   '1' x $len;  # simple case where PSSM's to be used at all residues
+$report = $factory->blastpgp("cysprot1.fa", $aln, $mask);
+
 For bl2seq execution, StandAloneBlast.pm can be combined with AlignIO.pm to directly
 produce a SimpleAlign object from the alignment of the two sequences produced by bl2seq
 as in:
@@ -144,10 +168,8 @@ my $bl2seq_report = $factory->bl2seq($seq3, $seq4);
 $str = Bio::AlignIO->new(-file=> 'bl2seq.out','-format' => 'bl2seq');
 $aln = $str->next_aln();
 
-
-
-
-For more examples of syntax and use of Blast.pm, the user is encouraged to run the script
+For more examples of syntax and use of Blast.pm, the user is encouraged to run the scripts
+standaloneblast.pl in the bioperl /examples directory and
 StandAloneBlast.t in the bioperl /t directory.
 
 
@@ -157,8 +179,6 @@ StandAloneBlast.t in the bioperl /t directory.
 =head1 STILL TO WRITE
 
 The following enhancements of StandAloneBlast.pm are under development:
-*  Incorporation of psiblast's "jump start" -B option for using previously
-determined alignments to start a psiblast search
 *  Incorporation of the phiblast option for pattern-based blasts
 
 Note: Blast.pm is still under development.  If you would like that a specific
@@ -393,11 +413,15 @@ Usage   :  $blast_report = $factory-> blastpgp('t/testquery.fa');
 	      $seq_array_ref = \@seq_array;  # where @seq_array is an array of Bio::Seq objects
 	      $blast_report = $factory-> blastpgp(\@seq_array);
 Returns : Reference to a Blast object or BPlite object containing the blast report.
- Args    : Name of a file or Bio::Seq object or an array of Bio::Seq object containing the query sequence(s).
+ Args    : Name of a file or Bio::Seq object. In psiblast jumpstart mode two additional
+	arguments are required: a SimpleAlign object one of whose elements is the query
+	and a "mask" to determine how BLAST should select scoring matrices see DESCRIPTION above
+	for more details.
 Throws an exception if argument is not either a string (eg a filename) or a reference
 to a Bio::Seq object (or to an array of Seq objects).  If argument is string, throws
 exception if file corresponding to string name can not be found.
-Returns : Reference to a Blast object containing the blast report.
+Returns : Reference to either a BPlite.pm, Blast.pm or BPpsilite.pm object containing
+	the blast report.
 
 
 =cut
@@ -407,8 +431,9 @@ my $self = shift;
 my $executable = 'blastpgp';
 my $input1 = shift;
 my $input2 = shift;
+my $mask = shift; # used by blastpgp's -B option to specify which residues are position aligned
 
-my  ($infilename1, $infilename2 )  = &_setinput($executable, $input1, $input2);
+my  ($infilename1, $infilename2 )  = &_setinput($executable, $input1, $input2, $mask);
 if (!$infilename1) {$self->throw(" $input1  not Bio::Seq object or array of Bio::Seq objects or file name!");}
 $self->i($infilename1);   # set file name of sequence to be blasted to inputfilename1 (-i param of blastpgp)
 
@@ -427,7 +452,7 @@ Usage   : $factory-> blastpgp('t/seq1.fa', 't/seq2.fa');
 	       $input1 = Bio::Seq->new(-id=>"test query1",-seq=>"ACTADDEEQQPPTCADEEQQQVVGG");
 	       $input2 = Bio::Seq->new(-id=>"test query2",-seq=>"ACTADDEMMMMMMMDEEQQQVVGG");
 	       $blast_report = $factory->bl2seq ($input1,  $input2);
-Returns : Nothing.  Result currently available only in output file.
+Returns : Reference to a BPbl2seq object containing the blast report.
  Args    : Names of 2 files  or 2 Bio::Seq objects containing the sequences to be aligned by bl2seq.
 Throws an exception if argument is not either a pair of strings (eg filenames) or  references
 to Bio::Seq objects.  If arguments are strings, throws exception if files corresponding to string 
@@ -476,14 +501,13 @@ my $blast_report = &_runblast($self, $executable, $param_string);
 }
 
 
-
 =head2  _runblast
 
  Title   :  _runblast
  Usage   :  Internal function, not to be called directly	
 Function:   makes actual system call to Blast program
  Example :
- Returns : nothing; Blast output is written to a temporary file ./Blast.tmp
+ Returns : Report object in the appropriate format (BPlite, BPpsilite, Blast, or BPbl2seq)
  Args    : Reference to calling object, name of BLAST executable, and parameter string for executable 
 
 =cut
@@ -495,13 +519,15 @@ my $param_string = shift;
 my $blast_obj;
 
 my $commandstring = "$blastdir"."$executable "." $param_string";
+# next line for debugging
+# print ("$commandstring \n");
+
 my $status = system($commandstring);
 
 $self->throw("$executable call crashed: $? \n")  unless ($status==0) ;
 my $outfile = $self->o() ; # get outputfilename
 my $signif = $self->e()  || 1e-5  ; # set significance cutoff to set expectation value or default value
 				# ( may want to make this value vary for different executables)
-# default is to create "blast object"; will put option to create BPlite object later
 # Adjustment of Blast.pm parsing parameters not currently supported
 #
 # If running bl2seq or psiblast (blastpgp with multiple iterations), the specific parsers
@@ -511,7 +537,7 @@ if ($executable eq 'bl2seq')  {
 		open FH, $outfile ;
 		$blast_obj = Bio::Tools::BPbl2seq->new(\*FH);
 		}
-elsif ($executable eq 'blastpgp' && $self->j() > 1)  {
+elsif ($executable eq 'blastpgp' && defined $self->j() && $self->j() > 1)  {
 		open FH, $outfile ;
 		$blast_obj = Bio::Tools::BPpsilite->new(-fh=>\*FH);
 		}
@@ -528,7 +554,7 @@ elsif ($self->_READMETHOD eq 'BPlite')  {
 		}
 
 # Clean up the temporary files created along the way...
-# system('rm -f tmp1.fa tmp2.fa') ;
+ system('rm -f tmp1.fa tmp2.fa') ;
 
 return $blast_obj;
 }
@@ -557,21 +583,30 @@ SWITCH:  {
 		$infilename1 =   (-e $input1) ? $input1 : 0 ;
 		last SWITCH; 
 	}
-	if (ref($input1) eq "Bio::Seq") {
-		$infilename1 = 'tmp1.fa';
-                $temp =  Bio::SeqIO->new(-file=> ">$infilename1", '-format' => 'Fasta');
-		$temp->write_seq($input1);
-		last SWITCH;
-	}
 #  $input may be an array of BioSeq objects...
 	if (ref($input1) eq "ARRAY") {
 		$infilename1 = 'tmp1.fa';
                 	$temp =  Bio::SeqIO->new(-file=> ">$infilename1", '-format' => 'Fasta');
 			foreach $seq (@$input1) {
-		  		unless (ref($seq) eq "Bio::Seq") {return 0;}
+		  		unless ($seq->isa("Bio::Seq")) {return 0;}
 		  		$temp->write_seq($seq);
 			}
-		last SWITCH; 
+		last SWITCH;
+	}
+#  $input may be a single BioSeq object...
+	if ($input1->isa("Bio::Seq")) {
+		$infilename1 = 'tmp1.fa';
+# just in case $input1 is taken from an alignment and has spaces (ie deletions) indicated
+# within it, we have to remove them - otherwise the BLAST programs will be unhappy
+  		my $seq_id =  $input1->display_id();
+  		my $seq_string =  $input1->seq();
+   		$seq_string =~ s/\W+//g;  # get rid of spaces in sequence
+  		$seq = Bio::Seq->new(-seq=> $seq_string, -display_id =>$seq_id );
+
+                $temp =  Bio::SeqIO->new(-file=> ">$infilename1", '-format' => 'Fasta');
+		$temp->write_seq($seq);
+#		$temp->write_seq($input1);
+		last SWITCH;
 	}
 	$infilename1 = 0;    # Set error flag if you get here
 }			# End SWITCH
@@ -581,18 +616,34 @@ SWITCH2:  {
 		$infilename2 =   (-e $input2) ? $input2 : 0 ;
 		last SWITCH2; 
 	}
-	if (ref($input2) eq "Bio::Seq"  && $executable  eq 'bl2seq' ) {
+	if ($input2->isa("Bio::Seq")  && $executable  eq 'bl2seq' ) {
 		$infilename2 = 'tmp2.fa';
                 $temp =  Bio::SeqIO->new(-file=> ">$infilename2", '-format' => 'Fasta');
 		$temp->write_seq($input2);
 		last SWITCH2;
 	}
 # Option for using psiblast's pre-alignment "jumpstart" feature
-	elsif (ref($input2) eq "Bio::SimpleAlign"  && $executable  eq 'blastpgp' ) {
-		$infilename2 = 'tmp2.fa';
-                $temp =  Bio::AlignIO->new(-file=> ">$infilename2", '-format' => 'pfam');
-		$temp->write_aln($input2);
-		last SWITCH2; 
+	elsif ($input2->isa("Bio::SimpleAlign")  && $executable  eq 'blastpgp' ) {
+	  $infilename2 = 'tmp2.fa'; # a bit of a lie since it won't be a fasta file
+
+# first we retrieve the "mask" that determines which residues should by scored according
+# to their position and which should be scored using the non-position-specific matrices
+	  my @mask = split("", shift );   #  get mask
+# theh we have to convert all the residues in every sequence to upper case at the positions
+# that we want psiblast to use position specific scoring		
+	  foreach $seq ( $input2->eachSeq() ) {
+		my @seqstringlist = split("",$seq->seq());
+		for (my $i = 0; $i < scalar(@mask); $i++) {
+			unless ( $seqstringlist[$i] =~ /[a-zA-Z]/ ) {next}
+			$seqstringlist[$i] = $mask[$i] ? uc $seqstringlist[$i]: lc $seqstringlist[$i] ;
+		}
+		my $newseqstring = join("", @seqstringlist);
+		$seq->seq($newseqstring);
+          }
+#  Now we need to write out the alignment to a file in the "psi format" which psiblast is expecting
+          $temp =  Bio::AlignIO->new(-file=> ">$infilename2", '-format' => 'psi');
+	  $temp->write_aln($input2);
+	  last SWITCH2;
 	}
 	$infilename2 = 0;    # Set error flag if you get here
  }  		# End SWITCH2
@@ -636,9 +687,3 @@ return $param_string;
 }
 
 __END__
-#	if (ref($input2) eq "Bio::SimpleAlign"  && $executable  eq 'blastpgp' ) {
-#		$infilename2 = 'tmp.pgp';
-#              	$temp =  Bio::AlignIO->new(-file=> ">$infilename2", '-format' => 'blastpgp');
-#		$temp->write_seq($input2);
-#		last SWITCH2;
-#	}
