@@ -121,6 +121,7 @@ sub new {
     my $ua = new LWP::UserAgent;
     $ua->agent(ref($self) ."/$MODVERSION");
     $self->ua($ua);  
+    $self->{'_authentication'} = [];
     return $self;
 }
 
@@ -356,11 +357,13 @@ sub get_seq_stream {
 	    $rformat = $qualifiers{$key};
 	    $seen = 1;
 	}
-    }
+    }    
     $qualifiers{'-format'} = $rformat if( !$seen);
     ($rformat, $ioformat) = $self->request_format($rformat);
 
     my $request = $self->get_request(%qualifiers);
+    $request->proxy_authorization_basic($self->authentication)
+	if ( $self->authentication);
     $self->debug("request is ". $request->as_string(). "\n");
     my ($stream,$resp);
     if( $self->retrieval_type =~ /temp/i ) {
@@ -431,15 +434,39 @@ sub url_base_address {
  Returns : a string indicating the proxy
  Args    : $protocol : an array ref of the protocol(s) to set/get
            $proxyurl : url of the proxy to use for the specified protocol
-
+           $username : username (if proxy requires authentication)
+           $password : password (if proxy requires authentication)
 =cut
 
 sub proxy {
-    my ($self,$protocol,$proxy) = @_;
+    my ($self,$protocol,$proxy,$username,$password) = @_;
     return undef if ( !defined $self->ua || !defined $protocol 
 		      || !defined $proxy );
+    $self->authentication($username, $password) 	
+	if ($username && $password);
     return $self->ua->proxy($protocol,$proxy);
 }
+
+=head2 authentication
+
+ Title   : authentication
+ Usage   : $db->authentication($user,$pass)
+ Function: Get/Set authentication credentials
+ Returns : Array of user/pass 
+ Args    : Array or user/pass
+
+
+=cut
+
+sub authentication{
+   my ($self,$u,$p) = @_;
+
+   if( defined $u && defined $p ) {
+       $self->{'_authentication'} = [ $u,$p];
+   }
+   return @{$self->{'_authentication'}};
+}
+
 
 =head2 retrieval_type
 
@@ -544,9 +571,6 @@ sub io {
 	$self->{'_io'} = $io;
     }
     return $self->{'_io'};
-}
-
-sub DESTROY {    
 }
 
 1;
