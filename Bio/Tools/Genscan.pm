@@ -21,6 +21,8 @@ Bio::Tools::Genscan - Results of one Genscan run
    $genscan = Bio::Tools::Genscan->new( -fh  => \*INPUT );
 
    # parse the results
+   # note: this class is-a Bio::Tools::AnalysisResult which implements
+   # Bio::SeqAnalysisParserI, i.e., $genscan->next_feature() is the same
    while($gene = $genscan->next_prediction()) {
        # $gene is an instance of Bio::Tools::Prediction::Gene
        
@@ -74,7 +76,7 @@ or the web:
 
 =head1 AUTHOR - Hilmar Lapp
 
-Email hlapp@gmx.net (or hilmar.lapp@pharma.novartis.com)
+Email hlapp@gmx.net
 
 Describe contact details here
 

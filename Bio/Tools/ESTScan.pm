@@ -1,4 +1,4 @@
-
+# $Id$
 #
 # BioPerl module for Bio::Tools::ESTScan
 #
@@ -21,6 +21,8 @@ Bio::Tools::ESTScan - Results of one ESTScan run
    $estscan = Bio::Tools::ESTScan->new( -fh  => \*INPUT );
 
    # parse the results
+   # note: this class is-a Bio::Tools::AnalysisResult which implements
+   # Bio::SeqAnalysisParserI, i.e., $genscan->next_feature() is the same
    while($gene = $estscan->next_prediction()) {
        # $gene is an instance of Bio::Tools::Prediction::Gene
        foreach my $orf ($gene->exons()) {

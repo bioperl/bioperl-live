@@ -27,6 +27,8 @@ Bio::Tools::MZEF - Results of one MZEF run
                                   -strand => -1 );
 
    # parse the results
+   # note: this class is-a Bio::Tools::AnalysisResult which implements
+   # Bio::SeqAnalysisParserI, i.e., $genscan->next_feature() is the same
    while($gene = $mzef->next_prediction()) {
        # $gene is an instance of Bio::Tools::Prediction::Gene
        
