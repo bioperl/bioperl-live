@@ -80,7 +80,6 @@ The rest of the documentation details each of the object
 methods. Internal methods are usually preceded with a _
 
 =cut
-#'
 
 package Bio::Tools::Alignment::TCoffee;
 
@@ -106,7 +105,6 @@ use Bio::Root::RootI;
 $PROGRAMDIR = $ENV{TCOFFEEDIR} || '';
 $PROGRAMDIR .= '/' if( substr($PROGRAMDIR, -1) ne '/' ); 
 $PROGRAM =   $PROGRAMDIR.'t_coffee' ;
-$TMPOUTFILE = './tcoffee.tmp';
 $DEBUG = 0;
 unless (exists_tcoffee()) {
 	warn "TCoffee program not found as $PROGRAM or not executable. \n  TCoffee can be obtained from eg- http://igs-server.cnrs-mrs.fr/~cnotred/Projects_home_page/t_coffee_home_page.html \n";
@@ -164,6 +162,7 @@ sub _initialize {
     my($self,@args) = @_;
     my ($attr, $value);
     my $make = $self->SUPER::_initialize(@args);
+    $TMPOUTFILE = $self->tempfile();
     while (@args)  {
 	$attr =  shift @args;
 	$value =  shift @args;
@@ -233,13 +232,13 @@ sub align {
     my ($attr, $value, $switch);
 
 # Create input file pointer
-    $infilename = &_setinput($input);
+    $infilename = $self->_setinput($input);
     if (!$infilename) {$self->throw("Bad input data or less than 2 sequences in $input !");}
 
 # Create parameter string to pass to tcoffee program
     $self->{_in} = [];    
 
-    my $param_string = &_setparams($self);
+    my $param_string = $self->_setparams();
 
 # run tcoffee
     my $aln = &_run($self, 'align', $infilename, $param_string);
@@ -270,8 +269,8 @@ sub profile_align {
     my ($temp,$infilename1,$infilename2,$input,$seq);
 
 # Create input file pointers
-    $infilename1 = &_setinput($input1,1);
-    $infilename2 = &_setinput($input2,2);
+    $infilename1 = $self->_setinput($input1,1);
+    $infilename2 = $self->_setinput($input2,2);
     if (!$infilename1 || !$infilename2) {$self->throw("Bad input data: $input1 or $input2 !");}
 
     # Create parameter string to pass to tcoffee program
@@ -330,10 +329,7 @@ sub _run {
 
     my $in  = Bio::AlignIO->new(-file => $outfile, '-format' => 'MSF');
     my $aln = $in->next_aln();
-
-# Clean up the temporary files created along the way...
-    unlink ( $TMPOUTFILE, 'tmp.fa', 'tmp1.fa', 'tmp2.fa', 
-		    'tmp.dnd', 'tmp1.dnd', 'tmp2.dnd');
+   
     # Replace file suffix with dnd to find name of dendrogram file(s) to delete
     $infilename =~ s/\.[^\.]*// ;
     $infile1 =~ s/\.[^\.]*// ;
@@ -356,9 +352,8 @@ sub _run {
 =cut
 
 sub _setinput {
-    my ($input, $infilename, $seq, $temp, $suffix);
-    $input = shift;
-    $suffix = shift;		#used to distinguish alignment files
+    my ($self,$input, $suffix, $infilename, $seq, $temp) = @_;    
+# suffix used to distinguish alignment files
 #  If $input is not a reference it better be the name of a file with the sequence/
 #  alignment data...
     unless (ref $input) {
@@ -370,7 +365,7 @@ sub _setinput {
 #  $input may be an array of BioSeq objects...
     if (ref($input) eq "ARRAY") {
         #  Open temporary file for both reading & writing of BioSeq array
-	$infilename = 'tmp.fa';
+	$infilename = $self->tempfile();
 	$temp =  Bio::SeqIO->new(-file=> ">$infilename", '-format' => 'Fasta');
 	unless (scalar(@$input) > 1) {return 0;} # Need at least 2 seqs for alignment
 	foreach $seq (@$input) {
@@ -383,9 +378,8 @@ sub _setinput {
 #  $input may be a SimpleAlign object.
     if (ref($input) eq "Bio::SimpleAlign") {
 	#  Open temporary file for both reading & writing of SimpleAlign object
-	$infilename = 'tmp1.fa' if ($suffix ==1);
-	$infilename = 'tmp2.fa' if ($suffix ==2);
-#		$infilename = "tmp$suffix.fa";
+	$infilename = $self->tempfile() if ($suffix ==1);
+	$infilename = $self->tempfile() if ($suffix ==2);
 	$temp =  Bio::AlignIO->new(-file=> ">$infilename", '-format' => 'Fasta');
 	$temp->write_aln($input);
 	return $infilename;
@@ -394,7 +388,7 @@ sub _setinput {
 #  or $input may be a single BioSeq object (to be added to a previous alignment)
     if (ref($input) eq "Bio::Seq" && $suffix==2) {
         #  Open temporary file for both reading & writing of BioSeq object
-	$infilename = 'tmp.fa';
+	$infilename = $self->tempfile();
 	$temp =  Bio::SeqIO->new(-file=> ">$infilename", '-format' => 'Fasta');
 	$temp->write_seq($input);
 	return $infilename;
@@ -437,8 +431,6 @@ sub _setparams {
 	my $attr_key = lc $attr; #put switches in format expected by tcoffee
 	$attr_key = ' -'.$attr_key;
 	$param_string .= $attr_key ;
-#	$attr_key = '-'.$attr_key;
-#	$param_string .= '"'.$attr_key.'",';
     }
 
 # Set default output file if no explicit output file selected
@@ -449,11 +441,5 @@ sub _setparams {
     if ($self->quiet()) { $param_string .= ' -quiet';}
     return $param_string;
 }
-
-sub DESTROY {
-    my ($self) = @_;
-    unlink($TMPOUTFILE);
-}
-
 
 1; # Needed to keep compiler happy
