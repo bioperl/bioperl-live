@@ -138,19 +138,18 @@ sub next_matrix{
    $#names>=0 || return;
    my %dist;
    my $i=0;
-   foreach my $name(@names){
+   for my $name (@names){
        my $j=0;
-       foreach my $n(@names) {
+       for my $n (@names) {
 	   $dist{$name}{$n} = [$i,$j];
 	   $j++;
        }
        $i++;
    }
-   my $matrix = Bio::Matrix::PhylipDist->new(-program => $self->{'_program'},
+   return Bio::Matrix::PhylipDist->new(-program => $self->{'_program'},
 					     -matrix  => \%dist,
 					     -names   => \@names,
 					     -values  => \@values);
-    return $matrix;
 }
 
 1;
