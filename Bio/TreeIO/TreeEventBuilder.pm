@@ -171,7 +171,7 @@ sub start_document {
 
 sub end_document {
     my ($self) = @_; 
-    my $root = $self->nodetype->new;
+    my $root = $self->nodetype->new(-verbose => $self->verbose);
     # aggregate the nodes into trees basically ad-hoc.
     while ( @{$self->{'_currentnodes'}} ) {	
 	my ($node) = ( shift @{$self->{'_currentnodes'}});
@@ -184,7 +184,8 @@ sub end_document {
 	    $self->debug("node is ". $node->to_string(). "\n");
 	}
     }
-    my $tree = $self->treetype->new(-root => $root);
+    my $tree = $self->treetype->new(-verbose => $self->verbose,
+				    -root => $root);
     return $tree;       
 }
 
@@ -235,7 +236,8 @@ sub end_element{
        my $tnode;
        my $node = pop @{$self->{'_currentitems'}};	   
 
-       $tnode = $self->nodetype->new( %{$node});
+       $tnode = $self->nodetype->new( -verbose => $self->verbose,
+				      %{$node});
        unless ( $node->{'-id'} ) { 
 	   for ( splice( @{$self->{_currentnodes}}, -$self->{_nodect}->[$self->{_treelevel} + 1]) ) {
 	       $self->debug("adding desc: " . $_->to_string . "\n");
