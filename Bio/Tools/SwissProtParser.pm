@@ -67,6 +67,10 @@ Useful if you like to type.  All methods are read/write.
  RL			RR	reference
  CC			CC	comment
 
+=head2 TODO
+
+use Bio::Annotation::Reference in the reference() method.
+
 =head1 AUTHOR
 
 Allen Day <allenday@ucla.edu>
