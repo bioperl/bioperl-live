@@ -155,7 +155,7 @@ sub get_Seq_by_id {
 
 sub get_Seq_by_acc {
    my ($self,$seqid) = @_;
-   my $seqio = $self->get_Stream_by_acc([$seqid]);
+   my $seqio = $self->get_Stream_by_acc($seqid);
    $self->throw("acc does not exist") if( !defined $seqio );
    return $seqio->next_seq();
 }
@@ -275,13 +275,13 @@ sub get_seq_stream {
     $qualifiers{'-format'} = $rformat if( !$seen);
     ($rformat, $ioformat) = $self->request_format($rformat);
     
-    my $url = $self->get_request(%qualifiers);
+    my $request = $self->get_request(%qualifiers);
     my ($stream,$resp);
     if( $self->retrieval_type =~ /temp/i ) {
 	my $dir = $self->io()->tempdir( CLEANUP => 1);
 	my ( $fh, $tmpfile) = $self->io()->tempfile( DIR => $dir );
 	close $fh;
-	my ($resp) = $self->_request($url, $tmpfile);		
+	my ($resp) = $self->_request($request, $tmpfile);		
 	if( ! -e $tmpfile || -z $tmpfile ) {
             $self->throw("WebDBSeqI Error - check query sequences!\n");
 	}
@@ -289,10 +289,14 @@ sub get_seq_stream {
 				'location' => $tmpfile);	
 	# this may get reset when requesting batch mode
 	($rformat,$ioformat) = $self->request_format();
+	if( $self->verbose > 0 ) {
+	    open(ERR, "<$tmpfile");
+	    while(<ERR>) { print STDERR;}
+	} 
 	$stream = new Bio::SeqIO('-format' => $ioformat,
 				 '-file'   => $tmpfile);
     } elsif( $self->retrieval_type =~ /io_string/i ) {
-	my ($resp) = $self->_request($url);
+	my ($resp) = $self->_request($request);
         my $content = $resp->content_ref;	
 	if( ${$content} =~ /ERROR/ || length(${$resp->content_ref()}) == 0 ) {
 	    $self->throw("WebDBSeqI Error - check query sequences!\n");	
@@ -300,8 +304,9 @@ sub get_seq_stream {
 	($rformat,$ioformat) = $self->request_format();
 	$self->postprocess_data('type'=> 'string',
 				'location' => $content);
+        print STDERR "str is $$content\n" if ( $self->verbose > 0);
 	$stream = new Bio::SeqIO('-format' => $ioformat,
-				 '-fh'   => new IO::String(${$content}));
+				 '-fh'   => new IO::String($$content));
     } else { 
 	$self->throw("retrieval type " . $self->retrieval_type . 
 		     " unsupported\n");
@@ -342,7 +347,8 @@ sub url_base_address {
 
 sub proxy {
     my ($self,$protocol,$proxy) = @_;
-    return undef if ( !defined $self->ua || !defined $protocol || !defined $proxy );
+    return undef if ( !defined $self->ua || !defined $protocol 
+		      || !defined $proxy );
     return $self->ua->proxy($protocol,$proxy);
 }
 
