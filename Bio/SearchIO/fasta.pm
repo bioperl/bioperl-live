@@ -126,6 +126,7 @@ BEGIN {
 	  'FastaOutput_program'  => 'RESULT-algorithm_name',
 	  'FastaOutput_version'  => 'RESULT-algorithm_version',
 	  'FastaOutput_query-def'=> 'RESULT-query_name',
+	  'FastaOutput_querydesc'=> 'RESULT-query_description',
 	  'FastaOutput_query-len'=> 'RESULT-query_length',
 	  'FastaOutput_db'       => 'RESULT-database_name',
 	  'FastaOutput_db-len'   => 'RESULT-database_entries',
@@ -200,7 +201,11 @@ sub next_result{
    while( defined ($_ = $self->_readline )) {       
        next if( ! $self->in_element('hsp')  &&
 		/^\s+$/); # skip empty lines
-       if( /(\S+)\s+searches\s+a\s+((protein\s+or\s+DNA\s+sequence)|(sequence\s+database))/i || /(\S+) compares a/ ) {
+       if( /(\S+)\s+searches\s+a\s+((protein\s+or\s+DNA\s+sequence)|(sequence\s+database))/i || /(\S+) compares a/ ||
+	   ( m/^# / && ($_ = $self->_readline) &&
+	     /(\S+)\s+searches\s+a\s+((protein\s+or\s+DNA\s+sequence)|(sequence\s+database))/i || /(\S+) compares a/
+	   )
+	 ) {
 	   if( $seentop ) {
 	       $self->_pushback($_);
 	       $self->end_element({ 'Name' => 'FastaOutput'});
@@ -224,14 +229,14 @@ sub next_result{
 	   while( defined($_ = $self->_readline()) ) {
 	       if( /^ (
                        (?:\s+>) |             # fa33 lead-in
-                       (?:\s+\d+\s*>>>)       # fa34 mlib lead-in
+                       (?:\s*\d+\s*>>>)       # fa34 mlib lead-in
                       )
                       (.*)
                    /x
 		 ) {
 		   ($leadin, $querydef) = ($1, $2);
 		   if ($leadin =~ m/>>>/) {
-		       if($querydef =~ /^(.*?)\s+\-\s+(\d+)\s+(aa|nt)\s*$/o ) {
+		       if($querydef =~ /^(.*?)\s+(?:\-\s+)?(\d+)\s+(aa|nt)\s*$/o ) {
 			   ($querydef, $querylen, $querytype) = ($1, $2, $3);
 			   last;
 		       }
@@ -259,16 +264,18 @@ sub next_result{
 		   $self->{'_reporttype'} = 'FASTP' ;
 	       }
 	   }
-		   
+	   
+	   my ($name, $descr) = $querydef =~ m/^(\S+)\s*(.*)$/o;
 	   $self->element({'Name' => 'FastaOutput_query-def',
-			   'Data' => $querydef});
+			   'Data' => $name});
+	   $self->element({'Name' => 'FastaOutput_querydesc',
+			   'Data' => $descr});
 	   if ($querylen) {
 	       $self->element({'Name' => 'FastaOutput_query-len',
 			       'Data' => $querylen});
 	   } else {
-	       $self->warn("unable to find and set query length");		       
+	       $self->warn("unable to find and set query length");
 	   }
-
 
 	   if( $last =~ /^\s*vs\s+(\S+)/ ||	       	       
 	       (defined $_ && /^\s*vs\s+(\S+)/) ||
@@ -287,15 +294,18 @@ sub next_result{
 			   'Data' => $1});
 	   $self->element({'Name' => 'Statistics_db-num',
 			   'Data' => $2});	   
-       } elsif( /Lambda=\s+(\S+)/ ) {
+       } elsif( /Lambda=\s*(\S+)/ ) {
 	   $self->element({'Name' => 'Statistics_lambda',
 			   'Data' => $1});	  
        } elsif (/K=\s*(\S+)/) {
 	   $self->element({'Name' => 'Statistics_kappa',
 			   'Data' => $1});
-       } elsif( /^\s*(Smith-Waterman).+(\S+)\s*matrix/ ) {	   
+       } elsif( /^\s*(Smith-Waterman).+(\S+)\s*matrix [^\]]*?(xS)?\]/ ) {	   
 	   $self->element({'Name' => 'Parameters_matrix',
 			   'Data' => $2});
+	   $self->element({'Name' => 'Parameters_filter',
+			   'Data' => defined $3 ? 1 : 0,
+			  });
 	   $self->{'_reporttype'} = $1;
 
 	   $self->element({ 'Name' => 'FastaOutput_program',
@@ -324,7 +334,6 @@ sub next_result{
 
 	       my %data;
 	       @data{@labels} = splice(@line, @line - @labels);
-	       # use Data::Dumper; warn Dumper(\%data); exit;
 	       if ($line[-1] =~ m/\[([1-6rf])\]/o) {
 		   $data{lframe} = ($1 =~ /\d/o ?
 		                   ($1 <= 3   ? "+$1" : "-@{[$1-3]}") :
@@ -345,10 +354,8 @@ sub next_result{
 		   $data{hit_len} = 0;
 	       }
 
-	       # figure out where the last bit of the description ends:
-	       $_ =~ m/\Q$line[$#line]\E/g;
-	       # then truncate the line past that:
-	       $_ = substr($_, 0, pos($_));
+	       # rebuild the first part of the line, preserving spaces:
+	       $_ = join("", (split(/(\s+)/, $_, scalar(@line) + 1))[0..2*$#line]);
 
 	       my ($id, $desc) = split(/\s+/,$_,2);
 	       my @pieces = split(/\|/,$id);
@@ -359,11 +366,14 @@ sub next_result{
 
 	       push @hit_signifs, \%data;
 	   }
-       } elsif( /^\s*([T]?FAST[XYAF]).+,\s*(\S+)\s*matrix.+ktup:\s*(\d+)/ ) {
+       } elsif( /^\s*([T]?FAST[XYAF]).+,\s*(\S+)\s*matrix[^\]]+?(xS)?\]\s*ktup:\s*(\d+)/ ) {
 	   $self->element({'Name' => 'Parameters_matrix',
 			   'Data' => $2});
+	   $self->element({'Name' => 'Parameters_filter',
+			   'Data' => defined $3 ? 1 : 0,
+			  });
 	   $self->element({'Name' => 'Parameters_ktup',
-			   'Data' => $3});
+			   'Data' => $4});
 	   $self->{'_reporttype'} = $1 if( $self->{'_reporttype'} !~ /FAST[PN]/i ) ;
 
 	   $self->element({ 'Name' => 'FastaOutput_program',
@@ -575,9 +585,8 @@ sub next_result{
 
 	   $self->end_element({ 'Name' => 'FastaOutput'});
 	   return $self->end_document();
-       } elsif( /^\s*\d+>>>/) {
+       } elsif( /^\s*\d+\s*>>>/) {
 	   if ($self->in_element('FastaOutput')) {
-	       warn "ending!";
 	       if( $self->in_element('hsp') ) {
 		   $self->end_element({'Name' => 'Hsp'});
 	       } 
@@ -664,9 +673,9 @@ sub next_result{
 
 	       my ($type, $querylen, $querytype, $querydef);
 
-	       if( /^\s+\d+\s*>>>(.*)/ ) {
+	       if( /^\s*\d+\s*>>>(.*)/ ) {
 		   $querydef = $1;
-		   if($querydef =~ /^(.*?)\s+\-\s+(\d+)\s+(aa|nt)\s*$/o ) {
+		   if($querydef =~ /^(.*?)\s+(?:\-\s+)?(\d+)\s+(aa|nt)\s*$/o ) {
 		       ($querydef, $querylen, $querytype) = ($1, $2, $3);
 		   }
 	       }
@@ -679,14 +688,17 @@ sub next_result{
 		       $self->{'_reporttype'} = 'FASTP' ;
 		   }
 	       }
-		   
+		   	
+	       my ($name, $descr) = $querydef =~ m/^(\S+)\s+(.*)$/o;
 	       $self->element({'Name' => 'FastaOutput_query-def',
-			       'Data' => $querydef});
+			       'Data' => $name});
+	       $self->element({'Name' => 'FastaOutput_querydesc',
+			       'Data' => $descr});
 	       if ($querylen) {
 		   $self->element({'Name' => 'FastaOutput_query-len',
 				   'Data' => $querylen});
 	       } else {
-		   $self->warn("unable to find and set query length");		       
+		   $self->warn("unable to find and set query length");
 	       }
 
 
@@ -711,7 +723,7 @@ sub next_result{
 	       } elsif( /^>>/ ) {
 		   $self->_pushback($_);
 		   last;
-	       } elsif (/^\s*\d+>>>/) {
+	       } elsif (/^\s*\d+\s*>>>/) {
 		   $self->_pushback($_);
 		   last;
 	       }
@@ -934,7 +946,7 @@ sub within_element{
 		 ! defined  $self->{'_elements'} ||
 		 scalar @{$self->{'_elements'}} == 0) ;
    foreach (  @{$self->{'_elements'}} ) {
-       if( $_ eq $name  ) {
+       if( $_ eq $name || $_ eq $MODEMAP{$name} ) {
 	   return 1;
        } 
    }
@@ -957,7 +969,9 @@ sub within_element{
 sub in_element{
    my ($self,$name) = @_;  
    return 0 if ! defined $self->{'_elements'}->[0];
-   return ( $self->{'_elements'}->[0] eq $name)
+   return ( $self->{'_elements'}->[0] eq $name ||
+	    (exists $MODEMAP{$name} && $self->{'_elements'}->[0] eq $MODEMAP{$name})
+	  );
 }
 
 
