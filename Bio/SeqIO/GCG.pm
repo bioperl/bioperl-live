@@ -338,22 +338,4 @@ sub _validate_checksum {
 
 }
 
-
-sub DESTROY {
-    my $self = shift;
-    my $fh;
-    $fh = $self->_filehandle();
-
-    if( defined $fh ) {
-	$fh->close();
-    }
-
-    $self->{'_filehandle'} = '';
-}
-    
-
-
-
-
-
-
+1;

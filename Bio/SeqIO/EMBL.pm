@@ -208,18 +208,5 @@ sub _filehandle{
     return $obj->{'_filehandle'};
 
 }
-
-sub DESTROY {
-    my $self = shift;
-    my $fh;
-    $fh = $self->_filehandle();
-
-    if( defined $fh ) {
-	$fh->close();
-    }
-
-    $self->{'_filehandle'} = '';
-}
     
-
-
+1;

@@ -180,13 +180,4 @@ sub _streamobj{
 
 }
 
-sub DESTROY {
-    my $self=shift;
-
-    $self->{'_streamobj'} = '';
-}
-
-
-
-
-
+1;
