@@ -1,16 +1,17 @@
-# $Id: PLATFORMS,v 1.6 2001-03-02 03:44:12 dag Exp $
+# $Id: PLATFORMS,v 1.7 2001-03-02 10:35:04 lapp Exp $
 
 Perl general comments:
 
-Perl 5.000404 and lower often have problems with GDB.t
+	o Perl 5.00404 and lower often have problems with GDB.t
 
-Perl on Digital Unix has been reported to have problems
-with GDB.t. This maybe something to do with the LWP version
+	o Perl on Digital Unix has been reported to have problems
+	with GDB.t. This maybe something to do with the LWP version
 
-DB.t has intermittent time-out failures
+	o DB.t has intermittent time-out failures (which will
+	most likely cause tests 3 and/or 27 to fail)
 
-Index.t will fail if you have an out-of-date DBM file
-installation
+	o Index.t will fail if you have an out-of-date DBM file
+	installation
 
 
 Tested systems & OS Specific Comments or Warnings
@@ -31,6 +32,17 @@ Compiler: cc
 Perl    : 5.6.0
 Comments: none
 
+Machine : Win32, WinNT i386
+Compiler: --
+Perl    : ActiveState Perl 5.6
+Comments: Likely failure of Index.t (i.e., the modules in Bio/Index/),
+          File::Temp potentially broken (causing at least BPpsilite to fail)
+
+Machine : MacOS
+Compiler: --
+Perl    : MacPerl
+Comments: Issues and possible ways to fix them summarized by Todd Richmond
+          on the bioperl.org Wiki.
 
 
 
