@@ -75,7 +75,6 @@ use strict;
 
 # Object preamble - inherits from Bio::Root::Objecttest 8, 
 
-use Bio::Root::RootI;
 use Bio::Seq::LargePrimarySeq;
 use Bio::Seq;
 

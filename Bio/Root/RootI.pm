@@ -442,7 +442,7 @@ sub tempfile {
     $dir = ( $hash{DIR} ) ? $hash{DIR} : $dir = $TEMPDIR;
 
     my $tfilename = File::Spec->catfile($dir, sprintf( "%s-%s-%s",  
-					$ENV{USER} || 'unknown', $$) 
+					$ENV{USER} || 'unknown', $$), 
 					$TEMPCOUNTER++);
     push @{$self->{'_rooti_tempfiles'}}, $tfilename;
 
