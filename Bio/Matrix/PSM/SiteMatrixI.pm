@@ -553,5 +553,24 @@ sub get_compressed_logs {
     $self->throw_not_implemented();
 }
 
+=head2 sequence_match_weight
+
+ Title   : sequence_match_weight
+ Usage   :
+ Function:  This method will calculate the score of a match, based on the PWM
+            if such is associated with the matrix object. Returns undef if no
+             PWM data is available.
+ Throws  :   if the length of the sequence is different from the matrix width
+ Example :  my $score=$matrix->sequence_match_weight('ACGGATAG');
+ Returns :  Floating point
+ Args    :  string
+
+=cut
+
+sub sequence_match_weight {
+    my $self = shift;
+    $self->throw_not_implemented();
+}
+
 
 1;

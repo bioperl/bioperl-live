@@ -855,5 +855,32 @@ sub get_compressed_logs {
 	return _compress_array(\@prob,1000,2);
 }
 
+=head2 sequence_match_weight
+
+ Title   : sequence_match_weight
+ Usage   :
+ Function:  This method will calculate the score of a match, based on the PWM
+            if such is associated with the matrix object. Returns undef if no
+             PWM data is available.
+ Throws  :   if the length of the sequence is different from the matrix width
+ Example :  my $score=$matrix->sequence_match_weight('ACGGATAG');
+ Returns :  Floating point
+ Args    :  string
+
+=cut
+
+sub sequence_match_weight {
+my ($self,$seq)=@_;
+return undef unless ($self->{logA});
+$self->throw ("I can calculate the score only for sequence which are exactly my size\n") unless (length($seq)==@{$self->{logA}});
+my @seq=split(//,$seq);
+my ($score,$i);
+foreach my $pos (@seq) {
+  my $tv='log' . $pos;
+  $score+=$self->{$tv}->[$i];
+  $i++;
+}
+return $score;
+}
 
 1;
