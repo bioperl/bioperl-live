@@ -211,7 +211,7 @@ sub new {
     $in  && $self->in($in);
     $out  && $self->out($out);
     $cds && $self->cds($cds);
-    $exons  && $self->exons($exons);
+    $exons  && ref($exons) =~ /ARRAY/i && $self->exons(@$exons);
     $transcript  && $self->transcript($transcript);
     $peptide_offset && $self->peptide_offset($peptide_offset);
     $nozero && $self->nozero($nozero);
@@ -465,7 +465,7 @@ sub transcript {
 =head2 exons
 
  Title   : exons
- Usage   : $obj->exons(\@exons);
+ Usage   : $obj->exons(@exons);
  Function: Set and read the offset of CDS from the start of transcipt
            You do not have to sort the exons before calling this method as
            they will be sorted automatically
@@ -488,8 +488,8 @@ sub exons {
    my $exon_cds_mapper =  $COORDINATE_SYSTEMS{'exon'}. "-". $COORDINATE_SYSTEMS{'cds'};
 
    if(@value) {
-
-       if ($value[0]->isa('Bio::SeqFeatureI') and 
+       if (ref($value[0]) &&
+	   $value[0]->isa('Bio::SeqFeatureI') and 
 	   $value[0]->location->isa('Bio::Location::SplitLocationI')) {
 	   @value = $value[0]->location->each_Location;
        } else {
@@ -741,7 +741,8 @@ sub map {
        unless defined $value;
    $self->throw("Need to pass me a Bio::Location::Simple, not [".
 		ref($value). "]")
-       unless $value->isa('Bio::Location::Simple') or $value->isa('Bio::SeqFeatureI');
+       unless ref($value) && ($value->isa('Bio::Location::Simple') or 
+			      $value->isa('Bio::SeqFeatureI'));
    $self->throw("Input coordinate system not set")
        unless $self->{'_in'};
    $self->throw("Output coordinate system not set")
@@ -749,7 +750,7 @@ sub map {
    $self->throw("Do not be silly. Input and output coordinate ".
 		"systems are the same!")
        unless $self->{'_in'} != $self->{'_out'};
-
+   
    $self->_check_direction();
 
    $value = $value->location if $value->isa('Bio::SeqFeatureI');
@@ -794,7 +795,6 @@ sub map {
 	   $value = $self->{'_mappers'}->{$mapper}->map($value);
 	   print STDERR "+  $mapper (", $self->direction, ")\n"
 	       if $self->verbose > 0;
-
 #	   my @matches = $res->each_match;
 #	   if (@matches > 1) {
 #	       $self->throw('Multiple matches in different coordinate systems not handled')
@@ -806,7 +806,6 @@ sub map {
 #	       $value = $res->match if defined $res;
 #	   }
        }
-
        if ( $value->isa('Bio::Location::SplitLocationI')) {
 	   return undef unless $value->match;
 	   if ( $value->each_match > 1 ) {
@@ -819,7 +818,6 @@ sub map {
 	   }
        }
    }
-
    # if nozero coordinate system is asked to be used in the output values
    if ( defined $value && defined $self->{'_nozero'} && 
 	( $self->{'_nozero'} == 2 || $self->{'_nozero'} == 3 ) ) {
@@ -829,7 +827,6 @@ sub map {
        $value->end($value->end - 1) 
 	   if defined $value->end && $value->end < 1;
    }
-
    return $value;
 }
 
