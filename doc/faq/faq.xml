@@ -390,7 +390,7 @@ foreach my $feat ( $prot_obj->top_SeqFeatures ) {
 <code>
 my $seq_obj = $db->get_Seq_by_id($gi);
 foreach my $feat ( $seq_obj->top_SeqFeatures ) {
-   if ( $feat->primary_tag eq 'CDS' ) {\
+   if ( $feat->primary_tag eq 'CDS' ) {
       my $cds_obj = $feat->spliced_seq;
       print "CDS sequence is ",$cds_obj->seq,"\n";
    }

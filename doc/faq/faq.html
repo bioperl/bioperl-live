@@ -145,7 +145,7 @@ foreach my $feat ( $prot_obj->top_SeqFeatures ) {
       </h3><p><b>A: </b>You can use the spliced_seq() method. For example:</p><table bgcolor="pink" border="0" cellpadding="10" cellspacing="0"><tr><td><font color="blue"><pre>
 my $seq_obj = $db->get_Seq_by_id($gi);
 foreach my $feat ( $seq_obj->top_SeqFeatures ) {
-   if ( $feat->primary_tag eq 'CDS' ) {\
+   if ( $feat->primary_tag eq 'CDS' ) {
       my $cds_obj = $feat->spliced_seq;
       print "CDS sequence is ",$cds_obj->seq,"\n";
    }
