@@ -354,11 +354,12 @@ use Bio::SeqI;
 # Object preamble - inherits from Bio::Root::Object
 
 use Bio::Root::Root;
+use Bio::RangeI;
 use Bio::Annotation::Collection;
 use Bio::PrimarySeq;
 
 $VERSION = '0.9';
-@ISA = qw(Bio::Root::Root Bio::SeqI);
+@ISA = qw(Bio::Root::Root Bio::SeqI Bio::RangeI);
 
 =head2 new
 
@@ -469,6 +470,54 @@ sub validate_seq {
 sub length {
    my ($self) = @_;
    return $self->primary_seq()->length();
+}
+
+=head2 start
+
+ Title   : start
+ Usage   : $start = $seq->start()
+ Function:
+ Example :
+ Returns : Integer representing the start of the sequence.
+ Args    : None
+
+=cut
+
+sub start {
+  my $self = shift;
+  return 1;
+}
+
+=head2 end
+
+ Title   : start
+ Usage   : $start = $seq->end()
+ Function:
+ Example :
+ Returns : Integer representing the end of the sequence.
+ Args    : None
+
+=cut
+
+sub end {
+  my $self = shift;
+  return $self->length;
+}
+
+=head2 strand
+
+ Title   : strand
+ Usage   : $stand = $seq->strand()
+ Function:
+ Example :
+ Returns : Integer representing the strand of the sequence [0,1,-1]
+ Args    : None
+
+=cut
+
+sub strand {
+  my $self = shift;
+  return 0;
 }
 
 =head2 subseq

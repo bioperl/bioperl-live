@@ -173,7 +173,6 @@ sub _generic_seqfeature {
 	my $start = $1;
 	my $end   = $2;
 
-
 	# hard core object building to accelerate time
 	my $location = {};
 	bless $location,'Bio::Location::Simple';
@@ -181,7 +180,7 @@ sub _generic_seqfeature {
 	$location->{'_end'}    = $end;
 	$location->{'_strand'} = 1;
 
-	$sf->location($location) 
+	$sf->location($location);
       } elsif ( $loc =~ /^complement\((\d+)\.\.(\d+)\)$/ ) {
 	my $start = $1;
 	my $end   = $2;
@@ -192,11 +191,12 @@ sub _generic_seqfeature {
 	$location->{'_start'}  = $start;
 	$location->{'_end'}    = $end;
 	$location->{'_strand'} = -1;
+	$sf->location($location);
 
       } else {
 	
 	if ( $loc =~ s/\(?\s*([A-Za-z\d\_]+(\.\d+)?):// ) {
-	  ($seqid) = $1; 
+	  ($seqid) = $1;
 	}
 	
 	

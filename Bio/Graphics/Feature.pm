@@ -81,9 +81,29 @@ sub add_segment {
   }
   if (@segments) {
     $self->{segments} = [ sort {$a->start <=> $b->start } @segments ];
-    $self->{start} = $self->{segments}[0]->start;
-    ($self->{stop}) = sort { $b <=> $a } map { $_->end} @segments;
+    $self->{start}    = $self->{segments}[0]->start;
+    ($self->{stop})   = sort { $b <=> $a } map { $_->end } @segments;
   }
+}
+
+sub location {
+  my $self = shift;
+
+  require Bio::Location::Split;
+  my @segments = $self->segments;
+  if (@segments) {
+    my $split = Bio::Location::Split->new;
+    foreach (@segments) {
+      $split->add_sub_Location(Bio::Location::Simple->new(-start  => $_->start,
+							  -end    => $_->end,
+							  -strand => $_->strand
+							 ));
+    }
+    return $split;
+  }
+  return Bio::Location::Simple->new(-start  => $self->start,
+				    -end    => $self->end,
+				    -strand => $self->strand);
 }
 
 sub segments {

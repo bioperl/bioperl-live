@@ -12,6 +12,9 @@ sub connector {
   return 'dashed' unless $self->SUPER::connector eq 'none';
 }
 
+# we don't label group (yet)
+sub label { 0 }
+
 #sub layout_width {
 #  my $self = shift;
 #  my @parts = $self->parts or return $self->SUPER::layout_width;

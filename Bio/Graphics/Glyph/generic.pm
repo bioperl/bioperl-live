@@ -58,14 +58,13 @@ sub _label {
   my $label = $self->option('label');
   return unless defined $label;
   return $label unless $label eq '1';
-  return "1"    if $label eq '1 ';
+  return "1"    if $label eq '1 '; # 1 with a space
 
   # figure it out ourselves
   my $f = $self->feature;
   my $info = eval {$f->info};
   return $info if $info;
-  return $f->seqname if $f->can('seqname');
-  return $f->primary_tag;
+  return eval {$f->seqname} || eval{$f->primary_tag};
 }
 sub _description {
   my $self = shift;
@@ -158,6 +157,7 @@ sub arrow {
   my $self = shift;
   my $gd   = shift;
   my ($x1,$x2,$y) = @_;
+
   my $fg     = $self->set_pen;
   my $height = $self->height/3;
 

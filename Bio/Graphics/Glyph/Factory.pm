@@ -13,7 +13,6 @@ my %GENERIC_OPTIONS = (
 		       height     => 8,
 		       font       => gdSmallFont,
 		       bump       => +1,       # bump by default (perhaps a mistake?)
-		       connector  => 'none',
 		       );
 
 sub new {
@@ -64,6 +63,8 @@ sub translate_color {
 sub make_glyph {
   my $self = shift;
   my @result;
+  my $panel = $self->panel;
+  my ($leftmost,$rightmost) = ($panel->left,$panel->right);
 
   for my $f (@_) {
 
@@ -76,8 +77,12 @@ sub make_glyph {
       carp("the requested glyph class, ``$type'' is not available: $@")
 	unless (eval "require $glyphclass");
     }
-    push @result, $glyphclass->new(-feature  => $f,
-				   -factory  => $self);
+    my $glyph = $glyphclass->new(-feature  => $f,
+				 -factory  => $self);
+
+    # this is removing glyphs that are not onscreen at all (but not tracks)
+    push @result,$glyph if $type eq 'track' 
+      || ($glyph->{left} + $glyph->{width} >= $leftmost && $glyph->{left} <= $rightmost);
   }
   return wantarray ? @result : $result[0];
 }
@@ -116,6 +121,7 @@ sub option {
     if (defined(my $value  = $map->{$option_name})) {
       my $feature = $glyph->feature;
       return $value unless ref $value eq 'CODE';
+      return unless $feature->isa('Bio::SeqFeatureI');
       my $val = $value->($feature,$option_name,$partno,$total_parts);
       return defined $val && $val eq '*default*' ? $GENERIC_OPTIONS{$option_name} : $val;
     }

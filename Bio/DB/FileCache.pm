@@ -61,7 +61,6 @@ methods. Internal methods are usually preceded with a _
 
 package Bio::DB::FileCache;
 
-use Bio::DB::SeqI;
 use DB_File;
 use Storable qw(freeze thaw);
 use Fcntl qw(O_CREAT O_RDWR O_RDONLY);
@@ -71,9 +70,15 @@ use vars qw(@ISA);
 use strict;
 
 use Bio::Root::Root;
-use Bio::Seq;
 
 @ISA = qw(Bio::Root::Root Bio::DB::SeqI);
+
+use Bio::DB::SeqI;
+use Bio::Seq::RichSeq;
+use Bio::Location::Split;
+use Bio::Location::Fuzzy;
+use Bio::Seq;
+use Bio::SeqFeature::Generic;
 
 =head2 new
 
@@ -267,7 +272,8 @@ sub _get {
   my $self = shift;
   my ($type,$id) = @_;
   my $serialized = $self->db->{"${type}_${id}"};
-  return thaw($serialized);
+  my $obj = thaw($serialized);
+  $obj;
 }
 
 sub _store {

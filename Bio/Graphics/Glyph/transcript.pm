@@ -4,8 +4,9 @@ use strict;
 use Bio::Graphics::Glyph::generic;
 use Bio::Graphics::Glyph::segmented_keyglyph;
 use vars '@ISA';
-@ISA = qw(Bio::Graphics::Glyph::segmented_keyglyph
-	  Bio::Graphics::Glyph::generic);
+@ISA = qw( Bio::Graphics::Glyph::segmented_keyglyph
+	   Bio::Graphics::Glyph::generic
+	 );
 
 sub pad_left  {
   my $self = shift;
@@ -27,6 +28,7 @@ sub draw_connectors {
   my ($left,$top) = @_;
   $self->SUPER::draw_connectors($gd,$left,$top);
   my @parts = $self->parts;
+  @parts = $self unless @parts;
   if ($self->feature->strand >= 0) {
     my($x1,$y1,$x2,$y2) = $parts[-1]->bounds(@_);
     my $center = ($y2+$y1)/2;
@@ -58,14 +60,14 @@ sub bump {
 
 sub label {
   my $self = shift;
-  return $self->SUPER::label(@_) if $self->all_callbacks;
-  return 0 unless $self->feature->sub_SeqFeature;
+  return $self->SUPER::label(@_) if $self->all_callbacks || $self->feature->isa('Bio::SeqFeatureI');
+  return unless $self->subseq($self->feature);
   return $self->SUPER::label(@_);
 }
 sub description {
   my $self = shift;
-  return $self->SUPER::description(@_) if $self->all_callbacks;
-  return 0 unless $self->feature->sub_SeqFeature;
+  return $self->SUPER::description(@_) if $self->all_callbacks || $self->feature->isa('Bio::SeqFeatureI');
+  return unless $self->subseq($self->feature);
   return $self->SUPER::description(@_);
 }
 

@@ -105,7 +105,7 @@ sub map_pt {
     my $val = $pl + ($_-$offset-1) * $scale;
     $val = $pl-1 if $val < $pl;
     $val = $pr+1 if $val > $pr;
-    push @result,$val;
+    push @result,int(0.5+$val);
   }
   @result;
 }
@@ -238,7 +238,7 @@ sub _add_track {
   $features = [$features] unless ref $features eq 'ARRAY';
 
   # optional middle-level glyph is the group
-  foreach my $f (@$features) {
+  foreach my $f (grep {ref $_ eq 'ARRAY'} @$features) {
     next unless ref $f eq 'ARRAY';
     $f = Bio::Graphics::Feature->new(
 				     -segments=>$f,
@@ -306,7 +306,7 @@ sub gd {
     $gd->filledRectangle($pl,
 			 $offset,
 			 $width-$self->pad_right,
-			 $offset+$track->layout_height 
+			 $offset+$track->layout_height
 			 + ($self->{key_style} eq 'between' ? $self->{key_font}->height : 0),
 			 $track->tkcolor)
       if defined $track->tkcolor;
@@ -395,7 +395,8 @@ sub format_key {
       if (my @parts = $track->parts) {
 	$glyph = $parts[0]->keyglyph;
       } else {
-	my $t = Bio::Graphics::Feature->new(-segments=>[Bio::Graphics::Feature->new(-start=>1,-stop=>1)]);
+	my $t = Bio::Graphics::Feature->new(-segments=>[Bio::Graphics::Feature->new(-start=>$self->offset+1,
+										    -stop=>$self->offset+1)]);
 	my $g = $track->factory->make_glyph($t);
 	$glyph = $g->keyglyph;
       }

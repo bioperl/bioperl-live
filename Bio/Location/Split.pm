@@ -151,11 +151,16 @@ sub sub_Location {
 		grep { $_->seq_id() eq $seqid; } @sublocs :
 		@sublocs);
     if(@locs) {
-	if($order == 1) {
-	    @locs = sort { $a->start() <=> $b->start() } @locs;
-	} else { # $order == -1
-	    @locs = sort { $b->end() <=> $a->end() } @locs;
-	}
+      if($order == 1) {
+	# Schwartzian transforms for performance boost
+	@locs = map {$_->[0]}
+	  sort { $a->[1] <=> $b->[1] }
+	    map { [$_=>$_->start] } @locs;
+      } else { # $order == -1
+	@locs = map {$_->[0]}
+	  sort { $b->[1] <=> $a->[1] }
+	    map { [$_=>$_->end] } @locs;
+      }
     }
     # push the rest unsorted
     if($seqid) {

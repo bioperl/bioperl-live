@@ -37,10 +37,10 @@ sub new {
   }
 
   if (defined $self->start && defined $self->stop) {
-      my ($left,$right) = $factory->map_pt($self->start,$self->stop);
-      ($left,$right) = ($right,$left) if $left > $right;  # paranoia
-      $self->{left}    = $left;
-      $self->{width}   = $right - $left + 1;
+    my ($left,$right) = $factory->map_pt($self->start,$self->stop);
+    ($left,$right) = ($right,$left) if $left > $right;  # paranoia
+    $self->{left}    = $left;
+    $self->{width}   = $right - $left + 1;
   }
   if (@subglyphs) {
       my $l            = $subglyphs[0]->left;
@@ -439,9 +439,8 @@ sub draw {
   local($self->{partno},$self->{total_parts});
   @{$self}{qw(partno total_parts)} = ($partno,$total_parts);
 
-  $self->layout;
+  my $connector =  $self->connector;
   if (my @parts = $self->parts) {
-    my $connector =  $self->connector;
     my $x = $left;
     my $y = $top  + $self->top + $self->pad_top;
 
@@ -450,13 +449,17 @@ sub draw {
       # lie just a little bit to avoid lines overlapping and
       # make the picture prettier
       my $fake_x = $x;
-      $fake_x-- if defined $last_x && $parts[$i]->left - $last_x <= 1;
+      $fake_x-- if defined $last_x && $parts[$i]->left - $last_x == 1;
       $parts[$i]->draw($gd,$fake_x,$y,$i,scalar(@parts));
       $last_x = $parts[$i]->right;
     }
     $self->draw_connectors($gd,$x,$y) if $connector && $connector ne 'none';
-  } else {  # no part
+  }
+
+  else {  # no part
     $self->draw_component($gd,$left,$top);
+    $self->draw_connectors($gd,$left,$top)
+      if $connector && $connector ne 'none' && $self->feature->isa('Bio::SeqFeatureI');
   }
 }
 
@@ -469,7 +472,7 @@ sub draw_connectors {
     $self->_connector($gd,$dx,$dy,$parts[$i]->bounds,$parts[$i+1]->bounds);
   }
 
-  if (1) { # this is working, but it's a bit awkward
+  if (0) { # this is commented out until I remember what it does
     my($x1,$y1,$x2,$y2) = $self->bounds(0,0);
     my($xl,$xt,$xr,$xb) = $parts[0]->bounds;
     $self->_connector($gd,$dx,$dy,$x1,$xt,$x1,$xb,$xl,$xt,$xr,$xb);
@@ -631,6 +634,7 @@ sub filled_arrow {
   my $orientation = shift;
 
   my ($x1,$y1,$x2,$y2) = @_;
+
   my ($width) = $gd->getBounds;
   my $indent = $y2-$y1 < $x2-$x1 ? $y2-$y1 : ($x2-$x1)/2;
 
@@ -702,12 +706,27 @@ sub draw_component {
   }
 }
 
+# memoize _subseq -- it's a bottleneck with segments
 sub subseq {
-  my $class = shift;
+  my $self    = shift;
   my $feature = shift;
-  return $feature->merged_segments if $feature->can('merged_segments');
-  return $feature->segments        if $feature->can('segments');
-  return $feature->sub_SeqFeature  if $feature->can('sub_SeqFeature');
+  return $self->_subseq($feature) unless ref $self;
+  return @{$self->{cached_subseq}{$feature}} if $self->{cached_subseq}{$feature};
+  my @ss = $self->_subseq($feature);
+  $self->{cached_subseq}{$feature} = \@ss;
+  @ss;
+}
+
+sub _subseq {
+  my $class   = shift;
+  my $feature = shift;
+  return $feature->merged_segments         if $feature->can('merged_segments');
+  return $feature->segments                if $feature->can('segments');
+  my @split = eval { my $id = $feature->location->seq_id;
+		     my @subs = $feature->location->sub_Location;
+		     grep {$id eq $_->seq_id} $feature->location->sub_Location};
+  return @split if @split;
+  return $feature->sub_SeqFeature          if $feature->can('sub_SeqFeature');
   return;
 }
 
