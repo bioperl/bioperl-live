@@ -821,32 +821,36 @@ sub _read_swissprot_References{
    my @refs;
    local $_ = $line;
    while( defined $_ ) {
-       if( (/^[^R]/) || (/^RN/) ) { 
+       if( /^[^R]/ || /^RN/ ) { 
 	   if( $rp ) { 
 	       $rg =~ s/;\s*$//g if defined($rg);
-               if (!defined($au)) {
-                   $au = $rg;
-               } else {
+               if (defined($au)) {
                    $au =~ s/;\s*$//;
+               } else {
+                   $au = $rg;
                }
                $title =~ s/;\s*$//g if defined($title);
-	       push @refs, Bio::Annotation::Reference->new(-title    => $title,
-							   -start    => $b1,
-							   -end      => $b2,
-							   -authors  => $au,
-							   -location => $loc,
-							   -medline  => $med,
-							   -pubmed   => $pubmed,
-							   -comment  => $com,
-							   -rp       => $rp,
-                                                           -rg       => $rg);
+	       push @refs, Bio::Annotation::Reference->new(-title   => $title,
+							   -start   => $b1,
+							   -end     => $b2,
+							   -authors => $au,
+							   -location=> $loc,
+							   -medline => $med,
+							   -pubmed  => $pubmed,
+							   -comment => $com,
+							   -rp      => $rp,
+                                                           -rg      => $rg);
+               # reset state for the next reference
 	       $rp = '';
 	   }
            if (index($_,'R') != 0) {
                $self->_pushback($_); # want this line to go back on the list
                last; # may be the safest exit point HL 05/11/2000
            }
-       } elsif ( /^RP   (SEQUENCE OF (\d+)-(\d+).*)/) { 
+           # don't forget to reset the state for the next reference
+           $b1 = $b2 = $rg = $med = $com = $pubmed = undef;
+           $title = $loc = $au = undef;
+       } elsif ( /^RP   (.+? OF (\d+)-(\d+).*)/) { 
 	   $rp  .= $1;
 	   $b1   = $2;
 	   $b2   = $3; 
@@ -863,7 +867,12 @@ sub _read_swissprot_References{
        } elsif( /^RG   (.*)/ ) { 
 	   $rg .= $rg ? " $1" : $1;
        } elsif ( /^RT   (.*)/ ) { 
-	   $title .= $title ? " $1" : $1;
+           if ($title) {
+               my $tline = $1;
+               $title .= ($title =~ /[\w;,:\?!]$/) ? " $tline" : $tline;
+           } else {
+               $title = $1;
+           }
        } elsif (/^RL   (.*)/ ) { 
 	   $loc .= $loc ? " $1" : $1;
        } elsif ( /^RC   (.*)/ ) {
