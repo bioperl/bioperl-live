@@ -84,6 +84,7 @@ use lib $INSTALL_PATH;
 use lib '.','..';  # fail-safe incase you forget to edit $INSTALL_PATH.
 
 use Bio::SeqIO;
+use Bio::SeqIO::fasta; # needed to get the list of @SEQ_ID_TYPES
 use Bio::Root::Global qw(:devel $TIMEOUT_SECS);
 use Getopt::Long;
 use Carp;
@@ -108,9 +109,10 @@ $_count_processed = 0;
 $opt_nucl       = 0;
 $opt_prot       = 0;
 $opt_col        = 0;         # Column in the -incl or -excl files with the seq IDs.
-$opt_exact      = 1;         # Require exact match when filtering based on seq id.
+$opt_exact      = 1;         # Require exact match when filtering based on seq ID.
 $opt_fmt        = 'fasta';   # Default input format
 $opt_outfmt     = 'fasta';   # Default output format
+$opt_idtype     = 'accession.version'; # Default output id type for fasta output.
 $opt_seq        = undef;
 $opt_incl       = undef;
 $opt_excl       = undef;
@@ -176,10 +178,12 @@ sub seq_params {
 
  SEQTOOLS PARAMETERS:
  --------------------
- -fmt <format> : Sequence format for readin sequence data (default = $opt_fmt).
+ -fmt <format> : Sequence format for readin sequence data (default=$opt_fmt).
                  Supported: @SUPPORTED_FORMATS
- -outfmt <format> : Sequence format for writing sequence data (default = $opt_outfmt).
+ -outfmt <format> : Sequence format for writing sequence data (default=$opt_outfmt).
                    Supported: @SUPPORTED_FORMATS
+ -idtype <type>   : Sequence identifier type for fasta output (default=$opt_idtype)
+                   Supported: @Bio::SeqIO::fasta::SEQ_ID_TYPES
  -incl <file|list> : Filename containing list of sequence IDs to include
                      -or- list of IDs separated by whitespace.
                      For lines containing multiple ids, only
@@ -233,7 +237,8 @@ sub init_seq {
 
     &GetOptions('mon!', 'h!', 'debug!', 'incl=s', 'excl=s', 'wait=s', 
 		'seq=s', 'nucl!', 'prot!', 'strict!', 'out=s',
-		'exact!', 'outfmt=s', 'err=s', 'eg!', 'write_files=s', 'tag=s',
+		'exact!', 'fmt=s',  'outfmt=s', 'idtype=s', 'err=s', 'eg!', 
+                'write_files=s', 'tag=s',
 		@opts);
    
     $MONITOR && print STDERR "$0, v$VERSION\n",'-'x50,"\n";
@@ -500,6 +505,9 @@ sub print_seq {
     # Prepend an optional tag to the sequence.
     $opt_tag and $seq->desc($opt_tag.' '.$seq->desc);
 
+    if ($opt_outfmt =~ /fasta/i) {
+        $seqout->preferred_id_type($opt_idtype);
+    }
     $seqout->write_seq($seq);
     $_count_processed++;
 
