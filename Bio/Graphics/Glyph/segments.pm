@@ -85,15 +85,23 @@ sub draw {
   $self->draw_label(@_)       if $self->option('label');
   $self->draw_description(@_) if $self->option('description');
 
+  my $drew_sequence;
+
   if ($self->option('draw_target')) {
     return $self->SUPER::draw(@_) unless eval {$self->feature->hit->seq};
-    return $self->draw_multiple_alignment(@_);
+    $drew_sequence = $self->draw_multiple_alignment(@_);
   }
 
-  if ($self->option('draw_dna')) {
+  elsif ($self->option('draw_dna')) {
     return $self->SUPER::draw(@_) unless eval {$self->feature->seq};
-    return $self->draw_dna(@_);
+    $drew_sequence = $self->draw_dna(@_);
   }
+
+  my ($gd,$x,$y) = @_;
+  $y  += $self->top + $self->pad_top if $drew_sequence;  # something is wrong - this is a hack/workaround
+  my $connector     =  $self->connector;
+  $self->draw_connectors($gd,$x,$y) if $connector && $connector ne 'none';
+
 }
 
 sub draw_dna {
@@ -111,6 +119,7 @@ sub draw_dna {
   my $panel_left           = $self->panel->left;
   my $panel_right          = $self->panel->right;
   my $true_target          = $self->option('true_target');
+  my $drew_sequence;
 
   my ($bl,$bt,$br,$bb)     = $self->bounds($left,$top);
   $top = $bt;
@@ -184,9 +193,10 @@ sub draw_dna {
     }
 
     $src_last_end  = $seg->[SRC_END];
+    $drew_sequence++;
   }
 
-  return;
+  return $drew_sequence;
 }
 
 sub draw_multiple_alignment {
@@ -199,6 +209,7 @@ sub draw_multiple_alignment {
                                ? RAGGED_START_FUZZ : $self->option('ragged_extra');
   my $true_target          = $self->option('true_target');
   my $show_mismatch        = $self->option('show_mismatch');
+  my $do_realign           = $self->option('realign');
 
   my $pixels_per_base      = $self->scale;
   my $feature              = $self->feature;
@@ -209,6 +220,7 @@ sub draw_multiple_alignment {
   my $strand               = $feature->strand;
   my $panel_left           = $self->panel->left;
   my $panel_right          = $self->panel->right;
+  my $drew_sequence;
 
 
   my ($bl,$bt,$br,$bb)     = $self->bounds($left,$top);
@@ -217,7 +229,7 @@ sub draw_multiple_alignment {
   my @s                    = $feature->get_SeqFeatures;
   @s                       = $feature unless @s;
 
-  my $can_realign = eval { require Bio::Graphics::Browser::Realign; 1 };
+  my $can_realign = $do_realign && eval { require Bio::Graphics::Browser::Realign; 1 };
 
   my (@segments,%strands);
   for my $s (@s) {
@@ -237,7 +249,7 @@ sub draw_multiple_alignment {
     if ($s->length == $target->length || !$can_realign) {
       push @segments,[$target,$src_start,$src_end,$tgt_start,$tgt_end];
     }
-    
+
     else {  # unfortunately if this isn't the case, then we have to realign the segment a bit
       warn   "Realigning [$target,$src_start,$src_end,$tgt_start,$tgt_end].\n" if DEBUG;
       my ($sdna,$tdna) = ($s->dna,$target->dna);
@@ -250,8 +262,8 @@ sub draw_multiple_alignment {
 	  ? [$target,$_->[0]+$src_start,$_->[1]+$src_start,$_->[2]+$tgt_start,$_->[3]+$tgt_start]
 	  : [$target,$_->[0]+$src_start,$_->[1]+$src_start,$tgt_end-$_->[3],$tgt_end-$_->[2]];
 	warn "=========> [@$a]\n" if DEBUG;
-	warn substr($sdna,     $_->[0],$_->[1]-$_->[0]+1),"\n";# if DEBUG;
-	warn substr($tdna,$_->[2],$_->[3]-$_->[2]+1),"\n";# if DEBUG;
+	warn substr($sdna,     $_->[0],$_->[1]-$_->[0]+1),"\n" if DEBUG;
+	warn substr($tdna,$_->[2],$_->[3]-$_->[2]+1),"\n"      if DEBUG;
 	push @segments,$a;
       }
     }
@@ -383,6 +395,7 @@ sub draw_multiple_alignment {
   my ($tgt_last_end,$src_last_end);
   for my $seg (sort {$a->[SRC_START]<=>$b->[SRC_START]} @segments) {
 
+    warn "seg= @$seg; panel_start = $panel_start, panel_end = $panel_end" if DEBUG;
     my $y = $top - $lineheight/4; 
 
     for (my $i=0; $i<$seg->[SRC_END]-$seg->[SRC_START]+1; $i++) {
@@ -390,10 +403,15 @@ sub draw_multiple_alignment {
       my $src_base = $self->_subsequence($ref_dna,$seg->[SRC_START]+$i,$seg->[SRC_START]+$i);
       my $tgt_base = $self->_subsequence($tgt_dna,$seg->[TGT_START]+$i,$seg->[TGT_START]+$i);
       my $x = $base2pixel->($seg->[SRC_START],$i);
+
+      next unless $tgt_base && $x >= $panel_left && $x <= $panel_right;
+
       $self->filled_box($gd,$x,$y+3,$x+$fontwidth-1,$y+$lineheight-2,$pink,$pink) 
 	if $show_mismatch && $tgt_base && $src_base ne $tgt_base && $tgt_base !~ /[nN]/;
       $tgt_base = $complement{$tgt_base} if $true_target && $strand < 0;
       $gd->char($font,$x,$y,$tgt_base,$tgt_base =~ /[nN]/ ? $grey : $color);
+
+      $drew_sequence++;
     }
 
     # indicate the presence of insertions in the target
@@ -434,7 +452,7 @@ sub draw_multiple_alignment {
     $src_last_end  = $seg->[SRC_END];
   }
 
-  return;
+  return $drew_sequence;
 }
 
 sub _subsequence {
