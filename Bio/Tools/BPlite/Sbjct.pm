@@ -99,6 +99,7 @@ sub nextHSP {
   
   my ($match, $length) = $scoreline =~ /Identities = (\d+)\/(\d+)/;
   my ($positive) = $scoreline =~ /Positives = (\d+)/;
+  my $frame = '0';
   $positive = $match if not defined $positive;
   my ($p)        = $scoreline =~ /[Sum ]*P[\(\d+\)]* = (\S+)/;
   if (not defined $p) {($p) = $scoreline =~ /Expect = (\S+)/}
@@ -123,6 +124,10 @@ sub nextHSP {
       $self->{'HSP_ALL_PARSED'} = 1;
       last;
     }
+    elsif( $_ =~ /^\s*Frame\s*=\s*([-\+]\d+)/ ) {
+	$frame = $1;
+    }
+
     else {
       push @hspline, $_;           #      store the query line
       $nextline = <$FH> ;
@@ -176,7 +181,8 @@ sub nextHSP {
 					'-queryName'=>$self->{'PARENT'}->query,
 					'-sbjctName'=>$self->{'NAME'},
 					'-queryLength'=>$self->{'PARENT'}->qlength,
-					'-sbjctLength'=>$self->{'LENGTH'});
+					'-sbjctLength'=>$self->{'LENGTH'},
+					'-frame'   => $frame);
   return $hsp;
 }
 

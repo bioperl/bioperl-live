@@ -28,7 +28,7 @@ sub new {
     my $self = $class->SUPER::new(@args);
 
     my ($score,$bits,$match,$positive,$p,$qb,$qe,$sb,$se,$qs,
-	$ss,$hs,$qname,$sname,$qlength,$slength) = 
+	$ss,$hs,$qname,$sname,$qlength,$slength, $frame) = 
 	    $self->_rearrange([qw(SCORE
 				  BITS
 				  MATCH
@@ -45,6 +45,7 @@ sub new {
 				  SBJCTNAME			    
 				  QUERYLENGTH
 				  SBJCTLENGTH
+				  FRAME
 				  )],@args);
 
     # Store the aligned query as sequence feature
@@ -83,7 +84,7 @@ sub new {
     $self->{'QS'} = $qs;
     $self->{'SS'} = $ss;
     $self->{'HS'} = $hs;
-
+    $self->{'FRAME'} = defined $frame ? $frame : '0';
     return $self;		# success - we hope!
 }
 
@@ -111,9 +112,8 @@ sub P               {shift->significance(@_)}
  Title    : percent
  Usage    : $hsp->percent();
  Function : returns the percent matching 
- Example  : 
  Returns  : (double) percent matching
- Args     :
+ Args     : none
 
 =cut
 
@@ -137,9 +137,8 @@ sub match           {shift->query->frac_identical(@_)}
  Title    : positive
  Usage    : $hsp->positive();
  Function : returns the number of positive hits 
- Example  : 
  Returns  : (int) number of positive residue hits 
- Args     :
+ Args     : none
 
 =cut
 
@@ -150,9 +149,8 @@ sub positive        {shift->{'POSITIVE'}}
  Title    : querySeq
  Usage    : $hsp->querySeq();
  Function : returns the query sequence
- Example  : 
  Returns  : (string) the Query Sequence 
- Args     :
+ Args     : none
 
 =cut
 
@@ -163,9 +161,8 @@ sub querySeq        {shift->{'QS'}}
  Title    : sbjctSeq
  Usage    : $hsp->sbjctSeq();
  Function : returns the Sbjct sequence 
- Example  : 
  Returns  : (string) the Sbjct Sequence 
- Args     :
+ Args     : none
 
 =cut
 
@@ -176,9 +173,8 @@ sub sbjctSeq        {shift->{'SS'}}
  Title    : homologySeq
  Usage    : $hsp->homologySeq();
  Function : returns the homologous sequence 
- Example  : 
  Returns  : (string) homologous sequence 
- Args     :
+ Args     : none
 
 =cut
 
@@ -189,9 +185,8 @@ sub homologySeq     {shift->{'HS'}}
  Title    : qs
  Usage    : $hsp->qs();
  Function : returns the Query Sequence (same as querySeq)
- Example  : 
  Returns  : (string) query Sequence 
- Args     :
+ Args     : none
 
 =cut
 
@@ -202,9 +197,8 @@ sub qs              {shift->{'QS'}}
  Title    : ss
  Usage    : $hsp->ss();
  Function : returns the subject sequence ( same as sbjctSeq) 
- Example  : 
  Returns  : (string) Sbjct Sequence
- Args     :
+ Args     : none
 
 =cut
 
@@ -215,10 +209,24 @@ sub ss              {shift->{'SS'}}
  Title    : hs
  Usage    : $hsp->hs();
  Function : returns the Homologous Sequence (same as homologySeq ) 
- Example  : 
  Returns  : (string) Homologous Sequence
- Args     :
+ Args     : none
 
 =cut
 
 sub hs              {shift->{'HS'}}
+
+=head2 frame
+
+ Title    : frame
+ Usage    : $hsp->frame();
+ Function : returns the frame this alignment hits, this is only really valid
+            for TBLASTN reports
+ Returns  : (string) Frame (0 is default for no frame information)
+ Args     : none
+
+=cut
+
+sub frame              {shift->{'FRAME'}}
+
+1;

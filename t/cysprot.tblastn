@@ -1,0 +1,855 @@
+TBLASTN 2.1.2 [Oct-19-2000]
+
+
+Reference: Altschul, Stephen F., Thomas L. Madden, Alejandro A. Schaffer, 
+Jinghui Zhang, Zheng Zhang, Webb Miller, and David J. Lipman (1997), 
+"Gapped BLAST and PSI-BLAST: a new generation of protein database search
+programs",  Nucleic Acids Res. 25:3389-3402.
+
+Query= CYS1_DICDI
+         (343 letters)
+
+Database: alu.n
+           327 sequences; 80,506 total letters
+
+Searching......................................................done
+
+                                                                   Score     E
+Sequences producing significant alignments:                        (bits)  Value
+
+gnl|alu|L13391_HSAL003871 (Alu-J)                                      23  0.64
+gnl|alu|M30798_HSAL001637 (Alu-J)                                      20  5.6
+gnl|alu|M64231_HSAL003023 (Alu-Sb)                                     20  5.6
+gnl|alu|Y00326_HSAL000959 (Alu-J)                                      19  9.5
+gnl|alu|X69908_HSAL000290 (Alu-J)                                      19  9.5
+gnl|alu|M65235_HSAL002711 (Alu-Sx)                                     19  9.5
+gnl|alu|M80812_HSAL001801 (Alu-J)                                      19  9.5
+
+>gnl|alu|L13391_HSAL003871 (Alu-J)
+          Length = 193
+
+ Score = 23.1 bits (48), Expect = 0.64
+ Identities = 11/32 (34%), Positives = 15/32 (46%)
+ Frame = +1
+
+Query: 137 GQCGSCWSFSTTGNVEGQHFISQNKLVSLSEQ 168
+           G CGSCW        + QHF    ++  LS +
+Sbjct: 19  GYCGSCW--------KSQHFGRLRQVEGLSSE 90
+
+
+>gnl|alu|M30798_HSAL001637 (Alu-J)
+          Length = 331
+
+ Score = 20.0 bits (40), Expect = 5.6
+ Identities = 6/7 (85%), Positives = 7/7 (99%)
+ Frame = +3
+
+Query: 278 PCNPNSL 284
+           PCNPN+L
+Sbjct: 12  PCNPNTL 32
+
+
+>gnl|alu|M64231_HSAL003023 (Alu-Sb)
+          Length = 257
+
+ Score = 20.0 bits (40), Expect = 5.6
+ Identities = 8/14 (57%), Positives = 9/14 (64%)
+ Frame = +3
+
+Query: 294 SAKNTIFRKNMPYW 307
+           S KNT  +KN P W
+Sbjct: 72  STKNTKKKKNGPAW 113
+
+
+>gnl|alu|Y00326_HSAL000959 (Alu-J)
+          Length = 260
+
+ Score = 19.2 bits (38), Expect = 9.5
+ Identities = 6/10 (60%), Positives = 6/10 (60%)
+ Frame = -2
+
+Query: 177 CMEYEGEEAC 186
+           C EY GE  C
+Sbjct: 34  CWEYRGEPPC 5
+
+
+>gnl|alu|X69908_HSAL000290 (Alu-J)
+          Length = 292
+
+ Score = 19.2 bits (38), Expect = 9.5
+ Identities = 9/30 (30%), Positives = 13/30 (43%), Gaps = 3/30 (10%)
+ Frame = -1
+
+Query: 118 IPTAFDWRTRGAVTPVK---NQGQCGSCWS 144
+           +P   +WR   ++ P      Q  C S WS
+Sbjct: 256 LPILDNWRDHSSLKPPAPGFKQSSCLSFWS 167
+
+
+>gnl|alu|M65235_HSAL002711 (Alu-Sx)
+          Length = 325
+
+ Score = 19.2 bits (38), Expect = 9.5
+ Identities = 5/7 (71%), Positives = 5/7 (71%)
+ Frame = -1
+
+Query: 137 GQCGSCW 143
+           G C SCW
+Sbjct: 115 GACSSCW 95
+
+
+>gnl|alu|M80812_HSAL001801 (Alu-J)
+          Length = 202
+
+ Score = 19.2 bits (38), Expect = 9.5
+ Identities = 5/10 (50%), Positives = 7/10 (70%)
+ Frame = +2
+
+Query: 168 QNLVDCDHEC 177
+           + +V CDH C
+Sbjct: 113 ETIVHCDHTC 142
+
+
+  Database: alu.n
+    Posted date:  Feb 26, 2001  4:36 AM
+  Number of letters in database: 80,506
+  Number of sequences in database:  327
+  
+Lambda     K      H
+   0.316    0.135    0.414 
+
+Gapped
+Lambda     K      H
+   0.270   0.0470    0.230 
+
+
+Matrix: BLOSUM62
+Gap Penalties: Existence: 11, Extension: 1
+Number of Hits to DB: 35241
+Number of Sequences: 327
+Number of extensions: 483
+Number of successful extensions: 7
+Number of sequences better than 10.0: 14
+Number of HSP's better than 10.0 without gapping: 6
+Number of HSP's successfully gapped in prelim test: 1
+Number of HSP's that attempted gapping in prelim test: 1
+Number of HSP's gapped (non-prelim): 7
+length of query: 343
+length of database: 26,835
+effective HSP length: 31
+effective length of query: 312
+effective length of database: 16,698
+effective search space:  5209776
+effective search space used:  5209776
+frameshift window, decay const: 50,  0.1
+T: 13
+A: 40
+X1: 16 ( 7.3 bits)
+X2: 38 (14.8 bits)
+X3: 64 (24.9 bits)
+S1: 36 (19.3 bits)
+S2: 38 (19.2 bits)
+TBLASTN 2.1.2 [Oct-19-2000]
+
+
+Reference: Altschul, Stephen F., Thomas L. Madden, Alejandro A. Schaffer, 
+Jinghui Zhang, Zheng Zhang, Webb Miller, and David J. Lipman (1997), 
+"Gapped BLAST and PSI-BLAST: a new generation of protein database search
+programs",  Nucleic Acids Res. 25:3389-3402.
+
+Query= ALEU_HORVU
+         (362 letters)
+
+Database: alu.n
+           327 sequences; 80,506 total letters
+
+Searching......................................................done
+
+                                                                   Score     E
+Sequences producing significant alignments:                        (bits)  Value
+
+gnl|alu|L13391_HSAL003871 (Alu-J)                                      23  0.51
+gnl|alu|M59213_HSAL001809 (Alu-J)                                      20  7.5
+gnl|alu|M19889_HSAL002725 (Alu-J)                                      19  9.9
+gnl|alu|X05322_HSAL000874 (Alu-Sx)                                     19  9.9
+
+>gnl|alu|L13391_HSAL003871 (Alu-J)
+          Length = 193
+
+ Score = 23.5 bits (49), Expect = 0.51
+ Identities = 13/40 (32%), Positives = 19/40 (47%), Gaps = 3/40 (7%)
+ Frame = +1
+
+Query: 164 HCGSCWTFSTTGAL---EAAYTQATGKNISLSEQQLVDCA 200
+           +CGSCW     G L   E   ++  G +I ++     DCA
+Sbjct: 22  YCGSCWKSQHFGRLRQVEGLSSEVRGSSIQVTVS--YDCA 135
+
+
+>gnl|alu|M59213_HSAL001809 (Alu-J)
+          Length = 339
+
+ Score = 19.6 bits (39), Expect = 7.5
+ Identities = 7/12 (58%), Positives = 7/12 (58%)
+ Frame = +2
+
+Query: 164 HCGSCWTFSTTG 175
+           HCGSC  F   G
+Sbjct: 8   HCGSCL*FQQFG 43
+
+
+>gnl|alu|M19889_HSAL002725 (Alu-J)
+          Length = 183
+
+ Score = 19.2 bits (38), Expect = 9.9
+ Identities = 5/8 (62%), Positives = 7/8 (87%)
+ Frame = -1
+
+Query: 236 GVNGVCHY 243
+           G NG+CH+
+Sbjct: 54  GTNGMCHH 31
+
+
+>gnl|alu|X05322_HSAL000874 (Alu-Sx)
+          Length = 225
+
+ Score = 19.2 bits (38), Expect = 9.9
+ Identities = 6/11 (54%), Positives = 7/11 (63%)
+ Frame = -3
+
+Query: 237 VNGVCHYKAEN 247
+           + GVCHY   N
+Sbjct: 163 ITGVCHYAQLN 131
+
+
+  Database: alu.n
+    Posted date:  Feb 26, 2001  4:36 AM
+  Number of letters in database: 80,506
+  Number of sequences in database:  327
+  
+Lambda     K      H
+   0.318    0.132    0.400 
+
+Gapped
+Lambda     K      H
+   0.270   0.0470    0.230 
+
+
+Matrix: BLOSUM62
+Gap Penalties: Existence: 11, Extension: 1
+Number of Hits to DB: 31527
+Number of Sequences: 327
+Number of extensions: 291
+Number of successful extensions: 6
+Number of sequences better than 10.0: 8
+Number of HSP's better than 10.0 without gapping: 4
+Number of HSP's successfully gapped in prelim test: 0
+Number of HSP's that attempted gapping in prelim test: 2
+Number of HSP's gapped (non-prelim): 4
+length of query: 362
+length of database: 26,835
+effective HSP length: 32
+effective length of query: 330
+effective length of database: 16,371
+effective search space:  5402430
+effective search space used:  5402430
+frameshift window, decay const: 50,  0.1
+T: 13
+A: 40
+X1: 16 ( 7.3 bits)
+X2: 38 (14.8 bits)
+X3: 64 (24.9 bits)
+S1: 36 (19.4 bits)
+S2: 38 (19.2 bits)
+TBLASTN 2.1.2 [Oct-19-2000]
+
+
+Reference: Altschul, Stephen F., Thomas L. Madden, Alejandro A. Schaffer, 
+Jinghui Zhang, Zheng Zhang, Webb Miller, and David J. Lipman (1997), 
+"Gapped BLAST and PSI-BLAST: a new generation of protein database search
+programs",  Nucleic Acids Res. 25:3389-3402.
+
+Query= CATH_HUMAN
+         (335 letters)
+
+Database: alu.n
+           327 sequences; 80,506 total letters
+
+Searching......................................................done
+
+                                                                   Score     E
+Sequences producing significant alignments:                        (bits)  Value
+
+gnl|alu|M63796_HSAL002417 (Alu-J)                                      23  0.85
+gnl|alu|L13391_HSAL003871 (Alu-J)                                      22  1.1
+gnl|alu|M65235_HSAL002711 (Alu-Sx)                                     21  2.5
+gnl|alu|M88005_HSAL001281 (Alu-Sx)                                     21  3.3
+gnl|alu|M64231_HSAL003024 (Alu-J)                                      20  4.3
+
+>gnl|alu|M63796_HSAL002417 (Alu-J)
+          Length = 322
+
+ Score = 22.7 bits (47), Expect = 0.85
+ Identities = 11/34 (32%), Positives = 15/34 (43%)
+ Frame = +1
+
+Query: 302 SWGPQWGMNGYFLIERGKNMCGLAACASYPIPLV 335
+           SW P W        +  KN  G+   A Y +P+V
+Sbjct: 76  SWRPAWASGHLIFTKNKKN*LGMVV*ACY-VPVV 174
+
+
+>gnl|alu|L13391_HSAL003871 (Alu-J)
+          Length = 193
+
+ Score = 22.3 bits (46), Expect = 1.1
+ Identities = 8/23 (34%), Positives = 11/23 (47%)
+ Frame = +1
+
+Query: 136 GACGSCWTFSTTGALESAIAIAT 158
+           G CGSCW     G L     +++
+Sbjct: 19  GYCGSCWKSQHFGRLRQVEGLSS 87
+
+
+>gnl|alu|M65235_HSAL002711 (Alu-Sx)
+          Length = 325
+
+ Score = 21.2 bits (43), Expect = 2.5
+ Identities = 6/7 (85%), Positives = 6/7 (85%)
+ Frame = -1
+
+Query: 136 GACGSCW 142
+           GAC SCW
+Sbjct: 115 GACSSCW 95
+
+
+>gnl|alu|M88005_HSAL001281 (Alu-Sx)
+          Length = 225
+
+ Score = 20.8 bits (42), Expect = 3.3
+ Identities = 9/29 (31%), Positives = 16/29 (55%)
+ Frame = -1
+
+Query: 118 PSVDWRKKGNFVSPVKNQGACGSCWTFST 146
+           P++      NFV  VKN+ +C   W+ ++
+Sbjct: 165 PTIPNASLTNFVFFVKNRVSCWPGWSLNS 79
+
+
+>gnl|alu|M64231_HSAL003024 (Alu-J)
+          Length = 287
+
+ Score = 20.4 bits (41), Expect = 4.3
+ Identities = 10/24 (41%), Positives = 13/24 (53%)
+ Frame = -2
+
+Query: 96  WSEPQNCSATKSNYLRGTGPYPPS 119
+           WS   +  A  +  LRG+G  PPS
+Sbjct: 232 WSAVASIMAHYTLGLRGSGDPPPS 161
+
+
+  Database: alu.n
+    Posted date:  Feb 26, 2001  4:36 AM
+  Number of letters in database: 80,506
+  Number of sequences in database:  327
+  
+Lambda     K      H
+   0.319    0.134    0.436 
+
+Gapped
+Lambda     K      H
+   0.270   0.0470    0.230 
+
+
+Matrix: BLOSUM62
+Gap Penalties: Existence: 11, Extension: 1
+Number of Hits to DB: 44068
+Number of Sequences: 327
+Number of extensions: 498
+Number of successful extensions: 7
+Number of sequences better than 10.0: 10
+Number of HSP's better than 10.0 without gapping: 5
+Number of HSP's successfully gapped in prelim test: 0
+Number of HSP's that attempted gapping in prelim test: 2
+Number of HSP's gapped (non-prelim): 5
+length of query: 335
+length of database: 26,835
+effective HSP length: 29
+effective length of query: 306
+effective length of database: 17,352
+effective search space:  5309712
+effective search space used:  5309712
+frameshift window, decay const: 50,  0.1
+T: 13
+A: 40
+X1: 16 ( 7.4 bits)
+X2: 38 (14.8 bits)
+X3: 64 (24.9 bits)
+S1: 36 (19.5 bits)
+S2: 38 (19.2 bits)
+TBLASTN 2.1.2 [Oct-19-2000]
+
+
+Reference: Altschul, Stephen F., Thomas L. Madden, Alejandro A. Schaffer, 
+Jinghui Zhang, Zheng Zhang, Webb Miller, and David J. Lipman (1997), 
+"Gapped BLAST and PSI-BLAST: a new generation of protein database search
+programs",  Nucleic Acids Res. 25:3389-3402.
+
+Query= CATH_RAT
+         (333 letters)
+
+Database: alu.n
+           327 sequences; 80,506 total letters
+
+Searching......................................................done
+
+                                                                   Score     E
+Sequences producing significant alignments:                        (bits)  Value
+
+gnl|alu|L13391_HSAL003871 (Alu-J)                                      24  0.36
+gnl|alu|M65235_HSAL002711 (Alu-Sx)                                     21  2.4
+gnl|alu|L11016_HSAL003845 (Alu-J)                                      19  9.2
+
+>gnl|alu|L13391_HSAL003871 (Alu-J)
+          Length = 193
+
+ Score = 23.9 bits (50), Expect = 0.36
+ Identities = 9/23 (39%), Positives = 11/23 (47%)
+ Frame = +1
+
+Query: 134 GACGSCWTFSTTGALESAVAIAS 156
+           G CGSCW     G L     ++S
+Sbjct: 19  GYCGSCWKSQHFGRLRQVEGLSS 87
+
+
+>gnl|alu|M65235_HSAL002711 (Alu-Sx)
+          Length = 325
+
+ Score = 21.2 bits (43), Expect = 2.4
+ Identities = 6/7 (85%), Positives = 6/7 (85%)
+ Frame = -1
+
+Query: 134 GACGSCW 140
+           GAC SCW
+Sbjct: 115 GACSSCW 95
+
+
+>gnl|alu|L11016_HSAL003845 (Alu-J)
+          Length = 197
+
+ Score = 19.2 bits (38), Expect = 9.2
+ Identities = 7/15 (46%), Positives = 10/15 (66%)
+ Frame = +3
+
+Query: 124 GNVVSPVKNQGACGS 138
+           GN+V P   + +CGS
+Sbjct: 93  GNIVRPHFYKASCGS 137
+
+
+  Database: alu.n
+    Posted date:  Feb 26, 2001  4:36 AM
+  Number of letters in database: 80,506
+  Number of sequences in database:  327
+  
+Lambda     K      H
+   0.319    0.131    0.412 
+
+Gapped
+Lambda     K      H
+   0.270   0.0470    0.230 
+
+
+Matrix: BLOSUM62
+Gap Penalties: Existence: 11, Extension: 1
+Number of Hits to DB: 35152
+Number of Sequences: 327
+Number of extensions: 361
+Number of successful extensions: 10
+Number of sequences better than 10.0: 6
+Number of HSP's better than 10.0 without gapping: 3
+Number of HSP's successfully gapped in prelim test: 0
+Number of HSP's that attempted gapping in prelim test: 7
+Number of HSP's gapped (non-prelim): 3
+length of query: 333
+length of database: 26,835
+effective HSP length: 31
+effective length of query: 302
+effective length of database: 16,698
+effective search space:  5042796
+effective search space used:  5042796
+frameshift window, decay const: 50,  0.1
+T: 13
+A: 40
+X1: 16 ( 7.4 bits)
+X2: 38 (14.8 bits)
+X3: 64 (24.9 bits)
+S1: 35 (19.0 bits)
+S2: 38 (19.2 bits)
+TBLASTN 2.1.2 [Oct-19-2000]
+
+
+Reference: Altschul, Stephen F., Thomas L. Madden, Alejandro A. Schaffer, 
+Jinghui Zhang, Zheng Zhang, Webb Miller, and David J. Lipman (1997), 
+"Gapped BLAST and PSI-BLAST: a new generation of protein database search
+programs",  Nucleic Acids Res. 25:3389-3402.
+
+Query= CATL_HUMAN
+         (333 letters)
+
+Database: alu.n
+           327 sequences; 80,506 total letters
+
+Searching......................................................done
+
+                                                                   Score     E
+Sequences producing significant alignments:                        (bits)  Value
+
+gnl|alu|L13391_HSAL003871 (Alu-J)                                      22  1.1
+gnl|alu|M63544_HSAL002045 (Alu-J)                                      21  3.1
+gnl|alu|Z17809_HSAL003365 (Alu-Sx)                                     20  7.0
+gnl|alu|X16277_HSAL000821 (Alu-J)                                      19  9.2
+gnl|alu|M65235_HSAL002711 (Alu-Sx)                                     19  9.2
+
+>gnl|alu|L13391_HSAL003871 (Alu-J)
+          Length = 193
+
+ Score = 22.3 bits (46), Expect = 1.1
+ Identities = 8/15 (53%), Positives = 8/15 (53%)
+ Frame = +1
+
+Query: 133 GQCGSCWAFSATGAL 147
+           G CGSCW     G L
+Sbjct: 19  GYCGSCWKSQHFGRL 63
+
+
+>gnl|alu|M63544_HSAL002045 (Alu-J)
+          Length = 265
+
+ Score = 20.8 bits (42), Expect = 3.1
+ Identities = 9/22 (40%), Positives = 14/22 (62%), Gaps = 2/22 (9%)
+ Frame = -2
+
+Query: 260 KEGIYFEP--DCSSEDMDHGVL 279
+           ++G+   P  +CSS  MDH +L
+Sbjct: 252 RQGLALSPRLECSSAIMDHCIL 187
+
+
+>gnl|alu|Z17809_HSAL003365 (Alu-Sx)
+          Length = 207
+
+ Score = 19.6 bits (39), Expect = 7.0
+ Identities = 6/14 (42%), Positives = 10/14 (70%)
+ Frame = -3
+
+Query: 174 GNEGCNGGLMDYAF 187
+           G +GC  GLM +++
+Sbjct: 172 GVQGCGHGLMGFSY 131
+
+
+>gnl|alu|X16277_HSAL000821 (Alu-J)
+          Length = 287
+
+ Score = 19.2 bits (38), Expect = 9.2
+ Identities = 6/14 (42%), Positives = 11/14 (77%)
+ Frame = +3
+
+Query: 64 QEYREGKHSFTMAM 77
+          QE+  G+HS T+++
+Sbjct: 72 QEFEPGQHSETLSL 113
+
+
+>gnl|alu|M65235_HSAL002711 (Alu-Sx)
+          Length = 325
+
+ Score = 19.2 bits (38), Expect = 9.2
+ Identities = 5/7 (71%), Positives = 5/7 (71%)
+ Frame = -1
+
+Query: 133 GQCGSCW 139
+           G C SCW
+Sbjct: 115 GACSSCW 95
+
+
+  Database: alu.n
+    Posted date:  Feb 26, 2001  4:36 AM
+  Number of letters in database: 80,506
+  Number of sequences in database:  327
+  
+Lambda     K      H
+   0.317    0.133    0.417 
+
+Gapped
+Lambda     K      H
+   0.270   0.0470    0.230 
+
+
+Matrix: BLOSUM62
+Gap Penalties: Existence: 11, Extension: 1
+Number of Hits to DB: 39061
+Number of Sequences: 327
+Number of extensions: 451
+Number of successful extensions: 9
+Number of sequences better than 10.0: 10
+Number of HSP's better than 10.0 without gapping: 5
+Number of HSP's successfully gapped in prelim test: 0
+Number of HSP's that attempted gapping in prelim test: 4
+Number of HSP's gapped (non-prelim): 5
+length of query: 333
+length of database: 26,835
+effective HSP length: 31
+effective length of query: 302
+effective length of database: 16,698
+effective search space:  5042796
+effective search space used:  5042796
+frameshift window, decay const: 50,  0.1
+T: 13
+A: 40
+X1: 16 ( 7.3 bits)
+X2: 38 (14.8 bits)
+X3: 64 (24.9 bits)
+S1: 36 (19.3 bits)
+S2: 38 (19.2 bits)
+TBLASTN 2.1.2 [Oct-19-2000]
+
+
+Reference: Altschul, Stephen F., Thomas L. Madden, Alejandro A. Schaffer, 
+Jinghui Zhang, Zheng Zhang, Webb Miller, and David J. Lipman (1997), 
+"Gapped BLAST and PSI-BLAST: a new generation of protein database search
+programs",  Nucleic Acids Res. 25:3389-3402.
+
+Query= CATL_RAT
+         (334 letters)
+
+Database: alu.n
+           327 sequences; 80,506 total letters
+
+Searching......................................................done
+
+                                                                   Score     E
+Sequences producing significant alignments:                        (bits)  Value
+
+gnl|alu|Z17809_HSAL003365 (Alu-Sx)                                     22  1.4
+gnl|alu|L13391_HSAL003871 (Alu-J)                                      22  1.9
+gnl|alu|Z30166_HSAL006097 (Alu-J)                                      21  2.5
+gnl|alu|L26953_HSAL004755 (Alu-Sx)                                     20  4.2
+gnl|alu|M65235_HSAL002711 (Alu-Sx)                                     19  9.5
+
+>gnl|alu|Z17809_HSAL003365 (Alu-Sx)
+          Length = 207
+
+ Score = 21.9 bits (45), Expect = 1.4
+ Identities = 8/14 (57%), Positives = 10/14 (71%)
+ Frame = -3
+
+Query: 174 GNQGCNGGLMDFAF 187
+           G QGC  GLM F++
+Sbjct: 172 GVQGCGHGLMGFSY 131
+
+
+>gnl|alu|L13391_HSAL003871 (Alu-J)
+          Length = 193
+
+ Score = 21.6 bits (44), Expect = 1.9
+ Identities = 6/7 (85%), Positives = 6/7 (85%)
+ Frame = +1
+
+Query: 133 GQCGSCW 139
+           G CGSCW
+Sbjct: 19  GYCGSCW 39
+
+
+>gnl|alu|Z30166_HSAL006097 (Alu-J)
+          Length = 168
+
+ Score = 21.2 bits (43), Expect = 2.5
+ Identities = 8/22 (36%), Positives = 12/22 (54%)
+ Frame = -2
+
+Query: 108 EPLMLQIPKTVDWREKGCVTPV 129
+           +P  L +PK  D+R   C  P+
+Sbjct: 77  DPAHLSLPKCWDYRLSHCAWPL 12
+
+
+>gnl|alu|L26953_HSAL004755 (Alu-Sx)
+          Length = 337
+
+ Score = 20.4 bits (41), Expect = 4.2
+ Identities = 6/9 (66%), Positives = 7/9 (77%)
+ Frame = +1
+
+Query: 171 HDQGNQGCN 179
+           HD G +GCN
+Sbjct: 223 HDPGGRGCN 249
+
+
+>gnl|alu|M65235_HSAL002711 (Alu-Sx)
+          Length = 325
+
+ Score = 19.2 bits (38), Expect = 9.5
+ Identities = 5/7 (71%), Positives = 5/7 (71%)
+ Frame = -1
+
+Query: 133 GQCGSCW 139
+           G C SCW
+Sbjct: 115 GACSSCW 95
+
+
+  Database: alu.n
+    Posted date:  Feb 26, 2001  4:36 AM
+  Number of letters in database: 80,506
+  Number of sequences in database:  327
+  
+Lambda     K      H
+   0.317    0.134    0.426 
+
+Gapped
+Lambda     K      H
+   0.270   0.0470    0.230 
+
+
+Matrix: BLOSUM62
+Gap Penalties: Existence: 11, Extension: 1
+Number of Hits to DB: 36291
+Number of Sequences: 327
+Number of extensions: 428
+Number of successful extensions: 8
+Number of sequences better than 10.0: 10
+Number of HSP's better than 10.0 without gapping: 5
+Number of HSP's successfully gapped in prelim test: 0
+Number of HSP's that attempted gapping in prelim test: 3
+Number of HSP's gapped (non-prelim): 5
+length of query: 334
+length of database: 26,835
+effective HSP length: 30
+effective length of query: 304
+effective length of database: 17,025
+effective search space:  5175600
+effective search space used:  5175600
+frameshift window, decay const: 50,  0.1
+T: 13
+A: 40
+X1: 16 ( 7.3 bits)
+X2: 38 (14.8 bits)
+X3: 64 (24.9 bits)
+S1: 36 (19.4 bits)
+S2: 38 (19.2 bits)
+TBLASTN 2.1.2 [Oct-19-2000]
+
+
+Reference: Altschul, Stephen F., Thomas L. Madden, Alejandro A. Schaffer, 
+Jinghui Zhang, Zheng Zhang, Webb Miller, and David J. Lipman (1997), 
+"Gapped BLAST and PSI-BLAST: a new generation of protein database search
+programs",  Nucleic Acids Res. 25:3389-3402.
+
+Query= PAPA_CARPA
+         (345 letters)
+
+Database: alu.n
+           327 sequences; 80,506 total letters
+
+Searching......................................................done
+
+                                                                   Score     E
+Sequences producing significant alignments:                        (bits)  Value
+
+gnl|alu|L13391_HSAL003871 (Alu-J)                                      22  1.1
+gnl|alu|X68486_HSAL004968 (Alu-J)                                      20  5.7
+gnl|alu|M65235_HSAL002711 (Alu-Sx)                                     20  5.7
+gnl|alu|M78078_HSAL003530 (Alu-Sc)                                     19  9.8
+gnl|alu|M63322_HSAL001805 (Alu-J)                                      19  9.8
+
+>gnl|alu|L13391_HSAL003871 (Alu-J)
+          Length = 193
+
+ Score = 22.3 bits (46), Expect = 1.1
+ Identities = 9/21 (42%), Positives = 12/21 (56%), Gaps = 3/21 (14%)
+ Frame = +1
+
+Query: 153 GSCGSCWA---FSAVVTIEGI 170
+           G CGSCW    F  +  +EG+
+Sbjct: 19  GYCGSCWKSQHFGRLRQVEGL 81
+
+
+>gnl|alu|X68486_HSAL004968 (Alu-J)
+          Length = 249
+
+ Score = 20.0 bits (40), Expect = 5.7
+ Identities = 11/49 (22%), Positives = 20/49 (40%), Gaps = 10/49 (20%)
+ Frame = -2
+
+Query: 14  AICLFVYMGLSFGDFSIVGYS----------QNDLTSTERLIQLFESWM 52
+           A+CLF++    FG   +  +            N L    + + + ESW+
+Sbjct: 149 AVCLFIFSFFFFGRNGLFAHVAQAGLALLG*SNPLALASQSLGITESWV 3
+
+
+>gnl|alu|M65235_HSAL002711 (Alu-Sx)
+          Length = 325
+
+ Score = 20.0 bits (40), Expect = 5.7
+ Identities = 5/7 (71%), Positives = 6/7 (85%)
+ Frame = -1
+
+Query: 153 GSCGSCW 159
+           G+C SCW
+Sbjct: 115 GACSSCW 95
+
+
+>gnl|alu|M78078_HSAL003530 (Alu-Sc)
+          Length = 158
+
+ Score = 19.2 bits (38), Expect = 9.8
+ Identities = 7/14 (50%), Positives = 10/14 (71%)
+ Frame = -1
+
+Query: 204 ALQLVAQYGIHYRN 217
+           +  LVAQ G+ +RN
+Sbjct: 104 SFNLVAQAGVQWRN 63
+
+
+>gnl|alu|M63322_HSAL001805 (Alu-J)
+          Length = 345
+
+ Score = 19.2 bits (38), Expect = 9.8
+ Identities = 6/15 (40%), Positives = 11/15 (73%)
+ Frame = +2
+
+Query: 73  KDNLKYIDETNKKNN 87
+           K+ +KY+ + NKK +
+Sbjct: 284 KNKIKYVFKNNKKKS 328
+
+
+  Database: alu.n
+    Posted date:  Feb 26, 2001  4:36 AM
+  Number of letters in database: 80,506
+  Number of sequences in database:  327
+  
+Lambda     K      H
+   0.318    0.138    0.428 
+
+Gapped
+Lambda     K      H
+   0.270   0.0470    0.230 
+
+
+Matrix: BLOSUM62
+Gap Penalties: Existence: 11, Extension: 1
+Number of Hits to DB: 33866
+Number of Sequences: 327
+Number of extensions: 356
+Number of successful extensions: 7
+Number of sequences better than 10.0: 10
+Number of HSP's better than 10.0 without gapping: 5
+Number of HSP's successfully gapped in prelim test: 0
+Number of HSP's that attempted gapping in prelim test: 2
+Number of HSP's gapped (non-prelim): 5
+length of query: 345
+length of database: 26,835
+effective HSP length: 30
+effective length of query: 315
+effective length of database: 17,025
+effective search space:  5362875
+effective search space used:  5362875
+frameshift window, decay const: 50,  0.1
+T: 13
+A: 40
+X1: 16 ( 7.3 bits)
+X2: 38 (14.8 bits)
+X3: 64 (24.9 bits)
+S1: 36 (19.4 bits)
+S2: 38 (19.2 bits)

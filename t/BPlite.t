@@ -15,7 +15,7 @@ BEGIN {
 	use lib 't';
     }
     use Test;
-    plan tests => 38;
+    plan tests => 45;
 }
 
 use Bio::Tools::BPlite;
@@ -86,4 +86,8 @@ while( $parser->next_feature ) {
     ok(1);
 }
 
+$parser = new Bio::Tools::BPlite(-file => 't/cysprot.tblastn');
+while( $parser->next_feature ) {
+    ok(1);
+}
 
