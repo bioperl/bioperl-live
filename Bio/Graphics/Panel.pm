@@ -342,6 +342,7 @@ sub _add_track {
 
 sub height {
   my $self = shift;
+  $self->setup_fonts;
   my $spacing           = $self->spacing;
   my $key_height        = $self->format_key;
   my $empty_track_style = $self->empty_track_style;
