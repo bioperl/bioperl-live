@@ -2,7 +2,7 @@
 ## Bioperl Test Harness Script for Modules
 ## $Id$
 use strict;
-use constant NUMTESTS => 59;
+use constant NUMTESTS => 60;
 
 BEGIN {
     eval { require Test; };
@@ -185,3 +185,7 @@ $a->add_seq($s3);
 ok $a->get_seq_by_pos(2)->id,"BBB";
 ok $a->sort_alphabetically;
 ok $a->get_seq_by_pos(2)->id,"ABB";
+
+$b = $a->remove_gaps();
+
+ok $b->consensus_string, "aaaattt";
