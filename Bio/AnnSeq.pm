@@ -69,6 +69,7 @@ The rest of the documentation details each of the object methods. Internal metho
 package Bio::AnnSeq;
 use vars qw($AUTOLOAD @ISA);
 use strict;
+use Bio::AnnSeqI;
 
 # Object preamble - inheriets from Bio::Root::Object
 
@@ -76,7 +77,7 @@ use Bio::Root::Object;
 use Bio::Annotation;
 use Bio::Seq;
 
-@ISA = qw(Bio::Root::Object Exporter);
+@ISA = qw(Bio::Root::Object Bio::AnnSeqI);
 # new() is inherited from Bio::Root::Object
 
 # _initialize is where the heavy stuff will happen when new is called

@@ -494,7 +494,12 @@ sub attach_seq{
 =cut
 
 sub seq{
-   my ($self) = @_;
+   my ($self,$arg) = @_;
+
+   if( defined $arg ) {
+       $self->throw("Calling SeqFeature::Generic->seq with an argument. You probably want attach_seq");
+   }
+
    if( ! exists $self->{'_gsf_seq'} ) {
        return undef;
    }

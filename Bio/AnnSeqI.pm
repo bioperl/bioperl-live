@@ -95,6 +95,7 @@ The rest of the documentation details each of the object methods. Internal metho
 package Bio::AnnSeqI;
 use vars qw($AUTOLOAD @ISA);
 use strict;
+use Carp;
 
 # Object preamble - inheriets from Bio::Root::Object
 

@@ -247,6 +247,8 @@ sub write_annseq {
    print $fh "ID   ", $seq->id(), "\nXX   \n";
    _write_line_EMBL_regex($fh,"DE   ","DE   ",$seq->desc(),'\s+|$',80);
    print $fh "XX   \n";
+
+
    
     # Organism lines
     if (my $spec = $annseq->species) {
@@ -258,7 +260,15 @@ sub write_annseq {
         print $fh "OS   $OS\n";
         my $OC = join('; ', reverse(@class)). '.';
         _write_line_EMBL_regex($fh,"OC   ","OC   ",$OC,'; |$',80);
+        print $fh "XX   \n";
     }
+
+   # Comment lines
+
+   foreach my $comment ( $annseq->annotation->each_Comment() ) {
+       _write_line_EMBL_regex($fh,"CC   ","CC   ",$comment->text(),'\s+|$',80);
+       print $fh "XX   \n";
+   }
    
    # Reference lines
    my $t = 1;
@@ -270,6 +280,8 @@ sub write_annseq {
        print $fh "XX   \n";
        $t++;
    }
+
+
 
    print $fh "FH   Key             Location/Qualifiers\n";
    print $fh "FH   \n";

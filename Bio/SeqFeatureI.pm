@@ -257,8 +257,8 @@ sub gff_string{
 		 $feat->primary_tag(),
 		 $feat->start(),
 		 $feat->end(),
-		 $feat->strand(),
 		 $score,
+		 $feat->strand(),
 		 $frame);
 
    return $str;
