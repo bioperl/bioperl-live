@@ -33,6 +33,10 @@ my @nodes = $tree->find_node('ADH2');
 ok(@nodes, 2);
 
 if( $verbose ) {
+    $treeio = new Bio::TreeIO(-verbose => $verbose,
+			      -format => 'nhx',
+			      );
+    $treeio->write_tree($tree);
     print "nodes are: \n",
     join(", ", map {  $_->id . ":". (defined $_->branch_length ? 
 				     $_->branch_length : '' ) } @nodes), "\n";

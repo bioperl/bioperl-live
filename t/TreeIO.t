@@ -18,7 +18,7 @@ BEGIN {
     }
 
     use Test;
-    plan tests => 14; 
+    plan tests => 17; 
 
 #    eval { require XML::Parser::PerlSAX; };
 #    if( $@ ) {
@@ -157,7 +157,12 @@ $tree = $treeio->next_tree;
 ok(ref($tree) && $tree->isa('Bio::Tree::TreeI'));
 
 @nodes = $tree->get_nodes;
-ok(@nodes, 12, scalar @nodes);
+ok(@nodes, 13, scalar @nodes);
+
+my $adhy = $tree->find_node('ADHY');
+ok($adhy->branch_length, 0.1);
+ok(($adhy->get_tag_values('S'))[0], 'nematode');
+ok(($adhy->get_tag_values('E'))[0], '1.1.1.1');
 
 __DATA__
 (((A:1,B:1):1,(C:1,D:1):1):1,((E:1,F:1):1,(G:1,H:1):1):1);
