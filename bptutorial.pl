@@ -174,8 +174,9 @@ Recommendations on where to go for additional information.
 A runnable script, bptutorial.pl, which demonstrates many of the
 capabilities of Bioperl. Runnable example code can also be found in
 the scripts/ and examples/ directories. Summary descriptions of all
-of these scripts can be found in the file bioscripts.pod.  In
-addition, the POD documentation for many Bioperl modules should contain
+of these scripts can be found in the file bioscripts.pod (or
+http://bioperl.org/Core/Latest/bioscripts.html).  In addition, the POD 
+documentation for many Bioperl modules should contain
 runnable code in the SYNOPSIS section which is meant to illustrate the
 use of a module and its methods. You will also find some interesting
 bits of code in the FAQ (http://bioperl.org/Core/Latest/faq.html).
@@ -450,8 +451,11 @@ very useful interface for finding one's way within all the module
 documentation can be found at http://doc.bioperl.org/bioperl-live/.
 This interface lists all bioperl modules and descriptions of all
 of their methods. In addition, beginner questions can often be
-answered by looking at the FAQ, INSTALL and README files in the
-top-level directory of the bioperl distribution.
+answered by looking at the FAQ, INSTALL and README files 
+(http://bioperl.org/Core/Latest/faq.html,
+http://bioperl.org/Core/Latest/INSTALL,
+http://bioperl.org/Core/Latest/README )in the top-level directory of 
+the bioperl distribution.
 
 One potential problem in locating the correct documentation is that
 multiple methods in different modules may all share the same name.
@@ -469,7 +473,7 @@ In addition, a bioperl online course is available on the web at
 http://www.pasteur.fr/recherche/unites/sis/formation/bioperl. The
 user is also referred to numerous bioperl scripts in the scripts/
 and examples/ directories (see bioscripts.pod for a description of 
-these scripts).
+these scripts, or http://bioperl.org/Core/Latest/bioscripts.html).
 
 Another source of focussed documentation is the HOWTO files, found
 either in the bioperl doc/howto directory or at http://bioperl.org/HOWTOs/.
@@ -1920,7 +1924,9 @@ with methods including:
 See L<Bio::Annotation::Collection> and L<Bio::SeqFeature::Generic> as starting
 points for further exploration, and see the examples/tools/gff2ps.pl
 and examples/tools/gb_to_gff.pl scripts. There's also a section on 
-features and annotations in the FAQ (http://bioperl.org/Core/Latest/faq.html#5).
+features and annotations in the FAQ (http://bioperl.org/Core/Latest/faq.html#5)
+and in the Pasteur Institute's online Bioperl course
+(http://www.pasteur.fr/recherche/unites/sis/formation/bioperl).
 
 It is worth mentioning that one can also retrieve the start and end
 positions of a feature using a Bio::LocationI object:
