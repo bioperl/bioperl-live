@@ -310,11 +310,12 @@ sub _load_access_module {
   eval {
     require $load;
   };
+
   if ( $@ ) {
-    print STDERR <<END;
+    Bio::Root::Root->throw (<<END);
 $load: $access cannot be found or loaded
 Exception $@
-For more information about the Biblio system please see the Biblio docs.
+For more information about the Biblio system please see the Bio::Biblio docs.
 END
   ;
     return;
