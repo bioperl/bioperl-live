@@ -306,7 +306,7 @@ sub each_rid {
            * sequence object
            * array ref of sequence objects
            * filename of file containing fasta formatted sequences
-
+           
 =cut
 
 sub submit_blast {
@@ -323,8 +323,8 @@ sub submit_blast {
 
 	if( $response->is_success ) {
 	    if( $self->verbose > 0 ) {
-		open(TMP, ">$ENV{TEMPDIR}/j.html");
-		print TMP $response->content;
+		my ($tempfh) = $self->tempfile();
+		print $tempfh $response->content;
 	    }
 	    my @subdata = split(/\n/, $response->content );
 	    my $count = 0;
@@ -351,6 +351,19 @@ sub submit_blast {
     return $tcount;
 }
 
+=head2 retrieve_blast
+
+ Title   : retrieve_blast
+ Usage   : my $blastreport = $blastfactory->retrieve_blast($rid);
+ Function: Attempts to retrieve a blast report from remote blast queue
+ Returns : -1 on error, 
+           0 on 'job not finished',
+           Bio::Tools::BPlite or Bio::Tools::Blast object 
+           (depending on how object was initialized) on success
+ Args    : Remote Blast ID (RID)
+
+=cut
+
 sub retrieve_blast {
     my($self, $rid) = @_;
     my ($fh,$tempfile) = $self->tempfile();
@@ -363,7 +376,7 @@ sub retrieve_blast {
     my $response = $self->ua->request($req, $tempfile);
     if( $self->verbose > 0 ) {
 	open(TMP, $tempfile) or $self->throw("cannot open $tempfile");
-	while(<TMP>) { print $_ }
+	while(<TMP>) { print $_; }
 	close TMP;
     }
     if( $response->is_success ) {	
