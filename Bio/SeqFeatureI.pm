@@ -31,7 +31,7 @@ Bio::SeqFeatureI - Abstract interface of a Sequence Feature
 
             foreach $tag ( $feat->all_tags() ) {
 		print "Feature has tag ", $tag, "with values, ",
-		      join(' ',@feat->each_tag_value($tag)), "\n";
+		      join(' ',$feat->each_tag_value($tag)), "\n";
             }
 	    print "new feature\n" if $feat->has_tag('new');
 	    # features can have sub features
