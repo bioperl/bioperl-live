@@ -401,7 +401,8 @@ sub peptide {
        (-seq_id => 'propeptide',
 	-start => $self->{'_peptide_offset'} + 1 ,
 	-end => $self->{'_peptide_length'} + $self->{'_peptide_offset'},
-	-strand => 1
+	-strand => 1,
+	-verbose => $self->verbose,
        );
 }
 
@@ -505,30 +506,32 @@ sub exons {
        if (defined $value[0]->strand && 
 	   $value[0]->strand == - 1) {  #reverse strand
 	   @value = map { $_->[0] }
-	               sort { $b->[1] <=> $a->[1] }
-                       map { [ $_, $_->start] }
-                       @value;
+	            sort { $b->[1] <=> $a->[1] }
+	            map { [ $_, $_->start] }
+                    @value;
 
            unless ($self->cds) {
                $self->cds(new Bio::Location::Simple
-			  (-start => $value[-1]->start,
-			   -end   => $value[0]->end,
-			   -strand=> $value[0]->strand,
-			   -seq_id=> $value[0]->seq_id,
+			  (-start   => $value[-1]->start,
+			   -end     => $value[0]->end,
+			   -strand  => $value[0]->strand,
+			   -seq_id  => $value[0]->seq_id,
+			   -verbose => $self->verbose,
 			   )
 			  );
            }
-       } else {               #undef or forward strand
+       } else {               # undef or forward strand
 	   @value = map { $_->[0] }
-	               sort { $a->[1] <=> $b->[1] }
-                       map { [ $_, $_->start] }
-                       @value;
+	            sort { $a->[1] <=> $b->[1] }
+                    map { [ $_, $_->start] }
+                    @value;
            unless ($self->cds) {
                $self->cds(new Bio::Location::Simple
-			  (-start => $value[0]->start,
-			   -end   => $value[-1]->end,
-			   -strand=> $value[0]->strand,
-			   -seq_id=> $value[0]->seq_id,
+			  (-start   => $value[0]->start,
+			   -end     => $value[-1]->end,
+			   -strand  => $value[0]->strand,
+			   -seq_id  => $value[0]->seq_id,
+			   -verbose => $self->verbose,
 			   )
                          );
            }
@@ -551,7 +554,7 @@ sub exons {
 
 	   $self->in('chr');
 	   $self->out('gene');
-	   @exons = map {$self->map($_)} @value;
+	   @exons = map {$self->map($_) } @value;
 
 	   $self->{'_in'} = ($tmp_in);
 	   $self->{'_out'} = ($tmp_out);
@@ -573,7 +576,6 @@ sub exons {
        my $prev_exon_end;
 
        for my $exon ( @exons ) {
-
 	   $exon_counter++;
 
 	   #
@@ -584,13 +586,15 @@ sub exons {
 	       (-seq_id =>'gene' ,
 		-start  => $exon->start,
 		-end    => $exon->end, 
-		-strand => 1 );
+		-strand => 1,
+		-verbose=> $self->verbose);
 
 	   my $match2 = Bio::Location::Simple->new
 	       (-seq_id => 'cds',
 		-start => $tr_end + 1,
 		-end => $tr_end + $exon->end - $exon->start +1,
-		-strand=>$exon->strand );
+		-strand=>$exon->strand,
+		-verbose=>$self->verbose);
 
 	   $cds_map->add_mapper(Bio::Coordinate::Pair->new
                                 (-in => $match1,
@@ -609,22 +613,26 @@ sub exons {
 
 	   if (defined $prev_exon_end) {
 	       my $match3 = Bio::Location::Simple->new
-		   (-seq_id =>'gene',
-		    -start => $prev_exon_end + 1,
-		    -end => $exon->start -1, -strand=>$exon->strand );
+		   (-seq_id  => 'gene',
+		    -start   => $prev_exon_end + 1,
+		    -end     => $exon->start -1, 
+		    -strand  => $exon->strand,
+		    -verbose => $self->verbose);
 
 	       my $match4 = Bio::Location::Simple->new
-		   (-seq_id => 'intron'. ($exon_counter -1),
-		    -start => 1,
-		    -end => $exon->start - 1 - $prev_exon_end,
-		    -strand=>$exon->strand );
+		   (-seq_id  => 'intron'. ($exon_counter -1),
+		    -start   => 1,
+		    -end     => $exon->start - 1 - $prev_exon_end,
+		    -strand  =>$exon->strand,
+		    -verbose => $self->verbose,);
 
 	       # negative intron coordinates
 	       my $match5 = Bio::Location::Simple->new
-		   (-seq_id => 'intron'. ($exon_counter -1),
-		    -start => -1 * ($exon->start - 2 - $prev_exon_end) -1,
-		    -end => -1,
-		    -strand=>$exon->strand );
+		   (-seq_id  => 'intron'. ($exon_counter -1),
+		    -start   => -1 * ($exon->start - 2 - $prev_exon_end) -1,
+		    -end     => -1,
+		    -strand  => $exon->strand,
+		    -verbose => $self->verbose);
 
 	       $inex_map->add_mapper(Bio::Coordinate::Pair->new
                                      (-in => $match3,
@@ -651,9 +659,10 @@ sub exons {
 	   #
 	   my $match6 = Bio::Location::Simple->new
 	       (-seq_id => 'exon'. $exon_counter,
-		-start => 1,
-		-end => $exon->end - $exon->start +1,
-		-strand=> $exon->strand );
+		-start  => 1,
+		-end    => $exon->end - $exon->start +1,
+		-strand => $exon->strand,
+		-verbose=> $self->verbose,);
 
 	   my $pair2 = Bio::Coordinate::Pair->new(-in => $self->_clone_loc($match1),
 						  -out => $match6
@@ -716,10 +725,11 @@ sub _clone_loc { # clone a simple location
        unless $loc->isa('Bio::Location::Simple');
 
    return  Bio::Location::Simple->new
-       (-seq_id => $loc->seq_id,
-        -start => $loc->start,
-        -end => $loc->end,
-        -strand=> $loc->strand,
+       (-verbose       => $self->verbose,
+	-seq_id        => $loc->seq_id,
+        -start         => $loc->start,
+        -end           => $loc->end,
+        -strand        => $loc->strand,
         -location_type => $loc->location_type
        );
 }
@@ -747,7 +757,8 @@ sub cds {
    my ($self,$value) = @_;
    if( defined $value) {
        if ($value =~ /^[+-]?\d+$/ ) {
-	   my $loc = Bio::Location::Simple->new(-start=>$value);
+	   my $loc = Bio::Location::Simple->new(-start=>$value,
+						-verbose=>$self->verbose);
 	   $self->{'_cds'} = $loc;
        }
        elsif (ref $value &&  $value->isa('Bio::RangeI') ) {
@@ -903,7 +914,8 @@ sub map {
                    (-seq_id   => $matches[0]->seq_id,
                     -start    => $matches[0]->start,
                     -end      => $matches[0]->end,
-                    -strand   => $matches[0]->strand );
+                    -strand   => $matches[0]->strand,
+		    -verbose  => $self->verbose,);
            }
            $value = $newvalue;
        }
@@ -1098,19 +1110,24 @@ sub _create_pair {
    $length ||= 20;
 
    my $match1 = Bio::Location::Simple->new
-       (-seq_id => $in,
-	-start => $offset+1,
-	-end => $offset+$length, -strand=>1 );
+       (-seq_id  => $in,
+	-start   => $offset+1,
+	-end     => $offset+$length, 
+	-strand  => 1,
+	-verbose => $self->verbose);
 
    my $match2 = Bio::Location::Simple->new
-       (-seq_id => $out,
-	-start => 1,
-	-end => $length, -strand=>$strand );
+       (-seq_id  => $out,
+	-start   => 1,
+	-end     => $length, 
+	-strand  => $strand,
+	-verbose => $self->verbose);
 
    my $pair = Bio::Coordinate::ExtrapolatingPair->new
-       (-in => $match1,
-        -out => $match2,
-        -strict => $strict
+       (-in      => $match1,
+        -out     => $match2,
+        -strict  => $strict,
+	-verbose => $self->verbose,
        );
 
    return $pair;
@@ -1144,20 +1161,22 @@ sub _translate {
        my $split = new Bio::Location::Split(-seq_id=>$seqid);
        foreach my $loc ( $value->each_Location(1) ) {
            my $match = new Bio::Location::Simple
-	       (-start  => int ($loc->start / 3 ) +1,
-		-end    => int ($loc->end / 3 ) +1,
-		-seq_id => $seqid,
-		-strand => 1
+	       (-start   => int ($loc->start / 3 ) +1,
+		-end     => int ($loc->end / 3 ) +1,
+		-seq_id  => $seqid,
+		-strand  => 1,
+		-verbose => $self->verbose,
 		);
            $split->add_sub_Location($match);
        }
        return $split;
 
    } else {
-       return new Bio::Location::Simple(-start => int($value->start / 3 )+1,
-                                        -end => int($value->end / 3 )+1,
+       return new Bio::Location::Simple(-start  => int($value->start / 3 )+1,
+                                        -end    => int($value->end / 3 )+1,
                                         -seq_id => $seqid,
-                                        -strand => 1
+                                        -strand => 1,
+					-verbose=> $self->verbose,
                                        );
    }
 }
@@ -1176,20 +1195,22 @@ sub _frame {
        my $split = new Bio::Location::Split(-seq_id=>$seqid);
        foreach my $loc ( $value->each_Location(1) ) {
 
-           my $match = new Bio::Location::Simple(-start => ($value->start-1) % 3 +1,
-                                                 -end => ($value->end-1) % 3 +1,
-                                                 -seq_id => 'frame',
-                                                 -strand => 1
-                                       );
+           my $match = new Bio::Location::Simple
+	       (-start  => ($value->start-1) % 3 +1,
+		-end    => ($value->end-1) % 3 +1,
+		-seq_id => 'frame',
+		-strand => 1,
+		-verbose=> $self->verbose);
            $split->add_sub_Location($match);
        }
        return $split;
    } else {
-       return new Bio::Location::Simple(-start => ($value->start-1) % 3 +1,
-                                        -end => ($value->end-1) % 3 +1,
-                                        -seq_id => 'frame',
-                                        -strand => 1
-                                       );
+       return new Bio::Location::Simple(-start   => ($value->start-1) % 3 +1,
+                                        -end     => ($value->end-1) % 3 +1,
+                                        -seq_id  => 'frame',
+                                        -strand  => 1,
+					-verbose => $self->verbose,
+					);
    }
 }
 
@@ -1224,20 +1245,22 @@ sub _reverse_translate {
        foreach my $loc ( $value->each_Location(1) ) {
 
            my $match = new Bio::Location::Simple
-	       (-start => $value->start * 3 - 2,
-		-end => $value->end * 3,
-		-seq_id => $seqid,
-		-strand => 1
+	       (-start   => $value->start * 3 - 2,
+		-end     => $value->end * 3,
+		-seq_id  => $seqid,
+		-strand  => 1,
+		-verbose => $self->verbose,
 		);
            $split->add_sub_Location($match);
        }
        return $split;
 
    } else {
-       return new Bio::Location::Simple(-start => $value->start * 3 - 2,
-                                        -end => $value->end * 3,
-                                        -seq_id => $seqid,
-                                        -strand => 1
+       return new Bio::Location::Simple(-start   => $value->start * 3 - 2,
+                                        -end     => $value->end * 3,
+                                        -seq_id  => $seqid,
+                                        -strand  => 1,
+					-verbose => $self->verbose,
                                        );
    }
 }
