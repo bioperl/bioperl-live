@@ -160,26 +160,22 @@ sub _write_tree_Helper {
     my ($node) = @_;
     return () if (!defined $node);
     my @data;
-    if( $node->get_Left_Descendent() ) { 
-	my @v =  _write_tree_Helper($node->get_Left_Descendent());
-	if( @v > 1 ) {
-	    $v[0] = "(" . $v[0];	
-	    $v[-1] .= ")";
-	}
-	push @data, @v;
+    foreach my $node ( $node->each_Descendent() ) {
+	push @data, _write_tree_Helper($node);
     }
-    if( $node->get_Right_Descendent() ) { 
-	my @v =  _write_tree_Helper($node->get_Right_Descendent());
-	if( @v > 1 ) { 
-	    $v[0] = "(" . $v[0];	
-	    $v[-1] .= ")";
-	}
-	push @data, @v;
-    }    
-    if(  defined $node->id || defined $node->branch_length) {
+    if( @data > 1 ) {
+	$data[0] = "(" . $data[0];
+	$data[-1] .= ")";
+    }
+
+    if( defined $node->id || defined $node->branch_length) {
 	push @data, sprintf("%s%s",$node->id || '', 
 			    defined $node->branch_length ? ":" .
 			    $node->branch_length : '');
+    }    
+    if( @data > 1 ) {
+	$data[0] = "(" . $data[0];
+	$data[-1] .= ")";
     }
 
     return @data;

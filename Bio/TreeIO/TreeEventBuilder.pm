@@ -134,15 +134,14 @@ sub end_document {
 			      pop @{$self->{'_currentnodes'}});
 	
 	my $root = new Bio::Tree::Node();
-	$root->set_Left_Descendent($left);
-	$root->set_Right_Descendent($right);
+	$root->add_Descendent($left);
+	$root->add_Descendent($right);
 	push @{$self->{'_currentnodes'}}, $root;
     }
 
     my $root = pop @{$self->{'_currentnodes'}};
 
     $self->debug("Root node is " . $root->to_string()."\n");
-    $self->debug( "Right is ". $root->get_Right_Descendent->to_string(). "\n");
     if( $self->verbose > 0 ) { 
 	foreach my $node ( $root->get_Descendents  ) {
 	    $self->debug("node is ". $node->to_string(). "\n");
@@ -197,9 +196,8 @@ sub end_element{
 				 pop @{$self->{'_currentnodes'}},
 				 );
 	   $tnode = new Bio::Tree::Node(%{$node});
-	   $tnode->set_Left_Descendent($left);
-	   $tnode->set_Right_Descendent($right);       
-	   $self->debug( join('',("branch len is ", $tnode->branch_length, " right is ", $tnode->get_Right_Descendent()->branch_length, " left is ", $tnode->get_Left_Descendent()->branch_length, "\n")));	   
+	   $tnode->add_Descendent($left);
+	   $tnode->add_Descendent($right);	   
        }
        push @{$self->{'_currentnodes'}}, $tnode;       
        $self->debug ("added node: nodes in stack is ". scalar @{$self->{'_currentnodes'}}. "\n");       

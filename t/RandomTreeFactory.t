@@ -21,7 +21,7 @@ use Bio::Tree::RandomFactory;
 use Bio::TreeIO;
 ok(1);
 
-END { unlink("out.tre") }
+#END { unlink("out.tre") }
  
 my $ssize = 6;
 my $factory = new Bio::Tree::RandomFactory(-sample_size => $ssize);
