@@ -356,3 +356,6 @@ Storable		 Persistent object storage & retrieval
 			 Bio::DB::FileCache
 
 Parse::RecDescent        Parsing of Unigene files
+
+Text::Shellwords         Text parser
+                         Bio::Graphics::FeatureFile.pm
