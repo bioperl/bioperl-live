@@ -95,10 +95,47 @@ sub new {
     # standard new call..
     my($caller,@args) = @_;
     my $self = $caller->SUPER::new(@args);
-
+    
     $self->{'_dates'} = [];
     $self->{'_secondary_accession'} = [];
 
+    my ($dates, $xtra, $sv,
+	$keywords, $pid, $mol, 
+	$division ) = $self->_rearrange([qw(DATES 
+					   SECONDARY_ACCESSIONS
+					   SEQ_VERSION 
+					   KEYWORDS
+					   PID
+					   MOLECULE
+					   DIVISION
+					   )],
+				   @args);
+    defined $division && $self->division($division);
+    defined $mol && $self->molecule($mol);
+    defined $keywords && $self->keywords($keywords);
+    defined $sv && $self->seq_version($sv);
+    defined $pid && $self->pid($pid);
+
+    if( defined $dates ) {
+	if( ref($dates) =~ /array/i ) {
+	    foreach ( @$dates) {
+		$self->add_date($_);
+	    } 
+	} else { 
+	    $self->add_date($dates);
+	}
+    }
+
+    if( defined $xtra ) {
+	if( ref($xtra) =~ /array/i ) {
+	    foreach ( @$xtra) {
+		$self->add_secondary_accession($_);
+	    } 
+	} else { 
+	    $self->add_secondary_accession($xtra);
+	}
+    }
+    
     return $self;
 }
 
