@@ -283,10 +283,17 @@ sub add_sub_SeqFeature{
    }
 
    if( $expand eq 'EXPAND' ) {
-       my ($start,$end,$strand) = $self->union($feat);
-       $self->start($start);
-       $self->end($end);
-       $self->strand($strand);
+       # if this doesn't have start/end set - forget it!
+       if( !defined $self->start && !defined $self->end ) {
+	   $self->start($feat->start());
+	   $self->end($feat->end());
+	   $self->strand($feat->strand);
+       } else {
+	   my ($start,$end,$strand) = $self->union($feat);
+	   $self->start($start);
+	   $self->end($end);
+	   $self->strand($strand);
+       }
    } else {
        if( !$self->contains($feat) ) {
 	   $self->throw("$feat is not contained within parent feature, and expansion is not valid");
