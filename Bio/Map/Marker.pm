@@ -157,19 +157,17 @@ use Bio::Map::Position;
 sub new {
     my ($class,@args) = @_;
     my $self = $class->SUPER::new(@args);
-
-    my ($name, $position, $positions) = 
+    $self->{'_positions'} = [];
+    my ($name, $map, $position, $positions) = 
 	$self->_rearrange([qw(NAME 
 			      MAP
 			      POSITION
 			      POSITIONS
 			      )], @args);
-
     if ($name) { $self->name($name); } 
     else {$self->name('Unnamed marker'); }
-#    print "=====$position==" if $position;
     $position && $self->position($position); 
-#    $positions && $self->positions($positions); 
+    $positions && $self->positions($positions); 
 
     return $self;
 }
@@ -262,17 +260,15 @@ sub get_position_object {
 sub position {
     my ($self, $pos, $secondary_pos) = @_;
     my ($map);
-#    print @_, "\n---------------";
   POS: {
       if ($pos) {
-#	print ref $pos, "==\n";
 	  if (ref($pos) eq 'SCALAR' || ref($pos) eq '') {
 	      $map = $self->map;
 	  }
-#	 elsif (ref($pos) eq 'ARRAY') {
-#	     $map = $pos->[0];
-#	     $pos = $pos->[1];
-#	 } 
+	  elsif (ref($pos) eq 'ARRAY') {
+	      $map = $pos->[0];
+	      $pos = $pos->[1];
+	  }
 	  elsif ($pos->isa('Bio::Map::PositionI')) {
 	      $pos->marker($self);
 

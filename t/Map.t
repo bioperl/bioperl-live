@@ -16,7 +16,7 @@ BEGIN {
         use lib 't';
     }
     use Test;
-    plan tests => 47;
+    plan tests => 48;
 }
 
 END {
@@ -82,10 +82,10 @@ ok $pos->numeric, 999;
 
 # 2. position is set in the constructor
 ok my $marker2 = new Bio::Map::Marker(-name => 'gene2',
-				      -position => [$map, 200] # THIS DOES NOT GET SET!
+				      -position => [$map, 200]
 				      );
-skip $marker2->map, $map;
-#skip ($marker2->position->value, 200);
+ok ( $marker2->map, $map);
+ok ($marker2->position->value, 200);
 
 # 3. marker is first added into map, 
 #    then marker knows the the position belongs to
