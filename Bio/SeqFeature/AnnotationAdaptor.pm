@@ -133,7 +133,7 @@ Internal methods are usually preceded with a _
 =cut
 
 
-# Let the code begin...
+#' Let the code begin...
 
 
 package Bio::SeqFeature::AnnotationAdaptor;
@@ -278,14 +278,21 @@ sub get_all_annotation_keys{
 =cut
 
 sub get_Annotations{
-    my ($self, $key) = @_;
+    my ($self, @keys) = @_;
     my @anns = ();
 
-    # if the feature has tag/value pair for this key as the tag
-    if($self->feature()->has_tag($key)) {
-	my $fact = $self->tagvalue_object_factory();
+    # we need a annotation object factory
+    my $fact = $self->tagvalue_object_factory();
+
+    # get all tags if no keys have been provided
+    @keys = $self->feature->all_tags() unless @keys;
+
+    # build object for each value for each tag
+    foreach my $key (@keys) {
+	# protect against keys that aren't tags
+	next unless $self->feature->has_tag($key);
 	# add each tag/value pair as a SimpleValue object
-	foreach my $val ($self->feature()->each_tag_value($key)) {
+	foreach my $val ($self->feature()->get_tag_values($key)) {
 	    my $ann;
 	    if($fact) {
 		$ann = $fact->create_object(-value => $val, -tagname => $key);
@@ -296,10 +303,12 @@ sub get_Annotations{
 	    push(@anns, $ann);
 	}
     }
+
     # add what is in the annotation implementation if any
     if($self->annotation()) {
-	push(@anns, $self->annotation->get_Annotations($key));
+	push(@anns, $self->annotation->get_Annotations(@keys));
     }
+
     # done
     return @anns;
 }
@@ -403,6 +412,49 @@ sub add_Annotation{
 	}
 	$self->throw("Annotation implementation does not allow adding!");
     }
+}
+
+=head2 remove_Annotations
+
+ Title   : remove_Annotations
+ Usage   :
+ Function: Remove the annotations for the specified key from this
+           collection.
+
+           If the key happens to be a tag, then the tag is removed
+           from the feature.
+
+ Example :
+ Returns : an array Bio::AnnotationI compliant objects which were stored
+           under the given key(s)
+ Args    : the key(s) (tag name(s), one or more strings) for which to
+           remove annotations (optional; if none given, flushes all
+           annotations)
+
+
+=cut
+
+sub remove_Annotations{
+    my ($self, @keys) = @_;
+
+    # set to all keys if none are supplied
+    @keys = $self->get_all_annotation_keys() unless @keys;
+    # collect existing annotation
+    my @anns = $self->get_Annotations(@keys);
+    # flush
+    foreach my $key (@keys) {
+	# delete the tag if it is one
+	$self->feature->remove_tag($key) if $self->feature->has_tag($key);
+	# and delegate to the annotation implementation 
+	my $anncoll = $self->annotation();
+	if($anncoll && $anncoll->can('remove_Annotations')) {
+	    $anncoll->remove_Annotations($key);
+	} elsif($anncoll) {
+	    $self->warn("Annotation bundle implementation ".ref($anncoll).
+			" does not allow remove!");
+	}
+    }
+    return @anns;
 }
 
 =head1 Additional methods
