@@ -63,7 +63,13 @@
 	  <revnumber>1.2</revnumber>
 	  <date>2003-10-17</date>
 	  <authorinitials>HL</authorinitials>
-	  <revremark>fom txt reformatted into SGML</revremark>
+	  <revremark>from txt reformatted into SGML</revremark>
+	</revision>
+	<revision>
+	  <revnumber>1.3</revnumber>
+	  <date>2004-05-20</date>
+	  <authorinitials>BIO</authorinitials>
+	  <revremark>Add section on custom indexes</revremark>
 	</revision>
        </revhistory>
 
@@ -152,8 +158,7 @@
       <title>Choosing Your Options</title>
 
   <para>
-     The first time you run the script, the typical usage is as
-     follows:
+     The typical usage is as follows:
     <programlisting>
      bioflat_index.pl -c -l /usr/share/biodb -d genbank -i bdb -f fasta data/*.fa
     </programlisting>
@@ -229,7 +234,12 @@
       "flat" is a sorted text-based index that uses a binary search algorithm to
       rapidly search for entries.  Although not as fast as bdb, the flat
       indexing system has good performance for even large databases, and
-      it has no requirements beyond Perl itself.  Once an indexing
+      it has no requirements beyond Perl itself. The disadvantage of
+      "flat" is that the indexing of large databases will be slower and more
+      memory-intensive than the indexing using "bdb".
+    </para>
+    <para>
+      Once an indexing
       scheme has been selected there is no way to change it other than
       recreating the index from scratch using the
       <parameter>-c</parameter> option.
@@ -326,6 +336,88 @@
     characters with spaces.
   </para>
  </section>
+
+  <section>
+    <title>Secondary or custom namespaces</title>
+<para>
+      The bioflat_index script creates what could be called a default
+      index using sequence files in a few different formats. Each of
+      these formats has its own default primary key, the key that can
+      be used as a a query. Consider this fasta entry:
+    </para>
+    <programlisting>
+      >P84139 gi|443893
+      MHHLLHGRHHRRQRKKKITEWSVKKKIIACNMIIRRIIIIIAHYTRQWPLMNVDS
+    </programlisting>
+    <para>
+      The Bio::DB::Flat modules will use the first "word" in the fasta
+      header as the primary key, "P84139", equivalent to this regular expression:
+    </para>
+    <programlisting>
+      >(\S+)
+    </programlisting>
+    <para>
+      This value turns out to be same value returned by Sequence
+      object's display_id() method. The table below shows the 
+      default primary keys of the 4 Bio::DB::Flat formats.
+    </para>
+     <table>
+   <title>Default primary keys</title>
+   <tgroup cols="3">
+     <thead>
+       <row><entry>Format</entry><entry>Seq
+       method</entry><entry>Regular expression</entry></row>
+     </thead>
+     <tbody>
+       <row><entry>fasta</entry><entry>display_id()</entry><entry>>(\S+)</entry></row>
+       <row><entry>swiss</entry><entry>display_id()</entry><entry>^ID\s+(\S+)</entry></row>
+       <row><entry>genbank</entry><entry>primary_id()</entry><entry>^LOCUS\s+(\S+)</entry></row>
+       <row><entry>embl</entry><entry>display_id()</entry><entry>^ID\s+(\S+)</entry></row>
+     </tbody>
+   </tgroup>
+ </table>
+    </para>
+    <para>
+      What if you wanted to use some other part of the entry as a
+      key, like the GI number? This could also be called specifying 
+      another namespace, or a secondary namespace. No problem, but now 
+      you've gone beyond the capabilities of the bioflat_index script, 
+      you'll need to write your own. It would look something like this:
+    </para>
+    <programlisting>
+      use strict;
+      use Bio::DB::Flat::BinarySearch;
+
+      # use single quotes so you don't have to write
+      # regular expressions like "gi\\|(\\d+)"
+      my $primary_pattern = '^>(\S+)';
+      # one or more patterns stored in a hash:
+      my $secondary_patterns = {GI => 'gi\|(\d+)'};
+
+      my $db = Bio::DB::Flat::BinarySearch->new(
+                            -directory          => "/home/bio",
+			    -dbname             => "ppp",
+		            -write_flag         => 1,
+			    -primary_pattern    => $primary_pattern,
+			    -primary_namespace  => 'ACC',
+			    -secondary_patterns => $secondary_patterns,
+			    -verbose            => 1,
+			    -format             => 'fasta'  );
+      
+      $db->build_index("ppp.fa");
+    </programlisting>
+    <para>
+      This code will index the file "ppp.fa" and place the indexes in the 
+      directory "/home/bio/ppp". Then you can retrieve sequences like this:
+    </para>
+    <programlisting>
+      $db->secondary_namespaces("GI");
+      my $acc_seq = $db->get_Seq_by_id("P84139");
+      my $gi_seq = $db->get_Seq_by_secondary("GI",443893);
+    </programlisting>
+    <para>
+    </para>
+  </section>
 
   <section id="more">
     <title>More information</title>
