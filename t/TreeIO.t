@@ -136,7 +136,7 @@ if( $verbose ) {
 }
 
 $treeio = new Bio::TreeIO(-format => 'newick', 
-			  -file => Bio::Root::IO->catfile('t','data','tree8rooted.newick'));
+			  -fh => \*DATA);
 my $treeout = new Bio::TreeIO(-format => 'tabtree');
 my $treeout2 = new Bio::TreeIO(-format => 'newick');
 
@@ -162,15 +162,14 @@ for ($i = 0; $i <= $#nodes; $i++) {
 $nodes[$c]->ancestor;
 $nodes[$g]->ancestor;
 my $cancestor = $nodes[$c]->ancestor;
-my $gancestor = $nodes[$g]->ancestor;
-$cancestor->id('C-ancestor');
-$gancestor->id('G-ancestor');
+my $gancestor = $nodes[$g]->ancestor; 
+$cancestor->id('C-ancestor'); # let's provide a way to test if we suceeded
+$gancestor->id('G-ancestor'); # in our swapping
 
 $cancestor->remove_Descendent($nodes[$c]);
 $gancestor->remove_Descendent($nodes[$g]);
 $cancestor->add_Descendent($nodes[$g],1);
 $gancestor->add_Descendent($nodes[$c],1);
-$tree->set_root_node($nodes[0]);
 
 @nodes = $tree->get_nodes();
 
@@ -189,3 +188,6 @@ for ($i = 0; $i <= $#nodes; $i++) {
 if( $verbose > 0  ) {
     $treeout2->write_tree($tree);
 }
+
+__DATA__
+(((A:1,B:1):1,(C:1,D:1):1):1,((E:1,F:1):1,(G:1,H:1):1):1);
