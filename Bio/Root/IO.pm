@@ -469,7 +469,13 @@ sub _pushback {
 
 sub close {
    my ($self) = @_;
-
+   if( defined $self->{'_filehandle'} ) {
+       $self->flush;
+       if( !ref($self->{'_filehandle'}) ||
+	   ! $self->{'_filehandle'}->isa('IO::String') ) {
+	   close($self->{'_filehandle'});
+       }
+   }
    $self->{'_filehandle'} = undef;
    delete $self->{'_readbuffer'};
 }
@@ -508,11 +514,13 @@ sub _io_cleanup {
     my ($self) = @_;
 
     $self->close();
+    my $v = $self->verbose;
+    $self->debug("Calling io_cleanup for $self\n") if $v > 0;
 
     # we are planning to cleanup temp files no matter what    
     if( exists($self->{'_rootio_tempfiles'}) &&
 	ref($self->{'_rootio_tempfiles'}) =~ /array/i) { 
-	if( $self->verbose > 0 ) {
+	if( $v > 0 ) {
 	    print STDERR "going to remove files ", 
 	    join(",",  @{$self->{'_rootio_tempfiles'}}), "\n";
 	}
@@ -523,7 +531,7 @@ sub _io_cleanup {
 	exists($self->{'_rootio_tempdirs'}) &&
 	ref($self->{'_rootio_tempdirs'}) =~ /array/i) {	
 
-	if( $self->verbose > 0 ) {
+	if( $v > 0 ) {
 	    print STDERR "going to remove dirs ", 
 	    join(",",  @{$self->{'_rootio_tempdirs'}}), "\n";
 	}
