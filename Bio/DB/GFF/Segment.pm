@@ -561,6 +561,7 @@ An alias for refseq() but only allows reading.
 =cut
 
 sub seq_id { shift->refseq }
+*seqname = \&seq_id;
 
 =head2 truncated
 
