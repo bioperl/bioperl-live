@@ -31,6 +31,7 @@ unless( $n ) {
     ok($n->ncbi_taxid, 9606);
     ok($n->division, 'mammals');
 }
+sleep(3);
 my $yeastid = $db->get_taxaid('Saccharomyces cerevisiae');
 ok($yeastid, 4932);
 

@@ -221,7 +221,8 @@ sub value{
 
  Example : 
  Returns : a L<Bio::Ontology::TermI> compliant object, or undef
- Args    : on set, new value (a scalar or undef, optional)
+ Args    : on set, new value (a L<Bio::Ontology::TermI> compliant
+           object or undef, optional)
 
 
 =cut

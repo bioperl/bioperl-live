@@ -131,7 +131,7 @@ sub new {
     defined $division && $self->division($division);
     defined $mol && $self->molecule($mol);
     if(defined($keywords)) {
-	if(ref($keywords) eq "ARRAY") {
+	if(ref($keywords) && (ref($keywords) eq "ARRAY")) {
 	    $self->add_keyword(@$keywords);
 	} else {
 	    # got a string - use the old API

@@ -12,7 +12,7 @@
 
 =head1 NAME
 
-Bio::Seq::RichSeqI - RichSeq interface, mainly for database orientated sequences
+Bio::Seq::RichSeqI - interface for sequences from rich data sources, mostly databases
 
 =head1 SYNOPSIS
 
@@ -22,7 +22,7 @@ Bio::Seq::RichSeqI - RichSeq interface, mainly for database orientated sequences
     @dates       = $richseq->get_dates; 
     $seq_version = $richseq->seq_version;  
     $pid         = $richseq->pid;
-    $keywords    = $richseq->keywords;
+    @keywords    = $richseq->get_keywords;
 
 =head1 DESCRIPTION
 
@@ -80,6 +80,11 @@ use Bio::SeqI;
  Title   : get_secondary_accessions
  Usage   : 
  Function: Get the secondary accessions for a sequence.
+
+           An implementation that allows modification of this array
+           property should provide the methods add_secondary_accession
+           and remove_secondary_accessions, with obvious purpose.
+
  Example :
  Returns : an array of strings
  Args    : none
@@ -165,6 +170,11 @@ sub pid {
  Usage   :
  Function: Get (and set, depending on the implementation) the dates the
            databank entry specified for the sequence
+
+           An implementation that allows modification of this array
+           property should provide the methods add_date and
+           remove_dates, with obvious purpose.
+
  Example :
  Returns : an array of strings
  Args    :
@@ -200,18 +210,23 @@ sub seq_version{
 
 }
 
-=head2 keywords
+=head2 get_keywords
 
- Title   : keywords
- Usage   : $obj->keywords($newval)
- Function: 
- Returns : value of keywords (a string)
- Args    : newvalue (optional) (a string)
+ Title   : get_keywords
+ Usage   : $obj->get_keywords()
+ Function: Get the keywords for this sequence object.
+
+           An implementation that allows modification of this array
+           property should provide the methods add_keyword and
+           remove_keywords, with obvious purpose.
+
+ Returns : an array of strings
+ Args    : 
 
 
 =cut
 
-sub keywords {
+sub get_keywords {
    my ($self) = @_;
    $self->throw("hit keywords in interface definition - error");
 }
