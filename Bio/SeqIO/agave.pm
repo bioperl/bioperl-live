@@ -1,5 +1,7 @@
 # BioPerl module: Bio::SeqIO::agave
 # 
+# AGAVE: Architecture for Genomic Annotation, Visualization and Exchange. 
+#
 # You may distribute this module under the same terms as perl itself
 #
 # POD documentation - main docs before the code
@@ -32,7 +34,11 @@ rather go through the SeqIO handler system. Go:
 
 =head1 DESCRIPTION
 
-This object can transform Bio::Seq objects to agave xml file and vice-versa.
+This object can transform Bio::Seq objects to agave xml file and vice-versa.  I (Simon) coded up this module because I needed a parser to
+extract data from AGAVE xml to be utitlized by the GenQuire genome annotation system (See http://www.bioinformatics.org/Genquire).
+
+***NOTE*** At the moment, not all of the tags are implemented.  In general, I followed the output format for the XEMBL project 
+http://www.ebi.ac.uk/xembl/
 
 =cut
 
@@ -44,7 +50,7 @@ User feedback is an integral part of the evolution of this and other
 Bioperl modules. Send your comments and suggestions preferably to one
 of the Bioperl mailing lists.  Your participation is much appreciated.
                                                                                                                                              
-  bioperl-l@bioperl.org            - General discussion
+  bioperl-l@bioperl.org             - General discussion
   http://bioperl.org/MailList.shtml - About the mailing lists
                                                                                                                                              
 =head2 Reporting Bugs
@@ -67,6 +73,7 @@ methods. Internal methods are usually preceded with a _
 =cut
 
 # ===================
+
 
 # Let the code begin...
 package Bio::SeqIO::agave;
@@ -142,7 +149,7 @@ sub _process {
 
 		} elsif ($line =~ /<sciobj (.*)>/){
 
-			$self->{'sciobj'} = $self->_process_sciobj($1);
+			push @{$self->{'sciobj'}}, $self->_process_sciobj($1);
 
 		} elsif ($line =~ /<\/sciobj>/){
 
@@ -708,7 +715,7 @@ sub _process_qualifier {
 	Method(s) that this method calls: _helper_store_attribute_list , _question_mark_tag , _star_tag, _process_evidence
 
 =cut
-sub _process_classification {
+sub _process_classification { # NOT IN USE.
 
 	my ($self, $line, $data_structure) = @_;
 
@@ -759,7 +766,7 @@ sub _process_evidence { # NOT done.
 
 }
 # ==================================================================================
-sub _process_comp_result { # NOT done.
+sub _process_comp_result { # NOT IN USE.
 
 
 	my ($self, $line, $comp_result, $attribute_line) = @_;
@@ -793,7 +800,7 @@ sub _process_comp_result { # NOT done.
 	
 }
 # ==================================================================================
-sub _process_related_annot {
+sub _process_related_annot { # NOT IN USE.
 
 	my ($self, $line, $data_structure) = @_;
 
@@ -835,7 +842,7 @@ sub _process_related_annot {
 
 }
 # ==================================================================================
-sub _process_result_group {
+sub _process_result_group { # NOT IN USE.
 
 	my ($self, $line, $data_structure) = @_;
 
@@ -867,7 +874,7 @@ sub _process_result_group {
 
 }
 # ==================================================================================
-sub _process_match_region {
+sub _process_match_region { # NOT IN USE.
 
 	my ($self, $line, $data_structure) = @_;
 
@@ -898,7 +905,7 @@ sub _process_match_region {
 	}
 }
 # ==================================================================================
-sub _process_query_region {
+sub _process_query_region { # NOT IN USE.
 
 	my ($self, $line, $data_structure) = @_;
 
@@ -1127,8 +1134,13 @@ sub _helper_store_attribute_list {
         my $attribute_list;
         for my $key (keys %attribs){
 		# print "\tkey: $key , value: $attribs{$key}\n";
-                ###$$data_structure->{$key} = $attribs{$key}; # the ORIGINAL
-		push @{$$data_structure->{$key}}, $attribs{$key};
+                ###$$data_structure->{$key} = $attribs{$key}; 		# <- The ORIGINAL. 
+		push @{$$data_structure->{$key}}, $attribs{$key};	# Now, store them in an array because there may be > 1 tag, thus
+									# > 1 attribute of the same name.
+									# Doing this has made it necessary to change the _store_seqs method.
+									# ie: Change $bio_sequence->{'molecule_type'};
+									# to
+									# $bio_sequence->{'molecule_type'}->[0];
         }
 
 	return;
@@ -1152,18 +1164,20 @@ sub _store_seqs {
 	my ($self) = @_;
 
 
+	for my $sciobj (@{$self->{'sciobj'}}){
 
-	my $sciobj = $self->{'sciobj'};		# The root node.
+		### $sciobj = $self->{'sciobj'};		# The root node.
 
 
-	for my $contig (@{$sciobj->{'contig'}}){	# Each contig has a fragment order.
+		for my $contig (@{$sciobj->{'contig'}}){	# Each contig has a fragment order.
 
-		for my $fragment_order (@{$contig->{'fragment_order'}}){	# Each fragment order has a fragment_orientation.
+			for my $fragment_order (@{$contig->{'fragment_order'}}){	# Each fragment order has a fragment_orientation.
 			
-			for my $fragment_orientation (@{$fragment_order->{'fragment_orientation'}}){	# Each fragment_orientation contains
-													# bio sequences.
+				for my $fragment_orientation (@{$fragment_order->{'fragment_orientation'}}){
+											# Each fragment_orientation contain 1 bio sequence.
 
-					my $bio_sequence = $fragment_orientation->{'bio_sequence'};
+					my $bio_sequence = $fragment_orientation->{'bio_sequence'};	# <bio_sequence> contains all the
+													# interesting stuff:
 
 			                my $sequence         = $bio_sequence->{'sequence'};
 	        		        my $accession_number = $bio_sequence->{'sequence_id'}->[0]; # also use for primary_id
@@ -1186,18 +1200,19 @@ sub _store_seqs {
                                 	        	        	-description      => $description,
                                         );
                                                                                                                                              
-                                        my $organism_name = $bio_sequence->{organism_name};
+                                        my $organism_name = $bio_sequence->{organism_name}->[0];
 					if (defined $organism_name){
-					#	my @classification = split(' ', $organism_name);
-	                                 #       my $species = Bio::Species->new();
-					#	# $species->classification(@classification);
-                                       	#$seq->species($organism_name);
+
+						my @classification = split(' ', $organism_name);
+						my $species = Bio::Species->new();
+						$species->classification(@classification);
+						$seq->species($species);
 					}                                                                    
                                         
 					# Pull out the keywords: $keywords is an array ref.                                 
                                         my $keywords = $bio_sequence->{keyword};
                                         my %key_to_value;
-                                                                                                                                             
+ 
                                         for my $keywords (@$keywords){
 						# print "keywords: $keywords\n";
                                                 my @words = split(':', $keywords);
@@ -1259,46 +1274,47 @@ sub _store_seqs {
 											my $value = $feature->{'qualifier'};
 				                                                        my $feature_type = $feature->{'qualifier_type'};
 
-											for (my $i = 0;
-											     $i < scalar @{$value};
-											     $i++){
-				                                                        	$feat->add_tag_value(
+												for (my $i = 0;
+												     $i < scalar @{$value};
+												     $i++){
+				                                                        		$feat->add_tag_value(
 													$feature_type->[$i] => $value->[$i]
-												);
-											} # close the for loop
+													);
+												} # close the for loop
 
-										}
+											}
 
-									} # close if (defined $seq_feature->...
-
-
-									$seq->add_SeqFeature($feat);
+										} # close if (defined $seq_feature->...
 
 
-								} # close for my $seq_feature (@{$sequence_map->...
+										$seq->add_SeqFeature($feat);
 
 
-							} # close if (defined $sequence_map->{annotations} &&
+									} # close for my $seq_feature (@{$sequence_map->...
 
 
-						} # close for my $sequence_map (@{$bio_sequence->{'sequence_map'}}){
-
-					} # close if (defined $bio_sequence->{'sequence_map'}){
+								} # close if (defined $sequence_map->{annotations} &&
 
 
-				# This is where the Bio::Seq objects are stored:
-				push @{$self->{'sequence_objects'}}, $seq;
+							} # close for my $sequence_map (@{$bio_sequence->{'sequence_map'}}){
+
+						} # close if (defined $bio_sequence->{'sequence_map'}){
 
 
-			} # close for my $fragment_orientation
+					# This is where the Bio::Seq objects are stored:
+					push @{$self->{'sequence_objects'}}, $seq;
 
 
-		} # close for my $fragment_order
+				} # close for my $fragment_orientation
 
 
-	} # close for my $contig
+			} # close for my $fragment_order
 
 
+		} # close for my $contig
+
+
+	} # close for my $sciobj
 
 	# Flag is set so that we know that the sequence objects are now stored in $self.
 	$self->{'seqs_stored'} = 1;
@@ -1306,18 +1322,19 @@ sub _store_seqs {
 	return;
 
 }
-
-
+# ==================================================================================
 =head2 next_seq
 
- Title   : next_seq
- Usage   : $seq = $stream->next_seq()
- Function: returns the next sequence in the stream
- Returns : Bio::Seq object
- Args    : NONE
+	Title    : next_seq
+	Usage    : $seq = $stream->next_seq()
+	Function : Returns the next sequence in the stream.
+	Args	 : None.
+	Returns  : Bio::Seq object
+	Note     : Method is called from the script.
+		   Method(s) that this method calls: _store_seqs (only once throughout the life time of script execution).
+
 
 =cut
-
 sub next_seq {
 
 	my ($self) = @_;
@@ -1325,8 +1342,9 @@ sub next_seq {
 	# convert agave to genbank/fasta/embl whatever.
   
 	$self->_store_seqs if $self->{'seqs_stored'} == 0;
-	# print Data::Dumper->Dump([$self]); exit;
-	$self->throw("Error: No Bio::Seq objects stored yet!\n\n") if !defined $self->{'sequence_objects'};
+
+	$self->throw("Error: No Bio::Seq objects stored yet!\n\n") if !defined $self->{'sequence_objects'}; # This should never occur...
+
 	if (scalar @{$self->{'sequence_objects'}} > 0){
 		return shift @{$self->{'sequence_objects'}};
 	} else {
@@ -1337,15 +1355,14 @@ sub next_seq {
 
 
 }
-
-
+# ==================================================================================
 =head2 next_primary_seq
 
- Title   : next_primary_seq
- Usage   : $seq = $stream->next_primary_seq()
- Function: returns the next primary sequence (ie no seq_features) in the stream
- Returns : Bio::PrimarySeq object
- Args    : NONE
+	Title   : next_primary_seq
+	Usage   : $seq = $stream->next_primary_seq()
+	Function: returns the next primary sequence (ie no seq_features) in the stream
+	Returns : Bio::PrimarySeq object
+	Args    : NONE
 
 =cut
 
@@ -1356,27 +1373,27 @@ sub next_primary_seq {
 # ==================================================================================
 =head2 write_seq
 
- Title   : write_seq
- Usage   : Not Yet Implemented! $stream->write_seq(@seq)
- Function: writes the $seq object into the stream
- Returns : 1 for success and 0 for error
- Args    : Bio::Seq object
-
-Convert embl/fasta/gb, whatever to agave.
+	Title   : write_seq
+	Usage   : Not Yet Implemented! $stream->write_seq(@seq)
+	Function: writes the $seq object into the stream
+	Returns : 1 for success and 0 for error
+	Args    : Bio::Seq object
 
 =cut
 sub write_seq {
 
+	# Convert the Bio::Seq object(s) to AGAVE xml file.
+
 	my ($self,@seqs) = @_;
   
 	foreach my $seq ( @seqs ){
-		$self->_write_each_record( $seq ) ;
+		$self->_write_each_record( $seq );	# where most of the work actually takes place.
 	}
 
 	return;
 
 }
-
+# ==================================================================================
 =head2 _write_each_record
 
  Title   : _write_each_record
@@ -1386,7 +1403,6 @@ sub write_seq {
  Args    : Bio::SeqI object
 
 =cut
-
 sub  _write_each_record {
   my ($self,$seq) = @_;
 
@@ -1550,85 +1566,99 @@ sub  _write_each_record {
   $writer->endTag('sciobj');
 
 }
-
+# ==================================================================================
 =head2 _write_seqfeature
 
- Usage   : $agave->_write_each_record( $seqfeature, $write )
- Function: change seeqfeature data into agave format
- Returns : NONE
- Args    : Bio::SeqFeature object and XML::writer object
+	Usage   : $agave->_write_each_record( $seqfeature, $write )
+	Function: change seeqfeature data into agave format
+	Returns : NONE
+	Args    : Bio::SeqFeature object and XML::writer object
 
 =cut
 sub _write_seqfeature{
-    my ($self,$seqf, $writer) = @_;
-    
-    ##now enter seq feature
-    $writer ->startTag('seq_feature',
-                       'feature_type', $seqf->primary_tag() );
-    ##enter seq_location
-    ### print "seqf: $seqf\n"; # exit; # Bio::SeqFeature::Generic=HASH(0x85e20a4)
-    my $strand = $seqf->strand();
-    $strand = 0 if !defined $strand;
-    # $strand == 1 ? 'false' : 'true';
-    my $is_on_complement;    
-    if ($strand == 1){
-	$is_on_complement = 'true';
-    } else {
-        $is_on_complement = 'false';
-    }
 
-   # die Data::Dumper->Dump([$seqf]) if !defined $strand;
-    $writer ->startTag('seq_location',
+	my ($self,$seqf, $writer) = @_;
+    
+	##now enter seq feature
+	$writer ->startTag('seq_feature',
+                       'feature_type', $seqf->primary_tag() );
+
+	my $strand = $seqf->strand();
+	$strand = 0 if !defined $strand;
+	# $strand == 1 ? 'false' : 'true';
+	my $is_on_complement;    
+	if ($strand == 1){
+		$is_on_complement = 'true';
+	} else {
+		$is_on_complement = 'false';
+	}
+
+	# die Data::Dumper->Dump([$seqf]) if !defined $strand;
+	$writer ->startTag('seq_location',
                        'lease_start', $seqf->start(),
                        'greatest_end', $seqf->end(),
                        # 'is_on_complement', $seqf->strand() == 1 ? 'false' : 'true') ;
 		       'is_on_complement' , $is_on_complement);
-    # is_on_complement:  is the feature found on the complementary strand (true) or not (false)?
-    $writer ->endTag('seq_location');
+	# is_on_complement:  is the feature found on the complementary strand (true) or not (false)?
+	$writer ->endTag('seq_location');
     
-    ##enter qualifier
+	##enter qualifier
     
-    foreach my $tag ( $seqf->all_tags() ) {
-        $writer ->startTag('qualifier',
+	foreach my $tag ( $seqf->all_tags() ) {
+		$writer ->startTag('qualifier',
                       'qualifier_type', $tag);
-        $writer ->characters( $seqf->each_tag_value($tag) ) ;
-        $writer ->endTag('qualifier');
-    }
-    ##now recursively travel the seqFeature
-    foreach my $subfeat ( $seqf->sub_SeqFeature ){
-        $self->_write_seqfeature( $subfeat, $writer ) ;
-    }
+		$writer ->characters( $seqf->each_tag_value($tag) ) ;
+		$writer ->endTag('qualifier');
+	}
+
+	##now recursively travel the seqFeature
+	foreach my $subfeat ( $seqf->sub_SeqFeature ){
+		$self->_write_seqfeature( $subfeat, $writer ) ;
+	}
    
-    $writer ->endTag('seq_feature');
+	$writer->endTag('seq_feature');
+
+	return;
+
 }
-
-
+# ==================================================================================
 =head2 _filehandle
 
- Title   : _filehandle
- Usage   : $obj->_filehandle($newval)
- Function:
- Example :
- Returns : value of _filehandle
- Args    : newvalue (optional)
-
+	Title   : _filehandle
+	Usage   : $obj->_filehandle($newval)
+	Function:
+	Example :
+	Returns : value of _filehandle
+	Args    : newvalue (optional)
 
 =cut
-
 sub _filehandle{
-   my ($obj,$value) = @_;
-   if( defined $value) {
-      $obj->{'_filehandle'} = $value;
-    }
-    return $obj->{'_filehandle'};
+
+	my ($obj,$value) = @_;
+	if( defined $value) {
+		$obj->{'_filehandle'} = $value;
+	}
+	return $obj->{'_filehandle'};
 
 }
+# ==================================================================================
+=head2
 
+	Title    : throw
+	Usage    : $self->throw;
+	Function : Throw's error message.  Calls SeqIO's throw method.
+	Args     : Array of string(s), holding error message(s).
+	Returns  : Nothing.
+	Note     : Method(s) that call(s) this method: many.
+		   Method(s) that this method calls: Bio::SeqIO's throw method.
+
+=cut
 sub throw {
 
         my ($self, @s) = @_;
         my $string = "[$.]" . join('', @s);
         $self->SUPER::throw($string);
+	return;
 
 }
 1;
