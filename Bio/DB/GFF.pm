@@ -30,10 +30,10 @@ Bio::DB::GFF -- Storage and retrieval of sequence annotation data
   my @exons = sort {$a->start <=> $b->start} $transcripts[0]->Exon;
 
   # Get a region 1000 bp upstream of first exon
-  my $upstream = $exons[0]->segment(-1000,0);
+  my $upstream = $exons[0]->subseq(-1000,0);
 
   # get its DNA
-  my $dna = $upstream->dna;
+  my $dna = $upstream->seq;
 
   # and get all curated polymorphisms inside it
   @polymorphisms = $upstream->contained_features('polymorphism:curated');
