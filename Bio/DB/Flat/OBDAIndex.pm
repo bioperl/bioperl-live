@@ -373,7 +373,6 @@ sub get_stream_by_id {
     my $fh = $self->get_filehandle_by_fileid($fileid);
     my $file = $self->{_file}{$fileid};
 
-    print "File $file\n";
     open (IN,"<$file");
     $fh = \*IN;
 
