@@ -1,6 +1,6 @@
 =head1 NAME
 
-Bioperl databases @@VERSION@@ - how to use databases with Bioperl
+Bioperl databases 1.3 - how to use databases with Bioperl
 
 =head1 SYNOPSIS
 

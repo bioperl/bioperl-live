@@ -26,10 +26,11 @@ Path - a path for an ontology term graph
 
 =head1 SYNOPSIS
 
-  $rel = Bio::Ontology::Path->new( -parent_term       => $parent,
-                                   -child_term        => $child,
-                                   -relationship_type => $type,
-                                   -distance          => 3 );
+  $path = Bio::Ontology::Path->new( -identifier     => "16847",
+                                    -subject_term   => $subj,
+                                    -object_term    => $obj,
+                                    -predicate_term => $pred,
+                                    -distance       => 3 );
 
 =head1 DESCRIPTION
 
@@ -88,16 +89,18 @@ use Bio::Ontology::Relationship;
 =head2 new
 
  Title   : new
- Usage   : $rel = Bio::Ontology::Path->new( -parent_term       => $parent,
-                                            -child_term        => $child,
-                                            -relationship_type => $type,
-                                            -distance          => 3 );
+ Usage   : $rel = Bio::Ontology::Path->new(-identifier   => "16847",
+                                           -subject_term => $subject,
+                                           -object_term  => $object,
+                                           -predicate_term => $type );
+                                           -distance     => 3 );
  Function: Creates a new Bio::Ontology::Path.
  Returns : A new Bio::Ontology::Path object.
- Args    : -parent_term           => the parent term [Bio::Ontology::TermI]
-           -child_term            => the child term [Bio::Ontology::TermI]  
-           -relationship_type     => the relationship type [Bio::Ontology::TermI]
-           -distance              => the distance between parent and child
+ Args    : -identifier     => the identifier of this relationship [scalar]
+           -subject_term   => the subject term [Bio::Ontology::TermI]
+           -object_term    => the object term [Bio::Ontology::TermI]  
+           -predicate_term => the predicate term [Bio::Ontology::TermI]
+           -distance       => the distance between subject and object
 
 =cut
 

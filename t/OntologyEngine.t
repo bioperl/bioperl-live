@@ -63,24 +63,24 @@ my $rel_type = Bio::Ontology::RelationshipType->get_instance("IS_A", $ont);
 my $rel_type1 = Bio::Ontology::RelationshipType->get_instance("PART_OF", $ont);
 
 my @rels = (
-	    [-parent_term => $terms[0],
-	     -child_term => $terms[1],
-	     -relationship_type => $rel_type,
+	    [-object_term => $terms[0],
+	     -subject_term => $terms[1],
+	     -predicate_term => $rel_type,
 	     -ontology => $ont,
 	     ],
-	    [-parent_term => $terms[1],
-	     -child_term => $terms[2],
-	     -relationship_type => $rel_type,
+	    [-object_term => $terms[1],
+	     -subject_term => $terms[2],
+	     -predicate_term => $rel_type,
 	     -ontology => $ont,
 	     ],
-	    [-parent_term => $terms[0],
-	     -child_term => $terms[3],
-	     -relationship_type => $rel_type,
+	    [-object_term => $terms[0],
+	     -subject_term => $terms[3],
+	     -predicate_term => $rel_type,
 	     -ontology => $ont,
 	     ],
-	    [-parent_term => $terms[3],
-	     -child_term => $terms[2],
-	     -relationship_type => $rel_type,
+	    [-object_term => $terms[3],
+	     -subject_term => $terms[2],
+	     -predicate_term => $rel_type,
 	     -ontology => $ont,
 	     ],
 	    );
@@ -90,28 +90,34 @@ for(my $i = 0; $i < @rels; $i++) {
     $ont->add_relationship($rels[$i]);
 }
 
-my @child_terms = $ont->get_child_terms($terms[0]);
+my @child_terms = sort { $a->identifier() cmp $b->identifier();
+		     } $ont->get_child_terms($terms[0]);
 ok (scalar(@child_terms), 2);
 ok( $child_terms[0], $terms[1] );
-my @child_terms1 = $ont->get_child_terms($terms[0], $rel_type);
+my @child_terms1 = sort { $a->identifier() cmp $b->identifier();
+		      } $ont->get_child_terms($terms[0], $rel_type);
 ok (scalar(@child_terms), 2);
 ok( $child_terms1[0], $terms[1] );
 ok (scalar($ont->get_child_terms($terms[0], $rel_type1)), 0);
 
-my @descendant_terms = $ont->get_descendant_terms($terms[0]);
+my @descendant_terms = sort { $a->identifier() cmp $b->identifier();
+			  } $ont->get_descendant_terms($terms[0]);
 ok( scalar(@descendant_terms), 3);
 ok( $descendant_terms[1], $terms[2] );
 
-my @descendant_terms1 = $ont->get_descendant_terms($terms[0], $rel_type);
+my @descendant_terms1 = sort { $a->identifier() cmp $b->identifier();
+			   } $ont->get_descendant_terms($terms[0], $rel_type);
 ok( $descendant_terms1[1], $terms[2] );
 ok (scalar(@descendant_terms1), 3);
 ok (scalar($ont->get_descendant_terms($terms[0], $rel_type1)), 0);
 
-my @parent_terms = $ont->get_parent_terms($terms[1]);
+my @parent_terms = sort { $a->identifier() cmp $b->identifier();
+		      } $ont->get_parent_terms($terms[1]);
 ok (scalar(@parent_terms), 1);
 ok( $parent_terms[0], $terms[0] );
 
-my @ancestor_terms = $ont->get_ancestor_terms($terms[2]);
+my @ancestor_terms = sort { $a->identifier() cmp $b->identifier();
+			} $ont->get_ancestor_terms($terms[2]);
 ok( $ancestor_terms[0], $terms[0] );
 ok (scalar(@ancestor_terms), 3);
 ok (scalar($ont->get_ancestor_terms($terms[2], $rel_type)), 3);

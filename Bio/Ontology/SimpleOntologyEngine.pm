@@ -401,19 +401,19 @@ sub _add_relationship_simple{
    my $child_id;
 
    if ($inverted) {
-     $parent_id = $relationship->child_term->identifier;
-     $child_id = $relationship->parent_term->identifier;
+     $parent_id = $relationship->subject_term->identifier;
+     $child_id = $relationship->object_term->identifier;
    }
    else {
-     $parent_id = $relationship->parent_term->identifier;
-     $child_id = $relationship->child_term->identifier;
+     $parent_id = $relationship->object_term->identifier;
+     $child_id = $relationship->subject_term->identifier;
    }
    if ( defined $store->{$parent_id}->{$child_id} ) {
-     $self->throw("relationship ".Dumper($relationship->relationship_type)." between ".$parent_id." and ".$child_id." already defined as ".Dumper($store->{$parent_id}->{$child_id})."\n")
-       if ($store->{$parent_id}->{$child_id}->name != $relationship->relationship_type->name);
+     $self->throw("relationship ".Dumper($relationship->predicate_term)." between ".$parent_id." and ".$child_id." already defined as ".Dumper($store->{$parent_id}->{$child_id})."\n")
+       if ($store->{$parent_id}->{$child_id}->name != $relationship->predicate_term->name);
    }
    else {
-     $store->{$parent_id}->{$child_id} = $relationship->relationship_type;
+     $store->{$parent_id}->{$child_id} = $relationship->predicate_term;
    }
 }
 
@@ -430,13 +430,16 @@ sub _add_relationship_simple{
 =cut
 
 sub add_relationship{
-   my ($self, $relationship) = @_;
+   my ($self, $rel) = @_;
 
-   $self->_add_relationship_simple($self->_relationship_store, $relationship, 0);
-   $self->_add_relationship_simple($self->_inverted_relationship_store, $relationship, 1);
-   $self->_relationship_type_store->{$relationship->relationship_type->identifier} = $relationship->relationship_type;
+   $self->_add_relationship_simple($self->_relationship_store,
+				   $rel, 0);
+   $self->_add_relationship_simple($self->_inverted_relationship_store,
+				   $rel, 1);
+   $self->_relationship_type_store->{$rel->predicate_term->identifier} =
+       $rel->predicate_term;
 
-   return $relationship;
+   return $rel;
 }
 
 =head2 get_relationships
@@ -474,9 +477,9 @@ sub get_relationships{
 	    my $parent_term = $self->get_term_by_identifier($parent_id);
 	    push(@rels,
 		 Bio::Ontology::Relationship->new(
-		    -parent_term => $parent_term,
-		    -child_term => $term,
-		    -relationship_type => $parent_entry->{$term->identifier},
+		    -object_term => $parent_term,
+		    -subject_term => $term,
+		    -predicate_term => $parent_entry->{$term->identifier},
 		    -ontology => $term->ontology())
 		 );
 		 
@@ -490,9 +493,9 @@ sub get_relationships{
 
 		push(@rels,
 		     Bio::Ontology::Relationship->new(
-		       -parent_term => $parent_term,
-		       -child_term => $self->get_term_by_identifier($child_id),
-                       -relationship_type => $rel_info,
+		       -object_term => $parent_term,
+		       -subject_term => $self->get_term_by_identifier($child_id),
+                       -predicate_term => $rel_info,
 		       -ontology => $parent_term->ontology())
 		     );
 	    }
@@ -518,10 +521,10 @@ sub get_all_relationships{
     return shift->get_relationships();
 }
 
-=head2 get_relationship_types
+=head2 get_predicate_terms
 
- Title   : get_relationship_types
- Usage   : get_relationship_types(): TermI[]
+ Title   : get_predicate_terms
+ Usage   : get_predicate_terms(): TermI[]
  Function: Retrives all relationship types stored in the engine
  Example :
  Returns : reference to an array of Bio::Ontology::RelationshipType objects
@@ -530,7 +533,7 @@ sub get_all_relationships{
 
 =cut
 
-sub get_relationship_types{
+sub get_predicate_terms{
   my ($self) = @_;
 
   return values %{$self->_relationship_type_store};
@@ -604,8 +607,8 @@ sub _typed_traversal{
 =head2 get_child_terms
 
  Title   : get_child_terms
- Usage   : get_child_terms(TermI term, TermI[] relationship_types): TermI[]
-  get_child_terms(TermI term, RelationshipType[] relationship_types): TermI[]
+ Usage   : get_child_terms(TermI term, TermI[] predicate_terms): TermI[]
+  get_child_terms(TermI term, RelationshipType[] predicate_terms): TermI[]
  Function: Retrieves all child terms of a given term, that satisfy a relationship among those that are specified in the second argument or undef otherwise. get_child_terms is a special case of get_descendant_terms, limiting the search to the direct descendants.
  Example :
  Returns : Array of TermI objects.
@@ -625,7 +628,7 @@ sub get_child_terms{
 
  Title   : get_descendant_terms
  Usage   : get_descendant_terms(TermI term, TermI[] rel_types): TermI[]
-  get_child_terms(TermI term, RelationshipType[] relationship_types): TermI[]
+  get_child_terms(TermI term, RelationshipType[] predicate_terms): TermI[]
  Function: Retrieves all descendant terms of a given term, that satisfy a relationship among those that are specified in the second argument or undef otherwise. Uses _typed_traversal to find all descendants.
  Example :
  Returns : Array of TermI objects.
@@ -644,8 +647,8 @@ sub get_descendant_terms{
 =head2 get_parent_terms
 
  Title   : get_parent_terms
- Usage   : get_parent_terms(TermI term, TermI[] relationship_types): TermI[]
-  get_child_terms(TermI term, RelationshipType[] relationship_types): TermI[]
+ Usage   : get_parent_terms(TermI term, TermI[] predicate_terms): TermI[]
+  get_child_terms(TermI term, RelationshipType[] predicate_terms): TermI[]
  Function: Retrieves all parent terms of a given term, that satisfy a relationship among those that are specified in the second argument or undef otherwise. get_parent_terms is a special case of get_ancestor_terms, limiting the search to the direct ancestors.
  Example :
  Returns : Array of TermI objects.
@@ -669,8 +672,8 @@ sub get_parent_terms{
 =head2 get_ancestor_terms
 
  Title   : get_ancestor_terms
- Usage   : get_ancestor_terms(TermI term, TermI[] relationship_types): TermI[]
-  get_child_terms(TermI term, RelationshipType[] relationship_types): TermI[]
+ Usage   : get_ancestor_terms(TermI term, TermI[] predicate_terms): TermI[]
+  get_child_terms(TermI term, RelationshipType[] predicate_terms): TermI[]
  Function: Retrieves all ancestor terms of a given term, that satisfy a relationship among those that are specified in the second argument or undef otherwise. Uses _typed_traversal to find all ancestors.
  Example :
  Returns : Array of TermI objects.
@@ -890,5 +893,11 @@ sub to_string{
 
   return $s;
 }
+
+#################################################################
+# aliases
+#################################################################
+
+*get_relationship_types = \&get_predicate_terms;
 
 1;

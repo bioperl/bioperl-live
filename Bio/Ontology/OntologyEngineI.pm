@@ -116,7 +116,6 @@ sub add_term{
 
  Title   : add_relationship
  Usage   : add_relationship(RelationshipI relationship): RelationshipI
-  add_relatioship(TermI parent, TermI child, TermI relationship_type)
  Function: Adds a relationship object to the ontology engine.
  Example :
  Returns : Its argument.
@@ -147,10 +146,10 @@ sub get_relationships{
     shift->throw_not_implemented();
 }
 
-=head2 get_relationship_types
+=head2 get_predicate_terms
 
- Title   : get_relationship_types
- Usage   : get_relationship_types(): TermI[]
+ Title   : get_predicate_terms
+ Usage   : get_predicate_terms(): TermI[]
  Function:
  Example :
  Returns :
@@ -159,14 +158,14 @@ sub get_relationships{
 
 =cut
 
-sub get_relationship_types{
+sub get_predicate_terms{
     shift->throw_not_implemented();
 }
 
 =head2 get_child_terms
 
  Title   : get_child_terms
- Usage   : get_child_terms(TermI term, TermI[] relationship_types): TermI[]
+ Usage   : get_child_terms(TermI term, TermI[] predicate_terms): TermI[]
  Function: Retrieves all child terms of a given term, that satisfy a
            relationship among those that are specified in the second
            argument or undef otherwise. get_child_terms is a special
@@ -207,7 +206,7 @@ sub get_descendant_terms{
 =head2 get_parent_terms
 
  Title   : get_parent_terms
- Usage   : get_parent_terms(TermI term, TermI[] relationship_types): TermI[]
+ Usage   : get_parent_terms(TermI term, TermI[] predicate_terms): TermI[]
  Function: Retrieves all parent terms of a given term, that satisfy a
            relationship among those that are specified in the second
            argument or undef otherwise. get_parent_terms is a special
@@ -229,7 +228,7 @@ sub get_parent_terms{
 =head2 get_ancestor_terms
 
  Title   : get_ancestor_terms
- Usage   : get_ancestor_terms(TermI term, TermI[] relationship_types): TermI[]
+ Usage   : get_ancestor_terms(TermI term, TermI[] predicate_terms): TermI[]
  Function: Retrieves all ancestor terms of a given term, that satisfy
            a relationship among those that are specified in the second
            argument or undef otherwise. 

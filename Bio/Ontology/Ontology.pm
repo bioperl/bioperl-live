@@ -341,7 +341,7 @@ sub add_term{
 
  Title   : add_relationship
  Usage   : add_relationship(RelationshipI relationship): RelationshipI
-  add_relatioship(TermI parent, TermI child, TermI relationship_type)
+  add_relatioship(TermI subject, TermI predicate, TermI object)
  Function: Adds a relationship object to the ontology engine.
  Example :
  Returns : Its argument.
@@ -356,11 +356,11 @@ sub add_relationship{
 
     if($rel && $rel->isa("Bio::Ontology::TermI")) {
 	# we need to construct the relationship object on the fly
-	my ($child,$type) = @_;
-	$rel = Bio::Ontology::Relationship->new(-parent_term => $rel,
-						-child_term  => $child,
-						-relationship_type => $type,
-						-ontology    => $self);
+	my ($predicate,$object) = @_;
+	$rel = Bio::Ontology::Relationship->new(-subject_term   => $rel,
+						-object_term    => $object,
+						-predicate_term => $predicate,
+						-ontology       => $self);
     }
     # set ontology if not set already
     $rel->ontology($self) unless $rel->ontology();
@@ -384,10 +384,10 @@ sub get_relationships{
     return grep { $_->ontology == $self;} $self->engine->get_relationships(@_);
 }
 
-=head2 get_relationship_types
+=head2 get_predicate_terms
 
- Title   : get_relationship_types
- Usage   : get_relationship_types(): TermI[]
+ Title   : get_predicate_terms
+ Usage   : get_predicate_terms(): TermI[]
  Function: Retrieves all relationship types.
  Example :
  Returns : Array of TermI objects
@@ -396,16 +396,16 @@ sub get_relationships{
 
 =cut
 
-sub get_relationship_types{
+sub get_predicate_terms{
     my $self = shift;
     return grep { $_->ontology == $self; }
-                $self->engine->get_relationship_types(@_);
+                $self->engine->get_predicate_terms(@_);
 }
 
 =head2 get_child_terms
 
  Title   : get_child_terms
- Usage   : get_child_terms(TermI term, TermI[] relationship_types): TermI[]
+ Usage   : get_child_terms(TermI term, TermI[] predicate_terms): TermI[]
  Function: Retrieves all child terms of a given term, that satisfy a
            relationship among those that are specified in the second
            argument or undef otherwise. get_child_terms is a special
@@ -459,7 +459,7 @@ sub get_descendant_terms{
 =head2 get_parent_terms
 
  Title   : get_parent_terms
- Usage   : get_parent_terms(TermI term, TermI[] relationship_types): TermI[]
+ Usage   : get_parent_terms(TermI term, TermI[] predicate_terms): TermI[]
  Function: Retrieves all parent terms of a given term, that satisfy a
            relationship among those that are specified in the second
            argument or undef otherwise. get_parent_terms is a special
@@ -487,7 +487,7 @@ sub get_parent_terms{
 =head2 get_ancestor_terms
 
  Title   : get_ancestor_terms
- Usage   : get_ancestor_terms(TermI term, TermI[] relationship_types): TermI[]
+ Usage   : get_ancestor_terms(TermI term, TermI[] predicate_terms): TermI[]
  Function: Retrieves all ancestor terms of a given term, that satisfy
            a relationship among those that are specified in the second
            argument or undef otherwise.
@@ -596,5 +596,12 @@ sub find_terms{
     my $self = shift;
     return grep { $_->ontology == $self; } $self->engine->find_terms(@_);
 }
+
+
+#################################################################
+# aliases
+#################################################################
+
+*get_relationship_types = \&get_predicate_terms;
 
 1;

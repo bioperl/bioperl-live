@@ -36,8 +36,8 @@ an ontology. Ontology engines may use this.
 
 Essentially this is a very thin extension of the
 L<Bio::Ontology::RelationshipI> interface. It basically adds an
-attribute distance(). You can think of distance as equal to 0 (parent
-== child) or 1 (parent != child) for RelationshipIs.
+attribute distance(). For a RelationshipI, you can think of distance as
+equal to zero (subject == object) or 1 (subject != object).
 
 =head1 FEEDBACK
 
@@ -108,39 +108,49 @@ sub distance{
 
 =cut
 
-=head2 parent_term
+=head2 subject_term
 
- Title   : parent_term
- Usage   : $parent = $rel->parent_term();
- Function: Set/get for the parent term of this Path.
- Returns : The parent term [Bio::Ontology::TermI].
+ Title   : subject_term
+ Usage   : $subj = $rel->subject_term();
+ Function: Set/get for the subject term of this Relationship.
+
+           The common convention for ontologies is to express
+           relationships between terms as triples (subject, predicate,
+           object).
+
+ Returns : The subject term [Bio::Ontology::TermI].
  Args    : 
 
 =cut
 
-=head2 child_term
+=head2 object_term
 
- Title   : child_term
- Usage   : $child = $rel->child_term();
- Function: Set/get for the child term of this Path.
- Returns : The child term [Bio::Ontology::TermI].
+ Title   : object_term
+ Usage   : $object = $rel->object_term();
+ Function: Set/get for the object term of this Relationship.
+
+           The common convention for ontologies is to express
+           relationships between terms as triples (subject, predicate,
+           object).
+
+ Returns : The object term [Bio::Ontology::TermI].
  Args    : 
 
 =cut
 
-=head2 relationship_type
+=head2 predicate_term
 
- Title   : relationship_type
- Usage   : $type = $rel->relationship_type();
- Function: Set/get for the relationship type of this relationship.
+ Title   : predicate_term
+ Usage   : $type = $rel->predicate_term();
+ Function: Set/get for the predicate of this relationship.
 
-           For a path the relationship type is defined as the greatest
-           common denominator of all relationship types encountered
-           along the path. I.e., if relationship type A is-a
-           relationship type B, the greatest common denominator for a
-           path containing both types A and B is B
+           For a path the predicate (relationship type) is defined as
+           the greatest common denominator of all predicates
+           (relationship types) encountered along the path. I.e., if
+           predicate A is-a predicate B, the greatest common
+           denominator for a path containing both predicates A and B is B
 
- Returns : The relationship type [Bio::Ontology::TermI].
+ Returns : The predicate term [Bio::Ontology::TermI].
  Args    : 
 
 =cut

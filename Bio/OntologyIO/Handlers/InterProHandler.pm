@@ -380,7 +380,7 @@ sub _create_relationship{
   my $fact = $self->term_factory();
   my $term_temp = ($ont->engine->get_term_by_identifier($ref_id))[0];
 
-  my $rel = Bio::Ontology::Relationship->new( -relationship_type => $rel_type_term );
+  my $rel = Bio::Ontology::Relationship->new( -predicate_term => $rel_type_term );
 	
   if (!defined $term_temp) {
     $term_temp = $ont->engine->add_term( $fact->create_object( -InterPro_id => $ref_id ) );
@@ -389,11 +389,11 @@ sub _create_relationship{
   my $rel_type_name = $self->_top($self->_names);
 
   if ($rel_type_name eq 'parent_list' || $rel_type_name eq 'found_in') {
-    $rel->parent_term( $term_temp );
-    $rel->child_term( $self->_term );
+    $rel->object_term( $term_temp );
+    $rel->subject_term( $self->_term );
   } else {
-    $rel->parent_term( $self->_term );
-    $rel->child_term( $term_temp );
+    $rel->object_term( $self->_term );
+    $rel->subject_term( $term_temp );
   }
   $rel->ontology($ont);
   $ont->add_relationship($rel);
@@ -449,9 +449,9 @@ sub start_element {
     ## Adding a relationship between the newly created InterPro term
     ## and the term describing its type
 
-    my $rel = Bio::Ontology::Relationship->new( -relationship_type => $is_a_rel );
-    $rel->parent_term( ($ont->engine->get_term_by_identifier($record_args{"type"}))[0] );
-    $rel->child_term( $self->_term );
+    my $rel = Bio::Ontology::Relationship->new( -predicate_term => $is_a_rel );
+    $rel->object_term( ($ont->engine->get_term_by_identifier($record_args{"type"}))[0] );
+    $rel->subject_term( $self->_term );
     $rel->ontology($ont);
     $ont->add_relationship($rel);
   }

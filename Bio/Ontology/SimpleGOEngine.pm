@@ -29,10 +29,10 @@ SimpleGOEngine - a Ontology Engine for GO implementing OntologyEngineI
   use Bio::Ontology::simpleGOparser;
 
   my $parser = Bio::Ontology::simpleGOparser->new
-	( -go_defs_file_name    => "/home/czmasek/GO/GO.defs",
-	  -components_file_name => "/home/czmasek/GO/component.ontology",
-	  -functions_file_name  => "/home/czmasek/GO/function.ontology",
-	  -processes_file_name  => "/home/czmasek/GO/process.ontology" );
+	( -defs_file => "/home/czmasek/GO/GO.defs",
+	  -files     => ["/home/czmasek/GO/component.ontology",
+	                 "/home/czmasek/GO/function.ontology",
+	                 "/home/czmasek/GO/process.ontology"] );
 
   my $engine = $parser->parse();
 
@@ -269,13 +269,13 @@ sub has_term {
 
  Title   : add_relationship
  Usage   : $engine->add_relationship( $relationship );
-           $engine->add_relatioship( $parent_obj, $child_obj, $relationship_type );
-           $engine->add_relatioship( $parent_id, $child_id, $relationship_type);
+           $engine->add_relatioship( $subject_term, $predicate_term, $object_term, $ontology );
+           $engine->add_relatioship( $subject_id, $predicate_id, $object_id, $ontology);
  Function: Adds a relationship to this engine
  Returns : true if successfully added, false otherwise
- Args    : term id, term id, Bio::Ontology::RelationshipType, ontology 
+ Args    : term id, Bio::Ontology::TermI (rel.type), term id, ontology 
            or
-           Bio::Ontology::TermI, Bio::Ontology::TermI, Bio::Ontology::RelationshipType, ontology
+           Bio::Ontology::TermI, Bio::Ontology::TermI (rel.type), Bio::Ontology::TermI, ontology
            or
            Bio::Ontology::RelationshipI
 
@@ -283,14 +283,14 @@ sub has_term {
 
 # term objs or term ids
 sub add_relationship {
-    my ( $self, $parent, $child, $type, $ont ) = @_;
+    my ( $self, $child, $type, $parent, $ont ) = @_;
 
     if ( scalar( @_ ) == 2 ) {
-        $self->_check_class( $parent, "Bio::Ontology::RelationshipI" );
-        $child  = $parent->child_term();
-        $type   = $parent->relationship_type();
-        $parent = $parent->parent_term();
-	$ont    = $parent->ontology();
+        $self->_check_class( $child, "Bio::Ontology::RelationshipI" );
+        $type   = $child->predicate_term();
+        $parent = $child->object_term();
+	$ont    = $child->ontology();
+        $child  = $child->subject_term();
     }
 
 
@@ -359,9 +359,9 @@ sub get_relationships {
 
     foreach my $child ( @childs ) {
         my $rel = Bio::Ontology::Relationship->new();
-        $rel->parent_term( $self->get_terms( $term ) );
-        $rel->child_term( $child );
-        $rel->relationship_type($g->get_attribute(TYPE, $term,
+        $rel->object_term( $self->get_terms( $term ) );
+        $rel->subject_term( $child );
+        $rel->predicate_term($g->get_attribute(TYPE, $term,
 						  $child->identifier()));
 	$rel->ontology($g->get_attribute( ONTOLOGY,
 					  $term, $child->identifier()));
@@ -369,9 +369,9 @@ sub get_relationships {
     }
     foreach my $parent ( @parents ) {
         my $rel = Bio::Ontology::Relationship->new();
-        $rel->parent_term( $parent );
-        $rel->child_term( $self->get_terms( $term ) );
-        $rel->relationship_type($g->get_attribute(TYPE, $parent->identifier(),
+        $rel->object_term( $parent );
+        $rel->subject_term( $self->get_terms( $term ) );
+        $rel->predicate_term($g->get_attribute(TYPE, $parent->identifier(),
 						  $term) );
         $rel->ontology( $g->get_attribute(ONTOLOGY,
 					  $parent->identifier(), $term) );
@@ -412,12 +412,12 @@ sub get_all_relationships {
 	# and establish a relationship for each parent-child pair
 	foreach my $child (@children) {
 	    my $rel = Bio::Ontology::Relationship->new(
-                          -parent_term => $term,
-                          -child_term  => $child,
-			  -relationship_type => $g->get_attribute(TYPE,
+                          -object_term => $term,
+                          -subject_term  => $child,
+			  -predicate_term => $g->get_attribute(TYPE,
 						         $term->identifier(),
 						         $child->identifier()),
-			  -ontology          =>  $g->get_attribute( ONTOLOGY,
+			  -ontology       =>  $g->get_attribute( ONTOLOGY,
 					                 $term->identifier(),
 							 $child->identifier())
 						       );
@@ -431,10 +431,10 @@ sub get_all_relationships {
 
 
 
-=head2 get_relationship_types
+=head2 get_predicate_terms
 
- Title   : get_relationship_types
- Usage   : $engine->get_relationship_types();
+ Title   : get_predicate_terms
+ Usage   : $engine->get_predicate_terms();
  Function: Returns the types of relationships this engine contains
  Returns : Bio::Ontology::RelationshipType[]
  Args    :
@@ -442,14 +442,14 @@ sub get_all_relationships {
 
 =cut
 
-sub get_relationship_types {
+sub get_predicate_terms {
     my ( $self ) = @_;
 
     my @a = ( $self->is_a_relationship(),
               $self->part_of_relationship() );
 
     return @a;
-} # get_relationship_types
+} # get_predicate_terms
 
 
 
@@ -871,6 +871,12 @@ sub _check_class {
 
 } # _check_class
 
+
+#################################################################
+# aliases
+#################################################################
+
+*get_relationship_types = \&get_predicate_terms;
 
 
 1;

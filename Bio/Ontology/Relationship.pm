@@ -26,14 +26,30 @@ Relationship - a relationship for an ontology
 
 =head1 SYNOPSIS
 
-  $rel = Bio::Ontology::Relationship->new( -identifier        => "16847",
-                                           -parent_term       => $parent,
-                                           -child_term        => $child,
-                                           -relationship_type => $type );
+  $rel = Bio::Ontology::Relationship->new( -identifier     => "16847",
+                                           -subject_term   => $subj,
+                                           -object_term    => $obj,
+                                           -predicate_term => $pred );
 
 =head1 DESCRIPTION
 
 This is a basic implementation of Bio::Ontology::RelationshipI. 
+
+The terminology we use here is the one commonly used for ontologies,
+namely the triple of (subject, predicate, object), which in addition
+is scoped in a namespace (ontology). It is called triple because it is
+a tuple of three ontology terms.
+
+There are other terminologies in use for expressing relationships. For
+those who it helps to better understand the concept, the triple of
+(child, relationship type, parent) would be equivalent to the
+terminology chosen here, disregarding the question whether the notion
+of parent and child is sensible in the context of the relationship
+type or not. Especially in the case of ontologies with a wide variety
+of predicates the parent/child terminology and similar ones can
+quickly become ambiguous (e.g., A synthesises B), meaningless (e.g., A
+binds B), or even conflicting (e.g., A is-parent-of B), and are
+therefore strongly discouraged.
 
 =head1 FEEDBACK
 
@@ -69,6 +85,10 @@ Address:
   10675 John Jay Hopkins Drive
   San Diego, CA 92121
 
+=head1 CONTRIBUTORS
+
+ Hilmar Lapp, email: hlapp at gmx.net
+
 =head1 APPENDIX
 
 The rest of the documentation details each of the object
@@ -96,16 +116,16 @@ use Bio::Ontology::RelationshipI;
 =head2 new
 
  Title   : new
- Usage   : $rel = Bio::Ontology::Relationship->new( -identifier        => "16847",
-                                                    -parent_term       => $parent,
-                                                    -child_term        => $child,
-                                                    -relationship_type => $type );                   
+ Usage   : $rel = Bio::Ontology::Relationship->new(-identifier   => "16847",
+                                                   -subject_term => $subject,
+                                                   -object_term  => $object,
+                                                   -predicate_term => $type );
  Function: Creates a new Bio::Ontology::Relationship.
  Returns : A new Bio::Ontology::Relationship object.
- Args    : -identifier            => the identifier of this relationship [scalar]
-           -parent_term           => the parent term [Bio::Ontology::TermI]
-           -child_term            => the child term [Bio::Ontology::TermI]  
-           -relationship_type     => the relationship type [Bio::Ontology::TermI]  
+ Args    : -identifier     => the identifier of this relationship [scalar]
+           -subject_term   => the subject term [Bio::Ontology::TermI]
+           -object_term    => the object term [Bio::Ontology::TermI]  
+           -predicate_term => the predicate term [Bio::Ontology::TermI]
 
 =cut
 
@@ -116,24 +136,33 @@ sub new {
     my $self = $class->SUPER::new( @args );
    
     my ( $identifier,
-         $parent_term,
-         $child_term,
-         $relationship_type,
+         $subject_term,
+	 $child,        # for backwards compatibility
+         $object_term,
+	 $parent,       # for backwards compatibility
+         $predicate_term,
+	 $reltype,      # for backwards compatibility
 	 $ont)
 	= $self->_rearrange( [qw( IDENTIFIER
-				  PARENT_TERM
+				  SUBJECT_TERM
 				  CHILD_TERM
+				  OBJECT_TERM
+				  PARENT_TERM
+				  PREDICATE_TERM
 				  RELATIONSHIP_TYPE
 				  ONTOLOGY)
 			      ], @args );
    
     $self->init(); 
     
-    $identifier        && $self->identifier( $identifier );
-    $parent_term       && $self->parent_term( $parent_term );
-    $child_term        && $self->child_term( $child_term );
-    $relationship_type && $self->relationship_type( $relationship_type );
-    $ont               && $self->ontology($ont);
+    $self->identifier( $identifier );
+    $subject_term = $child unless $subject_term;
+    $object_term = $parent unless $object_term;
+    $predicate_term = $reltype unless $predicate_term;
+    $self->subject_term( $subject_term) if $subject_term;
+    $self->object_term( $object_term) if $object_term;
+    $self->predicate_term( $predicate_term ) if $predicate_term;
+    $self->ontology($ont) if $ont;
                                                     
     return $self;
     
@@ -154,10 +183,10 @@ sub new {
 sub init {
     my( $self ) = @_;
     
-    $self->{ "_identifier" }        = undef;
-    $self->{ "_parent_term" }       = undef;
-    $self->{ "_child_term" }        = undef;
-    $self->{ "_relationship_type" } = undef;
+    $self->{ "_identifier" }     = undef;
+    $self->{ "_subject_term" }   = undef;
+    $self->{ "_object_term" }    = undef;
+    $self->{ "_predicate_term" } = undef;
     $self->ontology(undef);
    
 } # init
@@ -189,78 +218,94 @@ sub identifier {
 
 
 
-=head2 parent_term
+=head2 subject_term
 
- Title   : parent_term
- Usage   : $rel->parent_term( $parent );
+ Title   : subject_term
+ Usage   : $rel->subject_term( $subject );
            or
-           $parent = $rel->parent_term();
- Function: Set/get for the parent term of this Relationship.
- Returns : The parent term [Bio::Ontology::TermI].
- Args    : The parent term [Bio::Ontology::TermI] (optional).
+           $subject = $rel->subject_term();
+ Function: Set/get for the subject term of this Relationship.
+
+           The common convention for ontologies is to express
+           relationships between terms as triples (subject, predicate,
+           object).
+
+ Returns : The subject term [Bio::Ontology::TermI].
+ Args    : The subject term [Bio::Ontology::TermI] (optional).
 
 =cut
 
-sub parent_term {
+sub subject_term {
     my ( $self, $term ) = @_;
   
     if ( defined $term ) {
         $self->_check_class( $term, "Bio::Ontology::TermI" );
-        $self->{ "_parent_term" } = $term;
+        $self->{ "_subject_term" } = $term;
     }
 
-    return $self->{ "_parent_term" };
+    return $self->{ "_subject_term" };
     
-} # parent_term
+} # subject_term
 
 
 
-=head2 child_term
+=head2 object_term
 
- Title   : child_term
- Usage   : $rel->child_term( $child );
+ Title   : object_term
+ Usage   : $rel->object_term( $object );
            or
-           $child = $rel->child_term();
- Function: Set/get for the child term of this Relationship.
- Returns : The child term [Bio::Ontology::TermI].
- Args    : The child term [Bio::Ontology::TermI] (optional).
+           $object = $rel->object_term();
+ Function: Set/get for the object term of this Relationship.
+
+           The common convention for ontologies is to express
+           relationships between terms as triples (subject, predicate,
+           object).
+
+ Returns : The object term [Bio::Ontology::TermI].
+ Args    : The object term [Bio::Ontology::TermI] (optional).
 
 =cut
 
-sub child_term {
+sub object_term {
     my ( $self, $term ) = @_;
   
     if ( defined $term ) {
         $self->_check_class( $term, "Bio::Ontology::TermI" );
-        $self->{ "_child_term" } = $term;
+        $self->{ "_object_term" } = $term;
     }
 
-    return $self->{ "_child_term" };
+    return $self->{ "_object_term" };
 }
 
 
 
-=head2 relationship_type
+=head2 predicate_term
 
- Title   : relationship_type
- Usage   : $rel->relationship_type( $type );
+ Title   : predicate_term
+ Usage   : $rel->predicate_term( $type );
            or
-           $type = $rel->relationship_type();
- Function: Set/get for the relationship type of this relationship.
- Returns : The relationship type [Bio::Ontology::TermI].
- Args    : The relationship type [Bio::Ontology::TermI] (optional).
+           $type = $rel->predicate_term();
+ Function: Set/get for the predicate (relationship type) of this
+           relationship.
+
+           The common convention for ontologies is to express
+           relationships between terms as triples (subject, predicate,
+           object).
+
+ Returns : The predicate term [Bio::Ontology::TermI].
+ Args    : The predicate term [Bio::Ontology::TermI] (optional).
 
 =cut
 
-sub relationship_type {
+sub predicate_term {
     my ( $self, $term ) = @_;
   
     if ( defined $term ) {
         $self->_check_class( $term, "Bio::Ontology::TermI" );
-        $self->{ "_relationship_type" } = $term;
+        $self->{ "_predicate_term" } = $term;
     }
 
-    return $self->{ "_relationship_type" };
+    return $self->{ "_predicate_term" };
 }
 
 
@@ -314,12 +359,12 @@ sub to_string {
 
     $s .= "-- Identifier:\n";
     $s .= $self->identifier()."\n";
-    $s .= "-- Parent Term Identifier:\n";
-    $s .= $self->parent_term()->identifier()."\n";
-    $s .= "-- Child Term Identifier:\n";
-    $s .= $self->child_term()->identifier()."\n";
+    $s .= "-- Subject Term Identifier:\n";
+    $s .= $self->subject_term()->identifier()."\n";
+    $s .= "-- Object Term Identifier:\n";
+    $s .= $self->object_term()->identifier()."\n";
     $s .= "-- Relationship Type Identifier:\n";
-    $s .= $self->relationship_type()->identifier();
+    $s .= $self->predicate_term()->identifier();
     
     return $s;
     
@@ -342,5 +387,19 @@ sub _check_class {
 
 } # _check_type
 
+#################################################################
+# aliases for backwards compatibility
+#################################################################
+
+=head1 Deprecated Methods
+
+  These methods are deprecated and defined here solely to preserve
+  backwards compatibility.
+
+=cut
+
+*child_term        = \&subject_term;
+*parent_term       = \&object_term;
+*relationship_type = \&predicate_term;
 
 1;
