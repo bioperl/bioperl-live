@@ -1,6 +1,8 @@
 #
 # This example needs the Toppred parser developped by K. Schuerer
-#  
+# for the XML output of the Toppred2 implementation by E. Deveaud
+# and K. Schuerer (ftp://ftp.pasteur.fr/pub/GenSoft/unix/protein/toppred/)
+#
 
 use Bio::Factory::Pise;
 use Bio::SeqIO;
