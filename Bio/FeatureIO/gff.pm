@@ -362,21 +362,23 @@ sub _handle_feature {
       if (!$tend || $extra) { # too much or too little stuff in the string
         $self->throw("The value in the Target string, $target_string, does not conform to the GFF3 specification");
       }
-      my $target_loc = Bio::Location::Simple->new(
-          -seq_id => $t_id,
-          -start  => $tstart, 
-          -end    => $tend,
-      ); 
+
+      my $a = Bio::Annotation::Target->new(
+           -target_id => $t_id,
+           -tstart    => $tstart,
+           -tend      => $tend,
+      );
 
       if ($strand && $strand eq '+') {
         $strand = 1;
       } elsif ($strand && $strand eq '-') {
         $strand = -1;
+      } else {
+        $strand = '';
       }
-      $target_loc->strand($strand) if $strand;
-      $target_loc->is_remote(1); 
       
-      $self->warn("Warning for line:\n$feature_string\nTarget attribute handling not yet implemented, skipping it");  
+      $a->tstrand($strand) if $strand;
+      $feat->add_Annotation('Target',$a); 
     }
   }
 
