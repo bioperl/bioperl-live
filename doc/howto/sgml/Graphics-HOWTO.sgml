@@ -137,17 +137,6 @@ version of the libgd C library.
 </para>
 
 <para>
-If the program prints out a version number, you are in luck.
-Otherwise, if you get a "Can't locate GD.pm" error, you'll have to
-install the module.  For users of ActiveState Perl this is very easy.
-Just start up the PPM program and issue the command "install GD".  For
-users of other versions of Perl, you should go to www.cpan.org,
-download a recent version of the GD module, unpack it, and follow the
-installation directions.
-
-</para>
-
-<para>
 You may need to upgrade to a recent version of the libgd C library.
 At the time this was written, there were two versions of libgd.  libgd
 version 1.8.4 is the stable version, and corresponds to GD version
@@ -272,12 +261,12 @@ contents of which are printed to standard output.  We can now view the
 result by piping it to our favorite image display program.
 </para>
 
-<para>
-IMPORTANT NOTE: If you are on a Windows platform, you need to put
+<important>
+If you are on a Windows platform, you need to put
 STDOUT into binary mode so that the PNG file does not go through
 Window's carriage return/linefeed transformations.  Before the
 final print statement, put the statement "binmode(STDOUT)".
-</para>
+</important>
 
 <para>
 This advice also applies to certain versions of RedHat, which ship
@@ -429,12 +418,12 @@ When we run the modified script, we get this image.
 </figure>
 </para>
 
-<para>
-IMPORTANT NOTE: Remember that if you are on a Windows platform, you need to put
+<important>
+Remember that if you are on a Windows platform, you need to put
 STDOUT into binary mode so that the PNG file does not go through
 Window's carriage return/linefeed transformations.  Before the
 final print statement, write binmode(STDOUT).
-</para>
+</important>
 
 </section>
 
@@ -529,8 +518,8 @@ method, and incorporate that into the description string.
     <tip>
 <para>
 The ability to use a code reference as a configuration option isn't
-unique to <parameter>-description</parameter>.  In fact, you can use a code reference for any
-of the options passed to add_track().
+unique to <parameter>-description</parameter>.  In fact, you can use a 
+code reference for any of the options passed to add_track().
 </para>
     </tip>
 
@@ -711,12 +700,12 @@ The next section will demonstrate how to parse and display feature
 tables from GenBank and EMBL.
 </para>
 
-<para>
-IMPORTANT NOTE: Remember that if you are on a Windows platform, you need to put
+<important>
+Remember that if you are on a Windows platform, you need to put
 STDOUT into binary mode so that the PNG file does not go through
 Window's carriage return/linefeed transformations.  Before the
 final print statement, write binmode(STDOUT).
-</para>
+</important>
 
 </section>
 
