@@ -251,18 +251,8 @@ sub embl2hash {
 	  $feature{range}=\@transcript;
       } else {
 	  my @range;
-	  if ($featlocation->isa('Bio::Location::FuzzyLocationI') ) { # esp. exons
-	      my ($start, $end);
-	      $featlocation->start ? $start = $featlocation->start :  
-		  $start = $featlocation->min_start;
-	      $featlocation->end ? $end = $featlocation->end :
-		  $end = $featlocation->max_end;
-	      ($feat->strand == -1) ? ( @range = ($end, $start, $featlocation->strand) ) :
-		  ( @range= ($start, $end, $featlocation->strand) );
-	  } else {
-	      ($feat->strand == -1) ? (@range = ($feat->end, $feat->start, $feat->strand) ) :
-		  (@range = ( $feat->start,$feat->end,$feat->strand) );
-	  }
+	  ($feat->strand == -1) ? (@range = ($feat->end, $feat->start, $feat->strand) ) :
+	      (@range = ( $feat->start,$feat->end,$feat->strand) );
 # works ok with 0.6.2
 	  if ($feature_name eq "CDS") { # case of single exon CDS (CDS name but not split location)
 	      my @transcript=(\@range);
