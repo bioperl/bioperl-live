@@ -66,8 +66,7 @@ and other Bioperl modules. Send your comments and suggestions preferably
  to one of the Bioperl mailing lists.
 Your participation is much appreciated.
 
-  vsns-bcd-perl@lists.uni-bielefeld.de          - General discussion
-  vsns-bcd-perl-guts@lists.uni-bielefeld.de     - Technically-oriented discussion
+  bioperl-l@bioperl.org          - General discussion
   http://bio.perl.org/MailList.html             - About the mailing lists
 
 =head2 Reporting Bugs
@@ -276,7 +275,7 @@ sub next_seq{
     # need to read the first line of the feature table
     
     # following block and loop fixed by
-    # HL <Hilmar.Lapp@pharma.novartis.com>, 05/05/2000
+    # HL <hlapp@gmx.net>, 05/05/2000
     # see comments
 
     $buffer = $self->_readline;
@@ -581,98 +580,116 @@ sub _print_GenBank_FTHelper {
 sub _read_GenBank_References{
    my ($self,$buffer) = @_;
    my (@refs);
-   my $previous;
+   my $ref;
    
    # assumme things are starting with RN
 
    if( $$buffer !~ /^REFERENCE/ ) {
        warn("Not parsing line '$$buffer' which maybe important");
    }
+
+   $_ = $$buffer;
+
    my $title;
    my $loc;
    my $au;
-   my $b1;
-   my $b2;
    my $com;
 
-   if ($$buffer =~ /^REFERENCE\s+\d+\s+\(bases (\d+) to (\d+)/){
-       $b1=$1;
-       $b2=$2;
-   }
-   while( defined($_ = $self->_readline) ) {
+   while( defined($_) || defined($_ = $self->_readline) ) {
        if (/^  AUTHORS\s+(.*)/) { 
 	   $au .= $1;   
 	   while ( defined($_ = $self->_readline) ) {
-	       /^  TITLE/ && last; 
-	       /^\s+(.*)/ && do { $au .= $1; $au =~ s/\,(\S)/ $1/g;$au .= " ";next;};
-	   }    
+	       /^\s{3,}(.*)/ && do {
+		   $au .= $1;
+		   $au =~ s/\,(\S)/ $1/g;
+		   $au .= " ";
+		   next;
+	       };
+	       last;
+	   }
+	   $ref->authors($au);
        }
        if (/^  TITLE\s+(.*)/)  { 
 	   $title .= $1;
 	   while ( defined($_ = $self->_readline) ) {
-	       /^  JOURNAL/ && last; 
-	       /^\s+(.*)/ && do { $title .= $1;$title .= " ";next;};
+	       /^\s{3,}(.*)/ && do { $title .= $1;$title .= " ";next;};
+	       last;
 	   }
+	   $ref->title($title);
        }
        if (/^  JOURNAL\s+(.*)/) { 
 	   $loc .= $1;
 	   while ( defined($_ = $self->_readline) ) {
-	       /^  REMARK/ && last;
-	       /^\s+(.*)/ && do { $loc .= $1;$loc .= " ";next;};
+	       /^\s{3,}(.*)/ && do { $loc .= $1;$loc .= " ";next;};
 	       last;
 	   }
+	   $ref->location($loc);
        }
-
        if (/^  REMARK\s+(.*)/) { 
 	   $com .= $1;
 	   while ( defined($_ = $self->_readline) ) {	       
-	       /^\s+(.*)/ && do { $com .= $1;$com .= " ";next;};
+	       /^\s{3,}(.*)/ && do { $com .= $1;$com .= " ";next;};
 	       last;
 	   }
-       }
-
-       /^REFERENCE/ && do {
-	   # put away current reference
-	   my $ref = new Bio::Annotation::Reference;
-	   $au =~ s/;\s*$//g;
-	   $title =~ s/;\s*$//g;
-	   $ref->start($b1);
-	   $ref->end($b2);
-	   $ref->authors($au);
-	   $ref->title($title);
-	   $ref->location($loc);
 	   $ref->comment($com);
-	   push(@refs,$ref);
+       }
+       /^REFERENCE/ && do {
+	   # store current reference
+	   $self->_add_ref_to_array(\@refs,$ref) if $ref;
+	   # reset
 	   $au = "";
 	   $title = "";
 	   $loc = "";
 	   $com = "";
-
-	   # return to main reference loop
-	   next;
+	   # create the new reference object
+	   $ref = Bio::Annotation::Reference->new();
+	   # check whether start and end base is given
+	   if (/^REFERENCE\s+\d+\s+\(bases (\d+) to (\d+)/){
+	       $ref->start($1);
+	       $ref->end($2);
+	   }
        };
-	   
-       /^FEATURES||^COMMENT/ && last;
+
+       /^(FEATURES)|(COMMENT)/ && last;
+
+       $_ = undef; # Empty $_ to trigger read of next line
    }
 
-   # put away last reference
+   # store last reference
+   $self->_add_ref_to_array(\@refs,$ref) if $ref;
 
-   my $ref = new Bio::Annotation::Reference;
-   $au =~ s/;\s*$//g;
-   $title =~ s/;\s*$//g;
-
-   $ref->start($b1);
-   $ref->end($b2);
-   $ref->authors($au);
-   $ref->title($title);
-   $ref->location($loc);
-   $ref->comment($com);
-   push(@refs,$ref);
    $$buffer = $_;
-   
+
+   #print "\nnumber of references found: ", $#refs+1,"\n";
+
    return @refs;
 }
 
+#
+# This is undocumented as it shouldn't be called by anywhere else as
+# read_GenBank_References. For those who still want to know:
+#
+# Purpose: adds a Reference object to an array of Reference objects, takes
+#     care of possible cleanups to be done (currently, only author and title
+#     will be chopped of trailing semicolons).
+# Parameters:
+#     a reference to an array of Reference objects
+#     the Reference object to be added
+# Returns: nothing
+#
+sub _add_ref_to_array {
+    my ($self, $refs, $ref) = @_;
+
+    # first, polish author and title by removing possible trailing semicolons
+    my $au = $ref->authors();
+    my $title = $ref->title();
+    $au =~ s/;\s*$//g if $au;
+    $title =~ s/;\s*$//g if $title;
+    $ref->authors($au);
+    $ref->title($title);
+    # the rest should be clean already, so go ahead and add it
+    push(@{$refs}, $ref);
+}
 
 =head2 _read_GenBank_Species
 
@@ -775,9 +792,9 @@ sub _read_FTHelper_GenBank {
     my ($self,$buffer) = @_;
     
     my ($key,   # The key of the feature
-        $loc,   # The location line from the feature
-        @qual,  # An arrray of lines making up the qualifiers
+        $loc    # The location line from the feature
         );
+    my @qual = (); # An arrray of lines making up the qualifiers
     
     if ($$buffer =~ /^     (\S+)\s+(\S+)/) {
         $key = $1;
@@ -788,13 +805,10 @@ sub _read_FTHelper_GenBank {
                 # Lines inside features are preceeded by 21 spaces
                 # A new feature is preceeded by 5 spaces
                 if (length($1) > 6) {
-                    # Add to qualifiers if we're in the qualifiers
-                    if (@qual) {
+                    # Add to qualifiers if we're in the qualifiers, or if it's
+		    # the first qualifier
+                    if (($#qual >= 0) || (substr($2, 0, 1) eq '/')) {
                         push(@qual, $2);
-                    }
-                    # Start the qualifier list if it's the first qualifier
-                    elsif (substr($2, 0, 1) eq '/') {
-                        @qual = ($2);
                     }
                     # We're still in the location line, so append to location
                     else {
@@ -834,14 +848,33 @@ sub _read_FTHelper_GenBank {
             if (substr($value, 0, 1) eq '"') {
                 # Keep adding to value until we find the trailing quote
                 # and the quotes are balanced
-                while ($value !~ /"$/ or $value =~ tr/"/"/ % 2) {
-                    $i++;
-                    my $next = $qual[$i];
-                    unless (defined($next)) {
-                        warn("Unbalanced quote in:\n", map("$_\n", @qual),
-                            "No further qualifiers will be added for this feature");
-                        last QUAL;
+                while ($value !~ /\"$/ or $value =~ tr/"/"/ % 2) {
+		    if($i >= $#qual) {
+			# We haven't found the closing douple quote ...
+			# Even though this should be considered as a malformed
+			# entry, we allow for a single exception, namely if the
+			# value ends exactly at the last char position of a
+			# GenBank line.
+			# At least 78 chars required, of which 21 are spaces
+			#Currently disabled, let's wait for an actual sequence
+			#entry that really requires this.
+			#if(length($qual[$i]) >= 57) {
+			#    $self->warn("unbalanced quotes in feature $key ".
+			#		"(location: $loc), ".
+			#		"qualifier $qualifier, ".
+			#		"accepting though");
+			#    last;
+			#} else {
+			    warn("Unbalanced quote in:\n",
+					map("$_\n", @qual),
+					"No further qualifiers will ".
+					"be added for this feature");
+			    last QUAL;
+			#}
                     }
+                    $i++; # modifying a for-loop variable inside of the loop
+		          # is not the best programming style ...
+                    my $next = $qual[$i];
 
                     # Join to value with space if value or next line contains a space
                     $value .= (grep /\s/, ($value, $next)) ? " $next" : $next;
@@ -849,7 +882,7 @@ sub _read_FTHelper_GenBank {
                 # Trim leading and trailing quotes
                 $value =~ s/^"|"$//g;
                 # Undouble internal quotes
-                $value =~ s/""/"/g;
+                $value =~ s/""/\"/g;
             }
         } else {
             $value = '_no_value';
