@@ -8,7 +8,7 @@ BEGIN {
 	use lib 't';
     }
     use Test;
-    plan tests => 68 }
+    plan tests => 76 }
 
 use Bio::Seq;
 use Bio::SeqIO;
@@ -283,6 +283,24 @@ foreach my $gn ( $seq->annotation->each_gene_name() ) {
 
 ok $seen;
 
+ok(defined( $seq = $seqio->next_seq));
+
+
+# more tests to verify we are actually parsing correctly
+ok($seq->primary_id, 'ACON');
+ok($seq->display_id, 'ACON_CAEEL');
+ok($seq->length, 788);
+ok($seq->division, 'CAEEL');
+ok($seq->moltype, 'protein');
+ok(scalar $seq->all_SeqFeatures(), 5);
+ 
+$seen = 0;
+foreach my $gn ( $seq->annotation->each_gene_name() ) {
+    if( $gn =~ /F54H12/ ) {
+        $seen = 1;
+    }
+}
+ok($seen);
 # test dos Linefeeds in gcg parser
 $str = Bio::SeqIO->new('-file' => Bio::Root::IO->catfile("t",
 							 "test_badlf.gcg"), 
