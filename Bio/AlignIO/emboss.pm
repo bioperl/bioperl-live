@@ -153,13 +153,15 @@ sub next_aln {
 		 /^$data{'seq1'}->{'name'}/ ) {	    
 	    my $count = 0;
 	    $seenbegin = 1;
+	    my @current;
 	    while( defined ($_) ) {
 		my $align_other = '';
-		my $delayed;
+		my $delayed;		
 		if($count == 0 || $count == 2 ) {
 		    my @l = split;
-		    my ($seq,$start,$align,$end);
+		    my ($seq,$align,$start,$end);
 		    if( $count == 2 && $data{'seq2'}->{'name'} eq '' ) {
+			# weird boundary condition 
 			($start,$align,$end) = @l;
 		    } elsif( @l == 3 ) {
 			$align = '';
@@ -167,38 +169,49 @@ sub next_aln {
 		    } else { 
 			($seq,$start,$align,$end) = @l;
  		    }
+
 		    my $seqname = sprintf("seq%d", ($count == 0) ? '1' : '2'); 
-		    
 		    $data{$seqname}->{'data'} .= $align;
 		    $data{$seqname}->{'start'} ||= $start;
 		    $data{$seqname}->{'end'} = $end;
+		    $current[$count] = [ $start,$align || ''];
 		} else { 
 		    s/^\s+//;
 		    s/\s+$//;
 		    $data{'align'} .= $_;
 		}
+
 	      BOTTOM:
 		last if( $count++ == 2);
 		$_ = $self->_readline();
 	    }
+
 	    if( $data{'type'} eq 'needle' ) {
 		# which ever one is shorter we want to bring it up to 
 		# length.  Man this stinks.
-		my ($s1,$s2) =  sort { length($a->{'data'}) <=>
-					   length($b->{'data'}) } 
-		                ($data{'seq1'}, $data{'seq2'});
-		if(length($s1->{'data'}) != length($s2->{'data'}) ) {
-
-		    if( $s1->{'start'} <= 1) { # could be 0?
-			$s1->{'data'} = '-' x ( length($s2->{'data'})
-						- length($s1->{'data'})) . 
-						    $s1->{'data'};
-		    } else {
-			$s1->{'data'} .= '-' x ( length($s2->{'data'})
-						 - length($s1->{'data'}));
+		my ($s1,$s2) =  ($data{'seq1'}, $data{'seq2'});
+		
+		my $d = length($current[0]->[1]) - length($current[2]->[1]);
+		if( $d < 0 ) { # s1 is smaller, need to add some
+		    # compare the starting points for this alignment line
+		    if( $current[0]->[0] <= 1 && $current[2]->[0] > 1) { 
+			$s1->{'data'} = ('-' x abs($d)) . $s1->{'data'};
+			$data{'align'} = (' 'x abs($d)).$data{'align'};
+		    } else { 
+			$s1->{'data'} .= '-' x abs($d);
+			$data{'align'} .= ' 'x abs($d);
+		    }
+		} elsif( $d > 0) { # s2 is smaller, need to add some  
+		    if( $current[2]->[0] <= 1 && $current[0]->[0] > 1) { 
+			$s2->{'data'} = ('-' x abs($d)) . $s2->{'data'};
+			$data{'align'} = (' 'x abs($d)).$data{'align'};
+		    } else { 
+			$s2->{'data'} .= '-' x abs($d);
+			$data{'align'} .= ' 'x abs($d);
 		    }
 		}
 	    }
+	    
 	}
     }
     return undef unless $seenbegin;
@@ -217,7 +230,6 @@ sub next_aln {
     }
     return $aln;
 }
-    
 
 =head2 write_aln
 
