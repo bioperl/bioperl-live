@@ -7,6 +7,7 @@
 
 use strict;
 BEGIN {
+    use vars qw($NTESTS);
     # to handle systems with no installed Test module
     # we include the t dir (where a copy of Test.pm is located)
     # as a fallback
@@ -15,15 +16,17 @@ BEGIN {
 	use lib 't';
     }
     use Test;
-
-    plan tests => 4 }
+    $NTESTS = 4;
+    plan tests => $NTESTS }
 
 use Bio::Factory::EMBOSS;
 use Bio::Root::IO;
 
 my $compseqoutfile = '/tmp/dna1.4.compseq';
-END { unlink($compseqoutfile) }
-my $verbose = $ENV{'BIOPERLDEBUG'};
+END { 
+    foreach ( $Test::ntest..$NTESTS ) { skip(1,1,"EMBOSS not installed locally");}
+    unlink($compseqoutfile) }
+my $verbose = $ENV{'BIOPERLDEBUG'} || -1;
 ok(1);
 
 ## End of black magic.
@@ -36,6 +39,11 @@ my $factory = new Bio::Factory::EMBOSS(-verbose => $verbose);
 
 ok($factory);
 my $compseqapp = $factory->program('compseq');
+if( ! $compseqapp ) { 
+    # no EMBOSS installed
+    exit();
+}
+
 ok($compseqapp);
 my %input = ( '-word' => 4,
 	      '-sequence' => Bio::Root::IO->catfile('t',

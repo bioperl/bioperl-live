@@ -143,9 +143,11 @@ sub location {
 
 sub program {
     my ($self, $value) = @_;
-
-    $self->throw('Application [$value] is not available!') 
-	unless $self->{'_programs'}->{$value};
+    
+    unless( $self->{'_programs'}->{$value} ) {
+	$self->warn('Application [$value] is not available!');
+	return undef;
+    }
     my $attributes = $self->_attribute_list($value);
     use Data::Dumper;
     $self->debug( Dumper($attributes));
@@ -226,20 +228,24 @@ Do not call these methods directly
 
 sub _program_list {
     my ($self) = @_;
-
-    my $list = `wossname -auto`;
-    my @groups = split /\n\n/, $list;
-    foreach my $group (@groups) {
-	my ($groupname) = $group =~ /^([A-Z][A-Z0-9 ]+)$/m; 
+    if( $^O =~ /MSWIN/i ||
+	$^O =~ /Mac/i ) { return }
+    {
+	local *STDERR;
+	open(WOSSOUT, "wossname -auto |") || return;
+    }
+    $/ = "\n\n";
+    while( <WOSSOUT> ) {	
+	my ($groupname) = (/^([A-Z][A-Z0-9 ]+)$/m); 
 	#print $groupname, "\n" if $groupname;
 	$self->{'_groups'}->{$groupname} = [] if $groupname; 
-	while ( $group =~ /^([a-z]\w+) +(.+)$/mg ) {  
+	while ( /^([a-z]\w+) +(.+)$/mg ) {  
 	    #print "$1\t$2 \n" if $1;
 	    $self->{'_programs'}->{$1} = $2 if $1; 
 	    $self->{'_programgroup'}->{$1} = $groupname if $1; 
 	    push @{$self->{'_groups'}->{$groupname}}, $1 if $1;
 	}
-    }
+    }	
 }
 
 
