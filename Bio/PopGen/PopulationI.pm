@@ -16,24 +16,24 @@ Bio::PopGen::PopulationI - Interface for Populations
 
 =head1 SYNOPSIS
 
-# Get Bio::PopGen::PopulationI object somehow, like 
-# from Bio::Population::Population
+  # Get Bio::PopGen::PopulationI object somehow, like
+  # from Bio::Population::Population
 
-print "name is ", $population->name(), "\n";
-print "source is ", $population->source(), "\n";
-print "description is ", $population->description(), "\n";
+  print "name is ", $population->name(), "\n";
+  print "source is ", $population->source(), "\n";
+  print "description is ", $population->description(), "\n";
 
-print "For marker $markername:\n";
-foreach my $genotype ( $population->get_Genotypes(-marker => $markername) ) {
-    print "Individual ", $genotype->individual_id, " genotype alleles are ", 
-    join(',', $genotype->get_Alleles()), "\n";
-}
-# get a marker with allele frequencies calculated from the population
-my $marker = $population->get_Marker($markername); 
-my %af = $marker->get_Allele_Frequencies;
-foreach my $allele ( keys %af ) {
-    print "$allele $af{$allele}\n";
-}
+  print "For marker $markername:\n";
+  foreach my $genotype ( $population->get_Genotypes(-marker => $markername) ) {
+      print "Individual ", $genotype->individual_id, " genotype alleles are ",
+      join(',', $genotype->get_Alleles()), "\n";
+  }
+  # get a marker with allele frequencies calculated from the population
+  my $marker = $population->get_Marker($markername); 
+  my %af = $marker->get_Allele_Frequencies;
+  foreach my $allele ( keys %af ) {
+      print "$allele $af{$allele}\n";
+  }
 
 =head1 DESCRIPTION
 
@@ -67,7 +67,7 @@ Email jason-at-bioperl.org
 
 =head1 CONTRIBUTORS
 
-Matthew Hahn <matthew.hahn-at-duke.edu>
+Matthew Hahn, matthew.hahn-at-duke.edu
 
 =head1 APPENDIX
 

@@ -377,9 +377,7 @@ sub get_keywords {
     return shift->_get_annotation_values('keyword');
 }
 
-=head1
-
- Private methods and synonyms for backward compatibility
+=head1 Private methods and synonyms for backward compatibility
 
 =cut
 

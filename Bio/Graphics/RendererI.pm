@@ -1,4 +1,4 @@
-# $Id $
+# $Id$
 
 =head1 NAME
 
@@ -18,9 +18,9 @@ Bio::Graphics::ConfiguratorI.
 
 =head1 DESCRIPTION
 
- Renderer of Bio::SeqFeature::CollectionIs (collections of features)
- onto a Bio::Graphics::Panel using a Bio::Graphics::ConfiguratorI for general and
- track-specific rendering options.
+Renderer of Bio::SeqFeature::CollectionIs (collections of features)
+onto a Bio::Graphics::Panel using a Bio::Graphics::ConfiguratorI for
+general and track-specific rendering options.
 
 =head1 FEEDBACK
 
@@ -51,8 +51,6 @@ Copyright (c) 2003 Institute for Systems Biology
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.  See DISCLAIMER.txt for
 disclaimers of warranty.
-
-=head1 CONTRIBUTORS
 
 =head1 APPENDIX
 

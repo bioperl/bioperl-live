@@ -14,7 +14,7 @@
 
 Bio::Graphics::ConfiguratorI - A sectioned map of configuration
 options (a map of maps), with a default section.  Intended to augment
-existing tag->value semantics (ie. of Bio::AnnotationCollectionI) for
+existing tag-E<gt>value semantics (ie. of Bio::AnnotationCollectionI) for
 object-representation information (eg. foreground color), and for
 general interface preferences (eg. image width in gbrowse).
 
@@ -27,7 +27,7 @@ general interface preferences (eg. image width in gbrowse).
 
 This object contains various configuration parameters.  It is divided
 up into sections and tags.  This is essentially a multi-level map
-(senction->tag->value).  There is also the concept of a default
+(section-E<gt>tag-E<gt>value).  There is also the concept of a default
 section which is referenced when no section is passed to the
 ConfiguratorI methods.
 

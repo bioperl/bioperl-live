@@ -31,8 +31,9 @@ Bio::Tools::Genomewise - Results of one Genomewise run
 
 This is the parser for the output of Genewise. It takes either a file
 handle or a file name and returns a
-Bio::SeqFeature::Gene::GeneStructure object.  You will need to specify the 
-proper target sequence id on the object with the $feature->seq_id($seqid).
+Bio::SeqFeature::Gene::GeneStructure object.  You will need to specify
+the proper target sequence id on the object with the
+$feature-E<gt>seq_id($seqid).
 
 =head1 FEEDBACK
 

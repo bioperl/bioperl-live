@@ -1,3 +1,5 @@
+# $Id$
+#
 # POD documentation - main docs before the code
 #
 #
@@ -101,8 +103,8 @@ system's temporary file directory.  The name of this temporary file
 can be retrieved using file_name().
 
 =cut
-#'
 
+#'
 sub new {
     my ($class,@args) = @_;
 

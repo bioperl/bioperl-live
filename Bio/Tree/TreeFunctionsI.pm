@@ -124,7 +124,7 @@ sub find_node {
    } 
    my @nodes = grep { $_->can($type) && defined $_->$type() &&
 		     $_->$type() eq $field } $self->get_nodes();
-   
+
    if ( wantarray) { 
        return @nodes;
    } else { 
@@ -293,7 +293,7 @@ sub distance {
 
 # helper function to check lca and distance arguments
 
-sub _check_two_nodes {    
+sub _check_two_nodes {
     my ($self, $nodes) = @_;
 
    if( ref($nodes) !~ /ARRAY/i ||
@@ -307,7 +307,7 @@ sub _check_two_nodes {
    } elsif( scalar(@$nodes) < 2 ){
        $self->warn("-nodes parameter does not contain reference to two nodes");
        return undef;
-   }    
+   }
     unless( $nodes->[0]->isa('Bio::Tree::NodeI') &&
 	    $nodes->[1]->isa('Bio::Tree::NodeI') ) {
 	$self->warn("Did not provide valid Bio::Tree::NodeI objects as nodes\n");
@@ -382,7 +382,7 @@ is_monophyletic");
 sub is_paraphyletic{
    my ($self,@args) = @_;
    my ($nodes,$outgroup) = $self->_rearrange([qw(NODES OUTGROUP)],@args);
-   
+
    if( ! defined $nodes || ! defined $outgroup ) {
        $self->warn("Must suply -nodes and -outgroup parameters to the method is_paraphyletic");
        return undef;
@@ -415,7 +415,7 @@ sub is_paraphyletic{
        $og_ancestor = $og_ancestor->ancestor;
    }
    my $tree = new Bio::Tree::Tree(-root => $clade_root);
-   
+
    foreach my $n ( $tree->get_nodes() ) { 
        next unless $n->is_Leaf();
        # if any leaf node is not in the list
@@ -435,7 +435,7 @@ sub is_paraphyletic{
  Returns : 1 on success, 0 on failure
  Args    : Bio::Tree::NodeI that is in the tree
 
-o
+
 =cut
 
 sub reroot {

@@ -19,15 +19,15 @@ Bio::DB::Taxonomy::entrez - Taxonomy Entrez driver
 # Do not use this object directly, rather through the Bio::DB::Taxonomy
 # interface
 
-use Bio::DB::Taxonomy;
+  use Bio::DB::Taxonomy;
 
-my $db = new Bio::DB::Taxonomy(-source => 'entrez');
+  my $db = new Bio::DB::Taxonomy(-source => 'entrez');
 
-my $taxaid = $db->get_taxaid('Homo sapiens');
+  my $taxaid = $db->get_taxaid('Homo sapiens');
 
 =head1 DESCRIPTION
 
-A driver for querying NCBI Entrez Taxonomy database.  
+A driver for querying NCBI Entrez Taxonomy database.
 
 =head1 FEEDBACK
 
@@ -68,7 +68,7 @@ Internal methods are usually preceded with a _
 
 
 package Bio::DB::Taxonomy::entrez;
-use vars qw(@ISA $EntrezLocation $UrlParamSeparatorValue %EntrezParams 
+use vars qw(@ISA $EntrezLocation $UrlParamSeparatorValue %EntrezParams
 	    $EntrezGet $EntrezSummary
 	    $XMLTWIG);
 use strict;
@@ -77,7 +77,7 @@ use Bio::DB::Taxonomy;
 use Bio::Root::HTTPget;
 use Bio::Species;
 
-eval { 
+eval {
     require XML::Twig;
     $XMLTWIG = 1;
 };
@@ -97,35 +97,35 @@ $UrlParamSeparatorValue = '&';
 
  Title   : new
  Usage   : my $obj = new Bio::DB::Taxonomy::entrez();
- Function: Builds a new Bio::DB::Taxonomy::entrez object 
+ Function: Builds a new Bio::DB::Taxonomy::entrez object
  Returns : an instance of Bio::DB::Taxonomy::entrez
- Args    : -location => URL to Entrez (if you want to override the default) 
-           -params   => Hashref of URL params if you want to override the 
+ Args    : -location => URL to Entrez (if you want to override the default)
+           -params   => Hashref of URL params if you want to override the
                         default
 
 =cut
 
 sub _initialize {
   my($self) = shift;
-  if( ! $XMLTWIG ) { 
+  if( ! $XMLTWIG ) {
       $self->throw("Need to have installed XML::Twig");
   }
-  
-  $self->SUPER::_initialize(@_); 
+
+  $self->SUPER::_initialize(@_);
 
   my ($location,$params) = $self->_rearrange([qw(LOCATION PARAMS)],@_);
-  
+
   $self->entrez_url($location || $EntrezLocation );
-  if( $params ) { 
+  if( $params ) {
       if( ref($params) !~ /HASH/i ) {
 	  $self->warn("Must have provided a valid HASHref for -params");
 	  $params = \%EntrezParams;
       }
-  } else { 
+  } else {
       $params = \%EntrezParams;
   }
   $self->entrez_params($params);
-  $self->entrez_url($location || $EntrezLocation );  
+  $self->entrez_url($location || $EntrezLocation );
 }
 
 
@@ -137,7 +137,7 @@ sub _initialize {
  Returns : Bio::Taxonomy::Taxon object(s) [more than one
  Args    : -taxaid => taxonomy id (to query by taxaid)
             OR
-           -name   => string (to query by a taxonomy name: common name, 
+           -name   => string (to query by a taxonomy name: common name,
                               species, genus, etc)
 
 
@@ -165,9 +165,9 @@ sub get_Taxonomy_Node{
    my $root = $twig->root;
    my $list = $root->first_child('DocSum');
    my ($id) = map { $_->text } $list->children('Id');
-   
+
    my (%item) = map {  $_->{'att'}->{'Name'} => $_->text } $list->children('Item');
-      
+
    if( $item{'RANK'} eq 'species') {
        my $node = new Bio::Species(-ncbi_taxid     => $id,
 				   -common_name    => $item{'CommonName'},
@@ -176,7 +176,7 @@ sub get_Taxonomy_Node{
        $node->genus($species);
        $node->species($species);
        return $node;
-   } else { 
+   } else {
        $self->warn("can't create a species object for ",$item{'CommonName'}, " because it isn't a species");
    }
    \%item;
@@ -187,10 +187,10 @@ sub get_Taxonomy_Node{
 
  Title   : get_taxaid
  Usage   : my $taxaid = $db->get_taxaid('Homo sapiens');
- Function: Searches for a taxaid (typically ncbi_taxa_id) 
-           based on a query string 
+ Function: Searches for a taxaid (typically ncbi_taxa_id)
+           based on a query string
  Returns : Integer ID
- Args    : Array of Strings representing species/node name 
+ Args    : Array of Strings representing species/node name
 
 
 =cut
@@ -203,7 +203,7 @@ sub get_taxaid {
    my $params = join($UrlParamSeparatorValue, map { "$_=".$p{$_} } keys %p);
    my $url = sprintf("%s%s?%s",$self->entrez_url,$EntrezGet,$params);
    my $response;
-   eval { 
+   eval {
        $response = $self->get($url);
    };
    if( $@ ) {
@@ -224,6 +224,8 @@ sub get_taxaid {
 
 =head2 Some Get/Setter methods
 
+=cut
+
 =head2 entrez_url
 
  Title   : entrez_url
@@ -237,7 +239,7 @@ sub get_taxaid {
 
 sub entrez_url{
     my $self = shift;
-    
+
     return $self->{'_entrez_url'} = shift if @_;
     return $self->{'_entrez_url'};
 }
@@ -258,7 +260,7 @@ sub entrez_params{
     my $f;
     if( @_ ) {
 	$f = $self->{'_entrez_params'} = shift;
-    } else { 
+    } else {
 	$f = $self->{'_entrez_params'};
     }
     return %$f;
@@ -266,19 +268,21 @@ sub entrez_params{
 
 =head2 Bio::DB::WebBase methods
 
+=cut
+
 =head2 proxy_string
 
  Title   : proxy_string
  Usage   : my $proxy_string = $self->proxy_string($protocol)
  Function: Get the proxy string (plus user/pass )
- Returns : string 
+ Returns : string
  Args    : protocol ('http' or 'ftp'), default 'http'
 
 
 =head2 proxy
 
  Title   : proxy
- Usage   : $httpproxy = $db->proxy('http')  or 
+ Usage   : $httpproxy = $db->proxy('http')  or
            $db->proxy(['http','ftp'], 'http://myproxy' )
  Function: Get/Set a proxy for use of proxy
  Returns : a string indicating the proxy
@@ -293,7 +297,7 @@ sub entrez_params{
  Title   : authentication
  Usage   : $db->authentication($user,$pass)
  Function: Get/Set authentication credentials
- Returns : Array of user/pass 
+ Returns : Array of user/pass
  Args    : Array or user/pass
 
 

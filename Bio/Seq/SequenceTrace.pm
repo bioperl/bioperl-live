@@ -16,8 +16,7 @@ Bio::Seq::SequenceTrace - Bioperl object packaging a sequence with its trace
 
 =head1 SYNOPSIS
 
-
-
+  # example code here
 
 =head1 DESCRIPTION
 

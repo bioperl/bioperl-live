@@ -12,14 +12,15 @@
 
 =head1 NAME
 
-Bio::PopGen::Individual - An implementation of an Individual who has Genotype or Sequence Results
+Bio::PopGen::Individual - An implementation of an Individual who has
+Genotype or Sequence Results
 
 =head1 SYNOPSIS
 
-use Bio::PopGen::Individual;
+  use Bio::PopGen::Individual;
 
-my $ind = new Bio::PopGen::Individual(-unqiue_id => $id,
-                                      -genotypes => \@genotypes);
+  my $ind = new Bio::PopGen::Individual(-unqiue_id => $id,
+                                        -genotypes => \@genotypes);
 
 =head1 DESCRIPTION
 

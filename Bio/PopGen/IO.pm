@@ -16,16 +16,16 @@ Bio::PopGen::IO - Input individual,marker,allele information
 
 =head1 SYNOPSIS
 
-use Bio::PopGen::IO;
-my $io = new Bio::PopGen::IO(-format => 'csv',
-                             -file   => 'data.csv');
+  use Bio::PopGen::IO;
+  my $io = new Bio::PopGen::IO(-format => 'csv',
+                               -file   => 'data.csv');
 
-# Some IO might support reading in a population at a time
+  # Some IO might support reading in a population at a time
 
-my @population;
-while( my $ind = $io->next_individual ) {
-    push @population, $ind;
-}
+  my @population;
+  while( my $ind = $io->next_individual ) {
+      push @population, $ind;
+  }
 
 
 =head1 DESCRIPTION

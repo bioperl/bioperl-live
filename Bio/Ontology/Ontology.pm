@@ -16,7 +16,7 @@
 # Refer to the Perl Artistic License (see the license accompanying this
 # software package, or see http://www.perl.com/language/misc/Artistic.html)
 # for the terms under which you may use, modify, and redistribute this module.
-# 
+#
 # THIS PACKAGE IS PROVIDED "AS IS" AND WITHOUT ANY EXPRESS OR IMPLIED
 # WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF
 # MERCHANTIBILITY AND FITNESS FOR A PARTICULAR PURPOSE.
@@ -115,7 +115,7 @@ use Bio::Ontology::SimpleOntologyEngine;
 
  Title   : new
  Usage   : my $obj = new Bio::Ontology::Ontology();
- Function: Builds a new Bio::Ontology::Ontology object 
+ Function: Builds a new Bio::Ontology::Ontology object
  Returns : an instance of Bio::Ontology::Ontology
  Args    :
 
@@ -124,12 +124,12 @@ use Bio::Ontology::SimpleOntologyEngine;
 
 sub new {
     my($class,@args) = @_;
-    
+
     my $self = $class->SUPER::new(@args);
     my ($name,$auth,$def,$id,$engine) =
-	$self->_rearrange([qw(NAME 
+	$self->_rearrange([qw(NAME
 			      AUTHORITY
-			      DEFINITION 
+			      DEFINITION
 			      IDENTIFIER
 			      ENGINE)
 			   ],
@@ -144,9 +144,7 @@ sub new {
     return $self;
 }
 
-=head1
-
-  Methods from L<Bio::Ontology::OntologyI>
+=head1 Methods from L<Bio::Ontology::OntologyI>
 
 =cut
 
@@ -155,7 +153,7 @@ sub new {
  Title   : name
  Usage   : $obj->name($newval)
  Function: Get/set the name of the ontology.
- Example : 
+ Example :
  Returns : value of name (a scalar)
  Args    : on set, new value (a scalar or undef, optional)
 
@@ -182,7 +180,7 @@ sub name{
            follow the rules for namespaces, which ontologies serve as
            for terms.
 
- Example : 
+ Example :
  Returns : value of authority (a scalar)
  Args    : on set, new value (a scalar or undef, optional)
 
@@ -201,7 +199,7 @@ sub authority{
  Title   : definition
  Usage   : $obj->definition($newval)
  Function: Get/set a descriptive definition of the ontology.
- Example : 
+ Example :
  Returns : value of definition (a scalar)
  Args    : on set, new value (a scalar or undef, optional)
 
@@ -227,9 +225,9 @@ sub definition{
            hold within the scope of a particular application's run
            time since it is derived from a memory location.
 
- Example : 
+ Example :
  Returns : value of identifier (a scalar)
- Args    : 
+ Args    :
 
 
 =cut
@@ -276,9 +274,7 @@ sub close{
     return 1;
 }
 
-=head1
-
-  Implementation-specific public methods
+=head1 Implementation-specific public methods
 
 =cut
 
@@ -290,7 +286,7 @@ sub close{
            delegate.
  Example : 
  Returns : an object implementing L<Bio::Ontology::OntologyEngineI>
- Args    : on set, new value (an object implementing 
+ Args    : on set, new value (an object implementing
            L<Bio::Ontology::OntologyEngineI>, or  undef)
 
 
@@ -298,7 +294,7 @@ sub close{
 
 sub engine{
     my $self = shift;
-    
+
     if(@_) {
 	my $engine = shift;
 	if($engine && (! (ref($engine) &&
@@ -311,9 +307,7 @@ sub engine{
     return $self->{'engine'};
 }
 
-=head1
-
-  Methods defined in L<Bio::Ontology::OntologyEngineI>
+=head1 Methods defined in L<Bio::Ontology::OntologyEngineI>
 
 =cut
 
@@ -442,7 +436,7 @@ sub get_child_terms{
  Usage   : get_descendant_terms(TermI term, TermI[] rel_types): TermI[]
  Function: Retrieves all descendant terms of a given term, that
            satisfy a relationship among those that are specified in
-           the second argument or undef otherwise. 
+           the second argument or undef otherwise.
 
            Note that a returned term may possibly be in another
            ontology than this one, because the underlying engine may
@@ -496,7 +490,7 @@ sub get_parent_terms{
  Usage   : get_ancestor_terms(TermI term, TermI[] relationship_types): TermI[]
  Function: Retrieves all ancestor terms of a given term, that satisfy
            a relationship among those that are specified in the second
-           argument or undef otherwise. 
+           argument or undef otherwise.
 
            Note that a returned term may possibly be in another
            ontology than this one, because the underlying engine may

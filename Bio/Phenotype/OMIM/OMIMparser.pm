@@ -73,7 +73,7 @@ OMIMparser - parser for the OMIM database
     print $mini_mim->created()."\n";
     print $mini_mim->contributors()."\n";
     print $mini_mim->edited()."\n";
-    
+
     my @corrs      = $omim_entry->each_Correlate();            # from genemap
       # Array of Bio::Phenotype::Correlate objects.
       # class Bio::Phenotype::Correlate

@@ -76,7 +76,7 @@ Email: czmasek@gnf.org  or  cmzmasek@yahoo.com
 
 WWW:   http://www.genetics.wustl.edu/eddy/people/zmasek/
 
-Address: 
+Address:
 
   Genomics Institute of the Novartis Research Foundation
   10675 John Jay Hopkins Drive
@@ -120,16 +120,16 @@ use constant FALSE   => 0;
                                              -name        => "1-aminocyclopropane-1-carboxylate synthase",
                                              -definition  => "Catalysis of ...",
                                              -is_obsolete => 0,
-                                             -comment     => "" );                   
+                                             -comment     => "" );
  Function: Creates a new Bio::Ontology::Term.
  Returns : A new Bio::Ontology::Term object.
  Args    : -identifier            => the identifier of this term [scalar]
            -name                  => the name of this term [scalar]
-           -definition            => the definition of this term [scalar]  
+           -definition            => the definition of this term [scalar]
            -ontology              => the ontology this term lives in
                                      (a L<Bio::Ontology::OntologyI> object)
            -version               => version information [scalar]
-           -is_obsolete           => the obsoleteness of this term [0 or 1]   
+           -is_obsolete           => the obsoleteness of this term [0 or 1]
            -comment               => a comment [scalar]
 
 =cut
@@ -137,39 +137,39 @@ use constant FALSE   => 0;
 sub new {
 
     my( $class,@args ) = @_;
-    
+
     my $self = $class->SUPER::new( @args );
-   
+
     my ( $identifier,
          $name,
          $definition,
          $category,
 	 $ont,
-         $version,     
-         $is_obsolete,       
+         $version,
+         $is_obsolete,
          $comment )
 	= $self->_rearrange( [ qw( IDENTIFIER
 				   NAME
 				   DEFINITION
 				   CATEGORY
                                    ONTOLOGY
-				   VERSION    
-				   IS_OBSOLETE      
+				   VERSION
+				   IS_OBSOLETE
 				   COMMENT ) ], @args );
-   
-    $self->init(); 
-    
+
+    $self->init();
+
     $identifier            && $self->identifier( $identifier );
     $name                  && $self->name( $name );
     $definition            && $self->definition( $definition );
     $category              && $self->category( $category );
     $ont                   && $self->ontology( $ont );
-    defined($version)      && $self->version( $version );   
-    defined($is_obsolete)  && $self->is_obsolete( $is_obsolete );      
-    $comment               && $self->comment( $comment  ); 
-                                                    
+    defined($version)      && $self->version( $version );
+    defined($is_obsolete)  && $self->is_obsolete( $is_obsolete );
+    $comment               && $self->comment( $comment  );
+
     return $self;
-    
+
 } # new
 
 
@@ -187,7 +187,7 @@ sub init {
     $self->remove_synonyms();
     $self->remove_dblinks();
     $self->remove_secondary_ids();
-  
+
 } # init
 
 
@@ -261,7 +261,7 @@ sub definition {
 
  Title   : ontology
  Usage   : $ont = $term->ontology();
-           or 
+           or
            $term->ontology( $ont );
  Function: Get the ontology this term is in.
 
@@ -287,9 +287,9 @@ sub ontology {
 		$self->throw(ref($ont)." does not implement ".
 			     "Bio::Ontology::OntologyI. Bummer.");
 	    }
-	} 
+	}
 	return $self->{"_ontology"} = $ont;
-    } 
+    }
     return $self->{"_ontology"};
 } # ontology
 
@@ -298,7 +298,7 @@ sub ontology {
 
  Title   : version
  Usage   : $term->version( "1.00" );
-           or 
+           or
            print $term->version();
  Function: Set/get for version information.
  Returns : The version [scalar].
@@ -342,7 +342,7 @@ sub is_obsolete{
 
  Title   : comment
  Usage   : $term->comment( "Consider the term ..." );
-           or 
+           or
            print $term->comment();
  Function: Set/get for an arbitrary comment about this Term.
  Returns : A comment.
@@ -372,9 +372,9 @@ sub comment{
 
 sub get_synonyms {
     my $self = shift;
-    
+
     return @{ $self->{ "_synonyms" } } if exists($self->{ "_synonyms" });
-    return (); 
+    return ();
 } # get_synonyms
 
 
@@ -383,20 +383,20 @@ sub get_synonyms {
  Title   : add_synonym
  Usage   : $term->add_synonym( @asynonyms );
            or
-           $term->add_synonym( $synonym );                  
+           $term->add_synonym( $synonym );
  Function: Pushes one or more synonyms into the list of synonyms.
- Returns : 
+ Returns :
  Args    : One synonym [scalar] or a list of synonyms [array of [scalar]].
 
 =cut
 
 sub add_synonym {
     my ( $self, @values ) = @_;
-    
+
     return unless( @values );
-        
+
     push( @{ $self->{ "_synonyms" } }, @values );
-    
+
 } # add_synonym
 
 
@@ -412,7 +412,7 @@ sub add_synonym {
 
 sub remove_synonyms {
     my ( $self ) = @_;
-     
+
     my @a = $self->get_synonyms();
     $self->{ "_synonyms" } = [];
     return @a;
@@ -431,9 +431,9 @@ sub remove_synonyms {
 
 sub get_dblinks {
     my $self = shift;
-    
+
     return @{$self->{ "_dblinks" }} if exists($self->{ "_dblinks" });
-    return (); 
+    return ();
 } # get_dblinks
 
 
@@ -442,10 +442,10 @@ sub get_dblinks {
  Title   : add_dblink
  Usage   : $term->add_dblink( @dbls );
            or
-           $term->add_dblink( $dbl );                  
+           $term->add_dblink( $dbl );
  Function: Pushes one or more dblinks
            into the list of dblinks.
- Returns : 
+ Returns :
  Args    : One  dblink [scalar] or a list of
             dblinks [array of [scalars]].
 
@@ -453,12 +453,12 @@ sub get_dblinks {
 
 sub add_dblink {
     my ( $self, @values ) = @_;
-    
+
     return unless( @values );
 
     $self->{ "_dblinks" } = [] unless exists($self->{ "_dblinks" });
     push( @{ $self->{ "_dblinks" } }, @values );
-    
+
 } # add_dblink
 
 
@@ -474,7 +474,7 @@ sub add_dblink {
 
 sub remove_dblinks {
     my ( $self ) = @_;
-     
+
     my @a = $self->get_dblinks();
     $self->{ "_dblinks" } = [];
     return @a;
@@ -497,7 +497,7 @@ sub remove_dblinks {
 
 sub get_secondary_ids {
     my $self = shift;
-    
+
     return @{$self->{"_secondary_ids"}} if exists($self->{"_secondary_ids"});
     return ();
 } # get_secondary_ids
@@ -508,20 +508,20 @@ sub get_secondary_ids {
  Title   : add_secondary_id
  Usage   : $term->add_secondary_id( @ids );
            or
-           $term->add_secondary_id( $id );                  
+           $term->add_secondary_id( $id );
  Function: Adds one or more secondary identifiers to this term.
- Returns : 
+ Returns :
  Args    : One or more secondary identifiers [scalars]
 
 =cut
 
 sub add_secondary_id {
     my $self = shift;
-    
+
     return unless @_;
     $self->{"_secondary_ids"} = [] unless exists($self->{"_secondary_ids"});
     push( @{ $self->{ "_secondary_ids" } }, @_ );
-    
+
 } # add_secondary_id
 
 
@@ -537,7 +537,7 @@ sub add_secondary_id {
 
 sub remove_secondary_ids {
     my $self = shift;
-     
+
     my @a = $self->get_secondary_ids();
     $self->{ "_secondary_ids" } = [];
     return @a;
@@ -557,9 +557,7 @@ sub _is_true_or_false {
     }
 } # _is_true_or_false
 
-=head1
-
-  Methods implementing L<Bio::IdentifiableI> and L<Bio::DescribableI>.
+=head1 Methods implementing L<Bio::IdentifiableI> and L<Bio::DescribableI>
 
 =cut
 
@@ -580,26 +578,12 @@ sub object_id {
     return shift->identifier(@_);
 }
 
-=head2 version
-
- Title   : version
- Usage   : $version    = $obj->version()
- Function: a number which differentiates between versions of
-           the same object.
-
-           This is already defined in L<Bio::Ontology::TermI>.
-
- Returns : A number
-
-=cut
-
-
 =head2 authority
 
  Title   : authority
  Usage   : $authority    = $obj->authority()
  Function: a string which represents the organisation which
-           granted the namespace, written as the DNS name for  
+           granted the namespace, written as the DNS name for
            organisation (eg, wormbase.org)
 
            This forwards to ontology()->authority(). Note that you
@@ -673,7 +657,7 @@ sub display_name {
 
  Title   : description
  Usage   : $string    = $obj->description()
- Function: A text string suitable for displaying to the user a 
+ Function: A text string suitable for displaying to the user a
            description. This string is likely to have spaces, but
            should not have any newlines or formatting - just plain
            text.
@@ -696,10 +680,9 @@ sub description {
 # aliases or forwards to maintain backward compatibility
 #################################################################
 
-=head1
+=head1  Deprecated methods
 
-  Deprecated methods. Use for looking up the methods that supercedes
-  them.
+Used for looking up the methods that supercedes them.
 
 =cut
 
@@ -709,7 +692,7 @@ sub description {
  Usage   :
  Function: This method is deprecated. Use ontology() instead.
  Example :
- Returns : 
+ Returns :
  Args    :
 
 

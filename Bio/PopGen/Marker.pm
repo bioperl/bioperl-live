@@ -16,14 +16,14 @@ Bio::PopGen::Marker - A genetic marker which one uses to generate genotypes
 
 =head1 SYNOPSIS
 
-my $name = $marker->name();            # marker name
-my $description = $marker->description(); # description
-my $type = $marker->type();            # coded type of the marker
-my $unique_id = $marker->unique_id;    # optional unique ID
-my @alleles = $marker->get_Alleles();  # the known alleles
-my %allele_freqs = $marker->get_Allele_Frequencies(); # keys are marker names
-                                                  # vals are frequencies
-                                                  # may change to handle multiple populations 
+  my $name = $marker->name();            # marker name
+  my $description = $marker->description(); # description
+  my $type = $marker->type();            # coded type of the marker
+  my $unique_id = $marker->unique_id;    # optional unique ID
+  my @alleles = $marker->get_Alleles();  # the known alleles
+  my %allele_freqs = $marker->get_Allele_Frequencies(); # keys are marker names
+                                         # vals are frequencies
+                                         # may change to handle multiple populations
 
 =head1 DESCRIPTION
 
@@ -196,9 +196,9 @@ sub type{
 
 sub unique_id{
     my $self = shift;
-    
+
     return $self->{'_uniqueid'} = shift if @_;
-    return $self->{'_uniqueid'};    
+    return $self->{'_uniqueid'};
 }
 
 =head2 get_Alleles
@@ -208,6 +208,7 @@ sub unique_id{
  Function: Get the available marker alleles
  Returns : Array of strings
  Args    : none
+
 =cut
 
 sub get_Alleles{

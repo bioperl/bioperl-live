@@ -92,7 +92,7 @@ use Bio::Root::RootI;
 
 @ISA = qw(Bio::Root::RootI);
 
-BEGIN { 
+BEGIN {
     $VERSION = do { my @r = (q$Revision$ =~ /\d+/g); sprintf "%d.%-02d", @r };
     $Revision = q$Id$;
 }
@@ -220,7 +220,7 @@ Here is a (slightly shortened) example of an input specification:
             'allowed_values' => [
                                   'gcg',
                                   'gcg8',
-                                  ... 
+                                  ...
                                   'raw'
                                 ],
             'type' => 'String',
@@ -752,32 +752,32 @@ Here are the rules how the method works:
     Retrieving NAMED results:
     -------------------------
      results ('name1', ...)   => return results as they are, no storing into files
-   
+
      results ( { 'name1' => 'filename', ... } )  => store into 'filename', return 'filename'
      results ( 'name1=filename', ...)            => ditto
-   
+
      results ( { 'name1' => '-', ... } )         => send result to the STDOUT, do not return anything
      results ( 'name1=-', ...)                   => ditto
-   
+
      results ( { 'name1' => '@', ... } )  => store into file whose name is invented by
                                              this method, perhaps using RESULT_NAME_TEMPLATE env
      results ( 'name1=@', ...)            => ditto
-   
+
      results ( { 'name1' => '?', ... } )  => find of what type is this result and then use
                                              {'name1'=>'@' for binary files, and a regular
                                              return for non-binary files
      results ( 'name=?', ...)             => ditto
-   
+
     Retrieving ALL results:
     -----------------------
      results()     => return all results as they are, no storing into files
-   
+
      results ('@') => return all results, as if each of them given
                       as {'name' => '@'} (see above)
-   
+
      results ('?') => return all results, as if each of them given
                       as {'name' => '?'} (see above)
-   
+
     Misc:
     -----
      * any result can be returned as a scalar value, or as an array reference

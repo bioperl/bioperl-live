@@ -102,7 +102,7 @@ Bio::Graphics::Glyph::redgreen_box - The "redgreen_box" glyph
 =head1 DESCRIPTION
 
 This glyph is similar to the graded_segments glyph except that it
-generates a green->red gradient suitable for use with microarray data.
+generates a green-E<gt>red gradient suitable for use with microarray data.
 A feature score of 0 is full green; a feature score of 1.0 is full
 red; intermediate scores are shades of yellow.
 

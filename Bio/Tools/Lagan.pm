@@ -12,65 +12,75 @@
 
 =head1 NAME
 
-Bio::Tools::Lagan - Object for the local execution of the LAGAN suite of tools (including MLAGAN for multiple sequence alignments)
+Bio::Tools::Lagan - Object for the local execution of the LAGAN suite
+of tools (including MLAGAN for multiple sequence alignments)
 
 =head1 SYNOPSIS
 
-To run mlagan/lagan, the executables "mlagan" and "lagan.pl" must be in your path or you must have an environment variable that points to the executable directory "LAGANDIR=/opt/lagan_executables/"
-
 MLAGAN / LAGAN execution and alignment object creation.
-	
-	use Bio::Tools::Lagan;
-	
-	@params = (	'chaos' => "The contents of this string will be passed as args to chaos",
-			#Read you chaos README file for more info/This functionality has not been tested and will be
-			#integrated in future versions.			
 
-			'order' => "-gs -7 -gc -2 -mt 2 -ms -1",
-			#Where gap start penalty of- 7, gap continue of -2, match of 2, and mismatch of -1.
-			
-			'recurf1' => "(12,25),(7,25),(4,30)",
-			#A list of (wordlength,score cutoff) pairs to be used in the recursive anchoring
-			
-			'tree' => "(sample1 (sample2 sample3))",
-			#Used by mlagan / tree can also be passed when calling mlagan directly
-			
-			#SCORING PARAMETERS FOR MLAGAN
-			'match' => 12,
-			'mismatch' => -8,
-			'gapstart' => -50,
-			'gapend' => -50,
-			'gapcont' => -2,
-	);
+  use Bio::Tools::Lagan;
 
-	All lagan and mlagan parameters listed in their Readmes can be set except for the mfa flag which has been turned on by default to prevent parsing of the alignment format.
+  @params =
+      ('chaos' => "The contents of this string will be passed as args to chaos",
+
+       #Read you chaos README file for more info/This functionality
+       #has not been tested and will be integrated in future versions.
+
+       'order' => "-gs -7 -gc -2 -mt 2 -ms -1",
+       #Where gap start penalty of- 7, gap continue of -2, match of 2,
+       #and mismatch of -1.
+
+       'recurf1' => "(12,25),(7,25),(4,30)",
+       #A list of (wordlength,score cutoff) pairs to be used in the
+       #recursive anchoring
+
+       'tree' => "(sample1 (sample2 sample3))",
+       #Used by mlagan / tree can also be passed when calling mlagan directly
+
+       #SCORING PARAMETERS FOR MLAGAN:
+       'match' => 12,
+       'mismatch' => -8,
+       'gapstart' => -50,
+       'gapend' => -50,
+       'gapcont' => -2,
+  );
+
+All lagan and mlagan parameters listed in their Readmes can be set
+except for the mfa flag which has been turned on by default to prevent
+parsing of the alignment format.
 
 TO USE LAGAN:
 
-	my $lagan = new Bio::Tools::Lagan(@params);
-	my $report_out = $lagan->lagan($seq1, $seq2);
+  my $lagan = new Bio::Tools::Lagan(@params);
+  my $report_out = $lagan->lagan($seq1, $seq2);
 
-	A SimpleAlign object is returned	
+A SimpleAlign object is returned.
 
 TO USE MLAGAN:
 
-	my $lagan = new Bio::Tools::Lagan();
-	my $tree = "(($seqname1 $seqname2) $seqname3)";
-	my @sequence_objs; 	#an array of bioperl Seq objects
-	
-	##If you use an unblessed seq array
-	my $seq_ref = \@sequence_objs;
-	bless $seq_ref, "ARRAY";
+  my $lagan = new Bio::Tools::Lagan();
+  my $tree = "(($seqname1 $seqname2) $seqname3)";
+  my @sequence_objs; 	#an array of bioperl Seq objects
 
-	my $report_out = $lagan->mlagan($seq_ref, $tree);
+  ##If you use an unblessed seq array
+  my $seq_ref = \@sequence_objs;
+  bless $seq_ref, "ARRAY";
 
-	A SimpleAlign object is returned	
+  my $report_out = $lagan->mlagan($seq_ref, $tree);
 
-Only basic mlagan/lagan functionality has been implemented due to the iterative development of their project.  Future maintenance upgrades will include enhanced features and scoring.
+  A SimpleAlign object is returned	
+
+Only basic mlagan/lagan functionality has been implemented due to the
+iterative development of their project.  Future maintenance upgrades
+will include enhanced features and scoring.
 
 =head1 DESCRIPTION
 
-A parser for Lagan output
+To run mlagan/lagan, the executables "mlagan" and "lagan.pl" must be
+in your path or you must have an environment variable that points to
+the executable directory "LAGANDIR=/opt/lagan_executables/"
+
 
 =head1 FEEDBACK
 
@@ -128,32 +138,38 @@ use Bio::Tools::Run::WrapperBase;
 		Bio::Tools::Run::WrapperBase);
 
 BEGIN {
-	@LAGAN_PARAMS = qw(chaos order recurse mfa out lazy maskedonly usebounds rc
-			translate draft info fastreject);
-	@MLAGAN_PARAMS = qw(nested postir lazy verbose tree match mismatch gapstart gapend gapcont
-			out version);	
-	#Not all of these parameters are useful in this context, care should be used in setting only standard ones
 
-	#Authorize Attribute fields
-	foreach my $attr (@LAGAN_PARAMS, @MLAGAN_PARAMS)
-     		{ $OK_FIELD{$attr}++; }
+    @LAGAN_PARAMS = qw(chaos order recurse mfa out lazy maskedonly
+                       usebounds rc translate draft info fastreject);
 
-	#The LAGANDIR environment variable should be set if the lagan executables aren't in your path.
-	$PROGRAM_DIR = $ENV{'LAGANDIR'} || '';
+    @MLAGAN_PARAMS = qw(nested postir lazy verbose tree match mismatch
+                        gapstart gapend gapcont out version);
+
+    #Not all of these parameters are useful in this context, care
+    #should be used in setting only standard ones
+
+    #Authorize Attribute fields
+    foreach my $attr (@LAGAN_PARAMS, @MLAGAN_PARAMS) {
+        $OK_FIELD{$attr}++;
+    }
+
+    #The LAGANDIR environment variable should be set if the lagan
+    #executables aren't in your path.
+    $PROGRAM_DIR = $ENV{'LAGANDIR'} || '';
 }
 
 sub new {
-  	my($class, @args) = @_;
+    my($class, @args) = @_;
 	
-  	my $self = $class->SUPER::new(@args);
-	my (undef, $tempfile) = $self->io->tempfile();
-	$self->out($tempfile);
-	while (@args) {
-		my $attr = shift @args;
-		my $value = shift @args;
-		$self->$attr($value);
-	}
-  	return $self;
+    my $self = $class->SUPER::new(@args);
+    my (undef, $tempfile) = $self->io->tempfile();
+    $self->out($tempfile);
+    while (@args) {
+        my $attr = shift @args;
+        my $value = shift @args;
+        $self->$attr($value);
+    }
+    return $self;
 }
 
 sub AUTOLOAD {
@@ -168,41 +184,43 @@ sub AUTOLOAD {
 
 =head2 lagan
 
-	Runs the Lagan pairwise alignment algorithm
-	Inputs should be two PrimarySeq objects.
-	Returns an SimpleAlign object / preloaded with the tmp file of the Lagan multifasta output.
+  Runs the Lagan pairwise alignment algorithm
+  Inputs should be two PrimarySeq objects.
+
+  Returns an SimpleAlign object / preloaded with the tmp file of the
+  Lagan multifasta output.
 
 =cut
 
 sub lagan {
-	my ($self, $input1, $input2) = @_;
-	$self->io->_io_cleanup();
-	my $executable = 'lagan.pl';
+    my ($self, $input1, $input2) = @_;
+    $self->io->_io_cleanup();
+    my $executable = 'lagan.pl';
 		
-	#my (undef, $tempfile) = $self->io->tempfile();
-        #$self->out($tempfile);
+    #my (undef, $tempfile) = $self->io->tempfile();
+    #$self->out($tempfile);
 
-	my ($infile1, $infile2) = $self->_setinput($executable, $input1, $input2);
-	my $lagan_report = &_generic_lagan(	$self,
-						$executable,
-						$infile1,
-						$infile2 );
+    my ($infile1, $infile2) = $self->_setinput($executable, $input1, $input2);
+    my $lagan_report = &_generic_lagan(	$self,
+                                        $executable,
+                                        $infile1,
+                                        $infile2 );
 }
 
 =head2 mlagan
 
-        Runs the Mlagan multiple sequence alignment algorithm
-        Inputs should be an Array of Primary Seq objects and a Phylogenetic Tree in String format
-        Returns an SimpleAlign object / preloaded with the tmp file of the Mlagan multifasta output.
+  Runs the Mlagan multiple sequence alignment algorithm
+  Inputs should be an Array of Primary Seq objects and a Phylogenetic Tree in String format
+  Returns an SimpleAlign object / preloaded with the tmp file of the Mlagan multifasta output.
 
 =cut
 
 sub mlagan {
-	my ($self, $input1, $tree) = @_;
-	$self->io->_io_cleanup();
-	my $executable = 'mlagan';
-	my ($infiles, $tree) = $self->_setinput($executable, $input1, $tree);
-	my $lagan_report = &_generic_lagan (	$self,
+    my ($self, $input1, $tree) = @_;
+    $self->io->_io_cleanup();
+    my $executable = 'mlagan';
+    my ($infiles, $tree) = $self->_setinput($executable, $input1, $tree);
+    my $lagan_report = &_generic_lagan (	$self,
 						$executable,
 						$infiles,
 						$tree );
@@ -210,83 +228,86 @@ sub mlagan {
 
 =head2  _setinput
 
- Title   :  _setinput
- Usage   :  Internal function, not to be called directly
- Function:  Create input file(s) for Lagan executables
- Returns : name of files containing Lagan data input / or array of files and phylo tree for Mlagan data input
+ Title   : _setinput
+ Usage   : Internal function, not to be called directly
+ Function: Create input file(s) for Lagan executables
+ Returns : name of files containing Lagan data input / 
+           or array of files and phylo tree for Mlagan data input
 
 =cut
 
 
 sub _setinput {
-	my ($self, $executable, $input1, $input2) = @_;
-	my ($fh, $infile1, $infile2, $temp1, $temp2, $seq1, $seq2);
+    my ($self, $executable, $input1, $input2) = @_;
+    my ($fh, $infile1, $infile2, $temp1, $temp2, $seq1, $seq2);
 
-	$self->io->_io_cleanup();
+    $self->io->_io_cleanup();
 	
-	SWITCH: {
-		if ($input1->isa("Bio::PrimarySeqI")) {
-			##INPUTS TO LAGAN
-			($fh, $infile1) = $self->io->tempfile();
+  SWITCH: {
+        if ($input1->isa("Bio::PrimarySeqI")) {
+            ##INPUTS TO LAGAN
+            ($fh, $infile1) = $self->io->tempfile();
 
-			#Want to make sure their are no white spaces in sequence.  Happens if input1 is taken
-			#from an alignment.
+            #Want to make sure their are no white spaces in sequence.
+            #Happens if input1 is taken from an alignment.
 
-			my $sequence = $input1->seq();
-			$sequence =~ s/\W+//g;
-			$input1->seq($sequence);
-			$temp1 = Bio::SeqIO->new(	-fh => $fh,
-							-format => 'Fasta' );
-			$temp1->write_seq($input1);
-			close $fh;
-			undef $fh;
-			last SWITCH;		
-		}
-		if (ref($input1) =~ /ARRAY/i) {
-			##INPUTS TO MLAGAN / WILL hAVE TO BE CHANGED IF LAGAN EVER SUPPORTS MULTI-INPUT
-			my @infilearr;
-			foreach $seq1 (@$input1) {
-				($fh, $infile1) = $self->io->tempfile();
-				my $temp = Bio::SeqIO->new(	-fh => $fh,
-								-format => 'Fasta' );
-				unless ($seq1->isa("Bio::PrimarySeqI")) { return 0; }
-				$temp->write_seq($seq1);
-				close $fh;
-			        undef $fh;
-				push @infilearr, $infile1;
-			}
-			$infile1 = \@infilearr;
-			last SWITCH;  
-		}
-	}
-	SWITCH2: {
-		if (ref($input2))
-		{
-			if ($input2->isa("Bio::PrimarySeqI")) {
-                        	($fh, $infile2) = $self->io->tempfile();
-
-                        	#Want to make sure their are no white spaces in sequence.  Happens if input2 is taken
-                        	#from an alignment.
-
-                        	my $sequence = $input2->seq();
-                        	$sequence =~ s/\W+//g;
-                        	$input2->seq($sequence);
-
-                        	$temp2 = Bio::SeqIO->new(       -fh => $fh,
-                                	                        -format => 'Fasta' );
-                        	$temp2->write_seq($input2);
-                        	close $fh;
-                        	undef $fh;
-                        	last SWITCH2;
-                	}
-		}
-		else
-		{
-			$infile2 = $input2;
-			##A tree as a scalar has been passed, pass it through
-		}
+            my $sequence = $input1->seq();
+            $sequence =~ s/\W+//g;
+            $input1->seq($sequence);
+            $temp1 = Bio::SeqIO->new(	-fh => $fh,
+                                        -format => 'Fasta' );
+            $temp1->write_seq($input1);
+            close $fh;
+            undef $fh;
+            last SWITCH;		
         }
-	return ($infile1, $infile2);
+        if (ref($input1) =~ /ARRAY/i) {
+
+            ##INPUTS TO MLAGAN / WILL hAVE TO BE CHANGED IF LAGAN EVER
+            ##SUPPORTS MULTI-INPUT
+            my @infilearr;
+            foreach $seq1 (@$input1) {
+                ($fh, $infile1) = $self->io->tempfile();
+                my $temp = Bio::SeqIO->new(	-fh => $fh,
+                                                -format => 'Fasta' );
+                unless ($seq1->isa("Bio::PrimarySeqI")) {
+                    return 0;
+                }
+                $temp->write_seq($seq1);
+                close $fh;
+                undef $fh;
+                push @infilearr, $infile1;
+            }
+            $infile1 = \@infilearr;
+            last SWITCH;  
+        }
+    }
+  SWITCH2: {
+        if (ref($input2)) {
+            if ($input2->isa("Bio::PrimarySeqI")) {
+                ($fh, $infile2) = $self->io->tempfile();
+
+                #Want to make sure their are no white spaces in
+                #sequence.  Happens if input2 is taken from an
+                #alignment.
+
+                my $sequence = $input2->seq();
+                $sequence =~ s/\W+//g;
+                $input2->seq($sequence);
+
+                $temp2 = Bio::SeqIO->new(       -fh => $fh,
+                                                -format => 'Fasta' );
+                $temp2->write_seq($input2);
+                close $fh;
+                undef $fh;
+                last SWITCH2;
+            }
+        } else {
+            $infile2 = $input2;
+            ##A tree as a scalar has been passed, pass it through
+        }
+    }
+    return ($infile1, $infile2);
 }
 
 =head2  _generic_lagan
@@ -299,9 +320,10 @@ sub _setinput {
 
 
 sub _generic_lagan {
-	my ($self, $executable, $input1, $input2) = @_;
-	my $param_string = $self->_setparams($executable);
-	my $lagan_report = &_runlagan($self, $executable, $param_string, $input1, $input2);	
+    my ($self, $executable, $input1, $input2) = @_;
+    my $param_string = $self->_setparams($executable);
+    my $lagan_report = &_runlagan($self, $executable, $param_string,
+                                  $input1, $input2);	
 }	
 
 =head2  _setparams
@@ -316,21 +338,25 @@ sub _generic_lagan {
 
 
 sub _setparams {
-	my ($self, $executable) = @_;
-	my ($attr, $value, @execparams);
+    my ($self, $executable) = @_;
+    my ($attr, $value, @execparams);
 
-	if ($executable eq 'lagan.pl') { @execparams = @LAGAN_PARAMS; }
-	if ($executable eq 'mlagan') { @execparams = @MLAGAN_PARAMS; }
-	##EXPAND OTHER LAGAN SUITE PROGRAMS HERE
+    if ($executable eq 'lagan.pl') {
+        @execparams = @LAGAN_PARAMS;
+    }
+    if ($executable eq 'mlagan') {
+        @execparams = @MLAGAN_PARAMS;
+    }
+    ##EXPAND OTHER LAGAN SUITE PROGRAMS HERE
 
-	my $param_string = "";
-	for $attr (@execparams) {
-		$value = $self->$attr();
-		next unless (defined $value);
-		$attr = '-' . $attr;
-		$param_string .= " $attr $value ";
-	}
-	return $param_string . " -mfa ";
+    my $param_string = "";
+    for $attr (@execparams) {
+        $value = $self->$attr();
+        next unless (defined $value);
+        $attr = '-' . $attr;
+        $param_string .= " $attr $value ";
+    }
+    return $param_string . " -mfa ";
 }	
 
 
@@ -345,43 +371,39 @@ sub _setparams {
 =cut
 
 sub _runlagan {
-	my ($self, $executable, $param_string, $input1, $input2) = @_;
-	my ($lagan_obj, $exe);
-	if ( ! ($exe = $self->executable($executable)))  {
-		$self->warn("cannot find path to $executable");
-		return undef;
-	}
+    my ($self, $executable, $param_string, $input1, $input2) = @_;
+    my ($lagan_obj, $exe);
+    if ( ! ($exe = $self->executable($executable))) {
+        $self->warn("cannot find path to $executable");
+        return undef;
+    }
 
-	my $command_string;
-	if ($executable eq 'lagan.pl')
-	{
-		$command_string = $exe . " " . $input1 . " " . $input2 . $param_string;
-	}
-	if ($executable eq 'mlagan')
-	{
-		$command_string = $exe;
-		foreach my $tempfile (@$input1)
-		{
-			$command_string .= " " . $tempfile;
-		}
-		if (defined $input2)
-		{
-			$command_string .= " -tree " . "\"" . $input2 . "\"";
-		}	
-		$command_string .= " " . $param_string;
-		print $command_string;
-	}
+    my $command_string;
+    if ($executable eq 'lagan.pl') {
+        $command_string = $exe . " " . $input1 . " " . $input2 . $param_string;
+    }
+    if ($executable eq 'mlagan') {
+        $command_string = $exe;
+        foreach my $tempfile (@$input1) {
+            $command_string .= " " . $tempfile;
+        }
+        if (defined $input2) {
+            $command_string .= " -tree " . "\"" . $input2 . "\"";
+        }	
+        $command_string .= " " . $param_string;
+        print $command_string;
+    }
 
-	$self->debug("$command_string\n");
-	my $status = system($command_string);
-	my $outfile = $self->out();
+    $self->debug("$command_string\n");
+    my $status = system($command_string);
+    my $outfile = $self->out();
 	
-	my $align = Bio::AlignIO->new(	'-file' => $outfile,
+    my $align = Bio::AlignIO->new(	'-file' => $outfile,
 					'-format' => 'fasta' );
-	my $aln = $align->next_aln();
+    my $aln = $align->next_aln();
 
-	return $aln;
-}   
+    return $aln;
+}
 
 =head2 executable
 
@@ -398,26 +420,26 @@ sub _runlagan {
 
 
 sub executable {
-   	my ($self, $exename, $exe, $warn) = @_;
-   	$exename = 'lagan.pl' unless defined $exename;
+    my ($self, $exename, $exe, $warn) = @_;
+    $exename = 'lagan.pl' unless defined $exename;
 
-   	if( defined $exe && -x $exe ) {
-    	 	$self->{'_pathtoexe'}->{$exename} = $exe;
-   	}
-   	unless( defined $self->{'_pathtoexe'}->{$exename} ) {
-       		my $f = $self->program_path($exename);
-       		$exe = $self->{'_pathtoexe'}->{$exename} = $f if(-e $f && -x $f );
+    if ( defined $exe && -x $exe ) {
+        $self->{'_pathtoexe'}->{$exename} = $exe;
+    }
+    unless ( defined $self->{'_pathtoexe'}->{$exename} ) {
+        my $f = $self->program_path($exename);
+        $exe = $self->{'_pathtoexe'}->{$exename} = $f if(-e $f && -x $f );
 
-       		unless( $exe )  { 
-           		if( ($exe = $self->io->exists_exe($exename)) && -x $exe ) {
-               			$self->{'_pathtoexe'}->{$exename} = $exe;
-           		} else {
-               			$self->warn("Cannot find executable for $exename") if $warn;
-               			$self->{'_pathtoexe'}->{$exename} = undef;
-           		}
-       		}
-   	}
-	return $self->{'_pathtoexe'}->{$exename};
+        unless( $exe )  { 
+            if ( ($exe = $self->io->exists_exe($exename)) && -x $exe ) {
+                $self->{'_pathtoexe'}->{$exename} = $exe;
+            } else {
+                $self->warn("Cannot find executable for $exename") if $warn;
+                $self->{'_pathtoexe'}->{$exename} = undef;
+            }
+        }
+    }
+    return $self->{'_pathtoexe'}->{$exename};
 }
 
 =head2 program_path

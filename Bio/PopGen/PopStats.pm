@@ -12,14 +12,14 @@
 
 =head1 NAME
 
-Bio::PopGen::PopStats - A collection of methods for calculating statistics about a population or sets of populations
+Bio::PopGen::PopStats - A collection of methods for calculating
+statistics about a population or sets of populations
 
 =head1 SYNOPSIS
 
-use Bio::PopGen::PopStats;
-
-my $stats = new Bio::PopGen::PopStats(); # add -haploid => 1 to process haploid
-                                         # data
+  use Bio::PopGen::PopStats;
+  my $stats = new Bio::PopGen::PopStats(); # add -haploid => 1 to process haploid
+                                           # data
 =head1 DESCRIPTION
 
 Calculate various population structure statistics, most notably Wright's Fst.
@@ -127,9 +127,8 @@ sub haploid_status{
  Note    : Based on Weir BS, Genetics Data Analysis II, 199?
 
 =cut
+
 #' make emacs happy here
-
-
 sub Fst {
    my ($self,$populations,$markernames) = @_;
 
@@ -143,7 +142,7 @@ sub Fst {
        return undef;
    }
    my $num_sub_pops          = scalar @$populations;
-   
+
    if( $num_sub_pops < 2 ) {
        $self->warn("Must provide at least 2 populations for this test, you provided $num_sub_pops");
        return undef;
@@ -154,7 +153,7 @@ sub Fst {
    # set of alleles is seen.
    my $Fst;
    my ($TS_sub1,$TS_sub2);
-   
+
    foreach my $marker ( @$markernames ) {
        # Get all the alleles from all the genotypes in all subpopulations
        my %allAlleles;
@@ -179,7 +178,7 @@ sub Fst {
 
 	   foreach my $pop ( @$populations ) {
 	       my $s = $pop->get_number_individuals($marker);
-	       
+
 	       $avg_samp_size += $s;
 	       $total_samples_squared += $s**2;
 
@@ -192,14 +191,14 @@ sub Fst {
 
 	       my $freq_homozygotes = 
 		   $pop->get_Frequency_Homozygotes($marker,$allele_name);
-	       my %af = $markerobj->get_Allele_Frequencies();       
+	       my %af = $markerobj->get_Allele_Frequencies();
 	       my $all_freq = ( ($af{$allele_name} || 0));
 
-	       $avg_allele_freq += $s * $all_freq;	   
+	       $avg_allele_freq += $s * $all_freq;
 	       $sum_heterozygote += (2 * $s)*( $all_freq - $freq_homozygotes);
-	       
+
 	       push @marker_freqs, \%af;
-	   }  
+	   }
 	   my $total_samples =  $avg_samp_size;	# sum of n over i sub-populations
 	   $avg_samp_size /= $num_sub_pops;
 	   $avg_allele_freq /= $total_samples;
@@ -278,8 +277,8 @@ sub Fst {
    #my $Fit_diploid = 1 - ($S_sub3/$S_sub2);
    #my $Fis_diploid = ($Fit_diploid-$Fst_diploid)/(1-$Fst_diploid);
    $Fst = $TS_sub1 / $TS_sub2;
-   
-   return $Fst;   
+
+   return $Fst;
 }
 
 1;

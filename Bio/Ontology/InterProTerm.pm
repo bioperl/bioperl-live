@@ -598,9 +598,9 @@ sub to_string {
   return $s;
 }
 
-=head1
+=head1 Deprecated methods
 
-  Deprecated methods. These are here for backwards compatibility.
+These are here for backwards compatibility.
 
 =cut
 

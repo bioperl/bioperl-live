@@ -16,7 +16,7 @@
 # Refer to the Perl Artistic License (see the license accompanying this
 # software package, or see http://www.perl.com/language/misc/Artistic.html)
 # for the terms under which you may use, modify, and redistribute this module.
-# 
+#
 # THIS PACKAGE IS PROVIDED "AS IS" AND WITHOUT ANY EXPRESS OR IMPLIED
 # WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF
 # MERCHANTIBILITY AND FITNESS FOR A PARTICULAR PURPOSE.
@@ -86,9 +86,7 @@ use Bio::Ontology::OntologyEngineI;
 
 @ISA = qw( Bio::Ontology::OntologyEngineI );
 
-=head1
-
-  Methods defined in this interface.
+=head1  Methods defined in this interface.
 
 =cut
 
@@ -192,12 +190,11 @@ sub close{
     shift->throw_not_implemented();
 }
 
-=head1
+=head1 Methods inherited from L<Bio::Ontology::OntologyEngineI>
 
-  Methods inherited from L<Bio::Ontology::OntologyEngineI>. Their
-  documentations are copied here for completeness. In most use cases,
-  you will want to access the query methods of an ontology, not just
-  the name and description ...
+Their documentations are copied here for completeness. In most use
+cases, you will want to access the query methods of an ontology, not
+just the name and description ...
 
 =cut
 
@@ -281,7 +278,7 @@ sub close{
  Usage   : get_descendant_terms(TermI term, TermI[] rel_types): TermI[]
  Function: Retrieves all descendant terms of a given term, that
            satisfy a relationship among those that are specified in
-           the second argument or undef otherwise. 
+           the second argument or undef otherwise.
  Example :
  Returns : Array of TermI objects.
  Args    : First argument is the term of interest, second is the list
@@ -314,7 +311,7 @@ sub close{
  Usage   : get_ancestor_terms(TermI term, TermI[] relationship_types): TermI[]
  Function: Retrieves all ancestor terms of a given term, that satisfy
            a relationship among those that are specified in the second
-           argument or undef otherwise. 
+           argument or undef otherwise.
 
  Example :
  Returns : Array of TermI objects.

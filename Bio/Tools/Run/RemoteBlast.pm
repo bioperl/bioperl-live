@@ -40,7 +40,7 @@ via HTTP
 
   my $v = 1;
   #$v is just to turn on and off the messages
-  
+
   my $str = Bio::SeqIO->new(-file=>'amino.fa' , '-format' => 'fasta' );
 
   while (my $input = $str->next_seq()){

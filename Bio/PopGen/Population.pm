@@ -49,7 +49,7 @@ Email jason-at-bioperl.org
 
 =head1 CONTRIBUTORS
 
-Matthew Hahn <matthew.hahn-at-duke.edu>
+Matthew Hahn, matthew.hahn-at-duke.edu
 
 =head1 APPENDIX
 

@@ -12,29 +12,31 @@
 
 =head1 NAME
 
-Bio::SearchIO::megablast - a driver module for Bio::SearchIO to parse megablast reports (format 0)
+Bio::SearchIO::megablast - a driver module for Bio::SearchIO to parse
+megablast reports (format 0)
 
 =head1 SYNOPSIS
 
 # do not use this module directly
 
-use Bio::SearchIO;
-# for default format output from megablast
-my $in = new Bio::SearchIO(-file   => 'file.mbl',
-                           -format => 'megablast',
-                           -report_format => 0); 
+  use Bio::SearchIO;
+  # for default format output from megablast
+  my $in = new Bio::SearchIO(-file   => 'file.mbl',
+                             -format => 'megablast',
+                             -report_format => 0);
 
-while( my $r = $in->next_result ) {
-  while( my $hit = $r->next_hit ) {
-    while( my $hsp = $hit->next_hsp ) {
+  while( my $r = $in->next_result ) {
+    while( my $hit = $r->next_hit ) {
+      while( my $hsp = $hit->next_hsp ) {
+      }
     }
-  } 
-}
+  }
+
 =head1 DESCRIPTION
 
 Beware!
 
-Because of the way megablast report format 0 is coded, realize that score 
+Because of the way megablast report format 0 is coded, realize that score
 means # gaps + # mismatches for a HSP.
 
 The docs from NCBI regarding FORMAT 0
@@ -50,7 +52,7 @@ The docs from NCBI regarding FORMAT 0
 #   Score for non-affine gapping parameters means the total number of
 #   differences (mismatches + gaps). For affine case it is the actual (raw)
 #   score of the alignment.
-	       
+
 FORMAT 1 parsing has not been implemented
 FORMAT 2 parsing should work with the SearchIO 'blast' parser
 
@@ -102,7 +104,7 @@ use Bio::SearchIO;
 
 @ISA = qw(Bio::SearchIO );
 
-BEGIN { 
+BEGIN {
     # mapping of MegaBlast terms to Bioperl hash keys
     %MODEMAP = ('MegaBlastOutput' => 'result',
 		'Hit'         => 'hit',
@@ -112,20 +114,20 @@ BEGIN {
     # This should really be done more intelligently, like with
     # XSLT
 
-    %MAPPING = 
-	( 
+    %MAPPING =
+	(
 	  'Hsp_query-from' => 'HSP-query_start',
 	  'Hsp_query-to'   => 'HSP-query_end',
 	  'Hsp_hit-from'   => 'HSP-hit_start',
 	  'Hsp_hit-to'     => 'HSP-hit_end',
 	  'Hit_score'      => 'HIT-score',
 	  'Hsp_score'      => 'HSP-score',
-	  
+	
 	  'Hsp_identity'   => 'HSP-identical',
-	  'Hsp_positive'   => 'HSP-conserved',	 
- 
+	  'Hsp_positive'   => 'HSP-conserved',
+
 	  'Hit_id'         => 'HIT-name',
-	  
+	
 	  'MegaBlastOutput_program'  => 'RESULT-algorithm_name',
 	  'MegaBlastOutput_query-def'=> 'RESULT-query_name',
 	  );
@@ -139,7 +141,7 @@ BEGIN {
 
  Title   : new
  Usage   : my $obj = new Bio::SearchIO::blast();
- Function: Builds a new Bio::SearchIO::blast object 
+ Function: Builds a new Bio::SearchIO::blast object
  Returns : Bio::SearchIO::blast
  Args    : -fh/-file => filehandle/filename to BLAST file
            -format   => 'blast'
@@ -150,7 +152,7 @@ sub _initialize {
     my ($self,@args) = @_;
     $self->SUPER::_initialize(@args);
     my ($fmt) = $self->_rearrange([qw(REPORT_FORMAT)], @args);
-    
+
     $self->throw("Must have provided a value for -report_format when initializing a megablast parser") unless defined $fmt ;
     $self->report_format($fmt);
     return 1;
@@ -175,7 +177,7 @@ sub next_result{
        if( $fmt == 0 ) {
 	   if( /^\'(\S+)\'\=\=\'(\+|\-)(\S+)\'\s+
 	       \((\d+)\s+(\d+)\s+(\d+)\s+(\d+)\)\s+
-	       (\d+)/ox ) 
+	       (\d+)/ox )
 	   {
 	       my ($hit,$strand,$query,
 		   $h_start,$q_start,$h_end,$q_end,
@@ -197,10 +199,10 @@ sub next_result{
 
 	       if( ! defined $lasthit || $lasthit ne $hit  ) {
 		   $self->end_element({'Name' => 'Hit'}) if( defined $lasthit);
-		   $self->start_element({'Name' => 'Hit'});	       
+		   $self->start_element({'Name' => 'Hit'});
 		   $self->element({'Name' => 'Hit_id',
 				   'Data' => $hit});
-	       } 
+	       }
 	       $self->start_element({'Name' => 'Hsp'});
 	       $self->element({'Name' => 'Hsp_score',
 			       'Data' => $score});
@@ -224,11 +226,11 @@ sub next_result{
 #   Score for non-affine gapping parameters means the total number of
 #   differences (mismatches + gaps). For affine case it is the actual (raw)
 #   score of the alignment.
-	       
+	
 	       # and yet when rev strand hits are made I see
 	       # (MBL 2.2.4)
 	       # 'Contig634'=='-503384' (1 7941 321 7620) 19
-	       # so the query is on the rev strand and the 
+	       # so the query is on the rev strand and the
 	       # subject is on the fwd strand
 	       # so I am flip-flopping everything when I see a '-'
 	       if( $strand eq '-' ) {
@@ -240,7 +242,7 @@ sub next_result{
 	       $self->element({'Name' => 'Hsp_hit-to',
 			       'Data' => $h_end});
 	       $self->element({'Name' => 'Hsp_query-from',
-			       'Data' => $q_start});	       
+			       'Data' => $q_start});
 	       $self->element({'Name' => 'Hsp_query-to',
 			       'Data' => $q_end});
 	       # might not be quite right -- need to know length of the HSP
@@ -251,9 +253,9 @@ sub next_result{
 	       $self->element({'Name' => 'Hsp_positive',
 			       'Data' => $numid});
 
-	       $self->end_element({'Name' => 'Hsp'});	       
+	       $self->end_element({'Name' => 'Hsp'});
 	       $lasthit   = $hit;
-	       $lastquery = $query;	       
+	       $lastquery = $query;
 	   } else {
 	       $self->debug("Unknown line in fmt0 parsing: $_");
 	   }
@@ -262,7 +264,7 @@ sub next_result{
    if( defined $lastquery && $fmt == 0 ) {
        $self->end_element({'Name' => 'Hit'}) if( defined $lasthit);
        $self->end_element({ 'Name' => 'MegaBlastOutput'});
-       return $self->end_document();   
+       return $self->end_document();
    }
    return 0;
 }
@@ -299,13 +301,13 @@ sub report_format{
 sub start_element{
    my ($self,$data) = @_;
     # we currently do not care about attributes
-    my $nm = $data->{'Name'};    
+    my $nm = $data->{'Name'};
    if( my $type = $MODEMAP{$nm} ) {
 	$self->_mode($type);
 	if( $self->_eventHandler->will_handle($type) ) {
 	    my $func = sprintf("start_%s",lc $type);
 	    $self->_eventHandler->$func($data->{'Attributes'});
-	}						 
+	}
 	unshift @{$self->{'_elements'}}, $type;
     }
 
@@ -337,21 +339,21 @@ sub end_element {
 	if( $self->_eventHandler->will_handle($type) ) {
 	    my $func = sprintf("end_%s",lc $type);
 	    $rc = $self->_eventHandler->$func($self->{'_reporttype'},
-					      $self->{'_values'});	    
-	} 
+					      $self->{'_values'});
+	}
 	shift @{$self->{'_elements'}};
 
-    } elsif( $MAPPING{$nm} ) { 	
+    } elsif( $MAPPING{$nm} ) {
 	if ( ref($MAPPING{$nm}) =~ /hash/i ) {
-	    my $key = (keys %{$MAPPING{$nm}})[0];	    
+	    my $key = (keys %{$MAPPING{$nm}})[0];
 	    $self->{'_values'}->{$key}->{$MAPPING{$nm}->{$key}} = $self->{'_last_data'};
 	} else {
 	    $self->{'_values'}->{$MAPPING{$nm}} = $self->{'_last_data'};
 	}
-    } else { 
+    } else {
 	$self->warn( "unknown nm $nm ignoring\n");
     }
-    $self->{'_last_data'} = ''; # remove read data if we are at 
+    $self->{'_last_data'} = ''; # remove read data if we are at
 				# end of an element
     $self->{'_result'} = $rc if( $nm eq 'MegaBlastOutput' );
     return $rc;
@@ -389,17 +391,17 @@ sub element{
 =cut
 
 sub characters{
-   my ($self,$data) = @_;   
+   my ($self,$data) = @_;
    return unless defined $data->{'Data'};
-   $self->{'_last_data'} = $data->{'Data'}; 
+   $self->{'_last_data'} = $data->{'Data'};
 }
 
 =head2 _mode
 
  Title   : _mode
  Usage   : $obj->_mode($newval)
- Function: 
- Example : 
+ Function:
+ Example :
  Returns : value of _mode
  Args    : newvalue (optional)
 
@@ -422,20 +424,20 @@ sub _mode{
            This is different than 'in' because within can be tested
            for a whole block.
  Returns : boolean
- Args    : string element name 
+ Args    : string element name
 
 
 =cut
 
 sub within_element{
-   my ($self,$name) = @_;  
+   my ($self,$name) = @_;
    return 0 if ( ! defined $name &&
 		 ! defined  $self->{'_elements'} ||
 		 scalar @{$self->{'_elements'}} == 0) ;
    foreach (  @{$self->{'_elements'}} ) {
        if( $_ eq $name  ) {
 	   return 1;
-       } 
+       }
    }
    return 0;
 }
@@ -448,13 +450,13 @@ sub within_element{
            This is different than 'in' because within can be tested
            for a whole block.
  Returns : boolean
- Args    : string element name 
+ Args    : string element name
 
 
 =cut
 
 sub in_element{
-   my ($self,$name) = @_;  
+   my ($self,$name) = @_;
    return 0 if ! defined $self->{'_elements'}->[0];
    return ( $self->{'_elements'}->[0] eq $name)
 }

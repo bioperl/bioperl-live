@@ -18,14 +18,14 @@ Bio::PopGen::MarkerI - A Population Genetic conceptual marker
 
 # Get a Bio::PopGen::MarkerI somehow - like using a Bio::PopGen::Marker
 
-my $name = $marker->name();            # marker name
-my $description = $marker->description(); # description
-my $type = $marker->type();            # coded type of the marker
-my $unique_id = $marker->unique_id;    # optional unique ID
-my @alleles = $marker->get_Alleles();  # the known alleles
-my %allele_freqs = $marker->get_Allele_Frequencies(); # keys are marker names
-                                                  # vals are frequencies
-                                                  # may change to handle multiple populations 
+  my $name = $marker->name();            # marker name
+  my $description = $marker->description(); # description
+  my $type = $marker->type();            # coded type of the marker
+  my $unique_id = $marker->unique_id;    # optional unique ID
+  my @alleles = $marker->get_Alleles();  # the known alleles
+  my %allele_freqs = $marker->get_Allele_Frequencies(); # keys are marker names
+                                         # vals are frequencies
+                                         # may change to handle multiple populations
 
 =head1 DESCRIPTION
 
@@ -57,7 +57,7 @@ Email jason-at-bioperl.org
 
 =head1 CONTRIBUTORS
 
-Matthew Hahn <matthew.hahn-at-duke.edu>
+Matthew Hahn, matthew.hahn-at-duke.edu
 
 =head1 APPENDIX
 

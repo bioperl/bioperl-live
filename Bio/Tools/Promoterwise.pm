@@ -17,7 +17,9 @@ Bio::Tools::Promoterwise - DESCRIPTION of Object
 
   use Bio::Tools::Promoterwise;
 
-  my $pw = Bio::Tools::Promoterwise->new(-file=>"out",-query1_seq=>$seq1,-query2_seq=>$seq2);
+  my $pw = Bio::Tools::Promoterwise->new(-file=>"out",
+                                         -query1_seq=>$seq1,
+                                         -query2_seq=>$seq2);
   while (my $fp = $pw->next_result){
     print "Hit Length: ".$fp->feature1->length."\n";
     print "Hit Start: ".$fp->feature1->start."\n";
@@ -33,11 +35,12 @@ Bio::Tools::Promoterwise - DESCRIPTION of Object
 
 =head1 DESCRIPTION
 
-Promoteriwise is an alignment algorithm that relaxes the constraint that         local alignments have to be co-linear. Otherwise it provides a similar      
-model to DBA, which is designed for promoter sequence alignments.
-Promoterwise is written by Ewan Birney.
-It is part of the wise2 package available at:
-http://www.sanger.ac.uk/software/wise2.w
+Promoteriwise is an alignment algorithm that relaxes the constraint
+that local alignments have to be co-linear. Otherwise it provides a
+similar model to DBA, which is designed for promoter sequence
+alignments.  Promoterwise is written by Ewan Birney.  It is part of
+the wise2 package available at:
+ftp://ftp.ebi.ac.uk/pub/software/unix/wise2/
 
 This module is the parser for the Promoterwise output in tab format.
 
@@ -61,9 +64,9 @@ email or the web:
   bioperl-bugs@bioperl.org
   http://bugzilla.bioperl.org/
 
-=head1 AUTHOR - Shawn Hoon 
+=head1 AUTHOR - Shawn Hoon
 
-Email shawnh@fugu-sg.org 
+Email shawnh@fugu-sg.org
 
 Describe contact details here
 
@@ -97,7 +100,7 @@ use Bio::Root::IO;
 
  Title   : new
  Usage   : my $obj = new Bio::Tools::Promoterwise();
- Function: Builds a new Bio::Tools::Promoterwise object 
+ Function: Builds a new Bio::Tools::Promoterwise object
  Returns : L<Bio::Tools::Promoterwise>
  Args    : -fh/-file => $val, # for initing input, see Bio::Root::IO
 
@@ -121,16 +124,18 @@ sub new {
  Title   : next_result
  Usage   : my $r = $rpt_masker->next_result
  Function: Get the next result set from parser data
- Returns : an  L<Bio::SeqFeature::FeaturePair> 
+ Returns : an  L<Bio::SeqFeature::FeaturePair>
  Args    : none
 
 
 =cut
+
 sub next_result {
   my ($self) = @_;
   $self->_parse unless $self->_parsed;
   return $self->_next_result;
 }
+
 sub _parse{
    my ($self) = @_;
    my (%hash,@fp);
@@ -145,43 +150,42 @@ sub _parse{
                                             -source_tag=>"promoterwise");
     $sf1->attach_seq($self->query1_seq) if $self->query1_seq;
     my $sf2 = Bio::SeqFeature::Generic->new(-primary=>"conserved_element",
-                                            -source_tag=>"promoterwise"); 
-    $sf2->attach_seq($self->query2_seq) if $self->query2_seq;                 
-                                                              
-    foreach my $info(@{$hash{$key}}){                       
+                                            -source_tag=>"promoterwise");
+    $sf2->attach_seq($self->query2_seq) if $self->query2_seq;
+    foreach my $info(@{$hash{$key}}){
       my ($score,$id1,$start_1,$end_1, $strand_1,$id2,$start_2,$end_2,$strand_2,$group)= @{$info};
-      if(!$sf1->strand && !$sf2->strand){                   
-        $sf1->strand($strand_1);                            
-        $sf2->strand($strand_2);                            
+      if(!$sf1->strand && !$sf2->strand){
+        $sf1->strand($strand_1);
+        $sf2->strand($strand_2);
         $sf1->seq_id($id1);
-        $sf2->seq_id($id2);                                 
-        $sf1->score($score);                                
-        $sf2->score($score);                                
-      }                                                     
+        $sf2->seq_id($id2);
+        $sf1->score($score);
+        $sf2->score($score);
+      }
       my $sub1 = Bio::SeqFeature::Generic->new(-start=>$start_1,
-                                              -seq_id=>$id1,  
-                                              -end  =>$end_1, 
+                                              -seq_id=>$id1,
+                                              -end  =>$end_1,
                                               -strand=>$strand_1,
                                               -primary=>"conserved_element",
                                               -source_tag=>"promoterwise",
-                                              -score=>$score); 
-      $sub1->attach_seq($self->query1_seq) if $self->query1_seq;                
-                                                              
+                                              -score=>$score);
+      $sub1->attach_seq($self->query1_seq) if $self->query1_seq;
+
       my $sub2 = Bio::SeqFeature::Generic->new(-start=>$start_2,
-                                              -seq_id=>$id2,  
-                                              -end  =>$end_2, 
+                                              -seq_id=>$id2,
+                                              -end  =>$end_2,
                                               -strand=>$strand_2,
                                               -primary=>"conserved_element",
-                                              -source_tag=>"promoterwise",  
-                                              -score=>$score); 
-      $sub2->attach_seq($self->query2_seq) if $self->query2_seq;                
-      $sf1->add_SeqFeature($sub1,'EXPAND');                 
-      $sf2->add_SeqFeature($sub2,'EXPAND');                 
+                                              -source_tag=>"promoterwise",
+                                              -score=>$score);
+      $sub2->attach_seq($self->query2_seq) if $self->query2_seq;
+      $sf1->add_SeqFeature($sub1,'EXPAND');
+      $sf2->add_SeqFeature($sub2,'EXPAND');
     }
 
     my $fp = Bio::SeqFeature::FeaturePair->new(-feature1=>$sf1,
                                                -feature2=>$sf2);
-    push @fp, $fp;                                            
+    push @fp, $fp;
   }
     $self->_feature_pairs(\@fp);
     $self->_parsed(1);
