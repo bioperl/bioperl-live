@@ -177,7 +177,7 @@ sub parse_next_gene {
 	       return wantarray ? @features : \@features;
 	   }
 	   $hstrand = -1 if $1 eq 'reversed';
-	   $qstrand = -1 if $3 eq 'REVERSED GENE';
+	   $qstrand = -1 if $4 eq 'REVERSED GENE';
 	   $self->debug( "1=$1, 2=$2, 4=$4\n");
        }
        elsif( /^Exon/ ) {
