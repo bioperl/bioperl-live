@@ -123,7 +123,7 @@ sub new
 {
     my($class,@args) = @_;
 
-    $self = $class->SUPER::new(@args);
+    my $self = $class->SUPER::new(@args);
 
     my $seqobj = shift (@args);
     unless  ($seqobj->isa("Bio::PrimarySeqI")) 
