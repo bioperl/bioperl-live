@@ -333,7 +333,7 @@ Scripts that demonstrate how to throw and catch Error.pm objects.
 
 Writes random RNA, DNA, or protein sequence of given length.
 
-=head2 examples/graphics/render_sequence.pl
+=head2 examples/biographics/render_sequence.pl
 
 This scripts fetchs a sequence from a remote database, extracts its
 features (CDS, gene, tRNA), and creates a graphic representation of
