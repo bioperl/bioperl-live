@@ -88,7 +88,7 @@ tied hash interface.
 
 =over 4
 
-=item $db = Bio::DB::Fasta-E<gt>new($fasta_path [,@options])
+=item $db = Bio::DB::Fasta-E<gt>new($fasta_path [,%options])
 
 Create a new Bio::DB::Fasta object from the Fasta file or files
 indicated by $fasta_path.  Indexing will be performed automatically if
@@ -97,7 +97,8 @@ object.  Otherwise it will return undef.
 
 $fasta_path may be an individual Fasta file, or may refer to a
 directory containing one or more of such files.  Following the path,
-you may pass a series of name=E<gt>value options.  Valid options are:
+you may pass a series of name=E<gt>value options or a hash with these
+same name=E<gt>value pairs.  Valid options are:
 
  Option Name   Description               Default
  -----------   -----------               -------
@@ -130,7 +131,7 @@ arguments every time you open the index!
 
 -reindex can be used to force the index to be recreated from scratch.
 
-=item $fh = Bio::DB::Fasta-E<gt>newFh($fasta_path [,@options])
+=item $fh = Bio::DB::Fasta-E<gt>newFh($fasta_path [,%options])
 
 Create a tied filehandle opened on a Bio::DB::Fasta object.  Reading
 from this filehandle with E<lt>E<gt> will return a stream of sequence objects,
@@ -142,10 +143,12 @@ The -makeid option gives you a chance to modify sequence IDs during
 indexing.  The option's value should be a code reference that will
 take a scalar argument and return a scalar result, like this:
 
+  $db = Bio::DB::Fasta->new("file.fa",-makeid=>\&make_my_id);
+
   sub make_my_id {
-    my $original_id = shift;
-    # modify it somehow
-    return $modified_id;
+    my $description_line = shift;
+    # get a new id from the fasta header
+    return $new_id;
   }
 
 make_my_id() will be called with the full fasta id line (including the
@@ -417,7 +420,7 @@ use constant PROTEIN => 3;
 
 These are optional arguments to pass in as well.
 
--glob         Glob expression to use    *.{fa,fasta,fast,FA,FASTA,FAST}
+ -glob         Glob expression to use    *.{fa,fasta,fast,FA,FASTA,FAST}
                for searching for Fasta
 	       files in directories. 
 
@@ -570,7 +573,7 @@ sub index_dir {
 sub get_Seq_by_id {
   my $self = shift;
   my $id   = shift;
-  return Bio::PrimarySeq::Fasta->new($self,$id);
+  return Bio::PrimarySeqI->new($self,$id);
 }
 
 =head2 index_file

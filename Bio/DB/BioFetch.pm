@@ -22,27 +22,27 @@ Bio::DB::BioFetch - Database object interface to BioFetch retrieval
 
 =head1 SYNOPSIS
 
-  use Bio::DB::BioFetch;
+ use Bio::DB::BioFetch;
 
-  $bf = new Bio::DB::BioFetch;
+ $bf = new Bio::DB::BioFetch;
 
-  $seq = $sp->get_Seq_by_id('BUM');  # EMBL or SWALL ID
+ $seq = $sp->get_Seq_by_id('BUM');  # EMBL or SWALL ID
 
-  # change formats, storage procedures
-  $bf = new Bio::DB::BioFetch(-format        => 'fasta',
-  			      -retrievaltype => 'tempfile',
-  			      -db            => 'EMBL');
+ # change formats, storage procedures
+ $bf = new Bio::DB::BioFetch(-format        => 'fasta',
+ 			     -retrievaltype => 'tempfile',
+  			     -db            => 'EMBL');
 
-  $stream = $bf->get_Stream_by_id(['BUM','J00231']);
-  while (my $s = $stream->next_seq) {
-     print $s->seq,"\n";
-  }
-  # get a RefSeq entry
-  $bf->db('refseq');
-  eval {
-      $seq = $bf->get_Seq_by_version('NM_006732.1'); # RefSeq VERSION
-  };
-  print "accession is ", $seq->accession_number, "\n" unless $@;
+ $stream = $bf->get_Stream_by_id(['BUM','J00231']);
+ while (my $s = $stream->next_seq) {
+    print $s->seq,"\n";
+ }
+ # get a RefSeq entry
+ $bf->db('refseq');
+ eval {
+     $seq = $bf->get_Seq_by_version('NM_006732.1'); # RefSeq VERSION
+ };
+ print "accession is ", $seq->accession_number, "\n" unless $@;
 
 
 =head1 DESCRIPTION
@@ -377,7 +377,8 @@ sub db {
  Returns : void
  Args    : hash with two keys - 'type' can be 'string' or 'file'
                               - 'location' either file location or string 
-                                           reference containing data
+                                 reference containing data
+
 =cut
 
 sub postprocess_data {
