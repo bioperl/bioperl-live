@@ -915,7 +915,9 @@ sub gff_string {
   my $strand = ('-','.','+')[$self->strand+1];
   my $ref = $self->ref;
   my $n   = ref($ref) ? $ref->name : $ref;
-  return join("\t",$n,$self->source,$self->method,$start||'.',$stop||'.',$self->score||'.',$strand||'.',$self->phase||'.',$group_field);
+  my $phase = $self->phase;
+  $phase = '.' unless defined $phase;
+  return join("\t",$n,$self->source,$self->method,$start||'.',$stop||'.',$self->score||'.',$strand||'.',$phase,$group_field);
 }
 
 =head1 A Note About Similarities

@@ -164,22 +164,29 @@ fragmented into multiple segments when loading, and the position of
 each segment is stored in foffset.  The fragment size is controlled by
 the -clump_size argument during initialization.
 
-=item fnote
+=item fattribute_to_feature
 
-This table holds "notes", which some groups have used the GFF group
-field to represent.  Notes are created by creating a group class of
-"Note" and a group value containing the text of the note, as shown in
-this example:
+This table holds "attributes", which are tag/value pairs stuffed into
+the GFF line.  The first tag/value pair is treated as the group, and
+anything else is treated as an attribute (weird, huh?).
 
  CHR_I assembly_tag Finished     2032 2036 . + . Note "Right: cTel33B"
  CHR_I assembly_tag Polymorphism 668  668  . + . Note "A->C in cTel33B"
 
 The columns of this table are:
 
-    fid      feature ID (integer)
-    fnote    text of the note (text)
+    fid                 feature ID (integer)
+    fattribute_id       ID of the attribute (integer)
+    fattribute_value    text of the attribute (text)
 
-The fdata.fid column joins with fnote.fid.
+The fdata.fid column joins with fattribute_to_feature.fid.
+
+=item fattribute
+
+This table holds the normalized names of the attributes.  Fields are:
+
+  fattribute_id      ID of the attribute (integer)
+  fattribute_name    Name of the attribute (varchar)
 
 =back
 
@@ -984,15 +991,6 @@ create table fdna (
 	        foffset int(10) unsigned not null,
 	        fdna    longblob,
 		primary key(fref,foffset)
-)
-},
-
-        fnote => q{
-create table fnote (
-    fid      int not null,
-    fnote    text,
-    index(fid),
-    fulltext(fnote)
 )
 },
 
