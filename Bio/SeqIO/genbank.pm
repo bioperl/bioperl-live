@@ -328,7 +328,7 @@ sub next_seq {
 	      next;
 	  }
 	  # Exit at start of Feature table, or start of sequence
-	  last if( /^(FEATURES)|(ORIGIN)/ );
+	  last if( /^(FEATURES|ORIGIN)/ );
 	  # Get next line and loop again
 	  $buffer = $self->_readline;
       }
@@ -408,9 +408,9 @@ sub next_seq {
 		       $ftunit->_generic_seqfeature($self->location_factory(),
 						    $display_id));
 	      }	
-	  } elsif(! /^ORIGIN/) {     # advance to the section with the sequence
+	  } elsif(! /^(ORIGIN|\/\/)/ ) {    # advance to the sequence, if any
 	      while (defined( $_ = $self->_readline) ) {
-		  last if /^ORIGIN/;
+		  last if /^(ORIGIN|\/\/)/;
 	      }
 	  }
       }
@@ -419,16 +419,21 @@ sub next_seq {
 	  next RECORDSTART;
       }
       if($builder->want_slot('seq')) {
-	  my $seqc = '';
-	  while( defined($_ = $self->_readline) ) {
-	      /^\/\// && last;
-	      $_ = uc($_);
-	      s/[^A-Za-z]//g;
-	      $seqc .= $_;
+	  # the fact that we want a sequence does not necessarily mean that
+	  # there also is a sequence ...
+	  if(defined($_) && /^ORIGIN/) {
+	      my $seqc = '';
+	      while( defined($_ = $self->_readline) ) {
+		  /^\/\// && last;
+		  $_ = uc($_);
+		  s/[^A-Za-z]//g;
+		  $seqc .= $_;
+	      }
+	      $self->debug("sequence length is ". length($seqc) ."\n");
+	      $builder->add_slot_value(-seq => $seqc);
 	  }
-	  $self->debug("sequence length is ". length($seqc) ."\n");
-	  $builder->add_slot_value(-seq => $seqc);
-      } else {
+      } elsif ( defined($_) && (substr($_,0,2) ne '//')) {
+	  # advance to the end of the record
 	  while( defined($_ = $self->_readline) ) {
 	      last if substr($_,0,2) eq '//';
 	  }

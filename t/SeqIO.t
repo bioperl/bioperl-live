@@ -9,7 +9,7 @@ BEGIN {
 	use lib 't';
     }
     use Test;
-    $TESTCOUNT = 146;
+    $TESTCOUNT = 150;
     plan tests => $TESTCOUNT;
 }
 
@@ -238,6 +238,19 @@ ok $lasts->display_id(), "HUMBETGLOA";
 my ($ref) = $lasts->annotation->get_Annotations('reference');
 ok($ref->medline, 94173918);
 $stream->close();
+
+$stream = Bio::SeqIO->new(
+        '-file' => Bio::Root::IO->catfile("t","data","test.genbank.noseq"),
+        '-format' => 'GenBank',
+        );
+$seqnum = 0;
+while($seq = $stream->next_seq()) {
+    if($seqnum < 3) {
+        ok $seq->display_id(), $ids[$seqnum];
+    }
+    $seqnum++;
+}
+ok $seqnum, 5, "Total number of sequences in test file";
 
 $ent = Bio::SeqIO->new( '-file' => Bio::Root::IO->catfile("t","data","test.embl"), 
 			'-format' => 'embl');
