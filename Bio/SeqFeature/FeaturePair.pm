@@ -104,7 +104,7 @@ use Bio::SeqFeature::Generic;
 
 sub _initialize {
   my($self,@args) = @_;
-  my $make = $self->SUPER::_initialize;
+  my $make = $self->SUPER::_initialize(@args);
 
   my ($feature1,$feature2) = 
       $self->_rearrange([qw(FEATURE1
