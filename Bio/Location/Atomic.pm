@@ -69,13 +69,24 @@ use strict;
 use Bio::Root::Root;
 use Bio::LocationI;
 
-
 @ISA = qw(Bio::Root::Root Bio::LocationI);
 
 sub new { 
     my ($class, @args) = @_;
     my $self = {};
-
+    # This is for the case when we've done something like this
+    # get a 2 features from somewhere (like Bio::Tools::GFF)
+    # Do
+    # my $location = $f1->location->union($f2->location);
+    # We get an error without the following code which 
+    # explictly loads the Bio::Location::Simple class
+    eval {
+	($class) = ref($class) if ref($class);
+	Bio::Root::Root->_load_module($class);
+      };
+    if ( $@ ) {
+	Bio::Root::RootI->throw("$class cannot be found\nException $@");
+      }
     bless $self,$class;
 
     my ($v,$start,$end,$strand,$seqid) = $self->_rearrange([qw(VERBOSE
