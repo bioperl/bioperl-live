@@ -177,7 +177,7 @@ use vars qw( @ISA );
 my %column_map = (
                   'query_name'            => ['1', 'result', 'query_name', 's', 'QUERY' ],
                   'query_length'          => ['2', 'result', 'query_length', 'd', 'LEN_Q'],
-                  'hit_name'              => ['3', 'hit', 'hit_name', 's', 'HIT'],
+                  'hit_name'              => ['3', 'hit', 'name', 's', 'HIT'],
                   'hit_length'            => ['4', 'hit', 'hit_length', 'd', 'LEN_H'],
                   'round'                 => ['5', 'hit', 'iteration', 'd', 'ROUND', 'hit'],
                   'rank'                  => ['6', 'hsp', 'rank', 'd', 'RANK'],
@@ -233,9 +233,9 @@ sub to_string {
     my $str = $include_labels ? $self->column_labels() : '';
     my $func_ref = $self->row_data_func;
     my $printf_fmt = $self->printf_fmt;
-
-    foreach my $hit($result->hits) {
-	foreach my $hsp($hit->hsps) {
+    
+    while( my $hit = $result->next_hit) {
+	while(my $hsp = $hit->next_hsp) {
 	    my @row_data  = &{$func_ref}($result, $hit, $hsp);
 	    $str .= sprintf "$printf_fmt\n", @row_data;
 	}
