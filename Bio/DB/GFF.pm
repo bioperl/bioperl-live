@@ -1205,7 +1205,7 @@ sub delete_groups {
  Title   : delete
  Usage   : $db->delete(@args)
  Function: delete features
- Returns : count of features deleted
+ Returns : count of features deleted -- if available
  Args    : numerous, see below
  Status  : public
 
@@ -1241,6 +1241,9 @@ Arguments:
  -force        Force operation to be performed even if it would delete
                entire feature table.
 
+ -range_type   Control the range type of the deletion.  One of "overlaps" (default)
+               "contains" or "contained_in"
+
 Examples:
 
   $db->delete(-type=>['intron','repeat:repeatMasker']);  # remove all introns & repeats
@@ -1257,20 +1260,31 @@ delete the names of groups that contain the deleted features.  Group
 IDs will be reused if you later load a feature with the same group
 name as one that was previously deleted.
 
+NOTE ON FEATURE COUNTS: The DBI-based versions of this call return the
+result code from the SQL DELETE operation.  Some dbd drivers return the
+count of rows deleted, while others return 0E0.  Caveat emptor.
+
 =cut
 
 sub delete {
   my $self = shift;
   my @args = $self->setup_segment_args(@_);
-  my ($name,$class,$start,$end,$offset,$length,$type,$force) =
+  my ($name,$class,$start,$end,$offset,$length,$type,$force,$range_type) =
     rearrange([['NAME','REF'],'CLASS','START',[qw(END STOP)],'OFFSET',
-	       'LENGTH',[qw(TYPE TYPES)],'FORCE'],@args);
+	       'LENGTH',[qw(TYPE TYPES)],'FORCE','RANGE_TYPE'],@args);
   $offset = 0 unless defined $offset;
   $start = $offset+1 unless defined $start;
   $end   = $start+$length-1 if !defined $end and $length;
   $class ||= $self->default_class;
 
   my $types = $self->parse_types($type);  # parse out list of types
+
+  $range_type ||= 'overlaps';
+  $self->throw("range type must be one of {".
+	       join(',',keys %valid_range_types).
+	       "}\n")
+    unless $valid_range_types{lc $range_type};
+
 
   my @segments;
   if (defined $name && $name ne '') {
@@ -1280,9 +1294,10 @@ sub delete {
     @segments = $self->segment(@args);
     return unless @segments;
   }
-  $self->_delete({segments => \@segments,
-		  types    => $types,
-		  force    => $force}
+  $self->_delete({segments   => \@segments,
+		  types      => $types,
+		  range_type => $range_type,
+		  force      => $force}
 		);
 }
 

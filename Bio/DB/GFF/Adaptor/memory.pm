@@ -284,10 +284,12 @@ sub _delete {
   my $ranges      = $delete_spec->{segments} || [];
   my $types       = $delete_spec->{types}    || [];
   my $force       = $delete_spec->{force};
+  my $range_type  = $delete_spec->{range_type};
 
   my $deleted = 0;
   if (@$ranges) {
     my @args = @$types ? (-type=>$types) : ();
+    push @args,(-range_type => $range_type);
     my %ids_to_remove = map {$_->id => 1} map {$_->features(@args)} @$ranges;
     $deleted = $self->delete_features(keys %ids_to_remove);
   } elsif (@$types) {

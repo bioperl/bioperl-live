@@ -840,6 +840,59 @@ sub contained_in {
   return $self->factory->contained_in(@args);
 }
 
+=head2 delete
+
+ Title   : delete
+ Usage   : $db->delete(@args)
+ Function: delete features
+ Returns : count of features deleted -- if available
+ Args    : numerous, see below
+ Status  : public
+
+This method deletes all features that overlap the specified region or
+are of a particular type.  If no arguments are provided and the -force
+argument is true, then deletes ALL features.
+
+Arguments:
+
+ -type,-types  Either a single scalar type to be deleted, or an
+               reference to an array of types.
+
+ -range_type   Control the range type of the deletion.  One of "overlaps" (default)
+               "contains" or "contained_in"
+
+Examples:
+
+  $segment->delete(-type=>['intron','repeat:repeatMasker']);  # remove all introns & repeats
+  $segment->delete(-type=>['intron','repeat:repeatMasker']
+		   -range_type => 'contains');                # remove all introns & repeats
+                                                              # strictly contained in segment
+
+IMPORTANT NOTE: This method only deletes features.  It does *NOT*
+delete the names of groups that contain the deleted features.  Group
+IDs will be reused if you later load a feature with the same group
+name as one that was previously deleted.
+
+NOTE ON FEATURE COUNTS: The DBI-based versions of this call return the
+result code from the SQL DELETE operation.  Some dbd drivers return the
+count of rows deleted, while others return 0E0.  Caveat emptor.
+
+=cut
+
+# return all features completely contained within this segment
+sub delete {
+  my $self = shift;
+  my ($type,$range_type) =
+    rearrange([[qw(TYPE TYPES)],'RANGE_TYPE'],@_);
+  my $types = $self->factory->parse_types($type);  # parse out list of types
+  $range_type ||= 'overlaps';
+  return $self->factory->_delete({
+                                  segments   => [$self],
+                                  types      => $types,
+                                  range_type => $range_type
+                                  });
+}
+
 =head2 _process_feature_args
 
  Title   : _process_feature_args

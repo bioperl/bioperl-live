@@ -1507,7 +1507,7 @@ sub overlap_query_nobin {
 =head2 contains_query_nobin
 
  Title   : contains_query
- Usage   : ($query,@args) = $db->contains_query($start,$stop)
+ Usage   : ($query,@args) = $db->contains_query_nobin($start,$stop)
  Function: create SQL fragment that selects the desired features by range
  Returns : a list containing the query and bind arguments
  Args    : the start and stop of a range, inclusive
@@ -1909,7 +1909,7 @@ sub overlap_query {
   return wantarray ? ($query,@args) : $self->dbh->dbi_quote($query,@args);
 }
 
-# find features that are completely contained within a range
+# find features that are completely contained within a ranged
 sub contains_query {
   my $self = shift;
   my ($start,$stop) = @_;
@@ -1970,6 +1970,7 @@ sub _delete {
   my $ranges      = $delete_spec->{segments} || [];
   my $types       = $delete_spec->{types}    || [];
   my $force       = $delete_spec->{force};
+  my $range_type  = $delete_spec->{range_type};
   my $dbh         = $self->features_db;
 
   my $query = 'delete from fdata';
@@ -1980,8 +1981,11 @@ sub _delete {
     my $ref   = $dbh->quote($segment->abs_ref);
     my $start = $segment->abs_start;
     my $stop  = $segment->abs_stop;
-    my $overlap = $self->overlap_query($start,$stop);
-    push @range_part,"(fref=$ref AND $overlap)";
+    my $range =  $range_type eq 'overlaps'     ? $self->overlap_query($start,$stop)
+               : $range_type eq 'contains'     ? $self->contains_query($start,$stop)
+	       : $range_type eq 'contained_in' ? $self->contained_in_query($start,$stop)
+	       : $self->throw("Invalid range type '$range_type'");
+    push @range_part,"(fref=$ref AND $range)";
   }
   push @where,'('. join(' OR ',@range_part).')' if @range_part;
 
