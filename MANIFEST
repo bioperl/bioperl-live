@@ -83,8 +83,6 @@ Bio/Tools/SeqPattern.pm
 Bio/Tools/SeqStats.pm
 Bio/Tools/SeqWords.pm
 Bio/Tools/Sigcleave.pm
-Bio/Tools/Sim4/Exon.pm
-Bio/Tools/Sim4/Results.pm
 Bio/Tools/WWW.pm
 Bio/Tools/pSW.pm
 Bio/UnivAln.pm
