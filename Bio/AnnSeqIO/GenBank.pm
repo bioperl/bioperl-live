@@ -10,8 +10,6 @@
 
 # POD documentation - main docs before the code
 
-#TRY CVS
-
 =head1 NAME
 
 Bio::AnnSeqIO::GenBank - GenBank sequence input/output stream
@@ -174,10 +172,8 @@ sub next_annseq{
     }
     
     $line = <$fh>;
-    $line =~ /^ID\s+(\S+)/ || $self->throw("GenBank stream with no ID. Not GenBank in my book");
+    $line =~ /^LOCUS\s+(\S+)/ || $self->throw("GenBank stream with no ID. Not GenBank in my book");
     $name = $1;
-    
-#   $self->warn("not parsing upper annotation in GenBank file yet!");
 	
     my $buffer = $line;
     
@@ -213,13 +209,13 @@ sub next_annseq{
 	    # accession numbers...
        
 	    # References
-	    elsif (/^R/) {
+	    elsif (/^REFERENCE/) {
 		my @refs = &_read_GenBank_References(\$buffer,$fh);
 		$annseq->annotation->add_Reference(@refs);
 	    }
 	    
 	    # Organism name and phylogenetic information
-	    elsif (/^O[SC]/) {
+	    elsif (/^SOURCE||^  ORGANISM/) {
 		my $species = _read_GenBank_Species(\$buffer, $fh);
 		$annseq->species( $species );
 	    }
@@ -229,7 +225,7 @@ sub next_annseq{
 	}
 
     while( <$fh> ) {
-	/FT   \w/ && last;
+	/^FEATURES/ && last;
     }
     $buffer = $_;
     
@@ -239,16 +235,16 @@ sub next_annseq{
 	    # process ftunit
 	    &_generic_seqfeature($annseq,$ftunit);
 	    
-	    if( $buffer !~ /^FT/ ) {
+	    if( $buffer =~ /^BASE/ ) {
 		last;
 	    }
 	}
-    
-    if( $buffer !~ /^SQ/  ) {
-	while( <$fh> ) {
-	    /^SQ/ && last;
-	}
-    }
+#    
+#    if( $buffer !~ /^SQ/  ) {
+#	while( <$fh> ) {
+#	    /^SQ/ && last;
+#	}
+#    }
     
     $seqc = "";	       
     while( <$fh> ) {
