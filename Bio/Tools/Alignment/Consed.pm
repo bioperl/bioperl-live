@@ -951,9 +951,12 @@ sub set_singlets {
     $filename =~ m/(.*)ace.*$/;
     my $singletsfile = $base_path.$1."singlets";
     $self->debug("\$singletsfile is $singletsfile\n");
-    if (-f $singletsfile) {
+     if (!-f $singletsfile) {
+          # there is no singlets file.
+          $self->{'singlets_set'} = "done";
+          return;
+     }
 	$self->debug("$singletsfile is indeed a file. Trying to open it...\n");
-    }
     my $singlets_fh = Bio::Root::IO->new(-file => $singletsfile);
     my ($sequence,$name,$count);
     while ($_ = $singlets_fh->_readline()) {
