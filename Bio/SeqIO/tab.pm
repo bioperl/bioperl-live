@@ -145,7 +145,10 @@ sub next_seq{
 sub write_seq {
    my ($self,@seq) = @_;
    foreach (@seq) {
-     $self->_print($_->display_id(), "\t",$_->seq, "\n") or return;
+       if ($_->display_id() =~ /\t/) { 
+           $self->throw("display_id [".$_->display_id()."] contains TAB -- illegal in tab format");
+       } 
+       $self->_print($_->display_id(), "\t",$_->seq, "\n") or return;
    }
    return 1;
 }
