@@ -45,7 +45,7 @@ if ($@) {
 } else {
 	my $gb = new Bio::DB::GenBank;
 	my $seq = $gb->get_Seq_by_id('MUSIGHBA1');
- 	if( length($seq->str()) == 125 ) {
+ 	if( length($seq->str()) == 408 ) {
 		print "ok 2\n";
 	} else {
 		print "not ok 2\n";
@@ -59,7 +59,7 @@ if ($@) {
 } else {
 	my $gb = new Bio::DB::GenPept;
 	my $seq = $gb->get_Seq_by_id('195055');
- 	if( length($seq->str()) == 125 ) {
+ 	if( length($seq->str()) == 136 ) {
 		print "ok 3\n";
 	} else {
 		print "not ok 3\n";

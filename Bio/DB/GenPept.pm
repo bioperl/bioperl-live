@@ -213,7 +213,7 @@ sub _get_stream {
     last if m/^------/; # Kludgy, but it's how L. Stein does Boulder too
   }
 
-  return Bio::SeqIO->new('fh' => $sock, 'format' => 'Fasta');
+  return Bio::SeqIO->new('-fh' => $sock, '-format' => 'Fasta');
 
 }
 

@@ -47,7 +47,7 @@ The rest of the documentation details each of the object methods. Internal metho
 # Let the code begin...
 
 
-package Bio::DB::Abstract;
+package Bio::DB::BioSeqI;
 use vars qw($AUTOLOAD @ISA @EXPORT_OK);
 use strict;
 
@@ -57,6 +57,7 @@ use Bio::Root::Object;
 
 @ISA = qw(Bio::Root::Object Exporter);
 @EXPORT_OK = qw();
+
 # new() is inherited from Bio::Root::Object
 
 # _initialize is where the heavy stuff will happen when new is called
