@@ -506,7 +506,8 @@ standard Seq objects.  If you are using sources with very rich
 sequence annotation, you may want to consider using these objects
 which are described in section L<"III.7.1">. SeqWithQuality objects are
 used to manipulate sequences with "quality" data.  These objects are
-described in section L<"III.7.4"> and in L<Bio::Seq::RichSeqI>.
+described in section L<"III.7.4">, L<Bio::Seq::RichSeqI>, and in
+L<Bio::Seq::SeqWithQuality>.
 
 On the other hand, if you need a script capable of simultaneously
 handling many (hundreds or thousands) sequences at a time, then the
@@ -701,26 +702,25 @@ for a database - this especially relavent for the SwissProt resource
 where there are many ExPaSy mirror.  There are also configuration
 options for specifying local proxy servers for those behind firewalls.
 
-Retrieving NCBI RefSeqs sequences are supported through a special
-module called L<Bio::DB::RefSeq> which actually queries an EBI server.
-Please read the documentation for this module before using it as there
-are some caveats with RefSeq retrieval.
+The retrieval of NCBI RefSeqs sequences is supported through a special
+module called Bio::DB::RefSeq which actually queries an EBI server.
+Please see L<Bio::DB::RefSeq> before using it as there are some caveats
+with RefSeq retrieval. RefSeq ids in Genbank typically begin with "NT_".
 
- 
 Bioperl also supports retrieval from a remote Ace database. This
 capability requires the presence of the external AcePerl module. You
 need to download and install the aceperl module from
 http://stein.cshl.org/AcePerl/.
 
-=head2  III.1.2 Indexing and accessing local databases (Bio::Index::*, bpindex.pl, bpfetch.pl)
+=head2  III.1.2 Indexing and accessing local databases (Bio::Index::*, bpindex.pl, bpfetch.pl, Bio::DB::*)
 
 Alternately, bioperl permits indexing local sequence data files by
-means of the Bio::Index objects.  The following sequence data formats
-are supported: genbank, swissprot, pfam, embl and fasta.  Once the set
-of sequences have been indexed using Bio::Index, individual sequences
-can be accessed using syntax very similar to that described above for
-accessing remote databases.  For example, if one wants to set up an
-indexed (flat-file) database of fasta files, and later wants then to
+means of the Bio::Index or Bio::DB::Fasta objects.  The following sequence
+data formats are supported by Bio::Index: genbank, swissprot, pfam, embl and
+fasta.  Once the set of sequences have been indexed using Bio::Index,
+individual sequences can be accessed using syntax very similar to that
+described above for accessing remote databases.  For example, if one wants to
+set up an indexed (flat-file) database of fasta files, and later wants then to
 retrieve one file, one could write a scripts like:
 
   # script 1: create the index
@@ -746,10 +746,26 @@ in the scripts/ directory, bpindex.pl and bpfetch.pl.  These scripts
 can be used as templates to develop customized local data-file indexing
 systems.
 
-In the Perl spirit, embodied by the aphorism "there is more than one
-way to do it", bioperl also supplies Bio::DB::Fasta as a means to index
-and query Fasta format files. Please see L<Bio::DB::Fasta> for more
-information on this useful module.
+In the Perl spirit, as in "there is more than one way to do it", bioperl
+also supplies Bio::DB::Fasta as a means to index and query Fasta format files.
+It's similar to Bio::Index::Fasta but offers more methods, eg
+
+  use Bio::DB::Fasta;
+  $db = Bio::DB::Fasta->new($file);  # one file or many files
+  $seqstring = $db->seq($id);        # get a sequence as string
+  $seqobj = $db->get_Seq_by_id($id); # get a PrimarySeq obj
+  $desc = $db->header($id);          # get the header, or description, line
+
+Please see L<Bio::DB::Fasta> for more information on this fully-featured
+module.
+
+The Bio::DB::GFF module provides indexed access to files in GFF format,
+a file type that's highly suited to sequence annotation (see 
+http://www.sanger.ac.uk/software/GFF). The module accesses not
+only by id but by annotation type and position. Those who like to explore
+bioperl as a means to overlay nucleotide sequence, protein sequence,
+features, and annotations should take a close look at L<Bio::DB::GFF>.
+
 
 =head2 III.2 Transforming formats of database/ file records
 
@@ -815,7 +831,7 @@ AlignIO also supports the tied filehandle syntax described above for
 SeqIO.  Note that currently AlignIO is usable only with SimpleAlign
 alignment objects.  IO for UnivAln objects can only be done for
 files in fasta data format. See L<Bio::AlignIO> and L<Bio::UnivAln>
-for more information.
+and section L<III.5.4> for more information.
 
 =head2 III.3 Manipulating sequences
 
@@ -1085,16 +1101,18 @@ More detail can be found in L<Bio::Tools::SeqPattern>.
 
 EMBOSS (European Molecular Biology Open Source Software) is a large
 collection of sequence manipulation programs written in the C
-programming language.  EMBOSS programs are conventially called from
-the command line.  Bioperl provides a Perl "wrapper" for EMBOSS
-function calls so that they can be executed from within a Perl script.
+programming language (http://www.uk.embnet.org/Software/EMBOSS).  EMBOSS
+programs are conveniently called from the command line.  Bioperl provides
+a Perl "wrapper" for EMBOSS function calls so that they can be executed from
+within a Perl script.
+
 In the future, it is planned that Bioperl EMBOSS objects will return
 appropriate Bioperl objects to the calling script in addition to
 generating standard EMBOSS reports.  This functionality is
 being initially implemented with the EMBOSS sequence alignment
 programs, so that they will return SimpleAlign objects in a manner
 similar to the way the Bioperl modules TCoffee.pm and Clustalw.pm
-work.
+work (see section L<III.5.4> for a discussion of SimpleAlign).
 
 Of course, the EMBOSS package must be installed for the Bioperl
 wrapper to function. An example of usage of the Bioperl EMBOSS wrapper
@@ -1102,10 +1120,13 @@ would be:
 
   $factory = new Bio::Factory::EMBOSS();
   $compseqapp = $factory->program('compseq');
-  %input = ( '-word' => 4,
+  %input = ( '-word'     => 4,
 	     '-sequence' => $input_datafile'),
-	     '-outfile' => $compseqoutfile);
+	     '-outfile'  => $compseqoutfile);
   $compseqapp->run(\%input);
+
+Some EMBOSS programs will returns strings, others will create files that
+can be read directly using Bio::SeqIO (section L<III.2.1>).
 
 
 =head2    III.3.7 Sequence manipulation without creating Bioperl "objects" (Perl.pm)
