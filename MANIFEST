@@ -1,4 +1,4 @@
-## $Id: MANIFEST,v 1.29 2001-02-26 11:21:20 lapp Exp $
+## $Id: MANIFEST,v 1.30 2001-02-26 17:13:26 heikki Exp $
 ##
 ## This is the file listing for everything that
 ## comes with the bioperl distribution. The perl
@@ -177,6 +177,7 @@ Bio/Variation/VariantI.pm
 scripts/blast_fetch.pl
 scripts/bpfetch.pl
 scripts/bpindex.pl
+scripts/subsequence.cgi
 Makefile.PL
 PLATFORMS
 README
@@ -189,6 +190,7 @@ examples/rev_and_trans.pl
 examples/blosum62.bla
 examples/change_gene.pl
 examples/clustalw.pl
+examples/getGenBank.pl
 examples/gon250.bla
 examples/gsequence
 examples/hitdisplay.pl
