@@ -486,9 +486,7 @@ sub close {
 		  \*STDIN == $self->_fh
 		  ); # don't close STDOUT fh
        if( ! ref($self->{'_filehandle'}) ||
-	   ! $self->{'_filehandle'}->isa('IO::String')  ||
-	   $self->{'_filehandle'} != \*STDOUT
-	   ) {
+	   ! $self->{'_filehandle'}->isa('IO::String') ) {
 	   close($self->{'_filehandle'});
        }
    }
