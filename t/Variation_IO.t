@@ -1,4 +1,6 @@
-
+# -*-Perl-*-
+## Bioperl Test Harness Script for Modules
+## $Id$
 
 use strict;
 use vars qw($NUMTESTS);
@@ -81,7 +83,8 @@ sub io {
     my $count = scalar @entries;
     ok @entries > 0;# "No SeqDiff objects [$count]";
     
-    my $out = Bio::Variation::IO->new( -FILE => "> $o_file", -FORMAT => $o_format);
+    my $out = Bio::Variation::IO->new( -FILE => "> $o_file", 
+				       -FORMAT => $o_format);
     my $out_ok = 1;
     foreach my $e (@entries) {
         $out->write($e) or $out_ok = 0;
@@ -108,9 +111,11 @@ sub io {
 
 
 
-io  (Bio::Root::IO->catfile("t","mutations.dat"), Bio::Root::IO->catfile("t","mutations.out.dat")); #2..6
+io  (Bio::Root::IO->catfile("t","mutations.dat"), 
+   Bio::Root::IO->catfile("t","mutations.out.dat")); #2..6
 
-io  (Bio::Root::IO->catfile("t","polymorphism.dat"), Bio::Root::IO->catfile("t","polymorphism.out.dat")); #7..11
+io  (Bio::Root::IO->catfile("t","polymorphism.dat"), 
+   Bio::Root::IO->catfile("t","polymorphism.out.dat")); #7..11
 
 
 eval {
@@ -129,15 +134,19 @@ if( $@ ) {
 }
 
 eval {
-	io  (Bio::Root::IO->catfile("t","mutations.xml"), Bio::Root::IO->catfile("t","mutations.out.xml")); #12..16
+    io  (Bio::Root::IO->catfile("t","mutations.xml"), 
+       Bio::Root::IO->catfile("t","mutations.out.xml")); #12..16
 };
 
 eval {
-	io  (Bio::Root::IO->catfile("t","polymorphism.xml"), Bio::Root::IO->catfile("t","polymorphism.out.xml")); #17..21
+    io  (Bio::Root::IO->catfile("t","polymorphism.xml"), 
+       Bio::Root::IO->catfile("t","polymorphism.out.xml")); #17..21
 };
 
 
 eval { 
-	io  (Bio::Root::IO->catfile("t","mutations.dat"), Bio::Root::IO->catfile("t","mutations.out.xml")); #22..26
+	io  (Bio::Root::IO->catfile("t","mutations.dat"), 
+	   Bio::Root::IO->catfile("t","mutations.out.xml")); #22..26
 };
+
 
