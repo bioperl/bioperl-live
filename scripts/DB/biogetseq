@@ -1,0 +1,35 @@
+#!/usr/bin/perl
+# $Id: biogetseq,v 1.1 2003-02-19 00:10:25 heikki Exp $
+#
+# OBDA Registry compliant sequence retrieval script
+#
+
+
+use Bio::DB::Registry;
+use Bio::SeqIO;
+use Getopt::Long;
+use strict;
+
+my ($help, $format, $namespace, $dbname) = ('', '', 'acc', 'embl');
+GetOptions ("help" => \$help, "format=s" => \$format,
+            "namespace=s" => \$namespace, "dbname=s" => \$dbname );
+usage() if $help;
+usage() unless @ARGV;
+
+my $registry = new Bio::DB::Registry();
+while (my $id = shift) {
+    my $db = $registry->get_database($dbname);
+    my $seq = $db->get_Seq_by_id($id);
+    my $out = new Bio::SeqIO('-format' => $format);
+    $out->write_seq($seq);
+}
+
+
+sub usage {
+    print "Usage: biogetseq --dbname embl --format embl -- namespace acc  id [ id ... ]*\n";
+    print "       dbname defaults to embl\n";
+    print "       format defaults to embl\n";
+    print "       namespace defaults to 'acc' ['id', 'acc', 'version']\n";
+    print "       rest of te arguments is  a list of ids in the given namespace\n";
+    exit;
+}
