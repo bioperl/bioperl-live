@@ -294,6 +294,7 @@ sub end_hit{
     my %args = map { my $v = $data->{$_}; s/HIT//; ($_ => $v); } grep { /^HIT/ } keys %{$data};
     $args{'-algorithm'} =  uc( $args{'-algorithm_name'} || $type);
     $args{'-hsps'}      = $self->{'_hsps'};
+    $args{'-query_len'} =  $data->{'RESULT-query_length'};
     my $hit = $self->factory('hit')->create(%args);
     push @{$self->{'_hits'}}, $hit;
     $self->{'_hsps'} = [];

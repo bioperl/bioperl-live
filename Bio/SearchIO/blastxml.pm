@@ -426,7 +426,6 @@ sub use_tempfile{
       $self->{'_use_tempfile'} = $value;
     }
     return $self->{'_use_tempfile'};
-
 }
 
 1;
