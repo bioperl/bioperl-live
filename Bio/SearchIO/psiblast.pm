@@ -640,7 +640,6 @@ sub _process_descriptions {
     desc_loop:
   foreach my $line (@data) {
       last desc_loop if $line =~ / NONE |End of List/;
-      next desc_loop if $line =~ /^\s*$/;
       next desc_loop if $line =~ /^\.\./;
 
       if($line =~ /^Sequences used in model/ ) {
@@ -653,21 +652,23 @@ sub _process_descriptions {
 	$hit_found_again  = 0;
 	next;
       }
-      
+
       ## Checking the significance value (P- or Expect value) of the hit
       ## in the description line.
 
-      # These regexps need testing on a variety of reports.
-      if ( $line =~ /^(\S+)\s+.*\s+(\d+)\s{1,5}[\de.-]+\s*$/) {
+      next desc_loop unless $line =~ /\d/;
+
+      # TODO: These regexps need testing on a variety of reports.
+      if ( $line =~ /^(\S+)\s+.*\s+([\de.+-]+)\s{1,5}[\de.-]+\s*$/) {
           $hitid = $1;
           $score = $2;
           $layout = 2;
-      } elsif( $line =~ /^(\S+)\s+.*\s+(\d+)\s{1,5}[\de.-]+\s{1,}\d+\s*$/) {
+      } elsif( $line =~ /^(\S+)\s+.*\s+([\de.+-]+)\s{1,5}[\de.-]+\s{1,}\d+\s*$/) {
           $hitid = $1;
           $score = $2;
           $layout = 1;
       } else {
-#	$self->warn("Can't parse significance data in description line $line");
+	$self->warn("Can't parse description line\n $line");
 	next desc_loop;
       }
       not $layout_set and ($self->_layout($layout), $layout_set = 1);
