@@ -57,30 +57,50 @@ my ($db,$db2,$seq,$seqio);
 $seq = $seqio = undef;
 
 ok defined($db = new Bio::DB::BioFetch);
-ok(defined($seq = $db->get_Seq_by_acc('J00522')));
-ok( $seq->length, 408);
-ok(defined($seq = $db->get_Seq_by_acc('J02231')));
-ok $seq->id, 'BUM';
-ok( $seq->length, 200); 
-ok(defined($seqio = $db->get_Stream_by_id(['BUM'])));
-undef $db; # testing to see if we can remove gb
-ok( defined($seq = $seqio->next_seq()));
-ok( $seq->length, 200);
+eval {
+    # get a RefSeq entry
+    ok $db->db('refseq');
+    ok $seq = $db->get_Seq_by_acc('NM_006732'); # RefSeq VERSION
+    ok $seq->accession_number;
 
-#swissprot
-ok defined($db2 = new Bio::DB::BioFetch( -db => 'swall'));
-ok(defined($seq = $db2->get_Seq_by_id('YNB3_YEAST')));
-ok( $seq->length, 125);
-ok($seq->division, 'YEAST');
-$db2->request_format('fasta');
-ok(defined($seq = $db2->get_Seq_by_acc('P43780')));
-ok( $seq->length, 103); 
+    # EMBL
+    $db->db('embl');
+    ok(defined($seq = $db->get_Seq_by_acc('J00522')));
+    ok( $seq->length, 408);
+    ok(defined($seq = $db->get_Seq_by_acc('J02231')));
+    ok $seq->id, 'BUM';
+    ok( $seq->length, 200); 
+    ok(defined($seqio = $db->get_Stream_by_id(['BUM'])));
+    undef $db; # testing to see if we can remove gb
+    ok( defined($seq = $seqio->next_seq()));
+    ok( $seq->length, 200);
+
+    #swissprot
+    ok defined($db2 = new Bio::DB::BioFetch( -db => 'swall'));
+    ok(defined($seq = $db2->get_Seq_by_id('YNB3_YEAST')));
+    ok( $seq->length, 125);
+    ok($seq->division, 'YEAST');
+    $db2->request_format('fasta');
+    ok(defined($seq = $db2->get_Seq_by_acc('P43780')));
+    ok( $seq->length, 103); 
+
+};
+
+if ($@) {
+    print STDERR "Warning: Couldn't connect to EMBL with Bio::DB::EMBL.pm!\n" . $@;
+
+    foreach ( $Test::ntest..$NUMTESTS) { 
+	 skip('could not connect to embl',1);}
+
+}
+
 
 $seq = $seqio = undef;
 
 eval {
     $db = new Bio::DB::BioFetch(-retrievaltype => 'tempfile',
-				-format => 'fasta'
+				-format => 'fasta',
+				-verbose => $verbose
 			       );
     ok( defined($seqio = $db->get_Stream_by_batch(['J00522 AF303112 J02231'])));
     ok($seqio->next_seq->length, 408);
@@ -92,5 +112,4 @@ if ($@) {
     warn "Batch access test failed.\nError: $@\n";
     foreach ( $Test::ntest..$NUMTESTS ) { skip('no network access',1); }
 }
-
 

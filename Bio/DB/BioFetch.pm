@@ -22,21 +22,28 @@ Bio::DB::BioFetch - Database object interface to BioFetch retrieval
 
 =head1 SYNOPSIS
 
-    use Bio::DB::BioFetch;
+  use Bio::DB::BioFetch;
 
-    $bf = new Bio::DB::BioFetch;
+  $bf = new Bio::DB::BioFetch;
 
-    $seq = $sp->get_Seq_by_id('BUM');  # EMBL or SWALL ID
+  $seq = $sp->get_Seq_by_id('BUM');  # EMBL or SWALL ID
 
-    # change formats, storage procedures
-    $bf = new Bio::DB::BioFetch(-format        => 'fasta',
-				-retrievaltype => 'tempfile',
-			        -db            => 'genbank');
+  # change formats, storage procedures
+  $bf = new Bio::DB::BioFetch(-format        => 'fasta',
+  			      -retrievaltype => 'tempfile',
+  			      -db            => 'EMBL');
 
-    $stream = $bf->get_Stream_by_id(['BUM','J00231']);
-    while (my $s = $stream->next_seq) {
-       print $s->seq,"\n";
-    }
+  $stream = $bf->get_Stream_by_id(['BUM','J00231']);
+  while (my $s = $stream->next_seq) {
+     print $s->seq,"\n";
+  }
+  # get a RefSeq entry
+  $bf->db('refseq');
+  eval {
+      $seq = $bf->get_Seq_by_version('NM_006732.1'); # RefSeq VERSION
+  };
+  print "accession is ", $seq->accession_number, "\n" unless $@;
+
 
 =head1 DESCRIPTION
 
@@ -96,15 +103,21 @@ BEGIN {
 
     %FORMATMAP = ( 
 		   'embl' => {
-		       module => 'embl',
-		       default => 'embl',
-		       embl => 1,
-		       fasta => 1
+		       module => 'embl',  # SeqIO module name
+		       default => 'embl', # default BioFetch format
+		       embl => 1,         # alternative BioFetch format 
+		       fasta => 1         # alternative BioFetch format 
 		       },
 		   'swall' => {
-		       module => 'swissprot',
-		       default => 'swiss',
-		       swiss => 1,
+		       module => 'swiss',
+		       default => 'swissprot',
+		       swissprot => 1,
+		       fasta => 1
+		       },
+		   'refseq' => {
+		       module => 'genbank',
+		       default => 'genbanknk',
+		       genbank => 1,
 		       fasta => 1
 		       }
 		   );
@@ -213,6 +226,11 @@ sub new_from_registry {
 
 =cut
 
+sub get_Seq_by_version {
+   my ($self,$seqid) = @_;
+   return $self->get_Seq_by_acc($seqid);
+}
+
 
 =head2 get_Stream_by_id
 
@@ -289,12 +307,13 @@ sub get_request {
 	unless defined $uids;
     my $tmp;
     my $format_string = '';
+
     $format ||= $self->default_format;
     ($format, $tmp) = $self->request_format($format);
-    $format_string = "&format=$format" if $format ne $self->default_format;
+
     my $base = $self->url_base_address;
     my $uid = join('+',ref $uids ? @$uids : $uids);
-    $self->debug("\n$base$format_string&id=$uid\n");#$format='swissprot';
+    $self->debug("\n$base$format_string&id=$uid\n");
     return POST($base,
 		[ db     => $db,
 		  id     => join('+',ref $uids ? @$uids : $uids),
@@ -314,11 +333,7 @@ sub get_request {
 =cut
 
 sub default_format { 
-    my ($self) = @_;
-    my $db = $self->db || $self->default_db;
-    my $format = $FORMATMAP{$db}->{'default'};
-    $self->request_format($format);
-    return $format;
+    return 'default';
 }
 
 =head2 default_db
@@ -348,7 +363,7 @@ sub db {
 
   if (@_) {
 
-      my $db = shift;
+      my $db = lc shift;
       $FORMATMAP{$db} or $self->throw("invalid db [$db], must be one of [".
 				     join(' ',keys %FORMATMAP).  "]");
       $self->{_db} = $db;
@@ -414,15 +429,13 @@ sub request_format {
     my ($self, $value) = @_;
     if ( defined $value ) { 
 	my $db = $self->db; 
-	#print $FORMATMAP{$db}{$value}, "=\n";
-	#unless ( defined $FORMATMAP{$db}{$value} and $FORMATMAP{$db}{$value}  ) {
-	#    my %hash = %{$FORMATMAP{$self->db}};
-	#    use Data::Dumper; print Dumper ( \%hash);
-	#    $self->throw("Invalid format [$value], must be one of ".
-	#		  join(' ',keys $FORMATMAP{$self->db}));
-	#
-	#}
-	$self->{'_format'} = [ $FORMATMAP{$db}->{'module'}, $value];
+	my $format = lc $value;
+	#print "format:", $format, " module:", $FORMATMAP{$db}->{'module'}, " ($db)\n";	
+	$self->throw("Invalid format [$format], must be one of [".
+		     join(' ',keys %{$FORMATMAP{$db}}). "]")
+	    unless  $format eq 'default' || $FORMATMAP{$db}->{$format};
+
+	$self->{'_format'} = [ $format, $FORMATMAP{$db}->{'module'}];
     }
     return @{$self->{'_format'}};
 }
