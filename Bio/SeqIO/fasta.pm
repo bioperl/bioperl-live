@@ -104,6 +104,9 @@ sub next_seq{
   my ($top,@lines) = split "\n",$next_line;
   my ($id,$fulldesc) = $top =~ /^(\S+)\s*(.*)/;
   my $sequence = join '',@lines;
+  # remove whitespace
+  $sequence =~ s/\s//g;
+
   $sequence =~ tr/a-z/A-Z/;
   return Bio::Seq->new(-seq => $sequence,
 		       -id => $id,
