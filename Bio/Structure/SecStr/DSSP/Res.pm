@@ -1,4 +1,4 @@
-# $id $
+# $Header$
 #
 # bioperl module for Bio::Structure::SecStr::DSSP::Res.pm
 #
@@ -1216,37 +1216,62 @@ sub _parse {
 	return;
     }
 
+    # REFERENCE line (always there)
     $cur = <$file>;
     ( $element ) = ( $cur =~ /^REFERENCE\s+(.+?)\s+\./ );
     $head{ 'REFERENCE' } = $element;
 
     $cur = <$file>;
-    @elements = split( /\s+/, $cur );
-    pop( @elements ); # take off that annoying period
-    $head{ 'PDB' } = pop( @elements );
-    $head{ 'DATE' } = pop( @elements );
-    # now, everything else is "header" except for the word
-    # HEADER
-    shift( @elements );
-    $element = shift( @elements );
-    while ( @elements ) {
-	$element = $element." ".shift( @elements );
-    }
-    $head{ 'HEADER' } = $element;
-
-    $cur = <$file>;
-    ($element) = ( $cur =~ /^COMPND\s+(.+?)\s+\./ );
-    $head{ 'COMPND' } = $element;
-
-    $cur = <$file>;
-    ($element) = ( $cur =~ /^PDBSOURCE\s+(.+?)\s+\./ );
-    $head{ 'SOURCE' } = $element;
-
-    $cur = <$file>;
-    ($element) = ( $cur =~ /^AUTHOR\s+(.+?)\s+/ );
-    $head{ 'AUTHOR' } = $element;
+    # Check for HEADER line (not always there)
+    if ( $cur =~ /^HEADER\s/ ) {
+	@elements = split( /\s+/, $cur );
+	pop( @elements ); # take off that annoying period
+	$head{ 'PDB' } = pop( @elements );
+	$head{ 'DATE' } = pop( @elements );
+	# now, everything else is "header" except for the word
+	# HEADER
+	shift( @elements );
+	$element = shift( @elements );
+	while ( @elements ) {
+	    $element = $element." ".shift( @elements );
+	}
+	$head{ 'HEADER' } = $element;
 	
-    $cur = <$file>;
+	$cur = <$file>;
+    }
+
+    # Check for COMPND line (not always there)
+    if ( $cur =~ /^COMPND\s/ ) {
+	($element) = ( $cur =~ /^COMPND\s+(.+?)\s+\./ );
+	$head{ 'COMPND' } = $element;
+	
+	$cur = <$file>;
+    }
+
+    # Check for SOURCE or PDBSOURCE line (not always there)
+    if ( $cur =~ /^PDBSOURCE\s/ ) {
+	($element) = ( $cur =~ /^PDBSOURCE\s+(.+?)\s+\./ );
+	$head{ 'SOURCE' } = $element;
+	
+	$cur = <$file>;
+    }
+
+    elsif ( $cur =~ /^SOURCE\s/ ) {
+	($element) = ( $cur =~ /^SOURCE\s+(.+?)\s+\./ );
+	$head{ 'SOURCE' } = $element;
+	
+	$cur = <$file>;
+    }
+
+    # Check for AUTHOR line (not always there)
+    if ( $cur =~ /^AUTHOR/ ) {
+	($element) = ( $cur =~ /^AUTHOR\s+(.+?)\s+/ );
+	$head{ 'AUTHOR' } = $element;
+
+	$cur = <$file>;
+    }
+
+    # A B C D E TOTAL NUMBER OF RESIDUES, NUMBER ... line
     @elements = split( /\s+/, $cur );
     shift( @elements );
     $head{ 'TotNumRes' } = shift( @elements );
