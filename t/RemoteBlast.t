@@ -16,7 +16,7 @@ BEGIN {
     if( $@ ) {
 	print STDERR "IO::String not installed. This means the Bio::DB::* modules are not usable. Skipping tests.\n";
 	for( 1..$NUMTESTS ) {
-	    skip(1,"IO::String not installed. This means the Bio::DB::* modules are not usable. Skipping tests");
+	    skip("IO::String not installed. This means the Bio::DB::* modules are not usable. Skipping tests",1);
 	}
 	$error = 1; 
     }
@@ -51,10 +51,9 @@ ok( -e $inputfilename);
 
 if( $actually_submit == 0 ) {
     print STDERR "Skipping submitting remote BLAST to avoid Time-out\n";
-    ok(1);
-    ok(1);
-    ok(1);
-    ok(1);
+    foreach( $Test::ntest..$NUMTESTS) { 
+       skip('Skip to avoid timeout',1);
+    }
 } else {
 
     my $r = $remote_blast->submit_blast($inputfilename);
