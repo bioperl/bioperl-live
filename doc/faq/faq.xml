@@ -209,7 +209,7 @@ The same issue arises when you use Bio::DB::Fasta, but in that case the code mig
          <question>I want to parse BLAST, how do I do this?</question>
          <answer>
             <p>Bioperl only supports one approach, Bio::SearchIO, as of verion 1.1. There are other Blast parsing modules in the package but they remain just to support older code.</p>
-            <p>SearchIO supports BLAST and fasta report parsing.  The bptutorial provides an example of how to use this system as well as the documentation in the Bio::SearchIO system. There is also a <a href="http://www.bioperl.org/HOWTOs/html/SearchIO.html">SearchIO HOWTO</a>.</p>
+            <p>SearchIO supports BLAST, PSIBLAST, HMMER, WABA, and fasta report parsing.  The bptutorial provides an example of how to use this system as well as the documentation in the Bio::SearchIO system. There is also a <a href="http://www.bioperl.org/HOWTOs/html/SearchIO.html">SearchIO HOWTO</a>.</p>
          </answer>
       </q>
       <q id="2">
