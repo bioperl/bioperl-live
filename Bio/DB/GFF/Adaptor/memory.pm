@@ -430,7 +430,7 @@ sub _feature_by_name {
   my $regexp;
 
   if ($name =~ /[*?]/) {  # uh oh regexp time
-    $name =~ quotemeta($name);
+    $name = quotemeta($name);
     $name =~ s/\\\*/.*/g;
     $name =~ s/\\\?/.?/g;
     $regexp++;
