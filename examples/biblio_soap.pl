@@ -34,12 +34,6 @@ BEGIN {
 my $testnum;
 my $verbose = 0;
 
-## End of black magic.
-##
-## Insert additional test code below but remember to change
-## the print "1..x\n" in the BEGIN block to reflect the
-## total number of tests that will be run. 
-
 use Bio::Biblio;
 
 # --- launch a testing SOAP server
