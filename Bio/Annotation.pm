@@ -195,6 +195,10 @@ sub each_Reference{
 sub add_Comment{
    my ($self) = shift;
    foreach my $com ( @_ ) {
+       if( ! $com->isa('Bio::Annotation::Comment') ) {
+	   $self->throw("Is not a comment object but a  [$com]");
+       }
+
        push(@{$self->{'comment'}},$com);
    }
 }

@@ -306,6 +306,28 @@ sub species {
     }
 }
 
+=head2 species
+
+ Title   : sub_species
+ Usage   : 
+ Function: Gets or sets the sub_species
+ Example : $sub_species = $self->sub_species();
+ Returns : Bio::Species object
+ Args    : Bio::Species object or none;
+
+
+=cut
+
+sub sub_species {
+    my ($self, $sub_species) = @_;
+
+    if ($sub_species) {
+        $self->{'sub_species'} = $sub_species;
+    } else {
+        return $self->{'sub_species'}
+    }
+}
+
 =head1 EMBL/GenBank/DDBJ methods
 
 These methods are here to support the EMBL/GenBank/DDBJ format.
@@ -361,25 +383,40 @@ sub molecule{
 
 }
 
-=head2 date
+=head2 add_date
 
- Title   : date
- Usage   : $obj->date($newval)
- Function: date (EMBL format, last revision, GenBank format date)
- Returns : date of entry
- Args    : newvalue (optional)
+ Title   : add_date
+ Usage   : $self->add_domment($ref)
+ Function: adds a date
+ Example :
+ Returns : 
+ Args    :
 
 
 =cut
 
-sub date{
-   my $obj = shift;
-   if( @_ ) {
-      my $value = shift;
-      $obj->{'date'} = $value;
-    }
-    return $obj->{'date'};
+sub add_date{
+   my ($self) = shift;
+   foreach my $dt ( @_ ) {
+       push(@{$self->{'date'}},$dt);
+   }
+}
 
+=head2 each_Comment
+
+ Title   : each_date
+ Usage   : foreach $dt ( $self->each_date() )
+ Function: gets an array of dates
+ Example :
+ Returns : 
+ Args    :
+
+
+=cut
+
+sub each_date{
+   my ($self) = @_;
+   return @{$self->{'date'}}; 
 }
 
 =head2 accession

@@ -102,6 +102,92 @@ sub _initialize {
 
 =cut
 
+=head2 _generic_seqfeature
+
+ Title   : _generic_seqfeature
+ Usage   : $fthelper->_generic_seqfeature($annseq)
+ Function: processes fthelper into a generic seqfeature
+ Returns : nothing (places a new seqfeature into annseq)
+ Args    : Bio::AnnSeq,Bio::AnnSeqIO::FTHelper
+
+
+=cut
+
+sub _generic_seqfeature {
+   my ($fth,$annseq) = @_;
+   my ($sf);
+
+  # print "Converting from", $fth->key, "\n";
+
+   $sf = new Bio::SeqFeature::Generic;
+   if( $fth->loc =~ /join/ ) {
+       my $strand;
+       if ( $fth->loc =~ /complement/ ) {
+	   $strand = -1;
+       } else {
+	   $strand = 1;
+       }
+
+       $sf->strand($strand);
+       $sf->primary_tag($fth->key . "_span");
+       $sf->source_tag('GenBank');
+       $sf->has_tag("parent",1);
+       $sf->_parse->{'parent_homogenous'} = 1;
+
+       # we need to make sub features
+       my $loc = $fth->loc;
+       while( $loc =~ /(\d+)\.\.(\d+)/g ) {
+	   my $start = $1;
+	   my $end   = $2;
+	   #print "Processing $start-$end\n";
+	   my $sub = new Bio::SeqFeature::Generic;
+	   $sub->primary_tag($fth->key);
+	   $sub->start($start);
+	   $sub->end($end);
+	   $sub->strand($strand);
+	   $sub->source_tag('GenBank');
+	   $sf->add_sub_SeqFeature($sub,'EXPAND');
+       }
+
+   } else {
+       my $lst;
+       my $len;
+
+       if( $fth->loc =~ /^(\d+)$/ ) {
+	   $lst = $len = $1;
+       } else {
+	   $fth->loc =~ /(\d+)\.\.(\d+)/ || do {
+	       #$annseq->throw("Weird location line [" . $fth->loc . "] in reading GenBank");
+	       last;
+	   };
+	   $lst = $1;
+	   $len = $2;
+       }
+
+       $sf->start($lst);
+       $sf->end($len);
+       $sf->source_tag('GenBank');
+       $sf->primary_tag($fth->key);
+       if( $fth->loc =~ /complement/ ) {
+	   $sf->strand(-1);
+       } else {
+	   $sf->strand(1);
+       }
+   }
+
+   #print "Adding B4 ", $sf->primary_tag , "\n";
+
+   foreach my $key ( keys %{$fth->field} ){
+       foreach my $value ( @{$fth->field->{$key}} ) {
+	   $sf->add_tag_value($key,$value);
+       }
+   }
+
+
+
+   $annseq->add_SeqFeature($sf);
+}
+
 sub from_SeqFeature {
     my ($sf,$context_annseq,) = shift;
     my @ret;

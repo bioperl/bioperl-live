@@ -173,10 +173,17 @@ sub next_annseq{
     }
     
     $line = <$fh>;
+    if( $line =~ /^\s+$/ ) {
+	while( <$fh> ) {
+	    /\S/ && last;
+	}
+	$line = $_;
+    }
+
     if( !defined $line ) {
 	return undef; # end of file
     }
-    $line =~ /^LOCUS\s+\S+/ || $self->throw("GenBank stream with no LOCUS. Not GenBank in my book. ");
+    $line =~ /^LOCUS\s+\S+/ || $self->throw("GenBank stream with no LOCUS. Not GenBank in my book. Got $line");
     $line =~ /^LOCUS\s+(\S+)\s+\S+\s+bp\s+(\S+)\s+(\S+)\s+(\S+)/;
 
     $name = $1;
@@ -192,13 +199,12 @@ sub next_annseq{
     }
     
     $date=$4;
+    print STDERR "DATE= $date\n";
     if ($date) {
-	$annseq->date($date);
+	$annseq->add_date($date);
     }
 
     my $buffer = $line;
-    
-#    my $annseq = Bio::AnnSeq->new();
     
     BEFORE_FEATURE_TABLE :
 	until( eof($fh) ) {
@@ -256,7 +262,9 @@ sub next_annseq{
 		    if (/^FEATURES/) {
 			$comment =~ s/\n/ /g;
 			$comment =~ s/  +/ /g;
-			$annseq->annotation->add_Comment($comment);
+			my $commobj = Bio::Annotation::Comment->new();
+			$commobj->text($comment);
+			$annseq->annotation->add_Comment($commobj);
 			last BEFORE_FEATURE_TABLE;
 		    }
 		    $comment .= $_; 
@@ -279,7 +287,7 @@ sub next_annseq{
 	    my $ftunit = &_read_FTHelper_GenBank($fh,\$buffer);
 
 	    # process ftunit
-	    &_generic_seqfeature($annseq,$ftunit);
+	    $ftunit->_generic_seqfeature($annseq);
 	}
     $seqc = "";	
     while (<$fh>) {
@@ -327,26 +335,26 @@ sub write_annseq {
     my ($div, $mol);
     my $len = $seq->seq_len();
     
-    if( !$annseq->can('division')) { #|| ($div = $annseq->division()) == undef ) {
-	$div = 'UNK';
+    if ( !$annseq->can('division') || ($div = $annseq->division()) == undef ) {
+        $div = 'UNK';
     }
     else {
 	$div=$annseq->division;
     }
 
-    if( !$annseq->can('molecule')) {
+    if( !$annseq->can('molecule') || ($div = $annseq->division()) == undef ) {
 	$mol = 'DNA';
     }
     else {
 	$mol = $annseq->molecule;
     }
-
+    
     
     my $temp_line;
     if( $self->_id_generation_func ) {
 	$temp_line = &{$self->_id_generation_func}($annseq);
     } else {
-	$temp_line = sprintf ("%-12s%-10s%10s bp%8s%15s%20s", 'LOCUS',$seq->id(),$len,$mol,$div, $annseq->date);
+	$temp_line = sprintf ("%-12s%-10s%10s bp%8s%15s%20s", 'LOCUS',$seq->id(),$len,$mol,$div, $annseq->each_date());
     } 
     
     print $fh "$temp_line\n";   
@@ -391,8 +399,8 @@ sub write_annseq {
     
     # Organism lines
     if (my $spec = $annseq->species) {
-        my($species, $genus, @class) = $spec->classification();
-        my $OS = "$genus $species";
+        my($sub_species, $species, $genus, @class) = $spec->classification();
+        my $OS = "$genus $species $sub_species";
         if (my $common = $spec->common_name) {
 	    print $fh "SOURCE      $common\n";
         }
@@ -400,24 +408,30 @@ sub write_annseq {
 	    print $fh "SOURCE      $OS\n";
 	}
 	print $fh "  ORGANISM  $OS\n";
-        my $OC = join('; ', reverse(@class)). '.';
+        my $OC = join ('; ', reverse(@class));
+	$OC =~ s/\;\s+$//;
+	$OC .= ".";
+
         _write_line_GenBank_regex($fh,"            ","            ",$OC,"\; \|\$",80);
     }
     
     # Reference lines
     my $count = 1;
     foreach my $ref ( $annseq->annotation->each_Reference() ) {
-	$temp_line = sprintf ("REFERENCE    $count  (bases %d to %d)",$ref->bases1,$ref->bases2);
+	$temp_line = sprintf ("REFERENCE    $count  (bases %d to %d)",$ref->start,$ref->end);
 	print $fh "$temp_line\n";
 	&_write_line_GenBank_regex($fh,"  AUTHORS   ","            ",$ref->authors,"\\s\+\|\$",80);
 	&_write_line_GenBank_regex($fh,"  TITLE     ","            ",$ref->title,"\\s\+\|\$",80);
 	&_write_line_GenBank_regex($fh,"  JOURNAL   ","            ",$ref->location,"\\s\+\|\$",80);
-	$count++;
+	if ($ref->comment) {
+	    &_write_line_GenBank_regex($fh,"  REMARK    ","            ",$ref->comment,"\\s\+\|\$",80);
+	}
+	    $count++;
     }
     # Comment lines
     
     foreach my $comment ( $annseq->annotation->each_Comment() ) {
-	_write_line_GenBank_regex($fh,"COMMENT     ","            ",$comment,"\\s\+\|\$",80);
+	_write_line_GenBank_regex($fh,"COMMENT     ","            ",$comment->text,"\\s\+\|\$",80);
     }
     print $fh "FEATURES             Location/Qualifiers\n";
     
@@ -459,21 +473,12 @@ sub write_annseq {
 # finished printing features.
     
     $str =~ tr/A-Z/a-z/;
-    my $a = $str; 
-    $a =~ s/[^a]//g;
-    my $alen = length $a;
-    
-    my $t = $str; 
-    $t =~ s/[^t]//g;
-    my $tlen = length $t;
-    
-    my $g = $str; 
-    $g =~ s/[^g]//g;
-    my $glen = length $g;
-    
-    my $c = $str; 
-    $c =~ s/[^c]//g;
-    my $clen = length $c;
+
+# Count each nucleotide
+    my $alen = $str =~ tr/a/a/;
+    my $clen = $str =~ tr/c/c/;
+    my $glen = $str =~ tr/g/g/;
+    my $tlen = $str =~ tr/t/t/;
     
     my $olen = $len - ($alen + $tlen + $clen + $glen);
     if( $olen < 0 ) {
@@ -527,7 +532,11 @@ sub _print_GenBank_FTHelper {
 
    foreach my $tag ( keys %{$fth->field} ) {
        foreach my $value ( @{$fth->field->{$tag}} ) {
-           if( $always_quote == 1 || $value !~ /^\d+$/ ) {
+	   $value =~ s/\"/\"\"/g;
+	   if ($value eq "_no_value") {
+	       &_write_line_GenBank_regex($fh,"                     ","                     ","/$tag","\.\|\$",80);
+	   }
+           elsif( $always_quote == 1 || $value !~ /^\d+$/ ) {
 	      &_write_line_GenBank_regex($fh,"                     ","                     ","/$tag=\"$value\"","\.\|\$",80);
            } else {
               &_write_line_GenBank_regex($fh,"                     ","                     ","/$tag=$value","\.\|\$",80);
@@ -565,6 +574,8 @@ sub _read_GenBank_References{
    my $au;
    my $b1;
    my $b2;
+   my $com;
+
    if ($$buffer =~ /^REFERENCE\s+\d+\s+\(bases (\d+) to (\d+)/){
        $b1=$1;
        $b2=$2;
@@ -586,25 +597,37 @@ sub _read_GenBank_References{
        }
        if (/^  JOURNAL\s+(.*)/) { 
 	   $loc .= $1;
-	   while ( <$fh> ) {	       
+	   while ( <$fh> ) {
+	       /^  REMARK/ && last;
 	       /^\s+(.*)/ && do { $loc .= $1;$loc .= " ";next;};
 	       last;
 	   }
        }
+
+       if (/^  REMARK\s+(.*)/) { 
+	   $com .= $1;
+	   while ( <$fh> ) {	       
+	       /^\s+(.*)/ && do { $com .= $1;$com .= " ";next;};
+	       last;
+	   }
+       }
+
        /^REFERENCE/ && do {
 	   # put away current reference
 	   my $ref = new Bio::Annotation::Reference;
 	   $au =~ s/;\s*$//g;
 	   $title =~ s/;\s*$//g;
-	   $ref->bases1($b1);
-	   $ref->bases2($b2);
+	   $ref->start($b1);
+	   $ref->end($b2);
 	   $ref->authors($au);
 	   $ref->title($title);
 	   $ref->location($loc);
+	   $ref->comment($com);
 	   push(@refs,$ref);
 	   $au = "";
 	   $title = "";
 	   $loc = "";
+	   $com = "";
 
 	   # return to main reference loop
 	   next;
@@ -619,11 +642,12 @@ sub _read_GenBank_References{
    $au =~ s/;\s*$//g;
    $title =~ s/;\s*$//g;
 
-   $ref->bases1($b1);
-   $ref->bases2($b2);
+   $ref->start($b1);
+   $ref->end($b2);
    $ref->authors($au);
    $ref->title($title);
    $ref->location($loc);
+   $ref->comment($com);
    push(@refs,$ref);
    $$buffer = $_;
    
@@ -648,21 +672,27 @@ sub _read_GenBank_Species {
     
     $_ = $$buffer;
     
-    my( $species, $genus, $common, @class );
+    my( $sub_species, $species, $genus, $common, @class );
     while (defined( $_ ||= <$fh> )) {
 
-        if (/^SOURCE\s+(\S+)/) {
+        if (/^SOURCE\s+(.*)/) {
 	    $common = $1;
 	    $common =~ s/\.//;
 	}
-	if (/^  ORGANISM\s+(\S+)\s+(\S+)/) {
+	if (/^  ORGANISM\s+(\S+)\s+(\S+)\s+(\S+)/) {
             $genus   = $1;
-            $species = $2;
+	    if ($2) {
+		$species = $2;
+	    }
+	    else {
+		$species = "sp.";
+	    }
+	    $sub_species = $3 if $3;
         }
         elsif ($_ !~ /^REFERENCE/) {
 	    $_ =~ s/\s+//;
 	    $_ =~ s/^SOURCE\S+//;
-            push(@class, split /[\s\.;]+/, $_);
+            push(@class, split /[\;]+/, $_);
         }
         else {
             last;
@@ -677,7 +707,12 @@ sub _read_GenBank_Species {
     return if $genus =~ /^(Unknown|None)$/i;
     
     # Bio::Species array needs array in Species -> Kingdom direction
-    push( @class, $genus, $species );
+    if ($sub_species) {
+	push( @class, $genus, $species, $sub_species );
+    }
+    else {
+	push( @class, $genus, $species, "");
+    }
     @class = reverse @class;
     
     my $make = Bio::Species->new();
@@ -744,6 +779,7 @@ sub _read_FTHelper_GenBank {
    $out->loc($loc);
 
    # Now read in other fields
+   # Loop reads $_ when defined (i.e. only in first loop), then read $fh, until eof 
    while ( defined($_ ||= <$fh>) ) {
 
        # Exit loop on new primary key or end of features
@@ -756,6 +792,8 @@ sub _read_FTHelper_GenBank {
 	   if(! defined $out->field->{$key} ) {
 	       $out->field->{$key} = [];
 	   }
+	   $value =~ s/\"\"/\"/g;
+
 	   push(@{$out->field->{$key}},$value);
        }
        # Field on on multilines:
@@ -763,18 +801,23 @@ sub _read_FTHelper_GenBank {
 	   my $key = $1;
 	   my $value = $2;
 	   while ( <$fh> ) {
+	       # first subs out the ""
+	       s/\"\"/__DOUBLE_QUOTE_STRING__/g;
 	       /\s+(.*)\"/ && do { $value .= $1; last; };
 	       /\s+(.*)/ && do {$value .= $1; };
 	   }
+	   $value =~ s/__DOUBLE_QUOTE_STRING__/\"/g;
+
 	   if(! defined $out->field->{$key} ) {
 	       $out->field->{$key} = [];
 	   }
 	   push(@{$out->field->{$key}},$value);
        }
        # Field with no quoted value
-       elsif (/^\s+\/(\S+)=(\S+)/) {
+       elsif (/^\s+\/(\S+)=?(\S+)?/) {
 	   my $key = $1;
-	   my $value = $2;
+	   my $value = $2 if $2;
+	   $value = "_no_value" unless $2;
 	   if(! defined $out->field->{$key} ) {
 	       $out->field->{$key} = [];
 	   }
@@ -787,92 +830,6 @@ sub _read_FTHelper_GenBank {
 
    $$buffer = $_;
    return $out;
-}
-
-=head2 _generic_seqfeature
-
- Title   : _generic_seqfeature
- Usage   : &_generic_seqfeature($annseq,$fthelper)
- Function: processes fthelper into a generic seqfeature
- Returns : nothing (places a new seqfeature into annseq)
- Args    : Bio::AnnSeq,Bio::AnnSeqIO::FTHelper
-
-
-=cut
-
-sub _generic_seqfeature {
-   my ($annseq,$fth) = @_;
-   my ($sf);
-
-  # print "Converting from", $fth->key, "\n";
-
-   $sf = new Bio::SeqFeature::Generic;
-   if( $fth->loc =~ /join/ ) {
-       my $strand;
-       if ( $fth->loc =~ /complement/ ) {
-	   $strand = -1;
-       } else {
-	   $strand = 1;
-       }
-
-       $sf->strand($strand);
-       $sf->primary_tag($fth->key . "_span");
-       $sf->source_tag('GenBank');
-       $sf->has_tag("parent",1);
-       $sf->_parse->{'parent_homogenous'} = 1;
-
-       # we need to make sub features
-       my $loc = $fth->loc;
-       while( $loc =~ /(\d+)\.\.(\d+)/g ) {
-	   my $start = $1;
-	   my $end   = $2;
-	   #print "Processing $start-$end\n";
-	   my $sub = new Bio::SeqFeature::Generic;
-	   $sub->primary_tag($fth->key);
-	   $sub->start($start);
-	   $sub->end($end);
-	   $sub->strand($strand);
-	   $sub->source_tag('GenBank');
-	   $sf->add_sub_SeqFeature($sub,'EXPAND');
-       }
-
-   } else {
-       my $lst;
-       my $len;
-
-       if( $fth->loc =~ /^(\d+)$/ ) {
-	   $lst = $len = $1;
-       } else {
-	   $fth->loc =~ /(\d+)\.\.(\d+)/ || do {
-	       #$annseq->throw("Weird location line [" . $fth->loc . "] in reading GenBank");
-	       last;
-	   };
-	   $lst = $1;
-	   $len = $2;
-       }
-
-       $sf->start($lst);
-       $sf->end($len);
-       $sf->source_tag('GenBank');
-       $sf->primary_tag($fth->key);
-       if( $fth->loc =~ /complement/ ) {
-	   $sf->strand(-1);
-       } else {
-	   $sf->strand(1);
-       }
-   }
-
-   #print "Adding B4 ", $sf->primary_tag , "\n";
-
-   foreach my $key ( keys %{$fth->field} ){
-       foreach my $value ( @{$fth->field->{$key}} ) {
-	   $sf->add_tag_value($key,$value);
-       }
-   }
-
-
-
-   $annseq->add_SeqFeature($sf);
 }
 
 =head2 _write_line_GenBank

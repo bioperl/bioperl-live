@@ -60,44 +60,44 @@ sub _initialize {
  return $make; # success - we hope!
 }
 
-=head2 bases1
+=head2 start
 
- Title   : bases1
- Usage   : $self->bases1($newval)
+ Title   : start
+ Usage   : $self->start($newval)
  Function: Gives the reference start base
  Example : 
- Returns : value of bases1
+ Returns : value of start
  Args    : newvalue (optional)
 
 
 =cut
 
-sub bases1{
+sub start{
    my ($self,$value) = @_;
    if( defined $value) {
-      $self->{'bases1'} = $value;
+      $self->{'start'} = $value;
     }
-    return $self->{'bases1'};
+    return $self->{'start'};
 
 }
-=head2 bases2
+=head2 end
 
- Title   : bases2
- Usage   : $self->bases2($newval)
+ Title   : end
+ Usage   : $self->end($newval)
  Function: Gives the reference end base
  Example : 
- Returns : value of bases2
+ Returns : value of end
  Args    : newvalue (optional)
 
 
 =cut
 
-sub bases2{
+sub end{
    my ($self,$value) = @_;
    if( defined $value) {
-      $self->{'bases2'} = $value;
+      $self->{'end'} = $value;
     }
-    return $self->{'bases2'};
+    return $self->{'end'};
 
 }
 

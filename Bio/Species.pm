@@ -39,7 +39,7 @@ to any of the other node types (eg: "phlum", "class",
 "order", "family").  There's plenty of scope for making the
 model more sophisticated, if this is ever needed.
 
-A mehod is also provided for storing a common name of the
+A method is also provided for storing a common name of the
 species.
 
 =head1 CONTACT
@@ -150,6 +150,27 @@ sub common_name {
         return $self->{'common_name'} 
     }
 }
+=head2 
+
+ Title   : organelle
+ Usage   : $self->organelle( $organelle );
+           $organelle = $self->organelle();
+ Function: Get or set the organelle name
+ Example : $self->organelle('Chloroplast')
+ Returns : The organelle name in a string
+ Args    : String, which is the organelle name
+
+=cut
+
+sub organelle {
+    my($self, $name) = @_;
+    
+    if ($name) {
+        $self->{'organelle'} = $name;
+    } else {
+        return $self->{'organelle'} 
+    }
+}
 
 =head2 species
 
@@ -222,8 +243,8 @@ sub binomial {
 sub validate_species_name {
     my( $self, $string ) = @_;
     
-    $string =~ /^[a-z]+$/ or
-        $self->throw("Invalid species name '$string' (Wrong case?)");
+    $string =~ /^[\S\d\.]+$||""/ or
+        $self->throw("Invalid species name '$string'");
 }
 
 sub validate_name {

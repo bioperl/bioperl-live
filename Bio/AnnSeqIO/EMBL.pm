@@ -164,7 +164,7 @@ sub _initialize {
 
 sub next_annseq{
    my ($self,@args) = @_;
-   my ($seq,$fh,$c,$line,$name,$desc,$acc,$seqc,$mol,$div, $date, $comment);
+   my ($seq,$fh,$c,$line,$name,$desc,$acc,$seqc,$mol,$div, $date, $comment, @date_arr);
    my $annseq = Bio::AnnSeq->new();
 
    $fh = $self->_filehandle();
@@ -174,7 +174,18 @@ sub next_annseq{
    }
 
    $line = <$fh>;
-   $line =~ /^ID\s+(\S+)\s+\S+\; (\S+)\; (\S+)/ || $self->throw("EMBL stream with no ID. Not embl in my book");
+   if( $line =~ /^\s+$/ ) {
+       while( <$fh> ) {
+	   /\S/ && last;
+       }
+       $line = $_;
+   }
+   
+   if( !defined $line ) {
+       return undef; # end of file
+   }
+   $line =~ /^ID\s+\S+/ || $self->throw("EMBL stream with no ID. Not embl in my book");
+   $line =~ /^ID\s+(\S+)\s+\S+\; (.+)\; (\S+)/;
    $name = $1;
    
    $mol= $2;
@@ -190,7 +201,7 @@ sub next_annseq{
    }
 
 #   $self->warn("not parsing upper annotation in EMBL file yet!");
-
+   print STDERR "$name, $mol, $div";
    my $buffer = $line;
 
  
@@ -226,9 +237,9 @@ sub next_annseq{
        if( /^DT\s+(\S+)/ ) {
 	   my $date = $1;
 	   $date =~ s/\;//;
-	   $annseq->date($date);
+	   $annseq->add_date($date);
        }
-
+       
        #keywords
        if( /^KW   (.*)\S*$/ ) {
 	   my $keywords = $1;
@@ -259,7 +270,9 @@ sub next_annseq{
 		   last;
 	       }
 	   }
-	   $annseq->annotation->add_Comment($comment);
+	   my $commobj = Bio::Annotation::Comment->new();
+	   $commobj->text($comment);
+	   $annseq->annotation->add_Comment($commobj);
 	   $comment = "";
        }
 
@@ -276,7 +289,7 @@ sub next_annseq{
    until( eof($fh) ) {
        my $ftunit = &_read_FTHelper_EMBL($fh,\$buffer);
        # process ftunit
-       &_generic_seqfeature($annseq,$ftunit);
+       $ftunit->_generic_seqfeature($annseq);
 
        if( $buffer !~ /^FT/ ) {
 	   last;
@@ -334,15 +347,15 @@ sub write_annseq {
    my $div;
    my $len = $seq->seq_len();
 
-   if( !$annseq->can('division')) { #|| ($div = $annseq->division()) == undef ) {
+   if ( !$annseq->can('division') || ($div = $annseq->division()) == undef ) {
        $div = 'UNK';
    }
    else {
        $div=$annseq->division;
    }
-
-   if( !$annseq->can('molecule')) {
-       $mol = 'DNA';
+   
+   if( !$annseq->can('molecule')  || ($div = $annseq->molecule()) == undef ) {
+       $mol = 'XXX';
    }
    else {
        $mol = $annseq->molecule;
@@ -388,12 +401,14 @@ sub write_annseq {
 	   print $fh "XX   \n";
        }
    } 
-   
-   if( $annseq->can('date') ) {
-       print $fh "DT   ",$annseq->date,"\n";
-       print $fh "XX   \n";
-   }
 
+   #Date lines
+   foreach my $dt ( $annseq->each_date() ) {
+       _write_line_EMBL_regex($fh,"DT   ","DT   ",$dt,"\\s\+\|\$",80);
+   }
+   print $fh "XX   \n";
+
+   #Definition lines
    _write_line_EMBL_regex($fh,"DE   ","DE   ",$seq->desc(),"\\s\+\|\$",80);
    print $fh "XX   \n";
 
@@ -414,21 +429,26 @@ sub write_annseq {
    
     # Organism lines
     if (my $spec = $annseq->species) {
-        my($species, $genus, @class) = $spec->classification();
-        my $OS = "$genus $species";
+        my($sub_species, $species, $genus, @class) = $spec->classification();
+        my $OS = "$genus $species $sub_species";
         if (my $common = $spec->common_name) {
             $OS .= " ($common)";
         }
         print $fh "OS   $OS\n";
-        my $OC = join('; ', reverse(@class)). '.';
+        my $OC = join('; ', reverse(@class));
+	$OC =~ s/\;\s+$//;
+	$OC .= ".";
         _write_line_EMBL_regex($fh,"OC   ","OC   ",$OC,"\; \|\$",80);
+	if ($spec->organelle) {
+	    _write_line_EMBL_regex($fh,"OG   ","OG   ",$spec->organelle,"\; \|\$",80);
+	}
         print $fh "XX   \n";
     }
 
    # Comment lines
 
    foreach my $comment ( $annseq->annotation->each_Comment() ) {
-       _write_line_EMBL_regex($fh,"CC   ","CC   ",$comment,"\\s\+\|\$",80);
+       _write_line_EMBL_regex($fh,"CC   ","CC   ",$comment->text,"\\s\+\|\$",80);
        print $fh "XX   \n";
    }
    
@@ -436,11 +456,14 @@ sub write_annseq {
    my $t = 1;
    foreach my $ref ( $annseq->annotation->each_Reference() ) {
        print $fh "RN   [$t]\n";
-       $temp_line = sprintf ("RX   %d-%d",$ref->bases1,$ref->bases2);
+       $temp_line = sprintf ("RX   %d-%d",$ref->start,$ref->end);
        print $fh "$temp_line\n";
        &_write_line_EMBL_regex($fh,"RA   ","RA   ",$ref->authors,"\\s\+\|\$",80);       
        &_write_line_EMBL_regex($fh,"RT   ","RT   ",$ref->title,"\\s\+\|\$",80);       
        &_write_line_EMBL_regex($fh,"RL   ","RL   ",$ref->location,"\\s\+\|\$",80);
+       if ($ref->comment) {
+	   &_write_line_EMBL_regex($fh,"RC   ","RC   ",$ref->comment,"\\s\+\|\$",80); 
+       }
        print $fh "XX   \n";
        $t++;
    }
@@ -555,7 +578,11 @@ sub _print_EMBL_FTHelper {
    &_write_line_EMBL_regex($fh,sprintf("FT   %-15s ",$fth->key),"FT                   ",$fth->loc,"\,\|\$",80);
    foreach my $tag ( keys %{$fth->field} ) {
        foreach my $value ( @{$fth->field->{$tag}} ) {
-           if( $always_quote == 1 || $value !~ /^\d+$/ ) {
+	   $value =~ s/\"/\"\"/g;
+	   if ($value eq "_no_value") {
+	       &_write_line_EMBL_regex($fh,"FT                   ","FT                   ","/$tag","\.\|\$",80);
+	   }  
+           elsif( $always_quote == 1 || $value !~ /^\d+$/ ) {
 	      &_write_line_EMBL_regex($fh,"FT                   ","FT                   ","/$tag=\"$value\"","\.\|\$",80);
            } else {
               &_write_line_EMBL_regex($fh,"FT                   ","FT                   ","/$tag=$value","\.\|\$",80);
@@ -593,23 +620,31 @@ sub _read_EMBL_References{
    my $title;
    my $loc;
    my $au;
+   my $med;
+   my $com;
+
    while( <$fh> ) {
        /^R/ || last;
        /^RP   (\d+)-(\d+)/ && do {$b1=$1;$b2=$2;};
+       /^RX   MEDLINE;\s+(\d+)/ && do {$med=$1};
        /^RA   (.*)/ && do { $au .= $1;   next;};
        /^RT   (.*)/ && do { $title .= $1; next;};
        /^RL   (.*)/ && do { $loc .= $1; next;};
+       /^RC   (.*)/ && do { $com .= $1; next;};
    }
-
+   
    my $ref = new Bio::Annotation::Reference;
    $au =~ s/;\s*$//g;
    $title =~ s/;\s*$//g;
 
-   $ref->bases1($b1);
-   $ref->bases2($b2);
+   $ref->start($b1);
+   $ref->end($b2);
    $ref->authors($au);
    $ref->title($title);
    $ref->location($loc);
+   $ref->medline($med);
+   $ref->comment($com);
+
    push(@refs,$ref);
    $$buffer = $_;
    
@@ -631,20 +666,29 @@ sub _read_EMBL_References{
 
 sub _read_EMBL_Species {
     my( $buffer, $fh ) = @_;
-    
+    my $org;
+
     $_ = $$buffer;
-    
-    my( $species, $genus, $common, @class );
+    my( $sub_species, $species, $genus, $common, @class );
     while (defined( $_ ||= <$fh> )) {
         
-        if (/^OS\s+(\S+)\s+(\S+)(?:\s+\((\s+)\))?/) {
+        if (/^OS\s+(\S+)\s+(\S+)\s+(\S+)?(?:\s+\((.*)\))?/) {
             $genus   = $1;
-            $species = $2;
-            $common  = $3 if $3;
+	    if ($2) {
+		$species = $2
+		}
+	    else {
+		$species = "sp.";
+	    }
+	    $sub_species = $3 if $3;
+            $common  = $4 if $4;
         }
         elsif (s/^OC\s+//) {
-            push(@class, split /[\s\.;]+/, $_);
+            push(@class, split /[\;\s\.]+/);
         }
+	elsif (/^OG\s+(.*)/) {
+	    $org = $1;
+	}
         else {
             last;
         }
@@ -656,14 +700,20 @@ sub _read_EMBL_Species {
     
     # Don't make a species object if it's "Unknown" or "None"
     return if $genus =~ /^(Unknown|None)$/i;
-    
+
     # Bio::Species array needs array in Species -> Kingdom direction
-    push( @class, $genus, $species );
+    if ($sub_species) {
+	push( @class, $genus, $species, $sub_species);
+    }
+    else {
+	push( @class, $genus, $species, "");
+    }
     @class = reverse @class;
     
     my $make = Bio::Species->new();
     $make->classification( @class );
     $make->common_name( $common ) if $common;
+    $make->organelle($org) if $org;
     return $make;
 }
 
@@ -716,16 +766,20 @@ sub _read_FTHelper_EMBL {
        # Exit loop on first qualifier - line is left in $_
        last if /^XX/; # sometimes a trailing XX comment left in!
        last if /^FT\s+\//;
+       last if /^FT\s+(\S+)\s+(\S+)/;
+       
        # Get location line
        /^FT\s+(\S+)/ or $out->throw("Weird location line in EMBL feature table: '$_'");
        $loc .= $1;
    }
+
    $loc =~ s/<//;
    $loc =~ s/>//;
    $out->key($key);
    $out->loc($loc);
 
    # Now read in other fields
+   # Loop reads $_ when defined (i.e. only in first loop), then $fh, until end of file
    while( defined($_ ||= <$fh>) ) {
       
        # Exit loop on non FT lines!
@@ -735,12 +789,14 @@ sub _read_FTHelper_EMBL {
        /^FT   \w/ && last;
        
        # Field on one line
-       if (/^FT\s+\/(\S+)=\"(.*)\"/) {
+       if (/^FT\s+\/(\S+)=\"(.+)\"/) {
 	   my $key = $1;
 	   my $value = $2;
 	   if(! defined $out->field->{$key} ) {
 	       $out->field->{$key} = [];
 	   }
+	   $value =~ s/\"\"/\"/g;
+
 	   push(@{$out->field->{$key}},$value);
        }
        # Field on on multilines:
@@ -748,18 +804,22 @@ sub _read_FTHelper_EMBL {
 	   my $key = $1;
 	   my $value = $2;
 	   while ( <$fh> ) {
+	       s/\"\"/__DOUBLE_QUOTE_STRING__/g;
 	       /FT\s+(.*)\"/ && do { $value .= $1; last; };
-	       /FT\s+(.*?)\s*/ && do {$value .= $1; };
+	       /FT\s+(.*)/ && do {$value .= $1; };
 	   }
+	   $value =~ s/__DOUBLE_QUOTE_STRING__/\"/g;
+
 	   if(! defined $out->field->{$key} ) {
 	       $out->field->{$key} = [];
 	   }
 	   push(@{$out->field->{$key}},$value);
        }
        # Field with no quoted value
-       elsif (/^FT\s+\/(\S+)=(\S+)/) {
+       elsif (/^FT\s+\/(\S+)=?(\S+)?/) {
 	   my $key = $1;
-	   my $value = $2;
+	   my $value = $2 if $2;
+	   $value = "_no_value" unless $2;
 	   if(! defined $out->field->{$key} ) {
 	       $out->field->{$key} = [];
 	   }
@@ -775,91 +835,6 @@ sub _read_FTHelper_EMBL {
    return $out;
 }
 
-=head2 _generic_seqfeature
-
- Title   : _generic_seqfeature
- Usage   : &_generic_seqfeature($annseq,$fthelper)
- Function: processes fthelper into a generic seqfeature
- Returns : nothing (places a new seqfeature into annseq)
- Args    : Bio::AnnSeq,Bio::AnnSeqIO::FTHelper
-
-
-=cut
-
-sub _generic_seqfeature {
-   my ($annseq,$fth) = @_;
-   my ($sf);
-
-  # print "Converting from", $fth->key, "\n";
-
-   $sf = new Bio::SeqFeature::Generic;
-   if( $fth->loc =~ /join/ ) {
-       my $strand;
-       if ( $fth->loc =~ /complement/ ) {
-	   $strand = -1;
-       } else {
-	   $strand = 1;
-       }
-
-       $sf->strand($strand);
-       $sf->primary_tag($fth->key . "_span");
-       $sf->source_tag('EMBL');
-       $sf->has_tag("parent",1);
-       $sf->_parse->{'parent_homogenous'} = 1;
-
-       # we need to make sub features
-       my $loc = $fth->loc;
-       while( $loc =~ /(\d+)\.\.(\d+)/g ) {
-	   my $start = $1;
-	   my $end   = $2;
-	   #print "Processing $start-$end\n";
-	   my $sub = new Bio::SeqFeature::Generic;
-	   $sub->primary_tag($fth->key);
-	   $sub->start($start);
-	   $sub->end($end);
-	   $sub->strand($strand);
-	   $sub->source_tag('EMBL');
-	   $sf->add_sub_SeqFeature($sub,'EXPAND');
-       }
-
-   } else {
-       my $lst;
-       my $len;
-
-       if( $fth->loc =~ /^(\d+)$/ ) {
-	   $lst = $len = $1;
-       } else {
-	   $fth->loc =~ /(\d+)\.\.(\d+)/ || do {
-	       $annseq->throw("Weird location line [" . $fth->loc . "] in reading EMBL");
-	       last;
-	   };
-	   $lst = $1;
-	   $len = $2;
-       }
-
-       $sf->start($lst);
-       $sf->end($len);
-       $sf->source_tag('EMBL');
-       $sf->primary_tag($fth->key);
-       if( $fth->loc =~ /complement/ ) {
-	   $sf->strand(-1);
-       } else {
-	   $sf->strand(1);
-       }
-   }
-
-   #print "Adding B4 ", $sf->primary_tag , "\n";
-
-   foreach my $key ( keys %{$fth->field} ){
-       foreach my $value ( @{$fth->field->{$key}} ) {
-	   $sf->add_tag_value($key,$value);
-       }
-   }
-
-
-
-   $annseq->add_SeqFeature($sf);
-}
 
 =head2 _write_line_EMBL
 
