@@ -373,4 +373,22 @@ sub location_from_column {
     return $loc;
 }
 
+sub trunc {
+
+    my ($self, $start, $end) = @_;
+    my $new = $self->SUPER::trunc($start, $end);
+
+    $start = $self->location_from_column($start);
+    $start = $start->start if $start;
+
+    $end = $self->location_from_column($end);
+    $end = $end->end if $end;
+
+    $new->strand($self->strand);
+    $new->start($start) if $start;
+    $new->end($end) if $end;
+
+    return $new;
+}
+
 1;

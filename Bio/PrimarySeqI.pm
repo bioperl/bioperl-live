@@ -515,7 +515,7 @@ sub translate {
     my $codonTable = Bio::Tools::CodonTable->new( -id => $tableid);
     
     my ($seq) = $self->seq();
-    
+
     # deal with frame offset.
     if( $frame ) {
 	$seq = substr ($seq,$frame);

@@ -250,7 +250,7 @@ sub seq {
        my $is_changed_seq = exists($obj->{'seq'});
        $obj->{'seq'} = $value;
        if(!$alphabet &&
-	  (($is_changed_seq && (CORE::length($value) > 0)) ||
+	  (($is_changed_seq && (CORE::length($value) > 0)) &&
 	   (! defined($obj->alphabet())))) {
 	   $obj->_guess_alphabet();
        } elsif ($alphabet) {
