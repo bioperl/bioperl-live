@@ -1,4 +1,4 @@
-#!/usr/local/bin/perl
+#!/usr/bin/perl
 
 
 =head1 NAME
@@ -36,7 +36,7 @@ fasta format on stdout
 
 =head1 OPTIONS
 
-  -fmt  <format>   - Fasta (default), or EMBL
+  -fmt  <format>   - Fasta (default), swiss or EMBL
   -v               - report every index addition (debugging)
 
 options only for expert use
@@ -107,6 +107,7 @@ BEGIN {
     eval {
 	require Bio::Index::Fasta;
 	require Bio::Index::EMBL;
+	require Bio::Index::Swissprot;
     };
     if ( $@ ) {
 	# one up from here is Bio directory - we hope!
@@ -161,6 +162,10 @@ SWITCH : {
     };
     /EMBL/ && do {
 	$index = Bio::Index::EMBL->new("$dir/$name", 'WRITE');
+	last;
+    };
+    /swiss/ && do {
+	$index = Bio::Index::Swissprot->new("$dir/$name", 'WRITE');
 	last;
     };
     die("No index format called $fmt");

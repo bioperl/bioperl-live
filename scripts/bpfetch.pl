@@ -1,4 +1,4 @@
-#!/usr/local/bin/perl
+#!/usr/bin/perl
 
 
 =head1 NAME
@@ -44,7 +44,7 @@ db information
 =head1 OPTIONS
 
   -fmt  <format> - Output format
-                   Fasta (default), EMBL, Raw or GCG
+                   Fasta (default), EMBL, Raw, swiss or GCG
   -acc           - string is an accession number, not an
                    id. 
 
@@ -134,6 +134,7 @@ BEGIN {
     eval {
 	require Bio::Index::Fasta;
 	require Bio::Index::EMBL;
+	require Bio::Index::Swissprot;
         require Bio::DB::GenBank;
         require Bio::DB::GenPept;
         require Bio::SeqIO;
@@ -145,6 +146,7 @@ BEGIN {
 	eval {
 	    require Bio::Index::Fasta;
 	    require Bio::Index::EMBL;
+	    require Bio::Index::Swissprot;
             require Bio::DB::GenBank;
             require Bio::DB::GenPept;
             require Bio::SeqIO;

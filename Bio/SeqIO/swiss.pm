@@ -105,6 +105,7 @@ use Bio::Seq;
 use Bio::SeqIO::FTHelper;
 use Bio::SeqFeature::Generic;
 use Bio::Species;
+use Bio::Tools::SeqStats;
 #use Bio::SeqIO::StreamI;
 
 # Object preamble - inherits from Bio::Root::Object
@@ -223,9 +224,10 @@ sub next_seq {
 	   $seq->sv($sv);
        }
        #date (NOTE: takes last date line)
-       elsif( /^DT\s+(\S+)/ ) {
+       elsif( /^DT\s+(.*)/ ) {
 	   my $date = $1;
 	   $date =~ s/\;//;
+	   $date =~ s/\s+$//;
 	   $seq->add_date($date);
        }
        # Organism name and phylogenetic information
@@ -454,17 +456,23 @@ sub write_seq {
    my $t = 1;
    foreach my $ref ( $seq->annotation->each_Reference() ) {
        $self->_print( "RN   [$t]\n");
-       if ($ref->start && $ref->end) {
-	   # changed by jason <jason@chg.mc.duke.edu> on 3/16/00 
+#       if ($ref->start && $ref->end) {
+#	   # changed by jason <jason@chg.mc.duke.edu> on 3/16/00 
 #	   print "RP   SEQUENCE OF ",$ref->start,"-",$ref->end," FROM N.A.\n";
-	   # to
-	   $self->_print("RP   SEQUENCE OF ",$ref->start,"-",$ref->end," FROM N.A.\n");
-       }
-       elsif ($ref->rp) {
-	   # changed by jason <jason@chg.mc.duke.edu> on 3/16/00 
+#	   # to
+#	   $self->_print("RP   SEQUENCE OF ",$ref->start,"-",$ref->end," FROM N.A.\n");
+#       }
+#       elsif ($ref->rp) {
+#	   # changed by jason <jason@chg.mc.duke.edu> on 3/16/00 
 #	   print "RP   ",$ref->rp,"\n";
-	   # to
-	   $self->_print("RP   ",$ref->rp,"\n");
+#	   # to
+
+       # changed by lorenz 08/03/00
+       # j.gilbert and h.lapp agreed that the rp line in swissprot seems 
+       # more like a comment than a parseable value, so print it as is
+       if ($ref->rp) {
+	 $self->_write_line_swissprot_regex("RP   ","RP   ",$ref->rp,
+					    "\\s\+\|\$",80); 
        } 
        if ($ref->comment) {
 	 $self->_write_line_swissprot_regex("RC   ","RC   ",$ref->comment,
@@ -696,9 +704,10 @@ sub _read_swissprot_References{
    }
    if( !defined $$buffer ) { return undef; }
    if( $$buffer =~ /^RP/ ) {
-       if ($$buffer =~ /^RP   SEQUENCE OF (\d+)-(\d+)/) { 
-	   $b1=$1;
-	   $b2=$2; 
+       if ($$buffer =~ /^RP   (SEQUENCE OF (\d+)-(\d+).*)/) { 
+	   $rp=$1;
+	   $b1=$2;
+	   $b2=$3; 
        }
        elsif ($$buffer =~ /^RP   (.*)/) {
 	   $rp=$1;
