@@ -32,7 +32,7 @@ Bio/Tools/Sigcleave.pm
 Bio/Tools/RestrictionEnzyme.pm
 Bio/DB/Abstract.pm
 Bio/SeqIO.pm
-Bio/SeqIO/handler.pm
+Bio/SeqIO/Handler.pm
 Bio/SeqIO/EMBL.pm
 Bio/SeqIO/Fasta.pm
 Bio/SeqIO/Raw.pm
