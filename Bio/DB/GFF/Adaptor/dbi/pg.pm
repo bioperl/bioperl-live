@@ -6,25 +6,7 @@ Bio::DB::GFF::Adaptor::dbi::pg -- Database adaptor for a specific postgres schem
 
 =head1 SYNOPSIS
 
-SQL commands that need to be executed before this adaptor will work:
-
-CREATE DATABASE <dbname>;
-
-If the bulk loader is not used, then select permission needs to be 
-granted for each table in the database to the owner of the httpd
-process (usually 'nobody', but for some RedHat systems it is 
-'apache'):
-
-CREATE USER nobody;
-GRANT SELECT ON TABLE fmeta                 TO nobody;
-GRANT SELECT ON TABLE fgroup                TO nobody;
-GRANT SELECT ON TABLE fdata                 TO nobody;
-GRANT SELECT ON TABLE fattribute_to_feature TO nobody;
-GRANT SELECT ON TABLE fdna                  TO nobody;
-GRANT SELECT ON TABLE fattribute            TO nobody;
-GRANT SELECT ON TABLE ftype                 TO nobody;
-
-See also L<Bio::DB::GFF>
+See L<Bio::DB::GFF>
 
 =cut
 
@@ -699,6 +681,174 @@ sub insert_sequence {
   $sth->execute($id,$offset,$seq) or die $sth->errstr;
 }
 
+=head2 range_query
+
+ Title   : range_query
+ Usage   : $db->range_query($range_type,$refseq,$refclass,$start,$stop,$types,$order_by_group,$attributes,$binsize)
+ Function: create statement handle for range/overlap queries
+ Returns : a DBI statement handle
+ Args    : see below
+ Status  : Protected
+
+This method constructs the statement handle for this module's central
+query: given a range and/or a list of feature types, fetch their GFF
+records.  It overrides a method in dbi.pm so that the overlaps query
+can write SQL optimized for Postgres.  Specifically, instead of writing
+the bin related section as a set of ORs, each bin piece is place in 
+a separate select and then they are UNIONed together.  This subroutine
+requires several replacements for other subroutines in dbi.pm.  In this 
+module, they are named the same as those in dbi.pm but prefixed with 
+"pg_".
+
+The positional arguments are as follows:
+
+  Argument               Description
+
+  $isrange               A flag indicating that this is a range.
+                         query.  Otherwise an overlap query is
+                         assumed.
+
+  $refseq                The reference sequence name (undef if no range).
+
+  $refclass              The reference sequence class (undef if no range).
+
+  $start                 The start of the range (undef if none).
+
+  $stop                  The stop of the range (undef if none).
+
+  $types                 Array ref containing zero or feature types in the
+                         format [method,source].
+
+  $order_by_group        A flag indicating that statement handler should group
+                         the features by group id (handy for iterative fetches)
+
+  $attributes            A hash containing select attributes.
+
+  $binsize               A bin size for generating tables of feature density.
+
+=cut
+ 
+sub range_query {
+  my $self = shift;
+  my($rangetype,$refseq,$class,$start,$stop,$types,$sparse,$order_by_group,$attributes,$bin) = @_;
+
+  my $dbh = $self->features_db;
+
+  #  my @bin_parts = split /\n\s+OR/, $self->bin_query($start,$stop);
+  #  warn "bin_part: @bin_parts\n";
+
+  my %a             = (refseq=>$refseq,class=>$class,start=>$start,stop=>$stop,types=>$types,attributes=>$attributes,bin_width=>$bin);
+  my ($query, @args, $order_by,$group_by,@more_args);
+
+  if ($rangetype ne 'overlaps') {
+
+    my $select        = $self->make_features_select_part(\%a);
+    my $from          = $self->make_features_from_part($sparse,\%a);
+    my $join          = $self->make_features_join_part(\%a);
+    my $where;
+       ($where,@args) = $self->make_features_by_range_where_part($rangetype,\%a);
+       ($group_by,@more_args) = $self->make_features_group_by_part(\%a);
+       $order_by      = $self->make_features_order_by_part(\%a) if $order_by_group;
+
+    $query         = "SELECT $select FROM $from WHERE $join";
+    $query           .= " AND $where" if $where;
+
+  } else {  # most common case: overlaps query
+
+    my @bin_parts         = split /\s*OR/, $self->bin_query($start,$stop);
+    my $select            = $self->make_features_select_part(\%a);
+    my $from              = $self->make_features_from_part($sparse,\%a);
+    my $join              = $self->make_features_join_part(\%a);
+    my $where;
+    ($where,@args)        = $self->pg_make_features_by_range_where_part($rangetype,\%a);
+    ($group_by,@more_args)= $self->make_features_group_by_part(\%a);
+    $order_by             = $self->pg_make_features_order_by_part(\%a) if $order_by_group;
+
+    my @temp_args;
+    my @query_pieces; 
+    foreach my $bin (@bin_parts) {
+      push @query_pieces, "SELECT $select FROM $from WHERE $join AND $where" . "AND $bin\n"; 
+      push @temp_args, @args;
+    }
+    
+    @args             = @temp_args;
+    $query            = join("UNION\n", @query_pieces); 
+
+  }
+
+  if ($group_by) {
+    $query           .= " GROUP BY $group_by";
+    push @args,@more_args;
+  }
+  $query           .= " ORDER BY $order_by" if $order_by;
+
+  my $sth = $self->dbh->do_query($query,@args);
+  $sth;
+}
+
+sub pg_make_features_by_range_where_part {
+  my $self = shift;
+  my ($rangetype,$options) = @_;
+
+  return unless $rangetype eq 'overlaps';
+
+  $options ||= {};
+  my ($refseq,$class,$start,$stop,$types,$attributes) =
+    @{$options}{qw(refseq class start stop types attributes)};
+
+  my (@query,@args);
+
+  if ($refseq) {
+    my ($q,@a) = $self->refseq_query($refseq,$class);
+    push @query,$q;
+    push @args,@a;
+  }
+
+  if (defined $start or defined $stop) {
+    $start = 0               unless defined($start);
+    $stop  = MAX_SEGMENT     unless defined($stop);
+
+    my ($range_query,@range_args) = $self->pg_overlap_query($start,$stop);
+
+    push @query,$range_query;
+    push @args,@range_args;
+  }
+
+  if (defined $types && @$types) {
+    my ($type_query,@type_args) = $self->types_query($types);
+    push @query,$type_query;
+    push @args,@type_args;
+  }
+
+  if ($attributes) {
+    my ($attribute_query,@attribute_args) = $self->make_features_by_attribute_where_part($attributes);
+    push @query,"($attribute_query)";
+    push @args,@attribute_args;
+  }
+
+  my $query = join "AND",@query;
+  return wantarray ? ($query,@args) : $self->dbh->dbi_quote($query,@args);
+}
+
+sub pg_overlap_query {
+  my $self = shift;
+  my ($start,$stop) = @_;
+
+  my ($iq,@iargs) = $self->overlap_query_nobin($start,$stop);
+  my $query = "\n$iq\n";
+  my @args = @iargs;
+
+  return wantarray ? ($query,@args) : $self->dbh->dbi_quote($query,@args);
+}
+
+sub pg_make_features_order_by_part {
+  my $self = shift;
+  my $options = shift || {};
+  return "gname";
+}
+
+
+
 =head2 search_notes
 
  Title   : search_notes
@@ -823,7 +973,7 @@ END
 ;
   } else {
     $s = <<END;
-fref,fstart,fstop,fsource,fmethod,fscore,fstrand,fphase,gclass,gname,ftarget_start,ftarget_stop,fdata.fid,fdata.gid
+fref,fstart,fstop,fsource,fmethod,fscore,fstrand,fphase,gclass,fgroup.gname,ftarget_start,ftarget_stop,fdata.fid,fdata.gid
 END
 ;
 }
@@ -869,5 +1019,8 @@ sub straight_join_limit {
   my $self = shift;
   return $self->meta('straight_join_limit') || STRAIGHT_JOIN_LIMIT;
 }
+
+
+
 
 1;
