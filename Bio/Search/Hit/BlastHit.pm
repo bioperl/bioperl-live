@@ -528,12 +528,13 @@ sub hit_length { shift->length( @_ ); }
            :            2-element list (1.2, -34)  (see Comments).
  Throws    : n/a
  Comments  : The signif() method provides a way to deal with the fact that
-           : Blast1 and Blast2 formats differ in what is reported in the
-           : description lines of each hit in the Blast report. The signif()
-           : method frees any client code from having to know if this is a P-value
-           : or an Expect value, making it easier to write code that can process 
-           : both Blast1 and Blast2 reports. This is not necessarily a good thing, since
-           : one should always know when one is working with P-values or
+           : Blast1 and Blast2 formats (and WU- vs. NCBI-BLAST) differ in 
+           : what is reported in the description lines of each hit in the 
+           : Blast report. The signif() method frees any client code from 
+           : having to know if this is a P-value or an Expect value, 
+           : making it easier to write code that can process both 
+           : Blast1 and Blast2 reports. This is not necessarily a good thing, 
+           : since one should always know when one is working with P-values or
            : Expect values (hence the deprecated status).
            : Use of expect() is recommended since all hits will have an Expect value.
            :
