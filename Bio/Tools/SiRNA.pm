@@ -18,7 +18,7 @@ SiRNA - Perl object for designing small inhibitory RNAs.
 
   use Bio::Tools::SiRNA;
 
-  my $sirna_designer = Bio::Tools::SiRNA->new( -target => $bio_rich_seq );
+  my $sirna_designer = Bio::Tools::SiRNA->new( -target => $bio_seq );
   my @pairs = $sirna_designer->design;
 
   foreach $pair (@pairs) {
@@ -34,7 +34,7 @@ SiRNA - Perl object for designing small inhibitory RNAs.
 
 Package for designing SiRNA reagents.
 
-Input is a Bio::RichSeq object (the target).
+Input is a Bio::SeqI-compliant object (the target).
 
 Output is a list of Bio::SeqFeature::SiRNA::Pair objects, which are
 added to the feature table of the target sequence.  Each
@@ -49,11 +49,17 @@ http://www.mpibpc.gwdg.de/abteilungen/100/105/sirna.html).  They
 describe three rules for RNAi oligos, which I label as rank 1 (best),
 2, and 3 (worst).
 
-I added two modifications: SiRNAs that overlap known SNPs (identified
-as SeqFeatures with primary tag = variation) are avoided, and other
-regions (with primary tag = 'Excluded') can also be skipped.  I use
-this with Bio::Tools::Run::Mdust to avoid low-complexity regions (must
-be run separately), but other programs could also be used.
+I added three modifications: 
+
+1. SiRNAs that overlap known SNPs (identified as SeqFeatures with 
+primary tag = variation) are avoided, 
+
+2. Other regions (with primary tag = 'Excluded') can also be skipped.  
+I use this with Bio::Tools::Run::Mdust to avoid low-complexity 
+regions (must be run separately), but other programs could also be used.
+
+3. SiRNAs may also be selected in the 3 prime UTR of a gene
+by setting $sirna_designer->include_3pr() to true.
 
 =head2 EXPORT
 
@@ -141,6 +147,7 @@ our @ARGNAMES = qw(START_PAD END_PAD MIN_GC CUTOFF OLIGOS AVOID_SNPS
  Args		: target - the target sequence for the SiRNAs as a Bio::Seq::RichSeq
                   start_pad - distance from the CDS start to skip (default 75)
                   end_pad - distance from the CDS end to skip (default 50)
+                  include_3pr - set to true to include SiRNAs in the 3prime UTR (default false)
                   min_gc - minimum GC fraction (NOT percent) (default 0.4)
                   max_gc - maximum GC fraction (NOT percent) (default 0.6)
                   cutoff - worst 'rank' accepted(default 3)
@@ -167,6 +174,7 @@ sub new {
 
     $self->{'start_pad'} = $args{'START_PAD'} || 75; # nt from start to mask
     $self->{'end_pad'} = $args{'END_PAD'} || 50; # nt from end to mask
+    $self->{'include_3pr'} = $args{'INCLUDE_3PR'} || 0; # look for oligos in 3prime UTR
     $self->{'min_gc'} = $args{'MIN_GC'} || 0.40;
     $self->{'max_gc'} = $args{'MAX_GC'} || 0.60;
     $self->{'cutoff'} = $args{'CUTOFF'} || 3; # highest (worst) rank wanted
@@ -190,9 +198,9 @@ sub new {
   Usage		: my $target_seq = $sirna_designer->target(); # get the current target
                   OR 
                   $sirna_designer->target($new_target_seq); # set a new target 
-  Function	: Set/get the target as a Bio::Seq::RichSeq object
-  Returns	: a Bio::Seq::RichSeq object
-  Args		: a Bio::Seq::RichSeq object (optional)
+  Function	: Set/get the target as a Bio::SeqI-compliant object
+  Returns	: a Bio::SeqI-compliant object
+  Args		: a Bio::SeqI-compliant object (optional)
 
 =cut
 
@@ -200,16 +208,23 @@ sub target {
     my ($self, $target) = @_;
 
     if ($target) {
-	unless ($target->isa('Bio::Seq::RichSeq')) {
+	unless ($target->isa('Bio::SeqI')) {
 	    $self->throw(  -class => 'Bio::Root::BadParameter',
-			   -text  => "Target must be passed as a Bio::Seq::RichSeq object" );
+			   -text  => "Target must be passed as a Bio::Seq object" );
 	}
-	unless ( grep { uc($target->molecule) eq $_ } qw(DNA MRNA CDNA)) {
-	    $self->throw(  -class => 'Bio::Root::BadParameter',
-			   -text  =>  "Sequences of type ". $target->molecule. " are not supported"
-			   );
-        }
-
+	if ($target->can('molecule')) {
+	    ( grep { uc($target->molecule) eq $_ } qw(DNA MRNA CDNA)) or
+		$self->throw(  -class => 'Bio::Root::BadParameter',
+			       -text  =>  "Sequences of type ". $target->molecule. " are not supported"
+			       );
+	}
+	else {
+	    ($target->alphabet eq 'dna') or 
+		$self->throw(  -class => 'Bio::Root::BadParameter',
+			       -text  =>  "Sequences of alphabet ". $target->alphabet. " are not supported"
+			       );
+	}
+	
 	$self->{'target'} = $target;
 	return 1;
 
@@ -253,15 +268,26 @@ sub _define_target {
     my $target = $self->target or 
 	$self->throw("Unable to design oligos - no target provided");
 
-    ($cds) = grep { $_->primary_tag eq 'CDS' } $target->top_SeqFeatures;
+    ($cds) = grep { $_->primary_tag eq 'CDS' } $target->top_SeqFeatures if ($target->can('top_SeqFeatures'));
     
     if ($cds) {
-	$left = $cds->start + $self->end_pad;
-	$right = $cds->end - $self->start_pad;	
+	$left = $cds->start + $self->start_pad;
+	if (!$self->include_3pr) {
+	    $right = $cds->end - $self->end_pad;
+	}
+	else {
+	    $right = $target->length - $self->end_pad;
+	}
     }
     else {
-	$left = $target->start + $self->end_pad;
-	$right = $target->end - $self->start_pad;
+	$left = 0 + $self->start_pad;
+	$right = $target->length - $self->end_pad;
+    }
+
+
+    # is there anything left?
+    if (($right - $left) < 20) {
+	$self->throw("There isn't enough sequence to design oligos.  Please reduce start_pad and end_pad or supply more sequence");
     }
     # define target region 
     my $targregion = Bio::SeqFeature::Generic->new( -start 		=> $left,
