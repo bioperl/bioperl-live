@@ -81,29 +81,34 @@
       Some Bioperl neophytes may also be new to object-oriented
       programming (OOP) and this notion of an object. OOP is not the
       subject of this HOWTO but I do want to touch on how objects are
-      used in Bioperl. In the object-oriented world parsing a
+      used in Bioperl. In the Bioperl world parsing a
       Genbank file doesn't give you data, it gives you an object and you
-      can ask the object, a kind of variable, for data. While annotating you don't create a
+      can ask the object, a kind of variable, for data. While 
+      annotating you don't create a
       file or database entry directly. You might create a "sequence
       object" and an "annotation object", then put these two
       together to create an "annotated sequence object". You could then tell
       this object to make a version of itself as a file, or pass this
-      object to a "database object" for entry. In a sense a
-      bit more complicated but in another way very flexible and
-      logical, since each kind of data is treated independently.
+      object to a "database object" for entry. This is a very flexible and
+      logical way to design a complex piece of software like Bioperl, 
+      since each part
+      of the system can be created and evaluated separately. 
     </para>
     <para>
-      The Bioperl authors use Perl in an object-oriented way so each
-      module, or object, inherits at least some of its capabilities from
-      another object, a parent. The OOP approach also allows new modules to 
+      A central idea in OOP is inheritance,
+      which means that a child object can derive some of its 
+      capabilities from a parent object. The OOP approach also allows 
+      new modules to 
       modify or add functionality, distinct from the parent. Practically
       speaking this means that there's not one definitive SeqFeature
       or Annotation object but many, each a variation on a theme. The
-      details of the these varieties will be discussed in other sections, but for now
+      details of the these varieties will be discussed in other 
+      sections, but for now
       we could use some broad definitions that apply to all the variations. 
     </para>
     <para>
-      A SeqFeature object is designed to be associated with a sequence, and can have
+      A SeqFeature object is designed to be associated with a 
+      sequence, and can have
       a location on that sequence - it's a way of describing the
       characteristics of a specific part of a sequence. SeqFeature objects 
       can also have features themselves, which you
@@ -155,15 +160,16 @@
       </programlisting>
     </para>
 
-<note><para>
-      This object, $seq_object, is actually a 
-<ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Seq/RichSeq.html">Bio::Seq::RichSeq</ulink> 
-      object - can a 
- <ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/PrimarySeq.html">PrimarySeq</ulink> object, the simple parent of all Sequence objects, 
-      have a feature or an annotation? No. 
-    </para>
-	</note>
-
+    <note>
+      <para>
+	This object, $seq_object, is actually a 
+	<ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Seq/RichSeq.html">Bio::Seq::RichSeq</ulink> 
+	object - can a 
+	<ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/PrimarySeq.html">PrimarySeq</ulink> object, the simple parent of all Sequence objects, 
+	have a feature or an annotation? No. 
+      </para>
+    </note>
+    
     <para>
     </para>
     <para>
@@ -240,14 +246,16 @@ FEATURES             Location/Qualifiers
       part, no, you can write lots of useful and powerful Bioperl code
       without ever knowing these specific details.
     </para>
-      <tip><para>
+    <tip>
+      <para>
 	By the way, how does one know what kind of object one has in hand? Try
 	something like:
 	<programlisting>
 	  print ref($seq_object);
 	  # results in "Bio::Seq::RichSeq"
 	</programlisting>
-      </para></tip>
+      </para>
+    </tip>
     <para>
     </para>
     <para>
@@ -372,19 +380,27 @@ FEATURES             Location/Qualifiers
       each sub-sequence, use <function>spliced_seq()</function>. Here
       are the methods and the corresponding example coordinates:
     </para>
-    <table>
-      <title>Sequence retrieval methods</title>
-      <tgroup cols="2">
-	<thead>
-	  <row><entry>Method</entry><entry>Coordinates</entry></row>  
-	</thead>
-	<tbody>
-	  <row><entry>entire_seq()</entry><entry>1..177</entry></row>
-	  <row><entry>seq()</entry><entry>103..157</entry></row>
-	  <row><entry>spliced_seq()</entry><entry>103..111,121..157</entry></row>
- 	</tbody>
-      </tgroup>
-    </table>
+    <para>
+      <table>
+	<title>Sequence retrieval methods</title>
+	<tgroup cols="2">
+	  <thead>
+	    <row><entry>Method</entry><entry>Coordinates</entry></row>  
+	  </thead>
+	  <tbody>
+	    <row>
+	      <entry>entire_seq()</entry><entry>1..177</entry>
+	    </row>
+	    <row>
+	      <entry>seq()</entry><entry>103..157</entry>
+	    </row>
+	    <row>
+	      <entry>spliced_seq()</entry><entry>103..111,121..157</entry>
+	    </row>
+	  </tbody>
+	</tgroup>
+      </table>
+    </para>
     <para>
       It's not unusual for a Genbank file to have multiple CDS or gene
       features (and recall that 'CDS' or 'gene' are common primary tags
@@ -475,8 +491,8 @@ FEATURES             Location/Qualifiers
       have crept into Genbank, like "bond". When the Bioperl Genbank 
       parser encounters a non-standard
       feature like this it's going to throw a fatal exception. The 
-      work-around is to use <function>eval{}</function> so your script doesn't 
-      die, something like:
+      work-around is to use <function>eval{}</function> so your 
+      script doesn't die, something like:
     </para>
     <para>
       <programlisting>
@@ -499,9 +515,11 @@ FEATURES             Location/Qualifiers
       probably deserves its own HOWTO. This is my way of saying that
       if this topic interests you should take a closer look at the modules that
       are concerned with both Location and Range. Together these modules
-      offer the user a number of useful methods to handle both exact and "fuzzy"
+      offer the user a number of useful methods to handle both 
+      exact and "fuzzy"
       locations, where the "start" and "end" of a particular
-      sub-sequence are precise or themselves have start and end positions, or are
+      sub-sequence are precise or themselves have start and end 
+      positions, or are
       not precisely defined. You'll also find methods like 
       <function>union()</function> and
       <function>intersection()</function> that act on pairs of
@@ -687,27 +705,43 @@ tagname : date_changed
       The following is a list of some of the common Annotations, their
       keys in Bioperl, and what they're derived from in Genbank files: 
     </para>
-    <table>
-  <title>Genbank Annotations</title>
-      <tgroup cols="4">
-	<thead>
-	<row><entry>Genbank Text</entry><entry>Key</entry><entry>Object Type</entry><entry>Note</entry></row>  
-	</thead>
+    <para>
+      <table>
+	<title>Genbank Annotations</title>
+	<tgroup cols="4">
+	  <thead>
+	    <row><entry>Genbank Text</entry><entry>Key</entry><entry>Object Type</entry><entry>Note</entry></row>  
+	  </thead>
 	  <tbody>
-	  <row><entry>COMMENT</entry><entry>comment</entry><entry>Comment</entry><entry></entry></row>
-	  <row><entry>SEGMENT</entry><entry>segment</entry><entry>SimpleValue</entry><entry>e.g.
-	  "1 of 2"</entry></row>
-	  <row><entry>ORIGIN</entry><entry>origin</entry><entry>SimpleValue</entry><entry>e.g.
-	  "X Chromosome."</entry></row>
-	  <row><entry>REFERENCE</entry><entry>reference</entry><entry>Reference</entry><entry></entry></row>
-	  <row><entry>INV</entry><entry>date_changed</entry><entry>SimpleValue</entry><entry>e.g.
-	  "08-JUL-1994"</entry></row>
-	  <row><entry>KEYWORDS</entry><entry>keyword</entry><entry>SimpleValue</entry><entry></entry></row>
-	  <row><entry>ACCESSION</entry><entry>secondary_accession</entry><entry>SimpleValue</entry><entry>2nd
-	  of 2 accessions</entry></row>
-	</tbody>
-      </tgroup>
-    </table>
+	    <row>
+	      <entry>COMMENT</entry><entry>comment</entry><entry>Comment</entry><entry></entry>
+	    </row>
+	    <row>
+	      <entry>SEGMENT</entry><entry>segment</entry><entry>SimpleValue</entry><entry>e.g.
+		"1 of 2"</entry>
+	    </row>
+	    <row>
+	      <entry>ORIGIN</entry><entry>origin</entry><entry>SimpleValue</entry><entry>e.g.
+		"X Chromosome."</entry>
+	    </row>
+	    <row>
+	      <entry>REFERENCE</entry><entry>reference</entry><entry>Reference</entry><entry></entry>
+	    </row>
+	    <row>
+	      <entry>INV</entry><entry>date_changed</entry><entry>SimpleValue</entry><entry>e.g.
+		"08-JUL-1994"</entry>
+	    </row>
+	    <row>
+	      <entry>KEYWORDS</entry><entry>keyword</entry><entry>SimpleValue</entry><entry></entry>
+	    </row>
+	    <row>
+	      <entry>ACCESSION</entry><entry>secondary_accession</entry><entry>SimpleValue</entry><entry>2nd
+		of 2 accessions</entry>
+	    </row>
+	  </tbody>
+	</tgroup>
+      </table>
+    </para>
     <para>
       Some Annotation objects, like Reference, make use of a
       <function>hash_tree()</function> method, which returns a hash 
@@ -745,9 +779,9 @@ start: 1
     </programlisting>
     </para>
     <para>
-    Other Annotation objects, like SimpleValue, also have a
-    <function>hash_tree()</function> method but the hash isn't
-    populated with data and <function>as_text()</function> will suffice.
+      Other Annotation objects, like SimpleValue, also have a
+      <function>hash_tree()</function> method but the hash isn't
+      populated with data and <function>as_text()</function> will suffice.
     </para>
     <para>
       The simplest bits of Genbank text, like KEYWORDS, end up in these
@@ -768,7 +802,8 @@ start: 1
       </programlisting>
     </para>
     <para>
-      There's also <function>title()</function>, <function>publisher()</function>, 
+      There's also <function>title()</function>, 
+      <function>publisher()</function>, 
       <function>medline()</function>, <function>editors()</function>,
       <function>database()</function>, <function>pubmed()</function> 
       and a number of other methods.
@@ -778,9 +813,11 @@ start: 1
   <section id="direct">
     <title>Directly from the Sequence object</title>
     <para>
-      This is just a reminder that some of the "annotation" data in your sequence
+      This is just a reminder that some of the "annotation" data 
+      in your sequence
       files can be accessed directly, without looking at SeqFeatures or
-      Annotations. For example, if the Sequence object in hand is a Seq::RichSeq
+      Annotations. For example, if the Sequence object in hand is 
+      a Seq::RichSeq
       object then here are some useful methods:
     </para>
     <para>
@@ -791,12 +828,24 @@ start: 1
 	    <row><entry>Method</entry><entry>Returns</entry></row>  
 	  </thead>
 	  <tbody>
-	    <row><entry>get_secondary_accessions</entry><entry>array</entry></row>
-	    <row><entry>keywords</entry><entry>array</entry></row>
-	    <row><entry>get_dates</entry><entry>array</entry></row>
-	    <row><entry>seq_version</entry><entry>string</entry></row>
-	    <row><entry>pid</entry><entry>string</entry></row>
-	    <row><entry>division</entry><entry>string</entry></row>
+	    <row>
+	      <entry>get_secondary_accessions</entry><entry>array</entry>
+	    </row>
+	    <row>
+	      <entry>keywords</entry><entry>array</entry>
+	    </row>
+	    <row>
+	      <entry>get_dates</entry><entry>array</entry>
+	    </row>
+	    <row>
+	      <entry>seq_version</entry><entry>string</entry>
+	    </row>
+	    <row>
+	      <entry>pid</entry><entry>string</entry>
+	    </row>
+	    <row>
+	      <entry>division</entry><entry>string</entry>
+	    </row>
 	  </tbody>
 	</tgroup>
       </table>
