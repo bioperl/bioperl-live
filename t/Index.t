@@ -1,3 +1,6 @@
+# -*-Perl-*-
+# $Id$
+
 use strict;
 BEGIN {     
     eval { require Test; };
@@ -15,9 +18,8 @@ use Bio::Index::EMBL;
 use Bio::Index::GenBank;
 use Bio::Index::Swissprot;
 use Bio::DB::InMemoryCache;
-eval {foobar();
-  require Bio::DB::FileCache;	
-};
+eval { require Bio::DB::FileCache };
+
 use vars qw ($dir);
 
 ($Bio::Root::IO::FILESPECLOADED && File::Spec->can('cwd') && ($dir = File::Spec->cwd) ) ||
