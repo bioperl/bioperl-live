@@ -73,7 +73,7 @@ files. This situation may change.
 =head2 Parse a Fasta multiple-sequence file.
 
 If $file is not a valid filename, data will be read from STDIN.
-See the L<parse>() method for a complete description of parameters.
+See the L<parse()|parse> method for a complete description of parameters.
 
     use Bio::Tools::Fasta qw(:obj);
 
@@ -128,7 +128,7 @@ http://www.ncbi.nlm.nih.gov/htbin-post/Entrez/query?uid=2156132&form=6&db=m&Dopt
 
 =head1 USAGE
 
-A simple demo script is included with the central Bioperl distribution (L<INSTALLATION>)
+A simple demo script is included with the central Bioperl distribution (L<INSTALLATION | INSTALLATION>)
 and is also available from:
 
     http://bio.perl.org/Core/Examples/seq/
@@ -315,7 +315,7 @@ sub _initialize {
   since these are a much more complex data type and it would be unwieldy
   and dangerous to return parsed data unencapsulated from an object.
 
-See Also   : L<_parse_seq_stream>(), L<_set_id_desc>(), L<_get_parse_seq_func>()
+See Also   : L<_parse_seq_stream()|_parse_seq_stream>, L<_set_id_desc()|_set_id_desc>, L<_get_parse_seq_func()|_get_parse_seq_func>
 
 =cut
 
@@ -374,7 +374,7 @@ sub parse {
   sequence as it gets parsed, the client is free to decide what to
   do with it.
 
-See Also   : L<_get_parse_seq_func>(), B<Bio::Root::Object::read()>
+See Also   : L<_get_parse_seq_func()|_get_parse_seq_func>, B<Bio::Root::Object::read()>
 
 =cut
 
@@ -422,7 +422,7 @@ sub _parse_seq_stream {
            : each object will be destroyed after calling this function.
            : This prevents memory usage problems for large runs.
 
-See Also   : L<parse>(), L<_parse_seq_stream>(), B<Bio::Root::Object::_rearrange>()
+See Also   : L<parse()|parse>, L<_parse_seq_stream()|_parse_seq_stream>, B<Bio::Root::Object::_rearrange>()
 
 =cut
 
@@ -570,7 +570,7 @@ sub _get_parse_seq_func {
  Argument  : Boolean (optional)
  Throws    : n/a
 
-See Also   : L<_set_id_desc>(), L<_get_parse_seq_func>()
+See Also   : L<_set_id_desc()|_set_id_desc>, L<_get_parse_seq_func()|_get_parse_seq_func>
 
 =cut
 
@@ -592,7 +592,7 @@ sub edit_id {
  Argument  : Boolean (optional)
  Throws    : n/a
 
-See Also   : L<_get_parse_seq_func>()
+See Also   : L<_get_parse_seq_func()|_get_parse_seq_func>
 
 =cut
 
@@ -631,7 +631,7 @@ sub edit_seq {
            :
            : ID editing is somewhat experimental.
 
-See Also   : L<_get_parse_seq_func>(), L<edit_id>()
+See Also   : L<_get_parse_seq_func()|_get_parse_seq_func>, L<edit_id()|edit_id>
 
 =cut
 

@@ -186,11 +186,11 @@ or the web:
     bioperl-bugs@bio.perl.org                   
     http://bio.perl.org/bioperl-bugs/           
 
-=head1 AUTHOR - Steve Chervitz
+=head1 AUTHOR 
 
-sac@bioperl.org
+Steve Chervitz, E<lt>sac@bioperl.orgE<gt>
 
-See the L<FEEDBACK> section for where to send bug reports and comments.
+See the L<FEEDBACK | FEEDBACK> section for where to send bug reports and comments.
 
 =head1 ACKNOWLEDGEMENTS
 
@@ -200,6 +200,9 @@ feedback.
 =head1 COPYRIGHT
 
 Copyright (c) 2001 Steve Chervitz. All Rights Reserved.
+
+This library is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself.
 
 =cut
 

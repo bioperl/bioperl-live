@@ -41,8 +41,8 @@ Bio::Tools::Blast::Sbjct.pm - Bioperl BLAST "Hit" object
 
 =head2 Object Creation
 
-The construction of HSP objects is handled by B<Bio::Tools::Blast.pm>.
-You should not need to use this package directly. See L<_initialize>()
+The construction of HSP objects is handled by B<Bio::Tools::Blast>.
+You should not need to use this package directly. See L<_initialize()|_initialize>
 for a description of constructor parameters.
 
     require Bio::Tools::Blast::Sbjct;
@@ -93,9 +93,9 @@ without counting data in the overlapping regions multiple times, which
 would happen if data from each overlapping HSP are simply summed.  HSP
 tiling is performed automatically when methods of the Sbjct object
 that rely on tiled data are invoked. These include
-L<frac_identical>(), L<frac_conserved>(), L<gaps>(),
-L<frac_aligned_query>(), L<frac_aligned_hit>(),
-L<num_unaligned_query>(), L<num_unaligned_hit>().
+L<frac_identical()|frac_identical>, L<frac_conserved()|frac_conserved>, L<gaps()|gaps>,
+L<frac_aligned_query()|frac_aligned_query>, L<frac_aligned_hit()|frac_aligned_hit>,
+L<num_unaligned_query()|num_unaligned_query>, L<num_unaligned_hit()|num_unaligned_hit>.
 
 It also permits the assessment of an "ambiguous alignment" if the
 query (or sbjct) sequences from different HSPs overlap. The existence
@@ -104,7 +104,7 @@ sequence, such as a repeated domain.  The Sbjct object uses the
 -OVERLAP parameter to determine when two sequences overlap; if this is
 set to 2 -- the default -- then any two sbjct or query HSP sequences
 must overlap by more than two residues to get merged into the same
-contig and counted as an overlap. See the L<BUGS> section below for
+contig and counted as an overlap. See the L<BUGS | BUGS> section below for
 "issues" with HSP tiling.
 
 
@@ -121,22 +121,22 @@ The results of the HSP tiling is reported with the following ambiguity codes:
 
 
 For addition information about ambiguous BLAST alignments, see
-L<_tile_hsps>() and 
+L<_tile_hsps()|_tile_hsps> and 
 
  http://www-genome.stanford.edu/Sacch3D/help/ambig_aln.html
 
 =head1 DEPENDENCIES
 
-Bio::Tools::Blast::Sbjct.pm is a concrete class that inherits from B<Bio::Root::Object.pm>
+Bio::Tools::Blast::Sbjct.pm is a concrete class that inherits from B<Bio::Root::Object>
 and relies on two other modules:
 
 =over 4
 
-=item B<Bio::Tools::Blast::HSP.pm> 
+=item B<Bio::Tools::Blast::HSP> 
 
 Encapsulates a single high-scoring segment pair within a hit.
 
-=item B<Bio::Tools::Blast.pm>
+=item B<Bio::Tools::Blast>
 
 Provides a container for Sbjct.pm objects.
 
@@ -152,7 +152,7 @@ vector of Sbjct.pm objects.  Stay tuned.
 =head1 BUGS
 
 One consequence of the HSP tiling is that methods that rely on HSP
-tiling such as L<frac_identical>(), L<frac_conserved>(), L<gaps>()
+tiling such as L<frac_identical()|frac_identical>, L<frac_conserved()|frac_conserved>, L<gaps()|gaps>
 etc. may report misleading numbers when C<-OVERLAP> is set to a large
 number.  For example, say we have two HSPs and the query sequence tile
 as follows:
@@ -169,7 +169,7 @@ If C<-OVERLAP> is set to some number over 4, HSP1 and HSP2 will not be
 tiled into a single contig and their numbers of identical matches will
 be added, giving a total of 12, not 10 if they had be combined into
 one contig. This can lead to number greater than 1.0 for methods
-L<frac_identical>() and L<frac_conserved>(). This is less of an issue
+L<frac_identical()|frac_identical> and L<frac_conserved()|frac_conserved>. This is less of an issue
 with gapped Blast since it tends to combine HSPs that would be listed
 separately without gapping.  (Fractions E<gt>1.0 can be viewed as a
 signal for an interesting alignment that warrants further inspection,
@@ -222,7 +222,7 @@ or the web:
 
 Steve Chervitz, sac@bioperl.org
 
-See the L<FEEDBACK> section for where to send bug reports and comments.
+See the L<FEEDBACK | FEEDBACK> section for where to send bug reports and comments.
 
 =head1 COPYRIGHT
 
@@ -283,7 +283,7 @@ for documentation purposes only.
            :                    HSPs when tiling)
 	   :	 -PROGRAM    => string (type of Blast blastp, blastn, etc).
 
-See Also   : L<_set_id>(), L<_set_hsps>(), L<_tile_hsps>(), B<Bio::Root::Object.pm>::new, B<Bio::Tools::Blast.pm>::_set_hit_db
+See Also   : L<_set_id()|_set_id>, L<_set_hsps()|_set_hsps>, L<_tile_hsps()|_tile_hsps>, B<Bio::Root::Object::new()>, B<Bio::Tools::Blast::_set_hit_db()>
 
 =cut
 
@@ -368,7 +368,7 @@ sub rank {
            : or first line of an alignment section.
  Throws    : Warning if cannot locate sequence ID.
 
-See Also   : L<_initialize>(), B<Bio::Tools::Blast.pm>::database
+See Also   : L<_initialize()|_initialize>, B<Bio::Tools::Blast::database()>
 
 =cut
 
@@ -455,7 +455,7 @@ sub _set_id {
            : While this sacrifices some memory efficiency, it
            : improves access speed for these critical data.
 
-See Also   : L<_initialize>(), L<_set_desc>()
+See Also   : L<_initialize()|_initialize>, L<_set_desc()|_set_desc>
 
 =cut
 
@@ -705,7 +705,7 @@ sub _set_desc {
            : below 5 (DEFAULT IS 2). For more about this, see the "HSP Tiling and
            : Ambiguous Alignments" section.
 
-See Also   : L<_adjust_contigs>(), L<ambiguous_aln>(), L<overlap>(), L<frac_identical>(), L<frac_conserved>(), L<frac_aligned_query>(), L<frac_aligned_hit>(), L<num_unaligned_query>(), L<num_unaligned_hit>(), L<HSP Tiling and Ambiguous Alignments>
+See Also   : L<_adjust_contigs()|_adjust_contigs>, L<ambiguous_aln()|ambiguous_aln>, L<overlap()|overlap>, L<frac_identical()|frac_identical>, L<frac_conserved()|frac_conserved>, L<frac_aligned_query()|frac_aligned_query>, L<frac_aligned_hit()|frac_aligned_hit>, L<num_unaligned_query()|num_unaligned_query>, L<num_unaligned_hit()|num_unaligned_hit>, L<HSP Tiling and Ambiguous Alignments>
 
 =cut
 
@@ -848,7 +848,7 @@ sub _tile_hsps {
            : This will lead to significant tracking errors for large
            : overlap values.
 
-See Also   : L<overlap>(), L<_tile_hsps>(), B<Bio::Tools::Blast::HSP.pm>::matches
+See Also   : L<overlap()|overlap>, L<_tile_hsps()|_tile_hsps>, B<Bio::Tools::Blast::HSP>::matches
 
 =cut
 
@@ -943,7 +943,7 @@ sub _adjust_contigs {
  Throws    : n/a
  Status    : Experimental
 
-See Also   : L<_tile_hsps>(),  L<HSP Tiling and Ambiguous Alignments>
+See Also   : L<_tile_hsps()|_tile_hsps>,  L<HSP Tiling and Ambiguous Alignments>
 
 =cut
 
@@ -971,7 +971,7 @@ sub ambiguous_aln {
            : to the overlap() number of resides will be considered separate HSPs
            : and will not get tiled by _adjust_contigs().
 
-See Also   : L<_adjust_contigs>(), L<BUGS>
+See Also   : L<_adjust_contigs()|_adjust_contigs>, L<BUGS | BUGS>
 
 =cut
 
@@ -995,7 +995,7 @@ sub overlap {
  Argument  : n/a
  Throws    : n/a
 
-See Also   : L<bits>()
+See Also   : L<bits()|bits>
 
 =cut
 
@@ -1028,7 +1028,7 @@ sub score {
  Throws    : Exception if bit score is not set.
  Comments  : For BLAST1, the non-bit score is listed in the summary line.
 
-See Also   : L<score>()
+See Also   : L<score()|score>
 
 =cut
 
@@ -1069,7 +1069,7 @@ sub bits {
            : HSPs in the alignment listing, which may exceed N in
            : some cases.
 
-See Also   : L<num_hsps>()
+See Also   : L<num_hsps()|num_hsps>
 
 =cut
 
@@ -1103,7 +1103,7 @@ sub n {
  Argument  : n/a
  Throws    : Exception if HSPs have not been set (BLAST2 reports).
 
-See Also   : L<hsps>()
+See Also   : L<hsps()|hsps>
 
 =cut
 
@@ -1152,7 +1152,7 @@ sub frame {
            : That is, floats are not converted into sci notation before
            : splitting into parts.
 
-See Also   : L<expect>(), L<signif>(), L<get_exponent>()
+See Also   : L<expect()|expect>, L<signif()|signif>, L<get_exponent()|get_exponent>
 
 =cut
 
@@ -1208,7 +1208,7 @@ sub p {
            : That is, floats are not converted into sci notation before
            : splitting into parts.
 
-See Also   : L<p>(), L<signif>(), L<get_exponent>()
+See Also   : L<p()|p>, L<signif()|signif>, L<get_exponent()|get_exponent>
 
 =cut
 
@@ -1271,7 +1271,7 @@ sub expect {
            : That is, floats are not converted into sci notation before
            : splitting into parts.
 
-See Also   : L<p>(), L<expect>(), L<get_exponent>()
+See Also   : L<p()|p>, L<expect()|expect>, L<get_exponent()|get_exponent>
 
 =cut
 
@@ -1308,7 +1308,7 @@ sub signif {
            : description string to be returned.
  Throws    : n/a
 
-See Also   : L<_set_desc>()
+See Also   : L<_set_desc()|_set_desc>
 
 =cut
 
@@ -1358,7 +1358,7 @@ sub database { my $self = shift; return $self->{'_db'}; }
  Argument  : n/a. Relies on wantarray
  Throws    : Exception if the HSPs have not been collected.
 
-See Also   : L<hsp>(), L<num_hsps>(), L<_set_hsps>()
+See Also   : L<hsp()|hsp>, L<num_hsps()|num_hsps>, L<_set_hsps()|_set_hsps>
 
 =cut
 
@@ -1395,7 +1395,7 @@ sub hsps {
  Throws    : Exception if the HSPs have not been collected.
            : Exception if an unrecognized argument is used.
 
-See Also   : L<hsps>(), L<num_hsps>(), L<_set_hsps>()
+See Also   : L<hsps()|hsps>, L<num_hsps()|num_hsps>, L<_set_hsps()|_set_hsps>
 
 =cut
 
@@ -1429,7 +1429,7 @@ sub hsp {
  Argument  : n/a
  Throws    : Exception if the HSPs have not been collected.
 
-See Also   : L<hsps>()
+See Also   : L<hsps()|hsps>
 
 =cut
 
@@ -1458,7 +1458,7 @@ sub num_hsps {
  Comments  : Developer note: when using the built-in length function within
            : this module, call it as CORE::length().
 
-See Also   : L<logical_length>(),  L<length_aln>()
+See Also   : L<logical_length()|logical_length>,  L<length_aln()|length_aln>
 
 =cut
 
@@ -1486,7 +1486,7 @@ sub length {
            : which need to operate in amino acid coordinate space when dealing
            : with [T]BLAST[NX] type reports.
 
-See Also   : L<length>(), L<frac_aligned_query>(), L<frac_aligned_hit>()
+See Also   : L<length()|length>, L<frac_aligned_query()|frac_aligned_query>, L<frac_aligned_hit()|frac_aligned_hit>
 
 =cut
 
@@ -1532,7 +1532,7 @@ sub logical_length {
            : If you don't want the tiled data, iterate through each HSP
            : calling length() on each (use hsps() to get the HSPs).
 
-See Also   : L<length>(), L<frac_aligned_query>(), L<frac_aligned_hit>(), L<gaps>(), L<_tile_hsps>(), B<Bio::Tools::Blast::HSP::length()>
+See Also   : L<length()|length>, L<frac_aligned_query()|frac_aligned_query>, L<frac_aligned_hit()|frac_aligned_hit>, L<gaps()|gaps>, L<_tile_hsps()|_tile_hsps>, B<Bio::Tools::Blast::HSP::length()>
 
 =cut
 
@@ -1578,7 +1578,7 @@ sub length_aln {
            : such as printf "%d", $hit->gaps() in which you might expect to 
            : be printing the total gaps, but evaluates to array context.
 
-See Also   : L<length_aln>()
+See Also   : L<length_aln()|length_aln>
 
 =cut
 
@@ -1630,7 +1630,7 @@ sub gaps {
            : Does not rely on wantarray to return a list. Only checks for
            : the presence of an argument (no arg = return list).
 
-See Also   : B<Bio::Tools::Blast::HSP::matches()>, L<hsps>()
+See Also   : B<Bio::Tools::Blast::HSP::matches()>, L<hsps()|hsps>
 
 =cut
 
@@ -1681,7 +1681,7 @@ sub matches {
            : normalized so that start < end. Strand information can only be
            : obtained on an HSP-by-HSP basis by calling $hsp->strand().
 
-See Also   : L<end>(), L<range>(), L<HSP Tiling and Ambiguous Alignments>, B<Bio::Tools::Blast::HSP::start>()
+See Also   : L<end()|end>, L<range()|range>, L<HSP Tiling and Ambiguous Alignments>, B<Bio::Tools::Blast::HSP::start>()
 
 =cut
 
@@ -1729,7 +1729,7 @@ sub start {
            : normalized so that start < end. Strand information can only be
            : obtained on an HSP-by-HSP basis by calling $hsp->strand().
 
-See Also   : L<start>(), L<range>(), L<HSP Tiling and Ambiguous Alignments>, B<Bio::Tools::Blast::HSP::end>()
+See Also   : L<start()|start>, L<range()|range>, L<HSP Tiling and Ambiguous Alignments>, B<Bio::Tools::Blast::HSP::end>()
 
 =cut
 
@@ -1767,7 +1767,7 @@ sub end {
            : (case insensitive).
  Throws    : n/a
 
-See Also   : L<start>(), L<end>()
+See Also   : L<start()|start>, L<end()|end>
 
 =cut
 
@@ -1810,7 +1810,7 @@ sub range {
            : This method requires that all HSPs be tiled. If they have not
            : already been tiled, they will be tiled first.
 
-See Also   : L<frac_conserved>(), L<frac_aligned_query>(), L<matches>(), L<_tile_hsps>()
+See Also   : L<frac_conserved()|frac_conserved>, L<frac_aligned_query()|frac_aligned_query>, L<matches()|matches>, L<_tile_hsps()|_tile_hsps>
 
 =cut
 
@@ -1860,7 +1860,7 @@ sub frac_identical {
            : This method requires that all HSPs be tiled. If they have not
            : already been tiled, they will be tiled first.
 
-See Also   : L<frac_identical>(), L<matches>(), L<_tile_hsps>()
+See Also   : L<frac_identical()|frac_identical>, L<matches()|matches>, L<_tile_hsps()|_tile_hsps>
 
 =cut
 
@@ -1901,7 +1901,7 @@ sub frac_conserved {
            : This method requires that all HSPs be tiled. If they have not
            : already been tiled, they will be tiled first.
 
-See Also   : L<frac_aligned_hit>(), L<_tile_hsps>(), L<logical_length>(), L<length_aln>()
+See Also   : L<frac_aligned_hit()|frac_aligned_hit>, L<_tile_hsps()|_tile_hsps>, L<logical_length()|logical_length>, L<length_aln()|length_aln>
 
 =cut
 
@@ -1937,7 +1937,7 @@ sub frac_aligned_query {
            : This method requires that all HSPs be tiled. If they have not
            : already been tiled, they will be tiled first.
 
-See Also   : L<frac_aligned_query>(), L<matches>(), L<_tile_hsps>(), L<logical_length>(), L<length_aln>()
+See Also   : L<frac_aligned_query()|frac_aligned_query>, L<matches()|matches>, L<_tile_hsps()|_tile_hsps>, L<logical_length()|logical_length>, L<length_aln()|length_aln>
 
 =cut
 
@@ -1980,7 +1980,7 @@ sub num_unaligned_sbjct {  my $self=shift; $self->num_unaligned_hit(@_); }
            : This method requires that all HSPs be tiled. If they have not
            : already been tiled, they will be tiled first.
 
-See Also   : L<num_unaligned_query>(), L<_tile_hsps>(), L<frac_aligned_hit>()
+See Also   : L<num_unaligned_query()|num_unaligned_query>, L<_tile_hsps()|_tile_hsps>, L<frac_aligned_hit()|frac_aligned_hit>
 
 =cut
 
@@ -2012,7 +2012,7 @@ sub num_unaligned_hit {
            : This method requires that all HSPs be tiled. If they have not
            : already been tiled, they will be tiled first.
 
-See Also   : L<num_unaligned_hit>(), L<_tile_hsps>(), L<frac_aligned_query>()
+See Also   : L<num_unaligned_hit()|num_unaligned_hit>, L<_tile_hsps()|_tile_hsps>, L<frac_aligned_query()|frac_aligned_query>
 
 =cut
 
@@ -2096,7 +2096,7 @@ sub seq_inds {
  Status    : Deprecated, Buggy.
            : Use Blast::table() or Blast::table_tiled() instead.
 
-See Also   : L<_display_stats>(), L<_display_hsps>(), B<Bio::Root::Object.pm>::display
+See Also   : L<_display_stats()|_display_stats>, L<_display_hsps()|_display_hsps>, B<Bio::Root::Object>::display
 
 =cut
 
@@ -2127,7 +2127,7 @@ sub display {
  Status    : Deprecated, Buggy.
            : Use Blast::table() or Blast::table_tiled() instead.
 
-See Also   : L<display>()  
+See Also   : L<display()|display>  
 
 =cut
 
@@ -2173,7 +2173,7 @@ sub _display_stats {
  Returns   : printf call.
  Status    : Experimental
 
-See Also   : L<display>(), B<Bio::Tools::Blast::HSP.pm>::display 
+See Also   : L<display()|display>, B<Bio::Tools::Blast::HSP::display()> 
 
 =cut
 

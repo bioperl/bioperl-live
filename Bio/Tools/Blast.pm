@@ -99,7 +99,7 @@ Full parameters for parsing Blast reports.
 		-save_array      => \@blast_objs,  # not used if -exce_func defined.
 	       );
 
-See L<parse>() for a description of parameters and see L<USAGE> for
+See L<parse()|parse> for a description of parameters and see L<USAGE | USAGE> for
 more examples including how to parse streams containing multiple Blast
 reports L<Using the Static $Blast Object>.
 
@@ -145,7 +145,7 @@ Full parameters for running Blasts at NCBI using Webblast.pm:
 	      -min_len  => undef,  # use default
 	      );
 
-See L<run>() and L<USAGE> for more information about running Blasts.
+See L<run()|run> and L<USAGE | USAGE> for more information about running Blasts.
 
 =head2 HTML-formatting Blast reports
 
@@ -161,7 +161,7 @@ Print an HTML-formatted version of a Blast report:
     $Blast->to_html();  # use STDIN
 
 Results are sent directly to STDOUT unless an C<-out =E<gt> array_ref>
-parameter is supplied. See L<to_html>() for details.
+parameter is supplied. See L<to_html()|to_html> for details.
 
 =head1 INSTALLATION
 
@@ -185,7 +185,7 @@ The ways in which researchers use Blast data are many and varied. This
 module attempts to be general and flexible enough to accommodate
 different uses. The Blast module API is still at an early stage of
 evolution and I expect it to continue to evolve as new uses for Blast
-data are developed. Your L<FEEDBACK> is welcome.
+data are developed. Your L<FEEDBACK | FEEDBACK> is welcome.
 
 B<FEATURES:>
 
@@ -199,17 +199,17 @@ Can parse HTML-formatted as well as non-HTML-formatted reports.
 =item * Launch new Blast analyses remotely or locally.
 
 Blast objects can be constructed directly from the results of the
-run. See L<run>().
+run. See L<run()|run>.
 
 =item * Construct Blast objects from pre-existing files or from a new run.
 
 Build a Blast object from a single file or build multiple Blast
 objects from an input stream containing multiple reports. See
-L<parse>().
+L<parse()|parse>.
 
 =item * Add hypertext links from a BLAST report.
 
-See L<to_html>().
+See L<to_html()|to_html>.
 
 =item * Generate sequence and sequence alignment objects from HSP
 sequences.
@@ -217,7 +217,7 @@ sequences.
 If you have Bio::Seq.pm and Bio::UnivAln.pm installed on your system,
 they can be used for working with high-scoring segment pair (HSP)
 sequences in the Blast alignment.  (A new version of Bio::Seq.pm is
-included in the distribution, see L<INSTALLATION>).  For more
+included in the distribution, see L<INSTALLATION | INSTALLATION>).  For more
 information about them, see:
 
     http://bio.perl.org/Projects/Sequence/
@@ -227,8 +227,8 @@ information about them, see:
 
 A variety of different data can be extracted from the Blast report by
 querying the Blast.pm object. Some basic examples are given in the
-L<USAGE> section. For some working scripts, see the links provided in
-the L<DEMO SCRIPTS> section.
+L<USAGE | USAGE> section. For some working scripts, see the links provided in
+the L<DEMO SCRIPTS | DEMO SCRIPTS> section.
 
 As a part of the incipient Bioperl framework, the Bio::Tools::Blast.pm
 module inherits from B<Bio::Tools::SeqAnal.pm>, which provides some
@@ -328,10 +328,10 @@ stream.
 
 To parse the report, you must include a C<-parse =E<gt> 1> parameter
 in addition to any other parsing parameters
-See L<parse>() for a full description of parsing parameters.
+See L<parse()|parse> for a full description of parsing parameters.
 To run a new report and then parse it, include a C<-run =E<gt> \%runParams>
 parameter containing a reference to a hash
-that hold the parameters required by the L<run>() method.
+that hold the parameters required by the L<run()|run> method.
 
 The constructor for Blast objects is inherited from Bio::Tools::SeqAnal.pm.
 See the B<_initialize>() method of that package for general information
@@ -382,11 +382,11 @@ Using the static $Blast object for parsing a STDIN stream of Blast reports:
 Then pipe a stream of Blast reports into your script via STDIN.  For
 each Blast report extracted from the input stream, the parser will
 generate a new Blast object and pass it to the function specified by
-C<-exec_func>.  The L<destroy>() call tells Perl to free the memory
+C<-exec_func>.  The destroy() call tells Perl to free the memory
 associated with the object, important if you are crunching through
 many reports. This method is inherited from B<Bio::Root::Object.pm>
-(see L<Links to related modules>). See L<parse>() for a full
-description of parameters and L<DEMO SCRIPTS> for additional examples.
+(see L<Links to related modules>). See L<parse()|parse> for a full
+description of parameters and L<DEMO SCRIPTS | DEMO SCRIPTS> for additional examples.
 
 =head2 Running Blasts
 
@@ -394,7 +394,7 @@ To run a Blast, create a new Blast object with a C<-run =E<gt>
 \%runParams> parameter.  Remote Blasts are performed by including a
 C<-method =E<gt> 'remote'> parameter; local Blasts are performed by
 including a C<-method =E<gt> 'local'> parameter.  See 
-L<Running Blast reports> as well as the L<DEMO SCRIPTS> for examples.  
+L<Running Blast reports> as well as the L<DEMO SCRIPTS | DEMO SCRIPTS> for examples.  
 Note that running local Blasts is not yet supported, see below.
 
 Note that the C<-seqs =E<gt> [ $seqs ]> run parameter must contain a
@@ -402,7 +402,7 @@ reference to an array of B<Bio::Seq.pm> objects
 (L<Links to related modules>). Encapsulating the sequence in an 
 object makes sequence information much easier to handle as it can 
 be supplied in a variety of formats. Bio::Seq.pm is included with 
-this distribution (L<INSTALLATION>).
+this distribution (L<INSTALLATION | INSTALLATION>).
 
 Remote Blasts are implemented using the
 B<Bio::Tools::Blast::Run::Webblast.pm> module.  Local Blasts require
@@ -618,8 +618,8 @@ Or, to get strand information for both query and sbjct with a single call:
      print $blastObj->table(0);   # don't include hit descriptions.
      print $blastObj->table_tiled;
 
-The L<table>() method returns data for each B<HSP> of each hit listed one per
-line. The L<table_tiled>() method returns data for each B<hit, i.e., Sbjct>
+The L<table()|table> method returns data for each B<HSP> of each hit listed one per
+line. The L<table_tiled()|table_tiled> method returns data for each B<hit, i.e., Sbjct>
 listed one per line; data from multiple HSPs are combined after tiling to
 reduce overlaps. See B<Bio::Tools::Blast::Sbjct.pm> for more information about
 HSP tiling.  These methods generate stereotypical, tab-delimited data for each
@@ -630,8 +630,8 @@ you need a custom table.
 For either table method, descriptions of each hit can be included if a
 single, true argument is supplied (e.g., $blastObj-E<gt>table(1)). The description
 will be added as the last field. This will significantly increase the size of
-the table. Labels for the table columns can be obtained with L<table_labels>()
-and L<table_labels_tiled>().
+the table. Labels for the table columns can be obtained with L<table_labels()|table_labels>
+and L<table_labels_tiled()|table_labels_tiled>.
 
 =back
 
@@ -642,11 +642,11 @@ and L<table_labels_tiled>().
      $blastObj->display();
      $blastObj->display(-show=>'hits');
 
-L<display>() prints various statistics extracted from the Blast report
+L<display()|display> prints various statistics extracted from the Blast report
 such as database name, database size, matrix used, etc. The
 C<display(-show=E<gt>'hits')> call prints a non-tab-delimited table
 attempting to line the data up into more readable columns. The output
-generated is similar to L<table_tiled>().
+generated is similar to L<table_tiled()|table_tiled>.
 
 =back
 
@@ -665,7 +665,7 @@ generated is similar to L<table_tiled>().
      # You can also use a specific Blast object created previously.
      $blastObj->to_html;
 
-L<to_html>() will send HTML output, line-by-line, directly to STDOUT
+L<to_html()|to_html> will send HTML output, line-by-line, directly to STDOUT
 unless an C<-out =E<gt> array_ref> parameter is supplied (e.g., C<-out
 =E<gt> \@array>), in which case the HTML will be stored in @array, one
 line per array element.  The direct outputting permits faster response
@@ -678,7 +678,7 @@ Blast report.
 =head1 DEMO SCRIPTS
 
 Sample Scripts are included in the central bioperl distribution in the
-'examples/blast/' directory (see L<INSTALLATION>). These are also
+'examples/blast/' directory (see L<INSTALLATION | INSTALLATION>). These are also
 available at the following URLs (but it would be safer to use the
 scripts included with the distribution).
 
@@ -733,7 +733,7 @@ the webblast script by Alex Dong Li:
 for running remote Blast analyses and saving the results locally.  Run
 mode can be combined with a parse mode to generate a Blast report and
 then build the Blast object from the parsed results of this report
-(see L<run>() and L<SYNOPSIS>).
+(see L<run()|run> and L<SYNOPSIS | SYNOPSIS>).
 
 In read mode, the BLAST report is read in by the Blast object but is
 not parsed.  This could be used to internalize a Blast report but not
@@ -752,7 +752,7 @@ be screened based on:
   3) arbitrary criteria                -filt_func     function reference
 
 The parameters are used for construction of the BLAST object or when
-running the L<parse>() method on the static $Blast object.  The
+running the L<parse()|parse> method on the static $Blast object.  The
 -SIGNIF value represents the number listed in the description section
 at the top of the Blast report. For Blast2, this is an Expect value,
 for Blast1 and WashU-Blast2, this is a P-value.  The idea behind the
@@ -878,11 +878,11 @@ that fix the memory usage problem:
 
 =over 4
 
-=item 1 Don't specify a -signif criterion when calling L<parse>().
+=item 1 Don't specify a -signif criterion when calling L<parse()|parse>.
 
 The C<-signif> value is used for imposing a upper limit to the expect- or
 P-value for Blast hits to be parsed. For reasons that are still under
-investigation, specifying a value for C<-signif> in the L<parse>()
+investigation, specifying a value for C<-signif> in the L<parse()|parse>
 method prevents Blast objects from being fully
 garbage collected. When using the B<parse_blast.pl> or B<parse_multi.pl>
 scripts in C<examples/blast/> of the bioperl distribution), don't supply
@@ -891,7 +891,7 @@ a C<-signif> command-line parameter.
 =item 2 If you want to impose a -signif criterion, put it inside a
 -filt_func.
 
-For the L<parse>() method, a -signif =E<gt> 1e-5 parameter is equivalent
+For the L<parse()|parse> method, a -signif =E<gt> 1e-5 parameter is equivalent
 to using a filter function parameter of
 
  -filt_func => sub { my $hit = shift; return $hit->signif <= 1e-5; }
@@ -901,7 +901,7 @@ command-line argument of
 
  -filt_func '$hit->signif <= 1e-5'
 
-For more information, see L<parse>() and the section 
+For more information, see L<parse()|parse> and the section 
 L<Screening hits using arbitrary criteria>.
 
 =back
@@ -918,7 +918,7 @@ L<Screening hits using arbitrary criteria>.
 Blast report (if present).
 
 =item * Further investigate memory leak that occurs when parsing Blast
-streams whe supplying a -signif parameter to L<parse>().
+streams whe supplying a -signif parameter to L<parse()|parse>.
 
 =item * Access Blast results directly from the NCBI server using a
 Perl interface to the NCBI toolkit or XML formated Blast reports (when
@@ -963,7 +963,7 @@ or the web:
 
 Steve Chervitz, sac@bioperl.org
 
-See the L<FEEDBACK> section for where to send bug reports and comments.
+See the L<FEEDBACK | FEEDBACK> section for where to send bug reports and comments.
 
 =head1 ACKNOWLEDGEMENTS
 
@@ -1034,7 +1034,7 @@ L<References & Information about the BLAST program>.
 
 There is a memory leak that occurs when parsing parsing streams
 containing large numbers of Blast reports (a few thousand or so) and
-specifying a -signif parameter to the L<parse>() method. For a
+specifying a -signif parameter to the L<parse()|parse> method. For a
 workaround, see L<Memory Usage Issues>.
 
 Not sharing statistical parameters between different Blast objects
@@ -1148,7 +1148,7 @@ sub destroy {
            :
            : Support for running PSI-Blast is not complete.
 
-See Also:  L<_run_remote>(), L<_run_local>(), L<parse>()
+See Also:  L<_run_remote()|_run_remote>, L<_run_local()|_run_local>, L<parse()|parse>
 
 =cut
 
@@ -1219,7 +1219,7 @@ sub run {
            :      (When building a Blast object, this list would contain a
            :       single file from which the Blast object is to be constructed).
 
-See Also   : L<run>(), L<_run_local>(), B<Bio::Tools::Blast::Run::Webblast.pm::blast_remote()>, L<Links to related modules>
+See Also   : L<run()|run>, L<_run_local()|_run_local>, B<Bio::Tools::Blast::Run::Webblast.pm::blast_remote()>, L<Links to related modules>
 
 =cut
 
@@ -1257,7 +1257,7 @@ sub _run_remote {
            :      (When building a Blast object, this list would contain a
            :       single file from which the Blast object is to be constructed).
 
-See Also   : L<run>(), L<_run_remote>(), B<Bio::Tools::Blast::Run::LocalBlast::blast_local()>, L<Links to related modules>
+See Also   : L<run()|run>, L<_run_remote()|_run_remote>, B<Bio::Tools::Blast::Run::LocalBlast::blast_local()>, L<Links to related modules>
 
 =cut
 
@@ -1285,7 +1285,7 @@ sub _run_local {
            : It is convenient to call this method on the static $Blast object
            : as shown in Usage.
 
-See Also   : L<db_local>()
+See Also   : L<db_local()|db_local>
 
 =cut
 
@@ -1323,7 +1323,7 @@ sub db_remote {
            : It is convenient to call this method on the static $Blast object.
              as shown in Usage.
 
-See Also   : L<db_remote>()
+See Also   : L<db_remote()|db_remote>
 
 =cut
 
@@ -1438,7 +1438,7 @@ sub db_local {
            :    # where data contains full contents of an HTML-formatted report.
            : TODO: write a demo script that does this.
 
-See Also   : L<_init_parse_params>(), L<_parse_blast_stream>(), L<overlap>(), L<signif_fmt>(), B<Bio::Root::Object::read()>, B<Bio::Tools::Blast::HTML.pm::strip_html()>, L<Links to related modules>
+See Also   : L<_init_parse_params()|_init_parse_params>, L<_parse_blast_stream()|_parse_blast_stream>, L<overlap()|overlap>, L<signif_fmt()|signif_fmt>, B<Bio::Root::Object::read()>, B<Bio::Tools::Blast::HTML.pm::strip_html()>, L<Links to related modules>
 
 =cut
 
@@ -1487,7 +1487,7 @@ sub parse {
  Returns : n/a
  Args    : Args extracted by parse().
 
-See Also: L<parse>(), L<_set_signif>()
+See Also: L<parse()|parse>, L<_set_signif()|_set_signif>
 
 =cut
 
@@ -1547,7 +1547,7 @@ sub _init_parse_params {
            : If no $signif is defined, the '_significance' level is set to
            : $Bio::Tools::Blast::DEFAULT_SIGNIF (999).
 
-See Also   : L<signif>(), L<min_length>(), L<_init_parse_params>(), L<parse>()
+See Also   : L<signif()|signif>, L<min_length()|min_length>, L<_init_parse_params()|_init_parse_params>, L<parse()|parse>
 
 =cut
 
@@ -1594,7 +1594,7 @@ sub _set_signif {
  Argument  : Named parameters  (forwarded from parse())
  Throws    : Propagates any exception thrown by _get_parse_blast_func() and read().
 
-See Also   : L<_get_parse_blast_func>(), B<Bio::Root::Object::read()>
+See Also   : L<_get_parse_blast_func()|_get_parse_blast_func>, B<Bio::Root::Object::read()>
 
 =cut
 
@@ -1630,7 +1630,7 @@ sub _parse_blast_stream {
            : at present. It could perhaps be split up into separate
            : functions to make it more 'digestible'.
 
-See Also   : L<_parse_blast_stream>()
+See Also   : L<_parse_blast_stream()|_parse_blast_stream>
 
 =cut
 
@@ -1881,7 +1881,7 @@ sub _report_errors {
  Comments  : Description section contains a single line for each hit listing
            : the seq id, description, score, Expect or P-value, etc.
 
-See Also   : L<_get_parse_blast_func>()
+See Also   : L<_get_parse_blast_func()|_get_parse_blast_func>
 
 =cut
 
@@ -2067,7 +2067,7 @@ sub _process_significance {
            : non-significant hit.
            : See parse() for description of parsing parameters.
 
-See Also   : L<parse>(), L<_get_parse_blast_func>(), L<_report_errors>(), B<Bio::Tools::Blast::Sbjct()>, L<Links to related modules>
+See Also   : L<parse()|parse>, L<_get_parse_blast_func()|_get_parse_blast_func>, L<_report_errors()|_report_errors>, B<Bio::Tools::Blast::Sbjct()>, L<Links to related modules>
 
 =cut
 
@@ -2210,7 +2210,7 @@ sub _parse_alignment {
            : The determination whether to set additional stats is made
            : by methods called by _parse_footer().
 
-See Also   : L<parse>(), L<_parse_alignment>(), L<_set_database>()
+See Also   : L<parse()|parse>, L<_parse_alignment()|_parse_alignment>, L<_set_database()|_set_database>
 
 =cut
 
@@ -2314,7 +2314,7 @@ sub _parse_footer {
            : E, S, T, X, W.
  Throws    : Exception if cannot get "Parameters" section of Blast report.
 
-See Also   : L<parse>(), L<_parse_footer>(), L<_set_database>(), B<Bio::Tools::SeqAnal::set_date()>,L<Links to related modules>
+See Also   : L<parse()|parse>, L<_parse_footer()|_parse_footer>, L<_set_database()|_set_database>, B<Bio::Tools::SeqAnal::set_date()>,L<Links to related modules>
 
 =cut
 
@@ -2387,7 +2387,7 @@ sub _set_blast2_stats {
            : posted date, matrix used, filter used, Karlin-Altschul parameters,
            : E, S, T, X, W.
 
-See Also   : L<parse>(), L<_parse_footer>(), L<_set_database>(), B<Bio::Tools::SeqAnal::set_date()>,L<Links to related modules>
+See Also   : L<parse()|parse>, L<_parse_footer()|_parse_footer>, L<_set_database()|_set_database>, B<Bio::Tools::SeqAnal::set_date()>,L<Links to related modules>
 
 =cut
 
@@ -2472,7 +2472,7 @@ sub _set_blast1_stats {
            : and there is no positive "gapping" indicator in the Parameters
            : section.
 
-See Also   : L<_set_blast1_stats>()
+See Also   : L<_set_blast1_stats()|_set_blast1_stats>
 
 =cut
 
@@ -2496,7 +2496,7 @@ sub _set_gapping_wu {
            : Uses superclass method set_date() to set date from the file,
            : (if any).
 
-See Also   : L<_parse_footer>(), B<Bio::Tools::SeqAnal::set_date()>,L<Links to related modules>
+See Also   : L<_parse_footer()|_parse_footer>, B<Bio::Tools::SeqAnal::set_date()>,L<Links to related modules>
 
 =cut
 
@@ -2576,7 +2576,7 @@ sub _set_length {
  Comments  : The database name is used by methods or related objects
            : for database-specific parsing.
 
-See Also   : L<parse>(), B<Bio::Tools::SeqAnal::database()>,B<Bio::Tools::SeqAnal::_set_db_stats()>,L<Links to related modules>
+See Also   : L<parse()|parse>, B<Bio::Tools::SeqAnal::database()>,B<Bio::Tools::SeqAnal::_set_db_stats()>,L<Links to related modules>
 
 =cut
 
@@ -2775,7 +2775,7 @@ sub best {
            : Obtains info from the static $Blast object if it has not been set
            : for the current object.
 
-See Also   : L<_set_signif>()
+See Also   : L<_set_signif()|_set_signif>
 
 =cut
 
@@ -2798,7 +2798,7 @@ sub signif {
            : This obviates the need to check significant() for
            : such objects.
 
-See Also   : L<_set_signif>()
+See Also   : L<_set_signif()|_set_signif>
 
 =cut
 
@@ -2845,7 +2845,7 @@ sub signif_fmt {
  Comments  : Obtains info from the static $Blast object if it has not been set
            : for the current object.
 
-See Also   : L<_set_signif>(), L<signif>()
+See Also   : L<_set_signif()|_set_signif>, L<signif()|signif>
 
 =cut
 
@@ -2944,7 +2944,7 @@ sub _layout {
            : resulted from stringent significance criteria, not a failure
            : set the hits.
 
-See Also   : L<hit>(), L<num_hits>(), L<is_signif>(), L<_set_signif>()
+See Also   : L<hit()|hit>, L<num_hits()|num_hits>, L<is_signif()|is_signif>, L<_set_signif()|_set_signif>
 
 =cut
 
@@ -2992,7 +2992,7 @@ sub hits {
  Comments  : 'best'  = lowest significance value (P or Expect) among significant hits.
            : 'worst' = highest sigificance value (P or Expect) among significant hits.
 
-See Also   : L<hits>(), L<num_hits>(), L<is_signif>()
+See Also   : L<hits()|hits>, L<num_hits()|num_hits>, L<is_signif()|is_signif>
 
 =cut
 
@@ -3042,7 +3042,8 @@ sub hit {
            : used when parsing the report. Additionally, if a filter function
            : was supplied, the significant hit must also pass that
            : criteria.
-See Also   : L<hits>(), L<hit>(), L<is_signif>(), L<_set_signif>(), L<parse>()
+
+See Also   : L<hits()|hits>, L<hit()|hit>, L<is_signif()|is_signif>, L<_set_signif()|_set_signif>, L<parse()|parse>
 
 =cut
 
@@ -3078,7 +3079,7 @@ sub num_hits {
  Comments  : A value is returned regardless of whether or not there were
            : significant hits ($DEFAULT_SIGNIF, currently  999).
 
-See Also   : L<lowest_expect>(), L<lowest_signif>(), L<highest_p>(), L<signif_fmt>()
+See Also   : L<lowest_expect()|lowest_expect>, L<lowest_signif()|lowest_signif>, L<highest_p()|highest_p>, L<signif_fmt()|signif_fmt>
 
 =cut
 
@@ -3107,7 +3108,7 @@ sub lowest_p {
            : does not have Expect values on the description lines
            : (i.e., Blast1, WashU-Blast2).
 
-See Also   : L<lowest_p>(), L<lowest_signif>(), L<highest_expect>(), L<signif_fmt>()
+See Also   : L<lowest_p()|lowest_p>, L<lowest_signif()|lowest_signif>, L<highest_expect()|highest_expect>, L<signif_fmt()|signif_fmt>
 
 =cut
 
@@ -3145,7 +3146,7 @@ sub lowest_expect {
  Throws    : Exception if object is created from a Blast2 report
            : (which does not report P-values).
 
-See Also   : L<highest_signif>(), L<lowest_p>(), L<_set_signif>(), L<signif_fmt>()
+See Also   : L<highest_signif()|highest_signif>, L<lowest_p()|lowest_p>, L<_set_signif()|_set_signif>, L<signif_fmt()|signif_fmt>
 
 =cut
 
@@ -3178,7 +3179,7 @@ sub highest_p {
            : does not have Expect values on the description lines
            : (i.e., Blast1, WashU-Blast2).
 
-See Also   : L<lowest_expect>(), L<highest_signif>(), L<signif_fmt>()
+See Also   : L<lowest_expect()|lowest_expect>, L<highest_signif()|highest_signif>, L<signif_fmt()|signif_fmt>
 
 =cut
 
@@ -3227,7 +3228,7 @@ sub highest_expect {
            : Expect values (hence the deprecated status).
            : Use of lowest_expect() is recommended since all hits will have an Expect value.
 
-See Also   : L<lowest_p>(), L<lowest_expect>(), L<signif>(), L<signif_fmt>(), L<_set_signif>()
+See Also   : L<lowest_p()|lowest_p>, L<lowest_expect()|lowest_expect>, L<signif()|signif>, L<signif_fmt()|signif_fmt>, L<_set_signif()|_set_signif>
 
 =cut
 
@@ -3257,7 +3258,7 @@ sub lowest_signif {
  Status    : Deprecated. Use highest_expect() or highest_p().
  Comments  : Analogous to lowest_signif(), q.v.
 
-See Also   : L<lowest_signif>(), L<lowest_p>(), L<lowest_expect>(), L<signif>(), L<signif_fmt>(), L<_set_signif>()
+See Also   : L<lowest_signif()|lowest_signif>, L<lowest_p()|lowest_p>, L<lowest_expect()|lowest_expect>, L<signif()|signif>, L<signif_fmt()|signif_fmt>, L<_set_signif()|_set_signif>
 
 =cut
 
@@ -3384,7 +3385,7 @@ sub s { my $self = shift; $self->{'_s'} || $Blast->{'_s'}; }
  Argument  : n/a
  Returns   : integer or undef if not defined.
 
-See Also   : L<gap_extension>()
+See Also   : L<gap_extension()|gap_extension>
 
 =cut
 
@@ -3403,7 +3404,7 @@ sub gap_creation {
  Argument  : n/a
  Returns   : integer or undef if not defined.
 
-See Also   : L<gap_extension>()
+See Also   : L<gap_extension()|gap_extension>
 
 =cut
 
@@ -3551,7 +3552,7 @@ sub homol_data {
            : If you need more flexibility in the output format than this
            : method provides, design a custom function.
 
-See Also  : L<table_tiled>(), L<table_labels>(), L<_display_hits>()
+See Also  : L<table_tiled()|table_tiled>, L<table_labels()|table_labels>, L<_display_hits()|_display_hits>
 
 =cut
 
@@ -3596,7 +3597,7 @@ sub table {
            : Default: true (if not defined, include description column).
  Throws    : n/a
 
-See Also   : L<table>()
+See Also   : L<table()|table>
 
 =cut
 
@@ -3667,7 +3668,7 @@ sub table_labels {
  Comments  : This function relies on tiling of the HSPs since it calls
            : frac_identical() etc. on the hit as opposed to each HSP individually.
 
-See Also   : L<table>(), L<table_labels_tiled>(), B<Bio::Tools::Blast::Sbjct::"HSP Tiling and Ambiguous Alignments">, L<Links to related modules>
+See Also   : L<table()|table>, L<table_labels_tiled()|table_labels_tiled>, B<Bio::Tools::Blast::Sbjct::"HSP Tiling and Ambiguous Alignments">, L<Links to related modules>
 
 =cut
 
@@ -3707,7 +3708,7 @@ sub table_tiled {
            : Default: true (include description column).
  Throws    : n/a
 
-See Also   : L<table_tiled>()
+See Also   : L<table_tiled()|table_tiled>
 
 =cut
 
@@ -3750,7 +3751,7 @@ sub table_labels_tiled {
  Status    : Experimental
  Comments  : For tab-delimited output, see table().
 
-See Also   : L<_display_homol>(), L<_display_hits>(), L<_display_stats>(), L<table>(), B<Bio::Root::Tools::SeqAnal::display()>,L<Links to related modules>,
+See Also   : L<_display_homol()|_display_homol>, L<_display_hits()|_display_hits>, L<_display_stats()|_display_stats>, L<table()|table>, B<Bio::Root::Tools::SeqAnal::display()>,L<Links to related modules>,
 
 =cut
 
@@ -3776,7 +3777,7 @@ sub display {
  Returns   : printf call.
  Status    : Experimental
 
-See Also   : L<homol_data>(), L<display>()
+See Also   : L<homol_data()|homol_data>, L<display()|display>
 
 =cut
 
@@ -3803,7 +3804,7 @@ sub _display_homol {
  Returns   : printf call.
  Status    : Experimental
 
-See Also   : L<display>(), B<Bio::Tools::SeqAnal::_display_stats()>,L<Links to related modules>
+See Also   : L<display()|display>, B<Bio::Tools::SeqAnal::_display_stats()>,L<Links to related modules>
 
 =cut
 
@@ -3859,7 +3860,7 @@ sub _display_stats {
  Status    : Experimental
  Comments  : For tab-delimited output, see table().
 
-See Also   : L<display>(), B<Bio::Tools::Blast::Sbjct::display()>, L<table>(),  L<Links to related modules>
+See Also   : L<display()|display>, B<Bio::Tools::Blast::Sbjct::display()>, L<table()|table>,  L<Links to related modules>
 
 =cut
 

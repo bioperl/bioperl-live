@@ -44,7 +44,7 @@ Bio::Tools::Blast::HSP.pm - Bioperl BLAST High-Scoring Segment Pair object
 =head2 Object Creation
 
 The construction of HSP objects is handled by Bio::Tools::Blast:: Sbjct.pm. 
-You should not need to use this package directly. See L<_initialize>()
+You should not need to use this package directly. See L<_initialize()|_initialize>
 for a description of constructor parameters.
 
     require Bio::Tools::Blast::HSP;
@@ -104,9 +104,9 @@ respectively.
 =head2 Relationship to UnivAln.pm & Seq.pm
 
 HSP.pm can provide the query or sbjct sequence as a B<Bio::Seq.pm>
-object via the L<seq>() method. The HSP.pm object can also create a
+object via the L<seq()|seq> method. The HSP.pm object can also create a
 two-sequence B<Bio::UnivAln.pm> alignment object using the the query
-and sbjct sequences via the L<get_aln>() method. Creation of alignment
+and sbjct sequences via the L<get_aln()|get_aln> method. Creation of alignment
 objects is not automatic when constructing the HSP.pm object since
 this level of functionality is not always required and would generate
 a lot of extra overhead when crunching many reports.
@@ -134,7 +134,7 @@ or the web:
 
 =head1 AUTHOR
 
-Steve Chervitz, sac@bioperl.org
+Steve Chervitz, E<lt>sac@bioperl.orgE<gt>
 
 =head1 SEE ALSO
 
@@ -200,7 +200,7 @@ for documentation purposes only.
            :      -NAME    => integer (1..n).
            :      -PROGRAM => string ('TBLASTN', 'BLASTP', etc.).
 
-See Also   : L<_set_data>(), B<Bio::Root::Object::new()>, B<Bio::Tools::Blast::Sbjct::_set_hsps()>
+See Also   : L<_set_data()|_set_data>, B<Bio::Root::Object::new()>, B<Bio::Tools::Blast::Sbjct::_set_hsps()>
 
 =cut
 
@@ -232,7 +232,7 @@ sub _initialize {
  Argument  : Array (all lines from a single, complete HSP, one line per element)
  Throws    : Propagates any exceptions from the methods called ("See Also")
 
-See Also   : L<_set_seq>(), L<_set_residues>(), L<_set_score_stats>(), L<_set_match_stats>(), L<_initialize>()
+See Also   : L<_set_seq()|_set_seq>, L<_set_residues()|_set_residues>, L<_set_score_stats()|_set_score_stats>, L<_set_match_stats()|_set_match_stats>, L<_initialize()|_initialize>
 
 =cut
 
@@ -320,7 +320,7 @@ sub _set_data {
  Throws    : Exception if the stats cannot be parsed, probably due to a change
            : in the Blast report format.
 
-See Also   : L<_set_data>()
+See Also   : L<_set_data()|_set_data>
 
 =cut
 
@@ -390,7 +390,7 @@ sub _set_score_stats {
            : separately by examining the actual sequence strings as is done
            : in _set_seq().
 
-See Also   : L<_set_data>(), L<_set_seq>()
+See Also   : L<_set_data()|_set_data>, L<_set_seq()|_set_seq>
 
 =cut
 
@@ -443,7 +443,7 @@ sub _set_match_stats {
            : executed only upon demand by methods such as gaps(), _set_residues(),
            : etc. _set_seq() does the dirty work.
 
-See Also   : L<_set_seq>()
+See Also   : L<_set_seq()|_set_seq>
 
 =cut
 
@@ -481,7 +481,7 @@ sub _set_seq_data {
            : for TBLASTN/X hits on the minus strand. Normalization facilitates use
            : of range information by methods such as match().
 
-See Also   : L<_set_seq_data>(), L<matches>(), L<range>(), L<start>(), L<end>()
+See Also   : L<_set_seq_data()|_set_seq_data>, L<matches()|matches>, L<range()|range>, L<start()|start>, L<end()|end>
 
 =cut
 
@@ -559,7 +559,7 @@ sub _set_seq {
            : executed only upon demand by methods such as seq_inds().
            : Behavior is dependent on the type of BLAST analysis (TBLASTN, BLASTP, etc).
 
-See Also   : L<_set_seq_data>(), L<_set_match_seq>(), seq_inds()
+See Also   : L<_set_seq_data()|_set_seq_data>, L<_set_match_seq()|_set_match_seq>, L<seq_inds()|seq_inds>
 
 =cut
 
@@ -634,7 +634,7 @@ sub _set_residues {
            : allows it to be conditionally prepared.
            : Called by _set_residues>() and seq_str().
 
-See Also   : L<_set_residues>(), L<seq_str>()
+See Also   : L<_set_residues()|_set_residues>, L<seq_str()|seq_str>
 
 =cut
 
@@ -684,7 +684,7 @@ sub _set_match_seq {
  Argument  : n/a
  Throws    : n/a
 
-See Also   : L<bits>()
+See Also   : L<bits()|bits>
 
 =cut
 
@@ -703,7 +703,7 @@ sub score { my $self = shift; $self->{'_score'}; }
  Throws    : n/a
 
 
-See Also   : L<score>()
+See Also   : L<score()|score>
 
 =cut
 
@@ -727,7 +727,7 @@ sub bits { my $self = shift; $self->{'_bits'}; }
            : This typically is equal to the number of HSPs but not always.
            : To obtain the number of HSPs, use Bio::Tools::Blast::Sbjct::num_hsps().
 
-See Also   : L<score>()
+See Also   : L<score()|score>
 
 =cut
 
@@ -766,7 +766,7 @@ sub frame { my $self = shift; $self->{'_frame'} || ''; }
            : formats (e.g., exponent only), is not provided for HSP objects.
            : This is only available for the Sbjct or Blast object.
 
-See Also   : L<p>(), L<expect>(), B<Bio::Tools::Blast::Sbjct::signif()>
+See Also   : L<p()|p>, L<expect()|expect>, B<Bio::Tools::Blast::Sbjct::signif()>
 
 =cut
 
@@ -791,7 +791,7 @@ sub signif {
            : formats (e.g., exponent only), is not provided for HSP objects.
            : This is only available for the Sbjct or Blast object.
 
-See Also   : L<p>()
+See Also   : L<p()|p>
 
 =cut
 
@@ -813,7 +813,7 @@ sub expect { my $self = shift; $self->{'_expect'}; }
            : formats (e.g., exponent only) is not provided for HSP objects.
            : This is only available for the Sbjct or Blast object.
 
-See Also   : L<expect>()
+See Also   : L<expect()|expect>
 
 =cut
 
@@ -836,7 +836,7 @@ sub p { my $self = shift; $self->{'_p'}; }
            : Developer note: when using the built-in length function within
            : this module, call it as CORE::length().
 
-See Also   : L<gaps>()
+See Also   : L<gaps()|gaps>
 
 =cut
 
@@ -871,7 +871,7 @@ sub length {
            : Array context can be "induced" by providing an argument of 'list' or 'array'.
  Throws    : n/a
 
-See Also   : L<length>(), L<matches>()
+See Also   : L<length()|length>, L<matches()|matches>
 
 =cut
 
@@ -918,7 +918,7 @@ sub gaps {
            : between the query and sbjct lines which are used for determining
            : the number of identical and conservative matches.
 
-See Also   : L<length>(), L<gaps>(), L<seq_str>(), B<Bio::Tools::Blast::Sbjct::_adjust_contigs()>
+See Also   : L<length()|length>, L<gaps()|gaps>, L<seq_str()|seq_str>, B<Bio::Tools::Blast::Sbjct::_adjust_contigs()>
 
 =cut
 
@@ -1022,7 +1022,7 @@ sub matches {
            : ignoring the gaps, call this method with an argument of 'query'
            : or 'sbjct'.
 
-See Also   : L<frac_conserved>(), L<num_identical>(), L<matches>()
+See Also   : L<frac_conserved()|frac_conserved>, L<num_identical()|num_identical>, L<matches()|matches>
 
 =cut
 
@@ -1071,7 +1071,7 @@ sub frac_identical {
            : ignoring the gaps, call this method with an argument of 'query'
            : or 'sbjct'.
 
-See Also   : L<frac_conserved>(), L<num_conserved>(), L<matches>()
+See Also   : L<frac_conserved()|frac_conserved>, L<num_conserved()|num_conserved>, L<matches()|matches>
 
 =cut
 
@@ -1105,7 +1105,7 @@ sub frac_conserved {
  Argument  : n/a
  Throws    : n/a
 
-See Also   : L<num_conserved>(), L<frac_identical>()
+See Also   : L<num_conserved()|num_conserved>, L<frac_identical()|frac_identical>
 
 =cut
 
@@ -1127,7 +1127,7 @@ sub num_identical {
  Argument  : n/a
  Throws    : n/a
 
-See Also   : L<num_identical>(), L<frac_conserved>()
+See Also   : L<num_identical()|num_identical>, L<frac_conserved()|frac_conserved>
 
 =cut
 
@@ -1153,7 +1153,7 @@ sub num_conserved {
            : (case insensitive).
  Throws    : n/a
 
-See Also   : L<start>(), L<end>()
+See Also   : L<start()|start>, L<end()|end>
 
 =cut
 
@@ -1186,7 +1186,7 @@ sub range {
            : Array context can be "induced" by providing an argument of 'list' or 'array'.
  Throws    : n/a
 
-See Also   : L<end>(), L<range>()
+See Also   : L<end()|end>, L<range()|range>
 
 =cut
 
@@ -1223,7 +1223,7 @@ sub start {
            : Array context can be "induced" by providing an argument of 'list' or 'array'.
  Throws    : n/a
 
-See Also   : L<start>(), L<range>()
+See Also   : L<start()|start>, L<range()|range>
 
 =cut
 
@@ -1264,7 +1264,7 @@ sub end {
  Argument  : seq_type: 'query' | 'sbjct' or undef
  Throws    : n/a
 
-See Also   : L<_set_seq>(), L<_set_match_stats>()
+See Also   : L<_set_seq()|_set_seq>, L<_set_match_stats()|_set_match_stats>
 
 =cut
 
@@ -1309,7 +1309,7 @@ sub strand {
            : to the strings in the original format of the Blast alignment.
            : (i.e., same spacing).
 
-See Also   : L<seq_str>(), L<seq_inds>(), B<Bio::Seq.pm>
+See Also   : L<seq_str()|seq_str>, L<seq_inds()|seq_inds>, B<Bio::Seq.pm>
 
 =cut
 
@@ -1347,7 +1347,7 @@ sub seq {
  Comments  : Calls _set_residues() to set the 'match' sequence if it has
            : not been set already.
 
-See Also   : L<seq>(), L<seq_inds>(), L<_set_match_seq>()
+See Also   : L<seq()|seq>, L<seq_inds()|seq_inds>, L<_set_match_seq()|_set_match_seq>
 
 =cut
 
@@ -1409,7 +1409,7 @@ sub seq_str {
  Comments  : Calls _set_residues() to set the 'match' sequence if it has
            : not been set already.
 
-See Also   : L<seq>(), L<_set_residues>(), L<collapse_nums>(), B<Bio::Tools::Blast::Sbjct::seq_inds()>
+See Also   : L<seq()|seq>, L<_set_residues()|_set_residues>, L<collapse_nums()|collapse_nums>, B<Bio::Tools::Blast::Sbjct::seq_inds()>
 
 =cut
 
@@ -1456,7 +1456,7 @@ sub seq_inds {
            : Bio::UnivAln.pm recognizes the gaps correctly. A strategy for doing 
            : this is being considered. Currently it is hard-wired.
 
-See Also   : L<seq>(), B<Bio::UnivAln.pm>
+See Also   : L<seq()|seq>, B<Bio::UnivAln.pm>
 
 =cut
 
@@ -1497,7 +1497,7 @@ sub get_aln {
  Comments  : For more control over the display of sequence data,
            : use seq(), seq_str(), seq_inds().
 
-See Also   : L<_display_seq>(), L<seq>(), L<seq_str>(), L<seq_inds>(), L<_display_matches>(), B<Bio::Root::Object::display()>
+See Also   : L<_display_seq()|_display_seq>, L<seq()|seq>, L<seq_str()|seq_str>, L<seq_inds()|seq_inds>, L<_display_matches()|_display_matches>, B<Bio::Root::Object::display()>
 
 =cut
 
@@ -1553,7 +1553,7 @@ sub display {
  Status    : Experimental
  Comments  : For more control, use seq(), seq_str(), or seq_inds().
 
-See Also   : L<display>(), L<seq>(), L<seq_str>(), L<seq_inds>(), L<_display_matches>()
+See Also   : L<display()|display>, L<seq()|seq>, L<seq_str()|seq_str>, L<seq_inds()|seq_inds>, L<_display_matches()|_display_matches>
 
 =cut
 
@@ -1588,7 +1588,7 @@ sub _display_seq {
  Status    : Experimental
  Comments  : For more control, use seq_inds().
 
-See Also   : L<display>(), L<seq_inds>(), L<_display_seq>(), 
+See Also   : L<display()|display>, L<seq_inds()|seq_inds>, L<_display_seq()|_display_seq>, 
 
 =cut
 
@@ -1671,7 +1671,7 @@ sub _display_matches {
            :   1) how strong the similarity is between the sequences in the HSP,
            :   3) the endpoints of the alignment (sequence monomer numbers)
 
-See Also   : L<homol_score>(), B<Bio::Tools::Blast.::homol_data()>, B<Bio::Tools::Blast::Sbjct::homol_data()>
+See Also   : L<homol_score()|homol_score>, B<Bio::Tools::Blast.::homol_data()>, B<Bio::Tools::Blast::Sbjct::homol_data()>
 
 =cut
 
@@ -1707,7 +1707,7 @@ sub homol_data {
            :               30-100  --> 2
            :             < 30      --> 1
 
-See Also   : L<homol_data>()
+See Also   : L<homol_data()|homol_data>
 
 =cut
 
@@ -1743,7 +1743,7 @@ sub homol_score {
  Throws    : n/a
  Comments  : Probably belongs in a more general utility class.
 
-See Also   : L<seq_inds>()
+See Also   : L<seq_inds()|seq_inds>
 
 =cut
 

@@ -35,7 +35,7 @@ Bio::Tools::SeqAnal.pm - Bioperl sequence analysis base class.
 
 This module is an abstract base class. Perl will let you instantiate it,
 but it provides little functionality on its own. This module
-should be used via a specialized subclass. See L<_initialize>()
+should be used via a specialized subclass. See L<_initialize()|_initialize>
 for a description of constructor parameters.
 
     require Bio::Tools::SeqAnal;
@@ -74,7 +74,7 @@ Follow the installation instructions included in the README file.
 =head1 DESCRIPTION
 
 Bio::Tools::SeqAnal.pm is a base class for specialized
-sequence analysis modules such as B<Bio::Tools::Blast.pm> and B<Bio::Tools::Fasta.pm>.
+sequence analysis modules such as B<Bio::Tools::Blast> and B<Bio::Tools::Fasta>.
 It provides some basic data and functionalities that are not unique to
 a specialized module such as:
 
@@ -95,7 +95,7 @@ a specialized module such as:
 =back
 
 Some of these functionalities (reading, file maipulation) are inherited from
-B<Bio::Root::Object.pm>, from which Bio::Tools::SeqAnal.pm derives.
+B<Bio::Root::Object>, from which Bio::Tools::SeqAnal.pm derives.
 
 
 
@@ -115,15 +115,15 @@ A SeqAnal.pm object can be created using one of three modes: run, parse, or read
             parsing it. In the future, this may also permit persistent
             SeqAnal.pm objects. This mode is considered experimental.
 
-The mode is set by supplying switches to the constructor, see L<_initialize>().
+The mode is set by supplying switches to the constructor, see L<_initialize()|_initialize>.
 
 
 
 A key feature of SeqAnal.pm is the ability to access raw data in a
 generic fashion. Regardless of what sequence analysis method is used,
 the raw data always need to be read into memory.  The SeqAnal.pm class
-utilizes the L<Bio::Root::Object::read>() method inherited from
-B<Bio::Root::Object.pm> to permit the following:
+utilizes the L<Bio::Root::Object::read()|Bio::Root::Object> method inherited from
+B<Bio::Root::Object> to permit the following:
 
 =over 4
 
@@ -140,23 +140,23 @@ B<Bio::Root::Object.pm> to permit the following:
 By permitting the parsing of data as it is being read, each record can be
 analyzed as it is being read and saved or discarded as necessary.
 This can be useful when cruching through thousands of reports.
-For examples of this, see the L<parse>() methods defined in B<Bio::Tools::Blast.pm> and
-B<Bio::Tools::Fasta.pm>.
+For examples of this, see the L<parse()|parse> methods defined in B<Bio::Tools::Blast> and
+B<Bio::Tools::Fasta>.
 
 
 =head2 Parsing & Running
 
 Parsing and running of sequence analysis reports must be implemented for each
 specific subclass of SeqAnal.pm. No-op stubs ("virtual methods") are provided here for
-the L<parse>() and L<run>() methods. See B<Bio::Tools::Blast.pm> and B<Bio::Tools::Fasta.pm>
+the L<parse()|parse> and L<run()|run> methods. See B<Bio::Tools::Blast> and B<Bio::Tools::Fasta>
 for examples.
 
 
 =head1 DEPENDENCIES
 
-Bio::Tools::SeqAnal.pm is a concrete class that inherits from B<Bio::Root::Object.pm>.
+Bio::Tools::SeqAnal.pm is a concrete class that inherits from B<Bio::Root::Object>.
 This module also makes use of a number of functionalities inherited from
-B<Bio::Root::Object.pm> (file manipulations such as reading, compressing, decompressing,
+B<Bio::Root::Object> (file manipulations such as reading, compressing, decompressing,
 deleting, and obtaining date.
 
 
@@ -183,7 +183,7 @@ their resolution. Bug reports can be submitted via email or the web:
 
 Steve Chervitz, sac@bioperl.org
 
-See the L<FEEDBACK> section for where to send bug reports and comments.
+See the L<FEEDBACK | FEEDBACK> section for where to send bug reports and comments.
 
 =head1 VERSION
 
@@ -476,7 +476,7 @@ sub database_seqs {
            : for different seq analysis reports. Override this method
            : to create such custom parsing code if desired.
 
-See Also   : L<date>(), B<Bio::Root::Object::file_date()>
+See Also   : L<date()|date>, B<Bio::Root::Object::file_date()>
 
 =cut
 
@@ -511,7 +511,7 @@ sub set_date {
  Argument  : n/a
  Comments  : This method is not a combination set/get, it only gets.
 
-See Also   : L<set_date>()
+See Also   : L<set_date()|set_date>
 
 =cut
 
@@ -625,7 +625,7 @@ sub query_desc {
  Returns   : n/a
  Status    : Experimental
 
-See Also   : L<_display_stats>(), L<_display_file>(), B<Bio::Root::Object::display>
+See Also   : L<_display_stats()|_display_stats>, L<_display_file()|_display_file>, B<Bio::Root::Object::display()>
 
 =cut
 
@@ -652,7 +652,7 @@ sub display {
  Returns   : true (1)
  Status    : Experimental
 
-See Also   : L<display>()
+See Also   : L<display()|display>
 
 =cut
 
@@ -678,7 +678,7 @@ sub _display_file {
  Returns   : printf call.
  Status    : Experimental
 
-See Also   : B<Bio::Root::Object.pm>::display()
+See Also   : B<Bio::Root::Object::display()>
 
 =cut
 

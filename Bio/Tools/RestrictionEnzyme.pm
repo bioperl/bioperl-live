@@ -280,7 +280,7 @@ their resolution. Bug reports can be submitted via email or the web:
 
 =head1 AUTHOR
 
-Steve Chervitz, sac@bioperl.org
+Steve Chervitz, E<lt>sac@bioperl.orgE<gt>
 
 =head1 VERSION
 
@@ -337,7 +337,7 @@ for documentation purposes only.
  Comments  : The process of creating a new SeqPattern.pm object
            : ensures that the pattern string is untained.
 
-See Also   : L<_make_custom>(), L<_make_standard>(), B<Bio::Seq.pm::_initialize()>
+See Also   : L<_make_custom()|_make_custom>, L<_make_standard()|_make_standard>, L<Bio::Seq::_initialize()|Bio::Seq>
 
 =cut
 
@@ -374,7 +374,7 @@ sub new {
  Throws    : Exception if the requested enzyme name is unavailable.
            : NOTE: Case sensitive.
 
-See Also   : L<Bio::Seq.pm::_initialize>(), L<_make_custom>()
+See Also   : L<Bio::Seq::_initialize()|Bio::Seq>, L<_make_custom()|_make_custom>
 
 =cut
 
@@ -411,7 +411,7 @@ sub _make_standard {
            : Warning if the string did not specify cut position.
            :         Places cut site after 5'-most position.
 
-See Also   : L<Bio::Seq.pm::_initialize>()
+See Also   : L<Bio::Seq::_initialize()|Bio::Seq>
 
 =cut
 
@@ -457,7 +457,7 @@ sub _make_custom {
            : position. This data is automatically set during
            : construction.
 
-See Also   : L<_make_standard>(), L<_make_custom>()
+See Also   : L<_make_standard()|_make_standard>, L<_make_custom()|_make_custom>
 
 =cut
 
@@ -515,7 +515,7 @@ sub site {
  Argument  : n/a
  Throws    : n/a
 
-See Also   : L<string>(), L<revcom>()
+See Also   : L<string()|string>, L<revcom()|revcom>
 
 =cut
 
@@ -535,7 +535,7 @@ sub seq    {  my $self = shift; $self->{'_seq'}; }
  Throws    : n/a
  Comments  : Delegates to the Bio::Seq.pm-derived object.
 
-See Also   : L<seq>(), L<revcom>()
+See Also   : L<seq()|seq>, L<revcom()|revcom>
 
 =cut
 
@@ -558,7 +558,7 @@ sub string {  my $self = shift; $self->{'_seq'}->seq; }
              out the string from it, as now Bio::Seq->revcom makes a Bio::Seq
              object
 
-See Also   : L<seq>(), L<string>()
+See Also   : L<seq()|seq>, L<string()|string>
 
 =cut
 
@@ -756,7 +756,7 @@ sub palindromic {
            : commercial availability (yet). 
            : Enzyme names are CASE SENSITIVE.
 
-See Also   : L<available_list>()
+See Also   : L<available_list()|available_list>
 
 =cut
 
@@ -810,7 +810,7 @@ sub name{
  Throws    : n/a
  Comments  : This method may be more appropriate for a REData.pm class.
 
-See Also   : L<is_available>()
+See Also   : L<is_available()|is_available>
 
 =cut
 

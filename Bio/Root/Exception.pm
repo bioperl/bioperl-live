@@ -133,13 +133,16 @@ See these RFC's:
      http://dev.perl.org/rfc/88.pod
 
 
-=head1 AUTHOR - Steve Chervitz 
+=head1 AUTHOR 
 
-Email sac@bioperl.org
+Steve Chervitz E<lt>sac@bioperl.orgE<gt>
 
 =head1 COPYRIGHT
 
 Copyright (c) 2001 Steve Chervitz. All Rights Reserved.
+
+This library is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself.
 
 =head1 DISCLAIMER
 

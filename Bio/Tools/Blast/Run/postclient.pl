@@ -1,10 +1,26 @@
 #!/usr/bin/perl 
 
-# This program is originally from www.webtechs.com  --Alex Dong Li
-#
-# MODIFICATIONS BY STEVE A. CHERVITZ MARKED 'SAC:'
-#
-# REVISION: $Id$
+=head1 NAME
+
+postclient.pl - Command line Web client which posts data to a CGI script
+
+=head1 SYNOPSIS
+
+   postclient.pl -u "http://www.webtechs.com/cgi-bin/test-cgi"  \
+                 -f One=1 Two=frog
+
+=head1 USAGE
+
+   postclient.pl {-h} [-u URL]
+                 [-f FieldName=FieldValue FieldName=FieldValue FieldName=FieldValue ...]
+
+=head1 AUTHOR
+
+This program was written by Mark Gaither.
+It was originally obtained from www.webtechs.com 
+and modified by Steve Chervitz E<lt>sac@bioperl.orgE<gt>
+
+=cut
 
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 #
