@@ -285,7 +285,7 @@ sub render {
 
   for my $type (@configured_types,@unconfigured_types) {
     my $f = $self->features($type);
-    my @features = grep {$self->{visible}{$_}} @$f;
+    my @features = grep {$self->{visible}{$_} || $_->type eq 'group'} @$f;
     next unless @features;  # suppress tracks for features that don't appear
     my $features = \@features;
 
@@ -530,6 +530,16 @@ sub parse_line {
   $type = '' unless defined $type;
   $name = '' unless defined $name;
 
+  # if strand is not explicitly given in file, we infer it
+  # from the order of start and end coordinates
+  # (this is to deal with confusing documentation, actually)
+  unless (defined $strand) {
+    foreach (@parts) {
+      $strand           ||= $_->[0] <= $_->[1] ? '+' : '-';
+      ($_->[0],$_->[1])   = ($_->[1],$_->[0]) if $_->[0] > $_->[1];
+    }
+  }
+
   # attribute handling
   if (defined $description && $description =~ /\w+=\w+/) { # attribute line
     my @attributes = split /;\s*/,$description;
@@ -725,6 +735,9 @@ Call with no elements to retrieve all stanza names:
 
 sub setting {
   my $self = shift;
+  if (@_ > 2) {
+    $self->{config}->{$_[0]}{$_[1]} = $_[2];
+  }
   if ($self->safe) {
      $self->code_setting(@_);
   } else {
@@ -735,6 +748,7 @@ sub setting {
 # return configuration information
 # arguments are ($type) => returns tags for type
 #               ($type=>$tag) => returns values of tag on type
+#               ($type=>$tag,$value) => sets value of tag
 sub _setting {
   my $self = shift;
   my $config = $self->{config} or return;
