@@ -1213,7 +1213,7 @@ enzyme subsets. For example to select all available Enzyme objects with
 recognition sites that are six bases long one could write:
 
   my $six_cutter_collection = $all_collection->cutters(6);
-  foreach my $enz ($six_cutter_collection){
+  for my $enz ($six_cutter_collection){
      print $enz->name,"\t",$enz->site,"\t",$enz->overhang_seq,"\n";
      # prints name, recognition site, overhang
   }
@@ -1446,7 +1446,7 @@ A skeleton script to run a remote blast might look as follows:
   	   -prog => 'blastp',-data => 'ecoli',-expect => '1e-10' );
   $r = $remote_blast->submit_blast("t/data/ecolitst.fa");
   while (@rids = $remote_blast->each_rid ) {
-      foreach $rid ( @rids ) {$rc = $remote_blast->retrieve_blast($rid);}
+      for $rid ( @rids ) {$rc = $remote_blast->retrieve_blast($rid);}
   }
 
 You may want to change some parameter of the remote job and this example
@@ -1946,7 +1946,7 @@ statements (e.g. "CDS    join(51..142,273..495,1346..1474)"):
 
   if ( $feat->location->isa('Bio::Location::SplitLocationI') &&
 	       $feat->primary_tag eq 'CDS' )  {
-    foreach $loc ( $feat->location->sub_Location ) {
+    for $loc ( $feat->location->sub_Location ) {
       print $loc->start,"..",$loc->end,"\n";
     }
   }
@@ -1982,7 +1982,7 @@ This Collection object is just a container for other specialized objects, and
 its methods are described in L<Bio::Annotation::Collection>. You can find the 
 desired object within the Collection object by examining the "tagnames":
 
-  foreach $ann ($ann_coll->get_Annotations) {
+  for $ann ($ann_coll->get_Annotations) {
     print "Comment: ",$ann->as_text if ($ann->tagname eq "comment");
   }
 
@@ -2238,7 +2238,7 @@ such as protein structure, phylogenetic trees and genetic maps.
 
 A StructureIO object can be created from one or more 3D structures
 represented in Protein Data Bank, or pdb, format (see
-http://www.rcsb.org/pdb for details).
+http://www.pdb.org for details).
 
 StructureIO objects allow access to a variety of related Bio:Structure
 objects. An Entry object consist of one or more Model objects, which
@@ -2247,16 +2247,34 @@ Residue objects, which in turn consist of Atom objects. There's a
 wealth of methods, here are just a few:
 
   $structio = Bio::Structure::IO->new( -file => "1XYZ.pdb");
-  $struc = $structio->next_structure; # returns an Entry object
-  $pseq = $struc->seqres;             # returns a PrimarySeq object, thus
+  $struc = $structio->next_structure; # a Bio::Structure::Entry object
+  $pseq = $struc->seqres;             # a Bio::PrimarySeq object, thus
   $pseq->subseq(1,20);                # returns a sequence string
   @atoms = $struc->get_atoms($res);   # Atom objects, given a Residue
   @xyz = $atom->xyz;                  # the 3D coordinates of the atom
 
-These lines show how one has access to a number of related objects and methods.
-For examples of typical usage of these modules, see the scripts in the
-examples/structure subdirectory. Also see L<Bio::Structure::IO>, 
-L<Bio::Structure::Entry>, L<Bio::Structure::Model>,
+This code shows how to start with a PDB file and obtain Entry, Chain,
+Residue, and Atom objects:
+
+  use Bio::Structure::IO;
+  use strict;
+
+  my $structio = Bio::Structure::IO->new(-file => $file);
+  my $struc = $structio->next_structure;
+
+  for my $chain ($struc->get_chains) {
+     my $chainid = $chain->id;
+     # one-letter chaincode if present, 'default' otherwise
+     for my $res ($struc->get_residues($chain)) {
+        my $resid = $res->id;
+        # format is 3-lettercode - dash - residue number, e.g. PHE-20
+        my $atoms = $struc->get_atoms($res);
+        # actually a list of atom objects, used here to get a count
+        print join "\t", $chainid,$resid,$atoms,"\n";
+     }
+  }
+
+See L<Bio::Structure::IO>, L<Bio::Structure::Entry>, L<Bio::Structure::Model>,
 L<Bio::Structure::Chain>, L<Bio::Structure::Residue>, and
 L<Bio::Structure::Atom> for more information.
 
@@ -2293,7 +2311,7 @@ genetic map data with Bioperl Map objects might look like this:
   $mapio = new Bio::MapIO(-format => 'mapmaker', -file => $mapfile);
   $map = $mapio->next_map;  # get a map
   $maptype =  $map->type ;
-  foreach $marker ( $map->each_element ) {
+  for $marker ( $map->each_element ) {
     $marker_name = $marker->name ;  # get the name of each map marker
   }
 
@@ -3107,7 +3125,7 @@ $sequence_manipulations = sub {
 
     print $outputfh "\nTranslating in all six frames:\n";
     my @frames = (0, 1, 2);
-    foreach my $frame (@frames) {
+    for my $frame (@frames) {
         print $outputfh  " frame: ", $frame, " forward: ",
         $seq->translate(undef, undef, $frame)->seq, "\n";
         print $outputfh  " frame: ", $frame, " reverse-complement: ",
@@ -3116,7 +3134,7 @@ $sequence_manipulations = sub {
 
     print $outputfh "Translating with all codon tables using method defaults:\n";
     my @codontables = qw( 1 2 3 4 5 6 9 10 11 12 13 14 15 16 21 );
-    foreach my $ct (@codontables) {
+    for my $ct (@codontables) {
         print $outputfh $ct, " : ",
         $seq->translate(undef, undef, undef, $ct)->seq, "\n";
     }
@@ -3241,7 +3259,7 @@ $restriction_and_sigcleave = sub {
     $formatted_output = $sigcleave_object->pretty_print;
 
     print $outputfh " SigCleave \'raw results\': \n";
-    foreach $location (sort keys %raw_results) {
+    for $location (sort keys %raw_results) {
         print $outputfh " Cleave site found at location $location ",
         "with value of $raw_results{$location} \n";
     }
@@ -3325,7 +3343,7 @@ $run_remoteblast = sub {
       }
       print $outputfh "submitted Blast job\n";
       while ( my @rids = $remote_blast_object->each_rid ) {
-	  foreach my $rid ( @rids ) {
+	  for my $rid ( @rids ) {
 	      $rc = $remote_blast_object->retrieve_blast($rid);
 	      print $outputfh "retrieving results...\n";
 	      if( !ref($rc) ) {   # $rc not a reference => either error 
@@ -3891,7 +3909,7 @@ print $outputfh " The type of the map is " , $map->type  ," \n";
 print $outputfh " The units of the map are " , $map->units  ," \n";
 
 my $count = 0;
-foreach my $marker ( $map->each_element ) {
+for my $marker ( $map->each_element ) {
     print $outputfh " The marker ", $marker->name," is at ordered position " ,  $marker->position->order  ," \n";
     if ($count++ >= 5) {return 1};
 }
@@ -3918,12 +3936,12 @@ my $treeio = new Bio::TreeIO( -format => 'newick',
 my $tree = $treeio->next_tree;
 my @nodes = $tree->get_nodes;
 
- foreach my $node ( $tree->get_root_node()->each_Descendent() ) {
+ for my $node ( $tree->get_root_node()->each_Descendent() ) {
 	print $outputfh "node id and branch length: ", $node->to_string(), "\n";
 	my @ch = $node->each_Descendent();
 	if( @ch ) {
 	    print $outputfh "\tchildren are: \n";
-	    foreach my $node ( $node->each_Descendent() ) {
+	    for my $node ( $node->each_Descendent() ) {
 		print $outputfh "\t\t id and length: ", $node->to_string(), "\n";
 	    }
 	}
@@ -4142,7 +4160,7 @@ sub run_examples {
     if (scalar(@runlist)==0) {&$display_help;}; # display help if no option
     if( $runlist[0] == -1 ) { return }
     if ($runlist[0] == 0) {@runlist = (1..22); }; # argument = 0 means run tests 1 thru 22
-    foreach $n  (@runlist) {
+    for $n  (@runlist) {
         if ($n ==100) {my $object = $runlist[1]; &$bpinspect1($object); last;}
         if ($n ==1) {&$sequence_manipulations; next;}
         if ($n ==2) {&$seqstats_and_seqwords; next;}
@@ -4195,7 +4213,7 @@ $bpinspect1 = sub {
     print $outputfh " \n ***Methods for Object $object ********  \n";
 # get all the *unique* package names providing methods
     my %seen=();
-    foreach $package  (values %$method_hash) {
+    for $package  (values %$method_hash) {
         push(@package_list, $package) unless $seen{$package}++;
     }
     for $package (sort @package_list) {
@@ -4248,7 +4266,7 @@ $bpinspect1 = sub {
 	open(OUT, ">bptutorial.out") || die("cannot open outputfile: $!");
 	$outputfh = *OUT;
     }
-    foreach my $num (@ARGV) {
+    for my $num (@ARGV) {
        if ( !(-d "t/data") && 
 	       grep /^$num$/,(23,4,1,14,12,13,6,7,8,9,24,25,10,5,15,16,17,20,21) ) {
 	  print $outputfh "Example $num uses files in t/data\nDirectory t/data not found\n";
