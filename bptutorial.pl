@@ -645,23 +645,27 @@ data formats are supported by Bio::Index: genbank, swissprot, pfam, embl and
 fasta.  Once the set of sequences have been indexed using Bio::Index,
 individual sequences can be accessed using syntax very similar to that
 described above for accessing remote databases.  For example, if one wants to
-set up an indexed (flat-file) database of fasta files, and later wants then to
-retrieve one file, one could write a scripts like:
+set up an indexed flat-file database of fasta files, and later wants then to
+retrieve one file, one could write scripts like:
 
   # script 1: create the index
   use Bio::Index::Fasta; # using fasta file format
-  $Index_File_Name = shift;
-  $inx = Bio::Index::Fasta->new(
+  use strict; # some users have reported that this is required
+
+  my $Index_File_Name = shift;
+  my $inx = Bio::Index::Fasta->new(
       -filename => $Index_File_Name,
       -write_flag => 1);
   $inx->make_index(@ARGV);
 
   # script 2: retrieve some files
   use Bio::Index::Fasta;
-  $Index_File_Name = shift;
-  $inx = Bio::Index::Fasta->new($Index_File_Name);
-  foreach  $id (@ARGV) {
-      $seq = $inx->fetch($id);  # Returns Bio::Seq object
+  use strict; # some users have reported that this is required
+
+  my $Index_File_Name = shift;
+  my $inx = Bio::Index::Fasta->new($Index_File_Name);
+  foreach  my $id (@ARGV) {
+      my $seq = $inx->fetch($id);  # Returns Bio::Seq object
       # do something with the sequence
   }
 
@@ -676,10 +680,12 @@ format files. It's similar in spirit to Bio::Index::Fasta but offers more
 methods, eg
 
   use Bio::DB::Fasta;
-  $db = Bio::DB::Fasta->new($file);  # one file or many files
-  $seqstring = $db->seq($id);        # get a sequence as string
-  $seqobj = $db->get_Seq_by_id($id); # get a PrimarySeq obj
-  $desc = $db->header($id);          # get the header, or description, line
+  use strict;
+
+  my $db = Bio::DB::Fasta->new($file);  # one file or many files
+  my $seqstring = $db->seq($id);        # get a sequence as string
+  my $seqobj = $db->get_Seq_by_id($id); # get a PrimarySeq obj
+  my $desc = $db->header($id);          # get the header, or description, line
 
 This module also offers the user the ability to designate a specific string
 within the fasta header as the desired id, such as the gi number within the
@@ -696,7 +702,7 @@ See L<Bio::DB::Fasta> for more information on this fully-featured module.
 =head2   III.2.1 Transforming sequence files (SeqIO)
 
 A common - and tedious - bioinformatics task is that of converting
-sequence data among the many widely used data formats.  Bioperl\'s
+sequence data among the many widely used data formats.  Bioperl's
 SeqIO object, however, makes this chore a breeze.  SeqIO can
 read a stream of sequences - located in a single or in multiple files -
 in a number of formats: Fasta, EMBL, GenBank, Swissprot, PIR, GCG, SCF,
@@ -1015,7 +1021,7 @@ L<Bio::Tools::Sigcleave> for details.
 
 OddCodes:
 
-For some purposes it\'s useful to have a listing of an amino acid
+For some purposes it's useful to have a listing of an amino acid
 sequence showing where the hydrophobic amino acids are located or
 where the positively charged ones are.  Bioperl provides this
 capability via the module Bio::Tools::OddCodes.
@@ -1042,7 +1048,7 @@ In this case the sample sequence ACDEFGH would become LSAARAC.
 
 OddCodes also offers translation into alphabets showing alternate
 characteristics of the amino acid sequence such as hydrophobicity,
-"functionality" or grouping using Dayhoff\'s definitions.  See the
+"functionality" or grouping using Dayhoff's definitions.  See the
 documentation in L<Bio::Tools::OddCodes> for further details.
 
 SeqPattern:
@@ -1458,7 +1464,7 @@ and L<Bio::Tools::Blast::Sbjct>.
 
 Unfortunately the flexibility of the Blast.pm parser comes at a cost
 of complexity.  As a result of this complexity and the fact that
-Blast.pm\'s original developer is no longer actively supporting the
+Blast.pm's original developer is no longer actively supporting the
 module, the Blast.pm parser has been difficult to maintain and has not
 been upgraded to handle the output of the newer blast options such as
 PSIBLAST and BL2SEQ.  Consequently, the BPlite parser (described in the
@@ -1614,7 +1620,7 @@ In either case, initially, a "factory object" must be created. The
 factory may be passed most of the parameters or switches of the
 relevant program.  In addition, alignment parameters can be changed
 and/or examined after the factory has been created.  Any parameters
-not explicitly set will remain as the underlying program\'s
+not explicitly set will remain as the underlying program's
 defaults. Clustalw.pm/TCoffee.pm output is returned in the form of a
 SimpleAlign object.  It should be noted that some Clustalw and TCoffee
 parameters and features (such as those corresponding to tree
@@ -1675,7 +1681,7 @@ residue of a specified sequence is located.
 
 consensus_string(): Making a consensus string. This method includes an
 optional threshold parameter, so that positions in the alignment with lower
-percent-identity than the threshold are marked by "?"\'s in the consensus
+percent-identity than the threshold are marked by "?"'s in the consensus
 
 =item *
 
@@ -1771,7 +1777,7 @@ annotate a genomic sequence might look like this:
 
 Historically, annotations for sequence data have been entered and read
 manually in flat-file or relational databases with relatively little
-concern for machine readability.  More recent projects - such as EBI\'s
+concern for machine readability.  More recent projects - such as EBI's
 Ensembl project and the efforts to develop an XML molecular biology
 data specification - have begun to address this limitation.  Because
 of its strengths in text processing and regular-expression handling,
@@ -1864,7 +1870,7 @@ to sequences with richer data sources, in particular from database sequences
 
 Very large sequences and/or data files with sequences that are frequently being
 updated present special problems to automated sequence-annotation storage and
-retrieval projects.  Bioperl\'s LargeSeq and LiveSeq objects are designed to
+retrieval projects.  Bioperl's LargeSeq and LiveSeq objects are designed to
 address these two situations.
 
 LargeSeq
@@ -2292,7 +2298,7 @@ interface object to EMBOSS is described in L<Bio::Tools::Run::EMBOSSApplication>
 =head2 IV.4  Ensembl and bioperl-db
 
 Ensembl is an ambitious automated-genome-annotation project at EBI.
-Much of Ensembl\'s code is based on bioperl, and Ensembl developers, in
+Much of Ensembl's code is based on bioperl, and Ensembl developers, in
 turn, have contributed significant pieces of code to bioperl.  In
 particular, the bioperl code for automated sequence annotation has
 been largely contributed by Ensembl developers.
@@ -2558,6 +2564,8 @@ if ($@ || !$seq1) {
 $index_local_db = sub {
 
     use Bio::Index::Fasta; # using fasta file format
+  use strict; # some users have reported that this is required
+
     my ( $Index_File_Name, $inx1, $inx2, $id, $dir, $key,
          $keyfound, $seq, $indexhash);
     print "\nBeginning indexing local_db example... \n";
@@ -2598,6 +2606,8 @@ $index_local_db = sub {
 $fetch_local_db = sub {
 
     use Bio::Index::Fasta; # using fasta file format
+    use strict; # some users have reported that this is required
+    
     my ( $Index_File_Name, $inx2, $id, $dir, $key,
          $keyfound, $seq, $indexhash,$value );
     print "\nBeginning retrieving local_db example... \n";
