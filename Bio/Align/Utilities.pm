@@ -110,8 +110,10 @@ See also: L<Bio::Align::AlignI>, L<Bio::SimpleAlign>, L<Bio::PrimarySeq>
 =cut
 
 sub aa_to_dna_aln {
-    my ($self,$aln,$dnaseqs) = @_;
-    unless( $aln->isa('Bio::Align::AlignI') ) { 
+    my ($aln,$dnaseqs) = @_;
+    unless( defined $aln && 
+	    ref($aln) &&
+	    $aln->isa('Bio::Align::AlignI') ) { 
 	croak('Must provide a valid Bio::Align::AlignI object as the first argument to aa_to_dna_aln, see the documentation for proper usage and the method signature');
     }
     my $alnlen = $aln->length;
