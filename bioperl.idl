@@ -1,0 +1,172 @@
+
+//
+// The purpose of this IDL is to define suitable Objects for
+// biological sequence work from a developers standpoint. In other
+// words these objects are designed to make it ease for another
+// implementation (or a partial implementation) to be made.
+//
+// This idl matches the implicit bioperl idl perfectly. Bioperl can
+// implement this idl easily and also be a client to this
+// idl. Although the bioperl project heavily influenced this idl, the
+// idl is not bioperl biased - a Java/Python/C implementation would be
+// as good.
+//
+// The server implementation bias is noticable in the way that the
+// objects do not have many complex methods at all - they look like
+// very simple objects. In addition the difficult life-cycle issues
+// about distributed systems is delibrately dodged - this idl expects
+// well behaved, reliable clients which will call a release method
+// before exiting.
+//
+// This means this is *not* a good idl at all for a client focused
+// system.  A client focused system should have many more helper
+// methods around more complex objects, and also cope with distributed
+// memory problems A middle layer which translated this idl to a
+// client focused idl would be ideal. A very sensible, client focused
+// idl is the LSR-BSA submission.
+//
+
+//
+// This explains alot of the design decisions below
+//
+// a) I have stayed away from complex lifecycle issues. All objects
+// are expecting well-behaved clients, which call obj->release
+// (inherieted from ReleaseableObject). Client has to be responsible!
+//
+// b) There are two separate Sequence objects. A lightweight Seq
+// object which just represents a Sequence and a heavy weight AnnSeq
+// object which provides a Sequnence with Features. This is important.
+// If we forced everything through a single object with features, when
+// we retrieved sequences from a database, naive implementations would have
+// to load up all (and for chromosones - that is alot) of features into memory.
+// By having two objects we are really asking the client to decide what it
+// wants to do with the object up-front.
+//
+// c) There are no biological smarts. This idl is all about providing
+// simple interfaces to objects. the biological smarts are expected to
+// be provided in the client system, not this system. We want to make
+// this as easy as possible for servers to provide.
+
+module BioServer {
+  
+  // release means that no other calls on
+  // this object will be made. It is just
+  // a basic deconstrutor/destroy type method
+  interface ReleasableObject {
+    void release();
+  }
+
+  // Ranges are not found on their own (you might as well use start,end,strand tuples)
+  // strand is 1 for forward, -1 for reverse, and 0 for strand agnostic (eg, a simple
+  // repeat is strand agnostic). On protein sequences, 1,0 are the only sensible values
+  // for strand, and they are equivalent
+  interface Range {
+    long start(void);
+    long end(void);
+    short strand(void);
+  };
+
+
+  // The lightweight sequence object. The controversial thing here is
+  // that we do not provide subtypes of the object, but this is
+  // inferred programmatically through the type method. This is is not
+  // mad as it seems as there is no biological smarts to this system,
+  // so sub types are simply not required (there are no revcom or
+  // translate mechansims). Subtyping is perfectly sensible in the
+  // client system, but here it just doesn't help us much.
+
+  enum seqtype { DNA, RNA, Protein };
+  interface Seq : ReleaseableObject {
+    string seq(void); // the entire sequence in IUPAC codes
+    string subseq(in start,in end); // a sub sequence in IUPAC codes
+    string id(void); // human readable name
+    string accession(void); // computer assigned name - see below
+    string description(void); // human readable description. Perfectly ok to be null
+    seqtype type(void); // type of sequence.
+  };
+
+  // database cross reference refers to direct logical links between biological
+  // objects - for example, a protein sequence would be cross referenced to its
+  // parent DNA sequence and its protein structure. dbxcross refs can be a many to
+  // many relationship
+  interface Dbxref : ReleaseableObject {
+    string database(void);
+    string primary_key(void);
+  }
+
+  // A specialised dbxref to a published piece of literature. The primary key here
+  // (medline number) is considerably less informative than the title, author line etc
+  // One issue here is that I have not provided any further parsing of the author line
+  // In general I feel that is not the role of this object. You should use the primary
+  // key to retrieve a richer object with many more smarts to it. 
+  interface LiteratureReference : Dbxref {
+    string title;
+    string author_line;
+    string location;
+  };
+
+  // just a list of strings.
+  interface Comment : ReleaseableObject {
+    sequence <string> comments;
+    bool is_html;
+  }
+
+
+  interface Annotation : ReleaseableObject {
+    sequence <LiteratureReference> litref;
+    sequence <Comment> comment;
+    sequence <Dbxref> dbxref; // should return only non litref Dbxref's
+  }
+
+
+  interface SeqFeature : Range , ReleaseableObject {
+    string primary_key(void);
+    string source_key(void);
+    Annotation annotation(void);
+    Seq seq(void);
+    Seq entire_seq(void);
+  }
+
+  interface AnnSeq : ReleaseableObject {
+    sequence <annotation> non_feature_annotation;
+    sequence <SeqFeature> seqfeature;
+    Seq seq(void);
+  }
+
+
+  interface SearchHit : ReleaseableObject {
+    string id(void);
+    string description(void);
+    float raw_score(void);
+    float expectation_value(void);
+  };
+
+  interface SearchResult : ReleaseableObject {
+    string query_id(void);
+    string library_name(void);
+    long   library_size(void);
+    long   library_count(void);
+    sequence <SearchHit> hits(void);
+  };
+
+
+  interface SeqDB : ReleaseableObject {
+    Seq get_Seq_by_id(in string id);
+    Seq get_Seq_by_acc(in string acc);
+  };
+
+  interface SeqStream : ReleaseableObject {
+    Seq next_Seq(void);
+  }
+
+  interface AnnSeqDB : SeqDB {
+    AnnSeq get_AnnSeq_by_id(in string id);
+    AnnSeq get_AnnSeq_by_acc(in string id);
+  }
+
+
+  
+};
+  
+  
+
