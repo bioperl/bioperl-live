@@ -102,7 +102,13 @@ sub new {
     unless ( $main::{$module} ) {
 	eval { require $load; };
 	if ( $@ ) {
-	    print STDERR "$load: $algorithm cannot be found\nException $@\nFor more information about the Search/Processor system please see the Processor docs.\nThis includes ways of checking for processors at compile time, not run time\n";
+	    print STDERR <<"EOF";
+$load: $algorithm cannot be found
+Exception $@
+For more information about the Search/Processor system please see the
+Processor docs.  This includes ways of checking for processors at 
+compile time, not run time
+EOF
 	    return undef;
 	}
     }
