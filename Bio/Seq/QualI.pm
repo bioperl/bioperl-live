@@ -388,7 +388,7 @@ sub trunc {
    if($self->can_call_new()) {
        $seqclass = ref($self);
    } else {
-       $seqclass = 'Bio::Qual::PrimaryQual';
+       $seqclass = 'Bio::Seq::PrimaryQual';
 		# wassat?
 		# $self->_attempt_to_load_Seq();
    }
