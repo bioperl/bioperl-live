@@ -501,14 +501,21 @@ appropriate one to use in your script.
 
 =head2 II.1 Sequence objects (Seq, PrimarySeq, LocatableSeq, RelSegment, LiveSeq, LargeSeq, RichSeq, SeqWithQuality, SeqI)
 
+This section describes various Bioperl sequence objects. Many people 
+using Bioperl will never know, or need to know, what kind of sequence 
+object they are using. This is because the SeqIO module, section
+section L<"III.2.1">, creates exactly the right type of object when 
+given a file or a filehandle or a string. But if you're curious, or if
+you need to create a sequence object manually for some reason, then
+read on.
+
 Seq is the central sequence object in bioperl.  When in doubt this is
 probably the object that you want to use to describe a DNA, RNA or
 protein sequence in bioperl.  Most common sequence manipulations can
 be performed with Seq.  These capabilities are described in sections
 L<"III.3.1"> and L<"III.7.1">, or in L<Bio::Seq>.
 
-Seq objects can be created explicitly (see section L<"III.2.1"> for an
-example).  However usually Seq objects will be created for you
+Seq objects may be created for you
 automatically when you read in a file containing sequence data using
 the SeqIO object.  This procedure is described in section L<"III.2.1">.
 In addition to storing its identification labels and the sequence itself,
@@ -532,9 +539,12 @@ details.
 RichSeq objects store additional annotations beyond those used by
 standard Seq objects.  If you are using sources with very rich
 sequence annotation, you may want to consider using these objects
-which are described in section L<"III.7.1">. SeqWithQuality objects are
-used to manipulate sequences with quality data, like those produced by
-phred.  These objects are described in section L<"III.7.6">,
+which are described in section L<"III.7.1">. RichSeq objects are
+created automatically when Genbank, EMBL, or Swissprot format files
+are read by SeqIO.
+
+SeqWithQuality objects areu sed to manipulate sequences with quality data, 
+like those produced by phred.  These objects are described in section L<"III.7.6">,
 L<Bio::Seq::RichSeqI>, and in L<Bio::Seq::SeqWithQuality>.
 
 What is called a LocatableSeq object for historical reasons
@@ -585,11 +595,6 @@ SeqI objects are Seq "interface objects" (see section L<"II.4"> and
 L<Bio::SeqI>). They are used to ensure bioperl's compatibility with
 other software packages. SeqI and other interface objects are not
 likely to be relevant to the casual bioperl user.
-
-Having described these other types of sequence objects, the bottom line 
-still is that if you store your sequence data in Seq objects (which is 
-where they'll be if you read them in with SeqIO), you will usually do just 
-fine.
 
 =for html <A NAME ="ii.2"></A>
 
@@ -899,7 +904,8 @@ in a number of formats: Fasta, EMBL, GenBank, Swissprot, PIR, GCG, SCF,
 phd/phred, Ace, fastq, exp, chado, or raw (plain sequence). SeqIO can 
 also parse tracefiles in alf, ztr, abi, ctf, and ctr format Once the 
 sequence data has been read in with SeqIO, it is available to bioperl 
-in the form of Seq objects.  Moreover, the Seq objects can then be 
+in the form of Seq, PrimarySeq, or RichSeq objects, depending on what
+the sequence source is.  Moreover, the sequence objects can then be 
 written to another file (again using SeqIO) in any of the supported 
 data formats making data converters simple to implement, for example:
 
@@ -910,18 +916,19 @@ data formats making data converters simple to implement, for example:
                          -format => 'EMBL');
   while ( my $seq = $in->next_seq() ) {$out->write_seq($seq); }
 
-In addition, perl "tied filehandle" syntax is available to SeqIO,
+In addition, the perl "tied filehandle" syntax is available to SeqIO,
 allowing you to use the standard E<lt>E<gt> and print operations to read
 and write sequence objects, eg:
 
   $in  = Bio::SeqIO->newFh(-file => "inputfilename" ,
-                           -format => 'Fasta');
-  $out = Bio::SeqIO->newFh(-format => 'EMBL');
+                           -format => 'fasta');
+  $out = Bio::SeqIO->newFh(-format => 'embl');
   print $out $_ while <$in>;
 
-If the "-format" argument isn't used then Bioperl will guess the format
-based on the file's suffix in a case-insensitive manner. Here are the
-current interpretations:
+If the "-format" argument isn't used then Bioperl will try to determine 
+the format based on the file's suffix, in a case-insensitive manner. If 
+there's no suffix available then SeqIO will attempt to guess the format 
+based on actual content. Here is the current set of suffixes:
 
    Format     Suffixes                     Comment
 
@@ -968,9 +975,9 @@ AlignIO object can be created with "-file" and "-format" options:
   my $io = Bio::AlignIO->new(-file   => "receptors.aln",
                              -format => "clustalw" );
 
-If the "-format" argument isn't used then Bioperl will guess the format
-based on the file's suffix in a case-insensitive manner. Here are the
-current interpretations:
+If the "-format" argument isn't used then Bioperl will try and determine the 
+format based on the file's suffix, in a case-insensitive manner.  Here is the 
+current set of suffixes:
 
    Format      Suffixes                     Comment
 
@@ -1028,8 +1035,8 @@ auxiliary library (see L<"IV.2.1">).
 
 =head2 III.3.1  Manipulating sequence data with Seq methods
 
-OK, so we know how to retrieve sequences and access them as Seq
-objects.  Let's see how we can use the Seq objects to manipulate our
+OK, so we know how to retrieve sequences and access them as sequence
+objects.  Let's see how we can use sequence objects to manipulate our
 sequence data and retrieve information.  Seq provides multiple
 methods for performing many common (and some not-so-common) tasks of
 sequence manipulation and data retrieval.  Here are some of the most
@@ -1081,9 +1088,10 @@ object can be found in L<Bio::SeqFeature::Generic>, and a description
 of related, top-level annotation is found in L<Bio::Annotation::Collection>.
 
 Additional sample code for obtaining sequence features can be found in
-the script gb2features.pl in the subdirectory examples/DB. And finally,
-there's a section on features in the FAQ 
-(http://bioperl.org/Core/Latest/faq.html#5).
+the script gb2features.pl in the subdirectory examples/DB. Finally,
+there's a HOWTO on features and annotations
+(http://bioperl.org/HOWTOs/html/Feature-Annotation.html) and there's a 
+section on features in the FAQ (http://bioperl.org/Core/Latest/faq.html#5).
 
 The following methods returns new sequence objects, but do not transfer
 the features from the starting object to the resulting feature:
@@ -1093,7 +1101,7 @@ the features from the starting object to the resulting feature:
   $seqobj->translate;    # translation of the sequence
 
 Note that some methods return strings, some return arrays and some
-return objects.  See L<Bio::Seq> for more information.
+return objects. See L<Bio::Seq> for more information.
 
 Many of these methods are self-explanatory. However, bioperl's flexible
 translation methods warrant further comment. Translation in bioinformatics
@@ -1888,8 +1896,6 @@ like:
   				       -primary => 'exon',
   				       -source  => 'internal' );
   $seqobj->add_SeqFeature($feat); # Add the SeqFeature to the Seq object
-  $annotations = $seqobj->annotation(new Bio::Annotation::Collection);
-  $annotations->add_Annotation('disease', $object);
 
 Once the features and annotations have been associated with the Seq,
 they can be with retrieved, eg:
@@ -1924,13 +1930,6 @@ with methods including:
   $feat->equals($other)   # do $feat and $other completely agree?
   $feat->sub_SeqFeatures  # create/access an array of subsequence features
 
-See L<Bio::Annotation::Collection> and L<Bio::SeqFeature::Generic> as starting
-points for further exploration, and see the examples/tools/gff2ps.pl
-and examples/tools/gb_to_gff.pl scripts. There's also a section on 
-features and annotations in the FAQ (http://bioperl.org/Core/Latest/faq.html#5)
-and in the Pasteur Institute's online Bioperl course
-(http://www.pasteur.fr/recherche/unites/sis/formation/bioperl).
-
 It is worth mentioning that one can also retrieve the start and end
 positions of a feature using a Bio::LocationI object:
 
@@ -1938,7 +1937,7 @@ positions of a feature using a Bio::LocationI object:
   $location->start;           # start position
   $location->end;             # end position
 
-This is useful because one needs a Bio::Location::SplitLocationI object
+This is useful because one can use a Bio::Location::SplitLocationI object
 in order to retrieve the split coordinates inside the Genbank or EMBL join()
 statements (e.g. "CDS    join(51..142,273..495,1346..1474)"):
 
@@ -1952,7 +1951,7 @@ statements (e.g. "CDS    join(51..142,273..495,1346..1474)"):
 See L<Bio::LocationI> and L<Bio::Location::SplitLocationI> for more
 information.
 
-If more detailed annotation is required than is currently available in Seq
+If more detailed information is required than is currently available in Seq
 objects the RichSeq object may be used. It is applicable in particular to
 database sequences (EMBL, GenBank and Swissprot) with detailed annotations.
 Sample usage might be:
@@ -1966,8 +1965,8 @@ See L<Bio::Seq::RichSeqI> for more details.
 
 =head2 III.7.2 Representing sequence annotations (Annotation::Collection)
 
-Much of the interesting desciption of a sequence can be associated with
-sequence features but in Seq objects derived from Genbank or EMBL entries
+Much of the interesting description of a sequence can be associated with
+sequence features but in sequence objects derived from Genbank or EMBL entries
 there can be useful information in other "annotation" sections, such as the 
 COMMENTS section of a Genbank entry. In order to access this information 
 you'll need to create an Annotation::Collection object. For example:
@@ -1988,6 +1987,8 @@ Other possible tagnames include "date_changed", "keyword", and "reference".
 Objects with the "reference" tagname are Bio::Annotation::Reference objects 
 and represent scientific articles. See L<Bio::Annotation::Reference> for 
 descriptions of the methods used to access the data in Reference objects.
+There is also a HOWTO on features and annotation 
+(http://bioperl.org/HOWTOs/html/Feature-Annotation.html).
 
 =for html <A NAME ="iii.7.3"></A>
 
@@ -2138,8 +2139,8 @@ L<Bio::Seq::PrimaryQual>, and L<Bio::SeqIO::phd>.
 
 The previous subsections have described tools for automated sequence
 annotation by the creation of an object layer on top of a
-traditional database structure.  XML takes a somewhat different
-approach.  In XML, the data structure is unmodified, but machine
+traditional database structure. XML takes a somewhat different
+approach. In XML, the data structure is unmodified, but machine
 readability is facilitated by using a data-record syntax with special
 flags and controlled vocabulary.
 
@@ -2149,8 +2150,8 @@ proposed and bioperl has at least some support for three: GAME, BSML
 and AGAVE.
 
 Once a vocabulary is agreed upon, it becomes possible to convert
-sequence XML sequence features can be turned into bioperl Seq
-annotations and SeqFeature objects.  Conversely Seq object features
+sequence XML sequence features can be turned into bioperl
+Annotation and SeqFeature objects.  Conversely Seq object features
 and annotations can be converted to XML so that they become available
 to any other systems.  Typical usage with GAME or BSML are shown
 below. No special syntax is required by the user. Note that some Seq
@@ -2261,8 +2262,8 @@ is used for stream I/O of tree objects.  Currently only phylip/newick
 tree format is supported.  Sample code might be:
 
   $treeio = new Bio::TreeIO( -format => 'newick', -file => $treefile);
-  $tree = $treeio->next_tree;   # get the tree
-  @nodes = $tree->get_nodes;    # get all the nodes
+  $tree = $treeio->next_tree;             # get the tree
+  @nodes = $tree->get_nodes;              # get all the nodes
   $tree->get_root_node->each_Descendent;  # get descendents of root node
 
 See L<Bio::TreeIO> and L<Bio::Tree::Tree> for details.
@@ -2311,8 +2312,8 @@ examples/biblio/biblio_examples.pl script for more information.
 
 =head2 III.9.5 Graphics objects for representing sequence objects as images (Graphics)
 
-A user may want to represent Seq objects and their SeqFeatures graphically. The
-Bio::Graphics::* modules use Perl's GD.pm module to create a PNG or GIF image
+A user may want to represent sequence objects and their SeqFeatures graphically. 
+The Bio::Graphics::* modules use Perl's GD.pm module to create a PNG or GIF image
 given the SeqFeatures (Section L<"III.7.1">) contained within a Seq object.
 
 These modules contain numerous methods to dictate the sizes, colors,
@@ -2435,30 +2436,17 @@ to obtain the download files, go to:
 
 http://cvs.bioperl.org/cgi-bin/viewcvs/viewcvs.cgi/?cvsroot=bioperl
 
-Generally CVS packages are not as well tested as the released core
-library.  Consequently after downloading and running:
+Install much like Bioperl:
 
-  $perl Makefile.PL
+  >perl Makefile.PL
 
 and
 
-  $make
+  >make
 
-One should always run:
+Then:
 
-  $make test
-
-before using the packages. Even if "make test" runs successfully. it
-may be safer to _not_ run "make install" and instead to include
-the library with the auxiliary modules (say in
-/home/peter/auxmodules) by adding this line to each of your scripts:
-
-  use lib '/home/peter/auxmodules';
-
-or by adding a switch to your invocation of perl on the command
-line, e.g.:
-
-  $perl -I/home/peter/auxmodules myscript.pl
+  >make test
 
 Once the auxiliary library has been installed in this manner, the
 modules can be used in exactly the same manner as if they were in the
@@ -2680,7 +2668,7 @@ directory and the documentation in L<Bio::Tools::pSW>.
 
 =head2 IV.3 bioperl-db and BioSQL
 
-The Bioperl-db package is intended to enable the easy access and
+The bioperl-db package is intended to enable the easy access and
 manipulation of biology relational databases via a perl
 interface. Obviously it requires having administrative access to a
 relational database.  Currently the bioperl-db interface is
@@ -2724,7 +2712,7 @@ and see if they might be of use to you.
 At numerous places in the tutorial, the reader is directed to the
 "documentation included with each of the modules."  As was mentioned in
 the introduction, it is sometimes not easy in perl to determine the
-appropriate documentation to look for, because objects inherit methods
+appropriate documentation because objects inherit methods
 from other objects (and the relevant documentation will be stored in the
 object from which the method was inherited.)
 
