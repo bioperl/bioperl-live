@@ -1,6 +1,6 @@
 
 #
-# BioPerl module for Bio::DB::MultiFileSeq
+# BioPerl module for Bio::DB::AbstractSeq
 #
 # Cared for by Ewan Birney <birney@ebi.ac.uk>
 #
@@ -12,16 +12,16 @@
 
 =head1 NAME
 
-Bio::Index::MultiFileSeq - Base class for MultiFileSeq's
+Bio::Index::AbstractSeq - Base class for AbstractSeq's
 
 =head1 SYNOPSIS
 
   # Make a new sequence file indexing package
 
   package MyShinyNewIndexer;
-  use Bio::Index::MultifileSeq;
+  use Bio::Index::AbstractSeq;
 
-  @ISA = ('Bio::Index::MultifileSeq');
+  @ISA = ('Bio::Index::AbstractSeq');
   
   # Now provide the necessary methods...
 
@@ -67,7 +67,7 @@ The rest of the documentation details each of the object methods. Internal metho
 =head1 SEE ALSO
 
 Bio::Index::Abstract - Module which
-Bio::Index::MultiFileSeq inherits off, which
+Bio::Index::AbstractSeq inherits off, which
 provides dbm indexing for flat files (which are
 not necessarily sequence files).
 
@@ -77,7 +77,7 @@ not necessarily sequence files).
 # Let's begin the code ...
 
 
-package Bio::Index::MultiFileSeq;
+package Bio::Index::AbstractSeq;
 use vars qw(@ISA);
 use strict;
 

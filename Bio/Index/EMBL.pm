@@ -87,10 +87,10 @@ package Bio::Index::EMBL;
 use vars qw($VERSION @ISA);
 use strict;
 
-use Bio::Index::MultiFileSeq;
+use Bio::Index::AbstractSeq;
 use Bio::Seq;
 
-@ISA = qw(Bio::Index::MultiFileSeq);
+@ISA = qw(Bio::Index::AbstractSeq);
 
 sub _type_stamp {
     return '__EMBL_FLAT__'; # What kind of index are we?

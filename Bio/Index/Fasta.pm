@@ -89,10 +89,10 @@ package Bio::Index::Fasta;
 use vars qw($VERSION @ISA);
 use strict;
 
-use Bio::Index::MultiFileSeq;
+use Bio::Index::AbstractSeq;
 use Bio::Seq;
 
-@ISA = qw(Bio::Index::MultiFileSeq);
+@ISA = qw(Bio::Index::AbstractSeq);
 
 #
 # Suggested fix by Michael G Schwern <schwern@pobox.com> to
