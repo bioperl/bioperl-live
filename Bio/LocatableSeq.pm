@@ -113,12 +113,12 @@ sub new {
 =cut
 
 sub start{
-   my $obj = shift;
+   my $self = shift;
    if( @_ ) {
       my $value = shift;
-      $obj->{'start'} = $value;
+      $self->{'start'} = $value;
     }
-    return $obj->{'start'};
+    return $self->{'start'};
 
 }
 
@@ -132,13 +132,25 @@ sub start{
 
 =cut
 
-sub end{
-   my $obj = shift;
+sub end {
+   my $self = shift;
    if( @_ ) {
       my $value = shift;
-      $obj->{'end'} = $value;
+      my $string = $self->seq;
+      if ($string and $self->start) {
+	  my $s2 = $string;
+	  $string =~ s/[.-]+//g;
+	  my $len = CORE::length $string;
+	  my $new_end = $self->start + $len - 1 ;
+	  my $id = $self->id; 
+	  $self->warn("In sequence $id residue count gives value $len.
+Overriding value [$value] with value $new_end for end().")
+	      and $value = $new_end if $new_end ne $value;
+      }
+      
+      $self->{'end'} = $value;
     }
-    return $obj->{'end'};
+    return $self->{'end'};
 
 }
 
@@ -153,12 +165,12 @@ sub end{
 =cut
 
 sub strand{
-   my $obj = shift;
+   my $self = shift;
    if( @_ ) {
       my $value = shift;
-      $obj->{'strand'} = $value;
+      $self->{'strand'} = $value;
     }
-    return $obj->{'strand'};
+    return $self->{'strand'};
 
 }
 
@@ -186,5 +198,97 @@ sub get_nse{
    return $self->id() . $char1 . $self->start . $char2 . $self->end ;
 
 }
+
+
+=head2 no_gaps
+
+ Title   : no_gaps
+ Usage   :$self->no_gaps('.')
+ Function: 
+
+           Gets number of gaps in the sequence. The count excludes
+           leading or trailing gap characters.
+
+           Valid bioperl sequence characters are [A-Za-z\-\.\*]. Of
+           these, '.' and '-' are counted as gap characters unless an
+           optional argument specifies one of them. 
+
+ Returns : number of internal gaps in the sequnce. 
+ Args    : a gap character (optional)
+
+=cut
+
+sub no_gaps {
+    my ($self,$char) = @_;
+    my ($seq, $count) = (undef, 0);
+
+    # default gap characters
+    $char ||= '-.';
+
+    $self->warn("I hope you know what you are doing setting gap to [$char]")
+	unless $char =~ /[-.]/;
+
+    $seq = $self->seq;
+    return 0 unless $seq; # empty sequence does not have gaps
+
+    $seq =~ s/^([$char]+)//;
+    $seq =~ s/([$char]+)$//;
+    $count++ while $seq =~ /[$char]+/g;
+
+    return $count;
+
+}
+
+
+=head2 column_from_residue_number
+
+ Title   : column_from_residue_number
+ Usage   : $col = $seq->column_from_residue_number($resnumber)
+ Function:
+
+           This function gives the position in the alignment
+           (i.e. column number) of the given residue number in the
+           sequence. For example, for the sequence
+
+  	     Seq1/91-97 AC..DEF.GH
+
+           column_from_residue_number(94) returns 5.
+
+           An exception is thrown if the residue number would lie
+           outside the length of the aligment
+           (e.g. column_from_residue_number( "Seq2", 22 )
+
+ Returns : A column number for the position of the
+           given residue in the given sequence (1 = first column)
+ Args    : A residue number in the whole sequence (not just that
+           segment of it in the alignment)
+
+=cut
+
+sub column_from_residue_number {
+    my ($self, $resnumber) = @_;
+
+    $self->throw("Residue number has to be a positive integer, not [$resnumber]") 
+	unless $resnumber =~ /^\d+$/ and $resnumber > 0;
+
+    if ($resnumber >= $self->start() and $resnumber <= $self->end()) {
+	my @residues = split //, $self->seq;
+	my $count = $self->start();
+	my $i;
+	for ($i=0; $i < @residues; $i++) {
+	    if ($residues[$i] ne '.' and $residues[$i] ne '-') {
+		$count == $resnumber and last;
+		$count++;
+	    }		    
+	}
+	# $i now holds the index of the column. The actual column number is this index + 1
+	
+	return $i+1;
+    }
+
+    $self->throw("Could not find residue number $resnumber");
+
+}
+
 
 1;
