@@ -436,9 +436,10 @@ sub write_blast {
  Title   : get_sequence
  Usage   : $seq_object = get_sequence('swiss',"ROA1_HUMAN");
 
- Function: If the computer has Internet accessibility, gets
+ Function: If the computer has Internet access this method gets
            the sequence from Internet accessible databases. Currently
-           this supports Swissprot, EMBL, GenBank and RefSeq.
+           this supports Swissprot ('swiss'), EMBL ('embl'), GenBank
+           ('genbank'), GenPept ('genpept'), and RefSeq ('refseq').
 
            Swissprot and EMBL are more robust than GenBank fetching.
 
@@ -447,8 +448,8 @@ sub write_blast {
 
  Returns : A Bio::Seq object
 
- Args    : database type - one of swiss, embl, genbank or refseq
-           identifier or accession number
+ Args    : database type - one of swiss, embl, genbank, genpept, or 
+           refseq
 
 =cut
 
