@@ -459,7 +459,7 @@ sub draw {
   else {  # no part
     $self->draw_component($gd,$left,$top);
     $self->draw_connectors($gd,$left,$top)
-      if $connector && $connector ne 'none' && $self->feature->isa('Bio::SeqFeatureI');
+      if $connector && $connector ne 'none' && !$self->is_recursive;
   }
 }
 
@@ -472,7 +472,8 @@ sub draw_connectors {
     $self->_connector($gd,$dx,$dy,$parts[$i]->bounds,$parts[$i+1]->bounds);
   }
 
-  if (0) { # this is commented out until I remember what it does
+  # extra connectors going off ends
+  if (@parts>1) {
     my($x1,$y1,$x2,$y2) = $self->bounds(0,0);
     my($xl,$xt,$xr,$xb) = $parts[0]->bounds;
     $self->_connector($gd,$dx,$dy,$x1,$xt,$x1,$xb,$xl,$xt,$xr,$xb);
@@ -491,7 +492,7 @@ sub _connector {
     my $bottom1  = $dy + $xb;
     my $top2     = $dy + $yt;
     my $bottom2  = $dy + $yb;
-    return unless $right-$left >= 1;
+    return unless $right-$left > 1;
 
     $self->draw_connector($gd,
 			  $top1,$bottom1,$left,
@@ -768,6 +769,16 @@ sub all_callbacks {
 
 sub default_factory {
   croak "no default factory implemented";
+}
+
+# This returns true if the underlying feature is fully recursive, like Bio::DB::GFF or
+# Gadfly, false if the underlying feature has split locations, like Bio::Seq::RichSeq.
+# Play with this if you start getting labels appearing on each element of a segmented
+# glyph.
+sub is_recursive {
+  my $self = shift;
+  return $self->{_recursive} if exists $self->{_recursive};
+  return $self->{_recursive} = !$self->feature->isa('Bio::SeqFeature::Generic');
 }
 
 1;

@@ -8,8 +8,9 @@ use Bio::Graphics::Glyph::segmented_keyglyph;
 # group sets connector to 'dashed'
 sub connector {
   my $self = shift;
-  return $self->SUPER::connector(@_) if $self->all_callbacks;
-  return 'dashed' unless $self->SUPER::connector eq 'none';
+  my $super = $self->SUPER::connector(@_);
+  return $super if $self->all_callbacks;
+  return 'dashed' unless defined($super) && $super eq 'none';
 }
 
 # we don't label group (yet)

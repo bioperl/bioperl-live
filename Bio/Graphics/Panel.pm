@@ -102,10 +102,10 @@ sub map_pt {
   my $pr = $self->width - $self->pad_right;
   my @result;
   foreach (@_) {
-    my $val = $pl + ($_-$offset-1) * $scale;
+    my $val = int (0.5 + $pl + ($_-$offset-1) * $scale);
     $val = $pl-1 if $val < $pl;
     $val = $pr+1 if $val > $pr;
-    push @result,int(0.5+$val);
+    push @result,$val;
   }
   @result;
 }
@@ -395,8 +395,9 @@ sub format_key {
       if (my @parts = $track->parts) {
 	$glyph = $parts[0]->keyglyph;
       } else {
-	my $t = Bio::Graphics::Feature->new(-segments=>[Bio::Graphics::Feature->new(-start=>$self->offset+1,
-										    -stop=>$self->offset+1)]);
+	my $t = Bio::Graphics::Feature->new(-segments=>
+					    [Bio::Graphics::Feature->new(-start => $self->offset,
+									 -stop  => $self->offset+$self->length)]);
 	my $g = $track->factory->make_glyph($t);
 	$glyph = $g->keyglyph;
       }
@@ -492,7 +493,7 @@ sub ticks {
   my $width = $font->width;
 
   my $interval = 1;
-  my $mindist  = 4 + $width*8;
+  my $mindist  = 4 + $width*7;
   my $widest   = 4 + (CORE::length(int($end/$divisor)) * $width);
   $mindist = $widest if $widest > $mindist;
 

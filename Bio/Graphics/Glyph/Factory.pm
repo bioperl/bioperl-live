@@ -80,9 +80,10 @@ sub make_glyph {
     my $glyph = $glyphclass->new(-feature  => $f,
 				 -factory  => $self);
 
-    # this is removing glyphs that are not onscreen at all (but not tracks)
-    push @result,$glyph if $type eq 'track' 
-      || ($glyph->{left} + $glyph->{width} >= $leftmost && $glyph->{left} <= $rightmost);
+    # this is removing glyphs that are not onscreen at all.
+    # But never remove tracks!
+    push @result,$glyph if $type eq 'track'
+      || ($glyph->{left} + $glyph->{width} > $leftmost && $glyph->{left} < $rightmost);
   }
   return wantarray ? @result : $result[0];
 }

@@ -40,13 +40,13 @@ sub draw_component {
   if ($filled) {
     my $f = $self->feature;
 
-    if ($f->strand < 0 && 
-	($f->isa('Bio::SeqFeatureI')
+    if ($f->strand < 0 
+	&& (!$self->is_recursive
 	 || $self->{partno} == 0)) { # first exon, minus strand transcript
       $self->filled_arrow($gd,-1,@rect);
       $self->{filled}++;
     } elsif ($f->strand >= 0 
-	     && ($f->isa('Bio::SeqFeatureI') 
+	     && (!$self->is_recursive
 		 || $self->{partno} == $self->{total_parts}-1)) { # last exon, plus strand
       $self->filled_arrow($gd,+1,@rect);
       $self->{filled}++;
@@ -69,7 +69,7 @@ sub connector {
 sub draw_connectors {
   my $self = shift;
   my @parts = $self->parts;
-  if ($parts[0]->{filled} || $parts[-1]->{filled}) {
+  if ($self->{filled} || $parts[0]->{filled} || $parts[-1]->{filled}) {
     $self->Bio::Graphics::Glyph::generic::draw_connectors(@_);
   } else {
     $self->SUPER::draw_connectors(@_);
