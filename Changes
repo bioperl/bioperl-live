@@ -34,6 +34,12 @@ Revision history for Bioperl core modules
         2.) AA level: complex, inframe
         3.) RNA level: silent
 
+    o  BPbl2seq parsing of empty reports will not die, but will return
+       a valid, empty, Bio::SeqFeature::SimilarityFeature for
+       $report->query() and $report->subject() methods.  So an easy
+       way to test if report was empty is to see if
+       $report->query->seqname is undefined.
+
 0.7.1 Bug fix release 
 
     o Better parsing of genbank/EMBL files especially fixing bugs

@@ -1,4 +1,4 @@
-# $Id: BUGS,v 1.1.2.5 2001-11-04 17:26:39 jason Exp $
+# $Id: BUGS,v 1.1.2.6 2001-11-15 15:46:26 jason Exp $
 Known Bugs 
 
 
@@ -11,6 +11,10 @@ Bioperl 0.7.2
    of releases.  We reccommend using the Bio::DB::EMBL object that is
    part of the later releases. 
  
+   Additionally RefSeq Contigs are not properly downloaded, please see
+   the bioperl list archives for information about potential
+   workarounds and ongoing development effort to address these.
+
 Bioperl 0.7.1
 =============
  * Bio::Tools::BPlite does not parse and set frame properly for
