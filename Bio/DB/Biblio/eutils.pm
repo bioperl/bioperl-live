@@ -190,7 +190,7 @@ sub _initialize {
 =cut
 
 sub db{
-    my($self,$arg) = shift;
+    my($self,$arg) = @_;
 
     if($arg){
       my %ok = map {$_=>1} qw(pubmed pmc journals);
@@ -230,7 +230,7 @@ sub get_by_id {
   my $id = shift;
   my $db = $self->db || 'pubmed';
   $self->throw("must provide valid ID, not undef") unless defined($id);
-  my $xml = get($EFETCH.'?rettype=abstract&retmode=xml&db=$db&id='.$id);
+  my $xml = get($EFETCH.'?rettype=abstract&retmode=xml&db='.$db.'&id='.$id);
   return $xml;
 }
 
