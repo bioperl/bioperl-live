@@ -13,7 +13,7 @@ BEGIN {
 	use lib 't';
     }
     use Test;
-    plan tests => 9;
+    plan tests => 11;
 }
 
 use Bio::PrimarySeq;
