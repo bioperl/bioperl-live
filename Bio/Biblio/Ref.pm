@@ -81,6 +81,7 @@ use strict;
 use vars qw(@ISA $AUTOLOAD);
 
 use Bio::Biblio::BiblioBase;
+use Bio::Annotation::DBLink;
 
 @ISA = qw(Bio::Biblio::BiblioBase);
 
@@ -94,14 +95,14 @@ use Bio::Biblio::BiblioBase;
     my %_allowed =
 	(
 	 _author_list_complete => undef,
-	 _authors => 'ARRAY',
-	 _cross_references => 'ARRAY',
+	 _authors => 'ARRAY',  # of Bio::Biblio::Provider
+	 _cross_references => 'ARRAY',   # of Bio::Annotation::DBLink
 	 _cross_references_list_complete => undef,
 	 _abstract => undef,
 	 _abstract_language => undef,
 	 _abstract_type => undef,
 	 _codes => 'HASH',
-	 _contributors => 'ARRAY',
+	 _contributors => 'ARRAY',  # of Bio::Biblio::Provider
 	 _date => undef,
 	 _date_completed => undef,
 	 _date_created => undef,
@@ -136,5 +137,74 @@ use Bio::Biblio::BiblioBase;
 	$_allowed{$attr};
     }
 }
+
+
+=head2 add_cross_reference
+
+ Usage   : $self->add_cross_reference
+               (new Bio::Annotation::DBLink (-database   => 'EMBL',
+					     -primary_id => 'V00808');
+ Function: 
+ Example : 
+ Returns : new value of 'cross_references'
+ Args    : an object of type Bio::Annotation::DBLink
+
+=cut
+
+
+sub add_cross_reference {
+    my ($self, $value) = @_;
+    $self->throw ($self->_wrong_type_msg (ref $value, 'Bio::Annotation::DBLink'))
+	unless (UNIVERSAL::isa ($value, 'Bio::Annotation::DBLink'));
+    (defined $self->cross_references) ?
+	push (@{ $self->cross_references }, $value) :
+	    return $self->cross_references ( [$value] );
+    return $self->cross_references;
+}
+
+
+=head2 add_author
+
+ Usage   : $self->add_author (new Bio::Biblio::Person (-lastname => 'Novak');
+ Function: 
+ Example : 
+ Returns : new value of 'authors'
+ Args    : an object of type Bio::Biblio::Provider
+
+=cut
+
+
+sub add_author {
+    my ($self, $value) = @_;
+    $self->throw ($self->_wrong_type_msg (ref $value, 'Bio::Biblio::Provider'))
+	unless (UNIVERSAL::isa ($value, 'Bio::Biblio::Provider'));
+    (defined $self->authors) ?
+	push (@{ $self->authors }, $value) :
+	    return $self->authors ( [$value] );
+    return $self->authors;
+}
+
+=head2 add_contributor
+
+ Usage   : $self->add_contributor (new Bio::Biblio::Person (-lastname => 'Novak');
+ Function: 
+ Example : 
+ Returns : new value of 'contributors'
+ Args    : an object of type Bio::Biblio::Provider
+
+=cut
+
+
+sub add_contributor {
+    my ($self, $value) = @_;
+    $self->throw ($self->_wrong_type_msg (ref $value, 'Bio::Biblio::Provider'))
+	unless (UNIVERSAL::isa ($value, 'Bio::Biblio::Provider'));
+    (defined $self->contributors) ?
+	push (@{ $self->contributors }, $value) :
+	    return $self->contributors ( [$value] );
+    return $self->contributors;
+}
+
+
 1;
 __END__

@@ -477,14 +477,17 @@ sub _convert_article {
 
     # references to database entries are prefixed with database name
     # (separated by a slash)
+    use Bio::Annotation::DBLink;
     if (defined $$from_article{'dataBanks'}) {
 	my $databanks = $$from_article{'dataBanks'};  # a ref-array
 	my @references;
 	foreach my $bank ( @{ $databanks } ) {
-	    my $db_name = (defined $$bank{'dataBankName'} ? $$bank{'dataBankName'} : '.');
+	    my $db_name = $$bank{'dataBankName'};
 	    if (defined $$bank{'accessionNumbers'}) {
 		foreach my $accn ( @{ $$bank{'accessionNumbers'} } ) {
-		    push (@references, "$db_name/$accn");
+		    my $dblink = new Bio::Annotation::DBLink (-primary_id => $accn);
+		    $dblink->database ($db_name);   # it does not matter if it is undef
+		    push (@references, $dblink);
 		}
 	    }
 	}

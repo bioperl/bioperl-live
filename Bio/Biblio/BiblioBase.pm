@@ -103,8 +103,11 @@ sub AUTOLOAD {
 		# here we continue with 'set' method
 		my ($newval_type) = ref ($new_value) || 'string';
 		my ($expected_type) = $attr_type || 'string';
-		$this->throw ("In method $AUTOLOAD, trying to set a value of type '$newval_type' but '$expected_type' is expected.")
-		    if $newval_type ne $expected_type;
+#		$this->throw ("In method $AUTOLOAD, trying to set a value of type '$newval_type' but '$expected_type' is expected.")
+		$this->throw ($this->_wrong_type_msg ($newval_type, $expected_type, $AUTOLOAD))
+		    unless ($newval_type eq $expected_type) or
+		      UNIVERSAL::isa ($new_value, $expected_type);
+                       
 		$this->{$attr_name} = $new_value;
 		return $new_value;
 	    };
@@ -145,6 +148,25 @@ sub new {
     return $self;
 }
 
+#
+# set methods test whether incoming value is of a correct type;
+# here we return message explaining it
+#
+sub _wrong_type_msg {
+    my ($self, $given_type, $expected_type, $method) = @_;
+    my $msg = 'In method ';
+    if (defined $method) {
+	$msg .= $method;
+    } else {
+	$msg .= (caller(1))[3];
+    }
+    return ("$msg: Trying to set a value of type '$given_type' but '$expected_type' is expected.");
+}
+
+#
+# probably just for debugging
+# TBD: to decide...
+#
 sub print_me {
     my ($self) = @_;
     use Data::Dumper;

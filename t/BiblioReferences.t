@@ -16,7 +16,7 @@ BEGIN {
     }
     use Test;
 
-    plan tests => 107 }
+    plan tests => 109 }
 
 use Bio::Biblio::TechReport;
 ok(1);
@@ -33,6 +33,11 @@ ok $citation = new Bio::Biblio::TechReport (-identifier => '123');
 ok $citation->identifier, '123';
 ok $citation->identifier('123'), '123';
 
+use Bio::Biblio::MedlineJournalArticle;
+ok $citation = new Bio::Biblio::MedlineJournalArticle (-identifier => '122');
+ok $citation->identifier, '122';
+ok $citation->identifier('122'), '122';
+
 my @string_methods = qw(type title rights language format date spatial_location 
 		     temporal_period last_modified_date repository_subset abstract 
 		     abstract_type toc toc_type 
@@ -47,21 +52,17 @@ ok 1;
 ok $me = new Bio::Biblio::Person (-lastname => 'me');
 ok $you = new Bio::Biblio::Person (-lastname => 'you');
 
-####ok $citation->publisher($me);
-####ok $citation->publisher->name(), 'me';
+ok $citation->publisher($me);
+ok $citation->publisher->lastname(), 'me';
 
-#ok $citation->add_author($me);
-#$citation->add_author($you);
+ok $citation->add_author($me);
+$citation->add_author($you);
+ok ${ $citation->authors }[1]->lastname, 'you';
 
-#@persons = $citation->each_author;
-#ok $persons[1]->name, 'you';
+ok $citation->add_contributor($me);
+$citation->add_contributor($you);
+ok ${ $citation->contributors }[1]->lastname, 'you';
 
-
-#ok $citation->add_contributor($me);
-#$citation->add_contributor($you);
-
-#@persons = $citation->each_contributor;
-#ok $persons[1]->name, 'you';
 
 use Bio::Annotation::DBLink;
 $link1 = new Bio::Annotation::DBLink(-database => 'here',
@@ -71,11 +72,10 @@ $link2 = new Bio::Annotation::DBLink(-database => 'there',
 				     -primary_id => '002'
 				     );
 
-#ok $citation->add_DBLink($link1);
-#$citation->add_DBLink($link2);
-
-#@persons = $citation->each_DBLink;
-#ok $persons[1]->primary_id, '002';
+ok $citation->add_cross_reference ($link1);
+$citation->add_cross_reference ($link2);
+ok ${ $citation->cross_references }[0]->database, 'here';
+ok ${ $citation->cross_references }[1]->primary_id, '002';
 
 # all Ref methods tested
 
@@ -140,8 +140,8 @@ ok $citation->edition(), 'first';
 ok $citation->volume('XX');
 ok $citation->volume(), 'XX';
 
-####ok $citation->editor($me);
-####ok $citation->editor->name(), 'me';
+ok $citation->editor($me);
+ok $citation->editor->lastname, 'me';
 
 
 use Bio::Biblio::Article;
