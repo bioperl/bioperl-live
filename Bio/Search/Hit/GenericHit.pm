@@ -1472,11 +1472,15 @@ sub each_accession_number {
       while ($desc =~ /(\b\S+\|\S*\|\S*\s?)/g) {
         my $id = $1;
         my ($acc, $version);
-            if ($id =~ /(gb|emb|dbj|sp|pdb|bbs|ref|lcl)\|(.*)\|(.*)/) {
-              ($acc, $version) = split /\./, $2; 
-            } elsif ($id =~ /(pir|prf|pat|gnl)\|(.*)\|(.*)/) {
-              ($acc, $version) = split /\./, $3;  
-            } else {
+	if ($id =~ /(gb|emb|dbj|sp|pdb|bbs|ref|tp[gde])\|(.*)\|(.*)/) {
+	    ($acc, $version) = split /\./, $2; 
+	} elsif ($id =~ /(pir|prf|pat|gnl)\|(.*)\|(.*)/) {
+	    ($acc, $version) = split /\./, $3;  
+	} elsif( $id =~ /(gim|gi|bbm|bbs|lcl)\|(\d*)/) {
+	    $acc = $id;
+	} elsif( $id =~ /(oth)\|(.*)\|(.*)\|(.*)/ ) { # discontinued...
+	    ($acc,$version) = ($2);
+	} else {
                      #punt, not matching the db's at ftp://ftp.ncbi.nih.gov/blast/db/README
                      #Database Name                     Identifier Syntax
           #============================      ========================
