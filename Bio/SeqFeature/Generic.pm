@@ -59,7 +59,7 @@ SeqFeature::Generic programmatically: that is, you know that you have
 read in more information into the tag 'mytag' which you can the
 retrieve. This means you do not need to know how to write inherieted
 Perl to provide more complex information on a feature, and/or, if you
-do know but you donot want to write a new class every time you need
+do know but you do not want to write a new class every time you need
 some extra piece of information, you can use the tag system to easily
 store and then retrieve information.
 
