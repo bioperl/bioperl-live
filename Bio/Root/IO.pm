@@ -450,7 +450,7 @@ sub tempfile {
 
 sub tempdir {
     my ( $self, @args ) = @_;
-    if( exists(&File::Temp::tempdir) && exists($INC{"File/Temp.pm"})) {
+    if( exists($INC{"File/Temp.pm"}) && File::Temp::can('tempdir') ) {
 	return File::Temp::tempdir(@args);
     }
 
