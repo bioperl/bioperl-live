@@ -632,8 +632,9 @@ sub new {
 
   $adaptor    ||= 'dbi::mysqlopt';
   my $class = "Bio::DB::GFF::Adaptor::\L${adaptor}\E";
-  eval "require $class" unless $class->can('new');
-  $package->throw("Unable to load $adaptor adaptor: $@") if $@;
+  unless ($class->can('new')) {
+    eval "require $class;1;" or $package->throw("Unable to load $adaptor adaptor: $@");
+  }
 
   # this hack saves the memory adaptor, which loads the GFF file in new()
   $args->{PREFERRED_GROUPS} = $preferred_groups if defined $preferred_groups;
@@ -2060,8 +2061,7 @@ sub add_aggregator {
 
   else {
     my $class = "Bio::DB::GFF::Aggregator::\L${aggregator}\E";
-    eval "require $class";
-    $self->throw("Unable to load $aggregator aggregator: $@") if $@;
+    eval "require $class; 1" or  $self->throw("Unable to load $aggregator aggregator: $@");
     push @$list,$class->new();
   }
 }
@@ -3063,6 +3063,7 @@ sub {
 }
 END
   warn "match sub: $sub\n" if $self->debug;
+  undef $@;
   my $compiled_sub = eval $sub;
   $self->throw($@) if $@;
   return $self->{match_subs}{$expr} = $compiled_sub;
