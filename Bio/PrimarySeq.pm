@@ -455,6 +455,7 @@ sub primary_id {
 sub moltype {
     my ($obj,$value) = @_;
     if (defined $value) {
+	$value = lc $value; # let's just make it lowercase consistently
 	unless ( $valid_type{$value} ) {
 	    $obj->throw("Molecular type '$value' is not a valid type (".
 			join(',', map "'$_'", sort keys %valid_type) .") lowercase");
