@@ -16,19 +16,12 @@ BEGIN {
 use Bio::Matrix::PSM::InstanceSite;
 ok(1);
 
-  my %params=(-seq=>'TATAAT',-id=>"TATAbox1", -accession_number=>'ENSG00000122304', -mid=>'TB1',
-              -desc=>'TATA box, experimentally verified in PRM1 gene',-relpos=>-35, -start=>1965);
-my $instance=new  Bio::Matrix::PSM::InstanceSite(%params);
-ok $instance;
+my %params=(-seq=>'TATAAT',-id=>"TATAbox1", -accession_number=>'ENSG00000122304', -mid=>'TB1',
+            -desc=>'TATA box, experimentally verified in PRM1 gene',-relpos=>-35, -start=>1965);
 
-my $x=$instance->seq;
-ok $x, 'TATAAT';
-
-my $x=$instance->subseq(1,3);
-ok $x,'TAT';
-
-my $accession=$instance->accession_number;
-ok $accession;
-
+ok my $instance=new  Bio::Matrix::PSM::InstanceSite(%params);
+ok $instance->seq, 'TATAAT';
+ok $instance->subseq(1,3),'TAT';
+ok $instance->accession_number;
 ok $instance->end(1999);
 
