@@ -180,10 +180,11 @@ sub next_cluster {
   while( defined( $_ = $self->_readline ) ){
 	#skip to beginning of refSNP entry
 	if($_ !~ m!<NSE-rs>! && $start){
-	  next
+	  next;
 	} elsif($_ =~ m!<NSE-rs>! && $start){
-	  $start = 0
+	  $start = 0;
 	} 
+
 
 	#slurp up the data
 	if( defined $tfh ) {
@@ -196,6 +197,9 @@ sub next_cluster {
 	last if $_ =~ m!</NSE-rs>!;
   }
 
+  #if we didn't find a start tag
+  return undef if $start;
+
   my %parser_args;
   if( defined $tfh ) {
 	seek($tfh,0,0);
@@ -206,8 +210,8 @@ sub next_cluster {
 					'Handler' => $self);
   }
 
-  my $result;
   my $starttime;
+  my $result;
 
   if(  $DEBUG ) {  $starttime = [ Time::HiRes::gettimeofday() ]; }
 
@@ -223,8 +227,7 @@ sub next_cluster {
   if( $DEBUG ) {
 	$self->debug( sprintf("parsing took %f seconds\n", Time::HiRes::tv_interval($starttime)));
   }
-  # parsing magic here - but we call event handlers rather than 
-  # instantiating things 
+
   return $self->refsnp;
 }
 
@@ -257,7 +260,7 @@ sub refsnp {
  Title   : end_document
  Usage   : $parser->end_document;
  Function: SAX method to indicate finishing parsing a new document
- Returns : Bio::Search::Result::ResultI object
+ Returns : none
  Args    : none
 
 =cut
