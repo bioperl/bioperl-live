@@ -485,7 +485,6 @@ sub fu_and_li_F_star {
 
 sub fu_and_li_F_star_counts {
     my ($self,$n,$pi,$seg_sites, $singletons) = @_;
-    $self->warn("Fu and Li F* is not working properly");
     if( $n <= 1 ) {
 	$self->warn("N must be > 1\n");
 	return undef;
@@ -493,56 +492,31 @@ sub fu_and_li_F_star_counts {
     if( $n == 2) { 
 	return 0;
     } 
-    # Eq (2)
+
     my $a_n = 0;
-    for(my $k = 1; $k < $n; $k++ ) {
-	$a_n += ( 1 / $k );
-    }
     
-    my $a1 = $a_n + (1 / $n );
-    warn("a_n is $a_n a1 is $a1 n is $n\n");
+
     my $b = 0;
     for(my $k= 1; $k < $n; $k++ ) {
-	$b += (1 / $k**2 );
+	$b += (1 / ($k**2));
+	$a_n += ( 1 / $k );     # Eq (2)
     }
-    # eq (14) 
-	
-    my $c = 2 * ( ( ($n * $a_n) - (2 * ( $n -1 ))) / 
-		  (( $n - 1) * ($n - 2)) );
-    # eq (46) 
-    my $d = $c + ($n -2) / ($n - 1)**2 +
-	2 / ($n -1) * 
-	( 1.5 - ( (2*$a1 - 3) / ($n -2) ) - 
-	  1 / $n ); 
+    my $a1 = $a_n + (1 / $n );
 
-    my $v_F_star = ( $d + ( 2*($n**2+$n+3) /
-			    (9*$n*($n-1)) )  -
-		     (  2 / ($n-1) *
-		       ( 4*$b - 6 + 8/$n )) )/
-		       ($a_n**2 + $b);
+    # warn("a_n is $a_n a1 is $a1 n is $n b is $b\n");
 
+    # From Simonsen et al (1995) instead of Fu and Li 1993
+    my $v_F_star = ( (( 2 * $n ** 3 + 110 * $n**2 - (255 * $n) + 153)/
+		      (9 * ($n ** 2) * ( $n - 1))) +
+		     ((2 * ($n - 1) * $a_n ) / $n ** 2) -
+		     (8 * $b / $n) ) / 
+		     ( ($a_n ** 2) + $b );
     
-#    my $u_F_star = $n / ($n - 1);
-#    warn("1 = $u_F_star\n");
-#    $u_F_star += ($n + 1) / ( 3 * ($n - 1) );
-#    warn("2 = $u_F_star\n");
-#    $u_F_star -= 4 / ( $n * ( $n - 1 ));
-#    warn("3 = $u_F_star\n");
-#    $u_F_star += 2 * ($n + 1) / ( $n - 1)**2 *
-#		   ( $a1 - (2 * $n) / ( $n + 1) );
-#    warn("4 = $u_F_star\n");
-#    $u_F_star /=  $a_n;
-#    warn("5 = $u_F_star\n");
-#    $u_F_star -= $v_F_star;
-    
-    my $u_F_star = ( $n / ($n - 1) +
-		     ($n + 1) / ( 3 * $n - 3)  -
-		      4 / ( $n **2 - $n ) +
-		     ( 2 * ($n + 1) / (( $n - 1)**2) *
-		       ( $a1 - (2 * $n) / ( $n + 1)) ))  / 
-		       $a_n - $v_F_star;
-    #warn("vf* = $v_F_star uf* = $u_F_star n = $n\n");
-    my $F_star = ( $pi - ($singletons*($n-1)/ $n)) /
+    my $u_F_star = ((( (4* ($n**2)) + (19 * $n) + 3 - (12 * ($n + 1)* $a1)) /
+		    (3 * $n * ( $n - 1))) / $a_n) - $v_F_star;
+
+    # warn("vf* = $v_F_star uf* = $u_F_star n = $n\n");
+    my $F_star = ( $pi - ($singletons*( ( $n-1) / $n)) ) /
 	sqrt ( $u_F_star*$seg_sites + $v_F_star*$seg_sites**2);
     return $F_star;
 }

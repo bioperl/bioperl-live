@@ -19,7 +19,7 @@ BEGIN {
 	use lib 't';
     }
     use vars qw($NTESTS);
-    $NTESTS = 78;
+    $NTESTS = 81;
     $error = 0;
 
     use Test;
@@ -56,9 +56,9 @@ ok(sprintf("%.3f",
 	   Bio::PopGen::Statistics->fu_and_li_F_counts(24, 3.16, 18, 9)),
    -1.735);
 
-#ok(sprintf("%.3f",
-#	   Bio::PopGen::Statistics->fu_and_li_F_star_counts(24, 3.16, 18, 10)),
-#   -1.710);
+ok(sprintf("%.2f",
+	   Bio::PopGen::Statistics->fu_and_li_F_star_counts(24, 3.16, 18, 10)),
+   -1.71);
 
 my ($FILE1) = qw(popgentst1.out);
 
@@ -336,10 +336,10 @@ ok(sprintf("%.5f",Bio::PopGen::Statistics->fu_and_li_D_star(\@ingroup)),
 ok(sprintf("%.5f",Bio::PopGen::Statistics->fu_and_li_D_star($ingroup)),
    0.27345);
 
-#ok(sprintf("%.5f",Bio::PopGen::Statistics->fu_and_li_F_star(\@ingroup)),
-#     0.27834);
-#ok(sprintf("%.5f",Bio::PopGen::Statistics->fu_and_li_F_star($ingroup)),
-#   0.27834);
+ok(sprintf("%.5f",Bio::PopGen::Statistics->fu_and_li_F_star(\@ingroup)),
+     0.27834);
+ok(sprintf("%.5f",Bio::PopGen::Statistics->fu_and_li_F_star($ingroup)),
+   0.27834);
 
 ok((Bio::PopGen::Statistics->derived_mutations(\@ingroup,\@outgroup))[0], 1);
 ok((Bio::PopGen::Statistics->derived_mutations($ingroup,\@outgroup))[0], 1);
