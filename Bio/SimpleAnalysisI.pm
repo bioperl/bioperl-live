@@ -114,10 +114,10 @@ sub analysis_name { shift->throw_not_implemented(); }
 =head2 analysis_spec
 
  Usage   : $tool->analysis_spec;
- Returns : a hash describing this analysis
+ Returns : a hash reference describing this analysis
  Args    : none
 
-The returned hash uses the following keys (not all of them always
+The returned hash reference uses the following keys (not all of them always
 present, perhaps others present as well): C<name>, C<type>, C<version>,
 C<supplier>, C<installation>, C<description>.
 
