@@ -355,7 +355,7 @@ sub next_result{
 	       }
 
 	       # rebuild the first part of the line, preserving spaces:
-	       $_ = join("", (split(/(\s+)/, $_, scalar(@line) + 1))[0..2*$#line]);
+	       ($_) = m/^(\S+(?:\s+\S+){$#line})/;
 
 	       my ($id, $desc) = split(/\s+/,$_,2);
 	       my @pieces = split(/\|/,$id);
