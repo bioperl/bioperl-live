@@ -3,8 +3,9 @@
 # BioPerl module for Bio::Tools::Sim4::Exon
 #
 # Cared for by Ewan Birney <birney@sanger.ac.uk>
+# and Hilmar Lapp <hlapp@gmx.net>
 #
-# Copyright Ewan Birney
+# Copyright Ewan Birney, Hilmar Lapp
 #
 # You may distribute this module under the same terms as perl itself
 
@@ -12,20 +13,47 @@
 
 =head1 NAME
 
-Bio::Tools::Sim4::Exon - A single 
+Bio::Tools::Sim4::Exon - A single exon determined by an alignment
 
 =head1 SYNOPSIS
 
-See Bio::Tools::Sim4::Results for a description of the context.     
+# See Bio::Tools::Sim4::Results for a description of the context.
+
+# an instance of this class is-a Bio::SeqFeature::SimilarityPair
+
+# coordinates of the exon (recommended way):
+print "exon from ", $exon->start(),
+      " to ", $exon->end(), "\n";
+
+# the same (feature1() inherited from Bio::SeqFeature::FeaturePair)
+print "exon from ", $exon->feature1()->start(),
+      " to ", $exon->feature1()->end(), "\n";
+# also the same (query() inherited from Bio::SeqFeature::SimilarityPair):
+print "exon from ", $exon->query()->start(),
+      " to ", $exon->query()->end(), "\n";
+
+# coordinates on the matching EST (recommended way):
+print "matches on EST from ", $exon->est_hit()->start(),
+      " to ", $exon->est_hit()->end(), "\n";
+
+# the same (feature2() inherited from Bio::SeqFeature::FeaturePair)
+print "matches on EST from ", $exon->feature2()->start(),
+      " to ", $exon->feature2()->end(), "\n";
+# also the same (subject() inherited from Bio::SeqFeature::SimilarityPair):
+print "exon from ", $exon->subject()->start(),
+      " to ", $exon->subject()->end(), "\n";
 
 =head1 DESCRIPTION
 
-This class inherits from Bio::SeqFeature::FeaturePair. Feature1 refers
-to the 'exon' on the genomic sequence, so that $exon->start(), $exon->end()
-etc will always return what you expect. To get the match to this exon (as
-aligned by sim4) as a Generic feature, use
-     $esthit = $exon->est_hit()
-which is the same as referring to $exon->feature2().
+This class inherits from Bio::SeqFeature::SimilarityPair and represents an
+exon on a genomic sequence determined by similarity, that is, by aligning an
+EST sequence (using Sim4 in this case). Consequently, the notion of query and
+subject is always from the perspective of the genomic sequence: query refers
+to the genomic seq, subject to the aligned EST hit. Because of this,
+$exon->start(), $exon->end() etc will always return what you expect. 
+
+To get the coordinates on the matching EST, refer to the properties of the
+feature returned by L<est_hit()>.
 
 =head1 FEEDBACK
 
@@ -36,8 +64,7 @@ and other Bioperl modules. Send your comments and suggestions preferably
  to one of the Bioperl mailing lists.
 Your participation is much appreciated.
 
-  vsns-bcd-perl@lists.uni-bielefeld.de          - General discussion
-  vsns-bcd-perl-guts@lists.uni-bielefeld.de     - Technically-oriented discussion
+  bioperl-l@bioperl.org          - General discussion
   http://bio.perl.org/MailList.html             - About the mailing lists
 
 =head2 Reporting Bugs
@@ -49,11 +76,10 @@ Report bugs to the Bioperl bug tracking system to help us keep track
   bioperl-bugs@bio.perl.org
   http://bio.perl.org/bioperl-bugs/
 
-=head1 AUTHOR - Ewan Birney
+=head1 AUTHOR - Ewan Birney, Hilmar Lapp
 
 Email birney@sanger.ac.uk
-Bug fixes and enhancements (doc & code) by Hilmar Lapp <hlapp@gmx.net> or
-<hilmar.lapp@pharma.novartis.com>.
+Hilmar Lapp <hlapp@gmx.net> or <hilmar.lapp@pharma.novartis.com>.
 
 Describe contact details here
 
@@ -76,7 +102,7 @@ use strict;
 use Bio::SeqFeature::FeaturePair;
 use Bio::SeqFeature::Generic;
 
-@ISA = qw(Bio::SeqFeature::FeaturePair);
+@ISA = qw(Bio::SeqFeature::SimilarityPair);
 # new() is inherited from Bio::Root::Object
 
 # _initialize is where the heavy stuff will happen when new is called
@@ -85,33 +111,20 @@ sub _initialize {
     my ($self,@args) = @_;
     my $make = $self->SUPER::_initialize(@args);
 
-    # If the caller didn't specify a -feature1 object (and he/she isn't
-    # supposed to know about that), we create it here, passing all arguments
-    # to it for proper initialization (i.e., we pretend to be a Generic
-    # feature to allow for arguments like -start, -end, etc). Apart from that,
-    # because calling things like primary_tag() actually refer to the feature1
-    # object (as implemented by FeaturePair), we need to have it defined
-    # anyway.
-    if(! defined($self->feature1())) {
-	my $fea1 = Bio::SeqFeature::Generic->new(@args);
-	$self->feature1($fea1);
-    }
-    $self->primary_tag('exon'); # set 
-    $self->source_tag('Sim4');
+    my ($prim, $source) = $self->_rearrange([qw(PRIMARY SOURCE)], @args);
+
+    $self->primary_tag('exon') unless $prim;
+    $self->source_tag('Sim4') unless $source;
     $self->strand(0) unless defined($self->strand());
     # set stuff in self from @args
     return $make; # success - we hope!
 }
 
-#
-# Everything else is just inherited from SeqFeature::Generic. Cool.
-#
-
 =head2 percentage_id
 
  Title   : percentage_id
  Usage   : $obj->percentage_id($newval)
- Function: 
+ Function: This is a synonym for 100 * $obj->est_hit()->frac_identical().
  Returns : value of percentage_id
  Args    : newvalue (optional)
 
@@ -119,13 +132,39 @@ sub _initialize {
 =cut
 
 sub percentage_id {
-    my $obj = shift;
-    if( @_ ) {
-	my $value = shift;
-	$obj->{'percentage_id'} = $value;
+    my ($self, @args) = @_;
+    my $frac;
+    my $val;
+    my $delegated = 0;
+    
+    if(@args) {
+	$frac = $args[0];
+	$frac /= 100.0 if defined($frac);
     }
-    return $obj->{'percentage_id'};
-
+    if($self->query()->can('frac_identical')) {
+	if(defined($frac)) {
+	    $self->query()->frac_identical($frac);
+	}
+	$val = 100.0 * $self->query()->frac_identical();
+	$delegated = 1;
+    }
+    if($self->est_hit()->can('frac_identical')) {
+	if(defined($frac)) {
+	    $self->est_hit()->frac_identical($frac);
+	}
+	# this intentiously overwrites previous $val
+	$val = 100.0 * $self->est_hit()->frac_identical();
+	$delegated = 1;
+    }
+    if(! $delegated) {
+	if(@args) {
+	    $val = shift(@args);
+	    $self->{'percentage_id'} = $val;
+	} else {
+	    $val = $self->{'percentage_id'};
+	}
+    }
+    return $val;
 }
 
 =head2 est_hit
@@ -143,9 +182,7 @@ sub percentage_id {
 
 sub est_hit {
     my $self = shift;
-    return $self->feature2();
+    return $self->feature2(@_);
 }
 
 1;
-
-
