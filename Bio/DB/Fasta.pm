@@ -507,6 +507,12 @@ sub _open_index {
   return \%offsets;
 }
 
+sub _close_index {
+  my $self = shift;
+  my $index = shift;
+  untie %$index;
+}
+
 =head2 index_dir
 
  Title   : index_dir
@@ -549,20 +555,24 @@ sub index_dir {
   }
 
   my $reindex = $force_reindex || $indextime < $modtime;
-  my $offsets = $self->_open_index($index,$reindex) or return;
-  $self->{offsets} = $offsets;
+  $self->{offsets} = $self->_open_index($index,$reindex) or return;
 
   # no indexing needed
-  return $offsets unless $reindex;
+  return $self->{offsets} unless $reindex;
 
   # otherwise reindex contents of changed files
   $self->{indexing} = $index;
   foreach (@files) {
     next if( defined $indextime && $modtime{$_} <= $indextime);
-    $self->calculate_offsets($_,$offsets);
+    $self->calculate_offsets($_,$self->{offsets});
   }
   delete $self->{indexing};
-  return $self->{offsets};
+
+  # we've been having troubles with corrupted index files on Windows systems,
+  # so possibly closing and reopening will help
+  $self->_close_index($self->{offsets});
+
+  return $self->{offsets}  = $self->_open_index($index);
 }
 
 =head2 get_Seq_by_id

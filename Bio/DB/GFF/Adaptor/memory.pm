@@ -156,6 +156,21 @@ sub get_dna {
   $dna;
 }
 
+sub setup_load {
+  my $self = shift;
+  $self->{tmp}  = {};
+  $self->{data} = [];
+  1;
+}
+
+sub finish_load {
+  my $self = shift;
+  foreach my $arrayref (values %{$self->{tmp}}) {
+    push @{$self->{data}},@$arrayref;
+  }
+  1;
+}
+
 # this method loads the feature as a hash into memory -
 # keeps an array of features-hashes as an in-memory db
 sub load_gff_line {
@@ -163,7 +178,9 @@ sub load_gff_line {
   my $feature_hash  = shift;
   $feature_hash->{strand} = '' if $feature_hash->{strand} && $feature_hash->{strand} eq '.';
   $feature_hash->{phase} = ''  if $feature_hash->{phase}  && $feature_hash->{phase} eq '.';
-  push @{$self->{data}},$feature_hash;
+  # sort by group please
+  push @{$self->{tmp}{$feature_hash->{gclass},$feature_hash->{gname}}},$feature_hash;
+#  push @{$self->{data}},$feature_hash;
 }
 
 # given sequence name, return (reference,start,stop,strand)
@@ -729,8 +746,6 @@ sub _match_all_attr_in_feature{
 
 
 sub do_initialize { 1; }
-sub setup_load { }
-sub finish_load { 1; }
 sub get_feature_by_group_id{ 1; }
 
 1;
