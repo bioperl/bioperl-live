@@ -444,7 +444,7 @@ sub next_result{
 			       'Data' => $1});
 	   }
 	   if( / (\S+)\% \s* identity
-                 (?:\s* \( (\S+)\% \s* ungapped \) )?
+                 (?:\s* \( \s* (\S+)\% \s* ungapped \) )?
                  \s* in \s* (\d+) \s+ (?:aa|nt) \s+ overlap \s*
                  \( (\d+) \- (\d+) : (\d+) \- (\d+) \)
                /x ) {
