@@ -1,9 +1,9 @@
 
-package Bio::DB::GFF::Adaptor::dbi::oracleopt;
+package Bio::DB::GFF::Adaptor::dbi::oracle;
 
 =head1 NAME
 
-Bio::DB::GFF::Adaptor::dbi::oracleopt -- Database adaptor for a specific oracle schema
+Bio::DB::GFF::Adaptor::dbi::oracle -- Database adaptor for a specific oracle schema
 
 =head1 SYNOPSIS
 
@@ -279,7 +279,7 @@ sub new {
   my ($dsn,$other) = rearrange([
 				[qw(FEATUREDB DB DSN)],
 			       ],@_);
-  $dsn = "dbi:Oracleopt:$dsn" if !ref($dsn) && $dsn !~ /^(dbi|DBI):/;
+  $dsn = "dbi:Oracle:$dsn" if !ref($dsn) && $dsn !~ /^(dbi|DBI):/;
   my $self = $class->SUPER::new(-dsn=>$dsn,%$other);
   $self;
 }
