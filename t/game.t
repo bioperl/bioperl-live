@@ -20,8 +20,8 @@
 
 ## We start with some black magic to print on failure.
 BEGIN { 
-    eval { require 'XML/Parser/PerlSAX.pm';
-       };
+    eval { require XML::Parser::PerlSAX;
+             };
     if( $@ ) {
 	print STDERR "XML::Parser::PerlSAX not loaded. This means game test cannot be executed. Skipping\n";
 	print "1..1\n";
@@ -35,11 +35,11 @@ BEGIN {
 
 END {print "not ok 1\n" unless $loaded;}
 
-use lib '../';
+use lib '.';
 use Bio::Seq;
 use Bio::SeqIO;
 use Bio::SeqIO::MultiFile;
-
+use XML::Parser::PerlSAX;
 $loaded = 1;
 print "ok 1\n";    # 1st test passes.
 

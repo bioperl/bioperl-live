@@ -7,6 +7,7 @@
     xmlns:bx-game="http://www.bioxml.org/dtds/game/v0_1" 
     xmlns:bx-link="http://www.bioxml.org/dtds/link/v0_1" 
     xmlns:bx-seq="http://www.bioxml.org/dtds/seq/v0_1">
+<bx-game:flavor>chunkable</bx-game:flavor>
 <bx-seq:seq bx-seq:id="AE003417" bx-seq:type='dna' bx-seq:length="314661">
 <bx-seq:name>AE003417</bx-seq:name>
 <bx-seq:description>E003417|Drosophila melanogaster genomic scaffold 142000013386054 section 1 of 35, complete sequence.|AE003417.1 GI:7290018</bx-seq:description>

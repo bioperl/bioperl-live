@@ -11,7 +11,6 @@
 # June 25, 2000     written by Brad Marshall
 #
 # POD documentation - main docs before the code
-
 =head1 NAME
 
 Bio::SeqIO::Bioxml  Parses game 0.1 and higher into and out of 
@@ -72,7 +71,7 @@ methods. Internal methods are usually preceded with a _
 
 # Let the code begin...
 
-package Bio::SeqIO::game;
+package Bio::SeqIO::game2;
 use vars qw(@ISA);
 use strict;
 # Object preamble - inherits from Bio::Root::Object
@@ -110,13 +109,17 @@ sub _initialize {
   
   $self->{counter} = 0;
   $self->{id_counter} = 1;  
+  $self->{leftovers};
+  $self->{header};
+  $self->{chunkable};
+  $self->{xmldoc};
 
   $self->_export_subfeatures(1);
   $self->_group_subfeatures(1);
   $self->_subfeature_types('exons', 'promoters','poly_A_sites','utrs','introns','sub_SeqFeature');
   
-  ($self->{file} ) = $self->_rearrange( [ qw(FILE) ], @args);
-  $self->throw("did not specify a file to read, Filehandle suport is not implemented currently") if( !defined $self->{file});
+  ($self->{file}, $self->{fh} ) = $self->_rearrange( [ qw(FILE FH) ], @args);
+#  $self->throw("did not specify a file to read, Filehandle suport is not implemented currently") if( !defined $self->{file});
   return unless my $make = $self->SUPER::_initialize(@args);
 }
 
@@ -217,39 +220,126 @@ sub _add_subfeature_type{
 sub next_seq {
   my $self = shift; 
 
-  unless (defined @{$self->{seqs}}) {
 
-      eval {
-	my $handler = Bio::SeqIO::game::idHandler->new();
-	my $options = {Handler=>$handler};
-	my $parser = XML::Parser::PerlSAX->new($options);
-	$self->{seqs} = $parser->parse(Source => { SystemId => $self->{file} });
-      };
-      if ($@) {
-	$self->warn("There was an error parsing the xml document.  It may not be well-formed or empty.\n$@");
-	return 0;
-      }
+  #  The header is the top level stuff in the XML file.
+  #  IE  before the first <bx-seq:seq> tag.
+  #  If you don't include this in each 'chunk', the
+  #  parser will barf.
+  my $header;
+  unless ($self->{header}) {
+    while (my $next_line = $self->_readline) {
+      if($next_line=~/<bx-seq:seq?/) {
+	$header .= $`;
+	$self->{header}=$header;
+	$self->{leftovers} .= "<bx-seq:seq".$';
+	last;
+      } else {
+	$header .= $next_line;
+      }      
+    }
+    if ($self->{header}=~m|<bx-game:flavor>.*chunkable.*</bx-game:flavor>|) {
+      $self->{chunkable}=1;
+    }
+    
   }
-  my $seq = shift(@{$self->{seqs}});
-  if ($seq) {
-      my $shandler = Bio::SeqIO::game::seqHandler->new($seq);
-      my $options = {Handler=>$shandler};
-      my $parser = XML::Parser::PerlSAX->new($options);
-      my $pseq = $parser->parse(Source => { SystemId => $self->{file} });
 
-      my $fhandler = Bio::SeqIO::game::featureHandler->new($pseq->id(),
-							   $pseq->length(), 
-							   $pseq->moltype());
-      $options = {Handler=>$fhandler};
-
-      $parser = XML::Parser::PerlSAX->new($options);
-      my $features = $parser->parse(Source => { SystemId => $self->{file} });
-      my $seq = Bio::Seq->new();
-      foreach my $feature (@{$features}) {
-	  $seq->add_SeqFeature($feature);
+  my $not_top_level;
+  my $xmldoc;
+  my $seq;
+  #  If chunkable, we read in the document until the next 
+  #  TOP LEVEL sequence.
+  if ($self->{chunkable}) {
+    $xmldoc = $self->{header}.$self->{leftovers};
+    while (my $next_line = $self->_readline) {
+      # Maintain depth of computations and annotations. 
+      # We only want TOP LEVEL seqs if chunkable.
+      while ($next_line=~ m|<bx-computation:computation|g) {
+	$not_top_level++;
       }
-      $seq->primary_seq($pseq);
-      return $seq;
+      while ($next_line=~ m|<bx-annotation:annotation|g) {
+	$not_top_level++;
+      }
+      while ($next_line=~ m|</bx-computation:computation|g) {
+	$not_top_level--;
+      }
+      while ($next_line=~ m|</bx-annotation:annotation|g) {
+	$not_top_level--;
+      }
+      if($next_line=~/<bx-seq:seq?/) {
+	if (!$not_top_level) {
+	  $xmldoc .= $`;
+	  $self->{leftovers} .= "<bx-seq:seq".$';
+	  last;
+	}
+      } else {
+	$xmldoc .= $next_line;
+      }  
+    }
+    #  Make sure the 'doc chunk' has a closing tag 
+    #  to make the parser happy.
+    if (!$xmldoc=~m|</bx-game:game>|){
+      $xmldoc .= "</bx-game:game>";
+    }
+    # Grab the TOP LEVEL seq..
+    if ($xmldoc =~ m|</bx-seq:seq|) {
+      my $handler = Bio::SeqIO::game::idHandler->new();
+      my $options = {Handler=>$handler};
+      my $parser  = XML::Parser::PerlSAX->new($options);
+      $self->{seqs} = $parser->parse(Source => { String => $xmldoc });
+    } else { # No sequences.
+      return 0;
+    }
+    # Get the seq out of the array.
+    $seq = @{$self->{seqs}}[0];
+  # If not chunkable,
+  # only read document into memory once!
+  } elsif (!$self->{xmldoc}) {
+    $self->{xmldoc}=$self->{header}.$self->{leftovers};
+    while (my $next_line = $self->_readline) {
+      $self->{xmldoc} .= $next_line;
+    }
+    $xmldoc=$self->{xmldoc};
+    # Get the seq id index.
+    if ($xmldoc =~ m|</bx-seq:seq|) {
+      my $handler = Bio::SeqIO::game::idHandler->new();
+      my $options = {Handler=>$handler};
+      my $parser  = XML::Parser::PerlSAX->new($options);
+      $self->{seqs} = $parser->parse(Source => { String => $xmldoc });
+      $seq = shift @{$self->{seqs}};
+    } else { # No sequences.
+      return 0;
+    }
+    my $seq = @{$self->{seqs}}[0];
+  # if we already have the doc in memory, 
+  # just get the doc.
+  } elsif ($self->{xmldoc}) {
+    $xmldoc=$self->{xmldoc};
+    $seq = shift @{$self->{seqs}};
+  }
+  #  If there's more sequences:
+  if ($seq) {
+    # Get the next seq.
+    my $handler = Bio::SeqIO::game::seqHandler->new($seq);
+    my $options = {Handler=>$handler};
+    my $parser  = XML::Parser::PerlSAX->new($options);
+    my $pseq = $parser->parse(Source => { String => $xmldoc });
+    # get the features.
+    my $fhandler = Bio::SeqIO::game::featureHandler->new($pseq->id(),
+							 $pseq->length(), 
+							 $pseq->moltype());
+    $options = {Handler=>$fhandler};
+    
+    $parser = XML::Parser::PerlSAX->new($options);
+    my $features = $parser->parse(Source => { String => $xmldoc });
+    my $seq = Bio::Seq->new();
+    # Build the Bioperl Seq and return it.
+    foreach my $feature (@{$features}) {
+      $seq->add_SeqFeature($feature);
+    }
+    $seq->primary_seq($pseq);
+    return $seq;
+  } else {
+    return 0;
   }
 }
 
@@ -266,27 +356,112 @@ sub next_seq {
 sub next_primary_seq {
   my $self=shift;
 
-  unless (defined @{$self->{seqs}}) {
-    
-    eval {
-      my $handler = Bio::SeqIO::game::idHandler->new();
-      my $options = {Handler=>$handler};
-      my $parser = XML::Parser::PerlSAX->new($options);
-      $self->{seqs} = $parser->parse(Source => { SystemId => $self->{file} });
-    };
-    if ($@) {
-      $self->warn("There was an error parsing the xml document.  It may not be well-formed or empty.");
-      return 0;
+  #  The header is the top level stuff in the XML file.
+  #  IE  before the first <bx-seq:seq> tag.
+  #  If you don't include this in each 'chunk', the
+  #  parser will barf.
+  my $header;
+  unless ($self->{header}) {
+    while (my $next_line = $self->_readline) {
+      if($next_line=~/<bx-seq:seq?/) {
+	$header .= $`;
+	$self->{header}=$header;
+	$self->{leftovers} .= "<bx-seq:seq".$';
+	last;
+      } else {
+	$header .= $next_line;
+      }      
     }
+    if ($self->{header}=~m|<bx-game:flavor>.*chunkable.*</bx-game:flavor>|) {
+      $self->{chunkable}=1;
+    }
+      
   }
 
-  my $seq = shift(@{$self->{seqs}});
+  my $not_top_level = 0;
+  my $xmldoc;
+  my $seq;
+  #  If chunkable, we read in the document until the next 
+  #  TOP LEVEL sequence.
+  if ($self->{chunkable}) {
+    $xmldoc = $self->{header}.$self->{leftovers};
+    while (my $next_line = $self->_readline) {
+      # Maintain depth of computations and annotations. 
+      # We only want TOP LEVEL seqs if chunkable.
+      while ($next_line=~ m|<bx-computation:computation|g) {
+	$not_top_level++;
+      }
+      while ($next_line=~ m|<bx-annotation:annotationn|g) {
+	$not_top_level++;
+      }
+      while ($next_line=~ m|</bx-computation:computation|g) {
+	$not_top_level--;
+      }
+      while ($next_line=~ m|</bx-annotation:annotationn|g) {
+	$not_top_level--;
+      }
+      if($next_line=~/<bx-seq:seq?/) {
+	if (!$not_top_level) {
+	  $xmldoc .= $`;
+	  $self->{leftovers} .= "<bx-seq:seq".$';
+	  last;
+	}
+      } else {
+	$xmldoc .= $next_line;
+      }  
+    }
+    #  Make sure the 'doc chunk' has a closing tag 
+    #  to make the parser happy.
+    if (!$xmldoc=~m|</bx-game:game>|){
+      $xmldoc .= "</bx-game:game>";
+    }
+    # Grab the TOP LEVEL seq..
+    if ($xmldoc =~ m|</bx-seq:seq|) {
+      my $handler = Bio::SeqIO::game::idHandler->new();
+      my $options = {Handler=>$handler};
+      my $parser  = XML::Parser::PerlSAX->new($options);
+      $self->{seqs} = $parser->parse(Source => { String => $xmldoc });
+    } else { # No sequences.
+      return 0;
+    }
+    $seq = @{$self->{seqs}}[0];
+  # If not chunkable,
+  # only read document into memory once!
+  } elsif (!$self->{xmldoc}) {
+    $self->{xmldoc}=$self->{header}.$self->{leftovers};
+    while (my $next_line = $self->_readline) {
+      $self->{xmldoc} .= $next_line;
+    }
+    $xmldoc=$self->{xmldoc};
+    # Get the seq id index.
+    if ($xmldoc =~ m|</bx-seq:seq|) {
+      my $handler = Bio::SeqIO::game::idHandler->new();
+      my $options = {Handler=>$handler};
+      my $parser  = XML::Parser::PerlSAX->new($options);
+      $self->{seqs} = $parser->parse(Source => { String => $xmldoc });
+      $seq = shift @{$self->{seqs}};
+    } else { # No sequences.
+      return 0;
+    }
+    my $seq = @{$self->{seqs}}[0];
+  # if we already have the doc in memory, 
+  # just get the doc.
+  } elsif ($self->{xmldoc}) {
+    $xmldoc=$self->{xmldoc};
+    $seq = shift @{$self->{seqs}};
+  }
+
+  #print $xmldoc;
+    
   if ($seq) {
+    # Get the next seq.
     my $handler = Bio::SeqIO::game::seqHandler->new($seq);
     my $options = {Handler=>$handler};
     my $parser  = XML::Parser::PerlSAX->new($options);
-    my $pseq = $parser->parse(Source => { SystemId => $self->{file} });
+    my $pseq = $parser->parse(Source => { String => $xmldoc });
     return $pseq;
+  } else {
+    return 0;
   }
 }
 
