@@ -305,9 +305,9 @@ sub next_seq {
        }
        #keywords
        elsif( /^KW\s+(.*)$/ ) {
-	   my @kw = split(/\s*\;\s+/,$1);
+	   my @kw = split(/\s*\;\s*/,$1);
 	   defined $kw[-1] && $kw[-1] =~ s/\.$//;
-	   push @{$params{'-keywords'}}, @kw;
+	   push @{$params{'-keywords'}}, @kw;   
        }
 
 
@@ -554,21 +554,23 @@ sub write_seq {
 	}   
 
 	# if there, write the kw line
-
-	if( $self->_kw_generation_func ) {
-	    $temp_line = &{$self->_kw_generation_func}($seq);
-	    $self->_print( "KW   $temp_line.\n");
-	} else {
-	    if( $seq->can('get_keywords') ) {
-		$self->_write_line_swissprot_regex("KW   ","KW   ",
-						   join('; ', 
-							$seq->get_keywords),
-						   "\\s\+\|\$",80);       
-	    }
+	{
+	    my( $kw );
+	    if( my $func = $self->_kw_generation_func ) {
+		$kw = &{$func}($seq);
+	    } elsif( $seq->can('keywords') ) {		
+		$kw = $seq->keywords;
+		if( ref($kw) =~ /ARRAY/i ) {
+		    $kw = join("; ", @$kw);
+		}
+		$kw .= '.' if( $kw !~ /\.$/ );
+	    }	    
+	    $self->_write_line_swissprot_regex("KW   ","KW   ",
+					       $kw, "\\s\+\|\$",80);           
 	}
 
-#Check if there is seqfeatures before printing the FT line
-	my @feats = $seq->top_SeqFeatures;
+        #Check if there are seqfeatures before printing the FT line
+        my @feats = $seq->can('top_SeqFeatures') ? $self->top_SeqFeatures : ();
 	if ($feats[0]) {
 	    if( defined $self->_post_sort ) {
 
@@ -577,9 +579,7 @@ sub write_seq {
 		my $post_sort_func = $self->_post_sort();
 		my @fth;
 
-		my @feats = $seq->top_SeqFeatures;
-
-		foreach my $sf ( $seq->top_SeqFeatures ) {
+		foreach my $sf ( @feats ) {
 		    push(@fth,Bio::SeqIO::FTHelper::from_SeqFeature($sf,$seq));
 		}
 		@fth = sort { &$post_sort_func($a,$b) } @fth;
@@ -591,7 +591,7 @@ sub write_seq {
 		# not post sorted. And so we can print as we get them.
 		# lower memory load...
 
-		foreach my $sf ( $seq->top_SeqFeatures ) {
+		foreach my $sf ( @feats ) {
 		    my @fth = Bio::SeqIO::FTHelper::from_SeqFeature($sf,$seq);
 		    foreach my $fth ( @fth ) {
 			if( ! $fth->isa('Bio::SeqIO::FTHelper') ) {
