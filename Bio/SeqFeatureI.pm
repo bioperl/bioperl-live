@@ -457,21 +457,12 @@ sub spliced_seq {
 
     my ($mixed,$mixedloc,$fstrand) = (0);
 
-    #
-    # utter madness. Weird behaviour on 5.6.0 on Mac OS X, involving
-    # garbage collector. Setting $db to a string prevents later insanity
-    #
-    if( !(ref($db)) ) {
-	$db = " ";
-    }
-
-    if( $db ) {
-	if( ref($db) &&  !$db->isa('Bio::DB::RandomAccessI') ) {
-	    $self->warn("Must pass in a valid Bio::DB::RandomAccessI object for access to remote locations for spliced_seq");
-	    $db = undef;
-	}
-    }
-    elsif( $HasInMemory && ! $db->isa('Bio::DB::InMemoryCache') ) {
+    if( defined $db && 
+	ref($db) &&  !$db->isa('Bio::DB::RandomAccessI') ) {
+	$self->warn("Must pass in a valid Bio::DB::RandomAccessI object for access to remote locations for spliced_seq");
+	$db = undef;
+    } elsif( defined $db && 
+	     $HasInMemory && ! $db->isa('Bio::DB::InMemoryCache') ) {
 	$db = new Bio::DB::InMemoryCache(-seqdb => $db);
     }
     
