@@ -6,7 +6,8 @@ pod.pl - check the POD documentation syntax in modules and scripts
 
 =head1 SYNOPSIS
 
-B<pod.pl> [B<-d|--dir> path ] [B<-v|--verbose>] [B<-?|-h|--help>]
+B<pod.pl> [B<-d|--dir> path ] [B<-v|--verbose>] B<-b|--blankline> 
+    [B<-?|-h|--help>]
 
 =head1 DESCRIPTION
 
@@ -45,16 +46,20 @@ use Pod::Checker;
 use Getopt::Long;
 use strict;
 
+sub podcheck;
+sub blankline;
+
 #
 ## Directories to check
 #
 my @dirs = qw( ../Bio/ ../../run/Bio  ../scripts ../../run/scripts . );
 
 # command line options
-my ($verbose, $dir, $help) = (0, undef, undef);
+my ($verbose, $blankline, $dir, $help) = (0, undef, undef, undef);
 GetOptions(
            'v|verbose' => \$verbose,
            'dir:s' => \$dir,
+           'blankline' => \$blankline,
 	   'h|help|?' => sub{ exec('perldoc',$0); exit(0) }
 	   );
 
@@ -65,6 +70,8 @@ our %FIND_OPTIONS = ( wanted => \&podcheck, no_chdir => 1 );
 
 # run
 open (F, ">$tmpfile") || die "can't open file $tmpfile: $!";
+$FIND_OPTIONS{wanted} = \&blankline if $blankline;
+
 if ($dir) {
     find \%FIND_OPTIONS, $dir;
 } else {
@@ -84,16 +91,49 @@ sub podcheck {
     $checker->parse_from_file($_, \*F);
 }
 
-__END__
-
 =head1 OPTIONS
 
-=over 2
+=over 3
 
 =item B<-d | --dir> path
 
 Overides the default directories to check by one directory 'path' and
 all its subdirectories.
+
+=item B<-b | --blankline>
+
+Checks POD command paragraphs (lines starting with '=' character) for
+preceding nonblank lines. These lines are printed out with '++'.
+
+Also, if verbose is turned on, it will report on lines whitespace
+characters which prevent paragrafs to be recognised by older POD
+parsers (marked with '+'). Modern perlpod parsers (5.6.0 and later, I
+suppose) allow for whitespace lines surrounding command lines, but
+since bioperl still supports older versions, these lines should be
+cleaned to contain only '\n' and no space or tab characters.
+
+
+See: L<perlpodspec>
+
+
+=cut
+
+sub blankline {
+    return unless /\.PLS$/ or /\.p[ml]$/ ;
+    return unless -e $_;
+    my $file = $_;
+    open (F, $_) or warn "can't open file $_: $!" && return;
+    local $/="";
+    while (<F>) {
+        print "$file: +|$1|\n" if /[ \t]\n(=[a-z][^\n]+$)/m and $verbose;
+        print "$file: ++|$1|\n" if /\w\n(=[a-z][^\n]+$)/m and $verbose;
+        print "$file:|$1|+\n" if /(^=[a-z][^\n]+)\n[\t ]/m;
+        #print "$file:|$1|++\n" if /(^=[^\n]+)\n\w/m;
+    }
+    close F;
+}
+
+__END__
 
 =item B<-v | --verbose>
 
@@ -130,3 +170,8 @@ email or the web:
 Email heikki@ebi.ac.uk
 
 =cut
+
+
+# find . -name '*.pm' -print | xargs  perl -e '$/=""; while (<>) {$n = $1 if /^package\s+([\w:]+)/; print "$n:|$1|"  if  /(\s\s^=[^\n]+$)/m ; }'  ;
+
+# find . -name '*.pm' -print | xargs  perl -e '$/=""; while (<>) {$n = $1 if /^package\s+([\w:]+)/; print "$n:|$1|\n"  if /(^=[^\n]+\n[\t ])/m ; }'  ;
