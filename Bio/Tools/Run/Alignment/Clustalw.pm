@@ -310,7 +310,7 @@ methods. Internal methods are usually preceded with a _
 
 package Bio::Tools::Run::Alignment::Clustalw;
 
-use vars qw($AUTOLOAD @ISA $DEBUG $PROGRAM $PROGRAMDIR
+use vars qw($AUTOLOAD @ISA $PROGRAM $PROGRAMDIR
 	    $TMPDIR $TMPOUTFILE @CLUSTALW_SWITCHES @CLUSTALW_PARAMS
 	    @OTHER_SWITCHES %OK_FIELD);
 use strict;
@@ -535,14 +535,15 @@ sub _run {
 	chmod 0777, $infile1,$infile2;
 	$command = '-profile';
     }
+
     my $commandstring = $PROGRAM." $command"." $instring".
 	" -output=gcg". " $param_string";
-# next line is for debugging purposes
-    if( $DEBUG ) {
-	print "clustal command = $commandstring \n";
-    }
-    my $status = system($commandstring);
+    
+    $self->debug( "clustal command = $commandstring");
+    	
+    my $status = system($commandstring);    
     $self->throw( "Clustalw call crashed: $? \n") unless $status==0;
+    
     my $outfile = $self->outfile() || $TMPOUTFILE ;
 # retrieve alignment (Note: MSF format for AlignIO = GCG format of clustalw)
     my $in  = Bio::AlignIO->new(-file => $outfile, '-format' => 'MSF');
