@@ -1313,13 +1313,139 @@ CTGGAATTTGCTGGCATGTTATGCAATTTGCATATCAAATGGTTAATTTTTGCACAGGAC
 		</para>
 	 </note>
 	 <para>
-		Let's use a Swissprot file as our last example. The input file
+		Let's use a Swissprot file as our last example. The input entry
 		looks like this:
 	 </para>
 	 <para>
 		<programlisting>
-		  
+ID   A2S3_RAT       STANDARD;      PRT;   913 AA.
+AC   Q8R2H7; Q8R2H6; Q8R4G3;
+DT   28-FEB-2003 (Rel. 41, Created)
+DE   Amyotrophic lateral sclerosis 2 chromosomal region candidate gene
+DE   protein 3 homolog (GABA-A receptor interacting factor-1) (GRIF-1) (O-
+DE   GlcNAc transferase-interacting protein of 98 kDa).
+GN   ALS2CR3 OR GRIF1 OR OIP98.
+OS   Rattus norvegicus (Rat).
+OC   Eukaryota; Metazoa; Chordata; Craniata; Vertebrata; Euteleostomi;
+OC   Mammalia; Eutheria; Rodentia; Sciurognathi; Muridae; Murinae; Rattus.
+OX   NCBI_TaxID=10116;
+RN   [1]
+RP   SEQUENCE FROM N.A. (ISOFORMS 1 AND 2), SUBCELLULAR LOCATION, AND
+RP   INTERACTION WITH GABA-A RECEPTOR.
+RC   TISSUE=Brain;
+RX   MEDLINE=22162448; PubMed=12034717;
+RA   Beck M., Brickley K., Wilkinson H.L., Sharma S., Smith M.,
+RA   Chazot P.L., Pollard S., Stephenson F.A.;
+RT   "Identification, molecular cloning, and characterization of a novel
+RT   GABAA receptor-associated protein, GRIF-1.";
+RL   J. Biol. Chem. 277:30079-30090(2002).
+RN   [2]
+RP   REVISIONS TO 579 AND 595-596, AND VARIANTS VAL-609 AND PRO-820.
+RA   Stephenson F.A.;
+RL   Submitted (FEB-2003) to the EMBL/GenBank/DDBJ databases.
+RN   [3]
+RP   SEQUENCE FROM N.A. (ISOFORM 3), INTERACTION WITH O-GLCNAC TRANSFERASE,
+RP   AND O-GLYCOSYLATION.
+RC   STRAIN=Sprague-Dawley; TISSUE=Brain;
+RX   MEDLINE=22464403; PubMed=12435728;
+RA   Iyer S.P.N., Akimoto Y., Hart G.W.;
+RT   "Identification and cloning of a novel family of coiled-coil domain
+RT   proteins that interact with O-GlcNAc transferase.";
+RL   J. Biol. Chem. 278:5399-5409(2003).
+CC   -!- SUBUNIT: Interacts with GABA-A receptor and O-GlcNac transferase.
+CC   -!- SUBCELLULAR LOCATION: Cytoplasmic.
+CC   -!- ALTERNATIVE PRODUCTS:
+CC       Event=Alternative splicing; Named isoforms=3;
+CC       Name=1; Synonyms=GRIF-1a;
+CC         IsoId=Q8R2H7-1; Sequence=Displayed;
+CC       Name=2; Synonyms=GRIF-1b;
+CC         IsoId=Q8R2H7-2; Sequence=VSP_003786, VSP_003787;
+CC       Name=3;
+CC         IsoId=Q8R2H7-3; Sequence=VSP_003788;
+CC   -!- PTM: O-glycosylated.
+CC   -!- SIMILARITY: TO HUMAN OIP106.
+DR   EMBL; AJ288898; CAC81785.2; -.
+DR   EMBL; AJ288898; CAC81786.2; -.
+DR   EMBL; AF474163; AAL84588.1; -.
+DR   GO; GO:0005737; C:cytoplasm; IEP.
+DR   GO; GO:0005634; C:nucleus; IDA.
+DR   GO; GO:0005886; C:plasma membrane; IEP.
+DR   GO; GO:0006357; P:regulation of transcription from Pol II pro...; IDA.
+DR   InterPro; IPR006933; HAP1_N.
+DR   Pfam; PF04849; HAP1_N; 1.
+KW   Coiled coil; Alternative splicing; Polymorphism.
+FT   DOMAIN      134    355       COILED COIL (POTENTIAL).
+FT   VARSPLIC    653    672       VATSNPGKCLSFTNSTFTFT -> ALVSHHCPVEAVRAVHP
+FT                                TRL (in isoform 2).
+FT                                /FTId=VSP_003786.
+FT   VARSPLIC    673    913       Missing (in isoform 2).
+FT                                /FTId=VSP_003787.
+FT   VARSPLIC    620    687       VQQPLQLEQKPAPPPPVTGIFLPPMTSAGGPVSVATSNPGK
+FT                                CLSFTNSTFTFTTCRILHPSDITQVTP -> GSAASSTGAE
+FT                                ACTTPASNGYLPAAHDLSRGTSL (in isoform 3).
+FT                                /FTId=VSP_003788.
+FT   VARIANT     609    609       E -> V.
+FT   VARIANT     820    820       S -> P.
+SQ   SEQUENCE   913 AA;  101638 MW;  D0E135DBEC30C28C CRC64;
+     MSLSQNAIFK SQTGEENLMS SNHRDSESIT DVCSNEDLPE VELVNLLEEQ LPQYKLRVDS
+     LFLYENQDWS QSSHQQQDAS ETLSPVLAEE TFRYMILGTD RVEQMTKTYN DIDMVTHLLA
+
+                              ...deleted...
+
+     GIARVVKTPV PRENGKSREA EMGLQKPDSA VYLNSGGSLL GGLRRNQSLP VMMGSFGAPV
+     CTTSPKMGIL KED
+//
 		</programlisting>
+	 </para>
+	 <para>
+		The corresponding set of values is shown below.
+	 </para>
+	 <para>
+		<table>
+		  <title>Values from Swissprot</title>
+		  <tgroup cols="2">
+			 <thead>
+				<row>
+				  <entry>Method</entry>
+				  <entry>Returns</entry>
+				</row>
+			 </thead>
+			 <tbody>
+				<row>
+				  <entry>display_id</entry><entry>A2S3_RAT</entry>
+				</row>
+				<row>
+				  <entry>desc</entry>
+				  <entry>Amyotrophic lateral ... protein of 98 kDa).</entry>
+				</row>
+				<row>
+				  <entry>display_name</entry><entry>A2S3_RAT</entry>
+				</row>
+				<row>
+				  <entry>accession</entry><entry>Q8R2H7</entry>
+				</row>
+				<row>
+				  <entry>primary_id</entry>
+				  <entry>Bio::PrimarySeq=HASH(0xa5eb48c)</entry>
+				</row>
+				<row>
+				  <entry>is_circular</entry><entry></entry>
+				</row>
+				<row>
+				  <entry>namespace</entry><entry></entry>
+				</row>
+				<row>
+				  <entry>authority</entry><entry></entry>
+				</row>
+				<row>
+				  <entry>length</entry><entry>913</entry>
+				</row>
+				<row>
+				  <entry>seq</entry><entry>MSLSQ...ILKED</entry>
+				</row>
+			 </tbody>
+		  </tgroup>
+      </table>
 	 </para>
   </section>
 
