@@ -210,7 +210,7 @@ sub exons {
     return () unless(@keys);
     # bring keys into the right order, depending on the strand, provided we've
     # got an unambiguous strand
-    foreach my $exon (map { @{$_}; } @{%$self}{@keys}) {
+    foreach my $exon (map { @{$_}; } @{$self}{@keys}) {
 	if($exon->strand()) {
 	    # defined and != 0
 	    $strand = $exon->strand() if(! $strand);
