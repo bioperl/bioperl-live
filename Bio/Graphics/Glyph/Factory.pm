@@ -53,7 +53,6 @@ package Bio::Graphics::Glyph::Factory;
 use strict;
 use Carp qw(:DEFAULT cluck);
 use GD;
-use Bio::Root::Version;
 
 my %LOADED_GLYPHS = ();
 my %GENERIC_OPTIONS = (

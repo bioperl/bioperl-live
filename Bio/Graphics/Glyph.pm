@@ -4,7 +4,7 @@ use GD;
 use strict;
 use Carp 'croak';
 use constant BUMP_SPACING => 2; # vertical distance between bumped glyphs
-use Bio::Root::Version;
+
 
 my %LAYOUT_COUNT;
 
