@@ -400,31 +400,35 @@ sub get_seq_stream {
   $self->debug("request is ". $request->as_string(). "\n");
 
   if ($self->retrieval_type =~ /pipeline/) {
-    # Try to create a stream using POSIX fork-and-pipe facility.
-    # this is a *big* win when fetching thousands of sequences from a web database
-    # because we can return the first entry while transmission is still in progress.
-    # Also, no need to keep sequence in memory or in a temporary file.
-    # If this fails (Windows, MacOS 9), we fall back to non-pipelined access.
-    my $result = $^O !~ /^MSWin/ && eval {open(STREAM,"-|")}; # fork and pipe: _stream_request()=><STREAM>
-    if (defined $result) {
-      $DB::fork_TTY = '/dev/null';  # prevents complaints from debugger
-      if (!$result) { # in child process
-	$self->_stream_request($request); 
-	kill 9=>$$;  # to prevent END{} blocks from executing in forked children
-	exit 0;
-      }
-      else {
-	return Bio::SeqIO->new('-verbose' => $self->verbose,
-			       '-format'  => $ioformat,
-			       '-fh'      => \*STREAM);
-      }
-    }
+      # Try to create a stream using POSIX fork-and-pipe facility.
+      # this is a *big* win when fetching thousands of sequences from
+      # a web database because we can return the first entry while 
+      # transmission is still in progress.
+      # Also, no need to keep sequence in memory or in a temporary file.
+      # If this fails (Windows, MacOS 9), we fall back to non-pipelined access.
 
-    else {  # piped open failed, so fall back to something safe
-      $self->retrieval_type('io_string');
-    }
+      # fork and pipe: _stream_request()=><STREAM>
+      my $result = $^O !~ /^MSWin/ && eval { open(STREAM,"-|") };
+
+      if (defined $result) {
+	  $DB::fork_TTY = '/dev/null'; # prevents complaints from debugger
+	  if (!$result) {	# in child process
+	      $self->_stream_request($request); 
+	      kill 9=>$$; # to prevent END{} blocks from executing in forked children
+	      exit 0;
+	  }
+	  else {
+	      return Bio::SeqIO->new('-verbose' => $self->verbose,
+				     '-format'  => $ioformat,
+				     '-fh'      => \*STREAM);
+	  }
+      }
+
+      else { # piped open failed, so fall back to something safe
+	  $self->retrieval_type('io_string');
+      }
   }
-
+  
   if ($self->retrieval_type =~ /temp/i) {
     my $dir = $self->io()->tempdir( CLEANUP => 1);
     my ( $fh, $tmpfile) = $self->io()->tempfile( DIR => $dir );
@@ -664,18 +668,20 @@ sub _stream_request {
       $records++;
       $self->postprocess_data('type'     => 'string',
 			      'location' => \$record);
-      print $record;
+      print STDOUT $record;
     }
-    close STDOUT; close STDERR;
+    $/ = "\n"; # reset to be safe;
+    close(FETCH);
+    close STDOUT; 
+    close STDERR;
     kill 9=>$$;  # to prevent END{} blocks from executing in forked children
     sleep;
   }
   else {
-
     $| = 1;
     my $resp =  $self->ua->request($request,
 				   sub { print shift }
-				  );
+				   );
     if( $resp->is_error  ) {
       $self->throw("WebDBSeqI Request Error:\n".$resp->as_string);
     }
