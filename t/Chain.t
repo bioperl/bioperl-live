@@ -28,8 +28,12 @@ ok( Bio::LiveSeq::Chain::down_chain2string($chain),
     "abcdefghijklmnopqrstuvwxyz");
 ok( Bio::LiveSeq::Chain::down_chain2string($chain,undef,4),
     "abcd"); # default start=1
-ok( Bio::LiveSeq::Chain::down_chain2string($chain,3,undef,6), 
-    "cdef");
+my ($warning,$output);
+eval {
+  local $SIG{__WARN__}=sub{ $warning=$_[0]};
+  $output=Bio::LiveSeq::Chain::down_chain2string($chain,1,4,6);
+};
+ok (((index($warning,"Warning chain2string: argument LAST:6 overriding LEN:4!")==0)&&($output eq "abcdef")),1);
 my $arrayref=Bio::LiveSeq::Chain::down_labels($chain,1,4);
 ok $arrayref->[1], 2;
 $arrayref=Bio::LiveSeq::Chain::up_labels($chain,4,1);
