@@ -438,11 +438,6 @@ Calculate amino acid composition of a protein using Tools::CodonTable
 and Tools::IUPAC. See L<Bio::Tools::IUPAC> and
 L<Bio::Tools::CodonTable> for more information.
 
-=head2 examples/seqstats/gccalc.pl
-
-Calculate %GC given a DNA sequence using Tools::SeqStats. See
-L<Bio::Tools::SeqStats> for more information.
-
 =head2 examples/seqstats/oligo_count.pl
 
 Calculates oligomer frequencies given an oligomer length and a sequence.
