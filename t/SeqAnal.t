@@ -18,11 +18,12 @@
 
 
 ## We start with some black magic to print on failure.
-BEGIN { $| = 1; print "1..1\n"; }
+BEGIN { $| = 1; print "1..2\n"; }
 END {print "not ok 1\n" unless $loaded;}
 
-use lib '../';
 use Bio::Tools::SeqAnal;
+use Bio::Tools::IUPAC;
+use Bio::Seq;
 
 $loaded = 1;
 print "ok 1\n";    # 1st test passes.
@@ -34,6 +35,20 @@ print "ok 1\n";    # 1st test passes.
 ## the print "1..x\n" in the BEGIN block to reflect the
 ## total number of tests that will be run. 
 
+# test IUPAC
+
+my $ambiseq = new Bio::Seq (-seq => 'ARTCGTTGR', -type =>
+			    'Dna'); 
+
+my $stream  = new Bio::Tools::IUPAC($ambiseq);
+ 
+while ($uniqueseq = $stream->next_seq()) {
+    if( !$uniqueseq->isa('Bio::Seq') ) {
+	print "not ok 2\n";
+    }
+}
+
+print "ok 2\n"     
 
 
 
