@@ -1,4 +1,5 @@
 # $Id$
+# $Date$
 #
 # BioPerl module for Bio::SeqIO::chaos
 #
@@ -170,6 +171,7 @@ sub _initialize {
                                         [export_perl5lib=>$ENV{PERL5LIB}],
                                         [export_program=>$0],
                                         [export_module=>'Bio::SeqIO::chaos'],
+                                        [export_module_cvs_id=>'$Id$'],
                                        ]);
 
     return;
@@ -200,6 +202,8 @@ sub default_handler_class {
  Example : 
  Returns : value of context_namespace (a scalar)
  Args    : on set, new value (a scalar or undef, optional)
+
+IDs will be preceeded with the context namespace
 
 =cut
 
@@ -281,69 +285,78 @@ sub write_seq {
 #        $seq_chaos_feature_id = $self->get_chaos_feature_id('contig', $seq);
 #    }
 
+    my $haplotype;
+    if ($seq->desc =~ /haplotype(.*)/i) {
+        # yikes, no consistent way to specify haplotype in gb
+        $haplotype = $1;
+        $haplotype =~ s/\s+/_/g;
+        $haplotype =~ s/\W+//g;
+    }
+
+    my $OS;
+    # Organism lines
+    if (my $spec = $seq->species) {
+        my ($species, $genus, @class) = $spec->classification();
+        $OS = "$genus $species";
+        if (my $ssp = $spec->sub_species) {
+            $OS .= " $ssp";
+        }
+        $self->genus_species($OS);
+        if( $spec->common_name ) {
+            my $common = $spec->common_name;
+            # genbank parser sets species->common_name to
+            # be "Genus Species (common name)" which is wrong;
+            # we will correct for this; if common_name is set
+            # correctly then carry on
+            if ($common =~ /\((.*)\)/) {
+                $common = $1;
+            }
+	    $OS .= " (".$common.")";
+        }
+    }
+    if ($OS) {
+        $self->organismstr($OS);
+    }
+    if ($haplotype) {
+        # genus_species is part of uniquename - add haplotype
+        # to make it genuinely unique
+        $self->genus_species($self->genus_species .= " $haplotype");
+    }
+
+    my $accversion = $seq->accession_number;
+    if ($seq->can("version")) {
+        $accversion .= ".".$seq->version;
+    }
+    elsif ($seq->can("seq_version")) {
+        $accversion .= ".".$seq->seq_version;
+    }
+    else {
+        $self->throw("ASSERTION ERROR: cannot get version for seq!");
+    }
+
+    my $uname = $self->make_uniquename($self->genus_species, $accversion);
+    
     # data structure representing the core sequence for this record
     my $seqnode =
       Data::Stag->new(feature=>[
                                 [feature_id=>$seq_chaos_feature_id],
-                                [dbxrefstr=>'SEQDB:'.$seq->accession_number],
+                                [dbxrefstr=>'SEQDB:'.$accversion],
                                 [name=>$seq->display_name],
-				[uniquename=>$seq->display_name .'/'. $seq_chaos_feature_id],
+				[uniquename=>$uname],
                                 [residues=>$seq->seq],
                                ]);
     
     # soft properties
     my %prop = ();
 
-    my ($div, $mol);
-    my $len = $seq->length();
-
-    if ( $seq->can('division') ) {
-	$div=$seq->division;
-    } 
-    if( !defined $div || ! $div ) { $div = 'UNK'; }
-
-    if( !$seq->can('molecule') || ! defined ($mol = $seq->molecule()) ) {
-	$mol = $seq->alphabet || 'DNA';
-    }
-#    my $seq_type = 'contig';
-#    if ($mol eq 'AA') {
-#	$seq_type = 'protein';
-#    }
-#    if ($mol eq 'RNA') {
-#	$seq_type = 'cDNA';
-#    }
     $seqnode->set_type('databank_entry');
-    
-    my $circular = 'linear  ';
-    $circular = 'circular' if $seq->is_circular;
-
-    # cheeky hack - access symbol table
-    no strict 'refs';
-    map {
-        $prop{$_} = 
-          $ {*$_};
-    } qw(mol div circular);
-    use strict 'refs';
 
     map {
         $prop{$_} = $seq->$_() if $seq->can($_);
-    } qw(desc keywords);
+    } qw(desc keywords division molecule is_circular);
+    $prop{dates} = join("; ", $seq->get_dates) if $seq->can("get_dates");
 
     local($^W) = 0;   # supressing warnings about uninitialized fields.
-    
-    my $OS;
-    # Organism lines
-    if (my $spec = $seq->species) {
-        my ($species, $genus, @class) = $spec->classification();
-        $OS = "$genus $species";
-
-        if (my $ssp = $spec->sub_species) {
-            $OS .= " $ssp";
-        }
-        if( $spec->common_name ) {
-	    $OS .= " (".$spec->common_name.")";
-        }
-    }
     
     # Reference lines
     my $count = 1;
@@ -352,12 +365,13 @@ sub write_seq {
     }
     # Comment lines
     
+    $seqnode->add_featureprop([[type=>'haplotype'],[value=>$haplotype]])
+      if $haplotype;
     foreach my $comment ( $seq->annotation->get_Annotations('comment') ) {
         $seqnode->add_featureprop([[type=>'comment'],[value=>$comment->text]]);
     }
     if ($OS) {
 	$seqnode->set_organismstr($OS);
-        $self->organismstr($OS);
     }
 
     my @sfs = $seq->get_SeqFeatures;
@@ -404,6 +418,15 @@ sub organismstr{
     return $self->{'organismstr'} = shift if @_;
     return $self->{'organismstr'};
 }
+
+
+sub genus_species{
+    my $self = shift;
+
+    return $self->{'genus_species'} = shift if @_;
+    return $self->{'genus_species'};
+}
+
 
 # maps ID to type
 sub _type_by_id_h {
@@ -508,16 +531,16 @@ sub write_sf {
 	push(@xrefs, "protein:$pid->[0]");
     }
     
-    my $org = $props{organism};
+    my $org = $props{organism} ? $props{organism}->[0] : undef;
     if (!$org && $self->organismstr) {
-        $org = [$self->organismstr];
+        $org = $self->organismstr;
     }
     my $uname = $name ? $name.'/'.$feature_id : $feature_id;
-    if ($org && $name) {
-        my $os = $org->[0];
-        $os =~ s/\s+/_/g;
-        $os =~ s/_*\(.*//;
-        $uname = "$os:$name";
+    if ($self->genus_species && $name) {
+        $uname = $self->make_uniquename($self->genus_species, $name);
+    }
+    if (!$uname) {
+        $self->throw("cannot make uniquename for $feature_id $name");
     }
     $self->_type_by_id_h->{$feature_id} = $type;
     my $fnode =
@@ -530,7 +553,7 @@ sub write_sf {
 			[seqlen=>length($tn->[0])],
 			#####[md5checksum=>md5checksum($tn->[0])],
 		       ) :(),
-		 $org ? ([organismstr=>$org->[0]]) : (),
+		 $org ? ([organismstr=>$org]) : (),
                  @locnodes,
 		 (map {
 		     [feature_dbxref=>[
@@ -604,16 +627,19 @@ sub sort_by_strand {
     return;
 }
 
-# private;
-# an ID for this session that should be
-# unique... hmm
-sub session_id {
+sub make_uniquename {
     my $self = shift;
-    $self->{_session_id} = shift if @_;
-    if (!$self->{_session_id}) {
-        $self->{_session_id} = $$.time;
-    }
-    return $self->{_session_id};
+    my $org = shift;
+    my $name = shift;
+
+    my $os = $org;
+    $os =~ s/\s+/_/g;
+    $os =~ s/\(/_/g;
+    $os =~ s/\)/_/g;
+    $os =~ s/_+/_/g;
+    $os =~ s/^_+//g;
+    $os =~ s/_+$//g;
+    return "$os:$name";
 }
 
 
@@ -621,9 +647,30 @@ sub get_chaos_feature_id {
     my $self = shift;
     my $ob = shift;
 
-    my $id = $ob->can("primary_id") ? $ob->primary_id : undef;
+    my $id;
+    if ($ob->isa("Bio::SeqI")) {
+        $id = $ob->accession_number . '.' . ($ob->can('seq_version') ? $ob->seq_version : $ob->version);
+    }
+    else {
+        $ob->isa("Bio::SeqFeatureI") || $self->throw("$ob must be either SeqI or SeqFeatureI");
+
+        if ($ob->primary_id) {
+            $id = $ob->primary_id;
+        }
+        else {
+            eval {
+                $id = $IDH->generate_unique_persistent_id($ob);
+            };
+            if ($@) {
+                print STDERR $@;
+                $id = "$ob"; # last resort - use memory pointer ref
+                # will not be persistent, but will be unique
+            }
+        }
+    }
     if ($id) {
         $id = $self->context_namespace ? $self->context_namespace . ":" . $id : $id;
+
     }
     else {
         if ($ob->isa("Bio::SeqFeatureI")) {

@@ -912,7 +912,7 @@ sub add_problem{
 
     $self->{'_problems'} = [] unless exists($self->{'_problems'});
     if ($self->verbose) {
-        print "PROBLEM: $_\n" foreach @_;
+        print STDERR "PROBLEM: $_\n" foreach @_;
     }
     push(@{$self->{'_problems'}}, @_);
 }
@@ -1161,7 +1161,7 @@ sub unflatten_seq{
 	   # see GenBank entry AE003677 (version 3) for an example
 	   $group_tag = 'locus_tag';
            if ($self->verbose) {
-               print "Set group tag to: $group_tag\n";
+               print STDERR "Set group tag to: $group_tag\n";
            }
        }
    }
@@ -1376,7 +1376,7 @@ sub unflatten_seq{
 
    # LOGGING
    if ($self->verbose) {
-       print "GROUPS:\n";
+       print STDERR "GROUPS:\n";
        foreach my $group (@groups) {
 	   $self->_write_group($group, $group_tag);
        }
@@ -1472,7 +1472,7 @@ sub unflatten_seq{
    # INFERRING mRNAs
    if ($need_to_infer_mRNAs) {
        if ($self->verbose) {
-	   print "** INFERRING mRNA from CDS\n";
+	   print STDERR "** INFERRING mRNA from CDS\n";
        }
        $self->infer_mRNA_from_CDS(-seq=>$seq);
    }
@@ -1617,7 +1617,7 @@ sub _split_group_if_disconnected {
 	# @ranges > 1
 	# split the group into disconnected ranges
 	if ($self->verbose) {
-	    print "GROUP PRE-SPLIT:\n";
+	    print STDERR "GROUP PRE-SPLIT:\n";
 	    $self->_write_group($group, $self->group_tag);
 	}
 	@groups =
@@ -1628,7 +1628,7 @@ sub _split_group_if_disconnected {
 	      } @sfs]
 	  } @ranges;
 	if ($self->verbose) {
-	    print "SPLIT GROUPS:\n";
+	    print STDERR "SPLIT GROUPS:\n";
 	    $self->_write_group($_, $self->group_tag) foreach @groups;	    
 	}
     }
@@ -1668,7 +1668,7 @@ sub _remove_duplicates_from_group {
 	# the latter with the following filter
 
 	if ($self->verbose) {
-	    print "REMOVING DUPLICATES:\n";
+	    print STDERR "REMOVING DUPLICATES:\n";
 	}
 
 	@genes =
@@ -1785,7 +1785,7 @@ sub unflatten_group{
                           @args);
 
    if ($self->verbose) {
-       print "UNFLATTENING GROUP:\n";
+       print STDERR "UNFLATTENING GROUP:\n";
        $self->_write_group($group, $self->group_tag);
    }
 
@@ -1871,7 +1871,7 @@ sub unflatten_group{
    # CONDITION: there must be at most one root
    if (@top_sfs > 1) {
        $self->_write_group($group, $self->group_tag);
-       print "TOP SFS:\n";
+       print STDERR "TOP SFS:\n";
        $self->_write_sf($_) foreach @top_sfs;
        $self->throw("multiple top-sfs in group");
    }
@@ -2044,7 +2044,7 @@ sub unflatten_group{
 
    # DEBUGGING CODE
    if ($self->verbose && scalar(keys %unresolved)) {
-       print "UNRESOLVED PAIRS:\n";
+       print STDERR "UNRESOLVED PAIRS:\n";
        foreach my $childsf (keys %unresolved) {
 	   my @poss = @{$unresolved{$childsf}};
 	   foreach my $p (@poss) {
@@ -2335,7 +2335,7 @@ sub _resolve_container_for_sf{
            }
        }
        if ($self->verbose) {
-	   print "    Checking containment:[$inside] (@container_coords) IN ($splice_uniq_str)\n";
+	   print STDERR "    Checking containment:[$inside] (@container_coords) IN ($splice_uniq_str)\n";
        }
        if ($inside) {
 	   # SCORE: matching (ss-scoords+2)/(n-container-ss-coords+2)
@@ -2467,7 +2467,7 @@ sub feature_from_splitloc{
        my $ok =
 	 $self->_check_order_is_consistent(@subsfs);
        if (!$ok) {
-	   print "Unordered features:\n";
+	   print STDERR "Unordered features:\n";
 	   $self->_write_sf_detail($_) foreach @subsfs;
 	   $self->throw("ASSERTION ERROR: inconsistent order");
        }

@@ -1,6 +1,6 @@
 #!perl -w
 use strict;
-# $Id: unflatten_seq.PLS,v 1.3 2004-04-17 09:31:11 heikki Exp $
+# $Id: unflatten_seq.PLS,v 1.4 2004-09-08 22:04:19 cjm Exp $
 # Author Chris Mungall <cjm@bioperl.org>
 
 =head1 NAME
@@ -10,7 +10,7 @@ a nested SeqFeature hierarchy
 
 =head1 SYNOPSIS
 
-  unflatten_seq.PLS -gff ~/cvs/bioperl-live/t/data/AE003644_Adh-genomic.gb
+  unflatten_seq.PLS -e 3 -gff ~/cvs/bioperl-live/t/data/AE003644_Adh-genomic.gb
 
   unflatten_seq.PLS --detail ~/cvs/bioperl-live/t/data/AE003644_Adh-genomic.gb
 
@@ -111,7 +111,7 @@ outfile defaults to STDOUT
 
 show extra detail on features (asciitree mode only)
 
-=item -ethresh INT
+=item -e|ethresh INT
 
 sets the error threshold on unflattening
 
@@ -176,7 +176,9 @@ my ($input,$from,$to,$output,$verbosity,$ethresh,$nomagic,$group_tag,$detail,
     $notypemap);
 $from = 'genbank';
 $to = 'asciitree';
+$ethresh = 3;
 my $gff;
+my @remove_types = ();
 
 GetOptions(
 	   'i|input:s' => \$input,
@@ -185,6 +187,7 @@ GetOptions(
 	   'o|output:s'=> \$output,
 	   "verbosity|v=s"=>\$verbosity,
 	   "ethresh|e=s"=>\$ethresh,
+	   "remove_type=s@"=>\@remove_types,
 	   "nomagic"=>\$nomagic,
 	   "notypemap"=>\$notypemap,
 	   "group_tag"=>\$group_tag,
@@ -215,11 +218,14 @@ unless ($gff) {
 my $unflattener = Bio::SeqFeature::Tools::Unflattener->new;
 $unflattener->verbose($verbosity);
 $unflattener->error_threshold($ethresh);
-
 my $tm = Bio::SeqFeature::Tools::TypeMapper->new;
 my $idhandler = Bio::SeqFeature::Tools::IDHandler->new;
 
 while( my $seq = $in->next_seq ) {    
+    $unflattener->remove_types(-seq=>$seq,
+                               -types=>\@remove_types)
+      if @remove_types;
+
     $unflattener->unflatten_seq(-seq=>$seq,
 				-use_magic=>!$nomagic,
 				-group_tag=>$group_tag,
