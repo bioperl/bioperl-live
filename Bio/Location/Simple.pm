@@ -301,6 +301,28 @@ sub location_type {
     return 'EXACT';
 }
 
+=head2 is_remote
+
+ Title   : is_remote
+ Usage   : $self->is_remote($newval)
+ Function: Getset for is_remote value
+ Returns : value of is_remote
+ Args    : newvalue (optional)
+
+
+=cut
+
+sub is_remote{
+   my $self = shift;
+   if( @_ ) {
+       my $value = shift;
+       $self->{'is_remote'} = $value;
+   }
+   return $self->{'is_remote'};
+
+}
+
+
 =head2 to_FTstring
 
   Title   : to_FTstring
