@@ -246,7 +246,9 @@ sub score {
       } elsif (ref($val) && $val->isa('Bio::Annotation::SimpleValue')) {
 	  $term = $val;
       }
-      if (!defined($term) || ($term->value !~ /^[+-]?\d+\.?\d*(e-\d+)?/)) {
+
+      if ($term->value ne '.' &&
+           (!defined($term) || ($term->value !~ /^[+-]?\d+\.?\d*(e-\d+)?/))) {
 	  $self->throw("'$val' is not a valid score");
       }
       $self->remove_Annotations('score');
