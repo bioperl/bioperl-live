@@ -2033,9 +2033,9 @@ sub _parse_descriptions {
 	## in the description line. 
 
       # These regexps need testing on a variety of reports.
-      if ( $line =~ /\d+\s{1,2}[\de.-]+\s*$/) {
+      if ( $line =~ /\d+\s{1,5}[\de.-]+\s*$/) {
 	$layout = 2;
-      } elsif( $line =~ /\d+\s{1,2}[\de.-]+\s{1,}\d+\s*$/) {
+      } elsif( $line =~ /\d+\s{1,5}[\de.-]+\s{1,}\d+\s*$/) {
 	$layout = 1;
       } else {
 	$self->warn("Can't parse significance data in description line $line");
