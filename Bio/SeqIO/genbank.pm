@@ -158,15 +158,14 @@ sub next_seq {
       @acc = ();
       $species = undef;
       %params = (-verbose => $self->verbose); # reset hash
-    
+      local($/) = "\n";
       while(defined($buffer = $self->_readline())) {
 	  last if index($buffer,'LOCUS       ') == 0;
       }
       return undef if( !defined $buffer ); # end of file
-
       $buffer =~ /^LOCUS\s+(\S.*)$/ ||
-	  $self->throw("GenBank stream with bad LOCUS line. Not GenBank in my book. Got $buffer");
-
+	  $self->throw("GenBank stream with bad LOCUS line. Not GenBank in my book. Got '$buffer'");
+      
       my @tokens = split(' ', $1);
 
       # this is important to have the id for display in e.g. FTHelper,
