@@ -999,12 +999,8 @@ list context.  For this reason, segments() is an alias for segment().
 
 sub segment {
   my $self = shift;
-  unless ($_[0] =~ /^-/) {
-    @_ = (-class=>$_[0],-name=>$_[1]) if @_ == 2;
-    @_ = (-name=>$_[0])               if @_ == 1;
-  }
-  my @segments =  $_[0] =~ /^-/ ? Bio::DB::GFF::RelSegment->new(-factory => $self,@_)
-                                : Bio::DB::GFF::RelSegment->new($self,@_);
+  my @segments =  Bio::DB::GFF::RelSegment->new(-factory => $self,
+						$self->setup_segment_args(@_));
   foreach (@segments) {
     $_->absolute(1) if $self->absolute;
   }
@@ -1022,6 +1018,20 @@ sub segment {
   }
 }
 
+# backward compatibility -- don't use!
+# (deliberately undocumented too)
+sub abs_segment {
+  my $self = shift;
+  return $self->segment($self->setup_segment_args(@_),-absolute=>1);
+}
+
+sub setup_segment_args {
+  my $self = shift;
+  return @_ if $_[0] =~ /^-/;
+  return (-name=>$_[0],-start=>$_[1],-stop=>$_[2]) if @_ == 3;
+  return (-class=>$_[0],-name=>$_[1])              if @_ == 2;
+  return (-name=>$_[0])                            if @_ == 1;
+}
 
 =head2 absolute
 
