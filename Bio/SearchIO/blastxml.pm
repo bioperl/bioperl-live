@@ -81,9 +81,6 @@ BEGIN {
 		'Hsp'         => 'hsp'
 		);
 
-    # This should really be done more intelligently, like with
-    # XSLT
-
     %MAPPING = ( 
 		 'Hsp_bit-score' => 'bits',
 		 'Hsp_score'     => 'score',

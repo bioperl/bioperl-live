@@ -230,6 +230,12 @@ sub end_hsp {
     }
     $data->{'queryframe'} ||= 0;
     $data->{'hitframe'} ||= 0;
+    # handle Blast 2.1.2 which did not support data member: hsp_align-len
+    
+    $data->{'querylen'} ||= length $data->{'queryseq'};
+    $data->{'hitlen'}   ||= length $data->{'hitseq'};
+    $data->{'hsplen'}   ||= length $data->{'homolseq'};
+    
 
     my $hsp = new Bio::Search::HSP::GenericHSP
 	(
