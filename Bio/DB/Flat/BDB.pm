@@ -15,7 +15,7 @@ Bio::DB::Flat::BDB - Interface for BioHackathon standard BDB-indexed flat file
 
 =head1 SYNOPSIS
 
-You should not be using this module directly
+You should not be using this module directly.  See Bio::DB::Flat.
 
 =head1 DESCRIPTION
 
@@ -51,6 +51,10 @@ email or the web:
 =head1 AUTHOR - Lincoln Stein
 
 Email - lstein@cshl.org
+
+=head1 SEE ALSO
+
+L<Bio::DB::Flat>,
 
 =head1 APPENDIX
 

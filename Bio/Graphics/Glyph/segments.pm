@@ -50,7 +50,8 @@ sub _subseq {
   if ($self->level == 0 && !@subseq && !eval{$feature->compound}) {
     my($start,$end) = ($feature->start,$feature->end);
     ($start,$end) = ($end,$start) if $start > $end; # to keep Bio::Location::Simple from bitching
-    return Bio::Location::Simple->new(-start=>$start,-end=>$end);
+    #    return Bio::Location::Simple->new(-start=>$start,-end=>$end);
+    return $self->feature;
   } else {
     return;
   }

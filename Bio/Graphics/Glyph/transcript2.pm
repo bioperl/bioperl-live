@@ -47,7 +47,7 @@ sub draw_component {
     my $f = $self->feature;
 
     if ($f->strand < 0
-	&& 
+	&&
 	$self->{partno} == 0) { # first exon, minus strand transcript
       $self->filled_arrow($gd,-1,@rect);
     } elsif ($f->strand >= 0

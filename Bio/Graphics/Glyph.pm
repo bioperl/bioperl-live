@@ -149,10 +149,10 @@ sub add_group {
   my $self = shift;
   my @features = ref($_[0]) eq 'ARRAY' ? @{$_[0]} : @_;
   my $f    = Bio::Graphics::Feature->new(
-				     -segments=>\@features,
-				     -type => 'group'
+					 -segments=>\@features,
+					 -type => 'group'
 					);
-  $self->add_feature($f);
+  push @{$self->{parts}},$self->factory->make_glyph(-1,$f);
 }
 
 sub top {
@@ -673,9 +673,9 @@ sub draw_connectors {
   if (@parts) {
     my($x1,$y1,$x2,$y2) = $self->bounds(0,0);
     my($xl,$xt,$xr,$xb) = $parts[0]->bounds;
-    $self->_connector($gd,$dx,$dy,$x1,$xt,$x1,$xb,$xl,$xt,$xr,$xb);
+    $self->_connector($gd,$dx,$dy,$x1,$xt,$x1,$xb,$xl,$xt,$xr,$xb)      if $x1 <= $self->panel->left;
     my ($xl2,$xt2,$xr2,$xb2) = $parts[-1]->bounds;
-    $self->_connector($gd,$dx,$dy,$parts[-1]->bounds,$x2,$xt2,$x2,$xb2) if $xr2 >= $xr;
+    $self->_connector($gd,$dx,$dy,$parts[-1]->bounds,$x2,$xt2,$x2,$xb2) if $x2 >= $self->panel->right;
   }
 
 }
