@@ -8,7 +8,7 @@ $DEBUG = $ENV{"BIOPERLDEBUG"} || 0;
 BEGIN {
    eval { require Test; };
    use vars qw($NUMTESTS);
-   $NUMTESTS = 41;
+   $NUMTESTS = 42;
    if ( $@ ) {
       use lib 't';
    }
@@ -101,17 +101,20 @@ ok ( -e "Wibbl3" || -e "Wibbl3.pag" );
 ok ($ind->fetch('AL031232')->length, 4870);
 
 $ind = Bio::Index::Swissprot->new(-filename   => 'Wibbl4',
-				  -write_flag =>1);
+											 -write_flag => 1);
 $ind->make_index(Bio::Root::IO->catfile($dir,"t","data","roa1.swiss"));
 ok ( -e "Wibbl4" || -e "Wibbl4.pag" );
-ok ($ind->fetch('P09651')->display_id(), 'ROA1_HUMAN');
+$seq = $ind->fetch('ROA1_HUMAN');
+ok ($seq->display_id(), 'ROA1_HUMAN');
+$seq = $ind->fetch('P09651');
+ok ($seq->display_id(), 'ROA1_HUMAN');
 
 my $gb_ind = Bio::Index::GenBank->new(-filename => 'Wibbl5',
 												  -write_flag =>1,
 												  -verbose    => 0);
 $gb_ind->make_index(Bio::Root::IO->catfile($dir,"t","data","roa1.genbank"));
 ok ( -e "Wibbl5" || -e "Wibbl5.pag" );
-$seq =$gb_ind->fetch('AI129902');
+$seq = $gb_ind->fetch('AI129902');
 ok ($seq->length, 37);
 ok ($seq->species->binomial, 'Homo sapiens');
 
@@ -160,19 +163,18 @@ if (Bio::DB::FileCache->can('new')) {
    skip('Bio::DB::FileCache not loaded because one or more of Storable, Fcntl, DB_File or File::Temp not installed',1);
 }
 
-END { 
-
-    foreach ( $Test::ntest..$NUMTESTS) {
-	skip('Cannot run tests some needed modules (DB_File, Fcntl, or Storable) are not installed',1);
-    }
-    cleanup(); 
+END {
+	foreach ( $Test::ntest..$NUMTESTS) {
+		skip('Cannot run tests some needed modules (DB_File, Fcntl, or Storable) are not installed',1);
+	}
+	cleanup();
 }
 
 sub cleanup {
-	foreach my $root ( qw( Wibbl Wibbl2 Wibbl3 Wibbl4 Wibbl5
-                          multifa_index multifa_qual_index ) ) {
-		if( -e $root ) { unlink $root;}
-		if( -e "$root.pag") { unlink "$root.pag";}
-		if( -e "$root.dir") { unlink "$root.dir";}
+	for my $root ( qw( Wibbl Wibbl2 Wibbl3 Wibbl4 Wibbl5
+                      multifa_index multifa_qual_index ) ) {
+		unlink $root if( -e $root );
+		unlink "$root.pag" if( -e "$root.pag");
+		unlink "$root.dir" if( -e "$root.dir");
 	}
 }
