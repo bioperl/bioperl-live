@@ -58,37 +58,10 @@ methods. Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::Root::RootI;
-use vars qw(@ISA $DEBUG $ID $Revision $VERSION $VERBOSITY
-	    $TEMPMODLOADED $FILESPECLOADED $TEMPDIR $TEMPCOUNTER $OPENFLAGS);
+
+use vars qw(@ISA $DEBUG $ID $Revision $VERSION $VERBOSITY);
 use strict;
-use Bio::Root::Err;
-# determine tempfile
-eval { require 'File/Temp.pm'; $TEMPMODLOADED = 1; };
-if( $@ ) { 
-    use Fcntl;
-    use Symbol;
-    $OPENFLAGS = O_CREAT | O_EXCL | O_RDWR;
-    for my $oflag (qw/FOLLOW BINARY LARGEFILE EXLOCK NOINHERIT TEMPORARY/) {
-	my ($bit, $func) = (0, "Fcntl::O_" . $oflag);
-	no strict 'refs';
-	$OPENFLAGS |= $bit if eval { $bit = &$func(); 1 };
-    }
-    eval { require 'File/Spec.pm'; 
-	   $FILESPECLOADED = 1;
-	   $TEMPDIR = File::Spec->tmpdir(); 
-       };
-    if( $@ ) {
-	if (defined $ENV{'TEMPDIR'} && -d $ENV{'TEMPDIR'} ) {
-	    $TEMPDIR = $ENV{'TEMPDIR'};
-	} elsif( defined $ENV{'TMPDIR'} && -d $ENV{'TMPDIR'} ) {
-	    $TEMPDIR = $ENV{'TMPDIR'};
-	} elsif ( -d '/tmp' && -w '/tmp' ) {
-	    $TEMPDIR = '/tmp';
-	} else {
-	    $TEMPDIR = '.';
-	}
-    }
-}
+#use Bio::Root::Err; # we don't use that any longer, right?
 
 BEGIN { 
     $ID        = 'Bio::Root::RootI';
@@ -96,7 +69,6 @@ BEGIN {
     $Revision  = '$Id$ ';
     $DEBUG     = 0;
     $VERBOSITY = 0;
-    $TEMPCOUNTER = 0;
 }
 
 
@@ -111,15 +83,13 @@ sub new {
     local($^W) = 0;
     my ($caller, @args) = @_;
     
-    my $caller_is_obj = ref($caller);      #Dave Block
-    my $class = $caller_is_obj || $caller; #copied from Conway, OOPerl
-
+    my $class = ref($caller) || $caller; #copied from Conway, OOPerl
     my $self = bless({}, $class);
+
     my %param = @args;
     my($verbose) =  ( $param{'-VERBOSE'} || $param{'-verbose'} );
 
     ## See "Comments" above regarding use of _rearrange().
-
     $self->verbose($verbose);
 
     return $self;
@@ -404,125 +374,6 @@ sub _rearrange {
     return (@return_array);
 }
 
-
-=head2  tempfile
-
- Title   : tempfile
- Usage   : my ($handle,$tempfile) = $self->tempfile($dir); 
- Function: returns a temporary file for writing
- Example : my ($handle,$tempfile) = $self->tempfile($dir);
- Returns : temporary handle and temporary file name
- Args    : $dir - directory in which to create new file 
-
-=cut
-
-sub tempfile {
-    my ($self, @args) = @_;
-    if ( $TEMPMODLOADED ) {
-	my ($tfh, $file) = &File::Temp::tempfile(@args);
-	push @{$self->{'_rooti_tempfiles'}}, $file;
-	return ($tfh,$file);
-    }
-    my %hash = @args;
-    my $dir;
-    $dir = ( $hash{DIR} ) ? $hash{DIR} : $dir = $TEMPDIR;
-    my $tfilename;
-
-    if( $FILESPECLOADED ) {
-	$tfilename = File::Spec->catfile($dir, sprintf( "%s-%s-%s",  
-					$ENV{USER} || 'unknown', $$, 
-							$TEMPCOUNTER++));
-    } else {
-	$tfilename = join("/", ($dir, sprintf( "%s-%s-%s",  
-					       $ENV{USER} || 'unknown', $$, 
-					       $TEMPCOUNTER++)));
-    }
-    push @{$self->{'_rooti_tempfiles'}}, $tfilename;
-
-    # taken from File::Temp;
-    my $fh;
-    if ($] < 5.006) {
-        $fh = &Symbol::gensym;
-    }
-    
-    # Try to make sure this will be marked close-on-exec
-    # XXX: Win32 doesn't respect this, nor the proper fcntl,
-    #      but may have O_NOINHERIT. This may or may not be in Fcntl.
-    local $^F = 2; 
-    
-    # Store callers umask
-    my $umask = umask();
-    
-    # Set a known umaskr
-    umask(066);
-    
-    # Attempt to open the file
-    if ( sysopen($fh, $tfilename, $OPENFLAGS, 0600) ) {
-	
-        # Reset umask
-        umask($umask); 
-        # Opened successfully - return file handle and name
-        return ($fh, $tfilename);
-    } else { 
-	$self->throw("Could not open tempfile $tfilename $!\n");
-    }
-}
-
-=head2  tempdir
-
- Title   : tempdir
- Usage   : my ($tempdir) = $self->tempdir(CLEANUP=>1); 
- Function: returns a temporary directory
- Example : my ($tempdir) = $self->tempdir(CLEANUP=>1); 
- Returns : a temporary directory
- Args    : args - ( key CLEANUP ) indicates whether or not to cleanup 
-           dir on object destruction, other keys as specified by File::Temp
-
-=cut
-
-sub tempdir {
-    my ( $self, %args ) = @_;
-
-    if( $TEMPMODLOADED ) {
-	my $dir = &File::Temp::tempdir(%args);
-	return $dir;
-    }
-    # we are planning to cleanup temp files no matter what
-    $self->{'_cleanuptempdir'} = $args{CLEANUP} == 1;
-
-    my $tdir;
-    if( $FILESPECLOADED ) {
-	$tdir = File::Spec->catdir($TEMPDIR,
-				   sprintf("dir_%s-%s-%s", 
-					   $ENV{USER} || 'unknown', $$, 
-					   $TEMPCOUNTER++));
-    } else { 
-	$tdir = join('/', ($TEMPDIR,
-			   sprintf("dir_%s-%s-%s", 
-				   $ENV{USER} || 'unknown', $$, 
-				   $TEMPCOUNTER++)
-			   ));
-    }
-    mkdir($tdir, 0755);
-    push @{$self->{'_rooti_tempdirs'}}, $tdir; 
-    return $tdir;
-}
-
-
-sub DESTROY {
-    my ($self) = @_;
-    # we are planning to cleanup temp files no matter what     
-    if( defined $self->{'_rooti_tempfiles'} 
-	&& ref($self->{'_rooti_tempfiles'}) =~ /array/i) { 
-	unlink @{$self->{'_rooti_tempfiles'}}; 
-    }
-    # cleanup if we are not using File::Temp
-    if( $self->{'_cleanuptempdir'} ) {
-	foreach ( @{$self->{'_rooti_tempdirs'}} ) {
-	    rmdir($_); 
-	}
-    }
-}
 1;
 
 
