@@ -118,7 +118,6 @@ sub new {
 #----------------
     my ($class, @args) = @_; 
     my $self = $class->SUPER::new(@args);
-    $self->SUPER::_initialize(@args);
     return $self;
 }
 
@@ -195,10 +194,10 @@ sub query_description {
     my $self = shift;
     if(@_) { 
         my $desc = shift;
-        $desc =~ s/(^\s+|\s+$)//g;
+        defined $desc && $desc =~ s/(^\s+|\s+$)//g;
         # Remove duplicated ID at beginning of description string
-        $desc =~ s/^$self->{'_query_name'}//o;
-        $self->{'_query_query_desc'} = $desc;
+        defined $desc && $desc =~ s/^$self->{'_query_name'}//o;
+        $self->{'_query_query_desc'} = $desc || '';
     }
     return $self->{'_query_query_desc'};
 }
