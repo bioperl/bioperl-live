@@ -122,63 +122,60 @@ sub _version {
 =cut
 
 sub _index_file {
-    my( $self,
-        $file, # File name
-        $i     # Index-number of file being indexed
-        ) = @_;
-    
-    my( $begin, # Offset from start of file of the start
-                # of the last found record.
-        $id,    # ID of last found record.
-	@accs,   # accession of last record. Also put into the index
-        );
+	my( $self,
+		 $file, # File name
+		 $i     # Index-number of file being indexed
+	  ) = @_;
 
-    $begin = 0;
+	my( $begin, # Offset from start of file of the start
+		         # of the last found record.
+		 $id,    # ID of last found record.
+		 @accs,   # accession of last record. Also put into the index
+	  );
 
-    open GenBank, $file or $self->throw("Can't open file for read : $file");
+	$begin = 0;
 
-    # Main indexing loop
-    $id = undef;
-    @accs = ();
-    while (<GenBank>) {
-	if( /^\/\// ) {
-	    if( ! defined $id ) {
-		$self->throw("Got to a end of entry line for an GenBank flat file with no parsed ID. Considering this a problem!");
-		next;
-	    }
-	    if( ! @accs ) {
-		$self->warn("For id [$id] in GenBank flat file, got no accession number. Storing id index anyway");
-	    }
+	open GenBank, $file or $self->throw("Can't open file for read : $file");
 
-	    $self->add_record($id, $i, $begin);
+	# Main indexing loop
+	$id = undef;
+	@accs = ();
+	while (<GenBank>) {
+		if( /^\/\// ) {
+			if( ! defined $id ) {
+				$self->throw("Got to a end of entry line for an GenBank flat file with no parsed ID. Considering this a problem!");
+				next;
+			}
+			if( ! @accs ) {
+				$self->warn("For id [$id] in GenBank flat file, got no accession number. Storing id index anyway");
+			}
+			$self->add_record($id, $i, $begin);
 
-	    foreach my $acc (@accs) {
-		if( $acc ne $id ) {
-		    $self->add_record($acc, $i, $begin);
-		}		
-	    }
-	    @accs = ();
-	} elsif (/^LOCUS\s+(\S+)/) {
-	    $id = $1;
-	    # not sure if I like this. Assummes tell is in bytes.
-	    # we could tell before each line and save it.
-            $begin = tell(GenBank) - length( $_ ); 
-	    
-	} elsif (/^ACCESSION(.*)/) { # ignore ? if there.
-	    @accs = ($1 =~ /\s*(\S+)/g);
-	} elsif( /^VERSION(.*)/) {
-	    my $a = $1;
-	    $a =~ s/^\s+//;
-	    $a =~ s/\s+$//;
-	    $a =~ s/GI\://;
-	    push @accs, split(/\s+/,$a);
-	} else {
-	    # do nothing
+			foreach my $acc (@accs) {
+				if( $acc ne $id ) {
+					$self->add_record($acc, $i, $begin);
+				}
+			}
+			@accs = ();
+		} elsif (/^LOCUS\s+(\S+)/) {
+			$id = $1;
+			# not sure if I like this. Assumes tell is in bytes.
+			# we could tell before each line and save it.
+			$begin = tell(GenBank) - length( $_ ); 
+		} elsif (/^ACCESSION(.*)/) { # ignore ? if there.
+			@accs = ($1 =~ /\s*(\S+)/g);
+		} elsif( /^VERSION(.*)/) {
+			my $a = $1;
+			$a =~ s/^\s+//;
+			$a =~ s/\s+$//;
+			$a =~ s/GI\://;
+			push @accs, split(/\s+/,$a);
+		} else {
+			# do nothing
+		}
 	}
-    }
-
-    close GenBank;
-    return 1;
+	close GenBank;
+	return 1;
 }
 
 =head2 _file_format
