@@ -59,7 +59,7 @@ ok $aln->get_seq_by_pos(1)->get_nse, '1433_LYCES/9-246', " failed pfam input tes
 
 $strout = Bio::AlignIO->new(
    '-file' => ">".Bio::Root::IO->catfile("t","data","testout.pfam"), 
-									 '-format' => 'pfam');
+			    '-format' => 'pfam');
 $status = $strout->write_aln($aln);
 ok $status, 1, " failed pfam output test";
 
