@@ -40,9 +40,9 @@ Creating the OddCodes object, eg:
 or:
 
 	my $seqobj = Bio::PrimarySeq->new
-              (-seq=>'[cut and paste a sequence here]', 
-               -alphabet = 'protein', 
-               -id = 'test');
+              (-seq=>'[cut and paste a sequence here]',
+               -alphabet => 'protein',
+               -id => 'test');
 	my $oddcode_obj  =  Bio::Tools::OddCodes->new(-seq => $seqobj);
 
 do the alternative coding, returning the answer as a reference to a string
@@ -71,6 +71,10 @@ alphabet.  These are useful for the statistical analysis of protein
 sequences since they can partially avoid the combinatorial explosion
 produced by the full 20-letter alphabet (eg. 400 dimers, 8000 trimers
 etc.)
+
+The objects will print out a warning if the input sequence is not a
+protein. If you know what you are doing, you can silence the warning
+by setting verbose() to a negetive value.
 
 See Synopsis above for object creation code.
 
@@ -423,6 +427,9 @@ sub _pullseq
 	{
 		die("die, OddCodes works only on PrimarySeqI objects\n");
     	}
+        $self->warn("\tAll OddCode alphabets need a protein sequence,\n".
+                    "\tbut BioPerl thinks this is not: [". $seqobj->id. "]")
+            unless $seqobj->alphabet eq 'protein' or $self->verbose < 0;;
 
 	my $seqstring = uc $seqobj->seq();
 
