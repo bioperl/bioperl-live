@@ -108,6 +108,7 @@ use Bio::Search::HSP::HSPI;
  Returns : Bio::Search::HSP::GenericHSP
  Args    : -algorithm => algorithm used (BLASTP, TBLASTX, FASTX, etc)
            -evalue    => evalue
+           -pvalue    => pvalue
            -bits      => bit value for HSP
            -score     => score value for HSP (typically z-score but depends on
 					      analysis)
@@ -138,7 +139,7 @@ sub new {
     my($class,@args) = @_;
 
     my $self = $class->SUPER::new(@args);
-    my ($algo, $evalue, $identical, $conserved, 
+    my ($algo, $evalue, $pvalue, $identical, $conserved, 
 	$gaps, $query_gaps, $hit_gaps,
 	$hit_seq, $query_seq, $homology_seq,
 	$hsp_len, $query_len,$hit_len,
@@ -146,6 +147,7 @@ sub new {
 	$hs,$he,$qs,$qe,
 	$qframe,$hframe) = $self->_rearrange([qw(ALGORITHM
 						 EVALUE
+						 PVALUE
 						 IDENTICAL
 						 CONSERVED
 						 HSP_GAPS
@@ -172,6 +174,8 @@ sub new {
     $self->algorithm($algo);
 
     defined $evalue    && $self->evalue($evalue);
+    
+    defined $pvalue    && $self->pvalue($pvalue);
     defined $bits      && $self->bits($bits);
     defined $score     && $self->score($score);
 
@@ -260,7 +264,7 @@ sub new {
 	$identical = 0;
     } 
     if( ! defined $conserved ) {
-	$self->warn("Did not defined the number of conserved matches in the HSP assuming == identical ($identical)") if( $algo =~ /(FAST|BLAST)N/i);
+	$self->warn("Did not defined the number of conserved matches in the HSP assuming conserved == identical ($identical)") if( $algo !~ /T?(FAST|BLAST)N/i);
 	$conserved = $identical;
     } 
     # protect for divide by zero if user does not specify 
@@ -335,10 +339,10 @@ sub algorithm{
     return $previous;   
 }
 
-=head2 p
+=head2 pvalue
 
- Title   : p
- Usage   : my $pvalue = $hsp->p();
+ Title   : pvalue
+ Usage   : my $pvalue = $hsp->pvalue();
  Function: Returns the P-value for this HSP or undef 
  Returns : float or exponential (2e-10)
            P-value is not defined with NCBI Blast2 reports.
@@ -346,9 +350,13 @@ sub algorithm{
 
 =cut
 
-sub p {
-    my ($self) = shift;
-    return $self->evalue(@_);
+sub pvalue {
+    my ($self,$value) = @_;
+    my $previous = $self->{'_pvalue'};
+    if( defined $value  ) { 	
+	$self->{'_pvalue'} = $value;
+    } 
+    return $previous;   
 }
 
 =head2 evalue
