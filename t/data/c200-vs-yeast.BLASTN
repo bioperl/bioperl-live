@@ -1,0 +1,420 @@
+BLASTN 2.2.4 [Aug-26-2002]
+
+
+Reference: Altschul, Stephen F., Thomas L. Madden, Alejandro A. Schaffer, 
+Jinghui Zhang, Zheng Zhang, Webb Miller, and David J. Lipman (1997), 
+"Gapped BLAST and PSI-BLAST: a new generation of protein database search
+programs",  Nucleic Acids Res. 25:3389-3402.
+
+Query= contig_200
+         (5116 letters)
+
+Database: /data/blast/yeast.nt 
+           17 sequences; 12,155,026 total letters
+
+Searching.done
+
+                                                                 Score    E
+Sequences producing significant alignments:                      (bits) Value
+
+gi|6323989|ref|NC_001146.1| Saccharomyces cerevisiae chromosome ...   648.7   0.0  
+
+>gi|6323989|ref|NC_001146.1| Saccharomyces cerevisiae chromosome XIV,
+              complete chromosome sequence
+          Length = 784328
+
+ Score =  648.7 bits (327), Expect = 0.0
+ Identities = 830/1000 (83%)
+ Strand = Plus / Minus
+
+                                                                          
+Query: 2697   ataggccaaaatcttcacatgattcaaaatttcaagaaaatgccccaatatttctcccat 2756
+              ||||| ||||||||||| ||||||||||| ||||| ||||||||||| |||||||| |||
+Sbjct: 133942 atagggcaaaatcttcatatgattcaaaacttcaaaaaaatgccccagtatttctctcat 133883
+
+                                                                          
+Query: 2757   ctaacccttgaaagtcacttgaaaatcattcaagcttggttatttgctgtggaacaaaca 2816
+               ||||| | |||||||| |||||||| |||||||| ||||||||||| || |||||||| 
+Sbjct: 133882 ttaaccttggaaagtcatttgaaaattattcaagcctggttatttgccgttgaacaaact 133823
+
+                                                                          
+Query: 2817   ctagatggaagaggcaaaatgggttccttggtaggggcctctgatgaatttaaaaacggt 2876
+               ||||||||||||| |||||||||||||| ||||| || || |||||||||||||| |||
+Sbjct: 133822 ttagatggaagaggaaaaatgggttccttagtaggcgcgtcggatgaatttaaaaatggt 133763
+
+                                                                          
+Query: 2877   ggaggtgaaaatgccattttagaatattgtcaatggaccatggtctttatcaatcacttg 2936
+              || ||||||||||| ||| ||||||| || |||||||| ||||| ||||||||||| || 
+Sbjct: 133762 gggggtgaaaatgcgattctagaatactgccaatggacaatggtttttatcaatcattta 133703
+
+                                                                          
+Query: 2937   tgttcttgttctgataatgttaatcaaagaatgcttttgagaacaaagctagaaaattgt 2996
+              || ||||| ||||||||  | |||||||||||||| || || || || ||||||||||||
+Sbjct: 133702 tgctcttgctctgataacataaatcaaagaatgctattaaggacgaaactagaaaattgt 133643
+
+                                                                          
+Query: 2997   ggtattctacgaatcatgaataaaataaaattgctagattatgacaaagtgattgatcaa 3056
+              || ||| ||||||| ||||| ||||||||| |||||||||| ||||| || ||||| |||
+Sbjct: 133642 ggaattttacgaattatgaacaaaataaaactgctagattacgacaaggtaattgaccaa 133583
+
+                                                                          
+Query: 3057   attgaattatatgacaataataaactcgatgactttaacgtaaagttggaggcaagtaac 3116
+              ||||| |||||||||||||||||||| || || |||||||| || || ||||| |  || 
+Sbjct: 133582 attgagttatatgacaataataaacttgacgattttaacgttaaattagaggccaacaat 133523
+
+                                                                          
+Query: 3117   aaagcatttaatgtggatttaaaagatccactatcgttgttgaagaatctttgggaaata 3176
+              || || |||||||| |||||| | ||||||||||| || || || || |||||||| |||
+Sbjct: 133522 aaggcttttaatgtagatttacacgatccactatcattattaaaaaacctttgggatata 133463
+
+                                                                          
+Query: 3177   tgtaaaggcacggataatgagaaactgttggtgtctttagtacaacatcttttcctttcc 3236
+              |||||||| || || ||||| || || || || |||||||| ||||||||||||||||| 
+Sbjct: 133462 tgtaaaggtaccgagaatgaaaagcttttagtatctttagttcaacatcttttcctttct 133403
+
+                                                                          
+Query: 3237   agctcgaaattaatcgaagagaatcagaatccctccaaactatccaaacagttgaaatta 3296
+              || || || ||||| ||||| || || ||| |||| |||||  | || || |||||| | 
+Sbjct: 133402 agttcaaagttaatagaagaaaaccaaaattcctctaaacttactaagcaattgaaactt 133343
+
+                                                                          
+Query: 3297   atggattctttagtgactaatgttagtgttgcctcaacagccgacgaagaatcgaatatg 3356
+              ||||||||||| ||||||||||||||||||||||||||  | || |||||| | ||||||
+Sbjct: 133342 atggattctttggtgactaatgttagtgttgcctcaacttctgatgaagaaactaatatg 133283
+
+                                                                          
+Query: 3357   aacatggccattcagcggctttatgatgctatgcaaactgatgaagtagcacgtcgtgca 3416
+              || ||||| || ||||||||||| ||||| ||||| ||||||||||| |||||||| || 
+Sbjct: 133282 aatatggctatccagcggctttacgatgccatgcagactgatgaagttgcacgtcgagct 133223
+
+                                                                          
+Query: 3417   atacttgaaagtagaactctgacnnnnnnnttagaagaaattcaagcggagagggattcc 3476
+              ||| | ||||||||| |||| ||       || ||||||||||| || || |||||||| 
+Sbjct: 133222 atattagaaagtagagctctaacgaagaaattggaagaaattcaggcagaaagggattct 133163
+
+                                                                          
+Query: 3477   ctaagtgaaaagctaggtaaagcagagcacgggctcgttgggcaattagagaacgagcta 3536
+               ||||||||||| || | || || |||||||| |||||||| || |||||  | ||| | 
+Sbjct: 133162 ttaagtgaaaagttaagcaaggcggagcacggactcgttggacagttagaagatgagttg 133103
+
+                                                                          
+Query: 3537   cacggaagagatcgtatactggccaagaaccaaagggttatgcaacagctggaatccgaa 3596
+              || |  |||||||||||  | || ||||| || || |||||||| ||||||||| | || 
+Sbjct: 133102 catgagagagatcgtattttagctaagaatcagagagttatgcagcagctggaagctgag 133043
+
+                                                                          
+Query: 3597   ctagaagaactgaaaaagaaacatcttctggaaaagcatcagcaagaagttgaactgaga 3656
+               |||||||  |||||||||| |||||| ||||||||||||||||||| || ||| |||||
+Sbjct: 133042 ttagaagagttgaaaaagaagcatcttttggaaaagcatcagcaagaggtagaattgaga 132983
+
+                                                      
+Query: 3657   aaaatgttaaccatattaaattccaggcctgaagaaagct 3696
+              |||||||| || ||||| ||||| ||||||||||||||||
+Sbjct: 132982 aaaatgttgactatattgaattcgaggcctgaagaaagct 132943
+
+
+
+ Score =  317 bits (160), Expect = 1e-85
+ Identities = 388/464 (83%)
+ Strand = Plus / Minus
+
+                                                                          
+Query: 2170   gtttgaaaaagcaaccatctctaaacagcatttatcgaggtgggcctgaaattaatacaa 2229
+              ||||||||||||| |||||||||||||  |||||| |||||||| |||| |  ||||| |
+Sbjct: 134469 gtttgaaaaagcagccatctctaaacaatatttatagaggtggggctgagaacaatacga 134410
+
+                                                                          
+Query: 2230   gcgcgtccactcttccaggagacagaactaatagaccgccaatacactatgtgcaacgca 2289
+              | || || |||||||||||||||||||| || ||||| || ||||| ||||||||||| |
+Sbjct: 134409 gtgcatctactcttccaggagacagaacaaacagaccaccgatacattatgtgcaacgaa 134350
+
+                                                                          
+Query: 2290   tcctggccgataagcttacgaccgacgaaatgaaagatttatgggttaccttgaggacag 2349
+              ||||||| || || ||||| | ||| || ||||||||||||||||| || || || || |
+Sbjct: 134349 tcctggcagacaaacttactagcgatgagatgaaagatttatgggtaactttaagaactg 134290
+
+                                                                          
+Query: 2350   aacaattagactgggtagacgcctttatagaccatcagggtcacattgccatggctaacg 2409
+              |||| ||||||||||||||||| |||||||||||||||||||||||||| |||||||| |
+Sbjct: 134289 aacagttagactgggtagacgcttttatagaccatcagggtcacattgctatggctaatg 134230
+
+                                                                          
+Query: 2410   tattgatgaactcaatatacaagacggcgcctcgggaacatttgacgaaggagttattgg 2469
+              || | |||||||| || || ||||| || || || ||| | ||||| || || ||||| |
+Sbjct: 134229 tactaatgaactctatttataagactgcaccccgagaaaacttgactaaagaattattag 134170
+
+                                                                          
+Query: 2470   aaaaggaaaattccttttttaaatgttttagagttttatcgatgctttcacaaggtttat 2529
+              | || |||||||| ||||||||||| || ||||| ||||| ||||| ||||||||||| |
+Sbjct: 134169 agaaagaaaattcattttttaaatgcttcagagtcttatcaatgctctcacaaggtttgt 134110
+
+                                                                          
+Query: 2530   atgaattcagcacgcatagactgatgaccgatactgtcgcagaaggtttgttctccacga 2589
+              |||| ||||| || |||||  | ||||| |||||||| ||||||||||| ||||| ||||
+Sbjct: 134109 atgagttcagtacacataggttaatgactgatactgttgcagaaggtttattctctacga 134050
+
+                                                          
+Query: 2590   agttggttaccaggaaaatggctactgaaattttcgtctgtatg 2633
+              |  |||  || ||||||||||| ||||||||||| || ||||||
+Sbjct: 134049 aactggccacaaggaaaatggccactgaaatttttgtttgtatg 134006
+
+
+
+ Score =  289 bits (146), Expect = 3e-77
+ Identities = 701/886 (79%)
+ Strand = Plus / Minus
+
+                                                                          
+Query: 1246   aaatgttgaagaattcaggttccaagaattcgaattcgaaggaaagtaactccagttcaa 1305
+              ||||||||||||||||||| |||||  ||||||| || ||||||||| | || | ||| |
+Sbjct: 135384 aaatgttgaagaattcaggctccaaacattcgaactcaaaggaaagtcattcgaattcga 135325
+
+                                                                          
+Query: 1306   gttccggtcttttccaaaacttgaagcgtttggctaattcaagcgcatcgaataataatg 1365
+              |||| ||| | |||||||| ||||||||||||||||| ||||  ||| ||||||  ||| 
+Sbjct: 135324 gttctggtatattccaaaatttgaagcgtttggctaactcaaatgcaacgaatagcaata 135265
+
+                                                                          
+Query: 1366   ccacctctccgaacaatgcatcagaacaccagcatcctcccgttggacaggaaacatcca 1425
+              |    ||||||| | |||||||  |||| |||||  |||| || ||| | |||   ||||
+Sbjct: 135264 cgggttctccgacctatgcatcccaacaacagcactctccagtgggaaacgaagtgtcca 135205
+
+                                                                          
+Query: 1426   cttcatctgcatcgtcctcgtcttttagaaggctaaatggaccctccaggtctacatcca 1485
+              ||||| ||||||| || || ||||||||||  || |||| ||| || ||||||||||| |
+Sbjct: 135204 cttcacctgcatcttcgtcatcttttagaaaactgaatgcaccttctaggtctacatcta 135145
+
+                                                                          
+Query: 1486   ctgaagcaaggccgctgaacaagaaagcgacactcaacactcaaaatctgtctcagtaca 1545
+              |||| || |||||| |||| || ||| ||||| | ||||| |||||  ||||||| || |
+Sbjct: 135144 ctgaggcgaggccgttgaataaaaaatcgacattaaacacacaaaacttgtctcaatata 135085
+
+                                                                          
+Query: 1546   tgaacggcaagataagtaccgatgcgccaacatcgtcccagcatgcaaggtcgcattcag 1605
+              |||| || ||  |||||   ||||  ||   ||| || ||||| ||||||||||||||| 
+Sbjct: 135084 tgaatggtaaattaagtggagatgttcccgtatcctcacagcacgcaaggtcgcattcaa 135025
+
+                                                                          
+Query: 1606   tacagtccaaatattcgtactccaagaggacttcctctcaggcgtctaacaagctaacga 1665
+              | || || ||||||||||| |||||||||| ||| || |||||||| || |||||||| |
+Sbjct: 135024 tgcaatcgaaatattcgtattccaagaggaattcttcacaggcgtccaataagctaacaa 134965
+
+                                                                          
+Query: 1666   ggcaacacactgggcagagtcattctgcgacaagtcttttatccctcggctctttaacaa 1725
+              |||| || || ||||| ||||| || ||  |||||||| | || |  || ||  |||| |
+Sbjct: 134964 ggcagcataccgggcaaagtcactccgcatcaagtcttctctctcaaggttcgctaacta 134905
+
+                                                                          
+Query: 1726   acttaagcaaattcaccactcctgatggcaaaatccatctagagatgccctcggacccat 1785
+              |||| ||||||||||| || || ||||| |||||  || |||| ||||| ||||||||||
+Sbjct: 134904 acttgagcaaattcactacacccgatggtaaaatttatttagaaatgccgtcggacccat 134845
+
+                                                                          
+Query: 1786   acgaagtggaagttttgttcgaggacattatgtacaaaagaaacattttccaatctctat 1845
+              |||| |||||||||||||| || || |||||||| |||||||| ||||| || ||| |||
+Sbjct: 134844 acgaggtggaagttttgtttgaagatattatgtataaaagaaatatttttcagtctttat 134785
+
+                                                                          
+Query: 1846   caggtgacaaacaagaagagctaatgagctacagtacggaaaagaaatggttgattgtga 1905
+              |||  |||||||||||||  || ||| ||||||| |  || ||||||||| ||||||| |
+Sbjct: 134784 cagaggacaaacaagaagctctgatgggctacagcattgagaagaaatggctgattgtta 134725
+
+                                                                          
+Query: 1906   aacaagatttacagaacgaattgaaaaagattagagcaaacacgacttcttcttccgctg 1965
+              | || |||||||| || ||  | ||||| ||  |||||||||| || ||||||||| |||
+Sbjct: 134724 agcaggatttacaaaatgagctaaaaaaaatgcgagcaaacactacatcttcttccactg 134665
+
+                                                                          
+Query: 1966   cttctcgtacttcgatagcatcggatcaacatcccatactcacggctaattcaacacttt 2025
+              | ||  | |||||||| || ||||| || ||||| || || |||||||||||| | ||||
+Sbjct: 134664 cctccagaacttcgatggcgtcggaccatcatcctatccttacggctaattcatctcttt 134605
+
+                                                                          
+Query: 2026   catcgcctaaatctgctctgatgacgagtgcttcttctccgacttctactgtatatagta 2085
+              | || || ||||||| | ||||||| || || |||||||| || || |||||||| || |
+Sbjct: 134604 cgtctcccaaatctgttttgatgacaagcgcctcttctcccacctcaactgtatacagca 134545
+
+                                                            
+Query: 2086   acaccctaaaccattccaccactctttcatctgtgggcacgtcaac 2131
+              |||   |||| ||||| || ||||||||||| || || ||||||||
+Sbjct: 134544 acagtttaaatcattctactactctttcatcggtaggtacgtcaac 134499
+
+
+
+ Score =  200 bits (101), Expect = 2e-50
+ Identities = 512/649 (78%)
+ Strand = Plus / Minus
+
+                                                                          
+Query: 35     catcccccttcatgatcagcatcgagaattccggcaccaaggtcctcccagacatattca 94
+              |||| ||||| ||||| ||||| |||||||| ||||| || || |||||||| ||||| |
+Sbjct: 136636 catcgccctttatgataagcattgagaattcaggcacaaaagttctcccagatatattta 136577
+
+                                                                          
+Query: 95     acgcggtcgtgctgatcaccatagtctccgcgggcaactccaacgtgtacatcggctcaa 154
+              ||||||||||||| ||||||||  | ||||| || ||||| || |||||||| |||||||
+Sbjct: 136576 acgcggtcgtgctaatcaccattctttccgcaggtaactctaatgtgtacattggctcaa 136517
+
+                                                                          
+Query: 155    gggtcctgtacagtctatccaaaaacgacttggcgccccggttcctgtcgatcgtgacca 214
+              | || ||||| ||||| || |||||   |||||||||  ||||| |||| | ||||||||
+Sbjct: 136516 gagtactgtatagtctgtctaaaaatagcttggcgccaaggttcttgtctaacgtgacca 136457
+
+                                                                          
+Query: 215    agggcggggtcccctactttgccgttctggcaacatctgtattcgggttcctggccttct 274
+                || || || || |||||| | |||||  | ||||| || ||||| ||  |||| ||||
+Sbjct: 136456 gaggtggtgttccatacttttctgttctatctacatccgtgttcggatttttggctttct 136397
+
+                                                                          
+Query: 275    tggaaacctccgcaggtagtggcaaggctttcaactggctgttaaacattactggtgtgg 334
+              | ||    || ||||| || |||||||| || |||||| | || ||||| ||||||||||
+Sbjct: 136396 tagaggtttctgcaggcagcggcaaggcctttaactggttattgaacataactggtgtgg 136337
+
+                                                                          
+Query: 335    caggatttttcgcatggctgctgatttcattttcgcacatccgctttatgcaagcgataa 394
+              | || || || || |||||  ||||||||||||| || ||||| || |||||||| ||||
+Sbjct: 136336 ccggtttctttgcctggcttttgatttcattttctcatatccgtttcatgcaagccataa 136277
+
+                                                                          
+Query: 395    gcaaacgcggaatatcgaggaacgatctgccttacaaggctcgcatgatgccttatctag 454
+              | ||||| || ||||||||| | ||  | ||||| || ||||  |||||||||| | | |
+Sbjct: 136276 ggaaacgtggtatatcgagggatgacttaccttataaagctcaaatgatgccttttttgg 136217
+
+                                                                          
+Query: 455    cctactacgcatcctttttcatcgccctgatagtcctgatccagggcttcactgcatttg 514
+              | || || ||||| ||||||||||| || || || ||||||||||||||||| || || |
+Sbjct: 136216 catattatgcatcttttttcatcgctctaattgttctgatccagggcttcaccgctttcg 136157
+
+                                                                          
+Query: 515    cgcccagtttccagcctgtagatttcgttgccgcatacatatccgtcttcctatttgttg 574
+              | || | ||| |||||| |||| || || || ||||| |||||  | ||||||||| | |
+Sbjct: 136156 cacctacttttcagcctatagactttgtcgctgcatatatatcaatattcctatttttgg 136097
+
+                                                                          
+Query: 575    caatctggttttcattccagctttggttcaagtgtcccataatcttgaagttgcaggacg 634
+              | || ||||| ||||||||  ||||||| ||||| | | || ||| |||| |||||||  
+Sbjct: 136096 ccatatggttatcattccaagtttggtttaagtgccgcttactctggaagctgcaggata 136037
+
+                                                               
+Query: 635    tcgacatagattccgaccgccgcgaaatagaggagcaggtatggataga 683
+              |||| || ||||| ||||||||  |||||||||||  ||||||||||||
+Sbjct: 136036 tcgatatcgattctgaccgccggcaaatagaggagttggtatggataga 135988
+
+
+
+ Score =  174 bits (88), Expect = 1e-42
+ Identities = 154/176 (87%)
+ Strand = Plus / Minus
+
+                                                                          
+Query: 4041   aaactaaatgatttaaggagggccttggctgaaattcaaatggaaagtaatgatatttcc 4100
+              |||||||||||  ||||| |||| ||| ||||||| ||||||||||||||||||||||||
+Sbjct: 132598 aaactaaatgacctaaggcgggctttgactgaaatccaaatggaaagtaatgatatttcc 132539
+
+                                                                          
+Query: 4101   aagttcaatgtcgaagaacgtgttaatgagctatttaacgaaaagaagtctttggctttg 4160
+              || || || ||||||||||||||||||||||||||||| |||||||| ||| ||||||| 
+Sbjct: 132538 aaatttaacgtcgaagaacgtgttaatgagctatttaatgaaaagaaatctctggcttta 132479
+
+                                                                      
+Query: 4161   aagaggttaaaggaactagaaaccaaatataagggattcggtattgattttaatgt 4216
+              |||||  | || ||||||||||| ||||| || ||||| |||||||| ||||||||
+Sbjct: 132478 aagagactgaaagaactagaaacaaaatacaaaggatttggtattgactttaatgt 132423
+
+
+
+ Score =  151 bits (76), Expect = 2e-35
+ Identities = 169/200 (84%)
+ Strand = Plus / Minus
+
+                                                                          
+Query: 3756   aatattcagaaggtattacaggacggattgtcgagagcgaagaaagattataaagatgac 3815
+              ||||| || ||||| |||||||||||||| || ||||| || || ||||| || ||||| 
+Sbjct: 132883 aatatccaaaaggtgttacaggacggattatcaagagcaaaaaaggattacaaggatgat 132824
+
+                                                                          
+Query: 3816   tcgaaaaaattcggtatgacacttcaacctaataaaaggctaaagatgctaagaatgcaa 3875
+              || ||||||||||| |||||||||||||||||||| ||  |||| ||| |||||||||||
+Sbjct: 132823 tcaaaaaaattcggcatgacacttcaacctaataagagattaaaaatgttaagaatgcaa 132764
+
+                                                                          
+Query: 3876   atggaaaatattgaaaatgaagcaagacagttggaaatgacaaactttgctgagtttgaa 3935
+              ||||||||||||||||||||||| || ||  | || |||||||| |||||||| ||||| 
+Sbjct: 132763 atggaaaatattgaaaatgaagccaggcaactagagatgacaaattttgctgaatttgag 132704
+
+                                  
+Query: 3936   aaggaacgcctcgaacctcc 3955
+              || || || || ||||||||
+Sbjct: 132703 aaagatcgtcttgaacctcc 132684
+
+
+
+ Score =  129 bits (65), Expect = 7e-29
+ Identities = 119/137 (86%)
+ Strand = Plus / Minus
+
+                                                                          
+Query: 4437   gaaatataccaagatgcttctccaagtcaagaaagaagaggcgagtactcagagctatct 4496
+              |||||||||||||| || ||||||| |||||||  |||  ||||  ||||||||||||||
+Sbjct: 132196 gaaatataccaagacgcatctccaactcaagaactaaggagcgaacactcagagctatct 132137
+
+                                                                          
+Query: 4497   gcaggatcaggtcccggatcttttcttgatgccttatcccaaaaatatggcactggtcaa 4556
+               ||||||||||||| || |||||||| ||||||||||| ||||||||||| |||||||||
+Sbjct: 132136 tcaggatcaggtcctgggtcttttctcgatgccttatctcaaaaatatggtactggtcaa 132077
+
+                               
+Query: 4557   aacgtcaccgcatcggc 4573
+              || || || ||||||||
+Sbjct: 132076 aatgttactgcatcggc 132060
+
+
+
+ Score = 85.7 bits (43), Expect = 1e-15
+ Identities = 101/119 (84%), Gaps = 1/119 (0%)
+ Strand = Plus / Minus
+
+                                                                          
+Query: 890    tttttgacatggaagaggcaagaagagaaaaaacagatgtgg-aaactataatccctttt 948
+              |||||||| ||||||||| ||  | ||||||||||||||||| |||||| ||||||||||
+Sbjct: 135742 tttttgacgtggaagagggaaagaaagaaaaaacagatgtggaaaactagaatccctttt 135683
+
+                                                                         
+Query: 949    acaaacaatagcacggacgctttccggagacaacaagacactgacggctgtgtggtaat 1007
+              |  ||||||||||||||| ||| |   ||| || | |||||||||||||||||| ||||
+Sbjct: 135682 aagaacaatagcacggacccttcctacagataagaggacactgacggctgtgtgttaat 135624
+
+
+  Database: /data/blast/yeast.nt
+    Posted date:  Aug 12, 2003 12:35 PM
+  Number of letters in database: 12,155,026
+  Number of sequences in database:  17
+  
+Lambda     K      H
+    1.37    0.711     1.31 
+
+Gapped
+Lambda     K      H
+    1.37    0.711     1.31 
+
+
+Matrix: blastn matrix:1 -3
+Gap Penalties: Existence: 5, Extension: 2
+Number of Hits to DB: 45,084
+Number of Sequences: 17
+Number of extensions: 45084
+Number of successful extensions: 26
+Number of sequences better than 1.0e-10: 1
+length of query: 5116
+length of database: 12,155,026
+effective HSP length: 18
+effective length of query: 5098
+effective length of database: 12,154,720
+effective search space: 61964762560
+effective search space used: 61964762560
+T: 0
+A: 0
+X1: 6 (11.9 bits)
+X2: 15 (29.7 bits)
+S1: 12 (24.3 bits)
+S2: 35 (69.9 bits)

@@ -20,7 +20,7 @@ BEGIN {
 	use lib 't';
     }
     use vars qw($NTESTS);
-    $NTESTS = 1036;
+    $NTESTS = 1105;
     $LASTXMLTEST = 54;
     $error = 0;
 
@@ -1462,7 +1462,26 @@ ok($hsp->hit->frame,0);
 ok($hsp->query->strand,1);
 ok($hsp->hit->strand,1);
 
-
+# test blasttable output
+my @eqset = qw( 
+		
+		c200-vs-yeast.BLASTN.m9);
+$searchio = new Bio::SearchIO(-file => Bio::Root::IO->catfile
+			      (qw(t data c200-vs-yeast.BLASTN)),
+			      -format => 'blast');
+$result = $searchio->next_result;
+ok($result);
+my %ref = &result2hash($result);
+ok( scalar keys %ref, 67);
+$searchio = new Bio::SearchIO(-file => Bio::Root::IO->catfile
+			      (qw(t data c200-vs-yeast.BLASTN.m8)),
+			      -program_name => 'BLASTN',
+			      -format => 'blasttable');
+$result = $searchio->next_result;
+my %tester = &result2hash($result);
+foreach my $key ( sort keys %ref ) {
+    ok($tester{$key}, $ref{$key},$key);
+}      
 
 # Let's now test if _guess_format is doing its job correctly
 my %pair = ( 'filename.blast'  => 'blast',
@@ -1501,6 +1520,47 @@ ok($result->database_letters(), '-24016349');
 # reports, the correct value is
 ok($result->get_statistic('dbletters'),'192913178');
 ok($result->get_statistic('dbentries'),'1867771');
+
+
+# some utilities
+# a utility function for comparing result objects
+sub result2hash {
+    my ($result) = @_;
+    my %hash;
+    $hash{'query_name'} = $result->query_name;
+    my $hitcount = 1;
+    my $hspcount = 1;
+    foreach my $hit ( $result->hits ) {
+	$hash{"hit$hitcount\_name"}   =  $hit->name;
+	# only going to test order of magnitude
+	# too hard as these don't always match
+#	$hash{"hit$hitcount\_signif"} =  
+#	    ( sprintf("%.0e",$hit->significance) =~ /e\-?(\d+)/ );
+	$hash{"hit$hitcount\_bits"}   =  sprintf("%d",$hit->bits);
+
+	foreach my $hsp ( $hit->hsps ) {
+	    $hash{"hsp$hspcount\_bits"}   = sprintf("%d",$hsp->bits);
+	    # only going to test order of magnitude
+ 	    # too hard as these don't always match
+#	    $hash{"hsp$hspcount\_evalue"} =  
+#		( sprintf("%.0e",$hsp->evalue) =~ /e\-?(\d+)/ );
+	    $hash{"hsp$hspcount\_qs"}     = $hsp->query->start;
+	    $hash{"hsp$hspcount\_qe"}     = $hsp->query->end;
+	    $hash{"hsp$hspcount\_qstr"}   = $hsp->query->strand;
+	    $hash{"hsp$hspcount\_hs"}     = $hsp->hit->start;
+	    $hash{"hsp$hspcount\_he"}     = $hsp->hit->end;
+	    $hash{"hsp$hspcount\_hstr"}   = $hsp->hit->strand;
+
+	    #$hash{"hsp$hspcount\_pid"}     = sprintf("%d",$hsp->percent_identity);
+	    #$hash{"hsp$hspcount\_fid"}     = sprintf("%.2f",$hsp->frac_identical);
+	    $hash{"hsp$hspcount\_gaps"}    = $hsp->gaps('total');
+	    $hspcount++;
+	}
+	$hitcount++;
+    }
+    return %hash;
+}
+
 
 __END__
 
