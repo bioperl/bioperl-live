@@ -599,7 +599,8 @@ SeqIO), you will usually do just fine.
 
 A Location object is designed to be associated with a Sequence
 Feature object to indicate where on a larger structure (e.g. a chromosome or
-contig) the feature can be found.  The reason why this simple concept has
+contig) the feature can be found. Location objects can also be standalone 
+objects used to described positions. The reason why these simple concepts have
 evolved into a collection of rather complicated objects is that:
 
 1) Some objects have multiple locations or sub-locations (e.g. a gene's exons
@@ -607,10 +608,10 @@ may have multiple start and stop locations)
 2) In unfinished genomes, the precise locations of features is not known with
 certainty.
 
-Bioperl's various Location objects address these complications.  In addition
+Bioperl's various Location objects address these complications. In addition
 there are "CoordinatePolicy" objects that allow the user to specify how to
 measure the "length" of a feature if its precise start and end coordinates are
-not know. In most cases, you will not need to worry about these complications
+not known. In most cases, you will not need to worry about these complications
 if you are using bioperl to handle simple features with well-defined start
 and stop locations.  However, if you are using bioperl to annotate partially
 or unfinished genomes or to read annotations of such genomes with bioperl,
@@ -688,30 +689,27 @@ conventional bioinformatics usage we will sometimes call a "database"
 what might be more appropriately referred to as an "indexed flat
 file".
 
-Bioperl supports accessing remote databases as well as developing 
-indices for setting up local databases.  There are two general approaches 
+Bioperl supports accessing remote databases as well as creating 
+indices for accessing local databases.  There are two general approaches 
 to accomplishing this.  If you know what kind of database the sequences 
-is stored in (i.e. flat file, local relational database or a database 
+are stored in (i.e. flat file, local relational database or a database 
 accessed remotely over the internet), you can write a script that specifically 
 accesses data from that kind of database.  This approach is described 
 in sections III.1.1 and III.1.2 for access from remote databases and 
 local indexed flat files respectively. To explicitly access sequence 
 data from a local relational database requires installing and setting 
-up the modules in the bioperl-db library which is outside the scope 
-of this tutorial.
+up the modules in the bioperl-db library and the BioSQL schema, see
+L<"IV.3"> for more information.
 
 The other approach is to use the recently developed OBDA (Open
-Bioinformatics Data Access) Registry system.  Using OBDA, it is
+Bioinformatics Data Access) Registry system.  Using OBDA it is
 possible to import sequence data from a database without your needing
 to know whether the required database is flat-file or relational or
 even whether it is local or accessible only over the net.
 Descriptions of how to set up the necessary registry configuration
 file and access sequence data with the registry in described in
 BIODATABASE_ACCESS in the doc/howto subdirectory and won't be repeated
-here. The OBDA approach is still under development as of this 
-writing (March 2003) so if you run into difficulties you can always 
-use the older database specific access methods described in the next
-two subsections.
+here.
 
 =head2   III.1.1 Accessing remote databases (Bio::DB::GenBank, etc)
 
@@ -965,23 +963,25 @@ alignment files. AlignIO is patterned on the SeqIO object and shares
 most of SeqIO's features.  AlignIO currently supports input in the
 following formats:
 
-   fasta
-   mase (Seaview)
-   stockholm
-   prodom
-   selex (HMMER))
    bl2seq
    clustalw (.aln)
-   msf (GCG)
-   water*
-   phylip (interleaved)
-   stockholm
-   nexus
+   emboss*
+   fasta
+   mase (Seaview)
    mega
    meme
+   metafasta
+   msf (GCG)
+   nexus
+   pfam
+   phylip (interleaved)
+   prodom
    psi (PSI-BLAST)
+   selex (HMMER))
+   stockholm
 
-*used by EMBOSS, see L<"IV.2.1">
+*water, needle, matcher, stretcher, merger, and supermatcher
+See L<"IV.2.1"> on EMBOSS
 
 AlignIO supports output in these formats: fasta, mase, selex, clustalw, 
 msf/gcg, and phylip (interleaved).  One significant difference between 
@@ -1355,9 +1355,10 @@ code such as this:
   (-in => $input_coordinates ,  -out => $output_coordinates   );
   $pos = Bio::Location::Simple->new (-start => 500, -end => 500 );
   $res = $pair->map($pos);
-  $converted_pos  = $res->gap->start;
+  $converted_start = $res->start;
 
-See the documentation for Bio::Coordinate::Pair and Bio::Coordinate::GeneMapper 
+In this example $res is also a Bio::Location object, as you'd expect.
+See the documentation for Bio::Coordinate::Pair and Bio::Coordinate::GeneMapper
 for more details.
 
 The Bio::DB::GFF::RelSegment approach is designed more for handling coordinate 
@@ -1383,12 +1384,12 @@ code like this:
   $absolute_start =  $segment->abs_start;
 
 This approach is convenient because you don't have to keep track of 
-coordinates directly; you just keep track of the name of a feature 
+coordinates directly, you just keep track of the name of a feature 
 which in turn marks the coordinate-system origin.  However, this 
 approach does require that you have stored all the sequence features 
-in GFF format.   Moreover, Bio::DB::GFF::RelSegment has been principally 
+in GFF format. Moreover, Bio::DB::GFF::RelSegment has been principally 
 developed and tested for applications where all the sequence features are 
-stored in a Bioperl-db relational database. However,  if one wants to use 
+stored in a Bioperl-db relational database. However, if one wants to use 
 the Bio:DB::GFF machinery (including its coordinate transformation 
 capabilities) without building a local relational database, this is 
 possible by defining the 'database' as having an adaptor called 'memory'; 
@@ -1426,7 +1427,7 @@ A skeleton script to run a remote blast might look as follows:
 You may want to change some parameter of the remote job and this example
 shows how to change the matrix:
 
-$Bio::Tools::Run::RemoteBlast::HEADER{'MATRIX_NAME'} = 'BLOSUM25';
+  $Bio::Tools::Run::RemoteBlast::HEADER{'MATRIX_NAME'} = 'BLOSUM25';
 
 For a description of the many CGI parameters see:
 
@@ -2464,15 +2465,15 @@ EMBOSS (European Molecular Biology Open Source Software) is an extensive
 collection of sequence analysis programs written in the C
 programming language, from http://www.uk.embnet.org/Software/EMBOSS.
 There are a number of algorithms in EMBOSS that are not found in "Bioperl
-proper" (eg. calculating DNA melting temperature, finding repeats,
+proper" (e.g. calculating DNA melting temperature, finding repeats,
 identifying prospective antigenic sites) so if you cannot find
 the function you want in bioperl you might be able to find it in EMBOSS.
 
 EMBOSS programs are usually called from the command line but the
-bioperl-run auxilliary library provides a Perl "wrapper" for EMBOSS
+bioperl-run auxiliary library provides a Perl "wrapper" for EMBOSS
 function calls so that they can be executed from within a Perl script.
 Of course, the EMBOSS package as well as the bioperl-run must be
-installed for the Bioperl wrapper to function.
+installed in order for the Bioperl wrapper to function.
 
 In the future, it is planned that Bioperl EMBOSS objects will return
 appropriate Bioperl objects to the calling script in addition to
@@ -2500,28 +2501,49 @@ accept a file name as input, eg
 
 Some EMBOSS programs will return strings, others will create files
 that can be read directly using Bio::SeqIO (section L<"III.2.1">), as
-in the example above. It's worth mentioning that as another way to
-align sequences with bioperl one can run the Smith-Waterman algorithm
-in the EMBOSS program 'water'.  This can produce an output file that
-bioperl can read in with the AlignIO system
+in the example above. It's worth mentioning that another way to
+align sequences in bioperl is to run a program from the EMBOSS suite,
+such as 'matcher'. This can produce an output file that bioperl can
+read in using AlignIO:
 
-  use Bio::AlignIO;
-  my $in = new Bio::AlignIO(-format => 'emboss', -file => 'filename');
-  my $aln = $in->next_aln();
+  my $factory = new Bio::Factory::EMBOSS;
+  my $prog = $factory->program('matcher');
 
-The Pise interface is another approach to extending Bioperl's
-sequence manipulation capabilities by using standard bioinformatics
-programs.  To use EMBOSS programs within Bioperl you need to
-have EMBOSS locally installed (in addition to having the auxiliary
-bioperl-run library installed). In contrast, with Pise you only need 
-install bioperl-run, since  you run the actual analysis programs over 
-the internet at the Pise site. Advantages of Pise include not having
-to load additional programs locally and having access to a wider
-library of programs (Pise includes EMBOSS and many other programs as
-well.) Howerver Pise has the disadvantages of needing an internet
-connection, lower performance, decreased security, etc. stemming form
-running programs over the net.  For more information on the Bioperl
-Pise interface see:  http://www-alt.pasteur.fr/~letondal/Pise/.
+  $prog->run({ -sequencea => Bio::Seq->new(-id => "seq1",
+                                           -seq => $seqstr1),
+               -sequenceb => Bio::Seq->new(-id => "seq2",
+                                           -seq => $seqstr2),
+               -aformat      => "pair",
+               -alternatives => 2,
+               -outfile'     => $outfile});
+
+  my $alignio_fmt = "emboss";
+  my $align_io = new Bio::AlignIO(-format => $alignio_fmt,
+                                  -file   => $outfile);
+
+The Pise interface is another way of extending Bioperl's sequence 
+analysis capabilities. To use EMBOSS programs within Bioperl you need to
+have EMBOSS locally installed, as well as  the bioperl-run library. 
+In contrast, with Pise you only need to install bioperl-run, since the 
+actual analysis programs reside at the Pise site. Advantages of Pise 
+include not having to load additional programs locally and having access 
+to an extraordinary variety of programs, including EMBOSS. However Pise has 
+the disadvantages of lower performance and decreased security
+since the data is transmitted over the net. Consider this example:
+
+  my $genscan = Pise::genscan->new("http://bioweb.pasteur.fr/cgi-bin/seqanal/genscan.pl",'letondal@pasteur.fr',
+                                  seq => $seq,
+                                  parameter_file => "Arabidopsis.smat");
+  my $job = $genscan->run;
+  my $parser = Bio::Tools::Genscan->new(-fh => $job->fh('genscan.out') );
+  while(my $gene = $parser->next_prediction()) {
+     my $prot = $gene->predicted_protein;
+     print $prot->seq, "\n";
+  }
+
+Extremely simple! For more information on the Bioperl Pise interface see
+http://www-alt.pasteur.fr/~letondal/Pise/ or the documentation in the
+bioperl-run package.
 
 =for html <A NAME ="iv.2.2"></A>
 
@@ -2536,8 +2558,8 @@ file format reader as follows:
   $factory = Bio::Tools::Run::StandAloneBlast->new('outfile' => 'bl2seq.out');
   $bl2seq_report = $factory->bl2seq($seq1, $seq2);
   # Use AlignIO.pm to create a SimpleAlign object from the bl2seq report
-  $str = Bio::AlignIO->new('-file '=>'bl2seq.out',
-                           '-format' => 'bl2seq');
+  $str = Bio::AlignIO->new(-file   => 'bl2seq.out',
+                           -format => 'bl2seq');
   $aln = $str->next_aln();
 
 =for html <A NAME ="iv.2.3"></A>
@@ -2687,7 +2709,7 @@ from other objects (and the relevant documentation will be stored in the
 object from which the method was inherited.)
 
 For example, say you wanted to find documentation on the "parse" method
-of the object Genscan.pm.  You would not find this documentation in
+of the module Genscan.pm.  You would not find this documentation in
 the code for Genscan.pm, but rather in the code for AnalysisResult.pm
 from which Genscan.pm inherits the parse method!
 
