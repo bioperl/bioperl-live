@@ -21,7 +21,7 @@
   ambiguity codes for DNA, RNA and animo acids are recognized.
 
   # to use
-  use Bio::Tools:CodonTable;
+  use Bio::Tools::CodonTable;
 
   # defaults to ID 1 "Standard"
   $myCodonTable   = Bio::Tools::CodonTable->new();
