@@ -297,7 +297,6 @@ sub start_document{
     $self->{'_lasttype'} = '';
     $self->{'_values'} = {};
     $self->{'_result'}= undef;
-    $self->{'_mode'} = '';
 }
 
 =head2 end_document
@@ -331,7 +330,6 @@ sub start_element{
     my $nm = $data->{'Name'};    
 
     if( my $type = $MODEMAP{$nm} ) {
-	$self->_mode($type);
 	if( $self->_eventHandler->will_handle($type) ) {
 	    my $func = sprintf("start_%s",lc $type);
 	    $self->_eventHandler->$func($data->{'Attributes'});
@@ -341,7 +339,6 @@ sub start_element{
     if($nm eq 'BlastOutput') {
 	$self->{'_values'} = {};
 	$self->{'_result'}= undef;
-	$self->{'_mode'} = '';
     }
 }
 
@@ -408,28 +405,6 @@ sub characters{
    return unless ( defined $data->{'Data'} && $data->{'Data'} !~ /^\s+$/ );
    
    $self->{'_last_data'} = $data->{'Data'}; 
-}
-
-
-=head2 _mode
-
- Title   : _mode
- Usage   : $obj->_mode($newval)
- Function: private methods do not use outside of object
- Example : 
- Returns : value of _mode
- Args    : newvalue (optional)
-
-
-=cut
-
-sub _mode{
-   my ($self,$value) = @_;
-   if( defined $value) {
-      $self->{'_mode'} = $value;
-    }
-    return $self->{'_mode'};
-
 }
 
 =head2 use_tempfile
