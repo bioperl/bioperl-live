@@ -86,42 +86,11 @@ use Carp;
 
 @ISA = qw(Bio::RangeI);
 
-=head2 Bio::RangeI methods
-
-List of interfaces inherited from Bio::RangeI (see L<Bio::RangeI>
-for details).
-
-=head2 start
-
- Title   : start
- Usage   : $start = $feat->start
- Function: Returns the start coordinate of the feature
- Returns : integer
- Args    : none
-
-
-=head2 end
-
- Title   : end
- Usage   : $end = $feat->end
- Function: Returns the end coordinate of the feature
- Returns : integer
- Args    : none
-
-=head2 strand
-
- Title   : strand
- Usage   : $strand = $feat->strand()
- Function: Returns strand information, being 1,-1 or 0
- Returns : -1,1 or 0
- Args    : none
-
-
-=cut
-
-=head2 SeqFeatureI specific methods
+=head1 SeqFeatureI specific methods
 
 New method interfaces.
+
+=cut
 
 =head2 sub_SeqFeature
 
@@ -245,6 +214,80 @@ sub all_tags{
    $self->throw_not_implemented();
 }
 
+=head2 attach_seq
+
+ Title   : attach_seq
+ Usage   : $sf->attach_seq($seq)
+ Function: Attaches a Bio::Seq object to this feature. This
+           Bio::Seq object is for the *entire* sequence: ie
+           from 1 to 10000
+ Example :
+ Returns : TRUE on success
+ Args    :
+
+
+=cut
+
+sub attach_seq {
+    shift->throw_not_implemented();
+}
+
+=head2 seq
+
+ Title   : seq
+ Usage   : $tseq = $sf->seq()
+ Function: returns the truncated sequence (if there is a sequence attached) 
+           for this feature
+ Example :
+ Returns : sub seq (a string) on attached sequence bounded by start & end
+ Args    : none
+
+
+=cut
+
+sub seq {
+    shift->throw_not_implemented();
+}
+
+=head2 entire_seq
+
+ Title   : entire_seq
+ Usage   : $whole_seq = $sf->entire_seq()
+ Function: gives the entire sequence that this seqfeature is attached to
+ Example :
+ Returns : a Bio::PrimarySeqI compliant object
+ Args    :
+
+
+=cut
+
+sub entire_seq {
+    shift->throw_not_implemented();
+}
+
+
+=head2 seqname
+
+ Title   : seqname
+ Usage   : $obj->seqname($newval)
+ Function: There are many cases when you make a feature that you
+           do know the sequence name, but do not know its actual
+           sequence. This is an attribute such that you can store
+           the seqname.
+
+           This attribute should *not* be used in GFF dumping, as
+           that should come from the collection in which the seq
+           feature was found.
+ Returns : value of seqname
+ Args    : newvalue (optional)
+
+
+=cut
+
+sub seqname {
+    shift->throw_not_implemented();
+}
+
 =head2 gff_string
 
  Title   : gff_string
@@ -295,6 +338,41 @@ sub _static_gff_formatter{
    }
    return $static_gff_formatter;
 }
+
+=head1 Bio::RangeI methods
+
+List of interfaces inherited from Bio::RangeI (see L<Bio::RangeI>
+for details).
+
+=cut
+
+=head2 start
+
+ Title   : start
+ Usage   : $start = $feat->start
+ Function: Returns the start coordinate of the feature
+ Returns : integer
+ Args    : none
+
+
+=head2 end
+
+ Title   : end
+ Usage   : $end = $feat->end
+ Function: Returns the end coordinate of the feature
+ Returns : integer
+ Args    : none
+
+=head2 strand
+
+ Title   : strand
+ Usage   : $strand = $feat->strand()
+ Function: Returns strand information, being 1,-1 or 0
+ Returns : -1,1 or 0
+ Args    : none
+
+
+=cut
 
 =head1 Decorating methods
 

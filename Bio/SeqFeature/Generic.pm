@@ -132,47 +132,42 @@ sub new {
     $self->{'_parse_h'}       = {};
     $self->{'_gsf_tag_hash'}  = {};
 #    tie %{$self->{'_gsf_tag_hash'}}, "Tie::IxHash";
-    my ($start, $end, $strand, $primary, $source, $frame, 
-	$score, $tag, $gff_string, $gff1_string, $seqname, $annot, $location) =
-	    $self->_rearrange([qw(START
-				  END
-				  STRAND
-				  PRIMARY
-				  SOURCE
-				  FRAME
-				  SCORE
-				  TAG
-				  GFF_STRING
-				  GFF1_STRING
-				  SEQNAME
-				  ANNOTATION
-				  LOCATION
-				  )], @args);
-    $location    && $self->location($location);
-    $gff_string  && $self->_from_gff_string($gff_string);
-    $gff1_string  && do {
-	$self->gff_format(Bio::Tools::GFF->new('-gff_version' => 1));
-	$self->_from_gff_stream($gff1_string);
-    };
-    $primary        && $self->primary_tag($primary);
-    $source         && $self->source_tag($source);
-    defined $start  && $self->start($start);
-    defined $end    && $self->end($end);
-    defined $strand && $self->strand($strand);
-    defined $frame  && $self->frame($frame);
-    $score          && $self->score($score);
-    $seqname        && $self->seqname($seqname);
-    $annot          && $self->annotation($annot);
-    $tag            && do {
-	foreach my $t ( keys %$tag ) {
-	    $self->add_tag_value($t,$tag->{$t});
-	}
-    };
+
+    # bulk-set attributes
+    $self->set_attributes(@args);
+
+    # done - we hope
     return $self;
 }
 
 
-sub bulkset {
+=head2 set_attributes
+
+ Title   : set_attributes
+ Usage   :
+ Function: Sets a whole array of parameters at once.
+ Example :
+ Returns : none
+ Args    : Named parameters, in the form as they would otherwise be passed
+           to new(). Currently recognized are:
+
+                  -start          start position
+ 	 	  -end            end position
+ 	 	  -strand         strand
+ 	 	  -primary        primary tag
+ 	 	  -source         source tag
+ 	 	  -frame          frame
+ 	 	  -score          score value
+ 	 	  -tag            a reference to a tag/value hash
+ 	 	  -gff_string     GFF v.2 string to initialize from
+ 	 	  -gff1_string    GFF v.1 string to initialize from
+ 	 	  -seqname        the "name" of the sequence
+ 	 	  -annotation     the AnnotationCollectionI object
+ 	 	  -location       the LocationI object
+
+=cut
+
+sub set_attributes {
     my ($self,@args) = @_;
     my ($start, $end, $strand, $primary, $source, $frame, 
 	$score, $tag, $gff_string, $gff1_string, $seqname, $annot, $location) =
@@ -438,7 +433,7 @@ sub add_sub_SeqFeature{
         }
     }
 
-    $self->{'_gsf_sub_array'} ||= [];
+    $self->{'_gsf_sub_array'} = [] unless exists($self->{'_gsf_sub_array'});
     push(@{$self->{'_gsf_sub_array'}},$feat);
 
 }
@@ -448,22 +443,30 @@ sub add_sub_SeqFeature{
  Title   : flush_sub_SeqFeature
  Usage   : $sf->flush_sub_SeqFeature
  Function: Removes all sub SeqFeature
-           (if you want to remove only a subset, take
-	    an array of them all, flush them, and add
-            back only the guys you want)
+ 
+           If you want to remove only a subset, remove that subset from the
+           returned array, and add back the rest.
+
  Example :
- Returns : none
+ Returns : The array of Bio::SeqFeatureI implementing sub-features that was
+           deleted from this feature.
  Args    : none
 
 
 =cut
 
-sub flush_sub_SeqFeature {
+sub flush_sub_SeqFeatures {
    my ($self) = @_;
 
+   my @subfeats = @{$self->{'_gsf_sub_array'}};
    $self->{'_gsf_sub_array'} = []; # zap the array implicitly.
+   return @subfeats;
 }
 
+# lack of consistency sucks!
+sub flush_sub_SeqFeature {
+    shift->flush_sub_SeqFeatures(@_);
+}
 
 =head2 primary_tag
 
@@ -587,7 +590,7 @@ sub all_tags {
  Title   : remove_tag
  Usage   : $feat->remove_tag('some_tag')
  Function: removes a tag from this feature
- Returns : nothing
+ Returns : the array of values for this tag before removing it
  Args    : tag (string)
 
 
@@ -599,8 +602,9 @@ sub remove_tag {
    if ( ! exists $self->{'_gsf_tag_hash'}->{$tag} ) {
        $self->throw("trying to remove a tag that does not exist: $tag");
    }
+   my @vals = @{$self->{'_gsf_tag_hash'}->{$tag}};
    delete $self->{'_gsf_tag_hash'}->{$tag};
-   return 1;
+   return @vals;
 }
 
 =head2 attach_seq

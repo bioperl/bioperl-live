@@ -1065,27 +1065,34 @@ sub add_SeqFeature {
 
  Title   : flush_SeqFeatures
  Usage   : $seq->flush_SeqFeatures();
- Function: Flushes all attached SeqFeatureI objects. To remove individual
-           feature objects, first obtain all using all_SeqFeatures(), then
-           flush and re-add those you want to keep.
+ Function: Flushes all attached SeqFeatureI objects.
+    
+           To remove individual feature objects, delete those from the returned
+           array and re-add the rest.
  Example :
- Returns : 1 on success
+ Returns : The array of Bio::SeqFeatureI objects flushed from this seq.
  Args    : None
 
 
 =cut
 
 sub flush_SeqFeatures {
-   my ($self) = @_;
-
-   $self->{'_as_feat'} = [];
-   return 1;
+    my ($self) = @_;
+    
+    my @feats = @{$self->{'_as_feat'}};
+    $self->{'_as_feat'} = [];
+    return @feats;
 }
 
 # in all other modules we use the object in the singular --
 # lack of consistency sucks
 sub flush_SeqFeature {
     return shift()->flush_SeqFeatures();
+}
+
+# also, in some modules we use remove_XXXX -- lack of consistency really sucks
+sub remove_SeqFeatures {
+    return shift->flush_SeqFeatures();
 }
 
 =head2 top_SeqFeatures
