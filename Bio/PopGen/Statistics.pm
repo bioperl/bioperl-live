@@ -998,8 +998,12 @@ sub composite_LD {
     for( my $i = 0; $i < $site_count - 1; $i++ ) {
 	my $site1 = $marker_names[$i];
 	my (%genotypes, %total_genotype_count,
-	    %total_pairwisegeno_count,%pairwise_genotypes);
+    	%total_pairwisegeno_count,%pairwise_genotypes);
 	for( my $j = $i+1; $j < $site_count ; $j++) { 
+	 
+	my (%genotypes, %total_genotype_count,
+	    %total_pairwisegeno_count,%pairwise_genotypes);
+	 
 	    my $site2 = $marker_names[$j];
 	    my (%allele_count,%allele_freqs) = (0,0);
 	    foreach my $ind ( @inds ) {
@@ -1078,7 +1082,7 @@ sub composite_LD {
 
 	    my $homozA_site1 = join(",", ($allele1_site1,$allele1_site1));
 	    my $homozB_site2 = join(",", ($allele1_site2,$allele1_site2));
-	   	    my $p_AA = ($genotypes{$site1}->{$homozA_site1} || 0) / $n;
+	   	my $p_AA = ($genotypes{$site1}->{$homozA_site1} || 0) / $n;
 	    my $p_BB = ($genotypes{$site2}->{$homozB_site2} || 0) / $n;
 	    my $p_A  = $allele_freqs{$site1}->{$allele1_site1} || 0;	# an individual allele freq
 	    my $p_a  =  1 - $p_A;
