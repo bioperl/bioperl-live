@@ -10,6 +10,16 @@ BioPerlTutorial - a tutorial for bioperl
 
   Copyright Peter Schattner
 
+  Contributions, additions and corrections have been made
+  to this document by the following individuals:
+
+  Jason Stajich
+  Heikki Lehvaslaiho
+  Brian Osborne
+  Hilmar Lapp
+  Chris Dagdigian
+
+
 =head1 DESCRIPTION
 
    This tutorial includes "snippets" of code and text from various
