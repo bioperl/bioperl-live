@@ -69,21 +69,47 @@ use strict;
 
 use Bio::Root::Root;
 
-
 @ISA = qw(Bio::Root::Root);
+
+=head2 new
+
+ Title   : new
+ Usage   : my $obj = Bio::Species->new(-classification => \@class)
+ Function: Build a new Species object
+ Returns : Bio::Species object
+ Args    : -ncbi_taxid     => NCBI taxonomic ID (optional)
+           -classification => arrayref of classification
+
+
+=cut
 
 sub new {
   my($class,@args) = @_;
 
   my $self = $class->SUPER::new(@args);
 
-  $self->{'classification'} = [];
-  $self->{'common_name'} = undef;
-  my ($classification) = $self->_rearrange([qw(CLASSIFICATION)], @args);
+  $self->{'_classification'} = [];
+  $self->{'_common_name'} = undef;
+  
+  my ($id, $cn,$div,$org,$sp,$var,
+      $classification) = $self->_rearrange([qw(NCBI_TAXID
+					       COMMON_NAME
+					       DIVISION
+					       ORGANELLE
+					       SUB_SPECIES
+					       VARIANT
+					       CLASSIFICATION)], @args);
   if( defined $classification &&
       (ref($classification) eq "ARRAY") ) {
       $self->classification(@$classification);
   }
+  defined $id  && $self->ncbi_taxid($id);
+  defined $div && $self->division($div);
+  defined $cn  && $self->common_name($cn);
+  defined $org && $self->organelle($org);
+  defined $sp  && $self->sub_species($sp); 
+  defined $var && $self->variant($var);
+  
   return $self;
 }
 
@@ -134,9 +160,9 @@ sub classification {
 	    }
 	}
         # Store classification
-        $self->{'classification'} = $classif;
+        $self->{'_classification'} = $classif;
     }
-    return @{$self->{'classification'}};
+    return @{$self->{'_classification'} || []};
 }
 
 =head2 common_name
@@ -154,8 +180,8 @@ sub classification {
 sub common_name{
     my $self = shift;
 
-    return $self->{'common_name'} = shift if @_;
-    return $self->{'common_name'};
+    return $self->{'_common_name'} = shift if @_;
+    return $self->{'_common_name'};
 }
 
 =head2 variant
@@ -174,8 +200,8 @@ sub common_name{
 sub variant{
     my $self = shift;
 
-    return $self->{'variant'} = shift if @_;
-    return $self->{'variant'};
+    return $self->{'_variant'} = shift if @_;
+    return $self->{'_variant'};
 }
 
 =head2 organelle
@@ -191,13 +217,9 @@ sub variant{
 =cut
 
 sub organelle {
-    my($self, $name) = @_;
-
-    if ($name) {
-        $self->{'organelle'} = $name;
-    } else {
-        return $self->{'organelle'}
-    }
+    my($self) = shift;
+    return $self->{'_organelle'} = shift if @_;
+    return $self->{'_organelle'};
 }
 
 =head2 species
@@ -217,7 +239,7 @@ sub organelle {
 sub species {
     my($self, $species) = @_;
 
-    if ($species) {
+    if (defined $species) {
         $self->validate_species_name( $species );
         $self->{'classification'}[0] = $species;
     }
@@ -241,7 +263,7 @@ sub species {
 sub genus {
     my($self, $genus) = @_;
 
-    if ($genus) {
+    if (defined $genus) {
         $self->validate_name( $genus );
         $self->{'classification'}[1] = $genus;
     }
@@ -260,11 +282,8 @@ sub genus {
 =cut
 
 sub sub_species {
-    my( $self, $sub ) = @_;
-
-    if ($sub) {
-        $self->{'_sub_species'} = $sub;
-    }
+    my $self = shift;
+    return $self->{'_sub_species'} = shift if @_;
     return $self->{'_sub_species'};
 }
 
@@ -331,6 +350,24 @@ sub ncbi_taxid {
 
     return $self->{'_ncbi_taxid'} = shift if @_;
     return $self->{'_ncbi_taxid'};
+}
+
+=head2 division
+
+ Title   : division
+ Usage   : $obj->division($newval)
+ Function: Genbank Division for a species
+ Returns : value of division (a scalar)
+ Args    : value of division (a scalar)
+
+
+=cut
+
+sub division{
+    my $self = shift;
+    
+    return $self->{'division'} = shift if @_;
+    return $self->{'division'};
 }
 
 1;
