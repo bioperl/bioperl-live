@@ -160,11 +160,12 @@ sub default_format {
 
 sub get_request {
     my ($self, @qualifiers) = @_;
-    my ($mode, $uids, $format, $query) = $self->_rearrange([qw(MODE UIDS FORMAT QUERY)],
+    my ($mode, $uids, $format, $query) = $self->_rearrange([qw(MODE UIDS 
+							       FORMAT QUERY)],
 							   @qualifiers);
 
     $mode = lc $mode;
-    ($format) = $self->request_format() if( !defined $format);
+    ($format) = $self->request_format() unless ( defined $format);
     if( !defined $mode || $mode eq '' ) { $mode = 'single'; }
     my %params = $self->get_params($mode);
     if( ! %params ) {
