@@ -31,7 +31,7 @@ Bio::Seq - Sequence object, with features
 =head1 DESCRIPTION
 
 A Seq object is a sequence with sequence features placed on them. The
-Seq object contains a PrimarySeq object for the actual sequence and
+Seq object contains a L<Bio::PrimarySeq> object for the actual sequence and
 also implements its interface.
 
 In bioperl we have 3 main players that people are going to use
@@ -50,7 +50,7 @@ you:
   Bio::SeqFeatureI - A single entry in an EMBL/GenBank/DDBJ feature table
   Bio::Seq        - A single EMBL/GenBank/DDBJ entry
 
-By having this split we avoid alot of nasty ciricular references
+By having this split we avoid alot of nasty circular references
 (seqfeatures can hold a reference to a sequence without the sequence
 holding a reference to the seqfeature).
 
@@ -97,7 +97,7 @@ use vars qw(@ISA $VERSION);
 use strict;
 use Bio::SeqI;
 
-# Object preamble - inheriets from Bio::Root::Object
+# Object preamble - inherits from Bio::Root::Object
 
 use Bio::Root::Root;
 use Bio::Annotation::Collection;
@@ -114,7 +114,7 @@ $VERSION = '0.9';
 				    -accession_number => 'AL000012',
 				   );
 
- Function: Returns a new seq object from
+ Function: Returns a new Seq object from
            basic constructors, being a string for the sequence
            and strings for id and accession_number
  Returns : a new Bio::Seq object
@@ -144,7 +144,7 @@ sub new {
 The primaryseq interface is the basic sequence getting
 and setting methods found on all sequences.
 
-These methods implement the PrimarySeq interface by delegating
+These methods implement the L<Bio::PrimarySeq> interface by delegating
 to the primary_seq inside the object. This means that you
 can use a Seq object wherever there is a PrimarySeq, and
 of course, you are free to use these functions anyway.
@@ -256,7 +256,7 @@ sub subseq {
            example, or extending the sequence object) to solve this.
 
            Notice that $seq->id() maps to this function, mainly for
-           legacy/convience issues
+           legacy/convenience issues.
  Returns : A string
  Args    : newid (optional)
 
@@ -305,7 +305,7 @@ sub accession_number {
 
  Title   : desc
  Usage   : $seqobj->desc()
- Function: Sets/Gets the description of the sequnce
+ Function: Sets/Gets the description of the sequence.
  Example :
  Returns :
  Args    :
@@ -338,7 +338,7 @@ sub desc {
            a stringified memory location.
 
            Also notice that this method is B<not> delegated to the
-           internal PrimarySeq object
+           internal L<Bio::PrimarySeq> object
  Returns : A string
  Args    : None
 
@@ -431,8 +431,8 @@ dealing with this is welcome to give it a go.
            is the reversed complement of the sequence. For protein
            sequences this throws an exception of "Sequence is a protein. Cannot revcom"
 
-           The id is the same id as the orginal sequence, and the accession number
-           is also indentical. If someone wants to track that this sequence has be
+           The id is the same id as the original sequence, and the accession number
+           is also identical. If someone wants to track that this sequence has be
            reversed, it needs to define its own extensions
 
            To do an inplace edit of an object you can go:
@@ -486,7 +486,7 @@ sub  id {
 =head1 Seq only methods
 
 These methods are specific to the Bio::Seq object, and not
-found on the Bio::PrimarySeq object
+found on the L<Bio::PrimarySeq> object
 
 =head2 primary_seq
 
@@ -494,7 +494,7 @@ found on the Bio::PrimarySeq object
  Usage   : $obj->primary_seq($newval)
  Function:
  Example :
- Returns : value of primary_seq
+ Returns : value of primary_seq, or a L<Bio::PrimarySeq> object
  Args    : newvalue (optional)
 
 
@@ -531,7 +531,7 @@ sub primary_seq {
  Usage   : $obj->annotation($seq_obj)
  Function:
  Example :
- Returns : value of annotation
+ Returns : value of annotation, or a L<Bio::Annotation> object
  Args    : newvalue (optional)
 
 
@@ -554,10 +554,10 @@ sub annotation {
  Function: Adds the given feature object (or each of an array of feature
            objects to the feature array of this
            sequence. The object passed is required to implement the
-           Bio::SeqFeatureI interface.
+           L<Bio::SeqFeatureI> interface.
  Example :
  Returns : TRUE on success
- Args    : A Bio::SeqFeatureI implementing object, or an array of such objects.
+ Args    : A L<Bio::SeqFeatureI> implementing object, or an array of such objects.
 
 
 =cut
@@ -635,7 +635,7 @@ sub flush_SeqFeature {
            Use all_SeqFeatures() if you want the feature tree flattened into
            one single array.
  Example :
- Returns : An array of Bio::SeqFeatureI implementing objects.
+ Returns : An array of L<Bio::SeqFeatureI> implementing objects.
  Args    :
 
 
@@ -660,7 +660,7 @@ sub top_SeqFeatures {
            Use top_SeqFeatures() if you want the array to contain only the
            top-level features.
  Example :
- Returns : An array of Bio::SeqFeatureI implementing objects.
+ Returns : An array of L<Bio::SeqFeatureI> implementing objects.
  Args    :
 
 
@@ -716,8 +716,8 @@ sub _retrieve_subSeqFeature {
  Usage   :
  Function: Gets or sets the species
  Example : $species = $self->species();
- Returns : Bio::Species object
- Args    : Bio::Species object or none;
+ Returns : L<Bio::Species> object
+ Args    : L<Bio::Species> object or none;
 
 
 =cut
