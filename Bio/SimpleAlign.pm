@@ -825,47 +825,47 @@ sub remove_columns{
     my ($self,$type) = @_;
     $type || return $self;
     my $gap = $self->gap_char if (grep $_ eq 'gaps', @{$type});
-       my $all_gaps_columns = $self->gap_char if (grep /all_gaps_columns/,@{$type});
+    my $all_gaps_columns = $self->gap_char if (grep /all_gaps_columns/,@{$type});
     my %matchchars = ( 'match'  => '\*',
                        'weak'   => '\.',
                        'strong' => ':',
                        'mismatch'=> ' ',
-                                          'gaps' => '', 'all_gaps_columns' => ''
-               );
-   #get the characters to delete against
-   my $del_char;
-   foreach my $type(@{$type}){
-    $del_char.= $matchchars{$type};
-   }
+                       'gaps' => '', 'all_gaps_columns' => ''
+                     );
+    #get the characters to delete against
+    my $del_char;
+    foreach my $type(@{$type}){
+        $del_char.= $matchchars{$type};
+    }
 
-   my $match_line = $self->match_line;
-   my $aln = new $self;
+    my $match_line = $self->match_line;
+    my $aln = new $self;
 
-   my @remove;
-   my $length = 0;
+    my @remove;
+    my $length = 0;
 
-   #do the matching to get the segments to remove
-  if($del_char){
-   while($match_line =~ m/[$del_char]/g ){
-       my $start = pos($match_line)-1;
-       $match_line=~/\G[$del_char]+/gc;
-       my $end = pos($match_line)-1;
-       
-       #have to offset the start and end for subsequent removes
-       $start-=$length;
-       $end  -=$length;
-       $length += ($end-$start+1);
-       push @remove, [$start,$end];
-   }
-}
+    #do the matching to get the segments to remove
+    if($del_char){
+        while($match_line =~ m/[$del_char]/g ){
+            my $start = pos($match_line)-1;
+            $match_line=~/\G[$del_char]+/gc;
+            my $end = pos($match_line)-1;
 
-  #remove the segments
-  $aln = $#remove >= 0 ? $self->_remove_col($aln,\@remove) : $self;
+            #have to offset the start and end for subsequent removes
+            $start-=$length;
+            $end  -=$length;
+            $length += ($end-$start+1);
+            push @remove, [$start,$end];
+        }
+    }
 
-  $aln = $aln->remove_gaps() if $gap;
-  $aln = $aln->remove_gaps('', 1) if $all_gaps_columns;
+    #remove the segments
+    $aln = $#remove >= 0 ? $self->_remove_col($aln,\@remove) : $self;
 
-  return $aln;
+    $aln = $aln->remove_gaps() if $gap;
+    $aln = $aln->remove_gaps('', 1) if $all_gaps_columns;
+
+    return $aln;
 }
 
 
@@ -882,34 +882,34 @@ sub remove_columns{
 =cut
 
 sub remove_gaps {
-  my ($self,$gapchar,$all_gaps_columns) = @_;
-  my $gap_line;
-  if ($all_gaps_columns) {
-       $gap_line = $self->all_gap_line;
-  } else {
-       $gap_line = $self->gap_line;
-  }
-  my $aln = new $self;
+    my ($self,$gapchar,$all_gaps_columns) = @_;
+    my $gap_line;
+    if ($all_gaps_columns) {
+        $gap_line = $self->all_gap_line;
+    } else {
+        $gap_line = $self->gap_line;
+    }
+    my $aln = new $self;
 
-   my @remove;
-   my $length = 0;
-   my $del_char = $gapchar || $self->gap_char;
-   # Do the matching to get the segments to remove
-   while($gap_line =~ m/[$del_char]/g){
-       my $start = pos($gap_line)-1;
-       $gap_line=~/\G[$del_char]+/gc;
-       my $end = pos($gap_line)-1;
+    my @remove;
+    my $length = 0;
+    my $del_char = $gapchar || $self->gap_char;
+    # Do the matching to get the segments to remove
+    while ($gap_line =~ m/[$del_char]/g) {
+        my $start = pos($gap_line)-1;
+        $gap_line=~/\G[$del_char]+/gc;
+        my $end = pos($gap_line)-1;
 
-       #have to offset the start and end for subsequent removes  
-       $start-=$length;
-       $end  -=$length;
-       $length += ($end-$start+1);
-       push @remove, [$start,$end];
-   }
+        #have to offset the start and end for subsequent removes  
+        $start-=$length;
+        $end  -=$length;
+        $length += ($end-$start+1);
+        push @remove, [$start,$end];
+    }
 
-  #remove the segments
-  $aln = $#remove >= 0 ? $self->_remove_col($aln,\@remove) : $self;
-  return $aln;
+    #remove the segments
+    $aln = $#remove >= 0 ? $self->_remove_col($aln,\@remove) : $self;
+    return $aln;
 }
 
 
