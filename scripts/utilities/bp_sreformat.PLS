@@ -55,7 +55,8 @@ if( $special ) {
     @extra = map { my @rc;
 		   if( /nointerleaved/) {
 		       @rc = ('-interleaved' => '0');
-		   } else{ @rc = ("-$_" => 1) }
+		   } elsif( /idlength=(\d+)/ ) { @rc = ( '-idlength' => $1) } 
+	           else{ @rc = ("-$_" => 1) }
 		   @rc;
 	       } split(/[\s,]/,$special);
 }
