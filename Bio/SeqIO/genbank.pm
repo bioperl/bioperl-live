@@ -291,7 +291,7 @@ sub next_seq {
 	    if( !defined $ftunit ) {
 		# GRRRR. We have fallen over. Try to recover
 		$self->warn("Unexpected error in feature table for ".$seq->id." Skipping feature, attempting to recover");
-		unless( ($buffer =~ /^\s{5,5}\S+/) or ($buffer =~ /\S+/)) {
+		unless( ($buffer =~ /^\s{5,5}\S+/) or ($buffer =~ /^\S+/)) {
 		    $buffer = $self->_readline();
 		}
 		next; # back to reading FTHelpers
