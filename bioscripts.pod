@@ -101,7 +101,7 @@ according to the BioFetch protocol. Requires Cache::FileCache.
 
 =head2 scripts/DB/biogetseq.PLS
 
-Sequence retrieval the OBDA registry.
+Sequence retrieval using the OBDA registry.
 
 =head2 scripts/graphics/feature_draw.PLS
 
@@ -111,7 +111,7 @@ L<Bio::Graphics::FeatureFile> for more information.
 
 =head2 scripts/graphics/frend.PLS
 
-Create a PNG file on the Web using Bio::Graphics, accepts a file
+Create a PNG file on the Web using Bio::Graphics - accepts a file
 containing sequence and feature coordinates.
 
 =head2 scripts/index/bp_fetch.PLS
@@ -209,8 +209,8 @@ percentage mutated and number of resulting mutagenized sequences.
 
 =head2 scripts/utilities/pairwise_kaks.PLS
 
-Takes cDNA sequences as input, aligns them as proteins, 
-projects the alignment back into cDNA and estimates 
+Takes DNA sequences as input, aligns them as proteins, 
+projects the alignment back into DNA and estimates 
 the Ka (non-synonymous) and Ks (synonymous) substitutions.
 
 =head2 scripts/utilities/remote_blast.PLS
