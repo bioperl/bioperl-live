@@ -598,14 +598,14 @@ sub hits_below_threshold  { shift->throw_not_implemented(); }
  Args    : Tagged values, the only required one is -hit. All others are used
            only for PSI-BLAST reports.
            -hit => Bio::Search::Hit::HitI object
-           -old => boolean, true indicates that the hit was found in a previous 
-                   iteration. Default=false.
+           -old => boolean, true indicates that the hit was found 
+                   in a previous iteration. Default=false.
            -below_threshold => boolean, true indicates that the hit is below
                    the inclusion threshold.
            -newly_below => boolean, true indicates that the hit is below
                    the inclusion threshold in this iteration but was above
-                   the inclusion threshold in a previous iteration. Only appropriate
-                   for old hits. Default=false.
+                   the inclusion threshold in a previous iteration. 
+                   Only appropriate for old hits. Default=false.
  Throws  : Bio::Root::BadParameter if the hit is not a
            Bio::Search::Hit::HitI.
            Bio::Root::BadParameter if -old=>false and -newly_below=>true.

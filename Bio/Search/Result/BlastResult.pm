@@ -217,6 +217,28 @@ sub num_hits{
     return scalar( $self->hits );
 }
 
+=head2 add_hit
+
+ Title   : add_hit
+ Usage   : $report->add_hit($hit)
+ Function: Adds a HitI to the stored list of hits
+ Returns : Number of HitI currently stored
+ Args    : Bio::Search::Hit::HitI
+
+=cut
+
+sub add_hit {
+    my ($self,$hit) = @_;
+    my $iter = $self->iteration;
+    if( $hit->isa('Bio::Search::Hit::HitI') ) { 
+	return $iter->add_hit(-hit => $hit);
+    } else { 
+        $self->throw("Passed in a " .ref($hit). 
+                     " as a Iteration which is not a Bio::Search::Hit::HitI.");
+    }
+    return $iter->num_hits;
+}
+
 =head2 add_iteration
 
  Title   : add_iteration
@@ -234,7 +256,7 @@ sub add_iteration {
         $self->{'_iteration_count'}++;
     } else { 
         $self->throw("Passed in a " .ref($i). 
-                     " as a Iteration which is not a Bio::Search::IterationI.");
+                     " as a Iteration which is not a Bio::Search::Iteration::IterationI.");
     }
     return scalar @{$self->{'_iterations'}};
 }
