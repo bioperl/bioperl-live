@@ -1597,6 +1597,10 @@ and then caches the result.
    pad_left()	      Get/set left padding
    pad_bottom()	      Get/set bottom padding
    pad_right()	      Get/set right padding
+   start()            Get the start of the sequence (bp; read only)
+   end()              Get the end of the sequence (bp; read only)
+   left()             Get the left side of the drawing area (pixels; read only)
+   right()            Get the right side of the drawing area (pixels; read only)
 
 =head2 COLOR METHODS
 
