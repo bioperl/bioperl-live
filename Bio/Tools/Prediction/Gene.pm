@@ -117,9 +117,10 @@ sub _initialize {
            through this object.
 
  Example :
- Returns : A string holding the DNA sequence defined as coding by a prediction
-           of a program.
- Args    :
+ Returns : A Bio::PrimarySeqI implementing object holding the DNA sequence
+           defined as coding by a prediction of a program.
+ Args    : On set, a Bio::PrimarySeqI implementing object holding the DNA 
+           sequence defined as coding by a prediction of a program.
 
 =cut
 
@@ -146,8 +147,10 @@ sub predicted_cds {
            although it should usually be just the standard translation.
 
  Example :
- Returns : A string holding the protein translation as predicted by a program.
- Args    :
+ Returns : A Bio::PrimarySeqI implementing object holding the protein 
+           translation as predicted by a program.
+ Args    : On set, a Bio::PrimarySeqI implementing object holding the protein 
+           translation as predicted by a program.
 
 =cut
 
