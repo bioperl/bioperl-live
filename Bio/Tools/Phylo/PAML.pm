@@ -235,20 +235,20 @@ sub next_result {
     if ($seqtype eq 'CODONML' || $seqtype eq 'AAML') {
 	while (defined ($_ = $self->_readline)) {
 	    if ($seqtype eq 'CODONML' && 
-		m/^pairwise comparison, codon frequencies:/o) {
+		m/^pairwise comparison, codon frequencies:/) {
 
 		# runmode = -2, CODONML
 		$self->_pushback($_);
 		%data = $self->_parse_PairwiseCodon;
 		last;
-	    } elsif ($seqtype eq 'AAML' && m/^ML distances of aa seqs\.$/o) {
+	    } elsif ($seqtype eq 'AAML' && m/^ML distances of aa seqs\.$/) {
 		$self->_pushback($_);
 		# get AA distances
 		%data = ( '-AAMLdistmat' => $self->_parse_aa_dists());
 		# $self->_pushback($_);
 		# %data = $self->_parse_PairwiseAA;
 		# last;	    
-	    } elsif (m/^Model\s+(\d+)/o) {
+	    } elsif (m/^Model\s+(\d+)/) {
 		$self->_pushback($_);
 		my $model = $self->_parse_NSsitesBatch;
 		push @{$data{'-NSsitesresults'}}, $model;
@@ -258,7 +258,7 @@ sub next_result {
 		$data{'-trees'} = [$self->_parse_Forestry];
 		last;
 
-	    } elsif (m/Heuristic tree search by stepwise addition$/o) {
+	    } elsif (m/Heuristic tree search by stepwise addition$/ ) {
 		
 		# runmode = 3
 		$self->throw( -class => 'Bio::Root::NotImplemented',
@@ -269,7 +269,7 @@ sub next_result {
 		# %data = $self->_parse_StepwiseAddition;
 		# last;
 
-	    } elsif (m/Heuristic tree search by NNI perturbation$/o) {
+	    } elsif (m/Heuristic tree search by NNI perturbation$/) {
 
 		# runmode = 4
 		$self->throw( -class => 'Bio::Root::NotImplemented',
@@ -280,7 +280,7 @@ sub next_result {
 		# %data = $self->_parse_Perturbation;
 		# last;
 
-	    } elsif (m/^stage 0:/o) {
+	    } elsif (m/^stage 0:/) {
 
 		# runmode = (1 or 2)
 		$self->throw( -class => 'Bio::Root::NotImplemented',
@@ -293,11 +293,19 @@ sub next_result {
 
 	    }
 	}
-    } elsif ($seqtype eq 'BASEML') {
-	my ($kappa,$alpha) = $self->_parse_nt_dists();
-	%data = ( '-kappa_distmat' => $kappa,
-		  '-alpha_distmat' => $alpha
-		  );
+    } elsif ($seqtype eq 'BASEML') {	
+	while( defined($_ = $self->_readline) ) {
+	    if( /^Distances:/ ) {
+		$self->_pushback($_);
+		my ($kappa,$alpha) = $self->_parse_nt_dists();
+		%data = ( '-kappa_distmat' => $kappa,
+			  '-alpha_distmat' => $alpha
+			  );
+	    } elsif( /^TREE/ ) {
+		$self->_pushback($_);
+		$data{'-trees'} = [$self->_parse_Forestry];
+	    }
+	}
     } elsif ($seqtype eq 'YN00') {
 	while ($_ = $self->_readline) {
 	    if( m/^Estimation by the method/ ) {
@@ -359,7 +367,7 @@ sub _parse_summary {
 		$self->{'_summary'}->{'model'} =~ s/Model:\s+//;
 	    last;
 	    
-	} elsif (m/^Data set \d$/o) {
+	} elsif (m/^Data set \d$/) {
 	    $self->{'_summary'} = {};
 	    $self->{'_summary'}->{'multidata'}++;
 	}
@@ -400,7 +408,7 @@ sub _parse_summary {
 	$self->_parse_patterns();
 	$self->_parse_seqs();
 	$self->_parse_nt_freqs();
-	
+
     } elsif ($seqtype eq "YN00") {
 	$self->_parse_codon_freqs();
 	$self->_parse_codoncts();	
@@ -464,10 +472,10 @@ sub _parse_aa_freqs {
     my (@bases);
     my $numseqs = scalar @{$self->{'_summary'}->{'seqs'} || []};
     while( defined($_ = $self->_readline ) ) {
-	if( /^TREE/o || /^AA distances/o ) { $self->_pushback($_); last }
+	if( /^TREE/ || /^AA distances/ ) { $self->_pushback($_); last }
 	last if( $done);
-	next if ( /^\s+$/o || /^\(Ambiguity/o );
-	if( /^Frequencies\./o ) { 
+	next if ( /^\s+$/ || /^\(Ambiguity/ );
+	if( /^Frequencies\./ ) { 
 	    $okay = 1;
 	} elsif( ! $okay ) { # skip till we see 'Frequencies.
 	    next;
@@ -479,10 +487,10 @@ sub _parse_aa_freqs {
 	    next;
 	} elsif( /^\#\s+constant\s+sites\:\s+
 		 (\d+)\s+ # constant sites
-		 \(\s*([\d\.]+)\s*\%\s*\)/ox){
+		 \(\s*([\d\.]+)\s*\%\s*\)/x){
 	    $self->{'_summary'}->{'stats'}->{'constant_sites'} = $1;
 	    $self->{'_summary'}->{'stats'}->{'constant_sites_percentage'} = $2;
-	} elsif( /^ln\s+Lmax\s+\(unconstrained\)\s+\=\s+(\S+)/ox ) {
+	} elsif( /^ln\s+Lmax\s+\(unconstrained\)\s+\=\s+(\S+)/x ) {
 	    $self->{'_summary'}->{'stats'}->{'loglikelihood'} = $1;
 	    $done = 1; # done for sure
 	} else { 
@@ -599,7 +607,7 @@ sub _parse_seqs {
     my ($self) = @_;
     my (@firstseq,@seqs);
     while( defined ($_ = $self->_readline) ) {
-	last if( /^TREE/ );
+	if( /^TREE/ ) { $self->_pushback($_); last }
 	last if( /^\s+$/ && @seqs > 0 );
 	next if ( /^\s+$/ );
 	next if( /^\d+\s+$/ );
@@ -800,7 +808,7 @@ sub _parse_NSsitesBatch {
 	next if /^\s+$/;
 	
 	next unless( $okay || /^Model\s+\d+/ );
-	if( /^Model\s+(\d+)/o ) {
+	if( /^Model\s+(\d+)/ ) {
 	    if( $okay ) {
 		# this only happens if $okay was already 1 and 
 		# we hit a Model line
@@ -812,7 +820,7 @@ sub _parse_NSsitesBatch {
 		($data{'-model_description'}) = ( /\:\s+(.+)/ );
 		$okay = 1;
 	    }
-	} elsif( /^Time used\:\s+(\S+)/o ) {
+	} elsif( /^Time used\:\s+(\S+)/ ) {
 	    $data{'-time_used'} = $1;
 	    $done = 1;
 	} elsif( /^kappa\s+\(ts\/tv\)\s+\=\s+(\S+)/ ) { 	    
@@ -827,7 +835,7 @@ sub _parse_NSsitesBatch {
 	    $self->_pushback($_);
 	    my @sites = $self->_parse_Pos_selected_sites;
 	    $data{'-pos_sites'} = [@sites];
-	} elsif( /^dN/oi ) {
+	} elsif( /^dN/i ) {
 	    if( /K\=(\d+)/ ) {
 		$data{'-num_site_classes'} = $1;   
 		my @p = split(/\s+/,$self->_readline);
@@ -937,7 +945,7 @@ sub parse_rst_dna {
 
     while ( defined( $_ = $rstio->_readline ) ) {
 	# implement the parsing here
-	if (m/^List of extant and reconstructed sequences/o) {
+	if (m/^List of extant and reconstructed sequences/) {
 	    while ( defined( $_ = $rstio->_readline ) ) {
 		last if( /^Overall accuracy of the/ );
 		last if( /^\s+$/ && @seqs > 0 );
@@ -985,10 +993,10 @@ sub _parse_nt_freqs {
     my (@bases);
     my $numseqs = scalar @{$self->{'_summary'}->{'seqs'} || []};
     while( defined($_ = $self->_readline ) ) {
-	if( /^TREE/o || /^Distances/o ) { $self->_pushback($_); last }
+	if( /^TREE/ || /^Distances/ ) { $self->_pushback($_); last }
 	last if( $done);
-	next if ( /^\s+$/o || /^\(Ambiguity/o );
-	if( /^Frequencies\./o ) { 
+	next if ( /^\s+$/ || /^\(Ambiguity/ );
+	if( /^Frequencies\./ ) { 
 	    $okay = 1;
 	} elsif( ! $okay ) {	# skip till we see 'Frequencies.
 	    next;
@@ -1024,8 +1032,8 @@ sub _parse_nt_dists {
     my $numseqs = scalar @{$self->{'_summary'}->{'seqs'} || []};
     my $type = '';
     while( defined ($_ = $self->_readline ) ) {
-	last if $done;
 	if( /^TREE/ ) { $self->_pushback($_); last; }
+	last if $done;
 	next if(/^This matrix is not used in later/);
 	if( /^\s+$/ ) {
 	    last if( $seen );
