@@ -107,7 +107,7 @@ use Carp 'confess','carp';
 
 BEGIN { 
     $ID        = 'Bio::Root::RootI';
-    $VERSION   = 0.9;
+    $VERSION   = 1.0;
     $Revision  = '$Id$ ';
     $DEBUG     = 0;
     $VERBOSITY = 0;

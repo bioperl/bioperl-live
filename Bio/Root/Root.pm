@@ -202,7 +202,9 @@ sub _create_object {
 
 sub verbose {
    my ($self,$value) = @_;
-
+   # allow one to set global verbosity flag
+   if( $DEBUG ) { return $DEBUG }
+   
    if(ref($self) && (defined $value || ! defined $self->{'_root_verbose'}) ) {
        $value = 0 unless defined $value;
        $self->{'_root_verbose'} = $value;
