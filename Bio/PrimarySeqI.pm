@@ -356,7 +356,7 @@ are encouraged to override these methods
            is the reversed complement of the sequence. For protein
            sequences this throws an exception of "Sequence is a protein. Cannot revcom"
 
-           The id is the same id as the orginal sequence, and the accession number
+           The id is the same id as the original sequence, and the accession number
            is also indentical. If someone wants to track that this sequence has be
            reversed, it needs to define its own extensions
 
@@ -797,7 +797,7 @@ sub _attempt_to_load_Seq{
 	   if( $self->can('throw') ) {
 	       $self->throw("Bio::PrimarySeq could not be loaded for $self\nThis indicates that you are usnig Bio::PrimarySeqI without Bio::PrimarySeq loaded and without providing a complete solution\nThe most likely problem is that there has been a misconfiguration of the bioperl environment\nActual exception\n\n$@\n");
 	   } else {
-	       confess("Bio::PrimarySeq could not be loaded for $self\nThis indicates that you are usnig Bio::PrimarySeqI without Bio::PrimarySeq loaded and without providing a complete solution\nThe most likely problem is that there has been a misconfiguration of the bioperl environment\nActual exception\n\n$@\n");
+	       confess("Bio::PrimarySeq could not be loaded for $self\nThis indicates that you are using Bio::PrimarySeqI without Bio::PrimarySeq loaded and without providing a complete solution\nThe most likely problem is that there has been a misconfiguration of the bioperl environment\nActual exception\n\n$@\n");
 	   }
 	   return 0;
        }
