@@ -1105,7 +1105,9 @@ sub make_link {
 sub link_pattern {
   my $self = shift;
   my ($pattern,$feature,$panel) = @_;
+  require CGI unless defined &CGI::escape;
   $pattern =~ s/\$(\w+)/
+    CGI::escape(
     $1 eq 'ref'           ? $feature->location->seq_id
       : $1 eq 'name'      ? $feature->display_name
       : $1 eq 'class'     ? eval {$feature->class}  || ''
@@ -1118,6 +1120,7 @@ sub link_pattern {
       : $1 eq 'segstart'  ? $panel->start
       : $1 eq 'segend'    ? $panel->end
       : $1
+	       )
        /exg;
   return $pattern;
 }

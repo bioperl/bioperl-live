@@ -116,12 +116,13 @@ sub draw_dna {
 
   my @segs;
 
+  my $complement      = $strand < 0;
+
   if ($self->{flip}) {
     $dna     = $self->reversec($dna);
     $genomic = $self->reversec($genomic);
     $strand            *= -1;
   }
-  my $complement      = $strand < 0;
 
   warn "strand = $strand, complement = $complement" if DEBUG;
 
