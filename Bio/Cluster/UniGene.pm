@@ -32,13 +32,26 @@ Bio::Cluster::UniGene - UniGene object
 		while ( my $sequence = $in->next_seq() ) {
 			print $sequence->accession_number() . "\n";
 		}
+       }
 
 =head1 DESCRIPTION
 
-This UniGene object is returned by ClusterIO and contains all the
-data associated with one UniGene record.
+This UniGene object implements the L<Bio::Cluster::UniGeneI> interface
+for the representation if UniGene clusters in Bioperl. It is returned
+by the L<Bio::ClusterIO> parser for unigene format and contains all
+the data associated with one UniGene record.
 
-Available methods (see below for details):
+This class implements several interfaces and hence can be used
+wherever instances of such interfaces are expected. In particular, the
+interfaces are L<Bio::ClusterI> as the base interface for all cluster
+representations, and in addition L<Bio::IdentifiableI> and
+L<Bio::DescribableI>.
+
+The following lists the UniGene specific methods that are available
+(see below for details). Be aware that with the exception of next_seq,
+all next_XXX methods exhaust the array over which they iterate. You
+will usually want to use their non-iterator equivalents and loop over
+the elements yourself.
 
 new() - standard new call
 
@@ -87,7 +100,7 @@ array of protsim lines
 next_protsim() - returns the next protsim line from the array of
 protsim lines
 
-sequence() - set/get sequence, currently takes/returns a reference to
+sequences() - set/get sequence, currently takes/returns a reference to
 an array of references to seq info
 
 next_seq() - returns a Seq object that currently only contains an
@@ -119,6 +132,9 @@ or the web:
 
 Email andrew@anatomy.otago.ac.nz
 
+=head1 CONTRIBUTORS
+
+Hilmar Lapp, hlapp at gmx.net
 
 =head1 APPENDIX
 
@@ -141,8 +157,12 @@ use Bio::Seq;
 use Bio::Seq::RichSeq;
 use Bio::Factory::SequenceStreamI;
 use Bio::Seq::SeqFactory;
+use Bio::Cluster::UniGeneI;
+
 $VERSION = '1.0';
-@ISA = qw(Bio::Root::Root Bio::Factory::SequenceStreamI);
+@ISA = qw(Bio::Root::Root Bio::Cluster::UniGeneI
+	Bio::IdentifiableI Bio::DescribableI
+	Bio::Factory::SequenceStreamI);
 
 
 =head2 new
@@ -157,8 +177,30 @@ sub new {
     # standard new call..
     my($caller,@args) = @_;
     my $self = $caller->SUPER::new(@args);
-    my ($seqfact) = $self->_rearrange([qw(SEQFACTORY)], @args);
+
+    my ($ugid,$desc,$mems,$dispid,$id,$ns,$auth,$v,$seqfact) =
+	$self->_rearrange([qw(UNIGENE_ID
+			      DESCRIPTION
+			      MEMBERS
+			      DISPLAY_ID
+			      OBJECT_ID
+			      NAMESPACE
+			      AUTHORITY
+			      VERSION
+			      SEQFACTORY
+			      )], @args);
+
     $self->{'_alphabet'} = 'dna';
+    $self->{'sequences'} = [];
+
+    $self->unigene_id($ugid) if $ugid;
+    $self->description($desc) if $desc;
+    $self->sequences($mems) if $mems;
+    $self->display_id($dispid) if $dispid; # overwrites ugid
+    $self->object_id($id) if $id;          # overwrites dispid
+    $self->namespace($ns || 'UniGene');
+    $self->authority($auth || 'NCBI');
+    $self->version($v) if defined($v);
     if( ! defined $seqfact ) {
 	$seqfact = new Bio::Seq::SeqFactory
 	    (-verbose => $self->verbose(), 
@@ -168,6 +210,10 @@ sub new {
     return $self;
 }
 
+
+=head1 L<Bio::Cluster::UniGeneI> methods
+
+=cut
 
 =head2 unigene_id
 
@@ -277,8 +323,6 @@ sub mgi {
 }
 
 
-
-
 =head2 locuslink
 
  Title   : locuslink
@@ -295,26 +339,6 @@ sub locuslink {
 		$obj->{'locuslink'} = $value;
 	}
 	return $obj->{'locuslink'};
-}
-
-
-=head2 next_locuslink
-
- Title   : next_locuslink
- Usage   : next_locuslink();
- Function: Returns the next locuslink from an array referred 
-           to using $obj->{'locuslink'}
- Example : 	while ( my $locuslink = $in->next_locuslink() ) {
-				print "$locuslink\n";
-			}
- Returns : String
- Args    : None
-
-=cut
-
-sub next_locuslink {
-	my ($obj) = @_;
-	shift @{$obj->{'locuslink'}};
 }
 
 
@@ -358,14 +382,12 @@ sub scount {
 }
 
 
-
 =head2 express
 
  Title   : express
  Usage   : express();
  Function: Returns or stores a reference to an array containing 
            tissue expression data
- 	   This should really only be used by ClusterIO, not directly
  Returns : An array reference
  Args    : None or an array reference
 
@@ -380,32 +402,12 @@ sub express {
 }
 
 
-=head2 next_express
-
- Title   : next_express
- Usage   : next_express();
- Function: Returns the next tissue from an array referred 
-           to using $obj->{'express'}
- Example : 	while ( my $express = $in->next_express() ) {
-				print "$express\n";
-			}
- Returns : String
- Args    : None
-
-=cut
-
-sub next_express {
-	my ($obj) = @_;
-	shift @{$obj->{'express'}};
-}
-
-
 =head2 chromosome
 
  Title   : chromosome
  Usage   : chromosome();
- Function: Returns or stores a reference to an array containing chromosome lines
- 		   This should really only be used by ClusterIO, not directly
+ Function: Returns or stores a reference to an array containing
+           chromosome lines
  Returns : An array reference
  Args    : None or an array reference
 
@@ -418,26 +420,6 @@ sub chromosome {
 	}
 	return $obj->{'chromosome'};
 }
-
-
-=head2 next_chromosome
-
- Title   : next_chromosome
- Usage   : next_chromosome();
- Function: Returns the next chromosome line from an array referred to using $obj->{'chromosome'}
- Example : 	while ( my $chromosome = $in->next_chromosome() ) {
-				print "$chromosome\n";
-			}
- Returns : String
- Args    : None
-
-=cut
-
-sub next_chromosome {
-	my ($obj) = @_;
-	shift @{$obj->{'chromosome'}};
-}
-
 
 
 =head2 sts
@@ -457,26 +439,6 @@ sub sts {
 		$obj->{'sts'} = $value;
 	}
 	return $obj->{'sts'};
-}
-
-
-=head2 next_sts
-
- Title   : next_sts
- Usage   : next_sts();
- Function: Returns the next sts line from an array referred 
-           to using $obj->{'sts'}
- Example : 	while ( my $sts = $in->next_sts() ) {
-				print "$sts\n";
-			}
- Returns : String
- Args    : None
-
-=cut
-
-sub next_sts {
-	my ($obj) = @_;
-	shift @{$obj->{'sts'}};
 }
 
 
@@ -500,26 +462,6 @@ sub txmap {
 }
 
 
-=head2 next_txmap
-
- Title   : next_txmap
- Usage   : next_txmap();
- Function: Returns the next txmap line from an array 
-           referred to using $obj->{'txmap'}
- Example : 	while ( my $tsmap = $in->next_txmap() ) {
-				print "$txmap\n";
-			}
- Returns : String
- Args    : None
-
-=cut
-
-sub next_txmap {
-	my ($obj) = @_;
-	shift @{$obj->{'txmap'}};
-}
-
-
 =head2 protsim
 
  Title   : protsim
@@ -540,12 +482,250 @@ sub protsim {
 }
 
 
+=head2 sequences
+
+ Title   : sequences
+ Usage   : sequences();
+ Function: Returns or stores a reference to an array containing sequence data
+ 	   This should really only be used by ClusterIO, not directly
+ Returns : An array reference
+ Args    : None or an array reference
+
+=cut
+
+sub sequences {
+	my ($obj,$value) = @_;
+	if( defined $value) {
+		$obj->{'sequences'} = $value;
+	}
+	return $obj->{'sequences'};
+}
+
+
+=head1 L<Bio::ClusterI> methods
+
+=cut
+
+=head2 display_id
+
+ Title   : display_id
+ Usage   : 
+ Function: Get/set the display name or identifier for the cluster
+
+           This is aliased to unigene_id().
+
+ Returns : a string
+ Args    : optional, on set the display ID ( a string)
+
+=cut
+
+sub display_id{
+    return shift->unigene_id(@_);
+}
+
+=head2 description
+
+ Title   : description
+ Usage   : Bio::ClusterI->description("POLYUBIQUITIN")
+ Function: get/set for the consensus description of the cluster
+
+           This is aliased to title().
+
+ Returns : the description string 
+ Args    : Optional the description string 
+
+=cut
+
+sub description{
+    return shift->title(@_);
+}
+
+=head2 size
+
+ Title   : size
+ Usage   : Bio::ClusterI->size();
+ Function: get for the size of the family, 
+           calculated from the number of members
+
+           This is aliased to scount().
+
+ Returns : the size of the cluster
+ Args    : 
+
+=cut
+
+sub size {
+    return shift->scount(@_);
+}
+
+=head2 cluster_score
+
+ Title   : cluster_score
+ Usage   : $cluster ->cluster_score(100);
+ Function: get/set for cluster_score which
+           represent the score in which the clustering
+           algorithm assigns to this cluster.
+
+           For UniGene clusters, there really is no cluster score that
+           would come with the data. However, we provide an
+           implementation here so that you can score UniGene clusters
+           if you want to.
+
+ Returns : a number
+ Args    : optionally, on set a number
+
+=cut
+
+sub cluster_score{
+    my $self = shift;
+
+    return $self->{'cluster_score'} = shift if @_;
+    return $self->{'cluster_score'};
+}
+
+=head2 get_members
+
+ Title   : get_members
+ Usage   : Bio::ClusterI->get_members(($seq1, $seq2));
+ Function: retrieve the members of the family by some criteria
+
+           Will return all members if no criteria are provided.
+
+           At this time this implementation does not support
+           specifying criteria and will always return all members.
+
+ Returns : the array of members
+ Args    : 
+
+=cut
+
+sub get_members {
+    my $self = shift;
+
+    my @seqs = ();
+    while(my $seq = $self->next_seq()) {
+	push(@seqs, $seq);
+    }
+    return @seqs;
+}
+
+
+=head1 Annotatable view at the object properties
+
+=cut
+
+=head2 annotation
+
+ Title   : annotation
+ Usage   : $obj->annotation($newval)
+ Function: Get/set the L<Bio::AnnotationCollectionI> object for
+           this UniGene cluster.
+
+           Many attributes of this class are actually stored within
+           the annotation collection object as L<Bio::AnnotationI>
+           compliant objects. If you call this method in set mode and
+           replace the annotation collection with another one you
+           should know exactly what you are doing.
+
+ Example : 
+ Returns : a L<Bio::AnnotationCollectionI> compliant object
+ Args    : on set, new value (a L<Bio::AnnotationCollectionI> 
+           compliant object or undef, optional)
+
+
+=cut
+
+sub annotation{
+    my $self = shift;
+
+    return $self->{'annotation'} = shift if @_;
+    return $self->{'annotation'};
+}
+
+
+=head1 Implementation specific methods
+
+ These are mostly for adding/removing to array properties, and for methods with special functionality.
+
+=cut
+
+=head2 next_locuslink
+
+ Title   : next_locuslink
+ Usage   : next_locuslink();
+ Function: Returns the next locuslink from an array referred 
+           to using $obj->{'locuslink'}
+
+           Note that this iterator will exhaust the array!
+
+ Example : 	while ( my $locuslink = $in->next_locuslink() ) {
+				print "$locuslink\n";
+			}
+ Returns : String
+ Args    : None
+
+=cut
+
+sub next_locuslink {
+	my ($obj) = @_;
+	shift @{$obj->{'locuslink'}};
+}
+
+=head2 next_express
+
+ Title   : next_express
+ Usage   : next_express();
+ Function: Returns the next tissue from an array referred 
+           to using $obj->{'express'}
+
+           Note that this iterator will exhaust the array!
+
+ Example : 	while ( my $express = $in->next_express() ) {
+				print "$express\n";
+			}
+ Returns : String
+ Args    : None
+
+=cut
+
+sub next_express {
+	my ($obj) = @_;
+	shift @{$obj->{'express'}};
+}
+
+
+=head2 next_chromosome
+
+ Title   : next_chromosome
+ Usage   : next_chromosome();
+ Function: Returns the next chromosome line from an array referred
+           to using $obj->{'chromosome'}
+
+           Note that this iterator will exhaust the array!
+
+ Example : 	while ( my $chromosome = $in->next_chromosome() ) {
+				print "$chromosome\n";
+			}
+ Returns : String
+ Args    : None
+
+=cut
+
+sub next_chromosome {
+	my ($obj) = @_;
+	shift @{$obj->{'chromosome'}};
+}
+
+
 =head2 next_protsim
 
  Title   : next_protsim
  Usage   : next_protsim();
  Function: Returns the next protsim line from an array referred 
            to using $obj->{'protsim'}
+
+           Note that this iterator will exhaust the array!
+
  Example : 	while ( my $protsim = $in->next_protsim() ) {
 				print "$protsim\n";
 			}
@@ -560,26 +740,192 @@ sub next_protsim {
 }
 
 
+=head2 next_sts
 
-=head2 sequence
+ Title   : next_sts
+ Usage   : next_sts();
+ Function: Returns the next sts line from an array referred 
+           to using $obj->{'sts'}
 
- Title   : sequence
- Usage   : sequence();
- Function: Returns or stores a reference to an array containing sequence data
- 	   This should really only be used by ClusterIO, not directly
- Returns : An array reference
- Args    : None or an array reference
+           Note that this iterator will exhaust the array!
+
+ Example : 	while ( my $sts = $in->next_sts() ) {
+				print "$sts\n";
+			}
+ Returns : String
+ Args    : None
 
 =cut
 
-sub sequence {
-	my ($obj,$value) = @_;
-	if( defined $value) {
-		$obj->{'sequence'} = $value;
-	}
-	return $obj->{'sequence'};
+sub next_sts {
+	my ($obj) = @_;
+	shift @{$obj->{'sts'}};
 }
 
+
+=head2 next_txmap
+
+ Title   : next_txmap
+ Usage   : next_txmap();
+ Function: Returns the next txmap line from an array 
+           referred to using $obj->{'txmap'}
+
+           Note that this iterator will exhaust the array!
+
+ Example : 	while ( my $tsmap = $in->next_txmap() ) {
+				print "$txmap\n";
+			}
+ Returns : String
+ Args    : None
+
+=cut
+
+sub next_txmap {
+	my ($obj) = @_;
+	shift @{$obj->{'txmap'}};
+}
+
+=head1 L<Bio::IdentifiableI> methods
+
+=cut
+
+=head2 object_id
+
+ Title   : object_id
+ Usage   : $string    = $obj->object_id()
+ Function: a string which represents the stable primary identifier
+           in this namespace of this object. For DNA sequences this
+           is its accession_number, similarly for protein sequences
+
+           This is aliased to unigene_id().
+
+ Returns : A scalar
+
+
+=cut
+
+sub object_id {
+    return shift->unigene_id(@_);
+}
+
+=head2 version
+
+ Title   : version
+ Usage   : $version    = $obj->version()
+ Function: a number which differentiates between versions of
+           the same object. Higher numbers are considered to be
+           later and more relevant, but a single object described
+           the same identifier should represent the same concept
+
+           Unigene clusters usually won''t have a version, so this
+           will be mostly undefined.
+
+ Returns : A number
+ Args    : on set, new value (a scalar or undef, optional)
+
+
+=cut
+
+sub version {
+    my $self = shift;
+
+    return $self->{'version'} = shift if @_;
+    return $self->{'version'};
+}
+
+
+=head2 authority
+
+ Title   : authority
+ Usage   : $authority    = $obj->authority()
+ Function: a string which represents the organisation which
+           granted the namespace, written as the DNS name for  
+           organisation (eg, wormbase.org)
+
+ Returns : A scalar
+ Args    : on set, new value (a scalar or undef, optional)
+
+
+=cut
+
+sub authority {
+    my $self = shift;
+
+    return $self->{'authority'} = shift if @_;
+    return $self->{'authority'};
+}
+
+
+=head2 namespace
+
+ Title   : namespace
+ Usage   : $string    = $obj->namespace()
+ Function: A string representing the name space this identifier
+           is valid in, often the database name or the name
+           describing the collection 
+
+ Returns : A scalar
+ Args    : on set, new value (a scalar or undef, optional)
+
+
+=cut
+
+sub namespace {
+    my $self = shift;
+
+    return $self->{'namespace'} = shift if @_;
+    return $self->{'namespace'};
+}
+
+=head1 L<Bio::DescribableI> methods
+
+=cut
+
+=head2 display_name
+
+ Title   : display_name
+ Usage   : $string    = $obj->display_name()
+ Function: A string which is what should be displayed to the user
+           the string should have no spaces (ideally, though a cautious
+           user of this interface would not assumme this) and should be
+           less than thirty characters (though again, double checking 
+           this is a good idea)
+
+           This is aliased to unigene_id().
+
+ Returns : A scalar
+ Status  : Virtual
+
+=cut
+
+sub display_name {
+    return shift->unigene_id(@_);
+}
+
+
+=head2 description
+
+ Title   : description
+ Usage   : $string    = $obj->description()
+ Function: A text string suitable for displaying to the user a 
+           description. This string is likely to have spaces, but
+           should not have any newlines or formatting - just plain
+           text. The string should not be greater than 255 characters
+           and clients can feel justified at truncating strings at 255
+           characters for the purposes of display
+
+           This is already demanded by Bio::ClusterI and hence is
+           present anyway.
+
+ Returns : A scalar
+
+
+=cut
+
+
+=head1 L<Bio::Factory::SequenceStreamI> methods
+
+=cut
 
 =head2 next_seq
 
@@ -589,6 +935,12 @@ sub sequence {
            $seq->sequence_factory(), 
            at present an empty Bio::Seq::RichSeq object with 
            just the accession_number() and pid() set
+
+           This iterator will not exhaust the array of member
+           sequences. If you call next_seq() again after it returned
+           undef, it will re-cycle through the list of member
+           sequences.
+
  Example :  while ( my $sequence = $in->next_seq() ) {
              print $sequence->accession_number() . "\n";
 	    }
@@ -599,12 +951,30 @@ sub sequence {
 
 sub next_seq {
     my ($obj) = @_;
-    return unless (my $seq = shift @{$obj->{'sequence'}});
+
+    if(! exists($obj->{'_queue'})) {
+	# re-initialize from array of sequence data
+	$obj->{'_queue'} = [@{$obj->{'sequences'}}];
+    }
+    my $queue = $obj->{'_queue'};
+    # is queue exhausted (equivalent to end of stream)?
+    if(! @$queue) {
+	# yes, remove queue and signal to the caller
+	delete $obj->{'_queue'};
+	return undef;
+    }
+    # no, still data in the queue
+    my $seq_h = shift(@$queue);
     my $seqobj = $obj->sequence_factory->create
-	( -accession_number => $seq->{acc},
-	  -pid => $seq->{pid},
-	  -id => $seq->{acc},
-	  -desc => join(' ', map { uc($_) ."=". $seq->{$_}} sort keys %{$seq} ));
+	( -accession_number => $seq_h->{acc},
+	  -pid              => $seq_h->{pid},
+	  -display_id       => $seq_h->{acc},
+	  -alphabet         => $obj->{'_alphabet'},
+	  -namespace        => 'GenBank',
+	  -authority        => $obj->authority(), # default is NCBI
+	  -desc => join(' ',
+			map { uc($_) ."=". $seq_h->{$_}} sort keys %{$seq_h})
+	  );
     return $seqobj;
 }
 
@@ -630,9 +1000,10 @@ sub sequence_factory {
     $self->{'_seqfactory'};
 }
 
-# keep AUTOLOAD happy
-sub DESTROY {
-    my ($self) = @_;
-}
+#####################################################################
+# aliases for naming consistency or other reasons                   #
+#####################################################################
+
+*sequence = \&sequences;
 
 1;

@@ -1,3 +1,4 @@
+# $Id$
 #
 # BioPerl module for Bio::ClusterI
 #
@@ -85,19 +86,30 @@ define.
 
 =head2 new
 
- Title   : new
- Usage   : Bio::ClusterI->new(@args)
- Function: Create new Bio::ClusterI object
- Returns : a L<Bio::ClusterI> object
- Args    : see below
+  We dont mandate but encourage implementors to support at least the
+  following named parameters upon object initialization.
 
   Argument        Description
   --------        -----------
-  -description    the consensus description of the family
+  -display_id     the display ID or name for the cluster
+  -description    the consensus description or name of the cluster
   -members        the array of objects belonging to the family
 
 =cut
 
+=head2 display_id
+
+ Title   : display_id
+ Usage   : 
+ Function: Get the display name or identifier for the cluster
+ Returns : a string
+ Args    : 
+
+=cut
+
+sub display_id{
+    shift->throw_not_implemented();
+}
 
 
 =head2 description
@@ -111,81 +123,7 @@ define.
 =cut
 
 sub description{
-  my ($self,$desc) = @_;
-  if($desc){
-    $self->{'_description'} = $desc;
-  }
-  return $self->{'_description'};
-}
-
-=head2 members
-
- Title   : members
- Usage   : Bio::ClusterI->members(($seq1, $seq2));
- Function: get/set for the members of the family 
- Returns : the array of members 
- Args    : the array of members 
-
-=cut
-
-sub members {
-  my ($self,$mem) = @_;
-  if($mem){
-      $self->{'_members'} = ();
-      if(ref($mem) eq "ARRAY"){
-          push @{$self->{'_members'}}, @{$mem};
-      }
-      else {
-        push @{$self->{'_members'}}, $mem;
-      }
-  }
-  return @{$self->{'_members'}};
-
-}
-
-=head2 add_members
-
- Title   : add_members
- Usage   : Bio::ClusterI->add_member([$seq1,$seq1]);
- Function: add members to a family
- Returns : 
- Args    : the arrayref of members to add or a single member
-
-=cut
-
-sub add_members{
-  my ($self,$mem) = @_;
-  if($mem){
-      if(ref($mem) eq "ARRAY"){
-        push @{$self->{'_members'}},@{$mem};
-      }
-      else {
-        push @{$self->{'_members'}},$mem;
-      }
-  }
-
-  return @{$self->{'_members'}};
-}
-
-*add_member = \&add_members;
-
-
-
-
-=head2 flush_members
-
- Title   : flush_members
- Usage   : Bio::ClusterI->flush_members();
- Function: remove all members from a family 
- Returns :
- Args    : 
-
-=cut
-
-sub flush_members{
-    my ($self) =  @_;
-    $self->{'_members'} = [];
-    
+    shift->throw_not_implemented();
 }
 
 =head2 size
@@ -200,10 +138,7 @@ sub flush_members{
 =cut
 
 sub size {
-  my ($self) = @_;
-
-  return scalar(@{$self->{'_members'}});
-
+    shift->throw_not_implemented();
 }
 
 =head2 cluster_score
@@ -218,16 +153,8 @@ sub size {
 =cut
 
 sub cluster_score{
-  my ($self,$score) = @_;
-  if($score){
-    $self->{'_cluster_score'} = $score;
-  }
-  return $self->{'_cluster_score'};
+    shift->throw_not_implemented();
 }
-
-############################
-#Abstract Methods
-############################
 
 =head2 get_members
 
@@ -236,26 +163,16 @@ sub cluster_score{
  Function: retrieve the members of the family by some criteria, for
            example :
            $cluster->get_members(-species => 'homo sapiens'); 
+
+           Will return all members if no criteria are provided.
+
  Returns : the array of members
  Args    : 
 
 =cut
 
 sub get_members {
-  shift->throw_not_implemented();
+    shift->throw_not_implemented();
 }
 
-=head2 remove_members
-
- Title   : remove_members
- Usage   : Bio::ClusterI->remove_members(("ENSP000000001","ENSP000000002"));
- Function: remove members from a family
- Returns :
- Args    : the display_ids of the members 
-
-=cut
-
-sub remove_members{
-  shift->throw_not_implemented();
-}
 1;

@@ -179,6 +179,7 @@ my %valid_type = map {$_, 1} qw( dna rna protein );
            -accession_number => accession number
            -primary_id  => primary id (Genbank id)
            -namespace   => the namespace for the accession
+           -authority   => the authority for the namespace
            -desc        => description text
            -alphabet    => sequence type (alphabet) (dna|rna|protein)
            -id          => alias for display id
@@ -191,12 +192,14 @@ sub new {
     my ($class, @args) = @_;
     my $self = $class->SUPER::new(@args);
 
-    my($seq,$id,$acc,$pid,$ns,$desc,$alphabet,$given_id,$is_circular,$direct,$ref_to_seq,$len) =
+    my($seq,$id,$acc,$pid,$ns,$auth,
+       $desc,$alphabet,$given_id,$is_circular,$direct,$ref_to_seq,$len) =
 	$self->_rearrange([qw(SEQ
 			      DISPLAY_ID
 			      ACCESSION_NUMBER
 			      PRIMARY_ID
 			      NAMESPACE
+			      AUTHORITY
 			      DESC
 			      ALPHABET
 			      ID
@@ -241,6 +244,7 @@ sub new {
     $desc        && $self->desc($desc);
     $is_circular && $self->is_circular($is_circular);
     $ns          && $self->namespace($ns);
+    $auth        && $self->authority($auth);
 
     return $self;
 }

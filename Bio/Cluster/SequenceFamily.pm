@@ -1,3 +1,4 @@
+# $Id$
 #
 # BioPerl module for Bio::Cluster::SequenceFamily
 #
@@ -36,7 +37,7 @@ Bio::Cluster::SequenceFamily - Sequence Family object
 
   #access the family
 
-  foreach my $mem ($family->members){
+  foreach my $mem ($family->get_members){
     print $mem->display_id."\t".$mem->desc."\n";
   }
 
@@ -123,35 +124,16 @@ sub new {
   $family_score,$members) = $self->_rearrange([qw(FAMILY_ID DESCRIPTION VERSION 
                                                    ANNOTATION_SCORE 
                                                    FAMILY_SCORE MEMBERS)],@args);
+  $self->{'_members'} = [];
   $id && $self->family_id($id);
   $description && $self->description($description);
   $version && $self->version($version);
   $annot_score && $self->annotation_score($annot_score);
   $family_score && $self->family_score($family_score);
-  $members && $self->members($members);
+  $members && $self->add_members($members);
 
   return $self;
 
-}
-
-
-######get/sets here##############
-
-=head2 family_id
-
- Title   : family_id
- Usage   : $family->family_id("Family_1"); 
- Function: get/set for family id 
- Returns : a string specifying identifier of the family 
-
-=cut
-
-sub family_id{
-  my ($self,$id) = @_;
-  if($id){
-    $self->{'_family_id'} = $id;
-  }
-  return $self->{'_family_id'};
 }
 
 =head2 version
@@ -227,6 +209,85 @@ sub tree {
   return $self->{'_tree'};
 }
 
+=head1 L<Bio::Cluster::FamilyI> methods
+
+=cut
+
+=head2 family_score
+
+ Title   : family_score
+ Usage   : Bio::Cluster::FamilyI->family_score(95);
+ Function: get/set for the score of algorithm used to generate
+           the family if present
+
+           This is aliased to cluster_score().
+
+ Returns : the score
+ Args    : the score
+
+=cut
+
+sub family_score {
+    return shift->cluster_score(@_);
+}
+
+
+=head2 family_id
+
+ Title   : family_id
+ Usage   : $family->family_id("Family_1"); 
+ Function: get/set for family id 
+
+           This is aliased to display_id().
+
+ Returns : a string specifying identifier of the family 
+
+=cut
+
+sub family_id{
+    return shift->display_id(@_);
+}
+
+=head1 L<Bio::ClusterI> methods
+
+=cut
+
+=head2 display_id
+
+ Title   : display_id
+ Usage   : 
+ Function: Get/set the display name or identifier for the cluster
+ Returns : a string
+ Args    : optional, on set the display ID ( a string)
+
+=cut
+
+sub display_id{
+    my ($self,$id) = @_;
+    if($id){
+	$self->{'_cluster_id'} = $id;
+    }
+    return $self->{'_cluster_id'};
+}
+
+=head2 description
+
+ Title   : description
+ Usage   : $fam->description("POLYUBIQUITIN")
+ Function: get/set for the consensus description of the cluster
+ Returns : the description string 
+ Args    : Optional the description string 
+
+=cut
+
+sub description{
+  my ($self,$desc) = @_;
+  if($desc){
+    $self->{'_description'} = $desc;
+  }
+  return $self->{'_description'};
+}
+
 =head2 get_members
 
  Title   : get_members
@@ -240,6 +301,9 @@ sub tree {
            $family->get_members(-species     =>"homo sapiens");
            $family->get_members(-ncbi_taxid  => 9606);
            For now, multiple critieria are ORed.
+
+           Will return all members if no criteria are provided.
+
  Function: get members using methods from L<Bio::Species>
            the phylogenetic tree of the family.
  Returns : an array of objects that are member of this family. 
@@ -248,24 +312,135 @@ sub tree {
 
 sub get_members {
     my ($self,@args) = @_;
-    my %hash = @args;
 
-    my @return;
-    foreach my $mem($self->members){
-      foreach my $key (keys %hash){
-        my $method = $key;
-        $method=~s/-//g;
-        if($mem->can('species')){
-          my $species = $mem->species;
-          $species->can($method) || $self->throw("$method is an invalid criteria");
-          if($species->$method eq $hash{$key}){
-            push @return, $mem;
-          }
-        }
-      }
+    if(@args) {
+	my %hash = @args;
+	my @return;
+	foreach my $mem(@{$self->{'_members'}}){
+	    foreach my $key (keys %hash){
+		my $method = $key;
+		$method=~s/-//g;
+		if($mem->can('species')){
+		    my $species = $mem->species;
+		    $species->can($method) ||
+			$self->throw("$method is an invalid criteria");
+		    if($species->$method eq $hash{$key}){
+			push @return, $mem;
+		    }
+		}
+	    }
+	}
+	return @return;
+    } else {
+	return @{$self->{'_members'}};
     }
+}
 
-    return @return;
+=head2 size
+
+ Title   : size
+ Usage   : $fam->size();
+ Function: get/set for the size of the family, 
+           calculated from the number of members
+ Returns : the size of the family 
+ Args    : 
+
+=cut
+
+sub size {
+  my ($self) = @_;
+
+  return scalar(@{$self->{'_members'}});
+
+}
+
+=head2 cluster_score
+
+ Title   : cluster_score
+ Usage   : $fam->cluster_score(100);
+ Function: get/set for cluster_score which
+           represent the score in which the clustering
+           algorithm assigns to this cluster.
+ Returns : a number
+
+=cut
+
+sub cluster_score{
+  my ($self,$score) = @_;
+  if($score){
+    $self->{'_cluster_score'} = $score;
+  }
+  return $self->{'_cluster_score'};
+}
+
+
+=head1 Implementation specific methods
+
+  These are mostly for adding/removing/changing.
+
+=cut
+
+=head2 add_members
+
+ Title   : add_members
+ Usage   : $fam->add_member([$seq1,$seq1]);
+ Function: add members to a family
+ Returns : 
+ Args    : the member(s) to add, as an array or arrayref
+
+=cut
+
+sub add_members{
+    my ($self,@mems) = @_;
+
+    my $mem = shift(@mems);
+    if(ref($mem) eq "ARRAY"){
+	push @{$self->{'_members'}},@{$mem};
+    } else {
+	push @{$self->{'_members'}},$mem;
+    }
+    push @{$self->{'_members'}}, @mems;
+
+    return 1;
+}
+
+=head2 remove_members
+
+ Title   : remove_members
+ Usage   : $fam->remove_members();
+ Function: remove all members from a family 
+ Returns : the previous array of members
+ Args    : none
+
+=cut
+
+sub remove_members{
+    my ($self) =  @_;
+    my $mems = $self->{'_members'};
+    $self->{'_members'} = [];
+    return @$mems;
+}
+
+#####################################################################
+# aliases for naming consistency or other reasons                   #
+#####################################################################
+
+*flush_members = \&remove_members;
+*add_member = \&add_members;
+
+sub members{
+    my $self = shift;
+    if(@_) {
+	# this is in set mode
+	$self->warn("setting members() in ".ref($self)." is deprecated.\n".
+		    "Use add_members() instead.");
+	return $self->add_members(@_);
+    } else {
+	# get mode
+	$self->warn("members() in ".ref($self)." is deprecated.\n".
+		    "Use get_members() instead.");
+	return $self->get_members();
+    }
 }
 
 1;

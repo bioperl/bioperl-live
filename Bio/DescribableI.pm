@@ -107,3 +107,5 @@ sub description {
    my ($self) = @_;
    $self->throw_not_implemented();
 }
+
+1;

@@ -79,11 +79,8 @@ use Bio::ClusterI;
 
 =head2 new
 
- Title   : new
- Usage   : Bio::Cluster::FamilyI->new(@args)
- Function: Create new Bio::Cluster::FamilyI object
- Returns : a L<Bio::Cluster::FamilyI> object
- Args    : See below
+  We dont mandate but encourage implementors to support at least the
+  following named parameters upon object initialization.
 
  Arguments          Description
  ---------          -----------
@@ -97,7 +94,6 @@ use Bio::ClusterI;
 =cut
 
 
-
 =head2 family_id
 
  Title   : family_id
@@ -109,11 +105,7 @@ use Bio::ClusterI;
 =cut
 
 sub family_id{
-  my ($self,$id) = @_;
-  if($id){
-    $self->{'_family_id'} = $id;
-  }
-  return $self->{'_family_id'};
+    shift->throw_not_implemented();
 }
 
 =head2 family_score
@@ -128,21 +120,29 @@ sub family_id{
 =cut
 
 sub family_score {
-  my ($self,$score) = @_;
-  if ($score){
-    $self->cluster_score($score);
-  }
-  return $self->cluster_score;
+    shift->throw_not_implemented();
 }
 
 
-=head1 Methods inherited from ClusterI
+=head1 Methods inherited from L<Bio::ClusterI>
 
-=head2 members
+=cut
 
- Title   : members
- Usage   : Bio::Cluster::FamilyI->members(($seq1, $seq2));
- Function: get/set for the members of the family
+=head2 display_id
+
+ Title   : display_id
+ Usage   : 
+ Function: Get the display name or identifier for the cluster
+ Returns : a string
+ Args    : 
+
+=cut
+
+=head2 get_members
+
+ Title   : get_members
+ Usage   : Bio::Cluster::FamilyI->get_members();
+ Function: get the members of the family
  Returns : the array of members
  Args    : the array of members
 
@@ -166,27 +166,6 @@ sub family_score {
  Function: get/set for the description of the family
  Returns : size 
  Args    : 
-
-=cut
-
-
-=head2 flush_members
-
- Title   : flush_members
- Usage   : Bio::Cluster::FamilyI->flush_members();
- Function: remove all members from a family
- Returns :
- Args    :
-
-=cut
-
-=head2 add_members
-
- Title   : add_members
- Usage   : Bio::Cluster::FamilyI->add_member(($seq1,$seq1));
- Function: add members to a family
- Returns :
- Args    : the array of members to add
 
 =cut
 

@@ -24,7 +24,15 @@ Bio::Cluster::UniGeneI - abstract interface of UniGene object
 
 =head1 DESCRIPTION
 
-  #
+This is the general interface for a UniGene cluster representation in Bioperl. You cannot use this module directly, use an implementation instead.
+
+You can create UniGene cluster objects yourself by instantiating
+L<Bio::Cluster::UniGene>. If you read UniGene clusters from a
+ClusterIO parser, you will get objects implementing this interface,
+most likely instances of said UniGene class.
+
+L<Bio::Cluster::UniGeneI> inherits from L<Bio::ClusterI>, so you can
+use it wherever a cluster object is expected.
 
 =head1 FEEDBACK
 
@@ -68,27 +76,10 @@ package Bio::Cluster::UniGeneI;
 use vars qw(@ISA $VERSION);
 use strict;
 
-
-use Bio::Root::Root;
-use Bio::Seq;
-use Bio::PrimarySeq;
+use Bio::ClusterI;
 
 $VERSION = '1.0';
-@ISA = qw(Bio::Root::Root);
-
-
-=head2 new
-
- Title   : new
- Usage   : used by ClusterIO
- Returns : a new Bio::Cluster::Unigene object
-
-=cut
-
-sub new {
-	my ($self) = @_;
-	$self->throw_not_implemented;
-}
+@ISA = qw(Bio::ClusterI);
 
 
 =head2 unigene_id
@@ -199,26 +190,6 @@ sub locuslink {
 }
 
 
-=head2 next_locuslink
-
- Title   : next_locuslink
- Usage   : next_locuslink();
- Function: Returns the next locuslink from an array referred to using $obj->{'locuslink'}
- Example : 	while ( my $locuslink = $in->next_locuslink() ) {
-				print "$locuslink\n";
-			}
- Returns : String
- Args    : None
-
-=cut
-
-sub next_locuslink {
-	my ($self) = @_;
-	$self->throw_not_implemented;
-}
-
-
-
 =head2 gnm_terminus
 
  Title   : gnm_terminus
@@ -271,25 +242,6 @@ sub express {
 }
 
 
-=head2 next_express
-
- Title   : next_express
- Usage   : next_express();
- Function: Returns the next tissue from an array referred to using $obj->{'express'}
- Example : 	while ( my $express = $in->next_express() ) {
-				print "$express\n";
-			}
- Returns : String
- Args    : None
-
-=cut
-
-sub next_express {
-	my ($self) = @_;
-	$self->throw_not_implemented;
-}
-
-
 =head2 chromosome
 
  Title   : chromosome
@@ -302,25 +254,6 @@ sub next_express {
 =cut
 
 sub chromosome {
-	my ($self) = @_;
-	$self->throw_not_implemented;
-}
-
-
-=head2 next_chromosome
-
- Title   : next_chromosome
- Usage   : next_chromosome();
- Function: Returns the next chromosome line from an array referred to using $obj->{'chromosome'}
- Example : 	while ( my $chromosome = $in->next_chromosome() ) {
-				print "$chromosome\n";
-			}
- Returns : String
- Args    : None
-
-=cut
-
-sub next_chromosome {
 	my ($self) = @_;
 	$self->throw_not_implemented;
 }
@@ -343,31 +276,11 @@ sub sts {
 }
 
 
-=head2 next_sts
-
- Title   : next_sts
- Usage   : next_sts();
- Function: Returns the next sts line from an array referred to using $obj->{'sts'}
- Example : 	while ( my $sts = $in->next_sts() ) {
-				print "$sts\n";
-			}
- Returns : String
- Args    : None
-
-=cut
-
-sub next_sts {
-	my ($self) = @_;
-	$self->throw_not_implemented;
-}
-
-
 =head2 txmap
 
  Title   : txmap
  Usage   : txmap();
  Function: Returns or stores a reference to an array containing txmap lines
- 		   This should really only be used by ClusterIO, not directly
  Returns : An array reference
  Args    : None or an array reference
 
@@ -376,25 +289,6 @@ sub next_sts {
 sub txmap {
 	my ($self) = @_;
 	$self->throw_not_implemented;
-}
-
-
-=head2 next_txmap
-
- Title   : next_txmap
- Usage   : next_txmap();
- Function: Returns the next txmap line from an array referred to using $obj->{'txmap'}
- Example : 	while ( my $tsmap = $in->next_txmap() ) {
-				print "$txmap\n";
-			}
- Returns : String
- Args    : None
-
-=cut
-
-sub next_txmap {
-	my ($obj) = @_;
-	shift @{$obj->{'txmap'}};
 }
 
 
@@ -415,26 +309,6 @@ sub protsim {
 }
 
 
-=head2 next_protsim
-
- Title   : next_protsim
- Usage   : next_protsim();
- Function: Returns the next protsim line from an array referred to using $obj->{'protsim'}
- Example : 	while ( my $protsim = $in->next_protsim() ) {
-				print "$protsim\n";
-			}
- Returns : String
- Args    : None
-
-=cut
-
-sub next_protsim {
-	my ($self) = @_;
-	$self->throw_not_implemented;
-}
-
-
-
 =head2 sequence
 
  Title   : sequence
@@ -451,25 +325,65 @@ sub sequence {
 	$self->throw_not_implemented;
 }
 
-
-=head2 next_seq
-
- Title   : next_seq
- Usage   : next_seq();
- Function: Returns the next seq as a Seq object, at present with just the accession_number
- Example : 		while ( my $sequence = $in->next_seq() ) {
-					print $sequence->accession_number() . "\n";
-				}	
-
- Returns : String
- Args    : None
+=head1 Methods inherited from L<Bio::ClusterI>
 
 =cut
 
-sub next_seq {
-	my ($self) = @_;
-	$self->throw_not_implemented;
-}
+=head2 display_id
 
+ Title   : display_id
+ Usage   : 
+ Function: Get/set the display name or identifier for the cluster
+ Returns : a string
+ Args    : optional, on set the display ID ( a string)
+
+=cut
+
+=head2 description
+
+ Title   : description
+ Usage   : Bio::ClusterI->description("POLYUBIQUITIN")
+ Function: get/set for the consensus description of the cluster
+ Returns : the description string 
+ Args    : Optional the description string 
+
+=cut
+
+=head2 size
+
+ Title   : size
+ Usage   : Bio::ClusterI->size();
+ Function: get/set for the size of the family, 
+           calculated from the number of members
+ Returns : the size of the family 
+ Args    : 
+
+=cut
+
+=head2 cluster_score
+
+ Title   : cluster_score
+ Usage   : $cluster ->cluster_score(100);
+ Function: get/set for cluster_score which
+           represent the score in which the clustering
+           algorithm assigns to this cluster.
+ Returns : a number
+
+=cut
+
+=head2 get_members
+
+ Title   : get_members
+ Usage   : Bio::ClusterI->get_members(($seq1, $seq2));
+ Function: retrieve the members of the family by some criteria, for
+           example :
+           $cluster->get_members(-species => 'homo sapiens'); 
+
+           Will return all members if no criteria are provided.
+
+ Returns : the array of members
+ Args    : 
+
+=cut
 
 1;

@@ -72,6 +72,31 @@ use Bio::Cluster::UniGene;
 
 @ISA = qw(Bio::ClusterIO);
 
+my %line_is = (
+		ID			=> 	q/ID\s+(\w\w\.\d+)/,
+		TITLE			=>	q/TITLE\s+(\S.*)/,
+		GENE			=>	q/GENE\s+(\S.*)/,
+		CYTOBAND		=>	q/CYTOBAND\s+(\S.*)/,
+		MGI			=>	q/MGI\s+(\S.*)/,
+		LOCUSLINK		=>	q/LOCUSLINK\s+(\S.*)/,
+		EXPRESS			=>	q/EXPRESS\s+(\S.*)/,
+		GNM_TERMINUS		=>	q/GNM_TERMINUS\s+(\S.*)/,
+		CHROMOSOME		=>	q/CHROMOSOME\s+(\S.*)/,
+		STS			=>	q/STS\s+(\S.*)/,
+		TXMAP			=>	q/TXMAP\s+(\S.*)/,
+		PROTSIM			=>	q/PROTSIM\s+(\S.*)/,
+		SCOUNT			=>	q/SCOUNT\s+(\S.*)/,
+		SEQUENCE		=>	q/SEQUENCE\s+(\S.*)/,
+		ACC			=>	q/ACC=\s*(\S.*)/,
+		NID			=>	q/NID=\s*(\S.*)/,
+		PID			=>	q/PID=\s*(\S.*)/,
+		CLONE			=>	q/CLONE=\s*(\S.*)/,
+		END			=>	q/END=\s*(\S.*)/,
+		LID			=>	q/LID=\s*(\S.*)/,
+		MGC			=>	q/MGC=\s*(\S.*)/,
+		DELIMITER		=>	q/^\/\//
+);
+
 =head2 next_cluster
 
  Title   : next_cluster
@@ -94,31 +119,6 @@ my (%unigene,@express,@locuslink,@chromosome,@sts,@txmap,@protsim,@sequence);
 
 # set up the regexes
 
-my %line_is = (
-			ID				=> 	q/ID\s+(\w\w\.\d+)/,
-			TITLE			=>	q/TITLE\s+(\S.*)/,
-			GENE			=>	q/GENE\s+(\S.*)/,
-			CYTOBAND		=>	q/CYTOBAND\s+(\S.*)/,
-			MGI				=>	q/MGI\s+(\S.*)/,
-			LOCUSLINK		=>	q/LOCUSLINK\s+(\S.*)/,
-			EXPRESS			=>	q/EXPRESS\s+(\S.*)/,
-			GNM_TERMINUS	=>	q/GNM_TERMINUS\s+(\S.*)/,
-			CHROMOSOME		=>	q/CHROMOSOME\s+(\S.*)/,
-			STS				=>	q/STS\s+(\S.*)/,
-			TXMAP			=>	q/TXMAP\s+(\S.*)/,
-			PROTSIM			=>	q/PROTSIM\s+(\S.*)/,
-			SCOUNT			=>	q/SCOUNT\s+(\S.*)/,
-			SEQUENCE		=>	q/SEQUENCE\s+(\S.*)/,
-			ACC				=>	q/ACC=\s*(\S.*)/,
-			NID				=>	q/NID=\s*(\S.*)/,
-			PID				=>	q/PID=\s*(\S.*)/,
-			CLONE			=>	q/CLONE=\s*(\S.*)/,
-			END				=>	q/END=\s*(\S.*)/,
-			LID				=>	q/LID=\s*(\S.*)/,
-			MGC				=>	q/MGC=\s*(\S.*)/,
-			DELIMITER		=>	q/^\/\//
-);
-
 # add whitespace parsing and precompile regexes
 #foreach (values %line_is) {
 #	$_ =~ s/\s+/\\s+/g;
@@ -132,94 +132,97 @@ my %line_is = (
 	foreach my $line (split /\n/, $entry) {
 	  #print STDERR "Wanting to match $line\n";
 		if ($line =~ /$line_is{ID}/gcx) {
-				$unigene{ID} = $1;
+			$unigene{ID} = $1;
 		}
 		elsif ($line =~ /$line_is{TITLE}/gcx ) {
 		  #print STDERR "MATCHED with [$1]\n";
-				$unigene{TITLE} = $1;
+			$unigene{TITLE} = $1;
 		}
 		elsif ($line =~ /$line_is{GENE}/gcx) {
-				$unigene{GENE} = $1;
+			$unigene{GENE} = $1;
 		}
 		elsif ($line =~ /$line_is{CYTOBAND}/gcx) {
-				$unigene{CYTOBAND} = $1;
+			$unigene{CYTOBAND} = $1;
 		}
 		elsif ($line =~ /$line_is{MGI}/gcx) {
-				$unigene{MGI} = $1;
+			$unigene{MGI} = $1;
 		}
 		elsif ($line =~ /$line_is{LOCUSLINK}/gcx) {
-				@locuslink = split /;/, $1;
+			@locuslink = split /;/, $1;
 		}
 		elsif ($line =~ /$line_is{EXPRESS}/gcx) {
-				my $express = $1;
-				$express =~ s/^;//;	# remove initial semicolon if present
-				@express = split /;/, $express;
+			my $express = $1;
+			# remove initial semicolon if present
+			$express =~ s/^;//; 
+			@express = split /\s*;/, $express;
 		}
 		elsif ($line =~ /$line_is{GNM_TERMINUS}/gcx) {
-				$unigene{GNM_TERMINUS} = $1;
+			$unigene{GNM_TERMINUS} = $1;
 		}
 		elsif ($line =~ /$line_is{CHROMOSOME}/gcx) {
-				push @chromosome, $1;
+			push @chromosome, $1;
 		}
 		elsif ($line =~ /$line_is{TXMAP}/gcx) {
-				push @txmap, $1;
+			push @txmap, $1;
 		}
 		elsif ($line =~ /$line_is{STS}/gcx) {
-				push @sts, $1;
+			push @sts, $1;
 		}
 		elsif ($line =~ /$line_is{PROTSIM}/gcx) {
-				push @protsim, $1;
+			push @protsim, $1;
 		}
 		elsif ($line =~ /$line_is{SCOUNT}/gcx) {
-				$unigene{SCOUNT} = $1;
+			$unigene{SCOUNT} = $1;
 		}
-		elsif ($line =~ /$line_is{SEQUENCE}/gcx) {		# parse into each sequence line
-				my $seq = {};
-				$seq->{unigene_id} = $unigene{ID}; # add unigene id to each seq
-				my @items = split /;/,$1;
-				foreach (@items) {
-					if (/$line_is{ACC}/gcx) {
-					    $seq->{acc} = $1;
-					}
-					elsif (/$line_is{NID}/gcx) {
-						$seq->{nid} = $1;
-					}
-					elsif (/$line_is{PID}/gcx) {
-						$seq->{pid} = $1;
-					}
-					elsif (/$line_is{CLONE}/gcx) {
-						$seq->{clone} = $1;
-					}
-					elsif (/$line_is{END}/gcx) {
-						$seq->{end} = $1;
-					}
-					elsif (/$line_is{LID}/gcx) {
-						$seq->{lid} = $1;
-					}
-					elsif (/$line_is{MGC}/gcx) {
-						$seq->{mgc} = $1;
-					}
+		elsif ($line =~ /$line_is{SEQUENCE}/gcx) { 
+			# parse into each sequence line
+			my $seq = {};
+			# add unigene id to each seq
+			$seq->{unigene_id} = $unigene{ID}; 
+			my @items = split /;/,$1;
+			foreach (@items) {
+				if (/$line_is{ACC}/gcx) {
+				    $seq->{acc} = $1;
 				}
-				push @sequence, $seq;			
+				elsif (/$line_is{NID}/gcx) {
+					$seq->{nid} = $1;
+				}
+				elsif (/$line_is{PID}/gcx) {
+					$seq->{pid} = $1;
+				}
+				elsif (/$line_is{CLONE}/gcx) {
+					$seq->{clone} = $1;
+				}
+				elsif (/$line_is{END}/gcx) {
+					$seq->{end} = $1;
+				}
+				elsif (/$line_is{LID}/gcx) {
+					$seq->{lid} = $1;
+				}
+				elsif (/$line_is{MGC}/gcx) {
+					$seq->{mgc} = $1;
+				}
+			}
+			push @sequence, $seq;			
 		}
-		elsif ($line =~ /$line_is{DELIMITER}/gcx) {		# at the end of the record, add data to the object
-					$UGobj->unigene_id($unigene{ID});
-					$UGobj->title($unigene{TITLE});
-					if ( defined ($unigene{GENE}) ) { $UGobj->gene($unigene{GENE}) };
-					if ( defined ($unigene{CYTOBAND}) ) { $UGobj->cytoband($unigene{CYTOBAND}) };
-					if ( defined ($unigene{MGI}) ) { $UGobj->mgi($unigene{MGI}) };
-					$UGobj->locuslink(\@locuslink);
-					$UGobj->express(\@express);
-					if ( defined ($unigene{GNM_TERMINUS}) ) { $UGobj->gnm_terminus($unigene{GNM_TERMINUS}) };
-					$UGobj->chromosome(\@chromosome);
-					$UGobj->sts(\@sts);
-					$UGobj->txmap(\@txmap);
-					$UGobj->protsim(\@protsim);
-					$UGobj->scount($unigene{SCOUNT});
-					$UGobj->sequence(\@sequence);
-					
-					
-					
+		elsif ($line =~ /$line_is{DELIMITER}/gcx) {
+		    # at the end of the record, add data to the object
+		    $UGobj->unigene_id($unigene{ID});
+		    $UGobj->title($unigene{TITLE});
+		    $UGobj->gene($unigene{GENE}) if defined ($unigene{GENE});
+		    $UGobj->cytoband($unigene{CYTOBAND})
+			if defined($unigene{CYTOBAND});
+		    $UGobj->mgi($unigene{MGI}) if defined ($unigene{MGI});
+		    $UGobj->locuslink(\@locuslink);
+		    $UGobj->express(\@express);
+		    $UGobj->gnm_terminus($unigene{GNM_TERMINUS})
+			if defined ($unigene{GNM_TERMINUS});
+		    $UGobj->chromosome(\@chromosome);
+		    $UGobj->sts(\@sts);
+		    $UGobj->txmap(\@txmap);
+		    $UGobj->protsim(\@protsim);
+		    $UGobj->scount($unigene{SCOUNT});
+		    $UGobj->sequences(\@sequence);
 		}
 	}
 	return $UGobj;

@@ -8,7 +8,7 @@
 
 use strict;
 use vars qw($NUMTESTS);
-use lib '.','./blib/lib';
+#use lib '.','./blib/lib'; # make test should take care of this
 
 my $error;
 
@@ -23,7 +23,7 @@ BEGIN {
     }
     use Test;
 
-    $NUMTESTS = 42;
+    $NUMTESTS = 56;
     plan tests => $NUMTESTS;
     
 }
@@ -40,6 +40,12 @@ ok $str;
 
 ok ( defined ($unigene = $str->next_cluster()));
 
+# check interface implementations to be sure
+ok $unigene->isa("Bio::Cluster::UniGeneI");
+ok $unigene->isa("Bio::ClusterI");
+ok $unigene->isa("Bio::IdentifiableI");
+ok $unigene->isa("Bio::DescribableI");
+
 ok($unigene->unigene_id, 'Hs.2');
 ok($unigene->title, 'N-acetyltransferase 2 (arylamine N-acetyltransferase)');
 ok($unigene->gene, 'NAT2');
@@ -53,7 +59,7 @@ ok(scalar @{ $unigene->sts }, 4);
 ok(scalar @{ $unigene->txmap }, 1);
 ok(scalar @{ $unigene->protsim } , 4);
 
-ok(scalar @{ $unigene->sequence },29);
+ok(scalar @{ $unigene->sequences },29);
 
 ok($unigene->next_locuslink, '58473');
 ok($unigene->next_chromosome, '8');
@@ -64,6 +70,22 @@ ok($unigene->next_protsim, 'ORG=Escherischia coli; PROTGI=8928262; PROTID=Ec_pid
 my ($seq1) = $unigene->next_seq;
 ok($seq1->display_id, 'D90042');
 ok($seq1->desc, 'ACC=D90042 NID=g219415 PID=g219416 UNIGENE_ID=Hs.2');
+
+# test accessors of interfaces
+ok ($seq1->namespace, "GenBank");
+ok ($seq1->authority, "NCBI");
+ok ($seq1->alphabet, "dna");
+my $n = 1; # we've seen already one seq
+while($seq1 = $unigene->next_seq()) {
+    $n++;
+}
+ok ($n, 29);
+ok ($unigene->size(), 29);
+ok (scalar($unigene->get_members()), 29);
+ok ($unigene->description, 'N-acetyltransferase 2 (arylamine N-acetyltransferase)');
+ok ($unigene->display_id, "Hs.2");
+ok ($unigene->namespace, "UniGene");
+ok ($unigene->authority, "NCBI");
 
 $unigene->unigene_id('Hs.50');
 ok($unigene->unigene_id, 'Hs.50', 'unigene_id was ' . $unigene->unigene_id);
@@ -84,6 +106,7 @@ $unigene->scount('scount_test');
 ok($unigene->scount, 'scount_test', 'scount was ' . $unigene->scount);
 
 my $seq = $unigene->next_seq;
+$seq = $unigene->next_seq;
 ok($seq->isa('Bio::PrimarySeqI'), 1,'expected a Bio::PrimarySeq object but got a ' . ref($seq));
 my $accession = $seq->accession_number;
 ok($accession, 'D90040');
