@@ -7,7 +7,7 @@
 use strict;
 use ExtUtils::MakeMaker;
 use Bio::Root::IO;
-use constant TEST_COUNT => 130;
+use constant TEST_COUNT => 131;
 use constant FASTA_FILES => Bio::Root::IO->catfile('t','data','dbfa');
 use constant GFF_FILE    => Bio::Root::IO->catfile('t','data',
 						   'biodbgff','test.gff');
@@ -110,6 +110,7 @@ ok($t[0] eq $t);
 my $seg = $db->segment('Contig1');
 @t = $seg->features(-attributes=>{'Gene'=>'abc-1'});
 ok(@t>0);
+ok($seg->feature_count, 17);
 @t = $seg->features(-attributes=>{'Gene'=>'xyz-2',Note=>'Terribly interesting'});
   ok(@t==1);
 
