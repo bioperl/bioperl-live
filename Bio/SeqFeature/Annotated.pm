@@ -458,7 +458,6 @@ sub entire_seq {
 =cut
 
 sub has_tag {
-  my $self = shift;
   return shift->annotation->has_tag(@_);
 }
 
@@ -469,7 +468,6 @@ sub has_tag {
 =cut
 
 sub add_tag_value {
-  my $self = shift;
   return shift->annotation->add_tag_value(@_);
 }
 
@@ -480,7 +478,6 @@ sub add_tag_value {
 =cut
 
 sub get_tag_values {
-  my $self = shift;
   return shift->annotation->get_tag_values(@_);
 }
 
@@ -491,7 +488,6 @@ sub get_tag_values {
 =cut
 
 sub get_all_tags {
-  my $self = shift;
   return shift->annotation->get_all_tags(@_);
 }
 
@@ -502,7 +498,6 @@ sub get_all_tags {
 =cut
 
 sub remove_tag {
-  my $self = shift;
   return shift->annotation->remove_tag(@_);
 }
 
