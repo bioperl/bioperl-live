@@ -26,7 +26,7 @@ Bio::DB::Fasta -- Fast indexed access to a directory of fasta files
   my $length  = $obj->length;
   # (etc)
 
-  # BioSeqI-style access
+  # Bio::SeqIO-style access
   my $stream  = Bio::DB::Fasta->new('/path/to/fasta/files')->get_PrimarySeq_stream;
   while (my $seq = $stream->next_seq) {
     # Bio::PrimarySeqI stuff
