@@ -77,7 +77,7 @@ use Bio::Root::RootI;
 
 sub new {
   my($class, $args) = @_;
-  my $self = $class->SUPER::new();
+  my $self = $class->SUPER::new();  
   $self->{ '_attributes' } = $args;
 
   $self->name($self->{ '_attributes' }->{'name'});
@@ -118,7 +118,7 @@ sub run {
 
 	print "Input attr: ", $attr_name, " => ", %{$input}->{$attr}, "\n" 
 	    if $self->verbose > 1;;
-	$option_string .= $attr;
+	$option_string .= " " . $attr;
 	$option_string .= " ". %{$input}->{$attr} 
 	   if %{$input}->{$attr};
     }
@@ -240,13 +240,12 @@ sub _acd2input($input) {
     my ($self, $input) = @_;
     # match acd attributes against the input
     foreach my $attr (keys %{$self->{'_attributes'}}) {
-	print "ACD Attr: |", $attr, "|\n" if $self->verbose > 1;
+	$self->debug( "ACD Attr: |". $attr. "|\n");
 	my $input_value = '';
 	my $input_key = '';
 	$input_key = 1, $input_value = %{$input}->{"-$attr"} if defined %{$input}->{"-$attr"};
 #	my $input_name = substr($input_value, 1) if substr($input_value, 0, 1) =~ /\W/;
-	print "--------------$input_value, $attr\n" if $input_key;
-
+	$self->debug("--------------$input_value, $attr\n") if $input_key;
 
 #	 $self->throw('Attribute [$attr] not set') if 
 #	     defined %{$self}->{'_attributes'}->{$attr_name}->{optional} and $input_value ;

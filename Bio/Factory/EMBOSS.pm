@@ -72,7 +72,8 @@ use vars qw(@ISA $EMBOSSVERSION);
 use strict;
 
 use Bio::Root::RootI;
-use Bio::Tools::Run::EMBOSSApplication
+use Bio::Tools::Run::EMBOSSApplication;
+use Bio::Factory::ApplicationFactoryI;
 @ISA = qw(Bio::Root::RootI Bio::Factory::ApplicationFactoryI );
 
 $EMBOSSVERSION = "2.0.0";
@@ -147,9 +148,10 @@ sub program {
 	unless $self->{'_programs'}->{$value};
     my $attributes = $self->_attribute_list($value);
     use Data::Dumper;
-    print Dumper($attributes);
+    $self->debug( Dumper($attributes));
     my $appl = Bio::Tools::Run::EMBOSSApplication ->new($attributes);
-
+    $appl->verbose($self->verbose);
+    return $appl;
 }
 
 =head2 version
