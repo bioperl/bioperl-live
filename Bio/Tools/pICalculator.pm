@@ -8,7 +8,7 @@ pICalculator
 
 Calculates the isoelectric point of a protein, the pH at which there
 is no overall charge on the protein. Calculates the charge on a protein
-at a given pH.
+at a given pH. Can use built-in sets of pK values or custom pK sets.
 
 =head1 SYNOPSIS
 
@@ -17,7 +17,8 @@ at a given pH.
 
   my $in = Bio::SeqIO->new( -fh => \*STDIN ,-format => 'Fasta' );
 
-  my $calc = Bio::Tools::pICalculator->new(-places => 2);
+  my $calc = Bio::Tools::pICalculator->new(-places => 2,
+                                           -pKset => 'EMBOSS');
 
   while ( my $seq = $in->next_seq ) {
      $calc->seq($seq);
