@@ -1,0 +1,98 @@
+The BioDirectory Registry is a simple system for specifying where to
+find services which provide sequence databases.  This system allows
+you to create a single site-wide configuration file that tells BioPerl
+applications how to access sequence databases.  You can start out by
+accessing sequence data over the web, and later install a locally
+mirrored copy of GenBank.  By changing one line site-wide
+configuration file, all BioPerl applications will start using the
+mirrored local copy without making any source code changes.
+
+INSTALLING THE REGISTRY FILE
+
+The registry file should be named seqdatabase.ini.  It should be
+installed in one of the following locations:
+
+   $HOME/.bioinformatics/seqdatabase.ini
+   /etc/bioinformatics/seqdatabase.ini
+
+If a local registry file cannot be found, BioPerl will take its
+defaults from this URL:
+
+   http://www.open-bio.org/registry/seqdatabase.ini
+
+You may add a web-based registry file of your own by manipulating the
+Bio::DB::Registry module.
+
+FORMAT OF THE REGISTRY FILE
+
+  The file is a simple stanza format which goes
+
+  [database-name]
+  tag=value
+  tag=value
+
+  [database-name]
+  tag=value
+  tag=value
+
+where each stanza starts with the declaration of the database being in square 
+brackets and following that one line tag=value tag value formats.
+
+Database-name stanzas can be repeated, in which case the client should
+try each service in turn (starting at the first one).
+
+The options under each stanza must have two non-optional tag=value lines being
+
+  protocol=<protocol-type>
+  location=<location-string>
+
+The Protocol Tag
+----------------
+
+protocol currently can be one of
+
+  flat-index
+  flat-binary
+  biofetch
+  bsane-corba
+  biosql
+  xembl
+
+"flat-index" is used to fetch sequences from local flat files that
+have been indexed using BerkeleyDB.  It corresponds to the
+Bio::DB::Flat::BDB module.
+
+"flat-binary" is used to fetch sequences from local flat files that
+use a binary indexing scheme.  It corresponds to the
+Bio::DB::Flat::Binary module.
+
+"
+
+The Location Tag
+----------------
+
+location is a string specific to the protocol. Any number of
+additional tag values are allowed in the stanza which should be passed
+to the appropiate constructor of the protocol to interpret. Some
+protocols will insist on other mandatory tags
+
+
+
+Database Formats:
+
+urn:lsid:open-bio.org:dbformat:<format>/<alphabet>
+
+where <format> is one of:
+      embl
+      genbank
+      fasta
+      swis
+      pdb
+
+and <format> is one of:
+    dna
+    protein
+
+For purposes of backward compatibility, can abbreviate to "embl/dna"
+or just "embl".
+
