@@ -175,6 +175,7 @@ sub new {
     my $child_class = 'Bio::DB::Flat::BinarySearch';
     eval "use $child_class";
     $self->throw($@) if $@;
+    push @_, ('-format', $format);
     return $child_class->new(@_);
   }
 
@@ -245,17 +246,15 @@ The following registry-configuration tags are recognized:
 
 sub new_from_registry {
    my ($self,%config) =  @_;
-   my $location = $config{'location'} or $self->throw('location tag must be specified.');
-   my $dbname   = $config{'dbname'}   or $self->throw('dbname tag must be specified.');
-   #my $index    = $self->new(-directory => $location,
-   #			      -dbname    => $dbname,
-   #			     );
-   # my $index = $config{'protocol'} or $self->throw('index or protocol tag must be specified.');
+   my $location = $config{'location'} or 
+     $self->throw('location tag must be specified.');
+   my $dbname   = $config{'dbname'}   or 
+     $self->throw('dbname tag must be specified.');
+
    my $db = $self->new(-directory => $location,
 			-dbname    => $dbname,
-		       # -index     => $index   LS: PROTOCOL DOES NOT SPECIFY INDEXING SCHEME
 		      );
-    $db;
+   $db;
 }
 
 # accessors
@@ -582,6 +581,7 @@ sub default_file_format {
 }
 
 sub _store_index {
+   my $self = shift;
    my ($ids,$file,$offset,$length) = @_;
    $self->throw_not_implemented;
 }
