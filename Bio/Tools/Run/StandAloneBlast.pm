@@ -284,7 +284,7 @@ BEGIN {
 
 # If local BLAST databases are not stored in the standard
 # /data directory, the variable BLASTDATADIR will need to be set explicitly 
-     $DATADIR =  $ENV{'BLASTDATADIR'} || $ENV{'BLASTDB'};
+     $DATADIR =  $ENV{'BLASTDATADIR'} || $ENV{'BLASTDB'} || '';
 }
 
 @ISA = qw(Bio::Root::Root Bio::Root::IO);
@@ -407,6 +407,7 @@ sub exists_blast {
     if((! $DATADIR) && (-d Bio::Root::IO->catfile($BLASTDIR, "data"))) {
 	$DATADIR = Bio::Root::IO->catfile($BLASTDIR, "data");
     }
+    
     if( ($f = Bio::Root::IO->exists_exe($exe)) ||
 	($f = Bio::Root::IO->exists_exe(Bio::Root::IO->catfile($BLASTDIR, 
 							       $exe))) ) {

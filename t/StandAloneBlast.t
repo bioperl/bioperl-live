@@ -4,20 +4,22 @@
 #
 
 use strict;
+use constant NUMTESTS => 8;
 BEGIN { 
-    use vars qw($NUMTESTS);
-
     eval { require Test; };
     if( $@ ) {
 	use lib 't';
     }
     use Test;
-
-    $NUMTESTS = 8; 
-    plan tests => 8; 
+    plan tests => 10; 
 }
 
-END { unlink('blastreport.out') }
+END { 
+    foreach( $Test::ntest..NUMTESTS) {
+	skip('Blast or env variables not installed correctly',1);
+    }
+    unlink('blastreport.out');
+}
 
 use Bio::Tools::BPlite;
 use Bio::Tools::Run::StandAloneBlast;
@@ -35,7 +37,8 @@ my $nt_database = 'ecoli.nt';
 my $amino_database = 'swissprot';
 
 my @params = ('program' => 'blastn', 'database' => $nt_database , 
-	      '_READMETHOD' => 'SearchIO', 'output' => 'blastreport.out');
+	      '_READMETHOD' => 'SearchIO', 
+	      'output' => 'blastreport.out');
 my  $factory = Bio::Tools::Run::StandAloneBlast->new('-verbose' => $verbose,
 						     @params);
 
@@ -44,18 +47,19 @@ ok $factory;
 my $inputfilename = Bio::Root::IO->catfile("t","data","test.txt");
 my $program = 'blastn';
 
-
 my $blast_present = Bio::Tools::Run::StandAloneBlast->exists_blast();
+ok($blast_present);
+if( ! defined $Bio::Tools::Run::StandAloneBlast::DATADIR ) {
+    print STDERR "must have BLASTDIR and BLASTDB or BLASTDATADIR env variable set\n";
+    exit();
+}
 my $nt_database_file = Bio::Root::IO->catfile($Bio::Tools::Run::StandAloneBlast::DATADIR, $nt_database);
+ok($nt_database_file, qr/$nt_database/);
 my $amino_database_file = Bio::Root::IO->catfile($Bio::Tools::Run::StandAloneBlast::DATADIR, $amino_database);
-
 my $file_present = -e $nt_database_file;
 my $file_present2 = -e $amino_database_file;
 unless ($blast_present && $file_present && $file_present2) {
-    warn "blast program or databases [$nt_database,$amino_database] not found. Skipping tests $Test::ntest to $NUMTESTS\n";
-    foreach ($Test::ntest..$NUMTESTS) {
-	skip('blast program not found',1);
-    }
+    warn "blast program or databases [$nt_database,$amino_database] not found. Skipping tests $Test::ntest to NUMTESTS\n";
     exit 0;
 }
 
