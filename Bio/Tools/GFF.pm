@@ -46,11 +46,53 @@ program and the output that program produces.
 That is, if you can get your analysis program spit out GFF, here is
 your result parser.
 
-=head1 NOTE
+=head1 GFF3 AND SEQUENCE DATA
 
-While Bio::Tools::GFF supports GFF3, it does not deal with sequence data,
-which is valid in GFF3. If you want to use Bio::Tools::GFF with GFF3 that
-has sequence data, the sequence must be removed before analysis.
+[added by cjm 2004/07/09]
+
+GFF3 supports sequence data; see
+http://song.sourceforge.net/gff3-jan04.shtml
+
+There are a number of ways to deal with this -
+
+If you call
+
+  $gffio->ignore_sequence_data_toggle(1)
+
+prior to parsing the sequence data is ignored; this is useful if you
+just want the features. It avoids the memory overhead in building and
+caching sequences
+
+Alternatively, you can call either
+
+  $gffio->get_all_seqs()
+
+Or
+
+  $gffio->seq_id_by_h()
+
+At the B<end> of parsing to get either a list or hashref of Bio::Seq
+objects (see the documentation for each of these methods)
+
+Note that these objects will not have the features attached - you have
+to do this yourself, OR call
+
+  $gffio->features_attached_to_seqs_toggle(1)
+
+PRIOR to parsing; this will ensure that the Seqs have the features
+attached; ie you will then be able to call
+
+  $seq->get_SeqFeatures();
+
+And use Bio::SeqIO methods
+
+Note that auto-attaching the features to seqs will incur a higher
+memory overhead as the features must be cached until the sequence data
+is found
+
+=head1 TODO
+
+Make a Bio::SeqIO class specifically for GFF3 with sequence data
 
 =head1 FEEDBACK
 
@@ -79,6 +121,7 @@ Email mrp@sanger.ac.uk
 =head1 CONTRIBUTORS 
 
 Jason Stajich, jason-at-biperl-dot-org
+Chris Mungall, cjm-at-fruitfly-dot-org
 
 =head1 APPENDIX
 
@@ -95,6 +138,7 @@ use strict;
 
 use Bio::Root::IO;
 use Bio::SeqAnalysisParserI;
+use Bio::Seq::SeqFactory;
 use Bio::LocatableSeq;
 use Bio::SeqFeature::Generic;
 
@@ -194,9 +238,22 @@ sub _parse_header{
 	   #to be implemented
 	   $self->warn("$1 header tag parsing unimplemented");
 	 } elsif($line =~ /^(\#\#FASTA)/) {
-	   #to be implemented
-	   $self->warn("$1 header tag parsing unimplemented");
-	 }
+            # initial ##FASTA is optional - artemis does not use it
+            $line = $self->_readline();
+            if ($line !~ /^\>(\S+)/) {
+                $self->throw("##FASTA directive must be followed by fasta header, not: $line");
+            }
+	 } else {
+         }
+         
+         if ($line =~ /^\>(.*)/) {
+             # seq data can be at header or footer
+             my $seq = $self->_parse_sequence($line);
+             if ($seq) {
+                 $self->seq_by_id_h->{$seq->primary_id} = $seq;
+             }
+         }
+             
 
  	 if(!$handled){
 	   push @unhandled, $line
@@ -211,6 +268,49 @@ sub _parse_header{
    }
 
    return 1;
+}
+
+sub _parse_sequence {
+    my ($self, $line) = @_;
+
+    if ($line =~ /^\>(.*)/) {
+        
+        my $seqid = $1;
+        $seqid =~ s/\s+$//;
+        my $desc = '';
+        if ($seqid =~ /(\S+)\s+(.*)/) {
+            ($seqid, $desc) = ($1,$2);
+        }
+        my $res = '';
+        while (my $line = $self->_readline) {
+            if ($line =~ /^\#/) {
+                last;
+            }
+            if ($line =~ /^\>/) {
+                $self->_pushback($line);
+                last;
+            }
+            $line =~ s/\s//g;
+            $res .= $line;
+        }
+        return if $self->ignore_sequence_data_toggle;
+
+        my $seqfactory = Bio::Seq::SeqFactory->new('Bio::Seq');
+        my $seq = $seqfactory->create(-seq=>$res, 
+                                      -id=>$seqid,
+                                      -desc=>$desc);
+        $seq->accession_number($seqid);
+        if ($self->features_attached_to_seqs_toggle) {
+            my @feats = 
+              @{$self->_feature_idx_by_seq_id->{$seqid}};
+            $seq->add_SeqFeature($_) foreach @feats;
+            @{$self->_feature_idx_by_seq_id->{$seqid}} = ();
+        }
+        return $seq;
+    }
+    else {
+        $self->throw("expected fasta header, not: $line");
+    }
 }
 
 
@@ -255,17 +355,44 @@ sub next_feature {
     # be graceful about empty lines or comments, and make sure we return undef
     # if the input's consumed
     while(($gff_string = $self->_readline()) && defined($gff_string)) {	
-	  next if($gff_string =~ /^\#/ || $gff_string =~ /^\s*$/ ||
-			  $gff_string =~ /^\/\//);
-	  last;
+        if ($gff_string =~ /^\#\#\#/) {
+            # all forward refs have been seen; TODO
+        }
+        next if($gff_string =~ /^\#/ || $gff_string =~ /^\s*$/ ||
+                $gff_string =~ /^\/\//);
+
+        while ($gff_string =~ /^\>(.+)/) {
+            # fasta can be in header or footer
+            my $seq = $self->_parse_sequence($gff_string);
+            if ($seq) {
+                $self->seq_by_id_h->{$seq->primary_id} = $seq;
+                $gff_string = $self->_readline;
+                last unless $gff_string;
+            }
+        }
+        last; 
     }
     return undef unless $gff_string;
 
     my $feat = Bio::SeqFeature::Generic->new();
     $self->from_gff_string($feat, $gff_string);
 
+    if ($self->features_attached_to_seqs_toggle) {
+        push(@{$self->_feature_idx_by_seq_id->{$feat->seq_id}},
+             $feat);
+    }
+
     return $feat;
 }
+
+sub _feature_idx_by_seq_id {
+    my $self = shift;
+    $self->{__feature_idx_by_seq_id} = shift if @_;
+    $self->{__feature_idx_by_seq_id} = {}
+      unless $self->{__feature_idx_by_seq_id};
+    return $self->{__feature_idx_by_seq_id};
+}
+
 
 =head2 from_gff_string
 
@@ -1015,6 +1142,104 @@ sub fh {
   tie $$s,$class,$self;
   return $s;
 }
+
+=head2 seq_by_id_h
+
+ Title   : seq_by_id_h
+ Usage   : $obj->seq_by_id_h($newval)
+ Function: 
+ Example : 
+ Returns : value of seq_by_id_h (a hashref)
+ Args    : on set, new value (a hashref or undef, optional)
+
+This accessor is used for accessing the Bio::Seq objects from a GFF3
+file; if the file you are using has no sequence data you can ignore
+this accessor
+
+This accessor returns a hash reference containing Bio::Seq objects,
+indexed by Bio::Seq->primary_id
+
+=cut
+
+sub seq_by_id_h{
+    my $self = shift;
+
+    return $self->{'seq_by_id_h'} = shift if @_;
+    $self->{'seq_by_id_h'} = {}
+      unless $self->{'seq_by_id_h'};
+    return $self->{'seq_by_id_h'};
+}
+
+=head2 get_all_seqs
+
+ Title   : get_all_seqs
+ Usage   :
+ Function:
+ Example :
+ Returns : 
+ Args    :
+
+returns all Bio::Seq objects populated by GFF3 file
+
+=cut
+
+sub get_all_seqs{
+   my ($self,@args) = @_;
+   return values %{$self->seq_by_id_h};
+}
+
+=head2 features_attached_to_seqs_toggle
+
+ Title   : features_attached_to_seqs_toggle
+ Usage   : $obj->features_attached_to_seqs_toggle(1);
+ Function: 
+ Example : 
+ Returns : value of features_attached_to_seqs_toggle (a boolen)
+ Args    : on set, new value (a boolen, optional)
+
+For use with GFF3 containg sequence only
+
+setting this B<before> parsing ensures that all Bio::Seq object
+created will have the appropriate features added to them
+
+defaults to false (off)
+
+note that this mode will incur higher memory usage because features
+will have to be cached until the relevant feature comes along
+
+=cut
+
+sub features_attached_to_seqs_toggle{
+    my $self = shift;
+
+    return $self->{'features_attached_to_seqs_toggle'} = shift if @_;
+    return $self->{'features_attached_to_seqs_toggle'};
+}
+
+=head2 ignore_sequence_data_toggle
+
+ Title   : ignore_sequence_data_toggle
+ Usage   : $obj->ignore_sequence_data_toggle(1);
+ Function: 
+ Example : 
+ Returns : value of ignore_sequence_data_toggle (a boolen)
+ Args    : on set, new value (a boolen, optional)
+
+For use with GFF3 containg sequence only
+
+setting this B<before> parsing means that all sequence data will be
+ignored
+
+=cut
+
+sub ignore_sequence_data_toggle{
+    my $self = shift;
+
+    return $self->{'ignore_sequence_data_toggle'} = shift if @_;
+    return $self->{'ignore_sequence_data_toggle'};
+}
+
+
 
 sub DESTROY {
     my $self = shift;
