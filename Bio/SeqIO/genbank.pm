@@ -2,7 +2,7 @@
 #
 # BioPerl module for Bio::SeqIO::GenBank
 #
-# Cared for by Elia Stupka <elia@ebi.ac.uk>
+# Cared for by Elia Stupka <elia@tll.org.sg>
 #
 # Copyright Elia Stupka
 #
@@ -109,7 +109,7 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 
 =head1 AUTHOR - Elia Stupka
 
-Email elia@ebi.ac.uk
+Email elia@tll.org.sg
 
 =head1 CONTRIBUTORS
 
@@ -239,7 +239,6 @@ sub next_seq {
 	  $annotation = new Bio::Annotation::Collection;
       }
       $buffer = $self->_readline();
-
       until( !defined ($buffer) ) {
 	  $_ = $buffer;
 	  
@@ -247,7 +246,7 @@ sub next_seq {
 	  if (/^DEFINITION\s+(\S.*\S)/) {
 	      my @desc = ($1);
 	      while ( defined($_ = $self->_readline) ) { 
-		  /^\s+(.*)/ && do { push (@desc, $1); next;};
+		  if( /^\s+(.*)/ ) { push (@desc, $1); next };		  
 		  last;
 	      }
 	      $builder->add_slot_value(-desc => join(' ', @desc));
@@ -281,16 +280,15 @@ sub next_seq {
 	  }
 	  #Keywords
 	  elsif( /^KEYWORDS\s+(.*)/ ) {
-	      my @kw = ($1);
+	      my @kw = split(/\s*\;\s*/,$1);
 	      while( defined($_ = $self->_readline) ) { 
 		  chomp;
-		  /^\s+(.*)/ && do { push (@kw,$1); next };
+		  /^\s+(.*)/ && do { push (@kw, split(/\s*\;\s*/,$1)); next };
 		  last;
 	      }
 	      
-	      my $keywords = join(" ", @kw);
-	      $keywords =~ s/\.$//; # remove possibly trailing dot
-	      $params{'-keywords'} = $keywords;
+	      @kw && $kw[-1] =~ s/\.$//;
+	      $params{'-keywords'} = \@kw;
 	      $buffer = $_;
 	      next;
 	  }
@@ -484,7 +482,6 @@ sub write_seq {
 	    $self->warn(" $seq is not a SeqI compliant module. Attempting to dump, but may fail!");
 	}
 
-	my $i;
 	my $str = $seq->seq;
 
 	my ($div, $mol);
@@ -694,38 +691,37 @@ sub write_seq {
 	    $self->_print($base_count); 
 	}
 	$self->_print(sprintf("ORIGIN%6s\n",''));
-	my $di;
 
-	# push sequence blocks to be printed into an array
-	# so we can comply with genbank format and not have 
-	# block \n
-	#     ^^ space after last block before newline is not allowed
-	#        in the strictest sense of the format 
-	my @seqline;
-	for ($i = 0; $i < length($str); $i += 10) {
+# print out the sequence
+	my $nuc = 60;		# Number of nucleotides per line
+	my $whole_pat = 'a10' x 6; # Pattern for unpacking a whole line
+	my $out_pat   = 'A11' x 6; # Pattern for packing a line
+	my $length = length($str);
 
-	    $di=$i+11;
+	# Calculate the number of nucleotides which fit on whole lines
+	my $whole = int($length / $nuc) * $nuc;
 
-	    #first line
-	    if ($i==0) {
-		$self->_print(sprintf("%9d ",1));
-	    }
-	    #print sequence, spaced by 10
-	    push @seqline, substr($str,$i,10);
-	    #break line and print number at beginning of next line
-	    if(($i+10)%60 == 0) {	    
-		$self->_print(join(' ', @seqline), "\n");
-		$self->_print(sprintf("%9d ",$di));
-		@seqline = ();
-	    }
+	# Print the whole lines
+	my $i;
+	for (my $i = 0; $i < $whole; $i += $nuc) {
+	    my $blocks = pack $out_pat,
+	    unpack $whole_pat,
+	    substr($str, $i, $nuc);
+            chop $blocks;
+	    $self->_print(sprintf("%9d $blocks\n", $i + $nuc - 59));
 	}
-	# fencepost problem, print whatever is left in the queue
-	# again we are doing this to comply with  genbank in the 
-	# strictest sense
-	$self->_print(join(' ', @seqline), ' ') if( @seqline );
 
+	# Print the last line
+	if (my $last = substr($str, $i)) {
+	    my $last_len = length($last);
+	    my $last_pat = 'a10' x int($last_len / 10) .'a'. $last_len % 10;
+	    my $blocks = pack $out_pat,
+	    unpack($last_pat, $last);
+            $blocks =~ s/ +$//;
+	    $self->_print(sprintf("%9d $blocks\n", $length - $last_len + 1));
+	}
 
-	$self->_print("\n//\n");
+	$self->_print("//\n");
 
 	$self->flush if $self->_flush_on_write && defined $self->_fh;
 	return 1;
@@ -791,7 +787,6 @@ sub _print_GenBank_FTHelper {
  Title   : _read_GenBank_References
  Usage   :
  Function: Reads references from GenBank format. Internal function really
- Example :
  Returns : 
  Args    :
 
@@ -813,7 +808,7 @@ sub _read_GenBank_References{
 
    my (@title,@loc,@authors,@com,@medline,@pubmed);
 
-   while( defined($_) || defined($_ = $self->_readline) ) {
+   REFLOOP: while( defined($_) || defined($_ = $self->_readline) ) {
        if (/^  AUTHORS\s+(.*)/) { 
 	   push (@authors, $1);   
 	   while ( defined($_ = $self->_readline) ) {
@@ -841,6 +836,7 @@ sub _read_GenBank_References{
 	       last;
 	   }
 	   $ref->location(join(' ', @loc));
+	   redo REFLOOP;
        }
        if (/^  REMARK\s+(.*)/) { 
 	   push (@com, $1);
@@ -851,6 +847,7 @@ sub _read_GenBank_References{
 	       last;
 	   }
 	   $ref->comment(join(' ', @com));
+	   redo REFLOOP;
        }
        if( /^  MEDLINE\s+(.*)/ ) {
 	   push(@medline,$1);
@@ -861,7 +858,8 @@ sub _read_GenBank_References{
 	       last;
 	   }
 	   $ref->medline(join(' ', @medline));
-       }       
+	   redo REFLOOP;
+       }
        if( /^   PUBMED\s+(.*)/ ) {
 	   push(@pubmed,$1);
 	   while ( defined($_ = $self->_readline) ) {	       
@@ -871,6 +869,7 @@ sub _read_GenBank_References{
 	       last;
 	   }
 	   $ref->pubmed(join(' ', @pubmed));
+	   redo REFLOOP;
        }
        
        /^REFERENCE/ && do {
@@ -1181,9 +1180,9 @@ sub _write_line_GenBank_regex {
 
    $length || $self->throw( "Miscalled write_line_GenBank without length. Programming error!");
 
-   if( length $pre1 != length $pre2 ) {
-       $self->throw( "Programming error - cannot called write_line_GenBank_regex with different length pre1 and pre2 tags!");
-   }
+#   if( length $pre1 != length $pre2 ) {
+#       $self->throw( "Programming error - cannot called write_line_GenBank_regex with different length pre1 and pre2 tags!");
+#   }
 
    my $subl = $length - (length $pre1) - 2;
    my @lines = ();
