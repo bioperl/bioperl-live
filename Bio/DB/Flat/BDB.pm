@@ -199,6 +199,8 @@ sub build_index {
   my @files = @_;
   my $count = 0;
   for my $file (@files) {
+    $file = File::Spec->rel2abs($file)
+      unless File::Spec->file_name_is_absolute($file);
     $count++ if $self->_index_file($file);
   }
   $self->write_config;
@@ -215,7 +217,7 @@ sub _index_file {
   my $fh     = $self->_fhcache($file) or $self->throw("could not open $file for indexing: $!");
   my $offset = 0;
   while (!eof($fh)) {
-    my ($ids,$adjustment)  = $self->parse_one_record($fh);
+    my ($ids,$adjustment)  = $self->parse_one_record($fh) or next;
     $adjustment ||= 0;  # prevent uninit variable warning
     my $pos = tell($fh) + $adjustment;
     $self->_store_index($ids,$file,$offset,$pos-$offset);
@@ -404,7 +406,7 @@ sub _open_bdb {
 
   my $primary_db = {};
   tie(%$primary_db,'DB_File',$self->_catfile($self->_primary_db_name),$flags,0666,$DB_BTREE)
-    or $self->throw("Could not open primary index file");
+    or $self->throw("Could not open primary index file: $! (did you remember to use -write_flag=>1?)");
   $self->{bdb_primary_db} = $primary_db;
 
   for my $secondary ($self->secondary_namespaces) {

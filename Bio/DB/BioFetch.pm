@@ -173,7 +173,7 @@ sub new_from_registry {
     my $self = $class->SUPER::new(
 				  -BASEADDRESS=>$config{'location'}
 				  );
-    $self->db($config{'biodbname'});
+    $self->db($config{'biodbname'}) if $config{biodbname};
     return $self;
 }
     

@@ -61,11 +61,11 @@ use Bio::DB::Failover;
 use Bio::Root::HTTPget;
 
 my %implement = (
-		 'biocorba'      => 'Bio::CorbaClient::SeqDB',
-		 'index-berkeleydb' => 'Bio::DB::Flat',
-                 'index-flat'       => 'Bio::DB::Flat::OBDAIndex',
-		 'biosql' => 'Bio::DB::SQL::BioDatabaseAdaptor',
-		 'biofetch' => 'Bio::DB::BioFetch'
+		 'biocorba'         => 'Bio::CorbaClient::SeqDB',
+		 'flat-index'       => 'Bio::DB::Flat::BDB',
+                 'flat-binary'      => 'Bio::DB::Flat::Binary',
+		 'biosql'           => 'Bio::DB::BioSQL::BioDatabaseAdaptor',
+		 'biofetch'         => 'Bio::DB::BioFetch'
 		 );
 
 my $fallbackRegistryURL = 'http://www.open-bio.org/registry/seqdatabase.ini';

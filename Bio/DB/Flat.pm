@@ -83,12 +83,12 @@ use constant CONFIG_FILE_NAME => 'config.dat';
  Usage   : my $db = new Bio::Flat->new(
                      -directory  => $root_directory,
 		     -write_flag => 0,
-                     -index      => 'bdb'|'flat',
+                     -index      => 'bdb'|'binarysearch',
                      -verbose    => 0,
 		     -out        => 'outputfile',
                      -format     => 'genbank');
- Function: create a new Bio::Index::BDB object
- Returns : new Bio::Index::BDB object
+ Function: create a new Bio::DB::Flat object
+ Returns : new Bio::DB::Flat object
  Args    : -directory    Root directory containing "config.dat"
            -write_flag   If true, allows reindexing.
            -verbose      Verbose messages
@@ -104,13 +104,14 @@ The -write_flag enables writing new entries into the database as well
 as the creation of the indexes.  By default the indexes will be opened
 read only.
 
--index is one of "bdb" or "flat" and indicates the type of index to
-generate.  "bdb" corresponds to Berkeley DB.  You *must* be using
-BerkeleyDB version 2 or higher, and have the Perl BerkeleyDB extension
-installed (DB_File will *not* work).
+-index is one of "bdb" or "binarysearch" and indicates the type of
+index to generate.  "bdb" corresponds to Berkeley DB.  You *must* be
+using BerkeleyDB version 2 or higher, and have the Perl BerkeleyDB
+extension installed (DB_File will *not* work). "binarysearch"
+corresponds to the OBDA "flat" indexed file.
 
-The -out argument species the output file for writing objects created
-with write_seq().  
+The -out argument specifies the output file for writing objects created
+with write_seq().
 
 =cut
 
@@ -130,11 +131,24 @@ sub new {
   # but override with initialization values
   $self->_initialize(@_);
 
+  $self->throw('you must specify an indexing scheme') unless $self->indexing_scheme;
+
   # now we figure out what subclass to instantiate
   my $index_type = $self->indexing_scheme eq 'BerkeleyDB/1' ? 'BDB'
-                  :$self->indexing_scheme eq 'flat/1'       ? 'Flat'
+                  :$self->indexing_scheme eq 'flat/1'       ? 'Binary'
                   :$self->throw("unknown indexing scheme: ".$self->indexing_scheme);
   my $format     = $self->file_format;
+
+  # because Michele and Lincoln did it differently
+  # Michele's way is via a standalone concrete class
+  if ($index_type eq 'Binary') {
+    my $child_class = 'Bio::DB::Flat::BinarySearch';
+    eval "use $child_class";
+    $self->throw($@) if $@;
+    return $child_class->new(@_);
+  }
+
+  # Lincoln uses Bio::SeqIO style delegation.
   my $child_class= "Bio\:\:DB\:\:Flat\:\:$index_type\:\:\L$format";
   eval "use $child_class";
   $self->throw($@) if $@;
@@ -159,7 +173,7 @@ sub _initialize {
   if (defined $flat_indexing) {
     # very permissive
     $flat_indexing = 'BerkeleyDB/1' if $flat_indexing =~ /bdb/;
-    $flat_indexing = 'flat/1'       if $flat_indexing =~ /flat/;
+    $flat_indexing = 'flat/1'       if $flat_indexing =~ /^(flat|binary)/;
     $self->indexing_scheme($flat_indexing);
   }
 
@@ -179,6 +193,29 @@ sub _set_namespaces {
 
   $self->file_format($self->default_file_format)
     unless defined $self->{flat_format};
+}
+
+=head2 new_from_registry
+
+ Title   : new_from_registry
+ Usage   : $db = Bio::DB::Flat->new_from_registry(%config)
+ Function: creates a new Bio::DB::Flat object in a Bio::DB::Registry-
+           compatible fashion
+ Returns : new Bio::DB::Flat
+ Args    : provided by the registry, see below
+ Status  : Public
+
+The following registry-configuration tags are recognized:
+
+  location     Root of the indexed flat file; corresponds to the new() method's
+               -directory argument.
+
+=cut
+
+sub new_from_registry {
+    my ($self,%config) =  @_;
+    my $location = $config{'location'} or $self->throw('Location must be specified.');
+    my $index    = $self->new(-directory => $location);
 }
 
 # accessors
@@ -247,8 +284,9 @@ sub add_flat_file {
   my ($file_path,$file_length,$nf) = @_;
 
   # check that file_path is absolute
-  File::Spec->file_name_is_absolute($file_path)
-      or $self->throw("the flat file path $file_path must be absolute");
+  unless (File::Spec->file_name_is_absolute($file_path)) {
+    $file_path = File::Spec->rel2abs($file_path);
+  }
 
   -r $file_path or $self->throw("flat file $file_path cannot be read: $!");
 

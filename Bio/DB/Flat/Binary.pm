@@ -1,6 +1,6 @@
 # $Id$
 #
-# BioPerl module for Bio::DB::Flat::OBDAIndex
+# BioPerl module for Bio::DB::Flat::BinarySearch
 #
 # Cared for by Michele Clamp <michele@sanger.ac.uk>>
 #
@@ -10,7 +10,7 @@
 
 =head1 NAME
 
-Bio::DB::Flat::OBDAIndex - Binary search indexing system for sequence files
+Bio::DB::Flat::BinarySearch - BinarySearch search indexing system for sequence files
 
 =head1 SYNOPSIS
 
@@ -36,7 +36,7 @@ A string also has to be entered to defined what the primary key
 
 The index can now be created using 
 
-    my $index = new Bio::DB::Flat::OBDAIndex(
+    my $index = new Bio::DB::Flat::BinarySearch(
 	     -start_pattern   => $start_pattern,
 	     -primary_pattern => $primary_pattern,
              -primary_namespace => "ACC",
@@ -47,7 +47,7 @@ indices will live, a database name and an array of sequence files to index.
 
     my @files = ("file1","file2","file3");
 
-    $index->make_index("/Users/michele/indices","mydatabase",@files);
+    $index->build_index("/Users/michele/indices","mydatabase",@files);
 
 The index is now ready to use.  For large sequence files the perl
 way of indexing takes a *long* time and a *huge* amount of memory.
@@ -88,13 +88,13 @@ id (1433_CAEEL) as the secondary id.  The index is created as follows
 
     $secondary_patterns{"ID"} = "^ID   (\\S+)";
 
-    my $index = new Bio::DB::Flat::OBDAIndex(
+    my $index = new Bio::DB::Flat::BinarySearch(
                 -start_pattern     => $start_pattern,
                 -primary_pattern   => $primary_pattern,
                 -primary_namespace  => 'ACC',
                 -secondary_patterns => \%secondary_patterns);
 
-    $index->make_index("/Users/michele/indices","mydb",($seqfile));
+    $index->build_index("/Users/michele/indices","mydb",($seqfile));
 
 Of course having secondary indices makes indexing slower and more 
 of a memory hog.
@@ -105,8 +105,7 @@ of a memory hog.
 To fetch sequences using an existing index first of all create your sequence 
 object 
 
-    my $index = new Bio::DB::Flat::OBDAIndex(-index_dir => $index_directory,
-                                             -dbname    => 'swissprot');
+    my $index = new Bio::DB::Flat::BinarySearch(-directory => $index_directory);
 
 Now you can happily fetch sequences either by the primary key or
 by the secondary keys.
@@ -178,7 +177,7 @@ methods are usually preceded with an "_" (underscore).
 
 =cut
 
-package Bio::DB::Flat::OBDAIndex;
+package Bio::DB::Flat::BinarySearch;
 
 use strict;
 use vars qw(@ISA);
@@ -201,28 +200,28 @@ my @formats = ['FASTA','SWISSPROT','EMBL'];
 
  Title   : new
  Usage   : For reading 
-             my $index = new Bio::DB::Flat::OBDAIndex(
-                     -index_dir => '/Users/michele/indices/',
-		     -dbname    => 'dbEST',
+             my $index = new Bio::DB::Flat::BinarySearch(
+                     -directory => '/Users/michele/indices/dbest',
                      -format    => 'fasta');
 
            For writing 
 
              my %secondary_patterns = {"ACC" => "^>\\S+ +(\\S+)"}
-             my $index = new Bio::DB::Flat::OBDAIndex(
-		     -index_dir          => '/Users/michele/indices',
+             my $index = new Bio::DB::Flat::BinarySearch(
+		     -directory          => '/Users/michele/indices',
 		     -primary_pattern    => "^>(\\S+)",
                      -secondary_patterns => \%secondary_patterns,
 		     -primary_namespace  => "ID");
 
              my @files = ('file1','file2','file3');
 
-             $index->make_index('mydbname',@files);    
+             $index->build_index(@files);    
 
 
- Function: create a new Bio::DB::Flat::OBDAIndex object
- Returns : new Bio::DB::Flat::OBDAIndex
- Args    : -index_dir          Directory containing the indices
+ Function: create a new Bio::DB::Flat::BinarySearch object
+ Returns : new Bio::DB::Flat::BinarySearch
+ Args    : -directory          Directory containing the indices
+           -write_flag         Allow building index
            -primary_pattern    Regexp defining the primary id
            -secondary_patterns A hash ref containing the secondary
                                patterns with the namespaces as keys
@@ -240,21 +239,18 @@ sub new {
 
     bless $self, $class;
 
-    my ($index_dir,$dbname,$format,$primary_pattern,$primary_namespace,$start_pattern,$secondary_patterns) =  
-	$self->_rearrange([qw(INDEX_DIR
-			      DBNAME
+    my ($index_dir,$format,$write_flag,$primary_pattern,$primary_namespace,$start_pattern,$secondary_patterns) =
+	$self->_rearrange([qw(DIRECTORY
 			      FORMAT
+			      WRITE_FLAG
 			      PRIMARY_PATTERN
 			      PRIMARY_NAMESPACE
 			      START_PATTERN
 			      SECONDARY_PATTERNS)], @args);
 
     $self->index_directory($index_dir);
-    $self->database_name     ($dbname);
 
-    if ($self->index_directory && $dbname) {
-
-	$self->read_config_file;
+    if ($self->index_directory && $self->read_config_file) {
 	
 	my $fh = $self->primary_index_filehandle;
         my $record_width = $self->read_header($fh);
@@ -264,6 +260,13 @@ sub new {
 
 
     $self->format            ($format);
+    $self->write_flag        ($write_flag);
+
+    if ($self->write_flag && !$primary_namespace) {
+      ($primary_namespace,$primary_pattern,$start_pattern,$secondary_patterns) =
+	$self->_guess_patterns($self->format);
+    }
+
     $self->primary_pattern   ($primary_pattern);
     $self->primary_namespace ($primary_namespace);
     $self->start_pattern     ($start_pattern);
@@ -278,7 +281,7 @@ sub new_from_registry {
     my $dbname   = $config{'dbname'};
     my $location = $config{'location'};
     
-    my $index =  new Bio::DB::Flat::OBDAIndex(-dbname    => $dbname,
+    my $index =  new Bio::DB::Flat::BinarySearch(-dbname    => $dbname,
 					      -index_dir => $location,
 					      );
 }
@@ -296,25 +299,25 @@ sub new_from_registry {
 
 sub get_Seq_by_id {
     my ($self,$id) = @_;
-   
+
     my ($fh,$length) = $self->get_stream_by_id($id);
-    
+
     if (!defined($self->format)) {
 	$self->throw("Can't create sequence - format is not defined");
     }
-   
+
     if(!$fh){
       return;
     }
     if (!defined($self->{_seqio})) {
-     
+
 	$self->{_seqio} = new Bio::SeqIO(-fh => $fh,
 					 -format => $self->format);
     } else {
-      
+
 	$self->{_seqio}->fh($fh);
     }
-    
+
     return $self->{_seqio}->next_seq;
 
 }
@@ -372,7 +375,7 @@ sub get_stream_by_id {
     
     my ($fileid,$pos,$length) = split(/\t/,$rest);
 
-    #print STDERR "OBDAIndex Found id entry $newid $fileid $pos $length:$rest\n";
+    #print STDERR "BinarySearch Found id entry $newid $fileid $pos $length:$rest\n";
 
     if (!$newid) {
       return;
@@ -616,21 +619,22 @@ sub find_entry {
  }   
 
 
-=head2 make_index
+=head2 build_index
 
- Title   : make_index
- Usage   : $obj->make_index($newval)
+ Title   : build_index
+ Usage   : $obj->build_index($newval)
  Function: 
  Example : 
- Returns : value of make_index
+ Returns : value of build_index
  Args    : newvalue (optional)
 
 
 =cut
 
-sub make_index {
-    my ($self,$dbname,@files) = @_;;
-    
+sub build_index {
+    my ($self,@files) = @_;
+    $self->write_flag or $self->throw('Cannot build index unless -write_flag is true');
+
     my $rootdir = $self->index_directory;
 
     if (!defined($rootdir)) {
@@ -644,10 +648,6 @@ sub make_index {
 	$self->throw("Must enter an array of filenames to index");
     }
     
-    if (!defined($dbname)) {
-	$self->throw("Must enter an index name for your files");
-    }
-    
     my $pwd = `pwd`; chomp($pwd);
 
     foreach my $file (@files) {
@@ -659,7 +659,6 @@ sub make_index {
 	}
     }
     
-    $self->database_name($dbname);
     $self->make_indexdir($rootdir);;
     $self->make_config_file(\@files);
     
@@ -927,7 +926,7 @@ sub new_secondary_filehandle {
 
     my $indexdir = $self->index_directory;
 
-    my $secindex = $indexdir . $self->database_name . "/id_$name.index";
+    my $secindex = $indexdir . "/id_$name.index";
 
     my $fh = new FileHandle(">$secindex");
 
@@ -952,7 +951,7 @@ sub open_secondary_index {
     if (!defined($self->{_secondary_filehandle}{$name})) {
 
 	my $indexdir = $self->index_directory;
-	my $secindex = $indexdir . $self->database_name . "/id_$name.index";
+	my $secindex = $indexdir . "/id_$name.index";
 	
 	if (! -e $secindex) {
 	    $self->throw("Index is not present for namespace [$name]\n");
@@ -1056,12 +1055,10 @@ sub make_indexdir {
 	$rootdir .= "/";
     }
 
-    my $indexdir = $rootdir . $self->database_name;
+    my $indexdir = $rootdir;
 
     if (! -e $indexdir) {
 	mkdir $indexdir,0755;
-    } else {
-	$self->throw("Index directory " . $indexdir . " already exists. Exiting\n");
     }
 
 }
@@ -1084,7 +1081,7 @@ sub make_config_file {
 
     my $dir = $self->index_directory;
 
-    my $configfile = $dir . $self->database_name . "/" .CONFIG_FILE_NAME;
+    my $configfile = $dir . "/" .CONFIG_FILE_NAME;
 
     open(CON,">$configfile") || $self->throw("Can't create config file [$configfile]");
 
@@ -1157,18 +1154,16 @@ sub make_config_file {
 sub read_config_file {
     my ($self) = @_;
 
-    my $dir = $self->index_directory . $self->database_name . "/";;
+    my $dir = $self->index_directory . "/";
 
     if (! -d $dir) {
 	$self->throw("No index directory [" . $dir  . "]. Can't read ".  CONFIG_FILE_NAME);
     }
-    
+
     my $configfile = $dir . CONFIG_FILE_NAME;
-    
-    if (! -e $configfile) {
-	$self->throw("No config file [$configfile]. Can't read namespace");
-    }
-    
+
+    return unless -e $configfile;
+
     open(CON,"<$configfile") || $self->throw("Can't open configfile [$configfile]");
 
     # First line must be type
@@ -1236,7 +1231,7 @@ sub read_config_file {
     # Now check we have all that we need
 
     my @fileid_keys = keys (%{$self->{_fileid}});
-    
+
     if (!(@fileid_keys)) {
 	$self->throw("No flatfile fileid files in config - check the index has been made correctly");
     }
@@ -1248,6 +1243,8 @@ sub read_config_file {
     if (! -e $self->primary_index_file) {
 	$self->throw("Primary index file [" . $self->primary_index_file . "] doesn't exist");
     }
+
+    1;
 }
 
 =head2 get_fileid_by_filename
@@ -1310,7 +1307,7 @@ sub get_filehandle_by_fileid {
 sub primary_index_file {
     my ($self) = @_;
 
-    return $self->index_directory . $self->database_name . "/key_" . $self->primary_namespace . ".key";
+    return $self->index_directory . "/key_" . $self->primary_namespace . ".key";
 }
 
 =head2 primary_index_filehandle
@@ -1334,29 +1331,6 @@ sub primary_index_filehandle {
     return $self->{_primary_index_handle};
 }
 
-=head2 database_name
-
- Title   : database_name
- Usage   : $obj->database_name($newval)
- Function: 
- Example : 
- Returns : value of database_name
- Args    : newvalue (optional)
-
-
-=cut
-
-
-sub database_name {
-    my ($self,$arg) = @_;
-
-    if (defined($arg)) {
-	$self->{_database_name} = $arg;
-    }
-    return $self->{_database_name};
-
-}
-
 =head2 format
 
  Title   : format
@@ -1375,6 +1349,27 @@ sub format{
       $obj->{'format'} = $value;
     }
     return $obj->{'format'};
+
+}
+
+=head2 write_flag
+
+ Title   : write_flag
+ Usage   : $obj->write_flag($newval)
+ Function: 
+ Example : 
+ Returns : value of write_flag
+ Args    : newvalue (optional)
+
+
+=cut
+
+sub write_flag{
+   my ($obj,$value) = @_;
+   if( defined $value) {
+      $obj->{'write_flag'} = $value;
+    }
+    return $obj->{'write_flag'};
 
 }
 
@@ -1586,7 +1581,7 @@ sub secondary_namespaces{
 ## swissprot and embl
 
 sub new_SWISSPROT_index {
-    my ($self,$index_dir,$dbname,@files) = @_;
+    my ($self,$index_dir,@files) = @_;
     
     my %secondary_patterns;
     
@@ -1595,18 +1590,18 @@ sub new_SWISSPROT_index {
     
     $secondary_patterns{"ID"} = $start_pattern;
 
-    my $index =  new Bio::DB::Flat::OBDAIndex(-index_dir          => $index_dir,
+    my $index =  new Bio::DB::Flat::BinarySearch(-index_dir          => $index_dir,
 					      -format             => 'swiss',
 					      -primary_pattern    => $primary_pattern,
 					      -primary_namespace  => "ACC",
 					      -start_pattern      => $start_pattern,
 					      -secondary_patterns => \%secondary_patterns);
     
-    $index->make_index($dbname,@files);
+    $index->build_index(@files);
 }
 
 sub new_EMBL_index {
-   my ($self,$index_dir,$dbname,@files) = @_;
+   my ($self,$index_dir,@files) = @_;
    
    my %secondary_patterns;
 
@@ -1616,20 +1611,20 @@ sub new_EMBL_index {
 
    $secondary_patterns{"ID"} = $start_pattern;
 
-   my $index = new Bio::DB::Flat::OBDAIndex(-index_dir          => $index_dir,
+   my $index = new Bio::DB::Flat::BinarySearch(-index_dir          => $index_dir,
 					    -format             => 'embl',
 					    -primary_pattern    => $primary_pattern,
 					    -primary_namespace  => "ACC",
 					    -start_pattern      => $start_pattern,
 					    -secondary_patterns => \%secondary_patterns);
    
-    $index->make_index($dbname,@files);
+    $index->build_index(@files);
 
    return $index;
 }
 
 sub new_FASTA_index {
-   my ($self,$index_dir,$dbname,@files) =  @_;
+   my ($self,$index_dir,@files) =  @_;
 
    my %secondary_patterns;
 
@@ -1639,49 +1634,46 @@ sub new_FASTA_index {
 
    $secondary_patterns{"ID"} = "^>\\S+ +(\\S+)";
 
-   my $index =  new Bio::DB::Flat::OBDAIndex(-index_dir          => $index_dir,
-					     -format             => 'fasta',
-					     -primary_pattern    => $primary_pattern,
-					     -primary_namespace  => "ACC",
-					     -start_pattern      => $start_pattern,
-					     -secondary_patterns => \%secondary_patterns);
+   my $index =  new Bio::DB::Flat::BinarySearch(-index_dir          => $index_dir,
+					  -format             => 'fasta',
+					  -primary_pattern    => $primary_pattern,
+					  -primary_namespace  => "ACC",
+					  -start_pattern      => $start_pattern,
+					  -secondary_patterns => \%secondary_patterns);
    
-   $index->make_index($dbname,@files);
+   $index->build_index(@files);
 
    return $index;
 
 }
 
+# return (namespace,primary_pattern,start_pattern,secondary_pattern)
+sub _guess_patterns {
+  my $self = shift;
+  my $format = shift;
+  if ($format eq 'swissprot') {
+    return ('ACC',
+	    "^AC   (\\S+)\\;",
+	    "^ID   (\\S+)",
+	    {ID  => "^ID   (\\S+)"});
+  }
 
+  if ($format eq 'embl') {
+    return ('ACC',
+	    "^AC   (\\S+)\\;",
+	    "^ID   (\\S+)",
+	    {ID  => "^ID   (\\S+)"});
+  }
+
+  if ($format eq 'fasta') {
+    return ('ACC',
+	    "^>(\\S+)",
+	    "^>",
+	    {ID => "^>\\S+ +(\\S+)"});
+  }
+
+  $self->throw("I can't handle format $format");
+
+}
 
 1;
-
-	
-
-    
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

@@ -66,7 +66,7 @@ sub parse_one_record {
   my $fh    = shift;
   my $parser =
     $self->{embl_cached_parsers}{fileno($fh)} ||= Bio::SeqIO->new(-fh=>$fh,-format=>$self->default_file_format);
-  my $seq = $parser->next_seq;
+  my $seq = $parser->next_seq or return;
   my $ids = $self->seq_to_ids($seq);
   return $ids;
 }
