@@ -1076,7 +1076,7 @@ sub object_id {
            later and more relevant, but a single object described
            the same identifier should represent the same concept
 
-           Unigene clusters usually won''t have a version, so this
+           Unigene clusters usually won't have a version, so this
            will be mostly undefined.
 
  Returns : A number
@@ -1245,7 +1245,7 @@ sub next_seq {
 	  -primary_id       => $seq_h->{nid} && $seq_h->{nid} =~ /^g\d+$/ ?
 				     substr($seq_h->{nid},1) : $seq_h->{nid},
 	  -display_id       => $seq_h->{acc},
-	  -seq_version		=> $seq_h->{version},
+	  -seq_version	    => $seq_h->{version},
 	  -alphabet         => $obj->{'_alphabet'},
 	  -namespace        => $seq_h->{acc} =~ /^NM_/ ? 'RefSeq' : 'GenBank',
 	  -authority        => $obj->authority(), # default is NCBI
