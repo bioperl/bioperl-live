@@ -45,10 +45,9 @@ the Bioperl mailing list.  Your participation is much appreciated.
 =head2 Reporting Bugs
 
 Report bugs to the Bioperl bug tracking system to help us keep track
-of the bugs and their resolution. Bug reports can be submitted via
-email or the web:
+of the bugs and their resolution. Bug reports can be submitted via the
+web:
 
-  bioperl-bugs@bioperl.org
   http://bugzilla.bioperl.org/
 
 =head1 AUTHOR
@@ -87,7 +86,7 @@ use Bio::Root::RootI;
 @ISA = qw(Bio::Root::RootI);
 
 BEGIN {
-    $Revision = q$Id$;
+    $Revision = q[$Id$];
 }
 
 # -----------------------------------------------------------------------------
