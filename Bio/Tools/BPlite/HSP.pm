@@ -245,11 +245,16 @@ sub frame {
 	    $self->warn("Specifying an invalid frame ($frame)");
 	    $frame = undef;
 	} else { 
-	    if( ($1 eq '-' && $self->subject->strand >= 0) ||
-		($1 eq '+' && $self->subject->strand <= 0) ) {
-		$self->warn("Frame ($frame) did not match strand of query match (".
-			    $self->subject->strand().")");
-	    }
+	    # JB 949 - Creates too many warnings for blastx report.
+	    #          Future enhancement to BPLite::_parseHeader needed to set report type
+	    #          so that subject strand is used with tblastn and query strand with blastx
+	    # if( ($1 eq '-' && $self->subject->strand >= 0) ||
+		# ($1 eq '+' && $self->subject->strand <= 0) ) {
+		# $self->warn("Frame ($frame) did not match strand of query match (".
+		# 	    $self->subject->strand().")");
+	    # }
+	    
+	    # Set frame to GFF [0-2]
 	    $frame = $2 - 1;
 	}
     }
