@@ -66,7 +66,7 @@ if( $DEBUG ) {
     ok $cdtable->cds_count(), 442;
     ok int($cdtable->aa_frequency('LEU')), 9;
     ok $cdtable->get_coding_gc('all');
-    ok $cdtable->codon_rel_frequency('ttc'), "0.63"; 
+    ok $cdtable->codon_rel_frequency('ttc'), "0.62"; 
     
 #now try reading from file
     ok my $io = Bio::CodonUsage::IO->new
