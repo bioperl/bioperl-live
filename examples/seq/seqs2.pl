@@ -7,15 +7,15 @@
 #               -- how to screen a set of sequences given a list
 #                  of sequence IDs.
 #               -- write each sequence to a separate file.
-# AUTHOR   : Steve Chervitz (sac@bioperl.org)
+# AUTHOR   : Steve Chervitz <sac@bioperl.org>
 # CREATED  : 10 Apr 1998
 # REVISION : $Id$
 # USAGE    : seqs2.pl -h
 # EXAMPLES : seqs2.pl -eg
 #
 # INSTALLATION: 
-#    Set the require "seqtools.pl" to point to the proper location
-#    of the seqtools.pl file
+#    Change require "seqtools.pl" to point to the proper location
+#    of the seqtools.pl file within your system.
 #
 # There are many other possible things you can do like
 # sorting the sequences, collecting stats, further editing,
@@ -28,10 +28,10 @@
 # SEE ALSO : seqs1.pl, seqs3.pl
 #---------------------------------------------------------------------------
 
-# Using seqtools.pl in the examples/blast distribution directory:
-require "seqtools.pl"; 
-# Proper path to seqtools.pl after you install it in your system:
-#require "/home/steve/perl/bioperl/examples/seqio/seqtools.pl";
+# Using seqtools.pl in the examples/seq distribution directory.
+# If you install this script on your system, modify this require
+# statement to have the absolute path to seqtools.pl
+require "seqtools.pl";
 
 use vars qw($VERSION $DESC $opt_write_files);
 
