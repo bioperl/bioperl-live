@@ -120,7 +120,7 @@ use FileHandle;
 sub _initialize {
   my($self,@args) = @_;
 
-  my $make = $self->SUPER::_initialize;
+  my $make = $self->SUPER::_initialize(@args);
    
   my ($file,$fh) = $self->_rearrange([qw(
 					 FILE
@@ -436,7 +436,7 @@ sub write_seq {
    $self->_write_line_swissprot_regex("DE   ","DE   ",$seq->desc(),"\\s\+\|\$",80);
 
    #Gene name
-   if ($seq->annotation->can('gene_name')) {
+   if ($seq->annotation->can('gene_name') && $seq->annotation->gene_name) {
        $self->_print("GN   ",$seq->annotation->gene_name,"\n");
    }
    
@@ -451,6 +451,10 @@ sub write_seq {
         if (my $common = $spec->common_name) {
             $OS .= " ($common).";
         }
+	if ($class[$#class] =~ /viruses/i) { # different OS / OC syntax
+	  $OS = $spec->common_name;          # for viruses LP 09/16/2000
+	  unshift @class, $species;
+	}
         $self->_print( "OS   $OS\n");
         my $OC = join('; ', reverse(@class)) .'.';
         $self->_write_line_swissprot_regex("OC   ","OC   ",$OC,"\; \|\$",80);
@@ -577,7 +581,7 @@ sub write_seq {
    for ($i = 0; $i < length($str); $i += 10) {
        $self->_print( substr($str,$i,10), " ");
        $linepos += 11;
-       if( ($i+10)%60 == 0 ) {
+       if( ($i+10)%60 == 0 && (($i+10) < length($str))) {
 	   $self->_print( "\n     ");
       }
    }
@@ -771,23 +775,27 @@ sub _read_swissprot_Species {
     my $org;
 
     $_ = $$buffer;
-    my( $sub_species, $species, $genus, $common, @class );
+    my( $sub_species, $species, $genus, $common, @class, $osline );
     while (defined( $_ ||= $self->_readline )) {
-        if (/^OS\s+(\S+)(?:\s+([^\(]\S*))?(?:\s+([^\(]\S*))?(?:\s+\((.*)\))?/) {
-            $genus   = $1;
-	    if ($2) {
-		$species = $2;
+        if (/^OS\s+((\S+)(?:\s+([^\(]\S*))?(?:\s+([^\(]\S*))?(?:\s+\((.*)\))?.*)/) {
+	    $osline = $1;
+            $genus   = $2;
+	    if ($3) {
+		$species = $3;
 		# remove trailing dot -- TrEMBL has that. HL 05/11/2000
 		# forgot to escape the dot. LP 07/30/2000
 		$species =~ s/\.$//;
 	    } else {
 		$species = "sp.";
 	    }
-	    $sub_species = $3 if $3;
-            $common      = $4 if $4;
+	    $sub_species = $4 if $4;
+            $common      = $5 if $5;
         }
         elsif (s/^OC\s+//) {
-            push(@class, split /[\;\s\.]+/);
+            push(@class, split /[\;\.]\s*/);
+	    if ($class[0] =~ /viruses/i) { # viruses have different OS / OC syntax
+	      $common = $osline;           # LP 09/16/2000
+	    }
         }
 	elsif (/^OG\s+(.*)/) {
 	    $org = $1;
@@ -804,11 +812,13 @@ sub _read_swissprot_Species {
     # Don't make a species object if it is "Unknown" or "None"
     return if $genus =~ /^(Unknown|None)$/i;
 
-    # Bio::Species array needs array in Species -> Kingdom direction
-    if ($class[$#class] eq $genus) {
+    if ($class[0] !~ /viruses/i) { # different OS / OC syntax for viruses
+      # Bio::Species array needs array in Species -> Kingdom direction
+      if ($class[$#class] eq $genus) {
         push( @class, $species );
-    } else {
+      } else {
         push( @class, $genus, $species );
+      }
     }
     @class = reverse @class;
     
