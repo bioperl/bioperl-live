@@ -53,40 +53,46 @@ my $verbose = 0;
 $verbose = 1 if $DEBUG;
 
 ok my $tool = Bio::WebAgent->new(-verbose =>$verbose);
-
-ok $tool->sleep;
-ok $tool->delay(1), 1;
-ok $tool->sleep;
+if( $DEBUG ) { 
+    ok $tool->sleep;
+    ok $tool->delay(1), 1;
+    ok $tool->sleep;
 
 #get CUT from web
-ok my $db = Bio::DB::CUTG->new();
-my $cdtable =  $db->get_request(-sp =>'Pan troglodytes');
-exit unless $cdtable;
+    ok my $db = Bio::DB::CUTG->new();
+    my $cdtable =  $db->get_request(-sp =>'Pan troglodytes');
+    exit unless $cdtable;
 #tests for Table.pm
-ok $cdtable->cds_count(), 401;
-ok int($cdtable->aa_frequency('LEU')), 9;
-ok $cdtable->get_coding_gc('all');
-ok $cdtable->codon_rel_frequency('ttc'), "0.68"; 
-
+    ok $cdtable->cds_count(), 401;
+    ok int($cdtable->aa_frequency('LEU')), 9;
+    ok $cdtable->get_coding_gc('all');
+    ok $cdtable->codon_rel_frequency('ttc'), "0.68"; 
+    
 #now try reading from file
-ok my $io = Bio::CodonUsage::IO->new
-       (-file=> Bio::Root::IO->catfile("t", "data", "MmCT"));
-ok  my $cut2 = $io->next_data();
-ok int($cut2->aa_frequency('LEU')), 10;
-
+    ok my $io = Bio::CodonUsage::IO->new
+	(-file=> Bio::Root::IO->catfile("t", "data", "MmCT"));
+    ok  my $cut2 = $io->next_data();
+    ok int($cut2->aa_frequency('LEU')), 10;
+    
 #now try making a user defined CUT from a sequence
-
-ok my $seqobj = Bio::SeqIO->new (-file=>Bio::Root::IO->catfile("t", "data", 
-								"HUMBETGLOA.fa"),
-							-format => 'fasta')->next_seq;
-ok $seqobj->subseq(10,20), 'TTGACACCACT';
-ok my $codcont_Ref = Bio::Tools::SeqStats->count_codons($seqobj);
-ok $codcont_Ref->{'TGA'}, 16;
-ok my $cut = Bio::CodonUsage::Table->new(-data=>$codcont_Ref);
-ok $cut->codon_rel_frequency('CTG'), 0.18;
-ok $cut->codon_abs_frequency('CTG'), 2.6;
-ok $cut->codon_count('CTG'), 26;
-ok $cut->get_coding_gc(1), "39.70";
+    
+    ok my $seqobj = Bio::SeqIO->new (-file=>
+				     Bio::Root::IO->catfile("t", "data", 
+							    "HUMBETGLOA.fa"),
+				     -format => 'fasta')->next_seq;
+    ok $seqobj->subseq(10,20), 'TTGACACCACT';
+    ok my $codcont_Ref = Bio::Tools::SeqStats->count_codons($seqobj);
+    ok $codcont_Ref->{'TGA'}, 16;
+    ok my $cut = Bio::CodonUsage::Table->new(-data=>$codcont_Ref);
+    ok $cut->codon_rel_frequency('CTG'), 0.18;
+    ok $cut->codon_abs_frequency('CTG'), 2.6;
+    ok $cut->codon_count('CTG'), 26;
+    ok $cut->get_coding_gc(1), "39.70";
+} else { 
+   for ( $Test::ntest..$NUMTESTS) {
+	skip("Skipping tests which require remote servers - set env variable BIOPERLDEBUG to test",1);
+    }
+}
 
 
 

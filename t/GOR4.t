@@ -60,28 +60,32 @@ $verbose = 1 if $DEBUG;
 
 ok my $tool = Bio::WebAgent->new(-verbose =>$verbose);
 
-
-
 my $seq = Bio::Seq->new(-seq => 'MSADQRWRQDSQDSFGDSFDGDPPPPPPPPFGDSFGDGFSDRSRQDQRS',
                         -display_id => 'test2',
                        );
 ok $tool = Bio::Tools::Analysis::Protein::GOR4->new( -seq=>$seq->primary_seq,
                                                    );
-ok $tool->run ();
-exit if $tool->status eq 'TERMINATED_BY_ERROR';
-ok my $raw = $tool->result('');
-ok my $parsed = $tool->result('parsed');
-ok ($parsed->[0]{'coil'}, '0.999');
-my @res = $tool->result('Bio::SeqFeatureI');
-if (scalar @res > 0) {
-    ok 1;
-} else {
-    skip('No network access - could not connect to GOR4 server', 1);
-}
-ok my $meta = $tool->result('meta');
-
-if (!$METAERROR) { #if Bio::Seq::Meta::Array available
-
+if( $DEBUG ) {
+    ok $tool->run ();
+    exit if $tool->status eq 'TERMINATED_BY_ERROR';
+    ok my $raw = $tool->result('');
+    ok my $parsed = $tool->result('parsed');
+    ok ($parsed->[0]{'coil'}, '0.999');
+    my @res = $tool->result('Bio::SeqFeatureI');
+    if (scalar @res > 0) {
+	ok 1;
+    } else {
+	skip('No network access - could not connect to GOR4 server', 1);
+    }
+    ok my $meta = $tool->result('meta');
+    
+    if (!$METAERROR) { #if Bio::Seq::Meta::Array available
+	
 	ok ( $meta->named_submeta_text('GOR4_coil',1,2), '0.999 0.999');
 	ok ( $meta->seq, 'MSADQRWRQDSQDSFGDSFDGDPPPPPPPPFGDSFGDGFSDRSRQDQRS');
-	}
+    }
+} else {
+    for ( $Test::ntest..$NUMTESTS) {
+	skip("Skipping tests which require remote servers - set env variable BIOPERLDEBUG to test",1);
+    }
+}

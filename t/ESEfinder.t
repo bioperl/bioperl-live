@@ -68,19 +68,25 @@ my $seq = Bio::PrimarySeq->new(-id=>'bioperl',
                                -seq=>'atcgatgctatgcatgctatgggtgtgattcgatgcgactgttcatcgtagccccccccccccccctttt');
 
 ok $tool = Bio::Tools::Analysis::DNA::ESEfinder->new(-verbose =>$verbose, -seq => $seq);
-ok $tool->run ( );
-ok my @res = $tool->result('Bio::SeqFeatureI');
-ok my $raw = $tool->result('');
-ok my $parsed = $tool->result('parsed');
-ok my $meta = $tool->result('all');
-ok ($parsed->[0][1], 41);
-if (scalar @res > 0) {
-    ok 1;
-} else {
-    skip('No network access - could not connect to ESEfinder server', 1);
-}
-if (!$METAERROR) {              #if Bio::Seq::Meta::Array available
-    ok($meta->{'seq'}, "atcgatgctatgcatgctatgggtgtgattcgatgcgactgttcatcgtagccccccccccccccctttt" );
-    ok( $meta->named_submeta_text('ESEfinder_SRp55', 1,2), "-3.221149 -1.602223");
-    ok ($meta->seq, "atcgatgctatgcatgctatgggtgtgattcgatgcgactgttcatcgtagccccccccccccccctttt" );
+if( $DEBUG ) {
+    ok $tool->run ( );
+    ok my @res = $tool->result('Bio::SeqFeatureI');
+    ok my $raw = $tool->result('');
+    ok my $parsed = $tool->result('parsed');
+    ok my $meta = $tool->result('all');
+    ok ($parsed->[0][1], 41);
+    if (scalar @res > 0) {
+	ok 1;
+    } else {
+	skip('No network access - could not connect to ESEfinder server', 1);
+    }
+    if (!$METAERROR) {              #if Bio::Seq::Meta::Array available
+	ok($meta->{'seq'}, "atcgatgctatgcatgctatgggtgtgattcgatgcgactgttcatcgtagccccccccccccccctttt" );
+	ok( $meta->named_submeta_text('ESEfinder_SRp55', 1,2), "-3.221149 -1.602223");
+	ok ($meta->seq, "atcgatgctatgcatgctatgggtgtgattcgatgcgactgttcatcgtagccccccccccccccctttt" );
+    }
+} else { 
+   for ( $Test::ntest..$NUMTESTS) {
+	skip("Skipping tests which require remote servers - set env variable BIOPERLDEBUG to test",1);
+    }
 }

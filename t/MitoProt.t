@@ -52,16 +52,20 @@ $verbose = 1 if $DEBUG;
 
 ok my $tool = Bio::WebAgent->new(-verbose =>$verbose);
 
-
-
 my $seq = Bio::PrimarySeq->new(-seq => 'MSADQRWRQDSQDSFGDSFDGDSFFGSDFDGDS'.
                                'DFGSDFGSDGDFGSDFGDSFGDGFSDRSRQDQRS',
                                -display_id => 'test2');
 
 ok $tool = Bio::Tools::Analysis::Protein::Mitoprot->new( -seq=>$seq);
-ok $tool->run ();
-exit if $tool->status eq 'TERMINATED_BY_ERROR';
-ok my $raw = $tool->result('');
-ok my $parsed = $tool->result('parsed');
-ok ($parsed->{'charge'}, -13);
-ok my @res = $tool->result('Bio::SeqFeatureI');
+if( $DEBUG ) { 
+    ok $tool->run ();
+    exit if $tool->status eq 'TERMINATED_BY_ERROR';
+    ok my $raw = $tool->result('');
+    ok my $parsed = $tool->result('parsed');
+    ok ($parsed->{'charge'}, -13);
+    ok my @res = $tool->result('Bio::SeqFeatureI');
+} else { 
+    for ( $Test::ntest..$NUMTESTS) {
+	skip("Skipping tests which require remote servers - set env variable BIOPERLDEBUG to test",1);
+    }
+}

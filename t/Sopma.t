@@ -67,21 +67,27 @@ my $seq = Bio::PrimarySeq->new(-seq => 'MSADQRWRQDSQDSFGDSFDGDPPPPPPPPFGDSFGDGFS
 						);
 ok $tool = Bio::Tools::Analysis::Protein::Sopma->new( -seq=>$seq,
                                                       -window_width => 15);
-ok $tool->run ();
-exit if $tool->status eq 'TERMINATED_BY_ERROR';
-ok my $raw = $tool->result('');
-ok my $parsed = $tool->result('parsed');
-ok ($parsed->[0]{'helix'}, '104');
-ok my @res = $tool->result('Bio::SeqFeatureI');
-ok my $meta = $tool->result('meta', "ww15");
-
-ok $tool->window_width(21);
-ok $tool->clear();
-ok $tool->run;
-ok my $meta2 = $tool->result('meta', "ww21");
-if (!$METAERROR) { #if Bio::Seq::Meta::Array available
-    #meta sequence contains data...
-    #but not available thru method call...??
-    ok ($meta->named_submeta_text('Sopma_helix|ww15',1,2), '104 195');
-    ok ($meta->seq, 'MSADQRWRQDSQDSFGDSFDGDPPPPPPPPFGDSFGDGFSDRSRQDQRS');
+if( $DEBUG ) { 
+    ok $tool->run ();
+    exit if $tool->status eq 'TERMINATED_BY_ERROR';
+    ok my $raw = $tool->result('');
+    ok my $parsed = $tool->result('parsed');
+    ok ($parsed->[0]{'helix'}, '104');
+    ok my @res = $tool->result('Bio::SeqFeatureI');
+    ok my $meta = $tool->result('meta', "ww15");
+    
+    ok $tool->window_width(21);
+    ok $tool->clear();
+    ok $tool->run;
+    ok my $meta2 = $tool->result('meta', "ww21");
+    if (!$METAERROR) { #if Bio::Seq::Meta::Array available
+	#meta sequence contains data...
+	#but not available thru method call...??
+	ok ($meta->named_submeta_text('Sopma_helix|ww15',1,2), '104 195');
+	ok ($meta->seq, 'MSADQRWRQDSQDSFGDSFDGDPPPPPPPPFGDSFGDGFSDRSRQDQRS');
+    }
+} else { 
+   for ( $Test::ntest..$NUMTESTS) {
+	skip("Skipping tests which require remote servers - set env variable BIOPERLDEBUG to test",1);
+    }
 }

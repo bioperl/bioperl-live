@@ -67,52 +67,57 @@ my $seq = Bio::PrimarySeq->new(-seq        => 'MSADQRWRQDSQDSFGDSFDGDPPPPPPPPFGD
 						       -display_id => 'test2');
 
 ok $tool = Bio::Tools::Analysis::Protein::Domcut->new( -seq=>$seq);
-ok $tool->run ();
-exit if $tool->status eq 'TERMINATED_BY_ERROR';
-ok my $raw    = $tool->result('');
-ok my $parsed = $tool->result('parsed');
-ok ($parsed->[23]{'score'}, '-0.209');
-my @res       = $tool->result('Bio::SeqFeatureI');
-if (scalar @res > 0) {
-    ok 1;
-} else {
-    skip('No network access - could not connect to Domcut server', 1);
-}
-ok my $meta = $tool->result('meta');
-
-if (!$METAERROR) { #if Bio::Seq::Meta::Array available
-    ok($meta->named_submeta_text('Domcut', 1,2), "0.068 0.053");
-    ok ($meta->seq, "MSADQRWRQDSQDSFGDSFDGDPPPPPPPPFGDSFGDGFSDRSRQPPPPPPPPPPPPPDQRS");
-}
-	
-	
+if( $DEBUG ) { 
+    ok $tool->run ();
+    exit if $tool->status eq 'TERMINATED_BY_ERROR';
+    ok my $raw    = $tool->result('');
+    ok my $parsed = $tool->result('parsed');
+    ok ($parsed->[23]{'score'}, '-0.209');
+    my @res       = $tool->result('Bio::SeqFeatureI');
+    if (scalar @res > 0) {
+	ok 1;
+    } else {
+	skip('No network access - could not connect to Domcut server', 1);
+    }
+    ok my $meta = $tool->result('meta');
+    
+    if (!$METAERROR) { #if Bio::Seq::Meta::Array available
+	ok($meta->named_submeta_text('Domcut', 1,2), "0.068 0.053");
+	ok ($meta->seq, "MSADQRWRQDSQDSFGDSFDGDPPPPPPPPFGDSFGDGFSDRSRQPPPPPPPPPPPPPDQRS");
+    }
+    
+    
 ########## test using Bio::Seq object ##############
-ok my $tool2 = Bio::WebAgent->new(-verbose =>$verbose);
+    ok my $tool2 = Bio::WebAgent->new(-verbose =>$verbose);
+    
+    ok my $seq2  = Bio::Seq->new(-seq => 'MSADQRWRQDSQDSFGDSFDGDPPPPPPPPFGDSFGDGFSDRSRQDQRS',
+				 -display_id => 'test2');
+    
+    ok $tool2 = Bio::Tools::Analysis::Protein::Domcut->new( -seq=>$seq2->primary_seq);
+    ok $tool2->run ();
+    
+    ok my $parsed2 = $tool2->result('parsed');
+    ok ($parsed2->[23]{'score'}, '-0.209');
+    
+    @res = $tool2->result('Bio::SeqFeatureI');
 
-ok my $seq2  = Bio::Seq->new(-seq => 'MSADQRWRQDSQDSFGDSFDGDPPPPPPPPFGDSFGDGFSDRSRQDQRS',
-						-display_id => 'test2');
-
-ok $tool2 = Bio::Tools::Analysis::Protein::Domcut->new( -seq=>$seq2->primary_seq);
-ok $tool2->run ();
-
-ok my $parsed2 = $tool2->result('parsed');
-ok ($parsed2->[23]{'score'}, '-0.209');
-
-@res = $tool2->result('Bio::SeqFeatureI');
-
-if (scalar @res > 0) {
-    ok 1;
-} else {
-    skip('No network access - could not connect to Domcut server', 1);
-}
-ok my $meta2 = $tool2->result('meta');
-
-if (!$METAERROR) { #if Bio::Seq::Meta::Array available
+    if (scalar @res > 0) {
+	ok 1;
+    } else {
+	skip('No network access - could not connect to Domcut server', 1);
+    }
+    ok my $meta2 = $tool2->result('meta');
+    
+    if (!$METAERROR) { #if Bio::Seq::Meta::Array available
 	ok($meta2->named_submeta_text('Domcut', 1,2), "0.068 0.053");
 	ok ($meta2->seq, "MSADQRWRQDSQDSFGDSFDGDPPPPPPPPFGDSFGDGFSDRSRQDQRS");
-	}
-ok my $seq4 = new Bio::Seq;
-ok $seq2->primary_seq($meta2);
-ok $seq2->add_SeqFeature(@res);
-ok $seq2->primary_seq->named_submeta_text('Domcut', 1,2);
-
+    }
+    ok my $seq4 = new Bio::Seq;
+    ok $seq2->primary_seq($meta2);
+    ok $seq2->add_SeqFeature(@res);
+    ok $seq2->primary_seq->named_submeta_text('Domcut', 1,2);
+} else { 
+    for ( $Test::ntest..$NUMTESTS) {
+	skip("Skipping tests which require remote servers - set env variable BIOPERLDEBUG to test",1);
+    }
+}

@@ -61,28 +61,32 @@ $verbose = 1 if $DEBUG;
 
 ok my $tool = Bio::WebAgent->new(-verbose =>$verbose);
 
-
-
 my $seq = Bio::PrimarySeq->new(-seq => 'MSADQRWRQDSQDSFGDSFDGDPPPPPPPPFGDSFGDGFSDRSRQDQRS',
                                -display_id => 'test2',
                               );
 ok $tool = Bio::Tools::Analysis::Protein::HNN->new( -seq=>$seq,
                                                   );
-ok $tool->run ();
-exit if $tool->status eq 'TERMINATED_BY_ERROR';
-ok my $raw    = $tool->result('');
-ok my $parsed = $tool->result('parsed');
-ok ($parsed->[0]{'coil'}, '1000');
-my @res       = $tool->result('Bio::SeqFeatureI');
-if (scalar @res > 0) {
-    ok 1;
-} else {
-    skip('No network access - could not connect to HNN server', 1);
-}
-ok my $meta = $tool->result('meta');
-ok my $seqobj = Bio::Seq->new(-primary_seq => $meta, display_id=>"a");
-ok $seqobj->add_SeqFeature($tool->result('Bio::SeqFeatureI'));
-if (!$METAERROR) { #if Bio::Seq::Meta::Array available
-    ok ( $meta->named_submeta_text('HNN_helix',1,2), '0 111');
-    ok ( $meta->seq, 'MSADQRWRQDSQDSFGDSFDGDPPPPPPPPFGDSFGDGFSDRSRQDQRS');
+if( $DEBUG ) {
+    ok $tool->run ();
+    exit if $tool->status eq 'TERMINATED_BY_ERROR';
+    ok my $raw    = $tool->result('');
+    ok my $parsed = $tool->result('parsed');
+    ok ($parsed->[0]{'coil'}, '1000');
+    my @res       = $tool->result('Bio::SeqFeatureI');
+    if (scalar @res > 0) {
+	ok 1;
+    } else {
+	skip('No network access - could not connect to HNN server', 1);
+    }
+    ok my $meta = $tool->result('meta');
+    ok my $seqobj = Bio::Seq->new(-primary_seq => $meta, display_id=>"a");
+    ok $seqobj->add_SeqFeature($tool->result('Bio::SeqFeatureI'));
+    if (!$METAERROR) { #if Bio::Seq::Meta::Array available
+	ok ( $meta->named_submeta_text('HNN_helix',1,2), '0 111');
+	ok ( $meta->seq, 'MSADQRWRQDSQDSFGDSFDGDPPPPPPPPFGDSFGDGFSDRSRQDQRS');
+    }
+} else { 
+    for ( $Test::ntest..$NUMTESTS) {
+	skip("Skipping tests which require remote servers - set env variable BIOPERLDEBUG to test",1);
+    }
 }
