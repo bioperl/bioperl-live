@@ -429,10 +429,10 @@ sub found_again { shift->throw_not_implemented }
 
 =head2 overlap
 
- Usage     : $blast_object->overlap( [integer] );
+ Usage     : $hit_object->overlap( [integer] );
  Purpose   : Gets/Sets the allowable amount overlap between different HSP sequences.
- Example   : $blast_object->overlap(5);
-           : $overlap = $blast_object->overlap;
+ Example   : $hit_object->overlap(5);
+           : $overlap = $hit_object->overlap;
  Returns   : Integer.
  Argument  : integer.
  Throws    : n/a
@@ -585,6 +585,124 @@ sub each_accession_number{
    my ($self,$value) = @_;
    $self->throw_not_implemented();
 }
+
+
+=head2 tiled_hsps
+
+ Usage     : $hit_object->tiled_hsps( [integer] );
+ Purpose   : Gets/Sets an indicator for whether or not the HSPs in this Hit 
+           : have been tiled.
+           : Methods that rely on HSPs being tiled should check this
+           : and then call SearchUtils::tile_hsps() if not.
+ Example   : $hit_object->tiled_hsps(1);
+           : if( $hit_object->tiled_hsps ) { # do something }
+ Returns   : Boolean (1 or 0) 
+ Argument  : integer (optional)
+ Throws    : n/a
+
+=cut
+
+sub tiled_hsps { shift->throw_not_implemented }
+
+
+=head2 strand
+
+ Usage     : $sbjct->strand( [seq_type] );
+ Purpose   : Gets the strand(s) for the query, sbjct, or both sequences
+           : in the best HSP of the BlastHit object after HSP tiling.
+           : Only valid for BLASTN, TBLASTX, BLASTX-query, TBLASTN-hit.
+ Example   : $qstrand = $sbjct->strand('query');
+           : $sstrand = $sbjct->strand('hit');
+           : ($qstrand, $sstrand) = $sbjct->strand();
+ Returns   : scalar context: integer '1', '-1', or '0'
+           : array context without args: list of two strings (queryStrand, sbjctStrand)
+           : Array context can be "induced" by providing an argument of 'list' or 'array'.
+ Argument  : In scalar context: seq_type = 'query' or 'hit' or 'sbjct' (default = 'query')
+             ('sbjct' is synonymous with 'hit')
+ Throws    : n/a
+ Comments  : This method requires that all HSPs be tiled. If they have not
+           : already been tiled, they will be tiled first automatically..
+           : If you don't want the tiled data, iterate through each HSP
+           : calling strand() on each (use hsps() to get all HSPs).
+           :
+           : Formerly (prior to 10/21/02), this method would return the
+           : string "-1/1" for hits with HSPs on both strands.
+           : However, now that strand and frame is properly being accounted
+           : for during HSP tiling, it makes more sense for strand()
+           : to return the strand data for the best HSP after tiling.
+           :
+           : If you really want to know about hits on opposite strands,
+           : you should be iterating through the HSPs using methods on the
+           : HSP objects.
+           :
+           : A possible use case where knowing whether a hit has HSPs 
+           : on both strands would be when filtering via SearchIO for hits with 
+           : this property. However, in this case it would be better to have a
+           : dedicated method such as $hit->hsps_on_both_strands(). Similarly
+           : for frame. This could be provided if there is interest.
+
+See Also   : B<Bio::Search::HSP::BlastHSP::strand>()
+
+=cut
+
+#---------'
+sub strand { shift->throw_not_implemented }
+
+
+=head2 frame
+
+ Usage     : $hit_object->frame();
+ Purpose   : Gets the reading frame for the best HSP after HSP tiling.
+           : This is only valid for BLASTX and TBLASTN/X type reports.
+ Example   : $frame = $hit_object->frame();
+ Returns   : Integer (-2 .. +2)
+ Argument  : n/a
+ Throws    : Exception if HSPs have not been set.
+ Comments  : This method requires that all HSPs be tiled. If they have not
+           : already been tiled, they will be tiled first automatically..
+           : If you don't want the tiled data, iterate through each HSP
+           : calling frame() on each (use hsps() to get all HSPs).
+
+See Also   : L<hsps()|hsps>
+
+=cut
+
+#---------'
+sub frame { shift->throw_not_implemented }
+
+
+=head2 matches
+
+ Usage     : $hit_object->matches( [class] );
+ Purpose   : Get the total number of identical or conserved matches 
+           : (or both) across all HSPs.
+           : (Note: 'conservative' matches are indicated as 'positives' 
+	   :         in BLAST reports.)
+ Example   : ($id,$cons) = $hit_object->matches(); # no argument
+           : $id = $hit_object->matches('id');
+           : $cons = $hit_object->matches('cons'); 
+ Returns   : Integer or a 2-element array of integers 
+ Argument  : class = 'id' | 'cons' OR none. 
+           : If no argument is provided, both identical and conservative 
+           : numbers are returned in a two element list.
+           : (Other terms can be used to refer to the conservative
+           :  matches, e.g., 'positive'. All that is checked is whether or
+           :  not the supplied string starts with 'id'. If not, the 
+           : conservative matches are returned.)
+ Throws    : Exception if the requested data cannot be obtained.
+ Comments  : This method requires that all HSPs be tiled. If there is more than one
+           : HSP and they have not already been tiled, they will be tiled first automatically..
+           :
+           : If you need data for each HSP, use hsps() and then interate
+           : through the HSP objects.
+           : Does not rely on wantarray to return a list. Only checks for
+           : the presence of an argument (no arg = return list).
+
+See Also   : L<Bio::Search::HSP::GenericHSP::matches()|Bio::Search::HSP::GenericHSP>, L<hsps()|hsps>
+
+=cut
+
+sub matches { shift->throw_not_implemented }
 
 1;
 
