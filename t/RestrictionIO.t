@@ -30,10 +30,8 @@ ok(1);
 # default enz set
 #
 ok my $in  = Bio::Restriction::IO->new();
-#print Dumper $in;
 ok my $renzs = $in->read;
 ok $renzs->each_enzyme, 530;
-#print Dumper $renzs;
 
 ok my $e = $renzs->get_enzyme('AccI');
 ok $e->name, 'AccI';
@@ -41,13 +39,7 @@ ok $e->name, 'AccI';
 
 ok my $out  = Bio::Restriction::IO->new(-format=>'base',  -file=> ">/tmp/r");
 #$out->write($renzs);
-
 #map {print $_->name, "\t", $_->site, "\t", $_->overhang, "\n"} $renzs->each_enzyme;
-
-#my @l = $renzs->available_list;
-#ok @l, 530;
-#ok $renzs->blunt_enzymes;
-#ok $renzs->blunt_enzymes->each_enzyme, 1;
 
 
 
@@ -58,12 +50,8 @@ ok my $out  = Bio::Restriction::IO->new(-format=>'base',  -file=> ">/tmp/r");
 ok $in  = Bio::Restriction::IO->new
     (-format=> 31, -verbose => 0,
      -file => Bio::Root::IO->catfile("t","data","rebase.withrefm"));
-#     -file => Bio::Root::IO->catfile("t","data","rebase_link_withrefm.txt"));
-
-#print Dumper $in;
 ok $renzs = $in->read;
 ok $renzs->each_enzyme, 17;
-#print Dumper $renzs;
 
 
 
@@ -76,13 +64,9 @@ ok $renzs->each_enzyme, 17;
 ok $in  = Bio::Restriction::IO->new
     (-format=> 8, -verbose => 0,
      -file => Bio::Root::IO->catfile("t","data","rebase.itype2"));
-#     -file => Bio::Root::IO->catfile("t","data","rebase_link_withrefm.txt"));
 
-#print Dumper $in;
 ok $renzs = $in->read;
 ok $renzs->each_enzyme, 19;
-#print Dumper $renzs;
-#print $renzs->get_enzyme('AacI')->cuts_after, "\n";
 
 ok  $out  = Bio::Restriction::IO->new(-format=>'base');
 #$out->write($renzs);

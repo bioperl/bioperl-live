@@ -5,7 +5,7 @@
 # written by Rob Edwards & Heikki Lehvaslaiho
 
 use strict;
-use constant NUMTESTS => 84;
+use constant NUMTESTS => 101;
 
 BEGIN {
     eval { require Test; };
@@ -17,15 +17,13 @@ BEGIN {
     plan tests => NUMTESTS;
 }
 
+
 use Bio::Restriction::Enzyme;
 use Bio::Restriction::Enzyme::MultiCut;
 use Bio::Restriction::Enzyme::MultiSite;
-
-use Bio::Root::IO;
 use Bio::Restriction::EnzymeCollection;
-
-
-#use Bio::Restriction::Analysis;
+use Bio::Restriction::Analysis;
+use Bio::Root::IO;
 use Bio::SeqIO;
 use Data::Dumper;
 ok(1);
@@ -39,14 +37,11 @@ ok(1);
 my ($re, $seq, $iso, %meth, $microbe, $source, @vendors, @refs, $name);
 ok $re=new Bio::Restriction::Enzyme(-enzyme=>'EcoRI', -site=>'G^AATTC');
 ok $re->isa('Bio::Restriction::EnzymeI');
-#exit;
 ok $re->cut, 1;
 ok ! $re->cut(0);
 ok $re->complementary_cut, 0;
 $re->cut(1);
 
-#print Dumper $re;
-#exit;
 ok $re->complementary_cut,5;
 ok $re->site,'G^AATTC';
 ok $seq=$re->seq;
@@ -54,17 +49,13 @@ ok $seq->seq, 'GAATTC';
 ok $re->string,'GAATTC';
 ok $re->revcom, 'GAATTC';
 ok $re->recognition_length, 6;
-ok $re->non_ambiguous_length, 6;
 ok $re->cutter, 6;
 ok $re->palindromic, 1;
-#ok $re->is_blunt, 0;
 ok $re->overhang, "5'";
 ok $re->overhang_seq, 'AATT';
 ok $re->is_ambiguous, 0;
 
 ok $re->compatible_ends($re);
-#print Dumper $re;
-
 
 ok $re->isoschizomers('BamHI', 'AvaI'); # not really true :)
 ok my @isos=$re->isoschizomers, 2;
@@ -133,8 +124,6 @@ ok $re2->others($re);
 
 ok $re->others, 1;
 
-#print Dumper $re, $re2;
-
 #
 # Bio::Restriction::Enzyme::MultiCut
 #
@@ -155,10 +144,6 @@ ok $re->others($re2);
 ok $re2->others($re);
 
 
-#print Dumper $re, $re2;
-#exit;
-
-
 #
 # Bio::Restriction::EnzymeCollection
 #
@@ -170,6 +155,9 @@ ok $collection->each_enzyme, 0;
 # default set
 ok $collection = new Bio::Restriction::EnzymeCollection;
 ok $collection->each_enzyme, 530;
+ok $collection = new Bio::Restriction::EnzymeCollection;
+ok $collection->each_enzyme, 530;
+
 ok $enz=$collection->get_enzyme('AclI');
 ok $enz->isa('Bio::Restriction::Enzyme');
 ok my @enzymes=$collection->available_list, 530;
@@ -196,32 +184,34 @@ ok $new_set->each_enzyme, 10;
 # Restriction::Analysis
 #
 
-my $enzymes;
+
 my $seqio=new Bio::SeqIO(-file=>Bio::Root::IO->catfile("t","data","dna1.fa"),
                          -format=>'fasta');
 $seq=$seqio->next_seq;
-my ($anal, $sizes, $cuts, $enzobj);
 
-#ok $anal=Bio::Restriction::Analysis->new
-#    (-seq=>$seq,
-#     -collection => Bio::Restriction::EnzymeCollection->new);
+ok my $ra=Bio::Restriction::Analysis->new(-seq=>$seq);
+ok my $uniq = $ra->cut->unique_cutters;
 
-#exit;
+ok $ra->cut->unique_cutters->each_enzyme, 42, 'wrong number of unique cutters';
+ok $ra->cut->unique_cutters->each_enzyme, 42, 'wrong number of unique cutters';
+#ok $ra->cut('original')->unique_cutters->each_enzyme, 42, 'wrong number of unique cutters';
 
-#ok $enzymes=$anal->unique_cutters;
-#ok defined $enzymes, 1, 'could not find any unique cutters';
-#$enz=$$enzymes[0];
-#ok defined $anal->fragments($enz), 1, "Couldn't find a fragment for $enz";
-#ok $enzymes=$anal->zero_cutters;
-#ok defined $enzymes, 1, 'could not find any zero cutters';
-#ok $sizes=$anal->sizes($enz);
-#ok defined $sizes, 1, 'could not find any sizes';
-#ok $cuts=$anal->cuts_by_enzyme($enz);
-#ok defined $cuts, 1, 'could not find any cuts';
-#ok $cuts=$anal->cuts_by_frequency(1);
-#ok $$cuts[0] eq $enz; # these should be the same!
-#ok $enzymes=$anal->all_cutters;
-#ok defined $enzymes, 1, 'could not find all cutters';
-#ok $enzobj=$anal->enzyme($enz);
-#ok $enzobj->name eq $enz;
-#ok ref($enzobj) eq "Bio::Restriction::Enzyme";
+ok $ra->fragments('RsaI'), 2;
+ok $ra->max_cuts, 3;
+ok $ra->zero_cutters->each_enzyme, 476, 'wrong number of zero cutters';
+ok $ra->cutters->each_enzyme, 54, 'wrong number of zero cutters';
+ok $ra->cutters(3)->each_enzyme, 8, 'wrong number of 3x cutters';
+ok $ra->fragments('MseI'), 4;
+ok $ra->cuts_by_enzyme('MseI'), 3;
+
+#my $z = $ra->cutters(3);
+#my $out=Bio::Restriction::IO->new;
+#$out->write($z);
+
+
+ok $ra->fragments('PspEI'), 2;
+ok $ra->cuts_by_enzyme('PspEI'), 1;
+ok $ra->cuts_by_enzyme('XxxI'), undef;
+
+ok my @ss = $ra->sizes('PspEI'), 2;
+ok $ss[0] + $ss[1], $seq->length;

@@ -16,44 +16,32 @@ Bio::Restriction::EnzymeCollection - Set of restriction endonucleases
 
 =head1 SYNOPSIS
 
-  # parse a list of restriction enzymes and generate a restriction
-  # enzyme collection note that you do not need to use this to do a
-  # "quick" digest of a sequence ->
-  # Bio::Restriction::Analysis has many
-  # enzymes built in however, this allows you to extend the list using
-  # (for example, rebase). See below.
-
   use Bio::Restriction::EnzymeCollection;
 
-  # parse the rebase file. At the moment only this format is supported!
-  my $collection = Bio::Restriction::EnzymeCollection->
-     new(-file=>"data/rebase_link_withrefm.txt",
-         -format=>31);
+  # create a set with a default enzymes
+  my $collection = Bio::Restriction::EnzymeCollection;
+
+
+  print "No of enzymes: ", scalar $collection->each_enzyme, "\n";
 
   # find something about a particular enzyme
   my $enz=$collection->get_enzyme('EcoRI');
 
-  # find all the enzymes we know about
-  my $enzymes=$collection->all_enzymes;
-  print "Here are the enzymes\n", join " ", @$enzymes, "\n";
-
   # and we know about some special types of enzymes.
-  # all of these are references to arrays:
-  my $blunt=$collection->blunt_enzymes; # enzymes without an overhang
+  my $blunt_collection = $collection->blunt_enzymes; # enzymes without an overhang
 
-  # enzymes that recognize 6bp sequences (e.g. PspN4I recognises GGN^NCC)
+  # see 'CUSTOM COLLECTIONS' below  for more options
+
+  # the most common selection criteria is how many times the enzymes
+  # cuts. This can be estimated using the length and specificity of
+  # the recognition site
+
+  # enzymes that have euivalent of  6bp recognition sequence
   my $six_cutters=$collection->cutters(6);
 
-  # enzymes that recognize 6bp sequences without redundancy. Would not
-  # include PspN41
-  my $non_ambig=$collection->non_ambiguous_cutters(6);
+  # all rare cutters
+  my $rare_cutters=$collection->cutters(-start=>6, -end=>8);
 
-  # enzymes that recognize any sequence that is entirely AGC or T,
-  # (i.e. no N, Y, Rs etc)
-  my $non_ambig=$collection->non_ambiguous_enzymes;
-
-  # enzymes that recognize ambiguous sequences
-  my $ambig=$collection->ambiguous_enzymes;
 
 =head1 DESCRIPTION
 
@@ -92,6 +80,9 @@ I have added another comments section at the end of this POD that
 discusses a couple of areas I know are broken (at the moment)
 
 =head1 SEE ALSO
+
+L<Bio::Restriction::IO> - read in enzymes from REBASE files
+(s
 
 L<Bio::Restriction::Analysis> - figure out what enzymes cut a sequence
 (start here)
@@ -188,20 +179,22 @@ sub new {
 
     return $self if $empty;
 
-
     # the default set of enzymes
     my $in  = Bio::Restriction::IO->new(-verbose => $self->verbose);
     return $in->read;
 
 }
 
+=head2 Manipulate the enzymes within the collection
+
+=cut
 
 =head2 enzymes
 
  Title     : enzyme
  Function  : add/get method for enzymes and enzyme collections
  Returns   : object itself
- Argument  : array of Bio::Restriction::Enzyme and
+ Arguments : array of Bio::Restriction::Enzyme and
              Bio::Restriction::EnzymeCollection objects
 
 =cut
@@ -236,7 +229,7 @@ sub enzymes {
  Title     : each_enzyme
  Function  : get an array of enzymes
  Returns   : array of Bio::Restriction::Enzyme objects
- Argument  : -
+ Arguments : -
 
 =cut
 
@@ -250,7 +243,7 @@ sub each_enzyme {
  Title     : get_enzyme
  Function  : Gets a Bio::Restriction::Enzyme object for the enzyme name
  Returns   : A Bio::Restriction::Enzyme object or undef
- Argument  : An enzyme name that is in the collection
+ Arguments : An enzyme name that is in the collection
 
 =cut
 
@@ -266,22 +259,20 @@ sub get_enzyme {
  Function  : Gets a list of all the enzymes that we know about
  Returns   : A reference to an array with all the enzyme names
              that we have defined or 0 if none are defined
- Argument  : Nothing
+ Arguments : Nothing
  Comments  : Note, I maintain this for backwards compatibility,
-              but I don't like the name as it is very ambiguous
+             but I don't like the name as it is very ambiguous
 
 =cut
 
 sub available_list {
     my ($self, $size)=@_;
     return sort keys %{$self->{'_enzymes'}};
-# my $ret;
-# if ($size) {$ret=$self->cutters($size)}
-# else {$ret=$self->all_enzymes}
-# return $ret;
 }
 
+=head2 Filter enzymes
 
+=cut
 
 =head2 blunt_enzymes
 
@@ -289,8 +280,11 @@ sub available_list {
   Function  : Gets a list of all the enzymes that are blunt cutters
   Returns   : A reference to an array with all the enzyme names that
               are blunt cutters or 0 if none are defined
-  Argument  : Nothing
+  Arguments : Nothing
   Comments  : 
+
+This is an example of the kind of filtering better done by the scripts
+using the rich collection of methods in Bio::Restriction::Enzyme.
 
 =cut
 
@@ -309,7 +303,7 @@ sub blunt_enzymes {
   Usage     : $cutters = $collection->cutters(6);
   Returns   : A reference to an array with all the enzyme names
               that are x cutters or 0 if none are defined
-  Argument  : A positive number for the size of cutters to return
+  Arguments : A positive number for the size of cutters to return
               OR
               A range: (-start => 6, -end => 8,
                         -inclusive => 1, -exclusive = 0 )

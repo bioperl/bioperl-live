@@ -42,7 +42,7 @@ Bio::Restriction::Enzyme - A single restriction endonuclease
   # Note that site will return the sequence with a caret
   my $with_caret=$re->site; #returns 'G^AATTC';
 
-  # but it is also a Bio::Seq object ....
+  # but it is also a Bio::PrimarySeq object ....
   my $without_caret=$re->seq; # returns 'GAATTC';
   # ... and so does string
   $without_caret=$re->string; #returns 'GAATTC';
@@ -51,23 +51,24 @@ Bio::Restriction::Enzyme - A single restriction endonuclease
   my $rc=$re->revcom; # returns 'GAATTC';
 
   # now the recognition length. There are two types:
-  #   recognition_length is the length of the sequence
-  #   non_ambiguous_length is only the number of GAT or C nucleotides,
-  #   and N, R, Y, etc are ignored
+  #   recognition_length() is the length of the sequence
+  #   cutter() estimate of cut frequency
 
-  my $recog_length= $re->recognition_length; # returns 6
-  # also returns 6 in this case but would return 4 for GANNTC
-  $recog_length=$re->non_ambiguous_length; 
+  my $recog_length = $re->recognition_length; # returns 6
+  # also returns 6 in this case but would return 
+  # 4 for GANNTC and 5 for RGATCY (BstX2I)!
+  $recog_length=$re->cutter; 
 
   # is the sequence a palindrome  - the same forwards and backwards
   my $pal= $re->palindromic; # this is a boolean
 
   # is the sequence blunt (i.e. no overhang - the forward and reverse
   # cuts are the same)
-  my $blunt=$re->is_blunt; # this is boolean
+  print "blunt\n" if $re->overhang eq 'blunt';
 
-  # what direction is the overhang. Very important if you use Klenow!
-  my $oh=$re->overhang; # will return "5'", "3'", or "blunt"
+  # Overhang can have three values: "5'", "3'", "blunt", and undef
+  # Direction is very important if you use Klenow!
+  my $oh=$re->overhang;
 
   # what is the overhang sequence
   my $ohseq=$re->overhang_seq; # will return 'AATT';
@@ -84,32 +85,32 @@ Bio::Restriction::Enzyme - A single restriction endonuclease
         "And is it ambiguous? $ambig\n\n";
 
 
-  ### THINGS YOU CAN SET
+  ### THINGS YOU CAN SET, and get from rich REBASE file
 
   # get or set the isoschizomers (enzymes that recognize the same
   # site)
-  $re->isoschizomers(['PvuII', 'SmaI']); # not really true :)
-  print "Isoschizomers are ", join " ", @{$re->isoschizomers}, "\n";
+  $re->isoschizomers('PvuII', 'SmaI'); # not really true :)
+  print "Isoschizomers are ", join " ", $re->isoschizomers, "\n";
 
   # get or set the methylation sites
-  $re->methylation_sites([2]); # not really true :)
-  print "Methylated at ", join " ", @{$re->methylation_sites},"\n";
+  $re->methylation_sites(2); # not really true :)
+  print "Methylated at ", join " ", keys $re->methylation_sites,"\n";
 
   #Get or set the source microbe
   $re->microbe('E. coli');
   print "It came from ", $re->microbe, "\n";
 
-  # get or set the persone that it came from
+  # get or set the person who isolated it
   $re->source("Rob"); # not really true :)
   print $re->source, " sent it to us\n";
 
   # get or set whether it is commercially available and the company
   # that it can be bought at
-  $re->vendor(['NEB']); # my favorite
+  $re->vendors('NEB'); # my favorite
   print "Is it commercially available :";
-  print $re->vendor ? "Yes" : "No";
+  print $re->vendors ? "Yes" : "No";
   print " and it can be got from ", join " ", 
-      @{$re->commercial_availability}, "\n";
+      $re->vendors, "\n";
 
   # get or set a reference for this
   $re->reference('Edwards et al. J. Bacteriology');
@@ -119,72 +120,56 @@ Bio::Restriction::Enzyme - A single restriction endonuclease
   $re->name('BamHI');
   print "The name of EcoRI is not really ", $re->name, "\n";
 
-  # get all the tags ...
-  my @tags=$re->all_tags;
-  # ... and a value for the tag
-  print "the tag overhang has the value ", 
-      $re->each_tag_value('overhang'), "\n";
-
 
 =head1 DESCRIPTION
 
-This module defines a single restriction endonuclease.
-
-Note: This module was written by Rob Edwards and is based on the
-Bio::Tools::RestrictionEnzyme written by Steve Chervitz
-sac@bioperl.org.
-
-Bio::Restriction::Enzyme defines a single restriction enzyme.  You can
-use it to make custom restriction enzymes, and it is called by
-Bio::Restriction::EnzymeCollection to defined enzymes in the New
-England Biolabs REBASE collection.
+This module defines a single restriction endonuclease.  You can use it
+to make custom restriction enzymes, and it is used by
+Bio::Restriction::IO to define enzymes in the New England Biolabs
+REBASE collection.
 
 Use Bio::Restriction::Analysis to figure out which enzymes are available
 and where they cut your sequence.
 
 
-Type I, II, and III restriction enzymes. definitions see
-http://it.stlawu.edu/~tbudd/rmsyst.html.
+=head1 RESTRICTION MODIFICATION SYSTEMS
+
+At least three geneticaly and biochamically distinct restriction
+modification systems exist. The cutting components of them are known
+as restriction endonuleases.  The three systems are known by roman
+numerals: Type I, II, and III restriction enzymes.
+
+REBASE format 'cutzymes'(#15) lists enzyme type in its last field. The
+categories there do not always match the the following short
+descriptions of the enzymes types. See
+http://it.stlawu.edu/~tbudd/rmsyst.html for a better overview.
 
 
 =head2 TypeI
 
-Type I systems recognize a bipartite asymetrical sequence:
+Type I systems recognize a bipartite asymetrical sequence of 5-7 bp:
 
   ---TGA*NnTGCT--- * = methylation sites
   ---ACTNnA*CGA--- n = 6 for EcoK, n = 8 for EcoB
 
-The cleavage site is roughly  1000 (400-7000) base pairs  from the recognition site
-
-Recog. site = bipartite, asymetrical sequence = 5-7bp
-
+The cleavage site is roughly 1000 (400-7000) base pairs from the
+recognition site.
 
 =head2 TypeII
 
-The simplest and most common (at least commercially)
+The simplest and most common (at least commercially).
 
 Site recognition is via short palindromic base sequences that are 4-6
 base pairs long. Cleavage is at the recognition site (but may
 occasionally be just adjacent to the palindromic sequence, usually
-within) and may produce blunt end terminuses or staggered, "sticky
+within) and may produce blunt end termini or staggered, "sticky
 end" termini.
-
-Short palindrome 4-6 bp recog. site
-
 
 =head2 TypeIII
 
 The recognition site is a 5-7 bp asymmetrical sequence. Cleavage is
 ATP dependent 24-26 base pairs downstream from the recognition site
 and usually yields staggered cuts 2-4 bases apart.
-
-Recog. site = asymetrical  sequence = 5-7bp.
-
-
-REBASE format cutzymes. #15 has enzyme list format:
-
-  code   enzyme name     recognition seq     cut sites    enzyme type
-
 
 
 =head1 COMMENTS
@@ -263,7 +248,7 @@ it and/or modify it under the same terms as Perl itself.
 =head1 SEE ALSO
 
 L<Bio::Restriction::Analysis>, 
-L<Bio::Restriction::EnzymeCollection>
+L<Bio::Restriction::EnzymeCollection>, L<Bio::Restriction::IO>
 
 =head1 APPENDIX
 
@@ -321,8 +306,7 @@ Bio::PrimarySeq object.
 The minimum requirement is for a name and a sequence.
 
 This will create the restriction enzyme object, and define several
-things about the sequence, such as palindromic, size, etc. See below,
-because I haven't written those parts yet.
+things about the sequence, such as palindromic, size, etc.
 
 =cut
 
@@ -330,8 +314,8 @@ sub new {
     my($class, @args) = @_;
     my $self = $class->SUPER::new(@args);
 
-    my ($name,$enzyme,$site,$cut,$complementary_cut, $is_prototype, $prototype, $isoschizomers,
-        $meth, $microbe, $source, $vendors, $references) =
+    my ($name,$enzyme,$site,$cut,$complementary_cut, $is_prototype, $prototype,
+        $isoschizomers, $meth, $microbe, $source, $vendors, $references) =
             $self->_rearrange([qw(
                                   NAME
                                   ENZYME
@@ -450,7 +434,7 @@ Acc36I cuts at ACCTGC(4/8). This will be returned as ACCTGCNNNN^
 
 Note that the common notation ACCTGC(4/8) means that the forward
 strand cut is four nucleotides after the END of the recognition
-site. The forwad cut in the coordinates used here in Acc36I
+site. The forwad cut() in the coordinates used here in Acc36I
 ACCTGC(4/8) is at 6+4 i.e. 10.
 
 ** This is the main setable method for the recognition site.
@@ -495,9 +479,7 @@ sub site {
 
  Title     : cut
  Usage     : $num = $re->cut(1);
- Function  : 
-
-             Sets/gets an integer indicating the position of cleavage
+ Function  : Sets/gets an integer indicating the position of cleavage
              relative to the 5' end of the recognition sequence in the
              forward strand.
 
@@ -516,23 +498,12 @@ Note that REBASE uses notation where cuts within symmetic sites are
 marked by '^' within the forward sequence but if the site is
 asymmetric the parenthesis syntax is used where numbering ALWAYS
 starts from last nucleotide in the forward strand. That's why AciI has
-site usually written, CCGC(-3/-1) cuts in
+a site usually written as CCGC(-3/-1) actualy cuts in
 
   C^C G C
   G G C^G
 
 In our notation, these locations are 1 and 3.
-
-
-
-   Bsp24I
-             5'      ^NNNNNNNNGACNNNNNNTGGNNNNNNNNNNNN^   3'
-             3' ^NNNNNNNNNNNNNCTGNNNNNNACCNNNNNNN^        5'
-
-
-   This will be described in some REBASE reports as:
-
-                Bsp24I (8/13)GACNNNNNNTGG(12/7)
 
 
 The cuts locations in the notation used are relative to the first
@@ -567,12 +538,10 @@ sub cut {
          if (length ($self->{_site}) < $value ) {
              my $pad_length = $value - length $self->{_site};
              $self->{_site} .= 'N' x $pad_length;
-             # print $self->{_site}, "----------\n";
          }
-        $self->{_site} =
+         $self->{_site} =
              substr($self->{_site}, 0, $value). '^'. substr($self->{_site}, $value)
                  unless $self->{_site} =~ /\^/;
-         #print $self->{_site}, "----------\n";
      }
      return $self->{'_cut'} || 0;
 }
@@ -606,20 +575,11 @@ sub complementary_cut {
             unless $num =~ /[-+]?\d+/;
         $self->{'_rc_cut'} = $num;
     }
-
-#    unless ($self->{'_rc_cut'}) {
-#        # we need to figure it out.
-#        # it should be the length of the sequence minus the position 
-#        # on the reverse strand
-#        $self->{'_rc_cut'}=$self->{_seq}->length-$self->{'_cut'};
-##        $self->overhang;
-#    }
-
     return $self->{'_rc_cut'} || 0;
 }
 
 
-=head2 Read only recognition site descriptive methods
+=head2 Read only (usually) recognition site descriptive methods
 
 =cut
 
@@ -702,8 +662,7 @@ sub type {
 =cut
 
 sub seq {
-    my $self=shift;
-    $self->{'_seq'};
+    shift->{'_seq'};
 }
 
 =head2 string
@@ -719,8 +678,7 @@ sub seq {
 =cut
 
 sub string {
-    my $self = shift;
-    $self->{'_seq'}->seq;
+    shift->{'_seq'}->seq;
 }
 
 
@@ -738,8 +696,7 @@ sub string {
 =cut
 
 sub revcom {
-    my $self = shift;
-    $self->{'_seq'}->revcom->seq();
+    shift->{'_seq'}->revcom->seq();
 }
 
 =head2 recognition_length
@@ -761,26 +718,6 @@ sub recognition_length {
     return length($self->string);
 }
 
-=head2 non_ambiguous_length
-
- Title     : non_ambiguous_length
- Usage     : $re->non_ambiguous_length();
- Function  : Get the length of the non-ambiguous bases in
-             the sequence. This is only GATCs.
- Returns   : An integer
- Argument  : Nothing
-
-See Also:  L<recognition_length>
-
-=cut
-
-sub non_ambiguous_length {
- my $self = shift;
- my $seq = $self->string;
- $seq =~ s/[^GATC]//;
- return length($seq);
-}
-
 =head2 cutter
 
  Title    : cutter
@@ -800,8 +737,8 @@ sub non_ambiguous_length {
 
 
 
-Why is this better than non_anbiguous length? Think about it like
-this: You have a random sequence; all nucleotides are equally
+Why is this better than just stripping the ambiguos codes? Think about
+it like this: You have a random sequence; all nucleotides are equally
 probable. You have a four nucleotide re site. The probability of that
 site finding a match is one out of 4^4 or 256, meaning that on average
 a four cutter finds a match every 256 nucleotides. For a six cutter,
@@ -932,6 +869,8 @@ A 3' overhang in KpnI returns C<GTAC>
 Note that you need to use method L<overhang|overhang> to decide
 whether it is a 5' or 3' overhang!!!
 
+Note: The overhang stuff does not work if the site is asymmetric! Rethink! 
+
 =cut
 
 sub overhang_seq {
@@ -995,6 +934,7 @@ sub overhang_seq {
 In case of type II enzymes which which cut symmetrically, this
 function can be considered to return a boolean value.
 
+
 =cut
 
 sub compatible_ends {
@@ -1028,12 +968,7 @@ sub compatible_ends {
 
 sub is_ambiguous {
     my $self = shift;
-    if ($self->string =~ m/[^AGCT]/) {
-        $self->{_is_ambiguous}=1;
-    } else {
-        $self->{_is_ambiguous}=0;
-    }
-    return $self->{_is_ambiguous} || 0;
+    return $self->string =~ m/[^AGCT]/ ? 1 : 0 ;
 }
 
 =head2 Additional methods from Rebase

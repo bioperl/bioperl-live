@@ -33,6 +33,17 @@ alternative sites.
 In this schema each object within an EnzymeCollection can be checked
 for matching a sequence.
 
+
+REBASE report notation C<Bsp24I (8/13)GACNNNNNNTGG(12/7)> means:
+
+
+   Bsp24I
+             5'      ^NNNNNNNNGACNNNNNNTGGNNNNNNNNNNNN^   3'
+             3' ^NNNNNNNNNNNNNCTGNNNNNNACCNNNNNNN^        5'
+
+
+
+
 =head1 FEEDBACK
 
 =head2 Mailing Lists

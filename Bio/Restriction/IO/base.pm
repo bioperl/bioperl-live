@@ -73,6 +73,7 @@ use Data::Dumper;
 
 @ISA = qw(Bio::Restriction::IO);
 
+my $offset; # class variable
 
 sub new {
     my($class, @args) = @_;
@@ -97,25 +98,23 @@ sub _initialize {
 =cut
 
 
+
 sub read {
     my $self = shift;
 
     my $renzs = new Bio::Restriction::EnzymeCollection(-empty => 1);
-
+    seek DATA,($offset||=tell DATA), 0;
     while (<DATA>) {
         chomp;
         next if /^\s*$/;
         my ($name, $site, $cut) = split /\s+/;
-
         #foreach my $key (keys %{$res}) {
         #my ($site, $cut) = split /\s+/, $res->{$key};
         my $re = new Bio::Restriction::Enzyme(-name => $name,
-                                           -site => $site,
-                                           -cut => $cut);
-        #print Dumper $re;
+                                              -site => $site,
+                                              -cut => $cut);
         $renzs->enzymes($re);
     }
-    #print Dumper $renzs;
     return $renzs;
 }
 
@@ -383,6 +382,7 @@ sub _companies {
 __DATA__
 AasI	GACNNNNNNGTC	7
 AatI	AGGCCT	3
+AccII	CGCG	2
 AatII	GACGTC	5
 AauI	TGTACA	1
 Acc113I	AGTACT	3
@@ -391,7 +391,6 @@ Acc65I	GGTACC	1
 AccB1I	GGYRCC	1
 AccB7I	CCANNNNNTGG	7
 AccI	GTMKAC	2
-AccII	CGCG	2
 AccIII	TCCGGA	1
 AclI	AACGTT	2
 AcsI	RAATTY	1
