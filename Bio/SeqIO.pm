@@ -32,8 +32,7 @@ Bio::SeqIO - Handler for SeqIO Formats
     }
 
 now, to actually get at the sequence object, use the standard Bio::Seq
-methods (look at Bio::Seq documentation if you don't know what they
-are)
+methods (look at L<Bio::Seq> if you don't know what they are)
 
     use Bio::SeqIO;
 
@@ -68,8 +67,7 @@ genbank format, or EMBL format, or binary trace file format) and
 can either read or write sequence objects (Bio::Seq objects, or
 more correctly, Bio::SeqI implementing objects, of which Bio::Seq is
 one such object). If you want to know what to do with a Bio::Seq
-object, read the Bio::Seq documentation
-
+object, read L<Bio::Seq>
 
 The idea is that you request a stream object for a particular format.
 All the stream objects have a notion of an internal file that is read
@@ -130,7 +128,7 @@ This makes the simplest ever reformatter
    $seqIO = Bio::SeqIO->new(-format => $format);
 
 The new() class method constructs a new Bio::SeqIO object.  The
-returned object can be used to retrieve or print BioSeq objects. new()
+returned object can be used to retrieve or print Seq objects. new()
 accepts the following parameters:
 
 =over 4
@@ -196,7 +194,7 @@ Specify the format of the file.  Supported formats include:
    raw         Raw format (one sequence per line, no ID)
    ace         ACeDB sequence format
    game        GAME XML format
-   phd         
+   phd         phred output
    qual        Quality values (get a sequence of quality scores)
 
 If no format is specified and a filename is given, then the module
@@ -299,6 +297,8 @@ use Symbol();
            -format => format
            -fh => filehandle to attach to
 
+See L<Bio::SeqIO::Handler>
+
 =cut
 
 my $entry = 0;
@@ -339,6 +339,8 @@ sub new {
  Returns : filehandle tied to the Bio::SeqIO::Fh class
  Args    :
 
+See L<Bio::SeqIO::Fh>
+
 =cut
 
 sub newFh {
@@ -357,6 +359,8 @@ sub newFh {
            print $fh $sequence; # write a sequence object
  Returns : filehandle tied to the Bio::SeqIO::Fh class
  Args    :
+
+See L<Bio::SeqIO::Fh>
 
 =cut
 
@@ -391,10 +395,11 @@ sub _initialize {
            of a non-recoverable situation an exception will be thrown.
            Do not assume that you can resume parsing the same stream after
            catching the exception. Note that you can always turn recoverable
-           errors into exceptions by calling $stream->verbose(2) (see
-           Bio::RootI POD page).
+           errors into exceptions by calling $stream->verbose(2).
  Returns : a Bio::Seq sequence object
  Args    : none
+
+See L<Bio::Root::RootI>
 
 =cut
 
@@ -411,6 +416,7 @@ sub next_seq {
  Returns : A Bio::PrimarySeqI object
  Args    : none
 
+See L<Bio::PrimarySeqI>
 
 =cut
 
@@ -548,10 +554,13 @@ sub _filehandle {
 
  Title   : _guess_format
  Usage   : $obj->_guess_format($filename)
- Function:
+ Function: guess format based on file suffix
  Example :
  Returns : guessed format of filename (lower case)
  Args    :
+ Notes   : formats that _filehandle() will guess include fasta,
+           genbank, scf, pir, embl, raw, gcg, ace, bsml, swissprot,
+           and phd/phred
 
 =cut
 
@@ -568,6 +577,7 @@ sub _guess_format {
    return 'ace'     if /\.ace$/i;
    return 'bsml'    if /\.(bsm|bsml)$/i;
    return 'swiss'   if /\.(swiss|sp)$/i;
+   return 'phd'     if /\.(phd|phred)$/i;
 }
 
 sub DESTROY {
