@@ -54,9 +54,35 @@ methods. Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::Root::RootI;
-use vars qw(@ISA);
+use vars qw(@ISA $DEBUG $ID $Revision $VERSION $VERBOSITY);
 use strict;
 use Bio::Root::Err;
+BEGIN { 
+
+    $ID        = 'Bio::Root::RootI';
+    $VERSION   = 0.7;
+    $Revision  = '$Id$ ';
+    $DEBUG     = 0;
+    $VERBOSITY = 0;
+}
+=head2 new 
+
+ Purpose   : generic intantiation function can be overridden if 
+             special needs of a module cannot be done in _initialize
+ 
+=cut
+
+sub new {
+    my ($class, @args) = @_;
+    my $self = bless {}, $class;
+    eval { 
+	$self->_initialize(@args);   
+    };
+    if( $@ ) {
+	&throw(new Bio::Root::RootI, $@);
+    }
+    return $self;
+}
 
 =head2 throw
 
@@ -170,13 +196,13 @@ sub warn {
     my $verbosity;
 
     if( $self->can('verbose') ) {
-	$verbosity = $self->verbose;
+	$verbosity = $self->verbose();
     } else {
 	$verbosity = 0;
     }
 
     if($verbosity < 0 ) {
-	# Low verbosity or script is a cgi: don't print anything but set warning.
+	# Low verbosity or script is a cgi: don't print anything but set warning.	
 	$self->_set_warning(@param);
     } elsif($verbosity > 0) {
 	# Extra verbosity: print all data and beep
@@ -481,6 +507,125 @@ sub stack_trace {
     wantarray ? @data : \@data;
 }
 
+=head2 _initialize
+
+ Purpose   : Initializes key Bio::Root::Object.pm data (name, parent, make, strict).
+           : Called by new().
+ Usage     : n/a; automatically called by Bio::Root::Object::new()
+ Returns   : String containing the -MAKE constructor option or 'default' 
+           : if none defined (if a -MAKE parameter is defined, the value
+           : returned will be that obtained from the make() method.)
+           : This return value saves any subclass from having to call
+           : $self->make() during construction. For example, within a
+           : subclass _initialize() method, invoke the Bio::Root::Object::
+           : initialize() method as follows:
+           :    my $make = $self->SUPER::_initialize(@param);
+ Argument  : Named parameters passed from new()
+           :  (PARAMETER TAGS CAN BE ALL UPPER OR ALL LOWER CASE).
+ Comments  : This method calls name(), make(), parent(), strict(), index()
+           : and thus enables polymorphism on these methods. To save on method
+           : call overhead, these methods are called only if the data need 
+           : to be set.
+           :
+           : The _set_clone() method is called if the -MAKE option includes
+           : the string 'clone' (e.g., -MAKE => 'clone').
+           :
+           : The index() method is called if the -MAKE option includes
+           : the string 'index'. (This is an experimental feature)
+           : (Example: -MAKE => 'full_index').
+           :
+           : NOTE ON USING _rearrange():
+           :
+           : _rearrange() is a handy method for working with tagged (named)
+           : parameters and it permits case-insensitive in tag names
+           : as well as handling tagged or un-tagged parameters.
+           : _initialize() does not currently call _rearrange() since
+           : there is a concern about performance when setting many objects.
+           : One issue is that _rearrange() could be called with many elements 
+           : yet the caller is interested in only a few. Also, derived objects 
+           : typically invoke _rearrange() in their constructors as well. 
+           : This could particularly degrade performance when creating lots 
+           : of objects with extended inheritance hierarchies and lots of tagged
+           : parameters which are passes along the inheritance hierarchy.
+           :
+           : One thing that may help is if _rearrange() deleted all parameters
+           : it extracted. This would require passing a reference to the param list
+           : and may add excessive dereferencing overhead.
+           : It also would cause problems if the same parameters are used by
+           : different methods or objects.
+
+See Also   : L<new>(), L<make>(), L<name>(), L<parent>(), L<strict>(), L<index>(), L<_rearrange>(), L<_set_clone>(), L<verbose>()
+
+=cut
+
+#------------
+sub verbose { 
+#------------
+    my ($self,$value) = @_; 
+
+    # Using global verbosity
+    if( defined $value ) {
+	$VERBOSITY = $value;
+    }
+    return $VERBOSITY;
+
+    # Object-specific verbosity (not used unless above code is commented out)
+    if(@_) { $self->{'_verbose'} = shift; }
+    defined($self->{'_verbose'}) 
+	? return $self->{'_verbose'}
+	: (ref $self->{'_parent'} ? $self->{'_parent'}->verbose : 0);
+}
+
+#----------------
+sub _initialize {
+#----------------
+    local($^W) = 0;
+    my($self, %param) = @_;
+    
+    my($name, $parent, $make, $strict, $verbose, $obj, $record_err) = (
+	($param{-NAME}||$param{'-name'}), ($param{-PARENT}||$param{'-parent'}), 
+	($param{-MAKE}||$param{'-make'}), ($param{-STRICT}||$param{'-strict'}),
+	($param{-VERBOSE}||$param{'-verbose'}),
+        ($param{-OBJ}||$param{'-obj'}, $param{-RECORD_ERR}||$param{'-record_err'})
+					  );
+
+    ## See "Comments" above regarding use of _rearrange().
+#	$self->_rearrange([qw(NAME PARENT MAKE STRICT VERBOSE OBJ)], %param);
+
+    $DEBUG and do{ print STDERR ">>>> Initializing $ID (${\ref($self)}) ",$name||'anon';<STDIN>};
+
+    if(defined($make) and $make =~ /clone/i) { 
+	$self->_set_clone($obj);
+
+    } else {
+	$name ||= ($#_ == 1 ? $_[1] : '');  # If a single arg is given, use as name.
+
+	## Another performance issue: calling name(), parent(), strict(), make()
+	## Any speed diff with conditionals to avoid method calls?
+	
+	$self->name($name) if $name; 
+	$self->parent($parent) if $parent;
+	$self->{'_strict'}  = $strict  || undef;
+	$self->{'_verbose'} = $verbose || undef;
+	$self->{'_record_err'} = $record_err || undef;
+
+	if($make) {
+	    $make = $self->make($make);
+	
+	    # Index the Object in the global object hash only if requested.
+	    # This feature is not used much. If desired, an object can always 
+	    # call Bio::Root::Object::index()  any time after construction.
+	    $self->index() if $make =~ /index/; 
+	}
+    }
+
+    $DEBUG and print STDERR "---> Initialized $ID (${\ref($self)}) ",$name,"\n";
+
+    ## Return data of potential use to subclass constructors.
+#    return (($make || 'default'), $strict);   # maybe (?)
+    return $make || 'default';
+}
+
 =head2 _rearrange
 
  Usage     : $object->_rearrange( array_ref, list_of_arguments)
@@ -597,5 +742,97 @@ sub _rearrange {
     return (@return_array);
 }
 
-1;
+# from (old) Bio::Root::Object
 
+=head2 name
+
+ Usage     : $object->name([string]);
+ Purpose   : Set/Get an object's common name. 
+ Example   : $myName = $myObj->name;
+           : $myObj->name('fred');
+ Returns   : String consisting of the object's name or 
+           : "anonymous <CLASSNAME>" if name is not set.
+           : Thus, this method ALWAYS returns some string.
+ Argument  : String to be used as the common name of the object. 
+           : Should be unique within its class.
+
+See also   : L<has_name>()
+
+=cut
+
+#---------
+sub name {
+#---------
+    my $self = shift;
+
+#    $DEBUG and do{ print STDERR "\n$ID: name(@_) called.";<STDIN>; };
+
+    if (@_) { $self->{'_name'} = shift }
+    return defined $self->{'_name'} ? $self->{'_name'} : 
+	'anonymous '.ref($self);
+}
+
+=head2 to_string
+
+ Usage     : $object->to_string();
+ Purpose   : Get an object as a simple string useful for debugging purposes.
+ Example   : print $myObj->to_string;  # prints: Object <PACKAGE NAME> "<OBJECT NAME>"
+ Returns   : String consisting of the package name + object's name 
+           : Object's name is obtained by calling the name() method.
+ Argument  : n/a
+ Throws    : n/a
+
+See also   : L<name>()
+
+=cut
+
+#-------------
+sub to_string {
+#-------------
+    my $self = shift;
+    return sprintf "Object %s \"%s\"", ref($self), $self->name;
+}
+
+
+=head2 parent
+
+ Usage     : $object->parent([object | 'null']);
+ Purpose   : Set/Get the current object's source object. 
+           : An object's source object (parent) is defined as the object 
+           : that is responsible for creating the current object (child).
+           : The parent object may also have a special mechanism for
+           : destroying the child object. This should be included
+           : in the parent object's DESTROY method which should end with a
+           : call to $self->SUPER::DESTROY.
+ Example   : $myObj->parent($otherObject);
+ Returns   : Object reference for the parent object or undef if none is set.
+ Argument  : Blessed object reference (optional) or the string 'null'.
+           :  'null' = sets the object's _parent field to undef,
+           :           breaking the child object's link to its parent.
+ Throws    : Exception if argument is not an object reference or 'null'. 
+ Comments  : This method may be renamed 'parent' in the near future.
+           : When and if this happens, parent() will still be supported but
+           : will be deprecated.
+
+See also   : L<destroy>()
+
+=cut
+
+#------------'
+sub parent {
+#------------
+    my ($self) = shift;
+    if (@_) {
+	my $arg = shift; 
+	if(ref $arg) {
+	    $self->{'_parent'} = $arg;
+	} elsif($arg =~ /null/i) {
+	    $self->{'_parent'} = undef;
+	} else {
+	    $self->throw("Can't set parent using $arg: Not an object");
+	}
+    }
+    $self->{'_parent'};
+}
+
+1;
