@@ -7,7 +7,7 @@ modules.pl - information about modules in BioPerl core
 =head1 SYNOPSIS
 
 B<modules.pl> [B<-c|--count>] | [B<-l|--list>] | [B<-u|--untested>] |
-  [B<-?|-h|--help>]
+  [B<-i | --info> class] |  [B<-?|-h|--help>]
 
 =head1 DESCRIPTION
 
@@ -16,28 +16,102 @@ modules. It is mainly meant to be ran by bioperl maintainers.
 
 =cut
 
+#
+# The helper class to store class status;
+#
+package BioClass;
+
+sub new {
+    my $class = shift;
+    my $name = shift;
+    die unless $name;
+
+    my $self = {};
+    $self->{'name'} = $name;
+    $self->{'tested'} = 0;
+    $self->{'type'} = '';
+
+    bless $self, $class;
+}
+
+
+sub name {
+    my $self = shift;
+    return $self->{'name'};
+}
+
+sub tested {
+    my $self = shift;
+    my $value = shift;
+    $self->{'tested'} = 1 if defined $value && $value;
+    return $self->{'tested'};
+}
+
+sub type {
+    my $self = shift;
+    my $value = shift;
+    $self->{'type'} = $value if defined $value;
+    return $self->{'type'};
+}
+
+sub add_superclass {
+    my $self = shift;
+    my $superclass = shift;
+    return unless $superclass;
+    $self->{'superclasses'}->{$superclass} = 1 ;
+}
+
+sub each_superclass {
+    my $self = shift;
+    return  keys %{$self->{'superclasses'}};
+}
+
+sub add_used_class {
+    my $self = shift;
+    my $used_class = shift;
+    return unless $used_class;
+    $self->{'used_classes'}->{$used_class} = 1 ;
+}
+
+sub each_used_class {
+    my $self = shift;
+    return  keys %{$self->{'used_classes'}};
+}
+
+package main;
+
+use File::Find;
 use Getopt::Long;
+use Data::Dumper;
 use strict;
-#use Data::Dumper;
+
 
 # declare subroutines
 sub modules;
 sub count;
 sub list_all;
 sub untested;
+sub info;
 
 # command line options
-my ($count,$list, $untested, $help);
+my ($count,$list, $verbose,$info,$untested);
 GetOptions(
 	   'count'    => \$count,
 	   'list'     => \$list,
+           'test_BioClass' => \&_test_BioClass,
+           'verbose'  => \$verbose,
            'untested' => \$untested,
+           'info:s' =>  \$info,
 	   'h|help|?' => sub{ exec('perldoc',$0); exit(0) }
 	   );
 
-our %MODULES;
 
-modules; # find modules in Bio directory
+our %MODULES; # storage structure
+
+# find modules in Bio directory
+my %FIND_OPTIONS = ( wanted => \&modules );
+find \%FIND_OPTIONS, '/home/heikki/src/bioperl/core/Bio/';
+
 
 # call subroutines
 if ($list) {
@@ -45,27 +119,65 @@ if ($list) {
 }
 elsif ($untested) {
     untested;
+}
+elsif ($info) {
+    info($info);
 } else {
     count;
 }
+
+#print Dumper \%MODULES;
 
 #
 # subroutines;
 #
 
+sub _test_BioClass {
+    $a = new BioClass('Bio::Test');
+    print "Class name: ", $a->name(), "\n";
+    $a->add_superclass('Bio::Super');
+    $a->add_superclass('Bio::Super2');
+    $a->tested(1);
+    $a->type('instance');
+    print Dumper [$a->each_superclass] if $a->tested;
+    print Dumper $a;
+    exit;
+}
+
 sub modules {
-    foreach (`find ../Bio  -name "*.pm" -print`) {
-        s/.pm\n//;
-        s/^...//;
-        s|/|::|g;
-        if (/.*:[a-z]/) {
-            $MODULES{$_} = 'component';
-        } elsif (/[^A-Z]I$/) {
-            $MODULES{$_} = 'interface';
-        } else {
-            $MODULES{$_} = 'instance';
+    return unless /\.pm$/ ;
+    #return unless -e $_;
+    print "file: $_\n" if $verbose;
+    open (F, $_) or warn "can't open file $_: $!" && return;
+    my $class;
+    while (<F>) {
+        if (/^package\s+([\w:]+)\s*;/) {
+            print $1, "\n" if $verbose;
+            $_ = $1;
+            $class = new BioClass($_); 
+            $MODULES{$_} = $class;
+            if (/.*:[a-z]/) {
+                $class->type('component');
+            } elsif (/[^A-Z]I$/) {
+                $class->type('interface');
+            } else {
+                $class->type('instance');
+            }
+        }
+        if (/^\w*use/ && /(Bio[\w:]+)\W*;/) {
+            print "\t$1\n" if $verbose;
+            $class->add_used_class($1);
+        }
+        if (/\@ISA/ && /Bio/) {
+            next unless $class;
+            my $line = $_;
+            while ( $line =~ /(Bio[\w:]+)/g) {
+                print "\t$1\n" if $verbose;
+                $class->add_superclass($1);
+            }
         }
     }
+    close F;
 }
 
 =head1 OPTIONS
@@ -87,9 +199,9 @@ classes based on name only.
 =cut
 
 sub count {
-    printf "Instance : %3d\n", scalar (grep /instance/ , values %MODULES);
-    printf "Interface: %3d\n", scalar (grep /interface/ , values %MODULES);
-    printf "Component: %3d\n", scalar (grep /component/ , values %MODULES);
+    printf "Instance : %3d\n", scalar (grep $MODULES{$_}->type =~ /instance/ , keys %MODULES);
+    printf "Interface: %3d\n", scalar (grep $MODULES{$_}->type =~ /interface/ , keys %MODULES);
+    printf "Component: %3d\n", scalar (grep $MODULES{$_}->type =~ /component/ , keys %MODULES);
     print  "--------------\n";
     printf "Total    : %3d\n", scalar (keys %MODULES);
 
@@ -105,14 +217,18 @@ output can be processed with standard UNIX command line tools.
 
 sub list_all {
     foreach ( sort keys %MODULES) {
-        print "$MODULES{$_}\t$_\n";
+        print $MODULES{$_}->type. "\t$_\n";
     }
 }
 
 =item B<-u | --untested>
 
 Prints a list of instance modules which are I<not> explicitely used by
-test files in t directory.
+test files in t directory. Superclasess or any classes used by others
+are not reported, either, since their methods are assumed to be tested
+by subclass tests.
+
+This method can not be impoved much without running the tests!
 
 =cut
 
@@ -121,14 +237,47 @@ sub untested {
         s/^ *?use +//;
         next unless /^Bio/;
         s/[\W;]+$//;
-        #    print "$_\n";
-        delete $MODULES{$_} if $MODULES{$_};
+        next unless $MODULES{$_};
+        $MODULES{$_}->tested(1) unless defined $MODULES{$_} and $MODULES{$_}->tested;
+        foreach ($MODULES{$_}->each_superclass) {
+            $MODULES{$_}->tested(1) unless defined $MODULES{$_} or $MODULES{$_}->tested;
+        }
+        foreach ($MODULES{$_}->each_used_class) {
+            $MODULES{$_}->tested(1) unless defined $MODULES{$_} and $MODULES{$_}->tested;
+        }
+
     }
+
     foreach ( sort keys %MODULES) {
-        print "$_\n" if $MODULES{$_} eq 'instance';
+        print "$_\n" if $MODULES{$_}->type eq 'instance' and ($MODULES{$_}->tested == 0) ;
     }
 
 }
+
+=item B<-i | --info> class
+
+Dumps information about a class given as an argument.
+
+=cut
+
+sub info {
+    my $class = shift;
+    die "" unless $class;
+    #print Dumper $MODULES{$class};
+    my $c = $MODULES{$class};
+    print $c->name, "\n";
+    printf "  Type:\n\t%s\n", $c->type;
+    print "  Superclasses:\n";
+    foreach ($c->each_superclass) {
+        print "\t$_\n";
+    }
+    print "  Used classes:\n";
+    foreach (sort $c->each_used_class) {
+        print "\t$_\n";
+    }
+}
+
+
 
 __END__
 
