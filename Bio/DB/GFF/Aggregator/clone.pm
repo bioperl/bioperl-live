@@ -14,9 +14,9 @@ sub aggregate {
   my $features = shift;
   my $factory  = shift;
 
-  my $matchsub    = $self->match_sub($factory) or return $features;
+  my $matchsub    = $self->match_sub($factory) or return;
 
-  my (%clones,@result);
+  my %clones;
   for my $feature (@$features) {
     next unless $matchsub->($feature);
 
@@ -27,10 +27,9 @@ sub aggregate {
     } elsif ($feature->method eq 'Clone_right_end') {
       $clones{$feature->group}{right} = $feature;
     }
-  } continue {
-    push @result,$feature;  # in case someone else wants to look at the components
   }
 
+  my @result;
   for my $clone (keys %clones) {
     my $canonical = $clones{$clone}{canonical} or next;
 

@@ -226,12 +226,13 @@ use strict;
 use Bio::DB::GFF::Util::Rearrange;
 use Bio::DB::GFF::RelSegment;
 use Bio::DB::GFF::Feature;
+use Bio::DB::GFF::Aggregator;
 use Bio::Root::RootI;
 
 use vars qw($VERSION @ISA);
 @ISA = qw(Bio::Root::RootI);
 
-$VERSION = '0.30';
+$VERSION = '0.35';
 
 =head2 new
 
@@ -261,16 +262,17 @@ Bio::DB::GFF::Adaptor::dbi::mysql adaptor is loaded by specifying
 because they are loaded at run time.
 
 The aggregator array may contain a list of aggregator names, or a list 
-of initialized aggregator objects.  For example, if you wish to change 
+of initialized aggregator objects.  For example, if you wish to change
 the components aggregated by the transcript aggregator, you could
 pass it to the GFF constructor this way:
 
   my $transcript = 
-     Bio::DB::Aggregator::transcript->new(-parts=>[qw(exon intron utr
-                                                      polyA spliced_leader)]);
+     Bio::DB::Aggregator::transcript->new(-sub_parts=>[qw(exon intron utr
+                                                          polyA spliced_leader)]);
+
   my $db = Bio::DB::GFF->new(-aggregator=>[$transcript,'clone','alignment],
                              -adaptor   => 'dbi:mysql',
-                              -dsn      => 'dbi:mysql:elegans42');
+                             -dsn      => 'dbi:mysql:elegans42');
 
 =cut
 
@@ -1353,7 +1355,8 @@ Arguments are:
 sub make_object {
   my $self = shift;
   my ($name,$class,$start,$stop) = @_;
-  return Bio::DB::GFF::Homol->new($self,$name,$class,$start,$stop) if defined $start and length $start;
+  return Bio::DB::GFF::Homol->new($self,$class,$name,$start,$stop)
+    if defined $start and length $start;
   return Bio::DB::GFF::Featname->new($class,$name);
 }
 
@@ -1395,20 +1398,20 @@ sub _features {
   ($start,$stop) = ($stop,$start) if defined($start) && $start > $stop;
 
   $types = $self->parse_types($types);  # parse out list of types
-  my $aggregated_types = $types;         # keep a copy
+  my @aggregated_types = @$types;         # keep a copy
 
   my %groups;  # cache groups so that we don't create them unecessarily
 
   if ($iterator) {
     my $callback = sub { $self->make_feature($parent,\%groups,@_) };
     return $self->get_features_iterator($range_query,$refseq,$class,
-					$start,$stop,$aggregated_types,$callback) ;
+					$start,$stop,\@aggregated_types,$callback) ;
   }
 
   # allow the aggregators to operate on the original
   if ($automerge) {
     for my $a ($self->aggregators) {
-      $aggregated_types = $a->disaggregate($aggregated_types,$self);
+      $a->disaggregate(\@aggregated_types,$self);
     }
   }
 
@@ -1416,13 +1419,13 @@ sub _features {
 
   my $callback = sub { push @$features,$self->make_feature($parent,\%groups,@_) };
   $self->get_features($range_query,$refseq,$class,
-		      $start,$stop,$aggregated_types,$callback) ;
+		      $start,$stop,\@aggregated_types,$callback) ;
 
   if ($automerge) {
     warn "aggregating...\n" if $self->debug;
-    my @aggregated;
     foreach my $a (reverse $self->aggregators) {  # last aggregator gets first shot
-      $features = $a->aggregate($features,$self);
+      my $agg = $a->aggregate($features,$self) or next;
+      push @$features,@$agg;
     }
   }
 

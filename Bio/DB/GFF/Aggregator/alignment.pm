@@ -14,36 +14,35 @@ sub aggregate {
   my $features = shift;
   my $factory  = shift;
 
-  my $matchsub = $self->match_sub($factory) or return $features;
-  my $method = $self->method;
+  my $matchsub = $self->match_sub($factory) or return;
+  my $method = $self->get_method;
 
-  my (%alignments,%targets,@result);
+  my (%alignments,%targets);
 
   warn "running aligner aggregator" if $factory->debug;
   for my $feature (@$features) {
 
-    if ( $matchsub->($feature) ) {
-      my $group  = $feature->{group};
-      my $source = $feature->source;
-      unless (exists $alignments{$group,$source}) {
-	my $type = Bio::DB::GFF::Typename->new($method,$source);
+    next unless $matchsub->($feature);
 
-	my $f = $feature->clone;
-	# this is a violation of OO encapsulation, but need to do it this way
-	# to achieve desired performance
-	@{$f}{qw(type score phase)} = ($type,undef,undef);
+    my $group  = $feature->{group};
+    my $source = $feature->source;
+    unless (exists $alignments{$group,$source}) {
+      my $type = Bio::DB::GFF::Typename->new($method,$source);
 
-	$alignments{$group,$source} = $f or next;
-      }
+      my $f = $feature->clone;
+      # this is a violation of OO encapsulation, but need to do it this way
+      # to achieve desired performance
+      @{$f}{qw(type score phase)} = ($type,undef,undef);
 
-      my $main = $alignments{$group,$source};
-      $main->add_subfeature($feature);
+      $alignments{$group,$source} = $f or next;
     }
 
-    push @result,$feature;  # in case someone else wants to look at the components
+    my $main = $alignments{$group,$source};
+    $main->add_subfeature($feature);
   }
 
   warn "running aligner adjuster" if $factory->debug;
+  my @result;
   for my $alignment (values %alignments) {
     $alignment->adjust_bounds;
     push @result,$alignment;
