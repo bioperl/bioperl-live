@@ -150,11 +150,13 @@ sub next_seq {
       my $buffer;
       my (@acc, @features);
       my ($display_id, $annotation);
+      my $species;
 
       # initialize; we may come here because of starting over
       @features = ();
       $annotation = undef;
       @acc = ();
+      $species = undef;
       %params = (-verbose => $self->verbose); # reset hash
     
       while(defined($buffer = $self->_readline())) {
@@ -243,12 +245,13 @@ sub next_seq {
 	  elsif( /^KEYWORDS\s+(.*)/ ) {
 	      my $keywords = $1;
 	      $keywords =~ s/\;//g;
+	      $keywords =~ s/\.$//; # remove possibly trailing dot
 	      $params{'-keywords'} = $keywords;
 	  }
 	  # Organism name and phylogenetic information
 	  elsif (/^SOURCE/) {
 	      if($builder->want_slot('species')) {
-		  my $species = $self->_read_GenBank_Species(\$buffer);
+		  $species = $self->_read_GenBank_Species(\$buffer);
 		  $builder->add_slot_value(-species => $species);
 	      } else {
 		  while(defined($buffer = $self->_readline())) {
@@ -344,9 +347,20 @@ sub next_seq {
 	      }
 		
 	      # process ftunit
-	      push(@features,
-		   $ftunit->_generic_seqfeature($self->location_factory(),
-						$display_id));
+	      my $feat =
+		  $ftunit->_generic_seqfeature($self->location_factory(),
+					       $display_id);
+	      # add taxon_id from source if available
+	      if($species && ($feat->primary_tag eq 'source') &&
+		 $feat->has_tag('db_xref') && (! $species->ncbi_taxid())) {
+		  foreach my $tagval ($feat->get_tag_values('db_xref')) {
+		      if(index($tagval,"taxon:") == 0) {
+			  $species->ncbi_taxid(substr($tagval,6));
+		      }
+		  }
+	      }
+	      # add feature to list of features
+	      push(@features, $feat);
 	  }
 	  $builder->add_slot_value(-features => \@features);
 	  $_ = $buffer;
@@ -875,7 +889,7 @@ sub _add_ref_to_array {
            lines.
  Example :
  Returns : A Bio::Species object
- Args    :
+ Args    : a reference to the current line buffer
 
 =cut
 
@@ -939,7 +953,7 @@ sub _read_GenBank_Species {
     @class = reverse @class;
     
     my $make = Bio::Species->new();
-    $make->classification( @class );
+    $make->classification( \@class, "FORCE" ); # no name validation please
     $make->common_name( $common      ) if $common;
     $make->sub_species( $sub_species ) if $sub_species;
     $make->organelle($organelle) if $organelle;

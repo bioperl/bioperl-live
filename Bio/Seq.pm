@@ -1086,17 +1086,6 @@ sub flush_SeqFeatures {
     return @feats;
 }
 
-# in all other modules we use the object in the singular --
-# lack of consistency sucks
-sub flush_SeqFeature {
-    return shift()->flush_SeqFeatures();
-}
-
-# also, in some modules we use remove_XXXX -- lack of consistency really sucks
-sub remove_SeqFeatures {
-    return shift->flush_SeqFeatures();
-}
-
 =head2 top_SeqFeatures
 
  Title   : top_SeqFeatures
@@ -1238,5 +1227,20 @@ sub annotation {
 
 # keep AUTOLOAD happy
 sub DESTROY { }
+
+############################################################################
+# aliases due to name changes or to compensate for our lack of consistency #
+############################################################################
+
+# in all other modules we use the object in the singular --
+# lack of consistency sucks
+sub flush_SeqFeature {
+    return shift()->flush_SeqFeatures();
+}
+
+# also, in some modules we use remove_XXXX -- lack of consistency really sucks
+sub remove_SeqFeatures {
+    return shift->flush_SeqFeatures();
+}
 
 1;

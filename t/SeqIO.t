@@ -9,7 +9,7 @@ BEGIN {
 	use lib 't';
     }
     use Test;
-    $TESTCOUNT = 129;
+    $TESTCOUNT = 138;
     plan tests => $TESTCOUNT;
 }
 
@@ -216,17 +216,21 @@ my $seqnum = 0;
 my $species;
 my @cl;
 my $lasts;
+my @ids = qw(DDU63596 DDU63595 HUMBDNF);
+my @tids = (44689, 44689, 9606);
+my @tnames = ("Dictyostelium discoideum","Dictyostelium discoideum","Homo sapiens");
 while($seq = $stream->next_seq()) {
-    $seqnum++;
-    if($seqnum == 3) {
-	ok $seq->display_id(), "HUMBDNF";
+    if($seqnum < 3) {
+	ok $seq->display_id(), $ids[$seqnum];
 	$species = $seq->species();
 	@cl = $species->classification();
-	ok( $species->binomial(), "Homo sapiens", 
+	ok( $species->binomial(), $tnames[$seqnum], 
 	    'species parsing incorrect for genbank');
 	ok( $cl[3] ne $species->genus(), 1, 
 	    'genus duplicated in genbank parsing');
+	ok( $species->ncbi_taxid, $tids[$seqnum] );
     }
+    $seqnum++;
     $lasts = $seq;
 }
 ok $lasts->display_id(), "HUMBETGLOA";

@@ -780,7 +780,7 @@ sub _read_EMBL_References {
            lines.
  Example :
  Returns : A Bio::Species object
- Args    :
+ Args    : a reference to the current line buffer
 
 =cut
 
@@ -830,7 +830,7 @@ sub _read_EMBL_Species {
     @class = reverse @class;
     
     my $make = Bio::Species->new();
-    $make->classification( @class );
+    $make->classification( \@class, "FORCE" );  # no name validation please
     $make->common_name( $common      ) if $common;
     $make->sub_species( $sub_species ) if $sub_species;
     $make->organelle  ( $org         ) if $org;

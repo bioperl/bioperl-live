@@ -275,7 +275,7 @@ sub sub_species {
            $binomial = $self->binomial('FULL');
  Function: Returns a string "Genus species", or "Genus species subspecies",
            the first argument is 'FULL' (and the species has a subspecies).
- Args    : Optionally the string 'FULL' to get the full name including the
+ Args    : Optionally the string 'FULL' to get the full name including
            the subspecies.
 
 =cut
@@ -319,19 +319,17 @@ sub validate_name {
 
  Title   : ncbi_taxid
  Usage   : $obj->ncbi_taxid($newval)
- Function:
- Returns : value of ncbi_taxid as string
- Args    : newvalue (optional)
+ Function: Get/set the NCBI Taxon ID
+ Returns : the NCBI Taxon ID as a string
+ Args    : newvalue to set or undef to unset (optional)
 
 
 =cut
 
 sub ncbi_taxid {
-    my( $self, $sub ) = @_;
+    my $self = shift;
 
-    if ($sub) {
-        $self->{'_ncbi_taxid'} = $sub;
-    }
+    return $self->{'_ncbi_taxid'} = shift if @_;
     return $self->{'_ncbi_taxid'};
 }
 

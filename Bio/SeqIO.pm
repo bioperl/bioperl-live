@@ -84,10 +84,6 @@ and
 
    $stream->write_seq($seq);
 
-also
-
-   $stream->type() # returns 'INPUT' or 'OUTPUT'
-
 As an added bonus, you can recover a filehandle that is tied to the
 SeqIO object, allowing you to use the standard E<lt>E<gt> and print operations
 to read and write sequence objects:
