@@ -8,30 +8,8 @@
 # For documentation, run this module through pod2html 
 # (preferably from Perl v5.004 or better).
 #
-# MODIFIED: 
-#    24 Nov 1998, sac:
-#      * Modified read(), compress(), and uncompress() to properly
-#        deal with file ownership issues.
+# MODIFICATION NOTES: See bottom of file.
 #
-#    19 Aug 1998, sac:
-#      * Fixed bug in display(), which wasn't returning true (1).
-#
-#    0.023, 20 Jul 1998, sac:
-#      * read() can now use a supplied FileHandle or GLOB ref (\*IN).
-#      * A few other touch-ups in read().
-#
-#    0.022, 16 Jun 1998, sac:
-#      * read() now terminates reading when a supplied &$func_ref
-#        returns false.
-#
-#    0.021, May 1998, sac:
-#      * Refined documentation to use 5.004 pod2html.
-#      * Properly using typglob refs as necessary 
-#        (e.g., set_display(), set_fh()).
-#
-#    0.031, 2 Sep 1998, sac:
-#      * Doc changes only
-# 
 # Copyright (c) 1997-8 Steve A. Chervitz. All Rights Reserved.
 #           This module is free software; you can redistribute it and/or 
 #           modify it under the same terms as Perl itself.
@@ -39,7 +17,7 @@
 
 package Bio::Root::IOManager;
 
-use Bio::Root::Global     qw(:devel $CGI);
+use Bio::Root::Global     qw(:devel $CGI $TIMEOUT_SECS);
 use Bio::Root::Object     ();
 use Bio::Root::Utilities  qw(:obj); 
 use FileHandle            ();
@@ -49,7 +27,7 @@ use FileHandle            ();
 use strict;
 use vars qw($ID $VERSION $revision);
 $ID = 'Bio::Root::IOManager';
-$VERSION = 0.04;
+$VERSION = 0.043;
 
 ## POD Documentation:
 
@@ -179,7 +157,7 @@ See the L<FEEDBACK> section for where to send bug reports and comments.
 
 =head1 VERSION
 
-Bio::Root::IOManager.pm, 0.04
+Bio::Root::IOManager.pm, 0.043
 
 =head1 ACKNOWLEDGEMENTS
 
@@ -645,12 +623,14 @@ sub fh {
  Example   : $data = $object->read(-FILE    =>'usr/people/me/data.txt',
 	   :			   -REC_SEP =>"\n:",
 	   :			   -FUNC    =>\&process_rec);
-           : $data = $object->read(-HANDLE  =>\*FILEHANDLE);
-           : $data = $object->read(-HANDLE  =>new FileHandle $file, 'r');
+           : $data = $object->read(-FILE  =>\*FILEHANDLE);
+           : $data = $object->read(-FILE  =>new FileHandle $file, 'r');
            :
  Argument  : Named parameters: (TAGS CAN BE UPPER OR LOWER CASE)
            :  (all optional)
-           :    -FILE    => string (full path to file) (optional)
+           :    -FILE    => string (full path to file) or a reference
+           :                to a FileHandle object or typeglob. This is an
+           :                optional parameter (if not defined, STDIN is used).
            :    -REC_SEP => record separator to be used
            :                when reading in raw data. If none is supplied,
            :                the default record separator is used ($/).
@@ -669,6 +649,10 @@ sub fh {
            :                read from a desired file before calling this
            :                method. If both -handle and -file are defined,
            :                -handle takes precedence.
+           :                (The -HANDLE parameter is no longer necessary
+           :                 since -FILE can now contain a FileHandle ref.)
+           :    -WAIT    => integer (number of seconds to wait for input
+           :                before timing out. Default = 20 seconds).
            :
  Returns   : string, array, or undef depending on the arguments.
            : If a function reference is supplied, this function will be
@@ -677,7 +661,10 @@ sub fh {
            : string in scalar context or as a list in array context.
            : The data are not altered; blank lines are not removed. 
            :
- Throws    : Exception if reading from a file which cannot be opened.
+ Throws    : Exception if no input is read from source.
+           : Exception if no input is read within WAIT seconds.
+           : Exception if FUNC is not a function reference.
+           : Propagates any exceptions thrown by create_filehandle()
            :
  Comments  : Gets the file name from the current file data member.
            : If no file has been defined, this method will attempt to
@@ -694,7 +681,7 @@ sub fh {
            : If the raw data is to be returned, wantarray is used to
            : determine how the data are to be returned (list or string).
            :
-           : Sets the current file data member to be the supplied file name.
+           : Sets the file data member to be the supplied file name.
            : (if any is supplied).
 
            : The read() method is a fairly new implementation
@@ -705,7 +692,7 @@ sub fh {
            : when using the -w switch. It can be ignored for now:
   "Close on unopened file <GEN0> at /tools/perl/5.003/lib/FileHandle.pm line 255."
 
-See Also   : L<file>()
+See Also   : L<file>(), L<create_filehandle>()
 
 =cut
 
@@ -713,14 +700,15 @@ See Also   : L<file>()
 sub read {
 #----------
     my($self, @param) = @_;
-    my($file, $rec_sep, $func_ref, $handle ) =
-	$self->_rearrange([qw(FILE REC_SEP FUNC HANDLE)], @param);
+    my( $rec_sep, $func_ref, $wait ) =
+	$self->_rearrange([qw( REC_SEP FUNC WAIT)], @param);
 
     my $fmt = (wantarray ? 'list' : 'string');
+    $wait ||= $TIMEOUT_SECS;  # seconds to wait before timing out.
 
-    $file = $self->file($file);
+    my $FH = $Util->create_filehandle( -client => $self, @param);
 
-    # Set the record separator, if necessary.
+    # Set the record separator (if necessary) using dynamic scope.
     local $/ = $rec_sep if scalar $rec_sep;
 
     # Verify that we have a proper reference to a function.
@@ -733,65 +721,45 @@ sub read {
     $DEBUG && printf STDERR "$ID: read(): rec_sep = %s; func = %s\n",$/, ($func_ref?'defined':'none');
     
     my($data, $lines);
-    my $compress = 0;
 
-    local($^W) = 0;   # Prevent warning from FileHandle.pm (see Bugs)
-
-    my $fh = new FileHandle;
-
-    my ($handle_ref, $dont_close, $owner);
-
-    if($handle_ref = ref($handle)) {
-	if($handle_ref eq 'FileHandle' or $handle_ref eq 'GLOB') {
-	    $fh = $handle;
-	} else {
-	    $self->throw("Can't read from $handle: Not a FileHandle or GLOB ref.");
-	}
-	$self->verbose > 0 and printf STDERR "$ID: reading data from FileHandle\n";
-
-    } elsif($file) {
-	# Uncompress file if neccesary.
-	if( -B $file ) {
-	    $owner = -o $file;
-	    $file = $self->uncompress_file(); $compress = 1; 
-	}
+    $SIG{ALRM} = sub { die "Timed out!"; };
+ 
+    eval {
+	 alarm($wait);
+      READ_LOOP:
+	while(<$FH>) {
+	    # Default behavior: read all lines.
+	    # If &$func_ref returns false, exit this while loop.
+	    # Uncomment to skip lines with only white space or record separators
+#	    next if m@^(\s*|$/*)$@; 
 	    
-	open ($fh, $file) || $self->throw("Can't access data file: $file",
-					  "Cause:$!");
-	$self->verbose > 0 and printf STDERR "$ID: reading data from file $file\n";
-
-    } else {
-	# Read from STDIN.
-	$fh = \*STDIN;
-	$dont_close = 1;
-	$self->verbose > 0 and printf STDERR "$ID: reading data from STDIN\n";
-    }
-
-    READ_LOOP:
-    while(<$fh>) {
-	# Default behavior: read all lines.
-	# If &$func_ref returns false, exit this while loop.
-        # Uncomment to skip lines with only white space or record separators
-#	next if m@^(\s*|$/*)$@; 
-
-	$lines++;
-	my($result);
-	if($func_ref) {
-	    $result = &$func_ref($_) or last READ_LOOP;
-#	    print "$ID read(): RESULT = $result\n"; 
-	} else {
-	    $data .= $_;
+	    $lines++;
+	    my($result);
+	    if($func_ref) {
+		$result = &$func_ref($_) or last READ_LOOP;
+#		print "$ID read(): RESULT = $result\n"; 
+	    } else {
+		$data .= $_;
+	    }
 	}
+	alarm(0);
+    };
+    if($@ =~ /Timed out!/) {
+	 $self->throw("Timed out while waiting for input from $self->{'_input_type'}.", "For a longer time out period, supply a -wait => <seconds> parameter\n".
+		     "or edit \$TIMEOUT_SECS in Bio::Root::Global.pm.");
+    } elsif($@ =~ /\S/) {
+         my $err = $@;
+	 $self->throw("Unexpected error during read: $err");
     }
 
-    close ($fh) unless $dont_close;
+    close ($FH) unless $self->{'_input_type'} eq 'STDIN';
     
     # If the file was compressed and the user is the owner of file,
     #   then leave the file in its original compressed state.
     # If the file was compressed and the user was NOT the owner of file,
     #   then removed the compressed file which is a tmp file.
 
-    $compress and ($owner ? $self->compress_file() : $self->delete_file());
+    $self->{'_compressed_file'} and ($self->{'_file_owner'} ? $self->compress_file() : $self->delete_file());
 
     if($data) {
 	$DEBUG && do{ 
@@ -800,8 +768,11 @@ sub read {
 	return ($fmt eq 'list') ? split("$/", $data) : $data;
 
     } elsif(not $func_ref) {
-	$self->throw("No data input.", "File: ".$file || 'STDIN');
+	$self->throw("No data input from $self->{'_input_type'}");
     }
+    delete $self->{'_input_type'};
+    delete $self->{'_file_owner'};
+    delete $self->{'_compressed_file'};
     undef;
 }
 
@@ -1138,4 +1109,39 @@ all or some of the following fields:
  
 =cut
 
-1;
+
+MODIFICATION NOTES:
+-------------------
+
+17 Feb 1999, sac:
+   * Using $Global::TIMEOUT_SECS
+ 
+3 Feb 1999, sac:
+   * Added timeout support to read().
+   * Moved the FileHandle creation code out of read() and into 
+     Bio::Root::Utilties since it's of more general use.
+
+ 24 Nov 1998, sac:
+   * Modified read(), compress(), and uncompress() to properly
+     deal with file ownership issues.
+
+ 19 Aug 1998, sac:
+   * Fixed bug in display(), which wasn't returning true (1).
+
+ 0.023, 20 Jul 1998, sac:
+   * read() can now use a supplied FileHandle or GLOB ref (\*IN).
+   * A few other touch-ups in read().
+
+ 0.022, 16 Jun 1998, sac:
+   * read() now terminates reading when a supplied &$func_ref
+     returns false.
+
+ 0.021, May 1998, sac:
+   * Refined documentation to use 5.004 pod2html.
+   * Properly using typglob refs as necessary 
+     (e.g., set_display(), set_fh()).
+
+0.031, 2 Sep 1998, sac:
+   * Doc changes only
+
+

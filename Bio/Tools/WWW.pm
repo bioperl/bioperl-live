@@ -50,14 +50,18 @@ Bio::Tools::WWW.pm - Bioperl manager for web resources related to biology.
 
 =head2 Object Creation
 
-There is no need to create a new Bio::Tools::WWW.pm object
-when the C<:obj> tag is used since allows you to access the
-default $BioWWW object created for you by Bio::Tools::WWW.pm.
-
     use Bio::Tools qw(:obj);
 
     $pdb = $BioWWW->home_url('pdb');
 
+There is no need to create a new Bio::Tools::WWW.pm object when the
+C<:obj> tag is used. This tag will import the static $BioWWW object
+created by Bio::Tools::WWW.pm into your name space. This saves you
+from having to call C<new Bio::Tools::WWW>.
+
+You are free to not use the :obj tag and create the object as you
+like, but a Bio::Tools::WWW object is not configurable; any given
+script only needs a single copy.
 
 =head1 INSTALLATION
 
@@ -198,7 +202,10 @@ my %Home_url =
      'phylip'          =>'http://evolution.genetics.washington.edu/phylip.html',
      'pir'             =>'http://www-nbrf.georgetown.edu/pir/',
      'pfam'            =>'http://pfam.wustl.edu/',
+     'pfam_uk'         =>'http://www.sanger.ac.uk/Software/Pfam/',
+     'pfam_us'         =>'http://pfam.wustl.edu/',
      'pdb'             =>'http://www.pdb.bnl.gov/',
+     'presage'         =>'http://presage.stanford.edu/',
      'geneQuiz'        =>'http://www.sander.ebi.ac.uk/genequiz/genomes/sc/',
      'molMov'          =>'http://bioinfo.mbb.yale.edu/MolMovDB/',
 #     'protMot'         =>'http://bioinfo.mbb.yale.edu/ProtMotDB/', # old, use molMov instead
@@ -218,6 +225,8 @@ my %Stem_url =
       'emotif'      =>'http://dna.Stanford.EDU/cgi-bin/emotif/',
       'entrez'      =>'http://www3.ncbi.nlm.nih.gov/htbin-post/Entrez/query?',
       'pdb'         =>'http://www.pdb.bnl.gov/pdb-bin/',
+      'pfam_uk'     =>'http://www.sanger.ac.uk/cgi-bin/Pfam/',
+      'pfam_us'     =>'http://pfam.wustl.edu/cgi-bin/',
       'pir'         =>'http://www-nbrf.georgetown.edu/cgi-bin/nbrfget?',
       );
 
@@ -249,13 +258,18 @@ my %Search_url =
       'molMov'       =>$Home_url{'molMov'}.'search.cgi?pdb=',
       'pdb'          =>$Stem_url{'pdb'}.'opdbshort?oPDBid=',  # same as 3db
       'pdb_coord'    =>$Stem_url{'pdb'}.'send-pdb?filename=', # retrieves full coordinate file
-      'pfam'         =>$Home_url{'pfam'}.'cgi-bin/nph-hmm_search?evalue=1.0&protseq=',
+      'pfam'         =>$Home_url{'pfam'}.'cgi-bin/nph-hmm_search?evalue=1.0&protseq=',  # default: seq search, US
+      'pfam_sp_uk'   =>$Stem_url{'pfam_uk'}.'swisspfamget.pl?name=',
+      'pfam_seq_uk'  =>$Stem_url{'pfam_uk'}.'nph-search.cgi?evalue=1.0&type=normal&protseq=',
+      'pfam_sp_us'   =>$Stem_url{'pfam_us'}.'getswisspfam?key=',
+      'pfam_seq_us'  =>$Stem_url{'pfam_us'}.'nph-hmm_search?evalue=1.0&protseq=',
       'pfam_form'    =>$Home_url{'pfam'}.'cgi-bin/hmm_page.cgi', # interactive search form
       'pir_id'       =>$Stem_url{'pir'}.'fmt=c&xref=0&id=',
       'pir_acc'      =>$Stem_url{'pir'}.'fmt=c&xref=1&id=',
       'pir_uid'      =>$Stem_url{'pir'}.'uid=',
       'pdbSum'       =>$Home_url{'bsm'}.'cath/GetPDBSUMCODE.pl?code=',
 #      'protMot'      =>$Home_url{'protMot'}.'search.cgi?pdb=', # old, use molMov instead
+      'presage_sp'   =>$Home_url{'presage'}.'search.cgi?spac=',
       'swpr'         =>$Home_url{'expasy'}.'cgi-bin/get-sprot-entry?',
       'swModel'      =>$Home_url{'expasy'}.'cgi-bin/sprot-swmodel-sub?',
       'swprSearch'   =>$Home_url{'expasy'}.'cgi-bin/sprot-search-ful?',
@@ -344,8 +358,10 @@ my %S3d_url =
      'pdb'           =>$SGD_stem_url{'s3d'}.'get?class=pdb&item=',
      'pdb_coord'     =>$SGD_stem_url{'s3d'}.'pdbcoord.pl?id=',
      'dsc'           =>$SGD_stem_url{'s3d'}.'dsc.pl?gene=',
-     'emotif'        =>$SGD_stem_url{'s3d'}.'seq_search?db=emotif&gene=',
-     'pfam'          =>$SGD_stem_url{'s3d'}.'seq_search?db=pfam&gene=',
+     'emotif'        =>$SGD_stem_url{'s3d'}.'seq_search.pl?db=emotif&gene=',
+     'pfam'          =>$SGD_stem_url{'s3d'}.'seq_search.pl?db=pfam&gene=',
+     'pfam_uk'       =>$SGD_stem_url{'s3d'}.'seq_search.pl?db=pfam&loc=uk&gene=',
+     'pfam_us'       =>$SGD_stem_url{'s3d'}.'seq_search.pl?db=pfam&loc=us&gene=',
      'blast_pdb'     =>$SGD_stem_url{'s3d'}.'getblast?db=pdb&name=',
      'blast_nr'      =>$SGD_stem_url{'s3d'}.'getblast?db=nr&name=',
      'blast_est'     =>$SGD_stem_url{'s3d'}.'getblast?db=est&name=',
@@ -416,9 +432,9 @@ for documentation purposes only.
 
 =cut
 
-##########################################################################################
-##                               ACCESSOR METHODS                                       ##
-##########################################################################################
+#########################################################################
+##                          ACCESSOR METHODS                            
+#########################################################################
 
 
 =head2 home_url
@@ -431,7 +447,7 @@ for documentation purposes only.
            :    bioperl  bioperl-schema  biomoo  bsm  ebi  emotif  entrez 
            :    expasy  mips  mmdb  ncbi  pir  pfam  pdb  geneQuiz  
            :    molMov  pubmed  sacch3d  sgd  scop  swissProt  webmol  ypd
- Throws    : n/a
+ Throws    : Warns if argument cannot be resolved to a URL.
  Comments  : The URLs listed here do not represent a complete list.
            : Expect this to evolve and grow with time.
 
@@ -444,7 +460,9 @@ sub home_url {
 #-------------
     my($self,$arg) = @_; 
     $arg eq 'all' and return %Home_url;
-    (exists $Home_url{$arg}) ? $Home_url{$arg} : $Not_found_url;
+    (exists $Home_url{$arg}) ? $Home_url{$arg} 
+                             : ($self->warn("Can't resolve argument to URL: $arg"), 
+				$Not_found_url);
 }
 
 
@@ -461,7 +479,7 @@ sub home_url {
            :   gb3  gb4  gb5  pdb  medline  mmdb  pdb  pdb_coord  pfam  pir_acc  
            :   pdbSum  molMov  swpr  swModel  swprSearch  scop  scop_pdb  scop_data 
            :   ypd
- Throws    : n/a
+ Throws    : Warns if argument cannot be resolved to a URL.
  Comments  : Unlike the homepage URLs, this method does not return a complete
            : URL but a stem which must be further modified, typically by
            : appending data to it, before it can be used. The data appended
@@ -486,7 +504,9 @@ sub search_url {
 #--------------
     my($self,$arg) = @_; 
     $arg eq 'all' and return %Search_url;
-    (exists $Search_url{$arg}) ? $Search_url{$arg} : $Not_found_url;
+    (exists $Search_url{$arg}) ? $Search_url{$arg} 
+                             : ($self->warn("Can't resolve argument to URL: $arg"), 
+				$Not_found_url);
 }
 
 
@@ -499,7 +519,7 @@ sub search_url {
  Argument  : String
            : Currently acceptable arguments are:
            :    emotif  entrez  pdb
- Throws    : n/a
+ Throws    : Warns if argument cannot be resolved to a URL.
  Comments  : The URLs stems returned by this method are much more minimal than
            : this provided by search_url(). Use of these stems requires knowledge
            : of the CGI scripts which they invoke.
@@ -513,7 +533,9 @@ sub stem_url {
 #--------------
     my($self,$arg) = @_; 
     $arg eq 'all' and return %Stem_url;
-    (exists $Stem_url{$arg}) ? $Stem_url{$arg} : $Not_found_url;
+    (exists $Stem_url{$arg}) ? $Stem_url{$arg}
+                             : ($self->warn("Can't resolve argument to URL: $arg"), 
+				$Not_found_url);
 }
 
 	      
@@ -526,7 +548,7 @@ sub stem_url {
  Argument  : String
            : Currently acceptable arguments are:
            :    rasmol webmol cn3d java  (java is an alias for webmol)
- Throws    : n/a
+ Throws    : Warns if argument cannot be resolved to a URL.
  Comments  : The 4-letter Brookhaven PDB identifier must be appended to the
            : URL provided by this method.
            : The URLs listed here do not represent a complete list.
@@ -539,7 +561,9 @@ sub viewer_url {
 #---------------
     my($self,$arg) = @_; 
     $arg eq 'all' and return %Viewer_url;
-    (exists $Viewer_url{$arg}) ? $Viewer_url{$arg} : $Not_found_url;
+    (exists $Viewer_url{$arg}) ? $Viewer_url{$arg} 
+                             : ($self->warn("Can't resolve argument to URL: $arg"), 
+				$Not_found_url);
 }
 
 
@@ -670,7 +694,7 @@ sub html {
  Returns   : String containing the URL (including "http://")
  Argument  : String
            : Currently acceptable arguments (TODO).
- Throws    : n/a
+ Throws    : Warns if argument cannot be resolved to a URL.
  Comments  : This accessor is specialized for the Saccharomyces Genome Database.
            : It is possible that it will be moved to SGD::WWW.pm in the future.
 
@@ -683,7 +707,9 @@ sub sgd_url {
 #------------
     my($self,$arg) = @_; 
     $arg eq 'all' and return %SGD_url;
-    (exists $SGD_url{$arg}) ? $SGD_url{$arg} : $Not_found_url;
+    (exists $SGD_url{$arg}) ? $SGD_url{$arg} 
+                             : ($self->warn("Can't resolve argument to URL: $arg"), 
+				$Not_found_url);
 }
 
 
@@ -695,7 +721,7 @@ sub sgd_url {
  Returns   : String containing the URL (including "http://")
  Argument  : String
            : Currently acceptable arguments (TODO).
- Throws    : n/a
+ Throws    : Warns if argument cannot be resolved to a URL.
  Comments  : This accessor is specialized for the Saccharomyces Genome Database.
            : It is possible that it will be moved to SGD::WWW.pm in the future.
 
@@ -708,7 +734,9 @@ sub s3d_url {
 #-----------
     my($self,$arg) = @_; 
     $arg eq 'all' and return %S3d_url;
-    (exists $S3d_url{$arg}) ? $S3d_url{$arg} : $Not_found_url;
+    (exists $S3d_url{$arg}) ? $S3d_url{$arg} 
+                             : ($self->warn("Can't resolve argument to URL: $arg"), 
+				$Not_found_url);
 }
 
 
@@ -720,7 +748,7 @@ sub s3d_url {
  Returns   : String containing the URL (including "http://")
  Argument  : String
            : Currently acceptable arguments (TODO).
- Throws    : n/a
+ Throws    : Warns if argument cannot be resolved to a URL.
  Comments  : This accessor is specialized for the Saccharomyces Genome Database.
            : It is possible that it will be moved to SGD::WWW.pm in the future.
 
@@ -733,7 +761,9 @@ sub sgd_stem_url {
 #-----------------
     my($self,$arg) = @_; 
     $arg eq 'all' and return %SGD_stem_url;
-    (exists $SGD_stem_url{$arg}) ? $SGD_stem_url{$arg} : $Not_found_url;
+    (exists $SGD_stem_url{$arg}) ? $SGD_stem_url{$arg} 
+                             : ($self->warn("Can't resolve argument to URL: $arg"), 
+				$Not_found_url);
 }
 
 
@@ -793,9 +823,9 @@ sub sgd_link {
 }
 
 
-##########################################################################################
-##                               INSTANCE METHODS                                       ##
-##########################################################################################
+#########################################################################
+##                        INSTANCE METHODS                              
+#########################################################################
 
 ## Note that similar functions to those presented below are also availble 
 ## via L. Stein's CGI.pm. These are more experimental versions.
@@ -976,9 +1006,9 @@ sub strip_html {
 1;
 __END__
 
-#####################################################################################
-#                                END OF CLASS                                       #
-#####################################################################################
+########################################################################
+##                            END OF CLASS                             
+########################################################################
  
 =head1 FOR DEVELOPERS ONLY
 

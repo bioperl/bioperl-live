@@ -1,8 +1,10 @@
-#!/usr/local/bin/perl -w
+#!/usr/bin/perl 
 
 # This program is originally from www.webtechs.com  --Alex Dong Li
 #
 # MODIFICATIONS BY STEVE A. CHERVITZ MARKED 'SAC:'
+#
+# REVISION: $Id$
 
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 #
@@ -37,7 +39,6 @@
  
 $SOCK_STREAM = 2;
 
-
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 #%                                                                     %
 #%             PROGRAM  :  postclient.pl                               %
@@ -65,13 +66,17 @@ $usage = 'Usage: postclient.pl {-h} [-u URL]
     [-f FieldName=FieldValue FieldName=FieldValue FieldName=FieldValue ...]
 ';
 
+# This script implements its own version of Getopt::Std (sub MyGetOpts)
+use vars qw($opt_h $opt_u @opt_f);
+use Carp;  # SAC: die --> croak and using more informative error msgs.
+
 &MyGetOpts('hu:f@');
 $ENV{'PATH'} = "/usr/ucb:" . $ENV{'PATH'};
 
-if(defined($opt_h)) { print $usage; exit; }
-if(!defined($opt_u)) { print $usage; exit; }
+if(defined($opt_h)) { print $usage; exit 1; }
+if(!defined($opt_u)) { print "URL not specified.\n\n$usage\n"; exit 1; }
 else { $url = $opt_u; }
-if(!defined(@opt_f)) { print $usage; exit; }
+if(!defined(@opt_f)) { print "Fields not specified.\n\n$usage\n"; exit 1; }
 else {
     foreach $f (@opt_f) {
 	push(@fields,$f);
@@ -93,7 +98,9 @@ if($url =~ /^([a-z]+)\:\/\/([^:\/]+)(:\d+)?(.+)$/) {
     else { $port =~ s/://; }
 }
 
-if($protocol ne 'http') { exit; }
+if($protocol ne 'http') { 
+  croak "Invalid or undefined protocol: $protocol\nMust be http.\n";
+}
 
 # build the GET URL command
 # if the leading slash is omitted, try adding one
@@ -113,10 +120,12 @@ chop($hostname = `hostname`);
 ($name,$aliases,$port) = getservbyname($port,'tcp') unless $port =~ /^\d+$/;;
 ($name,$aliases,$type,$len,$thisaddr) = gethostbyname($hostname);
 
-# SAC: Added $0 to the die calls.
+# SAC: Added $0 to the croak calls.
 
 ($name,$aliases,$type,$len,$thataddr) = gethostbyname($server);
-if($name eq '') { die "\n$0: $!\n"; } # handle gethostbyname failure
+if($name eq '') { 
+  croak "\n$0: Can't gethostbyname ($server)\n$!\n"; 
+} # handle gethostbyname failure
 
 $this = pack($sockaddr,$AF_INET,0,$thisaddr);
 $that = pack($sockaddr,$AF_INET,$port,$thataddr);
@@ -129,15 +138,15 @@ if (!socket(S,$AF_INET,$SOCK_STREAM,$proto)) {
 #    print STDERR "\n\npostclient.pl: open socket($SOCK_STREAM) failed. Trying again.\n\n";
     $SOCK_STREAM = ($SOCK_STREAM == 1 ? 2 : 1);
     if(!socket(S,$AF_INET,$SOCK_STREAM,$proto)) {
-	die "\n$0: Can't open socket: $!\n";
+	croak "\n$0: Failed socket call: $!\n";
     }
 }
 
 # give the socket an address
-if (!bind(S,$this)) { die "\n$0: $!\n"; }
+if (!bind(S,$this)) { croak "\n$0: Failed bind call: $!\n"; }
 
 #call up the server
-if (!connect(S,$that)) { die "\n$0: $!\n"; }
+if (!connect(S,$that)) { croak "\n$0: Failed connect call: $!\n"; }
 
 # Build the string of field name and values pairs
 my $str = '';
@@ -186,7 +195,7 @@ if(/^HTTP/) {
 
 close(S);
 
-exit;
+exit 0;
 
 sub MyGetOpts {
     local($argumentative) = @_;

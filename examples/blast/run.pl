@@ -1,4 +1,4 @@
-#!/usr/local/bin/perl -w
+#!/usr/bin/perl -w
 
 #---------------------------------------------------------------------------
 # PROGRAM  : run.pl
@@ -67,10 +67,10 @@ sub examples {
 <<"QQ_EG_QQ";
 (Run these in the examples/blast/ directory of the distribution.)
 
-  ./$ID seq/yel009c.fasta -db swissprot -signif 1e-15 -html > out.gap2
-  ./$ID seq/ymr284w.fasta -nogap -db yeast > out.nogap2
-  ./$ID seq/yel009c.fasta -vers 1 -signif 1e-20 -nomon > out1
-  ./$ID -html -noparse  seq/yel009c.fasta 
+  ./$ID seq/yel009c.fasta -prog blastp -db swissprot -signif 1e-15 -html > out.gap2
+  ./$ID seq/ymr284w.fasta -prog blastp -nogap -db yeast > out.nogap2
+  ./$ID seq/acc1.dna.fasta -prog blastx -db ecoli -vers 1 -signif 1e-20 -nomon > out1
+  ./$ID -html -noparse -prog blastp -db nr seq/yel009c.fasta 
 
 QQ_EG_QQ
 }
@@ -89,8 +89,12 @@ if(not -s ($opt_seq ||= $ARGV[0]))  {
 
 # Create a new sequence object (query sequence)
 $qseq = new Bio::Seq ( -file => $opt_seq,
-			  -ffmt => $opt_seqfmt,
-			  -type => $opt_dna ? 'Dna' : 'Amino');
+		       -ffmt => $opt_seqfmt,
+		       # $opt_dna is no longer used.
+		       # Automatic sequence type detection is still
+		       # an open issue.
+		       # -type => $opt_dna ? 'Dna' : 'Amino'
+		     );
 
 #print "\nSEQ ${\$qseq->id} IN FASTA FORMAT:\n";
 #print $qseq->layout('Fasta'); <STDIN>;
@@ -130,7 +134,8 @@ eval {
 $@ and die $@;
 
 $MONITOR = 0;
-$opt_table ? &print_table : &show_results;  # provided by blast_config.pl
+# Run some functions provided by blast_config.pl:
+$opt_table ? &print_table($blastObj) : &show_results($blastObj);
 
 $opt_compress && (print STDERR "\nCompressing file.", $blastObj->compress_file);
 

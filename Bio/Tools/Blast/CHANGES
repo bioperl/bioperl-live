@@ -1,5 +1,52 @@
 Revision history for Perl extension Bio::Tools::Blast.pm and related modules.
 
+0.075  Wed Feb 17 01:29:57 1999
+        - Bug fix in Blast::Run::postclient.pl which was always printing 
+          usage information (reported by Ross Crowhurst).
+        - Improved error detection & reporting in Blast::Run::Webblast
+	  and Blast::Run::postclient.pl.
+        - Bug fixes in HSP.pm: _set_match_stats() now properly handles
+          BLASTN output format and matches() properly handles BLASTX
+          reports.
+        - Fixed detection of substitution matrix type in Blast.pm.
+        - Updated Blast example scripts in examples/blast/
+	  (in particular, run.pl).
+	  
+0.074  Wed Feb  3 04:10:06 1999
+        - Modified blast_config.pl to make the -prog and -db command-line
+          arguments mandatory. There are no default values for $opt_blast
+          and $opt_db. Also removed the -dna command-line argument.
+        - Fixed alignment section parsing bug in Blast.pm (bug report #24);
+          affects _parse_hsp_string().
+        - Modified Blast::_display_hits() to use table_tiled(), thus
+          avoiding the buggy Sbjct::_display_hits().
+        - Bug fix in Blast::HTML.pm regarding detection of HTML formatting.
+        - Changes in HSP::_set_data() to support BLAST-GP version 2.0.8.
+        - Changed the #! line of Bio/Tools/Blast/Run/postclient.pl
+          to the more standard /usr/bin/perl and predeclared some vars
+          to avoid compiler warnings.
+        - blast_config.pl and seqtools.pl were modified to include support 
+          for the -wait option (sets timeout during file/stream reading). 
+        - Assorted touch-ups to example/blast scripts.
+
+0.073  Mon Dec 28 15:18:29 1998
+        - Made changes in Sbjct.pm and HSP.pm to allow parsing of older
+          versions of Blast. This affected HSP::_set_data() ("Query:?")
+          and Sbjct::_set_hsps() ("\s*Score").
+        - Improved error handling in Sbjct::_set_hsps() and error
+          detection in HSP_set_data().
+        - Added methods for obtaining the number of identical and conserved
+          residues (sans gaps) sequences in HSP.pm (num_identical, 
+          num_conserved).
+        - Modified the default behavior of frac_identical() and 
+          frac_conserved() to use the procedure used in the BLAST report:
+             BLAST-GP: uses total length of alignment in denominator
+             WU-BLAST: uses length of query sequence (sans gaps) in denominator.
+          When these methods are called with an argument ('sbjct' or 'query'),
+          the length of the sbjct or query sequence (sans gaps) is used in 
+          the denominator (recommended).
+        - Fixed error in test #29 in the t/Blast.t test script.
+
 0.072  Wed Dec 16 05:05:21 1998
         - Fixed out of range exception in HSP::matches() as suggested by
           Michael Lonetto in bio.perl.org bug report #11.

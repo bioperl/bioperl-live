@@ -1,9 +1,10 @@
-#!/usr/local/bin/perl
+#!/usr/bin/perl
 
 # PROGRAM  : simplealign.pl
 # PURPOSE  : Simple driver for Bio::SimpleAlign
 # AUTHOR   : Ewan Birney birney@sanger.ac.uk 
 # CREATED  : Tue Oct 27 1998
+# REVISION : $Id$
 #
 # INSTALLATION
 #    If you have installed bioperl using the standard

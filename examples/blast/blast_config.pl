@@ -6,7 +6,7 @@ BEGIN {
         ###         to the directory right above Bio/ in order
         ###         for perl to be able to locate the .pm files. 
 
-	$INSTALL_PATH = "/home/users/sac/perl/lib";
+	$INSTALL_PATH = "/home/steve/perl/bioperl";
 
         ###
         ####
@@ -22,7 +22,18 @@ BEGIN {
 # WEBSITE      : http://bio.perl.org/Projects/Blast/
 # INSTALLATION : Edit $INSTALL_PATH to point to the directory containing
 #                your Bioperl modules (the Bio/ directory).
-# USAGE: Here is a minimal script that uses this package:
+#
+# USAGE: This script provides a library of handy routines that can be used
+#        by other scripts that need to run and/or parse Blast reports.
+#        All of the scripts in the examples/blast directory of the Bioperl
+#        central distribution do this. See them for examples.
+#
+#        To use, simply require blast_config.pl into your script.
+#        This script uses Perl's Getopt::Long module for processing command-line
+#        parameters.
+#        The -h and -eg command-line options provide usage and examples, respectively.
+#
+#  Here is a minimal script that uses this package:
 #
 #  #!/usr/bin/perl -w
 #
@@ -67,7 +78,12 @@ BEGIN {
 # significant. Refer to the documentation for Bio::Tools::Blast::Sbjct.pm 
 # for other ways to work with hit objects.
 #
-# MODIFIED:
+# MODIFICATIONS:
+#   2 Feb 1999, sac:
+#      * Removed default values for the -prog and -db command-line parameters.
+#        These are no longer optional when running Blasts. Removed the -dna option
+#        which was just a convenience for setting a default $opt_prog.
+#
 #   4 Sep  4 1998, sac:
 #      * Fixed support for the -filt_func option for supplying a custom
 #        filtering function via the command-line that is eval-ed to screen 
@@ -95,7 +111,7 @@ select(STDOUT); $|=1;
 
 # Global:
 $ID         = 'blast_config.pl';
-$VERSION    = 0.22;
+$VERSION    = $BLAST_CONFIG_VERSION   = 0.23;
 $DESC       = "Provides standard functions and variables for working with Bio::Tools::Blast.pm";
 #$blastObj   = undef;  # The object created by create_blast().  # NO LONGER USED
 %blastParam = ();
@@ -124,16 +140,17 @@ $opt_html      = 0;
 $opt_stream    = 0;
 $opt_share     = 1;
 $opt_desc      = 0;  # do not include sbjct descriptions in table output.
+$opt_wait      = undef;  # Amount of time to wait during read() before timing out.
+                         # (you should need to alter this, but it's here just in case.)
 
 # Run blast opts:
-$opt_prog   = 'blastp';
-$opt_loc    = 0;  # Boolean = run locally requires customization of 
-                  #           Bio::Tools::Blast::LocalBlast.pm for your site.
-$opt_rem    = 1;  # Boolean = run remote Blast using Webblast.pm (default).
+$opt_prog   = '';    # Blast flavor: blastp, blastn, tblastn, blastx, or tblastx
+$opt_loc    = 0;     # Boolean = run locally requires customization of 
+                     #           Bio::Tools::Blast::LocalBlast.pm for your site.
+$opt_rem    = 1;     # Boolean = run remote Blast using Webblast.pm (default).
 $opt_seq    = undef;
-$opt_db     = 'nr';
+$opt_db     = '';    # The database to be queried.
 $opt_seqfmt = 'fasta';
-$opt_dna    = 0;   # boolean
 $opt_expect = 10;
 $opt_v      = 100;
 $opt_b      = 100;
@@ -164,16 +181,21 @@ my $filt_func     = undef;  # function ref based on $opt_filt_func
 #----------------
 sub blast_usage {
 #----------------
-# This is the basic usage info for *parsing* Blast reports.
 
-    print STDERR "$ID, v$VERSION\n$DESC.\n";
+    print STDERR "$ID, v$VERSION (blast_config.pl: v$BLAST_CONFIG_VERSION)\n$DESC.\n";
     print STDERR <<"QQ_USAGE_QQ";
 
-Usage: $ID [ parameters ] blast.files.*
-       $ID [ parameters ] < blast.file  
+For PARSING BLAST reports:
+ Usage: $ID [ parsing parameters ] blast.files.*
+        $ID [ parsing parameters ] < blast.file  
 
  blast.file  : Raw Blast report file. Can be compressed.
                (STDIN should be uncompressed).
+
+For RUNNING BLAST analyses:
+ Usage: $ID -prog <type> -db <db> [optional parameters] 
+
+ (blast_seq.pl offers an interface for Blasting Fasta sequences.)
 
 QQ_USAGE_QQ
     print STDERR "\nHit <RETURN> for Blast parameters"; <STDIN>;
@@ -221,22 +243,19 @@ sub blast_run_params {
 #---------------------
 # Prints usage information for running Blasts.
 
-    my $dbn = join(', ', $Blast->db_remote('n'));
-    my $dbp = join(', ', $Blast->db_remote('p'));
-
     print STDERR << "QQ_RUN_QQ";
 
  BLAST RUN PARAMETERS:
  -------------------------------
+ REQUIRED:
+ -prog <type> : Type of Blast to run (type = blastp|blastn|tblastn|blastx|tblastx)
+ -db   <db>   : Database to Blast against. (See list below for available dbs.)
+
+ OPTIONAL:
  -seqfmt <str>: Format of the sequence file. Can be 'raw', 'fasta', or 'gcg'
                 default seqfmt = $opt_seqfmt.
- -db <str>    : Database to Blast against. Default = $opt_db. 
-                (See list below for available dbs)
- -prog        : The type of Blast to run (blastp, blastn, tblastn, etc.)
-                default prog = $opt_prog.
  -vers <str>  : Version of the Blast program to use (1, 2)
                 default version = $opt_vers. PSI blasts not yet supported. 
- -dna         : DNA sequence (default = protein)
  -nogap       : Perform an ungapped alignment with Blast2 
                 default = gapping on.
  -expect <float>: Expect value (default = $opt_expect)
@@ -253,18 +272,28 @@ sub blast_run_params {
  -loc         : Run Blast at a local site (requires site-specific module).
  -compress    : Compress the Blast report file.
 
-Available Remote Databases (Peptide)
------------------------------------
-$dbp
-
-Available Remote Databases (Nucleotide)
---------------------------------------
-$dbn
-
 QQ_RUN_QQ
+
+print &_list_dbs();
 
 }
 
+#--------------
+sub _list_dbs {
+#--------------
+    my $dbn = join(', ', $Blast->db_remote('n'));
+    my $dbp = join(', ', $Blast->db_remote('p'));
+
+    sprintf "%s\n%s\n%s\n\n%s\n%s\n",
+    '  Available Remote Databases (Peptide)',
+    '-----------------------------------',
+    $dbp,
+    
+    'Available Remote Databases (Nucleotide)',
+    '--------------------------------------',
+    $dbn;
+      
+  }
 
 
 #--------------------
@@ -301,6 +330,9 @@ sub blast_parse_params {
                Type 3 demonstrates a custom table.
  -desc       : Include sbjct descriptions in table output (default: do not include).
  -best       : Only process the best hit for each Blast report.
+ -wait <int> : Amount of seconds to wait before timing out when reading in Blast
+               reports. Shouldn't have to worry about this but it's provided
+               just in case (default = 3sec).
 
 
 QQ_PARSE_QQ
@@ -316,11 +348,11 @@ sub init_blast {
     &GetOptions('prog=s', 'vers=s', 'signif=s', 'p=s', 'e=s', 'parse!', 
 		'mon!', 'debug!', 'h!', 'strict!', 'stats!',  'table=s', 
 		'best!', 'err=s', 'log=s', 'html!', 'seq=s', 'prog=s', 'db=s', 
-		'seqfmt=s', 'dna!', 'v=s', 'b=s', 'gap_c=s', 'gap_e=s', 
+		'seqfmt=s', 'v=s', 'b=s', 'gap_c=s', 'gap_e=s', 
 		'gap!', 'word=s', 'mat=s', 'filt=s', 'email=s', 'expect=s',
 		'share!', 'stream!', 'tile_hsps!', 'residues!', 'desc!',
 		'compress!', 'eg!', 'rem!', 'loc!', 'check_all!', 'min_len=s',
-		'filt_func=s', 'exponent!', 'params!',
+		'filt_func=s', 'exponent!', 'params!', 'wait=s',
 		@opts);
     
 
@@ -343,7 +375,7 @@ sub init_blast {
     }
 
     if($MONITOR) {
-	print STDERR "$ID, v$VERSION\n",'-'x50,"\n";
+	print STDERR "$ID, v$VERSION (blast_config.pl: v$BLAST_CONFIG_VERSION)\n",'-'x50,"\n";
 	print STDERR "Started: ", `date` if $opt_stream;
     }
 
@@ -360,9 +392,9 @@ sub init_blast {
     debug($opt_debug);
     
     $opt_signif = ($opt_signif || $opt_p || $opt_e);
-    
-    $opt_prog ||= $opt_dna ? 'blastn' : 'blastp';
 
+#    $opt_prog ||= $opt_dna ? 'blastn' : 'blastp';  # -prog must now be specified when running a Blast.
+    
     # -loc overrides -rem.
     $opt_loc and $opt_rem = 0;
     
@@ -429,6 +461,7 @@ sub set_blast_params {
 		-exec_func  => '',
 		-save_array => '',   # Not used if exec_func is defined
                                      # (experimental).
+  	        '-wait'     => $opt_wait,  # Use -WAIT and save the quotes
 	       );
 
     &print_blast_params if $opt_params;
@@ -467,6 +500,20 @@ sub print_blast_params {
 sub create_blast {
 #----------------
     my $blast_obj;
+
+    if(scalar $blastParam{'-run'} and not ($opt_prog and $opt_db)) {
+      print STDERR "\nBlast program and/or database not defined.\n";
+      my $msg = '';
+      if(not $opt_prog)  {
+	$msg = sprintf "Please defined a -prog parameter ".
+	   "of blastp|blastn|tblastn|blastx|tblastx\n\n";
+      }
+      if(not $opt_db) {
+	$msg .= &_list_dbs();
+      }
+      die $msg;
+    }
+
     eval { 
 	$countBlast++;
 	$blast_obj = new Bio::Tools::Blast (%blastParam);

@@ -28,7 +28,7 @@ use Exporter           ();
 use strict;
 use vars qw($ID $VERSION %SUMMARY_OFFSET $Revision);
 $ID = 'Bio::Tools::Blast::Sbjct';
-$VERSION = 0.072;
+$VERSION = 0.075;
 $Revision = '$Id$';  #'
 
 my $_layout     = '';
@@ -227,7 +227,7 @@ See the L<FEEDBACK> section for where to send bug reports and comments.
 
 =head1 VERSION
 
-Bio::Tools::Blast::Sbjct.pm, 0.072
+Bio::Tools::Blast::Sbjct.pm, 0.075
 
 =head1 COPYRIGHT
 
@@ -497,14 +497,14 @@ sub _set_hsps {
 #--------------
     
     my( $self, @data ) = @_;
-    my( @hspData, @hspList, @errs );
     my $start     = 0;
     my $hspCount  = 0;
 
     require Bio::Tools::Blast::HSP;
 
-#    print STDERR "$ID _set_hsps(). DATA =\n@data\n"; <STDIN>;
+#    printf STDERR "$ID _set_hsps(). DATA (%d lines) =\n@data\n", scalar(@data); <STDIN>;
 
+    my( @hspData, @hspList, @errs, @bad_names );
     my($line, $set_desc, @desc);
     $set_desc = 0;
 
@@ -520,7 +520,7 @@ sub _set_hsps {
 	   $line =~ s/^\s+|\s+$//g;
 	   push @desc, $line;
 	   next hit_loop;
-       } elsif( $line =~ /^\s+Score/ ) {
+       } elsif( $line =~ /^\s*Score/ ) {
 	   ## This block is for setting multiple HSPs.
 
 	   if( not scalar @hspData ) {
@@ -542,11 +542,10 @@ sub _set_hsps {
 				};
 		if($@) {
 #		   print "$ID: ERROR:\n$@";<STDIN>;
-		    $self->warn(-MSG  =>$@,
-				-NOTE =>sprintf("Can't create HSP object for Blast=%s; Sbjct=%s; HSP=%s", $self->parent->name, $self->name, $hspCount)
-				);
-		    $hspObj->destroy;
-		    undef $hspObj;
+		  push @errs, $@;
+		  push @bad_names, "#$hspCount";
+		    $hspObj->destroy if ref $hspObj;
+   		    undef $hspObj;
 		} else {
 		    push @hspList, $hspObj;
 		    $self->{'_expect'} = $hspObj->expect() if $hspCount == 1;
@@ -565,6 +564,7 @@ sub _set_hsps {
 	       $DEBUG and do{ print STDERR +( $hspCount % 10 ? "+" : "+\n" ); };
 
 #	       print STDERR "\n$ID: setting HSP: ${\$self->name}\n"; 
+
 	       my $hspObj = eval { new Bio::Tools::Blast::HSP(-DATA    =>\@hspData, 
 							      -PARENT  =>$self, 
 							      -NAME    =>$hspCount,
@@ -574,11 +574,10 @@ sub _set_hsps {
 			       };
 	       if($@) {
 #		   print "$ID: ERROR:\n$@";<STDIN>;
-		   $self->warn(-MSG  =>$@,
-			       -NOTE =>sprintf("Can't create HSP object for Blast=%s; Sbjct=%s; HSP=%s", $self->parent->name, $self->name, $hspCount)
-			       );
-		    $hspObj->destroy;
-		    undef $hspObj;
+		  push @errs, $@;
+		  push @bad_names, "#$hspCount";
+		  $hspObj->destroy if ref $hspObj;
+   		  undef $hspObj;
 	       } else {
 		   push @hspList, $hspObj;
 		   $self->{'_expect'} ||= $hspObj->expect() if $hspCount == 1;
@@ -599,8 +598,32 @@ sub _set_hsps {
 	$self->{'_logical_length'} = $self->{'_length'} / 3;
     }
     
+    # Handling errors as done in Blast.pm. (as of version 0.073)
+
+    if(@errs) {
+	my ($str);
+	# When there are many errors, in most of the cases, they are
+	# caused by the same problem. Only need to see full data for
+	# the first one.
+	if(@errs > 2) {
+	    $str = "SHOWING FIRST EXCEPTION ONLY:\n$errs[0]";
+	    $self->clear_err();  # clearing the existing set of errors.
+	                         # Not necessary, unless the -RECORD_ERR =>1
+	                         # constructor option was used for Blast object.
+	} else {
+	    $str = join("\n",@errs);
+	}
+
     if( not scalar @hspList) {
-	$self->throw( "Failed to build HSP list");
+      $self->throw("Failed to create any HSP objects for $hspCount potential HSP(s).",
+		   "\n\nTRAPPED EXCEPTION(S):\n$str\nEND TRAPPED EXCEPTION(S)\n"
+			 );
+      } else {
+	    $self->warn(sprintf("Could not create HSP objects for %d HSP(s): %s", scalar(@errs), join(', ',@bad_names)), 
+			"\n\nTRAPPED EXCEPTION(S):\n$str\nEND TRAPPED EXCEPTION(S)\n"
+		       );
+	  }
+
     } else {
 	$self->{'_hsps'} = \@hspList;
     }
@@ -692,6 +715,7 @@ sub _tile_hsps {
 	my $hsp = $self->hsp;
 	$self->{'_length_aln_query'} = $hsp->length('query');
 	$self->{'_length_aln_sbjct'} = $hsp->length('sbjct');
+	$self->{'_length_aln_total'} = $hsp->length('total');
 	($self->{'_totalIdentical'},$self->{'_totalConserved'}) = $hsp->matches();
 	if($gapped) {
 	    $self->{'_gaps_query'} = $hsp->gaps('query');
@@ -703,6 +727,7 @@ sub _tile_hsps {
 #	print STDERR "$ID: _tile_hsps: summing multiple HSPs\n";
 	$self->{'_length_aln_query'} = 0;
 	$self->{'_length_aln_sbjct'} = 0;
+	$self->{'_length_aln_total'} = 0;
 	$self->{'_totalIdentical'}   = 0;
 	$self->{'_totalConserved'}   = 0;
     }
@@ -725,6 +750,7 @@ sub _tile_hsps {
 	    $self->{'_gaps_query'} += $qgaps;
 	    $self->{'_gaps_sbjct'} += $sgaps;
 	}
+	$self->{'_length_aln_total'} += $hsp->length;
 	## Collect contigs in the query sequence.
 	$qoverlap = &_adjust_contigs('query', $hsp, $qstart, $qstop, \@qcontigs, $max_overlap);
 
@@ -1502,7 +1528,7 @@ See Also   : L<length>(), L<frac_aligned_query>(), L<frac_aligned_hit>(), L<gaps
 
 =cut
 
-#---------------
+#---------------'
 sub length_aln {
 #---------------
     my( $self, $type ) = @_;
@@ -1754,13 +1780,19 @@ sub range {
            : account for unaligned regions in between the HSPs, if any.
  Example   : $frac_iden = $sbjct_object->frac_identical('query');
  Returns   : Float (2-decimal precision, e.g., 0.75).
- Argument  : seq_type: 'query' | 'sbjct' 
-           : If no argument is provided, the longest sequence will be used.
+ Argument  : seq_type: 'query' | 'sbjct' | 'total'
+           : default = 'total' (but see comments below).
  Throws    : n/a
- Comments  : The default behavior of using the longest sequence allows this method
-           : to report the value reported by Blast when working with gapped alignments.
-           : The presence of gaps "inflates" the size of a sequence and Blast 
-           : reports the fraction identical using this inflated size.
+ Comments  : Different versions of Blast report different values for the total
+           : length of the alignment. This is the number reported in the
+           : denominators in the stats section:
+           : "Identical = 34/120 Positives = 67/120".
+           : BLAST-GP uses the total length of the alignment (with gaps)
+           : WU-BLAST uses the length of the query sequence (without gaps).
+           : Therefore, when called without an argument or an argument of 'total',
+           : this method will report different values depending on the
+           : version of BLAST used.
+           :
            : To get the fraction identical among only the aligned residues,
            : ignoring the gaps, call this method with an argument of 'query'
            : or 'sbjct'.
@@ -1777,15 +1809,13 @@ See Also   : L<frac_conserved>(), L<frac_aligned_query>(), L<matches>(), L<_tile
 #------------------
 sub frac_identical {
 #------------------
-    my $self = shift;
-    my $seqType = shift;
+    my ($self, $seqType) = @_;
+    $seqType ||= 'total';
+
+    ## Sensitive to member name format.
+    $seqType = lc($seqType);
 
     $self->_tile_hsps($self->parent->gapped) if not $self->{'_tile_hsps'};
-
-    if(!$seqType) {
-	$seqType = ($self->{'_length_aln_query'} > $self->{'_length_aln_sbjct'}) 
-	           ? 'query' : 'sbjct';
-    }
 
     sprintf( "%.2f", $self->{'_totalIdentical'}/$self->{'_length_aln_'.$seqType});
 }
@@ -1800,13 +1830,19 @@ sub frac_identical {
            : account for unaligned regions in between the HSPs, if any.
  Example   : $frac_cons = $sbjct_object->frac_conserved('sbjct');
  Returns   : Float (2-decimal precision, e.g., 0.75).
- Argument  : seq_type: 'query' | 'sbjct' 
-           : If no argument is provided, the longest sequence will be used.
+ Argument  : seq_type: 'query' | 'sbjct' | 'total'
+           : default = 'total' (but see comments below).
  Throws    : n/a
- Comments  : The default behavior of using the longest sequence allows this method
-           : to report the value reported by Blast when working with gapped alignments.
-           : The presence of gaps "inflates" the size of a sequence and Blast 
-           : reports the fraction conserved using this inflated size.
+ Comments  : Different versions of Blast report different values for the total
+           : length of the alignment. This is the number reported in the
+           : denominators in the stats section:
+           : "Identical = 34/120 Positives = 67/120".
+           : BLAST-GP uses the total length of the alignment (with gaps)
+           : WU-BLAST uses the length of the query sequence (without gaps).
+           : Therefore, when called without an argument or an argument of 'total',
+           : this method will report different values depending on the
+           : version of BLAST used.
+           :
            : To get the fraction conserved among only the aligned residues,
            : ignoring the gaps, call this method with an argument of 'query'
            : or 'sbjct'.
@@ -1823,15 +1859,13 @@ See Also   : L<frac_identical>(), L<matches>(), L<_tile_hsps>()
 #--------------------
 sub frac_conserved {
 #--------------------
-    my $self = shift;
-    my $seqType = shift;
+    my ($self, $seqType) = @_;
+    $seqType ||= 'total';
+
+    ## Sensitive to member name format.
+    $seqType = lc($seqType);
 
     $self->_tile_hsps($self->parent->gapped) if not $self->{'_tile_hsps'};
-
-    if(!$seqType) {
-	$seqType = ($self->{'_length_aln_query'} > $self->{'_length_aln_sbjct'}) 
-	           ? 'query' : 'sbjct';
-    }
 
     sprintf( "%.2f", $self->{'_totalConserved'}/$self->{'_length_aln_'.$seqType});
 }
@@ -2051,7 +2085,8 @@ sub seq_inds {
  Argument  : Named parameters: -SHOW  => 'hsp',
            :                   -WHERE => filehandle (default = STDOUT)
  Returns   : n/a
- Status    : Experimental
+ Status    : Deprecated, Buggy.
+           : Use Blast::table() or Blast::table_tiled() instead.
 
 See Also   : L<_display_stats>(), L<_display_hsps>(), B<Bio::Root::Object.pm>::display
 
@@ -2081,7 +2116,8 @@ sub display {
  Example   : n/a
  Argument  : one argument = filehandle object.
  Returns   : printf call.
- Status    : Experimental
+ Status    : Deprecated, Buggy.
+           : Use Blast::table() or Blast::table_tiled() instead.
 
 See Also   : L<display>()  
 
@@ -2096,7 +2132,8 @@ sub _display_stats {
     if($layout == 1) {
 	printf( $OUT "%-3d %-20s %-11s %-5d %-5d %-9.1e %-9.1e %-4d %-3d %-5d %-5d %-5s %-6.2f %-6.2f  %-4d(%.2f)  %-4d(%.2f)\n",
 		$self->rank(), $self->name(),
-		$self->database() || 'UNKNOWN DB' ,$self->score(),$self->bits(),$self->p(),$self->expect(),
+		($self->database() || 'UNKNOWN DB') ,
+		$self->score(),$self->bits(),$self->p(),$self->expect(),
 		$self->gaps(), $self->n(), 
 		$self->length(), $self->length_aln('query'),
 		$self->ambiguous_aln(),
@@ -2106,7 +2143,8 @@ sub _display_stats {
     } else {
 	printf( $OUT "%-3d %-20s %-11s %-5d %-5d %-9.1e %-4d %-3d %-5d %-5d %-5s %-6.2f %-6.2f  %-4d(%.2f)  %-4d(%.2f)\n",
 		$self->rank(), $self->name(),
-		$self->database()  || 'UNKNOWN DB' ,$self->score(),$self->bits(),$self->expect(),
+		($self->database()  || 'UNKNOWN DB'),
+		$self->score(),$self->bits(),$self->expect(),
 		$self->gaps(), $self->num_hsps, 
 		$self->length(), $self->length_aln('query'),
 		$self->ambiguous_aln(),

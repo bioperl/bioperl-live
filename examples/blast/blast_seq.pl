@@ -1,4 +1,4 @@
-#!/usr/local/bin/perl -w
+#!/usr/bin/perl -w
 
 #---------------------------------------------------------------------------
 # PROGRAM  : blast_seq.pl
@@ -16,6 +16,8 @@
 #    See blast_config.pl and seqtools.pl for additional steps.
 #
 # MODIFIED:
+#  sac, 3 Feb 1999: Added -wait argument to example to prevent timeout
+#      while reading sequence data.
 #  sac, 16 Jun 1998: Added installation comment, require statement comments.
 #---------------------------------------------------------------------------
 
@@ -72,8 +74,8 @@ sequence (seqtools.pl) and running/parsing Blast reports
   (2) parameters for running the Blast reports.
   (3) parameters for parsing the Blast reports.
 
-To take full advantage of all the options, it would be a good idea
-to try using the seq and blast scripts individually.
+To familiarize yourself with all of the options, it would be a
+good idea to try using the seq and blast example scripts individually.
 
 QQ_NOTE_QQ
 
@@ -95,7 +97,9 @@ sub examples {
 <<"QQ_EG_QQ";
 (Run this in the examples/blast/ directory of the distribution.)
 
-  ./$ID seq/seqs.fasta -eid -prog blastp -db yeast -signif 1e-5 -table 2 > runseqs.out
+  ./$ID seq/seqs.fasta -eid -prog blastp -db yeast -signif 1e-5 -table 2 -wait 300 > runseqs.out
+
+(The wait argument is necessary to prevent a timeout while reading sequences.)
 
 QQ_EG_QQ
 }
@@ -122,7 +126,10 @@ sub blast_seq {
     eval { 
 	$blast_obj = &create_blast;
     };
-    next if($@);
+    if($@) {
+      print STDERR "\nTROUBLE Blasting:\n$@\n";
+      return 0;
+    }
 
     $opt_compress && $blast_obj->compress_file; 
     
@@ -134,6 +141,7 @@ sub blast_seq {
 	}
     }
     $blast_obj->destroy;
+    undef $blast_obj;
 }    
 
 

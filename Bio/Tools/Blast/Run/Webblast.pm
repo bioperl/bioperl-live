@@ -1,8 +1,11 @@
-#-------------------------------------------------------------------------------
+#--------------------------------------------------------------------
 # PACKAGE : Bio::Tools::Blast::Run::Webblast.pm
-# PURPOSE : To run a Blast analysis on an NCBI server and save the results locally.
-# AUTHOR  : Alex Dong Li (ali@genet.sickkids.on.ca) - original webblast version.
-#           Steve A. Chervitz (sac@genome.stanford.edu) - this modularized version.
+# PURPOSE : To run a Blast analysis on an NCBI server 
+#           and save the results locally.
+# AUTHOR  : Alex Dong Li (ali@genet.sickkids.on.ca) 
+#               - original webblast version.
+#           Steve A. Chervitz (sac@genome.stanford.edu) 
+#               - this modularized version.
 # CREATED : 4 May 1998
 # STATUS  : Alpha
 # REVISION: $Id$
@@ -10,17 +13,19 @@
 #
 # MODIFIED:
 #  1.0, 5 Jun 1998, sac: (initial release)
-#    A decent amount of Alex's original code (version 0.92) remains, but 
-#    has been extensively modified. Search for comments marked with "SAC:" 
-#    for details of my modifications. Generally, my modifications 
-#    were as follows:
+#    A decent amount of Alex's original code (version 0.92) remains, 
+#    but has been extensively modified. Search for comments 
+#    marked with "SAC:" for details of my modifications. 
+#    Generally, my modifications were as follows:
 #   
 #  	 -- moved code from a stand-alone script into a module.
 #  	 -- segmented script code into logical procedures.
 #        -- automatically configure the path for postclient.pl.
 #  	 -- works with Bio::Seq.pm objects instead of files.
-#  	 -- added support for Blast1 and the beginnings of support for PSI Blast.
-#  	 -- changed print() calls to print STDERR (only if $MONITOR is true).
+#  	 -- added support for Blast1 and the beginnings of support 
+#           for PSI Blast.
+#  	 -- changed print() calls to print STDERR 
+#           (only if $MONITOR is true).
 #  	 -- changed system("rm") calls to unlink().
 #  	 -- using 'my' instead of 'local' for subroutine-scope vars.
 #  	 -- general cleaning up (got it to run with use strict).
@@ -31,13 +36,15 @@
 #        -- assorted changes in _removeHTMLtags().
 #        -- added miscellaneous comments and POD.
 #
-# For additional modification notes and the latest version, visit the distribution site:
+# For additional modification notes and the latest version, 
+# visit the distribution site:
 #    http://bio.perl.org/Projects/Blast
 #
 #
 #   Alex's NOTES FROM webblast 0.92: 
 #     changes made to blast files:
-#  	 1) delete reference lines and a few junk lines at the beginning of the files
+#  	 1) delete reference lines and a few junk lines at the
+#           beginning of the files
 #  	 2) add time/date to search..... ...done line
 #  	 3) change the relative URLs of entries to abosulute URLs
 #     NEED TO DO:
@@ -55,7 +62,7 @@
 # Copyright (c) 1998 Alex Dong Li/Steve A. Chervitz. All Rights Reserved.
 #           This module is free software; you can redistribute it and/or 
 #           modify it under the same terms as Perl itself.
-#-------------------------------------------------------------------------------
+#------------------------------------------------------------------------
 
 package Bio::Tools::Blast::Run::Webblast;
 
@@ -761,8 +768,11 @@ sub _blast {
 		$MONITOR && print STDERR "Be patient, especially during peak hours :-)...\n";
 		# Run the Blast:
 
-		system("$pathOfPostclient $options > $outputFileNameTemp");
-
+		system("$pathOfPostclient $options > $outputFileNameTemp") == 0
+		  or $_blastObj->throw("postclient.pl terminated abnormally.",
+				       "Check the executable $pathOfPostclient\n".
+				       "See $outputFileNameTemp for ".
+				       "possible error message.");
 
 #		$MONITOR && print STDERR "Cleaning the file a bit...\n";
 		if (&_removeJunkTagAndText($outputFileNameTemp, $outputFileName)==1) {
@@ -798,7 +808,12 @@ sub _blast {
 		$MONITOR && print STDERR "Results will be sent via e-mail: $emailAddress.\n";
 		$options .= " EMAIL=is_set PATH=$emailAddress $resultTypeOption";
 		# Run the Blast:
-		system("$pathOfPostclient $options > $outputFileNameTemp");
+		system("$pathOfPostclient $options > $outputFileNameTemp") == 0
+		  or $_blastObj->throw("postclient.pl terminated abnormally.",
+				       "Check the executable $pathOfPostclient\n".
+				       "See $outputFileNameTemp for ".
+				       "possible error message.");
+
 		&_removeJunkTagAndTextForEmailResponse($outputFileNameTemp);
 		$countSuccessfulBlasting++;
 		push @_outFiles, 'email';
@@ -839,10 +854,12 @@ sub _validate_seq {
     my $len = $seq->seq_len;
 
     # Verify that sequence type is correct type for selected program.
-    if(($type =~ /[dr]na/i and ($program =~ m/^(blastp|tblastn)$/i))
-	  or
-       ($type =~ /amino/i and ($program =~ m/^(blast[nx]|tblastx|dbest)$/i))
-       ) {
+    if( (defined $type and $type !~ /unknown/i) 
+	and (
+	     ($type =~ /[dr]na/i and ($program =~ m/^(blastp|tblastn)$/i))
+	     or
+	     ($type =~ /amino/i and ($program =~ m/^(blast[nx]|tblastx|dbest)$/i))
+	    ))  {
 	$_blastObj->throw("The sequence of ${\$seq->id} is wrong type for program $program");
     }
 

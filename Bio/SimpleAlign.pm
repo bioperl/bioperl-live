@@ -6,6 +6,8 @@
 #
 # Copyright Ewan Birney
 #
+# $Id$
+#
 # You may distribute this module under the same terms as perl itself
 
 # POD documentation - main docs before the code
@@ -70,7 +72,7 @@ mainly by Ewan.
 
 =item Use hashed constructor - not done!
 
-=end
+=back
 
 =head1 FEEDBACK
 
@@ -1054,7 +1056,7 @@ sub write_clustalw {
            : 
            :
  Returns   : 
- Argument  : 
+ Argument  : reference-to-glob to file or a filehandle object
 
 =cut
 
@@ -1070,7 +1072,7 @@ sub write_fasta {
 	print $file ">$name\n";
 	
 	$count =0;
-	$length = &length($seq);
+	$length = length($seq);
 	while( ($count * 60 ) < $length ) {
 	    $seqsub = substr($seq,$count*60,60);
 	    print $file "$seqsub\n";
@@ -1078,8 +1080,6 @@ sub write_fasta {
 	}
     }
 }
-
-
 
 sub set_displayname {
     my $self = shift;

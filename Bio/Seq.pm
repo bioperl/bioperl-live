@@ -1,98 +1,8 @@
-### Seq.pm 
-###
-###  $Id$
-###
-###
-### MODIFICATIONS 
-###
-### Prior to using a central CVS system on bio.perl.org:
-### ++++++++++++++++++++++++++++++++++++++++++++++++++++
-###
-### VERSION 0.050, 3 Sep 1998:
-###
-### -- Added start() and end() and deprecated numbering().
-###    (Changes made by Ewan Birney).
-###    Converted all calls to numbering() to start().
-### -- Officially graduated to Seq.pm.
-###
-### VERSION 0.047, 15 Jul 1998:
-###
-### -- Bug fixed in str() that caused failure in bounds checking if
-###    start does not begin with 1 (suggested by Tim Dudgeon)
-###
-### VERSION 0.046, 10 June 1998:
-###
-### -- Added & improved documentation, including internal hyperlinks, for
-###    generating docs using pod2html in the Perl 5.004 release.
-### -- Not autoloading commonly used/small parsing and outputting
-###    methods (parse_raw, parse_fasta, parse_gcg, out_raw, out_fasta).
-###
-###  VERSION 0.045, 5 June 1998: 
-###
-###  -- Integrated into the incipient Bioperl framework: 
-###       * Inherits from Bio::Root::Object.pm.
-###       * Uses _new() and _rearrange() via inheritance.
-###       * Changed carps to $self->warn() and croaks to $self->throw().
-###  -- revcom() can operate on sequence slices.
-###  -- Bug fixed in alphabet_ok().
-###  -- Fixed up _rearrange() calls to use non-interpolated lists (qw()).
-###  -- Changed &Parse:: calls to &Bio::Parse:: calls.
-###  -- Noted a documentation bug referring to a non-existent method seq().
-###     Changed docs to refer to getseq(). 
-###  -- Added method seq() to the API (see previous note).
-###     This is a duplication of getseq().
-###     We should settle on one of these and label the other one deprecated.
-###     seq() is simpler and easier to remember (eg., was it getseq or get_seq?).
-###     However, getseq() is clearer that it is a 'get' not a 'set' call.
-###     I favor seq(), since it is simpler and consistent with the other accessors
-###     (str(), ffmt(), id()) and the naming of accessors in other modules.
-###     Having two methods with different names that do the same thing is
-###     a bad idea. For now, getseq() is the official method to keep this
-###     version of Bio::Seq in line with previous versions.
-###  -- Quoted data members {"seq"} etc. to prevent "Ambiguous use" compiler warnings.
-###
-###  -- Added AUTOLOADing for seldom-used methods to reduce start-up time.
-###     Autoloading the specific 'out_' and 'parse_' methods and the DNA
-###     manipulation methods (not needed for protein sequences).
-###
-###     Autoloading requires that this module be autosplit. If you have installed
-###     this module using the standard 'perl Makefile.PL' procedure, autosplitting
-###     is done automatically (verify this by checking for an auto/Bio/Seq/ directory 
-###     in your perl module library). You can autosplit it manually by first uncommenting
-###     the __END__ line and then running the following Perl script: 
-###     (substituting the correct path for your perl lib)
-###         #!/usr/bin/perl
-###         use AutoSplit; 
-###         autosplit("/users/me/perl/lib/Bio/Seq.pm", "/users/me/perl/lib/auto", 0, 1, 1);
-###
-###     To disable autoloading, comment out the __END__ line.
-###
-###     Autoloading raises the issue that perhaps there should be separate modules
-###     such as Bio::Seq::Out.pm and Bio::Seq::DnaTools.pm. This will become
-###     more of an issue as more native Perl code for parsing/outputting is
-###     added to this module and it becomes large and monolithic.
-###
-###  -- Added strict version of the basic alphabets that do not allow ambiguity
-###     codes. The default alphabets permit ambiguity codes.
-###     To use the strict alphabets, include '-strict => 1' in the parameters
-###     sent to new(). Or, after constructing the sequence object, try:
-###       $seq->strict(1); $seq->alphabet_ok() or die "alphabet not okay.\n";
-###     This change affects only alphabet_ok().
-###  -- Throws exception during construction in strict mode if type is not defined.
-###     This is a common error with occasionally important consequences.
-###     (having separate subclasses for amino and nucleic acid seqs would
-###     avoid this problem).
-###  -- Added methods out_gcgseq() and out_gcgref() for producing GCG-style
-###     multiple-sequence files used for building GCG datasets.
-###  -- Added method alphabet() to return the alphabet in use for the seq.
-###  -- Lower-cased all strings used as hash keys in %SeqForm and %SeqAlph,
-###     as discussed in the Bioperl mailing list (see last paragraph):
-###     http://www.uni-bielefeld.de/mailinglists/BCD/vsns-bcd-perl/9702/0022.html 
-###  -- Enabled case-independence of user-submitted strings
-###     for the following methods: 
-###     parse(), ffmt(), type(), descffmt(), layout().
-###  
-
+# Seq.pm 
+#
+#  $Id$
+#
+# MODIFICATION NOTES: See bottom of file.
 
 # Copyright (c) 1996 Georg Fuellen, Richard Resnick, Steven E. Brenner,
 # Chris Dagdigian, Steve Chervitz, Ewan Birney and others. All Rights Reserved.
@@ -104,13 +14,11 @@ package Bio::Seq;
 require 5.003;
 use Carp;
 require Exporter;
-use Bio::Root::Object ();  ## SAC: This version of Seq derives from Bio::Root::Object
+use Bio::Root::Object ();  
 
-#
-# Uncomment the next lines if you want to use
-# Autoloading
-#
 
+# Uncomment the next lines if you want to use Autoloading.
+# (See Autoloading notes below for more info).
 #use AutoLoader;      ## SAC: Added autoloading
 #*AUTOLOAD = \&AutoLoader::AUTOLOAD;
 
@@ -118,7 +26,7 @@ use Bio::Root::Object ();  ## SAC: This version of Seq derives from Bio::Root::O
 @EXPORT      = qw();
 @EXPORT_OK   = qw($VERSION %SeqAlph @SeqAlph %SeqForm @SeqForm);
 #%EXPORT_TAGS = (std => [%SeqAlph @SeqAlph %SeqForm @SeqForm]);
-$VERSION     = 0.050;
+$VERSION     = 0.051;
 #$NOFILEKEYWORD= "_nofile";
 
 
@@ -225,8 +133,6 @@ This module is included with the central Bioperl distribution:
 Follow the installation instructions included in the README file.
 
 =head1 DESCRIPTION
-
-CVS version: $Id$
 
 This module is the generic sequence object which lies at the core of
 the bioperl project. It stores Dna, Rna, or Protein sequence
@@ -881,6 +787,33 @@ their resolution. Bug reports can be submitted via email or the web:
     bioperl-bugs@bio.perl.org                   
     http://bio.perl.org/bioperl-bugs/           
 
+=head1 ACKNOWLEDGEMENTS
+
+Some pieces of the code were contributed by Steven E. Brenner, 
+Steve Chervitz, Ewan Birney, Tim Dudgeon, David Curiel, and other Bioperlers.
+Thanks !!!!
+
+=head1 SEE ALSO
+
+  UnivAln.pm - The biosequence alignment object
+  Parse.pm   - The perl interface to ReadSeq
+
+=head1 REFERENCES
+
+BioPerl Project Page
+http://bio.perl.org/
+
+=head1 VERSION
+
+Bio::Seq.pm, beta 0.051
+
+=head1 COPYRIGHT
+
+ Copyright (c) 1996-1998 Chris Dagdigian, Georg Fuellen, Richard Resnick.
+ All Rights Reserved. This module is free software; you can redistribute 
+ it and/or modify it under the same terms as Perl itself.
+
+=cut
 
 =head1 Appendix
 
@@ -1666,7 +1599,9 @@ sub origin {
            : field of the Type list. The {type} field is a 2 value list
            : with a format of ["Monomer","Origin"]
            :
- Returns   : Original value
+ Returns   : String containing one of the recognized sequence types:
+           : 'unknown', 'dna', 'rna', 'amino', 'otherseq', 'aligned'
+           : See the %Seq::SeqAlph hash for the current types.
  Argument  : string containing a valid sequence type
            : SAC: case of user-supplied argument does not matter
 
@@ -1687,13 +1622,14 @@ sub type {
 	  if(scalar($ntype)) {
 	      $self->throw("$ntype is not a supported sequence type for seq $self->{'id'}.", 
 			   "Valid types: ".join(',',sort(keys %SeqAlph)));
-	  } else {
-	      $self->{"type"}[0] = $SeqAlph{"unknown"};
+# SAC: Commented this out. Why store non-information? 
+# 	  } else {
+#	      $self->{"type"}[0] = $SeqAlph{"unknown"};
 	  }
       } 
-  }
+    }
 
-  return $otype;
+  return $otype || $TypeSeq{$SeqAlph{"unknown"}};
 }
 
 
@@ -2244,14 +2180,10 @@ sub parse_unknown;
 sub parse_bad;
 sub version;
 
-1;
-
-
 #
-# Uncomment this end to make the methods autoload 
-# (see README.autoload)
-#
-
+# These two lines were used for autoloading.
+# (See Autoloading notes above and below for more info).
+#1;
 #__END__
 
 
@@ -2317,7 +2249,7 @@ sub copy {
   my($self) = @_;
   my(%dup);
 
-  # changes suggested by Curiel, David. Done by EB.
+  # changes suggested by David Curiel. Done by EB.
 
   $dup{"seq"}     = $self->{"seq"};
   $dup{"id"}      = $self->{"id"};
@@ -3637,8 +3569,6 @@ sub parse_bad
 }
 
 
-
-
 #=head2 ## Misc. methods  ##
 
 =head2 version
@@ -3655,6 +3585,9 @@ sub version {
   return 1;
 }
 
+
+1;
+__END__
 
 
 ## =head1 ## END  METHOD DOCS ##
@@ -3693,9 +3626,100 @@ sub version {
  
  descffmt      file-format of the description string
 
-
-1;
-
+=cut
 
 
+MODIFICATION NOTES:
+--------------------
+0.051, 17 Feb 1999, sac:
+   * Modified type() so that it always returns a string and does not
+     store an 'unknown' string if the type is not set.
+
+### Prior to using a central CVS system on bio.perl.org:
+### ++++++++++++++++++++++++++++++++++++++++++++++++++++
+###
+### VERSION 0.050, 3 Sep 1998:
+###
+### -- Added start() and end() and deprecated numbering().
+###    (Changes made by Ewan Birney).
+###    Converted all calls to numbering() to start().
+### -- Officially graduated to Seq.pm.
+###
+### VERSION 0.047, 15 Jul 1998:
+###
+### -- Bug fixed in str() that caused failure in bounds checking if
+###    start does not begin with 1 (suggested by Tim Dudgeon)
+###
+### VERSION 0.046, 10 June 1998:
+###
+### -- Added & improved documentation, including internal hyperlinks, for
+###    generating docs using pod2html in the Perl 5.004 release.
+### -- Not autoloading commonly used/small parsing and outputting
+###    methods (parse_raw, parse_fasta, parse_gcg, out_raw, out_fasta).
+###
+###  VERSION 0.045, 5 June 1998: 
+###
+###  -- Integrated into the incipient Bioperl framework: 
+###       * Inherits from Bio::Root::Object.pm.
+###       * Uses _new() and _rearrange() via inheritance.
+###       * Changed carps to $self->warn() and croaks to $self->throw().
+###  -- revcom() can operate on sequence slices.
+###  -- Bug fixed in alphabet_ok().
+###  -- Fixed up _rearrange() calls to use non-interpolated lists (qw()).
+###  -- Changed &Parse:: calls to &Bio::Parse:: calls.
+###  -- Noted a documentation bug referring to a non-existent method seq().
+###     Changed docs to refer to getseq(). 
+###  -- Added method seq() to the API (see previous note).
+###     This is a duplication of getseq().
+###     We should settle on one of these and label the other one deprecated.
+###     seq() is simpler and easier to remember (eg., was it getseq or get_seq?).
+###     However, getseq() is clearer that it is a 'get' not a 'set' call.
+###     I favor seq(), since it is simpler and consistent with the other accessors
+###     (str(), ffmt(), id()) and the naming of accessors in other modules.
+###     Having two methods with different names that do the same thing is
+###     a bad idea. For now, getseq() is the official method to keep this
+###     version of Bio::Seq in line with previous versions.
+###  -- Quoted data members {"seq"} etc. to prevent "Ambiguous use" compiler warnings.
+###
+###  -- Added AUTOLOADing for seldom-used methods to reduce start-up time.
+###     Autoloading the specific 'out_' and 'parse_' methods and the DNA
+###     manipulation methods (not needed for protein sequences).
+###
+###     Autoloading requires that this module be autosplit. If you have installed
+###     this module using the standard 'perl Makefile.PL' procedure, autosplitting
+###     is done automatically (verify this by checking for an auto/Bio/Seq/ directory 
+###     in your perl module library). You can autosplit it manually by first uncommenting
+###     the __END__ line and then running the following Perl script: 
+###     (substituting the correct path for your perl lib)
+###         #!/usr/bin/perl
+###         use AutoSplit; 
+###         autosplit("/users/me/perl/lib/Bio/Seq.pm", "/users/me/perl/lib/auto", 0, 1, 1);
+###
+###     To disable autoloading, comment out the __END__ line.
+###
+###     Autoloading raises the issue that perhaps there should be separate modules
+###     such as Bio::Seq::Out.pm and Bio::Seq::DnaTools.pm. This will become
+###     more of an issue as more native Perl code for parsing/outputting is
+###     added to this module and it becomes large and monolithic.
+###
+###  -- Added strict version of the basic alphabets that do not allow ambiguity
+###     codes. The default alphabets permit ambiguity codes.
+###     To use the strict alphabets, include '-strict => 1' in the parameters
+###     sent to new(). Or, after constructing the sequence object, try:
+###       $seq->strict(1); $seq->alphabet_ok() or die "alphabet not okay.\n";
+###     This change affects only alphabet_ok().
+###  -- Throws exception during construction in strict mode if type is not defined.
+###     This is a common error with occasionally important consequences.
+###     (having separate subclasses for amino and nucleic acid seqs would
+###     avoid this problem).
+###  -- Added methods out_gcgseq() and out_gcgref() for producing GCG-style
+###     multiple-sequence files used for building GCG datasets.
+###  -- Added method alphabet() to return the alphabet in use for the seq.
+###  -- Lower-cased all strings used as hash keys in %SeqForm and %SeqAlph,
+###     as discussed in the Bioperl mailing list (see last paragraph):
+###     http://www.uni-bielefeld.de/mailinglists/BCD/vsns-bcd-perl/9702/0022.html 
+###  -- Enabled case-independence of user-submitted strings
+###     for the following methods: 
+###     parse(), ffmt(), type(), descffmt(), layout().
+###  
 

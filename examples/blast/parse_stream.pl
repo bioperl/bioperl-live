@@ -1,4 +1,4 @@
-#!/usr/local/bin/perl  -w
+#!/usr/bin/perl  -w
 
 # WARNING:
 #
@@ -62,7 +62,7 @@ sub parse_stream_usage {
     print STDERR "$ID, v$VERSION\n$DESC.\n";
     print STDERR <<"QQ_USAGE_QQ";
 
-Usage: gzcat blast*.gz | $ID [ parameters ] > outfile
+Usage: gzip -cd blast*.gz | $ID [ parameters ] > outfile
        print_blasts.pl dir | $ID [ parameters ] > outfile
 
  print_blasts.pl is a convenience script for working with 
@@ -91,7 +91,7 @@ sub examples {
 <<"QQ_EG_QQ";
 (Run these in the examples/blast/ directory of the distribution.)
 
-  gzcat ./out/blastp.2?.gz | ./$ID -signif 1e-10 -table 2 > blast.table2
+  gzip -cd ./out/blastp.2?.gz | ./$ID -signif 1e-10 -table 2 > blast.table2
   cat ./out/blastx* | ./$ID -table 1 > blast.table1
   print_blasts.pl ./out | ./$ID -best -noshare
     

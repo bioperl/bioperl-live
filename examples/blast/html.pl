@@ -1,4 +1,4 @@
-#!/usr/local/bin/perl -w
+#!/usr/bin/perl -w
 
 #---------------------------------------------------------------------------
 # PROGRAM : html.pl
@@ -71,7 +71,7 @@ sub examples {
 (Run these in the examples/blast/ directory of the distribution.)
 
   ./$ID out/blastx.2 > out.html
-  ./$ID -method 2 < out/tblastn.2 > out2.html
+  ./$ID -method 2 < out/tblastn.206.out.gz > out2.html
   ./$ID -method 3 out/blastx.2 
   ./$ID -method 4 out/blastp.2.wu > out4.html 
   ./$ID out/blastp.email.html.gz    # Should produce an error.

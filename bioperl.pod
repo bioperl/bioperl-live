@@ -1,5 +1,4 @@
-## bioperl.pod
-## $Id: bioperl.pod,v 1.2 1998-12-17 01:48:29 sac Exp $
+## $Id: bioperl.pod,v 1.3 1999-02-27 12:27:38 sac Exp $
 
 ## Should contain general info about the distribution including
 ## links to all the various modules.
@@ -158,7 +157,7 @@ immutable sequences. This modules provides principly I/O of multiple
 alignments and some easy ways to iterate over an alignment
 
 It is not capable of complex join or editing functions, which is
-better provided by Georg Fuellen's UnivAlign module. Nor does it
+better provided by Georg Fuellen's UnivAln module. Nor does it
 I<make> alignments, which must be done by external programs or, for
 pairwise alignments, the Bio::Tools::pSW module
 

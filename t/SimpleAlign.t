@@ -18,7 +18,7 @@
 
 
 ## We start with some black magic to print on failure.
-BEGIN { $| = 1; print "1..1\n"; }
+BEGIN { $| = 1; print "1..3\n"; }
 END {print "not ok 1\n" unless $loaded;}
 
 use lib '../';
@@ -34,8 +34,21 @@ print "ok 1\n";    # 1st test passes.
 ## the print "1..x\n" in the BEGIN block to reflect the
 ## total number of tests that will be run. 
 
+open(FH,"t/test.mase") || die "Could not open test.mase $!";
+$aln = Bio::SimpleAlign->new();
+$aln->read_mase(\*FH);
+close(FH);
 
+if( $aln ) {
+	print "ok 2\n";
+} else {
+	print "not ok 2\n";
+}	
 
+open(OUT,">t/out.aln_fasta"); 
+$aln->write_fasta(\*OUT);
+close(OUT);
+print "ok 3\n";
 
 
 
