@@ -19,7 +19,7 @@ BEGIN {
 	use lib 't';
     }
     use vars qw($NTESTS);
-    $NTESTS = 37;
+    $NTESTS = 41;
     $error = 0;
 
     use Test;
@@ -37,6 +37,8 @@ use Bio::PopGen::Genotype;
 use Bio::PopGen::Population;
 use Bio::PopGen::IO;
 use Bio::PopGen::PopStats;
+
+use Bio::PopGen::Statistics;
 
 my @individuals = ( new Bio::PopGen::Individual(-unique_id => '10a'));
 ok($individuals[0]);
@@ -232,3 +234,36 @@ $poptst2->set_Allele_Frequency(-name      => 'marker1',
 skip('Fst not calculated yet',1,'marker1 test'); # 
 
 
+# Let's do PopGen::Statistics tests here
+
+$io = new Bio::PopGen::IO(-format          => 'prettybase',
+			  -no_header       => 1,
+			  -file            => Bio::Root::IO->catfile
+			  (qw(t data
+			      popstats.prettybase)));
+my (@ingroup,@outgroup);
+my $sitecount;
+while( my $ind = $io->next_individual ) {
+    if($ind->unique_id =~ /out/) {
+	push @outgroup, $ind;
+    } else { 
+	push @ingroup, $ind;
+	$sitecount = scalar $ind->get_marker_names() unless defined $sitecount;
+    }
+}
+my $stats = new Bio::PopGen::Statistics();
+
+# Real data and values courtesy M.Hahn and DNASP
+
+ok($stats->pi(\@ingroup),2);
+ok(Bio::PopGen::Statistics->pi(\@ingroup,$sitecount),0.4);
+
+ok(Bio::PopGen::Statistics->theta(\@ingroup),1.92);
+ok(Bio::PopGen::Statistics->theta(\@ingroup,$sitecount),0.384);
+
+# to fix
+#ok(Bio::PopGen::Statistics->tajima_D(\@ingroup),0.27345);
+#ok(Bio::PopGen::Statistics->fu_and_li_D_star(\@ingroup),0.27345);
+#ok(Bio::PopGen::Statistics->fu_and_li_F_star(\@ingroup),0.27345);
+#ok(Bio::PopGen::Statistics->fu_and_li_D(\@ingroup,1),0.75563);
+#ok(Bio::PopGen::Statistics->fu_and_li_F(\@ingroup,1),0.77499);
