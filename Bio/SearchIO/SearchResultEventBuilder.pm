@@ -315,7 +315,8 @@ sub end_hit{
     my ($hitrank) = scalar @{$self->{'_hits'} || []} + 1;
     $args{'-rank'} = $hitrank;
     unless( defined $args{'-significance'} ) {
-	if( defined $args{'-hsps'} ) {
+	if( defined $args{'-hsps'} && 
+	    $args{'-hsps'}->[0] ) {
 	    $args{'-significance'} = $args{'-hsps'}->[0]->evalue;
 	}
     }
