@@ -1,0 +1,474 @@
+BLASTP 2.0MP-WashU [16-Feb-2003] [macosx-10.2-ppc-ILP32F64 2003-02-18T10:00:41]
+
+Copyright (C) 1996-2003 Washington University, Saint Louis, Missouri USA.
+All Rights Reserved.
+
+Reference:  Gish, W. (1996-2003) http://blast.wustl.edu
+
+Query=  mgri:MG00189.3 hypothetical protein 6892 8867 +
+        (601 letters; record 1)
+
+Database:  /nfs1/jason_input/all_euk/metazoans;
+           /nfs1/jason_input/fungi/ascopeps; /nfs1/jason_input/fungi/basido
+           351,440 sequences; 145,589,111 total letters.
+Searching....10....20....30....40....50....60....70....80....90....100% done
+
+                                                                     Smallest
+                                                                       Sum
+                                                              High  Probability
+Sequences producing High-scoring Segment Pairs:              Score  P(N)      N
+
+mgri:MG00189.3 hypothetical protein 6892 8867 +               3098  0.        1
+fgram:FG01141.1 hypothetical protein 47007 48803 -            2182  4.2e-226  1
+ncra:NCU03076.1 hypothetical protein (28850 - 30771)          2148  1.7e-222  1
+anid:AN1733.1 AF252630_1 delta-1-pyrroline-5-carboxylate ...  2001  6.4e-207  1
+spom:SPBC24C6.04 |||putative delta-1-pyrroline-5-carboxyl...  1718  6.2e-177  1
+calb:orf6.5650  orf6-2420:8022-6235:e  1788 bp, 595 aa, c...  1706  1.2e-175  1
+duh99:cneo_DUH99_Contig425.Gene2 Start=40771 End=43016 St...  1659  1.1e-170  1
+wih99:cneo_WIH99_107.Gene1 Start=41629 End=44150 Strand=1...  1613  8.3e-166  1
+jec21:cneo_TIGRJEC21_chr11a.pseudo.Gene521 Start=371763 E...  1582  1.6e-162  1
+pchr:pchr_Scaffold_43.Gene3 Start=38145 End=40814 Strand=...  1577  5.4e-162  1
+fgram:FG03073.1 hypothetical protein 68551 70406 -            1576  6.9e-162  1
+ccin:ccin_Contig257.Gene8 Start=55703 End=53090 Strand=-1...  1176  2.7e-161  2
+agos:AAL072C location=AgChr1:complement(223170..224891)       1540  4.5e-158  1
+umay:umay_Contig44.Gene2 Start=5123 End=2772 Strand=-1 Le...  1535  1.5e-157  1
+scer:YHR037W PUT2 SGDID:S0001079, Chr VIII from 181968-18...  1533  2.5e-157  1
+hsap:ENSP00000290597 Database:core Gene:ENSG00000159423 C...  1298  2.0e-132  1
+hsap:ENSP00000328453 Database:core Gene:ENSG00000159423 C...  1298  2.0e-132  1
+mmus:ENSMUSP00000043821 Database:core Gene:ENSMUSG0000002...  1295  4.2e-132  1
+afum:4563_glimmerf_85                                         1279  2.1e-130  1
+dmel:CG7145-PA translation from_gene[CG7145 CG7145 FBgn00...  1256  5.6e-128  1
+dmel:CG7145-PD translation from_gene[CG7145 CG7145 FBgn00...  1256  5.6e-128  1
+dmel:CG7145-PB translation from_gene[CG7145 CG7145 FBgn00...  1256  5.6e-128  1
+rnor:ENSRNOP00000025090 Database:core Gene:ENSRNOG0000001...  1235  9.5e-126  1
+agam:ENSANGP00000013138 Database:core Gene:ENSANGG0000001...  1217  7.7e-124  1
+cbri:CBG07110 CBP01802 (cb25.fpc0305.en1909a/cb25.fpc0305...  1216  9.8e-124  1
+cele:F56D12.1 CE29047   aldehyde dehydrogenase status:Par...  1201  3.8e-122  1
+anid:AN9278.1 hypothetical protein 133790 135518 +            1194  2.1e-121  1
+drer:ENSDARP00000025931 Database:core Gene:ENSDARG0000000...   614  5.1e-115  2
+drer:ENSDARP00000004693 Database:core Gene:ENSDARG0000000...   617  1.8e-108  2
+drer:ENSDARP00000006345 Database:core Gene:ENSDARG0000000...   614  2.3e-108  2
+anid:AN6022.1 hypothetical protein 49043 51304 -               625  3.3e-107  2
+dmel:CG33092-PA translation from_gene[CG33092 CG33092 FBg...   994  3.3e-100  1
+dmel:CG33092-PB translation from_gene[CG33092 CG33092 FBg...   994  3.3e-100  1
+dmel:CG33092-PC translation from_gene[CG33092 CG33092 FBg...   994  3.3e-100  1
+dmel:CG33092-PF translation from_gene[CG33092 CG33092 FBg...   994  3.3e-100  1
+drer:ENSDARP00000009693 Database:core Gene:ENSDARG0000000...   535  3.9e-100  2
+dmel:CG33092-PD translation from_gene[CG33092 CG33092 FBg...   989  1.1e-99   1
+dmel:CG33092-PE translation from_gene[CG33092 CG33092 FBg...   989  1.1e-99   1
+dmel:CG33092-PG translation from_gene[CG33092 CG33092 FBg...   984  3.8e-99   1
+dmel:CG6661-PA translation from_gene[CG6661 CG6661 FBgn00...   753  1.1e-74   1
+afum:4562_glimmerf_84                                          590  2.1e-57   1
+drer:ENSDARP00000025173 Database:core Gene:ENSDARG0000000...   571  2.2e-55   1
+duh99:cneo_DUH99_Contig338.Gene3 Start=10629 End=8428 Str...   498  1.2e-47   1
+wih99:cneo_WIH99_138.Gene135 Start=318644 End=316438 Stra...   498  1.2e-47   1
+jec21:cneo_TIGRJEC21_chr8.pseudo.Gene367 Start=297286 End...   488  2.5e-45   1
+pchr:pchr_Scaffold_257.Gene2 Start=4723 End=1965 Strand=-...   470  1.1e-44   1
+afum:3004_glimmerf_56                                          462  7.8e-44   1
+umay:umay_Contig84.Gene5 Start=5778 End=8094 Strand=1 Len...   454  5.5e-43   1
+afum:9560_glimmerf_188                                         449  1.9e-42   1
+hsap:ENSP00000261733 Database:core Gene:ENSG00000111275 C...   448  2.4e-42   1
+mmus:ENSMUSP00000031411 Database:core Gene:ENSMUSG0000002...   444  6.3e-42   1
+fgram:FG02273.1 hypothetical protein 136532 138142 +           437  3.5e-41   1
+hsap:ENSP00000332256 Database:core Gene:ENSG00000184254 C...   436  4.4e-41   1
+anid:AN9034.1 hypothetical protein 161667 163308 -             434  7.2e-41   1
+hsap:ENSP00000297785 Database:core Gene:ENSG00000165092 C...   433  9.2e-41   1
+cele:K04F1.15 CE23852   aldehyde dehydrogenase status:Pre...   431  1.5e-40   1
+mgri:MG03900.3 hypothetical protein (  (AL669991) probabl...   430  1.9e-40   1
+agam:ENSANGP00000020207 Database:core Gene:ENSANGG0000001...   429  2.4e-40   1
+agam:ENSANGP00000011393 Database:core Gene:ENSANGG0000000...   428  3.1e-40   1
+ncra:NCU00378.1 hypothetical protein (49878 - 51422)           427  4.0e-40   1
+anid:AN0554.1 AF260123_1 aldehyde dehydrogenase ALDH 5455...   426  5.1e-40   1
+fgram:FG02160.1 hypothetical protein 41708 43408 +             426  5.1e-40   1
+ncra:NCU07053.1 hypothetical protein (11322 - 12871)           422  1.3e-39   1
+hsap:ENSP00000331360 Database:core Gene:ENSG00000111275 C...   417  4.8e-39   1
+mmus:ENSMUSP00000034723 Database:core Gene:ENSMUSG0000001...   417  4.8e-39   1
+mmus:ENSMUSP00000015278 Database:core Gene:ENSMUSG0000001...   415  8.5e-39   1
+fgram:FG00979.1 conserved hypothetical protein 134502 136...   415  8.5e-39   1
+scer:YER073W ALD5 SGDID:S0000875, Chr V from 304027-305589     414  1.1e-38   1
+scer:YMR169C ALD3 SGDID:S0004779, Chr XIII from 600871-59...   414  1.1e-38   1
+hsap:ENSP00000249750 Database:core Gene:ENSG00000128918 C...   413  1.5e-38   1
+scer:YMR170C ALD2 SGDID:S0004780, Chr XIII from 603081-60...   413  1.5e-38   1
+spom:SPAC922.07c |||putative aldehyde dehydrogenase            412  1.9e-38   1
+ncra:NCU03415.1 hypothetical protein (100613 - 98979)          412  1.9e-38   1
+calb:orf6.5499  orf6-2412:4933-6438:e  1506 bp, 501 aa, c...   410  3.4e-38   1
+fgram:FG04194.1 hypothetical protein 53878 55487 -             409  4.4e-38   1
+rnor:ENSRNOP00000024000 Database:core Gene:ENSRNOG0000001...   407  7.7e-38   1
+anid:AN1689.1 hypothetical protein 308010 309618 -             405  1.3e-37   1
+mmus:ENSMUSP00000025656 Database:core Gene:ENSMUSG0000002...   404  1.7e-37   1
+rnor:ENSRNOP00000015282 Database:core Gene:ENSRNOG0000001...   404  1.7e-37   1
+dmel:CG3752-PA translation from_gene[CG3752 CG3752 FBgn00...   402  3.0e-37   1
+anid:AN4126.1 hypothetical protein 112110 113903 +             402  3.0e-37   1
+duh99:cneo_DUH99_Contig581.Gene1 Start=122995 End=125826 ...   413  4.0e-37   1
+hsap:ENSP00000259658 Database:core Gene:ENSG00000137124 C...   399  6.6e-37   1
+fgram:FG00139.1 hypothetical protein 120379 121938 +           399  6.6e-37   1
+mgri:MG05008.3 hypothetical protein 911 2404 +                 399  6.6e-37   1
+mmus:ENSMUSP00000041260 Database:core Gene:ENSMUSG0000003...   397  1.1e-36   1
+rnor:ENSRNOP00000024027 Database:core Gene:ENSRNOG0000001...   396  1.5e-36   1
+scer:YOR374W ALD4 SGDID:S0005901, Chr XV from 1039834-104...   396  1.5e-36   1
+agos:AFL044W location=AgChr3:286029..287570                    394  2.5e-36   1
+mmus:ENSMUSP00000020497 Database:core Gene:ENSMUSG0000002...   413  5.4e-36   1
+hsap:ENSP00000328288 Database:core Gene:ENSG00000111275 C...   391  5.4e-36   1
+spom:SPCC550.10 |meu8||putative betaine aldehyde dehydrog...   388  1.2e-35   1
+drer:ENSDARP00000022715 Database:core Gene:ENSDARG0000000...   387  1.6e-35   1
+anid:AN9198.1 hypothetical protein 77039 78964 -               387  1.6e-35   1
+ccin:ccin_Contig143.Gene21 Start=155829 End=153396 Strand...   397  2.2e-35   1
+umay:umay_Contig117.Gene40 Start=118398 End=115663 Strand...   395  2.9e-35   1
+agam:ENSANGP00000013314 Database:core Gene:ENSANGG0000001...   384  3.4e-35   1
+agos:AFL201W location=AgChr6:58424..59917                      383  4.4e-35   1
+fgram:FG02220.1 hypothetical protein 57928 59634 +             383  4.4e-35   1
+hsap:ENSP00000271359 Database:core Gene:ENSG00000143149 C...   382  5.8e-35   1
+calb:orf6.6640  orf6-2467:32772-34271:e  1500 bp, 499 aa,...   382  5.8e-35   1
+spom:SPAC9E9.09c |||putative aldehyde dehydrogenase            382  5.8e-35   1
+fgram:FG02392.1 hypothetical protein 112635 114218 -           381  7.5e-35   1
+scer:YPL061W ALD6 SGDID:S0005982, Chr XVI from 432583-434085   380  9.7e-35   1
+mgri:MG01991.3 hypothetical protein 16355 18108 +              387  1.3e-34   1
+rnor:ENSRNOP00000021799 Database:core Gene:ENSRNOG0000001...   379  1.3e-34   1
+drer:ENSDARP00000015715 Database:core Gene:ENSDARG0000002...   379  1.3e-34   1
+fgram:FG05831.1 hypothetical protein 397480 399069 -           379  1.3e-34   1
+drer:ENSDARP00000011744 Database:core Gene:ENSDARG0000000...   377  2.1e-34   1
+cbri:CBG05984 CBP15436 (cb25.fpc0143.gc246)                    397  4.1e-34   1
+rnor:ENSRNOP00000005611 Database:core Gene:ENSRNOG0000000...   372  7.7e-34   1
+frub:SINFRUP00000157742 Database:core Gene:SINFRUG0000014...   372  7.7e-34   1
+mgri:MG09456.3 hypothetical protein 830 2335 -                 372  7.7e-34   1
+fgram:FG11034.1 hypothetical protein 7087 10802 -              393  1.3e-33   1
+drer:ENSDARP00000024587 Database:core Gene:ENSDARG0000000...   370  1.3e-33   1
+mgri:MG00652.3 hypothetical protein 20025 21464 -              339  1.9e-33   2
+umay:umay_Contig94.Gene5 Start=7986 End=9677 Strand=1 Len...   380  2.3e-33   1
+hsap:ENSP00000308809 Database:core Gene:ENSG00000144908 C...   390  2.7e-33   1
+anid:AN4054.1 hypothetical protein 274503 276139 +             366  3.6e-33   1
+anid:AN1430.1 hypothetical protein 75595 77158 +               366  3.6e-33   1
+rnor:ENSRNOP00000018010 Database:core Gene:ENSRNOG0000001...   339  6.9e-33   2
+cele:F54D8.3 CE29809   Aldehyde dehydrogenase 2 status:Co...   371  7.0e-33   1
+pchr:pchr_Scaffold_36.Gene34 Start=136323 End=131305 Stra...   388  7.2e-33   1
+frub:SINFRUP00000146331 Database:core Gene:SINFRUG0000013...   385  8.5e-33   1
+drer:ENSDARP00000023429 Database:core Gene:ENSDARG0000000...   362  1.0e-32   1
+agam:ENSANGP00000021005 Database:core Gene:ENSANGG0000001...   385  1.2e-32   1
+fgram:FG11542.1 hypothetical protein 85606 87343 +             361  1.3e-32   1
+cbri:CBG23008 CBP05486 (cb25.fpc4426.en2389a/cb25.fpc4426...   369  1.7e-32   1
+pchr:pchr_Scaffold_42.Gene29 Start=118985 End=116126 Stra...   377  2.1e-32   1
+cbri:CBG15207 CBP03688 (cb25.fpc4010.en576a)                   379  2.1e-32   1
+dmel:CG4685-PA translation from_gene[CG4685 CG4685 FBgn00...   368  2.2e-32   1
+agam:ENSANGP00000014625 Database:core Gene:ENSANGG0000001...   359  2.2e-32   1
+frub:SINFRUP00000156880 Database:core Gene:SINFRUG0000014...   358  2.8e-32   1
+duh99:MATCHRContig45.Gene17 Start=28159 End=25771 Strand=...   371  3.4e-32   1
+cele:F42G9.5 CE07233   betaine-aldehyde dehydrogenase sta...   376  4.9e-32   1
+umay:umay_Contig192.Gene3 Start=244542 End=247243 Strand=...   375  7.1e-32   1
+rnor:ENSRNOP00000011483 Database:core Gene:ENSRNOG0000000...   377  8.6e-32   1
+jec21:cneo_TIGRJEC21_chr11b.pseudo.Gene216 Start=332496 E...   371  1.2e-31   1
+hsap:ENSP00000265605 Database:core Gene:ENSG00000118514 C...   355  3.0e-31   1
+wih99:cneo_WIH99_20.Gene3 Start=298791 End=301339 Strand=...   363  3.6e-31   1
+dmel:CG31075-PA translation from_gene[CG31075 CG31075 FBg...   352  9.1e-31   1
+jec21:cneo_TIGRJEC21_CH9.Gene24 Start=553523 End=556049 S...   356  2.4e-30   1
+anid:AN3573.1 hypothetical protein 96168 97759 +               306  2.5e-30   2
+anid:AN4847.1 hypothetical protein 21287 24043 +               363  2.5e-30   1
+drer:ENSDARP00000008179 Database:core Gene:ENSDARG0000000...   340  2.8e-30   1
+agos:ADR418W location=AgChr4:1453729..1455252                  352  3.9e-30   1
+ncra:NCU00715.1 hypothetical protein (54297 - 55937)           351  8.4e-30   1
+ncra:NCU03348.1 hypothetical protein (46178 - 44665)           345  9.3e-30   1
+frub:SINFRUP00000146332 Database:core Gene:SINFRUG0000013...   356  9.6e-30   1
+agam:ENSANGP00000014662 Database:core Gene:ENSANGG0000001...   343  1.4e-29   1
+umay:umay_Contig115.Gene5 Start=29009 End=31339 Strand=1 ...   350  2.1e-29   1
+fgram:FG05375.1 hypothetical protein 97901 99430 +             346  2.4e-29   1
+ncra:NCU02056.1 hypothetical protein (21232 - 19740)           341  3.0e-29   1
+cele:C54D1.4 CE06980   aldehyde dehydrogenase status:Part...   343  5.3e-29   1
+wih99:cneo_WIH99_80.Gene78 Start=108689 End=105572 Strand...   346  5.8e-29   1
+cele:Y69F12A.2 CE24573   aldehyde dehydrogenase status:Pa...   345  8.2e-29   1
+pchr:pchr_Scaffold_68.Gene2 Start=118512 End=121055 Stran...   342  1.5e-28   1
+anid:AN0740.1 hypothetical protein 38806 40367 -               335  2.4e-28   1
+drer:ENSDARP00000025035 Database:core Gene:ENSDARG0000000...   322  2.6e-28   1
+anid:AN3205.1 hypothetical protein 19806 21394 +               333  3.6e-28   1
+frub:SINFRUP00000135525 Database:core Gene:SINFRUG0000012...   335  3.7e-28   1
+anid:AN7315.1 hypothetical protein 94182 95712 -               334  5.0e-28   1
+dmel:CG8665-PA translation from_gene[CG8665 CG8665 FBgn00...   343  5.8e-28   1
+ncra:NCU09648.1 hypothetical protein (17442 - 19120)           331  6.8e-28   2
+afum:1839_glimmerf_24                                          333  7.1e-28   1
+rnor:ENSRNOP00000001816 Database:core Gene:ENSRNOG0000000...   290  7.4e-28   2
+mgri:MG01230.3 hypothetical protein 11881 13666 +              335  8.0e-28   1
+fgram:FG04196.1 hypothetical protein 60704 62429 +             331  1.2e-27   1
+afum:3202_glimmerf_68                                          337  1.5e-27   1
+umay:umay_Contig222.Gene6 Start=19170 End=17353 Strand=-1...   332  2.0e-27   1
+rnor:ENSRNOP00000020015 Database:core Gene:ENSRNOG0000001...   314  2.0e-27   1
+fgram:FG06752.1 hypothetical protein 57054 58751 +             328  2.6e-27   1
+hsap:ENSP00000309623 Database:core Gene:ENSG00000128918 C...   277  3.2e-27   2
+ccin:ccin_Contig206.Gene14 Start=13195 End=10953 Strand=-...   330  3.4e-27   1
+duh99:cneo_DUH99_Contig548.Gene28 Start=81130 End=78906 S...   331  3.4e-27   1
+rnor:ENSRNOP00000023774 Database:core Gene:ENSRNOG0000001...   311  4.2e-27   1
+ncra:NCU00936.1 hypothetical protein (87196 - 85536)           325  6.6e-27   1
+anid:AN4050.1 hypothetical protein 262048 263673 -             324  6.8e-27   1
+jec21:cneo_TIGRJEC21_CH2.Gene1 Start=223094 End=225269 St...   328  6.9e-27   1
+cbri:CBG09190 CBP08192 (cb25.fpc2193.fg55/cb25.fpc2193.gc...   325  7.1e-27   1
+cele:F01F1.6 CE01232   Aldehyde dehydrogenase status:Conf...   322  2.0e-26   1
+drer:ENSDARP00000010714 Database:core Gene:ENSDARG0000000...   328  2.5e-26   1
+drer:ENSDARP00000023106 Database:core Gene:ENSDARG0000000...   328  2.6e-26   1
+drer:ENSDARP00000025029 Database:core Gene:ENSDARG0000000...   328  2.6e-26   1
+fgram:FG01759.1 hypothetical protein 58734 60362 +             320  2.6e-26   1
+anid:AN1541.1 hypothetical protein 30562 32195 +               319  2.9e-26   1
+anid:AN5435.1 hypothetical protein 161833 164046 -             318  3.7e-26   1
+mgri:MG02766.3 hypothetical protein 6094 8116 -                323  4.0e-26   1
+frub:SINFRUP00000163952 Database:core Gene:SINFRUG0000015...   272  4.7e-26   2
+mgri:MG03263.3 hypothetical protein 3369 5047 +                317  5.2e-26   1
+agam:ENSANGP00000016555 Database:core Gene:ENSANGG0000001...   319  5.6e-26   1
+fgram:FG00854.1 hypothetical protein 138293 142157 -           324  6.6e-26   1
+pchr:pchr_Scaffold_15.Gene44 Start=10646 End=8127 Strand=...   318  9.4e-26   1
+cbri:CBG09070 CBP02216 (cb25.fpc2187.en7002a)                  316  1.0e-25   1
+spom:SPAC139.05 |||putative succinate semialdehyde dehydr...   314  1.3e-25   1
+mmus:ENSMUSP00000028004 Database:core Gene:ENSMUSG0000002...   312  1.8e-25   1
+cbri:CBG10981 CBP02675 (cb25.fpc2397.en1670b/cb25.fpc2397...   312  2.7e-25   1
+ncra:NCU07442.1 hypothetical protein (58745 - 56640)           314  3.8e-25   1
+mmus:ENSMUSP00000001749 Database:core Gene:ENSMUSG0000002...   310  4.8e-25   1
+afum:3310_glimmerf_183                                         307  6.6e-25   1
+fgram:FG11482.1 hypothetical protein 39753 41214 -             289  1.0e-24   1
+spom:SPAC1002.12c |||putative succinate-semialdehyde dehy...   306  1.2e-24   1
+ccin:ccin_Contig143.Gene26 Start=93392 End=90406 Strand=-...   308  1.5e-24   1
+fgram:FG02296.1 hypothetical protein 42345 43942 -             305  1.5e-24   1
+agam:ENSANGP00000017723 Database:core Gene:ENSANGG0000001...   305  1.7e-24   1
+drer:ENSDARP00000005458 Database:core Gene:ENSDARG0000000...   234  2.0e-24   2
+anid:AN3829.1 hypothetical protein 18018 19747 +               305  2.1e-24   1
+calb:orf6.6689  orf6-2469:28972-30501:e  1530 bp, 509 aa,...   303  3.1e-24   1
+fgram:FG00718.1 hypothetical protein 48603 50089 -             301  3.5e-24   1
+rnor:ENSRNOP00000024093 Database:core Gene:ENSRNOG0000001...   185  4.6e-24   3
+calb:orf6.7782  orf6-2501:55143-53707:e  1437 bp, 478 aa,...   299  6.2e-24   1
+frub:SINFRUP00000152737 Database:core Gene:SINFRUG0000014...   300  6.4e-24   1
+drer:ENSDARP00000015309 Database:core Gene:ENSDARG0000001...   280  9.9e-24   1
+mmus:ENSMUSP00000040591 Database:core Gene:ENSMUSG0000003...   299  1.0e-23   1
+mmus:ENSMUSP00000025657 Database:core Gene:ENSMUSG0000002...   279  1.3e-23   1
+hsap:ENSP00000297542 Database:core Gene:ENSG00000164904 C...   297  1.5e-23   1
+frub:SINFRUP00000142953 Database:core Gene:SINFRUG0000013...   278  1.6e-23   1
+ncra:NCU08669.1 hypothetical protein (11260 - 12786)           294  2.1e-23   1
+fgram:FG02356.1 hypothetical protein 25485 28604 +             194  2.2e-23   2
+anid:AN3591.1 hypothetical protein ( (MG01606.1) hypothet...   296  2.4e-23   1
+frub:SINFRUP00000148708 Database:core Gene:SINFRUG0000014...   295  2.6e-23   1
+cele:F36H1.6 CE05817   formyltetrahydrofolate dehydrogena...   298  5.3e-23   1
+calb:orf6.7055  orf6-2481:60364-58520:e  1845 bp, 614 aa,...   294  6.4e-23   1
+agam:ENSANGP00000022164 Database:core Gene:ENSANGG0000001...   292  6.6e-23   1
+umay:umay_Contig141.Gene14 Start=5134 End=3036 Strand=-1 ...   292  7.7e-23   1
+dmel:CG17896-PA translation from_gene[CG17896 EG:171D11.1...   289  1.2e-22   1
+dmel:CG17896-PB translation from_gene[CG17896 EG:171D11.1...   289  1.3e-22   1
+umay:umay_Contig124.Gene6 Start=37930 End=40228 Strand=1 ...   292  1.4e-22   1
+hsap:ENSP00000238696 Database:core Gene:ENSG00000119711 C...   289  1.6e-22   1
+cele:F45H10.1 CE?????     succinate semi-aldehyde dehydro...   287  1.7e-22   1
+ncra:NCU09266.1 hypothetical protein (94540 - 96177)           288  2.1e-22   1
+anid:AN4820.1 hypothetical protein 149242 150844 -             283  5.4e-22   1
+wih99:cneo_WIH99_14.Gene173 Start=142339 End=139677 Stran...   285  6.0e-22   1
+afum:9439_glimmerf_146                                         278  6.9e-22   1
+duh99:cneo_DUH99_Contig585.Gene10 Start=82555 End=84824 S...   283  8.4e-22   1
+fgram:FG03936.1 hypothetical protein 156552 158199 +           281  9.7e-22   1
+rnor:ENSRNOP00000015545 Database:core Gene:ENSRNOG0000001...   281  1.1e-21   1
+dmel:CG9629-PA translation from_gene[CG9629 CG9629 FBgn00...   281  1.2e-21   1
+dmel:CG9629-PB translation from_gene[CG9629 CG9629 FBgn00...   281  1.2e-21   1
+rnor:ENSRNOP00000021757 Database:core Gene:ENSRNOG0000001...   279  1.2e-21   1
+drer:ENSDARP00000012423 Database:core Gene:ENSDARG0000000...   279  1.3e-21   1
+pchr:pchr_Scaffold_2.Gene87 Start=346907 End=343843 Stran...   282  1.3e-21   1
+fgram:FG08596.1 hypothetical protein 57232 59131 +             282  1.4e-21   1
+afum:7129_glimmerf_213                                         279  1.5e-21   1
+cbri:CBG20774 CBP11572 (cb25.fpc4206.fg128/cb25.fpc4206.g...   279  1.5e-21   1
+pchr:pchr_Scaffold_70.Gene18 Start=126124 End=123573 Stra...   280  1.9e-21   1
+mmus:ENSMUSP00000021664 Database:core Gene:ENSMUSG0000002...   279  2.0e-21   1
+frub:SINFRUP00000144622 Database:core Gene:SINFRUG0000013...   277  2.0e-21   1
+umay:umay_Contig203.Gene28 Start=130123 End=127586 Strand...   279  2.1e-21   1
+mmus:ENSMUSP00000049810 Database:core Gene:ENSMUSG0000002...   278  2.3e-21   1
+anid:AN0079.1 hypothetical protein 72529 76110 -               284  2.4e-21   1
+fgram:FG00490.1 conserved hypothetical protein 3891 5622 -     278  3.0e-21   1
+drer:ENSDARP00000027544 Database:core Gene:ENSDARG0000000...   269  6.4e-21   1
+umay:umay_Contig3.Gene2 Start=12357 End=13920 Strand=1 Le...   273  8.6e-21   1
+agos:AgYBR006W location=AgChr5:642837..644324                  272  9.3e-21   1
+anid:AN7141.1 hypothetical protein 28075 29616 +               271  9.7e-21   1
+mgri:MG05814.3 hypothetical protein 33559 35087 -              271  9.7e-21   1
+umay:umay_Contig203.Gene4 Start=102418 End=104786 Strand=...   271  1.3e-20   1
+mmus:ENSMUSP00000038878 Database:core Gene:ENSMUSG0000003...   251  1.4e-20   1
+duh99:cneo_DUH99_Contig560.Gene45 Start=69535 End=67388 S...   271  1.5e-20   1
+calb:orf6.7229  orf6-2487:29860-31335:e  1476 bp, 491 aa,...   270  1.5e-20   1
+ccin:ccin_Contig199.Gene11 Start=493217 End=496163 Strand...   273  1.6e-20   1
+duh99:cneo_DUH99_Contig575.Gene5 Start=73052 End=75270 St...   272  1.7e-20   1
+ccin:ccin_Contig198.Gene198 Start=520002 End=516613 Stran...   272  1.7e-20   1
+drer:ENSDARP00000011728 Database:core Gene:ENSDARG0000000...   274  1.9e-20   1
+wih99:cneo_WIH99_48.Gene135 Start=262989 End=260742 Stran...   269  2.6e-20   1
+anid:AN6636.1 hypothetical protein 188016 190076 -             271  2.6e-20   1
+fgram:FG10673.1 hypothetical protein 110458 112011 +           267  3.5e-20   1
+cele:F13D12.4 CE02183   methylmalonate-semialdehyde dehyd...   266  5.3e-20   1
+jec21:cneo_TIGRJEC21_chr5.pseudo.Gene416 Start=965498 End...   270  6.6e-20   1
+drer:ENSDARP00000024566 Database:core Gene:ENSDARG0000000...   262  1.1e-19   1
+anid:AN1585.1 hypothetical protein 180201 181769 -             262  1.3e-19   1
+duh99:MATCHRContig46.Gene18 Start=5071 End=7234 Strand=1 ...   263  1.4e-19   1
+wih99:cneo_WIH99_20.Gene17 Start=160223 End=162565 Strand...   263  1.6e-19   1
+jec21:cneo_TIGRJEC21_chr4.pseudo.Gene688 Start=1937332 En...   262  2.0e-19   1
+jec21:cneo_TIGRJEC21_CH2.Gene354 Start=550124 End=547388 ...   261  2.5e-19   1
+ccin:ccin_Contig308.Gene1 Start=4191 End=6444 Strand=1 Le...   259  2.7e-19   1
+fgram:FG09762.1 hypothetical protein 5035 6633 +               258  2.9e-19   1
+drer:ENSDARP00000020121 Database:core Gene:ENSDARG0000000...   252  2.9e-19   1
+afum:8240_glimmerf_104                                         259  3.3e-19   1
+pchr:pchr_Scaffold_25.Gene48 Start=210869 End=208531 Stra...   260  3.6e-19   1
+fgram:FG04670.1 hypothetical protein 154840 156421 -           257  3.9e-19   1
+cbri:CBG03134 CBP06431 (cb25.fpc0058.fg640/cb25.fpc0058.g...   258  4.2e-19   1
+frub:SINFRUP00000132841 Database:core Gene:SINFRUG0000012...   257  4.2e-19   1
+hsap:ENSP00000259696 Database:core Gene:ENSG00000112294 C...   257  5.8e-19   1
+frub:SINFRUP00000155714 Database:core Gene:SINFRUG0000014...   236  5.8e-19   1
+calb:orf6.4131  orf6-2316:7542-5869:e  1674 bp, 557 aa, c...   257  6.5e-19   1
+afum:5674_glimmerf_172                                         234  9.5e-19   1
+wih99:cneo_WIH99_77.Gene9 Start=240235 End=242652 Strand=...   252  2.3e-18   1
+fgram:FG07803.1 hypothetical protein 81767 83572 +             250  2.4e-18   1
+duh99:MATCHRContig45.Gene1 Start=32346 End=34255 Strand=1...   250  3.1e-18   1
+wih99:cneo_WIH99_20.Gene108 Start=294712 End=292322 Stran...   250  3.6e-18   1
+jec21:cneo_TIGRJEC21_chr11b.pseudo.Gene24 Start=539782 En...   251  4.1e-18   1
+frub:SINFRUP00000138575 Database:core Gene:SINFRUG0000013...   228  4.2e-18   1
+pchr:pchr_Scaffold_41.Gene38 Start=135527 End=133723 Stra...   246  7.7e-18   1
+scer:YHR039C MSC7 SGDID:S0001081, Chr VIII from 186800-18...   247  1.2e-17   1
+jec21:cneo_TIGRJEC21_CH9.Gene516 Start=549767 End=547581 ...   245  1.3e-17   1
+pchr:pchr_Scaffold_4.Gene75 Start=259710 End=257130 Stran...   187  1.8e-17   2
+hsap:ENSP00000325473 Database:core Gene:ENSG00000118514 C...   200  1.9e-17   2
+fgram:FG01826.1 hypothetical protein 3352 4961 +               243  1.9e-17   1
+scer:YBR006W UGA2 SGDID:S0000210, Chr II from 246971-248464    242  2.2e-17   1
+mgri:MG01606.3 hypothetical protein ( (NCU09266.1) hypoth...   241  3.6e-17   1
+agos:AAL076W location=AgChr1:213684..215597                    242  4.0e-17   1
+hsap:ENSP00000314649 Database:core Gene:ENSG00000112294 C...   235  1.7e-16   1
+ccin:ccin_Contig26.Gene76 Start=185685 End=182747 Strand=...   198  1.8e-16   2
+drer:ENSDARP00000009551 Database:core Gene:ENSDARG0000000...   212  2.3e-16   1
+wih99:cneo_WIH99_84.Gene109 Start=254919 End=252452 Stran...   234  3.0e-16   1
+drer:ENSDARP00000003517 Database:core Gene:ENSDARG0000001...   228  3.0e-16   1
+scer:YMR110C YMR110C SGDID:S0004716, Chr XIII from 491991...   232  3.4e-16   1
+duh99:cneo_DUH99_Contig88.Gene1 Start=947 End=2 Strand=-1...   209  4.8e-16   1
+afum:6343_glimmerf_397                                         222  1.2e-15   1
+umay:umay_Contig126.Gene6 Start=44007 End=46488 Strand=1 ...   228  1.3e-15   1
+duh99:cneo_DUH99_Contig572.Gene12 Start=60677 End=63143 S...   226  2.2e-15   1
+rnor:ENSRNOP00000003182 Database:core Gene:ENSRNOG0000000...   224  2.4e-15   1
+drer:ENSDARP00000016103 Database:core Gene:ENSDARG0000001...   206  2.8e-15   2
+spom:SPBC21C3.15c |||putative aldehyde-dehydrogenase-like...   222  4.2e-15   1
+ccin:ccin_Contig86.Gene6 Start=60023 End=62098 Strand=1 L...   217  1.4e-14   1
+jec21:cneo_TIGRJEC21_chr3.pseudo.Gene44 Start=853936 End=...   216  2.2e-14   1
+drer:ENSDARP00000025142 Database:core Gene:ENSDARG0000001...   198  2.4e-14   2
+ccin:ccin_Contig112.Gene67 Start=228881 End=226835 Strand...   215  2.9e-14   1
+jec21:cneo_TIGRJEC21_CH9.Gene40 Start=432690 End=434826 S...   215  3.8e-14   1
+umay:umay_Contig154.Gene37 Start=150500 End=148105 Strand...   211  8.9e-14   1
+pchr:pchr_Scaffold_1.Gene119 Start=403089 End=405051 Stra...   208  1.4e-13   1
+wih99:cneo_WIH99_63.Gene197 Start=28565 End=25737 Strand=...   208  1.6e-13   1
+frub:SINFRUP00000138576 Database:core Gene:SINFRUG0000013...   181  4.9e-13   1
+duh99:cneo_DUH99_Contig562.Gene45 Start=26299 End=23976 S...   182  1.2e-12   2
+pchr:pchr_Scaffold_1.Gene91 Start=392557 End=390664 Stran...   198  1.4e-12   1
+calb:orf6.7642  orf6-2498:45415-43430:e  1986 bp, 661 aa,...   198  2.9e-12   1
+calb:orf6.7610  orf6-2497:61254-62882:e  1629 bp, 542 aa,...   192  9.1e-12   1
+cele:T08B1.3 CE13415   aldehyde dehydrogenase status:Conf...   190  9.5e-12   1
+afum:4684_glimmerf_1                                           169  9.7e-12   1
+pchr:pchr_Scaffold_201.Gene1 Start=14631 End=17178 Strand...   199  1.4e-11   2
+drer:ENSDARP00000005081 Database:core Gene:ENSDARG0000000...   188  1.9e-11   1
+mgri:MG00719.3 hypothetical protein 80568 82139 +              188  2.3e-11   1
+hsap:ENSP00000258494 Database:core Gene:ENSG00000136010 C...   188  4.2e-11   1
+frub:SINFRUP00000134540 Database:core Gene:SINFRUG0000012...   184  4.3e-11   1
+drer:ENSDARP00000019543 Database:core Gene:ENSDARG0000001...   170  4.3e-10   1
+rnor:ENSRNOP00000020325 Database:core Gene:ENSRNOG0000001...   160  9.9e-10   1
+agam:ENSANGP00000009992 Database:core Gene:ENSANGG0000000...   167  2.0e-09   2
+rnor:ENSRNOP00000017506 Database:core Gene:ENSRNOG0000001...   157  2.8e-09   1
+afum:5076_glimmerf_157                                         160  3.2e-09   1
+anid:AN5644.1 hypothetical protein 119417 121388 -             166  5.9e-09   1
+mgri:MG07270.3 hypothetical protein 24200 27609 -              165  9.7e-09   1
+mmus:ENSMUSP00000019246 Database:core Gene:ENSMUSG0000001...   163  9.9e-09   1
+umay:umay_Contig248.Gene23 Start=64732 End=62912 Strand=-...   162  1.6e-08   1
+ccin:ccin_Contig197.Gene16 Start=193203 End=195572 Strand...   160  2.5e-08   1
+hsap:ENSP00000225740 Database:core Gene:ENSG00000108602 C...   159  2.7e-08   1
+cele:T05H4.13 CE27441   aldehyde dehydrogenase status:Con...   158  4.1e-08   1
+dmel:CG11140-PI translation from_gene[CG11140 Aldh-III FB...   156  6.9e-08   1
+mmus:ENSMUSP00000062524 Database:core Gene:ENSMUSG0000002...   127  7.5e-08   3
+dmel:CG11140-PF translation from_gene[CG11140 Aldh-III FB...   156  8.4e-08   1
+dmel:CG11140-PG translation from_gene[CG11140 Aldh-III FB...   156  8.4e-08   1
+dmel:CG11140-PC translation from_gene[CG11140 Aldh-III FB...   156  8.4e-08   1
+dmel:CG11140-PB translation from_gene[CG11140 Aldh-III FB...   156  8.4e-08   1
+dmel:CG11140-PA translation from_gene[CG11140 Aldh-III FB...   156  8.4e-08   1
+dmel:CG11140-PD translation from_gene[CG11140 Aldh-III FB...   156  8.4e-08   1
+cbri:CBG18932 CBP19504 (cb25.fpc4126.gc41)                     153  1.4e-07   1
+drer:ENSDARP00000014385 Database:core Gene:ENSDARG0000001...   138  1.6e-07   2
+mgri:MG06551.3 hypothetical protein 62216 63824 +              105  2.4e-07   2
+frub:SINFRUP00000148431 Database:core Gene:SINFRUG0000013...   147  6.2e-07   1
+rnor:ENSRNOP00000017655 Database:core Gene:ENSRNOG0000001...   132  1.1e-06   1
+drer:ENSDARP00000013496 Database:core Gene:ENSDARG0000000...   134  1.1e-06   1
+pchr:pchr_Scaffold_12.Gene51 Start=268702 End=266658 Stra...   145  1.4e-06   1
+rnor:ENSRNOP00000023789 Database:core Gene:ENSRNOG0000001...   141  2.5e-06   1
+mmus:ENSMUSP00000025795 Database:core Gene:ENSMUSG0000003...   139  2.6e-06   1
+mmus:ENSMUSP00000050692 Database:core Gene:ENSMUSG0000001...   141  2.9e-06   1
+mmus:ENSMUSP00000010169 Database:core Gene:ENSMUSG0000001...   141  2.9e-06   1
+hsap:ENSP00000007633 Database:core Gene:ENSG00000006534 C...   139  3.9e-06   1
+mmus:ENSMUSP00000039838 Database:core Gene:ENSMUSG0000003...   138  5.6e-06   1
+hsap:ENSP00000316241 Database:core Gene:ENSG00000006534 C...   138  5.7e-06   1
+rnor:ENSRNOP00000003200 Database:core Gene:ENSRNOG0000000...   138  6.6e-06   1
+frub:SINFRUP00000134534 Database:core Gene:SINFRUG0000012...   134  1.3e-05   1
+pchr:pchr_Scaffold_19.Gene52 Start=124215 End=122095 Stra...   135  1.4e-05   1
+afum:10580_glimmerf_8                                          131  1.6e-05   1
+ncra:NCU04013.1 hypothetical protein (59219 - 57534)           131  4.2e-05   1
+anid:AN8985.1 hypothetical protein 22123 23804 -               131  5.4e-05   2
+frub:SINFRUP00000129119 Database:core Gene:SINFRUG0000012...   129  5.5e-05   1
+frub:SINFRUP00000160622 Database:core Gene:SINFRUG0000015...   116  5.7e-05   1
+hsap:ENSP00000314367 Database:core Gene:ENSG00000072210 C...   128  8.2e-05   1
+drer:ENSDARP00000025640 Database:core Gene:ENSDARG0000001...   120  8.5e-05   2
+hsap:ENSP00000176643 Database:core Gene:ENSG00000072210 C...   128  9.3e-05   1
+dmel:CG11140-PH translation from_gene[CG11140 Aldh-III FB...   125  0.00014   1
+mmus:ENSMUSP00000056276 Database:core Gene:ENSMUSG0000002...   127  0.00014   3
+fgram:FG09960.1 hypothetical protein 40904 42572 +             126  0.00015   1
+mmus:ENSMUSP00000057475 Database:core Gene:ENSMUSG0000003...   130  0.00015   1
+frub:SINFRUP00000138573 Database:core Gene:SINFRUG0000013...   102  0.00015   1
+drer:ENSDARP00000027868 Database:core Gene:ENSDARG0000001...   121  0.00035   1
+drer:ENSDARP00000004886 Database:core Gene:ENSDARG0000001...   122  0.00037   1
+drer:ENSDARP00000002746 Database:core Gene:ENSDARG0000001...   121  0.00043   1
+umay:umay_Contig153.Gene4 Start=24926 End=23503 Strand=-1...   116  0.00044   1
+mmus:ENSMUSP00000056922 Database:core Gene:ENSMUSG0000003...   118  0.00047   1
+mmus:ENSMUSP00000025816 Database:core Gene:ENSMUSG0000002...   118  0.00078   1
+hsap:ENSP00000255084 Database:core Gene:ENSG00000132746 C...   116  0.0011    1
+drer:ENSDARP00000012767 Database:core Gene:ENSDARG0000000...    93  0.0014    1
+mgri:MG07890.3 hypothetical protein 2215 4003 +                111  0.0062    1
+afum:9099_glimmerf_102                                         102  0.023     1
+drer:ENSDARP00000008677 Database:core Gene:ENSDARG0000000...   101  0.043     1
+drer:ENSDARP00000020199 Database:core Gene:ENSDARG0000000...   101  0.050     1
+drer:ENSDARP00000003039 Database:core Gene:ENSDARG0000000...   101  0.052     1
+drer:ENSDARP00000015570 Database:core Gene:ENSDARG0000000...   101  0.053     1
+drer:ENSDARP00000021159 Database:core Gene:ENSDARG0000001...   100  0.054     1
+mmus:ENSMUSP00000050448 Database:core Gene:ENSMUSG0000004...    78  0.055     1
+drer:ENSDARP00000010518 Database:core Gene:ENSDARG0000001...   100  0.062     1
+drer:ENSDARP00000027140 Database:core Gene:ENSDARG0000002...    98  0.086     1
+drer:ENSDARP00000023944 Database:core Gene:ENSDARG0000000...    88  0.15      1
+drer:ENSDARP00000017270 Database:core Gene:ENSDARG0000001...    94  0.17      1
+hsap:ENSP00000318252 Database:core Gene:ENSG00000006534 C...    92  0.17      1
+drer:ENSDARP00000024731 Database:core Gene:ENSDARG0000001...    92  0.42      1
+hsap:ENSP00000293350 Database:core Gene:ENSG00000161618 C...    95  0.44      1
+rnor:ENSRNOP00000024064 Database:core Gene:ENSRNOG0000001...    86  0.47      1
+afum:3599_glimmerf_174                                          88  0.58      1
+umay:umay_Contig153.Gene5 Start=23500 End=22157 Strand=-1...    82  0.93      1
+agos:AGL192C location=AgChr7:complement(361641..363485)         87  0.95      1
+jec21:cneo_TIGRJEC21_chr3.pseudo.Gene262 Start=1259945 En...    59  0.998     1
+dmel:CG8358-PA translation from_gene[CG8358 CG8358 FBgn00...    84  0.9995    1
+
+
+
+Parameters:
+  -i /nfs1/jason_input/euk_split/eukall.597
+  -d /nfs1/jason_input/all_euk/metazoans /nfs1/jason_input/fungi/ascopeps /nfs1/jason_input/fungi/basido
+  W=3
+  T=1000
+  B=0
+
+  ctxfactor=1.00
+  E=10
+
+  Query                        -----  As Used  -----    -----  Computed  ----
+  Frame  MatID Matrix name     Lambda    K       H      Lambda    K       H
+   +0      0   BLOSUM62        0.317   0.134   0.392    same    same    same
+               Q=9,R=2         0.244   0.0300  0.180     n/a     n/a     n/a
+
+  Query
+  Frame  MatID  Length  Eff.Length     E    S W    T  X   E2     S2
+   +0      0      601       601       10.  82 3 1000 22  0.21    34
+                                                     36  0.22    37
+
+
+Statistics:
+
+  Database:  /nfs1/jason_input/all_euk/metazoans; /nfs1/jason_input/fungi/ascopeps; /nfs1/jason_input/fungi/basido
+   Title:  /nfs1/jason_input/all_euk/metazoans; /nfs1/jason_input/fungi/ascopeps; /nfs1/jason_input/fungi/basido
+   Format:  VirtualDB
+   # of letters in database:  145,589,111
+   # of sequences in database:  351,440
+   # of database sequences satisfying E:  415
+  No. of states in DFA:  281 (30 KB)
+  Total size of DFA:  44 KB (2055 KB)
+  Time to generate neighborhood:  0.01u 0.00s 0.01t  Elapsed: 00:00:00
+  No. of threads or processors used:  2
+  Search cpu time:  28.63u 0.00s 28.63t  Elapsed: 00:00:15
+  Total cpu time:  28.68u 0.00s 28.68t  Elapsed: 00:00:15
+  Start:  Wed Nov  5 04:46:09 2003   End:  Wed Nov  5 04:46:24 2003

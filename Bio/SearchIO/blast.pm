@@ -377,7 +377,7 @@ sub next_result{
 	   /^(MEGABLAST)\s*(.+)$/i || 
 	   /^(P?GENEWISE|HFRAME|SWN|TSWN)\s+(.+)/i #Paracel BTK
            ) {
-#           $self->debug("blast.pm: Start of new report: $1 $2\n");
+ #          $self->debug("blast.pm: Start of new report: $1 $2\n");
 	   if( $self->{'_seentop'} ) {
                # This handles multi-result input streams
                $self->_pushback($_);
@@ -401,8 +401,7 @@ sub next_result{
            $self->element({ 'Name' => 'BlastOutput_inclusion-threshold',
                             'Data' => $incl_threshold});
        } elsif ( /^Searching/ ) {
-#            $self->debug("blast.pm: Searching found...\n");
-
+#	   $self->debug("blast.pm: Searching found...\n");
            $self->in_element('hsp') && 
                $self->end_element({ 'Name' => 'Hsp'});
            $self->in_element('hit') && 
@@ -478,14 +477,10 @@ sub next_result{
            defined $desc && $desc =~ s/\s+$//;
            $self->element({ 'Name' => 'BlastOutput_querydesc', 
                             'Data' => $desc});
-           
-           if( my @pieces = split(/\|/,$nm) ) {
-               my $acc = pop @pieces;
-               $acc = pop @pieces if( ! defined $acc || $acc =~ /^\s+$/);
-               $self->element({ 'Name' =>  'BlastOutput_query-acc',
-                                'Data'  => $acc});
-           }
-
+           my ($acc,$version) = &_get_accession_version($nm);
+	   $version ||= '';
+	   $self->element({ 'Name' =>  'BlastOutput_query-acc',
+			    'Data'  => "$acc.$version"});
        } elsif( /Sequences producing significant alignments:/ ) {
 #           $self->debug("blast.pm: Processing NCBI-BLAST descripitons\n");
            $flavor = 'ncbi';
@@ -509,7 +504,19 @@ sub next_result{
                    my ($score, $evalue) = ($1, $2);
                    # Some data clean-up so e-value will appear numeric to perl
                    $evalue =~ s/^e/1e/i;
-		   push @hit_signifs, [ $evalue, $score ];
+		   
+		   # This to handle no-HSP case
+		   my @line = split;
+		   # we want to throw away the score, evalue
+		   pop @line, pop @line;
+		   # and N if it is present (of course they are not 
+		   # really in that order, but it doesn't matter
+		   if( $3 ) { pop @line }		   
+		   
+		   # add the last 2 entries s.t. we can reconstruct
+		   # a minimal Hit object at the end of the day
+		   push @hit_signifs, [ $evalue, $score,
+					shift @line, join(' ', @line)];
                } elsif (/^CONVERGED/i) {
                    $self->element({ 'Name' => 'Iteration_converged',
                                     'Data' => 1});
@@ -531,7 +538,11 @@ sub next_result{
                   ! /^\s+$/ ) {        
                 my @line = split;
 		pop @line; # throw away first number which is for 'N'col
-                push @hit_signifs, [ pop @line, pop @line];
+		
+		# add the last 2 entries to array s.t. we can reconstruct
+		# a minimal Hit object at the end of the day
+                push @hit_signifs, [ pop @line, pop @line, 
+				     shift @line, join(' ', @line)];
            }
        } elsif ( /^Database:\s*(.+)$/ ) {
 #           $self->debug("blast.pm: Database: $1\n");
@@ -573,29 +584,7 @@ sub next_result{
 #           $self->debug("Starting a hit: $1 $2\n");
 	   $self->element({ 'Name' => 'Hit_id',
                             'Data' => $id});           
-           my ($acc, $version);
-           if ($id =~ /(gb|emb|dbj|sp|pdb|bbs|ref|lcl)\|(.*)\|(.*)/) {
-           ($acc, $version) = split /\./, $2; 
-           } elsif ($id =~ /(pir|prf|pat|gnl)\|(.*)\|(.*)/) {
-           ($acc, $version) = split /\./, $3;  
-           } else {
-	       #punt, not matching the db's at ftp://ftp.ncbi.nih.gov/blast/db/README
-	       #Database Name                     Identifier Syntax
-	       #============================      ========================
-	       #GenBank                           gb|accession|locus
-	       #EMBL Data Library                 emb|accession|locus
-	       #DDBJ, DNA Database of Japan       dbj|accession|locus
-	       #NBRF PIR                          pir||entry
-	       #Protein Research Foundation       prf||name
-	       #SWISS-PROT                        sp|accession|entry name
-	       #Brookhaven Protein Data Bank      pdb|entry|chain
-	       #Patents                           pat|country|number 
-	       #GenInfo Backbone Id               bbs|number 
-	       #General database identifier           gnl|database|identifier
-	       #NCBI Reference Sequence           ref|accession|locus
-	       #Local Sequence identifier         lcl|identifier
-                   $acc=$id;
-           }
+           my ($acc,$version) = &_get_accession_version($id);
            $self->element({ 'Name' =>  'Hit_accession',
                             'Data'  => $acc});           
 
@@ -788,6 +777,30 @@ sub next_result{
            $self->in_element('hsp') && $self->end_element({'Name' => 'Hsp'});
            $self->in_element('hit') && $self->end_element({'Name' => 'Hit'});
            
+	   # This is for the case when we specify -b 0 (or B=0 for WU-BLAST)
+	   # and still want to construct minimal Hit objects
+	   while(my $v = shift @hit_signifs) {
+	       next unless defined $v;
+	       $self->start_element({ 'Name' => 'Hit'});
+	       my $id  = $v->[2];
+	       my $desc= $v->[3];
+	       $self->element({ 'Name' => 'Hit_id',
+				'Data' => $id});           
+	       my ($acc,$version) = &_get_accession_version($id);
+	       $self->element({ 'Name' =>  'Hit_accession',
+				'Data'  => $acc});
+	       
+	       if( defined $v ) {
+		   $self->element({'Name' => 'Hit_signif',
+				   'Data' => $v->[0]});
+		   $self->element({'Name' => 'Hit_score',
+				   'Data' => $v->[1]});
+	       }
+	       $self->element({ 'Name' => 'Hit_def',
+				'Data' => $desc});
+	       $self->end_element({'Name' => 'Hit'});
+	   }
+
 	   $self->within_element('iteration') && 
 	       $self->end_element({'Name' => 'Iteration'});
 
@@ -1479,6 +1492,52 @@ sub check_all_hits {
     $self->{'_check_all'};
 }
 
+
+=head2 _get_accession_version
+
+ Title   : _get_accession_version
+ Usage   : my ($acc,$ver) = &_get_accession_version($id)
+ Function:Private function to get an accession,version pair
+           for an ID (if it is in NCBI format)
+ Returns : 2-pule of accession, version
+ Args    : ID string to process
+
+
+=cut
+
+sub _get_accession_version {
+    my $id = shift;
+
+    # handle case when this is accidently called as a class method
+    if( ref($id) && $id->isa('Bio::SearchIO') ) {
+	$id = shift;
+    }
+    return undef unless defined $id;
+    my ($acc, $version);
+    if ($id =~ /(gb|emb|dbj|sp|pdb|bbs|ref|lcl)\|(.*)\|(.*)/) {
+	($acc, $version) = split /\./, $2; 
+    } elsif ($id =~ /(pir|prf|pat|gnl)\|(.*)\|(.*)/) {
+	($acc, $version) = split /\./, $3;  
+    } else {
+	#punt, not matching the db's at ftp://ftp.ncbi.nih.gov/blast/db/README
+	#Database Name                     Identifier Syntax
+	#============================      ========================
+	#GenBank                           gb|accession|locus
+	#EMBL Data Library                 emb|accession|locus
+	#DDBJ, DNA Database of Japan       dbj|accession|locus
+	#NBRF PIR                          pir||entry
+	#Protein Research Foundation       prf||name
+	#SWISS-PROT                        sp|accession|entry name
+	#Brookhaven Protein Data Bank      pdb|entry|chain
+	#Patents                           pat|country|number 
+	#GenInfo Backbone Id               bbs|number 
+	#General database identifier           gnl|database|identifier
+	#NCBI Reference Sequence           ref|accession|locus
+	#Local Sequence identifier         lcl|identifier
+	$acc=$id;
+    }
+    return ($acc,$version);
+}
 
 1;
 

@@ -20,7 +20,7 @@ BEGIN {
 	use lib 't';
     }
     use vars qw($NTESTS);
-    $NTESTS = 1117;
+    $NTESTS = 1127;
     $LASTXMLTEST = 63;
     $error = 0;
 
@@ -684,7 +684,7 @@ ok($result->algorithm, 'BLASTX');
 ok($result->algorithm_version, qr/^2\.0MP\-WashU/);
 ok($result->query_name, 'gi|142864|gb|M10040.1|BACDNAE');
 ok($result->query_description, 'B.subtilis dnaE gene encoding DNA primase, complete cds');
-ok($result->query_accession, 'BACDNAE');
+ok($result->query_accession, 'M10040.1');
 ok($result->query_length, 2001);
 ok($result->get_parameter('matrix'), 'blosum62');
 
@@ -811,7 +811,7 @@ ok($result->algorithm, 'TBLASTX');
 ok($result->algorithm_version, qr/^2\.0MP\-WashU/);
 ok($result->query_name, 'gi|142864|gb|M10040.1|BACDNAE');
 ok($result->query_description, 'B.subtilis dnaE gene encoding DNA primase, complete cds');
-ok($result->query_accession, 'BACDNAE');
+ok($result->query_accession, 'M10040.1');
 ok($result->query_length, 2001);
 ok($result->get_parameter('matrix'), 'blosum62');
 
@@ -1502,6 +1502,27 @@ foreach my $key ( sort keys %ref ) {
     ok($tester{$key}, $ref{$key},$key);
 }      
 
+
+
+
+# Test Blast parsing with B=0 (WU-BLAST)
+$searchio = new Bio::SearchIO(-file   => Bio::Root::IO->catfile
+			      (qw(t data no_hsps.blastp)),
+			      -format => 'blast');
+$result = $searchio->next_result;
+ok($result->query_name, 'mgri:MG00189.3');
+$hit = $result->next_hit;
+ok($hit->name, 'mgri:MG00189.3');
+ok($hit->description, 'hypothetical protein 6892 8867 +');
+ok($hit->score, 3098);
+ok($hit->significance, '0.');
+
+$hit = $result->next_hit;
+ok($hit->name, 'fgram:FG01141.1');
+ok($hit->description, 'hypothetical protein 47007 48803 -');
+ok($hit->score, 2182);
+ok($hit->significance, '4.2e-226');
+ok($result->num_hits, 415);
 # Let's now test if _guess_format is doing its job correctly
 my %pair = ( 'filename.blast'  => 'blast',
 	     'filename.bls'    => 'blast',
