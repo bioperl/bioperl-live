@@ -17,7 +17,21 @@ Bio::Annotation::Collection - Default Perl implementation of AnnotationCollectio
 
 =head1 SYNOPSIS
 
-  # add synopsis here
+   # get an AnnotationCollectionI somehow, eg
+
+   $ac = $seq->annotation();
+
+   foreach $key ( $ac->get_all_annotation_keys() ) {
+       @values = $ac->get_Annotations($key);
+       foreach $value ( @values ) {
+          # value is an Bio::AnnotationI, and defines a "as_text" method
+          print "Annotation ",$key," stringified value ",$value->as_text,"\n";
+
+          # also defined hash_tree method, which allows data orientated
+          # access into this object
+          $hash = $value->hash_tree();
+       }
+   }
 
 =head1 DESCRIPTION
 
@@ -46,8 +60,6 @@ or the web:
 =head1 AUTHOR - Ewan Birney
 
 Email birney@ebi.ac.uk
-
-Describe contact details here
 
 =head1 APPENDIX
 
@@ -462,5 +474,4 @@ sub _typemap{
 
 }
 
-
-
+1;
