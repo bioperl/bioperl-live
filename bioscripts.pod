@@ -33,6 +33,11 @@ contributing your own script.
 This script installs scripts from the scripts/ directory on
 'make install'.
 
+=head2 scripts/biographics/bp_embl2picture.PLS
+
+Render a GenBank or EMBL entry into drawable form.  Return as a GIF or
+PNG image on standard output.
+
 =head2 scripts/biblio/biblio.PLS
 
 A fully-featured script that uses Bio::Biblio, a module for 
