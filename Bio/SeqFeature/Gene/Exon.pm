@@ -1,0 +1,186 @@
+# $Id$
+#
+# BioPerl module for Bio::SeqFeature::Gene::Exon
+#
+# Cared for by Hilmar Lapp <hlapp@gmx.net>
+#
+# Copyright Hilmar Lapp
+#
+# You may distribute this module under the same terms as perl itself
+
+# POD documentation - main docs before the code
+
+=head1 NAME
+
+Bio::SeqFeature::Gene::Exon - a feature representing an exon
+
+=head1 SYNOPSIS
+
+
+=head1 DESCRIPTION
+
+This module implements a feature representing an exon by implementing the
+Bio::SeqFeature::Gene::ExonI interface. 
+
+Apart from that, this class also implements Bio::SeqFeatureI by inheriting
+off Bio::SeqFeature::Generic.
+
+=head1 FEEDBACK
+
+=head2 Mailing Lists
+
+User feedback is an integral part of the evolution of this
+and other Bioperl modules. Send your comments and suggestions preferably
+ to one of the Bioperl mailing lists.
+Your participation is much appreciated.
+
+  bioperl-l@bioperl.org          - General discussion
+  http://bio.perl.org/MailList.html             - About the mailing lists
+
+=head2 Reporting Bugs
+
+Report bugs to the Bioperl bug tracking system to help us keep track
+ the bugs and their resolution.
+ Bug reports can be submitted via email or the web:
+
+  bioperl-bugs@bio.perl.org
+  http://bio.perl.org/bioperl-bugs/
+
+=head1 AUTHOR - Hilmar Lapp
+
+Email hlapp@gmx.net
+
+Describe contact details here
+
+=head1 APPENDIX
+
+The rest of the documentation details each of the object methods.
+Internal methods are usually preceded with a _
+
+=cut
+
+
+# Let the code begin...
+
+
+package Bio::SeqFeature::Gene::Exon;
+use vars qw(@ISA);
+use strict;
+
+use Bio::SeqFeature::Generic;
+use Bio::SeqFeature::Gene::ExonI;
+
+@ISA = qw(Bio::SeqFeature::Generic Bio::SeqFeature::Gene::ExonI);
+
+#
+# A list of allowed exon types. See primary_tag().
+#
+my @valid_exon_types = ('initial', 'internal', 'terminal', 'utr');
+
+sub new {
+    my ($caller, @args) = @_;
+    my $self = $caller->SUPER::new(@args);
+    my ($primary) =
+	$self->_rearrange([qw(PRIMARY)],@args);
+
+    $primary = 'exon' unless $primary;
+    $self->primary_tag($primary);
+    $self->strand(0) if(! defined($self->strand()));
+    return $self;
+}
+
+
+=head2 primary_tag
+
+ Title   : primary_tag
+ Usage   : $tag = $feat->primary_tag()
+           $feat->primary_tag('exon')
+ Function: Get/set the primary tag for the exon feature.
+
+           This method is overridden here in order to allow only for
+           tag values following a certain convention. For consistency reasons,
+           the tag value must contain the string 'exon' (case-insensitive).
+           To distinguish between different types of exon, a string describing
+           this type may be added. Presently, the following types are allowed:
+           initial, internal, terminal, and utr (all case-insensitive).
+
+ Returns : A string.
+ Args    : A string on set.
+
+
+=cut
+
+sub primary_tag {
+   my ($self,$value) = @_;
+
+   if(defined($value) &&
+      (($value !~ /exon/i) ||
+       ((lc($value) ne "exon") &&
+	(! grep { $value =~ /$_/i; } @valid_exon_types)))) {
+       $self->throw("primary tag $value is invalid for object of class ".
+		    ref($self));
+   }
+   return $self->SUPER::primary_tag($value);
+}
+
+=head2 location
+
+ Title   : location
+ Usage   : my $location = $exon->location()
+ Function: Returns a location object suitable for identifying the location 
+	   of the exon on the sequence or parent feature.
+    
+           This method is overridden here to restrict allowed location types
+           to non-compound locations.
+
+ Returns : Bio::LocationI object
+ Args    : none
+
+
+=cut
+
+sub location {
+   my ($self,$value) = @_;  
+
+   if(defined($value) && $value->isa('Bio::Location::SplitLocationI')) {
+       $self->throw("split or compound location is not allowed ".
+		    "for an object of type " . ref($self));
+   }
+   return $self->SUPER::location($value);
+}
+
+=head2 cds
+
+ Title   : cds()
+ Usage   : $cds = $exon->cds();
+ Function: Get the coding sequence of the exon as a sequence object.
+
+           The sequence of the returned object is prefixed by Ns (lower case)
+           if the frame of the exon is defined and different from zero. The
+           result is that the first base starts a codon (frame 0).
+
+           This implementation returns undef if the particular exon is
+           actually a UTR (untranslated region). Undef will also be returned
+           if no sequence is attached to this exon feature.
+
+ Returns : A Bio::PrimarySeqI implementing object.
+ Args    : 
+
+
+=cut
+
+sub cds {
+    my ($self) = @_;
+
+    # UTR is not translated
+    return undef if($self->primary_tag() =~ /utr/i);
+
+    my $seq = $self->seq();
+    if(defined($seq) && defined($self->frame()) && ($self->frame() != 0)) {
+	my $prefix = "n" x $self->frame();
+	$seq->seq($prefix . $self->seq());
+    }
+    return $seq;
+}
+
+1;
