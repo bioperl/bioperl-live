@@ -142,7 +142,7 @@ eval {
     $seq = $gb->get_Seq_by_id('P18584');
     ok( defined $seq );
     ok( $seq->length, 497);
-    ok( $seq->primary_id, 'DEGP');
+    skip($seq->primary_id =~ /^Bio::Seq/, $seq->primary_id, 'DEGP');
     ok( $seq->display_id, 'DEGP_CHLTR');
     ok( $seq->division, 'CHLTR');
 

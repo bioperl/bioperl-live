@@ -1019,11 +1019,7 @@ sub primary_seq {
        # want an attached seq.
 
        foreach my $sf ( $obj->top_SeqFeatures() ) {
-	   if( $sf->can("attach_seq") ) {
-	       $sf->attach_seq($value);
-	   } else {
-	       $obj->warn("In Seq primary_seq, a sequence feature cannot attach seq. Bugger");
-	   }
+	   $sf->attach_seq($value);
        }
 
    }
@@ -1229,9 +1225,13 @@ for more information
 
 sub annotation {
     my ($obj,$value) = @_;
-    if( defined $value || ! defined $obj->{'_annotation'}) {
-	$value = new Bio::Annotation::Collection unless defined $value;
+    if( defined $value ) {
+	$obj->throw("object of class ".ref($value)." does not implement ".
+		     "Bio::AnnotationCollectionI. Too bad.")
+	    unless $value->isa("Bio::AnnotationCollectionI");
 	$obj->{'_annotation'} = $value;
+    } elsif( ! defined $obj->{'_annotation'}) {
+	$obj->{'_annotation'} = new Bio::Annotation::Collection;
     }
     return $obj->{'_annotation'};
 }

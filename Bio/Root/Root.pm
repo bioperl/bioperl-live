@@ -58,7 +58,7 @@ here.
 =head2 Throwing Exceptions
 
 One of the functionalities that Bio::Root::RootI provides is the
-ability throw() exceptions with pretty stack traces. Bio::Root::Root
+ability to throw() exceptions with pretty stack traces. Bio::Root::Root
 enhances this with the ability to use B<Error.pm> (available from CPAN)
 if it has also been installed. 
 
@@ -353,6 +353,24 @@ sub throw{
 
        die $out;
    }
+}
+
+=head2 debug
+
+ Title   : debug
+ Usage   : $obj->debug("This is debugging output");
+ Function: Prints a debugging message when verbose is > 0
+ Returns : none
+ Args    : message string(s) to print to STDERR
+
+=cut
+
+sub debug{
+   my ($self,@msgs) = @_;
+   
+   if( $self->verbose > 0 ) { 
+       print STDERR join("", @msgs);
+   }   
 }
 
 =head2 _load_module

@@ -159,3 +159,187 @@ SQ   SEQUENCE   788 AA;  85712 MW;  8861E6FC198B70D9 CRC64;
      DKIDPSDNVS IVGLSSFAPG KPLTAIFKKT NGSKVEVTLN HTFNEQQIEW FKAGSALNRM
      KEVFAKSK
 //
+ID   143E_HUMAN     STANDARD;      PRT;   255 AA.
+AC   P42655; P29360; Q63631;
+DT   01-NOV-1995 (Rel. 32, Created)
+DT   01-NOV-1995 (Rel. 32, Last sequence update)
+DT   15-JUL-1999 (Rel. 38, Last annotation update)
+DE   14-3-3 protein epsilon (Mitochondrial import stimulation factor L
+DE   subunit) (Protein kinase C inhibitor protein-1) (KCIP-1) (14-3-3E).
+GN   YWHAE.
+OS   Homo sapiens (Human),
+OS   Mus musculus (Mouse),
+OS   Rattus norvegicus (Rat),
+OS   Bos taurus (Bovine), and
+OS   Ovis aries (Sheep).
+OC   Eukaryota; Metazoa; Chordata; Craniata; Vertebrata; Euteleostomi;
+OC   Mammalia; Eutheria; Primates; Catarrhini; Hominidae; Homo.
+OX   NCBI_TaxID=9606, 10090, 10116, 9913, 9940;
+RN   [1]
+RP   SEQUENCE FROM N.A.
+RC   SPECIES=Human;
+RX   MEDLINE=95372385; PubMed=7644510;
+RA   Conklin D.S., Galaktionov K., Beach D.;
+RT   "14-3-3 proteins associate with cdc25 phosphatases.";
+RL   Proc. Natl. Acad. Sci. U.S.A. 92:7892-7896(1995).
+RN   [2]
+RP   SEQUENCE FROM N.A.
+RC   SPECIES=Human; TISSUE=Heart;
+RA   Luk S.C.W., Lee C.Y., Waye M.M.Y.;
+RL   Submitted (JUN-1995) to the EMBL/GenBank/DDBJ databases.
+RN   [3]
+RP   SEQUENCE FROM N.A.
+RC   SPECIES=Human;
+RX   MEDLINE=96300316; PubMed=8684458;
+RA   Jin D.-Y., Lyu M.S., Kozak C.A., Jeang K.-T.;
+RT   "Function of 14-3-3 proteins.";
+RL   Nature 382:308-308(1996).
+RN   [4]
+RP   SEQUENCE FROM N.A.
+RC   SPECIES=Human; TISSUE=Liver;
+RX   MEDLINE=97011338; PubMed=8858348;
+RA   Chong S.S., Tanigami A., Roschke A.V., Ledbetter D.H.;
+RT   "14-3-3 epsilon has no homology to LIS1 and lies telomeric to it on
+RT   chromosome 17p13.3 outside the Miller-Dieker syndrome chromosome
+RT   region.";
+RL   Genome Res. 6:735-741(1996).
+RN   [5]
+RP   SEQUENCE FROM N.A.
+RC   SPECIES=Human;
+RA   Tanigami A., Chong S.S., Ledbetter D.H.;
+RT   "14-3-3 epsilon genomic sequence.";
+RL   Submitted (AUG-1998) to the EMBL/GenBank/DDBJ databases.
+RN   [6]
+RP   SEQUENCE FROM N.A.
+RC   SPECIES=Human; TISSUE=Placenta;
+RA   Strausberg R.;
+RL   Submitted (DEC-2000) to the EMBL/GenBank/DDBJ databases.
+RN   [7]
+RP   SEQUENCE FROM N.A.
+RC   SPECIES=Rat, and Sheep; TISSUE=Pineal gland;
+RX   MEDLINE=94296566; PubMed=8024705;
+RA   Roseboom P.H., Weller J.L., Babila T., Aitken A., Sellers L.A.,
+RA   Moffet J.R., Namboodiri M.A., Klein D.C.;
+RT   "Cloning and characterization of the epsilon and zeta isoforms of the
+RT   14-3-3 proteins.";
+RL   DNA Cell Biol. 13:629-640(1994).
+RN   [8]
+RP   SEQUENCE FROM N.A.
+RC   SPECIES=Rat; TISSUE=Liver;
+RX   MEDLINE=95122474; PubMed=7822263;
+RA   Alam R., Hachiya N., Sakaguchi M., Shun-Ichiro K., Iwanaga S.,
+RA   Kitajima M., Mihara K., Omura T.;
+RT   "cDNA cloning and characterization of mitochondrial import
+RT   stimulation factor (MSF) purified from rat liver cytosol.";
+RL   J. Biochem. 116:416-425(1994).
+RN   [9]
+RP   SEQUENCE FROM N.A.
+RC   SPECIES=Rat; TISSUE=Brain;
+RX   MEDLINE=96280718; PubMed=8694795;
+RA   Gao L., Gu X.B., Yu D.S., Yu R.K., Zeng G.;
+RT   "Association of a 14-3-3 protein with CMP-NeuAc:GM1 alpha 2,3-
+RT   sialyltransferase.";
+RL   Biochem. Biophys. Res. Commun. 224:103-107(1996).
+RN   [10]
+RP   SEQUENCE FROM N.A.
+RC   SPECIES=Mouse; STRAIN=SWISS; TISSUE=Kidney;
+RX   MEDLINE=95269876; PubMed=7750640;
+RA   McConnell J.E., Armstrong J.F., Bard J.B.;
+RT   "The mouse 14-3-3 epsilon isoform, a kinase regulator whose
+RT   expression pattern is modulated in mesenchyme and neuronal
+RT   differentiation.";
+RL   Dev. Biol. 169:218-228(1995).
+RN   [11]
+RP   SEQUENCE FROM N.A.
+RC   SPECIES=Mouse; STRAIN=129/SV;
+RA   Takihara Y., Irie K., Nomura M., Motaleb M., Matsumoto K.,
+RA   Shimada K.;
+RL   Submitted (SEP-1996) to the EMBL/GenBank/DDBJ databases.
+RN   [12]
+RP   SEQUENCE FROM N.A.
+RC   SPECIES=Bovine;
+RA   Jones J.M., Niikura T., Pinke R.M., Guo W., Molday L., Leykam J.,
+RA   McConnell D.G.;
+RT   "Expression of 14-3-3 proteins in bovine retinal photoreceptors.";
+RL   Submitted (JAN-1998) to the EMBL/GenBank/DDBJ databases.
+RN   [13]
+RP   SEQUENCE OF 1-152; 165-184 AND 216-255.
+RC   SPECIES=Sheep; TISSUE=Brain;
+RX   MEDLINE=92283271; PubMed=1317796;
+RA   Toker A., Sellers L.A., Amess B., Patel Y., Harris A., Aitken A.;
+RT   "Multiple isoforms of a protein kinase C inhibitor (KCIP-1/14-3-3)
+RT   from sheep brain. Amino acid sequence of phosphorylated forms.";
+RL   Eur. J. Biochem. 206:453-461(1992).
+RN   [14]
+RP   SEQUENCE OF 1-23 AND 125-140.
+RC   SPECIES=Sheep; TISSUE=Brain;
+RX   MEDLINE=90345949; PubMed=2143472;
+RA   Toker A., Ellis C.A., Sellers L.A., Aitken A.;
+RT   "Protein kinase C inhibitor proteins. Purification from sheep brain
+RT   and sequence similarity to lipocortins and 14-3-3 protein.";
+RL   Eur. J. Biochem. 191:421-429(1990).
+CC   -!- FUNCTION: ACTIVATES TYROSINE AND TRYPTOPHAN HYDROXYLASES IN THE
+CC       PRESENCE OF CA(2+)/CALMODULIN-DEPENDENT PROTEIN KINASE II, AND
+CC       STRONGLY ACTIVATES PROTEIN KINASE C. IS PROBABLY A MULTIFUNCTIONAL
+CC       REGULATOR OF THE CELL SIGNALING PROCESSES MEDIATED BY BOTH
+CC       KINASES.
+CC   -!- SUBUNIT: HOMODIMER.
+CC   -!- SUBCELLULAR LOCATION: CYTOPLASMIC.
+CC   -!- TISSUE SPECIFICITY: 14-3-3 PROTEINS ARE LOCALIZED IN NEURONS, AND
+CC       ARE AXONALLY TRANSPORTED TO THE NERVE TERMINALS. THEY MAY BE ALSO
+CC       PRESENT, AT LOWER LEVELS, IN VARIOUS OTHER EUKARYOTIC TISSUES.
+CC   -!- SIMILARITY: BELONGS TO THE 14-3-3 FAMILY.
+CC   --------------------------------------------------------------------------
+CC   This SWISS-PROT entry is copyright. It is produced through a collaboration
+CC   between  the Swiss Institute of Bioinformatics  and the  EMBL outstation -
+CC   the European Bioinformatics Institute.  There are no  restrictions on  its
+CC   use  by  non-profit  institutions as long  as its content  is  in  no  way
+CC   modified and this statement is not removed.  Usage  by  and for commercial
+CC   entities requires a license agreement (See http://www.isb-sib.ch/announce/
+CC   or send an email to license@isb-sib.ch).
+CC   --------------------------------------------------------------------------
+DR   EMBL; U28936; AAA75301.1; -.
+DR   EMBL; U20972; AAC50175.1; -.
+DR   EMBL; U43399; AAC50625.1; -.
+DR   EMBL; U43430; AAD00026.1; -.
+DR   EMBL; U54778; AAC50710.1; -.
+DR   EMBL; AB017103; BAA32538.1; -.
+DR   EMBL; AB017098; BAA32538.1; JOINED.
+DR   EMBL; AB017099; BAA32538.1; JOINED.
+DR   EMBL; AB017100; BAA32538.1; JOINED.
+DR   EMBL; AB017101; BAA32538.1; JOINED.
+DR   EMBL; AB017102; BAA32538.1; JOINED.
+DR   EMBL; BC000179; AAH00179.1; -.
+DR   EMBL; BC001440; AAH01440.1; -.
+DR   EMBL; M84416; AAC37659.1; -.
+DR   EMBL; D30739; BAA06401.1; -.
+DR   EMBL; Z19599; CAA79659.1; -.
+DR   EMBL; U53882; AAC52676.1; -.
+DR   EMBL; L07914; AAC37321.1; -.
+DR   EMBL; D87663; BAA13424.1; -.
+DR   EMBL; AF043735; AAC61927.1; -.
+DR   PIR; S10806; S10806.
+DR   PIR; S10807; S10807.
+DR   HSSP; P29312; 1A38.
+DR   MIM; 605066; -.
+DR   MGD; MGI:894689; Ywhae.
+DR   InterPro; IPR000308; 14-3-3.
+DR   Pfam; PF00244; 14-3-3; 1.
+DR   PRINTS; PR00305; 1433ZETA.
+DR   ProDom; PD000600; 14-3-3; 1.
+DR   SMART; SM00101; 14_3_3; 1.
+DR   PROSITE; PS00796; 1433_1; 1.
+DR   PROSITE; PS00797; 1433_2; 1.
+KW   Brain; Neurone; Acetylation; Multigene family.
+FT   MOD_RES       1      1       ACETYLATION.
+FT   CONFLICT     73     73       K -> T (IN REF. 9).
+FT   CONFLICT    120    120       F -> S (IN REF. 9).
+FT   CONFLICT    123    123       K -> Y (IN REF. 9).
+FT   CONFLICT    129    129       H -> Y (IN REF. 14).
+SQ   SEQUENCE   255 AA;  29174 MW;  07817CCBD1F75B26 CRC64;
+     MDDREDLVYQ AKLAEQAERY DEMVESMKKV AGMDVELTVE ERNLLSVAYK NVIGARRASW
+     RIISSIEQKE ENKGGEDKLK MIREYRQMVE TELKLICCDI LDVLDKHLIP AANTGESKVF
+     YYKMKGDYHR YLAEFATGND RKEAAENSLV AYKAASDIAM TELPPTHPIR LGLALNFSVF
+     YYEILNSPDR ACRLAKAAFD DAIAELDTLS EESYKDSTLI MQLLRDNLTL WTSDMQGDGE
+     EQNKEALQDV EDENQ
+//

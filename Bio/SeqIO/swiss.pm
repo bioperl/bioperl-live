@@ -172,8 +172,8 @@ sub next_seq {
    } else {
        $name = $1;
        $params{'-division'} = 'UNK';
+       $params{'-primary_id'} = $1;
    }
-   $params{'-primary_id'} = $1;
    $params{'-alphabet'} = 'protein';
     # this is important to have the id for display in e.g. FTHelper, otherwise
     # you won't know which entry caused an error
@@ -435,8 +435,7 @@ sub write_seq {
    $self->_write_line_swissprot_regex("DE   ","DE   ",$seq->desc(),"\\s\+\|\$",80);
 
    #Gene name
-   if ($seq->annotation->can('get_Annotations') &&
-       (my @genes = $seq->annotation->get_Annotations('gene_name') ) ) {
+   if ((my @genes = $seq->annotation->get_Annotations('gene_name') ) ) {
        $self->_print("GN   ",join(' OR ', map { $_->value } @genes),".\n");
    }
    
@@ -470,17 +469,6 @@ sub write_seq {
    my $t = 1;
    foreach my $ref ( $seq->annotation->get_Annotations('reference') ) {
        $self->_print( "RN   [$t]\n");
-#       if ($ref->start && $ref->end) {
-#	   # changed by jason <jason@chg.mc.duke.edu> on 3/16/00 
-#	   print "RP   SEQUENCE OF ",$ref->start,"-",$ref->end," FROM N.A.\n";
-#	   # to
-#	   $self->_print("RP   SEQUENCE OF ",$ref->start,"-",$ref->end," FROM N.A.\n");
-#       }
-#       elsif ($ref->rp) {
-#	   # changed by jason <jason@chg.mc.duke.edu> on 3/16/00 
-#	   print "RP   ",$ref->rp,"\n";
-#	   # to
-
        # changed by lorenz 08/03/00
        # j.gilbert and h.lapp agreed that the rp line in swissprot seems 
        # more like a comment than a parseable value, so print it as is
@@ -868,14 +856,17 @@ sub _read_swissprot_Species {
     $_ = $$buffer;
     my( $sub_species, $species, $genus, $common, @class, $osline, $ncbi_taxid );
     while (defined( $_ ||= $self->_readline )) {
-        if (/^OS\s+((\S+)(?:\s+([^\(]\S*))?(?:\s+([^\(]\S*))?(?:\s+\((.*)\))?.*)/) {
+	last unless /^O[SCGX]/;
+	# believe it or not, but OS may come multiple times -- at this time
+	# we can't capture multiple species
+        if((! defined($genus)) &&
+	   /^OS\s+((\S+)(?:\s+([^\(]\S*))?(?:\s+([^\(]\S*))?(?:\s+\((.*)\))?.*)/) {
 	    $osline = $1;
             $genus   = $2;
 	    if ($3) {
 		$species = $3;
-		# remove trailing dot -- TrEMBL has that. HL 05/11/2000
-		# forgot to escape the dot. LP 07/30/2000
-		$species =~ s/\.$//;
+		# remove trailing dot (or comma if multiple species)
+		$species =~ s/[\.,]$//;
 	    } else {
 		$species = "sp.";
 	    }
@@ -884,8 +875,8 @@ sub _read_swissprot_Species {
         }
         elsif (s/^OC\s+//) {
             push(@class, split /[\;\.]\s*/);
-	    if ($class[0] =~ /viruses/i) { # viruses have different OS / OC syntax
-	      $common = $osline;           # LP 09/16/2000
+	    if($class[0] =~ /viruses/i) { # viruses have different OS/OC syntax
+		$common = $osline;        # LP 09/16/2000
 	    }
         }
 	elsif (/^OG\s+(.*)/) {
@@ -893,16 +884,13 @@ sub _read_swissprot_Species {
 	}
 	elsif (/^OX\s+(.*)\;/) {
             my $taxstring = $1;
-            if ($taxstring =~ /NCBI_TaxID=(.*)/) {
+            if ($taxstring =~ /NCBI_TaxID=([\w\d]+)/) {
                 $ncbi_taxid = $1;
             }
             else {
                 $self->throw("$taxstring doesn't look like NCBI_TaxID");
             }
 	}
-        else {
-            last;
-        }
         
         $_ = undef; # Empty $_ to trigger read of next line
     }

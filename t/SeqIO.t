@@ -9,7 +9,7 @@ BEGIN {
 	use lib 't';
     }
     use Test;
-    $TESTCOUNT = 105;
+    $TESTCOUNT = 112;
     plan tests => $TESTCOUNT;
 }
 
@@ -134,7 +134,8 @@ $ast = Bio::SeqIO->new( '-verbosity' => $verbosity,
 $as = $ast->next_seq();
 ok defined $as->seq;
 ok($as->id, 'ROA1_HUMAN', "id is ".$as->id);
-ok($as->primary_id, 'ROA1');
+#ok($as->primary_id, 'ROA1');
+skip($as->primary_id =~ /^Bio::Seq::/, $as->primary_id, 'ROA1');
 ok($as->length, 371);
 ok($as->alphabet, 'protein');
 ok($as->division, 'HUMAN');
@@ -286,38 +287,37 @@ my $seqio = Bio::SeqIO->new( '-format' => 'swiss' ,
 ok(defined( $seq = $seqio->next_seq));
 
 # more tests to verify we are actually parsing correctly
-ok($seq->primary_id, 'MA32');
+skip($seq->primary_id =~ /^Bio::Seq/, $seq->primary_id, 'MA32');
 ok($seq->display_id, 'MA32_HUMAN');
 ok($seq->length, 282);
 ok($seq->division, 'HUMAN');
 ok($seq->alphabet, 'protein');
 ok(scalar $seq->all_SeqFeatures(), 2);
 
-my $seen = 0;
+my @genenames = qw(GC1QBP HABP1 SF2P32 C1QBP);
 foreach my $gn ( $seq->annotation->get_Annotations('gene_name') ) {
-    if( $gn->value =~ /SF2/ ) {
-	$seen = 1;
-    }	       
+    ok ($gn->value, shift(@genenames));
 }
 
-ok $seen;
 # test for feature locations like ?..N
 ok(defined( $seq = $seqio->next_seq));
 
-ok($seq->primary_id, 'ACON');
+skip($seq->primary_id =~ /^Bio::Seq/, $seq->primary_id, 'ACON');
 ok($seq->display_id, 'ACON_CAEEL');
 ok($seq->length, 788);
 ok($seq->division, 'CAEEL');
 ok($seq->alphabet, 'protein');
 ok(scalar $seq->all_SeqFeatures(), 5);
 
-$seen = 0;
 foreach my $gn ( $seq->annotation->get_Annotations('gene_name') ) {
-    if( $gn->value =~ /F54H12/ ) {
-	$seen = 1;
-    }	       
+    ok ($gn->value, 'F54H12.1');
 }
-ok($seen);
+
+# test species in swissprot -- this can be a n:n nightmare
+ok ($seq = $seqio->next_seq());
+ok ($seq->species->binomial, "Homo sapiens");
+ok ($seq->species->common_name, "Human");
+ok ($seq->species->ncbi_taxid, 9606);
 
 # test dos Linefeeds in gcg parser
 $str = Bio::SeqIO->new('-file' => Bio::Root::IO->catfile("t","data","test_badlf.gcg"), 

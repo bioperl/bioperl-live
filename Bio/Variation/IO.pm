@@ -255,7 +255,6 @@ my $entry = 0;
 sub new {
    my ($class, %param) = @_;
    my ($format);
-   my ($handler, $stream);
 
    @param{ map { lc $_ } keys %param } = values %param;  # lowercase keys
    $format = $param{'-format'}
@@ -263,25 +262,21 @@ sub new {
              || 'flat';
    $format = "\L$format"; # normalize capitalization to lower case
 
-   if ( $class->_load_format_module($format) == 0 ) { # normalize capitalization
-       return undef;
-   }
-
-   $stream = "Bio::Variation::IO::$format"->new(%param);
-   return $stream;
+   return undef unless $class->_load_format_module($format);
+   return "Bio::Variation::IO::$format"->new(%param);
 }
 
 
 sub _load_format_module {
-  my ($format) = @_;
+  my ($class, $format) = @_;
   my $module = "Bio::Variation::IO::" . $format;
   my $ok;  
   eval {
-      $ok = $self->_load_module($module);
+      $ok = $class->_load_module($module);
   };
   if ( $@ ) {
     print STDERR <<END;
-$self: $format cannot be found
+$class: $format cannot be found
 Exception $@
 For more information about the IO system please see the IO docs.
 This includes ways of checking for formats at compile time, not run time

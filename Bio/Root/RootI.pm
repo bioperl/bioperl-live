@@ -198,24 +198,6 @@ sub warn{
     print STDERR $out;
 }
 
-=head2 debug
-
- Title   : debug
- Usage   : $obj->debug("This is debugging output");
- Function: Prints a debugging message when verbose is > 0
- Returns : none
- Args    : message string to print to STDERR
-
-=cut
-
-sub debug{
-   my ($self,$msg) = @_;
-   
-   if( $self->verbose > 0 ) { 
-       print STDERR $msg;
-   }   
-}
-
 =head2 deprecated
 
  Title   : deprecated
