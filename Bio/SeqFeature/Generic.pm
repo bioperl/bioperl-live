@@ -16,7 +16,7 @@ Bio::SeqFeature::Generic - Generic SeqFeature
 
 =head1 SYNOPSIS
 
-   $feat = new Bio::SeqFeature( -start => 10, -end => 100,
+   $feat = new Bio::SeqFeature::Generic ( -start => 10, -end => 100,
 				-strand => -1, -primary => 'repeat',
 				-source => 'repeatmasker',
 				-score  => 1000,
@@ -24,6 +24,8 @@ Bio::SeqFeature::Generic - Generic SeqFeature
 				    new => 1,
 				    author => 'someone',
 				    sillytag => 'this is silly!' } );
+
+   $feat = new Bio::SeqFeature::Generic ( -gff_string => $string );
 
    # add it to an annotated sequence
 
@@ -108,7 +110,7 @@ sub _initialize {
   $self->{'_gsf_sub_array'} = [];
   $self->{'_parse_h'} = {};
 
-  my($start,$end,$strand,$primary,$source,$frame,$score,$tag) = 
+  my($start,$end,$strand,$primary,$source,$frame,$score,$tag,$gff_string) = 
       $self->_rearrange([qw(START
 			    END
 			    STRAND
@@ -117,8 +119,10 @@ sub _initialize {
 			    FRAME
 			    SCORE
 			    TAG
+			    GFF_STRING
 			    )],@args);
-  
+
+  $gff_string && $self->_from_gff_string($gff_string);
   $start && $self->start($start);
   $end   && $self->end($end);
   $strand && $self->strand($strand);
@@ -610,6 +614,41 @@ sub seqname{
     }
     return $obj->{'_gsf_seqname'};
 
+}
+
+=head2 _from_gff_string
+
+ Title   : _from_gff_string
+ Usage   :
+ Function:
+ Example :
+ Returns : 
+ Args    :
+
+
+=cut
+
+sub _from_gff_string{
+   my ($self,$string) = @_;
+
+   my($seqname,$source,$primary,$start,$end,$score,$strand,$frame,@group) = split(/\s+/,$string);
+   if( !defined $frame ) {
+       $self->throw("[$string] does not look like GFF to me");
+   }
+   $self->seqname($seqname);
+   $self->source_tag($source);
+   $self->primary_tag($primary);
+   $self->start($start);
+   $self->end($end);
+   if( $score eq '.' ) {
+       $self->score(undef);
+   } else {
+       $self->score($score);
+   }
+   if( $strand eq '-' ) { $self->strand(-1); }
+   if( $strand eq '+' ) { $self->strand(1); }   
+   if( $strand eq '.' ) { $self->strand(0); }
+   
 }
 
 =head2 _parse
