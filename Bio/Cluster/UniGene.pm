@@ -6,7 +6,7 @@
 #
 # Copyright Andrew Macgregor, Jo-Ann Stanton, David Green
 # Molecular Embryology Group, Anatomy & Structural Biology, University of Otago
-# http://anatomy.otago.ac.nz/meg
+# http://meg.otago.ac.nz/
 #
 # You may distribute this module under the same terms as perl itself
 #
@@ -197,6 +197,8 @@ my %species_map = (
 		   'Bt'  => "Bos taurus",
 		   'Cel' => "Caenorhabditis elegans",
 		   'Cin' => "Ciona intestinalis",
+		   'Cre' => "Chlamydomonas reinhardtii",
+		   'Ddi'  => "Dictyostelium discoideum",
 		   'Dr'  => "Danio rerio",
 		   'Dm'  => "Drosophila melanogaster",
 		   'Gga' => "Gallus gallus",
