@@ -209,10 +209,10 @@ sub next_result{
 	   my ($qs,$qe,$qstrand) = ($2,$3,$4);
 	   my ($hs,$he,$hstrand) = ($6,$7,$8);
 	   my $score = $9;
-	   $self->element({'Name' => 'ExonerateOutput_query-len',
-			   'Data' => $qe});
-	   $self->element({'Name' => 'Hit_len',
-			   'Data' => $he});
+#	   $self->element({'Name' => 'ExonerateOutput_query-len',
+#			   'Data' => $qe});
+#	   $self->element({'Name' => 'Hit_len',
+#			   'Data' => $he});
 	
 	   my @rest = split;
 	   if( $qstrand eq '-' ) {

@@ -67,10 +67,11 @@ my @data = ( [qw(ln27 416 Contig124 939
 while( my $r = $searchio->next_result ) {
     my $d = shift @data;
     ok($r->query_name, shift @$d);
-    ok($r->query_length, shift @$d);
+    skip( 'no query length available in default output',
+	  $r->query_length, shift @$d);
     my $h = $r->next_hit;
     ok($h->name, shift @$d);
-    ok($h->length, shift @$d);
+    skip( 'no hit length available in default output',$h->length, shift @$d);
     while( my $hsp = $h->next_hsp ) {
 	ok($hsp->query->start, shift @$d);
 	ok($hsp->query->end, shift @$d);
