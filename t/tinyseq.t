@@ -22,7 +22,7 @@ BEGIN {
     }
     use Test;
     use vars qw($TESTCOUNT);
-    $TESTCOUNT = 9;
+    $TESTCOUNT = 15;
     plan tests => $TESTCOUNT;
     
     $error  = 0;
@@ -69,7 +69,9 @@ ok(defined $seq);
 ok(defined $seq->seq);
 ok($seq->length, 5830);
 ok($seq->accession_number,'NM_002253');
-   
+ok($seq->species);
+ok($seq->species->binomial, 'Homo sapiens');
+ok($seq->species->ncbi_taxid, 9606);   
 $outstream->write_seq($seq);
 undef $outstream;
 #$outstream->close_writer;
@@ -85,5 +87,8 @@ ok($seq2);
 ok($seq2->seq);
 ok($seq2->length, 5830);
 ok($seq2->accession_number, 'NM_002253');
+ok($seq2->species);
+ok($seq2->species->binomial, 'Homo sapiens');
+ok($seq2->species->ncbi_taxid, 9606);   
 
 unlink $outfile;

@@ -2,7 +2,7 @@
 #
 # Cared for by Donald Jackson, donald.jackson@bms.com
 #
-# Copyright Donald Jackson
+# Copyright Bristol-Myers Squibb
 #
 # You may distribute this module under the same terms as perl itself
  
@@ -93,6 +93,8 @@ $VERSION = '0.01';
 	    TSeq_defline	=> { Data	=> '-desc' },
 	    TSeq_sid		=> { Data	=> '-sid' },
 	    TSeq_accver		=> { Data	=> '-accver' },
+	    TSeq_taxid		=> { Data	=> '-taxid' },
+	    TSeq_orgname	=> { Data	=> '-organism' }
 	   );
 
 =head2 new
@@ -117,6 +119,15 @@ sub new {
 #######################################
 # Event hadling methods for PerlSax   #
 #######################################
+
+sub doctype_decl {
+    my ($self, $doctype) = @_;
+    # make sure we have a tinyseq
+    unless ($doctype->{'SystemId'} eq 'http://www.ncbi.nlm.nih.gov/dtd/NCBI_TSeq.dtd') {
+	$self->throw("This document doesn't use the NCBI TinySeq dtd; it's a ", $doctype->{'SystemId'} );
+    }
+
+}
 
 =head2 start_document
  

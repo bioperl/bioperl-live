@@ -2,7 +2,7 @@
 #
 # Cared for by Donald Jackson, donald.jackson@bms.com
 #
-# Copyright Donald Jackson
+# Copyright Bristol-Myers Squibb
 #
 # You may distribute this module under the same terms as perl itself
  
@@ -81,6 +81,7 @@ package Bio::SeqIO::tinyseq;
 use strict;
 use Bio::Root::Root;
 use Bio::Seq::SeqFastaSpeedFactory;
+use Bio::Species;
 use Bio::SeqIO::tinyseq::tinyseqHandler;
 use XML::Parser::PerlSAX;
 use XML::Writer;
@@ -100,6 +101,7 @@ sub _initialize {
 	$self->sequence_factory(Bio::Seq::SeqFastaSpeedFactory->new());
     }
 
+    $self->{'_species_objects'} = {};
     $self->{_parsed} = 0;
 }
 
@@ -153,6 +155,11 @@ sub write_seq {
 	$writer->dataElement('TSeq_defline', $seqobj->desc);
 	$writer->dataElement('TSeq_length', $seqobj->length);
 	$writer->dataElement('TSeq_sequence', $seqobj->seq);
+
+	if ($seqobj->can('species') && $seqobj->species) {
+	    $self->_write_species($writer, $seqobj->species);
+	}
+
 	$writer->endTag('TSeq');
     }
     1;
@@ -177,7 +184,7 @@ sub _get_seqs {
 
     my $handler = Bio::SeqIO::tinyseq::tinyseqHandler->new();
     my $parser = XML::Parser::PerlSAX->new( Handler => $handler );
-
+    
 
     my @seqatts = $parser->parse( Source => { ByteStream => $fh });
     
@@ -188,11 +195,66 @@ sub _get_seqs {
 	foreach my $subatt(@$seqatt) { # why are there two hashes?
 	    my $seqobj = $factory->create(%$subatt);
 	    $self->_assign_identifier($seqobj, $subatt);
+
+	    if ($seqobj->can('species')) {
+# 		my $class = [reverse(split(/ /, $subatt->{'-organism'}))];
+# 		my $species = Bio::Species->new( -classification	=> $class,
+# 						 -ncbi_taxid		=> $subatt->{'-taxid'} );
+		my $species = $self->_get_species($subatt->{'-organism'}, $subatt->{'-taxid'});
+		$seqobj->species($species) if ($species);
+	    }
+
 	    push(@{$self->{_seqlist}}, $seqobj);
 	}
     }
     $self->{_parsed} = 1;
 }
+
+=head2 _get_species
+   
+  Title		: _get_species
+  Usage		: Internal function
+  Function	: gets a Bio::Species object from cache or creates as needed
+  Returns	: a Bio::Species object on success, undef on failure
+  Args		: a classification string (eg 'Homo sapiens') and a NCBI taxon id (optional)
+  Note		: species objects are cached for parsing multiple sequence files
+
+=cut
+
+sub _get_species {
+     my ($self, $orgname, $taxid) = @_;
+
+     unless ($self->{'_species_objects'}->{$orgname}) {
+	 my $species = $self->_create_species($orgname, $taxid);
+	 $self->{'_species_objects'}->{$orgname} = $species;
+     }
+     return $self->{'_species_objects'}->{$orgname};
+}    
+
+=head2 _create_species
+   
+  Title		: _create_species
+  Usage		: Internal function
+  Function	: creates a Bio::Species object
+  Returns	: a Bio::Species object on success, undef on failure
+  Args		: a classification string (eg 'Homo sapiens') and a NCBI taxon id (optional)
+
+=cut
+
+sub _create_species {
+    my ($self, $orgname, $taxid) = @_;
+    return undef unless ($orgname); # not required in TinySeq dtd so don't throw an error
+    	
+    my %params;
+    $params{'-classification'} = [reverse(split(/ /, $orgname))];
+    $params{'-ncbi_taxid'} = $taxid if ($taxid);
+    
+    my $species = Bio::Species->new(%params)
+	or return undef;
+
+    return $species;
+}
+
 
 =head2 _assign_identifier
 
@@ -319,6 +381,13 @@ sub close_writer {
     }
     close($self->_fh) if ($self->_fh);
     1;
+}
+
+sub _write_species {
+    my ($self, $writer, $species) = @_;
+    $writer->dataElement('TSeq_orgname', $species->binomial);
+    $writer->dataElement('TSeq_taxid', $species->ncbi_taxid) 
+	if($species->ncbi_taxid);
 }
 
 sub DESTROY {
