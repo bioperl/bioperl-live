@@ -15,7 +15,7 @@ BEGIN {
 	use lib 't';
     }
     use Test;
-    plan tests => 95;
+    plan tests => 97;
 }
 
 use Bio::Tools::BPlite;
@@ -136,3 +136,9 @@ while( my $sbjct = $parser->nextSbjct ) {
 	# run because multi seq reports are not parsed properly.
     }
 }
+
+$parser = new Bio::Tools::BPlite(-file => Bio::Root::IO->catfile("t",
+								 "data",
+								 "AE003528_ecoli.bls"));
+ok $parser;
+ok $parser->qlength, 283821;

@@ -129,7 +129,7 @@ contain the alignment sequences from the blast report.
  ...
  "$hsp"; # overloaded for query->start..query->end bits
 
-I've included a little bit of overloading for double quote variable
+I\'ve included a little bit of overloading for double quote variable
 interpolation convenience. A subject will return its name and an HSP will
 return its query-E<gt>start, query-E<gt>end, and bits in the alignment. Feel free 
 to modify this to whatever is most frequently used by you.
@@ -174,7 +174,6 @@ This software is provided "as is" without warranty of any kind.
 
 =cut
 
-#'
 package Bio::Tools::BPlite;
 
 use strict;
@@ -375,8 +374,10 @@ sub _parseHeader {
       }
       $query =~ s/\s+/ /g;
       $query =~ s/^>//;
-      $query =~ /\((\d+)\s+\S+\)\s*$/;
+      $query =~ /\(([\d,]+)\s+\S+\)\s*$/;
+      
       my $length = $1;
+      $length =~ s/,//g;
       $self->{'QUERY'} = $query;
       $self->{'LENGTH'} = $length;
     }
