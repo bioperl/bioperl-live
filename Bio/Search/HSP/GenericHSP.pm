@@ -41,7 +41,7 @@ Bio::Search::HSP::GenericHSP - A "Generic" implementation of a High Scoring Pair
     $len = $hsp->length( ['query'|'hit'|'total'] );
 
     $len = $hsp->length( ['query'|'hit'|'total'] );
-    
+
     $rank = $hsp->rank;
 
 

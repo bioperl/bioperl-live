@@ -295,8 +295,8 @@ sub trim_singlet {
 	it.
 
 =cut 
-#'
 
+#'
 sub trim_doublet {
     my ($self,$sequence,$quality,$name,$class) = @_;
     my @qual = split(' ',$quality);

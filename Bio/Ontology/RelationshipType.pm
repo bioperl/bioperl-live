@@ -24,16 +24,16 @@
 
 RelationshipType - a relationship type for an ontology
 
-
 =head1 SYNOPSIS
 
+  #
 
 =head1 DESCRIPTION
 
 This class can be used to model various types of relationships
 (such as "IS_A", "PART_OF", "CONTAINS", "FOUND_IN").
- 
-This class extends Bio::Ontology::Term. 
+
+This class extends Bio::Ontology::Term.
 
 =head1 FEEDBACK
 
@@ -63,7 +63,7 @@ Email: czmasek@gnf.org  or  cmzmasek@hotmail.com
 
 WWW:   http://www.genetics.wustl.edu/eddy/people/zmasek/
 
-Address: 
+Address:
 
   Genomics Institute of the Novartis Research Foundation
   10675 John Jay Hopkins Drive
@@ -107,7 +107,7 @@ $FOUND_IN = Bio::Ontology::RelationshipType->get_instance( FOUND_IN );
  Usage   : $IS_A     = Bio::Ontology::RelationshipType->get_instance( "IS_A" );
            $PART_OF  = Bio::Ontology::RelationshipType->get_instance( "PART_OF" );
            $CONTAINS = Bio::Ontology::RelationshipType->get_instance( "CONTAINS" );
-           $FOUND_IN = Bio::Ontology::RelationshipType->get_instance( "FOUND_IN" );   
+           $FOUND_IN = Bio::Ontology::RelationshipType->get_instance( "FOUND_IN" );
  Function: Factory method to create instances of RelationshipType
  Returns : [Bio::Ontology::RelationshipType]
  Args    : "IS_A" or "PART_OF" or "CONTAINS" or "FOUND_IN" [scalar]
@@ -145,9 +145,9 @@ sub get_instance {
         $msg .= "Known types are: [" . IS_A . "], [" . PART_OF . "], [" . CONTAINS . "], [" . FOUND_IN . "]";
         $class->throw( $msg );
     }
-    
+
     return $instance;
-    
+
 } # get_instance
 
 
@@ -155,9 +155,9 @@ sub get_instance {
 =head2 init
 
  Title   : init()
- Usage   : $type->init();   
+ Usage   : $type->init();
  Function: Initializes this to all undef and empty lists.
- Returns : 
+ Returns :
  Args    :
 
 =cut
@@ -172,7 +172,7 @@ sub init {
     $self->{ "_is_obsolete" } = undef;
     $self->{ "_comment" }     = undef;
     $self->remove_synonyms();
-  
+
 } # init
 
 
@@ -180,7 +180,7 @@ sub init {
 =head2 equals
 
  Title   : equals
- Usage   : if ( $type->equals( $other_type ) ) { ...   
+ Usage   : if ( $type->equals( $other_type ) ) { ...
  Function: Compares this type to another one, based on string "eq" of
            the "identifier" field
  Returns : true or false
@@ -190,15 +190,15 @@ sub init {
 
 sub equals {
     my( $self, $type ) = @_;
-    
+
     $self->_check_class( $type, "Bio::Ontology::RelationshipType" );
-    
+
     unless ( $self->identifier() && $type->identifier() ) {
         $self->throw( "Cannot compare RelationshipType with a undef identifier" );
-    } 
-    
-    return( $self->identifier() eq $type->identifier() ); 
-  
+    }
+
+    return( $self->identifier() eq $type->identifier() );
+
 } # equals
 
 
@@ -294,7 +294,7 @@ sub definition {
 
  Title   : category
  Usage   : $term->category( $top );
-           or 
+           or
            $top = $term->category();
  Function: Set/get for a immutable  relationship between this Type and
            another Term (e.g. the top level of the ontology).
@@ -306,7 +306,7 @@ sub definition {
 
 sub category {
     my ( $self, $value ) = @_;
-    
+
     if ( defined $value ) {
         if ( defined $self->{ "_category" } ) {
             $self->throw( "Attempted to change field in immutable object" );
@@ -314,19 +314,19 @@ sub category {
         if ( ! ref( $value ) ) {
             my $term = $self->new();
             $term->name( $value );
-            $self->{ "_category" } = $term; 
+            $self->{ "_category" } = $term;
         }
         elsif ( $value->isa( "Bio::Ontology::TermI" ) ) {
-            $self->{ "_category" } = $value; 
-        } 
+            $self->{ "_category" } = $value;
+        }
         else {
-            $self->throw( "Found [". ref( $value ) 
+            $self->throw( "Found [". ref( $value )
             . "] where [Bio::Ontology::TermI] or [scalar] expected" );
         }
     }
-    
+
     return $self->{ "_category" };
-    
+
 } # category
 
 
@@ -335,7 +335,7 @@ sub category {
 
  Title   : version
  Usage   : $term->version( "1.00" );
-           or 
+           or
            print $term->version();
  Function: Set/get for immutable version information.
  Returns : The version [scalar].
@@ -354,7 +354,7 @@ sub version {
     }
 
     return $self->{ "_version" };
-    
+
 } # version
 
 
@@ -394,7 +394,7 @@ sub is_obsolete {
 
  Title   : comment
  Usage   : $term->comment( "..." );
-           or 
+           or
            print $term->comment();
  Function: Set/get for an arbitrary immutable comment about this Type.
  Returns : A comment.
@@ -411,25 +411,25 @@ sub comment {
         }
         $self->{ "_comment" } = $value;
     }
-   
+
     return $self->{ "_comment" };
-    
+
 } # comment
 
 
 
 sub _check_class {
     my ( $self, $value, $expected_class ) = @_;
-    
+
     if ( ! defined( $value ) ) {
         $self->throw( "Found [undef] where [$expected_class] expected" );
     }
     elsif ( ! ref( $value ) ) {
         $self->throw( "Found [scalar] where [$expected_class] expected" );
-    } 
+    }
     elsif ( ! $value->isa( $expected_class ) ) {
         $self->throw( "Found [" . ref( $value ) . "] where [$expected_class] expected" );
-    }    
+    }
 
 } # _check_type
 

@@ -668,18 +668,6 @@ sub seq_id {
 
 =cut
 
-=head2 display_name
-
- Title   : display_name
- Usage   : $obj->display_name($newval)
- Function: 
- Example : 
- Returns : value of display_name (a scalar)
- Args    : on set, new value (a scalar or undef, optional)
-
-
-=cut
-
 sub display_name{
     my $self = shift;
 

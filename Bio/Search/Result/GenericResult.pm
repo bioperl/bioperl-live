@@ -631,7 +631,7 @@ sub hits{
  Args    : newvalue string (optional)
  Comments: Formerly named program_reference(), which is still supported
            for backwards compatibility.
- 
+
 =cut
 
 sub algorithm_reference{

@@ -1580,7 +1580,7 @@ case, you must be prepared to handle configuring options for the
 "group" and "track" glyphs.
 
 In particular, this means that in order to control the -bump option
-with a callback, you should specify -all_callbacks=>1, and turn on
+with a callback, you should specify -all_callbacks=E<gt>1, and turn on
 bumping when the callback is in the track or group glyphs.
 
 =head2 ACCESSORS

@@ -412,7 +412,7 @@ sub column_labels { shift->{'_column_labels'} }
  Args    : none
 
 =cut
- 
+
 sub end_report {
     return '';
 }

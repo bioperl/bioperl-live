@@ -19,13 +19,13 @@ Bio::Perl - Functional access to BioPerl for people who don't know objects
   use Bio::Perl qw(read_sequence read_all_sequences write_sequence new_sequence get_sequence);
 
   # will guess file format from extension
-  $seq_object = read_sequence($filename); 
+  $seq_object = read_sequence($filename);
 
   # forces genbank format
-  $seq_object = read_sequence($filename,'genbank'); 
+  $seq_object = read_sequence($filename,'genbank');
 
   # reads an array of sequences
-  @seq_object_array = read_all_sequences($filename,'fasta'); 
+  @seq_object_array = read_all_sequences($filename,'fasta');
 
   # sequences are Bio::Seq objects, so the following methods work
   # for more info see L<Bio::Seq>, or do 'perldoc Bio/Seq.pm'
@@ -91,7 +91,7 @@ Describe contact details here
 
 =head1 APPENDIX
 
-The rest of the documentation details each of the object methods. 
+The rest of the documentation details each of the object methods.
 Internal methods are usually preceded with a _
 
 =cut
@@ -108,8 +108,8 @@ use Exporter;
 
 use Bio::SeqIO;
 use Bio::Seq;
-BEGIN { 
-    eval { 
+BEGIN {
+    eval {
 	require Bio::DB::EMBL;
 	require Bio::DB::GenBank;
 	require Bio::DB::SwissProt;
@@ -258,7 +258,7 @@ sub write_sequence{
        my $seq_obj;
 
        if( !ref $seq ) {
-	   if( length $seq > 50 ) { 
+	   if( length $seq > 50 ) {
 	       # odds are this is a sequence as a string, and someone has not figured out
 	       # how to make objects. Warn him/her and then make a sequence object
 	       # from this
@@ -291,7 +291,7 @@ sub write_sequence{
  Usage   :
  Function:
  Example :
- Returns : 
+ Returns :
  Args    :
 
 
@@ -321,14 +321,14 @@ sub new_sequence{
 
  Function: If the computer has Internet accessibility, blasts
            the sequence using the NCBI BLAST server against nrdb.
-          
+
            It choose the flavour of BLAST on the basis of the sequence.
 
            This function uses Bio::Tools::Run::RemoteBlast, which itself
            use Bio::SearchIO - as soon as you want to more, check out
            these modules
  Returns : Bio::Search::Result::GenericResult.pm
- 
+
  Args    : Either a string of protein letters or nucleotides, or a
            Bio::Seq object
 
@@ -351,13 +351,13 @@ sub blast_sequence {
 
     my $prog = 'blastp';
     my $e_val= '1e-10';
-    
+
     my @params = ( '-prog' => $prog,
-		   '-expect' => $e_val, 
+		   '-expect' => $e_val,
 		   '-readmethod' => 'SearchIO' );
 
     my $factory = Bio::Tools::Run::RemoteBlast->new(@params);
- 
+
     my $r = $factory->submit_blast($seq);
     if( $verbose ) {
 	print STDERR "Submitted Blast for [".$seq->id."] ";
@@ -365,7 +365,7 @@ sub blast_sequence {
     sleep 5;
 
     my $result;
-    
+
     LOOP :
     while( my @rids = $factory->each_rid) {
 	foreach my $rid ( @rids ) {
@@ -393,7 +393,7 @@ sub blast_sequence {
 }
 
 =head2 write_blast
-  
+
  Title   : write_blast
  Usage   : write_blast($filename,$blast_report);
 
@@ -402,7 +402,7 @@ sub blast_sequence {
            in BLAST-like format
 
  Returns : none
- 
+
  Args    : filename as a string
            Bio::SearchIO::Results object
 
@@ -414,11 +414,11 @@ sub write_blast {
     if( $filename !~ /^\>/ && $filename !~ /^|/ ) {
 	$filename = ">".$filename;
     }
-    
+
     my $output = Bio::SearchIO->new( -output_format => 'blast', -file => $filename);
 
     $output->write_result($blast);
-    
+
 }
 
 =head2 get_sequence
@@ -460,28 +460,28 @@ sub get_sequence{
    if( $db_type =~ /gen/ ) {
        if( !defined $genbank_db ) {
 	   $genbank_db = Bio::DB::GenBank->new();
-       } 
+       }
        $db = $genbank_db;
    }
 
    if( $db_type =~ /swiss/ ) {
        if( !defined $swiss_db ) {
 	   $swiss_db = Bio::DB::SwissProt->new();
-       } 
+       }
        $db = $swiss_db;
    }
 
    if( $db_type =~ /embl/ ) {
        if( !defined $embl_db ) {
 	   $embl_db = Bio::DB::EMBL->new();
-       } 
+       }
        $db = $embl_db;
    }
 
    if( $db_type =~ /refseq/ or ($db_type !~ /swiss/ and $identifier =~ /_/)) {
        if( !defined $refseq_db ) {
 	   $refseq_db = Bio::DB::RefSeq->new();
-       } 
+       }
        $db = $refseq_db;
    }
 
@@ -506,7 +506,7 @@ sub get_sequence{
            string of DNA to amino acids
  Returns : A Bio::Seq object
 
- Args    : Either a sequence object or a string of 
+ Args    : Either a sequence object or a string of
            just DNA sequence characters
 
 =cut
@@ -549,7 +549,7 @@ sub translate {
            string of DNA to amino acids
  Returns : A stirng of just amino acids
 
- Args    : Either a sequence object or a string of 
+ Args    : Either a sequence object or a string of
            just DNA sequence characters
 
 =cut
@@ -570,10 +570,10 @@ sub translate_as_string {
 
  Function: reverse complements a string or sequnce argument
            producing a Bio::Seq - if you want a string, you
-           can use reverse_complement_as_string 
+           can use reverse_complement_as_string
  Returns : A Bio::Seq object
 
- Args    : Either a sequence object or a string of 
+ Args    : Either a sequence object or a string of
            just DNA sequence characters
 
 =cut
@@ -615,10 +615,10 @@ sub reverse_complement {
            producing a Bio::Seq - if you want a string, you
            can use reverse_complement_as_string
 
-           This is an alias for reverse_complement 
+           This is an alias for reverse_complement
  Returns : A Bio::Seq object
 
- Args    : Either a sequence object or a string of 
+ Args    : Either a sequence object or a string of
            just DNA sequence characters
 
 =cut
@@ -634,10 +634,10 @@ sub revcom {
  Usage   : $string = reverse_complement_as_string($seq_or_string_scalar)
 
  Function: reverse complements a string or sequnce argument
-           producing a string 
+           producing a string
  Returns : A string of DNA letters
 
- Args    : Either a sequence object or a string of 
+ Args    : Either a sequence object or a string of
            just DNA sequence characters
 
 =cut
@@ -657,10 +657,10 @@ sub reverse_complement_as_string {
  Usage   : $string = revcom_as_string($seq_or_string_scalar)
 
  Function: reverse complements a string or sequnce argument
-           producing a string 
+           producing a string
  Returns : A string of DNA letters
 
- Args    : Either a sequence object or a string of 
+ Args    : Either a sequence object or a string of
            just DNA sequence characters
 
 =cut

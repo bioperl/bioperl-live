@@ -16,22 +16,22 @@ Bio::SearchIO::FastHitEventBuilder - Event Handler for SearchIO events.
 
 =head1 SYNOPSIS
 
-# Do not use this object directly, this object is part of the SearchIO
-# event based parsing system.
+  # Do not use this object directly, this object is part of the SearchIO
+  # event based parsing system.
 
-# to use the FastHitEventBuilder do this
+  # to use the FastHitEventBuilder do this
 
-use Bio::SearchIO::FastHitEventBuilder;
+  use Bio::SearchIO::FastHitEventBuilder;
 
-my $searchio = new Bio::SearchIO(-format => $format, -file => $file);
+  my $searchio = new Bio::SearchIO(-format => $format, -file => $file);
 
-$searchio->attach_EventHandler(new Bio::SearchIO::FastHitEventBuilder);
+  $searchio->attach_EventHandler(new Bio::SearchIO::FastHitEventBuilder);
 
-while( my $r = $searchio->next_result ) {
- while( my $h = $r->next_hit ) {
-  # note that Hits will NOT have HSPs
- }
-}
+  while( my $r = $searchio->next_result ) {
+   while( my $h = $r->next_hit ) {
+    # note that Hits will NOT have HSPs
+   }
+  }
 
 =head1 DESCRIPTION
 

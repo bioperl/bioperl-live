@@ -639,24 +639,6 @@ sub make_classes_query {
 }
 
 
-=head2 default_meta_values
-
- Title   : default_meta_values
- Usage   : %values = $db->default_meta_values
- Function: empty the database
- Returns : a list of tag=>value pairs
- Args    : none
- Status  : protected
-
-This method returns a list of tag=E<gt>value pairs that contain default
-meta information about the database.  It is invoked by initialize() to
-write out the default meta values.  The base class version returns an
-empty list.
-
-For things to work properly, meta value names must be UPPERCASE.
-
-=cut
-
 sub default_meta_values_old {
   my $self = shift;
   return (

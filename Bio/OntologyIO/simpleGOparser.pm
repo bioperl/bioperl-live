@@ -26,22 +26,18 @@ simpleGOparser - a simple GO parser returning a SimpleGOEngine
 
 =head1 SYNOPSIS
 
-use Bio::OntologyIO::simpleGOparser;
+  use Bio::Ontology::simpleGOparser;
 
+  my $parser = Bio::Ontology::simpleGOparser->new
+	( -go_defs_file_name    => "/home/czmasek/GO/GO.defs",
+	  -components_file_name => "/home/czmasek/GO/component.ontology",
+	  -functions_file_name  => "/home/czmasek/GO/function.ontology",
+	  -processes_file_name  => "/home/czmasek/GO/process.ontology" );
 
+  my $engine = $parser->parse();
 
-my $parser = Bio::OntologyIO::simpleGOparser->new( -go_defs_file_name    => "/home/czmasek/GO/GO.defs",
-                                                 -components_file_name => "/home/czmasek/GO/component.ontology",
-                                                 -functions_file_name  => "/home/czmasek/GO/function.ontology",
-                                                 -processes_file_name  => "/home/czmasek/GO/process.ontology" );
-
-
-my $engine = $parser->parse();
-
-my $IS_A    = Bio::Ontology::RelationshipType->get_instance( "IS_A" );
-my $PART_OF = Bio::Ontology::RelationshipType->get_instance( "PART_OF" );
-
-                       
+  my $IS_A    = Bio::Ontology::RelationshipType->get_instance( "IS_A" );
+  my $PART_OF = Bio::Ontology::RelationshipType->get_instance( "PART_OF" );
 
 =head1 DESCRIPTION
 

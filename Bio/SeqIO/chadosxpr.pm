@@ -29,7 +29,7 @@ This object can transform Bio::Seq objects to and from chadosxpr flat
 file databases. CURRENTLY ONLY TO
 
 
-=back
+
 
 =head1 FEEDBACK
 

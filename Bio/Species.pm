@@ -178,7 +178,7 @@ sub variant{
     return $self->{'variant'};
 }
 
-=head2
+=head2 organelle
 
  Title   : organelle
  Usage   : $self->organelle( $organelle );

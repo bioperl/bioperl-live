@@ -29,8 +29,6 @@ This object can transform Bio::Search objects to and from chadosxpr flat
 file databases. CURRENTLY ONLY TO
 
 
-=back
-
 =head1 FEEDBACK
 
 =head2 Mailing Lists

@@ -1115,7 +1115,7 @@ sub display_name {
 }
 
 
-=head2 description
+=head2 description()
 
  Title   : description
  Usage   : $string    = $obj->description()

@@ -1279,19 +1279,6 @@ sub make_features_by_gid_where_part {
   return ("fgroup.gid IN ($set)");
 }
 
-=head2 make_features_select_part
-
- Title   : make_features_select_part
- Usage   : $string = $db->make_features_select_part()
- Function: make select part of the features query
- Returns : a string
- Args    : none
- Status  : protected
-
-This method creates the part of the features query that immediately
-follows the SELECT keyword.
-
-=cut
 
 =head2 make_features_from_part
 
@@ -1503,7 +1490,7 @@ element is the SQL fragment and subsequent elements are bind values.
 
 sub overlap_query_nobin {
      my ($start,$stop) = @_;
-     return ('gff.stop>=? AND gff.start<=?',
+     return ('gff.stopE<gt>=? AND gff.startE<lt>=?',
 	     $start,$stop);
 
 =cut

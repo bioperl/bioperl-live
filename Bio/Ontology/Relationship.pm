@@ -24,7 +24,6 @@
 
 Relationship - a relationship for an ontology
 
-
 =head1 SYNOPSIS
 
   $rel = Bio::Ontology::Relationship->new( -identifier        => "16847",

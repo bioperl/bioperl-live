@@ -18,15 +18,15 @@ Bio::PrimarySeqI [Developers] - Interface definition for a Bio::PrimarySeq
 
 
     # Bio::PrimarySeqI is the interface class for sequences.
-   
-    # If you are a newcomer to bioperl, you should 
-    # start with Bio::Seq documentation. This 
+
+    # If you are a newcomer to bioperl, you should
+    # start with Bio::Seq documentation. This
     # documentation is mainly for developers using
-    # Bioperl. 
+    # Bioperl.
 
     # to test this is a seq object
 
-    $obj->isa("Bio::PrimarySeqI") || 
+    $obj->isa("Bio::PrimarySeqI") ||
       $obj->throw("$obj does not implement the Bio::PrimarySeqI interface");
 
     # accessors
@@ -34,7 +34,7 @@ Bio::PrimarySeqI [Developers] - Interface definition for a Bio::PrimarySeq
     $string    = $obj->seq();
     $substring = $obj->subseq(12,50);
     $display   = $obj->display_id(); # for human display
-    $id        = $obj->primary_id(); # unique id for this object, 
+    $id        = $obj->primary_id(); # unique id for this object,
                                      # implementation defined
     $unique_key= $obj->accession_number();
                        # unique biological id
@@ -438,7 +438,7 @@ sub revcom{
 
 sub trunc{
    my ($self,$start,$end) = @_;
-   
+
    my $str;
    if( defined $start && ref($start) &&
        $start->isa('Bio::LocationI') ) {
@@ -450,10 +450,10 @@ sub trunc{
 	   "If you want to truncated and reverse complement, \n".
 	       "you must call trunc followed by revcom. Sorry.";
        $self->throw($msg);
-   } else { 
+   } else {
        $str = $self->subseq($start,$end);
    }
-   
+
    my $seqclass;
    if($self->can_call_new()) {
        $seqclass = ref($self);
@@ -508,33 +508,33 @@ sub translate {
     my($i, $len, $output) = (0,0,'');
     my($codon)   = "";
     my $aa;
-    
+
     ## User can pass in symbol for stop and unknown codons
     unless(defined($stop) and $stop ne '')    { $stop = "*"; }
     unless(defined($unknown) and $unknown ne '') { $unknown = "X"; }
     unless(defined($frame) and $frame ne '') { $frame = 0; }
-    
+
     ## the codon table ID
     unless(defined($tableid) and $tableid ne '')    { $tableid = 1; }
-    
+
     ##Error if monomer is "Amino"
     $self->throw("Can't translate an amino acid sequence.") if
 	($self->alphabet eq 'protein');
-    
+
     ##Error if frame is not 0, 1 or 2
     $self->throw("Valid values for frame are 0, 1, 2, not [$frame].") unless
 	($frame == 0 or $frame == 1 or $frame == 2);
-    
+
     #warns if ID is invalid
     my $codonTable = Bio::Tools::CodonTable->new( -id => $tableid);
-    
+
     my ($seq) = $self->seq();
 
     # deal with frame offset.
     if( $frame ) {
 	$seq = substr ($seq,$frame);
     }
-    
+
     # Translate it
     $output = $codonTable->translate($seq);
     # Use user-input stop/unknown
@@ -568,7 +568,7 @@ sub translate {
 	    }
 	}
     }
-    
+
     my $seqclass;
     if($self->can_call_new()) {
 	$seqclass = ref($self);
@@ -585,7 +585,7 @@ sub translate {
 			      '-alphabet' => 'protein'
 			      );
     return $out;
-    
+
 }
 
 =head2 id
@@ -660,7 +660,7 @@ sub is_circular{
 	$self->{'_is_circular'} = $value;
     }
     return $self->{'_is_circular'};
-} 
+}
 
 =head1 Private functions
 

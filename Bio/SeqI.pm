@@ -17,15 +17,15 @@ Bio::SeqI [Developers] - Abstract Interface of Sequence (with features)
 =head1 SYNOPSIS
 
     # Bio::SeqI is the interface class for sequences.
-   
-    # If you are a newcomer to bioperl, you should 
-    # start with Bio::Seq documentation. This 
+
+    # If you are a newcomer to bioperl, you should
+    # start with Bio::Seq documentation. This
     # documentation is mainly for developers using
-    # Bioperl. 
+    # Bioperl.
 
     # Bio::SeqI implements Bio::PrimarySeqI
     $seq      = $seqobj->seq(); # actual sequence as a string
-    $seqstr   = $seqobj->subseq(10,50);    
+    $seqstr   = $seqobj->subseq(10,50);
 
     # Bio::SeqI has annotationcollections
 
@@ -205,7 +205,7 @@ L<Bio::AnnotatableI>.
 =head2 species
 
  Title   : species
- Usage   : 
+ Usage   :
  Function: Gets or sets the species
  Example : $species = $self->species();
  Returns : Bio::Species object

@@ -16,16 +16,16 @@ Bio::Tools::Est2Genome - Parse est2genome output, makes simple Bio::SeqFeature::
 
 =head1 SYNOPSIS
 
-use Bio::Tools::Est2Genome;
+  use Bio::Tools::Est2Genome;
 
-my $featureiter = new Bio::Tools::Est2Genome(-file => 'output.est2genome');
+  my $featureiter = new Bio::Tools::Est2Genome(-file => 'output.est2genome');
 
-# This is going to be fixed to use the SeqAnalysisI next_feature
-# Method eventually when we have the objects to put the data in 
-# properly
-while( my $f = $featureiter->parse_next_gene ) {
- # process Bio::SeqFeature::Generic objects here
-}
+  # This is going to be fixed to use the SeqAnalysisI next_feature
+  # Method eventually when we have the objects to put the data in
+  # properly
+  while( my $f = $featureiter->parse_next_gene ) {
+   # process Bio::SeqFeature::Generic objects here
+  }
 
 =head1 DESCRIPTION
 
@@ -99,12 +99,12 @@ use Bio::SeqFeature::SimilarityPair;
 
  Title   : new
  Usage   : my $obj = new Bio::Tools::Est2Genome();
- Function: Builds a new Bio::Tools::Est2Genome object 
+ Function: Builds a new Bio::Tools::Est2Genome object
  Returns : an instance of Bio::Tools::Est2Genome
- Args    : -file => 'output.est2genome' or 
+ Args    : -file => 'output.est2genome' or
            -fh   => \*EST2GENOMEOUTPUT
            -genomefirst => 1  # genome was the first input (not standard)
-    
+
 =cut
 
 sub _initialize_state {
@@ -131,9 +131,9 @@ sub _initialize_state {
 =cut
 
 #-------------
-sub analysis_method { 
+sub analysis_method {
 #-------------
-    my ($self, $method) = @_;  
+    my ($self, $method) = @_;
     if($method && ($method !~ /est2genome/i)) {
 	$self->throw("method $method not supported in " . ref($self));
     }
@@ -148,15 +148,15 @@ sub analysis_method {
                # do something
            }
 
- Function: Parses the next alignments of the est2genome result file and 
-           returns the found exons as an array of 
+ Function: Parses the next alignments of the est2genome result file and
+           returns the found exons as an array of
            Bio::SeqFeature::SimilarityPair objects. Call
            this method repeatedly until an empty array is returned to get the
            results for all alignments.
 
            The $exon->seq_id() attribute will be set to the identifier of the
-           respective sequence for both sequences. 
-           The length is accessible via the seqlength() 
+           respective sequence for both sequences.
+           The length is accessible via the seqlength()
            attribute of $exon->query() and
            $exon->est_hit().
  Returns : An array (or array reference) of Bio::SeqFeature::SimilarityPair and Bio::SeqFeature::Generic objects
@@ -173,7 +173,7 @@ sub parse_next_gene {
    my $lasthseqname;
    while( defined($_ = $self->_readline) ) {
        if( /Note Best alignment is between (reversed|forward) est and (reversed|forward) genome, (but|and) splice\s+sites imply\s+(forward gene|REVERSED GENE)/) {
-	   if( $seensegment ) { 
+	   if( $seensegment ) {
 	       $self->_pushback($_);
 	       return wantarray ? @features : \@features;
 	   }
@@ -192,7 +192,7 @@ sub parse_next_gene {
 						       -end     => $qend,
 						       -strand  => $qstrand,
 						       -score   => $score,
-						       -tag => { 
+						       -tag => {
 #							   'Location' => "$hstart..$hend",
 							   'Sequence' => "$hseqname",
 							   }
@@ -204,10 +204,10 @@ sub parse_next_gene {
 						     -end     => $hend,
 						     -strand  => $hstrand,
 						     -score   => $score,
-						     -tag => { 
-#							 'Location' => "$qstart..$qend", 
+						     -tag => {
+#							 'Location' => "$qstart..$qend",
 							 'Sequence' => "$qseqname",
-							 
+							
 						     }
 						     );
 	   push @features, new Bio::SeqFeature::SimilarityPair
@@ -223,13 +223,13 @@ sub parse_next_gene {
 							-strand => $qstrand,
 							-score  => $score,
 							-seq_id => $qseqname,
-							-tag => { 
+							-tag => {
 							    'Sequence' => $lasthseqname});
        } elsif( /^Span/ ) {
        } elsif( /^Segment/ ) {
 	   $seensegment = 1;
        } elsif( /^\s+$/ ) { # do nothing
-       } else { 
+       } else {
 	   $self->warn( "unknown line $_\n");
        }
    }
@@ -246,7 +246,7 @@ sub parse_next_gene {
  Example :
  Returns : A Bio::SeqFeatureI implementing object, or undef if there are no
            more features.
- Args    : none    
+ Args    : none
 
 =cut
 

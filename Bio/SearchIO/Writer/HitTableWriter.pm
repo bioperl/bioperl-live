@@ -284,7 +284,7 @@ sub to_string {
  Args    : none
 
 =cut
- 
+
 sub end_report {
     return '';
 }

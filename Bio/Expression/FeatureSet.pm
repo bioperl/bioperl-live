@@ -13,8 +13,11 @@ Bio::Expression::FeatureI
 
 =head1 SYNOPSIS
 
+#
+
 =head1 DESCRIPTION
 
+A set of DNA/RNA features.
 
 =head1 FEEDBACK
 

@@ -29,8 +29,6 @@ This object can transform Bio::Seq objects to and from chadoxml flat
 file databases. CURRENTLY ONLY TO
 
 
-=back
-
 =head1 FEEDBACK
 
 =head2 Mailing Lists
@@ -58,7 +56,8 @@ Email cjm@fruitfly.org
 
 =head1 APPENDIX
 
-The rest of the documentation details each of the object methods. Internal methods are usually preceded with a _
+The rest of the documentation details each of the object
+methods. Internal methods are usually preceded with a _
 
 =cut
 

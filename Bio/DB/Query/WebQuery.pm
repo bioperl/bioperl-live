@@ -150,6 +150,7 @@ sub ua {
            $proxyurl : url of the proxy to use for the specified protocol
            $username : username (if proxy requires authentication)
            $password : password (if proxy requires authentication)
+
 =cut
 
 sub proxy {

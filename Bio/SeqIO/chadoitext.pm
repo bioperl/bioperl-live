@@ -29,8 +29,6 @@ This object can transform Bio::Seq objects to and from chadoitext flat
 file databases. CURRENTLY ONLY TO
 
 
-=back
-
 =head1 FEEDBACK
 
 =head2 Mailing Lists

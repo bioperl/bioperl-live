@@ -15,7 +15,7 @@
 Bio::Seq - Sequence object, with features
 
 =head1 SYNOPSIS
-   
+
     # This is the main sequence object in Bioperl
 
     # gets a sequence from a file
@@ -30,7 +30,7 @@ Bio::Seq - Sequence object, with features
     $seqobj = $db->get_Seq_by_acc('X78121');
 
     # make from strings in script
-    $seqobj = Bio::Seq->new( -display_id => 'my_id', 
+    $seqobj = Bio::Seq->new( -display_id => 'my_id',
 			     -seq => $sequence_as_string);
 
     # gets sequence as a string from sequence object
@@ -50,14 +50,14 @@ Bio::Seq - Sequence object, with features
     }
 
     # sequences may have a species
-   
-    if( defined $seq->species ) { 
+
+    if( defined $seq->species ) {
 	print "Sequence is from ",$species->binomial_name," [",$species->common_name,"]\n";
     }
 
     # annotation objects are Bio::AnnotationCollectionI's
     $ann      = $seqobj->annotation(); # annotation object
-  
+
     # references is one type of annotations to get. Also get
     # comment and dblink. Look at Bio::AnnotationCollection for
     # more information
@@ -68,7 +68,7 @@ Bio::Seq - Sequence object, with features
 
     # you can get truncations, translations and reverse complements, these
     # all give back Bio::Seq objects themselves, though currently with no
-    # features transfered 
+    # features transfered
 
     my $trunc = $seqobj->trunc(100,200);
     my $rev   = $seqobj->revcom();
@@ -76,11 +76,11 @@ Bio::Seq - Sequence object, with features
     # there are many options to translate
     my $trans = $seqobj->translate();
 
-    # these functions can be chained together 
+    # these functions can be chained together
 
     my $trans_trunc_rev = $seqobj->trunc(100,200)->revcom->translate();
 
- 
+
 
 =head1 DESCRIPTION
 
@@ -482,7 +482,7 @@ $VERSION = '1.1';
 
 sub new {
     my($caller,@args) = @_;
-    
+
     if( $caller ne 'Bio::Seq') {
 	$caller = ref($caller) if ref($caller);
     }
@@ -496,9 +496,9 @@ sub new {
     # our primary_seq slot
 
     my $pseq = Bio::PrimarySeq->new(@args);
-    
+
     # as we have just made this, we know it is ok to set hash directly
-    # rather than going through the method 
+    # rather than going through the method
 
     $self->{'primary_seq'} = $pseq;
 
@@ -521,13 +521,13 @@ sub new {
 	    if( ref($feat) !~ /ARRAY/i ) {
 		if( ref($feat) && $feat->isa('Bio::SeqFeatureI') ) {
 		    $self->add_SeqFeature($feat);
-		} else { 
+		} else {
 		    $self->warn("Must specify a valid Bio::SeqFeatureI or ArrayRef of Bio::SeqFeatureI's with the -features init parameter for ".ref($self));
 		}
-	    } else { 
+	    } else {
 		foreach my $feature ( @$feat ) {
 		    $self->add_SeqFeature($feature);
-		}	    
+		}	
 	    }
 	}
     }
@@ -713,7 +713,7 @@ sub desc {
  Function: Returns the unique id for this object in this
            implementation. This allows implementations to manage
            their own object ids in a way the implementation can control
-           clients can expect one id to map to one object. 
+           clients can expect one id to map to one object.
 
            For sequences with no natural id, this method should return
            a stringified memory location.
@@ -839,7 +839,7 @@ sub version{
  Title   : authority
  Usage   : $authority    = $obj->authority()
  Function: a string which represents the organisation which
-           granted the namespace, written as the DNS name for  
+           granted the namespace, written as the DNS name for
            organisation (eg, wormbase.org)
 
  Returns : A scalar
@@ -856,7 +856,7 @@ sub authority {
  Usage   : $string    = $obj->namespace()
  Function: A string representing the name space this identifier
            is valid in, often the database name or the name
-           describing the collection 
+           describing the collection
 
  Returns : A scalar
 
@@ -878,7 +878,7 @@ sub namespace{
  Function: A string which is what should be displayed to the user
            the string should have no spaces (ideally, though a cautious
            user of this interface would not assumme this) and should be
-           less than thirty characters (though again, double checking 
+           less than thirty characters (though again, double checking
            this is a good idea)
 
            This is aliased to display_id().
@@ -894,7 +894,7 @@ sub display_name {
 
  Title   : description
  Usage   : $string    = $obj->description()
- Function: A text string suitable for displaying to the user a 
+ Function: A text string suitable for displaying to the user a
            description. This string is likely to have spaces, but
            should not have any newlines or formatting - just plain
            text. The string should not be greater than 255 characters
@@ -1073,7 +1073,7 @@ sub add_SeqFeature {
 
 sub remove_SeqFeatures {
     my $self = shift;
-    
+
     return () unless $self->{'_as_feat'};
     my @feats = @{$self->{'_as_feat'}};
     $self->{'_as_feat'} = [];
