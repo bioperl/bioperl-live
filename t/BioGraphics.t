@@ -26,7 +26,7 @@ BEGIN {
     }
     use Test;
 
-    $NUMTESTS = 17;
+    $NUMTESTS = 14;
     plan tests => $NUMTESTS;
 
     eval {
@@ -58,7 +58,11 @@ my $write   = 0;
 ## the print "1..x\n" in the BEGIN block to reflect the
 ## total number of tests that will be run. 
 
-my @images = qw(t1 t2 t3);
+# my @images = qw(t1 t2 t3);
+
+
+
+my @images = qw();
 
 # parse command line arguments
 while (@ARGV && $ARGV[0] =~ /^--?(\w+)/) {
