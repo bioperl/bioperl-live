@@ -1,0 +1,7 @@
+##gff-version 2
+##date 2000-07-31
+##sequence-region test
+test.fasta	RepeatMasker	similarity	238	289	15.4	+	.	Target "Motif:(TA)n" 2 53
+test.fasta	RepeatMasker	similarity	444	537	37.2	+	.	Target "Motif:MIR3" 93 187
+test.fasta	RepeatMasker	similarity	1454	1529	23.7	+	.	Target "Motif:T-rich" 1 75
+test.fasta	RepeatMasker	similarity	1702	1797	14.6	-	.	Target "Motif:L1MA6" 6200 6300
