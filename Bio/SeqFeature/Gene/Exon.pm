@@ -113,7 +113,7 @@ sub is_coding {
     if(defined($val)) {
 	$self->{'_iscoding'} = $val;
     }
-    return $self->{'_iscoding'} = $val;
+    return $self->{'_iscoding'};
 }
 
 =head2 primary_tag
@@ -211,7 +211,7 @@ sub cds {
     my $seq = $self->seq();
     if(defined($seq) && defined($self->frame()) && ($self->frame() != 0)) {
 	my $prefix = "n" x $self->frame();
-	$seq->seq($prefix . $self->seq());
+	$seq->seq($prefix . $seq->seq());
     }
     return $seq;
 }
