@@ -570,7 +570,7 @@ sub _run {
 	chmod 0777, $infile1,$infile2;
 	$command = '-profile';
     }
-    print STDERR "Program ".$self->program."\n";
+    $self->debug( "Program ".$self->program."\n");
     my $commandstring = $self->program." $command"." $instring".
 	" -output=gcg". " $param_string";
     $self->debug( "clustal command = $commandstring");
