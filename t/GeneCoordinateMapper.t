@@ -532,15 +532,15 @@ ok $res->each_Location, 3;
 
 $m->out('intron');
 $res = $m->map($pos);
-ok $res->match->start, 1;
-ok $res->match->end, 5;
-ok $res->match->strand, 1;
+ok $res->start, 1;
+ok $res->end, 5;
+ok $res->strand, 1;
 
 $m->out('negative_intron');
 $res = $m->map($pos);
-ok $res->match->start, -5;
-ok $res->match->end, -1;
-ok $res->match->strand, 1;
+ok $res->start, -5;
+ok $res->end, -1;
+ok $res->strand, 1;
 
 ok $m->_mapper_code2string('1-2'), 'chr-gene';
 ok $m->_mapper_string2code('chr-gene'), '1-2';
