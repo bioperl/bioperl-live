@@ -22,7 +22,7 @@ use Bio::Root::IO;
 
 END {     
     for ( $Test::ntest..$NTESTS ) {
-	skip("Clustalw program not found. Skipping.\n",1);
+	skip("Clustalw program not found. Skipping. (Be sure you have clustalw > 1.4)",1);
     }
 }
 
@@ -51,8 +51,9 @@ my $inputfilename = Bio::Root::IO->catfile("t","data","cysprot.fa");
 my $aln;
 
 my $clustal_present = Bio::Tools::Run::Alignment::Clustalw->exists_clustal();
+
 unless ($clustal_present) {
-    warn("Clustalw program not found. Skipping tests $Test::ntest to $NTESTS.\n");
+    warn("Clustalw program not found. Skipping tests $Test::ntest to $NTESTS.\n");    
     exit 0;
 }
 $aln = $factory->align($inputfilename);
