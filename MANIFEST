@@ -1,7 +1,19 @@
-Changes
+## $Id: MANIFEST,v 1.31.2.2 2001-06-21 14:50:56 dag Exp $
+##
+## bioperl 0.7.1 manifest listing
+##
+## This is the file listing for everything that
+## comes with the bioperl distribution. The perl
+## install procedure uses this file to confirm that
+## all necessary files are present.
+##
+AUTHORS
+BUGS
+LICENSE
 MANIFEST
 PLATFORMS
 README
+Changes
 bioback.pod
 biodesign.pod
 bioperl.pod
@@ -259,6 +271,7 @@ scripts/subsequence.cgi
 t/AAC12660.fa
 t/AAChange.t
 t/AAReverseMutate.t
+t/AF165282.gb
 t/AlignIO.t
 t/Allele.t
 t/Annotation.t
@@ -372,6 +385,7 @@ t/test.mase
 t/test.pfam
 t/test.raw
 t/test.txt
+t/test_badlf.gcg
 t/testaln.fasta
 t/testaln.mase
 t/testaln.msf

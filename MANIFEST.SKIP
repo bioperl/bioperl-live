@@ -7,3 +7,5 @@
 \.dist$
 bioperl.lisp
 Makefile
+^pm_to_blib
+^#
