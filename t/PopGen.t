@@ -19,7 +19,7 @@ BEGIN {
 	use lib 't';
     }
     use vars qw($NTESTS);
-    $NTESTS = 33;
+    $NTESTS = 37;
     $error = 0;
 
     use Test;
@@ -138,12 +138,12 @@ my $envpop = new Bio::PopGen::Population(-name        => 'NC',
 
 my $stats = new Bio::PopGen::PopStats(-haploid => 1);
 my $fst = $stats->Fst([$mrsapop,$mssapop],[qw(AFLP1 )]);
-skip($fst,1,'mrsa,mssa aflp1'); # We're going to check the values against other programs first
+ok(sprintf("%.3f",$fst),0.077,'mrsa,mssa aflp1'); # We're going to check the values against other programs first
 $fst = $stats->Fst([$envpop,$mssapop,$mrsapop],[qw(AFLP1 )]);
-skip($fst,1,'all pops, aflp1'); # We're going to check the values against other programs first
+ok(sprintf("%.3f",$fst),0.035,'all pops, aflp1'); # We're going to check the values against other programs first
 
 $fst = $stats->Fst([$mrsapop,$envpop],[qw(AFLP1 AFLP2)]);
-skip($fst,1,'mrsa,envpop aflp1,aflp2'); # We're going to check the values against other programs first
+ok(sprintf("%.3f",$fst),0.046,'mrsa,envpop aflp1,aflp2'); # We're going to check the values against other programs first
 
 
 # Read in data from a file
@@ -183,15 +183,48 @@ my @mkr2     = map { 'B' . $_ } 14..20;
 
 # still wrong ?
 $fst = $stats->Fst([$mrsapop,$mssapop],[@all_bands ]);
-skip($fst,1,'mssa,mrsa all_bands'); # We're going to check the values against other programs first
+skip(sprintf("%.3f",$fst),'-0.001','mssa,mrsa all_bands'); # We're going to check the values against other programs first
 $fst = $stats->Fst([$envpop,$mssapop],[ @mkr1 ]);
-skip($fst,1,'env,mssa mkr1'); # We're going to check the values against other programs first
+ok(sprintf("%.3f",$fst),0.023,'env,mssa mkr1'); # We're going to check the values against other programs first
 
 $fst = $stats->Fst([$envpop,$mssapop,$mrsapop],[ @all_bands ]);
-skip($fst,1,'env,mssa,mrsa all bands'); # We're going to check the values against other programs first
+ok(sprintf("%.3f",$fst),0.071,'env,mssa,mrsa all bands'); # We're going to check the values against other programs first
 
 $fst = $stats->Fst([$envpop,$mssapop,$mrsapop],[ @mkr2 ]);
-skip($fst,1, 'env,mssa,mrsa mkr2'); # We're going to check the values against other programs first
+ok(sprintf("%.3f",$fst),0.076, 'env,mssa,mrsa mkr2'); # We're going to check the values against other programs first
 
 $fst = $stats->Fst([$mrsapop,$envpop],[@all_bands ]);
-skip($fst,1,'mrsa,nc all_bands'); # We're going to check the values against other programs first
+ok(sprintf("%.3f",$fst),0.241,'mrsa,nc all_bands'); # We're going to check the values against other programs first
+
+
+
+# test overall allele freq setting for a population
+
+my $poptst1 = new Bio::PopGen::Population(-name => 'tst1');
+my $poptst2 = new Bio::PopGen::Population(-name => 'tst2');
+
+$poptst1->set_Allele_Frequency(-frequencies => 
+			       { 'marker1' => { 'a' => '0.20',
+						'A' => '0.80' },
+				 'marker2' => { 'A' => '0.10',
+						'B' => '0.20',
+						'C' => '0.70' }
+			     });
+
+my $mk1 = $poptst1->get_Marker('marker1');
+my %f1 = $mk1->get_Allele_Frequencies;
+ok($f1{'a'}, '0.20');
+ok($f1{'A'}, '0.80');
+my $mk2 = $poptst1->get_Marker('marker2');
+my %f2 = $mk2->get_Allele_Frequencies;
+ok($f2{'C'}, '0.70');
+
+$poptst2->set_Allele_Frequency(-name      => 'marker1',
+			       -allele    => 'A',
+			       -frequency => '0.60');
+$poptst2->set_Allele_Frequency(-name      => 'marker1',
+			       -allele    => 'a',
+			       -frequency => '0.40');
+
+#$fst = $stats->Fst([$poptst1,$poptst2],[qw(marker1 marker2) ]);
+skip('Fst not calculated yet',1,'marker1 test'); # 

@@ -164,6 +164,55 @@ sub source{
    return $self->{'_source'};
 }
 
+=head2 set_Allele_Frequency
+
+ Title   : set_Allele_Frequency
+ Usage   : $population->set_Allele_Frequency(
+ Function: Sets an allele frequency for a Marker for this Population
+           This allows the Population to not have individual individual
+           genotypes but rather a set of overall allele frequencies
+ Returns : Count of the number of markers
+ Args    : -name      => (string) marker name
+           -allele    => (string) allele name
+           -frequency => (double) allele frequency - must be between 0 and 1
+           OR
+	   -frequencies => { 'marker1' => { 'allele1' => 0.01,
+					    'allele2' => 0.99},
+			     'marker2' => ...
+			    }
+
+=cut
+
+sub set_Allele_Frequency {
+   my ($self,@args) = @_;
+   my ($name,$allele, $frequency,
+       $frequencies) = $self->_rearrange([qw(NAME
+					     ALLELE
+					     FREQUENCY
+					     FREQUENCIES
+					     )], @args);
+   if( defined $frequencies ) { # this supercedes the res
+       if( ref($frequencies) =~ /HASH/i ) {
+	   my ($markername,$alleles);
+	   while( ($markername,$alleles) = each %$frequencies ) {
+	       $self->{'_allele_freqs'}->{$markername} = 
+		   new Bio::PopGen::Marker(-name        => $markername,
+					   -allele_freq => $alleles);
+	   }
+       } else { 
+	   $self->throw("Must provide a valid hashref for the -frequencies option");
+       }
+   } else { 
+       unless( defined $self->{'_allele_freqs'}->{$name} ) {
+	   $self->{'_allele_freqs'}->{$name} = 
+	       new Bio::PopGen::Marker(-name        => $name);
+       }
+       $self->{'_allele_freqs'}->{$name}->add_Allele_Frequency($allele,$frequency);
+   }
+   return scalar keys %{$self->{'_allele_freqs'}};
+}
+
+
 =head2 add_Individual
 
  Title   : add_Individual
@@ -186,6 +235,7 @@ sub add_Individual{
 	push @{$self->{'_individuals'}}, $i;
     }
     $self->{'_cached_markernames'} = undef;
+    $self->{'_allele_freqs'} = {};
     return scalar @{$self->{'_individuals'}};
 }
 
@@ -281,19 +331,26 @@ sub get_marker_names{
 
 sub get_Marker{
    my ($self,$markername) = @_;
-
-   my @genotypes = $self->get_Genotypes(-marker => $markername);
-   my $marker = new Bio::PopGen::Marker(-name   => $markername);
-
-   if( ! @genotypes ) {
-       $self->warn("No genotypes for Marker $markername in the population");
+   my $marker;
+   # setup some caching too
+   if( defined $self->{'_allele_freqs'} &&
+       defined ($marker = $self->{'_allele_freqs'}->{$markername}) ) {
+       # marker is now set to the stored value
    } else { 
-       my %alleles;
-       my $count;
-       map { $count++; $alleles{$_}++ } map { $_->get_Alleles } @genotypes;
-       foreach my $allele ( keys %alleles ) {
-	   $marker->add_Allele_Frequency($allele, $alleles{$allele}/$count);
+       my @genotypes = $self->get_Genotypes(-marker => $markername);
+       $marker = new Bio::PopGen::Marker(-name   => $markername);
+       
+       if( ! @genotypes ) {
+	   $self->warn("No genotypes for Marker $markername in the population");
+       } else { 
+	   my %alleles;
+	   my $count;
+	   map { $count++; $alleles{$_}++ } map { $_->get_Alleles } @genotypes;
+	   foreach my $allele ( keys %alleles ) {
+	       $marker->add_Allele_Frequency($allele, $alleles{$allele}/$count);
+	   }
        }
+       $self->{'_allele_freqs'}->{$markername} = $marker;
    }
    return $marker;
 }
