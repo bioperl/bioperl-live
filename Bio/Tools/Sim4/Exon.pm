@@ -66,10 +66,10 @@ use strict;
 
 # Object preamble - inherits from Bio::Root::Object
 
-use Bio::SeqFeature::Homol;
+use Bio::SeqFeature::FeaturePair;
 
 
-@ISA = qw(Bio::SeqFeature::Homol);
+@ISA = qw(Bio::SeqFeature::FeaturePair);
 # new() is inherited from Bio::Root::Object
 
 # _initialize is where the heavy stuff will happen when new is called
