@@ -19,7 +19,7 @@ BEGIN {
 	use lib 't';
     }
     use vars qw($NTESTS);
-    $NTESTS = 81;
+    $NTESTS = 85;
     $error = 0;
 
     use Test;
@@ -413,3 +413,33 @@ for my $name ( $population->get_marker_names ) {
     my $marker = $population->get_Marker($name); 
 #    warn("$name ",join(" ",$marker->get_Alleles()),"\n");
 }
+
+
+# test Rich's phase and hap parsers
+
+$io = new Bio::PopGen::IO(-format   => 'hapmap',
+			  -verbose  => 1,
+			  -no_header=>1,
+			  -file     => Bio::Root::IO->catfile(qw(t data
+								example.hap)));
+
+# Some IO might support reading in a population at a time
+
+my @population;
+while( my $ind = $io->next_individual ) {
+    push @population, $ind;
+}
+ok(@population, 90);
+ok($population[3]->unique_id, 'NA06994');
+ok($population[3]->get_Genotypes, 34);
+$io = new Bio::PopGen::IO(-format => 'phase',
+			  -file   => Bio::Root::IO->catfile(qw(t data
+							       example.phase)));
+
+# Some IO might support reading in a population at a time
+
+@population = ();
+while( my $ind = $io->next_individual ) {
+    push @population, $ind;
+}
+ok(@population, 4);
