@@ -19,7 +19,7 @@ BEGIN {
 	use lib 't';
     }
     use vars qw($NTESTS);
-    $NTESTS = 49;
+    $NTESTS = 53;
     $error = 0;
 
     use Test;
@@ -296,7 +296,8 @@ ok(Bio::PopGen::Statistics->theta(\@ingroup),1.92);
 ok(Bio::PopGen::Statistics->theta(\@ingroup,$sitecount),0.384);
 
 # Test with a population object
-my $ingroup = new Bio::PopGen::Population(-individuals => \@ingroup);
+my $ingroup  = new Bio::PopGen::Population(-individuals => \@ingroup);
+my $outgroup = new Bio::PopGen::Population(-individuals => \@outgroup);
 
 ok($stats->pi($ingroup),2);
 ok(Bio::PopGen::Statistics->pi($ingroup,$sitecount),0.4);
@@ -304,10 +305,22 @@ ok(Bio::PopGen::Statistics->pi($ingroup,$sitecount),0.4);
 ok(Bio::PopGen::Statistics->theta($ingroup),1.92);
 ok(Bio::PopGen::Statistics->theta($ingroup,$sitecount),0.384);
 
-
 # to fix
-#ok(Bio::PopGen::Statistics->tajima_D(\@ingroup),0.27345);
-#ok(Bio::PopGen::Statistics->fu_and_li_D_star(\@ingroup),0.27345);
-#ok(Bio::PopGen::Statistics->fu_and_li_F_star(\@ingroup),0.27345);
+ok(sprintf("%.5f",Bio::PopGen::Statistics->tajima_D(\@ingroup)),0.27345);
+ok(sprintf("%.5f",Bio::PopGen::Statistics->tajima_D($ingroup)),0.27345);
+
+
+ok(sprintf("%.5f",Bio::PopGen::Statistics->fu_and_li_D_star(\@ingroup)),
+   0.27345);
+ok(sprintf("%.5f",Bio::PopGen::Statistics->fu_and_li_D_star($ingroup)),
+   0.27345);
+
+#ok(Bio::PopGen::Statistics->fu_and_li_D(\@ingroup,\@outgroup),0.75563);
 #ok(Bio::PopGen::Statistics->fu_and_li_D(\@ingroup,1),0.75563);
+#ok(Bio::PopGen::Statistics->fu_and_li_D($ingroup,1),0.75563);
+#ok(Bio::PopGen::Statistics->fu_and_li_D($ingroup,\@outgroup),0.75563);
+#ok(Bio::PopGen::Statistics->fu_and_li_D($ingroup,$outgroup),0.75563);
 #ok(Bio::PopGen::Statistics->fu_and_li_F(\@ingroup,1),0.77499);
+#ok(Bio::PopGen::Statistics->fu_and_li_F($ingroup,1),0.77499);
+#ok(Bio::PopGen::Statistics->fu_and_li_F($ingroup,\@outgroup),0.77499);
+#ok(Bio::PopGen::Statistics->fu_and_li_F($ingroup,$outgroup),0.77499);
