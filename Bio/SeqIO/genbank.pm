@@ -723,12 +723,12 @@ sub write_seq {
 						 $ref->medline, "\\s\+\|\$",80);
 		# I am assuming that pubmed entries only exist when there
 		# are also MEDLINE entries due to the indentation
-		# This could be a wrong assumption
-		if( $ref->pubmed ) {
-		    $self->_write_line_GenBank_regex("   PUBMED   "," "x12,
-						     $ref->pubmed, "\\s\+\|\$",
-						     80);
-		}
+	    }
+	    # This could be a wrong assumption
+	    if( $ref->pubmed ) {
+		$self->_write_line_GenBank_regex("   PUBMED   "," "x12,
+						 $ref->pubmed, "\\s\+\|\$",
+						 80);
 	    }
 	    $count++;
 	}
@@ -942,8 +942,11 @@ sub _read_GenBank_References{
        if (/^\s{2}JOURNAL\s+(.*)/o) { 
 	   push(@loc, $1);
 	   while ( defined($_ = $self->_readline) ) {
-	       /^\s{3,}(.*)/o && do { push(@loc, $1);
-				     next;
+	       # we only match when there are at least 4 spaces
+	       # there is probably a better way to match this
+	       # as it assumes that the describing tag is short enough 
+	       /^\s{4,}(.*)/o && do { push(@loc, $1);
+				      next;
 				 };
 	       last;
 	   }
