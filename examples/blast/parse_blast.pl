@@ -16,14 +16,14 @@
 #
 # COMMENTS:
 #
-# Sample BLAST output files can be found in examples/blast/out/ of the distribution.
-# This script can process Blast report files specified on the command line or
-# supplied via a STDIN stream.
-#
-# This demo script does not exercise all of the functionality of the Blast object.
-# See parse2.pl and parse_positions.pl script for some other manipulations and 
-# the documentation in the Bio::Tools::Blast.pm, accessible from the above website
-# or by running Blast.pm through pos2html.
+# Sample BLAST output files can be found in examples/blast/out/ of the 
+# distribution. This script can process Blast report files specified 
+# on the command line or supplied via a STDIN stream.
+# 
+# This demo script does not exercise all of the functionality of the Blast 
+# object. See parse_blast2.pl and parse_positions.pl script for some other
+# manipulations and the documentation in the Bio::Tools::Blast.pm, 
+# accessible from the above website or by running Blast.pm through pod2html.
 #
 # TODO:
 #  * Create an example that shows how to parse with HTML-formatted
@@ -31,8 +31,8 @@
 #    directly.
 #
 # MODIFIED:
-#  sac, 11 Mar 1999: Merged parse_stream.pl with parse.pl to create parse_blast.pl.
-#                    No longer any parse_stream.pl or parse.pl.
+#  sac, 11 Mar 1999: Merged parse_stream.pl with parse.pl to create
+#                    parse_blast.pl. Replaces parse_stream.pl and parse.pl.
 #  sac,  4 Sep 1998: Added example of using -filt_func option.
 #  sac, 16 Jun 1998: Added installation comment, require statement comments.
 #                    Minor alteration of seq_inds() calls.
