@@ -219,8 +219,8 @@ sub new {
     $graph->hash_of_arrays($DAG);
     $self->graph($graph);
 
-    my($in, $out, $peptide_offset, $exons, $strict,
-       $cds, $nozero) =
+    my($in, $out, $peptide_offset, $exons,
+       $cds, $nozero, $strict) =
 	$self->_rearrange([qw(IN
                               OUT
                               PEPTIDE_OFFSET
@@ -464,7 +464,9 @@ sub peptide_length {
  Usage   : $obj->exons(@exons);
  Function: Set and read the offset of CDS from the start of transcipt
            You do not have to sort the exons before calling this method as
-           they will be sorted automatically
+           they will be sorted automatically.
+           If you have not defined the CDS, is will be set to span all
+           exons here.
  Returns : array of Bio::LocationI exons in genome coordinates or 0
  Args    : array of Bio::LocationI exons in genome (or entry) coordinates
 
@@ -496,28 +498,41 @@ sub exons {
 	       unless ref $value[0] and $value[0]->isa('Bio::LocationI');
        }
 
+       #
        # sort the input array
+       #
+       # and if the used has not defined CDS assume it is the complete exonic range
        if (defined $value[0]->strand && $value[0]->strand == - 1) {  #reverse strand
 	   @value = map { $_->[0] }
 	               sort { $b->[1] <=> $a->[1] }
                        map { [ $_, $_->start] }
                        @value;
+
+           unless ($self->cds) {
+               $self->cds(new Bio::Location::Simple(-start => $value[-1]->start,
+                                                    -end   => $value[0]->end,
+                                                    -strand=> $value[0]->strand,
+                                                    -seq_id=> $value[0]->seq_id,
+                                                   )
+                         );
+           }
        } else {               #undef or forward strand
 	   @value = map { $_->[0] }
 	               sort { $a->[1] <=> $b->[1] }
                        map { [ $_, $_->start] }
                        @value;
+           unless ($self->cds) {
+               $self->cds(new Bio::Location::Simple(-start => $value[0]->start,
+                                                    -end   => $value[-1]->end,
+                                                    -strand=> $value[0]->strand,
+                                                    -seq_id=> $value[0]->seq_id,
+                                                   )
+                         );
+           }
+
        }
 
        $self->{'_chr_exons'} = \@value;
-
-       # store the chromosomal transcript coordinates
-       # take them to be start of first exon and end of last exon
-#       $self->transcript(Bio::Location::Simple->new
-#			 (-start => $value[0]->start,
-#			  -end => $value[-1]->end
-#			 ));
-#s strand!
 
        # transform exons from chromosome to gene coordinates
        # but only if gene coordinate system has been set
@@ -592,7 +607,7 @@ sub exons {
 	       my $match3 = Bio::Location::Simple->new
 		   (-seq_id =>'gene',
 		    -start => $prev_exon_end + 1,
-		    -end => $exon->start -1, -strand=>1 );
+		    -end => $exon->start -1, -strand=>$exon->strand );
 
 	       my $match4 = Bio::Location::Simple->new
 		   (-seq_id => 'intron'. ($exon_counter -1),
@@ -887,6 +902,9 @@ sub map {
            }
            $value = $newvalue;
        }
+   } 
+   elsif (ref $value eq "Bio::Coordinate::Result" && $value->each_match == 1 ){
+       $value = $value->match;
    }
 
 
