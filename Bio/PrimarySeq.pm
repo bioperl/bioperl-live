@@ -833,17 +833,17 @@ sub _guess_alphabet {
    my ($str,$str2,$total,$atgc,$u,$type);
 
    $str = $self->seq();
-   $str =~ s/\-\.\?//g;
+   $str =~ s/[-.?]//g;
 
    $total = CORE::length($str);
    if( $total == 0 ) {
        $self->throw("Got a sequence with no letters in - ".
 		    "cannot guess alphabet [$str]");
    }
-   
+
    $u = ($str =~ tr/Uu//);
    $atgc = ($str =~ tr/ATGCNatgcn//);
-   
+
    if( ($atgc / $total) > 0.85 ) {
        $type = 'dna';
    } elsif( (($atgc + $u) / $total) > 0.85 ) {
