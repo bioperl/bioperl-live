@@ -222,7 +222,7 @@ sub next_seq {
       }
       my $date = join(' ', @tokens); # we lump together the rest
       if($date =~ s/.*(\d\d-\w\w\w-\d\d\d\d).*/$1/) {
-	  $params{'-date'} = [$date];
+	  $params{'-dates'} = [$date];
       }
       # set them all at once
       $builder->add_slot_value(%params);
