@@ -525,39 +525,40 @@ sub submit_blast {
 
 sub retrieve_blast {
     my($self, $rid) = @_;
-    #my (undef,$tempfile) = $self->tempfile();
+    my ($fh,$tempfile) = $self->tempfile();
+	close $fh; #explicit close
     my %hdr = %RETRIEVALHEADER;
     $hdr{'RID'} = $rid;
     my $req = POST $URLBASE, [%hdr];
     if( $self->verbose > 0 ) {
 	$self->warn("retrieve request is " . $req->as_string());
     }
-    my $response = $self->ua->request($req);
+    my $response = $self->ua->request($req, $tempfile);
     if( $response->is_success ) {	
-		my $text = $response->content();
     	if( $self->verbose > 0 ) {
 			#print content of reply if verbose > 1
-			print STDERR $text;
-			
+			open(TMP, $tempfile) or $self->throw("cannot open $tempfile");
+			 while(<TMP>) { print $_; }
+			 close TMP;
    		 }
-		my $size = length($text);
 		## if proper reply 
+		my $size = -s $tempfile;
 		if( $size > 1000 ) {
 	    	my $blastobj;
-			my $io = IO::String->new($text);
 	   	 	if( $self->readmethod =~ /BPlite/ ) {
-				$blastobj = new Bio::Tools::BPlite(-fh => $io);
+				$blastobj = new Bio::Tools::BPlite(-file => $tempfile);
 	    	} else {
-				$blastobj = new Bio::SearchIO( -fh     => $io,
+				$blastobj = new Bio::SearchIO( -file     => $tempfile,
 					      			           -format => 'blast');
 	    		}
 			
-			## store raw report in object ##
-	    	$self->{'_raw'} = $text;
+			## store filename in object ##
+			$self->file($tempfile);
 	    	return $blastobj;
 		} elsif( $size < 500 ) { # search had a problem
-	    	$self->warn("Failed blast report: ".
-						$text );
+			open(ERR, "<$tempfile") or $self->throw("cannot open file $tempfile"); 
+			 $self->warn(join("", <ERR>));
+			close ERR;
 	    	return -1;
 		} else { # still working
 	    	return 0;
@@ -583,15 +584,14 @@ sub save_output {
     if( ! defined $filename ) {
         	$self->throw("Can't save blast output.  You must specify a filename to save to.");
     }
-    #should be set when retrieving blast
-	if (!defined($self->{'_raw'}) ) {
-		$self->throw(" No raw blast report contained in blast factory object ");
-		return -1;
-		}
-	my $io = IO::String->new($self->{'_raw'});
+	 my $blastfile = $self->file;
+	#open temp file and output file, have to filter out some HTML
+	open(TMP, $blastfile) or $self->throw("cannot open $blastfile");
+
+
 	open(SAVEOUT, ">$filename") or $self->throw("cannot open $filename");
 	my $seentop = 0;
-	while(my $l = <$io>) {
+	while(my $l = <TMP>) {
 		next if ($l =~ /<pre>/);	
 		if( $l =~ /^(?:[T]?BLAST[NPX])\s*.+$/i ||
 	   		 $l =~/^RPS-BLAST\s*.+$/i ) {
@@ -602,6 +602,7 @@ sub save_output {
 			print SAVEOUT $l;
 		}
 	}
+	close TMP;
 	close SAVEOUT;
 	return 1;	
 }
