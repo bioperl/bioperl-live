@@ -27,12 +27,13 @@ BEGIN {
     use Test;
     plan tests => $NTESTS; 
 
-    eval { require XML::Parser::PerlSAX; };
+    eval { require XML::Parser::PerlSAX; 
+           require HTML::Entities; };
     if( $@ ) {
 	$SKIPXML = 1;
-	print STDERR "XML::Parser::PerlSAX not loaded. This means SearchIO::blastxml test cannot be executed. Skipping\n";
+	print STDERR "XML::Parser::PerlSAX or HTML::Entities not loaded. This means SearchIO::blastxml test cannot be executed. Skipping\n";
 	foreach ( 1..$LASTXMLTEST ) {
-	    skip('No XML::Parser::PerlSAX loaded',1);
+	    skip('No XML::Parser::PerlSAX or HTML::Entities loaded',1);
 	}
     }
 }
