@@ -8,7 +8,7 @@ BEGIN {
 	use lib 't';
     }
     use Test;
-    plan tests => 31  }
+    plan tests => 35  }
 
 use Bio::SimpleAlign;
 use Bio::AlignIO;
@@ -25,6 +25,7 @@ END {
 	 Bio::Root::IO->catfile("t","data","testout.clustal"),
 	 Bio::Root::IO->catfile("t","data","testout.phylip"),
 	 Bio::Root::IO->catfile("t","data","testout.nexus"),
+	 Bio::Root::IO->catfile("t","data","testout.mega"),
 	   );
 
 
@@ -56,7 +57,7 @@ ok $aln->get_seq_by_pos(1)->get_nse, '1433_LYCES/9-246', " failed msf input test
 
 
 $strout = Bio::AlignIO->new('-file' => ">".Bio::Root::IO->catfile("t","data","testout.msf"), 
-			      '-format' => 'msf');
+			    '-format' => 'msf');
 $status = $strout->write_aln($aln);
 ok $status, 1, "  failed msf output test";
 
@@ -65,7 +66,6 @@ $str = Bio::AlignIO->new('-file' => Bio::Root::IO->catfile("t","data","testaln.f
 			   '-format' => 'fasta');
 $aln = $str->next_aln();
 ok $aln->get_seq_by_pos(1)->get_nse, 'AK1H_ECOLI/114-431', " failed fasta input test ";
-
 $strout = Bio::AlignIO->new('-file' => ">".Bio::Root::IO->catfile("t","data","testout.fasta"), 
 			      '-format' => 'fasta');
 $status = $strout->write_aln($aln);
@@ -165,3 +165,20 @@ ok($aln);
 ok($aln->get_seq_by_pos(1)->get_nse,'PAPA_CARPA/1-345');
 ok($aln->get_seq_by_pos(2)->get_nse,'CATL_HUMAN/1-333');
 
+# MEGA
+
+$str = new Bio::AlignIO('-format' => 'mega',
+			'-file'   => Bio::Root::IO->catfile("t","data","hemoglobinA.meg"));
+
+$aln = $str->next_aln();
+ok($aln);
+ok($aln->get_seq_by_pos(1)->get_nse,'Human/1-141');
+ok($aln->get_seq_by_pos(2)->get_nse,'Horse/1-144');
+$aln->unmatch();
+ok($aln->get_seq_by_pos(3)->subseq(1,10), 'V-LSAADKGN');
+
+$strout = new Bio::AlignIO('-format' => 'mega',
+			   '-file'   => ">" .Bio::Root::IO->catfile("t","data","testout.mega"));
+
+$status = $strout->write_aln($aln);
+ok $status, 1, "  failed mega output test";
