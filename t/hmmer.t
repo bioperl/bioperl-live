@@ -30,8 +30,8 @@ ok ref($domain), 'Bio::Tools::HMMER::Domain';
 
 $domain->start(50);
 $domain->end(200);
-$domain->start_hmm(10);
-$domain->end_hmm(100);
+$domain->hstart(10);
+$domain->hend(100);
 $domain->seqbits(50);
 $domain->bits(20);
 $domain->evalue(0.0001);

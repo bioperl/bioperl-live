@@ -368,7 +368,7 @@ sub write_ascii_out {
 
     foreach $seq ( $self->each_Set()) {
 	foreach $unit ( $seq->each_Domain()) {
-	    print $fh sprintf("%s %4d %4d %s %4d %4d %4.2f %4.2g %s\n",$unit->seqname(),$unit->start(),$unit->end(),$unit->hmmacc,$unit->start_hmm,$unit->end_hmm,$unit->bits,$unit->evalue,$unit->hmmname);
+	    print $fh sprintf("%s %4d %4d %s %4d %4d %4.2f %4.2g %s\n",$unit->seqname(),$unit->start(),$unit->end(),$unit->hmmacc,$unit->hstart,$unit->hend,$unit->bits,$unit->evalue,$unit->hmmname);
 	}
     }
 	    
@@ -684,8 +684,8 @@ sub _parse_hmmpfam {
 		    $unit->hmmname  ($id);
 		    $unit->start    ($sqfrom);
 		    $unit->end      ($sqto);
-		    $unit->start_hmm($hmmf);
-		    $unit->end_hmm  ($hmmt);
+		    $unit->hstart($hmmf);
+		    $unit->hend  ($hmmt);
 		    $unit->bits     ($sc);
 		    $unit->evalue   ($ev);
 
@@ -815,8 +815,8 @@ sub _parse_hmmsearch {
 	    $unit->start($sqfrom);
 	    $unit->end($sqto);
 	    $unit->bits($sc);
-	    $unit->start_hmm($hmmf);
-	    $unit->end_hmm($hmmt);
+	    $unit->hstart($hmmf);
+	    $unit->hend($hmmt);
 	    $unit->evalue($ev);
 	    $unit->seqbits($seqh{$id});
 	    $self->add_Domain($unit);
