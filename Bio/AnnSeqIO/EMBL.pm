@@ -43,6 +43,16 @@ file databases.
 
 (output only) provides a sorting func which is applied to the FTHelpers
 before printing
+
+=item _id_generation_func
+
+This is function which is called as 
+
+   print "ID   ", $func($annseq), "\n";
+
+To generate the ID line. If it is not there, it generates a sensible ID
+line using a number of tools.
+
  
 =end
 
@@ -267,7 +277,14 @@ sub write_annseq {
        $div = 'UNK';
    }
 
-   print $fh sprintf("ID   %-11sstandard; DNA; $div; %d BP.",$seq->id(),$len);
+   my $temp_line;
+   if( $self->_id_generation_func ) {
+       $temp_line = &{$self->_id_generation_func}($annseq);
+   } else {
+       $temp_line = sprintf ("%-11sstandard; DNA; $div; %d BP.",$seq->id(),$len);
+   } 
+
+   print $fh "ID   $temp_line\n";   
    
    print $fh "\nXX   \n";
 
@@ -275,6 +292,35 @@ sub write_annseq {
    _write_line_EMBL_regex($fh,"DE   ","DE   ",$seq->desc(),'\s+|$',80);
    print $fh "XX   \n";
 
+   # if there, write the accession line
+
+   if( $self->_ac_generation_func ) {
+       $temp_line = &{$self->_ac_generation_func}($annseq);
+       print $fh "AC   $temp_line\n";   
+       print $fh "XX   \n";
+   } else {
+       # nothing at the moment
+   } 
+
+   # if there, write the sv line
+
+   if( $self->_sv_generation_func ) {
+       $temp_line = &{$self->_sv_generation_func}($annseq);
+       print $fh "SV   $temp_line\n";   
+       print $fh "XX   \n";
+   } else {
+       # nothing at the moment
+   } 
+
+   # if there, write the kw line
+
+   if( $self->_kw_generation_func ) {
+       $temp_line = &{$self->_kw_generation_func}($annseq);
+       print $fh "KW   $temp_line\n";   
+       print $fh "XX   \n";
+   } else {
+       # nothing at the moment
+   } 
 
 
    
@@ -826,6 +872,91 @@ sub _show_dna{
 
 }
 
+=head2 _id_generation_func
+
+ Title   : _id_generation_func
+ Usage   : $obj->_id_generation_func($newval)
+ Function: 
+ Returns : value of _id_generation_func
+ Args    : newvalue (optional)
+
+
+=cut
+
+sub _id_generation_func{
+   my $obj = shift;
+   if( @_ ) {
+      my $value = shift;
+      $obj->{'_id_generation_func'} = $value;
+    }
+    return $obj->{'_id_generation_func'};
+
+}
+
+=head2 _ac_generation_func
+
+ Title   : _ac_generation_func
+ Usage   : $obj->_ac_generation_func($newval)
+ Function: 
+ Returns : value of _ac_generation_func
+ Args    : newvalue (optional)
+
+
+=cut
+
+sub _ac_generation_func{
+   my $obj = shift;
+   if( @_ ) {
+      my $value = shift;
+      $obj->{'_ac_generation_func'} = $value;
+    }
+    return $obj->{'_ac_generation_func'};
+
+}
+
+=head2 _sv_generation_func
+
+ Title   : _sv_generation_func
+ Usage   : $obj->_sv_generation_func($newval)
+ Function: 
+ Returns : value of _sv_generation_func
+ Args    : newvalue (optional)
+
+
+=cut
+
+sub _sv_generation_func{
+   my $obj = shift;
+   if( @_ ) {
+      my $value = shift;
+      $obj->{'_sv_generation_func'} = $value;
+    }
+    return $obj->{'_sv_generation_func'};
+
+}
+
+=head2 _kw_generation_func
+
+ Title   : _kw_generation_func
+ Usage   : $obj->_kw_generation_func($newval)
+ Function: 
+ Returns : value of _kw_generation_func
+ Args    : newvalue (optional)
+
+
+=cut
+
+sub _kw_generation_func{
+   my $obj = shift;
+   if( @_ ) {
+      my $value = shift;
+      $obj->{'_kw_generation_func'} = $value;
+    }
+    return $obj->{'_kw_generation_func'};
+
+}
+
+1;
     
 
 
