@@ -70,13 +70,15 @@ sub _initialize {
   defined $location     && $self->location($location);
   defined $annot        && $self->annotation($annot);
 
-  defined $id           && $self->id($id);
-  defined $name         && $self->name($name);
+  if( (defined($display_name) && defined($name))
+      ||
+      (defined($seq_id) && defined($id))
+    ){
+    $self->throw('cannot define ((-id and -seq_id) or (-name and -display_name)) attributes');
+  }
 
-  #deprecated
-  defined $display_name && $self->display_name($display_name);
-  defined $seq_id       && $self->seq_id($seq_id);
-
+  defined $id           && $self->id($id || $seq_id);
+  defined $name         && $self->name($name || $display_name);
 }
 
 =head1 ATTRIBUTE ACCESSORS FOR Bio::SeqFeature::Annotated
@@ -151,7 +153,7 @@ sub type {
       $self->throw('give type() a SOFA term name, identifier, or Bio::Annotation::OntologyTerm object, not '.$val);
     }
 
-    $self->clear_Annotations('type');
+    $self->remove_Annotations('type');
     $self->add_Annotation('type',$term);
   }
 
@@ -342,6 +344,7 @@ sub remove_Annotations {
 
 sub display_name {
   my $self = shift;
+warn caller();
   $self->warn('display_name() is deprecated, use name()');
   return $self->name(@_);
 }

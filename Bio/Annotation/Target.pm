@@ -106,10 +106,14 @@ sub new {
 =cut
 
 sub as_text{
-   my ($self) = @_;
+  my ($self) = @_;
 
-   return "Target=".$self->target_id." ".$self->start." ".
-                    $self->end." ".$self->strand;
+  my $target = $self->target_id || '';
+  my $start  = $self->start     || '';
+  my $end    = $self->end       || '';
+  my $strand = $self->strand    || '';
+
+   return "Target=".$target." ".$start." ".$end." ".$strand;
 }
 
 =head2 tagname

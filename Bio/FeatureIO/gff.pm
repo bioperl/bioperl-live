@@ -68,9 +68,10 @@ use base qw(Bio::FeatureIO);
 use Bio::SeqFeature::Annotated;
 use Bio::OntologyIO;
 
+use Bio::Annotation::DBLink;
 use Bio::Annotation::OntologyTerm;
 use Bio::Annotation::SimpleValue;
-use Bio::Annotation::DBLink;
+use Bio::Annotation::Target;
 
 use Bio::Ontology::OntologyStore;
 
@@ -134,8 +135,8 @@ sub _write_feature_25 {
     $group = ($feature->get_Annotations('ID'))[0]->value;
   }
 
-  my $seq    = $feature->seq_id || '.';
-  my $source = $feature->source || '.';
+  my $seq    = $feature->id      || '.';
+  my $source = $feature->source  || '.';
   my $type   = $feature->type->name;
   $type = 'EXON' if $type eq 'exon'; #a GTF peculiarity, incosistent with the sequence ontology.
   my $min    = $feature->start   || '.';
@@ -161,8 +162,8 @@ sub _write_feature_25 {
 sub _write_feature_3 {
   my($self,$feature) = @_;
 
-  my $seq    = $feature->seq_id || 'SEQ';
-  my $source = $feature->source || '.';
+  my $seq    = $feature->id      || 'SEQ';
+  my $source = $feature->source  || '.';
   my $type   = $feature->type->name;
   my $min    = $feature->start   || '.';
   my $max    = $feature->end     || '.';
@@ -283,7 +284,7 @@ sub _handle_feature {
 
   my($seq,$source,$type,$start,$end,$score,$strand,$phase,$attribute_string) = split /\t/, $feature_string;
 
-  $feat->seq_id( uri_unescape($seq) );
+  $feat->id( uri_unescape($seq) );
   $feat->source( uri_unescape($source) ) unless $source eq '.';
   $feat->start($start) unless $start eq '.';
   $feat->end($end) unless $end eq '.';
