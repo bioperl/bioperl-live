@@ -34,23 +34,6 @@ file databases.
 There is alot of flexibility here about how to dump things which I need
 to document fully.
 
-=head2 Mapping of record properties to object properties
-
-This section is supposed to document which sections and properties of
-a GenBank databank record end up where in the Bioperl object model. It
-is far from complete and presently focuses only on those mappings
-which may be non-obvious. $seq in the text refers to the
-Bio::Seq::RichSeqI implementing object returned by the parser for each
-record.
-
-=over 4
-
-=item GI number
-
-$seq-E<gt>primary_id
-
-=back
-
 =head2 Optional functions
 
 =over 3
@@ -101,7 +84,7 @@ the top level object which defines a function called NAME() which
 stores this information.
 
 Items listed as Annotation 'NAME' tell you the data is stored the
-associated Bio::Annotation::Colection object which is associated with
+associated Bio::AnnotationCollectionI object which is associated with
 Bio::Seq objects.  If it is explictly requested that no annotations
 should be stored when parsing a record of course they won't be
 available when you try and get them.  If you are having this problem
@@ -115,7 +98,9 @@ Origin               Annotation 'origin'
 
 Accessions           PrimarySeq accession_number()
 Secondary accessions RichSeq get_secondary_accessions()
-Keywords             RichSeq keywords()
+GI number            PrimarySeq primary_id()
+LOCUS                PrimarySeq display_id()
+Keywords             RichSeq get_keywords()
 Dates                RichSeq get_dates()
 Molecule             RichSeq molecule()
 Seq Version          RichSeq seq_version()
@@ -155,13 +140,13 @@ Email elia@tll.org.sg
 
 =head1 CONTRIBUTORS
 
-Ewan Birney birney@ebi.ac.uk
-Jason Stajich jason@bioperl.org
-Chris Mungall cjm@fruitfly.bdgp.berkeley.edu
-Lincoln Stein lstein@cshl.org
-Heikki Lehvaslaiho, heikki@ebi.ac.uk
-Hilmar Lapp, hlapp@gmx.net
-Donald G. Jackson, donald.jackson@bms.com
+Ewan Birney birney at ebi.ac.uk
+Jason Stajich jason at bioperl.org
+Chris Mungall cjm at fruitfly.bdgp.berkeley.edu
+Lincoln Stein lstein at cshl.org
+Heikki Lehvaslaiho, heikki at ebi.ac.uk
+Hilmar Lapp, hlapp at gmx.net
+Donald G. Jackson, donald.jackson at bms.com
 
 =head1 APPENDIX
 
@@ -738,12 +723,12 @@ sub write_seq {
 						 $ref->medline, "\\s\+\|\$",80);
 		# I am assuming that pubmed entries only exist when there
 		# are also MEDLINE entries due to the indentation
-		# This could be a wrong assumption
-		if( $ref->pubmed ) {
-		    $self->_write_line_GenBank_regex("   PUBMED   "," "x12,
-						     $ref->pubmed, "\\s\+\|\$",
-						     80);
-		}
+	    }
+	    # This could be a wrong assumption
+	    if( $ref->pubmed ) {
+		$self->_write_line_GenBank_regex("   PUBMED   "," "x12,
+						 $ref->pubmed, "\\s\+\|\$",
+						 80);
 	    }
 	    $count++;
 	}
@@ -957,8 +942,11 @@ sub _read_GenBank_References{
        if (/^\s{2}JOURNAL\s+(.*)/o) { 
 	   push(@loc, $1);
 	   while ( defined($_ = $self->_readline) ) {
-	       /^\s{3,}(.*)/o && do { push(@loc, $1);
-				     next;
+	       # we only match when there are at least 4 spaces
+	       # there is probably a better way to match this
+	       # as it assumes that the describing tag is short enough 
+	       /^\s{4,}(.*)/o && do { push(@loc, $1);
+				      next;
 				 };
 	       last;
 	   }
