@@ -558,9 +558,9 @@ sub edges {
     my $edges=$self->_edges;
     while (@_) {
       my($m,$n);
-      if ('ARRAY' eq ref $_[0]) {	# it's already an edge
+      if ('ARRAY' eq ref $_[0] || $_[0]->isa('Bio::Graph::Edge')) {	# it's already an edge
 			my $edge = shift;
-			($m,$n)  = @$edge;
+			($m,$n)  = @$edge[0..1];
       	} else {
 		($m,$n)=(shift,shift);
       }
@@ -590,9 +590,9 @@ sub has_edges {
   my $edges = $self->_edges;
   while (@_) {
     my($m,$n);
-    if ('ARRAY' eq ref $_[0]) {	# it's already an edge
+    if ('ARRAY' eq ref $_[0] || $_[0]->isa('Bio::Graph::Edge')) {	# it's already an edge
       my $edge = shift;
-      ($m,$n)  = @$edge;
+      ($m,$n)  = @$edge[0..1];#first 2 elements are nodes
     } else {
       ($m,$n)  = (shift,shift);
     }
@@ -712,7 +712,11 @@ sub density {
 
 sub subgraph {
   my $self=shift;
-  my $subgraph=new Bio::Graph::SimpleGraph;
+
+  ## make new graph of same type as parent
+  my $class    = ref($self);
+  my $subgraph = new $class;
+
   $subgraph->add_node(@_);
   # add all edges amongst the nodes
   my @nodes=$subgraph->nodes;
@@ -877,10 +881,16 @@ sub components {
   my $components = [];
   my @nodes      = $self->nodes;
   my %future;
+  my $i = 1;
   @future{@nodes}=(0)x@nodes;
   while(my($node, $used)=each %future) {
+	if ($i++ %10 ==0 ) {
+		print STDERR "|";
+	}
     next if $used;
-    my $component   = $self->subgraph($self->traversal($self->node($node))->get_all);
+    my @nodes = $self->traversal($self->node($node))->get_all;
+
+    my $component   = $self->subgraph(@nodes);
     my @nodes       = $component->nodes;
     @future{@nodes} = (1)x@nodes;
     push(@$components,$component);
