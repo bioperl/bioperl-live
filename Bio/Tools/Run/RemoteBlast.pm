@@ -131,8 +131,8 @@ methods. Internal methods are usually preceded with a _
 
 package Bio::Tools::Run::RemoteBlast;
 
-use vars qw($AUTOLOAD @ISA %BLAST_PARAMS $URLBASE %HEADER %RETRIEVALHEADER
-	    $RIDLINE $MODVERSION);
+use vars qw($AUTOLOAD @ISA $URLBASE %HEADER %RETRIEVALHEADER
+	    $RIDLINE $MODVERSION %PUTPARAMS %GETPARAMS);
 use strict;
 
 use Bio::Root::Root;
@@ -149,34 +149,83 @@ use HTTP::Request::Common;
 BEGIN {
     $MODVERSION = $Bio::Root::Version::VERSION;
     $URLBASE = 'http://www.ncbi.nlm.nih.gov/blast/Blast.cgi';
-    %HEADER = ('CMD'                          => 'Put',
-	       'PROGRAM'                      => '',
-	       'DATABASE'                     => '',
-	       'FILTER'                       => 'L',
-	       'EXPECT'                       => '',
-	       'QUERY'                        =>  '',
-	       'CDD_SEARCH'                   => 'off',
-	       'COMPOSITION_BASED_STATISTICS' => 'off',
-	       'FORMAT_OBJECT'                => 'Alignment',
-	       'SERVICE'                      => 'plain',
-	       );
 
+    # In GET/PUTPARAMS the values are regexes which validate the input.
+    %PUTPARAMS = (	'AUTO_FORMAT' 	=> '(Off|(Semi|Full)auto)',	# Off, Semiauto, Fullauto
+			'COMPOSITION_BASED_STATISTICS'	=> '(yes|no)',	# yes, no
+			'DATABASE' 	=>  '.*',
+			'DB_GENETIC_CODE' => '([1-9]|1[1-6]|2(1|2))',   # 1..16,21,22
+			'ENDPOINTS'	=> '(yes|no)',			# yes,no
+			'ENTREZ_QUERY'	=> '.*',
+			'EXPECT'	=> '\d+(\.\d+)?([eE]-\d+)?',	# Positive double
+			'FILTER'	=> '[LRm]',			# L or R or m
+			'GAPCOSTS'	=> '-?\d+(\.\d+)\s+i-?\d+(\.\d+)',	
+					# Two space separated float values
+			'GENETIC_CODE'	=> '([1-9]|1[1-6]|2(1|2))',	# 1..16,21,22
+			'HITLIST_SIZE'	=> '\d+',			# Positive integer
+			'I_THRESH'	=> '-?\d+(\.\d+)([eE]-\d+)?',	# float
+			'LAYOUT'	=> '(One|Two)Windows?',		# onewindow, twowindows
+			'LCASE_MASK'	=> '(yes|no)',			# yes, no
+			'MATRIX_NAME'	=> '.*',
+			'NUCL_PENALTY'	=> '-\d+',			# Negative integer
+			'NUCL_REWARD'	=> '-?\d+',			# Integer
+			'OTHER_ADVANCED' => '.*',
+			'PERC_IDENT'	=> '\d\d+',			# Integer, 0-99 inclusive
+			'PHI_PATTERN'	=> '.*',
+			'PROGRAM'	=> 't?blast[pnx]',		
+					# tblastp, tblastn, tblastx, blastp, blastn, blastx
+			'QUERY'		=> '.*',
+			'QUERY_FILE'	=> '.*',
+			'QUERY_BELIEVE_DEFLINE'	=> '(yes|no)',		# yes, no
+			'QUERY_FROM'	=> '\d+',			# Positive integer
+			'QUERY_TO'	=> '\d+',			# Positive integer
+			'SEARCHSP_EFF'	=> '\d+',			# Positive integer
+			'SERVICE'	=> '(plain|p[sh]i|(rps|mega)blast)',	
+					# plain,psi,phi,rpsblast,megablast
+			'THRESHOLD'	=> '-?\d+',			# Integer
+			'UNGAPPED_ALIGNMENT' => '(yes|no)',		# yes, no
+			'WORD_SIZE'	=> '\d+'			# Positive integer
+		);
+    %GETPARAMS = (	'ALIGNMENTS'	=> '\d+',			# Positive integer
+			'ALIGNMENT_VIEW' => '(Pairwise|(Flat)?QueryAnchored(NoIdentities)?|Tabular)',
+					# Pairwise, QueryAnchored, QueryAnchoredNoIdentities, 
+  					# FlatQueryAnchored, FlatQueryAnchoredNoIdentities, Tabular 
+			'DESCRIPTIONS'	=> '\d+',			# Positive integer
+			'ENTREZ_LINKS_NEW_WINDOW' => '(yes|no)',	# yes, no
+			'EXPECT_LOW'	=> '\d+(\.\d+)?([eE]-\d+)?',	# Positive double
+			'EXPECT_HIGH'	=> '\d+(\.\d+)?([eE]-\d+)?',	# Positive double
+			'FORMAT_ENTREZ_QUERY' => '',
+			'FORMAT_OBJECT'	=> '(Alignment|Neighbors|PSSM|SearchInfo|TaxBlast(Parent|MultiFrame)?)',
+					# Alignment, Neighbors, PSSM,  SearchInfo 
+					# TaxBlast, TaxblastParent, TaxBlastMultiFrame 
+			'FORMAT_TYPE'	=> '((HT|X)ML|ASN\.1|Text)',
+					# HTML, Text, ASN.1, XML
+			'NCBI_GI'	=> '(yes|no)',			# yes, no
+			'RID' 		=>  '.*',
+			'RESULTS_FILE' 	=>  '(yes|no)',			# yes, no
+			'SERVICE' 	=>  '(plain|p[sh]i|(rps|mega)blast)',    
+					# plain,psi,phi,rpsblast,megablast
+			'SHOW_OVERVIEW' =>  '(yes|no)'			# yes, no
+		    );
+    # Default values go in here for PUT
+    %HEADER = ('CMD'                          => 'Put',
+	       'FORMAT_OBJECT'                => 'Alignment',
+	       'COMPOSITION_BASED_STATISTICS' => 'off', 
+	       'DATABASE'	    	      => 'nr',
+	       'EXPECT'			      => '1e-3', 
+	       'FILTER'			      => 'L', 
+	       'PROGRAM'		      => 'blastp', 
+	       'SERVICE'		      => 'plain' 
+	       );
+    # Default values go in here for GET
     %RETRIEVALHEADER = ('CMD'            => 'Get',
-			'RID'            => '',
+			'ALIGNMENTS'	=> '50',
 			'ALIGNMENT_VIEW' => 'Pairwise',
-			'DESCRIPTIONS'   => 100,
-			'ALIGNMENTS'     => 50,
-			'FORMAT_TYPE'    => 'Text',
+			'DESCRIPTIONS'	=> '100',
+			'FORMAT_TYPE'	=> 'Text'
 			);
 
     $RIDLINE = 'RID\s+=\s+(\S+)';
-
-    %BLAST_PARAMS = ( 'prog' => 'blastp',
-		       'data' => 'nr',
-		       'expect' => '1e-3',
-		       'readmethod' => 'SearchIO'
-		       );
-
 }
 
 sub new {
@@ -185,29 +234,90 @@ sub new {
     my $self = $caller->SUPER::new(@args);
     # so that tempfiles are cleaned up
     $self->_initialize_io();
-    my ($prog, $data, $expect,
+    my ($prog, $data, 
 	$readmethod) = $self->_rearrange([qw(PROG DATA
-					     EXPECT
 					     READMETHOD)],
 					 @args);
+    # Use these two parameters for backward-compatibility. 
+    # Overridden by PROGRAM and DATABASE if supplied.
+    $self->submit_parameter('PROGRAM',$prog) if $prog;
+    $self->submit_parameter('DATABASE',$data) if $data;
 
-    $readmethod = $BLAST_PARAMS{'readmethod'} unless defined $readmethod;
-    $prog = $BLAST_PARAMS{'prog'}     unless defined $prog;
-    $data = $BLAST_PARAMS{'data'}     unless defined $data;
-    $expect = $BLAST_PARAMS{'expect'} unless defined $expect;
+    $readmethod = 'SearchIO' unless defined $readmethod;
     $self->readmethod($readmethod);
-    $self->program($prog);
-    $self->database($data);
-    $self->expect($expect);
+
+    # Now read the rest of the parameters and set them all
+
+    # PUT parameters first
+    my @putValues = $self->_rearrange([keys %PUTPARAMS],@args);
+    my %putNames;
+    @putNames{keys %PUTPARAMS} = @putValues;
+    foreach my $putName (keys %putNames) { $self->submit_parameter($putName,$putNames{$putName}); }
+
+    # GET parameters second
+    my @getValues = $self->_rearrange([keys %GETPARAMS],@args);
+    my %getNames;
+    @getNames{keys %GETPARAMS} = @getValues;
+    foreach my $getName (keys %getNames) { $self->retrieve_parameter($getName,$getNames{$getName}); }
 
     return $self;
+}
+
+=head2 retrieve_parameter
+
+ Title   : retrieve_parameter
+ Usage   : my $db = $self->retrieve_parameter
+ Function: Get/Set the named parameter for the retrieve_blast operation.
+ Returns : string
+ Args    : $name : name of GET parameter
+	   $val : optional value to set the parameter to
+
+=cut
+
+sub retrieve_parameter {
+    my ($self, $name, $val) = @_;
+    $name = uc($name);
+    $self->throw($name." is not a valid GET parameter.") unless
+	exists $GETPARAMS{$name};
+    if (defined $val) {
+    	my $regex = $GETPARAMS{$name};
+    	$val =~ m/^$regex$/i or 
+		$self->throw("Value ".$val." for GET parameter ".$name." does not match expression ".$regex.". Rejecting.");
+	$RETRIEVALHEADER{$name} = $val;
+    }
+    return $RETRIEVALHEADER{$name};
+}
+
+=head2 submit_parameter
+
+ Title   : submit_parameter
+ Usage   : my $db = $self->submit_parameter
+ Function: Get/Set the named parameter for the submit_blast operation.
+ Returns : string
+ Args    : $name : name of PUT parameter
+	   $val : optional value to set the parameter to
+
+=cut
+
+sub submit_parameter {
+    my ($self, $name, $val) = @_;
+    $name = uc($name);
+    $self->throw($name." is not a valid PUT parameter.") unless
+	exists $PUTPARAMS{$name};
+    if (defined $val) {
+    	my $regex = $PUTPARAMS{$name};
+    	$val =~ m/^$regex$/i or 
+		$self->throw("Value ".$val." for PUT parameter ".$name." does not match expression ".$regex.". Rejecting.");
+	$HEADER{$name} = $val;
+    }
+    return $HEADER{$name};
 }
 
 =head2 header
 
  Title   : header
  Usage   : my $header = $self->header
- Function: Get/Set HTTP header for blast query
+ Function: Get HTTP header for blast query
  Returns : string
  Args    : none
 
@@ -215,11 +325,7 @@ sub new {
 
 sub header {
     my ($self) = @_;
-    my %h = %HEADER;
-    $h{'PROGRAM'} = $self->program;
-    $h{'DATABASE'} = $self->database;
-    $h{'EXPECT'}  = $self->expect;
-    return %h;
+    return %HEADER;
 }
 
 =head2 readmethod
@@ -245,7 +351,7 @@ sub readmethod {
 
  Title   : program
  Usage   : my $prog = $self->program
- Function: Get/Set the program to run
+ Function: Get/Set the program to run. Retained for backwards-compatibility.
  Returns : string
  Args    : string [ blastp, blastn, blastx, tblastn, tblastx ]
 
@@ -253,16 +359,7 @@ sub readmethod {
 
 sub program {
     my ($self, $val) = @_;
-    if( defined $val ) {
-	$val = lc $val;
-	if( $val !~ /t?blast[pnx]/ ) {
-	    $self->warn("trying to set program to an invalid program name ($val) -- defaulting to blastp");
-	    $val = 'blastp';
-	}
-#	$self->{'_program'} = $val;
-	$HEADER{'PROGRAM'} = $val;
-    }
-    return $HEADER{'PROGRAM'};
+    return $self->submit_parameter('PROGRAM',$val);
 }
 
 
@@ -270,7 +367,7 @@ sub program {
 
  Title   : database
  Usage   : my $db = $self->database
- Function: Get/Set the database to search
+ Function: Get/Set the database to search. Retained for backwards-compatibility.
  Returns : string
  Args    : string [ swissprot, nr, nt, etc... ]
 
@@ -278,11 +375,7 @@ sub program {
 
 sub database {
     my ($self, $val) = @_;
-    if( defined $val ) {
-#	$self->{'_database'} = $val;
- 	$HEADER{'DATABASE'} = $val;
-    }
-    return $HEADER{'DATABASE'};
+    return $self->submit_parameter('DATABASE',$val);
 }
 
 
@@ -290,7 +383,7 @@ sub database {
 
  Title   : expect
  Usage   : my $expect = $self->expect
- Function: Get/Set the E value cutoff
+ Function: Get/Set the E value cutoff. Retained for backwards-compatibility.
  Returns : string
  Args    : string [ '1e-4' ]
 
@@ -298,11 +391,7 @@ sub database {
 
 sub expect {
     my ($self, $val) = @_;
-    if( defined $val ) {
-#	$self->{'_expect'} = $val;
- 	$HEADER{'EXPECT'} = $val;
-    }
-    return $HEADER{'EXPECT'};
+    return $self->submit_parameter('EXPECT',$val);
 }
 
 =head2 ua
