@@ -250,13 +250,15 @@ sub next_tree{
 =cut
 
 sub write_tree{
-   my ($self,$tree) = @_;
-   my @data = _write_tree_Helper($tree->get_root_node);
-   if($data[-1] !~ /\)$/ ) {
-       $data[0] = "(".$data[0];
-       $data[-1] .= ")";
+   my ($self,@trees) = @_;
+   foreach my $tree ( @trees ) {
+       my @data = _write_tree_Helper($tree->get_root_node);
+       if($data[-1] !~ /\)$/ ) {
+	   $data[0] = "(".$data[0];
+	   $data[-1] .= ")";
+       }
+       $self->_print(join(',', @data), ";\n");
    }
-   $self->_print(join(',', @data), ";\n");
    $self->_fh->flush if $self->_flush_on_write && defined $self->_fh;
    return;
 }
