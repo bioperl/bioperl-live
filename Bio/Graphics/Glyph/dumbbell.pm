@@ -6,6 +6,8 @@ use vars '@ISA';
 @ISA = 'Bio::Graphics::Glyph::generic';
 use Bio::Graphics::Glyph::generic;
 
+use Math::Trig;
+
 sub default_shape_size
 {
   return 10;  
@@ -196,6 +198,53 @@ sub draw_end_bubble
   return ($midX-$oval_width/2, $midX+$oval_width/2);
 }
 
+sub draw_end_arrow
+{
+  my ($self, $gd, $x1, $y1, $shape_size, $fg, $antiparallel) = @_;
+  
+  my $x2 = $x1 + $shape_size;
+  my $y2 = $y1 + $shape_size;
+  
+  my $angle = deg2rad(30);
+  my $dx = 2*$shape_size*cos($angle)/5;
+  my $dy = 2*$shape_size*sin($angle)/5;
+  my $midX = $x2-$dx;
+  my $midY = ($y1+$y2)/2;
+
+  $gd->line($x1, $midY, $x2, $midY, $fg);
+  if ($antiparallel)
+  {
+    $gd->line($x1, $midY, $x1+$dx, $midY-$dy, $fg);
+    $gd->line($x1, $midY, $x1+$dx, $midY+$dy, $fg);
+  }  
+  else
+  {
+    $gd->line($x2, $midY, $x2-$dx, $midY-$dy, $fg);
+    $gd->line($x2, $midY, $x2-$dx, $midY+$dy, $fg);
+  }  
+  return ($x1, $x2);
+}
+
+sub draw_end_wave
+{
+  my ($self, $gd, $x1, $y1, $shape_size, $fg) = @_;
+  
+  my $x2 = $x1 + $shape_size;
+  
+  #Make the heigh constant
+  my $y2 = $y1 + $shape_size/2;
+  $y1 = $y2-10;
+  
+  my $step = $shape_size/6;
+  $gd->line($x1, $y2, $x1+$step, $y1, $fg);
+  $gd->line($x1+$step, $y1, $x1+2*$step, $y2, $fg);
+  $gd->line($x1+2*$step, $y2, $x1+3*$step, $y1, $fg);
+  $gd->line($x1+3*$step, $y1, $x1+4*$step, $y2, $fg);
+  $gd->line($x1+4*$step, $y2, $x1+5*$step, $y1, $fg);
+  $gd->line($x1+5*$step, $y1, $x1+6*$step, $y2, $fg);
+  return ($x1, $x2);
+}
+
 sub draw_component {
   my $self = shift;
   my $gd = shift;
@@ -211,15 +260,35 @@ sub draw_component {
     return $self->SUPER::draw_component($gd, @_);  
   }
   
+  my $midX = ($x2-$x1) / 2 + $x1;
   my $midY = ($y2-$y1) / 2 + $y1;
   my $startY = $midY - $shape_size/2;
+  
+  my $antiparallel = $self->option('antiparallel');
   
   #We need to store the bounds of the shapes drawn because the connecting line will have
   #different length depending on them.
   my ($leftX1, $leftX2) = $self->draw_end_shape($gd, $x1, $startY, $shape_size, $fg);
-  my ($rightX1, $rightX2) = $self->draw_end_shape($gd, $x2-$shape_size, $startY, $shape_size, $fg);
+  my ($rightX1, $rightX2) = $self->draw_end_shape($gd, $x2-$shape_size, $startY, $shape_size, $fg, $antiparallel);
 
-  $gd->line($leftX2,$midY,$rightX1,$midY,$fg);
+  if ($self->option('arc') == 1)
+  {
+    #Draw an arc of an ellipse relative to the midpoint between shapes
+    #whose center is at (0, -q) and which intersects with the X axis at (p,0) and (-p, 0).
+    my $p = ($rightX1 - $leftX2) / 2;
+    my $q = $shape_size/2;
+    
+    my $c = 2 * $p / sqrt(3);
+    my $d = 2 * $q;
+    my $b = $q - $d;
+    my $angle = atan2(sqrt(3), 1);
+    my $deg = rad2deg($angle);
+    $gd->arc($leftX2+$p,$midY+$q,2*$c,2*$d,270-$deg,270+$deg,$self->factory->translate_color('black'));
+  }  
+  else
+  {
+    $gd->line($leftX2,$midY,$rightX1,$midY,$fg);  
+  }
   
   if (my $caption = $self->option('caption'))
   {
@@ -229,7 +298,6 @@ sub draw_component {
     $gd->string($font, $startCaption, $midY-$font->height, $caption, $self->fontcolor);
   }
 }
-
 
 
 1;
@@ -261,11 +329,18 @@ options are recognized:
 
   -end_shape  One of 'square', 'diamond',         square
               'tree', 'clover', 'star',
-              'bubble'
+              'bubble', 'arrow', 'wave'
               
   -bubble_text The text to show in the bubble     Text
                 if the bubble option is chosen
                 above (shape_size is then ignored)
+
+  -antiparallel Whether the right arrow               0
+                is reversed
+
+  -arc        Whether the shapes are               0
+              connected by an arc
+              (a straight line is the default).
   
 =head1 BUGS
 

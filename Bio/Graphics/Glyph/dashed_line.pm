@@ -29,7 +29,7 @@ sub draw_component {
   
   my $midY = ($y1+$y2) / 2;
   
-  my $linewidth = $self->option('linewidth') || $self->default_linewidth();
+  my $linewidth = defined $self->option('linewidth') ? $self->option('linewidth')  : $self->default_linewidth();
   my $dash_size = defined $self->option('dash_size') ? $self->option('dash_size') : $self->default_dash_size();
   my $space_size = defined $self->option('space_size') ? $self->option('space_size') : $self->default_space_size();
   my $space_color = $self->option('space_color');
@@ -42,7 +42,7 @@ sub draw_component {
   {
     my $newX = $x+$dash_size;
     $newX = $x2 if $newX > $x2;
-    if ($shear eq "yes")
+    if ($shear == 1)
     {
       $_y1 = $midY-$linewidth;
       $_y2 = $midY;
@@ -60,7 +60,7 @@ sub draw_component {
     $newX = $x2 if $newX > $x2;
     if ($space_color)
     {
-      if ($shear eq "yes")
+      if ($shear == 1)
       {
         $_y1 = $midY;
         $_y2 = $midY+$linewidth;
@@ -82,7 +82,7 @@ __END__
 
 =head1 NAME
 
-Bio::Graphics::Glyph::line - The "dashed line" glyph
+Bio::Graphics::Glyph::dashed_line - The "dashed line" glyph
 
 =head1 SYNOPSIS
 
@@ -110,8 +110,8 @@ options are recognized:
   -space_color Color of the space            none 
               between dashes       
 
-  -shear      Whether to use shearing       no
-              (yes or no)
+  -shear      Whether to use shearing       0
+              (1 or 0)
 
   -linewidth  Standard option, but          1
               important here
