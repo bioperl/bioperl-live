@@ -47,7 +47,7 @@ SimpleAlign - Multiple alignments held as a set of sequences
 =head1 DESCRIPTION
 
 SimpleAlign handles multiple alignments of sequences. It is very
-permissive of types (it won't insist on things being all same length
+permissive of types (it won\'t insist on things being all same length
 etc): really it is a SequenceSet explicitly held in memory with a
 whole series of built in manipulations and especially file format
 systems for read/writing alignments.
@@ -73,7 +73,7 @@ multiple names in an alignment or names specific to the alignment
 'displayname', and generally is what is used to print out the
 alignment. They default to name/start-end.
 
-The SimpleAlign Module came from Ewan Birney's Align module.
+The SimpleAlign Module came from Ewan Birney\'s Align module.
 
 =head1 PROGRESS
 
