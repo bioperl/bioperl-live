@@ -135,6 +135,7 @@ use Bio::Search::Result::ResultI;
            -statistics        => hash ref of search statistics (key => value)
            -algorithm         => program name (blastx)
            -algorithm_version => version of the algorithm (2.1.2)
+           -program_reference => literature reference string for this algorithm
 =cut
 
 sub new {
@@ -149,19 +150,21 @@ sub new {
 
   my ($qname,$qacc,$qdesc,$qlen,
       $dbname,$dblet,$dbent,$params,   
-      $stats, $hits, $algo, $algo_v) = $self->_rearrange([qw(QUERY_NAME
-							     QUERY_ACCESSION
-							     QUERY_DESCRIPTION
-							     QUERY_LENGTH
-							     DATABASE_NAME
-							     DATABASE_LETTERS
-							     DATABASE_ENTRIES
-							     PARAMETERS
-							     STATISTICS
-							     HITS
-							     ALGORITHM
-							     ALGORITHM_VERSION
-							     )],@args);
+      $stats, $hits, $algo, $algo_v,
+      $prog_ref) = $self->_rearrange([qw(QUERY_NAME
+					 QUERY_ACCESSION
+					 QUERY_DESCRIPTION
+					 QUERY_LENGTH
+					 DATABASE_NAME
+					 DATABASE_LETTERS
+					 DATABASE_ENTRIES
+					 PARAMETERS
+					 STATISTICS
+					 HITS
+					 ALGORITHM
+					 ALGORITHM_VERSION
+					 PROGRAM_REFERENCE
+					 )],@args);
 
   defined $algo   && $self->algorithm($algo);
   defined $algo_v && $self->algorithm_version($algo_v);
@@ -173,6 +176,7 @@ sub new {
   defined $dbname && $self->database_name($dbname);
   defined $dblet  && $self->database_letters($dblet);
   defined $dbent  && $self->database_entries($dbent);
+  defined $prog_ref && $self->program_reference($prog_ref);
 
   if( defined $params ) {
       if( ref($params) !~ /hash/i ) {
@@ -609,4 +613,24 @@ sub hits{
    }
     return @hits;   
 }
+
+=head2 program_reference
+
+ Title   : program_reference
+ Usage   : $obj->program_reference($newval)
+ Function: 
+ Returns : value of the literature reference for the algorithm
+ Args    : newvalue (optional)
+
+
+=cut
+
+sub program_reference{
+   my ($self,$value) = @_;
+   if( defined $value) {
+      $self->{'program_reference'} = $value;
+    }
+    return $self->{'program_reference'};
+}
+
 1;
