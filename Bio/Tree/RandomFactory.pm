@@ -29,11 +29,18 @@ Bio::Tree::RandomFactory - TreeFactory for generating Random Trees
 
   my $tree = $factory->next_tree;
 
-  $factory->add_Mutations($tree,20);
-
 =head1 DESCRIPTION
 
 Builds a random tree every time next_tree is called or up to -maxcount times.
+
+This module was originally written for Coalescent simulations see
+L<Bio::PopGen::Simulation::Coalescent>.  I've left the next_tree
+method intact although it is not generating random trees in the
+phylogenetic sense.  I would be happy for someone to provide
+alternative implementations which can be used here.  As written it
+will generate random topologies but the branch lengths are built from
+assumptions in the coalescent and are not appropriate for phylogenetic
+analyses.
 
 This algorithm is based on the make_tree algorithm from Richard Hudson 1990.
 
@@ -62,7 +69,6 @@ the web:
 
   http://bugzilla.bioperl.org/
 
-
 =head1 AUTHOR - Jason Stajich
 
 Email jason@bioperl.org
@@ -86,9 +92,7 @@ package Bio::Tree::RandomFactory;
 use vars qw(@ISA $PRECISION_DIGITS);
 use strict;
 
-BEGIN { 
-    $PRECISION_DIGITS = 3; # Precision for the branchlength
-}
+$PRECISION_DIGITS = 3; # Precision for the branchlength
 
 use Bio::Factory::TreeFactoryI;
 use Bio::Root::Root;
@@ -225,77 +229,13 @@ sub next_tree{
    return $T;
 }
 
-=head2 add_Mutations
-
- Title   : add_Mutations
- Usage   : $factory->add_Mutations($tree, $mutcount);
- Function: Adds mutations to a tree via a random process weighted by 
-           branch length (it is a poisson distribution 
-			  as part of a coalescent process) 
- Returns : none
- Args    : $tree - Bio::Tree::TreeI 
-           $nummut - number of mutations
-           $precision - optional # of digits for precision
-
-
-=cut
-
-sub add_Mutations{
-   my ($self,$tree, $nummut,$precision) = @_;
-   $precision ||= $PRECISION_DIGITS;
-   $precision = 10**$precision;
-
-   my @branches;
-   my @lens;
-   my $branchlen = 0;
-   my $last = 0;
-   my @nodes = $tree->get_nodes();
-   my $i = 0;
-
-   # Jason's somewhat simplistics way of doing a poission
-   # distribution for a fixed number of mutations
-   # build an array and put the node number in a slot
-   # representing the branch to put a mutation on
-   # but weight the number of slots per branch by the 
-   # length of the branch ( ancestor's time - node time)
-   
-   foreach my $node ( @nodes ) {
-       if( $node->ancestor ) { 
-	   my $len = int ( ($node->ancestor->branch_length - 
-			    $node->branch_length) * $precision);
-	   if ( $len > 0 ) {
-	       for( my $j =0;$j < $len;$j++) {
-		   push @branches, $i;
-	       }
-	       $last += $len;
-	   }
-	   $branchlen += $len;
-       }
-       if( ! $node->isa('Bio::Tree::AlleleNode') ) {
-	   bless $node, 'Bio::Tree::AlleleNode'; # rebless it to the right node
-       } 
-       $node->purge_markers;
-       $i++;
-   }
-   # sanity check
-    die("branch len is $branchlen arraylen is $last")
-        unless ( $branchlen == $last );
-   
-   for( my $j = 0; $j < $nummut; $j++)  {
-       my $index = int(rand($branchlen));
-       my $branch = $branches[$index];
-       # basically we're using an infinite sites model
-       $nodes[$branch]->add_alleles("Mutation$j", 1);
-   }
-}
 
 =head2 maxcount
 
  Title   : maxcount
  Usage   : $obj->maxcount($newval)
  Function: 
- Example : 
- Returns : value of maxcount
+ Returns : Maxcount value
  Args    : newvalue (optional)
 
 
