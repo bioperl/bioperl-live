@@ -9,7 +9,6 @@
 use strict;
 use vars qw($NUMTESTS $DEBUG $ERROR);
 $DEBUG = $ENV{'BIOPERLDEBUG'} || 0;
-
 BEGIN {
     # to handle systems with no installed Test module
     # we include the t dir (where a copy of Test.pm is located)
@@ -24,11 +23,13 @@ BEGIN {
     $NUMTESTS = 10;
     plan tests => $NUMTESTS;
 
-    unless( eval "require IO::String; 1;" ) {
-        for( $Test::ntest..$NUMTESTS ) {
-            skip("IO::String not installed. This means that the module is not usable. Skipping tests.",1);
-        }
-        $ERROR = 1;
+    eval {
+	require IO::String; 
+	require LWP::UserAgent;
+    }; 
+    if( $@ ) {
+        warn("IO::String or LWP::UserAgent not installed. This means that the module is not usable. Skipping tests");
+	$ERROR = 1;
     }
 }
 
@@ -42,9 +43,9 @@ exit 0 if $ERROR ==  1;
 
 use Data::Dumper;
 
-use Bio::Tools::Analysis::Protein::NetPhos;
+require Bio::Tools::Analysis::Protein::NetPhos;
 use Bio::PrimarySeq;
-use Bio::WebAgent;
+require Bio::WebAgent;
 
 ok 1;
 
