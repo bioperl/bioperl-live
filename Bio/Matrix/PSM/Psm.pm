@@ -124,7 +124,7 @@ use Bio::Annotation::Collection;
 use vars qw(@ISA);
 use strict;
 
-@ISA=qw( Bio::Matrix::PSM::SiteMatrix Bio::Root::Root Bio::Matrix::PSM::PsmI Bio::Annotation::Collection);
+@ISA=qw(Bio::Matrix::PSM::SiteMatrix Bio::Root::Root Bio::Matrix::PSM::PsmI Bio::Annotation::Collection);
 
 @Bio::Matrix::PSM::Psm::HEADER = qw(e_val sites IC width);
 
@@ -150,6 +150,8 @@ sub new {
     my ($caller,@args) = @_;
     my $class = ref($caller) || $caller;
     my $self = $class->SUPER::new(@args);
+    $self->{'_annotation'} = {};  #Init from Annotation::Collection
+    $self->_typemap(Bio::Annotation::TypeManager->new()); #same
     ($self->{instances})=$self->_rearrange(['INSTANCES'], @args);
     return $self;
 }
