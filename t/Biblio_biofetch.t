@@ -7,8 +7,8 @@
 # `make test'. After `make install' it should work as `perl test.t'
 
 use strict;
-use vars qw($NUMTESTS);
-
+use vars qw($NUMTESTS $DEBUG);
+$DEBUG=0;
 my $error;
 
 BEGIN { 
@@ -70,7 +70,7 @@ if ($@) {
     print STDERR "Warning: Couldn't connect to BioFetch server with Bio::DB::Medline.pm!\n" . $@;
 
 foreach ( $Test::ntest..$NUMTESTS) { 
-	skip('could not connect to Medline',1);}
+	skip(1,'could not connect to Medline');}
 
 }
 
@@ -81,13 +81,15 @@ eval {
 				     -verbose=>$verbose,
 				     -retrievaltype => 'tempfile'
 				     )); 
-    skip(1, defined($refio = $db->get_Stream_by_batch(['20063307', '98276153'])));
+    ok(defined($refio = $db->get_Stream_by_batch(['20063307', '98276153'])));
     ok($refio->next_bibref->length, 408);
     ok($refio->next_bibref->length, 1611);
 };
 
-if ($@) {
-    warn "Batch access test failed.\nError: $@\n";
+if ($@) {    
+    if( $DEBUG ) { 
+	warn "Batch access test failed.Error: $@\n";
+    }
     foreach ( $Test::ntest..$NUMTESTS ) { skip('no network access',1); }
 }
 
