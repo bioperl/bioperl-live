@@ -1,3 +1,5 @@
+# $Id $
+
 =head1 NAME
 
 Bio::Factory::Pise
@@ -157,6 +159,7 @@ sub program {
 	    }
 	}
     }
+
     if (! $email) {
 	$email = $self->{EMAIL};
     }
