@@ -171,7 +171,6 @@ sub end_hit {
    $self->throw_not_implemented();
 }
 
-
 =head2 register_factory
 
  Title   : register_factory
@@ -196,7 +195,8 @@ sub register_factory{
  Title   : factory
  Usage   : my $f = $handler->factory('TYPE');
  Function: Retrieves the associated factory for requested 'TYPE'
- Returns : a Bio::Factory::ObjectFactoryI or undef if none registered
+ Returns : a Bio::Factory::ObjectFactoryI
+ Throws  : Bio::Root::BadParameter if none registered for the supplied type
  Args    : name of factory class to retrieve
 
 See L<Bio::Factory::ObjectFactoryI> for more information
@@ -207,6 +207,7 @@ sub factory{
    my ($self,@args) = @_;
    $self->throw_not_implemented();
 }
+
 
 =head2 Bio::Event::EventHandlerI methods
 
