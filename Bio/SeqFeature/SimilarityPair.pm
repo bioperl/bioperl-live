@@ -119,7 +119,7 @@ sub new {
 			      )],@args);
     
     if( $sbjct ) { 
-	$self->warn("use of -subject deprecated: SimilarityPair now uses 'hit'");
+	$self->deprecated("use of -subject deprecated: SimilarityPair now uses 'hit'");
 	if(! $hit) { $hit = $sbjct } 
 	else { 
 	    $self->warn("-hit and -subject were specified, using -hit and ignoring -subject");
@@ -339,7 +339,7 @@ sub query {
 
 sub subject { 
     my $self = shift;
-    $self->warn("Method subject deprecated: use hit() instead");
+    $self->deprecated("Method subject deprecated: use hit() instead");
     $self->hit(@_); 
 }
 
