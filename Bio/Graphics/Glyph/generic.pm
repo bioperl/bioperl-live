@@ -97,6 +97,11 @@ sub get_description {
   return join '; ',$feature->notes if $feature->can('notes');
   return $feature->desc            if $feature->can('desc');
 
+  if ($feature->can('has_tag')) {
+    return join '; ',$feature->get_tag_values('note')        if $feature->has_tag('note');
+    return join '; ',$feature->get_tag_values('description') if $feature->has_tag('description');
+  }
+
   my $tag = $feature->source_tag;
   return undef if $tag eq '';
   $tag;

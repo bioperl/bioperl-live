@@ -29,7 +29,7 @@ sub new {
   my $length = $options{-length} || 0;
   my $offset = $options{-offset}  || 0;
   my $spacing = $options{-spacing} || 5;
-  my $bgcolor = $options{-bgcolor} || 0;
+  my $bgcolor = $options{-bgcolor} || 'white';
   my $keyfont = $options{-key_font} || KEYLABELFONT;
   my $keycolor = $options{-key_color} || KEYCOLOR;
   my $keyspacing = $options{-key_spacing} || KEYSPACING;
@@ -1886,9 +1886,11 @@ B<Descriptions:> The -description argument controls whether or not a
 brief description of the feature should be printed next to it.  By
 default, the description is printed just below the glyph and
 left-aligned with it.  A value of 0 will suppress the description.  A
-value of 1 will call the source_tag() method of the feature.  A code
-reference will be invoked to calculate the description on the fly.
-Anything else will be treated as a string and used verbatim.
+value of 1 will "magically" look for tags of type "note" or
+"description" and draw them if found, otherwise the source tag, if
+any, will be displayed.  A code reference will be invoked to calculate
+the description on the fly.  Anything else will be treated as a string
+and used verbatim.
 
 B<Connectors:> A glyph can contain subglyphs, recursively.  The top
 level glyph is the track, which contains one or more groups, which
