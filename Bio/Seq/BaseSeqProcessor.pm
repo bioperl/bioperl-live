@@ -212,7 +212,9 @@ sub next_seq{
 =cut
 
 sub write_seq{
-    return shift->source_stream->write_seq(@_);
+    my ($self, $seq) = @_;
+    $seq = $self->process_seq($seq);
+    return $self->source_stream->write_seq($seq);
 }
 
 =head2 sequence_factory
