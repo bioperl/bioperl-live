@@ -334,7 +334,7 @@ sub new {
 	$format = "\L$format";	# normalize capitalization to lower case
 
 	# normalize capitalization
-	return undef unless( &_load_format_module($format) );
+	return undef unless( $class->_load_format_module($format) );
 	return "Bio::AlignIO::$format"->new(@args);
     }
 }
@@ -402,19 +402,16 @@ sub _initialize {
 =cut
 
 sub _load_format_module {
-  my ($format) = @_;
-  my ($module,$load,$m);
+  my ($self,$format) = @_;
+  my $module = "Bio::AlignIO::" . $format;
+  my $ok;
   
-  $module = "_<Bio/AlignIO/$format.pm";
-  $load = "Bio/AlignIO/$format.pm";
-  
-  return 1 if $main::{$module};
   eval {
-    require $load;
+      $ok = $self->_load_module($module);
   };
-  if( $@ ) {
+  if ( $@ ) {
     print STDERR <<END;
-$load: $format cannot be found
+$self: $format cannot be found
 Exception $@
 For more information about the AlignIO system please see the AlignIO docs.
 This includes ways of checking for formats at compile time, not run time

@@ -263,7 +263,7 @@ sub new {
              || 'flat';
    $format = "\L$format"; # normalize capitalization to lower case
 
-   if ( &_load_format_module($format) == 0 ) { # normalize capitalization
+   if ( $class->_load_format_module($format) == 0 ) { # normalize capitalization
        return undef;
    }
 
@@ -274,26 +274,21 @@ sub new {
 
 sub _load_format_module {
   my ($format) = @_;
-  my ($module, $load, $m);
-
-  $module = "_<Bio/Variation/IO/$format.pm";
-  $load = "Bio/Variation/IO/$format.pm";
-
-  return 1 if $main::{$module};
+  my $module = "Bio::Variation::IO::" . $format;
+  my $ok;  
   eval {
-    require $load;
+      $ok = $self->_load_module($module);
   };
   if ( $@ ) {
     print STDERR <<END;
-$load: $format cannot be found
+$self: $format cannot be found
 Exception $@
 For more information about the IO system please see the IO docs.
 This includes ways of checking for formats at compile time, not run time
 END
   ;
-    return;
   }
-  return 1;
+  return $ok;
 }
 
 =head2 next
