@@ -149,7 +149,6 @@ sub get_aln {
     }
     $self->debug("hs seq is '$hs'\n");
     $self->debug("qs seq is '$qs'\n");
-	
 
     $hs = substr($hs, $start,$self->length('total'));
     $qs = substr($qs, $start,$self->length('total'));
@@ -177,15 +176,15 @@ sub get_aln {
     }
     my $query = new Bio::LocatableSeq('-seq'   => $qs,
 				      '-id'    => $q_nm,
-				      '-start' => 1,
-				      '-end' => CORE::length($seqonly),
+				      '-start' => $self->query->start,
+				      '-end'   => $self->query->end,
 				      );
     $seqonly = $hs;
     $seqonly =~ s/[\-\s]//g;
-    my $hit =  new Bio::LocatableSeq('-seq'   => $hs,
+    my $hit =  new Bio::LocatableSeq('-seq'    => $hs,
 				      '-id'    => $s_nm,
-				      '-start' => 1,
-				      '-end' => CORE::length($seqonly),
+				      '-start' => $self->hit->start,
+				      '-end'   => $self->hit->end,
 				      );
     $aln->add_seq($query);
     $aln->add_seq($hit);
