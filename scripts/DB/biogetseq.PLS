@@ -1,5 +1,5 @@
-#!/usr/bin/perl
-# $Id: biogetseq,v 1.4 2003-02-20 22:20:56 heikki Exp $
+#!perl -w
+# $Id: biogetseq.PLS,v 1.1 2003-02-21 05:06:34 heikki Exp $
 #
 # OBDA Registry compliant sequence retrieval script
 #
@@ -15,8 +15,8 @@ use strict;
 my ($help, $format, $namespace, $dbname) = ('', 'embl', 'acc', 'embl');
 GetOptions ("help" => \$help, "format=s" => \$format,
             "namespace=s" => \$namespace, "dbname=s" => \$dbname );
-usage() if $help;
-usage() unless @ARGV;
+system("perldoc $0") if $help;
+system("perldoc $0") unless @ARGV;
 
 
 my $get_function = 'get_Seq_by_'. $namespace;
@@ -34,12 +34,24 @@ while (my $id = shift) {
     }
 }
 
+=head1 NAME
 
-sub usage {
-    print "Usage: biogetseq --dbname embl --format embl --namespace acc  id [ id ... ]*\n";
-    print "       dbname defaults to embl\n";
-    print "       format defaults to embl\n";
-    print "       namespace defaults to 'acc' ['id', 'acc', 'version']\n";
-    print "       rest of the arguments is  a list of ids in the given namespace\n";
-    exit;
-}
+biogetseq - sequence retrieval using OBDA registry
+
+=head1 DESCRIPTION
+
+This script retrives sequences from the source defined by users
+registry setup.  The current alternatives are from a local indexed
+file, sql database or over the web.
+
+=head1 USAGE
+
+  Usage: biogetseq --dbname embl --format embl
+                   --namespace acc id [ ids... ]
+         * dbname defaults to embl
+         * format defaults to embl
+         * namespace defaults to 'acc' ['id', 'acc', 'version']
+         * unnamed arguments are ids in the given namespace
+
+=cut
+
