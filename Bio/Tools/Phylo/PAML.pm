@@ -63,7 +63,7 @@ baseml, basemlg, codemlsites and yn00
   # triangle" 2D-matrices, which means that the diagonal and
   # everything above it is undefined.  Each of the defined cells is a
   # hashref of estimates for "dN", "dS", "omega" (dN/dS ratio), "t",
-  # "S" and "N".  If a ML matrix, "lnL" will also be defined.
+  # "S" and "N".  If a ML matrix, "lnL" and "kappa" will also be defined.
   printf "The omega ratio for sequences %s vs %s was: %g\n",
     $otus[0]->id, $otus[1]->id, $MLmatrix->[0]->[1]->{omega};
 
