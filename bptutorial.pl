@@ -317,6 +317,7 @@ for Smith-Waterman alignments- bioperl-ext-0.6 from
 http://bioperl.org/Core/external.shtml
 
 for clustalw alignments-
+ftp://ftp.ebi.ac.uk/pub/software/unix/clustalw/
 ftp://ftp-igbmc.u-strasbg.fr/pub/ClustalW/
 
 for tcoffee alignments-
