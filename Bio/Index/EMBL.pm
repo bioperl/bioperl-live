@@ -147,7 +147,7 @@ sub _index_file {
         $end,   # Offset from start of file of the end
                 # of the last found record.
         $id,    # ID of last found record.
-	$acc,   # accession of last record. Also put into the index
+	@accs,   # accession of last record. Also put into the index
         );
 
     $begin = 0;
@@ -156,7 +156,8 @@ sub _index_file {
     open EMBL, $file or $self->throw("Can't open file for read : $file");
 
     # Main indexing loop
-    $id = $acc = undef;
+    $id = undef;
+    @accs = ();
     while (<EMBL>) {
 	if( /^\/\// ) {
 	    $end = tell(EMBL);
@@ -164,14 +165,16 @@ sub _index_file {
 		$self->throw("Got to a end of entry line for an EMBL flat file with no parsed ID. Considering this a problem!");
 		next;
 	    }
-	    if( ! defined $acc ) {
+	    if( ! @accs ) {
 		$self->warn("For id [$id] in embl flat file, got no accession number. Storing id index anyway");
 	    }
 
 	    $self->add_record($id, $i, $begin, $end);
 
-	    if( $acc ne $id ) {
-		$self->add_record($acc, $i, $begin, $end);
+	    foreach my $acc (@accs) {
+		if( $acc ne $id ) {
+		    $self->add_record($acc, $i, $begin, $end);
+		}
 	    }
 	} elsif (/^ID\s+(\S+)/) {
 	    $id = $1;
@@ -179,8 +182,8 @@ sub _index_file {
 	    # we could tell before each line and save it.
             $begin = tell(EMBL) - length( $_ ); 
 	    
-	} elsif (/^AC\s+(\S+);/) { # ignore ? if there.
-	    $acc =$1;
+	} elsif (/^AC(.*)/) { # ignore ? if there.
+	    @accs = ($1 =~ /\s*(\S+);/g);
 	} else {
 	    # do nothing
 	}
