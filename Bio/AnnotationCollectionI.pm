@@ -43,7 +43,7 @@ a Sequence Feature and may or may not have an Annotation Collection).
 The trouble about this is we are not that sure what "interesting
 facts" someone might want to store: the possibility is endless. 
 
-Bioperl's approach is that the "interesting facts" are represented by
+Bioperl''s approach is that the "interesting facts" are represented by
 Bio::AnnotationI objects. The interface Bio::AnnotationI guarantees
 two methods
 
@@ -295,7 +295,7 @@ sub get_tagset_values {
   $self->warn('get_tagset_values() is deprecated.  use get_Annotations()');
   my @r = ();
   foreach my $tag (@tags){
-    push @r, $self->get_Annnotations($tag);
+    push @r, $self->get_Annotations($tag);
   }
   return @r;
 }
