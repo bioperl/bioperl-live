@@ -387,7 +387,7 @@ sub _initialize {
 
 sub next_result{
    my ($self) = @_;
-
+   my $v = $self->verbose;
    my $data = '';
    my $flavor = '';
    $self->{'_seentop'} = 0;
@@ -1138,19 +1138,26 @@ sub next_result{
            for( my $i = 0; 
                 defined($_) && $i < 3; 
                 $i++ ) {
-               chomp;
-	       if( ($i == 0 && /^\s+$/) ||  /^\s*Lambda/i ) { 
+	       $self->debug("$i: $_") if $v; 
+	       if( ($i == 0 && /^\s+$/ ) || 
+		   /^\s*Lambda/i ) { 
 		   $self->_pushback($_) if defined $_;
                    $self->end_element({'Name' => 'Hsp'});
                    last; 
                }
+               chomp;
                if( /^((Query|Sbjct):\s+(\-?\d+)\s*)(\S+)\s+(\-?\d+)/ ) {
-                   $data{$2} = $4;
-                   $len = length($1);
-                   $self->{"\_$2"}->{'begin'} = $3 unless $self->{"_$2"}->{'begin'};
-                   $self->{"\_$2"}->{'end'} = $5;
+		   my ($full,$type,$start,$str,$end) = ($1,$2,$3,$4,$5);
+		   if( $str eq '-' ) {
+		       $i = 3 if $type eq 'Sbjct';
+		   } else { 
+		       $data{$type} = $str;
+		   }
+		   $len = length($full);
+		   $self->{"\_$type"}->{'begin'} = $start unless $self->{"_$type"}->{'begin'};
+                   $self->{"\_$type"}->{'end'} = $end;
                } else { 
-                   $self->throw("no data for midline $_") 
+		   $self->throw("no data for midline $_") 
                        unless (defined $_ && defined $len);
                    $data{'Mid'} = substr($_,$len);
                }
@@ -1166,7 +1173,6 @@ sub next_result{
            $self->debug( "blast.pm: unrecognized line $_");
        }
    } 
-
 #   $self->debug("blast.pm: End of BlastOutput\n");
    if( $self->{'_seentop'} ) {
        $self->within_element('hsp') && 
