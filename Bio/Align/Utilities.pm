@@ -95,21 +95,21 @@ use constant CODONSIZE => 3;
            the DNA sequence, if this alignment represents a different 
            frame for the cDNA you will need to edit the DNA sequences
            to remove the 1st or 2nd bases (and revcom if things should be).
- Returns : L<Bio::Align::AlignI> object 
+ Returns : Bio::Align::AlignI object 
  Args    : 2 arguments, the alignment and a hashref.
-           Alignment is a L<Bio::Align::AlignI> of amino acid sequences. 
+           Alignment is a Bio::Align::AlignI of amino acid sequences. 
            The hash reference should have keys which are 
            the display_ids for the aa 
            sequences in the alignment and the values are a 
-           L<Bio::PrimarySeqI> object for the corresponding 
-           (spliced) cDNA sequence. 
-    
- See also: L<Bio::Alig::AlignI>, L<Bio::SimpleAlign>
+           Bio::PrimarySeqI object for the corresponding 
+           spliced cDNA sequence. 
+
+See also: L<Bio::Align::AlignI>, L<Bio::SimpleAlign>, L<Bio::PrimarySeq>
 
 =cut
 
 sub aa_to_dna_aln {
-    my ($aln,$dnaseqs) = @_;
+    my ($self,$aln,$dnaseqs) = @_;
     unless( $aln->isa('Bio::Align::AlignI') ) { 
 	$self->throw('Must provide a valid Bio::Align::AlignI object as the first argument to aa_to_dna_aln, see the documentation for proper usage and the method signature');
     }
