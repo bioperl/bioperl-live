@@ -147,10 +147,12 @@ sub next_aln {
     foreach my $sline (@slines){
 	my($s,$src,$start,$size,$strand,$srcsize,$text) =
 	    split /\s+/, $sline;
+	# adjust coordinates to be one-based inclusive
+        $start = $start + 1;
 	my $seq = new Bio::LocatableSeq('-seq'    => $text,
 					'-id'     => $src,
 					'-start'  => $start,
-					'-end'    => $start + $size -1,
+					'-end'    => $start + $size - 1,
 					'-strand' => $strand,
 					);
 	$aln->add_seq($seq);
