@@ -170,6 +170,7 @@ sub qual {
     } elsif(! $self->validate_qual($value)){
 	$self->throw("Attempting to set the quality to [$value] which does not look healthy");	    
     } else {
+	$value =~ s/^\s+//;
 	$self->{'qual'} = [split(/\s+/,$value)];
     }
     
