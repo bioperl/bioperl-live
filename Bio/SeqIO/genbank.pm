@@ -224,7 +224,7 @@ sub next_seq{
 	    
 	    if( /^ACCESSION\s+(\S+)/ ) {
 		$acc = $1;
-		$seq->accession($acc);
+		$seq->accession_number($acc);
 	    }
 	    
 	    #Version number
@@ -373,8 +373,8 @@ sub write_seq {
 	$temp_line = &{$self->_ac_generation_func}($seq);
 	$self->_print("ACCESSION   $temp_line\n");   
     } else {
-	if( $seq->can('accession') ) {
-	    $self->_print("ACCESSION   ",$seq->accession,"\n");
+	if( $seq->can('accession_number') ) {
+	    $self->_print("ACCESSION   ",$seq->accession_number,"\n");
 	}
 	# otherwise - cannot print <sigh>
     } 

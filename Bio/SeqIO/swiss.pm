@@ -209,7 +209,7 @@ sub next_seq {
        #accession number
        elsif( /^AC\s+(.+)/) {
 	   my( $acc, @sec ) = split /[\s;]+/, $1;
-	   $seq->accession($acc);
+	   $seq->accession_number($acc);
            foreach my $s (@sec) {
 	      $seq->add_secondary_accession($s);
            }
@@ -386,8 +386,8 @@ sub write_seq {
        $temp_line = &{$self->_ac_generation_func}($seq);
        $self->_print( "AC   $temp_line\n");   
    } else {
-       if ($seq->can('accession') ) {
-	   $self->_print("AC   ",$seq->accession,";");
+       if ($seq->can('accession_number') ) {
+	   $self->_print("AC   ",$seq->accession_number,";");
 	   if ($seq->can('each_secondary_accession') ) {
 	       $self->_print(" ",$seq->each_secondary_accession,";\n");
 	   }
