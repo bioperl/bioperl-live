@@ -1,6 +1,42 @@
 $Id$
 Revision history for Bioperl core modules
 
+1.0.1 Bug fix release
+	
+    o Minor bug fixes to Bio::DB:GFF.  Glyph sets improved.
+ 
+    o Parser fixes in SearchIO blast, fasta for more complete WU BLAST 
+      and mixed (3.3 - 3.4) versions of FASTA.
+
+    o Small API change to add methods for completeness across 
+      implementations of Bio::Search objects.  These new methods
+      in the interface are implemented by the GenericXX object as well 	
+      as the BlastXX objects.
+	* Bio::Search::Result::ResultI 
+	 - hits() method returns list of all Hits (next_hit is an 
+	   iterator method)
+	 	
+	* Bio::Search::Hit::HitI
+	 - hsps() method returns list of all HSPs (next_hsp is an 
+           iterator method)
+	
+    o The Bio::SearchIO::Writer classes have been fixed to handle results 
+       created from either psiblast (Search::BlastXX objects) or 
+       blast|fasta|blastxml objects (Search::GenericXX objects).  More work 
+       has to be done here to make it work properly and will nee major 
+       API changes.
+
+    o Bugs in Bio::Tools::HMMER fixed, including
+       * #1178 - Root::IO destructor wasn't being called
+       * #1034 - filter_on_cutoff now behaves properly
+ 
+    o Bio::SeqFeature::Computation initialization args fixed and 
+      tests added.
+
+    o Tests are somewhat cleaner, flat.t now properly cleans up after itsself,
+      
+    o Updated FAQ with more example based answers to typical questions
+
 1.0.0 Major Stable Release
 
   This represents a major release of bioperl with significant
