@@ -149,10 +149,11 @@ sub next_aln {
 	my($s,$src,$start,$size,$strand,$srcsize,$text) =
 	  split /\s+/, $sline;
 
-	my $seq = new Bio::LocatableSeq('-seq'   => $text,
-									'-id'    => $src,
-									'-start' => $start,
-									'-end'   => $start + $size,
+	my $seq = new Bio::LocatableSeq('-seq'    => $text,
+									'-id'     => $src,
+									'-start'  => $start,
+									'-end'    => $start + $size,
+                                                                        '-strand' => $strand,
 								   );
 	$aln->add_seq($seq);
   }
