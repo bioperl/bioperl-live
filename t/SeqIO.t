@@ -1,4 +1,4 @@
-
+# -*-Perl-*- mode (to keep my emacs happy)
 
 use strict;
 use vars qw($DEBUG);
@@ -8,16 +8,15 @@ BEGIN {
 	use lib 't';
     }
     use Test;
-    plan tests => 37 }
+    plan tests => 48 }
 
 use Bio::Seq;
 use Bio::SeqIO;
 use Bio::SeqIO::MultiFile;
 use Bio::Root::IO;
+use Bio::Annotation;
 
 ok(1);
-
-
 
 my $verbosity = -1;   # Set to -1 for release version, so warnings aren't printed
 
@@ -107,25 +106,35 @@ eval {
 	$temp = $seq->display_id;
     }
 };
-ok ! $@;
+ok( ! $@);
 $temp = undef;
-$ast = Bio::SeqIO->new( '-format' => 'Swiss' , -file => Bio::Root::IO->catfile("t","roa1.swiss"));
-$ast->verbose($verbosity);
+$ast = Bio::SeqIO->new( '-verbosity' => $verbosity,
+			'-format' => 'swiss' , 
+			'-file' => Bio::Root::IO->catfile("t","roa1.swiss"));
 $as = $ast->next_seq();
 ok defined $as->seq;
-ok $as->id, 'ROA1_HUMAN', "id is ".$as->id;
-
+ok($as->id, 'ROA1_HUMAN', "id is ".$as->id);
+ok($as->primary_id, 'ROA1');
+ok($as->length, 371);
+ok($as->moltype, 'protein');
+ok($as->division, 'HUMAN');
+ok(scalar $as->all_SeqFeatures(), 16);
 
 ($ent, $seq, $out) = undef;
 
-$ent = Bio::SeqIO->new( -FILE => Bio::Root::IO->catfile("t","test.embl"), -FORMAT => 'embl');
+$ent = Bio::SeqIO->new( '-file' => Bio::Root::IO->catfile("t","test.embl"),
+			'-format' => 'embl');
+
 $seq = $ent->next_seq();
 
-ok defined $seq->seq(), 1, 'failure to read Embl with ^ location and badly split double quotes';
+ok(defined $seq->seq(), 1, 
+   'failure to read Embl with ^ location and badly split double quotes');
 
-$out = Bio::SeqIO->new(-file=> ">".Bio::Root::IO->catfile("t","embl.out"), '-format' => 'embl');
+$out = Bio::SeqIO->new('-file'=> ">". Bio::Root::IO->catfile("t","embl.out"), 
+		       '-format' => 'embl');
 
-ok $out->write_seq($seq),1,'failure to write Embl format with ^ < and > locations';
+ok($out->write_seq($seq),1,
+   'failure to write Embl format with ^ < and > locations');
 
 unlink(Bio::Root::IO->catfile("t","embl.out"));
 
@@ -200,7 +209,8 @@ while($seq = $stream->next_seq()) {
 }
 ok $lasts->display_id(), "HUMBETGLOA";
 $stream->close();
-$ent = Bio::SeqIO->new( -FILE => Bio::Root::IO->catfile("t","test.embl"), -FORMAT => 'embl');
+$ent = Bio::SeqIO->new( '-file' => Bio::Root::IO->catfile("t","test.embl"), 
+			'-format' => 'embl');
 $ent->verbose($verbosity);
 $seq = $ent->next_seq();
 $species = $seq->species();
@@ -212,8 +222,7 @@ $ent->close();
 $seq = Bio::SeqIO->new( '-format' => 'GenBank' , 
 			-file => Bio::Root::IO->catfile("t","testfuzzy.genbank"));
 $seq->verbose($verbosity);
-$as = $seq->next_seq();
-ok defined $as->seq;
+ok(defined($as = $seq->next_seq()));
 
 $seq = Bio::SeqIO->new( '-format' => 'GenBank' , 
 			-file => ">".Bio::Root::IO->catfile("t","genbank.fuzzyout"));
@@ -225,9 +234,15 @@ unlink(Bio::Root::IO->catfile("t","genbank.fuzzyout"));
 my $seqio = Bio::SeqIO->new( '-format' => 'swiss' ,
 			  -file => Bio::Root::IO->catfile("t","swiss.dat"));
 
-$seq = $seqio->next_seq;
+ok(defined( $seq = $seqio->next_seq));
 
-ok defined $seq;
+# more tests to verify we are actually parsing correctly
+ok($seq->primary_id, 'MA32');
+ok($seq->display_id, 'MA32_HUMAN');
+ok($seq->length, 282);
+ok($seq->division, 'HUMAN');
+ok($seq->moltype, 'protein');
+ok(scalar $seq->all_SeqFeatures(), 2);
 
 my $seen = 0;
 foreach my $gn ( $seq->annotation->each_gene_name() ) {
