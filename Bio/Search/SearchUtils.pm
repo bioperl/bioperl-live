@@ -38,7 +38,7 @@ $DEBUG = 1;
            :    -- total alignment length 
            :    -- total identical residues 
            :    -- total conserved residues
- Returns   : n/a
+ Returns   : true if tiling was possible, false if not
  Argument  : A Bio::Search::Hit::HitI object 
  Throws    : n/a
  Comments  :
@@ -105,14 +105,21 @@ sub tile_hsps {
 #--------------
     my $sbjct = shift;
     
+    #print STDERR "tile_hsps(): $sbjct\n";
+    #$sbjct->verbose(1);  # to activate debugging
     $sbjct->tiled_hsps(1);
-    $sbjct->gaps('query', 0);
-    $sbjct->gaps('hit', 0);
-    
-    ## Simple summation scheme. Valid if there is only one HSP.
+
     if( $sbjct->num_hsps == 0 || $sbjct->n == 0 ) { 		
-	return;
+	#print STDERR "_tile_hsps(): no hsps, nothing to tile! (", $sbjct->num_hsps, ")\n";
+        my $prev_func=(caller(1))[3];
+        $sbjct->warn("Cannot tile HSPs: No HSP data for hit '".$sbjct->name."'\n".
+                     "You have called a hit function ($prev_func)\n".
+                     "that requires HSP tiling. HSP data could not be collected\n".
+                     "for this hit, most likely because it was absent from the BLAST report.\n");
+        return undef;
+
     } elsif( $sbjct->n == 1 or $sbjct->num_hsps == 1) {
+        ## Simple summation scheme. Valid if there is only one HSP.
 	my $hsp = $sbjct->hsp;
 	$sbjct->length_aln('query', $hsp->length('query'));
 	$sbjct->length_aln('hit', $hsp->length('sbjct'));
@@ -121,14 +128,20 @@ sub tile_hsps {
 	$sbjct->gaps('query', $hsp->gaps('query'));
 	$sbjct->gaps('sbjct', $hsp->gaps('sbjct'));
 
-#	print "_tile_hsps(): single HSP, easy stats.\n";
-	return;
+	#print STDERR "_tile_hsps(): single HSP, easy stats.\n";
+        $sbjct->tiled_hsps(1);
+    
+	return 1;
     } else {
-#	print STDERR "Sbjct: _tile_hsps: summing multiple HSPs\n";
+	#print STDERR "Sbjct: _tile_hsps: summing multiple HSPs\n";
 	$sbjct->length_aln('query', 0);
 	$sbjct->length_aln('sbjct', 0);
 	$sbjct->length_aln('total', 0); 
  	$sbjct->matches( 0, 0);
+        $sbjct->gaps('query', 0);
+        $sbjct->gaps('hit', 0);
+        $sbjct->tiled_hsps(1);
+    
     }
 
     ## More than one HSP. Must tile HSPs.
@@ -145,7 +158,7 @@ sub tile_hsps {
     my %start_stop;
     my $v = $sbjct->verbose;
     foreach $hsp ( $sbjct->hsps() ) {
-	$sbjct->debug( sprintf("  HSP: %s %d..%d\n",$hsp->query->seq_id, $hsp->query->start, $hsp->hit->end)) if $v > 0; #$hsp->str('query');
+	#$sbjct->debug( sprintf("  HSP: %s %d..%d\n",$hsp->query->seq_id, $hsp->query->start, $hsp->hit->end)) if $v > 0; #$hsp->str('query');
 #	printf "  Length = %d; Identical = %d; Conserved = %d; Conserved(1-10): %d",$hsp->length, $hsp->length(-TYPE=>'iden'), 
 #	$hsp->length(-TYPE=>'cons'),
 #	$hsp->length(-TYPE=>'cons',
@@ -207,8 +220,7 @@ sub tile_hsps {
     $sbjct->end('hit', $start_stop{'sstop'});
     ## Collect data across the collected contigs.
 
-    $sbjct->debug( "\nQUERY CONTIGS:\n".
-		   "  gaps = $sbjct->{'_gaps_query'}\n");
+    #$sbjct->debug( "\nQUERY CONTIGS:\n"."  gaps = $sbjct->{'_gaps_query'}\n");
 
     # Account for strand/frame.
     # Strategy: collect data on a per strand+frame basis and 
@@ -218,8 +230,8 @@ sub tile_hsps {
 	($frame, $strand) = ($_->{'frame'}, $_->{'strand'});
 	
 	if( $v > 0 ) {
-	    $sbjct->debug(sprintf( "$frame/$strand len is getting %d for %d..%d\n", 
-				   ($_->{'stop'} - $_->{'start'} + 1), $_->{'start'}, $_->{'stop'}));
+	    #$sbjct->debug(sprintf( "$frame/$strand len is getting %d for %d..%d\n", 
+	    #			   ($_->{'stop'} - $_->{'start'} + 1), $_->{'start'}, $_->{'stop'}));
 	}
 	$qctg_dat{ "$frame$strand" }->{'length_aln_query'} += $_->{'stop'} - $_->{'start'} + 1;
 	$qctg_dat{ "$frame$strand" }->{'totalIdentical'}   += $_->{'iden'};
@@ -234,7 +246,7 @@ sub tile_hsps {
 
     # Save the largest to the sbjct:
     my $longest = $sortedkeys[0];
-    $sbjct->debug( "longest is ". $qctg_dat{ $longest }->{'length_aln_query'}. "\n");
+    #$sbjct->debug( "longest is ". $qctg_dat{ $longest }->{'length_aln_query'}. "\n");
     $sbjct->length_aln('query', $qctg_dat{ $longest }->{'length_aln_query'});
     $sbjct->matches($qctg_dat{ $longest }->{'totalIdentical'},
                     $qctg_dat{ $longest }->{'totalConserved'});
@@ -244,12 +256,11 @@ sub tile_hsps {
     ## The totalIdentical and totalConserved numbers will be the same
     ## as determined for the query contigs.
 
-    $sbjct->debug( "\nSBJCT CONTIGS:\n".
-                  "  gaps = ". $sbjct->gaps('sbjct'). "\n");
+    #$sbjct->debug( "\nSBJCT CONTIGS:\n"."  gaps = ". $sbjct->gaps('sbjct'). "\n");
     my (%sctg_dat);
     foreach(@scontigs) {
-	$sbjct->debug("  sbjct contig: $_->{'start'} - $_->{'stop'}\n".
-		     "         iden = $_->{'iden'}; cons = $_->{'cons'}\n");
+	#$sbjct->debug("  sbjct contig: $_->{'start'} - $_->{'stop'}\n".
+	#	     "         iden = $_->{'iden'}; cons = $_->{'cons'}\n");
 	($frame, $strand) = ($_->{'frame'}, $_->{'strand'});
 	$sctg_dat{ "$frame$strand" }->{'length_aln_sbjct'}   += $_->{'stop'} - $_->{'start'} + 1;
 	$sctg_dat{ "$frame$strand" }->{'frame'}  = $frame;
@@ -269,14 +280,14 @@ sub tile_hsps {
 
     if($qoverlap) {
 	if($soverlap) { $sbjct->ambiguous_aln('qs'); 
-			$sbjct->debug("\n*** AMBIGUOUS ALIGNMENT: Query and Sbjct\n\n");
+			#$sbjct->debug("\n*** AMBIGUOUS ALIGNMENT: Query and Sbjct\n\n");
 		    }
 	else { $sbjct->ambiguous_aln('q');
-	       $sbjct->debug( "\n*** AMBIGUOUS ALIGNMENT: Query\n\n");
+	       #$sbjct->debug( "\n*** AMBIGUOUS ALIGNMENT: Query\n\n");
 	   }
     } elsif($soverlap) { 
 	$sbjct->ambiguous_aln('s'); 
-	$sbjct->debug( "\n*** AMBIGUOUS ALIGNMENT: Sbjct\n\n");
+	#$sbjct->debug( "\n*** AMBIGUOUS ALIGNMENT: Sbjct\n\n");
     }
 
     # Adjust length based on BLAST flavor.
@@ -289,6 +300,8 @@ sub tile_hsps {
 	$sbjct->length_aln('query', $sbjct->length_aln('query')/3);
 	$sbjct->length_aln('sbjct', $sbjct->length_aln('sbjct')/3);
     }
+
+    return 1;
 }
 
 
