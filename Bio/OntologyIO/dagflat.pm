@@ -312,6 +312,33 @@ sub defs_file {
     return $self->{ "_defs_file_name" };
 } # defs_file
 
+=head2 close
+
+ Title   : close
+ Usage   :
+ Function: Closes this ontology stream and associated file handles.
+
+           Clients should call this method especially when they write
+           ontologies.
+
+           We need to override this here in order to close the file
+           handle for the term definitions file.
+
+ Example :
+ Returns : none
+ Args    : none
+
+
+=cut
+
+sub close{
+    my $self = shift;
+
+    # first call the inherited implementation
+    $self->SUPER::close();
+    # then close the defs file io (if there is one)
+    $self->_defs_io->close() if $self->_defs_io();
+}
 
 =head2 _flat_files
 

@@ -22,7 +22,8 @@
 
 =head1 NAME
 
-dagflat - a base class parser for GO flat-file type formats 
+simplehierarchy - a base class parser for simple hierarchy-by-indentation
+                  type formats 
 
 =head1 SYNOPSIS
 
@@ -41,8 +42,8 @@ dagflat - a base class parser for GO flat-file type formats
 
 =head1 DESCRIPTION
 
-Needs Graph.pm from CPAN.  This class is nearly identical to OntologyIO::dagflat,
-see L<Bio::OntologyIO::dagflat> for details.
+Needs Graph.pm from CPAN.  This class is nearly identical to
+OntologyIO::dagflat, see L<Bio::OntologyIO::dagflat> for details.
 
 =head1 FEEDBACK
 
@@ -91,6 +92,7 @@ use vars qw( @ISA );
 use strict;
 
 use Data::Dumper;
+use File::Basename;
 use Bio::Root::IO;
 use Bio::Ontology::SimpleGOEngine;
 use Bio::Ontology::Ontology;
@@ -117,13 +119,24 @@ use constant FALSE        => 0;
                              also be specified via the -file parameter
            -ontology_name => the name of the ontology, defaults to
                              "Gene Ontology"
+           -file_is_root  => Boolean indicating whether a virtual root
+                             term is to be added, the name of which will
+                             be derived from the file name. Default is false.
+                             Enabling this allows to parse multiple input
+                             files into the same ontology and still have
+                             separately rooted.
+           -id_prefix     => The prefix for the term identifiers. Terms
+                             in this format often come without identifiers,
+                             in which case 
            -engine        => the L<Bio::Ontology::OntologyEngineI> object
                              to be reused (will be created otherwise); note
                              that every L<Bio::Ontology::OntologyI> will
                              qualify as well since that one inherits from the
                              former.
-           -indent_string => the string used to indent hierarchical levels in the file.
-                             for a file like this:
+           -indent_string => the string used to indent hierarchical
+                             levels in the file.
+
+                             For a file like this:
 
                              term0
                                subterm1A
@@ -131,28 +144,35 @@ use constant FALSE        => 0;
                                subterm1B
                                subterm1C
 
-                             indent_string would be "  ".  defaults to one space (" ").
+                             indent_string would be "  ".  Defaults to
+                             one space (" ").
 
-           -comment_character => not yet implemented.  will allow specification of a regular
-                                 expression string to indicate a comment line.  currently
-                                 defaults to "[\|\-]".
+           -comment_char  => Allows specification of a regular
+                             expression string to indicate a comment line.
+                             Currently defaults to "[\|\-]".
+                             Note: this is not yet implemented.
 
 =cut
 
 # in reality, we let OntologyIO::new do the instantiation, and override
 # _initialize for all initialization work
 sub _initialize {
-    my ($self, %arg) = @_;
-    $self->SUPER::_initialize( %arg );
+    my ($self, @args) = @_;
+    $self->SUPER::_initialize( @args );
 
-    my ( $indent,$term,$files,$name,$eng ) =
-        map {$arg{$_}} qw(-indent_string -term_factory -files -ontology_name -engine);
+    my ( $indent,$files,$fileisroot,$name,$eng ) =
+	$self->_rearrange([qw(INDENT_STRING 
+			      FILES
+			      FILE_IS_ROOT
+			      ONTOLOGY_NAME
+			      ENGINE)
+			   ], @args);
 
     $self->_done( FALSE );
     $self->_not_first_record( FALSE );
     $self->_term( "" );
-	$self->term_factory($term) if $term;
-	$self->indent_string($indent || ' '); #reasonable default?
+    $self->file_is_root($fileisroot) if defined($fileisroot);
+    $self->indent_string($indent || ' '); #reasonable default?
     delete $self->{'_ontologies'};
 
     # ontology engine (and possibly name if it's an OntologyI)
@@ -167,7 +187,7 @@ sub _initialize {
     $self->{_flat_files} = $files ? ref($files) ? $files : [$files] : [];
 
     # ontology name (overrides implicit one through OntologyI engine)
-    $self->ontology_name($name);
+    $self->ontology_name($name) if $name;
 
 } # _initialize
 
@@ -210,21 +230,19 @@ sub ontology_name{
 sub parse {
     my $self = shift;
     
+    # setup the default term factory if not done by anyone yet
+    $self->term_factory(Bio::Ontology::TermFactory->new(
+					     -type => "Bio::Ontology::Term"))
+	unless $self->term_factory();
+
     # create the ontology object itself
     my $ont = Bio::Ontology::Ontology->new(-name => $self->ontology_name(),
 					   -engine => $self->_ont_engine());
 
-    # parse definitions
-    while( my $term = $self->_next_term() ) {
-        $self->_add_term( $term, $ont );
-    }
-
     # set up the ontology of the relationship types
-	$self->_part_of_relationship->ontology($ont);
-	$self->_is_a_relationship->ontology($ont);
-#    foreach ($self->_part_of_relationship(), $self->_is_a_relationship()) {
-#	$_->ontology($ont);
-#    }
+    foreach ($self->_part_of_relationship(), $self->_is_a_relationship()) {
+	$_->ontology($ont);
+    }
 
     # pre-seed the IO system with the first flat file if -file wasn't provided
     if(! $self->_fh) {
@@ -236,6 +254,10 @@ sub parse {
 	  # advance to next flat file if more are available
 	  if(@{$self->_flat_files()}) {
 	    $self->close();
+	    # reset the virtual root so that the next one if generated from
+	    # the next file
+	    $self->_virtual_root(undef);
+	    # now re-initialize the IO object
 	    $self->_initialize_io(-file => shift(@{$self->_flat_files()}));
 	  } else {
 	    last; # nothing else to parse so terminate the loop
@@ -379,12 +401,25 @@ sub _add_relationship {
 sub _has_term {
     my ( $self, $term ) = @_;
 
-
+    $term = $self->ontology_name() .'|'. $term
+	unless ref($term) || !$self->ontology_name();
     return $self->_ont_engine()->has_term( $term );
-
 
 } # _add_term
 
+# This simply delegates after prefixing the namespace name if it is just a
+# base identifier. See SimpleGOEngine
+sub _get_terms{
+    my $self = shift;
+    my @args = ();
+    
+    while(@_) {
+	unshift(@args, pop(@_)); # this actually does preserve the order
+	$args[0] = $self->ontology_name() .'|'. $args[0]
+	    unless ref($args[0]) || !$self->ontology_name();
+    }
+    return $self->_ont_engine->get_terms(@args);
+}
 
 
 # This parses the relationships files
@@ -408,22 +443,36 @@ sub _parse_flat_file {
 	my($current_term) = $line =~ /^[$indent_string]*(.*)/;
 	my $current_indent = $self->_count_indents( $line );
 	chomp $current_term;
+	# remove extraneous delimiter characters at the end of the name if any
+	$current_term =~ s/[$indent_string]+$//;
+	# also, the name might contain a synonym
+	my $syn = $current_term =~ s/\s+{([^}]+)}// ? $1 : undef;
 
  	if ( ! $self->_has_term( $current_term ) ) {
- 	  my $term =$self->_create_ont_entry($current_term);
+ 	  my $term = $self->_create_ont_entry($current_term);
+	  # add synonym(s) if any
+	  $term->add_synonym(split(/;\s*/,$syn)) if $syn;
+	  # add to the machine
  	  $self->_add_term( $term, $ont );
 
 	  #go on to the next term if a root node.
-	  if($current_indent == 0){
-		$prev_indent = $current_indent;
-		$prev_term = $current_term;
-		push @stack, $current_term;
-		next;
+	  if($current_indent == 0) {
+	      # add the virtual root as parent if there is one
+	      if($self->_virtual_root()) {
+		  $self->_add_relationship($self->_virtual_root(),
+					   $term,
+					   $self->_is_a_relationship(),
+					   $ont);
+	      }
+	      $prev_indent = $current_indent;
+	      $prev_term = $current_term;
+	      push @stack, $current_term;
+	      next;
 	  }
  	}
 
- 	my $current_term_object = $self->_ont_engine()->get_terms( $current_term );
- 	$current_term_object->ontology( $ont );
+ 	my $curr_term_obj = $self->_get_terms( $current_term );
+ 	#$current_term_object->ontology( $ont );
 
 	#we are ensured to see the parent first in this type of file.
 	#if ( ! $self->_has_term( $parent ) ) {
@@ -447,18 +496,17 @@ sub _parse_flat_file {
  	$parent = $stack[-1];
 
 	if($parent ne $current_term) { #this prevents infinite recursion from a parent linking to itself
-	  $self->_add_relationship($parent,
-							   $current_term,
-							   $self->_is_a_relationship(),
-							   $ont
-							  );
+	  $self->_add_relationship($self->_get_terms($parent),
+				   $self->_get_terms($current_term),
+				   $self->_is_a_relationship(),
+				   $ont);
 	}
 
 	$prev_indent = $current_indent;
 	$prev_term   = $current_term;
   } 
   return $ont;
-}								# _parse_relationships_file
+} # _parse_relationships_file
 
 
 
@@ -489,51 +537,6 @@ sub _count_indents {
   }
 } # _count_indents
 
-# "next" method for parsing the defintions file
-sub _next_term {
-    my ( $self ) = @_;
-
-    if ( ($self->_done() == TRUE) || (! $self->_defs_io())) {
-        return undef;
-    }
-    
-    my $line      = "";
-    my $termid      = "";
-    my $next_term = "";
-    my $def       = "";
-    my $comment   = "";
-    my @def_refs  = ();
-    
-    while( $line = ( $self->_defs_io->_readline() ) ) {
-    
-        if ( $line !~ /\S/ 
-        ||   $line =~ /^\s*[^\w]/ ) {
-            next;
-        }
-        
-        elsif ( $line =~ /^\s*(.+)/ ) {
-            $next_term = $1;
-            if ( $self->_not_first_record() == TRUE ) {
-                my $entry = $self->_create_ont_entry( $self->_term(), $termid,
-						      $def, $comment,
-						      \@def_refs );
-                $self->_term( $next_term );
-                return $entry;
-            }
-            else {
-                $self->_term( $next_term );
-                $self->_not_first_record( TRUE );
-            }
-        }
-    }
-    $self->_done( TRUE );
-    return $self->_create_ont_entry( $self->_term(), $termid, $def,
-				     $comment, \@def_refs );
-} # _next_term
-
-
-
-
 
 # Holds the GO engine to be parsed into
 sub _ont_engine {
@@ -552,11 +555,10 @@ sub _ont_engine {
 # Used to create ontology terms.
 # Arguments: name, id
 sub _create_ont_entry {
-    my ( $self, $termid ) = @_;
+    my ( $self, $name, $termid ) = @_;
 
-    my $term = $self->term_factory->create_object(-identifier => $termid, -name => $termid);
-#    my $term = $self->term_factory->create_object(-name => $name,
-#						  -identifier => $termid);
+    my $term = $self->term_factory->create_object(-name => $name,
+						  -identifier => $termid);
 
     return $term;
 
@@ -624,4 +626,62 @@ sub indent_string{
 
     return $self->{'indent_string'} = shift if @_;
     return $self->{'indent_string'};
+}
+
+=head2 file_is_root
+
+ Title   : file_is_root
+ Usage   : $obj->file_is_root($newval)
+ Function: Boolean indicating whether a virtual root term is to be
+           added, the name of which will be derived from the file
+           name. 
+
+           Enabling this allows to parse multiple input files into the
+           same ontology and still have separately rooted.
+
+ Example : 
+ Returns : value of file_is_root (a scalar)
+ Args    : on set, new value (a scalar or undef, optional)
+
+
+=cut
+
+sub file_is_root{
+    my $self = shift;
+
+    return $self->{'file_is_root'} = shift if @_;
+    return $self->{'file_is_root'};
+}
+
+=head2 _virtual_root
+
+ Title   : _virtual_root
+ Usage   : $obj->_virtual_root($newval)
+ Function: 
+ Example : 
+ Returns : value of _virtual_root (a scalar)
+ Args    : on set, new value (a scalar or undef, optional)
+
+
+=cut
+
+sub _virtual_root{
+    my $self = shift;
+
+    return $self->{'_virtual_root'} = shift if @_;
+
+    # don't return anything if not in file_is_root mode, or if we don't
+    # have a file to derive the root node from
+    return undef unless $self->file_is_root() && $self->file();
+
+    # construct it if we haven't done this before
+    if(! $self->{'_virtual_root'}) {
+	my ($rt,undef,undef) = fileparse($self->file(), '\..*');
+	$rt =~ s/_/ /g;
+	$rt = $self->_create_ont_entry($rt);
+	$self->_add_term($rt, $self->ontology_name());
+	$self->{'_virtual_root'} = $rt;
+    }
+
+    return $self->{'_virtual_root'};
 }

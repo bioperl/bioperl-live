@@ -106,6 +106,7 @@ my %format_driver_map = (
 			 "go"       => "goflat",
 			 "so"       => "soflat",
 			 "interpro" => "InterProParser",
+			 "evoc"     => "simplehierarchy",
 			 );
 
 =head2 new

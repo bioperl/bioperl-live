@@ -246,7 +246,7 @@ sub add_term {
  Returns : true or false
  Args    : Bio::Ontology::TermI
            or
-           erm identifier (e.g. "GO:0012345")
+           Term identifier (e.g. "GO:0012345")
 
 
 =cut
@@ -795,28 +795,35 @@ sub graph {
 # Gets the id out of a term or id string
 sub _get_id {
     my ( $self, $term ) = @_;
+    my $id = $term;
 
     if(ref($term)) {
-	return $term->GO_id() if $term->isa("Bio::Ontology::GOterm");
-	# if not a GOterm, use standard API
+	# use TermI standard API
 	$self->throw("Object doesn't implement Bio::Ontology::TermI. ".
 		     "Bummer.")
 	    unless $term->isa("Bio::Ontology::TermI");
-	$term = $term->identifier();
+	$id = $term->identifier();
+	# if there is no ID, we need to fake one from ontology name and name
+	# in order to achieve uniqueness
+	if(!$id) {
+	    $id = $term->ontology->name() if $term->ontology();
+	    $id = $id ? $id.'|' : '';
+	    $id .= $term->name();
+	}
     }
-    # don't fuss if it looks remotely standard
-    return $term if $term =~ /^[A-Z]{1,8}:\d{3,}$/;
+    # don't fuss if it looks remotely standard, and we trust GO terms
+    return $id
+	if $term->isa("Bio::Ontology::GOterm")||($id =~ /^[A-Z]{1,8}:\d{3,}$/);
     # prefix with something if only numbers
-    if($term =~ /^\d+$/) {
-	$self->warn(ref($self).": identifier [$term] is only numbers - ".
+    if($id =~ /^\d+$/) {
+	$self->warn(ref($self).": identifier [$id] is only numbers - ".
 		    "prefixing with 'GO:'");
-	return "GO:" . $term;
-    }
+	return "GO:" . $id;
+    } 
     # we shouldn't have gotten here if it's at least a remotely decent ID
-    $self->warn(ref($self).
-		": Are you sure '$term' is a valid identifier? ".
-		"If you see problems, this may be the cause.") if $self->verbose;
-    return $term;
+    $self->throw(ref($self).": non-standard identifier '$id'\n")
+	unless $id =~ /\|/;
+    return $id;
 } # _get_id
 
 
@@ -879,7 +886,7 @@ sub _get_descendant_terms_helper {
     }
 
     foreach my $child_term ( @child_terms ) {
-        my $child_term_id = $child_term->identifier();
+        my $child_term_id = $self->_get_id($child_term->identifier());
         $ids_ref->{ $child_term_id } = 0;
         $self->_get_descendant_terms_helper( $child_term_id, $ids_ref, $types_ref );
     }
@@ -898,7 +905,7 @@ sub _get_ancestor_terms_helper {
     }
 
     foreach my $parent_term ( @parent_terms ) {
-        my $parent_term_id = $parent_term->identifier();
+        my $parent_term_id = $self->_get_id($parent_term->identifier());
         $ids_ref->{ $parent_term_id } = 0;
         $self->_get_ancestor_terms_helper( $parent_term_id, $ids_ref, $types_ref );
     }
