@@ -88,10 +88,9 @@ use overload
   '==' => 'equals';
 use strict;
 
-use Bio::RangeI;
-use Bio::SeqFeature::CollectionI;
+use Bio::SeqFeature::SegmentI;
 use Bio::LocallyIdentifiableI;
-@ISA = qw( Bio::RangeI Bio::SeqFeature::CollectionI Bio::LocallyIdentifiableI );
+@ISA = qw( Bio::SeqFeature::SegmentI Bio::LocallyIdentifiableI );
 
 use Bio::Seq;
 use Carp;
@@ -443,9 +442,8 @@ sub spliced_seq {
     # (can I mention how much fun this is NOT! --jason)
     
     my ($mixed,$fstrand) = (0);
-    if( $self->isa('Bio::Das::SegmentI') &&
-	! $self->absolute ) { 
-	$self->warn("Calling spliced_seq with a Bio::Das::SegmentI which does have absolute set to 1 -- be warned you may not be getting things on the correct strand");
+    if( !$self->absolute() ) { 
+	$self->warn( "Calling spliced_seq with a Bio::SeqFeatureI which does not have absolute set to true -- be warned you may not be getting things on the correct strand" );
     }
     
     my @locs = map { $_->[0] }
@@ -497,17 +495,8 @@ sub spliced_seq {
 	    $called_seq = $self->entire_seq;
 	}
 	
-	if( $self->isa('Bio::Das::SegmentI') ) {
-	    my ($s,$e) = ($loc->start,$loc->end);	    
-	    $seqstr .= $called_seq->subseq($s,$e)->seq();
-	} else { 
-	    # This is dumb subseq should work on locations...
-	    if( $loc->strand == 1 ) {
-		$seqstr .= $called_seq->subseq($loc->start,$loc->end);
-	    } else {
-		$seqstr .= $called_seq->trunc($loc->start,$loc->end)->revcom->seq();
-	    }
-	}
+        my ($s,$e) = ($loc->start,$loc->end);	    
+        $seqstr .= $called_seq->subseq($s,$e)->seq();
     }
     my $out = Bio::Seq->new( -id => $self->entire_seq->display_id . "_spliced_feat",
 				      -seq => $seqstr);
@@ -515,10 +504,10 @@ sub spliced_seq {
     return $out;
 }
 
-=head1 Bio::SeqFeature::CollectionI methods
+=head1 Bio::SeqFeature::SegmentI methods
 
-List of methods inherited from Bio::SeqFeature::CollectionI (see
-L<Bio::SeqFeature::CollectionI> for details).  To be sure, do go check
+List of methods inherited from Bio::SeqFeature::SegmentI (see
+L<Bio::SeqFeature::SegmentI> for details).  To be sure, do go check
 the pod for these.  There's unfortunately a shortcoming in pod that
 prevents the inheritance of documentation for inherited methods.
 
@@ -533,28 +522,26 @@ prevents the inheritance of documentation for inherited methods.
 =head2 types (from Bio::SeqFeature::CollectionProviderI)
 
  Title   : types
- Usage   : my @types = $collectionprovider->types();
+ Usage   : my @types = $seq_feature->types();
            OR
-           my %types_and_counts = $collectionprovider->types( -count => 1 );
- Function: Enumerate the feature types provided by this provider, and possibly
+           my %types_and_counts = $seq_feature->types( -count => 1 );
+ Function: Enumerate the feature types of all contained features, and possibly
            count the features in each type.
  Returns : a list of L<Bio::SeqFeature::TypeI> objects
            OR
            a hash mapping type id strings to integer counts
  Args    : see below
 
-This routine returns a list of feature types known to the provider.
-If the -count argument is given, it returns a hash of known types
-mapped to their occurrence counts in this provider.  Note that the
-returned list (or the keys of the returned hash) may include types for
-which the count is 0.  Also note that the hierarchy of TypeI objects
-is ignored, so if there are 4 features of type 'foo' which is a child
-of type 'bar', and only 1 feature (explicitly) of type 'bar', then the
-count for 'bar' will be 1, not 5.
+This routine returns a list of the types of subfeatures contained in
+this feature.  If the -count argument is given, it returns a hash of
+types mapped to their occurrence counts.  Note that the hierarchy of
+TypeI objects is ignored, so if there are 4 features of type 'foo'
+which is a child of type 'bar', and only 1 feature (explicitly) of
+type 'bar', then the count for 'bar' will be 1, not 5.
 
 Arguments are -option=E<gt>value pairs as follows:
 
-  -count aka -enumerate  if true, count the features
+  -count aka -enumerate  if true, count the features for each type
 
 The returned value will be a list of L<Bio::SeqFeature::TypeI> objects
 or a hash with the string values of these objects as keys.
@@ -580,9 +567,9 @@ or a hash with the string values of these objects as keys.
 =head2 features
 
  Title   : features
- Usage   : @features = $collection->features( %args );
+ Usage   : @features = $seq_feature->features( %args );
            OR
-           @features = $collection->features( @types );
+           @features = $seq_feature->features( @types );
  Returns : a list of L<Bio::SeqFeatureI> objects,
            OR
            (when the -iterator option is true) an L<Bio::SeqFeature::IteratorI>
@@ -592,24 +579,42 @@ or a hash with the string values of these objects as keys.
  Args    : see below
  Status  : Public
 
-This routine will retrieve features associated with this collection
+This routine will retrieve features contained within this feature
 object.  It can be used to return all features, or a subset based on
-their type, location, or attributes.
+their type, location, or attributes.  Features that are returned in
+relative mode (relative either to this SeqFeatureI or to a given RangeI)
+will be returned with coordinates that are relative.  Features that
+are returned in absolute mode will be returned with absolute
+coordinates.  The mode is determined by the -baserange and -absolute
+arguments and by the absolute() flag, in that precedence order.
 
 If ranges are specified using the -ranges argument, then these ranges
 will be used to narrow the results, according to the specified
 -rangetype and -strandtype arguments.
 
-If a -baserange is specified or is provided by default* then
-unqualified ranges given with the -ranges argument will be interpreted
-as relative to that baserange.  Note that this only applies to
-unqualified ranges, ie. ranges that have no defined seq_id.  You may
-force absolute range interpretations by giving a -baserange that is
-not a L<Bio::RangeI> (such as the string 'absolute') or by qualifying all
-given ranges.
+If no ranges are specified but the -rangetype argument is given then a
+special and strange thing happens: the method call is delegated to the
+parent_segment_provider.  If it is a SegmentI then its features()
+method will be called with all the same arguments but with *this*
+segment as the -range argument.  If the parent_segment_provider is a
+L<Bio::DB::SegmentProviderI> (but not a SegmentI) then the same thing
+will happen, but to the SegmentI returned by its get_collection()
+method with no arguments.  If the parent_segment_provider is null then
+no features will be returned.
 
-Footnote (*): All implementing classes that also implement L<Bio::RangeI>
-              B<must> provide $self as the default baserange!
+If a -baserange is specified then unqualified ranges given with the
+-ranges argument will be interpreted as relative to that baserange,
+and qualified ranges will be re-relativized to the baserange.  If no
+-baserange is given then a default will be provided that will depend
+on the value of the -absolute argument or the absolute() flag.  If
+-absolute is given and true or if absolute() is true then the default
+baserange is the value returned by the abs_seq_id() method; if
+( -absolute || absolute() ) is false then the default is this SeqFeatureI
+object ($self).  You may force absolute range interpretations by
+giving a -baserange that is not a L<Bio::RangeI> (such as the string
+'absolute', though any string will do the trick), by providing a true
+value to the -absolute argument, or by setting the absolute() flag to
+true.
 
 -rangetype is one of:
    "overlaps"      return all features that overlap the range (default)
@@ -618,8 +623,10 @@ Footnote (*): All implementing classes that also implement L<Bio::RangeI>
 
 -strandmatch is one of:
    "strong"        ranges must have the same strand
-   "weak"          ranges must have the same strand or no strand (default)
+                   (default ONLY when -strand is specified and non-zero)
+   "weak"          ranges must have the same strand or no strand
    "ignore"        ignore strand information
+                   (default unless -strand is specified and non-zero)
 
 Two types of argument lists are accepted.  In the positional argument
 form, the arguments are treated as a list of feature types (as if they
@@ -648,21 +655,35 @@ difference).
                  below.
 
   -baserange     A L<Bio::RangeI> object defining the range to which
-                 the -range argument is relative.  There may be a
-                 default -baserange.  If this CollectionI is also a
-                 L<Bio::RangeI>, then the default -baserange should be
-                 itself.  Note that the baserange affects the sort order.
+                 the -range argument is relative.  The default
+                 baserange depends on the value of the absolute()
+                 flag.  If absolute() is true then the default is the
+                 value of the abs_seq_id() method.  If absolute() is
+                 false then the default is $self.  Note that the
+                 baserange affects the sort order.  See also
+                 -absolute.
+
+  -absolute      If -absolute is given and true then all behavior will be as
+                 if this SeqFeatureI's absolute() flag was set to true,
+                 even if it isn't.  If -absolute is given and false
+                 then all behavior will be as if this SeqFeatureI's
+                 absolute() flag was set to false, even if it isn't.
+                 Note that -baserange can still be given and can force
+                 relativeness, and that takes precedence over -absolute.
 
   -range         A L<Bio::RangeI> object defining the range to search.
                  See also -strandmatch, -rangetype, and -baserange.
   -ranges        An array reference to multiple ranges.
 
-  -rangetype     One of "overlaps", "contains", or "contained_in".
+  -rangetype     One of "overlaps", "contains", or "contained_in".  If no
+                 range is given then a strange thing happens (it is
+                 described above).
 
-  -strandmatch   One of "strong", "weak", or "ignore".  Note that the strand
-                 attribute of a given -range must be non-zero for this to work
-                 (a 0/undef strand forces a 'weak' strandmatch to become
-                 'ignore' and cripples the 'strong' strandmatch).
+  -strandmatch   One of "strong", "weak", or "ignore".  Note that the
+                 strand attribute of a given -range must be non-zero
+                 for this to work (a 0/undef strand forces a 'weak'
+                 strandmatch to become 'ignore' and cripples the
+                 'strong' strandmatch).
 
   -iterator      Return a L<Bio::SeqFeature::IteratorI>
 
@@ -709,7 +730,7 @@ object returns a Bio::SeqFeatureI object from this collection.
 
 If -callback is passed a code reference, the code reference will be
 invoked on each feature returned.  The code will be passed two
-arguments consisting of the current feature and this CollectionI
+arguments consisting of the current feature and this SeqFeatureI
 object, and must return a true value. If the code returns a false
 value, feature retrieval will be aborted.
 
@@ -718,41 +739,28 @@ is defined, then -callback is ignored.
 
 -callback and -sort are mutually exclusive options.  If -sort is
 defined, then -callback is ignored.  If you want to do a sorted
-callback, set the sorted() flag of this collection to true.
+callback, set the sorted() flag of this feature to true.
 
 If -sort or sorted() is true then the features will be returned in
 order of the features' start positions.  This order will be reversed
-if the baserange has a negative strand (remember that a CollectionI
-implementation that is also a L<Bio::RangeI> must provide itself as
-the default baserange, but this may be overridden by the -baserange
-argument).
+if the baserange has a negative strand (remember that the default
+baserange depends upon the value of the absolute() flag, but this may
+be overridden by the -baserange argument).
 
-Note that no guarantees are made by the CollectionI interface about
+Note that no guarantees are made by the SeqFeatureI interface about
 the order of the features, except when the sorted() flag is true or
 when the -sort option is given to the features method.  Therefore
 the implementation may choose to reorder the underlying data structure
 to better accomodate -sorted feature requests as a result of a
-features() call.  When this happens the CollectionI's sorted() flag
+features() call.  When this happens the SeqFeatureI's sorted() flag
 should be set to true, so that the client can detect that the -sorted
 argument to features() is now irrelevant.
-
-NOTE: the following methods all build on top of features(), and do not
-need to be explicitly implemented.
-
-    features_in_range()
-    overlapping_features()
-    contained_features()
-    contained_in()
-    get_feature_stream()
-    get_feature_by_name()
-    get_feature_by_id()
-    get_feature_by_attribute()
 
 =head2 overlapping_features
 
  Title   : overlapping_features
- Usage   : @features = $collection->overlapping_features( %args )
- Function: get features that overlap the range of this collection
+ Usage   : @features = $seq_feature->overlapping_features( %args )
+ Function: get features that overlap the range of this feature
  Returns : a list of L<Bio::SeqFeatureI> objects,
            OR
            an iterator (when the -iterator option is true)
@@ -771,8 +779,8 @@ have to implement it.
 =head2 contained_features
 
  Title   : contained_features
- Usage   : @features = $collection->contained_features( %args )
- Function: get features that are contained in the range of this collection
+ Usage   : @features = $seq_feature->contained_features( %args )
+ Function: get features that are contained in the range of this feature
  Returns : a list of L<Bio::SeqFeatureI> objects,
            OR
            an iterator (when the -iterator option is true)
@@ -791,8 +799,8 @@ have to implement it.
 =head2 contained_in
 
  Title   : contained_in
- Usage   : @features = $collection->contained_in( %args )
- Function: get features that contain the range of this collection
+ Usage   : @features = $seq_feature->contained_in( %args )
+ Function: get features that contain the range of this feature
  Returns : a list of L<Bio::SeqFeatureI> objects,
            OR
            an iterator (when the -iterator option is true)
@@ -811,7 +819,7 @@ have to implement it.
 =head2 get_feature_stream
 
  Title   : get_feature_stream
- Usage   : $iterator = $collection->get_feature_stream( %args )
+ Usage   : $iterator = $seq_feature->get_feature_stream( %args )
  Function: get an iterator over the features in this collection
  Returns : a Bio::SeqFeature::IteratorI
  Args    : same as features()
@@ -826,9 +834,9 @@ have to implement it.
 =head2 features_in_range
 
  Title   : features_in_range
- Usage   : @features = $collection->features_in_range( $range );
+ Usage   : @features = $seq_feature->features_in_range( $range );
              OR
-           @features = $collection->features_in_range( %args );
+           @features = $seq_feature->features_in_range( %args );
  Function: Retrieves a list of features which were contained or overlap the
            the requested range
  Returns : a list of L<Bio::SeqFeatureI> objects,
@@ -848,11 +856,11 @@ have to implement it.
 =head2 get_feature_by_name
 
  Title   : get_feature_by_name
- Usage   : my @features = $collection->get_feature_by_name( $name )
+ Usage   : my @features = $seq_feature->get_feature_by_name( $name )
            OR
-           my @features = $collection->get_feature_by_name( $namespace, $name )
+           my @features = $seq_feature->get_feature_by_name( $namespace, $name )
            OR
-           my @features = $collection->get_feature_by_name( %args )
+           my @features = $seq_feature->get_feature_by_name( %args )
  Function: fetch features by their name
  Returns : a list of L<Bio::SeqFeatureI> objects,
            OR
@@ -886,9 +894,9 @@ have to implement it.
 =head2 get_feature_by_id
 
  Title   : get_feature_by_id
- Usage   : my @features = $collection->get_feature_by_id( $unique_id )
+ Usage   : my @features = $seq_feature->get_feature_by_id( $unique_id )
            OR
-           my @features = $collection->get_feature_by_id( %args )
+           my @features = $seq_feature->get_feature_by_id( %args )
  Function: fetch features by their unique_ids
  Returns : a list of L<Bio::SeqFeatureI> objects,
            OR
@@ -912,9 +920,9 @@ have to implement it.
 =head2 get_feature_by_attribute
 
  Title   : get_feature_by_attribute
- Usage   : my @features = $collection->get_feature_by_attribute( %attrs )
+ Usage   : my @features = $seq_feature->get_feature_by_attribute( %attrs )
            OR
-           my @features = $collection->get_feature_by_attribute( $attrs_ref, %args )
+           my @features = $seq_feature->get_feature_by_attribute( $attrs_ref, %args )
  Function: fetch features by their attributes
  Returns : a list of L<Bio::SeqFeatureI> objects,
            OR
@@ -937,96 +945,438 @@ features() arguments.
 NOTE: This is defined in the interface in terms of features().  You do not
 have to implement it.
 
-=head1 Bio::RangeI methods
+=head2 get_collection
 
-List of methods inherited from Bio::RangeI (see L<Bio::RangeI> for
-details).  To be sure, do go check the pod for these.  There's
-unfortunately a shortcoming in pod that prevents the inheritance of
-documentation for inherited methods.
+ Title   : get_collection
+ Usage   : my $segment = $seq_feature->get_collection( %args );
+           OR
+           my $segment = $seq_feature->get_collection( @types );
+ Returns : A L<Bio::SeqFeature::SegmentI> object
+ Args    : see below
+ Status  : Public
 
-=cut
+This routine will retrieve a L<Bio::SeqFeature::SegmentI> object based
+on feature type, location or attributes.  The SeqFeatureI objects in
+the returned SegmentI may or may not be newly instantiated by this
+request.  They will have as their range the range searched, if any, or
+the smallest range that encloses the returned features.  They will
+have as their seq_id() the -baserange used here (if the baserange is
+absolute by any means then their seq_id() will be this SeqFeatureI's
+abs_seq_id()).
 
-# NOTE: We've copied the pod to here because the pod code is not clever
-# enough to do it for us.  (Please kind developers, give us a super-pod
-# capable of following inheritance relationships!)
-#                   --Coders beware!--
-# Changes to the interface pod need to be copied to here.
+If you make a modification to a feature you must call
+update_collection with a collection that contains that feature to
+ensure that the data provider is in sync with your change.  You may
+not, however, assume that modifications to the feature do not
+auto-sync (they might!).
+
+If a range is specified using the -range argument then this range will
+ be used to narrow the results, according to the specified -rangetype
+ and -strandtype arguments.
+
+-rangetype is one of:
+   "overlaps"      return all features that overlap the range (default)
+   "contains"      return features completely contained within the range
+   "contained_in"  return features that completely contain the range
+
+-strandmatch is one of:
+   "strong"        ranges must have the same strand
+   "weak"          ranges must have the same strand or no strand (default)
+   "ignore"        ignore strand information
+
+Two types of argument lists are accepted.  In the positional argument
+form, the arguments are treated as a list of feature types (as if they
+were given as -types => \@_).  In the named parameter form, the
+arguments are a series of -name=E<gt>value pairs.  Note that the table
+below is not exhaustive; implementations must support these but may
+support other arguments as well (and are responsible for documenting the
+difference).
+
+  Argument       Description
+  --------       ------------
+
+  -type          A type name or an object of type L<Bio::SeqFeature::TypeI>
+  -types         An array reference to multiple type names or TypeI objects
+
+  -unique_id     A (string) unique_id.  See also -namespace.
+  -unique_ids    An array reference to multiple unique_id values.
+
+  -name          A (string) display_name or unique_id.  See also -namespace.
+  -names         An array reference to multiple display_name/unique_id values.
+
+  -namespace     A (string) namespace qualifier to help resolve the name/id(s)
+  -class         same as -namespace
+
+  -attributes    A hashref containing a set of attributes to match.  See
+                 below.
+
+  -baserange     A L<Bio::RangeI> object defining the range to which
+                 the -range argument is relative.  The default
+                 baserange depends on the value of the absolute()
+                 flag.  If absolute() is true then the default is the
+                 value of the abs_seq_id() method.  If absolute() is
+                 false then the default is $self.  Note that the
+                 baserange affects the sort order.  See also
+                 -absolute.
+
+  -absolute      If -absolute is given and true then all behavior will be as
+                 if this SeqFeatureI's absolute() flag was set to true,
+                 even if it isn't.  If -absolute is given and false
+                 then all behavior will be as if this SeqFeatureI's
+                 absolute() flag was set to false, even if it isn't.
+                 Note that -baserange can still be given and can force
+                 relativeness, and that takes precedence over -absolute.
+
+  -range         A L<Bio::RangeI> object defining the range to search.
+                 See also -strandmatch, -rangetype, and -baserange.
+  -ranges        An array reference to multiple ranges.
+
+  -rangetype     One of "overlaps", "contains", or "contained_in".
+
+  -strandmatch   One of "strong", "weak", or "ignore".  Note that the strand
+                 attribute of a given -range must be non-zero for this to work
+                 (a 0/undef strand forces a 'weak' strandmatch to become
+                 'ignore' and cripples the 'strong' strandmatch).
+
+All plural arguments are interchangeable with their singular counterparts.
+
+The -attributes argument is a hashref containing one or more
+attributes to match against:
+
+  -attributes => { Gene => 'abc-1',
+                   Note => 'confirmed' }
+
+Attribute matching is simple string matching, and multiple attributes
+are ANDed together.
+
+The -unique_ids argument is a reference to a list of strings.  Every
+returned feature must have its unique_id value in this list or, if a
+feature has no defined unique_id, then its display_name value in the
+list if the list is provided.  A -unique_id argument is treated as a
+single-element list of unique_ids.
+
+The -names argument is a reference to a list of strings.  Every
+returned feature must have its display_name or its unique_id value in this
+list if the list is provided.  A -name argument is treated as a
+single-element list of names.
+
+If a -namespace is provided then names and ids (both queries and
+targets) will be prepended with "$namespace:" as a bonus.  So
+if you do features( -names => [ 'foo', 'bar' ], -namespace => 'ns' )
+then any feature with the display_name or unique_id 'foo', 'ns:foo',
+'bar', or 'ns:bar' will be returned.
+
+=head2 parent_segment_provider
+
+ Title   : parent_segment_provider
+ Usage   : my $parent = $seq_feature->parent_segment_provider();
+ Function: Return the SegmentProviderI that is the parent of this feature.
+ Returns : a L<Bio::DB::SegmentProviderI> or undef if there is none
+ Args    : none
+
+=head2 absolute
+
+  Title   : absolute
+  Usage   : my $absolute_flag = $seq_feature->absolute( [$new_absolute_flag] );
+  Function: Get/set the absolute flag.
+  Returns : The current (or former, if used as a set method) value of the
+            absolute flag.
+  Args    : [optional] a new value for the absolute flag.
+
+  If the absolute() flag is set then the start(), end(), and strand()
+  methods will behave like the abs_start(), abs_end(), and abs_strand()
+  methods, meaning that they will return values relative to abs_seq_id()
+  rather than to seq_id().
+
+=head2 abs_seq_id
+
+  Title   : abs_seq_id
+  Usage   : my $abs_seq_id = $seq_feature->abs_seq_id();
+  Function: Get the unique_id or primary_id of the L<Bio::PrimarySeqI>
+            that this SeqFeatureI is defined over.
+  Returns : The root seq_id, or undef if there is none.
+  Args    : none
+
+  Features may have no defined abs_seq_id, but this should be considered
+  deprecated.  The concept of a feature requires that it is a range
+  over some sequence; this method returns that sequence.  If the value
+  of seq_id() is a string (the unique_id or primary_id of a
+  L<Bio::PrimarySeqI>) then this method will be identical to seq_id().
+  If the value of seq_id() is another L<Bio::RangeI>, then this method
+  will return its seq_id() if that is a string, or keep searching up the
+  tree until a string (or undef) is reached.
+
+=head2 abs_start
+
+  Title   : abs_start
+  Usage   : my $abs_start = $seq_feature->abs_start();
+  Function: Get the absolute start position of this feature.
+  Returns : The current start position of this feature, relative to the
+            abs_seq_id.
+  Args    : none
+
+  Note the interdependence of abs_start() and start().  Changing start() will
+  change abs_start().
+
+  Note the interdependence of abs_start() and length().  Changing length() will
+  change abs_start().
+
+=head2 abs_end
+
+  Title   : abs_end
+  Usage   : my $abs_end = $seq_feature->abs_end();
+  Function: Get the absolute end position of this feature.
+  Returns : The current absolute end position of this feature, relative
+            to the abs_seq_id.
+  Args    : none
+
+  Note the interdependence of abs_end() and end().  Changing end() will
+  change abs_end().
+
+  Note the interdependence of abs_end() and length().  Changing length() will
+  change abs_end().
+
+=head2 abs_strand
+
+  Title   : abs_strand
+  Usage   : my $abs_strand = $seq_id->abs_strand();
+  Function: Get the absolute strandedness (-1, 0, or 1) of this feature.
+  Returns : The current absolute strand value of this feature.
+  Args    : none
+
+=head2 abs_low
+
+  Title   : abs_low
+  Usage   : my $abs_low = $seq_id->abs_low();
+  Function: Get the least-valued absolute position of this feature.
+  Returns : The current lowest position of this feature, relative to the
+            abs_seq_id.
+  Args    : none
+
+  This will return either abs_start() or abs_end(), depending on which
+  is lower.
+
+  This method is implemented in the interface, and need not be
+  overridden in concrete subclasses.
+
+=head2 abs_high
+
+  Title   : abs_high
+  Usage   : my $abs_high = $seq_id->abs_high();
+  Function: Get the greatest-valued absolute position of this feature.
+  Returns : The current highest position of this feature, relative to the
+            abs_seq_id.
+  Args    : none
+
+  This will return either abs_start() or abs_end(), depending on which
+  is higher.
+
+  This method is implemented in the interface, and need not be
+  overridden in concrete subclasses.
+
+=head2 rel2abs
+
+  Title   : rel2abs
+  Usage   : my @abs_coords = $seq_id->rel2abs( @rel_coords );
+  Function: Convert relative coordinates into absolute coordinates
+  Returns : a list of absolute coordinates
+  Args    : a list of relative coordinates
+
+  This function takes a list of positions in relative coordinates
+  (relative to seq_id()), and converts them into absolute coordinates.
+
+  Note that if absolute() is true this method still interprets
+  incoming coordinates as if they were relative to what seq_id() would
+  be if absolute() were false.
+
+  This method is implemented in the interface, and need not be
+  overridden in concrete subclasses.  Note that this implementation
+  uses abs_start() and abs_strand(), so these methods should not be
+  defined in terms of rel2abs(), lest a vicious cycle occur.
+
+=head2 abs2rel
+
+  Title   : abs2rel
+  Usage   : my @rel_coords = $seq_id->abs2rel( @abs_coords )
+  Function: Convert absolute coordinates into relative coordinates
+  Returns : a list of relative coordinates
+  Args    : a list of absolute coordinates
+
+  This function takes a list of positions in absolute coordinates
+  and converts them into relative coordinates (relative to seq_id()).
+
+  Note that if absolute() is true this method still produces
+  coordinates relative to what seq_id() would be if absolute() were
+  false.
+
+  This method is implemented in the interface, and need not be
+  overridden in concrete subclasses.  Note that this implementation
+  uses abs_start() and abs_strand(), so these methods should not be
+  defined in terms of abs2rel(), lest a vicious cycle occur.
+
+=head2 rel2abs_strand
+
+  Title   : rel2abs_strand
+  Usage   : my $abs_strand = $seq_id->rel2abs_strand( $rel_strand );
+  Function: Convert a strand that is relative to seq_id() into one that
+            is relative to abs_seq_id().
+  Returns : a strand value (-1, 0, or 1).
+  Args    : a strand value (-1, 0, or 1).
+
+  This function takes a strand value that is relative to seq_id()
+  and converts it so that it is absolute (ie. relative to abs_seq_id()).
+
+  Note that if absolute() is true this method still interprets
+  the argument strand as it were relative to what seq_id() would
+  be if absolute() were false.
+
+=head2 abs2rel_strand
+
+  Title   : abs2rel_strand
+  Usage   : my $rel_strand = $seq_id->abs2rel_strand( $abs_strand )
+  Function: Convert a strand that is relative to abs_seq_id() into one that
+            is relative to seq_id().
+  Returns : a strand value (-1, 0, or 1).
+  Args    : a strand value (-1, 0, or 1).
+
+  This function takes a strand value that is absolute (ie. relative to
+  abs_seq_id()) and converts it so that it is relative to seq_id().
+
+  Note that if absolute() is true this method still returns the strand
+  relative to what seq_id() would be if absolute() were false.
+
+  This method turns out to be identical to rel2abs_strand, so it is
+  implemented in the interface as a (glob ref) alias for
+  rel2abs_strand.
 
 =head2 seq_id
 
   Title   : seq_id
-  Usage   : my $seq_id = $range->seq_id( [new_seq_id] );
+  Usage   : my $seq_id = $seq_id->seq_id( [new_seq_id] );
   Function: Get/Set a unique_id or primary_id of a L<Bio::PrimarySeqI>
-            or another L<Bio::RangeI> that this RangeI is defined
-            over or relative to.
+            or another L<Bio::RangeI> that this SeqFeatureI is defined
+            over or relative to.  If absolute() is true, this will be
+            identical to abs_seq_id().
   Returns : The current (or former, if used as a set method) value of
             the seq_id.
   Args    : [optional] A new (string or L<Bio::RangeI> seq_id value
 
-  Ranges may have no defined seq_id, but this should be considered
-  deprecated.  The concept of a 'range' requires that it is a range
+  Features may have no defined seq_id, but this should be considered
+  deprecated.  The concept of a 'feature' requires that it is a range
   over some sequence; this method returns (and optionally sets) that
   sequence.  It is also possible to specify another range, to support
   relative ranges.  If the value of seq_id is another L<Bio::RangeI>,
-  then this RangeI's positions are relative to that RangeI's
-  positions.  If seq_id is the id of a sequence then it should provide
-  enough information for a user of a RangeI to retrieve that sequence;
-  ideally it should be a L<Bio::GloballyIdentifiableI> unique_id.
+  then this SeqFeatureI's positions are relative to that RangeI's
+  positions (unless absolute() is true, in which case they are
+  relative to the root seq_id).  If seq_id is the id of a sequence then
+  it should provide enough information for a user of a SeqFeatureI to
+  retrieve that sequence; ideally it should be a
+  L<Bio::GloballyIdentifiableI> unique_id.
+
+  You may not set the seq_id when absolute() is true.
 
 =head2 start
 
   Title   : start
-  Usage   : $start = $range->start();
-  Function: get/set the start of this range
-  Returns : the start of this range
-  Args    : optionaly allows the start to be set
-            using $range->start($start)
+  Usage   : my $start = $seq_id->start( [$new_start] );
+  Function: Get/set the start of this feature.
+  Returns : The current (or former, if used as a set method) start position
+            of this feature.  If absolute() is true then this value will
+            be relative to the abs_seq_id; otherwise it will be
+            relative to the seq_id.
+  Args    : [optional] a new start position
+
+  Note the interdependence of start() and abs_start().  Changing start() will
+  change abs_start().
+
+  You may not set start() when absolute() is true.
+
+  Note the interdependence of start() and length().  Changing start() will
+  change length().
 
 =head2 end
 
   Title   : end
-  Usage   : $end = $range->end();
-  Function: get/set the end of this range
-  Returns : the end of this range
-  Args    : optionaly allows the end to be set
-            using $range->end($end)
+  Usage   : my $end = $seq_id->end( [$new_end] );
+  Function: Get/set the end of this feature.
+  Returns : The current (or former, if used as a set method) end position
+            of this feature.  If absolute() is true then this value will
+            be relative to the abs_seq_id; otherwise it will be
+            relative to the seq_id.
+  Args    : [optional] a new end position
 
-=head2 length
+  Note the interdependence of end() and abs_end().  Changing end() will
+  change abs_end().
 
-  Title   : length
-  Usage   : $length = $range->length();
-  Function: get/set the length of this range
-  Returns : the length of this range
-  Args    : optionaly allows the length to be set
-             using $range->length($length)
+  You may not set end() when absolute() is true.
+
+  Note the interdependence of end() and length().  Changing one will
+  change the other.
 
 =head2 strand
 
   Title   : strand
-  Usage   : $strand = $range->strand();
-  Function: get/set the strand of this range
-  Returns : the strandidness (-1, 0, +1)
-  Args    : optionaly allows the strand to be set
-            using $range->strand($strand)
+  Usage   : my $strand = $seq_id->strand( [$new_strand] );
+  Function: Get/set the strandedness (-1, 0, or 1) of this feature.
+  Returns : The current (or former, if used as a set method) strand value
+            of this feature.  If absolute() is true then this value will
+            be absolute.  Otherwise it will be relative to the
+            strandedness (if any) of seq_id.
+  Args    : [optional] a new strand value.
+
+  You may not set strand() when absolute() is true.
+
+=head2 length
+
+  Title   : length
+  Usage   : my $length = $seq_id->length( [$new_length] );
+  Function: Get/set the length of this feature.
+  Returns : The current (or former, if used as a set method) length
+            of this feature.
+  Args    : [optional] a new length
+
+  length = ( ( end - start ) + 1 ) = ( ( abs_high - abs_low ) + 1 ).
+
+  Note the interdependence of start()|end()|abs_start()|abs_end() and
+  length().  Changing start() or end() will change the length.
+  Changing the length will change the end() (and consequently abs_end()).
+
+  You may not set the length when absolute() is true.
 
 =head2 overlaps
 
   Title   : overlaps
-  Usage   : if($r1->overlaps($r2)) { do stuff }
+  Usage   : if( $r1->overlaps( $r2 ) ) { do stuff }
   Function: tests if $r2 overlaps $r1
-  Args    : arg #1 = a range to compare this one to (mandatory)
+  Args    : arg #1 = a L<Bio::RangeI> to compare this one to (mandatory)
             arg #2 = strand option ('strong', 'weak', 'ignore') (optional)
   Returns : true if the ranges overlap, false otherwise
+
+  The second argument's values may be:
+   "strong"        ranges must have the same strand
+   "weak"          ranges must have the same strand or no strand
+   "ignore"        ignore strand information (default)
+
+  This method is implemented in the interface, and need not be
+  overridden in concrete subclasses.
 
 =head2 contains
 
   Title   : contains
-  Usage   : if($r1->contains($r2) { do stuff }
-  Function: tests whether $r1 totally contains $r2 
-  Args    : arg #1 = a range to compare this one to (mandatory)
-	             alternatively, integer scalar to test
+  Usage   : if( $r1->contains( $r2 ) ) { do stuff }
+  Function: tests if $r2 is totally contained within $r1
+  Args    : arg #1 = a L<Bio::RangeI> to compare this one to,
+                     or an integer position (mandatory)
             arg #2 = strand option ('strong', 'weak', 'ignore') (optional)
-  Returns : true if the argument is totaly contained within this range
+  Returns : true iff this range wholly contains the given range
+
+  The second argument's values may be:
+   "strong"        ranges must have the same strand
+   "weak"          ranges must have the same strand or no strand
+   "ignore"        ignore strand information (default)
+
+  This method is implemented in the interface, and need not be
+  overridden in concrete subclasses.
 
 =head2 intersection
 
@@ -1042,6 +1392,9 @@ documentation for inherited methods.
             or new range object containing the overlap
             or (in list context) the start, end, and strand of that range.
 
+  This method is implemented in the interface, and need not be
+  overridden in concrete subclasses.
+
 =head2 union
 
   Title   : union
@@ -1050,29 +1403,32 @@ documentation for inherited methods.
             my ( $start, $end, $strand ) = $r1->union( @other_ranges );
               (list context)
             OR
-            my $union_range = Bio::RangeI->union( @ranges );
+            my $union_range = Bio::RelRangeI->union( @ranges );
               (scalar context)
             OR
-            my ( $start, $end, $strand ) = Bio::RangeI->union( @ranges );
+            my ( $start, $end, $strand ) = Bio::RelRangeI->union( @ranges );
               (list context)
   Function: finds the minimal range that contains all of the ranges
   Args    : a range or list of ranges to find the union of
   Returns : a new range object that contains all of the given ranges, or
             (in list context) the start, end, and strand of that range object.
 
+  This method is implemented in the interface, and need not be
+  overridden in concrete subclasses.
+
 =head2 overlap_extent
 
  Title   : overlap_extent
- Usage   : ($a_unique,$common,$b_unique) = $a->overlap_extent($b)
- Function: Provides actual amount of overlap between two different
-           ranges.
- Example :
- Returns : array of values for 
-           - the amount unique to a
-           - the amount common to both
-           - the amount unique to b
- Args    : a range
+ Usage   : my ( $a_unique, $common, $b_unique ) = $a->overlap_extent( $b );
+ Function: Provides actual amount of overlap between two different ranges.
+ Returns : 3-tuple consisting of:
+           - the number of positions unique to a
+           - the number of positions common to both
+           - the number of positions unique to b
+ Args    : a L<Bio::RangeI> object
 
+  This method is implemented in the interface, and need not be
+  overridden in concrete subclasses.
 
 =head2 equals
 
@@ -1092,7 +1448,7 @@ documentation for inherited methods.
    * If either SeqFeatureI returns something other than undef from its
      unique_id() method, then return false unless they are the same
      (by eq).
-   * Return false unless they have the same range (using the RangeI
+   * Return false unless they have the same range (using the RelRangeI
      superclass equals method).
    * If they have the same range and either returns something other
      than undef from its display_name() method, then return false
@@ -1120,8 +1476,7 @@ sub equals {
       return 0;
     }
     ## Okay, neither has a unique_id.
-    unless( $self->start() == $other->start() and
-	    $self->end()   == $other->end()       ) {
+    unless( $self->Bio::RelRangeI::equals( $other ) ) {
       return 0;
     }
     my $my_display_name = $self->display_name();
@@ -1146,7 +1501,8 @@ sub equals {
 
  Title   : toString
  Usage   : $str_val = $feature->toString()
- Function: returns $self->unique_id() || $overload->StrVal( $self )
+ Function: returns $self->unique_id() || $self->display_name() ||
+           $overload->StrVal( $self )
  Returns : a String
  Args    : None
  Status  : Public
@@ -1158,7 +1514,8 @@ sub equals {
 sub toString {
   my $self = shift;
 
-  return $self->unique_id() || overload::StrVal( $self );
+  return $self->unique_id() || $self->display_name() ||
+         overload::StrVal( $self );
 } # toString()
 
 ## method for overload for comparing two SeqFeature objects.  Uses toString().
