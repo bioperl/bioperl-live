@@ -8,35 +8,8 @@
 # For documentation, run this module through pod2html 
 # (preferably from Perl v5.004 or better).
 #
-# MODIFIED: 
-#   3 Feb 1999, sac:
-#      * Added timeout support to read().
-#      * Moved the FileHandle creation code out of read() and into 
-#        Bio::Root::Utilties since it's of more general use.
+# MODIFICATION NOTES: See bottom of file.
 #
-#    24 Nov 1998, sac:
-#      * Modified read(), compress(), and uncompress() to properly
-#        deal with file ownership issues.
-#
-#    19 Aug 1998, sac:
-#      * Fixed bug in display(), which wasn't returning true (1).
-#
-#    0.023, 20 Jul 1998, sac:
-#      * read() can now use a supplied FileHandle or GLOB ref (\*IN).
-#      * A few other touch-ups in read().
-#
-#    0.022, 16 Jun 1998, sac:
-#      * read() now terminates reading when a supplied &$func_ref
-#        returns false.
-#
-#    0.021, May 1998, sac:
-#      * Refined documentation to use 5.004 pod2html.
-#      * Properly using typglob refs as necessary 
-#        (e.g., set_display(), set_fh()).
-#
-#    0.031, 2 Sep 1998, sac:
-#      * Doc changes only
-# 
 # Copyright (c) 1997-8 Steve A. Chervitz. All Rights Reserved.
 #           This module is free software; you can redistribute it and/or 
 #           modify it under the same terms as Perl itself.
@@ -54,7 +27,7 @@ use FileHandle            ();
 use strict;
 use vars qw($ID $VERSION $revision);
 $ID = 'Bio::Root::IOManager';
-$VERSION = 0.042;
+$VERSION = 0.043;
 
 ## POD Documentation:
 
@@ -184,7 +157,7 @@ See the L<FEEDBACK> section for where to send bug reports and comments.
 
 =head1 VERSION
 
-Bio::Root::IOManager.pm, 0.041
+Bio::Root::IOManager.pm, 0.043
 
 =head1 ACKNOWLEDGEMENTS
 
@@ -1136,4 +1109,39 @@ all or some of the following fields:
  
 =cut
 
-1;
+
+MODIFICATION NOTES:
+-------------------
+
+17 Feb 1999, sac:
+   * Using $Global::TIMEOUT_SECS
+ 
+3 Feb 1999, sac:
+   * Added timeout support to read().
+   * Moved the FileHandle creation code out of read() and into 
+     Bio::Root::Utilties since it's of more general use.
+
+ 24 Nov 1998, sac:
+   * Modified read(), compress(), and uncompress() to properly
+     deal with file ownership issues.
+
+ 19 Aug 1998, sac:
+   * Fixed bug in display(), which wasn't returning true (1).
+
+ 0.023, 20 Jul 1998, sac:
+   * read() can now use a supplied FileHandle or GLOB ref (\*IN).
+   * A few other touch-ups in read().
+
+ 0.022, 16 Jun 1998, sac:
+   * read() now terminates reading when a supplied &$func_ref
+     returns false.
+
+ 0.021, May 1998, sac:
+   * Refined documentation to use 5.004 pod2html.
+   * Properly using typglob refs as necessary 
+     (e.g., set_display(), set_fh()).
+
+0.031, 2 Sep 1998, sac:
+   * Doc changes only
+
+
