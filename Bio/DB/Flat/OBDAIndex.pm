@@ -26,10 +26,10 @@ indexed and also where the start of each record.  E.g. for fasta
 
     my $start_pattern   = "^>";
     my $primary_pattern = "^>(\\S+)";
-     
 
-So the start of a record is a line starting with a > and the primary
-key is all characters up to the first space afterf the >
+
+So the start of a record is a line starting with a E<gt> and the primary
+key is all characters up to the first space afterf the E<gt>
 
 A string also has to be entered to defined what the primary key
 (primary_namespace) is called.
@@ -132,7 +132,7 @@ slowest way of extracting as the sequence objects need to be made.
     my $seq = $index->get_Seq_by_id('HBA_HUMAN');
 
 To access the secondary indices the secondary namespace needs to be known
-(use $index->secondary_namespaces) and the following call used
+(use $index-E<gt>secondary_namespaces) and the following call used
 
     my $seq   = $index->get_Seq_by_secondary('ACC','Q21973');
     my $fh    = $index->get_stream_by_secondary('ACC','Q21973');
@@ -218,8 +218,8 @@ my @formats = {'FASTA','SWISSPROT','EMBL'};
              my @files = ('file1','file2','file3');
 
              $index->make_index('mydbname',@files);    
-                     
-           
+
+
  Function: create a new Bio::DB::Flat::OBDAIndex object
  Returns : new Bio::DB::Flat::OBDAIndex
  Args    : -index_dir          Directory containing the indices
@@ -850,7 +850,7 @@ sub write_primary_index {
 
 
 =cut
-	    
+
 sub write_secondary_indices {
     my ($self) = @_;
 

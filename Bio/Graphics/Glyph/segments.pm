@@ -127,7 +127,7 @@ L<Bio::Graphics::Glyph::transcript2>,
 
 =head1 AUTHOR
 
-Lincoln Stein <lstein@cshl.org>
+Lincoln Stein E<lt>lstein@cshl.orgE<gt>
 
 Copyright (c) 2001 Cold Spring Harbor Laboratory
 

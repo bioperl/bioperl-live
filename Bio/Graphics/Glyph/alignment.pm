@@ -92,7 +92,7 @@ L<Bio::Graphics::Glyph::transcript>,
 
 =head1 AUTHOR
 
-Allen Day <day@cshl.org>.
+Allen Day E<lt>day@cshl.orgE<gt>.
 
 Copyright (c) 2001 Cold Spring Harbor Laboratory
 

@@ -17,49 +17,51 @@ Bio::Tools::Run::RemoteBlast - Object for remote execution of the NCBI Blast via
 =head1 SYNOPSIS
 
 Remote-blast "factory object" creation and blast-parameter initialization:
-use Bio::Tools::Run::RemoteBlast;
-use strict;
-my $v = 1;
-my $prog = 'blastp';
-my $db   = 'swissprot';
-my $e_val= '1e-10';
 
-my @params = ( '-prog' => $prog,
-	       '-data' => $db,
-	       '-expect' => $e_val );
-	       
-my $factory = Bio::Tools::Run::RemoteBlast->new(@params);
-$v = 1;
-my $str = Bio::SeqIO->new(-file=>'amino.fa' , '-format' => 'fasta' );
-my $input = $str->next_seq();
-#  Blast a sequence against a database:
-my $r = $factory->submit_blast($input);
-print STDERR "waiting..." if( $v > 0 );
-while ( my @rids = $factory->each_rid ) {
-    foreach my $rid ( @rids ) {
-	my $rc = $factory->retrieve_blast($rid);
-	if( !ref($rc) ) {
-	    if( $rc < 0 ) { 		
-		    $factory->remove_rid($rid);
-		}
-	    print STDERR "." if ( $v > 0 );
-	    sleep 5;
-	} else { 
-	    $factory->remove_rid($rid);
-	    my $result = $rc->next_result;
-	    print "db is ", $result->database_name(), "\n";
-	    my $count = 0;
-	    while( my $hit = $result->next_hit ) {		
-		$count++;
-		next unless ( $v > 0);
-		print "hit name is ", $hit->name, "\n";
-		while( my $hsp = $hit->next_hsp ) {
-		    print "score is ", $hsp->score, "\n";
-		} 
-	    }
-	}
-    }
-}
+  use Bio::Tools::Run::RemoteBlast;
+  use strict;
+  my $v = 1;
+  my $prog = 'blastp';
+  my $db   = 'swissprot';
+  my $e_val= '1e-10';
+
+  my @params = ( '-prog' => $prog,
+  		 '-data' => $db,
+  		 '-expect' => $e_val );
+
+  my $factory = Bio::Tools::Run::RemoteBlast->new(@params);
+  $v = 1;
+  my $str = Bio::SeqIO->new(-file=>'amino.fa' , '-format' => 'fasta' );
+  my $input = $str->next_seq();
+  #  Blast a sequence against a database:
+  my $r = $factory->submit_blast($input);
+  print STDERR "waiting..." if( $v > 0 );
+  while ( my @rids = $factory->each_rid ) {
+      foreach my $rid ( @rids ) {
+  	  my $rc = $factory->retrieve_blast($rid);
+  	  if( !ref($rc) ) {
+  	      if( $rc < 0 ) { 		
+  		      $factory->remove_rid($rid);
+  		  }
+  	      print STDERR "." if ( $v > 0 );
+  	      sleep 5;
+  	  } else { 
+  	      $factory->remove_rid($rid);
+  	      my $result = $rc->next_result;
+  	      print "db is ", $result->database_name(), "\n";
+  	      my $count = 0;
+  	      while( my $hit = $result->next_hit ) {		
+  		  $count++;
+  		  next unless ( $v > 0);
+  		  print "hit name is ", $hit->name, "\n";
+  		  while( my $hsp = $hit->next_hsp ) {
+  		      print "score is ", $hsp->score, "\n";
+  		  } 
+  	      }
+  	  }
+      }
+  }
+
 
 Various additional options and input formats are available.  See the
 DESCRIPTION section for details.

@@ -94,7 +94,7 @@ L<Bio::Graphics::Glyph::transcript>,
 
 =head1 AUTHOR
 
-Allen Day <day@cshl.org>, Shengqiang Shu (sshu@bdgp.lbl.gov)
+Allen Day E<lt>day@cshl.orgE<gt>, Shengqiang Shu E<lt>sshu@bdgp.lbl.govE<gt>
 
 Copyright (c) 2001 Cold Spring Harbor Laboratory, BDGP
 
