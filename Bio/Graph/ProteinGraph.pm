@@ -68,9 +68,8 @@ Bio::Graph::ProteinGraph - a representation of a protein interaction graph.
 
     my @my_seqs; ##array of sequence objects
     for my $seq(@seqs) {
-                if ($graph->has_node($seq->accession_number)) {
-          my $node      = $graph->nodes_by_id(
-                                    $seq->accession_number);
+          if ($graph->has_node($seq->accession_number)) {
+          my $node      = $graph->nodes_by_id( $seq->accession_number);
           my @neighbors = $graph->neighbors($node);
           for my $n (@neighbors) {
             my $ft = Bio::SeqFeature::Generic->new(
@@ -88,12 +87,12 @@ Bio::Graph::ProteinGraph - a representation of a protein interaction graph.
     my @nodes = $graph->nodes();
     my @hubs;
     for my $node (@nodes) {
-                my @interactors = $graph->neighbors($node);
-        if ($#interactors > 10) {       
-                                push @hubs, $node;
-                }
-        }
-        print "the following proteins have > 10 interactors:\n"
+       my @interactors = $graph->neighbors($node);
+       if ($#interactors > 10) {       
+           push @hubs, $node;
+          }
+      }
+    print "the following proteins have > 10 interactors:\n"
     print join "\n", map{$_->object_id()} @hubs;
 
     ## merge 2 graphs, flag duplicate edges ##
@@ -104,6 +103,41 @@ Bio::Graph::ProteinGraph - a representation of a protein interaction graph.
 
    print "these interactions exist in $g1 and $g2:\n";
    print join "\n", map{$_->object_id} @duplicates;
+
+   ## what to do if you have interaction data in your own format:
+
+   ## e.g.,  
+   edgeid node1  node2 node2 score
+
+   my $io = Bio::Root::IO->new(-file => 'mydata');
+   my $gr = Bio::Graph::ProteinGraph->new();
+   my %seen= (); # to record seen nodes
+   while (my $l = $io->_readline() ) {
+ 
+      ## parse out your data
+      my ($e_id, $n1, $n2, $sc) = split /\t/, $l;
+ 
+      ## make nodes if they are unseen
+      my @nodes =();
+      for my $n ($n1, $n2 ) {
+		if (!exists($seen{$n})) {
+            push @nodes,  Bio::Seq->new(-accession_number => $n);
+			$seen{$n} = $nodes[$#nodes];
+           }
+        else{
+			push @nodes, $seen{$n};
+		  }
+	   }
+
+      ## make an edge
+      my $edge  = Bio::Graph::Edge->new(-nodes => \@nodes,
+                                        -id    => $e_id,
+                                        -weight=> $sc);
+      ## add it to graph
+      $gr->add_edge($edge);
+   } 
+
+     
 
 
 =head1          DESCRIPTION
@@ -814,7 +848,7 @@ sub remove_nodes {
 			if ($edges->{$k}->[0] eq $node ||
 			   		$edges->{$k}->[1] eq $node){
                 ## delete edge from look up hash
-                my $edge_id = $edges->{$k}->object_id()
+                my $edge_id = $edges->{$k}->object_id();
                 delete $self->{'_edge_id_map'}{$edge_id};
 				delete($edges->{$k});
 			}
