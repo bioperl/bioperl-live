@@ -22,6 +22,7 @@
 	     'XML::Parser::PerlSAX'              => '0.0/Parsing of XML documents/Bio::Variation code, GAME parser/Bio::SeqIO::game,Bio::Variation::*',
 	     'XML::Node'         	=> '0.0/Available on CPAN/parsing of XML documents/Module Bio::Variation::IO::xml.pm',
 	     'File::Temp'               => '0.0/Temporary File creation/Bio::DB::WebDBSeqI, Bio::Seq::LargePrimarySeq',
+	     'HTML::Parser'             => '0.0/HTML parsing of GDB page/Bio::DB::GDB',
 	     );
 
 sub check_package {
