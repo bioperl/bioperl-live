@@ -1317,7 +1317,13 @@ sub get_table_id {
   my $self   = shift;
   my $table  = shift;
   my @ids    = @_;
-  my $id_key = join ':',@ids;
+
+  # irritating warning for null id
+  my $id_key;
+  {
+    local $^W=0;
+    $id_key = join ':',@ids;
+  }
 
   my $s   = $self->{load_stuff};
   my $sth = $s->{sth};

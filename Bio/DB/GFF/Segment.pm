@@ -115,6 +115,21 @@ This is a read-only accessor for the start of the segment.
 
 sub start  { shift->{start} }
 
+=head2 end
+
+ Title   : end
+ Usage   : $s->end
+ Function: end of segment
+ Returns : integer
+ Args    : none
+ Status  : Public
+
+This is a read-only accessor for the end of the segment.
+
+=cut
+
+sub end   { shift->{stop}  }
+
 =head2 stop
 
  Title   : stop
@@ -124,26 +139,11 @@ sub start  { shift->{start} }
  Args    : none
  Status  : Public
 
-This is a read-only accessor for the stop of the segment.
+This is an alias for end(), provided for AcePerl compatibility.
 
 =cut
 
-sub stop   { shift->{stop}  }
-
-=head2 end
-
- Title   : end
- Usage   : $s->end
- Function: stop of segment
- Returns : integer
- Args    : none
- Status  : Public
-
-This is an alias for stop(), provided for BioSeq compatibility.
-
-=cut
-
-sub end { shift->stop(@_); }
+*stop = \&end;
 
 =head2 length
 
@@ -282,27 +282,32 @@ sub subseq {
   $new;
 }
 
-=head2 dna
+=head2 seq
 
- Title   : dna
- Usage   : $s->dna
- Function: get the DNA string for this segment
+ Title   : seq
+ Usage   : $s->seq
+ Function: get the sequence string for this segment
  Returns : a string
  Args    : none
  Status  : Public
 
-Returns the DNA for this segment as a simple string.  (-) strand
+Returns the sequence for this segment as a simple string.  (-) strand
 segments are automatically reverse complemented
+
+This method is also called dna() and protein() for backward
+compatibility with AceDB.
 
 =cut
 
-sub dna {
+sub seq {
   my $self = shift;
   my ($ref,$class,$start,$stop,$strand) 
     = @{$self}{qw(sourceseq class start stop strand)};
 #  ($start,$stop) = ($stop,$start) if $strand eq '-';
   $self->factory->dna($ref,$start,$stop,$class);
 }
+
+*protein = *dna = \&seq;
 
 =head2 equals
 
@@ -497,6 +502,30 @@ An alias for refseq()
 =cut
 
 sub ref { shift->refseq(@_) }
+
+=head2 truncated
+
+ Title   : truncated
+ Usage   : $truncated = $s->truncated
+ Function: Flag indicating that the segment was truncated during creation
+ Returns : A boolean flag
+ Args    : none
+ Status  : Public
+
+This indicates that the sequence was truncated during creation.  The
+returned flag is undef if no truncation occured.  If truncation did
+occur, the flag is actually an array ref in which the first element is
+true if truncation occurred on the left, and the second element
+occurred if truncation occurred on the right.
+
+=cut
+
+sub truncated {
+  my $self = shift;
+  my $hash = $self->{truncated} or return;
+  CORE::ref($hash) eq 'HASH' or return [1,1];  # paranoia -- not that this would ever happen ;-)
+  return [$hash->{start},$hash->{stop}];
+}
 
 =head2 Bio::RangeI Methods
 

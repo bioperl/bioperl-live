@@ -283,6 +283,24 @@ sub new {
       $this_stop  =  $absstop - ($this_stop - 1);
     }
 
+    # handle truncation in either direction
+    # This only happens if the segment runs off the end of
+    # the reference sequence
+    if (($this_start < $absstart) || ($this_stop > $absstop)) {
+      if (my $a = $factory->abscoords($absref,'Sequence')) {
+	my $refstart = $a->[0][2];
+	my $refstop  = $a->[0][3];
+	if ($this_start < $refstart) {
+	  $this_start = $refstart;
+	  $self->{truncated}{start}++;
+	}
+	if ($this_stop > $refstop) {
+	  $this_stop = $absstop;
+	  $self->{truncated}{stop}++;
+	}
+      }
+    }
+
     @{$self}{qw(sourceseq start stop strand class)}
       = ($absref,$this_start,$this_stop,$absstrand,$absclass);
 
@@ -314,11 +332,12 @@ sub start {
   return $self->strand < 0 ? $self->{stop} : $self->{start} if $self->absolute;
   $self->_abs2rel($self->{start});
 }
-sub stop {
+sub end {
   my $self = shift;
   return $self->strand < 0 ? $self->{start} : $self->{stop} if $self->absolute;
   $self->_abs2rel($self->{stop});
 }
+*stop = \&end;
 
 sub length {
   my $self = shift;
@@ -523,6 +542,47 @@ sub features {
   return $self->factory->overlapping_features(@args);
 }
 
+=head2 top_SeqFeatures
+
+ Title   : top_SeqFeatures
+ Usage   :
+ Function:
+ Example :
+ Returns :
+ Args    :
+
+Alias for features().  Provided for Bio::SeqI compatibility.
+
+=cut
+
+=head2 all_SeqFeatures
+
+ Title   : all_SeqFeatures
+ Usage   :
+ Function:
+ Example :
+ Returns :
+ Args    :
+
+Alias for features().  Provided for Bio::SeqI compatibility.
+
+=cut
+
+=head2 sub_SeqFeatures
+
+ Title   : sub_SeqFeatures
+ Usage   :
+ Function:
+ Example :
+ Returns :
+ Args    :
+
+Alias for features().  Provided for Bio::SeqI compatibility.
+
+=cut
+
+*top_SeqFeatures = *all_SeqFeatures = \&features;
+
 =head2 get_feature_stream
 
  Title   : features
@@ -622,7 +682,7 @@ sub contained_features {
 This is identical in behavior to features() except that it returns
 only those features that completely contain the segment.
 
-=cut 
+=cut
 
 # return all features completely contained within this segment
 sub contained_in {
