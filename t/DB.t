@@ -24,7 +24,7 @@ BEGIN {
    }
    use Test;
 
-   $NUMTESTS = 77;
+   $NUMTESTS = 78;
    plan tests => $NUMTESTS;
 
    eval { require IO::String;
@@ -54,6 +54,31 @@ require Bio::DB::SwissProt;
 my $testnum;
 my $verbose = 0;
 
+my %expected_lengths = ( 'NDP_MOUSE' => 131,
+			 'NDP_HUMAN' => 133,
+			 'MUSIGHBA1' => 408,
+			 'AF303112'  => 1611,
+			 'J00522'    => 408,
+			 'AF303112'  => 1611,
+			 'AF303112.1' => 1611,
+			 '2981014'   => 1156,
+			 'AF041456'  => 1156,
+			 'AY080910'  => 798,
+			 'AY080909'  => 1042,
+			 'AF155220'  => 1172,
+			 '405830'    => 1743,
+			 'CELRABGDI' => 1743,
+			 '195055'    => 136,
+			 'AAD15290'  => 136,
+			 'AAC06201'  => 353,
+			 'P43780'    => 103,
+			 'BOLA_HAEIN'=> 103,
+			 'YNB3_YEAST'=> 125,
+			 'O39869'    => 56,
+			 'P18584'    => 497,
+			 'DEGP_CHLTR'=> 497,
+			 'AF442768'  => 2547,
+			 );
 ## End of black magic.
 ##
 ## Insert additional test code below but remember to change
@@ -66,13 +91,13 @@ eval {
     ok defined ( $gb = new Bio::DB::GenBank('-verbose'=>$verbose,'-delay'=>0) );
     $seq = $gb->get_Seq_by_id('MUSIGHBA1');
     $seq ? ok 1 : exit 0;
-    ok( $seq->length, 408);
+    ok( $seq->length, $expected_lengths{$seq->display_id});
     ok( defined ($seq = $gb->get_Seq_by_acc('AF303112')));
-    ok($seq->length, 1611);
+    ok( $seq->length, $expected_lengths{$seq->display_id});
     ok( defined ($seq = $gb->get_Seq_by_version('AF303112.1')));
-    ok($seq->length, 1611);
+    ok( $seq->length, $expected_lengths{$seq->display_id});
     ok( defined ($seq = $gb->get_Seq_by_gi('405830')));
-    ok($seq->length, 1743);
+    ok( $seq->length, $expected_lengths{$seq->display_id});
 };
 if ($@) {
    if( $DEBUG ) { 
@@ -86,9 +111,9 @@ $seq = $seqio = undef;
 eval {
    ok( defined($seqio = $gb->get_Stream_by_id([ qw(J00522 AF303112 
 			   2981014)])));
-   ok($seqio->next_seq->length, 408);
-   ok($seqio->next_seq->length, 1611);
-   ok($seqio->next_seq->length, 1156);
+   while( my $s = $seqio->next_seq ) {
+       ok( $s->length, $expected_lengths{$s->display_id});
+   }
 };
 
 if ($@) {
@@ -101,14 +126,15 @@ $seq = $seqio = undef;
 eval { 
    ok defined($gb = new Bio::DB::GenPept('-verbose'=>$verbose,'-delay'=>0)); 
    ok( defined($seq = $gb->get_Seq_by_id('195055')));
-   ok( $seq->length, 136); 
+   ok( $seq->length, $expected_lengths{$seq->display_id});
    $seq = $gb->get_Seq_by_acc('AAC06201');
    ok(defined $seq);
-   ok($seq->length, 353);
+   ok( $seq->length, $expected_lengths{$seq->display_id});
    $seqio = $gb->get_Stream_by_id([ qw(AAC06201 195055)]);
    ok( defined $seqio);
-   ok( $seqio->next_seq->length(), 353);
-   ok( $seqio->next_seq->length(), 136);
+   while( my $s = $seqio->next_seq ) {
+       ok( $s->length, $expected_lengths{$s->display_id});
+   }
 };
 
 if ($@) {
@@ -125,22 +151,21 @@ $seq  = $seqio = undef;
 eval {
    ok defined($gb = new Bio::DB::SwissProt('-verbose'=>$verbose,-retrievaltype=>'pipeline','-delay'=>0));
    ok(defined($seq = $gb->get_Seq_by_id('YNB3_YEAST')));
-   ok( $seq->length, 125);
+   ok( $seq->length, $expected_lengths{$seq->display_id});
    ok($seq->division, 'YEAST');
-
+   
    ok(defined($seq = $gb->get_Seq_by_acc('P43780')));
-   ok( $seq->length, 103); 
-
+   ok( $seq->length, $expected_lengths{$seq->display_id});
    ok( defined( $seq = $gb->get_Seq_by_acc('O39869')));
-   ok( $seq->length, 56);
-
+   ok( $seq->length, $expected_lengths{$seq->display_id});
    ok($seq->primary_id, 'O39869');
    ok($seq->division, 'UNK');
 
    # test for bug #958
    $seq = $gb->get_Seq_by_id('P18584');
    ok( defined $seq );
-   ok( $seq->length, 497);
+   ok( $seq->length, $expected_lengths{$seq->display_id});
+
    #skip($seq->primary_id =~ /^Bio::Seq/, $seq->primary_id, 'DEGP');
    ok( $seq->display_id, 'DEGP_CHLTR');
    ok( $seq->division, 'CHLTR');
@@ -152,9 +177,9 @@ eval {
    ok(defined($seqio = $gb->get_Stream_by_id(['NDP_MOUSE', 'NDP_HUMAN'])));
    undef $gb; # testing to see if we can remove gb
    ok( defined($seq = $seqio->next_seq()));
-   ok( $seq->length, 131);
+   ok( $seq->length, $expected_lengths{$seq->display_id});
    ok( defined($seq = $seqio->next_seq()));
-   ok( $seq->length, 133);
+   ok( $seq->length, $expected_lengths{$seq->display_id});
 };
 
 if ($@) {
@@ -174,20 +199,21 @@ eval {
 					   '-retrievaltype' => 'tempfile',
 					   '-delay' => 0) );
    ok( defined ($seq = $gb->get_Seq_by_id('MUSIGHBA1')));
-   ok($seq->length, 408); 
+# last part of id holds the key
+   ok($seq->length, $expected_lengths{(split(/\|/,$seq->display_id))[-1]});
    $seq = $gb->get_Seq_by_acc('AF303112');
    ok( defined $seq);
-   ok( $seq->length, 1611);
+# last part of id holds the key
+   ok($seq->length, $expected_lengths{(split(/\|/,$seq->display_id))[-1]});
    # batch mode requires genbank format
    $gb->request_format("gb");
    ok(defined($seqio = $gb->get_Stream_by_id([ qw(J00522 AF303112 
-							2981014)])));
-   ok( $seqio->next_seq->length, 408);
-   undef $gb;  # test the case where the db is gone, 
-   # but a temp file should remain until seqio goes away. 
-
-   ok($seqio->next_seq->length, 1611);
-   ok($seqio->next_seq->length, 1156);
+						  2981014)])));
+   while( my $s = $seqio->next_seq ) {
+       ok( $s->length, $expected_lengths{$s->display_id});
+       undef $gb;  # test the case where the db is gone, 
+       # but a temp file should remain until seqio goes away. 
+   }
 };
 
 if ($@) {
@@ -208,18 +234,17 @@ eval {
 					   '-delay'  => 0,
 					  ) );
    ok( defined ($seq = $gb->get_Seq_by_id('MUSIGHBA1')));
-   ok($seq->length, 408);
+   ok($seq->length, $expected_lengths{$seq->display_id});
    $seq = $gb->get_Seq_by_acc('AF303112');
    ok( defined $seq);
-   ok( $seq->length, 1611);
+   ok($seq->length, $expected_lengths{$seq->display_id});
    ok(defined($seqio = $gb->get_Stream_by_id([ qw(J00522 AF303112 
 							2981014)])));
-   ok( $seqio->next_seq->length, 408);
-   undef $gb;  # test the case where the db is gone,
-                # but the pipeline should remain until seqio goes away
-
-   ok($seqio->next_seq->length, 1611);
-   ok($seqio->next_seq->length, 1156);
+   while( my $s = $seqio->next_seq ) {
+       ok( $s->length, $expected_lengths{$s->display_id});
+       undef $gb;  # test the case where the db is gone, 
+       # but the pipeline should remain until seqio goes away
+   }
 };
 
 if ($@) {
@@ -247,9 +272,11 @@ eval {
 					   '-delay'  => 0,
 					  ));
    ok defined ($seqio = $gb->get_Stream_by_query($query));
-   ok($seqio->next_seq->length,798);
-   ok($seqio->next_seq->length,1042);
-   ok($seqio->next_seq->length,1172);
+   while( my $s = $seqio->next_seq ) {
+       ok( $s->length, $expected_lengths{$s->display_id});
+       undef $gb;  # test the case where the db is gone, 
+       # but the pipeline should remain until seqio goes away
+   }
 };
 
 if ($@) {
@@ -277,9 +304,9 @@ eval {
 					   '-delay'  => 0,
 					  ));
    ok defined ($seqio = $gb->get_Stream_by_query($query));
-   ok($seqio->next_seq->length, 408);
-   ok($seqio->next_seq->length, 1611);
-   ok($seqio->next_seq->length, 1156);
+   while( my $s = $seqio->next_seq ) {
+       ok( $s->length, $expected_lengths{$s->display_id});
+   }
    $seqio->close(); # the key to preventing errors during make test, no idea why
 };
 
