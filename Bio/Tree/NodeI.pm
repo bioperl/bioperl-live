@@ -218,7 +218,7 @@ sub height{
    
    if( $self->is_Leaf ) { 
        if( !defined $self->branch_length ) { 
-	   $self->warn(sprintf("Trying to calculate height of a node when a Node (%s) has an undefined branch_length",$self->id || '?' ));
+	   $self->debug(sprintf("Trying to calculate height of a node when a Node (%s) has an undefined branch_length",$self->id || '?' ));
 	   return 0;
        }
        return $self->branch_length;
@@ -228,7 +228,7 @@ sub height{
        my $s = $subnode->height;
        if( $s > $max ) { $max = $s; }
    }
-   return $max + $self->branch_length;
+   return $max + ($self->branch_length || 0);
 }
 
 =head2 Get/Set methods
