@@ -50,5 +50,26 @@ ok (Bio::SeqUtils->seq3($seq, '-', ':'),
 # three letter amino acid code to one letter code
 ok (Bio::SeqUtils->seq3in($seq, 'AlaXaaCysAspGlu')), 
 ok  $seq->seq, 'AXCDE';
-ok (Bio::SeqUtils->seq3in($seq, $ascii3)->seq, $ascii_aa)
+ok (Bio::SeqUtils->seq3in($seq, $ascii3)->seq, $ascii_aa);
 #ok ();
+
+#
+# Tests for multiframe translations
+#
+
+$seq = Bio::PrimarySeq->new('-seq'=> 'agctgctgatcggattgtgatggctggatggcttgggatgctgg',
+			    '-alphabet'=>'dna', 
+			    '-id'=>'test2');
+
+my @a = $util->translate_3frames($seq);
+ok scalar @a, 3;
+#foreach $a (@a) {
+#    print 'ID: ', $a->id, ' ', $a->seq, "\n";
+#} 
+
+@a = $util->translate_6frames($seq);
+ok scalar @a, 6;
+#foreach $a (@a) {
+#    print 'ID: ', $a->id, ' ', $a->seq, "\n";
+#} 
+

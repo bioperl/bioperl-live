@@ -1,4 +1,4 @@
-
+# $Id$
 #
 # BioPerl module for Bio::SeqUtils
 #
@@ -16,6 +16,7 @@ Bio::SeqUtils - Additional methods for PrimarySeq objects
 
 =head1 SYNOPSIS
 
+    use Bio::SeqUtils;
     # get a Bio::PrimarySeqI compliant object, $seq, somehow
     $util = new Bio::SeqUtils;
     $poplypeptide_3char = $util->seq3($seq);
@@ -23,7 +24,10 @@ Bio::SeqUtils - Additional methods for PrimarySeq objects
     $poplypeptide_3char = Bio::SeqUtils->seq3($seq);
 
     #set the sequence string (stored in one char code in the object)
-    Bio::SeqUtils->seq3($seq, $poplypeptide_3char);
+    Bio::SeqUtils->seq3($seq, $polypeptide_3char);
+
+    # translate a sequence in all six frames
+    @seqs = Bio::SeqUtils->translate_6frames($seq);
 
 =head1 DESCRIPTION
 
@@ -38,8 +42,11 @@ The methods take as their first argument a sequence object. It is
 possible to use methods without first creating a SeqUtils object,
 i.e. use it as an anonymous hash.
 
-The first two methodsgive out or read in protein sequences coded in
+The first two methods give out or read in protein sequences coded in
 three letter IUPAC amino acid codes.
+
+The next two methods wrap around the standard translate method to give
+back an array of three forward or all six frame translations.
 
 =head1 FEEDBACK
 
@@ -126,7 +133,7 @@ my  %threecode =
            aminoacid selenocystein is recognized (Sel, U).
 
  Returns : A scalar
- Args    : character used for stop in the protein seqence optional,
+ Args    : character used for stop in the protein sequence optional,
            defaults to '*' string used to separate the output amino
            acid codes, optional, defaults to ''
 
@@ -205,10 +212,63 @@ sub seq3in {
    return $seq;
 }
 
+=head2 translate_3frames
+
+ Title   : translate_3frames
+ Usage   : @prots = Bio::SeqUtils->translate_3frames($seq)
+ Function: Translate a nucleotide sequence in three forward frames.
+           The IDs of the sequences are appended with '-0F', '-1F', '-2F'.
+ Returns : An array of seq objects
+ Args    : sequence object
+           same arguments as to L<Bio::PrimarySeqI::translate>
+
+=cut
+
+sub translate_3frames {
+    my ($self, $seq, @args ) = @_;
+    
+    $self->throw('Object [$seq] '. 'of class ['. ref($seq).  ']  can not be translated.')
+	unless $seq->can('translate');
+
+    my ($stop, $unknown, $frame, $tableid, $fullCDS, $throw) = @args;
+    my @seqs;
+    my $f = 0;
+    while ($f != 3) {
+        my $translation = $seq->translate($stop, $unknown,$f,$tableid, $fullCDS, $throw );
+	$translation->id($seq->id. "-". $f. "F");
+	push @seqs, $translation;
+	$f++;
+    }
+
+    return @seqs;
 }
 
+=head2 translate_6frames
+
+ Title   : translate_6frames
+ Usage   : @prots = Bio::SeqUtils->translate_6frames($seq)
+ Function: translate a nucleotide sequence in all six frames
+           The IDs of the sequences are appended with '-0F', '-1F', '-2F',
+           '-0R', '-1R', '-2R'.
+ Returns : An array of seq objects
+ Args    : sequence object
+           same arguments as to L<Bio::PrimarySeqI::translate>
+
+=cut
+
+sub translate_6frames {
+    my ($self, $seq, @args ) = @_;
+    
+    my @seqs = $self->translate_3frames($seq, @args);
+    $seq->seq($seq->revcom->seq);
+    my @seqs2 = $self->translate_3frames($seq, @args);
+    foreach my $seq2 (@seqs2) {
+	my ($tmp) = $seq2->id;
+	$tmp =~ s/F$/R/g;
+	$seq2->id($tmp);
+    }
+    return @seqs, @seqs2;
+}
+
+}
 1;
-
-
-
-
