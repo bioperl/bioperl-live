@@ -71,9 +71,9 @@ sub _label {
   # figure it out ourselves
   my $f = $self->feature;
 
-  return $f->info         if $f->can('info');
+  return $f->display_name if $f->can('display_name');
+  return $f->info         if $f->can('info');   # deprecated API
   return $f->seq_id       if $f->can('seq_id');
-  return $f->display_name if $f->can('display_name');   # deprecated API
   return eval{$f->primary_tag};
 }
 sub _description {
