@@ -15,7 +15,7 @@ BEGIN {
 	use lib 't';
     }
     use Test;
-    plan tests => 76;
+    plan tests => 77;
 }
 
 use Bio::Tools::BPlite;
