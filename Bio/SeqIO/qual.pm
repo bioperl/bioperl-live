@@ -203,8 +203,8 @@ sub write_seq {
     my ($self,@args) = @_;
     my ($source)  = $self->_rearrange([qw(SOURCE)], @args);
 
-    if (!$source || ( ref($source) ne "Bio::Seq::SeqWithQuality" && 
-		      ref($source) ne "Bio::Seq::PrimaryQual")) {
+    if (!$source || ( !$source->isa('Bio::Seq::SeqWithQuality') && 
+		      !$source->isa('Bio::Seq::PrimaryQual')   )) {
 	$self->throw("You must pass a Bio::Seq::SeqWithQuality or a Bio::Seq::PrimaryQual object to write_seq as a parameter named \"source\"");
     }
     my $header = $source->id();
