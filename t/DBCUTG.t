@@ -20,7 +20,7 @@ BEGIN {
     }
     use Test;
 
-    $NUMTESTS = 14;
+    $NUMTESTS = 23;
     plan tests => $NUMTESTS;
 
     eval {
@@ -45,6 +45,8 @@ use Data::Dumper;
 require Bio::DB::CUTG;
 require Bio::CodonUsage::Table;
 require Bio::CodonUsage::IO;
+require Bio::SeqIO;
+require Bio::Tools::SeqStats;
 ok 1;
 
 my $verbose = 0;
@@ -55,14 +57,36 @@ ok my $tool = Bio::WebAgent->new(-verbose =>$verbose);
 ok $tool->sleep;
 ok $tool->delay(1), 1;
 ok $tool->sleep;
+
+#get CUT from web
 ok my $db = Bio::DB::CUTG->new();
 ok my $cdtable =  $db->get_request(-sp =>'Pan troglodytes');
+
+#tests for Table.pm
 ok $cdtable->cds_count(), 325;
-ok $cdtable->aa_frequency('LEU'), "10.065";
+ok $cdtable->aa_frequency('LEU'), "10.07";
 ok $cdtable->get_coding_gc('all');
 ok $cdtable->codon_rel_frequency('ttc'), "0.70"; 
+
+#now try reading from file
 ok my $io = Bio::CodonUsage::IO->new
        (-file=> Bio::Root::IO->catfile("t", "data", "MmCT"));
 ok  my $cut2 = $io->next_data();
-ok $cut2->aa_frequency('LEU'), "10.065";
+ok $cut2->aa_frequency('LEU'), "10.07";
+
+#now try making a user defined CUT from a sequence
+
+ok my $seqobj = Bio::SeqIO->new (-file=>Bio::Root::IO->catfile("t", "data", 
+								"HUMBETGLOA.fa"),
+							-format => 'fasta')->next_seq;
+ok $seqobj->subseq(10,20), 'TTGACACCACT';
+ok my $codcont_Ref = Bio::Tools::SeqStats->count_codons($seqobj);
+ok $codcont_Ref->{'TGA'}, 16;
+ok my $cut = Bio::CodonUsage::Table->new(-data=>$codcont_Ref);
+ok $cut->codon_rel_frequency('CTG'), 0.18;
+ok $cut->codon_abs_frequency('CTG'), 2.6;
+ok $cut->codon_count('CTG'), 26;
+ok $cut->get_coding_gc(1), "39.70";
+
+
 
