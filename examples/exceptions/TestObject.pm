@@ -56,11 +56,10 @@ sub bar {
     my $message = "A Test error";
 
     # Bio::Root::Root::throw() will make use of Error.pm if present.
-    # To make use of this ability, you need to pass arguments as a hash
-    # to throw() indicating what type of Error to throw with a
-    # -class key-value pair as shown below.
+    # The type of Error is specified with a -class parameter. 
+    # If -class is not supplied, a Bio::Root::Exception is throw.
+    # In this case, the argument can consist of a simple string.
 
-#    $self->throw( $message );
     $self->throw( -class => 'Bio::TestException',
                   -text  => $message );
 
