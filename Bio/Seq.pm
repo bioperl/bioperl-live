@@ -37,16 +37,17 @@ also implements its interface.
 In bioperl we have 3 main players that people are going to use
 
   Bio::PrimarySeq - just the sequence and its names, nothing else.
-  Bio::SeqFeature - a location on a sequence, potentially with a sequence.
+  Bio::SeqFeatureI - a location on a sequence, potentially with a sequence.
                     and annotation
   Bio::Seq        - A sequence and a collection of seqfeatures (an aggregate) with
                     its own annotation.
 
-Although bioperl is not tied to file formats heavily, these distrinctions do map to file formats
-sensibly and for some bioinformaticians this might help you:
+Although bioperl is not tied to file formats heavily, these distinctions do 
+map to file formats sensibly and for some bioinformaticians this might help 
+you:
 
   Bio::PrimarySeq - Fasta file of a sequence
-  Bio::SeqFeature - A single entry in an EMBL/GenBank/DDBJ feature table
+  Bio::SeqFeatureI - A single entry in an EMBL/GenBank/DDBJ feature table
   Bio::Seq        - A single EMBL/GenBank/DDBJ entry
 
 By having this split we avoid alot of nasty ciricular references
@@ -162,9 +163,9 @@ of course, you are free to use these functions anyway.
 sub seq {
    my ($self,$value) = @_;
    if( defined $value ) {
-       return $self->{'primary_seq'}->seq($value);
+       return $self->primary_seq()->seq($value);
    }
-   return $self->{'primary_seq'}->seq();
+   return $self->primary_seq()->seq();
 }
 
 =head2 length
@@ -180,7 +181,7 @@ sub seq {
 
 sub length {
    my ($self) = @_;
-   return $self->{'primary_seq'}->length();
+   return $self->primary_seq()->length();
 }
 
 =head2 subseq
@@ -201,7 +202,7 @@ sub length {
 
 sub subseq {
    my ($self,$s,$e) = @_;
-   return $self->{'primary_seq'}->subseq($s,$e);
+   return $self->primary_seq()->subseq($s,$e);
 }
 
 =head2 display_id
