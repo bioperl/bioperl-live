@@ -8,7 +8,7 @@
 #
 # You may distribute this module under the same terms as perl itself
 # _history
-# June 25, 2000     written by Brad Marshall
+# June 25, 2000     written by Brad Marshall 
 #
 # POD documentation - main docs before the code
 
@@ -63,6 +63,10 @@ Email: bradmars@yahoo.com
        lstein@cshl.org
 
 
+=head1 CONTRIBUTORS
+
+Jason Stajich E<lt>jason@bioperl.orgE<gt>
+
 =head1 APPENDIX
 
 The rest of the documentation details each of the object
@@ -93,21 +97,22 @@ use Bio::Seq::SeqFactory;
 sub _initialize {        
   my($self,@args) = @_;
   $self->SUPER::_initialize(@args);
-  my $xmlfile ="";
-  
-  $self->{'counter'} = 0;
+  my $xmlfile           = "";
+  $self->{'counter'}    = 0;
   $self->{'id_counter'} = 1;  
-  $self->{'leftovers'} = undef;
-  $self->{'header'} = undef;
-  $self->{'chunkable'} = undef;
-  $self->{'xmldoc'} = undef;
+  $self->{'leftovers'}  = undef;
+  $self->{'header'}     = undef;
+  $self->{'chunkable'}  = undef;
+  $self->{'xmldoc'}     = undef;
 
   $self->_export_subfeatures(1);
   $self->_group_subfeatures(1);
-  $self->_subfeature_types('exons', 'promoters','poly_A_sites','utrs','introns','sub_SeqFeature');
+  $self->_subfeature_types('exons', 'promoters','poly_A_sites',
+			   'utrs','introns','sub_SeqFeature');
   
   # filehandle is stored by superclass _initialize
 }
+
 
 =head2 _export_subfeatures
 
@@ -152,8 +157,10 @@ sub _group_subfeatures{
 
  Title   : _subfeature_types
  Usage   : $obj->_subfeature_types
- Function: array of all possible subfeatures, it should be a name of a function which
-         : returns an arrau of sub_seqfeatures when called: @array = $feature->subfeaturetyp()
+ Function: array of all possible subfeatures, it should be a 
+           name of a function which
+         : returns an arrau of sub_seqfeatures when called: 
+           @array = $feature->subfeaturetype()
  Returns : array of _subfeature_types
  Args    : array of subfeature types (optional)
 
@@ -466,203 +473,202 @@ sub next_primary_seq {
 =cut
 
 sub write_seq {
-  my ($self,@seqs) = @_;
+    my ($self,@seqs) = @_;
 
-  my $bxfeat = "http://www.bioxml.org/dtds/feature/v0_1";
-  my $bxann = "http://www.bioxml.org/dtds/annotation/v0_1";
-  my $bxcomp = "http://www.bioxml.org/dtds/computation/v0_1";
-  my $bxgame = "http://www.bioxml.org/dtds/game/v0_1";
-  my $bxlink = "http://www.bioxml.org/dtds/link/v0_1";
-  my $bxseq = "http://www.bioxml.org/dtds/seq/v0_1";
-  
-  my $output = new IO::File(">" . $self->{'file'});
-  my $writer = new XML::Writer(OUTPUT => $output,
-  		               NAMESPACES => 1,
-			       DATA_MODE => 1,
-			       DATA_INDENT => 4,
-			       PREFIX_MAP => {$bxfeat => 'bx-feature',
-					      $bxann =>  'bx-annotation',
-					      $bxcomp => 'bx-computation',
-					      $bxgame => 'bx-game',
-					      $bxlink => 'bx-link',
-					      $bxseq =>  'bx-seq'
-					     });
-  
-  
-  $writer->xmlDecl("UTF-8");
-  $writer->doctype("bx-game:game", 'game', "http://www.bioxml.org/dtds/current/game.dtd");
-  $writer ->startTag([$bxgame, 'game']);
-  $writer->startTag([$bxgame, 'flavor']);
-  $writer->characters('chunkable');
-  $writer->endTag([$bxgame, 'flavor']);
-  
-  foreach my $seq (@seqs) {
-     $writer ->startTag([$bxseq, 'seq'], 
-      		       [$bxseq, 'id'] => $seq->display_id,
-		       [$bxseq, 'length'] => $seq->length,
-		       [$bxseq, 'type'] => $seq->alphabet);
-    if ($seq->length > 0) {
-      $writer ->startTag([$bxseq, 'residues']);
-      $writer->characters($seq->seq);
-      $writer ->endTag([$bxseq, 'residues']);
-    }
-    $writer->endTag([$bxseq, 'seq']);
+    my $bxfeat  = "http://www.bioxml.org/dtds/current/feature.dtd";
+    my $bxann   = "http://www.bioxml.org/dtds/current/annotation.dtd";
+    my $bxcomp  = "http://www.bioxml.org/dtds/current/computation.dtd";
+    my $bxgame  = "http://www.bioxml.org/dtds/current/game.dtd";
+    my $bxlink  = "http://www.bioxml.org/dtds/current/link.dtd";
+    my $bxseq   = "http://www.bioxml.org/dtds/current/seq.dtd";
     
-    my @feats = $seq->all_SeqFeatures;
-    
-     my $features;
-    
-    foreach my $feature (@feats) {
-      if ($feature->has_tag('annotation_id')) {
-	my @ann_id = $feature->each_tag_value('annotation_id');
-	push (@{$features->{'annotations'}->{$ann_id[0]}}, $feature);
-      } elsif ($feature->has_tag('computation_id')) {
-	my @comp_id = $feature->each_tag_value('computation_id');
-	push (@{$features->{'computations'}->{$comp_id[0]}}, $feature);
-      } else {
-	push (@{$features->{'everybody_else'}}, $feature);
-      }
-    }
-    
-    foreach my $key (keys %{$features->{'annotations'}}) {
-      $writer->startTag([$bxann, 'annotation'],
-			[$bxann, 'id']=>$key
-		       );
-      $writer->startTag([$bxann, 'seq_link']);
-      $writer->startTag([$bxlink, 'link']);
-      $writer->emptyTag([$bxlink, 'ref_link'],
-		       [$bxlink, 'ref'] => $seq->display_id());
-      $writer->endTag([$bxlink, 'link']);
-      $writer->endTag([$bxann, 'seq_link']);					   
-      $self->__draw_feature_set($writer, $seq, $bxann, "", @{$features->{'annotations'}->{$key}});
-      $writer->endTag([$bxann, 'annotation']);
-    }
-    
-    foreach my $key (keys %{$features->{'computations'}}) {
-      $writer->startTag([$bxcomp, 'computation'],
-			[$bxcomp, 'id']=>$key
-		       );
-      $writer->startTag([$bxcomp, 'seq_link']);
-      $writer->startTag([$bxlink, 'link']);
-      $writer->emptyTag([$bxlink, 'ref_link'],
-		       [$bxlink, 'ref'] => $seq->display_id());
-      $writer->endTag([$bxlink, 'link']);
-      $writer->endTag([$bxcomp, 'seq_link']);
-      $self->__draw_feature_set($writer, $seq, $bxcomp, "", @{$features->{'computations'}->{$key}});   $writer->endTag([$bxcomp, 'computation']);
-    }
+    my $writer = new XML::Writer(OUTPUT      => $self->_fh,
+				 NAMESPACES  => 1,
+				 DATA_MODE   => 1,
+				 DATA_INDENT => 4,
+				 PREFIX_MAP  => {
+				     ''     => '', # to keep undef warnings away in XML::Writer, fill in with something as a default prefix later?
+				     $bxfeat => 'bx-feature',
+				     $bxann =>  'bx-annotation',
+				     $bxcomp => 'bx-computation',
+				     $bxgame => 'bx-game',
+				     $bxlink => 'bx-link',
+				     $bxseq =>  'bx-seq'
+				     });
 
-    foreach my $feature(@{$features->{'everybody_else'}}) {
-        $self->__draw_feature($writer, $feature, $seq, "", $self->_export_subfeatures()) 
+
+    $writer->xmlDecl("UTF-8");
+    $writer->doctype("bx-game:game", 'game', $bxgame);
+    $writer ->startTag ([$bxgame, 'game']);
+    $writer->startTag  ([$bxgame, 'flavor']);
+    $writer->characters('chunkable');
+    $writer->endTag    ([$bxgame, 'flavor']);
+
+    foreach my $seq (@seqs) {
+	$writer->startTag([$bxseq, 'seq'], 
+			  [$bxseq, 'id'] => $seq->display_id,
+			  [$bxseq, 'length'] => $seq->length,
+			  [$bxseq, 'type'] => $seq->alphabet);
+	if ($seq->length > 0) {
+	    $writer->startTag([$bxseq, 'residues']);
+	    $writer->characters($seq->seq);
+	    $writer->endTag([$bxseq, 'residues']);
+	}
+	$writer->endTag([$bxseq, 'seq']);
+
+	my @feats = $seq->all_SeqFeatures;
+
+	my $features;
+	foreach my $feature (@feats) {
+	    if ($feature->has_tag('annotation_id')) {
+		my @ann_id = $feature->each_tag_value('annotation_id');
+		push (@{$features->{'annotations'}->{$ann_id[0]}}, $feature);
+	    } elsif ($feature->has_tag('computation_id')) {
+		my @comp_id = $feature->each_tag_value('computation_id');
+		push (@{$features->{'computations'}->{$comp_id[0]}}, $feature);
+	    } else {
+		push (@{$features->{'everybody_else'}}, $feature);
+	    }
+	}
+	foreach my $key (keys %{$features->{'annotations'}}) {
+	    $writer->startTag([$bxann, 'annotation'],
+			      [$bxann, 'id']=>$key
+			      );
+	    $writer->startTag([$bxann, 'seq_link']);
+	    $writer->startTag([$bxlink, 'link']);
+	    $writer->emptyTag([$bxlink, 'ref_link'],
+			      [$bxlink, 'ref'] => $seq->display_id());
+	    $writer->endTag([$bxlink, 'link']);
+	    $writer->endTag([$bxann, 'seq_link']);					   
+	    $self->__draw_feature_set($writer, $seq, $bxann, "", @{$features->{'annotations'}->{$key}});
+	    $writer->endTag([$bxann, 'annotation']);
+	}
+
+	foreach my $key (keys %{$features->{'computations'}}) {
+	    $writer->startTag([$bxcomp, 'computation'],
+			      [$bxcomp, 'id']=>$key
+			      );
+	    $writer->startTag([$bxcomp, 'seq_link']);
+	    $writer->startTag([$bxlink, 'link']);
+	    $writer->emptyTag([$bxlink, 'ref_link'],
+			      [$bxlink, 'ref'] => $seq->display_id());
+	    $writer->endTag([$bxlink, 'link']);
+	    $writer->endTag([$bxcomp, 'seq_link']);
+	    $self->__draw_feature_set($writer, $seq, $bxcomp, "", @{$features->{'computations'}->{$key}});   
+	    $writer->endTag([$bxcomp, 'computation']);
+	}
+	foreach my $feature (@{$features->{'everybody_else'}}) {
+	    $self->__draw_feature($writer, $feature, $seq, "", 
+				  $self->_export_subfeatures());
+	}
     }
-  }
-   $writer->endTag([$bxgame, 'game']);
+    $writer->endTag([$bxgame, 'game']);
 }
 
 
 #these two subroutines are very specific!
 
 sub __draw_feature_set {
-  my ($self, $writer, $seq, $namespace, $parent, @features) = @_;
-  my ($feature_set_id);
-	 
-  my $bxfeat = "http://www.bioxml.org/dtds/feature/v0_1";
+    my ($self, $writer, $seq, $namespace, $parent, @features) = @_;
+    my ($feature_set_id);
 
-  if ($self->_export_subfeatures() && $self->_group_subfeatures()) {
-     $feature_set_id = $self->{'id_counter'}; $self->{'id_counter'}++;
-    $writer->startTag([$namespace, 'feature_set'],
-                        [$namespace, 'id'] => $feature_set_id);
-    foreach my $feature (@features) {
-      $self->__draw_feature($writer, $feature, $seq, $parent , 0);  
-    }
-    $writer->endTag([$namespace, 'feature_set']);
-    foreach my $feature (@features) {
-      foreach my $subset ($self->_subfeature_types()) {
-        if (my @subfeatures = eval ( '$feature->' . $subset . '()' )) {
-           my @id = $feature->each_tag_value('id');
-           $self->__draw_feature_set($writer, $seq, $namespace, $id[0], @subfeatures);     
-        }
-      }	        
-    }
+    my $bxfeat = "http://www.bioxml.org/dtds/current/feature.dtd";
 
-  } else {
-    $feature_set_id = $self->{'id_counter'}; $self->{'id_counter'}++;
-    $writer->startTag([$namespace, 'feature_set'],
-                      [$namespace, 'id'] => $feature_set_id);
-    foreach my $feature (@features) {
-        $self->__draw_feature($writer, $feature, $seq, "" , $self->_export_subfeatures());
+    if ($self->_export_subfeatures() && $self->_group_subfeatures()) {
+	$feature_set_id = $self->{'id_counter'}; $self->{'id_counter'}++;
+	$writer->startTag([$namespace, 'feature_set'],
+			  [$namespace, 'id'] => $feature_set_id);
+	foreach my $feature (@features) {
+	    $self->__draw_feature($writer, $feature, $seq, $parent , 0);  
+	}
+	$writer->endTag([$namespace, 'feature_set']);
+	foreach my $feature (@features) {
+	    foreach my $subset ($self->_subfeature_types()) {
+		if (my @subfeatures = eval ( '$feature->' . $subset . '()' )) {
+		    my @id = $feature->each_tag_value('id');
+		    $self->__draw_feature_set($writer, $seq, $namespace, $id[0], @subfeatures);     
+		}
+	    }	        
+	}
+
+    } else {
+	$feature_set_id = $self->{'id_counter'}; $self->{'id_counter'}++;
+	$writer->startTag([$namespace, 'feature_set'],
+			  [$namespace, 'id'] => $feature_set_id);
+	foreach my $feature (@features) {
+	    $self->__draw_feature($writer, $feature, $seq, "" , $self->_export_subfeatures());
+	}
+	$writer->endTag([$namespace, 'feature_set']);
     }
-    $writer->endTag([$namespace, 'feature_set']);
-  }
 }
 
 
 sub __draw_feature {
-  my ($self, $writer, $feature, $seq, $parent, $recursive) = @_;
-  my ($subfeature, $subset, @subfeatures, $score, $score_val, $score_no);
-  my $bxfeat = "http://www.bioxml.org/dtds/feature/v0_1";
-
-  if (!$feature->has_tag('id')) {
-    $feature->add_tag_value('id', $self->{'id_counter'});
-    $self->{'id_counter'}++;
-  }
-
-  my @id = $feature->each_tag_value('id');
-  if ($parent == "") {
-	  $writer->startTag([$bxfeat, 'feature'],
-			    [$bxfeat, 'id'] => $id[0]
-			   );
-  } else {
-	  $writer->startTag([$bxfeat, 'feature'],
-			    [$bxfeat, 'id'] => $id[0],
-			    [$bxfeat, 'parent'] => $parent
-			   );
-  }
-
-  $writer->startTag([$bxfeat, 'type']);
-  $writer->characters($feature->primary_tag());
-  $writer->endTag([$bxfeat, 'type']);
-
-  foreach $score ($feature->all_tags()) {
-    next if ($score eq 'id');
-    $writer->startTag([$bxfeat, 'score'],
-                      [$bxfeat, 'type'] => $score 
-                     );
-    $score_no = 0;
-    foreach $score_val ($feature->each_tag_value($score)) {
-       $writer->characters(' ') if ($score_no > 0);
-       $writer->characters($score_val);
-       $score_no++;
+    my ($self, $writer, $feature, $seq, $parent, $recursive) = @_;
+    my ($subfeature, $subset, @subfeatures, $score, $score_val, $score_no);
+    my $bxfeat = "http://www.bioxml.org/dtds/current/feature.dtd";
+    
+    if (!$feature->has_tag('id')) {
+	$feature->add_tag_value('id', $self->{'id_counter'});
+	$self->{'id_counter'}++;
     }
-    $writer->endTag([$bxfeat, 'score']);
-  }
-
-  $writer->startTag([$bxfeat, 'seq_relationship'],
-		    [$bxfeat, 'seq'] => $seq->display_id,
-		    [$bxfeat, 'type'] => 'query'
-		   );
-  
-  $writer->startTag([$bxfeat, 'span']);
-  $writer->startTag([$bxfeat, 'start']);
-  $writer->characters($feature->start());
-  $writer->endTag([$bxfeat, 'start']);
-  $writer->startTag([$bxfeat, 'end']);
-  $writer->characters($feature->end());
-  $writer->endTag([$bxfeat, 'end']);
-  $writer->endTag([$bxfeat, 'span']);
-  $writer->endTag([$bxfeat, 'seq_relationship']);
-  $writer->endTag([$bxfeat, 'feature']);
-
-  #proces subseqfeature's, exons, introns, promotors, whatever...
-  if ($recursive) {
-    foreach $subset ($self->_subfeature_types()) {
-      #determine if it exists
-      if (@subfeatures = eval ( '$feature->' . $subset . '()' )) {
-        foreach $subfeature (@subfeatures) {
-        $self->__draw_feature ($writer, $subfeature, $seq, $id[0], 1);
-        }        
-      }
+    
+    my @id = $feature->each_tag_value('id');
+    if ($parent) {
+	$writer->startTag([$bxfeat, 'feature'],
+			  [$bxfeat, 'id'] => $id[0]
+			  );
+    } else {
+	$writer->startTag([$bxfeat, 'feature'],
+			  [$bxfeat, 'id'] => $id[0],
+			  [$bxfeat, 'parent'] => $parent
+			  );
+    }    
+    $writer->startTag([$bxfeat, 'type']);
+    $writer->characters($feature->primary_tag());
+    $writer->endTag([$bxfeat, 'type']);
+    foreach $score ($feature->all_tags()) {
+	next if ($score eq 'id');
+	$writer->startTag([$bxfeat, 'score'],
+			  [$bxfeat, 'type'] => $score 
+			  );
+	$score_no = 0;
+	foreach $score_val ($feature->each_tag_value($score)) {
+	    next unless defined $score_val;
+	    $writer->characters(' ') if ($score_no > 0);
+	    $writer->characters($score_val);
+	    $score_no++;
+	}
+	$writer->endTag([$bxfeat, 'score']);
     }
-  }
+
+    $writer->startTag([$bxfeat, 'seq_relationship'],
+		      [$bxfeat, 'seq'] => $seq->display_id,
+		      [$bxfeat, 'type'] => 'query'
+		      );
+
+    $writer->startTag([$bxfeat, 'span']);
+    $writer->startTag([$bxfeat, 'start']);
+    $writer->characters($feature->start());
+    $writer->endTag([$bxfeat, 'start']);
+    $writer->startTag([$bxfeat, 'end']);
+    $writer->characters($feature->end());
+    $writer->endTag([$bxfeat, 'end']);
+    $writer->endTag([$bxfeat, 'span']);
+    $writer->endTag([$bxfeat, 'seq_relationship']);
+    $writer->endTag([$bxfeat, 'feature']);
+
+    #proces subseqfeature's, exons, introns, promotors, whatever...
+    if ($recursive) {
+	foreach $subset ($self->_subfeature_types()) {
+	    #determine if it exists
+	    if (@subfeatures = eval ( '$feature->' . $subset . '()' )) {
+		foreach $subfeature (@subfeatures) {
+		    $self->__draw_feature ($writer, $subfeature, $seq, $id[0], 1);
+		}        
+	    }
+	}
+    }
 }
 
 1;

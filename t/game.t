@@ -7,6 +7,9 @@
 
 my $error;
 use strict;
+use vars qw($DEBUG);
+$DEBUG = $ENV{'BIOPERLDEBUG'};
+
 BEGIN { 
     # to handle systems with no installed Test module
     # we include the t dir (where a copy of Test.pm is located)
@@ -16,7 +19,7 @@ BEGIN {
 	use lib 't';
     }
     use Test;
-    plan tests => 9;
+    plan tests => 23;
     
     $error  = 0;
     eval { require XML::Parser::PerlSAX; };
@@ -46,36 +49,56 @@ if( $error == 1 ) {
     exit(0);
 }
 
+END{ 
+    unlink('testgameout.game')
+}
 use Bio::Seq;
 use Bio::SeqIO;
 use Bio::SeqIO::MultiFile;
-require XML::Parser::PerlSAX;
-use vars qw($DEBUG);
 use Bio::Root::IO;
-
+my $verbose = $DEBUG ? 1 : -1;
 my $str = Bio::SeqIO->new('-file'=> Bio::Root::IO->catfile("t","data","test.game"), 
-		       '-format' => 'game');
+			  '-format' => 'game',
+			  '-verbose' => $verbose);
 ok ($str);
 my $seq = $str->next_primary_seq();
 ok($seq);
 
 ok ($seq->display_id(), 'AE003417' );
 ok ($seq->id(), 'AE003417' );
-
-my $str2 = Bio::SeqIO->new(-file=> Bio::Root::IO->catfile("t","data","test.game"), '-format' => 'game');
+ok ($seq->alphabet, 'dna');
+ok ($seq->desc, 'E003417|Drosophila melanogaster genomic scaffold 142000013386054 section 1 of 35, complete sequence.|AE003417.1 GI:7290018');
+my $str2 = Bio::SeqIO->new(-file=> Bio::Root::IO->catfile("t","data","test.game"), 
+			   '-format' => 'game',
+			   '-verbose' => $verbose,
+			   );
 ok ($str2);
 
 $seq = $str2->next_seq();
 ok $seq;
+my @features = ( [qw(exon FBan0003038 fCG3038:1 2565 2154 -1)],
+		 [qw(exon FBan0003038 fCG3038:2 2077 1181 -1)] );
+foreach my $f ( $seq->all_SeqFeatures() ) {
+    last unless @features;
+    my $index = 0;
+    ok($f->primary_tag, $features[0]->[$index++]);
+    ok(($f->each_tag_value('annotation_id'))[0], $features[0]->[$index++]);
+    ok(($f->each_tag_value('id'))[0],$features[0]->[$index++]);
+    ok($f->end,    $features[0]->[$index++]);
+    ok($f->start,  $features[0]->[$index++]);
+    ok($f->strand, $features[0]->[$index++]);
+    shift @features;
+}
 
-$str2->write_seq($seq) if( $DEBUG);
+$str2 = Bio::SeqIO->new('-format'  => 'game', 
+			'-file'    => '>testgameout.game', 
+			'-verbose' => $verbose);
+$str2->write_seq($seq);
 
-ok ( $seq->id, 'AE003417', 
-     'id was not AE003417 it was ' .$seq->id);
+ok ( $seq->id, 'AE003417');
 
 my @feats = $seq->all_SeqFeatures();
 
 ok @feats, 5;
-ok( $feats[0]->primary_tag, 'exon', 
-    'primary tag was not exon it was ' . $feats[0]->primary_tag);
+ok( $feats[0]->primary_tag, 'exon');
 
