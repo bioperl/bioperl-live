@@ -1,505 +1,3 @@
-package Bio::DB::Fasta;
-
-BEGIN {
-  @AnyDBM_File::ISA = qw(DB_File GDBM_File NDBM_File SDBM_File)
-}
-
-use strict;
-use IO::File;
-use AnyDBM_File;
-use Fcntl;
-use File::Basename qw(basename dirname);
-use Carp 'croak';
-use vars qw($VERSION);
-$VERSION = '1.0';
-
-*seq = *sequence = \&subseq;
-*ids = \&get_all_ids;
-*get_seq_by_primary_id = *get_Seq_by_acc  = \&get_Seq_by_id;
-
-use constant STRUCT =>'NNnnCa*';
-use constant DNA     => 1;
-use constant RNA     => 2;
-use constant PROTEIN => 3;
-
-# Bio::DB-like object
-# providing fast random access to a directory of FASTA files
-
-sub new {
-  my $class = shift;
-  my $path  = shift;
-  my %opts  = @_;
-
-  my $self = bless { debug      => $opts{-debug},
-		     makeid     => $opts{-makeid},
-		     glob       => $opts{-glob}    || '*.{fa,fasta,FA,FASTA,fast,FAST}',
-		     maxopen    => $opts{-maxfh}   || 32,
-		     dbmargs    => $opts{-dbmargs} || undef,
-		     fhcache    => {},
-		     cacheseq   => {},
-		     curopen    => 0,
-		     openseq    => 1,
-		     dirname    => undef,
-		     offsets    => undef,
-		   }, $class;
-  my ($offsets,$dirname);
-
-  if (-d $path) {
-    $offsets = $self->index_dir($path,$opts{-reindex});
-    $dirname = $path;
-  } elsif (-f _) {
-    $offsets = $self->index_file($path,$opts{-reindex});
-    $dirname = dirname($path);
-  } else {
-    croak "$path: Invalid file or dirname";
-  }
-  @{$self}{qw(dirname offsets)} = ($dirname,$offsets);
-
-  $self;
-}
-
-sub newFh {
-  my $class = shift;
-  my $self  = $class->new(@_);
-  require Symbol;
-  my $fh = Symbol::gensym or return;
-  tie $$fh,'Bio::DB::Fasta::Stream',$self or return;
-  $fh;
-}
-
-sub index_dir {
-  my $self = shift;
-  my $dir  = shift;
-  my $force_reindex = shift;
-
-  # find all fasta files
-  my @files = glob("$dir/$self->{glob}");
-  croak "no fasta files in $dir" unless @files;
-
-  # get name of index
-  my $index = $self->index_name($dir,1);
-
-  # if caller has requested reindexing, then unlink
-  # the index file.
-  unlink $index if $force_reindex;
-
-  # get the modification time of the index
-  my $indextime = (stat($index))[9];
-
-  # get the most recent modification time of any of the contents
-  my ($modtime,%modtime);
-  foreach (@files) {
-    my $m = (stat($_))[9];
-    $modtime{$_} = $m;
-    $modtime = $modtime < $m ? $m : $modtime;
-  }
-  
-
-  my %offsets;
-  my $flags = $modtime <= $indextime ? O_RDONLY : O_CREAT|O_RDWR;
-
-  my @dbmargs = $self->dbmargs;
-  tie %offsets,'AnyDBM_File',$index,$flags,0644,@dbmargs or croak "Can't open cache file: $!";
-
-  # no indexing needed
-  return \%offsets if $modtime <= $indextime;
-
-  # otherwise reindex contents of changed files
-  $self->{indexing} = $index;
-  foreach (@files) {
-    next if $modtime{$_} <= $indextime;
-    $self->calculate_offsets($_,\%offsets);
-  }
-  delete $self->{indexing};
-  return \%offsets;
-}
-
-sub get_Seq_by_id {
-  my $self = shift;
-  my $id   = shift;
-  return Bio::PrimarySeq::Fasta->new($self,$id);
-}
-
-
-sub index_file {
-  my $self = shift;
-  my $file = shift;
-  my $force_reindex = shift;
-
-  my $index = $self->index_name($file);
-  # if caller has requested reindexing, then unlink the index
-  unlink $index if $force_reindex;
-
-  # get the modification time of the index
-  my $indextime = (stat($index))[9];
-  my $modtime   = (stat($file))[9];
-
-  my %offsets;
-  my $flags = $modtime <= $indextime ? O_RDONLY : O_CREAT|O_RDWR;
-  my @dbmargs = $self->dbmargs;
-  tie %offsets,'AnyDBM_File',$index,$flags,0644,@dbmargs or croak "Can't open cache file: $!";
-  return \%offsets if $modtime <= $indextime;
-
-  $self->{indexing} = $index;
-  $self->calculate_offsets($file,\%offsets);
-  delete $self->{indexing};
-  return \%offsets;
-}
-
-sub dbmargs {
-  my $self = shift;
-  my $args = $self->{dbmargs} or return;
-  return ref($args) eq 'ARRAY' ? @$args : $args;
-}
-
-sub index_name {
-  my $self  = shift;
-  my ($path,$isdir) = @_;
-  unless ($path) {
-    my $dir = $self->{dirname} or return;
-    return $self->index_name($dir,-d $dir);
-  } 
-  return "$path/directory.index" if $isdir;
-  return "$path.index";
-}
-
-
-sub calculate_offsets {
-  my $self = shift;
-  my ($file,$offsets) = @_;
-  my $base = basename($file);
-
-  my $fh = IO::File->new($file) or croak "Can't open $file: $!";
-  warn "indexing $file\n" if $self->{debug};
-  my ($offset,$id,$linelength,$type,$firstline,$count,%offsets);
-  while (<$fh>) {  # don't try this at home
-    if (/^>(\S+)/) {
-      print STDERR "indexed $count sequences...\n" if $self->{debug} && (++$count%1000) == 0;
-      my $pos = tell($fh);
-      if ($id) {
-	my $seqlength    = $pos - $offset - length($_) - 1;
-	$seqlength      -= int($seqlength/$linelength);
-	$offsets->{$id}  = $self->_pack($offset,$seqlength,$linelength,$firstline,$type,$base);
-      }
-      $id                      = ref($self->{makeid}) eq 'CODE' ? $self->{makeid}->($1) : $1;
-      ($offset,$firstline,$linelength) = ($pos,length($_),0);
-    } else {
-      $linelength ||= length($_);
-      $type       ||= $self->_type($_);
-    }
-  }
-  if ($id) {
-    my $pos = tell($fh);
-    my $seqlength   = $pos - $offset - length($_) - 1;
-    $seqlength     -= int($seqlength/$linelength);
-    $offsets->{$id} = $self->_pack($offset,$seqlength,$linelength,$firstline,$type,$base);
-  }
-  return \%offsets;
-}
-
-sub get_all_ids  { keys %{shift->{offsets}} }
-sub offset {
-  my $self = shift;
-  my $id   = shift;
-  my $offset = $self->{offsets}{$id} or return;
-  ($self->_unpack($offset))[0];
-}
-sub length {
-  my $self = shift;
-  my $id   = shift;
-  my $offset = $self->{offsets}{$id} or return;
-  ($self->_unpack($offset))[1];
-}
-sub linelen {
-  my $self = shift;
-  my $id   = shift;
-  my $offset = $self->{offsets}{$id} or return;
-  ($self->_unpack($offset))[2];
-}
-sub headerlen {
-  my $self = shift;
-  my $id   = shift;
-  my $offset = $self->{offsets}{$id} or return;
-  ($self->_unpack($offset))[3];
-}
-sub moltype {
-  my $self = shift;
-  my $id   = shift;
-  my $offset = $self->{offsets}{$id} or return;
-  my $type = ($self->_unpack($offset))[4];
-  return $type == DNA ? 'dna'
-         : $type == RNA ? 'rna'
-         : 'protein';
-
-}
-sub path { shift->{dirname} } 
-sub header_offset {
-    my $self = shift;
-    my $id   = shift;
-    return unless $self->{offsets}{$id};
-    return $self->offset($id) - $self->headerlen($id);
-}
-sub file {
-  my $self = shift;
-  my $id   = shift;
-  my $offset = $self->{offsets}{$id} or return;
-  ($self->_unpack($offset))[5];
-}
-
-sub subseq {
-  my $self = shift;
-  my ($id,$start,$stop) = @_;
-  if ($id =~ /^(.+):([\d_]+)[,-]([\d_]+)$/) {
-    ($id,$start,$stop) = ($1,$2,$3);
-    $start =~ s/_//g;
-    $stop =~ s/_//g;
-  }
-  $start ||= 1;
-  $stop  ||= $self->length($id);
-
-  my $reversed;
-  if ($start > $stop) {
-    ($start,$stop) = ($stop,$start);
-    $reversed++;
-  }
-
-  my $data;
-
-  my $fh = $self->fh($id) or return;
-  my $filestart = $self->caloffset($id,$start);
-  my $filestop  = $self->caloffset($id,$stop);
-
-  seek($fh,$filestart,0);
-  read($fh,$data,$filestop-$filestart+1);
-  $data =~ s/\n//g;
-  if ($reversed) {
-    $data = reverse $data;
-    $data =~ tr/gatcGATC/ctagCTAG/;
-  }
-  $data;
-}
-
-sub fh {
-  my $self = shift;
-  my $id   = shift;
-  my $file = $self->file($id) or return;
-  $self->fhcache("$self->{dirname}/$file") or croak "Can't open file $file";
-}
-
-sub header {
-  my $self = shift;
-  my $id   = shift;
-  my ($offset,$seqlength,$linelength,$firstline,$type,$file) 
-    = $self->_unpack($self->{offsets}{$id}) or return;
-  $offset -= $firstline;
-  my $data;
-  my $fh = $self->fh($id) or return;
-  seek($fh,$offset,0);
-  read($fh,$data,$firstline);
-  chomp $data;
-  substr($data,0,1) = '';
-  $data;
-}
-
-sub caloffset {
-  my $self = shift;
-  my $id   = shift;
-  my $a    = shift()-1;
-  my ($offset,$seqlength,$linelength,$firstline,$type,$file) = $self->_unpack($self->{offsets}{$id});
-  $a = 0            if $a < 0;
-  $a = $seqlength-1 if $a >= $seqlength;
-  $offset + $linelength * int($a/($linelength-1)) + $a % ($linelength-1);
-}
-
-sub fhcache {
-  my $self = shift;
-  my $path = shift;
-  if (!$self->{fhcache}{$path}) {
-    if ($self->{curopen} >= $self->{maxopen}) {
-      my @lru = sort {$self->{cacheseq}{$a} <=> $self->{cacheseq}{$b};} keys %{$self->{fhcache}};
-      splice(@lru, $self->{maxopen} / 3);
-      $self->{curopen} -= @lru;
-      for (@lru) { delete $self->{fhcache}{$_} }
-    }
-    $self->{fhcache}{$path} = IO::File->new($path) or return;
-    $self->{curopen}++;
-  }
-  $self->{cacheseq}{$path}++;
-  $self->{fhcache}{$path}
-}
-
-sub _pack {
-  shift;
-  pack STRUCT,@_;
-}
-
-sub _unpack {
-  shift;
-  unpack STRUCT,shift;
-}
-
-sub _type {
-  shift;
-  local $_ = shift;
-  return /^[gatcnGATCN*-]+$/   ? DNA
-         : /^[gaucnGAUCN*-]+$/ ? RNA
-	 : PROTEIN;
-}
-
-sub get_PrimarySeq_stream {
-  my $self = shift;
-  return Bio::DB::Fasta::Stream->new($self);
-}
-
-sub TIEHASH {
-  my $self = shift;
-  return $self->new(@_);
-}
-
-sub FETCH {
-  shift->subseq(@_);
-}
-sub STORE {
-  croak "Read-only database";
-}
-sub DELETE {
-  croak "Read-only database";
-}
-sub CLEAR {
-  croak "Read-only database";
-}
-sub EXISTS {
-  defined shift->offset(@_);
-}
-sub FIRSTKEY { tied(%{shift->{offsets}})->FIRSTKEY(@_); }
-sub NEXTKEY  { tied(%{shift->{offsets}})->NEXTKEY(@_);  }
-
-sub END {
-  my $self = shift;
-  if ($self->{indexing}) {  # killed prematurely, so index file is no good!
-    warn "indexing was interrupted, so unlinking $self->{indexing}";
-    unlink $self->{indexing};
-  }
-}
-
-#-------------------------------------------------------------
-# Bio::PrimarySeqI compatibility
-#
-package Bio::PrimarySeq::Fasta;
-use overload '""' => 'display_id';
-
-use vars '@ISA';
-eval {
-  require Bio::PrimarySeqI;
-  require Bio::Root::RootI;
-} && (@ISA = ('Bio::PrimarySeqI','Bio::Root::RootI'));
-
-sub new {
-  my $class = shift;
-  $class = ref($class) if ref $class;
-  my ($db,$id,$start,$stop) = @_;
-  return bless { db    => $db,
-		 id    => $id,
-		 start => $start || 1,
-		 stop  => $stop  || $db->length($id)
-	       },$class;
-}
-
-sub seq {
-  my $self = shift;
-  return $self->{db}->seq($self->{id},$self->{start},$self->{stop});
-}
-
-sub subseq {
-  my $self = shift;
-  my ($start,$stop) = @_;
-  $self->throw("Stop cannot be smaller than start")  unless $start <= $stop;
-  return $self->{start} <= $self->{stop} ?  $self->new($self->{db},
-						       $self->{id},
-						       $self->{start}+$start-1,
-						       $self->{start}+$stop-1)
-                                         :  $self->new($self->{db},
-						       $self->{id},
-						       $self->{start}-($start-1),
-						       $self->{start}-($stop-1)
-						      );
-	
-}
-
-sub display_id {
-  my $self = shift;
-  return $self->{id};
-}
-
-sub accession_number {
-  my $self = shift;
-  return "unknown";
-}
-
-sub primary_id {
-  my $self = shift;
-  return overload::StrVal($self);
-}
-
-sub can_call_new { return 0 }
-
-sub moltype {
-  my $self = shift;
-  return $self->{db}->moltype($self->{id});
-}
-
-sub revcom {
-  my $self = shift;
-  return $self->new(@{$self}{'db','id','stop','start'});
-}
-
-sub length {
-  my $self = shift;
-  return $self->{db}->length($self->{id});
-}
-
-#-------------------------------------------------------------
-# stream-based access to the database
-#
-package Bio::DB::Fasta::Stream;
-use Tie::Handle;
-use vars qw(@ISA);
-@ISA = qw(Tie::Handle);
-eval {
-  require Bio::DB::SeqI;
-} && (push @ISA,'Bio::DB::SeqI');
-
-
-sub new {
-  my $class = shift;
-  my $db    = shift;
-  my $key = $db->FIRSTKEY;
-  return bless { db=>$db,key=>$key },$class;
-}
-
-sub next_seq {
-  my $self = shift;
-  my ($key,$db) = @{$self}{'key','db'};
-  my $value = $db->get_Seq_by_id($key);
-  $self->{key} = $db->NEXTKEY($key);
-  $value;
-}
-
-sub TIEHANDLE {
-  my $class = shift;
-  my $db    = shift;
-  return $class->new($db);
-}
-sub READLINE {
-  my $self = shift;
-  $self->next_seq;
-}
-
-
-1;
-
-__END__
-
 =head1 NAME
 
 Bio::DB::Fasta -- Fast indexed access to a directory of fasta files
@@ -567,7 +65,7 @@ Entries may have any line length, and different line lengths are
 allowed in the same file.  However, within a sequence entry, all lines
 must be the same length except for the last.
 
-The module uses /^>(\S+)/ to extract each sequence's primary ID from
+The module uses /^>(\S+)/ to extract each sequence\'s primary ID from
 the Fasta header.  During indexing, you may pass a callback routine to
 modify this primary ID.  For example, you may wish to extract a
 portion of the gi|gb|abc|xyz nonsense that GenBank Fasta files use.
@@ -641,7 +139,7 @@ Bio::SeqIO style.
 =back
 
 The -makeid option gives you a chance to modify sequence IDs during
-indexing.  The option's value should be a code reference that will
+indexing.  The option\'s value should be a code reference that will
 take a scalar argument and return a scalar result, like this:
 
   sub make_my_id {
@@ -813,7 +311,7 @@ object and call its methods.
     print "$id => ",tied(%db)->length($id),"\n";
  }
 
-You may, in addition invoke Bio::DB::Fasta's FIRSTKEY and NEXTKEY tied
+You may, in addition invoke Bio::DB::Fasta\'s FIRSTKEY and NEXTKEY tied
 hash methods directly.
 
 =over 4
@@ -875,4 +373,661 @@ Copyright (c) 2001 Cold Spring Harbor Laboratory.
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.  See DISCLAIMER.txt for
 disclaimers of warranty.
+
+=cut
+
+package Bio::DB::Fasta;
+
+BEGIN {
+  @AnyDBM_File::ISA = qw(DB_File GDBM_File NDBM_File SDBM_File)
+}
+
+use strict;
+use IO::File;
+use AnyDBM_File;
+use Fcntl;
+use File::Basename qw(basename dirname);
+use Bio::DB::SeqI;
+use Bio::Root::RootI;
+use vars qw($VERSION @ISA);
+
+@ISA = qw(Bio::DB::SeqI Bio::Root::RootI);
+
+$VERSION = '1.0';
+
+*seq = *sequence = \&subseq;
+*ids = \&get_all_ids;
+*get_seq_by_primary_id = *get_Seq_by_acc  = \&get_Seq_by_id;
+
+use constant STRUCT =>'NNnnCa*';
+use constant DNA     => 1;
+use constant RNA     => 2;
+use constant PROTEIN => 3;
+
+# Bio::DB-like object
+# providing fast random access to a directory of FASTA files
+
+=head2 new
+
+ Title   : new
+ Usage   : my $db = new Bio::DB::Fasta( $path, @options);
+ Function: initialize a new Bio::DB::Fasta object
+ Returns : new Bio::DB::Fasta object
+ Args    : path to dir of fasta files or a single filename
+
+These are optional arguments to pass in as well.
+
+-glob         Glob expression to use    *.{fa,fasta,fast,FA,FASTA,FAST}
+               for searching for Fasta
+	       files in directories. 
+
+ -makeid       A code subroutine for     None
+	       transforming Fasta IDs.
+
+ -maxopen      Maximum size of		 32
+	       filehandle cache.
+
+ -debug        Turn on status		 0
+	       messages.
+
+ -reindex      Force the index to be     0
+               rebuilt.
+
+ -dbmargs      Additional arguments      none
+               to pass to the DBM
+               routines when tied
+               (scalar or array ref).
+
+=cut
+
+sub new {
+  my $class = shift;
+  my $path  = shift;
+  my %opts  = @_;
+
+  my $self = bless { debug      => $opts{-debug},
+		     makeid     => $opts{-makeid},
+		     glob       => $opts{-glob}    || '*.{fa,fasta,FA,FASTA,fast,FAST}',
+		     maxopen    => $opts{-maxfh}   || 32,
+		     dbmargs    => $opts{-dbmargs} || undef,
+		     fhcache    => {},
+		     cacheseq   => {},
+		     curopen    => 0,
+		     openseq    => 1,
+		     dirname    => undef,
+		     offsets    => undef,
+		   }, $class;
+  my ($offsets,$dirname);
+
+  if (-d $path) {
+    $offsets = $self->index_dir($path,$opts{-reindex});
+    $dirname = $path;
+  } elsif (-f _) {
+    $offsets = $self->index_file($path,$opts{-reindex});
+    $dirname = dirname($path);
+  } else {
+    $self->throw( "$path: Invalid file or dirname");
+  }
+  @{$self}{qw(dirname offsets)} = ($dirname,$offsets);
+
+  $self;
+}
+
+=head2 newFh
+
+ Title   : newFh
+ Function: gets a new Fh for a file
+ Example : internal method
+ Returns : GLOB 
+ Args    :
+
+=cut
+
+sub newFh {
+  my $class = shift;
+  my $self  = $class->new(@_);
+  require Symbol;
+  my $fh = Symbol::gensym or return;
+  tie $$fh,'Bio::DB::Fasta::Stream',$self or return;
+  $fh;
+}
+
+=head2 index_dir
+
+ Title   : index_dir
+ Usage   : $db->index_dir($dir)
+ Function: set the index dir and load all files in the dir
+ Returns : hashref of seq offsets in each file
+ Args    : dirname, boolean to force a reload of all files
+
+=cut
+
+sub index_dir {
+  my $self = shift;
+  my $dir  = shift;
+  my $force_reindex = shift;
+
+  # find all fasta files
+  my @files = glob("$dir/$self->{glob}");
+  $self->throw( "no fasta files in $dir") unless @files;
+
+  # get name of index
+  my $index = $self->index_name($dir,1);
+
+  # if caller has requested reindexing, then unlink
+  # the index file.
+  unlink $index if $force_reindex;
+
+  # get the modification time of the index
+  my $indextime = (stat($index))[9] || 0;
+
+  # get the most recent modification time of any of the contents
+  my ($modtime,%modtime);
+  foreach (@files) {
+    my $m = (stat($_))[9];
+    $modtime{$_} = $m;
+    $modtime = $m unless ( defined $modtime && $modtime < $m);
+  }
+
+  my %offsets;
+  my $flags = $modtime <= $indextime ? O_RDONLY : O_CREAT|O_RDWR;
+
+  my @dbmargs = $self->dbmargs;
+  tie %offsets,'AnyDBM_File',$index,$flags,0644,@dbmargs or $self->throw( "Can't open cache file: $!");
+
+  # no indexing needed
+  return \%offsets if $modtime <= $indextime;
+
+  # otherwise reindex contents of changed files
+  $self->{indexing} = $index;
+  foreach (@files) {
+    next if( defined $indextime && $modtime{$_} <= $indextime);
+    $self->calculate_offsets($_,\%offsets);
+  }
+  delete $self->{indexing};
+  return \%offsets;
+}
+
+=head2 get_Seq_by_id
+
+ Title   : get_Seq_by_id
+ Usage   : my $seq = $db->get_Seq_by_id($id)
+ Function: Bio::DB::RandomAccessI method implemented
+ Returns : Bio::PrimarySeqI object
+ Args    : id
+
+=cut
+
+sub get_Seq_by_id {
+  my $self = shift;
+  my $id   = shift;
+  return Bio::PrimarySeq::Fasta->new($self,$id);
+}
+
+=head2 index_file
+
+ Title   : index_file
+ Usage   : $db->index_file($filename)
+ Function: (re)loads a sequence file and indexes sequences offsets in the file
+ Returns : seq offsets in the file
+ Args    : filename, 
+           boolean to force reloading a file
+
+=cut
+
+
+sub index_file {
+  my $self = shift;
+  my $file = shift;
+  my $force_reindex = shift;
+
+  my $index = $self->index_name($file);
+  # if caller has requested reindexing, then unlink the index
+  unlink $index if $force_reindex;
+
+  # get the modification time of the index
+  my $indextime = (stat($index))[9];
+  my $modtime   = (stat($file))[9];
+
+  my %offsets;
+  my $flags = $modtime <= $indextime ? O_RDONLY : O_CREAT|O_RDWR;
+  my @dbmargs = $self->dbmargs;
+  tie %offsets,'AnyDBM_File',$index,$flags,0644,@dbmargs or $self->throw( "Can't open cache file: $!");
+  return \%offsets if $modtime <= $indextime;
+
+  $self->{indexing} = $index;
+  $self->calculate_offsets($file,\%offsets);
+  delete $self->{indexing};
+  return \%offsets;
+}
+
+=head2 dbmargs
+
+ Title   : dbmargs
+ Usage   : my @args = $db->dbmargs;
+ Function: gets stored dbm arguments
+ Returns : array
+ Args    : none
+
+
+=cut
+
+sub dbmargs {
+  my $self = shift;
+  my $args = $self->{dbmargs} or return;
+  return ref($args) eq 'ARRAY' ? @$args : $args;
+}
+
+=head2 index_name
+
+ Title   : index_name
+ Usage   : my $indexname = $db->index_name($path,$isdir);
+ Function: returns the name of the index for a specific path 
+ Returns : string
+ Args    : path to check, 
+           boolean if it is a dir
+
+=cut
+
+sub index_name {
+  my $self  = shift;
+  my ($path,$isdir) = @_;
+  unless ($path) {
+    my $dir = $self->{dirname} or return;
+    return $self->index_name($dir,-d $dir);
+  } 
+  return "$path/directory.index" if $isdir;
+  return "$path.index";
+}
+
+=head2 calculate_offsets
+
+ Title   : calculate_offsets
+ Usage   : $db->calculate_offsets($filename,$offsets);
+ Function: calculates the sequence offsets in a file based on id
+ Returns : offset hash for each file
+ Args    : file to process
+           $offsets - hashref of id to offset storage
+
+=cut
+
+sub calculate_offsets {
+    my $self = shift;
+    my ($file,$offsets) = @_;
+    my $base = basename($file);
+
+    my $fh = IO::File->new($file) or $self->throw( "Can't open $file: $!");
+    warn "indexing $file\n" if $self->{debug};
+    my ($offset,$id,$linelength,$type,$firstline,$count,%offsets);
+    while (<$fh>) {		# don't try this at home
+	if (/^>(\S+)/) {
+	    print STDERR "indexed $count sequences...\n" 
+		if $self->{debug} && (++$count%1000) == 0;
+	    my $pos = tell($fh);
+	    if ($id) {
+		my $seqlength    = $pos - $offset - length($_) - 1;
+		$seqlength      -= int($seqlength/$linelength);
+		$offsets->{$id}  = $self->_pack($offset,$seqlength,
+						$linelength,$firstline,
+						$type,$base);
+	    }
+	    $id = ref($self->{makeid}) eq 'CODE' ? $self->{makeid}->($1) : $1;
+	    ($offset,$firstline,$linelength) = ($pos,length($_),0);
+	} else {
+	    $linelength ||= length($_);
+	    $type       ||= $self->_type($_);
+	}
+    }
+    # deal with last one was not written
+    if ($id) {
+	my $pos = tell($fh);
+	my $seqlength   = $pos - $offset - 1;
+	$seqlength     -= int($seqlength/$linelength);
+	$offsets->{$id} = $self->_pack($offset,$seqlength,
+				       $linelength,$firstline,
+				       $type,$base);
+    }
+    return \%offsets;
+}
+
+=head2 get_all_ids
+
+ Title   : get_all_ids
+ Usage   : my @ids = $db->get_all_ids
+ Function: gets all the stored ids in all indexes
+ Returns : list of ids
+ Args    : none
+
+=cut
+
+sub get_all_ids  { keys %{shift->{offsets}} }
+
+sub offset {
+  my $self = shift;
+  my $id   = shift;
+  my $offset = $self->{offsets}{$id} or return;
+  ($self->_unpack($offset))[0];
+}
+
+sub length {
+  my $self = shift;
+  my $id   = shift;
+  my $offset = $self->{offsets}{$id} or return;
+  ($self->_unpack($offset))[1];
+}
+
+sub linelen {
+  my $self = shift;
+  my $id   = shift;
+  my $offset = $self->{offsets}{$id} or return;
+  ($self->_unpack($offset))[2];
+}
+
+sub headerlen {
+  my $self = shift;
+  my $id   = shift;
+  my $offset = $self->{offsets}{$id} or return;
+  ($self->_unpack($offset))[3];
+}
+
+sub moltype {
+  my $self = shift;
+  my $id   = shift;
+  my $offset = $self->{offsets}{$id} or return;
+  my $type = ($self->_unpack($offset))[4];
+  return $type == DNA ? 'dna'
+         : $type == RNA ? 'rna'
+         : 'protein';
+
+}
+
+sub path { shift->{dirname} } 
+
+sub header_offset {
+    my $self = shift;
+    my $id   = shift;
+    return unless $self->{offsets}{$id};
+    return $self->offset($id) - $self->headerlen($id);
+}
+
+sub file {
+  my $self = shift;
+  my $id   = shift;
+  my $offset = $self->{offsets}{$id} or return;
+  ($self->_unpack($offset))[5];
+}
+
+=head2 subseq
+
+ Title   : subseq
+ Usage   : $seqdb->subseq($id,$start,$stop);
+ Function: returns a subseq of a sequence in the db
+ Returns : subsequence data
+ Args    : id of sequence, starting point, ending point
+
+=cut
+
+sub subseq {
+  my ($self,$id,$start,$stop) = @_;
+  if ($id =~ /^(.+):([\d_]+)[,-]([\d_]+)$/) {
+    ($id,$start,$stop) = ($1,$2,$3);
+    $start =~ s/_//g;
+    $stop =~ s/_//g;
+  }
+  $start ||= 1;
+  $stop  ||= $self->length($id);
+
+  my $reversed;
+  if ($start > $stop) {
+    ($start,$stop) = ($stop,$start);
+    $reversed++;
+  }
+
+  my $data;
+
+  my $fh = $self->fh($id) or return;
+  my $filestart = $self->caloffset($id,$start);
+  my $filestop  = $self->caloffset($id,$stop);
+
+  seek($fh,$filestart,0);
+  read($fh,$data,$filestop-$filestart+1);
+  $data =~ s/\n//g;
+  if ($reversed) {
+    $data = reverse $data;
+    $data =~ tr/gatcGATC/ctagCTAG/;
+  }
+  $data;
+}
+
+sub fh {
+  my $self = shift;
+  my $id   = shift;
+  my $file = $self->file($id) or return;
+  $self->fhcache("$self->{dirname}/$file") or $self->throw( "Can't open file $file");
+}
+
+sub header {
+  my $self = shift;
+  my $id   = shift;
+  my ($offset,$seqlength,$linelength,$firstline,$type,$file) 
+    = $self->_unpack($self->{offsets}{$id}) or return;
+  $offset -= $firstline;
+  my $data;
+  my $fh = $self->fh($id) or return;
+  seek($fh,$offset,0);
+  read($fh,$data,$firstline);
+  chomp $data;
+  substr($data,0,1) = '';
+  $data;
+}
+
+sub caloffset {
+  my $self = shift;
+  my $id   = shift;
+  my $a    = shift()-1;
+  my ($offset,$seqlength,$linelength,$firstline,$type,$file) = $self->_unpack($self->{offsets}{$id});
+  $a = 0            if $a < 0;
+  $a = $seqlength-1 if $a >= $seqlength;
+  $offset + $linelength * int($a/($linelength-1)) + $a % ($linelength-1);
+}
+
+sub fhcache {
+  my $self = shift;
+  my $path = shift;
+  if (!$self->{fhcache}{$path}) {
+    if ($self->{curopen} >= $self->{maxopen}) {
+      my @lru = sort {$self->{cacheseq}{$a} <=> $self->{cacheseq}{$b};} keys %{$self->{fhcache}};
+      splice(@lru, $self->{maxopen} / 3);
+      $self->{curopen} -= @lru;
+      for (@lru) { delete $self->{fhcache}{$_} }
+    }
+    $self->{fhcache}{$path} = IO::File->new($path) or return;
+    $self->{curopen}++;
+  }
+  $self->{cacheseq}{$path}++;
+  $self->{fhcache}{$path}
+}
+
+sub _pack {
+  shift;
+  pack STRUCT,@_;
+}
+
+sub _unpack {
+  shift;
+  unpack STRUCT,shift;
+}
+
+sub _type {
+  shift;
+  local $_ = shift;
+  return /^[gatcnGATCN*-]+$/   ? DNA
+         : /^[gaucnGAUCN*-]+$/ ? RNA
+	 : PROTEIN;
+}
+
+=head2 get_PrimarySeq_stream
+
+ Title   : get_PrimarySeq_stream
+ Usage   :
+ Function:
+ Example :
+ Returns : 
+ Args    :
+
+
+=cut
+
+sub get_PrimarySeq_stream {
+  my $self = shift;
+  return Bio::DB::Fasta::Stream->new($self);
+}
+
+sub TIEHASH {
+  my $self = shift;
+  return $self->new(@_);
+}
+
+sub FETCH {
+  shift->subseq(@_);
+}
+sub STORE {
+    shift->throw("Read-only database");
+}
+sub DELETE {
+    shift->throw("Read-only database");
+}
+sub CLEAR {
+    shift->throw("Read-only database");
+}
+sub EXISTS {
+  defined shift->offset(@_);
+}
+sub FIRSTKEY { tied(%{shift->{offsets}})->FIRSTKEY(@_); }
+sub NEXTKEY  { tied(%{shift->{offsets}})->NEXTKEY(@_);  }
+
+sub END {
+  my $self = shift;
+  if ($self->{indexing}) {  # killed prematurely, so index file is no good!
+    warn "indexing was interrupted, so unlinking $self->{indexing}";
+    unlink $self->{indexing};
+  }
+}
+
+#-------------------------------------------------------------
+# Bio::PrimarySeqI compatibility
+#
+package Bio::PrimarySeq::Fasta;
+use overload '""' => 'display_id';
+
+use vars '@ISA';
+eval {
+  require Bio::PrimarySeqI;
+  require Bio::Root::RootI;
+} && (@ISA = ('Bio::PrimarySeqI','Bio::Root::RootI'));
+
+sub new {
+  my $class = shift;
+  $class = ref($class) if ref $class;
+  my ($db,$id,$start,$stop) = @_;
+  return bless { db    => $db,
+		 id    => $id,
+		 start => $start || 1,
+		 stop  => $stop  || $db->length($id)
+	       },$class;
+}
+
+sub seq {
+  my $self = shift;
+  return $self->{db}->seq($self->{id},$self->{start},$self->{stop});
+}
+
+sub subseq {
+  my $self = shift;
+  my ($start,$stop) = @_;
+  $self->throw("Stop cannot be smaller than start")  unless $start <= $stop;
+  return $self->{start} <= $self->{stop} ?  $self->new($self->{db},
+						       $self->{id},
+						       $self->{start}+$start-1,
+						       $self->{start}+$stop-1)
+                                         :  $self->new($self->{db},
+						       $self->{id},
+						       $self->{start}-($start-1),
+						       $self->{start}-($stop-1)
+						      );
+	
+}
+
+sub display_id {
+  my $self = shift;
+  return $self->{id};
+}
+
+sub accession_number {
+  my $self = shift;
+  return "unknown";
+}
+
+sub primary_id {
+  my $self = shift;
+  return overload::StrVal($self);
+}
+
+sub can_call_new { return 0 }
+
+sub moltype {
+  my $self = shift;
+  return $self->{db}->moltype($self->{id});
+}
+
+sub revcom {
+  my $self = shift;
+  return $self->new(@{$self}{'db','id','stop','start'});
+}
+
+sub length {
+  my $self = shift;
+  return $self->{db}->length($self->{id});
+}
+
+#-------------------------------------------------------------
+# stream-based access to the database
+#
+package Bio::DB::Fasta::Stream;
+use Tie::Handle;
+use vars qw(@ISA);
+@ISA = qw(Tie::Handle);
+eval {
+  require Bio::DB::SeqI;
+} && (push @ISA,'Bio::DB::SeqI');
+
+
+sub new {
+  my $class = shift;
+  my $db    = shift;
+  my $key = $db->FIRSTKEY;
+  return bless { db=>$db,key=>$key },$class;
+}
+
+sub next_seq {
+  my $self = shift;
+  my ($key,$db) = @{$self}{'key','db'};
+  my $value = $db->get_Seq_by_id($key);
+  $self->{key} = $db->NEXTKEY($key);
+  $value;
+}
+
+sub TIEHANDLE {
+  my $class = shift;
+  my $db    = shift;
+  return $class->new($db);
+}
+sub READLINE {
+  my $self = shift;
+  $self->next_seq;
+}
+
+1;
+
+__END__
 
