@@ -71,7 +71,7 @@ use Bio::LiveSeq::SeqI 3.2; # uses SeqI, inherits from it
 @ISA=qw(Bio::LiveSeq::Transcript ); 
 
 
-=head1 new
+=head2 new
 
   Title   : new
   Usage   : $protein = Bio::LiveSeq::Translation->new(-transcript => $transcr);

@@ -66,7 +66,7 @@ sequence input/output into files
 
 These two lines create two SeqIO streams: one for reading in sequences
 and one for outputting sequences. Using the 
- 
+
   '-argument' => value
 
 syntax is common in bioperl. The file argument is like an argument

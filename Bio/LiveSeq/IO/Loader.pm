@@ -109,7 +109,7 @@ use Bio::Tools::CodonTable;
 
 #@ISA=qw(Bio::LiveSeq::); # not useful now
 
-=head1 entry2liveseq
+=head2 entry2liveseq
 
   Title   : entry2liveseq
   Usage   : @translationobjects=$loader->entry2liveseq();
@@ -145,7 +145,7 @@ sub entry2liveseq {
   return @translationobjects;
 }
 
-=head1 novelaasequence2gene
+=head2 novelaasequence2gene
 
   Title   : novelaasequence2gene
   Usage   : $gene=$loader->novelaasequence2gene(-aasequence => "MGLAAPTRS*");
@@ -165,8 +165,8 @@ sub entry2liveseq {
             string specifying a gene name
 
 =cut
- 
-=head1 gene2liveseq
+
+=head2 gene2liveseq
 
   Title   : gene2liveseq
   Usage   : $gene=$loader->gene2liveseq(-gene_name => "gene name");
@@ -544,7 +544,7 @@ sub transexonscreation {
 #sub printgene {
 # deleted. Some functionality placed in Gene->printfeaturesnum
 
-=head1 printswissprot
+=head2 printswissprot
 
   Title   : printswissprot
   Usage   : $loader->printswissprot($hashref);
@@ -592,7 +592,7 @@ sub printswissprot {
   }
 }
 
-=head1 printembl
+=head2 printembl
 
   Title   : printembl
   Usage   : $loader->printembl();
@@ -659,7 +659,7 @@ sub printembl {
   }
 }
 
-=head1 genes
+=head2 genes
 
   Title   : genes
   Usage   : $loader->genes();

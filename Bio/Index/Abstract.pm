@@ -248,7 +248,7 @@ sub db {
            WARNING: you must parse the record deliminter
            *yourself*. Abstract wont do this for you 
            So this code
- 
+
            $fh = $index->get_stream($myid);
            while( <$fh> ) {
               # do something

@@ -1,4 +1,4 @@
-## $Id: bioperl.pod,v 1.12 2001-05-16 14:57:34 heikki Exp $
+## $Id: bioperl.pod,v 1.13 2001-06-18 08:27:50 heikki Exp $
 
 ## Should contain general info about the distribution including
 ## links to all the various modules.
@@ -187,7 +187,7 @@ are also acceptable in a biosequence:
   X      G or A or T or C 
   N      G or A or T or C 
 
- 
+
  IUPAC-IUB SYMBOLS FOR NUCLEOTIDE NOMENCLATURE:
    Cornish-Bowden (1985) Nucl. Acids Res. 13: 3021-3030.
 
@@ -222,7 +222,7 @@ are also acceptable in a biosequence:
  Z        Glutamic Acid, Glutamine
  *        Terminator
 
- 
+
  IUPAC-IUP AMINO ACID SYMBOLS:
    Biochem J. 1984 Apr 15; 219(2): 345-373
    Eur J Biochem. 1993 Apr 1; 213(1): 2
