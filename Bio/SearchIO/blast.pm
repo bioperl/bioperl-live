@@ -444,8 +444,12 @@ sub next_result{
            }
            $seenquery = $q;
            $_ = $self->_readline;
-           while( defined ($_) && $_ !~ /^\s+$/ ) {
-               chomp;
+           while( defined ($_) ) {
+               if( /^Database:/ ) {
+		   $self->_pushback($_);
+		   last;
+	       }
+               chomp;               
                if( /\(([\d,]+)\s+letters.*\)/ ) {
                    $size = $1;
                    $size =~ s/,//g;
