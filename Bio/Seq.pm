@@ -194,7 +194,7 @@ these methods come from PrimarySeq objects, which are simpler
 than Seq objects, stripped of features (see L<Bio::PrimarySeq> for
 more information).
 
-  # these methods return strings, or accept strings in some cases:
+  # these methods return strings, and accept strings in some cases:
 
   $seqobj->seq();              # string of sequence
   $seqobj->subseq(5,10);       # part of the sequence as a string
@@ -210,7 +210,7 @@ more information).
 
 Some of these values map to fields in common formats. For example, The
 display_id() method returns the LOCUS name of a Genbank entry,
-the word following the E<gt> character in a Fasta file, the ID from
+the (\S+) following the E<gt> character in a Fasta file, the ID from
 a SwissProt file, and so on. The desc() method will return the DEFINITION
 line of a Genbank file, the description following the display_id in a
 Fasta file, and the DE field in a SwissProt file.
@@ -228,7 +228,7 @@ Fasta file, and the DE field in a SwissProt file.
 
   # the following method determines if the given string will be accepted
   # by the seq() method - if the string is acceptable then validate()
-  # returns TRUE, or FALSE if not
+  # returns 1, or 0 if not
 
   $seqobj->validate_seq($string)
 
@@ -309,6 +309,7 @@ for more information on sequence features.
 
 =head1 FEEDBACK
 
+
 =head2 Mailing Lists
 
 User feedback is an integral part of the evolution of this and other
@@ -329,11 +330,13 @@ or the web:
 
 =head1 AUTHOR - Ewan Birney, inspired by Ian Korf objects
 
+
 Email birney@sanger.ac.uk
 
 Describe contact details here
 
 =head1 APPENDIX
+
 
 The rest of the documentation details each of the object methods. Internal methods are usually preceded with a "_".
 
@@ -391,6 +394,7 @@ sub new {
 }
 
 =head1 PrimarySeq interface
+
 
 The PrimarySeq interface provides the basic sequence getting
 and setting methods for on all sequences.
@@ -492,13 +496,13 @@ sub subseq {
 
  Title   : display_id
  Usage   : $id = $obj->display_id or $obj->display_id($newid);
- Function: Gets or sets the display id, AKA the common name of the
-           Seq object.
+ Function: Gets or sets the display id, also known as the common name of
+           the Seq object.
 
            The semantics of this is that it is the most likely string
            to be used as an identifier of the sequence, and likely to
-           have "human" readability.  The id is equivalent to the ID
-           field of the GenBank/EMBL databanks and the id field of the
+           have "human" readability.  The id is equivalent to the LOCUS
+           field of the GenBank/EMBL databanks and the ID field of the
            Swissprot/sptrembl database. In fasta format, the >(\S+) is
            presumed to be the id, though some people overload the id
            to embed other information. Bioperl does not use any
@@ -672,6 +676,7 @@ sub alphabet {
 
 =head1 Methods provided in the Bio::PrimarySeqI interface
 
+
 These methods are inherited from the PrimarySeq interface
 and work as one expects, building new Bio::Seq objects
 or other information as expected. See L<Bio::PrimarySeq>
@@ -745,6 +750,7 @@ sub  id {
 
 
 =head1 Seq only methods
+
 
 These methods are specific to the Bio::Seq object, and not
 found on the Bio::PrimarySeq object
