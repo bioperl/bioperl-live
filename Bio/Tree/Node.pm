@@ -93,7 +93,7 @@ BEGIN {
 	   -branch_length => branch length [integer] (optional)
            -bootstrap     => value   bootstrap value (string)
            -description   => description of node
-           -id            => unique id for node
+           -id            => human readable id for node
 
 =cut
 
@@ -360,7 +360,7 @@ sub description{
  Function: The human readable identifier for the node 
  Returns : value of human readable id
  Args    : newvalue (optional)
-
+ Note    : id cannot contain the chracters '();:'
 
 "A name can be any string of printable characters except blanks,
 colons, semicolons, parentheses, and square brackets. Because you may
@@ -433,8 +433,10 @@ sub _creation_id{
     return $self->{'_creation_id'} || 0;
 }
 
+=head2 Bio::Node::NodeI decorated interface implemented
 
-# The following methods are implemented by NodeI decorated interface
+The following methods are implemented by L<Bio::Node::NodeI> decorated
+interface.
 
 =head2 is_Leaf
 
@@ -497,7 +499,7 @@ sub height {
 
  Title   : invalidate_height
  Usage   : private helper method
- Function: Invalidate our cached value of the node'e height in the tree
+ Function: Invalidate our cached value of the node's height in the tree
  Returns : nothing
  Args    : none
 
