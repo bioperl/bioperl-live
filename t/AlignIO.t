@@ -3,7 +3,7 @@
 use strict;
 
 my $DEBUG = $ENV{'BIOPERLDEBUG'} || 0;
-BEGIN { 
+BEGIN {
 	eval { require Test; };
 	if( $@ ) { 
 		use lib 't';
@@ -20,20 +20,20 @@ ok (1);
 
 END {
 
-    unlink(Bio::Root::IO->catfile("t","data","testout2.pfam"),
- 	   Bio::Root::IO->catfile("t","data","testout.selex"),
- 	   Bio::Root::IO->catfile("t","data","testout.pfam"),
- 	   Bio::Root::IO->catfile("t","data","testout.msf"),
- 	   Bio::Root::IO->catfile("t","data","testout.fasta"), 
- 	   Bio::Root::IO->catfile("t","data","testout.clustal"),
- 	   Bio::Root::IO->catfile("t","data","testout.phylip"),
- 	   Bio::Root::IO->catfile("t","data","testout.nexus"),
- 	   Bio::Root::IO->catfile("t","data","testout.mega"),
-	   Bio::Root::IO->catfile("t","data","testout.po"),
-	   );
-    unlink(
-           Bio::Root::IO->catfile("t","data","littleout.largemultifasta")
-          );
+	unlink(Bio::Root::IO->catfile("t","data","testout2.pfam"),
+			 Bio::Root::IO->catfile("t","data","testout.selex"),
+			 Bio::Root::IO->catfile("t","data","testout.pfam"),
+			 Bio::Root::IO->catfile("t","data","testout.msf"),
+			 Bio::Root::IO->catfile("t","data","testout.fasta"), 
+			 Bio::Root::IO->catfile("t","data","testout.clustal"),
+			 Bio::Root::IO->catfile("t","data","testout.phylip"),
+			 Bio::Root::IO->catfile("t","data","testout.nexus"),
+			 Bio::Root::IO->catfile("t","data","testout.mega"),
+			 Bio::Root::IO->catfile("t","data","testout.po"),
+			);
+	unlink(
+			 Bio::Root::IO->catfile("t","data","littleout.largemultifasta")
+			);
 }
 
 my ($str,$aln,$strout,$status);
@@ -71,7 +71,6 @@ ok $aln->get_seq_by_pos(1)->get_nse,
 $str = Bio::AlignIO->new('-file' => Bio::Root::IO->catfile("t","data","testaln.msf"));
 $aln = $str->next_aln();
 ok $aln->get_seq_by_pos(1)->get_nse, '1433_LYCES/9-246', " failed msf input test";
-
 
 $strout = Bio::AlignIO->new('-file' => ">".Bio::Root::IO->catfile("t","data","testout.msf"), 
 			    '-format' => 'msf');
@@ -166,7 +165,6 @@ $status = $strout->write_aln($aln);
 ok $status, 1, "  failed phylip output test";
 
 # METAFASTA
-
 $io = Bio::AlignIO->new(-file => Bio::Root::IO->catfile("t","data","testaln.metafasta"));
 $aln = $io->next_aln;
 ok $aln->consensus_string,'CDEFHIJKLMNOPQRSTUVWXYZhydrophobicIOIOIJOIIOOIOOOOUIIXstructuralABAEEIEIJEIIEOAEEAAUIAX', " failed consensus_string on metafasta";
@@ -186,7 +184,6 @@ $status = $strout->write_aln($aln);
 ok $status, 1, "  failed nexus output test";
 
 # EMBOSS water
-
 $str = new Bio::AlignIO('-format' => 'emboss',
 			'-file'   => Bio::Root::IO->catfile("t", "data", 'cysprot.water'));
 $aln = $str->next_aln();
@@ -201,7 +198,6 @@ ok($aln->get_seq_by_pos(1)->start, 3);
 ok($aln->length,364);
 
 # EMBOSS needle
-
 $str = new Bio::AlignIO('-format' => 'emboss',
 			'-file'   => Bio::Root::IO->catfile("t", "data", 'cysprot.needle'));
 $aln = $str->next_aln();
@@ -212,7 +208,6 @@ ok($aln->get_seq_by_pos(2)->get_nse,'CATL_HUMAN/1-333');
 
 
 # EMBOSS water 2.2.x
-
 $str = new Bio::AlignIO('-format' => 'emboss',
 			'-file'   => Bio::Root::IO->catfile("t", "data", 'cys1_dicdi.water'));
 $aln = $str->next_aln();
@@ -226,7 +221,6 @@ ok($aln->get_seq_by_pos(1)->get_nse,'CYS1_DICDI/29-343');
 ok($aln->get_seq_by_pos(2)->get_nse,'ALEU_HORVU/61-360');
 
 # EMBOSS water 2.2.x sparse needle
-
 $str = new Bio::AlignIO(-verbose => $DEBUG,
 			'-format' => 'emboss',
 			'-file'   => Bio::Root::IO->catfile("t", "data", 'sparsealn.needle'));
@@ -242,8 +236,8 @@ ok($aln->get_seq_by_pos(2)->get_nse,'IF1Y_HUMAN/1-143');
 ok($aln->get_seq_by_pos(1)->seq(), 'DIQMTQSPSTLSVSVGDRVTITCEASQTVLSYLNWYQQKPGKAPKLLIYAASSLETGVPSRFSGQGSGTBFTFTISSVZPZBFATYYCQZYLDLPRTFGQGTKVDLKR'.'-'x130);
 ok($aln->get_seq_by_pos(2)->seq(), ('-'x94).'PKNKGKGGK-NRRRGKNENESEKRELVFKEDGQEYAQVIKMLGNGRLEALCFDGVKRLCHIRGKLRKKVWINTSDIILVGLRDYQDNKADVILKYNADEARSLKAYGGLPEHAKINETDTFGPGDDDEIQFDDIGDDDEDIDDI');
 ok($aln->is_flush);
-# MEGA
 
+# MEGA
 $str = new Bio::AlignIO('-format' => 'mega',
 			'-file'   => Bio::Root::IO->catfile("t","data","hemoglobinA.meg"));
 
@@ -260,9 +254,7 @@ $strout = new Bio::AlignIO('-format' => 'mega',
 $status = $strout->write_aln($aln);
 ok $status, 1, "  failed mega output test";
 
-
-# 
-
+# EMBOSS needle
 $str = new Bio::AlignIO('-format' => 'emboss',
 			'-file'   => Bio::Root::IO->catfile('t','data','gf-s71.needle'));
 $aln = $str->next_aln();
@@ -274,7 +266,7 @@ ok($aln->get_seq_by_pos(1)->get_nse,'gf.s71.44/1-448');
 ok($aln->get_seq_by_pos(2)->get_nse,'Y50C1A.2/1-406');
 
 
-# Let's parse Phylip non-interleaved
+# PHYLIP non-interleaved
 $strout = Bio::AlignIO->new('-file'  =>
 			    Bio::Root::IO->catfile("t","data",
 						   "noninterleaved.phy"),
@@ -283,8 +275,7 @@ $aln = $strout->next_aln($aln);
 ok($aln);
 ok($aln->get_seq_by_pos(2)->seq(), 'CCTCAGATCACTCTTTGGCAACGACCCCTCGTCACAATAAAGGTAGGGGGGCAACTAAAGGAAGCTCTATTAGATACAGGAGCAGATGATACAGTATTAGAAGACATGAATTTGCCAGGAAGATGGAAACCAAAAATGATAGGGGGAATTGGAGGGTTTATCAAAGTAAGACAGTATGATCAGATACCCATAGAGATCTGTGGACATAAAGCTATAGGTACAGTATTAGTAGGACCCACACCTGTCAATATAATTGGAAGAAATCTGTTGACTCAGATTGGTTGCACTTTAAATTTT' );
 
-#LARGEMULTIFASTA
-
+# LARGEMULTIFASTA
 $str = Bio::AlignIO->new('-file' => Bio::Root::IO->catfile("t", "data","little.largemultifasta"),
                          '-format' => 'largemultifasta');
 $aln = $str->next_aln();
@@ -311,51 +302,52 @@ ok $status, 1,"  failed fasta output test";
 # can't figure out what it is so just skip for now
 if( $^O ne 'darwin' || $] > 5.006 ) {
 # POA
-    
-# input ok?
-    
-    ok $str = new Bio::AlignIO(
-			       '-file'   => Bio::Root::IO->catfile("t", "data", "testaln.po"),
-			       '-format' => 'po',
-			       );
-    ok defined($str) && ref($str) && $str->isa('Bio::AlignIO');
-    ok $aln = $str->next_aln();
-    ok $aln->no_sequences, 6;
-    
-# output ok? i.e. does conversion from clustalw to po give the same alignment?
-    ok $str = new Bio::AlignIO(
-			       '-file'   => Bio::Root::IO->catfile("t", "data", "testaln.aln"),
-			       '-format' => 'clustalw',
-			  );
-    ok defined($str) && ref($str) && $str->isa('Bio::AlignIO');
-    ok $aln = $str->next_aln();
-    
-    ok $strout = Bio::AlignIO->new(
-				   '-file'   => ">" . Bio::Root::IO->catfile("t", "data", "testout.po"),
-				   '-format' => 'po',
-				   );
-    $status = $strout->write_aln($aln);
-    ok $status, 1, " failed po output test";
 
-    ok $str = new Bio::AlignIO(
-			       '-file'   => Bio::Root::IO->catfile("t", "data", "testaln.po"),
-			       '-format' => 'po',
-			       );
-    ok defined($str) && ref($str) && $str->isa('Bio::AlignIO');
-    my $aln2;
-    ok $aln2 = $str->next_aln();
-    ok $aln2->no_sequences, $aln->no_sequences;
-    ok $aln2->length, $aln->length;
-} else { 
-	for ( 1..14 ) { 
+# input ok?
+
+	ok $str = new Bio::AlignIO(
+			  -file   => Bio::Root::IO->catfile("t", "data", "testaln.po"),
+			  -format => 'po',
+									  );
+	ok defined($str) && ref($str) && $str->isa('Bio::AlignIO');
+	ok $aln = $str->next_aln();
+	ok $aln->no_sequences, 6;
+
+# output ok? i.e. does conversion from clustalw to po give the same alignment?
+	ok $str = new Bio::AlignIO(
+		  '-file'   => Bio::Root::IO->catfile("t", "data", "testaln.aln"),
+		  '-format' => 'clustalw'
+									  );
+	ok defined($str) && ref($str) && $str->isa('Bio::AlignIO');
+	ok $aln = $str->next_aln();
+
+	ok $strout = Bio::AlignIO->new(
+		 '-file'   => ">" . Bio::Root::IO->catfile("t", "data", "testout.po"),
+		 '-format' => 'po'
+											);
+	$status = $strout->write_aln($aln);
+	ok $status, 1, " failed po output test";
+
+	ok $str = new Bio::AlignIO(
+		 '-file'   => Bio::Root::IO->catfile("t", "data", "testaln.po"),
+		 '-format' => 'po'
+									  );
+	ok defined($str) && ref($str) && $str->isa('Bio::AlignIO');
+	my $aln2;
+	ok $aln2 = $str->next_aln();
+	ok $aln2->no_sequences, $aln->no_sequences;
+	ok $aln2->length, $aln->length;
+} else {
+	for ( 1..14 ) {
 		skip(1,"skipping due to bug in perl 5.6.0 that comes with OS X 10.2");
 	}
 }
 
-# meme tests, using a file also used by t/psm.t
+# MEME
 ok $str = new Bio::AlignIO(
-					-file => Bio::Root::IO->catfile("t", "data", "meme.dat"),
-					-format => 'meme' );
+		-file => Bio::Root::IO->catfile("t", "data", "test.meme"),
+		-format => 'meme'
+								  );
 ok defined($str) && ref($str) && $str->isa('Bio::AlignIO');
 ok $aln = $str->next_aln();
 ok $aln->length,25;
