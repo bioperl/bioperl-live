@@ -211,25 +211,6 @@ sub end{
     }
 }
 
-=head2 length
-
- Title   : length
- Usage   :
- Function:
- Example :
- Returns : 
- Args    :
-
-
-=cut
-
-sub length {
-   my ($self) = @_;
-
-   return $self->end - $self->start +1;
-}
-
-
 =head2 strand
 
  Title   : strand
