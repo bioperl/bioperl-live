@@ -77,12 +77,10 @@ The rest of the documentation details each of the object methods. Internal metho
 
 package Bio::SeqAnalysisParserI;
 use strict;
-
+use vars qw(@ISA);
 use Bio::Root::RootI;
 use Carp;
-
-use vars qw(@ISA );
-@ISA = qw(Bio::Root::RootI); 
+@ISA = qw(Bio::Root::RootI);
 
 =head2 new
 
@@ -91,8 +89,15 @@ use vars qw(@ISA );
            recognition of at least the following named parameters:
            -file     input file (alternative to -fh)
            -fh       input stream (alternative to -file)
-
 =cut
+
+sub new {
+    my ($class,@args) = @_;
+    if( $class eq 'Bio::SeqAnalysisParserI') {
+	confess('Do not use this object directly it is an interface');
+    }
+    return $class->SUPER::new(@args);
+}
 
 =head2 next_feature
 
