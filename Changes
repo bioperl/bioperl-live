@@ -12,7 +12,9 @@ Revision history for Bioperl core modules
 	  it (basically, you have to edit Parse.pm).
         - Improved documentation of Seq.pm, indicating where 
           objects are returned and where strings are returned.
-        - Fixed various uninitialized warnings.
+        - Fixed uninitialized warnings in Bio::Root::Object.pm
+          and Bio::Tools::SeqPattern.pm.
+        - Bug fixes for PR#s: 30,31,33-35,41,42,44,45,47-50,52.
 
 0.05  Sun Apr 25 01:14:11 1999
         - Bio::Tools::Blast modules have less memory problems
