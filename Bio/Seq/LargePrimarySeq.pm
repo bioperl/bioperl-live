@@ -154,7 +154,7 @@ sub subseq{
    my ($self,$start,$end) = @_;
 
    if( $start < 1 || $end > $self->length ) {
-       $self->throw("Attempting to get a subseq out of range $start:$end vs ",$self->length);
+       $self->throw("Attempting to get a subseq out of range $start:$end vs ".$self->length);
    }
    if( $end < $start ) {
        $self->throw("Attempting to subseq with end ($end) less than start ($start). To revcom use the revcom function with trunc");
