@@ -115,7 +115,7 @@ $seq = $unigene->next_seq;
 ok($seq->isa('Bio::PrimarySeqI'), 1,'expected a Bio::PrimarySeq object but got a ' . ref($seq));
 my $accession = $seq->accession_number;
 ok($accession, 'BC015878');
-my $version = $seq->version();
+my $version = $seq->seq_version();
 ok($version, "");
 
 
@@ -195,6 +195,6 @@ ok $protsim, 'ORG=Homo sapiens; PROTGI=107211; PROTID=pir:A40428; PCT=100; ALN=2
 $unigene = $str->next_cluster();
 $seq = $unigene->next_seq;
 ok($seq->isa('Bio::PrimarySeqI'), 1,'expected a Bio::PrimarySeq object but got a ' . ref($seq));
-$version = $seq->version();
+$version = $seq->seq_version();
 ok($version, '1');
 
