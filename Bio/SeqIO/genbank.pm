@@ -1,4 +1,5 @@
 # $Id$
+#
 # BioPerl module for Bio::SeqIO::GenBank
 #
 # Cared for by Elia Stupka <elia@ebi.ac.uk>
@@ -490,9 +491,10 @@ sub write_seq {
     if( $olen < 0 ) {
 	$self->warn("Weird. More atgc than bases. Problem!");
     }
-    my $base_count = sprintf("BASE COUNT %8s a %6s c %6s g %6s t\n",$alen,$clen,$glen,$tlen);
+    my $base_count = sprintf("BASE COUNT %8s a %6s c %6s g %6s t %6s others\n",
+			     $alen,$clen,$glen,$tlen,$olen);
     $self->_print($base_count); 
-    $self->_print("ORIGIN\n");
+    $self->_print("ORIGIN      \n");
     my $di;
     for ($i = 0; $i < length($str); $i += 10) {
 	
