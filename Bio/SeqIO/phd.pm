@@ -95,16 +95,22 @@ sub _initialize {
 sub next_seq {
     my ($self,@args) = @_;
     my ($entry,$done,$qual,$seq);
+    my ($id,@lines, @bases, @qualities) = ('');
     if (!($entry = $self->_readline)) { return; }
+	if ($entry =~ /^BEGIN_SEQUENCE\s+(\S+)/) {
+          $id = $1;
+     }
     my $in_dna = 0;
     my $base_number = 0;
-    my ($id,@lines, @bases, @qualities) = ('');
     while ($entry = $self->_readline) {
 	return if (!$entry);
 	chomp($entry);
-	if ($entry =~ /^CHROMAT_FILE:\s+(\S+)/) {
-	    $id = $1;
-	    $entry = $self->_readline();
+	if ($entry =~ /^BEGIN_CHROMAT:\s+(\S+)/) {
+	     # this is where I used to grab the ID
+          if (!$id) {
+               $id = $1; 
+          }
+          $entry = $self->_readline();
 	}
 	if ($entry =~ /^BEGIN_DNA/) {
 	    $entry =~ /^BEGIN_DNA/;
@@ -234,7 +240,7 @@ sub write_seq {
     }
     $self->_print ("END_DNA\n\nEND_SEQUENCE\n");
 
-    $self->flush if $self->_flush_on_write && defined $self->_fh;
+    $self->_fh->flush if $self->_flush_on_write && defined $self->_fh;
     return 1;
 }
 
