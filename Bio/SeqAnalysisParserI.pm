@@ -70,8 +70,7 @@ use vars qw(@ISA );
 =head2 parse
 
  Title   : parse
- Usage   : $obj->parse(-input=>$inputobj, 
-           $obj->parse(-input=>$inputobj, -params=>[@params],
+ Usage   : $obj->parse(-input=>$inputobj, [ -params=>[@params] ],
 		       [ -method => $method ] )
  Function: sets up parsing for feature retrieval from an analysis file, 
            or object
