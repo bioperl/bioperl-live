@@ -24,6 +24,14 @@ BEGIN {
 
     $NUMTESTS = 7;
     plan tests => $NUMTESTS;
+    eval { require DB_File; reqiure Bio::DB::Flat; require Bio::Root::IO;};
+    if( $@ ) {
+	print STDERR "DB_File not loaded. This means flat.t test cannot be executed. Skipping\n";
+	foreach ( $Test::ntest..$NUMTESTS ) {
+	    skip('DB_File not installed',1);
+	}
+	$error = 1;
+    }
 }
 
 if( $error ==  1 ) {
@@ -40,7 +48,6 @@ my $verbose = 0;
 
 
 #First of all we need to create an flat db
-use Bio::DB::Flat;
 use Bio::Root::IO;
 use Cwd;
 my $cd = cwd();
