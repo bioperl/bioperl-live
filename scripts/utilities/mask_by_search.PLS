@@ -1,7 +1,9 @@
 #!/usr/bin/perl -w
-# $Id: mask_by_search.PLS,v 1.1 2003-07-21 19:51:09 jason Exp $
+# $Id: mask_by_search.PLS,v 1.2 2003-07-25 14:48:54 jason Exp $
 
-=head1 NAME - mask_by_search.pl
+=head1 NAME
+
+mask_by_search - mask sequence(s) based on its alignment results
 
 =head1 SYNOPSIS 
 
