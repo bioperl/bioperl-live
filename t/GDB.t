@@ -22,9 +22,11 @@ BEGIN {
     $NUMTESTS = 11;
     plan tests => $NUMTESTS;
     
-    eval { require ('LWP/UserAgent.pm'); };
+    eval { require ('LWP/UserAgent.pm'); require ('HTML/Parser.pm');
+	   require ('HTTP/Request/Common.pm') ;
+	};
     if( $@ ) {
-	print STDERR "Cannot load LWP::UserAgent, skipping tests\n";
+	print STDERR "Cannot load LWP::UserAgent or HTML::Parser, skipping tests\n";
 	foreach ( 1..$NUMTESTS) { skip(1,1); }
 	$error = 1;
     } 
