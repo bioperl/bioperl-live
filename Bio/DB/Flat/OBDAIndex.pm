@@ -373,6 +373,11 @@ sub get_stream_by_id {
     }
 
     my $fh = $self->get_filehandle_by_fileid($fileid);
+    my $file = $self->{_file}{$fileid};
+
+    print "File $file\n";
+    open (IN,"<$file");
+    $fh = \*IN;
 
     my $entry;
     
@@ -974,7 +979,7 @@ sub _add_id_position {
 	$self->throw("No id defined. Can't add id position");
     }
     if (!defined($pos)) {
-	$self->throw("No position defined. Can't add id position");
+v	$self->throw("No position defined. Can't add id position");
     }
     if (!defined($fileid)) {
 	$self->throw("No fileid defined. Can't add id position");
@@ -1090,6 +1095,7 @@ sub make_config_file {
 
 	my $fh = new FileHandle("<$file");
 	$self->{_fileid}{$count}   = $fh;
+	$self->{_file}  {$count}   = $file;
 	$self->{_dbfile}{$file} = $count;
 	$self->{_size}{$count}     = $size; 
 	
@@ -1112,8 +1118,7 @@ sub make_config_file {
 	foreach my $second (@second) {
 	    print CON "\t$second";
 	}
-
-
+        print CON "\n";
     }
 
     # Now the config format
@@ -1191,6 +1196,7 @@ sub read_config_file {
 	    my $fh = new FileHandle("<$filename");
 
 	    $self->{_fileid}{$fileid}   = $fh;
+	    $self->{_file}  {$fileid}   = $filename;
 	    $self->{_dbfile}{$filename} = $fileid;
             $self->{_size}  {$fileid}   = $filesize; 
 
@@ -1247,15 +1253,6 @@ sub read_config_file {
 
 =cut
 
-sub get_fileid_by_filename{
-   my ($obj,$value) = @_;
-   if( defined $value) {
-      $obj->{'get_fileid_by_filename'} = $value;
-    }
-    return $obj->{'get_fileid_by_filename'};
-
-}
-
 sub get_fileid_by_filename {
     my ($self,$file) = @_;
     
@@ -1279,15 +1276,6 @@ sub get_fileid_by_filename {
 
 =cut
 
-sub get_filehandle_by_fileid{
-   my ($obj,$value) = @_;
-   if( defined $value) {
-      $obj->{'get_filehandle_by_fileid'} = $value;
-    }
-    return $obj->{'get_filehandle_by_fileid'};
-
-}
-
 sub get_filehandle_by_fileid {
     my ($self,$fileid) = @_;
 
@@ -1309,15 +1297,6 @@ sub get_filehandle_by_fileid {
 
 
 =cut
-
-sub primary_index_file{
-   my ($obj,$value) = @_;
-   if( defined $value) {
-      $obj->{'primary_index_file'} = $value;
-    }
-    return $obj->{'primary_index_file'};
-
-}
 
 sub primary_index_file {
     my ($self) = @_;
@@ -1426,15 +1405,6 @@ sub index_directory {
 
 
 =cut
-
-sub record_size{
-   my ($obj,$value) = @_;
-   if( defined $value) {
-      $obj->{'record_size'} = $value;
-    }
-    return $obj->{'record_size'};
-
-}
 
 sub record_size {
     my ($self,$arg) = @_;
@@ -1601,26 +1571,6 @@ sub secondary_namespaces{
 
 }
 
-=head2 primary_namespace
-
- Title   : primary_namespace
- Usage   : $obj->primary_namespace($newval)
- Function: 
- Example : 
- Returns : value of primary_namespace
- Args    : newvalue (optional)
-
-
-=cut
-
-sub primary_namespace{
-   my ($obj,$value) = @_;
-   if( defined $value) {
-      $obj->{'primary_namespace'} = $value;
-    }
-    return $obj->{'primary_namespace'};
-
-}
 
 
 ## These are indexing routines to index commonly used format - fasta
@@ -1634,7 +1584,7 @@ sub new_SWISSPROT_index {
     my $start_pattern = "^ID   (\\S+)";
     my $primary_pattern = "^AC   (\\S+)\\;";
     
-#    $secondary_patterns{"ID"} = $start_pattern;
+    $secondary_patterns{"ID"} = $start_pattern;
 
     my $index =  new Bio::DB::Flat::OBDAIndex(-index_dir          => $index_dir,
 					      -format             => 'swiss',
