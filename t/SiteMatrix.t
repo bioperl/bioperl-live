@@ -1,5 +1,5 @@
-
-
+# -*-Perl-*-
+# $Id$
 #Some simple test, nothing fancy...
 
 use strict;
@@ -45,8 +45,19 @@ ok $matrix->curpos,0;
 
 ok $matrix->get_string('A'),$A;
 
-my %x= (base=>'A',pA=>1,pC=>0,pG=>0,pT=>0,prob=>10,rel=>0, lA=>undef,lC=>undef,lG=>undef,lT=>undef);
-ok $matrix->next_pos, %x;
+my %x= (base=>'A',pA=>1,pC=>0,pG=>0,pT=>0,prob=>10,rel=>0, 
+        lA=>undef,lC=>undef,lG=>undef,lT=>undef);
+my %pos = $matrix->next_pos;
+my ($all) = 1;
+while(my ($k,$v) = each %x ) {
+    my $r =$pos{$k};
+    if( ! defined $v && ! defined $r) {
+    } elsif($pos{$k} ne $v ) { 
+	$all = 0;
+	last;
+    }
+}
+ok($all);
 
 ok $matrix->curpos,1;
 
