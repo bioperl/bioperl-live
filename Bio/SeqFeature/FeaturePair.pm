@@ -94,9 +94,10 @@ use strict;
 
 use Bio::Root::Object;
 use Bio::SeqFeatureI;
+use Bio::SeqFeature::Generic;
 
 
-@ISA = qw(Bio::Root::Object Bio::SeqFeatureI);
+@ISA = qw(Bio::SeqFeature::Generic);
 # new() is inherited from Bio::Root::Object
 
 # _initialize is where the heavy stuff will happen when new is called
@@ -567,46 +568,4 @@ sub invert {
 
 }
 
-=head2 sub_SeqFeature
-
- Title   : sub_SeqFeature
- Usage   : Function just for complying with SeqFeatureI
- Function:
- Example :
- Returns : an empty list
- Args    :
-
-
-=cut
-
-sub sub_SeqFeature{
-   my ($self,@args) = @_;
-
-   return ();
-}
-
-=head2 all_tags
-
- Title   : all_tags
- Usage   : Function just for complying with SeqFeatureI
- Function:
- Example :
- Returns : an empty list
- Args    :
-
-
-=cut
-
-sub all_tags{
-   my ($self,@args) = @_;
-   return ();
-
-}
-
-
-
-
-
-
-
-
+1;
