@@ -98,6 +98,7 @@ BEGIN {
 		 'Hsp_bit-score'  => 'bits',
 		 'Hsp_score'      => 'score',
 		 'Hsp_evalue'     => 'evalue',
+		 'Hsp_pvalue'     => 'pvalue',
 		 'Hsp_query-from' => 'querystart',
 		 'Hsp_query-to'   => 'queryend',
 		 'Hsp_hit-from'   => 'hitstart',
@@ -266,13 +267,14 @@ sub next_result{
 	   $self->element({ 'Name' =>  'Hit_accession',
 			    'Data'  => $acc});	   
 	   $self->element({ 'Name' => 'Hit_def',
-			    'Data' => $2});	   
+			    'Data' => $2});
       } elsif( /\s+(Plus|Minus) Strand HSPs:/i ) {
 	   next;
-       } elsif( $self->_mode eq 'hit' && /Length\s*=\s*(\d+)/ ) {
+       } elsif(  /Length\s*=\s*([\d,]+)/ ) {
 	   $self->element({ 'Name' => 'Hit_len',
 			    'Data' => $1 });
-       } elsif( /Score = (\d+) \((\S+) bits\), Expect = ([^,\s]+),/ ) {
+       } elsif( ($self->in_element('hit') || $self->in_element('hsp')) && # wublast
+		/Score\s*=\s*(\d+)\s*\(([\d\.]+)\s*bits\),\s*Expect\s*=\s*([^,\s]+),\s*P\s*=\s*([^,\s]+)/ ) {
 	   if( $self->in_element('hsp') ) {
 	       $self->end_element({'Name' => 'Hsp'});
 	   }
@@ -283,7 +285,10 @@ sub next_result{
 			     'Data' => $2});
 	   $self->element( { 'Name' => 'Hsp_evalue',
 			     'Data' => $3});
-       } elsif( /Score\s+=\s+(\S+)\s+bits\s+\((\d+)\),\s+Expect(\(\d+\))?\s+=\s+(\S+)/) {
+	   $self->element( {'Name'  => 'Hsp_pvalue',
+			    'Data'  =>$4});
+       } elsif( ($self->in_element('hit') || $self->in_element('hsp')) && # ncbi blast
+		/Score\s*=\s*(\S+)\s*bits\s*\((\d+)\),\s*Expect(\(\d+\))?\s*=\s*(\S+)/) {
 	   if( $self->in_element('hsp') ) {
 	       $self->end_element({ 'Name' => 'Hsp'});
 	   }
@@ -295,17 +300,19 @@ sub next_result{
 	   $self->element( { 'Name' => 'Hsp_evalue',
 			     'Data' => $4});
        } elsif( $self->in_element('hsp') &&
-		/Identities = (\d+)\/(\d+).+, Positives = (\d+)\/(\d+).+(\, Gaps = (\d+)\/(\d+))?/ ) {
+		/Identities\s*=\s*(\d+)\s*\/\s*(\d+)\s*[\d\%\(\)]+\s*(,\s*Positives\s*=\s*(\d+)\/(\d+)\s*[\d\%\(\)]+\s*)?(\,\s*Gaps\s*=\s*(\d+)\/(\d+))?/i ) {
 	   
 	   $self->element( { 'Name' => 'Hsp_identity',
 			     'Data' => $1});
 	   $self->element( {'Name' => 'Hsp_align-len',
 			    'Data' => $2});
-	   $self->element( { 'Name' => 'Hsp_positive',
-			     'Data' => $3});
+	   if( defined $3 ) {
+	       $self->element( { 'Name' => 'Hsp_positive',
+				 'Data' => $4});
+	   }
 	   if( defined $6 ) { 
 	       $self->element( { 'Name' => 'Hsp_gaps',
-				 'Data' => $6});	   
+				 'Data' => $7});	   
 	   } else { 
 	       $self->element( { 'Name' => 'Hsp_gaps',
 				 'Data' => 0});
@@ -313,8 +320,11 @@ sub next_result{
 	   $self->{'_Query'} = {'begin' => 0, 'end' => 0};
 	   $self->{'_Sbjct'} = { 'begin' => 0, 'end' => 0};
        } elsif( $self->in_element('hsp') &&
-		/Frame = ([\+\-][1-3])\s*(\/\s*([\+\-][1-3]))?/ ){
-	   
+		/Strand\s*=\s*(Plus|Minus)\s*\/\s*(Plus|Minus)/i ) {
+	   next;
+       } elsif( $self->in_element('hsp') &&
+		/Frame\s*=\s*([\+\-][1-3])\s*(\/\s*([\+\-][1-3]))?/ ){
+
 	   my ($queryframe,$hitframe);
 	   if( $reporttype eq 'TBLASTX' ) {
 	       ($queryframe,$hitframe) = ($1,$2);
@@ -332,7 +342,7 @@ sub next_result{
        } elsif(  /^Parameters:/ || /\s+Database:/ ) {
 	   $self->end_element({'Name' => 'Hsp'});
 	   $self->end_element({'Name' => 'Hit'});
-	   my $blast = ( /Parameters/ ) ? 'wublast'  : 'ncbi'; 
+	   my $blast = ( /Parameters/ ) ? 'wublast' : 'ncbi'; 
 	   my $last = '';
 	   while( defined ($_ = $self->_readline ) ) {
 	       if( /^([T]?BLAST[NPX])\s*([\d\.]+)/i ) {
@@ -357,7 +367,7 @@ sub next_result{
 		   if( /E=(\S+)/ ) {
 		       $self->element({'Name' => 'Parameters_expect',
 				       'Data' => $1});
-		   } elsif( $last =~ /Frame\s+MatID\s+Matrix name/ ) {
+		   } elsif( $last =~ /Frame\s+MatID\s+Matrix name/i ) {
 		       s/^\s+//;
                        #throw away first two slots
 		       my @vals = split;
@@ -373,7 +383,7 @@ sub next_result{
 				       'Data' => $entropy});
 		   } 
 	       } elsif ( $blast eq 'ncbi' ) {
-		   if( /^Matrix:\s+(\S+)/ ) {
+		   if( /^Matrix:\s+(\S+)/i ) {
 		       $self->element({'Name' => 'Parameters_matrix',
 				       'Data' => $1});		       
 		   } elsif( /Lambda/ ) {
@@ -431,7 +441,7 @@ sub next_result{
 	   for( my $i = 0; 
 		defined($_) && $i < 3; 
 		$i++ ){
-	       chomp;
+	       chomp;	       
 	       if( /^((Query|Sbjct):\s+(\d+)\s+)(\S+)\s+(\d+)/ ) {
 		   $data{$2} = $4;
 		   $len = length($1);
@@ -473,7 +483,6 @@ sub start_element{
     # we currently don't care about attributes
     my $nm = $data->{'Name'};    
     if( my $type = $MODEMAP{$nm} ) {
-	$self->_mode($type);
 	if( $self->_eventHandler->will_handle($type) ) {
 	    my $func = sprintf("start_%s",lc $type);
 	    $self->_eventHandler->$func($data->{'Attributes'});
@@ -483,7 +492,6 @@ sub start_element{
     if($nm eq 'BlastOutput') {
 	$self->{'_values'} = {};
 	$self->{'_result'}= undef;
-	$self->{'_mode'} = '';
     }
 
 }
@@ -592,26 +600,6 @@ sub characters{
    $self->{'_last_data'} = $data->{'Data'}; 
 }
 
-=head2 _mode
-
- Title   : _mode
- Usage   : $obj->_mode($newval)
- Function: 
- Example : 
- Returns : value of _mode
- Args    : newvalue (optional)
-
-
-=cut
-
-sub _mode{
-    my ($self,$value) = @_;
-    if( defined $value) {
-	$self->{'_mode'} = $value;
-    }
-    return $self->{'_mode'};
-}
-
 =head2 within_element
 
  Title   : within_element
@@ -674,7 +662,6 @@ sub start_document{
     $self->{'_lasttype'} = '';
     $self->{'_values'} = {};
     $self->{'_result'}= undef;
-    $self->{'_mode'} = '';
     $self->{'_elements'} = [];
 }
 
