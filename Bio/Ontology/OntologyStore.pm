@@ -16,7 +16,33 @@ Bio::Ontology::OntologyStore - A repository of ontologies
 
 =head1 SYNOPSIS
 
-    # see documentation of methods
+  #----------
+  #SCENARIO 1
+  #----------
+
+  #make an ontology object manually. via OntologyIO
+  my $io = Bio::OntologyIO->new(
+                                #params to fetch Cell Ontology here
+                               );
+  my $cell_ontology = $io->next_ontology;
+
+  #this is a singleton that caches the fact that you've created
+  #a 'Cell Ontology' intance...
+  my $store = Bio::Ontology::OntologyStore->get_instance();
+
+  #...and it can hand you back a copy of it at any time.
+  my $cell_ontology_copy = $store->get_ontology('Cell Ontology');
+
+
+  #----------
+  #SCENARIO 2
+  #----------
+
+  my $store = Bio::Ontology::OntologyStore->get_instance();
+  #this use case allows the construction of an ontology on
+  #demand just by supplying the name.
+  my $ontology = $store->get_ontology('Sequence Ontology');
+
 
 =head1 DESCRIPTION
 
@@ -27,9 +53,6 @@ implementations to return their corresponding OntologyI through using
 this singleton store instead of storing a direct reference to the
 Ontology object. The latter would almost inevitably lead to memory
 cycles, and would therefore potentially blow up an application.
-
-As a user of Ontology objects and Term objects you almost certainly
-will not need to deal with this module.
 
 =head1 FEEDBACK
 
@@ -56,7 +79,7 @@ Email hlapp at gmx.net
 
 =head1 CONTRIBUTORS
 
-Additional contributors names and emails here
+  Allen Day <allenday@ucla.edu>
 
 =head1 APPENDIX
 
