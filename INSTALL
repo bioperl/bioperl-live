@@ -370,3 +370,5 @@ Parse::RecDescent        Parsing of Unigene files
 
 Text::Shellwords         Text parser
                          Bio::Graphics::FeatureFile.pm
+XML::DOM		 XML parser
+			 Bio::SeqIO::bsml.pm
