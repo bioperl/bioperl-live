@@ -225,6 +225,98 @@ sub all_tags{
 
 }
 
+=head2 gff_string
+
+ Title   : gff_string
+ Usage   : $str = $feat->gff_string
+ Function: provides the feature information in GFF
+           version 2 format.
+ Returns : A string
+ Args    : None
 
 
+=cut
+
+sub gff_string{
+   my ($feat) = @_;
+   my ($str,$score,$frame);
+
+   if( $feat->can('score') ) {
+       $score = $feat->score();
+   } else {
+       $score = '.';
+   }
+
+   if( $feat->can('frame') ) {
+       $frame = $feat->frame();
+   } else {
+       $frame = '.';
+   }
+
+   $str = join("\t","SEQ",$feat->source_tag,$feat->primary_tag,$feat->start,$feat->end,$feat->strand,$score,$frame);
+
+   return $str;
+}
+
+=head1 RangeI methods
+
+These methods are inherited from RangeI and can be used
+directly from a SeqFeatureI interface. Remember that a 
+SeqFeature is-a RangeI, and so wherever you see RangeI you
+can use a feature ($r in the below documentation).
+
+=head2 overlaps
+
+  Title   : overlaps
+  Usage   : if($feat->overlaps($r)) { do stuff }
+            if($feat->overlaps(200)) { do stuff }
+  Function: tests if $feat overlaps $r
+  Args    : a RangeI to test for overlap with, or a point
+  Returns : true if the Range overlaps with the feature, false otherwise
+
+
+=head2 contains
+
+  Title   : contains
+  Usage   : if($feat->contains($r) { do stuff }
+  Function: tests whether $feat totally contains $r
+  Args    : a RangeI to test for being contained
+  Returns : true if the argument is totaly contained within this range
+
+
+=head2 equals
+
+  Title   : equals
+  Usage   : if($feat->equals($r))
+  Function: test whether $feat has the same start, end, strand as $r
+  Args    : a RangeI to test for equality
+  Returns : true if they are describing the same range
+
+
+=head1 Geometrical methods
+
+These methods do things to the geometry of ranges, and return
+triplets (start, stop, strand) from which new ranges could be built.
+
+=head2
+
+  Title   : intersection
+  Usage   : ($start, $stop, $strand) = $feat->intersection($r)
+  Function: gives the range that is contained by both ranges
+  Args    : a RangeI to compare this one to
+  Returns : nothing if they don't overlap, or the range that they do overlap
+
+
+=head2 union
+
+  Title   : union
+  Usage   : ($start, $stop, $strand) = $feat->union($r);
+          : ($start, $stop, $strand) = Bio::RangeI->union(@ranges);
+  Function: finds the minimal range that contains all of the ranges
+  Args    : a range or list of ranges to find the union of
+  Returns : the range containing all of the ranges
+
+=cut
+
+1;
 

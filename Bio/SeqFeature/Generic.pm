@@ -34,11 +34,35 @@ Bio::SeqFeature::Generic - Generic SeqFeature
 =head1 DESCRIPTION
 
 Bio::SeqFeature::Generic is a generic implementation for the
-Bio::SeqFeatureI interface 
+Bio::SeqFeatureI interface, providing a simple object to provide
+all the information for a feature on a sequence.
+
+For many Features, this is all you will need to use (for example, this
+is fine for Repeats in DNA sequence or Domains in protein
+sequence). For other features, which have more structure, this is a
+good base class to extend using inheritence to have new things: this
+is what is done in the Bio::SeqFeature::Gene,
+Bio::SeqFeature::Transcript and Bio::SeqFeature::Exon, which provide
+well coordinated classes to represent genes on DNA sequence (for
+example, you can get the protein sequence out from a transcript class).
+
+For many Features, you want to add some piece of information, for example
+a common one is that this feature is 'new' whereas other features are 'old'.
+The tag system, which here is implemented using a hash can be used here.
+You can use the tag system to extend the SeqFeature::Generic programmatically:
+that is, you know that you have read in more information into the tag 
+'mytag' which you can the retrieve. This means you do not need to know 
+how to write inherieted Perl to provide more complex information on a feature,
+and/or, if you do know but you donot want to write a new class every time
+you need some extra piece of information, you can use the tag system
+to easily store and then retrieve information.
+
+The tag system can be written in/out of GFF format, and also into EMBL
+format via AnnSeqIO::EMBL.
 
 =head1 CONTACT
 
-Describe contact details here
+Ewan Birney <birney@sanger.ac.uk>
 
 =head1 APPENDIX
 
@@ -57,20 +81,261 @@ use strict;
 # Object preamble - inheriets from Bio::Root::Object
 
 use Bio::Root::Object;
+use Bio::SeqFeatureI;
 
-
-use AutoLoader;
-@ISA = qw(Bio::Root::Object Exporter);
-@EXPORT_OK = qw();
+@ISA = qw(Bio::Root::Object Bio::SeqFeatureI Exporter);
 # new() is inherited from Bio::Root::Object
 
 # _initialize is where the heavy stuff will happen when new is called
 
 sub _initialize {
   my($self,@args) = @_;
-
   my $make = $self->SUPER::_initialize;
 
-# set stuff in self from @args
- return $make; # success - we hope!
+  $self->{'_gsf_tag_hash'} = {};
+  $self->{'_gsf_sub_array'} = [];
+
+  my($start,$end,$strand,$primary,$source,$frame,$score,$tag) = 
+      $self->_rearrange([qw(START
+			    END
+			    STRAND
+			    PRIMARY
+			    SOURCE
+			    FRAME
+			    SCORE
+			    TAG
+			    )],@args);
+  
+  $start && $self->start($start);
+  $end   && $self->end($end);
+  $strand && $self->strand($strand);
+  $primary && $self->primary_tag($primary);
+  $source  && $self->source_tag($source);
+  $frame   && $self->frame($frame);
+  $score   && $self->score($score);
+  $tag     && do {
+      foreach my $t ( keys %$tag ) {
+	  $self->has_tag($t,$tag->{$t});
+      }
+  };
+
+  # set stuff in self from @args
+  return $make; # success - we hope!
 }
+
+=head2 start
+
+ Title   : start
+ Usage   : $start = $feat->start
+           $feat->start(20)
+ Function: Get/set on the start coordinate of the feature
+ Returns : integer
+ Args    : none
+
+
+=cut
+
+sub start{
+   my ($self,$value) = @_;
+
+   if( defined $value ) {
+       if( $value !~ /^\-?\d+/ ) {
+	   $self->throw("$value is not a valid start");
+       }
+       $self->{'_gsf_start'} = $value
+   } 
+
+   return $self->{'_gsf_start'};
+}
+
+=head2 end
+
+ Title   : end
+ Usage   : $end = $feat->end
+           $feat->end($end)
+ Function: get/set on the end coordinate of the feature
+ Returns : integer
+ Args    : none
+
+
+=cut
+
+sub end{
+   my ($self,$value) = @_;
+
+   if( defined $value ) {
+       if( $value !~ /^\-?\d+/ ) {
+	   $self->throw("$value is not a valid end");
+       }
+       $self->{'_gsf_end'} = $value
+   } 
+
+   return $self->{'_gsf_end'};
+}
+
+
+=head2 strand
+
+ Title   : strand
+ Usage   : $strand = $feat->strand()
+           $feat->strand($strand)
+ Function: get/set on strand information, being 1,-1 or 0
+ Returns : -1,1 or 0
+ Args    : none
+
+
+=cut
+
+sub strand{
+   my ($self,$value) = @_;
+
+   if( defined $value ) {
+       if( $value != -1 && $value != 1 && $value != 0 ) {
+	   $self->throw("$value is not a valid strand info");
+       }
+       $self->{'_gsf_strand'} = $value
+   } 
+
+   return $self->{'_gsf_strand'};
+}
+
+=head2 sub_SeqFeature
+
+ Title   : sub_SeqFeature
+ Usage   : @feats = $feat->sub_SeqFeature();
+ Function: Returns an array of sub Sequence Features
+ Returns : An array
+ Args    : none
+
+
+=cut
+
+sub sub_SeqFeature{
+   my ($self) = @_;
+
+   return @{$self->{'_gsf_sub_array'}};
+}
+
+=head2 add_sub_SeqFeature
+
+ Title   : add_sub_SeqFeature
+ Usage   : $feat->add_sub_SeqFeature($subfeat);
+           $feat->add_sub_SeqFeature($subfeat,'EXPAND')
+ Function: adds a SeqFeature into the subSeqFeature array.
+           with no 'EXPAND' qualifer, subfeat will be tested
+           as to whether it lies inside the parent, and throw
+           an exception if not.
+
+           If EXPAND is used, the parent's start/end/strand will
+           be adjusted so that it grows to accommodate the new
+           subFeature
+ Returns : nothing
+ Args    : An object which has the SeqFeatureI interface
+
+
+=cut
+
+sub add_sub_SeqFeature{
+   my ($self,$feat,$expand) = @_;
+
+   if( !$feat->isa('Bio::SeqFeatureI') ) {
+       $self->warn("$feat does not implement Bio::SeqFeatureI. Will add it anyway, but beware...");
+   }
+
+   if( $expand eq 'EXPAND' ) {
+       my ($start,$end,$strand) = $self->union($feat);
+       $self->start($start);
+       $self->end($end);
+       $self->strand($strand);
+   } else {
+       if( !$self->contains($feat) ) {
+	   $self->throw("$feat is not contained within parent feature, and expansion is not valid");
+       }
+   }
+   
+   push(@{$self->{'_gsf_sub_array'}},$feat);
+   
+}
+
+
+=head2 primary_tag
+
+ Title   : primary_tag
+ Usage   : $tag = $feat->primary_tag()
+           $feat->primary_tag('exon')
+ Function: get/set on the primary tag for a feature,
+           eg 'exon'
+ Returns : a string 
+ Args    : none
+
+
+=cut
+
+sub primary_tag{
+   my ($self,$value) = @_;
+
+   return $self->has_tag('primary',$value);
+}
+
+=head2 source_tag
+
+ Title   : source_tag
+ Usage   : $tag = $feat->source_tag()
+           $feat->source_tag('genscan');
+ Function: Returns the source tag for a feature,
+           eg, 'genscan' 
+ Returns : a string 
+ Args    : none
+
+
+=cut
+
+sub source_tag{
+   my ($self,$value) = @_;
+
+   return $self->has_tag('source',$value);
+}
+
+=head2 has_tag
+
+ Title   : has_tag
+ Usage   : $value = $self->has_tag('some_tag')
+           $self->has_tag('some_tag',$value)
+ Function: Returns the value of the tag (undef if 
+           none)
+ Returns : 
+ Args    :
+
+
+=cut
+
+sub has_tag{
+   my ($self,$tag,$value) = @_;
+
+   if( defined $value ) {
+       $self->{'_gsf_tag_hash'}->{$tag} = $value;
+   } 
+
+   return $self->{'_gsf_tag_hash'}->{$tag};
+}
+
+=head2 all_tags
+
+ Title   : all_tags
+ Usage   : @tags = $feat->all_tags()
+ Function: gives all tags for this feature
+ Returns : an array of strings
+ Args    : none
+
+
+=cut
+
+sub all_tags{
+   my ($self,@args) = @_;
+
+   return keys %{$self->{'_gsf_tag_hash'}};
+}
+
+
+
+
