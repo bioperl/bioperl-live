@@ -557,6 +557,10 @@ sub translate {
 	  $output .= $aa ;
       }   
   }
+  if( substr($output,-1,1) eq $stop ) {
+      chop $output;
+  }
+
 
   my($out,$id);
   $id = $self->id();

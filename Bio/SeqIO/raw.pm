@@ -104,7 +104,10 @@ sub next_seq{
    ## When its 1 sequence per line with no formatting at all,
    ## grabbing it should be easy :)
 
-   my $sequence = uc($self->_readline());
+   my $nextline = $self->_readline();
+   if( !defined $nextline ){ return undef; }
+
+   my $sequence = uc($nextline);
    $sequence =~ s/\W//g;
 
    return  Bio::Seq->new(-seq => $sequence);
