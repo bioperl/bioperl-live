@@ -180,7 +180,8 @@ sub sub_Location {
     if(@locs) {
       if($order == 1) {
 	# Schwartzian transforms for performance boost
-	@locs = map {$_->[0]}
+	  
+	  @locs = map {$_->[0]}
 	  sort { $a->[1] <=> $b->[1] }
 	    map { [$_=>$_->start] } @locs;
       } else { # $order == -1
