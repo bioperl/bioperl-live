@@ -99,7 +99,7 @@ ok scalar keys %seq, 0;
 
 #Quick check if returned object works
 $IUPAC   = $psm->IUPAC;
-ok $IUPAC,'NNNNNNNNNNN';
+ok $IUPAC,'NNNNNNNNNNNN';
 
 #Now we are going to try mast
 $psmIO =  new Bio::Matrix::PSM::IO(-format=>'mast', 
