@@ -91,40 +91,22 @@ use Bio::DBLinkContainerI;
 
 @ISA = qw( Bio::PrimarySeq Bio::DBLinkContainerI );
 
-sub _initialize {
-    my($self, @args) = @_;
+sub new {
+    my($class, @args) = @_;
+    my $self = $class->SUPER::new(@args);
 
-    my($seq,$id,$acc,$pid,$desc,$alphabet,$given_id, 
-       $is_reference, $repeat_unit, $repeat_count) =
-	   $self->_rearrange([qw(SEQ
-				 DISPLAY_ID
-				 ACCESSION_NUMBER
-				 PRIMARY_ID
-				 DESC
-				 ALPHABET
-				 ID
-				 IS_REFERENCE
+    my($is_reference, $repeat_unit, $repeat_count) =
+	   $self->_rearrange([qw(IS_REFERENCE
 				 REPEAT_UNIT
 				 REPEAT_COUNT
 				 )],
 			     @args);
 
-    my $make = $self->SUPER::_initialize(@args);
-
-    if( defined $given_id ) { $id = $given_id; }
-
-    $seq     && $self->SUPER::seq($seq);
-    $id      && $self->SUPER::display_id($id);
-    $acc     && $self->SUPER::accession_number($acc);
-    $pid     && $self->SUPER::primary_id($pid);
-    $desc    && $self->SUPER::desc($desc);
-    $alphabet && $self->SUPER::alphabet($alphabet);
-
     $is_reference && $self->is_reference($is_reference);
     $repeat_unit && $self->repeat_unit($repeat_unit);
     $repeat_count && $self->repeat_count($repeat_count);
 
-    return $make; # success - we hope!
+    return $self; # success - we hope!
 }
 
 

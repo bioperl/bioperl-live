@@ -115,13 +115,11 @@ use Bio::Tools::CodonTable;
 
 sub new {
     my($class,@args) = @_;
-    my $self;
-    $self = {};
-    bless $self, $class;
+    my $self = $class->SUPER::new(@args);
 
-    my ($start, $end, $length, $strand, $primary, $source, 
-	$frame, $score, $gff_string,
-	$allele_ori,  $allele_mut,  $upstreamseq,  $dnstreamseq,  
+    my ($start, $end, $length, $strand, $primary, $source,
+        $frame, $score, $gff_string,
+        $allele_ori,  $allele_mut,  $upstreamseq,  $dnstreamseq,
 	$label,  $status,  $proof,  $region,  $region_value, $region_dist, $numbering,
 	$mut_number,  $isMutation,
 	$codon_ori, $codon_mut, $codon_pos, $codon_table, $cds_end) =
@@ -158,30 +156,30 @@ sub new {
     
     $self->{ 'alleles' } = [];
     
-    $start && $self->SUPER::start($start);
-    $end   && $self->SUPER::end($end);
-    $length && $self->SUPER::length($length);
-    $strand && $self->SUPER::strand($strand);
-    $primary && $self->SUPER::primary_tag($primary);
-    $source  && $self->SUPER::source_tag($source);
-    $frame   && $self->SUPER::frame($frame);
-    $score   && $self->SUPER::score($score);
-    $gff_string && $self->SUPER::_from_gff_string($gff_string);
+    $start && $self->start($start);
+    $end   && $self->end($end);
+    $length && $self->length($length);
+    $strand && $self->strand($strand);
+    $primary && $self->primary_tag($primary);
+    $source  && $self->source_tag($source);
+    $frame   && $self->frame($frame);
+    $score   && $self->score($score);
+    $gff_string && $self->_from_gff_string($gff_string);
     
-    $allele_ori && $self->SUPER::allele_ori($allele_ori);
-    $allele_mut  && $self->SUPER::allele_mut($allele_mut);
-    $upstreamseq  && $self->SUPER::upStreamSeq($upstreamseq);
-    $dnstreamseq  && $self->SUPER::dnStreamSeq($dnstreamseq);
+    $allele_ori && $self->allele_ori($allele_ori);
+    $allele_mut  && $self->allele_mut($allele_mut);
+    $upstreamseq  && $self->upStreamSeq($upstreamseq);
+    $dnstreamseq  && $self->dnStreamSeq($dnstreamseq);
     
     $label  && $self->label($label);
-    $status  && $self->SUPER::status($status);
-    $proof && $self->SUPER::proof($proof);
+    $status  && $self->status($status);
+    $proof && $self->proof($proof);
     $region  && $self->region($region);
-    $region_value  && $self->SUPER::region_value($region_value);
-    $region_dist  && $self->SUPER::region_dist($region_dist);
-    $numbering && $self->SUPER::numbering($numbering);
-    $mut_number && $self->SUPER::mut_number($mut_number);
-    $isMutation && $self->SUPER::isMutation($isMutation);
+    $region_value  && $self->region_value($region_value);
+    $region_dist  && $self->region_dist($region_dist);
+    $numbering && $self->numbering($numbering);
+    $mut_number && $self->mut_number($mut_number);
+    $isMutation && $self->isMutation($isMutation);
     
     $codon_ori  && $self->codon_ori($codon_ori);
     $codon_mut  && $self->codon_mut($codon_mut);
@@ -220,7 +218,7 @@ sub codon_ori {
     elsif (! $self->{'codon_ori'}) {
 	my $codon_ori = '';
 
-	if ($self->region eq 'coding' and $self->start >= 1) {
+	if ($self->region eq 'coding' && $self->start && $self->start  >= 1) {
 	    
 	    $self->warn('Codon position is not defined') 
 		if not defined $self->codon_pos;
@@ -469,10 +467,10 @@ sub region {
 	    if not defined $self->cds_end and $self->verbose;
 	
 	$self->region('coding');
-	if ($self->end < 0 ){
+	if ($self->end && $self->end < 0 ){
 	    $self->region('5\'UTR');
 	}
-	elsif ($self->cds_end and $self->start > $self->cds_end ) {
+	elsif ($self->start && $self->cds_end && $self->start > $self->cds_end ) {
 	    $self->region('3\'UTR');
 	}
     }

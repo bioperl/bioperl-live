@@ -116,9 +116,7 @@ use Bio::PrimarySeq;
 
 sub new {
     my($class,@args) = @_;
-    my $self;
-    $self = {};
-    bless $self, $class;
+    my $self = $class->SUPER::new(@args);
 
     my($id, $sysname, $trivname, $chr, $gene_symbol, 
        $desc, $alphabet, $numbering, $offset, $rna_offset, $rna_id, $cds_end,
