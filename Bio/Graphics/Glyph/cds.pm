@@ -72,7 +72,10 @@ sub draw {
   @parts = map { $_->[0] }
   sort { $b->[1] <=> $a->[1] }
   map { [$_, $_->left ] } @parts if $strand < 0;
-  my $translate_table = Bio::Tools::CodonTable->new;
+
+  my $codon_table = $self->option('codontable');
+  $codon_table    = 1 unless defined $codon_table;
+  my $translate_table = Bio::Tools::CodonTable->new(-id=>$codon_table);
 
   for (my $i=0; $i < @parts; $i++) {
     my $part    = $parts[$i];
@@ -93,7 +96,7 @@ sub draw {
 
       # do in silico splicing in order to find the codon that
       # arises from the splice
-      my $protein = $part->feature->translate(undef,undef,$phase)->seq;
+      my $protein = $part->feature->translate(undef,undef,$phase,$codon_table)->seq;
       $part->{cds_translation}  = $protein;
 
     BLOCK: {
@@ -290,6 +293,8 @@ glyph-specific options:
               Don't draw the reading frame 0 (false)
               unless it is a feature
               subpart.
+
+  -codontable   Codon table to use           1 (see Bio::Tools::CodonTable)
 
 The -require_subparts option is suggested when rendering spliced
 transcripts which contain multiple CDS subparts.  Otherwise, the glyph

@@ -1489,6 +1489,7 @@ L<Bio::Graphics::Glyph::toomany>,
 L<Bio::Graphics::Glyph::transcript>,
 L<Bio::Graphics::Glyph::transcript2>,
 L<Bio::Graphics::Glyph::wormbase_transcript>
+L<Bio::Graphics::Glyph::xyplot>
 
 =head1 AUTHOR
 

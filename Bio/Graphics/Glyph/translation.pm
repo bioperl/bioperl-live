@@ -139,7 +139,9 @@ sub draw_frame {
 
   $y2 = $y1;
 
-  my $protein = $seq->translate(undef,undef,$base_offset)->seq;
+  my $codon_table = $self->option('codontable') || 1;
+  my $protein = $seq->translate(undef,undef,$base_offset,$codon_table)->seq;
+
   my $k       = $strand>=0 ? 'f' : 'r';
   my $color   = $self->color("frame$frame$k") ||
                 $self->color("frame$frame") ||
@@ -328,6 +330,8 @@ options are recognized:
 
   -show_sequence Show the amino acid sequence 1 (true)
                 if there's room.
+
+  -codontable   Codon table to use           1 (see Bio::Tools::CodonTable)
 
 =head1 SUGGESTED STANZA FOR GENOME BROWSER
 
