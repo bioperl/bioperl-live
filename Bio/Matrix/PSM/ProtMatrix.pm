@@ -455,6 +455,11 @@ sub consensus {
    return $consensus;
 }
 
+sub IUPAC {
+   my $self = shift;
+   return $self->consensus;
+}
+
 
 =head2 width
 
