@@ -40,7 +40,7 @@ or
     $out = Bio::AlignIO->newFh('-format' => 'pfam');
 
     # World's shortest Fasta<->pfam format converter:
-    print $output $_ while <$in>;
+    print $out $_ while <$in>;
 
 =head1 DESCRIPTION
 
