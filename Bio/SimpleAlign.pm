@@ -789,7 +789,7 @@ sub match_line {
 	my %col = ($refchar => 1);
 	my $dash = 0;
 	foreach my $seq ( @seqchars ) {
-	    $dash = 1 if( $seq->[$pos] eq '-');
+	    $dash = 1 if( $seq->[$pos] eq '-' || $seq->[$pos] eq '.');
 	    $col{$seq->[$pos]}++;
 	}
 	my @colresidues = sort keys %col;
@@ -798,7 +798,7 @@ sub match_line {
 	if( $dash ) { $char = ' ' }
 	elsif( @colresidues == 1 ) { $char = $matchchars{'match'} }
 	elsif( $alphabet eq 'protein' ) { # only try to do weak/strong
-	                                      # matches for protein seqs
+	                                  # matches for protein seqs
 	    TYPE: foreach my $type ( qw(strong weak) ) { 
                 # iterate through categories
 		my %groups;
