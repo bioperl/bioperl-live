@@ -356,6 +356,19 @@ my $pop = $io->next_population;
 
 my %LD = $stats->composite_LD($pop);
 
-ok($LD{'01'}->{'02'}, 10);
-ok($LD{'01'}->{'03'}, 0);
-ok($LD{'02'}->{'03'}, 0);
+ok($LD{'01'}->{'02'}->[1], 10);
+ok($LD{'01'}->{'03'}->[1], 0);
+ok($LD{'02'}->{'03'}->[1], 0);
+
+# Test composite LD
+
+$io = new Bio::PopGen::IO(-format => 'prettybase',
+			  -file   => Bio::Root::IO->catfile
+			  (qw(t data compLD_missingtest.prettybase)));
+
+$pop = $io->next_population;
+
+%LD = $stats->composite_LD($pop);
+
+ok(sprintf("%.4f",$LD{'ProcR2973EA'}->{'ProC9198EA'}->[0]), -0.0375);
+ok(sprintf("%.2f",$LD{'ProcR2973EA'}->{'ProC9198EA'}->[1]), 2.56);
