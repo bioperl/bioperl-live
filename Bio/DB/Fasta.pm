@@ -102,7 +102,7 @@ you may pass a series of name=E<gt>value options.  Valid options are:
  Option Name   Description               Default
  -----------   -----------               -------
 
- -glob         Glob expression to use    *.{fa,fasta,fast,FA,FASTA,FAST}
+ -glob         Glob expression to use    *.{fa,fasta,fast,FA,FASTA,FAST,dna}
                for searching for Fasta
 	       files in directories. 
 
@@ -447,7 +447,7 @@ sub new {
 
   my $self = bless { debug      => $opts{-debug},
 		     makeid     => $opts{-makeid},
-		     glob       => $opts{-glob}    || '*.{fa,fasta,FA,FASTA,fast,FAST}',
+		     glob       => $opts{-glob}    || '*.{fa,fasta,FA,FASTA,fast,FAST,dna}',
 		     maxopen    => $opts{-maxfh}   || 32,
 		     dbmargs    => $opts{-dbmargs} || undef,
 		     fhcache    => {},
