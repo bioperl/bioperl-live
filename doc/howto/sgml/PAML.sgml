@@ -1,7 +1,5 @@
-<!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook V4.1//EN" [
-<!ENTITY paml "<acronym>PAML</acronym>" >
-]>
-<!-- $Id: PAML.sgml,v 1.5 2003-12-28 18:56:22 bosborne Exp $ -->
+<!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook V4.1//EN">
+<!-- $Id: PAML.sgml,v 1.6 2004-08-26 01:29:13 bosborne Exp $ -->
 <article>
 <articleinfo>
 
