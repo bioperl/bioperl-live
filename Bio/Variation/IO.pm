@@ -35,7 +35,7 @@ or
     $out = Bio::Variation::IO->newFh('-format' => 'xml');
 
     # World's shortest flat<->xml format converter:
-    print $output $_ while <$in>;
+    print $out $_ while <$in>;
 
 =head1 DESCRIPTION
 
