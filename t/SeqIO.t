@@ -19,7 +19,7 @@
 
 
 ## We start with some black magic to print on failure.
-BEGIN { $| = 1; print "1..16\n"; 
+BEGIN { $| = 1; print "1..17\n"; 
 	use vars qw($loaded); }
 
 END {print "not ok 1\n" unless $loaded;}
@@ -174,3 +174,14 @@ while( $seq = $mf->next_seq() ) {
 $temp = undef;
 print "ok 16\n";
 
+
+$ast = Bio::SeqIO->new( '-format' => 'Swiss' , -file => 't/roa1.swiss');
+
+while( my $as = $ast->next_seq() ) {
+   if( ! defined $as->seq || $as->id ne 'ROA1_HUMAN' ) {
+	print "not ok 17\n";
+	print STDERR "id is ".$as->id."\n";
+   } else {
+     print "ok 17\n";
+   }
+}

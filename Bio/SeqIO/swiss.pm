@@ -186,20 +186,9 @@ sub next_seq{
        return undef; # end of file
    }
 
-   $line =~ /^ID\s+\S+/ || $self->throw("swissprot stream with no ID. Not swissprot in my book");
-   $line =~ /^ID\s+(\S+)_(\S+)\s+\S+\s+(\S+)\;/ || $self->throw("problem.... not looking like swissprot!");
+   $line =~ /^ID\s+(\S+)/ || $self->throw("swissprot stream with no ID. Not swissprot in my book");
    $name = $1;
    
-   $div = $2;
-   $div =~ s/\;//;
-   if ($div) {
-       $seq->division($div);
-   }
-
-   $mol= $3;
-   if ($mol) {
-       $seq->molecule($mol);
-   }
    my $buffer = $line;
 
    BEFORE_FEATURE_TABLE :
@@ -327,8 +316,8 @@ sub next_seq{
        $seqc .= $_;
    }
 
-   $pseq = Bio::PrimaySeq->new(-seq => $seqc , -id => $name, -desc => $desc);
-   $seq->seq($pseq);
+   $pseq = Bio::PrimarySeq->new(-seq => $seqc , -id => $name, -desc => $desc);
+   $seq->primary_seq($pseq);
    return $seq;
 
 }
@@ -613,7 +602,9 @@ sub _read_swissprot_References{
    
    OUT: my $ref = new Bio::Annotation::Reference;
    $au =~ s/;\s*$//g;
-   $title =~ s/;\s*$//g;
+   if( defined $title ) {
+       $title =~ s/;\s*$//g;
+   }
    
    $ref->start($b1);
    $ref->end($b2);
