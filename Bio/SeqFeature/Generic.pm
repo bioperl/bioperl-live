@@ -612,7 +612,8 @@ sub seq {
    my $seq = $self->{'_gsf_seq'}->trunc($self->start(), $self->end());
 
 
-   if ( $self->strand == -1 ) {
+   if ( defined $self->strand &&
+	$self->strand == -1 ) {
 
        # ok. this does not work well (?)
        #print STDERR "Before revcom", $seq->str, "\n";
