@@ -17,15 +17,32 @@ Bio::SeqAnalysisParserI - Sequence analysis output parser interface
 
 =head1 SYNOPSIS
 
-    # get a SeqAnalysisParserI somehow
-    $seqanalparser->parse('inputfile');
-    while( my $feature = $seqanalparser->next_feature() ) {
+    # get a SeqAnalysisParserI somehow, e.g. by
+    my $parser = Bio::Factory::SeqAnalysisParserFactory->get_parser(
+                            -input => 'inputfile', -method => 'genscan');
+    while( my $feature = $parser->next_feature() ) {
 	print "Feature from ", $feature->start, " to ", $feature->end, "\n";
     }
 
 =head1 DESCRIPTION
 
-SeqAnalysisParserI is an interface for describing AnalysisResult parsers.  These parsers will produce features that can be used to annotate a sequence object.
+SeqAnalysisParserI is a generic interface for describing sequence analysis
+result parsers. Sequence analysis in this sense is a search for similarities
+or the identification of features on the sequence, like a databank search or a
+a gene prediction result.
+
+The concept behind this interface is to have a generic interface in sequence
+annotation pipelines (as used e.g. in high-throughput automated
+sequence annotation). This interface enables plug-and-play for new analysis
+methods and their corresponding parsers without the necessity for modifying
+the core of the annotation pipeline. In this concept the annotation pipeline
+has to rely on only a list of methods for which to process the results, and a
+factory from which it can obtain the corresponding parser implementing this
+interface.
+
+See Bio::Factory::SeqAnalysisParserFactoryI and
+Bio::Factory::SeqAnalysisParserFactory for interface and an implementation
+of the corresponding factory.
 
 =head1 FEEDBACK
 
@@ -62,41 +79,32 @@ package Bio::SeqAnalysisParserI;
 use strict;
 
 use Bio::Root::RootI;
-use Bio::SeqFeatureI;
 use Carp;
 
 use vars qw(@ISA );
 @ISA = qw(Bio::Root::RootI); 
 
-=head2 parse
+=head2 new
 
- Title   : parse
- Usage   : $obj->parse(-input=>$inputobj, [ -params=>[@params] ],
-		       [ -method => $method ] )
- Function: sets up parsing for feature retrieval from an analysis file, 
-           or object
- Example :
- Returns : void
- Args    : B<input>  - object/file where analysis are coming from,
-	   B<params> - parameter to use when parsing/running analysis
-	   B<method> - method of analysis (optional)
-    
+ Title   : new
+ Remark  : Classes implementing this interface are expected to implement
+           recognition of at least the following named parameters:
+           -file     input file (alternative to -fh)
+           -fh       input stream (alternative to -file)
+
 =cut
-
-sub parse {
-    my ( $self, @args) = @_;
-
-    $self->_abstractDeath();
-}
 
 =head2 next_feature
 
  Title   : next_feature
  Usage   : $seqfeature = $obj->next_feature();
- Function: returns the next SeqFeatureI object available
+ Function: Returns the next feature available in the analysis result, or
+           undef if there are no more features.
  Example :
- Returns : SeqFeatureI
+ Returns : A Bio::SeqFeatureI implementing object, or undef if there are no
+           more features.
  Args    : none    
+
 =cut
 
 sub next_feature {
