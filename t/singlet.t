@@ -5,7 +5,7 @@
 # modeled after the t/Allele.t test script
 
 use strict;
-use vars qw($DEBUG);
+use vars qw($DEBUG $NUMTESTS $HAVE_DB_FILE);
 $DEBUG = $ENV{'BIOPERLDEBUG'};
 my $verbose = -1 unless $DEBUG;
 BEGIN {
@@ -19,13 +19,26 @@ BEGIN {
         use lib 't';
     }
     use Test;
-    plan tests => 3;
+    eval { require Bio::Assembly::Contig;
+	   require DB_File;
+	   $HAVE_DB_FILE = 1;
+	 };
+    if( $@ ) {
+	warn("No DB_File installed which is needed for Bio::Assembly::Contig\n") if $DEBUG;
+	$HAVE_DB_FILE=0;
+    }
+    plan tests => ($NUMTESTS = 3);
+}
+END {
+    foreach ( $Test::ntest..$NUMTESTS) {
+	skip('Cannot run tests as DB_File is not installed',1);
+    }
 }
 
+exit(0) unless $HAVE_DB_FILE;
 # redirect STDERR to STDOUT
 open (STDERR, ">&STDOUT");
 use Bio::Assembly::IO;
-use Bio::Assembly::Contig;
 use Bio::Assembly::Singlet;
 use Bio::Seq::SeqWithQuality;
 use Bio::Seq::PrimaryQual;
