@@ -18,7 +18,7 @@ BEGIN {
     }
 
     use Test;
-    plan tests => 19; 
+    plan tests => 18; 
 
 #    eval { require XML::Parser::PerlSAX; };
 #    if( $@ ) {
