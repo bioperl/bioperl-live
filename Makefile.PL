@@ -80,7 +80,7 @@ sub MY::postamble {
 #
 
 if(  eval { require DBI } && grep {/mysql/} DBI->available_drivers) {
-  my $proceed = user_prompt("Do you want to run the BioGFFDB tests (requires a mysql database) y/n",'n');
+  my $proceed = prompt("Do you want to run the BioGFFDB tests (requires a mysql database) y/n",'n');
   if( $proceed =~ /^[yY]/) {
     my $cfg = {dbd_driver => 'mysql'};
     GFFQueryDb($cfg,{'prompt'=>1,'verbose'=>1});
@@ -97,17 +97,6 @@ if(  eval { require DBI } && grep {/mysql/} DBI->available_drivers) {
   }
 }
 
-sub user_prompt ($;$) {
-    my($mess,$def)=@_;
-    Carp::confess("prompt function called without an argument") unless defined $mess;
-    my $dispdef = defined $def ? "[$def] " : " ";
-    $def = defined $def ? $def : "";
-    my $ans;
-    local $|=1;
-    print STDERR "$mess $dispdef";
-    chomp($ans = <STDIN>);
-    return ($ans ne '') ? $ans : $def;
-}
 
 ############################################################################
 #
@@ -133,27 +122,27 @@ sub GFFQueryDb {
 
   my $test_db =  exists($options->{"$d-test-db"}) ?
     $options->{"$d-test-db"} : ($cfg->{'test_db'} || 'test');
-  $test_db = user_prompt
+  $test_db = prompt
     ("Which database should I use for testing the $db drivers?",
      $test_db) if $prompt;
 
   my $test_host = exists($options->{"$d-test-host"}) ?
     $options->{"$d-test-host"} : ($cfg->{'test_host'} || 'localhost');
-  $test_host = user_prompt
+  $test_host = prompt
     ("On which host is database $test_db running (hostname, ip address or host:port)", $test_host) if $prompt;
 
   my($test_user, $test_pass);
 
   $test_user = exists($options->{"$d-test-user"}) ?
     $options->{"$d-test-user"} : ($cfg->{'test_user'} || "undef");
-  $test_user = user_prompt
+  $test_user = prompt
     ("User name for connecting to database $test_db?", $test_user)
       if $prompt;
   $test_user = undef if $test_user eq 'undef';
 
   $test_pass = exists($options->{"$d-test-pass"}) ?
     $options->{"$d-test-pass"} : ($cfg->{'test_pass'} || "undef");
-  $test_pass = user_prompt
+  $test_pass = prompt
     ("Password for connecting to database $test_db?", $test_pass)
       if $prompt;
   $test_pass = undef if $test_pass eq 'undef';
@@ -191,7 +180,7 @@ sub GFFQueryDb {
 # Let the code begin...
 
 require 5.005;
-use ExtUtils::MakeMaker;
+use ExtUtils::MakeMaker ;
 
 $do_autoload_finesse = 0;
 $NAME     = 'Bio';
