@@ -195,9 +195,9 @@ custom constructor.
 =cut
 
 sub _create_object {
-  my ($class,@args) = @_;
+  my ($class) = @_;
   $class = ref($class) if ref($class);
-  return bless {},$class;
+  return bless {}, $class;
 }
 
 sub verbose {
