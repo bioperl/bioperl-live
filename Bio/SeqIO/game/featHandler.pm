@@ -510,7 +510,9 @@ sub feature_set {
 	    $self->{curr_coords}->[1] = $_->end;
 	}
     }
-    delete $self->{seq_h}->{$set->{Attributes}->{produces_seq}};
+    if( defined $set->{Attributes}->{produces_seq} ) {
+	delete $self->{seq_h}->{$set->{Attributes}->{produces_seq}};
+    }
     $self->flush( $set );
 
     return @feats;
