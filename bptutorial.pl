@@ -404,7 +404,10 @@ these documents describe relaease 0.7.x of bioperl.)  Minimal bioperl
 does run without problems on Mac OS X sincel it is a Unix system.  However,
 external precompiled programs (eg NCBI local Blast) and other useful
 auxiliary programs such as perl-TK and ptkdb are in many cases not yet
-available under OS X.
+available under OS X. 
+
+Steve Cannon has compiled installation notes and suggestions for Bioperl 
+on OS X online at http://www.tc.umn.edu/~cann0010/Bioperl_OSX_install.html
 
 Many bioperl features require the use of CPAN modules, compiled
 extensions or external programs.  These features will probably will

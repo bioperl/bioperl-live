@@ -1,4 +1,4 @@
-# $Id: PLATFORMS,v 1.12 2002-01-15 16:49:44 bosborne Exp $
+# $Id: PLATFORMS,v 1.13 2002-01-22 22:55:55 dag Exp $
 
 Perl general comments:
 
@@ -69,7 +69,11 @@ Perl    : MacPerl
 Comments: Issues and possible ways to fix them summarized by Todd Richmond
           on the bioperl.org Wiki.
 
+
 Machine : MacOS X
 Compiler: gcc
 Perl    : 5.6.0
-Comments: none
+Comments: Steve Cannon has made available Bioperl OS X installation
+	  directions and notes online at the following URL:
+	  http://www.tc.umn.edu/~cann0010/Bioperl_OSX_install.html
+
