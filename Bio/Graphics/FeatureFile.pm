@@ -366,7 +366,7 @@ sub parse_file {
   $self->init_parse;
   while (<$fh>) {
     chomp;
-    $self->parse_line($_);
+    $self->parse_line($_) || last;
   }
   $self->finish_parse;
 }
@@ -388,7 +388,18 @@ sub parse_line {
 
   s/\015//g;  # get rid of carriage returns left over by MS-DOS/Windows systems
 
-  return if /^\s*[\#]/;
+  # capture GFF header
+  if (/^\#\#gff-version\s+(\d+)/) {
+    $self->{gff_version} = $1;
+    require Bio::DB::GFF;
+    return 1;
+  }
+
+  # skip on blank lines and comments
+  return 1 if /^\s*[\#]/;
+
+  # abort if we see a >FASTA line
+  return 0 if /^>/;
 
   if (/^\s+(.+)/ && $self->{current_tag}) { # continuation line
     my $value = $1;
@@ -397,7 +408,7 @@ sub parse_line {
     # respect newlines in code subs
     $self->{config}{$cc}{$self->{current_tag}} .= "\n"
       if $self->{config}{$cc}{$self->{current_tag}}=~ /^sub\s*\{/;
-    return;
+    return 1;
   }
 
   if (/^\s*\[([^\]]+)\]/) {  # beginning of a configuration section
@@ -405,7 +416,7 @@ sub parse_line {
     my $cc = $label =~ /^(general|default)$/i ? 'general' : $label;  # normalize
     push @{$self->{types}},$cc unless $cc eq 'general';
     $self->{current_config} = $cc;
-    return;
+    return 1;
   }
 
   if (/^([\w: -]+?)\s*=\s*(.*)/) {   # key value pair within a configuration section
@@ -414,13 +425,13 @@ sub parse_line {
     my $value = defined $2 ? $2 : '';
     $self->{config}{$cc}{$tag} = $value;
     $self->{current_tag} = $tag;
-    return;
+    return 1;
   }
 
 
   if (/^$/) { # empty line
     undef $self->{current_tag};
-    return;
+    return 1;
   }
 
   # parse data lines
@@ -440,7 +451,7 @@ sub parse_line {
     $self->{group}         = Bio::Graphics::Feature->new(-name => $name,
 							 -type => 'group');
     $self->{grouptype}     = $type;
-    return;
+    return 1;
   }
 
   my($ref,$type,$name,$strand,$bounds,$description,$url);
@@ -453,9 +464,14 @@ sub parse_line {
     $strand = $s;
     if ($group) {
       my ($notes,@notes);
-      (undef,$self->{groupname},undef,undef,$notes) = split_group($group);
+      (undef,$name,undef,undef,$notes) = $self->split_group($group);
       foreach (@$notes) {
-	if (m!^(http|ftp)://!) { $url = $_ } else { push @notes,$_ }
+	my ($key,$value) = @$_;
+	if ($value =~ m!^(http|ftp)://!) { 
+	  $url = $_ 
+	} elsif ($key=~/note/i) { 
+	  push @notes,$value;
+	}
       }
       $description = join '; ',@notes if @notes;
     }
@@ -491,7 +507,7 @@ sub parse_line {
 
   if ($self->{coordinate_mapper} && $ref) {
     ($ref,@parts) = $self->{coordinate_mapper}->($ref,@parts);
-    return unless $ref;
+    return 1 unless $ref;
   }
 
   $type = '' unless defined $type;
@@ -553,6 +569,8 @@ sub parse_line {
       push @{$self->{features}{$type}},$feature;  # for speed; should use add_feature() instead
     }
   }
+
+  return 1;
 }
 
 sub _unescape {
@@ -996,16 +1014,18 @@ sub init_parse {
   my $s = shift;
 
   $s->{seenit} = {}; 
-  $s->{max}      = $s->{min} = undef;
-  $s->{types}    = [];
-  $s->{features} = {};
-  $s->{config}   = {}
+  $s->{max}         = $s->{min} = undef;
+  $s->{types}       = [];
+  $s->{features}    = {};
+  $s->{config}      = {};
+  $s->{gff_version} = 0;
 }
 
 sub finish_parse {
   my $s = shift;
   $s->evaluate_coderefs if $s->safe;
   $s->{seenit} = {};
+  delete $s->{gff_version};
 }
 
 sub evaluate_coderefs {
@@ -1035,48 +1055,23 @@ sub base2package {
 }
 
 sub split_group {
-  my $group = shift;
-
-  $group =~ s/\\;/$;/g;  # protect embedded semicolons in the group
-  $group =~ s/( \"[^\"]*);([^\"]*\")/$1$;$2/g;
-  my @groups = split(/\s*;\s*/,$group);
-  foreach (@groups) { s/$;/;/g }
-
-  my ($gclass,$gname,$tstart,$tstop,@notes);
-
-  foreach (@groups) {
-
-    my ($tag,$value) = /^(\S+)\s*(.*)/;
-    $value =~ s/\\t/\t/g;
-    $value =~ s/\\r/\r/g;
-    $value =~ s/^"//;
-    $value =~ s/"$//;
-
-    # if the tag is "Note", then we add this to the
-    # notes array
-   if ($tag eq 'Note') {  # just a note, not a group!
-     push @notes,$value;
-   }
-
-    # if the tag eq 'Target' then the class name is embedded in the ID
-    # (the GFF format is obviously screwed up here)
-    elsif ($tag eq 'Target' && $value =~ /([^:\"]+):([^\"]+)/) {
-      ($gclass,$gname) = ($1,$2);
-      ($tstart,$tstop) = /(\d+) (\d+)/;
-    }
-
-    elsif (!$value) {
-      push @notes,$tag;  # e.g. "Confirmed_by_EST"
-    }
-
-    # otherwise, the tag and value correspond to the
-    # group class and name
-    else {
-      ($gclass,$gname) = ($tag,$value);
-    }
+  my $self = shift;
+  if ($self->{gff_version} > 2) {
+    my @groups = split /[;&]/,shift;  # so easy!
+    return Bio::DB::GFF->_split_gff3_group(@groups);
   }
 
-  return ($gclass,$gname,$tstart,$tstop,\@notes);
+  else { #gff2 parsing
+    # handle group parsing
+    # protect embedded semicolons in the group; there must be faster/more elegant way
+    # to do this.
+    my $group = shift;
+    $group =~ s/\\;/$;/g;
+    while ($group =~ s/( \"[^\"]*);([^\"]*\")/$1$;$2/) { 1 }
+    my @groups = split(/\s*;\s*/,$group);
+    foreach (@groups) { s/$;/;/g }
+    return Bio::DB::GFF->_split_group(@groups);
+  }
 }
 
 # create a panel if needed
