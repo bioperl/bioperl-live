@@ -65,10 +65,10 @@ fail(TEST_COUNT - 1) unless $db;
 $db->debug(0);
 
 # set the preferred groups
-$db->preferred_groups( [ 'gene', 'mRNA' ] );
+$db->preferred_groups( [ 'transcript', 'gene', 'mRNA' ] );
 my @pg = $db->preferred_groups;
-ok(scalar(@pg), 2);
-ok($pg[1], 'mRNA'); 
+ok(scalar(@pg), 3);
+ok($pg[1], 'gene'); 
 
 # exercise the loader
 ok($db->initialize(1));

@@ -560,11 +560,6 @@ my %valid_range_types = (overlaps     => 1,
 			 contains     => 1,
 			 contained_in => 1);
 
-my %gff3_ids = (Target => 1,
-		ID     => 2,
-		Parent => 3,
-	       );
-
 =head1 Querying GFF Databases
 
 =head2 new
@@ -2203,8 +2198,13 @@ sub _preferred_groups_hash {
   return $self->{preferred_groups_hash} if exists $self->{preferred_groups_hash};
   my $count = 0;
 
-  # hard-coded (Sequence,Transcript) here for backward compatibility with Sanger GFF (hack)
-  my @preferred = (qw/Sequence Transcript/,$self->preferred_groups);
+  my @preferred = $self->preferred_groups;
+
+  # defaults
+  if (!@preferred) {
+    @preferred = $self->{gff3_flag} ? qw(Target Parent ID) : qw(Target Sequence Transcript);
+  }
+
   my %preferred = map {lc($_) => @preferred-$count++} @preferred;
   return $self->{preferred_groups_hash} = \%preferred;
 }
@@ -3455,27 +3455,19 @@ sub _split_gff3_group {
       my ($gname,$tstart,$tstop) = split /\s+/,shift @values;
       $id{$tag} = [_gff3_name_munging($gname,$dc),$tstart,$tstop];
     }
-#    elsif ($tag eq 'Name') {
-#      push @attributes,[Alias=>$_] foreach @values;
-#    }
     elsif ($tag =~ /synonym/i) {
       $tag = 'Alias';
     }
     push @attributes,[$tag=>$_] foreach @values;
   }
   
+  my $priorities = $self->_preferred_groups_hash;
   my ($gclass,$gname,$tstart,$tstop);
-  for my $preferred (sort {$gff3_ids{$a}<=>$gff3_ids{$b}}
+  for my $preferred (sort {$priorities->{lc $b}<=>$priorities->{lc $a}}
 		     keys %id) {
     unless (defined $gname) {
       ($gname,$gclass,$tstart,$tstop) = @{$id{$preferred}};
     }
-#    else {
-#      push @attributes,[$preferred=>$id{$preferred}[1]
-#			? join(':',@{$id{$preferred}}[1,0])
-#			: $id{$preferred}[0]];
-#      push @attributes,[Alias=>$id{$preferred}[0]];
-#    }
   }
 
   # set null gclass to empty string to preserve compatibility with
