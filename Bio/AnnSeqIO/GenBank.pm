@@ -199,7 +199,6 @@ sub next_annseq{
     }
     
     $date=$4;
-    print STDERR "DATE= $date\n";
     if ($date) {
 	$annseq->add_date($date);
     }
