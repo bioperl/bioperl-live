@@ -16,7 +16,7 @@ Bio::Seq - Sequence object, with features
 
 =head1 SYNOPSIS
 
-    $seqio  = Bio::SeqIO->new ( '-format' => 'embl' , -file => 'myfile.dat');
+    $seqio  = Bio::SeqIO->new( '-format' => 'embl' , -file => 'myfile.dat');
     $seqobj = $seqio->next_seq();
 
     # features must implement Bio::SeqFeatureI
@@ -34,27 +34,226 @@ A Seq object is a sequence with sequence features placed on them. The
 Seq object contains a L<Bio::PrimarySeq> object for the actual sequence and
 also implements its interface.
 
-In bioperl we have 3 main players that people are going to use
+In Bioperl we have 3 main players that people are going to use
 
-  Bio::PrimarySeq - just the sequence and its names, nothing else.
-  Bio::SeqFeatureI - a location on a sequence, potentially with a sequence.
-                    and annotation
-  Bio::Seq        - A sequence and a collection of seqfeatures (an aggregate) with
-                    its own annotation.
+  Bio::PrimarySeq  - just the sequence and its names, nothing else.
+  Bio::SeqFeatureI - a location on a sequence, potentially with a sequence 
+                     and annotation.
+  Bio::Seq         - A sequence and a collection of seqfeatures (an aggregate) 
+                     with its own annotation.
 
-Although bioperl is not tied to file formats heavily, these distinctions do
+Although Bioperl is not tied heavily to file formats these distinctions do
 map to file formats sensibly and for some bioinformaticians this might help
-you:
 
-  Bio::PrimarySeq - Fasta file of a sequence
+  Bio::PrimarySeq  - Fasta file of a sequence
   Bio::SeqFeatureI - A single entry in an EMBL/GenBank/DDBJ feature table
-  Bio::Seq        - A single EMBL/GenBank/DDBJ entry
+  Bio::Seq         - A single EMBL/GenBank/DDBJ entry
 
-By having this split we avoid alot of nasty circular references
+By having this split we avoid a lot of nasty circular references
 (seqfeatures can hold a reference to a sequence without the sequence
 holding a reference to the seqfeature).
 
 Ian Korf really helped in the design of the Seq and SeqFeature system.
+
+=head1 EXAMPLES
+
+
+ use Bio::Seq;
+ use Bio::SeqIO;
+
+ $seqin = Bio::SeqIO->new( -format => 'EMBL' , -file => 'myfile.dat');
+ $seqout= Bio::SeqIO->new( -format => 'Fasta', -file => '>output.fa');
+
+ while((my $seqobj = $seqin->next_seq())) {
+      print "Seen sequence ",$seqobj->display_id,", start of seq ",
+            substr($seqobj->seq,1,10),"\n";
+      if( $seqobj->moltype eq 'dna') {
+	    $rev = $seqobj->revcom;
+	    $id  = $seqobj->display_id();
+            $id  = "$id.rev";
+            $rev->display_id($id);
+            $seqout->write_seq($rev);
+      }
+
+      foreach $feat ( $seqobj->top_SeqFeatures() ) {
+           if( $feat->primary_tag eq 'exon' ) {
+              print STDOUT "Location ",$feat->start,":",
+                    $feat->end," GFF[",$feat->gff_string,"]\n";
+	   }
+      }
+ }
+
+These lines actually import the Bioperl modules. Bio::Seq is the
+main Bioperl sequence object; L<Bio::SeqIO> is the Bioperl support for
+sequence input/output into files
+
+  use Bio::Seq;
+  use Bio::SeqIO;
+
+These two lines create two SeqIO streams: one for reading in sequences
+and one for outputting sequences. Using the 
+
+  '-argument' => value
+
+syntax is common in Bioperl. The file argument is like an argument
+to open() (notice that in the seqout case there is a greater-than
+sign, indicating opening the file for writing). You can also pass in
+filehandles or FileHandle objects by using the -fh argument, see L<Bio::SeqIO>
+documentation for details. Many formats in Bioperl are handled,
+including Fasta, EMBL, GenBank, Swissprot (swiss), PIR, and GCG.
+
+  $seqin = Bio::SeqIO->new( '-format' => 'EMBL' , -file => 'myfile.dat');
+  $seqout= Bio::SeqIO->new( '-format' => 'Fasta', -file => '>output.fa');
+
+This is the main loop which will loop progressively through sequences
+in a file. Each call to seqio-E<gt>next_seq() provides a new sequence
+object from the file, reading successively.
+
+  while((my $seqobj = $seqio->next_seq())) {
+
+This print line access fields in the sequence object directly. The
+seqobj-E<gt>display_id is the way to access the display_id attribute
+of the sequence object. The seqobj-E<gt>seq method gets the actual
+sequence out as string. Then you can do manipulation of this if
+you want to (there are however easy ways of doing truncation,
+reverse-complement and translation).
+
+  print "Seen sequence ",$seqobj->display_id,", start of seq ",
+               substr($seqobj->seq,1,10),"\n";
+
+Bioperl has to guess the type of the sequence, being either DNA,
+RNA, or protein. The moltype attribute gives one of these three
+possibilities.
+
+  if( $seqobj->moltype eq 'dna') {
+
+The seqobj-E<gt>revcom method provides the reverse complement of the seqobj
+object as another sequence object. The $rev variable therefore is another
+sequence object. For example, one could repeat the above print line
+for this sequence object (putting rev in place of seqobj). In this case
+we are going to output the object into the file stream we built
+earlier on.
+
+  $rev = $seqobj->revcom;
+
+When we output it, we want the id of the outputted object
+to be changed to "$id.rev", ie, with .rev on the end of the name. The
+following lines retrieve the id of the sequence object, add .rev
+to this and then set the display_id of the rev sequence object to
+this. Notice that to set the display_id attribute you just need 
+call the same method (display_id) with the new value as an argument.
+
+  $id  = $seqobj->display_id();
+  $id  = "$id.rev";
+  $rev->display_id($id);
+
+The write_seq method on the seqout output object writes the 
+$rev object to the filestream we built at the top of the script.
+The filestream knows that it is outputting in fasta format, and
+so it provides fasta output.
+
+  $seqout->write_seq($rev);
+
+This final loop loops over sequence features in the sequence
+object, trying to find ones who have been tagged as 'exon'.
+Features have start and end attributes and can be outputted
+in GFF format, a standarised format for sequence features.
+
+  foreach $feat ( $seqobj->top_SeqFeatures() ) {
+      if( $feat->primary_tag eq 'exon' ) {
+          print STDOUT "Location ",$feat->start,":",
+             $feat->end," GFF[",$feat->gff_string,"]\n";
+      }
+  }
+
+The code above shows how a few Bio::Seq methods suffice to read, parse, and reformat sequences from a file. Here is a full list of methods available to Bio::Seq objects:
+
+# the following methods return strings:
+
+   $seqobj->display_id(); # the human read-able id of the sequence
+   $seqobj->seq();        # string of sequence
+   $seqobj->subseq(5,10); # part of the sequence as a string
+   $seqobj->accession_number(); # when there, the accession number
+   $seqobj->moltype();    # one of 'dna','rna','protein'
+   $seqobj->primary_id(); # a unique id for this sequence regardless
+                          # of its display_id or accession number
+   $seqobj->seq_version() # when there, the version
+   $seqobj->desc();       # when there, the Definition line
+   $seqobj->keywords();   # when there, the Keywords line
+   $seqobj->length()      # length
+
+# the following methods return new sequence objects, but
+# do not transfer features across to the new object:
+
+   $seqobj->trunc(5,10)  # truncation from 5 to 10 as new object
+   $seqobj->revcom       # reverse complements sequence
+   $seqobj->translate    # translation of the sequence
+
+# if new() can be called this method returns 1, else 0
+
+   $seqobj->can_call_new
+
+# the following method returns a L<Bio::Species> object:
+
+   $seqobj->species();
+
+# the following method returns a L<Bio::Annotation> object
+# which in turn allows access to L<Bio::Annotation::Reference>
+# and L<Bio::Annotation::Comment> objects:
+
+   $seqobj->annotation();
+
+These annotations typically refer to entire sequences. It is also important to be able to describe defined portions of a sequence. The combination of some description and the corresponding sub-sequence is called a feature.
+
+# the following methods return an array of L<Bio::SeqFeatureI> objects:
+
+   $seqobj->top_SeqFeatures # The 'top level' sequence features
+   $seqobj->all_SeqFeatures # All sequence features, including sub
+                            # seq features
+
+# to find out the number of features
+
+   $seqobj->feature_count
+
+Here are just some of the methods available to L<Bio::SeqFeatureI> objects:
+
+# attributes which are numbers
+
+   $feat->start          # start position (1 is the first base)
+   $feat->end            # end position (2 is the second base)
+   $feat->strand         # 1 means forward, -1 reverse, 0 not relevant
+
+# attributes which are strings
+
+   $feat->primary_tag    # the main 'name' of the sequence feature,
+                         # eg, 'exon'
+   $feat->source_tag     # where the feature comes from, eg, 'EMBL_GenBank',
+                         # or 'BLAST'
+
+# a method which returns a sequence (these are the more restrictive
+# L<Bio::PrimarySeq> objects, not L<Bio::Seq> objects. The main difference
+# is that PrimarySeq objects do not themselves contain sequence features)
+
+   $feat->seq            # the sequence between start,end on the
+                         # correct strand of the sequence
+
+# useful methods for feature comparisons, for start/end points
+
+   $feat->overlaps($other)  # does feat and other overlap?
+   $feat->contains($other)  # is other completely within feat?
+   $feat->equals($other)    # does feat and other completely agree?
+
+# one can also add features
+
+   $seqobj->add_SeqFeature($feat)     # returns TRUE if successful
+   $seqobj->add_SeqFeature(@features) # returns TRUE if successful
+
+# sub features. For complex join() statements, the feature
+# is one sequence feature with many sub SeqFeatures
+
+   $feat->sub_SeqFeature  # returns array of sub seq features
+
+Please see L<Bio::SeqFeatureI>, perhaps L<Bio::SeqFeature::Generic>, for more information on sequence features.
 
 =head1 FEEDBACK
 
@@ -84,7 +283,7 @@ Describe contact details here
 
 =head1 APPENDIX
 
-The rest of the documentation details each of the object methods. Internal methods are usually preceded with a _
+The rest of the documentation details each of the object methods. Internal methods are usually preceded with a "_".
 
 =cut
 
@@ -337,8 +536,8 @@ sub desc {
            For sequences with no natural id, this method should return
            a stringified memory location.
 
-           Also notice that this method is B<not> delegated to the
-           internal L<Bio::PrimarySeq> object
+           Also notice that this method is not delegated to the
+           internal Bio::PrimarySeq object
  Returns : A string
  Args    : None
 

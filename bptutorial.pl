@@ -396,7 +396,7 @@ for unix users.  The minimal installation of bioperl should work
 under other OS\'s (NT, windows,Mac).  However, bioperl has not been
 widely tested under these OS\'s.
 
-Todd Richmond has written of his experiences with BioPerl on MacOs 9
+Todd Richmond has written of his experiences with BioPerl on MacOS 9
 at http://bioperl.org/Core/mac-bioperl.html.  There is also a
 description of bioperl on windows by Jurgen Pletinckx at
 http://www.bioperl.org/Core/windows-bioperl.html. (Note that currently
