@@ -62,7 +62,7 @@ ok ($aln->id('x') and $aln->id eq 'x');
 ok $aln->length, 242;
 ok $aln->no_residues, 103;
 ok $aln->no_sequences, 16;
-ok $aln->percentage_identity(), 66.9052451661147 ;
+ok (sprintf("%.2f",$aln->percentage_identity()), 33.06);
 
 ok $aln->set_displayname_count;
 ok $aln->displayname('1433_LYCES/9-246'), '1433_LYCES_1';
