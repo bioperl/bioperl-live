@@ -489,9 +489,7 @@ of course, you are free to use these functions anyway.
 =cut
 
 sub seq {
-   my ($self,@args) = @_;
-
-   return $self->primary_seq()->seq(@args);
+    return shift->primary_seq()->seq(@_);
 }
 
 =head2 validate_seq
@@ -517,9 +515,7 @@ sub seq {
 =cut
 
 sub validate_seq {
-   my ($self,@args) = @_;
-
-   return $self->primary_seq()->validate_seq(@args);
+    return shift->primary_seq()->validate_seq(@_);
 }
 
 =head1 Bio::RangeI methods
@@ -536,8 +532,7 @@ sub validate_seq {
 =cut
 
 sub length {
-   my ($self) = @_;
-   return $self->primary_seq()->length();
+    return shift->primary_seq()->length(@_);
 }
 
 =head2 start
@@ -552,8 +547,7 @@ sub length {
 =cut
 
 sub start {
-  my $self = shift;
-  return 1;
+    return 1;
 }
 
 =head2 end
@@ -568,8 +562,7 @@ sub start {
 =cut
 
 sub end {
-  my $self = shift;
-  return $self->length;
+    return shift->length;
 }
 
 =head2 strand
@@ -584,8 +577,7 @@ sub end {
 =cut
 
 sub strand {
-  my $self = shift;
-  return 0;
+    return 0;
 }
 
 =head1 Methods from the Bio::PrimarySeqI interface
@@ -607,8 +599,7 @@ sub strand {
 =cut
 
 sub subseq {
-   my ($self,$s,$e) = @_;
-   return $self->primary_seq()->subseq($s,$e);
+    return shift->primary_seq()->subseq(@_);
 }
 
 =head2 display_id
@@ -638,11 +629,7 @@ sub subseq {
 =cut
 
 sub display_id {
-   my ($self,$value) = @_;
-   if( defined $value ) {
-       return $self->primary_seq->display_id($value);
-   }
-   return $self->primary_seq->display_id();
+   return shift->primary_seq->display_id(@_);
 }
 
 
@@ -670,19 +657,7 @@ sub display_id {
 =cut
 
 sub accession_number {
-   my ($self,$value) = @_;
-   if( defined $value ) {
-       return $self->primary_seq->accession_number($value);
-   }
-   return $self->primary_seq->accession_number();
-}
-
-sub accession {
-    my ($self,$value) = @_;
-
-    $self->warn(ref($self)."::accession is deprecated, ".
-		"use accession_number() instead");
-    return $self->accession_number($value);
+   return shift->primary_seq->accession_number(@_);
 }
 
 =head2 desc
@@ -698,12 +673,7 @@ sub accession {
 =cut
 
 sub desc {
-   my ($self,$value) = @_;
-
-   if( defined $value ) {
-       return $self->primary_seq->desc($value);
-   }
-   return $self->primary_seq->desc();
+   return shift->primary_seq->desc(@_);
 }
 
 =head2 primary_id
@@ -722,6 +692,7 @@ sub desc {
 
            Also notice that this method is not delegated to the
            internal Bio::PrimarySeq object
+
  Example : $id = $seq->primary_id or $seq->primary_id($id)
  Returns : A string
  Args    : None or an id
@@ -766,9 +737,7 @@ sub primary_id {
 =cut
 
 sub can_call_new {
-   my ($self) = @_;
-
-   return 1;
+    return 1;
 }
 
 =head2 alphabet
@@ -791,7 +760,7 @@ sub can_call_new {
 
 sub alphabet {
    my $self = shift;
-   return $self->primary_seq->alphabet(shift) if @_ && defined $_[0];
+   return $self->primary_seq->alphabet(@_) if @_ && defined $_[0];
    return $self->primary_seq->alphabet();
 }
 
@@ -812,8 +781,7 @@ sub alphabet {
 =cut
 
 sub object_id {
-    my ($self, @args) = @_;
-    return $self->accession_number(@args);
+    return shift->accession_number(@_);
 }
 
 =head2 version
@@ -830,8 +798,7 @@ sub object_id {
 =cut
 
 sub version{
-    my ($self,$value) = @_;
-    return $self->primary_seq()->version($value);
+    return shift->primary_seq->version(@_);
 }
 
 
@@ -848,8 +815,7 @@ sub version{
 =cut
 
 sub authority {
-    my ($obj,$value) = @_;
-    return $obj->primary_seq()->authority($value);
+    return shift->primary_seq()->authority(@_);
 }
 
 =head2 namespace
@@ -866,8 +832,7 @@ sub authority {
 =cut
 
 sub namespace{
-    my ($self,$value) = @_;
-    return $self->primary_seq()->namespace($value);
+    return shift->primary_seq()->namespace(@_);
 }
 
 =head1 Methods for Bio::DescribableI compliance
@@ -888,9 +853,7 @@ sub namespace{
 =cut
 
 sub display_name {
-   my ($obj,$value) = @_;
-
-   return $obj->display_id($value);
+    return shift->display_id(@_);
 }
 
 =head2 description
@@ -910,8 +873,7 @@ sub display_name {
 =cut
 
 sub description {
-   my ($self,@args) = @_;
-   return $self->desc(@args);
+    return shift->desc(@_);
 }
 
 =head1 Methods provided in the Bio::PrimarySeqI interface
@@ -979,12 +941,7 @@ dealing with this is welcome to give it a go.
 =cut
 
 sub  id {
-   my ($self,$value) = @_;
-
-   if( defined $value ) {
-	return $self->display_id($value);
-   }
-   return $self->display_id();
+    return shift->display_id(@_);
 }
 
 
@@ -1091,13 +1048,16 @@ sub flush_SeqFeatures {
  Title   : top_SeqFeatures
  Usage   : @feat_ary = $seq->top_SeqFeatures();
  Function: Returns the array of top-level features for this sequence object.
-           Features which are not top-level are subfeatures of one or more
-           of the returned feature objects, which means that you must
-           traverse the subfeature arrays of each top-level feature object
-           in order to traverse all features associated with this sequence.
 
-           Use all_SeqFeatures() if you want the feature tree flattened into
-           one single array.
+           Features which are not top-level are subfeatures of one or
+           more of the returned feature objects, which means that you
+           must traverse the subfeature arrays of each top-level
+           feature object in order to traverse all features associated
+           with this sequence.
+
+           Use all_SeqFeatures() if you want the feature tree
+           flattened into one single array.
+
  Example :
  Returns : An array of Bio::SeqFeatureI implementing objects.
  Args    : None
@@ -1216,7 +1176,7 @@ sub annotation {
     my ($obj,$value) = @_;
     if( defined $value ) {
 	$obj->throw("object of class ".ref($value)." does not implement ".
-		     "Bio::AnnotationCollectionI. Too bad.")
+		    "Bio::AnnotationCollectionI. Too bad.")
 	    unless $value->isa("Bio::AnnotationCollectionI");
 	$obj->{'_annotation'} = $value;
     } elsif( ! defined $obj->{'_annotation'}) {
@@ -1235,12 +1195,19 @@ sub DESTROY { }
 # in all other modules we use the object in the singular --
 # lack of consistency sucks
 sub flush_SeqFeature {
-    return shift()->flush_SeqFeatures();
+    return shift->flush_SeqFeatures(@_);
 }
 
 # also, in some modules we use remove_XXXX -- lack of consistency really sucks
 sub remove_SeqFeatures {
-    return shift->flush_SeqFeatures();
+    return shift->flush_SeqFeatures(@_);
+}
+
+sub accession {
+    my $self = shift;
+    $self->warn(ref($self)."::accession is deprecated, ".
+		"use accession_number() instead");
+    return $self->accession_number(@_);
 }
 
 1;

@@ -191,7 +191,7 @@ sub new {
     my ($class, @args) = @_;
     my $self = $class->SUPER::new(@args);
 
-    my($seq,$id,$acc,$pid,$ns,$desc,$alphabet,$given_id,$is_circular,$direct,$ref_to_seq) =
+    my($seq,$id,$acc,$pid,$ns,$desc,$alphabet,$given_id,$is_circular,$direct,$ref_to_seq,$len) =
 	$self->_rearrange([qw(SEQ
 			      DISPLAY_ID
 			      ACCESSION_NUMBER
@@ -203,6 +203,7 @@ sub new {
 			      IS_CIRCULAR
 			      DIRECT
 			      REF_TO_SEQ
+			      LENGTH
 			      )],
 			  @args);
     if( defined $id && defined $given_id ) {
@@ -230,12 +231,13 @@ sub new {
 	$self->seq($seq) if defined($seq);
     }
 
-    $id      && $self->display_id($id);
-    $acc     && $self->accession_number($acc);
-    defined $pid     && $self->primary_id($pid);
-    $desc    && $self->desc($desc);
+    $id          && $self->display_id($id);
+    $acc         && $self->accession_number($acc);
+    defined $pid && $self->primary_id($pid);
+    $desc        && $self->desc($desc);
     $is_circular && $self->is_circular($is_circular);
-    $ns      && $self->namespace($ns);
+    $ns          && $self->namespace($ns);
+    defined $len && $self->length($len);
 
     return $self;
 }
@@ -256,6 +258,10 @@ sub direct_seq_set {
            Suggested cases are upper case for proteins and lower case for
            DNA sequence (IUPAC standard), but you should not rely on this
  Returns : A scalar
+ Args    : Optionally on set the new value (a string). An optional second
+           argument presets the alphabet (otherwise it will be guessed).
+           Both parameters may also be given in named paramater style
+           with -seq and -alphabet being the names.
 
 =cut
 
@@ -264,8 +270,8 @@ sub seq {
 
    my ($value, $alphabet) = $obj->_rearrange([qw(SEQ ALPHABET)], @args);
 
-   if( defined $value) {
-       if(! $obj->validate_seq($value)) {
+   if(@args) {
+       if(defined($value) && (! $obj->validate_seq($value))) {
 	   $obj->throw("Attempting to set the sequence to [$value] ".
 		       "which does not look healthy");
        }
@@ -273,7 +279,8 @@ sub seq {
        # mol.type, otherwise we skip guessing if mol.type is already set
        # note: if the new seq is empty or undef, we don't consider that a
        # change (we wouldn't have anything to guess on anyway)
-       my $is_changed_seq = exists($obj->{'seq'}) & (CORE::length($value) > 0);
+       my $is_changed_seq =
+	   exists($obj->{'seq'}) && (CORE::length($value || '') > 0);
        $obj->{'seq'} = $value;
        # new alphabet overridden by arguments?
        if($alphabet) {
@@ -286,7 +293,9 @@ sub seq {
 	   # we need to guess the (possibly new) alphabet
 	   $obj->_guess_alphabet();
        } # else (seq not changed and alphabet was defined) do nothing
-    }
+       # if the seq is changed, make sure we unset a possibly set length
+       $obj->length(undef) if $is_changed_seq;
+   }
    return $obj->{'seq'};
 }
 
@@ -334,8 +343,7 @@ sub validate_seq {
  Returns : a string
  Args    : integer for start position
            integer for end position
-
-           OR
+                 OR
            Bio::LocationI location for subseq (strand honored)
 
 =cut
@@ -383,19 +391,38 @@ sub subseq {
 =head2 length
 
  Title   : length
- Usage   : $len = $seq->length()
- Function:
+ Usage   : $len = $seq->length();
+ Function: Get the length of the sequence in number of symbols (bases
+           or amino acids).
+
+           You can also set this attribute, even to a number that does
+           not match the length of the sequence string. This is useful
+           if you don''t want to set the sequence too, or if you want
+           to free up memory by unsetting the sequence. In the latter
+           case you could do e.g.
+
+               $seq->length($seq->length);
+               $seq->seq(undef);
+
+           Note that if you set the sequence to a value other than
+           undef at any time, the length attribute will be
+           invalidated, and the length of the sequence string will be
+           reported again. Also, if you choose to lie about the actual
+           length, you''re on your own. Other methods may or may not
+           work anymore correctly.
+
  Example :
  Returns : integer representing the length of the sequence.
- Args    :
+ Args    : Optionally, the value on set
 
 =cut
 
 sub length {
-   my ($self)= @_;
-   my $seq = $self->seq();
-   return 0 if ( !defined $seq );
-   return CORE::length($seq);
+    my $self = shift;
+    
+    $self->{'_seq_length'} = shift if @_;
+    return $self->{'_seq_length'} if defined($self->{'_seq_length'});
+    return CORE::length($self->seq() || '');
 }
 
 =head2 display_id
@@ -465,14 +492,6 @@ sub accession_number {
         $acc = 'unknown' unless defined $acc;
     }
     return $acc;
-}
-
-sub accession {
-    my ($self,$value) = @_;
-
-    $self->warn(ref($self)."::accession is deprecated, ".
-		"use accession_number() instead");
-    return $self->accession_number($value);
 }
 
 =head2 primary_id
@@ -818,6 +837,18 @@ sub _guess_alphabet {
 
    $self->alphabet($type);
    return $type;
+}
+
+############################################################################
+# aliases due to name changes or to compensate for our lack of consistency #
+############################################################################
+
+sub accession {
+    my $self = shift;
+
+    $self->warn(ref($self)."::accession is deprecated, ".
+		"use accession_number() instead");
+    return $self->accession_number(@_);
 }
 
 1;

@@ -26,15 +26,56 @@
 
 =head1 NAME
 
-Bio::Seq::SeqBuilder - DESCRIPTION of Object
+Bio::Seq::SeqBuilder - Configurable object builder for sequence stream parsers
 
 =head1 SYNOPSIS
 
-Give standard usage here
+   use Bio::SeqIO;
+
+   # usually you won't instantiate this yourself -- a SeqIO object
+   # will have one already
+   my $seqin = Bio::SeqIO->new(-fh => \*STDIN, -format => "genbank");
+   my $builder = $seqin->sequence_builder();
+
+   # if you need only sequence, id, and description (e.g. for 
+   # conversion to FASTA format):
+   $builder->want_none();
+   $builder->add_wanted_slot('display_id','desc','seq');
+
+   # if you want everything except the sequence and features
+   $builder->want_all(1); # this is the default if it's untouched
+   $builder->add_unwanted_slot('seq','features');
+
+   # if you want only human sequences shorter than 5kb and skip all
+   # others
+   $builder->add_object_condition(sub {
+       my $h = shift;
+       return 0 if $h->{'-length'} > 5000;
+       return 0 if exists($h->{'-species'}) &&
+                   ($h->{'-species'}->binomial() ne "Homo sapiens");
+       return 1;
+   });
+
+   # when you are finished with configuring the builder, just use
+   # the SeqIO API as you would normally
+   while(my $seq = $seqin->next_seq()) {
+       # do something
+   }
 
 =head1 DESCRIPTION
 
-Describe the object here
+This is an implementation of L<Bio::Factory::ObjectBuilderI> used by
+parsers of rich sequence streams. It provides for a relatively
+easy-to-use configurator of the parsing flow.
+
+Configuring the parsing process may be for you if you need much less
+information, or much less sequences, than the stream actually
+contains. Configuration can in both cases speed up the parsing time
+considerably, because unwanted sections or the rest of unwanted
+sequences are skipped over by the parser.
+
+See the methods of the class-specific implementation section for
+further documentation of what can be configured.
 
 =head1 FEEDBACK
 
@@ -59,8 +100,6 @@ email or the web:
 =head1 AUTHOR - Hilmar Lapp
 
 Email hlapp at gmx.net
-
-Describe contact details here
 
 =head1 CONTRIBUTORS
 
@@ -134,6 +173,10 @@ sub new {
            would be otherwise passed to new() of the object to be
            built.
 
+           Note that usually only the parser will call this
+           method. Use add_wanted_slots and add_unwanted_slots for
+           configuration.
+
  Example :
  Returns : TRUE if the object builder wants to populate the slot, and
            FALSE otherwise.
@@ -194,6 +237,11 @@ sub want_slot{
            return value from want_slot(), because the slot is not
            checked against want_slot().
 
+           Note that usually only the parser will call this method,
+           but you may call it from anywhere if you know what you are
+           doing. A derived class may be used to further manipulate
+           the value to be added.
+
  Example :
  Returns : TRUE on success, and FALSE otherwise
  Args    : the name of the slot (a string)
@@ -246,6 +294,9 @@ sub add_slot_value{
            more values to slots, or otherwise risks that the builder
            throws an exception. In addition, make_object() is likely
            to return undef after this method returned FALSE.
+
+           Note that usually only the parser will call this
+           method. Use add_object_condition for configuration.
 
  Example :
  Returns : TRUE if the object builder wants to continue building
