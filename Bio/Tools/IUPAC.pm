@@ -19,8 +19,8 @@ IUPAC - Generates unique Seq objects from an ambiguous Seq object
 use Bio::Seq;
 use Bio::Tools::IUPAC;
 
-my $ambiseq = new Bio::Seq(-seq => 'ARTCGUTGR',-type => 'Dna');
-my $stream  = new Bio::Tools::IUPAC($seq);
+my $ambiseq = new Bio::Seq (-seq => 'ARTCGUTGR', -type => 'Dna');
+my $stream  = new Bio::Tools::IUPAC($ambiseq);
 
 while ($uniqueseq = $stream->next_seq()) {
     # process the unique Seq object.
@@ -132,7 +132,7 @@ The rest of the documentation details each of the object methods. Internal metho
 package Bio::Tools::IUPAC;
 
 use strict;
-use vars qw(@ISA @EXPORT_OK);
+use vars qw(@ISA @EXPORT_OK $AUTOLOAD);
 
 # Object preamble - inherits from Bio::Root::Object
 
@@ -252,11 +252,24 @@ sub next_seq{
 	    $self->{'_string'}->[$i]++;
 	    my $j = -1;
 	    $self->{'_SeqObj'}->setseq(join('', map { $j++; $self->{'_alpha'}->[$j]->[$_]; } @{$self->{'_string'}}));
+	    my $desc = $self->{'_SeqObj'}->desc();
+	    $self->{'_num'}++;
+	    1 while $self->{'_num'} =~ s/(\d)(\d\d\d)(?!\d)/$1,$2/;
+	    $desc =~ s/( \[Bio::Tools::IUPAC-generated\sunique sequence # [^\]]*\])|$/ \[Bio::Tools::IUPAC-generated unique sequence # $self->{'_num'}\]/;
+	    $self->{'_SeqObj'}->desc($desc);
+	    $self->{'_num'} =~ s/,//g;
 	    return $self->{'_SeqObj'};
 	}
     }
 }
 
+sub AUTOLOAD {
+
+    my $self = shift @_;
+    my $method = $AUTOLOAD;
+    $method =~ s/.*:://;
+    return $self->{'_SeqObj'}->$method(@_);
+}
 
 1;
 
