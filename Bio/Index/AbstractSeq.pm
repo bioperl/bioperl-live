@@ -11,7 +11,7 @@
 
 =head1 NAME
 
-Bio::Index::AbstractSeq - Base class for AbstractSeq's
+Bio::Index::AbstractSeq - Base class for AbstractSeqs
 
 =head1 SYNOPSIS
 
@@ -72,7 +72,7 @@ not necessarily sequence files).
 
 =cut
 
-# Let's begin the code ...
+# Lets begin the code ...
 
 package Bio::Index::AbstractSeq;
 use vars qw(@ISA);
@@ -152,18 +152,20 @@ sub fetch {
 
     # we essentially assumme that the primary_id for the database
     # is the display_id
-    $seq->primary_id($seq->display_id());
+    $seq->primary_id($seq->display_id()) if( defined $seq && ref($seq) &&
+					     $seq->isa('Bio::PrimarySeqI') );
 
     return $seq;
 }
 
 =head2 _get_SeqIO_object
 
-  Title   : fetch
+  Title   : _get_SeqIO_object
   Usage   : $index->_get_SeqIO_object( $file )
   Function: Returns a Bio::SeqIO object for the file
   Example : $seq = $index->_get_SeqIO_object( 0 )
-  Returns : Bio::SeqIO object
+  Returns : Bio::SeqIO object or throws an exception
+             if the ID given is not in the index.
   Args    : File number (an integer)
 
 =cut
