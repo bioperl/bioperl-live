@@ -139,6 +139,8 @@ sub _initialize_me {
     # private state variables
     $self->{'_preds_parsed'} = 0;
     $self->{'_has_cds'} = 0;
+    # array of pre-parsed predictions
+    $self->{'_preds'} = [];
 }
 
 =head2 close
