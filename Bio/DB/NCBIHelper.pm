@@ -311,8 +311,8 @@ sub postprocess_data {
 	my $ct = 0;
 	while( my $seq = $stream->next_seq() ) {	    
 	    if( $seq->accession_number !~ /$unique_accessions[$ct]/ ) {
-		printf STDERR "warning, %s does not match %s\n",
-		$seq->accession_number, $unique_accessions[$ct];
+		$self->warn( sprintf("warning, %s does not match %s\n",
+		$seq->accession_number, $unique_accessions[$ct]));
 	    }
 	    $accessions{$unique_accessions[$ct]}->{'seq'} = $seq;
 	    $ct++;
@@ -441,7 +441,7 @@ sub _check_id {
 	$self->warn("[$ids] is not a normal sequence database but a RefSeq entry.".
 		   " Redirecting the request.\n")
 	    if $self->verbose >= 0;
-	return new Bio::DB::RefSeq;
+	return $self->refseq_db;
     }
 }
 
@@ -461,6 +461,30 @@ implements that policy.
 sub delay_policy {
   my $self = shift;
   return 3;
+}
+
+=head2 refseq_db
+
+ Title   : refseq_db
+ Usage   : $obj->refseq_db($newval)
+ Function: 
+ Example : 
+ Returns : value of refseq_db (a scalar)
+ Args    : on set, new value (a scalar or undef, optional)
+
+
+=cut
+
+sub refseq_db{
+    my $self = shift;
+    if( @_ ) {
+	return $self->{'refseq_db'} = shift;
+    } elsif( ! defined $self->{'refseq_db'} ) {
+	$self->{'refseq_db'} = Bio::DB::RefSeq->new
+	    (-retrieval_type => $self->retrieval_type,
+	     -verbose        => $self->verbose);
+    }
+    return $self->{'refseq_db'};
 }
 
 1;
