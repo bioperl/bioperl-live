@@ -1,4 +1,4 @@
-
+# $Id$
 #
 # BioPerl module for Bio::Seq::RichSeq
 #
@@ -12,15 +12,20 @@
 
 =head1 NAME
 
-Bio::Seq::RichSeq - DESCRIPTION of Object
+Bio::Seq::RichSeq - Module implementing a sequence created from a rich
+sequence database entry
 
 =head1 SYNOPSIS
 
-Give standard usage here
+See Bio::Seq::RichSeqI and documentation of methods.
 
 =head1 DESCRIPTION
 
-Describe the object here
+This module implements Bio::Seq::RichSeqI, an interface for sequences
+created from or created for entries from/of rich sequence databanks,
+like EMBL, GenBank, and SwissProt. Methods added to the Bio::SeqI
+interface therefore focus on databank-specific information. Note that
+not every rich databank format may use all of the properties provided.
 
 =head1 FEEDBACK
 
@@ -178,20 +183,44 @@ sub get_dates{
 }
 
 
+=head2 pid
+
+ Title   : pid
+ Usage   :
+ Function: Get (and set, depending on the implementation) the PID property
+           for the sequence.
+ Example :
+ Returns : a string
+ Args    :
+
+
+=cut
+
+sub pid {
+    my ($self,$pid) = @_;
+    
+    if(defined($pid)) {
+	$self->{'pid'} = $pid;
+    }
+    return $self->{'pid'};
+}
+
+
 =head2 accession
 
  Title   : accession
  Usage   : $obj->accession($newval)
  Function: Whilst the underlying sequence object does not 
-           have an accession, so we need one here. Won't stay
-           when we do the reimplementation.
+           have an accession, so we need one here.
+
+           In this implementation this is merely a synonym for
+           accession_number().
  Example : 
  Returns : value of accession
  Args    : newvalue (optional)
 
 
 =cut
-#'
 
 sub accession {
    my ($obj,@args) = @_;
