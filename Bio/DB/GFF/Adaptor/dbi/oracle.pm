@@ -1,4 +1,3 @@
-
 package Bio::DB::GFF::Adaptor::dbi::oracle;
 
 =head1 NAME
@@ -282,30 +281,6 @@ sub new {
   $dsn = "dbi:Oracle:$dsn" if !ref($dsn) && $dsn !~ /^(dbi|DBI):/;
   my $self = $class->SUPER::new(-dsn=>$dsn,%$other);
   $self;
-}
-
-
-
-
-
-=head2 tables
-
- Title   : tables
- Usage   : @tables = $db->tables
- Function: return list of tables that belong to this module
- Returns : list of tables
- Args    : none
- Status  : protected
-
-This method lists the tables known to the module, namely qw(fdata fref
-fgroup ftype fdna fnote fmeta).
-
-=cut
-
-# return list of tables that "belong" to us.
-sub tables {
-  my $schema = shift->schema;
-  return keys %$schema;
 }
 
 =head2 schema

@@ -976,16 +976,10 @@ sub do_initialize {
 
   my $dbh = $self->features_db;
   my $schema = $self->schema;
-  #foreach (values %$schema) {
-  #  $dbh->do($_) || warn $dbh->errstr;
-  #}
-  foreach my $table_name(keys %$schema) {
-    my $create_table_stmt = $$schema{$table_name}{table} ;
+  foreach my $table_name ($self->tables) {
+    my $create_table_stmt = $schema->{$table_name}{table} ;
     $dbh->do($create_table_stmt) ||  warn $dbh->errstr;
-
     $self->create_other_schema_objects(\%{$schema->{$table_name}});
-    
-
   }
 
   1;
@@ -1036,18 +1030,15 @@ sub finish_load {
 sub create_other_schema_objects{
   #shift->throw("create_other_schema_objects(): must be implemented by subclass");
   my $self = shift ;
-  my $table_schema = shift ; 
+  my $table_schema = shift ;
   my $dbh = $self->features_db;
-  #my $schema = $self->schema;
-
-  #foreach my $object_type(keys $$schema{$table_name}){
-   foreach my $object_type(keys %$table_schema){
-    if ($object_type !~ 'table') {
-     foreach my $object_name(keys %{$table_schema->{$object_type}}){
+  foreach my $object_type(keys %$table_schema){
+    if ($object_type !~ /table/) {
+      foreach my $object_name(keys %{$table_schema->{$object_type}}){
         my $create_object_stmt = $table_schema->{$object_type}{$object_name};
         $dbh->do($create_object_stmt) ||  warn $dbh->errstr;   
-     }
-    } 
+      }
+    }
   }
   1;
 }
@@ -1077,8 +1068,6 @@ sub drop_all {
   foreach ($self->tables) {
     $dbh->do("drop table $_") || warn $dbh->errstr;
 
-    
-    
     #when dropping a table - the indexes and triggers are being dropped automatically
     # sequences needs to be dropped - if there are any (Oracle, PostgreSQL)
     if ($schema->{$_}{sequence}){

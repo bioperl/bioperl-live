@@ -1,4 +1,4 @@
-package Bio::DB::GFF::Adaptor::dbi::mysqlopt;
+package Bio::DB::GFF::Adaptor::dbi::mysql;
 
 =head1 NAME
 
@@ -17,7 +17,7 @@ use Bio::DB::GFF::Util::Rearrange; # for rearrange()
 use Bio::DB::GFF::Util::Binning;
 use vars qw($VERSION @ISA);
 @ISA = qw(Bio::DB::GFF::Adaptor::dbi);
-$VERSION = '0.80';
+$VERSION = '0.90';
 
 use constant MAX_SEGMENT => 100_000_000;  # the largest a segment can get
 use constant DEFAULT_CHUNK => 2000;
@@ -489,26 +489,6 @@ sub search_notes {
 
 ################################ loading and initialization ##################################
 
-=head2 tables
-
- Title   : tables
- Usage   : @tables = $db->tables
- Function: return list of tables that belong to this module
- Returns : list of tables
- Args    : none
- Status  : protected
-
-This method lists the tables known to the module, namely qw(fdata fref
-fgroup ftype fdna fattribute fattribute_to_feature fmeta).
-
-=cut
-
-# return list of tables that "belong" to us.
-sub tables {
-  my $schema = shift->schema;
-  return keys %$schema;
-}
-
 =head2 schema
 
  Title   : schema
@@ -974,8 +954,6 @@ sub get_feature_id {
   return $fid;
 }
 
-1;
-
 #############################################
 # Moved from mysqlopt.pm to mysql.pm
 #############################################
@@ -999,6 +977,7 @@ empty list.
 For things to work properly, meta value names must be UPPERCASE.
 
 =cut
+
 sub default_meta_values {
   my $self = shift;
   my @values = $self->SUPER::default_meta_values;
@@ -1022,4 +1001,28 @@ sub straight_join_limit {
   my $self = shift;
   return $self->meta('straight_join_limit') || STRAIGHT_JOIN_LIMIT;
 }
+
+1;
+
+
+__END__
+
+=head1 BUGS
+
+none ;-)
+
+=head1 SEE ALSO
+
+L<Bio::DB::GFF>, L<bioperl>
+
+=head1 AUTHOR
+
+Lincoln Stein E<lt>lstein@cshl.orgE<gt>.
+
+Copyright (c) 2002 Cold Spring Harbor Laboratory.
+
+This library is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself.
+
+=cut
 

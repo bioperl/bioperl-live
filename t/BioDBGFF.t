@@ -33,7 +33,7 @@ use lib "$ENV{HOME}/cvswork/bioperl-live/";
 use Bio::DB::GFF;
 use Bio::SeqIO;
 
-my $adaptor = -e 't/do_biodbgff.tests' ? 'dbi::mysqlopt' : 'memory';
+my $adaptor = -e 't/do_biodbgff.tests' ? 'dbi::mysql' : 'memory';
 my @args;
 
 if ($adaptor =~ /^dbi/) {
