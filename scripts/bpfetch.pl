@@ -133,8 +133,9 @@ BEGIN {
 #
 
 my $dir = $ENV{'BIOPERL_INDEX'};
+my $type = $ENV{'BIOPER_INDEX_TYPE'};
 my $fmt = 'Fasta';
-my $ret = GetOptions('dir=s' => \$dir,'fmt=s' => \$fmt );
+my $ret = GetOptions('dir=s' => \$dir,'fmt=s' => \$fmt , 'type=s' => \$type);
 
 #
 # print pod documentation if we have no arguments
@@ -146,6 +147,14 @@ if( $#ARGV == -1 ) {
 }
 
 my($isnet,$db,$id,$seq,$seqio,$out);
+
+#
+# Reset the type if needed
+#
+
+if( $type ) {
+   $Bio::Index::Abstract::USE_DBM_TYPE = $type;
+}
 
 #
 # Build at run time the SeqIO output

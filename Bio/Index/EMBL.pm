@@ -90,7 +90,7 @@ use strict;
 use Bio::Index::Abstract;
 use Bio::Seq;
 
-@ISA = qw(Bio::Index::Abstract Exporter);
+@ISA = qw(Bio::Index::Abstract Bio::DB::BioSeqI Exporter);
 @EXPORT_OK = qw();
 
 sub _type_stamp {
@@ -168,7 +168,8 @@ sub _index_file {
 		$self->warn("For id [$id] in embl flat file, got no accession number. Storing id index anyway");
 	    }
 
-            $self->add_record($id, $i, $begin, $end);
+	    $self->add_record($id, $i, $begin, $end);
+
 	    if( $acc ne $id ) {
 		$self->add_record($acc, $i, $begin, $end);
 	    }
@@ -178,7 +179,7 @@ sub _index_file {
 	    # we could tell before each line and save it.
             $begin = tell(EMBL) - length( $_ ); 
 	    
-	} elsif (/^AC\s+(\S+?);?/) { # ignore ? if there.
+	} elsif (/^AC\s+(\S+);/) { # ignore ? if there.
 	    $acc =$1;
 	} else {
 	    # do nothing

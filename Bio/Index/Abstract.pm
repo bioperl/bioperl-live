@@ -17,6 +17,12 @@ Bio::Index::Abstract - Abstract interface for indexing a flat file
 
 You should not be using this module directly
 
+=head1 USING DB_FILE
+
+To use DB_FILE and not SDBM for this index, do the following
+
+    $Bio::Index::Abstract::USE_DBM_TYPE = 'DB_File';
+
 =head1 DESCRIPTION
 
 This object provides the basic mechanism to associate positions
@@ -115,7 +121,6 @@ sub _initialize {
     # scary up-cast for abstract databases.
     if( ref $self eq "Bio::Index::Abstract" ) { 
 	my $type = $self->_code_base();
-	print STDERR "Got $type as type..\n";
 	bless $self, $type;
     }
 	
@@ -249,26 +254,6 @@ sub _version {
     $self->throw("In Bio::Index::Abstract, no _version method in sub class");
 }
 
-
-=head2 _type_stamp
-
-  Title   : _type_stamp
-  Usage   : $type = $index->_type_stamp()
-  Function: Returns a string which identifes the type of index
-            module.  Used to permanently identify an index as
-            belonging to a particular indexing module.  Must be
-            provided in sub class.
-  Example : 
-  Returns : 
-  Args    : none
-
-=cut
-
-sub _type_stamp {
-    my $self = shift;
-    
-    $self->throw("In Bio::Index::Abstract, no _type_stamp method in sub class");
-}
 =head2 _code_base
 
  Title   : _code_base
@@ -283,11 +268,10 @@ sub _type_stamp {
 
 sub _code_base{
    my ($self) = @_;
-   my $code_key    = '__CODE_BASE';
+   my $code_key    = '__TYPE_AND_VERSION';
    my $record;
 
    $record = $self->db->{$code_key};
-   print STDERR "Got $record...\n";
 
    my($code,$version) = $self->unpack_record($record);
    if( wantarray ) {
@@ -315,9 +299,8 @@ sub _code_base{
 sub _type_and_version {
     my $self    = shift;
     my $key     = '__TYPE_AND_VERSION';
-    my $key2    = '__CODE_BASE';
     my $version = $self->_version();
-    my $type    = $self->_type_stamp();
+    my $type    = ref $self;
     
     # Add type and version key if missing else run check
     if (my $rec = $self->db->{ $key }) {
@@ -328,8 +311,6 @@ sub _type_and_version {
             unless $db_type eq $type;
     } else {
         $self->add_record( $key, $type, $version )
-            or $self->throw("Can't add Type and Version record");
-        $self->add_record( $key2, ref $self, $version )
             or $self->throw("Can't add Type and Version record");
     }
     return 1;
@@ -358,7 +339,7 @@ sub _check_file_sizes {
         my( $file, $stored_size ) = $self->unpack_record( $self->db->{"__FILE_$i"} );
         my $size = -s $file;
         unless ($size = $stored_size) {
-            $self->throw("file [ $file ] has changed size $stored_size -> $size");
+            $self->throw("file $i [ $file ] has changed size $stored_size -> $size");
         }
     }
     return 1;
@@ -393,23 +374,50 @@ sub make_index {
     }
 
     # Add each file to the index
+    FILE :
     foreach my $file (@files) {
+
         my $i; # index for this file
     
         # Get new index for this file and increment file count
         if ( defined(my $count = $self->_file_count) ) {
-            $i = $count; $count++; $self->_file_count($count);
+            $i = $count;
         } else {
-            $i = 0;                $self->_file_count(1);
+            $i = 0; $self->_file_count(0);
         }
+
+
+	# see whether this file has been already indexed
+	my ($record,$number,$size);
+
+	if( ($record = $self->db->{"__FILENAME_$file"}) ) {
+	    ($number,$size) = $self->unpack_record($record);
+
+	    # if it is the same size - fine. Otherwise die 
+	    if( -s $file == $size ) {
+		print "File $file already indexed. Skipping...\n";
+		next FILE;
+	    } else {
+		$self->throw("In index, $file has changed size ($size). Indicates that the index is out of date");
+	    }
+	}
+
+	# index this file
+	print STDOUT "Indexing file $file\n";
+
+	# this is supplied by the subclass and does the serious work
+        $self->_index_file( $file, $i ); # Specific method for each type of index
+
 
         # Save file name and size for this index
         $self->add_record("__FILE_$i", $file, -s $file)
             or $self->throw("Can't add data to file: $file");
+        $self->add_record("__FILENAME_$file", $i, -s $file)
+            or $self->throw("Can't add data to file: $file");
 
-        $self->_index_file( $file, $i ); # Specific method for each type of index
-        
-        $count++;
+        # increment file lines
+	$count++; $self->_file_count($count);
+
     }
     return $count;
 }
