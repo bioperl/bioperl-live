@@ -197,14 +197,16 @@ sub next_aln {
 sub write_aln {
     my ($self,@aln) = @_;
     my ($count,$length,$seq,@seq,$tempcount,$line_len);
-    $line_len = $self->line_length || $LINELENGTH;
+    $line_len = $self->line_length || $LINELENGTH;    
     foreach my $aln (@aln) {
 	if( ! $aln || ! $aln->isa('Bio::Align::AlignI')  ) { 
 	    $self->warn("Must provide a Bio::Align::AlignI object when calling write_aln");
 	    next;
 	}
 	my $matchline = $aln->match_line;
-    
+	if( $self->force_displayname_flat ) {
+	    $aln->set_displayname_flat(1);
+	}
 	$self->_print (sprintf("CLUSTAL W(1.81) multiple sequence alignment\n\n\n")) or return;
 
 	$length = $aln->length();
