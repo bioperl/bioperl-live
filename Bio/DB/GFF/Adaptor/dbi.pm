@@ -238,6 +238,52 @@ sub get_features {
   return $count;
 }
 
+=head2 classes
+
+ Title   : classes
+ Usage   : $db->classes
+ Function: return list of landmark classes in database
+ Returns : a list of classes
+ Args    : none
+ Status  : public
+
+This routine returns the list of reference classes known to the
+database, or empty if classes are not used by the database.  Classes
+are distinct from types, being essentially qualifiers on the reference
+namespaces.
+
+NOTE: In the current mysql-based schema, this query takes a while to
+run due to the classes not being normalized.
+
+=cut
+
+sub classes {
+  my $self = shift;
+  my ($query,@args) = $self->make_classes_query or return;
+  my $sth           = $self->dbh->do_query($query,@args);
+  my @classes;
+  while (my ($c) = $sth->fetchrow_array) {
+     push @classes,$c;
+  }
+  @classes;
+}
+
+=head2 make_classes_query
+
+ Title   : make_classes_query
+ Usage   : ($query,@args) = $db->make_classes_query
+ Function: return query fragment for generating list of reference classes
+ Returns : a query and args
+ Args    : none
+ Status  : public
+
+=cut
+
+sub make_classes_query {
+  my $self = shift;
+  return;
+}
+
 =head2 _feature_by_name
 
  Title   : _feature_by_name

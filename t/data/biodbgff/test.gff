@@ -11,7 +11,7 @@ Contig1	est	similarity	1201	1300	99	.	.	Target "EST:CEESC13F" 101 200
 Contig1	est	similarity	1401	1450	99	.	.	Target "EST:CEESC13F" 201 250
 Contig1	tc1	transposon	5001	6000	.	+	.	Transposon c128.1
 Contig1	tc1	transposon	8001	9000	.	-	.	Transposon c128.2
-Contig1	confirmed	transcript	30001	31000	.	-	.	Transcript trans-2; Gene "xyz-2"; Note "Terribly interesting"
+Contig1	confirmed	transcript	30001	31000	.	-	.	Transcript trans-2; Gene "xyz-2"; Note "Terribly interesting; transspliced; confirmed"
 Contig1	confirmed	exon	30001	30100	.	-	.	Transcript trans-2; Gene "abc-1"; Note "function unknown"
 Contig1	confirmed	exon	30701	30800	.	-	.	Transcript trans-2
 Contig1	confirmed	exon	30801	31000	.	-	.	Transcript trans-2

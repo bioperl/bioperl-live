@@ -653,16 +653,16 @@ sub filled_arrow {
     $gd->line($x2,($y2+$y1)/2,$x2-$indent,$y2,$fg);
     $gd->line($x2-$indent,$y2,$x1,$y2,$fg);
     $gd->line($x1,$y2,$x1,$y1,$fg);
-    $gd->fillToBorder($x1+1,($y1+$y2)/2,$fg,$self->bgcolor);
+    my $left = $self->panel->left > $x1 ? $self->panel->left : $x1;
+    $gd->fillToBorder($left+1,($y1+$y2)/2,$fg,$self->bgcolor);
   } else {
     $gd->line($x1,($y2+$y1)/2,$x1+$indent,$y1,$fg);
     $gd->line($x1+$indent,$y1,$x2,$y1,$fg);
     $gd->line($x2,$y2,$x1+$indent,$y2,$fg);
     $gd->line($x1+$indent,$y2,$x1,($y1+$y2)/2,$fg);
     $gd->line($x2,$y1,$x2,$y2,$fg);
-    if ($x2 > 0 && $x2<=$self->panel->right) {
-       $gd->fillToBorder($x2-1,($y1+$y2)/2,$fg,$self->bgcolor);
-    }
+    my $right = $self->panel->right < $x2 ? $self->panel->right : $x2;
+    $gd->fillToBorder($right-1,($y1+$y2)/2,$fg,$self->bgcolor);
   }
 }
 

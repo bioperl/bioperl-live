@@ -106,8 +106,8 @@ ok($t[0] eq $t);
 my $seg = $db->segment('Contig1');
 @t = $seg->features(-attributes=>{'Gene'=>'abc-1'});
 ok(@t>0);
-@t = $seg->features(-attributes=>{'Gene'=>'xyz-2',Note=>'Terribly interesting'});
-  ok(@t==1);
+@t = $seg->features(-attributes=>{'Gene'=>'xyz-2',Note=>'Terribly interesting; transspliced; confirmed'});
+ok(@t==1);
 
 # exercise dna() a bit
 my $dna = $segment2->dna;
