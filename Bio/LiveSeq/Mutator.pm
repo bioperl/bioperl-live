@@ -925,12 +925,12 @@ sub _rnaAffected {
 			 $self->dnamut->region('exon');
 			 if ($afterdist < $beforedist) {
 			     $afterdist++;
-			     $self->dnamut->region_value($exonvalue);
+			     $self->dnamut->region_value($exonvalue+1);
 			     $self->dnamut->region_dist($afterdist);
 			     #print "splice site $afterdist nt upstream!<br>";
 			 } else {
 			     #$beforedist;
-			     $self->dnamut->region_value($exonvalue);
+			     $self->dnamut->region_value($exonvalue+1);
 			     $self->dnamut->region_dist($beforedist * -1);
 			     #print "splice site $beforedist nt downstream!<br>";
 			 }
