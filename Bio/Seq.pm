@@ -36,22 +36,23 @@ also implements its interface.
 
 In Bioperl we have 3 main players that people are going to use frequently
 
-  L<Bio::PrimarySeq>  - just the sequence and its names, nothing else.
-  L<Bio::SeqFeatureI> - a location on a sequence, potentially with a sequence
+  Bio::PrimarySeq  - just the sequence and its names, nothing else.
+  Bio::SeqFeatureI - a location on a sequence, potentially with a sequence
                      and annotation.
-  L<Bio::Seq>         - A sequence and a collection of sequence features
+  Bio::Seq         - A sequence and a collection of sequence features
                      (an aggregate) with its own annotation.
 
 Although Bioperl is not tied heavily to file formats these distinctions do
 map to file formats sensibly and for some bioinformaticians this might help
 
-  L<Bio::PrimarySeq>  - Fasta file of a sequence
-  L<Bio::SeqFeatureI> - A single entry in an EMBL/GenBank/DDBJ feature table
-  L<Bio::Seq>         - A single EMBL/GenBank/DDBJ entry
+  Bio::PrimarySeq  - Fasta file of a sequence
+  Bio::SeqFeatureI - A single entry in an EMBL/GenBank/DDBJ feature table
+  Bio::Seq         - A single EMBL/GenBank/DDBJ entry
 
 By having this split we avoid a lot of nasty circular references
 (sequence features can hold a reference to a sequence without the sequence
-holding a reference to the sequence feature).
+holding a reference to the sequence feature). See L<Bio::PrimarySeq> and
+L<Bio::SeqFeatureI> for more information.
 
 Ian Korf really helped in the design of the Seq and SeqFeature system.
 
