@@ -308,7 +308,7 @@ or more simply:
   >perl -MCPAN -e "install Bundle::BioPerl"
 
 The DBD::mysql, DB_File and XML::Parser modules require other
-applications or databases.
+applications or databases: MySQL, Berkeley DB, and expat respectively.
 
 Module			 Where it is Used
 ------------------------------------------------------------------
@@ -326,7 +326,7 @@ AcePerl			 Access to ACeDB databases
 			 Bio::DB::Ace
 			 Available at http://stein.cshl.org
 			 
-IO::String               IO handle to read or write to a string.
+IO::String               IO handle to read or write to a string
 			 Bio::SeqIO
 			 Bio::Variation::*
 			 Bio::DB::*
@@ -360,7 +360,7 @@ File::Temp               Temporary File creation
 			 Bio::DB::FileCache
 			 Bio::DB::XEMBL
 
-SOAP::Lite               SOAP protocol, XEMBL Services, 
+SOAP::Lite               SOAP protocol, XEMBL Services
 			 Bio::Biblio::*
 			 Bio::DB::XEMBLService
 
@@ -372,7 +372,7 @@ DBD::mysql               Mysql API for loading and querying of Mysql-based
 			 Bio::DB::GFF
 			 bioperl-db external package
 			 bioperl-pipeline external package
-			 Mysql DB free from www.mysql.com
+			 Mysql DB free from www.mysql.org
 
 GD			 GD graphical drawing library
 			 Bio::Graphics
@@ -401,5 +401,5 @@ DB_File                  Perl access to Berkeley DB
                          Requires Berkeley DB, from Linux RPM
 			 or from www.sleepycat.com
 
-Graph::Directed          generic graph data and algoithms
+Graph::Directed          generic graph data and algorithms
                          Bio::Ontology::SimpleOntologyEngine
