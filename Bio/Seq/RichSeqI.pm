@@ -1,4 +1,4 @@
-
+# $Id$
 #
 # BioPerl module for Bio::Seq::RichSeqI
 #
@@ -21,7 +21,7 @@ Bio::Seq::RichSeqI - RichSeq interface, mainly for database orientated sequences
     $mol         = $richseq->molecule;
     @dates       = $richseq->get_dates; 
     $seq_version = $richseq->seq_version;  
-       
+    $pid         = $richseq->pid;
 
 =head1 DESCRIPTION
 
@@ -78,10 +78,10 @@ use Bio::SeqI;
 
  Title   : get_secondary_accessions
  Usage   : 
- Function:
+ Function: Get the secondary accessions for a sequence.
  Example :
- Returns : 
- Args    :
+ Returns : an array of strings
+ Args    : none
 
 
 =cut
@@ -98,9 +98,12 @@ sub get_secondary_accessions{
 
  Title   : division
  Usage   :
- Function:
+ Function: Get (and set, depending on the implementation) the divison for
+           a sequence.
+
+           Examples from GenBank are PLN (plants), PRI (primates), etc.
  Example :
- Returns : 
+ Returns : a string
  Args    :
 
 
@@ -118,9 +121,13 @@ sub division{
 
  Title   : molecule
  Usage   :
- Function:
+ Function: Get (and set, depending on the implementation) the molecule
+           type for the sequence.
+
+           This is not necessarily the same as Bio::PrimarySeqI::moltype(),
+           because it is databank-specific.
  Example :
- Returns : 
+ Returns : a string
  Args    :
 
 
@@ -132,13 +139,33 @@ sub molecule{
    $self->throw("hit molecule in interface definition - error");
 }
 
+=head2 pid
+
+ Title   : pid
+ Usage   :
+ Function: Get (and set, depending on the implementation) the PID property
+           for the sequence.
+ Example :
+ Returns : a string
+ Args    :
+
+
+=cut
+
+sub pid {
+   my ($self,@args) = @_;
+
+   $self->throw("hit pid in interface definition - error");
+}
+
 =head2 get_dates
 
  Title   : get_dates
  Usage   :
- Function:
+ Function: Get (and set, depending on the implementation) the dates the
+           databank entry specified for the sequence
  Example :
- Returns : 
+ Returns : an array of strings
  Args    :
 
 
@@ -156,9 +183,10 @@ sub get_dates{
 
  Title   : seq_version
  Usage   :
- Function:
+ Function: Get (and set, depending on the implementation) the version string
+           of the sequence.
  Example :
- Returns : 
+ Returns : a string
  Args    :
 
 
