@@ -109,10 +109,10 @@ sub _initialize {
   
   $self->{counter} = 0;
   $self->{id_counter} = 1;  
-  $self->{leftovers};
-  $self->{header};
-  $self->{chunkable};
-  $self->{xmldoc};
+  $self->{leftovers} = undef;
+  $self->{header} = undef;
+  $self->{chunkable} = undef;
+  $self->{xmldoc} = undef;
 
   $self->_export_subfeatures(1);
   $self->_group_subfeatures(1);

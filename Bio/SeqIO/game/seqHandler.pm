@@ -22,7 +22,7 @@ sub new {
 # Basic PerlSAX
 sub start_document            {
     my ($self, $document) = @_;
-    
+    $self->{in_current_seq} = 'false';    
     $self->{Names} = [];
     $self->{string} = '';
 }
@@ -61,8 +61,7 @@ sub start_element             {
 sub end_element               {
     my ($self, $element) = @_;
 
-    if ($self->{in_current_seq} eq 'true') {
-      
+    if ($self->{in_current_seq} eq 'true') {      
       if ($self->in_element('bx-seq:residues')) {
 	while ($self->{string} =~ s/\s+//) {};
 	$self->{residues} = $self->{string};
