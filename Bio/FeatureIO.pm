@@ -123,17 +123,17 @@ memory, before printing it out. The following program reads in EMBL
 formatted entries from a file and prints them out in fasta format with
 some HTML tags:
 
-  use Bio::SeqIO;
+  use Bio::FeatureIO;
   use IO::String;
-  my $in  = Bio::SeqIO->new('-file' => "emblfile" , 
+  my $in  = Bio::FeatureIO->new('-file' => "my.gff" ,
   			    '-format' => 'EMBL');
-  while ( my $seq = $in->next_seq() ) {
+  while ( my $f = $in->next_feature() ) {
       # the output handle is reset for every file
       my $stringio = IO::String->new($string);
       my $out = Bio::SeqIO->new('-fh' => $stringio,
-  			        '-format' => 'fasta');
+  			        '-format' => 'gtf');
       # output goes into $string
-      $out->write_seq($seq);
+      $out->write_feature($f);
       # modify $string
       $string =~ s|(>)(\w+)|$1<font color="Red">$2</font>|g;
       # print into STDOUT
@@ -142,8 +142,7 @@ some HTML tags:
 
 =item -format
 
-Specify the format of the file.  Supported formats include:
-
+Specify the format of the file.  See above for list of supported formats
 
 =item -flush
 
@@ -160,7 +159,7 @@ evaluates as defined but false:
                               -format => "f2",
                               -flush  => 0; # go as fast as we can!
 
-  while($feature = $f1->next_seq) { $f2->write_seq($feature) }
+  while($feature = $f1->next_feature) { $f2->write_feature($feature) }
 
 =back
 
@@ -176,7 +175,7 @@ object using the familiar E<lt>E<gt> operator, and write to it using
 print().  The usual array and $_ semantics work.  For example, you can
 read all sequence objects into an array like this:
 
-  @sequences = <$fh>;
+  @features = <$fh>;
 
 Other operations, such as read(), sysread(), write(), close(), and printf()
 are not supported.
@@ -279,9 +278,9 @@ sub new {
 	
 	if( ! $format ) {
       if ($param{-file}) {
-		$format = Bio::Tools::GuessSeqFormat->new(-file => $param{-file}||$ARGV[0] )->guess;
+        $format = $class->_guess_format($param{-file});
       } elsif ($param{-fh}) {
-		$format = Bio::Tools::GuessSeqFormat->new(-fh => $param{-fh}||$ARGV[0] )->guess;
+        $format = $class->_guess_format(undef);
       }
 	}
 	$format = "\L$format";	# normalize capitalization to lower case
@@ -493,24 +492,11 @@ sub _filehandle {
 sub _guess_format {
    my $class = shift;
    return unless $_ = shift;
-   return 'fasta'   if /\.(fasta|fast|fas|seq|fa|fsa|nt|aa)$/i;
-   return 'genbank' if /\.(gb|gbank|genbank|gbk|gbs)$/i;
-   return 'scf'     if /\.scf$/i;
-   return 'abi'     if /\.ab[i1]$/i;
-   return 'alf'     if /\.alf$/i;
-   return 'ctf'     if /\.ctf$/i;
-   return 'ztr'     if /\.ztr$/i;
-   return 'pln'     if /\.pln$/i;
-   return 'exp'     if /\.exp$/i;
-   return 'pir'     if /\.pir$/i;
-   return 'embl'    if /\.(embl|ebl|emb|dat)$/i;
-   return 'raw'     if /\.(txt)$/i;
-   return 'gcg'     if /\.gcg$/i;
-   return 'ace'     if /\.ace$/i;
-   return 'bsml'    if /\.(bsm|bsml)$/i;
-   return 'swiss'   if /\.(swiss|sp)$/i;
-   return 'phd'     if /\.(phd|phred)$/i;
-   return 'fastq'   if /\.fastq$/i;
+   return 'gff'     if /\.gff3?$/i;
+   return 'gff'     if /\.gtf$/i;
+   return 'bed'     if /\.bed$/i;
+
+   return 'gff'; #the default
 }
 
 sub DESTROY {
