@@ -5,7 +5,7 @@
 #
 # Copyright Andrew Macgregor, Jo-Ann Stanton, David Green
 # Molecular Embryology Group, Anatomy & Structural Biology, University of Otago
-# http://anatomy.otago.ac.nz/meg
+# http://meg.otago.ac.nz
 #
 # You may distribute this module under the same terms as perl itself
 #
@@ -36,7 +36,7 @@ User feedback is an integral part of the evolution of this and other
 Bioperl modules. Send your comments and suggestions preferably to one
 of the Bioperl mailing lists.  Your participation is much appreciated.
 
-  bioperl-l@bioperl.org            - General discussion
+  bioperl-l@bioperl.org			   - General discussion
   http://bioperl.org/MailList.shtml - About the mailing lists
 
 =head2 Reporting Bugs
@@ -74,7 +74,7 @@ use Bio::Cluster::ClusterFactory;
 @ISA = qw(Bio::ClusterIO);
 
 my %line_is = (
-		ID			=> 	q/ID\s+(\w{2,3}\.\d+)/,
+		ID			=>	q/ID\s+(\w{2,3}\.\d+)/,
 		TITLE			=>	q/TITLE\s+(\S.*)/,
 		GENE			=>	q/GENE\s+(\S.*)/,
 		CYTOBAND		=>	q/CYTOBAND\s+(\S.*)/,
@@ -95,27 +95,29 @@ my %line_is = (
 		END			=>	q/END=\s*(\S.*)/,
 		LID			=>	q/LID=\s*(\S.*)/,
 		MGC			=>	q/MGC=\s*(\S.*)/,
+		SEQTYPE		=>	q/SEQTYPE=\s*(\S.*)/,
+		TRACE			=>	q/TRACE=\s*(\S.*)/,
 		DELIMITER		=>	q/^\/\//
 );
 
 # we set the right factory here
 sub _initialize {
-    my($self, @args) = @_;
+	my($self, @args) = @_;
 
-    $self->SUPER::_initialize(@args);
-    if(! $self->cluster_factory()) {
+	$self->SUPER::_initialize(@args);
+	if(! $self->cluster_factory()) {
 	$self->cluster_factory(Bio::Cluster::ClusterFactory->new(
-					    -type => 'Bio::Cluster::UniGene'));
-    }
+						-type => 'Bio::Cluster::UniGene'));
+	}
 }
 
 =head2 next_cluster
 
- Title   : next_cluster
- Usage   : $unigene = $stream->next_cluster()
+ Title	 : next_cluster
+ Usage	 : $unigene = $stream->next_cluster()
  Function: returns the next unigene in the stream
  Returns : Bio::Cluster::UniGene object
- Args    : NONE
+ Args	 : NONE
 
 =cut
 
@@ -126,7 +128,7 @@ sub next_cluster {
 	
 # set up the variables we'll need
 	my (%unigene,@express,@locuslink,@chromosome,
-	    @sts,@txmap,@protsim,@sequence);
+		@sts,@txmap,@protsim,@sequence);
 	my $UGobj;
 	
 # set up the regexes
@@ -194,7 +196,7 @@ sub next_cluster {
 			my @items = split /;/,$1;
 			foreach (@items) {
 				if (/$line_is{ACC}/gcx) {
-				    $seq->{acc} = $1;
+					$seq->{acc} = $1;
 				}
 				elsif (/$line_is{NID}/gcx) {
 					$seq->{nid} = $1;
@@ -214,28 +216,32 @@ sub next_cluster {
 				elsif (/$line_is{MGC}/gcx) {
 					$seq->{mgc} = $1;
 				}
+				elsif (/$line_is{SEQTYPE}/gcx) {
+					$seq->{seqtype} = $1;
+				}
+				elsif (/$line_is{TRACE}/gcx) {
+					$seq->{trace} = $1;
+				}								
 			}
 			push @sequence, $seq;			
 		}
 		elsif ($line =~ /$line_is{DELIMITER}/gcx) {
-		    # at the end of the record, add data to the object
-		    $UGobj = $self->cluster_factory->create_object(
-			      -display_id  => $unigene{ID},
-			      -description => $unigene{TITLE},
-			      -size        => $unigene{SCOUNT},
-			      -members     => \@sequence);
-		    $UGobj->gene($unigene{GENE}) if defined ($unigene{GENE});
-		    $UGobj->cytoband($unigene{CYTOBAND})
-			if defined($unigene{CYTOBAND});
-		    $UGobj->mgi($unigene{MGI}) if defined ($unigene{MGI});
-		    $UGobj->locuslink(\@locuslink);
-		    $UGobj->express(\@express);
-		    $UGobj->gnm_terminus($unigene{GNM_TERMINUS})
-			if defined ($unigene{GNM_TERMINUS});
-		    $UGobj->chromosome(\@chromosome);
-		    $UGobj->sts(\@sts);
-		    $UGobj->txmap(\@txmap);
-		    $UGobj->protsim(\@protsim);
+			# at the end of the record, add data to the object
+			$UGobj = $self->cluster_factory->create_object(
+				  -display_id  => $unigene{ID},
+				  -description => $unigene{TITLE},
+				  -size		   => $unigene{SCOUNT},
+				  -members	   => \@sequence);
+			$UGobj->gene($unigene{GENE}) if defined ($unigene{GENE});
+			$UGobj->cytoband($unigene{CYTOBAND}) if defined($unigene{CYTOBAND});
+			$UGobj->mgi($unigene{MGI}) if defined ($unigene{MGI});
+			$UGobj->locuslink(\@locuslink);
+			$UGobj->express(\@express);
+			$UGobj->gnm_terminus($unigene{GNM_TERMINUS}) if defined ($unigene{GNM_TERMINUS});
+			$UGobj->chromosome(\@chromosome);
+			$UGobj->sts(\@sts);
+			$UGobj->txmap(\@txmap);
+			$UGobj->protsim(\@protsim);
 		}
 	}
 	return $UGobj;
