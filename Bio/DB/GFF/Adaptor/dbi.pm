@@ -69,8 +69,10 @@ sub new {
   if (!ref($features_db)) {
     my $dsn = $features_db;
     my @args;
-    push @args,$username if defined $username;
-    push @args,$auth     if defined $auth;
+    if (defined $username or defined $auth) {
+      push @args,$username;
+      push @args,$auth;
+    }
     $features_db = Bio::DB::GFF::Adaptor::dbi::caching_handle->new($dsn,@args)
       || $class->throw("new(): Failed to connect to $dsn: "
 		       . Bio::DB::GFF::Adaptor::dbi::caching_handle->errstr);
