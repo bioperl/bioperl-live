@@ -67,7 +67,6 @@ use vars qw(@ISA);
 use strict;
 
 use Bio::Root::RootI;
-use Bio::LocationI;
 use Bio::Location::CoordinatePolicyI;
 
 @ISA = qw(Bio::Root::RootI Bio::Location::CoordinatePolicyI);
