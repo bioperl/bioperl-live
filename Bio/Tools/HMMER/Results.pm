@@ -23,7 +23,7 @@ Bio::Tools::HMMER::Results - Object representing HMMER output results
 	   " score ",$domain->bits,"\n";
        }
    }
-
+  
    # new result object on a sequence/domain cutoff of 25 bits sequence, 15 bits domain
    $newresult = $res->filter_on_cutoff(25,15);
 
@@ -409,7 +409,7 @@ sub write_ascii_out {
  Args    :
 
 =cut
-
+    
 sub write_GDF_bits {
     my $self = shift;
     my $seqt = shift;
@@ -811,13 +811,16 @@ sub get_unit_nse {
 sub _parse_hmmsearch {
     my $self = shift;
     my $file = shift;
-    my ($id,$sqfrom,$sqto,$sc,$ev,$unit,$nd,$seq,$hmmf,$hmmt,%seqh);
+    my ($id,$sqfrom,$sqto,$sc,$ev,$unit,$nd,$seq,$hmmf,$hmmt,$hmmfname,%seqh);
     my $count = 0;
-
+    
     while(<$file>) {
+        /^HMM file:\s+(\S+)/ and do { $hmmfname = $1 };
+	
         /^Scores for complete sequences/ && last;
-
     }
+    
+    $hmmfname = "given" if not $hmmfname;  
     
     while(<$file>) {
 	/^Parsed for domains/ && last;
@@ -832,11 +835,12 @@ sub _parse_hmmsearch {
     }
 
     while(<$file>) {
-	/^Histogram of all scores/ && last;
+	/^Alignments of top-scoring domains/ && last;
 	if( (($id, $sqfrom, $sqto, $hmmf, $hmmt, $sc, $ev) = /(\S+)\s+\S+\s+(\d+)\s+(\d+).+?(\d+)\s+(\d+)\s+\S+\s+(\S+)\s+(\S+)\s*$/)) {
 	    $unit = Bio::Tools::HMMER::Domain->new();
 
 	    $unit->seqname($id);
+	    $unit->hmmname($hmmfname);
 	    $unit->start($sqfrom);
 	    $unit->end($sqto);
 	    $unit->bits($sc);
@@ -849,10 +853,41 @@ sub _parse_hmmsearch {
 	}
     }
 
-    #
-    # FIXME: we don't have alignments stored here
-    #
-    
+    $_ = <$file>;
+
+    ## Recognize and store domain alignments
+
+    while(1) {
+	if( !defined $_ ) { 
+	    last; 
+	}
+        /^Histogram of all scores/ && last;      
+
+        # matches:
+        # PF00621: domain 1 of 1, from 198 to 372
+        if( /^\s*(\S+):.*from\s+(\d+)\s+to\s+(\d+)/ ) {
+            my $name = $1;
+            my $from = $2;
+            my $to   = $3;
+
+            # find the HMMUnit which this alignment is from
+            $unit = $self->get_unit_nse($name,$hmmfname,$from,$to);
+
+            if( !defined $unit ) {
+                $self->warn("Could not find $name $from $to unit even though I am reading it in. ugh!");
+                next;
+            }
+            while(<$file>) {
+                /^Histogram of all scores/ && last;
+                /^\s*\S+:.*from\s+\d+\s+to\s+\d+/ && last;
+                $unit->add_alignment_line($_);
+            }
+        }
+        else {
+            $_ = <$file>;
+        }
+    }
+
     return $count;
 }
 
