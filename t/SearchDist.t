@@ -34,5 +34,5 @@ ok $dist->fit_evd(), 1;
 
 foreach my $score ( @scores ) {
     my $evalue = $dist->evalue($score);
-    print SDTERR "Score $score had an evalue of $evalue\n";
+    #print STDERR "# Score $score had an evalue of $evalue\n";
 }
