@@ -5,6 +5,7 @@ use lib './blib/lib';
 use DBI;
 use IO::File;
 use Getopt::Long;
+use Bio::DB::GFF;
 use Bio::DB::GFF::Util::Binning 'bin';
 
 use constant FDATA      => 'fdata';
@@ -75,6 +76,8 @@ e.g. -d instead of --database.
    --fasta               File or directory containing fasta files to load
    --password            Password to use for authentication
    --maxbin              Set the value of the maximum bin size
+   --group               A list of one or more tag names (comma or space
+                           separated) to be used for grouping in the 9th column.
 
 =head1 SEE ALSO
 
@@ -135,14 +138,15 @@ package main;
 
 my $bWINDOWS = ($^O =~ /MSWin32/i) ? 1 : 0; 
 
-my ($DSN,$FORCE,$USER,$PASSWORD,$FASTA,$MAX_BIN);
+my ($DSN,$FORCE,$USER,$PASSWORD,$FASTA,$MAX_BIN,$GROUP_TAG);
 
 GetOptions ('database:s'    => \$DSN,
 	    'create'        => \$FORCE,
 	    'user:s'        => \$USER,
 	    'password:s'    => \$PASSWORD,
 	    'fasta:s'       => \$FASTA,
-            'maxbin:s'      => \$MAX_BIN
+            'maxbin:s'      => \$MAX_BIN,
+            'group:s'       => \$GROUP_TAG,
 	   ) or (system('pod2text', $0), exit -1);
 
 $DSN ||= 'test';
@@ -227,6 +231,8 @@ my $count;
 my $fasta_sequence_id;
 my $gff3;
 
+$db->preferred_groups(split (/[,\s]+/,$GROUP_TAG)) if defined $GROUP_TAG;
+
 while (<>) {
   chomp;
   my ($ref,$source,$method,$start,$stop,$score,$strand,$phase,$group);
@@ -235,8 +241,12 @@ while (<>) {
     $fasta_sequence_id = $1;
     last;
 
-  } elsif (/^\#\#gff-version\s+3/) {
+  } elsif (/^\#\#\s*gff-version\s+3/) {
     $gff3++;
+    next;
+
+  } elsif (/^\#\#\s*group-tags\s+(.+)/) {
+    $db->preferred_groups(split(/\s+/,$1));
     next;
 
   } elsif (/^\#\#\s*sequence-region\s+(\S+)\s+(\d+)\s+(\d+)/i) { # header line
@@ -265,7 +275,7 @@ while (<>) {
 #  my @groups = split(/\s*;\s*/,$group);
 #  foreach (@groups) { s/$;/;/g }
 
-  my ($group_class,$group_name,$target_start,$target_stop,$attributes) = Bio::DB::GFF->split_group($group,$gff3);
+  my ($group_class,$group_name,$target_start,$target_stop,$attributes) = $db->split_group($group,$gff3);
   $group_class  ||= '\N';
   $group_name   ||= '\N';
   $target_start ||= '\N';
