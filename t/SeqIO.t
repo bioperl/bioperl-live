@@ -114,11 +114,14 @@ $str->write_seq($seq);
 
 print "ok 9\n";
 
-
 #####
 ## End of ChrisDag's SeqIO tests.
 #####
 
+
+# leave this as the last statement, please - AJM
+
+$str = undef;
 
 
 
