@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-# $Id: biogetseq,v 1.1 2003-02-19 00:10:25 heikki Exp $
+# $Id: biogetseq,v 1.2 2003-02-19 03:57:25 heikki Exp $
 #
 # OBDA Registry compliant sequence retrieval script
 #
@@ -10,16 +10,19 @@ use Bio::SeqIO;
 use Getopt::Long;
 use strict;
 
-my ($help, $format, $namespace, $dbname) = ('', '', 'acc', 'embl');
+my ($help, $format, $namespace, $dbname) = ('', 'embl', 'acc', 'embl');
 GetOptions ("help" => \$help, "format=s" => \$format,
             "namespace=s" => \$namespace, "dbname=s" => \$dbname );
 usage() if $help;
 usage() unless @ARGV;
 
+
+my $get_function = 'get_Seq_by_'. $namespace;
+
 my $registry = new Bio::DB::Registry();
 while (my $id = shift) {
     my $db = $registry->get_database($dbname);
-    my $seq = $db->get_Seq_by_id($id);
+    my $seq = $db->$get_function($id);
     my $out = new Bio::SeqIO('-format' => $format);
     $out->write_seq($seq);
 }
