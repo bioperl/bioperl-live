@@ -113,7 +113,7 @@ Bio/DB/XEMBL.pm
 Bio/DB/XEMBLService.pm
 Bio/DBLinkContainerI.pm
 Bio/DasI.pm
-Bio/DasSegmentI.pm
+Bio/Das/SegmentI.pm
 Bio/Event/EventGeneratorI.pm
 Bio/Event/EventHandlerI.pm
 Bio/Factory/ApplicationFactoryI.pm

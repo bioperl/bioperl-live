@@ -17,12 +17,13 @@ Bio::DasI - DAS-style access to a feature database
 =head1 SYNOPSIS
 
   # Open up a feature database somehow...
+  $db = Bio::DasI->new(@args);
 
   @segments = $db->segment(-name  => 'NT_29921.4',
                            -start => 1,
 			   -end   => 1000000);
 
-  # segments are Bio::DasSegmentI - compliant objects
+  # segments are Bio::Das::SegmentI - compliant objects
 
   # fetch a list of features
   @features = $db->features(-type=>['type1','type2','type3']);
@@ -56,7 +57,7 @@ Bio::DasI is a simplified alternative interface to sequence annotation
 databases used by the distributed annotation system (see
 L<Bio::Das>). In this scheme, the genome is represented as a series of
 features, a subset of which are named.  Named features can be used as
-reference points for retrieving "segments" (see L<Bio::DasSegmentI>),
+reference points for retrieving "segments" (see L<Bio::Das::SegmentI>),
 and these can, in turn, be used as the basis for exploring the genome
 further.
 
@@ -105,9 +106,38 @@ use strict;
 
 use vars qw(@ISA);
 use Bio::Root::RootI;
+use Bio::Das::SegmentI;
 
 # Object preamble - inherits from Bio::Root::Root;
 @ISA = qw(Bio::Root::RootI);
+
+=head2 new
+
+ Title   : new
+ Usage   : Bio::DasI->new(@args)
+ Function: Create new Bio::DasI object
+ Returns : a Bio::DasI object
+ Args    : see below
+
+The new() method creates a new object.  The argument list is either a
+single argument consisting of a connection string, or the following
+list of -name=>value arguments:
+
+   Argument        Description
+   --------        -----------
+
+   -dsn            Connection string for database
+   -adaptor        Name of an adaptor class to use when connecting
+   -aggregator     Array ref containing list of aggregators
+                     "semantic mappers" to apply to database
+   -user           Authentication username
+   -pass           Authentication password
+
+Implementors of DasI may add other arguments.
+
+=cut
+
+sub new {shift->throw_not_implemented}
 
 =head2 types
 
@@ -144,8 +174,8 @@ sub types {  shift->throw_not_implemented; }
  Returns : segment object(s)
  Args    : see below
 
-This method generates a Bio::DasSegmentI object (see
-L<Bio::DasSegmentI>).  The segment can be used to find overlapping
+This method generates a Bio::Das::SegmentI object (see
+L<Bio::Das::SegmentI>).  The segment can be used to find overlapping
 features and the raw sequence.
 
 When making the segment() call, you specify the ID of a sequence
@@ -173,7 +203,7 @@ Arguments are -option=E<gt>value pairs as follows:
  -end          End of the segment relative to the landmark.  If not specified,
                defaults to the end of the landmark.
 
-The return value is a list of Bio::DasSegmentI objects.  If the method
+The return value is a list of Bio::Das::SegmentI objects.  If the method
 is called in a scalar context and there are no more than one segments
 that satisfy the request, then it is allowed to return the segment.
 Otherwise, the method must throw a "multiple segment exception".
@@ -218,19 +248,42 @@ attributes are ANDed together.  See L<Bio::DB::ConstraintsI> for a
 more sophisticated take on this.
 
 If one provides a callback, it will be invoked on each feature in
-turn.  If the callback returns a false false value, iteration will be
+turn.  If the callback returns a false value, iteration will be
 interrupted.  When a callback is provided, the method returns undef.
 
 =cut
 
 sub features { shift->throw_not_implemented }
 
+=head2 search_notes
+
+ Title   : search_notes
+ Usage   : $db->search_notes($search_term,$max_results)
+ Function: full-text search on features, NCBI-style
+ Returns : an array of [$name,$description,$score]
+ Args    : see below
+ Status  : public
+
+This routine performs a full-text search on feature attributes (which
+attributes depend on implementation) and returns a list of
+[$name,$description,$score], where $name is the feature ID,
+$description is a human-readable description such as a locus line, and
+$score is the match strength.
+
+Since this is a decidedly non-standard thing to do (but the generic
+genome browser uses it), the default method returns an empty list.
+You do not have to implement it.
+
+=cut
+
+sub search_notes { return }
+
 =head2 get_seq_stream
 
  Title   : get_seq_stream
  Usage   : my $seqio = $self->get_seq_sream(@args)
  Function: Performs a query and returns an iterator over it
- Returns : a Bio::SeqIO stream capable of returning Bio::DasSegmentI objects
+ Returns : a Bio::SeqIO stream capable of returning Bio::Das::SegmentI objects
  Args    : As in features()
  Status  : public
 
