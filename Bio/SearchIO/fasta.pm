@@ -204,9 +204,12 @@ sub next_result{
    while( defined ($_ = $self->_readline )) {
        next if( ! $self->in_element('hsp')  &&
 		/^\s+$/); # skip empty lines
-       if( /(\S+)\s+searches\s+a\s+((protein\s+or\s+DNA\s+sequence)|(sequence\s+database))/i || /(\S+) compares a/ ||
-	   ( m/^# / && ($_ = $self->_readline) &&
-	     /(\S+)\s+searches\s+a\s+((protein\s+or\s+DNA\s+sequence)|(sequence\s+database))/i || /(\S+) compares a/
+       if( m/(\S+)\s+searches\s+a\s+(protein\s+or\s+DNA\s+)?sequence/oxi || 
+	   /(\S+)\s+compares\s+a/ ||
+	   ( m/^\#\s+/ && 
+	     ($_ = $self->_readline) &&
+	     /(\S+)\s+searches\s+a\s+(protein\s+or\s+DNA\s+)?sequence/oxi ||
+	     /(\S+)\s+compares\s+a/
 	   )
 	 ) {
 	   if( $seentop ) {
@@ -520,7 +523,9 @@ sub next_result{
 	   # reset it
 	   while(defined($_ = $self->_readline() ) ) { 
 	       last if( /^Function used was/);
-	       if( /(\S+)\s+searches\s+a\s+(protein\s+or\s+DNA\s+sequence)|(sequence\s+database)/ ) { 
+	       if( /(\S+)\s+searches\s+a\s+(protein\s+or\s+DNA\s+)?
+		   sequence/oxi ||
+		   /(\S+)\s+compares\s+a/oi ) {
 		   $self->_pushback($_);
 	       }
 	   }
