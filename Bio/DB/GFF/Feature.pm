@@ -361,7 +361,7 @@ sub strand {
   if ($self->absolute) {
     return Bio::DB::GFF::RelSegment::_to_strand($self->{fstrand});
   }
-  return $self->SUPER::strand;
+  return $self->SUPER::strand || Bio::DB::GFF::RelSegment::_to_strand($self->{fstrand});
 }
 
 =head2 group
@@ -751,7 +751,7 @@ sub merged_segments {
     my ($pscore,$score) = (eval{$previous->score}||0,eval{$s->score}||0);
     if (defined($previous)
 	&& $previous->stop+1 >= $s->start
-	&& (!defined($s->score) || $previous->score  == $s->score)
+	&& $pscore == $score 
 	&& $previous->method eq $s->method
        ) {
       if ($self->absolute && $self->strand < 0) {
@@ -924,7 +924,7 @@ sub has_tag {
   my $tag  = shift;
   my %att  = $self->attributes;
   my %tags = map {$_=>1} ( $self->all_tags );
-  print map { $_, '=>', $tags{$_}, "\n" } keys %tags;
+  
   return $tags{$tag};
 }
 
@@ -1166,12 +1166,7 @@ sub gff3_string {
 
   my ($class,$name) = ('','');
   my @group;
-  if (my $t = $self->target) {
-    $strand = '-' if $t->stop < $t->start;
-    push @group, $self->flatten_target($t,3);
-  }
-
-  elsif (my $g = $self->group) {
+  if (my $g = $self->group) {
     $class = $g->class || '';
     $name  = $g->name  || '';
     $name  = "$class:$name" if defined $class;
@@ -1179,6 +1174,11 @@ sub gff3_string {
   }
 
   push @group,[Parent => $parent] if defined $parent && $parent ne '';
+
+  if (my $t = $self->target) {
+    $strand = '-' if $t->stop < $t->start;
+    push @group, $self->flatten_target($t,3);
+  }
 
   my @attributes = $self->attributes;
   while (@attributes) {
