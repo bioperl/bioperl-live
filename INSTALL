@@ -243,6 +243,13 @@ o System requirements
  See below for how to use modules that are not installed in the
  standard Perl5 location.
 
+ You can also use CPAN, as discussed below, to install accessory modules
+ in your local directory. First enter the CPAN shell, 
+ then set the arguments for the command "perl Makefile.PL":
+
+ >perl -e shell -MCPAN
+ cpan>o conf makepl_arg LIB=/home/users/dag/My_Local_Perl_Modules
+
 
  THE HARD WAY :)
 
