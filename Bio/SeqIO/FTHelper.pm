@@ -122,7 +122,7 @@ sub _generic_seqfeature {
 	foreach my $next_loc ( split(/\s*,\s*/, $loc) ) {
 	    my $remote=0;
 	    my $seqid = $annseq->id;
-	    if ( $next_loc =~ s/\(?\s*([A-Za-z\d]+(\.\d+)?):// ) {
+	    if ( $next_loc =~ s/\(?\s*([A-Za-z\d\_]+(\.\d+)?):// ) {
 		$seqid = $1;
 		$remote=1;
 	    }
