@@ -265,10 +265,10 @@ callback.
 # all features.  Passes features through callback.
 sub get_features {
   my $self = shift;
-  my ($range_type,$refseq,$class,$start,$stop,$types,$callback,$order_by_group) = @_;
+  my ($range_type,$refseq,$class,$start,$stop,$types,$sparse,$callback,$order_by_group) = @_;
   $callback || $self->throw('must provide a callback argument');
 
-  my $sth = $self->range_query($range_type,$refseq,$class,$start,$stop,$types,$order_by_group) or return;
+  my $sth = $self->range_query($range_type,$refseq,$class,$start,$stop,$types,$sparse,$order_by_group) or return;
 
   my $count = 0;
   while (my @row = $sth->fetchrow_array) {
@@ -445,18 +445,18 @@ is inserted right after SELECT.
 
 sub range_query {
   my $self = shift;
-  my($rangetype,$refseq,$class,$start,$stop,$types,$order_by_group) = @_;
+  my($rangetype,$refseq,$class,$start,$stop,$types,$sparse,$order_by_group) = @_;
 
   my $dbh = $self->features_db;
 
   # NOTE: straight_join is necessary in some database to force the right index to be used.
-  my $straight      = $self->do_straight_join($refseq,$start,$stop,$types) ? 'straight_join' : '';
-  my $select        = $self->make_features_select_part;
-  my $from          = $self->make_features_from_part;
-  my $join          = $self->make_features_join_part;
-  my ($where,@args) = $self->make_features_byrange_where_part($rangetype,$refseq,$class,
-							      $start,$stop,$types,$class);
-  my $order_by      = $self->make_features_order_by_part if $order_by_group;
+  my @a  = ($refseq,$class,$start,$stop,$types);
+  my $straight      = $self->do_straight_join(@a) ? 'straight_join' : '';
+  my $select        = $self->make_features_select_part(@a);
+  my $from          = $self->make_features_from_part($sparse);
+  my $join          = $self->make_features_join_part();
+  my ($where,@args) = $self->make_features_byrange_where_part($rangetype,@a);
+  my $order_by      = $self->make_features_order_by_part() if $order_by_group;
 
   my $query         = "SELECT $straight $select FROM $from WHERE $join";
   $query           .= " AND $where" if $where;
@@ -549,7 +549,7 @@ sub make_features_byrange_where_part {
 =head2 do_straight_join
 
  Title   : do_straight_join
- Usage   : $boolean = $db->do_straight_join($refseq,$start,$stop,$types)
+ Usage   : $boolean = $db->do_straight_join($refseq,$class,$start,$stop,$types)
  Function: optimization flag
  Returns : a flag
  Args    : see range_query()
@@ -626,9 +626,9 @@ L<Bio::DB::GFF::Adaptor::dbi::iterator>.
 
 sub get_features_iterator {
   my $self = shift;
-  my ($rangetype,$srcseq,$class,$start,$stop,$types,$callback,$automerge) = @_;
+  my ($rangetype,$srcseq,$class,$start,$stop,$types,$sparse,$callback,$automerge) = @_;
   $callback || $self->throw('must provide a callback argument');
-  my $sth = $self->range_query($rangetype,$srcseq,$class,$start,$stop,$types,$automerge) or return;
+  my $sth = $self->range_query($rangetype,$srcseq,$class,$start,$stop,$types,$sparse,$automerge) or return;
   return Bio::DB::GFF::Adaptor::dbi::iterator->new($sth,$callback);
 }
 

@@ -789,13 +789,13 @@ on a contiguous physical segment.
 
 sub segment {
   my $self = shift;
-  return $self->abs_segment(@_) if $self->absolute;
   unless ($_[0] =~ /^-/) {
     @_ = (-class=>$_[0],-name=>$_[1]) if @_ == 2;
     @_ = (-name=>$_[0])               if @_ == 1;
   }
   my $segment =  $_[0] =~ /^-/ ? Bio::DB::GFF::RelSegment->new(-factory => $self,@_)
                                : Bio::DB::GFF::RelSegment->new($self,@_);
+  $segment->absolute(1) if $segment && $self->absolute;
   $segment;
 }
 
@@ -834,8 +834,13 @@ sub abs_segment {
  Status  : public
 
 $db->absolute(1) will turn on absolute mode for the entire database.
-All segments retrieved will use absolute coordinates, rather than
-relative coordinates, identical in effect to calling abs_segment().
+All segments retrieved will use absolute coordinates by default,
+rather than relative coordinates.  You can still set them to use
+relative coordinates by calling $segment->absolute(0).
+
+Note that this is not the same as calling abs_segment(); it continues
+to allow you to look up groups that are not used directly as reference
+sequences.
 
 =cut
 
@@ -932,7 +937,7 @@ sub dna {
 
 sub features_in_range {
   my $self = shift;
-  my ($range_type,$refseq,$class,$start,$stop,$types,$parent,$automerge,$iterator) =
+  my ($range_type,$refseq,$class,$start,$stop,$types,$parent,$sparse,$automerge,$iterator) =
     rearrange([
 	       [qw(RANGE_TYPE)],
 	       [qw(REF REFSEQ)],
@@ -941,6 +946,7 @@ sub features_in_range {
 	       [qw(STOP END)],
 	       [qw(TYPE TYPES)],
 	       qw(PARENT),
+	       [qw(RARE SPARSE)],
 	       [qw(MERGE AUTOMERGE)],
 	       'ITERATOR'
 	      ],@_);
@@ -949,7 +955,7 @@ sub features_in_range {
 	       join(',',keys %valid_range_types).
 	       "}\n")
     unless $valid_range_types{lc $range_type};
-  $self->_features(lc $range_type,$refseq,$class,$start,$stop,$types,$parent,$automerge,$iterator);
+  $self->_features(lc $range_type,$refseq,$class,$start,$stop,$types,$parent,$sparse,$automerge,$iterator);
 }
 
 =head2 overlapping_features
@@ -975,6 +981,9 @@ This method takes set of named arguments:
 	     reference containing strings of the format "method:source"
   -parent    A parent Bio::DB::GFF::Segment object, used to create
 	     relative coordinates in the generated features.
+  -rare      Turn on an optimization suitable for a relatively rare feature type,
+             where it will be faster to filter by feature type first
+             and then by position, rather than vice versa.
   -merge     Whether to apply aggregators to the generated features.
   -iterator  Whether to return an iterator across the features.
 
@@ -1063,6 +1072,9 @@ Arguments are as follows:
   -types     List of feature types to return.  Argument is an array
 	     reference containing strings of the format "method:source"
   -merge     Whether to apply aggregators to the generated features.
+  -rare      Turn on optimizations suitable for a relatively rare feature type,
+             where it makes more sense to filter by feature type first,
+             and then by position.
   -iterator  Whether to return an iterator across the features.
 
 If -iterator is true, then the method returns a single scalar value
@@ -1083,20 +1095,21 @@ expressions are allowed in either field, as in: "similarity:BLAST.*".
 
 sub features {
   my $self = shift;
-  my ($types,$automerge,$iterator);
+  my ($types,$automerge,$sparse,$iterator);
   if ($_[0] =~ /^-/) {
-    ($types,$automerge,$iterator) = rearrange([
-					       [qw(TYPE TYPES)],
-					       [qw(MERGE AUTOMERGE)],
-					       'ITERATOR'
-					      ],@_);
+    ($types,$automerge,$sparse,$iterator) = rearrange([
+						      [qw(TYPE TYPES)],
+						      [qw(MERGE AUTOMERGE)],
+						      [qw(RARE SPARSE)],
+						      'ITERATOR'
+						     ],@_);
   } else {
     $types = \@_;
   }
 
   # for whole database retrievals, we probably don't want to automerge!
   $automerge = $self->automerge unless defined $automerge;
-  $self->_features('contains',undef,undef,undef,undef,$types,undef,$automerge,$iterator);
+  $self->_features('contains',undef,undef,undef,undef,$types,undef,$sparse,$automerge,$iterator);
 }
 
 =head2 segments
@@ -1643,7 +1656,7 @@ fields.
 
 sub get_features{
   my $self = shift;
-  my ($rangetype,$srcseq,$class,$start,$stop,$types,$callback,$automerge) = @_;
+  my ($rangetype,$srcseq,$class,$start,$stop,$types,$sparse,$callback,$automerge) = @_;
   $self->throw("get_features() must be implemented by an adaptor");
 }
 
@@ -1978,6 +1991,7 @@ nine positional arguments:
   $stop		 stop of range
   $types	 list of types
   $parent	 parent sequence, for relative coordinates
+  $sparse	 turn on optimizations for a rare feature
   $automerge	 if true, invoke aggregators to merge features
   $iterator	 if true, return an iterator
 
@@ -1985,7 +1999,7 @@ nine positional arguments:
 
 sub _features {
   my $self = shift;
-  my ($range_type,$refseq,$class,$start,$stop,$types,$parent,$automerge,$iterator) = @_;
+  my ($range_type,$refseq,$class,$start,$stop,$types,$parent,$sparse,$automerge,$iterator) = @_;
 
   ($start,$stop) = ($stop,$start) if defined($start) && $start > $stop;
 
@@ -2011,6 +2025,7 @@ sub _features {
 					$refseq,$class,
 					$start,$stop,
 					\@aggregated_types,
+					$sparse,
 					$callback,
 					$automerge);
   }
@@ -2020,7 +2035,7 @@ sub _features {
 
   my $callback = sub { push @$features,$self->make_feature($parent,\%groups,@_) };
   $self->get_features($range_type,$refseq,$class,
-		      $start,$stop,\@aggregated_types,$callback,0);
+		      $start,$stop,\@aggregated_types,$sparse,$callback,0);
 
   if ($automerge) {
     warn "aggregating...\n" if $self->debug;
@@ -2058,7 +2073,7 @@ constructor for the iterator, along with the callback.
 
 sub get_features_iterator {
   my $self = shift;
-  my ($rangetype,$srcseq,$class,$start,$stop,$types,$callback) = @_;
+  my ($rangetype,$srcseq,$class,$start,$stop,$types,$sparse,$callback) = @_;
   $self->throw('feature iteration is not implemented in this adaptor');
 }
 

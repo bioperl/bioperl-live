@@ -463,6 +463,10 @@ The named parameter form gives you control over a few options:
 
   -merge     Whether to apply aggregators to the generated features (default yes)
 
+  -rare      Turn on an optimization suitable for a relatively rare feature type,
+             where it will be faster to filter by feature type first
+             and then by position, rather than vice versa.
+
   -iterator  Whether to return an iterator across the features.
 
 -merge is a boolean flag that controls whether the adaptor's

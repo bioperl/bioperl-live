@@ -24,6 +24,7 @@ BEGIN {
 sub bail ($;$);
 sub prompt ($;$);
 eval { require DBI } or bail(TEST_COUNT,'DBI driver is missing');
+use lib './blib/lib';
 use Bio::DB::GFF;
 
 my %EXCLUDE_DRIVERS    = ('ExampleP' =>1, 'Multiplex'=>1, 'Proxy'=>1);

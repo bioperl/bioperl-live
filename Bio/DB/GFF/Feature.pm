@@ -789,9 +789,9 @@ sub gff_string {
   my $self = shift;
   my ($start,$stop) = ($self->start,$self->stop);
 
-  # this prevents uninitialized variable warnings, when dealing with clone objects
+  # the defined() tests prevent uninitialized variable warnings, when dealing with clone objects
   # whose endpoints may be undefined
-  ($start,$stop) = ($stop,$start) if $start ne '' && $stop ne '' && $start > $stop;
+  ($start,$stop) = ($stop,$start) if defined($start) && defined($stop) && $start > $stop;
 
   my ($class,$name) = ('','');
   my @group;
@@ -812,7 +812,7 @@ sub gff_string {
 
   my $group_field = join ' ; ',@group;
   my $strand = ('-','.','+')[$self->strand+1];
-  return join("\t",$self->ref,$self->source,$self->method,$start,$stop,$self->score||'.',$strand||'.',$self->phase||'.',$group_field);
+  return join("\t",$self->ref,$self->source,$self->method,$start||'.',$stop||'.',$self->score||'.',$strand||'.',$self->phase||'.',$group_field);
 }
 
 =head1 A Note About Similarities

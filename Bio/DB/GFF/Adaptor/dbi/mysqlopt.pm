@@ -176,7 +176,7 @@ sub get_dna {
 
 sub do_straight_join {
   my $self = shift;
-  my($srcseq,$start,$stop,$types) = @_;
+  my($srcseq,$class,$start,$stop,$types) = @_;
 
   # Might try turning on and off straight join based on the number of types
   # specified, but this turns out to be very difficult indeed!
@@ -254,6 +254,15 @@ sub make_object {
   }
 
   return $self->SUPER::make_object($class,$name,$start,$stop);
+}
+
+# IMPORTANT NOTE:
+# WHETHER OR NOT THIS WORKS IS CRITICALLY DEPENDENT ON THE RELATIVE MAGNITUDE OF THE
+sub make_features_from_part {
+  my $self = shift;
+  my $sparse = shift;
+  my $index = $sparse ? ' USE INDEX(ftypeid)': '';
+  return "fdata${index},ftype,fgroup\n";
 }
 
 sub bin_query {
