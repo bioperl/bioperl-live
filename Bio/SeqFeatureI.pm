@@ -448,7 +448,7 @@ sub spliced_seq {
     # Might need to eventually allow this to be programable?    
     # (can I mention how much fun this is NOT! --jason)
     
-    my ($mixed,$fstrand) = (0);
+    my ($mixed,$mixedloc,$tloc, $fstrand) = (0);
     if( $self->isa('Bio::Das::SegmentI') &&
 	! $self->absolute ) { 
 	$self->warn("Calling spliced_seq with a Bio::Das::SegmentI which does have absolute set to 1 -- be warned you may not be getting things on the correct strand");
@@ -463,11 +463,18 @@ sub spliced_seq {
     map { 
 	$fstrand = $_->strand unless defined $fstrand;
 	$mixed = 1 if defined $_->strand && $fstrand != $_->strand;
+	if( defined $_->seq_id ) {
+	    $tloc = $_->seq_id unless defined $tloc;
+	    $mixedloc = 1 if( $tloc ne $_->seq_id );
+	}
 	[ $_, $_->start* ($_->strand || 1)];	    
     } $self->location->each_Location; 
-    
+   
     if ( $mixed ) { 
 	$self->warn("Mixed strand locations, spliced seq using the input order rather than trying to sort");    
+	@locs = $self->location->each_Location; 
+    } elsif( $mixedloc ) {
+	# we'll use the prescribed location order
 	@locs = $self->location->each_Location; 
     }
 
@@ -481,7 +488,8 @@ sub spliced_seq {
 	}
 	# deal with remote sequences
 
-	if( $loc->seq_id ne $seqid ) {
+	if( defined $loc->seq_id && 
+	    $loc->seq_id ne $seqid ) {
 	    if( defined $db ) {
 		my $sid = $loc->seq_id;
 		$sid =~ s/\.\d+//g;
@@ -599,4 +607,21 @@ sub location {
 }
 
 
+=head2 primary_id
+
+ Title   : primary_id
+ Usage   : $obj->primary_id($newval)
+ Function: 
+ Example : 
+ Returns : value of primary_id (a scalar)
+ Args    : on set, new value (a scalar or undef, optional)
+
+
+=cut
+
+sub primary_id{
+    my $self = shift;
+    return $self->{'primary_id'} = shift if @_;
+    return $self->{'primary_id'};
+}
 1;

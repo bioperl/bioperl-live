@@ -9,7 +9,8 @@
 # `make test'. After `make install' it should work as `perl test.t'
 
 use strict;
-
+use vars qw($NUMTESTS);
+my $skipdbtests = 0;
 BEGIN { 
     # to handle systems with no installed Test module
     # we include the t dir (where a copy of Test.pm is located)
@@ -19,8 +20,18 @@ BEGIN {
 	use lib 't';
     }
     use Test;
+    $NUMTESTS = 70;
+    plan tests => $NUMTESTS;
 
-    plan tests => 66;
+    eval { require IO::String; 
+	   require LWP::UserAgent;
+	   require HTTP::Request::Common;
+	   require Bio::DB::GenBank;
+       };
+    if( $@ ) {
+	$skipdbtests = 1;
+    }
+
 }
 
 use Bio::Seq;
@@ -303,3 +314,23 @@ ok($overlap->end,   25);
 my $intersect = $feat1->location->intersection($feat2->location);
 ok($intersect->start, 10);
 ok($intersect->end,   15);
+
+
+# now let's test spliced_seq
+
+unless( $skipdbtests ) {
+    ok  $seqio = new Bio::SeqIO(-file => Bio::Root::IO->catfile(qw(t data AY095303S1.gbk)),
+				-format  => 'genbank');
+    
+    ok $geneseq = $seqio->next_seq();
+    my ($CDS) = grep { $_->primary_tag eq 'CDS' } $geneseq->get_SeqFeatures;
+    my $db = new Bio::DB::GenBank();
+    
+    my $cdsseq = $CDS->spliced_seq($db);
+    ok($cdsseq->subseq(1,60, 'ATGCAGCCATACGCTTCCGTGAGCGGGCGATGTCTATCTAGACCAGATGCATTGCATGTGATACCGTTTGGGCGAC'));
+    ok($cdsseq->translate->subseq(1,100), 'MQPYASVSGRCLSRPDALHVIPFGRPLQAIAGRRFVRCFAKGGQPGDKKKLNVTDKLRLGNTPPTLDVLKAPRPTDAPSAIDDAPSTSGLGLGGGVASPR');
+} else { 
+    foreach ( $Test::ntest..$NUMTESTS) {
+	skip('Skipping tests which need the Bio::DB::GenBank module',1);
+    }
+}
