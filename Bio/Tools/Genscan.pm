@@ -126,6 +126,8 @@ sub _initialize_state {
     $self->{'_has_cds'} = 0;
     # array of pre-parsed predictions
     $self->{'_preds'} = [];
+    # seq stack
+    $self->{'_seqstack'} = [];
 }
 
 =head2 analysis_method
@@ -204,24 +206,42 @@ sub next_prediction {
     if($gene) {
 	# fill in predicted protein, and if available the predicted CDS
 	#
-	my ($id, $seq) = $self->_read_fasta_seq();
-	my $seqobj = Bio::PrimarySeq->new('-seq' => $seq,
-					  '-display_id' => $id,
-					  '-moltype' => "protein");
-	$gene->predicted_protein($seqobj);
-	if($self->_has_cds()) {
+	my ($id, $seq);
+	# use the seq stack if there's a seq on it
+	my $seqobj = pop(@{$self->{'_seqstack'}});
+	if(! $seqobj) {
+	    # otherwise read from input stream
 	    ($id, $seq) = $self->_read_fasta_seq();
-	    # record the number of prepended Ns as an indication of the
-	    # initial offset
-	    my $frm_adjust = "";
-	    if($seq =~ /^(n+)/) {
-		$frm_adjust = $1;
-	    }
-	    $gene->frame(length($frm_adjust));
 	    $seqobj = Bio::PrimarySeq->new('-seq' => $seq,
 					   '-display_id' => $id,
-					   '-moltype' => "dna");
-	    $gene->predicted_cds($seqobj);		
+					   '-moltype' => "protein");
+	}
+	# check that prediction number matches the prediction number
+	# indicated in the sequence id (there may be incomplete gene
+	# predictions that contain only signals with no associated protein
+	# and CDS, like promotors, poly-A sites etc)
+	$gene->primary_tag() =~ /[^0-9]([0-9]+)$/;
+	my $prednr = $1;
+	if($seqobj->display_id() !~ /_predicted_\w+_$prednr\|/) {
+	    # this is not our sequence, so push back for the next prediction
+	    push(@{$self->{'_seqstack'}}, $seqobj);
+	} else {
+	    $gene->predicted_protein($seqobj);
+	    # CDS prediction, too?
+	    if($self->_has_cds()) {
+		($id, $seq) = $self->_read_fasta_seq();
+		# record the number of prepended Ns as an indication of the
+		# initial offset
+		my $frm_adjust = "";
+		if($seq =~ /^(n+)/) {
+		    $frm_adjust = $1;
+		}
+		$gene->frame(length($frm_adjust));
+		$seqobj = Bio::PrimarySeq->new('-seq' => $seq,
+					       '-display_id' => $id,
+					       '-moltype' => "dna");
+		$gene->predicted_cds($seqobj);
+	    }
 	}
     }
 
