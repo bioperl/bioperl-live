@@ -1,5 +1,5 @@
 #!perl -w
-# $Id: pairwise_kaks.PLS,v 1.3 2003-01-22 15:17:54 jason Exp $
+# $Id: pairwise_kaks.PLS,v 1.4 2003-02-25 10:45:22 jason Exp $
 use strict;
 # Author Jason Stajich <jason@bioperl.org>
 
@@ -53,14 +53,18 @@ email or the web:
 
 =cut
 
-# Ka/Ks estimators
-use Bio::Tools::Run::Phylo::PAML::Codeml;
-use Bio::Tools::Run::Phylo::PAML::Yn00;
-
-# Multiple Sequence Alignment programs
-use Bio::Tools::Run::Alignment::Clustalw;
-use Bio::Tools::Run::Alignment::TCoffee;
-
+eval {
+    # Ka/Ks estimators
+    require Bio::Tools::Run::Phylo::PAML::Codeml;
+    require Bio::Tools::Run::Phylo::PAML::Yn00;
+    
+    # Multiple Sequence Alignment programs
+    require Bio::Tools::Run::Alignment::Clustalw;
+    require Bio::Tools::Run::Alignment::TCoffee;
+};
+if( $@ ) {
+    die("Must have bioperl-run pkg installed to run this script");
+}
 # for projecting alignments from protein to R/DNA space
 use Bio::Align::Utilities qw(aa_to_dna_aln);
 
