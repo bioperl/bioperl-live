@@ -199,6 +199,8 @@ sub _request_parameters {
   push @params,('term'   => $self->query);
   # Providing 'retmax' limits queries to 500 sequences
   # push @params,('retmax' => $self->{'_count'} || MAXENTRY);
+  # And actually, it seems that we need 'retstart' equal to 0
+  push @params, ('retstart' => 0);
   ($method,$base,@params);
 }
 
