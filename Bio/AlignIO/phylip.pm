@@ -463,7 +463,7 @@ sub line_length{
  Function:
  Example : my $tag_length = $obj->tag_length
  Returns : value of the length for each space-separated tag in a line
- Args    : newvalue (optional) - set to zero to have one tag per line
+ Args    : newvalue (optional)
 
 
 =cut
