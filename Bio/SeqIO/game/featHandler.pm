@@ -1,4 +1,4 @@
-# $Id$
+# $Id: 
 # 
 #
 # Helper module for Bio::SeqIO::game::featHandler
@@ -22,7 +22,7 @@ This module is not used directly
 
 =head1 DESCRIPTION
 
-Bio::SeqIO::game::featHandler converts game XML E<lt>annotationE<gt> elements into
+Bio::SeqIO::game::featHandler converts game XML <annotation> elements into
 flattened Bio::SeqFeature::Generic objects to be added to the sequence
 
 =head1 FEEDBACK
@@ -43,7 +43,7 @@ Your participation is much appreciated.
 Report bugs to the Bioperl bug tracking system to help us keep track
 of the bugs and their resolution.
 
-Bug reports can be submitted via email or the web:
+_Bug reports can be submitted via email or the web:
 
   bioperl-bugs@bioperl.org
   http://bugzilla.bioperl.org/
@@ -62,13 +62,12 @@ methods. Internal methods are usually preceded with a _
 package Bio::SeqIO::game::featHandler;
 
 use Bio::SeqIO::game::gameSubs;
-use Data::Dumper;
 use Bio::SeqFeature::Generic;
-use Bio::SeqFeature::Gene::Transcript;
 use Bio::Location::Split;
 use strict;
 
-use vars qw { @ISA };
+use vars qw { @ISA };                                                                                
+
 @ISA = qw { Bio::SeqIO::game::gameSubs };
 
 =head2 new
@@ -88,8 +87,8 @@ sub new {
     my ($caller, $seq, $seq_h, $ann_l  ) = @_;
     my $class = ref($caller) || $caller;
 
-    my $self = bless ({
-        seq           => $seq,
+    my $self = bless ({                                                                             
+        seq           => $seq,                                                                           
         curr_feats    => [],
 	curr_coords   => [],
 	seq_h         => $seq_h,
@@ -123,8 +122,6 @@ sub add_source {
 
     return $feat;
 }
-
-# get/set gene annotation
 
 =head2 has_gene
 
@@ -165,7 +162,7 @@ sub has_gene {
 
 	    if ( $name eq 'dbxref' ) {
 	        $tags->{dbxref} ||= [];
-		push @{$tags->{dbxref}}, $self->_dbxref( $child );
+		push @{$tags->{dbxref}}, $self->dbxref( $child );
 	    }
             elsif ( $name !~ /name/ ){
                 $self->complain("Unrecognized element '$name'. I don't " .
@@ -322,6 +319,7 @@ sub add_annotation {
     $self->flush;
 }
 
+
 =head2 _add_generic_annotation
 
  Title   : _add_generic_annotation
@@ -348,6 +346,7 @@ sub _add_generic_annotation {
     $self->flush;
 }
 
+
 =head2 feature_set
 
  Title   : feature_set
@@ -359,7 +358,9 @@ sub _add_generic_annotation {
            $set     -- the <feature_set> object
            $anntype -- type of the parent annotation
 
+
 =cut
+
 
 sub feature_set {
     my ($self, $id, $gname, $set, $anntype) = @_;
@@ -430,7 +431,7 @@ sub feature_set {
 	    $cds->remove_tag('gene') if $cds->has_tag('gene');
 	    $cds->add_tag_value( gene => $gene );
 	    
-	    # catch missing proetein ids
+	    # catch missing/empty protein ids
             if ( $cds->has_tag('protein_id' )) {
 		if ( !$cds->get_tag_values('protein_id') ) {
 		    $cds->remove_tag('protein_id');
@@ -440,35 +441,18 @@ sub feature_set {
 		}
 	    }
 
-            # if the transcript is longer than the CDS, we have UTRs
-	    my @UTRs = ();
-	    if ( $feat->start < $cds->start ) {
-		my $utr = Bio::SeqFeature::Generic->new;
-		$utr->primary_tag('UTR');
-		$utr->start($feat->start);
-		$utr->end($cds->start - 1);
-		$utr->strand($self->{curr_strand});
-		$utr->add_tag_value( standard_name => $sname );
-		$utr->add_tag_value( gene => $gene );
-		push @UTRs, $utr;
-	    }
-	    if ( $cds->end < $feat->end ) {
-		my $utr = Bio::SeqFeature::Generic->new;
-		$utr->primary_tag('UTR');
-		$utr->start($cds->end + 1);
-		$utr->end($feat->end);
-		$utr->strand($self->{curr_strand});
-		$utr->add_tag_value( standard_name => $sname );
-		$utr->add_tag_value( gene => $gene );
-		push @UTRs, $utr;
-	    }
 	    # make sure other subfeats are tied to the transcript
+            # via a 'standard_name' qualifier and the gene via a 'gene' qualifier
 	    my @subfeats = @{$self->{curr_subfeats}};
             for my $sf ( @ subfeats ) {
                 $sf->add_tag_value( standard_name => $sname );
                 $sf->add_tag_value( gene => $gene );
             }
-	    @feats = sort { $a->start <=> $b->start } (@UTRs, $cds, @subfeats);
+	    
+	    $feat->add_tag_value( standard_name => $sname );
+
+            @feats = sort { $a->start <=> $b->start } ($cds, @subfeats);
+	    unshift @feats, $feat;
 	}
 	else {
 	    if ( @{$self->{curr_loc}} > 1 ) {
@@ -510,13 +494,12 @@ sub feature_set {
 	    $self->{curr_coords}->[1] = $_->end;
 	}
     }
-    if( defined $set->{Attributes}->{produces_seq} ) {
-	delete $self->{seq_h}->{$set->{Attributes}->{produces_seq}};
-    }
+    
     $self->flush( $set );
 
     return @feats;
 }
+
 
 =head2 _build_feature_set
 
@@ -530,12 +513,11 @@ sub feature_set {
 
 =cut
 
+
 sub _build_feature_set {
     my ($self, $set, $keep_subfeat) = @_;
 
-    # build up the the feature set info
     for my $child ( @{$set->{Children}} ) {
-
         my $name = $child->{Name};
 
         # these elements require special handling
@@ -568,10 +550,8 @@ sub _build_feature_set {
     }
 }
 
-# handle feature_spans
-
 =head2 _add_feature_span
-
+ 
  Title   : _add_feature_span
  Usage   : $self->_add_feature_span($el, 1)
  Function: an internal method to process <feature_span> elements
@@ -579,7 +559,9 @@ sub _build_feature_set {
  Args    : $el -- a <feature_span> element
            1   -- an optional flag to retain exons as subfeatures
 
+
 =cut
+
 
 sub _add_feature_span {
     my ($self, $el, $keep_subfeat) = @_;
@@ -611,7 +593,8 @@ sub _add_feature_span {
                                              -strand => $self->{curr_strand} );
         push @{$self->{curr_loc}}, $sl;
     }
-    # apollo and gadfly use different tags for the same thing
+    
+    # apollo and gadfly use different tags for the same thing 
     if ( $type =~ /start_codon|translate offset/ ) {
         $self->{curr_tags}->{codon_start} = [$start];
     }
@@ -626,17 +609,15 @@ sub _add_feature_span {
 				       -primary => $type );
     }
 
-    # identify the translation product
+    # identify the translation product                                             
     if ( $el->{Attributes}->{produces_seq} ) {
-	my $subseq = $self->{seq_h}->{$el->{Attributes}->{produces_seq}};
+	my $subseq = $self->{seq_h}->{$el->{Attributes}->{produces_seq}};                       
         $self->{curr_tags}->{product} = [$el->{Attributes}->{produces_seq}];
 	$self->{curr_tags}->{translation} = [$subseq->seq];
     }      
 
     $self->flush( $el );
 }
-
-# deal with protein-encoding genes	
 
 =head2 _add_CDS
 
@@ -646,7 +627,7 @@ sub _add_feature_span {
  Returns : a Bio::SeqFeature::Generic object
  Args    : $transcript -- a Bio::SeqFeature::Generic object for a transcript
            $tags       -- ref. to a hash of tag/value attributes
-
+           
 =cut
 
 sub _add_CDS {
@@ -675,14 +656,7 @@ sub _add_CDS {
     # create a CDS
     my @exons = $single ? $loc : $loc->sub_Location(1);
 
-    # specify the transcript location
-    my $tstart = $loc->start;
-    my $tstop  = $loc->end;
-    my $tloc   = Bio::Location::Simple->new;
-    $tloc->start($tstart);
-    $tloc->end($tstop);
-    $tloc->strand($self->{curr_strand});
-    $feat->location($tloc);
+    $feat->location($loc);
 
     # try to find a peptide
     my $seq  = $self->{seq_h}->{ $tags->{product}->[0] } ||
@@ -692,13 +666,16 @@ sub _add_CDS {
     
     unless ( $seq ) {
 	$self->warn("I did not find a protein sequence for " . 
-			$feat->display_name . ".  I can't figure out the CDS boundaries");
+		     $feat->display_name . ".  I can't figure out the CDS boundaries");
 	$feat->location($loc);
 	next;
     }	
     my $peptide = $seq->display_id;
 
-    # can we count on the description format being consistent?
+    # Can we count on the description format being consistent?
+    # Why is critical CDS info saved as unconstrained text not 
+    # specified in the DTD? 
+    # Anyone have a better idea?    
     my $desc = $seq->description;
     $desc =~ s/,//g;
     $desc =~ s/\]\)/\]\) /g;
@@ -715,7 +692,7 @@ sub _add_CDS {
     
     delete $tags->{transcript};
     
-    # now chop off the UTRs
+    # now chop off the UTRs to create a CDS
     my @exons_to_add = ();
     for ( @exons ) {
         my $exon = Bio::Location::Simple->new;
@@ -750,7 +727,12 @@ sub _add_CDS {
     my $parent = $self->{curr_gname} || $self->{curr_ltag};
     my $cds_tags = $tags; 
     $tags = {};
-    delete $feat->{_gsf_tag_hash};
+    
+    #delete $feat->{_gsf_tag_hash};
+    for ( $feat->all_tags ) {
+	$feat->remove_tag($_);
+    }    
+
     $cds_tags->{product_desc} = [$desc];
 
     if ( $self->{curr_gname} ) {
@@ -767,16 +749,9 @@ sub _add_CDS {
     $cds_tags->{translation} = [$seq->seq];
   
     for ( keys %{$cds_tags} ) {
-#        if ( /dbxref/ ) {
-#            # flatten array of dbxrefs
-#            $self->_dbxref_asfeat( $cds_tags, $cds );
-#        }
-#        else {
-            # or else add tag/value pairs
-	    for my $val (@{$cds_tags->{$_}}) {
-		$cds->add_tag_value( $_ => $val );
-	    }        
-#	}
+	for my $val (@{$cds_tags->{$_}}) {
+	    $cds->add_tag_value( $_ => $val );
+	}        
     }
     
     $cds;
