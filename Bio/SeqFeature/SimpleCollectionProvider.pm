@@ -198,7 +198,18 @@ are ANDed together.
 =cut
 
 sub get_collection {
-  ## TODO: ERE I AM
+  my $self = shift;
+  my $collection_to_return = new Bio::SeqFeature::SimpleCollection();
+  ## TODO: Something more sophisticated.  This always returns all features.
+  $collection_to_return->add_features(
+    values $self->{ '_identifiable_features' }
+  );
+  foreach my $start ( keys $self->{ '_anonymous_features' } ) {
+    $collection_to_return->add_features(
+      @{ $self->{ '_anonymous_features' }{ $start } }
+    );
+  }
+  return $collection_to_return;
 } # get_collection(..)
 
 =head2 insert_or_update_collection
