@@ -97,9 +97,14 @@ STREAM PARSING:
   gapped, ungapped, etc.). Most of the time, -noshare is unnecessary
   since all reports have the same program, version, gapping, etc.
 
-  THe "print_blasts.pl dir" syntax or the parse_multi.pl script are 
+  The "print_blasts.pl dir" syntax or the parse_multi.pl script are 
   recommended when working with large numbers of Blast reports (thousands).
   The Blasts reports located in "dir" can be compressed or not. 
+
+  WARNING:
+  Parsing large numbers of Blast reports can lead to serious
+  memory usage problems. See documentation in parse_multi.pl and
+  Blast.pm for more information (including a workaround).
 
 QQ_EG_QQ
 }
