@@ -1,58 +1,28 @@
-# $Id: PLATFORMS,v 1.4 1999-04-06 15:52:13 birney Exp $
-
+# $Id: PLATFORMS,v 1.4.12.1 2000-04-01 18:25:55 dag Exp $
 
 Tested systems & OS Specific Comments or Warnings
 ==================================================
 
-Machine : AlphaServer 4100 & 2100/A - Digital Unix 4.0D
-Compiler: cc
-Perl    : 5.004
-Comments: none.
+Machine : i686 PentiumIII - RedHat Linux 6.1 / kernel 2.2.12-20
+Perl    : 5.005_03
+Comments: none. all tests pass.
 
-Machine : AlphaServer 8400 - Digital Unix 4.0D
-Compiler: cc
-Perl    : 5.005_02
-Comments: none.
+Machine : Compaq Alpha EV5 workstation
+        : RedHat alpha-linux / kernel 2.2.13-0.9
+Perl    : 5.005_03
+Comments: none. all tests pass.
 
-Machine : SGI 02 workstation - Irix 6.3
-Compiler: cc
-Perl    : 5.004
-Comments: none.
+Machine : Compaq AlphaServer ES40 / Tru64 Unix version 4.0F
+Perl    : 5.005_03
+Comments: none. all tests pass.
 
-Machine : i486 - Redhat Linux 5.1 / kernel 2.0.35
-Compiler: cc
+Machine : SGI Origin 2000 / IRIX64 version 6.5
 Perl    : 5.004_04
-Comments: none.
+Comments: none. all tests pass.
 
-Machine : AlphaServer - Digital Unix 4.0B
-Compiler: gcc
-Perl    : 5.003, 5.004
-Comments: RestrictionEnzyme.t and Seq.t tests all fail under
-          Perl 5.003 for as of yet unknown reasons.
-
-Machine : Sparc station  - SunOS 5.6 / Solaris 2.6
-Compiler: cc
-Perl    : 5.003, 5.004
-Comments: RestrictionEnzyme.t and Seq.t tests all fail under
-          Perl 5.003 for as of yet unknown reasons.
-          
-          For Compile/SW add -fPIC to the libs/makefile CFLAGS line
-
-Machine : Apple PowerMac 7600/180 running LinuxPPC
-        : Based on Red Hat Linux release 5.0 (Hurricane)
-        : Kernel 2.1.125 on a PowerPC 604e
-Compiler: cc
-Perl    : 5.004_01
-Comments: BLAST test #29 failed during 'make test' because system was
-          missing the 'diff' utility. Once diff was installed, 'make
-          test' works perfectly. Ewan's XS extensions compile without
-          error and pass 'make test' as well. 
-
-Machine : NetBSD, i386 chip set
-Compiler: cc
-Perl    : 5.003, 5.004
-Comments: For Compile/SW add -fPIC to the libs/makefile CFLAGS line
-
+Machine : Power Machintosh G3 / linux-ppc / kernel 2.2.6-15apmac
+Perl    : 5.005_03
+Comments: none. all tests pass.
 
 
 
