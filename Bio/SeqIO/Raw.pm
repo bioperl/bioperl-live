@@ -1,6 +1,14 @@
-## $Id$
-##
-# BioPerl module for Bio::SeqIO::Raw
+#-----------------------------------------------------------------------------
+# PACKAGE : Bio::SeqIO::Raw
+# AUTHOR  : Ewan Birney <birney@sanger.ac.uk>
+# CREATED : Feb 16 1999
+# REVISION: $Id$
+#            
+# Copyright (c) 1997-9 bioperl, Ewan Birney. All Rights Reserved.
+#           This module is free software; you can redistribute it and/or 
+#           modify it under the same terms as Perl itself.
+#
+# _History_
 #
 # Ewan Birney <birney@sanger.ac.uk> developed the SeqIO 
 # schema and the first prototype modules.
