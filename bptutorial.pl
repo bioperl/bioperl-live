@@ -1231,6 +1231,15 @@ A skeleton script to run a remote blast might look as follows:
   while (@rids = $remote_blast->each_rid ) {
       foreach $rid ( @rids ) {$rc = $remote_blast->retrieve_blast($rid);}}
 
+You may want to change some parameter of the remote job and this example
+shows how to change the matrix:
+
+$Bio::Tools::Run::RemoteBlast::HEADER{'MATRIX_NAME'} = 'BLOSUM25';
+
+For a description of the many CGI parameters see:
+
+http://www.ncbi.nlm.nih.gov/BLAST/Doc/urlapi.html
+
 Note that the script has to be broken into two parts. The actual Blast
 submission and the subsequent retrieval of the results. At times when the
 NCBI Blast is being heavily used, the interval between when a Blast
