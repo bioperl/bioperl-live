@@ -16,11 +16,11 @@ use constant FATTRIBUTE_TO_FEATURE => 'fattribute_to_feature';
 
 =head1 NAME
 
-pg_bulk_load_gff.pl - Bulk-load a PostgreSQL Bio::DB::GFF database from GFF files.
+bulk_load_gff.pl - Bulk-load a Bio::DB::GFF database from GFF files.
 
 =head1 SYNOPSIS
 
-  % pg_bulk_load_gff.pl -d testdb -f dna.fa features1.gff features2.gff ...
+  % bulk_load_gff.pl -d testdb -f dna.fa features1.gff features2.gff ...
 
 =head1 DESCRIPTION
 
@@ -225,7 +225,11 @@ while (<>) {
   } else {
     ($ref,$source,$method,$start,$stop,$score,$strand,$phase,$group) = split "\t";
   }
-  next unless defined $ref;
+
+  if (length ($ref) == 0) {
+    warn "\$ref is null.  source = $source, method = $method, group = $group\n";
+    next;
+  }
   $FEATURES++;
 
   $source = '\N' unless defined $source;
