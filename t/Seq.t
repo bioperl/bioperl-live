@@ -18,7 +18,7 @@
 
 
 ## We start with some black magic to print on failure.
-BEGIN { $| = 1; print "1..6\n"; 
+BEGIN { $| = 1; print "1..9\n"; 
 	use vars qw($loaded); }
 END {print "not ok 1\n" unless $loaded;}
 
@@ -66,4 +66,28 @@ if( $t eq 'ACTGTGGCGTCAACT' ) {
   print "ok 6\n";
 }
 
+my $seq = Bio::Seq->new(-seq=>'actgtggcgtcaact',
+                        -desc=>'Sample Bio::Seq object',
+			-display_id => 'something',
+			-accession_number => 'accnum',
+			-moltype => 'dna' );
+print "ok 7\n"; 
+
+
+$trans = $seq->translate();
+
+if( $trans->seq() ne 'TVAST' ) {
+   print "not ok 8\n";
+} else {
+   print "ok 8\n";
+}
+
+# basic methods
+
+if( $seq->id() ne 'something' || $seq->accession_number ne 'accnum' ) {
+    print "not ok 9\n";
+    print "saw ",$seq->id,":",$seq->accession_number,":",$seq->primary_id,"\n";
+} else {
+  print "ok 9\n";
+}
 
