@@ -34,18 +34,6 @@ sub bump {
   return $bump;
 }
 
-#sub layout_width {
-#  my $self = shift;
-#  my @parts = $self->parts or return $self->SUPER::layout_width;
-#  return $self->{layout_width} if exists $self->{layout_width};
-#  my $max = $self->SUPER::layout_width;
-#  foreach (@parts) {
-#    my $part_width = $_->layout_width;
-#    $max = $part_width if $part_width > $max;
-#  }
-#  return $self->{layout_width} = $max;
-#}
-
 1;
 
 __END__

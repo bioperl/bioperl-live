@@ -119,14 +119,14 @@ sub draw_dna {
   my $pink = $self->factory->translate_color('lightpink');
 
   my $start  = $self->map_no_trunc($self->feature->start-$start_offset);
-  my $offset = int(($x1-$start-1)/$pixels_per_base);
+  my $offset = int (($x1-$start-1)/$pixels_per_base);
 
   for (my $i=$offset;$i<@bases;$i++) {
-    my $x = $start + $i * $pixels_per_base;
+    my $x = int($start + $i * $pixels_per_base+0.5);
     next if $x+1 < $x1;
     last if $x+1 > $x2;
     if ($genomic[$i] && lc($bases[$i]) ne lc($complement ? $complement{$genomic[@genomic - $i - 1]} : $genomic[$i])) {
-      $self->filled_box($gd,$x,$y1+2,$x+$fontwidth,$y1+$lineheight-2,$pink,$pink);
+      $self->filled_box($gd,$x,$y1+3,$x+$fontwidth,$y1+$lineheight-3,$pink,$pink);
     }
     $gd->char($font,$x+1,$y1,$complement ? $complement{$bases[$i]} || $bases[$i] : $bases[$i],$color);
   }
