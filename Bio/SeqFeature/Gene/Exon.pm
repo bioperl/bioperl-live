@@ -146,21 +146,21 @@ sub is_coding {
 
 =cut
 
-sub primary_tag {
-   my ($self,$value) = @_;
+# sub primary_tag {
+#    my ($self,$value) = @_;
 
-   if(defined($value)) {
-       if((lc($value) =~ /utr/i) || (lc($value) eq "exon") ||
-	  ((lc($value) =~ /exon/i) &&
-	   (grep { $value =~ /$_/i; } @valid_exon_types))) {
-	   $self->is_coding($value =~ /utr/i ? 0 : 1);
-       } else {
-	   $self->throw("primary tag $value is invalid for object of class ".
-			ref($self));
-       }
-   }
-   return $self->SUPER::primary_tag($value);
-}
+#    if(defined($value)) {
+#        if((lc($value) =~ /utr/i) || (lc($value) eq "exon") ||
+# 	  ((lc($value) =~ /exon/i) &&
+# 	   (grep { $value =~ /$_/i; } @valid_exon_types))) {
+# 	   $self->is_coding($value =~ /utr/i ? 0 : 1);
+#        } else {
+# 	   $self->throw("primary tag $value is invalid for object of class ".
+# 			ref($self));
+#        }
+#    }
+#    return $self->SUPER::primary_tag($value);
+# }
 
 =head2 location
 

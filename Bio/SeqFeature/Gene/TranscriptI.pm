@@ -245,4 +245,35 @@ sub protein {
     $self->_abstractDeath();
 }
 
+=head2 parent
+
+ Title   : parent
+ Usage   : $obj->parent($newval)
+ Function: get the parent gene of the transcript
+ Returns : value of parent - a Bio::SeqFeature::Gene::GeneStructureI-compliant object
+ Args    : a Bio::SeqFeature::Gene::GeneStructureI-compliant object (optional)
+
+
+=cut
+
+sub parent{
+   my ($self,$value) = @_;
+   if( defined $value) {
+       if ($value->isa("Bio::SeqFeature::Gene::GeneStructureI")) {
+	   $self->{'parent'} = $value;
+       } else {
+	   $self->throw("$value must be a Bio::SeqFeature::Gene::GeneStructureI")
+       }
+    }
+    return $self->{'parent'};
+
+}
+
+
 1;
+
+
+
+
+
+

@@ -746,6 +746,9 @@ sub _add {
        $fea->can('attach_seq')) {
 	$fea->attach_seq($self->entire_seq());
     }
+    if (defined $self->parent) {
+	$self->parent->_expand_region($fea);
+    }
     push(@{$self->{'_features'}}, $fea);
 }
 
