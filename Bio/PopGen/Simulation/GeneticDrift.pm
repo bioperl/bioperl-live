@@ -16,7 +16,7 @@ Bio::PopGen::Simulation::GeneticDrift - A simple genetic drift simulation
 
 =head1 SYNOPSIS
 
-  use Bio::PopGen::Simulation;
+  use Bio::PopGen::Simulation::GeneticDrift;
   my $sim = new Bio::PopGen::Simulation::GeneticDrift(-popsize => 40,
 						      -alleles => {A => 0.2,
 							           B => 0.8});

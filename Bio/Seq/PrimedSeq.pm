@@ -29,7 +29,6 @@ Bio::Seq::PrimedSeq - A representation of a sequence and two primers flanking a
   target region for amplification
 
 =head1 SYNOPSIS
-
   # The easiest way to use this is probably as one of the following:
   # (i) to get the output from Bio::Tools::Run::Primer3, Bio::Tools::Primer3,
   # or Bio::Tools::PCRSimulation
@@ -44,7 +43,7 @@ Bio::Seq::PrimedSeq - A representation of a sequence and two primers flanking a
       my $seq = $seqin->next_seq;
       # use primer3 to design some primers
       my $primer3run = Bio::Tools::Run::Primer3->new(-seq=>$seq);
-      my $primer3run -> run; # we'll just run it with the default parameters
+      $primer3run -> run; # we'll just run it with the default parameters
 
       # create a file to write the results to
       my $seqout=Bio::SeqIO->new(-file=>">primed_sequence.gbk", -format=>'genbank');
@@ -56,7 +55,7 @@ Bio::Seq::PrimedSeq - A representation of a sequence and two primers flanking a
 
    #(ii) to create a genbank file for a sequence and its cognate primers
 
-     For example:
+     #For example:
 
      use Bio::SeqIO;
      use Bio::Seq::PrimedSeq;
@@ -64,7 +63,7 @@ Bio::Seq::PrimedSeq - A representation of a sequence and two primers flanking a
      # have a sequence file ($file) with the template, and two primers
      # that match it, in fasta format
 
-     my $file=shift || die "$0 <file>"
+     my $file=shift || die "$0 <file>";
      my $seqin=new Bio::SeqIO(-file=>$file);
 
      # read three sequences

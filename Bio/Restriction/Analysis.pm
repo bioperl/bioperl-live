@@ -59,7 +59,7 @@ enzymes
 
   # How many enzymes do not cut at all?
   print "There are ", scalar $ra->zero_cutters->each_enzyme,
-        " enzymes that don't cut\n";
+        " enzymes that do not cut\n";
 
   # what about enzymes that cut twice?
   my $two_cutters=$ra->cutters(2);
@@ -87,7 +87,7 @@ sequence with restriction enzymes.
 To use this module you can pass a sequence object and optionally a
 Bio::Restriction::EnzymeCollection that contains the enzyme(s) to cut the
 sequences with. There is a default set of enzymes that will be loaded
-if you don't pass in a Bio::Restriction::EnzymeCollection.
+if you do not pass in a Bio::Restriction::EnzymeCollection.
 
 To cut a sequence, set up a Restriction::Analysis object with a sequence
 like this:

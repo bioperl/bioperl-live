@@ -14,6 +14,7 @@ Bio::Phenotype::MeSH::Twig - Context for a MeSH term
 
 =head1 SYNOPSIS
 
+  use Bio::Phenotype::MeSH::Twig
   # create a twig object
   my $twig = Bio::Phenotype::MeSH::Twig->new();
 
@@ -37,7 +38,7 @@ Bio::Phenotype::MeSH::Twig - Context for a MeSH term
   print join ( ', ', $twig->each_sister()), "\n";
 
   # a twig can know about other terms under this term
-  $twig->add_child('Butter', 'Margarine')
+  $twig->add_child('Butter', 'Margarine');
   print join ( ', ', $twig->each_child()), "\n";
 
 

@@ -80,7 +80,7 @@ Bio::Restriction::Enzyme - A single restriction endonuclease
         "Complementary cut: $oca\nSite:\n\t$with_caret or\n",
         "\t$without_caret\n";
   print "Reverse of the sequence: $rc\nRecognition length: $recog_length\n",
-        "Is it palindromic? $pal\nIs it blunt? $blunt\n";
+        "Is it palindromic? $pal\n";
   print "The overhang is $oh with sequence $ohseq\n",
         "And is it ambiguous? $ambig\n\n";
 
@@ -94,7 +94,7 @@ Bio::Restriction::Enzyme - A single restriction endonuclease
 
   # get or set the methylation sites
   $re->methylation_sites(2); # not really true :)
-  print "Methylated at ", join " ", keys $re->methylation_sites,"\n";
+  print "Methylated at ", join " ", keys %{$re->methylation_sites},"\n";
 
   #Get or set the source microbe
   $re->microbe('E. coli');
@@ -114,7 +114,7 @@ Bio::Restriction::Enzyme - A single restriction endonuclease
 
   # get or set a reference for this
   $re->reference('Edwards et al. J. Bacteriology');
-  print "It wasn't published in ", $re->reference, "\n";
+  print "It was not published in ", $re->reference, "\n";
 
   # get or set the enzyme name
   $re->name('BamHI');
