@@ -275,7 +275,7 @@ sub next_seq {
 	    # to the last line read before returning 
 
 	    my $ftunit = $self->_read_FTHelper_GenBank(\$buffer);
-
+	    
 	    # fix suggested by James Diggans
 
 	    if( !defined $ftunit ) {
@@ -966,8 +966,7 @@ sub _read_FTHelper_GenBank {
         # Store the qualifier
         $out->field->{$qualifier} ||= [];
         push(@{$out->field->{$qualifier}},$value);
-    }   
-
+    }       
     return $out;
 }
 

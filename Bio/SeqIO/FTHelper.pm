@@ -109,8 +109,9 @@ sub _generic_seqfeature {
     my $strand = ( $fth->loc =~ /complement/ ) ? -1 : 1;    
     $sf->strand($strand);
         # Parse compound features
-    if ( $fth->loc =~ /(join)/i || $fth->loc =~ /(order)/i) {
-	my $combotype=$1; 	
+    if ( $fth->loc =~ /(join)/i || $fth->loc =~ /(order)/i  || 
+	 $fth->loc =~ /(bond)/i ) {
+	my $combotype=$1;
 	$sf->primary_tag($fth->key);
 	$sf->source_tag($source);
 	my $splitlocation = new Bio::Location::Split(-strand=>$strand, 
@@ -152,10 +153,17 @@ sub _generic_seqfeature {
     else {
 	$sf->source_tag($source);
 	$sf->primary_tag($fth->key);	
-	if( my $location = $fth->_parse_loc($sf,$fth->loc()) ) {
+	my $loc = $fth->loc();
+	my $seqid;
+	if ( $loc =~ s/\(?\s*([A-Za-z\d\_]+(\.\d+)?):// ) {
+	    ($seqid) = $1; 
+	}
+	
+	if( my $location = $fth->_parse_loc($sf,$loc) ) {
+	    $location->seq_id($seqid) if ( $seqid);
 	    $sf->location($location);
 	} else {
-	    $annseq->warn("unexpected location line [" . $fth->loc() .
+	    $annseq->warn("unexpected location line [" . $loc .
 			  "] in reading $source, ignoring feature " .
 			  $fth->key() . " (seqid=" . $annseq->id() . ")");
 	    $sf = undef;
@@ -199,7 +207,7 @@ sub _parse_loc {
 #    my %compl_of = ("5" => "3", "3" => "5");
     my ($fea_type, $tagval) = ('','');
     my ($strand,$start,$end) = (1);
-    $self->debug( "Processing $locstr\n");
+    $self->debug( "Location parse, processing $locstr\n");
 
     # Two numbers separated by anything of '.', '^', and spaces (SRS puts a
     # space between the two dots), optionally surrounded by parentheses and a
