@@ -299,7 +299,7 @@ END
 =head2 next
 
  Title   : next
- Usage   : $seqDiff = stream->next
+ Usage   : $seqDiff = $stream->next
  Function: reads the next $seqDiff object from the stream
  Returns : a Bio::Variation::SeqDiff object
  Args    :
@@ -329,7 +329,7 @@ sub next_seq {
 
 sub write {
     my ($self, $seq) = @_;
-    $self->throw("Sorry, you cannot write to a generic Bio::Variation::IO object.");
+    $self->throw("Sorry, you cannot write from generic Bio::Variation::IO object.");
 }
 
 sub write_seq {
