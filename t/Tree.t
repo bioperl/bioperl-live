@@ -113,7 +113,7 @@ $tree  = $in->next_tree;
 my $outtre = new Bio::TreeIO(-format => 'newick');
 $a = $tree->find_node('A');
 $tree->reroot($a->ancestor);
-ok($tree->get_root_node, $a->ancestor);
+ok($tree->get_root_node, $a->ancestor->ancestor);
 
 __DATA__
 (D,(C,(A,B)));
