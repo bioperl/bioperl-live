@@ -6,10 +6,15 @@ Revision history for Bioperl core modules
    number of software improvements/bug fixes across the package.
 
    o The EMBL/GenBank parsing are improved.
-
+ 
    o The Swissprot reading is improved. Swissprot writing
      is disabled as it doesn't work at all. This needs to
      wait for 0.7 release
+ 
+   o BLAST reports with no hits are correctly parsed.
+ 
+   o Several other bugs of the BLAST parser (regular expressions, ...)
+     fixed.
 
    o Old syntax calls have been replaced with more modern syntax
  
