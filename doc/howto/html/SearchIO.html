@@ -1,31 +1,35 @@
-<?xml version="1.0" encoding="ISO-8859-1"?>
+
 <!DOCTYPE html
   PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml"><head><title>Bio::SearchIO HOWTO</title><link rel="stylesheet" href="e-novative.css" type="text/css"/><meta name="generator" content="DocBook XSL Stylesheets V1.55.0"/><meta name="description" content="&#xA;	This is a HOWTO written in DocBook (SGML) for the reasoning behind&#xA;	the creation of the Bio::SearchIO system, how to use it, and how one&#xA;	goes about writing new adaptors to different output formats.  We will&#xA;	also describe how the Bio::SearchIO::Writer modules work for outputting&#xA;	various formats from Bio::Search objects. &#xA;      "/></head><body><div xmlns="" id="customheader"><span class="logo"></span>
-    
-    </div><div class="article"><div class="titlepage"><div><h1 class="title"><a id="d3e1"/>Bio::SearchIO HOWTO</h1></div><div><div class="author"><h3 class="author">Jason Stajich</h3><div class="affiliation"><span class="orgname"><a href="http://www.duke.edu" target="_top">Duke
-	University</a><br/></span><span class="orgdiv"><a href="http://upg.duke.edu" target="_top">University Program in Genetics</a><br/></span><span class="orgdiv"><a href="http://cgt.genetics.duke.edu" target="_top">Center for
-	Genome Technology</a><br/></span><div class="address"><p>
-	  Duke University Medical Center
-	  Box 3568
-	  Durham, 
-	  North Carolina 
-	  27710-3568 
-	  USA
-	  <tt>&lt;<a href="mailto:jason-at-bioperl.org">jason-at-bioperl.org</a>&gt;</tt>
-        </p></div></div></div></div><div><div class="author"><h3 class="author">Brian Osborne</h3><div class="affiliation"><span class="orgname"><a href="http://www.cognia.com" target="_top">Cognia Corporation</a><br/></span><div class="address"><p>
-	  NYC, NY 10022 
-	  USA
-	  <tt>&lt;<a href="mailto:brian-at-cognia.com">brian-at-cognia.com</a>&gt;</tt>
-        </p></div></div></div></div><div><div class="legalnotice"><p>This document is copyright Jason Stajich, 2002.  For
-	reproduction other than personal use please contact jason-at-bioperl.org
-      </p></div></div><div><p class="pubdate">2002-07-14</p></div><div><div class="revhistory"><table border="1" width="100%" summary="Revision history"><tr><th align="left" valign="top" colspan="3"><b>Revision History</b></th></tr><tr><td align="left">Revision 0.1</td><td align="left">2002-07-14</td><td align="left">js</td></tr><tr><td align="left" colspan="3">first draft</td></tr><tr><td align="left">Revision 0.2</td><td align="left">2002-10-11</td><td align="left">js</td></tr><tr><td align="left" colspan="3">added info on extending Search objects</td></tr><tr><td align="left">Revision 0.3</td><td align="left">2003-02-13</td><td align="left">BIO</td></tr><tr><td align="left" colspan="3">added table and text to Parsing section</td></tr><tr><td align="left">Revision 0.4</td><td align="left">2003-09-10</td><td align="left">BIO</td></tr><tr><td align="left" colspan="3">updated Parsing section</td></tr></table></div></div><div><div class="abstract"><p class="title"><b>Abstract</b></p><p>
+<html xmlns="http://www.w3.org/1999/xhtml"><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <title>Bio::SearchIO HOWTO</title><link rel="stylesheet" href="ede.css" type="text/css"><meta name="generator" content="DocBook XSL Stylesheets V1.61.3"><meta name="description" content="&#xA;	This is a HOWTO written in DocBook (SGML) for the reasoning behind&#xA;	the creation of the Bio::SearchIO system, how to use it, and how one&#xA;	goes about writing new adaptors to different output formats.  We will&#xA;	also describe how the Bio::SearchIO::Writer modules work for outputting&#xA;	various formats from Bio::Search objects.&#xA;      "></head><body><div xmlns="" id="customheader">
+BioPerl DocBook
+</div><div class="article" lang="en"><div class="titlepage"><div><div><h1 class="title"><a id="d3e1"></a>Bio::SearchIO HOWTO</h1></div><div><div class="author"><h3 class="author"><span class="firstname">Jason</span> <span class="surname">Stajich</span></h3><div class="affiliation"><span class="orgname"><a href="http://www.duke.edu" target="_top">Duke
+	University</a><br></span><span class="orgdiv"><a href="http://upg.duke.edu" target="_top">University Program in Genetics</a><br></span><span class="orgdiv"><a href="http://cgt.genetics.duke.edu" target="_top">Center for
+	Genome Technology</a><br></span><div class="address"><p><br>
+	&nbsp;&nbsp;Duke&nbsp;University&nbsp;Medical&nbsp;Center<br>
+	&nbsp;&nbsp;<span class="pob">Box&nbsp;3568</span><br>
+	&nbsp;&nbsp;<span class="city">Durham,&nbsp;</span><br>
+	&nbsp;&nbsp;<span class="state">North&nbsp;Carolina</span>&nbsp;<br>
+	&nbsp;&nbsp;<span class="postcode">27710-3568</span>&nbsp;<br>
+	&nbsp;&nbsp;<span class="country">USA</span><br>
+	&nbsp;&nbsp;<tt class="email">&lt;<a href="mailto:jason-at-bioperl.org">jason-at-bioperl.org</a>&gt;</tt><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</p></div></div></div></div><div><div class="author"><h3 class="author"><span class="firstname">Brian</span> <span class="surname">Osborne</span></h3><div class="affiliation"><span class="orgname"><a href="http://www.cognia.com" target="_top">Cognia Corporation</a><br></span><div class="address"><p><br>
+	&nbsp;&nbsp;<span class="city">NYC</span>,&nbsp;<span class="state">NY</span>&nbsp;<span class="postcode">10022</span>&nbsp;<br>
+	&nbsp;&nbsp;<span class="country">USA</span><br>
+	&nbsp;&nbsp;<tt class="email">&lt;<a href="mailto:brian-at-cognia.com">brian-at-cognia.com</a>&gt;</tt><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</p></div></div></div></div><div><div class="legalnotice"><p>This document is copyright Jason Stajich, Brian Osborne,
+	2002-2004.  It can be copied and distributed under the terms
+	of the Perl Artistic License.
+	</p></div></div><div><p class="pubdate">2002-07-14</p></div><div><div class="revhistory"><table border="1" width="100%" summary="Revision history"><tr><th align="left" valign="top" colspan="3"><b>Revision History</b></th></tr><tr><td align="left">Revision 0.1</td><td align="left">2002-07-14</td><td align="left">js</td></tr><tr><td align="left" colspan="3">first draft</td></tr><tr><td align="left">Revision 0.2</td><td align="left">2002-10-11</td><td align="left">js</td></tr><tr><td align="left" colspan="3">added info on extending Search objects</td></tr><tr><td align="left">Revision 0.3</td><td align="left">2003-02-13</td><td align="left">BIO</td></tr><tr><td align="left" colspan="3">added table and text to Parsing section</td></tr><tr><td align="left">Revision 0.4</td><td align="left">2003-09-10</td><td align="left">BIO</td></tr><tr><td align="left" colspan="3">updated Parsing section</td></tr><tr><td align="left">Revision 0.5</td><td align="left">2004-01-30</td><td align="left">JES and BIO</td></tr><tr><td align="left" colspan="3">Fixed some missing table entries for Hit
+	functions, typo fixes.</td></tr><tr><td align="left">Revision 0.6</td><td align="left">2004-06-21</td><td align="left">JES</td></tr><tr><td align="left" colspan="3">Made document redistributable under Perl Artistic.</td></tr></table></div></div><div><div class="abstract"><p class="title"><b>Abstract</b></p><p>
 	This is a HOWTO written in DocBook (SGML) for the reasoning behind
 	the creation of the Bio::SearchIO system, how to use it, and how one
 	goes about writing new adaptors to different output formats.  We will
 	also describe how the Bio::SearchIO::Writer modules work for outputting
-	various formats from Bio::Search objects. 
-      </p></div></div><hr/></div><div class="toc"><p><b>Table of Contents</b></p><dl><dt>1. <a href="#background">Background</a></dt><dt>2. <a href="#design">Design</a></dt><dt>3. <a href="#functionality">New Functionality</a></dt><dt>4. <a href="#use">Parsing with Bio::SearchIO</a></dt><dt>5. <a href="#creating_reports">Creating Reports for SearchIO</a></dt><dt>6. <a href="#implementation">Implementation</a></dt><dt>7. <a href="#outputting">Writing and formatting output</a></dt><dt>8. <a href="#extending">Extending SearchIO</a></dt></dl></div><div class="section"><div class="titlepage"><div><h2 class="title" style="clear: both"><a id="background"/>1. Background</h2></div></div><p>
+	various formats from Bio::Search objects.
+      </p></div></div></div><div></div><hr></div><div class="toc"><p><b>Table of Contents</b></p><dl><dt>1. <a href="#background">Background</a></dt><dt>2. <a href="#design">Design</a></dt><dt>3. <a href="#functionality">New Functionality</a></dt><dt>4. <a href="#use">Parsing with Bio::SearchIO</a></dt><dt>5. <a href="#creating-reports">Creating Reports for SearchIO</a></dt><dt>6. <a href="#implementation">Implementation</a></dt><dt>7. <a href="#outputting">Writing and formatting output</a></dt><dt>8. <a href="#extending">Extending SearchIO</a></dt><dt>9. <a href="#links">Useful links</a></dt></dl></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="background"></a>1.&nbsp;Background</h2></div></div><div></div></div><p>
       One of the most common and necessary tasks in bioinformatics is
       parsing analysis reports so that one can write programs which can
       help interpret the sheer volume of data that can be produced by
@@ -52,7 +56,7 @@
       objects in the same manner.  We wanted to have this capability in
       place for analysis reports as well and thus the generic design of
       the Bio::SearchIO module.
-    </p></div><div class="section"><div class="titlepage"><div><h2 class="title" style="clear: both"><a id="design"/>2. Design</h2></div></div><p>
+    </p></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="design"></a>2.&nbsp;Design</h2></div></div><div></div></div><p>
       The Bio::SearchIO system was designed with the following
       assumptions:  That all reports parsed with it could be separated
       into a hierarchy of components. The Result is the entire
@@ -74,20 +78,28 @@
       A design pattern, called Factory, is utilized in object
       oriented programming to separate the entity which process data
       from objects which will hold the information produced.  In the
-      same manner that the Bio::SeqIO module is used to parse different
-      file formats and produces objects which are Bio::PrimarySeqI
-      compliant, we have written Bio::SearchIO to produce the
+      same manner that the <a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqIO.html" target="_top">
+	Bio::SeqIO</a> module is used to parse different
+      file formats and produces objects which are 
+      <a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/PrimarySeq.html" target="_top">
+	Bio::PrimarySeqI</a>
+      compliant, we have written <a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SearchIO.html" target="_top">
+	Bio::SearchIO</a> to produce the
       Bio::Search objects.  Sequences are a little less complicated so
       there is only one primary object (Bio::PrimarySeqI) which Search
       results need three main components to represent the data
-      processed in a file: Bio::Search::Result::ResultI (top level results),
-      Bio::Search::Hit::HitI (hits) and Bio::Search::HSP::HSPI (HSPs).   
-      The Bio::SearchIO object is then a factory which produces
-      Bio::Search::Result::ResultI objects  and the
-      Bio::Search::Result::ResultI objects contain information about
+      processed in a file: 
+      <a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/Result/ResultI.html" target="_top">Bio::Search::Result::ResultI</a> (top level results),
+      <a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/Hit/HitI.html" target="_top">Bio::Search::Hit::HitI</a> (hits) and 
+      <a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/HSP/HSPI.html" target="_top">
+	Bio::Search::HSP::HSPI</a> (HSPs).   
+      The <a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SearchIO.html" target="_top">
+	Bio::SearchIO</a> object is then a factory which produces
+      <a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/Result/ResultI.html" target="_top">Bio::Search::Result::ResultI</a> objects  and the
+      <a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/Result/ResultI.html" target="_top">Bio::Search::Result::ResultI</a> objects contain information about
       the query, the database searched, and the full collection of Hits
       found for the query.
-    </p></div><div class="section"><div class="titlepage"><div><h2 class="title" style="clear: both"><a id="functionality"/>3. New Functionality</h2></div></div><p>
+    </p></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="functionality"></a>3.&nbsp;New Functionality</h2></div></div><div></div></div><p>
       The generality of the SearchIO approach is demonstrated by large number
       of report formats that have appeared since its introduction. These
       formats include AXT format reports (BLAT, BLASTZ), NCBI tabular
@@ -95,7 +107,7 @@
       Exonerate output, FASTA output, hmmsearch output (HMMER),
       megablast output, PSL format output (BLAT), sim4 output, WABA
       output, and output from Wise.
-    </p></div><div class="section"><div class="titlepage"><div><h2 class="title" style="clear: both"><a id="use"/>4. Parsing with Bio::SearchIO</h2></div></div><p>
+    </p></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="use"></a>4.&nbsp;Parsing with Bio::SearchIO</h2></div></div><div></div></div><p>
       This section is going to describe how to use the SearchIO system
       to process reports.  We'll describe BLAST reports but the
       idea is that once you understand the methods associated with the
@@ -117,7 +129,7 @@
       system without his help.  On the other hand Jason has tried 
       to make his implementations much easier to follow
       because all the parsing is done in one module.  
-      </p><p>
+    </p><p>
       The important take home message is that you cannot assume that methods in the
       BlastXXX objects are in fact implemented by the GenericHSP objects.
       More likely than not the BlastXXX objects will be deprecated and
@@ -153,96 +165,103 @@
       The example above shows just a few of the many methods
       available in SearchIO. In order to display all these methods
       and what they return let's use a report as input, a simple BLASTX result: 
-    </p><pre class="programlisting">      
- BLASTX 2.2.4 [Aug-26-2002]
+    </p><p>
+    <pre class="programlisting">      
+BLASTX 2.2.4 [Aug-26-2002]
 
 
- Reference: Altschul, Stephen F., Thomas L. Madden, Alejandro A. Schaffer, 
- Jinghui Zhang, Zheng Zhang, Webb Miller, and David J. Lipman (1997), 
- "Gapped BLAST and PSI-BLAST: a new generation of protein database search
- programs",  Nucleic Acids Res. 25:3389-3402.
+Reference: Altschul, Stephen F., Thomas L. Madden, Alejandro A. Schaffer, 
+Jinghui Zhang, Zheng Zhang, Webb Miller, and David J. Lipman (1997), 
+"Gapped BLAST and PSI-BLAST: a new generation of protein database search
+programs",  Nucleic Acids Res. 25:3389-3402.
 
- Query= gi|20521485|dbj|AP004641.2 Oryza sativa (japonica
- cultivar-group) genomic DNA, chromosome 1, BAC clone:B1147B04, 3785
- bases, 977CE9AF checksum.
-          (3059 letters)
+Query= gi|20521485|dbj|AP004641.2 Oryza sativa (japonica
+cultivar-group) genomic DNA, chromosome 1, BAC clone:B1147B04, 3785
+bases, 977CE9AF checksum.
+         (3059 letters)
 
- Database: test.fa 
-            5 sequences; 1291 total letters
-
-
-
-                                                                 Score    E
- Sequences producing significant alignments:                      (bits) Value
-
- gb|443893|124775 LaForas sequence                                 92   2e-022
-
- &gt;gb|443893|124775 LaForas sequence
-           Length = 331
-
-  Score = 92.0 bits (227), Expect = 2e-022
-  Identities = 46/52 (88%), Positives = 48/52 (91%)
-  Frame = +1
-
- Query: 2896 DMGRCSSGCNRYPEPMTPDTMIKLYREKEGLGAYIWMPTPDMSTEGRVQMLP 3051
-             D+ + SSGCNRYPEPMTPDTMIKLYRE EGL AYIWMPTPDMSTEGRVQMLP
- Sbjct: 197  DIVQNSSGCNRYPEPMTPDTMIKLYRE-EGL-AYIWMPTPDMSTEGRVQMLP 246
+Database: test.fa 
+           5 sequences; 1291 total letters
 
 
-   Database: test.fa
-     Posted date:  Feb 12, 2003  9:51 AM
-   Number of letters in database: 1291
-   Number of sequences in database:  5
+
+                                                                Score    E
+Sequences producing significant alignments:                     (bits) Value
+
+gb|443893|124775 LaForas sequence                                 92   2e-022
+
+&gt;gb|443893|124775 LaForas sequence
+          Length = 331
+
+ Score = 92.0 bits (227), Expect = 2e-022
+ Identities = 46/52 (88%), Positives = 48/52 (91%)
+ Frame = +1
+
+Query: 2896 DMGRCSSGCNRYPEPMTPDTMIKLYREKEGLGAYIWMPTPDMSTEGRVQMLP 3051
+            D+ + SSGCNRYPEPMTPDTMIKLYRE EGL AYIWMPTPDMSTEGRVQMLP
+Sbjct: 197  DIVQNSSGCNRYPEPMTPDTMIKLYRE-EGL-AYIWMPTPDMSTEGRVQMLP 246
+
+
+  Database: test.fa
+    Posted date:  Feb 12, 2003  9:51 AM
+  Number of letters in database: 1291
+  Number of sequences in database:  5
   
- Lambda     K      H
-    0.318    0.135    0.401 
+Lambda     K      H
+   0.318    0.135    0.401 
 
- Gapped
- Lambda     K      H
-    0.267   0.0410    0.140 
+Gapped
+Lambda     K      H
+   0.267   0.0410    0.140 
 
 
- Matrix: BLOSUM62
- Gap Penalties: Existence: 11, Extension: 1
- Number of Hits to DB: 7140
- Number of Sequences: 5
- Number of extensions: 180
- Number of successful extensions: 2
- Number of sequences better than 10.0: 2
- Number of HSP's better than 10.0 without gapping: 1
- Number of HSP's successfully gapped in prelim test: 0
- Number of HSP's that attempted gapping in prelim test: 0
- Number of HSP's gapped (non-prelim): 1
- length of database: 1291
- effective HSP length: 46
- effective length of database: 1061
- effective search space used:  1032353
- frameshift window, decay const: 50,  0.1
- T: 12
- A: 40
- X1: 16 ( 7.3 bits)
- X2: 38 (14.6 bits)
- X3: 64 (24.7 bits)
- S1: 32 (17.6 bits)
-    </pre><p>
+Matrix: BLOSUM62
+Gap Penalties: Existence: 11, Extension: 1
+Number of Hits to DB: 7140
+Number of Sequences: 5
+Number of extensions: 180
+Number of successful extensions: 2
+Number of sequences better than 10.0: 2
+Number of HSP's better than 10.0 without gapping: 1
+Number of HSP's successfully gapped in prelim test: 0
+Number of HSP's that attempted gapping in prelim test: 0
+Number of HSP's gapped (non-prelim): 1
+length of database: 1291
+effective HSP length: 46
+effective length of database: 1061
+effective search space used:  1032353
+frameshift window, decay const: 50,  0.1
+T: 12
+A: 40
+X1: 16 ( 7.3 bits)
+X2: 38 (14.6 bits)
+X3: 64 (24.7 bits)
+S1: 32 (17.6 bits)
+      </pre>
+    </p><p>
       Table 1 shows all the data returned by methods used by the
       Result, Hit, and HSP objects when the report shown above is used as
       input. Note that many of the methods shown can be used to either
       get or set values, but we're just showing what they get.
-    </p><div class="table"><a id="d3e84"/><table summary="SearchIO Methods" border="1"><colgroup><col/><col/><col/><col/></colgroup><thead><tr><th>Object</th><th>Method</th><th>Example</th><th>Description</th></tr></thead><tbody><tr><td>Result</td><td>algorithm</td><td>BLASTX</td><td>algorithm</td></tr><tr><td>Result</td><td>algorithm_version</td><td>2.2.4 [Aug-26-2002]</td><td>algorithm version</td></tr><tr><td>Result</td><td>query_name</td><td>gi|20521485|dbj|AP004641.2</td><td>query name</td></tr><tr><td>Result</td><td>query_accession</td><td>AP004641.2</td><td>query accession</td></tr><tr><td>Result</td><td>query_length</td><td>3059</td><td>query length</td></tr><tr><td>Result</td><td>query_description</td><td>Oryza sativa ... 977CE9AF checksum.</td><td>query description</td></tr><tr><td>Result</td><td>database_name</td><td>test.fa </td><td>database name</td></tr><tr><td>Result</td><td>database_letters</td><td>1291</td><td>number of residues in database</td></tr><tr><td>Result</td><td>database_entries</td><td>5</td><td>number of database entries</td></tr><tr><td>Result</td><td>available_statistics</td><td>effectivespaceused ... dbletters</td><td>statistics used</td></tr><tr><td>Result</td><td>available_parameters</td><td>gapext matrix allowgaps gapopen</td><td>parameters used</td></tr><tr><td>Result</td><td>num_hits</td><td>1</td><td>number of hits</td></tr><tr><td>Result</td><td>hits</td><td> </td><td>Search::Hit::GenericHit object</td></tr><tr><td>Hit</td><td>name</td><td>gb|443893|124775</td><td>hit name</td></tr><tr><td>Hit</td><td>accession</td><td>443893</td><td>accession</td></tr><tr><td>Hit</td><td>description</td><td>LaForas sequence</td><td>hit description</td></tr><tr><td>Hit</td><td>algorithm</td><td>BLASTX</td><td>algorithm</td></tr><tr><td>Hit</td><td>raw_score</td><td>92</td><td>hit raw score</td></tr><tr><td>Hit</td><td>significance</td><td>2e-022</td><td>hit significance</td></tr><tr><td>Hit</td><td>bits</td><td>92.0</td><td>hit bits</td></tr><tr><td>Hit</td><td>hsps</td><td> </td><td>Search::HSP::GenericHSP object</td></tr><tr><td>Hit</td><td>num_hsps</td><td>1</td><td>number of HSPs in hit</td></tr><tr><td>Hit</td><td>locus</td><td>124775</td><td>locus name</td></tr><tr><td>Hit</td><td>accession_number</td><td>443893</td><td>accession number</td></tr><tr><td>HSP</td><td>algorithm</td><td>BLASTX</td><td>algorithm</td></tr><tr><td>HSP</td><td>evalue</td><td>2e-022</td><td>e-value</td></tr><tr><td>HSP</td><td>expect</td><td>2e-022</td><td>alias for evalue()</td></tr><tr><td>HSP</td><td>frac_identical</td><td>0.884615384615385</td><td>Fraction identical</td></tr><tr><td>HSP</td><td>frac_conserved</td><td>0.923076923076923</td><td>desc</td></tr><tr><td>HSP</td><td>gaps</td><td>2</td><td>number of gaps</td></tr><tr><td>HSP</td><td>query_string</td><td>DMGRCSSG ...</td><td>string from alignment</td></tr><tr><td>HSP</td><td>hit_string</td><td>DIVQNSS ...</td><td>string from alignment</td></tr><tr><td>HSP</td><td>homology_string</td><td>D+ + SSGCN ...</td><td>string from alignment</td></tr><tr><td>HSP</td><td>length('total')</td><td>52</td><td>length of HSP</td></tr><tr><td>HSP</td><td>length('hit')</td><td>50</td><td>length of hit minus gaps</td></tr><tr><td>HSP</td><td>length('query')</td><td>156</td><td>length of query minus gaps</td></tr><tr><td>HSP</td><td>hsp_length</td><td>52</td><td>desc</td></tr><tr><td>HSP</td><td>frame</td><td>0</td><td>frame, GFF convention</td></tr><tr><td>HSP</td><td>num_conserved</td><td>48</td><td>number of conserved residues</td></tr><tr><td>HSP</td><td>num_identical</td><td>46</td><td>number of identical residues</td></tr><tr><td>HSP</td><td>rank</td><td>1</td><td>rank of HSP</td></tr><tr><td>HSP</td><td>seq_inds('query','identical')</td><td>(966,971,972,973,974,975 ...)</td><td>identical positions as array</td></tr><tr><td>HSP</td><td>seq_inds('query','conserved')</td><td>(967,969)</td><td>conserved positions as array</td></tr><tr><td>HSP</td><td>seq_inds('hit','identical')</td><td>(197,202,203,204,205 ...)</td><td>identical positions as array</td></tr><tr><td>HSP</td><td>seq_inds('hit','conserved')</td><td>(198,200)</td><td>conserved positions as array</td></tr><tr><td>HSP</td><td>score</td><td>227</td><td>score</td></tr><tr><td>HSP</td><td>bits</td><td>92.0</td><td>bits</td></tr><tr><td>HSP</td><td>range('query')</td><td>(2896,3051)</td><td>start and end as array</td></tr><tr><td>HSP</td><td>range('hit')</td><td>(197,246)</td><td>start and end as array</td></tr><tr><td>HSP</td><td>percent_identity</td><td>88.4615384615385</td><td>% identical</td></tr><tr><td>HSP</td><td>strand('hit')</td><td>1</td><td>strand of the hit</td></tr><tr><td>HSP</td><td>strand('query')</td><td>1</td><td>strand of the query</td></tr><tr><td>HSP</td><td>start('query')</td><td>2896</td><td>start position from alignment</td></tr><tr><td>HSP</td><td>end('query')</td><td>3051</td><td>end position from alignment</td></tr><tr><td>HSP</td><td>start('hit')</td><td>197</td><td>start position from alignment</td></tr><tr><td>HSP</td><td>end('hit')</td><td>246</td><td>end position from alignment</td></tr><tr><td>HSP</td><td>matches('hit')</td><td>(46,48)</td><td>number of identical and conserved as array</td></tr><tr><td>HSP</td><td>matches('query')</td><td>(46,48)</td><td>number of identical and conserved as array</td></tr><tr><td>HSP</td><td>alignment</td><td> </td><td>Bio::SimpleAlign object</td></tr></tbody></table><p class="title"><b>Table 1. SearchIO Methods</b></p></div><p>
+    </p><p>
+      <div class="table"><a id="d3e105"></a><table summary="SearchIO Methods" border="1"><colgroup><col><col><col><col></colgroup><thead><tr><th>Object</th><th>Method</th><th>Example</th><th>Description</th></tr></thead><tbody><tr><td>Result</td><td>algorithm</td><td>BLASTX</td><td>algorithm</td></tr><tr><td>Result</td><td>algorithm_version</td><td>2.2.4 [Aug-26-2002]</td><td>algorithm version</td></tr><tr><td>Result</td><td>query_name</td><td>gi|20521485|dbj|AP004641.2</td><td>query name</td></tr><tr><td>Result</td><td>query_accession</td><td>AP004641.2</td><td>query accession</td></tr><tr><td>Result</td><td>query_length</td><td>3059</td><td>query length</td></tr><tr><td>Result</td><td>query_description</td><td>Oryza sativa ... 977CE9AF checksum.</td><td>query description</td></tr><tr><td>Result</td><td>database_name</td><td>test.fa </td><td>database name</td></tr><tr><td>Result</td><td>database_letters</td><td>1291</td><td>number of residues in database</td></tr><tr><td>Result</td><td>database_entries</td><td>5</td><td>number of database entries</td></tr><tr><td>Result</td><td>available_statistics</td><td>effectivespaceused ... dbletters</td><td>statistics used</td></tr><tr><td>Result</td><td>available_parameters</td><td>gapext matrix allowgaps gapopen</td><td>parameters used</td></tr><tr><td>Result</td><td>num_hits</td><td>1</td><td>number of hits</td></tr><tr><td>Result</td><td>hits</td><td>&nbsp;</td><td>Search::Hit::GenericHit object</td></tr><tr><td>Hit</td><td>name</td><td>gb|443893|124775</td><td>hit name</td></tr><tr><td>Hit</td><td>length</td><td>331</td><td>Length of the Hit sequence</td></tr><tr><td>Hit</td><td>accession</td><td>443893</td><td>accession</td></tr><tr><td>Hit</td><td>description</td><td>LaForas sequence</td><td>hit description</td></tr><tr><td>Hit</td><td>algorithm</td><td>BLASTX</td><td>algorithm</td></tr><tr><td>Hit</td><td>raw_score</td><td>92</td><td>hit raw score</td></tr><tr><td>Hit</td><td>significance</td><td>2e-022</td><td>hit significance</td></tr><tr><td>Hit</td><td>bits</td><td>92.0</td><td>hit bits</td></tr><tr><td>Hit</td><td>hsps</td><td>&nbsp;</td><td>Search::HSP::GenericHSP object</td></tr><tr><td>Hit</td><td>num_hsps</td><td>1</td><td>number of HSPs in hit</td></tr><tr><td>Hit</td><td>locus</td><td>124775</td><td>locus name</td></tr><tr><td>Hit</td><td>accession_number</td><td>443893</td><td>accession number</td></tr><tr><td>HSP</td><td>algorithm</td><td>BLASTX</td><td>algorithm</td></tr><tr><td>HSP</td><td>evalue</td><td>2e-022</td><td>e-value</td></tr><tr><td>HSP</td><td>expect</td><td>2e-022</td><td>alias for evalue()</td></tr><tr><td>HSP</td><td>frac_identical</td><td>0.884615384615385</td><td>Fraction identical</td></tr><tr><td>HSP</td><td>frac_conserved</td><td>0.923076923076923</td><td>desc</td></tr><tr><td>HSP</td><td>gaps</td><td>2</td><td>number of gaps</td></tr><tr><td>HSP</td><td>query_string</td><td>DMGRCSSG ...</td><td>string from alignment</td></tr><tr><td>HSP</td><td>hit_string</td><td>DIVQNSS ...</td><td>string from alignment</td></tr><tr><td>HSP</td><td>homology_string</td><td>D+ + SSGCN ...</td><td>string from alignment</td></tr><tr><td>HSP</td><td>length('total')</td><td>52</td><td>length of HSP (including gaps)</td></tr><tr><td>HSP</td><td>length('hit')</td><td>50</td><td>length of hit participating in alignment minus gaps</td></tr><tr><td>HSP</td><td>length('query')</td><td>156</td><td>length of query participating in alignment minus gaps</td></tr><tr><td>HSP</td><td>hsp_length</td><td>52</td><td>Length of the HSP (including gaps) alias for length('total')</td></tr><tr><td>HSP</td><td>frame</td><td>0</td><td>$hsp-&gt;query-&gt;frame,$hsp-&gt;hit-&gt;frame</td></tr><tr><td>HSP</td><td>num_conserved</td><td>48</td><td>number of conserved residues</td></tr><tr><td>HSP</td><td>num_identical</td><td>46</td><td>number of identical residues</td></tr><tr><td>HSP</td><td>rank</td><td>1</td><td>rank of HSP</td></tr><tr><td>HSP</td><td>seq_inds('query','identical')</td><td>(966,971,972,973,974,975 ...)</td><td>identical positions as array</td></tr><tr><td>HSP</td><td>seq_inds('query','conserved')</td><td>(967,969)</td><td>conserved positions as array</td></tr><tr><td>HSP</td><td>seq_inds('hit','identical')</td><td>(197,202,203,204,205 ...)</td><td>identical positions as array</td></tr><tr><td>HSP</td><td>seq_inds('hit','conserved')</td><td>(198,200)</td><td>conserved positions as array</td></tr><tr><td>HSP</td><td>score</td><td>227</td><td>score</td></tr><tr><td>HSP</td><td>bits</td><td>92.0</td><td>bits</td></tr><tr><td>HSP</td><td>range('query')</td><td>(2896,3051)</td><td>start and end as array</td></tr><tr><td>HSP</td><td>range('hit')</td><td>(197,246)</td><td>start and end as array</td></tr><tr><td>HSP</td><td>percent_identity</td><td>88.4615384615385</td><td>% identical</td></tr><tr><td>HSP</td><td>strand('hit')</td><td>1</td><td>strand of the hit</td></tr><tr><td>HSP</td><td>strand('query')</td><td>1</td><td>strand of the query</td></tr><tr><td>HSP</td><td>start('query')</td><td>2896</td><td>start position from alignment</td></tr><tr><td>HSP</td><td>end('query')</td><td>3051</td><td>end position from alignment</td></tr><tr><td>HSP</td><td>start('hit')</td><td>197</td><td>start position from alignment</td></tr><tr><td>HSP</td><td>end('hit')</td><td>246</td><td>end position from alignment</td></tr><tr><td>HSP</td><td>matches('hit')</td><td>(46,48)</td><td>number of identical and conserved as array</td></tr><tr><td>HSP</td><td>matches('query')</td><td>(46,48)</td><td>number of identical and conserved as array</td></tr><tr><td>HSP</td><td>alignment</td><td>&nbsp;</td><td>Bio::SimpleAlign object</td></tr><tr><td>HSP</td><td>hsp_group</td><td>&nbsp;</td><td>Group field from WU-BLAST reports run
+		with -topcomboN or -topcomboE specified</td></tr><tr><td>HSP</td><td>links</td><td>&nbsp;</td><td>Links field from WU-BLAST reports run with
+	      -links showing consistent HSP linking</td></tr></tbody></table><p class="title"><b>Table&nbsp;1.&nbsp;SearchIO Methods</b></p></div>
+    </p><p>
       Table 1 shows that a method can return a string, an array,
       or an object. When an object is returned some
       additional code will probably be needed to get the data of
       interest. For example, if you wanted a printable alignment after
       you'd parsed BLAST output you could use the get_aln() method,
-      retrieve a Bio::SimpleAlign object and use it like this:
+      retrieve a <a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SimpleAlign.html" target="_top">
+	Bio::SimpleAlign</a> object and use it like this:
       <pre class="programlisting">
 	use Bio::AlignIO;
 	# $aln will be a Bio::SimpleAlign object
 	my $aln = $hsp-&gt;get_aln;
 	my $alnIO = Bio::AlignIO-&gt;new(-format=&gt;"msf");
 	my $alignment_as_string = $alnIO-&gt;write_aln($aln);
-   </pre>
+      </pre>
       On one hand it appears to be a complication, but by entering the
       worlds of the AlignIO and SimpleAlign objects you now have access to their
       functionality and flexibility. This is the beauty of Bioperl!
@@ -255,12 +274,12 @@
       found in one but not the other arises where there are repeats in the
       query or hit. The ambiguous_aln() method will return one of
       these 4 values:
-      <table class="simplelist" border="0" summary="Simple list"><tr><td>q</td><td>query sequence contains overlapping sub-sequences
-             while hit sequence does not</td></tr><tr><td>s</td><td>hit sequence contains overlapping sub-sequences
-             while query does not</td></tr><tr><td>qw</td><td>query and hit sequences contain overlapping sub-sequences
-             relative to each other</td></tr><tr><td>-</td><td>query and hit sequence do not contain multiple domains
-             relative to each other OR both contain the same distribution
-             of similar domains</td></tr></table>
+      <table class="simplelist" border="0" summary="Simple list"><tr><td><span class="emphasis"><em>q</em></span></td><td>query sequence contains overlapping sub-sequences
+	  while hit sequence does not</td></tr><tr><td><span class="emphasis"><em>s</em></span></td><td>hit sequence contains overlapping sub-sequences
+	  while query does not</td></tr><tr><td><span class="emphasis"><em>qw</em></span></td><td>query and hit sequences contain overlapping sub-sequences
+	  relative to each other</td></tr><tr><td><span class="emphasis"><em>-</em></span></td><td>query and hit sequence do not contain multiple domains
+	  relative to each other OR both contain the same distribution
+	  of similar domains</td></tr></table>
     </p><p>
       Another method that's useful in dissecting an HSP is the
       seq_inds() method of the HSP object. What this method does is tell
@@ -268,11 +287,17 @@
       residues in an alignment, query or hit. It could be used like this:
       <pre class="programlisting">
 	# put all the conserved matches in query strand into an array
-	my @str_array = split "",$hsp-&gt;query_strand;
+	my @str_array = split "",$hsp-&gt;query_string;
 	foreach ( $hsp-&gt;seq_inds('query','conserved') ){
 	   push @conserved,$str_array[$_ - 1];
 	}
-    </pre>
+      </pre>
+    </p><p>
+      seq_inds() can be very useful for extracting the mismatch bases
+      in an alignment  If you wanted to figure out which bases are
+      not matching in an alignment you could use seq_inds to get
+      these positions and then extract out these specific bases from
+      the alignment.
     </p><p>
       In most cases the SearchIO methods extract data directly from
       output but there's one important exception, the frame() method of the HSP
@@ -296,9 +321,10 @@
       <a href="http://doc.bioperl.org" target="_top">http://doc.bioperl.org</a>
       which provides the HTML versions of the Perl POD (Plain Old
       Documentation) that is embedded in every well-written Perl
-      module. Another sources of code are the examples/searchio/
+      module - there's also a list of modules at the bottom of this
+      HOWTO. Other sources of code are the examples/searchio/
       and scripts/searchio directories in the Bioperl package.
-    </p></div><div class="section"><div class="titlepage"><div><h2 class="title" style="clear: both"><a id="creating_reports"/>5. Creating Reports for SearchIO</h2></div></div><p>
+    </p></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="creating-reports"></a>5.&nbsp;Creating Reports for SearchIO</h2></div></div><div></div></div><p>
       One note on creating reports that can be parsed by SearchIO: the
       developers haven't attempted to parse all the possible reports 
       that could be created by programs with many command-line options,
@@ -312,7 +338,7 @@
       or "-m 9" options (use format "blasttable") or the XML-formatted
       reports but it's still possible to find sets of options that
       SearchIO can't parse.
-    </p></div><div class="section"><div class="titlepage"><div><h2 class="title" style="clear: both"><a id="implementation"/>6. Implementation</h2></div></div><p>
+    </p></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="implementation"></a>6.&nbsp;Implementation</h2></div></div><div></div></div><p>
       This section is going to describe how the SearchIO system was
       implemented, it is probably not necessary to understand all of
       this unless you are curious or want to implement your own
@@ -365,7 +391,9 @@
       parser one only needs to write a module that produces the
       appropriate start and end events and the existing framework will
       do the work of creating the objects for you.  Here's how we've
-      implemented event-based parsing for Bio::SearchIO.  The
+      implemented event-based parsing for 
+      <a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SearchIO.html" target="_top">
+	Bio::SearchIO</a>.  The
       Bio::SearchIO is just the front-end to this process, in fact the
       processing of these reports is done by different modules in the
       Bio/SearchIO directory.  So if you look at your bioperl
@@ -399,8 +427,10 @@
       we don't have to pass in two values.  It also easy for someone to
       quickly read the list of events and know which ones are related
       to Hits and which ones are related to HSPs.  The listener in our
-      architecture is the Bio::SearchIO::SearchResultEventBuilder.
-      This object is attached as a listener through the Bio::SearchIO
+      architecture is the <a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SearchIO/SearchResultEventBuilder.html" target="_top">Bio::SearchIO::SearchResultEventBuilder</a>.
+      This object is attached as a listener through the 
+      <a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SearchIO.html" target="_top">
+	Bio::SearchIO</a>
       method add_EventListener.  In fact you could have multiple event
       listeners and they could do different things.  In our case we
       want to create Bio::Search objects, but an event listener could
@@ -416,14 +446,20 @@
       factories for creating its resulting Bio::Search objects - see
       the Bio::SearchIO::hmmer::_initialize method for an example of how
       this can be set.
-    </p></div><div class="section"><div class="titlepage"><div><h2 class="title" style="clear: both"><a id="outputting"/>7. Writing and formatting output</h2></div></div><p>
+    </p></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="outputting"></a>7.&nbsp;Writing and formatting output</h2></div></div><div></div></div><p>
       Often people want to write back out a BLAST report for users who are
       most comfortable with that output or if you want to visualize the
       context of a weakly aligned region to use human intuition to score
-      the confidence of a putative homologue.  Bio::SearchIO is for parsing
-      in the data but Bio::SearchIO::Writer is for outputting the
-      information. The simplest way to output data as a pseudo-BLAST
-      HTML format is as follows.
+      the confidence of a putative homologue. The
+      Bio::SearchIO::Writer modules are for outputting the
+      information.
+    </p><p>
+      Bio::SearchIO::Writer currently creates output in 4 formats:
+      text (recreating something like the BLAST report itself, in part or
+      entirely), HTML, BSML, and "ResultTable", which is a
+      tab-delimited format.
+    </p><p>
+      The simplest way to output data in HTML format is as follows.
     </p><p>
       <pre class="programlisting">
    my $writerhtml = new Bio::SearchIO::Writer::HTMLResultWriter();
@@ -452,11 +488,10 @@
     </p><p>
       If your data is instead stored in a database you could build the
       Bio::Search objects up in memory directly from your database and
-      then use the Writer object to output the data.  Currently there is
-      also a Bio::SearchIO::Writer::TextResultWriter which supports
-      writing BLAST text file output.
-    </p></div><div class="section"><div class="titlepage"><div><h2 class="title" style="clear: both"><a id="extending"/>8. Extending SearchIO</h2></div></div><p>
-      The framework for Bio::SearchIO is just a starting point for parsing
+      then use the Writer object to output the data.
+    </p></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="extending"></a>8.&nbsp;Extending SearchIO</h2></div></div><div></div></div><p>
+      The framework for <a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SearchIO.html" target="_top">
+	Bio::SearchIO</a> is just a starting point for parsing
       these reports and creating objects which represent the information.
       If you would like to create your own set of objects which extend the
       current functionality we have built the system so that it will
@@ -478,9 +513,12 @@
       with existing modules).
     </p><p>
       So, you're going to write your new special module, you do need to
-      make sure it inherits from the base Bio::Search::HSP::HSPI object.
+      make sure it inherits from the base 
+      <a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/HSP/HSPI.html" target="_top">
+	Bio::Search::HSP::HSPI</a> object.
       Additionally unless you want to reimplement all the initialization
-      state in the current Bio::Search::HSP::GenericHSP you should just
+      state in the current 
+      <a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/HSP/GenericHSP.html" target="_top">Bio::Search::HSP::GenericHSP</a> you should just
       plan to extend that object.  You need to follow the chained
       constructor system that we have set up so that the arguments are
       properly processed.  Here is a sample of what your code might look
@@ -546,8 +584,10 @@ $searchio-&gt;_eventHandler-&gt;register_factory('hit', $hitfact);
       to be as efficient in parsing as we would like.  Future work will
       hopefully address speed and memory issues with this parser.
       Volunteers and improvement code are always welcome.
+    </p></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="links"></a>9.&nbsp;Useful links</h2></div></div><div></div></div><p>
+      <span class="emphasis"><em>SearchIO Modules</em></span>
+      <table class="simplelist" border="0" summary="Simple list"><tr><td><a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SearchIO.html" target="_top">
+	    SearchIO.pm</a></td></tr><tr><td><a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SearchIO/axt.html" target="_top">SearchIO/axt.pm</a></td></tr><tr><td><a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SearchIO/blast.html" target="_top">SearchIO/blast.pm</a></td></tr><tr><td><a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SearchIO/blasttable.html" target="_top">SearchIO/blasttable.pm</a></td></tr><tr><td><a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SearchIO/blastxml.html" target="_top">SearchIO/blastxml.pm</a></td></tr><tr><td><a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SearchIO/EventHandlerI.html" target="_top">SearchIO/EventHandlerI.pm</a></td></tr><tr><td><a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SearchIO/exonerate.html" target="_top">SearchIO/exonerate.pm</a></td></tr><tr><td><a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SearchIO/fasta.html" target="_top">SearchIO/fasta.pm</a></td></tr><tr><td><a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SearchIO/FastHitEventBuilder.html" target="_top">SearchIO/FastHitEventBuilder.pm</a></td></tr><tr><td><a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SearchIO/hmmer.html" target="_top">SearchIO/hmmer.pm</a></td></tr><tr><td><a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SearchIO/IteratedSearchResultEventBuilder.html" target="_top">SearchIO/IteratedSearchResultEventBuilder.pm</a></td></tr><tr><td><a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SearchIO/megablast.html" target="_top">SearchIO/megablast.pm</a></td></tr><tr><td><a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SearchIO/psl.html" target="_top">SearchIO/psl.pm</a></td></tr><tr><td><a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SearchIO/SearchResultEventBuilder.html" target="_top">SearchIO/SearchResultEventBuilder.pm</a></td></tr><tr><td><a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SearchIO/SearchWriterI.html" target="_top">SearchIO/SearchWriterI.pm</a></td></tr><tr><td><a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SearchIO/sim4.html" target="_top">SearchIO/sim4.pm</a></td></tr><tr><td><a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SearchIO/waba.html" target="_top">SearchIO/waba.pm</a></td></tr><tr><td><a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SearchIO/wise.html" target="_top">SearchIO/wise.pm</a></td></tr><tr><td><a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SearchIO/Writer/BSMLResultWriter.html" target="_top">SearchIO/Writer/BSMLResultWriter.pm</a></td></tr><tr><td><a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SearchIO/Writer/GbrowseGFF.html" target="_top">SearchIO/Writer/GbrowseGFF.pm</a></td></tr><tr><td><a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SearchIO/Writer/HitTableWriter.html" target="_top">SearchIO/Writer/HitTableWriter.pm</a></td></tr><tr><td><a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SearchIO/Writer/HSPTableWriter.html" target="_top">SearchIO/Writer/HSPTableWriter.pm</a></td></tr><tr><td><a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SearchIO/Writer/HTMLResultWriter.html" target="_top">SearchIO/Writer/HTMLResultWriter.pm</a></td></tr><tr><td><a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SearchIO/Writer/ResultTableWriter.html" target="_top">SearchIO/Writer/ResultTableWriter.pm</a></td></tr><tr><td><a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SearchIO/Writer/TextResultWriter.html" target="_top">SearchIO/Writer/TextResultWriter.pm</a></td></tr><tr><td><a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/BlastUtils.html" target="_top">Search/BlastUtils.pm</a></td></tr><tr><td><a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/DatabaseI.html" target="_top">Search/DatabaseI.pm</a></td></tr><tr><td><a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/GenericDatabase.html" target="_top">Search/GenericDatabase.pm</a></td></tr><tr><td><a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/Hit/BlastHit.html" target="_top">Search/Hit/BlastHit.pm</a></td></tr><tr><td><a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/Hit/Fasta.html" target="_top">Search/Hit/Fasta.pm</a></td></tr><tr><td><a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/Hit/GenericHit.html" target="_top">Search/Hit/GenericHit.html"&gt;Search/Hit/GenericHit.pm</a></td></tr><tr><td><a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/Hit/HitFactory.html" target="_top">Search/Hit/HitFactory.pm</a></td></tr><tr><td><a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/Hit/HitI.html" target="_top">Search/Hit/HitI.pm</a></td></tr><tr><td><a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/Hit/HMMERHit.html" target="_top">Search/Hit/HMMERHit.pm</a></td></tr><tr><td><a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/Hit/PsiBlastHit.html" target="_top">Search/Hit/PsiBlastHit.pm</a></td></tr><tr><td><a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/HSP/BlastHSP.html" target="_top">Search/HSP/BlastHSP.pm</a></td></tr><tr><td><a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/HSP/FastaHSP.html" target="_top">Search/HSP/FastaHSP.pm</a></td></tr><tr><td><a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/HSP/GenericHSP.html" target="_top">Search/HSP/GenericHSP.pm</a></td></tr><tr><td><a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/HSP/HMMERHSP.html" target="_top">Search/HSP/HMMERHSP.pm</a></td></tr><tr><td><a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/HSP/HSPFactory.html" target="_top">Search/HSP/HSPFactory.pm</a></td></tr><tr><td><a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/HSP/HSPI.html" target="_top">Search/HSP/HSPI.pm</a></td></tr><tr><td><a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/HSP/PsiBlastHSP.html" target="_top">Search/HSP/PsiBlastHSP.pm</a></td></tr><tr><td><a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/HSP/PSLHSP.html" target="_top">Search/HSP/PSLHSP.pm</a></td></tr><tr><td><a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/HSP/WABAHSP.html" target="_top">Search/HSP/WABAHSP.pm</a></td></tr><tr><td><a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/Iteration/GenericIteration.html" target="_top">Search/Iteration/GenericIteration.pm</a></td></tr><tr><td><a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/Iteration/IterationI.html" target="_top">Search/Iteration/IterationI</a></td></tr><tr><td><a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/Processor.html" target="_top">Search/Processor.pm</a></td></tr><tr><td><a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/Result/BlastResult.html" target="_top">Search/Result/BlastResult.pm</a></td></tr><tr><td><a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/Result/GenericResult.html" target="_top">Search/Result/GenericResult.pm</a></td></tr><tr><td><a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/Result/HMMERResult.html" target="_top">Search/Result/HMMERResult.pm</a></td></tr><tr><td><a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/Result/ResultFactory.html" target="_top">Search/Result/ResultFactory.pm</a></td></tr><tr><td><a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/Result/ResultI.html" target="_top">Search/Result/ResultI.pm</a></td></tr><tr><td><a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/Result/WABAResult.html" target="_top">Search/Result/WABAResult.pm</a></td></tr><tr><td><a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/SearchUtils.html" target="_top">Search/SearchUtils.pm</a></td></tr><tr><td><a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/BlastStatistics.html" target="_top">Search/BlastStatistics.pm</a></td></tr><tr><td><a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/GenericStatistics.html" target="_top">Search/GenericStatistics.pm</a></td></tr><tr><td><a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/StatisticsI.html" target="_top">Search/StatisticsI.pm</a></td></tr></table>
     </p></div></div><div xmlns="" id="customfooter">
-      
-      
-      
-    </div></body></html>
+BioPerl DocBook
+</div></body></html>
