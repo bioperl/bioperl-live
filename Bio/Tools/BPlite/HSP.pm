@@ -136,7 +136,7 @@ sub P               {shift->significance(@_)}
 
 =cut
 
-sub P {
+sub percent {
 	my ($self, @args) = @_;
 	my $float = $self->significance(@args);
 	my $match = '([+-]?)(?=\d|\.\d)\d*(\.\d*)?([Ee]([+-]?\d+))?'; # Perl Cookbook 2.1
