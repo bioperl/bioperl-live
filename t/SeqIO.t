@@ -19,11 +19,12 @@
 
 
 ## We start with some black magic to print on failure.
-BEGIN { $| = 1; print "1..17\n"; 
+BEGIN { $| = 1; print "1..19\n";
 	use vars qw($loaded); }
 
 END {print "not ok 1\n" unless $loaded;}
 
+use lib '../';
 use Bio::SeqIO;
 use Bio::SeqIO::MultiFile;
 
@@ -35,19 +36,19 @@ print "ok 1\n";    # 1st test passes.
 ##
 ## Insert additional test code below but remember to change
 ## the print "1..x\n" in the BEGIN block to reflect the
-## total number of tests that will be run. 
+## total number of tests that will be run.
 
 $str = Bio::SeqIO->new(-file=> 't/test.fasta', '-format' => 'Fasta');
 
-if( $str ) {
+if ( $str ) {
     print "ok 2\n";
 } else {
-    print "not ok 2\n";	
+    print "not ok 2\n";
 }
 
 $seq = $str->next_seq();
 
-if( $seq->id eq 'roa1_drome' ) {
+if ( $seq->id eq 'roa1_drome' ) {
     print "ok 3\n";
 } else {
     print "not ok 3\n";
@@ -68,14 +69,15 @@ if( $seq->id eq 'roa1_drome' ) {
 
 $str = Bio::SeqIO->new(-file=> 't/test.raw', '-format' => 'Raw');
 
-if( $str ) {
+if ( $str ) {
     print "ok 4\n";
 } else {
-    print "not ok 4 , unable to open stream from raw sequence DB\n";	
+    print "not ok 4 , unable to open stream from raw sequence DB\n";
 }
 
-if($seq = $str->next_seq()) { print "ok 5\n";
- } else { print "not ok 5 , failed to read 1st raw sequence from stream,\n"; }
+if ( $seq = $str->next_seq() ) {
+    print "ok 5\n";
+} else { print "not ok 5 , failed to read 1st raw sequence from stream,\n"; }
 print "Sequence 1 of 2 from Raw stream:\n", $seq->seq;
 
 print "\n\n";
@@ -91,14 +93,15 @@ print "\n";
 
 $str = Bio::SeqIO->new(-file=> 't/test.gcg', '-format' => 'GCG');
 
-if( $str ) {
+if ( $str ) {
     print "ok 7\n";
 } else {
-    print "not ok 7 , unable to open stream from GCG sequence file\n";	
+    print "not ok 7 , unable to open stream from GCG sequence file\n";
 }
 
-if($seq = $str->next_seq()) { print "ok 8\n";
- } else { print "not ok 8 , failed to read GCG sequence from stream,\n"; }
+if ( $seq = $str->next_seq() ) {
+    print "ok 8\n";
+} else { print "not ok 8 , failed to read GCG sequence from stream,\n"; }
 print "Sequence 1 of 1 from GCG stream:\n", $seq->seq, "\n";
 
 ## Now we test Bio::SeqIO::GCG output writing
@@ -117,14 +120,15 @@ print "ok 9\n";
 $str = Bio::SeqIO->new(-file=> 't/test.genbank', '-format' => 'GenBank');
 
 
-if( $str ) {
+if ( $str ) {
     print "ok 10\n";
 } else {
-    print "not ok 10 , unable to open stream from GenBank sequence file\n";	
+    print "not ok 10 , unable to open stream from GenBank sequence file\n";
 }
 
-if($seq = $str->next_seq()) { print "ok 11\n";
- } else { print "not ok 11 , failed to read GenBank sequence from stream,\n"; }
+if ( $seq = $str->next_seq() ) {
+    print "ok 11\n";
+} else { print "not ok 11 , failed to read GenBank sequence from stream,\n"; }
 print "Sequence 1 of 1 from GenBank stream:\n", $seq->seq, "\n";
 
 
@@ -142,7 +146,7 @@ $str = undef;
 
 $ast = Bio::SeqIO->new( '-format' => 'embl' , -file => 't/roa1.dat');
 
-while( my $as = $ast->next_seq() ) {
+while ( my $as = $ast->next_seq() ) {
        if( ! defined $as->seq ) {
 	   print "not ok 13\n";
 	   }
@@ -153,11 +157,11 @@ print "ok 13\n";
 
 $ast = Bio::SeqIO->new( '-format' => 'GenBank' , -file => 't/roa1.genbank');
 
-while( my $as = $ast->next_seq() ) {
-       if( ! defined $as->seq ) {
-	   print "not ok 14\n";
-	   }
-      }
+while ( my $as = $ast->next_seq() ) {
+    if ( ! defined $as->seq ) {
+	print "not ok 14\n";
+    }
+}
 
 
 print "ok 14\n";
@@ -169,7 +173,7 @@ print "ok 15\n";
 # read completely to the end
 
 while( $seq = $mf->next_seq() ) {
-	$temp = $seq->display_id;
+    $temp = $seq->display_id;
 }
 $temp = undef;
 print "ok 16\n";
@@ -177,11 +181,40 @@ print "ok 16\n";
 
 $ast = Bio::SeqIO->new( '-format' => 'Swiss' , -file => 't/roa1.swiss');
 
-while( my $as = $ast->next_seq() ) {
-   if( ! defined $as->seq || $as->id ne 'ROA1_HUMAN' ) {
+while ( my $as = $ast->next_seq() ) {
+    if ( ! defined $as->seq || $as->id ne 'ROA1_HUMAN' ) {
 	print "not ok 17\n";
 	print STDERR "id is ".$as->id."\n";
-   } else {
-     print "ok 17\n";
-   }
+    } else {
+	print "ok 17\n";
+    }
 }
+
+# Keith James' tests for SeqIO reading EMBL features with:
+#
+#  * locations containing < and/or >
+#  * zero width features denoted by ^
+#  * qualifiers containing terminal " resulting from "" mistakenly
+#    split across two lines (from AceDB, I gather)
+
+($ent, $seq, $out) = undef;
+
+$ent = Bio::SeqIO->new( -file => 't/test.embl', -format => 'embl');
+$seq = $ent->next_seq();
+
+# test reading file
+if ( ! defined $seq->seq() ) {
+    print "not ok 18 , failure to read Embl with ^ location and badly split double quotes\n";
+} else {
+    print "ok 18\n";
+}
+
+$out = Bio::SeqIO->new(-file=> '>t/embl.out', '-format' => 'embl');
+
+# test writing the same
+if ( $out->write_seq($seq) ) {
+    print "ok 19\n";
+} else {
+    print "not ok 19 , failure to write Embl format with ^ < and > locations\n";
+}
+
