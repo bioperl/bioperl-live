@@ -604,7 +604,7 @@ sub raw_statistics {
  Purpose   : Get boolean indicator indicating whether or not any hits
              were present in the report.
 
-             This is NOT the same as deteriming the number of hits via
+             This is NOT the same as determining the number of hits via
              the hits() method, which will return zero hits if there were no
              hits in the report or if all hits were filtered out during the parse.
 
