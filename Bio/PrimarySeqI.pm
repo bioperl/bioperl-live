@@ -861,7 +861,7 @@ sub seq_len {
     my $self = shift;
    # we assumme anyone using this is using vanilla bioperl object
     my ($p,$f,$l) = caller;
-    $self->warn("$f:$l Seq::seq_len - deprecated method. You should use \$obj->seq_len in preference");
+    $self->warn("$f:$l Seq::seq_len - deprecated method. You should use \$obj->length in preference");
     return $self->length();
 }
 

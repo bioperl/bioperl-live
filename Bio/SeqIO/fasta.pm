@@ -128,12 +128,15 @@ sub next_seq{
 
 sub write_seq {
    my ($self,@seq) = @_;
-   for my $seq (@seq) {
-     my $i;
+   foreach my $seq (@seq) {
      my $str = $seq->seq;
+     my $top = $seq->id();
+     if (my $desc = $seq->desc()) {
+        $top .= " $desc";
+     }
      $str =~ tr/a-z/A-Z/;
      $str=~ s/(.{1,60})/$1\n/g;
-     $self->_print (">", $seq->id(), " ", $seq->desc(),"\n",$str) or return;
+     $self->_print (">",$top,"\n",$str) or return;
    }
    return 1;
 }

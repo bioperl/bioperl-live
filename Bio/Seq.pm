@@ -183,7 +183,7 @@ sub seq {
 
 =cut
 
-sub subseq{
+sub subseq {
    my ($self,$s,$e) = @_;
    return $self->primary_seq->subseq($s,$e);
 }
@@ -263,7 +263,7 @@ sub accession_number {
 
 =cut
 
-sub desc{
+sub desc {
    my ($self,$value) = @_;
 
    if( defined $value ) {
@@ -333,7 +333,7 @@ sub primary_id {
 
 =cut
 
-sub can_call_new{
+sub can_call_new {
    my ($self) = @_;
 
    return 1;
@@ -357,7 +357,7 @@ sub can_call_new{
 
 =cut
 
-sub moltype{
+sub moltype {
    my ($self,$value) = @_;
    if( defined $value ) {
        return $self->primary_seq->moltype($value);
@@ -516,7 +516,7 @@ found on the Bio::PrimarySeq object
 
 =cut
 
-sub primary_seq{
+sub primary_seq {
    my ($obj,$value) = @_;
 
    if( defined $value) {
@@ -553,7 +553,7 @@ sub primary_seq{
 
 =cut
 
-sub annotation{
+sub annotation {
    my ($obj,$value) = @_;
    if( defined $value) {
       $obj->{'annotation'} = $value;
@@ -574,7 +574,7 @@ sub annotation{
 
 =cut
 
-sub add_SeqFeature{
+sub add_SeqFeature {
    my ($self,@feat) = @_;
    my ($fseq,$aseq);
 
@@ -618,7 +618,7 @@ sub add_SeqFeature{
 
 =cut
 
-sub top_SeqFeatures{
+sub top_SeqFeatures {
    my ($self) = @_;
    my ($p,$f,$l) = caller;
 
@@ -637,7 +637,7 @@ sub top_SeqFeatures{
 
 =cut
 
-sub all_SeqFeatures{
+sub all_SeqFeatures {
    my ($self) = @_;
    my (@array);
    foreach my $feat ( $self->top_SeqFeatures() ){
@@ -671,7 +671,7 @@ sub _retrieve_subSeqFeature {
 
 =cut
 
-sub fetch_SeqFeatures{
+sub fetch_SeqFeatures {
    my ($self,@args) = @_;
 
    $self->throw("Not implemented yet");
@@ -746,7 +746,7 @@ all the information that is required.
 
 =cut
 
-sub division{
+sub division {
    my $obj = shift;
    if( @_ ) {
       my $value = shift;
@@ -767,7 +767,7 @@ sub division{
 
 =cut
 
-sub molecule{
+sub molecule {
    my $obj = shift;
    if( @_ ) {
       my $value = shift;
@@ -789,7 +789,7 @@ sub molecule{
 
 =cut
 
-sub add_date{
+sub add_date {
    my ($self) = shift;
    foreach my $dt ( @_ ) {
        push(@{$self->{'date'}},$dt);
@@ -808,7 +808,7 @@ sub add_date{
 
 =cut
 
-sub each_date{
+sub each_date {
    my ($self) = @_;
    return @{$self->{'date'}}; 
 }
@@ -827,7 +827,7 @@ sub each_date{
 
 =cut
 
-sub accession{
+sub accession {
    my ($obj,$value) = @_;
    if( defined $value) {
       $obj->{'accession'} = $value;
@@ -848,7 +848,7 @@ sub accession{
 
 =cut
 
-sub add_secondary_accession{
+sub add_secondary_accession {
    my ($self) = shift;
    foreach my $dt ( @_ ) {
        push(@{$self->{'secondary_accession'}},$dt);
@@ -867,7 +867,7 @@ sub add_secondary_accession{
 
 =cut
 
-sub each_secondary_accession{
+sub each_secondary_accession {
    my ($self) = @_;
    return @{$self->{'secondary_accession'}}; 
 }
@@ -883,7 +883,7 @@ sub each_secondary_accession{
 
 =cut
 
-sub sv{
+sub sv {
    my $obj = shift;
    if( @_ ) {
       my $value = shift;
@@ -904,7 +904,7 @@ sub sv{
 
 =cut
 
-sub keywords{
+sub keywords {
    my $obj = shift;
    if( @_ ) {
       my $value = shift;

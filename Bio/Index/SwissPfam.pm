@@ -76,7 +76,7 @@ The rest of the documentation details each of the object methods. Internal metho
 =cut
 
 
-# Let the code begin...
+# Let's begin the code...
 
 
 package Bio::Index::SwissPfam;
@@ -88,10 +88,6 @@ use Bio::Index::Abstract;
 use Bio::Seq;
 
 @ISA = qw(Bio::Index::Abstract);
-
-sub _type_stamp {
-    return '__SWISSPFAM__'; # What kind of index are we?
-}
 
 #
 # Suggested fix by Michael G Schwern <schwern@pobox.com> to
@@ -120,9 +116,9 @@ sub _version {
 =cut
 
 sub _initialize {
-    my($self, $index_file, $write_flag) = @_;
+    my $self = shift;
     
-    $self->SUPER::_initialize($index_file, $write_flag);
+    $self->SUPER::_initialize(@_);
 }
 
 

@@ -186,18 +186,18 @@ sub _initialize {
 
   my $make = $self->SUPER::_initialize(@args);
 
-  if( defined $id && $given_id ) {
+  if( defined $id && defined $given_id ) {
       if( $id ne $given_id ) {
 	  $self->throw("Provided both id and display_id constructor functions. [$id] [$given_id]");
       }
   }
   if( defined $given_id ) { $id = $given_id; }
 
-  $seq && $self->seq($seq);
-  $id  && $self->display_id($id);
-  $acc && $self->accession_number($acc);
-  $pid && $self->primary_id($pid);
-  $desc && $self->desc($desc);
+  $seq     && $self->seq($seq);
+  $id      && $self->display_id($id);
+  $acc     && $self->accession_number($acc);
+  $pid     && $self->primary_id($pid);
+  $desc    && $self->desc($desc);
   $moltype && $self->moltype($moltype);
 
 # set stuff in self from @args
@@ -216,7 +216,7 @@ sub _initialize {
 
 =cut
 
-sub seq{
+sub seq {
    my ($obj,$value) = @_;
    if( defined $value) {
        if( $value !~ /^[A-Za-z\-\.\*]+$/ ) {
@@ -242,7 +242,7 @@ sub seq{
 
 =cut
 
-sub subseq{
+sub subseq {
    my ($self,$start,$end) = @_;
 
    if( $start > $end ){
@@ -278,7 +278,7 @@ sub subseq{
 
 =cut
 
-sub display_id{
+sub display_id {
    my ($obj,$value) = @_;
    if( defined $value) {
       $obj->{'display_id'} = $value;
@@ -366,16 +366,21 @@ sub primary_id {
 
 =cut
 
-sub moltype{
-   my ($obj,$value) = @_;
-   if( defined $value) {
-       if( $value ne 'dna' && $value ne 'rna' && $value ne 'protein' ) {
-	   $obj->throw("Molecular type $value is not a valid type (dna,rna or protein, lowercase)");
-       }
-       $obj->{'moltype'} = $value;
-   }
-   return $obj->{'moltype'};
+BEGIN {
+    my %valid_type = map {$_, 1} qw( dna rna protein );
 
+    sub moltype {
+       my ($obj,$value) = @_;
+       if (defined $value) {
+           unless ( $valid_type{$value} ) {
+	       $obj->throw("Molecular type '$value' is not a valid type (".
+                  join(',', map "'$_'", sort keys %valid_type) .") lowercase");
+           }
+           $obj->{'moltype'} = $value;
+       }
+       return $obj->{'moltype'};
+
+    }
 }
 
 =head2 desc
@@ -390,7 +395,7 @@ sub moltype{
 
 =cut
 
-sub desc{
+sub desc {
    my ($obj,$value) = @_;
    if( defined $value) {
       $obj->{'desc'} = $value;
@@ -411,7 +416,7 @@ sub desc{
 
 =cut
 
-sub can_call_new{
+sub can_call_new {
    my ($self) = @_;
 
    return 1;

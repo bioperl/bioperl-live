@@ -19,9 +19,11 @@ You should not be using this module directly
 
 =head1 USING DB_FILE
 
-To use DB_FILE and not SDBM for this index, do the following
+To use DB_File and not SDBM for this index, pass the value:
 
-    $Bio::Index::Abstract::USE_DBM_TYPE = 'DB_File';
+    -dbm_package => 'DB_File'
+
+to new (see below).
 
 =head1 DESCRIPTION
 
@@ -75,81 +77,146 @@ use Fcntl qw( O_RDWR O_CREAT O_RDONLY );
 use vars qw( $TYPE_AND_VERSION_KEY
              @ISA $USE_DBM_TYPE $DB_HASH );
 
-$USE_DBM_TYPE = 'SDBM_File'; # Choose 'DB_File' or 'SDMB_File'
-
 # Object preamble - inheriets from Bio::Root::Object
 
 use Bio::Root::Object;
+use Symbol();
 
 @ISA = qw(Bio::Root::Object);
 
 # new() is inherited from Bio::Root::Object
 
-=head2 _initialize
+=head2 new
 
-  Title   : _initialize
-  Usage   : $index->_initialize
-  Function: Initializes data structures in the index object,
-            opens or creates the dbm file, and performs a number
-            of pre-flight checks, which  depend on the existance
-            of certain methods in the sub class.  In particular
-            the sub class should provide the _version() and
-            _type() methods (see below).
-  Example : $index->SUPER::_initialize # add this call to the
-                                       # sub class's _initialize()
-                                       # function if the sub
-                                       # class needs to do its
-                                       # own initializing
-  Returns : 
-  Args    : 
+  Usage   : $index = Bio::Index::Abstract->new(
+                -filename    => $dbm_file,
+                -write_flag  => 0,  
+                -dbm_package => 'DB_File',
+                -verbose     => 0);
+  Function: Returns a new index object.  If filename is
+            specified, then open_dbm() is immediately called. 
+            Bio::Index::Abstract->new() will usually be called
+            directly only when opening an existing index.
+  Returns : A new index object
+  Args    : -filename    The name of the dbm index file.
+            -write_flag  TRUE if write access to the dbm file is
+                         needed.
+            -dbm_package The Perl dbm module to use for the
+                         index.
+            -verbose     Print debugging output to STDERR if
+                         TRUE.
 
 =cut
 
 sub _initialize {
-    my($self, $index_file, $write_flag) = @_;
+    my($self, @args) = @_;
     
-    $index_file           or $self->throw("Index file name not given");
+    my( $filename, $write_flag, $dbm_package, $verbose ) =
+        $self->_rearrange(['FILENAME','WRITE_FLAG','DBM_PACKAGE','VERBOSE'], @args);
+    
+    # Store any parameters passed
+    $self->filename($filename)       if $filename;
+    $self->write_flag($write_flag)   if $write_flag;
+    $self->dbm_package($dbm_package) if $dbm_package;
+    $self->verbose($verbose);
 
-    $self->{'_filename'}   = $index_file;
-    $self->{'_filehandle'} = []; # Array in which to cache open filehandles
+    $self->{'_filehandle'} = []; # Array in which to cache SeqIO objects
     $self->{'_DB'}         = {}; # Gets tied to the DBM file
     
     # Open database
-    $self->_open_dbm($write_flag);
-
-    # scary up-cast for abstract databases.
-    if( ref $self eq "Bio::Index::Abstract" ) { 
-	my $type = $self->_code_base();
-	bless $self, $type;
-    }
-
-    # set verbose to 0 
-
-    $self->verbose(0);
-
-    # Check or set this is the right kind and version of index
-    $self->_type_and_version();
-    
-    # Check files haven't changed size since they were indexed
-    $self->_check_file_sizes();
+    $self->open_dbm() if $filename;
 }
 
+
+
+=pod
 
 =head2 filename
 
-  Title   : filename
-  Usage   : $name = $index->filename()
-  Function: Returns the name of the index file
-  Example : 
-  Returns : STRING
-  Args    : NONE
+ Title   : filename
+ Usage   : $value = $self->filename();
+           $self->filename($value);
+ Function: Gets or sets the name of the dbm index file.
+ Returns : The current value of filename
+ Args    : Value of filename if setting, or none if
+           getting the value.
+
+=head2 write_flag
+
+ Title   : write_flag
+ Usage   : $value = $self->write_flag();
+           $self->write_flag($value);
+ Function: Gets or sets the value of write_flag, which
+           is wether the dbm file should be opened with
+           write access.
+ Returns : The current value of write_flag (default 0)
+ Args    : Value of write_flag if setting, or none if
+           getting the value.
+
+=head2 dbm_package
+
+ Usage   : $value = $self->dbm_package();
+           $self->dbm_package($value);
+           
+ Function: Gets or sets the name of the Perl dbm module used. 
+           If the value is unset, then it returns the value of
+           the package variable $USE_DBM_TYPE or if that is
+           unset, then it chooses the best available dbm type,
+           choosing 'DB_File' in preference to 'SDBM_File'. 
+           Bio::Abstract::Index may work with other dbm file
+           types.
+
+ Returns : The current value of dbm_package
+ Args    : Value of dbm_package if setting, or none if
+           getting the value.
 
 =cut
 
-sub filename {
-    return $_[0]->{'_filename'};
+sub dbm_package {
+    my( $self, $value ) = @_;
+    
+    if ($value) {
+        $self->{'_dbm_package'} = $value;
+    }
+    elsif (! $self->{'_dbm_package'}) {
+        if ($USE_DBM_TYPE) {
+            $self->{'_dbm_package'} = $USE_DBM_TYPE;
+        } else {
+            my( $type );
+            # DB_File isn't available on all systems
+            eval {
+                require DB_File;
+                DB_File->import('$DB_HASH');
+            };
+            if ($@) {
+                require SDBM_File;
+                $type = 'SDBM_File';
+            } else {
+                $type = 'DB_File';
+            }
+            $USE_DBM_TYPE = $self->{'_dbm_package'} = $type;
+        }
+    }
+    return $self->{'_dbm_package'};
 }
 
+
+# Generate accessor methods for simple object fields
+BEGIN {
+    foreach my $func (qw(filename write_flag)) {
+        no strict 'refs';
+        my $field = "_$func";
+        
+        *$func = sub {
+            my( $self, $value ) = @_;
+            
+            if (defined $value) {
+                $self->{$field} = $value;
+            }
+            return $self->{$field};
+        }
+    }
+}
 
 =head2 db
 
@@ -199,8 +266,8 @@ sub db {
 
  Returns : A filehandle object
  Args    : string represents the accession number
- Notes   : 
-    This method should not be used without forethought 
+ Notes   : This method should not be used without forethought 
+
 =cut
 
 #'
@@ -231,71 +298,64 @@ sub get_stream {
 
 
 
-=head2 _open_dbm
+=head2 open_dbm
 
-  Title   : _open_dbm
-  Usage   : $index->_open_dbm()
-  Function: Called by _initialize() to create or open an existing
-            index dbm file for adding and retieving records.  Write
-            access is only given if explicitly asked for by passing 
-            the string 'WRITE' as the second argument to the new()
-            function (which calls initialize).  The type of dbm file
-            opened, DB_File or SDBM_File, depends upon wether the
-            global variable $USE_DBM_TYPE is set to 'DB_File' or
-            'SDBM_File' respectively.  The name of the file to be is
-            opened is obtained by calling the filename() method.
-  Example : $index->_open_dbm('WRITE')
+  Usage   : $index->open_dbm()
+  
+  Function: Opens the dbm file associated with the index
+            object.  Write access is only given if explicitly
+            asked for by calling new(-write => 1) or having set
+            the write_flag(1) on the index object.  The type of
+            dbm file opened is that returned by dbm_package(). 
+            The name of the file to be is opened is obtained by
+            calling the filename() method.
+
+  Example : $index->_open_dbm()
   Returns : 1 on success
-  Args    : 'WRITE' - optional
 
 =cut
 
-sub _open_dbm {
-    my( $self, $write_flag ) = @_;
-    my( $db_type );
+sub open_dbm {
+    my( $self ) = @_;
     
-    my $index_file = $self->filename();
+    my $filename = $self->filename()
+        or $self->throw("filename() not set");
 
     my $db = $self->db();
     
-    # Do we use the Berkley DB for improved speed and
-    # cross platform compatability?
-    if ($USE_DBM_TYPE eq 'DB_File') {
-    
-        require DB_File;
-        DB_File->import( qw($DB_HASH) );
-    
-        # Only give write access if specifically asked for
-        if (defined($write_flag) and $write_flag eq 'WRITE') {
-            tie %$db, 'DB_File', $index_file, O_RDWR|O_CREAT, 0644, $DB_HASH
-                or $self->throw("Can't open DB_File [ $index_file ] : $!");
-        } else {
-            tie %$db, 'DB_File', $index_file, O_RDONLY,         0644, $DB_HASH
-                or $self->throw("Can't open DB_File [ $index_file ] : $!");
-        }
+    # Close the dbm file if already open (maybe we're getting
+    # or dropping write access
+    if (ref($db) ne 'HASH') {
+        untie($db);
     }
     
-    # No, we use SDBM which is guaranteed to come with Perl
-    # and produces smaller files
-    elsif ($USE_DBM_TYPE eq 'SDBM_File') {
+    # What kind of DBM file are we going to open?
+    my $dbm_type = $self->dbm_package;
     
-        require SDBM_File;
+    # Choose mode for opening dbm file (read/write+create or read-only).
+    my $mode_flags = $self->write_flag ? O_RDWR|O_CREAT : O_RDONLY;
     
-        # Only give write access if specifically asked for
-        if (defined($write_flag) and $write_flag eq 'WRITE') {
-            tie %$db, 'SDBM_File', $index_file, O_RDWR|O_CREAT, 0644
-                or $self->throw("Can't open SDBM_File [ $index_file ] : $!");
-        } else {
-            tie %$db, 'SDBM_File', $index_file, O_RDONLY,         0644
-                or $self->throw("Can't open SDBM_File [ $index_file ] $!");
-        }
+    # Open the dbm file
+    tie( %$db, $dbm_type, $filename, $mode_flags, 0644, $DB_HASH )
+        or $self->throw("Can't open '$dbm_type' dbm file '$filename' : $!");
+
+    # The following methods access data in the dbm file:
+
+    # Check or set this is the right kind and version of index
+    $self->_type_and_version();
     
-    } else {
-        $self->throw("Don't know how to open dbm file type [ $USE_DBM_TYPE ]");
+    # Check files haven't changed size since they were indexed
+    $self->_check_file_sizes();
+
+    # Now, if we're a Bio::Index::Abstract caterpillar, then we
+    # transform ourselves into a Bio::Index::<something> butterfly!
+    if( ref $self eq "Bio::Index::Abstract" ) { 
+	my $pkg = $self->_code_base();
+	bless $self, $pkg;
     }
+
     return 1;
 }
-
 
 =head2 _version
 
@@ -329,7 +389,7 @@ sub _version {
 
 =cut
 
-sub _code_base{
+sub _code_base {
    my ($self) = @_;
    my $code_key    = '__TYPE_AND_VERSION';
    my $record;
@@ -414,10 +474,10 @@ sub _check_file_sizes {
   Title   : make_index
   Usage   : $index->make_index( FILE_LIST )
   Function: Takes a list of file names, checks that they are
-            all fully qualified, and then calls _index_file() on
-            each.  It supplies _index_file() with the name of the
+            all fully qualified, and then calls _filename() on
+            each.  It supplies _filename() with the name of the
             file, and an integer which is stored with each record
-            created by _index_file().  Can be called multiple times,
+            created by _filename().  Can be called multiple times,
             and can be used to add to an existing index file.
   Example : $index->make_index( '/home/seqs1', '/home/seqs2', '/nfs/pub/big_db' );
   Returns : Number of files indexed
@@ -457,7 +517,7 @@ sub make_index {
 
 	    # if it is the same size - fine. Otherwise die 
 	    if( -s $file == $size ) {
-		print "File $file already indexed. Skipping...\n";
+		warn "File $file already indexed. Skipping...\n";
 		next FILE;
 	    } else {
 		$self->throw("In index, $file has changed size ($size). Indicates that the index is out of date");
@@ -465,7 +525,7 @@ sub make_index {
 	}
 
 	# index this file
-	print STDOUT "Indexing file $file\n";
+	warn "Indexing file $file\n" if $self->verbose;
 
 	# this is supplied by the subclass and does the serious work
         $self->_index_file( $file, $i ); # Specific method for each type of index
@@ -487,10 +547,10 @@ sub make_index {
     return $count;
 }
 
-=head2 _index_file
+=head2 _filename
 
-  Title   : _index_file
-  Usage   : $index->_index_file( FILE INT )
+  Title   : _filename
+  Usage   : $index->_filename( FILE INT )
   Function: Indexes the file
   Example : 
   Returns : 
@@ -501,7 +561,8 @@ sub make_index {
 sub _index_file {
     my $self = shift;
     
-    $self->throw("In Bio::Index::Abstract, no _index_file method provided by sub class");
+    my $pkg = ref($self);
+    $self->throw("Error: '$pkg' does not provide the _index_file() method");
 }
 
 
@@ -524,17 +585,15 @@ sub _index_file {
 sub _file_handle {
     my( $self, $i ) = @_;
     
-    if (my $fh = $self->{'_filehandle'}[$i]) {
-        return $fh; # Return cached filehandle
-    } else {
-        local *FH;
+    unless ($self->{'_filehandle'}[$i]) {
+        my $fh = Symbol::gensym();
         my @rec = $self->unpack_record($self->db->{"__FILE_$i"})
             or $self->throw("Can't get filename for index : $i");
         my $file = $rec[0];
-        open FH, $file or $self->throw("Can't open file for read : $file");
-        $self->{'_filehandle'}[$i] = *FH; # Cache filehandle
-        return *FH;
+        open $fh, $file or $self->throw("Can't read file '$file' : $!");
+        $self->{'_filehandle'}[$i] = $fh; # Cache filehandle
     }
+    return $self->{'_filehandle'}[$i];
 }
 
 
@@ -547,7 +606,7 @@ sub _file_handle {
             the number of files indexed when called with or
             without an argument.
   Example : 
-  Returns : 
+  Returns : INT
   Args    : INT
 
 =cut
@@ -556,9 +615,8 @@ sub _file_count {
     my $self = shift;
     if (@_) {
         $self->db->{'__FILE_COUNT'} = shift;
-    } else {
-        return $self->db->{'__FILE_COUNT'};
-    }    
+    }
+    return $self->db->{'__FILE_COUNT'};
 }
 
 
@@ -579,21 +637,9 @@ sub _file_count {
 
 sub add_record {
     my( $self, $id, @rec ) = @_;
-    
-    my( @id_list );
-    if (ref($id) eq 'ARRAY') {
-        @id_list = @$id;
-    } else {
-        @id_list = ($id);
-    }
-    
-    foreach my $id (@id_list) {
-        if( $self->verbose != 0 ) {
-	    print STDERR "Adding key $id\n";
-        }
 
-        $self->db->{$id} = $self->pack_record( @rec );
-    }
+    print STDERR "Adding key $id\n" if $self->verbose;
+    $self->db->{$id} = $self->pack_record( @rec );
     return 1;
 }
 
@@ -646,12 +692,12 @@ sub unpack_record {
 
 =cut
 
-sub verbose{
+sub verbose {
    my ($obj,$value) = @_;
    if( defined $value) {
-      $obj->{'verbose'} = $value;
+      $obj->{'_verbose'} = $value;
     }
-    return $obj->{'verbose'};
+    return $obj->{'_verbose'};
 
 }
 
@@ -670,10 +716,6 @@ sub verbose{
 
 sub DESTROY {
     my $self = shift;
-    
-    foreach my $fh (@{$self->{'_filehandle'}}) {
-        close $fh;
-    }
     
     untie %{$self->db};
 }

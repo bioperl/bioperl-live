@@ -273,23 +273,23 @@ my  %onecode =
      );
 
 my %iupac_dna = 
-    (a => [qw(a)],
-     c => [qw(c)],
-     g => [qw(g)],
-     t => [qw(t)],
-     u => [qw(t)],
-     m => [qw(a c)],
-     r => [qw(a g)],
-     w => [qw(a t)],
-     k => [qw(g t)],
-     y => [qw(c t)],
-     s => [qw(c g)],
-     v => [qw(a c g)],
-     h => [qw(a c t)],
-     d => [qw(a g t)],
-     b => [qw(c g t)],
-     n => [qw(a c g t)],
-     x => [qw(a c g t)]
+    ( 'a' => [qw( a       )],
+      'c' => [qw( c       )],
+      'g' => [qw( g       )],
+      't' => [qw( t       )],
+      'u' => [qw( t       )],
+      'm' => [qw( a c     )],
+      'r' => [qw( a g     )],
+      'w' => [qw( a t     )],
+      'k' => [qw( g t     )],
+      'y' => [qw( c t     )],
+      's' => [qw( c g     )],
+      'v' => [qw( a c g   )],
+      'h' => [qw( a c t   )],
+      'd' => [qw( a g t   )],
+      'b' => [qw( c g t   )],
+      'n' => [qw( a c g t )],
+      'x' => [qw( a c g t )],
      );
 
 my %iupac_aa =

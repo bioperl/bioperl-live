@@ -79,20 +79,18 @@ The rest of the documentation details each of the object methods. Internal metho
 =cut
 
 
-# Let the code begin...
+# Let's begin the code...
 
 
 package Bio::Index::EMBL;
 
-use vars qw($VERSION @ISA @EXPORT_OK);
+use vars qw($VERSION @ISA);
 use strict;
 
-use Bio::Index::Abstract;
 use Bio::Index::MultiFileSeq;
 use Bio::Seq;
 
 @ISA = qw(Bio::Index::MultiFileSeq);
-@EXPORT_OK = qw();
 
 sub _type_stamp {
     return '__EMBL_FLAT__'; # What kind of index are we?
@@ -152,14 +150,11 @@ sub _index_file {
     
     my( $begin, # Offset from start of file of the start
                 # of the last found record.
-        $end,   # Offset from start of file of the end
-                # of the last found record.
         $id,    # ID of last found record.
 	@accs,   # accession of last record. Also put into the index
         );
 
     $begin = 0;
-    $end   = 0;
 
     open EMBL, $file or $self->throw("Can't open file for read : $file");
 
@@ -168,7 +163,6 @@ sub _index_file {
     @accs = ();
     while (<EMBL>) {
 	if( /^\/\// ) {
-	    $end = tell(EMBL);
 	    if( ! defined $id ) {
 		$self->throw("Got to a end of entry line for an EMBL flat file with no parsed ID. Considering this a problem!");
 		next;
@@ -177,11 +171,11 @@ sub _index_file {
 		$self->warn("For id [$id] in embl flat file, got no accession number. Storing id index anyway");
 	    }
 
-	    $self->add_record($id, $i, $begin, $end);
+	    $self->add_record($id, $i, $begin);
 
 	    foreach my $acc (@accs) {
 		if( $acc ne $id ) {
-		    $self->add_record($acc, $i, $begin, $end);
+		    $self->add_record($acc, $i, $begin);
 		}
 	    }
 	} elsif (/^ID\s+(\S+)/) {

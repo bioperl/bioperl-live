@@ -19,7 +19,9 @@ Bio::Index::Fasta - Interface for indexing (multiple) fasta files
     use Bio::Index::Fasta;
 
     my $Index_File_Name = shift;
-    my $inx = Bio::Index::Fasta->new($Index_File_Name, 'WRITE');
+    my $inx = Bio::Index::Fasta->new(
+        -filename => $Index_File_Name,
+        -write_flag => 1);
     $inx->make_index(@ARGV);
 
     # Print out several sequences present in the index
@@ -84,18 +86,13 @@ The rest of the documentation details each of the object methods. Internal metho
 
 package Bio::Index::Fasta;
 
-use vars qw($VERSION @ISA @EXPORT_OK);
+use vars qw($VERSION @ISA);
 use strict;
 
 use Bio::Index::MultiFileSeq;
 use Bio::Seq;
 
 @ISA = qw(Bio::Index::MultiFileSeq);
-@EXPORT_OK = qw();
-
-sub _type_stamp {
-    return '__FASTA__'; # What kind of index are we?
-}
 
 #
 # Suggested fix by Michael G Schwern <schwern@pobox.com> to
@@ -124,11 +121,25 @@ sub _version {
 =cut
 
 sub _initialize {
-    my($self, $index_file, $write_flag) = @_;
+    my $self = shift;
     
-    $self->SUPER::_initialize($index_file, $write_flag);
-    $self->id_parser( \&default_id_parser );
+    $self->SUPER::_initialize(@_);
 }
+
+
+=head2 _file_format
+
+ Title   : _file_format
+ Function: The file format for this package, which is needed
+           by the SeqIO system when reading the sequence.
+ Returns : 'Fasta'
+
+=cut
+
+sub _file_format {
+    return 'Fasta';
+}
+
 
 
 =head2 _index_file
@@ -147,18 +158,17 @@ sub _initialize {
 sub _index_file {
     my( $self,
         $file, # File name
-        $i     # Index-number of file being indexed
+        $i,    # Index-number of file being indexed
         ) = @_;
     
-    my( $begin, # Offset from start of file of the start
-                # of the last found record.
-        $end,   # Offset from start of file of the end
-                # of the last found record.
-        $id,    # ID of last found record.
+    my( $begin,     # Offset from start of file of the start
+                    # of the last found record.
+        @id_list,   # List of ids from last record
         );
 
     $begin = 0;
-    $end   = 0;
+
+    my $id_parser = $self->id_parser;
 
     open FASTA, $file or $self->throw("Can't open file for read : $file");
 
@@ -166,56 +176,37 @@ sub _index_file {
     while (<FASTA>) {
         if (/^>/) {
             my $new_begin = tell(FASTA) - length( $_ );
-            $end = $new_begin - 1;
 
-            $self->add_record($id, $i, $begin, $end) if $id;
+            foreach my $id (@id_list) {
+                $self->add_record($id, $i, $begin);
+            }
 
             $begin = $new_begin;
-            ($id) = $self->record_id( $_ );
+            @id_list = &$id_parser($_);
         }
     }
     # Don't forget to add the last record
-    $end = tell(FASTA);
-    $self->add_record($id, $i, $begin, $end) if $id;
+    foreach my $id (@id_list) {
+        $self->add_record($id, $i, $begin);
+    }
 
     close FASTA;
     return 1;
 }
 
-
-# Should there be a prototype for this method in Index::Abstract.pm?
-=head2 record_id
-
-  Title   : record_id
-  Usage   : $index->record_id( STRING );
-  Function: Parses the ID for an entry from the string
-            supplied, using the code in $index->{'_id_parser'}
-  Example : 
-  Returns : scalar or exception
-  Args    : STRING
-
-
-=cut
-
-sub record_id {
-    my ($self, $line) = @_;
-
-    if (my $id = $self->{'_id_parser'}->( $line )) {
-        return $id;
-    } else {
-        $self->throw("Can't parse ID from line : $line");
-    }
-}
-
-
 =head2 id_parser
 
   Title   : id_parser
   Usage   : $index->id_parser( CODE )
-  Function: Stores or returns the code used by record_id
-            to parse the ID for record from a string.  Useful
-            for (for instance) specifying a different parser
-            for different flavours of FASTA file.
+  Function: Stores or returns the code used by record_id to
+            parse the ID for record from a string.  Useful
+            for (for instance) specifying a different
+            parser for different flavours of FASTA file. 
+            Returns \&default_id_parser (see below) if not
+            set. If you supply your own id_parser
+            subroutine, then it should expect a fasta
+            description line.  An entry will be added to
+            the index for each string in the list returned.
   Example : $index->id_parser( \&my_id_parser )
   Returns : ref to CODE if called without arguments
   Args    : CODE
@@ -227,9 +218,8 @@ sub id_parser {
     
     if ($code) {
         $self->{'_id_parser'} = $code;
-    } else {
-        return $self->{'_id_parser'};
     }
+    return $self->{'_id_parser'} || \&default_id_parser;
 }
 
 
@@ -241,36 +231,18 @@ sub id_parser {
   Function: The default Fasta ID parser for Fasta.pm
             Returns $1 from applying the regexp /^>\s*(\S+)/
             to $header.
-  Example : 
   Returns : ID string
   Args    : a fasta header line string
 
 =cut
 
-sub default_id_parser {
-    my $line = shift;
-    $line =~ /^>\s*(\S+)/;
-    return $1;
+sub default_id_parser {    
+    if ($_[0] =~ /^>\s*(\S+)/) {
+        return $1;
+    } else {
+        return;
+    }
 }
-
-=head2 _file_format
-
- Title   : _file_format
- Usage   :
- Function:
- Example :
- Returns : 
- Args    :
-
-
-=cut
-
-sub _file_format{
-   my ($self,@args) = @_;
-   
-   return 'Fasta';
-}
-
 
 1;
 

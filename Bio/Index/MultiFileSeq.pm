@@ -12,16 +12,25 @@
 
 =head1 NAME
 
-Bio::Index::MultiFileSeq - Base class for MultiFileSeq's #'
+Bio::Index::MultiFileSeq - Base class for MultiFileSeq's
 
 =head1 SYNOPSIS
 
-  # not really appropiate - just providing a common base
-  # class for multiple sequence files built using the Bio::Index::Abstract
-  # system
+  # Make a new sequence file indexing package
+
+  package MyShinyNewIndexer;
+  use Bio::Index::MultifileSeq;
+
+  @ISA = ('Bio::Index::MultifileSeq');
+  
+  # Now provide the necessary methods...
 
 =head1 DESCRIPTION
 
+Provides a common base class for multiple
+sequence files built using the
+Bio::Index::Abstract system, and provides a
+Bio::DB::SeqI interface.
 
 =head1 FEEDBACK
 
@@ -55,17 +64,23 @@ Describe contact details here
 
 The rest of the documentation details each of the object methods. Internal methods are usually preceded with a _
 
+=head1 SEE ALSO
+
+Bio::Index::Abstract - Module which
+Bio::Index::MultiFileSeq inherits off, which
+provides dbm indexing for flat files (which are
+not necessarily sequence files).
+
 =cut
 
 
-# Let the code begin...
+# Let's begin the code ...
 
 
 package Bio::Index::MultiFileSeq;
 use vars qw(@ISA);
 use strict;
 
-use Bio::SeqIO;
 use Bio::SeqIO::MultiFile;
 use Bio::Index::Abstract;
 use Bio::DB::SeqI;
@@ -82,7 +97,8 @@ sub _initialize {
 
   my $make = $self->SUPER::_initialize(@args);
 
-# set stuff in self from @args
+    $self->{'_seqio_cache'} = [];
+
  return $make; # success - we hope!
 }
 
@@ -100,10 +116,11 @@ sub _initialize {
 
 =cut
 
-sub _file_format{
+sub _file_format {
    my ($self,@args) = @_;
 
-   $self->throw("Class must provide a file format method correctly");
+   my $pkg = ref($self);
+   $self->throw("Class '$pkg' must provide a file format method correctly");
 }
 
 =head2 fetch
@@ -119,26 +136,20 @@ sub _file_format{
 
 sub fetch {
     my( $self, $id ) = @_;
-    my ($desc,$acc,$out);
     my $db = $self->db();
     my $seq;
 
     if (my $rec = $db->{ $id }) {
-	my ($file, $begin, $end) = $self->unpack_record( $rec );
+	my ($file, $begin) = $self->unpack_record( $rec );
         
-        # Get the (possibly cached) filehandle
-        my $fh = $self->_file_handle( $file );
+        # Get the (possibly cached) SeqIO object
+        my $seqio = $self->_get_SeqIO_object( $file );
+        my $fh = $seqio->_filehandle();
 
-        # move to start
+        # move to start of record
         seek($fh, $begin, 0);
-
-	# make a new SeqIO object
-
-	my $seqio = Bio::SeqIO->new( '-format' => $self->_file_format,
-				  -fh => $fh);
 	
 	$seq = $seqio->next_seq();
-	$seqio->close();
     }
 
     # we essentially assumme that the primary_id for the database
@@ -146,6 +157,30 @@ sub fetch {
     $seq->primary_id($seq->display_id());
 
     return $seq;
+}
+
+=head2 _get_SeqIO_object
+
+  Title   : fetch
+  Usage   : $index->_get_SeqIO_object( $file )
+  Function: Returns a Bio::SeqIO object for the file
+  Example : $seq = $index->_get_SeqIO_object( 0 )
+  Returns : Bio::SeqIO object
+  Args    : File number (an integer)
+
+=cut
+
+sub _get_SeqIO_object {
+    my( $self, $i ) = @_;
+    
+    unless ($self->{'_seqio_cache'}[$i]) {
+        my $fh = $self->_file_handle($i);
+        # make a new SeqIO object
+        my $seqio = Bio::SeqIO->new( -Format => $self->_file_format,
+				     -fh     => $fh);
+        $self->{'_seqio_cache'}[$i] = $seqio;
+    }
+    return $self->{'_seqio_cache'}[$i];
 }
 
 =head2 get_Seq_by_id
@@ -160,7 +195,7 @@ sub fetch {
 
 =cut
 
-sub get_Seq_by_id{
+sub get_Seq_by_id {
    my ($self,$id) = @_;
 
    return $self->fetch($id);
@@ -196,7 +231,7 @@ sub get_Seq_by_acc {
 
 =cut
 
-sub get_PrimarySeq_stream{
+sub get_PrimarySeq_stream {
     my $self = shift;
     my $num  = $self->_file_count() || 0;
     my @file;
@@ -227,12 +262,12 @@ sub get_PrimarySeq_stream{
 
 =cut
 
-sub get_all_primary_ids{
+sub get_all_primary_ids {
    my ($self,@args) = @_;
     my $db = $self->db;
    
    # the problem is here that we have indexed things both on
-   # accession number and byte position. 
+   # accession number and name. 
 
    # We could take two options
    # here - loop over the database, returnin g only one copy of each
