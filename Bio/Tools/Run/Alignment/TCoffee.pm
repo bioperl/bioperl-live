@@ -602,14 +602,9 @@ or
 =cut
 
 sub align {
-
-    my $self = shift;
-    my $input = shift;
-    my ($temp,$infilename, $seq);
-    my ($attr, $value, $switch);
-
+    my ($self,$input) = @_;
 # Create input file pointer
-    $infilename = $self->_setinput($input);
+    my $infilename = $self->_setinput($input);
     if (!$infilename) {$self->throw("Bad input data or less than 2 sequences in $input !");}
 
 # Create parameter string to pass to tcoffee program
@@ -743,40 +738,41 @@ sub _setinput {
     my ($self,$input, $suffix) = @_;
     my ($infilename, $seq, $temp, $tfh);    
 # suffix used to distinguish alignment files
-#  If $input is not a reference it better be the name of a file with the sequence/
-#  alignment data...
-    unless (ref $input) {
+#  If $input is not a reference it better be the name of a 
+# file with the sequence/ alignment data...
+    if (! ref $input) {
 	# check that file exists or throw
 	$infilename = $input;
 	unless (-e $input) {return 0;}
 	return $infilename;
     }
 #  $input may be an array of BioSeq objects...
-    if (ref($input) eq "ARRAY") {
+    elsif (ref($input) =~ /ARRAY/i ) {
         #  Open temporary file for both reading & writing of BioSeq array
 	($tfh,$infilename) = $self->tempfile();
-	$temp =  Bio::SeqIO->new(-fh => $tfh, 
+	$temp =  Bio::SeqIO->new('-fh' => $tfh, 
 				'-format' => 'Fasta');
 	unless (scalar(@$input) > 1) {return 0;} # Need at least 2 seqs for alignment
 	foreach $seq (@$input) {
-	    return 0 if(ref($seq) && $seq->isa("Bio::PrimarySeqI"));
+	    return 0 if( !ref($seq) || ! $seq->isa("Bio::PrimarySeqI"));
 	    $temp->write_seq($seq);
 	}
 	return $infilename;
     }
 #  $input may be a SimpleAlign object.
-    if (ref($input) eq "Bio::SimpleAlign") {
+    elsif ( $input->isa("Bio::SimpleAlign") ) {
 	#  Open temporary file for both reading & writing of SimpleAlign object
-	($tfh, $infilename) = $self->tempfile() if ($suffix ==1 || $suffix
-== 2 );
+	($tfh, $infilename) = $self->tempfile() if ($suffix ==1 
+						    || $suffix == 2 );
 	$temp =  Bio::AlignIO->new(-fh=>$tfh, 
 				   '-format' => 'Fasta');
 	$temp->write_aln($input);
 	return $infilename;
     }
 
-#  or $input may be a single BioSeq object (to be added to a previous alignment)
-    if (ref($input) && $input->isa("Bio::PrimarySeqI") && $suffix==2) {
+#  or $input may be a single BioSeq object (to be added to 
+# a previous alignment)
+    elsif ( $input->isa("Bio::PrimarySeqI") && $suffix==2) {
         #  Open temporary file for both reading & writing of BioSeq object
 	($tfh,$infilename) = $self->tempfile();
 	$temp =  Bio::SeqIO->new(-fh=> $tfh, '-format' =>'Fasta');
