@@ -55,9 +55,9 @@ You are normally expected to create a corresponding
 L<Bio::Variation::DNAMutation> object even if mutation is defined at
 RNA level. The numbering follows then cDNA numbering.  Link the
 DNAMutation object to the RNAChange object using the method
-->DNAMutation. If the variation described by a RNAChange object is
+DNAMutation(). If the variation described by a RNAChange object is
 translated, link the corresponding L<Bio::Variation::AAChange> object
-to it using method ->AAChange.
+to it using method AAChange().
 
 
 =head1 FEEDBACK
@@ -120,7 +120,7 @@ sub new {
     my ($start, $end, $length, $strand, $primary, $source, 
 	$frame, $score, $gff_string,
 	$allele_ori,  $allele_mut,  $upstreamseq,  $dnstreamseq,  
-	$label,  $status,  $proof,  $region,  $numbering,
+	$label,  $status,  $proof,  $region,  $region_value, $region_dist, $numbering,
 	$mut_number,  $isMutation,
 	$codon_ori, $codon_mut, $codon_pos, $codon_table, $cds_end) =
 	    $self->_rearrange([qw(START
@@ -140,6 +140,8 @@ sub new {
 				  STATUS
 				  PROOF
 				  REGION
+				  REGION_VALUE
+				  REGION_DIST
 				  NUMBERING
 				  MUT_NUMBER
 				  ISMUTATION
@@ -173,6 +175,8 @@ sub new {
     $status  && $self->SUPER::status($status);
     $proof && $self->SUPER::proof($proof);
     $region  && $self->region($region);
+    $region_value  && $self->SUPER::region_value($region_value);
+    $region_dist  && $self->SUPER::region_dist($region_dist);
     $numbering && $self->SUPER::numbering($numbering);
     $mut_number && $self->SUPER::mut_number($mut_number);
     $isMutation && $self->SUPER::isMutation($isMutation);
@@ -471,28 +475,6 @@ sub region {
 	}
     }
     return $self->{'region'};
-}
-
-
-=head2 region_value
-
- Title   : region_value
- Usage   : $obj->region_value();
- Function: 
-
-            Sets and returns the name of the sequence region_value type or
-            protein domain at this location. Not a valid method for RNAChange.
- Example : 
- Returns : string
- Args    : string
-
-=cut
-
-
-
-sub region_value {
-    my ($self,$value) = @_;
-    $self->throw("'region_value' is not a method for RNAChange!\n");
 }
 
 =head2 cds_end

@@ -16,6 +16,11 @@ Bio::Variation::VariantI - Sequence Change SeqFeature abstract class
 
 =head1 SYNOPSIS
 
+  #get Bio::Variant::VariantI somehow
+  print $var->restriction_changes, "\n";
+  foreach $allele ($var->each_Allele) {
+      #work on Bio::Variation::Allele objects
+  }
 
 =head1 DESCRIPTION
 
@@ -39,12 +44,12 @@ IMPORTANT: The notion of reference sequence permeates all
 Bio::Variation classes. This is especially important to remember when
 dealing with Alleles. In a polymorphic site, there can be a large
 number of alleles. One of then has to be selected to be the reference
-allele (->allele_ori). ALL the rest has to be passed to the Variant
-using the method ->add_Allele, including the mutated allele in a
+allele (allele_ori). ALL the rest has to be passed to the Variant
+using the method add_Allele, including the mutated allele in a
 canonical mutation. The IO modules and generated attributes depend on
-it. They ignore the allele linked to using ->allele_mut and circulate
-each Allele returned by ->each_Allele into ->allele_mut and calculate
-the changes between that and ->allele_ori.
+it. They ignore the allele linked to using allele_mut and circulate
+each Allele returned by each_Allele into allele_mut and calculate
+the changes between that and allele_ori.
 
 
 =head1 FEEDBACK
@@ -169,7 +174,7 @@ sub add_Allele {
  Title   : alleles
  Usage   : $obj->each_Allele();
  Function: 
-    
+
 	     Returns a list of Bio::Variation::Allele objects
 
  Example : 
@@ -525,6 +530,35 @@ sub region_value {
 	$self->{'region_value'} = $value;
     }
     return $self->{'region_value'};
+}
+
+=head2 region_dist
+
+ Title   : region_dist
+ Usage   : $obj->region_dist();
+ Function: 
+
+            Sets and returns the distance tot the closest region
+            (i.e. intro/exon or domain) boundary. If distance is not
+            set, returns false.
+
+ Example : 
+ Returns : integer
+ Args    : integer
+
+=cut
+
+
+sub region_dist {
+    my ($self,$value) = @_;
+    if( defined $value) {
+       if (  not $value =~ /^[+-]?\d+$/ ) {
+	   $self->throw("[$value] for region_dist has to be an integer\n");
+        } else {
+	    $self->{'region_dist'} = $value;
+        }
+    }
+    return $self->{'region_dist'};
 }
 
 
