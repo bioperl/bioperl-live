@@ -117,12 +117,15 @@ sub new {
 =cut
 
 sub create {
-    my ($self,%param) = @_;
-
-    my $sequence = $param{'-seq'}  || $param{'-SEQ'};
-    my $fulldesc = $param{'-desc'} || $param{'-DESC'};
-    my $id       = $param{'-id'}   || $param{'-ID'} ||
-	           $param{'-primary_id'}   || $param{'-PRIMARY_ID'};
+    my ($self,@args) = @_;
+    
+    my %param = @args;
+    @param{ map { lc $_ } keys %param } = values %param; # lowercase keys
+    
+    my $sequence = $param{'-seq'};
+    my $fulldesc = $param{'-desc'};
+    my $id       = $param{'-id'} || $param{'-primary_id'};
+    my $alphabet = $param{'-alphabet'};
 
     my $seq = bless {}, "Bio::Seq";
     my $t_pseq = $seq->{'primary_seq'} = bless {}, "Bio::PrimarySeq";
@@ -131,8 +134,10 @@ sub create {
     $t_pseq->{'display_id'} = $id;
     $t_pseq->{'primary_id'} = $id;
     $seq->{'primary_id'} = $id; # currently Bio::Seq does not delegate this
-    if( $sequence ) {
+    if( $sequence and !$alphabet ) {
 	$t_pseq->_guess_alphabet();
+    } elsif ( $sequence and $alphabet ) {
+        $t_pseq->{'alphabet'} = $alphabet;
     }
 
     return $seq;
