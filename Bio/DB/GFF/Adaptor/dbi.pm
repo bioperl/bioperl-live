@@ -217,12 +217,12 @@ sub get_dna {
 				$ref,$offset_start,$offset_stop);
   }
 
-  my $dna;
+  my $dna = '';
   while (my($frag,$offset) = $sth->fetchrow_array) {
-    substr($frag,0,$start-$offset) = '' if $has_start && $start > $offset;
-    $dna .= $frag;
+      substr($frag,0,$start-$offset) = '' if $has_start && $start > $offset;
+      $dna .= $frag;
   }
-  substr($dna,$stop-$start+1)  = '' if $has_stop && $stop-$start+1 < length $dna;
+  substr($dna,$stop-$start+1) = '' if $has_stop && $stop-$start+1 < length($dna);
   if ($reversed) {
     $dna = reverse $dna;
     $dna =~ tr/gatcGATC/ctagCTAG/;
