@@ -145,7 +145,7 @@ sub new {
     unless -d _;
   my $dbpath = Bio::Root::IO->catfile($flat_directory,$dbname);
   unless (-d $dbpath) {
-    warn "creating db directory $dbpath\n";
+    $self->debug("creating db directory $dbpath\n");
     mkdir $dbpath,0777 or $self->throw("Can't create $dbpath: $!");
   }
   $self->_read_config();
