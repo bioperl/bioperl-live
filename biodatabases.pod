@@ -76,12 +76,11 @@ for more information.
 =item bioperl-db
 
 The bioperl-db package is installed separately from Bioperl but is
-tightly integrated with Bioperl's objects. The bioperl-db RDB contains
-a set of tables that map to Bioperl's Seq and SeqFeature
-objects, and sequences in familiar formats are easily loaded into
+tightly integrated with Bioperl's objects. The bioperl-db package
+works with the BioSQL schema and maps to Bioperl's Seq and SeqFeature
+objects, and sequences in familiar formats can be loaded into
 the schema in relational form, and retrieved as Seq objects as well.
-The RDB is also designed to contain genetic marker and map information.
-Currently only mysql is supported, but other RDBMs are planned. See
+Currently Mysql, Oracle, and Postgres are supported. See
 L<USING BIOPERL WITH A RELATIONAL DATABASE (bioperl-db)> below.
 
 =back
@@ -173,17 +172,15 @@ some functionality absent from Bio::Index::Fasta.
 =head1 USING BIOPERL WITH A RELATIONAL DATABASE (bioperl-db)
 
 The bioperl-db package works in conjunction with the BioSQL relational 
-schema (http://obda.open-bio.org/), below. The most recent version of the
+schema (http://obda.open-bio.org/). The most recent version of the
 bioperl-db package can be obtained at 
 http://cvs.open-bio.org/cgi-bin/viewcvs/viewcvs.cgi/?cvsroot=bioperl. 
 
-The current version relies on the prior installation of a database
-server, specifically Mysql, Postgres, or Oracle. The bioperl-db and 
-BioSQL packages integrate neatly with Bioperl's objects and contain tables
-for sequences, entries, sequence features, taxonomic information, 
-references, keywords, a wide variety of genetic markers, and more. 
-With a Seq object and a built-in database "adaptor" one can load the 
-object's data in one step, as in 
+The bioperl-db and BioSQL packages integrate neatly with Bioperl's 
+objects and contain tables for sequences, entries, sequence features, 
+taxonomic information, references, keywords, a wide variety of genetic 
+markers, and more. With a Seq object and a built-in database "adaptor" 
+one can load the object's data in one step, as in 
 
   $adaptor->store($newid,$seqobj)
 
@@ -207,14 +204,14 @@ more examples.
 
 =head1 BIOPERL AND BIOSQL
 
-BioSQL is joint project of the OpenBio languages, bioperl, biopython,
+BioSQL is joint project of the OpenBio efforts, bioperl, biopython,
 biojava, and bioruby. This project has created a single relational 
-schema that's accessible using any of these languages. To use BioSQL
-you'll need Bioperl, version 1.2 or later, bioperl-db from 
-www.bioperl.org, and biosql. The biosql package can be obtained at 
+schema that's accessible using any of these packages. To use BioSQL
+with Perl you'll need Bioperl, version 1.2 or later, bioperl-db from 
+www.bioperl.org, and BioSQL. The BioSQL package can be obtained at 
 www.open-bio.org. BioSQL currently supports 3 different database 
-servers, mySQL, Postgres, and Oracle. Consult the bioperl-db and 
-biosql packages for more details on installing and using BioSQL.
+servers: Mysql, Postgres, and Oracle. Consult the bioperl-db and 
+BioSQL packages for more details on installing and using BioSQL.
 
 
 =head1 BIO::DB::GFF: INDEXING AND RETRIEVAL OF SEQUENCE FEATURE DATA
