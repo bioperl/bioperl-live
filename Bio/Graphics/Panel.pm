@@ -652,6 +652,7 @@ sub format_key {
     my ($height,$width) = (0,0);
     my %tracks;
     my @glyphs;
+    local $self->{flip} = 0;  # don't want to worry about flipped keys!
 
     # determine how many glyphs become part of the key
     # and their max size
