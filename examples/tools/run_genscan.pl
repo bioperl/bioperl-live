@@ -1,70 +1,85 @@
-#!/usr/bin/perl -w
+#!/usr/bin/perl
 # Brian Osborne
 # script to run genscan on all nucleotide sequences in a fasta file
-# and save results as fasta, creates <file>.gs.pept and <file>.gs.cds
+# and save results as fasta, creates <file>.gs.pept and <file>.gs.cds,
+# and <file>.gs.exons
 
 use Bio::SeqIO;
+use Bio::Seq;
 use Getopt::Long;
 use Bio::Tools::Genscan;
-use Carp;
 use strict;
 
-# directory with GENSCAN matrices
-my $genscanDir = "/dbs/genscan";
-# GENSCAN location
-my $binDir = "/usr/local/bin";
 # GENSCAN matrix
-my $matrix = "HumanIso.smat";
+my $matrix = "/home/bosborne/src/genscan/HumanIso.smat";
 
-my ($file,$in);
+my ($file,$i);
 
 GetOptions( "f|file=s" => \$file );
 usage() if ( !$file );
 
-# create output files for predicted protein and CDS
-open PEPT, ">>$file.gs.pept" or croak "Error opening $file.gs.pept: $!\n";
-open DNA, ">>$file.gs.cds" or croak "Error opening $file.gs.cds: $!\n";
+my $pept_out = Bio::SeqIO->new(-file   => ">$file.gs.pept",
+			       -format => "fasta");
+my $cds_out = Bio::SeqIO->new(-file   => ">$file.gs.cds",
+			      -format => "fasta");
+my $exons_out = Bio::SeqIO->new(-file   => ">$file.gs.exons",
+				-format => "fasta");
 
-$in = Bio::SeqIO->new(-file => $file , -format => 'Fasta');
+my $in = Bio::SeqIO->new(-file => $file , -format => 'Fasta');
 
 while ( my $seq = $in->next_seq() ) {
-    croak "Input sequence is protein\n" if ( $seq->moltype eq 'protein' );
-    my $str = $seq->seq;
-    my $id = $seq->id;
-    $id = $1 if ( $id =~ /gi\|(\d+)/ );
-    # create temp file, input to GENSCAN
-    open OUT,">$id.temp.fa" or croak "Error opening $id.temp.fa: $!\n";
-    print OUT ">$id.fa\n$str\n\n";
+   die "Input sequence is protein\n" if ( $seq->alphabet eq 'protein' );
 
-    # the contents of the *raw file will be parsed
-    system "genscan $genscanDir/$matrix $id.temp.fa -cds > $id.gs.raw";
-    unlink "$id.temp.fa";
-    my $genscan = Bio::Tools::Genscan->new( -file => "$id.gs.raw");
-    while ( my $gene = $genscan->next_prediction() ) {
-	my $prt = $gene->predicted_protein;
-	my $cds = $gene->predicted_cds;
+   # create temp file, input to GENSCAN
+   my $temp_out = Bio::SeqIO->new(-file   => ">temp.fa",
+				   -format => "fasta");
+   $temp_out->write_seq($seq);
 
-	if ( defined $cds  ) {
-	    $cds->display_id =~ /predicted_(CDS_\d+)/;
-	    print DNA ">" . $id . "_" . $1 . " " . $cds->display_id . "\n"
-	      . $cds->seq . "\n";
-	}
-	if ( defined $prt ) {
-	    $prt->display_id =~ /predicted_(peptide_\d+)/;
-	    print PEPT ">" . $id . "_" . $1 . " " . $prt->display_id . "\n"
-	      . $prt->seq . "\n";
-	}
-    }
-    $genscan->close();
-    unlink "$id.gs.raw";
+   my $file_id = $seq->display_id;
+   $file_id =~ s/\|/-/g;
+
+   system "genscan $matrix temp.fa -cds > $file_id.gs.raw";
+   unlink "temp.fa";
+
+   my $genscan = Bio::Tools::Genscan->new( -file => "$file_id.gs.raw");
+   while ( my $gene = $genscan->next_prediction() ) {
+      $i++;
+      my $prt = $gene->predicted_protein;
+      my $cds = $gene->predicted_cds;
+      my @exon_arr = $gene->exons;
+
+      if ( defined $cds  ) {
+	 my $cds_seq = Bio::Seq->new(-seq => $prt->seq,
+				     -display_id => $cds->display_id);
+	 $cds_out->write_seq($cds_seq);
+      }
+
+      if ( defined $prt ) {
+	 my $pept_seq = Bio::Seq->new(-seq => $prt->seq,
+				      -display_id => $prt->display_id);
+	 $pept_out->write_seq($pept_seq);
+      }
+
+      for my $exon (@exon_arr) {
+	 my $display_id = $seq->display_id;
+	 my $desc = $exon->strand . " " . $exon->start . "-" . $exon->end .
+	   " " . $exon->primary_tag . " " . "GENSCAN_predicted_$i";
+	 my $exon_seq = Bio::Seq->new(-seq => $seq->subseq($exon->start,
+							   $exon->end),
+				      -display_id => $display_id,
+				      -desc => $desc );
+	 $exons_out->write_seq($exon_seq);
+      }
+   }
+   $genscan->close();
+   unlink "$file_id.gs.raw";
 }
-
 
 sub usage {
     print "
 Usage    : $0 -f <file>
 Function : run genscan on all nucleotide sequences in a multiple fasta file
-Output   : <file>.gs.pept and <file>.gs.cds
+Output   : <file>.gs.pept, <file>.gs.cds, <file>.gs.exons
 
 ";
     exit;
