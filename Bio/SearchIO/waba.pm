@@ -173,6 +173,10 @@ sub next_result{
 		      /ox );
 	    
 	    # Curses.  Jim's code is 0 based, the following is to readjust
+	    if( $hstart < 0 ) { $hstart *= -1}
+	    if( $hend   < 0 ) { $hend   *= -1}
+	    if( $qstart < 0 ) { $qstart *= -1}
+	    if( $qend   < 0 ) { $qend   *= -1}
 	    $hstart++; $hend++; $qstart++; $qend++;
 	    if( ! defined $alnlen ) {
 		$self->warn("Unable to parse the rest of the WABA alignment info for: '$_'");
