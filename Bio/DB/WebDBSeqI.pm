@@ -122,7 +122,7 @@ sub new {
     # even though this will be immedietly overwritten by most sub classes
     $format = $self->default_format unless ( defined $format && 
 					     $format ne '' );
-
+    
     $self->request_format($format);
     my $ua = new LWP::UserAgent;
     $ua->agent(ref($self) ."/$MODVERSION");
@@ -257,7 +257,9 @@ sub get_request {
 
 sub get_Stream_by_id {
     my ($self, $ids) = @_;
-    return $self->get_seq_stream('-uids' => $ids, '-mode' => 'single');
+    my ($webfmt,$localfmt) = $self->request_format;
+    return $self->get_seq_stream('-uids' => $ids, '-mode' => 'single',
+				 '-format' => $webfmt);
 }
 
 *get_Stream_by_batch = sub {
@@ -399,12 +401,12 @@ sub get_seq_stream {
   my ($rformat, $ioformat) = $self->request_format();
   my $seen = 0;
   foreach my $key ( keys %qualifiers ) {
-    if( $key =~ /format/i ) {
+      if( $key =~ /format/i ) {
       $rformat = $qualifiers{$key};
       $seen = 1;
     }
   }
-  $qualifiers{'-format'} = $rformat if( !$seen);
+  $qualifiers{'-format'} = $rformat if( ! $seen);
   ($rformat, $ioformat) = $self->request_format($rformat);
 
   my $request = $self->get_request(%qualifiers);
