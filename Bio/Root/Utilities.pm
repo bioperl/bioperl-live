@@ -2,6 +2,8 @@
 # PACKAGE : Bio::Root::Utilities.pm
 # PURPOSE : Provides general-purpose utilities of potential interest to any Perl script.
 # AUTHOR  : Steve A. Chervitz (sac@genome.stanford.edu)
+
+
 # CREATED : Feb 1996
 # REVISION: $Id$
 # STATUS  : Alpha
@@ -10,28 +12,7 @@
 #           Improve documentation (POD).
 #           Make use of Date::Manip and/or Date::DateCalc as appropriate.
 #
-# MODIFIED:
-#    13 Feb 1999, sac:
-#      * Renamed get_newline_char() to get_newline() since it could be >1 char.
-#
-#    3 Feb 1999, sac:
-#      * Added three new methods: create_filehandle, get_newline_char, taste_file.
-#        create_filehandle represents functionality that was formerly buried
-#        within Bio::Root::IOManager::read().
-#
-#    2 Dec 1998, sac:
-#      * Removed autoloading code.
-#      * Modified compress(), uncompress(), and delete() to properly
-#        deal with file ownership issues.
-#
-#   23 Jun 1998, sac: 
-#        * Improved file_date() to be less reliant on the output of ls.
-#          (Note the word 'less'; it still relies on ls).
-#   15 Jul 1998, sac:
-#        * compress() & uncompress() will write files to a temporary location
-#          if the first attempt to compress/uncompress fails.
-#          This allows users to access compressed files in directories in which they
-#          lack write permission.
+# MODIFICATIONS: See bottom of file.
 #
 # Copyright (c) 1996-8 Steve A. Chervitz. All Rights Reserved.
 #          This module is free software; you can redistribute it and/or 
@@ -41,7 +22,7 @@
 
 package	Bio::Root::Utilities;
 
-use Bio::Root::Global  qw(:data :std);
+use Bio::Root::Global  qw(:data :std $TIMEOUT_SECS);
 use Bio::Root::Object  ();
 use Exporter           ();
 use POSIX;
@@ -57,7 +38,7 @@ use strict;
 use vars qw($ID $VERSION $Util $GNU_PATH);
 
 $ID        = 'Bio::Root::Utilities';
-$VERSION   = 0.041;
+$VERSION   = 0.042;
 
 # $GNU_PATH may be required for executing gzip/gunzip 
 # in some situations. Customize for your site or leave
@@ -157,7 +138,7 @@ See the L<FEEDBACK> section for where to send bug reports and comments.
 
 =head1 VERSION
 
-Bio::Root::Utilities.pm, 0.041
+Bio::Root::Utilities.pm, 0.042
 
 =head1 ACKNOWLEDGEMENTS
 
@@ -931,7 +912,7 @@ sub taste_file {
   my ($self, $FH) = @_; 
   my $BUFSIZ = 256;
   my ($buffer, $octal, $str, $irs, $i);
-  my $wait = 3;
+  my $wait = $TIMEOUT_SECS;
   
   $SIG{ALRM} = sub { die "Timed out!"; };
   eval {
@@ -941,7 +922,8 @@ sub taste_file {
   };
   if($@ =~ /Timed out!/) {
     $self->throw("Timed out while waiting for input.", 
-		 "Most likely, you forgot to supply a STDIN stream.");
+		 "For longer time before timing out, edit \$TIMEOUT_SECS in Bio::Root::Global.pm.");	
+
   } elsif($@ =~ /\S/) {
     my $err = $@;
     $self->throw("Unexpected error during read: $err");
@@ -1152,6 +1134,36 @@ sub verify_version {
 
 
 1;
+__END__
+
+MODIFICATION NOTES:
+---------------------
+
+17 Feb 1999, sac:
+  * Using global $TIMEOUT_SECS in taste_file().
+
+13 Feb 1999, sac:
+  * Renamed get_newline_char() to get_newline() since it could be >1 char.
+
+3 Feb 1999, sac:
+  * Added three new methods: create_filehandle, get_newline_char, taste_file.
+    create_filehandle represents functionality that was formerly buried
+    within Bio::Root::IOManager::read().
+
+2 Dec 1998, sac:
+  * Removed autoloading code.
+  * Modified compress(), uncompress(), and delete() to properly
+    deal with file ownership issues.
+
+3 Jun 1998, sac: 
+    * Improved file_date() to be less reliant on the output of ls.
+      (Note the word 'less'; it still relies on ls).
+
+5 Jul 1998, sac:
+    * compress() & uncompress() will write files to a temporary location
+      if the first attempt to compress/uncompress fails.
+      This allows users to access compressed files in directories in which they
+      lack write permission.
 
 
 

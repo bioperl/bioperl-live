@@ -44,7 +44,7 @@
 
 package Bio::Root::IOManager;
 
-use Bio::Root::Global     qw(:devel $CGI);
+use Bio::Root::Global     qw(:devel $CGI $TIMEOUT_SECS);
 use Bio::Root::Object     ();
 use Bio::Root::Utilities  qw(:obj); 
 use FileHandle            ();
@@ -52,10 +52,9 @@ use FileHandle            ();
 @ISA   = qw(Bio::Root::Object);
 
 use strict;
-use vars qw($ID $VERSION $revision $Timeout);
+use vars qw($ID $VERSION $revision);
 $ID = 'Bio::Root::IOManager';
 $VERSION = 0.042;
-$Timeout = 20;   # Number of seconds to wait for input in read().
 
 ## POD Documentation:
 
@@ -732,7 +731,7 @@ sub read {
 	$self->_rearrange([qw( REC_SEP FUNC WAIT)], @param);
 
     my $fmt = (wantarray ? 'list' : 'string');
-    $wait ||= $Timeout;  # seconds to wait before timing out.
+    $wait ||= $TIMEOUT_SECS;  # seconds to wait before timing out.
 
     my $FH = $Util->create_filehandle( -client => $self, @param);
 
@@ -773,7 +772,8 @@ sub read {
 	alarm(0);
     };
     if($@ =~ /Timed out!/) {
-	 $self->throw("Timed out while waiting for input from $self->{'_input_type'}.");
+	 $self->throw("Timed out while waiting for input from $self->{'_input_type'}.", "For a longer time out period, supply a -wait => <seconds> parameter\n".
+		     "or edit \$TIMEOUT_SECS in Bio::Root::Global.pm.");
     } elsif($@ =~ /\S/) {
          my $err = $@;
 	 $self->throw("Unexpected error during read: $err");

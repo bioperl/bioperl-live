@@ -47,7 +47,7 @@ use vars qw($BASE_YEAR @DAYS @MONTHS);
 @EXPORT_OK = qw($AUTHORITY $NEWLINE
 		$DEBUG $MONITOR $TESTING 
 		$DONT_WARN $WARN_ON_FATAL $FATAL_ON_WARN $RECORD_ERR
-		$STRICTNESS $VERBOSITY
+		$STRICTNESS $VERBOSITY $TIMEOUT_SECS
 		$CGI $GLOBAL 
 		$BASE_YEAR %ROMAN_NUMS @MONTHS @DAYS 
 		&roman2int &debug &monitor &testing &dont_warn &record_err
@@ -58,7 +58,7 @@ use vars qw($BASE_YEAR @DAYS @MONTHS);
 		
 		std   =>[qw($DEBUG $MONITOR $TESTING $NEWLINE
 			    $DONT_WARN $WARN_ON_FATAL $FATAL_ON_WARN $RECORD_ERR
-			    $STRICTNESS $VERBOSITY			    
+			    $STRICTNESS $VERBOSITY 
 			    &debug &monitor &testing &dont_warn 
 			    &warn_on_fatal &fatal_on_warn &record_err
 			    &strictness &verbosity
@@ -96,6 +96,7 @@ $FATAL_ON_WARN = 0;
 $RECORD_ERR    = 0;
 $STRICTNESS    = 0;
 $VERBOSITY     = 0;
+$TIMEOUT_SECS  = 20;  # Number of seconds to wait for input in I/O functions.
 
 $BASE_YEAR = 1900;
 $NEWLINE   = undef;

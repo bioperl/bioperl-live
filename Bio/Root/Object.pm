@@ -8,51 +8,7 @@
 # For documentation, run this module through pod2html 
 # (preferably from Perl v5.004 or better).
 #
-# MODIFIED: 
-#    0.041, sac --- Thu Feb  4 03:50:58 1999
-#     * warn() utilizes the Global $CGI indicator to supress output
-#       when script is running as a CGI.
-#
-#    0.04, sac --- Tue Dec  1 04:32:01 1998
-#     *  Incorporated the new globals $STRICTNESS and $VERBOSITY
-#        and eliminated WARN_ON_FATAL, FATAL_ON_WARN and DONT_WARN.
-#     *  Deprecated terse() since it is better to think of terseness
-#        as negative verbosity.
-#     *  Removed autoloading-related code and comments.
-#
-#    0.035, 28 Sep 1998, sac:
-#      * Added _drop_child() method to attempt to break cyclical refs
-#        between parent and child objects.
-#      * Added to_string() method.
-#      * Err objects no longer know their parents (no need).
-#
-#    0.031, 2 Sep 1998, sac:
-#      * Documentation changes only. Wrapped the data member docs
-#        at the bottom in POD comments which fixes compilation bug
-#        caused by commenting out __END__.
-#
-#    0.03, 16 Aug 1998, sac:
-#      * Calls to warn() or throw() now no longer result in Err.pm objects
-#        being attached to the current object. For discussion about this 
-#        descision, see comments under _set_err().
-#      * Added the -RECORD_ERR constructor option and Global::record_err() 
-#        method to enable the attachment of Err.pm object to the current 
-#        object.
-#      * Minor bug fixes with parameter handling (%param -> @param).
-#      * Added note about AUTOLOADing.
-#
-#    0.023, 20 Jul 1998, sac:
-#      * Changes in Bio::Root::IOManager::read().
-#      * Improved memory management (destroy(), DESTROY(), and changes
-#        in Bio::Root::Vector.pm).
-#
-#    0.022, 16 Jun 1998, sac:
-#      * Changes in Bio::Root::IOManager::read().
-#
-#    0.021, May 1998, sac:
-#      * Touched up _set_clone().
-#      * Refined documentation in this and other Bio::Root modules
-#        (converted to use pod2html in Perl 5.004)
+# MODIFICATION NOTES: See bottom of file.
 #
 # Copyright (c) 1996-98 Steve A. Chervitz. All Rights Reserved.
 #           This module is free software; you can redistribute it and/or 
@@ -2681,3 +2637,53 @@ all or some of the following fields:
                 to the current object. Default = false (don't attach exceptions).
 
 =cut
+
+
+MODIFICATION NOTES:
+-----------------------
+0.041, sac --- Thu Feb  4 03:50:58 1999
+ * warn() utilizes the Global $CGI indicator to supress output
+   when script is running as a CGI.
+
+0.04, sac --- Tue Dec  1 04:32:01 1998
+ *  Incorporated the new globals $STRICTNESS and $VERBOSITY
+    and eliminated WARN_ON_FATAL, FATAL_ON_WARN and DONT_WARN.
+ *  Deprecated terse() since it is better to think of terseness
+    as negative verbosity.
+ *  Removed autoloading-related code and comments.
+
+0.035, 28 Sep 1998, sac:
+  * Added _drop_child() method to attempt to break cyclical refs
+    between parent and child objects.
+  * Added to_string() method.
+  * Err objects no longer know their parents (no need).
+
+0.031, 2 Sep 1998, sac:
+  * Documentation changes only. Wrapped the data member docs
+    at the bottom in POD comments which fixes compilation bug
+    caused by commenting out __END__.
+
+0.03, 16 Aug 1998, sac:
+  * Calls to warn() or throw() now no longer result in Err.pm objects
+    being attached to the current object. For discussion about this 
+    descision, see comments under _set_err().
+  * Added the -RECORD_ERR constructor option and Global::record_err() 
+    method to enable the attachment of Err.pm object to the current 
+    object.
+  * Minor bug fixes with parameter handling (%param -> @param).
+  * Added note about AUTOLOADing.
+
+0.023, 20 Jul 1998, sac:
+  * Changes in Bio::Root::IOManager::read().
+  * Improved memory management (destroy(), DESTROY(), and changes
+    in Bio::Root::Vector.pm).
+
+0.022, 16 Jun 1998, sac:
+  * Changes in Bio::Root::IOManager::read().
+
+0.021, May 1998, sac:
+  * Touched up _set_clone().
+  * Refined documentation in this and other Bio::Root modules
+    (converted to use pod2html in Perl 5.004)
+
+
