@@ -1449,9 +1449,7 @@ NOTE: Bio::DB::RandomAccessI compliant method
 
 sub  get_Seq_by_id {
   my $self = shift;
-  my $id = shift;
-  my $stream = $self->get_Stream_by_id($id);
-  return $stream->next_seq;
+  $self->get_feature_by_name(@_);
 }
 
 
@@ -1470,14 +1468,8 @@ NOTE: Bio::DB::RandomAccessI compliant method
 
 sub  get_Seq_by_accession {
   my $self = shift;
-  my $id = shift;
-  my $stream = $self->get_Stream_by_accession($id);
-  return $stream->next_seq;
+  $self->get_feature_by_name(@_);
 }
-
-=head2 get_Stream_by_acc ()
-
-=cut 
 
 =head2 get_Seq_by_acc
 
@@ -1489,6 +1481,24 @@ sub  get_Seq_by_accession {
  Throws  : "acc does not exist" exception
 
 NOTE: Bio::DB::RandomAccessI compliant method
+
+=cut
+
+sub  get_Seq_by_acc {
+  my $self = shift;
+  $self->get_feature_by_name(@_);
+}
+
+=head2 get_Stream_by_name
+
+  Title   : get_Stream_by_name
+  Usage   : $seq = $db->get_Stream_by_name(@ids);
+  Function: Retrieves a stream of Seq objects given their names
+  Returns : a Bio::SeqIO stream object
+  Args    : an array of unique ids/accession numbers, or 
+            an array reference
+
+NOTE: This is also called get_Stream_by_batch()
 
 =cut
 
