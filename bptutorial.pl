@@ -335,7 +335,7 @@ XML-Writer-0.4
 
 =item *
 
-Soap-Lite-0.52
+SOAP-Lite-0.52
 
 =item *
 
