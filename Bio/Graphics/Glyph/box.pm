@@ -6,6 +6,10 @@ use vars '@ISA';
 use Bio::Graphics::Glyph::generic;
 @ISA = 'Bio::Graphics::Glyph::generic';
 
+sub subseq {
+  return ();
+}
+
 1;
 
 __END__
@@ -21,7 +25,8 @@ Bio::Graphics::Glyph::box - The "box" glyph
 =head1 DESCRIPTION
 
 This is the most basic glyph.  It draws a filled box and optionally a
-label.
+label.  It does *NOT* draw subparts, and so is useful for semantic
+zooming when one is zoomed out to far to see substructure.
 
 =head2 OPTIONS
 

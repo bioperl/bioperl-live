@@ -204,25 +204,28 @@ sub _draw_scale {
   my ($gd,$scale,$min,$max,$dx,$dy) = @_;
   my ($x1,$y1,$x2,$y2) = $self->calculate_boundaries($dx,$dy);
 
-  my $side = $self->option('scale') || 'left';
-  $side    = 'left' unless $side =~ /^(left|right)$/;
+  my $side = $self->option('scale');
+  return if $side eq 'none';
+  $side   ||= 'both';
 
   my $fg    = $self->fgcolor;
   my $half  = ($y1+$y2)/2;
-  $gd->line($x1,$y1,$x1,$y2,$fg);
-  $gd->line($x2,$y1,$x2,$y2,$fg);
 
-  for ([$y1,$max],[$half,($max-$min)/2]) {
-    $gd->line($x1-1,$_->[0],$x1+1,$_->[0],$fg);
-    $gd->line($x2-1,$_->[0],$x2+1,$_->[0],$fg);
-    if ($side eq 'left') {
+  $gd->line($x1+1,$y1,$x1+1,$y2,$fg) if $side eq 'left'  || $side eq 'both';
+  $gd->line($x2-2,$y1,$x2-2,$y2,$fg) if $side eq 'right' || $side eq 'both';
+
+  for ([$y1,$max],[$half,int(($max-$min)/2+0.5)]) {
+    $gd->line($x1,$_->[0],$x1+3,$_->[0],$fg) if $side eq 'left'  || $side eq 'both';
+    $gd->line($x2-4,$_->[0],$x2,$_->[0],$fg) if $side eq 'right' || $side eq 'both';
+    if ($side eq 'left' or $side eq 'both') {
       $gd->string(gdTinyFont,
-		  $x1+3,$_->[0]-(gdTinyFont->height/2),
+		  $x1 + 5,$_->[0]-(gdTinyFont->height/3),
 		  $_->[1],
 		  $fg);
-    } else {
+    }
+    if ($side eq 'right' or $side eq 'both') {
       $gd->string(gdTinyFont,
-		  $x2+3,$_->[0]-(gdTinyFont->height/2),
+		  $x2-5 - (length($_->[1])*gdTinyFont->width),$_->[0]-(gdTinyFont->height/3),
 		  $_->[1],
 		  $fg);
     }
