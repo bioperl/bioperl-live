@@ -24,6 +24,7 @@ END {
 require 'dumpvar.pl';
 
 use Bio::Map::LinkagePosition;
+use Bio::Map::Microsatellite;
 
 print("Checking if the Bio::Map::LinkageMap module could be used.\n");
         # test 1
@@ -37,23 +38,22 @@ my $map = new Bio::Map::LinkageMap(-name => 'Leviathon',
 				-species => "Brassica");
 ok ref($map) eq 'Bio::Map::LinkageMap';
 
+
 print("Creating a Position with a scalar...\n");
 my $position = new Bio::Map::LinkagePosition(-positions => 2,
 	-distance => 22.3);
-ok(1);
+	# what should be printed if this was ok?
+	# ok(1);
+
+print("Creating a Microsatellite marker with that position...\n");
+my $o_usat = new Bio::Map::Microsatellite(-name=> "Chad marker",
+	-position => $position);
+	# what should be printed if this was ok?
+	# ok(1);
 
 print("Adding that to the LinkageMap...\n");
-$map->add_element($position);
+$map->add_element($o_usat);
+	# what should be printed if this is ok?
 
-
-print("Creating a Position with a list for the position and no distance...\n");
-my $position2 = new Bio::Map::LinkagePosition(-positions => qw(3 4 5));
-ok(1);
-	# print("position2 looks like this:\n");
-	# dumpValue($position2);
-	print("Checking that positions can be retrieved.\n");
-my @retrieved_position = $position->each_position();
-ok(pop(@retrieved_position) == 2);
-	print("Checking that distance can be retrieved:\n");
-ok($position->distance() == 22.3);
-ok($position2->distance() == 0);
+# add more tests
+# see also t/microsatellite.t and t/linkageposition.t
