@@ -680,8 +680,7 @@ sub next_result{
 	   
            # Some data clean-up so e-value will appear numeric to perl
            my ($score, $bits, $evalue) = ($3, $1, $5);
-	   $evalue = "1$evalue" if $evalue =~ /^e/;           
-           $self->debug("Got NCBI HSP score=$score, evalue $evalue\n");
+	   $evalue = "1$evalue" if $evalue =~ /^e/;
 	   
            $self->start_element({'Name' => 'Hsp'});
            $self->element( { 'Name' => 'Hsp_score',
@@ -690,6 +689,11 @@ sub next_result{
                              'Data' => $bits});
            $self->element( { 'Name' => 'Hsp_evalue',
                              'Data' => $evalue});
+	   $score = '' unless defined $score; # deal with BLAT which
+                                              # has no score only bits
+           $self->debug("Got NCBI HSP score=$score, evalue $evalue\n") 
+	       if $self->verbose > 0;
+
        } elsif( $self->in_element('hsp') &&
                 m/Identities\s*=\s*(\d+)\s*\/\s*(\d+)\s*[\d\%\(\)]+\s*
                 (,\s*Positives\s*=\s*(\d+)\/(\d+)\s*[\d\%\(\)]+\s*)? # pos only valid for Protein alignments
@@ -930,10 +934,10 @@ sub next_result{
            my $len;
            for( my $i = 0; 
                 defined($_) && $i < 3; 
-                $i++ ){               
+                $i++ ) {
                chomp;
 	       if( ($i == 0 &&  /^\s+$/) ||  /^\s*Lambda/i ) { 
-                   $self->_pushback($_) if defined $_;
+		   $self->_pushback($_) if defined $_;
                    $self->end_element({'Name' => 'Hsp'});
                    last; 
                }
@@ -960,8 +964,12 @@ sub next_result{
        }
    } 
 
-   # print STDERR "blast.pm: End of BlastOutput\n";
+#   print STDERR "blast.pm: End of BlastOutput \n";
    if( $self->{'_seentop'} ) {
+       $self->within_element('hsp') && 
+	   $self->end_element({ 'Name' => 'Hsp'});
+       $self->within_element('hit') && 
+	   $self->end_element({ 'Name' => 'Hit'});
        $self->within_element('iteration') && 
 	   $self->end_element({'Name' => 'Iteration'});
        if( $bl2seq_fix ) { 
