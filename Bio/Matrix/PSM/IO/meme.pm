@@ -319,16 +319,15 @@ sub _parseInstance {
 	last if ($line =~ /\-{5}/ );
 	chomp($line);
 	my @comp=split(/\s+/,$line);
-	my ($id,$start,$score,$strand,$s1,$s2,$s3,$mstr);
+	my ($id,$start,$score,$strand,$s1,$s2,$s3);
 	if ( $self->{_strand}) {
-	    ($id,$mstr,$start,$score,$s1,$s2,$s3)=@comp;
-      $strand= $mstr eq '+' ? 1 : 0 ;
+	    ($id,$strand,$start,$score,$s1,$s2,$s3)=@comp;
 	} else {
 	    ($id,$start,$score,$s1,$s2,$s3)=@comp;
 	    $strand=1;
 	}
   	my $seq= $s1.$s2.$s3;
-	if ($seq =~ /[^ACGTacgtNnXx-]/) {
+	if ($seq =~ /[^ACGTacgtNnXx\-\.]/) {
             my $col=$#comp;
 	    $self->throw("I have not been able to parse the correct instance sequence: $seq, $col columns\n");
 	}
