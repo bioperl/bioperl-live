@@ -281,45 +281,6 @@ sub get_Stream_by_acc {
   return $self->get_Seq_by_id($acc);
 }
 
-=head2 get_Stream_by_batch
-
-  Title   : get_Stream_by_batch
-  Usage   : $seq = $db->get_Stream_by_batch($ref);
-  Function: Retrieves Seq objects from Entrez 'en masse', rather than one
-            at a time.  For large numbers of sequences, this is far superior
-            than get_Stream_by_[id/acc]().
-  Example :
-  Returns : a Bio::SeqIO stream object
-  Args    : $ref : either an array reference, a filename, or a filehandle
-            from which to get the list of unique ids/accession numbers.
-
-=cut
-
-
-sub get_Stream_by_batch {
-   my $self = shift;
-   my $ref = shift or $self->throw("Must supply an argument!\n");
-   my $which = ref($ref);
-   my $fh;
-   #my $filename; # doesn't seem to be used 
-   if ( $which eq 'ARRAY') { # $ref is an array reference
-       $fh = new_tmpfile IO::File;
-       for ( @{$ref} ) {
-	   print $fh $_ . "\n";
-       }
-       seek $fh, 0, 0;
-       #$filename = "tempfile.txt";
-   } elsif ( $which eq '') { # $ref is a filename
-       $fh = new IO::File $ref, "r";
-       #$filename = $ref;
-   } elsif ( $which eq 'GLOB' or $which eq 'IO::File') { # $ref is assumed to be a filehandle
-       $fh = $ref;
-       #$filename = "tempfile.txt";
-   }
-   my $uids = [ grep { chomp; } <$fh> ];
-   return $self->_get_stream($uids);
-}
-
 sub _get_stream {
 
   my($self, $uid, $streamfmt) = @_;
