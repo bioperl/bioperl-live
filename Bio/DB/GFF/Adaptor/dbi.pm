@@ -69,10 +69,8 @@ sub new {
   if (!ref($features_db)) {
     my $dsn = $features_db;
     my @args;
-    if (defined $username or defined $auth) {
-      push @args,$username;
-      push @args,$auth;
-    }
+    push @args,$username if defined $username;
+    push @args,$auth     if defined $auth;
     $features_db = Bio::DB::GFF::Adaptor::dbi::caching_handle->new($dsn,@args)
       || $class->throw("new(): Failed to connect to $dsn: "
 		       . Bio::DB::GFF::Adaptor::dbi::caching_handle->errstr);
@@ -168,7 +166,7 @@ list containing reference sequence name, class, start, stop and strand.
 =cut
 
 # given sequence name, return (reference,start,stop,strand)
-sub get_abscoords {
+sub get_abscoords_b {
   my $self = shift;
   my ($name,$class,$refseq)  = @_;
 
@@ -187,6 +185,43 @@ sub get_abscoords {
     return \@result;
   }
 }
+
+####################################
+##
+##  SHULY - only a backup - delete when get_abscoords works fine!
+##
+#####################################
+sub get_abscoords {
+  my $self = shift;
+  my ($name,$class,$refseq)  = @_;
+
+  my $sth = $self->make_abscoord_query($name,$class,$refseq);
+
+  my @result;
+  while (my @row = $sth->fetchrow_array) {
+    push @result,\@row
+  }
+  $sth->finish;
+
+  if (@result == 0) {
+    #$self->error("$name not found in database");
+    my $sth2 = $self->make_aliasabscoord_query($name,$class);
+
+    while (my @row2 = $sth2->fetchrow_array) {
+        push @result,\@row2
+    }
+    $sth->finish;
+    
+    if (@result == 0){
+        $self->error("$name not found in database");
+        return;
+    }
+  }
+  #} else {
+  return \@result;
+  #}
+}
+
 
 =head2 get_features
 
@@ -327,46 +362,6 @@ sub _feature_by_name {
   return $count;
 }
 
-=head2 _feature_by_alias
-
- Title   : _feature_by_alias
- Usage   : $db->get_features_by_alias($name,$class,$callback)
- Function: get a list of features by name and class
- Returns : count of number of features retrieved
- Args    : name of feature, class of feature, and a callback
- Status  : protected
-
-This method is used internally.  The callback arguments are those used
-by make_feature().  Internally, it invokes the following abstract procedures:
-
- make_features_select_part
- make_features_from_part
- make_features_by_name_where_part
- make_features_join_part
-
-=cut
-
-sub _feature_by_alias {
-  my $self = shift;
-  my ($class,$name,$callback) = @_;
-  $callback || $self->throw('must provide a callback argument');
-
-  my $select         = $self->make_features_select_part;
-  my $from           = $self->make_features_from_part({attributes=>1});
-  my ($where,@args)  = $self->make_features_by_alias_where_part($class,$name);
-  my $join           = $self->make_features_by_alias_join_part;
-  my $query  = "SELECT $select FROM $from WHERE $where AND $join";
-  my $sth    = $self->dbh->do_query($query,@args);
-
-  my $count = 0;
-  while (my @row = $sth->fetchrow_array) {
-    $callback->(@row);
-    $count++;
-  }
-  $sth->finish;
-  return $count;
-}
-
 =head2 _feature_by_id
 
  Title   : _feature_by_id
@@ -416,7 +411,7 @@ sub _feature_by_attribute {
   $callback || $self->throw('must provide a callback argument');
 
   my $select         = $self->make_features_select_part;
-  my $from           = $self->make_features_from_part({attributes=>$attributes},undef);
+  my $from           = $self->make_features_from_part(undef,{attributes=>$attributes});
   my ($where,@args)  = $self->make_features_by_range_where_part('',{attributes=>$attributes});
   my $join           = $self->make_features_join_part({attributes=>$attributes});
   my $query          = "SELECT $select FROM $from WHERE $where AND $join";
@@ -569,7 +564,7 @@ sub range_query {
   my %a             = (refseq=>$refseq,class=>$class,start=>$start,stop=>$stop,types=>$types,attributes=>$attributes,bin_width=>$bin);
   my $straight      = $self->do_straight_join(\%a) ? 'straight_join' : '';
   my $select        = $self->make_features_select_part(\%a);
-  my $from          = $self->make_features_from_part(\%a,$sparse);
+  my $from          = $self->make_features_from_part($sparse,\%a);
   my $join          = $self->make_features_join_part(\%a);
   my ($where,@args) = $self->make_features_by_range_where_part($rangetype,\%a);
   my ($group_by,@more_args) = $self->make_features_group_by_part(\%a);
@@ -888,14 +883,54 @@ Internally, this method calls schema() to get the schema data.
 # Create the schema from scratch.
 # You will need create privileges for this.
 sub do_initialize {
+  #shift->throw("do_initialize(): must be implemented by subclass");
   my $self = shift;
   my $erase = shift;
   $self->drop_all if $erase;
 
   my $dbh = $self->features_db;
   my $schema = $self->schema;
-  foreach (values %$schema) {
-    $dbh->do($_) || warn $dbh->errstr;
+  #foreach (values %$schema) {
+  #  $dbh->do($_) || warn $dbh->errstr;
+  #}
+  foreach my $table_name(keys %$schema) {
+    my $create_table_stmt = $$schema{$table_name}{table} ;
+    $dbh->do($create_table_stmt) ||  warn $dbh->errstr;
+
+    $self->create_other_schema_objects(\%{$schema->{$table_name}});
+    
+
+  }
+
+  1;
+}
+
+=head2 create_other_schema_objects
+
+ Title   : create_other_schema_objects
+ Usage   : $self->create_other_schema_objects($table_name)
+ Function: create other schema objects like : indexes, sequences, triggers
+ Returns : 
+ Args    : 
+ Status  : Abstract
+
+=cut
+
+sub create_other_schema_objects{
+  #shift->throw("create_other_schema_objects(): must be implemented by subclass");
+  my $self = shift ;
+  my $table_schema = shift ; 
+  my $dbh = $self->features_db;
+  #my $schema = $self->schema;
+
+  #foreach my $object_type(keys $$schema{$table_name}){
+   foreach my $object_type(keys %$table_schema){
+    if ($object_type !~ 'table') {
+     foreach my $object_name(keys %{$table_schema->{$object_type}}){
+        my $create_object_stmt = $table_schema->{$object_type}{$object_name};
+        $dbh->do($create_object_stmt) ||  warn $dbh->errstr;   
+     }
+    } 
   }
   1;
 }
@@ -916,19 +951,56 @@ calls the abstract tables() method.
 
 # Drop all the GFF tables -- dangerous!
 sub drop_all {
+  #shift->throw("drop_all(): must be implemented by subclass");
   my $self = shift;
   my $dbh = $self->features_db;
+  my $schema = $self->schema;
+
   local $dbh->{PrintError} = 0;
   foreach ($self->tables) {
-    $dbh->do("drop table $_");
+    $dbh->do("drop table $_") || warn $dbh->errstr;
+
+    
+    
+    #when dropping a table - the indexes and triggers are being dropped automatically
+    # sequences needs to be dropped - if there are any (Oracle, PostgreSQL)
+    if ($schema->{$_}{sequence}){
+      foreach my $sequence_name(keys %{$schema->{$_}{sequence}}) {
+	$dbh->do("drop sequence $sequence_name");
+      }
+    }
+
+    #$self->drop_other_schema_objects($_);
+    
   }
 }
+
 
 =head1 QUERIES TO IMPLEMENT
 
 The following astract methods either return DBI statement handles or
 fragments of SQL.  They must be implemented by subclasses of this
 module.  See Bio::DB::GFF::Adaptor::dbi::mysql for examples.
+
+
+
+
+=head2 drop_other_schema_objects
+
+ Title   : drop_other_schema_objects
+ Usage   : $self->create_other_schema_objects($table_name)
+ Function: create other schema objects like : indexes, sequences, triggers
+ Returns : 
+ Args    : 
+ Status  : Abstract
+
+
+=cut
+
+sub drop_other_schema_objects{
+  #shift->throw("drop_other_schema_objects(): must be implemented by subclass");
+  
+}
 
 =head2 make_features_select_part
 
@@ -950,14 +1022,11 @@ sub make_features_select_part {
 
 =head2 make_features_from_part
 
- Title   : make_features_from_part($atributes,$sparse)
+ Title   : make_features_from_part
  Usage   : $string = $db->make_features_from_part()
  Function: make from part of the features query
  Returns : a string
- Args    : $attributes is a hash containing attributes to match
-           (see get_by_attribute), and $sparse is a flag indicating
-           that there are relatively few of this type of feature
-           in the data table.
+ Args    : none
  Status  : Abstract
 
 This abstract method creates the part of the features query that
@@ -987,26 +1056,6 @@ do not need to join, return "1".
 
 sub make_features_join_part {
   shift->throw("make_features_join_part(): must be implemented by subclass");
-}
-
-=head2 make_features_by_alias_join_part
-
- Title   : make_features_by_alias_join_part
- Usage   : $string = $db->make_features_by_alias_join_part()
- Function: make join part of the features query
- Returns : a string
- Args    : none
- Status  : Abstract
-
-This abstract method creates the part of the features query that
-immediately follows the WHERE keyword.  It is combined with the output
-of make_feautres_where_part() to form the full WHERE clause.  If you
-do not need to join, return "1".
-
-=cut
-
-sub make_features_by_alias_join_part {
-  shift->throw("make_features_by_alias_join_part(): must be implemented by subclass");
 }
 
 =head2 make_features_order_by_part
@@ -1046,24 +1095,6 @@ sub make_features_by_name_where_part {
   my ($class,$name) = @_;
   shift->throw('make_features_by_name_where_part(): must be implemented by subclass');
 }
-
-=head2 make_features_by_alias_where_part
-
- Title   : make_features_by_alias_where_part
- Usage   : $db->make_features_by_alias_where_part
- Function: create the SQL fragment needed to select a feature by its alias & group class
- Returns : a SQL fragment and bind arguments
- Args    : see below
- Status  : Protected
-
-=cut
-
-sub make_features_by_alias_where_part {
-  my $self = shift;
-  my ($class,$name) = @_;
-  shift->throw('make_features_by_name_where_part(): must be implemented by subclass');
-}
-
 
 =head2 make_features_by_id_where_part
 
@@ -1155,6 +1186,14 @@ sub make_abscoord_query {
   # in scalar context, return a query string.
   # in array context, return a query string and bind arguments
 }
+sub make_aliasabscoord_query {
+  my $self = shift;
+  my ($seq_name,$seq_class) = @_;
+  $self->throw("make_aliasabscoord_query(): must be implemented by subclass");
+  # in scalar context, return a query string.
+  # in array context, return a query string and bind arguments
+}
+
 
 =head2 refseq_query
 
@@ -1481,7 +1520,7 @@ This method lists the tables known to the module.
 
 =cut
 
-# return list of tables that "belong" to us.
+# return list of tables that "belong" to us. 
 sub tables {
   my $schema = shift->schema;
   return keys %$schema;

@@ -313,8 +313,8 @@ sub make_object {
 # WHETHER OR NOT THIS WORKS IS CRITICALLY DEPENDENT ON THE RELATIVE MAGNITUDE OF THE
 sub make_features_from_part {
   my $self = shift;
-  my $options = shift || {};
   my $sparse = shift;
+  my $options = shift || {};
   my $index = $sparse ? ' USE INDEX(ftypeid)': '';
   return $options->{attributes} ? "fdata${index},ftype,fgroup,fattribute,fattribute_to_feature\n"
                                 : "fdata${index},ftype,fgroup\n";
@@ -358,7 +358,7 @@ sub setup_load {
   my $dbh = $self->features_db;
 
   my $insert_data  = $dbh->prepare(<<END);
-REPLACE INTO fdata (fref,fstart,fstop,fbin,ftypeid,fscore,
+INSERT INTO fdata (fref,fstart,fstop,fbin,ftypeid,fscore,
 		   fstrand,fphase,gid,ftarget_start,ftarget_stop)
        VALUES(?,?,?,?,?,?,?,?,?,?,?)
 END
@@ -413,8 +413,8 @@ sub load_gff_line {
 sub schema {
   my $self = shift;
   my $schema = $self->SUPER::schema;
-  $schema->{fdata} = q{
-create table fdata (
+  $schema->{fdata} = {table=>
+    q{create table fdata (
     fid	                int not null  auto_increment,
     fref                varchar(100) not null,
     fstart              int unsigned   not null,
@@ -431,7 +431,7 @@ create table fdata (
     unique index(fref,fbin,fstart,fstop,ftypeid,gid),
     index(ftypeid),
     index(gid)
-)
+		   )                    }
 		      };
   $schema;
 }

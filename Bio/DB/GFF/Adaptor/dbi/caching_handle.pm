@@ -139,6 +139,11 @@ sub dbh {
   warn "(Re)connecting to database\n" if $self->debug;
   my $dbh = DBI->connect(@{$self->{args}}) or return;
   $dbh->{PrintError} = 0;
+  
+  # for Oracle - to retrieve LOBs, need to define the length (Jul 15, 2002)
+  $dbh->{LongReadLen} = 100*65535;
+  $dbh->{LongTruncOk} = 0;
+
   my $wrapper = Bio::DB::GFF::Adaptor::dbi::faux_dbh->new($dbh);
   push @{$self->{dbh}},$wrapper;
   $wrapper;
@@ -232,10 +237,13 @@ sub finish {
   $self->{sth} && $self->{sth}->finish;
 }
 
-sub insertid {
-  my $self = shift;
-  $self->{sth}{mysql_insertid};
-}
+# shuly Jun25 
+#this function was moved out to the Adaptors,since it only takes care of mysql
+
+#sub insertid {
+#  my $self = shift;
+#  $self->{sth}{mysql_insertid};
+#}
 
 sub DESTROY {
   my $self = shift;

@@ -370,44 +370,48 @@ sub make_abscoord_query {
   my $self = shift;
   my ($name,$class,$refseq) = @_;
   my $query = GETSEQCOORDS;
-  if ($name =~ s/(?<!\\)([*?])/$1 eq '*' ? '%' : '_'/ge) {
-    $name =~ tr/\\//d;
+  if ($name =~ /\*/) {
+    $name =~ tr/*/%/;
     $query =~ s/gname=\?/gname LIKE ?/;
   }
   defined $refseq ? $self->dbh->do_query(GETFORCEDSEQCOORDS,$name,$class,$refseq) 
     : $self->dbh->do_query($query,$name,$class);
 }
 
+sub make_aliasabscoord_query {
+  my $self = shift;
+  my ($name,$class) = @_;
+  my $query = GETALIASCOORDS;
+  if ($name =~ /\*/) {
+    $name =~ tr/*/%/;
+    $query =~ s/gname=\?/gname LIKE ?/;
+  }
+  $self->dbh->do_query($query,$name,$class);
+}
+
 # override parent
-sub get_abscoords {
+sub get_abscoords_bkup {
   my $self = shift;
   my ($name,$class,$refseq)  = @_;
 
   my $result = $self->SUPER::get_abscoords(@_);
+  return $result if $result;
 
-  # Return the result if we got a non-empty response
-  # AND no wildcard match was requested.  Otherwise we do
-  # an alias search.
-  return $result if $result && $name !~ /(?<!\\)[*?]/;
-  $result ||= [];
-
-  # handle aliases
   my $sth;
-  if ($name =~ s/(?<!\\)([*?])/$1 eq '*' ? '%' : '_'/ge) {
-    $name =~ tr/\\//d;
+  if ($name =~ s/\*/%/g) {
     $sth = $self->dbh->do_query(GETALIASLIKE,$name,$class);
   } else {
     $sth = $self->dbh->do_query(GETALIASCOORDS,$name,$class);
   }
-
-  while (my @row = $sth->fetchrow_array) { push @$result,\@row }
+  my @result;
+  while (my @row = $sth->fetchrow_array) { push @result,\@row }
   $sth->finish;
 
-  if (@$result == 0) {
+  if (@result == 0) {
     $self->error("$name not found in database");
     return;
   } else {
-    return $result;
+    return \@result;
   }
 
 }
@@ -426,33 +430,11 @@ sub get_abscoords {
 sub make_features_by_name_where_part {
   my $self = shift;
   my ($class,$name) = @_;
-  if ($name =~ /[*?]/) {
-    $name =~ tr/*?/%_/;
+  if ($name =~ /\*/) {
+    $name =~ s/\*/%/g;
     return ("fgroup.gclass=? AND fgroup.gname LIKE ?",$class,$name);
   } else {
     return ("fgroup.gclass=? AND fgroup.gname=?",$class,$name);
-  }
-}
-
-=head2 make_features_by_alias_where_part
-
- Title   : make_features_by_alias_where_part
- Usage   : $db->make_features_by_alias_where_part
- Function: create the SQL fragment needed to select a feature by its alias & group class
- Returns : a SQL fragment and bind arguments
- Args    : see below
- Status  : Protected
-
-=cut
-
-sub make_features_by_alias_where_part {
-  my $self = shift;
-  my ($class,$name) = @_;
-  if ($name =~ /[*?]/) {
-    $name =~ tr/*?/%_/;
-    return ("fgroup.gclass=? AND fattribute_to_feature.fattribute_value LIKE ?",$class,$name);
-  } else {
-    return ("fgroup.gclass=? AND  fattribute_to_feature.fattribute_value=?",$class,$name);
   }
 }
 
@@ -594,34 +576,6 @@ END1
 END2
 }
 
-=head2 make_features_by_alias_join_part
-
- Title   : make_features_by_alias_join_part
- Usage   : $string = $db->make_features_by_alias_join_part()
- Function: make join part of the features query
- Returns : a string
- Args    : none
- Status  : Abstract
-
-This abstract method creates the part of the features query that
-immediately follows the WHERE keyword.  It is combined with the output
-of make_feautres_where_part() to form the full WHERE clause.  If you
-do not need to join, return "1".
-
-=cut
-
-sub make_features_by_alias_join_part {
-  my $self = shift;
-  return <<END;
-  fgroup.gid = fdata.gid
-  AND fattribute.fattribute_name='Alias'
-  AND fattribute_to_feature.fattribute_id=fattribute.fattribute_id
-  AND fattribute_to_feature.fid=fdata.fid
-  AND ftype.ftypeid = fdata.ftypeid
-END
-}
-
-
 =head2 make_features_order_by_part
 
  Title   : make_features_order_by_part
@@ -661,6 +615,12 @@ related methods.
 sub make_features_group_by_part {
   my $self = shift;
   my $options = shift || {};
+  my $att = $options->{attributes} or return;
+  my $key_count = keys %$att;
+  return unless $key_count > 1;
+  #return ("fdata.fid having count(fdata.fid) > ?",$key_count-1);
+  return ("fref,fstart,fstop,fsource,fmethod,fscore,fstrand,fphase,gclass,gname,ftarget_start,ftarget_stop,fdata.fid,fdata.gid having count(fdata.fid) > ?",$key_count-1);
+
   if (my $att = $options->{attributes}) {
     my $key_count = keys %$att;
     return unless $key_count > 1;
@@ -672,6 +632,7 @@ sub make_features_group_by_part {
   elsif (my $b = $options->{bin_width}) {
     return "fref,fstart,fdata.ftypeid";
   }
+
 }
 
 =head2 refseq_query
@@ -1133,7 +1094,8 @@ needed to initialize the database tables.
 
 sub schema {
   my %schema = (
-		fdata => q{
+		fdata =>{ 
+table=> q{
 create table fdata (
     fid	         int not null  auto_increment,
     fref         varchar(100)    not null,
@@ -1141,7 +1103,7 @@ create table fdata (
     fstop        int unsigned   not null,
     ftypeid      int not null,
     fscore        float,
-    fstrand       enum('+','-','.'),
+    fstrand       enum('+','-'),
     fphase        enum('0','1','2'),
     gid          int not null,
     ftarget_start int unsigned,
@@ -1151,9 +1113,11 @@ create table fdata (
     index(ftypeid),
     index(gid)
 )
-},
+}  # fdata table
+}, # fdata
 
-		fgroup => q{
+		fgroup =>{ 
+table=> q{
 create table fgroup (
     gid	    int not null  auto_increment,
     gclass  varchar(100),
@@ -1161,9 +1125,11 @@ create table fgroup (
     primary key(gid),
     unique(gclass,gname)
 )
+}
 },
 
-          ftype => q{
+          ftype => {
+table=> q{
 create table ftype (
     ftypeid      int not null   auto_increment,
     fmethod       varchar(100) not null,
@@ -1173,34 +1139,42 @@ create table ftype (
     index(fsource),
     unique ftype (fmethod,fsource)
 )
-},
+}  #ftype table
+}, #ftype
 
-         fdna => q{
+         fdna => {
+table=> q{
 create table fdna (
 		fref    varchar(100) not null,
 	        foffset int(10) unsigned not null,
 	        fdna    longblob,
 		primary key(fref,foffset)
 )
-},
+} # fdna table
+},#fdna
 
-        fmeta => q{
+        fmeta => {
+table=> q{
 create table fmeta (
 		fname   varchar(255) not null,
 	        fvalue  varchar(255) not null,
 		primary key(fname)
 )
-},
+} # fmeta table
+},#fmeta
 
-       fattribute => q{
+       fattribute => {
+table=> q{
 create table fattribute (
 	fattribute_id     int(10)         unsigned not null auto_increment,
         fattribute_name   varchar(255)    not null,
 	primary key(fattribute_id)
 )
-},
+} #fattribute table
+},#fattribute
 
-       fattribute_to_feature => q{
+       fattribute_to_feature => {
+table=> q{
 create table fattribute_to_feature (
         fid              int(10) not null,
         fattribute_id    int(10) not null,
@@ -1209,10 +1183,74 @@ create table fattribute_to_feature (
 	key(fattribute_value(48)),
         fulltext(fattribute_value)
 )
-    },
+} # fattribute_to_feature table
+    }, # fattribute_to_feature
 );
   return \%schema;
 }
+
+
+=head2 do_initialize
+
+ Title   : do_initialize
+ Usage   : $success = $db->do_initialize($drop_all)
+ Function: initialize the database
+ Returns : a boolean indicating the success of the operation
+ Args    : a boolean indicating whether to delete existing data
+ Status  : protected
+
+This method will load the schema into the database.  If $drop_all is
+true, then any existing data in the tables known to the schema will be
+deleted.
+
+Internally, this method calls schema() to get the schema data.
+
+=cut
+
+# Create the schema from scratch.
+# You will need create privileges for this.
+#sub do_initialize {
+#  my $self = shift;
+#  my $erase = shift;
+#  $self->drop_all if $erase;
+
+#  my $dbh = $self->features_db;
+#  #my $dbh = $self->dsn;
+#  my $schema = $self->schema;
+#  #foreach (values %$schema) {
+#  #  $dbh->do($_) || warn $dbh->errstr;
+#  #}
+#  foreach my $table_name(keys %$schema) {
+#    my $create_table_stmt = $$schema{$table_name}{table} ;
+#    $dbh->do($create_table_stmt) ||  warn $dbh->errstr;
+#  }
+#  1;
+#}
+
+=head2 drop_all
+
+ Title   : drop_all
+ Usage   : $db->drop_all
+ Function: empty the database
+ Returns : void
+ Args    : none
+ Status  : protected
+
+This method drops the tables known to this module.  Internally it
+calls the abstract tables() method.
+
+=cut
+
+# Drop all the GFF tables -- dangerous!
+#sub drop_all {
+#  my $self = shift;
+#  my $dbh = $self->features_db;
+#  #my $dbh = $dsn;
+#  local $dbh->{PrintError} = 0;
+#  foreach ($self->tables) {
+#    $dbh->do("drop table $_");
+#  }
+#}
 
 =head2 default_meta_values
 
@@ -1306,17 +1344,17 @@ sub setup_load {
   }
 
   my $lookup_type = $dbh->prepare_delayed('SELECT ftypeid FROM ftype WHERE fmethod=? AND fsource=?');
-  my $insert_type = $dbh->prepare_delayed('REPLACE INTO ftype (fmethod,fsource) VALUES (?,?)');
+  my $insert_type = $dbh->prepare_delayed('INSERT INTO ftype (fmethod,fsource) VALUES (?,?)');
 
   my $lookup_group = $dbh->prepare_delayed('SELECT gid FROM fgroup WHERE gname=? AND gclass=?');
-  my $insert_group = $dbh->prepare_delayed('REPLACE INTO fgroup (gname,gclass) VALUES (?,?)');
+  my $insert_group = $dbh->prepare_delayed('INSERT INTO fgroup (gname,gclass) VALUES (?,?)');
 
   my $lookup_attribute = $dbh->prepare_delayed('SELECT fattribute_id FROM fattribute WHERE fattribute_name=?');
-  my $insert_attribute = $dbh->prepare_delayed('REPLACE INTO fattribute (fattribute_name) VALUES (?)');
-  my $insert_attribute_value = $dbh->prepare_delayed('REPLACE INTO fattribute_to_feature (fid,fattribute_id,fattribute_value) VALUES (?,?,?)');
+  my $insert_attribute = $dbh->prepare_delayed('INSERT INTO fattribute (fattribute_name) VALUES (?)');
+  my $insert_attribute_value = $dbh->prepare_delayed('INSERT INTO fattribute_to_feature (fid,fattribute_id,fattribute_value) VALUES (?,?,?)');
 
   my $insert_data  = $dbh->prepare_delayed(<<END);
-REPLACE INTO fdata (fref,fstart,fstop,ftypeid,fscore,
+INSERT INTO fdata (fref,fstart,fstop,ftypeid,fscore,
 		   fstrand,fphase,gid,ftarget_start,ftarget_stop)
        VALUES(?,?,?,?,?,?,?,?,?,?)
 END
@@ -1481,11 +1519,17 @@ sub get_table_id {
 
   unless (defined($s->{$table}{$id_key})) {
 
+    #########################################
+    # shuly Jun26 
+    # retrieval of the last inserted id is now located at the adaptor and not in caching_handle
+    #######################################
     if ( (my $result = $sth->{"lookup_$table"}->execute(@ids)) > 0) {
       $s->{$table}{$id_key} = ($sth->{"lookup_$table"}->fetchrow_array)[0];
     } else {
       $sth->{"insert_$table"}->execute(@ids)
-	&& ($s->{$table}{$id_key} = $sth->{"insert_$table"}->insertid);
+	&& ($s->{$table}{$id_key} = $self->insertid($sth->{"insert_$table"}));
+	#&& ($s->{$table}{$id_key} = $sth->{"insert_$table"}{sth}{mysql_insertid});
+	#&& ($s->{$table}{$id_key} = $sth->{"insert_$table"}->insertid);
     }
   }
 
@@ -1496,6 +1540,13 @@ sub get_table_id {
   }
   $id;
 }
+
+sub insertid {
+  my $self = shift;
+  my $s = shift ;
+  $s->{sth}{mysql_insertid};
+}
+
 
 =head2 get_feature_id
 
