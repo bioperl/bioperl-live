@@ -11,7 +11,7 @@ use constant MAX_SEGMENT => 100_000_000;  # the largest a segment can get
 
 use constant GETSEQCOORDS =><<END;
 SELECT fref,
-       'Sequence',
+       IF(ISNULL(gclass),'Sequence',gclass),
        min(fstart),
        max(fstop),
        fstrand

@@ -10,9 +10,14 @@ $VERSION = '0.10';
 
 sub new {
   my $class = shift;
-  my ($args) = rearrange([],@_);
-  $args = {} unless $args;
-  return bless $args,$class;
+  my ($method,$main,$sub_parts) = rearrange([qw(METHOD MAIN_PART SUB_PARTS)],@_);
+  $method ||= $main;
+  $main   ||= $method;
+  return bless {
+		method      => $method,
+		main_method => $main,
+		sub_parts   => $sub_parts,
+	       },$class;
 }
 
 # this is called at the beginning to turn the pseudo-type 
@@ -63,13 +68,37 @@ sub aggregate {
   my $features = shift;
   my $factory  = shift;
 
-  $self->throw("aggregate() method must be overridden by a subclass");
-}
+  my $main_method = $self->main_name;
+  my $matchsub    = $self->match_sub($factory) or return $features;
 
-sub method {
-  shift->throw("method() method must be overriden by a subclass");
-}
+  my (@result,%aggregates);
+  for my $feature (@$features) {
+    next unless $feature->group;
+    next unless $matchsub->($feature);
+    if ($feature->type =~ /$main_method/o) {
+      $aggregates{$feature->group}{base} ||= $feature->clone;
+    } else {
+      push @{$aggregates{$feature->group}{subparts}},$feature;
+    }
+  } continue {
+    push @result,$feature;   # in case someone else wants to look
+  }
 
+  # aggregate transcripts
+  my $pseudo_method = $self->method;
+
+  foreach (keys %aggregates) {
+    next unless exists $aggregates{$_}{base};
+    next unless exists $aggregates{$_}{subparts};
+    my $base = $aggregates{$_}{base};
+    $base->method($pseudo_method);
+    $base->add_subfeature($_) foreach @{$aggregates{$_}{subparts}};
+    $base->adjust_bounds;
+    push @result,$base;
+  }
+
+  \@result;
+}
 sub get_part_names {
   my $self = shift;
   if (exists $self->{PARTS}) {
@@ -85,11 +114,15 @@ sub get_main_name {
   return $self->main_name;
 }
 
+
+sub method {  shift->{method} }
+
 sub part_names {
-  return;
+  my $self = shift;
+  my $sp = $self->{sub_parts} or return;
+  return $sp unless ref $sp;
+  return @{$sp};
 }
-sub main_name {
-  return;
-}
+sub main_name { shift->{main_method} }
 
 1;

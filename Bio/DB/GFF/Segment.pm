@@ -66,6 +66,8 @@ There are five positional arguments:
 sub new {
   my $class = shift;
   my ($factory,$segclass,$segname,$start,$stop) = @_;
+  $segclass = $segname->class if $segname->can('class');
+  $segclass ||= 'Sequence';
 
   $factory or $class->throw("->new(): provide a factory argument");
   $class = ref $class if ref $class;

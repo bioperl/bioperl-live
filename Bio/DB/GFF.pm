@@ -204,10 +204,10 @@ of transcripts.
 
 Three aggregators are currently provided:
 
-      - transcript   assembles transcripts
-      - clone        assembles clones from Clone_end features
-      - alignment    assembles gapped alignments from similarity
-		     features
+      transcript   assembles transcripts
+      clone        assembles clones from Clone_end features
+      alignment    assembles gapped alignments from similarity
+	           features
 
 The existing aggregators are easily customized.
 
@@ -382,6 +382,8 @@ sub load {
   }
 
   my $result = $self->load_gff;
+
+  my $junk = fileno(SAVEIN);  # avoids "possible typo" warning in next line
 
   open STDIN,"<&SAVEIN";  # restore STDIN
   return $result;

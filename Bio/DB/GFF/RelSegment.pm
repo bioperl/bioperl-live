@@ -117,7 +117,8 @@ use vars qw($VERSION @ISA);
 $VERSION = '0.25';
 
 use overload '""' => 'asString',
-             'bool' => sub { overload::StrVal(shift) } ;
+             'bool' => sub { overload::StrVal(shift) },
+             fallback=>1;
 
 =head1 API
 
@@ -156,6 +157,9 @@ stored source sequence becomes whatever the GFF file indicates is the
 proper sequence for this landmark.  A class of "Sequence" is assumed
 unless otherwise specified in the -class argument.
 
+If the argument to -seq is a Bio::GFF::Featname object (such as
+returned by the group() method), then the class is taken from that.
+
 The optional -start and -stop arguments specify the end points for the
 retrieved segment.  For those who do not like 1-based indexing,
 -offset and -length are provided.  If both -start/-stop and
@@ -164,7 +168,9 @@ Generally it is not a good idea to mix metaphors.
 
 -ref and -refclass together indicate a sequence to be used for
 relative coordinates.  If not provided, the source sequence indicated
-by -seq is used as the reference sequence.
+by -seq is used as the reference sequence.  If the argument to -ref is
+a Bio::GFF::Featname object (such as returned by the group() method),
+then the class is taken from that.
 
 =cut
 
@@ -205,6 +211,8 @@ sub new {
   # partially fill in object
   my $self = bless { factory => $factory },$package;
 
+  # support for Featname objects
+  $class = $name->class if $name->can('class');
   # if the class of the landmark is not specified then default to 'Sequence'
   $class ||= 'Sequence';
 
@@ -244,6 +252,7 @@ sub new {
 
   # but what about the reference sequence?
   if (defined $refseq) {
+    $refclass = $refseq->class if $refseq->can('class');
     $refclass ||= 'Sequence';
     my ($refref,$refstart,$refstop,$refstrand) = $factory->abscoords($refseq,$refclass);
     unless ($refref eq $absref) {
@@ -287,9 +296,9 @@ sub length {
 
 This method will get or set the reference sequence.  Called with no
 arguments, it returns the current reference sequence.  Called with
-either a sequence ID and class or a Bio::DB::GFF::Segment object (or
-subclass), it will set the current reference sequence and return the
-previous one.
+either a sequence ID and class, a Bio::DB::GFF::Segment object (or
+subclass) or a Bio::DB::GFF::Featname object, it will set the current
+reference sequence and return the previous one.
 
 The method will generate an exception if you attempt to set the
 reference sequence to a sequence that isn't contained in the database,
@@ -302,7 +311,11 @@ sub refseq {
   my $g    = $self->{ref};
   if (@_) {
     my $newref   = shift;
-    my $newclass = shift || 'Sequence';
+
+    # support for Featname objects
+    my $newclass = shift;
+    $newclass = $newref->class if $newref->can('class');
+    $newclass ||= 'Sequence';
 
     $self->throw("Cannot define a segment's reference sequence in terms of itself!")
       if ref($newref) and overload::StrVal($newref) eq overload::StrVal($self);
