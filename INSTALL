@@ -155,12 +155,13 @@ o INSTALLING BIOPERL THE EASY WAY USING 'make'
    or advice then contact bioperl-l@bioperl.org. 
 
    To 'make install' you need write permission in the perl5/site_perl/ 
-   source area. Quite often this will require you becoming root, so
+   source area. Usually this will require you becoming root, so
    you will want to talk to your systems manager if you don't have 
    the necessary privileges.
 
-   It is possible to install the package outside of the standard Perl5 
-   location. See INSTALLING BIOPERL IN A PERSONAL MODULE AREA, below.
+   It is also straightforward to install the package outside of the 
+   this standard Perl5 location. See
+   INSTALLING BIOPERL IN A PERSONAL MODULE AREA, below.
 
 
 o WHERE ARE THE MAN PAGES?
@@ -202,31 +203,45 @@ o EXTERNAL PROGRAMS
 
      setenv BLASTDIR /data1/blast
 
-   The environment variables include:
-   Bio::Tools::Run::StandAloneBlast
-     BLASTDIR - which specifies where the NCBI blastall, blastpgp,
-                bl2seq, etc.. are located.  A 'data' directory is
-		assumed to be present in this dir as well where the
-		blastable databases are located as well as 
-		substitution matricies.
+   Some environment variables include:
 
-     BLASTDATADIR or 
-     BLASTDB - (either is optional) if one does not want to locate the data dir
-	       within the same dir as where the BLASTDIR variable
-	       points, a BLASTDATADIR or BLASTDB variable can be set to 
-	       point to a dir where BLAST database indexes are located.
-   Bio::Tools::Run::Alignment::Clustalw
-     CLUSTALDIR - points to the directory where the clustalw
-                  executable is located.
-   Bio::Tools::Run::Alignment::TCoffee
-     TCOFFEEDIR - points to the directory where the t_coffee
-                  executable is located.
-		 
-     HTTP_PROXY - If you access the internet via a proxy server then you 
-                  can tell the Bioperl modules which require network access
-                  about this by using the HTTP_PROXY environment variable.  
-                  The value set includes the proxy address and the port 
-                  used (e.g. http://wwwcache.example.com:8080).
+     BLASTDIR
+	
+     Specifies where the NCBI blastall, blastpgp,
+     bl2seq, etc.. are located.  A 'data' directory
+	  could also be present in this directory as well, you could put
+     your blastable databases here.
+
+     BLASTDATADIR or BLASTDB
+
+     If one does not want to locate the data dir
+	  within the same dir as where the BLASTDIR variable
+	  points, a BLASTDATADIR or BLASTDB variable can be set to 
+	  point to a dir where BLAST database indexes are located.
+
+     BLASTMAT
+
+     The directory containing the substitution matrices
+     such as BLOSUM62.
+
+
+     CLUSTALDIR
+
+     The directory where the clustalw executable is located.
+  
+
+     TCOFFEEDIR
+
+     The directory where the t_coffee executable is located.
+
+ 
+     HTTP_PROXY
+    
+     If you access the internet via a proxy server then you 
+     can tell the Bioperl modules which require network access
+     about this by using the HTTP_PROXY environment variable.  
+     The value set includes the proxy address and the port 
+     used (e.g. http://wwwcache.example.com:8080).
 
 
 o INSTALLING BIOPERL SCRIPTS
@@ -388,7 +403,7 @@ o BUILDING THE OPTIONAL bioperl-ext PACKAGE
    detailed above)
 
      perl Makefile.PL   # makes the system specific makefile 
-                      # Solaris/BSD users might need to edit the Makefile here
+                        # Solaris/BSD users might need to edit the Makefile
      make               # builds all the libaries
      make test          # runs a short test
      make install       # installs the package correctly.
