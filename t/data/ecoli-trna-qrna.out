@@ -1,0 +1,811 @@
+#---------------------------------------------------------------------------------
+#      qrna 1.2b (Tue Dec 18 15:04:38 CST 2001) using squid 1.5m (Sept 1997)
+#---------------------------------------------------------------------------------
+#      PAM model =  BLOSUM62 scaled by 1.000
+#---------------------------------------------------------------------------------
+#      RNA model =  /mix_tied_linux.cfg
+#---------------------------------------------------------------------------------
+#      seq file  =  ecoli-trna.blast.q
+#                   #seqs: 94 (max_len = 78)
+#---------------------------------------------------------------------------------
+#      full length version:  -- length range = [0,1000]
+#---------------------------------------------------------------------------------
+# 1  [+ strand] 
+>DA0780-1- (76)
+>ECOLI-225501- (76)
+
+length alignment: 76 (id=77.63)
+posX: 0-75 [0-72](73) -- (0.18 0.30 0.36 0.16) 
+posY: 0-75 [0-71](72) -- (0.17 0.29 0.33 0.21) 
+ 21.414226 -10.515196 16.075247
+ 19.988807 -3.972533 12.698167
+LOCAL_DIAG_VITERBI -- [Inside SCFG]
+winner = OTH 
+OTH  ends = 0 75
+COD  ends = 74 0
+RNA  ends = 0 12
+              OTH =       20.871             COD =       -4.957             RNA =       15.208 
+   logoddspostOTH =        0.000  logoddspostCOD =      -25.828  logoddspostRNA =       -5.663 
+
+# 2  [+ strand] 
+>DA0780-1- (76)
+>ECOLI-4034592- (76)
+
+length alignment: 76 (id=77.63)
+posX: 0-75 [0-72](73) -- (0.18 0.30 0.36 0.16) 
+posY: 0-75 [0-71](72) -- (0.17 0.29 0.33 0.21) 
+ 21.414226 -10.515196 16.075247
+ 19.988807 -3.972533 12.698167
+LOCAL_DIAG_VITERBI -- [Inside SCFG]
+winner = OTH 
+OTH  ends = 0 75
+COD  ends = 74 0
+RNA  ends = 0 12
+              OTH =       20.871             COD =       -4.957             RNA =       15.208 
+   logoddspostOTH =        0.000  logoddspostCOD =      -25.828  logoddspostRNA =       -5.663 
+
+# 3  [+ strand] 
+>DA0780-1- (70)
+>ECOLI-3979754- (70)
+
+length alignment: 70 (id=72.86)
+posX: 0-69 [0-68](69) -- (0.17 0.29 0.38 0.16) 
+posY: 0-69 [0-69](70) -- (0.16 0.30 0.36 0.19) 
+ 21.384909 12.463364 22.249356
+ 21.249381 17.921616 22.037246
+LOCAL_DIAG_VITERBI -- [Inside SCFG]
+winner = RNA 
+OTH  ends = 0 69
+COD  ends = 68 1
+RNA  ends = 3 69
+              OTH =       21.319             COD =       16.954             RNA =       22.147 
+   logoddspostOTH =        0.000  logoddspostCOD =       -4.365  logoddspostRNA =        0.828 
+
+# 4  [+ strand] 
+>DA0780-8- (56)
+>ECOLI-779995- (56)
+
+length alignment: 56 (id=71.43)
+posX: 0-55 [0-55](56) -- (0.20 0.29 0.34 0.18) 
+posY: 0-55 [0-54](55) -- (0.18 0.29 0.35 0.18) 
+ 14.761275 -0.369781 17.076846
+ 14.838704 10.225100 21.877122
+LOCAL_DIAG_VITERBI -- [Inside SCFG]
+winner = RNA 
+OTH  ends = 55 0
+COD  ends = 54 0
+RNA  ends = 35 19
+              OTH =       14.801             COD =        9.226             RNA =       20.928 
+   logoddspostOTH =        0.000  logoddspostCOD =       -5.574  logoddspostRNA =        6.127 
+
+# 5  [+ strand] 
+>DA0780-8- (56)
+>ECOLI-780298- (56)
+
+length alignment: 56 (id=71.43)
+posX: 0-55 [0-55](56) -- (0.20 0.29 0.34 0.18) 
+posY: 0-55 [0-54](55) -- (0.18 0.29 0.35 0.18) 
+ 14.761275 -0.369781 17.076846
+ 14.838704 10.225100 21.877122
+LOCAL_DIAG_VITERBI -- [Inside SCFG]
+winner = RNA 
+OTH  ends = 55 0
+COD  ends = 54 0
+RNA  ends = 35 19
+              OTH =       14.801             COD =        9.226             RNA =       20.928 
+   logoddspostOTH =        0.000  logoddspostCOD =       -5.574  logoddspostRNA =        6.127 
+
+# 6  [+ strand] 
+>DA0780-8- (56)
+>ECOLI-2518730- (56)
+
+length alignment: 56 (id=71.43)
+posX: 0-55 [0-55](56) -- (0.20 0.29 0.34 0.18) 
+posY: 0-55 [0-54](55) -- (0.18 0.29 0.35 0.18) 
+ 14.761275 -0.369781 17.076846
+ 14.838704 10.225100 21.877122
+LOCAL_DIAG_VITERBI -- [Inside SCFG]
+winner = RNA 
+OTH  ends = 55 0
+COD  ends = 54 0
+RNA  ends = 35 19
+              OTH =       14.801             COD =        9.226             RNA =       20.928 
+   logoddspostOTH =        0.000  logoddspostCOD =       -5.574  logoddspostRNA =        6.127 
+
+# 7  [+ strand] 
+>DA0780-8- (56)
+>ECOLI-2518850- (56)
+
+length alignment: 56 (id=71.43)
+posX: 0-55 [0-55](56) -- (0.20 0.29 0.34 0.18) 
+posY: 0-55 [0-54](55) -- (0.18 0.29 0.35 0.18) 
+ 14.761275 -0.369781 17.076846
+ 14.838704 10.225100 21.877122
+LOCAL_DIAG_VITERBI -- [Inside SCFG]
+winner = RNA 
+OTH  ends = 55 0
+COD  ends = 54 0
+RNA  ends = 35 19
+              OTH =       14.801             COD =        9.226             RNA =       20.928 
+   logoddspostOTH =        0.000  logoddspostCOD =       -5.574  logoddspostRNA =        6.127 
+
+# 8  [+ strand] 
+>DA0780-8- (56)
+>ECOLI-2518972- (56)
+
+length alignment: 56 (id=71.43)
+posX: 0-55 [0-55](56) -- (0.20 0.29 0.34 0.18) 
+posY: 0-55 [0-54](55) -- (0.18 0.29 0.35 0.18) 
+ 14.761275 -0.369781 17.076846
+ 14.838704 10.225100 21.877122
+LOCAL_DIAG_VITERBI -- [Inside SCFG]
+winner = RNA 
+OTH  ends = 55 0
+COD  ends = 54 0
+RNA  ends = 35 19
+              OTH =       14.801             COD =        9.226             RNA =       20.928 
+   logoddspostOTH =        0.000  logoddspostCOD =       -5.574  logoddspostRNA =        6.127 
+
+# 9  [+ strand] 
+>DA0780-2- (73)
+>ECOLI-2284230- (73)
+
+length alignment: 73 (id=64.38)
+posX: 0-72 [0-71](72) -- (0.18 0.31 0.35 0.17) 
+posY: 0-72 [0-72](73) -- (0.15 0.27 0.38 0.19) 
+ 13.918545 -8.608490 24.007519
+ 15.073192 7.016852 12.344431
+LOCAL_DIAG_VITERBI -- [Inside SCFG]
+winner = RNA 
+OTH  ends = 72 0
+COD  ends = 72 0
+RNA  ends = 0 70
+              OTH =       14.608             COD =        6.017             RNA =       23.008 
+   logoddspostOTH =        0.000  logoddspostCOD =       -8.592  logoddspostRNA =        8.400 
+
+# 10  [+ strand] 
+>DA0780-7- (59)
+>ECOLI-2945191- (59)
+
+length alignment: 59 (id=67.80)
+posX: 0-58 [0-55](56) -- (0.20 0.27 0.36 0.18) 
+posY: 0-58 [0-56](57) -- (0.19 0.28 0.32 0.21) 
+ 7.994668 -17.443195 7.730549
+ 8.785962 -9.672509 13.155362
+LOCAL_DIAG_VITERBI -- [Inside SCFG]
+winner = RNA 
+OTH  ends = 58 0
+COD  ends = 58 1
+RNA  ends = 39 21
+              OTH =        8.444             COD =      -10.666             RNA =       12.189 
+   logoddspostOTH =        0.000  logoddspostCOD =      -19.110  logoddspostRNA =        3.745 
+
+# 11  [+ strand] 
+>DA0780-7- (59)
+>ECOLI-2945301- (59)
+
+length alignment: 59 (id=67.80)
+posX: 0-58 [0-55](56) -- (0.20 0.27 0.36 0.18) 
+posY: 0-58 [0-56](57) -- (0.19 0.28 0.32 0.21) 
+ 7.994668 -17.443195 7.730549
+ 8.785962 -9.672509 13.155362
+LOCAL_DIAG_VITERBI -- [Inside SCFG]
+winner = RNA 
+OTH  ends = 58 0
+COD  ends = 58 1
+RNA  ends = 39 21
+              OTH =        8.444             COD =      -10.666             RNA =       12.189 
+   logoddspostOTH =        0.000  logoddspostCOD =      -19.110  logoddspostRNA =        3.745 
+
+# 12  [+ strand] 
+>DA0780-7- (59)
+>ECOLI-2945411- (59)
+
+length alignment: 59 (id=67.80)
+posX: 0-58 [0-55](56) -- (0.20 0.27 0.36 0.18) 
+posY: 0-58 [0-56](57) -- (0.19 0.28 0.32 0.21) 
+ 7.994668 -17.443195 7.730549
+ 8.785962 -9.672509 13.155362
+LOCAL_DIAG_VITERBI -- [Inside SCFG]
+winner = RNA 
+OTH  ends = 58 0
+COD  ends = 58 1
+RNA  ends = 39 21
+              OTH =        8.444             COD =      -10.666             RNA =       12.189 
+   logoddspostOTH =        0.000  logoddspostCOD =      -19.110  logoddspostRNA =        3.745 
+
+# 13  [+ strand] 
+>DA0780-1- (76)
+>ECOLI-3424373- (76)
+
+length alignment: 76 (id=77.63)
+posX: 0-75 [0-72](73) -- (0.16 0.36 0.30 0.18) 
+posY: 0-75 [0-71](72) -- (0.21 0.33 0.29 0.17) 
+ 20.682006 -9.755632 13.248665
+ 21.241284 -22.237923 16.258281
+LOCAL_DIAG_VITERBI -- [Inside SCFG]
+winner = OTH 
+OTH  ends = 75 0
+COD  ends = 1 68
+RNA  ends = 75 63
+              OTH =       20.989             COD =      -10.755             RNA =       15.427 
+   logoddspostOTH =        0.000  logoddspostCOD =      -31.744  logoddspostRNA =       -5.561 
+
+# 14  [+ strand] 
+>DA0780-6- (71)
+>ECOLI-2815582- (71)
+
+length alignment: 71 (id=71.83)
+posX: 0-70 [0-67](68) -- (0.16 0.34 0.31 0.19) 
+posY: 0-70 [0-68](69) -- (0.19 0.32 0.28 0.22) 
+ 16.431838 -14.269383 12.463979
+ 16.326307 -7.331733 13.720289
+LOCAL_DIAG_VITERBI -- [Inside SCFG]
+winner = OTH 
+OTH  ends = 0 70
+COD  ends = 70 1
+RNA  ends = 24 8
+              OTH =       16.380             COD =       -8.320             RNA =       13.225 
+   logoddspostOTH =        0.000  logoddspostCOD =      -24.700  logoddspostRNA =       -3.155 
+
+# 15  [+ strand] 
+>DA0780-6- (71)
+>ECOLI-2815857- (71)
+
+length alignment: 71 (id=71.83)
+posX: 0-70 [0-67](68) -- (0.16 0.34 0.31 0.19) 
+posY: 0-70 [0-68](69) -- (0.19 0.32 0.28 0.22) 
+ 16.431838 -14.269383 12.463979
+ 16.326307 -7.331733 13.720289
+LOCAL_DIAG_VITERBI -- [Inside SCFG]
+winner = OTH 
+OTH  ends = 0 70
+COD  ends = 70 1
+RNA  ends = 24 8
+              OTH =       16.380             COD =       -8.320             RNA =       13.225 
+   logoddspostOTH =        0.000  logoddspostCOD =      -24.700  logoddspostRNA =       -3.155 
+
+# 16  [+ strand] 
+>DA0780-6- (71)
+>ECOLI-2815996- (71)
+
+length alignment: 71 (id=71.83)
+posX: 0-70 [0-67](68) -- (0.16 0.34 0.31 0.19) 
+posY: 0-70 [0-68](69) -- (0.19 0.32 0.28 0.22) 
+ 16.431838 -14.269383 12.463979
+ 16.326307 -7.331733 13.720289
+LOCAL_DIAG_VITERBI -- [Inside SCFG]
+winner = OTH 
+OTH  ends = 0 70
+COD  ends = 70 1
+RNA  ends = 24 8
+              OTH =       16.380             COD =       -8.320             RNA =       13.225 
+   logoddspostOTH =        0.000  logoddspostCOD =      -24.700  logoddspostRNA =       -3.155 
+
+# 17  [+ strand] 
+>DA0780-6- (71)
+>ECOLI-2816271- (71)
+
+length alignment: 71 (id=71.83)
+posX: 0-70 [0-67](68) -- (0.16 0.34 0.31 0.19) 
+posY: 0-70 [0-68](69) -- (0.19 0.32 0.28 0.22) 
+ 16.431838 -14.269383 12.463979
+ 16.326307 -7.331733 13.720289
+LOCAL_DIAG_VITERBI -- [Inside SCFG]
+winner = OTH 
+OTH  ends = 0 70
+COD  ends = 70 1
+RNA  ends = 24 8
+              OTH =       16.380             COD =       -8.320             RNA =       13.225 
+   logoddspostOTH =        0.000  logoddspostCOD =      -24.700  logoddspostRNA =       -3.155 
+
+# 18  [+ strand] 
+>DA0780-1- (76)
+>ECOLI-2515836- (76)
+
+length alignment: 76 (id=71.05)
+posX: 0-75 [0-72](73) -- (0.16 0.36 0.30 0.18) 
+posY: 0-75 [0-71](72) -- (0.21 0.33 0.26 0.19) 
+ 14.736984 -14.375325 8.884532
+ 14.851236 -24.156886 9.868232
+LOCAL_DIAG_VITERBI -- [Inside SCFG]
+winner = OTH 
+OTH  ends = 75 0
+COD  ends = 1 75
+RNA  ends = 75 63
+              OTH =       14.795             COD =      -15.374             RNA =        9.459 
+   logoddspostOTH =        0.000  logoddspostCOD =      -30.169  logoddspostRNA =       -5.337 
+
+# 19  [+ strand] 
+>DA0780-1- (76)
+>ECOLI-2515951- (76)
+
+length alignment: 76 (id=71.05)
+posX: 0-75 [0-72](73) -- (0.16 0.36 0.30 0.18) 
+posY: 0-75 [0-71](72) -- (0.21 0.33 0.26 0.19) 
+ 14.736984 -14.375325 8.884532
+ 14.851236 -24.156886 9.868232
+LOCAL_DIAG_VITERBI -- [Inside SCFG]
+winner = OTH 
+OTH  ends = 75 0
+COD  ends = 1 75
+RNA  ends = 75 63
+              OTH =       14.795             COD =      -15.374             RNA =        9.459 
+   logoddspostOTH =        0.000  logoddspostCOD =      -30.169  logoddspostRNA =       -5.337 
+
+# 20  [+ strand] 
+>DA0780-6- (52)
+>ECOLI-2155594- (52)
+
+length alignment: 52 (id=71.15)
+posX: 0-51 [0-48](49) -- (0.16 0.41 0.27 0.16) 
+posY: 0-51 [0-48](49) -- (0.18 0.41 0.29 0.12) 
+ 5.862400 -19.930995 -1.194701
+ 7.783836 -15.355771 0.726735
+LOCAL_DIAG_VITERBI -- [Inside SCFG]
+winner = OTH 
+OTH  ends = 51 0
+COD  ends = 50 0
+RNA  ends = 52 52
+              OTH =        7.122             COD =      -16.296             RNA =        0.065 
+   logoddspostOTH =        0.000  logoddspostCOD =      -23.418  logoddspostRNA =       -7.057 
+
+# 21  [+ strand] 
+>DA0780-7- (59)
+>ECOLI-3315645- (59)
+
+length alignment: 59 (id=66.10)
+posX: 0-58 [0-55](56) -- (0.18 0.36 0.27 0.20) 
+posY: 0-58 [0-56](57) -- (0.21 0.30 0.28 0.21) 
+ 7.886726 -12.920042 12.597060
+ 6.999592 -16.997763 6.986972
+LOCAL_DIAG_VITERBI -- [Inside SCFG]
+winner = RNA 
+OTH  ends = 0 58
+COD  ends = 0 58
+RNA  ends = 20 36
+              OTH =        7.510             COD =      -13.837             RNA =       11.626 
+   logoddspostOTH =        0.000  logoddspostCOD =      -21.347  logoddspostRNA =        4.116 
+
+# 22  [+ strand] 
+>DA0940-1- (77)
+>ECOLI-225500- (77)
+
+length alignment: 77 (id=75.32)
+posX: 0-76 [0-75](76) -- (0.14 0.34 0.37 0.14) 
+posY: 0-76 [0-74](75) -- (0.16 0.31 0.33 0.20) 
+ 24.181055 -0.353323 26.401988
+ 23.109013 11.590026 23.929123
+LOCAL_DIAG_VITERBI -- [Inside SCFG]
+winner = RNA 
+OTH  ends = 0 76
+COD  ends = 76 0
+RNA  ends = 0 73
+              OTH =       23.742             COD =       10.590             RNA =       25.641 
+   logoddspostOTH =        0.000  logoddspostCOD =      -13.152  logoddspostRNA =        1.899 
+
+# 23  [+ strand] 
+>DA0940-1- (77)
+>ECOLI-4034591- (77)
+
+length alignment: 77 (id=75.32)
+posX: 0-76 [0-75](76) -- (0.14 0.34 0.37 0.14) 
+posY: 0-76 [0-74](75) -- (0.16 0.31 0.33 0.20) 
+ 24.181055 -0.353323 26.401988
+ 23.109013 11.590026 23.929123
+LOCAL_DIAG_VITERBI -- [Inside SCFG]
+winner = RNA 
+OTH  ends = 0 76
+COD  ends = 76 0
+RNA  ends = 0 73
+              OTH =       23.742             COD =       10.590             RNA =       25.641 
+   logoddspostOTH =        0.000  logoddspostCOD =      -13.152  logoddspostRNA =        1.899 
+
+# 24  [+ strand] 
+>DA0940-1- (77)
+>ECOLI-779777- (77)
+
+length alignment: 77 (id=70.13)
+posX: 0-76 [0-75](76) -- (0.14 0.34 0.37 0.14) 
+posY: 0-76 [0-74](75) -- (0.21 0.24 0.27 0.28) 
+ 19.326669 -6.735706 19.727199
+ 19.360233 -2.001147 14.966454
+LOCAL_DIAG_VITERBI -- [Inside SCFG]
+winner = OTH 
+OTH  ends = 76 0
+COD  ends = 74 1
+RNA  ends = 0 73
+              OTH =       19.344             COD =       -2.948             RNA =       18.779 
+   logoddspostOTH =        0.000  logoddspostCOD =      -22.291  logoddspostRNA =       -0.564 
+
+# 25  [+ strand] 
+>DA0940-1- (77)
+>ECOLI-780066- (77)
+
+length alignment: 77 (id=70.13)
+posX: 0-76 [0-75](76) -- (0.14 0.34 0.37 0.14) 
+posY: 0-76 [0-74](75) -- (0.21 0.24 0.27 0.28) 
+ 19.326669 -6.735706 19.727199
+ 19.360233 -2.001147 14.966454
+LOCAL_DIAG_VITERBI -- [Inside SCFG]
+winner = OTH 
+OTH  ends = 76 0
+COD  ends = 74 1
+RNA  ends = 0 73
+              OTH =       19.344             COD =       -2.948             RNA =       18.779 
+   logoddspostOTH =        0.000  logoddspostCOD =      -22.291  logoddspostRNA =       -0.564 
+
+# 26  [+ strand] 
+>DA0940-1- (77)
+>ECOLI-780370- (77)
+
+length alignment: 77 (id=70.13)
+posX: 0-76 [0-75](76) -- (0.14 0.34 0.37 0.14) 
+posY: 0-76 [0-74](75) -- (0.21 0.24 0.27 0.28) 
+ 19.326669 -6.735706 19.727199
+ 19.360233 -2.001147 14.966454
+LOCAL_DIAG_VITERBI -- [Inside SCFG]
+winner = OTH 
+OTH  ends = 76 0
+COD  ends = 74 1
+RNA  ends = 0 73
+              OTH =       19.344             COD =       -2.948             RNA =       18.779 
+   logoddspostOTH =        0.000  logoddspostCOD =      -22.291  logoddspostRNA =       -0.564 
+
+# 27  [+ strand] 
+>DA0940-1- (77)
+>ECOLI-780592- (77)
+
+length alignment: 77 (id=70.13)
+posX: 0-76 [0-75](76) -- (0.14 0.34 0.37 0.14) 
+posY: 0-76 [0-74](75) -- (0.21 0.24 0.27 0.28) 
+ 19.326669 -6.735706 19.727199
+ 19.360233 -2.001147 14.966454
+LOCAL_DIAG_VITERBI -- [Inside SCFG]
+winner = OTH 
+OTH  ends = 76 0
+COD  ends = 74 1
+RNA  ends = 0 73
+              OTH =       19.344             COD =       -2.948             RNA =       18.779 
+   logoddspostOTH =        0.000  logoddspostCOD =      -22.291  logoddspostRNA =       -0.564 
+
+# 28  [+ strand] 
+>DA0940-1- (77)
+>ECOLI-780800- (77)
+
+length alignment: 77 (id=70.13)
+posX: 0-76 [0-75](76) -- (0.14 0.34 0.37 0.14) 
+posY: 0-76 [0-74](75) -- (0.21 0.24 0.27 0.28) 
+ 19.326669 -6.735706 19.727199
+ 19.360233 -2.001147 14.966454
+LOCAL_DIAG_VITERBI -- [Inside SCFG]
+winner = OTH 
+OTH  ends = 76 0
+COD  ends = 74 1
+RNA  ends = 0 73
+              OTH =       19.344             COD =       -2.948             RNA =       18.779 
+   logoddspostOTH =        0.000  logoddspostCOD =      -22.291  logoddspostRNA =       -0.564 
+
+# 29  [+ strand] 
+>DA0940-1- (77)
+>ECOLI-2519045- (77)
+
+length alignment: 77 (id=70.13)
+posX: 0-76 [0-75](76) -- (0.14 0.34 0.37 0.14) 
+posY: 0-76 [0-74](75) -- (0.21 0.24 0.27 0.28) 
+ 19.326669 -6.735706 19.727199
+ 19.360233 -2.001147 14.966454
+LOCAL_DIAG_VITERBI -- [Inside SCFG]
+winner = OTH 
+OTH  ends = 76 0
+COD  ends = 74 1
+RNA  ends = 0 73
+              OTH =       19.344             COD =       -2.948             RNA =       18.779 
+   logoddspostOTH =        0.000  logoddspostCOD =      -22.291  logoddspostRNA =       -0.564 
+
+# 30  [+ strand] 
+>DA0940-1- (78)
+>ECOLI-563946- (78)
+
+length alignment: 78 (id=69.23)
+posX: 0-77 [0-75](76) -- (0.14 0.34 0.37 0.14) 
+posY: 0-77 [0-75](76) -- (0.18 0.30 0.32 0.20) 
+ 17.963663 -9.269558 17.104482
+ 18.280556 -6.326426 22.143566
+LOCAL_DIAG_VITERBI -- [Inside SCFG]
+winner = RNA 
+OTH  ends = 77 0
+COD  ends = 72 1
+RNA  ends = 44 28
+              OTH =       18.131             COD =       -7.150             RNA =       21.187 
+   logoddspostOTH =        0.000  logoddspostCOD =      -25.281  logoddspostRNA =        3.056 
+
+# 31  [+ strand] 
+>DA0940-1- (78)
+>ECOLI-3979754- (78)
+
+length alignment: 78 (id=69.23)
+posX: 0-77 [0-75](76) -- (0.14 0.34 0.37 0.14) 
+posY: 0-77 [0-75](76) -- (0.14 0.33 0.36 0.17) 
+ 18.718315 -12.877073 20.514241
+ 18.551819 -5.649083 11.109117
+LOCAL_DIAG_VITERBI -- [Inside SCFG]
+winner = RNA 
+OTH  ends = 0 77
+COD  ends = 76 1
+RNA  ends = 0 74
+              OTH =       18.637             COD =       -6.639             RNA =       19.516 
+   logoddspostOTH =        0.000  logoddspostCOD =      -25.277  logoddspostRNA =        0.879 
+
+# 32  [+ strand] 
+>DA0940-2- (75)
+>ECOLI-3980115- (75)
+
+length alignment: 75 (id=64.00)
+posX: 0-74 [0-74](75) -- (0.15 0.35 0.36 0.15) 
+posY: 0-74 [0-74](75) -- (0.16 0.27 0.36 0.21) 
+ 16.673417 5.650160 34.947176
+ 16.791520 4.389619 18.597200
+LOCAL_DIAG_VITERBI -- [Inside SCFG]
+winner = RNA 
+OTH  ends = 74 0
+COD  ends = 2 73
+RNA  ends = 0 70
+              OTH =       16.734             COD =        5.153             RNA =       33.947 
+   logoddspostOTH =        0.000  logoddspostCOD =      -11.580  logoddspostRNA =       17.214 
+
+# 33  [+ strand] 
+>DA0940-8- (58)
+>ECOLI-3979896- (58)
+
+length alignment: 58 (id=68.97)
+posX: 0-57 [0-56](57) -- (0.18 0.32 0.33 0.18) 
+posY: 0-57 [0-55](56) -- (0.16 0.21 0.30 0.32) 
+ 11.514323 -1.612738 9.963681
+ 11.181613 -0.641287 8.426787
+LOCAL_DIAG_VITERBI -- [Inside SCFG]
+winner = OTH 
+OTH  ends = 0 57
+COD  ends = 57 0
+RNA  ends = 20 37
+              OTH =       11.358             COD =       -1.047             RNA =        9.391 
+   logoddspostOTH =        0.000  logoddspostCOD =      -12.404  logoddspostRNA =       -1.967 
+
+# 34  [+ strand] 
+>DA0940-1- (77)
+>ECOLI-3424371- (77)
+
+length alignment: 77 (id=75.32)
+posX: 0-76 [0-75](76) -- (0.14 0.37 0.34 0.14) 
+posY: 0-76 [0-74](75) -- (0.20 0.33 0.31 0.16) 
+ 23.109013 5.520843 24.913393
+ 24.181055 9.917873 33.181724
+LOCAL_DIAG_VITERBI -- [Inside SCFG]
+winner = RNA 
+OTH  ends = 76 0
+COD  ends = 76 2
+RNA  ends = 76 3
+              OTH =       23.742             COD =        8.985             RNA =       32.186 
+   logoddspostOTH =        0.000  logoddspostCOD =      -14.758  logoddspostRNA =        8.444 
+
+# 35  [+ strand] 
+>DA0940-1- (77)
+>ECOLI-2515834- (77)
+
+length alignment: 77 (id=70.13)
+posX: 0-76 [0-75](76) -- (0.14 0.37 0.34 0.14) 
+posY: 0-76 [0-74](75) -- (0.20 0.33 0.28 0.19) 
+ 18.645991 3.152473 25.533618
+ 18.627918 3.690656 29.967242
+LOCAL_DIAG_VITERBI -- [Inside SCFG]
+winner = RNA 
+OTH  ends = 0 76
+COD  ends = 76 2
+RNA  ends = 76 3
+              OTH =       18.637             COD =        3.447             RNA =       29.033 
+   logoddspostOTH =        0.000  logoddspostCOD =      -15.190  logoddspostRNA =       10.396 
+
+# 36  [+ strand] 
+>DA0940-1- (77)
+>ECOLI-2515949- (77)
+
+length alignment: 77 (id=70.13)
+posX: 0-76 [0-75](76) -- (0.14 0.37 0.34 0.14) 
+posY: 0-76 [0-74](75) -- (0.20 0.33 0.28 0.19) 
+ 18.645991 3.152473 25.533618
+ 18.627918 3.690656 29.967242
+LOCAL_DIAG_VITERBI -- [Inside SCFG]
+winner = RNA 
+OTH  ends = 0 76
+COD  ends = 76 2
+RNA  ends = 76 3
+              OTH =       18.637             COD =        3.447             RNA =       29.033 
+   logoddspostOTH =        0.000  logoddspostCOD =      -15.190  logoddspostRNA =       10.396 
+
+# 37  [+ strand] 
+>DA0940-5- (76)
+>ECOLI-2815580- (76)
+
+length alignment: 76 (id=71.05)
+posX: 0-75 [0-71](72) -- (0.15 0.35 0.35 0.15) 
+posY: 0-75 [0-71](72) -- (0.18 0.31 0.31 0.21) 
+ 13.333636 -36.156781 13.057277
+ 13.159042 -36.377514 9.144681
+LOCAL_DIAG_VITERBI -- [Inside SCFG]
+winner = OTH 
+OTH  ends = 0 75
+COD  ends = 0 73
+RNA  ends = 32 52
+              OTH =       13.249             COD =      -36.263             RNA =       12.150 
+   logoddspostOTH =        0.000  logoddspostCOD =      -49.512  logoddspostRNA =       -1.099 
+
+# 38  [+ strand] 
+>DA0940-5- (76)
+>ECOLI-2815855- (76)
+
+length alignment: 76 (id=71.05)
+posX: 0-75 [0-71](72) -- (0.15 0.35 0.35 0.15) 
+posY: 0-75 [0-71](72) -- (0.18 0.31 0.31 0.21) 
+ 13.333636 -36.156781 13.057277
+ 13.159042 -36.377514 9.144681
+LOCAL_DIAG_VITERBI -- [Inside SCFG]
+winner = OTH 
+OTH  ends = 0 75
+COD  ends = 0 73
+RNA  ends = 32 52
+              OTH =       13.249             COD =      -36.263             RNA =       12.150 
+   logoddspostOTH =        0.000  logoddspostCOD =      -49.512  logoddspostRNA =       -1.099 
+
+# 39  [+ strand] 
+>DA0940-5- (76)
+>ECOLI-2815994- (76)
+
+length alignment: 76 (id=71.05)
+posX: 0-75 [0-71](72) -- (0.15 0.35 0.35 0.15) 
+posY: 0-75 [0-71](72) -- (0.18 0.31 0.31 0.21) 
+ 13.333636 -36.156781 13.057277
+ 13.159042 -36.377514 9.144681
+LOCAL_DIAG_VITERBI -- [Inside SCFG]
+winner = OTH 
+OTH  ends = 0 75
+COD  ends = 0 73
+RNA  ends = 32 52
+              OTH =       13.249             COD =      -36.263             RNA =       12.150 
+   logoddspostOTH =        0.000  logoddspostCOD =      -49.512  logoddspostRNA =       -1.099 
+
+# 40  [+ strand] 
+>DA0940-5- (76)
+>ECOLI-2816269- (76)
+
+length alignment: 76 (id=71.05)
+posX: 0-75 [0-71](72) -- (0.15 0.35 0.35 0.15) 
+posY: 0-75 [0-71](72) -- (0.18 0.31 0.31 0.21) 
+ 13.333636 -36.156781 13.057277
+ 13.159042 -36.377514 9.144681
+LOCAL_DIAG_VITERBI -- [Inside SCFG]
+winner = OTH 
+OTH  ends = 0 75
+COD  ends = 0 73
+RNA  ends = 32 52
+              OTH =       13.249             COD =      -36.263             RNA =       12.150 
+   logoddspostOTH =        0.000  logoddspostCOD =      -49.512  logoddspostRNA =       -1.099 
+
+# 41  [+ strand] 
+>DA0940-9- (69)
+>ECOLI-1804478- (69)
+
+length alignment: 69 (id=66.67)
+posX: 0-68 [0-67](68) -- (0.15 0.34 0.35 0.16) 
+posY: 0-68 [0-66](67) -- (0.13 0.39 0.31 0.16) 
+ 10.953909 -9.639667 10.662024
+ 12.823044 -5.075973 10.777964
+LOCAL_DIAG_VITERBI -- [Inside SCFG]
+winner = OTH 
+OTH  ends = 68 0
+COD  ends = 66 1
+RNA  ends = 51 31
+              OTH =       12.172             COD =       -6.016             RNA =       10.721 
+   logoddspostOTH =        0.000  logoddspostCOD =      -18.188  logoddspostRNA =       -1.451 
+
+# 42  [+ strand] 
+>DA0940-8- (58)
+>ECOLI-3706024- (58)
+
+length alignment: 58 (id=68.97)
+posX: 0-57 [0-55](56) -- (0.18 0.34 0.30 0.18) 
+posY: 0-57 [0-55](56) -- (0.20 0.39 0.25 0.16) 
+ 9.771742 -15.688073 2.357499
+ 9.187335 -13.325765 1.773092
+LOCAL_DIAG_VITERBI -- [Inside SCFG]
+winner = OTH 
+OTH  ends = 0 57
+COD  ends = 55 1
+RNA  ends = -1 -1
+              OTH =        9.509             COD =      -14.069             RNA =        2.095 
+   logoddspostOTH =        0.000  logoddspostCOD =      -23.578  logoddspostRNA =       -7.414 
+
+# 43  [+ strand] 
+>DA0940-7- (73)
+>ECOLI-695888- (73)
+
+length alignment: 73 (id=64.38)
+posX: 0-72 [0-69](70) -- (0.16 0.34 0.34 0.16) 
+posY: 0-72 [0-69](70) -- (0.24 0.26 0.26 0.24) 
+ 10.281468 -22.207847 3.873799
+ 9.636380 -19.716135 1.831177
+LOCAL_DIAG_VITERBI -- [Inside SCFG]
+winner = OTH 
+OTH  ends = 0 72
+COD  ends = 72 1
+RNA  ends = 10 26
+              OTH =        9.995             COD =      -20.480             RNA =        3.187 
+   logoddspostOTH =        0.000  logoddspostCOD =      -30.475  logoddspostRNA =       -6.807 
+
+# 44  [+ strand] 
+>DA0940-7- (73)
+>ECOLI-696281- (73)
+
+length alignment: 73 (id=64.38)
+posX: 0-72 [0-69](70) -- (0.16 0.34 0.34 0.16) 
+posY: 0-72 [0-69](70) -- (0.24 0.26 0.26 0.24) 
+ 10.281468 -22.207847 3.873799
+ 9.636380 -19.716135 1.831177
+LOCAL_DIAG_VITERBI -- [Inside SCFG]
+winner = OTH 
+OTH  ends = 0 72
+COD  ends = 72 1
+RNA  ends = 10 26
+              OTH =        9.995             COD =      -20.480             RNA =        3.187 
+   logoddspostOTH =        0.000  logoddspostCOD =      -30.475  logoddspostRNA =       -6.807 
+
+# 45  [+ strand] 
+>DA0940-6- (62)
+>ECOLI-695990- (62)
+
+length alignment: 62 (id=62.90)
+posX: 0-61 [0-60](61) -- (0.16 0.38 0.30 0.16) 
+posY: 0-61 [0-60](61) -- (0.25 0.30 0.26 0.20) 
+ 10.452429 5.015902 10.936383
+ 9.772183 2.186248 11.450894
+LOCAL_DIAG_VITERBI -- [Inside SCFG]
+winner = RNA 
+OTH  ends = 0 61
+COD  ends = 0 61
+RNA  ends = 38 22
+              OTH =       10.152             COD =        4.206             RNA =       11.216 
+   logoddspostOTH =        0.000  logoddspostCOD =       -5.946  logoddspostRNA =        1.064 
+
+# 46  [+ strand] 
+>DA0940-6- (62)
+>ECOLI-696099- (62)
+
+length alignment: 62 (id=62.90)
+posX: 0-61 [0-60](61) -- (0.16 0.38 0.30 0.16) 
+posY: 0-61 [0-60](61) -- (0.25 0.30 0.26 0.20) 
+ 10.452429 5.015902 10.936383
+ 9.772183 2.186248 11.450894
+LOCAL_DIAG_VITERBI -- [Inside SCFG]
+winner = RNA 
+OTH  ends = 0 61
+COD  ends = 0 61
+RNA  ends = 38 22
+              OTH =       10.152             COD =        4.206             RNA =       11.216 
+   logoddspostOTH =        0.000  logoddspostCOD =       -5.946  logoddspostRNA =        1.064 
+
+# 47  [+ strand] 
+>DA0940-10- (69)
+>ECOLI-2816349- (69)
+
+length alignment: 69 (id=63.77)
+posX: 0-68 [0-66](67) -- (0.15 0.34 0.36 0.15) 
+posY: 0-68 [0-65](66) -- (0.18 0.27 0.36 0.18) 
+ 9.155278 -17.238488 5.252253
+ 9.115589 -17.289968 6.575597
+LOCAL_DIAG_VITERBI -- [Inside SCFG]
+winner = OTH 
+OTH  ends = 0 68
+COD  ends = 0 56
+RNA  ends = 26 10
+              OTH =        9.136             COD =      -17.264             RNA =        6.061 
+   logoddspostOTH =        0.000  logoddspostCOD =      -26.400  logoddspostRNA =       -3.075 
+
