@@ -193,6 +193,30 @@ sub start_hsp {
 
 sub end_hsp{
    my ($self,$type,$data) = @_;
+   if( defined $data->{'queryframe'} && # this is here to protect from undefs
+       (( $data->{'queryframe'} < 0 && 
+	  $data->{'querystart'} < $data->{'queryend'} ) ||       
+	$data->{'queryframe'} > 0 && 
+	( $data->{'querystart'} > $data->{'queryend'} ) ) 
+       )
+   { 
+       # swap
+       ($data->{'querystart'},
+	$data->{'queryend'}) = ($data->{'queryend'},
+				$data->{'querystart'});
+   } 
+   if( defined $data->{'subjectframe'} && # this is here to protect from undefs
+       ((defined $data->{'subjectframe'} && $data->{'subjectframe'} < 0 && 
+	  $data->{'subjectstart'} < $data->{'subjectend'} ) ||       
+	 defined $data->{'subjectframe'} && $data->{'subjectframe'} > 0 && 
+	 ( $data->{'subjectstart'} > $data->{'subjectend'} ) )
+       ) 
+   { 
+       # swap
+       ($data->{'subjectstart'},
+	$data->{'subjectend'}) = ($data->{'subjectend'},
+				  $data->{'subjectstart'});
+   }
 
    my $hsp = new Bio::Search::HSP
        (
