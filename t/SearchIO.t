@@ -22,7 +22,7 @@ BEGIN {
 	use lib 't';
     }
     use vars qw($NTESTS);
-    $NTESTS = 1209;
+    $NTESTS = 1214;
     $LASTXMLTEST = 63;
     $error = 0;
 
@@ -1637,6 +1637,16 @@ ok($result->database_letters(), '-24016349');
 ok($result->get_statistic('dbletters'),'192913178');
 ok($result->get_statistic('dbentries'),'1867771');
 
+
+# test for links and groups being parsed out of WU-BLAST properly
+$searchio = Bio::SearchIO->new(-format => 'blast',
+			       -file   => Bio::Root::IO->catfile
+			       ((qw(t data brassica_ATH.WUBLASTN) )));
+ok($result = $searchio->next_result);
+ok($hit = $result->next_hit);
+ok($hsp = $hit->next_hsp);
+ok($hsp->links,'(1)-3-2');
+ok($hsp->hsp_group, '1');
 
 # some utilities
 # a utility function for comparing result objects
