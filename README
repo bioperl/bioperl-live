@@ -59,6 +59,9 @@ o Documentation
   bioperl is, how to use it and who wrote it. (The rest of this
   file will tell you how to install bioperl)
 
+  The bptutorial.pl file is a POD formatted tutorial document 
+  that contains useful information for new and existing Bioperl users.
+
   Use your favorite pod2* translator turn it into the format of
   choice or view it directly via perldoc.
 
@@ -68,7 +71,9 @@ o Documentation
  
   or in this directory go
  
-  pod2text bioperl.pod | more 
+  pod2text bioperl.pod | more
+ 
+  pod2text bptutorial.pl | more 
 
   pod2html, which comes with Perl, can be used to create web-browser
   navigable documentation files.

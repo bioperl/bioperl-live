@@ -11,6 +11,11 @@
    and "t" test scripts. You may distribute this tutorial under the
    same terms as perl itself.
 
+   This document is written in Perl POD (plain old documentation) format. 
+   You can run this file through your favorite pod translator (pod2html, pod2man, 
+   pod2text, etc.) if you would like a more convenient formatting.
+   
+
   Table of Contents
 
   I. Introduction
@@ -274,7 +279,7 @@ expat-1.95.1 from http://sourceforge.net/projects/expat/
 =back
 
 For more current and additional information on external modules
-required by bioperl, check http://bioperl.org/Core/external.shtml.
+required by bioperl, check http://bioperl.org/Core/external.shtml
 
          Bioperl c \extensions & external bio-informatics programs
 
@@ -287,7 +292,7 @@ for smith-waterman alignments- bioperl-ext-0.6 from
 http://bioperl.org/Core/external.shtml
 
 for clustalw alignments-
-http://corba.ebi.ac.uk/Biocatalog/Alignment_Search_software.html/
+http://corba.ebi.ac.uk/Biocatalog/Alignment_Search_software.html
 
 for tcoffee alignments-
   http://igs-server.cnrs-mrs.fr/~cnotred/Projects_home_page/t_coffee_home_page.html
@@ -371,6 +376,8 @@ capability is not available.  However, since the testing of bioperl in
 these environments has been limited, the script may well crash in a
 less "graceful" manner.
 
+Todd Richmond has written of his experiences with BioPerl on MacOs
+at http://bioperl.org/Core/mac-bioperl.html
 
 =head1 II. Brief introduction to bioperl's objects
 
@@ -1502,7 +1509,7 @@ flags and controlled vocabulary.
 
 Bioperl supports a set of XML flags and vocabulary words for molecular
 biology - called bioxml - detailed at
-http://www.bioxml.org/dtds/current. The idea is that any bioxml
+http://www.bioxml.org/dtds/current/ The idea is that any bioxml
 features can be turned into bioperl Bio::Seq annotations.  Conversely
 Seq object features and annotations can be converted to XML so that
 they become available to any other systems that are XML (and bioxml)
@@ -1558,7 +1565,7 @@ the future, some bioinformatics tasks may prove to be more effectively
 implemented in java or python in which case being able to call them
 from within bioperl will become more important.  For more information,
 go to the biojava http://biojava.org/ and biopython
-http://biopython.org/websites.
+http://biopython.org/ websites.
 
 =head2 IV.3  Ensembl
 
@@ -1571,7 +1578,7 @@ between bioperl and Ensembl is not surprising, since the same
 individual - Ewan Birney - has been coordinating both projects).
 Describing Ensembl and its capabilities is far beyond the scope of
 this tutorial The interested reader is referred to the Ensembl website
-at http://www.ensembl.org/.
+at http://www.ensembl.org/ .
 
 =head2 IV.4 The Annotation Workbench and bioperl-gui
 
@@ -1581,12 +1588,12 @@ designed to be an integrated suite of tools for examining a sequence,
 predicting gene structure, and creating annotations. The workbench
 features a graphical user interface and is implemented completely in
 perl.  Information about the AW is available at
-http://bioinfo.pbi.nrc.ca/dblock/wiki/html/Bioinfo/AnnotationWorkbench.htm. A
+http://bioinfo.pbi.nrc.ca/dblock/wiki/html/Bioinfo/AnnotationWorkbench.htm A
 goal of the AW team is to port much of the functionality of the AW to
 bioperl.  The porting process has begun and displaying a Seq object
 graphically is now possible.  You can download the current version of
 the gui software from the bioperl bioperl-gui CVS directory at
-http://cvs.bioperl.org/cgi-bin/viewcvs/viewcvs.cgi/bioperl-gui/?cvsroot=bioperl.
+http://cvs.bioperl.org/cgi-bin/viewcvs/viewcvs.cgi/bioperl-gui/?cvsroot=bioperl
 
 
 
