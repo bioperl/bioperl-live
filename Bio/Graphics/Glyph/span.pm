@@ -7,6 +7,8 @@ use Bio::Graphics::Glyph::anchored_arrow;
 
 sub no_trunc { 0 }
 
+sub arrowheads {0,0,1,1}
+
 1;
 
 __END__
