@@ -1,6 +1,6 @@
 # $Id$
 #
-# BioPerl module for Bio::SeqIO::tigrcoordset
+# BioPerl module for Bio::SeqIO::tigrxml
 #
 # Cared for by Jason Stajich <jason-at-bioperl-dot-org>
 #
@@ -12,7 +12,7 @@
 
 =head1 NAME
 
-Bio::SeqIO::tigrcoordset - Parse TIGR (new) XML 
+Bio::SeqIO::tigrxml - Parse TIGR (new) XML 
 
 =head1 SYNOPSIS
 
@@ -24,8 +24,8 @@ Bio::SeqIO::tigrcoordset - Parse TIGR (new) XML
 
 =head1 DESCRIPTION
 
-This is a parser for TIGR XML.  It seems to be a newer version than
-the current TIGR XML.
+This is a parser for TIGR Coordset XML for their in-progress
+annotation dbs.
 
 =head1 FEEDBACK
 
@@ -41,21 +41,14 @@ the Bioperl mailing list.  Your participation is much appreciated.
 =head2 Reporting Bugs
 
 Report bugs to the Bioperl bug tracking system to help us keep track
-of the bugs and their resolution. Bug reports can be submitted via
-email or the web:
+of the bugs and their resolution. Bug reports can be submitted via the
+web:
 
-  bioperl-bugs@bioperl.org
   http://bioperl.org/bioperl-bugs/
 
 =head1 AUTHOR - Jason Stajich
 
 Email jason-at-bioperl-dot-org
-
-Describe contact details here
-
-=head1 CONTRIBUTORS
-
-Additional contributors names and emails here
 
 =head1 APPENDIX
 
@@ -128,7 +121,7 @@ sub end_document {
 sub start_element {
     my ($self,$ele) = @_;
     # attributes
-    my $name = $ele->{'LocalName'};
+    my $name = uc $ele->{'LocalName'};
     my $attr = $ele->{'Attributes'};
     my $seqid = defined $self->{'_seendata'}->{'_seqs'}->[-1] ? 
 	$self->{'_seendata'}->{'_seqs'}->[-1]->display_id : undef;
@@ -139,7 +132,7 @@ sub start_element {
 	push @{$self->{'_seendata'}->{'_seqs'}},
 	$self->sequence_factory->create
 	    (
-	     -primary_id => $attr->{'ASMBL_ID'},
+	     -display_id => $attr->{'ASMBL_ID'},
 	     -length     => $len,
 	     );
     } elsif( $name eq 'HEADER' ) { 
