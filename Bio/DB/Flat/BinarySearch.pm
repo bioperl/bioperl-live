@@ -47,18 +47,16 @@ A string also has to be entered to defined what the primary key
 The index can now be created using 
 
     my $index = new Bio::DB::Flat::BinarySearch(
-	     -start_pattern   => $start_pattern,
-	     -primary_pattern => $primary_pattern,
+             -directory         => "/home/max/",
+             -dbname            => "mydb",
+	     -start_pattern     => $start_pattern,
+	     -primary_pattern   => $primary_pattern,
              -primary_namespace => "ID",
-					     );
-
-To actually write it out to disk we need to enter a directory where
-the indices will live, a database name and an array of sequence files
-to index.
+	     -format            => "fasta" );
 
     my @files = ("file1","file2","file3");
 
-    $index->build_index("/Users/michele/indices","mydatabase",@files);
+    $index->build_index(@files);
 
 The index is now ready to use.  For large sequence files the perl way
 of indexing takes a *long* time and a *huge* amount of memory.  For
@@ -100,12 +98,16 @@ id (1433_CAEEL) as the secondary id.  The index is created as follows
     $secondary_patterns{"ID"} = "^ID   (\\S+)";
 
     my $index = new Bio::DB::Flat::BinarySearch(
-                -start_pattern     => $start_pattern,
-                -primary_pattern   => $primary_pattern,
-                -primary_namespace  => 'ID',
+                -directory          => ".",
+		-dbname             => "ppp",
+		-write_flag         => 1,
+                -verbose            => 1,
+                -start_pattern      => $start_pattern,
+                -primary_pattern    => $primary_pattern,
+                -primary_namespace  => 'AC',
                 -secondary_patterns => \%secondary_patterns);
 
-    $index->build_index("/Users/michele/indices","mydb",($seqfile));
+    $index->build_index($seqfile);
 
 Of course having secondary indices makes indexing slower and more 
 of a memory hog.
@@ -115,7 +117,8 @@ of a memory hog.
 To fetch sequences using an existing index first of all create your sequence 
 object 
 
-    my $index = new Bio::DB::Flat::BinarySearch(-directory => $index_directory);
+    my $index = new Bio::DB::Flat::BinarySearch(
+                  -directory => $index_directory);
 
 Now you can happily fetch sequences either by the primary key or
 by the secondary keys.
@@ -438,10 +441,10 @@ sub get_Seq_by_acc {
 =head2 get_Seq_by_secondary
 
  Title   : get_Seq_by_secondary
- Usage   : $obj->get_Seq_by_secondary($acc)
+ Usage   : $obj->get_Seq_by_secondary($namespace,$acc)
  Function: Gets a Bio::SeqI object looking up secondary accessions
  Returns : Bio::SeqI object
- Args    : namespace name to check secondary namespace for
+ Args    : namespace name to check secondary namespace and an id
 
 
 =cut
@@ -489,7 +492,7 @@ sub get_Seq_by_secondary {
 	$pos = $pos - $recsize;
 #	print "Up record = $record:$newid\n";
     }
-    
+
     $pos += $recsize;
 
 #    print "Top position is $pos\n";
@@ -511,12 +514,12 @@ sub get_Seq_by_secondary {
 	    $primary_id =~ s/ //g;
 	#    print "Primary $primary_id\n";
 	    $primary_id{$primary_id} = 1;
-	    
+
 	    $pos = $pos + $recsize;
 	 #   print "Down record = $record\n";
 	}
     }
-	
+
     if (!defined($newid)) {
       return;
     }
