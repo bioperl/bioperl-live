@@ -1,4 +1,4 @@
-## $Id: MANIFEST,v 1.61 2002-02-12 00:37:53 jason Exp $
+## $Id: MANIFEST,v 1.62 2002-02-14 18:59:18 dag Exp $
 ##
 ## This is the file listing for everything that
 ## comes with the bioperl distribution. The perl
@@ -197,7 +197,6 @@ Bio/Search/Result/GenericResult.pm
 Bio/Search/Result/ResultI.pm
 Bio/SearchDist.pm
 Bio/SearchIO.pm
-Bio/SearchIO/EventGeneratorI.pm
 Bio/SearchIO/EventHandlerI.pm
 Bio/SearchIO/SearchResultEventBuilder.pm
 Bio/SearchIO/SearchWriterI.pm
@@ -268,7 +267,7 @@ Bio/Structure/Model.pm
 Bio/Structure/Residue.pm
 Bio/Structure/SecStr/DSSP/Res.pm
 Bio/Structure/SecStr/STRIDE/Res.pm
-Bio/StructureI.pm
+Bio/Structure/StructureI.pm
 Bio/Symbol/Alphabet.pm
 Bio/Symbol/AlphabetI.pm
 Bio/Symbol/DNAAlphabet.pm
@@ -337,7 +336,6 @@ Bio/Tools/pSW.pm
 Bio/Tree/AlleleNode.pm
 Bio/Tree/Node.pm
 Bio/Tree/NodeI.pm
-Bio/Tree/PhyloNode.pm
 Bio/Tree/RandomFactory.pm
 Bio/Tree/Statistics.pm
 Bio/Tree/Tree.pm
@@ -359,11 +357,11 @@ Bio/Variation/RNAChange.pm
 Bio/Variation/SeqDiff.pm
 Bio/Variation/VariantI.pm
 Changes
+FAQ
 LICENSE
 MANIFEST
 PLATFORMS
 README
-bioback.pod
 biodatabases.pod
 biodesign.pod
 bioperl.pod
@@ -670,6 +668,7 @@ t/data/consed_project/phd_dir/ML4922R.phd.1
 t/data/consed_project/phd_dir/ML4924F.phd.1
 t/data/consed_project/phd_dir/ML4924R.phd.1
 t/data/consed_project/phd_dir/ML4947F.phd.1
+t/data/cys1_dicdi.water
 t/data/cysprot.fa
 t/data/cysprot.msf
 t/data/cysprot.needle
@@ -769,10 +768,7 @@ t/game.t
 t/hmmer.t
 t/largefasta.t
 t/largepseq.t
-t/linkagemap.t
-t/linkageposition.t
 t/lucy.t
-t/microsatellite.t
 t/multiple_fasta.t
 t/phd.t
 t/primaryqual.t
