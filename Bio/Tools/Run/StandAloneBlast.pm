@@ -597,6 +597,11 @@ sub _runblast {
 # parsers can be selected.
 
     if ($executable =~ /bl2seq/i)  {
+        if( $self->verbose > 0 ) {
+	 open(OUT, $outfile) || $self->throw("cannot open $outfile");
+	 while(<OUT>) { $self->debug($_)}
+	 close(OUT);
+        }
 	$blast_obj = Bio::Tools::BPbl2seq->new(-file => $outfile);
     }
     elsif ($executable =~ /blastpgp/i && defined $self->j() && 
@@ -659,13 +664,11 @@ sub _setinput {
 # deletions) indicated within it, we have to remove them - otherwise
 # the BLAST programs will be unhappy
 
-	  my $seq_id =  $input1->display_id();
 	  my $seq_string =  $input1->seq();
 	  $seq_string =~ s/\W+//g; # get rid of spaces in sequence
-	  $seq = Bio::Seq->new(-seq=> $seq_string, -display_id =>$seq_id );
-
+	  $input1->seq($seq_string);
 	  $temp =  Bio::SeqIO->new(-fh=> $fh, '-format' => 'Fasta');
-	  $temp->write_seq($seq);
+	  $temp->write_seq($input1);
 	  close $fh;
 	  undef $fh;
 #		$temp->write_seq($input1);
