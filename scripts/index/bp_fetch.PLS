@@ -217,8 +217,7 @@ foreach my $arg ( @ARGV ) {
     # parse to db:id 
 
     /^(\S+)\:(\S+)$/ || do { print STDERR "$_ is not parsed as db:name\n"; next;};
-    $db = $1;
-    $id = $2;
+($db,$id) = split/:/,$_,2;
 
     #
     # the eval block catches exceptions if they occur
