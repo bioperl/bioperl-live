@@ -119,8 +119,10 @@ use Bio::Tree::Tree;
            -maxcount => [optional] Maximum num trees to create
            -randtype => Type of random trees so far support
                - yule/backward_yule/BY [default]
-               - birthdeath/BD
                - forward_yule/FY
+               - birthdeath_forward/BDF
+               - birthdeath_backwards/BDB
+
                
           ONE of the following must be specified
            -taxa     => $arrayref of taxa names
@@ -186,12 +188,14 @@ sub next_tree{
    my ($self,%options) = @_;
    return if $self->maxcount && 
        $self->{'_count'}++ >= $self->maxcount;
-   my $rand_type = $self->random_tree_method;
+   my $rand_type = $options{'randtype'} || $self->random_tree_method;
    my $nodetype = $self->nodetype;
    my $treearray;
 
-   if( $rand_type =~ /(birth_death|birth|BD)/i ) {
-       
+   if( $rand_type =~ /(birthdeath_forward|birth|BDF)/i ) {
+
+   } elsif ( $rand_type =~ /(birthdeath_backward|BDB)/i ) {
+       $treearray = $self->rand_birthdeath_backwards_tree;       
    } elsif( $rand_type =~ /(BY|backwards_yule)/i || 
 	    $rand_type =~ /^yule/i ) {
        my $speciation = $options{'speciation'}; # can be undef
@@ -410,25 +414,80 @@ sub rand_yule_c_tree {
     # sort smallest to largest
     @times = sort {$a <=> $b} @times;
      # topology generation
-    my $ix = 0;
     for ($in = $n_taxa; $in > 1; $in-- ) {
+	my $time = shift @times;
+	
 	my $pick = int $self->random($in);    
-	my $nodeindex = $list[$pick]; 
+	my $nodeindex = $list[$pick];
+	$tree[$list[$pick]]->{'time'} = $time;
 	my $swap = 2 * $n_taxa - $in;
-	$tree[$list[$pick]]->{'time'} = $times[$ix];
 	$tree[$swap]->{'desc1'} = $nodeindex;	
 	$list[$pick] = $list[$in-1];       
 	
 	$pick = int rand($in - 1);    
 	$nodeindex = $list[$pick];
-	$tree[$list[$pick]]->{'time'} = $times[$ix];
+	$tree[$list[$pick]]->{'time'} = $time;
 	$tree[$swap]->{'desc2'} = $nodeindex;	
 	$list[$pick] = $swap;	
-	$ix++;
     }
-    $tree[-1]->{'time'} = $times[$ix++];
+    $tree[-1]->{'time'} = shift @times;
     return \@tree;
 }
+
+
+
+sub rand_birthdeath_backwards_tree {
+    my ($self) = @_;
+    my $n_taxa = $self->num_taxa;
+    my $taxa = $self->taxa || [];
+  
+    my $randfuncs = Bio::Tools::RandomDistFunctions->new();
+    my $rate = $Defaults{'YuleRate'};
+    my (@tree,@list,@times,$i,$in);
+    my $max = 2 * $n_taxa - 1;
+    for($in=0;$in < $max; $in++ ) { 
+	push @tree, { 'nodenum' => "Node$in" };
+    }
+    # setup leaf nodes
+    for($in=0;$in < $n_taxa;$in++)  {
+	$tree[$in]->{'time'} = 0;
+	$tree[$in]->{'desc1'} = undef;
+	$tree[$in]->{'desc2'} = undef;
+	if( my $r = $taxa->[$in] ) { 
+	    # deal with pre-labeled nodes
+	    $tree[$in]->{'nodenum'} = $r;
+	}
+	push @list, $in;
+    }
+    my ($time) = (0);
+
+     # topology generation
+    for ($in = $n_taxa; $in > 1; $in-- ) {
+	my $pick = int $self->random($in);    
+	my $nodeindex = $list[$pick];
+	my $swap = 2 * $n_taxa - $in;
+	$time += $randfuncs->rand_geometric_distribution($n_taxa * $rate);;
+	$tree[$list[$pick]]->{'time'} = $time;
+	$tree[$swap]->{'desc1'} = $nodeindex;	
+	$list[$pick] = $list[$in-1];       
+	
+	$pick = int rand($in - 1);    
+	$nodeindex = $list[$pick];
+	$tree[$list[$pick]]->{'time'} = $time;
+	$tree[$swap]->{'desc2'} = $nodeindex;	
+	$list[$pick] = $swap;	
+    }
+    my $root = $tree[-1];
+    $time += $randfuncs->rand_geometric_distribution($n_taxa * $rate);;
+    $root->{'time'} = $time;
+
+    # Normalize times by the root node...
+    for my $node ( @tree ) {
+	$node->{'time'} /= $root->{'time'};
+    }
+    return \@tree;
+}
+
 
 # The assignment of times are based on Mike Sanderson's r8s code
 # The topology assignment code is based on Richard Hudson's
