@@ -141,7 +141,7 @@ sub get_Seq_by_acc {
   $self->throw("more than one sequences correspond to this accession")
       if @primary_ids > 1 && ! wantarray;
   my @rc = map {$self->get_Seq_by_id($_)} @primary_ids;
- return wantarray ? @rc : $rc[0];
+  return wantarray ? @rc : $rc[0];
 }
 
 # fetch array of Bio::Seq objects
@@ -152,7 +152,8 @@ sub get_Seq_by_version {
   my @primary_ids = $self->expand_ids($ns => $key);
   $self->throw("more than one sequences correspond to this accession")
     if @primary_ids > 1 && !wantarray;
-  return map {$self->get_Seq_by_id($_)} @primary_ids;
+  my @rc = map {$self->get_Seq_by_id($_)} @primary_ids;
+  return wantarray ? @rc : $rc[0];
 }
 
 =head2 get_PrimarySeq_stream

@@ -1,5 +1,5 @@
 #!perl -w
-# $Id: biogetseq.PLS,v 1.1 2003-02-21 05:06:34 heikki Exp $
+# $Id: biogetseq.PLS,v 1.2 2004-06-13 23:55:46 lstein Exp $
 #
 # OBDA Registry compliant sequence retrieval script
 #
@@ -15,9 +15,10 @@ use strict;
 my ($help, $format, $namespace, $dbname) = ('', 'embl', 'acc', 'embl');
 GetOptions ("help" => \$help, "format=s" => \$format,
             "namespace=s" => \$namespace, "dbname=s" => \$dbname );
-system("perldoc $0") if $help;
-system("perldoc $0") unless @ARGV;
-
+if ($help || !@ARGV) {
+  system("perldoc $0");
+  exit 0;
+}
 
 my $get_function = 'get_Seq_by_'. $namespace;
 
@@ -30,7 +31,7 @@ while (my $id = shift) {
         my $out = new Bio::SeqIO('-format' => $format);
         $out->write_seq($seq);
     } else {
-        print STDERR "Could not find sequence with identifier [$id]";
+        print STDERR "Could not find sequence with identifier [$id]\n";
     }
 }
 

@@ -153,6 +153,37 @@ sub get_Seq_by_acc {
     return undef;
 }
 
+=head2 get_Seq_by_acc
+
+ Title   : get_Seq_by_acc
+ Usage   : $seq = $db->get_Seq_by_acc('X77802');
+ Function: Gets a Bio::Seq object by accession number
+ Returns : A Bio::Seq object
+ Args    : accession number (as a string)
+ Throws  : "acc does not exist" exception
+
+
+=cut
+
+sub get_Seq_by_version {
+    my ($self,$id) = @_;
+
+    if( !defined $id ) {
+	$self->throw("no id is given!");
+    }
+
+    foreach my $db ( @{$self->{'_database'}} ) {
+	my $seq;
+	eval {
+	    $seq = $db->get_Seq_by_version($id);
+	};
+	if( defined $seq ) {
+	    return $seq;
+	}
+    }
+    return undef;
+}
+
 
 ## End of Package
 
