@@ -23,25 +23,24 @@ END {
     unlink qw(write_qual.qual );
 }
 
-print ("\$DEBUG is this: $DEBUG\n");
 
-print("Checking if the Bio::SeqIO::Qual module could be used, even though it shouldn't be directly use'd...\n") if ( $DEBUG );
-        # test 1
+warn("Checking if the Bio::SeqIO::Qual module could be used, even though it shouldn't be directly use'd...\n") if ( $DEBUG );
+    # test 1
 use Bio::SeqIO::qual;
 ok(1);
 
-print("Checking to see if PrimaryQual.pm can be used...\n") if ( $DEBUG );
+warn("Checking to see if PrimaryQual.pm can be used...\n") if ( $DEBUG );
 use Bio::Seq::PrimaryQual;
 ok(1);
 
-print("Checking to see if PrimaryQual objects can be created from a file...\n") if ( $DEBUG );
+warn("Checking to see if PrimaryQual objects can be created from a file...\n") if ( $DEBUG );
 my $in_qual  = Bio::SeqIO->new('-file' => Bio::Root::IO->catfile("t","data",
 								 "qualfile.qual"),
 			       '-format' => 'qual');
-ok(1);
+ok($in_qual);
 
 my @quals;
-print("I saw these in qualfile.qual:\n") if $DEBUG;
+warn("I saw these in qualfile.qual:\n") if $DEBUG;
 my $first = 1;
 while ( my $qual = $in_qual->next_seq() ) {
 		# ::dumpValue($qual);
@@ -49,9 +48,9 @@ while ( my $qual = $in_qual->next_seq() ) {
     ok(1);
     @quals = @{$qual->qual()};
     if( $DEBUG ) {
-	print($qual->id()."\n");
+	warn($qual->id()."\n");
 	
-	print("(".scalar(@quals).") quality values.\n");
+	warn("(".scalar(@quals).") quality values.\n");
     }
     if( $first ) { 
 	ok(@quals, 484);
@@ -62,7 +61,7 @@ while ( my $qual = $in_qual->next_seq() ) {
 # in October 2004, Carlos Mauricio La Rota posted a problem with descriptions
 # this routine is to test that
 
-my @quals = 10..20;
+@quals = 10..20;
 # this one has a forced header
 my $seq = new Bio::Seq::PrimaryQual(
                     -qual =>   \@quals,
