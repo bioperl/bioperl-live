@@ -20,7 +20,7 @@ BEGIN {
 	use lib 't';
     }
     use vars qw($NTESTS);
-    $NTESTS = 247;
+    $NTESTS = 248;
     $LASTXMLTEST = 49;
     $error = 0;
 
@@ -387,7 +387,7 @@ while( my $hit = $result->next_hit ) {
 $searchio = new Bio::SearchIO ('-format' => 'psiblast',
 			       '-file'   => Bio::Root::IO->catfile('t','data','HUMBETGLOA.tblastx'));
 
-# $result = $searchio->next_result;
+ $result = $searchio->next_result;
 
-# ok($result);
+ ok($result);
 
