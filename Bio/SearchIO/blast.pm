@@ -293,9 +293,10 @@ sub next_result{
 	   # skip the next whitespace line
 	   $_ = $self->_readline();
 	   while( defined ($_ = $self->_readline() ) && 
-		  ! /^\s+$/ ) {	       
-	       my @line = split;
-	       push @hit_signifs, [ pop @line, pop @line];
+		  ! /^\s+$/ ) {
+	       if( /(\d+)\s+([\d\.\-eE]+)\s*$/) {
+		   push @hit_signifs, [ $2,$1 ];
+	       }
 	   }
        } elsif( /Sequences producing High-scoring Segment Pairs:/ ) {
 	   # skip the next line
