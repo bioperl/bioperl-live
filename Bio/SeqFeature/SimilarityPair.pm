@@ -166,7 +166,7 @@ See L<Bio::SeqFeature::Similarity>, L<Bio::SeqFeature::FeaturePair>
 sub query {
     my ($self, @args) = @_;
     my $f = $self->feature1();
-    if( ! @args || ( !ref($args[0]) && $args[0] eq 'null') ) {
+    if( ! @args || ($args[0] eq 'null') ) {
         if( ! defined( $f) ) {
             @args = Bio::SeqFeature::Similarity->new();
         } elsif( ! $f->isa('Bio::SeqFeature::Similarity') && 
@@ -213,8 +213,6 @@ sub subject {
 #    $self->deprecated("Method subject deprecated: use hit() instead");
     $self->hit(@_); 
 }
-
-*sbjct = \&subject;
 
 =head2 hit
 

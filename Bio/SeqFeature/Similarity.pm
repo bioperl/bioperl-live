@@ -112,9 +112,7 @@ sub new {
 =cut
 
 sub significance {
-    my ($self, $value) = @_;
-
-    return $self->_tag_value('signif', $value);
+    return shift->_tag_value('signif', @_);
 }
 
 =head2 bits
@@ -130,9 +128,7 @@ sub significance {
 =cut
 
 sub bits {
-    my ($self, $value) = @_;
-
-    return $self->_tag_value('Bits', $value);
+    return shift->_tag_value('Bits', @_);
 }
 
 =head2 frac_identical
@@ -148,9 +144,7 @@ sub bits {
 =cut
 
 sub frac_identical {
-    my ($self, $value) = @_;
-
-    return $self->_tag_value('FracId', $value);
+    return shift->_tag_value('FracId', @_);
 }
 
 =head2 seqlength
@@ -166,9 +160,7 @@ sub frac_identical {
 =cut
 
 sub seqlength {
-    my ($self, $value) = @_;
-
-    return $self->_tag_value('SeqLength', $value);
+    return shift->_tag_value('SeqLength', @_);
 }
 
 =head2 seqdesc

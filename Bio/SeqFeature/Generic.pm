@@ -973,20 +973,21 @@ sub _parse {
  Usage   : 
  Function: For internal use only. Convenience method for those tags that
            may only have a single value.
- Returns : 
- Args    : 
+ Returns : The first value under the given tag as a scalar (string)
+ Args    : The tag as a string. Optionally, the value on set.
 
 
 =cut
 
 sub _tag_value {
-    my ($self, $tag, $value) = @_;
+    my $self = shift;
+    my $tag = shift;
 
-    if(defined($value) || (! $self->has_tag($tag))) {
+    if(@_ || (! $self->has_tag($tag))) {
         $self->remove_tag($tag) if($self->has_tag($tag));
-        $self->add_tag_value($tag, $value);
+        $self->add_tag_value($tag, @_);
     }
-    return ($self->each_tag_value($tag))[0];
+    return ($self->get_tag_values($tag))[0];
 }
 
 #######################################################################

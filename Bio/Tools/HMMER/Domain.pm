@@ -253,14 +253,7 @@ sub hmmacc{
 =cut
 
 sub hmmname {
-   my ($self,$hname) = @_;
-
-
-   if( defined $hname ) {
-       $self->hseqname($hname);
-   } 
-
-   return $self->hseqname();
+    return shift->hseq_id(@_);
 }
 
 =head2 bits
@@ -275,9 +268,7 @@ sub hmmname {
 =cut
 
 sub bits{
-   my ($self,$sc) = @_;
-
-   return $self->score($sc);
+   return shift->score(@_);
 }
 
 =head2 evalue
@@ -292,13 +283,7 @@ sub bits{
 =cut
 
 sub evalue{
-   my ($self,$value) = @_;
-
-   if( defined $value ) {
-       $self->add_tag_value('evalue',$value);
-   }
-   my @vals = $self->each_tag_value('evalue');
-   return shift @vals;
+    return shift->_tag_value('evalue',@_);
 }
 
 =head2 seqbits
@@ -313,12 +298,7 @@ sub evalue{
 =cut
 
 sub seqbits {
-   my ($self,$value) = @_;
-   if( defined $value ) {
-       $self->add_tag_value('seqbits',$value);
-   }
-   my @vals = $self->each_tag_value('seqbits');
-   return shift @vals;
+    return shift->_tag_value('seqbits',@_);
 }
 
 =head2 seq_range
