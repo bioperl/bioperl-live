@@ -1,6 +1,4 @@
-package Bio::DB::GFF;
 # $Id$
-
 =head1 NAME
 
 Bio::DB::GFF -- Storage and retrieval of sequence annotation data
@@ -440,6 +438,8 @@ The following is the API for Bio::DB::GFF.
 
 =cut
 
+package Bio::DB::GFF;
+
 use strict;
 
 use Bio::DB::GFF::Util::Rearrange;
@@ -451,7 +451,7 @@ use Bio::Root::Root;
 use vars qw($VERSION @ISA);
 @ISA = qw(Bio::Root::Root);
 
-$VERSION = '1.02';
+$VERSION = '1.03';
 my %valid_range_types = (overlaps     => 1,
 			 contains     => 1,
 			 contained_in => 1);
@@ -622,6 +622,27 @@ sub types {
   $self->get_types($refseq,$refclass,$start,$stop,$enumerate,$types);
 }
 
+=head2 classes
+
+ Title   : classes
+ Usage   : $db->classes
+ Function: return list of landmark classes in database
+ Returns : a list of classes
+ Args    : none
+ Status  : public
+
+This routine returns the list of reference classes known to the
+database, or empty if classes are not used by the database.  Classes
+are distinct from types, being essentially qualifiers on the reference
+namespaces.
+
+=cut
+
+sub classes {
+  my $self = shift;
+  return ();
+}
+
 =head2 segment
 
  Title   : segment
@@ -755,8 +776,9 @@ sub segment {
   } elsif (wantarray) { # more than one reference sequence
     return @segments;
   } else {
-    $self->error($segments[0]->name," has more than one reference sequence in database.  Please call in a list context to retrieve them all.");
-    croak('multiple segment exception');
+    $self->error($segments[0]->name,
+		 " has more than one reference sequence in database.  Please call in a list context to retrieve them all.");
+    $self->throw('multiple segment exception');
     return;
   }
 }
@@ -1847,8 +1869,10 @@ sub do_load_gff {
     next unless defined($ref) && defined($method) && defined($start) && defined($stop);
 
     # handle group parsing
-    $group =~ s/\\;/$;/g;  # protect embedded semicolons in the group; this probably breaks
-    $group =~ s/( \"[^\"]*);([^\"]*\")/$1$;$2/g;
+    # protect embedded semicolons in the group; there must be faster/more elegant way
+    # to do this.
+    $group =~ s/\\;/$;/g;
+    while ($group =~ s/( \"[^\"]*);([^\"]*\")/$1$;$2/) { 1 }
     my @groups = split(/\s*;\s*/,$group);
     foreach (@groups) { s/$;/;/g }
 
@@ -2711,10 +2735,9 @@ Bio::DB::GFF::RelSegment object or descendent.
 sub _features {
   my $self = shift;
   my ($search,$options,$parent) = @_;
-
   (@{$search}{qw(start stop)}) = (@{$search}{qw(stop start)})
     if defined($search->{start}) && $search->{start} > $search->{stop};
-
+  
   my $types = $self->parse_types($search->{types});  # parse out list of types
   my @aggregated_types = @$types;         # keep a copy
 

@@ -12,8 +12,9 @@ Bio::DB::GFF::Feature is a stretch of sequence that corresponding to a
 single annotation in a GFF database.  It inherits from
 Bio::DB::GFF::RelSegment, and so has all the support for relative
 addressing of this class and its ancestors.  It also inherits from
-Bio::SeqFeatureI, and so has the familiar start(), stop(),
-and primary_tag() methods.
+Bio::SeqFeatureI and so has the familiar start(), stop(),
+primary_tag() and location() methods (it implements Bio::LocationI
+too, if needed).
 
 Bio::DB::GFF::Feature adds new methods to retrieve the annotation's
 type, group, and other GFF attributes.  Annotation types are
@@ -71,11 +72,12 @@ use Bio::DB::GFF::Typename;
 use Bio::DB::GFF::Homol;
 use Bio::SeqFeatureI;
 use Bio::Root::Root;
+use Bio::LocationI;
 
 use vars qw($VERSION @ISA $AUTOLOAD);
-@ISA = qw(Bio::DB::GFF::RelSegment Bio::SeqFeatureI Bio::Root::Root);
+@ISA = qw(Bio::DB::GFF::RelSegment Bio::SeqFeatureI Bio::LocationI Bio::Root::Root);
 
-$VERSION = '0.40';
+$VERSION = '0.50';
 #' 
 
 *segments = \&sub_SeqFeature;
@@ -541,6 +543,50 @@ sub add_subfeature {
   my $type = $feature->method;
   my $subfeat = $self->{subfeatures}{lc $type} ||= [];
   push @{$subfeat},$feature;
+}
+
+=head2 location
+
+ Title   : location
+ Usage   : my $location = $seqfeature->location()
+ Function: returns a location object suitable for identifying location 
+	   of feature on sequence or parent feature  
+ Returns : Bio::LocationI object
+ Args    : none
+
+=cut
+
+sub location {
+   my $self = shift;
+   require Bio::Location::Split unless Bio::Location::Split->can('new');
+   my $location;
+   if (my @segments = $self->segments) {
+       $location = Bio::Location::Split->new();
+       foreach (@segments) {
+          $location->add_sub_Location($_);
+       }
+   } else {
+       $location = $self;
+   }
+   $location;
+}
+
+sub coordinate_policy {
+   require Bio::Location::WidestCoordPolicy unless Bio::Location::WidestCoordPolicy->can('new');
+   return Bio::Location::WidestCoordPolicy->new();
+}
+
+sub min_start { shift->low }
+sub max_start { shift->low }
+sub min_end   { shift->high }
+sub max_end   { shift->high}
+sub start_pos_type { 'EXACT' }
+sub end_pos_type   { 'EXACT' }
+sub to_FTstring {
+  my $self = shift;
+  my $low  = $self->min_start;
+  my $high = $self->max_end;
+  return "$low..$high";
 }
 
 =head2 merged_segments
