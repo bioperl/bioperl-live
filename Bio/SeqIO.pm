@@ -33,7 +33,7 @@ Bio::SeqIO - Handler for SeqIO Formats
     }
 
   # Now, to actually get at the sequence object, use the standard Bio::Seq
-  # methods (look at L<Bio::Seq> if you don't know what they are)
+  # methods (look at Bio::Seq if you don't know what they are)
 
     use Bio::SeqIO;
 
@@ -135,7 +135,7 @@ The new() class method constructs a new Bio::SeqIO object.  The
 returned object can be used to retrieve or print Seq objects. new()
 accepts the following parameters:
 
-=over 4
+=over 5
 
 =item -file
 
@@ -204,6 +204,12 @@ Currently, the tracefile formats (except for SCF) require installation
 of the external Staden "io_lib" package, as well as the
 Bio::SeqIO::staden::read package available from the bioperl-ext
 repository.
+
+=item -alphabet
+
+Sets the alphabet ('dna', 'rna', or 'protein'). When the alphabet is
+set then Bioperl will not attempt to guess what the alphabet is. This
+may be important because Bioperl does not always guess correctly.
 
 =item -flush
 
@@ -317,7 +323,7 @@ my %valid_alphabet_cache;
  Title   : new
  Usage   : $stream = Bio::SeqIO->new(-file => $filename, 
                                      -format => 'Format')
- Function: Returns a new seqstream
+ Function: Returns a new sequence stream
  Returns : A Bio::SeqIO stream initialised with the appropriate format
  Args    : Named parameters:
              -file => $filename
@@ -421,26 +427,28 @@ sub fh {
 # _initialize is chained for all SeqIO classes
 
 sub _initialize {
-    my($self, @args) = @_;
+	my($self, @args) = @_;
 
-    # flush is initialized by the Root::IO init
+	# flush is initialized by the Root::IO init
 
-    my ($seqfact,$locfact,$objbuilder) =
-	$self->_rearrange([qw(SEQFACTORY
+	my ($seqfact,$locfact,$objbuilder) =
+	  $self->_rearrange([qw(SEQFACTORY
 			      LOCFACTORY
 			      OBJBUILDER)
-			   ], @args);
+							  ], @args);
 
-    $locfact = Bio::Factory::FTLocationFactory->new(-verbose => $self->verbose) if ! $locfact;
-    $objbuilder = Bio::Seq::SeqBuilder->new(-verbose => $self->verbose) unless $objbuilder;
-    $self->sequence_builder($objbuilder);
-    $self->location_factory($locfact);
-    # note that this should come last because it propagates the sequence
-    # factory to the sequence builder
-    $seqfact && $self->sequence_factory($seqfact);
+	$locfact = Bio::Factory::FTLocationFactory->new(-verbose => $self->verbose) 
+	  if ! $locfact;
+	$objbuilder = Bio::Seq::SeqBuilder->new(-verbose => $self->verbose) 
+	  unless $objbuilder;
+	$self->sequence_builder($objbuilder);
+	$self->location_factory($locfact);
+	# note that this should come last because it propagates the sequence
+	# factory to the sequence builder
+	$seqfact && $self->sequence_factory($seqfact);
 
-    # initialize the IO part
-    $self->_initialize_io(@args);
+	# initialize the IO part
+	$self->_initialize_io(@args);
 }
 
 =head2 next_seq
@@ -505,22 +513,21 @@ sub alphabet {
    my ($self, $value) = @_;
 
    if ( defined $value) {
-       $value = lc $value;
-       unless ($valid_alphabet_cache{$value}) {
-	   # instead of hard-coding the allowed values once more, we check by
-	   # creating a dummy sequence object
-	   eval {
-	       require Bio::PrimarySeq;
-	       my $seq = Bio::PrimarySeq->new('-verbose' => $self->verbose,
-					      '-alphabet' => $value);
-		
-	   };
-	   if ($@) {
-	       $self->throw("Invalid alphabet: $value\n. See Bio::PrimarySeq for allowed values.");
-	   }
-	   $valid_alphabet_cache{$value} = 1;
-       }
-       $self->{'alphabet'} = $value;
+		$value = lc $value;
+		unless ($valid_alphabet_cache{$value}) {
+			# instead of hard-coding the allowed values once more, we check by
+			# creating a dummy sequence object
+			eval {
+				require Bio::PrimarySeq;
+				my $seq = Bio::PrimarySeq->new('-verbose' => $self->verbose,
+														 '-alphabet' => $value);
+			};
+			if ($@) {
+				$self->throw("Invalid alphabet: $value\n. See Bio::PrimarySeq for allowed values.");
+			}
+			$valid_alphabet_cache{$value} = 1;
+		}
+		$self->{'alphabet'} = $value;
    }
    return $self->{'alphabet'};
 }
@@ -537,23 +544,23 @@ sub alphabet {
 =cut
 
 sub _load_format_module {
-    my ($self, $format) = @_;
-    my $module = "Bio::SeqIO::" . $format;
-    my $ok;
+	my ($self, $format) = @_;
+	my $module = "Bio::SeqIO::" . $format;
+	my $ok;
 
-    eval {
-	$ok = $self->_load_module($module);
-    };
-    if ( $@ ) {
-    print STDERR <<END;
+	eval {
+		$ok = $self->_load_module($module);
+	};
+	if ( $@ ) {
+		print STDERR <<END;
 $self: $format cannot be found
 Exception $@
 For more information about the SeqIO system please see the SeqIO docs.
 This includes ways of checking for formats at compile time, not run time
 END
-  ;
-  }
-  return $ok;
+		;
+	}
+	return $ok;
 }
 
 =head2 _concatenate_lines
@@ -572,10 +579,10 @@ END
 =cut
 
 sub _concatenate_lines {
-    my ($self, $s1, $s2) = @_;
+	my ($self, $s1, $s2) = @_;
 
-    $s1 .= " " if($s1 && ($s1 !~ /-$/) && $s2);
-    return ($s1 ? $s1 : "") . ($s2 ? $s2 : "");
+	$s1 .= " " if($s1 && ($s1 !~ /-$/) && $s2);
+	return ($s1 ? $s1 : "") . ($s2 ? $s2 : "");
 }
 
 =head2 _filehandle
@@ -633,26 +640,26 @@ sub _guess_format {
 }
 
 sub DESTROY {
-    my $self = shift;
-    $self->close();
+	my $self = shift;
+	$self->close();
 }
 
 sub TIEHANDLE {
-    my ($class,$val) = @_;
-    return bless {'seqio' => $val}, $class;
+	my ($class,$val) = @_;
+	return bless {'seqio' => $val}, $class;
 }
 
 sub READLINE {
-  my $self = shift;
-  return $self->{'seqio'}->next_seq() unless wantarray;
-  my (@list, $obj);
-  push @list, $obj while $obj = $self->{'seqio'}->next_seq();
-  return @list;
+	my $self = shift;
+	return $self->{'seqio'}->next_seq() unless wantarray;
+	my (@list, $obj);
+	push @list, $obj while $obj = $self->{'seqio'}->next_seq();
+	return @list;
 }
 
 sub PRINT {
-  my $self = shift;
-  $self->{'seqio'}->write_seq(@_);
+	my $self = shift;
+	$self->{'seqio'}->write_seq(@_);
 }
 
 =head2 sequence_factory
@@ -667,17 +674,17 @@ sub PRINT {
 =cut
 
 sub sequence_factory{
-   my ($self,$obj) = @_;   
+   my ($self,$obj) = @_;
    if( defined $obj ) {
-       if( ! ref($obj) || ! $obj->isa('Bio::Factory::SequenceFactoryI') ) {
-	   $self->throw("Must provide a valid Bio::Factory::SequenceFactoryI object to ".ref($self)."::sequence_factory()");
-       }
-       $self->{'_seqio_seqfactory'} = $obj;
-       my $builder = $self->sequence_builder();
-       if($builder && $builder->can('sequence_factory') &&
-	  (! $builder->sequence_factory())) {
-	   $builder->sequence_factory($obj);
-       }
+		if( ! ref($obj) || ! $obj->isa('Bio::Factory::SequenceFactoryI') ) {
+			$self->throw("Must provide a valid Bio::Factory::SequenceFactoryI object to ".ref($self)."::sequence_factory()");
+		}
+		$self->{'_seqio_seqfactory'} = $obj;
+		my $builder = $self->sequence_builder();
+		if($builder && $builder->can('sequence_factory') &&
+			(! $builder->sequence_factory())) {
+			$builder->sequence_factory($obj);
+		}
    }
    $self->{'_seqio_seqfactory'};
 }
@@ -695,35 +702,35 @@ sub sequence_factory{
 =cut
 
 sub object_factory{
-    return shift->sequence_factory(@_);
+	return shift->sequence_factory(@_);
 }
 
 =head2 sequence_builder
 
  Title   : sequence_builder
  Usage   : $seqio->sequence_builder($seqfactory)
- Function: Get/Set the L<Bio::Factory::ObjectBuilderI> used to build sequence
+ Function: Get/Set the Bio::Factory::ObjectBuilderI used to build sequence
            objects.
 
            If you do not set the sequence object builder yourself, it
            will in fact be an instance of L<Bio::Seq::SeqBuilder>, and
            you may use all methods documented there to configure it.
 
- Returns : a L<Bio::Factory::ObjectBuilderI> compliant object
- Args    : [optional] a L<Bio::Factory::ObjectBuilderI> compliant object
+ Returns : a Bio::Factory::ObjectBuilderI compliant object
+ Args    : [optional] a Bio::Factory::ObjectBuilderI compliant object
 
 
 =cut
 
 sub sequence_builder{
-    my ($self,$obj) = @_;
-    if( defined $obj ) {
-	if( ! ref($obj) || ! $obj->isa('Bio::Factory::ObjectBuilderI') ) {
-	    $self->throw("Must provide a valid Bio::Factory::ObjectBuilderI object to ".ref($self)."::sequence_builder()");
+	my ($self,$obj) = @_;
+	if( defined $obj ) {
+		if( ! ref($obj) || ! $obj->isa('Bio::Factory::ObjectBuilderI') ) {
+			$self->throw("Must provide a valid Bio::Factory::ObjectBuilderI object to ".ref($self)."::sequence_builder()");
+		}
+		$self->{'_object_builder'} = $obj;
 	}
-	$self->{'_object_builder'} = $obj;
-    }
-    $self->{'_object_builder'};
+	$self->{'_object_builder'};
 }
 
 =head2 location_factory
@@ -732,23 +739,23 @@ sub sequence_builder{
  Usage   : $seqio->location_factory($locfactory)
  Function: Get/Set the Bio::Factory::LocationFactoryI object to be used for
            location string parsing
- Returns : a L<Bio::Factory::LocationFactoryI> implementing object
- Args    : [optional] on set, a L<Bio::Factory::LocationFactoryI> implementing
+ Returns : a Bio::Factory::LocationFactoryI implementing object
+ Args    : [optional] on set, a Bio::Factory::LocationFactoryI implementing
            object.
 
 
 =cut
 
 sub location_factory{
-    my ($self,$obj) = @_;   
-    if( defined $obj ) {
-	if( ! ref($obj) || ! $obj->isa('Bio::Factory::LocationFactoryI') ) {
-	    $self->throw("Must provide a valid Bio::Factory::LocationFactoryI".
-			 " object to ".ref($self)."->location_factory()");
+	my ($self,$obj) = @_;
+	if( defined $obj ) {
+		if( ! ref($obj) || ! $obj->isa('Bio::Factory::LocationFactoryI') ) {
+			$self->throw("Must provide a valid Bio::Factory::LocationFactoryI" .
+							 " object to ".ref($self)."->location_factory()");
+		}
+		$self->{'_seqio_locfactory'} = $obj;
 	}
-	$self->{'_seqio_locfactory'} = $obj;
-    }
-    $self->{'_seqio_locfactory'};
+	$self->{'_seqio_locfactory'};
 }
 
 1;
