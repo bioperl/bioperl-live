@@ -11,6 +11,11 @@ rnai_finder.cgi
 A CGI script using the Bio::Tools::SiRNA package to design RNAi reagents.  
 Retrieves sequences from NCBI and generates output in graphic and tabular form.
 
+=head1 INSTALLATION
+
+To use this script, place it in an appropriate cgi-bin directory on a web server.  
+The script needs to write its graphic maps to a temporary directory.  Please update
+$TMPDIR and $TMPURL to suit your local configuation.
 
 =head1 AUTHOR
 
@@ -49,8 +54,8 @@ my $ATGPAD = 75; # how far from start do we wait?
 my $NOLIGOS = 3;
 
 my $log = $TMPDIR . 'RNAiFinder.log';
-#open (LOG, ">>$log") or die $!;
-#carpout(LOG);
+open (LOG, ">>$log") or die $!;
+carpout(LOG);
 
 print $q->header,
     $q->start_html;
