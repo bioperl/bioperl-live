@@ -431,6 +431,11 @@ sub write {
 			    $w->characters($mut->dnStreamSeq );
 			    $w->endTag;
 			}
+			if ($mut->restriction_changes) {
+			    $w->startTag("restriction_changes");
+			    $w->characters($mut->restriction_changes);
+			    $w->endTag;
+			}	
 			if ($mut->region) {
 			    if($mut->region_value or $mut->region_dist) {
 				$w->startTag("region",
@@ -443,11 +448,6 @@ sub write {
 			    $w->characters($mut->region );
 			    $w->endTag;
 			}
-			if ($mut->restriction_changes) {
-			    $w->startTag("restriction_changes");
-			    $w->characters($mut->restriction_changes);
-			    $w->endTag;
-			}	    
 			$w->endTag; #DNA
 		    }
 		}

@@ -295,8 +295,8 @@
         <allele_ori>a</allele_ori>
         <allele_mut>g</allele_mut>
         <dnFlank>ctgggttgcccatgattcatttttg</dnFlank>
-        <region value="" dist="1027">3'UTR</region>
         <restriction_changes>+AciI, -BfiI, -BsrI, +FauI, +NspBII, +Sth132I, -TspRI</restriction_changes>
+        <region value="" dist="1027">3'UTR</region>
     </DNA>
     <RNA number="1" start="2428" end="2428" length="1" isMutation="1">
         <label>unknown</label>
@@ -319,8 +319,8 @@
         <allele_ori>g</allele_ori>
         <allele_mut>t</allele_mut>
         <dnFlank>tctcccaggccctcaggctcctctg</dnFlank>
-        <region value="1" dist="4">exon</region>
         <restriction_changes>-BsmAI, -Eco31I</restriction_changes>
+        <region value="1" dist="4">exon</region>
     </DNA>
     <RNA number="1" start="4" end="4" length="1" isMutation="1">
         <label>missense</label>
@@ -350,8 +350,8 @@
         <allele_ori>g</allele_ori>
         <allele_mut>t</allele_mut>
         <dnFlank>acatgccgtggaagccggggcctca</dnFlank>
-        <region value="1" dist="-29">exon</region>
         <restriction_changes>-BscGI, -Bsp24I, -CjePI, -FinI, +RsaI, -Sth132I, +Tsp4CI</restriction_changes>
+        <region value="1" dist="-29">exon</region>
     </DNA>
     <RNA number="1" start="100" end="100" length="1" isMutation="1">
         <label>missense</label>
@@ -381,8 +381,8 @@
         <allele_ori>c</allele_ori>
         <allele_mut>g</allele_mut>
         <dnFlank>atcatggtctcccaggccctcaggc</dnFlank>
-        <region value="" dist="-4">5'UTR</region>
         <restriction_changes>+BclI, +DpnI, +MboI</restriction_changes>
+        <region value="" dist="-4">5'UTR</region>
     </DNA>
     <RNA number="1" start="-4" end="-4" length="1" isMutation="1">
         <label>unknown</label>
