@@ -218,10 +218,9 @@ sub next_result{
 	   if( $1 eq 'database' ) {	   
 	       $self->element({'Name' => 'HMMER_db',
 			       'Data' => $_});
-	   } else { 
-	       $self->element({'Name' => 'HMMER_seqfile',
-			       'Data' => $_});
-	   }
+	   } 
+	   $self->element({'Name' => 'HMMER_seqfile',
+			   'Data' => $_});
        } elsif( s/^Query(\s+(sequence|HMM))?:\s+//o) {
            if( ! $seentop ) {               
                # we're in a multi-query report
