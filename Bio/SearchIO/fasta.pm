@@ -403,7 +403,7 @@ sub next_result{
 		   last;
 	       }
 	       if( $count == 0 ) { 
-		   unless( /^\s+\d+\s+/ || /^\s+$/) {
+		   unless( /^\s+\d+/ || /^\s+$/) {
 		       $self->_pushback($_);
 		       $count = 2;
 		   }
@@ -412,7 +412,6 @@ sub next_result{
 		       $len = CORE::length($1) if $len < CORE::length($1);
 		       s/\s+$//; # trim trailing spaces,we don't want them 
 		       $data[$count-1] = substr($_,$len);
-		       
 		   } elsif( /^\s+(\d+)\s+/ ) {
 		       $self->warn("Unexpected state ($_)");
 		   } elsif( /^\s+$/ || length($_) == 0) {
