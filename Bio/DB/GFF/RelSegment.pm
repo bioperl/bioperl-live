@@ -221,7 +221,10 @@ sub new {
   my $self = bless { factory => $factory },$package;
 
   # support for Featname objects
-  $class = $name->class if ref($name) && $name->can('class');
+  if (ref($name) && $name->can('class')) {
+    $class = $name->class;
+    $name  = $name->name;
+  }
   # if the class of the landmark is not specified then default to 'Sequence'
   $class ||= 'Sequence';
 
