@@ -61,12 +61,12 @@ ok(scalar @{ $unigene->protsim } , 4);
 
 ok(scalar @{ $unigene->sequences },29);
 
-ok($unigene->next_locuslink, '58473');
-ok($unigene->next_chromosome, '8');
-ok($unigene->next_express, 'colon');
-ok($unigene->next_sts, 'ACC=- NAME=GDB:386004 UNISTS=157141');
-ok($unigene->next_txmap, 'D8S549-D8S258; MARKER=stSG40; RHPANEL=GB4');
-ok($unigene->next_protsim, 'ORG=Escherischia coli; PROTGI=8928262; PROTID=Ec_pid; PCT=24; ALN=254');
+ok($unigene->locuslink->[0], '58473');
+ok($unigene->chromosome->[0], '8');
+ok($unigene->express->[0], 'colon');
+ok($unigene->sts->[0], 'ACC=- NAME=GDB:386004 UNISTS=157141');
+ok($unigene->txmap->[0], 'D8S549-D8S258; MARKER=stSG40; RHPANEL=GB4');
+ok($unigene->protsim->[0], 'ORG=Escherischia coli; PROTGI=8928262; PROTID=Ec_pid; PCT=24; ALN=254');
 my ($seq1) = $unigene->next_seq;
 ok($seq1->display_id, 'D90042');
 ok($seq1->desc, 'ACC=D90042 NID=g219415 PID=g219416 UNIGENE_ID=Hs.2');

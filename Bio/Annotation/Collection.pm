@@ -111,7 +111,7 @@ sub new{
 }
 
 
-=head1 Bio::AnnotationCollectionI implementing methods
+=head1 L<Bio::AnnotationCollectionI> implementing methods
 
 =cut
 
@@ -316,7 +316,7 @@ sub add_Annotation{
 sub remove_Annotations{
     my ($self, @keys) = @_;
 
-    @keys = $self->get_all_annotation_keys();
+    @keys = $self->get_all_annotation_keys() unless @keys;
     my @anns = $self->get_Annotations(@keys);
     # flush
     foreach (@keys) {

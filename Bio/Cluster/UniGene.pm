@@ -48,10 +48,12 @@ representations, and in addition L<Bio::IdentifiableI> and
 L<Bio::DescribableI>.
 
 The following lists the UniGene specific methods that are available
-(see below for details). Be aware that with the exception of next_seq,
-all next_XXX methods exhaust the array over which they iterate. You
-will usually want to use their non-iterator equivalents and loop over
-the elements yourself.
+(see below for details). Be aware next_XXX iterators take a snapshot
+of the array property when they are first called, and this snapshot is
+not reset until the iterator is exhausted. Hence, once called you need
+to exhaust the iterator to see any changes that have been made to the
+property in the meantime. You will usually want to use the
+non-iterator equivalents and loop over the elements yourself.
 
 new() - standard new call
 
@@ -154,6 +156,8 @@ use strict;
 
 use Bio::Root::Root;
 use Bio::Annotation::Collection;
+use Bio::Annotation::DBLink;
+use Bio::Annotation::SimpleValue;
 use Bio::Seq;
 use Bio::Seq::RichSeq;
 use Bio::Factory::SequenceStreamI;
@@ -308,7 +312,19 @@ sub cytoband {
 
 sub mgi {
     my $self = shift;
-    return $self->_annotation_value('mgi', @_);
+    my $acc;
+
+    if(@_) {
+	# purge first
+	$self->_remove_dblink('dblink','MGI');
+	# then add if a valid value is present
+	if($acc = shift) {
+	    $self->_annotation_dblink('dblink','MGI',$acc);
+	}
+    } else {
+	($acc) = $self->_annotation_dblink('dblink','MGI');
+    }
+    return $acc;
 }
 
 
@@ -323,11 +339,20 @@ sub mgi {
 =cut
 
 sub locuslink {
-	my ($obj,$value) = @_;
-	if( defined $value) {
-		$obj->{'locuslink'} = $value;
+    my ($self,$ll) = @_;
+    
+    if($ll) {
+	# purge first
+	$self->_remove_dblink('dblink','LocusLink');
+	# then add as many accessions as are present
+	foreach my $acc (@$ll) {
+	    $self->_annotation_dblink('dblink','LocusLink',$acc);
 	}
-	return $obj->{'locuslink'};
+    } else {
+	my @accs = $self->_annotation_dblink('dblink','LocusLink');
+	$ll = [@accs];
+    }
+    return $ll;
 }
 
 
@@ -380,11 +405,9 @@ sub scount {
 =cut
 
 sub express {
-	my ($obj,$value) = @_;
-	if( defined $value) {
-		$obj->{'express'} = $value;
-	}
-	return $obj->{'express'};
+    my $self = shift;
+
+    return $self->_annotation_value_ary('expressed',@_);
 }
 
 
@@ -400,12 +423,10 @@ sub express {
 =cut
 
 sub chromosome {
-	my ($obj,$value) = @_;
-	if( defined $value) {
-		$obj->{'chromosome'} = $value;
-	}
-	return $obj->{'chromosome'};
-}
+    my $self = shift;
+
+    return $self->_annotation_value_ary('chromosome',@_);
+ }
 
 
 =head2 sts
@@ -413,18 +434,16 @@ sub chromosome {
  Title   : sts
  Usage   : sts();
  Function: Returns or stores a reference to an array containing sts lines
- 	   This should really only be used by ClusterIO, not directly
+
  Returns : An array reference
  Args    : None or an array reference
 
 =cut
 
 sub sts {
-	my ($obj,$value) = @_;
-	if( defined $value) {
-		$obj->{'sts'} = $value;
-	}
-	return $obj->{'sts'};
+    my $self = shift;
+
+    return $self->_annotation_value_ary('sts',@_);
 }
 
 
@@ -433,18 +452,16 @@ sub sts {
  Title   : txmap
  Usage   : txmap();
  Function: Returns or stores a reference to an array containing txmap lines
-	   This should really only be used by ClusterIO, not directly
+
  Returns : An array reference
  Args    : None or an array reference
 
 =cut
 
 sub txmap {
-	my ($obj,$value) = @_;
-	if( defined $value) {
-		$obj->{'txmap'} = $value;
-	}
-	return $obj->{'txmap'};
+    my $self = shift;
+
+    return $self->_annotation_value_ary('txmap',@_);
 }
 
 
@@ -460,11 +477,9 @@ sub txmap {
 =cut
 
 sub protsim {
-	my ($obj,$value) = @_;
-	if( defined $value) {
-		$obj->{'protsim'} = $value;
-	}
-	return $obj->{'protsim'};
+    my $self = shift;
+
+    return $self->_annotation_value_ary('protsim',@_);
 }
 
 
@@ -609,9 +624,13 @@ sub get_members {
 
            Many attributes of this class are actually stored within
            the annotation collection object as L<Bio::AnnotationI>
-           compliant objects. If you call this method in set mode and
-           replace the annotation collection with another one you
-           should know exactly what you are doing.
+           compliant objects, so you can conveniently access them
+           through the same interface as you would e.g. access
+           L<Bio::SeqI> annotation properties.
+
+           If you call this method in set mode and replace the
+           annotation collection with another one you should know
+           exactly what you are doing.
 
  Example : 
  Returns : a L<Bio::AnnotationCollectionI> compliant object
@@ -635,7 +654,8 @@ sub annotation{
 
 =head1 Implementation specific methods
 
- These are mostly for adding/removing to array properties, and for methods with special functionality.
+ These are mostly for adding/removing to array properties, and for
+ methods with special functionality.
 
 =cut
 
@@ -646,7 +666,10 @@ sub annotation{
  Function: Returns the next locuslink from an array referred 
            to using $obj->{'locuslink'}
 
-           Note that this iterator will exhaust the array!
+           If you call this iterator again after it returned undef, it
+           will re-cycle through the list of elements. Changes in the
+           underlying array property while you loop over this iterator
+           will not be reflected until you exhaust the iterator.
 
  Example : 	while ( my $locuslink = $in->next_locuslink() ) {
 				print "$locuslink\n";
@@ -657,8 +680,9 @@ sub annotation{
 =cut
 
 sub next_locuslink {
-	my ($obj) = @_;
-	shift @{$obj->{'locuslink'}};
+    my ($obj) = @_;
+
+    return $obj->_next_element("ll","locuslink");
 }
 
 =head2 next_express
@@ -668,7 +692,10 @@ sub next_locuslink {
  Function: Returns the next tissue from an array referred 
            to using $obj->{'express'}
 
-           Note that this iterator will exhaust the array!
+           If you call this iterator again after it returned undef, it
+           will re-cycle through the list of elements. Changes in the
+           underlying array property while you loop over this iterator
+           will not be reflected until you exhaust the iterator.
 
  Example : 	while ( my $express = $in->next_express() ) {
 				print "$express\n";
@@ -679,8 +706,9 @@ sub next_locuslink {
 =cut
 
 sub next_express {
-	my ($obj) = @_;
-	shift @{$obj->{'express'}};
+    my ($obj) = @_;
+
+    return $obj->_next_element("express","express");
 }
 
 
@@ -691,7 +719,10 @@ sub next_express {
  Function: Returns the next chromosome line from an array referred
            to using $obj->{'chromosome'}
 
-           Note that this iterator will exhaust the array!
+           If you call this iterator again after it returned undef, it
+           will re-cycle through the list of elements. Changes in the
+           underlying array property while you loop over this iterator
+           will not be reflected until you exhaust the iterator.
 
  Example : 	while ( my $chromosome = $in->next_chromosome() ) {
 				print "$chromosome\n";
@@ -702,8 +733,9 @@ sub next_express {
 =cut
 
 sub next_chromosome {
-	my ($obj) = @_;
-	shift @{$obj->{'chromosome'}};
+    my ($obj) = @_;
+
+    return $obj->_next_element("chr","chromosome");
 }
 
 
@@ -714,7 +746,10 @@ sub next_chromosome {
  Function: Returns the next protsim line from an array referred 
            to using $obj->{'protsim'}
 
-           Note that this iterator will exhaust the array!
+           If you call this iterator again after it returned undef, it
+           will re-cycle through the list of elements. Changes in the
+           underlying array property while you loop over this iterator
+           will not be reflected until you exhaust the iterator.
 
  Example : 	while ( my $protsim = $in->next_protsim() ) {
 				print "$protsim\n";
@@ -725,8 +760,9 @@ sub next_chromosome {
 =cut
 
 sub next_protsim {
-	my ($obj) = @_;
-	shift @{$obj->{'protsim'}};
+    my ($obj) = @_;
+
+    return $obj->_next_element("protsim","protsim");
 }
 
 
@@ -737,7 +773,10 @@ sub next_protsim {
  Function: Returns the next sts line from an array referred 
            to using $obj->{'sts'}
 
-           Note that this iterator will exhaust the array!
+           If you call this iterator again after it returned undef, it
+           will re-cycle through the list of elements. Changes in the
+           underlying array property while you loop over this iterator
+           will not be reflected until you exhaust the iterator.
 
  Example : 	while ( my $sts = $in->next_sts() ) {
 				print "$sts\n";
@@ -748,8 +787,9 @@ sub next_protsim {
 =cut
 
 sub next_sts {
-	my ($obj) = @_;
-	shift @{$obj->{'sts'}};
+    my ($obj) = @_;
+
+    return $obj->_next_element("sts","sts");
 }
 
 
@@ -760,7 +800,10 @@ sub next_sts {
  Function: Returns the next txmap line from an array 
            referred to using $obj->{'txmap'}
 
-           Note that this iterator will exhaust the array!
+           If you call this iterator again after it returned undef, it
+           will re-cycle through the list of elements. Changes in the
+           underlying array property while you loop over this iterator
+           will not be reflected until you exhaust the iterator.
 
  Example : 	while ( my $tsmap = $in->next_txmap() ) {
 				print "$txmap\n";
@@ -771,8 +814,34 @@ sub next_sts {
 =cut
 
 sub next_txmap {
-	my ($obj) = @_;
-	shift @{$obj->{'txmap'}};
+    my ($obj) = @_;
+
+    return $obj->_next_element("txmap","txmap");
+}
+
+###############################
+# private method
+#
+# args: prefix name for the queue
+#       name of the method from which to re-fill
+# returns: the next element from that queue, or undef if the queue is empty
+###############################
+sub _next_element{
+    my ($self,$queue,$meth) = @_;
+
+    my $queue = "_".$queue."_queue";
+    if(! exists($self->{$queue})) {
+	# re-initialize from array of sequence data
+	$self->{$queue} = [@{$self->$meth}];
+    }
+    my $queue = $self->{$queue};
+    # is queue exhausted (equivalent to end of stream)?
+    if(! @$queue) {
+	# yes, remove queue and signal to the caller
+	delete $self->{$queue};
+	return undef;
+    }
+    return shift(@$queue);
 }
 
 =head1 L<Bio::IdentifiableI> methods
@@ -942,15 +1011,15 @@ sub display_name {
 sub next_seq {
     my ($obj) = @_;
 
-    if(! exists($obj->{'_queue'})) {
+    if(! exists($obj->{'_seq_queue'})) {
 	# re-initialize from array of sequence data
-	$obj->{'_queue'} = [@{$obj->{'sequences'}}];
+	$obj->{'_seq_queue'} = [@{$obj->sequences()}];
     }
-    my $queue = $obj->{'_queue'};
+    my $queue = $obj->{'_seq_queue'};
     # is queue exhausted (equivalent to end of stream)?
     if(! @$queue) {
 	# yes, remove queue and signal to the caller
-	delete $obj->{'_queue'};
+	delete $obj->{'_seq_queue'};
 	return undef;
     }
     # no, still data in the queue
@@ -998,7 +1067,7 @@ sub sequence_factory {
 
  Title   : _annotation_value
  Usage   :
- Function:
+ Function: Private method.
  Example :
  Returns : the value (a string)
  Args    : annotation key (a string)
@@ -1032,6 +1101,110 @@ sub _annotation_value{
 	$ann->value($val);
     }
     return $val;
+}
+
+
+=head2 _annotation_value_ary
+
+ Title   : _annotation_value_ary
+ Usage   :
+ Function: Private method.
+ Example :
+ Returns : reference to the array of values
+ Args    : annotation key (a string)
+           on set, reference to an array holding the values
+
+
+=cut
+
+sub _annotation_value_ary{
+    my ($self,$key,$arr) = @_;
+
+    my $ac = $self->annotation;
+    if($arr) {
+	# purge first
+	$ac->remove_Annotations($key);
+	# then add as many values as are present
+	foreach my $val (@$arr) {
+	    my $ann = Bio::Annotation::SimpleValue->new(-value => $val,
+							-tagname => $key
+							);
+	    $ac->add_Annotation($ann);
+	}
+    } else {
+	my @vals = map { $_->value(); } $ac->get_Annotations($key);
+	$arr = [@vals];
+    }
+    return $arr;
+}
+
+
+=head2 _annotation_dblink
+
+ Title   : _annotation_dblink
+ Usage   :
+ Function: Private method.
+ Example :
+ Returns : array of accessions for the given database (namespace)
+ Args    : annotation key (a string)
+           dbname (a string) (optional on get, mandatory on set)
+           on set, accession or ID (a string), and version
+
+
+=cut
+
+sub _annotation_dblink{
+    my ($self,$key,$dbname,$acc,$version) = @_;
+
+    if($acc) {
+	# set mode -- this is adding here
+	my $ann = Bio::Annotation::DBLink->new(-tagname    => $key,
+					       -primary_id => $acc,
+					       -database   => $dbname,
+					       -version    => $version);
+	$self->annotation->add_Annotation($ann);
+	return 1;
+    } else {
+	# get mode
+	my @anns = $self->annotation->get_Annotations($key);
+	# filter out those that don't match the requested database
+	if($dbname) {
+	    @anns = grep { $_->database() eq $dbname; } @anns;
+	}
+	return map { $_->primary_id(); } @anns;
+    }
+}
+
+=head2 _remove_dblink
+
+ Title   : _remove_dblink
+ Usage   :
+ Function: Private method.
+ Example :
+ Returns : array of accessions for the given database (namespace)
+ Args    : annotation key (a string)
+           dbname (a string) (optional)
+
+
+=cut
+
+sub _remove_dblink{
+    my ($self,$key,$dbname) = @_;
+
+    my $ac = $self->annotation();
+    my @anns = ();
+    if($dbname) {
+	foreach my $ann ($ac->remove_Annotations($key)) {
+	    if($ann->database() eq $dbname) {
+		push(@anns, $ann);
+	    } else {
+		$ac->add_Annotation($ann);
+	    }
+	}
+    } else {
+	@anns = $ac->remove_Annotations($key);
+    }
+    return map { $_->primary_id(); } @anns;
 }
 
 
