@@ -52,12 +52,12 @@ if( $error ==  1 ) {
 }
 
 
-use  Bio::DB::GenBank;
-use  Bio::DB::GenPept;
-use  Bio::DB::SwissProt;
-use  Bio::DB::RefSeq;
-use  Bio::DB::EMBL;
-use  Bio::DB::BioFetch;
+require Bio::DB::GenBank;
+require Bio::DB::GenPept;
+require Bio::DB::SwissProt;
+require Bio::DB::RefSeq;
+require Bio::DB::EMBL;
+require Bio::DB::BioFetch;
 
 my $verbose = -1;
 $verbose = 0 if $DEBUG;

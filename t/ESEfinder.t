@@ -27,19 +27,22 @@ BEGIN {
 	require LWP::UserAgent;
 	require Bio::WebAgent;
 	require HTML::HeadParser;
+	require HTTP::Request::Common;
+	require Bio::Tools::Analysis::DNA::ESEfinder;
+        1;
     }; 
     if( $@ ) {
-        warn("IO::String or LWP::UserAgent not installed. This means that the module is not usable. Skipping tests");
+        warn("IO::String, LWP::UserAgent,Bio::WebAgent,HTML::HeadParser,HTTP::Request::Common not installed. This means that the module is not usable. Skipping tests\n");
 	$ERROR = 1;
+    } else {
+     eval {
+	require Bio::Seq::Meta::Array; 1;
+     };
+     if ($@) {
+	warn ("Bio::Seq::Meta::Array not installed - will skip tests using meta sequences");
+	$METAERROR = 1;
     }
-	eval {
-	require Bio::Seq::Meta::Array;
-		};
-	if ($@) {
-		warn ("Bio::Seq::Meta::Array not installed - will skip tests using meta sequences");
-		$METAERROR = 1;
-	}
-
+    }
 }
 
 END {
@@ -48,14 +51,16 @@ END {
     }
 }
 
-exit 0 if $ERROR ==  1;
+if($ERROR ==  1 ) {
+  warn("exiting early\n");
+  exit(0);
+} else {
+ warn("error is $ERROR\n");
+}
 
 use Data::Dumper;
-
-use Bio::Tools::Analysis::DNA::ESEfinder;
 use Bio::PrimarySeq;
 use Bio::Seq;
-use Bio::WebAgent;
 
 ok 1;
 

@@ -24,10 +24,11 @@ BEGIN {
 
     $NUMTESTS = 13;
     plan tests => $NUMTESTS;
-    eval { require 'IO/String.pm' };
+    eval { require IO::String; require LWP::UserAgent; 
+	   require HTTP::Request::Common; 1; };
     if( $@ ) {
 	for( $Test::ntest..$NUMTESTS ) {
-	    skip("IO::String not installed. This means the Bio::DB::* modules are not usable. Skipping tests",1);
+	    skip("IO::String,LWP::UserAgent, or HTTP::Request::Common not installed. This means the Bio::DB::* modules are not usable. Skipping tests",1);
 	}
        $error = 1; 
     }
