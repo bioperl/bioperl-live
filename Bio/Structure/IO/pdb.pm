@@ -114,8 +114,7 @@ sub next_structure {
    my ($line);
    my ($obslte, $title, $caveat, $compnd, $source, $keywds,
 	$expdta, $author, %revdat, $revdat, $sprsde, $jrnl, %remark, $dbref,
-	$seqadv, $seqres, $modres, $het, $hetnam, $hetsyn, $formul, $helix, 
-	$sheet, $turn, $ssbond, $link, $hydbnd, $sltbrg, $cispep,
+	$turn, $ssbond, $link, $hydbnd, $sltbrg, $cispep,
 	$site, $cryst1, $tvect,);
    my $struc = Bio::Structure::Entry->new(-id => 'created from pdb.pm');
    my $all_headers = ( !$self->_noheader );  # we'll parse all headers and store as annotation
@@ -270,8 +269,7 @@ $self->debug("get COMPND $compnd\n");
 	# SEQADV line(s)
 	if (/^SEQADV / && $all_headers) {
 		my ($rol) = unpack "x7 a63", $_;
-		$seqadv .= $rol;
-		$header{'seqadv'} = $seqadv;
+		$header{'seqadv'} .= $rol;
 	} # SEQADV
 
 	# SEQRES line(s)
@@ -279,59 +277,51 @@ $self->debug("get COMPND $compnd\n");
 	#  this will be returned when doing $struc->seq
 	if (/^SEQRES / && $all_headers) {
 		my ($rol) = unpack "x8 a62", $_;
-		$seqres .= $rol;
-		$header{'seqres'} = $seqres;
+		$header{'seqres'} .= $rol;
 	} # SEQRES
 	
 	# MODRES line(s)
 	if (/^MODRES / && $all_headers) {
 		my ($rol) = unpack "x7 a63", $_;
-		$modres .= $rol;
-		$header{'modres'} = $modres;
+		$header{'modres'} .= $rol;
 	} # MODRES
 
 	# HET line(s)
 	if (/^HET / && $all_headers) {
 		my ($rol) = unpack "x7 a63", $_;
-		$het .= $rol;
-		$header{'het'} = $het;
+		$header{'het'} .= $rol;
 	} # HET
 
 	# HETNAM line(s)
 	if (/^HETNAM / && $all_headers) {
 		my ($rol) = unpack "x8 a62", $_;
-		$hetnam .= $rol;
-		$header{'hetnam'} = $hetnam;
+		$header{'hetnam'} .= $rol;
 	} # HETNAM
 
 	# HETSYN line(s)
 	if (/^HETSYN / && $all_headers) {
 		my ($rol) = unpack "x8 a62", $_;
-		$hetsyn .= $rol;
-		$header{'hetsyn'} = $hetsyn;
+		$header{'hetsyn'} .= $rol;
 	} # HETSYN
 
 	# FORMUL line(s)
 	if (/^FORMUL / && $all_headers) {
 		my ($rol) = unpack "x8 a62", $_;
-		$formul .= $rol;
-		$header{'formul'} = $formul;
+		$header{'formul'} .= $rol;
 	} # FORMUL
 	
 	# HELIX line(s)
 	#  store as specific object ??
 	if (/^HELIX / && $all_headers) {
 		my ($rol) = unpack "x7 a69", $_;
-		$helix .= $rol;
-		$header{'helix'} = $helix;
+		$header{'helix'} .= $rol;
 	} # HELIX
 	
 	# SHEET line(s)
 	#  store as specific object ??
 	if (/^SHEET / && $all_headers) {
 		my ($rol) = unpack "x7 a63", $_;
-		$sheet .= $rol;
-		$header{'sheet'} = $sheet;
+		$header{'sheet'} .= $rol;
 	} # SHEET
 
 	# TURN line(s)
