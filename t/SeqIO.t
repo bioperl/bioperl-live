@@ -251,6 +251,7 @@ my $lastfeature = pop @features;
 
 ok($lastfeature->strand, -1);
 my $location = $lastfeature->location;
+$location->verbose(-1); # silence the warning of undef seq_id()
 ok($location->strand, -1);
 ok($location->start, 83202);
 ok($location->end, 84996);
