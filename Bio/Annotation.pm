@@ -22,6 +22,9 @@ Bio::Annotation - A generic object for annotations
     # description is a simple, one line description 
     print "Description is ",$ann->description, "\n";
 
+    foreach $genename ( $self->each_gene_name() ) {
+	print "gene name: $genename\n";
+    }
 
     foreach $comment ( $ann->each_Comment ) {
        # $comment is a Bio::Annotation::Comment object
@@ -149,6 +152,7 @@ sub new {
   $self->{ 'refs' } = [];
   $self->{ 'comment' } = [];
   $self->{ 'link' } = [];
+  $self->{ '_names' } = [];
 
   return $self; 
 }
@@ -172,30 +176,91 @@ sub description {
       $self->{'description'} = $value;
     }
     return $self->{'description'};
-
 }
 
-=head2 gene_name
+#  =head2 gene_name
 
- Title   : gene_name
- Usage   : $obj->gene_name($newval)
- Function: 
- Example : 
- Returns : value of gene name
- Args    : newvalue (optional)
+#   Title   : gene_name
+#   Usage   : $obj->gene_name($newval)
+#   Function: Get/set the primary gene name.
+
+#             Use of this method is deprecated. Use add_gene_name()/
+#             each_gene_name() instead.
+#   Example : 
+#   Returns : value of gene name
+#   Args    : newvalue (optional)
+
+
+#  =cut
+
+sub gene_name{
+    my ($self,$value) = @_;
+
+    $self->warn("gene_name() is deprecated. Use add_gene_name/each_gene_name instead.");
+    if( defined $value) {
+	$self->add_gene_name($value);
+    }
+    ($value) = $self->each_gene_name();
+    return $value;
+}
+
+
+=head2 add_gene_name
+
+ Title   : add_gene_name
+ Usage   : $self->add_gene_name($name1[,$name2,...])
+ Function: adds a reference object
+ Example :
+ Returns : 
+ Args    : a string, or a list of strings
 
 
 =cut
 
-sub gene_name{
-   my ($self,$value) = @_;
-   if( defined $value) {
-      $self->{'gene_name'} = $value;
+sub add_gene_name{
+    my ($self) = shift;
+    foreach my $name ( @_ ) {
+	push(@{$self->{'_names'}},$name);
     }
-    return $self->{'gene_name'};
-
 }
 
+=head2 remove_gene_name
+
+ Title   : remove_gene_name
+ Usage   : $self->remove_gene_name($index)
+ Function: removes a particular gene name
+ Example :
+ Returns : 
+ Args    : index of the name to remove
+
+
+=cut
+
+sub remove_gene_name{
+   my ($self,$idx) = @_;
+   splice @{$self->{'_names'}}, $idx, 1;
+}
+
+
+=head2 each_gene_name
+
+ Title   : each_gene_name
+ Usage   : foreach $genename ( $self->each_gene_name() ) {
+               print "seq has gene name $genename\n";
+           }
+ Function: gets the array of gene names
+ Example :
+ Returns : an array of strings
+ Args    :
+
+
+=cut
+
+sub each_gene_name{
+   my ($self,@args) = @_;
+   
+   return @{$self->{'_names'}}; 
+}
 
 =head2 add_Reference
 
@@ -204,7 +269,7 @@ sub gene_name{
  Function: adds a reference object
  Example :
  Returns : 
- Args    :
+ Args    : a Bio::Annotation::Reference or derived object
 
 
 =cut
@@ -212,6 +277,9 @@ sub gene_name{
 sub add_Reference{
    my ($self) = shift;
    foreach my $ref ( @_ ) {
+       if( ! $ref->isa('Bio::Annotation::Reference') ) {
+	   $self->throw("Is not a Bio::Annotation::Reference object but a [$ref]");
+       }
        push(@{$self->{'refs'}},$ref);
    }
 }
@@ -240,7 +308,7 @@ sub remove_Reference{
  Usage   : foreach $ref ( $self->each_Reference() )
  Function: gets an array of reference
  Example :
- Returns : 
+ Returns : an array of Bio::Annotation::Reference or derived objects
  Args    :
 
 
@@ -261,7 +329,7 @@ sub each_Reference{
  Function: adds a Comment object
  Example :
  Returns : 
- Args    :
+ Args    : a Bio::Annotation::Comment or derived object
 
 
 =cut
@@ -272,7 +340,6 @@ sub add_Comment{
        if( ! $com->isa('Bio::Annotation::Comment') ) {
 	   $self->throw("Is not a comment object but a  [$com]");
        }
-
        push(@{$self->{'comment'}},$com);
    }
 }
@@ -300,8 +367,8 @@ sub remove_Comment{
  Usage   : foreach $ref ( $self->each_Comment() )
  Function: gets an array of Comment of objects
  Example :
- Returns : 
- Args    :
+ Returns : an array of Bio::Annotation::Comment or derived objects
+ Args    : none
 
 
 =cut
@@ -320,7 +387,7 @@ sub each_Comment{
  Function: adds a link object
  Example :
  Returns : 
- Args    :
+ Args    : a Bio::Annotation::DBLink or derived object
 
 
 =cut
@@ -357,7 +424,7 @@ sub remove_DBLink{
  Usage   : foreach $ref ( $self->each_DBlink() )
  Function: gets an array of DBlink of objects
  Example :
- Returns : 
+ Returns : an array of Bio::Annotation::DBlink or derived objects
  Args    :
 
 
