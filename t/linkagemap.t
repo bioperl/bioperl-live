@@ -16,7 +16,7 @@ BEGIN {
         use lib 't';
     }
     use Test;
-    plan tests => 12;
+    plan tests => 10;
 }
 
 END {
@@ -26,35 +26,38 @@ require 'dumpvar.pl';
 use Bio::Map::LinkagePosition;
 use Bio::Map::Microsatellite;
 
-print("Checking if the Bio::Map::LinkageMap module could be used.\n");
-        # test 1
 use Bio::Map::LinkageMap;
 ok(1);
+my $verbose = -1;
+my $map = new Bio::Map::LinkageMap('-verbose' => $verbose,
+				   '-name'    => 'Leviathon',
+				   '-type'    => 'Genetic',
+				   '-units'   => 'cM',
+				   '-species' => "Brassica");
+ok( ref($map), 'Bio::Map::LinkageMap');
+ok($map->name, 'Leviathon');
+ok($map->type, 'Genetic');
+ok($map->units, 'cM');
+ok($map->species, 'Brassica');
 
-print("Creating a new LinkageMap...\n");
-my $map = new Bio::Map::LinkageMap(-name => 'Leviathon',
-				-type => 'Genetic',
-				-units=> 'cM',
-				-species => "Brassica");
-ok ref($map) eq 'Bio::Map::LinkageMap';
-
-
-print("Creating a Position with a scalar...\n");
-my $position = new Bio::Map::LinkagePosition(-positions => 2,
-	-distance => 22.3);
+my $position = new Bio::Map::LinkagePosition(
+					     '-positions' => 2,
+					     '-distance'  => 22.3);
+ok(($position->each_position)[0], 2);
+ok($position->distance, 22.3);
 	# what should be printed if this was ok?
 	# ok(1);
 
-print("Creating a Microsatellite marker with that position...\n");
-my $o_usat = new Bio::Map::Microsatellite(-name=> "Chad marker",
-	-position => $position);
+my $o_usat = new Bio::Map::Microsatellite('-name'     => "Chad marker",
+					  '-position' => $position);
 	# what should be printed if this was ok?
 	# ok(1);
 
-print("Adding that to the LinkageMap...\n");
+ok($o_usat->name, 'Chad marker');
+ok($o_usat->position, $position);
 $map->add_element($o_usat);
-	# what should be printed if this is ok?
-dumpValue($map);
+# what should be printed if this is ok?
+#dumpValue($map);
 
 # add more tests
 # see also t/microsatellite.t and t/linkageposition.t

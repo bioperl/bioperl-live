@@ -16,18 +16,15 @@ BEGIN {
         use lib 't';
     }
     use Test;
-    plan tests => 12;
+    plan tests => 6;
 }
 
 END {
 }
 require 'dumpvar.pl';
 
-print("Checking if the Bio::Map::Microsatellite module could be used.\n");
 use Bio::Map::Microsatellite;
 ok(1);
-
-print("Creating a microsatellite...\n");
 
 my $o_usat = new Bio::Map::Microsatellite(-name=>'Chad Super Marker 2',
         -sequence => 'gctgactgatcatatatatatatatatatatatatatatatcgcgatcgtgatttt',
@@ -36,11 +33,12 @@ my $o_usat = new Bio::Map::Microsatellite(-name=>'Chad Super Marker 2',
         -repeat_start_position => 12
         );
 
-print("Getting the leading flanking sequence...\n");
-ok($o_usat->get_leading_flank() eq "gctgactgatc");
-print("Getting the trailing flanking sequence...\n");
-ok($o_usat->get_trailing_flank() eq "cgcgatcgtgatttt");
+ok($o_usat->get_leading_flank(), "gctgactgatc");
+ok($o_usat->get_trailing_flank(), "cgcgatcgtgatttt");
+ok($o_usat->motif(), 'at');
+ok($o_usat->repeats(), 15);
+ok($o_usat->repeat_start_position, 12);
 
 
-dumpValue($o_usat);
+#dumpValue($o_usat);
 
