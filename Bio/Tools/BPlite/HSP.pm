@@ -136,7 +136,21 @@ sub P               {shift->significance(@_)}
 
 =cut
 
-sub percent         {shift->{'PERCENT'}}
+sub P {
+	my ($self, @args) = @_;
+	my $float = $self->significance(@args);
+	my $match = '([+-]?)(?=\d|\.\d)\d*(\.\d*)?([Ee]([+-]?\d+))?'; # Perl Cookbook 2.1
+	if ($float =~ /^$match$/) {
+	    # Is a C float
+	    return $float;
+	} elsif ("1$float" =~ /^$match$/) {
+	    # Almost C float, Jitterbug 974
+	    return "1$float";
+	} else {
+		$self->warn("[HSP::P()] '$float' is not a known number format. Returning zero (0) instead.");
+		return 0;
+	}
+}
 
 =head2 match
 
