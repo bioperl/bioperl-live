@@ -1,13 +1,14 @@
 #--------------------------------------------------------------------
 # PACKAGE : Bio::Tools::Blast::Run::Webblast.pm
-# PURPOSE : To run a Blast analysis on an NCBI server 
+# PURPOSE : To run a Blast analysis on a remote server 
 #           and save the results locally.
-# AUTHOR  : Alex Dong Li (ali@genet.sickkids.on.ca) 
-#               - original webblast version.
-#           Steve A. Chervitz (sac@genome.stanford.edu) 
-#               - this modularized version.
+# AUTHOR  : Steve A. Chervitz (sac@genome.stanford.edu) 
+#               - Webblast.pm: modularized version of webblast.
+#           Alex Dong Li (ali@genet.sickkids.on.ca) 
+#               - original webblast script.
 #           Ross N. Crowhurst (RCrowhurst@hort.cri.nz)
-#               - modified to use LWP to give proxy server support
+#               - modified Webblast.pm to use LWP to give proxy server 
+#                 support.
 # CREATED : 4 May 1998
 # STATUS  : Alpha
 # REVISION: $Id$
@@ -63,7 +64,7 @@ use strict;
 use vars qw( $ID $VERSION $revision);
 
 $ID       = 'Bio::Tools::Blast::Run::Webblast';
-$VERSION  = 1.2; 
+$VERSION  = 1.22; 
 
 # SAC: grouped database names.
 # May want to put these sorts of things in a
@@ -103,7 +104,7 @@ my %_default = (
 		'blastServerURL1'       => 'www.ncbi.nlm.nih.gov/cgi-bin/BLAST/nph-blast',
 		'blastServerURL2'       => 'www.ncbi.nlm.nih.gov/cgi-bin/BLAST/nph-newblast',
 		'blastServerURLpsi'     => 'www.ncbi.nlm.nih.gov/cgi-bin/BLAST/nph-psi_blast',
-		# rnc:	added WashU-Blast2 server address, ..WashU - first remote Wash-U Blast Server to use
+		# rnc:	added WashU-Blast2 server address, ..WashU - first remote WashU Blast Server to use
 		# rnc:	added proxy server address option
 		'blastServerURLWashU'	=> 'www2.ebi.ac.uk/cgi-bin/newblast2.pl',
 		'entryServerURLroot'    => 'www.ncbi.nlm.nih.gov',
@@ -218,6 +219,146 @@ my $_errmsg                 = '';
 #$username    = join("", @username);
 
 
+
+## POD Documentation
+
+=head1 NAME
+
+Bio::Tools::Blast::Run::Webblast.pm - Bioperl module for running Blast analyses using a HTTP interface.
+
+=head1 SYNOPSIS
+
+    # Run a Blast
+    use Bio::Tools::Blast::Run::Webblast qw(&blast_remote);
+
+    @out_file_names = &blast_remote($object, %named_parameters);
+
+L<blast_remote> is the only exported method of this module
+and it returns a list of local file names containing the Blast
+reports. C<$object> is a reference to a B<Bio::Root::Object.pm> object or
+subclass. See L<blast_remote>() for a description of available parameters.
+
+    # Obtain a list of available databases
+
+    use Bio::Tools::Blast::Run::Webblast qw(@Blast_dbp_remote
+					    @Blast_dbn_remote);
+
+    @amino_dbs      = @Blast_dbp_remote;
+    @nucleotide_dbs = @Blast_dbn_remote;
+
+
+=head1 INSTALLATION
+
+This module is included with the central Bioperl distribution:
+
+   http://bio.perl.org/Core/Latest
+   ftp://bio.perl.org/pub/DIST
+
+Follow the installation instructions included in the README file.
+
+=head1 DESCRIPTION
+
+B<Bio::Tools::Blast::Run::Webblast.pm> contains methods and data necessary for
+running Blast sequence analyses using a remote server and saving the results locally.
+
+B<Bio::Tools::Blast::run()> provides an interface for Webblast.pm,
+so, ideally, you shouldn't use Webblast.pm directly, but via Blast.pm. 
+
+B<FEATURES:>
+
+=over 2
+
+=item * Supports NCBI Blast1, Blast2, and PSI-Blast servers as well as WashU-Blast servers.
+
+=item * Can operate through a proxy server enabling operation from behind a firewall.
+
+=item * Can save reports with and without HTML formatting.
+
+=item * Uses LWP.
+
+=back
+
+In principle, this module can be customized to use different servers
+that provide a Blast interface like the NCBI or WashU style servers. 
+Such servers could be remote or local. This hasn't been well-tested however. 
+
+
+=head1 DEPENDENCIES
+
+Bio::Tools::Blast::Run::Webblast.pm is used by B<Bio::Tools::Blast.pm>.
+The development of this is thus linked with the Blast.pm module.
+
+=head1 SEE ALSO
+
+ Bio::Tools::Blast.pm                    - Blast object.
+ Bio::Tools::Blast::Run::LocalBlast.pm   - Utility module for running Blasts locally.
+ Bio::Tools::Blast::HTML.pm              - Blast HTML-formating utility class.
+ Bio::Seq.pm                             - Biosequence object  
+ Bio::Root::Object.pm                    - Bioperl base object class.
+
+
+ http://bio.perl.org/Projects/modules.html  - Online module documentation
+ http://bio.perl.org/Projects/Blast/        - Bioperl Blast Project     
+ http://bio.perl.org/                       - Bioperl Project Homepage
+
+=head1 FEEDBACK
+
+=head2 Mailing Lists 
+
+User feedback is an integral part of the evolution of this and other Bioperl modules.
+Send your comments and suggestions preferably to one of the Bioperl mailing lists.
+Your participation is much appreciated.
+
+    vsns-bcd-perl@lists.uni-bielefeld.de          - General discussion
+    vsns-bcd-perl-guts@lists.uni-bielefeld.de     - Technically-oriented discussion
+    http://bio.perl.org/MailList.html             - About the mailing lists
+
+=head2 Reporting Bugs
+
+Report bugs to the Bioperl bug tracking system to help us keep track the bugs and 
+their resolution. Bug reports can be submitted via email or the web:
+
+    bioperl-bugs@bio.perl.org                   
+    http://bio.perl.org/bioperl-bugs/           
+
+=head1 AUTHOR
+
+=over 0
+
+=item Steve A. Chervitz <sac@genome.stanford.edu>
+
+    - Webblast.pm modularized version of webblast script.
+
+=item Alex Dong Li <ali@genet.sickkids.on.ca>
+
+    - original webblast script.
+
+=item Ross N. Crowhurst <RCrowhurst@hort.cri.nz>
+
+    - modified Webblast.pm to use LWP to give proxy server support.
+
+=back 
+
+=head1 VERSION
+
+Bio::Tools::Blast::Run::Webblast.pm, 1.22
+
+=head1 COPYRIGHT
+
+Copyright (c) 1998, 1999 Steve A. Chervitz, Alex Dong Li,  Ross N. Crowhurst. 
+All Rights Reserved.This module is free software; you can redistribute
+it and/or modify it under the same terms as Perl itself.
+
+=cut
+
+#
+##
+###
+#### END of main POD documentation.
+###
+##
+#'
+
 ######################  BEGIN FUNCTIONS  ########################
 
 =head1 APPENDIX
@@ -233,6 +374,9 @@ for documentation purposes only.
  Usage     : @files = blast_remote( $blast_object,  %namedParameters);
            : This method is exported.
  Purpose   : Run a remote Blast analysis on one or more sequences.
+           : NOTE: The name of this method is potentially misleading
+           :       since the a local server could be specified.
+  	   :       Probably should be called blast_http.
  Returns   : Array containing a list of filenames of the Blast reports.
  Argument  : First argument should be a Bio::Tools::Blast.pm object reference.
            : This object is primarily used for error reporting
@@ -470,6 +614,7 @@ sub _set_options {
     if($email)   { $resultReturnProtocol="email";
 		   $emailAddress = $email; }
     if($server)  { $blastServerURL = $server;}
+           else  { $blastServerURL = '';}
     if($minl)    { $minimumLength = $minl; } # if match minlength
     if($maxl)    { $maximumLength = $maxl; } # if match maxlength
     if($dir)     { $_out_dir = $dir; }
@@ -668,6 +813,7 @@ sub _blast {
 	    
 	    # get temp filename and final filename
 	    $id = $seq->id;
+	    $id =~ s/[|:\/\\<>]/_/g;  # remove special chars that could confuse shell
 	    $id =~ s/\.\w+?$//;  # trim off the extension if id is a filename.
 	    $baseFileName = $_out_dir. $id . "." . $extension . "$version.$database"; # SAC: new var.
 	    $outputFileNameTemp = $baseFileName. ".temp.html";
@@ -780,7 +926,7 @@ sub _blast {
 		  
 		  # rnc:  formulate the request block - using 5 different blocks for blast versions
 		  #       -version 1, -version 2, and -version 3 recognised by bioPerl as well as 
-		  #       -version washu for default remote Wash-U Blast2, 
+		  #       -version washu for default remote WashU Blast2, 
 		  #       -version psi for PSI-Blast2 (PHI-Blast2 not yet supported).
 		  #	No doubt there is a better way to do this but this way is what my present
 		  #	experience with perl dictates I must use. It works this way if a bit ugly. 
@@ -889,8 +1035,8 @@ sub _blast {
 					  );
 		  }
 		  
-		  # rnc: POST block for Wash-U Blast to default Wash-U Blast2 remote server
-		  #	enables Wash-U Blast2 specific commands
+		  # rnc: POST block for WashU Blast to default WashU Blast2 remote server
+		  #	enables WashU Blast2 specific commands
 		  #	NOTE: the params here are not even remotely correct at present!
 		  if ($version =~ /wash|wu/i) {
 		      $req = &_get_request (
@@ -1192,6 +1338,10 @@ sub _removeJunkTagAndText {
    while (!eof(INPUT_FILE_FOR_REMOVE)) {
       $line=<INPUT_FILE_FOR_REMOVE>;
       # SAC: substituting in one step.
+      # rnc: not possible with PSI as it uses ACTION=.. for continuation of posting
+      #
+      # ACTION="/cgi-bin/BLAST" line added to get PSI to continue
+      $line =~ s|ACTION="/cgi-bin/BLAST|ACTION="http://$entryServerURLroot/cgi-bin/BLAST|;
       $line =~ s|<a href="/|<a href="http://$entryServerURLroot/|;
       print OUTPUT_FILE_FOR_REMOVE $line;
    }
@@ -1321,7 +1471,7 @@ sub _removeHTMLtags {
 
 ######################  Blast Variables  ########################
 
-=head1 APPENDIX 1
+=head1 APPENDIX 2: Parameter listings
 
 Parameters for Blast (NCBI ungapped, no longer supported by NCBI so
 should dicontinue use of ungapped blast), Blast2 (NCBI), PSI-Blast2
@@ -1662,9 +1812,10 @@ BLOSUM45	 16	 1
 OTHER_ADVANCED
 [default value]:""
 
-=head2 Wash-U BLAST2
-http://www2.ebi.ac.uk/blast2/
+=head2 WashU BLAST2
+
 WU-Blast2 Database Searches
+http://www2.ebi.ac.uk/blast2/
 
 email
 ""
@@ -1839,6 +1990,13 @@ __END__
 
 # MODIFICATION HISTORY :
 #
+#  1.22, 26 Jun 1999, sac:
+#      -- Bug fix in _blast(): Removing characters from temp file name 
+#         that could confuse shell (reported by Bradford Powell).
+#      -- Bug fix in _set_options() to reset the blastServerURL between
+#         invocations (reported by James Diggans).
+#      -- Added general POD for the module itself.
+#
 #  1.2, 20 Apr 1999, sac:
 #      -- Added support for new options introduced by RNC's modifications
 #         [changes in blast_remote(), _set_options()].
@@ -1867,7 +2025,7 @@ __END__
 #		and used in the request as: NCBI_GI         =>      $NCBI_giOption,
 #       -- added several options to POST for BLAST2 which I am unsure are supported by
 #		bioperl (passed by it actually) as yet - help ? (see NCBI blast2 POST block)
-#       -- added a default Wash-U Blast2 server variable and set to 
+#       -- added a default WashU Blast2 server variable and set to 
 #		'blastServerURLWashA'	=> 'www2.ebi.ac.uk/cgi-bin/newblast2.pl',
 #       -- www2.ebi.ac.uk uses different parameter names in cgi script so probably 
 #		should look for a alternate one (an alternative could be 

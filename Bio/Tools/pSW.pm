@@ -43,14 +43,14 @@ Follow the installation instructions included in the README file.
 
 =head1 DESCRIPTION
 
-pSW is an Alignment Factory. It builds pairwise alignments using the smith
-waterman algorithm. The alignment algorithm is implemented in C and
-added in using an XS extension. The XS extension basically comes from the
-Wise2 package, but has been slimmed down to only be the alignment part
-of that (this is a good thing!). The XS extension comes from the bp_sw
-package which is found in Bio/Compile/SW in the bioperl distriubition.
-I<Warning> This package will not work if you have not compiled the 
-Bio/Compile/SW package.
+pSW is an Alignment Factory. It builds pairwise alignments using the
+smith waterman algorithm. The alignment algorithm is implemented in C
+and added in using an XS extension. The XS extension basically comes
+from the Wise2 package, but has been slimmed down to only be the
+alignment part of that (this is a good thing!). The XS extension comes
+from the bioperl-ext package which is distributed along with bioperl.
+I<Warning> This package will not work if you have not compiled the
+bioperl-ext package.
 
 The mixture of C and Perl is ideal for this sort of 
 problem. Here are some plus points for this strategy: 
@@ -126,10 +126,10 @@ use Bio::SimpleAlign;
 
 BEGIN {
     eval {
-	require bp_sw;
+	require Bio::Ext::Align;
     };
     if ( $@ ) {
-	print STDERR ("\nThe C-compiled engine for Smith Waterman alignments (bp_sw) has not been installed.\n Please read the installation instructions for bioperl for using the compiled extensions\n\n");
+	print STDERR ("\nThe C-compiled engine for Smith Waterman alignments (Bio::Ext::Align) has not been installed.\n Please read the install the bioperl-ext package\n\n");
 	exit(1);
     }
 }
@@ -195,9 +195,9 @@ sub pairwise_alignment{
     $self->set_memory_and_report();
     # create engine objects 
 
-    $t1  = &bp_sw::new_Sequence_from_strings($seq1->id(),$seq1->str());
-    $t2  = &bp_sw::new_Sequence_from_strings($seq2->id(),$seq2->str());
-    $aln = &bp_sw::Align_Sequences_ProteinSmithWaterman($t1,$t2,$self->{'matrix'},-$self->gap,-$self->ext);
+    $t1  = &Bio::Ext::Align::new_Sequence_from_strings($seq1->id(),$seq1->str());
+    $t2  = &Bio::Ext::Align::new_Sequence_from_strings($seq2->id(),$seq2->str());
+    $aln = &Bio::Ext::Align::Align_Sequences_ProteinSmithWaterman($t1,$t2,$self->{'matrix'},-$self->gap,-$self->ext);
     if( ! defined $aln || $aln == 0 ) {
 	$self->throw("Unable to build an alignment");
     }
@@ -292,15 +292,15 @@ sub align_and_show {
 
     $self->set_memory_and_report();
 
-    $t1  = &bp_sw::new_Sequence_from_strings($seq1->id(),$seq1->str());
+    $t1  = &Bio::Ext::Align::new_Sequence_from_strings($seq1->id(),$seq1->str());
 
-    $t2  = &bp_sw::new_Sequence_from_strings($seq2->id(),$seq2->str());
-    $aln = &bp_sw::Align_Sequences_ProteinSmithWaterman($t1,$t2,$self->{'matrix'},-$self->gap,-$self->ext);
+    $t2  = &Bio::Ext::Align::new_Sequence_from_strings($seq2->id(),$seq2->str());
+    $aln = &Bio::Ext::Align::Align_Sequences_ProteinSmithWaterman($t1,$t2,$self->{'matrix'},-$self->gap,-$self->ext);
     if( ! defined $aln || $aln == 0 ) {
 	$self->throw("Unable to build an alignment");
     }
 
-    &bp_sw::write_pretty_seq_align($aln,$t1,$t2,12,50,$fh);
+    &Bio::Ext::Align::write_pretty_seq_align($aln,$t1,$t2,12,50,$fh);
 
 }
 
@@ -325,7 +325,7 @@ sub matrix {
 
     # talking to the engine here...
 
-    $temp = &bp_sw::CompMat::read_Blast_file_CompMat($comp);
+    $temp = &Bio::Ext::Align::CompMat::read_Blast_file_CompMat($comp);
 
     if( !(defined $temp) || $temp == 0 ) {
 	$self->throw("$comp cannot be read as a BLAST comparison matrix file");
@@ -387,3 +387,4 @@ sub ext {
 }
 
     
+

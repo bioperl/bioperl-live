@@ -1,8 +1,5 @@
 # Seq.pm 
 #
-#  $Id$
-#
-# MODIFICATION NOTES: See bottom of file.
 
 # Copyright (c) 1996 Georg Fuellen, Richard Resnick, Steven E. Brenner,
 # Chris Dagdigian, Steve Chervitz, Ewan Birney and others. All Rights Reserved.
@@ -57,22 +54,47 @@ Bio::Seq - bioperl sequence object
 
  $seq = Bio::Seq->new;
  
- $seq = Bio::Seq->new($filename);
- 
  $seq = Bio::Seq->new(-seq=>'ACTGTGGCGTCAACTG');
  
  $seq = Bio::Seq->new(-seq=>$sequence_string);
  
  $seq = Bio::Seq->new(-seq=>@character_list);
  
- $seq = Bio::Seq->new(-file=>'seqfile.aa',
-		      -desc=>'Sample Bio::Seq sequence',
-		      -start=>'1',
-		      -type=>'Amino',
-		      -ffmt=>'Fasta');
  
  $seq = Bio::Seq->new($file,$seq,$id,$desc,$names,
                      $numbering,$type,$ffmt,$descffmt);
+
+=head2 Object Creation from files
+
+There are two ways to create Bio::Seq objects from files. One is using
+internal Sequence reading routines in this object, which can handle a
+few formats. The second is to use the newer SeqIO system, which can
+handle slightly more formats, can handle multiple sequences in one
+file, and can be easily extended to new formats.
+
+Try to use the new style. It does give you more flexibility and
+stability.
+
+  # old-style and deprecated,
+
+  $seq = Bio::Seq->new($filename); # guesses Fasta format 
+
+  $seq = Bio::Seq->new(-file=>'seqfile.aa',
+		      -desc=>'Sample Bio::Seq sequence',
+		      -start=>'1',
+                      -ffmt=> 'Fasta',
+		      -type=>'Amino',
+		      );
+
+  # new style, better, but somewhat more wordy
+  # notice this loops over multiple sequences
+
+  $stream = Bio::SeqIO->new(-file => 'myfile' -fmt => 'Fasta');
+
+  while $seq ( $stream->next_seq() ) {
+       # $seq is a Bio::Seq object
+  }
+
 
 
 =head2 Object Manipulation
@@ -102,9 +124,12 @@ Bio::Seq - bioperl sequence object
  numbering()  - access/change sequence numbering offset (deprecated)
  origin()     - access/change sequence origin
  type()       - access/change sequence type
+ setseq()     - change sequence
+
+ Deprecated format changes.
+
  ffmt()       - access/change default output format
  descffmt()   - access/change description format
- setseq()     - change sequence
  
 
  Methods
@@ -122,6 +147,30 @@ Bio::Seq - bioperl sequence object
  Rna_to_Dna()  - translate Rna seq to Dna
  translate()   - protein translation of Dna/Rna sequence
 
+  
+ copy, revcom and translate all return new Bio::Seq objects. This
+ makes it easy to use these objects in other Bioperl modules and/or
+ use all the new SeqIO system for format dumping.
+
+ complement, reverse, Dna_to_Rna and Rna_to_Dna all return strings,
+ as it is less likely that you want these things as real Seq objects
+
+=head1 OBJECT IN TRANSITION
+
+The Bio::Seq object is by far the oldest object in the bioperl set
+of modules, and it shows, with around 4/5 people developing methods
+and much of the documentation focused on general bioperl issues. The
+bioperl core group have a commitment to eventually rewrite the Bio::Seq
+object with some more sensible design principles, but this rewrite will
+
+    a) be heavily tested against old uses of the code
+    b) aim to be as backwardly compatible as possible
+    c) be well signposted that it is occuring.
+
+For more information read the bioperl web page, projects, sequence
+object,
+
+     http://bio.perl.org/Projects/Sequence/
 
 =head1 INSTALLATION
 
@@ -144,16 +193,6 @@ Bio::Seq has completly superceeded Bio::PreSeq.pm.
 
 The older PreSeq.pm code can be found at Chris Dagdigian's site:
 http://www.sonsorol.org/dag/bioperl/top.html
-
-
-=over 2
-
-=item * BASED ON PreSeq.pm, THIS VERSION OF Seq.pm HAS BEEN INTEGRATED INTO THE BIOPERL FRAMEWORK.
-
-For a complete description of these changes, see the comments
-at the top of the source.
-
-=back
 
 =head2 Sequence Types
 
@@ -238,108 +277,43 @@ are also acceptable in a biosequence:
    Biochem J. 1984 Apr 15; 219(2): 345-373
    Eur J Biochem. 1993 Apr 1; 213(1): 2
 
-=head2 Output Formats
+=head2 Sequence IO Formats
 
-The following output formats are currently supported:
-Raw, Fasta, GCG, GenBank, PIR
+You are encouraged to use the SeqIO system of IO, which in 
+essence looks like:
 
-=head2 Input Formats
+   use Bio::SeqIO;
 
-In addition to "raw" sequence files, Seq.pm is currently 
-only able to read in Fasta and GCG formatted single sequence
-files. Support for additional formats is forthcoming.
+   $instream = Bio::SeqIO->new( -file => 'my.file', -format => 'Fasta' );
+   $outstream = Bio::SeqIO->new( -fh => \*STDOUT, -format => 'Raw' );
 
-Seq.pm has the ability to make use of D.G. Gilbert's ReadSeq
-program when reading in sequence files. ReadSeq has the ability
-to read and interconvert between many different biological
-sequence formats.
+   while $seq ( $instream->next_seq ) {
+      $outstream->write_seq($seq);
+   }
 
-When readseq is present and Seq.pm has been properly
-configured to use it, ReadSeq will be invoked when internal
-parsing code fails to recognize the sequence.
+   The available formats can be found by listing the SeqIO directory
+in the distribution that this comes with (as new SeqIO formats are
+very easy to add, it is better to go to the directory, not try to list them
+here).
 
-Formats which readseq currently understands:
-
-  - IG/Stanford
-  - GenBank/GB
-  - NBRF
-  - EMBL
-  - GCG
-  - DnaStrider
-  - Fitch format
-  - Pearson/Fasta
-  - Zuker format
-  - Olsen format
-  - Phylip3.2
-  - Phylip
-  - Plain/Raw
-  * MSF
-  * PAUP's multiple sequence (NEXUS) format
-  * PIR/CODATA format used by PIR
-  * ASN.1 format used by NCBI
-
-  Note: Formats indicated with a '*' allow for multiple
-        sequences to be contained within one file. At this
-        time, the behaviour of Seq.pm with regard to these
-        multiple-sequence files has not been specified.
-
-Readseq is freely distributed and is available in
-shell archive (.shar) form via FTP from
-ftp.bio.indiana.edu (129.79.224.25) in the
-molbio/readseq directory.
-(URL) ftp://ftp.bio.indiana.edu/molbio/readseq/
-
-If ReadSeq is not available or Seq.pm is not configured
-to use it, internal parsing mechanisms will be used.
-
-Currently supported filetypes for input:
-Raw, Fasta, GCG
+Notice that the SeqIO system will only convert information which the Seq
+object stores. The Seq object is a lightweight object, and does not contain
+annotation or feature table information. This information is stored in a
+development object, called AnnSeq, which will be available in the 0.06 releases
+and later.
 
 =head1 USAGE
 
-=head2 Installation 
-
-Seq.pm requires the use of other bioperl modules, particularly
-the Bio::Root framework. This module should be installed along
-with the rest of the bioperl code.
-
-
-=head2 Why modules and object-oriented code?
-
-Perl5 is nice in that it allows users to use OO-style programming only in
-the situations where they feel like doing so.
-
-=over 4
-
-=item * Simple interfaces to complex tasks.
-
-From the perspective of novice or occasional perl users, objects are useful
-because they can offer direct and simple ways to do things that in reality
-may be somewhat complex or arcane. Users interact with and manipulate
-objects via specific, documented methods and never have to worry about what
-is going on "behind the scenes." Many  perl programmers have devoted
-significant amounts of time and effort creating easy-to-use "wrappers"
-around complex or abstract tasks. Visit the CPAN Module list at 
-(URL) http://www.perl.com/perl/CPAN/CPAN.html to see the fruits of their labor.
- 
-=item * Reusability.
-
-From the prospective of a perl power-user, object-oriented programming
-allows programmers to write code that is easily scalable and reusable. This
-allows powerful applications to be built rapidly with and with a minimum of
-waste or repeated effort.
-
-=back
  
 =head2 Using Bio::Seq in your perl programs
 
 Seq.pm is invoked via the perl 'use' command
 
-   use Seq;
+   use Bio::Seq;
 
 =head2 Creating a biosequence object
 
-The "constructor" method in Seq.pm is the L<new>() function.
+The "constructor" method in Bio::Seq.pm is the L<new>() function.
 
 The proper syntax for accessing the L<new>() function in Seq.pm is as follows:
 
@@ -436,6 +410,11 @@ numbering offset value. By default all sequence are numbered starting with
 
 
 B<ffmt:>
+
+This documentation describes the old format system: you are encouraged to
+use the newer SeqIO system described separately in the SeqIO documentation.
+
+
 The "ffmt" argument should be a string describing sequence file-format. If
 a sequence is being read from a file via the "file" argument, "ffmt" is
 used to invoke the proper parsing code. "ffmt" is also the default format
@@ -660,6 +639,8 @@ manipulating sequence data. So far Seq.pm contains methods for:
 
 using L<copy>()
 
+    # NB - new_obj is a Bio::Seq object
+
     $new_obj = $myseq->copy;
 
 =item * Reversing a sequence 
@@ -679,6 +660,8 @@ upon the L<complement>() method.
 
 using L<revcom>()
 
+    # NB - rev_comp is a Bio::Seq object
+ 
     $rev_comp = $myseq->revcom;
 
 =item * Translating Dna to Rna
@@ -696,6 +679,8 @@ using L<Rna_to_Dna>()
 =item * Translating Dna or Rna to protein
 
 using L<translate>()
+
+    # NB - peptide_seq is a Bio::Seq object
 
     $peptide_seq = $myseq->translate;
 
@@ -723,50 +708,6 @@ Or, for any existing sequence object, try:
 
 =back
 
-=head2 Sequence Output
-
-There are several methods for outputting formatted sequences. For your
-convenience, a "meta-output" method called L<layout>() also exists.
-
-If L<layout>() is called without any arguments, it calls upon the output
-methods as defined by the "ffmt" field.
-
-   print $myseq->layout;
-
-The "ffmt" field is mainly used to describe the format of a sequence
-being read in from a file. It is also used as the default format for
-all sequence output. If these differ (ie; the format that the 
-sequence was read in is not desired as a default output style) then
-"ffmt" should be set manually via the L<ffmt>() accessor method. Of course,
-after reading the sequence in you are free to change "ffmt" at will.
-
-L<layout>() can also be called with specific formats:
-
-   $gcg_formatted_seq = $myseq->layout("GCG"):
-   $fasta_seq = $myseq->layout("Fasta"):
-
-B<Calling output methods directly>
-
-Many output methods accept unique named parameters/arguments that allow a
-greater degree of control over output format and style, to take advantage
-of these abilities, the formatting methods must be called directly. See the
-appendix notes describing each output format for detailed information.
-
-  print $myseq->out_GCG(-date->"10 May 1996",
-                        -caps-"up");
-
-Most output methods will return either a string or list value depending
-on how they are invoked, check the detailed method  documentation in 
-the Appendix to be sure. 
-
-   @formatted_seqlist = $myseq->out_genbank(-id=>'New ID',
-                                            -def=>'User defined definition',
-                                            -acc=>'User defined accession');
- 
-   $formatted_seqstring = $myseq->out_genbank(-id=>'New ID',
-                                              -def=>'User defined definition',
-                                              -acc=>'User defined accession');
-
 =head1 FEEDBACK
 
 =head2 Mailing Lists 
@@ -793,11 +734,6 @@ Some pieces of the code were contributed by Steven E. Brenner,
 Steve Chervitz, Ewan Birney, Tim Dudgeon, David Curiel, and other Bioperlers.
 Thanks !!!!
 
-=head1 SEE ALSO
-
-  UnivAln.pm - The biosequence alignment object
-  Parse.pm   - The perl interface to ReadSeq
-
 =head1 REFERENCES
 
 BioPerl Project Page
@@ -809,9 +745,10 @@ Bio::Seq.pm, beta 0.051
 
 =head1 COPYRIGHT
 
- Copyright (c) 1996-1998 Chris Dagdigian, Georg Fuellen, Richard Resnick.
- All Rights Reserved. This module is free software; you can redistribute 
- it and/or modify it under the same terms as Perl itself.
+ Copyright (c) 1996-1998 Chris Dagdigian, Georg Fuellen, Richard
+ Resnick, and others All Rights Reserved. This module is free
+ software; you can redistribute it and/or modify it under the same
+ terms as Perl itself.
 
 =cut
 
@@ -2274,7 +2211,7 @@ sub copy {
 
  Title       : revcom
  Usage       : $reverse_complemented_seq = $mySeq->revcom;
- Function    : Returns a char string containing the reverse
+ Function    : Returns a Bio::Seq object with the reverse
              : complement of a nucleotide object sequence
  Example     : $reverse_complemented_seq = $mySeq->revcom;
  Source      : Guts from Jong's <jong@mrc-lmb.cam.ac.uk>
@@ -2318,7 +2255,7 @@ sub copy {
              :  N      G or A or T or C       N
              :--------------------------------------
  Revision    : 0.01 / 3 Jun 1997
- Returns     : A new sequence object (fixed by eb)
+ Returns     : A new sequence object
                to get the actual sequence go
                $actual_reversed_sequence = $seq->revcom()->str()
  Argument    : n/a
@@ -2329,10 +2266,9 @@ sub copy {
 
 sub revcom {
   my($self,$start,$end)= @_;   # SAC: Added slicing ability 
-#  my($self)= @_;  
   my($seq,$revseq);
 
-#  print "revcom: requested range: $start, $end\n";
+  #print "revcom: requested range: $start, $end\n";
 
   # CD: Some type of check be made here to make
   # CD: sure the sequence is nucleotide.
@@ -3528,6 +3464,29 @@ sub parse_unknown {
       #               lookahead)
     $self->parse_fasta($ent);
   }
+  elsif ( $READSEQ_EXISTS ) {
+      # ok. use readseq... and hope it works!
+      my $fastaf = &Bio::Parse::convert(
+					-sequence => $ent,
+					-fmt => 'Fasta',
+					);
+
+      # FIXME:
+      # hack. I don't understand how to match to '\n' in the second regex
+      # (doesn't work for me!). EB. 
+
+      # substitute &&& for \n and then regex it out.
+      $fastaf =~ s/\n/&&&/g;
+      if( $fastaf =~ /^>(\S+).*?&&&(.*)$/ ) {
+	  $self->id($1);
+	  my $ss = $2;
+	  $ss =~ s/[^A-Za-z]//g;
+	  $self->setseq($ss);
+      } else {
+	  $self->throw("Despite having Readseq, cannot convert sequence. apologies!");
+      }
+  }
+
   elsif ($ent =~ /.*/mg) {
       # currently in raw format, everything is accepted...
     $self->parse_raw($ent);

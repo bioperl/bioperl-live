@@ -5,7 +5,6 @@
 # PURPOSE  : To submit a set of sequence for Blast analysis and parse the results.
 # AUTHOR   : Steve A. Chervitz
 # CREATED  : 15 May 1998
-# REVISION : $Id$
 # WEBSITE  : http://bio.perl.org/Projects/Blast/
 # USAGE    : blast_seq.pl -h
 # EXAMPLES : blast_seq.pl -eg
@@ -114,6 +113,8 @@ sub blast_seq {
     my $seq = shift;
 
     print STDERR "\nBLASTing sequence ${\$seq->id}\n";
+    print STDERR "REC_SEP = --->$/<---\n";
+    exit 1;
 
     $runParam{-seqs} = [ $seq ];
     $blastParam{-run} = \%runParam;

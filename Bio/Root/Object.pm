@@ -2017,7 +2017,7 @@ sub _display_stats {
     if($self->parent) {
 	printf ( $OUT "%-15s: %s\n","PARENT", $self->parent->to_string);
     }
-    printf ( $OUT "%-15s: %d\n",'ERRORS',    $self->err('count'));
+    printf ( $OUT "%-15s: %d\n",'ERRORS', (defined $self->err('count') ? $self->err('count') : 0)); ###JES###
     printf ( $OUT "%-15s: %s\n","ERR STATE", $self->err_state());
     if($self->err()) {
 	print $OUT "ERROR:\n";

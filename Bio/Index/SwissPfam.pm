@@ -94,10 +94,18 @@ sub _type_stamp {
     return '__SWISSPFAM__'; # What kind of index are we?
 }
 
-sub _version {
-    return 0.1;
+#
+# Suggested fix by Michael G Schwern <schwern@pobox.com> to
+# get around a clash with CPAN shell...
+#
+
+BEGIN {
+    $VERSION = 0.1;
 }
-$VERSION = _version();
+
+sub _version {
+    return $VERSION;
+}
 
 
 

@@ -1,7 +1,5 @@
 ## Bioperl Test Harness Script for Modules
 ##
-# CVS Version
-# $Id$
 
 
 # Before `make install' is performed this script should be runnable with
@@ -116,13 +114,13 @@ $str->write_seq($seq);
 
 print "ok 9\n";
 
-
 #####
 ## End of ChrisDag's SeqIO tests.
 #####
 
 ## Now we test Bio::SeqIO::GenBank
 $str = Bio::SeqIO->new(-file=> 't/test.genbank', '-format' => 'GenBank');
+
 
 if( $str ) {
     print "ok 10\n";
