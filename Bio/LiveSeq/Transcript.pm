@@ -636,7 +636,8 @@ sub old_subseq {
   } else {
     $str=substr($seq,$offset,$length);
     if (CORE::length($str) < $length) {
-      $self->warn("Attention, cannot return the length requested for subseq",1); # ignorable
+      $self->warn("Attention, cannot return the length requested ".
+		  "for subseq",1) if $self->verbose > 0; # ignorable
     }
     return $str;
   }

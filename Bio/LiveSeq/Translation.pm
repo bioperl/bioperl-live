@@ -248,7 +248,8 @@ sub position {
     return (0);
   } elsif ($position > 0) {
     if ($modulus != 1) {
-      $self->warn("Attention! Label $label is not in frame (1st position of triplet) with protein",1); # ignorable
+      $self->warn("Attention! Label $label is not in frame ". 
+		  "(1st position of triplet) with protein",1) if $self->verbose > 0; # ignorable
       if ($modulus == 2) {
 	return ($position / 3 + 1);
       } else { # i.e. modulus == 0
@@ -258,7 +259,8 @@ sub position {
     return ($position / 3 + 1);
   } else { # pos < 0
     if ($modulus != 0) {
-      $self->warn("Attention! Label $label is not in frame (1st position of triplet) with protein",1); # ignorable`
+      $self->warn("Attention! Label $label is not in frame ".
+		  "(1st position of triplet) with protein",1) if $self->verbose > 0; # ignorable
       return ($position / 3 - 1); # ok for both other positions
     }
     return ($position / 3);
