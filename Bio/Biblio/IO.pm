@@ -18,12 +18,12 @@ Bio::Biblio::IO - Handling the bibliographic references
     # getting citations from a file
     $in = Bio::Biblio::IO->new ('-file' => 'myfile.xml' ,
 				'-format' => 'medlinexml');
- --- OR ---
+  # --- OR ---
 
     # getting citations from a string
     $in = Bio::Biblio::IO->new ('-data' => '<MedlineCitation>...</MedlineCitation>' ,
 				'-format' => 'medlinexml');
- --- OR ---
+  #--- OR ---
 
     # getting citations from a string if IO::String is installed
     use IO::String;
@@ -32,7 +32,7 @@ Bio::Biblio::IO - Handling the bibliographic references
 
     $in = Bio::Biblio::IO->new(-fh => $io_handle , '-format' => 'medlinexml');
 
- --- OR ---
+  #--- OR ---
 
     # getting citations from any IO handler
     $in = Bio::Biblio::IO->new('-fh' => $io_handle ,
@@ -44,7 +44,7 @@ Bio::Biblio::IO - Handling the bibliographic references
 	&do_something_with_citation ($citation);
     }
 
- --- OR ---
+  #--- OR ---
 
     # again reading all citation but now a callback defined in your
     # code is used (note that the reading starts already when new()
@@ -57,8 +57,8 @@ Bio::Biblio::IO - Handling the bibliographic references
 	print $citation->{'_identifier'} . "\n";
     }
 
-Now, to actually get a citation in an XML format,
-use I<Bio::Biblio> module which returns an XML string:
+  #Now, to actually get a citation in an XML format,
+  #use I<Bio::Biblio> module which returns an XML string:
 
     use Bio::Biblio;
     my $xml = new Bio::Biblio->get_by_id ('94033980');
@@ -66,20 +66,20 @@ use I<Bio::Biblio> module which returns an XML string:
 				       '-format' => 'medlinexml');
 
     while (my $citation = $reader->next_bibref()) {
-       ... do something here with $citation
+       #... do something here with $citation
        }
 
-And, finally, the resulting citation can be received in different
-output formats:
+  #And, finally, the resulting citation can be received in different
+  #output formats:
 
     $io = new Bio::Biblio::IO ('-format' => 'medlinexml',
 			       '-result' => 'raw');
- --- OR ---
+  #--- OR ---
 
     $io = new Bio::Biblio::IO ('-format' => 'medlinexml',
 			       '-result' => 'medline2ref');
 
- --- OR ---
+  #--- OR ---
 
     $io = new Bio::Biblio::IO ('-format' => 'pubmedxml',
 			       '-result' => 'pubmed2ref');

@@ -40,7 +40,7 @@ Bio::Index::EMBL - Interface for indexing (multiple) EMBL/Swissprot
     }
 
     # alternatively
-
+    my ($id, $acc);
     my $seq1 = $inx->get_Seq_by_id($id);
     my $seq2 = $inx->get_Seq_by_acc($acc);
 

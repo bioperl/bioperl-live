@@ -1337,15 +1337,12 @@ These read only methods describe the MSE in various ways.
 sub consensus_string {
     my $self = shift;
     my $threshold = shift;
-    my $len;
-    my ($out,$count);
 
-    $out = "";
+    my $out = "";
+    my $len = $self->length - 1;
 
-    $len = $self->length - 1;
-
-    foreach $count ( 0 .. $len ) {
-	$out .= $self->_consensus_aa($count,$threshold);
+    foreach ( 0 .. $len ) {
+	$out .= $self->_consensus_aa($_,$threshold);
     }
     return $out;
 }

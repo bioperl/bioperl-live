@@ -15,7 +15,9 @@ Bio::DB::Flat::BDB - Interface for BioHackathon standard BDB-indexed flat file
 
 =head1 SYNOPSIS
 
-You should not be using this module directly.  See Bio::DB::Flat.
+  #You should not be using this module directly.
+
+See L<Bio::DB::Flat>.
 
 =head1 DESCRIPTION
 

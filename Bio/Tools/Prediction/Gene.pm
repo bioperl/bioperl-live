@@ -16,7 +16,7 @@ Bio::Tools::Prediction::Gene - a predicted gene structure feature
 
 =head1 SYNOPSIS
 
-See documentation of methods.
+  #See documentation of methods.
 
 =head1 DESCRIPTION
 

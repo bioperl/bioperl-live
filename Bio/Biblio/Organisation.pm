@@ -15,7 +15,7 @@ Bio::Biblio::Organisation - Representation of an organisation
 
     $obj = new Bio::Biblio::Organisation (-name => 'O\'Reilly');
 
- --- OR ---
+  #--- OR ---
 
     $obj = new Bio::Biblio::Organisation;
     $obj->name ('O\'Reilly');

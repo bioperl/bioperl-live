@@ -20,7 +20,7 @@ Bio::Biblio::PubmedArticle - Representation of a PUBMED article
 			 { 'pub_status' => 'medline',
 			   'date' => '2002-1-5T10:1:00Z' } ],
                    -pubmed_status => 'ppublish');
- --- OR ---
+  #--- OR ---
 
     $obj = new Bio::Biblio::PubmedArticle;
     $obj->pubmed_status ('ppublish');

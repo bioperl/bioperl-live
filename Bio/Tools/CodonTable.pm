@@ -16,9 +16,9 @@ Bio::Tools::CodonTable - Bioperl codon table object
 
 =head1 SYNOPSIS
 
-  This is a read-only class for all known codon tables.  The IDs are
-  the ones used by nucleotide sequence databases.  All common IUPAC
-  ambiguity codes for DNA, RNA and animo acids are recognized.
+  # This is a read-only class for all known codon tables.  The IDs are
+  # the ones used by nucleotide sequence databases.  All common IUPAC
+  # ambiguity codes for DNA, RNA and animo acids are recognized.
 
   # to use
   use Bio::Tools::CodonTable;
@@ -46,9 +46,9 @@ Bio::Tools::CodonTable - Bioperl codon table object
   @codons = $myCodonTable->revtranslate('cYS', 'rna');
 
   #boolean tests
-   print "Is a start\n"       if $myCodonTable->is_start_codon('ATG');
-   print "Is a termianator\n" if $myCodonTable->is_ter_codon('tar');
-   print "Is a unknown\n"     if $myCodonTable->is_unknown_codon('JTG');
+  print "Is a start\n"       if $myCodonTable->is_start_codon('ATG');
+  print "Is a termianator\n" if $myCodonTable->is_ter_codon('tar');
+  print "Is a unknown\n"     if $myCodonTable->is_unknown_codon('JTG');
 
 =head1 DESCRIPTION
 

@@ -13,8 +13,8 @@
 
 =head1 NAME
 
-Bio::Factory::SeqAnalysisParserFactory - class capable of
-              creating SeqAnalysisParserI compliant parsers
+Bio::Factory::SeqAnalysisParserFactory - class capable of creating
+SeqAnalysisParserI compliant parsers
 
 =head1 SYNOPSIS
 
@@ -22,7 +22,7 @@ Bio::Factory::SeqAnalysisParserFactory - class capable of
     $factory = Bio::Factory::SeqAnalysisParserFactory->new();
     # find out the methods it knows about
     print "registered methods: ",
-          join(', ', keys($factory->driver_table())), "\n";
+          join(', ', keys %{$factory->driver_table}), "\n";
     # obtain a parser object
     $parser = $factory->get_parser(-input=>$inputobj,
                                    -params=>[@params],

@@ -33,7 +33,7 @@ Bio::DB::XEMBL - Database object interface for XEMBL entry retrieval
   # in not getting what what want
   eval {
       $seq = $embl->get_Seq_by_version('J02231.1'); # XEMBL VERSION
-  }
+  };
   print "cloneid is ", $seq->id, "\n" unless $@;
 
   my $seqio = $embl->get_Stream_by_batch(['U83300','U83301','U83302']);

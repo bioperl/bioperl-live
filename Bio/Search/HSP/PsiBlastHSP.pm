@@ -18,16 +18,7 @@ Bio::Search::HSP::PsiBlastHSP - Bioperl BLAST High-Scoring Pair object
 
 =head1 SYNOPSIS
 
-The construction of PsiBlastHSP objects is performed by
-Bio::Factory::BlastHitFactory in a process that is
-orchestrated by the Blast parser (B<Bio::SearchIO::psiblast>).
-The resulting PsiBlastHSPs are then accessed via
-B<Bio::Search::Hit::BlastHit>). Therefore, you do not need to
-use B<Bio::Search::HSP::PsiBlastHSP>) directly. If you need to construct
-PsiBlastHSPs directly, see the new() function for details.
-
-For B<Bio::SearchIO> BLAST parsing usage examples, see the
-B<examples/search-blast> directory of the Bioperl distribution.
+See L<Bio::Search::Hit::BlastHit>.
 
 =head1 DESCRIPTION
 
@@ -39,6 +30,18 @@ alignment with score information.
 PsiBlastHSP objects are accessed via B<Bio::Search::Hit::BlastHit>
 objects after parsing a BLAST report using the B<Bio::SearchIO>
 system.
+
+The construction of PsiBlastHSP objects is performed by
+Bio::Factory::BlastHitFactory in a process that is
+orchestrated by the Blast parser (B<Bio::SearchIO::psiblast>).
+The resulting PsiBlastHSPs are then accessed via
+B<Bio::Search::Hit::BlastHit>). Therefore, you do not need to
+use B<Bio::Search::HSP::PsiBlastHSP>) directly. If you need to construct
+PsiBlastHSPs directly, see the new() function for details.
+
+For B<Bio::SearchIO> BLAST parsing usage examples, see the
+B<examples/search-blast> directory of the Bioperl distribution.
+
 
 =head2 Start and End coordinates
 

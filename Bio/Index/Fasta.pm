@@ -41,7 +41,7 @@ Bio::Index::Fasta - Interface for indexing (multiple) fasta files
     }
 
     # or, alternatively
-
+    my $id;
     my $seq = $inx->get_Seq_by_id($id); #identical to fetch
 
 =head1 DESCRIPTION

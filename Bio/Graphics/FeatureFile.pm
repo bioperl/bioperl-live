@@ -39,7 +39,9 @@ Bio::Graphics::FeatureFile -- A set of Bio::Graphics features, stored in a file
  $data->add_type(EST => {fgcolor=>'blue',height=>12});
 
  # add a feature
- my $feature = Bio::Graphics::Feature->new(....); # or some other SeqI
+ my $feature = Bio::Graphics::Feature->new(
+                                             # params
+                                          ); # or some other SeqI
  $data->add_feature($feature=>'EST');
 
 =head1 DESCRIPTION

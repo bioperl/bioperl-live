@@ -31,8 +31,8 @@ Bio::SeqIO - Handler for SeqIO Formats
 	$out->write_seq($seq);
     }
 
-Now, to actually get at the sequence object, use the standard Bio::Seq
-methods (look at L<Bio::Seq> if you don't know what they are)
+  # Now, to actually get at the sequence object, use the standard Bio::Seq
+  # methods (look at L<Bio::Seq> if you don't know what they are)
 
     use Bio::SeqIO;
 
@@ -43,9 +43,9 @@ methods (look at L<Bio::Seq> if you don't know what they are)
     }
 
 
-The SeqIO system does have a filehandle binding. Most people find this
-a little confusing, but it does mean you write the world's smallest
-reformatter
+  # The SeqIO system does have a filehandle binding. Most people find this
+  # a little confusing, but it does mean you write the world's smallest
+  # reformatter
 
     use Bio::SeqIO;
 

@@ -16,12 +16,12 @@ Bio::Tools::Eponine - Results of one Eponine run
 
 =head1 SYNOPSIS
 
- use Bio::Tools::Run::Eponine;
+ use Bio::Tools::Eponine;
  use strict;
     my $seq = "/data/seq.fa";
     my $threshold  = "0.999";
-    my @params = ( '-seq' => $seq,
-                 '-threshold' => $threshold);
+    my @params = ( -seq => $seq,
+                   -threshold => $threshold);
 
    my $factory = Bio::Tools::Run::Eponine->new(@params);
      # run eponine against fasta 

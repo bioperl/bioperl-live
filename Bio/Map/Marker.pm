@@ -34,7 +34,7 @@ that can have multiple location in several maps.
   $marker1 = new Bio::Map::Marker (-name=>'hypervariable1',
 				   -map => $map1,
 				   -position => 100
-				   )
+				   );
 
   # an other way of creating a marker with unique position in a map:
   $marker2 = new Bio::Map::Marker (-name=>'hypervariable2');

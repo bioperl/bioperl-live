@@ -15,7 +15,7 @@ Bio::Biblio::Thesis - Representation of thesis
 
     $obj = new Bio::Biblio::Thesis (-title => 'Perl on the edge');
 
- --- OR ---
+ #--- OR ---
 
     $obj = new Bio::Biblio::Thesis;
     $obj->title ('Perl on the edge');

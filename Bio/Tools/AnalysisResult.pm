@@ -17,16 +17,20 @@ Bio::Tools::AnalysisResult - Base class for analysis result objects and parsers
 =head1 SYNOPSIS
 
     # obtain a AnalysisResult derived object somehow
+
     print "Method ", $result->analysis_method(),
-          ", version " $result->analysis_method_version(), 
+          ", version ", $result->analysis_method_version(),
           ", performed on ", $result->analysis_date(), "\n";
+
     # annotate a sequence utilizing SeqAnalysisParserI methods
     while($feat = $result->next_feature()) {
 	$seq->add_SeqFeature($feat);
     }
     $result->close();
+
     # query object, e.g. a Bio::SeqI implementing object
     $queryseq = $result->analysis_query();
+
     # Subject of the analysis -- may be undefined. Refer to derived module
     # to find out what is returned.
     $subject = $result->analysis_subject();

@@ -32,7 +32,8 @@ Bio::OntologyIO - Parser factory for Ontology formats
 
     use Bio::OntologyIO;
 
-    my $parser = Bio::OntologyIO->new(-format => "go", ...);
+    my $parser = Bio::OntologyIO->new(-format => "go",
+                                      -file=> $file);
 
     while(my $ont = $parser->next_ontology()) {
          print "read ontology ",$ont->name()," with ",

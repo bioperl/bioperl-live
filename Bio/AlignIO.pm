@@ -35,7 +35,7 @@ Bio::AlignIO - Handler for AlignIO Formats
         $out->write_aln($aln);
     }
 
-or
+ #or
 
     use Bio::AlignIO;
 

@@ -23,21 +23,22 @@ one protein sequence
 
 =head1 SYNOPSIS
 
-Take a sequence object from eg, an inputstream, and creates an object
-for the purposes of rewriting that sequence in another alphabet.
-These are abbreviated amino acid sequence alphabets, designed to
-simplify the statistical aspects of analysing protein sequences, by
-reducing the combinatorial explosion of the 20-letter alphabet.  These
-abbreviated alphabets range in size from 2 to 8.
+  # Take a sequence object from eg, an inputstream, and creates an
+  # object for the purposes of rewriting that sequence in another
+  # alphabet.  These are abbreviated amino acid sequence alphabets,
+  # designed to simplify the statistical aspects of analysing protein
+  # sequences, by reducing the combinatorial explosion of the
+  # 20-letter alphabet.  These abbreviated alphabets range in size
+  # from 2 to 8.
 
-Creating the OddCodes object, eg:
+  # Creating the OddCodes object, eg:
 
 	my $inputstream = Bio::SeqIO->new( '-file' => "seqfile",
                                            '-format' => 'Fasta');
 	my $seqobj = $inputstream->next_seq();
 	my $oddcode_obj = Bio::Tools::Oddcodes->new(-seq => $seqobj);
 
-or:
+  # or:
 
 	my $seqobj = Bio::PrimarySeq->new
               (-seq=>'[cut and paste a sequence here]',
@@ -45,7 +46,8 @@ or:
                -id => 'test');
 	my $oddcode_obj  =  Bio::Tools::OddCodes->new(-seq => $seqobj);
 
-do the alternative coding, returning the answer as a reference to a string
+  # do the alternative coding, returning the answer as a reference to
+  # a string
 
 	my $output = $oddcode_obj->structural();
 	my $output = $oddcode_obj->chemical();
@@ -57,7 +59,7 @@ do the alternative coding, returning the answer as a reference to a string
 	my $output = $oddcode_obj->Stanfel();
 
 
-display sequence in new form, eg:
+  # display sequence in new form, eg:
 
 	my $new_coding = $$output;
 	print "\n$new_coding";

@@ -17,34 +17,35 @@ NCBI Blast program suite (blastall, blastpgp, bl2seq)
 
 =head1 SYNOPSIS
 
-Local-blast "factory object" creation and blast-parameter initialization:
+ # Local-blast "factory object" creation and blast-parameter
+ # initialization:
 
  @params = ('database' => 'swissprot','outfile' => 'blast1.out', 
 	    '_READMETHOD' => 'Blast');
 
  $factory = Bio::Tools::Run::StandAloneBlast->new(@params);
 
-Blast a sequence against a database:
+ # Blast a sequence against a database:
 
  $str = Bio::SeqIO->new(-file=>'t/amino.fa' , '-format' => 'Fasta' );
  $input = $str->next_seq();
  $input2 = $str->next_seq();
  $blast_report = $factory->blastall($input);
 
-Run an iterated Blast (psiblast) of a sequence against a database:
+ # Run an iterated Blast (psiblast) of a sequence against a database:
 
  $factory->j(3);    # 'j' is blast parameter for # of iterations
  $factory->outfile('psiblast1.out');
  $factory = Bio::Tools::Run::StandAloneBlast->new(@params);
  $blast_report = $factory->blastpgp($input);
 
-Use blast to align 2 sequences against each other:
+ # Use blast to align 2 sequences against each other:
 
  $factory = Bio::Tools::Run::StandAloneBlast->new('outfile' => 'bl2seq.out');
  $factory->bl2seq($input, $input2);
 
-Various additional options and input formats are available.  See the
-DESCRIPTION section for details.
+ # Various additional options and input formats are available.  See
+ # the DESCRIPTION section for details.
 
 =head1 DESCRIPTION
 

@@ -28,7 +28,7 @@ Bio::Coordinate::Collection - Noncontinuous match between two coordinate sets
   $pos = Bio::Location::Simple->new (-start => 5, -end => 9 );
   $res = $collection->map($pos);
   $res->match->start == 1;
-  $res->match-> == 5;
+  $res->match->end == 5;
 
   # if mapping is many to one (*>1) or many-to-many (*>*)
   # you have to give seq_id not get unrelevant entries

@@ -4,7 +4,7 @@ Bio::Search::SearchUtils - Utility functions for Bio::Search:: objects
 
 =head1 SYNOPSIS
 
-This module is just a collection of subroutines, not an object.
+  # This module is just a collection of subroutines, not an object.
 
 =head1 DESCRIPTION
 

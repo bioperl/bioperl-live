@@ -27,7 +27,7 @@ Bio::LiveSeq::IO::SRS - Loader for LiveSeq from EMBL entries with SRS
   my $gene="AR";
   my $gene=$loader->gene2liveseq("gene");
 
-  NOTE: The only -db now supported is EMBL. Hence it defaults to EMBL.
+  #NOTE: The only -db now supported is EMBL. Hence it defaults to EMBL.
 
 =head1 DESCRIPTION
 

@@ -17,8 +17,11 @@ Bio::DB::Query::WebQuery - Helper class for web-based sequence queryies
 
 =head1 SYNOPSIS
 
-Do not use this class directly.  See Bio::DB::QueryI and one of the
-implementor classes (such as Bio::DB::GenBankQuery) for information.
+  # Do not use this class directly.  See Bio::DB::QueryI and one of
+  # the implementor classes (such as Bio::DB::GenBankQuery) for
+  # information.
+
+See L<Bio::DB::QueryI>, L<Bio::DB::GenBankQuery>
 
 
 =head1 DESCRIPTION

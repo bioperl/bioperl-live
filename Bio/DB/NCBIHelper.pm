@@ -19,11 +19,12 @@ NCBI databases.
 
 =head1 SYNOPSIS
 
- Do not use this module directly.
+ #Do not use this module directly.
+
  # get a Bio::DB::NCBIHelper object somehow
  my $seqio = $db->get_Stream_by_acc(['MUSIGHBA1']);
  foreach my $seq ( $seqio->next_seq ) {
-  # process seq
+     # process seq
  }
 
 =head1 DESCRIPTION

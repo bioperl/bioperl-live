@@ -15,7 +15,7 @@ Bio::Biblio::Journal - Representation of a journal
 
     $obj = new Bio::Biblio::Journal (-name => 'The Perl Journal',
 				     -issn  => '1087-903X');
- --- OR ---
+  #--- OR ---
 
     $obj = new Bio::Biblio::Journal;
     $obj->issn ('1087-903X');

@@ -40,8 +40,8 @@ Bio::Index::Fastq - Interface for indexing (multiple) fastq files
     }
 
     # or, alternatively
-
-    my $seq = $inx->get_Seq_by_id($id); #identical to fetch   
+    my $id;
+    my $seq = $inx->get_Seq_by_id($id); #identical to fetch
 
 =head1 DESCRIPTION
 

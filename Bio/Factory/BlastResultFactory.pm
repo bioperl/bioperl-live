@@ -16,13 +16,13 @@ Bio::Factory::BlastResultFactory - Factory for Bio::Search::Result::BlastResult 
 
 =head1 SYNOPSIS
 
-    use Bio::Factory::BlastResultFactory;
+  use Bio::Factory::BlastResultFactory;
 
-    my $result_fact = Bio::Factory::BlastResultFactory->new();
+  my $result_fact = Bio::Factory::BlastResultFactory->new();
+  my $result = $result_fact->create_result( %parameters );
 
-    my $result = $result_fact->create_result( %parameters );
-
-See documentation for create_result() for information about C<%parameters>.
+  # See documentation for create_result() for information about
+  # %parameters.
 
 =head1 DESCRIPTION
 

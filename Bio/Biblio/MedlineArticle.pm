@@ -13,24 +13,26 @@ Bio::Biblio::MedlineArticle - Representation of a MEDLINE article
 
 =head1 SYNOPSIS
 
-  $obj = new Bio::Biblio::MedlineArticle (-mesh_headings => ...);
+  $obj = new Bio::Biblio::MedlineArticle (-mesh_headings =>
+                                            #array ref of hashes
+                                         );
 
   # how are Mesh terms stored:
   use Data::Dumper;
   print Data::Dumper->Dump ( [$obj->mesh_headings], ['MeshHeadings']);
 
-  It produces (something like) this:
-  'MeshHeadings' => [
-	 { 'descriptorName' => 'Adult' },
-         { 'descriptorName' => 'Cardiovascular Diseases',
-           'subHeadings'    => [ { 'subHeading' => 'etiology' },
-			         { 'majorTopic' => 'Y',
-			           'subHeading' => 'mortality' } ] },
-	 { 'descriptorName' => 'Child Development',
-	   'subHeadings'    => [ { 'majorTopic' => 'Y',
-				   'subHeading' => 'physiology' } ] },
-	 { 'descriptorName' => 'Human' },
-	]
+  #It produces (something like) this:
+  #'MeshHeadings' => [
+  #       { 'descriptorName' => 'Adult' },
+  #       { 'descriptorName' => 'Cardiovascular Diseases',
+  #         'subHeadings'    => [ { 'subHeading' => 'etiology' },
+  #                               { 'majorTopic' => 'Y',
+  #                                 'subHeading' => 'mortality' } ] },
+  #       { 'descriptorName' => 'Child Development',
+  #         'subHeadings'    => [ { 'majorTopic' => 'Y',
+  #                                 'subHeading' => 'physiology' } ] },
+  #       { 'descriptorName' => 'Human' },
+  #      ]
 
 =head1 DESCRIPTION
 

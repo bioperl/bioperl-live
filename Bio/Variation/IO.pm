@@ -26,7 +26,7 @@ Bio::Variation::IO - Handler for sequence variation IO Formats
 	$out->write($seq);
     }
 
-or
+  # or
 
     use Bio::Variation::IO;
 

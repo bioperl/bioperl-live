@@ -989,8 +989,8 @@ Bio::Graphics::Panel - Generate GD images of Bio::Seq objects
  use Bio::SeqIO;
 
  my $file = shift                       or die "provide a sequence file as the argument";
- my $io = Bio::SeqIO->new(-file=>$file) or die "couldn't create Bio::SeqIO";
- my $seq = $io->next_seq                or die "couldn't find a sequence in the file";
+ my $io = Bio::SeqIO->new(-file=>$file) or die "could not create Bio::SeqIO";
+ my $seq = $io->next_seq                or die "could not find a sequence in the file";
 
  my @features = $seq->all_SeqFeatures;
 

@@ -17,7 +17,7 @@ Bio::Biblio::MedlineBook - Representation of a MEDLINE book
                   (-editor => new Bio::Biblio::Person
 		                     (-lastname => 'Loukides'),
 		   -isbn  => '0-596-00068-5');
- --- OR ---
+  #--- OR ---
 
     $obj = new Bio::Biblio::MedlineBook;
     $obj->isbn ('0-596-00068-5');

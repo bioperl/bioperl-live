@@ -15,7 +15,7 @@ Bio::Biblio::Patent - Representation of a patent
 
     $obj = new Bio::Biblio::Patent (-doc_number => '1-2-3-4-5');
 
- --- OR ---
+  #--- OR ---
 
     $obj = new Bio::Biblio::Patent;
     $obj->doc_number ('1-2-3-4-5');

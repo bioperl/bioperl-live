@@ -15,7 +15,7 @@ Bio::Biblio::Proceeding - Representation of a conference proceeding
 
     $obj = new Bio::Biblio::Proceeding (-title => 'JavaONE');
 
- --- OR ---
+  #--- OR ---
 
     $obj = new Bio::Biblio::Proceeding;
     $obj->title ('JavaONE');

@@ -23,7 +23,7 @@ Bio::Index::Swissprot - Interface for indexing (multiple) Swissprot
     use strict;
 
     my $Index_File_Name = shift;
-    my $inx = Bio::Index::Swissprot->new('-filename' => $Index_File_Name, 
+    my $inx = Bio::Index::Swissprot->new('-filename' => $Index_File_Name,
 					 '-write_flag' => 'WRITE');
     $inx->make_index(@ARGV);
 
@@ -43,9 +43,9 @@ Bio::Index::Swissprot - Interface for indexing (multiple) Swissprot
     }
 
     # alternatively
-
+    my ($id, $acc);
     my $seq1 = $inx->get_Seq_by_id($id);
-    my $seq2 = $inx->get_Seq_by_acc($acc);   
+    my $seq2 = $inx->get_Seq_by_acc($acc);
 
 =head1 DESCRIPTION
 

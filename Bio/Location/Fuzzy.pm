@@ -18,7 +18,7 @@ which has unclear start and/or end locations
     use Bio::Location::Fuzzy;
     my $fuzzylocation = new Bio::Location::Fuzzy(-start => '<30',
 						 -end   => 90,
-						 -location_type => '.');
+						 -location_type => '..');
 
     print "location string is ", $fuzzylocation->to_FTstring(), "\n";
     print "location is of the type ", $fuzzylocation->location_type, "\n";

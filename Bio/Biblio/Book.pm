@@ -17,7 +17,7 @@ Bio::Biblio::Book - Representation of a book
 				  -editor => new Bio::Biblio::Person
 				                (-lastname => 'Loukides'),
 				  -isbn  => '0-596-00068-5');
- --- OR ---
+  #--- OR ---
 
     $obj = new Bio::Biblio::Book;
     $obj->isbn ('0-596-00068-5');

@@ -21,7 +21,7 @@ of a PSIBLAST report
 
 =head1 SYNOPSIS
 
-   use Bio::Tools:: BPpsilite;
+   use Bio::Tools::BPpsilite;
 
    open FH, "t/psiblastreport.out";
    $report = Bio::Tools::BPpsilite->new(-fh=>\*FH);

@@ -20,7 +20,7 @@ Bio::Search::HSP::GenericHSP - A "Generic" implementation of a High Scoring Pair
                                                 -evalue    => '1e-30',
                                                 );
 
-    $r_type = $hsp->algorithm
+    $r_type = $hsp->algorithm;
 
     $pvalue = $hsp->p();
 

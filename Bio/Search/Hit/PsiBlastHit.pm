@@ -18,35 +18,36 @@ Bio::Search::Hit::PsiBlastHit - Bioperl BLAST Hit object
 
 =head1 SYNOPSIS
 
-The construction of PsiBlastHit objects is performed by
-Bio::SearchIO::blast::PsiBlastHitFactory in a process that is
-orchestrated by the Blast parser (B<Bio::SearchIO::blast::blast>).
-The resulting PsiBlastHits are then accessed via
-B<Bio::Search::Result::BlastResult>). Therefore, you do not need to
-use B<Bio::Search::Hit::PsiBlastHit>) directly. If you need to construct
-PsiBlastHits directly, see the new() function for details.
-
-For B<Bio::SearchIO> BLAST parsing usage examples, see the
-B<examples/search-blast> directory of the Bioperl distribution.
-
+See L<Bio::Search::Result::BlastResult>.
 
 =head1 DESCRIPTION
 
-The Bio::Search::Hit::PsiBlastHit.pm module encapsulates data and methods
-for manipulating "hits" from a BLAST report. A BLAST hit is a
-collection of HSPs along with other metadata such as sequence name
-and score information. Hit objects are accessed via
-B<Bio::Search::Result::BlastResult> objects after parsing a BLAST report using
-the B<Bio::SearchIO> system.
+The Bio::Search::Hit::PsiBlastHit.pm module encapsulates data and
+methods for manipulating "hits" from a BLAST report. A BLAST hit is a
+collection of HSPs along with other metadata such as sequence name and
+score information. Hit objects are accessed via
+B<Bio::Search::Result::BlastResult> objects after parsing a BLAST
+report using the B<Bio::SearchIO> system.
 
-In Blast lingo, the "sbjct" sequences are all the sequences 
-in a target database which were compared against a "query" sequence.
-The terms "sbjct" and "hit" will be used interchangeably in this module.
+In Blast lingo, the "sbjct" sequences are all the sequences in a
+target database which were compared against a "query" sequence.  The
+terms "sbjct" and "hit" will be used interchangeably in this module.
 All methods that take 'sbjct' as an argument also support 'hit' as a
 synonym.
 
 This module supports BLAST versions 1.x and 2.x, gapped and ungapped,
 and PSI-BLAST.
+
+The construction of PsiBlastHit objects is performed by
+Bio::SearchIO::blast::PsiBlastHitFactory in a process that is
+orchestrated by the Blast parser (B<Bio::SearchIO::blast::blast>).
+The resulting PsiBlastHits are then accessed via
+B<Bio::Search::Result::BlastResult>). Therefore, you do not need to
+use B<Bio::Search::Hit::PsiBlastHit>) directly. If you need to
+construct PsiBlastHits directly, see the new() function for details.
+
+For B<Bio::SearchIO> BLAST parsing usage examples, see the
+B<examples/search-blast> directory of the Bioperl distribution.
 
 
 =head2 HSP Tiling and Ambiguous Alignments

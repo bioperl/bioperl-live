@@ -17,7 +17,7 @@ Bio::SeqFeature::Gene::GeneStructure - A feature representing an arbitrarily
 
 =head1 SYNOPSIS
 
-See documentation of methods.
+  # See documentation of methods.
 
 =head1 DESCRIPTION
 

@@ -16,23 +16,26 @@ Bio::Search::Result::PsiBlastResult - A top-level BLAST Report object
 
 =head1 SYNOPSIS
 
-The construction of PsiBlastResult objects is performed by
-by the B<Bio::SearchIO::psiblast> parser.
-Therefore, you do not need to
-use B<Bio::Search::Result::PsiBlastResult>) directly. If you need to construct
-BlastHits directly, see the new() function for details.
-
-For B<Bio::SearchIO> BLAST parsing usage examples, see the
-B<examples/search-blast> directory of the Bioperl distribution.
+See L<Bio::SearchIO::psiblast>.
 
 =head1 DESCRIPTION
 
 This module supports BLAST versions 1.x and 2.x, gapped and ungapped,
 and PSI-BLAST.
 
+The construction of PsiBlastResult objects is performedby the
+B<Bio::SearchIO::psiblast> parser.  Therefore, you do not need to use
+B<Bio::Search::Result::PsiBlastResult>) directly. If you need to
+construct BlastHits directly, see the new() function for details.
+
+For B<Bio::SearchIO> BLAST parsing usage examples, see the
+B<examples/search-blast> directory of the Bioperl distribution.
+
 =head1 DEPENDENCIES
 
-Bio::Search::Result::PsiBlastResult.pm is a concrete class that inherits from B<Bio::Root::Root> and B<Bio::Search::Result::ResultI>. It  relies on two other modules:
+Bio::Search::Result::PsiBlastResult.pm is a concrete class that
+inherits from B<Bio::Root::Root> and
+B<Bio::Search::Result::ResultI>. It relies on two other modules:
 
 =over 4
 

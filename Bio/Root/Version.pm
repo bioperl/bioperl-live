@@ -17,7 +17,7 @@ Bio::Root::Version - provide global, distribution-level versioning
 =head1 SYNOPSIS
 
   package Bio::Tools::NiftyFeature;
-  require Bio::Root:RootI;
+  require Bio::Root::RootI;
 
 
   # later, in client code:
@@ -47,7 +47,6 @@ Bio::Root::RootI itself uses this module, so any module that directly
 (or indirectly) uses Bio::Root::RootI will get a global $VERSION
 variable set if it's not already.
 
-S
 
 =head1 FEEDBACK
 

@@ -52,7 +52,7 @@ Bio::Root::Object - A core Perl 5 object.
 
 =head1 SYNOPSIS
 
-Use this module as the root of your inheritance tree.
+  # Use this module as the root of your inheritance tree.
 
 =head2 Object Creation
 

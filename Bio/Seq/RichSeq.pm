@@ -17,7 +17,7 @@ sequence database entry
 
 =head1 SYNOPSIS
 
-See Bio::Seq::RichSeqI and documentation of methods.
+See L<Bio::Seq::RichSeqI> and documentation of methods.
 
 =head1 DESCRIPTION
 

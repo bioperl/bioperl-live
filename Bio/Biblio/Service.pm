@@ -15,7 +15,7 @@ Bio::Biblio::Service - Representation of a provider of type service
 
     $obj = new Bio::Biblio::Service (-name => 'Report generator');
 
- --- OR ---
+  #--- OR ---
 
     $obj = new Bio::Biblio::Service;
     $obj->name ('Report generator');

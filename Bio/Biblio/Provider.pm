@@ -16,7 +16,7 @@ Bio::Biblio::Provider - Representation of a general provider
     # usually this class is not instantiated but can be...
     $obj = new Bio::Biblio::Provider (-type => 'Department');
 
- --- OR ---
+  #--- OR ---
 
     $obj = new Bio::Biblio::Provider;
     $obj->type ('Department');

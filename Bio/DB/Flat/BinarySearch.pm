@@ -10,26 +10,38 @@
 
 =head1 NAME
 
-Bio::DB::Flat::BinarySearch - BinarySearch search indexing system for sequence files
+Bio::DB::Flat::BinarySearch - BinarySearch search indexing system for
+sequence files
 
 =head1 SYNOPSIS
 
-This module can be used both to index sequence files and also to retrieve 
-sequences from existing sequence files.
+  # See below
+
+=head1 DESCRIPTION
+
+
+This module can be used both to index sequence files and also to
+retrieve sequences from existing sequence files.
+
+This object allows indexing of sequence files both by a primary key
+(say accession) and multiple secondary keys (say ids).  This is
+different from the Bio::Index::Abstract (see L<Bio::Index::Abstract>)
+which uses DBM files as storage.  This module uses a binary search to
+retrieve sequences which is more efficient for large datasets.
 
 =head2 Index creation
 
     my $sequencefile;  # Some fasta sequence file
 
-Patterns have to be entered to define where the keys are to be
-indexed and also where the start of each record.  E.g. for fasta
+Patterns have to be entered to define where the keys are to be indexed
+and also where the start of each record.  E.g. for fasta
 
     my $start_pattern   = "^>";
     my $primary_pattern = "^>(\\S+)";
 
 
-So the start of a record is a line starting with a E<gt> and the primary
-key is all characters up to the first space afterf the E<gt>
+So the start of a record is a line starting with a E<gt> and the
+primary key is all characters up to the first space afterf the E<gt>
 
 A string also has to be entered to defined what the primary key
 (primary_namespace) is called.
@@ -42,16 +54,17 @@ The index can now be created using
              -primary_namespace => "ID",
 					     );
 
-To actually write it out to disk we need to enter a directory where the 
-indices will live, a database name and an array of sequence files to index.
+To actually write it out to disk we need to enter a directory where
+the indices will live, a database name and an array of sequence files
+to index.
 
     my @files = ("file1","file2","file3");
 
     $index->build_index("/Users/michele/indices","mydatabase",@files);
 
-The index is now ready to use.  For large sequence files the perl
-way of indexing takes a *long* time and a *huge* amount of memory.
-For indexing things like dbEST I recommend using the C indexer.
+The index is now ready to use.  For large sequence files the perl way
+of indexing takes a *long* time and a *huge* amount of memory.  For
+indexing things like dbEST I recommend using the C indexer.
 
 =head2 Creating indices with secondary keys
 
@@ -136,14 +149,6 @@ To access the secondary indices the secondary namespace needs to be known
     my $seq   = $index->get_Seq_by_secondary('ACC','Q21973');
     my $fh    = $index->get_stream_by_secondary('ACC','Q21973');
     my $entry = $index->get_entry_by_secondary('ACC','Q21973');
-
-=head1 DESCRIPTION
-
-This object allows indexing of sequence files both by a primary key
-(say accession) and multiple secondary keys (say ids).  This is
-different from the Bio::Index::Abstract (see L<Bio::Index::Abstract>)
-which uses DBM files as storage.  This module uses a binary search to
-retrieve sequences which is more efficient for large datasets.
 
 
 =head1 FEEDBACK

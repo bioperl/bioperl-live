@@ -1,4 +1,4 @@
-# Parser module for SignalP Bio::Tools::Signalp
+# Parser module for Signalp Bio::Tools::Signalp
 #
 # Based on the EnsEMBL module Bio::EnsEMBL::Pipeline::Runnable::Protein::Signalp
 # originally written by Marc Sohrmann (ms2@sanger.ac.uk)
@@ -11,12 +11,12 @@
 
 =head1 NAME
 
-Bio::Tools::SignalP
+Bio::Tools::Signalp
 
 =head1 SYNOPSIS
 
- use Bio::Tools::SignalP;
- my $parser = new Bio::Tools::SignalP(-fh =>$filehandle );
+ use Bio::Tools::Signalp;
+ my $parser = new Bio::Tools::Signalp(-fh =>$filehandle );
  while( my $sp_feat = $parser->next_result ) {
        #do something
        #eg
@@ -25,7 +25,7 @@ Bio::Tools::SignalP
 
 =head1 DESCRIPTION
 
- Parser for SignalP output
+ Parser for Signalp output
 
 =head1 FEEDBACK
 
@@ -77,9 +77,9 @@ use Bio::SeqFeature::Generic;
 =head2 new
 
  Title   : new
- Usage   : my $obj = new Bio::Tools::SignalP();
- Function: Builds a new Bio::Tools::SignalP object
- Returns : Bio::Tools::SignalP
+ Usage   : my $obj = new Bio::Tools::Signalp();
+ Function: Builds a new Bio::Tools::Signalp object
+ Returns : Bio::Tools::Signalp
  Args    : -fh/-file => $val, # for initing input, see Bio::Root::IO
 
 

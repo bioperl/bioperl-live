@@ -34,7 +34,7 @@ Bio::Tools::Phylo::Molphy - DESCRIPTION of Object
     # get the transition probablity matrix
     # this is a hash of 3letter aa codes -> 3letter aa codes representing
     # transition probabilty
-    my $tmat = $r->transition_probability_matrix
+    my $tmat = $r->transition_probability_matrix;
     print "Arg -> Gln transition probablity is %.2f\n", 
           $tmat->{'Arg'}->{'Gln'}, "\n";
 

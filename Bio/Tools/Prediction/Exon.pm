@@ -16,7 +16,7 @@ Bio::Tools::Prediction::Exon - A predicted exon feature
 
 =head1 SYNOPSIS
 
-See documentation of methods.
+  # See documentation of methods.
 
 =head1 DESCRIPTION
 

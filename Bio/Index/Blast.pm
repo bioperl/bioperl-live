@@ -18,10 +18,12 @@ Bio::Index::Blast - Indexes Blast reports and supports retrieval based on query 
 
     use strict;
     use Bio::Index::Blast;
+    my ($indexfile,$file1, $file2);
     my $index = new Bio::Index::Blast(-filename => $indexfile,
 				      -write_flag => 1);
     $index->make_index($file1, $file2);
 
+    my $id;
     my $data = $index->get_stream($id);
 
     my $bplite_report = $index->fetch_report($id);

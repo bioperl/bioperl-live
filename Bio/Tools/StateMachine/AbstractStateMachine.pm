@@ -14,8 +14,8 @@ Bio::Tools::StateMachine::AbstractStateMachine - Abstract state machine object
 
 =head1 SYNOPSIS
 
-Here is a portion of an implementation. For the full example, see
-examples/state-machine.pl in the Bioperl distribution.
+  # Here is a portion of an implementation. For the full example, see
+  # examples/state-machine.pl in the Bioperl distribution.
 
     package SimpleStateMachine;
 

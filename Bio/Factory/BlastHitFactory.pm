@@ -12,17 +12,18 @@
 
 =head1 NAME
 
-Bio::Factory::BlastHitFactory - Factory for Bio::Search::Hit::BlastHit objects
+Bio::Factory::BlastHitFactory - Factory for Bio::Search::Hit::BlastHit
+objects
 
 =head1 SYNOPSIS
 
-    use Bio::Factory::BlastHitFactory;
+ use Bio::Factory::BlastHitFactory;
 
-    my $hit_fact = Bio::Factory::BlastHitFactory->new();
+ my $hit_fact = Bio::Factory::BlastHitFactory->new();
+ my $hit = $hit_fact->create_hit( %parameters );
 
-    my $hit = $hit_fact->create_hit( %parameters );
-
-See documentation for create_hit() for information about C<%parameters>.
+ # See documentation for create_hit() for information about
+ # %parameters.
 
 =head1 DESCRIPTION
 

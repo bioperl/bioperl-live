@@ -15,7 +15,7 @@ Bio::Biblio::BookArticle - Representation of a book article
 
     $obj = new Bio::Biblio::BookArticle (-identifier => '123abc',
 					 -book => new Bio::Biblio::Book);
- --- OR ---
+  #--- OR ---
 
     $obj = new Bio::Biblio::BookArticle;
     $obj->book (new Bio::Biblio::Book);

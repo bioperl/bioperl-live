@@ -15,7 +15,7 @@ Bio::Biblio::MedlineJournal - Representation of a MEDLINE journal
 
     $obj = new Bio::Biblio::MedlineJournal
                (-medline_ta => 'J Vasc Interv Radiol');
- --- OR ---
+  #--- OR ---
 
     $obj = new Bio::Biblio::MedlineJournal;
     $obj->medline_ta ('J Vasc Interv Radiol');

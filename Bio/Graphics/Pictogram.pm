@@ -20,7 +20,7 @@ Bio::Graphics::Pictogram
   my $sio = Bio::SeqIO->new(-file=>$ARGV[0],-format=>'fasta');
   my @seq;
   while(my $seq = $sio->next_seq){
-   push @seq, $seq;
+    push @seq, $seq;
   }
 
   my $picto = Bio::Graphics::Pictogram->new(-width=>"800",
@@ -33,9 +33,9 @@ Bio::Graphics::Pictogram
                                                           'T'=>0.32,
                                                           'G'=>0.25},
                                             -color=>{'A'=>'red',
-                                                      'G'=>'blue',
-                                                      'C'=>'green',
-                                                      'T'=>'magenta');
+                                                     'G'=>'blue',
+                                                     'C'=>'green',
+                                                     'T'=>'magenta'});
 
   my $svg = $picto->make_svg(\@seq);
 
@@ -43,16 +43,19 @@ Bio::Graphics::Pictogram
 
 =head1 DESCRIPTION
 
-A module for generating SVG output of Pictogram display for consensus motifs.
-This method of representation was describe by Burge and colleagues:
-(Burge, C.B.,Tuschl, T., Sharp, P.A. in The RNA world II, 525-560, CSHL press, 1999)
+A module for generating SVG output of Pictogram display for consensus
+motifs.  This method of representation was describe by Burge and
+colleagues: (Burge, C.B.,Tuschl, T., Sharp, P.A. in The RNA world II,
+525-560, CSHL press, 1999)
 
-This is a simple module that takes in an array of sequences (assuming equal lengths) and
-calculates relative base frequencies where the height of each letter reflects the frequency
-of each nucleotide at a given position. It can also plot the information content
-at each position scaled by the background frequencies of each nucleotide.
+This is a simple module that takes in an array of sequences (assuming
+equal lengths) and calculates relative base frequencies where the
+height of each letter reflects the frequency of each nucleotide at a
+given position. It can also plot the information content at each
+position scaled by the background frequencies of each nucleotide.
 
-It requires the SVG-2.26 or later  module by  Ronan Oger available at http://www.cpan.org.
+It requires the SVG-2.26 or later module by Ronan Oger available at
+http://www.cpan.org.
 
 Recommended viewing of the SVG is the plugin available at Adobe:
 http://www.adobe.com/svg
@@ -97,7 +100,7 @@ methods. Internal methods are usually preceded with a "_".
 
 package Bio::Graphics::Pictogram;
 use strict;
-use SVG;
+use SVG 2.26;
 use Bio::Root::Root;
 use vars qw(@ISA);
 @ISA = qw(Bio::Root::Root);
@@ -117,7 +120,7 @@ use vars qw(@ISA);
                                             -color=>{'A'=>'red',
                                                       'G'=>'blue',
                                                       'C'=>'green',
-                                                      'T'=>'magenta'); 
+                                                      'T'=>'magenta'});
  Function: Constructor for Pictogram Object
  Returns : L<Bio::Graphics::Pictogram>
 

@@ -15,7 +15,7 @@ Bio::Biblio::Ref - Representation of a bibliographic reference
 
     $obj = new Bio::Biblio::Ref (-type  => 'Letter',
 				 -title => 'Onegin to Tatiana');
- --- OR ---
+  #--- OR ---
 
     $obj = new Bio::Biblio::Ref;
     $obj->type ('Letter');

@@ -4,7 +4,9 @@ Bio::Search::BlastUtils - Utility functions for Bio::Search:: BLAST objects
 
 =head1 SYNOPSIS
 
-This module is just a collection of subroutines, not an object.
+ # This module is just a collection of subroutines, not an object.
+
+See L<Bio::Search::Hit::BlastHit>.
 
 =head1 DESCRIPTION
 

@@ -18,7 +18,7 @@ Bio::Biblio::PubmedBookArticle - Representation of a PUBMED book article
 		   -book => new Bio::Biblio::MedlineBook);
     # note that there is no specialised class PubmedBook
 
- --- OR ---
+  #--- OR ---
 
     $obj = new Bio::Biblio::PubmedBookArticle;
     $obj->title ('Still getting started');

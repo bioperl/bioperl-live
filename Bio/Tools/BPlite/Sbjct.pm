@@ -26,15 +26,16 @@ Bio::Tools::BPlite::Sbjct - A Blast Subject (database search Hit)
 
 =head1 SYNOPSIS
 
- use Bio::Tools::BPlite
- my $report = new Bio::Tools::BPlite(-fh=>\*STDIN);
- while(my $sbjct = $report->nextSbjct) {
-     $sbjct->name;    # access to the hit name
-     "$sbjct";        # overloaded to return name
-     $sbjct->nextHSP; # gets the next HSP from the sbjct
-     while(my $hsp = $sbjct->nextHSP) {
-	 # canonical form is again a while loop
-     }
+  use Bio::Tools::BPlite;
+  my $report = new Bio::Tools::BPlite(-fh=>\*STDIN);
+  while(my $sbjct = $report->nextSbjct) {
+      $sbjct->name;    # access to the hit name
+      "$sbjct";        # overloaded to return name
+      $sbjct->nextHSP; # gets the next HSP from the sbjct
+      while (my $hsp = $sbjct->nextHSP) {
+ 	 # canonical form is again a while loop
+      }
+  }
 
 =head1 DESCRIPTION
 

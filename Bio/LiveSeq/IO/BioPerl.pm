@@ -21,7 +21,7 @@ Bio::LiveSeq::IO::BioPerl - Loader for LiveSeq from EMBL entries with BioPerl
   my $id="HSANDREC";
 
   my $loader=Bio::LiveSeq::IO::BioPerl->load(-db=>"$db", -file=>"$file");
-                        or
+  #                      or
   my $loader=Bio::LiveSeq::IO::BioPerl->load(-db=>"$db", -id=>"$id");
 
   my @translationobjects=$loader->entry2liveseq();
@@ -30,16 +30,16 @@ Bio::LiveSeq::IO::BioPerl - Loader for LiveSeq from EMBL entries with BioPerl
   my $gene=$loader->gene2liveseq(-gene_name => "$genename",
                                     -getswissprotinfo => 0);
 
-  NOTE1: The only -db now supported is EMBL. Hence it defaults to EMBL.
-  NOTE2: -file requires a filename (and path if necessary) containing an
-               EMBL entry
-         -id will use Bio::DB::EMBL.pm to fetch the sequence from the web,
-               (bioperl wraparound to [w]getz from SRS)
-  NOTE3: To retrieve the swissprot (if possible) attached to the embl entry
-               (to get protein domains at dna level), only Bio::DB::EMBL.pm
-               is supported under BioPerl. Refer to Bio::LiveSeq::IO::SRS
-               otherwise.
-  NOTE4: NOTE3 is not implemented yet for bioperl, working on it
+  #NOTE1: The only -db now supported is EMBL. Hence it defaults to EMBL.
+  #NOTE2: -file requires a filename (and path if necessary) containing an
+  #             EMBL entry
+  #       -id will use Bio::DB::EMBL.pm to fetch the sequence from the web,
+  #             (bioperl wraparound to [w]getz from SRS)
+  #NOTE3: To retrieve the swissprot (if possible) attached to the embl entry
+  #             (to get protein domains at dna level), only Bio::DB::EMBL.pm
+  #             is supported under BioPerl. Refer to Bio::LiveSeq::IO::SRS
+  #             otherwise.
+  #NOTE4: NOTE3 is not implemented yet for bioperl, working on it
 
 
 =head1 DESCRIPTION

@@ -45,11 +45,11 @@ baseml, basemlg, codemlsites and yn00
   my ($codonusage, $ntdist) = $result->get_codon_summary();
 
   # example manipulations of $codonusage and $ntdist:
-  printf "There were %d '%s' codons in the first seq (%s)\n",
+  printf "There were %d %s codons in the first seq (%s)\n",
     $codonusage->[0]->{AAA}, 'AAA', $otus[0]->id();
-  printf "There were %d '%s' codons used in all the sequences\n",
+  printf "There were %d %s codons used in all the sequences\n",
     $codonusage->[$#{$codonusage}]->{AAA}, 'AAA';
-  printf "Nucleotide '%c' was present %g of the time in seq %s\n",
+  printf "Nucleotide %c was present %g of the time in seq %s\n",
     'A', $ntdist->[1]->{A}, $otus[1]->id();
 
   # get Nei & Gojobori dN/dS matrix:

@@ -41,7 +41,7 @@ Bio::Index::GenBank - Interface for indexing (multiple) GenBank
     }
 
     # alternatively
-
+    my ($id, $acc);
     my $seq1 = $inx->get_Seq_by_id($id);
     my $seq2 = $inx->get_Seq_by_acc($acc);   
 

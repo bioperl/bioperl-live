@@ -18,7 +18,7 @@ Bio::Biblio::MedlineJournalArticle - Representation of a MEDLINE journal article
 		  -journal => new Bio::Biblio::MedlineJournal (-issn => '0027-8424'),
 		  -volume => 96,
 		  -issue => 7);
- --- OR ---
+  #--- OR ---
 
     $obj = new Bio::Biblio::MedlineJournalArticle;
     $obj->title ('...');

@@ -16,7 +16,7 @@ Bio::Biblio::Article - Representation of a general article
     $obj = new Bio::Biblio::Article (-identifier => '123abc',
 				     -first_page => 23,
 				     -last_page  => 68);
- --- OR ---
+  #--- OR ---
 
     $obj = new Bio::Biblio::Article;
     $obj->identifier ('123abc');

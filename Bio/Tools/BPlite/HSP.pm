@@ -55,7 +55,7 @@ Bio::Tools::BPlite::HSP - Blast report High Scoring Pair (HSP)
     # but that is valid for an empty blast report.
     # Returns -1 for EOF.
 
-    last if ($report->_parseHeader == -1));
+    last if $report->_parseHeader == -1;
 
  redo
  }

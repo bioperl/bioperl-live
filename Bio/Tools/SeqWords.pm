@@ -23,35 +23,36 @@ Bio::Tools::SeqWords - Object holding n-mer statistics for one sequence
 
 =head1 SYNOPSIS
 
-Take a sequence object from eg, an inputstream, and creates an object
-for the purposes of holding n-mer word statistics about that sequence.
-The sequence can be nucleic acid or protein, but the module is
-probably most relevant for DNA.  The words are counted in a
-non-overlapping manner, ie. in the style of a codon table, but with
-any word length.  For overlapping word counts, a sequence can be
-'shifted' to remove the first character and then the count repeated.
-For counts on opposite strand (DNA/RNA), a reverse complement method
-should be performed, and then the count repeated.
+  # Take a sequence object from eg, an inputstream, and creates an
+  # object for the purposes of holding n-mer word statistics about
+  # that sequence.  The sequence can be nucleic acid or protein, but
+  # the module is probably most relevant for DNA.  The words are
+  # counted in a non-overlapping manner, ie. in the style of a codon
+  # table, but with any word length.  For overlapping word counts, a
+  # sequence can be 'shifted' to remove the first character and then
+  # the count repeated.  For counts on opposite strand (DNA/RNA), a
+  # reverse complement method should be performed, and then the count
+  # repeated.
 
-Creating the SeqWords object, eg:
+  # Creating the SeqWords object, eg:
 
   my $inputstream = Bio::SeqIO->new( -file => "seqfile", 
 	                             -format => 'Fasta');
   my $seqobj = $inputstream->next_seq();
   my $seq_word = Bio::Tools::SeqWords->new(-seq => $seqobj);
 
-or:
+  # or:
 
-  my $seqobj = Bio::PrimarySeq->new(-seq=>'[cut and paste a sequence here]', 
-                                    -alphabet => 'dna', 
+  my $seqobj = Bio::PrimarySeq->new(-seq=>'[cut and paste a sequence here]',
+                                    -alphabet => 'dna',
                                     -id => 'test');
   my $seq_word  =  Bio::Tools::SeqWords->new(-seq => $seqobj);
 
-obtain a hash of word counts, eg:
+  # obtain a hash of word counts, eg:
 
   my $hash_ref = $seq_stats->count_words($word_length);
 
-display hash table, eg:
+  # display hash table, eg:
 
   my %hash = %$hash_ref;
   foreach my $key(sort keys %hash)
@@ -59,7 +60,7 @@ display hash table, eg:
     print "\n$key\t$hash{$key}";
   }
 
-or	
+  # or	
 
   my $hash_ref = Bio::SeqWords->count_words($seqobj,$word_length);
 

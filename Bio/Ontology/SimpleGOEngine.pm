@@ -26,9 +26,9 @@ SimpleGOEngine - a Ontology Engine for GO implementing OntologyEngineI
 
 =head1 SYNOPSIS
 
-  use Bio::Ontology::simpleGOparser;
+  use Bio::Ontology::SimpleGOEngine;
 
-  my $parser = Bio::Ontology::simpleGOparser->new
+  my $parser = Bio::Ontology::SimpleGOEngine->new
 	( -defs_file => "/home/czmasek/GO/GO.defs",
 	  -files     => ["/home/czmasek/GO/component.ontology",
 	                 "/home/czmasek/GO/function.ontology",

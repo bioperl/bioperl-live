@@ -16,9 +16,10 @@ Bio::Search::Hit::Fasta - Hit object specific for Fasta-generated hits
 
 =head1 SYNOPSIS
 
-    These objects are generated automatically by Bio::Search::Processor::Fasta,
-and shouldn't be used directly.
+  # These objects are generated automatically by
+  # Bio::Search::Processor::Fasta, and shouldn't be used directly.
 
+See L<Bio::Search::Processor::Fasta>.
 
 =head1 DESCRIPTION
 

@@ -36,7 +36,7 @@ Bio::Tools::Phylo::Molphy::Result - DESCRIPTION of Object
     # get the transition probablity matrix
     # this is a hash of 3letter aa codes -> 3letter aa codes representing
     # transition probabilty
-    my $tmat = $r->transition_probability_matrix
+    my $tmat = $r->transition_probability_matrix;
     print "Arg -> Gln transition probablity is %.2f\n", 
           $tmat->{'Arg'}->{'Gln'}, "\n";
 
@@ -45,7 +45,7 @@ Bio::Tools::Phylo::Molphy::Result - DESCRIPTION of Object
 
     foreach my $residue ( keys %{$rfreqs} ) {
        printf "residue %s  expected freq: %.2f observed freq: %.2f\n",
-              $residue,$rfreqs->{$residue}->[0], $rfreqs->{$residue}->[1];     
+              $residue,$rfreqs->{$residue}->[0], $rfreqs->{$residue}->[1];
     }
 
     my @trees;

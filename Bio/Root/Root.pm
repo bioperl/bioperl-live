@@ -29,22 +29,9 @@ Bio::Root::Root - Hash-based implementation of Bio::Root::RootI
   # Alternatively, using the new typed exception syntax in the throw() call:
 
     $obj->throw( -class => 'Bio::Root::BadParameter',
-                 -text  => "Can't open file $file",
+                 -text  => "Can not open file $file",
                  -value  => $file);
 
-  # Exceptions can be used in an eval{} block as shown above or within
-  # a try{} block if you have installed the Error.pm module.
-  # Here's a brief example. For more, see Bio::Root::Exception
-
-  use Error qw(:try);
-
-    try {
-    $obj->throw(  # arguments as above );
-    }
-    catch Bio::Root::FileOpenException with {
-        my $err = shift;
-        print "Handling exception $err\n";
-   };
 
 =head1 DESCRIPTION
 

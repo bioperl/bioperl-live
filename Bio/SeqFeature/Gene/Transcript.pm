@@ -16,7 +16,7 @@ Bio::SeqFeature::Gene::Transcript - A feature representing a transcript
 
 =head1 SYNOPSIS
 
-See documentation of methods.
+  # See documentation of methods.
 
 =head1 DESCRIPTION
 

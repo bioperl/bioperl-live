@@ -14,9 +14,9 @@ Bio::WebAgent - A base class for Web (any protocol) access
 
 =head1 SYNOPSIS
 
-This is a abstract superclass for bioperl modules accessing web
-resources - normally you do not instantiate it but one of its
-subclasess.
+  # This is a abstract superclass for bioperl modules accessing web
+  # resources - normally you do not instantiate it but one of its
+  # subclasess.
 
 =head1 DESCRIPTION
 

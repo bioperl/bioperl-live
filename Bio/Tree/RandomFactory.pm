@@ -17,13 +17,14 @@ Bio::Tree::RandomFactory - TreeFactory for generating Random Trees
 =head1 SYNOPSIS
 
   use Bio::Tree::RandomFactory
+  my @taxonnames;
   my $factory = new Bio::Tree::RandomFactory( -samples => \@taxonnames,
   					      -maxcount => 10);
 
   # or for anonymous samples
 
-  my $factory = new Bio::Tree::RandomFactory( -sample_size => 6, 
-					      -maxcount = 50);
+  my $factory = new Bio::Tree::RandomFactory( -sample_size => 6,
+					      -maxcount => 50);
 
 =head1 DESCRIPTION
 

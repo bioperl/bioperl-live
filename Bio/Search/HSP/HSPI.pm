@@ -23,7 +23,7 @@ Bio::Search::HSP::HSPI - Interface for a High Scoring Pair in a similarity searc
     # Given an object that implements the Bio::Search::HSP::HSPI  interface,
     # you can do the following things with it:
 
-    $r_type = $hsp->algorithm
+    $r_type = $hsp->algorithm;
 
     $pvalue = $hsp->pvalue();
 

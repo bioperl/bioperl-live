@@ -16,7 +16,7 @@ Bio::Biblio::MedlineBookArticle - Representation of a MEDLINE book article
     $obj = new Bio::Biblio::MedlineBookArticle
                   (-title => 'Getting started'.
 		   -book => new Bio::Biblio::MedlineBook);
- --- OR ---
+  #--- OR ---
 
     $obj = new Bio::Biblio::MedlineBookArticle;
     $obj->title ('Getting started');

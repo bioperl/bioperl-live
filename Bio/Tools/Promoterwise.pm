@@ -29,7 +29,7 @@ Bio::Tools::Promoterwise - DESCRIPTION of Object
     my @second_hsp = $fp->feature2->sub_SeqFeature;
     foreach my $i (0..$#first_hsp){
       print $first_hsp[$i]->start. " ".$first_hsp[$i]->end." ".
-            $second_hs p[$i]->start. " ".$second_hsp[$i]->end."\n";
+            $second_hsp[$i]->start. " ".$second_hsp[$i]->end."\n";
     }
   }
 
@@ -145,7 +145,6 @@ sub _parse{
       push @{$hash{$array[$#array]}}, \@array;
    }
    foreach my $key(keys %hash){
-    my ($sf1,$sf2);
     my $sf1 = Bio::SeqFeature::Generic->new(-primary=>"conserved_element",
                                             -source_tag=>"promoterwise");
     $sf1->attach_seq($self->query1_seq) if $self->query1_seq;
@@ -153,7 +152,8 @@ sub _parse{
                                             -source_tag=>"promoterwise");
     $sf2->attach_seq($self->query2_seq) if $self->query2_seq;
     foreach my $info(@{$hash{$key}}){
-      my ($score,$id1,$start_1,$end_1, $strand_1,$id2,$start_2,$end_2,$strand_2,$group)= @{$info};
+      my ($score,$id1,$start_1,$end_1, $strand_1,$id2,$start_2,$end_2,
+          $strand_2,$group)= @{$info};
       if(!$sf1->strand && !$sf2->strand){
         $sf1->strand($strand_1);
         $sf2->strand($strand_2);
