@@ -11,7 +11,8 @@ use constant DEFAULT_UTR_COLOR => '#D0D0D0';
 sub new {
   my $class = shift;
   my $self = $class->SUPER::new(@_);
-  $self->guess_options if !defined $self->option('implied_utrs') && !defined $self->option('adjust_exons');
+  $self->guess_options if !defined $self->option('implied_utrs') 
+    && !defined $self->option('adjust_exons');
   $self;
 }
 
@@ -49,30 +50,30 @@ sub create_implied_utrs {
   my $last_cds  = $cds[-1];
   my $strand = $self->feature->strand;
 
-  my @utrs;
+  my $factory    = $self->factory;
 
   # make the left-hand UTRs
   for (my $i=0;$i<@exons;$i++) {
     my $start = $exons[$i]->start;
-    last if $start <= $first_cds->start;
+    last if $start >= $first_cds->start;
     my $end  = $first_cds->start > $exons[$i]->end ? $exons[$i]->end : $first_cds->start-1;
-    push @utrs,Bio::Graphics::Feature->new(-start=>$start,
-					   -end=>$end,
-					   -type=>$strand >= 0 ? 'five_prime_UTR' : 'three_prime_UTR');
+    my $utr = Bio::Graphics::Feature->new(-start=>$start,
+					  -end=>$end,
+					  -strand=>$strand,
+					  -type=>$strand >= 0 ? 'five_prime_UTR' : 'three_prime_UTR');
+    unshift @{$self->{parts}},$factory->make_glyph($self->{level}+1,$utr);
   }
-
   # make the right-hand UTRs
-  for (my $i=$#exons;$i>=0;$i--) {
+  for (my $i=$#exons; $i>=0; $i--) {
     my $end = $exons[$i]->end;
     last if $end <= $last_cds->end;
     my $start = $last_cds->end < $exons[$i]->start ? $exons[$i]->start : $last_cds->end+1;
-    push @utrs,Bio::Graphics::Feature->new(-start=>$start,
-					   -end=>$end,
-					   -type=>$strand >= 0 ? 'three_prime_UTR' : 'five_prime_UTR');
+    my $utr = Bio::Graphics::Feature->new(-start=>$start,
+					  -end=>$end,
+					  -strand=>$strand,
+					  -type=>$strand >= 0 ? 'three_prime_UTR' : 'five_prime_UTR');
+    push @{$self->{parts}},$factory->make_glyph($self->{level}+1,$utr);
   }
-
-  $self->add_feature->(\@utrs) if @utrs;
-  $self->adjust_exons();
 }
 
 # Preprocess the glyph to remove overlaps between UTRs and
@@ -83,34 +84,53 @@ sub adjust_exons {
   return if $self->{'.adjust_exons'}++;
 
   # find everything that is not an exon (utrs and cds's)
-  my @exon  = grep {$_->feature->type =~ /exon/i} $self->parts;
+  my @parts  = sort {$a->{left}<=>$b->{left}} $self->parts;
+  my @exon   = grep {$_->feature->type =~ /exon/i} @parts;
   my %seen   = map {$_=>1} @exon;
-  my @other  = grep {!$seen{$_}} $self->parts;
-  my @clipped_parts;
+  my @other  = grep {!$seen{$_}} @parts;
 
-  for my $p (@exon) {
-    my $p_right = $p->{left}+$p->{width};
-    for my $u (@other) {
-      my $u_right = $u->{left}+$u->{width};
-      if ($u_right > $p->{left} && $u->{left} < $p_right) { # overlaps - clip
-	if ($p->{left} >= $u->{left}) {
-	  $p->{left}    = $u_right-1;
-	  $p->{width}   = $p_right - $p->{left};
-	}
-	if ($p_right <= $u_right) {
-	  my $new_right = $u->{left};
-	  $p->{width}   = $u->{left} - $p->{left};
-	}
-      }
-    }
+  my @clipped_parts;
+  my %positions    = map {("$_->{left}:$_->{width}" =>1)} @other;
+  my @unique_exons = grep {!$positions{"$_->{left}:$_->{width}"}} @exon;
+
+  # the first and last exons may need to be clipped if they overlap
+  # with another feature (CDS or UTR)
+  my $first_exon = $unique_exons[0];
+  my $last_exon  = $unique_exons[-1];
+
+  # deal with left hand side first
+  my $e_left    = $first_exon->{left};
+  my $e_right   = $e_left + $first_exon->{width};
+  for my $other (@other) {
+    my $o_left  = $other->{left};
+    my $o_right = $o_left + $other->{width};
+    next if $e_left  > $o_right;
+    last if $e_right < $o_left;
+    # clip left hand side; may get clipped into oblivion!
+    $first_exon->{left}  = $o_right + 1;
+    $first_exon->{width} = $e_right - $first_exon->{left};
   }
-  $self->{parts} = [grep {$_->{width}>=1} sort {$a->{left}<=>$b->{left}} $self->parts];
+
+  # deal with right hand side
+  $e_left  = $last_exon->{left};
+  $e_right = $e_left + $last_exon->{width};
+  for (my $i=$#other; $i>=0; $i--) {
+    my $o_left  = $other[$i]->{left};
+    my $o_right = $o_left + $other[$i]->{width};
+    next if $e_right < $o_left;
+    last if $e_left  > $o_right;
+    # clip right hand side; may get clipped into oblivion!
+    $last_exon->{width}    = ($e_left - 1) - $last_exon->{left};
+  }
+
+  $self->{parts} =  [ grep {$_->width > 0} sort {$a->{left}<=>$b->{left}} (@other,@unique_exons)];
 }
 
 sub fixup_glyph {
   my $self = shift;
+  return unless $self->level == 0;
   $self->create_implied_utrs if $self->option('implied_utrs');
-  $self->adjust_exons        if $self->option('adjust_exons');
+  $self->adjust_exons        if $self->option('implied_utrs') || $self->option('adjust_exons');
 }
 
 sub draw {
