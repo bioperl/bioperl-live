@@ -139,7 +139,7 @@ sub new {
     if( defined $given_id ) { $id = $given_id; }
     
     # note: the sequence string may be empty
-    $self->qual(defined $qual ? $qual : []);
+    $self->qual($qual ? $qual : []);
     $id      && $self->display_id($id);
     $acc     && $self->accession_number($acc);
     $pid     && $self->primary_id($pid);
