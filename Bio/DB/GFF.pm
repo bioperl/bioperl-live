@@ -360,7 +360,7 @@ successfully loaded.
 =cut
 
 sub load {
-  my $self      = shift;
+  my $self              = shift;
   my $file_or_directory = shift || '.';
 
   local @ARGV;  # to play tricks with reader
@@ -394,6 +394,28 @@ sub load {
 
   open STDIN,"<&SAVEIN";  # restore STDIN
   return $result;
+}
+
+=head2 lock_on_load
+
+ Title   : lock_on_load
+ Usage   : $lock = $db->lock_on_load([$lock])
+ Function: set write locking during load
+ Returns : current value of lock-on-load flag
+ Args    : new value of lock-on-load-flag
+ Status  : Public
+
+This method is honored by some of the adaptors.  If the value is true,
+the tables used by the GFF modules will be locked for writing during
+loads and inaccessible to other processes.
+
+=cut
+
+sub lock_on_load {
+  my $self = shift;
+  my $d = $self->{lock};
+  $self->{lock} = shift if @_;
+  $d;
 }
 
 =head2 initialize
@@ -560,6 +582,10 @@ the beginning of $s2, accounting for differences in strandedness:
 
 sub segment {
   my $self = shift;
+  unless ($_[0] =~ /^-/) {
+    @_ = (-class=>$_[0],-name=>$_[1]) if @_ == 2;
+    @_ = (-name=>$_[0])               if @_ == 1;
+  }
   # (see Ace::Sequence::DBI::Segment for all the arguments)
   return $_[0] =~ /^-/ ? Bio::DB::GFF::RelSegment->new(-factory => $self,@_)
                        : Bio::DB::GFF::RelSegment->new($self,@_);
@@ -606,14 +632,16 @@ The argument -end is a synonum for -stop, and -count is a synonym for
 
 sub types {
   my $self = shift;
-  my ($refseq,$start,$stop,$enumerate,$refclass) = rearrange ([
-							       [qw(REF REFSEQ)],
-							       qw(START),
-							       [qw(STOP END)],
-							       [qw(ENUMERATE COUNT)],
-							       [qw(CLASS SEQCLASS)],
-							      ],@_);
-  $self->get_types($refseq,$refclass,$start,$stop,$enumerate);
+  my ($refseq,$start,$stop,$enumerate,$refclass,$types) = rearrange ([
+								      [qw(REF REFSEQ)],
+								      qw(START),
+								      [qw(STOP END)],
+								      [qw(ENUMERATE COUNT)],
+								      [qw(CLASS SEQCLASS)],
+								      [qw(TYPE TYPES)],
+								     ],@_);
+  $types = $self->parse_types($types) if defined $types;
+  $self->get_types($refseq,$refclass,$start,$stop,$enumerate,$types);
 }
 
 =head2 dna
@@ -800,9 +828,45 @@ sub features {
     $types = \@_;
   }
 
-  $automerge = 1 unless defined $automerge;
+  # for whole database retrievals, we probably don't want to automerge!
+  $automerge = 0 unless defined $automerge;
   $self->_features('contains',undef,undef,undef,undef,$types,undef,$automerge,$iterator);
 }
+
+# bioperl-compatible stuff
+sub get_seq_stream {
+  my $self = shift;
+  my @args = !defined($_[0]) || $_[0] =~ /^-/ ? (@_,-iterator=>1)
+                                              : (-types=>\@_,-iterator=>1);
+  $self->features(@args);
+}
+
+sub get_Stream_by_id {
+  my $self = shift;
+  my @ids  = @_;
+  Bio::DB::GFF::ID_Iterator->new($self,\@ids);
+}
+
+=head2 notes
+
+ Title   : notes
+ Usage   : @notes = $db->notes($id)
+ Function: get the "notes" on a particular feature
+ Returns : an array of string
+ Args    : feature ID
+ Status  : public
+
+Some GFF version 2 files use the groups column to store various notes
+and remarks.  Adaptors can elect to store the notes in the database,
+or just ignore them.  For those adaptors that store the notes, the
+notes() method will return them as a list.
+
+sub notes {
+  my $self = shift;
+  return;
+}
+
+=cut
 
 =head2 add_aggregator
 
@@ -937,13 +1001,36 @@ sub load_gff {
 
     my ($gclass,$gname,$tstart,$tstop,$notes) = $self->_split_group(@groups);
 
+    # no standard way in the GFF file to denote the class of the reference sequence -- drat!
+    # so we invoke the factory to do it
+    my $class = $self->refclass($ref);
+
     # call subclass to do the dirty work
-    $self->load_gff_line($ref,$source,$method,$start,$stop,
-			 $score,$strand,$phase,
-			 $gclass,$gname,$tstart,$tstop,$notes);
+    $self->load_gff_line({ref    => $ref,
+			  class  => $class,
+			  source => $source,
+			  method => $method,
+			  start  => $start,
+			  stop   => $stop,
+			  score  => $score,
+			  strand => $strand,
+			  phase  => $phase,
+			  gclass => $gclass,
+			  gname  => $gname,
+			  tstart => $tstart,
+			  tstop  => $tstop,
+			  notes  => $notes}
+			);
   }
 
   $self->finish_load();
+}
+
+# default is to return 'Sequence' as the class of all references
+sub refclass {
+  my $self = shift;
+  my $refname = shift;
+  'Sequence';
 }
 
 =head2 setup_load
@@ -1170,10 +1257,9 @@ returns all feature types in the database.
 
 sub get_types {
   my $self = shift;
-  my ($refseq,$class,$start,$stop,$count) = @_;
+  my ($refseq,$class,$start,$stop,$count,$types) = @_;
   $self->throw("get_types() must be implemented by an adaptor");
 }
-
 
 =head2 make_feature
 
@@ -1188,7 +1274,8 @@ sub get_types {
 
   $parent                A Bio::DB::GFF::RelSegment object
   $group_hash            A hashref containing unique list of GFF groups
-  $absref                The reference sequence for this feature
+  $refname               The name of the reference sequence for this feature
+  $refclass              The class of the reference sequence for this feature
   $start                 Start of feature
   $stop                  Stop of feature
   $source                Feature source field
@@ -1229,19 +1316,27 @@ target of a homology search, are parsed into their components.
 # Other arguments are taken right out of the GFF table.
 sub make_feature {
   my $self = shift;
-  my ($parent,$group_hash,
-      $srcseq,$start,$stop,
+  my ($parent,$group_hash,          # these arguments provided by generic mechanisms
+      $srcseq,                      # the rest is provided by adaptor
+      $start,$stop,
       $source,$method,
       $score,$strand,$phase,
       $group_class,$group_name,
       $tstart,$tstop,$db_id) = @_;
 
+  return unless $srcseq;            # return undef if called with no arguments.  This behavior is used for
+                                    # on-the-fly aggregation.
+
   my $group;  # undefined
   if (defined $group_class && defined $group_name) {
     $tstart ||= '';
     $tstop  ||= '';
-    $group = $group_hash->{$group_class,$group_name,$tstart,$tstop} 
-      ||= $self->make_object($group_class,$group_name,$tstart,$tstop);
+    if ($group_hash) {
+      $group = $group_hash->{$group_class,$group_name,$tstart,$tstop}
+	||= $self->make_object($group_class,$group_name,$tstart,$tstop);
+    } else {
+      $group = $self->make_object($group_class,$group_name,$tstart,$tstop);
+    }
   }
 
   if (ref $parent) { # note that the src sequence is ignored
@@ -1255,6 +1350,35 @@ sub make_feature {
 				      $method,$source,
 				      $score,$strand,$phase,
 				      $group,$db_id);
+  }
+}
+
+sub make_aggregated_feature {
+  my $self                 = shift;
+  my $matchsub             = shift;
+  my $accumulated_features = shift;
+  my $parent               = shift;
+
+  my $feature = $self->make_feature($parent,undef,@_);
+
+  # if we have accumulated features and either: 
+  # (1) make_feature() returned undef, indicated very end or
+  # (2) the current group is different from the previous one
+  if (@$accumulated_features &&
+      (!defined($feature) || ($accumulated_features->[-1]->group ne $feature->group))) {
+    my @aggregated;
+    foreach my $a (reverse $self->aggregators) {  # last aggregator gets first shot
+      my $agg = $a->aggregate($accumulated_features,$self) or next;
+      push @aggregated,@$agg;
+    }
+    $self->warn("bad aggregator: turned one group into ",scalar(@aggregated)," features") if @aggregated > 1;
+    @$accumulated_features = $feature ? ($feature) : ();  # remember this feature
+    return $aggregated[0];
+  } else {
+    return unless defined($feature);
+    push @$accumulated_features,$feature if defined $feature->group;
+    return unless $matchsub->($feature);
+    return $feature;
   }
 }
 
@@ -1403,14 +1527,6 @@ sub _features {
   $types = $self->parse_types($types);  # parse out list of types
   my @aggregated_types = @$types;         # keep a copy
 
-  my %groups;  # cache groups so that we don't create them unecessarily
-
-  if ($iterator) {
-    my $callback = sub { $self->make_feature($parent,\%groups,@_) };
-    return $self->get_features_iterator($range_type,$refseq,$class,
-					$start,$stop,\@aggregated_types,$callback) ;
-  }
-
   # allow the aggregators to operate on the original
   if ($automerge) {
     for my $a ($self->aggregators) {
@@ -1418,11 +1534,26 @@ sub _features {
     }
   }
 
+  my $match = $self->make_match_sub($types);
+
+  if ($iterator) {
+    my @accumulated_features;
+    my $callback = $automerge ? sub { $self->make_aggregated_feature($match,\@accumulated_features,$parent,@_) }
+                              : sub { $self->make_feature($parent,undef,@_) };
+    return $self->get_features_iterator($range_type,
+					$refseq,$class,
+					$start,$stop,
+					\@aggregated_types,
+					$automerge,
+					$callback) ;
+  }
+
+  my %groups;         # cache the groups we create to avoid consuming too much unecessary memory
   my $features = [];
 
   my $callback = sub { push @$features,$self->make_feature($parent,\%groups,@_) };
   $self->get_features($range_type,$refseq,$class,
-		      $start,$stop,\@aggregated_types,$callback) ;
+		      $start,$stop,\@aggregated_types,$callback,0);
 
   if ($automerge) {
     warn "aggregating...\n" if $self->debug;
@@ -1435,8 +1566,33 @@ sub _features {
   warn "filtering...\n" if $self->debug;
 
   # remove anything from the features list that was not specifically requested.
-  my $match = $self->make_match_sub($types);
   return grep { $match->($_) } @$features;
+}
+
+=head2 get_features_iterator
+
+ Title   : get_features_iterator
+ Usage   : $db->get_features_iterator(@args)
+ Function: get an iterator on a features query
+ Returns : a Bio::SeqIO object
+ Args    : as per get_features()
+ Status  : Public
+
+This method takes the same arguments as get_features(), but returns an
+iterator that can be used to fetch features sequentially, as per
+Bio::SeqIO.
+
+Internally, this method is simply a front end to range_query().
+The latter method constructs and executes the query, returning a
+statement handle. This routine passes the statement handle to the
+constructor for the iterator, along with the callback.
+
+=cut
+
+sub get_features_iterator {
+  my $self = shift;
+  my ($rangetype,$srcseq,$class,$start,$stop,$types,$callback) = @_;
+  $self->throw('feature iteration is not implemented in this adaptor');
 }
 
 =head2 _split_group
@@ -1493,6 +1649,26 @@ sub _split_group {
   }
 
   return ($gclass,$gname,$tstart,$tstop,\@notes);
+}
+
+package Bio::DB::GFF::ID_Iterator;
+use strict;
+use Bio::Root::RootI;
+
+sub new {
+  my $class        = shift;
+  my ($db,$ids)    = @_;
+  return bless {ids=>$ids,db=>$db},$class;
+}
+
+sub next_seq {
+  my $self = shift;
+  my $next = shift @{$self->{ids}};
+  return unless $next;
+  my $name = ref($next) eq 'ARRAY' ? Bio::DB::GFF::Featname->new(@$next) : $next;
+  my $segment = $self->{db}->segment($name);
+  $self->throw("id does not exist") unless $segment;
+  return $segment;
 }
 
 1;

@@ -183,7 +183,6 @@ sub setup_load {
   $self->SUPER::setup_load;
   my $dbh = $self->features_db;
 
-  my $insert_note  = $dbh->prepare('INSERT INTO fnote (fid,fnote) VALUES (?,?)');
   my $insert_data  = $dbh->prepare(<<END);
 INSERT INTO fdata (fref,fstart,fstop,fbin,ftypeid,fscore,
 		   fstrand,fphase,gid,ftarget_start,ftarget_stop)
@@ -196,88 +195,45 @@ END
 #   $dbh->do("LOCK TABLES $lock_tables");
 
   $self->{load_stuff}{insert_data}  = $insert_data;
-  $self->{load_stuff}{insert_note}  = $insert_note;
 }
 
 sub load_gff_line {
-  my $self      = shift;
-  my ($ref,$source,$method,$start,$stop,
-      $score,$strand,$phase,
-      $group_class,$group_name,$target_start,$target_stop,
-      $notes) = @_;
+  my $self = shift;
+  my $gff = shift;
 
   my $s    = $self->{load_stuff};
   my $dbh  = $self->features_db;
   local $dbh->{PrintError} = 0;
 
-  # get the type ID
-  my $key = "\L$method$;$source\E";
-  unless ($s->{types}{$key}) {
+  defined(my $typeid  = $self->get_table_id('ftype', $gff->{method} => $gff->{source})) or return;
+  defined(my $groupid = $self->get_table_id('fgroup',$gff->{gname}  => $gff->{gclass})) or return;
 
-    if ( (my $result = $s->{lookup_type}->execute($method,$source)) > 0) {
-      $s->{types}{$key} = ($s->{lookup_type}->fetchrow_array)[0];
-    } else {
-      $s->{insert_type}->execute($method,$source)
-	&& ($s->{types}{$key} = $dbh->{mysql_insertid});
-    }
-  }
+  my $bin =  bin($gff->{start},$gff->{stop},$self->{minbin});
 
-  my $typeid = $s->{types}{$key};
-  unless ($typeid) {
-    warn "No typeid for $method:$source; ",$dbh->errstr," Record skipped.\n";
-    next;
-  }
+  my $result = $s->{insert_data}->execute($gff->{ref},
+					  $gff->{start},$gff->{stop},$bin,
+					  $typeid,
+					  $gff->{score},$gff->{strand},$gff->{phase},
+					  $groupid,
+					  $gff->{tstart},$gff->{tstop});
 
-  my $group_id;   # undef to start with
+  warn $dbh->errstr,"\n" and return unless $result;
 
-  # and the group ID
-  $key = "\L$group_class$;$group_name\E";
-  unless ($s->{groups}{$key}) {
-
-    if ((my $result = $s->{lookup_group}->execute($group_class,$group_name)) > 0) {
-      $s->{groups}{$key} = ($s->{lookup_group}->fetchrow_array)[0];
-    } else {
-      $s->{insert_group}->execute($group_class,$group_name)
-	&& ($s->{groups}{$key} = $dbh->{mysql_insertid});
-    }
-  }
-
-  unless ($group_id = $s->{groups}{$key}) {
-    warn "No groupid for $group_class:$group_name; ",$dbh->errstr," Record skipped.\n";
-    next;
-  }
-
-  my $bin =  bin($start,$stop,$self->{minbin});
-
-  my $result = $s->{insert_data}->execute($ref,$start,$stop,$bin,$typeid,
-					  $score,$strand,$phase,$group_id,
-					  $target_start,$target_stop);
-  unless ($result) {
-    warn $dbh->errstr,"\n";
-    next;
-  }
-
-  # add notes
   my $fid = $dbh->{mysql_insertid};
-  foreach (@$notes) {
-    $s->{insert_note}->execute($fid,$_);
-  }
-
-  return unless $result;
+  $s->{insert_fnote}->execute($fid,$_) foreach @{$gff->{notes}||[]};
 
   if ( (++$s->{counter} % 1000) == 0) {
     print STDERR "$s->{counter} records loaded...";
     print STDERR -t STDOUT && !$ENV{EMACS} ? "\r" : "\n";
   }
 
-  1;
+  $fid;
 }
 
 sub finish_load {
   my $self = shift;
   $self->{load_stuff}{insert_note}->finish;
   $self->SUPER::finish_load;
-#   $self->features_db->do("UNLOCK TABLES");
 }
 
 sub tables {
@@ -287,8 +243,8 @@ sub tables {
 sub schema {
   return <<END;
 create table fdata (
-    fid	                int not null auto_increment,
-    fref                varchar(20)    not null,
+    fid	                int not null  auto_increment,
+    fref                varchar(20) not null,
     fstart              int unsigned   not null,
     fstop               int unsigned   not null,
     fbin                double(20,6)  not null,
@@ -320,7 +276,7 @@ create table fnote (
 );
 
 create table ftype (
-    ftypeid      int not null auto_increment,
+    ftypeid      int not null  auto_increment,
     fmethod       varchar(30) not null,
     fsource       varchar(30),
     primary key(ftypeid),

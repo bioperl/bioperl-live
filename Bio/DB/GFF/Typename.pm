@@ -30,6 +30,9 @@ use overload
   '""'     => 'asString',
   fallback => 1;
 
+use vars '$VERSION';
+$VERSION=1.1;
+
 # cut down on the number of equivalent objects we have to create
 my %OBJECT_CACHE;
 
@@ -47,9 +50,9 @@ my %OBJECT_CACHE;
 sub new    {
   my $package = shift;
   my ($method,$source) = @_;
-  return $OBJECT_CACHE{"$method:$source"} ||= bless { method => $method,
-						      source => $source
-						    },$package;
+  $method ||= '';
+  $source ||= '';
+  return $OBJECT_CACHE{"$method:$source"} ||= bless [$method,$source],$package;
 }
 
 =head2 method
@@ -65,8 +68,8 @@ sub new    {
 
 sub method {
   my $self = shift;
-  my $d = $self->{method};
-  $self->{method} = shift if @_;
+  my $d = $self->[0];
+  $self->[0] = shift if @_;
   $d;
 }
 
@@ -84,8 +87,8 @@ sub method {
 
 sub source {
   my $self = shift;
-  my $d = $self->{source};
-  $self->{source} = shift if @_;
+  my $d = $self->[1];
+  $self->[1] = shift if @_;
   $d;
 }
 
@@ -103,7 +106,7 @@ operator.
 
 =cut
 
-sub asString { join ':',@{$_[0]}{qw(method source)} }
+sub asString { join ':',@{shift()}};
 
 =head2 clone
 
@@ -120,7 +123,7 @@ This method creates an exact copy of the object.
 
 sub clone {
   my $self = shift;
-  return bless {%$self},ref $self;
+  return bless [@$self],ref $self;
 }
 
 1;

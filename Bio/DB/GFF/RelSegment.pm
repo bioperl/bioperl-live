@@ -212,7 +212,7 @@ sub new {
   my $self = bless { factory => $factory },$package;
 
   # support for Featname objects
-  $class = $name->class if $name->can('class');
+  $class = $name->class if ref($name) && $name->can('class');
   # if the class of the landmark is not specified then default to 'Sequence'
   $class ||= 'Sequence';
 
@@ -411,10 +411,9 @@ features sequentially.
 Arguments can be provided positionally or using the named arguments
 format.  In the former case, the arguments are a list of feature types
 in the format "method:source".  Either method or source can be
-omitted, in which case the missing component is treated as a
-wildcard.  Regular expressions are also allowed.  If no colon is
-present, then the type is treated as a method name.  Multiple
-arguments are ORed together.
+omitted, in which case the missing component is treated as a wildcard.
+If no colon is present, then the type is treated as a method name.
+Multiple arguments are ORed together.
 
 Examples:
 
@@ -429,7 +428,7 @@ The named parameter form gives you control over a few options:
   -types      an array reference to type names in the format
 	      "method:source"
 
-  -merge     Whether to apply aggregators to the generated features.
+  -merge     Whether to apply aggregators to the generated features (default yes)
 
   -iterator  Whether to return an iterator across the features.
 
@@ -443,7 +442,21 @@ false or absent, then all the features are returned as a list.
 
 =cut
 
-*features = \&overlapping_features;
+# return all features that overlap with this segment;
+# optionally modified by a list of types to filter on
+sub features {
+  my $self = shift;
+  my @args = $self->_process_feature_args(@_);
+  return $self->factory->overlapping_features(@args);
+}
+
+# same as $segment->features(...,-iterator=>1);
+
+sub get_seq_stream {
+  my $self = shift;
+  my @args = $_[0] =~ /^-/ ? (@_,-iterator=>1) : (-types=>\@_,-iterator=>1);
+  $self->features(@args);
+}
 
 =head2 overlapping_features
 
@@ -457,16 +470,9 @@ false or absent, then all the features are returned as a list.
 This is an alias for the features() method, and takes the same
 arguments.
 
-=cut 
+=cut
 
-
-# return all features that overlap with this segment;
-# optionally modified by a list of types to filter on
-sub overlapping_features {
-  my $self = shift;
-  my @args = $self->_process_feature_args(@_);
-  return $self->factory->overlapping_features(@args);
-}
+*overlapping_features = \&features;
 
 =head2 contained_features
 
@@ -576,11 +582,18 @@ sub types {
   my $self = shift;
   my ($ref,$class,$start,$stop,$strand) = @{$self}{qw(sourceseq class start stop strand)};
   ($start,$stop) = ($stop,$start) if $strand eq '-';
+
+  my @args;
+  if (@_ && $_[0] !~ /^-/) {
+    @args = (-type => \@_)
+  } else {
+    @args = @_;
+  }
   $self->factory->types(-ref  => $ref,
 			-class => $class,
 			-start=> $start,
 			-stop => $stop,
-			@_);
+			@args);
 }
 
 =head1 Internal Methods
@@ -636,8 +649,8 @@ sub abs2rel {
     @result = @_;
   } else {
     my ($refstart,$refstrand) = @{$self}{qw(refstart refstrand)};
-    @result = $refstrand eq '+' ? map { $_ - $refstart + 1 } @_
-                                : map { $refstart - $_ + 1 } @_;
+    @result = defined($refstrand) && $refstrand eq '-' ? map { $refstart - $_ + 1 } @_
+                                                       : map { $_ - $refstart + 1 } @_;
   }
   # if called with a single argument, caller will expect a single scalar reply
   # not the size of the returned array!
@@ -666,8 +679,8 @@ sub rel2abs {
     @result = @_;
   } else {
     my ($refstart,$refstrand) = @{$self}{qw(refstart refstrand)};
-    @result = $refstrand eq '+' ? map { $_ + $refstart + 1 } @_ 
-                                : map { $refstart - $_ + 1 } @_;
+    @result = defined($refstrand) && $refstrand eq '-' ? map { $refstart - $_ + 1 } @_
+                                                       : map { $_ + $refstart + 1 } @_;
   }
   # if called with a single argument, caller will expect a single scalar reply
   # not the size of the returned array!

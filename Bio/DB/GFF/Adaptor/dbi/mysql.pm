@@ -51,18 +51,38 @@ sub make_features_from_part {
 sub make_features_join_part {
   my $self = shift;
   return <<END;
-fgroup.gid = fdata.gid AND ftype.ftypeid = fdata.ftypeid
+  fgroup.gid = fdata.gid 
+  AND ftype.ftypeid = fdata.ftypeid
 END
 }
 
-# IMPORTANT NOTE: THE MYSQL SCHEMA IGNORES THE SEQUENCE CLASS
-sub refseq_query {
+sub make_features_order_by_part {
   my $self = shift;
-  my ($srcseq,$refclass) = @_;
-  my $query = "fdata.fref = ?";
-  return wantarray ? ($query,$srcseq) : $self->dbi_quote($query,$srcseq);
+  return "fdata.gid";
 }
 
+# IMPORTANT NOTE: THE MYSQL SCHEMA IGNORES THE SEQUENCE CLASS
+# THIS SHOULD BE FIXED
+sub refseq_query {
+  my $self = shift;
+  my ($refseq,$refclass) = @_;
+  my $query = "fdata.fref=?";
+  return wantarray ? ($query,$refseq) : $self->dbi_quote($query,$refseq);
+}
+
+sub notes {
+  my $self = shift;
+  my $id = shift;
+  my $sth = $self->do_query('SELECT fnote FROM fnote WHERE fid=?');
+  $sth->execute($id) or return;
+
+  my @result;
+  while (my($note) = $sth->fetchrow_array) {
+    push @result,$note;
+  }
+  return @result;
+  $sth->finish;
+}
 
 # find features that overlap a given range
 sub overlap_query {
@@ -99,15 +119,15 @@ sub types_query {
   my @args;
   for my $type (@$types) {
     my ($method,$source) = @$type;
-    my $meth_query = $self->string_match('fmethod',$method) if defined $method && length $method;
-    my $src_query  = $self->string_match('fsource',$source) if defined $source && length $source;
+    my $meth_query = $self->exact_match('fmethod',$method) if defined $method && length $method;
+    my $src_query  = $self->exact_match('fsource',$source) if defined $source && length $source;
     my @pair;
     if (defined $method && length $method) {
-      push @pair,$self->string_match('fmethod',$method);
+      push @pair,$self->exact_match('fmethod',$method);
       push @args,$method;
     }
     if (defined $source && length $source) {
-      push @pair,$self->string_match('fsource',$source);
+      push @pair,$self->exact_match('fsource',$source);
       push @args,$source;
     }
     push @method_queries,"(" . join(' AND ',@pair) .")" if @pair;
@@ -115,7 +135,6 @@ sub types_query {
   my $query = " (".join(' OR ',@method_queries).")\n" if @method_queries;
   return wantarray ? ($query,@args) : $self->dbi_quote($query,@args);
 }
-
 
 #------------------------- support for the types() query ------------------------
 sub make_types_select_part {
@@ -143,21 +162,25 @@ sub make_types_join_part {
 
 sub make_types_where_part {
   my $self = shift;
-  my ($srcseq,$start,$stop,$want_count) = @_;
-  my ($query,@args);
+  my ($srcseq,$start,$stop,$want_count,$typelist) = @_;
+  my (@query,@args);
   if (defined($srcseq)) {
-    $query .= 'fdata.fref=?';
+    push @query,'fdata.fref=?';
     push @args,$srcseq;
     if (defined $start or defined $stop) {
       $start = 1           unless defined $start;
       $stop  = MAX_SEGMENT unless defined $stop;
       my ($q,@a) = $self->overlap_query($start,$stop);
-      $query .= " AND ($q)";
+      push @query,"($q)";
       push @args,@a;
     }
-  } else {
-    $query = '1';
   }
+  if (defined $typelist && @$typelist) {
+    my ($q,@a) = $self->types_query($typelist);
+    push @query,($q);
+    push @args,@a;
+  }
+  my $query = @query ? join(' AND ',@query) : '1';
   return wantarray ? ($query,@args) : $self->dbi_quote($query,@args);
 }
 
@@ -168,16 +191,29 @@ sub make_types_group_part {
   return 'ftype.ftypeid';
 }
 
+# override this method in order to set the mysql_use_result attribute, which is an obscure
+# but extremely powerful optimization for both performance and memory.
+sub do_query {
+  my $self = shift;
+  my ($query,@args) = @_;
+  warn $self->dbi_quote($query,@args),"\n" if $self->debug;
+  my $sth = $self->{sth}{$query} ||= $self->features_db->prepare($query,{mysql_use_result=>1})
+    || $self->throw("Couldn't prepare query $query:\n ".DBI->errstr."\n");
+  $sth->execute(@args)
+    || $self->throw("Couldn't execute query $query:\n ".DBI->errstr."\n");
+  $sth;
+}
+
 ################################ loading and initialization ##################################
 # return list of tables that "belong" to us.
 sub tables {
-  qw(fdata fgroup ftype fdna)
+  qw(fdata fref fgroup ftype fdna fnote);
 }
 
 sub schema {
   return <<END;
 create table fdata (
-    fid	         int not null auto_increment,
+    fid	         int not null  auto_increment,
     fref         varchar(20)    not null,
     fstart       int unsigned   not null,
     fstop        int unsigned   not null,
@@ -195,7 +231,7 @@ create table fdata (
 );
 
 create table fgroup (
-    gid	    int not null auto_increment,
+    gid	    int not null  auto_increment,
     gclass  varchar(20),
     gname   varchar(100),
     primary key(gid),
@@ -203,7 +239,7 @@ create table fgroup (
 );
 
 create table ftype (
-    ftypeid      int not null auto_increment,
+    ftypeid      int not null   auto_increment,
     fmethod       varchar(30) not null,
     fsource       varchar(30),
     primary key(ftypeid),
@@ -217,6 +253,14 @@ create table fdna (
     fdna          longblob not null,
     primary key(fref)
 );
+
+
+create table fnote (
+    fid      int not null,
+    fnote    text,
+    index(fid)
+);
+
 END
 }
 
@@ -225,15 +269,19 @@ sub setup_load {
 
   my $dbh = $self->features_db;
 
-  # for the paranoid....
-  #  $dbh->do("LOCK TABLES fdata WRITE, ftype WRITE, fgroup WRITE");
+  if ($self->lock_on_load) {
+    my @tables = map { "$_ WRITE"} $self->tables;
+    my $tables = join ', ',@tables;
+    $dbh->do("LOCK TABLES $tables");
+  }
 
   my $lookup_type = $dbh->prepare('SELECT ftypeid FROM ftype WHERE fmethod=? AND fsource=?');
   my $insert_type = $dbh->prepare('INSERT INTO ftype (fmethod,fsource) VALUES (?,?)');
 
-  my $lookup_group = $dbh->prepare('SELECT gid FROM fgroup WHERE gclass=? AND gname=?');
-  my $insert_group = $dbh->prepare('INSERT INTO fgroup (gclass,gname) VALUES (?,?)');
+  my $lookup_group = $dbh->prepare('SELECT gid FROM fgroup WHERE gname=? AND gclass=?');
+  my $insert_group = $dbh->prepare('INSERT INTO fgroup (gname,gclass) VALUES (?,?)');
 
+  my $insert_note  = $dbh->prepare('INSERT INTO fnote (fid,fnote) VALUES (?,?)');
   my $insert_data  = $dbh->prepare(<<END);
 INSERT INTO fdata (fref,fstart,fstop,ftypeid,fscore,
 		   fstrand,fphase,gid,ftarget_start,ftarget_stop)
@@ -241,11 +289,12 @@ INSERT INTO fdata (fref,fstart,fstop,ftypeid,fscore,
 END
 ;
 
-  $self->{load_stuff}{lookup_type}  = $lookup_type;
-  $self->{load_stuff}{insert_type}  = $insert_type;
-  $self->{load_stuff}{lookup_group} = $lookup_group;
-  $self->{load_stuff}{insert_group} = $insert_group;
-  $self->{load_stuff}{insert_data}  = $insert_data;
+  $self->{load_stuff}{lookup_ftype}  = $lookup_type;
+  $self->{load_stuff}{insert_ftype}  = $insert_type;
+  $self->{load_stuff}{lookup_fgroup} = $lookup_group;
+  $self->{load_stuff}{insert_fgroup} = $insert_group;
+  $self->{load_stuff}{insert_fdata}  = $insert_data;
+  $self->{load_stuff}{insert_fnote}  = $insert_note;
   $self->{load_stuff}{types}  = {};
   $self->{load_stuff}{groups} = {};
   $self->{load_stuff}{counter} = 0;
@@ -253,72 +302,66 @@ END
 
 sub load_gff_line {
   my $self = shift;
-  my ($ref,$source,$method,$start,$stop,
-      $score,$strand,$phase,
-      $group_class,$group_name,$target_start,$target_stop,
-      $notes) = @_;
+  my $gff = shift;
 
   my $s    = $self->{load_stuff};
   my $dbh  = $self->features_db;
   local $dbh->{PrintError} = 0;
 
-  # get the type ID
-  my $key = "\L$method$;$source\E";
-  unless ($s->{types}{$key}) {
+  defined(my $typeid  = $self->get_table_id('ftype', $gff->{method} => $gff->{source})) or return;
+  defined(my $groupid = $self->get_table_id('fgroup',$gff->{gname}  => $gff->{gclass})) or return;
 
-    if ( (my $result = $s->{lookup_type}->execute($method,$source)) > 0) {
-      $s->{types}{$key} = ($s->{lookup_type}->fetchrow_array)[0];
-    } else {
-      $s->{insert_type}->execute($method,$source)
-	&& ($s->{types}{$key} = $dbh->{mysql_insertid});
-    }
-  }
+  my $result = $s->{insert_data}->execute($gff->{ref},
+					  $gff->{start},$gff->{stop},
+					  $typeid,
+					  $gff->{score},$gff->{strand},$gff->{phase},
+					  $groupid,
+					  $gff->{tstart},$gff->{tstop});
 
-  my $typeid = $s->{types}{$key};
-  unless ($typeid) {
-    warn "No typeid for $method:$source; ",$dbh->errstr," Record skipped.\n";
-    next;
-  }
+  warn $dbh->errstr,"\n" and return unless $result;
 
-  # and the group ID
-  $key = "\L$group_class$;$group_name\E";
-  unless ($s->{groups}{$key}) {
-
-    if ((my $result = $s->{lookup_group}->execute($group_class,$group_name)) > 0) {
-      $s->{groups}{$key} = ($s->{lookup_group}->fetchrow_array)[0];
-    } else {
-      $s->{insert_group}->execute($group_class,$group_name)
-	&& ($s->{groups}{$key} = $dbh->{mysql_insertid});
-    }
-  }
-
-  my $groupid = $s->{groups}{$key};
-  unless ($groupid) {
-    warn "No groupid for $group_class:$group_name; ",$dbh->errstr," Record skipped.\n";
-    next;
-  }
-
-  my $result = $s->{insert_data}->execute($ref,$start,$stop,$typeid,
-					  $score,$strand,$phase,$groupid,
-					  $target_start,$target_stop);
-  unless ($result) {
-    warn $dbh->errstr,"\n";
-    next;
-  }
-
-  return unless $result;
+  my $fid = $dbh->{mysql_insertid};
+  $s->{insert_fnote}->execute($fid,$_) foreach @{$gff->{notes}||[]};
 
   if ( (++$s->{counter} % 1000) == 0) {
     print STDERR "$s->{counter} records loaded...";
     print STDERR -t STDOUT && !$ENV{EMACS} ? "\r" : "\n";
   }
 
-  1;
+  $fid;
+}
+
+# get the object ID from a named table
+sub get_table_id {
+  my $self  = shift;
+  my $table = shift;
+  my ($id1,$id2) = @_;
+  my $s = $self->{load_stuff};
+  my $dbh = $self->features_db;
+
+  unless (defined($s->{$table}{$id1,$id2})) {
+
+    if ( (my $result = $s->{"lookup_$table"}->execute($id1,$id2)) > 0) {
+      $s->{$table}{$id1,$id2} = ($s->{"lookup_$table"}->fetchrow_array)[0];
+    } else {
+      $s->{"insert_$table"}->execute($id1,$id2)
+	&& ($s->{$table}{$id1,$id2} = $dbh->{mysql_insertid});
+    }
+  }
+
+  my $id = $s->{$table}{$id1,$id2};
+  unless (defined $id) {
+    warn "No $table id for $id1:$id2 ",$dbh->errstr," Record skipped.\n";
+    return;
+  }
+  $id;
 }
 
 sub finish_load {
   my $self = shift;
-#  $dbh->do('UNLOCK TABLES');
+
+  my $dbh = $self->features_db or return;
+  $dbh->do('UNLOCK TABLES') if $self->lock_on_load;
 
   $self->{load_stuff}{$_}->finish
     foreach qw(lookup_type insert_type lookup_group insert_group insert_data);

@@ -42,7 +42,11 @@ use overload
 
 =cut
 
-sub new    { bless {class=>$_[1],name=>$_[2]},$_[0] }
+sub new    {
+  # use a blessed array for speed
+  my $pack = shift;
+  bless [@_],$pack;  # class,name
+}
 
 =head2 id
 
@@ -61,7 +65,7 @@ by AceDB.
 
 sub id     {
   my $self = shift;
-  return join ':',@{$self}{qw(class name)};
+  return join ':',@$self;
 }
 
 =head2 name
@@ -75,7 +79,7 @@ sub id     {
 
 =cut
 
-sub name   { shift->{name} }
+sub name   { shift->[1] }
 
 =head2 class
 
@@ -88,8 +92,7 @@ sub name   { shift->{name} }
 
 =cut
 
-sub class  { shift->{class} }
-
+sub class  { shift->[0] }
 
 =head2 asString
 
@@ -106,6 +109,24 @@ calling name().
 =cut
 
 sub asString { shift->name }
+
+=head2 clone
+
+ Title   : clone
+ Usage   : $new_clone = $type->clone;
+ Function: clone this object
+ Returns : a new Bio::DB::GFF::Featname object
+ Args    : none
+ Status  : Public
+
+This method creates an exact copy of the object.
+
+=cut
+
+sub clone {
+  my $self = shift;
+  return bless [@$self],ref $self;
+}
 
 =head1 BUGS
 

@@ -279,10 +279,10 @@ callback.
 # all features.  Passes features through callback.
 sub get_features {
   my $self = shift;
-  my ($range_type,$srcseq,$class,$start,$stop,$types,$callback) = @_;
+  my ($range_type,$refseq,$class,$start,$stop,$types,$callback,$order_by_group) = @_;
   $callback || $self->throw('must provide a callback argument');
 
-  my $sth = $self->range_query($range_type,$srcseq,$class,$start,$stop,$types,$class) or return;
+  my $sth = $self->range_query($range_type,$refseq,$class,$start,$stop,$types,$order_by_group) or return;
 
   my $count = 0;
   while (my @row = $sth->fetchrow_array) {
@@ -291,36 +291,6 @@ sub get_features {
   }
   $sth->finish;
   return $count;
-}
-
-=head2 get_features_iterator
-
- Title   : get_features_iterator
- Usage   : $db->get_features_iterator(@args)
- Function: get an iterator on a features query
- Returns : a Bio::SeqIO object
- Args    : as per get_features()
- Status  : Public
-
-This method takes the same arguments as get_features(), but returns an
-iterator that can be used to fetch features sequentially, as per
-Bio::SeqIO.
-
-Internally, this method is simply a front end to range_query().
-The latter method constructs and executes the query, returning a
-statement handle. This routine passes the statement handle to the
-constructor for the iterator, along with the callback.
-
-=cut
-
-sub get_features_iterator {
-  my $self = shift;
-  my ($isrange,$srcseq,$class,$start,$stop,$types,$callback) = @_;
-  $callback || $self->throw('must provide a callback argument');
-
-  my $sth = $self->range_query($isrange,$srcseq,$class,$start,$stop,$types,$class) or return;
-
-  return Bio::DB::GFF::Adaptor::dbi::iterator->new($sth,$callback);
 }
 
 =head2 get_types
@@ -348,13 +318,13 @@ times this feature occurs in the range.
 
 sub get_types {
   my $self = shift;
-  my ($srcseq,$class,$start,$stop,$want_count) = @_;
+  my ($srcseq,$class,$start,$stop,$want_count,$typelist) = @_;
   my $straight      = $self->do_straight_join($srcseq,$start,$stop,[]) ? 'straight_join' : '';
-  my ($select,@args1) = $self->make_types_select_part($srcseq,$start,$stop,$want_count);
-  my ($from,@args2)   = $self->make_types_from_part($srcseq,$start,$stop,$want_count);
-  my ($join,@args3)   = $self->make_types_join_part($srcseq,$start,$stop,$want_count);
-  my ($where,@args4)  = $self->make_types_where_part($srcseq,$start,$stop,$want_count);
-  my ($group,@args5)  = $self->make_types_group_part($srcseq,$start,$stop,$want_count);
+  my ($select,@args1) = $self->make_types_select_part($srcseq,$start,$stop,$want_count,$typelist);
+  my ($from,@args2)   = $self->make_types_from_part($srcseq,$start,$stop,$want_count,$typelist);
+  my ($join,@args3)   = $self->make_types_join_part($srcseq,$start,$stop,$want_count,$typelist);
+  my ($where,@args4)  = $self->make_types_where_part($srcseq,$start,$stop,$want_count,$typelist);
+  my ($group,@args5)  = $self->make_types_group_part($srcseq,$start,$stop,$want_count,$typelist);
 
   my $query = "SELECT $straight $select FROM $from WHERE $join AND $where";
   $query   .= " GROUP BY $group" if $group;
@@ -373,7 +343,7 @@ sub get_types {
 =head2 range_query
 
  Title   : range_query
- Usage   : $db->range_query($isrange,$refseq,$refclass,$start,$stop,$types)
+ Usage   : $db->range_query($range_type,$refseq,$refclass,$start,$stop,$types,$order_by_group)
  Function: create statement handle for range/overlap queries
  Returns : a DBI statement handle
  Args    : see below
@@ -402,6 +372,9 @@ The six positional arguments are as follows:
   $types                 Array ref containing zero or feature types in the
 			 format [method,source].
 
+  $order_by_group        A flag indicating that statement handler should group
+                         the features by group id (handy for iterative fetches)
+
 If successful, this method returns a statement handle.  The handle is
 expected to return the fields described for get_features().
 
@@ -429,19 +402,22 @@ is inserted right after SELECT.
 
 sub range_query {
   my $self = shift;
-  my($rangetype,$srcseq,$class,$start,$stop,$types) = @_;
+  my($rangetype,$refseq,$class,$start,$stop,$types,$order_by_group) = @_;
 
   my $dbh = $self->features_db;
 
   # NOTE: straight_join is necessary in some database to force the right index to be used.
-  my $straight      = $self->do_straight_join($srcseq,$start,$stop,$types) ? 'straight_join' : '';
+  my $straight      = $self->do_straight_join($refseq,$start,$stop,$types) ? 'straight_join' : '';
   my $select        = $self->make_features_select_part;
   my $from          = $self->make_features_from_part;
   my $join          = $self->make_features_join_part;
-  my ($where,@args) = $self->make_features_where_part($rangetype,$srcseq,$class,
+  my ($where,@args) = $self->make_features_where_part($rangetype,$refseq,$class,
 						      $start,$stop,$types,$class);
+  my $order_by      = $self->make_features_order_by_part if $order_by_group;
+
   my $query         = "SELECT $straight $select FROM $from WHERE $join";
-  $query           .= "AND $where" if $where;
+  $query           .= " AND $where" if $where;
+  $query           .= " ORDER BY $order_by" if $order_by_group;
 
   my $sth = $self->do_query($query,@args);
   $sth;
@@ -582,6 +558,11 @@ sub make_features_where_part {
 
   my $query = join "\n\tAND ",@query;
   return wantarray ? ($query,@args) : $self->dbi_quote($query,@args);
+}
+
+sub make_features_order_by_part {
+  my $self = shift;
+  $self->throw("please implement a make_features_order_by_part() method");
 }
 
 =head2 do_straight_join
@@ -856,12 +837,26 @@ sub string_match {
   return qq($field REGEXP ?);
 }
 
+sub exact_match {
+  my $self           = shift;
+  my ($field,$value) = @_;
+  return qq($field = ?);
+}
+
 sub dbi_quote {
   my $self = shift;
   my ($query,@args) = @_;
   my $dbi = $self->features_db;
   $query =~ s/\?/$dbi->quote(shift @args)/eg;
   $query;
+}
+
+sub get_features_iterator {
+  my $self = shift;
+  my ($rangetype,$srcseq,$class,$start,$stop,$types,$order_by_group,$callback) = @_;
+  $callback || $self->throw('must provide a callback argument');
+  my $sth = $self->range_query($rangetype,$srcseq,$class,$start,$stop,$types,$order_by_group) or return;
+  return Bio::DB::GFF::Adaptor::dbi::iterator->new($sth,$callback);
 }
 
 ########################## loading and initialization  #####################
@@ -877,7 +872,10 @@ sub do_initialize {
   my @statements = split "\n\n",$self->schema;
   foreach (@statements) {
     s/;.*\Z//s;
-    return unless $dbh->do($_);
+    unless ($dbh->do($_)) {
+      warn $dbh->errstr;
+      return;
+    }
   }
   1;
 }
@@ -903,9 +901,10 @@ sub DESTROY {
 }
 
 package Bio::DB::GFF::Adaptor::dbi::iterator;
-use Bio::SeqIO;
-use vars '@ISA';
-@ISA = 'Bio::SeqIO';
+use strict;
+
+use constant STH         => 0;
+use constant CALLBACK    => 1;
 
 *next_seq = \&next_feature;
 
@@ -917,47 +916,23 @@ sub new {
 
 sub next_feature {
   my $self = shift;
-  return unless $self->[0];
-  if (my @row = $self->[0]->fetchrow_array) {
-    return $self->[1]->(@row);
-  } else {
-    $self->[0]->finish;
-    undef $self->[0];
+  my $sth = $self->[STH] or return;
+  my $callback = $self->[CALLBACK];
+
+  my $feature;
+  while (1) {
+    if (my @row = $sth->fetchrow_array) {
+      $feature = $callback->(@row);
+      last if $feature;
+    } else {
+      $sth->finish;
+      undef $self->[STH];
+      $feature = $callback->();
+      last;
+    }
   }
+  return $feature;
 }
 
 1;
 __END__
-# Below is stub documentation for your module. You better edit it!
-
-=head1 NAME
-
-Ace::Sequence::Mysql - Perl extension for blah blah blah
-
-=head1 SYNOPSIS
-
-  use Ace::Sequence::Mysql;
-  blah blah blah
-
-=head1 DESCRIPTION
-
-Stub documentation for Ace::Sequence::Mysql, created by h2xs. It looks like the
-author of the extension was negligent enough to leave the stub
-unedited.
-
-Blah blah blah.
-
-=head2 EXPORT
-
-None by default.
-
-
-=head1 AUTHOR
-
-A. U. Thor, a.u.thor@a.galaxy.far.far.away
-
-=head1 SEE ALSO
-
-perl(1).
-
-=cut
