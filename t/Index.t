@@ -8,7 +8,7 @@ $DEBUG = $ENV{"BIOPERLDEBUG"} || 0;
 BEGIN {
    eval { require Test; };
    use vars qw($NUMTESTS);
-   $NUMTESTS = 42;
+   $NUMTESTS = 43;
    if ( $@ ) {
       use lib 't';
    }
@@ -117,6 +117,8 @@ ok ( -e "Wibbl5" || -e "Wibbl5.pag" );
 $seq = $gb_ind->fetch('AI129902');
 ok ($seq->length, 37);
 ok ($seq->species->binomial, 'Homo sapiens');
+$seq = $gb_ind->fetch(3598416);
+ok ($seq->seq,"CTCCGCGCCAACTCCCCCCACCCCCCCCCCACACCCC");
 
 my $cache = Bio::DB::InMemoryCache->new( -seqdb => $gb_ind );
 
