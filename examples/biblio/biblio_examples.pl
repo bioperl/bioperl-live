@@ -40,6 +40,9 @@ foreach my $ref ( @{$nextref->{article}->{authors}} ) {
       print $val->{lastName}," ",$val->{initials},"\n";
    }
 }
+# a few more values
+my $year = $nextref->{article}->{journal}->{journalIssue}->{pubDate}->{year};
+my $title = $nextref->{article}->{articleTitle};
 
 __END__
 
