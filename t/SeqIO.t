@@ -8,7 +8,8 @@ BEGIN {
 	use lib 't';
     }
     use Test;
-    plan tests => 68 }
+    plan tests => 81;
+}
 
 use Bio::Seq;
 use Bio::SeqIO;
@@ -307,3 +308,16 @@ ok($location->isa('Bio::Location::SplitLocationI'));
 @sublocs = $location->sub_Location();
 ok(@sublocs, 29);
  
+
+# PIR testing
+
+$str = Bio::SeqIO->new('-file' => Bio::Root::IO->catfile("t","data","seqfile.pir"), 
+		       '-format' => 'pir');
+ok $str;
+$strout = new Bio::SeqIO(-format => 'pir', -fh => \*STDOUT);
+
+while( $seq = $str->next_seq()) {
+    ok($seq->id, qr /^[PF]1/ );
+    ok($seq->length > 1);
+    $strout->write_seq($seq) if( $verbosity > 0);
+}

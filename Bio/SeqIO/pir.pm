@@ -23,8 +23,13 @@ Do not use this module directly.  Use it via the Bio::SeqIO class.
 
 =head1 DESCRIPTION
 
-This object can transform Bio::Seq objects to and from fasta flat
+This object can transform Bio::Seq objects to and from pir flat
 file databases.
+
+Note: This does not completely preserve the PIR format - quality 
+information about sequence is currently discarded since bioperl 
+does not have a mechanism for handling these encodings in sequence 
+data.
 
 =head1 FEEDBACK
 
@@ -50,7 +55,7 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 
 Aaron Mackey E<lt>amackey@virginia.eduE<gt>
 Lincoln Stein E<lt>lstein@cshl.orgE<gt>
-
+Jason Stajich E<lt>jason@chg.mc.duke.eduE<gt>
 =head1 APPENDIX
 
 The rest of the documentation details each of the object
@@ -65,9 +70,11 @@ use vars qw(@ISA);
 use strict;
 
 use Bio::SeqIO;
+use Bio::PrimarySeq;
 use Bio::Seq;
 
 @ISA = qw(Bio::SeqIO);
+
 
 =head2 next_seq
 
@@ -75,31 +82,66 @@ use Bio::Seq;
  Usage   : $seq = $stream->next_seq()
  Function: returns the next sequence in the stream
  Returns : Bio::Seq object
+ Args    : NONE
+
+=cut
+
+sub next_seq {
+    return next_primary_seq( $_[0], 1 );
+}
+
+=head2 next_primary_seq
+
+ Title   : next_primary_seq
+ Usage   : $seq = $stream->next_primary_seq()
+ Function: returns the next sequence in the stream as a Bio::PrimarySeq
+ Returns : Bio::Seq object
  Args    :
 
 
 =cut
 
-sub next_seq{
-   my ($self,@args) = @_;
-   my ($seq,$line,$name,$sfs,$desc);
+sub next_primary_seq {
+    my ($self,$as_next_seq) = @_;
+    local $/ = "\n>";
+    return unless my $line = $self->_readline;
+    if( $line eq '>' ) {	# handle the very first one having no comment
+	return unless $line = $self->_readline;
+    }
+    my ($top, $desc,$seq) = ( $line =~ /^(.+?)\n(.+?)\n([^>]*)/s )  or
+	$self->throw("Cannot parse entry PIR entry [$line]");
 
-   return unless $line = $self->_readline;
-   $self->throw("PIR stream read attempted without leading '>P1;' [ $line ]")
-     unless  $line =~ /^>(?:P|F)1;(\S+)\s*(\|.*)?\s*$/;
-   $name = $1;
-   $sfs = $2;
+    
+    my ( $type,$id ) = ( $top =~ /^>?([PF])1;(\S+)\s*$/ ) or
+	$self->throw("PIR stream read attempted without leading '>P1;' [ $line ]");
 
-   chomp($desc = $self->_readline);
-   local $/ = "";
-   my $junk = $self->_readline;  # throw away everything to first empty line
-   $seq = $self->_readline;   # everything else is the sequence
-   $seq =~ s/\s+//g;
-   $seq = Bio::Seq->new(-seq => $seq,
-			-id => $name,
-			-desc => $desc,
-			-names => defined $sfs ? { 'sfnum' => [ split(/\s*\|?\s+/, $sfs) ] } : undef );
-   return $seq;
+    # P - indicates complete protein
+    # F - indicates protein fragment
+    # not sure how to stuff these into a Bio object 
+    # suitable for writing out.
+    $seq =~ s/\*//g;
+    $seq =~ s/[\(\)\.\/\=\,]//g;
+    $seq =~ s/\s+//g;		# get rid of whitespace
+
+    my ($moltype,$seqobj) = ('protein',undef);
+    # TODO - not processing SFS data
+    if ($as_next_seq) {
+	# Return a Bio::Seq if asked for
+	$seqobj = Bio::Seq->new(-seq        => $seq,
+				-primary_id => $id,
+				-id         => $type. '1; ' . $id,
+				-desc       => $desc,
+				-moltype    => $moltype
+				);
+    } else {
+	$seqobj = Bio::PrimarySeq->new(-seq        => $seq,
+				       -primary_id => $id,
+				       -id         => $type. '1; ' . $id,
+				       -desc       => $desc,
+				       -moltype    => $moltype
+				       );
+    }
+    return $seqobj;
 }
 
 =head2 write_seq
@@ -117,12 +159,9 @@ sub write_seq {
    my ($self, @seq) = @_;
    for my $seq (@seq) {
      my $str = $seq->seq();
-     $str =~ s/(.{10})/$1 /g;
-     $str =~ s/(.{66})/$1\n/g;
-     return unless $self->_print(">P1;", $seq->id(), 
+     return unless $self->_print(">".$seq->id(), 
 				 "\n", $seq->desc(), "\n", 
-				 ">P1;", $seq->id(),"\n", 
-				 "\n",$str, "\n");
+				 $str, "*\n");
    }
    return 1;
 }
