@@ -204,6 +204,10 @@ sub strand{
 
    if( @_ ) {
        my $value = shift;
+       if( $value eq '+' ) { $value = 1; }
+       if( $value eq '-' ) { $value = -1; }
+       if( $value eq '.' ) { $value = 0; }
+       
        if( $value != -1 && $value != 1 && $value != 0 ) {
 	   $self->throw("$value is not a valid strand info");
        }
@@ -302,6 +306,27 @@ sub add_sub_SeqFeature{
    
    push(@{$self->{'_gsf_sub_array'}},$feat);
    
+}
+
+=head2 flush_sub_SeqFeature
+
+ Title   : flush_sub_SeqFeature
+ Usage   : $sf->flush_sub_SeqFeature
+ Function: Removes all sub SeqFeature
+           (if you want to remove only a subset, take
+	    an array of them all, flush them, and add
+            back only the guys you want)
+ Example :
+ Returns : none
+ Args    : none
+
+
+=cut
+
+sub flush_sub_SeqFeature {
+   my ($self) = @_;
+
+   $self->{'_gsf_sub_array'} = []; # zap the array implicitly.
 }
 
 
