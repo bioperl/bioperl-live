@@ -1,0 +1,37 @@
+# -*- text -*-
+
+PRIMARY AUTHORS AND MAJOR CONTRIBUTORS TO BIOPERL
+
+Releases co-ordinated and submitted by bioperl core devs. 
+
+* Ewan Birney <birney@ebi.ac.uk>
+* Chris Dadigian <dag@sonsorol.org>
+* Hilmar Lapp <hilmarl@yahoo.com>
+* Heikki Lehvaslaiho <heikki@ebi.ac.uk>
+* Jason Stajich <jason@bioperl.org>
+
+Major Contributors
+
+Kris Boulez <krbou@pgsgent.be>
+Brad Chapman <chapmanb@arches.uga.edu>
+Steve Chervitz <steve_chervitz@affymetrix.com>
+Michele Clamp <michele@sanger.ac.uk>
+Andrew Dalke <dalke@acm.org>
+Arne Elofsson <arne@sbc.su.se>
+Mark Fiers <M.W.E.J.Fiers@plant.wag-ur.nl>
+Georg Fuellen <fullen@bioperl.org>
+James Gilbert <jgrg@sanger.ac.uk>
+Roger Hall <roger@iosea.com>
+Ian Holmes <ihn@fruitfly.org>
+Ian Korf <ikorf@sapiens.wustl.edu>
+Aaron Mackey <amackey@virginia.edu>
+Brad Marshall <bradmars@yahoo.com>
+Chris Mungall <cjm@fruitfly.bdgp.berkeley.edu>
+Matthew Pockock <mrp@sanger.ac.uk>
+Todd Richmond <todd@andrew2.stanford.edu>
+Peter Schattner <schattner@alum.mit.edu>
+Lincoln Stein <lstein@cshl.org>
+Elia Stupka <elia@ebi.ac.uk>
+Gert Thijs <gert.thijs@esat.kuleuven.ac.be> 
+Mark Wilkinson <mwilkinson@gene.pbi.nrc.ca>
+Helge Weissig <helgew@sdsc.edu>
