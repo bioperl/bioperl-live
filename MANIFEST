@@ -1,4 +1,4 @@
-## $Id: MANIFEST,v 1.53 2001-12-18 09:36:43 heikki Exp $
+## $Id: MANIFEST,v 1.54 2001-12-20 20:49:58 jason Exp $
 ##
 ## This is the file listing for everything that
 ## comes with the bioperl distribution. The perl
@@ -83,7 +83,6 @@ Bio/DB/GFF/Util/Binning.pm
 Bio/DB/GFF/Util/Rearrange.pm
 Bio/DB/GenPept.pm
 Bio/DB/MANIFEST
-Bio/DB/Makefile.PLio
 Bio/DB/NCBIHelper.pm
 Bio/DB/RandomAccessI.pm
 Bio/DB/RefSeq.pm
@@ -297,7 +296,6 @@ Bio/Tools/Sim4/Exon.pm
 Bio/Tree/AlleleNode.pm
 Bio/Tree/Node.pm
 Bio/Tree/NodeI.pm
-Bio/Tree/PhyloNode.pm
 Bio/Tree/RandomFactory.pm
 Bio/Tree/Statistics.pm
 Bio/Tree/Tree.pm
