@@ -71,6 +71,11 @@ value of maxbin should be increased to 1,000,000,000.
 
 Note that Windows users must use the --create option.
 
+If the list of GFF or fasta files exceeds the kernel limit for the 
+maximum number of command-line arguments, use the 
+--long_list /path/to/files option. 
+
+
 =head1 COMMAND-LINE OPTIONS
 
 Command-line options can be abbreviated to single-letter options.
@@ -80,11 +85,13 @@ e.g. -d instead of --database.
    --create              Reinitialize/create data tables without asking
    --user                Username to log in as
    --fasta               File or directory containing fasta files to load
+   --long_list           Directory containing a very large number of 
+                         GFF and/or FASTA files
    --password            Password to use for authentication
    --local               Flag to indicate that the data source is local
    --maxbin              Set the value of the maximum bin size
    --group               A list of one or more tag names (comma or space separated)
-                          to be used for grouping in the 9th column.
+                         to be used for grouping in the 9th column.
 
 =head1 SEE ALSO
 
@@ -124,7 +131,7 @@ if ($^O =~ /MSWin32/i) {
     $bWINDOWS = 1;
 }
 
-my ($DSN,$FORCE,$USER,$PASSWORD,$FASTA,$LOCAL,$MAX_BIN,$GROUP_TAG);
+my ($DSN,$FORCE,$USER,$PASSWORD,$FASTA,$LOCAL,$MAX_BIN,$GROUP_TAG,$LONG_LIST);
 
 GetOptions ('database:s'    => \$DSN,
 	    'create'        => \$FORCE,
@@ -134,6 +141,7 @@ GetOptions ('database:s'    => \$DSN,
             'local'         => \$LOCAL,
             'maxbin:s'      => \$MAX_BIN,
 	    'group:s'       => \$GROUP_TAG,
+	    'long_list:s'   => \$LONG_LIST
 	   ) or (system('pod2text', $0), exit -1);
 
 $DSN ||= 'dbi:mysql:test';
@@ -186,6 +194,23 @@ my $db = Bio::DB::GFF->new(-adaptor=>'faux',-dsn => $DSN,@auth)
 
 $MAX_BIN ? $db->initialize(-erase=>1,-MAX_BIN=>$MAX_BIN) : $db->initialize(1);
 
+# deal with really long lists of files
+if ($LONG_LIST) {
+  -d $LONG_LIST or die "The --long_list argument must be a directory\n";
+  opendir GFFDIR,$LONG_LIST or die "Could not open $LONG_LIST for reading: $!";
+  @ARGV = map { "$LONG_LIST\/$_" } readdir GFFDIR;
+  closedir GFFDIR;
+
+  if (defined $FASTA && -d $FASTA) {
+    opendir FASTA,$FASTA or die "Could not open $FASTA for reading: $!";
+    push @ARGV, map { "$FASTA\/$_" } readdir FASTA;
+    closedir FASTA;
+  }
+  elsif (defined $FASTA && -f $FASTA) {
+    push @ARGV, $FASTA;
+  }
+}
+
 foreach (@ARGV) {
   $_ = "gunzip -c $_ |" if /\.gz$/;
   $_ = "uncompress -c $_ |" if /\.Z$/;
@@ -235,11 +260,26 @@ my $start = $last;
 while (<>) {
   chomp;
   my ($ref,$source,$method,$start,$stop,$score,$strand,$phase,$group);
-  if (/^>(\S+)/) {  # uh oh, sequence coming
-      $fasta_sequence_id = $1;
-      last;
-    }
 
+  # close sequence filehandle if required
+  if ( /^\#|\s+|^$/ && defined $FH{FASTA}) {
+    $FH{FASTA}->close;
+    delete $FH{FASTA};
+  }
+
+  # print to fasta file if the handle is open
+  if ( defined $FH{FASTA} ) {
+    $FH{FASTA}->print("$_\n");
+    next;
+  }
+
+  elsif (/^>(\S+)/) {  # uh oh, sequence coming
+    $FH{FASTA} = IO::File->new(">$tmpdir/$1\.fa") or die "FASTA: $!\n";
+    $FH{FASTA}->print("$_\n");
+    push @fasta, "$tmpdir/$1\.fa";
+    next;
+  }
+  
   elsif (/^\#\#\s*gff-version\s+3/) {
     $gff3++;
     next;
@@ -251,8 +291,8 @@ while (<>) {
   }
 
   elsif (/^\#\#\s*sequence-region\s+(\S+)\s+(\d+)\s+(\d+)/i) { # header line
-    ($ref,$source,$method,$start,$stop,$score,$strand,$phase,$group) = 
-      ($1,'reference','Component',$2,$3,'.','.','.',$gff3 ? "ID=Sequence:$1": qq(Sequence "$1"));
+    ($ref,$source,$method,$start,$stop,$score,$strand,$phase,$group) =
+	($1,'reference','Component',$2,$3,'.','.','.',$gff3 ? "ID=Sequence:$1": qq(Sequence "$1"));
   }
 
   elsif (/^\#/) {
@@ -304,16 +344,8 @@ while (<>) {
 
 }
 
-if (defined $fasta_sequence_id) {
-  warn "Preparing embedded sequence....\n";
-  my $old = select($FH{FDNA()});
-  $db->load_sequence('ARGV',$fasta_sequence_id);
-  warn "done....\n";
-  select $old;
-}
-
 for my $file (@fasta) {
-  warn "Preparing DNA files....\n";
+  warn "Preparing DNA file $file....\n";
   my $old = select($FH{FDNA()});
   $db->load_fasta($file);
   warn "done...\n";
