@@ -71,12 +71,16 @@ sub connector {
 sub draw_connectors {
   my $self = shift;
 
-  my @parts  = $self->parts;
-  my $part   = $self->feature->strand > 0 ? $parts[-1] : $parts[0];
+  my $part;
+  if (my @parts  = $self->parts) {
+    $part   = $self->feature->strand > 0 ? $parts[-1] : $parts[0];
+  } else {
+    $part = $self;
+  }
   my @rect   = $part->bounds();
   my $width  = abs($rect[2] - $rect[0]);
   my $filled = $width >= MIN_WIDTH_FOR_ARROW;
-
+  
   if ($filled) {
     $self->Bio::Graphics::Glyph::generic::draw_connectors(@_);
   } else {
