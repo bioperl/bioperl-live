@@ -34,7 +34,7 @@ use strict;
 #      still be examined. Dieing only if blast_remote() is attempted.
 
 BEGIN {
-  use vars qw($Loaded_LWP);
+  use vars qw($Loaded_LWP $Loaded_IOScalar);
   $Loaded_LWP = 1;
   unless( eval "require HTTP::Request::Common" and
 	  eval "require LWP::UserAgent") {
@@ -47,11 +47,24 @@ BEGIN {
   }
 
   HTTP::Request::Common->import(qw(POST)) if $Loaded_LWP;
+
+  $Loaded_IOScalar = 1;
+  unless( eval "require IO::Scalar") {
+    warn "\a\n".'='x50, "\n".
+      "WARNING: COULDN'T LOAD THE IO::Scalar MODULE.\n\n".
+      "   IO::Scalar is now required to run remote Blasts.\n".
+      "   This module is included in the IO-stringy collection\n".
+      "   from CPAN: http://www.perl.com/CPAN/.".
+	"\n".'='x50, "\n\n";
+    $Loaded_IOScalar = 0;
+  }
 }
 
+use Bio::SeqIO;
 use Bio::Root::Global    qw(:devel);
 use Bio::Root::Utilities qw(:obj);
 use Bio::Tools::Blast::HTML qw(&strip_html);
+use IO::Scalar;
 use Carp;
 
 use Exporter;
@@ -532,6 +545,13 @@ sub blast_remote {
 	     "   Download it from CPAN: http://www.perl.com/CPAN/.\n");
     }
 
+    unless ($Loaded_IOScalar) {
+      croak ("THE IO::Scalar MODULE IS NOT INSTALLED.\n\n".
+             "   IO::Scalar is now required to run remote Blasts.\n".
+             "   This module is included in the IO-stringy collection\n".
+             "   from CPAN: http://www.perl.com/CPAN/.");
+  }
+
     my ($seq_a);
     eval { 
 	# _rearrange() is an instance method of Bio::Root::Object.pm and is
@@ -801,7 +821,11 @@ sub _blast {
 	    next unless &_validate_seq($seq);
 	    
 	    # add >seq_name to make seq in fasta format
-	    $sequenceInFastaFormat= $seq->layout('Fasta');
+            my $sh = new_tie IO::Scalar \$sequenceInFastaFormat;
+            my $out = Bio::SeqIO->new ('-fh'   => $sh,   
+                                       '-format' =>'Fasta');
+
+            $out->write_seq($seq);
 	    $sequenceInFastaFormat =~ s/\n$//;
 	    
 	    # concatenate advanced options into a string, depending on differnt blast type
@@ -1117,7 +1141,11 @@ sub _blast {
 			      if(-s $outputFileNameTemp) 
 				{
 				    $outFile = $outputFileNameTemp;
-				    $MONITOR && print STDERR "Possibly bad Blast result saved to file $outputFileNameTemp\n"; 
+# Updated for the operation of the NCBI queueing system
+# which now always results in the temporary file being saved.
+				    $MONITOR && print STDERR "Blast submission result saved to file $outputFileNameTemp\n"; 
+# Formerly, when the actual report was returned:
+#				    $MONITOR && print STDERR "Possibly bad Blast result saved to file $outputFileNameTemp\n"; 
 				} else {
 				    unlink $outputFileNameTemp;
 				    $MONITOR && print STDERR "No Blast results saved.\n";
