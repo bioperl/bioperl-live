@@ -34,7 +34,7 @@ Bio::Tree::NodeI - Interface describing a Tree Node
 
     # process all the children
     my $example_leaf_node;
-    foreach my $node ( $rootnode->get_Descendents() ) {
+    foreach my $node ( $rootnode->get_all_Descendents() ) {
 	if( $node->is_Leaf ) { 
 	    print "node is a leaf ... "; 
             # for example use below
@@ -152,10 +152,10 @@ sub each_Descendent{
 
 =cut
 
-=head2 get_Descendents
+=head2 get_all_Descendents
 
- Title   : get_Descendents($sortby)
- Usage   : my @nodes = $node->get_Descendents;
+ Title   : get_all_Descendents($sortby)
+ Usage   : my @nodes = $node->get_all_Descendents;
  Function: Recursively fetch all the nodes and their descendents
            *NOTE* This is different from each_Descendent
  Returns : Array or Bio::Tree::NodeI objects
@@ -164,15 +164,17 @@ sub each_Descendent{
 
 =cut
 
-sub get_Descendents{
+sub get_all_Descendents{
    my ($self, $sortby) = @_;
    $sortby ||= 'height';
    my @nodes;
    foreach my $node ( $self->each_Descendent($sortby) ) {
-       push @nodes, ($node->get_Descendents($sortby), $node);
+       push @nodes, ($node->get_all_Descendents($sortby), $node);
    }
    return @nodes;
 }
+
+*get_Descendents = \&get_all_Descendents;
 
 =head2 is_Leaf
 
