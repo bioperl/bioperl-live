@@ -235,26 +235,32 @@ sub new {
     $self->hit->seqlength($hit_len);
     $self->query->seqlength($query_len);
 
-    $self->length('total', $hsp_len);
-    $self->length('hit', $hit_len);
-    $self->length('query', $query_len);
-
     if( ! defined $identical ) { 
 	$self->warn("Did not defined the number of identical matches in the HSP assuming 0");
 	$identical = 0;
     } 
-    $self->frac_identical( 'query', $identical / $self->length('query'));
-    $self->frac_identical( 'hit', $identical / $self->length('hit'));
-    $self->frac_identical( 'total', $identical / $self->length('total'));
-
     if( defined $conserved ) {
 	$self->warn("Did not defined the number of conserved matches in the HSP assuming == identical ($identical)") if( $algo =~ /(FAST|BLAST)N/i);
 	$conserved = $identical;
     } 
-    $self->frac_conserved( 'query', $conserved / $self->length('query'));
-    $self->frac_conserved( 'hit', $conserved / $self->length('hit'));
-    $self->frac_conserved( 'total', $conserved / $self->length('total'));
+    # protect for divide by zero if user does not specify 
+    # hsp_len, query_len, or hit_len
 
+    if( $hsp_len ) {
+	$self->length('total', $hsp_len);
+	$self->frac_identical( 'total', $identical / $self->length('total'));
+	$self->frac_conserved( 'total', $conserved / $self->length('total'));
+    }
+    if( $hit_len ) {
+	$self->length('hit', $hit_len);
+	$self->frac_identical( 'hit', $identical / $self->length('hit'));
+	$self->frac_conserved( 'hit', $conserved / $self->length('hit'));
+    }
+    if( $query_len ) {
+	$self->length('query', $query_len);	
+	$self->frac_identical( 'query', $identical / $self->length('query')) ;
+	$self->frac_conserved( 'query', $conserved / $self->length('query'));
+    }
 
     $self->gaps('query', scalar grep(/\-/, $query_seq));
     $self->gaps('hit', scalar grep(/\-/, $hit_seq));
@@ -298,27 +304,6 @@ sub algorithm{
 
     return $previous;   
 }
-
-
-=head2 score
-
- Title   : score
- Usage   : my $score = $hsp->score();
- Function: Returns the score for this HSP or undef 
- Returns : numeric           
- Args    : [optional] numeric to set value
-
-=cut
-
-sub score {
-   my ($self,$value) = @_;
-   my $previous = $self->{'_score'};
-   if( defined $value ) { 
-       $self->{'_score'} = $value;
-   } 
-   return $previous;
-}
-
 
 =head2 bits
 
@@ -641,5 +626,67 @@ sub frame {
 	 return $self->hit->frame());
     }
 }
+
+
+=head2 get_aln
+
+ Title   : get_aln
+ Usage   : my $aln = $hsp->gel_aln
+ Function: Returns a Bio::SimpleAlign representing the HSP alignment
+ Returns : Bio::SimpleAlign
+ Args    : none
+
+=cut
+
+=head2 Inherited from Bio::SeqFeature::SimilarityPair
+
+These methods come from Bio::SeqFeature::SimilarityPair
+
+=head2 query
+
+ Title   : query
+ Usage   : my $query = $hsp->query
+ Function: Returns a SeqFeature representing the query in the HSP
+ Returns : Bio::SeqFeature::Similarity
+ Args    : [optional] new value to set
+
+
+=head2 hit
+
+ Title   : hit
+ Usage   : my $hit = $hsp->hit
+ Function: Returns a SeqFeature representing the hit in the HSP
+ Returns : Bio::SeqFeature::Similarity
+ Args    : [optional] new value to set
+
+
+=head2 significance
+
+ Title   : significance
+ Usage   : $evalue = $obj->significance();
+           $obj->significance($evalue);
+ Function: Get/Set the significance value
+ Returns : numeric
+ Args    : [optional] new value to set
+
+
+=head2 score
+
+ Title   : score
+ Usage   : my $score = $hsp->score();
+ Function: Returns the score for this HSP or undef 
+ Returns : numeric           
+ Args    : [optional] numeric to set value
+
+=head2 bits
+
+ Title   : bits
+ Usage   : my $bits = $hsp->bits();
+ Function: Returns the bit value for this HSP or undef 
+ Returns : numeric
+ Args    : none
+
+=cut
+
 
 1;

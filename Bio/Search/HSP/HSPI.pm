@@ -129,39 +129,6 @@ sub algorithm{
    $self->throw_not_implemented;
 }
 
-
-=head2 score
-
- Title   : score
- Usage   : my $score = $hsp->score();
- Function: Returns the score for this HSP or undef 
- Returns : numeric           
- Args    : none
-
-=cut
-
-sub score {
-   my ($self) = @_;
-   $self->throw_not_implemented;
-}
-
-
-=head2 bits
-
- Title   : bits
- Usage   : my $bits = $hsp->bits();
- Function: Returns the bit value for this HSP or undef 
- Returns : numeric
- Args    : none
-
-=cut
-
-sub bits {
-   my ($self) = @_;
-   $self->throw_not_implemented;
-}
-
-
 =head2 p
 
  Title   : p
@@ -336,5 +303,91 @@ sub percent_identity{
    my ($self) = @_;
    return $self->frac_identical('hsp') * 100;   
 }
+
+=head2 get_aln
+
+ Title   : get_aln
+ Usage   : my $aln = $hsp->gel_aln
+ Function: Returns a Bio::SimpleAlign representing the HSP alignment
+ Returns : Bio::SimpleAlign
+ Args    : none
+
+=cut
+
+sub get_aln {
+    my ($self) = @_;
+    require Bio::LocatableSeq;
+    require Bio::SimpleAlign;
+    my $aln = new Bio::SimpleAlign;
+    my $hs = $self->hit_string();
+    my $qs = $self->query_string();
+    $hs =~ s/[\/\\]/\-/g;
+    $qs =~ s/[\/\\]/\-/g;
+    my $query = new Bio::LocatableSeq('-seq'   => $qs,
+				      '-id'    => $self->query->seqname(),
+				      '-start' => 1,
+				      '-end' => $self->query->length(),
+				      );
+    
+    my $hit =  new Bio::LocatableSeq('-seq'   => $hs,
+				      '-id'    => $self->hit->seqname(),
+				      '-start' => 1,
+				      '-end' => $self->hit->length(),
+				      );
+    $aln->add_seq($query);
+    $aln->add_seq($hit);
+    return $aln;
+}
+
+=head2 Inherited from Bio::SeqFeature::SimilarityPair
+
+These methods come from Bio::SeqFeature::SimilarityPair
+
+=head2 query
+
+ Title   : query
+ Usage   : my $query = $hsp->query
+ Function: Returns a SeqFeature representing the query in the HSP
+ Returns : Bio::SeqFeature::Similarity
+ Args    : [optional] new value to set
+
+
+=head2 hit
+
+ Title   : hit
+ Usage   : my $hit = $hsp->hit
+ Function: Returns a SeqFeature representing the hit in the HSP
+ Returns : Bio::SeqFeature::Similarity
+ Args    : [optional] new value to set
+
+
+=head2 significance
+
+ Title   : significance
+ Usage   : $evalue = $obj->significance();
+           $obj->significance($evalue);
+ Function: 
+ Returns : 
+ Args    : 
+
+
+=head2 score
+
+ Title   : score
+ Usage   : my $score = $hsp->score();
+ Function: Returns the score for this HSP or undef 
+ Returns : numeric           
+ Args    : [optional] numeric to set value
+
+=head2 bits
+
+ Title   : bits
+ Usage   : my $bits = $hsp->bits();
+ Function: Returns the bit value for this HSP or undef 
+ Returns : numeric
+ Args    : none
+
+=cut
+
 
 1;
