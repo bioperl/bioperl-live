@@ -21,10 +21,10 @@ Bio::Cluster::UniGene - UniGene object
 =head1 SYNOPSIS
 
 	use Bio::Cluster::UniGene;
-    use Bio::ClusterIO::UniGeneIO;
+	use Bio::ClusterIO;
 	
-	$stream  = Bio::ClusterIO::UniGeneIO->new('-file' => "Hs.data", '-format' => "unigene");
-    # note: we quote -format to keep older perl's from complaining.
+	$stream  = Bio::ClusterIO->new('-file' => "Hs.data", '-format' => "unigene");
+	# note: we quote -format to keep older perl's from complaining.
 
 	
 	while ( my $in = $stream->next_unigene() ) {
@@ -37,30 +37,49 @@ Bio::Cluster::UniGene - UniGene object
 
 =head1 DESCRIPTION
 
-This UniGene object is returned by UniGeneIO and contains all the
+This UniGene object is returned by ClusterIO and contains all the
 data associated with one UniGene record.
 
 Available methods (see below for details):
 
 new() - standard new call
+
 unigene_id() - set/get unigene_id
+
 title() - set/get title (description)
+
 gene() - set/get gene
+
 cytoband() - set/get cytoband
+
 locuslink() - set/get locuslink
+
 gnm_terminus() - set/get gnm_terminus
+
 chromosome() - set/get chromosome
+
 scount() - set/get scount
+
 express() - set/get express, currently takes/returns a reference to an array of expressed tissues
+
 next_express() - returns the next tissue expression from the expressed tissue array
+
 sts() - set/get sts, currently takes/returns a reference to an array of sts lines
+
 next_sts() - returns the next sts line from the array of sts lines
+
 txmap() - set/get txmap, currently takes/returns a reference to an array of txmap lines
+
 next_txmap() - returns the next txmap line from the array of txmap lines
+
 protsim() - set/get protsim, currently takes/returns a reference to an array of protsim lines
+
 next_protsim() - returns the next protsim line from the array of protsim lines
+
 sequence() - set/get sequence, currently takes/returns a reference to an array of references to seq info
+
 next_seq() - returns a Seq object that currently only contains an accession number
+
 
 =head1 FEEDBACK
 
@@ -115,7 +134,7 @@ $VERSION = '1.0';
 =head2 new
 
  Title   : new
- Usage   : used by UniGeneIO
+ Usage   : used by ClusterIO
  Returns : a new Bio::Cluster::Unigene object
 
 =cut
@@ -332,7 +351,7 @@ sub scount {
  Title   : express
  Usage   : express();
  Function: Returns or stores a reference to an array containing tissue expression data
- 		   This should really only be used by UniGeneIO, not directly
+ 		   This should really only be used by ClusterIO, not directly
  Returns : An array reference
  Args    : None or an array reference
 
@@ -375,7 +394,7 @@ sub next_express {
  Title   : sts
  Usage   : sts();
  Function: Returns or stores a reference to an array containing sts lines
- 		   This should really only be used by UniGeneIO, not directly
+ 		   This should really only be used by ClusterIO, not directly
  Returns : An array reference
  Args    : None or an array reference
 
@@ -418,7 +437,7 @@ sub next_sts {
  Title   : txmap
  Usage   : txmap();
  Function: Returns or stores a reference to an array containing txmap lines
- 		   This should really only be used by UniGeneIO, not directly
+ 		   This should really only be used by ClusterIO, not directly
  Returns : An array reference
  Args    : None or an array reference
 
@@ -461,7 +480,7 @@ sub next_txmap {
  Title   : protsim
  Usage   : protsim();
  Function: Returns or stores a reference to an array containing protsim lines
- 		   This should really only be used by UniGeneIO, not directly
+ 		   This should really only be used by ClusterIO, not directly
  Returns : An array reference
  Args    : None or an array reference
 
@@ -505,7 +524,7 @@ sub next_protsim {
  Title   : sequence
  Usage   : sequence();
  Function: Returns or stores a reference to an array containing sequence data
- 		   This should really only be used by UniGeneIO, not directly
+ 		   This should really only be used by ClusterIO, not directly
  Returns : An array reference
  Args    : None or an array reference
 

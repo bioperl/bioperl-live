@@ -77,7 +77,7 @@ $VERSION = '1.0';
 =head2 new
 
  Title   : new
- Usage   : used by UniGeneIO
+ Usage   : used by ClusterIO
  Returns : a new Bio::Cluster::Unigene object
 
 =cut
@@ -235,7 +235,7 @@ sub scount {
  Title   : express
  Usage   : express();
  Function: Returns or stores a reference to an array containing tissue expression data
- 		   This should really only be used by UniGeneIO, not directly
+ 		   This should really only be used by ClusterIO, not directly
  Returns : An array reference
  Args    : None or an array reference
 
@@ -271,7 +271,7 @@ sub next_express {
  Title   : sts
  Usage   : sts();
  Function: Returns or stores a reference to an array containing sts lines
- 		   This should really only be used by UniGeneIO, not directly
+ 		   This should really only be used by ClusterIO, not directly
  Returns : An array reference
  Args    : None or an array reference
 
@@ -307,7 +307,7 @@ sub next_sts {
  Title   : txmap
  Usage   : txmap();
  Function: Returns or stores a reference to an array containing txmap lines
- 		   This should really only be used by UniGeneIO, not directly
+ 		   This should really only be used by ClusterIO, not directly
  Returns : An array reference
  Args    : None or an array reference
 
@@ -343,7 +343,7 @@ sub next_txmap {
  Title   : protsim
  Usage   : protsim();
  Function: Returns or stores a reference to an array containing protsim lines
- 		   This should really only be used by UniGeneIO, not directly
+ 		   This should really only be used by ClusterIO, not directly
  Returns : An array reference
  Args    : None or an array reference
 
@@ -380,7 +380,7 @@ sub next_protsim {
  Title   : sequence
  Usage   : sequence();
  Function: Returns or stores a reference to an array containing sequence data
- 		   This should really only be used by UniGeneIO, not directly
+ 		   This should really only be used by ClusterIO, not directly
  Returns : An array reference
  Args    : None or an array reference
 
