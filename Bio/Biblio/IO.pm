@@ -114,7 +114,6 @@ sub new {
     # module and call this new() method again (unless the loaded
     # module has its own new() method)
     } else { 
-
 	my %param = @args;
 	@param{ map { lc $_ } keys %param } = values %param; # lowercase keys
 	my $format = $param{'-format'} || 

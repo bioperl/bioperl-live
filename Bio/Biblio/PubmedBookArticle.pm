@@ -1,6 +1,6 @@
 # $Id$
 #
-# BioPerl module for Bio::Biblio::PubmedJournalArticle
+# BioPerl module for Bio::Biblio::PubmedBookArticle
 #
 # Cared for by Martin Senger <senger@ebi.ac.uk>
 # For copyright and disclaimer see below.
@@ -9,7 +9,7 @@
 
 =head1 NAME
 
-Bio::Biblio::PubmedJournalArticle - Representation of a PUBMED journal article
+Bio::Biblio::PubmedBookArticle - Representation of a PUBMED book article
 
 =head1 SYNOPSIS
 
@@ -60,13 +60,13 @@ This software is provided "as is" without warranty of any kind.
 # Let the code begin...
 
 
-package Bio::Biblio::PubmedJournalArticle;
+package Bio::Biblio::PubmedBookArticle;
 use strict;
 use vars qw(@ISA);
 
 use Bio::Biblio::PubmedArticle;
-use Bio::Biblio::MedlineJournalArticle;
-@ISA = qw(Bio::Biblio::PubmedArticle Bio::Biblio::MedlineJournalArticle);
+use Bio::Biblio::MedlineBookArticle;
+@ISA = qw(Bio::Biblio::PubmedArticle Bio::Biblio::MedlineBookArticle);
 
 #
 # a closure with a list of allowed attribute names (these names

@@ -1,6 +1,6 @@
 # $Id$
 #
-# BioPerl module for Bio::Biblio::PubmedJournalArticle
+# BioPerl module for Bio::Biblio::PubmedArticle
 #
 # Cared for by Martin Senger <senger@ebi.ac.uk>
 # For copyright and disclaimer see below.
@@ -9,7 +9,7 @@
 
 =head1 NAME
 
-Bio::Biblio::PubmedJournalArticle - Representation of a PUBMED journal article
+Bio::Biblio::PubmedArticle - Representation of a PUBMED article
 
 =head1 SYNOPSIS
 
@@ -60,13 +60,12 @@ This software is provided "as is" without warranty of any kind.
 # Let the code begin...
 
 
-package Bio::Biblio::PubmedJournalArticle;
+package Bio::Biblio::PubmedArticle;
 use strict;
 use vars qw(@ISA);
 
-use Bio::Biblio::PubmedArticle;
-use Bio::Biblio::MedlineJournalArticle;
-@ISA = qw(Bio::Biblio::PubmedArticle Bio::Biblio::MedlineJournalArticle);
+use Bio::Biblio::MedlineArticle;
+@ISA = qw(Bio::Biblio::MedlineArticle);
 
 #
 # a closure with a list of allowed attribute names (these names
@@ -77,6 +76,11 @@ use Bio::Biblio::MedlineJournalArticle;
 {
     my %_allowed =
 	(
+	 _pubmed_status => undef,
+	 _pubmed_provider_id => undef,
+	 _pubmed_history_list => 'ARRAY',
+	 _pubmed_article_id_list => 'ARRAY',
+	 _pubmed_url_list => 'ARRAY',
 	 );
 
     # return 1 if $attr is allowed to be set/get in this class
@@ -103,7 +107,6 @@ use Bio::Biblio::MedlineJournalArticle;
 	return 'unknown';
     }
 }
-
 
 1;
 __END__

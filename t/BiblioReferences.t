@@ -16,7 +16,7 @@ BEGIN {
     }
     use Test;
 
-    plan tests => 521 }
+    plan tests => 537 }
 
 ## End of black magic.
 ##
@@ -111,6 +111,18 @@ eval { require Bio::Biblio::WebResource };
 print sprintf ($format, "use Bio::Biblio::WebResource"); ok (%Bio::Biblio::WebResource::);
 print $@ if $@;
 
+eval { require Bio::Biblio::PubmedArticle };
+print sprintf ($format, "use Bio::Biblio::PubmedArticle"); ok (%Bio::Biblio::PubmedArticle::);
+print $@ if $@;
+
+eval { require Bio::Biblio::PubmedBookArticle };
+print sprintf ($format, "use Bio::Biblio::PubmedBookArticle"); ok (%Bio::Biblio::PubmedBookArticle::);
+print $@ if $@;
+
+eval { require Bio::Biblio::PubmedJournalArticle };
+print sprintf ($format, "use Bio::Biblio::PubmedJournalArticle"); ok (%Bio::Biblio::PubmedJournalArticle::);
+print $@ if $@;
+
 
 print "Testing 'new Bio::Biblio:: ...'\n";
 foreach my $object (
@@ -135,6 +147,9 @@ foreach my $object (
 		     Bio::Biblio::TechReport
 		     Bio::Biblio::Thesis
 		     Bio::Biblio::WebResource
+		     Bio::Biblio::PubmedArticle
+		     Bio::Biblio::PubmedBookArticle
+		     Bio::Biblio::PubmedJournalArticle
 		       )) {
     print sprintf ($format, "new $object"); ok defined ($biblio = new $object);
 }
@@ -284,6 +299,20 @@ my @other_methods_for_medlinebookarticle =
     qw(
      book
      );
+
+
+my @scalar_methods_for_pubmedarticle =
+    qw(
+     pubmed_status
+     pubmed_provider_id
+     );
+my @other_methods_for_pubmedarticle =
+    qw(
+     pubmed_history_list
+     pubmed_article_id_list
+     pubmed_url_list
+     );
+
 
 my @scalar_methods_for_journal =
     qw(
@@ -603,4 +632,26 @@ for (my $i = 0; $i < @args; $i += 2) {
     print sprintf ($format, "   $method"); ok $provider->$method(), $args[$i+1];
 }
 
+#
+# Bio::Biblio::PubmedJournalArticle
+#
+print "Testing Bio::Biblio::PubmedJournalArticle ...\n";
+$citation = new Bio::Biblio::PubmedJournalArticle;
+@args = ();
+$count = 1;
+foreach my $method (@scalar_methods_for_pubmedarticle) {
+    $str = 'string' . ($count++);
+    print sprintf ($format, "set '$method' "); ok $citation->$method ($str), $str;
+    print sprintf ($format, "get '$method' "); ok $citation->$method(), $str;
+    push (@args, ("-$method" => $str));
+}
+print sprintf ($format, "set all attributes in a constructor");
+ok defined ($biblio = new Bio::Biblio::PubmedJournalArticle (@args));
+for (my $i = 0; $i < @args; $i += 2) {
+    my $method = substr ($args[$i], 1);
+    print sprintf ($format, "   $method"); ok $citation->$method(), $args[$i+1];
+}
+foreach my $method (@other_methods_for_pubmedarticle) {
+    print sprintf ($format, "get '$method' "); ok $citation->$method(), undef;
+}
 __END__

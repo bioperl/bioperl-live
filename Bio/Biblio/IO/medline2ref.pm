@@ -115,31 +115,43 @@ sub new {
 #
 # ---------------------------------------------------------------------
 
+sub _load_instance {
+    my ($self, $source) = @_;
+
+    #
+    # MEDLINE has only JournalArticles and BookArticles
+    # but we may create a general Ref if there is no attribute 'article'
+    #
+    my $result;
+    my $article = $$source{'article'};
+    if (defined $article) {
+	if (defined $$article{'journal'}) {
+	    $result = $self->_new_instance ('Bio::Biblio::MedlineJournalArticle');
+	    $result->type ('JournalArticle');
+	} elsif (defined $$article{'book'}) {
+	    $result = $self->_new_instance ('Bio::Biblio::MedlineBookArticle');
+	    $result->type ('BookArticle');
+	} else {
+	    $result->type ('MedlineArticle');
+	}
+    }
+    $result = $self->_new_instance ('Bio::Biblio::Ref') unless defined $result;
+    return $result;
+}
+
 sub convert {
    my ($self, $source) = @_;
+   my $result = $self->_load_instance ($source);
 
-   #
-   # MEDLINE has only JournalArticles and BookArticles
-   # but we may create a general RefI if there is no attribute 'article'
-   #
-   my $result;
-   my $article = $$source{'article'};
-   if (defined $article) {
-       if (defined $$article{'journal'}) {
-	   $result = $self->_new_instance ('Bio::Biblio::MedlineJournalArticle');
-	   $result->type ('JournalArticle');
+   if (defined $result->type) {
+       if ($result->type eq 'JournalArticle') {
 	   &_convert_journal_article ($result, $source);
-       } elsif (defined $$article{'book'}) {
-	   $result = $self->_new_instance ('Bio::Biblio::MedlineBookArticle');
-	   $result->type ('BookArticle');
-	   &_convert_journal_article ($result, $source);
-       } else {
-	   $result->type ('Article');
-	   &_convert_article ($self->_new_instance ('Bio::Biblio::MedlineArticle'), $source);
+       } elsif ($result->type eq 'BookArticle') {
+	   &_convert_book_article ($result, $source);
+       } elsif ($result->type eq 'Article') {
+	   &_convert_article ($result, $source);
        }
-
    }
-   $result = $self->_new_instance ('Bio::Biblio::Ref') unless defined $result;
 
    #
    # now do the attributes which are the same for all resource types
@@ -512,7 +524,8 @@ sub _convert_article {
 #
 sub _convert_providers {
     my ($providers) = @_;
-    return undef unless defined $providers;
+    return () unless defined $providers;
+
     my @results;
     foreach my $provider ( @{ $providers } ) {
 	if (defined $$provider{'personalName'}) {
@@ -524,7 +537,7 @@ sub _convert_providers {
             new Bio::Biblio::Provider;
 	}
     }
-    return undef unless @results;
+    return () unless @results;
     return @results;
 }
 

@@ -118,7 +118,7 @@ sub _initialize {
 
 	# load module with output converter - as defined in $result
 	if (defined &Bio::Biblio::IO::_load_format_module ($result)) {
-	    $SUPER::Convert = "Bio::Biblio::IO::$result"->new (@args);
+	    $Bio::Biblio::IO::medlinexml::Convert = "Bio::Biblio::IO::$result"->new (@args);
 	}
     }
 
