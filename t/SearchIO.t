@@ -20,7 +20,7 @@ BEGIN {
 	use lib 't';
     }
     use vars qw($NTESTS);
-    $NTESTS = 718;
+    $NTESTS = 720;
     $LASTXMLTEST = 54;
     $error = 0;
 
@@ -929,8 +929,11 @@ $result = $searchio->next_result;
 
 ok($result);
 $hit = $result->next_hit;
-ok($hit->accession, 'AE000208');
+ok($hit->accession, 'AE000479');
+ok($hit->bits, 33.6);
 $hsp = $hit->next_hsp;
+ok($hit->hsp->bits,$hsp->bits);
+
 ok($hsp->get_aln->isa('Bio::Align::AlignI'));
 my $writer = Bio::SearchIO::Writer::HitTableWriter->new( 
                                   -columns => [qw(
@@ -956,6 +959,7 @@ ok(-e "searchio.html");
 
 unlink 'searchio.out';
 unlink 'searchio.html';
+
 $searchio = new Bio::SearchIO ('-format' => 'blast',
 			       '-file'   => Bio::Root::IO->catfile('t','data','HUMBETGLOA.tblastx'));
 
