@@ -18,7 +18,7 @@
 
 
 ## We start with some black magic to print on failure.
-BEGIN { $| = 1; print "1..30\n";
+BEGIN { $| = 1; print "1..31\n";
 	use vars qw($loaded); }
 
 END {print "not ok 1\n" unless $loaded;}
