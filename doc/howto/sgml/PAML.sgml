@@ -1,8 +1,9 @@
 <!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook V4.1//EN" [
 <!ENTITY paml "<acronym>PAML</acronym>" >
 ]>
-<article>
+<!-- $Id: PAML.sgml,v 1.3 2003-02-28 09:04:03 jason Exp $ -->
 
+<article>
 <articleinfo>
 
 <title>Bio::Tools::Phylo::PAML HOWTO</title>
@@ -18,6 +19,26 @@
 		</address>
 	</affiliation>
 </author>
+<author>
+	<firstname>Jason</firstname>
+	<surname>Stajich</surname>
+      <affiliation>
+	<orgname><ulink url="http://www.duke.edu">Duke
+	University</ulink></orgname>
+	<orgdiv><ulink url="http://upg.duke.edu">University Program in Genetics</ulink></orgdiv>
+	<orgdiv><ulink url="http://cgt.genetics.duke.edu">Center for
+	Genome Technology</ulink></orgdiv>
+	<address>
+	  Duke University Medical Center
+	  <pob>Box 3568</pob>
+	  <city>Durham, </city>
+	  <state>North Carolina</state> 
+	  <postcode>27710-3568</postcode> 
+	  <country>USA</country>
+	  <email>jason-at-bioperl.org</email>
+        </address>
+	</affiliation>
+</author>
 
 <pubdate>2002-08-01</pubdate>
  
@@ -27,6 +48,12 @@
 		<date>2002-08-01</date>
 		<authorinitials>ajm</authorinitials>
 		<revremark>first draft</revremark>
+	</revision>
+	<revision>
+	        <revnumber>0.2</revnumber>
+		<date>2003-03-01</date>
+		<authorinitials>jes</authorinitials>
+		<revremark>Added pairwise Ka,Ks example code and running code</revremark>
 	</revision>
 </revhistory>
 
@@ -185,11 +212,134 @@ while(my $result = $parser->next_result) {
 
 </section>
 
-<section id="new">
-<title>New Section Title</title>
+<section id="running">
+<title>Running PAML from within Bioperl</title>
 <para>
-	Text here.
+
+       Bioperl also has facilities for runnning &paml; from within a
+       Perl script.  This allows you to compute Ka and Ks estimations
+       from within an analysis pipeline.  The following section will
+       describe the process of getting data into Bioperl, running the
+       alignment process, and setting up a &paml; process.  This code
+       is focusing on estimations of all the pairwise Ka and Ks values
+       however it can be used to easily compute more sophisticated
+       questions about variable rates, etc. 
+              
 </para>
+<para>
+
+       This code below is an excerpt from 
+       scripts/utilities/pairwise_kaks.PLS which will calculate all
+       pairwise Ka,Ks values for a set of cDNA sequences stored in a
+       file.  It will first translate the cDNA into protein and align
+       the protein sequences.  This is a simple way to insure gaps
+       only occur at codon boundaries and amino acid substitution
+       rates are applied when calculating the MSA.  The protein
+       alignment is them projected back into cDNA coordinates using a
+       method called aa_to_dna_aln.  Finally the cDNA alignment is
+       provided to a &paml; executing module which sets up the running
+       parameters and converts the alignment to the appropriate format.
+
+ 
+<programlisting>
+
+use Bio::Tools::Run::Phylo::PAML::Codeml;
+use Bio::Tools::Run::Alignment::Clustalw;
+
+# for projecting alignments from protein to R/DNA space
+use Bio::Align::Utilities qw(aa_to_dna_aln);
+
+# for input of the sequence data
+use Bio::SeqIO;
+use Bio::AlignIO;
+
+my $aln_factory = new Bio::Tools::Run::Alignment::Clustalw();
+
+my $seqdata = 'cdna.fa';
+
+my $seqIO = new Bio::SeqIO(-file   => $seqdata,
+                           -format => 'fasta');
+my %seqs;
+my @prots;
+# process each sequence
+while( my $seq = $seqin->next_seq ) {
+    $seqs{$seq->display_id} = $seq;
+    # translate them into protein
+    my $protein = $seq->translate();
+    my $pseq = $protein->seq();
+    if( $pseq =~ /\*/ && 
+	$pseq !~ /\*$/ ) {
+	warn("provided a cDNA sequence with a stop codon, PAML will choke!");
+	exit(0);
+    }
+    # Tcoffee can't handle '*' even if it is trailing
+    $pseq =~ s/\*//g;
+    $protein->seq($pseq);
+    push @prots, $protein;
+}
+
+if( @prots < 2 ) {
+    warn("Need at least 2 cDNA sequences to proceed");
+    exit(0);
+}
+
+open(OUT, ">align_output.txt") || 
+      die("cannot open output $output for writing");
+# Align the sequences with clustalw
+my $aa_aln = $aln_factory->align(\@prots);
+# project the protein alignment back to cDNA coordinates
+my $dna_aln = &amp;aa_to_dna_aln($aa_aln, \%seqs);
+
+my @each = $dna_aln->each_seq();
+
+my $kaks_factory = new Bio::Tools::Run::Phylo::PAML::Codeml
+                  ( -params => { 'runmode' => -2,
+		                 'seqtype' => 1,
+		               }
+	          );
+
+# set the alignment object
+$kaks_factory->alignment($dna_aln);
+
+# run the KaKs analysis
+my ($rc,$parser) = $kaks_factory->run();
+my $result = $parser->next_result;
+my $MLmatrix = $result->get_MLmatrix();
+
+my @otus = $result->get_seqs();
+# this gives us a mapping from the PAML order of sequences back to 
+# the input order (since names get truncated)
+my @pos = map { 
+    my $c= 1;
+    foreach my $s ( @each ) {
+	last if( $s->display_id eq $_->display_id );
+	$c++;
+    }
+    $c; 
+} @otus; 
+
+print OUT join("\t", qw(SEQ1 SEQ2 Ka Ks Ka/Ks PROT_PERCENTID CDNA_PERCENTID)), "\n";
+for( my $i = 0; $i < (scalar @otus -1) ; $i++) {
+    for( my $j = $i+1; $j < (scalar @otus); $j++ ) {
+	my $sub_aa_aln  = $aa_aln->select_noncont($pos[$i],$pos[$j]);
+	my $sub_dna_aln = $dna_aln->select_noncont($pos[$i],$pos[$j]);
+	print OUT join("\t",  
+		       $otus[$i]->display_id,
+		       $otus[$j]->display_id,$MLmatrix->[$i]->[$j]->{'dN'},
+		       $MLmatrix->[$i]->[$j]->{'dS'},
+		       $MLmatrix->[$i]->[$j]->{'omega'},
+		       sprintf("%.2f",$sub_aa_aln->percentage_identity),
+		       sprintf("%.2f",$sub_dna_aln->percentage_identity),
+		       ), "\n";
+    }
+}
+
+</programlisting>
+</para>
+<para>
+
+</para>
+
 </section>
 
 </article>
