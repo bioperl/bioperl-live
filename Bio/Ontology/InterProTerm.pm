@@ -191,9 +191,10 @@ sub interpro_id{
 
   if( defined $value) {
     $value = $self->_check_interpro_id($value);
+    return $self->identifier($value);
   }
 
-  return $self->identifier($value);
+  return $self->identifier();
 }
 
 =head2 short_name
