@@ -2,22 +2,33 @@
 
 #----------------------------------------------------------------
 # seqs1.pl
-# A minimal script that allows basic printing & reformatting of 
-# sequence data. Illustrates use of seqtools.pl (which uses Bio::SeqIO).
-# See seqs2.pl, seqs3.pl, and seqs4.pl for some more advanced scripts.
-# Author  : Steve Chervitz (sac@neomorphic.com)
+#
+# A minimal script that allows basic printing, reformatting, and
+# filtering of sequence data. Illustrates use of seqtools.pl 
+# (which uses Bio::SeqIO).
+# See seqs2.pl, and seqs3.pl for some more advanced scripts.
+#
+# Author  : Steve Chervitz <sac@bioperl.org>
+#
 # Revision: $Id$
+#
 # Usage   : seqs1.pl -h
+# Examples: seqs1.pl -eg
+#
+# Installation:
+#    Change require "seqtools.pl" to point to the proper location
+#    of the seqtools.pl file within your system.
+#
 # Modified: 
 #  sac, 21 feb 2000: Updated for use with Bio::SeqIO. Little change.
 #  sac, 16 Jun 1998: Added installation comment, require statement comments.
-# SEE ALSO : seqs1.pl, seqs3.pl
+#
 #----------------------------------------------------------------
 
-# Using seqtools.pl in the examples/blast distribution directory:
-require "seqtools.pl"; 
-# Proper path to seqtools.pl after you install it in your system:
-#require "/home/steve/perl/bioperl/examples/seqio/seqtools.pl";
+# Using seqtools.pl in the examples/seq distribution directory.
+# If you install this script on your system, modify this require
+# statement to have the absolute path to seqtools.pl
+require "seqtools.pl";
 
 
 use vars qw($VERSION $DESC);
