@@ -38,9 +38,12 @@ enviroment variable BIOPERL_INDEX. This can be overridden using the
 bpfetch is a wrapper around the bioperl modules which support 
 the Bio::DB::BioSeqI abstract interface. These include:
 
-  James Gilbert - Fasta indexer
+  Author          Code
+
+  James Gilbert - Fasta indexer, Abstract indexer
   Ewan Birney   - EMBL .dat indexer
   Aaron Mackay  - GenBank and GenPept DB access
+  Many people   - SeqIO code
 
 These modules can be used directly, which is far better than using
 this script as a system call or a pipe to read from. Read the
@@ -54,6 +57,11 @@ interface can be used here. For flat file indexers, this is
 best done by extending Bio::Index::Abstract, as is done in
 Bio::Index::EMBL and Bio::Index::Fasta. For access to other
 databases you will need to roll your own interface.
+
+For new output formats, you need to add a new SeqIO module. The
+easiest thing is to look at Bio::SeqIO::Fasta and figure out
+how to hack it for your own format (call it something different
+obviously).
 
 =head1 FEEDBACK
 
@@ -87,7 +95,9 @@ use Getopt::Long;
 
 #
 # Dofus catcher for people who are trying this script without
-# installing bioperl
+# installing bioperl. In your own script, you can just go
+#
+# use Bio::Index::Fasta etc, rather than this
 #
 
 BEGIN {
@@ -118,12 +128,17 @@ BEGIN {
     }
 }
 
+#
+# Start processing the command line
+#
 
-
-my @files = @ARGV;
+my $ret = GetOptions('dir=s' => \$dir,'fmt=s' => \$fmt );
 my $dir = $ENV{'BIOPERL_INDEX'};
 my $fmt = 'Fasta';
-my $ret = GetOptions('dir=s' => \$dir,'fmt=s' => \$fmt );
+
+#
+# print pod documentation if we have no arguments
+#
 
 if( $#ARGV == -1 ) {
     system("perldoc $0");
@@ -132,10 +147,20 @@ if( $#ARGV == -1 ) {
 
 my($isnet,$db,$id,$seq,$seqio,$out);
 
+#
+# Build at run time the SeqIO output
+#
+
 $out = Bio::SeqIO->new(-fh => \*STDOUT , -format => $fmt);
+
+#
+# Main loop over remaining arguments
+#
 
 foreach my $arg ( @ARGV ) {
     $_= $arg;
+
+    # strip out net:: if there
     if( /^net::/ ) {
 	$isnet = 1;
 	s/^net:://;
@@ -143,10 +168,16 @@ foreach my $arg ( @ARGV ) {
 	$isnet = 0;
     }
 
+    # parse to db:id 
 
     /^(\w+)\:(\S+)$/ || do { print STDERR "$_ is not parsed as db:name\n"; next;};
     $db = $1;
     $id = $2;
+
+    #
+    # the eval block catches exceptions if they occur
+    # in the code in the block. The exception goes in $@
+    #
 
     eval {
 	if( $isnet == 1 ) {
@@ -175,6 +206,12 @@ foreach my $arg ( @ARGV ) {
 	warn("Database $db in $arg is not loadable. Skipping\n\nError $@");
 	next;
     }
+
+    #
+    # We expect the databases to adhere to the BioSeqI
+    # the sequence index databases and the GenBank/GenPept do already
+    #
+
     if( ! $db->isa('Bio::DB::BioSeqI') ) {
 	warn("$db in $arg does not inheriet from Bio::DB::BioSeqI, so is not expected to work under the DB guidlines. Going to try it anyway");
     }
