@@ -1,10 +1,10 @@
-
+# $Id$
 #
-# BioPerl module for Bio::LargeSeq
+# BioPerl module for Bio::Seq::LargeSeq
 #
-# Cared for by Jason Stajich
+# Cared for by Ewan Birney, Jason Stajich
 #
-# Copyright Jason Stajich
+# Copyright Ewan Birney, Jason Stajich
 #
 # You may distribute this module under the same terms as perl itself
 
@@ -40,9 +40,8 @@ and other Bioperl modules. Send your comments and suggestions preferably
  to one of the Bioperl mailing lists.
 Your participation is much appreciated.
 
-  vsns-bcd-perl@lists.uni-bielefeld.de          - General discussion
-  vsns-bcd-perl-guts@lists.uni-bielefeld.de     - Technically-oriented discussion
-  http://bio.perl.org/MailList.html             - About the mailing lists
+  bioperl-l@bioperl.org          - General discussion
+  http://www.bioperl.org/MailList.html             - About the mailing lists
 
 =head2 Reporting Bugs
 
@@ -56,8 +55,6 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 =head1 AUTHOR - Ewan Birney
 
 Email birney@ebi.ac.uk
-
-Describe contact details here
 
 =head1 APPENDIX
 
