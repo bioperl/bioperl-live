@@ -46,16 +46,15 @@ of the Bioperl mailing lists.  Your participation is much appreciated.
 =head2 Reporting Bugs
 
 Report bugs to the Bioperl bug tracking system to help us keep track
-the bugs and their resolution.  Bug reports can be submitted via email
-or the web:
+the bugs and their resolution.  Bug reports can be submitted via the web:
 
-  bioperl-bugs@bio.perl.org
   http://bugzilla.bioperl.org/
 
-=head1 AUTHOR - Fugu Team 
+=head1 AUTHOR - Fugu Team, Jason Stajich 
 
  Email: fugui@worf.fugu-sg.org
-
+ Email: jason-at-bioperl.org
+    
 =head1 APPENDIX
 
 The rest of the documentation details each of the object methods. Internal methods are usually preceded with a _
@@ -211,19 +210,23 @@ sub _parse_genes {
     my ($self) = @_;
     my @genes;
     local ($/) = "//";
-    my ($score,$prot_id,$target_id);
 
     while ( defined($_ = $self->_readline) ) {
       	$self->debug( $_ ) if( $self->verbose > 0);
-        ($score) = $_=~ m/Score\s+(\d+[\.][\d]+)/o;
-        $self->_score($score) unless defined $self->_score;
-        ($prot_id) = $_=~ m/Query (?:protein|model):\s+(\S+)/o;
-        $self->_prot_id($prot_id) unless defined $self->_prot_id;
-        ($target_id) = $_=~  m/Target Sequence\s+(\S+)/o;	
-        $self->_target_id($target_id) unless defined $self->_target_id;
-        next unless /Gene\s+\d+\n/o;
+        if( /Score\s+(\-?\d+(\.\d+)?)/ ) {
+	    $self->_score($1);# unless defined $self->_score;
+	    
+	} 
+	if( /Query\s+(?:protein|model)\:\s+(\S+)/ ) {
+	    $self->_prot_id($1); #unless defined $self->_prot_id;
+	} 
+	
+	if( /Target Sequence\s+(\S+)/ ) {	
+	    $self->_target_id($1);# unless defined $self->_target_id;
+	}
+        next unless /Gene\s+\d+\n/;
 
-        my @genes_txt = split(/Gene\s+\d+\n/);
+        my @genes_txt = split(/Gene\s+\d+\n/,$_);
         shift @genes_txt; #remove first empty entry
        
         foreach my $gene_txt (@genes_txt) {
@@ -234,7 +237,7 @@ sub _parse_genes {
 		                       (\d+)\s+       # start (1-based)
 				       (\d+)\s+       # end
 				       (?:\[(\w+)\])? # 
-				       /ox;
+				       /x;
 	    my $g_strand;
 	    my $source_tag = $type ? "$Srctag". "_$type" : $Srctag;
 	    my $genes = new Bio::SeqFeature::Gene::GeneStructure
@@ -258,7 +261,7 @@ sub _parse_genes {
 			             (\d+)\s+        # start (1 based)
 				     (\d+)\s+        # end
 				     phase\s+(\d+)   # phase
-				     /ox;
+				     /x;
 		my $e_strand;
 		($e_start,$e_end,$e_strand) = $self->_get_strand($e_start,
 								 $e_end);
@@ -278,7 +281,7 @@ sub _parse_genes {
 		    $exon->add_tag_value('Target',"Protein:".$self->_prot_id);
 		}
 		$exon->add_tag_value("Exon",$nbr++);
-		if( $e =~ m/Supporting\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)/o) {
+		if( $e =~ m/Supporting\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)/) {
 		    my ($geno_start,$geno_end,
 			$prot_start, $prot_end) = ($1,$2,$3,$4);
 		    my $prot_strand;
@@ -315,6 +318,7 @@ sub _parse_genes {
 		$transcript->add_exon($exon);
 	    }
 	    $transcript->seq_id($self->_target_id);
+	    $transcript->add_tag_value('Id', $self->_prot_id);
 	    $genes->add_transcript($transcript);
 	    $genes->seq_id($self->_target_id);
 	    push @genes, $genes;
